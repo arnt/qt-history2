@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: debug.doc,v 1.5 1995/12/18 16:37:50 hanord Exp $
+** $Id: debug.doc,v 1.6 1995/12/18 16:56:46 hanord Exp $
 **
 ** Qt Debugging Techniques
 **
@@ -127,56 +127,4 @@ Example:
   #endif
   }
 \endcode
-*/
-
-/*!
-  \fn void debug( const char *format, ... )
-  Prints a debug message in a printf-like manner.
-
-  This function prints the text to the \c stderr output under UNIX/X-Windows
-  and to the debugger under Windows.
-
-  You can take over these functions by installing a message handler;
-  qInstallMsgHandler().
-
-  \sa warning(), fatal()
-*/
-
-/*!
-  \fn void warning( const char *format, ... )
-  Prints a warning message in a printf-like manner.
-
-  This function prints the text to the \c stderr output under UNIX/X-Windows
-  and to the debugger under Windows.
-
-  You can take over these functions by installing a message handler;
-  qInstallMsgHandler().
-
-  \sa debug(), fatal()
-*/
-
-
-/*!
-  \fn void fatal( const char *format, ... )
-  Prints a fatal error message in a printf-like manner and exits.
-
-  This function prints the text to the \c stderr output under UNIX/X-Windows
-  and to the debugger under Windows.
-
-  You can take over these functions by installing a message handler;
-  qInstallMsgHandler().
-
-  \sa debug(), warning()
-*/
-
-/*!
-  \fn void ASSERT( bool test )
-  Prints a warning message containing the source code file name and line number
-  if \e test is FALSE.
-
-  This is really a macro defined in qglobal.h.
-
-  ASSERT is useful for testing required conditions in your program.
-
-  \sa warning()
 */
