@@ -219,7 +219,7 @@ public:
 	// emit the generic signal "as is"
 	int index = meta->indexOfSignal( "signal(QString,int,void*)" );
 	if (index != -1) {
-	    void *argv[] = {&signame, &pDispParams->cArgs, &pDispParams->rgvarg};
+	    void *argv[] = {0, &signame, &pDispParams->cArgs, &pDispParams->rgvarg};
 	    combase->qt_metacall(QMetaObject::EmitSignal, index, argv);
 	}
 
@@ -291,7 +291,7 @@ public:
 	// emit the generic signal
 	int index = meta->indexOfSignal( "propertyChanged(QString)" );
 	if (index != -1) {
-	    void *argv[] = {&propname};
+	    void *argv[] = {0, &propname};
 	    combase->qt_metacall(QMetaObject::EmitSignal, index, argv );
 	}
 
