@@ -222,7 +222,7 @@ int main( int argc, char ** argv )
     }
 
     if( resourceDir.isNull() )
-	resourceDir = qInstallPathTranslations();
+	resourceDir = qInstallPath() + QString( "/translations/" );
     if( !QFile::exists( resourceDir ) )
 	fprintf( stderr, "Resource file directory '%s' does not exist!\n", resourceDir.latin1() );
 
