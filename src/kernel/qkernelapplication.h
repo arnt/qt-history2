@@ -15,8 +15,10 @@
 #ifndef QKERNELAPPLICATION_H
 #define QKERNELAPPLICATION_H
 
+#ifndef QT_H
 #include <qobject.h>
 #include <qstringlist.h>
+#endif // QT_H
 
 class QKernelApplicationPrivate;
 class QTextCodec;

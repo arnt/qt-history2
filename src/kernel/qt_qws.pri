@@ -5,7 +5,6 @@ embedded {
 	CONFIG -= x11
 	LIBS -= -dl
 	KERNEL_P        = kernel
-	PREPROCH += HEADERS
 
 	!mac:HEADERS += $$KERNEL_H/qsoundqss_qws.h 
 	HEADERS += $$STYLES_H/qcompactstyle.h \
@@ -58,7 +57,6 @@ embedded {
 		    $$KERNEL_CPP/qpaintdevice_qws.cpp \
 		    $$KERNEL_CPP/qpainter_qws.cpp \
 		    $$KERNEL_CPP/qpixmap_qws.cpp \
-		    $$KERNEL_CPP/qregion_unix.cpp \
 		    $$KERNEL_CPP/qwidget_qws.cpp \
 		    $$KERNEL_CPP/qwindowsystem_qws.cpp \
 		    $$KERNEL_CPP/qwsbeosdecoration_qws.cpp \

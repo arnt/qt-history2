@@ -4,6 +4,10 @@
 #include <qfile.h>
 #include <qtextcodec.h>
 
+#ifdef Q_WS_QWS
+#include <qevent.h>
+#endif
+
 #ifdef QT_THREAD_SUPPORT
 # include <qmutex.h>
 # include <qthread.h>
