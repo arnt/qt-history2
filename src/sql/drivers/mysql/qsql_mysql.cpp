@@ -149,6 +149,15 @@ bool QMYSQLResult::fetch( int i )
     return TRUE;
 }
 
+bool QMYSQLResult::fetchNext()
+{
+    d->row = mysql_fetch_row( d->result );
+    if ( !d->row )
+	return FALSE;
+    setAt( at() + 1 );
+    return TRUE;
+}
+
 bool QMYSQLResult::fetchLast()
 {
     return fetch( mysql_num_rows( d->result ) - 1 );

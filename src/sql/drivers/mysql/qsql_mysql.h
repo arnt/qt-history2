@@ -64,6 +64,7 @@ public:
 protected:
     void		cleanup();
     bool		fetch( int i );
+    bool		fetchNext();
     bool		fetchLast();
     bool		fetchFirst();
     QVariant		data( int field );
