@@ -30,7 +30,7 @@
 #if __BORLANDC__ >= 0x550
 // Borland Builder 6
 
-#ifdef QT_LARGE_FILE_SUPPORT
+#ifdef QT_LARGEFILE_SUPPORT
 #  define QT_STATBUF		struct stati64		// non-ANSI defs
 #  define QT_STATBUF4TSTAT	struct _stati64		// non-ANSI defs
 #  define QT_STAT		::stati64
@@ -80,7 +80,7 @@
 #else
 // Borland Builder 5
 
-#ifdef QT_LARGE_FILE_SUPPORT
+#ifdef QT_LARGEFILE_SUPPORT
 #  define QT_STATBUF		struct stati64		// non-ANSI defs
 #  define QT_STATBUF4TSTAT	struct stati64		// non-ANSI defs
 #  define QT_STAT		::stati64
