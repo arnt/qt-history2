@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#151 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#152 $
 **
 ** Implementation of QObject class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#151 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#152 $");
 
 
 /*!
@@ -445,7 +445,9 @@ bool QObject::isA( const char *clname ) const
 
 /*!
   Returns TRUE if this object is an instance of a class that inherits
-  \e clname.  (A class is considered to inherit itself.)
+  \e clname, and \a clname inherits QObject.
+  
+  (A class is considered to inherit itself.)
 
   Example:
   \code
@@ -453,6 +455,10 @@ bool QObject::isA( const char *clname ) const
     t->inherits("QTimer");		// returns TRUE
     t->inherits("QObject");		// returns TRUE
     t->inherits("QButton");		// returns FALSE
+
+    QScrollBar * s = new QScrollBar;	// inherits QWidget and QRangeControl
+    s->inherits( "QWidget" );		// returns TRUE
+    s->inherits( "QRangeControl" ); 	// returns FALSE
   \endcode
 
   \sa isA(), metaObject()
@@ -1078,7 +1084,7 @@ static void err_member_notfound( int code, const QObject *object,
 }
 
 
-static void err_info_about_objects( const char * func, 
+static void err_info_about_objects( const char * func,
 				    const QObject * sender,
 				    const QObject * receiver )
 {

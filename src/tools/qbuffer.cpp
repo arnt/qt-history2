@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#35 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#36 $
 **
 ** Implementation of QBuffer class
 **
@@ -12,7 +12,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#36 $");
 
 
 /*!
@@ -23,7 +23,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#35 $");
   \ingroup stream
 
   QBuffer is an I/O device for reading and writing a memory buffer. A
-  QFile may be used directly (readBlock() and writeBlock()) or more
+  QBuffer may be used directly (readBlock() and writeBlock()) or more
   conveniently via QDataStream or QTextStream.  Most of its behavior
   is inherited from QIODevice.
 
