@@ -307,6 +307,175 @@ public:
 #define q q_func()
 
 /*!
+  \class QFileDialog
+  \brief The QFileDialog class provides a dialog that allow users to select files or directories.
+  \ingroup dialogs
+  \mainclass
+
+  The QFileDialog class enables a user to traverse the file system in
+  order to select one or many files or a directory.
+
+  The easiest way to create a QFileDialog is to use the static
+  functions. On Windows, these static functions will call the native
+  Windows file dialog, and on Mac OS X these static function will call
+  the native Mac OS X file dialog.
+
+  \code
+    QString s = QFileDialog::getOpenFileName(
+            "/home",
+            "Images (*.png *.xpm *.jpg)",
+            this,
+            "open file dialog",
+            "Choose a file");
+  \endcode
+
+  In the above example, a modal QFileDialog is created using a static
+  function. The dialog initially displays the contents of the "/home"
+  directory, and displays files matching the patterns given in the
+  string "Images (*.png *.xpm *.jpg)". The parent of the file dialog
+  is set to \e this, and the dialog is named "open file dialog".
+  The caption at the top of file dialog is set to "Choose a file"
+  instead of the default.
+
+  If you want to use multiple filters, separate each one with
+  \e two semicolons. For example:
+  \code
+  "Images (*.png *.xpm *.jpg);;Text files (*.txt);;XML files (*.xml)"
+  \endcode
+
+  You can create your own QFileDialog without using the static
+  functions. By calling setMode(), you can specify what the user must
+  select in the dialog:
+
+  \code
+    QFileDialog *fd = new QFileDialog(this);
+    fd->setMode(QFileDialog::AnyFile);
+  \endcode
+
+  In the above example, the mode of the file dialog is set to \c
+  AnyFile, meaning that the user can select any file, or even specify a
+  file that doesn't exist. This mode is useful for creating a
+  "Save As" file dialog. Use \c ExistingFile if the user must select an
+  existing file, or \c Directory if only a directory may be selected.
+  See the \l QFileDialog::FileMode enum for the complete list of modes.
+
+  You can retrieve the dialog's mode with mode(). Use setFilter() to set
+  the dialog's file filter. For example:
+
+  \code
+    fd->setFilter( "Images (*.png *.xpm *.jpg)" );
+  \endcode
+
+  In the above example, the filter is set to "Images (*.png *.xpm
+  *.jpg)", this means that only files with the extension \c png, \c xpm,
+  or \c jpg will be shown in the QFileDialog. You can apply
+  several filters by using setFilters(), and add additional filters with
+  addFilter(). Use setSelectedFilter() to select one of the filters
+  you've given as the file dialog's default filter. Whenever the user
+  changes the filter the filterSelected() signal is emitted.
+
+  The file dialog has two view modes: QFileDialog::List and
+  QFileDialog::Detail.
+  QFileDialog::List presents the contents of the current directory as a
+  list of file and directory names. QFileDialog::Detail also displays a
+  list of file and directory names, but provides additional information
+  alongside each name, such as the file size and modification date.
+  Set the mode with setViewMode().
+
+  \code
+    fd->setViewMode(QFileDialog::Detail);
+  \endcode
+
+  The last important function you will need to use when creating your
+  own file dialog is selectedFile().
+
+  \code
+    QString fileName;
+    if (fd->exec() == QDialog::Accepted)
+        fileName = fd->selectedFile();
+  \endcode
+
+  In the above example, a modal file dialog is created and shown. If
+  the user clicked OK, the file they selected is put in \c fileName.
+
+  If you are using the \c ExistingFiles mode then you will need to use
+  selectedFiles() which returns the selected files in a QStringList.
+
+  The dialog's working directory can be set with setDirectory().
+  The display of hidden files is controlled with showHidden().
+  The dialog can be forced to refresh the directory display with reload()
+  and sort the directory with sortByDate(), sortByName(), and
+  sortBySize(). Each file in the current directory can be selected using
+  the selectFile() function.
+
+  \section1 Creating and using preview widgets
+
+  A preview widget is a widget that is placed inside a QFileDialog so
+  that the user can see either the contents of the file, or information
+  about the file.
+
+  There are two kinds of preview widgets that can be used with
+  QFileDialogs: \e content preview widgets and \e information preview
+  widgets. They are created and used with the setContentsPreview() and
+  setInfoPreview() functions.
+
+  \code
+    class Preview : public QLabel, public QFilePreview
+    {
+    public:
+        Preview(QWidget *parent=0) : QLabel(parent) {}
+
+        void previewUrl(const QUrl &u) {
+            QString path = u.path();
+            QPixmap pix(path);
+            if (pix.isNull())
+                setText("This is not a pixmap");
+            else
+                setPixmap(pix);
+        }
+    };
+  \endcode
+
+  In the above snippet, we create a preview widget which inherits from
+  QLabel and QFilePreview. File preview widgets \e must inherit from
+  QFilePreview.
+
+  Inside the class we reimplement QFilePreview::previewUrl(); this is
+  where we determine what happens when a file is selected. In the
+  above example we only show a preview of the file if it is a valid
+  pixmap. Here's how to make a file dialog use a preview widget:
+
+  \code
+    Preview* preview = new Preview;
+
+    QFileDialog* dialog = new QFileDialog(this);
+    dialog->setContentsPreviewEnabled(true);
+    dialog->setContentsPreview(preview, preview);
+    dialog->setPreviewMode(QFileDialog::Contents);
+    dialog->show();
+  \endcode
+
+  The first line creates an instance of our preview widget. We create
+  our file dialog, and call setContentsPreviewEnabled(true) to preview
+  the contents of the currently selected file. We then call
+  setContentsPreview() -- note that we pass the same preview widget
+  twice. Finally, before showing the file dialog, we call
+  setPreviewMode(), setting the mode to \e Contents. As a result, the
+  file dialog will show the contents preview of the file that the user
+  has selected.
+
+  If you create another preview widget that is used for displaying
+  information about a file, create it in the same way as the contents
+  preview widget then call setInfoPreviewEnabled() and setInfoPreview().
+  The user will be able to switch between the two preview modes.
+
+  For more information about creating a QFilePreview widget see
+  \l{QFilePreview}.
+
+  <img src=qfiledlg-m.png> <img src=qfiledlg-w.png>
+*/
+
+/*!
     \enum QFileDialog::ViewMode
 
     This enum describes the view mode of the file dialog; i.e. what
@@ -365,7 +534,7 @@ QFileDialog::~QFileDialog()
 }
 
 /*!
-    Sets the file dialog's \a directory. (This is also applied to the
+    Sets the file dialog's current \a directory. (This is also applied to the
     underlying model.)
 */
 
@@ -393,7 +562,7 @@ QDir QFileDialog::directory() const
 }
 
 /*!
-    Selects the given \a filename in the file dialog and in the
+    Selects the given \a filename in both the file dialog and the
     underlying model.
 */
 
@@ -443,18 +612,18 @@ QStringList QFileDialog::selectedFiles() const
 }
 
 /*!
-  Sets the filter used in the file dialog to \a filter.
+  Sets the filter used in the file dialog to the given \a filter.
 
   If \a filter contains a pair of parentheses containing one or more
-  of \bold{anything*something} separated by spaces or by
-  semi-colons then only the text contained in the parentheses is used as
+  of \bold{anything*something}, separated by spaces or by
+  semicolons then only the text contained in the parentheses is used as
   the filter. This means that these calls are all equivalent:
 
   \code
-     fd->setFilter( "All C++ files (*.cpp *.cc *.C *.cxx *.c++)" );
-     fd->setFilter( "*.cpp *.cc *.C *.cxx *.c++" );
-     fd->setFilter( "All C++ files (*.cpp;*.cc;*.C;*.cxx;*.c++)" );
-     fd->setFilter( "*.cpp;*.cc;*.C;*.cxx;*.c++" );
+     fd->setFilter("All C++ files (*.cpp *.cc *.C *.cxx *.c++)");
+     fd->setFilter("*.cpp *.cc *.C *.cxx *.c++");
+     fd->setFilter("All C++ files (*.cpp;*.cc;*.C;*.cxx;*.c++)");
+     fd->setFilter("*.cpp;*.cc;*.C;*.cxx;*.c++");
   \endcode
 
   \sa setFilters()
@@ -468,8 +637,8 @@ void QFileDialog::setFilter(const QString &filter)
 }
 
 /*!
-  Sets the filters used in the file dialog to \a filters. Each group
-  of filters must be separated by \c{;;} (\e two semi-colons).
+  Sets the \a filters used in the file dialog. Each group
+  of filters must be separated by \c{;;} (\e two semicolons).
 
   \code
     QString types("Image files (*.png *.xpm *.jpg);;"
@@ -503,7 +672,9 @@ QStringList QFileDialog::filters() const
 
 /*!
     Sets the current file type \a filter. Multiple filters can be
-    passed in \a filter by separating them with semi-colons or spaces.
+    passed in \a filter by separating them with semicolons or spaces.
+
+    \sa setFilter() setFilters()
 */
 
 void QFileDialog::selectFilter(const QString &filter)
@@ -639,7 +810,7 @@ void QFileDialog::reject()
 }
 
 /*!
-    \reimp
+    Navigates to the last directory viewed in the dialog.
 */
 
 void QFileDialog::back()
@@ -723,8 +894,8 @@ void QFileDialog::showDetail()
 }
 
 /*!
-    This is called when the user double-clicks on a a file; the file's
-    model index is passed in \a index.
+    This is called when the user double clicks on a file with the corresponding
+    model item \a index.
 */
 
 void QFileDialog::doubleClicked(const QModelIndex &index)
@@ -740,8 +911,8 @@ void QFileDialog::doubleClicked(const QModelIndex &index)
 }
 
 /*!
-    This is called when the user presses delete on a a file; the
-    file's model index is passed in \a index.
+    This is called when the user requests that a file be deleted; the
+    corresponding model index is passed in \a index.
 */
 
 void QFileDialog::deletePressed(const QModelIndex &index)
@@ -755,8 +926,8 @@ void QFileDialog::deletePressed(const QModelIndex &index)
 /*!
     \fn void QFileDialog::currentChanged(const QModelIndex &index, const QModelIndex &current)
 
-    This is called when the model index (current file) is changed from
-    \a index to \a current.
+    This is called when the model index corresponding to the current file is changed
+    from \a index to \a current.
 */
 
 void QFileDialog::currentChanged(const QModelIndex &, const QModelIndex &current)
@@ -937,6 +1108,8 @@ void QFileDialog::headerClicked(int section)
 }
 
 /*!
+    Tells the dialog to rename the currently selected item using input from
+    the user.
 */
 
 void QFileDialog::renameCurrent()
