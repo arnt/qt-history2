@@ -370,6 +370,7 @@ private slots:
 #ifndef QT_NO_QWS_MULTIPROCESS
     void clientClosed();
     void doClient();
+    void deleteWindowsLater();
 #endif
 
     void screenSaverWake();

@@ -81,9 +81,11 @@ public:
 	saver = 0;
 	cursorClient = 0;
 	mouseState = 0;
+	deletedWindows.setAutoDelete( TRUE );
     }
     ~QWSServerData()
     {
+	deletedWindows.clear();
 	delete [] screensaverintervals;
 	delete saver;
     }
@@ -94,6 +96,7 @@ public:
     QWSClient *cursorClient;
     int mouseState;
     bool prevWin;
+    QPtrList<QWSWindow> deletedWindows;
 };
 
 QWSScreenSaver::~QWSScreenSaver()
@@ -832,11 +835,13 @@ void QWSServer::clientClosed()
 		manager()->removeProperties( w->winId() );
 #endif
 		emit windowEvent( w, Destroy );
-		delete w; //windows is not auto-delete
+		d->deletedWindows.append(w);
 	    } else {
 	        ++i;
 	    }
 	}
+	if ( d->deletedWindows.count() )
+	    QTimer::singleShot(0, this, SLOT(deleteWindowsLater()) );
     }
     client.remove( cl->socket() );
     if ( cl == d->cursorClient )
@@ -845,6 +850,12 @@ void QWSServer::clientClosed()
     exposeRegion( exposed );
     syncRegions();
 }
+
+void QWSServer::deleteWindowsLater()
+{
+    d->deletedWindows.clear();
+}
+
 #endif //QT_NO_QWS_MULTIPROCESS
 
 
@@ -1516,7 +1527,7 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
 	qWarning("Invalid window handle %08x",cmd->simpleData.windowid);
 	client->sendRegionModifyEvent( cmd->simpleData.windowid, QRegion(), TRUE );
 	return;
-    }
+    } 
     if ( !changingw->forClient(client) ) {
 	qWarning("Disabled: clients changing other client's window region");
 	return;
