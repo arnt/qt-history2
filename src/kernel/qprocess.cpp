@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#28 $
 **
 ** Implementation of QProcess class
 **
@@ -84,7 +84,7 @@
   uic -tr i18n "small dialog.ui"
   \endcode
 
-  \dontinclude process/process.cpp
+  \walkthrough process/process.cpp
 
   A code snippet for this with the QProcess class could look like this:
 
