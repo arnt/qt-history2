@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#41 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#42 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#41 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#42 $";
 #endif
 
 
@@ -76,7 +76,7 @@ char *qstrdup( const char *str )
 	return 0;
     char *dst = new char[strlen(str)+1];
     CHECK_PTR( dst );
-    return strcpy( dst, str );
+    return cstrcpy( dst, str );
 }
 
 /*----------------------------------------------------------------------------
@@ -121,7 +121,7 @@ char *qstrncpy( char *dst, const char *src, uint len )
 {
     if ( !src )
 	return 0;
-    strncpy( dst, src, len );
+    cstrncpy( dst, src, len );
     if ( len > 0 )
 	dst[len-1] = '\0';
     return dst;
