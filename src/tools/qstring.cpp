@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#57 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#58 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#57 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#58 $")
 
 
 /*****************************************************************************
@@ -224,7 +224,7 @@ int qstrnicmp( const char *str1, const char *str2, uint len )
     int res;
     uchar c;
     if ( !s1 || !s2 )
-	return (int)((long)s2 - (long)s1); // ### !!!
+	return (int)((long)s2 - (long)s1);
     for ( ; len--; s1++, s2++ ) {
 	if ( (res = (c=tolower(*s1)) - tolower(*s2)) )
 	    return res;
@@ -464,7 +464,7 @@ QString::QString( const char *str )		// deep copy
   Example:
   \code
     QString s = "truncate this string";
-    s.truncate( 5 );			// s == "trunc"
+    s.truncate( 5 );				// s == "trunc"
   \endcode
 
   \sa resize()
@@ -478,7 +478,7 @@ QString::QString( const char *str )		// deep copy
   Example:
   \code
     QString s = "resize this string";
-    s.resize( 7 );			// s == "resize"
+    s.resize( 7 );				// s == "resize"
   \endcode
 
   \sa truncate()
@@ -545,7 +545,7 @@ QString &QString::sprintf( const char *format, ... )
   resize the string, otherwise TRUE is returned.
  ----------------------------------------------------------------------------*/
 
-bool QString::fill( char c, int len )		// fill string with c
+bool QString::fill( char c, int len )
 {
     if ( len < 0 )
 	len = length();
@@ -578,7 +578,7 @@ int QString::find( char c, int index, bool cs ) const
 	c = tolower( c );
 	while ( *d && tolower(*d) != c )
 	    d++;
-	if ( !*d )				// not found
+	if ( !*d && c )				// not found
 	    d = 0;
     }
     return d ? (int)(d - data()) : -1;
@@ -605,7 +605,7 @@ int QString::find( const char *str, int index, bool cs ) const
 	d = data()+index;
 	int len = strlen( str );
 	while ( *d ) {
-	    if ( tolower(*d) == tolower(*str) && strnicmp(d, str, len) == 0 )
+	    if ( strnicmp(d, str, len) == 0 )
 		break;
 	    d++;
 	}
@@ -627,20 +627,25 @@ int QString::find( const char *str, int index, bool cs ) const
 
 int QString::findRev( char c, int index, bool cs ) const
 {
+    char *b = data();
+    char *d;
     if ( index < 0 ) {				// neg index ==> start from end
-	index = length() - 1;
-	if ( index <= 0 )
+	if ( size() == 0 )
 	    return -1;
+	if ( cs ) {
+	    d = strrchr( (const char *)b, c );
+	    return d ? (int)(d - b) : -1;
+	}
+	index = length();
     }
     else if ( (uint)index >= size() )		// bad index
 	return -1;
-    char *b = data();
-    register char *d = b+index;
+    d = b+index;
     if ( cs ) {					// case sensitive
 	while ( d >= b && *d != c )
 	    d--;
     }
-    else {
+    else {					// case insensitive
 	c = tolower( c );
 	while ( d >= b && tolower(*d) != c )
 	    d--;
@@ -739,7 +744,7 @@ int QString::contains( const char *str, bool cs ) const
 		count++;
 	}
 	else {
-	    if ( tolower(*d) == tolower(*str) && strnicmp( d, str, len ) == 0 )
+	    if ( strnicmp(d, str, len) == 0 )
 		count++;
 	}
 	d++;
@@ -820,7 +825,7 @@ QString QString::right( uint len ) const
   Example:
   \code
     QString s = "Two pineapples";
-    QString t = s.mid( 4, 4 );		// t == "pine"
+    QString t = s.mid( 4, 4 );			// t == "pine"
   \endcode
 
   \sa left(), right()
@@ -854,7 +859,7 @@ QString QString::mid( uint index, uint len ) const
   Example:
   \code
     QString s("apple");
-    QString t = s.leftJustify(8, '.');	// t == "apple..."
+    QString t = s.leftJustify(8, '.');		// t == "apple..."
   \endcode
 
   \sa rightJustify()
@@ -927,7 +932,7 @@ QString QString::rightJustify( uint width, char fill, bool truncate ) const
   Example:
   \code
     QString s("TeX");
-    QString t = s.lower();		// t == "tex"
+    QString t = s.lower();			// t == "tex"
   \endcode
 
   \sa upper()
@@ -955,7 +960,7 @@ QString QString::lower() const
   Example:
   \code
     QString s("TeX");
-    QString t = s.upper();		// t == "TEX"
+    QString t = s.upper();			// t == "TEX"
   \endcode
 
   \sa lower()
@@ -983,7 +988,7 @@ QString QString::upper() const
   Example:
   \code
     QString s = " space ";
-    QString t = s.stripWhiteSpace();	// t == "space"
+    QString t = s.stripWhiteSpace();		// t == "space"
   \endcode
 
   \sa simplifyWhiteSpace()
@@ -1066,9 +1071,9 @@ QString QString::simplifyWhiteSpace() const
 
   \code
     QString s = "I like fish";
-    s.insert( 2, "don't ");		// s == "I don't like fish"
+    s.insert( 2, "don't ");			// s == "I don't like fish"
     s = "x";
-    s.insert( 3, "yz" );		// s == "x  yz"
+    s.insert( 3, "yz" );			// s == "x  yz"
   \endcode
  ----------------------------------------------------------------------------*/
 
@@ -1102,7 +1107,7 @@ QString &QString::insert( uint index, const char *s )
   Example:
   \code
     QString s = "Yes";
-    s.insert( 3, '!');			// s == "Yes!"
+    s.insert( 3, '!');				// s == "Yes!"
   \endcode
 
   \sa remove(), replace()
@@ -1125,7 +1130,7 @@ QString &QString::insert( uint index, char c )	// insert char
 
   \code
     QString s = "It's a black rug";
-    s.remove( 8, 6 );			// s == "It's a bug"
+    s.remove( 8, 6 );				// s == "It's a bug"
   \endcode
 
   \sa insert(), replace()
@@ -1155,7 +1160,7 @@ QString &QString::remove( uint index, uint len )
 
   \code
     QString s = "Say yes!";
-    s.replace( 4, 3, "NO" );		// s == "Say NO!"
+    s.replace( 4, 3, "NO" );			// s == "Say NO!"
   \endcode
 
   \sa insert(), remove()
@@ -1482,73 +1487,6 @@ QString &QString::operator+=( char c )
 }
 
 
-/*----------------------------------------------------------------------------
-  \fn bool QString::operator==( const QString &s ) const
-  Returns TRUE if the string is equal to \e s, or FALSE if they are
-  different.
-  \sa operator!=()
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  \fn bool QString::operator!=( const QString &s ) const
-  Returns TRUE if the string is different from \e s, or FALSE if they are
-  equal.
-  \sa operator==()
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  \fn bool QString::operator==( const char *s ) const
-  Returns TRUE if the string is equal to \e s, or FALSE if they are
-  different.
-  \sa operator!=()
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  \fn bool QString::operator!=( const char *s ) const
-  Returns TRUE if the string is different from \e s, or FALSE if they are
-  equal.
-  \sa operator==()
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  \fn bool QString::operator==( char *s ) const
-  Returns TRUE if the string is equal to \e s, or FALSE if they are
-  different.
-  \sa operator!=()
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  \fn bool QString::operator!=( char *s ) const
-  Returns TRUE if the string is different from \e s, or FALSE if they are
-  equal.
-  \sa operator==()
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  \fn bool QString::operator<( const char *s ) const
-  Returns TRUE if the string is less than \e s, otherwise FALSE.
-  \sa operator>(), operator<=(), operator>=()
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  \fn bool QString::operator>( const char *s ) const
-  Returns TRUE if the string is greater than \e s, otherwise FALSE.
-  \sa operator<(), operator<=(), operator>=()
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  \fn bool QString::operator<=( const char *s ) const
-  Returns TRUE if the string is less than or equal to \e s, otherwise FALSE.
-  \sa operator<(), operator>(), operator>=()
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  \fn bool QString::operator>=( const char *s ) const
-  Returns TRUE if the string is greater than or equal to \e s, otherwise FALSE.
-  \sa operator<(), operator>(), operator<=()
- ----------------------------------------------------------------------------*/
-
-
 /*****************************************************************************
   QString stream functions
  *****************************************************************************/
@@ -1584,3 +1522,121 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 	s.readRawBytes( str.data(), (uint)len );
     return s;
 }
+
+
+/*****************************************************************************
+  Documentation for related functions
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+  \fn bool operator==( const QString &s1, const QString &s2 )
+  Returns TRUE if the two strings are equal, or FALSE if they are different.
+  Equivalent to <code>strcmp(s1,s2) == 0</code>.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool operator==( const QString &s1, const char *s2 )
+  Returns TRUE if the two strings are equal, or FALSE if they are different.
+  Equivalent to <code>strcmp(s1,s2) == 0</code>.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool operator==( const char *s1, const QString &s2 )
+  Returns TRUE if the two strings are equal, or FALSE if they are different.
+  Equivalent to <code>strcmp(s1,s2) == 0</code>.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool operator!=( const QString &s1, const QString &s2 )
+  Returns TRUE if the two strings are different, or FALSE if they are equal.
+  Equivalent to <code>strcmp(s1,s2) != 0</code>.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool operator!=( const QString &s1, const char *s2 )
+  Returns TRUE if the two strings are different, or FALSE if they are equal.
+  Equivalent to <code>strcmp(s1,s2) != 0</code>.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool operator!=( const char *s1, const QString &s2 )
+  Returns TRUE if the two strings are different, or FALSE if they are equal.
+  Equivalent to <code>strcmp(s1,s2) != 0</code>.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool operator<( const QString &s1, const char *s2 )
+  Returns TRUE if \e s1 is alphabetically less than \e s2, otherwise FALSE.
+  Equivalent to <code>strcmp(s1,s2) < 0</code>.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool operator<( const char *s1, const QString &s2 )
+  Returns TRUE if \e s1 is alphabetically less than \e s2, otherwise FALSE.
+  Equivalent to <code>strcmp(s1,s2) < 0</code>.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool operator<=( const QString &s1, const char *s2 )
+  Returns TRUE if \e s1 is alphabetically less than or equal to \e s2,
+  otherwise FALSE.
+  Equivalent to <code>strcmp(s1,s2) <= 0</code>.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool operator<=( const char *s1, const QString &s2 )
+  Returns TRUE if \e s1 is alphabetically less than or equal to \e s2,
+  otherwise FALSE.
+  Equivalent to <code>strcmp(s1,s2) <= 0</code>.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool operator>( const QString &s1, const char *s2 )
+  Returns TRUE if \e s1 is alphabetically greater than \e s2, otherwise FALSE.
+  Equivalent to <code>strcmp(s1,s2) > 0</code>.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool operator>( const char *s1, const QString &s2 )
+  Returns TRUE if \e s1 is alphabetically greater than \e s2, otherwise FALSE.
+  Equivalent to <code>strcmp(s1,s2) > 0</code>.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool operator>=( const QString &s1, const char *s2 )
+  Returns TRUE if \e s1 is alphabetically greater than or equal to \e s2,
+  otherwise FALSE.
+  Equivalent to <code>strcmp(s1,s2) >= 0</code>.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool operator>=( const char *s1, const QString &s2 )
+  Returns TRUE if \e s1 is alphabetically greater than or equal to \e s2,
+  otherwise FALSE.
+  Equivalent to <code>strcmp(s1,s2) >= 0</code>.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QString operator+( const QString &s1, const QString &s2 )
+  Returns the concatenated string of s1 and s2.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QString operator+( const QString &s1, const char *s2 )
+  Returns the concatenated string of s1 and s2.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QString operator+( const char *s1, const QString &s2 )
+  Returns the concatenated string of s1 and s2.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QString operator+( const QString &s, char c )
+  Returns the concatenated string of s and c.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QString operator+( char c, const QString &s )
+  Returns the concatenated string of c and s.
+ ----------------------------------------------------------------------------*/
