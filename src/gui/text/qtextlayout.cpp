@@ -1397,6 +1397,7 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
                 gf.width = w;
                 gf.flags ^= QTextItem::Underline;
                 p->drawTextItem(QPoint(qRound(x), qRound(y)), gf);
+                gf.flags ^= QTextItem::Underline;
                 ++gf.chars;
                 x += w;
                 ++ul;
