@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#183 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#184 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -2071,7 +2071,14 @@ void QString::setExpand( uint index, QChar c )
 
 /*!
   \fn bool QString::operator!() const
-  Returns TRUE if it is a null string, otherwise FALSE.
+  Returns TRUE if it is a null string, otherwise FALSE.  Thus
+  you can write:
+
+\code
+  QString name = getName();
+  if ( !name )
+    name = "Rodney";
+\endcode
 */
 
 

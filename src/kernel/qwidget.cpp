@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#365 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#366 $
 **
 ** Implementation of QWidget class
 **
@@ -1972,7 +1972,9 @@ const QCursor &QWidget::cursor() const
 
 
 /*!
-  Returns the widget caption, or null if no caption has been set.
+  Returns the widget caption, or a
+  \link QString::operator!() null string\endlink
+  if no caption has been set.
   \sa setCaption(), icon(), iconText()
 */
 
