@@ -268,6 +268,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		      << "# End Source File" << endl;
 		}
 	    }
+	    else if( variable == "MSVCDSP_CONFIGMODE" ) {
+		if( project->isActiveConfig( "release" ) )
+		    t << "Release";
+		else
+		    t << "Debug";
+	    }
 	    else
 		t << var(variable);
 	}

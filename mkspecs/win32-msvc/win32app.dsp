@@ -4,7 +4,7 @@
 
 # TARGTYPE "Win32 (x86) $$MSVCDSP_CONSOLE Application" $$MSVCDSP_DSPTYPE
 
-CFG=$$MSVCDSP_PROJECT - Win32 Debug
+CFG=$$MSVCDSP_PROJECT - Win32 $$MSVCDSP_CONFIGMODE
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 

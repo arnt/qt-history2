@@ -4,7 +4,7 @@
 
 # TARGTYPE "Win32 (x86) Dynamic-Link Library" 0x0102
 
-CFG=$$MSVCDSP_PROJECT - Win32 Debug
+CFG=$$MSVCDSP_PROJECT - Win32 $$MSVCDSP_CONFIGMODE
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
