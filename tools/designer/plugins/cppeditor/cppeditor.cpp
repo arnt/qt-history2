@@ -32,7 +32,8 @@
 CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name, DesignerInterface *i )
     : Editor( fn, parent, name ), dIface( i )
 {
-    dIface->addRef();
+	if ( dIface )
+		dIface->addRef();
     document()->setPreProcessor( new SyntaxHighlighter_CPP );
     document()->setIndent( new CIndent );
     completion = new CppEditorCompletion( this );
@@ -45,7 +46,8 @@ CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name, Desi
 
 CppEditor::~CppEditor()
 {
-    dIface->release();
+	if ( dIface )
+	    dIface->release();
 }
 
 void CppEditor::configChanged()
@@ -88,6 +90,8 @@ QPopupMenu *CppEditor::createPopupMenu()
 
 void CppEditor::addInclDecl()
 {
+	if ( !dIface )
+		return;
     QString s = QInputDialog::getText( tr( "Add Include File (In Declaration)" ),
 				       tr( "You should input that in the form <b>&lt;include.h&gt;</b> or <b>\"include.h\"</b>" ) );
     if ( s.isEmpty() )
@@ -100,6 +104,8 @@ void CppEditor::addInclDecl()
 
 void CppEditor::addInclImpl()
 {
+	if ( !dIface )
+		return;
     QString s = QInputDialog::getText( tr( "Add Include File (In Implementation)" ),
 				       tr( "You should input that in the form <b>&lt;include.h&gt;</b> or <b>\"include.h\"</b>" ) );
     if ( s.isEmpty() )
@@ -112,6 +118,8 @@ void CppEditor::addInclImpl()
 
 void CppEditor::addForward()
 {
+	if ( !dIface )
+		return;
     QString s = QInputDialog::getText( tr( "Add Forward Declaration" ),
 				       tr( "You should input that in the form <b>ClassName;</b>" ) );
     DesignerFormWindow *form = dIface->currentForm();
@@ -122,6 +130,8 @@ void CppEditor::addForward()
 
 void CppEditor::addVar()
 {
+	if ( !dIface )
+		return;
     QString s = QInputDialog::getText( tr( "Add Class Variable" ),
 				       tr( "You should input that in the form <b>type var;</b>" ) );
     DesignerFormWindow *form = dIface->currentForm();
