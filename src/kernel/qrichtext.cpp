@@ -2571,6 +2571,20 @@ void QTextDocument::draw( QPainter *p, const QRect &rect, const QColorGroup &cg,
 	p->fillRect( rect, *paper );
     }
 
+    if ( formatCollection()->defaultFormat()->color() != cg.text() ) {
+	QDict<QTextFormat> formats = formatCollection()->dict();
+	QDictIterator<QTextFormat> it( formats );
+	while ( it.current() ) {
+	    if ( it.current() == formatCollection()->defaultFormat() ) {
+		++it;
+		continue;
+	    }
+	    it.current()->setColor( cg.text() );
+	    ++it;
+	}
+	formatCollection()->defaultFormat()->setColor( cg.text() );
+    }
+
     QTextParag *parag = firstParag();
     while ( parag ) {
 	if ( !parag->isValid() )

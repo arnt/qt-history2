@@ -741,7 +741,10 @@ void QLabel::drawContents( QPainter *p )
 	    cg.setColor( QColorGroup::Text, cg.light() );
 	    doc->draw(p, cr.x()+xo+1, cr.y()+yo+1, cr, cg, 0);
 	}
-	doc->draw(p, cr.x()+xo, cr.y()+yo, cr, colorGroup(), 0);
+	QColorGroup cg( colorGroup() );
+	if ( inherits( "QTipLabel" ) )
+	    cg.setColor( QColorGroup::Text, black );
+	doc->draw(p, cr.x()+xo, cr.y()+yo, cr, cg, 0);
     } else
 #endif
 #ifndef QT_NO_PICTURE
