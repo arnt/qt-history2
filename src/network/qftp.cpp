@@ -48,56 +48,9 @@
 #include "qfileinfo.h"
 #include "qptrdict.h" // binary compatibility
 
-//#define QFTP_DEBUG
-//#define QFTP_COMMANDSOCKET_DEBUG
 //#define QFTPPI_DEBUG
 //#define QFTPDTP_DEBUG
 
-/*!
-    \class QFtp qftp.h
-    \brief The QFtp class provides an implementation of the FTP protocol.
-
-    \ingroup io
-    \module network
-
-    This class is derived from QNetworkProtocol. QFtp is not normally
-    used directly, but rather through a QUrlOperator, for example:
-
-    \code
-    QUrlOperator op( "ftp://ftp.trolltech.com" );
-    op.listChildren(); // Asks the server to provide a directory listing
-    \endcode
-
-    This code will only work if the QFtp class is registered; to
-    register the class, you must call qInitNetworkProtocols() before
-    using a QUrlOperator with QFtp.
-
-    If you really need to use QFtp directly, don't forget to set its
-    QUrlOperator with setUrl().
-
-    \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
-*/
-
-/*!
-    Constructs a QFtp object.
-*/
-
-QFtp::QFtp()
-    : QNetworkProtocol(), connectionReady( FALSE ),
-      passiveMode( FALSE ), startGetOnFail( FALSE ),
-      errorInListChildren( FALSE )
-{
-#if defined(QFTP_DEBUG)
-    qDebug( "QFtp::QFtp" );
-#endif
-    init();
-}
-
-
-
-/////////////////////////////////////////////////
-// new stuff
-//
 
 class QFtpPI;
 
@@ -1041,33 +994,55 @@ static QFtpPrivate* d( const QFtp* foo )
     return ret;
 }
 
-#if 0
-static bool has_d( const QFtp* foo )
-{
-    return d_ptr && d_ptr->find( (void*)foo );
-}
-#endif
-
 static void delete_d( const QFtp* foo )
 {
     if ( d_ptr )
 	d_ptr->remove( (void*) foo );
 }
 
-/*!
-  Constructs a QFtp object.  The \a parent and \a name parameters are passed to
-  the QObject constructor.
-*/
-
 /**********************************************************************
  *
  * QFtp implementation
  *
  *********************************************************************/
-QFtp::QFtp( QObject *parent, const char *name )
-    : QNetworkProtocol(), connectionReady( FALSE ),
-      passiveMode( FALSE ), startGetOnFail( FALSE ),
-      errorInListChildren( FALSE )
+/*!
+    \class QFtp qftp.h
+    \brief The QFtp class provides an implementation of the FTP protocol.
+
+    \ingroup io
+    \module network
+
+    This class is derived from QNetworkProtocol. QFtp is not normally
+    used directly, but rather through a QUrlOperator, for example:
+
+    \code
+    QUrlOperator op( "ftp://ftp.trolltech.com" );
+    op.listChildren(); // Asks the server to provide a directory listing
+    \endcode
+
+    This code will only work if the QFtp class is registered; to
+    register the class, you must call qInitNetworkProtocols() before
+    using a QUrlOperator with QFtp.
+
+    If you really need to use QFtp directly, don't forget to set its
+    QUrlOperator with setUrl().
+
+    \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
+*/
+
+/*!
+    Constructs a QFtp object.
+*/
+QFtp::QFtp() : QNetworkProtocol()
+{
+    init();
+}
+
+/*!
+  Constructs a QFtp object.  The \a parent and \a name parameters are passed to
+  the QObject constructor.
+*/
+QFtp::QFtp( QObject *parent, const char *name ) : QNetworkProtocol()
 {
     if ( parent )
 	parent->insertChild( this );
@@ -1077,38 +1052,6 @@ QFtp::QFtp( QObject *parent, const char *name )
 
 void QFtp::init()
 {
-    ///////////////////////////////////////////////////////////
-    // ### old stuff -- cleanup when you are done with rewrite
-    ///////////////////////////////////////////////////////////
-    commandSocket = new QSocket( this, "command socket" );
-    dataSocket = new QSocket( this, "data socket" );
-
-    connect( commandSocket, SIGNAL( hostFound() ),
-	     this, SLOT( hostFound() ) );
-    connect( commandSocket, SIGNAL( connected() ),
-	     this, SLOT( connected() ) );
-    connect( commandSocket, SIGNAL( connectionClosed() ),
-	     this, SLOT( closed() ) );
-    connect( commandSocket, SIGNAL( readyRead() ),
-	     this, SLOT( slotReadyRead() ) );
-    connect( commandSocket, SIGNAL( error( int ) ),
-	     this, SLOT( error( int ) ) );
-    connect( dataSocket, SIGNAL( hostFound() ),
-	     this, SLOT( dataHostFound() ) );
-    connect( dataSocket, SIGNAL( connected() ),
-	     this, SLOT( dataConnected() ) );
-    connect( dataSocket, SIGNAL( connectionClosed() ),
-	     this, SLOT( dataClosed() ) );
-    connect( dataSocket, SIGNAL( readyRead() ),
-	     this, SLOT( dataReadyRead() ) );
-    connect( dataSocket, SIGNAL( bytesWritten( int ) ),
-	     this, SLOT( dataBytesWritten( int ) ) );
-    connect( dataSocket, SIGNAL( error( int ) ),
-	     this, SLOT( error( int ) ) );
-
-    ///////////////////////////////////////////////////////////
-    // ### new stuff -- keep it
-    ///////////////////////////////////////////////////////////
     QFtpPrivate *d = ::d( this );
     d->errorString = tr( "Unknown error" );
 
@@ -1652,7 +1595,6 @@ QString QFtp::errorString() const
     return d->errorString;
 }
 
-
 int QFtp::addCommand( QFtpCommand *cmd )
 {
     QFtpPrivate *d = ::d( this );
@@ -1810,197 +1752,159 @@ void QFtp::piFtpReply( int code, const QString &text )
 	emit rawCommandReply( code, text );
 }
 
-//
-//  end of new stuff
-/////////////////////////////////////////////////
-
-
-
-
-
-
 /*!
   Destructor
 */
-
 QFtp::~QFtp()
 {
-#if defined(QFTP_DEBUG)
-    qDebug( "QFtp::~QFtp" );
-#endif
-
-    closeInternal();
-    delete commandSocket;
-    delete dataSocket;
-
     abort();
     delete_d( this );
 }
 
+/**********************************************************************
+ *
+ * QFtp implementation of the QNetworkProtocol interface
+ *
+ *********************************************************************/
+void QFtp::initNetworkProtocol()
+{
+    connect( this, SIGNAL(listInfo(const QUrlInfo &)),
+	    this, SLOT(npListInfo(const QUrlInfo &)) );
+    connect( this, SIGNAL(done(bool)),
+	    this, SLOT(npDone(bool)) );
+    connect( this, SIGNAL(stateChanged(int)),
+	    this, SLOT(npStateChanged(int)) );
+    connect( this, SIGNAL(dataTransferProgress(int,int)),
+	    this, SLOT(npDataTransferProgress(int,int)) );
+    connect( this, SIGNAL(readyRead()),
+	    this, SLOT(npReadyRead()) );
+}
+
+void QFtp::resetNetworkProtocol()
+{
+    disconnect( this, SIGNAL(listInfo(const QUrlInfo &)),
+	    this, SLOT(npListInfo(const QUrlInfo &)) );
+    disconnect( this, SIGNAL(done(bool)),
+	    this, SLOT(npDone(bool)) );
+    disconnect( this, SIGNAL(stateChanged(int)),
+	    this, SLOT(npStateChanged(int)) );
+    disconnect( this, SIGNAL(dataTransferProgress(int,int)),
+	    this, SLOT(npDataTransferProgress(int,int)) );
+    disconnect( this, SIGNAL(readyRead()),
+	    this, SLOT(npReadyRead()) );
+}
+
 /*!  \reimp
 */
-
 void QFtp::operationListChildren( QNetworkOperation *op )
 {
+    initNetworkProtocol();
     op->setState( StInProgress );
-    errorInListChildren = FALSE;
-    passiveMode = FALSE;
-#if defined(QFTP_DEBUG)
-    qDebug( "QFtp: switch command socket to passive mode!" );
-#endif
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-    qDebug( "QFtp S: PASV" );
-#endif
-    commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
+
+    QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
+    QString pass = url()->password().isEmpty() ? QString( "anonymous@" ) : url()->password();
+
+    connectToHost( url()->host(), url()->port() != -1 ? url()->port() : 21 );
+    login( user, pass );
+    cd( url()->path().isEmpty() ? QString( "/" ) : url()->path() );
+    list();
+    close();
+    emit start( operationInProgress() );
 }
 
 /*!  \reimp
 */
-
 void QFtp::operationMkDir( QNetworkOperation *op )
 {
+    initNetworkProtocol();
     op->setState( StInProgress );
-    QString cmd( "MKD " + op->arg( 0 ) + "\r\n" );
-    if ( QUrl::isRelativeUrl( op->arg( 0 ) ) )
-	cmd = "MKD " + QUrl( *url(), op->arg( 0 ) ).path() + "\r\n";
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-    qDebug( "QFtp S: %s", cmd.latin1() );
-#endif
-    commandSocket->writeBlock( cmd, cmd.length() );
+
+    QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
+    QString pass = url()->password().isEmpty() ? QString( "anonymous@" ) : url()->password();
+
+    connectToHost( url()->host(), url()->port() != -1 ? url()->port() : 21 );
+    login( user, pass );
+    mkdir( op->arg( 0 ) );
+    close();
 }
 
 /*!  \reimp
 */
-
 void QFtp::operationRemove( QNetworkOperation *op )
 {
-    // put the operation in StWaiting state first until the CWD command
-    // succeeds
-    op->setState( StWaiting );
-    QString path = url()->path().isEmpty() ? QString( "/" ) : url()->path();
-    QString cmd = "CWD " + path + "\r\n";
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-    qDebug( "QFtp S: %s", cmd.latin1() );
-#endif
-    commandSocket->writeBlock( cmd.latin1(), cmd.length() );
+    initNetworkProtocol();
+    op->setState( StInProgress );
+
+    QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
+    QString pass = url()->password().isEmpty() ? QString( "anonymous@" ) : url()->password();
+
+    connectToHost( url()->host(), url()->port() != -1 ? url()->port() : 21 );
+    login( user, pass );
+    cd( url()->path().isEmpty() ? QString( "/" ) : url()->path() );
+    remove( QUrl( operationInProgress()->arg( 0 ) ).path() );
+    close();
 }
 
 /*!  \reimp
 */
-
 void QFtp::operationRename( QNetworkOperation *op )
 {
-    // put the operation in StWaiting state first until the CWD command
-    // succeeds
-    op->setState( StWaiting );
-    QString path = url()->path().isEmpty() ? QString( "/" ) : url()->path();
-    QString cmd = "CWD " + path + "\r\n";
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-    qDebug( "QFtp S: %s", cmd.latin1() );
-#endif
-    commandSocket->writeBlock( cmd.latin1(), cmd.length() );
+    initNetworkProtocol();
+    op->setState( StInProgress );
+
+    QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
+    QString pass = url()->password().isEmpty() ? QString( "anonymous@" ) : url()->password();
+
+    connectToHost( url()->host(), url()->port() != -1 ? url()->port() : 21 );
+    login( user, pass );
+    cd( url()->path().isEmpty() ? QString( "/" ) : url()->path() );
+    rename( operationInProgress()->arg( 0 ), operationInProgress()->arg( 1 ));
+    close();
 }
 
 /*!  \reimp
 */
-
 void QFtp::operationGet( QNetworkOperation *op )
 {
+    initNetworkProtocol();
     op->setState( StInProgress );
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-    qDebug( "QFtp S: TYPE I" );
-#endif
-    commandSocket->writeBlock( "TYPE I\r\n", 8 );
+
+    QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
+    QString pass = url()->password().isEmpty() ? QString( "anonymous@" ) : url()->password();
+    QUrl u( operationInProgress()->arg( 0 ) );
+
+    connectToHost( u.host(), u.port() != -1 ? u.port() : 21 );
+    login( user, pass );
+    get( u.path() );
+    close();
 }
 
 /*!  \reimp
 */
-
 void QFtp::operationPut( QNetworkOperation *op )
 {
+    initNetworkProtocol();
     op->setState( StInProgress );
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-    qDebug( "QFtp S: TYPE I" );
-#endif
-    commandSocket->writeBlock( "TYPE I\r\n", 8 );
+
+    QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
+    QString pass = url()->password().isEmpty() ? QString( "anonymous@" ) : url()->password();
+    QUrl u( operationInProgress()->arg( 0 ) );
+
+    connectToHost( u.host(), u.port() != -1 ? u.port() : 21 );
+    login( user, pass );
+    put( operationInProgress()->rawArg(1), u.path() );
+    close();
 }
 
 /*!  \reimp
 */
-
-bool QFtp::checkConnection( QNetworkOperation * )
+bool QFtp::checkConnection( QNetworkOperation *op )
 {
-#if defined(QFTP_DEBUG)
-    qDebug( "QFtp (" + url()->toString() + "): checkConnection" );
-#endif
-    if ( commandSocket->isOpen() && connectionReady && !passiveMode ) {
-#if defined(QFTP_DEBUG)
-	qDebug( "QFtp: connection ok!" );
-#endif
-	return TRUE;
-    }
-    if ( commandSocket->isOpen() ) {
-// #if defined(QFTP_DEBUG)
-//	qDebug( "QFtp: command socket open but connection not ok!" );
-// #endif
-	return FALSE;
-    }
-    if ( commandSocket->state() == QSocket::Connecting ) {
-#if defined(QFTP_DEBUG)
-	qDebug( "QFtp::checkConnection(): already trying to connect" );
-#endif
-	return FALSE;
-    }
-
-    connectionReady = FALSE;
-
-    switch ( operationInProgress()->operation() )
-    {
-	case OpGet:
-	case OpPut:
-	    {
-		QUrl u( operationInProgress()->arg( 0 ) );
-		commandSocket->connectToHost( u.host(),
-			u.port() != -1 ? u.port() : 21 );
-	    }
-	    break;
-	default:
-	    commandSocket->connectToHost( url()->host(),
-		    url()->port() != -1 ? url()->port() : 21 );
-	    break;
-    }
-
-#if defined(QFTP_DEBUG)
-	qDebug( "QFtp: try connecting!" );
-#endif
-    return FALSE;
-}
-
-/*!
-    Closes the command and data connections to the FTP server
-*/
-
-void QFtp::closeInternal()
-{
-#if defined(QFTP_DEBUG)
-    qDebug( "QFtp:: close and quit" );
-#endif
-
-    if ( dataSocket->isOpen() ) {
-	dataSocket->close();
-    }
-    if ( commandSocket->isOpen() ) {
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-	qDebug( "QFtp S: quit" );
-#endif
-	commandSocket->writeBlock( "quit\r\n", strlen( "quit\r\n" ) );
-	commandSocket->close();
-    }
+    return QNetworkProtocol::checkConnection( op );
 }
 
 /*!  \reimp
 */
-
 int QFtp::supportedOperations() const
 {
     return OpListChildren | OpMkDir | OpRemove | OpRename | OpGet | OpPut;
@@ -2011,622 +1915,150 @@ int QFtp::supportedOperations() const
     listing which came from the FTP server, and sets the values which
     have been parsed to the url info object, \a info.
 */
-
 void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 {
     QFtpDTP::parseDir( buffer, url()->user(), &info );
 }
 
-/*!  \internal
-*/
-
-void QFtp::hostFound()
+void QFtp::npListInfo( const QUrlInfo & i )
 {
-    if ( url() )
-	emit connectionStateChanged( ConHostFound, tr( "Host %1 found" ).arg( url()->host() ) );
-    else
-	emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
+    emit newChild( i, operationInProgress() );
 }
 
-/*!  \internal
-*/
-
-void QFtp::connected()
+void QFtp::npDone( bool err )
 {
-    if ( url() )
-	emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url()->host() ) );
-    else
-	emit connectionStateChanged( ConConnected, tr( "Connected to host" ) );
-}
-
-/*!  \internal
-*/
-
-void QFtp::closed()
-{
-    if ( url() )
-	emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url()->host() ) );
-    else
-	emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
-}
-
-/*!  \internal
-    If data has arrived on the command socket, this slot is called.
-    The function looks at the data and passes it on to an appropriate
-    handler function.
-*/
-
-void QFtp::slotReadyRead()
-{
-    while ( commandSocket->canReadLine() ) {
-	// read line with respect to line continuation
-	static QCString s;
-	QCString line = commandSocket->readLine().utf8();
-	if ( s.isEmpty() )
-	    s = line.left( 3 ) + " "; // add reply code for the first line
-	while ( !(line[0]==s[0] && line[1]==s[1] && line[1]==s[1] && line[3]==' ') ) {
-	    s += line.mid( 4 ); // strip reply codes
-	    if ( !commandSocket->canReadLine() )
-		return;
-	    line = commandSocket->readLine().utf8();
-	}
-	s += line.mid( 4 );
-
-	if ( !url() )
-	    return;
-
-	bool ok = FALSE;
-	int code = s.left( 3 ).toInt( &ok );
-	if ( !ok )
-	    return;
-
-#if defined(QFTP_DEBUG)
-	if ( s.size() < 400 )
-	    qDebug( "QFtp: readyRead; %s", s.data() );
-#endif
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-	if ( s.size() < 400 )
-	    qDebug( "QFtp R: %s", s.data() );
-	else
-	    qDebug( "QFtp R: More than 400 bytes received. Not printing." );
-#endif
-
-	if ( s.left( 1 ) == "1" )
-	    okButTryLater( code, s );
-	else if ( s.left( 1 ) == "2" )
-	    okGoOn( code, s );
-	else if ( s.left( 1 ) == "3" )
-	    okButNeedMoreInfo( code, s );
-	else if ( s.left( 1 ) == "4" )
-	    errorForNow( code, s );
-	else if ( s.left( 1 ) == "5" )
-	    errorForgetIt( code, s );
-
-	s = "";
-    }
-}
-
-/*
-  Handles responses from the server which say that
-  something couldn't be done at the moment, but should be tried again later.
-*/
-
-void QFtp::okButTryLater( int, const QCString & )
-{
-    if ( operationInProgress() && operationInProgress()->operation() == OpPut &&
-	    dataSocket && dataSocket->isOpen() ) {
-	putToWrite = operationInProgress()->rawArg(1).size();
-	putWritten = 0;
-	if ( putToWrite == 0 )
-	    dataBytesWritten( 0 );
-	else
-	    dataSocket->writeBlock( operationInProgress()->rawArg(1), putToWrite );
-    }
-}
-
-/*
-  Handles success responses from the server. The success code is in \a
-  code and the data is in \a data.
-*/
-
-void QFtp::okGoOn( int code, const QCString &data )
-{
-    switch ( code ) {
-    case 213: { // state of a file (size and so on)
-	if ( operationInProgress() ) {
-	    if ( operationInProgress()->operation() == OpGet ) {
-		// cut off the "213 "
-		QString s( data );
-		s.remove( 0, 4 );
-		s = s.simplifyWhiteSpace();
-		getTotalSize = s.toInt();
-		operationInProgress()->setState( StInProgress );
-		startGetOnFail = FALSE;
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-		qDebug( "QFtp S: PASV" );
-#endif
-		commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
-	    }
-	}
-    } break;
-    case 200: { // last command ok
-	if ( operationInProgress() ) {
-	    if ( operationInProgress()->operation() == OpPut ) {
-		operationInProgress()->setState( StInProgress );
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-		qDebug( "QFtp S: PASV" );
-#endif
-		commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
-	    } else if ( operationInProgress()->operation() == OpGet ) {
-		startGetOnFail = TRUE;
-		getTotalSize = -1;
-		getDoneSize = 0;
-		QString cmd = "SIZE "+ QUrl( operationInProgress()->arg( 0 ) ).path() + "\r\n";
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-		qDebug( "QFtp S: %s", cmd.latin1() );
-#endif
-		commandSocket->writeBlock( cmd.latin1(), cmd.length() );
-	    }
-	}
-    } break;
-    case 220: { // expect USERNAME
-#if defined(QFTP_DEBUG)
-	qDebug( "QFtp: start login porcess" );
-#endif
-	QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
-	QString cmd = "USER " + user + "\r\n";
-#if defined(QFTP_DEBUG)
-	qDebug( "QFtp: write to command socket: \"%s\"", cmd.latin1() );
-#endif
-
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-	qDebug( "QFtp S: %s", cmd.latin1() );
-#endif
-	commandSocket->writeBlock( cmd, cmd.length() );
-	connectionReady = FALSE;
-    } break;
-    case 230: // succesfully logged in
-#if defined(QFTP_DEBUG)
-	qDebug( "QFtp: connection is ready, successful logged int!" );
-#endif
-	connectionReady = TRUE;
-	break;
-    case 227: { // open the data connection (passive mode)
-#if defined(QFTP_DEBUG)
-	qDebug( "QFtp: command socket switched to passive mode, open data connection" );
-#endif
-	QCString s = data;
-	int i = s.find( "(" );
-	int i2 = s.find( ")" );
-	if ( i<0 || i2<0 ) {
-#if defined(QFTP_DEBUG)
-	    qDebug( "QFtp: bad 227 response -- address and port information missing" );
-#endif
-	    break;
-	}
-	s = s.mid( i + 1, i2 - i - 1 );
-	if ( dataSocket->isOpen() )
-	    dataSocket->close();
-	QStringList lst = QStringList::split( ',', s );
-	int port = ( lst[ 4 ].toInt() << 8 ) + lst[ 5 ].toInt();
-	dataSocket->connectToHost( lst[ 0 ] + "." + lst[ 1 ] + "." + lst[ 2 ] + "." + lst[ 3 ], port );
-    } break;
-    case 250: { // file operation succesfully
-	if ( operationInProgress() && !passiveMode &&
-	     operationInProgress()->operation() == OpListChildren ) { // list dir
-	    if ( !errorInListChildren ) {
-		operationInProgress()->setState( StInProgress );
-#if defined(QFTP_DEBUG)
-		qDebug( "QFtp: list children (command socket is passive!" );
-#endif
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-		qDebug( "QFtp S: LIST" );
-#endif
-		commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
-		emit QNetworkProtocol::start( operationInProgress() );
-		passiveMode = TRUE;
-	    }
-	} else if ( operationInProgress() &&
-		    operationInProgress()->operation() == OpRename ) { // rename successfull
-	    if ( operationInProgress()->state() == StWaiting ) {
-		operationInProgress()->setState( StInProgress );
-		QString oldname = operationInProgress()->arg( 0 );
-		QString newname = operationInProgress()->arg( 1 );
-		QString cmd( "RNFR " + oldname + "\r\n" );
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-		qDebug( "QFtp S: %s", cmd.latin1() );
-#endif
-		commandSocket->writeBlock( cmd, cmd.length() );
-		cmd = "RNTO " + newname + "\r\n";
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-		qDebug( "QFtp S: %s", cmd.latin1() );
-#endif
-		commandSocket->writeBlock( cmd, cmd.length() );
-	    } else {
-		operationInProgress()->setState( StDone );
-		emit itemChanged( operationInProgress() );
-		emit finished( operationInProgress() );
-	    }
-	} else if ( operationInProgress() &&
-		    operationInProgress()->operation() == OpRemove ) { // remove or cwd successful
-	    if ( operationInProgress()->state() == StWaiting ) {
-		operationInProgress()->setState( StInProgress );
-		QString name = QUrl( operationInProgress()->arg( 0 ) ).path();
-		QString cmd( "DELE " + name + "\r\n" );
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-		qDebug( "QFtp S: %s", cmd.latin1() );
-#endif
-		commandSocket->writeBlock( cmd, cmd.length() );
-	    } else {
-		operationInProgress()->setState( StDone );
-		emit removed( operationInProgress() );
-		emit finished( operationInProgress() );
-	    }
-	}
-    } break;
-    case 226:
-	if ( !passiveMode && operationInProgress() && !errorInListChildren
-		&& operationInProgress()->operation() == OpPut )
-	{
-	    // data socket closing
-	    operationInProgress()->setState( StDone );
-	    emit finished( operationInProgress() );
-	}
-	// else just listing directory (in passive mode) finished
-	break;
-    case 257: { // mkdir worked
-	if ( operationInProgress() && operationInProgress()->operation() == OpMkDir ) {
-	    operationInProgress()->setState( StDone );
-	    // ######## todo get correct info
-	    QUrlInfo inf( operationInProgress()->arg( 0 ), 0, "", "", 0, QDateTime(),
-			  QDateTime(), TRUE, FALSE, FALSE, TRUE, TRUE, TRUE );
-	    emit newChild( inf, operationInProgress() );
-	    emit createdDirectory( inf, operationInProgress() );
-	    reinitCommandSocket();
-	    emit finished( operationInProgress() );
-	}
-    } break;
-    }
-}
-
-/*
-  Handles responses from the server which request more information.
-  The code in \a code indicates the kind of information that is
-  required.
-*/
-
-void QFtp::okButNeedMoreInfo( int code, const QCString & )
-{
-    switch ( code ) {
-    case 331: {		// expect PASSWORD
-#if defined(QFTP_DEBUG)
-	qDebug( "QFtp: write password" );
-#endif
-	QString pass = url()->password().isEmpty() ? QString( "anonymous@" ) : url()->password();
-	QString cmd = "PASS " + pass + "\r\n";
-#if defined(QFTP_DEBUG)
-	qDebug( "QFtp: write to command socket: \"%s\"", cmd.latin1() );
-#endif
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-	qDebug( "QFtp S: %s", cmd.latin1() );
-#endif
-	commandSocket->writeBlock( cmd, cmd.length() );
-	connectionReady = FALSE;
-    } break;
-    }
-}
-
-/*
-  Handles error messages from the server.
-*/
-
-void QFtp::errorForNow( int, const QCString &data )
-{
-    QString msg( data.mid( 4 ) );
-    msg = msg.simplifyWhiteSpace();
     QNetworkOperation *op = operationInProgress();
-    if ( op ) {
-	op->setProtocolDetail( msg );
-	op->setState( StFailed );
+    if ( err ) {
+	if ( op ) {
+	    op->setProtocolDetail( errorString() );
+	    op->setState( StFailed );
+	    if ( error() == HostNotFound ) {
+		op->setErrorCode( (int)ErrHostNotFound );
+	    } else {
+		switch ( op->operation() ) {
+		    case OpListChildren:
+			op->setErrorCode( (int)ErrListChildren );
+			break;
+		    case OpMkDir:
+			op->setErrorCode( (int)ErrMkDir );
+			break;
+		    case OpRemove:
+			op->setErrorCode( (int)ErrRemove );
+			break;
+		    case OpRename:
+			op->setErrorCode( (int)ErrRename );
+			break;
+		    case OpGet:
+			op->setErrorCode( (int)ErrGet );
+			break;
+		    case OpPut:
+			op->setErrorCode( (int)ErrPut );
+			break;
+		}
+	    }
+	    emit finished( op );
+	}
+    } else {
 	switch ( op->operation() ) {
-	    case OpListChildren:
-		op->setErrorCode( (int)ErrListChildren );
+	    case OpRemove:
+		emit removed( op );
 		break;
 	    case OpMkDir:
-		op->setErrorCode( (int)ErrMkDir );
-		break;
-	    case OpRemove:
-		op->setErrorCode( (int)ErrRemove );
+		{
+		    QUrlInfo inf( op->arg( 0 ), 0, "", "", 0, QDateTime(),
+			    QDateTime(), TRUE, FALSE, FALSE, TRUE, TRUE, TRUE );
+		    emit newChild( inf, op );
+		    emit createdDirectory( inf, op );
+		}
 		break;
 	    case OpRename:
-		op->setErrorCode( (int)ErrRename );
+		emit itemChanged( operationInProgress() );
 		break;
-	    case OpGet:
-		op->setErrorCode( (int)ErrGet );
-		break;
-	    case OpPut:
-		op->setErrorCode( (int)ErrPut );
+	    default:
 		break;
 	}
+	op->setState( StDone );
 	emit finished( op );
     }
-    reinitCommandSocket();
+    resetNetworkProtocol();
 }
 
-/*
-  Handles fatal error messages from the server (after this nothing more
-  can be done). The error code is in \a code and the data is in \a data.
-*/
-
-void QFtp::errorForgetIt( int code, const QCString &data )
+void QFtp::npStateChanged( int state )
 {
-    if ( startGetOnFail ) {
-	operationInProgress()->setState( StInProgress );
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-	qDebug( "QFtp S: PASV" );
-#endif
-	commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
-	startGetOnFail = FALSE;
-	return;
-    }
-
-    switch ( code ) {
-    case 530: { // Login incorrect
-	closeInternal();
-	QString msg( tr( "Login Incorrect" ) );
-	QNetworkOperation *op = operationInProgress();
-	if ( op ) {
-	    op->setProtocolDetail( msg );
-	    op->setState( StFailed );
-	    op->setErrorCode( (int)ErrLoginIncorrect );
-	}
-	reinitCommandSocket();
-	clearOperationQueue();
-	emit finished( op );
-    } break;
-    case 550: { // no such file or directory
-	QString msg( data.mid( 4 ) );
-	msg = msg.simplifyWhiteSpace();
-	QNetworkOperation *op = operationInProgress();
-	if ( op ) {
-	    op->setProtocolDetail( msg );
-	    op->setState( StFailed );
-	    op->setErrorCode( (int)ErrFileNotExisting );
-	}
-	errorInListChildren = TRUE;
-	reinitCommandSocket();
-	emit finished( op );
-    } break;
-    case 553: { // permission denied
-	QString msg( data.mid( 4 ) );
-	msg = msg.simplifyWhiteSpace();
-	QNetworkOperation *op = operationInProgress();
-	if ( op ) {
-	    op->setProtocolDetail( msg );
-	    op->setState( StFailed );
-	    op->setErrorCode( (int)ErrPermissionDenied );
-	}
-	reinitCommandSocket();
-	emit finished( op );
-    } break;
-    default: {
-	// other permanent failure (we don't know the details)
-	errorForNow( code, data );
-    } break;
+    if ( url() ) {
+	if ( state == Connecting )
+	    emit connectionStateChanged( ConHostFound, tr( "Host %1 found" ).arg( url()->host() ) );
+	else if ( state == Connected )
+	    emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url()->host() ) );
+	else if ( state == Unconnected )
+	    emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url()->host() ) );
+    } else {
+	if ( state == Connecting )
+	    emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
+	else if ( state == Connected )
+	    emit connectionStateChanged( ConConnected, tr( "Connected to host" ) );
+	else if ( state == Unconnected )
+	    emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
     }
 }
 
+void QFtp::npDataTransferProgress( int bDone, int bTotal )
+{
+    emit QNetworkProtocol::dataTransferProgress( bDone, bTotal, operationInProgress() );
+}
+
+void QFtp::npReadyRead()
+{
+    emit data( readAll(), operationInProgress() );
+}
+
+// ### unused -- delete in Qt 4.0
 /*!  \internal
 */
-
+void QFtp::hostFound()
+{
+}
+/*!  \internal
+*/
+void QFtp::connected()
+{
+}
+/*!  \internal
+*/
+void QFtp::closed()
+{
+}
+/*!  \internal
+*/
 void QFtp::dataHostFound()
 {
 }
-
 /*!  \internal
-    Some operations require a data connection to the server. If this
-    connection could be opened, this function handles the data
-    connection.
 */
-
 void QFtp::dataConnected()
 {
-#if defined(QFTP_DEBUG)
-    qDebug( "QFtp: data socket connected" );
-#endif
-    if ( !operationInProgress() )
-	return;
-    switch ( operationInProgress()->operation() ) {
-    case OpListChildren: { // change dir first
-	QString path = url()->path().isEmpty() ? QString( "/" ) : url()->path();
-	QString cmd = "CWD " + path + "\r\n";
-#if defined(QFTP_DEBUG)
-	qDebug( "QFtp: list children (data socket), to command socket write \"%s\"", cmd.latin1() );
-#endif
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-	qDebug( "QFtp S: %s", cmd.latin1() );
-#endif
-	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
-    } break;
-    case OpGet: { // retrieve file
-	if ( !operationInProgress() || operationInProgress()->arg( 0 ).isEmpty() ) {
-	    qWarning( "no filename" );
-	    break;
-	}
-	QString cmd = "RETR " + QUrl( operationInProgress()->arg( 0 ) ).path() + "\r\n";
-#if defined(QFTP_DEBUG)
-	qDebug( "QFtp: get (data socket), to command socket write \"%s\"", cmd.latin1() );
-#endif
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-	qDebug( "QFtp S: %s", cmd.latin1() );
-#endif
-	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
-	emit QNetworkProtocol::dataTransferProgress( 0, getTotalSize, operationInProgress() );
-    } break;
-    case OpPut: { // upload file
-	if ( !operationInProgress() || operationInProgress()->arg( 0 ).isEmpty() ) {
-	    qWarning( "no filename" );
-	    break;
-	}
-	QString cmd = "STOR " + QUrl( operationInProgress()->arg( 0 ) ).path() + "\r\n";
-#if defined(QFTP_DEBUG)
-	qDebug( "QFtp: put (data socket), to command socket write \"%s\"", cmd.latin1() );
-#endif
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-	qDebug( "QFtp S: %s", cmd.latin1() );
-#endif
-	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
-    } break;
-    case OpMkDir: {
-    } break;
-    case OpRemove: {
-    } break;
-    case OpRename: {
-    } break;
-    }
 }
-
 /*!  \internal
-    This function is called when the data connection has been closed.
 */
-
 void QFtp::dataClosed()
 {
-    if ( operationInProgress() ) {
-	if ( operationInProgress()->operation() == OpPut )
-	    return;
-
-	passiveMode = FALSE;
-	if ( !errorInListChildren ) {
-	    operationInProgress()->setState( StDone );
-	    emit finished( operationInProgress() );
-	}
-    }
-
-    // switch back to ASCII mode
-#if defined(QFTP_COMMANDSOCKET_DEBUG)
-    qDebug( "QFtp S: TYPE A" );
-#endif
-    commandSocket->writeBlock( "TYPE A\r\n", 8 );
-
-    reinitCommandSocket();
 }
-
 /*!  \internal
-    This function is called when new data has arrived on the data socket.
 */
-
 void QFtp::dataReadyRead()
 {
-#if defined(QFTP_DEBUG)
-    qDebug( "QFtp: read on data socket" );
-#endif
-    if ( !operationInProgress() )
-	return;
-
-    switch ( operationInProgress()->operation() ) {
-    case OpListChildren: { // parse directory entry
-	if ( !dataSocket->canReadLine() )
-	    break;
-	while ( dataSocket->canReadLine() ) {
-	    QString ss = dataSocket->readLine();
-	    ss = ss.stripWhiteSpace();
-	    QUrlInfo inf;
-	    parseDir( ss, inf );
-	    if ( !inf.name().isEmpty() ) {
-		if ( url() ) {
-		    QRegExp filt( url()->nameFilter(), FALSE, TRUE );
-		    if ( inf.isDir() || filt.search( inf.name() ) != -1 ) {
-			emit newChild( inf, operationInProgress() );
-		    }
-		}
-	    }
-	}
-    } break;
-    case OpGet: {
-	QByteArray s;
-	int bytesAvailable = dataSocket->bytesAvailable();
-	s.resize( bytesAvailable );
-	int bytesRead = dataSocket->readBlock( s.data(), bytesAvailable );
-	if ( bytesRead <= 0 )
-	    break; // error
-	if ( bytesRead != bytesAvailable )
-	    s.resize( bytesRead );
-	emit data( s, operationInProgress() );
-	getDoneSize += bytesRead;
-	emit QNetworkProtocol::dataTransferProgress( getDoneSize, getTotalSize, operationInProgress() );
-	// qDebug( "%s", s.data() );
-    } break;
-    case OpMkDir: {
-    } break;
-    case OpRemove: {
-    } break;
-    case OpRename: {
-    } break;
-    case OpPut: {
-    } break;
-    }
 }
-
 /*!  \internal
-    This function is called when \a nbytes have been successfully
-    written to the data socket.
 */
-
-void QFtp::dataBytesWritten( int nbytes )
+void QFtp::dataBytesWritten( int )
 {
-    putWritten += nbytes;
-    emit QNetworkProtocol::dataTransferProgress( putWritten, putToWrite, operationInProgress() );
-    if ( putWritten >= putToWrite ) {
-	dataSocket->close();
-	QTimer::singleShot( 1, this, SLOT( dataClosed() ) );
-    }
 }
-
 /*!  \internal
-  Reinitializes the command socket
 */
-
-void QFtp::reinitCommandSocket()
+void QFtp::error( int )
 {
 }
-
-/*!  \reimp
-*/
-
-void QFtp::error( int code )
-{
-    if ( code == QSocket::ErrHostNotFound ||
-	 code == QSocket::ErrConnectionRefused ) {
-	if ( dataSocket->isOpen() )
-	    dataSocket->close();
-	QNetworkOperation *op = operationInProgress();
-	if ( op ) {
-	    QString msg;
-	    if ( code == QSocket::ErrHostNotFound )
-		msg = tr( "Host %1 not found" ).arg( url()->host() );
-	    else
-		msg = tr( "Connection refused to host %1" ).arg( url()->host() );
-	    op->setState( StFailed );
-	    op->setProtocolDetail( msg );
-	    op->setErrorCode( (int)ErrHostNotFound );
-	}
-    }
-}
-
-
-
-
-
-/////////////////////////////////////////////////
-// new stuff
-//
 
 #include "qftp.moc"
-
-//
-//  end of new stuff
-/////////////////////////////////////////////////
-
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP

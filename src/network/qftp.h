@@ -61,7 +61,7 @@ class QM_EXPORT_FTP QFtp : public QNetworkProtocol
     Q_OBJECT
 
 public:
-    QFtp(); // ### get rid of this overload in Qt 4.0
+    QFtp(); // ### Qt 4.0: get rid of this overload
     QFtp( QObject *parent, const char *name=0 );
     virtual ~QFtp();
 
@@ -144,7 +144,7 @@ signals:
     void done( bool );
 
 protected:
-    void parseDir( const QString &buffer, QUrlInfo &info ); // ### delete in Qt 4.0?
+    void parseDir( const QString &buffer, QUrlInfo &info ); // ### Qt 4.0: delete this? (not public API)
     void operationListChildren( QNetworkOperation *op );
     void operationMkDir( QNetworkOperation *op );
     void operationRemove( QNetworkOperation *op );
@@ -152,7 +152,8 @@ protected:
     void operationGet( QNetworkOperation *op );
     void operationPut( QNetworkOperation *op );
 
-    // ### make these private in Qt 4.0
+    // ### Qt 4.0: delete these
+    // unused variables:
     QSocket *commandSocket, *dataSocket;
     bool connectionReady, passiveMode;
     int getTotalSize, getDoneSize;
@@ -162,16 +163,11 @@ protected:
 
 private:
     void init();
-    bool checkConnection( QNetworkOperation *op );
-    void closeInternal();
-    void reinitCommandSocket();
-    void okButTryLater( int code, const QCString &data );
-    void okGoOn( int code, const QCString &data );
-    void okButNeedMoreInfo( int code, const QCString &data );
-    void errorForNow( int code, const QCString &data );
-    void errorForgetIt( int code, const QCString &data );
-
     int addCommand( QFtpCommand * );
+
+    bool checkConnection( QNetworkOperation *op ); // ### Qt 4.0: delete me
+    void initNetworkProtocol();
+    void resetNetworkProtocol();
 
 private slots:
     void startNextCommand();
@@ -180,10 +176,15 @@ private slots:
     void piConnectState( int );
     void piFtpReply( int, const QString& );
 
-    void slotReadyRead(); // ### do we need this at all?
+private slots:
+    void npListInfo( const QUrlInfo & );
+    void npDone( bool );
+    void npStateChanged( int );
+    void npDataTransferProgress( int, int );
+    void npReadyRead();
 
 protected slots:
-    // ### make these private in Qt 4.0
+    // ### Qt 4.0: delete these
     void hostFound();
     void connected();
     void closed();
@@ -193,7 +194,6 @@ protected slots:
     void dataReadyRead();
     void dataBytesWritten( int nbytes );
     void error( int );
-
 };
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP
