@@ -248,7 +248,7 @@ void QComboData::updateLinedGeometry()
 	return;
     }
 
-    const QPixmap *pix = combo->pixmap( current );
+    const QPixmap *pix = current < combo->count() ? combo->pixmap( current ) : 0;
     QRect r( combo->style().comboButtonRect( 0, 0, combo->width(), combo->height() ) );
     if ( pix && pix->width() < r.width() )
 	r.setLeft( r.left() + pix->width() + 4 );
@@ -1556,7 +1556,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		}
 	    }
 	}
-    } else if ( d->usingListBox() && ( object == d->listBox() || 
+    } else if ( d->usingListBox() && ( object == d->listBox() ||
 				       object == d->listBox()->viewport() )) {
 	QMouseEvent *e = (QMouseEvent*)event;
 	switch( event->type() ) {
