@@ -1,7 +1,6 @@
 Qt COMMERCIAL LICENSE AGREEMENT
 FOR PROFESSIONAL AND ENTERPRISE EDITIONS
-
-Agreement version 2.8 
+Agreement version 2.9 
 
 IMPORTANT-READ CAREFULLY: 
 1. This Trolltech End-User License Agreement ("Agreement") is a legal
@@ -54,25 +53,26 @@ Trolltech grants Licensee the right to designate one, and only one,
 individual within Licensee's organization who shall have the sole
 right to use the Licensed Software in the manner provided
 above. Licensee may at any time, but not more frequently that once
-every six (6) months, designate another individual to replace the
-current designated user by notifying Trolltech, so long as there is no
-more than one designated user at any given time.
+every six (6) months, designate another individual within Licensee's
+organization to replace the current designated user by notifying
+Trolltech, so long as there is no more than one designated user at any
+given time.
 
-7. Verification: Trolltech may, upon its reasonable request and at its
-expense, audit Licensee with respect to the use of the Licensed
-Software. Any such audit shall be conducted during regular business
-hours at Licensee's facilities and shall not unreasonably interfere
-with Licensee's business activities. Trolltech will not remove, copy,
-or redistribute any electronic material during the course of an
-audit. The Licensee does not implicitly grant Trolltech any form of
-license agreement. If an audit reveals that Licensee is using the
-Licensed Software in a way that is in material violation of the terms
-of the Agreement, then Licensee shall pay Trolltech's reasonable costs
-of conducting the audit. In the case of a material violation, Licensee
-agrees to pay Trolltech any amounts owing that are attributable to the
-unauthorized use. In the alternative, Trolltech reserves the right, at
-Trolltech's sole option, to terminate the licenses for the Licensed
-Software.
+7. Verification: Trolltech or a certified auditor on Trolltech's
+behalf, may, upon its reasonable request and at its expense, audit
+Licensee with respect to the use of the Licensed Software. Any such
+audit shall be conducted during regular business hours at Licensee's
+facilities and shall not unreasonably interfere with Licensee's
+business activities.  Trolltech will not remove, copy, or redistribute
+any electronic material during the course of an audit. Licensee does
+not implicitly grant Trolltech any form of license agreement. If an
+audit reveals that Licensee is using the Licensed Software in a way
+that is in material violation of the terms of the Agreement, then
+Licensee shall pay Trolltech's reasonable costs of conducting the
+audit. In the case of a material violation, Licensee agrees to pay
+Trolltech any amounts owing that are attributable to the unauthorized
+use. In the alternative, Trolltech reserves the right, at Trolltech's
+sole option, to terminate the licenses for the Licensed Software.
 
 8. The Licensed Software may provide links to third party libraries or
 code (collectively "Third Party Libraries") to implement various
@@ -122,10 +122,10 @@ Licensee may not use Trolltech's or any of its suppliers' names,
 logos, or trademarks to market Application(s), except to state that
 Application was developed using the Licensed Software.
 
-NOTE: Qt Free Edition is licensed under the terms of the GPL and not
-under this Agreement. If Licensee has, at any time, developed all (or
-any portions of) the Application(s) using Trolltech's publicly
-licensed Qt Free Edition, Licensee must comply with Trolltech's
+NOTE: Qt Open Source Edition is licensed under the terms of the GPL
+and not under this Agreement. If Licensee has, at any time, developed
+all (or any portions of) the Application(s) using Trolltech's publicly
+licensed Qt Open Source Edition, Licensee must comply with Trolltech's
 requirements (see
 http://www.trolltech.com/developer/download/qt-x11.html) and license
 such Application(s) (or any portions derived there from) under the
@@ -133,9 +133,9 @@ terms of the Free Software Foundation's GNU General Public License
 version 2 (the "GPL") a copy of which is located at
 http://www.gnu.org/copyleft/gpl.html#SEC1 (i.e., any Product(s) and/or
 parts, components, portions thereof developed using GPL licensed
-software, including Qt Free Edition, must be licensed under the terms
-of the GPL, and the GPL-based source code must be made available upon
-request).
+software, including Qt Open Source Edition, must be licensed under the
+terms of the GPL, and the GPL-based source code must be made available
+upon request).
 
 WARRANTY DISCLAIMER
 11. The Licensed Software is licensed to Licensee "as is". To the
@@ -179,11 +179,19 @@ GENERAL PROVISIONS
 14. Licensee Name: Trolltech may include Licensee's company name in a
 publicly available list of Trolltech customers.
 
-15: Renewal of Support and Updates: Licensee may purchase additional
+15. Renewal of Support and Updates: Licensee may purchase additional
 Support and Updates following the Initial Term at Trolltech's terms
 and conditions applicable at the time of renewal.
 
-16. Termination: Trolltech may terminate the Agreement at any time
+16. No Assignment: Neither this Agreement nor Licensee's rights under
+this Agreement are assignable or transferable by Licensee either in
+whole or in part to any third party without Trolltech's written
+consent.  Any attempted assignment or transfer in violation of the
+foregoing shall be void. Trolltech may assign or transfer this
+Agreement to any third party who acquires substantially all of
+Trolltech copyrights in and to the Licensed Software.
+
+17. Termination: Trolltech may terminate the Agreement at any time
 immediately upon written notice by Trolltech to Licensee if Licensee
 breaches this Agreement, fails to pay the fees for the Licensed
 Software, or infringes Trolltech's intellectual property in or to the
@@ -194,7 +202,7 @@ or control of Licensee must be erased or destroyed. An officer of
 Licensee must promptly deliver to Trolltech a written confirmation
 that this has occurred.
 
-17. Entire Agreement: This Agreement constitutes the complete
+18. Entire Agreement: This Agreement constitutes the complete
 agreement between the parties and supersedes all prior or
 contemporaneous discussions, representations, and proposals, written
 or oral, with respect to the subject matters discussed herein. No
@@ -208,7 +216,7 @@ provided is determined to have failed for its essential purpose, all
 limitations of liability and exclusions of damages set forth in this
 Agreement shall remain in effect.
 
-18. Governing law, legal venue: This Agreement shall be construed,
+19. Governing law, legal venue: This Agreement shall be construed,
 interpreted and governed by the laws of Norway, the legal venue to be
 Oslo City Court. Trolltech reserves all rights not specifically
 granted in this Agreement.
@@ -221,8 +229,8 @@ Parts of the Licensed Software that are permitted for distribution
 
 - The Licensed Software's main and plug-in libraries in object code
   form
-- The Licensed Software's help tool in object code/executable
-  form ("Qt Assistant")
+- The Licensed Software's help tool in object code/executable form
+  ("Qt Assistant")
 - The Licensed Software's translator tool in object code/executable
   form ("Qt Linguist")
 
