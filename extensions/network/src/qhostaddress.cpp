@@ -107,7 +107,7 @@ QHostAddress & QHostAddress::operator=( const QHostAddress & address )
   For example, if the address is 127.0.0.1, the returned value is
   2130706433 (hex: 7f000001).
 
-  \sa string()
+  \sa toString()
 */
 
 uint QHostAddress::ip4Addr() const
