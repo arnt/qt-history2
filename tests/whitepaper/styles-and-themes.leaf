@@ -98,7 +98,7 @@ The full \Class QStyle class hierarchy follows:
 			\endlist
 		\i QWindowsStyle
 			\list
-			\i QAquaStyle 
+			\i QAquaStyle
 			\i QPlatinumStyle
 			\endlist
 		\endlist

@@ -4,7 +4,7 @@
 Qt's events perform the same role as messages on Windows, providing
 low-level communication, but are platform independent. Programmers can
 handle events at different levels of granularity to suit the
-situation. 
+situation.
 \endquote
 
   \index messages
@@ -12,7 +12,7 @@ situation.
  + five levels for more flexibility: convenient...powerful
 ### Jasmin: explain the above please
  + equivalent to messages on Windows
- 
+
 \section1 Event Creation
 
   \index QEvent

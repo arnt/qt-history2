@@ -13,7 +13,7 @@ application windows, etc., are all examples of widgets. Qt's widgets
 are not arbitrarily divided between 'controls' and 'containers'; all
 widgets can be used both as controls and as containers. Custom widgets
 can easily be created by subclassing existing Qt widgets, or even
-created from scratch on the rare occasions when this is necessary. 
+created from scratch on the rare occasions when this is necessary.
 
   \index controls
   \index widgets

@@ -40,8 +40,8 @@ uses it throughout the API and internally. \Class QString replaces the
 crude \c {const char *} and the 16-bit \Class QChar class replaces \c
 char. Constructors and operators are provided to automatically convert
 to and from 8-bit strings. Programmers can copy \Class {QString}s by
-value, since they are \l {implicitly shared} (copy on write), which
-makes them fast and memory efficient.
+value, since they are \link {Collection Classes} implicitly shared
+(copy on write) \endlink, which makes them fast and memory efficient.
 
   \index regular expressions
 

@@ -21,7 +21,7 @@ invented by Trolltech, called 'signals and slots'. Signals and
 slots is a powerful inter-object communication mechanism
 that can be used to completely replace the crude callbacks and message
 maps used by older toolkits. Signals and slots are type-safe,
-flexible, and well suited to component programming. 
+flexible, and well suited to component programming.
 
 If a programmer wants to associate some code with a button, using the
 old callback mechanism, they would have to pass a pointer to a
@@ -178,7 +178,7 @@ are compatible.
 
 The signals and slots mechanism is implemented in pure standard C++.
 The implementation uses the C++ preprocessor and the Meta Object
-Compiler (\Cmd moc) included with the Qt library. 
+Compiler (\Cmd moc) included with the Qt library.
 
 The \Cmd moc reads the application's header files and generates the
 necessary code to support the signals and slots mechanism. Developers

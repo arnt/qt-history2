@@ -15,7 +15,7 @@ writes a C string, a font and a color to the file \c splash.dat:
     QFile file( "splash.dat" );
     if ( file.open(IO_WriteOnly) ) {
 	QDataStream out( &file );
-	out << "SplashScreenStyle"
+	out << "SplashWidgetStyle"
 	    << QFont( "Times", 18, QFont::Bold )
 	    << QColor( "skyblue" );
     }
@@ -31,9 +31,9 @@ The data can easily be retrieved and used, for example:
 	QDataStream in( &file );
 	in >> str >> font >> color;
 
-	if ( str == "SplashScreenStyle" ) {
-	    splash->setFont( font );
-	    splash->setColor( color );
+	if ( str == "SplashWidgetStyle" ) {
+	    splashWidget->setFont( font );
+	    splashWidget->setColor( color );
 	}
     }
 \endcode
@@ -43,7 +43,9 @@ easily using \link Settings settings \endlink.
 \Class QTextStream and \Class QDataStream operate on any \Class
 QIODevice subclass. Qt includes the \Class QFile, \Class QBuffer,
 \Class QSocket and \Class QSocketDevice subclasses, and programmers
-can implement their own custom devices.
+can implement their own custom devices. \Class QIODevice also
+provides low-level functions such as \Func readLine() and \Func
+writeBlock() that can be used independently of any stream.
 
 Directories are read and traversed using \Class QDir. \Class QDir can
 be used to manipulate path names and access the underlying file
@@ -78,7 +80,8 @@ protocols. For example, files can be downloaded using FTP like this:
 URLs can easily be parsed and recomposed using \Class QUrl.
 
 Image files are usually read in by creating a \Class QImage with the
-file name as argument, as described in \l Images.
+file name as argument. Printing text and images is handled by \Class
+QPainter. These classes are described in \l {2D Graphics}.
 
 \section1 XML
 
@@ -110,24 +113,59 @@ data back to the external program.
 
 \section1 Networking
 
-###
-
-
-
 Qt provides a cross-platform interface for writing TCP/IP clients and
-servers. Clients are usually written using the \Class QSocket class,
-a \Class QIODevice subclass that provides a buffered non-blocking TCP
-connection.
+servers.
 
-Qt also provides \Class QServerSocket for implementing servers.
+The \Class QSocket class provides an asynchronous buffered TCP
+connection. \Class QSocket is a \Class QIODevice, making it simple to
+use \Class QTextStream and \Class QDataStream on a socket.
 
-and provides a low-level access to other protocol suites
-(e.g. Unix-domain protocols).
+\Class QSocket is designed to work well within a GUI application. A
+live currency converter application illustrates this:
 
+  \img converter.png
 
- * QServerSocket
- * QSocket
- * QSocketDevice + QSocketNotifier
+The application uses the fictional protocol CCP (Currency Conversion
+Protocol) to access the latest exchange rates from a server. Only
+lines related to networking are presented.
+
+  \quotefile converter/converter.cpp
+  \skipto new QSocket
+  \printline new QSocket
+  \printline connect( socket
+  \printline SLOT(
+
+The socket is created in the \Class Converter constructor. Socket
+communication is asynchronous. The socket emits the \Func readyRead()
+signal when there is data available to read.
+
+  \skipto ::convert()
+  \printuntil }
+
+The \Func convert() slot is called when the user clicks the \Button
+Convert button. It sends a \c CONV request (e.g. \c {CONV 100 EUR
+USD}) to port 123 on the server \c ccp.banca-monica.nu. \Class
+QSocket automatically uses \Class QDns to resolve \c
+cpp.banca-monica.nu to its IP address. All these operations are
+non-blocking to keep the user interface responsive.
+
+  \skipto ::updateTargetAmount()
+  \printuntil }
+  \printline }
+
+The \Func updateTargetAmount() function is called when the server
+replies to the \c CONV request. It reads the reply and updates the
+display.
+
+Simple TCP servers can be implemented by subclassing \Class
+QServerSocket, which works asynchronously like \Class QSocket. \Class
+QServerSocket sets up a listening socket that accepts incoming
+connections, and calls a virtual function to serve the client.
+
+The \Class QSocketDevice class provides a platform-independent
+wrapper for the native socket APIs. It provides the underlying
+functionality for \Class QSocket and \Class QServerSocket, and can be
+used for UDP.
 
 \ONLINES
 \Online xml.html

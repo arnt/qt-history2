@@ -388,7 +388,7 @@ Modal dialogs are typically used like this:
     QFileDialog dialog( workingDirectory, "", 0, 0, TRUE );
     dialog.setFilter( "Text files (*.txt)" );
     if ( dialog.exec() == QDialog::Accepted ) {
-        do_something_with_file( dialog.selectedFile() );
+	do_something_with_file( dialog.selectedFile() );
     }
 \endcode
 

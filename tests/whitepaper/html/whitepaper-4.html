@@ -133,7 +133,7 @@
     QFileDialog dialog( workingDirectory, "", 0, 0, TRUE );
     dialog.setFilter( "Text files (*.txt)" );
     if ( dialog.exec() == QDialog::Accepted ) {
-        do_something_with_file( dialog.selectedFile() );
+	do_something_with_file( dialog.selectedFile() );
     }
 </pre>
 <p>Programmers can create their own dialogs by subclassing <font color=darkblue><b>QDialog</b></font>, which inherits <font color=darkblue><b>QWidget</b></font>.</p>

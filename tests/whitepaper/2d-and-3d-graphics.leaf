@@ -23,7 +23,7 @@ of images in several formats, including BMP, GIF\footnote If you are
 in a country that recognizes software patents and in which Unisys
 holds a patent on LZW decompression and you want to use GIF, Unisys
 may require you to license the technology.\endfootnote, JPEG, MNG,
-PNG, PNM, XBM and XPM. 
+PNG, PNM, XBM and XPM.
 
 Many of Qt's built-in widgets can display images, for example
 buttons, labels, menu items, etc. Here's how to display an icon on a
