@@ -1,0 +1,2 @@
+CONFIG -= shared dll
+contains(TEMPLATE, ".*lib"): CONFIG += staticlib 

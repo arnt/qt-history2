@@ -1,1 +1,1 @@
-CONFIG -= dll
+load(static)

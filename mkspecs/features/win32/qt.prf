@@ -41,9 +41,6 @@ CONFIG(release, debug|release) {
 
 no_keywords:DEFINES += QT_NO_KEYWORDS
 target_qt {
-    shared {
-	CONFIG += dll
-    }
     !isEmpty(QMAKE_LIB_FLAG) {
         !isEmpty(QMAKE_QT_DLL) {
             DEFINES += QT_MAKEDLL
