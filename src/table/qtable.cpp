@@ -780,7 +780,7 @@ QSize QTableItem::sizeHint() const
   inserted into the table using e.g. QTable::setItem().  This function
   also checks to make sure if \a rs and \a cs are within the bounds of
   the table and returns without changing the span if they are not.
-  In addition swapping, inserting or removing rows and columns that 
+  In addition swapping, inserting or removing rows and columns that
   cross QTableItems spanning more than one cell is not supported.
 
   \sa rowSpan() colSpan()
@@ -1412,15 +1412,17 @@ int QCheckTableItem::rtti() const
     and removeColumn(). Multiple rows and columns can be removed with
     removeRows() and removeColumns().
 
-    Rows and columns can be set to be moveable, i.e. the user can drag
-    them to reorder them, using rowMovingEnabled() and
-    columnMovingEnabled(). For performance reasons, the default behavior
-    of QHeader section numbers is overwritten by QTable.  Currently in QTable,
-    when a row or column is dragged and reordered, the section number is
-    also changed to its new position.  Therefore, there is no difference
-    between the section and the index fields in QHeader. The QTable QHeader
-    classes do not provide a mechanism for indexing independent of the user
-    interface ordering.
+    Rows and columns can be set to be moveable using
+    rowMovingEnabled() and columnMovingEnabled(). The user can drag
+    them to reorder them holding down the \Key Control key and
+    dragging the mouse. For performance reasons, the default
+    behavior of QHeader section numbers is overwritten by QTable.
+    Currently in QTable, when a row or column is dragged and
+    reordered, the section number is also changed to its new position.
+    Therefore, there is no difference between the section and the
+    index fields in QHeader. The QTable QHeader classes do not provide
+    a mechanism for indexing independent of the user interface
+    ordering.
 
     The table can be sorted using sortColumn().
     Users can sort a column by clicking its header if setSorting() is
@@ -5316,7 +5318,7 @@ void QTable::contentsDragMoveEvent( QDragMoveEvent *e )
     fixRow( tmpRow, e->pos().y() );
     fixCol( tmpCol, e->pos().x() );
     if (e->source() != (QObject*)cellWidget( currentRow(), currentColumn() ) )
-	setCurrentCell( tmpRow, tmpCol, FALSE );
+	setCurrentCell( tmpRow, tmpCol, FALSE )http://intern.troll.no;
     e->accept();
 }
 
@@ -5495,7 +5497,7 @@ void QTableHeader::resizeArrays( int n )
     stretchable.resize( n );
     if ( n > old ) {
 	for ( int i = old; i < n; ++i ) {
-	    stretchable[ i ] = FALSE;	
+	    stretchable[ i ] = FALSE;
 	    states[ i ] = Normal;
 	}
     }
@@ -5686,7 +5688,7 @@ void QTableHeader::mouseMoveEvent( QMouseEvent *e )
 
 bool QTableHeader::doSelection( QMouseEvent *e )
 {
-    if ( isRowSelection( table->selectionMode() ) 
+    if ( isRowSelection( table->selectionMode() )
 	    && orientation() != Vertical )
 	return TRUE;
     int p = real_pos( e->pos(), orientation() ) + offset();
