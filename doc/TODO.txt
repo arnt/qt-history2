@@ -220,6 +220,10 @@ QPrinter:
   On Windows set a method that the user can change the paper bin it wants to print from.  
   (support/arc-09/19577)
 
+QListBox\QScrollView etc (anything that uses a viewport):
+  Be able to set a QWhatsThis for the individual items on the viewport.
+  (qt-bugs/arc-08/17849)
+
 
 New functionality
 -----------------
