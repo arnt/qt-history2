@@ -2001,6 +2001,9 @@ void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, i
 	    if(d->qd_info.paintreg.isEmpty())
 		return;
 	    updatePen();
+#ifdef USE_CORE_GRAPHICS
+	    QMacSavedPortInfo::setClipRegion(d->qd_info.paintreg);
+#endif
 	    unclippedScaledBitBlt(pdev, x, y, w, h, &pixmap, sx, sy, sw, sh, (RasterOp)rop,
 				   false, false);
 	    return;
@@ -2009,6 +2012,9 @@ void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, i
 		 sw != pixmap.width() || sh != pixmap.height()) {
 		QPixmap tmp(sw, sh, pixmap.depth());
 		updatePen();
+#ifdef USE_CORE_GRAPHICS
+		QMacSavedPortInfo::setClipRegion(d->qd_info.paintreg);
+#endif
 		unclippedBitBlt(&tmp, 0, 0, &pixmap, sx, sy, sw, sh, CopyROP, true, false);
 		if(pixmap.mask()) {
 		    QBitmap mask(sw, sh);
@@ -2046,6 +2052,9 @@ void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, i
 		if(d->qd_info.paintreg.isEmpty())
 		    return;
 		updatePen();
+#ifdef USE_CORE_GRAPHICS
+		QMacSavedPortInfo::setClipRegion(d->qd_info.paintreg);
+#endif
 		unclippedBitBlt(pdev, x-dx, y-dy, &pm, 0, 0, pm.width(),
 				 pm.height(), (RasterOp)rop, false, false);
 		return;
@@ -2059,6 +2068,9 @@ void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, i
     if(d->qd_info.paintreg.isEmpty())
 	return;
     updatePen();
+#ifdef USE_CORE_GRAPHICS
+    QMacSavedPortInfo::setClipRegion(d->qd_info.paintreg);
+#endif
     unclippedBitBlt(pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop, false, false);
 }
 

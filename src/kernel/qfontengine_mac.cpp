@@ -133,6 +133,10 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
     p->initPaintDevice(FALSE, &off, &rgn);
     if(rgn.isEmpty())
 	return;
+#ifdef USE_CORE_GRAPHICS
+    QMacSavedPortInfo::setClipRegion(rgn);
+#endif
+
     x += off.x();
     y += off.y();
 
