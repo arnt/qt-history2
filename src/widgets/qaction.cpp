@@ -12,6 +12,7 @@
 #include "qvalidator.h"
 #include "qtl.h"
 #include "qtooltip.h"
+#include "qobjectlist.h"
 
 // NOT REVISED
 
@@ -1475,6 +1476,22 @@ void QToggleAction::setChecked( bool checked )
 	    ((QActionWidget*)w)->updateAction( this );	
     }
 
+    // Uncheck all the other toggle actions in the same group
+    if ( parent() && !m_exclusiveGroup.isEmpty() )
+    {
+	const QObjectList *list = parent()->children();
+	if ( list )
+	{
+	    QObjectListIt it( *list );
+	    for( ; it.current(); ++it )
+	    {
+		if ( it.current()->inherits( "QToggleAction" ) &&
+		     ((QToggleAction*)it.current())->exclusiveGroup() == m_exclusiveGroup )
+		    ((QToggleAction*)it.current())->setChecked( false );
+	    }
+	}
+    }
+    
     m_checked = checked;
 
     emit activated();
@@ -1494,6 +1511,29 @@ void QToggleAction::slotActivated()
     m_lock = TRUE;
     setChecked( !m_checked );
     m_lock = FALSE;
+}
+
+/*!
+ In certain cases you may want to make a group of QToggleAction
+ exclusive, that means: Only one may be checked at a time. Checking
+ one toggles all the others in the group.
+ 
+ All QToggleAction in an exclusive group need to have the same parent.
+*/
+void QToggleAction::setExclusiveGroup( const QString& name )
+{
+    m_exclusiveGroup = name;
+}
+
+/*!
+  Returns the name of the exclusive group or an empty string if
+  no such group was set until now.
+
+  \sa setExclusiveGroup()
+*/
+QString QToggleAction::exclusiveGroup() const
+{
+    return m_exclusiveGroup;
 }
 
 // ------------------------------------------------------------

@@ -186,6 +186,9 @@ public:
     virtual void setChecked( bool );
     bool isChecked();
 
+    virtual void setExclusiveGroup( const QString& name );
+    virtual QString exclusiveGroup() const;
+    
 protected slots:
     void slotActivated();
 
@@ -195,6 +198,7 @@ signals:
 private:
     bool m_checked;
     bool m_lock;
+    QString m_exclusiveGroup;
 };
 
 class QSelectAction : public QAction
