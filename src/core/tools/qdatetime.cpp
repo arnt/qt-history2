@@ -16,9 +16,10 @@
 
 #include "qdatastream.h"
 #include "qdatetime.h"
-#include "qiodevice.h"
 #include "qregexp.h"
+#if !defined( QT_NO_DEBUG_OUTPUT )
 #include "qdebug.h"
+#endif
 #if defined(Q_OS_WIN32)
 #include <windows.h>
 #include <time.h>
