@@ -185,6 +185,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		QStringList &list = project->variables()["TRANSLATIONS"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+		    QString sify = *it;
+		    sify.replace(QRegExp("/"), "\\" );
 		    QString base = (*it);
 		    base.replace(QRegExp("\\..*$"), "").upper();
 		    base.replace(QRegExp("[^a-zA-Z]"), "_");
@@ -199,11 +201,11 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    userdep += "\n\n";
 
 		    QString build = userdep + 
-				    "# Begin Custom Build - lupdate'ing " + (*it) + "...\n"
-				    "InputPath=.\\" + (*it) + "\n\n"
-				    "\"tmp\\" + (*it) + "\" : $(SOURCE) \"$(INTDIR)\" \"$(QUTDIR)\"\n"
-				    "\t$(QTDIR)\\bin\\lupdate -ts " + (*it) + " " + project->projectFile() + "\n"
-				    "\tcopy " + (*it) +" tmp\\" + (*it) + "\n"
+				    "# Begin Custom Build - lupdate'ing " + sify + "...\n"
+				    "InputPath=.\\" + sify + "\n\n"
+				    "\"tmp\\" + sify + "\" : $(SOURCE) \"$(INTDIR)\" \"$(QUTDIR)\"\n"
+				    "\t$(QTDIR)\\bin\\lupdate -ts " + sify + " " + project->projectFile() + "\n"
+				    "\tcopy " + sify +" tmp\\" + sify + "\n"
 				    "# End Custom Build\n\n";
 
 		    t << "# Begin Source File\n\nSOURCE=.\\" << *it << endl;
@@ -222,17 +224,19 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		QStringList &list = project->variables()["TRANSLATIONS"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-		    QString qmfile = *it;
+		    QString sify = *it;
+		    sify.replace( QRegExp("/"), "\\" );
+		    QString qmfile = sify;
 		    qmfile.replace( QRegExp("\\..*$"), ".qm" );
-		    QString base = (*it);
+		    QString base = sify;
 		    base.replace(QRegExp("\\..*$"), "").upper();
 		    base.replace(QRegExp("[^a-zA-Z]"), "_");
 
-		    QString build = "USERDEP_" + base + "=\"" + (*it) + "\"\t\"tmp\\" + (*it) + "\"\n\n" 
-				    "# Begin Custom Build - lrelease'ing " + (*it) + "...\n"
+		    QString build = "USERDEP_" + base + "=\"" + sify + "\"\t\"tmp\\" + sify + "\"\n\n" 
+				    "# Begin Custom Build - lrelease'ing " + sify + "...\n"
 				    "InputPath=.\\" + qmfile + "\n\n"
 				    "\"" + qmfile + "\" : $(SOURCE) \"$(INTDIR)\" \"$(QUTDIR)\"\n"
-				    "\t$(QTDIR)\\bin\\lrelease " + (*it) + "\n\n"
+				    "\t$(QTDIR)\\bin\\lrelease " + sify + "\n\n"
 				    "# End Custom Build\n\n";
 		    
 		    t << "# Begin Source File\n\nSOURCE=.\\" << qmfile << endl;
