@@ -831,8 +831,10 @@ void QFileDialog::accept()
     switch (d->fileMode) {
     case DirectoryOnly:
     case Directory:
-        if (QFileInfo(files.first()).isDir())
+        if (QFileInfo(files.first()).isDir()) {
+            emit filesSelected(files);
             QDialog::accept();
+        }
         return;
     case AnyFile:// FIXME: not supported, as we rely on selected files
         if (!QFileInfo(files.first()).isDir())
@@ -845,6 +847,7 @@ void QFileDialog::accept()
             if (!info.exists() || info.isDir())
                 return;
         }
+        emit filesSelected(files);
         QDialog::accept();
         return;
     }

@@ -63,8 +63,12 @@ public:
     enum AcceptMode { Open, Save };
     void setAcceptMode(AcceptMode mode);
     AcceptMode acceptMode() const;
-    
+
+signals:
+    void filesSelected(const QStringList &);
+
 #ifdef QT_COMPAT
+public:
     typedef FileMode Mode;
     inline QT_COMPAT void setMode(FileMode m) { setFileMode(m); }
     inline QT_COMPAT FileMode mode() const { return fileMode(); }
