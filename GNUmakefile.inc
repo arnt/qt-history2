@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#8 $
+# $Id: //depot/qt/main/GNUmakefile.inc#9 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -177,5 +177,8 @@ help:
 
 win windows:
 	nmake $(MAKEFLAGS)
+
+bwin:
+	bmake $(MAKEFLAGS)
 
 FORCE:
