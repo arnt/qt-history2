@@ -503,8 +503,11 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 
     // try to create it using the loaded widget plugins
     WidgetInterface *iface = widgetManager()->queryInterface( className );
-    if ( iface )
-	return iface->create( className, parent, name );
+    if ( iface ) {
+	w = iface->create( className, parent, name );
+	if ( w )
+	    return w;
+    }
 
     // hope we have a factory which can do it
     for ( QWidgetFactory* f = widgetFactories.first(); f; f = widgetFactories.next() ) {
