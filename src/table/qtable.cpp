@@ -5300,21 +5300,32 @@ QRect QTable::rangeGeometry( int topRow, int leftCol,
 
 void QTable::activateNextCell()
 {
+    int firstRow = 0;
+    while ( d->hiddenRows.find( firstRow ) )
+	firstRow++;
+    int firstCol = 0;
+    while ( d->hiddenCols.find( firstCol ) )
+	firstCol++;
+    int nextRow = curRow;
+    int nextCol = curCol;
+    while ( d->hiddenRows.find( ++nextRow ) );
+    if ( nextRow >= numRows() ) {
+	nextRow = firstRow;	    
+	while ( d->hiddenCols.find( ++nextCol ) );
+	if ( nextCol >= numCols() )
+		nextCol = firstCol;
+    }
+    
     if ( !currentSel || !currentSel->isActive() ||
 	 ( currentSel->leftCol() == currentSel->rightCol() &&
 	   currentSel->topRow() == currentSel->bottomRow() ) ) {
 	clearSelection();
-	if ( (uint)curRow < numRows() - d->hiddenRows.count() - 1 )
-	    setCurrentCell( curRow + 1, curCol );
-	else if ( (uint)curCol < numCols() - d->hiddenCols.count() - 1 )
-	    setCurrentCell( 0, curCol + 1 );
-	else
-	    setCurrentCell( 0, 0 );
+	setCurrentCell( nextRow, nextCol );
     } else {
 	if ( curRow < currentSel->bottomRow() )
-	    setCurrentCell( curRow + 1, curCol );
+	    setCurrentCell( nextRow, curCol );
 	else if ( curCol < currentSel->rightCol() )
-	    setCurrentCell( currentSel->topRow(), curCol + 1 );
+	    setCurrentCell( currentSel->topRow(), nextCol );
 	else
 	    setCurrentCell( currentSel->topRow(), currentSel->leftCol() );
     }
