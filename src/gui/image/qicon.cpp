@@ -429,7 +429,7 @@ QIcon &QIcon::operator=(const QIcon &other)
 }
 
 
-/*!  Returns a pixmap with the required \a size, \a mode, and \a
+/*!  Returns a pixmap with the requested \a size, \a mode, and \a
   state, generating one if necessary. The pixmap might be smaller than
   requested, but never larger.
 */
@@ -438,6 +438,18 @@ QPixmap QIcon::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) c
     if (!d)
         return QPixmap();
     return d->engine->pixmap(size, mode, state);
+}
+
+
+/*!  Returns the actual size of the icon for the requested \a size, \a
+  mode, and \a state. The result might be smaller than requested, but
+  never larger.
+*/
+QSize QIcon::actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state) const
+{
+    if (!d)
+        return QSize();
+    return d->engine->actualSize(size, mode, state);
 }
 
 
