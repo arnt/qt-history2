@@ -2984,6 +2984,8 @@ bool QTextDocument::find( QTextCursor& cursor, const QString &e, bool cs, bool w
 	    else
 		break;
 	}
+	if ( expr.isEmpty() )
+	    return FALSE;
     }
     for (;;) {
 	if ( p != cursor.paragraph() ) {
