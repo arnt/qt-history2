@@ -566,6 +566,15 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
 QLayoutItem *QMainWindowLayout::itemAt(int index) const
 {
     int x = 0;
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
+	for (int i = 0; i < lineInfo.list.size(); ++i) {
+            if (x++ == index) {
+                const ToolBarLayoutInfo &info = lineInfo.list.at(i);
+                return info.item;
+            }
+        }
+    }
     for (int i = 0; i < NPOSITIONS; ++i) {
         if (!layout_info[i].item)
             continue;
@@ -580,6 +589,19 @@ QLayoutItem *QMainWindowLayout::takeAt(int index)
     DEBUG("QMainWindowLayout::takeAt: index %d", index);
 
     int x = 0;
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        ToolBarLineInfo &lineInfo = tb_layout_info[line];
+	for (int i = 0; i < lineInfo.list.size(); ++i) {
+            if (x++ == index) {
+                QLayoutItem *ret = lineInfo.list.at(i).item;
+                lineInfo.list.removeAt(i);
+                if (lineInfo.list.size() == 0)
+                    tb_layout_info.removeAt(line);
+                return ret;
+            }
+	}
+    }
+
     for (int i = 0; i < NPOSITIONS; ++i) {
         if (!layout_info[i].item) continue;
         if (x++ == index) {
