@@ -2007,6 +2007,8 @@ QWorkspaceChild::~QWorkspaceChild()
 {
     if ( iconw )
 	delete iconw->parentWidget();
+    if ( ((QWorkspace*)parentWidget())->d->active == this )
+	((QWorkspace*)parentWidget())->d->active = 0;
 }
 
 bool QWorkspaceChild::event( QEvent *e )
