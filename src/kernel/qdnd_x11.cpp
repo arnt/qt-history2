@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#60 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -623,7 +623,7 @@ void QDragManager::cancel()
 static
 Window findRealWindow( const QPoint & pos, Window w, int md )
 {
-    if ( qt_xdnd_deco && w == qt_xdnd_deco->winId() && !md )
+    if ( qt_xdnd_deco && w == qt_xdnd_deco->winId() )
 	return 0;
 
     if ( md ) {
@@ -660,8 +660,15 @@ Window findRealWindow( const QPoint & pos, Window w, int md )
 					c[i], md-1 );
 		}
 		XFree(c);
-		return r;
+		if ( r )
+		    return r;
+
+		// We didn't find a client window!  Just use the
+		// innermost window.
 	    }
+
+	    // No children!
+	    return w;
 	}
     }
     return 0;
@@ -689,12 +696,14 @@ void QDragManager::move( const QPoint & globalPos )
 	return;
     }
 
-    if ( qt_xdnd_deco && target == qt_xdnd_deco->winId() ) {
-	target = findRealWindow(globalPos,qt_xrootwin(),4);
-    } else if ( target == qt_xrootwin() ) {
+    if ( target == qt_xrootwin() ) {
 	// Ok.
-    } else if ( target != 0 )
+    } else if ( target ) {
 	target = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
+	if ( qt_xdnd_deco && !target || target == qt_xdnd_deco->winId() ) {
+	    target = findRealWindow(globalPos,qt_xrootwin(),6);
+	}
+    }
 
     if ( target == 0 )
 	target = qt_xrootwin();
