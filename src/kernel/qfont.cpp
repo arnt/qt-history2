@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#32 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -21,7 +21,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#32 $";
 #endif
 
 
@@ -734,7 +734,7 @@ static void initFontSubst()			// create substitution dict
     CHECK_PTR( fontSubst );
     fontSubst->setAutoDelete( TRUE );
     for ( int i=0; initTbl[i] != 0; i += 2 )
-	fontSubst->insert( initTbl[i],	strdup(initTbl[i+1]) );
+	fontSubst->insert( initTbl[i],	qstrdup(initTbl[i+1]) );
     qAddPostRoutine( cleanupFontSubst );
 
 }
@@ -819,7 +819,7 @@ void QFont::listSubstitutions( QStrList *list )
     QFontSubstIt it( *fontSubst );
     const char *n;
     while ( (n=it.currentKey()) ) {
-	list->inSort( strdup(n) );
+	list->inSort( qstrdup(n) );
 	++it;
     }
 }

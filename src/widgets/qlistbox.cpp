@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#36 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#35 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#36 $";
 #endif
 
 
@@ -1129,7 +1129,7 @@ QLBItem *QListBox::newAny( const char *s, const QPixmap *bm )
     QLBItem *tmp = newItem();
     if ( s ) {
 	if ( copyStrings )
-	    tmp->string = strdup( s );
+	    tmp->string = qstrdup( s );
 	else
 	    tmp->string = s;
 	tmp->type = LBI_String;
