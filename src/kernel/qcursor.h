@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#6 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#7 $
 **
 ** Definition of QCursor class
 **
@@ -14,18 +14,26 @@
 #define QCURSOR_H
 
 #include "qpoint.h"
+#include "qshared.h"
 
 
-class QCursor
+class QCursorData;				// internal cursor data
+
+
+class QCursor					// cursor class
 {
 public:
     QCursor();					// create default arrow cursor
     QCursor( int shape );			// create cursor with shape
     QCursor( QBitMap *bitmap, QBitMap *mask, int hotX=-1, int hotY=-1 );
+    QCursor( const QCursor & );
    ~QCursor();
+    QCursor &operator=( const QCursor & );
 
-    int	   shape() const { return cshape; }	// get cursor shape
-    bool   setShape( int );			// set cursor shape
+    QCursor	  copy() const;
+
+    int		  shape() const;		// get cursor shape
+    bool	  setShape( int );		// set cursor shape
 
     static QPoint pos();			// get cursor position
     static void	  setPos( int x, int y );	// set cursor position
@@ -35,27 +43,17 @@ public:
     static void	  cleanup();			// cleanup global cursors
 
 #if defined(_WS_WIN_)
-    HANDLE handle() const { return hcurs; }
+    HANDLE	  handle() const;
 #elif defined(_WS_PM_)
-    HANDLE handle() const { return hcurs; }
+    HANDLE	  handle() const;
 #elif defined(_WS_X11_)
-    Cursor handle() const { return hcurs ? hcurs : (update(), hcurs); }
+    Cursor	  handle() const;
 #endif
 
 private:
-    void   update() const;
+    void	  update() const;
     static QCursor *locate( int );
-    int	   cshape;
-    QBitMap *bm, *bmm;
-    short  hx, hy;
-#if defined(_WS_WIN_)
-    HANDLE hcurs;
-#elif defined(_WS_PM_)
-    HANDLE hcurs;
-#elif defined(_WS_X11_)
-    Cursor hcurs;
-    Pixmap pm, pmm;
-#endif
+    QCursorData  *data;
 };
 
 
@@ -66,7 +64,7 @@ inline void QCursor::setPos( const QPoint &p )
 
 
 // --------------------------------------------------------------------------
-// Cursor shape identifiers
+// Cursor shape identifiers (correspond to global cursors)
 //
 
 enum CursorShape {
