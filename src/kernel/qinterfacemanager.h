@@ -39,7 +39,7 @@
 #define QINTERFACEMANAGER_H
 
 #ifndef QT_H
-#include "qplugin.h"
+#include "qlibrary.h"
 #include "qdict.h"
 #include "qdir.h"
 #include "qmap.h"
