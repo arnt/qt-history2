@@ -313,6 +313,15 @@ QStringList QStringList::find(const QRegExp &rx) const
 }
 #endif
 
+QStringList QStringList::find(const QStringMatcher &matcher) const
+{
+    QStringList res;
+    for (int i = 0; i < size(); ++i)
+        if (at(i).contains(matcher))
+            res << at(i);
+    return res;
+}
+
 /*!
     Replaces every occurrence of the string \a before, in each of the
     string list's strings, with the string \a after. Returns a
@@ -332,7 +341,7 @@ QStringList QStringList::find(const QRegExp &rx) const
 
     \sa QString::replace()
 */
-QStringList& QStringList::replace(const QString &before, const QString &after, QString::CaseSensitivity cs)
+QStringList &QStringList::replace(const QString &before, const QString &after, QString::CaseSensitivity cs)
 {
     for (int i = 0; i < size(); ++i)
         (*this)[i].replace(before, after, cs);
@@ -378,6 +387,13 @@ QStringList& QStringList::replace(const QRegExp &rx, const QString &after)
 }
 
 #endif
+
+QStringList &QStringList::replace(const QStringMatcher &before, const QString &after)
+{
+    for (int i = 0; i < size(); ++i)
+        (*this)[i].replace(before, after);
+    return *this;
+}
 
 /*!
     Joins the all the string list's strings into a single string with

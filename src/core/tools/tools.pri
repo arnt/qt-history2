@@ -4,6 +4,7 @@ HEADERS +=  \
 	tools/qalgorithms.h \
 	tools/qbitarray.h \
 	tools/qbytearray.h \
+	tools/qbytearraymatcher.h \
 	tools/qcache.h \
 	tools/qchar.h \
 	tools/qcleanuphandler.h \
@@ -20,6 +21,7 @@ HEADERS +=  \
 	tools/qstack.h \
 	tools/qstring.h \
 	tools/qstringlist.h \
+	tools/qstringmatcher.h \
 	tools/qunicodetables_p.h \
 	tools/qvarlengtharray.h \
 	tools/qvector.h
@@ -28,6 +30,7 @@ HEADERS +=  \
 SOURCES += \
 	tools/qbitarray.cpp \
 	tools/qbytearray.cpp \
+	tools/qbytearraymatcher.cpp \
 	tools/qchar.cpp \
 	tools/qdatetime.cpp \
 	tools/qhash.cpp \
@@ -41,6 +44,7 @@ SOURCES += \
 	tools/qstack.cpp \
 	tools/qstring.cpp \
 	tools/qstringlist.cpp \
+	tools/qstringmatcher.cpp \
 	tools/qunicodetables.cpp \
 	tools/qvector.cpp
 

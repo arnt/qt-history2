@@ -28,6 +28,7 @@ SOURCES =  moc.cpp \
 
 # Qt tools needed to link moc
 SOURCES	+= ../core/tools/qbytearray.cpp	\
+		  ../core/tools/qbytearraymatcher.cpp \
 		  ../core/tools/qdatetime.cpp	\
 		  ../core/io/qfile.cpp		\
 		  ../core/io/qdir.cpp		\
@@ -37,6 +38,7 @@ SOURCES	+= ../core/tools/qbytearray.cpp	\
 		  ../core/tools/qlist.cpp		\
 		  ../core/tools/qchar.cpp		\
 		  ../core/tools/qstring.cpp		\
+		  ../core/tools/qstringmatcher.cpp \
                   ../core/tools/qunicodetables.cpp	\
 		  ../core/tools/qstringlist.cpp	\
 		  ../core/tools/qmap.cpp		\ 

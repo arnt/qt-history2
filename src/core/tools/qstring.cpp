@@ -20,11 +20,11 @@
 #endif
 #include <qdatastream.h>
 #include <qlist.h>
-
 #include "qlocale.h"
 #include "qlocale_p.h"
-
+#include "qstringmatcher.h"
 #include "qtools_p.h"
+
 #include <limits.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1331,132 +1331,31 @@ QString &QString::replace(int pos, int len, QChar after)
     return insert(pos, after);
 }
 
-/* an implementation of the Boyer-Moore search algorithm
-*/
-
-/* initializes the skiptable to know how far ahead we can skip on a wrong match
-*/
-static void bm_init_skiptable(const QChar *uc, int l, uint *skiptable, QString::CaseSensitivity cs)
+static inline bool prepare_replace(QString &haystack, const QString &before, const QString &after, QString::CaseSensitivity cs)
 {
-    int i = 0;
-    register uint *st = skiptable;
-    while (i++ < 0x100/8) {
-        *(st++) = l;
-        *(st++) = l;
-        *(st++) = l;
-        *(st++) = l;
-        *(st++) = l;
-        *(st++) = l;
-        *(st++) = l;
-        *(st++) = l;
-    }
-    if (cs == QString::CaseSensitive) {
-        while (l--) {
-            skiptable[uc->cell()] = l;
-            uc++;
-        }
+    if (haystack.isEmpty()) {
+        if (!before.isEmpty())
+            return false;
     } else {
-        while (l--) {
-            skiptable[::lower(*uc).cell()] = l;
-            uc++;
-        }
+        if (cs == QString::CaseSensitive && before == after)
+            return false;
     }
+    haystack.reserve(haystack.size());
+    return true;
 }
 
-static int bm_find(const QChar *uc, uint l, int index, const QChar *puc, uint pl, uint *skiptable, QString::CaseSensitivity cs)
+void QString::do_replace(const QStringMatcher &matcher, const QString &after)
 {
-    if (pl == 0)
-        return index > (int)l ? -1 : index;
-    const uint pl_minus_one = pl - 1;
-
-    register const QChar *current = uc + index + pl_minus_one;
-    const QChar *end = uc + l;
-    if (cs == QString::CaseSensitive) {
-        while (current < end) {
-            uint skip = skiptable[current->cell()];
-            if (!skip) {
-                // possible match
-                while (skip < pl) {
-                    if (*(current - skip) != puc[pl_minus_one-skip])
-                        break;
-                    skip++;
-                }
-                if (skip > pl_minus_one) { // we have a match
-                    return (current - uc) - skip + 1;
-                }
-                // in case we don't have a match we are a bit inefficient as we only skip by one
-                // when we have the non matching char in the string.
-                if (skiptable[(current-skip)->cell()] == pl)
-                    skip = pl - skip;
-                else
-                    skip = 1;
-            }
-            current += skip;
-        }
-    } else {
-        while (current < end) {
-            uint skip = skiptable[::lower(*current).cell()];
-            if (!skip) {
-                // possible match
-                while (skip < pl) {
-                    if (::lower(*(current - skip)) != ::lower(puc[pl_minus_one-skip]))
-                        break;
-                    skip++;
-                }
-                if (skip > pl_minus_one) // we have a match
-                    return (current - uc) - skip + 1;
-                // in case we don't have a match we are a bit inefficient as we only skip by one
-                // when we have the non matching char in the string.
-                if (skiptable[::lower(*(current - skip)).cell()] == pl)
-                    skip = pl - skip;
-                else
-                    skip = 1;
-            }
-            current += skip;
-        }
-    }
-    // not found
-    return -1;
-}
-
-/*! \overload
-
-    Replaces every occurrence of the string \a before with the string
-    \a after.
-
-    If \a cs is QString::CaseSensitive (the default), the search is
-    case sensitive; otherwise the search is case insensitive.
-
-    Example:
-    \code
-        QString str = "colour behaviour flavour neighbour";
-        str.replace(QString("ou"), QString("o"));
-        // str == "color behavior flavor neighbor"
-    \endcode
-*/
-QString &QString::replace(const QString &before, const QString &after, CaseSensitivity cs)
-{
-    if (d->size == 0) {
-        if (before.d->size)
-            return *this;
-    } else {
-        if (cs == CaseSensitive && before == after)
-            return *this;
-    }
     d->cache = 0;
-    if (d->ref != 1)
-        realloc(d->size);
 
     int index = 0;
-    uint skiptable[256];
-    const int bl = before.d->size;
+    const int bl = matcher.pattern().d->size;
     const int al = after.d->size;
-    bm_init_skiptable((const QChar*)before.d->data, bl, skiptable, cs);
 
     if (bl == al) {
         if (bl) {
             const QChar *auc = (const QChar*) after.d->data;
-            while ((index = bm_find((const QChar*)d->data, d->size, index, (const QChar*)before.d->data, bl, skiptable, cs)) != -1) {
+            while ((index = matcher.search(*this, index)) != -1) {
                 memcpy(d->data + index, auc, al * sizeof(QChar));
                 index += bl;
             }
@@ -1466,7 +1365,7 @@ QString &QString::replace(const QString &before, const QString &after, CaseSensi
         uint to = 0;
         uint movestart = 0;
         uint num = 0;
-        while ((index = bm_find((const QChar*)d->data, d->size, index, (const QChar*)before.d->data, bl, skiptable, cs)) != -1) {
+        while ((index = matcher.search(*this, index)) != -1) {
             if (num) {
                 int msize = index - movestart;
                 if (msize > 0) {
@@ -1497,7 +1396,7 @@ QString &QString::replace(const QString &before, const QString &after, CaseSensi
             uint indices[4096];
             uint pos = 0;
             while (pos < 4095) {
-                index = bm_find((const QChar*) d->data, d->size, index, (const QChar*)before.d->data, bl, skiptable, cs);
+                index = matcher.search(*this, index);
                 if (index == -1)
                     break;
                 indices[pos++] = index;
@@ -1530,6 +1429,27 @@ QString &QString::replace(const QString &before, const QString &after, CaseSensi
             }
         }
     }
+}
+
+/*! \overload
+
+    Replaces every occurrence of the string \a before with the string
+    \a after.
+
+    If \a cs is QString::CaseSensitive (the default), the search is
+    case sensitive; otherwise the search is case insensitive.
+
+    Example:
+    \code
+        QString str = "colour behaviour flavour neighbour";
+        str.replace(QString("ou"), QString("o"));
+        // str == "color behavior flavor neighbor"
+    \endcode
+*/
+QString &QString::replace(const QString &before, const QString &after, CaseSensitivity cs)
+{
+    if (prepare_replace(*this, before, after, cs))
+        do_replace(QStringMatcher(before, cs), after);
     return *this;
 }
 
@@ -1904,14 +1824,11 @@ int QString::indexOf(const QString &str, int from, CaseSensitivity cs) const
 
     /*
         We use the Boyer-Moore algorithm in cases where the overhead
-        for the hash table should pay off, otherwise we use a simple
+        for the skip table should pay off, otherwise we use a simple
         hash function.
     */
-    if (l > 500 && sl > 5) {
-        uint skiptable[0x100];
-        bm_init_skiptable((const QChar*)str.d->data , sl, skiptable, cs);
-        return bm_find((const QChar*) d->data, l, from, (const QChar*)str.d->data , sl ,skiptable, cs);
-    }
+    if (l > 500 && sl > 5)
+        return QStringMatcher(str, cs).search(*this, from);
 
     /*
         We use some hashing for efficiency's sake. Instead of
@@ -2262,6 +2179,13 @@ QString& QString::replace(const QRegExp& rx, const QString& after)
 }
 #endif
 
+QString &QString::replace(const QStringMatcher &before, const QString &after)
+{
+    if (prepare_replace(*this, before.pattern(), after, before.caseSensitivity()))
+        do_replace(before, after);
+    return *this;
+}
+
 /*!
     Returns the number of (potentially overlapping) occurrences of
     the string \a str in this string.
@@ -2271,11 +2195,11 @@ QString& QString::replace(const QRegExp& rx, const QString& after)
 
     \sa contains(), indexOf()
 */
-int QString::count(const QString& str, CaseSensitivity cs) const
+int QString::count(const QString &str, CaseSensitivity cs) const
 {
     int num = 0;
     int i = -1;
-    while ((i = indexOf(str, i+1, cs)) != -1)
+    while ((i = indexOf(str, i + 1, cs)) != -1)
         ++num;
     return num;
 }
@@ -2400,6 +2324,25 @@ int QString::count(const QRegExp& rx) const
     return count;
 }
 #endif // QT_NO_REGEXP
+
+int QString::indexOf(const QStringMatcher &str, int from) const
+{
+    return str.search(*this, from);
+}
+
+int QString::lastIndexOf(const QStringMatcher &str, int from) const
+{
+    return str.searchRev(*this, from);
+}
+
+int QString::count(const QStringMatcher &str) const
+{
+    int num = 0;
+    int i = -1;
+    while ((i = str.search(*this, i + 1)) != -1)
+        ++num;
+    return num;
+}
 
 /*! \fn int QString::count() const
 
