@@ -140,7 +140,7 @@ public:
     }
     int	   key()	const	{ return k; }
 #ifdef QT_COMPAT
-    QT_COMPAT QKeyEvent( Type type, int key, int /*ascii*/, int state, const QString& text=QString::null,
+    /*QT_COMPAT*/ QKeyEvent( Type type, int key, int /*ascii*/, int state, const QString& text=QString::null,
 			     bool autorep=FALSE, ushort count=1 )
 	: QInputEvent(type), txt(text), k(key), s((ushort)state), c(count), autor(autorep)
     {
