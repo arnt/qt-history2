@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#44 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#44 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -550,7 +550,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     ws = width();
     hs = height();
 
-    const float dt = 0.0001;
+    const float dt = 0.0001F;
     float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
     float xx = (float)ws - 1;
     float yy = (float)hs - 1;
