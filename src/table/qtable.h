@@ -172,6 +172,7 @@ private:
     int rowspan, colspan;
 #if (QT_VERSION >= 0x040000)
 #error "Add a setAlignment() function in 4.0 and a d pointer also"
+#error "RS: No, do not add a d pointer, this is an item class and memory consumption has to be kept as small as possible"
 #endif
 };
 
