@@ -1,16 +1,18 @@
 // Prototype preference dialog
 
 #include <QtCore/QSettings>
-#include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QHeaderView>
+#include <QtGui/QPushButton>
 #include <QtGui/QStackedWidget>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QTreeWidgetItem>
-#include <QtGui/QHeaderView>
-#include <QtGui/QPushButton>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QSplitter>
 #include "preferencedialog.h"
 
 #include "designerpreferences.h"  // Someday we'll need to load most of these dynamically.
+#include "pluginpreferences.h"
 
 PreferenceDialog::PreferenceDialog(QWidget *parent)
     : QDialog(parent)
@@ -18,18 +20,18 @@ PreferenceDialog::PreferenceDialog(QWidget *parent)
     setWindowTitle(tr("Qt Designer Preferences"));
     PreferenceInterface *iface = new DesignerPreferences(this);
     m_preferences.append(iface);
+    iface = new PluginPreferences(this);
+    m_preferences.append(iface);
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    QHBoxLayout *layout = new QHBoxLayout();
-    mainLayout->addLayout(layout);
-    m_stack = new QStackedWidget(this);
-    m_treeWidget = new QTreeWidget(this);
+    QSplitter *splitter = new QSplitter(this);
+    mainLayout->addWidget(splitter);
+    m_treeWidget = new QTreeWidget(splitter);
+    m_stack = new QStackedWidget(splitter);
     m_treeWidget->setColumnCount(1);
     m_treeWidget->header()->setResizeMode(QHeaderView::Stretch);
     m_treeWidget->header()->hide();
     QTreeWidgetItem *root = new QTreeWidgetItem(m_treeWidget);
     root->setText(0, tr("Standard Preferences"));
-    layout->addWidget(m_treeWidget);
-    layout->addWidget(m_stack);
     connect(m_treeWidget, SIGNAL(currentChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
             this, SLOT(changePane(QTreeWidgetItem *)));
     QTreeWidgetItem *item;
@@ -67,7 +69,7 @@ PreferenceDialog::PreferenceDialog(QWidget *parent)
         }
     }
 
-    layout = new QHBoxLayout();
+    QBoxLayout *layout = new QHBoxLayout();
     mainLayout->addLayout(layout);
     layout->addStretch();
     QPushButton *btn = new QPushButton(tr("OK"), this);
@@ -81,7 +83,7 @@ PreferenceDialog::PreferenceDialog(QWidget *parent)
 
 PreferenceDialog::~PreferenceDialog()
 {
-    //qDeleteAll(m_preferences);
+    qDeleteAll(m_preferences);
 
     QSettings settings;
     QTreeWidgetItem *parentItem;
@@ -126,3 +128,4 @@ void PreferenceDialog::accept()
     }
     QDialog::accept();
 }
+

@@ -10,6 +10,7 @@ class QWidget;
 class PreferenceInterface
 {
 public:
+    virtual ~PreferenceInterface() {};
     virtual QWidget *createPreferenceWidget(QWidget *parent = 0) = 0;
     virtual bool settingsChanged() const = 0;
     virtual QString preferenceName() const = 0;

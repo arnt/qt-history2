@@ -56,6 +56,7 @@ HEADERS +=  designerapp.h \
     preferenceinterface.h \
     preferencedialog.h \
     designerpreferences.h \
+    pluginpreferences.h \
     newformdialog.h
 
 SOURCES +=  designerapp.cpp \
@@ -65,6 +66,7 @@ SOURCES +=  designerapp.cpp \
     objectinspectorview.cpp \
     preferencedialog.cpp \
     designerpreferences.cpp \
+    pluginpreferences.cpp \
     newformdialog.cpp
 
 RESOURCES += designer.qrc
