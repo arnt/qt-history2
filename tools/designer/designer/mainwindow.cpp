@@ -1872,15 +1872,14 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 	if ( piface ) {
 	    QStringList error;
 	    QValueList<int> line;
-	    if ( !piface->check( SourceEditor::sourceOfForm( fw, lang ), error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
-		oWindow->setErrorMessages( error, line );
-		if ( editorPluginManager ) {
-		    EditorInterface *eiface = (EditorInterface*)editorPluginManager->queryInterface( lang );
-		    if ( eiface )
-			eiface->setError( line[ 0 ] );
+	    if ( editorPluginManager ) {
+		EditorInterface *eiface = (EditorInterface*)editorPluginManager->queryInterface( lang );
+		if ( !piface->check( SourceEditor::sourceOfForm( fw, lang, eiface ), error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
+		    oWindow->setErrorMessages( error, line );
+		    eiface->setError( line[ 0 ] );
+		    QApplication::restoreOverrideCursor();
+		    return 0;
 		}
-		QApplication::restoreOverrideCursor();
-		return 0;
 	    }
 	}
     }

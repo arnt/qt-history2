@@ -1156,8 +1156,8 @@ void MetaDataBase::setupInterfaceManagers()
     if ( !languageInterfaceManager ) {
 	languageInterfaceManager = new QInterfaceManager<LanguageInterface>( IID_LanguageInterface, dir, "*.dll; *.so" );
 	langList = languageInterfaceManager->featureList();
-	if ( langList.find( "C++" ) == langList.end() )
-	    langList << "C++";
+	langList.remove( "C++" );
+	langList << "C++";
     }
 }
 
