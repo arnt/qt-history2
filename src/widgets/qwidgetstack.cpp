@@ -198,6 +198,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
 	invisible->setGeometry( contentsRect() );
 	invisible->lower();
 	invisible->show();
+	QApplication::sendPostedEvents( invisible, QEvent::ShowWindowRequest );
     }
 
     // try to move focus onto the incoming widget if focus
@@ -281,6 +282,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
 
     w->setGeometry( invisible->geometry() );
     w->show();
+    QApplication::sendPostedEvents( w, QEvent::ShowWindowRequest );
 }
 
 
