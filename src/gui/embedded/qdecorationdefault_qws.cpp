@@ -273,7 +273,8 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegio
         case Menu:
 #ifndef QT_NO_WIDGET_TOPEXTRA
             if (!widget->windowIcon().isNull())
-                return widget->windowIcon();
+                return widget->windowIcon().pixmap(16,16); //#############
+#warning "QIcon::pixmap() needs a size !!!!!!"
 #endif
             if (!pm) {
                 xoff = 1;
