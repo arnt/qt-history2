@@ -108,6 +108,16 @@ public:
             for (int elmi=1; elmi<closedSets.at(iset).size(); ++elmi)
                 path->lineTo(set.at(elmi));
         }
+
+        // We should combine open sets correctly, but this ought to work good
+        // enough for filling and clipping
+        for (int oset=0; oset<openSets.size(); ++oset) {
+            const QList<QPoint> &set = openSets.at(oset);
+            Q_ASSERT(!set.isEmpty());
+            path->moveTo(set.at(0));
+            for (int elmi=1; elmi<openSets.at(oset).size(); ++elmi)
+                path->lineTo(set.at(elmi));
+        }
     }
 
     // Adds the line to the sets. This is done by first checking of the line
