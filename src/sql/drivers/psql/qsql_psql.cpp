@@ -62,6 +62,12 @@ Q_EXPORT
 #endif
 QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict;
 
+extern
+#if defined (QT_PLUGIN)
+Q_EXPORT
+#endif
+QPtrDict<QSqlOpenExtension> *qt_open_extension_dict;
+
 class QPSQLPrivate
 {
 public:
@@ -79,13 +85,6 @@ public:
     ~QPSQLDriverExtension() {}
 
     bool isOpen() const;
-    bool open( const QString& db,
-	       const QString& user,
-	       const QString& password,
-	       const QString& host,
-	       int port,
-	       const QMap<QString, QString>& connOpts );
-    bool implements( const QString& function ) const;
 private:
     QPSQLDriver *driver;
 };
@@ -95,29 +94,39 @@ bool QPSQLDriverExtension::isOpen() const
     return PQstatus( driver->connection() ) == CONNECTION_OK;
 }
 
-bool QPSQLDriverExtension::open( const QString& db,
-				 const QString& user,
-				 const QString& password,
-				 const QString& host,
-				 int port,
-				 const QMap<QString, QString>& connOpts )
+class QPSQLOpenExtension : public QSqlOpenExtension
+{
+public:
+    QPSQLOpenExtension( QPSQLDriver *dri )
+	: QSqlOpenExtension(), driver(dri) { }
+    ~QPSQLOpenExtension() {}
+
+    bool open( const QString& db,
+	       const QString& user,
+	       const QString& password,
+	       const QString& host,
+	       int port,
+	       const QMap<QString, QString>& connOpts );
+private:
+    QPSQLDriver *driver;
+};
+
+bool QPSQLOpenExtension::open( const QString& db,
+			       const QString& user,
+			       const QString& password,
+			       const QString& host,
+			       int port,
+			       const QMap<QString, QString>& connOpts )
 {
     return driver->open( db, user, password, host, port, connOpts );
 }
 
-bool QPSQLDriverExtension::implements( const QString& function ) const
-{
-    if ( function == "isOpen" || function == "open" )
-	return TRUE;
-    return FALSE;
-}
-
-QSqlError qMakeError( const QString& err, int type, const QPSQLPrivate* p )
+static QSqlError qMakeError( const QString& err, int type, const QPSQLPrivate* p )
 {
     return QSqlError("QPSQL: " + err, QString(PQerrorMessage( p->connection )), type);
 }
 
-QVariant::Type qDecodePSQLType( int t )
+static QVariant::Type qDecodePSQLType( int t )
 {
     QVariant::Type type = QVariant::Invalid;
     switch ( t ) {
@@ -191,7 +200,7 @@ QVariant::Type qDecodePSQLType( int t )
     return type;
 }
 
-QVariant::Type qFieldType( QPSQLPrivate* p, int i )
+static QVariant::Type qFieldType( QPSQLPrivate* p, int i )
 {
     QVariant::Type type = qDecodePSQLType( PQftype( p->result, i ) );
     return type;
@@ -251,7 +260,7 @@ bool QPSQLResult::fetchLast()
 }
 
 // some Postgres conversions
-QPoint pointFromString( const QString& s)
+static QPoint pointFromString( const QString& s)
 {
     // format '(x,y)'
     int pivot = s.find( ',' );
@@ -263,7 +272,7 @@ QPoint pointFromString( const QString& s)
 	return QPoint();
 }
 
-QDate qDateFromUInt( uint dt )
+static QDate qDateFromUInt( uint dt )
 {
     int y,m,d;
     QDate::julianToGregorian( dt, y, m, d );
@@ -512,8 +521,12 @@ void QPSQLDriver::init()
 {
     if ( !qt_driver_extension_dict )
 	qt_driver_extension_dict = new QPtrDict<QSqlDriverExtension>;
-
     qt_driver_extension_dict->insert( this, new QPSQLDriverExtension(this) );
+
+    if ( !qt_open_extension_dict )
+	qt_open_extension_dict = new QPtrDict<QSqlOpenExtension>;
+    qt_open_extension_dict->insert( this, new QPSQLOpenExtension(this) );
+
     d = new QPSQLPrivate();
 }
 
@@ -531,6 +544,17 @@ QPSQLDriver::~QPSQLDriver()
 	if ( qt_driver_extension_dict->isEmpty() ) {
 	    delete qt_driver_extension_dict;
 	    qt_driver_extension_dict = 0;
+	}
+    }
+    if ( qt_open_extension_dict ) {
+	if ( !qt_open_extension_dict->isEmpty() ) {
+	    QSqlOpenExtension *ext = qt_open_extension_dict->take( this );
+	    delete ext;
+	}
+
+	if ( qt_open_extension_dict->isEmpty() ) {
+	    delete qt_open_extension_dict;
+	    qt_open_extension_dict = 0;
 	}
     }
 }
@@ -613,11 +637,11 @@ static QPSQLDriver::Protocol getPSQLVersion( PGconn* connection )
     return QPSQLDriver::Version6;
 }
 
-bool QPSQLDriver::open( const QString & db,
-			const QString & user,
-			const QString & password,
-			const QString & host,
-			int port )
+bool QPSQLDriver::open( const QString&,
+			const QString&,
+			const QString&,
+			const QString&,
+			int )
 {
     qWarning("QPSQLDriver::open(): This version of open() is no longer supported." );
     return FALSE;

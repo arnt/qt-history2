@@ -128,14 +128,20 @@ class QM_EXPORT_SQL QSqlDriverExtension
 public:
     QSqlDriverExtension();
     virtual ~QSqlDriverExtension();
-    virtual bool isOpen() const;
+    virtual bool isOpen() const = 0;
+};
+
+class QM_EXPORT_SQL QSqlOpenExtension
+{
+public:
+    QSqlOpenExtension();
+    virtual ~QSqlOpenExtension();
     virtual bool open( const QString& db,
 		       const QString& user,
 		       const QString& password,
 		       const QString& host,
 		       int port,
-		       const QMap<QString, QString>& connOpts );
-    virtual bool implements( const QString& function ) const;
+		       const QMap<QString, QString>& connOpts ) = 0;
 };
 #endif
 #endif

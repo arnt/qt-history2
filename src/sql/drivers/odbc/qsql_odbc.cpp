@@ -53,6 +53,12 @@ static const int COLNAMESIZE = 255;
 //Map Qt parameter types to ODBC types
 static const SQLSMALLINT qParamType[ 4 ] = { SQL_PARAM_INPUT, SQL_PARAM_INPUT, SQL_PARAM_OUTPUT, SQL_PARAM_INPUT_OUTPUT };
 
+extern
+#if defined (QT_PLUGIN)
+Q_EXPORT
+#endif
+QPtrDict<QSqlOpenExtension> *qt_open_extension_dict;
+
 class QODBCPrivate
 {
 public:
@@ -97,7 +103,40 @@ public:
     QODBCResult * result;
 };
 
-QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
+extern
+#if defined (QT_PLUGIN)
+Q_EXPORT
+#endif
+QPtrDict<QSqlOpenExtension> *qt_open_extension_dict;
+
+class QODBCOpenExtension : public QSqlOpenExtension
+{
+public:
+    QODBCOpenExtension( QODBCDriver *dri )
+	: QSqlOpenExtension(), driver(dri) {}
+    ~QODBCOpenExtension() {}
+
+    bool open( const QString& db,
+	       const QString& user,
+	       const QString& password,
+	       const QString& host,
+	       int port,
+	       const QMap<QString, QString>& connOpts );    
+private:
+    QODBCDriver *driver;
+};
+
+bool QODBCOpenExtension::open( const QString& db,
+			       const QString& user,
+			       const QString& password,
+			       const QString& host,
+			       int port,
+			       const QMap<QString, QString>& connOpts )
+{
+    return driver->open( db, user, password, host, port, connOpts );
+}
+
+static QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
 {
     SQLINTEGER nativeCode_;
     SQLSMALLINT msgLen;
@@ -121,26 +160,26 @@ QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
     return QString::null;
 }
 
-QString qODBCWarn( const QODBCPrivate* odbc)
+static QString qODBCWarn( const QODBCPrivate* odbc)
 {
     return ( qWarnODBCHandle( SQL_HANDLE_ENV, odbc->hEnv ) + " "
 	     + qWarnODBCHandle( SQL_HANDLE_DBC, odbc->hDbc ) + " "
 	     + qWarnODBCHandle( SQL_HANDLE_STMT, odbc->hStmt ) );
 }
 
-void qSqlWarning( const QString& message, const QODBCPrivate* odbc )
+static void qSqlWarning( const QString& message, const QODBCPrivate* odbc )
 {
 #ifdef QT_CHECK_RANGE
     qWarning( message + "\tError:" + qODBCWarn( odbc ) );
 #endif
 }
 
-QSqlError qMakeError( const QString& err, int type, const QODBCPrivate* p )
+static QSqlError qMakeError( const QString& err, int type, const QODBCPrivate* p )
 {
     return QSqlError( "QODBC3: " + err, qODBCWarn(p), type );
 }
 
-QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype, const QODBCPrivate* p )
+static QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype, const QODBCPrivate* p )
 {
     QVariant::Type type = QVariant::Invalid;
     switch ( sqltype ) {
@@ -196,7 +235,7 @@ QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype, const QODBCPrivate* p )
     return type;
 }
 
-QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull, bool unicode = FALSE )
+static QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull, bool unicode = FALSE )
 {
     QString     fieldVal;
     SQLRETURN   r = SQL_ERROR;
@@ -256,7 +295,7 @@ QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull, 
     return fieldVal;
 }
 
-QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator, bool& isNull )
+static QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator, bool& isNull )
 {
     QByteArray fieldVal;
     SQLSMALLINT colNameLen;
@@ -326,7 +365,7 @@ QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndica
     return fieldVal;
 }
 
-int qGetIntData( SQLHANDLE hStmt, int column, bool& isNull  )
+static int qGetIntData( SQLHANDLE hStmt, int column, bool& isNull  )
 {
     SQLINTEGER intbuf = 0;
     isNull = FALSE;
@@ -344,7 +383,7 @@ int qGetIntData( SQLHANDLE hStmt, int column, bool& isNull  )
     return (int)intbuf;
 }
 
-double qGetDoubleData( SQLHANDLE hStmt, int column, bool& isNull )
+static double qGetDoubleData( SQLHANDLE hStmt, int column, bool& isNull )
 {
     SQLDOUBLE dblbuf;
     SQLINTEGER lengthIndicator = 0;
@@ -365,7 +404,7 @@ double qGetDoubleData( SQLHANDLE hStmt, int column, bool& isNull )
 
 // creates a QSqlFieldInfo from a valid hStmt generated
 // by SQLColumns. The hStmt has to point to a valid position.
-QSqlFieldInfo qMakeFieldInfo( const SQLHANDLE hStmt, const QODBCPrivate* p )
+static QSqlFieldInfo qMakeFieldInfo( const SQLHANDLE hStmt, const QODBCPrivate* p )
 {
     bool isNull;
     QString fname = qGetStringData( hStmt, 3, -1, isNull, p->unicode );
@@ -384,7 +423,7 @@ QSqlFieldInfo qMakeFieldInfo( const SQLHANDLE hStmt, const QODBCPrivate* p )
     return QSqlFieldInfo( fname, qDecodeODBCType( type, p ), required, size, prec, QVariant(), type );
 }
 
-QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
+static QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
 {
     SQLSMALLINT colNameLen;
     SQLSMALLINT colType;
@@ -431,8 +470,8 @@ QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
     			  (int)colType );
 }
 
-void qSplitTableQualifier( const QString & qualifier, QString * catalog,
-			   QString * schema, QString * table )
+static void qSplitTableQualifier( const QString & qualifier, QString * catalog,
+				  QString * schema, QString * table )
 {
     if ( !catalog || !schema || !table )
 	return;
@@ -1146,6 +1185,10 @@ QODBCDriver::QODBCDriver( QObject * parent, const char * name )
 
 void QODBCDriver::init()
 {
+    if ( !qt_open_extension_dict )
+	qt_open_extension_dict = new QPtrDict<QSqlOpenExtension>;
+
+    qt_open_extension_dict->insert( this, new QODBCOpenExtension(this) );
     d = new QODBCPrivate();
 }
 
@@ -1153,6 +1196,17 @@ QODBCDriver::~QODBCDriver()
 {
     cleanup();
     delete d;
+    if ( qt_open_extension_dict ) {
+	if ( !qt_open_extension_dict->isEmpty() ) {
+	    QSqlOpenExtension *ext = qt_open_extension_dict->take( this );
+	    delete ext;
+	}
+
+	if ( qt_open_extension_dict->isEmpty() ) {
+	    delete qt_open_extension_dict;
+	    qt_open_extension_dict = 0;
+	}
+    }
 }
 
 bool QODBCDriver::hasFeature( DriverFeature f ) const
@@ -1188,11 +1242,22 @@ bool QODBCDriver::hasFeature( DriverFeature f ) const
     }
 }
 
+bool QODBCDriver::open( const QString&,
+			const QString&,
+			const QString&,
+			const QString&,
+			int )
+{
+    qWarning("QODBCDriver::open(): This version of open() is no longer supported." );
+    return FALSE;
+}
+
 bool QODBCDriver::open( const QString & db,
 			const QString & user,
 			const QString & password,
 			const QString &,
-			int )
+			int,
+			const QMap<QString, QString>& connOpts )
 {
     if ( isOpen() )
       close();
@@ -1223,7 +1288,6 @@ bool QODBCDriver::open( const QString & db,
     }
     QString connQStr;
     // support the "DRIVER={SQL SERVER};SERVER=blah;" syntax
-//    QRegExp cr( "DRIVER\\s*=\\s*\\{.+\\}\\s*;\\s*SERVER\\s*=\\s*.+;" );
     if ( db.contains(".dsn") ) {
 	connQStr = "FILEDSN=" + db;
     } else if ( db.startsWith( "DRIVER" ) && db.contains( "SERVER" ) ) {

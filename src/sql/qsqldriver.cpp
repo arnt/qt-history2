@@ -47,6 +47,7 @@
 
 // ### This needs to go in 4.0!
 Q_EXPORT QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict = 0;
+Q_EXPORT QPtrDict<QSqlOpenExtension> *qt_open_extension_dict = 0;
 
 /*!
     \class QSqlDriver qsqldriver.h
@@ -129,7 +130,7 @@ bool QSqlDriver::isOpen() const
 {
     if ( qt_driver_extension_dict && !qt_driver_extension_dict->isEmpty() ) {
 	QSqlDriverExtension *ext = qt_driver_extension_dict->find((QSqlDriver*)this);
-	if ( ext && ext->implements( "isOpen" ) )
+	if ( ext )
 	    return ext->isOpen();
     }
 
@@ -487,9 +488,9 @@ bool QSqlDriver::open( const QString& db,
 		       int port,
 		       const QMap<QString, QString>& connOpts )
 {
-    if ( qt_driver_extension_dict && !qt_driver_extension_dict->isEmpty() ) {
-	QSqlDriverExtension *ext = qt_driver_extension_dict->find((QSqlDriver*)this);
-	if ( ext && ext->implements( "open" ) )
+    if ( qt_open_extension_dict && !qt_open_extension_dict->isEmpty() ) {
+	QSqlOpenExtension *ext = qt_open_extension_dict->find((QSqlDriver*)this);
+	if ( ext )
 	    return ext->open( db, user, password, host, port, connOpts );
     }
     return open( db, user, password, host, port );

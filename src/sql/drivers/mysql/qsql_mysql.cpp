@@ -48,14 +48,14 @@ extern
 #if defined (QT_PLUGIN)
 Q_EXPORT
 #endif
-QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict;
+QPtrDict<QSqlOpenExtension> *qt_open_extension_dict;
 
-class QMYSQLDriverExtension : public QSqlDriverExtension
+class QMYSQLOpenExtension : public QSqlOpenExtension
 {
 public:
-    QMYSQLDriverExtension( QMYSQLDriver *dri )
-	: QSqlDriverExtension(), driver(dri) {}
-    ~QMYSQLDriverExtension() {}
+    QMYSQLOpenExtension( QMYSQLDriver *dri )
+	: QSqlOpenExtension(), driver(dri) {}
+    ~QMYSQLOpenExtension() {}
 
     bool open( const QString& db,
 	       const QString& user,
@@ -63,27 +63,18 @@ public:
 	       const QString& host,
 	       int port,
 	       const QMap<QString, QString>& connOpts );
-    bool implements( const QString& function ) const;
-    
 private:
     QMYSQLDriver *driver;
 };
 
-bool QMYSQLDriverExtension::open( const QString& db,
-				  const QString& user,
-				  const QString& password,
-				  const QString& host,
-				  int port,
-				  const QMap<QString, QString>& connOpts )
+bool QMYSQLOpenExtension::open( const QString& db,
+				const QString& user,
+				const QString& password,
+				const QString& host,
+				int port,
+				const QMap<QString, QString>& connOpts )
 {
     return driver->open( db, user, password, host, port, connOpts );
-}
-
-bool QMYSQLDriverExtension::implements( const QString& function ) const
-{
-    if ( function == "open" )
-	return TRUE;
-    return FALSE;
 }
 
 class QMYSQLDriverPrivate
@@ -330,10 +321,10 @@ QMYSQLDriver::QMYSQLDriver( QObject * parent, const char * name )
 
 void QMYSQLDriver::init()
 {
-    if ( !qt_driver_extension_dict )
-	qt_driver_extension_dict = new QPtrDict<QSqlDriverExtension>;
+    if ( !qt_open_extension_dict )
+	qt_open_extension_dict = new QPtrDict<QSqlOpenExtension>;
 
-    qt_driver_extension_dict->insert( this, new QMYSQLDriverExtension(this) );
+    qt_open_extension_dict->insert( this, new QMYSQLOpenExtension(this) );
     d = new QMYSQLDriverPrivate();
     d->mysql = 0;
 }
@@ -341,6 +332,17 @@ void QMYSQLDriver::init()
 QMYSQLDriver::~QMYSQLDriver()
 {
     delete d;
+    if ( qt_open_extension_dict ) {
+	if ( !qt_open_extension_dict->isEmpty() ) {
+	    QSqlOpenExtension *ext = qt_open_extension_dict->take( this );
+	    delete ext;
+	}
+
+	if ( qt_open_extension_dict->isEmpty() ) {
+	    delete qt_open_extension_dict;
+	    qt_open_extension_dict = 0;
+	}
+    }
 }
 
 bool QMYSQLDriver::hasFeature( DriverFeature f ) const
