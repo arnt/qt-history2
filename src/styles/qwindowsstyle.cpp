@@ -267,18 +267,6 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 		11,4, 10,3, 10,2 };
 	    static const QCOORD pts5[] = {              // inner fill
 		4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
-	    // in right to left mode, we need it reversed
-	    static const QCOORD rpts1[] = {             // dark lines
-		11-1,9, 11-1,8, 11-0,7, 11-0,4, 11-1,3, 11-1,2, 11-2,1, 11-3,1, 11-4,0, 11-7,0, 11-8,1, 11-9,1 };
-	    static const QCOORD rpts2[] = {             // black lines
-		11-2,8, 11-1,7, 11-1,4, 11-2,3, 11-2,2, 11-3,2, 11-4,1, 11-7,1, 11-8,2, 11-9,2 };
-	    static const QCOORD rpts3[] = {             // background lines
-		11-2,9, 11-3,9, 11-4,10, 11-7,10, 11-8,9, 11-9,9, 11-9,8, 11-10,7, 11-10,4, 11-9,3 };
-	    static const QCOORD rpts4[] = {             // white lines
-		11-2,10, 11-3,10, 11-4,11, 11-7,11, 11-8,10, 11-9,10, 11-10,9, 11-10,8, 11-11,7,
-		11-11,4, 11-10,3, 11-10,2 };
-	    static const QCOORD rpts5[] = {             // inner fill
-		11-4,2, 11-7,2, 11-9,4, 11-9,7, 11-7,9, 11-4,9, 11-2,7, 11-2,4 };
 
 	    // make sure the indicator is square
 	    QRect ir = r;
@@ -292,43 +280,27 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	    }
 
 	    p->eraseRect(ir);
-	    bool reverse = QApplication::reverseLayout();
 	    bool down = flags & Style_Down;
 	    bool enabled = flags & Style_Enabled;
 	    bool on = flags & Style_On;
 	    QPointArray a;
-	    if( reverse )
-		a.setPoints( QCOORDARRLEN(rpts1), rpts1 );
-	    else
-		a.setPoints( QCOORDARRLEN(pts1), pts1 );
+	    a.setPoints( QCOORDARRLEN(pts1), pts1 );
 	    a.translate( ir.x(), ir.y() );
 	    p->setPen( cg.dark() );
 	    p->drawPolyline( a );
-	    if( reverse )
-		a.setPoints( QCOORDARRLEN(rpts2), rpts2 );
-	    else
-		a.setPoints( QCOORDARRLEN(pts2), pts2 );
+	    a.setPoints( QCOORDARRLEN(pts2), pts2 );
 	    a.translate( ir.x(), ir.y() );
 	    p->setPen( cg.shadow() );
 	    p->drawPolyline( a );
-	    if( reverse )
-		a.setPoints( QCOORDARRLEN(rpts3), rpts3 );
-	    else
-		a.setPoints( QCOORDARRLEN(pts3), pts3 );
+	    a.setPoints( QCOORDARRLEN(pts3), pts3 );
 	    a.translate( ir.x(), ir.y() );
 	    p->setPen( cg.midlight() );
 	    p->drawPolyline( a );
-	    if( reverse )
-		a.setPoints( QCOORDARRLEN(rpts4), rpts4 );
-	    else
-		a.setPoints( QCOORDARRLEN(pts4), pts4 );
+	    a.setPoints( QCOORDARRLEN(pts4), pts4 );
 	    a.translate( ir.x(), ir.y() );
 	    p->setPen( cg.light() );
 	    p->drawPolyline( a );
-	    if( reverse )
-		a.setPoints( QCOORDARRLEN(rpts5), rpts5 );
-	    else
-		a.setPoints( QCOORDARRLEN(pts5), pts5 );
+	    a.setPoints( QCOORDARRLEN(pts5), pts5 );
 	    a.translate( ir.x(), ir.y() );
 	    QColor fillColor = ( down || !enabled ) ? cg.button() : cg.base();
 	    p->setPen( fillColor );
@@ -1576,8 +1548,6 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		int y1 = y;
 		int y2 = y+he-1;
 
-		bool reverse = QApplication::reverseLayout();
-
 		Orientation orient = sl->orientation();
 		bool tickAbove = sl->tickmarks() == QSlider::Above;
 		bool tickBelow = sl->tickmarks() == QSlider::Below;
@@ -1648,27 +1618,15 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		    p->drawLine( x1, y1+1, x2, y1+1 );
 		}
 		if ( dir != SlLeft ) {
-		    if ( reverse )
-			p->setPen( c1 );
-		    else
-			p->setPen( c3 );
+		    p->setPen( c3 );
 		    p->drawLine( x1+1, y1+1, x1+1, y2 );
-		    if ( reverse )
-			p->setPen( c0 );
-		    else
-			p->setPen( c4 );
+		    p->setPen( c4 );
 		    p->drawLine( x1, y1, x1, y2 );
 		}
 		if ( dir != SlRight ) {
-		    if ( reverse )
-			p->setPen( c4 );
-		    else
-			p->setPen( c0 );
+		    p->setPen( c0 );
 		    p->drawLine( x2, y1, x2, y2 );
-		    if ( reverse )
-			p->setPen( c3 );
-		    else
-			p->setPen( c1 );
+		    p->setPen( c1 );
 		    p->drawLine( x2-1, y1+1, x2-1, y2-1 );
 		}
 		if ( dir != SlDown ) {
@@ -1680,51 +1638,27 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 		switch ( dir ) {
 		case SlUp:
-		    if ( reverse )
-			p->setPen( c0 );
-		    else
-			p->setPen( c4 );
+		    p->setPen( c4 );
 		    p->drawLine( x1, y1, x1+d, y1-d);
-		    if ( reverse )
-			p->setPen( c4 );
-		    else
-			p->setPen( c0 );
+		    p->setPen( c0 );
 		    d = wi - d - 1;
 		    p->drawLine( x2, y1, x2-d, y1-d);
 		    d--;
-		    if ( reverse )
-			p->setPen( c1 );
-		    else
-			p->setPen( c3 );
+		    p->setPen( c3 );
 		    p->drawLine( x1+1, y1, x1+1+d, y1-d );
-		    if ( reverse )
-			p->setPen( c3 );
-		    else
-			p->setPen( c1 );
+		    p->setPen( c1 );
 		    p->drawLine( x2-1, y1, x2-1-d, y1-d);
 		    break;
 		case SlDown:
-		    if ( reverse )
-			p->setPen( c0 );
-		    else
-			p->setPen( c4 );
+		    p->setPen( c4 );
 		    p->drawLine( x1, y2, x1+d, y2+d);
-		    if ( reverse )
-			p->setPen( c4 );
-		    else
-			p->setPen( c0 );
+		    p->setPen( c0 );
 		    d = wi - d - 1;
 		    p->drawLine( x2, y2, x2-d, y2+d);
 		    d--;
-		    if ( reverse )
-			p->setPen( c1 );
-		    else
-			p->setPen( c3 );
+		    p->setPen( c3 );
 		    p->drawLine( x1+1, y2, x1+1+d, y2+d );
-		    if ( reverse )
-			p->setPen( c3 );
-		    else
-			p->setPen( c1 );
+		    p->setPen( c1 );
 		    p->drawLine( x2-1, y2, x2-1-d, y2+d);
 		    break;
 		case SlLeft:
