@@ -4193,7 +4193,7 @@ bool QWidget::event( QEvent *e )
 	    // FALL THROUGH
 	case QEvent::ApplicationPaletteChange:
 	    if ( !own_palette && !isDesktop() ) {
-		if ( !isTopLevel() && QApplication::palette( this ).isCopyOf( QApplication::palette() ) )
+		if ( !isTopLevel() && parentWidget() && QApplication::palette( this ).isCopyOf( QApplication::palette() ) )
 		    setPalette( parentWidget()->palette() );
 		else
 		    setPalette( QApplication::palette( this ) );
