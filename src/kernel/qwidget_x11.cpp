@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#104 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#103 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#104 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -639,14 +639,16 @@ void QWidget::setActiveWindow()
 /*----------------------------------------------------------------------------
   Gives the keyboard input focus to the widget.
 
-  First, a \link focusEvent() focus event\endlink is sent to the widget
-  that currently has keyboard focus to tell it that it is looses the
-  focus. Then a focus event is sent to this widget to tell it that it just
-  received the keyboard focus. This widget must have keyboard focus
-  enabled to be able to get the keyboard input focus, i.e. it must call
-  setAcceptFocus(TRUE).
+  First, a \link focusOutEvent() focus out event\endlink is sent to the
+  focus widget (if any) to tell it that it is about to loose the
+  focus. Then a \link focusInEvent() focus in event\endlink is sent to
+  this widget to tell it that it just received the focus.
 
-  \sa hasFocus(), focusEvent(), setAcceptFocus(), QApplication::focusWidget()
+  This widget must enable focus setting in order to get the keyboard input
+  focus, i.e. it must call setAcceptFocus(TRUE).
+
+  \sa hasFocus(), focusInEvent(), focusOutEvent(), setAcceptFocus(),
+  QApplication::focusWidget()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setFocus()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#71 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#70 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#71 $")
 
 
 /*----------------------------------------------------------------------------
@@ -938,8 +938,11 @@ static void err_member_notfound( int code, QObject *object, const char *member,
 /*----------------------------------------------------------------------------
   \fn bool QObject::connect( QObject *sender, const char *signal, const char *member ) const
 
-  Connects \e signal from object \e sender to \e member in this
-  object.
+  Connects \e signal from the \e sender object to \e member in this object.
+
+  Equivalent to: <code>QObject::connect(sender, signal, this, member)</code>.
+
+  \sa disconnect()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -953,8 +956,48 @@ static void err_member_notfound( int code, QObject *object, const char *member,
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Connects \e signal from object \e sender to \e member in object \e
+  Connects \e signal from the \e sender object to \e member in object \e
   receiver.
+
+  You must use the SIGNAL() and SLOT() macros when specifying the \e signal
+  and the \e member.
+
+  Example:
+  \code
+    QLCDNumber *lcd  = new QLCDNumber;
+    QScrollBar *sbar = new QScrollBar;
+    QObject::connect( sbar, SIGNAL(valueChanged(int)),
+		      lcd,  SLOT(display(int)) );
+  \endcode
+
+  This example connects the scroll bar's \link QScrollBar::valueChanged()
+  valueChanged()\endlink signal to the LCD number's \link
+  QLCDNumber::display() display()\endlink slot. It makes the LCD number
+  always display the current scroll bar value.
+
+  A signal can even be connected to another signal, i.e. \e member is
+  a SIGNAL().
+
+  Example:
+  \code
+    QPushButton *button1 = new QPushButton;
+    QPushButton *button2 = new QPushButton;
+    QObject::connect( button1, SIGNAL(clicked()),
+	              button2, SIGNAL(clicked()) );
+    QObject::connect( button2, SIGNAL(clicked()),
+                      qApp,    SLOT(quitApp()) );
+  \endcode
+
+  Clicking \c button1 makes this button emit the \link QButton::clicked()
+  clicked()\endlink signal, which immediately leads to emitting
+  \c button2's clicked() signal which terminates the application.
+
+  A signal can be connected to many slots/signals. Many signals can be
+  connected to one slot. There is no limit.
+
+  When a signal is connected to several slots, emitting the signal will
+  activate the slots in the same order they were connected.
+
   \sa disconnect()
  ----------------------------------------------------------------------------*/
 
@@ -963,7 +1006,7 @@ bool QObject::connect( QObject *sender,		const char *signal,
 {
 #if defined(CHECK_NULL)
     if ( sender == 0 || receiver == 0 || signal == 0 || member == 0 ) {
-	warning( "QObject::connect: Unexpected NULL parameter" );
+	warning( "QObject::connect: Unexpected null parameter" );
 	return FALSE;
     }
 #endif

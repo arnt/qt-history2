@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#87 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#86 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#87 $")
 
 
 /*----------------------------------------------------------------------------
@@ -788,8 +788,8 @@ bool QWidget::setMouseTracking( bool enable )
 
 
 /*----------------------------------------------------------------------------
-  Returns TRUE if the widget (not one of its children) has the
-  keyboard input focus.
+  Returns TRUE if this widget (not one of its children) has the
+  keyboard input focus, otherwise FALSE.
 
   Equivalent to: <code>qApp->focusWidget() == this</code>.
 
