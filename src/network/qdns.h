@@ -109,8 +109,9 @@ private slots:
     void startQuery();
 
 private:
+    static void doResInit();
     void setStartQueryTimer();
-    QString toInAddrArpaDomain( const QHostAddress &address );
+    static QString toInAddrArpaDomain( const QHostAddress &address );
 #if defined(Q_DNS_SYNCHRONOUS)
     void doSynchronousLookup();
 #endif
@@ -121,6 +122,7 @@ private:
     QDnsPrivate * d;
 
     friend class QDnsAnswer;
+    friend class QDnsManager;
 };
 
 

@@ -63,23 +63,30 @@ static inline int qt_socket_socket(int domain, int type, int protocol)
 #include <errno.h>
 #include <sys/types.h>
 
-static inline void qt_socket_getportaddr( struct sockaddr *sa, Q_UINT16 *port, QHostAddress *addr )
+
+static inline void qt_socket_getportaddr( struct sockaddr *sa,
+					  Q_UINT16 *port, QHostAddress *addr )
 {
 #if !defined(QT_NO_IPV6)
     if ( sa->sa_family == AF_INET6 ) {
 	struct sockaddr_in6 *sa6 = ( struct sockaddr_in6 * )sa;
-	*port = ntohs( sa6->sin6_port );
-
 	Q_IPV6ADDR tmp;
 	memcpy( &tmp, &sa6->sin6_addr.s6_addr, sizeof(tmp) );
-	*addr = QHostAddress( tmp );
+	QHostAddress a( tmp );
+	if ( !a.isNull() ) {
+	    *addr = a;
+	    *port = ntohs( sa6->sin6_port );
+	}
 
 	return;
     }
 #endif
     struct sockaddr_in *sa4 = (struct sockaddr_in *)sa;
-    *port = ntohs( sa4->sin_port );
-    *addr = QHostAddress( ntohl( sa4->sin_addr.s_addr ) );
+    QHostAddress a( ntohl( sa4->sin_addr.s_addr ) );
+    if ( !a.isNull() ) {
+	*port = ntohs( sa4->sin_port );
+	*addr = QHostAddress( ntohl( sa4->sin_addr.s_addr ) );
+    }
     return;
 }
 
@@ -372,6 +379,10 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 {
     if ( !isValid() )
 	return FALSE;
+
+    pa = addr;
+    pp = port;
+
     struct sockaddr_in a4;
     struct sockaddr *aa;
     QT_SOCKLEN_T aalen;

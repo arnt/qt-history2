@@ -76,8 +76,6 @@ static Q_UINT32 now()
 static QList<QHostAddress*> *ns = 0;
 static QList<QByteArray> *domains = 0;
 
-static void doResInit();
-
 
 class QDnsPrivate {
 public:
@@ -870,7 +868,7 @@ QDnsManager::QDnsManager()
 	     this, SLOT(answer()) );
 
     if ( !ns )
-	doResInit();
+	QDns::doResInit();
 
     // O(n*n) stuff here.  but for 3 and 6, O(n*n) with a low k should
     // be perfect.  the point is to eliminate any duplicates that
@@ -1221,7 +1219,9 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
     // test at first if you have to start a query at all
     if ( r->recordType() == QDns::A ) {
 	if ( r->label().lower() == "localhost" ) {
-	    // undocumented hack:
+	    // undocumented hack. ipv4-specific. also, may be a memory
+	    // leak? not sure. would be better to do this in doResInit(),
+	    // anyway.
 	    QDnsRR *rrTmp = new QDnsRR( r->label() );
 	    rrTmp->t = QDns::A;
 	    rrTmp->address = QHostAddress( 0x7f000001 );
@@ -1230,9 +1230,12 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 	    return l;
 	}
 	QHostAddress tmp;
-	if ( tmp.setAddress(r->label()) && tmp.isIp4Addr() ) {
+	if ( tmp.setAddress( r->label() ) ) {
 	    QDnsRR *rrTmp = new QDnsRR( r->label() );
-	    rrTmp->t = QDns::A;
+	    if ( tmp.isIPv4Address() )
+		rrTmp->t = QDns::A;
+	    else
+		rrTmp->t = QDns::Aaaa;
 	    rrTmp->address = tmp;
 	    rrTmp->current = TRUE;
 	    l->append( rrTmp );
@@ -1756,21 +1759,35 @@ void QDns::setStartQueryTimer()
     }
 }
 
-/*!
-    Transforms the host address \a address to the IN-ADDR.ARPA domain name.
+/*
+    Transforms the host address \a address to the IN-ADDR.ARPA domain
+    name. Returns something indeterminate if you're sloppy or
+    naughty. This function has an IPv4-specific name, but works for
+    IPv6 too.
 */
 QString QDns::toInAddrArpaDomain( const QHostAddress &address )
 {
-    if ( address.isIp4Addr() ) {
+    QString s;
+    if ( address.isNull() ) {
+	// if the address isn't valid, neither of the other two make
+	// cases make sense. better to just return.
+    } else if ( address.isIp4Addr() ) {
 	Q_UINT32 i = address.ip4Addr();
-	QString s;
 	s.sprintf( "%d.%d.%d.%d.IN-ADDR.ARPA",
-		i & 0xff, (i >> 8) & 0xff, (i>>16) & 0xff, (i>>24) & 0xff );
-	return s;
+		   i & 0xff, (i >> 8) & 0xff, (i>>16) & 0xff, (i>>24) & 0xff );
     } else {
-	qWarning( "QDns: IPv6 addresses not supported for this operation yet" );
-	return QString::null;
+	// RFC 3152. (1886 is deprecated, and clients no longer need to
+	// support it, in practice).
+	Q_IPV6ADDR i = address.toIPv6Address();
+	s = "ip6.arpa";
+	uint b = 0;
+	while( b < 16 ) {
+	    s = QString::number( i.c[b]%16, 16 ) + "." +
+		QString::number( i.c[b]/16, 16 ) + "." + s;
+	    b++;
+	}
     }
+    return s;
 }
 
 
@@ -2204,7 +2221,7 @@ static bool getDnsParamsFromRegistry( const QString &path,
     return r == ERROR_SUCCESS;
 }
 
-static void doResInit()
+void QDns::doResInit()
 {
     char separator = 0;
 
@@ -2368,13 +2385,16 @@ void QDns::doSynchronousLookup()
 #define Q_MODERN_RES_API
 #endif
 
-static void doResInit()
+void QDns::doResInit()
 {
     if ( ns )
 	return;
     ns = new QList<QHostAddress *>;
     ns->setAutoDelete( TRUE );
     domains = new QList<QByteArray>;
+
+    // ### critical bug.
+    // this is broken when some/all name servers use IPv6 addresses.
 
 #if defined(Q_MODERN_RES_API)
     struct __res_state res;
@@ -2411,6 +2431,16 @@ static void doResInit()
 	domains->append( QByteArray(QString::fromLatin1( _res.defdname ).lower()) );
 #endif
 
+    // the code above adds "0.0.0.0" as a name server at the slightest
+    // hint of trouble. so remove those again.
+    ns->first();
+    while( ns->current() ) {
+	if ( ns->current()->isNull() )
+	    delete ns->take();
+	else
+	    ns->next();
+    }
+
     QFile hosts( QString::fromLatin1( "/etc/hosts" ) );
     if ( hosts.open( IO_ReadOnly ) ) {
 	// read the /etc/hosts file, creating long-life A and PTR RRs
@@ -2429,7 +2459,7 @@ static void doResInit()
 	    QString ip = line.left( n );
 	    QHostAddress a;
 	    a.setAddress( ip );
-	    if ( a.isIp4Addr() ) {
+	    if ( ( a.isIPv4Address() || a.isIPv6Address() ) && !a.isNull() ) {
 		bool first = TRUE;
 		line = line.mid( n+1 );
 		n = 0;
@@ -2439,21 +2469,17 @@ static void doResInit()
 		// ### in case of bad syntax, hostname is invalid. do we care?
 		if ( n ) {
 		    QDnsRR * rr = new QDnsRR( hostname );
-		    rr->t = QDns::A;
+		    if ( a.isIPv4Address() )
+			rr->t = QDns::A;
+		    else
+			rr->t = QDns::Aaaa;
 		    rr->address = a;
 		    rr->deleteTime = UINT_MAX;
 		    rr->expireTime = UINT_MAX;
 		    rr->current = TRUE;
 		    if ( first ) {
 			first = FALSE;
-			QString arpa;
-			// ### maybe this should go in QHostAddress?
-			arpa.sprintf( "%d.%d.%d.%d.in-addr.arpa",
-				      ( a.ip4Addr() >> 0 ) & 0xff,
-				      ( a.ip4Addr() >> 8 ) & 0xff,
-				      ( a.ip4Addr() >>16 ) & 0xff,
-				      ( a.ip4Addr() >>24 ) & 0xff );
-			QDnsRR * ptr = new QDnsRR( arpa );
+			QDnsRR * ptr = new QDnsRR( QDns::toInAddrArpaDomain( a ) );
 			ptr->t = QDns::Ptr;
 			ptr->target = hostname;
 			ptr->deleteTime = UINT_MAX;
