@@ -1583,8 +1583,9 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     heartbeat = startTimer(200);
 
     qApp->setOverrideCursor( arrowCursor );
+    restoreCursor = TRUE;
     updateCursor();
-    
+
     qApp->enter_loop(); // Do the DND.
 
     qApp->restoreOverrideCursor();
