@@ -602,10 +602,10 @@ bool FileDriver::field( uint i, QVariant& v )
     return d->getField( i, v );
 }
 
-bool FileDriver::fieldDescription( const QString& name, QVariant& v )
+bool FileDriver::fieldTypeInfo( const QString& name, QVariant& v )
 {
 #ifdef VERBOSE_DEBUG_XBASE
-    env->output() << "FileDriver::fieldDescription(string)..." << flush;
+    env->output() << "FileDriver::fieldTypeInfo(string)..." << flush;
 #endif
     if ( !isOpen() )
 	return FALSE;
@@ -613,13 +613,13 @@ bool FileDriver::fieldDescription( const QString& name, QVariant& v )
     if ( i == -1 ) {
 	ERROR_RETURN( UNKNOWN_FIELD_NAME + "'" + name + "'" );
     }
-    return fieldDescription( i, v );
+    return fieldTypeInfo( i, v );
 }
 
-bool FileDriver::fieldDescription( int i, QVariant& v )
+bool FileDriver::fieldTypeInfo( int i, QVariant& v )
 {
 #ifdef VERBOSE_DEBUG_XBASE
-    env->output() << "FileDriver::fieldDescription(int)..." << flush;
+    env->output() << "FileDriver::fieldTypeInfo(int)..." << flush;
 #endif
     if ( !isOpen() )
 	return FALSE;
@@ -627,11 +627,9 @@ bool FileDriver::fieldDescription( int i, QVariant& v )
 	ERROR_RETURN( UNKNOWN_FIELD_NUM + QString::number(i));
     }
     List field;
-    QString name = QString( d->file.GetFieldName( i ) ).simplifyWhiteSpace();
     QVariant::Type type = xbaseTypeToVariant( d->file.GetFieldType( i ) );
     int len = d->file.GetFieldLen( i );
     int prec = d->file.GetFieldDecimal( i );
-    field.append( name );
     field.append( (int) type );
     field.append( len );
     field.append( prec );
@@ -1028,30 +1026,19 @@ bool FileDriver::createIndex( const List& data, bool unique )
     QString indexDesc;
     QVariant::Type indexType = QVariant::Invalid;
     for ( ; i < data.count(); ++i ) {
-	List createIndexData = data[i].toList();
-	if ( createIndexData.count() != 4 ) {
-	    ERROR_RETURN( "Internal error: Bad index data");
-	}
-	QString name = createIndexData[0].toString();
-	QVariant::Type type = (QVariant::Type)createIndexData[1].toInt();
-	if ( indexType == QVariant::Invalid )
-	    indexType = type;
-	if ( type != indexType ) {
-	    QVariant v; v.cast( indexType );
-	    QVariant b; b.cast( type );
-	    ERROR_RETURN( "Unable to create index with conflicting "
-			  "types: '" + QString( v.typeName() ) + "', '" + QString( b.typeName() ) + "'" );
-	}
+	QString name = data[i].toString();
 	/* create the index description string */
 	xbShort fieldnum = d->file.GetFieldNo( name );
 	if (  fieldnum == -1 ) {
 	    ERROR_RETURN( "Internal error: Field not found:" + name );
 	}
+	if ( indexType == QVariant::Invalid ) /* save type of first indexed field */
+	    indexType = d->file.GetFieldType( fieldnum );
 	if ( !canConvert( xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) ),
-			  type ) ) {
-	    QVariant v1; v1.cast( type );
+			  indexType ) ) {
+	    QVariant v1; v1.cast( indexType );
 	    QVariant v2; v2.cast( xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) ) );
-	    ERROR_RETURN( "Incompatible types: '" + QString( v1.typeName() ) + "' and '" +
+	    ERROR_RETURN( "Incompatible index field types: '" + QString( v1.typeName() ) + "' and '" +
 			  QString( v2.typeName() ) + "'" );
 	}
 	indexDesc += QString(( indexDesc.length()>0 ? QString("+") : QString::null ) ) + name;

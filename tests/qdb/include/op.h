@@ -143,7 +143,7 @@ public:
 	: Op( P1, P2, P3 )
     {
     }
-    ~Push() {}
+    ~PushSeparator() {}
     QString name() const { return "pushseparator"; }
     int exec( LocalSQLEnvironment* env )
     {
@@ -612,38 +612,39 @@ public:
 };
 
 
-/* Push field description information of the field identified by
+/* Push type info information of the field identified by
   'nameOrNumber' in the file identified by 'id onto the top of the
   stack.  'nameOrNumber' can be the name of the field or the number of
   the field within the file.  The field must exist in the file.  The
-  'field description' is a list of the following form:
+  'field type info' is pushed onto the stack in the following order:
 
-  field name (string)
   field type (QVariant::Type)
   field length (int)
   field decimal precision (int)
 
 */
 
-class PushFieldDesc : public Op
+class PushFieldTypeInfo : public Op
 {
 public:
-    PushFieldDesc( const QVariant& id,
+    PushFieldTypeInfo( const QVariant& id,
 		   const QVariant& nameOrNumber )
 	: Op( id, nameOrNumber ) {}
-    QString name() const { return "pushfielddesc"; }
+    QString name() const { return "pushfieldtypeinfo"; }
     int exec( LocalSQLEnvironment* env )
     {
 	LocalSQLFileDriver* drv = env->fileDriver( p1.toInt() );
 	QVariant v;
 	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
-	    if ( !drv->fieldDescription( p2.toString(), v ) )
+	    if ( !drv->fieldTypeInfo( p2.toString(), v ) )
 		return FALSE;
 	} else {
-	    if ( !drv->fieldDescription( p2.toInt(), v ) )
+	    if ( !drv->fieldTypeInfo( p2.toInt(), v ) )
 		return FALSE;
 	}
-	env->stack()->push( v );
+	List list = v.toList();
+	for ( uint i = 0; i < list.count(); ++i )
+	    env->stack()->push( list[i] );
 	return TRUE;
     }
 };
@@ -687,12 +688,10 @@ public:
   field desc
   ...etc
 
-  Where 'field desc' is a list of the form:
+  Where each 'field desc' is itself a list of the form:
 
   field name (string)
   field type (QVariant::Type)
-  field length (int)
-  field decimal precision (int)
 
   See also 'PushFieldDesc' which can provide the above information.
 
@@ -862,24 +861,16 @@ public:
     }
 };
 
-
 /*  Pop the top of the stack (which must be a list, see MakeList) and
-  use it as a description of fields, which must be of the form:
+  use it as a list of field names, e.g.:
 
-   field data
-   field data
-   field data
+   field name
+   field name
+   field name
    ...
 
-   Where each 'field data' is a value list of the form:
-
-   field name (string)
-   field type (QVariant::Type)
-   field length (int)
-   field decimal precision (int)
-
    Creates an index on the file identified by 'id'.  The file must be
-   open (see Open).  See also PushFieldDesc.
+   open (see Open).
 */
 
 class CreateIndex : public Op
@@ -915,27 +906,26 @@ public:
     }
 };
 
+
 /* Pop the top of the stack (which must be a list, see MakeList) and
    use it as a list of fields with which to sort the 'result set' which
    is identified by 'id' (see CreateResult).
 
    The 'list' which is popped from the top of the stack must be of the form:
 
-   field description
+   sort description
+   sort description
+   ...
+
+   Where each 'sort description' is itself a list of the form:
+
+   field number(uint)
    descending (bool)
-   field description
-   descending (bool)
 
-   Where 'field description' is a list of the form:
-
-   field name (string)
-   field type (QVariant::Type)
-   field length (int)
-   field decimal precision (int)
-
-   and 'descending' is a bool indicating if the field should be sorted
-   in descending order (otherwise, it is sorted in ascending order).
-   The file must be open (see Open).  See also PushFieldDesc.
+   Where 'field number' is the number of the field in the result and
+   'descending' is a bool indicating if the field should be sorted in
+   descending order (otherwise, it is sorted in ascending order).  The
+   file must be open (see Open).  See also PushFieldDesc.
 
 */
 
@@ -1124,20 +1114,15 @@ public:
 class PushGroupValue : public Op
 {
 public:
-    PushGroupValue( int id, const QVariant& P2 )
+    PushGroupValue( int id, uint P2 )
 	: Op( id, P2 ) {}
     QString name() const { return "pushgroupvalue"; }
     int exec( LocalSQLEnvironment* env )
     {
 	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
 	QVariant v;
-	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
-	    if ( !res->groupSetAction( LocalSQLResultSet::Value, p2.toString(), v ) )
-		return FALSE;
-	} else {
-	    if ( !res->groupSetAction( LocalSQLResultSet::Value, p2.toInt(), v ) )
-		return FALSE;
-	}
+	if ( !res->groupSetAction( LocalSQLResultSet::Value, p2.toUInt(), v ) )
+	    return FALSE;
 	env->stack()->push( v );
 	return TRUE;
     }
@@ -1151,20 +1136,15 @@ public:
 class PushGroupCount : public Op
 {
 public:
-    PushGroupCount( int id, const QVariant& P2 )
+    PushGroupCount( int id, uint P2 )
 	: Op( id, P2 ) {}
     QString name() const { return "pushgroupcount"; }
     int exec( LocalSQLEnvironment* env )
     {
 	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
 	QVariant v;
-	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
-	    if ( !res->groupSetAction( LocalSQLResultSet::Count, p2.toString(), v ) )
-		return FALSE;
-	} else {
-	    if ( !res->groupSetAction( LocalSQLResultSet::Count, p2.toInt(), v ) )
-		return FALSE;
-	}
+	if ( !res->groupSetAction( LocalSQLResultSet::Count, p2.toUInt(), v ) )
+	    return FALSE;
 	env->stack()->push( v );
 	return TRUE;
     }
@@ -1178,20 +1158,15 @@ public:
 class PushGroupSum : public Op
 {
 public:
-    PushGroupSum( int id, const QVariant& P2 )
+    PushGroupSum( int id, uint P2 )
 	: Op( id, P2 ) {}
     QString name() const { return "pushgroupsum"; }
     int exec( LocalSQLEnvironment* env )
     {
 	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
 	QVariant v;
-	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
-	    if ( !res->groupSetAction( LocalSQLResultSet::Sum, p2.toString(), v ) )
-		return FALSE;
-	} else {
-	    if ( !res->groupSetAction( LocalSQLResultSet::Sum, p2.toInt(), v ) )
-		return FALSE;
-	}
+	if ( !res->groupSetAction( LocalSQLResultSet::Sum, p2.toUInt(), v ) )
+	    return FALSE;
 	env->stack()->push( v );
 	return TRUE;
     }
@@ -1205,20 +1180,15 @@ public:
 class PushGroupAvg : public Op
 {
 public:
-    PushGroupAvg( int id, const QVariant& P2 )
+    PushGroupAvg( int id, uint P2 )
 	: Op( id, P2 ) {}
     QString name() const { return "pushgroupavg"; }
     int exec( LocalSQLEnvironment* env )
     {
 	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
 	QVariant v;
-	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
-	    if ( !res->groupSetAction( LocalSQLResultSet::Avg, p2.toString(), v ) )
-		return FALSE;
-	} else {
-	    if ( !res->groupSetAction( LocalSQLResultSet::Avg, p2.toInt(), v ) )
-		return FALSE;
-	}
+	if ( !res->groupSetAction( LocalSQLResultSet::Avg, p2.toUInt(), v ) )
+	    return FALSE;
 	env->stack()->push( v );
 	return TRUE;
     }
@@ -1232,20 +1202,15 @@ public:
 class PushGroupMax : public Op
 {
 public:
-    PushGroupMax( int id, const QVariant& P2 )
+    PushGroupMax( int id, uint P2 )
 	: Op( id, P2 ) {}
     QString name() const { return "pushgroupmax"; }
     int exec( LocalSQLEnvironment* env )
     {
 	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
 	QVariant v;
-	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
-	    if ( !res->groupSetAction( LocalSQLResultSet::Max, p2.toString(), v ) )
-		return FALSE;
-	} else {
-	    if ( !res->groupSetAction( LocalSQLResultSet::Max, p2.toInt(), v ) )
-		return FALSE;
-	}
+	if ( !res->groupSetAction( LocalSQLResultSet::Max, p2.toUInt(), v ) )
+	    return FALSE;
 	env->stack()->push( v );
 	return TRUE;
     }
@@ -1260,28 +1225,18 @@ public:
 class PushGroupMin : public Op
 {
 public:
-    PushGroupMin( int id, const QVariant& P2 )
+    PushGroupMin( int id, uint P2 )
 	: Op( id, P2 ) {}
     QString name() const { return "pushgroupmin"; }
     int exec( LocalSQLEnvironment* env )
     {
 	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
 	QVariant v;
-	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
-	    if ( !res->groupSetAction( LocalSQLResultSet::Min, p2.toString(), v ) )
-		return FALSE;
-	} else {
-	    if ( !res->groupSetAction( LocalSQLResultSet::Min, p2.toInt(), v ) )
-		return FALSE;
-	}
+	if ( !res->groupSetAction( LocalSQLResultSet::Min, p2.toUInt(), v ) )
+	    return FALSE;
 	env->stack()->push( v );
 	return TRUE;
     }
 };
-
-
-
-
-
 
 #endif

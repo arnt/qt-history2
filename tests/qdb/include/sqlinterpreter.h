@@ -66,8 +66,8 @@ public:
     bool markAll();
     bool createIndex( const List& data, bool unique );
     bool drop();
-    bool fieldDescription( const QString& name, QVariant& v );
-    bool fieldDescription( int i, QVariant& v );
+    bool fieldTypeInfo( const QString& name, QVariant& v );
+    bool fieldTypeInfo( int i, QVariant& v );
     bool clearMarked();
     uint count() const;
     uint size() const;
@@ -123,7 +123,6 @@ public:
     QValueList<QVariant::Type> columnTypes() const;
     bool setGroupSet( const QVariant& v );
     bool nextGroupSet();
-    bool groupSetAction( GroupSetAction action, const QString& name, QVariant& v );
     bool groupSetAction( GroupSetAction action, uint i, QVariant& v );
 
 private:

@@ -137,8 +137,6 @@ struct LocalSQLResultSet : public LocalSQLDataSet
     };
     /*! Returns the value of groupset field \a i (zero-based) according to \a action */
     virtual bool groupSetAction( GroupSetAction action, uint i, QVariant& v ) = 0;
-    /*! Returns the value of the groupset field named \a name according to \a action */
-    virtual bool groupSetAction( GroupSetAction action, const QString& name, QVariant& v ) = 0;
 };
 
 /*! \struct FileDriver
@@ -167,8 +165,8 @@ struct LocalSQLFileDriver : public LocalSQLDataSet
     virtual bool markAll() = 0;
     virtual bool createIndex( const List& index, bool unique ) = 0;
     virtual bool drop() = 0;
-    virtual bool fieldDescription( const QString& name, QVariant& v ) = 0;
-    virtual bool fieldDescription( int i, QVariant& v ) = 0;
+    virtual bool fieldTypeInfo( const QString& name, QVariant& v ) = 0;
+    virtual bool fieldTypeInfo( int i, QVariant& v ) = 0;
     virtual bool clearMarked() = 0;
     virtual QStringList indexNames() = 0;
     virtual QStringList primaryIndex() = 0;

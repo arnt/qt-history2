@@ -378,7 +378,7 @@ bool ResultSet::setHeader( const List& list )
     for ( int i = 0; i < (int)list.count(); ++i ) {
 	if ( list[i].type() == QVariant::List ) { /* field description */
 	    List fieldDescription = list[i].toList();
-	    if ( fieldDescription.count() != 4 ) {
+	    if ( fieldDescription.count() != 2 ) {
 		env->setLastError( "Internal error: Bad field description" );
 		return FALSE;
 	    }
@@ -614,37 +614,15 @@ bool ResultSet::sort( const List& index )
     Header sortIndex;
     for ( uint i = 0; i < index.count(); ++i ) {
 	List indexData = index[i].toList();
-	List fieldDescription = indexData[0].toList();
-	if ( fieldDescription.count() != 4 ) {
-	    env->setLastError("Internal error: Bad field description");
-	    return 0;
+	uint fieldNumber = indexData[0].toUint();
+	if ( fieldNumber == -1 ) {
+	    env->setLastError( "Field number not found: " + QString::number( fieldNumber ) );
+	    return FALSE;
 	}
-	sortIndex.fields[i].name = fieldDescription[0].toString();
-	sortIndex.fields[i].type = (QVariant::Type)fieldDescription[1].toInt();
+	//## fix this: cannot rely on name being unique, use field # instead
+	sortIndex.fields[i].name = head->fields[ fieldNumber ].name;
+	sortIndex.fields[i].type = head->fields[ fieldNumber ].type;
 	desc[i] = indexData[1].toBool();
-	switch ( sortIndex.fields[i].type ) {
-	case QVariant::String:
-	case QVariant::CString:
-	case QVariant::Int:
-	case QVariant::UInt:
-	case QVariant::Double:
-	case QVariant::Bool:
-	case QVariant::Date:
-	case QVariant::Time:
-	case QVariant::DateTime:
-	    continue;
-	default:
-	    QVariant v;
-	    v.cast( sortIndex.fields[i].type );
-	    env->setLastError( "Internal error: Invalid sort field type " +
-			       QString( v.typeName() ) );
-	    return FALSE;
-	}
-	int sortField = head->position( sortIndex.fields[i].name );
-	if ( sortField == -1 ) {
-	    env->setLastError( "Field not found:" + sortIndex.fields[i].name );
-	    return FALSE;
-	}
     }
 
     sortKey.clear();
@@ -797,15 +775,6 @@ bool ResultSet::nextGroupSet()
 	return FALSE;
     currentGroup++;
     return TRUE;
-}
-
-bool ResultSet::groupSetAction( GroupSetAction action, const QString& name, QVariant& v )
-{
-    for ( uint i = 0; i < head->fields.count(); ++i ) {
-	if ( head->fields[i].name == name )
-	    return groupSetAction( action, i, v );
-    }
-    return FALSE;
 }
 
 bool ResultSet::groupSetAction( GroupSetAction action, uint i, QVariant& v )
