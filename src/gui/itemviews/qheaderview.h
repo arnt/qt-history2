@@ -39,7 +39,6 @@ public:
     virtual ~QHeaderView();
 
     void setModel(QAbstractItemModel *model);
-    void setSelectionModel(QItemSelectionModel *selectionModel);
 
     Qt::Orientation orientation() const;
     int offset() const;

@@ -433,10 +433,6 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
         disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
                    this, SLOT(rowsRemoved(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(reset()), this, SLOT(reset()));
-        // selections
-        if (d->selectionModel)
-            disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-                       d->model, SLOT(submit()));
     }
 
     d->model = model;
@@ -490,10 +486,6 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
                    this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
         disconnect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                    this, SLOT(currentChanged(QModelIndex,QModelIndex)));
-        // model
-        if (d->model)
-            disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-                       d->model, SLOT(submit()));
     }
 
     d->selectionModel = selectionModel;
@@ -506,11 +498,6 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
                 this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
         connect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                 this, SLOT(currentChanged(QModelIndex,QModelIndex)));
-        // model
-        if (d->model)
-            connect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-                    d->model, SLOT(submit()));
-
         bool block = d->selectionModel->blockSignals(true);
         if (!currentIndex().isValid())
             setCurrentIndex(d->model->index(0, 0, root()));

@@ -181,6 +181,10 @@ QTableView::~QTableView()
 */
 void QTableView::setModel(QAbstractItemModel *model)
 {
+    if (d->selectionModel) // support row editing
+        disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
+                   d->model, SLOT(submit()));
+
     d->verticalHeader->setModel(model);
     d->horizontalHeader->setModel(model);
     QAbstractItemView::setModel(model);
@@ -191,9 +195,17 @@ void QTableView::setModel(QAbstractItemModel *model)
 */
 void QTableView::setSelectionModel(QItemSelectionModel *selectionModel)
 {
+    if (d->model) // support row editing
+        disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+                   d->model, SLOT(submit()));
+
     d->verticalHeader->setSelectionModel(selectionModel);
     d->horizontalHeader->setSelectionModel(selectionModel);
     QAbstractItemView::setSelectionModel(selectionModel);
+
+    if (d->model) // support row editing
+        connect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+                d->model, SLOT(submit()));
 }
 
 /*!

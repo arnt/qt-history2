@@ -558,12 +558,10 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
         case Qt::Key_Tab:
             emit commitData(editor);
             emit closeEditor(editor, EditNextItem);
-            // not accepted nor aborted
             return true;
         case Qt::Key_Backtab:
             emit commitData(editor);
             emit closeEditor(editor, EditPreviousItem);
-            // not accepted nor aborted
             return true;
         case Qt::Key_Enter:
         case Qt::Key_Return:
@@ -580,7 +578,6 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
     } else if (event->type() == QEvent::FocusOut) {
         emit commitData(editor);
         emit closeEditor(editor, NoHint);
-        // not accepted nor aborted
         return true;
     }
     return false;

@@ -216,25 +216,10 @@ void QHeaderView::setModel(QAbstractItemModel *model)
     }
 
     QAbstractItemView::setModel(model);
-
-    if (d->model && d->selectionModel)
-        QObject::disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-                            d->model, SLOT(submit()));
     // Users want to set sizes and modes before the widget is shown.
     // Thus, we have to initialize when the model is set,
     // and not lazily like we do in the other views.
     initializeSections();
-}
-
-/*!
-  \reimp
-*/
-void QHeaderView::setSelectionModel(QItemSelectionModel *selectionModel)
-{
-    QAbstractItemView::setSelectionModel(selectionModel);
-    if (d->model && d->selectionModel)
-        QObject::disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-                            d->model, SLOT(submit()));
 }
 
 /*!
