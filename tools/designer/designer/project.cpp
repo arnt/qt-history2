@@ -101,7 +101,8 @@ void Project::parse()
     }
 
     // ##### parse project name
-    proName = "A Project";
+    QString fl( QFileInfo( filename ).baseName() );
+    proName = fl[ 0 ].upper() + fl.mid( 1 );
     uifiles = lst;
 }
 
@@ -238,6 +239,6 @@ void Project::save()
 	
     QTextStream os( &f );
     os << contents;
-    
+
     f.close();
 }
