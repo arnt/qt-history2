@@ -601,8 +601,13 @@
     mentioned below.
 
     \value WA_DeleteOnClose makes Qt delete this widget when the
-    widget has accepted closeEvent(), or when the widget tried to
-    ignore closeEvent() but could not.
+    widget has accepted closeEvent().
+
+    \value WA_QuitOnClose makes Qt quit the application when the last
+    widget with the attribute set has accepted closeEvent(). This
+    behaviour can be adjusted with the
+    QApplication::quitOnLastWindowClosed property. By default the
+    attribute is set for all widgets of type Qt::Window.
 
     \value WA_KeyCompression Enables key event compression if set,
     and disables it if not set. By default key compression is off, so

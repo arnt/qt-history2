@@ -1799,9 +1799,10 @@ void QApplication::aboutQt()
   emitted. This feature be turned off by setting \l
   quitOnLastWindowClosed to false.
 
-  For convenience, this signal is \e not emitted for transient top
-  level widgets such as splash screens, popup menus, and dialogs with
-  a parent.
+  Only top level windows with the Qt::WA_QuitOnClose attribute set are
+  taken into account. For convenience, this attribute is not set for
+  transient top level widgets such as splash screens, popup menus, and
+  dialogs.
 
   \sa QWidget::close()
 */
@@ -3616,14 +3617,19 @@ bool QApplication::inPopupMode() const
 }
 
 /*!
-\property QApplication::quitOnLastWindowClosed
+    \property QApplication::quitOnLastWindowClosed
 
-\brief whether the application implicitly quits when the last window
-is closed.
+    \brief whether the application implicitly quits when the last
+    window is closed.
 
-The default is true.
+    The default is true.
 
-\sa quit(), QWidget::close()
+    Only top level windows with the Qt::WA_QuitOnClose attribute set
+    are taken into account. For convenience, this attribute is not set
+    for transient top level widgets such as splash screens, popup
+    menus, and dialogs.
+
+    \sa quit(), QWidget::close()
  */
 
 void QApplication::setQuitOnLastWindowClosed(bool quit)

@@ -633,6 +633,8 @@ void QWidgetPrivate::init(Qt::WFlags f)
     if (++QWidgetPrivate::instanceCounter > QWidgetPrivate::maxInstances)
         QWidgetPrivate::maxInstances = QWidgetPrivate::instanceCounter;
 
+    q->setAttribute(Qt::WA_QuitOnClose);
+
     QEvent e(QEvent::Create);
     QApplication::sendEvent(q, &e);
     QApplication::postEvent(q, new QEvent(QEvent::PolishRequest));
@@ -687,6 +689,9 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     if(type == Qt::Dialog && !testAttribute(Qt::WA_ShowModal)
        && parentWidget() && parentWidget()->testAttribute(Qt::WA_ShowModal))
         setAttribute(Qt::WA_ShowModal);
+
+    if ( type != Qt::Widget && type != Qt::Window)
+        setAttribute(Qt::WA_QuitOnClose, false);
 
     d->create_sys(window, initializeWindow, destroyOldWindow);
 
@@ -3946,7 +3951,7 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
     bool isMain = (QApplicationPrivate::main_widget == q);
 #endif
     Qt::WindowType type = q->windowType();
-    bool checkLastWindowClosed = (type == Qt::Window || ((type == Qt::Dialog || type == Qt::Tool) && !q->parentWidget()));
+    bool quitOnClose = q->testAttribute(Qt::WA_QuitOnClose);
 
     if (mode != CloseNoEvent) {
         QPointer<QWidget> that = q;
@@ -3969,7 +3974,7 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
     if (isMain)
         qApp->quit();
 #endif
-    if (checkLastWindowClosed) {
+    if (quitOnClose) {
         /* if there is no non-withdrawn top level window left
            (except the desktop, popups, or dialogs/tools with
            parents), we emit the lastWindowClosed signal */
@@ -3977,16 +3982,7 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
         bool lastWindowClosed = true;
         for (int i = 0; i < list.size(); ++i) {
             QWidget *w = list.at(i);
-#ifdef Q_WS_MAC
-            bool qt_mac_is_macsheet(const QWidget *); //qwidget_mac.cpp
-            bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
-            if(qt_mac_is_macdrawer(w) || qt_mac_is_macdrawer(w))
-                continue;
-#endif
-            if (w->isExplicitlyHidden())
-                continue;
-            Qt::WindowType type = w->windowType();
-            if (type != Qt::Window && ((type != Qt::Dialog && type != Qt::Tool) || w->parentWidget()))
+            if (w->isExplicitlyHidden() || !w->testAttribute(Qt::WA_QuitOnClose))
                 continue;
             lastWindowClosed = false;
             break;
@@ -4021,7 +4017,10 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
     matter if the widget is visible or not.
 
     The \l QApplication::lastWindowClosed() signal is emitted when the
-    last visible top level widget is closed.
+    last visible top level widget with the Qt::WA_QuitOnClose
+    attribute set is closed. By default this attribute is set for all
+    widgets except transient top level widgets such as splash screens,
+    popup menus, and dialogs.
 
 */
 

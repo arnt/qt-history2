@@ -323,10 +323,9 @@ public:
         WA_MouseNoMask = 71,
         WA_GroupLeader = 72, // ## for now, might go away.
         WA_NoMousePropagation = 73, // ## for now, might go away.
-
         WA_Hover = 74,
-
-        WA_InputMethodTransparent = 74, // Don't reset IM when user clicks on this (for virtual keyboards on embedded)
+        WA_InputMethodTransparent = 75, // Don't reset IM when user clicks on this (for virtual keyboards on embedded)
+        WA_QuitOnClose = 76,
 
         // Add new attributes above this
         WA_AttributeCount
