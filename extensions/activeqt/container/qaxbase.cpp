@@ -603,7 +603,7 @@ public:
     \i in-parameter
     \i out-parameter
     \row
-    \i bool
+    \i VARIANT_BOOL
     \i bool
     \i bool
     \i bool&
@@ -622,11 +622,6 @@ public:
     \i uint
     \i uint
     \i uint&
-    \row
-    \i enum X
-    \i enum X
-    \i enum X
-    \i enum X&
     \row
     \i float, double
     \i double
@@ -665,19 +660,21 @@ public:
     \row
     \i IDispatch*
     \i QAxObject* (read-only)
-    \i QAxObject* (return value)
     \i \e unsupported
+    \i QAxObject* (return value)
     \row
     \i IUnknown*
     \i QAxObject* (read-only)
-    \i QAxObject* (return value)
     \i \e unsupported
+    \i QAxObject* (return value)
     \row
     \i CY, SCODE, DECIMAL
     \i \e unsupported
     \i \e unsupported
     \i \e unsupported
     \endtable
+
+    Supported are also enumerations, and typedefs to supported types.
 
     To call the methods of a COM interface described by the following IDL
     \code
