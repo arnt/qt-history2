@@ -592,7 +592,10 @@ bool QFontPrivate::fillFontDef( XFontStruct *fs, QFontDef *fd, int screen )
     if ( ! XGetFontProperty( fs, XA_FONT, &value ) )
 	return FALSE;
 
-    QCString xlfd = XGetAtomName( QPaintDevice::x11AppDisplay(), value );
+    char *n = XGetAtomName( QPaintDevice::x11AppDisplay(), value );
+    QCString xlfd( n );
+    if ( n )
+	XFree( n );
     return fillFontDef( xlfd.lower(), fd, screen );
 }
 
