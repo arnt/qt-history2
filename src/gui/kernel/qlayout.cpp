@@ -1014,7 +1014,8 @@ int QGridLayout::columnCount() const
 */
 QSize QGridLayout::sizeHint() const
 {
-    return d->sizeHint(spacing()) + QSize(2 * margin(), 2 * margin());
+    int m = margin();
+    return d->sizeHint(spacing()) + QSize(2 * m, 2 * m);
 }
 
 /*!
@@ -1022,7 +1023,8 @@ QSize QGridLayout::sizeHint() const
 */
 QSize QGridLayout::minimumSize() const
 {
-    return d->minimumSize(spacing()) + QSize(2 * margin(), 2 * margin());
+    int m = margin();
+    return d->minimumSize(spacing()) + QSize(2 * m, 2 * m);
 }
 
 /*!
@@ -1030,8 +1032,9 @@ QSize QGridLayout::minimumSize() const
 */
 QSize QGridLayout::maximumSize() const
 {
+    int m = margin();
     QSize s = d->maximumSize(spacing()) +
-              QSize(2 * margin(), 2 * margin());
+              QSize(2 * m, 2 * m);
     s = s.boundedTo(QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX));
     if (alignment() & Qt::AlignHorizontal_Mask)
         s.setWidth(QLAYOUTSIZE_MAX);
@@ -1104,8 +1107,9 @@ void QGridLayout::setGeometry(const QRect &r)
     if (d->isDirty() || r != geometry()) {
         QLayout::setGeometry(r);
         QRect cr = alignment() ? alignmentRect(r) : r;
-        QRect s(cr.x() + margin(), cr.y() + margin(),
-                 cr.width() - 2 * margin(), cr.height() - 2 * margin());
+        int m = margin();
+        QRect s(cr.x() + m, cr.y() + m,
+                 cr.width() - 2 * m, cr.height() - 2 * m);
         d->distribute(s, spacing());
     }
 }
@@ -1841,7 +1845,8 @@ QSize QBoxLayout::sizeHint() const
 {
     if (d->dirty)
         const_cast<QBoxLayout*>(this)->d->setupGeom();
-    return d->sizeHint + QSize(2 * margin(), 2 * margin());
+    int m = margin();
+    return d->sizeHint + QSize(2 * m, 2 * m);
 }
 
 /*!
@@ -1851,7 +1856,8 @@ QSize QBoxLayout::minimumSize() const
 {
     if (d->dirty)
         const_cast<QBoxLayout*>(this)->d->setupGeom();
-    return d->minSize + QSize(2 * margin(), 2 * margin());
+    int m = margin();
+    return d->minSize + QSize(2 * m, 2 * m);
 }
 
 /*!
@@ -1861,7 +1867,8 @@ QSize QBoxLayout::maximumSize() const
 {
     if (d->dirty)
         const_cast<QBoxLayout*>(this)->d->setupGeom();
-    QSize s = (d->maxSize + QSize(2 * margin(), 2 * margin()))
+    int m = margin();
+    QSize s = (d->maxSize + QSize(2 * m, 2 * m))
               .boundedTo(QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX));
     if (alignment() & Qt::AlignHorizontal_Mask)
         s.setWidth(QLAYOUTSIZE_MAX);
@@ -1888,11 +1895,12 @@ int QBoxLayout::heightForWidth(int w) const
 {
     if (!hasHeightForWidth())
         return -1;
-    w -= 2 * margin();
+    int m = margin();
+    w -= 2 * m;
     if (w != d->hfwWidth)
         const_cast<QBoxLayout*>(this)->d->calcHfw(w);
 
-    return d->hfwHeight + 2 * margin();
+    return d->hfwHeight + 2 * m;
 }
 
 /*! \internal */
@@ -1958,8 +1966,9 @@ void QBoxLayout::setGeometry(const QRect &r)
         if (d->dirty)
             d->setupGeom();
         QRect cr = alignment() ? alignmentRect(r) : r;
-        QRect s(cr.x() + margin(), cr.y() + margin(),
-                 cr.width() - 2 * margin(), cr.height() - 2 * margin());
+        int m = margin();
+        QRect s(cr.x() + m, cr.y() + m,
+                 cr.width() - 2 * m, cr.height() - 2 * m);
 
         QVector<QLayoutStruct> a = d->geomArray;
         int pos = horz(d->dir) ? s.x() : s.y();
