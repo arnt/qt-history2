@@ -344,24 +344,56 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
     \internal
 */
 
-QPainterPath QPainterPathPrivate::createPathOutline(int /* penWidth */)
+QPainterPath QPainterPathPrivate::createPathOutline(int penWidth)
 {
-//     float pw2 = penWidth/2.0;
+    float pw2 = penWidth/2.0;
 
-//     QPainterPath np;
-
-//     for (int sp=0; subpaths.size(); ++sp) {
-//         QPainterSubPath &subpath = subpaths.at(sp);
-//         for (int elmno=0; subpath.elements.size(); ++elmno) {
-//             QPainterPathElement &elm = subpath.elements.at(elmno);
-
-//             switch (elm.type()) {
-
-//             }
-//         }
+    QPainterPath outline;
+    outline.setFillMode(QPainterPath::Winding);
 
 
-    return QPainterPath();
+    for (int sp=0; subpaths.size(); ++sp) {
+        const QPainterSubpath &subpath = subpaths.at(sp);
+        QPainterSubpath side1, side2;
+        for (int elmno=0; subpath.elements.size(); ++elmno) {
+            const QPainterPathElement &elm = subpath.elements.at(elmno);
+            switch (elm.type) {
+
+            case QPainterPathElement::Line:
+                {
+                    QLineFloat l(elm.lineData.x1, elm.lineData.y1, elm.lineData.x2, elm.lineData.y2);
+                    QLineFloat nv = l.normalVector();
+                    nv.setLength(pw2);
+                    l.moveBy(nv);
+                    side1.addLine(l);
+                }
+                {
+                    QLineFloat l(elm.lineData.x2, elm.lineData.y2, elm.lineData.x1, elm.lineData.y1);
+                    QLineFloat nv = l.normalVector();
+                    nv.setLength(pw2);
+                    l.moveBy(nv);
+                    side2.addLine(l);
+                }
+                break;
+
+            case QPainterPathElement::Arc:
+                printf("QPainterPathElement::createPathOutline() - elm is arc\n");
+                break;
+            case QPainterPathElement::Bezier:
+                printf("QPainterPathElement::createPathOutline() - elm is bezier\n");
+                break;
+
+            default:
+                Q_ASSERT(0);
+                break;
+            }
+        }
+
+        outline.d_func()->subpaths.append(side1);
+        outline.d_func()->subpaths.append(side2);
+    }
+
+    return outline;
 }
 
 #define d d_func()
@@ -643,4 +675,9 @@ QRect QPainterPath::boundingRect() const
 bool QPainterPath::isEmpty() const
 {
     return d->subpaths.isEmpty();
+}
+
+QPainterPath QPainterPath::createPathOutline(int width)
+{
+    return d->createPathOutline(width);
 }

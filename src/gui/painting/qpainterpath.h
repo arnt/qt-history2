@@ -53,6 +53,8 @@ public:
     void addArc(const QRectFloat &rect, float startAngle, float arcLength);
     inline void addArc(float x, float y, float w, float h, float startAngle, float arcLength);
 
+    QPainterPath createPathOutline(int width);
+
     QRectFloat boundingRect() const;
 
     FillMode fillMode() const;

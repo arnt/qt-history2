@@ -86,7 +86,6 @@ public:
 
     /* Scanline converts the path to a bitmap */
     QBitmap scanToBitmap(const QRect &clip, const QMatrix &xform, QRect *boundingRect);
-    QBitmap scanToBitmap(const QRect &clip, const QMatrix &xform, QRect *boundingRect);
 
     /* Creates a path containing the outline of this path of width \a penwidth */
     QPainterPath createPathOutline(int penWidth);
