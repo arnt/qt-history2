@@ -703,7 +703,7 @@ void QTextCursor::deletePreviousChar()
         return;
 
     if (d->position == d->anchor) {
-        if (d->anchor <= 1 || !d->canDelete(d->anchor-1))
+        if (d->anchor < 1 || !d->canDelete(d->anchor-1))
             return;
         d->anchor--;
         d->adjusted_anchor = d->anchor;
