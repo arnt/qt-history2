@@ -994,8 +994,11 @@ void ClassDecl::fillInDocsForThis()
 	g = (*f).begin();
 	while ( g != (*f).end() ) {
 	    if ( (*g)->fnDoc() != 0 && (*g)->fnDoc()->overloads() ) {
+#if 0
+		// this might be right or wrong
 		warning( 3, (*g)->fnDoc()->location(),
 			 "Suspicious '\\overload' in doc for constructor" );
+#endif
 		(*g)->fnDoc()->setOverloads( FALSE );
 	    }
 
@@ -1102,12 +1105,14 @@ void ClassDecl::fillInDocsForThis()
 	    canonical = *g;
 
 	    /*
-	      Complain about candidates that are as good as the one elected and
-	      make them implicitly '\overload'.
+	      Complain about candidates that are as good as the
+	      elected one and make them implicitly '\overload'.
 	    */
 	    ++g;
 	    while ( g != candidates[badness].end() ) {
-		warning( 4, (*g)->fnDoc()->location(), "Missing '\\overload'" );
+		if ( badness < 2 )
+		    warning( 4, (*g)->fnDoc()->location(),
+			     "Missing '\\overload'" );
 		(*g)->fnDoc()->setOverloads( TRUE );
 		++g;
 	    }
