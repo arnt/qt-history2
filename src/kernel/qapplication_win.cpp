@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#498 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#499 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1413,7 +1413,7 @@ void QApplication::wakeUpGuiThread()
 }
 
 /*!
-  The message procedure calls this function for every message received. 
+  The message procedure calls this function for every message received.
   Reimplement this function if you want to process window messages \a msg that
   are not processed by Qt.
 */
@@ -3062,7 +3062,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 	QWidget* popup = qApp->activePopupWidget();
 	if ( popup && w != popup )
 	    popup->hide();
-	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state );
+	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state, (state&AltButton)?Horizontal:Vertical  );
 	if ( QApplication::sendSpontaneousEvent( w, &e ) )
 	    return TRUE;
     }
@@ -3072,7 +3072,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 	QWidget* popup = qApp->activePopupWidget();
 	if ( popup && w != popup )
 	    popup->hide();
-	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state );
+	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state, (state&AltButton)?Horizontal:Vertical  );
 	if ( QApplication::sendSpontaneousEvent( w, &e ) )
 	    return TRUE;
     }
