@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#189 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#190 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -363,7 +363,9 @@ void QFont::cleanup()
     if ( fontDict )
 	fontDict->setAutoDelete( TRUE );
     delete fontDict;
+    fontDict = 0;
     delete fontNameDict;
+    fontNameDict = 0;
 }
 
 /*!
@@ -735,8 +737,13 @@ inline int maxIndex(XFontStruct *f)
 
 void QFont::load() const
 {
-    if ( !fontCache )				// not initialized
+    if ( !fontCache ) {				// not initialized
+#if defined(CHECK_STATE)
+	qFatal( "QFont: Must construct a QApplication before a QFont" );
+#endif
+	
 	return;
+    }
 
     QString k = key();
     QXFontName *fn = fontNameDict->find( k );
