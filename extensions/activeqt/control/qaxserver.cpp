@@ -75,12 +75,14 @@ static int initCount = 0;
 
 QString qAxInit()
 {
+    static QString libFile;
+
     if (initCount++)
-        return QString();
+        return libFile;
     
     InitializeCriticalSection(&qAxModuleSection);
     
-    QString libFile(qAxModuleFilename);
+    libFile = qAxModuleFilename;
     libFile = libFile.toLower();
     if (LoadTypeLibEx((TCHAR*)libFile.utf16(), REGKIND_NONE, &qAxTypeLibrary) == S_OK)
         return libFile;
@@ -95,7 +97,8 @@ QString qAxInit()
     if (LoadTypeLibEx((TCHAR*)libFile.utf16(), REGKIND_NONE, &qAxTypeLibrary) == S_OK)
         return libFile;
 
-    return QString();
+    libFile = QString();
+    return libFile;
 }
 
 void qAxCleanup()
