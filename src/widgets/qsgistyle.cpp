@@ -1237,7 +1237,7 @@ void QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 	    miText = s.mid( 0, t );
 	}
 	QRect br = p->fontMetrics().boundingRect( x+xm, y+m, w-xm-tab+1, h-2*m,
-		AlignVCenter|DontClip|SingleLine, mi->text() );
+		text_flags, mi->text() );
 
 	drawSGIPrefix( p, br.x()+p->fontMetrics().leftBearing(miText[0]),
 		br.y()+br.height()+p->fontMetrics().underlinePos()-2, &miText );
