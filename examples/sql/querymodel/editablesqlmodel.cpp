@@ -10,25 +10,40 @@ EditableSqlModel::EditableSqlModel(QObject *parent)
 QAbstractItemModel::ItemFlags EditableSqlModel::flags(
         const QModelIndex &index) const
 {
-    if (index.column() == 2)
-        return ItemIsEditable | ItemIsEnabled;
-    else
-        return ItemIsEnabled;
+    ItemFlags flags = QSqlQueryModel::flags(index);
+    if (index.column() == 1 || index.column() == 2)
+        flags |= ItemIsEditable;
+    return flags;
 }
 
 bool EditableSqlModel::setData(const QModelIndex &index, int /* role */,
                                const QVariant &value)
 {
-    if (index.column() != 2)
+    if (index.column() < 1 || index.column() > 2)
         return false;
 
     QModelIndex primaryKeyIndex = QSqlQueryModel::index(index.row(), 0);
     int id = data(primaryKeyIndex).toInt();
 
     clear();
-    bool ok = setLastName(id, value.toString());
-    setQuery("select * from person"); // ###???
+
+    bool ok;
+    if (index.column() == 1) {
+        ok = setFirstName(id, value.toString());
+    } else {
+        ok = setLastName(id, value.toString());
+    }
+    setQuery("select * from person"); // TODO: Use refresh() when it's available
     return ok;
+}
+
+bool EditableSqlModel::setFirstName(int personId, const QString &firstName)
+{
+    QSqlQuery query;
+    query.prepare("update person set firstname = ? where id = ?");
+    query.addBindValue(firstName);
+    query.addBindValue(personId);
+    return query.exec();
 }
 
 bool EditableSqlModel::setLastName(int personId, const QString &lastName)

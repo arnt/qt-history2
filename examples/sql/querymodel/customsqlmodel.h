@@ -5,6 +5,8 @@
 
 class CustomSqlModel: public QSqlQueryModel
 {
+    Q_OBJECT
+
 public:
     CustomSqlModel(QObject *parent = 0);
 

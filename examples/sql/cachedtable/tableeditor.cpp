@@ -11,6 +11,13 @@ TableEditor::TableEditor(const QString &tableName, QWidget *parent)
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);
     model->select();
 
+    model->setHeaderData(0, Qt::Horizontal, QAbstractItemModel::DisplayRole,
+                         tr("ID"));
+    model->setHeaderData(1, Qt::Horizontal, QAbstractItemModel::DisplayRole,
+                         tr("First name"));
+    model->setHeaderData(2, Qt::Horizontal, QAbstractItemModel::DisplayRole,
+                         tr("Last name"));
+
     QTableView *view = new QTableView(this);
     view->setModel(model);
 
@@ -23,13 +30,13 @@ TableEditor::TableEditor(const QString &tableName, QWidget *parent)
     connect(revertButton, SIGNAL(clicked()), model, SLOT(cancelChanges()));
     connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
 
-    QHBoxLayout *buttonLayout = new QHBoxLayout;
-    buttonLayout->addStretch(1);
+    QVBoxLayout *buttonLayout = new QVBoxLayout;
     buttonLayout->addWidget(submitButton);
     buttonLayout->addWidget(revertButton);
     buttonLayout->addWidget(quitButton);
+    buttonLayout->addStretch(1);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QHBoxLayout *mainLayout = new QHBoxLayout(this);
     mainLayout->addWidget(view);
     mainLayout->addLayout(buttonLayout);
 

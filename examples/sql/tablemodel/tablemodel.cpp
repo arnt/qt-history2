@@ -3,6 +3,20 @@
 
 #include "../connection.h"
 
+void initializeModel(QSqlTableModel *model)
+{
+    model->setTable("person");
+    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    model->select();
+
+    model->setHeaderData(0, Qt::Horizontal, QAbstractItemModel::DisplayRole,
+                         QObject::tr("ID"));
+    model->setHeaderData(1, Qt::Horizontal, QAbstractItemModel::DisplayRole,
+                         QObject::tr("First name"));
+    model->setHeaderData(2, Qt::Horizontal, QAbstractItemModel::DisplayRole,
+                         QObject::tr("Last name"));
+}
+
 void createView(const QString &title, QSqlTableModel *model)
 {
     QTableView *view = new QTableView;
@@ -18,9 +32,8 @@ int main(int argc, char *argv[])
         return 1;
 
     QSqlTableModel model;
-    model.setTable("person");
-    model.setEditStrategy(QSqlTableModel::OnManualSubmit);
-    model.select();
+
+    initializeModel(&model);
 
     createView(QObject::tr("Table Model (View 1)"), &model);
     createView(QObject::tr("Table Model (View 2)"), &model);

@@ -1,15 +1,22 @@
 #include <QtGui>
-#include <QtSql>
 
 #include "../connection.h"
-
 #include "customsqlmodel.h"
 #include "editablesqlmodel.h"
 
-void createView(const QString &title, QSqlQueryModel *model)
+void initializeModel(QSqlQueryModel *model)
 {
     model->setQuery("select * from person");
+    model->setHeaderData(0, Qt::Horizontal, QAbstractItemModel::DisplayRole,
+                         QObject::tr("ID"));
+    model->setHeaderData(1, Qt::Horizontal, QAbstractItemModel::DisplayRole,
+                         QObject::tr("First name"));
+    model->setHeaderData(2, Qt::Horizontal, QAbstractItemModel::DisplayRole,
+                         QObject::tr("Last name"));
+}
 
+void createView(const QString &title, QSqlQueryModel *model)
+{
     QTableView *view = new QTableView;
     view->setModel(model);
     view->setWindowTitle(title);
@@ -25,6 +32,10 @@ int main(int argc, char *argv[])
     QSqlQueryModel plainModel;
     EditableSqlModel editableModel;
     CustomSqlModel customModel;
+
+    initializeModel(&plainModel);
+    initializeModel(&editableModel);
+    initializeModel(&customModel);
 
     createView(QObject::tr("Plain Query Model"), &plainModel);
     createView(QObject::tr("Editable Query Model"), &editableModel);
