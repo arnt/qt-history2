@@ -4516,6 +4516,9 @@ bool QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
 		copy();
 		break;
 #ifdef Q_WS_WIN
+	    case Key_Insert:
+		copy();
+		break;
 	    case Key_A:
 		selectAll();
 		break;
