@@ -696,6 +696,7 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 		break;
 	    case WSAEINTR:
 		// ### ?
+		r = 0;
 		break;
 	    case WSAEINPROGRESS:
 		e = NoResources;
@@ -713,6 +714,7 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 		break;
 	    case WSAEISCONN:
 		// ### ?
+		r = 0;
 		break;
 	    default:
 		e = UnknownError;
@@ -763,6 +765,7 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
 		case WSAECONNRESET:
 		    // connection closed
 		    close();
+		    r = 0;
 		    break;
 		case WSAEINTR:
 		    done = FALSE;
@@ -787,6 +790,7 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
 		    e = Impossible;
 		    break;
 		case WSAEWOULDBLOCK:
+		    r = 0;
 		    break;
 		default:
 		    e = UnknownError;
@@ -898,6 +902,7 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 		    e = Impossible;
 		    break;
 		case WSAEWOULDBLOCK:
+		    r = 0;
 		    break;
 		default:
 		    e = UnknownError;
