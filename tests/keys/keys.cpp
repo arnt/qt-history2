@@ -59,13 +59,15 @@ public:
 	if (!type)
 	    line.sprintf("%2s %6s %3s    %3s %4s %3s %s", "", "key", "asc", "sta", "uni", "rep", "name");
 	else {
-	    line.sprintf("%2s %6x %3x(%c) %3x %02x%02x%3s %s ", type, e->key(), e->ascii(),
-		(e->ascii() ? e->ascii() : ' '),
-		e->state(), e->text()[0].row(), e->text()[0].cell(),
-		(e->isAutoRepeat() ? "Y" : ""),
-		QAccel::keyToString(e->key()).ascii()
-		);
-	    line += e->text();
+	    line.sprintf("%2s %6x %3x(%c) %3x %02x%02x %s %s", 
+			 /*1*/ type, 
+			 /*2*/ e->key(), 
+			 /*3a*/e->ascii(), /*3b*/(e->ascii() ? e->ascii() : ' '),
+			 /*4*/ e->state(), 
+			 /*5a*/e->text()[0].row(), /*5b*/e->text()[0].cell(),
+			 /*6*/(e->isAutoRepeat() ? "Y" : ""),
+			 /*7*/QAccel::keyToString(e->key()).ascii());
+	    /*8*/line += e->text();
 	}
 	log.insertLine( line );
 	log.setCursorPosition(999999,0);
