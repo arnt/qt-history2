@@ -45,7 +45,7 @@ public:
         SelectedClicked = 4,
         EditKeyPressed = 8,
         AnyKeyPressed = 16,
-        AlwaysEdit = 32
+        AlwaysEdit = 31
     };
 
     Q_DECLARE_FLAGS(BeginEditActions, BeginEditAction);
