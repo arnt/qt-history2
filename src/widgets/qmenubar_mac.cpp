@@ -222,7 +222,7 @@ void QMenuBar::qt_mac_install_menubar_event(MenuRef ref)
 #endif
 
 /* utility functions */
-void no_ampersands(QString i, CFStringRef *ret) {
+static void qt_mac_no_ampersands(QString i, CFStringRef *ret) {
     for(int w = 0; (w=i.find('&', w)) != -1; )
 	i.remove(w, 1);
     *ret = CFStringCreateWithCharacters(0, (UniChar *)i.unicode(), i.length());
@@ -312,10 +312,11 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 		}
 #endif
 		CFStringRef cfref;
-		no_ampersands(text, &cfref);
+		qt_mac_no_ampersands(text, &cfref);
 		InsertMenuItemTextWithCFString(activeMenuBar->mac_d->apple_menu,
 					       cfref, activeMenuBar->mac_d->in_apple++,
 					       kMenuItemAttrAutoRepeat, ret);
+		CFRelease(cfref);
 	    }
 	}
 	EnableMenuCommand(0, ret);
@@ -391,9 +392,12 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 	    else if(!accel.isEmpty())
 		accel_key = QAccel::stringToKey(accel);
 
-	    CFStringRef cfref;
-	    no_ampersands(text, &cfref);
-	    InsertMenuItemTextWithCFString(ret, cfref, id,  attr, item->id());
+	    {
+		CFStringRef cfref;
+		qt_mac_no_ampersands(text, &cfref);
+		InsertMenuItemTextWithCFString(ret, cfref, id,  attr, item->id());
+		CFRelease(cfref);
+	    }
 	    if(item->isSeparator()) {
 		ChangeMenuItemAttributes(ret, id, kMenuItemAttrSeparator, 0);
 	    } else {
@@ -515,8 +519,9 @@ bool QMenuBar::updateMenuBar()
 	mac_d->clear();
     if(!CreateNewMenu(0, 0, &mac_d->apple_menu)) {
 	CFStringRef cfref;
-	no_ampersands(QString(QChar(0x14)), &cfref);
+	qt_mac_no_ampersands(QString(QChar(0x14)), &cfref);
 	SetMenuTitleWithCFString(mac_d->apple_menu, cfref);
+	CFRelease(cfref);
 	InsertMenu(mac_d->apple_menu, 0);
     }
 
@@ -526,8 +531,9 @@ bool QMenuBar::updateMenuBar()
 	    continue;
 	MenuRef mp = createMacPopup(item->popup(), FALSE, TRUE);
 	CFStringRef cfref;
-	no_ampersands(item->text(), &cfref);
+	qt_mac_no_ampersands(item->text(), &cfref);
 	SetMenuTitleWithCFString(mp, cfref);
+	CFRelease(cfref);
 	InsertMenu(mp, 0);
     }
     return TRUE;
