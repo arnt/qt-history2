@@ -97,7 +97,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
     QStringList subdirs = project->variables()["SUBDIRS"];
     QString oldpwd = QDir::currentDirPath();
     for(QStringList::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
-	QFileInfo fi((*it));
+	QFileInfo fi(Option::fixPathToLocalOS((*it), TRUE));
 	if(fi.exists()) {
 	    if(fi.isDir()) {
 		QString profile = (*it);
@@ -123,7 +123,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 			    tmp_dsp.setNoIO(TRUE);
 			    tmp_dsp.init();
 			    VcsolutionDepend *newDep = new VcsolutionDepend;
-			    newDep->vcprojFile = vcproj;
+			    newDep->vcprojFile = fileFixify(vcproj);
 			    newDep->orig_target = tmp_proj.first("QMAKE_ORIG_TARGET");
 			    newDep->target = tmp_proj.first("TARGET").section(Option::dir_sep, -1);
 			    if(!tmp_proj.isEmpty("FORMS"))
@@ -149,34 +149,8 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 				    QStringList &l = tmp_proj.variables()[(*wit)];
 				    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 					QString opt = (*it);
-					if(opt.startsWith("/")) {
-					    if(opt.startsWith("/LIBPATH:")) {
-						QString r = opt.mid(strlen("/LIBPATH:")), l = r;
-						fixEnvVariables(l);
-						libdirs.append(new MakefileDependDir(r.replace("\"",""),
-										     l.replace("\"","")));
-					    }
-					} else if(opt.endsWith(".lib")) {
-					    bool found = TRUE;
-					    QString prl = opt.left(opt.length() - 4) + Option::prl_ext;
-					    if(!QFile::exists(prl)) {
-						found = FALSE;
-						for(MakefileDependDir *mdd = libdirs.first(); mdd; 
-						    mdd = libdirs.next() ) {
-						    QString prl2 = mdd->local_dir + Option::dir_sep + prl;
-						    if(QFile::exists(prl2)) {
-							prl = prl2;
-							found = TRUE;
-							break;
-						    }
-						}
-					    }
-					    if(found) {
-						QMakeProject prl_proj;
-						if(prl_proj.read(prl, oldpwd)) 
-						    newDep->dependencies << prl_proj.first("QMAKE_PRL_TARGET");
-					    }
-					}
+					if(!opt.startsWith("/")) 
+					    newDep->dependencies << opt.section(Option::dir_sep, -1);
 				    }
 				}
 			    }
@@ -189,8 +163,19 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 	}
     }
 
-    for(VcsolutionDepend *vc = solution_depends.first(); vc; vc = solution_depends.next()) {
-	qDebug("Whee %s -- %s", vc->vcprojFile.latin1(), vc->dependencies.join("::").latin1());
+    VcsolutionDepend *vc;
+    QMap<QString, int> uuids;
+    for(vc = solution_depends.first(); vc; vc = solution_depends.next()) {
+	static int uuid = 666;
+	uuids.insert(vc->target, uuid);
+	qDebug("\"%s\" \"%s\" { %d }", vc->orig_target.latin1(), vc->vcprojFile.latin1(), uuid++);
+    }
+    for(vc = solution_depends.first(); vc; vc = solution_depends.next()) {
+	int uuid = uuids[vc->target], cnt = 0;
+	for(QStringList::iterator dit = vc->dependencies.begin(); dit != vc->dependencies.end(); ++dit) {
+	    if(uuids.contains((*dit)))
+		qDebug("%d.%d = %d", uuid, cnt++, uuids[(*dit)]);
+	}
     }
 }
 
