@@ -364,11 +364,12 @@ sub fix_paths {
 	my $after = substr($file2_dir, length($match_dir));
 	my $count = ($after =~ tr,/,,);
 	my $dots = "";
-	for(my $i = 0; $i <= $count; $i++) {
+	for(my $i = 0; $i < $count; $i++) {
 	    $dots .= "../";
 	}
 	$ret =~ s,^$match_dir,$dots,;
     }
+    $ret =~ s,/+,/,g;
     return $ret;
 }
 
