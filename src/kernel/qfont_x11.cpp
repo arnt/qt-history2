@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#116 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -102,6 +102,7 @@ public:
     const QFontDef *spec()  const;
     int		    lineWidth() const;
     void	    reset();
+    const QCharMapper *mapper() const { return cmapper; }
 private:
     QFontInternal( const QString & );
     void computeLineWidth();
@@ -111,6 +112,7 @@ private:
     QFontDef	    s;
     int		    lw;
     int		    xres;
+    QCharMapper	   *cmapper;
     friend void QFont::load(HANDLE) const;
     friend void QFont::initFontInfo() const;
 };
@@ -451,6 +453,9 @@ void QFont::initFontInfo() const
     QFontInternal *f = d->fin;
     if ( !f->s.dirty )				// already initialized
 	return;
+
+    f->cmapper = 0;
+
     f->s.lbearing = SHRT_MIN;
     f->s.rbearing = SHRT_MIN;
     f->computeLineWidth();
@@ -1584,4 +1589,9 @@ static int getWeight( const QString &weightString, bool adjustScore )
 	return (int) QFont::Normal - 2;	   // - 2, we hope it's close to normal
 
     return (int) QFont::Normal;
+}
+
+const QCharMapper* QFontData::mapper() const
+{
+    return fin ? fin->mapper() : 0;
 }

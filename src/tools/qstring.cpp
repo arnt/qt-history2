@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#137 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#138 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -467,13 +467,20 @@ QChar* QString::asciiToUnicode( const QByteArray& ba, uint& len )
 
   The caller is responsible for deleting the return value with delete[].
 */
-QChar* QString::asciiToUnicode(const char *str, uint& l)
+QChar* QString::asciiToUnicode(const char *str, uint& l, uint maxlen )
 {
     if (!str) {
 	l = 0;
 	return 0;
     }
-    l = strlen(str);
+    if ( maxlen != (uint)-1 ) {
+	l = 0;
+	while (str[l] && l < maxlen)
+	    l++;
+    } else {
+	// Faster?
+	l = strlen(str);
+    }
     QChar *uc = new QChar[l];
     QChar *result = uc;
     while (*str)
@@ -674,10 +681,8 @@ QString::QString( const char *str, uint maxlen )
 {
     Q2HELPER(stat_construct_charstar++);
     uint l;
-    QChar *uc = asciiToUnicode(str,l);
+    QChar *uc = asciiToUnicode(str,l,maxlen);
     d = new Data(uc,l,l);
-    if ( l >= maxlen )
-	truncate( maxlen );
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#135 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#136 $
 **
 ** Global type declarations and definitions
 **
@@ -187,6 +187,28 @@
 #if defined(_CC_COMEAU_)
 #define Q_C_CALLBACKS
 #endif
+
+// Window system setting
+
+#if defined(_OS_MAC_)
+#define _WS_MAC_
+#elif defined(_OS_MSDOS_)
+#define _WS_WIN16_
+#error "Qt requires Win32 and does not work with Windows 3.x"
+#elif defined(_WIN32_X11_)
+#define _WS_X11_
+#elif defined(_OS_WIN32_)
+#define _WS_WIN32_
+#elif defined(_OS_OS2_)
+#error "Qt does not work with OS/2 Presentation Manager or Workplace Shell"
+#elif defined(UNIX)
+#define _WS_X11_
+#endif
+
+#if defined(_WS_WIN16_) || defined(_WS_WIN32_)
+#define _WS_WIN_
+#endif
+
 
 
 //

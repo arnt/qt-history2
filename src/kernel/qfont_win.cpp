@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#71 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -861,3 +861,11 @@ const QFontDef *QFontInfo::spec() const
 #endif
     return s;
 }
+
+
+
+const QCharMapper* QFontData::mapper() const
+{
+    return 0;
+}
+

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#262 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#263 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -28,6 +28,7 @@
 #include "qpixmapcache.h"
 #include "qlist.h"
 #include "qintdict.h"
+#include "qfontdata.h"
 #include <ctype.h>
 #include <stdlib.h>
 #define	 GC GC_QQQ
@@ -509,6 +510,7 @@ void QPainter::updateFont()
     if ( penRef )
 	updatePen();				// force a non-cached GC
     XSetFont( dpy, gc, cfont.handle() );
+    mapper = cfont.d->mapper();
 }
 
 
@@ -2537,18 +2539,15 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    map( x, y, &x, &y );
     }
 
-    XChar2b* x2b = new XChar2b[str.length()];
+    XChar2b* x2b;
 
     // ####### translate from Unicode to font charset encoding here
-    for (int i=str.length(); i--; )
-	x2b[i].byte2 = str[i].cell, x2b[i].byte1 = str[i].row;
+    x2b = (XChar2b*)str.unicode();
 
     if ( bg_mode == TransparentMode )
 	XDrawString16( dpy, hd, gc, x, y, x2b, len );
     else
 	XDrawImageString16( dpy, hd, gc, x, y, x2b, len );
-
-    delete [] x2b;
 
     if ( cfont.underline() || cfont.strikeOut() ) {
 	QFontMetrics fm = fontMetrics();

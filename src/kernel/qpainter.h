@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#117 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#118 $
 **
 ** Definition of QPainter class
 **
@@ -41,6 +41,8 @@
 #if defined(_WS_WIN_)
 struct QWinFont;
 #endif
+
+class QCharMapper;
 
 
 class Q_EXPORT QPainter : public Qt
@@ -291,6 +293,7 @@ protected:
     GC		gc;				// graphics context (standard)
     GC		gc_brush;			// graphics contect for brush
     QPoint	curPt;				// current point
+    const QCharMapper *mapper;			// encoding mapper
 #endif
     friend class QFontMetrics;
     friend class QFontInfo;

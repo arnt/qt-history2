@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#81 $
+** $Id: //depot/qt/main/src/tools/qstring.h#82 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -150,9 +150,16 @@ class QRegExp;
 
 class Q_EXPORT QChar {
 public:
+    // The alternatives just avoid order-of-construction warnings.
+#if defined(_WS_X11_) || defined(_WS_WIN_BYTESWAP_)
+    QChar() : row(0), cell(0) { }
+    QChar( uchar c, uchar r=0 ) : row(r), cell(c) { }
+    QChar( const QChar& c ) : row(c.row), cell(c.cell) { }
+#else
     QChar() : cell(0), row(0) { }
     QChar( uchar c, uchar r=0 ) : cell(c), row(r) { }
     QChar( const QChar& c ) : cell(c.cell), row(c.row) { }
+#endif
 
     QT_STATIC_CONST QChar null;
 
@@ -179,8 +186,15 @@ public:
     friend int operator>( const QChar& c, char ch );
     friend int operator>( char ch, const QChar& c );
 
+#if defined(_WS_X11_) || defined(_WS_WIN_BYTESWAP_)
+    // XChar2b on X11, ushort on _WS_WIN_BYTESWAP_
+    uchar row;
+    uchar cell;
+#else
+    // ushort on _WS_WIN_
     uchar cell;
     uchar row;
+#endif
 };
 
 inline int operator==( char ch, const QChar& c )
@@ -365,7 +379,7 @@ public:
     const char* ascii() const;
     operator const char *() const { return ascii(); }
 
-    static QChar* asciiToUnicode( const char*, uint& len );
+    static QChar* asciiToUnicode( const char*, uint& len, uint maxlen=(uint)-1 );
     static QChar* asciiToUnicode( const QByteArray&, uint& len );
     static char* unicodeToAscii( const QChar*, uint len );
     int compare( const QString& s ) const;
