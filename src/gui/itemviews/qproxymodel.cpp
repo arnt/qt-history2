@@ -378,13 +378,13 @@ QSize QProxyModel::span(const QModelIndex &index) const
  */
 void QProxyModel::submit()
 {
-    return d->model->submit();
+    d->model->submit();
 }
 
 /*!
  */
 void QProxyModel::revert()
 {
-    return d->model->revert();
+    d->model->revert();
 }
 
