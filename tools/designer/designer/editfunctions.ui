@@ -141,7 +141,7 @@
                 <bool>true</bool>
             </property>
             <property name="whatsThis" stdset="0">
-                <string>&lt;b&gt;This form's slots.&lt;/b&gt;&lt;p&gt;Select the slot you want to change or delete.&lt;/p&gt;</string>
+                <string>&lt;b&gt;This form's functions.&lt;/b&gt;&lt;p&gt;Select the function you want to change or delete.&lt;/p&gt;</string>
             </property>
         </widget>
         <widget class="QLayoutWidget">
@@ -155,7 +155,7 @@
                 <property name="margin">
                     <number>6</number>
                 </property>
-                <widget class="QRadioButton">
+                <widget class="QCheckBox">
                     <property name="name">
                         <cstring>showOnlySlots</cstring>
                     </property>
@@ -195,7 +195,7 @@
                         <string>Add new function</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;Add a new slot.&lt;/b&gt;&lt;p&gt;New slots have a default name and public access.&lt;/p&gt;</string>
+                        <string>&lt;b&gt;Add a new function.&lt;/b&gt;&lt;p&gt;New functions have a default name and public access.&lt;/p&gt;</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -209,7 +209,7 @@
                         <string>Delete function</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;Delete the selected slot.&lt;/b&gt;&lt;p&gt;All connections using this slot are also removed.&lt;/p&gt;</string>
+                        <string>&lt;b&gt;Delete the selected function.&lt;/b&gt;&lt;p&gt;All connections using this function are also removed.&lt;/p&gt;</string>
                     </property>
                 </widget>
             </hbox>
@@ -294,7 +294,7 @@
                                         <string>Change function name</string>
                                     </property>
                                     <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;Change the name of the selected slot.&lt;/b&gt;&lt;p&gt;The name should include the argument list and must be syntactically correct.&lt;/p&gt;</string>
+                                        <string>&lt;b&gt;Change the name of the selected function.&lt;/b&gt;&lt;p&gt;The name should include the argument list and must be syntactically correct.&lt;/p&gt;</string>
                                     </property>
                                 </widget>
                                 <widget class="QLabel">

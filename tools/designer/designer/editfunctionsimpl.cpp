@@ -36,14 +36,14 @@
 #include <qlabel.h>
 #include <qgroupbox.h>
 #include <qheader.h>
-#include <qradiobutton.h>
+#include <qcheckbox.h>
 
 EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
     : EditFunctionsBase( parent, 0, TRUE ), formWindow( fw )
 {
     LanguageInterface *iface = MetaDataBase::languageInterface( fw->project()->language() );
     if ( iface && !iface->supports( LanguageInterface::ReturnType ) ) {
-	functionListView->removeColumn( 3 );
+	functionListView->removeColumn( 1 );
 	editType->hide();
 	labelType->hide();
     }
@@ -178,7 +178,10 @@ void EditFunctions::functionAdd( const QString &access, const QString &type )
 {    
     QListViewItem *i = new QListViewItem( functionListView );
     i->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) ); 
-    i->setText( 0, "newFunction()" );
+    if ( showOnlySlots->isChecked() )
+	i->setText( 0, "newSlot()" );
+    else
+	i->setText( 0, "newFunction()" );    
     i->setText( 1, "void" );
     i->setText( 2, "virtual" );
     if ( access.isEmpty() )
@@ -217,7 +220,7 @@ void EditFunctions::functionRemove()
     if ( functionListView->currentItem() )
 	functionListView->setSelected( functionListView->currentItem(), TRUE );
     functionListView->blockSignals( FALSE );
-    currentItemChanged( functionListView->currentItem() );
+    currentItemChanged( functionListView->currentItem() );    
 }
 
 void EditFunctions::currentItemChanged( QListViewItem *i )
@@ -368,14 +371,12 @@ void EditFunctions::setCurrentFunction( const QString &function )
 
 void EditFunctions::displaySlots( bool justSlots )
 {
-    QValueList<MetaDataBase::Function> functList;    
-    if ( justSlots ) 
-        functList = MetaDataBase::slotList( formWindow );
-    else
-	functList = MetaDataBase::functionList( formWindow );
+    setupItemList( justSlots );
     
     functionListView->clear();
-    for ( QValueList<MetaDataBase::Function>::Iterator it = functList.begin(); it != functList.end(); ++it ) {
+    for ( QValueList<MetaDataBase::Function>::Iterator it = itemList.begin(); it != itemList.end(); ++it ) {
+	if ( (*it).type == "function" && justSlots )
+	    continue;
 	QListViewItem *i = new QListViewItem( functionListView );
 	i->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
 	i->setText( 0, (*it).function );
@@ -392,5 +393,39 @@ void EditFunctions::displaySlots( bool justSlots )
 	} else {
 	    i->setText( 5, "---" );
 	}	
-    }    
+    }   
+    if ( functionListView->firstChild() )
+	functionListView->setSelected( functionListView->firstChild(), TRUE );
+}
+
+void EditFunctions::setupItemList( bool currentlyAllFunct )
+{
+    if ( !currentlyAllFunct ) {
+	QValueList<MetaDataBase::Function>::Iterator i = itemList.begin();
+	while ( i != itemList.end() ) {
+	    if ( (*i).type == "slot" ) {
+		i = itemList.remove( i );
+	    } else
+		++i;
+	}
+    } else 
+	itemList.clear();
+    
+    QListViewItemIterator it( functionListView );
+    QValueList<MetaDataBase::Function> lst;
+    while ( it.current() != 0 ) {
+        MetaDataBase::Function f;
+        f.function = it.current()->text( 0 );
+        f.returnType = it.current()->text( 1 );
+        f.specifier = it.current()->text( 2 );
+        f.access = it.current()->text( 3 );
+        f.type = it.current()->text(4 );
+        f.language = formWindow->project()->language();
+        lst.append( f );		    
+        if ( !currentlyAllFunct )
+	    itemList.append( f );	
+	++it;
+    }
+    if ( currentlyAllFunct )
+	itemList = lst;    
 }

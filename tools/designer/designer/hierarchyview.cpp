@@ -716,29 +716,27 @@ void FormDefinitionView::refresh( bool doDelete )
 	i = i->nextSibling();
     }
 
-    itemSlots = new HierarchyItem( HierarchyItem::SlotParent,
-				   this, tr( "Slots" ), QString::null, QString::null );
-    itemSlots->moveItem( i );
-    itemSlots->setPixmap( 0, *folderPixmap );
-    itemPrivate = new HierarchyItem( HierarchyItem::SlotPrivate, itemSlots, tr( "private" ),
-				     QString::null, QString::null );
-    itemProtected = new HierarchyItem( HierarchyItem::SlotProtected, itemSlots, tr( "protected" ),
-				       QString::null, QString::null );
-    itemPublic = new HierarchyItem( HierarchyItem::SlotPublic, itemSlots, tr( "public" ),
-				     QString::null, QString::null );
-    if ( formWindow->project()->language() != "C++" ) {
-	itemSlots->setText( 0, tr( "Functions" ) );
-	itemFunct = 0;
-    } else {
-	itemFunct = new HierarchyItem( HierarchyItem::FunctParent,
-				    this, tr( "Functions" ), QString::null, QString::null );
-	itemFunct->setPixmap( 0, *folderPixmap );
-	itemFunctPriv = new HierarchyItem( HierarchyItem::FunctPrivate, itemFunct,
-				    tr( "private" ), QString::null, QString::null );
-	itemFunctProt = new HierarchyItem( HierarchyItem::FunctProtected, itemFunct,
-				    tr( "protected" ), QString::null, QString::null );
-	itemFunctPubl = new HierarchyItem( HierarchyItem::FunctPublic, itemFunct,
-				    tr( "public" ), QString::null, QString::null );
+    itemFunct = new HierarchyItem( HierarchyItem::FunctParent,
+				   this, tr( "Functions" ), QString::null, QString::null );
+    itemFunct->moveItem( i );
+    itemFunct->setPixmap( 0, *folderPixmap );
+    itemFunctPriv = new HierarchyItem( HierarchyItem::FunctPrivate, itemFunct,
+				       tr( "private" ), QString::null, QString::null );
+    itemFunctProt = new HierarchyItem( HierarchyItem::FunctProtected, itemFunct,
+				       tr( "protected" ), QString::null, QString::null );
+    itemFunctPubl = new HierarchyItem( HierarchyItem::FunctPublic, itemFunct,
+				       tr( "public" ), QString::null, QString::null );
+    
+    if ( formWindow->project()->language() == "C++" ) {
+	itemSlots = new HierarchyItem( HierarchyItem::SlotParent,
+				       this, tr( "Slots" ), QString::null, QString::null );
+	itemSlots->setPixmap( 0, *folderPixmap );
+	itemPrivate = new HierarchyItem( HierarchyItem::SlotPrivate, itemSlots, tr( "private" ),
+					 QString::null, QString::null );
+	itemProtected = new HierarchyItem( HierarchyItem::SlotProtected, itemSlots, tr( "protected" ),
+					   QString::null, QString::null );
+	itemPublic = new HierarchyItem( HierarchyItem::SlotPublic, itemSlots, tr( "public" ),
+					QString::null, QString::null );
     }
 
     QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formWindow );
@@ -756,7 +754,7 @@ void FormDefinitionView::refresh( bool doDelete )
 		else // default is public
 		    item = new HierarchyItem( HierarchyItem::Slot, itemPublic, (*it).function,
 					      QString::null, QString::null );
-	    } else {	
+	    } else {		
 		if ( (*it).access == "protected" )
 		    item = new HierarchyItem( HierarchyItem::Function, itemFunctProt, (*it).function,
 					      QString::null, QString::null );
@@ -766,7 +764,7 @@ void FormDefinitionView::refresh( bool doDelete )
 		else // default is public
 		    item = new HierarchyItem( HierarchyItem::Function, itemFunctPubl, (*it).function,
 					      QString::null, QString::null );
-	    }
+	    } 		
 	    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
 	    if ( it == functionList.begin() )
 		break;
@@ -774,20 +772,19 @@ void FormDefinitionView::refresh( bool doDelete )
 	}
     }
 
-    itemPrivate->setOpen( TRUE );
-    itemProtected->setOpen( TRUE );
-    itemPublic->setOpen( TRUE );
-    itemSlots->setOpen( TRUE );
-
-    if ( itemFunct ) {
-	itemFunct->setOpen( TRUE );
-	itemFunctPriv->setOpen( TRUE );
-	itemFunctProt->setOpen( TRUE );
-	itemFunctPubl->setOpen( TRUE );
+    itemFunct->setOpen( TRUE );
+    itemFunctPriv->setOpen( TRUE );
+    itemFunctProt->setOpen( TRUE );
+    itemFunctPubl->setOpen( TRUE );
+    
+    if ( formWindow->project()->language() == "C++" ) {
+        itemPrivate->setOpen( TRUE );
+	itemProtected->setOpen( TRUE );
+	itemPublic->setOpen( TRUE );
+	itemSlots->setOpen( TRUE );
+    } else {
+	itemFunctProt->setVisible( FALSE );
     }
-
-    if ( formWindow->project()->language() != "C++" )
-	itemProtected->setVisible( FALSE );
 }
 
 
@@ -891,6 +888,10 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 {
     if ( !i )
 	return;
+
+    if ( i->rtti() == HierarchyItem::FunctParent && formWindow->project()->language() != "C++" )
+	return;
+    
     if ( i->rtti() == HierarchyItem::SlotParent ) {
 	QPopupMenu menu;
 	menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Edit..." ) );

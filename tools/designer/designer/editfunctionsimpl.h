@@ -3,6 +3,7 @@
 
 #include "editfunctions.h"
 #include "hierarchyview.h"
+#include "metadatabase.h"
 #include <qmap.h>
 
 class FormWindow;
@@ -31,12 +32,14 @@ protected slots:
     void currentReturnTypeChanged( const QString &type );
     void currentTypeChanged( const QString &type );
     void displaySlots( bool justSlots );
+    void setupItemList( bool currentAllFunct );
 
 private:
     void setupGUI();
     FormWindow *formWindow;
     QMap<QListViewItem*, QString> oldFunctionNames;
     QStringList removedFunctions;
+    QValueList<MetaDataBase::Function> itemList;
 };
 
 #endif
