@@ -447,7 +447,7 @@ static inline const QRect qrectForHIRect(const HIRect &hirect)
 static inline bool qt_mac_is_metal(const QWidget *w)
 {
     for (; w; w = w->parentWidget()) {
-        if (w->testAttribute(Qt::WA_MacMetalStyle) || w->testWFlags(Qt::WMacMetal))
+        if (w->testAttribute(Qt::WA_MacMetalStyle))
             return true;
         if (w->isTopLevel())
             break;
@@ -2487,7 +2487,6 @@ QStyle::SubControl QMacStylePrivate::HIThemeQuerySubControl(QStyle::ComplexContr
                     sc = QStyle::SC_ScrollBarSubLine;
                 else if (part == kControlDownButtonPart)
                     sc = QStyle::SC_ScrollBarAddLine;
-
             } else {
                 HIThemeTrackDrawInfo tdi;
                 getSliderInfo(cc, sb, &tdi, widget);

@@ -630,7 +630,6 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     \value WShowModal see WType_Dialog
 
     \omitvalue WMacDrawer
-    \omitvalue WMacMetal
     \omitvalue WMacNoSheet
     \omitvalue WMacSheet
     \omitvalue WNoAutoErase

@@ -213,7 +213,6 @@ public:
 #if defined(Q_WS_X11)
         WX11BypassWM            = 0x01000000,
         WWinOwnDC               = 0x00000000,
-        WMacMetal               = 0x00000000,
         WMacSheet               = 0x00000000,
         WMacDrawer              = 0x00000000,
 #elif defined(Q_WS_MAC)
@@ -221,11 +220,9 @@ public:
         WWinOwnDC               = 0x00000000,
         WMacSheet               = 0x01000000 | WType_TopLevel,
         WMacDrawer              = 0x20000000 | WType_TopLevel,
-        WMacMetal               = 0x40000000,
 #else
         WX11BypassWM            = 0x00000000,
         WWinOwnDC               = 0x01000000,
-        WMacMetal               = 0x00000000,
         WMacSheet               = 0x00000000,
         WMacDrawer              = 0x00000000,
 #endif
@@ -239,7 +236,7 @@ public:
         WStyle_Splash           = WStyle_NoBorder | WStyle_Tool | WWinOwnDC,
 #endif
 #if defined(Q_WS_MAC)
-        WStyle_ToolTip          = 0x80000000
+        WStyle_ToolTip          = 0x40000000
 #else
         WStyle_ToolTip          = WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM
 #endif

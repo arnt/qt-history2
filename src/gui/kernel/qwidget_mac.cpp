@@ -845,8 +845,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
                 }
             }
         }
-        if(testWFlags(Qt::WMacMetal))
-            wattr |= kWindowMetalAttribute;
         if(testWFlags(Qt::WStyle_Tool) && testWFlags(Qt::WStyle_Splash) != Qt::WStyle_Splash && !isModal())
             wattr |= kWindowHideOnSuspendAttribute;
         wattr |= kWindowLiveResizeAttribute;
