@@ -120,18 +120,20 @@ static QString getFmtString( const QString& f, const QTime* dt = 0, const QDate*
 	    buf = QString::number( dd->day() );
 	} else if ( f == "dd" ) {
             buf = QString::number( dd->day() ).rightJustify( 2, '0', TRUE );
-	} else if ( f == "ddd" ) {
-            buf = dd->shortDayName( dd->dayOfWeek() );
-	} else if ( f == "dddd" ) {
-	    buf = dd->longDayName( dd->dayOfWeek() );
 	} else if ( f == "M" ) {
 	    buf = QString::number( dd->month() );
 	} else if ( f == "MM" ) {
             buf = QString::number( dd->month() ).rightJustify( 2, '0', TRUE );
+#ifndef QT_NO_TEXTDATE
+	} else if ( f == "ddd" ) {
+            buf = dd->shortDayName( dd->dayOfWeek() );
+	} else if ( f == "dddd" ) {
+	    buf = dd->longDayName( dd->dayOfWeek() );
 	} else if ( f == "MMM" ) {
             buf = dd->shortMonthName( dd->month() );
 	} else if ( f == "MMMM" ) {
             buf = dd->longMonthName( dd->month() );
+#endif
 	} else if ( f == "yy" ) {
             buf = QString::number( dd->year() ).right( 2 );
 	} else if ( f == "yyyy" ) {

@@ -657,6 +657,9 @@
     Scaling and rotation
 */
 //#define QT_NO_TRANSFORMATIONS
+#if defined(QT_NO_TRANSFORMATIONS)
+# define QT_NO_PIXMAP_TRANSFORMATION
+#endif
 
 /*!
   Scalable Vector Graphics (SVG)
@@ -886,6 +889,16 @@
 #  define QT_NO_ICONVIEW
 # endif
 #endif
+
+#if defined(QT_NO_SCROLLVIEW)
+/*!
+    QGridView
+*/
+# ifndef QT_NO_GRIDVIEW
+#  define QT_NO_GRIDVIEW
+# endif
+#endif
+
 
 #if defined(QT_NO_SCROLLVIEW) || defined(QT_NO_BEZIER)
 /*!

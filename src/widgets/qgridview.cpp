@@ -37,6 +37,9 @@
 
 
 #include "qgridview.h"
+
+#ifndef QT_NO_GRIDVIEW
+
 #include "qpainter.h"
 
 /*!
@@ -340,3 +343,5 @@ void QGridView::dimensionChange( int, int ) {}
   Returns the size of the grid in pixels.
 
  */
+
+#endif // QT_NO_GRIDVIEW

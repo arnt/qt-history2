@@ -35,9 +35,9 @@
 **
 **********************************************************************/
 
-#ifndef QT_NO_COMPONENT
-
 #include "private/qlibrary_p.h"
+
+#ifndef QT_NO_COMPONENT
 
 /*
   The platform dependent implementations of

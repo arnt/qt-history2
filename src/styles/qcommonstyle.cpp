@@ -662,6 +662,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    break;
 	}
 
+#ifndef QT_NO_TABBAR
     case CE_TabBarTab:
 	{
 	    const QTabBar * tb = (const QTabBar *) widget;
@@ -725,11 +726,13 @@ void QCommonStyle::drawControl( ControlElement element,
 		drawPrimitive( PO_FocusRect, p, r, cg );
 	    break;
 	}
+#endif // QT_NO_TABBAR
 
     case CE_ProgressBarGroove:
 	qDrawShadePanel(p, r, cg, TRUE, 1, &cg.brush(QColorGroup::Background));
 	break;
 
+#ifndef QT_NO_PROGRESSBAR
     case CE_ProgressBarContents:
 	{
 	    const QProgressBar *progressbar = (const QProgressBar *) widget;
@@ -782,6 +785,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		     progressbar->progressString());
 	}
 	break;
+#endif // QT_NO_PROGRESSBAR
 
     case CE_MenuBarItem:
 	{
@@ -945,6 +949,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	rect.setRect(3, 3, widget->width()-6-16, widget->height()-6);
 	break;
 
+#ifndef QT_NO_SLIDER
     case SR_SliderFocusRect:
 	{
 	    const QSlider * sl = (const QSlider *) widget;
@@ -958,7 +963,9 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	    rect = rect.intersect( sl->rect() ); // ## is this really necessary?
 	    break;
 	}
+#endif // QT_NO_SLIDER
 
+#ifndef QT_NO_MAINWINDOW
     case SR_DockWindowHandleRect:
 	{
 	    if (! widget->parentWidget())
@@ -976,6 +983,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	    }
 	    break;
 	}
+#endif // QT_NO_MAINWINDOW
 
     case SR_ProgressBarGroove:
     case SR_ProgressBarContents:
@@ -1006,6 +1014,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
     return rect;
 }
 
+#ifndef QT_NO_RANGECONTROL
 /*
   I really need this and I don't want to expose it in QRangeControl..
 */
@@ -1037,7 +1046,7 @@ static int qPositionFromValue( const QRangeControl * rc, int logical_val,
     // no overflow because of this implicit assumption:
     // span <= 4096
 }
-
+#endif // QT_NO_RANGECONTROL
 
 /*! \reimp */
 void QCommonStyle::drawComplexControl( ComplexControl control,
@@ -1058,6 +1067,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 #endif
 
     switch (control) {
+#ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar:
 	{
 	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
@@ -1132,7 +1142,9 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 	    break;
 	}
+#endif // QT_NO_SCROLLBAR
 
+#ifndef QT_NO_TOOLBUTTON
     case CC_ToolButton:
 	{
 	    const QToolButton *toolbutton = (const QToolButton *) widget;
@@ -1272,6 +1284,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 	    break;
 	}
+#endif // QT_NO_TOOLBUTTON
 
 #ifndef QT_NO_TITLEBAR
     case CC_TitleBar:
@@ -1422,6 +1435,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	}
 	break;
 
+#ifndef QT_NO_SLIDER
     case CC_Slider:
 	switch ( controls ) {
 	case SC_SliderTickmarks: {
@@ -1483,6 +1497,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    break; }
 	}
 	break;
+#endif // QT_NO_SLIDER
 
     default:
 	break;
@@ -1575,6 +1590,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 
 	break; }
 
+#ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar: {
 	const QScrollBar *scrollbar = (const QScrollBar *) widget;
 	int sliderstart = 0;
@@ -1655,7 +1671,9 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	}
 
 	break; }
+#endif // QT_NO_SCROLLBAR
 
+#ifndef QT_NO_SLIDER
     case CC_Slider: {
 	switch ( sc ) {
 	case SC_SliderHandle: {
@@ -1680,7 +1698,9 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    break;
 	}
 	break; }
+#endif // QT_NO_SLIDER
 
+#ifndef QT_NO_TOOLBUTTON
     case CC_ToolButton:
 	{
 	    const QToolButton *toolbutton = (const QToolButton *) widget;
@@ -1704,6 +1724,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    }
 	    break;
 	}
+#endif // QT_NO_TOOLBUTTON
 
 #ifndef QT_NO_TITLEBAR
     case CC_TitleBar:
@@ -1859,6 +1880,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = -1;
 	break;
 
+#ifndef QT_NO_SLIDER
     case PM_SliderThickness:
 	ret = 16;
 	break;
@@ -1894,6 +1916,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 		ret = sl->height() - pixelMetric( PM_SliderLength, sl );
 	    break;
 	}
+#endif // QT_NO_SLIDER
 
     case PM_DockWindowSeparatorExtent:
 	ret = 6;
@@ -1927,6 +1950,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 24;
 	break;
 
+#ifndef QT_NO_TABBAR
     case PM_TabBarVerticalFrame:
 	{
 	    const QTabBar * tb = (const QTabBar *) widget;
@@ -1937,6 +1961,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 		ret = 0;
 	    break;
 	}
+#endif
 
     case PM_ProgressBarChunkWidth:
 	ret = 9;

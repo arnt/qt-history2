@@ -3690,10 +3690,15 @@ QImageHandler::QImageHandler( const char *f, const char *h, const QCString& fl,
 
 typedef QPtrList<QImageHandler> QIHList;// list of image handlers
 static QIHList *imageHandlers = 0;
+#ifndef QT_NO_COMPONENT
 static QPluginManager<QImageFormatInterface> *plugin_manager = 0;
+#else
+static void *plugin_manager = 0;
+#endif
 
 void qt_init_image_plugins()
 {
+#ifndef QT_NO_COMPONENT
     if ( plugin_manager )
 	return;
 
@@ -3722,6 +3727,7 @@ void qt_init_image_plugins()
 	    iface->release();
 	}
     }
+#endif
 }
 
 static void cleanup()
@@ -3729,8 +3735,10 @@ static void cleanup()
     // make sure that image handlers are delete before plugin manager
     delete imageHandlers;
     imageHandlers = 0;
+#ifndef QT_NO_COMPONENT
     delete plugin_manager;
     plugin_manager = 0;
+#endif
 }
 
 void qt_init_image_handlers()		// initialize image handlers

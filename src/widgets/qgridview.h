@@ -30,6 +30,8 @@
 #include "qscrollview.h"
 #endif // QT_H
 
+#ifndef QT_NO_GRIDVIEW
+
 class QGridViewPrivate;
 
 class Q_EXPORT QGridView : public QScrollView
@@ -115,6 +117,7 @@ inline QSize QGridView::gridSize() const
 
 
 
+#endif // QT_NO_GRIDVIEW
 
 
 #endif // QTABLEVIEW_H

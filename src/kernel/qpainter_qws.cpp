@@ -712,10 +712,16 @@ void QPainter::setClipRegion( const QRegion &rgn, ClipMode m )
     if ( !isActive() )
 	qWarning( "QPainter::setClipRegion: Will be reset by begin()" );
 #endif
+#ifndef QT_NO_TRANSFORMATIONS
     if ( m == ClipDevice )
 	crgn = rgn;
     else
 	crgn = xmat * rgn;
+#else
+    crgn = rgn;
+    if ( m == ClipPainter )
+	crgn.translate( xlatex, xlatey );
+#endif
 
     if ( paintEventDevice == device() ) {
 	crgn = crgn.intersect( *paintEventClipRegion );

@@ -653,7 +653,11 @@ bool QProcess::start( QStringList *env )
 		if ( !command.contains( '/' ) ) {
 		    QStringList pathList = QStringList::split( ':', getenv( "PATH" ) );
 		    for (QStringList::Iterator it = pathList.begin(); it != pathList.end(); ++it ) {
+#ifndef QT_NO_DIR
 			QFileInfo fileInfo( *it, command );
+#else
+			QFileInfo fileInfo( *it + "/" + command );
+#endif
 			if ( fileInfo.isExecutable() ) {
 			    arglistQ[0] = fileInfo.filePath().local8Bit();
 			    arglist[0] = arglistQ[0];

@@ -1066,7 +1066,7 @@ QPixmap QPixmap::grabWidget( QWidget * widget, int x, int y, int w, int h )
 
   \sa xForm(), QWMatrix
 */
-#ifndef QT_NO_WMATRIX
+#ifndef QT_NO_TRANSFORMATIONS
 QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
 {
     const double dt = (double)0.0001;

@@ -500,6 +500,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    break;
 	}
 
+#ifndef QT_NO_TABBAR
     case CE_TabBarTab:
 	{
 	    if ( !widget || !widget->parentWidget() )
@@ -601,6 +602,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    }
 	    break;
 	}
+#endif // QT_NO_TABBAR
 
 #ifndef QT_NO_POPUPMENU
     case CE_PopupMenuItem:
@@ -779,10 +781,10 @@ void QWindowsStyle::drawControl( ControlElement element,
 				  cg, mi->isEnabled() ? PStyle_Enabled : PStyle_Default);
 		}
 	    }
-#endif
 
 	    break;
 	}
+#endif
 
     case CE_MenuBarItem:
 	{
@@ -837,6 +839,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	ret = 20;
 	break;
 
+#ifndef QT_NO_SLIDER
     case PM_SliderLength:
 	ret = 11;
 	break;
@@ -869,6 +872,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	    ret = thick;
 	    break;
 	}
+#endif // QT_NO_SLIDER
 
     case PM_MenuBarFrameWidth:
 	ret = 0;
@@ -1165,9 +1169,9 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 					void **data ) const
 {
     switch (ctrl) {
+#ifndef QT_NO_LISTVIEW
     case CC_ListView:
 	{
-#ifndef QT_NO_LISTVIEW
 	    if (! data)
 		break;
 
@@ -1309,6 +1313,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	}
 	break;
 
+#ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
 	if ( sub & SC_ComboBoxArrow ) {
 	    PFlags flags = PStyle_Default;
@@ -1366,7 +1371,9 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	}
 
 	break;
+#endif	// QT_NO_COMBOBOX
 
+#ifndef QT_NO_SLIDER
     case CC_Slider:
 	if ( sub & SC_SliderGroove ) {
 	    const QSlider * sl = (const QSlider *) widget;
@@ -1619,6 +1626,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		break;
 	    }
 	}
+#endif // QT_NO_SLIDER
 
 	default:
 	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, flags, sub,

@@ -50,8 +50,9 @@
 //
 //
 
-#ifndef QT_NO_COMPONENT
 #include "qlibrary.h"
+
+#ifndef QT_NO_COMPONENT
 
 #ifndef QT_H
 #include "qwindowdefs.h"

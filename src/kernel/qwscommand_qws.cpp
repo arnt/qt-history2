@@ -193,10 +193,10 @@ QWSCommand *QWSCommand::factory( int type )
     case QWSCommand::QCopSend:
 	command = new QWSQCopSendCommand;
 	break;
+#endif
     case QWSCommand::RegionName:
 	command = new QWSRegionNameCommand;
 	break;
-#endif
     default:
 	qDebug( "QWSCommand::factory : Type error - got %08x!", type );
     }
