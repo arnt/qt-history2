@@ -71,23 +71,23 @@ Many of these writing systems exhibit special features:
 
 \list
 
-\i <b>Special line breaking behavior.</b> Some of the Asian languages are
+\i \bold{Special line breaking behavior.} Some of the Asian languages are
 written without spaces between words. Line breaking can occur either
 after every character (with exceptions) as in Chinese, Japanese and
 Korean, or after logical word boundaries as in Thai.
 
-\i <b>Bidirectional writing.</b> Arabic and Hebrew are written from right to
+\i \bold{Bidirectional writing.} Arabic and Hebrew are written from right to
 left, except for numbers and embedded English text which is written
 left to right. The exact behavior is defined in the \link
 http://www.unicode.org/unicode/reports/tr9/ Unicode Technical Report
 #9 \endlink.
 
-\i <b>Non spacing or diacritical marks</b> (accents or umlauts in European
-languages). Some languages such as Vietnamese make extensive use of
+\i \bold{Non spacing or diacritical marks (accents or umlauts in European
+languages).} Some languages such as Vietnamese make extensive use of
 these marks and some characters can have more than one mark at the
 same time to clarify pronunciation.
 
-\i <b>Ligatures.</b> In special contexts, some pairs of characters get
+\i \bold{Ligatures.} In special contexts, some pairs of characters get
 replaced by a combined glyph forming a ligature. Common examples are
 the fl and fi ligatures used in typesetting US and European books.
 
@@ -104,7 +104,7 @@ don't need to have any knowledge about the writing system used in a
 particular language, except for the following small points:
 \list
 
-\i QPainter::drawText( int x, int y, const QString &str ) will always
+\i QPainter::drawText( int x, int y, const QString &str) will always
 draw the string with it's left edge at the position specified with
 the x, y parameters. This will usually give you left aligned strings.
 Arabic and Hebrew application strings are usually right

@@ -91,7 +91,7 @@ that's the case, use the session identifier \l
 QApplication::sessionId() again to access your state data and restore
 the state of the application.
 
-<strong>Important:</strong> In order to allow the window manager to
+\bold{Important:} In order to allow the window manager to
 restore window attributes such as stacking order or geometry
 information, you must identify your top level widgets with 
 unique application-wide object names (see \l{QObject::setName()}). When
@@ -135,8 +135,9 @@ currently running: within its shell, the \c SESSION_MANAGER
 environment variable points to the session manager you just started.
 \i Launch your application from the new xterm window. It will connect
 itself automatically to the session manager. You can check with the \e
-ClientList push button whether the connect was successful.<br>
-<strong>Note:</strong> Never keep the \e ClientList open when you
+ClientList push button whether the connect was successful.
+
+\bold{Note:} Never keep the \e ClientList open when you
 start or end session managed clients! Otherwise \c xsm is likely to
 crash.
 \i Use the session manager's \e Checkpoint and \e Shutdown buttons

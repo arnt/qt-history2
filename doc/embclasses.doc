@@ -19,7 +19,7 @@ Qt/Embedded classes fall into two groups: the majority are used by
 every Qt/Embedded program, and some are only used by the Qt/Embedded server. 
 The Qt/Embedded server program can also be a client, as in the case of a
 single-process installation. All Qt/Embedded specific source files are
-in \c src/kernel and are suffixed \c{_qws}. The &raquo; symbol
+in \c src/kernel and are suffixed \c{_qws}. The > symbol
 indicates inheritance.
 
 \tableofcontents
@@ -112,7 +112,7 @@ simply not be displayed.
 
 There should be no need to modify this class.
 
-\section1 QScreen &raquo; QLinuxFbScreen &raquo; accelerated screens, QTransformedScreen &raquo; QVfbScreen
+\section1 QScreen > QLinuxFbScreen > accelerated screens, QTransformedScreen > QVfbScreen
 
 These encapsulate the framebuffer Qt/Embedded is drawing to, provide
 support for mapping of coordinates for rotating framebuffers, allow
@@ -141,7 +141,7 @@ If you wish to modify the way pixmaps are allocated in memory,
 subclass or modify \c QLinuxFbScreen. If you're writing an accelerated
 driver you will need to subclass \c QScreen or \c QLinuxFbScreen.
 
-\section1 QScreenCursor &raquo; accelerated cursor &raquo; QVfbCursor
+\section1 QScreenCursor > accelerated cursor > QVfbCursor
 
 This handles drawing the on-screen mouse cursor, and saving and
 restoring the screen under it for the non-accelerated cursor types.
@@ -149,7 +149,7 @@ restoring the screen under it for the non-accelerated cursor types.
 Subclassing \c QScreenCursor is optional in an accelerated driver (you
 would only want to do so if the hardware supports a hardware cursor).
 
-\section1 QGfx &raquo; RasterBase &raquo; Raster &raquo; accelerated driver &raquo; QGfxVfb &raquo; QGfxTransformedRaster
+\section1 QGfx > RasterBase > Raster > accelerated driver > QGfxVfb > QGfxTransformedRaster
 
 This class encapsulates drawing operations, a little like a low-level
 \c QPainter. \c QGfxRaster and its descendants are specifically intended
@@ -195,7 +195,7 @@ it, and so forth.
 
 There should be no reason to modify this class.
 
-\section1 QWSKeyboardHandler &raquo; subtypes
+\section1 QWSKeyboardHandler > subtypes
 
 This handles keyboard/button input. \c QWSKeyboardHandler is subclassed
 to provide for reading \c /dev/tty, an arbitrary low-level USB event device
@@ -206,7 +206,7 @@ types of keyboard (currently only a fairly standard US PC style
 keyboard is supported); subclassing it is the preferred way to handle
 non-pointer input devices.
 
-\section1 QWSMouseHandler &raquo; QCalibratedMouseHandler &raquo; mouse types
+\section1 QWSMouseHandler > QCalibratedMouseHandler > mouse types
 
 This handles mouse/touch-panel input. Descendants of \c QCalibratedMouseHandler
 make use of filtering code which prevents 'jittering' of the pointer on

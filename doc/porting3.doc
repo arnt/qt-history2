@@ -494,10 +494,10 @@ unless one wants to achieve an Escher effect.
 
 \section2 New special characters
 
-There are five new special characters: <tt>(</tt>, <tt>)</tt>, <tt>{</tt>,
-<tt>|</tt> and <tt>}</tt> (parentheses, braces and pipe). When porting old
-regular expressions, you must add <tt>&#92;</tt> (backslash) in front of any
-of these (actually, <tt>&#92;&#92;</tt> in C++ strings), unless it is already
+There are five new special characters: \c{(){}|}
+(parentheses, braces, and pipe). When porting old
+regular expressions, you must add \\ (backslash) in front of any
+of these (actually, \\\\ in C++ strings), unless it is already
 there.
 
 Example: Old code like
@@ -509,7 +509,7 @@ should be converted into
     QRegExp rx( "\\([0-9\\|]*\\)" );      // works in Qt 2.x and 3.x
 \endcode
 (Within character classes, the backslash is not necessary in front of certain
-characters, e.g. <tt>|</tt>, but it doesn't hurt.)
+characters, e.g. \c{|}, but it doesn't hurt.)
 
 Wildcard patterns need no conversion.  Here are two examples:
 \code
@@ -778,7 +778,7 @@ respectively. Neither the arguments nor the resulting curve have changed.
 In Qt 2.x, QString only provided string comparisons using the Unicode
 values of the characters of a string. This is efficient and reliable,
 but it is not the appropriate order for most languages. For example,
-French users expect '&eacute;' (e acute) to be treated essentially as
+French users expect "e acute" to be treated essentially as
 'e' and not put after 'z'.
 
 In Qt 3.0, QString::localeAwareCompare() implements locale aware

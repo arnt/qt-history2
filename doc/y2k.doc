@@ -14,7 +14,7 @@
 
 \title Year 2000 Compliance Statement
 
-Trolltech defines <i>Year 2000 Compliance</i> as a requirement that a
+Trolltech defines Year 2000 Compliance as a requirement that a
 product or part of product does not contain errors related to
 transition from December 31, 1999 to January 1, 2000, or to the
 existence of February 29, 2000.
@@ -47,7 +47,7 @@ This applies to the above four classes and also to \l QFileDialog
 file times/dates) and \l QApplication (which does various internal
 housekeeping tasks).
 
-The conversion to <tt>year/month/date</tt> format in QDate (and
+The conversion to \c{year/month/date} format in QDate (and
 QDateTime) has been verified to be correct for all of December 31,
 1999, January 1, 2000, February 28 and 29, 2000, March 1, 2000,
 January 1, 2001 and March 1, 2001.

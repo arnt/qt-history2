@@ -38,24 +38,24 @@ The available options are:
 \header \i31 Images (\l QImageIO)
 \row \i \c QT_NO_IMAGEIO_BMP
      \i Microsoft Bitmap image file format.
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_IMAGEIO_PPM
      \i Portable Pixmap image file format.
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_IMAGEIO_XBM
      \i X11 Bitmap image file format.
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_IMAGEIO_XPM
      \i X11 Pixmap image file format.
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_IMAGEIO_PNG
      \i Portable Network Graphics image file format.
-     \i &nbsp;
+     \i
 
 \header \i31 Animation
 \row \i \c QT_NO_ASYNC_IMAGE_IO
      \i Asynchronous Image I/O and GIF image support (\l QImageDecoder, ...)
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_MOVIE
      \i Animation support (\l QMovie)
      \i \c QT_NO_ASYNC_IO, \c QT_NO_ASYNC_IMAGE_IO
@@ -63,28 +63,28 @@ The available options are:
 \header \i31 Fonts
 \row \i \c QT_NO_TRUETYPE
      \i TrueType (TTF and TTC) font file format, only used by Qt/Embedded.
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_BDF
      \i Bitmap Distribution Format (BDF) font file format, only used by Qt/Embedded.
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_FONTDATABASE
      \i Font database.
-     \i &nbsp;
+     \i
 
 \header \i31 Internationalization
 \row \i \c QT_NO_I18N
      \i Conversions between Unicode and 8-bit encodings.
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_UNICODETABLES
      \i Large tables defining such things as upper and lowercase conversions
 	for all Unicode characters.
-     \i &nbsp;
+     \i
 
 \header \i31 MIME
 \row \i \c QT_NO_MIME
      \i Multipurpose Internet Mail Extensions, an Internet standard for encoding
 	and tagging typed data (eg. text, images, colors) (\l QMimeSource)
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_RICHTEXT
      \i HTML-like text (\l QStyleSheet, \l QLabel)
      \i \c QT_NO_MIME
@@ -98,47 +98,47 @@ The available options are:
 \header \i31 Sound
 \row \i \c QT_NO_SOUND
      \i Playing audio files (\l QSound)
-     \i &nbsp;
+     \i
 
 \header \i31 Scripting
 \row \i \c QT_NO_PROPERTIES
      \i Scripting Qt-based applications.
-     \i &nbsp;
+     \i
 
 \header \i31 Qt/Embedded-specific
 \row \i \c QT_NO_QWS_CURSOR
      \i The cursor sprite on Qt/Embedded. Pen-operated devices would not
 	normally need this feature.
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_QWS_DEPTH_8GRAYSCALE
      \i11 8 bits per pixel: 256 levels of gray.
 	Incompatible with \c QWS_DEPTH_8.
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_QWS_DEPTH_8
      \i11 8 bits per pixel: 216-color cube with 40 auxiliary colors.
 	Incompatible with \c QWS_DEPTH_8GRAYSCALE.
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_QWS_DEPTH_15
      \i11 15 bits per pixel: 32 levels for each of red, green and blue.
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_QWS_DEPTH_16
      \i11 16 bits per pixel: 64 levels of green, 32 levels for red and for blue.
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_QWS_DEPTH_32
      \i11 32 bits per pixel: 256 levels for each of red, green and blue.
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_QWS_MACH64
      \i Mach64 accelerated driver (demonstration only).
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_QWS_VFB
      \i \link emb-qvfb.html Virtual framebuffer\endlink running on X11.
-     \i &nbsp;
+     \i
 
 \header \i31 Networking
 \row \i \c QT_NO_NETWORKPROTOCOL
      \i Abstract multi-protocol data retrieval,
 	with local file retrieval included (\l QNetworkProtocol)
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_NETWORKPROTOCOL_FTP
      \i FTP-protocol data retrieval.
      \i \c QT_NO_NETWORKPROTOCOL
@@ -150,26 +150,26 @@ The available options are:
 \row \i \c QT_NO_COLORNAMES
      \i Color names such as "red", used by some \l QColor constructors
 	and by some HTML documents (\l QColor, \l QStyleSheet)
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_TRANSFORMATIONS
      \i Used by a number of classes in Qt. With this, rotation and
 	scaling are possible. Without it you can only do coordinate
 	translation (\l QWMatrix)
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_PSPRINTER
      \i PostScript printer support.
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_PRINTER
      \i Printer support (\l QPrinter)
      \i \c QT_NO_PSPRINTER (Unix only)
 \row \i \c QT_NO_PICTURE
      \i Save Qt drawing commands to a files (\l QPicture)
-     \i &nbsp;
+     \i
 
 \header \i31 Widgets
 \row \i \c QT_NO_WIDGETS
      \i Disabling this disables all widgets except \l QWidget.
-     \i &nbsp;
+     \i
 \row \i \c QT_NO_TEXTVIEW
      \i HTML document viewing (\l QTextView)
      \i \c QT_NO_WIDGETS, \c QT_NO_RICHTEXT

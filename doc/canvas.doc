@@ -37,8 +37,7 @@ on the same canvas at the same time. Every view can use an arbitrary
 transformation matrix on the canvas which makes it easy to implement
 features such as zooming.
 
-<center><a href="qcanvas.html">
-<img src="qcanvas.png" alt="Screenshot of a canvas"></a></center>
+\img qcanvas.png Screenshot of a canvas
 
 Qt provides a number of predefined \l QCanvas items as listed below.
 

@@ -16,23 +16,7 @@
 
 \title SQL Module - Drivers
 
-\list
-\i \link #Introduction Introduction\endlink
-\i \link #building Building the drivers using configure\endlink
-\i \link #buildingmanually Building the plugins manually\endlink
-    \list
-    \i \link #QDB2 QDB2\endlink - IBM DB2 Driver (v7.1 and higher)
-    \i \link #QIBASE QIBASE\endlink - Borland Interbase Driver
-    \i \link #QMYSQL3 QMYSQL3\endlink - MySQL Driver
-    \i \link #QOCI8 QOCI8\endlink - Oracle Call Interface Driver, version 8 and 9
-    \i \link #QODBC3 QODBC3\endlink - Open Database Connectivity Driver
-    \i \link #QPSQL7 QPSQL7\endlink - PostgreSQL v6.x and v7.x Driver
-    \i \link #QSQLITE QSQLITE\endlink - SQLite Driver
-    \i \link #QTDS7 QTDS7\endlink - Sybase Adaptive Server and Microsoft SQL Server Driver
-    \endlist
-\i \link #troubleshooting Troubleshooting\endlink
-\i \link #development How to write your own database driver\endlink
-\endlist
+\tableofcontents
 
 \target Introduction
 \section1 Introduction

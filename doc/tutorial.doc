@@ -112,7 +112,7 @@ Note that all command-line arguments recognized by Qt are removed from
 \c argv (and \c argc is decremented accordingly). See the \l
 QApplication::argv() documentation for details.
 
-<strong>Note:</strong> It is essential that the QApplication object be
+\bold{Note:} It is essential that the QApplication object be
 created before any window-system parts of Qt are used.
 
 \printline QPushButton

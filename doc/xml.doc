@@ -333,7 +333,7 @@ tagreader with features example. \endlink
 \row \i (false, false) \i41 Illegal
 \endtable
 
-<sup>*</sup> The behavior of these entries is not specified by SAX.
+The behavior of the entries marked with an asterisk (*) is not specified by SAX.
 
 \target sax2Properties
 \section2 Properties

@@ -317,7 +317,7 @@ killTimers() has been removed.
 QObjectList is a typdef to a QList of QObject pointers (it was a
 QPtrList in Qt3).
 
-\section 1 QPointArray
+\section1 QPointArray
 
 QPointArray is now implicitly shared and is based on QVector. The
 return type for the setPoints() and putPoints() functions is now void

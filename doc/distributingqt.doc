@@ -25,10 +25,10 @@ System-specific Notes\endlink.)
 \tableofcontents
 
 Also see the "deployment" articles in
-\link http://doc.trolltech.com/qq/ <i>Qt&nbsp;Quarterly</i>\endlink:
+\e{\link http://doc.trolltech.com/qq/ Qt Quarterly\endlink}:
 \list
 \i \link http://doc.trolltech.com/qq/qq09-mac-deployment.html
-Deploying Applications on Mac&nbsp;OS&nbsp;X\endlink
+Deploying Applications on Mac OS X\endlink
 \i \link http://doc.trolltech.com/qq/qq10-windows-deployment.html
 Deploying Applications on Windows\endlink
 \omit
@@ -69,8 +69,7 @@ The library is provided by the following platform specific files:
 \row \i Mac \i \c libqt[version].dylib
 \endtable
 
-\e version includes the three version numbers. For threaded builds the
-version is prefixed with \e {-mt}.
+\e version includes the three version numbers.
 
 \section2 Distributing Plugins
 

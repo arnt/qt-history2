@@ -13,6 +13,7 @@
 /*!
 \page classchart.html
 
+\raw HTML
 <img src="qt31-class-chart.png" usemap="#classmap">
 
 <map name="classmap">
@@ -325,17 +326,16 @@
 <area shape="rect" coords="1019,683,1128,702" href="qhgroupbox.html">
 <area shape="rect" coords="1026,702,1128,721" href="qvgroupbox.html">
 </map>
+\endraw
 
 The PDF A3 size master copy of the class chart is available for
 download from
 \l{ftp://ftp.trolltech.com/qt/pdf/3.1/qt31-class-chart.pdf}
-(144K).<sup>*</sup>
-The PDF file will always be the same or more recent than the
+(144K). The PDF file will always be the same or more recent than the
 one shown here.
 
-<sup>*</sup><small>
-The PDF file is \e{not supported}; we do not guarantee it
+Note: The PDF file is \e{not supported}; we do not guarantee it
 will print correctly (although several people have reported that it
-does). It is not available in any other format or size.</small>
+does). It is not available in any other format or size.
 
 */

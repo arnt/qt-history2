@@ -1,5 +1,4 @@
 /****************************************************************************
-
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -23,20 +22,23 @@
 \if !defined(commercial) && !defined(noncommercial)
 \title Qt Reference Documentation (Free Edition)
 \endif
-<table cellpadding=2 cellspacing=1 border=0 width="100%" bgcolor="#e5e5e5">
+
 \if !defined(commercial) && !defined(noncommercial)
-<tr bgcolor="white"><td colspan=3 align="center"><b>Notice</b>: This edition is
-for the development of \link freeeditions.html Free and Open
-Source\endlink software only; see \link commercialeditions.html
-Commercial Editions\endlink.</td></tr>
+\bold{Notice:} This edition is
+for the development of \l{freeeditions.html}{Free and Open
+Source} software only; see \l{commercialeditions.html}{Commercial
+Editions}.
 \endif
 \if defined(noncommercial)
-<tr bgcolor="white"><td colspan=3 align="center"><b>Notice</b>: This
+\bold{Notice:} This
 edition is for the development of non-commercial software in
 accordance with the license you agreed to when you installed the
-software from the CD; see also \link
-commercialeditions.html Commercial Editions\endlink.</td></tr>
+software from the CD; see also
+\l{commercialeditions.html}{Commercial Editions}.
 \endif
+
+\raw HTML
+<table cellpadding=2 cellspacing=1 border=0 width="100%" bgcolor="#e5e5e5">
 <tr>
 <th bgcolor="#a2c511" width="33%">
 Qt Community
@@ -50,32 +52,31 @@ General
 </tr>
 <tr>
 <td valign="top">
-\list
-\i \link http://lists.trolltech.com Mailing lists\endlink
-\i \link http://doc.trolltech.com/qq/index.html <i>Qt Quarterly</i> newsletter\endlink
-\i \link http://www.trolltech.com/products/solutions/index.html Qt
-Solutions\endlink
-\i \link http://www.trolltech.com/freesoftware/index.html User contributed Qt additions\endlink
-\i \link bughowto.html How to report a bug\endlink
-\endlist
+<ul>
+<li><a href="http://lists.trolltech.com">Mailing lists</a>
+<li><a href="http://doc.trolltech.com/qq/index.html"><i>Qt Quarterly</i> newsletter</a>
+<li><a href="http://www.trolltech.com/products/solutions/index.html">Qt Solutions</a>
+<li><a href="http://www.trolltech.com/freesoftware/index.html">User contributed Qt additions</a>
+<li><a href="bughowto.html">How to report a bug</a>
+</ul>
 </td>
 <td valign="top">
-\list
-\i \link how-to-learn-qt.html How to Learn Qt\endlink
-\i \link tutorial.html Tutorial #1\endlink, 
-\link tutorial2.html Tutorial #2\endlink
-\i \link examples.html Examples\endlink
-\i \link http://www.trolltech.com/products/qt/whitepaper.html Whitepaper\endlink
-\endlist
+<ul>
+<li><a href="how-to-learn-qt.html">How to Learn Qt</a>
+<li><a href="tutorial.html">Tutorial #1</a>, 
+<a href="tutorial2.html">Tutorial #2</a>
+<li><a href="examples.html">Examples</a>
+<li><a href="http://www.trolltech.com/products/qt/whitepaper.html">Whitepaper</a>
+</ul>
 </td>
 <td valign="top">
-\list
-\i \link aboutqt.html About Qt\endlink
-\i \link commercialeditions.html Commercial Editions\endlink
-\i \link freeeditions.html Free Edition\endlink
-\i \link http://www.trolltech.com/developer/changes/ Change History\endlink
-\i \link troll.html About Trolltech\endlink
-\endlist
+<ul>
+<li><a href="aboutqt.html">About Qt</a>
+<li><a href="commercialeditions.html">Commercial Editions</a>
+<li><a href="freeeditions.html">Free Edition</a>
+<li><a href="http://www.trolltech.com/developer/changes/">Change History</a>
+<li><a href="troll.html">About Trolltech</a>
+</ul>
 </td>
 </tr>
 <tr>
@@ -89,43 +90,43 @@ Overviews
 </tr>
 <tr>
 <td valign="top">
-\list
-\i \link classes.html All Classes\endlink
-\i \link mainclasses.html Main Classes\endlink
-\i \link groups.html Grouped Classes\endlink
-\i \link annotated.html Annotated Classes\endlink
-\i \link hierarchy.html Inheritance Hierarchy\endlink
-\i \link classchart.html Class Chart (clickable image)\endlink
-\i \link functions.html All Functions (long)\endlink
-\i \link headers.html Header File Index\endlink
-\i \link faq.html FAQs\endlink
-\endlist
+<ul>
+<li><a href="classes.html">All Classes</a>
+<li><a href="mainclasses.html">Main Classes</a>
+<li><a href="groups.html">Grouped Classes</a>
+<li><a href="annotated.html">Annotated Classes</a>
+<li><a href="hierarchy.html">Inheritance Hierarchy</a>
+<li><a href="classchart.html">Class Chart (clickable image)</a>
+<li><a href="functions.html">All Functions (long)</a>
+<li><a href="headers.html">Header File Index</a>
+<li><a href="faq.html">FAQs</a>
+</ul>
 </td>
 <td valign="top">
-\list
-\i \link modules.html All Modules\endlink
-\i \link canvas.html Canvas\endlink
-\i \link iconview.html Iconview\endlink
-\i \link network.html Network\endlink
-\i \link opengl.html OpenGL\endlink
-\i \link sql.html SQL\endlink
-\i \link table.html Table\endlink
-\i \link workspace.html Workspace\endlink
-\i \link xml.html XML\endlink
-\endlist
+<ul>
+<li><a href="modules.html">All Modules</a>
+<li><a href="canvas.html">Canvas</a>
+<li><a href="iconview.html">Iconview</a>
+<li><a href="network.html">Network</a>
+<li><a href="opengl.html">OpenGL</a>
+<li><a href="sql.html">SQL</a>
+<li><a href="table.html">Table</a>
+<li><a href="workspace.html">Workspace</a>
+<li><a href="xml.html">XML</a>
+</ul>
 </td>
 <td valign="top">
-\list
-\i \link overviews-list.html All Overviews and HOWTOs\endlink
-\i \link object.html Qt Object Model\endlink
-\i \link signalsandslots.html Signals and Slots\endlink
-\i \link model-view-programming.html Model/View Programming\endlink
-\i \link geometry.html Window Geometry\endlink
-\i \link eventsandfilters.html Events and Event Filters\endlink
-\i \link i18n.html Internationalization (i18n)\endlink
-\i \link debug.html Debugging Techniques\endlink
-\i \link threads.html Thread Support in Qt\endlink
-\endlist
+<ul>
+<li><a href="overviews-list.html">All Overviews and HOWTOs</a>
+<li><a href="object.html">Qt Object Model</a>
+<li><a href="signalsandslots.html">Signals and Slots</a>
+<li><a href="model-view-programming.html">Model/View Programming</a>
+<li><a href="geometry.html">Window Geometry</a>
+<li><a href="eventsandfilters.html">Events and Event Filters</a>
+<li><a href="i18n.html">Internationalization (i18n)</a>
+<li><a href="debug.html">Debugging Techniques</a>
+<li><a href="threads.html">Thread Support in Qt</a>
+</ul>
 </tr>
 <tr>
 <th bgcolor="#a2c511">
@@ -140,34 +141,36 @@ Licenses &amp; Credits
 </tr>
 <tr>
 <td valign="top">
-\list
-\i \link winsystem.html Window system specific notes\endlink
-\i \link activeqt.html ActiveQt Framework\endlink
-\i \link motif-extension.html Motif Extension\endlink
-\i \link mac-differences.html Mac OS X development\endlink
-\i \link porting.html Porting from Qt 3.x to Qt 4.x\endlink
-\endlist
+<ul>
+<li><a href="winsystem.html">Window system specific notes</a>
+<li><a href="activeqt.html">ActiveQt Framework</a>
+<li><a href="motif-extension.html">Motif Extension</a>
+<li><a href="mac-differences.html">Mac OS X development</a>
+<li><a href="porting.html">Porting from Qt 3.x to Qt 4.x</a>
+</ul>
 </td>
 <td valign="top">
-\list
-\i \link tools-list.html All Tools\endlink
-\i \link designer-manual.book Qt Designer\endlink
-\i \link linguist-manual.book Qt Linguist\endlink
-\i \link assistant.book Qt Assistant\endlink
-\i \link qmake-manual.book qmake\endlink
-\endlist
+<ul>
+<li><a href="tools-list.html">All Tools</a>
+<li><a href="designer-manual.book">Qt Designer</a>
+<li><a href="linguist-manual.book">Qt Linguist</a>
+<li><a href="assistant.book">Qt Assistant</a>
+<li><a href="qmake-manual.book">qmake</a>
+</ul>
 </td>
 <td valign="top">
-\list
-\i \link license.html Q Public License\endlink
-\i \link gpl.html GNU General Public License\endlink
-\i \link 3rdparty.html Third Party Licenses used in Qt\endlink
-\i \link licenses.html Other Licenses used in Qt\endlink
-\i \link credits.html Credits\endlink
-\endlist
+<ul>
+<li><a href="license.html">Q Public License</a>
+<li><a href="gpl.html">GNU General Public License</a>
+<li><a href="3rdparty.html">Third Party Licenses used in Qt</a>
+<li><a href="licenses.html">Other Licenses used in Qt</a>
+<li><a href="credits.html">Credits</a>
+</ul>
 </td>
 </tr>
 </table>
+\endraw
+
 */
 
 /*! \page groups.html
@@ -778,7 +781,7 @@ These classes are relevant to text processing. See also the
 
 These classes use the Model/View design pattern in which the
 underlying data (in the Model) is kept separate from the way the data
-is presented and manipulated by the user (in the View). See also,
+is presented and manipulated by the user (in the View). See also
 \link model-view-programming.html Model/View Programming\endlink.
 
 */

@@ -110,12 +110,11 @@ the other C++ code in your program; otherwise the build will fail in
 the final link phase. By convention, this is done in one of the
 following two ways:
 
-<dl>
+\list
+\i \bold{Method A: The class declaration is found in a header
+(\e .h) file.}
 
-<dt><b>Method A: The class declaration is found in a header
-(\e .h) file</b>
-
-<dd>If the class declaration above is found in the file
+If the class declaration above is found in the file
 \e myclass.h, the moc output should be put in a file called
 \e moc_myclass.cpp. This file should then be compiled as
 usual, resulting in an object file \e moc_myclass.o (on Unix)
@@ -124,10 +123,10 @@ included in the list of object files that are linked together in the
 final building phase of the program.
 
 
-<dt><b>Method B: The class declaration is found in an implementation
-(\e .cpp) file</b>
+\i \bold{Method B: The class declaration is found in an implementation
+(\e .cpp) file.}
 
-<dd>If the class declaration above is found in the file
+If the class declaration above is found in the file
 \e myclass.cpp, the moc output should be put in a file called
 \e myclass.moc. This file should be #included in the
 implementation file, i.e. \e myclass.cpp should contain the
@@ -138,8 +137,7 @@ line
 at the end. This will cause the moc-generated code to be compiled and
 linked together with the normal class definition in \e myclass.cpp, so
 it is not necessary to compile and link it separately, as in Method A.
-
-</dl>
+\endlist
 
 Method A is the normal method. Method B can be used in cases where you
 want the implementation file to be self-contained, or in cases where

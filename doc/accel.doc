@@ -21,8 +21,8 @@ perform the following steps:
 
 \list 1
 \i 
-<b>Define an accelerated descendant of QLinuxFbScreen.</b>
-<br>
+\bold{Define an accelerated descendant of QLinuxFbScreen.}
+
 This should implement \c QVoodooScreen::connect() to map its
 registers. Use \c qt_probe_bus to get a pointer to the PCI config
 space. This is where you should check that you're being pointed to the
@@ -37,8 +37,8 @@ good place to set registers to known states). \c connect() will be called
 by every connecting client.
 
 \i 
-<b>Define an accelerated descendant of QGfxRaster.</b>
-<br>
+\bold{Define an accelerated descendant of QGfxRaster.}
+
 This is where the actual drawing code goes. Anything not implemented
 in hardware can be passed back to \c QGfxRaster to do in software. Use
 the optype variable to make sure that accelerated and unaccelerated
@@ -69,29 +69,29 @@ QPixmap::xForm() and \c drawPixmap() into a transformed \c QPainter,
 alpha channel acceleration is supported for 32-bit pixmaps.
 
 \i
-<b>Optionally define an accelerated descendant of \c{QScreenCursor}.</b>
-<br>
+\bold{Optionally define an accelerated descendant of \c{QScreenCursor}.}
+
 \c restoreUnder(), \c saveUnder(), \c drawCursor() and \c draw() should
 be defined as null operations. Implement \c set(), \c move(), \c
 show() and \c hide(). 4KB is left for your cursor at the end of the
 visible part of the framebuffer (i.e. at (width*height*depth)/8 )
 
 \i
-<b>Implement \c{QScreen} functions.</b>
-<br>
+\bold{Implement \c{QScreen} functions.}
+
 Implement \c initCursor() and \c createGfx() in your \c QScreen
 descendant. Implement \c useOffscreen() and return \c TRUE if you can
 make use of offscreen graphics memory.
 
 \i
-<b>Implement \c{qt_get_screen_mychip()}.</b>
-<br>
+\bold{Implement \c{qt_get_screen_mychip()}.}
+
 Implement a small function \c qt_get_screen_mychip(), which simply
 returns a new \c QMychipScreen
 
 \i
-<b>Add your to the DriverTable table</b>
-<br>
+\bold{Add your to the DriverTable table}
+
 The DriverTable table is in \c qgfxraster_qws.cpp,
 e.g.
 \code
@@ -102,8 +102,8 @@ The first parameter is the name used with QWS_DISPLAY to request your
 accelerated driver.
 
 \i
-<b>Use your new driver.</b>
-<br>
+\bold{Use your new driver.}
+
 To run with your new driver,
 \code
 export QWS_DISPLAY=MyChip 

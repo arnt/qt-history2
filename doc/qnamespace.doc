@@ -197,7 +197,7 @@
 	it prints outside.
     \value TextExpandTabs Makes the U+0009 (ASCII tab) character move to
 	the next tab stop.
-    \value TextShowMnemonic Displays the string "\&P" as <u>P</u>
+    \value TextShowMnemonic Displays the string "\&P" as \underline{P}
 	(see QButton for an example). For an ampersand, use "\&\&".
     \value TextWordBreak Breaks lines at appropriate points, e.g. at word
 	boundaries.

@@ -33,12 +33,11 @@ Professional and Enterprise Editions.
 
 Qt is supported on the following platforms:
 \list
- \i <b>Microsoft Windows</b> -- 95, 98, NT 4.0, ME, 2000, and XP
- \i <b>Unix/X11</b> -- Linux, Sun Solaris, HP-UX, Compaq Tru64 UNIX,
+ \i \bold{Microsoft Windows} -- 95, 98, NT 4.0, ME, 2000, and XP
+ \i \bold{Unix/X11} -- Linux, Sun Solaris, HP-UX, Compaq Tru64 UNIX,
 	    IBM AIX, SGI IRIX and many others
- \i <b>Mac OS X</b> -- Mac OS X 10.2+
- \i <b>\link http://www.trolltech.com/products/embedded/index.html
-Qt/Embedded\endlink</b> -- Linux platforms with framebuffer support.
+ \i \bold{Mac OS X} -- Mac OS X 10.2+
+ \i \bold{\l{http://www.trolltech.com/products/embedded/index.html}{Qt/Embedded}} -- Linux platforms with framebuffer support.
 \endlist
 
 On Trolltech's web site, you can find \link
@@ -49,18 +48,19 @@ Qt Professional Edition, Qt Enterprise Edition, and other Trolltech
 products.
 
 To purchase, please visit the
-<a href="https://webshop.trolltech.com/cgi-bin/index.cgi">Trolltech
-webshop</a>. In the webshop, you can generate a Purchase Order, order
+\l{https://webshop.trolltech.com/cgi-bin/index.cgi}{Trolltech webshop}.
+In the webshop, you can generate a Purchase Order, order
 a Quote, or buy directly using a credit card.
 
 For further information and assistance, please contact Trolltech sales:
 
 Email: \link mailto:sales@trolltech.com sales@trolltech.com\endlink
 
-Phone, US office (for North America): <strong>(+1)&nbsp;650-813-1676</strong>
+Phone, US office (for North America): \bold{1-650-813-1676}
 
-Phone, Norway office (for the rest of the World): <strong>+47&nbsp;2160&nbsp;4800</strong>
+Phone, Norway office (for the rest of the World): \bold{+47 2160 4800}
 
+\raw HTML
 <table border="1" cellpadding="5" cellspacing="0" width="100%">
   <tr>
     <td bgcolor="#a1c410"><b><a name="Chart"></a>Professional/Enterprise Comparison Chart</b></td>
@@ -143,5 +143,6 @@ Phone, Norway office (for the rest of the World): <strong>+47&nbsp;2160&nbsp;480
     <td width="100" align="center"><b>X</b></td>
   </tr>
 </table>
+\endraw
 
 */

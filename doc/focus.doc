@@ -142,7 +142,7 @@ QGroupBox and \l QTabBar.
 We advise supporting shortcut focus for all widgets that the user may
 want to jump to. For example, a tab dialog can have keyboard shortcuts
 for each of its pages, so the user can press e.g. Alt+P to step to the
-<u>P</u>rinting page. It is easy to overdo this: there are only a few
+\underline{P}rinting page. It is easy to overdo this: there are only a few
 keys, and it's also important to provide keyboard shortcuts for
 commands. Alt+P is also used for Paste, Play, Print, and Print Here in
 the \link accelerators.html standard list of shortcuts\endlink, for

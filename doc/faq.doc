@@ -20,11 +20,9 @@ See also the \link commonproblems.html Technical FAQ\endlink.
 
 \tableofcontents
 
-<hr>
 \section1 General Questions
 
-<hr width="30%">
-\section2    What is Qt?
+\section2 What is Qt?
 
 Qt is a multiplatform C++ GUI toolkit. It
 provides application developers with all the functionality
@@ -35,11 +33,11 @@ extensible, and facilitates component programming.
 Qt is supported on the following platforms:
 
 \list
-    \i <b>Microsoft Windows</b> -- 95, 98, NT 4.0, ME, 2000, and XP
-    \i <b>Unix/X11</b> -- Linux, Sun Solaris, HP-UX, Compaq Tru64 UNIX,
+    \i \bold{Microsoft Windows} -- 95, 98, NT 4.0, ME, 2000, and XP
+    \i \bold{Unix/X11} -- Linux, Sun Solaris, HP-UX, Compaq Tru64 UNIX,
     IBM AIX, SGI IRIX and many others
-    \i <b>Macintosh</b> -- Mac OS X
-    \i <b>Embedded</b> -- Linux platforms with framebuffer support.
+    \i \bold{Macintosh} -- Mac OS X
+    \i \bold{Embedded} -- Linux platforms with framebuffer support.
 \endlist
 
 Qt is considered to be the standard development environment by many IT
@@ -54,7 +52,6 @@ professionals who want to:
     \i Have their applications run at native speed.
 \endlist
 
-<hr width="30%">
 \section2    What is Trolltech?
 
 Trolltech is an international software company with
@@ -67,13 +64,11 @@ started Qt's development in 1992.
 
 More details can be found at \link troll.html Trolltech\endlink.
 
-<hr width="30%">
 \section2    How can I evaluate Qt?
 
 We offer 30 day evaluation versions of Qt on all our supported platforms.
 Further details can be found here: \l http://www.trolltech.com/evaluate.html.
 
-<hr width="30%">
 \section2    What does Qt cost? 
 
 This depends on your number of developers, on how many
@@ -87,21 +82,19 @@ We also offer discounts for academic and research institutions.
 Details on pricing can be found here:
 \l http://www.trolltech.com/pricing.html.
 
-<hr width="30%">
 \section2    How can I buy Qt?
 
-To purchase, please visit the <a
-href="https://webshop.trolltech.com/cgi-bin/index.cgi">Trolltech
-webshop</a>. In the webshop, you can generate a Purchase Order, order
+To purchase, please visit the
+\l{https://webshop.trolltech.com/cgi-bin/index.cgi}{Trolltech
+webshop}. In the webshop, you can generate a Purchase Order, order
 a Quote, or buy directly using a credit card.
 
 For further information and assistance, please contact Trolltech sales:
 
 Email: \link mailto:sales@trolltech.com sales@trolltech.com\endlink.
-Phone, US office (for North America): <strong>(+1)&nbsp;650-813-1676</strong>
-Phone, Norway office (for others): <strong>+47&nbsp;2160&nbsp;4800</strong>
+Phone, US office (for North America): \bold{1-650-813-1676}
+Phone, Norway office (for others): \bold{+47 2160 4800}
 
-<hr width="30%">
 \section2    What kind of technical support is available for Qt?
 
 Trolltech offers email support to commercial licensees. The first year
@@ -114,7 +107,6 @@ subsequent year.
 For further information see:
 \l http://www.trolltech.com/support/.
 
-<hr width="30%">
 \section2    Who provides training for Qt?
 
 A number of companies provide Qt training, in Asia, Europe and the US.
@@ -124,14 +116,12 @@ there are a number of independently developed courses run by third
 parties. You can find more information about the partners and the
 courses at: \l http://www.trolltech.com/training/.
 
-<hr width="30%">
 \section2    Who provides consultancy for Qt?
 
 A number of companies provide consultancy services for Qt and
 Qtopia. You can find a partial list here:
 \l http://www.trolltech.com/company/servicepartners.html.
 
-<hr width="30%">
 \section2    Are there any books about Qt programming?
 
 Yes, there are quite a few books on Qt, most of them
@@ -139,11 +129,9 @@ available from amazon.com. You can find a partial list at
 \l http://www.trolltech.com/developer/books.html.
 
 The official Qt book is 
-<a
-href="http://www.amazon.com/exec/obidos/ASIN/0131240722/trolltech/">C++
-GUI Programming with Qt 3</a> ISBN 0-13-124072-2.
+\l{http://www.amazon.com/exec/obidos/ASIN/0131240722/trolltech/}{C++
+GUI Programming with Qt 3} (ISBN 0-13-124072-2).
 
-<hr width="30%">
 \section2    What are the Free Editions?
 
 The Qt Free Editions are our non-commercial versions of
@@ -154,7 +142,6 @@ a similarly recognized open source license.
 Free editions of Qt are available for Unix/X11, Macintosh and
 Linux/Embedded.
 
-<hr width="30%">
 \section2    What is the idea behind having free editions of Qt?
 
 The Free Editions are a way for Trolltech to support the free software
@@ -162,17 +149,14 @@ concept, and free software developers. These editions are part of our
 commitment to those who contribute to the free software pool, allowing
 them to use Qt without paying license fees.
 
-<hr width="30%">
 \section2    Is there a low-cost version of Qt for writing shareware?
 
 No, but Qt's commercial licenses permit you to write and sell
 shareware written with Qt.
 
 
-<hr>
 \section1 Questions about Qt's Users
 
-<hr width="30%">
 \section2    How many developers use Qt?
 
 We don't know! We can count our many thousands of commercial
@@ -183,7 +167,6 @@ the web, Universities teaching with Qt, and other factors. A
 conservative estimate would put the figure in the region of 100,000 to
 150,000 developers world-wide.
 
-<hr width="30%">
 \section2    Which major corporations use Qt?
 
 See our list of reference customers at
@@ -191,18 +174,14 @@ See our list of reference customers at
 commercial customers do not disclose their use of Qt because they see
 Qt as a competitive advantage.
 
-<hr width="30%">
 \section2    Are there any well-known applications that use Qt?
 
 There are many, e.g. Adobe Photoshop Album from Abobe
 Corporation and the KDE desktop. A partial list can be found at
 \l http://www.trolltech.com/products/qt/apps-using-qt.html
 
-
-<hr>
 \section1 Questions about Developing Applications with Qt
 
-<hr width="30%">
 \section2   Is there a mailing list for Qt?
 
 Trolltech provides several mailing lists for Qt users including
@@ -210,12 +189,10 @@ Trolltech provides several mailing lists for Qt users including
 
 See \link http://lists.trolltech.com Mailing lists\endlink.
 
-<hr width="30%">
 \section2    Is Qt's documentation available online?
 
 Yes, at \l http://doc.trolltech.com.
 
-<hr width="30%">
 \section2    Is there a technical newsletter for Qt?
 
 Yes, \link http://doc.trolltech.com/qq/index.html Qt
@@ -225,21 +202,16 @@ available to Qt licensees.
 As a courtesy and convenience to all our users, a selection of
 articles is also published online about one month after publication.
 
-
-<hr width="30%">
 \section2    I think I have found a bug in Qt. Where can I report it?
 
 Bugs should be reported to \link mailto:qt-bugs@trolltech.com
 qt-bugs@trolltech.com\endlink. But \e please read (the very short)
 \link bughowto.html How to Report a Bug\endlink page \e first.
 
-
-<hr>
 \section1 Questions about Professional Licensing
 
-<hr width="30%">
-\section2    We have purchased a license, but the developer is leaving the company
-project. Can we transfer the license to another developer?
+\section2    We have purchased a license, but the developer is leaving \
+the company project. Can we transfer the license to another developer?
 
 Yes. Qt licences are for the individual use of named developers. If
 the developer associated with a licence leaves the organization, or
@@ -249,7 +221,6 @@ of the developer using a licence at any time, but after a change you
 must wait at least six (6) months before changing again.
 
 
-<hr width="30%">
 \section2    Can I purchase floating licenses for Qt?
 
 No, we do not offer floating licenses.
@@ -276,9 +247,8 @@ one platform only.
 #endif
 \endomit
 
-<hr width="30%">
-\section2    Can we use the Free Edition while developing our non-free
-application and then purchase commercial licenses when we start to
+\section2    Can we use the Free Edition while developing our non-free \
+application and then purchase commercial licenses when we start to \
 sell it?
 
 No. Our commercial license agreements only apply to software
@@ -288,38 +258,32 @@ prior to the agreement.  Any software developed with Qt
 without a commercial license agreement must be released as
 free/open source software.
 
-<hr>
 \section1 Questions about Free Software Licensing
 
-<hr width="30%">
-\section2    I just want to run KDE and other Qt-based software on my
+\section2    I just want to run KDE and other Qt-based software on my \
 machine. Can I do that with the Free Edition?
 
 Yes. You can use a Qt Free Edition for running applications,
 both at home and at work, without restrictions.
 
-<hr width="30%">
-\section2    I want to put Qt, and applications that use it, on a CD-ROM or on
+\section2    I want to put Qt, and applications that use it, on a CD-ROM or on \
 a web site. Can I do that with the Free Editions?
 
 Yes. You can copy and redistribute the Qt Free Editions, both
 at home and at work, without restrictions.
 
-<hr width="30%">
-\section2    Can I make software with the Qt Free Edition and release it under
+\section2    Can I make software with the Qt Free Edition and release it under \
 the GNU GPL, BSD, or Artistic license?
 
 Yes. The GNU GPL, GPL-compatible licenses, or any other
 approved open source license are acceptable. The FSF.org and
 OpenSource.org web sites list approved software licenses.
 
-<hr width="30%">
 \section2    I don't want to give away my source code. What do I do?
 
 You need to buy a commercial Qt license.
 
-<hr width="30%">
-\section2    Is software based on the Qt Free Editions really free? Does it
+\section2    Is software based on the Qt Free Editions really free? Does it \
 carry any Trolltech-specific license restrictions?
 
 Yes, it really is free. This is because the Qt Free Edition
@@ -329,7 +293,6 @@ make it non-free. And no, there are no Trolltech-specific
 license restrictions on software produced using a Free
 Edition.
 
-<hr width="30%">
 \section2    What if Trolltech stops releasing Free Editions of Qt?
 
 We have absolutely no intention of doing that. Together with
@@ -340,8 +303,7 @@ legally guarantee the availability of Qt for free software
 development now and forever -- even if circumstances beyound
 our control prevented us from producing new free editions.
 
-<hr width="30%">
-\section2    Using a Free Edition, can I make non-free software for internal
+\section2    Using a Free Edition, can I make non-free software for internal \
 use in my company/organization?
 
 No. Software developed with a Free Edition is always free
@@ -369,9 +331,8 @@ In view of the above, we recommend using commercial licenses for all
 internal software development.
 
 
-<hr width="30%">
-\section2    Are the Qt Free Editions really free software in the GNU meaning of the
-word?
+\section2    Are the Qt Free Editions really free software in the GNU \
+meaning of the word?
 
 Yes -- it is free software both as in "no cost" and as in
 "free speech". Even more, it is actually available under the
@@ -379,9 +340,8 @@ terms of the GNU GPL. This means you can link GPL'ed software
 to it, and you can take code from Qt and put it into other
 GPL'ed software.
 
-<hr width="30%">
-\section2    If the Free Editions are GNU GPL, aren't there license conflicts
-with incompatible open source licenses? How come people can even
+\section2    If the Free Editions are GNU GPL, aren't there license conflicts \
+with incompatible open source licenses? How come people can even \
 run commercial software like the Opera web browser with it?
 
 If the Free Edition was licensed purely under the GNU GPL,
@@ -392,17 +352,15 @@ permission to compile, link and run those programs with the
 Free Edition. This is written down in our second free software
 license, the QPL.
 
-<hr width="30%">
-\section2    Doesn't such an en extra license in addition to the GNU GPL
-violate the terms of the GPL or at least make the whole package
+\section2    Doesn't such an en extra license in addition to the GNU GPL \
+violate the terms of the GPL or at least make the whole package \
 GPL-incompatible?
 
 No, because those extra license terms give you rights in
 addition to those of the GNU GPL, including the right to
 remove those extra terms.
 
-<hr width="30%">
-\section2    Why aren't the Qt Free Editions distributed under the GNU Lesser
+\section2    Why aren't the Qt Free Editions distributed under the GNU Lesser \
 General Public License (LGPL)?
 
 The LGPL is designed to "permit developers of non-free
@@ -417,18 +375,15 @@ Note also that the Free Software Foundation discourages the
 use of the LGPL.
 
 
-<hr>
 \section1 Questions about other programming languages
 
-<hr width="30%">
 \section2    Are there bindings to languages other than C++?
 
 Yes there are, e.g. bindings to Perl (PerlQt) and Python
 (PyQt). These bindings were written by the open source
 community and are not supported by Trolltech.
 
-<hr width="30%">
-\section2    Can I develop commercial applications with PerlQt or PyQt or other
+\section2    Can I develop commercial applications with PerlQt or PyQt or other \
 Qt wrappers?
 
 Yes, if you have purchased a commercial license. The licensing

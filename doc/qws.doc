@@ -83,7 +83,7 @@ You can create your own custom configuration by adding new files
    The \c fbset program, which should be included in Linux distributions,
    may be used to switch video modes without rebooting the system. The
    video mode active when the server is started will be used. (8-bit
-   modes are still experimental.) <b>Note</b>: \c fbset does not work
+   modes are still experimental.) \bold{Note:} \c fbset does not work
    with the vesafb driver.
 
 \i Change permissions.
@@ -168,23 +168,23 @@ Qt/Embedded supports four font formats:
 
 \table
 \row
-\i <b>TrueType (TTF)</b>
+\i \bold{TrueType (TTF)}
 \i The scalable font technology now standard on Microsoft Windows
 Mac OS X, and becoming popular on X11.
 \row
-\i <b>Postscript Type1 (PFA/PFB)</b>
+\i \bold{Postscript Type1 (PFA/PFB)}
 \i Scalable fonts often used by printers, also popular on X11. These
 are similar in functionality to TTF fonts and are not discussed
 further in this document.
 \row
-\i <b>Bitmap Distribution Format<br>fonts (BDF)</b>
+\i \bold{Bitmap Distribution Format<br>fonts (BDF)}
 \i A standard format for non-scalable fonts. A large number of BDF
 fonts are supplied as part of standard X11 distributions -- most of
 these can be used with Qt/Embedded. You should \e not use these in a
 production system: they are very slow to load and take up a \e lot of
 storage space. Instead, render the BDF to a QPF.
 \row
-\i <b>Qt Prerendered Font (QPF)</b>
+\i \bold{Qt Prerendered Font (QPF)}
 \i A light-weight non-scalable font format specific to Qt/Embedded.
 \endtable
 
@@ -289,7 +289,7 @@ usage of your applications by disabling TTF and BDF support from Qt/Embedded,
 or by modifying the initialization of \c qws_savefonts in
 \c kernel/qapplication_qws.cpp of the Qt/Embedded library source code.
 In extreme cases of memory-saving, it is possible to save partially-rendered
-fonts (i.e. only the characters in "Product Name<sup>TM</sup>") if you are
+fonts (i.e. only the characters in "Product Name") if you are
 certain that these are the only characters you will need from the font.
 See QMemoryManager::savePrerenderedFont() for this functionality.
 
@@ -342,7 +342,7 @@ cd $QTDIR/examples/widgets
 You should see the \c widgets example appear. If your mouse doesn't
 work correctly you must specify the type of mouse to use. You can
 exit the master application at any time using
-<b>Ctrl+Alt+Backspace</b>.
+\bold{Ctrl+Alt+Backspace}.
 
 If you wish to run additional applications you should run them as clients
 i.e. without the \c{-qws} option.
@@ -380,7 +380,7 @@ To try this functionality you can do the following:
 
 Another launcher will be started. Start an application in this launcher.
 
-\i Press <b>Ctrl+Alt+F1</b> - back to display 0. You can also start
+\i Press \bold{Ctrl+Alt+F1} - back to display 0. You can also start
 additional applications on a particular display by specifying the
 display id. Change to VC 3:
 

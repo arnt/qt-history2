@@ -25,20 +25,10 @@ Other frequently asked questions can be found in the
 \link http://www.trolltech.com/developer/faqs/ FAQ index\endlink and
 in the \link http://www.trolltech.com/developer/faqs/technical.html Technical FAQ\endlink.
 
-\list
-\i \link #linkerror Link error, complaining about a lack of
-<tt>vtbl</tt>, <tt>_vtbl</tt>, <tt>__vtbl</tt> or similar\endlink
-\i \link #diffver Using different versions of Qt on the same
-machine\endlink
-    \list
-    \i \link #qtbin Developers building for a single version of Qt on Unix - Qt binary packages\endlink
-    \i \link #qtsrc Developers building for two versions of Qt on Unix - Qt sources\endlink
-    \endlist
-\i \link #nowinman Using Qt on X11 without a window manager\endlink
-\i \link distributingqt.html Distributing Qt Applications\endlink
-\endlist
+\tableofcontents
 
-\target linkerror
+See also \l{distributingqt.html}{Deploying Qt Applications}.
+
 \section1 Link error, complaining about a lack of \c vtbl, \c _vtbl, \c __vtbl or similar
 
 This indicates that you've included the \c Q_OBJECT macro in a class
@@ -46,16 +36,12 @@ declaration and probably also run the \c moc, but forgot to link the
 moc-generated object code into your executable. See \link moc.html
 Using the Meta Object Compiler\endlink for details on how to use \c moc.
 
-\target diffver
 \section1 Using different versions of Qt on the same machine
 
 Qt programs need the following components of a Qt distribution:
 
-<dl>
-
-<dt>Header files - Compile time
-
-<dd>Programmers need to include the Qt header files. The Qt header files
+\bold{Header files (compile time):}
+Programmers need to include the Qt header files. The Qt header files
 are usually located in the \c include subdirectory of Qt distributions.
 Care must be taken to include the header files of the relevant release of
 Qt. Those with a command-line compiler will typically use options such as
@@ -63,18 +49,16 @@ Qt. Those with a command-line compiler will typically use options such as
 or \c{-I$QTDIR/include} provided \c QTDIR specifies
 the relevant release of Qt.
 
-<dt>Meta Object Compiler and other tools - Compile time
-
-<dd>Programmers need to run \c moc and other tools such as \c uic. These
+\bold{Meta Object Compiler and other tools (compile time):}
+Programmers need to run \c moc and other tools such as \c uic. These
 tools are usually located in the \c bin subdirectory of Qt distributions.
 Either run \c $QTDIR/bin/moc and \c $QTDIR/bin/uic or add \c $QTDIR/bin
 to your \c PATH and run \c moc and \c uic. If you use \c qmake the
 appropriate lines will be added to your Makefiles so that \c uic and
 \c moc will be executed as required.
 
-<dt>Static or shared libraries - Link time
-
-<dd>Programmers need to link with the Qt static or shared libraries. The Qt
+\bold{Static or shared libraries (link time):}
+Programmers need to link with the Qt static or shared libraries. The Qt
 libraries are usually located in the \c lib subdirectory of Qt distributions.
 Care must be taken to link with the libraries of the relevant release of
 Qt. Those with a command-line compiler will typically use options such as
@@ -82,19 +66,16 @@ Qt. Those with a command-line compiler will typically use options such as
 or \c{-L$QTDIR/lib} \c -lqt provided \c QTDIR
 specifies the relevant release of Qt.
 
-<dt>Shared libraries - Run time
-
-<dd>Users of programs linked with shared Qt libraries need these same
+\bold{Shared libraries (run time):}
+Users of programs linked with shared Qt libraries need these same
 shared libraries to run these programs. The Qt libraries are usually
 located in the \c lib subdirectory of Qt distributions. Shared libraries
 are made available to programs in places such as \c{C:\windows\system} on
 Windows platforms, directories listed in file \c /etc/ld.so.conf on Linux,
 standard \c lib directories on Unix, or directories listed in environment
 variables \c LD_LIBRARY_PATH, \c SHLIB_PATH, or \c LIBPATH on various Unix
-flavours. Make the relevant Qt libraries available using one of these
+flavors. Make the relevant Qt libraries available using one of these
 mechanisms.
-
-</dl>
 
 Qt distributions consist of different files needed at compile time,
 link time, or run time. Trolltech distributes Qt in the form of a
@@ -115,7 +96,6 @@ Depending on how you are using Qt, you need to make specific parts of
 the Qt distribution available to your programs. Typical situations are
 described below.
 
-\target qtbin
 \section2 Developers building for a single version of Qt on Unix - Qt binary packages
 
 You build programs with a single version of Qt, but you still need
@@ -140,7 +120,6 @@ or similar) and Qt 2.x (\c qt2 or similar).
 Just install the packages, \c qt2, \c qt3, and \c qt3-dev. You may
 need to set the environment variable \c QTDIR to point to Qt 3.x.
 
-\target qtsrc
 \section2 Developers building for two versions of Qt on Unix - Qt sources
 
 You build and run programs for Qt 2.x and Qt 3.x. You will need:
@@ -219,7 +198,6 @@ include the proper header files and link with the proper libraries.
 Setting the \c PATH ensures that the proper version of \c qmake, \c
 moc and other tools is being used.
 
-\target nowinman
 \section1 Using Qt on X11 without a window manager
 
 When using Qt without a window manager on Unix/X11, you will most
@@ -284,7 +262,7 @@ others, and free use of Qt Free Edition for development of free/Open Source
 software. There is \link http://www.trolltech.com/qpl/ more information
 about the QPL\endlink at the Trolltech web site.
 
-Note that the Qt/Embedded Free Edition is <b>not</b> distributed
+Note that the Qt/Embedded Free Edition is \bold not distributed
 under the QPL, but under the \link gpl.html GNU General Public
 License (GPL)\endlink.
 
@@ -292,6 +270,7 @@ For development non-free/proprietary software, the Qt Professional
 Edition is available. It has a normal commercial library license, with
 none of the special restrictions of the QPL or the GPL.
 
+\raw HTML
 <hr>
 
 <center>
@@ -419,6 +398,7 @@ FOR A PARTICULAR PURPOSE.
 
 This license is governed by the Laws of Norway. Disputes shall be settled
 by Oslo City Court.
+\endraw
 
 */
 
@@ -831,40 +811,40 @@ Trolltech website\endlink.
 
 \section1 Contact Information
 
-<br clear="all">
+\raw HTML
 
 <table cellpadding=3 cellspacing=0 border="0" bgcolor="#E5E5E5">
 <tr><th colspan=6 valign="top" bgcolor="#a2c511">Email</th></tr>
 <tr>
 <td rowspan=4><br></td>
-<td colspan=2>\link mailto:info@trolltech.com <strong>info@trolltech.com</strong>\endlink
+<td colspan=2><a href="mailto:info@trolltech.com"><strong>info@trolltech.com</strong></a>
 
-<td colspan=2>\link mailto:sales@trolltech.com <strong>sales@trolltech.com</strong>\endlink
+<td colspan=2><a href="mailto:sales@trolltech.com"><strong>sales@trolltech.com</strong></a>
 <td rowspan=4><br></td>
 <tr>
 <td ><br></td>
 <td valign="top"> General inquiries and questions. Please check the
-\link http://www.trolltech.com/faq/ FAQ\endlink to see if your question is already answered there.</td>
+<a href="http://www.trolltech.com/faq/">FAQ</a> to see if your question is already answered there.</td>
 <td ><br></td>
 <td valign="top"> Inquires related to purchasing, pricing and availability of
 Trolltech products</td></tr>
 <tr>
-<td colspan=2>\link mailto:www@trolltech.com <strong>www@trolltech.com</strong>\endlink
-<td colspan=2>\link mailto:qt-bugs@trolltech.com <strong>qt-bugs@trolltech.com</strong>\endlink
+<td colspan=2><a href="mailto:www@trolltech.com"><strong>www@trolltech.com</strong></a>
+<td colspan=2><a href="mailto:qt-bugs@trolltech.com"><strong>qt-bugs@trolltech.com</strong></a>
 <tr>
 <td ><br></td>
 <td valign="top"> Comments about our web pages</td>
 <td ><br></td>
 <td valign="top">
-Use this address for bug reports; \e please read (the very short)
-\link bughowto.html How to Report a Bug\endlink page \e first.
+Use this address for bug reports; please read (the very short)
+<a href="bughowto.html">How to Report a Bug</a> page first.
 </td></tr>
 <tr><td ><br></td>
 <td colspan=4 valign="top">Note that Trolltech uses the
-\link http://mail-abuse.org/rbl/ RBL\endlink and
-\link http://work-rss.mail-abuse.org/rss/ RSS\endlink databases to cut down on
+<a href="http://mail-abuse.org/rbl/">RBL</a> and
+<a href="http://work-rss.mail-abuse.org/rss/">RSS</a> databases to cut down on
 spam. If your mail server is listed, you will regrettably not be able to
-send us mail. The \link http://www.mail-abuse.org/tsi/ MAPS TSI\endlink
+send us mail. The <a href="http://www.mail-abuse.org/tsi/">MAPS TSI</a>
 pages provide information about how to secure your server.
 </td><td ><br></td></tr>
 <tr bgcolor="#ffffff"><td bgcolor="#ffffff" colspan="6"> <br> </td></tr>
@@ -904,6 +884,7 @@ pages provide information about how to secure your server.
 <td ><br></td>
 <td valign="top"> All inquiries: (+1) 650-813-1851</td>
 </table>
+\endraw
 
 */
 
@@ -916,13 +897,13 @@ This is not a comprehensive list -- there are many other books worth
 buying. Here we mention just a few user interface books that don't
 gather dust on our shelves.
 
-<b>C++ GUI Programming with Qt 3</b> by Jasmin Blanchette and Mark
+\bold{C++ GUI Programming with Qt 3} by Jasmin Blanchette and Mark
 Summerfield, ISBN 0-13-124072-2. This is the Official Qt book written
 by two veteran Trolls.
 \link http://www.amazon.com/exec/obidos/ASIN/0131240722/trolltech/
 (Read more about it or buy it.)\endlink
 
-<b>The Design of Everyday Things</b> by Donald Norman,
+\bold{The Design of Everyday Things} by Donald Norman,
 ISBN 0-38526774-6, is one of the classics of human interface design.
 Norman shows how badly something as simple as a kitchen stove can be
 designed, and everyone should read it who will design a dialog box,
@@ -932,7 +913,7 @@ supposed to use.
 (Read more about it or buy it.)\endlink
 
 \target fowler
-<b>GUI Design Handbook</b> by Susan Fowler, ISBN 0-07-059274-8, is an
+\bold{GUI Design Handbook} by Susan Fowler, ISBN 0-07-059274-8, is an
 alphabetical dictionary of widgets and other user interface elements,
 with comprehensive coverage of each. Each chapter covers one widget
 or other element, contains the most important recommendation from the
@@ -943,7 +924,7 @@ same roles as this one, etc.
 \link http://www.amazon.com/exec/obidos/ASIN/0070592748/trolltech/t 
 (Read more about it or buy it.)\endlink
 
-<b>Macintosh Human Interface Guidelines</b>, second edition, ISBN
+\bold{Macintosh Human Interface Guidelines}, second edition, ISBN
 0-201-62216-5, is worth buying for the \e {don't}s alone. Even
 if you're not writing Macintosh software, avoiding most of what it
 advises against will produce more easily comprehensible software.
@@ -957,17 +938,15 @@ on the web\endlink and there is a
 \link http://developer.apple.com/techpubs/mac/HIGOS8Guide/thig-2.html Mac
 OS 8 addendum.\endlink
 
-<b>The Microsoft Windows User Experience</b>, ISBN 1-55615-679-0,
+\bold{The Microsoft Windows User Experience}, ISBN 1-55615-679-0,
 is Microsoft's look and feel Bible. Indispensable for everyone who
 has customers that worship Microsoft, and it's quite good, too.
 \link http://www.amazon.com/exec/obidos/ASIN/0735605661/trolltech/t 
 (Read more about it or buy it.)\endlink
+It is also available
+\link http://msdn.microsoft.com/library/en-us/dnwue/html/welcome.asp online\endlink.
 
-Microsoft's guidelines are often available on the web, but have
-occasionally been hidden in an impenetrable maze of javascript.
-\link http://msdn.microsoft.com/library/en-us/dnwue/html/welcome.asp Try and see.\endlink
-
-<b>The Icon Book</b> by William Horton, ISBN 0-471-59900-X, is
+\bold{The Icon Book} by William Horton, ISBN 0-471-59900-X, is
 perhaps the only thorough coverage of icons and icon use in software.
 In order for icons to be successful, people must be able to do four
 things with them: decode, recognize, find and activate them. This
@@ -977,17 +956,17 @@ throughout the text, generally in groups of four or five.
 \link http://www.amazon.com/exec/obidos/ASIN/047159900X/trolltech/t 
 (Read more about it or buy it.)\endlink
 
-\section1 <nobr>Buying these books from</nobr>
-\link http://www.amazon.com/text/ Amazon.com.\endlink
+\section1 Buying these books from \
+\l{http://www.amazon.com/}{Amazon.com}
 
 These books are made available in association with Amazon.com, our
-favorite on-line bookstore. Here is more information about
+favorite online bookstore. Here is more information about
 \link http://www.amazon.com/exec/obidos/subst/help/shipping-policy.html/t 
 Amazon.com's shipping options\endlink and its
 \link http://www.amazon.com/exec/obidos/subst/help/desk.html/t 
 customer service.\endlink When you buy a book by following one of these
 links, Amazon.com gives about 15% of the purchase price to
-\link http://www.amnesty.org Amnesty International.\endlink
+\link http://www.amnesty.org/ Amnesty International.\endlink
 
 */
 
@@ -1023,14 +1002,20 @@ geometry. Some of these functions operate on the pure client area
 window frame. The differentiation is done in a way that covers the
 most common usage transparently.
 
-\table
-\row
-\i <strong>Including the window frame:
-\i x(), y(), frameGeometry(), pos() and move()
-\row
-\i <strong>Excluding the window frame:</strong>
-\i geometry(), width(), height(), rect() and size()
-\endtable
+\list
+\i \bold{Including the window frame:}
+    \l{QWidget::x()}{x()},
+    \l{QWidget::y()}{y()},
+    \l{QWidget::frameGeometry()}{frameGeometry()},
+    \l{QWidget::pos()}{pos()}, and
+    \l{QWidget::move()}{move()}.
+\i \bold{Excluding the window frame:}
+    \l{QWidget::geometry()}{geometry()},
+    \l{QWidget::width()}{width()},
+    \l{QWidget::height()}{height()},
+    \l{QWidget::rect()}{rect()}, and
+    \l{QWidget::size()}{size()}.
+\endlist
 
 Note that the distinction only matters for decorated top-level
 widgets. For all child widgets, the frame geometry is equal to the

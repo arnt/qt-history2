@@ -36,34 +36,34 @@ development.
 
 Qt is supported on the following platforms:
 \list
- \i <b>MS/Windows</b> -- 95, 98, NT 4.0, ME, 2000, and XP
- \i <b>Unix/X11</b> -- Linux, Sun Solaris, HP-UX, Compaq Tru64 UNIX,
+ \i \bold{MS-Windows} -- 95, 98, NT 4.0, ME, 2000, and XP
+ \i \bold{Unix/X11} -- Linux, Sun Solaris, HP-UX, Compaq Tru64 UNIX,
 	    IBM AIX, SGI IRIX and many others
- \i <b>Mac OS X</b> -- Mac OS X 10.2+
- \i <b>Embedded</b> -- Linux platforms with framebuffer support.
+ \i \bold{Mac OS X} -- Mac OS X 10.2+
+ \i \bold{Embedded} -- Linux platforms with framebuffer support.
 \endlist
 
 Qt is released in different editions:
 \list
-\i The \link commercialeditions.html <b>Qt Enterprise
-Edition\endlink</b> and the \link commercialeditions.html <b>Qt
-Professional Edition\endlink</b> provide for commercial software
+\i The \bold{\l{commercialeditions.html}{Qt Enterprise
+Edition}} and the \bold{\l{commercialeditions.html}{Qt
+Professional Edition}} provide for commercial software
 development. They permit traditional commercial software distribution
 and include free upgrades and Technical Support. For the latest
-prices, see the Trolltech web site, \link
-http://www.trolltech.com/pricing.html Pricing and Availability\endlink
-page, or contact \link mailto:sales@trolltech.com
-sales@trolltech.com\endlink. The Enterprise Edition offers additional
+prices, see the Trolltech web site, \l{
+http://www.trolltech.com/pricing.html}{Pricing and Availability}
+page, or contact \l{mailto:sales@trolltech.com}{sales@trolltech.com}. The
+Enterprise Edition offers additional
 \link modules.html modules \endlink compared to the Professional
 Edition.
 \endlist
 
 \list
-\i The \link freeeditions.html <b>Qt Free Edition\endlink</b> is
+\i The \bold{\l{freeeditions.html}{Qt Free Edition}} is
 available for Unix/X11, Mac OS X and Embedded Linux. The Free Edition
 is for the development of \e {Free and Open
 Source software} only. It is provided free of charge under the terms
-of both the \link license.html Q Public License\endlink and the \link
+of both the \l{license.html}{Q Public License} and the \link
 gpl.html GNU General Public License\endlink.
 \endlist
 

@@ -75,7 +75,7 @@ than each individual drawing operation. For this reason drawing problems
 such as flickering may not be apparent until the program is run using a real
 framebuffer.
 
-The target refresh rate can be set via the <b>View|Refresh Rate</b>
+The target refresh rate can be set via the \bold{View|Refresh Rate}
 menu item. This will cause \c qvfb to check for updated regions more
 frequently. The rate is a target only. If little drawing is being
 done, the framebuffer will not show any updates between drawing

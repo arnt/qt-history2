@@ -34,7 +34,7 @@ cross-platform networking applications.
 
 The networking classes can be divided into three groups:
 \list 1
-\i <b>High Level Network Programming</b>
+\i \bold{High Level Network Programming}
 
 QUrlOperator, QNetworkProtocol (and its QFtp and QHttp subclasses),
 along with QNetworkOperator, provide a simple high level API for
@@ -46,7 +46,7 @@ When QHttpClient, QFtpClient and QHttpServer are available, we'll
 refer to them her.
 \endomit
 
-\i <b>Medium Level Network Programming</b>
+\i \bold{Medium Level Network Programming}
 
 The QSocket and QServerSocket classes provide an easy-to-use 
 API for client and server socket programming.
@@ -56,7 +56,7 @@ application's GUI thread. They are ideal for end-user
 applications that need network access, but they are not suitable for
 console applications or for high performance daemons (services).
 
-\i <b>Low Level Network Programming</b>
+\i \bold{Low Level Network Programming}
 
 The QSocketDevice and QDns classes provide low level networking
 access. QSocketDevice can be used for UDP as well as TCP/IP, and can

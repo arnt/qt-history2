@@ -91,7 +91,6 @@
 \i
     \list
     \i \link emb-qvfb.html  QVFb tool - virtual framebuffer for Qt/Embedded \endlink
-    <p>&nbsp;</p>
     \i \link emb-install.html Installing Qt/Embedded \endlink
     \i \link emb-features.html The Feature Definition File \endlink
     \i \link emb-classes.html The Qt/Embedded-specific classes \endlink

@@ -17,11 +17,11 @@
 
 \title How to Learn Qt
 
-We assume that you already know C++!
+We assume that you already know C++.
 
-The best way to learn Qt is to read the official Qt book, <a
-href="http://www.amazon.com/exec/obidos/ASIN/0131240722/trolltech/">
-C++ GUI Programming with Qt 3 (ISBN 0-13-124072-2)</a>.
+The best way to learn Qt is to read the official Qt book,
+\l{http://www.amazon.com/exec/obidos/ASIN/0131240722/trolltech/}{C++
+GUI Programming with Qt 3} (ISBN 0-13-124072-2).
 \if defined(commercial)
 \footnote
 Some of the book's examples make use of modules that are only

@@ -27,8 +27,8 @@ Before reading on you should at least be familiar with
 the \link xml.html#sax2Intro Introduction to SAX2. \endlink
 
 
-<a name="quickStart"></a>
-<h2>A tiny parser</h2>
+\target quickStart
+\section1 A tiny parser
 
 In this section we will present a small example reader that outputs
 the names of all elements in an XML document on the command line. 
@@ -152,7 +152,7 @@ animals
 \endcode
 
 It will however refuse to produce the correct result if you e.g. insert
-a whitespace between a &lt; and the element name in your test-XML file.
+a whitespace between a < and the element name in your test-XML file.
 To prevent such annoyances
 you should always install an error handler with \l
 QXmlReader::setErrorHandler(). This allows you to report

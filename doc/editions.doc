@@ -29,6 +29,7 @@ Enterprise Edition\endlink. With these commercial editions, you also
 get technical support and upgrades. Qt for Microsoft Windows is only
 available as Professional and Enterprise Editions.
 
+\raw HTML
 <table border="1" cellpadding="5" cellspacing="0" width="100%">
   <tr>
     <td bgcolor="#a1c410"><b><a name="Chart"></a>Professional/Enterprise Comparison Chart</b></td>
@@ -111,5 +112,6 @@ available as Professional and Enterprise Editions.
     <td width="100" align="center"><b>X</b></td>
   </tr>
 </table>
+\endraw
 
 */

@@ -30,19 +30,19 @@ by default in the standard plugin directory.
 \i Default Path
 \row
 \i \l QImageFormatPlugin
-\i \c{pluginsbase/imageformats} <sup>*</sup>
+\i \c{pluginsbase/imageformats}
 \row
 \i \l QSqlDriverPlugin
-\i \c{pluginsbase/sqldrivers} <sup>*</sup>
+\i \c{pluginsbase/sqldrivers}
 \row
 \i \l QStylePlugin
-\i \c{pluginsbase/styles} <sup>*</sup>
+\i \c{pluginsbase/styles}
 \row
 \i \l QTextCodecPlugin
-\i \c{pluginsbase/codecs} <sup>*</sup>
+\i \c{pluginsbase/codecs}
 \row
 \i \l QWidgetPlugin
-\i \c{pluginsbase/designer} <sup>*</sup>
+\i \c{pluginsbase/designer}
 \endtable
 
 But where is the \c{pluginsbase} directory? When the application is
@@ -117,7 +117,8 @@ because plugins are stored in the standard plugin subdirectories.
 Because of this applications don't require any code to find and load
 plugins, since Qt handles them automatically.
 
-The default directory for plugins is \c{QTDIR/plugins}<sup>*</sup>,
+The default directory for plugins is \c{QTDIR/plugins} (where QTDIR
+is the directory where Qt is installed),
 with each type of plugin in a subdirectory for that type, e.g. \c
 styles. If you want your applications to use plugins and you don't
 want to use the standard plugins path, have your installation process
@@ -139,9 +140,6 @@ For \link designer-manual.book Qt Designer\endlink, you may need to
 call QApplication::addLibraryPath("QTDIR/plugins/designer") to load
 your \link designer-manual.book Qt Designer\endlink plugins.
 
-<sup>*</sup><small> All references to \c{QTDIR} refer to the path
-where Qt was installed. </small>
-
 \section1 Loading and Verifying Plugins
 
 When loading plugins, the Qt library does some sanity checking to
@@ -153,8 +151,7 @@ the Qt library installed side by side.
    minor version number will not be loaded by a library with a lower
    major and/or minor version number.
 
-   \e Rationale:
-
+   \e {Rationale:}
    A plugin linked against a newer Qt library may use new
    features that are not available in older versions. Trolltech
    has a policy of adding new features and APIs only between minor
@@ -167,8 +164,7 @@ the Qt library installed side by side.
    build keys do not match, then the Qt library refuses to load the
    plugin.
 
-   \e Rationale:
-
+   \e {Rationale:}
    See the Rationale for the build key below.
 \endlist
 
@@ -178,8 +174,7 @@ The build key contains the following information:
 \list
 \i Architecture, operating system and compiler.
 
-   \e Rationale:
-
+   \e {Rationale:}
    In cases where different versions of the same compiler do not
    produce binary compatible code, the version of the compiler is
    also present in the build key.
@@ -188,14 +183,13 @@ The build key contains the following information:
    of the missing features that affect the available API in the
    library. 
 
-   \e Rationale:
-
+   \e {Rationale:}
    Two different configurations of the same version of
    the Qt library are not binary compatible. The Qt library that
    loads the plugin uses the list of (missing) features to
    determine if the plugin is binary compatible.
 
-   \e Note: There are cases where a plugin can use features that are
+   \e {Note:} There are cases where a plugin can use features that are
    available in two different configurations. However, the
    developer writing plugins would need to know which features are
    in use, both in their plugin and internally by the utility
@@ -209,8 +203,7 @@ The build key contains the following information:
 \i Optionally, an extra string may be specified on the configure
    script command line.
  
-   \e Rationale:
-
+   \e {Rationale:}
    When distributing binaries of the Qt library with an
    application, this provides a way for developers to write
    plugins that can only be loaded by the library with which the
