@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#44 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -28,7 +28,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#43 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#44 $";
 #endif
 
 
@@ -126,6 +126,13 @@ int main( int argc, char **argv )
 	else if ( strcmp(argv[i],"-memlog") == 0 ) {
 	    if ( ++i < argc ) mcLogFile = argv[i];
 	}
+	else
+	    break;
+    }
+    if ( i > 1 ) {				// shift arguments
+	argc -= --i;
+	argv[i] = argv[0];
+	argv = &argv[i];
     }
     if ( appMemChk ) {				// start memory checking
 	memchkSetBufSize( mcBufSize );
@@ -696,9 +703,15 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 		case ReparentNotify:		// window manager reparents
 		    if ( event.xreparent.parent != appRootWin ) {
 			XWindowAttributes a1, a2;
+			while ( XCheckTypedWindowEvent( widget->display(),
+							widget->id(),
+							ReparentNotify,
+							&event ) )
+			    ;			// skip old reparent events
 			Window parent = event.xreparent.parent;
-			XGetWindowAttributes( widget->dpy, widget->id(), &a1 );
-			XGetWindowAttributes( widget->dpy, parent, &a2 );
+			XGetWindowAttributes( widget->display(), widget->id(),
+					      &a1 );
+			XGetWindowAttributes( widget->display(), parent, &a2 );
 			QRect *r = &widget->rect;
 			XWindowAttributes *a;
 			if ( a1.x == 0 && a1.y == 0 && (a2.x + a2.y > 0) )
