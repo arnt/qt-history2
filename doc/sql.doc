@@ -666,7 +666,7 @@ the price of every item in the price list, using a single SQL statement
 with \l QSqlQuery is more efficient, e.g.
 
 \code
-    QSqlQuery q( "UPDATE prices SET price = price * 1.05;"  );
+    QSqlQuery query( "UPDATE prices SET price = price * 1.05;"  );
 \endcode
 
 <h3><a name="Deleting_Records">Deleting Records</a></h3>
@@ -688,7 +688,7 @@ criteria it is more efficient to do so using a single SQL statement,
 e.g.
 
 \code
-    QSqlQuery q( "DELETE FROM prices WHERE id >= 2450 AND id <= 2500;" );
+    QSqlQuery query( "DELETE FROM prices WHERE id >= 2450 AND id <= 2500;" );
 \endcode
 
 <h1><a name="Data-Aware_Widgets">Data-Aware Widgets</a></h1> 
@@ -1024,17 +1024,16 @@ anything. We also declare the paintField function.
 \dontinclude sql/overview/table4/main.cpp
 \skipto CustomTable
 \printline CustomTable
-\printuntil drawText 
-\printline 
+\printuntil QSqlTable
+\printline
 <h5 align="center">From \l sql/overview/table4/main.cpp </h5>
 
-The paintField code is simply copied from QSqlTable's source code. We
-need to make three changes. Firstly replace the <tt>d-&gt;trueTxt</tt>
-with <tt>this-&gt;trueText()</tt> and the same for false. Secondly we
-add in an additional if clause <tt>field-&gt;name() == "statusid"</tt>
-and look up the textual value for the id with a straighforward
-QSqlQuery. Thirdly we change staffTable in the main function from being
-a QSqlTable to being a CustomTable.
+The paintField code is based on QSqlTable's source code. We need to make
+three changes. Firstly add an if clause <tt>field-&gt;name() ==
+"statusid"</tt> and look up the textual value for the id with a
+straighforward QSqlQuery. Secondly call the superclass to handle other
+fields. The last change is in our main function where we change
+staffTable from being a QSqlTable to being a CustomTable. 
 
 <h2><a name="Subclassing_QSqlCursor">Subclassing QSqlCursor</a></h2>
 
