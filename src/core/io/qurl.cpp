@@ -1225,7 +1225,16 @@ const QByteArray & QUrlPrivate::normilized()
 	tmp.host = tmp.host.toLower();
 	if (!tmp.scheme.isEmpty()) // relative test
 	    tmp.path = QUrlPrivate::removeDotsFromPath(tmp.path);
-	tmp.query = QUrl::toPercentEncoding(QUrl::fromPercentEncoding(tmp.query));
+	
+	int qLen = tmp.query.length();
+	for (int i=0; i<qLen; i++) {
+	    if (tmp.query.at(i) == '%' && qLen - i > 2) {
+		i++;
+		tmp.query[i] = QChar(tmp.query[i]).toLower().ascii();
+		i++;
+		tmp.query[i] = QChar(tmp.query[i]).toLower().ascii();
+	    }
+	}
 	encodedNormilized = tmp.toEncoded();
     }
 
