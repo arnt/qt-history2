@@ -442,6 +442,7 @@ void qt_mac_polish_font(QWidget *w, QAquaWidgetSize size)
 #endif
 #else
     Q_UNUSED(w);
+    Q_UNUSED(size);
 #endif
 }    
 
@@ -581,8 +582,10 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 
     const int shadow_height = 3;
     if(ct == QStyle::CT_PushButton) {
+	QPushButton *psh = (QPushButton*)widg;
 	int minw = -1;
-	if(widg && widg->caption() == widg->tr("OK") || widg->caption() == widg->tr("Cancel"))
+	if(psh->text() == qApp->translate("QAquaStyle", "OK") || 
+	   psh->text() == qApp->translate("QAquaStyle", "Cancel"))
 	    minw = 69;
 #ifdef Q_WS_MAC
 	if(sz == QAquaSizeLarge)
