@@ -548,9 +548,7 @@ void VcprojGenerator::initPostBuildEventTools()
 		// call idc to generate .idl file from .dll
 		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + ".dll -idl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
 		// call midl to create implementations of the .idl file
-		project->first( "QMAKE_IDL" ) + " " + objdir + name + ".idl /nologo /o " + objdir + name + ".midl /tlb " + objdir + name + ".tlb /iid " + objdir +
-		"dump.midl /dlldata " + objdir + "dump.midl /cstub " + objdir + "dump.midl /header " + objdir + "dump.midl /proxy " + objdir + "dump.midl /sstub " +
-		objdir + "dump.midl &amp;&amp; " +
+		project->first( "QMAKE_IDL" ) + " /nologo " + objdir + name + ".idl /tlb " + objdir + name + ".tlb &amp;&amp; " +
 		// call idc to replace tlb...
 		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + ".dll /tlb " + objdir + name + ".tlb &amp;&amp; " +
 		// register server
@@ -560,9 +558,7 @@ void VcprojGenerator::initPostBuildEventTools()
 		// call application to dump idl
 		vcProject.Configuration.OutputDirectory + "\\" + nameext + ".exe -dumpidl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
 		// call midl to create implementations of the .idl file
-		project->first( "QMAKE_IDL" ) + " " + objdir + name + ".idl /nologo /o " + objdir + name + ".midl /tlb " + objdir + name + ".tlb /iid " + objdir +
-		"dump.midl /dlldata " + objdir + "dump.midl /cstub " + objdir + "dump.midl /header " + objdir + "dump.midl /proxy " + objdir + "dump.midl /sstub " +
-		objdir + "dump.midl &amp;&amp; " +
+		project->first( "QMAKE_IDL" ) + " /nologo " + objdir + name + ".idl /tlb " + objdir + name + ".tlb &amp;&amp; " +
 		// call idc to replace tlb...
 		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + ".exe /tlb " + objdir + name + ".tlb &amp;&amp; " +
 		// call app to register
@@ -610,7 +606,7 @@ void VcprojGenerator::initMOCFiles()
 
 void VcprojGenerator::initUICFiles()
 {
-    vcProject.UICFiles.Name = "Generated UI Files";
+    vcProject.UICFiles.Name = "Generated Form Files";
     vcProject.UICFiles.Filter = "cpp;c;cxx;h;hpp;hxx;";
     vcProject.UICFiles.Project = this;
     vcProject.UICFiles.Files += project->variables()["UICDECLS"];
@@ -917,9 +913,9 @@ void VcprojGenerator::initOld()
 	if ( version.isEmpty() )
 	    version = "1.0";
 
-	project->variables()["MSVCPROJ_IDLSOURCES"].append( "tmp\\" + targetfilename + ".idl" );
-	project->variables()["MSVCPROJ_IDLSOURCES"].append( "tmp\\" + targetfilename + ".tlb" );
-	project->variables()["MSVCPROJ_IDLSOURCES"].append( "tmp\\" + targetfilename + ".midl" );
+	QString objdir = project->first( "OBJECTS_DIR" );
+	project->variables()["MSVCPROJ_IDLSOURCES"].append( objdir + targetfilename + ".idl" );
+	project->variables()["MSVCPROJ_IDLSOURCES"].append( objdir + targetfilename + ".tlb" );
 	if ( project->isActiveConfig( "dll" ) ) {
 	    QString regcmd = "# Begin Special Build Tool\n"
 			    "TargetPath=" + targetfilename + "\n"
@@ -927,7 +923,7 @@ void VcprojGenerator::initOld()
 			    "PostBuild_Desc=Finalizing ActiveQt server...\n"
 			    "PostBuild_Cmds=" +
 			    idc + " %1 -idl tmp\\" + targetfilename + ".idl -version " + version +
-			    "\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
+			    "\t" + idl + " /nologo tmp\\" + targetfilename + ".idl /tlb tmp\\" + targetfilename + ".tlb" +
 			    "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb"
 			    "\tregsvr32 /s %1\n"
 			    "# End Special Build Tool";
@@ -944,7 +940,7 @@ void VcprojGenerator::initOld()
 			    "PostBuild_Desc=Finalizing ActiveQt server...\n"
 			    "PostBuild_Cmds="
 			    "%1 -dumpidl tmp\\" + targetfilename + ".idl -version " + version +
-			    "\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
+			    "\t" + idl + " /nologo tmp\\" + targetfilename + ".idl /tlb tmp\\" + targetfilename + ".tlb"
 			    "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb"
 			    "\t%1 -regserver\n"
 			    "# End Special Build Tool";
@@ -955,7 +951,6 @@ void VcprojGenerator::initOld()
 	    executable = project->variables()["MSVCPROJ_TARGETDIRDEB"].first() + "\\" + project->variables()["TARGET"].first();
 	    project->variables()["MSVCPROJ_REGSVR_DBG"].append( regcmd.arg(executable).arg(executable).arg(executable) );
 	}
-
     }
 
     // FORMS ---------------------------------------------------------

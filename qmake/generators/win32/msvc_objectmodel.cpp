@@ -943,7 +943,7 @@ VCLinkerTool::VCLinkerTool()
 	HeapReserveSize( -1 ),
 	IgnoreAllDefaultLibraries( unset ),
 	IgnoreEmbeddedIDL( unset ),
-	IgnoreImportLibrary( unset ),
+	IgnoreImportLibrary( _True ),
 	LargeAddressAware( addrAwareDefault ),
 	LinkDLL( unset ),
 	LinkIncremental( linkIncrementalDefault ),

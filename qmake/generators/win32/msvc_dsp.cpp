@@ -723,11 +723,10 @@ DspMakefileGenerator::init()
 
 	project->variables()["MSVCDSP_IDLSOURCES"].append( "tmp\\" + targetfilename + ".idl" );
 	project->variables()["MSVCDSP_IDLSOURCES"].append( "tmp\\" + targetfilename + ".tlb" );
-	project->variables()["MSVCDSP_IDLSOURCES"].append( "tmp\\" + targetfilename + ".midl" );
 	if ( project->isActiveConfig( "dll" ) ) {
 	    activeQtStepPreCopyDll += 
 			     "\t" + idc + " %1 -idl tmp\\" + targetfilename + ".idl -version " + version +
-			     "\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
+			     "\t" + idl + " /nologo tmp\\" + targetfilename + ".idl /tlb tmp\\" + targetfilename + ".tlb" +
 			     "\t" + idc + " %2 /tlb tmp\\" + targetfilename + ".tlb";
 	    activeQtStepPostCopyDll +=
 			     "\t" + idc + " %1 /regserver\n";
@@ -742,7 +741,7 @@ DspMakefileGenerator::init()
 	} else {
 	    activeQtStepPreCopyDll += 
 			     "\t%1 -dumpidl tmp\\" + targetfilename + ".idl -version " + version +
-			     "\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
+			     "\t" + idl + " /nologo tmp\\" + targetfilename + ".idl /tlb tmp\\" + targetfilename + ".tlb" +
 			     "\t" + idc + " %2 /tlb tmp\\" + targetfilename + ".tlb";
 	    activeQtStepPostCopyDll +=
 			     "\t%1 -regserver\n";
