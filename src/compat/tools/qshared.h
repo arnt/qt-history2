@@ -20,7 +20,7 @@
 #endif // QT_H
 
 
-struct Q_CORE_EXPORT QShared
+struct Q_COMPAT_EXPORT QShared
 {
     QShared() : count( 1 ) { }
     void ref()		{ count++; }
