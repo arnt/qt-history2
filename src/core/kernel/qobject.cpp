@@ -1099,11 +1099,8 @@ void QObject::killTimer(int id)
     }
 
     QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thread());
-    if (!eventDispatcher) {
-        qWarning("QTimer can only be used with threads started with QThread");
-    } else {
+    if (eventDispatcher)
         eventDispatcher->unregisterTimer(id);
-    }
 }
 
 
