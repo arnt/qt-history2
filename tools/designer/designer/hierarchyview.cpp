@@ -446,7 +446,8 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	item->setPixmap( 0, ( (QAction*)o )->iconSet().pixmap() );
 
     ( (HierarchyItem*)item )->setObject( o );
-    const QObjectList *l = o->children();
+    const QObjectList *l = o->inherits( "QDesignerToolBar" ) || o->inherits( "QDesignerPopupMenu" ) ?
+			   0 : o->children();
     if ( l ) {
 	QObjectListIt it( *l );
 	it.toLast();
