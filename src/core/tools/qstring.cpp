@@ -144,18 +144,19 @@ const QString::Null QString::null = QString::Null();
     positions.
 
     Behind the scenes, QString uses \l{implicit sharing}
-    (copy-on-write) to reduce memory usage and avoid needless copying
-    of data. This also helps reducing the inherent overhead of
+    (copy-on-write) to reduce memory usage and to avoid the needless
+    copying of data. This also helps reduce the inherent overhead of
     storing 16-bit characters instead of 8-bit characters.
 
-    In addition to QString, Qt also provides the QByteArray to store
-    raw bytes and traditional 8-bit '\\0'-terminated strings. For
-    most purposes, QString is the class you want to use. It is used
-    throughout the Qt API, and the Unicode support ensures that your
-    applications will be easy to translated if you at some point want
-    to expand your market. The two main cases where QByteArray is
-    appropriate are when you need to store raw binary data, and when
-    memory conservation is critical (e.g. with Qt/Embedded).
+    In addition to QString, Qt also provides the QByteArray class to
+    store raw bytes and traditional 8-bit '\\0'-terminated strings.
+    For most purposes, QString is the class you want to use. It is
+    used throughout the Qt API, and the Unicode support ensures that
+    your applications will be easy to translate if you want to expand
+    your application's market at some point. The two main cases where
+    QByteArray is appropriate are when you need to store raw binary
+    data, and when memory conservation is critical (e.g. with
+    Qt/Embedded).
 
     One way to initialize a QString is simply to pass a \c{const char
     *} to its constructor. For example, the following code creates a
@@ -170,9 +171,9 @@ const QString::Null QString::null = QString::Null();
     as Latin-1 characters, but this can be changed by calling
     QTextCodec::setCodecForCStrings().
 
-    In all of the QString methods that take \c {const char *}
-    parameters, the \c {const char *} is interpreted as a classic
-    C-style '\\0'-terminated string. It is legal for the \c {const
+    In all of the QString methods that take \c{const char *}
+    parameters, the \c{const char *} is interpreted as a classic
+    C-style '\\0'-terminated string. It is legal for the \c{const
     char *} parameter to be 0.
 
     You can also provide string data as an array of \l{QChar}s:
@@ -216,7 +217,7 @@ const QString::Null QString::null = QString::Null();
     at() can be faster than operator[](), because it never causes a
     \l{deep copy} to occur.
 
-    To extract many characters at a time, use left(), right(), or
+    To extract several characters at a time, use left(), right(), or
     mid().
 
     A QString can embed '\\0' characters (QChar::null). The size()
@@ -227,9 +228,9 @@ const QString::Null QString::null = QString::Null();
     undefined values. To set all the characters in the string to a
     particular value, call fill().
 
-    QString provides dozens of overloads designed to make your life
-    easy. For example, if you want to compare a QString with a string
-    literal, you can write code like this and it will just work:
+    QString provides dozens of overloads designed to simplify string
+    usage. For example, if you want to compare a QString with a string
+    literal, you can write code like this and it will work as expected:
 
     \code
         if (str == "auto" || str == "extern"
@@ -238,9 +239,9 @@ const QString::Null QString::null = QString::Null();
         }
     \endcode
 
-    You can also pass string literals to function that take a QString
-    an the QString(const char *) constructor will be invoked.
-    Likewise, you can pass a QString to a function that takes a
+    You can also pass string literals to functions that take QStrings
+    and the QString(const char *) constructor will be invoked.
+    Similarly, you can pass a QString to a function that takes a
     \c{const char *} and \l{operator const char *()} will be invoked.
 
     QString provides the following basic functions for modifying the
@@ -258,18 +259,12 @@ const QString::Null QString::null = QString::Null();
     position from which to start erasing and the number of characters
     that should be erased.
 
-    If you are building a QString gradually and know in advance
-    approximately how many bytes the QString will contain, you can
-    call reserve(), asking QString to preallocate a certain amount of
-    memory. You can also call capacity() to find out how much memory
-    QString actually allocated.
-
     A frequent requirement is to remove whitespace characters from a
-    byte array ('\\n', '\\t', ' ', etc.). If you want to remove
-    whitespace from both ends of a QString, use trimmed(). If you
-    want to remove whitespace from both ends and replace multiple
-    consecutive whitespaces with a single space character within the
-    string, use simplified().
+    string ('\\n', '\\t', ' ', etc.). If you want to remove whitespace
+    from both ends of a QString, use trimmed(). If you want to remove
+    whitespace from both ends and replace multiple consecutive
+    whitespaces with a single space character within the string, use
+    simplified().
 
     If you want to find all occurrences of a particular character or
     substring in a QString, use indexOf() or lastIndexOf(). The
@@ -288,17 +283,26 @@ const QString::Null QString::null = QString::Null();
         }
     \endcode
 
-    If you simply want to check whether a QString contains a
-    particular character or substring, use contains(). If you want to
-    find out how many times a particular character or substring
-    occurs in the byte array, use count(). If you want to replace all
-    occurrences of a particular value with another, use one of the
-    two-parameter replace() overloads.
+    If you want to see if a QString starts or ends with a particular
+    substring use startsWith() or endsWith(). If you simply want to
+    check whether a QString contains a particular character or
+    substring, use contains(). If you want to find out how many times
+    a particular character or substring occurs in the string, use
+    count().
 
-    To obtain a pointer to the actual character data, call data() or
-    constData(). These functions return a pointer to the beginning of
-    the QChar data. The pointer is guaranteed to remain valid until a
-    non-const function is called on the QString.
+    QString provides many functions for converting numbers into
+    strings and strings into numbers. See the arg() functions, the
+    setNum() functions, the number() static functions, and the
+    toInt(), toDouble(), and similar functions.
+
+    To get an upper or lower case version of a string use toUpper() or
+    toLower().
+
+    If you want to replace all occurrences of a particular substring
+    with another, use one of the two-parameter replace() overloads.
+
+    QStrings can be compared using overloaded operators such as
+    operator<(), operator<=(), operator==(), operator>=(), and so on.
 
     Lists of strings are handled by the QStringList class. You can
     split a string into a list of strings using split(), and join a
@@ -306,6 +310,17 @@ const QString::Null QString::null = QString::Null();
     using QStringList::join(). You can obtain a list of strings from
     a string list that contain a particular substring or that match a
     particular QRegExp using QStringList::find().
+
+    If you are building a QString gradually and know in advance
+    approximately how many characters the QString will contain, you
+    can call reserve(), asking QString to preallocate a certain amount
+    of memory. You can also call capacity() to find out how much
+    memory QString actually allocated.
+
+    To obtain a pointer to the actual character data, call data() or
+    constData(). These functions return a pointer to the beginning of
+    the QChar data. The pointer is guaranteed to remain valid until a
+    non-const function is called on the QString.
 
     \section1 Conversions between 8-bit strings and Unicode strings
 
@@ -342,7 +357,7 @@ const QString::Null QString::null = QString::Null();
     \i \c QT_NO_CAST_TO_ASCII disables automatic conversion from QString
        to ASCII.
     \endlist
-    
+
     One way to define these prepocessor symbols globally for your
     application is to add the following entry to your \l qmake .pro
     file:
@@ -4403,7 +4418,7 @@ QString &QString::sprintf(const char* cformat, ...)
 #endif
 
 /*!
-    Returns the string converted to a \c {long long} using base \a
+    Returns the string converted to a \c{long long} using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
 
     If \a base is 0, the base is determined automatically using the
@@ -4441,7 +4456,7 @@ Q_LLONG QString::toLongLong(bool *ok, int base) const
 }
 
 /*!
-    Returns the string converted to an \c {unsigned long long} using base \a
+    Returns the string converted to an \c{unsigned long long} using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
 
     If \a base is 0, the base is determined automatically using the
@@ -4515,7 +4530,7 @@ long QString::toLong(bool *ok, int base) const
 }
 
 /*!
-    Returns the string converted to an \c {unsigned long} using base \a
+    Returns the string converted to an \c{unsigned long} using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
 
     If \a base is 0, the base is determined automatically using the
@@ -4587,7 +4602,7 @@ int QString::toInt(bool *ok, int base) const
 }
 
 /*!
-    Returns the string converted to an \c {unsigned int} using base \a
+    Returns the string converted to an \c{unsigned int} using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
 
     If \a base is 0, the base is determined automatically using the
@@ -4659,7 +4674,7 @@ short QString::toShort(bool *ok, int base) const
 }
 
 /*!
-    Returns the string converted to an \c {unsigned short} using base \a
+    Returns the string converted to an \c{unsigned short} using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
 
     If \a base is 0, the base is determined automatically using the
@@ -5858,7 +5873,7 @@ QConstString::QConstString(const QChar *unicode, int length)
 }
 
 /*! \class QLatin1String
-    \brief The QLatin1String provides a thin wrapper around a ASCII/Latin-1 encoded string literal.
+    \brief The QLatin1String provides a thin wrapper around an ASCII/Latin-1 encoded string literal.
 
     \ingroup text
     \reentrant
@@ -5919,14 +5934,14 @@ QConstString::QConstString(const QChar *unicode, int length)
         QLabel *label = new QLabel(QLatin1String("MOD"), this);
     \endcode
 
-    \sa QLatin1Char, QString, QConstString
+    \sa QString, QConstString
 */
 
 /*! \fn QLatin1String::QLatin1String(const char *str)
 
     Constructs a QLatin1String object that stores \a str.
 
-    The string data is \a not copied. The caller must be able to
+    The string data is \e not copied. The caller must be able to
     guarantee that \a str will not be deleted or modified as long as
     the QLatin1String object exists.
 

@@ -765,11 +765,10 @@ void QCanvas::resize(int w, int h)
     Internally, a canvas uses a low-resolution "chunk matrix" to keep
     track of all the items in the canvas. A 64x64 chunk matrix is the
     default for a 1024x1024 pixel canvas, where each chunk collects
-    canvas items in a 16x16 pixel square. This default is also
-    affected by setTiles(). You can tune this default using this
-    function. For example if you have a very large canvas and want to
-    trade off speed for memory then you might set the chunk size to 32
-    or 64.
+    canvas items in 16x16 pixel squares. This default is also affected
+    by setTiles(). You can tune this default using this function. For
+    example if you have a very large canvas and want to trade off
+    speed for memory then you might set the chunk size to 32 or 64.
 
     The \a mxclusters argument is the number of rectangular groups of
     chunks that will be separately drawn. If the canvas has a large
@@ -1326,7 +1325,7 @@ void QCanvas::ensureOffScrSize(int osw, int osh)
     Paints all canvas items that are in the area \a clip to \a
     painter, using double-buffering if \a dbuf is true.
 
-    e.g. to print the canvas to a printer:
+    For example, to print the entire canvas to a printer:
     \code
     QPrinter pr;
     if (pr.setup()) {
@@ -1736,8 +1735,8 @@ void QCanvas::setTiles(QPixmap p,
 /*!
     \fn int QCanvas::tile(int x, int y) const
 
-    Returns the tile at position (\a x, \a y). Initially, all tiles
-    are 0.
+    Returns the tile number of the tile at position (\a x, \a y).
+    Initially, all tiles are 0.
 
     The parameters must be within range, i.e.
         0 \< \a x \< tilesHorizontally() and

@@ -27,9 +27,9 @@
     
     QPair\<T1, T2\> can be used in your application if the STL \c
     pair type is not available. It stores one value of type T1 and
-    one value of type T2 side by side. It can be used as a return
-    value for a function that needs to return two values, or as the
-    value type of a \l{generic container}.
+    one value of type T2. It can be used as a return value for a
+    function that needs to return two values, or as the value type of
+    a \l{generic container}.
 
     Here's an example of a QPair that stores one QString and one \c
     double value:
@@ -89,6 +89,8 @@
 
 /*! \fn bool operator==(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
 
+    \relates QPair
+
     Returns true if \a p1 is equal to \a p2; otherwise returns false.
     Two pairs compare equal if their \c first data members compare
     equal and if their \c second data members compare equal.
@@ -97,17 +99,22 @@
     implementation of \c operator==().
 */
 
-/*! \fn bool operator==(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
+/*! \fn bool operator!=(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
+
+    \relates QPair
 
     Returns true if \a p1 is not equal to \a p2; otherwise returns
-    false. Two pairs compare equal if their \c first data members
-    compare equal and if their \c second data members compare equal.
+    false. Two pairs compare as not equal if their \c first data
+    members are not equal or if their \c second data members are not
+    equal.
 
     This function requires the T1 and T2 types to have an
     implementation of \c operator==().
 */
 
 /*! \fn bool operator<(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
+
+    \relates QPair
 
     Returns true if \a p1 is less than \a p2; otherwise returns
     false. The comparison is done on the \c first members of \a p1
@@ -120,6 +127,8 @@
 
 /*! \fn bool operator>(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
 
+    \relates QPair
+
     Returns true if \a p1 is greater than \a p2; otherwise returns
     false. The comparison is done on the \c first members of \a p1
     and \a p2; if they compare equal, the \c second members are
@@ -130,6 +139,8 @@
 */
 
 /*! \fn bool operator<=(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
+
+    \relates QPair
 
     Returns true if \a p1 is less than or equal to \a p2; otherwise
     returns false. The comparison is done on the \c first members of
@@ -142,6 +153,8 @@
 
 /*! \fn bool operator>=(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
 
+    \relates QPair
+
     Returns true if \a p1 is greater than or equal to \a p2;
     otherwise returns false. The comparison is done on the \c first
     members of \a p1 and \a p2; if they compare equal, the \c second
@@ -153,10 +166,11 @@
 
 /*!
     \fn QPair<T1, T2> qMakePair(const T1 &value1, const T2 &value2)
+
     \relates QPair
 
     Returns a QPair\<T1, T2\> that contains \a value1 and \a value2.
-    For example:
+    Example:
 
     \code
         QList<QPair<int, double> > list;
@@ -164,10 +178,11 @@
     \endcode
 
     This is equivalent to QPair<T1, T2>(\a value1, \a value2), but
-    usually results in fewer keystrokes.
+    usually requires less typing.
 */
 
 /*! \fn QDataStream &operator>>(QDataStream &in, QPair<T1, T2> &pair)
+
     \relates QPair
 
     Reads a pair from stream \a in into \a pair.
@@ -178,6 +193,7 @@
 */
 
 /*! \fn QDataStream &operator<<(QDataStream &out, const QPair<T1, T2> &pair)
+
     \relates QPair
 
     Writes the pair \a pair to stream \a out.
