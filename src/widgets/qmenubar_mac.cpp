@@ -460,7 +460,7 @@ bool QMenuBar::updateMenuBar()
 /* qmenubar functions */
 
 /*!
-  Internal function..
+    \internal
 */
 bool QMenuBar::activateCommand(uint cmd)
 {
@@ -497,7 +497,7 @@ bool QMenuBar::activateCommand(uint cmd)
 }
 
 /*!
-  Internal function..
+    \internal
 */
 bool QMenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
 {

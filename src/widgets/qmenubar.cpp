@@ -70,34 +70,33 @@ static bool inMenu = FALSE;
 #endif
 
 /*!
-  \class QMenuBar qmenubar.h
-  \brief The QMenuBar class provides a horizontal menu bar.
+    \class QMenuBar qmenubar.h
+    \brief The QMenuBar class provides a horizontal menu bar.
 
-  \ingroup application
-  \mainclass
+    \ingroup application
+    \mainclass
 
-  A menu bar consists of a list of pull-down menu items.
-  You add menu items with \link QMenuData::insertItem()
-  insertItem()\endlink. For example, asuming that \c menubar is a
-  pointer to a QMenuBar and \c filemenu is a pointer to a
-  QPopupMenu, the following statement inserts the menu into
-  the menu bar:
-  \code
-  menubar->insertItem( "&File", filemenu );
-  \endcode
-  The ampersand in the menu
-  item's text sets Alt+F as a shortcut for this menu. (You can use
-  "&&" to get a real ampersand in the menu bar.)
+    A menu bar consists of a list of pull-down menu items. You add
+    menu items with \link QMenuData::insertItem()
+    insertItem()\endlink. For example, asuming that \c menubar is a
+    pointer to a QMenuBar and \c filemenu is a pointer to a
+    QPopupMenu, the following statement inserts the menu into the menu
+    bar:
+    \code
+    menubar->insertItem( "&File", filemenu );
+    \endcode
+    The ampersand in the menu item's text sets Alt+F as a shortcut for
+    this menu. (You can use "\&\&" to get a real ampersand in the menu
+    bar.)
 
-  Items are either enabled or disabled. You toggle their state with
-  setItemEnabled().
+    Items are either enabled or disabled. You toggle their state with
+    setItemEnabled().
 
-  There is no need to lay out a menu bar. It automatically sets its
-  own geometry to the top of the parent widget and changes it
-  appropriately whenever the parent is resized.
+    There is no need to lay out a menu bar. It automatically sets its
+    own geometry to the top of the parent widget and changes it
+    appropriately whenever the parent is resized.
 
-  \important insertItem removeItem clear insertSeparator
-  setItemEnabled isItemEnabled setItemVisible isItemVisible
+    \important insertItem removeItem clear insertSeparator setItemEnabled isItemEnabled setItemVisible isItemVisible
 
     Example of creating a menu bar with menu items (from \l menu/menu.cpp):
     \quotefile menu/menu.cpp
@@ -127,86 +126,89 @@ static bool inMenu = FALSE;
     also add custom menu items that are derived from
     \l{QCustomMenuItem}.
 
-    Menu items may be removed with removeItem() and enabled or disabled
-    with \link QMenuData::setItemEnabled() setItemEnabled()\endlink.
+    Menu items may be removed with removeItem() and enabled or
+    disabled with \link QMenuData::setItemEnabled()
+    setItemEnabled()\endlink.
 
-  <img src=qmenubar-m.png> <img src=qmenubar-w.png>
+    <img src=qmenubar-m.png> <img src=qmenubar-w.png>
 
+    \section1 QMenuBar on Qt/Mac
 
-    QMenuBar on Qt/Mac is a wrapper for using the system-wide
-    menubar. However, if you have multiple menubars in one dialog the
-    outermost menubar (normally inside a widget with \l
+    QMenuBar on Qt/Mac is a wrapper for using the system-wide menubar.
+    However, if you have multiple menubars in one dialog the outermost
+    menubar (normally inside a widget with widget flag \c
     WType_TopLevel) will be used for the global menubar.
 
-    Qt/Mac also provides a menubar merging feature to make
-    QMenubar conform more closely to accepted Mac OS X
-    menubar layout. The merging functionality is based on string
-    matching the title of a QPopupMenu entry. These strings are
-    translated (using QObject::tr()) in the "QMenuBar" context. If an
-    entry is moved its slots will still fire as if
-    it was in the original place. The table below outlines the strings
-    looked for and where the entry is placed if matched:
+    Qt/Mac also provides a menubar merging feature to make QMenubar
+    conform more closely to accepted Mac OS X menubar layout. The
+    merging functionality is based on string matching the title of a
+    QPopupMenu entry. These strings are translated (using
+    QObject::tr()) in the "QMenuBar" context. If an entry is moved its
+    slots will still fire as if it was in the original place. The
+    table below outlines the strings looked for and where the entry is
+    placed if matched:
 
     \table
     \header \i String matches \i Placement \i Notes
-    \row \i about.* \i Application Menu | About <application name>
-         \i If this entry is not found no About item will appear in the Application Menu
-    \row \i config, options, setup, settings, preferences \i Application Menu | Settings
-         \i If this entry is not found the Settings item will be disabled
-    \row \i quit, exit \i Application Menu | Quit <application name>
-         \i If this entry is not found a default Quit item will be created to call
-	    QApplication::quit()
+    \row \i about.*
+	 \i Application Menu | About <application name>
+	 \i If this entry is not found no About item will appear in
+	    the Application Menu
+    \row \i config, options, setup, settings or preferences
+	 \i Application Menu | Settings
+	 \i If this entry is not found the Settings item will be disabled
+    \row \i quit or exit
+	 \i Application Menu | Quit <application name>
+	 \i If this entry is not found a default Quit item will be
+	    created to call QApplication::quit()
     \endtable
 
-  \link menu-example.html menu/menu.cpp\endlink is an example of
-  QMenuBar and QPopupMenu use.
+    \link menu-example.html menu/menu.cpp\endlink is an example of
+    QMenuBar and QPopupMenu use.
 
-  \sa QPopupMenu QAccel QAction
-      \link http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html
-            Aqua Style Guidelines \endlink
-      \link guibooks.html#fowler GUI Design Handbook: Menu Bar \endlink
+    \sa QPopupMenu QAccel QAction \link http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html Aqua Style Guidelines \endlink \link guibooks.html#fowler GUI Design Handbook: Menu Bar \endlink
 */
 
 
-/*! \enum QMenuBar::Separator
-
-  This enum type is used to decide whether QMenuBar should draw a
-  separator line at its bottom.	 The possible values are:
-
-  \value Never	In many applications there is already a separator,
-  and having two looks wrong.
-
-  \value InWindowsStyle	 In some other applications a separator
-  looks good in Windows style, but nowhere else.
-
- */
-
 /*!
-  \fn void QMenuBar::activated( int id )
+    \enum QMenuBar::Separator
 
-  This signal is emitted when a menu item is selected; \a id is the id
-  of the selected item.
+    This enum type is used to decide whether QMenuBar should draw a
+    separator line at its bottom.
 
-  Normally you will connect each menu item to a single slot using
-  QMenuData::insertItem(), but sometimes you will want to connect
-  several items to a single slot (most often if the user selects from
-  an array).  This signal is useful in such cases.
+    \value Never In many applications there is already a separator,
+    and having two looks wrong.
 
-  \sa highlighted(), QMenuData::insertItem()
+    \value InWindowsStyle In some other applications a separator looks
+    good in Windows style, but nowhere else.
 */
 
 /*!
-  \fn void QMenuBar::highlighted( int id )
+    \fn void QMenuBar::activated( int id )
 
-  This signal is emitted when a menu item is highlighted; \a id is the
-  id of the highlighted item.
+    This signal is emitted when a menu item is selected; \a id is the
+    id of the selected item.
 
-  Normally, you will connect each menu item to a single slot using
-  QMenuData::insertItem(), but sometimes you will want to connect
-  several items to a single slot (most often if the user selects from
-  an array).  This signal is useful in such cases.
+    Normally you will connect each menu item to a single slot using
+    QMenuData::insertItem(), but sometimes you will want to connect
+    several items to a single slot (most often if the user selects
+    from an array). This signal is useful in such cases.
 
-  \sa activated(), QMenuData::insertItem()
+    \sa highlighted(), QMenuData::insertItem()
+*/
+
+/*!
+    \fn void QMenuBar::highlighted( int id )
+
+    This signal is emitted when a menu item is highlighted; \a id is
+    the id of the highlighted item.
+
+    Normally, you will connect each menu item to a single slot using
+    QMenuData::insertItem(), but sometimes you will want to connect
+    several items to a single slot (most often if the user selects
+    from an array). This signal is useful in such cases.
+
+    \sa activated(), QMenuData::insertItem()
 */
 
 
@@ -243,7 +245,7 @@ static const int motifItemVMargin	= 4;	// menu item ver text margin
 
 
 /*!
-  Constructs a menu bar with a \a parent and a \a name.
+    Constructs a menu bar called \a name with parent \a parent.
 */
 QMenuBar::QMenuBar( QWidget *parent, const char *name )
     : QFrame( parent, name, WResizeNoErase | WRepaintNoErase )
@@ -302,7 +304,7 @@ void QMenuBar::styleChange( QStyle& old )
 
 
 /*!
-  Destroys the menu bar.
+    Destroys the menu bar.
 */
 
 QMenuBar::~QMenuBar()
@@ -318,8 +320,10 @@ QMenuBar::~QMenuBar()
 }
 
 /*!
-  \internal
-  Needs documentation.
+    \internal
+
+    Repaints the menu item with id \a id; does nothing if there is no
+    such menu item.
 */
 void QMenuBar::updateItem( int id )
 {
@@ -331,11 +335,11 @@ void QMenuBar::updateItem( int id )
 static bool fromFrameChange = FALSE;
 
 /*!
-  Recomputes the menu bar's display data according to the new
-  contents.
+    Recomputes the menu bar's display data according to the new
+    contents.
 
-  You should never need to call this; it is called automatically by
-  QMenuData whenever it needs to be called.
+    You should never need to call this; it is called automatically by
+    QMenuData whenever it needs to be called.
 */
 
 void QMenuBar::menuContentsChanged()
@@ -394,11 +398,10 @@ void QMenuBar::performDelayedContentsChanged()
 }
 
 /*!
-  Recomputes the menu bar's display data according to the new
-  state.
+    Recomputes the menu bar's display data according to the new state.
 
-  You should never need to call this; it is called automatically by
-  QMenuData whenever it needs to be called.
+    You should never need to call this; it is called automatically by
+    QMenuData whenever it needs to be called.
 */
 
 void QMenuBar::menuStateChanged()
@@ -458,14 +461,15 @@ void QMenuBar::frameChanged()
 
 
 /*!
-  This function is used to adjust the menu bar's geometry to the
-  parent widget's geometry.  Note that this is \e not part of the public
-  interface - the function is \c public only because
-  QObject::eventFilter() is.
+    \internal
 
-  \internal
-  Resizes the menu bar to fit in the parent widget when the parent receives
-  a resize event.
+    This function is used to adjust the menu bar's geometry to the
+    parent widget's geometry. Note that this is \e not part of the
+    public interface - the function is \c public only because
+    QObject::eventFilter() is.
+
+    Resizes the menu bar to fit in the parent widget when the parent
+    receives a resize event.
 */
 
 bool QMenuBar::eventFilter( QObject *object, QEvent *event )
@@ -738,8 +742,9 @@ void QMenuBar::hidePopups()
 
 
 /*!
-  Reimplements QWidget::show() in order to set up the correct keyboard
-  accelerators and to raise itself to the top of the widget stack.
+    Reimplements QWidget::show() in order to set up the correct
+    keyboard accelerators and to raise itself to the top of the widget
+    stack.
 */
 
 void QMenuBar::show()
@@ -777,8 +782,8 @@ void QMenuBar::show()
 }
 
 /*!
-  Reimplements QWidget::hide() in order to deselect any selected item, and
-  calls setUpLayout() for the main window.
+    Reimplements QWidget::hide() in order to deselect any selected
+    item, and calls setUpLayout() for the main window.
 */
 
 void QMenuBar::hide()
@@ -811,12 +816,12 @@ void QMenuBar::fontChange( const QFont & f )
   Item geometry functions
  *****************************************************************************/
 
-/*!
-  This function serves two different purposes.	If the parameter is negative,
-  it updates the irects member for the current width and resizes.  Otherwise,
-  it does the same calculations for the GIVEN width and returns the height
-  to which it WOULD have resized.  A bit tricky, but both operations require
-  almost identical steps.
+/*
+    This function serves two different purposes. If the parameter is
+    negative, it updates the irects member for the current width and
+    resizes. Otherwise, it does the same calculations for the GIVEN
+    width and returns the height to which it WOULD have resized. A bit
+    tricky, but both operations require almost identical steps.
 */
 int QMenuBar::calculateRects( int max_width )
 {
@@ -969,11 +974,11 @@ int QMenuBar::calculateRects( int max_width )
 }
 
 /*!
-  Returns the height that the menu would resize itself to if its parent
-  (and hence itself) resized to the given \a max_width.  This can be
-  useful for simple layout tasks in which the height of the menu bar
-  is needed after items have been inserted.  See
-  \l showimg/showimg.cpp for an example of the usage.
+    Returns the height that the menu would resize itself to if its
+    parent (and hence itself) resized to the given \a max_width. This
+    can be useful for simple layout tasks in which the height of the
+    menu bar is needed after items have been inserted. See \l
+    showimg/showimg.cpp for an example of the usage.
 */
 int QMenuBar::heightForWidth(int max_width) const
 {
@@ -1037,8 +1042,8 @@ QMenuBar::Separator QMenuBar::separator() const
  *****************************************************************************/
 
 /*!
-  Called from QFrame::paintEvent().
-  Draws the menu bar contents using painter \a p.
+    Called from QFrame::paintEvent(). Draws the menu bar contents
+    using painter \a p.
 */
 
 void QMenuBar::drawContents( QPainter *p )
@@ -1104,7 +1109,8 @@ void QMenuBar::drawContents( QPainter *p )
 }
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QMenuBar::mousePressEvent( QMouseEvent *e )
 {
@@ -1118,7 +1124,8 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 }
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 {
@@ -1145,7 +1152,8 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 }
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 {
@@ -1166,7 +1174,8 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 }
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QMenuBar::leaveEvent( QEvent * e )
 {
@@ -1179,7 +1188,8 @@ void QMenuBar::leaveEvent( QEvent * e )
 }
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QMenuBar::keyPressEvent( QKeyEvent *e )
 {
@@ -1286,7 +1296,8 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 }
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QMenuBar::resizeEvent( QResizeEvent *e )
 {
@@ -1297,11 +1308,11 @@ void QMenuBar::resizeEvent( QResizeEvent *e )
     calculateRects();
 }
 
-/*!  Sets actItem to \a i and calls repaint for the
-  changed things.
+/*
+    Sets actItem to \a i and calls repaint for the changed things.
 
-  Takes care to optimize the repainting.  Assumes that
-  calculateRects() has been called as appropriate.
+    Takes care to optimize the repainting. Assumes that
+    calculateRects() has been called as appropriate.
 */
 
 void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
@@ -1396,7 +1407,9 @@ void QMenuBar::setAltMode( bool enable )
     }
 }
 
-/*!  Sets up keyboard accelerators for the menu bar. */
+/*!
+    Sets up keyboard accelerators for the menu bar.
+*/
 #ifndef QT_NO_ACCEL
 
 void QMenuBar::setupAccelerators()
@@ -1439,7 +1452,8 @@ void QMenuBar::setupAccelerators()
 }
 #endif
 
-/*!\reimp
+/*!
+    \reimp
  */
 bool QMenuBar::customWhatsThis() const
 {
@@ -1448,7 +1462,8 @@ bool QMenuBar::customWhatsThis() const
 
 
 
-/*!\reimp
+/*!
+    \reimp
  */
 void QMenuBar::focusInEvent( QFocusEvent * )
 {
@@ -1464,7 +1479,8 @@ void QMenuBar::focusInEvent( QFocusEvent * )
     }
 }
 
-/*!\reimp
+/*!
+    \reimp
  */
 void QMenuBar::focusOutEvent( QFocusEvent * )
 {
@@ -1474,7 +1490,7 @@ void QMenuBar::focusOutEvent( QFocusEvent * )
 }
 
 /*!
-  \reimp
+    \reimp
 */
 
 QSize QMenuBar::sizeHint() const
@@ -1493,7 +1509,7 @@ QSize QMenuBar::sizeHint() const
 }
 
 /*!
-  \reimp
+    \reimp
 */
 
 QSize QMenuBar::minimumSize() const
@@ -1504,7 +1520,7 @@ QSize QMenuBar::minimumSize() const
 }
 
 /*!
-  \reimp
+    \reimp
 */
 
 QSize QMenuBar::minimumSizeHint() const
@@ -1513,16 +1529,16 @@ QSize QMenuBar::minimumSizeHint() const
 }
 
 /*!
-  \property QMenuBar::defaultUp
-  \brief the popup orientation
+    \property QMenuBar::defaultUp
+    \brief the popup orientation
 
-  The default popup orientation. By default, menus pop "down" the
-  screen.  By setting the property to TRUE, the menu will pop "up".  You
-  might call this for menus that are \e below the document to which
-  they refer.
+    The default popup orientation. By default, menus pop "down" the
+    screen. By setting the property to TRUE, the menu will pop "up".
+    You might call this for menus that are \e below the document to
+    which they refer.
 
-  If the menu would not fit on the screen, the other direction is used
-  rather than the default.
+    If the menu would not fit on the screen, the other direction is
+    used automatically.
 */
 void QMenuBar::setDefaultUp( bool on )
 {
@@ -1535,7 +1551,8 @@ bool QMenuBar::isDefaultUp() const
 }
 
 
-/*!\reimp
+/*!
+    \reimp
  */
 void QMenuBar::activateItemAt( int index )
 {

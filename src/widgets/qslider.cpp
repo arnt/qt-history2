@@ -54,58 +54,62 @@ static int sliderStartVal = 0; //##### class member?
 
 
 /*!
-  \class QSlider qslider.h
-  \brief The QSlider widget provides a vertical or horizontal slider.
-  \ingroup basic
-  \mainclass
+    \class QSlider qslider.h
+    \brief The QSlider widget provides a vertical or horizontal slider.
 
-  The slider is the classic widget for controlling a bounded value.
-  It lets the user move a slider along a horizontal or vertical
-  groove and translates the slider's position into an integer value
-  within the legal range.
+    \ingroup basic
+    \mainclass
 
-  QSlider inherits QRangeControl, which provides the "integer" side of
-  the slider.  setRange() and value() are likely to be used by
-  practically all slider users; see the \l QRangeControl documentation
-  for information about the many other functions that class provides.
+    The slider is the classic widget for controlling a bounded value.
+    It lets the user move a slider along a horizontal or vertical
+    groove and translates the slider's position into an integer value
+    within the legal range.
 
-  The main functions offered by the slider itself are tickmark and
-  orientation control; you can use setTickmarks() to indicate where
-  you want the tickmarks to be, setTickInterval() to indicate how many
-  of them you want and setOrientation() to indicate whether the
-  slider is to be horizontal or vertical.
+    QSlider inherits QRangeControl, which provides the "integer" side
+    of the slider. setRange() and value() are likely to be used by
+    practically all slider users; see the \l QRangeControl
+    documentation for information about the many other functions that
+    class provides.
 
-  A slider has a default focusPolicy() of \c WeakWheelFocus, i.e. it
-  accepts focus on Tab and uses the mouse wheel and a
-  suitable keyboard interface.
+    The main functions offered by the slider itself are tickmark and
+    orientation control; you can use setTickmarks() to indicate where
+    you want the tickmarks to be, setTickInterval() to indicate how
+    many of them you want and setOrientation() to indicate whether the
+    slider is to be horizontal or vertical.
 
-  <img src=qslider-m.png> <img src=qslider-w.png>
+    A slider has a default focusPolicy() of \c WeakWheelFocus, i.e. it
+    accepts focus on Tab and uses the mouse wheel and a suitable
+    keyboard interface.
 
-  \important setRange
+    <img src=qslider-m.png> <img src=qslider-w.png>
 
-  \sa QScrollBar QSpinBox
-  \link guibooks.html#fowler GUI Design Handbook: Slider\endlink
-*/
+    \important setRange
 
-
-/*! \enum QSlider::TickSetting
-
-  This enum specifies where the tickmarks are to be drawn relative
-  to the slider's groove and the handle the user moves.  The possible
-  values are:
-  \value NoMarks do not draw any tickmarks.
-  \value Both draw tickmarks on both sides of the groove.
-  \value Above draw tickmarks above the (horizontal) slider
-  \value Below draw tickmarks below the (horizontal) slider
-  \value Left draw tickmarks to the left of the (vertical) slider
-  \value Right draw tickmarks to the right of the (vertical) slider
+    \sa QScrollBar QSpinBox
+    \link guibooks.html#fowler GUI Design Handbook: Slider\endlink
 */
 
 
 /*!
-  Constructs a vertical slider.
+    \enum QSlider::TickSetting
 
-  The \a parent and \a name arguments are sent to the QWidget constructor.
+    This enum specifies where the tickmarks are to be drawn relative
+    to the slider's groove and the handle the user moves.
+
+    \value NoMarks do not draw any tickmarks.
+    \value Both draw tickmarks on both sides of the groove.
+    \value Above draw tickmarks above the (horizontal) slider
+    \value Below draw tickmarks below the (horizontal) slider
+    \value Left draw tickmarks to the left of the (vertical) slider
+    \value Right draw tickmarks to the right of the (vertical) slider
+*/
+
+
+/*!
+    Constructs a vertical slider.
+
+    The \a parent and \a name arguments are sent on to the QWidget
+    constructor.
 */
 
 QSlider::QSlider( QWidget *parent, const char *name )
@@ -116,11 +120,12 @@ QSlider::QSlider( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a slider.
+    Constructs a slider.
 
-  The \a orientation must be \l Qt::Vertical or \l Qt::Horizontal.
+    The \a orientation must be \l Qt::Vertical or \l Qt::Horizontal.
 
-  The \a parent and \a name arguments are sent to the QWidget constructor.
+    The \a parent and \a name arguments are sent on to the QWidget
+    constructor.
 */
 
 QSlider::QSlider( Orientation orientation, QWidget *parent, const char *name )
@@ -130,15 +135,17 @@ QSlider::QSlider( Orientation orientation, QWidget *parent, const char *name )
     init();
 }
 
-/*!  Constructs a slider whose value can never be smaller than \a
-  minValue or greater than \a maxValue, whose page step size is
-  \a pageStep and whose value is initially \a value (which is
-  guaranteed to be in range using bound()).
+/*!
+    Constructs a slider whose value can never be smaller than \a
+    minValue or greater than \a maxValue, whose page step size is \a
+    pageStep and whose value is initially \a value (which is
+    guaranteed to be in range using bound()).
 
-  If \a orientation is Qt::Vertical the slider is vertical and if it is
-  Qt::Horizontal the slider is horizontal.
+    If \a orientation is \c Qt::Vertical the slider is vertical and if it
+    is \c Qt::Horizontal the slider is horizontal.
 
-  The \a parent and \a name arguments are sent to the QWidget constructor.
+    The \a parent and \a name arguments are sent on to the QWidget
+    constructor.
 */
 
 QSlider::QSlider( int minValue, int maxValue, int pageStep,
@@ -177,8 +184,8 @@ void QSlider::init()
 }
 
 
-/*!
-  Does what's needed when someone changes the tickmark status
+/*
+    Does what's needed when someone changes the tickmark status.
 */
 
 void QSlider::initTicks()
@@ -188,14 +195,14 @@ void QSlider::initTicks()
 
 
 /*!
-  \property QSlider::tracking
-  \brief whether slider tracking is enabled
+    \property QSlider::tracking
+    \brief whether slider tracking is enabled
 
-  If tracking is enabled (the default), the slider emits the
-  valueChanged() signal whenever the slider is being dragged.  If
-  tracking is disabled, the slider emits the valueChanged() signal
-  when the user releases the mouse button (unless the value happens to
-  be the same as before).
+    If tracking is enabled (the default), the slider emits the
+    valueChanged() signal whenever the slider is being dragged. If
+    tracking is disabled, the slider emits the valueChanged() signal
+    when the user releases the mouse button (unless the value happens
+    to be the same as before).
 */
 
 void QSlider::setTracking( bool enable )
@@ -205,29 +212,34 @@ void QSlider::setTracking( bool enable )
 
 
 /*!
-  \fn void QSlider::valueChanged( int value )
-  This signal is emitted when the slider value is changed, with the
-  new slider \a value as an argument.
+    \fn void QSlider::valueChanged( int value )
+
+    This signal is emitted when the slider value is changed, with the
+    new slider \a value as its argument.
 */
 
 /*!
-  \fn void QSlider::sliderPressed()
-  This signal is emitted when the user presses the slider with the mouse.
+    \fn void QSlider::sliderPressed()
+
+    This signal is emitted when the user presses the slider with the
+    mouse.
 */
 
 /*!
-  \fn void QSlider::sliderMoved( int value )
-  This signal is emitted when the slider is dragged, with the
-  new slider \a value as an argument.
+    \fn void QSlider::sliderMoved( int value )
+
+    This signal is emitted when the slider is dragged, with the new
+    slider \a value as its argument.
 */
 
 /*!
-  \fn void QSlider::sliderReleased()
-  This signal is emitted when the user releases the slider with the mouse.
+    \fn void QSlider::sliderReleased()
+
+    This signal is emitted when the user releases the slider with the mouse.
 */
 
-/*!
-  Calculates slider position corresponding to value \a v.
+/*
+    Calculates slider position corresponding to value \a v.
 */
 
 int QSlider::positionFromValue( int v ) const
@@ -239,8 +251,8 @@ int QSlider::positionFromValue( int v ) const
     return x;
 }
 
-/*!
-  Returns the available space in which the slider can move.
+/*
+    Returns the available space in which the slider can move.
 */
 
 int QSlider::available() const
@@ -248,8 +260,8 @@ int QSlider::available() const
     return style().pixelMetric( QStyle::PM_SliderSpaceAvailable, this );
 }
 
-/*!
-  Calculates a value corresponding to slider position \a p.
+/*
+    Calculates a value corresponding to slider position \a p.
 */
 
 int QSlider::valueFromPosition( int p ) const
@@ -262,7 +274,7 @@ int QSlider::valueFromPosition( int p ) const
 }
 
 /*!
-  Implements the virtual QRangeControl function.
+    Implements the virtual QRangeControl function.
 */
 
 void QSlider::rangeChange()
@@ -274,7 +286,7 @@ void QSlider::rangeChange()
 }
 
 /*!
-  Implements the virtual QRangeControl function.
+    Implements the virtual QRangeControl function.
 */
 
 void QSlider::valueChange()
@@ -291,7 +303,8 @@ void QSlider::valueChange()
 }
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QSlider::resizeEvent( QResizeEvent * )
 {
@@ -301,10 +314,10 @@ void QSlider::resizeEvent( QResizeEvent * )
 
 
 /*!
-  Reimplements the virtual function QWidget::setPalette().
+    Reimplements the virtual function QWidget::setPalette().
 
-  Sets the background color to the mid color for Motif style sliders
-  using palette \a p.
+    Sets the background color to the mid color for Motif style sliders
+    using palette \a p.
 */
 
 void QSlider::setPalette( const QPalette &p )
@@ -315,10 +328,11 @@ void QSlider::setPalette( const QPalette &p )
 
 
 /*!
-  \property QSlider::orientation
-  \brief the orientation of the slider
+    \property QSlider::orientation
+    \brief the slider's orientation
 
-  The orientation must be \l Qt::Vertical (the default) or \l Qt::Horizontal.
+    The orientation must be \l Qt::Vertical (the default) or \l
+    Qt::Horizontal.
 */
 
 void QSlider::setOrientation( Orientation orientation )
@@ -345,8 +359,8 @@ void QSlider::setOrientation( Orientation orientation )
 
 
 /*!
-  Returns the slider handle rectangle. (This is the visual marker that
-  the user can move.)
+    Returns the slider handle rectangle. (This is the visual marker
+    that the user can move.)
 */
 
 QRect QSlider::sliderRect() const
@@ -355,8 +369,8 @@ QRect QSlider::sliderRect() const
 					   QStyle::SC_SliderHandle );
 }
 
-/*!
-  Performs the actual moving of the slider.
+/*
+    Performs the actual moving of the slider.
 */
 
 void QSlider::reallyMoveSlider( int newPos )
@@ -375,7 +389,8 @@ void QSlider::reallyMoveSlider( int newPos )
 }
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QSlider::paintEvent( QPaintEvent * )
 {
@@ -396,7 +411,8 @@ void QSlider::paintEvent( QPaintEvent * )
 }
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QSlider::mousePressEvent( QMouseEvent *e )
 {
@@ -447,7 +463,8 @@ void QSlider::mousePressEvent( QMouseEvent *e )
     update( sliderRect() );
 }
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QSlider::mouseMoveEvent( QMouseEvent *e )
 {
@@ -474,7 +491,8 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
     moveSlider( pos - clickOffset );
 }
 
-/*!\reimp
+/*!
+    \reimp
 */
 #ifndef QT_NO_WHEELEVENT
 void QSlider::wheelEvent( QWheelEvent * e){
@@ -493,7 +511,8 @@ void QSlider::wheelEvent( QWheelEvent * e){
 }
 #endif
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QSlider::mouseReleaseEvent( QMouseEvent * )
 {
@@ -501,14 +520,16 @@ void QSlider::mouseReleaseEvent( QMouseEvent * )
     update( sliderRect() );
 }
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QSlider::focusInEvent( QFocusEvent * e)
 {
     QWidget::focusInEvent( e );
 }
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QSlider::focusOutEvent( QFocusEvent * e )
 {
@@ -516,9 +537,9 @@ void QSlider::focusOutEvent( QFocusEvent * e )
 }
 
 /*!
-  Moves the left (or top) edge of the slider to position
-  \a pos. The slider is actually moved to the step position nearest
-  the given \a pos.
+    Moves the left (or top) edge of the slider to position \a pos. The
+    slider is actually moved to the step position nearest the given \a
+    pos.
 */
 
 void QSlider::moveSlider( int pos )
@@ -539,8 +560,8 @@ void QSlider::moveSlider( int pos )
 }
 
 
-/*!
-  Resets all state information and stops the timer.
+/*
+    Resets all state information and stops the timer.
 */
 
 void QSlider::resetState()
@@ -567,7 +588,8 @@ void QSlider::resetState()
 }
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QSlider::keyPressEvent( QKeyEvent *e )
 {
@@ -633,7 +655,7 @@ void QSlider::subtractLine()
 }
 
 /*!
-  Moves the slider one pageStep() up or right.
+    Moves the slider one pageStep() up or right.
 */
 
 void QSlider::addStep()
@@ -643,7 +665,7 @@ void QSlider::addStep()
 
 
 /*!
-  Moves the slider one pageStep() down or left.
+    Moves the slider one pageStep() down or left.
 */
 
 void QSlider::subtractStep()
@@ -652,7 +674,7 @@ void QSlider::subtractStep()
 }
 
 
-/*!
+/*
   Waits for autorepeat.
 */
 
@@ -668,7 +690,7 @@ void QSlider::repeatTimeout()
 }
 
 
-/*!
+/*
   Returns the relevant dimension of \a p.
 */
 
@@ -677,7 +699,8 @@ int QSlider::goodPart( const QPoint &p ) const
     return (orient == Horizontal) ?  p.x() : p.y();
 }
 
-/*!\reimp
+/*!
+    \reimp
 */
 QSize QSlider::sizeHint() const
 {
@@ -700,7 +723,7 @@ QSize QSlider::sizeHint() const
 
 
 /*!
-  \reimp
+    \reimp
 */
 
 QSize QSlider::minimumSizeHint() const
@@ -717,7 +740,8 @@ QSize QSlider::minimumSizeHint() const
 
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 QSizePolicy QSlider::sizePolicy() const
 {
@@ -766,13 +790,13 @@ QSizePolicy QSlider::sizePolicy() const
 
 
 /*!
-  \property QSlider::tickmarks
-  \brief the tickmark settings for this slider
+    \property QSlider::tickmarks
+    \brief the tickmark settings for this slider
 
     The valid values are in \l{QSlider::TickSetting}. The default is
     \c NoMarks.
 
-  \sa tickInterval
+    \sa tickInterval
 */
 
 void QSlider::setTickmarks( TickSetting s )
@@ -784,14 +808,14 @@ void QSlider::setTickmarks( TickSetting s )
 
 
 /*!
-  \property QSlider::tickInterval
-  \brief the interval between tickmarks
+    \property QSlider::tickInterval
+    \brief the interval between tickmarks
 
-  This is a value interval, not a pixel interval. If it is 0, the slider
-  will choose between lineStep() and pageStep(). The initial value of
-  tickInterval is 0.
+    This is a value interval, not a pixel interval. If it is 0, the
+    slider will choose between lineStep() and pageStep(). The initial
+    value of tickInterval is 0.
 
-  \sa QRangeControl::lineStep(), QRangeControl::pageStep()
+    \sa QRangeControl::lineStep(), QRangeControl::pageStep()
 */
 
 void QSlider::setTickInterval( int i )
@@ -802,21 +826,21 @@ void QSlider::setTickInterval( int i )
 
 
 /*!
-  \reimp
- */
+    \reimp
+*/
 void QSlider::styleChange( QStyle& old )
 {
     QWidget::styleChange( old );
 }
 
 /*!
-  \property QSlider::minValue
-  \brief the current minimum value of the slider
+    \property QSlider::minValue
+    \brief the current minimum value of the slider
 
-  When setting this property, the \l QSlider::maxValue is adjusted, if
-  necessary, to ensure that the range remains valid.
+    When setting this property, the \l QSlider::maxValue is adjusted,
+    if necessary, to ensure that the range remains valid.
 
-  \sa setRange()
+    \sa setRange()
 */
 int QSlider::minValue() const
 {
@@ -824,13 +848,13 @@ int QSlider::minValue() const
 }
 
 /*!
-  \property QSlider::maxValue
-  \brief the current maximum value of the slider
+    \property QSlider::maxValue
+    \brief the current maximum value of the slider
 
-  When setting this property, the \l QSlider::minValue is adjusted, if
-  necessary, to ensure that the range remains valid.
+    When setting this property, the \l QSlider::minValue is adjusted,
+    if necessary, to ensure that the range remains valid.
 
-  \sa setRange()
+    \sa setRange()
 */
 int QSlider::maxValue() const
 {
@@ -848,13 +872,14 @@ void QSlider::setMaxValue( int maxVal )
 }
 
 /*!
-  \property QSlider::lineStep
-  \brief the current line step
+    \property QSlider::lineStep
+    \brief the current line step
 
-  When setting lineStep, the virtual stepChange() function will be called
-  if the new line step is different from the previous setting.
+    When setting lineStep, the virtual stepChange() function will be
+    called if the new line step is different from the previous
+    setting.
 
-  \sa setSteps() QRangeControl::pageStep() setRange()
+    \sa setSteps() QRangeControl::pageStep() setRange()
 */
 int QSlider::lineStep() const
 {
@@ -862,13 +887,14 @@ int QSlider::lineStep() const
 }
 
 /*!
-  \property QSlider::pageStep
-  \brief the current page step
+    \property QSlider::pageStep
+    \brief the current page step
 
-  When setting pageStep, the virtual stepChange() function will be called
-  if the new page step is different from the previous setting.
+    When setting pageStep, the virtual stepChange() function will be
+    called if the new page step is different from the previous
+    setting.
 
-  \sa QRangeControl::setSteps() setLineStep() setRange()
+    \sa QRangeControl::setSteps() setLineStep() setRange()
 */
 
 int QSlider::pageStep() const
@@ -887,10 +913,10 @@ void QSlider::setPageStep( int i )
 }
 
 /*!
-  \property QSlider::value
-  \brief the current slider value
+    \property QSlider::value
+    \brief the current slider value
 
-  \sa QRangeControl::value() prevValue()
+    \sa QRangeControl::value() prevValue()
 */
 
 int QSlider::value() const

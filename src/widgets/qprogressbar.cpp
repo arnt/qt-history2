@@ -47,14 +47,15 @@
 #include <limits.h>
 
 /*!
-  \class QProgressBar qprogressbar.h
-  \brief The QProgressBar widget provides a horizontal progress bar.
-  \ingroup advanced
-  \mainclass
+    \class QProgressBar qprogressbar.h
+    \brief The QProgressBar widget provides a horizontal progress bar.
 
-  A progress bar is used to give the user an indication of the
-  progress of an operation and to reassure them that the application
-  is still running.
+    \ingroup advanced
+    \mainclass
+
+    A progress bar is used to give the user an indication of the
+    progress of an operation and to reassure them that the application
+    is still running.
 
     The progress bar uses the concept of \e steps; you give it the
     total number of steps and the number of steps completed so far and
@@ -64,24 +65,29 @@
     with setProgress(). The progress bar can be rewound to the
     beginning with reset().
 
-  \sa QProgressDialog
+    If the total is given as 0 the progress bar shows a busy indicator
+    instead of a percentage of steps. This is useful, for example,
+    when using QFtp or QHttp to download items when they are unable to
+    determine the size of the item being downloaded.
 
-  <img src=qprogbar-m.png> <img src=qprogbar-w.png>
+    \sa QProgressDialog
 
-  \sa QProgressDialog
-  \link guibooks.html#fowler GUI Design Handbook: Progress Indicator\endlink
+    <img src=qprogbar-m.png> <img src=qprogbar-w.png>
+
+    \sa QProgressDialog
+    \link guibooks.html#fowler GUI Design Handbook: Progress Indicator\endlink
 */
 
 
 /*!
-  Constructs a progress bar.
+    Constructs a progress bar.
 
-  The total number of steps is set to 100 by default.
+    The total number of steps is set to 100 by default.
 
-  The \a parent, \a name and widget flags, \a f, are passed on to the
-  QFrame::QFrame() constructor.
+    The \a parent, \a name and widget flags, \a f, are passed on to
+    the QFrame::QFrame() constructor.
 
-  \sa setTotalSteps()
+    \sa setTotalSteps()
 */
 
 QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
@@ -100,18 +106,18 @@ QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
 
 
 /*!
-  Constructs a progress bar.
+    Constructs a progress bar.
 
-  The \a totalSteps is the total number of steps that need to be
-  completed for the operation which this progress bar represents.
-  For example, if the operation is to examine 50 files, this value
-  would be 50. Before examining the first file, call setProgress(0);
-  call setProgress(50) after examining the last file .
+    The \a totalSteps is the total number of steps that need to be
+    completed for the operation which this progress bar represents.
+    For example, if the operation is to examine 50 files, this value
+    would be 50. Before examining the first file, call setProgress(0);
+    call setProgress(50) after examining the last file.
 
-  The \a parent, \a name and widget flags, \a f, are passed to the
-  QFrame::QFrame() constructor.
+    The \a parent, \a name and widget flags, \a f, are passed to the
+    QFrame::QFrame() constructor.
 
-  \sa setTotalSteps(), setProgress()
+    \sa setTotalSteps(), setProgress()
 */
 
 QProgressBar::QProgressBar( int totalSteps,
@@ -131,8 +137,8 @@ QProgressBar::QProgressBar( int totalSteps,
 
 
 /*!
-  Reset the progress bar.
-  The progress bar "rewinds" and shows no progress.
+    Reset the progress bar. The progress bar "rewinds" and shows no
+    progress.
 */
 
 void QProgressBar::reset()
@@ -145,12 +151,13 @@ void QProgressBar::reset()
 
 
 /*!
-  \property QProgressBar::totalSteps
-  \brief The total number of steps.
+    \property QProgressBar::totalSteps
+    \brief The total number of steps.
 
-  If totalSteps is null, the progress bar will display a busy indicator.
+    If totalSteps is 0, the progress bar will display a busy
+    indicator.
 
-  \sa totalSteps()
+    \sa totalSteps()
 */
 
 void QProgressBar::setTotalSteps( int totalSteps )
@@ -168,10 +175,10 @@ void QProgressBar::setTotalSteps( int totalSteps )
 
 
 /*!
-  \property QProgressBar::progress
-  \brief the current amount of progress
+    \property QProgressBar::progress
+    \brief The current amount of progress
 
-  This property is -1 if the progress counting has not started.
+    This property is -1 if progress counting has not started.
 */
 
 void QProgressBar::setProgress( int progress )
@@ -192,12 +199,12 @@ void QProgressBar::setProgress( int progress )
 }
 
 /*!
-  \overload
+    \overload
 
-  Sets the current amount of progress to \a progress and the total number of
-  steps to \a totalSteps.
+    Sets the amount of progress to \a progress and the total number of
+    steps to \a totalSteps.
 
-  \sa setTotalSteps()
+    \sa setTotalSteps()
 */
 
 void QProgressBar::setProgress( int progress, int totalSteps )
@@ -209,13 +216,14 @@ void QProgressBar::setProgress( int progress, int totalSteps )
 
 /*!
   \property QProgressBar::progressString
-  \brief the current amount of progress as a string
+  \brief the amount of progress as a string
 
-  This property is QString::null if the progress counting has not started.
+    This property is QString::null if progress counting has not started.
 */
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 QSize QProgressBar::sizeHint() const
 {
@@ -229,7 +237,7 @@ QSize QProgressBar::sizeHint() const
 
 
 /*!
-  \reimp
+    \reimp
 */
 QSize QProgressBar::minimumSizeHint() const
 {
@@ -237,12 +245,11 @@ QSize QProgressBar::minimumSizeHint() const
 }
 
 /*!
-  \property QProgressBar::centerIndicator
+    \property QProgressBar::centerIndicator
+    \brief whether the indicator string should be centered
 
-  \brief whether the indicator string should be centered
-
-  Changing this property sets \l QProgressBar::indicatorFollowsStyle
-  to FALSE. The default is TRUE.
+    Changing this property sets \l QProgressBar::indicatorFollowsStyle
+    to FALSE. The default is TRUE.
 */
 
 void QProgressBar::setCenterIndicator( bool on )
@@ -255,12 +262,12 @@ void QProgressBar::setCenterIndicator( bool on )
 }
 
 /*!
-  \property QProgressBar::indicatorFollowsStyle
-  \brief whether the display of the indicator string should follow the GUI style
+    \property QProgressBar::indicatorFollowsStyle
+    \brief whether the display of the indicator string should follow the GUI style
 
     The default is TRUE.
 
-  \sa centerIndicator
+    \sa centerIndicator
 */
 
 void QProgressBar::setIndicatorFollowsStyle( bool on )
@@ -272,12 +279,12 @@ void QProgressBar::setIndicatorFollowsStyle( bool on )
 }
 
 /*!
-  \property QProgressBar::percentageVisible
-  \brief whether the current progress value is displayed
+    \property QProgressBar::percentageVisible
+    \brief whether the current progress value is displayed
 
-  The default is TRUE.
+    The default is TRUE.
 
-  \sa centerIndicator, indicatorFollowsStyle
+    \sa centerIndicator, indicatorFollowsStyle
 */
 void QProgressBar::setPercentageVisible( bool on )
 {
@@ -288,7 +295,7 @@ void QProgressBar::setPercentageVisible( bool on )
 }
 
 /*!
-  \reimp
+    \reimp
 */
 void QProgressBar::show()
 {
@@ -301,8 +308,9 @@ void QProgressBar::initFrame()
     setFrameStyle(QFrame::NoFrame);
 }
 
-/*! \reimp
- */
+/*!
+    \reimp
+*/
 void QProgressBar::styleChange( QStyle& old )
 {
     initFrame();
@@ -311,19 +319,20 @@ void QProgressBar::styleChange( QStyle& old )
 
 
 /*!
-  This method is called to generate the text displayed in the center
-  (or in some styles, to the left) of the progress bar.
+    This method is called to generate the text displayed in the center
+    (or in some styles, to the left) of the progress bar.
 
-  The \a progress may be negative, indicating that the progress bar is
-  in the "reset" state before any progress is set.
+    The \a progress may be negative, indicating that the progress bar
+    is in the "reset" state before any progress is set.
 
-  The default implementation is the percentage of completion or blank in the
-  reset state. The percentage is calculated based on the \a progress
-  and \a totalSteps. You can set the \a indicator text if you wish.
+    The default implementation is the percentage of completion or
+    blank in the reset state. The percentage is calculated based on
+    the \a progress and \a totalSteps. You can set the \a indicator
+    text if you wish.
 
-  To allow efficient repainting of the progress bar, this method
-  should return FALSE if the string is unchanged from the last call to
-  this function.
+    To allow efficient repainting of the progress bar, this method
+    should return FALSE if the string is unchanged from the last call
+    to this function.
 */
 
 bool QProgressBar::setIndicator( QString & indicator, int progress,
@@ -353,7 +362,8 @@ bool QProgressBar::setIndicator( QString & indicator, int progress,
 }
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QProgressBar::drawContents( QPainter *p )
 {

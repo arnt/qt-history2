@@ -47,61 +47,61 @@
 #include "qsizegrip.h"
 
 /*!
-  \class QStatusBar qstatusbar.h
+    \class QStatusBar qstatusbar.h
+    \brief The QStatusBar class provides a horizontal bar suitable for
+    presenting status information.
 
-  \brief The QStatusBar class provides a horizontal bar suitable for
-  presenting status information.
+    \ingroup application
+    \ingroup helpsystem
+    \mainclass
 
-  \ingroup application
-  \ingroup helpsystem
-  \mainclass
+    Each status indicator falls into one of three categories:
 
-  Each status indicator falls into one of three categories:
+    \list
+    \i \e Temporary - briefly occupies most of the status bar. Used
+	to explain tool tip texts or menu entries, for example.
+    \i \e Normal - occupies part of the status bar and may be hidden
+	by temporary messages. Used to display the page and line
+	number in a word processor, for example.
+    \i \e Permanent - is never hidden. Used for important mode
+	indications, for example, some applications put a Caps Lock
+	indicator in the status bar.
+    \endlist
 
-  \list
-  \i \e Temporary - briefly occupies most of the status bar.  Used
-    to explain tool tip texts or menu entries, for example.
-  \i \e Normal - occupies part of the status bar and may be hidden
-    by temporary messages.  Used to display the page and line
-    number in a word processor, for example.
-  \i \e Permanent - is never hidden.  Used for important mode
-    indications, for example, some applications put a Caps Lock indicator in the
-    status bar.
-  \endlist
+    QStatusBar lets you display all three types of indicators.
 
-  QStatusBar lets you display all three types of indicators.
+    To display a \e temporary message, call message() (perhaps by
+    connecting a suitable signal to it). To remove a temporary
+    message, call clear(). There are two variants of message(): one
+    that displays the message until the next clear() or mesage() and
+    one that has a time limit:
 
-  To display a \e temporary message, call message() (perhaps by
-  connecting a suitable signal to it).  To remove a temporary message,
-  call clear().
-  There are two variants of message(): one that displays the message
-  until the next clear() or mesage() and one that has a time limit:
+    \code
+	connect( loader, SIGNAL(progressMessage(const QString&)),
+		 statusBar(), SLOT(message(const QString&)) );
 
-  \code
-     connect( loader, SIGNAL(progressMessage(const QString&)),
-	      statusBar(), SLOT(message(const QString&)) );
+	statusBar()->message("Loading...");  // Initial message
+	loader.loadStuff();                  // Emits progress messages
+	statusBar()->message("Done.", 2000); // Final message for 2 seconds
+    \endcode
 
-     statusBar()->message("Loading...");  // Initial message
-     loader.loadStuff();                  // Emits progress messages
-     statusBar()->message("Done.", 2000); // Final message for 2 seconds
-  \endcode
+    \e Normal and \e Permanent messages are displayed by creating a
+    small widget and then adding it to the status bar with
+    addWidget(). Widgets like QLabel, QProgressBar or even QToolButton
+    are useful for adding to status bars. removeWidget() is used to
+    remove widgets.
 
-  \e Normal and \e permanent messages are displayed by creating a small
-  widget and then adding it to the status bar with addWidget().  Widgets
-  like QLabel, QProgressBar or even QToolButton are useful for adding
-  to status bars.  removeWidget() is used to remove widgets.
+    \code
+	statusBar()->addWidget(new MyReadWriteIndication(statusBar()));
+    \endcode
 
-  \code
-     statusBar()->addWidget(new MyReadWriteIndication(statusBar()));
-  \endcode
+    By default QStatusBar provides a QSizeGrip in the lower-right
+    corner. You can disable it with setSizeGripEnabled(FALSE);
 
-  By default QStatusBar provides a QSizeGrip in the lower-right corner.
-  You can disable it with setSizeGripEnabled(FALSE);
+    <img src=qstatusbar-m.png> <img src=qstatusbar-w.png>
 
-  <img src=qstatusbar-m.png> <img src=qstatusbar-w.png>
-
-  \sa QToolBar QMainWindow QLabel
-  \link guibooks.html#fowler GUI Design Handbook: Status Bar.\endlink
+    \sa QToolBar QMainWindow QLabel
+    \link guibooks.html#fowler GUI Design Handbook: Status Bar.\endlink
 */
 
 
@@ -131,10 +131,10 @@ public:
 
 
 /*!
-  Constructs a status bar with the parent \a parent and the name
-  \a name and with a size grip.
+    Constructs a status bar called \a name with parent \a parent and
+    with a size grip.
 
-  \sa setSizeGripEnabled()
+    \sa setSizeGripEnabled()
 */
 QStatusBar::QStatusBar( QWidget * parent, const char *name )
     : QWidget( parent, name )
@@ -154,8 +154,8 @@ QStatusBar::QStatusBar( QWidget * parent, const char *name )
 
 
 /*!
-  Destroys the status bar and frees any allocated resources and child
-  widgets.
+    Destroys the status bar and frees any allocated resources and
+    child widgets.
 */
 QStatusBar::~QStatusBar()
 {
@@ -165,22 +165,23 @@ QStatusBar::~QStatusBar()
 
 
 /*!
-  Adds \a widget to this status bar.
+    Adds \a widget to this status bar.
 
-  \a widget is permanently visible if \a permanent is TRUE and may be
-  obscured by temporary messages if \a permanent is FALSE.  The
-  default is FALSE.
+    \a widget is permanently visible if \a permanent is TRUE and may
+    be obscured by temporary messages if \a permanent is FALSE. The
+    default is FALSE.
 
-  If \a permanent is TRUE, \a widget is located at the far right of
-  the status bar.  If \a permanent is FALSE (the default), \a widget is
-  located just to the left of the first permanent widget.
+    If \a permanent is TRUE, \a widget is located at the far right of
+    the status bar. If \a permanent is FALSE (the default), \a widget
+    is located just to the left of the first permanent widget.
 
-  \a stretch is used to compute a suitable size for \a widget as the
-  status bar grows and shrinks. The default of 0 uses a minimum of space.
+    \a stretch is used to compute a suitable size for \a widget as the
+    status bar grows and shrinks. The default of 0 uses a minimum of
+    space.
 
-  This function may cause some flicker.
+    This function may cause some flicker.
 
-  \sa removeWidget()
+    \sa removeWidget()
 */
 
 void QStatusBar::addWidget( QWidget * widget, int stretch, bool permanent )
@@ -209,13 +210,13 @@ void QStatusBar::addWidget( QWidget * widget, int stretch, bool permanent )
 
 
 /*!
-  Removes \a widget from the status bar.
+    Removes \a widget from the status bar.
 
-  This function may cause some flicker.
+    This function may cause some flicker.
 
-  Note that \a widget is not deleted.
+    Note that \a widget is not deleted.
 
-  \sa addWidget()
+    \sa addWidget()
 */
 
 void QStatusBar::removeWidget( QWidget* widget )
@@ -241,11 +242,11 @@ void QStatusBar::removeWidget( QWidget* widget )
 }
 
 /*!
-  \property QStatusBar::sizeGripEnabled
-  \brief whether the QSizeGrip in the bottom right of the status bar is enabled
+    \property QStatusBar::sizeGripEnabled
+    \brief whether the QSizeGrip in the bottom right of the status bar is enabled
 
-  Enables or disables the QSizeGrip in the bottom right of the status bar.
-  By default, the size grip is enabled.
+    Enables or disables the QSizeGrip in the bottom right of the
+    status bar. By default, the size grip is enabled.
 */
 
 bool QStatusBar::isSizeGripEnabled() const
@@ -275,9 +276,10 @@ void QStatusBar::setSizeGripEnabled(bool enabled)
 }
 
 
-/*!  Changes the status bar's appearance to account for item
-  changes. Special subclasses may need this, but geometry management
-  will usually take care of any necessary rearrangements.
+/*!
+    Changes the status bar's appearance to account for item changes.
+    Special subclasses may need this, but geometry management will
+    usually take care of any necessary rearrangements.
 */
 void QStatusBar::reformat()
 {
@@ -334,10 +336,10 @@ void QStatusBar::reformat()
 
 
 /*!
-  Hides the normal status indicators and displays \a message until
-  clear() or another message() is called.
+    Hides the normal status indicators and displays \a message until
+    clear() or another message() is called.
 
-  \sa clear()
+    \sa clear()
 */
 void QStatusBar::message( const QString &message )
 {
@@ -353,11 +355,11 @@ void QStatusBar::message( const QString &message )
 
 
 /*!
-  \overload
+    \overload
 
-  Hides the normal status indications and displays \a message for \a
-  ms milli-seconds or until clear() or another message() is called,
-  whichever occurs first.
+    Hides the normal status indications and displays \a message for \a
+    ms milli-seconds or until clear() or another message() is called,
+    whichever occurs first.
 */
 void QStatusBar::message( const QString &message, int ms )
 {
@@ -374,9 +376,9 @@ void QStatusBar::message( const QString &message, int ms )
 
 
 /*!
-  Removes any temporary message being shown.
+    Removes any temporary message being shown.
 
-  \sa message()
+    \sa message()
 */
 
 void QStatusBar::clear()
@@ -402,8 +404,8 @@ void QStatusBar::clear()
 */
 
 /*!
-  Ensures that the right widgets are visible.  Used by message()
-  and clear().
+    Ensures that the right widgets are visible. Used by message() and
+    clear().
 */
 void QStatusBar::hideOrShow()
 {
@@ -425,7 +427,7 @@ void QStatusBar::hideOrShow()
 
 
 /*!
-  Shows the temporary message, if appropriate.
+    Shows the temporary message, if appropriate.
 */
 void QStatusBar::paintEvent( QPaintEvent * )
 {
@@ -458,7 +460,8 @@ void QStatusBar::paintEvent( QPaintEvent * )
     }
 }
 
-/*! \reimp
+/*!
+    \reimp
 */
 void QStatusBar::resizeEvent( QResizeEvent * e )
 {
@@ -466,7 +469,7 @@ void QStatusBar::resizeEvent( QResizeEvent * e )
 }
 
 /*!
-  \reimp
+    \reimp
 */
 
 bool QStatusBar::event( QEvent *e )

@@ -48,57 +48,61 @@
 #include "qstyle.h"
 
 /*!
-  \class QRadioButton qradiobutton.h
-  \brief The QRadioButton widget provides a radio button with a text or pixmap label.
+    \class QRadioButton qradiobutton.h
+    \brief The QRadioButton widget provides a radio button with a text or pixmap label.
 
-  \ingroup basic
-  \mainclass
+    \ingroup basic
+    \mainclass
 
-  QRadioButton and QCheckBox are both option buttons. That is, they
-  can be switched on (checked) or off (unchecked). The classes differ
-  in how the choices for the user are restricted. Check boxes define
-  "many of many" choices, whereas radio buttons provide a "one of many"
-  choice. In a group of radio buttons only one button at a time can
-  be checked; if the user selects another button, the previously
-  selected button is switched off.
+    QRadioButton and QCheckBox are both option buttons. That is, they
+    can be switched on (checked) or off (unchecked). The classes
+    differ in how the choices for the user are restricted. Check boxes
+    define "many of many" choices, whereas radio buttons provide a
+    "one of many" choice. In a group of radio buttons only one radio
+    button at a time can be checked; if the user selects another
+    button, the previously selected button is switched off.
 
-  The easiest way to implement a "one of many" choice is simply to
-  put the radio buttons into QButtonGroup.
+    The easiest way to implement a "one of many" choice is simply to
+    put the radio buttons into QButtonGroup.
 
-  Whenever a button is switched on or off it emits the signal
-  toggled(). Connect to this signal if you want to trigger an action
-  each time the button changes state. Otherwise, use isChecked() to
-  query whether or not a particular button is selected.
+    Whenever a button is switched on or off it emits the signal
+    toggled(). Connect to this signal if you want to trigger an action
+    each time the button changes state. Otherwise, use isChecked() to
+    see if a particular button is selected.
 
-  Just like QPushButton, a radio button can display text or a pixmap. The
-  text can be set in the constructor or with setText(); the pixmap is
-  set with setPixmap().
+    Just like QPushButton, a radio button can display text or a
+    pixmap. The text can be set in the constructor or with setText();
+    the pixmap is set with setPixmap().
 
-  <img src=qradiobt-m.png> <img src=qradiobt-w.png>
+    <img src=qradiobt-m.png> <img src=qradiobt-w.png>
 
-  \important text, setText, text, pixmap, setPixmap, accel, setAccel, isToggleButton, setDown, isDown, isOn, state, autoRepeat, isExclusiveToggle, group, setAutoRepeat, toggle, pressed, released, clicked, toggled, state stateChanged
+    \important text, setText, text, pixmap, setPixmap, accel, setAccel, isToggleButton, setDown, isDown, isOn, state, autoRepeat, isExclusiveToggle, group, setAutoRepeat, toggle, pressed, released, clicked, toggled, state stateChanged
 
-  \sa QPushButton QToolButton
-  \link guibooks.html#fowler GUI Design Handbook: Radio Button\endlink
+    \sa QPushButton QToolButton
+    \link guibooks.html#fowler GUI Design Handbook: Radio Button\endlink
 */
 
-/*! \property QRadioButton::checked
-    \brief Whether the radio button is checked
+/*!
+    \property QRadioButton::checked \brief Whether the radio button is
+    checked
 
-  This property will not effect any other radio buttons unless they have been
-  placed in the same QButtonGroup. The default value is FALSE (unchecked).
+    This property will not effect any other radio buttons unless they
+    have been placed in the same QButtonGroup. The default value is
+    FALSE (unchecked).
 */
 
-/*! \property QRadioButton::autoMask
-    \brief whether the radio button is automatically masked
+/*!
+    \property QRadioButton::autoMask \brief whether the radio button
+    is automatically masked
 
     \sa QWidget::setAutoMask()
 */
 
 /*!
-  Constructs a radio button with no text.
+    Constructs a radio button with no text.
 
-  The \a parent and \a name arguments are sent to the QWidget constructor.
+    The \a parent and \a name arguments are sent on to the QWidget
+    constructor.
 */
 
 QRadioButton::QRadioButton( QWidget *parent, const char *name )
@@ -108,9 +112,10 @@ QRadioButton::QRadioButton( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a radio button with the text \a text.
+    Constructs a radio button with the text \a text.
 
-  The \a parent and \a name arguments are sent to the QWidget constructor.
+    The \a parent and \a name arguments are sent on to the QWidget
+    constructor.
 */
 
 QRadioButton::QRadioButton( const QString &text, QWidget *parent,
@@ -122,8 +127,8 @@ QRadioButton::QRadioButton( const QString &text, QWidget *parent,
 }
 
 
-/*!
-  Initializes the radio button.
+/*
+    Initializes the radio button.
 */
 
 void QRadioButton::init()
@@ -146,7 +151,8 @@ void QRadioButton::setChecked( bool check )
 
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 QSize QRadioButton::sizeHint() const
 {
@@ -163,7 +169,8 @@ QSize QRadioButton::sizeHint() const
 }
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 bool QRadioButton::hitButton( const QPoint &pos ) const
 {
@@ -171,7 +178,8 @@ bool QRadioButton::hitButton( const QPoint &pos ) const
 }
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QRadioButton::drawButton( QPainter *paint )
 {
@@ -263,7 +271,8 @@ void QRadioButton::drawButton( QPainter *paint )
 
 
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QRadioButton::drawButtonLabel( QPainter *p )
 {
@@ -288,7 +297,7 @@ void QRadioButton::drawButtonLabel( QPainter *p )
 
 
 /*!
-  \reimp
+    \reimp
 */
 void QRadioButton::resizeEvent( QResizeEvent* e )
 {
@@ -306,7 +315,9 @@ void QRadioButton::resizeEvent( QResizeEvent* e )
 	updateMask();
 }
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 void QRadioButton::updateMask()
 {
     QRect irect =
