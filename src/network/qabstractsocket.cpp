@@ -462,7 +462,6 @@ bool QAbstractSocketPrivate::canReadNotification(int)
 
         // If reading from the socket fails after getting a read
         // notification, close the socket.
-        int oldBufferSize = d->readBuffer.size();
         if (!d->readFromSocket()) {
 #if defined (QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocketPrivate::canReadNotification() disconnecting socket");
@@ -472,15 +471,10 @@ bool QAbstractSocketPrivate::canReadNotification(int)
             return false;
         }
 
-        // If the buffer size is unchanged after reading from the
-        // socket, close the socket.
-        if (oldBufferSize == d->readBuffer.size()) {
-#if defined (QABSTRACTSOCKET_DEBUG)
-            qDebug("QAbstractSocketPrivate::canReadNotification() unchanged buffer: disconnecting socket");
-#endif
-            q->disconnectFromHost();
-            readSocketNotifierCalled = false;
-            return false;
+        // If read buffer is full, disable the read socket notifier.
+        if (readBufferMaxSize && readBuffer.size() == readBufferMaxSize) {
+            if (d->readSocketNotifier)
+                readSocketNotifier->setEnabled(false);
         }
     }
 
@@ -494,17 +488,7 @@ bool QAbstractSocketPrivate::canReadNotification(int)
         return true;
     }
 
-    // If the read buffer is full, disable the read socket notifier.
-    if (readBufferMaxSize && d->readBuffer.size() == d->readBufferMaxSize) {
-#if defined (QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocketPrivate::canReadNotification() expecting more data.");
-#endif
-        if (d->readSocketNotifier && d->readSocketNotifier->isEnabled())
-            d->readSocketNotifier->setEnabled(false);
-    }
-
     readSocketNotifierCalled = false;
-
     emit q->readyRead();
     return true;
 }
@@ -516,14 +500,17 @@ bool QAbstractSocketPrivate::canReadNotification(int)
 */
 bool QAbstractSocketPrivate::canWriteNotification(int)
 {
+#if defined (Q_OS_WIN)
+    if (writeSocketNotifier && writeSocketNotifier->isEnabled())
+        writeSocketNotifier->setEnabled(false);
+#endif
+
     // If in connecting state, check if the connection has been
     // established, otherwise flush pending data.
     if (state == QAbstractSocket::ConnectingState) {
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocketPrivate::canWriteNotification() testing connection");
 #endif
-        if (writeSocketNotifier && writeSocketNotifier->isEnabled())
-            writeSocketNotifier->setEnabled(false);
         testConnection();
         return false;
     }
@@ -533,8 +520,14 @@ bool QAbstractSocketPrivate::canWriteNotification(int)
 #endif
     int tmp = writeBuffer.size();
     flush();
-    if (writeBuffer.isEmpty() && writeSocketNotifier && writeSocketNotifier->isEnabled())
+
+#if defined (Q_OS_WIN)
+    if (!writeBuffer.isEmpty() && writeSocketNotifier)
+        writeSocketNotifier->setEnabled(true);
+#else
+    if (writeBuffer.isEmpty() && writeSocketNotifier)
         writeSocketNotifier->setEnabled(false);
+#endif
 
     return (writeBuffer.size() < tmp);
 }
@@ -797,53 +790,31 @@ void QAbstractSocketPrivate::abortConnectionAttempt()
 bool QAbstractSocketPrivate::readFromSocket()
 {
     // Find how many bytes we can read from the socket layer.
-    Q_LONGLONG bytesToRead;
-    if (readBufferMaxSize) {
-        if (readBuffer.size() >= readBufferMaxSize) {
-#if defined(QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocketPrivate::readFromSocket() buffer full, can't read");
-#endif
-            return true;
-        }
+    Q_LONGLONG bytesToRead = socketLayer.bytesAvailable();
+    if (readBufferMaxSize && bytesToRead > (readBufferMaxSize - readBuffer.size()))
+        bytesToRead = readBufferMaxSize - readBuffer.size();
 
-        bytesToRead = qMin(socketLayer.bytesAvailable(),
-                           readBufferMaxSize - readBuffer.size());
-    } else {
 #if defined(QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocketPrivate::readFromSocket() socketLayer.bytesAvailable() == %lli",
-               socketLayer.bytesAvailable());
+    qDebug("QAbstractSocketPrivate::readFromSocket() about to read %d bytes",
+           int(bytesToRead));
 #endif
-
-        bytesToRead = socketLayer.bytesAvailable();
-    }
 
     // Read from the socket, store data in the read buffer.
-    if (bytesToRead > 0) {
-        char *ptr = d->readBuffer.reserve(bytesToRead);
-        Q_LONGLONG readBytes = socketLayer.read(ptr, bytesToRead);
+    char *ptr = d->readBuffer.reserve(bytesToRead);
+    Q_LONGLONG readBytes = socketLayer.read(ptr, bytesToRead);
+    if (readBytes > 0)
         d->readBuffer.truncate((int) (bytesToRead - readBytes));
 
-        if (!socketLayer.isValid()) {
-            socketError = socketLayer.error();
-            q->setErrorString(socketLayer.errorString());
-            emit q->error(socketError);
+    if (!socketLayer.isValid()) {
+        socketError = socketLayer.error();
+        q->setErrorString(socketLayer.errorString());
+        emit q->error(socketError);
 #if defined(QABSTRACTSOCKET_DEBUG)
-            qDebug("QAbstractSocketPrivate::readFromSocket() read failed: %s",
-                   q->errorString().latin1());
+        qDebug("QAbstractSocketPrivate::readFromSocket() read failed: %s",
+               q->errorString().latin1());
 #endif
-            d->resetSocketLayer();
-            return false;
-        }
-
-        // If read buffer is full, disable the read socket notifier.
-        if (readBufferMaxSize && readBuffer.size() == readBufferMaxSize) {
-            if (d->readSocketNotifier)
-                readSocketNotifier->setEnabled(false);
-        }
-    } else {
-#if defined(QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocketPrivate::readFromSocket() nothing to read!");
-#endif
+        d->resetSocketLayer();
+        return false;
     }
 
     return true;
@@ -1424,8 +1395,6 @@ Q_LONGLONG QAbstractSocket::readData(char *data, Q_LONGLONG maxSize)
         if (readBytes < 0) {
             d->socketError = d->socketLayer.error();
             q->setErrorString(d->socketLayer.errorString());
-        } else if (d->readSocketNotifier && !d->readSocketNotifier->isEnabled()) {
-            d->readSocketNotifier->setEnabled(true);
         }
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocket::readData(%p \"%s\", %lli) == %lld",
