@@ -456,14 +456,14 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 
 //
 // Avoid some particularly useless warnings from some stupid compilers.
-// To get ALL C++ compiler warnings, define CC_WARNINGS or comment out
-// the line "#define Q_NO_WARNINGS"
+// To get ALL C++ compiler warnings, define QT_CC_WARNINGS or comment out
+// the line "#define QT_NO_WARNINGS"
 //
 
-#if !defined(CC_WARNINGS)
-#  define Q_NO_WARNINGS
+#if !defined(QT_CC_WARNINGS)
+#  define QT_NO_WARNINGS
 #endif
-#if defined(Q_NO_WARNINGS)
+#if defined(QT_NO_WARNINGS)
 #  if defined(Q_CC_MSVC)
 #    pragma warning(disable: 4244)
 #    pragma warning(disable: 4275)
@@ -575,37 +575,25 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 
 #if !defined(QT_CLEAN_NAMESPACE)
 // source compatibility with Qt 2.x
-#if !defined(ASSERT)
-#if defined(QT_CHECK_STATE)
-#if defined(QT_FATAL_ASSERT)
-#define ASSERT(x)  if ( !(x) )\
-	qFatal("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
-#else
-#define ASSERT(x)  if ( !(x) )\
-	qWarning("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
-#endif
-#else
-#define ASSERT(x)
-#endif
-#endif
+#  if !defined(ASSERT)
+#    define ASSERT(x) Q_ASSERT(x)
+#  endif
 #endif // QT_CLEAN_NAMESPACE
 
 
 Q_EXPORT bool qt_check_pointer( bool c, const char *, int );
 
 #if defined(QT_CHECK_NULL)
-#define Q_CHECK_PTR(p) (qt_check_pointer((p)==0,__FILE__,__LINE__))
+#  define Q_CHECK_PTR(p) (qt_check_pointer((p)==0,__FILE__,__LINE__))
 #else
-#define Q_CHECK_PTR(p)
+#  define Q_CHECK_PTR(p)
 #endif
 
 #if !defined(QT_CLEAN_NAMESPACE)
 // source compatibility with Qt 2.x
-#if defined(QT_CHECK_NULL)
-#define CHECK_PTR(p) (qt_check_pointer((p)==0,__FILE__,__LINE__))
-#else
-#define CHECK_PTR(p)
-#endif
+#  if !defined(ASSERT)
+#    define CHECK_PTR(x) Q_CHECK_PTR(x)
+#  endif
 #endif // QT_CLEAN_NAMESPACE
 
 
