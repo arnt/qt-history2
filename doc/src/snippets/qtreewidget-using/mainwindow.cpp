@@ -96,7 +96,7 @@ void MainWindow::findItems()
 
     foreach (item, found) {
         treeWidget->setSelected(item, true);
-        qDebug("Item: %s", item->text(0).ascii());
+        // Show the item->text(0) for each item.
     }
 }
 
