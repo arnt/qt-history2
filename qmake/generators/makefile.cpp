@@ -191,7 +191,6 @@ MakefileGenerator::generateMocList(const QString &fn_target)
 		}
 		if(cpp_ext) {
 		    mocFile += fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::moc_ext;
-		    findDependencies(fn_target).append(mocFile);
 		    project->variables()["_SRCMOC"].append(mocFile);
 		} else if(project->variables()["HEADERS"].findIndex(fn_target) != -1) {
 		    for(QStringList::Iterator hit = Option::h_ext.begin(); hit != Option::h_ext.end(); ++hit) {
@@ -469,6 +468,23 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 				    d = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
 				if(s == lhs) {
 				    fqn = d + inc;
+				    break;
+				}
+			    }
+			}
+		    }
+		    if(fqn.isEmpty()) { //is it a moc file?
+			QString mocs[] = { QString("_HDRMOC"), QString("_SRCMOC"), QString::null };
+			for(int moc = 0; fqn.isEmpty() && !mocs[moc].isNull(); moc++) {
+			    QStringList &l = project->variables()[mocs[moc]];
+			    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+				QString file = Option::fixPathToTargetOS((*it));
+				if(file.section(Option::dir_sep, -(inc.contains('/')+1)) == inc) {
+				    fqn = file;
+				    if(mocs[moc] == "_HDRMOC") {
+					l.remove(it);
+					project->variables()["_SRCMOC"].append(file);
+				    }
 				    break;
 				}
 			    }
@@ -802,32 +818,30 @@ MakefileGenerator::init()
 			    }
 			}
 
-			QString val_file = fileFixify((*val_it));
-			bool found_cache_moc = FALSE, found_cache_dep = FALSE;
-			if(read_cache && Option::output.name() != "-" &&
-			   project->isActiveConfig("qmake_cache")) {
+		        QString val_file = fileFixify((*val_it));
+		        bool found_cache_moc = FALSE, found_cache_dep = FALSE;
+		        if(read_cache && Option::output.name() != "-" &&
+		           project->isActiveConfig("qmake_cache")) {
 			    if(!findDependencies(val_file).isEmpty())
-				found_cache_dep = TRUE;
+			        found_cache_dep = TRUE;
 			    if(cache_found_files[(*val_it)] == (void *)2)
-				found_cache_moc = TRUE;
+			        found_cache_moc = TRUE;
 			    if(!found_cache_moc || !found_cache_dep)
-				write_cache = TRUE;
-			}
-			if(!found_cache_dep && sources[x] != "OBJECTS") {
-			    debug_msg(5, "Looking for dependancies for %s", (*val_it).latin1());
-			    generateDependencies(deplist, (*val_it), doDepends());
-			}
-			if(found_cache_moc) {
-			    QString moc = findMocDestination(val_file);
+			        write_cache = TRUE;
+		        }
+		        /* Do moc before dependency checking since some includes can come from
+		           moc_*.cpp files */
+		        if(found_cache_moc) {
+		   	    QString moc = findMocDestination(val_file);
 			    if(!moc.isEmpty()) {
-				for(QStringList::Iterator cppit = Option::cpp_ext.begin();
+			        for(QStringList::Iterator cppit = Option::cpp_ext.begin();
 				    cppit != Option::cpp_ext.end(); ++cppit) {
 				    if(val_file.endsWith((*cppit))) {
-					QStringList &deps = findDependencies(val_file);
-					if(!deps.contains(moc))
+				        QStringList &deps = findDependencies(val_file);
+				        if(!deps.contains(moc))
 					    deps.append(moc);
-					break;
-				    }
+				        break;
+			            }
 				}
 			    }
 			} else if(mocAware() && (sources[x] == "SOURCES" || sources[x] == "HEADERS") &&
@@ -835,7 +849,11 @@ MakefileGenerator::init()
 				   Option::mkfile::do_mocs)) {
 			    generateMocList((*val_it));
 			}
-		    }
+		        if(!found_cache_dep && sources[x] != "OBJECTS") {
+		  	    debug_msg(5, "Looking for dependancies for %s", (*val_it).latin1());
+			    generateDependencies(deplist, (*val_it), doDepends());
+		        }
+ 		    }
 		}
 	    }
 	    if(project->isActiveConfig("qmake_cache") && (write_cache || !read_cache)) {
