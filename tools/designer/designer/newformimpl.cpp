@@ -270,9 +270,9 @@ void NewForm::insertTemplates( QIconView *tView,
 	QStringList templRoots;
 	if ( templPath.isEmpty() || !QFileInfo( templPath ).exists() ) {
 	    // use default template paths
-	    templRoots << QString( QT_INSTALL_DATA ) + "/templates";
+	    templRoots << QString( qInstallPathData() ) + "/templates";
 	    // support srcdir == installdir
-	    templRoots << QString( QT_INSTALL_DATA ) + "/tools/designer/templates";
+	    templRoots << QString( qInstallPathData() ) + "/tools/designer/templates";
 	}
 	for ( QStringList::Iterator it = templRoots.begin(); it != templRoots.end(); ++it ) {
 	    QString path = (*it);

@@ -781,7 +781,10 @@ while [ -n "$1" ]; do
     fi
 done
 
-# post initalize variables used for installation
+#-------------------------------------------------------------------------------
+# post initialize QT_INSTALL_* variables, and generate qconfig.cpp
+#-------------------------------------------------------------------------------
+
 # default PREFIX/doc
 [ -z "$QT_INSTALL_DOCS" ]    && QT_INSTALL_DOCS=$QT_INSTALL_PREFIX/doc
 # default PREFIX/include
@@ -795,6 +798,38 @@ done
 # default PREFIX
 [ -z "$QT_INSTALL_DATA" ]    && QT_INSTALL_DATA=$QT_INSTALL_PREFIX
 
+# generate qconfig.cpp
+mkdir -p $outpath/src/tools
+cat > $outpath/src/tools/qconfig.cpp.new <<EOF
+/* Install paths from configure */
+
+static const char QT_INSTALL_PREFIX [256] = "$QT_INSTALL_PREFIX";
+static const char QT_INSTALL_BINS   [256] = "$QT_INSTALL_BINS";
+static const char QT_INSTALL_DOCS   [256] = "$QT_INSTALL_DOCS";
+static const char QT_INSTALL_HEADERS[256] = "$QT_INSTALL_HEADERS";
+static const char QT_INSTALL_LIBS   [256] = "$QT_INSTALL_LIBS";
+static const char QT_INSTALL_PLUGINS[256] = "$QT_INSTALL_PLUGINS";
+static const char QT_INSTALL_DATA   [256] = "$QT_INSTALL_DATA";
+
+const char *qInstallPath()        { return QT_INSTALL_PREFIX;  }
+const char *qInstallPathDocs()    { return QT_INSTALL_DOCS;    }
+const char *qInstallPathHeaders() { return QT_INSTALL_HEADERS; }
+const char *qInstallPathLibs()    { return QT_INSTALL_LIBS;    }
+const char *qInstallPathBins()    { return QT_INSTALL_BINS;    }
+const char *qInstallPathPlugins() { return QT_INSTALL_PLUGINS; }
+const char *qInstallPathData()    { return QT_INSTALL_DATA;    }
+EOF
+
+# avoid unecessary rebuilds by copying only if qconfig.cpp has changed
+if cmp -s $outpath/src/tools/qconfig.cpp $outpath/src/tools/qconfig.cpp.new; then
+    rm -f $outpath/src/tools/qconfig.cpp.new
+else
+    [ -f $outpath/src/tools/qconfig.cpp ] && chmod +w $outpath/src/tools/qconfig.cpp
+    mv $outpath/src/tools/qconfig.cpp.new $outpath/src/tools/qconfig.cpp
+    chmod -w $outpath/src/tools/qconfig.cpp
+fi
+
+
 #-------------------------------------------------------------------------------
 # build tree initialization
 #-------------------------------------------------------------------------------
@@ -807,6 +842,8 @@ mkdir -p $outpath/include
 
 # create temporary qconfig.h for compiling qmake
 # the original file will be restored after qmake is built
+# when building qmake, we use #defines for the install paths, however
+# they are real functions in the library
 if [ -f $outpath/include/qconfig.h ]; then
     mv -f $outpath/include/qconfig.h qconfig.h-hold
 fi
@@ -814,13 +851,13 @@ cat >> $outpath/include/qconfig.h <<EOF
 /* All features enabled while building qmake */
 
 /* Install paths from configure */
-#define QT_INSTALL_PREFIX   "$QT_INSTALL_PREFIX"
-#define QT_INSTALL_DOCS     "$QT_INSTALL_DOCS"
-#define QT_INSTALL_HEADERS  "$QT_INSTALL_HEADERS"
-#define QT_INSTALL_LIBS     "$QT_INSTALL_LIBS"
-#define QT_INSTALL_BINS     "$QT_INSTALL_BINS"
-#define QT_INSTALL_PLUGINS  "$QT_INSTALL_PLUGINS"
-#define QT_INSTALL_DATA     "$QT_INSTALL_DATA"
+const char *qInstallPath();
+const char *qInstallPathDocs();
+const char *qInstallPathHeaders();
+const char *qInstallPathLibs();
+const char *qInstallPathBins();
+const char *qInstallPathPlugins();
+const char *qInstallPathData();
 EOF
 
 # create temporary qmodules.h for compiling qmake
@@ -2014,15 +2051,14 @@ full)
     ;;
 esac
 cat >> $outpath/include/qconfig.h.new <<EOF
-
 /* Install paths from configure */
-#define QT_INSTALL_PREFIX   "$QT_INSTALL_PREFIX"
-#define QT_INSTALL_DOCS     "$QT_INSTALL_DOCS"
-#define QT_INSTALL_HEADERS  "$QT_INSTALL_HEADERS"
-#define QT_INSTALL_LIBS     "$QT_INSTALL_LIBS"
-#define QT_INSTALL_BINS     "$QT_INSTALL_BINS"
-#define QT_INSTALL_PLUGINS  "$QT_INSTALL_PLUGINS"
-#define QT_INSTALL_DATA     "$QT_INSTALL_DATA"
+const char *qInstallPath();
+const char *qInstallPathDocs();
+const char *qInstallPathHeaders();
+const char *qInstallPathLibs();
+const char *qInstallPathBins();
+const char *qInstallPathPlugins();
+const char *qInstallPathData();
 
 /* License information */
 #define QT_PRODUCT_LICENSEE "$Licensee"

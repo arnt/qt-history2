@@ -160,6 +160,11 @@ include($$STYLES_CPP/qt_styles.pri)
 embedded:include($$EMBEDDED_CPP/qt_embedded.pri)
 include($$REMOTE_CPP/qt_remote.pri)
 
+# qconfig.cpp
+exists($$QT_BUILD_TREE/src/tools/qconfig.cpp) {
+    SOURCES += $$QT_BUILD_TREE/src/tools/qconfig.cpp
+}
+
 #install directives
 include(qt_install.pri)
 !staticlib:PRL_EXPORT_DEFINES += QT_SHARED

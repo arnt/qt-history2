@@ -93,7 +93,7 @@ QWidget *Frame::createCategory(const QString &cat)
 //	te->load( "textdrawing/bidi.txt" );
 	w = te;
 	tab->addTab( w, tr( "Richtext Editor" ) );
-	QString home( QString( QT_INSTALL_DOCS ) + "/html/index.html" );
+	QString home = QString( qInstallPathDocs() ) + "/html/index.html";
 	// use $QTDIR if it is set
 	const char *qtdirenv = getenv( "QTDIR" );
 	if ( qtdirenv ) {

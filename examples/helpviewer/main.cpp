@@ -24,7 +24,7 @@ int main( int argc, char ** argv )
     if (argc > 1) {
         home = argv[1];
     } else {
-        home = QString( QT_INSTALL_DOCS ) + "/html/index.html";
+        home = QString( qInstallPathDocs() ) + "/html/index.html";
 
 	// if $QTDIR is set, use that instead
 	const char *qtdirenv = getenv( "QTDIR" );

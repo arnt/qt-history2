@@ -7,7 +7,8 @@ OBJS=project.o main.o makefile.o unixmake2.o unixmake.o borland_bmake.o \
 QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o \
       qdatastream.o qgarray.o qbuffer.o qglist.o qptrcollection.o qfile.o \
       qfile_unix.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o \
-      qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o
+      qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o \
+      qconfig.o
 
 CFLAGS= @QMAKE_CFLAGS@ \
 	-I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
@@ -105,6 +106,9 @@ qstringlist.o: @SOURCE_PATH@/src/tools/qstringlist.cpp
 
 qmap.o: @SOURCE_PATH@/src/tools/qmap.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qmap.cpp
+
+qconfig.o: @BUILD_PATH@/src/tools/qconfig.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @BUILD_PATH@/src/tools/qconfig.cpp
 
 winmakefile.o: generators/win32/winmakefile.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) generators/win32/winmakefile.cpp

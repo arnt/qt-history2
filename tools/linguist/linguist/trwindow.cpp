@@ -1613,7 +1613,7 @@ void TrWindow::newPhraseBook()
 
 void TrWindow::openPhraseBook()
 {
-    QString phrasebooks( QT_INSTALL_DATA );
+    QString phrasebooks( qInstallPathData() );
     QString name = QFileDialog::getOpenFileName( phrasebooks + "/phrasebooks",
 	    tr("Qt phrase books (*.qph)\n"
 	       "All files (*)"), 0, "open_phrasebook",
@@ -1696,7 +1696,7 @@ void TrWindow::revertSorting()
 
 void TrWindow::manual()
 {
-    QString path = QDir::cleanDirPath( QString( QT_INSTALL_BINS ) +
+    QString path = QDir::cleanDirPath( QString( qInstallPath() ) +
 				       QDir::separator() + "assistant" );
 #ifdef Q_OS_MACX
     path += QDir::separator() + ".app/Contents/MacOS/assistant";

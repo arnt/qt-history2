@@ -8,8 +8,9 @@ vpath %.cpp generators/:generators/win32:generators/unix:generators/mac
 QTOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o \
        qdatastream.o qgarray.o qbuffer.o qglist.o qptrcollection.o qfile.o \
        qfile_unix.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o \
-       qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o
-vpath %.cpp @SOURCE_PATH@/src/tools:@SOURCE_PATH@/src/codecs:@SOURCE_PATH@/src/kernel
+       qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o \
+       qconfig.o
+vpath %.cpp @SOURCE_PATH@/src/tools:@SOURCE_PATH@/src/codecs:@SOURCE_PATH@/src/kernel:@BUILD_PATH@/src/tools
 
 CFLAGS=@QMAKE_CFLAGS@ -I. -Igenerators -Igenerators/unix -Igenerators/win32 \
 	-Igenerators/mac -I@SOURCE_PATH@/include -I@BUILD_PATH@/include \

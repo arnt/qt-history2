@@ -279,8 +279,7 @@ void MainWindow::init()
     actionGoDesigner->removeFrom( goMenu );
     actionGoDesigner->removeFrom( Toolbar );
 #else
-    QString base( QT_INSTALL_DOCS );
-    // #### hardcoded paths - probably should read the settings from somewhere
+    QString base( qInstallPathDocs() );
     browser->mimeSourceFactory()->addFilePath( base + "/html/" );
 #endif
 

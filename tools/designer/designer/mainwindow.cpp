@@ -104,7 +104,7 @@ MainWindow *MainWindow::self = 0;
 
 QString assistantPath()
 {
-    QString path = QDir::cleanDirPath( QString( QT_INSTALL_BINS ) +
+    QString path = QDir::cleanDirPath( QString( qInstallPathBins() ) +
 				       QDir::separator() + "assistant" );
 #ifdef Q_OS_MACX
     path += QDir::separator() + ".app/Contents/MacOS/assistant";
@@ -132,7 +132,7 @@ MainWindow::MainWindow( bool asClient, bool single )
     : QMainWindow( 0, "designer_mainwindow", WType_TopLevel | (single ? 0 : WDestructiveClose) | WGroupLeader ),
 #endif
       grd( 10, 10 ), sGrid( TRUE ), snGrid( TRUE ), restoreConfig( TRUE ), splashScreen( TRUE ),
-      docPath( QString( QT_INSTALL_DOCS ) + "/html" ),
+      docPath( QString( qInstallPathDocs() ) + "/html" ),
       fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
       previewing( FALSE ), databaseAutoEdit( FALSE )
 {
@@ -976,7 +976,7 @@ void MainWindow::helpContents()
 #else
     if ( !source.isEmpty() ) {
 	if ( assistant ) {
-	    QString path = QString( QT_INSTALL_DOCS ) + "/html/";
+	    QString path = QString( qInstallPathDocs() ) + "/html/";
 	    assistant->sendRequest( path+source+'\n' );
 	}
     }
@@ -992,7 +992,7 @@ void MainWindow::helpManual()
     proc.start();
 #else
     if ( assistant )
-	assistant->sendRequest( QString( QT_INSTALL_DOCS ) +
+	assistant->sendRequest( QString( qInstallPathDocs() ) +
 				"/html/designer-manual.html\n" );
 #endif
 }
@@ -2807,7 +2807,7 @@ void MainWindow::showDialogHelp()
     QWidget *w = (QWidget*)sender();
     w = w->topLevelWidget();
 
-    QString link = QString( QT_INSTALL_DOCS ) + "/html/designer-manual-12.html#";
+    QString link = QString( qInstallPathDocs() ) + "/html/designer-manual-12.html#";
 
     if ( w->inherits( "NewFormBase" ) )
 	link += "dialog-file-new";
@@ -3569,7 +3569,7 @@ SourceTemplateInterface* MainWindow::sourceTemplateInterface( const QString& tem
 QString MainWindow::whatsThisFrom( const QString &key )
 {
     if ( menuHelpFile.isEmpty() ) {
-	QString fn( QT_INSTALL_DOCS );
+	QString fn( qInstallPathDocs() );
 	fn += "/html/designer-manual-10.html";
 	QFile f( fn );
 	if ( f.open( IO_ReadOnly ) ) {

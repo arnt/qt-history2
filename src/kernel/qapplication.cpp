@@ -1521,8 +1521,8 @@ QStringList QApplication::libraryPaths()
 {
     if ( !app_libpaths ) {
 	app_libpaths = new QStringList;
-	if ( QFile::exists( QString(QT_INSTALL_PLUGINS) ) )
-	    app_libpaths->append( QString(QT_INSTALL_PLUGINS) );
+	if ( QFile::exists( qInstallPathPlugins() ) )
+	    app_libpaths->append( qInstallPathPlugins() );
     }
     return *app_libpaths;
 }

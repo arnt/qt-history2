@@ -190,7 +190,7 @@ HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
     mime->addFilePath( basePath + "/doc/en" );
     mime->setExtensionType("html","text/html;charset=UTF-8");
 #else
-    QString base( QT_INSTALL_DOCS );
+    QString base( qInstallPathDocs() );
     documentationPath = base + "/html";
     mime->addFilePath( documentationPath );
     mime->addFilePath( base + "/../gif/" );
@@ -863,7 +863,7 @@ void HelpDialog::insertContents()
     QString manualdir = "qtopiadesktop.html";
     insertContents( manualdir, tr( "Qtopia Desktop Manual" ), lastItem, handbook );
 #else
-    QString base( QT_INSTALL_DOCS );
+    QString base( qInstallPathDocs() );
     QString manualdir = base + "/html/designer-manual.html";
     insertContents( manualdir, tr( "Qt Designer Manual" ), lastItem, handbook );
     manualdir = base + "/html/linguist-manual.html";

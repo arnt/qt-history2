@@ -224,7 +224,7 @@ void Frame::updateTranslators()
 	qApp->installTranslator( translator );
     }
 
-    QString base( QString( QT_INSTALL_DATA ) + "/translations" );
+    QString base = QString( qInstallPathData() ) + "/translations";
     // if $QTDIR is set, then use that instead
     const char *qtdirenv = getenv( "QTDIR" );
     if ( qtdirenv ) {
