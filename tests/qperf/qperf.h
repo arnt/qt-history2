@@ -19,10 +19,16 @@
   This pseudo-random routine is far from perfect in giving random-like
   numbers, but it is pretty fast, which is more important for our tests.
 */
-inline int qrnd( int max )
+#if defined(_CC_MSVC_)
+static				// Can't inline, compiler bug
+#else
+inline
+#endif
+uint qrnd( uint maxVal )
 {
-    extern int qrnd_val;
-    return (((qrnd_val = qrnd_val * 214013 + 2531011) & 0x7fffffff) % max);
+    static uint qrnd_val = 1;
+    qrnd_val = qrnd_val*214013 + 2531011;
+    return qrnd_val % maxVal;
 }
 
 
@@ -63,14 +69,9 @@ public:
 /*
   These macros are used to build tables of testing functions.
 */
-#if 0
-#define QPERF_BEGIN(t,d) QPerfEntry perf__##t[] = { #t,(int(*)())t##_init,d,1,
-#define QPERF(f,d)	 #f,f,d,0,
-#define QPERF_END(t)     0,0,0,0};static QPerfTableInit init__##t(perf__##t);
-#else
 #define QPERF_BEGIN(t,d) QPerfEntry perf__##t[] = { {#t,(int(*)())t##_init,d,1},
 #define QPERF(f,d)	 {#f,f,d,0},
 #define QPERF_END(t)     {0,0,0,0}};static QPerfTableInit init__##t(perf__##t);
-#endif
+
 
 #endif // QPERF_H

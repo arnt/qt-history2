@@ -3,6 +3,7 @@
 #include <qbitmap.h>
 #include <qpainter.h>
 #include <qimage.h>
+#include <stdlib.h>
 
 
 static void painter_init()

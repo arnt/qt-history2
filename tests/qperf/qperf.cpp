@@ -15,8 +15,6 @@
 #endif
 
 
-int qrnd_val = 1;	// qrnd seed
-
 int max_iter = 0;
 int max_time = 1000;
 
@@ -165,7 +163,26 @@ void usage()
     }
     exit( 1 );
 }
-	
+
+
+void qrnd_init()
+{
+    // No initialization
+}
+
+int qrnd_speed()
+{
+    for ( int i=0; i<100000; i++ ) {
+	qrnd(640);
+	qrnd(48);
+    }
+    return i*2;
+}
+
+QPERF_BEGIN(qrnd,"qrnd test (to manually correct qperf results)")
+    QPERF(qrnd_speed,"Tests the speed of the qrnd function")
+QPERF_END(qrnd)
+
 
 #if defined(_WS_WIN_)
 extern Q_EXPORT Qt::WindowsVersion qt_winver;
