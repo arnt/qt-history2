@@ -39,8 +39,10 @@
 	    }
 	}
 	if ( Project("TARGET") eq "qt" ) {
-	    $project{"PNG_OBJECTS"} = &Objects($project{"PNG_SOURCES"});
-	    $project{"ZLIB_OBJECTS"} = &Objects($project{"ZLIB_SOURCES"});
+	    if ( Project('TEMPLATE') ne "qt.t" ) {
+		$project{"PNG_OBJECTS"} = &Objects($project{"PNG_SOURCES"});
+		$project{"ZLIB_OBJECTS"} = &Objects($project{"ZLIB_SOURCES"});
+	    }
 	} else {
 	    Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS_QT)');
 	    Project('TMAKE_LIBS *= $(SYSCONF_LIBS_QT)');
@@ -130,13 +132,13 @@ TARGET1 = lib$(TARGET).so.$(VER_MAJ)
 
 HEADERS =	#$ ExpandList("HEADERS");
 SOURCES =	#$ ExpandList("SOURCES");
-OBJECTS =	#$ ExpandList("OBJECTS"); (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_PNG_OBJ) $(QT_ZLIB_OBJ)');
+OBJECTS =	#$ ExpandList("OBJECTS"); (Project("TARGET") eq "qt" && Project('TEMPLATE') ne "qt.t") && ($text = $text . ' $(QT_PNG_OBJ) $(QT_ZLIB_OBJ)');
 SRCMOC	=	#$ ExpandList("SRCMOC");
 OBJMOC	=	#$ ExpandList("OBJMOC");
-#$ (Project("TARGET") eq "qt") || DisableOutput();
+#$ (Project("TARGET") eq "qt" && Project('TEMPLATE') ne "qt.t") || DisableOutput();
 PNG_OBJECTS  = #$ ExpandList("PNG_OBJECTS");
 ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
-#$ (Project("TARGET") eq "qt") || EnableOutput();
+#$ (Project("TARGET") eq " && qt"Project('TEMPLATE') ne "qt.t") || EnableOutput();
 
 ####### Implicit rules
 
@@ -185,6 +187,8 @@ ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
 	if ( Project('TEMPLATE') eq "qt.t" ) {
 	    #! Qt/Embedded hackery.
 	    $text .= '../lib/libfreetype.a ';
+	    $text .= '../lib/libpng.a ';
+	    $text .= '../lib/libz.a ';
 	}
 	Expand("TARGETDEPS");
 	$text .= "\n\t";
