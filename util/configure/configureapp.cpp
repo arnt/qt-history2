@@ -1069,10 +1069,7 @@ void Configure::generateConfigfiles()
 	outStream << "/* Machine byte-order */" << endl;
 	outStream << "#define Q_BIG_ENDIAN 4321" << endl;
 	outStream << "#define Q_LITTLE_ENDIAN 1234" << endl;
-	int dummy;
-	bool bigEndian;
-	qSysInfo( &dummy, &bigEndian );
-	if ( bigEndian )
+	if ( QSysInfo::ByteOrder == QSysInfo::BigEndian )
 	    outStream << "#define Q_BYTE_ORDER Q_BIG_ENDIAN" << endl;
 	else
 	    outStream << "#define Q_BYTE_ORDER Q_LITTLE_ENDIAN" << endl;
