@@ -2004,7 +2004,7 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	    m = QMAX(0, item->margin( QStyleSheetItem::MarginTop ) );
 	    if ( item->displayMode() == QStyleSheetItem::DisplayListItem
 		 && stylesPar->ldepth )
-	      m /= stylesPar->ldepth;
+	      m /= stylesPar->ldepth * stylesPar->ldepth;
 	}
 	for ( i = (int)curStyle->size() - 2 ; i >= 0; --i ) {
 	    item = (*curStyle)[ i ];
@@ -2030,7 +2030,7 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	    m = QMAX(0, item->margin( QStyleSheetItem::MarginBottom ) );
 	    if ( item->displayMode() == QStyleSheetItem::DisplayListItem
 		 && stylesPar->ldepth )
-	      m /= stylesPar->ldepth;
+	      m /= stylesPar->ldepth * stylesPar->ldepth;
 	}
 	for ( i = (int)curStyle->size() - 2 ; i >= 0; --i ) {
 	    item = (*curStyle)[ i ];
@@ -4938,7 +4938,7 @@ int QTextParagraph::topMargin() const
 {
     int m = 0;
     if ( rtext ) {
-	m = isListItem() ? (document()->li_tm/QMAX(1,listDepth())) : document()->par_tm;
+	m = isListItem() ? (document()->li_tm/QMAX(1,listDepth()*listDepth())) : document()->par_tm;
 	if ( listDepth() == 1 &&(  !prev() || prev()->listDepth() < listDepth() ) )
 	    m = QMAX( m, document()->list_tm );
     }
@@ -4950,7 +4950,7 @@ int QTextParagraph::bottomMargin() const
 {
     int m = 0;
     if ( rtext ) {
-	m = isListItem() ? (document()->li_bm/QMAX(1,listDepth())) : document()->par_bm;
+	m = isListItem() ? (document()->li_bm/QMAX(1,listDepth()*listDepth())) : document()->par_bm;
 	if ( listDepth() == 1 &&(  !next() || next()->listDepth() < listDepth() ) )
 	    m = QMAX( m, document()->list_bm );
     }
