@@ -336,7 +336,6 @@
 #include <qwscursor_qws.h>
 #include "qwsmanager_qws.h"
 #include "qwsdefaultdecoration_qws.h"
-#include <qgfxqnxfb_qws.h>
 #include "qwscommand_qws.h"
 #include <qwshydrodecoration_qws.h>
 #include <qwskde2decoration_qws.h>

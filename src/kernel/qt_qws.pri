@@ -56,7 +56,6 @@ embedded {
 		    $$KERNEL_CPP/qgfx_qws.cpp \
 		    $$KERNEL_CPP/qgfxraster_qws.cpp \
 		    $$KERNEL_CPP/qkeyboard_qws.cpp \
-			$$KERNEL_CPP/qqnxkeyboard_qws.cpp \
 		    $$KERNEL_CPP/qlock_qws.cpp \
 		    $$KERNEL_CPP/qmemorymanager_qws.cpp \
 		    $$KERNEL_CPP/qpaintdevice_qws.cpp \
@@ -78,7 +77,6 @@ embedded {
 		    $$KERNEL_CPP/qwskdedecoration_qws.cpp \
 		    $$KERNEL_CPP/qwsmanager_qws.cpp \
 		    $$KERNEL_CPP/qwsmouse_qws.cpp \
-			$$KERNEL_CPP/qqnxmouse_qws.cpp \
 		    $$KERNEL_CPP/qwsproperty_qws.cpp \
 		    $$KERNEL_CPP/qwsregionmanager_qws.cpp \
 		    $$KERNEL_CPP/qwssocket_qws.cpp \
