@@ -1447,6 +1447,7 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
     listView->setModel(model);
     listView->setSelectionModel(selections);
     listView->setSelectionMode(selectionMode(fileMode));
+    listView->setSelectionBehavior(QAbstractItemView::SelectRows);
     listView->setRoot(current);
     listView->setKeyTracking(true);
 
