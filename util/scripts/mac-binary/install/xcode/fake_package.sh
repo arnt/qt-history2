@@ -3,6 +3,7 @@
 #for now
 VERSION_MAJOR=4
 VERSION_MINOR=0
+BINDIR="$QTDIR"
 
 translate_cp()
 {
@@ -23,19 +24,19 @@ make_link()
 }
 
 #copy the templates
-rm -rf "$PWD/faked_integration"
-mkdir -p "$PWD/faked_integration"
-translate_cp integration/templates "$PWD/faked_integration"
-(cd "$PWD/faked_integration/CustomDataViews/QtDataFormatters.bundle/Contents/MacOS" 
+rm -rf "$PWD/.faked_integration"
+mkdir -p "$PWD/.faked_integration"
+translate_cp integration/templates "$PWD/.faked_integration"
+(cd "$PWD/.faked_integration/CustomDataViews/QtDataFormatters.bundle/Contents/MacOS" 
 chmod 755 ./build_bundle.sh
 QTDIR="$BINDIR" ./build_bundle.sh)
 #links
 templ_dir="/Library/Application Support/Apple/Developer Tools/"
-make_link "$PWD/faked_integration/CustomDataViews/QtDataFormatters.bundle" "$templ_dir/CustomDataViews"
-make_link "$PWD/faked_integration/Project Templates/Application/Qt Application" "$templ_dir/Project Templates/Application"
-make_link "$PWD/faked_integration/File Templates/Qt" "$templ_dir/File Templates"
-make_link "$PWD/faked_integration/Scripts/999-Qt" "$templ_dir/Scripts"
-for a in `find "$PWD/faked_integration/Specifications/" -name *.pb*spec`; do
+make_link "$PWD/.faked_integration/CustomDataViews/QtDataFormatters.bundle" "$templ_dir/CustomDataViews"
+make_link "$PWD/.faked_integration/Project Templates/Application/Qt Application" "$templ_dir/Project Templates/Application"
+make_link "$PWD/.faked_integration/File Templates/Qt" "$templ_dir/File Templates"
+make_link "$PWD/.faked_integration/Scripts/999-Qt" "$templ_dir/Scripts"
+for a in `find "$PWD/.faked_integration/Specifications/" -name *.pb*spec`; do
     make_link "$a" "$templ_dir/Specifications"
 done
 
