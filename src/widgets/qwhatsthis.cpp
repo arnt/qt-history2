@@ -227,6 +227,7 @@ const int hMargin = 12;
 QWhatsThat::QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const char* name )
     : QWidget( parent, name, WType_Popup ), text( txt ), pressed( FALSE ), widget( w )
 {
+
     setBackgroundMode( NoBackground );
     setPalette( QToolTip::palette() );
     setMouseTracking( TRUE );
@@ -242,7 +243,8 @@ QWhatsThat::QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const c
 #ifndef QT_NO_RICHTEXT
     doc = 0;
     if ( QStyleSheet::mightBeRichText( text ) ) {
-	doc = new QSimpleRichText( text, font() );
+	QFont f = QApplication::font( this );
+	doc = new QSimpleRichText( text, f );
 	doc->adjustSize();
 	r.setRect( 0, 0, doc->widthUsed(), doc->height() );
     }
@@ -944,6 +946,14 @@ void QWhatsThis::display( const QString& text, const QPoint& pos, QWidget* w )
     wt->say( w, text, pos );
 }
 
+/*!
+  Sets the font for all "What's this?" helps to \a font.
+  \sa font()
+*/
+void QWhatsThis::setFont( const QFont &font )
+{
+    QApplication::setFont( font, TRUE, "QWhatsThat" );
+}
 
 #include "qwhatsthis.moc"
 #endif

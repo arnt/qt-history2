@@ -58,6 +58,8 @@ public:
     virtual bool clicked( const QString& href );
 
     // the common static functions
+    static void setFont( const QFont &font );    
+    
     static void add( QWidget *, const QString &);
     static void remove( QWidget * );
     static QString textFor( QWidget *, const QPoint & pos = QPoint(), bool includeParents = FALSE );
