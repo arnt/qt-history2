@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#188 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#189 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -136,8 +136,10 @@ bool QChar::isSpace() const
 */
 
 /*!
-  This utility function converts the 8-bit string
-  \a ba to Unicode, returning the result.
+
+  This utility function converts the 8-bit string \a ba to Unicode,
+  returning the result. If the length (excluding 0-terminator) of \a
+  ba is 0, this function returns 0.
 
   The caller is responsible for deleting the return value with delete[].
 */
@@ -145,22 +147,28 @@ bool QChar::isSpace() const
 QChar* QString::asciiToUnicode( const QByteArray& ba, uint* len )
 {
     int l = 0;
+    QChar *result;
     while ( l < (int)ba.size() && ba[l] )
 	l++;
-    char* str = ba.data();
-    QChar *uc = new QChar[l];
-    QChar *result = uc;
     if ( len )
 	*len = l;
-    while (l--)
-	*uc++ = *str++;
+    if ( l ) {
+	char* str = ba.data();
+	QChar *uc = new QChar[l];
+	result = uc;
+	while (l--)
+	    *uc++ = *str++;
+    }
+    else
+	result = 0;
     return result;
 }
 
 /*!
-  This utility function converts the NUL-terminated 8-bit string
-  \a str to Unicode, returning the result and setting \a len to
-  the length of the Unicode string.
+  This utility function converts the NUL-terminated 8-bit string \a
+  str to Unicode, returning the result and setting \a len to the
+  length of the Unicode string. If the length (excluding 0-terminator)
+  of \a str is 0, this function returns 0.
 
   The caller is responsible for deleting the return value with delete[].
 */
@@ -177,11 +185,16 @@ QChar* QString::asciiToUnicode(const char *str, uint* len, uint maxlen )
 	    // Faster?
 	    l = strlen(str);
 	}
-	QChar *uc = new QChar[l];
-	result = uc;
-	uint i = l;
-	while ( i-- )
-	    *uc++ = *str++;
+	if ( l ) {
+	    QChar *uc = new QChar[l];
+	    result = uc;
+	    uint i = l;
+	    while ( i-- )
+		*uc++ = *str++;
+	}
+	else {
+	    result = 0;
+	}
     }
     if ( len )
 	*len = l;
