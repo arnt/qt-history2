@@ -142,28 +142,32 @@ static QCoreVariant::Type qIBaseTypeName(int iType)
     return QCoreVariant::Invalid;
 }
 
-static int qIBaseTypeLength(int iType, int scale)
+static QCoreVariant::Type qIBaseTypeName2(int iType)
 {
     switch(iType & ~1) {
     case SQL_VARYING:
     case SQL_TEXT:
-        return qAbs(scale);
+        return QCoreVariant::String;
     case SQL_LONG:
-        return sizeof(long);
     case SQL_SHORT:
-        return sizeof(short);
+        return QCoreVariant::Int;
     case SQL_INT64:
-        return sizeof(Q_LONGLONG);
+        return QCoreVariant::LongLong;
     case SQL_FLOAT:
-        return sizeof(float);
     case SQL_DOUBLE:
-        return sizeof(double);
+        return QCoreVariant::Double;
     case SQL_TIMESTAMP:
-        return sizeof(ISC_TIMESTAMP);
+        return QCoreVariant::DateTime;
     case SQL_TYPE_TIME:
-        return sizeof(ISC_TIME);
+        return QCoreVariant::Time;
+    case SQL_TYPE_DATE:
+        return QCoreVariant::Date;
+    case SQL_ARRAY:
+        return QCoreVariant::List;
+    case SQL_BLOB:
+        return QCoreVariant::ByteArray;
     default:
-        return -1;
+        return QCoreVariant::Invalid;
     }
 }
 
@@ -190,6 +194,7 @@ static QDateTime fromTimeStamp(char *buffer)
 
     return QDateTime(d, t);
 }
+
 static ISC_TIME toTime(const QTime &t)
 {
     static const QTime midnight(0, 0, 0, 0);
