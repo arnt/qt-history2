@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#35 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -203,7 +203,7 @@ static QClipboardData *clipboardData()
 static
 void renderFormat(int cf)
 {
-    qDebug("renderFormat(%d)",cf);
+    //qDebug("renderFormat(%d)",cf);
     if ( !internalCbData ) return; // Spurious Windows message
     QMimeSource *s = internalCbData->source();
     if ( !s ) return; // Spurious Windows message
@@ -212,10 +212,10 @@ void renderFormat(int cf)
 	QWindowsMime* c = QWindowsMime::convertor(mime,cf);
 	if ( c ) {
 	    QByteArray md = s->encodedData(mime);
-	    qDebug("source is %d bytes of %s",md.size(),mime);
+	    //qDebug("source is %d bytes of %s",md.size(),mime);
 	    md = c->convertFromMime(md,mime,cf);
 	    int len = md.size();
-	    qDebug("rendered %d bytes of CF %d by %s",len,cf,c->convertorName());
+	    //qDebug("rendered %d bytes of CF %d by %s",len,cf,c->convertorName());
 	    HANDLE h = GlobalAlloc( GHND, len );
             char *d = (char *)GlobalLock( h );
             memcpy( d, md.data(), len );
