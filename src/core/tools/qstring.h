@@ -520,7 +520,7 @@ inline QString &QString::operator=(const QLatin1String &s)
     return *this;
 }
 inline void QString::clear()
-{ *this = QString(); }
+{ if (!isNull()) *this = QString(); }
 inline QString::QString(const QString &s) : d(s.d)
 { Q_ASSERT(&s != this); ++d->ref; }
 inline int QString::capacity() const
