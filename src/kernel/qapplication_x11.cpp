@@ -1904,6 +1904,7 @@ void qt_init_internal( int *argcptr, char **argv,
 #ifndef QT_NO_XRANDR
 	// See if XRandR is supported on the connected display
 	int xrandr_errorbase;
+	Q_UNUSED( xrandr_eventbase );
 	if ( XRRQueryExtension( appDpy, &xrandr_eventbase, &xrandr_errorbase ) ) {
 	    // XRandR is supported
 	    qt_use_xrandr = TRUE;
