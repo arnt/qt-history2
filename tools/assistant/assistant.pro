@@ -7,7 +7,6 @@ QT += compat xml network
 
 PROJECTNAME        = Assistant
 DESTDIR            = ../../bin
-INCLUDEPATH += $(QTDIR)/include/flat
 
 UI_SOURCES += finddialog.ui \
         helpdialog.ui \
