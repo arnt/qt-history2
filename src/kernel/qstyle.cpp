@@ -773,15 +773,6 @@ int QStyle::toolBarHandleExtent() const
     return 11;
 }
 
-/*!\obsolete
-
-  Call toolBarHandleExtent() instead.
-*/
-int QStyle::toolBarHandleExtend() const
-{
-    return toolBarHandleExtent();
-}
-
 /*! \fn void QStyle::drawToolBarHandle( QPainter *p, const QRect &r,
                                         Qt::Orientation orientation,
 				        bool highlight, const QColorGroup &cg,

@@ -269,7 +269,6 @@ public:
     int buttonDefaultIndicatorWidth() const;
     virtual int buttonMargin() const;
     virtual int toolBarHandleExtent() const;
-    int toolBarHandleExtend() const; // obsolete
     virtual int sliderThickness() const;
     virtual void drawToolBarHandle( QPainter *p, const QRect &r,
 				    Qt::Orientation orientation,
