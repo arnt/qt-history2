@@ -286,5 +286,3 @@ void QDesignerTabWidget::slotCurrentChanged(int)
     }
 #endif
 }
-
-#include "qdesigner_tabwidget.moc"
