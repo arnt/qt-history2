@@ -2566,7 +2566,6 @@ QPalette::ColorRole QWidget::backgroundRole() const
 }
 
 /*!
-
   Sets the background role of the widget to \a role.
 
   \sa backgroundRole(), foregroundRole()
