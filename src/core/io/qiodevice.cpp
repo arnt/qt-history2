@@ -50,12 +50,16 @@
        } \
    } while (0)
 
+/*! \internal
+ */
 QIODevicePrivate::QIODevicePrivate()
 {
     openMode = QIODevice::NotOpen;
     errorString = QT_TRANSLATE_NOOP(QIODevice, "Unknown error");
 }
 
+/*! \internal
+ */
 QIODevicePrivate::~QIODevicePrivate()
 {
 }
@@ -64,183 +68,164 @@ QIODevicePrivate::~QIODevicePrivate()
     \class QIODevice
     \reentrant
 
-    \brief The QIODevice class is the base class of I/O devices.
+    \brief The QIODevice class is the base interface class of all I/O
+    devices in Qt.
 
     \ingroup io
 
-    An I/O device represents a medium that one can read bytes from
-    and/or write bytes to. The QIODevice class is the abstract
-    super-class of all such devices; classes such as QFile, QBuffer and
-    QSocket inherit QIODevice, and implement virtual functions such as
-    write() appropriately.
+    QIODevice provides a common implementation and abstract interface
+    for devices that support reading and writing blocks of data, such
+    as QFile, QBuffer and QTcpSocket. QIODevice is abstract and can
+    not be instantiated, but is it common to use the interface of
+    QIODevice to provide device-independent I/O features. For example,
+    Qt's XML classes operate on a QIODevice pointer, which allows them
+    to be used with various devices (such as files and buffers).
 
-    Although applications sometimes use QIODevice directly, it is
-    usually better to use QTextStream and QDataStream which provide
-    stream operations on any QIODevice subclass. QTextStream provides
-    text-oriented stream functionality (for human-readable ASCII
-    files, for example), whereas QDataStream deals with binary data in
-    a totally platform-independent manner.
+    Before accessing the device, open() must be called to set the
+    correct OpenMode (such as ReadOnly or ReadWrite). You can then
+    write to the device with write() or putChar(), and read by calling
+    either read(), readLine() or readAll(). Call close() when you are
+    done with the device.
 
-    The public member functions in QIODevice roughly fall into two
-    groups: the action functions and the state access functions. The
-    most important action functions are:
-
-    \list
-
-    \i  open() opens a device for reading and/or writing, depending on
-    the mode argument.
-
-    \i  close() closes the device and tidies up (e.g. flushes buffered
-    data).
-
-    \i  read() reads a block of data from the device.
-
-    \i  write() writes a block of data to the device.
-
-    \i  readLine() reads a line (of text, usually) from the device.
-
-    \i  flush() ensures that all buffered data are written to the real device.
-
-    \endlist
-
-    There are also some other, less used, action functions:
+    QIODevice distinguishes between two types of devices:
+    random-access devices and sequential devices.
 
     \list
+    \o Random-access devices support seeking to arbitrary
+    positions using seek(). The current position in the file is
+    available by calling pos(). QFile and QBuffer are examples of
+    random-access devices.
 
-    \i  getch() reads a single character.
-
-    \i  ungetch() forgets the last call to getch(), if possible.
-
-    \i  putch() writes a single character.
-
-    \i  size() returns the size of the device, if there is one.
-
-    \i  at() returns the current read/write pointer's position, if there
-    is one for this device, or it moves the pointer if given an offset.
-
-    \i  atEnd() indicates whether there is more to read, if this is
-    meaningful for this device.
-
-    \i  reset() moves the read/write pointer to the start of the
-    device, if that is possible for this device.
-
+    \o Sequential devices don't support seeking to arbitrary
+    positions. The data must be read in one pass. Functions
+    like pos(), seek(), and size() don't work for sequential
+    devices. QTcpSocket and QProcess are examples of sequential
+    devices.
     \endlist
 
-    The state access are all "get" functions. The QIODevice subclass
-    calls setState() to update the state, and simple access functions
-    tell the user of the device what the device's state is. Here are
-    the settings, and their associated access functions:
+    You can use isSequential() to determine the type of device.
+
+    QIODevice emits readyRead() when new data is available for
+    reading, for example if new data has arrived on the network or if
+    additional data is appended to a file that you are reading
+    from. You can call bytesAvailable() to determine the number of
+    bytes that currently available for reading. It's common to use
+    bytesAvailable() together with the readyRead() signal when
+    programming with asynchronous devices such as QTcpSocket, where
+    fragments of data can arrive at arbitrary points in
+    time. QIODevice emits the bytesWritten() signal every time a
+    payload of data has been written to the device. Use bytesToWrite()
+    to determine the current amount of data waiting to be written.
+
+    Certain subclasses of QIODevice, such as QTcpSocket and QProcess,
+    are asynchroous. What this means, is that I/O functions such as
+    write() or read() always return immediately, while communication
+    with the device itself may happen when control goes back to the
+    event loop. QIODevice provides functions that allow you to force
+    these operations to be performed immediately, while blocking the
+    calling thread and without entering the event loop. This allows
+    QIODevice subclasses to be used also without an event loop, or in
+    a separate thread:
 
     \list
+    \o flush() - This function suspends operation in the calling
+    thread until all outgoing buffered data has been written to the
+    device.
 
-    \i  Access type. Some devices are direct access (it is possible
-    to read/write anywhere), whereas others are sequential. QIODevice
-    provides the access functions (isDirectAccess(),
-    isSequentialAccess(), and isCombinedAccess()) to tell users what a
-    given I/O device supports.
+    \o waitForReadyRead() - This function suspends operation in the
+    calling thread until new data is available for reading.
 
-    \i  Buffering. Some devices are accessed in raw mode, whereas
-    others are buffered. Buffering usually provides greater
-    efficiency, particularly for small read/write operations.
-    isBuffered() tells the user whether a given device is buffered.
-    (This can often be set by the application in the call to open().)
+    \o waitForBytesWritten() - This function suspends operation in the
+    calling thread until one payload of data has been written to the
+    device.
 
-    \i  Synchronicity. Synchronous devices work immediately (for
-    example, files). When you read from a file, the file delivers its
-    data straight away. Other kinds of device, such as a socket
-    connected to a HTTP server, may not deliver the data until seconds
-    after you ask to read it. isSynchronous() and isAsynchronous()
-    tell the user how this device operates.
-
-    \i  CR/LF translation. For simplicity, applications often like to
-    see just a single CR/LF style, and QIODevice subclasses can
-    provide this. isTranslated() returns true if this object
-    translates CR/LF to just LF. (This can often be set by the
-    application in the call to open().)
-
-    \i  Permissions. Some files cannot be written. For example,
-    isReadable(), isWritable(), and isReadWrite() tell the application
-    whether it can read from and write to a given device. (This can
-    often be set by the application in the call to open().)
-
-    \i  Finally, isOpen() returns true if the device is open; i.e.
-    after an open() call.
-
+    \o waitFor....() - Subclasses of QIODevice implement blocking
+    functions for device-specific operations. For example, QProcess
+    has a function called waitForStarted() which suspends operation in
+    the calling thread until the process has started.
     \endlist
 
-    \sa QDataStream, QTextStream
-*/
+    Calling these functions from the main, GUI thread, may cause your
+    user interface to freeze. Example:
 
-/*!
-    \enum QIODevice::AccessType
+    \code
+        QProcess gzip;
+        gzip.start("gzip", QStringList() << "-c");
+        if (!gzip.waitForStarted())
+            return false;
 
-    \internal
+        gzip.write("uncompressed data");
+        gzip.flush();
 
-    \value Direct      The device supports random access.
-    \value Sequential  The device must be accessed sequentially.
-    \value Combined    The device supports both Direct and Sequential access.
-    \omitvalue TypeMask
-*/
+        QByteArray compressed;
+        while (gzip.waitForReadyRead())
+            compressed += gzip.readAll();
+    \endcode
 
-/*!
-    \enum QIODevice::HandlingMode
+    By subclassing QIODevice, you can provide the same interface to
+    your own I/O devices. Subclasses of QIODevice are only required to
+    implement the protected functions readData() and writeData().
+    QIODevice uses these functions to implement all its convenience
+    functions, such as getChar(), readLine() and write(). QIODevice
+    also handles access control for you, so you can safely assume that
+    the device is opened in write mode if writeData() is called.
 
-    \internal
-
-    \value Raw   Unbuffered
-    \value Async Asynchronous
-*/
-
-/*!
-    \enum QIODevice::OpenMode
-
-    \value ReadOnly     The device can only be read from.
-    \value WriteOnly    The device can only be written to.
-    \value ReadWrite    The device can be both read from and written to.
-    \value Append       Data written to the device is appended to the end of
-                        existing data.
-    \value Truncate
-    \value Translate    Translate line ending conventions.
-    \omitvalue ModeMask
-*/
-
-/*!
-    \compat
-    \enum QIODevice::State
-
-    \internal
-
-    \value Open
-    \value StateMask
-*/
-
-/*!
-    \enum QIODevice::Status
-
-    \internal
-
-    \value Ok
-    \value ReadError
-    \value WriteError
-    \value FatalError
-    \value ResourceError
-    \value OpenError
-    \value ConnectError
-    \value AbortError
-    \value TimeOutError
-    \value UnspecifiedError
+    Some subclasses, such as QFile and QTcpSocket, are implemented
+    using a memory buffer for intermediate storing of data. This
+    reduces the number of required device accessing calls, which are
+    often very slow. Buffering makes functions like getChar() and
+    putChar() fast, as they can operate on the memory buffer instead
+    of directly on the device itself. Certain I/O operations, however,
+    don't work well with a buffer. For example, if several users open
+    the same device and read it character by character, they may end
+    up reading the same data when they meant to read a separate chunk
+    each. For this reason, QIODevice allows you to bypass any
+    buffering by passing the Unbuffered flag to open(). When
+    subclassing QIODevice, remember to bypass any buffer you may use
+    when the device is open in Unbuffered mode.
 
 */
 
-/*!
-    \enum Q_LONGLONG
+/*! \enum QIODevice::Offset
+    \obsolete
 
-    The offset (device position) within the device.
+    Use Q_LONGLONG instead.
 */
 
+/*! \enum QIODevice::Status
+    \obsolete
 
-/*!
-    Constructs an I/O device.
+    Use OpenMode instead, or see device specific documentation.
+*/
+
+/*! \enum QIODevice::OpenModeFlag
+
+    This enum is used with open() to describe the mode in which a device
+    is opened. It is also returned by openMode()
+
+    \value NotOpen The device is not open.
+    \value ReadOnly The device is open for reading.
+    \value WriteOnly The device is open for writing.
+    \value ReadWrite The device is open for reading and writing.
+    \value Append The device is opened in append mode, all data is written to the end of the file.
+    \value Truncate If possible, the device is truncated before it is
+    opened. All earlier contents of the device are lost.
+    \value Translate When reading lines using readLine(), end-of-line-terminators are translated
+    to the local encoding.
+    \value Unbuffered Any buffer in the device is bypassed.
+*/
+
+/*! \fn QIODevice::bytesWritten(Q_LONGLONG bytes)
+
+    This signal is emitted every time a payload of data has been
+    written to the device. The \a bytes argument is set to the number
+    of bytes that were written in this payload.
+*/
+
+/*! \fn QIODevice::readyRead()
+
+    This signal is emitted every time new data is available for
+    reading from the device.
 */
 
 #ifdef QT_NO_QOBJECT
@@ -260,7 +245,7 @@ QIODevice::QIODevice(QIODevicePrivate &dd)
 #else
 
 /*!
-    Constructs an I/O device.
+    Constructs a QIODevice object.
 */
 
 QIODevice::QIODevice()
@@ -269,7 +254,8 @@ QIODevice::QIODevice()
 }
 
 /*!
-    Constructs an I/O device.
+    Constructs a QIODevice object. The \a parent argument is passed to
+    QObject's constructor.
 */
 
 QIODevice::QIODevice(QObject *parent)
@@ -287,9 +273,8 @@ QIODevice::QIODevice(QIODevicePrivate &dd, QObject *parent)
 
 
 /*!
-    Destroys the I/O device.
+    Destructs the QIODevice object.
 */
-
 QIODevice::~QIODevice()
 {
 }
@@ -297,6 +282,20 @@ QIODevice::~QIODevice()
 /*!
     Returns true if this device is sequential; otherwise returns
     false.
+
+    Sequential devices, as opposed to a random-access devices, have no
+    concept of a start, an end, a size or a current position, and they
+    do not support seeking. You can only read from the
+    device when it reports that data is available. The most common
+    example of a sequential device is a network socket. On Unix,
+    special files such as /dev/zero and fifo pipes are sequential.
+
+    Regular files, on the other hand, do support random access. They
+    have both a size and a current position, and they also support
+    seeking backwards and forwards in the data stream. Regular files
+    are non-sequential.
+
+    \sa bytesAvailable()
 */
 bool QIODevice::isSequential() const
 {
@@ -315,7 +314,8 @@ QIODevice::OpenMode QIODevice::openMode() const
 }
 
 /*!
-    Sets the OpenMode of the device to \a openMode.
+    Sets the OpenMode of the device to \a openMode. Reimplement this
+    function to set the open mode when reimplementing open().
 
     \sa openMode(), OpenMode
 */
@@ -326,7 +326,7 @@ void QIODevice::setOpenMode(OpenMode openMode)
 
 /*!
     Returns true is the device is open; otherwise returns false. A
-    QIODevice is open if it can be read from and/or written to. By
+    device is open if it can be read from and/or written to. By
     default, this function returns false if openMode() returns
     NotOpen.
 
@@ -339,8 +339,7 @@ bool QIODevice::isOpen() const
 
 /*!
     Returns true if you can read from the device; otherwise returns
-    false. Call bytesAvailable() to determine how many bytes can be
-    read.
+    false. bytesAvailable() to determine how many bytes can be read.
 
     This is a convenience function which checks if the OpenMode of the
     device contains the ReadOnly flag.
@@ -378,7 +377,8 @@ bool QIODevice::open(OpenMode mode)
 }
 
 /*!
-    Closes the device and sets its OpenMode to NotOpen.
+    Closes the device and sets its OpenMode to NotOpen. The error
+    string is also reset.
 
     \sa setOpenMode(), OpenMode
 */
@@ -393,11 +393,13 @@ void QIODevice::close()
 }
 
 /*!
-    Flushes all written data to the device. Returns true on succeess;
-    otherwise returns false.
+    This function flushes any pending written data to the
+    device. Returns true on succeess; otherwise returns false.
 
-    When this function returns true, all data is guaranteed to have
-    been written to the device.
+    If this function returns true, all data is guaranteed to have been
+    written to the device. If it returns false, the number of bytes
+    that have been written can be checked by calling bytesToWrite()
+    before and after the call, or by connecting to bytesWritten().
 */
 bool QIODevice::flush()
 {
@@ -405,9 +407,9 @@ bool QIODevice::flush()
 }
 
 /*!
-    For non-sequential devices, this function returns the position
-    that data is written to or read from. For sequential devices, it
-    always returns 0.
+    For random-access devices, this function returns the position that
+    data is written to or read from. For sequential devices, which
+    have no concept of a current position, 0 is returned.
 
     \sa isSequential(), seek()
 */
@@ -417,8 +419,8 @@ Q_LONGLONG QIODevice::pos() const
 }
 
 /*!
-    Returns the size of the device, if this can be
-    determined. Otherwise this function returns 0.
+    For random-access devices, this function returns the size of the
+    device. For sequential devices, bytesAvailable() is returned.
 */
 Q_LONGLONG QIODevice::size() const
 {
@@ -426,9 +428,10 @@ Q_LONGLONG QIODevice::size() const
 }
 
 /*!
-    For non-sequential devices, this function sets the current read
-    and write position to \a pos and returns true. Otherwise it does
-    nothing and returns false.
+    For random-access devices, this function sets the current position
+    to \a pos and returns true on success, or false if an error
+    occurred. For sequential devices, the default behavior is to do
+    nothing and return false.
 
     \sa pos()
 */
@@ -449,8 +452,9 @@ bool QIODevice::atEnd() const
 }
 
 /*!
-    Seeks to the start of input for non-sequential devices. Equivalent
-    to seek(0).
+    Seeks to the start of input for random-access devices. Returns
+    true on success; otherwise returns false (for example, if the
+    device is not open).
 
     \sa seek()
 */
@@ -460,7 +464,9 @@ bool QIODevice::reset()
 }
 
 /*!
-    Returns the number of bytes that are available for reading.
+    Returns the number of bytes that are available for reading. This
+    function is commonly used with sequential devices to determine the
+    number of bytes to allocate in a buffer before reading.
 */
 Q_LONGLONG QIODevice::bytesAvailable() const
 {
@@ -468,9 +474,9 @@ Q_LONGLONG QIODevice::bytesAvailable() const
 }
 
 /*!
-    For devices that buffer data before it is written, this function
-    returns the number of bytes waiting to be written. For unbuffered
-    devices, this function always returns 0.
+    For buffered devices, this function returns the number of bytes
+    waiting to be written. For devices with no buffer, this function
+    returns 0.
 
     \sa flush()
 */
@@ -479,6 +485,14 @@ Q_LONGLONG QIODevice::bytesToWrite() const
     return Q_LONGLONG(0);
 }
 
+/*!
+    Reads at most \a maxlen bytes from the device into \a data, and
+    returns the number of bytes read. If an error occurs, such as when
+    attempting to read from a device opened in WriteOnly mode, this
+    function returns -1.
+
+    0 is returned when no more data is available for reading.
+*/
 Q_LONGLONG QIODevice::read(char *data, Q_LONGLONG maxlen)
 {
     CHECK_OPEN(read, Q_LONGLONG(-1));
@@ -500,6 +514,15 @@ Q_LONGLONG QIODevice::read(char *data, Q_LONGLONG maxlen)
     return ret + readSoFar;
 }
 
+/*! \overload
+
+    Reads at most \a maxlen bytes from the device, and returns the
+    data read as a QByteArray.
+
+    This function has no way of reporting errors; returning an empty
+    QByteArray() can mean either that no data was currently available
+    for reading or that an error occurred.
+*/
 QByteArray QIODevice::read(Q_LONGLONG maxlen)
 {
     CHECK_MAXLEN(read, QByteArray());
@@ -518,11 +541,52 @@ QByteArray QIODevice::read(Q_LONGLONG maxlen)
     return tmp;
 }
 
+/*! \overload
+
+    Reads all available data from the device, and returns it as a
+    QByteArray.
+
+    This function has no way of reporting errors; returning an empty
+    QByteArray() can mean either that no data was currently available
+    for reading or that an error occurred.
+*/
 QByteArray QIODevice::readAll()
 {
     return read(bytesAvailable());
 }
 
+/*!
+    This function reads a line of ASCII characters from the device, no
+    longer than \a maxlen bytes, stores the characters in \a data, and
+    returns the number of bytes read. If an error occurred, -1 is
+    returned.
+
+    Data is read until either of the following conditions are met:
+
+    \list
+    \o the first '\n' character is read
+    \o until \a maxlen bytes are read
+    \o until the end of the device data is detected
+    \endlist
+
+    Example:
+
+    \code
+        QFile file("box.txt");
+        if (file.open(QFile::ReadOnly)) {
+            char buf[1024];
+            Q_LONGLONG lineLength = file.readLine(buf, sizeof(buf));
+            if (lineLength != -1) {
+                // the line is available in buf
+            }
+        }
+    \endcode
+
+    If there is room in the buffer (i.e. the line read is shorter than
+    \a maxlen characters), a '\0' byte is appended to \a data.
+
+    \sa getChar(), read(), write()
+*/
 Q_LONGLONG QIODevice::readLine(char *data, Q_LONGLONG maxlen)
 {
     if (maxlen < 1) {
@@ -548,6 +612,15 @@ Q_LONGLONG QIODevice::readLine(char *data, Q_LONGLONG maxlen)
     return readSoFar;
 }
 
+/*! \overload
+
+    Reads a line from the device, not longer than \a maxlen
+    characters, and returns the result as a QByteArray.
+
+    This function has no way of reporting errors; returning an empty
+    QByteArray() can mean either that no data was currently available
+    for reading or that an error occurred.
+*/
 QByteArray QIODevice::readLine(Q_LONGLONG maxlen)
 {
     CHECK_MAXLEN(readLine, QByteArray());
@@ -571,11 +644,29 @@ QByteArray QIODevice::readLine(Q_LONGLONG maxlen)
     return tmp;
 }
 
+/*!
+    Returns true if the device can determine that a complete line of
+    data can be read from the device; otherwise returns false. For
+    example, unbuffered devices, which have no way of determining what
+    can be read, always return false.
+
+    This function is often called in conjunction with the readyRead()
+    signal.
+
+    \sa readyRead(), readLine()
+*/
 bool QIODevice::canReadLine() const
 {
     return false;
 }
 
+/*!
+    Reads one character from the device and stores it in \a c. If \a c
+    is 0, the character is discarded. Returns true on success;
+    otherwise returns false.
+
+    \sa read(), putChar(), ungetChar()
+*/
 bool QIODevice::getChar(char *c)
 {
     char tmp;
@@ -586,6 +677,11 @@ bool QIODevice::getChar(char *c)
     return true;
 }
 
+/*!
+    Writes at most \a maxlen bytes of data from \a data to the
+    device. Returns the number of bytes that were actually written, or
+    -1 if an error occurred.
+*/
 Q_LONGLONG QIODevice::write(const char *data, Q_LONGLONG maxlen)
 {
     CHECK_OPEN(write, Q_LONGLONG(-1));
@@ -594,16 +690,32 @@ Q_LONGLONG QIODevice::write(const char *data, Q_LONGLONG maxlen)
     return writeData(data, maxlen);
 }
 
+/*! \overload
+
+    Attempts to write the content of \a byteArray to the
+    device. Returns the number of bytes that were actually written, or
+    -1 if an error occurred.
+*/
 Q_LONGLONG QIODevice::write(const QByteArray &byteArray)
 {
     return write(byteArray.constData(), byteArray.size());
 }
 
+/*!
+    Writes the character \a c to the device. Returns true on success;
+    otherwise returns false.
+*/
 bool QIODevice::putChar(char c)
 {
     return write(&c, 1) == 1;
 }
 
+/*!
+    Puts the character \a c back into the device, and decrements the
+    current position unless the position is 0. This function is
+    usually called to "undo" a getChar() operation, such as when
+    writing a backtracking parser.
+*/
 void QIODevice::ungetChar(char c)
 {
     CHECK_OPEN(write, Q_VOID);
@@ -611,25 +723,226 @@ void QIODevice::ungetChar(char c)
     d->ungetBuffer.append(c);
 }
 
-bool QIODevice::waitForReadyRead(int)
+/*!
+    Blocks until data is available for reading and the readyRead()
+    signal has been emitted, or until \a msecs milliseconds have
+    passed.
+
+    Returns true if data is available for reading; otherwise returns
+    false (if the operation timed out or if an error occurred).
+
+    This function can operate without an event loop. It is
+    useful when writing non-GUI applications and when performing
+    I/O operations in a non-GUI thread.
+
+    \warning Calling this function from the main, GUI thread
+    might cause your user interface to freeze.
+*/
+bool QIODevice::waitForReadyRead(int msecs)
 {
+    Q_UNUSED(msecs);
     return false;
 }
 
-bool QIODevice::waitForBytesWritten(int)
+/*!
+    For buffered devices, this function waits until a payload of
+    buffered written data has been written to the device and the
+    bytesWritten() signal has been emitted, or until \a msecs
+    milliseconds have passed. For unbuffered devices, it does nothing.
+
+    Returns true if a payload of data was written to the device;
+    otherwise returns false (i.e. if the operation timed out, or if an
+    error occurred).
+
+    This function can operate without an event loop. It is
+    useful when writing non-GUI applications and when performing
+    I/O operations in a non-GUI thread.
+
+    \warning Calling this function from the main, GUI thread
+    might cause your user interface to freeze.
+*/
+bool QIODevice::waitForBytesWritten(int msecs)
 {
+    Q_UNUSED(msecs);
     return false;
 }
 
+/*!
+    Sets the human readable description of the last device error that
+    occurred to \a str.
+*/
 void QIODevice::setErrorString(const QString &str)
 {
     d->errorString = str;
 }
 
+/*!
+    Returns a human readable description of the last device error that
+    occurred.
+*/
 QString QIODevice::errorString() const
 {
     return d->errorString;
 }
+
+/*! \fn Q_LONGLONG QIODevice::readData(char *data, Q_LONGLONG maxlen)
+
+    Reads up to \a maxlen bytes from the device and into \a
+    data. Returns the number of bytes read, or -1 if an error
+    occurred.
+
+    This function is called by QIODevice. Reimplement this function
+    when creating a subclass of QIODevice.
+*/
+
+/*! \fn Q_LONGLONG QIODevice::writeData(const char *data, Q_LONGLONG maxlen)
+
+    Writes up to \a maxlen bytes from \a data to the device. Returns
+    the number of bytes written, or -1 if an error occurred.
+
+    This function is called by QIODevice. Reimplement this function
+    when creating a subclass of QIODevice.
+*/
+
+/*! \fn QIODevice::Offset QIODevice::status() const
+    \obsolete
+
+    QIODevice no longer provides the status() function. For device
+    specific error handling, please refer to the individual device
+    documentation.
+
+    \sa qt_cast<>()
+*/
+
+/*! \fn void QIODevice::resetStatus()
+    \obsolete
+
+    QIODevice no longer provides the resetStatus() function. For
+    device specific error handling, please refer to the individual
+    device documentation.
+
+    \sa qt_cast<>()
+*/
+
+/*! \fn Offset QIODevice::at() const
+    \obsolete
+
+    Use pos() instead.
+*/
+
+/*! \fn bool QIODevice::at(Offset)
+    \obsolete
+
+    Use seek() instead.
+*/
+
+/*! \fn int QIODevice::flags() const
+    \obsolete
+
+    Use openMode() instead.
+*/
+
+/*! \fn int QIODevice::getch()
+    \obsolete
+
+    Use getChar() instead.
+*/
+
+/*! \fn bool QIODevice::isAsynchronous() const
+    \obsolete
+
+    This function is no longer available.
+*/
+
+/*! \fn bool QIODevice::isBuffered() const
+    \obsolete
+
+    Use openMode() instead.
+*/
+
+/*! \fn bool QIODevice::isCombinedAccess() const
+    \obsolete
+
+    Use openMode() instead.
+*/
+
+/*! \fn bool QIODevice::isDirectAccess() const
+    \obsolete
+
+    Use !isSequential() instead.
+*/
+
+/*! \fn bool QIODevice::isInactive() const
+    \obsolete
+
+    Use isOpen(), isReadable() or isWritable() instead.
+*/
+
+/*! \fn bool QIODevice::isRaw() const
+    \obsolete
+
+    Use openMode() instead.
+*/
+
+/*! \fn bool QIODevice::isSequentialAccess() const
+    \obsolete
+
+    Use isSequential() instead.
+*/
+
+/*! \fn bool QIODevice::isSynchronous() const
+    \obsolete
+
+    This function is no longer available.
+*/
+
+/*! \fn bool QIODevice::isTranslated() const
+    \obsolete
+
+    Use openMode() instead.
+*/
+
+/*! \fn bool QIODevice::mode() const
+    \obsolete
+
+    Use openMode() instead.
+*/
+
+/*! \fn int QIODevice::putch(int)
+    \obsolete
+
+    Use putChar() instead.
+*/
+
+/*! \fn int QIODevice::ungetch(int)
+    \obsolete
+
+    Use ungetChar() instead.
+*/
+
+/*! \fn Q_LONG QIODevice::readBlock(char *, Q_ULONG)
+    \obsolete
+
+    Use read() instead.
+*/
+
+/*! \fn int QIODevice::state() const
+    \obsolete
+
+    Use isOpen() instead.
+*/
+
+/*! \fn Q_LONG QIODevice::writeBlock(const char *, Q_ULONG)
+    \obsolete
+
+    Use write() instead.
+*/
+
+/*! \fn Q_LONG QIODevice::writeBlock(const QByteArray &)
+    \obsolete
+
+    Use write() instead.
+*/
 
 #if defined QT_COMPAT
 QIODevice::Status QIODevice::status() const
