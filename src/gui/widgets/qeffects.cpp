@@ -82,7 +82,9 @@ static QAlphaWidget* q_blend = 0;
 QAlphaWidget::QAlphaWidget(QWidget* w, Qt::WFlags f)
     : QWidget(QApplication::desktop()->screen(QApplication::desktop()->screenNumber(w)), f)
 {
+#ifndef Q_WS_WIN
     setEnabled(false);
+#endif
 
     pm.setOptimization(QPixmap::BestOptim);
     setAttribute(Qt::WA_NoSystemBackground, true);
@@ -131,6 +133,7 @@ void QAlphaWidget::run(int time)
         mixed = back.copy();
         pm = mixed;
         show();
+        setEnabled(false);
 
         connect(&anim, SIGNAL(timeout()), this, SLOT(render()));
         anim.start(1);
@@ -221,6 +224,10 @@ void QAlphaWidget::render()
 
         if (widget) {
             if (!showWidget) {
+#ifdef Q_WS_WIN
+                setEnabled(true);
+                setFocus();
+#endif
                 widget->hide();
             } else {
                 widget->show();
@@ -320,7 +327,10 @@ static QRollEffect* q_roll = 0;
 QRollEffect::QRollEffect(QWidget* w, Qt::WFlags f, DirFlags orient)
     : QWidget(0, f), orientation(orient)
 {
+#ifndef Q_WS_WIN
     setEnabled(false);
+#endif
+
     widget = (QAccessWidget*) w;
     Q_ASSERT(widget);
 
@@ -452,6 +462,7 @@ void QRollEffect::run(int time)
     resize(qMin(currentWidth, totalWidth), qMin(currentHeight, totalHeight));
 
     show();
+    setEnabled(false);
 
     qApp->installEventFilter(this);
 
@@ -517,6 +528,10 @@ void QRollEffect::scroll()
         qApp->removeEventFilter(this);
         if (widget) {
             if (!showWidget) {
+#ifdef Q_WS_WIN
+                setEnabled(true);
+                setFocus();
+#endif
                 widget->hide();
             } else {
                 widget->show();
@@ -551,10 +566,10 @@ void qScrollEffect(QWidget* w, QEffects::DirFlags orient, int time)
     Qt::WFlags flags = Qt::WStyle_Customize | Qt::WStyle_StaysOnTop
         | (w->isPopup() ? Qt::WFlags(Qt::WType_Popup) : (Qt::WX11BypassWM | Qt::WStyle_Tool));
 #else
-    Qt::WFlags flags = Qt::WStyle_Customize | Qt::WStyle_Tool | Qt::WX11BypassWM | Qt::WStyle_StaysOnTop;
+    Qt::WFlags flags = Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM | Qt::WStyle_StaysOnTop;
 #endif
 
-    // those can popups - they would steal the focus, but are disabled
+    // those can be popups - they would steal the focus, but are disabled
     q_roll = new QRollEffect(w, flags, orient);
     q_roll->run(time);
 }
@@ -576,10 +591,10 @@ void qFadeEffect(QWidget* w, int time)
     Qt::WFlags flags = Qt::WStyle_Customize | Qt::WStyle_StaysOnTop
         | (w->isPopup() ? QFlag(Qt::WType_Popup) : (Qt::WX11BypassWM | Qt::WStyle_Tool));
 #else
-    Qt::WFlags flags = Qt::WStyle_Customize | Qt::WStyle_Tool | Qt::WX11BypassWM | Qt::WStyle_StaysOnTop;
+    Qt::WFlags flags = Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM | Qt::WStyle_StaysOnTop;
 #endif
 
-    // those can popups - they would steal the focus, but are disabled
+    // those can be popups - they would steal the focus, but are disabled
     q_blend = new QAlphaWidget(w, flags);
 
     q_blend->run(time);
