@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#431 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#432 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
