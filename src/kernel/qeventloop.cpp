@@ -59,8 +59,8 @@
     includes a reimplementation of QEventLoop for merging Qt and Motif
     events together.
 
-    To use your own QEventLoop or QEventLoop subclass create an instance
-    of that class before you create the QApplication object.
+    To use your own instance of QEventLoop or QEventLoop subclass create 
+    it before you create the QApplication object.
 */
 
 /*! \enum QEventLoop::ProcessEvents
@@ -86,8 +86,12 @@
  */
 
 /*!
-    Creates a QEventLoop object. The \a parent and \a name arguments
-    are passed on to the QObject constructor.
+    Creates a QEventLoop object, this object becomes the global event loop object.
+    There can only be one event loop object. The QEventLoop is usually constructed 
+    by calling QApplication::eventLoop(). To create your own event loop object create 
+    it before you instantiate the QApplication object.
+    
+    The \a parent and \a name arguments are passed on to the QObject constructor.
 */
 QEventLoop::QEventLoop( QObject *parent, const char *name )
     : QObject( parent, name )

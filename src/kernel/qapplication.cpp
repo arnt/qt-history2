@@ -2599,6 +2599,9 @@ void QApplication::processOneEvent()
 /*!
     Returns the application event loop. This function will return
     zero if called during and after destroying QApplication.
+    
+    To create your own instance of QEventLoop or QEventLoop subclass create 
+    it before you create the QApplication object.   
 
     \sa QEventLoop
 */
