@@ -1195,7 +1195,7 @@ for plat in mac win x11 qnx6 embedded; do
                   stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "${PLATNAME}"
               fi
             fi
-            if [ "$plat" = "x11" ] && [ "$edition" = "commercial" ] && [ "x$DO_EVALUATION" = "xyes" ]; then
+	    if [ "$plat" = "x11" -o "$plat" = "embedded" ] && [ "$edition" = "commercial" ] && [ "x$DO_EVALUATION" = "xyes" ]; then
 	      do_evaluation "$OUT_TREE/${PLATNAME}.tar"
             fi
 	elif [ "$plat" = "win" ]; then
