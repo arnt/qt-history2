@@ -1973,7 +1973,7 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index )
     }
 
     if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
-	QPointArray pa = xForm(a);
+	QPointArray pa = xForm(a, index, a.size()-index);
 	d->engine->drawCubicBezier(pa, index);
 	return;
     }
