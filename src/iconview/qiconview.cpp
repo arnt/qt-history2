@@ -186,7 +186,7 @@ public:
     bool operator== ( const QIconDragDataItem& ) const;
 };
 
-class QIconDrag::Private
+class QIconDragPrivate
 {
 public:
     QValueList<QIconDragDataItem> items;
@@ -324,7 +324,7 @@ void QIconViewToolTip::maybeTip( const QPoint &pos )
 }
 
 
-class QIconViewItem::Private
+class QIconViewItemPrivate
 {
 public:
     QIconViewPrivate::ItemContainer *container1, *container2;
@@ -449,7 +449,7 @@ QByteArray QIconDragItem::data() const
 }
 
 /*!
-  Sets the data for the QIconDragItem to the data stored in 
+  Sets the data for the QIconDragItem to the data stored in
   the QByteArray \a d.
 */
 
@@ -533,7 +533,7 @@ bool QIconDragData::operator==( const QIconDragData &i ) const
 QIconDrag::QIconDrag( QWidget * dragSource, const char* name )
     : QDragObject( dragSource, name )
 {
-    d = new Private;
+    d = new QIconDragPrivate;
 }
 
 /*!
@@ -613,7 +613,7 @@ bool QIconDrag::canDecode( QMimeSource* e )
   TRUE if there was some data, FALSE otherwise.
 */
 
-bool QIconDrag::Private::decode( QMimeSource* e, QValueList<QIconDragDataItem> &lst )
+bool QIconDragPrivate::decode( QMimeSource* e, QValueList<QIconDragDataItem> &lst )
 {
     QByteArray ba = e->encodedData( "application/x-qiconlist" );
     if ( ba.size() ) {
@@ -850,7 +850,7 @@ void QIconViewItem::init( QIconViewItem *after
 #endif
 			  )
 {
-    d = new Private;
+    d = new QIconViewItemPrivate;
     d->container1 = 0;
     d->container2 = 0;
     prev = next = 0;
@@ -1422,8 +1422,8 @@ void QIconViewItem::moveBy( int dx, int dy )
 }
 
 /*!
-  \overload 
-  
+  \overload
+
   Moves the item to the point \a pnt.
 */
 
@@ -2157,7 +2157,7 @@ void QIconViewItem::checkRect()
     Because the internal structure used to store the icon view items is
     linear (a double-linked list), no iterator class is needed to
     iterate over all the items. Instead we iterate by getting the first
-    item from the \e{icon view} and then each subsequent 
+    item from the \e{icon view} and then each subsequent
     (\l QIconViewItem::nextItem()) from each \e item in turn:
 
     \code
@@ -2493,7 +2493,7 @@ void QIconViewItem::checkRect()
   \sa mouseButtonPressed() rightButtonPressed() clicked()
 */
 
-/*! 
+/*!
   \fn void QIconView::rightButtonPressed( QIconViewItem * item, const QPoint & pos )
 
   This signal is emitted when the user presses the right mouse button.  If \a
@@ -2505,7 +2505,7 @@ void QIconViewItem::checkRect()
 */
 
 /*!
-  Constructs an empty icon view with the parent \a parent and the name \a name, 
+  Constructs an empty icon view with the parent \a parent and the name \a name,
   using the widget flags \a f.
 */
 
@@ -3413,8 +3413,8 @@ QIconViewItem *QIconView::findItem( const QPoint &pos ) const
 }
 
 /*!
-  \overload  
-  
+  \overload
+
   Returns a pointer to the first item whose text begins with \a text, or
   0 if no such item could be found.
   The \a compare flag customizes the comparison of the items in the view
@@ -4493,7 +4493,7 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 	QValueList<QIconDragItem> lst;
 	if ( QIconDrag::canDecode( e ) ) {
 	    QValueList<QIconDragDataItem> l;
-	    QIconDrag::Private::decode( e, l );
+	    QIconDragPrivate::decode( e, l );
 	    QValueList<QIconDragDataItem>::Iterator it = l.begin();
 	    for ( ; it != l.end(); ++it )
 		lst << ( *it ).data;
@@ -4503,7 +4503,7 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 	QValueList<QIconDragItem> lst;
 	if ( QIconDrag::canDecode( e ) ) {
 	    QValueList<QIconDragDataItem> l;
-	    QIconDrag::Private::decode( e, l );
+	    QIconDragPrivate::decode( e, l );
 	    QValueList<QIconDragDataItem>::Iterator it = l.begin();
 	    for ( ; it != l.end(); ++it )
 		lst << ( *it ).data;
@@ -4935,9 +4935,9 @@ void QIconView::startDrag()
 #endif
 
 /*!
-  Inserts the QIconViewItem \a item in the icon view's grid. 
-  \e{You should never need to call this manually.} Insert 
-  QIconViewItems by creating them with a pointer to the 
+  Inserts the QIconViewItem \a item in the icon view's grid.
+  \e{You should never need to call this manually.} Insert
+  QIconViewItems by creating them with a pointer to the
   QIconView that they are to be inserted into as a
   parameter.
 
@@ -5011,7 +5011,7 @@ void QIconView::insertInGrid( QIconViewItem *item )
 
 /*!  Emits a signal to indicate selection changes. \a i is the QIconViewItem
     that was selected or de-selected.
-    
+
      \e{You should never need to call this.}
 */
 
@@ -5099,7 +5099,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 void QIconView::initDragEnter( QDropEvent *e )
 {
     if ( QIconDrag::canDecode( e ) ) {
-	QIconDrag::Private::decode( e, d->iconDragData );
+	QIconDragPrivate::decode( e, d->iconDragData );
 	d->isIconDrag = TRUE;
     } else if ( QUriDrag::canDecode( e ) ) {
 	QStrList lst;

@@ -233,11 +233,11 @@ void QSqlDatabaseManager::removeDatabase( const QString& name )
     sqlConnection->dbDict.setAutoDelete( FALSE );
 }
 
-class QSqlDatabase::Private
+class QSqlDatabasePrivate
 {
 public:
-    Private(): driver(0), plugIns(0), port(-1) {}
-    ~Private()
+    QSqlDatabasePrivate(): driver(0), plugIns(0), port(-1) {}
+    ~QSqlDatabasePrivate()
     {
     }
     QSqlDriver* driver;
@@ -396,7 +396,7 @@ QSqlDatabase::QSqlDatabase( const QString& driver, const QString& name, QObject 
 void QSqlDatabase::init( const QString& type, const QString&  )
 {
 
-    d = new Private();
+    d = new QSqlDatabasePrivate();
     d->drvName = type;
 
     if ( !d->driver ) {

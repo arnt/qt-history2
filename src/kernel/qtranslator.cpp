@@ -160,7 +160,7 @@ static uint elfHash( const char * name )
 }
 
 
-class QTranslator::Private {
+class QTranslatorPrivate {
 public:
     struct Offset {
 	Offset() { h=0; o=0; }
@@ -177,7 +177,7 @@ public:
 
     enum { Contexts = 0x2f, Hashes = 0x42, Messages = 0x69 } Tag;
 
-    Private() :
+    QTranslatorPrivate() :
 	unmapPointer( 0 ), unmapLength( 0 ),
 	messageArray( 0 ), offsetArray( 0 ), contextArray( 0 ),
 	messages( 0 ) { }
@@ -311,7 +311,7 @@ public:
 QTranslator::QTranslator( QObject * parent, const char * name )
     : QObject( parent, name )
 {
-    d = new Private;
+    d = new QTranslatorPrivate;
 }
 
 
@@ -494,15 +494,15 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     Q_UINT32 length = 0;
     s >> tag >> length;
     while( tag && length ) {
-	if ( tag == Private::Contexts && !d->contextArray ) {
+	if ( tag == QTranslatorPrivate::Contexts && !d->contextArray ) {
 	    d->contextArray = new QByteArray;
 	    d->contextArray->setRawData( tmpArray.data()+s.device()->at(),
 					 length );
-	} else if ( tag == Private::Hashes && !d->offsetArray ) {
+	} else if ( tag == QTranslatorPrivate::Hashes && !d->offsetArray ) {
 	    d->offsetArray = new QByteArray;
 	    d->offsetArray->setRawData( tmpArray.data()+s.device()->at(),
 					length );
-	} else if ( tag == Private::Messages && !d->messageArray ) {
+	} else if ( tag == QTranslatorPrivate::Messages && !d->messageArray ) {
 	    d->messageArray = new QByteArray;
 	    d->messageArray->setRawData( tmpArray.data()+s.device()->at(),
 					 length );
@@ -539,19 +539,19 @@ bool QTranslator::save( const QString & filename, SaveMode mode )
 	Q_UINT8 tag;
 
 	if ( d->offsetArray != 0 ) {
-	    tag = (Q_UINT8) Private::Hashes;
+	    tag = (Q_UINT8) QTranslatorPrivate::Hashes;
 	    Q_UINT32 oas = (Q_UINT32) d->offsetArray->size();
 	    s << tag << oas;
 	    s.writeRawBytes( d->offsetArray->data(), oas );
 	}
 	if ( d->messageArray != 0 ) {
-	    tag = (Q_UINT8) Private::Messages;
+	    tag = (Q_UINT8) QTranslatorPrivate::Messages;
 	    Q_UINT32 mas = (Q_UINT32) d->messageArray->size();
 	    s << tag << mas;
 	    s.writeRawBytes( d->messageArray->data(), mas );
 	}
 	if ( d->contextArray != 0 ) {
-	    tag = (Q_UINT8) Private::Contexts;
+	    tag = (Q_UINT8) QTranslatorPrivate::Contexts;
 	    Q_UINT32 cas = (Q_UINT32) d->contextArray->size();
 	    s << tag << cas;
 	    s.writeRawBytes( d->contextArray->data(), cas );
@@ -624,7 +624,7 @@ void QTranslator::squeeze( SaveMode mode )
     d->messageArray = new QByteArray;
     d->offsetArray = new QByteArray;
 
-    QMap<Private::Offset, void *> offsets;
+    QMap<QTranslatorPrivate::Offset, void *> offsets;
 
     QDataStream ms( *d->messageArray, IO_WriteOnly );
     QMap<QTranslatorMessage, void *>::Iterator it = messages->begin(), next;
@@ -637,18 +637,18 @@ void QTranslator::squeeze( SaveMode mode )
 	    cpNext = 0;
 	else
 	    cpNext = (int) it.key().commonPrefix( next.key() );
-	offsets.replace( Private::Offset(it.key(),
+	offsets.replace( QTranslatorPrivate::Offset(it.key(),
 			 ms.device()->at()), (void*)0 );
 	it.key().write( ms, mode == Stripped,
 			(QTranslatorMessage::Prefix) QMAX(cpPrev, cpNext + 1) );
     }
 
     d->offsetArray->resize( 0 );
-    QMap<Private::Offset, void *>::Iterator offset;
+    QMap<QTranslatorPrivate::Offset, void *>::Iterator offset;
     offset = offsets.begin();
     QDataStream ds( *d->offsetArray, IO_WriteOnly );
     while( offset != offsets.end() ) {
-	Private::Offset k = offset.key();
+	QTranslatorPrivate::Offset k = offset.key();
 	++offset;
 	ds << (Q_UINT32)k.h << (Q_UINT32)k.o;
     }

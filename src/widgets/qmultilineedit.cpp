@@ -85,7 +85,7 @@
   <img src=qmlined-m.png> <img src=qmlined-w.png>
 */
 
-class QMultiLineEdit::Data
+class QMultiLineEditData
 {
 };
 
@@ -97,14 +97,14 @@ class QMultiLineEdit::Data
 QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     : QTextEdit( parent, name )
 {
-    d = new Data;
+    d = new QMultiLineEditData;
     readOnly = FALSE;
     setTextFormat( Qt::PlainText );
 }
 
 /*! \property QMultiLineEdit::numLines
   \brief the number of paragraphs in the editor
-  
+
   The count includes any empty paragraph at top and bottom, so for an
   empty editor this method returns 1.
 */
@@ -116,7 +116,7 @@ int QMultiLineEdit::numLines() const
 
 /*! \property QMultiLineEdit::atEnd
   \brief whether the cursor is placed at the end of the text
-  
+
   \sa atBeginning
 */
 
@@ -128,7 +128,7 @@ bool QMultiLineEdit::atEnd() const
 
 /*! \property QMultiLineEdit::atBeginning
   \brief whether the cursor is placed at the beginning of the text
-  
+
   \sa atEnd
 */
 
@@ -150,7 +150,7 @@ int QMultiLineEdit::lineLength( int row ) const
 
 /*! \property QMultiLineEdit::readOnly
   \brief whether this multi-line edit accepts text input
-  
+
   Scrolling and cursor movements are accepted in any case.
 
   \sa QWidget::enabled
@@ -392,7 +392,7 @@ QPoint QMultiLineEdit::cursorPoint() const
 
 /*!  \property QMultiLineEdit::alignment
   \brief The editor's paragraph alignment
-  
+
   Sets the alignment to \a flag, which must be \c AlignLeft, \c
   AlignHCenter or \c AlignRight.
 
@@ -426,9 +426,9 @@ void QMultiLineEdit::setEdited( bool e )
 
 /*!  property QMultiLineEdit::edited
   \brief whether the document has been edited by the user
-  
+
   This is the same as QTextEdit's "modifed" property.
-  
+
   \sa QTextEdit::modified
 */
 bool QMultiLineEdit::edited() const

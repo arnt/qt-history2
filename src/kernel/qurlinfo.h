@@ -45,6 +45,7 @@
 
 class QUrlOperator;
 class QUrl;
+class QUrlInfoPrivate;
 
 class Q_EXPORT QUrlInfo
 {
@@ -98,8 +99,7 @@ public:
 
     bool operator==( const QUrlInfo &i ) const;
 private:
-    class Private;
-    Private *d;
+    QUrlInfoPrivate *d;
 
 };
 

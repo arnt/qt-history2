@@ -251,10 +251,10 @@ class Q_EXPORT QGIFFormatType : public QImageFormatType
 #endif
 
 
-class QImageDecoder::Private
+class QImageDecoderPrivate
 {
 public:
-    Private()
+    QImageDecoderPrivate()
     {
 	count = 0;
     }
@@ -284,14 +284,14 @@ public:
     int count;
 };
 
-QPtrList<QImageFormatType> * QImageDecoder::Private::factories = 0;
+QPtrList<QImageFormatType> * QImageDecoderPrivate::factories = 0;
 // See qgif.h for important information regarding this option
 #if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
-QGIFFormatType * QImageDecoder::Private::gif_decoder_factory = 0;
+QGIFFormatType * QImageDecoderPrivate::gif_decoder_factory = 0;
 #endif
 
 
-void QImageDecoder::Private::cleanup()
+void QImageDecoderPrivate::cleanup()
 {
     delete factories;
     factories = 0;
@@ -310,7 +310,7 @@ void QImageDecoder::Private::cleanup()
 QImageDecoder::QImageDecoder(QImageConsumer* c)
 {
     qt_init_image_handlers();
-    d = new Private;
+    d = new QImageDecoderPrivate;
     Q_CHECK_PTR(d);
     consumer = c;
     actual_decoder = 0;
@@ -350,11 +350,11 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 	while (i < length && d->count < max_header)
 	    d->header[d->count++] = buffer[i++];
 
-	Private::ensureFactories();
+	QImageDecoderPrivate::ensureFactories();
 
-	for (QImageFormatType* f = Private::factories->first();
+	for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
 	    f && !actual_decoder;
-	    f = Private::factories->next())
+	    f = QImageDecoderPrivate::factories->next())
 	{
 	    actual_decoder = f->decoderFor(d->header, d->count);
 	}
@@ -380,9 +380,9 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 */
 QImageFormatType* QImageDecoder::format( const char* name )
 {
-    for (QImageFormatType* f = Private::factories->first();
+    for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
 	f;
-	f = Private::factories->next())
+	f = QImageDecoderPrivate::factories->next())
     {
 	if ( qstricmp(name,f->formatName())==0 )
 	    return f;
@@ -398,12 +398,12 @@ QImageFormatType* QImageDecoder::format( const char* name )
 */
 const char* QImageDecoder::formatName(const uchar* buffer, int length)
 {
-    Private::ensureFactories();
+    QImageDecoderPrivate::ensureFactories();
 
     const char* name = 0;
-    for (QImageFormatType* f = Private::factories->first();
+    for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
 	f && !name;
-	f = Private::factories->next())
+	f = QImageDecoderPrivate::factories->next())
     {
 	QImageFormat *decoder = f->decoderFor(buffer, length);
 	if (decoder) {
@@ -419,13 +419,13 @@ const char* QImageDecoder::formatName(const uchar* buffer, int length)
 */
 QStrList QImageDecoder::inputFormats()
 {
-    Private::ensureFactories();
+    QImageDecoderPrivate::ensureFactories();
 
     QStrList result;
 
-    for (QImageFormatType* f = Private::factories->first();
+    for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
 	 f;
-	 f = Private::factories->next())
+	 f = QImageDecoderPrivate::factories->next())
     {
 	if ( !result.contains(  f->formatName() ) ) {
 	    result.inSort(  f->formatName() );
@@ -441,9 +441,9 @@ QStrList QImageDecoder::inputFormats()
 */
 void QImageDecoder::registerDecoderFactory(QImageFormatType* f)
 {
-    Private::ensureFactories();
+    QImageDecoderPrivate::ensureFactories();
 
-    Private::factories->insert(0,f);
+    QImageDecoderPrivate::factories->insert(0,f);
 }
 
 /*!
@@ -452,10 +452,10 @@ void QImageDecoder::registerDecoderFactory(QImageFormatType* f)
 */
 void QImageDecoder::unregisterDecoderFactory(QImageFormatType* f)
 {
-    if ( !Private::factories )
+    if ( !QImageDecoderPrivate::factories )
 	return;
 
-    Private::factories->remove(f);
+    QImageDecoderPrivate::factories->remove(f);
 }
 
 /*!

@@ -49,6 +49,7 @@
 
 class QObject;
 struct QUMethod;
+class QMetaObjectPrivate;
 
 struct QMetaData				// - member function meta data
 {						//   for signal and slots
@@ -201,8 +202,7 @@ private:
     const char		*classname;			// class name
     const char		*superclassname;		// super class name
     QMetaObject	*superclass;			// super class meta object
-    class Private;
-    Private	*d;				// private data for...
+    QMetaObjectPrivate	*d;			// private data for...
     void	*reserved;			// ...binary compatibility
     const QMetaData		*slotData;			// slot meta data
     QMemberDict	*slotDict;			// slot dictionary

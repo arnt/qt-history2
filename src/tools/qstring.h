@@ -583,7 +583,6 @@ public:
     bool isRightToLeft() const;
 
 private:
-    class CoMatrix;
     QString( int size, bool /*dummy*/ );	// allocate size incl. \0
 
     void deref();

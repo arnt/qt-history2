@@ -54,6 +54,7 @@
 #define Q_EXPORT_STYLE_AQUA Q_EXPORT
 #endif
 
+class QAquaStylePrivate;
 
 class Q_EXPORT_STYLE_AQUA QAquaStyle : public QWindowsStyle
 {
@@ -74,7 +75,7 @@ public:
                      const QColorGroup &g, bool sunken = FALSE,
                      const QBrush *fill = 0 );
     void drawToolButton( QPainter *p, int x, int y, int w, int h,
-			 const QColorGroup &g, bool on, bool down, bool enabled, 
+			 const QColorGroup &g, bool on, bool down, bool enabled,
 			 bool autoRaised = FALSE, const QBrush *fill = 0 );
     QRect buttonRect( int x, int y, int w, int h) const;
     void  drawBevelButton( QPainter *p, int x, int y, int w, int h,
@@ -179,11 +180,11 @@ public:
 			    const QColorGroup &g );
     int  spinboxFrameWidth() const;
     void drawRangeControlWidgetButton ( QPainter * p, int x, int y,
-	        int w, int h, const QColorGroup & g, QRangeControlWidget * rc, 
+	        int w, int h, const QColorGroup & g, QRangeControlWidget * rc,
 		bool downbtn, bool enabled, bool down );
 
     void drawRangeControlWidgetSymbol ( QPainter * p, int x, int y,
-	        int w, int h, const QColorGroup & g, QRangeControlWidget * rc, 
+	        int w, int h, const QColorGroup & g, QRangeControlWidget * rc,
 		bool downbtn, bool enabled, bool down );
 
     // title bar
@@ -207,8 +208,7 @@ private:        // Disabled copy constructor and operator=
 #endif
     QPalette oldPalette;
 
-    class Private;
-    Private *d;
+    QAquaStylePrivate *d;
 };
 
 #endif // QT_NO_STYLE_AQUA

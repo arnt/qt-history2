@@ -42,7 +42,7 @@
 #include "qurloperator.h"
 #include "qdir.h"
 
-class QUrlInfo::Private
+class QUrlInfoPrivate
 {
 public:
     QString name;
@@ -79,7 +79,7 @@ public:
 
 QUrlInfo::QUrlInfo()
 {
-    d = new Private;
+    d = new QUrlInfoPrivate;
     d->isDir = FALSE;
     d->isFile = TRUE;
     d->isReadable = TRUE;
@@ -99,7 +99,7 @@ QUrlInfo::QUrlInfo( const QUrlOperator &path, const QString &file )
     QString file_ = file;
     if ( file_.isEmpty() )
 	file_ = ".";
-    d = new Private;
+    d = new QUrlInfoPrivate;
     QUrlInfo inf = path.info( file_ );
     *d = *inf.d;
 }
@@ -110,7 +110,7 @@ QUrlInfo::QUrlInfo( const QUrlOperator &path, const QString &file )
 
 QUrlInfo::QUrlInfo( const QUrlInfo &ui )
 {
-    d = new Private;
+    d = new QUrlInfoPrivate;
     *d = *ui.d;
 }
 
@@ -123,7 +123,7 @@ QUrlInfo::QUrlInfo( const QString &name, int permissions, const QString &owner,
 		    const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
 		    bool isWritable, bool isReadable, bool isExecutable )
 {
-    d = new Private;
+    d = new QUrlInfoPrivate;
     d->name = name;
     d->permissions = permissions;
     d->owner = owner;
@@ -149,7 +149,7 @@ QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
 		    const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
 		    bool isWritable, bool isReadable, bool isExecutable )
 {
-    d = new Private;
+    d = new QUrlInfoPrivate;
     d->name = QFileInfo( url.path() ).fileName();
     d->permissions = permissions;
     d->owner = owner;

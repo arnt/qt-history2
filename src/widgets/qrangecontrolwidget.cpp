@@ -42,10 +42,10 @@
 
 static uint theButton = 0;
 
-class QRangeControlWidget::Private
+class QRangeControlWidgetPrivate
 {
 public:
-    Private()
+    QRangeControlWidgetPrivate()
     {
 	upEnabled = TRUE;
 	downEnabled = TRUE;
@@ -53,7 +53,7 @@ public:
 	up = QRect();
 	down = QRect();
 	auRepTimer = 0;
-	bsyms = UpDownArrows;
+	bsyms = QRangeControlWidget::UpDownArrows;
     }
     bool upEnabled;
     bool downEnabled;
@@ -61,7 +61,7 @@ public:
     QRect up;
     QRect down;
     QTimer *auRepTimer;
-    ButtonSymbols bsyms;
+    QRangeControlWidget::ButtonSymbols bsyms;
 };
 
 /*!  Constructs an empty range control widget.
@@ -71,7 +71,7 @@ public:
 QRangeControlWidget::QRangeControlWidget( QWidget* parent, const char* name )
     : QFrame( parent, name )
 {
-    d = new Private();
+    d = new QRangeControlWidgetPrivate();
     setFocusPolicy( QWidget::NoFocus );
     arrange();
     updateDisplay();

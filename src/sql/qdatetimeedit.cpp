@@ -54,10 +54,10 @@
 
 #define QDATETIMEEDIT_HIDDEN_CHAR '0'
 
-class QDateTimeEditBase::Private
+class QDateTimeEditBasePrivate
 {
 public:
-    Private()
+    QDateTimeEditBasePrivate()
 	: buttons( 0 ),
 	frm( TRUE ),
 	  parag( new QTextParag( 0, 0, 0, FALSE ) ),
@@ -70,7 +70,7 @@ public:
 	cursor->setParag( parag );
 	pm = new QPixmap;
     }
-    ~Private()
+    ~QDateTimeEditBasePrivate()
     {
 	delete parag;
 	delete cursor;
@@ -228,7 +228,7 @@ private:
 QDateTimeEditBase::QDateTimeEditBase( QWidget * parent, const char * name )
     : QWidget( parent, name )
 {
-    d = new Private();
+    d = new QDateTimeEditBasePrivate();
     init();
 }
 
@@ -599,7 +599,7 @@ void QDateTimeEditBase::setBackgroundPixmap( const QPixmap & pixmap )
 
 ////////////////
 
-class QDateEdit::Private
+class QDateEditPrivate
 {
 public:
     int y;
@@ -608,7 +608,7 @@ public:
     int yearSection;
     int monthSection;
     int daySection;
-    Order ord;
+    QDateEdit::Order ord;
     bool overwrite;
     bool adv;
     int timerId;
@@ -699,7 +699,7 @@ QDateEdit::QDateEdit( const QDate& date, QWidget * parent, const char * name )
 
 void QDateEdit::init()
 {
-    d = new Private();
+    d = new QDateEditPrivate();
     appendSection( QNumberSection( 0,4 ) );
     appendSection( QNumberSection( 5,7 ) );
     appendSection( QNumberSection( 8,10 ) );
@@ -1391,7 +1391,7 @@ void QDateEdit::timerEvent( QTimerEvent * )
 
 ///////////
 
-class QTimeEdit::Private
+class QTimeEditPrivate
 {
 public:
     int h;
@@ -1471,7 +1471,7 @@ QTimeEdit::QTimeEdit( const QTime& time, QWidget * parent, const char * name )
 
 void QTimeEdit::init()
 {
-    d = new Private();
+    d = new QTimeEditPrivate();
     appendSection( QNumberSection( 0,0 ) );
     appendSection( QNumberSection( 0,0 ) );
     appendSection( QNumberSection( 0,0 ) );
@@ -1978,7 +1978,7 @@ QSize QTimeEdit::sizeHint() const
 }
 
 
-class QDateTimeEdit::Private
+class QDateTimeEditPrivate
 {
 public:
     bool adv;
@@ -2101,7 +2101,7 @@ void QDateTimeEdit::layoutEditors()
 
 void QDateTimeEdit::init()
 {
-    d = new Private();
+    d = new QDateTimeEditPrivate();
     de = new QDateEdit( this );
     te = new QTimeEdit( this );
     d->adv = FALSE;

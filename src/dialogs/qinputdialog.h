@@ -48,6 +48,7 @@
 
 class QSpinBox;
 class QComboBox;
+class QInputDialogPrivate;
 
 class Q_EXPORT QInputDialog : public QDialog
 {
@@ -90,9 +91,8 @@ private slots:
     void tryAccept();
 
 private:
-    class Private;
-    Private *d;
-    friend class Private; /* to avoid 'has no friends' warnings... */
+    QInputDialogPrivate *d;
+    friend class QInputDialogPrivate; /* to avoid 'has no friends' warnings... */
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -104,3 +104,4 @@ private:	// Disabled copy constructor and operator=
 #endif // QT_NO_INPUTDIALOG
 
 #endif // QINPUTDIALOG_H
+ 

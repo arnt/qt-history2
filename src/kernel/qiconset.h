@@ -44,6 +44,8 @@
 
 #ifndef QT_NO_ICONSET
 
+class QIconSetPrivate;
+
 class Q_EXPORT QIconSet
 {
 public:
@@ -75,8 +77,7 @@ public:
     QIconSet &operator=( const QIconSet & );
 
 private:
-    class Private;
-    Private * d;
+    QIconSetPrivate * d;
 };
 
 #endif // QT_NO_ICONSET

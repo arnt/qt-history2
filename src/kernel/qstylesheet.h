@@ -51,7 +51,7 @@
 class QStyleSheet;
 class QTextDocument;
 template<class Key, class T> class QMap;
-
+class QStyleSheetItemData;
 
 class Q_EXPORT QStyleSheetItem : public Qt
 {
@@ -154,8 +154,7 @@ public:
 
 private:
     void init();
-    class Data;
-    Data* d;
+    QStyleSheetItemData* d;
 };
 
 

@@ -47,6 +47,8 @@ class QNetworkOperation;
 class QLineEdit;
 class QListViewItem;
 class QListBoxItem;
+class QFileDialogPrivate;
+class QFileDialogQFileListView;
 
 #ifndef QT_H
 #include "qdir.h"
@@ -276,13 +278,11 @@ private:
     QDir reserved; // was cwd
     QString fileName;
 
-    class QFileListView;
-    friend class QFileListView;
+    friend class QFileDialogQFileListView;
     friend class QFileListBox;
 
-    class Private;
-    Private *d;
-    QFileListView  *files;
+    QFileDialogPrivate *d;
+    QFileDialogQFileListView  *files;
 
     QLineEdit  *nameEdit; // also filter
     QPushButton *okB;

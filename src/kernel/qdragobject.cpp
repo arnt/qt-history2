@@ -49,10 +49,10 @@
 // both a struct for storing stuff in and a wrapper to avoid polluting
 // the name space
 
-class QDragObject::Data
+class QDragObjectData
 {
 public:
-    Data(): hot(0,0) {}
+    QDragObjectData(): hot(0,0) {}
     QPixmap pixmap;
     QPoint hot;
 };
@@ -81,10 +81,10 @@ void QDragObject::setTarget(QWidget* t)
     last_target = t;
 }
 
-class QStoredDrag::Data
+class QStoredDragData
 {
 public:
-    Data() {}
+    QStoredDragData() {}
     const char* fmt;
     QByteArray enc;
 };
@@ -291,7 +291,7 @@ QDragManager::~QDragManager()
 QDragObject::QDragObject( QWidget * dragSource, const char * name )
     : QObject( dragSource, name )
 {
-    d = new Data();
+    d = new QDragObjectData();
 #ifndef QT_NO_DRAGANDDROP
     if ( !manager && qApp )
 	(void)new QDragManager();
@@ -526,9 +526,9 @@ const char * staticCharset(int i)
 }
 
 
-class QTextDrag::Private {
+class QTextDragPrivate {
 public:
-    Private()
+    QTextDragPrivate()
     {
 	setSubType("plain");
     }
@@ -589,7 +589,7 @@ QTextDrag::QTextDrag( const QString &text,
 		      QWidget * dragSource, const char * name )
     : QDragObject( dragSource, name )
 {
-    d = new Private;
+    d = new QTextDragPrivate;
     setText( text );
 }
 
@@ -601,7 +601,7 @@ QTextDrag::QTextDrag( const QString &text,
 QTextDrag::QTextDrag( QWidget * dragSource, const char * name )
     : QDragObject( dragSource, name )
 {
-    d = new Private;
+    d = new QTextDragPrivate;
 }
 
 
@@ -782,7 +782,7 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str )
   and QImages rather than always converting to raw data.  This is available
   for that purpose and others.  It is not currently used.
 */
-class QImageDrag::Data
+class QImageDragData
 {
 public:
 };
@@ -1013,7 +1013,7 @@ bool QImageDrag::decode( const QMimeSource* e, QPixmap& pm )
 QStoredDrag::QStoredDrag( const char* mimeType, QWidget * dragSource, const char * name ) :
     QDragObject(dragSource,name)
 {
-    d = new Data();
+    d = new QStoredDragData();
     d->fmt = qstrdup(mimeType);
 }
 

@@ -112,10 +112,10 @@
  *****************************************************************************/
 
 
-class QMetaObject::Private
+class QMetaObjectPrivate
 {
 public:
-    Private() :
+    QMetaObjectPrivate() :
 	enumData(0), numEnumData(0),
 #ifndef QT_NO_PROPERTIES
 	propData(0),numPropData(0),
@@ -192,7 +192,7 @@ QMetaObject::QMetaObject( const char *class_name, QMetaObject *super_class,
     slotDict = init( slotData = slot_data, n_slots );
     signalDict = init( signalData = signal_data, n_signals );
 
-    d = new Private;
+    d = new QMetaObjectPrivate;
     reserved = 0;
 
 #ifndef QT_NO_PROPERTIES

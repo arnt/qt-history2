@@ -156,14 +156,14 @@ bool QMimeSource::provides(const char* mimeType) const
 
 
 
-class QMimeSourceFactory::Data {
+class QMimeSourceFactoryData {
 public:
-    Data() :
+    QMimeSourceFactoryData() :
 	last(0)
     {
     }
 
-    ~Data()
+    ~QMimeSourceFactoryData()
     {
 	QMap<QString, QMimeSource*>::Iterator it = stored.begin();
 	while ( it != stored.end() ) {
@@ -242,7 +242,7 @@ public:
   content.
 */
 QMimeSourceFactory::QMimeSourceFactory() :
-    d(new Data)
+    d(new QMimeSourceFactoryData)
 {
     // add some reasonable defaults
     setExtensionType("htm", "text/html;charset=iso8859-1");

@@ -53,10 +53,10 @@
 static const int autoRepeatDelay  = 300;
 static const int autoRepeatPeriod = 100;
 
-class QButton::Data
+class QButtonData
 {
 public:
-    Data() {
+    QButtonData() {
 #ifndef QT_NO_BUTTONGROUP
 	group = 0;
 #endif
@@ -77,7 +77,7 @@ public:
 void QButton::ensureData()
 {
     if ( !d ) {
-	d = new Data;
+	d = new QButtonData;
 	Q_CHECK_PTR( d );
 	connect(&d->timer, SIGNAL(timeout()), this, SLOT(autoRepeatTimeout()));
     }

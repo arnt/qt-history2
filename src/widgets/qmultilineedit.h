@@ -46,6 +46,7 @@
 
 class QMultiLineEditCommand;
 class QValidator;
+class QMultiLineEditData;
 
 class Q_EXPORT QMultiLineEdit : public QTextEdit
 {
@@ -124,8 +125,7 @@ protected:
     int lineLength( int row ) const;
 
 private:
-    class Data;
-    Data *d;
+    QMultiLineEditData *d;
 
     bool	readOnly;
 

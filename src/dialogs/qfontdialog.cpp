@@ -65,10 +65,10 @@
   <img src=qfontdlg-m.png> <img src=qfontdlg-w.png>
 */
 
-class QFontDialog::Private
+class QFontDialogPrivate
 {
 public:
-    Private(){};
+    QFontDialogPrivate(){};
     QLabel * familyAccel;
     QLineEdit * familyEdit;
     QListBox * familyList;
@@ -130,7 +130,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     : QDialog( parent, name, modal, f )
 {
     setSizeGripEnabled( TRUE );
-    d = new Private;
+    d = new QFontDialogPrivate;
     // grid
     d->familyEdit = new QLineEdit( this, "font family I" );
     d->familyEdit->setFocusPolicy( StrongFocus );
@@ -786,7 +786,7 @@ void QFontDialog::setFont( const QFont &f )
 	    d->familyList->setCurrentItem(i);
 	    i = -1;
 	    break;
-	} 
+	}
 
 	//and try some fall backs
 	match_t type = MATCH_NONE;

@@ -50,7 +50,7 @@ class QStringList;
 class QLineEdit;
 class QValidator;
 class QListBox;
-
+class QComboBoxData;
 
 class Q_EXPORT QComboBox : public QWidget
 {
@@ -187,8 +187,7 @@ private:
     bool	getMetrics( int *dist, int *buttonW, int *buttonH ) const;
     int		completionIndex( const QString &, int ) const;
 
-    class Data;
-    Data	*d;
+    QComboBoxData	*d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

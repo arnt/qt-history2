@@ -131,10 +131,10 @@ struct QAccelItem {				// internal accelerator item
 typedef QPtrList<QAccelItem> QAccelList; // internal accelerator list
 
 
-class QAccel::Private {
+class QAccelPrivate {
 public:
-    Private() { aitems.setAutoDelete( TRUE ); ignorewhatsthis = FALSE;}
-    ~Private() {}
+    QAccelPrivate() { aitems.setAutoDelete( TRUE ); ignorewhatsthis = FALSE;}
+    ~QAccelPrivate() {}
     QAccelList aitems;
     bool enabled;
     QGuardedPtr<QWidget> tlw;
@@ -196,7 +196,7 @@ static QAccelItem *find_key( QAccelList &list, int key, QChar ch )
 QAccel::QAccel( QWidget *parent, const char *name )
     : QObject( parent, name )
 {
-    d = new Private;
+    d = new QAccelPrivate;
     d->enabled = TRUE;
     d->watch = parent;
     if ( d->watch ) {				// install event filter
@@ -218,7 +218,7 @@ QAccel::QAccel( QWidget *parent, const char *name )
 QAccel::QAccel( QWidget* watch, QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    d = new Private;
+    d = new QAccelPrivate;
     d->enabled = TRUE;
     d->watch = watch;
     if ( watch ) {				// install event filter

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#38 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#39 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -69,7 +69,7 @@ struct PixElement {
 typedef QValueList<ImgElement> ImageList;
 typedef QValueList<PixElement> PixmapList;
 
-class QSvgDevice::Private {
+class QSvgDevicePrivate {
 public:
     ImageList images;
     PixmapList pixmaps;
@@ -112,7 +112,7 @@ QSvgDevice::QSvgDevice()
     : QPaintDevice( QInternal::ExternalDevice ),
       pt( 0 )
 {
-    d = new Private;
+    d = new QSvgDevicePrivate;
 }
 
 /*!

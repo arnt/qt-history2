@@ -1843,7 +1843,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		w = w->parentWidget();
 
 		if ( w && w->testWFlags( WNoMousePropagation ) ) {
-		    res = true;
+		    res = TRUE;
 		    break;
 		}
 	    }
@@ -3381,7 +3381,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 #ifndef QT_NO_SESSIONMANAGER
 #if defined( QT_NO_SM_SUPPORT ) || defined( Q_WS_WIN ) || defined( Q_WS_MAC ) || defined( Q_WS_QWS )
 
-class QSessionManager::Data
+class QSessionManagerData
 {
 public:
     QStringList restartCommand;
@@ -3393,7 +3393,7 @@ public:
 QSessionManager::QSessionManager( QApplication * app, QString &session )
     : QObject( app, "qt_sessionmanager" )
 {
-    d = new Data;
+    d = new QSessionManagerData;
     d->sessionId = session;
     d->restartHint = RestartIfRunning;
 }

@@ -77,6 +77,7 @@ protected:
     QImageFormatType();
 };
 
+class QImageDecoderPrivate;
 class Q_EXPORT QImageDecoder {
 public:
     QImageDecoder( QImageConsumer* c );
@@ -96,8 +97,7 @@ private:
     QImageFormat* actual_decoder;
     QImageConsumer* consumer;
     QImage img;
-    class Private;
-    Private *d;
+    QImageDecoderPrivate *d;
 };
 
 #endif // QT_NO_ASYNC_IMAGE_IO

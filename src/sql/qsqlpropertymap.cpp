@@ -43,7 +43,7 @@
 #include "qobjcoll.h"
 #include "qmap.h"
 
-class QSqlPropertyMap::QSqlPropertyMapPrivate
+class QSqlPropertyMapPrivate
 {
 public:
     QSqlPropertyMapPrivate() {}

@@ -44,6 +44,8 @@
 
 #ifndef QT_NO_SCROLLVIEW
 
+class QScrollViewData;
+
 class Q_EXPORT QScrollView : public QFrame
 {
     Q_OBJECT
@@ -221,8 +223,7 @@ private:
     virtual void drawContents( QPainter* );
     void moveContents(int x, int y);
 
-    class Data;
-    Data* d;
+    QScrollViewData* d;
 
 private slots:
     void hslide(int);

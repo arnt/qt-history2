@@ -46,7 +46,7 @@
 
 #include <stdio.h>
 
-class QStyleSheetItem::Data
+class QStyleSheetItemData
 {
 public:
     QStyleSheetItem::DisplayMode disp;
@@ -120,7 +120,7 @@ public:
 */
 QStyleSheetItem::QStyleSheetItem( QStyleSheet* parent, const QString& name )
 {
-    d = new Data;
+    d = new QStyleSheetItemData;
     d->stylename = name.lower();
     d->sheet = parent;
     init();
@@ -134,7 +134,7 @@ QStyleSheetItem::QStyleSheetItem( QStyleSheet* parent, const QString& name )
  */
 QStyleSheetItem::QStyleSheetItem( const QStyleSheetItem & other )
 {
-    d = new Data;
+    d = new QStyleSheetItemData;
     *d = *other.d;
 }
 

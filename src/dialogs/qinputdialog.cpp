@@ -49,7 +49,7 @@
 #include <qvalidator.h>
 #include <qapplication.h>
 
-class QInputDialog::Private
+class QInputDialogPrivate
 {
 public:
     friend class QInputDialog;
@@ -72,16 +72,16 @@ public:
   the user what they should input.
 
   In this Qt version the 4 static convenience functions,
-  getText(), getInteger(), getDouble() and getItem() 
+  getText(), getInteger(), getDouble() and getItem()
   are available.
 
   Use it like this:
 
   \code
   bool ok = FALSE;
-  QString text = QInputDialog::getText( 
-		    tr( "Application name" ), 
-		    tr( "Please enter your name" ), 
+  QString text = QInputDialog::getText(
+		    tr( "Application name" ),
+		    tr( "Please enter your name" ),
 		    QLineEdit::Normal, QString::null, &ok, this );
   if ( ok && !text.isEmpty() )
       ;// user entered something and pressed ok
@@ -132,7 +132,7 @@ QInputDialog::QInputDialog( const QString &label, QWidget* parent, const char* n
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
 	QDialog::setIcon( *qApp->mainWidget()->icon() );
 
-    d = new Private;
+    d = new QInputDialogPrivate;
     d->lineEdit = 0;
     d->spinBox = 0;
     d->comboBox = 0;
@@ -267,10 +267,10 @@ QInputDialog::~QInputDialog()
 /*!
   Static convenience function to get a string from the user. \a
   caption is the text which is displayed in the title bar of the dialog.
-  \a label is the text which is shown to the user (it should mention 
+  \a label is the text which is shown to the user (it should mention
   what they should input), \a text the default text which is placed in
   the line edit. The \a mode is the echo mode the
-  line edit will use. 
+  line edit will use.
   If \a ok is not-null it will be set to TRUE if the user pressed OK and
   FALSE if the user pressed Cancel.
   The dialog's parent is \a parent; the dialog is called \a name. The
@@ -282,9 +282,9 @@ QInputDialog::~QInputDialog()
 
   \code
   bool ok = FALSE;
-  QString text = QInputDialog::getText( 
+  QString text = QInputDialog::getText(
 		    tr( "Application name" ),
-		    tr( "Please enter your name" ), 
+		    tr( "Please enter your name" ),
 		    QLineEdit::Normal, QString::null, &ok, this );
   if ( ok && !text.isEmpty() )
       ;// user entered something and pressed ok
@@ -318,7 +318,7 @@ QString QInputDialog::getText( const QString &caption, const QString &label, QLi
 /*!
   Static convenience function to get an integer input from the user. \a
   caption is the text which is displayed in the title bar of the dialog.
-  \a label is the text which is shown to the user (it should mention 
+  \a label is the text which is shown to the user (it should mention
   what they should input), \a num is the default number which the
   spinbox will be set to.
   \a from and \a to are the minimum and maximum values the user may
@@ -336,7 +336,7 @@ QString QInputDialog::getText( const QString &caption, const QString &label, QLi
 
   \code
   bool ok = FALSE;
-  int res = QInputDialog::getInteger( 
+  int res = QInputDialog::getInteger(
 		tr( "Application name" ),
 		tr( "Please enter a number" ), 22, 0, 1000, 2, &ok, this );
   if ( ok )
@@ -369,7 +369,7 @@ int QInputDialog::getInteger( const QString &caption, const QString &label, int 
 /*!
   Static convenience function to get a floating point number from the user. \a
   caption is the text which is displayed in the title bar of the dialog.
-  \a label is the text which is shown to the user (it should mention 
+  \a label is the text which is shown to the user (it should mention
   what they should input), \a num is the default floating point number
   that the line edit will be set to.
   \a from and \a to are the minimum and maximum values the user may
@@ -388,9 +388,9 @@ int QInputDialog::getInteger( const QString &caption, const QString &label, int 
 
   \code
   bool ok = FALSE;
-  double res = QInputDialog::getDouble( 
+  double res = QInputDialog::getDouble(
 		tr( "Application name" ),
-		tr( "Please enter a decimal number" ), 
+		tr( "Please enter a decimal number" ),
 		33.7, 0, 1000, 2, &ok, this );
   if ( ok )
       ;// user entered something and pressed ok
@@ -457,7 +457,7 @@ double QInputDialog::getDouble( const QString &caption, const QString &label, do
   QStringList lst;
   lst << "First" << "Second" << "Third" << "Fourth" << "Fifth";
   bool ok = FALSE;
-  QString res = QInputDialog::getItem( 
+  QString res = QInputDialog::getItem(
 		    tr( "Application name" ),
 		    tr( "Please select an item" ), lst, 1, TRUE, &ok, this );
   if ( ok )

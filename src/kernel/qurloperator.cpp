@@ -47,7 +47,7 @@
 
 //#define QURLOPERATOR_DEBUG
 
-class QUrlOperator::Private
+class QUrlOperatorPrivate
 {
 public:
     QMap<QString, QUrlInfo> entryMap;
@@ -238,7 +238,7 @@ public:
 QUrlOperator::QUrlOperator()
     : QUrl()
 {
-    d = new Private;
+    d = new QUrlOperatorPrivate;
     d->oldOps.setAutoDelete( FALSE );
     d->networkProtocol = 0;
     d->nameFilter = "*";
@@ -252,7 +252,7 @@ QUrlOperator::QUrlOperator()
 QUrlOperator::QUrlOperator( const QString &url )
     : QUrl( url )
 {
-    d = new Private;
+    d = new QUrlOperatorPrivate;
     d->oldOps.setAutoDelete( FALSE );
     d->networkProtocol = 0;
     getNetworkProtocol();
@@ -267,7 +267,7 @@ QUrlOperator::QUrlOperator( const QString &url )
 QUrlOperator::QUrlOperator( const QUrlOperator& url )
     : QObject(), QUrl( url )
 {
-    d = new Private;
+    d = new QUrlOperatorPrivate;
     *d = *url.d;
     d->oldOps.setAutoDelete( FALSE );
     d->networkProtocol = 0;
@@ -283,7 +283,7 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url )
 QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl, bool checkSlash )
     : QUrl( url, relUrl, checkSlash )
 {
-    d = new Private;
+    d = new QUrlOperatorPrivate;
     if ( relUrl == "." )
 	*d = *url.d;
     d->oldOps.setAutoDelete( FALSE );

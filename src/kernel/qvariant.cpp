@@ -145,11 +145,11 @@ QVariant::Private::Private( Private* d )
 	    value.ptr = new QColorGroup( *((QColorGroup*)d->value.ptr) );
 	    break;
 #endif
-#ifndef QT_NO_ICONSET	    
+#ifndef QT_NO_ICONSET	
 	case QVariant::IconSet:
 	    value.ptr = new QIconSet( *((QIconSet*)d->value.ptr) );
 	    break;
-#endif	    
+#endif	
 	case QVariant::List:
 	    value.ptr = new QValueList<QVariant>( *((QValueList<QVariant>*)d->value.ptr) );
 	    break;
@@ -2451,4 +2451,3 @@ bool QVariant::operator!=( const QVariant &v ) const
 {
     return !( v == *this );
 }
-

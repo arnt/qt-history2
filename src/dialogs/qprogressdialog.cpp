@@ -61,10 +61,10 @@ static const int margin_tb   = 10;
 static const int spacing     = 4;
 
 
-class QProgressDialog::Data
+class QProgressDialogData
 {
 public:
-    Data( QProgressDialog* that, QWidget* parent,
+    QProgressDialogData( QProgressDialog* that, QWidget* parent,
 		   const QString& labelText,
 		   int totalSteps ) :
 	creator( parent ),
@@ -235,9 +235,9 @@ QProgressBar *QProgressDialog::bar() const
   </ul>
 
   The top level parent of \a creator becomes the parent of the dialog.
-  \a name, \a modal, and \a f are sent to the QDialog::QDialog() constructor. 
-  Note that if \a modal is FALSE (the default), you will need to have an 
-  event loop proceeding for any redrawing of the dialog to occur.  If it is TRUE, 
+  \a name, \a modal, and \a f are sent to the QDialog::QDialog() constructor.
+  Note that if \a modal is FALSE (the default), you will need to have an
+  event loop proceeding for any redrawing of the dialog to occur.  If it is TRUE,
   the dialog ensures that events are processed when needed.
 
   \sa setLabelText(), setLabel(), setCancelButtonText(), setCancelButton(),
@@ -307,7 +307,7 @@ void QProgressDialog::init( QWidget *creator,
 			    const QString& lbl, const QString& canc,
 			    int totstps)
 {
-    d = new Data(this, creator, lbl, totstps);
+    d = new QProgressDialogData(this, creator, lbl, totstps);
     d->autoClose = TRUE;
     d->autoReset = TRUE;
     d->forceHide = FALSE;
@@ -467,7 +467,7 @@ bool QProgressDialog::wasCancelled() const
 
 
 /*!
-  \property QProgressDialog::totalSteps 
+  \property QProgressDialog::totalSteps
   \brief the total number of steps.
 */
 
@@ -526,7 +526,7 @@ void QProgressDialog::cancel()
   \brief the current amount of progress made.
 
   For the progress dialog to work correctly,
-  you must initially set this property to 0 and finally to QProgressDialog::totalSteps(); 
+  you must initially set this property to 0 and finally to QProgressDialog::totalSteps();
   you may call it any number of times in-between.
 
   \warning If the progress dialog is modal

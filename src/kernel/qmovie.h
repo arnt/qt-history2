@@ -46,6 +46,7 @@
 
 class QDataSource;
 class QObject;
+class QMoviePrivate;
 
 class Q_EXPORT QMovie {
 public:
@@ -108,8 +109,7 @@ public:
     void disconnectStatus(QObject* receiver, const char *member=0);
 
 private:
-    class Private;
-    Private *d;
+    QMoviePrivate *d;
 };
 
 #endif	// QT_NO_MOVIE

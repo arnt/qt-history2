@@ -66,11 +66,10 @@ class QDragLeaveEvent;
 class QKeyEvent;
 class QFocusEvent;
 class QShowEvent;
-
 class QIconViewItem;
 class QIconViewItemLineEdit;
-
 class QStringList;
+class QIconDragPrivate;
 
 #ifndef QT_NO_DRAGANDDROP
 
@@ -102,8 +101,7 @@ public:
     virtual QByteArray encodedData( const char* mime ) const;
 
 private:
-    class Private;
-    Private *d;
+    QIconDragPrivate *d;
     QChar endMark;
 
     friend class QIconView;
@@ -113,6 +111,7 @@ private:
 #endif
 
 class QIconViewToolTip;
+class QIconViewItemPrivate;
 
 class QM_EXPORT QIconViewItem : public Qt
 {
@@ -241,8 +240,7 @@ private:
     QIconViewItemLineEdit *renameBox;
     QRect oldRect;
 
-    class Private;
-    Private *d;
+    QIconViewItemPrivate *d;
 
 };
 

@@ -57,6 +57,7 @@ class QGroupBox;
 class QRangeControlWidget;
 class QTitleBar;
 class QListViewItem;
+class QStylePrivate;
 
 class Q_EXPORT QStyle: public QObject
 {
@@ -349,8 +350,7 @@ protected:
     static const QWidget *contextWidget();
 
 private:
-    class Private;
-    Private * d;
+    QStylePrivate * d;
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

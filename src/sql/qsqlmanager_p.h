@@ -65,6 +65,7 @@
 
 class QSqlCursor;
 class QSqlForm;
+class QSqlCursorManagerPrivate;
 
 class Q_EXPORT QSqlCursorManager
 {
@@ -87,9 +88,10 @@ public:
     virtual bool findBuffer( const QSqlIndex& idx, int atHint = 0 );
 
 private:
-    class QSqlCursorManagerPrivate;
     QSqlCursorManagerPrivate* d;
 };
+
+class QSqlFormManagerPrivate;
 
 class Q_EXPORT QSqlFormManager
 {
@@ -107,11 +109,11 @@ public:
     virtual void writeFields();
 
 private:
-    class QSqlFormManagerPrivate;
     QSqlFormManagerPrivate* d;
 };
 
 class QWidget;
+class QDataManagerPrivate;
 
 class Q_EXPORT QDataManager
 {
@@ -141,7 +143,6 @@ public:
     bool confirmCancels() const;
 
 private:
-    class QDataManagerPrivate;
     QDataManagerPrivate* d;
 };
 

@@ -45,7 +45,7 @@
 #ifndef QT_NO_PRINTDIALOG
 
 class QGroupBox;
-
+class QPrintDialogPrivate;
 
 class Q_EXPORT QPrintDialog : public QDialog
 {
@@ -79,8 +79,7 @@ private slots:
     void fileNameEditChanged( const QString &text );
 
 private:
-    class Private;
-    Private *d;
+    QPrintDialogPrivate *d;
 
     QGroupBox * setupDestination();
     QGroupBox * setupOptions();

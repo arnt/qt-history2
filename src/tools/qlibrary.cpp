@@ -54,15 +54,15 @@
   and does the unload magic using a QTimer.
 */
 #ifndef QT_LITE_COMPONENT
-class QLibrary::Private : public QObject
+class QLibraryPrivate : public QObject
 {
     Q_OBJECT
 public:
-    Private( QLibrary *lib )
+    QLibraryPrivate( QLibrary *lib )
 	: QObject( 0, lib->library().latin1() ), pHnd( 0 ), libIface( 0 ), unloadTimer( 0 ), library( lib )
     {}
 
-    ~Private()
+    ~QLibraryPrivate()
     {
 	if ( libIface )
 	    libIface->release();
@@ -101,7 +101,7 @@ public slots:
     */
     void tryUnload()
     {
-	if ( library->policy() == Manual || !pHnd || !libIface )
+	if ( library->policy() == QLibrary::Manual || !pHnd || !libIface )
 	    return;
 
 	if ( !libIface->canUnload() )
@@ -122,10 +122,10 @@ private:
 
 #include "qlibrary.moc"
 #else
-class QLibrary::Private
+class QLibraryPrivate
 {
 public:
-    Private( QLibrary *lib )
+    QLibraryPrivate( QLibrary *lib )
 	: pHnd( 0 ), libIface( 0 ), library( lib )
     {}
 
@@ -165,7 +165,7 @@ private:
 // Windows
 #include "qt_windows.h"
 
-bool QLibrary::Private::loadLibrary()
+bool QLibraryPrivate::loadLibrary()
 {
     if ( pHnd )
 	return TRUE;
@@ -188,7 +188,7 @@ bool QLibrary::Private::loadLibrary()
     return pHnd != 0;
 }
 
-bool QLibrary::Private::freeLibrary()
+bool QLibraryPrivate::freeLibrary()
 {
     if ( !pHnd )
 	return TRUE;
@@ -203,7 +203,7 @@ bool QLibrary::Private::freeLibrary()
     return ok;
 }
 
-void* QLibrary::Private::resolveSymbol( const char* f )
+void* QLibraryPrivate::resolveSymbol( const char* f )
 {
     if ( !pHnd )
 	return NULL;
@@ -221,7 +221,7 @@ void* QLibrary::Private::resolveSymbol( const char* f )
 // for HP-UX < 11.x and 32 bit
 #include <dl.h>
 
-bool QLibrary::Private::loadLibrary()
+bool QLibraryPrivate::loadLibrary()
 {
     if ( pHnd )
 	return TRUE;
@@ -240,7 +240,7 @@ bool QLibrary::Private::loadLibrary()
     return pHnd != 0;
 }
 
-bool QLibrary::Private::freeLibrary()
+bool QLibraryPrivate::freeLibrary()
 {
     if ( !pHnd )
 	return TRUE;
@@ -254,7 +254,7 @@ bool QLibrary::Private::freeLibrary()
     return FALSE;
 }
 
-void* QLibrary::Private::resolveSymbol( const char* symbol )
+void* QLibraryPrivate::resolveSymbol( const char* symbol )
 {
     if ( !pHnd )
 	return NULL;
@@ -295,7 +295,7 @@ enum DYLD_BOOL { DYLD_TRUE=1, DYLD_FALSE=0 };
 static QDict<void> *glibs_loaded = NULL;
 
 // Mac
-bool QLibrary::Private::loadLibrary()
+bool QLibraryPrivate::loadLibrary()
 {
     if ( pHnd )
 	return TRUE;
@@ -324,7 +324,7 @@ bool QLibrary::Private::loadLibrary()
 #endif
 }
 
-bool QLibrary::Private::freeLibrary()
+bool QLibraryPrivate::freeLibrary()
 {
     if ( !pHnd )
 	return TRUE;
@@ -346,7 +346,7 @@ bool QLibrary::Private::freeLibrary()
 #endif
 }
 
-void* QLibrary::Private::resolveSymbol( const char *symbol )
+void* QLibraryPrivate::resolveSymbol( const char *symbol )
 {
     if ( !pHnd )
 	return NULL;
@@ -362,17 +362,17 @@ void* QLibrary::Private::resolveSymbol( const char *symbol )
 
 #elif defined(Q_OS_MAC9)
 
-bool QLibrary::Private::loadLibrary()
+bool QLibraryPrivate::loadLibrary()
 {
     return FALSE;
 }
 
-bool QLibrary::Private::freeLibrary()
+bool QLibraryPrivate::freeLibrary()
 {
     return FALSE;
 }
 
-void* QLibrary::Private::resolveSymbol( const char *symbol )
+void* QLibraryPrivate::resolveSymbol( const char *symbol )
 {
     return NULL;
 }
@@ -382,7 +382,7 @@ void* QLibrary::Private::resolveSymbol( const char *symbol )
 // Something else, assuming POSIX
 #include <dlfcn.h>
 
-bool QLibrary::Private::loadLibrary()
+bool QLibraryPrivate::loadLibrary()
 {
     if ( pHnd )
 	return TRUE;
@@ -399,7 +399,7 @@ bool QLibrary::Private::loadLibrary()
     return pHnd != 0;
 }
 
-bool QLibrary::Private::freeLibrary()
+bool QLibraryPrivate::freeLibrary()
 {
     if ( !pHnd )
 	return TRUE;
@@ -417,7 +417,7 @@ bool QLibrary::Private::freeLibrary()
     return pHnd == 0;
 }
 
-void* QLibrary::Private::resolveSymbol( const char* f )
+void* QLibraryPrivate::resolveSymbol( const char* f )
 {
     if ( !pHnd )
 	return 0;
@@ -465,7 +465,7 @@ void* QLibrary::Private::resolveSymbol( const char* f )
 QLibrary::QLibrary( const QString& filename, Policy pol )
     : libfile( filename ), libPol( pol ), entry( 0 )
 {
-    d = new Private( this );
+    d = new QLibraryPrivate( this );
     if ( pol == Immediately )
 	d->loadLibrary();
 }

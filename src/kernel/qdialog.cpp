@@ -108,11 +108,11 @@
   property is enabled.  By default, the size grip is disabled.
 */
 
-class QDialog::Private : public Qt
+class QDialogPrivate : public Qt
 {
 public:
 
-    Private()
+    QDialogPrivate()
 	: mainDef(0), orientation(Horizontal),extension(0)
 #ifndef QT_NO_SIZEGRIP
 	,resizer(0)
@@ -155,7 +155,7 @@ QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     did_move = FALSE;
     did_resize = FALSE;
     in_loop = FALSE;
-    d = new Private;
+    d = new QDialogPrivate;
 }
 
 /*!

@@ -10933,7 +10933,7 @@ static const char * const aqua_spinbtn_up_off_xpm[] = {
 #define INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
 
-class QAquaStyle::Private
+class QAquaStylePrivate
 {
 public:
     //blinking buttons
@@ -10990,9 +10990,9 @@ static int qAquaGetNum( const QString & s )
  */
 static bool qAquaActive( const QColorGroup & g )
 {
-    if( g.buttonText() == QColor( 148,148,148 ) ) 
+    if( g.buttonText() == QColor( 148,148,148 ) )
         return FALSE;
-    else 
+    else
         return TRUE;
 }
 
@@ -11027,7 +11027,7 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 	p.drawTiledPixmap( gen_back.rect(), tmp );
         QPixmapCache::insert( "$qt_aqua_gen_back", gen_back );
     }
-    
+
     if( s.contains("sel_back" ) )
         QPixmapCache::insert( "$qt_aqua_sel_back",
                               QPixmap( (const char **) aqua_sel_back_xpm ) );
@@ -11109,15 +11109,15 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
                                    QString::number( size ), px );
         }
 
-	// Create pixmaps for toggle buttons - a mirrored version of the default btn. 
+	// Create pixmaps for toggle buttons - a mirrored version of the default btn.
         QPixmap mirl;
-	QPixmapCache::find( "$qt_aqua_btn_def_left_" + 
+	QPixmapCache::find( "$qt_aqua_btn_def_left_" +
 			    QString::number(size), mirl );
         QPixmap mirm;
-	QPixmapCache::find( "$qt_aqua_btn_def_mid_" + 
+	QPixmapCache::find( "$qt_aqua_btn_def_mid_" +
 			    QString::number(size), mirm );
         QPixmap mirr;
-	QPixmapCache::find( "$qt_aqua_btn_def_right_" + 
+	QPixmapCache::find( "$qt_aqua_btn_def_right_" +
 			    QString::number(size), mirr );
 	im = mirl;	
         px = im.mirror( FALSE, TRUE );
@@ -11293,7 +11293,7 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 	im = a_psh_left;
         px = im.smoothScale( im.width(), size );
         QPixmapCache::insert( "$qt_aqua_hsbr_arw_psh_left_" + sizestr, px );
-        
+
 	im = t_left;
         px = im.smoothScale( im.width(), size );
         QPixmapCache::insert( "$qt_aqua_hsbr_tip_left_" + sizestr, px );
@@ -11439,7 +11439,7 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 	px = dis_down.xForm( wm );
         QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_right_" + sizestr, px );
     }
-    
+
     if( s.contains("sldr_grv") ){
 	QPixmap lpart( (const char **) aqua_sldr_grv_tip_left_xpm );
 	QPixmap mpart( (const char **) aqua_sldr_grv_mid_xpm );
@@ -11731,7 +11731,7 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         QPixmapCache::insert( "$qt_aqua_spinbtn_up_off_" + wstr + "_" + hstr,
 			      px );
     }
-    
+
     QPixmapCache::find( str, p );
 }
 
@@ -11740,7 +11740,7 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 */
 QAquaStyle::QAquaStyle()
 {
-    d = new Private;
+    d = new QAquaStylePrivate;
     d->defaultButton = 0;
     d->focusWidget = 0;
     d->progressTimerId = d->buttonTimerId = -1;
@@ -11766,7 +11766,7 @@ void QAquaStyle::polish( QPalette & pal )
     pal.setBrush( QPalette::Active, QColorGroup::Background, background );
     pal.setBrush( QPalette::Inactive, QColorGroup::Background, background );
     pal.setBrush( QPalette::Disabled, QColorGroup::Background, background );
-    
+
     pal.setBrush( QPalette::Active, QColorGroup::Button, background );
     pal.setBrush( QPalette::Inactive, QColorGroup::Button, background );
     pal.setBrush( QPalette::Disabled, QColorGroup::Button, background );
@@ -11839,8 +11839,8 @@ void QAquaStyle::polish( QWidget * w )
             w->setBackgroundOrigin( QWidget::WindowOrigin );
     }
 
-    if( w->inherits("QFrame") && w->parentWidget() && 
-	!w->inherits("QSpinBox") && !w->topLevelWidget()->inherits("QPopupMenu") ) 
+    if( w->inherits("QFrame") && w->parentWidget() &&
+	!w->inherits("QSpinBox") && !w->topLevelWidget()->inherits("QPopupMenu") )
 	w->installEventFilter( this );
 }
 
@@ -11866,7 +11866,7 @@ void QAquaStyle::unPolish( QWidget * w )
 	    d->progressTimerId = -1;
 	}
     }
-	    
+	
 
     if( w->inherits("QToolButton") ){
         QToolButton * btn = (QToolButton *) w;
@@ -11878,7 +11878,7 @@ void QAquaStyle::unPolish( QWidget * w )
             (w->backgroundMode() == QWidget::PaletteBackground) )
             w->setBackgroundOrigin( QWidget::WidgetOrigin );
     }
-    
+
     if(w == d->focusWidget) {
 	if(w->inherits("QFrame")) {
 	    QFrame *frm = (QFrame *)w;
@@ -11897,7 +11897,7 @@ void QAquaStyle::unPolish( QWidget * w )
 void QAquaStyle::timerEvent( QTimerEvent * te )
 {
     if( te->timerId() == d->buttonTimerId ){
-	if( d->defaultButton != 0 && (d->defaultButton->isDefault() || 
+	if( d->defaultButton != 0 && (d->defaultButton->isDefault() ||
 				      d->defaultButton->autoDefault()) )
 	    d->defaultButton->repaint( FALSE );
     } else if( te->timerId() == d->progressTimerId ) {
@@ -11927,10 +11927,10 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 	    QPushButton * pb;
 	    while ( (pb = (QPushButton*)it.current()) ) {
 		++it;
-		if( ((e->type() == QEvent::FocusOut) && (pb->isDefault() || 
-							 pb->autoDefault() && 
+		if( ((e->type() == QEvent::FocusOut) && (pb->isDefault() ||
+							 pb->autoDefault() &&
 							 (pb != btn)) ) ||
-		    ((e->type() == QEvent::Show) && pb->isDefault()) ) 
+		    ((e->type() == QEvent::Show) && pb->isDefault()) )
 		{
 		    QPushButton * tmp = d->defaultButton;
 		    d->defaultButton = 0;
@@ -11942,7 +11942,7 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 	    }
 	    delete list;
         } else if( e->type() == QEvent::Hide ) {
-	    if( d->defaultButton == btn ) 
+	    if( d->defaultButton == btn )
 		d->defaultButton = 0;
 	}
     } else if( o->inherits("QFrame") ) {
@@ -11958,7 +11958,7 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 		out->repaint();
 	    }
 	    d->focusWidget = NULL;
-	} 
+	}
 	if( e->type() == QEvent::FocusIn && !o->inherits("QTable") ) {
 	    //save it
 	    d->focusWidget = frm;
@@ -12156,8 +12156,8 @@ QRect QAquaStyle::buttonRect( int x, int y, int w, int h) const
 }
 
 /*! \reimp */
-void QAquaStyle::drawToolButton( QPainter *p, int x, int y, int width, int height, 
-				 const QColorGroup &, bool on, bool down, bool, bool, 
+void QAquaStyle::drawToolButton( QPainter *p, int x, int y, int width, int height,
+				 const QColorGroup &, bool on, bool down, bool, bool,
 				 const QBrush * )
 {
     QPixmap px;
@@ -12168,7 +12168,7 @@ void QAquaStyle::drawToolButton( QPainter *p, int x, int y, int width, int heigh
     QToolButton * btn = (QToolButton *) obj;
     if ( !obj )
 	return;
-    
+
     obj = obj->parent();
     if ( obj && obj->inherits("QToolBar") ) {
         QToolBar * bar  = (QToolBar *) obj;
@@ -12597,7 +12597,7 @@ void QAquaStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 		qAquaPixmap( "hsbr_arw_psh_left_" + nstr, arw_l );
 	    else
 		qAquaPixmap( "hsbr_arw_left_" + nstr, arw_l );
-	    
+	
 	    if ( ADD_LINE_ACTIVE )
 		qAquaPixmap( "hsbr_arw_psh_right_" + nstr, arw_r );
 	    else
@@ -12815,7 +12815,7 @@ void QAquaStyle::drawSlider( QPainter *p, int x, int y, int /*w*/, int h,
     }
     if(contextWidget())
 	((QWidget *)contextWidget())->erase(x, y, px.width(), px.height());
-    p->drawPixmap( x, y, px );    
+    p->drawPixmap( x, y, px );
 }
 
 /*! \reimp */
@@ -12841,7 +12841,7 @@ void QAquaStyle::drawSliderGroove( QPainter *p, int x, int y, int w, int h,
     bool tickAbove = FALSE;
     QString dir;
     QSlider * s = (QSlider *) QStyle::contextWidget();
-    
+
     if ( s != 0 ) {
 	tickAbove = (s->tickmarks() == QSlider::Above);
     }
@@ -12990,7 +12990,7 @@ void QAquaStyle::drawPopupMenuItem( QPainter* p, bool checkable,
     if ( checkable ) {
 #if defined(Q_WS_WIN)
         if ( qWinVersion() == Qt::WV_2000 ||
-             qWinVersion() == Qt::WV_98 || 
+             qWinVersion() == Qt::WV_98 ||
 	     qWinVersion() == Qt::WV_XP )
             maxpmw = QMAX( maxpmw, 16 );
 #endif
@@ -13398,7 +13398,7 @@ void QAquaStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h,
 {
     QPixmap px;
     qAquaPixmap( "progress_" + QString::number(h), px );
-    p->drawTiledPixmap( x, y, w, h, px, (x % px.width()) - d->progressOff, 0 ); 
+    p->drawTiledPixmap( x, y, w, h, px, (x % px.width()) - d->progressOff, 0 );
 }
 
 void QAquaStyle::drawItem( QPainter *p, int x, int y, int w, int h,
@@ -13407,7 +13407,7 @@ void QAquaStyle::drawItem( QPainter *p, int x, int y, int w, int h,
 			   int len, const QColor* penColor )
 {
     flags |= NoAccel;
-    QWindowsStyle::drawItem( p, x, y, w, h, flags, g, enabled, pixmap, text, 
+    QWindowsStyle::drawItem( p, x, y, w, h, flags, g, enabled, pixmap, text,
 			     len, penColor );
 }
 
@@ -13417,13 +13417,13 @@ int QAquaStyle::spinboxFrameWidth() const
 }
 
 void QAquaStyle::drawRangeControlWidgetButton( QPainter * p, int x, int y,
-	  int w, int h, const QColorGroup &, QRangeControlWidget *, 
+	  int w, int h, const QColorGroup &, QRangeControlWidget *,
 	  bool downbtn, bool, bool down )
 {
     QString wstr = QString::number( w );
     QString hstr = QString::number( h );
     QPixmap btn;
-    
+
     if ( !down && downbtn )
 	qAquaPixmap( "spinbtn_down_off_" + wstr + "_" + hstr, btn );
     else if ( !down && !downbtn )
@@ -13437,7 +13437,7 @@ void QAquaStyle::drawRangeControlWidgetButton( QPainter * p, int x, int y,
 }
 
 void QAquaStyle::drawRangeControlWidgetSymbol( QPainter *, int, int,
-	  int, int, const QColorGroup &, QRangeControlWidget *, 
+	  int, int, const QColorGroup &, QRangeControlWidget *,
 	  bool, bool, bool )
 {
 }

@@ -88,7 +88,7 @@
 */
 
 
-class QWizard::Private
+class QWizardPrivate
 {
 public:
     struct Page {
@@ -137,7 +137,7 @@ public:
 };
 
 
-/*!  Constructs an empty wizard dialog. 
+/*!  Constructs an empty wizard dialog.
     The \a parent, \a name, \a modal and \a f arguments are passed to
     the QDialog constructor.
 
@@ -147,7 +147,7 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
 		  WFlags f )
     : QDialog( parent, name, modal, f )
 {
-    d = new Private();
+    d = new QWizardPrivate();
     d->current = 0; // not quite true, but...
     d->ws = new QWidgetStack( this );
     d->title = new QLabel( this, "title label" );
@@ -242,7 +242,7 @@ void QWizard::addPage( QWidget * page, const QString & title )
 	return;
     }
     int i = d->pages.count();
-    Private::Page * p = new Private::Page( page, title );
+    QWizardPrivate::Page * p = new QWizardPrivate::Page( page, title );
     p->backEnabled = ( i > 0 );
 
     d->ws->addWidget( page, i );
@@ -269,7 +269,7 @@ void QWizard::insertPage( QWidget * page, const QString & title, int index )
     if ( index < 0  || index > (int)d->pages.count() )
 	index = d->pages.count();
 
-    Private::Page * p = new Private::Page( page, title );
+    QWizardPrivate::Page * p = new QWizardPrivate::Page( page, title );
     p->backEnabled = ( index > 0 );
     p->nextEnabled = ( index < (int)d->pages.count() );
 
@@ -288,7 +288,7 @@ void QWizard::insertPage( QWidget * page, const QString & title, int index )
 
 void QWizard::showPage( QWidget * page )
 {
-    Private::Page * p = d->page( page );
+    QWizardPrivate::Page * p = d->page( page );
     if ( p ) {
 	setBackEnabled( p->back != 0 );
 	setNextEnabled( TRUE );
@@ -316,7 +316,7 @@ int QWizard::pageCount() const
 
 int QWizard::indexOf( QWidget* page ) const
 {
-    Private::Page * p = d->page( page );
+    QWizardPrivate::Page * p = d->page( page );
     if ( !p ) return -1;
 
     return d->pages.find( p );
@@ -416,7 +416,7 @@ void QWizard::setHelpEnabled( bool enable )
 */
 void QWizard::setBackEnabled( QWidget * page, bool enable )
 {
-    Private::Page * p = d->page( page );
+    QWizardPrivate::Page * p = d->page( page );
     if ( !p )
 	return;
 
@@ -432,7 +432,7 @@ void QWizard::setBackEnabled( QWidget * page, bool enable )
 */
 void QWizard::setNextEnabled( QWidget * page, bool enable )
 {
-    Private::Page * p = d->page( page );
+    QWizardPrivate::Page * p = d->page( page );
     if ( !p )
 	return;
 
@@ -448,7 +448,7 @@ void QWizard::setNextEnabled( QWidget * page, bool enable )
 */
 void QWizard::setFinishEnabled( QWidget * page, bool enable )
 {
-    Private::Page * p = d->page( page );
+    QWizardPrivate::Page * p = d->page( page );
     if ( !p )
 	return;
 
@@ -464,7 +464,7 @@ void QWizard::setFinishEnabled( QWidget * page, bool enable )
 */
 void QWizard::setHelpEnabled( QWidget * page, bool enable )
 {
-    Private::Page * p = d->page( page );
+    QWizardPrivate::Page * p = d->page( page );
     if ( !p )
 	return;
 
@@ -484,7 +484,7 @@ void QWizard::setHelpEnabled( QWidget * page, bool enable )
 
 bool QWizard::appropriate( QWidget * page ) const
 {
-    Private::Page * p = d->page( page );
+    QWizardPrivate::Page * p = d->page( page );
     return p ? p->appropriate : TRUE;
 }
 
@@ -498,7 +498,7 @@ bool QWizard::appropriate( QWidget * page ) const
 */
 void QWizard::setAppropriate( QWidget * page, bool appropriate )
 {
-    Private::Page * p = d->page( page );
+    QWizardPrivate::Page * p = d->page( page );
     if ( p )
 	p->appropriate = appropriate;
 }
@@ -538,7 +538,7 @@ QWidget * QWizard::currentPage() const
 
 QString QWizard::title( QWidget * page ) const
 {
-    Private::Page * p = d->page( page );
+    QWizardPrivate::Page * p = d->page( page );
     return p ? p->t : QString::null;
 }
 
@@ -547,7 +547,7 @@ QString QWizard::title( QWidget * page ) const
 
 void QWizard::setTitle( QWidget *page, const QString &title )
 {
-    Private::Page * p = d->page( page );
+    QWizardPrivate::Page * p = d->page( page );
     if ( p )
 	p->t = title;
     if ( page == currentPage() )
@@ -639,7 +639,7 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
 {
     bool hasHelp = FALSE;
     bool hasEarlyFinish = FALSE;
-        
+
     int i = d->pages.count() - 2;
     while ( !hasEarlyFinish && i >= 0 ) {
 	if ( d->pages.at( i ) && d->pages.at( i )->finishEnabled )
@@ -681,16 +681,16 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
 	d->finishButton->hide();
 	h->addWidget( d->nextButton );
     }
-    
+
     // if last page is disabled - show finished btn. at lastpage-1
     i = d->pages.count()-1;
-    if ( i >= 0 && !appropriate( d->pages.at( i )->w ) && 
+    if ( i >= 0 && !appropriate( d->pages.at( i )->w ) &&
 	 d->current == d->pages.at( d->pages.count()-2 ) ) {
 	d->nextButton->hide();
 	d->finishButton->show();
 	h->addWidget( d->finishButton );
     }
-    
+
     if ( hasHelp ) {
 	h->addSpacing( 12 );
 	h->addWidget( d->helpButton );
@@ -778,7 +778,7 @@ void QWizard::removePage( QWidget * page )
     while( --i >= 0 && d->pages.at( i ) && d->pages.at( i )->w != page ) { }
     if ( i < 0 )
 	return;
-    Private::Page * p = d->pages.at( i );
+    QWizardPrivate::Page * p = d->pages.at( i );
     d->pages.removeRef( p );
     delete p;
     d->ws->removeWidget( page );

@@ -44,6 +44,8 @@
 
 #ifndef QT_NO_NETWORKPROTOCOL
 
+class QUrlPrivate;
+
 class Q_EXPORT QUrl
 {
 public:
@@ -115,8 +117,7 @@ protected:
     virtual bool parse( const QString& url );
 
 private:
-    class Private;
-    Private *d;
+    QUrlPrivate *d;
 
 };
 

@@ -43,6 +43,8 @@
 
 #ifndef QT_NO_SOUND
 
+class QSoundData;
+
 class Q_EXPORT QSound : public QObject {
     Q_OBJECT
 public:
@@ -66,8 +68,7 @@ public slots:
     void play();
 
 private:
-    class Data;
-    Data* d;
+    QSoundData* d;
 };
 
 

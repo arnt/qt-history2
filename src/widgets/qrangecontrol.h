@@ -121,6 +121,8 @@ inline int QRangeControl::pageStep() const
 
 #ifndef QT_NO_RANGECONTROLWIDGET
 
+class QRangeControlWidgetPrivate;
+
 class Q_EXPORT QRangeControlWidget : public QFrame
 {
     Q_OBJECT
@@ -159,8 +161,7 @@ private slots:
     void stepDown();
 
 private:
-    class Private;
-    Private * d;
+    QRangeControlWidgetPrivate * d;
 
     void arrange();
     void updateDisplay();

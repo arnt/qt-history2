@@ -248,28 +248,27 @@ public:
 private:
     void detach();
 
-    class Private;
-    Private* d;
-};
-
-class QVariant::Private : public QShared
-{
-public:
-    Private();
-    Private( Private* );
-    ~Private();
-
-    void clear();
-
-    QVariant::Type typ;
-    union
+    class Private : public QShared
     {
-	uint u;
-	int i;
-	bool b;
-	double d;
-	void *ptr;
-    } value;
+    public:
+        Private();
+        Private( Private* );
+        ~Private();
+
+        void clear();
+
+        QVariant::Type typ;
+        union
+        {
+	    uint u;
+	    int i;
+	    bool b;
+	    double d;
+	    void *ptr;
+        } value;
+    };
+
+    Private* d;
 };
 
 // down here for GCC 2.7.* compatibility

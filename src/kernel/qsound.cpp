@@ -71,7 +71,7 @@ void QAuServer::play(const QString& filename)
 
 extern QAuServer* qt_new_audio_server();
 
-class QSound::Data {
+class QSoundData {
 public:
     static QAuServer& server()
     {
@@ -79,12 +79,12 @@ public:
 	return *servers->first();
     }
 
-    Data(const QString& fname) :
+    QSoundData(const QString& fname) :
 	filename(fname), bucket(0)
     {
     }
 
-    ~Data()
+    ~QSoundData()
     {
 	if ( bucket )
 	    server().deleteBucket(bucket);
@@ -146,7 +146,7 @@ public:
 */
 void QSound::play(const QString& filename)
 {
-    Data::server().play(filename);
+    QSoundData::server().play(filename);
 }
 
 /*!
@@ -160,7 +160,7 @@ void QSound::play(const QString& filename)
 */
 QSound::QSound(const QString& filename, QObject* parent, const char* name) :
     QObject(parent,name),
-    d(new Data(filename))
+    d(new QSoundData(filename))
 {
 }
 
@@ -196,7 +196,7 @@ void QSound::play()
 */
 bool QSound::available()
 {
-    return Data::server().okay();
+    return QSoundData::server().okay();
 }
 
 #endif // QT_NO_SOUND

@@ -49,7 +49,7 @@
 
 //#define QT_DEBUG_DATAMANAGER
 
-class QSqlCursorManager::QSqlCursorManagerPrivate
+class QSqlCursorManagerPrivate
 {
 public:
     QSqlCursorManagerPrivate()
@@ -467,7 +467,7 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 }
 
 
-class QSqlFormManager::QSqlFormManagerPrivate
+class QSqlFormManagerPrivate
 {
 public:
     QSqlFormManagerPrivate() : frm(0), rcd(0) {}
@@ -609,7 +609,7 @@ void QSqlFormManager::writeFields()
     }
 }
 
-class QDataManager::QDataManagerPrivate
+class QDataManagerPrivate
 {
 public:
     QDataManagerPrivate()

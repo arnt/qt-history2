@@ -47,6 +47,7 @@
 #ifndef QT_NO_HEADER
 
 class QShowEvent;
+class QHeaderData;
 
 class Q_EXPORT QHeader : public QWidget
 {
@@ -170,8 +171,7 @@ private:
     int	cachedPos; // not used
     Orientation orient;
 
-    class Data;
-    Data *d;
+    QHeaderData *d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

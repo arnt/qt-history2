@@ -59,7 +59,7 @@
 
 class  QListBox;
 class  QComboBox;
-
+class QFontDialogPrivate;
 
 class Q_EXPORT QFontDialog: public QDialog
 {
@@ -122,9 +122,8 @@ private:
     static QFont getFont( bool *ok, const QFont *def,
 			  QWidget *parent = 0, const char* name = 0);
 
-    class Private;
-    Private * d;
-    friend class Private;
+    QFontDialogPrivate * d;
+    friend class QFontDialogPrivate;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

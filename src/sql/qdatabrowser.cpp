@@ -42,7 +42,7 @@
 #include "qsqlmanager_p.h"
 #include "qsqlresult.h"
 
-class QDataBrowser::QDataBrowserPrivate
+class QDataBrowserPrivate
 {
 public:
     QDataBrowserPrivate() : boundaryCheck( TRUE ), readOnly( FALSE ) {}
@@ -74,25 +74,25 @@ public:
     the data browser has been constructed it can be associated with a
     dataset with setCursor() (or setSqlCursor()), and with a form with
     setForm(). Boundary checking, sorting and filtering can be set with
-    setBoundaryChecking(), setSort() and setFilter(), respectively. 
+    setBoundaryChecking(), setSort() and setFilter(), respectively.
 
     The insertCurrent() function reads the fields from the default form
     into the default cursor and performs the insert. The updateCurrent()
     and deleteCurrent() functions perform similarly to update and delete
-    the current record respectively. 
-    
+    the current record respectively.
+
     The user can be asked to confirm all edits with setConfirmEdits().
     For more precise control use setConfirmInsert(), setConfirmUpdate(),
     setConfirmDelete() and setConfirmCancels(). Use setAutoEdit() to
     control the behaviour of the form when the user edits a record and
-    then navigates. 
+    then navigates.
 
     The record set is navigated using first(), next(), prev(), last()
     and seek(). The form's display is updated with refresh(). When
     navigation takes place the firstRecordAvailable(),
     lastRecordAvailable(), nextRecordAvailable() and
     prevRecordAvailable() signals are emitted. When the cursor record is
-    changed due to navigation the cursorChanged() signal is emitted. 
+    changed due to navigation the cursorChanged() signal is emitted.
 
     If you want finer control of the insert, update and delete processes
     then you can use the low level functions to perform these
@@ -111,15 +111,15 @@ public:
     into the database. The beforeInsert() signal is emitted just before
     the cursor's edit buffer is inserted into the database; connect to
     this for example, to populate fields such as an auto-generated
-    primary key. 
+    primary key.
     <li>\e update For updates the primeUpdate() signal is emitted when
     the data browser enters update mode. After calling writeFields()
     call update() to update the record and connect to the beforeUpdate()
-    signal to manipulate the user's data before the update takes place. 
+    signal to manipulate the user's data before the update takes place.
     <li>\e delete For deletion the primeDelete() signal is emitted when
     the data browser enters deletion mode. After calling writeFields()
     call del() to delete the record and connect to the beforeDelete()
-    signal, for example to record an audit of the deleted record. 
+    signal, for example to record an audit of the deleted record.
     </ul>
 
 */
@@ -489,7 +489,7 @@ bool QDataBrowser::confirmCancels() const
   insertion or an update on a form there are two possible outcomes when
   they navigate to another record:
 
-  \list 
+  \list
   \i the insert or update is is performed -- this occurs if autoEdit is TRUE
   \i the insert or update is discarded -- this occurs if autoEdit is FALSE
   \endlist

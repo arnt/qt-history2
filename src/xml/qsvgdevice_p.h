@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice_p.h#4 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice_p.h#5 $
 **
 ** Definition of the QSvgDevice class
 **
@@ -69,6 +69,7 @@
 class QPainter;
 class QDomNode;
 class QDomNamedNodeMap;
+class QSvgDevicePrivate;
 
 class Q_EXPORT QSvgDevice : public QPaintDevice
 {
@@ -115,8 +116,7 @@ private:
     // writing
     bool dirtyTransform, dirtyStyle;
 
-    class Private;
-    Private *d;
+    QSvgDevicePrivate *d;
 };
 
 inline QRect QSvgDevice::boundingRect() const

@@ -69,6 +69,8 @@ private:
     int selend;
 };
 
+class QDateTimeEditBasePrivate;
+
 class Q_EXPORT QDateTimeEditBase : public QWidget
 {
     Q_OBJECT
@@ -119,9 +121,10 @@ protected:
     virtual void removeLastNumber( int sec );
 
 private:
-    class Private;
-    Private* d;
+    QDateTimeEditBasePrivate* d;
 };
+
+class QDateEditPrivate;
 
 class Q_EXPORT QDateEdit : public QDateTimeEditBase
 {
@@ -183,9 +186,10 @@ private:
     int sectionOffsetEnd( int sec );
     int sectionLength( int sec );
     QString sectionText( int sec );
-    class Private;
-    Private* d;
+    QDateEditPrivate* d;
 };
+
+class QTimeEditPrivate;
 
 class Q_EXPORT QTimeEdit : public QDateTimeEditBase
 {
@@ -233,10 +237,10 @@ protected:
 private:
     void init();
     QString sectionText( int sec );
-    class Private;
-    Private* d;
+    QTimeEditPrivate* d;
 };
 
+class QDateTimeEditPrivate;
 
 class Q_EXPORT QDateTimeEdit : public QFrame
 {
@@ -285,8 +289,7 @@ protected slots:
 private:
     QDateEdit* de;
     QTimeEdit* te;
-    class Private;
-    Private* d;
+    QDateTimeEditPrivate* d;
 };
 
 

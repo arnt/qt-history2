@@ -52,6 +52,7 @@ class QSqlError;
 class QSqlDriver;
 class QSqlIndex;
 class QSqlRecord;
+class QSqlDatabasePrivate;
 
 class Q_EXPORT QSqlDatabase : public QObject
 {
@@ -109,8 +110,7 @@ protected:
     QSqlDatabase( const QString& type, const QString& name, QObject * parent=0, const char * objname=0 );
 private:
     void	init( const QString& type, const QString& name );
-    class Private;
-    Private* d;
+    QSqlDatabasePrivate* d;
 };
 
 #endif // QT_NO_SQL

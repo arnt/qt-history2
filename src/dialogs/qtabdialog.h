@@ -47,6 +47,7 @@
 
 class  QTabBar;
 class  QTab;
+class  QTabDialogPrivate;
 
 class Q_EXPORT QTabDialog : public QDialog
 {
@@ -129,8 +130,7 @@ private:
     void setSizes();
     void setUpLayout();
 
-    class Private;
-    Private *d;
+    QTabDialogPrivate *d;
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QTabDialog( const QTabDialog & );

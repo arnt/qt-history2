@@ -5720,7 +5720,7 @@ void QSmSocketReceiver::socketActivated(int)
 #undef Bool
 #include "qapplication_x11.moc"
 
-class QSessionManager::Data
+class QSessionManagerData
 {
 public:
     QStringList restartCommand;
@@ -5732,7 +5732,7 @@ public:
 QSessionManager::QSessionManager( QApplication * app, QString &session )
     : QObject( app, "session manager" )
 {
-    d = new Data;
+    d = new QSessionManagerData;
     d->sessionId = session;
     d->restartHint = RestartIfRunning;
 

@@ -15922,7 +15922,7 @@ static const char bitCount[256] = {
     4,  5,  5,  6,  5,  6,  6,  7,  5,  6,  6,  7,  6,  7,  7,  8
 };
 
-class QString::CoMatrix
+class CoMatrix
 {
 public:
     /*
@@ -15964,14 +15964,14 @@ public:
 	return w;
     }
 
-    static QString::CoMatrix reunion( const QString::CoMatrix& m, const QString::CoMatrix& n )
+    static CoMatrix reunion( const CoMatrix& m, const CoMatrix& n )
     {
 	CoMatrix p;
 	for ( int i = 0; i < 13; i++ )
 	    p.w[i] = m.w[i] | n.w[i];
 	return p;
     }
-    static QString::CoMatrix intersection( const QString::CoMatrix& m,const QString::CoMatrix& n )
+    static CoMatrix intersection( const CoMatrix& m,const CoMatrix& n )
     {
 	CoMatrix p;
 	for ( int i = 0; i < 13; i++ )
@@ -15997,10 +15997,10 @@ public:
 */
 int QString::similarityWith( const QString& target ) const
 {
-    QString::CoMatrix matrixForThis( *this );
-    QString::CoMatrix matrixForTarget( target );
-    return ( 15 * (QString::CoMatrix::intersection(matrixForThis, matrixForTarget).worth() + 1) ) /
-	   ( QString::CoMatrix::reunion(matrixForThis, matrixForTarget).worth() + 1 );
+    CoMatrix matrixForThis( *this );
+    CoMatrix matrixForTarget( target );
+    return ( 15 * (CoMatrix::intersection(matrixForThis, matrixForTarget).worth() + 1) ) /
+	   ( CoMatrix::reunion(matrixForThis, matrixForTarget).worth() + 1 );
 }
 
 #if defined(Q_OS_WIN32)

@@ -41,7 +41,7 @@
 #include "qrichtext_p.h"
 #include "qapplication.h"
 
-class QSimpleRichText::Data
+class QSimpleRichTextData
 {
 public:
     QTextDocument *doc;
@@ -105,7 +105,7 @@ public:
 QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 				  const QString& context, const QStyleSheet* sheet )
 {
-    d = new Data;
+    d = new QSimpleRichTextData;
     d->cachedWidth = -1;
     d->widthUsed = -1;
     d->font = fnt;
@@ -133,7 +133,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 				  const QMimeSourceFactory* factory, int verticalBreak,
 				  const QColor& /*linkColor*/, bool linkUnderline )
 {
-    d = new Data;
+    d = new QSimpleRichTextData;
     d->cachedWidth = -1;
     d->widthUsed = -1;
     d->font = fnt;

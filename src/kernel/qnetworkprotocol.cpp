@@ -52,7 +52,7 @@ extern Q_EXPORT QNetworkProtocolDict *qNetworkProtocolRegister;
 
 QNetworkProtocolDict *qNetworkProtocolRegister = 0;
 
-class QNetworkProtocol::Private
+class QNetworkProtocolPrivate
 {
 public:
     QUrlOperator *url;
@@ -344,7 +344,7 @@ QNetworkProtocol::QNetworkProtocol()
     : QObject()
 {
 
-    d = new Private;
+    d = new QNetworkProtocolPrivate;
     d->url = 0;
     d->opInProgress = 0;
     d->opStartTimer = new QTimer( this );
@@ -894,7 +894,7 @@ void QNetworkProtocol::emitNewChildren( const QUrlInfo &i, QNetworkOperation *op
     emit newChildren( lst, op );
 }
 
-class QNetworkOperation::Private
+class QNetworkOperationPrivate
 {
 public:
     QNetworkProtocol::Operation operation;
@@ -934,7 +934,7 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
 				      const QString &arg0, const QString &arg1,
 				      const QString &arg2 )
 {
-    d = new Private;
+    d = new QNetworkOperationPrivate;
     d->deleteTimer = new QTimer( this );
     connect( d->deleteTimer, SIGNAL( timeout() ),
 	     this, SLOT( deleteMe() ) );
@@ -961,7 +961,7 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
 				      const QByteArray &arg0, const QByteArray &arg1,
 				      const QByteArray &arg2 )
 {
-    d = new Private;
+    d = new QNetworkOperationPrivate;
     d->deleteTimer = new QTimer( this );
     connect( d->deleteTimer, SIGNAL( timeout() ),
 	     this, SLOT( deleteMe() ) );

@@ -117,9 +117,9 @@
   It is possible to constrain the input to an editable combobox using
   QValidator; see setValidator().  By default, all input is accepted.
 
-  If the combo box is not editable then it has a default focusPolicy() 
-  of \c TabFocus, i.e. it will not grab focus if clicked.  This 
-  differs from both Windows and Motif.  If the combo box is editable then it 
+  If the combo box is not editable then it has a default focusPolicy()
+  of \c TabFocus, i.e. it will not grab focus if clicked.  This
+  differs from both Windows and Motif.  If the combo box is editable then it
   has a default focusPolicy() of \c StrongFocus, i.e. it will grab focus if
   clicked.
 
@@ -282,10 +282,10 @@ public:
 };
 
 
-class QComboBox::Data
+class QComboBoxData
 {
 public:
-    Data( QComboBox *cb ): usingLBox( FALSE ), pop( 0 ), lBox( 0 ), combo( cb )
+    QComboBoxData( QComboBox *cb ): usingLBox( FALSE ), pop( 0 ), lBox( 0 ), combo( cb )
     {
 	duplicatesEnabled = TRUE;
 	cb->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
@@ -330,7 +330,7 @@ private:
 
 };
 
-void QComboBox::Data::updateLinedGeometry()
+void QComboBoxData::updateLinedGeometry()
 {
     if ( !ed || !combo )
 	return;
@@ -412,7 +412,7 @@ static inline bool checkIndex( const char *method, const char * name,
 QComboBox::QComboBox( QWidget *parent, const char *name )
     : QWidget( parent, name, WResizeNoErase )
 {
-    d = new Data( this );
+    d = new QComboBoxData( this );
     if ( style() == WindowsStyle ) {
 	setUpListBox();
     } else {
@@ -451,7 +451,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     : QWidget( parent, name, WResizeNoErase )
 {
-    d = new Data( this );
+    d = new QComboBoxData( this );
     setUpListBox();
 
     d->current = 0;

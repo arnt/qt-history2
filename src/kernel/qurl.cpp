@@ -44,7 +44,7 @@
 
 #include <stdlib.h>
 
-class QUrl::Private
+class QUrlPrivate
 {
 public:
     QString protocol;
@@ -146,7 +146,7 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 
 QUrl::QUrl()
 {
-    d = new Private;
+    d = new QUrlPrivate;
     d->isValid = FALSE;
     d->port = -1;
     d->cleanPathDirty = TRUE;
@@ -161,7 +161,7 @@ QUrl::QUrl()
 
 QUrl::QUrl( const QString& url )
 {
-    d = new Private;
+    d = new QUrlPrivate;
     d->protocol = "file";
     d->port = -1;
     parse( url );
@@ -173,7 +173,7 @@ QUrl::QUrl( const QString& url )
 
 QUrl::QUrl( const QUrl& url )
 {
-    d = new Private;
+    d = new QUrlPrivate;
     *d = *url.d;
 }
 
@@ -229,7 +229,7 @@ bool QUrl::isRelativeUrl( const QString &url )
 
 QUrl::QUrl( const QUrl& url, const QString& relUrl, bool checkSlash )
 {
-    d = new Private;
+    d = new QUrlPrivate;
     QString rel = relUrl;
     slashify( rel );
 

@@ -44,6 +44,8 @@
 
 #ifndef QT_NO_ACCEL
 
+class QAccelPrivate;
+
 class Q_EXPORT QAccel : public QObject			// accelerator class
 {
     Q_OBJECT
@@ -90,8 +92,7 @@ protected:
     bool	eventFilter( QObject *, QEvent * );
 
 private:
-    class Private;
-    Private * d;
+    QAccelPrivate * d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

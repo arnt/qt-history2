@@ -1290,11 +1290,11 @@ void QColorShower::setHsv( int h, int s, int v )
     showCurrentColor();
 }
 
-class QColorDialog::Private : public QObject
+class QColorDialogPrivate : public QObject
 {
 Q_OBJECT
 public:
-    Private( QColorDialog *p );
+    QColorDialogPrivate( QColorDialog *p );
     QRgb currentColor() const { return cs->currentColor(); }
     void setCurrentColor( QRgb rgb );
 
@@ -1320,7 +1320,7 @@ private:
 };
 
 //sets all widgets to display h,s,v
-void QColorDialog::Private::newHsv( int h, int s, int v )
+void QColorDialogPrivate::newHsv( int h, int s, int v )
 {
     cs->setHsv( h, s, v );
     cp->setCol( h, s );
@@ -1328,14 +1328,14 @@ void QColorDialog::Private::newHsv( int h, int s, int v )
 }
 
 //sets all widgets to display rgb
-void QColorDialog::Private::setCurrentColor( QRgb rgb )
+void QColorDialogPrivate::setCurrentColor( QRgb rgb )
 {
     cs->setRgb( rgb );
     newColorTypedIn( rgb );
 }
 
 //sets all widgets exept cs to display rgb
-void QColorDialog::Private::newColorTypedIn( QRgb rgb )
+void QColorDialogPrivate::newColorTypedIn( QRgb rgb )
 {
     int h, s, v;
     rgb2hsv(rgb, h, s, v );
@@ -1343,7 +1343,7 @@ void QColorDialog::Private::newColorTypedIn( QRgb rgb )
     lp->setCol( h, s, v);
 }
 
-void QColorDialog::Private::newCustom( int r, int c )
+void QColorDialogPrivate::newCustom( int r, int c )
 {
     int i = r+2*c;
     setCurrentColor( cusrgb[i] );
@@ -1351,13 +1351,13 @@ void QColorDialog::Private::newCustom( int r, int c )
     standard->setSelected(-1,-1);
 }
 
-void QColorDialog::Private::newStandard( int r, int c )
+void QColorDialogPrivate::newStandard( int r, int c )
 {
     setCurrentColor( stdrgb[r+c*6] );
     custom->setSelected(-1,-1);
 }
 
-QColorDialog::Private::Private( QColorDialog *dialog ) :
+QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
     QObject(dialog)
 {
     compact = FALSE;
@@ -1461,7 +1461,7 @@ QColorDialog::Private::Private( QColorDialog *dialog ) :
     }
 }
 
-void QColorDialog::Private::addCustom()
+void QColorDialogPrivate::addCustom()
 {
     cusrgb[nextCust] = cs->currentColor();
     custom->repaint( FALSE ); //###
@@ -1502,7 +1502,7 @@ QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
     QDialog(parent, name, modal )
 {
     setSizeGripEnabled( TRUE );
-    d = new Private( this );
+    d = new QColorDialogPrivate( this );
 }
 
 

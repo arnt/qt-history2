@@ -40,7 +40,7 @@
 
 #include "qsqlmanager_p.h"
 
-class QDataView::QDataViewPrivate
+class QDataViewPrivate
 {
 public:
     QDataViewPrivate() {}

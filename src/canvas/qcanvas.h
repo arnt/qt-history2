@@ -147,7 +147,7 @@ public:
 	Rtti_Line = 7,
 	Rtti_Spline = 8
     };
-    
+
     virtual int rtti() const;
 
     virtual QRect boundingRect() const=0;
@@ -193,6 +193,8 @@ private:
     uint act:1;
 };
 
+
+class QCanvasData;
 
 class Q_EXPORT QCanvas : public QObject
 {
@@ -317,8 +319,7 @@ private:
     int chwidth,chheight;
     QCanvasChunk* chunks;
 
-    class Data;
-    Data* d;
+    QCanvasData* d;
 
     void initTiles(QPixmap p, int h, int v, int tilewidth, int tileheight);
     ushort *grid;
@@ -336,6 +337,7 @@ private:
     friend void qt_unview(QCanvas* c);
 };
 
+class QCanvasViewData;
 
 class Q_EXPORT QCanvasView : public QScrollView
 {
@@ -361,8 +363,7 @@ protected:
 
 private:
     QCanvas* viewing;
-    class Data;
-    Data* d;
+    QCanvasViewData* d;
     friend void qt_unview(QCanvas* c);
 
 private slots:
@@ -415,7 +416,7 @@ public:
     // deprecated
     bool operator!(); // Failure check.
     bool isValid() const;
-    
+
     QCanvasPixmap* image(int i) const
 	{ return img[i]; }
     void setImage(int i, QCanvasPixmap* p);

@@ -49,10 +49,10 @@ static const int MARKSIZE = 32;
 static const int QH_MARGIN = 4;
 
 
-class QHeader::Data
+class QHeaderData
 {
 public:
-    Data(int n)
+    QHeaderData(int n)
     {
 	count = n;
 	labels.setAutoDelete( TRUE );
@@ -324,7 +324,7 @@ void QHeader::init( int n )
     state = Idle;
     cachedIdx = 0; // unused
     cachedPos = 0; // unused
-    d = new Data(n);
+    d = new QHeaderData(n);
     for ( int i = 0; i < n ; i ++ ) {
 	d->heights[i] = fontMetrics().lineSpacing()+6;
     }

@@ -47,6 +47,7 @@
 
 class QSqlForm;
 class QSqlRecord;
+class QDataViewPrivate;
 
 class Q_EXPORT QDataView : public QWidget
 {
@@ -68,7 +69,6 @@ public slots:
     virtual void clearValues();
 
 private:
-    class QDataViewPrivate;
     QDataViewPrivate* d;
 
 };

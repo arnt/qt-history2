@@ -48,6 +48,7 @@
 
 class QPushButton;
 class QTimer;
+class QProgressDialogData;
 
 class Q_EXPORT QProgressDialog : public QDialog
 {
@@ -116,8 +117,7 @@ private:
     void	   layout();
     QLabel	  *label()  const;
     QProgressBar  *bar()    const;
-    class Data;
-    Data *d;
+    QProgressDialogData *d;
     QTimer	  *forceTimer;
 
 private:	// Disabled copy constructor and operator=

@@ -46,6 +46,8 @@
 
 #ifndef QT_NO_TRANSLATION
 
+class QTranslatorPrivate;
+
 class Q_EXPORT QTranslatorMessage
 {
 public:
@@ -139,8 +141,7 @@ public:
     QValueList<QTranslatorMessage> messages() const;
 
 private:
-    class Private;
-    Private * d;
+    QTranslatorPrivate * d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

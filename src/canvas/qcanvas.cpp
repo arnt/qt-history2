@@ -48,16 +48,16 @@
 
 #include <stdlib.h>
 
-class QCanvas::Data {
+class QCanvasData {
 public:
     QPtrList<QCanvasView> viewList;
     QPtrDict<void> itemDict;
     QPtrDict<void> animDict;
 };
 
-class QCanvasView::Data {
+class QCanvasViewData {
 public:
-    Data() : repaint_from_moving( FALSE ) {}
+    QCanvasViewData() : repaint_from_moving( FALSE ) {}
 #ifndef QT_NO_TRANSFORMATIONS
     QWMatrix xform;
     QWMatrix ixform;
@@ -309,11 +309,11 @@ private:
 /*! \class QCanvasItemList
   \brief The QCanvasItemList class is a list of QCanvasItems.
     \module canvas
-  
+
   QCanvasItemList is a QValueList of pointers to QCanvasItems. This
   class is used by some methods in QCanvas that need to return a list of
   canvas items.
-  
+
   The \l QValueList documentation describes how to use this list.
 */
 
@@ -426,7 +426,7 @@ set of canvas item classes, e.g. QCanvasEllipse, QCanvasLine,
 QCanvasPolygon, QCanvasPolygonalItem, QCanvasRectangle, QCanvasSpline,
 QCanvasSprite and QCanvasText. You can subclass to create your own
 canvas items; QCanvasPolygonalItem is the most common base class used
-for this purpose. 
+for this purpose.
 
 Although a canvas may appear to be similar to a widget with child
 widgets, there are several notable differences:
@@ -521,7 +521,7 @@ chunks, the speed benefit of grouping canvas items into chunks is
 reduced. If the chunks are too large, it takes too long to process each
 one.  The QCanvas constructor picks a hopefully suitable size, but you
 can call retune() to change it at any time. The chunkSize() function
-returns the current chunk size. 
+returns the current chunk size.
 
 The canvas items always make sure they're in the right chunks; all you
 need to make sure of is that the canvas uses the right chunk size.  A
@@ -542,13 +542,13 @@ An area can be copied (painted) to a QPainter with drawArea().
 If the canvas is resized it emits the resized() signal.
 
 The examples/canvas application and the 2D graphics page of the
-examples/demo application demonstrate many of QCanvas's facilities. 
+examples/demo application demonstrate many of QCanvas's facilities.
 
 \sa QCanvasView QCanvasItem
 */
 void QCanvas::init(int w, int h, int chunksze, int mxclusters)
 {
-    d = new Data;
+    d = new QCanvasData;
     awidth=w;
     aheight=h;
     chunksize=chunksze;
@@ -621,7 +621,7 @@ void qt_unview(QCanvas* c)
 }
 
 /*!
-  Destroys the canvas and all the canvas's canvas items. 
+  Destroys the canvas and all the canvas's canvas items.
 */
 QCanvas::~QCanvas()
 {
@@ -639,8 +639,8 @@ QCanvas::~QCanvas()
 Returns the chunk at a chunk position \a i, \a j.
 */
 QCanvasChunk& QCanvas::chunk(int i, int j) const
-{ 
-    return chunks[i+chwidth*j]; 
+{
+    return chunks[i+chwidth*j];
 }
 
 /*!
@@ -648,8 +648,8 @@ QCanvasChunk& QCanvas::chunk(int i, int j) const
 Returns the chunk at a pixel position \a x, \a y.
 */
 QCanvasChunk& QCanvas::chunkContaining(int x, int y) const
-{ 
-    return chunk(x/chunksize,y/chunksize); 
+{
+    return chunk(x/chunksize,y/chunksize);
 }
 
 /*!
@@ -725,7 +725,7 @@ drawing since each change will affect many chunks. If you choose a chunk
 size which is too large the amount of drawing required will increase
 because for each change a lot of drawing will be required because there
 will be many (unchanged) canvas items which are in the same chunk as the
-changed canvas items. 
+changed canvas items.
 
 Internally, a canvas uses a low-resolution "chunk matrix" to keep track
 of all the items in the canvas. The default for a 1024x1024 pixel canvas
@@ -900,7 +900,7 @@ void QCanvas::removeView(QCanvasView* view)
 /*!
   Sets the canvas to call advance() every \a ms milliseconds. Any
   previous setting by setAdvancePeriod() or setUpdatePeriod() is
-  cancelled. 
+  cancelled.
 
   If \a ms is less than 0 advancing will be stopped.
 */
@@ -910,7 +910,7 @@ void QCanvas::setAdvancePeriod(int ms)
 	if ( update_timer )
 	    update_timer->stop();
     } else {
-	if ( update_timer ) 
+	if ( update_timer )
 	    delete update_timer;
 	update_timer = new QTimer(this);
 	connect(update_timer,SIGNAL(timeout()),this,SLOT(advance()));
@@ -931,7 +931,7 @@ void QCanvas::setUpdatePeriod(int ms)
 	if ( update_timer )
 	    update_timer->stop();
     } else {
-	if ( update_timer ) 
+	if ( update_timer )
 	    delete update_timer;
 	update_timer = new QTimer(this);
 	connect(update_timer,SIGNAL(timeout()),this,SLOT(update()));
@@ -1033,7 +1033,7 @@ void QCanvas::drawViewArea( QCanvasView* view, QPainter* p, const QRect& vr, boo
 }
 #endif
 
-/*!  
+/*!
   Repaints changed areas in all views of the canvas.
 
   \sa advance()
@@ -1456,7 +1456,7 @@ void QCanvas::removeItemFromChunkContaining(QCanvasItem* g, int x, int y)
     }
 }
 
-/*! 
+/*!
   Returns the color set by setBackgroundColor().
   By default, this is white.
 
@@ -1489,7 +1489,7 @@ void QCanvas::setBackgroundColor( const QColor& c )
     }
 }
 
-/*!  
+/*!
   Returns the pixmap set by setBackgroundPixmap().  By default,
   this is a null pixmap.
 
@@ -1500,7 +1500,7 @@ QPixmap QCanvas::backgroundPixmap() const
     return pm;
 }
 
-/*!  
+/*!
   Sets the solid background to be the pixmpa, \a p, repeated as
   necessary to cover the entire canvas.
 
@@ -1516,7 +1516,7 @@ void QCanvas::setBackgroundPixmap( const QPixmap& p )
     }
 }
 
-/*!  
+/*!
   This virtual function is called for all updates of the canvas.
   It renders any background graphics using the painter \a painter, in the
   area \a clip.  If the canvas has a background
@@ -1564,7 +1564,7 @@ void QCanvas::drawBackground(QPainter& painter, const QRect& clip)
     }
 }
 
-/*! 
+/*!
   This virtual function is called for all updates of the canvas.
   It renders any foreground graphics using the painter \a painter, in
   the area \a clip.
@@ -1584,7 +1584,7 @@ void QCanvas::drawForeground(QPainter& painter, const QRect& clip)
     }
 }
 
-/*! 
+/*!
   If \a y is TRUE (the default) double-buffering is switched on;
   otherwise double-buffering is switched off.
 
@@ -1623,7 +1623,7 @@ void QCanvas::setTiles( QPixmap p,
 {
     if ( p.width() % tilewidth != 0 || p.height() % tileheight != 0 )
 	return;
-    
+
     htiles = h;
     vtiles = v;
     delete[] grid;
@@ -1742,14 +1742,14 @@ items which are animated, i.e. which change over time.
 
 The size of a canvas item is given by boundingRect(). Use
 boundingRectAdvanced() to see what the size of the canvas item will be
-\e after the next advance(1) call. 
+\e after the next advance(1) call.
 
 The rtti() function is used for identifying subclasses of QCanvasItem.
 The canvas() function returns a pointer to the canvas which contains the
 canvas item.
 
 QCanvasItem provides the show() and visible() functions like those in
-QWidget. 
+QWidget.
 
 QCanvasItem also provides the setEnabled(), setActive() and
 setSelected() functions; these functions set the relevant boolean and
@@ -1764,7 +1764,7 @@ noted.
 
 /*!
     \enum QCanvasItem::RttiValues
-    
+
     This enum is used to name the different types of canvas item.
 
     \value Rtti_Item Canvas item abstract base class
@@ -1956,7 +1956,7 @@ double QCanvasItem::yVelocity() const
 
 /*!  The default implementation moves the canvas item, if it is
  animated(), by the preset velocity if \a phase is 1, and does nothing
- if \a phase is 0. 
+ if \a phase is 0.
 
   Note that if you reimplement this function, the reimplementation may
   not change the canvas in any way, for example it may not add or remove
@@ -2032,8 +2032,8 @@ void QCanvasItem::setVisible(bool yes)
 }
 /*! \fn bool QCanvasItem::visible() const
 
-  Returns TRUE if the canvas item is visible otherwise returns FALSE.  
-  
+  Returns TRUE if the canvas item is visible otherwise returns FALSE.
+
   Note that in this context TRUE does \e not mean that the canvas item
   is currently in a view, merely that if a view is showing the area
   where the canvas item is positioned, and the item is not obscured by
@@ -2054,7 +2054,7 @@ void QCanvasItem::setVisible(bool yes)
   The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem subclasses do
   not make use of this value.  The setSelected() function is supplied
   because many applications need it, but it is up to you how you use the
-  selected() value. 
+  selected() value.
 */
 void QCanvasItem::setSelected(bool yes)
 {
@@ -2075,7 +2075,7 @@ void QCanvasItem::setSelected(bool yes)
   The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem subclasses do
   not make use of this value.  The setEnabled() function is supplied
   because many applications need it, but it is up to you how you use the
-  selected() value. 
+  selected() value.
 */
 void QCanvasItem::setEnabled(bool yes)
 {
@@ -2096,7 +2096,7 @@ void QCanvasItem::setEnabled(bool yes)
   The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem subclasses do
   not make use of this value.  The setActive() function is supplied
   because many applications need it, but it is up to you how you use the
-  selected() value. 
+  selected() value.
 */
 void QCanvasItem::setActive(bool yes)
 {
@@ -2280,7 +2280,7 @@ static bool collision_double_dispatch( const QCanvasSprite* s1,
     constructor or set or changed later with setSequence(). If you
     subclass QCanvasSprite you can change the frame that is displayed
     periodically, e.g. whenever QCanvasItem::advance(1) is called to
-    create the effect of animation. 
+    create the effect of animation.
 
     The current frame can be set with setFrame() or with move(). The
     number of frames available is given by frameCount(). The bounding
@@ -2293,8 +2293,8 @@ static bool collision_double_dispatch( const QCanvasSprite* s1,
     frames.
 
     Use width() and height() to retrieve the dimensions of the current
-    frame. 
-    
+    frame.
+
     Use leftEdge() and rightEdge() to retrieve the current frame's
     left-hand and right-hand x coordinates respectively. Use
     bottomEdge() and topEdge()  to retrieve the current frame's bottom
@@ -2444,7 +2444,7 @@ QCanvasItemList QCanvasItem::collisions(bool exact) const
 /*!
   Returns a list of canvas items that intersect with the point \a p.
   The list is ordered by z coordinates, from highest z coordinate
-  (front-most item) to lowest z coordinate (rear-most item). 
+  (front-most item) to lowest z coordinate (rear-most item).
 */
 QCanvasItemList QCanvas::collisions(const QPoint& p) const
 {
@@ -2456,7 +2456,7 @@ QCanvasItemList QCanvas::collisions(const QPoint& p) const
 
   Returns a list of items which intersect with the rectangle \a r.
   The list is ordered by z coordinates, from highest z coordinate
-  (front-most item) to lowest z coordinate (rear-most item). 
+  (front-most item) to lowest z coordinate (rear-most item).
 */
 QCanvasItemList QCanvas::collisions(const QRect& r) const
 {
@@ -2716,8 +2716,8 @@ QCanvasPixmapArray::QCanvasPixmapArray()
   Constructs a QCanvasPixmapArray from files.
 
   The \a fc parameter sets the number of frames to be loaded for this
-  image. 
-  
+  image.
+
   If \a fc is not 0, \a datafilenamepattern should contain "%1", e.g.
   "foo%1.png". The actual filenames are formed by replacing the
   %1 with four-digit integers from 0 to (fc - 1), e.g. foo0000.png,
@@ -2740,11 +2740,11 @@ QCanvasPixmapArray::QCanvasPixmapArray( const QString& datafilenamepattern,
 }
 
 
-/*! 
+/*!
   \obsolete
   Use QCanvasPixmapArray::QCanvasPixmapArray( QValueList<QPixmap>, QPointArray )
   instead.
-  
+
   Constructs a QCanvasPixmapArray from the list of QPixmaps \a
   list. The \a hotspots list has to be of the same size as \a list.
 */
@@ -2771,7 +2771,7 @@ QCanvasPixmapArray::QCanvasPixmapArray(QPtrList<QPixmap> list, QPtrList<QPoint> 
   list. Each pixmap will get a hotspot according to the \a hotspots
   array. If no hotspots are specified, each one is assumed to be at
   position (0, 0).
-  
+
   If an error occurs, isValid() will return FALSE.
 */
 QCanvasPixmapArray::QCanvasPixmapArray(QValueList<QPixmap> list, QPointArray hotspots) :
@@ -2824,8 +2824,8 @@ void QCanvasPixmapArray::reset()
 
   If \a filenamepattern does not exist, is not readable, isn't an
   image, or some other error occurs, this function will return FALSE,
-  and isValid() will return FALSE. 
-  
+  and isValid() will return FALSE.
+
   \sa isValid()
 */
 bool QCanvasPixmapArray::readPixmaps( const QString& filenamepattern,
@@ -2834,24 +2834,24 @@ bool QCanvasPixmapArray::readPixmaps( const QString& filenamepattern,
     return readPixmaps(filenamepattern,fc,FALSE);
 }
 
-/*! Reads new collision masks for the array. 
-  
+/*! Reads new collision masks for the array.
+
   By default, QCanvasSprite uses the image mask of a sprite to detect
   collisions. This function lets you override that.
 
-  
+
   If count() is 1 \a filename must specify a real filename to read the
   mask from. If count() is greater than 1, the \a filename must
   contain a "%1" that will get replaced by the number of the mask to
   be loaded, similar to QCanvasPixmapArray::readPixmaps.
-  
+
   All collision masks must be 1-bit images or this function call will
   fail.
 
   If the file isn't readable, contains the wrong number of images, or
   there is some other error, this function will return FALSE,
   and the array will be flagged as invalid.
-  
+
   \sa isValid()
 */
 bool QCanvasPixmapArray::readCollisionMasks(const QString& filename)
@@ -2904,7 +2904,7 @@ bool QCanvasPixmapArray::readPixmaps( const QString& datafilenamepattern,
   \obsolete
 
   Use isValid() instead.
-  
+
   This returns FALSE if the array is valid, and TRUE if it is not.
 */
 bool QCanvasPixmapArray::operator!()
@@ -2927,12 +2927,12 @@ Returns pixmap \a i in the array, if \a i is nonnegative and smaller
 than count(), and returns an unspecified value otherwise.
 */
 
-// ### wouldn't it be better to put empty QCanvasPixmaps in there instead of 
+// ### wouldn't it be better to put empty QCanvasPixmaps in there instead of
 // initializing the additional elements in the array to 0? Lars
 // ### mark: if i < 0 the last line is executed: is this OK? Oh, and I agree with Lars above.
 /*!
   Replaces the pixmap at index \a i with pixmap \a p.
-    
+
     The array takes ownership of \a p and will delete \a p when the
     array itself is deleted.
 
@@ -2987,7 +2987,7 @@ int QCanvasSprite::leftEdge(int nx) const
   change as the sprite animates since different frames may have
   different top edges.)
 
-  \sa leftEdge() rightEdge() bottomEdge() 
+  \sa leftEdge() rightEdge() bottomEdge()
 */
 int QCanvasSprite::topEdge() const
 {
@@ -3000,7 +3000,7 @@ int QCanvasSprite::topEdge() const
   Returns what the y coordinate of the top edge of the sprite would be
   if the sprite (actually its hot spot) were moved to y-position \a ny.
 
-  \sa leftEdge() rightEdge() bottomEdge() 
+  \sa leftEdge() rightEdge() bottomEdge()
 */
 int QCanvasSprite::topEdge(int ny) const
 {
@@ -3187,7 +3187,7 @@ void QCanvasSprite::draw(QPainter& painter)
 
     If you want users to be able to interact with a canvas view,
     subclass QCanvasView. You might then reimplement
-    QScrollView::contentsMousePressEvent() for example: 
+    QScrollView::contentsMousePressEvent() for example:
 
   \code
     void MyCanvasView::contentsMousePressEvent( QMouseEvent* e )
@@ -3231,7 +3231,7 @@ void QCanvasSprite::draw(QPainter& painter)
 QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
     QScrollView(parent,name,f|WRepaintNoErase|WResizeNoErase|WNorthWestGravity)
 {
-    d = new Data;
+    d = new QCanvasViewData;
     viewing = 0;
     setCanvas(0);
     connect(this,SIGNAL(contentsMoving(int,int)),this,SLOT(cMoving(int,int)));
@@ -3246,7 +3246,7 @@ QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
 QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, WFlags f) :
     QScrollView(parent,name,f)
 {
-    d = new Data;
+    d = new QCanvasViewData;
     viewing = 0;
     setCanvas(canvas);
 
@@ -3317,7 +3317,7 @@ const QWMatrix &QCanvasView::inverseWorldMatrix() const
 
   When you use this, you should note that the performance of the
   QCanvasView will decrease considerably.
-  
+
   Returns FALSE in case \a wm is not invertable; otherwise returns TRUE.
 
   \sa worldMatrix() inverseWorldMatrix() QWMatrix::invertible()
@@ -3435,7 +3435,7 @@ void QCanvasView::windowActivationChange( bool )
   The bounding rectangle is available using boundingRect(). The points
   bounding the polygonal item are retrieved with areaPoints(). Use
   areaPointsAdvanced() to retrieve the bounding points the polygonal
-  item \e will have after QCanvasItem::advance(1) has been called. 
+  item \e will have after QCanvasItem::advance(1) has been called.
 
   By default, QCanvasPolygonalItem objects have a black pen and no brush
   (the default QPen and QBrush constructors). You can change this with
@@ -3483,7 +3483,7 @@ QCanvasPolygonalItem::QCanvasPolygonalItem(QCanvas* canvas) :
     wind=0;
 }
 
-/*! 
+/*!
   Note that all subclasses \e must call hide() in their destructor since
   hide() needs to be able to access areaPoints().
 */
@@ -3491,7 +3491,7 @@ QCanvasPolygonalItem::~QCanvasPolygonalItem()
 {
 }
 
-/*! 
+/*!
   Returns TRUE if the polygonal item uses the winding algorithm
   to determine the "inside" of the polygon, or FALSE if it uses the
   odd-even algorithm.
@@ -3679,7 +3679,7 @@ QPointArray QCanvasPolygonalItem::chunks() const
 
     return processor.result;
 }
-/*! 
+/*!
     Simply calls QCanvasItem::chunks().
 */
 QPointArray QCanvasRectangle::chunks() const
@@ -3808,7 +3808,7 @@ QCanvasPolygon::~QCanvasPolygon()
 void QCanvasPolygon::drawShape(QPainter & p)
 {
     // ### why can't we draw outlines? We could use drawPolyline for it. Lars
-    
+
     p.setPen(NoPen); // since QRegion(QPointArray) excludes outline :-(  )-:
     p.drawPolygon(poly);
 }
@@ -3900,7 +3900,7 @@ QCanvasSpline::~QCanvasSpline()
   multiple of 3.  If \a close is FALSE, one additional control point
   is required, and the number of control points must be one of (4, 7,
   11, ...).
-  
+
   If the number of control points doesn't meet the above conditions,
   the number of points will be truncated to the largest number of points
   that do meet the requirement.
@@ -3976,7 +3976,7 @@ void QCanvasSpline::recalcPoly()
 /*!
   \fn QPointArray QCanvasPolygon::points() const
 
-  Returns the vertices of the polygon, not translated by the position. 
+  Returns the vertices of the polygon, not translated by the position.
 
   \sa setPoints(), areaPoints()
 */
@@ -4283,11 +4283,11 @@ void QCanvasRectangle::drawShape(QPainter & p)
   \brief The QCanvasEllipse class provides an ellipse or ellipse segment on a QCanvas.
   \module canvas
 
-  A canvas item that paints an ellipse or ellipse segment with a QBrush. 
+  A canvas item that paints an ellipse or ellipse segment with a QBrush.
   The ellipse's height, width, start angle and angle length can be set
   at construction time. The size can be changed at runtime with
   setSize(), and the angles can be changed (if you're displaying an
-  ellipse segment rather than a whole ellipse) with setAngles(). 
+  ellipse segment rather than a whole ellipse) with setAngles().
 
     Note that angles are specified in
     <small><sup>1</sup>/<sub>16</sub></small>ths of a degree.
@@ -4301,7 +4301,7 @@ void QCanvasRectangle::drawShape(QPainter & p)
     segment is the segment of the ellipse that would be drawn. If no
     start angle and length angle are specified the entire ellipse is
     drawn.
-    
+
   The ellipse can be drawn on a painter with drawShape().
 
   Like any other canvas item ellipses can be moved with
@@ -4840,9 +4840,9 @@ QCanvasSprite::QCanvasSprite(QCanvasPixmapArray* a, QCanvas* canvas) :
 }
 
 
-/*!  
+/*!
   Set the array of images used for displaying the sprite to the
-  QCanvasPixmapArray \a a.  
+  QCanvasPixmapArray \a a.
 
   If the current frame() is larger than the number of images in \a a,
   the current frame will be reset to 0.

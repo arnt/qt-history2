@@ -58,10 +58,10 @@
 #include <limits.h>
 
 
-class QWindowsStyle::Private
+class QWindowsStylePrivate
 {
 public:
-    Private() : hotWidget( 0 )
+    QWindowsStylePrivate() : hotWidget( 0 )
     {
     }
 
@@ -83,7 +83,7 @@ public:
 */
 QWindowsStyle::QWindowsStyle() : QCommonStyle(WindowsStyle)
 {
-    d = new Private;
+    d = new QWindowsStylePrivate;
 }
 
 /*!\reimp

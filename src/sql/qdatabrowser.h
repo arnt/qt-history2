@@ -52,6 +52,7 @@
 #endif // QT_H
 
 class QSqlForm;
+class QDataBrowserPrivate;
 
 class Q_EXPORT QDataBrowser : public QWidget
 {
@@ -162,7 +163,6 @@ private:
     bool preNav();
     void postNav( bool primeUpd );
     void nav( Nav nav );
-    class QDataBrowserPrivate;
     QDataBrowserPrivate* d;
 };
 

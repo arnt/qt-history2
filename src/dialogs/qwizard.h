@@ -46,6 +46,7 @@
 #ifndef QT_NO_WIZARD
 
 class QHBoxLayout;
+class QWizardPrivate;
 
 class Q_EXPORT QWizard : public QDialog
 {
@@ -124,8 +125,7 @@ private:
 
     void layOut();
 
-    class Private;
-    Private *d;
+    QWizardPrivate *d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -49,10 +49,10 @@
 #include "qapplication.h"
 #include "qtimer.h"
 
-class QSpinBox::Private
+class QSpinBoxPrivate
 {
 public:
-    Private() {}
+    QSpinBoxPrivate() {}
     QRangeControlWidget* buttons;
 };
 
@@ -173,7 +173,7 @@ QSpinBox::QSpinBox( int minValue, int maxValue, int step, QWidget* parent,
 
 void QSpinBox::initSpinBox()
 {
-    d = new Private;
+    d = new QSpinBoxPrivate;
 
     d->buttons = new QRangeControlWidget( this, "buttons" );
     connect( d->buttons, SIGNAL( stepUpPressed() ), SLOT( stepUp() ) );

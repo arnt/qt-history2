@@ -47,7 +47,7 @@
 
 class QWorkspaceChild;
 class QShowEvent;
-
+class QWorkspaceData;
 
 class Q_EXPORT QWorkspace : public QWidget
 {
@@ -102,8 +102,7 @@ private:
     void normalizeWindow( QWidget* w);
 
     QPopupMenu* popup;
-    class Data;
-    Data* d;
+    QWorkspaceData* d;
 
     friend class QWorkspaceChild;
 

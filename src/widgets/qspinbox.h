@@ -47,6 +47,7 @@
 
 class QLineEdit;
 class QValidator;
+class QSpinBoxPrivate;
 
 class Q_EXPORT QSpinBox: public QFrame, public QRangeControl
 {
@@ -148,8 +149,7 @@ protected slots:
 
 private:
     void initSpinBox();
-    class Private;
-    Private* d;
+    QSpinBoxPrivate* d;
     QLineEdit* vi;
     QValidator* validate;
     QString pfix;

@@ -45,6 +45,8 @@
 
 #ifndef QT_NO_COMPONENT
 
+class QLibraryPrivate;
+
 class Q_EXPORT QLibrary
 {
 public:
@@ -57,7 +59,7 @@ public:
 
     QLibrary( const QString& filename, Policy = Delayed );
     ~QLibrary();
-    
+
     void *resolve( const char* );
 
     bool unload( bool force = FALSE );
@@ -71,8 +73,7 @@ public:
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
 
 private:
-    class Private;
-    Private *d;
+    QLibraryPrivate *d;
 
     QString libfile;
     Policy libPol;

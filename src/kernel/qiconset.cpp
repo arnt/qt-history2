@@ -45,7 +45,7 @@
 #include "qpainter.h"
 
 
-class QIconSet::Private: public QShared
+class QIconSetPrivate: public QShared
 {
 public:
     struct Variant {
@@ -374,7 +374,7 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
 	    d->on_largeActive.clearGenerate();
 	}
     } else {
-	d = new Private;
+	d = new QIconSetPrivate;
     }
     if ( size == Large || (size == Automatic && pm.width() > 22)) {
 	switch( mode ) {
@@ -489,7 +489,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
     }
 
     QImage i;
-    Private * p = ((QIconSet *)this)->d;
+    QIconSetPrivate * p = ((QIconSet *)this)->d;
     QPixmap * pm = 0;
     if ( state == Off ) {
 	if ( size == Large ) {
@@ -941,14 +941,14 @@ void QIconSet::detach()
 {
     if ( !d )
     {
-	d = new Private;
+	d = new QIconSetPrivate;
 	return;
     }
 
     if ( d->count == 1 )
 	return;
 
-    Private * p = new Private;
+    QIconSetPrivate * p = new QIconSetPrivate;
     p->vsmall.pm = d->vsmall.pm;
     p->vsmall.generated = d->vsmall.generated;
     p->smallActive.pm = d->smallActive.pm;

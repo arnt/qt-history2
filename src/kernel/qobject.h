@@ -53,6 +53,7 @@ class QMetaObject;
 class QVariant;
 class QMetaProperty;
 class QPostEventList;
+class QObjectPrivate;
 struct QUObject;
 struct QAccessibleInterface;
 
@@ -191,8 +192,7 @@ private:
     QObjectList *senderObjects;
     QObjectList *eventFilters;
     QPostEventList *postedEvents;
-    class Private;
-    Private* d;
+    QObjectPrivate* d;
 
     friend class QApplication;
     friend class QBaseApplication;

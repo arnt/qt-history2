@@ -47,6 +47,7 @@ Q_OBJECT
 #endif
 
 class QPushButton;
+class QDialogPrivate;
 
 class Q_EXPORT QDialog : public QWidget			// dialog widget
 {
@@ -109,8 +110,7 @@ private:
     uint	did_move   : 1;
     uint	did_resize : 1;
     uint	in_loop: 1;
-    class Private;
-    Private* d;
+    QDialogPrivate* d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

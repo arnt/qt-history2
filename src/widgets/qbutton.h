@@ -47,6 +47,7 @@
 
 class QButtonGroup;
 class QToolBar;
+class QButtonData;
 
 class Q_EXPORT QButton : public QWidget
 {
@@ -147,8 +148,7 @@ private:
     uint	autoresize	: 1;
     uint	animation	: 1;
     uint	repeat		: 1;
-    class Data;
-    Data *d;
+    QButtonData *d;
 
     friend class QButtonGroup;
     friend class QToolBar;

@@ -49,6 +49,7 @@
 #ifndef QT_NO_NETWORKPROTOCOL
 
 class QUrlInfo;
+class QUrlOperatorPrivate;
 
 class Q_EXPORT QUrlOperator : public QObject, public QUrl
 {
@@ -115,8 +116,7 @@ private slots:
 private:
     void deleteOperation( QNetworkOperation *op );
 
-    class Private;
-    Private *d;
+    QUrlOperatorPrivate *d;
 
 };
 

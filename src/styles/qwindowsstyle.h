@@ -50,6 +50,8 @@
 #define Q_EXPORT_STYLE_WINDOWS Q_EXPORT
 #endif
 
+class QWindowsStylePrivate;
+
 class Q_EXPORT_STYLE_WINDOWS QWindowsStyle : public QCommonStyle
 {
     Q_OBJECT
@@ -184,8 +186,7 @@ protected:
     bool eventFilter( QObject *o, QEvent *e );
 
 private:        // Disabled copy constructor and operator=
-    class Private;
-    Private *d;
+    QWindowsStylePrivate *d;
 
 #if defined(Q_DISABLE_COPY)
     QWindowsStyle( const QWindowsStyle & );

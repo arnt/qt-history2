@@ -47,6 +47,7 @@
 #endif // QT_H
 
 class QWidget;
+class QSqlPropertyMapPrivate;
 
 class Q_EXPORT QSqlPropertyMap {
 public:
@@ -67,7 +68,6 @@ private:	// Disabled copy constructor and operator=
     QSqlPropertyMap( const QSqlPropertyMap & );
     QSqlPropertyMap &operator=( const QSqlPropertyMap & );
 #endif
-    class QSqlPropertyMapPrivate;
     QSqlPropertyMapPrivate* d;
 
 };

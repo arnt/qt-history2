@@ -46,10 +46,10 @@
 #include <limits.h>
 
 
-class QStyle::Private
+class QStylePrivate
 {
 public:
-    Private()
+    QStylePrivate()
     {
     }
 };
@@ -102,7 +102,7 @@ public:
 
 QStyle::QStyle(GUIStyle s) : gs(s)
 {
-    d = new Private;
+    d = new QStylePrivate;
 }
 
 /*!
@@ -116,7 +116,7 @@ QStyle::QStyle() :
     gs(WindowsStyle)
 #endif
 {
-    d = new Private;
+    d = new QStylePrivate;
 }
 
 /*!
