@@ -204,16 +204,13 @@ void qt_AlphaBlend( HDC dst_dc, int dx, int dy, int sw, int sh, HDC src_dc, int 
 	    if ( msimg32Lib != 0 ) {
 		qAddPostRoutine( cleanup_msimg32Lib );
 		alphaBlend = (ALPHABLEND) GetProcAddress( msimg32Lib, "AlphaBlend" );
-		if ( alphaBlend != 0 ) {
-		    loadAlphaBlendFailed = FALSE;
-		}
+		loadAlphaBlendFailed = ( alphaBlend == 0 );
 	    }
 	}
-	if ( loadAlphaBlendFailed ) {
-	    alphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, sw, sh, blend );
-	} else {
+	if ( loadAlphaBlendFailed )
 	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, rop );
-	}
+	else
+	    alphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, sw, sh, blend );
     }
 #else
     BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, rop );
