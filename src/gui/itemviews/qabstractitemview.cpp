@@ -1027,7 +1027,7 @@ void QAbstractItemView::contextMenuEvent(QContextMenuEvent *e)
 
     \sa dropEvent() startDrag()
 */
-void QAbstractItemView::dragEnterEvent(QDragEnterEvent *e)
+void QAbstractItemView::dragEnterEvent(QDragEnterEvent *)
 {
 //     if (model()->canDecode(e))
 //         e->accept();
