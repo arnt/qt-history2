@@ -15,6 +15,7 @@
 #define QRECTFLOAT_H
 
 #ifndef QT_H
+#include "qrect.h"
 #include "qsizefloat.h"
 #include "qpointfloat.h"
 #endif // QT_H
