@@ -1,3 +1,15 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "qabstractitemmodel.h"
 #include <qdragobject.h>
 #include <qdatastream.h>
@@ -129,19 +141,66 @@ const char *QAbstractItemModelDrag::format()
   contentsInserted and/or contentsRemoved signals.
 */
 
+/*!
+  Constructs a itemmodel.
+*/
 QAbstractItemModel::QAbstractItemModel(QObject *parent)
     : QObject(parent)
 {
 }
 
+/*!
+  \internal
+*/
 QAbstractItemModel::QAbstractItemModel(QObjectPrivate &dp, QObject *parent)
     : QObject(dp, parent)
 {
 }
 
+/*!
+  Destroys the itemmodel.
+*/
 QAbstractItemModel::~QAbstractItemModel()
 {
 }
+
+/*!
+  \fn void QAbstractItemModel::contentsChanged()
+
+  This signal is emitted when the data in exiting items changes.
+
+  \sa setData()
+*/
+
+/*!
+  \fn void QAbstractItemModel::contentsInserted()
+
+  This signal is emitted when rows or columns are inserted in the model.
+
+  \sa insertRow() insertColumn()
+*/
+
+/* \fn void QAbstractItemModel::contentsRemoved()
+
+This signal is emitted when rows or columns are removed from the model.
+
+\sa removeRow() removeColumn()
+*/
+
+/*!
+  \enum QAbstractItemModel::Role
+
+  Each item in the model can have a set of data with associated roles.
+  The roles are used when visualizing and editing the items in the view.
+
+  \value Display The data rendered as item text
+  \value Decoration The data rendered as item icon
+  \value Edit The data edited in the item editor.
+  \value ToolTip The data displayed in the item tooltip
+  \value StatusTip The data displayed in the status bar
+  \value WhatsThis The data displayed in what's this mode
+  \value User The first custom role defined by the user
+*/
 
 /*!
   Returns the QModelIndex object associated with the data in \a row \a column with \a parent.
