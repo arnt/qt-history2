@@ -40,7 +40,7 @@ public:
     virtual int cmap() const = 0;
 
     // #### pass in offsets array
-    virtual void draw( QPainter *p, int x, int y, const int *glyphs, int numGlyphs ) = 0;
+    virtual void draw( QPainter *p, int x, int y, const int *glyphs, const Offset *offsets, int numGlyphs ) = 0;
 
     virtual int width( const int *glyphs, const Offset *offsets, int numGlyphs ) = 0;
     virtual QCharStruct boundingBox( const int *glyphs, const Offset *offsets, int numGlyphs ) = 0;

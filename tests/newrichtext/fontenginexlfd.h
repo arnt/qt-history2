@@ -16,7 +16,7 @@ public:
 
     Error stringToCMap( const QChar *str,  int len, int *glyphs, int *nglyphs ) const;
 
-    void draw( QPainter *p, int x, int y, const int *glyphs, int numGlyphs );
+    void draw( QPainter *p, int x, int y, const int *glyphs, const Offset *offsets, int numGlyphs );
 
     int width( const int *glyphs, const Offset *offsets, int numGlyphs );
     QCharStruct boundingBox( const int *glyphs, const Offset *offsets, int numGlyphs );

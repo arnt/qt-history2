@@ -105,9 +105,11 @@ FontEngineIface::Error FontEngineXLFD::stringToCMap( const QChar *str,  int len,
     return NoError;
 }
 
-void FontEngineXLFD::draw( QPainter *p, int x, int y, const int *glyphs, int numGlyphs )
+void FontEngineXLFD::draw( QPainter *p, int x, int y, const int *glyphs, const Offset *offsets, int numGlyphs )
 {
     qDebug("FontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
+
+    // ### add offset handling!!!
 
     Display *dpy = QPaintDevice::x11AppDisplay();
     Qt::HANDLE hd = p->device()->handle();
@@ -167,7 +169,7 @@ int FontEngineXLFD::width( const int *glyphs, const Offset *offsets, int numGlyp
 	if (xcs) {
 	    width += xcs->width;
 	} else {
-	    // ### might need somethiogn better
+	    // ### might need something better
 	    width += ascent();
 	}
 	width += offsets[i].x;
