@@ -78,6 +78,24 @@ Drag and Drop
 QColor
   Maybe add an alpha channel to the external API. Even XFree will soon
   support alpha channels.
+    Maybe:
+	static enum { d8, d16, d32 } colormodel;
+	union {
+	    QRgb argb;
+	    struct {
+		QRgb argb;
+		uchar pix;
+		uint dirty:1;
+	    } d8;
+	    struct {
+		QRgb argb;
+		ushort pix;
+	    } d16;
+	    struct {
+		QRgb argb;
+		ulong pix;
+	    } d32;
+	} d;
 
 QTextStream (rms)
   There is still need to optimize speed, especially readLine().
