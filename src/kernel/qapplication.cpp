@@ -1029,18 +1029,19 @@ QApplication::~QApplication()
 	postRList = 0;
     }
 
-#ifndef QT_NO_REMOTE
-    if (remote_control!= 0)
-        delete remote_control;
-    remote_control = 0;
-#endif
-
     QObject *tipmanager = child( "toolTipManager", "QTipManager", FALSE );
     delete tipmanager;
 
     delete qt_desktopWidget;
     qt_desktopWidget = 0;
     is_app_closing = TRUE;
+
+#ifndef QT_NO_REMOTE
+    if (remote_control!= 0)
+        delete remote_control;
+    remote_control = 0;
+#endif
+
 #ifndef QT_NO_CLIPBOARD
     delete qt_clipboard;
     qt_clipboard = 0;
