@@ -61,7 +61,7 @@
 
   A wizard is a special type of input dialog that consists of a sequence of dialog pages.
   A wizard's purpose is to assist a user by automating a task and by walking the user through
-  the process step by step. Wizards are usefull for complex or infrequently occuring tasks that people
+  the process step by step. Wizards are useful for complex or infrequently occurring tasks that people
   may find difficult to learn or do.
 
   QWizard provides page titles and displays Next, Back, Finish, Cancel, and Help push buttons, as
@@ -85,7 +85,6 @@
   number of complex pages.
 
   Example code is available here: \l wizard/wizard.cpp \l wizard/wizard.h
-
 */
 
 
