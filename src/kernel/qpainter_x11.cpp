@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#42 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#41 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#42 $";
 #endif
 
 
@@ -295,11 +295,11 @@ static GC alloc_painter_gc( Display *dpy, Drawable hd )
 	i = gc_array_size;
     }
     while ( i-- ) {
-	if ( !p->gc ) {
+	if ( !p->gc ) {				// create GC (once)
 	    p->gc = XCreateGC( dpy, hd, 0, 0 );
 	    p->in_use = FALSE;
 	}
-	if ( !p->in_use ) {
+	if ( !p->in_use ) {			// available GC
 	    p->in_use = TRUE;
 	    return p->gc;
 	}
@@ -317,8 +317,7 @@ static void free_painter_gc( Display *dpy, GC gc )
     if ( gc_array_init ) {
 	while ( i-- ) {
 	    if ( p->gc == gc ) {
-		ASSERT( p->in_use );
-		p->in_use = FALSE;
+		p->in_use = FALSE;		// set available
 		return;
 	    }
 	    p++;
@@ -332,9 +331,11 @@ static void cleanup_painter_gc( Display *dpy )
     int i = gc_array_size;
     if ( gc_array_init ) {
 	while ( i-- ) {
-	    if ( p->gc )
+	    if ( p->gc )			// destroy GC
 		XFreeGC( dpy, p->gc );
+	    p++;
 	}
+	gc_array_init = FALSE;
     }
 }
 
@@ -345,14 +346,28 @@ static void cleanup_painter_gc( Display *dpy )
 
 typedef declare(QListM,QPainter) QPnList;
 
-QPnList *QPainter::list = 0;
+QPnList *QPainter::list = 0;			// list of painters
+
+
+void QPainter::initialize()
+{
+}
+
+void QPainter::cleanup()
+{
+    delete list;
+    list = 0;
+    cleanup_painter_gc( qXDisplay() );
+}
 
 
 QPainter::QPainter()
          : cfont( TRUE )                        // create a default font
 {
-    if ( !list )				// create list
+    if ( !list ) {				// create list
 	list = new QPnList;
+	CHECK_PTR( list );
+    }
     flags = IsStartingUp;
     bg_col = white;				// default background color
     bg_mode = TransparentMode;			// default background mode
@@ -376,7 +391,8 @@ QPainter::~QPainter()
 	delete tabarray;
     if ( ps_stack )
 	killPStack();
-    list->remove( this );			// remove from painter list
+    if ( list->findRef(this) >= 0 )
+	list->remove();				// remove from painter list
 }
 
 QFont &QPainter::font()
@@ -1855,6 +1871,7 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
     static QBezList *bezlist = 0;
     if ( !bezlist ) {				// create Bezier cache
 	bezlist = new QBezList;
+	CHECK_PTR( bezlist );
 	bezlist->setAutoDelete( TRUE );
     }
 #endif
@@ -1898,6 +1915,7 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 	}
 	if ( i >= 0 ) {				// not found in bezlist
 	    QBezData *bez = new QBezData;
+	    CHECK_PTR( bez );
 	    bez->controls = a2.copy();
 	    a2 = a2.bezier();
 	    bez->points   = a2;
@@ -2366,6 +2384,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     if ( len > 200 ) {
 	p = new char[len];			// buffer for printable string
+	CHECK_PTR( p );
 	p_alloc = TRUE;
     }
     else {
@@ -2410,7 +2429,9 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     if ( (tf & GrayText) == GrayText ) {	// prepare to draw gray text
 	pm = new QPixMap( w, fheight );
+	CHECK_PTR( pm );
 	pp = new QPainter;
+	CHECK_PTR( pp );
 	pp->begin( pm );
 	pp->setBackgroundColor( bg_col );
 	pp->setFont( cfont );
