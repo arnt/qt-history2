@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#39 $
+** $Id: //depot/qt/main/src/moc/moc.y#40 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -40,7 +40,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#39 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#40 $";
 #endif
 
 
@@ -682,7 +682,7 @@ signal_or_slot:		  type_and_name fct_decl opt_semicolons
                                 { func_warn("Variable as signal or slot."); }
                         | enum_specifier  ';' opt_semicolons
                                 { func_warn("Enum declaration as signal or"
-                                          "slot."); } 
+                                          " slot."); } 
 			;
 
 
