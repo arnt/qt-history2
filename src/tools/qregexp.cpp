@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#69 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#70 $
 **
 ** Implementation of QRegExp class
 **
@@ -50,8 +50,10 @@
   <li><dfn>\n</dfn> matches newline (10)
   <li><dfn>\r</dfn> matches return (13)
   <li><dfn>\s</dfn> matches white space (defined as any character
-  where QChar::isSpace() returns TRUE. This includes ASCII characters
+  for which QChar::isSpace() returns TRUE. This includes ASCII characters
   9 (TAB), 10 (LF), 11 (VT), 12(FF), 13 (CR), and 32 (Space)).
+  <li><dfn>\d</dfn> matches digit (defined as any character for which
+  QChar::isDigit() returns TRUE. This at least includes characters '0'-'9').
   <li><dfn>\x12</dfn> matches the character 0x12 (18 decimal, 12 hexadecimal).
   <li><dfn>\022</dfn> matches the character 022 (18 decimal, 22 octal).
   </ul>
@@ -95,7 +97,8 @@
 // (e.g. [^a-z]) use CCN instead of CCL.
 
 const uint END	= 0x00000000;
-const uint PWS	= 0x10010000;		// predef whitespace charclass \s
+const uint PWS	= 0x10010000;		// predef charclass: whitespace (\s)
+const uint PDG	= 0x10020000;		// predef charclass: digit \d
 const uint CCL	= 0x20010000;		// character class	[]
 const uint CCN	= 0x20020000;		// neg character class	[^]
 const uint CHR	= 0x40000000;		// character
@@ -392,11 +395,13 @@ bool matchcharclass( uint *rxd, QChar c )
     bool found = FALSE;
     for ( int i = 0; i < (int)numFields; i++ ) {
 	d++;
-	if ( *d == PWS ) {
-	    if ( c.isSpace() ) {
-		found = TRUE;
-		break;
-	    }
+	if ( *d == PWS && c.isSpace() ) {
+	    found = TRUE;
+	    break;
+	}
+	if ( *d == PDG && c.isDigit() ) {
+	    found = TRUE;
+	    break;
 	}
 	else {
 	    uint from = ( *d & MCD ) >> 16;
@@ -458,6 +463,12 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 		p++;
 		pl--;
 		break;
+	    case PDG:				// match digits
+		if ( !pl || !p->isDigit() )
+		    return 0;
+		p++;
+		pl--;
+		break;
 	    case ANY:				// match anything
 		if ( !pl )
 		    return 0;
@@ -508,7 +519,14 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 		}
 		else if ( *d == PWS ) {
 		    while ( pl && p->isSpace() ) {
-			p ++;
+			p++;
+			pl--;
+		    }
+		    d++;
+		}
+		else if ( *d == PDG ) {
+		    while ( pl && p->isDigit() ) {
+			p++;
 			pl--;
 		    }
 		    d++;
@@ -559,6 +577,13 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 		}
 		else if ( *d == PWS ) {
 		    if ( pl && p->isSpace() ) {
+			p++;
+			pl--;
+		    }
+		    d++;
+		}
+		else if ( *d == PDG ) {
+		    if ( pl && p->isDigit() ) {
 			p++;
 			pl--;
 		    }
@@ -665,6 +690,7 @@ static uint char_val( const QChar **str, uint *strlength )   // get char value
 	    case 'r':  v = '\r';  break;	// return
 	    case 't':  v = '\t';  break;	// tab
 	    case 's':  v = PWS; break;		// whitespace charclass
+	    case 'd':  v = PDG; break;		// digit charclass
 	    case '<':  v = BOW; break;		// word beginning matcher
 	    case '>':  v = EOW; break;		// word ending matcher
 
@@ -743,6 +769,8 @@ static uint *dump( uint *p )
 		p++;
 		if ( *p == PWS )
 		    qDebug( "\t\tPWS" );
+		else if ( *p == PDG )
+		    qDebug( "\t\tPDG" );
 		else {
 		    uint from = ( *p & MCD ) >> 16;
 		    uint to = *p & MVL;
@@ -757,6 +785,9 @@ static uint *dump( uint *p )
 	else switch ( *p++ ) {
 	    case PWS:
 		qDebug( "\tPWS" );
+		break;
+	    case PDG:
+		qDebug( "\tPDG" );
 		break;
 	    case BOL:
 		qDebug( "\tBOL" );
