@@ -49,7 +49,7 @@ public:
     QSqlError	    error;
 };
 
-/*! \class QSqlResult qsqlresult.h
+/*! \class QSqlResult
     \ingroup database
 
   \brief The QSqlResult class provides an abstract interface for
@@ -57,13 +57,11 @@ public:
 
   \module sql
 
-  QSqlResult provides an abstract interface for accessing data from SQL databases.
   Normally you would use QSqlQuery instead of QSqlResult since QSqlQuery
   provides a generic wrapper for database-specific implementations of
   QSqlResult.
 
   \sa QSql
-
 */
 
 
