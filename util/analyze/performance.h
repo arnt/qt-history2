@@ -65,12 +65,16 @@
 //
 // Settings
 // ========
+// ->  #define EXTERN_PERFORMANCE_DATA      // Declare data as extern
+//
 // When using the measurement macros cross implementation files, make
 // sure that the variables and function implementations are only done
 // in one file, and define EXTERN_PERFORMANCE_DATA in all other
 // files.
-// ->  #define EXTERN_PERFORMANCE_DATA // Declare data as extern
 //
+//
+//
+// ->  #define USE_INTEL_ASM_CODE  // Force Intel calls under Windows
 //
 // The performance measuring classes currently supports two methods
 // of measuring the time spent.
@@ -80,7 +84,6 @@
 // platforms, and Intel calls on others. However, you may also choose
 // to use Intel calls on Windows by defining USE_INTEL_ASM_CODE
 // before including this headerfile.
-// ->  #define USE_INTEL_ASM_CODE // Force Intel calls under Windows
 //
 // !!NOTE!!
 // Always use the same timing methods in one application!
@@ -88,13 +91,19 @@
 // same executable will create garbage data.
 //
 //
-// Change the PM_MAX_DATA below (or define it before file inclusion)
-// to suit the measurements you're doing. By default, the value is
-// 50, which should suffice for the everyday measurements. However,
-// in some circumstances (such as loops etc.), the number of
-// measurements might grow significantly.
-// -> #define PM_MAX_DATA <value> // Change array size in PM objects
 //
+// ->  #define PM_MAX_DATA <value> // Change array size in PM objects
+//
+// Change PM_MAX_DATA  (or define it before file inclusion) to suit
+// the measurements you're doing. By default, the value is 50, which
+// should suffice for the everyday measurements. However, in some
+// circumstances (such as loops etc.), the number of measurements
+// might grow significantly.
+//
+//
+//
+// ->  #define PM_MSEC  <value>    // Cycles per millisecond
+// ->  #define PM_DELTA <value>    // Cycles per sample
 //
 // The gloabally defined object globalPM will pause for a second
 // while timing the CPU clock cycles, if the Intel timing method is
@@ -105,10 +114,18 @@
 // timing.
 // ( You can get these values by doing a test-run first, and look at
 //   the header from the debug output.)
-// Simply use the two defines below before the include of
+// Simply use the two defines above before the include of
 // implementation to adjust these values.
-// ->  #define PM_MSEC  <value> // CPU cycles per millisecond
-// ->  #define PM_DELTA <value> // CPU cycles per sample
+//
+// 
+//
+// ->  #define PM_NO_GLOBAL_PM     // Force no globalPM object
+//
+// If you for some reason do not wish to have a globally defined
+// performance measurement object, then you may define PM_NO_GLOBAL.
+// However, note that if you do so, you may not use the macros for
+// doing measurements, but must use the object directly.
+//
 //
 //   - Marius Storm-Olsen
 // __________________________________________________________________
@@ -135,6 +152,8 @@
 #define PM_DELTA 0
 #endif
 
+// Use the define below to turn off global performance measurement
+//#define PM_NO_GLOBAL_PM
 
 // __________________________________________________________________
 // Choose timing implementation (By default, Win32 on Windows)
@@ -355,12 +374,13 @@ private:
 
 // __________________________________________________________________
 // Global instance for fast x-function performance measuring
-#ifndef EXTERN_PERFORMANCE_DATA
+#ifndef PM_NO_GLOBAL_PM
+# ifndef EXTERN_PERFORMANCE_DATA
     PM globalPM;
-#else
+# else
     extern PM globalPM;
-#endif
-
+# endif // EXTERN_PERFORMANCE_DATA
+#endif // PM_NO_GLOBAL_PM
 
 
 // __________________________________________________________________
