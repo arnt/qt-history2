@@ -221,7 +221,7 @@ public:
 
     // DOM read only attributes
     uint length() const;
-    uint count() const { return length(); } // Qt API consitancy
+    inline uint count() const { return length(); } // Qt API consitancy
 
 private:
     QDomNodeListPrivate* impl;
