@@ -25,7 +25,6 @@
 
 enum { NumSizes = 2, NumModes = 3, NumStates = 2 };
 
-bool Q_GUI_EXPORT qt_iconset_gray_disabled = FALSE;
 static short widths[2] = { 22, 32 };
 static short heights[2] = { 22, 32 };
 
