@@ -271,6 +271,10 @@
 #  if __GNUC__ == 2 && __GNUC_MINOR__ <= 95
 #    define Q_NO_USING_KEYWORD
 #  endif
+/* GCC 3.1 and GCC 3.2 wrongly define _SB_CTYPE_MACROS on HP-UX */
+#  if defined(Q_OS_HPUX) && __GNUC__ == 3 && __GNUC_MINOR__ >= 1
+#    define Q_WRONG_SB_CTYPE_MACROS
+#  endif
 #  if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
 #    define Q_PACKED __attribute__ ((packed))
 #  endif

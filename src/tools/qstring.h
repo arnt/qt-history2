@@ -1,12 +1,11 @@
 /****************************************************************************
 ** $Id$
 **
-** Definition of the QString class, and related Unicode
-** functions.
+** Definition of the QString class, and related Unicode functions.
 **
 ** Created : 920609
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -45,6 +44,9 @@
 
 #ifndef QT_NO_STL
 #include <string>
+#if defined(Q_WRONG_SB_CTYPE_MACROS) && defined(_SB_CTYPE_MACROS)
+#undef _SB_CTYPE_MACROS
+#endif
 #endif
 
 
