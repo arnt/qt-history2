@@ -97,6 +97,7 @@ QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
     afterAnchor = TRUE;
     setAcceptDrops( TRUE );
     MetaDataBase::addEntry( this );
+    lastIndicatorPos = QPoint( -1, -1 );
 }
 
 QDesignerToolBar::QDesignerToolBar( QMainWindow *mw, Dock dock )
@@ -228,6 +229,7 @@ void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
 	actionList.insert( idx, a );
 	reInsert();
     }
+    lastIndicatorPos = QPoint( -1, -1 );
 }
 
 #ifndef QT_NO_DRAGANDDROP
@@ -349,6 +351,7 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
 	if ( lastIndicatorPos != QPoint( -1, -1 ) )
 	    drawIndicator( QPoint( -1, -1 ) );
     }
+    lastIndicatorPos = QPoint( -1, -1 );
 }
 
 #endif
@@ -540,6 +543,7 @@ void QDesignerMenuBar::mouseMoveEvent( QMouseEvent *e )
     if ( !drag->drag() ) {
 	insertItem( txt, popup, -1, itm );
     }
+    lastIndicatorPos = QPoint( -1, -1 );
     mousePressed = FALSE;
 }
 
@@ -603,6 +607,7 @@ void QDesignerMenuBar::dropEvent( QDropEvent *e )
     QPopupMenu *popup = (QPopupMenu*)s1.toLong();  // #### huha, that is evil
     QString txt = s2;
     insertItem( txt, popup, -1, insertAt );
+    lastIndicatorPos = QPoint( -1, -1 );
 }
 
 #endif
@@ -685,6 +690,7 @@ QDesignerPopupMenu::QDesignerPopupMenu( QWidget *w )
     setAcceptDrops( TRUE );
     insertAt = -1;
     mousePressed = FALSE;
+    lastIndicatorPos = QPoint( -1, -1 );
 }
 
 void QDesignerPopupMenu::mousePressEvent( QMouseEvent *e )
@@ -752,6 +758,7 @@ void QDesignerPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	actionList.insert( itm, a );
 	reInsert();
     }
+    lastIndicatorPos = QPoint( -1, -1 );
     mousePressed = FALSE;
 }
 
@@ -842,6 +849,7 @@ void QDesignerPopupMenu::dropEvent( QDropEvent *e )
 	reInsert();
 	connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
     }
+    lastIndicatorPos = QPoint( -1, -1 );
 }
 
 #endif
