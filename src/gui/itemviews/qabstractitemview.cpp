@@ -34,17 +34,6 @@
 #define d d_func()
 #define q q_func()
 
-class QDefaultModel : public QAbstractTableModel
-{
-public:
-    QDefaultModel(QObject *parent) : QAbstractTableModel(parent) {}
-    ~QDefaultModel() {}
-
-    int rowCount(const QModelIndex&) const { return 0; }
-    int columnCount(const QModelIndex&) const { return 0; }
-    QVariant data(const QModelIndex &, int) const { return QVariant(); }
-};
-
 QAbstractItemViewPrivate::QAbstractItemViewPrivate()
     :   model(0),
         delegate(0),
@@ -78,7 +67,7 @@ QAbstractItemViewPrivate::~QAbstractItemViewPrivate()
 void QAbstractItemViewPrivate::init()
 {
     q->setItemDelegate(new QItemDelegate(q));
-    q->setModel(new QDefaultModel(q));
+    q->setModel(0);
 
     q->verticalScrollBar()->setRange(0, 0);
     q->horizontalScrollBar()->setRange(0, 0);
@@ -430,8 +419,6 @@ QAbstractItemView::~QAbstractItemView()
 */
 void QAbstractItemView::setModel(QAbstractItemModel *model)
 {
-    Q_ASSERT(model);
-
     if (d->model) {
         disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                    this, SLOT(dataChanged(QModelIndex,QModelIndex)));
@@ -475,7 +462,7 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 {
     Q_ASSERT(selectionModel);
 
-    if (selectionModel->model() != d->model) {
+    if (selectionModel->model() != model()) {
         qWarning("QAbstractItemView::setSelectionModel() failed: "
                  "Trying to set a selection model, which works on "
                  "a different model than the view.");
@@ -497,8 +484,8 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
         connect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                 this, SLOT(currentChanged(QModelIndex,QModelIndex)));
         bool block = d->selectionModel->blockSignals(true);
-        if (!currentIndex().isValid())
-            setCurrentIndex(d->model->index(0, 0, root()));
+        if (!currentIndex().isValid() && model())
+            setCurrentIndex(model()->index(0, 0, root()));
         d->selectionModel->blockSignals(block);
     }
 }
@@ -1663,10 +1650,10 @@ int QAbstractItemView::rowSizeHint(int row) const
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     int height = 0;
-    int colCount = d->model->columnCount(root());
+    int colCount = model()->columnCount(root());
     QModelIndex index;
     for (int c = 0; c < colCount; ++c) {
-        index = d->model->index(row, c, root());
+        index = model()->index(row, c, root());
         height = qMax(height, delegate->sizeHint(option, index).height());
     }
     return height;
@@ -1680,10 +1667,10 @@ int QAbstractItemView::columnSizeHint(int column) const
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     int width = 0;
-    int rows = d->model->rowCount(root());
+    int rows = model()->rowCount(root());
     QModelIndex index;
     for (int r = 0; r < rows; ++r) {
-        index = d->model->index(r, column, root());
+        index = model()->index(r, column, root());
         width = qMax(width, delegate->sizeHint(option, index).width());
     }
     return width;
@@ -2121,6 +2108,8 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionC
 
 void QAbstractItemViewPrivate::fetchMore()
 {
+    if (!model)
+        return;
     int last = model->rowCount(root) - 1;
     if (last < 0)
         return;

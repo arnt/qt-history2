@@ -203,30 +203,34 @@ void QHeaderView::initialize()
 */
 void QHeaderView::setModel(QAbstractItemModel *model)
 {
-    Q_ASSERT(model);
-
     if (d->model) {
         if (d->orientation == Qt::Horizontal) {
             QObject::disconnect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
                                 this, SLOT(sectionsInserted(QModelIndex,int,int)));
             QObject::disconnect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
                                 this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
-            QObject::connect(model, SIGNAL(columnsInserted(QModelIndex,int,int)),
-                             this, SLOT(sectionsInserted(QModelIndex,int,int)));
-            QObject::connect(model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
-                this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
         } else {
             QObject::disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
                                 this, SLOT(sectionsInserted(QModelIndex,int,int)));
             QObject::disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                                 this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
+        }
+        QObject::disconnect(d->model, SIGNAL(headerDataChanged(Orientation,int,int)),
+                            this, SLOT(headerDataChanged(Orientation,int,int)));
+    }
+
+    if (model) {
+        if (d->orientation == Qt::Horizontal) {
+            QObject::connect(model, SIGNAL(columnsInserted(QModelIndex,int,int)),
+                             this, SLOT(sectionsInserted(QModelIndex,int,int)));
+            QObject::connect(model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
+        } else {
             QObject::connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
                              this, SLOT(sectionsInserted(QModelIndex,int,int)));
             QObject::connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                              this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
         }
-        QObject::disconnect(d->model, SIGNAL(headerDataChanged(Orientation,int,int)),
-                            this, SLOT(headerDataChanged(Orientation,int,int)));
         QObject::connect(model, SIGNAL(headerDataChanged(Orientation,int,int)),
                          this, SLOT(headerDataChanged(Orientation,int,int)));
     }
@@ -947,12 +951,14 @@ void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
 
 void QHeaderView::initializeSections()
 {
+    if (!model())
+        return;
     if (d->orientation == Qt::Horizontal) {
-        int c = d->model->columnCount(root());
+        int c = model()->columnCount(root());
         if (c != count())
             initializeSections(0, c > 0 ? c - 1 : 0);
     } else {
-        int r = d->model->rowCount(root());
+        int r = model()->rowCount(root());
         if (r != count())
             initializeSections(0, r > 0 ? r - 1 : 0);
     }

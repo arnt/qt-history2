@@ -1059,7 +1059,7 @@ QModelIndexList QListView::selectedIndexes() const
 void QListView::doItemsLayout()
 {
     d->prepareItemsLayout();
-    if (model()->columnCount(root()) > 0) { // no columns means no contents
+    if (model() && model()->columnCount(root()) > 0) { // no columns means no contents
         if (layoutMode() == SinglePass)
             d->doItemsLayout(model()->rowCount(root())); // layout everything
         else
@@ -1073,7 +1073,7 @@ void QListView::doItemsLayout()
 */
 void QListView::updateGeometries()
 {
-    if (model()->rowCount(root()) <= 0 || model()->columnCount(root()) <= 0) {
+    if (!model() || model()->rowCount(root()) <= 0 || model()->columnCount(root()) <= 0) {
         horizontalScrollBar()->setRange(0, 0);
         verticalScrollBar()->setRange(0, 0);
     } else {
@@ -1156,8 +1156,9 @@ void QListViewPrivate::prepareItemsLayout()
     layoutBounds.setWidth(viewport->width() - sbx);
     layoutBounds.setHeight(viewport->height() - sbx);
 
-    int rowCount = qMax(model->rowCount(root), 0);
-    if (model->columnCount(root) <= 0)
+    int rowCount = !model ? 0 : model->rowCount(root);
+    int colCount = !model ? 0 : model->columnCount(root);
+    if (colCount <= 0)
         rowCount = 0; // no contents
     if (movement == QListView::Static) {
         flowPositions.resize(rowCount);

@@ -485,11 +485,11 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
     switch (variant.type()) {
     case QVariant::Icon:
         return variant.toIcon().pixmap(option.decorationSize == QStyleOptionViewItem::Small
-                                          ? Qt::SmallIconSize : Qt::LargeIconSize,
-                                          option.state & QStyle::Style_Enabled
-                                          ? QIcon::Normal : QIcon::Disabled,
-                                          option.state & QStyle::Style_Open
-                                          ? QIcon::On : QIcon::Off);
+                                       ? Qt::SmallIconSize : Qt::LargeIconSize,
+                                       option.state & QStyle::Style_Enabled
+                                       ? QIcon::Normal : QIcon::Disabled,
+                                       option.state & QStyle::Style_Open
+                                       ? QIcon::On : QIcon::Off);
     case QVariant::Bool: {
         static QPixmap checked(QApplication::style()->standardPixmap(
                                    QStyle::SP_ItemChecked, &option));
