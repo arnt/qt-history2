@@ -102,6 +102,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qrect.h \
 		  $$KERNEL_H/qregion.h \
 		  $$KERNEL_H/qsemimodal.h \
+		  $$KERNEL_H/qsessionmanager.h \
 		  $$KERNEL_H/qsignal.h \
 		  $$KERNEL_H/qsignalmapper.h \
 		  $$KERNEL_H/qsignalslotimp.h \
