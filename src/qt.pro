@@ -146,7 +146,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qiodevice.h \
 		  $$TOOLS_H/qjiscodec.h \
 		  $$TOOLS_H/qjpunicode.h \
-		  $$TOOLS_H/qkoi8codec.h \
 		  $$TOOLS_H/qlist.h \
 		  $$TOOLS_H/qmap.h \
 		  $$TOOLS_H/qptrdict.h \
@@ -275,7 +274,6 @@ SOURCES	       += tools/qbitarray.cpp \
 		  tools/qiodevice.cpp \
 		  tools/qjiscodec.cpp \
 		  tools/qjpunicode.cpp \
-		  tools/qkoi8codec.cpp \
 		  tools/qmap.cpp \
 		  tools/qregexp.cpp \
 		  tools/qrtlcodec.cpp \

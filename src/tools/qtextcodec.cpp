@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#68 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#69 $
 **
 ** Implementation of QTextCodec class
 **
@@ -31,7 +31,6 @@
 #include "qjiscodec.h"
 #include "qsjiscodec.h"
 #include "qeuckrcodec.h"
-#include "qkoi8codec.h"
 #include "qrtlcodec.h"
 #endif
 
@@ -1169,7 +1168,7 @@ static struct {
     { "KOI8-R", 2084,
       { 0x2500, 0x2502, 0x250C, 0x2510, 0x2514, 0x2518, 0x251C, 0x2524,
 	0x252C, 0x2534, 0x253C, 0x2580, 0x2584, 0x2588, 0x258C, 0x2590,
-	0x2591, 0x2592, 0x2593, 0x2320, 0x25A0, 0x2219, 0x221A, 0x2248,
+	0x2591, 0x2592, 0x2593, 0x2320, 0x25A0, 0x2219/**/, 0x221A, 0x2248,
 	0x2264, 0x2265, 0x00A0, 0x2321, 0x00B0, 0x00B2, 0x00B7, 0x00F7,
 	0x2550, 0x2551, 0x2552, 0x0451, 0x2553, 0x2554, 0x2555, 0x2556,
 	0x2557, 0x2558, 0x2559, 0x255A, 0x255B, 0x255C, 0x255D, 0x255E,
@@ -1183,6 +1182,8 @@ static struct {
 	0x0425, 0x0418, 0x0419, 0x041A, 0x041B, 0x041C, 0x041D, 0x041E,
 	0x041F, 0x042F, 0x0420, 0x0421, 0x0422, 0x0423, 0x0416, 0x0412,
 	0x042C, 0x042B, 0x0417, 0x0428, 0x042D, 0x0429, 0x0427, 0x042A } },
+    // /**/  - The BULLET OPERATOR is confused.  Some people think
+    //		it should be 0x2022 (BULLET).
 
     // next bits generated from tables on the Unicode 2.0 CD.  we can
     // use these tables since this is part of the transition to using
@@ -1483,7 +1484,6 @@ static void setupBuiltinCodecs()
     (void)new QSjisCodec;
     (void)new QJisCodec;
     (void)new QEucKrCodec;
-    (void)new QKoi8Codec;
     (void)new QUtf8Codec;
     (void)new QUtf16Codec;
     (void)new QHebrewCodec;
