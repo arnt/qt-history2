@@ -109,9 +109,9 @@ QRegion qt_mac_convert_mac_region(HIShapeRef shape)
 */
 RgnHandle QRegion::handle(bool require_rgn) const
 {
-    if(!d->rgn && (require_rgn || d->qt_rgn->numRects > 1)) {
+    if(!d->rgn && (require_rgn || (d->qt_rgn && d->qt_rgn->numRects > 1))) {
         d->rgn = qt_mac_get_rgn();
-        if(d->qt_rgn->numRects) {
+        if(d->qt_rgn && d->qt_rgn->numRects) {
             RgnHandle tmp_rgn = qt_mac_get_rgn();
             for(int i = 0; i < d->qt_rgn->numRects; ++i) {
                 QRect qt_r = d->qt_rgn->rects[i];
