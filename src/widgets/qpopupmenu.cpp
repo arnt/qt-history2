@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#183 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#184 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1281,7 +1281,9 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
     if ( actItem >= 0 ) {			// selected menu item!
 	register QMenuItem *mi = mitems->at(actItem);
 	QPopupMenu *popup = mi->popup();
-	if ( popup ) {
+	if ( !mi->isEnabled() ) {
+	    // nothing.
+	} else 	if ( popup ) {
 	    popup->setFirstItemActive();
 	} else {				// normal menu item
 	    byeMenuBar();			// deactivate menu bar
