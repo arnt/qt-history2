@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qml/qml.h#5 $
+** $Id: //depot/qt/main/tests/qml/qml.h#6 $
 **
 ** Definition of something or other
 **
@@ -153,10 +153,10 @@ public:
     QMLNode* start;
     QMLNode* end;
     QMLContainer* parent;
-    
+
     //avoid flickering
-    int frameLeft;
-    int frameRight;
+//     int frameLeft;
+//     int frameRight;
 
 };
 
@@ -164,7 +164,7 @@ public:
 class QMLContainer : public QMLNode {
 public:
     QMLContainer( const QMLStyle &stl);
-    ~QMLContainer();
+    virtual ~QMLContainer();
     QFont font() const;
     QMLContainer* parent;
     const QMLStyle* style;
@@ -174,6 +174,12 @@ public:
     QMLBox* parentBox() const;
 
     QMLNode* lastChild() const;
+
+    void setParentPointersInSubtree();
+    
+    virtual QMLContainer* copy();
+    
+    void split(QMLNode* node);
 
 private:
     int fontWeight() const;
@@ -194,6 +200,7 @@ public:
 
     void update(QPainter* p, QMLRow* r = 0);
 
+    QMLContainer* copy();
 
     QList<QMLRow> rows;
 
@@ -264,11 +271,14 @@ public:
     QMLContainer *nodeParent;
 
     void insert(QPainter* p, const QChar& c);
+    void enter(QPainter* p);
 
     void right(QPainter* p, bool select = FALSE);
     void left(QPainter* p, bool select = FALSE);
     void up(QPainter* p, bool select = FALSE);
     void down(QPainter* p, bool select = FALSE);
+    void home(QPainter* p, bool select = FALSE);
+    void end(QPainter* p, bool select = FALSE);
     void goTo(QPainter* p, int xarg, int yarg, bool select = FALSE);
 
 

@@ -146,7 +146,7 @@ void QMLStyleSheet::init()
 
     style = new QMLStyle( "p" );
     style->setDisplay(QMLStyle::display_block);
-//     style->setNumberOfColumns(2);
+    //     style->setNumberOfColumns(2);
     insert(style);
     style = new QMLStyle( "p2" );
     style->setDisplay(QMLStyle::display_block);
@@ -339,10 +339,10 @@ QMLNode* QMLNode::nextSibling() const
 QMLRow::QMLRow()
 {
     x = y = width = height = base = 0;
-    frameLeft = frameRight = 0;
+//     frameLeft = frameRight = 0;
     start = end = 0;
     parent = 0;
-    
+
 
     dirty = TRUE;
 }
@@ -452,10 +452,11 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 	return;
     }
 
-    //     QRegion r(x+obx-ox, y+oby-oy, width, height);
-     QRegion r(x+obx-ox-frameLeft, y+oby-oy, width+frameLeft+frameRight, height);
-     p->drawTiledPixmap(x-frameLeft+obx-ox, y+oby-oy, frameLeft, height, *bg, x-frameLeft+obx, y+oby);
-     p->drawTiledPixmap(x+width+obx-ox, y+oby-oy, frameRight, height, *bg, x+width+obx, y+oby);
+    QRegion r(x+obx-ox, y+oby-oy, width, height);
+
+//      QRegion r(x+obx-ox-frameLeft, y+oby-oy, width+frameLeft+frameRight, height);
+//      p->drawTiledPixmap(x-frameLeft+obx-ox, y+oby-oy, frameLeft, height, *bg, x-frameLeft+obx, y+oby);
+//      p->drawTiledPixmap(x+width+obx-ox, y+oby-oy, frameRight, height, *bg, x+width+obx, y+oby);
 // //     p->fillRect(x-frameLeft+obx-ox, y+oby-oy, frameLeft, height, Qt::red);
 // //     p->fillRect(x+width+obx-ox, y+oby-oy, frameRight, height, Qt::red);
      backgroundRegion = backgroundRegion.subtract(r);
@@ -493,20 +494,20 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 
 	if (!onlySelection || selectionDirty) {
 	
-	    if (select) {
-		if (t==end)
-		    p->fillRect(tx+obx-ox, y+oby-oy, width-(tx-x), height, Qt::white);
-		else
-		    p->fillRect(tx+obx-ox, y+oby-oy, tw, height, Qt::white);
-	    }
-	    else {
-		if (t==end){
-		    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, width-(tx-x), height, *bg, tx+obx, y+oby);
-		}
-		else {
-		    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, tw, height, *bg, tx+obx, y+oby);
-		}
-	    }
+ 	    if (select) {
+ 		if (t==end)
+ 		    p->fillRect(tx+obx-ox, y+oby-oy, width-(tx-x), height, Qt::white);
+ 		else
+ 		    p->fillRect(tx+obx-ox, y+oby-oy, tw, height, Qt::white);
+ 	    }
+ 	    else {
+ 		if (t==end){
+ 		    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, width-(tx-x), height, *bg, tx+obx, y+oby);
+ 		}
+ 		else {
+ 		    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, tw, height, *bg, tx+obx, y+oby);
+ 		}
+ 	    }
 	
 	    p->drawText(tx+obx-ox, y+oby-oy+base, s);
 	}
@@ -602,6 +603,53 @@ QMLContainer::~QMLContainer()
     delete fnt;
 }
 
+
+QMLContainer* QMLContainer::copy()
+{
+    QMLContainer* result = new QMLContainer(*style);
+    return result;
+}
+
+void QMLContainer::split(QMLNode* node)
+{
+    debug("split");
+    QMLContainer* c2 = copy();
+
+    QMLNode* prev = node->previous(); // slow!
+    if (!node->isContainer) {
+	QMLNode* n = new QMLNode;
+	n->c = QChar::null;
+	n->isLastSibling = 1;
+	n->next = this;
+	if (prev)
+	    prev->next = n;
+	else
+	    child = n;
+    }
+    else {
+	if (prev){
+	    prev->isLastSibling = 1;
+	    prev->next = this;
+	}
+	else
+	    child = 0;
+    }
+    
+    c2->child = node;
+    c2->parent = parent;
+    
+    c2->next = next;
+    next = c2;
+    c2->isLastSibling = isLastSibling;
+    isLastSibling = 0;
+    
+    if (!isBox)
+	parent->split(c2);
+    else 
+	c2->setParentPointersInSubtree();
+}
+
+
 QMLBox* QMLContainer::box() const
 {
     QMLContainer* result = (QMLContainer*) this;
@@ -626,6 +674,23 @@ QMLNode* QMLContainer::lastChild() const
     return child->lastSibling();
 }
 
+
+void QMLContainer::setParentPointersInSubtree()
+{
+    debug("set parent points in subtree");
+    QMLNode* n = child;
+    while (n) {
+	if (n->isContainer) {
+	    ((QMLContainer*)n)->parent = this;
+	     ((QMLContainer*)n)->setParentPointersInSubtree();
+	}
+	if (n->isLastSibling) {
+	    n->next = this;
+	    break;
+	}
+	n = n->next;
+    }
+}
 
 
 
@@ -680,7 +745,15 @@ QMLBox::QMLBox( const QMLStyle &stl)
     rows.setAutoDelete(true);
     isSimpleNode = 0;
     isBox = 1;
+    width = height = 0;
 }
+
+QMLContainer* QMLBox::copy()
+{
+    QMLBox* result = new QMLBox(*style);
+    return result;
+}
+
 QMLBox::~QMLBox()
 {
 }
@@ -701,12 +774,12 @@ void QMLBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy
 	row->draw(this, p, obx, oby, ox, oy, cx, cy, cw, ch, backgroundRegion, onlyDirty, onlySelection);
     }
 
-    // TODO
-    int frameRight = 5;
-    int frameLeft = 5;
-    p->drawTiledPixmap(-frameLeft+obx-ox, oby-oy, frameLeft, height, *bg, frameLeft+obx, oby);
-    p->drawTiledPixmap(width+obx-ox, oby-oy, frameRight, height, *bg, width+obx, oby);
-    
+//     // TODO
+//     int frameRight = 5;
+//     int frameLeft = 5;
+//     p->drawTiledPixmap(-frameLeft+obx-ox, oby-oy, frameLeft, height, *bg, frameLeft+obx, oby);
+//     p->drawTiledPixmap(width+obx-ox, oby-oy, frameRight, height, *bg, width+obx, oby);
+
 
 //      QRegion oldR = p->clipRegion();
 //      p->setClipRegion(backgroundRegion);
@@ -722,6 +795,8 @@ void QMLBox::resize(QPainter* p, int newWidth)
 {
     if (newWidth == width) // no need to resize
 	return;
+
+//     debug("box %p resize to %d", this, newWidth);
 
     QList<QMLRow> newRows;
 
@@ -744,8 +819,8 @@ void QMLBox::resize(QPainter* p, int newWidth)
 	row = new QMLRow(this, p, n, par, colwidth-10);
 	row->x = 5;
 	row->y = h;
-	row->frameLeft = 5;
-	row->frameRight = 5;
+// 	row->frameLeft = 5;
+// 	row->frameRight = 5;
 	newRows.append(row);
 	h += row->height;
     }
@@ -946,6 +1021,21 @@ void QMLCursor::insert(QPainter* p, const QChar& c)
     calculatePosition(p);
 }
 
+
+void QMLCursor::enter(QPainter* p)
+{
+    
+    nodeParent->split(node);
+    
+    QMLBox* b = nodeParent->box();
+    b->update(p);
+    b->next->box()->update( p );
+
+    debug("done");
+    nodeParent = node->parent();
+    calculatePosition(p);
+}
+
 void QMLCursor::right(QPainter* p, bool select)
 {
     QMLContainer* np = nodeParent;
@@ -1003,6 +1093,18 @@ void QMLCursor::down(QPainter* p, bool select)
     int oldXline = xline;
     calculatePosition(p);
     xline = oldXline;
+}
+
+void QMLCursor::home(QPainter* p, bool select)
+{
+    goTo(row->start, row->parent, select );
+    calculatePosition(p);
+}
+
+void QMLCursor::end(QPainter* p, bool select)
+{
+    goTo(row->end, row->end->parent(), select );
+    calculatePosition(p);
 }
 
 
@@ -1074,7 +1176,7 @@ void QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 		if (current->isBox){ // todo this inserts a hitable null character
 		    //		    debug("insert star");
 		    QMLNode* n = new QMLNode;
-		    n->c = '*';
+		    n->c = QChar::null;
 		    QMLNode* l = lastChild;
 		    if (!l)
 			current->child = n;
@@ -1260,7 +1362,7 @@ QMLView::QMLView()
 {
     setVScrollBarMode( AlwaysOn );
     cursor_hidden = FALSE;
-    bg = new QPixmap("bg.bmp");
+    bg = new QPixmap("bg.ppm");
 	
      viewport()->setBackgroundMode(NoBackground); //PaletteBase);
     //    viewport()->setBackgroundPixmap(*bg);
@@ -1272,16 +1374,18 @@ QMLView::QMLView()
     QMLStyleSheet::defaultSheet().defaultStyle().setFontSize(14);
     //    doc = new QMLDocument("Hallo<em>emph</em>Welt", context);
 
-      QString text = "<p>Hello <EM>this is <B>bold</B> italic</EM> this is <B>bold   </B> :-) </p><H1>And this is a pretty long <EM>heading</EM> in 24 point font!</H1><p>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text.  This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. </p><p2>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. <h1>This is a heading inside the p2 environment</h1>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. </p2><p3>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text.</p3>";
+   // QString text = "<p>Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. </p><p>Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. Das ist dreispaltiger Text. </p>";
+
+       QString text = "<p>Hello <EM>this is <B>bold</B> italic</EM> this is <B>bold   </B> :-) </p><H1>And this is a pretty long <EM>heading</EM> in 24 point font!</H1><p>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text.  This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. </p><p2>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. <h1>This is a heading inside the p2 environment</h1>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. </p2><p3>This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text. This is another huge paragraph, it contains more or less stupid text.</p3>";
 
 //     QString text = "Hello <EM>this is <B>bold</B> italic</EM> this is <B>bold  </B>:-) <H1> And this is a <EM>heading</EM>!</H1> And here the text continues.";
 
-          text += text;
-          text += text;
+                text += text;
+                text += text;
              text += text;
+            text += text;
+//             text += text;
 //            text += text;
-//            text += text;
-//           text += text;
 //           text += text;
 //          text += text;
 //          text += text;
@@ -1302,6 +1406,8 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 	|| e->key() == Key_Left
 	|| e->key() == Key_Up
 	|| e->key() == Key_Down
+	|| e->key() == Key_Home
+	|| e->key() == Key_End
 	|| e->key() == Key_PageUp
 	|| e->key() == Key_PageDown
 	) {
@@ -1329,6 +1435,16 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 		break;
 	    case Key_Down:
 		doc->cursor->down(&p, select);
+		p.end();
+		ensureVisible(doc->cursor->x, doc->cursor->y);
+		break;
+	    case Key_Home:
+		doc->cursor->home(&p, select);
+		p.end();
+		ensureVisible(doc->cursor->x, doc->cursor->y);
+		break;
+	    case Key_End:
+		doc->cursor->end(&p, select);
 		p.end();
 		ensureVisible(doc->cursor->x, doc->cursor->y);
 		break;
@@ -1386,6 +1502,25 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 	    }
 	}
 	showCursor();
+    }
+    else if (e->key() == Key_Return || e->key() == Key_Enter ) {
+	{
+	    QPainter p( viewport() );
+	    debug("enter");
+	    doc->cursor->enter( &p );
+	    QRegion r(0, 0, viewport()->width(), viewport()->height());
+	    doc->draw(&p, 0, 0, contentsX(), contentsY(),
+		      contentsX(), contentsY(),
+		      viewport()->width(), viewport()->height(),
+		      r, TRUE);
+	    p.setClipRegion(r);
+	    // 	p.fillRect(0, 0, viewport()->width(), viewport()->height(), Qt::white);
+	    p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
+			      *bg, contentsX(), contentsY());
+	}
+	showCursor();
+	resizeContents(doc->width, doc->height);
+	ensureVisible(doc->cursor->x, doc->cursor->y);
     }
     else if (!e->text().isEmpty() ){
 	// other keys
