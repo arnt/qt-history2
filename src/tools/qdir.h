@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#5 $
+** $Id: //depot/qt/main/src/tools/qdir.h#6 $
 **
 ** Definition of QDir class
 **
@@ -102,6 +102,7 @@ public:
     bool	isRoot()   const;
 
     bool        isRelative() const;
+    void        convertToAbsolute();
 
     QDir       &operator=( const QDir & );
     QDir       &operator=( const char * relativeOrAbsolutePath );

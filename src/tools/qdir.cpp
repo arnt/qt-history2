@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#6 $
 **
 ** Implementation of QDir class
 **
@@ -21,7 +21,7 @@
 #include<unistd.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdir.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdir.cpp#6 $";
 #endif
 
   /*! \class QDir qdir.h
@@ -146,11 +146,12 @@ QString QDir::fullPath() const
 {
     if ( QDir::isRelativePath(dPath) ) {
         QString tmp = currentDirString();
-        tmp += separator();
+        if ( tmp.right(1) != Q_SEPARATOR )
+            tmp += separator();
         tmp += dPath;
-        return cleanPathName( tmp.data() );
+        return tmp;
     } else {
-        return dPath;
+        return dPath.copy();
     }
 }
 
@@ -188,7 +189,7 @@ QString QDir::dirName() const
 {
     int pos = dPath.findRev( separator() );
     if ( pos == -1  )
-        return QString();
+        return dPath;
     return dPath.right( dPath.length() - pos - 1 );
 }
 
@@ -196,13 +197,13 @@ QString QDir::pathName( const char *fileName,
                         bool acceptAbsolutePath ) const
 {
     if ( acceptAbsolutePath && !isRelativePath( fileName ) )
-        return cleanPathName( fileName );
+        return QString( fileName );
 
     QString tmp = dPath.copy();
-    if ( tmp[ tmp.length() - 1 ] != separator() )
+    if ( tmp.right(1) != Q_SEPARATOR && fileName && fileName[0] != separator())
         tmp += separator();
     tmp += fileName;
-    return cleanPathName( tmp.data() );
+    return tmp;
 }
 
   /*!
@@ -214,13 +215,13 @@ QString QDir::fullPathName( const char *fileName,
                             bool acceptAbsolutePath ) const
 {
     if ( acceptAbsolutePath && !isRelativePath( fileName ) )
-        return cleanPathName( fileName );
+        return fileName;
 
     QString tmp = fullPath();
-    if ( tmp[ tmp.length() - 1 ] != separator() )
+    if ( tmp.right(1) != Q_SEPARATOR && fileName && fileName[0] != separator())
         tmp += separator();
     tmp += fileName;
-    return cleanPathName( tmp.data() );
+    return tmp;
 }
 
   /*!
@@ -260,22 +261,21 @@ QString QDir::fullPathName( const char *fileName,
 
 bool QDir::cd( const char *dirName, bool acceptAbsolutePath )
 {
-    if ( strcmp( dirName, ".." ) == 0 ) {
-        dPath = absolutePath();
-        return cdUp();
-    }
     if ( strcmp( dirName, "." ) == 0 ) {
         return TRUE;
     }
     QString old = dPath;
-    dPath.detach();
-    if ( !acceptAbsolutePath || isRelativePath( dirName ) ) {
-        dPath += separator();
-        dPath += dirName;
+    dPath.detach();                   // dPath can be shared by several QDirs
+    if ( acceptAbsolutePath && !isRelativePath(dirName) ) {
+        dPath = cleanPathName( dirName );
     } else {
-        dPath = dirName;
+        if ( !isRoot() )
+            dPath += separator();
+        dPath += dirName;
+        if ( strchr( dirName, separator() ) || old == "." || 
+             strcmp( dirName, "..") == 0 )
+            dPath = cleanPathName( dPath.data() );
     }
-    dPath = cleanPathName( dPath.data() );
     if ( !exists() ) {
         dPath = old;
         return FALSE;
@@ -305,16 +305,7 @@ bool QDir::cd( const char *dirName, bool acceptAbsolutePath )
 
 bool QDir::cdUp()
 {
-    QString old = dPath;
-    dPath.detach();
-    dPath += Q_SEPARATOR "..";
-    dPath = cleanPathName( dPath.data() );
-    if ( !exists() ) {
-        dPath = old;
-        return FALSE;
-    }
-    dirty = TRUE;
-    return TRUE;
+    return cd( ".." );
 }
 
 void QDir::setNameFilter( const char *nameFilter )
@@ -462,6 +453,12 @@ bool QDir::isRelative() const
     return isRelativePath( dPath.data() );
 }
 
+void QDir::convertToAbsolute()
+{
+    dPath = absolutePath();
+}
+
+
 QDir &QDir::operator=( const QDir &d )
 {
     dPath    = d.dPath;
@@ -484,7 +481,11 @@ QDir &QDir::operator=( const char *relativeOrAbsolutePath )
 
 bool QDir::operator==( const QDir &d )
 {
-    return dPath == d.dPath;
+    return dPath    == d.dPath &&
+           nameFilt == d.nameFilt &&
+           allDirs  == d.allDirs &&
+           filtS    == d.filtS &&
+           sortS    == d.sortS;
 }
 
   /*!
@@ -701,7 +702,7 @@ QString QDir::cleanPathName( const char *pathName )
 
 bool QDir::isRelativePath( const char *pathName )
 {
-    return ( pathName && pathName[0] == separator() );   // ### UNIX only!
+    return ( !pathName || pathName[0] != separator() );   // ### UNIX only!
 }
 
 static void dirInSort( QStrList *fl, QFileInfoList *fil, const char *fileName,
@@ -712,8 +713,8 @@ static void dirInSort( QStrList *fl, QFileInfoList *fil, const char *fileName,
     int sortBy = sortSpec & QDir::SortByMask;
     if ( sortBy == QDir::Unsorted ) {
         if ( sortSpec & QDir::Reversed ) {
-            fl ->insert( fileName );
-            fil->insert( newFi );
+            fl ->insert( 0, fileName );
+            fil->insert( 0, newFi );
         } else {
             fl ->append( fileName );
             fil->append( newFi );
@@ -829,9 +830,9 @@ bool QDir::readDirEntries( const QString &nameFilter,
         char      *tmp   = dList ->last();
         QFileInfo *fiTmp = diList->last();
         while( tmp ) {
-            fList->insert( tmp );
+            fList->insert( 0, tmp );
             tmp = dList->prev();
-            fiList->insert( fiTmp );
+            fiList->insert( 0, fiTmp );
             fiTmp = diList->prev();
 	}
         delete dList;
