@@ -74,9 +74,10 @@ void QGfx::setScreen(QScreen *,QScreenCursor *,bool,int *,int *)
 */
 
 /*!
-\fn QScreen::setDirty( const QRect& )
-Indicates which section of the screen has been altered. Used by the VNC
-and VFB displays; the QScreen version does nothing.
+    \fn QScreen::setDirty( const QRect& )
+
+    Indicates which section of the screen has been altered. Used by
+    the VNC and VFB displays; the QScreen version does nothing.
 */
 
 void QScreen::setDirty( const QRect& )
@@ -84,10 +85,11 @@ void QScreen::setDirty( const QRect& )
 }
 
 /*!
-  \fn QScreen::isTransformed() const
-Returns TRUE if the screen is transformed (for instance, rotated
-90 degrees); otherwise returns FALSE. QScreen's version always returns
-FALSE.
+    \fn QScreen::isTransformed() const
+
+    Returns TRUE if the screen is transformed (for instance, rotated
+    90 degrees); otherwise returns FALSE. QScreen's version always
+    returns FALSE.
 */
 
 bool QScreen::isTransformed() const
@@ -96,10 +98,11 @@ bool QScreen::isTransformed() const
 }
 
 /*!
-  \fn QScreen::isInterlaced() const
-Returns TRUE if the display is interlaced (for instance a television
-screen); otherwise returns FALSE. If TRUE drawing is altered to look
-better on such displays.
+    \fn QScreen::isInterlaced() const
+
+    Returns TRUE if the display is interlaced (for instance a
+    television screen); otherwise returns FALSE. If TRUE, drawing is
+    altered to look better on such displays.
 */
 
 bool QScreen::isInterlaced() const
@@ -108,9 +111,10 @@ bool QScreen::isInterlaced() const
 }
 
 /*!
-  \fn QScreen::mapToDevice( const QSize &s ) const
-  Map a user coordinate to the one to actually be drawn. Used by
-  the rotated driver; the QScreen implementation simply returns \a s.
+    \fn QScreen::mapToDevice( const QSize &s ) const
+
+    Map a user coordinate to the one to actually draw. Used by the
+    rotated driver; the QScreen implementation simply returns \a s.
 */
 
 QSize QScreen::mapToDevice( const QSize &s ) const
@@ -119,10 +123,11 @@ QSize QScreen::mapToDevice( const QSize &s ) const
 }
 
 /*!
-  \fn QScreen::mapFromDevice( const QSize &s ) const
-  Map a framebuffer coordinate to the coordinate space used by the
-  application. Used by the rotated driver; the QScreen implementation simply
-  returns \a s.
+    \fn QScreen::mapFromDevice( const QSize &s ) const
+
+    Map a framebuffer coordinate to the coordinate space used by the
+    application. Used by the rotated driver; the QScreen
+    implementation simply returns \a s.
 */
 
 QSize QScreen::mapFromDevice( const QSize &s ) const
@@ -131,11 +136,11 @@ QSize QScreen::mapFromDevice( const QSize &s ) const
 }
 
 /*!
-  \fn QScreen::mapToDevice( const QPoint &, const QSize & ) const
-  \overload
-  Map a user coordinate to the one to actually be drawn. Used by
-  the rotated driver; the QScreen implementation simply returns the point
-  passed in.
+    \overload QScreen::mapToDevice( const QPoint &, const QSize & ) const
+
+    Map a user coordinate to the one to actually draw. Used by the
+    rotated driver; the QScreen implementation simply returns the
+    point passed in.
 */
 
 QPoint QScreen::mapToDevice( const QPoint &p, const QSize & ) const
@@ -144,11 +149,11 @@ QPoint QScreen::mapToDevice( const QPoint &p, const QSize & ) const
 }
 
 /*!
-  \fn QScreen::mapFromDevice( const QPoint &, const QSize & ) const
-  \overload
-  Map a framebuffer coordinate to the coordinate space used by the
-  application. Used by the rotated driver; the QScreen implementation simply
-  returns the point.
+    \overload QScreen::mapFromDevice( const QPoint &, const QSize & ) const
+
+    Map a framebuffer coordinate to the coordinate space used by the
+    application. Used by the rotated driver; the QScreen
+    implementation simply returns the point.
 */
 
 QPoint QScreen::mapFromDevice( const QPoint &p, const QSize & ) const
@@ -157,10 +162,10 @@ QPoint QScreen::mapFromDevice( const QPoint &p, const QSize & ) const
 }
 
 /*!
-  \fn QScreen::mapToDevice( const QRect &r, const QSize & ) const
-  \overload
-  Map a user coordinate to the one to actually be drawn. Used by
-  the rotated driver; the QScreen implementation simply returns \a r.
+    \overload QScreen::mapToDevice( const QRect &r, const QSize & ) const
+
+    Map a user coordinate to the one to actually draw. Used by the
+    rotated driver; the QScreen implementation simply returns \a r.
 */
 
 QRect QScreen::mapToDevice( const QRect &r, const QSize & ) const
@@ -169,11 +174,11 @@ QRect QScreen::mapToDevice( const QRect &r, const QSize & ) const
 }
 
 /*!
-  \fn QScreen::mapFromDevice( const QRect &r, const QSize & ) const
-  \overload
-  Map a framebuffer coordinate to the coordinate space used by the
-  application. Used by the rotated driver; the QScreen implementation simply
-  returns \a r.
+    \overload QScreen::mapFromDevice( const QRect &r, const QSize & ) const
+
+    Map a framebuffer coordinate to the coordinate space used by the
+    application. Used by the rotated driver; the QScreen
+    implementation simply returns \a r.
 */
 
 QRect QScreen::mapFromDevice( const QRect &r, const QSize & ) const
@@ -182,11 +187,11 @@ QRect QScreen::mapFromDevice( const QRect &r, const QSize & ) const
 }
 
 /*!
-  \fn QScreen::mapToDevice( const QImage &i ) const
-  \overload
-  Transforms an image so that it fits the device coordinate space
-  (e.g. rotating it 90 degrees clockwise). The QScreen implementation simply
-  returns \a i.
+    \overload QScreen::mapToDevice( const QImage &i ) const
+
+    Transforms an image so that it fits the device coordinate space
+    (e.g. rotating it 90 degrees clockwise). The QScreen
+    implementation simply returns \a i.
 */
 
 QImage QScreen::mapToDevice( const QImage &i ) const
@@ -195,11 +200,11 @@ QImage QScreen::mapToDevice( const QImage &i ) const
 }
 
 /*!
-  \fn QScreen::mapFromDevice( const QImage &i ) const
-  \overload
-  Transforms an image so that it matches the application coordinate space
-  (e.g. rotating it 90 degrees counterclockwise). The QScreen implementation
-  simply returns \a i.
+    \overload QScreen::mapFromDevice( const QImage &i ) const
+
+    Transforms an image so that it matches the application coordinate
+    space (e.g. rotating it 90 degrees counter-clockwise). The QScreen
+    implementation simply returns \a i.
 */
 
 QImage QScreen::mapFromDevice( const QImage &i ) const
@@ -208,11 +213,11 @@ QImage QScreen::mapFromDevice( const QImage &i ) const
 }
 
 /*!
-  \fn QScreen::mapToDevice( const QRegion &r, const QSize & ) const
-  \overload
-  Transforms a region so that it fits the device coordinate space
-  (e.g. rotating it 90 degrees clockwise). The QScreen implementation simply
-  returns \a r.
+    \overload QScreen::mapToDevice( const QRegion &r, const QSize & ) const
+
+    Transforms a region so that it fits the device coordinate space
+    (e.g. rotating it 90 degrees clockwise). The QScreen
+    implementation simply returns \a r.
 */
 
 QRegion QScreen::mapToDevice( const QRegion &r, const QSize & ) const
@@ -221,11 +226,11 @@ QRegion QScreen::mapToDevice( const QRegion &r, const QSize & ) const
 }
 
 /*!
-  \fn QScreen::mapFromDevice( const QRegion &r, const QSize & ) const
-  \overload
-  Transforms a region so that it matches the application coordinate space
-  (e.g. rotating it 90 degrees counterclockwise). The QScreen implementation
-  simply returns \a r.
+    \overload QScreen::mapFromDevice( const QRegion &r, const QSize & ) const
+
+    Transforms a region so that it matches the application coordinate
+    space (e.g. rotating it 90 degrees counter-clockwise). The QScreen
+    implementation simply returns \a r.
 */
 
 QRegion QScreen::mapFromDevice( const QRegion &r, const QSize & ) const
@@ -234,8 +239,9 @@ QRegion QScreen::mapFromDevice( const QRegion &r, const QSize & ) const
 }
 
 /*!
-  \fn QScreen::transformOrientation() const
-  Used by the rotated server. The QScreeen implementation returns 0.
+    \fn QScreen::transformOrientation() const
+
+    Used by the rotated server. The QScreeen implementation returns 0.
 */
 
 int QScreen::transformOrientation() const

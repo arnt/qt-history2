@@ -59,11 +59,11 @@ There is also a detailed explanation at
    Select "Code maturity level options" and set "Prompt for
    development and/or incomplete code/drivers".
 
-   Then select "Console drivers" set "Support for frame buffer
+   Then select "Console drivers" and set "Support for frame buffer
    devices" to built-in (even if it says EXPERIMENTAL). Then configure
    the driver. Most modern graphics cards can use the "VESA VGA
    graphics console"; use that or a driver that specifically matches
-   your video card. Finally enable "Advanced low level driver options"
+   your video card. Finally, enable "Advanced low level driver options"
    and make sure that 16 and 32 bpp packed pixel support are enabled. 
 
    When you are finished, chose exit and save.
@@ -88,11 +88,12 @@ There is also a detailed explanation at
 
 \i Edit /etc/lilo.conf.
 
-  \warning Keep a backup of /etc/lilo.conf, and have a rescue disk
+  \warning Keep a backup of \l file:/etc/lilo.conf, and have a rescue disk
   available. If you make a mistake, the machine may not boot.
 
-   The file /etc/lilo.conf specifies how the system boots. The precise
-   contents of the file varies from system to system, this is one example:
+   The file \l file:/etc/lilo.conf specifies how the system boots. The
+   precise contents of the file varies from system to system. Here is
+   an example:
 \code
 # LILO configuration file
 boot = /dev/hda3
@@ -107,10 +108,16 @@ other=/dev/hda1
 \endcode
 
   Make a new "image" section that is a copy of the first one, but with
-  image = /boot/linux.vesafb and label = Linux-vesafb. Place it just
-  above the first image section.
+\code
+  image = /boot/linux.vesafb 
+\endcode
+  and 
+\code
+  label = Linux-vesafb
+endcode
+  Place it just above the first image section.
 
-  Add a line before the image section saying 'vga = 791'. (Meaning
+  Add a line before the image section saying \c{vga = 791}. (Meaning
   1024x768, 16 bpp.) 
 
   With the above example, lilo.conf would now be:
@@ -149,8 +156,8 @@ Do not change any existing lines in the file; just add new ones.
    Linux.)
 
    If that does not work (probably because of an error in lilo.conf),
-   boot the machine using your rescue disk, restore /etc/lilo.conf from
-   backup and re-run lilo.
+   boot the machine using your rescue disk, restore \l
+   file:/etc/lilo.conf from backup and re-run lilo.
 
 \i Testing: Here's a short program that opens the frame buffer and draws a
    gradient-filled red square.

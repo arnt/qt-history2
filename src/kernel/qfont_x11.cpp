@@ -391,10 +391,10 @@ QString QFontPrivate::lastResortFamily() const
 
 
 // Returns a last resort raw font name for the font matching algorithm.
-// This is used if even the last resort family is not available.  It
+// This is used if even the last resort family is not available. It
 // returns \e something, almost no matter what.
 // The current implementation tries a wide variety of common fonts,
-// returning the first one it finds.  The implementation may change at
+// returning the first one it finds. The implementation may change at
 // any time.
 static const char * const tryFonts[] = {
     "-*-helvetica-medium-r-*-*-*-120-*-*-*-*-*-*",
@@ -646,7 +646,7 @@ static inline XCharStruct *getCharStruct(QFontStruct *qfs, const QString &str, i
 
 #ifndef QT_NO_XFTFREETYPE
 
-// returns a XGlyphInfo for the character as pos in str.  this function can return:
+// returns a XGlyphInfo for the character as pos in str. this function can return:
 //   -2 (meaning this fontstruct doesn't contain an xft font)
 //   -1 (meaning the glyph doesn't exist in the font)
 //    0 (meaning a zero width character)
@@ -858,7 +858,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 		w > pw + 4096 ||
 
 		// RENDER has problems drawing strings longer than 250 chars (253
-		// seems to be the length that breaks).  Split the cache every
+		// seems to be the length that breaks). Split the cache every
 		// 250 characters so we don't run into this. (note: this is with
 		// XFree86 4.1.0)
 		lastlen > 250) {
@@ -2671,8 +2671,8 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 
 /*!
-  Returns TRUE if the font attributes have been changed and the font has to
-  be (re)loaded; otherwise returns FALSE.
+    Returns TRUE if the font attributes have been changed and the font
+    has to be (re)loaded; otherwise returns FALSE.
 */
 bool QFont::dirty() const
 {
@@ -2773,7 +2773,7 @@ void QFont::initialize()
     } else
 	script_table[QFont::Han].list = hanjp_encodings;
 
-    // get some sample text based on the users locale.  we use this to determine the
+    // get some sample text based on the users locale. we use this to determine the
     // default script for the font system
     QCString oldlctime = setlocale(LC_TIME, 0);
     QCString lctime = setlocale(LC_TIME, "");
@@ -2842,8 +2842,8 @@ void QFont::cleanup()
 // **********************************************************************
 
 /*!
-  Returns the window system handle to the font, for low-level
-  access.  Using this function is \e not portable.
+    Returns the window system handle to the font, for low-level
+    access. Using this function is \e not portable.
 */
 Qt::HANDLE QFont::handle() const
 {
@@ -2872,12 +2872,12 @@ Qt::HANDLE QFont::handle() const
 
 
 /*!
-  Returns the name of the font within the underlying window system.
-  On Windows, this is usually just the family name of a truetype
-  font. Under X, it is an XLFD (X Logical Font Description). Using the
-  return value of this function is usually \e not \e portable.
+    Returns the name of the font within the underlying window system.
+    On Windows, this is usually just the family name of a TrueType
+    font. Under X, it is an XLFD (X Logical Font Description). Using
+    the return value of this function is usually \e not \e portable.
 
-  \sa setRawName()
+    \sa setRawName()
 */
 QString QFont::rawName() const
 {
@@ -2893,25 +2893,25 @@ QString QFont::rawName() const
 
 
 /*!
-  Sets a font by its system specific name. The function is in
-  particular useful under X, where system font settings (for example
-  X resources) are usually available in XLFD (X Logical Font
-  Description) form only. You can pass an XLFD as \a name to this
-  function.
+    Sets a font by its system specific name. The function is
+    particularly useful under X, where system font settings (for
+    example X resources) are usually available in XLFD (X Logical Font
+    Description) form only. You can pass an XLFD as \a name to this
+    function.
 
-  In Qt 2.0 and later, a font set with setRawName() is still a
-  full-featured QFont. It can be queried (for example with italic())
-  or modified (for example with setItalic() ) and is therefore also
-  suitable for rendering rich text.
+    In Qt 2.0 and later, a font set with setRawName() is still a
+    full-featured QFont. It can be queried (for example with italic())
+    or modified (for example with setItalic()) and is therefore also
+    suitable for rendering rich text.
 
-  If Qt's internal font database cannot resolve the raw name, the font
-  becomes a raw font with \a name as its family.
+    If Qt's internal font database cannot resolve the raw name, the
+    font becomes a raw font with \a name as its family.
 
-  Note that the present implementation does not handle
-  wildcards in XLFDs well, and that font aliases (file \c fonts.alias
-  in the font directory on X11) are not supported.
+    Note that the present implementation does not handle wildcards in
+    XLFDs well, and that font aliases (file \c fonts.alias in the font
+    directory on X11) are not supported.
 
-  \sa rawName(), setRawMode(), setFamily()
+    \sa rawName(), setRawMode(), setFamily()
 */
 void QFont::setRawName( const QString &name )
 {
@@ -2962,12 +2962,13 @@ int QFont::x11Screen() const
 // **********************************************************************
 
 /*!
-  Returns the ascent of the font.
+    Returns the ascent of the font.
 
-  The ascent of a font is the distance from the baseline to the highest
-  position characters extent to. Some characters may be higher than ascent.
+    The ascent of a font is the distance from the baseline to the
+    highest position characters extend to. Some characters may be
+    higher than ascent.
 
-  \sa descent()
+    \sa descent()
 */
 int QFontMetrics::ascent() const
 {
@@ -2990,14 +2991,13 @@ int QFontMetrics::ascent() const
 
 
 /*!
-  Returns the descent of the font.
+    Returns the descent of the font.
 
-  The descent is the distance from the base line to the lowest point characters
-  extent to. (Note that this is different from X, which
-  adds 1 pixel.) Some characters may extend below this value. 
-  
+    The descent is the distance from the base line to the lowest point
+    characters extend to. (Note that this is different from X, which
+    adds 1 pixel.) Some characters may extend below this value.
 
-  \sa ascent()
+    \sa ascent()
 */
 int QFontMetrics::descent() const
 {
@@ -3019,8 +3019,8 @@ int QFontMetrics::descent() const
 
 
 /*!
-  Returns TRUE if character \a ch is a valid character in the font;
-  otherwise returns FALSE.
+    Returns TRUE if character \a ch is a valid character in the font;
+    otherwise returns FALSE.
 */
 bool QFontMetrics::inFont(QChar ch) const
 {
@@ -3029,16 +3029,16 @@ bool QFontMetrics::inFont(QChar ch) const
 
 
 /*!
-  Returns the left bearing of character \a ch in the font.
+    Returns the left bearing of character \a ch in the font.
 
-  The left bearing is the right-ward distance of the left-most pixel
-  of the character from the logical origin of the character.
-  This value is negative if the pixels of the character extend
-  to the left of the logical origin.
+    The left bearing is the right-ward distance of the left-most pixel
+    of the character from the logical origin of the character. This
+    value is negative if the pixels of the character extend to the
+    left of the logical origin.
 
-  See width(QChar) for a graphical description of this metric.
+    See width(QChar) for a graphical description of this metric.
 
-  \sa rightBearing(), minLeftBearing(), width()
+    \sa rightBearing(), minLeftBearing(), width()
 */
 int QFontMetrics::leftBearing(QChar ch) const
 {
@@ -3058,16 +3058,16 @@ int QFontMetrics::leftBearing(QChar ch) const
 
 
 /*!
-  Returns the right bearing of character \a ch in the font.
+    Returns the right bearing of character \a ch in the font.
 
-  The right bearing is the left-ward distance of the right-most pixel
-  of the character from the logical origin of a subsequent character.
-  This value is negative if the pixels of the character extend
-  to the right of the width() of the character.
+    The right bearing is the left-ward distance of the right-most
+    pixel of the character from the logical origin of a subsequent
+    character. This value is negative if the pixels of the character
+    extend to the right of the width() of the character.
 
-  See width() for a graphical description of this metric.
+    See width() for a graphical description of this metric.
 
-  \sa leftBearing(), minRightBearing(), width()
+    \sa leftBearing(), minRightBearing(), width()
 */
 int QFontMetrics::rightBearing(QChar ch) const
 {
@@ -3087,13 +3087,14 @@ int QFontMetrics::rightBearing(QChar ch) const
 
 
 /*!
-  Returns the minimum left bearing of the font.
+    Returns the minimum left bearing of the font.
 
-  This is the smallest leftBearing(char) of all characters in the font.
+    This is the smallest leftBearing(char) of all characters in the
+    font.
 
-  Note that this function can be very slow if the font is large.
+    Note that this function can be very slow if the font is large.
 
-  \sa minRightBearing(), leftBearing()
+    \sa minRightBearing(), leftBearing()
 */
 int QFontMetrics::minLeftBearing() const
 {
@@ -3130,14 +3131,14 @@ int QFontMetrics::minLeftBearing() const
 
 
 /*!
-  Returns the minimum right bearing of the font.
+    Returns the minimum right bearing of the font.
 
-  This is the smallest rightBearing(char) of all characters in the
-  font.
+    This is the smallest rightBearing(char) of all characters in the
+    font.
 
-  Note that this function can be very slow if the font is large.
+    Note that this function can be very slow if the font is large.
 
-  \sa minLeftBearing(), rightBearing()
+    \sa minLeftBearing(), rightBearing()
 */
 int QFontMetrics::minRightBearing() const
 {
@@ -3174,11 +3175,12 @@ int QFontMetrics::minRightBearing() const
 
 
 /*!
-  Returns the height of the font.
+    Returns the height of the font.
 
-  This is always equal to ascent()+descent()+1 (the 1 is for the base line).
+    This is always equal to ascent()+descent()+1 (the 1 is for the
+    base line).
 
-  \sa leading(), lineSpacing()
+    \sa leading(), lineSpacing()
 */
 int QFontMetrics::height() const
 {
@@ -3201,11 +3203,11 @@ int QFontMetrics::height() const
 
 
 /*!
-  Returns the leading of the font.
+    Returns the leading of the font.
 
-  This is the natural inter-line spacing.
+    This is the natural inter-line spacing.
 
-  \sa height(), lineSpacing()
+    \sa height(), lineSpacing()
 */
 int QFontMetrics::leading() const
 {
@@ -3221,7 +3223,7 @@ int QFontMetrics::leading() const
 #ifndef QT_NO_XFTFREETYPE
     XftFontStruct *xftfs = (XftFontStruct *) qfs->xfthandle;
     if (xftfs)
-	l = (int) QMIN( xftfs->height - (xftfs->ascent + xftfs->descent), 
+	l = (int) QMIN( xftfs->height - (xftfs->ascent + xftfs->descent),
 			((xftfs->ascent + xftfs->descent) >> 4) );
     else
 #endif // QT_NO_XFTFREETYPE
@@ -3232,11 +3234,12 @@ int QFontMetrics::leading() const
 }
 
 
-/*! Returns the distance from one base line to the next.
+/*!
+    Returns the distance from one base line to the next.
 
-  This value is always equal to leading()+height().
+    This value is always equal to leading()+height().
 
-  \sa height(), leading()
+    \sa height(), leading()
 */
 int QFontMetrics::lineSpacing() const
 {
@@ -3253,26 +3256,30 @@ int QFontMetrics::lineSpacing() const
 */
 
 
-/*! \overload
+/*!
+    \overload
 
-  <img src="bearings.png" align=right>
+    <img src="bearings.png" align=right>
 
-  Returns the logical width of character \a ch in pixels.  This is a
-  distance appropriate for drawing a subsequent character after \a ch.
+    Returns the logical width of character \a ch in pixels. This is a
+    distance appropriate for drawing a subsequent character after \a
+    ch.
 
-  Some of the metrics are described in the image to the right.  The
-  tall dark rectangle covers the logical width() of a character.  The
-  shorter pale rectangles cover leftBearing() and rightBearing() of
-  the characters.  Notice that the bearings of "f" in this particular
-  font are both negative, while the bearings of "o" are both positive.
+    Some of the metrics are described in the image to the right. The
+    central dark rectangles cover the logical width() of each
+    character. The outer pale rectangles cover the leftBearing() and
+    rightBearing() of each character. Notice that the bearings of "f"
+    in this particular font are both negative, while the bearings of
+    "o" are both positive.
 
-  \warning This function will produce incorrect results for Arabic
-  characters or non spacing marks in the middle of a string, as the
-  glyph shaping  and positioning of marks  that happens when processing
-  strings cannot be taken into account. Use charWidth() instead if you
-  aren't looking for the width of isolated characters.
+    \warning This function will produce incorrect results for Arabic
+    characters or non spacing marks in the middle of a string, as the
+    glyph shaping and positioning of marks that happens when
+    processing strings cannot be taken into account. Use charWidth()
+    instead if you aren't looking for the width of isolated
+    characters.
 
-  \sa boundingRect(), charWidth()
+    \sa boundingRect(), charWidth()
 */
 int QFontMetrics::width(QChar ch) const
 {
@@ -3315,14 +3322,15 @@ int QFontMetrics::width(QChar ch) const
 
 
 /*!
-    Returns the width of the character at position \a pos in the string
-    \a str.
+    Returns the width of the character at position \a pos in the
+    string \a str.
 
-  The whole string is needed, as the glyph drawn may change depending on the
-  context (the letter before and after the current one) for some languages
-  (e.g. Arabic).
+    The whole string is needed, as the glyph drawn may change
+    depending on the context (the letter before and after the current
+    one) for some languages (e.g. Arabic).
 
-  This function also takes non spacing marks and ligatures into account.
+    This function also takes non spacing marks and ligatures into
+    account.
 */
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
@@ -3367,14 +3375,15 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 
 /*!
     Returns the width in pixels of the first \a len characters of \a
-    str. If \a len is negative (the default), the entire string is used.
+    str. If \a len is negative (the default), the entire string is
+    used.
 
-  Note that this value is \e not equal to boundingRect().width();
-  boundingRect() returns a rectangle describing the pixels this string
-  will cover whereas width() returns the distance to where the next string
-  should be drawn.
+    Note that this value is \e not equal to boundingRect().width();
+    boundingRect() returns a rectangle describing the pixels this
+    string will cover whereas width() returns the distance to where
+    the next string should be drawn.
 
-  \sa boundingRect()
+    \sa boundingRect()
 */
 int QFontMetrics::width( const QString &str, int len ) const
 {
@@ -3392,23 +3401,23 @@ int QFontMetrics::width( const QString &str, int len ) const
 
 
 /*!
-    Returns the bounding rectangle of the first \a len characters of \a
-    str, which is the set of pixels the text would cover if drawn at
-    (0,0).
+    Returns the bounding rectangle of the first \a len characters of
+    \a str, which is the set of pixels the text would cover if drawn
+    at (0, 0).
 
-  If \a len is negative (the default), the entire string is used.
+    If \a len is negative (the default), the entire string is used.
 
-  Note that the bounding rectangle may extend to the left of (0,0),
-  e.g. for italicized fonts, and that the text output may cover \e all
-  pixels in the bounding rectangle.
+    Note that the bounding rectangle may extend to the left of (0, 0),
+    e.g. for italicized fonts, and that the text output may cover \e
+    all pixels in the bounding rectangle.
 
-  Newline characters are processed as normal characters, \e not as
-  linebreaks.
+    Newline characters are processed as normal characters, \e not as
+    linebreaks.
 
-  Due to the different actual character heights, the height of the
-  bounding rectangle of e.g. "Yes" and "yes" may be different.
+    Due to the different actual character heights, the height of the
+    bounding rectangle of e.g. "Yes" and "yes" may be different.
 
-  \sa width(), QPainter::boundingRect()
+    \sa width(), QPainter::boundingRect()
 */
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
@@ -3476,7 +3485,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 
 
 /*!
-  Returns the width of the widest character in the font.
+    Returns the width of the widest character in the font.
 */
 int QFontMetrics::maxWidth() const
 {
@@ -3514,9 +3523,10 @@ int QFontMetrics::maxWidth() const
 }
 
 /*!
-  Returns the distance from the base line to where an underscore should be
-  drawn.
-  \sa strikeOutPos(), lineWidth()
+    Returns the distance from the base line to where an underscore
+    should be drawn.
+
+    \sa strikeOutPos(), lineWidth()
 */
 int QFontMetrics::underlinePos() const
 {
@@ -3527,9 +3537,10 @@ int QFontMetrics::underlinePos() const
 
 
 /*!
-  Returns the distance from the base line to where the strikeout line
-  should be drawn.
-  \sa underlinePos(), lineWidth()
+    Returns the distance from the base line to where the strikeout
+    line should be drawn.
+
+    \sa underlinePos(), lineWidth()
 */
 int QFontMetrics::strikeOutPos() const
 {
@@ -3540,9 +3551,10 @@ int QFontMetrics::strikeOutPos() const
 
 
 /*!
-  Returns the width of the underline and strikeout lines, adjusted for
-  the point size of the font.
-  \sa underlinePos(), strikeOutPos()
+    Returns the width of the underline and strikeout lines, adjusted
+    for the point size of the font.
+
+    \sa underlinePos(), strikeOutPos()
 */
 int QFontMetrics::lineWidth() const
 {

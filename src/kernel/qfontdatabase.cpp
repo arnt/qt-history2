@@ -717,9 +717,9 @@ const QtFontFoundry *QFontDatabasePrivate::foundry( const QString foundryName ) 
 
 
 /*!
-  Returns a string that describes the style of the font \a f. For
-  example, "Bold Italic", "Bold", "Italic" or "Normal". An empty string
-  may be returned.
+    Returns a string that describes the style of the font \a f. For
+    example, "Bold Italic", "Bold", "Italic" or "Normal". An empty
+    string may be returned.
 */
 QString QFontDatabase::styleString( const QFont &f )
 {
@@ -742,28 +742,30 @@ QString QFontDatabase::styleString( const QFont &f )
 static QStringList emptyList;
 
 
-/*! \class QFontDatabase qfontdatabase.h
+/*!
+    \class QFontDatabase qfontdatabase.h
+    \brief The QFontDatabase class provides information about the fonts available in the underlying window system.
+
+    \ingroup environment
     \ingroup graphics
 
-  \brief The QFontDatabase class provides information about the fonts available in the underlying window system.
-  \ingroup environment
-
-    The most common uses of this class are to query the database for the
-    list of font families() and the pointSizes() and styles() that are
-    available for each family. An alternative to pointSizes() is
-    smoothSizes() which returns the sizes at which a given family and
-    style will look attractive.
+    The most common uses of this class are to query the database for
+    the list of font families() and for the pointSizes() and styles()
+    that are available for each family. An alternative to pointSizes()
+    is smoothSizes() which returns the sizes at which a given family
+    and style will look attractive.
 
     If the font family is available from two or more foundries the
     foundry name is included in the family name, e.g. "Helvetica
-    [Adobe]" and "Helvetica [Cronyx]". When you specify a family you can
-    either use the hyphenated "foundry-family" format, e.g.
-    "Cronyx-Helvetica", or the bracketed format, e.g. "Helvetica
-    [Cronyx]". If the family has a foundry it is always returned, e.g.
-    by families(), using the bracketed format.
+    [Adobe]" and "Helvetica [Cronyx]". When you specify a family you
+    can either use the old hyphenated Qt 2.x "foundry-family" format,
+    e.g. "Cronyx-Helvetica", or the new bracketed Qt 3.x "family
+    [foundry]" format e.g. "Helvetica [Cronyx]". If the family has a
+    foundry it is always returned, e.g. by families(), using the
+    bracketed format.
 
-    The font() function returns a QFont given a family, style and point
-    size.
+    The font() function returns a QFont given a family, style and
+    point size.
 
     A family and style combination can be checked to see if it is
     italic() or bold(), and to retrieve its weight(). Similarly we can
@@ -796,7 +798,8 @@ int main( int argc, char **argv )
 	    QString style = *s;
 	    QString dstyle = "\t" + style + " (";
 	    QValueList<int> smoothies = fdb.smoothSizes( family, style );
-	    for ( QValueList<int>::Iterator points = smoothies.begin(); points != smoothies.end(); ++points ) {
+	    for ( QValueList<int>::Iterator points = smoothies.begin();
+		  points != smoothies.end(); ++points ) {
 		dstyle += QString::number( *points ) + " ";
 	    }
 	    dstyle = dstyle.left( dstyle.length() - 1 ) + ")";
@@ -806,9 +809,9 @@ int main( int argc, char **argv )
     return 0;
 }
 \endcode
-    This example gets the list of font families, then the list of styles
-    for each family and the point sizes that are available for each
-    family/style combination.
+    This example gets the list of font families, then the list of
+    styles for each family and the point sizes that are available for
+    each family/style combination.
 */
 /*!
     \obsolete
@@ -890,7 +893,7 @@ int main( int argc, char **argv )
 
 
 /*!
-  Creates a font database object.
+    Creates a font database object.
 */
 QFontDatabase::QFontDatabase()
 {
@@ -902,9 +905,9 @@ QFontDatabase::QFontDatabase()
 
 /*! Returns a sorted list of the names of the available font families.
 
-  If a family exists in several foundries, the returned name for that font
-  is in the form "family [foundry]". Examples: "Times [Adobe]", "Times
-  [Cronyx]", "Palatino".
+    If a family exists in several foundries, the returned name for
+    that font is in the form "family [foundry]". Examples: "Times
+    [Adobe]", "Times [Cronyx]", "Palatino".
 */
 QStringList QFontDatabase::families() const
 {
@@ -913,9 +916,9 @@ QStringList QFontDatabase::families() const
 
 
 /*!
-  Returns a list of the styles available for the font family, \a family.
-  Some example styles: "Light", "Light Italic", "Bold", "Oblique",
-  "Demi". The list may be empty.
+    Returns a list of the styles available for the font family, \a
+    family. Some example styles: "Light", "Light Italic", "Bold",
+    "Oblique", "Demi". The list may be empty.
 */
 QStringList QFontDatabase::styles( const QString &family) const
 {
@@ -928,8 +931,8 @@ QStringList QFontDatabase::styles( const QString &family) const
 
 
 /*!
-  Returns TRUE if the font that has family \a family and style \a style
-  is fixed pitch; otherwise returns FALSE.
+    Returns TRUE if the font that has family \a family and style \a
+    style is fixed pitch; otherwise returns FALSE.
 */
 
 bool QFontDatabase::isFixedPitch(const QString &family,
@@ -948,14 +951,14 @@ bool QFontDatabase::isFixedPitch(const QString &family,
 
 
 /*!
-  Returns TRUE if the font that has family \a family and style \a style
-  is a scalable bitmap font; otherwise returns FALSE. Scaling a bitmap
-  font usually produces an unattractive hardly readable result, because
-  the pixels of the font are scaled. If you need to scale a bitmap font
-  it is better to scale it to one of the fixed sizes returned by
-  smoothSizes().
+    Returns TRUE if the font that has family \a family and style \a
+    style is a scalable bitmap font; otherwise returns FALSE. Scaling
+    a bitmap font usually produces an unattractive hardly readable
+    result, because the pixels of the font are scaled. If you need to
+    scale a bitmap font it is better to scale it to one of the fixed
+    sizes returned by smoothSizes().
 
-  \sa isScalable(), isSmoothlyScalable()
+    \sa isScalable(), isSmoothlyScalable()
 */
 bool  QFontDatabase::isBitmapScalable( const QString &family,
                                        const QString &style) const
@@ -973,12 +976,12 @@ bool  QFontDatabase::isBitmapScalable( const QString &family,
 
 
 /*!
-  Returns TRUE if the font that has family \a family and style \a style
-  is smoothly scalable; otherwise returns FALSE. If this function
-  returns TRUE, it's safe to scale this font to any size, and the result
-  will always look attractive.
+    Returns TRUE if the font that has family \a family and style \a
+    style is smoothly scalable; otherwise returns FALSE. If this
+    function returns TRUE, it's safe to scale this font to any size,
+    and the result will always look attractive.
 
-  \sa isScalable(), isBitmapScalable()
+    \sa isScalable(), isBitmapScalable()
 */
 bool  QFontDatabase::isSmoothlyScalable( const QString &family,
                                          const QString &style) const
@@ -996,10 +999,10 @@ bool  QFontDatabase::isSmoothlyScalable( const QString &family,
 
 
 /*!
-  Returns TRUE if the font that has family \a family and style \a style
-  is scalable; otherwise returns FALSE.
+    Returns TRUE if the font that has family \a family and style \a
+    style is scalable; otherwise returns FALSE.
 
-  \sa isBitmapScalable(), isSmoothlyScalable()
+    \sa isBitmapScalable(), isSmoothlyScalable()
 */
 bool  QFontDatabase::isScalable( const QString &family,
                                  const QString &style) const
@@ -1027,10 +1030,10 @@ static QValueList<int> emptySizeList;
 
 
 /*!
-  Returns a list of the point sizes available for the font that has
-  family \a family and style \a style. The list may be empty.
+    Returns a list of the point sizes available for the font that has
+    family \a family and style \a style. The list may be empty.
 
-  \sa smoothSizes(), standardSizes()
+    \sa smoothSizes(), standardSizes()
 */
 QValueList<int> QFontDatabase::pointSizes( const QString &family,
 					   const QString &style)
@@ -1047,9 +1050,11 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
 }
 
 
-/*! Returns a QFont object that has family \a family, style \a style
-  and point size \a pointSize. If no matching font could be created, a
-  QFont object that uses the application's default font is returned.
+/*!
+    Returns a QFont object that has family \a family, style \a style
+    and point size \a pointSize. If no matching font could be created,
+    a QFont object that uses the application's default font is
+    returned.
 */
 QFont QFontDatabase::font( const QString &family, const QString &style,
                            int pointSize)
@@ -1076,10 +1081,10 @@ QFont QFontDatabase::font( const QString &family, const QString &style,
 
 
 /*!
-  Returns the point sizes of a font that has family \a family and style
-  \a style that will look attractive. The list may be empty. For
-  non-scalable fonts and smoothly scalable fonts, this function is
-  equivalent to pointSizes().
+    Returns the point sizes of a font that has family \a family and
+    style \a style that will look attractive. The list may be empty.
+    For non-scalable fonts and smoothly scalable fonts, this function
+    is equivalent to pointSizes().
 
   \sa pointSizes(), standardSizes()
 */
@@ -1092,9 +1097,9 @@ QValueList<int> QFontDatabase::smoothSizes( const QString &family,
 
 
 /*!
-  Returns a list of standard font sizes.
+    Returns a list of standard font sizes.
 
-  \sa smoothSizes(), pointSizes()
+    \sa smoothSizes(), pointSizes()
 */
 QValueList<int> QFontDatabase::standardSizes()
 {
@@ -1103,10 +1108,10 @@ QValueList<int> QFontDatabase::standardSizes()
 
 
 /*!
-  Returns TRUE if the font that has family \a family and style \a style
-  is italic; otherwise returns FALSE.
+    Returns TRUE if the font that has family \a family and style \a
+    style is italic; otherwise returns FALSE.
 
-  \sa weight(), bold()
+    \sa weight(), bold()
 */
 bool QFontDatabase::italic( const QString &family,
                             const QString &style) const
@@ -1117,10 +1122,10 @@ bool QFontDatabase::italic( const QString &family,
 
 
 /*!
-  Returns TRUE if the font that has family \a family and style \a style
-  is bold; otherwise returns FALSE.
+    Returns TRUE if the font that has family \a family and style \a
+    style is bold; otherwise returns FALSE.
 
-  \sa italic(), weight()
+    \sa italic(), weight()
 */
 bool QFontDatabase::bold( const QString &family,
 			  const QString &style) const
@@ -1131,11 +1136,11 @@ bool QFontDatabase::bold( const QString &family,
 
 
 /*!
-  Returns the weight of the font that has family \a family and
-  style \a style. If there is no such family and style combination,
-  returns -1.
+    Returns the weight of the font that has family \a family and style
+    \a style. If there is no such family and style combination,
+    returns -1.
 
-  \sa italic(), bold()
+    \sa italic(), bold()
 */
 int QFontDatabase::weight( const QString &family,
                            const QString &style) const
@@ -1146,11 +1151,11 @@ int QFontDatabase::weight( const QString &family,
 
 
 /*!
-  Returns a string that gives a default description of the \a script
-  (e.g. for displaying to the user in a dialog).  The name matches the
-  name of the script as indicated by the Unicode 3.0 standard.
+    Returns a string that gives a default description of the \a script
+    (e.g. for displaying to the user in a dialog).  The name matches
+    the name of the script as defined by the Unicode 3.0 standard.
 
-  \sa QFont::Script
+    \sa QFont::Script
 */
 QString QFontDatabase::scriptName(QFont::Script script)
 {
@@ -1316,9 +1321,9 @@ QString QFontDatabase::scriptName(QFont::Script script)
 
 
 /*!
-  Returns a string with sample characters from \a script.
+    Returns a string with sample characters from \a script.
 
-  \sa QFont::Script
+    \sa QFont::Script
 */
 QString QFontDatabase::scriptSample(QFont::Script script)
 {
