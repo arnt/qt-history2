@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#90 $
 **
 ** Implementation of QScrollView class
 **
@@ -443,12 +443,85 @@ void QScrollView::setVBarGeometry( QScrollBar& vbar,
     vbar.setGeometry( x, y, w, h );
 }
 
+
+/*! Returns the viewport size for \a size.
+
+  The viewport size depends on \a size (the size of the contents), the
+  size of this widget, the modes of the horizontal and vertical scroll
+  bars.
+
+  This function permits widgets that can trade vertical and horizontal
+  space for each other to control scroll bar appearance better.  For
+  example, a word processor or web browser can avoid a vertical scroll
+  bar and still use the last few pixels of each line.
+*/
+
+
+QSize QScrollView::viewportSize( const QSize & size ) const
+{
+    int fw = frameWidth();
+    int lmarg = fw+d->l_marg;
+    int rmarg = fw+d->r_marg;
+    int tmarg = fw+d->t_marg;
+    int bmarg = fw+d->b_marg;
+
+    int w = width();
+    int h = height();
+
+    bool needh, needv;
+    bool showh, showv;
+
+    if ( d->policy != AutoOne || d->anyVisibleChildren() ) {
+	// Do we definitely need the scrollbar?
+	needh = w-lmarg-rmarg < size.width();
+	needv = h-tmarg-bmarg < size.height();
+
+	// Do we intend to show the scrollbar?
+	if (d->hMode == AlwaysOn)
+	    showh = TRUE;
+	else if (d->hMode == AlwaysOff)
+	    showh = FALSE;
+	else
+	    showh = needh;
+
+	if (d->vMode == AlwaysOn)
+	    showv = TRUE;
+	else if (d->vMode == AlwaysOff)
+	    showv = FALSE;
+	else
+	    showv = needv;
+
+	// Given other scrollbar will be shown, NOW do we need one?
+	if ( showh && h-sbDim-tmarg-bmarg < size.height() ) {
+	    needv=TRUE;
+	    if (d->vMode == Auto)
+		showv=TRUE;
+	}
+	if ( showv && w-sbDim-lmarg-rmarg < size.width() ) {
+	    needh=TRUE;
+	    if (d->hMode == Auto)
+		showh=TRUE;
+	}
+    } else {
+	// Scrollbars not needed, only show scrollbar that are always on.
+	needh = needv = FALSE;
+	showh = d->hMode == AlwaysOn;
+	showv = d->vMode == AlwaysOn;
+    }
+
+    return QSize( w-lmarg-rmarg - (showv ? sbDim : 0),
+		  h-tmarg-bmarg - (showh ? sbDim : 0) );
+}
+
+
 /*!
   Updates scrollbars - all possibilities considered.  You should never
   need to call this in your code.
 */
 void QScrollView::updateScrollBars()
 {
+    // I support this should use viewportSize()... but it needs 
+    // so many of the temporary variables from viewportSize.  hm.
     int fw = frameWidth();
     int lmarg = fw+d->l_marg;
     int rmarg = fw+d->r_marg;
