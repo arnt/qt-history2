@@ -684,7 +684,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     sizehint_forced = 0;
 #ifndef QT_NO_LAYOUT
     lay_out = 0;
-#endif    
+#endif
     extra = 0;					// no extra widget info
 #ifndef QT_NO_PALETTE
     bg_col = pal.normal().background();		// default background color
@@ -3179,7 +3179,7 @@ void QWidget::show()
 	    if ( layout()->hasHeightForWidth() )
 		s.setHeight( layout()->totalHeightForWidth( s.width() ) );
 	    exp =  layout()->expanding();
-	} else 
+	} else
 #endif
 	{
 	    if ( sizePolicy().hasHeightForWidth() )
@@ -3408,7 +3408,7 @@ void QWidget::polish()
 	    setPalette( QApplication::palette( this ) );
 	    own_palette = FALSE;
 	}
-#endif	
+#endif
 	setWState(WState_Polished);
 	qApp->polish( this );
 	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
@@ -3452,7 +3452,7 @@ void QWidget::polish()
 bool QWidget::close( bool alsoDelete )
 {
     if ( testWState(WState_Closing) )
-	return;
+	return TRUE;
     setWState( WState_Closing );
 
     WId	 id	= winId();
@@ -3924,7 +3924,7 @@ bool QWidget::event( QEvent *e )
 		own_palette = FALSE;
 	    }
 	    break;
-#endif	    
+#endif
         default:
 	    if ( e->type() >= QEvent::User ) {
 		customEvent( (QCustomEvent*) e );
