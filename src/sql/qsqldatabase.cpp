@@ -423,13 +423,13 @@ bool QSqlDatabase::contains( const QString& connectionName )
 
      The currently available drivers are:
 
-     <ul>
-     <li>QODBC3 - ODBC (Open Database Connectivity) Driver
-     <li>QOCI8 - Oracle Call Interface Driver
-     <li>QPSQL7 - PostgreSQL v6.x and v7.x Driver
-     <li>QTDS7 - Sybase Adaptive Server and Microsoft SQL Server Driver
-     <li>QMYSQL3 - MySQL Driver
-     </ul>
+     \list     
+     \i QODBC3 - ODBC (Open Database Connectivity) Driver
+     \i QOCI8 - Oracle Call Interface Driver
+     \i QPSQL7 - PostgreSQL v6.x and v7.x Driver
+     \i QTDS7 - Sybase Adaptive Server and Microsoft SQL Server Driver
+     \i QMYSQL3 - MySQL Driver
+     \endlist
 
      Note that additional 3<sup>rd</sup> party drivers can be loaded
      dynamically.
