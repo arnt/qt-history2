@@ -40,13 +40,13 @@ QString findRulesFile(const QString &fileName)
     filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::DataPath) + "/" + fileName)  ;
     //cout << "checking" << filePath.toLatin1().constData() << endl;
     if (QFile::exists(filePath))
-        return QFileInfo(filePath).canonicalPath();
+        return QFileInfo(filePath).canonicalFilePath();
 
     //check QLibraryInfo::PrefixPath/tools/porting/src/filename
     filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::PrefixPath) + "/tools/porting/src/" + fileName);
     //cout << "checking" << filePath.toLatin1().constData() << endl;
     if (QFile::exists(filePath))
-        return QFileInfo(filePath).canonicalPath();
+        return QFileInfo(filePath).canonicalFilePath();
 
     //no luck
     return QString();
@@ -106,8 +106,6 @@ void usage(char **argv)
     cout << "Options:" << endl;
     cout << "-h            Display this help" << endl;
     cout << "-f file       Specify the location for the rules file." << endl;
-    cout << "-I directory  Add dirctory to include search path se of -I also enables C++" << endl;
-    cout << "              parsing, see the documentation for more info. " << endl;
     cout << endl;
     cout << "The porting documentation contains more information on how " << endl;
     cout << "to use qt3to4 as well as general porting information." << endl;
@@ -156,20 +154,6 @@ int main(int argc, char**argv)
                 cout << rulesFilePath.toLocal8Bit().constData() << endl;
                 return 1;
             }
-        } else if(argText == "-I") {
-            ++currentArg;
-            if (currentArg >= argc) {
-                cout << "You must specify a directory name along with -I" << endl;
-                return 1;
-            }
-            QString directoryCandidate = argv[currentArg];
-
-            if(!QFile::exists(directoryCandidate )) {
-                cout << "Directory not found: " ;
-                cout << QDir::convertSeparators(directoryCandidate).toLocal8Bit().constData() << endl;
-                return 1;
-            }
-           includeSearchDirectories += directoryCandidate;
         } else if(argText[0]  == '-') {
             cout << "Unknown option " << argText.toLocal8Bit().constData() << endl;
             return 1;
