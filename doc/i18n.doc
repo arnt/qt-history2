@@ -211,7 +211,11 @@ in the following stages:
 	In the near future Qt will ship with translations for some languages.
 	We recommend that if you need to translate the Qt strings now
 	that you put the translations in separate .po and .qm files.  This
-	will simplify transition to the official Qt translations.
+	will simplify transition to the official Qt translations. To create
+	a .po file for all Qt sources:
+	    \code
+		findtr qt/src/*/q*.cpp >qt.po
+	    \endcode
 	</em>
 	<p>
 	The <tt>findtr</tt> ships in <tt>qt/bin</tt>, while the other
