@@ -127,6 +127,7 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$TOOLS_H/qstrlist.h \
 		  $$TOOLS_H/qstrvec.h \
 		  $$TOOLS_H/qtextstream.h \
+		  $$TOOLS_H/qutfcodec.h \
 		  $$TOOLS_H/qvector.h \
 		  $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
@@ -210,6 +211,7 @@ SOURCES		+= \
 		  tools/qbitarray.cpp \
 		  tools/qbuffer.cpp \
 		  tools/qtextcodec.cpp \
+		  tools/qutfcodec.cpp \
 		  tools/qcollection.cpp \
 		  tools/qdatastream.cpp \
 		  tools/qdatetime.cpp \
