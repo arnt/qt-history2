@@ -221,10 +221,10 @@ public:
     void setMaximumWidth(int maxw);
     void setMaximumHeight(int maxh);
 
-    QSizesizeIncrement() const;
+    QSize sizeIncrement() const;
     void setSizeIncrement(const QSize &);
     void setSizeIncrement(int w, int h);
-    QSizebaseSize() const;
+    QSize baseSize() const;
     void setBaseSize(const QSize &);
     void setBaseSize(int basew, int baseh);
 
