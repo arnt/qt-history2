@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#45 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -178,6 +178,7 @@ public:
     void remove( QProc *p );
 
 public slots:
+    void removeMe();
     void sigchldHnd( int );
 
 public:
@@ -278,11 +279,15 @@ void QProcessManager::remove( QProc *p )
     qDebug( "QProcessManager: remove process (procList.count(): %d)", procList->count() );
 #endif
     if ( procList->count() == 0 ) {
-	// ### this looks dangerous: do that better with a single shot timer
-	QProcessPrivate::procManager = 0;
-	qprocess_cleanup_procmanager.remove( this );
-	delete this;
+	QTimer::singleShot( 0, this, SLOT(removeMe()) );
     }
+}
+
+void QProcessManager::removeMe()
+{
+    QProcessPrivate::procManager = 0;
+    qprocess_cleanup_procmanager.remove( this );
+    delete this;
 }
 
 void QProcessManager::sigchldHnd( int fd )
