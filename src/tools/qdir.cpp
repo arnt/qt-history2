@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#103 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#104 $
 **
 ** Implementation of QDir class
 **
@@ -76,6 +76,10 @@ static void slashify( QString& )
 {
     return;
 }
+
+#elif defined(_OS_MAC_)
+
+extern void slashify(QString &);
 
 #endif
 

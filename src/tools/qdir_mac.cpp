@@ -1,6 +1,6 @@
 #include "qdir.h"
 
-static void slashify(QString& n)
+void slashify(QString& n)
 {
   if(n.isNull())
     return;
