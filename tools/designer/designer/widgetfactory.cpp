@@ -155,14 +155,14 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
     if ( o != tabBar() ) return FALSE;
 
     switch ( e->type() ) {
-	case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonPress:
 	{
 	    mousePressed = true;
 	    QMouseEvent *me = (QMouseEvent*)e;
 	    pressPoint = me->pos();
 	}
 	break;
-	case QEvent::MouseMove:
+    case QEvent::MouseMove:
 	{
 	    QMouseEvent *me = (QMouseEvent*)e;
 	    if ( mousePressed && ( pressPoint - me->pos()).manhattanLength() > QApplication::startDragDistance() ) {
@@ -183,13 +183,13 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
 	    }
 	}
 	break;
-	case QEvent::DragLeave:
+    case QEvent::DragLeave:
 	{
 	    if ( dropIndicator )
 		dropIndicator->hide();
 	}
 	break;
-	case QEvent::DragMove:
+    case QEvent::DragMove:
 	{
 	    QDragEnterEvent *de = (QDragEnterEvent*) e;
 	    if ( QTextDrag::canDecode( de ) ) {
@@ -232,7 +232,7 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
 	    dropIndicator->show();
 	}
 	break;
-	case QEvent::Drop:
+    case QEvent::Drop:
 	{
 	    QDragEnterEvent *de = (QDragEnterEvent*) e;
 	    if ( QTextDrag::canDecode( de ) ) {
@@ -260,8 +260,9 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
 		    }
 
 		    FormWindow *fw = find_formwindow( this );
-		    MoveTabPageCommand *cmd = new MoveTabPageCommand( "Move Tab Page",fw, this,
-								      dragPage, dragLabel, newIndex, oldIndex );
+		    MoveTabPageCommand *cmd =
+			new MoveTabPageCommand( tr( "Move Tab Page" ), fw, this,
+						dragPage, dragLabel, newIndex, oldIndex );
 		    fw->commandHistory()->addCommand( cmd );
 		    cmd->execute();
 		    de->accept();
@@ -269,8 +270,8 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
 	    }
 	}
 	break;
-	default:
-	    break;
+    default:
+	break;
     }
     return FALSE;
 }
