@@ -258,7 +258,7 @@ void qt_event_request_select(QEventLoop *loop) {
 
     CreateEvent(NULL, kEventClassQt, kEventQtRequestSelect, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &request_select_pending);
-    SetEventParameter(request_select_pending, 
+    SetEventParameter(request_select_pending,
 		      kEventParamQEventLoop, typeQEventLoop, sizeof(loop), &loop);
     PostEventToQueue(GetMainEventQueue(), request_select_pending, kEventPriorityStandard);
     ReleaseEvent(request_select_pending);
@@ -315,7 +315,7 @@ void qt_event_request_wakeup()
 
     CreateEvent(NULL, kEventClassQt, kEventQtRequestWakeup, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &request_wakeup_pending);
-    PostEventToQueue(GetMainEventQueue(), request_wakeup_pending, 
+    PostEventToQueue(GetMainEventQueue(), request_wakeup_pending,
 		     kEventPriorityHigh);
     ReleaseEvent(request_wakeup_pending);
 }
@@ -896,7 +896,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	   (widget->isModal() || !widget->inherits("QDockWindow")))
 	    widget->setActiveWindow();
     }
-    if(windowPart == inGoAway || windowPart == inCollapseBox || 
+    if(windowPart == inGoAway || windowPart == inCollapseBox ||
        windowPart == inZoomIn || windowPart == inZoomOut) {
 	QMacBlockingFunction block;
 	if(!TrackBox((WindowPtr)widget->handle(), *pt, windowPart))
@@ -1018,7 +1018,7 @@ bool qt_modal_state()
 void qt_enter_modal(QWidget *widget)
 {
 #ifdef DEBUG_MODAL_EVENTS
-    qDebug("Entering modal state with %s::%s::%p (%d)", widget->className(), widget->name(), 
+    qDebug("Entering modal state with %s::%s::%p (%d)", widget->className(), widget->name(),
 	   widget, qt_modal_stack ? (int)qt_modal_stack->count() : -1);
 #endif
     if(!qt_modal_stack) {			// create modal stack
@@ -1034,14 +1034,14 @@ void qt_leave_modal(QWidget *widget)
 {
     if(qt_modal_stack && qt_modal_stack->removeRef(widget)) {
 #ifdef DEBUG_MODAL_EVENTS
-	qDebug("Leaving modal state with %s::%s::%p (%d)", widget->className(), widget->name(), 
+	qDebug("Leaving modal state with %s::%s::%p (%d)", widget->className(), widget->name(),
 	       widget, qt_modal_stack->count());
 #endif
 	if(qt_modal_stack->isEmpty()) {
 	    delete qt_modal_stack;
 	    qt_modal_stack = 0;
 	}
-    } 
+    }
 #ifdef DEBUG_MODAL_EVENTS
     else qDebug("Failure to remove %s::%s::%p -- %p", widget->className(), widget->name(), widget, qt_modal_stack);
 #endif
@@ -1052,7 +1052,7 @@ void qt_leave_modal(QWidget *widget)
 static bool qt_try_modal(QWidget *widget, EventRef event)
 {
 #ifdef DEBUG_MODAL_EVENTS
-    qDebug("Deducing modality (qt_try_modal) %s::%s (%p)", widget ? widget->className() : "Unknown", 
+    qDebug("Deducing modality (qt_try_modal) %s::%s (%p)", widget ? widget->className() : "Unknown",
 	   widget ? widget->name() : "Unknown", widget);
 #endif
 
@@ -1086,7 +1086,7 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
 	modal = widget;
 #ifdef DEBUG_MODAL_EVENTS
     qDebug("%s:%d -- %s::%s(%p) -- %s::%s(%p)", __FILE__, __LINE__, modal ? modal->className() : "Unknown",
-	   modal ? modal->name() : "Unknown", modal, 
+	   modal ? modal->name() : "Unknown", modal,
 	   top ? top->className() : "Unknown", top ? top->name() : "Unknown", top);
 #endif
     if(!top || modal == top) {			// don't block event
@@ -1727,7 +1727,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		       widget ? widget->className() : "none", widget ? widget->name() : "",
 		       key, modifiers);
 #endif
-		QKeyEvent ke(etype, key, 0, modifiers, "", FALSE, 0);
+		QKeyEvent ke(etype, key, 0, modifiers, "", FALSE );
 		QApplication::sendSpontaneousEvent(widget,&ke);
 	    }
 	    break;
@@ -1743,7 +1743,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
 	//map it into qt keys
 	QString mystr;
-	
+
 #ifdef DEBUG_KEY_MAPS
 	qDebug("************ Mapping modifiers and key ***********");
 #endif
@@ -1752,7 +1752,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	qDebug("------------ Mapping modifiers and key -----------");
 #endif
 	if(modifiers & (Qt::AltButton | Qt::ControlButton)) {
-	    if(chr & (1 << 7)) 
+	    if(chr & (1 << 7))
 		chr = 0;
 	} else {  	//now get the real ascii value
 	    UInt32 tmp_mod = 0L;
@@ -1772,7 +1772,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
 			       tmp_mod | keyc, &tmp_state);
 	}
-	/* I don't know why the str is only filled in in RawKeyDown - but it does seem to be on X11 
+	/* I don't know why the str is only filled in in RawKeyDown - but it does seem to be on X11
 	   is this a bug on X11? --Sam ### */
 	if(chr && ekind == kEventRawKeyDown) {
 	    static QTextCodec *c = NULL;
@@ -1793,7 +1793,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    bool key_event = TRUE;
 	    if(etype == QEvent::KeyPress && !mac_keyboard_grabber) {
 		QKeyEvent a(etype, mychar, chr, modifiers,
-			     mystr, ekind == kEventRawKeyRepeat, mystr.length());
+			     mystr, ekind == kEventRawKeyRepeat,
+			    QMAX(1, mystr.length() ) );
 		if(qt_tryAccelEvent(widget, &a)) {
 #ifdef DEBUG_KEY_MAPS
 		    qDebug("KeyEvent: %s::%s consumed Accel: %04x %c %s %d",
@@ -1855,7 +1856,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    mystr = "";
 		}
 		QKeyEvent ke(etype,mychar, chr, modifiers,
-			     mystr, ekind == kEventRawKeyRepeat, mystr.length());
+			     mystr, ekind == kEventRawKeyRepeat,
+			     QMAX( 1, mystr.length()) );
 		QApplication::sendSpontaneousEvent(widget,&ke);
 	    }
 	} else if(etype == QEvent::KeyPress) {
@@ -2013,7 +2015,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    MenuItemIndex idx;
 	    GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex,
 			      NULL, sizeof(idx), NULL, &idx);
-	    if(!QMenuBar::activate(mr, idx, TRUE)) 
+	    if(!QMenuBar::activate(mr, idx, TRUE))
 		handled_event = FALSE;
 	} else {
 	    handled_event = FALSE;
@@ -2054,7 +2056,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    }
 	    if(!handled_event) {
 		EventRecord erec;
-		if(!ConvertEventRefToEventRecord(event, &erec)) 
+		if(!ConvertEventRefToEventRecord(event, &erec))
 		    qDebug("Whoa, this can't happen! %s:%d", __FILE__, __LINE__);
 		else if(AEProcessAppleEvent(&erec) == noErr)
 		    handled_event = TRUE;
@@ -2112,7 +2114,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
 #ifdef DEBUG_EVENTS
     qDebug("%shandled event %c%c%c%c %d", handled_event ? "(*) " : "",
-	   char(eclass >> 24), char((eclass >> 16) & 255), char((eclass >> 8) & 255), 
+	   char(eclass >> 24), char((eclass >> 16) & 255), char((eclass >> 8) & 255),
 	   char(eclass & 255), (int)ekind);
 #endif
     if(!handled_event) //let the event go through

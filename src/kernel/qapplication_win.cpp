@@ -1292,7 +1292,7 @@ void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
 			   int off_x, int off_y )
 {
     if ( qt_winver & Qt::WV_NT_based ) {
-	// CreatePatternBrush is expensive, so only do when we would 
+	// CreatePatternBrush is expensive, so only do when we would
 	// have more than one tile
 	if ( bg_pixmap->size().width() < w || bg_pixmap->size().height() < h ) {
 	    // NT has no brush size limitation, so this is straight-forward
@@ -3273,13 +3273,13 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
 {
     if ( type == QEvent::KeyPress && !grab ) {
 	// send accel events if the keyboard is not grabbed
-	QKeyEvent a( type, code, ascii, state, text, autor, int(text.length()) );
+	QKeyEvent a( type, code, ascii, state, text, autor, QMAX(1, int(text.length()) );
 	if ( qt_tryAccelEvent( this, &a ) )
 	    return TRUE;
     }
     if ( !isEnabled() )
 	return FALSE;
-    QKeyEvent e( type, code, ascii, state, text, autor );
+    QKeyEvent e( type, code, ascii, state, text, autor, QMAX(1, int(text.length())) );
     QApplication::sendSpontaneousEvent( this, &e );
     if ( !isModifierKey(code) && state == Qt::AltButton
 	 && ((code>=Key_A && code<=Key_Z) || (code>=Key_0 && code<=Key_9))
