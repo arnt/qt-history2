@@ -264,7 +264,7 @@ int QTextPieceTable::remove_string(int pos, uint length, UndoCommand::Operation 
 
     const int w = fragments.erase_single(x);
 
-    adjustDocumentChangesAndCursors(pos, -length, op);
+    adjustDocumentChangesAndCursors(pos, -int(length), op);
 
     return w;
 }
@@ -780,7 +780,7 @@ QString QTextPieceTable::plainText() const
     QString result;
     for (QTextPieceTable::FragmentIterator it = begin(); it != end(); ++it) {
         const QTextFragment *f = *it;
-        result += QConstString(text.unicode() + f->stringPosition, f->size);
+        result += QString::fromRawData(text.unicode() + f->stringPosition, f->size);
     }
     // remove trailing block separator
     result.truncate(result.length()-1);
