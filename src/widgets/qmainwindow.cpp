@@ -750,7 +750,7 @@ protected:
 	    return;
 	mouseMoveEvent( e );
 
-	if ( e->button() == RightButton && pressedHandle != -1 ) {
+	if ( e->button() == RightButton && pressedHandle != -1 && win->isDockMenuEnabled() ) {
 	    QMainWindowPrivate::ToolBar *tb = d->hidden->at( pressedHandle );
 	    QPopupMenu menu( this );
 	    int left = menu.insertItem( QMainWindow::tr( "&Left" ) );
@@ -2405,6 +2405,8 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 {
     if ( e->type() == QEvent::MouseButtonPress && !d->inMovement ) {
 	if ( ( e->button() & RightButton ) ) {
+	    if ( !isDockMenuEnabled() )
+		return;
 	    emit startMovingToolbar( t );
 	    d->inMovement = TRUE;
 	    QPopupMenu menu( this );
@@ -2841,8 +2843,8 @@ void QMainWindow::rightMouseButtonMenu( const QPoint &p )
 
 /*!
   Returns TRUE, if rightclicking on an empty space on a toolbar dock
-  opens a popup menu which allows lining up toolbars and hiding/showing
-  toolbars.
+  or rightclicking on a toolbar handle opens a popup menu which allows 
+  lining up toolbars and hiding/showing toolbars.
 
   \sa setDockEnabled(), lineUpToolBars()
 */
@@ -2854,8 +2856,8 @@ bool QMainWindow::isDockMenuEnabled() const
 
 /*!
   When passing TRUE for \a b here, rightclicking on an empty space on a toolbar dock
-  opens a popup menu which allows lining up toolbars and hiding/showing
-  toolbars.
+  or rightclicking on a toolbar handle opens a popup menu which allows lining up toolbars 
+  and hiding/showing toolbars.
 
   \sa lineUpToolBars(), isDockMenuEnabled()
 */
