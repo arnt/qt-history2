@@ -79,13 +79,11 @@ void QAuServerWindows::play(QSound* s)
 
 void QAuServerWindows::stop(QSound* s)
 {
-    if ( !s->isFinished() ) {
-	QT_WA( {
-	    PlaySoundW( 0, 0, 0 );
-	} , {
-	    PlaySoundA( 0, 0, 0 );
-	} );
-    }
+    QT_WA( {
+	PlaySoundW( 0, 0, 0 );
+    } , {
+	PlaySoundA( 0, 0, 0 );
+    } );
 }
 
 bool QAuServerWindows::okay()
