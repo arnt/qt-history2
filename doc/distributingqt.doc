@@ -22,6 +22,8 @@ Qt applications. We do not include any compiler-specific files that
 may also be required. (See also, \link winsystem.html Window
 System-specific Notes\endlink.)
 
+\tableofcontents
+
 \section1 Static Qt Applications
 
 To distribute static Qt applications, you need the following file for
@@ -49,17 +51,34 @@ The library is provided by the following platform specific files:
 
 \table
 \header \i Platform \i File
-\row \i Windows \i \c qt.dll
-\row \i Unix/Linux \i \c libqt.so
-\row \i Mac \i \c libqt.so##
+\row \i Windows \i \c qt[version].dll
+\row \i Unix/Linux \i \c libqt[version].so
+\row \i Mac \i \c libqt[version].dylib
 \endtable
 
-You must include any plugin files used by the application.
+\e version includes the three version numbers. For threaded builds the
+version is prefixed with \e {-mt}.
+
+\section2 Distributing Plugins
+
+You must include any plugin files required by the application.
 
 Plugins must be put into a subdirectory under a directory known to
 Qt as a plugin directory. The subdirectory must have the name of the
 plugin category (e.g. \c styles, \c sqldrivers, \c designer, etc.). 
 
+Qt searches in the following directories for plugin categories:
+
+\list
+\i Application specific plugin paths
+\i Build-directory of Qt
+\i The application directory
+\endlist
+
+Application specific plugin paths can be added using 
+QApplication::addLibraryPath(). The build-directory of Qt is hardcoded
+in the Qt library and can be changed as a part of the installation
+process (see the \l distributor-example.html Distributor example).
 
 \section1 Dynamic Dialogs 
 
@@ -76,7 +95,7 @@ The QUI library is provided by the following platform specific files:
 \header \i Platform \i File
 \row \i Windows  \i\c qui.lib
 \row \i Unix/Linux  \i\c libqui.so
-\row \i Mac \i \c libqui.so###
+\row \i Mac \i \c libqui.dylib
 \endtable
 
 The QUI library must either be in the same directory as the
@@ -98,7 +117,7 @@ The QSA library is provided by the following platform specific files:
 \header \i Platform \i File
 \row \i Windows \i \c qsa.dll
 \row \i Unix/Linux \i \c libqsa.so
-\row \i Mac \i \c libqsa.so##
+\row \i Mac \i \c libqsa.dylib
 \endtable
 
 The QSA library must either be in the same directory as the
@@ -116,7 +135,7 @@ are as follows:
 \header \i Platform \i File
 \row \i Windows \i \c quickide.dll
 \row \i Unix/Linux \i \c quickide.so
-\row \i Mac \i \c quickide.so##
+\row \i Mac \i \c quickide.dylib
 \endtable
 
 \list
@@ -126,11 +145,9 @@ are as follows:
 \header \i Platform \i File
 \row \i Windows \i \c quickcustom.dll
 \row \i Unix/Linux \i \c quickcustom.so
-\row \i Mac \i \c quickcustom.so##
+\row \i Mac \i \c quickcustom.dylib
 \endtable
 
 The plugins must be put into a subdirectory called \c qsa under a directory
-known to Qt as a plugin directory. Qt plugin directories can be set using
-QApplication::addLibraryPath().
-
+known to Qt as a plugin directory.
 */
