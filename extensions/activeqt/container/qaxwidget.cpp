@@ -978,10 +978,10 @@ HRESULT WINAPI QAxHostWindow::SetMenu( HMENU hmenuShared, HOLEMENU /*holemenu*/,
 	}
 	if ( count ) {
 	    const QMetaObject *mbmo = menuBar->metaObject();
-	    int index = mbmo->indexOfSignal( "activated(int)" );
+	    int index = mbmo->indexOfSignal("activated(int)");
 	    Q_ASSERT( index != -1 );
 	    menuBar->disconnect( SIGNAL(activated(int)), host );
-	    // XXX host->connectInternal( menuBar, index, host, 2, 0 );
+            QMetaObject::connect(menuBar, index, host, QSIGNAL_CODE, 0);
 	}
     } else if ( menuBar ) {
 	m_menuOwner = 0;
