@@ -195,6 +195,7 @@ struct QListViewPrivate
 
     bool clearing		:1;
     bool pressedSelected	:1;
+    bool pressedEmptyArea 	:1;
 
     bool useDoubleBuffer	:1;
     bool toolTips		:1;
@@ -2330,6 +2331,7 @@ void QListView::init()
     d->resizeMode = NoColumn;
     d->context_menu = FALSE;
     d->defRenameAction = Reject;
+    d->pressedEmptyArea = FALSE;
 
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
@@ -3814,6 +3816,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     d->buttonDown = TRUE;
 
     QListViewItem * i = itemAt( vp );
+    d->pressedEmptyArea = e->y() > contentsHeight();
     if ( i && !i->isEnabled() )
 	return;
     if ( i == currentItem() && i && i->isSelected() && e->button() == LeftButton && !didEdit ) {
@@ -4201,11 +4204,11 @@ and the mouse is outside the widget.
 
 void QListView::doAutoScroll()
 {
-    if ( !d->focusItem )
-	return;
-
     QPoint pos = QCursor::pos();
     pos = viewport()->mapFromGlobal( pos );
+
+    if ( !d->focusItem || ( d->pressedEmptyArea && pos.y() > contentsHeight() ) )
+	return;
 
     bool down = pos.y() > itemRect( d->focusItem ).y();
 
