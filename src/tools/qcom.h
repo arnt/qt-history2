@@ -35,10 +35,9 @@ struct Q_EXPORT QUnknownInterface
     virtual ulong   release() = 0;
 };
 
-
-// {DE56512E-4E9F-4b76-A3C2-D1E2EF42F1AC}//### number is fake
+// {FBAC965E-A441-413F-935E-CDF582573FAB} 
 #ifndef IID_QDispatch
-#define IID_QDispatch QUuid( 0xde56512e, 0x4e9f, 0x4b76, 0xa3, 0xc2, 0xd1, 0xe2, 0xef, 0x42, 0xf1, 0xac )
+#define IID_QDispatch QUuid( 0xfbac965e, 0xa441, 0x413f, 0x93, 0x5e, 0xcd, 0xf5, 0x82, 0x57, 0x3f, 0xab)
 #endif
 
 // the dispatch interface that inherits the unknown interface.. It is
@@ -121,11 +120,9 @@ private:
     T* iface;
 };
 
-
-//####### WARNING: uuid is fake right now
-// {721F033C-D7D0-4462-BD67-1E8C8FA1C741}
+// {10A1501B-4C5F-4914-95DD-C400486CF900} 
 #ifndef IID_QObject
-#define IID_QObject QUuid( 0x721f033c, 0xd7d0, 0x4462, 0xbd, 0x67, 0x1e, 0x8c, 0x8f, 0xa1, 0xc7, 0x41)
+#define IID_QObject QUuid( 0x10a1501b, 0x4c5f, 0x4914, 0x95, 0xdd, 0xc4, 0x00, 0x48, 0x6c, 0xf9, 0x00)
 #endif
 
 struct Q_EXPORT QObjectInterface
