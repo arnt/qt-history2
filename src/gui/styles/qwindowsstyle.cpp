@@ -23,6 +23,7 @@
 #include "qevent.h"
 #include "qlabel.h"
 #include "qmenu.h"
+#include "qpaintengine.h"
 #include "qpainter.h"
 #include "qpushbutton.h"
 #include "qrubberband.h"
@@ -1174,9 +1175,8 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                 HDC hdc = p->device()->getDC();
                 RECT rect = { opt->rect.left(), opt->rect.top(),
                               opt->rect.right() + 1, opt->rect.bottom() + 1 };
-                COLORREF old = SetTextColor(hdc, RGB(0, 0, 0));
+                p->paintEngine()->syncState();
                 DrawFocusRect(hdc, &rect);
-                SetTextColor(hdc, old);
                 p->device()->releaseDC(hdc);
             }
 #else
