@@ -58,17 +58,9 @@ MainWindow::MainWindow()
     dw->setClosable(true);
     dw->setMovable(true);
     dw->setFloatable(true);
-    dw->setCurrentArea(Qt::DockWindowAreaLeft);
+    dw->setArea(Qt::DockWindowAreaLeft);
     dw->setWindowTitle(tr("Sidebar"));
 
-/*
-    dw->setResizeEnabled(true);
-    dw->setCloseMode(QDockWindow::Always);
-    addDockWindow(dw, DockLeft);
-    dw->setWidget(helpDock);
-    dw->setWindowTitle("Sidebar");
-    dw->setFixedExtentWidth(320);
-*/
     // read geometry configuration
     setupGoActions();
 
