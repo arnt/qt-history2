@@ -154,7 +154,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	t << "all: " << ofile <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
 	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
-	  << "[ -d " << project->variables()["DESTDIR"].first() 
+	  << "[ -d " << project->variables()["DESTDIR"].first()
 	  << " ] || mkdir -p " << project->variables()["DESTDIR"].first() << "\n\t"
 	  << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
     } else if(!project->isActiveConfig("staticlib")) {
@@ -207,7 +207,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "mocables: $(SRCMOC)" << endl << endl;
 
     //this is an implicity depend on moc, so it will be built if necesary, however
-    //moc itself shouldn't have this dependancy - this is a little kludgy but it is 
+    //moc itself shouldn't have this dependancy - this is a little kludgy but it is
     //better than the alternative for now.
     QString moc = project->variables()["QMAKE_MOC"].first(), target = project->variables()["TARGET"].first();
     fixEnvVariables(target);
@@ -271,17 +271,41 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
     if(ofile.findRev(Option::dir_sep) != -1)
 	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
 
-    t << "MAKEFILE=	" << var("MAKEFILE") << endl;
+    t << "MAKEFILE =	" << var("MAKEFILE") << endl;
     t << "QMAKE =	" << var("QMAKE") << endl;
-    t << "SUBDIRS	=" << varList("SUBDIRS") << endl;
+
+    // subdirectory targets are sub-directory
+    t << "SUBDIRS =	";
+    QStringList subdirs = project->variables()["SUBDIRS"];
+    QStringList::Iterator it = subdirs.begin();
+    while (it != subdirs.end())
+	t << " \\\n\t\tsub-" << *it++;
+    t << endl << endl;
 
     t << "all: " << ofile << " $(SUBDIRS)" << endl << endl;
     t << "install: " << ofile << " qmake_all" << "\n\t"
       << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; "
       << "[ -f $(MAKEFILE) ] && $(MAKE) -f $(MAKEFILE) install; fi; ) ; done" << endl;
 
-    t << "$(SUBDIRS): qmake_all FORCE" << "\n\t"
-      << "cd $@ && $(MAKE)" << endl << endl;
+    // generate target rules
+    it = subdirs.begin();
+    while (it != subdirs.end()) {
+	t << "sub-" << *it << ": qmake_all FORCE" << "\n\t"
+	  << "cd " << *it << " && $(MAKE)" << endl << endl;
+	it++;
+    }
+
+    // generate dependencies
+    QString tar, dep;
+    it = subdirs.begin();
+    while (it != subdirs.end()) {
+	tar = *it++;
+	if (it != subdirs.end()) {
+	    dep = *it;
+	    t << "sub-" << dep << ": sub-" << tar << endl;
+	}
+    }
+    t << endl;
 
     writeMakeQmake(t);
 
@@ -493,9 +517,9 @@ UnixMakefileGenerator::init()
 	} else {
 	    project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGETA) $(OBJECTS) $(OBJMOC)");
 	}
-        if( project->isActiveConfig("plugin") ) {	
-	    project->variables()["TARGET_x.y.z"].append("lib" + 
-						   project->variables()["TARGET"].first() + "." + 
+        if( project->isActiveConfig("plugin") ) {
+	    project->variables()["TARGET_x.y.z"].append("lib" +
+						   project->variables()["TARGET"].first() + "." +
 							project->variables()[
 							    "QMAKE_EXTENTION_SHLIB"].first());
 	    project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
@@ -506,15 +530,15 @@ UnixMakefileGenerator::init()
 	    project->variables()["TARGET"] = project->variables()["TARGET_x"];
 	} else if ( !project->variables()["QMAKE_AIX_SHLIB"].isEmpty() ) {
 	    project->variables()["TARGET_"].append("lib" + project->variables()["TARGET"].first() + ".a");
-	    project->variables()["TARGET_x"].append("lib" + project->variables()["TARGET"].first() + "." + 
+	    project->variables()["TARGET_x"].append("lib" + project->variables()["TARGET"].first() + "." +
 						    project->variables()["QMAKE_EXTENTION_SHLIB"].first() +
 						    "." + project->variables()["VER_MAJ"].first());
 	    project->variables()["TARGET_x.y"].append("lib" + project->variables()["TARGET"].first() + "." +
-						      project->variables()["QMAKE_EXTENTION_SHLIB"].first() 
-						      + "." + project->variables()["VER_MAJ"].first() + 
+						      project->variables()["QMAKE_EXTENTION_SHLIB"].first()
+						      + "." + project->variables()["VER_MAJ"].first() +
 						      "." + project->variables()["VER_MIN"].first());
-	    project->variables()["TARGET_x.y.z"].append("lib" + project->variables()["TARGET"].first() + 
-							"." + 
+	    project->variables()["TARGET_x.y.z"].append("lib" + project->variables()["TARGET"].first() +
+							"." +
 							project->variables()[
 							    "QMAKE_EXTENTION_SHLIB"].first() + "." +
 							project->variables()["VER_MAJ"].first() + "." +
@@ -522,17 +546,17 @@ UnixMakefileGenerator::init()
 							project->variables()["VER_PAT"].first());
 	    project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
 	} else {
-	    project->variables()["TARGET_"].append("lib" + project->variables()["TARGET"].first() + "." + 
+	    project->variables()["TARGET_"].append("lib" + project->variables()["TARGET"].first() + "." +
 						   project->variables()["QMAKE_EXTENTION_SHLIB"].first());
-	    project->variables()["TARGET_x"].append("lib" + project->variables()["TARGET"].first() + "." + 
-						    project->variables()["QMAKE_EXTENTION_SHLIB"].first() + 
+	    project->variables()["TARGET_x"].append("lib" + project->variables()["TARGET"].first() + "." +
+						    project->variables()["QMAKE_EXTENTION_SHLIB"].first() +
 						    "." + project->variables()["VER_MAJ"].first());
 	    project->variables()["TARGET_x.y"].append("lib" + project->variables()["TARGET"].first() + "." +
 						      project->variables()["QMAKE_EXTENTION_SHLIB"].first()
-						      + "." + project->variables()["VER_MAJ"].first() + 
+						      + "." + project->variables()["VER_MAJ"].first() +
 						      "." + project->variables()["VER_MIN"].first());
-	    project->variables()["TARGET_x.y.z"].append("lib" + project->variables()["TARGET"].first() + 
-							"." + 
+	    project->variables()["TARGET_x.y.z"].append("lib" + project->variables()["TARGET"].first() +
+							"." +
 							project->variables()[
 							    "QMAKE_EXTENTION_SHLIB"].first() + "." +
 							project->variables()["VER_MAJ"].first() + "." +
@@ -577,9 +601,9 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	if(project->variables()["TEMPLATE"].first() == "app") {
 	    ret << "$(TARGET)";
 	} else if(!project->isActiveConfig("staticlib")) {
-	    if(project->isActiveConfig("plugin")) 
+	    if(project->isActiveConfig("plugin"))
 		ret << "$(TARGETD)";
-	    else if ( !project->variables()["QMAKE_HPUX_SHLIB"].isEmpty() ) 
+	    else if ( !project->variables()["QMAKE_HPUX_SHLIB"].isEmpty() )
 		ret << "$(TARGET)" << "$(TARGET0)";
 	    else
 		ret << "$(TARGET)" << "$(TARGET0)" << "$(TARGET1)" << "$(TARGET2)";
