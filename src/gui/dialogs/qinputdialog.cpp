@@ -334,8 +334,9 @@ int QInputDialog::getInteger(const QString &caption, const QString &label,
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg->setWindowTitle(caption);
 #endif
-    dlg->spinBox()->setRange(minValue, maxValue);
-    dlg->spinBox()->setSteps(step, 0);
+    dlg->spinBox()->setMinimum(minValue);
+    dlg->spinBox()->setMaximum(maxValue);
+    dlg->spinBox()->setSingleStep(step);
     dlg->spinBox()->setValue(value);
 
     bool ok_ = false;

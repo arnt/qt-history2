@@ -152,14 +152,21 @@ QWidget * QSqlEditorFactory::createEditor(QWidget * parent,
             w = new QLineEdit(parent, "qt_editor_double");
             ((QLineEdit*)w)->setFrame(false);
             break;
-        case QVariant::Date:
-            w = new QDateEdit(parent, "qt_editor_date");
+        case QVariant::Date: {
+            QDateTimeEdit *edit = new QDateTimeEdit(parent);
+            edit->setFormat("yyyy/MM/dd");
+            edit->setObjectName("qt_editor_date");
+            w = edit; }
             break;
-        case QVariant::Time:
-            w = new QTimeEdit(parent, "qt_editor_time");
+        case QVariant::Time: {
+            QDateTimeEdit *edit = new QDateTimeEdit(parent);
+            edit->setFormat("hh:mm");
+            edit->setObjectName("qt_editor_time");
+            w = edit; }
             break;
         case QVariant::DateTime:
-            w = new QDateTimeEdit(parent, "qt_editor_datetime");
+            w = new QDateTimeEdit(parent);
+            w->setObjectName("qt_editor_datetime");
             break;
 #ifndef QT_NO_LABEL
         case QVariant::Pixmap:

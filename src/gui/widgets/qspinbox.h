@@ -1,146 +1,131 @@
-/****************************************************************************
-**
-** Definition of QSpinBox widget class.
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the widgets module of the Qt GUI Toolkit.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
+#ifndef QDOUBLESPINBOX_H
+#define QDOUBLESPINBOX_H
 
-#ifndef QSPINBOX_H
-#define QSPINBOX_H
-
-#ifndef QT_H
-#include "qwidget.h"
-#include "qrangecontrol.h"
-#endif // QT_H
-
-#ifndef QT_NO_SPINBOX
-
-class QLineEdit;
-class QValidator;
+#include <qabstractspinbox.h>
 class QSpinBoxPrivate;
-
-class Q_GUI_EXPORT QSpinBox: public QWidget, public QRangeControl
+class QSpinBox : public QAbstractSpinBox
 {
     Q_OBJECT
-    Q_ENUMS(ButtonSymbols)
-    Q_PROPERTY(QString text READ text)
+    Q_DECLARE_PRIVATE(QSpinBox);
+
+    Q_PROPERTY(int value READ value WRITE setValue)
+    Q_PROPERTY(int maximum READ maximum WRITE setMaximum RESET clearMinimum)
+    Q_PROPERTY(int minimum READ minimum WRITE setMinimum RESET clearMaximum)
+    Q_PROPERTY(int singleStep READ singleStep WRITE setSingleStep RESET clearSingleStep)
     Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
     Q_PROPERTY(QString suffix READ suffix WRITE setSuffix)
-    Q_PROPERTY(QString cleanText READ cleanText)
     Q_PROPERTY(QString specialValueText READ specialValueText WRITE setSpecialValueText)
-    Q_PROPERTY(bool wrapping READ wrapping WRITE setWrapping)
-    Q_PROPERTY(ButtonSymbols buttonSymbols READ buttonSymbols WRITE setButtonSymbols)
-    Q_PROPERTY(int maxValue READ maxValue WRITE setMaxValue)
-    Q_PROPERTY(int minValue READ minValue WRITE setMinValue)
-    Q_PROPERTY(int lineStep READ lineStep WRITE setLineStep)
-    Q_PROPERTY(int value READ value WRITE setValue)
+
 
 public:
-    QSpinBox(QWidget* parent=0, const char* name=0);
-    QSpinBox(int minValue, int maxValue, int step = 1,
-              QWidget* parent=0, const char* name=0);
-    ~QSpinBox();
+    QSpinBox(QWidget *parent = 0, WFlags f = 0);
+    QSpinBox(int min, int max, int step = 1, QWidget *parent = 0, WFlags f = 0);
+#ifdef QT_COMPAT
+    QSpinBox(QWidget *parent, const char *name);
+    QSpinBox(int min, int max, int step, QWidget *parent, const char *name);
+#endif
 
-    QString                text() const;
+    int value() const;
 
-    virtual QString        prefix() const;
-    virtual QString        suffix() const;
-    virtual QString        cleanText() const;
+    QString prefix() const;
+    void setPrefix(const QString &p);
 
-    virtual void        setSpecialValueText(const QString &text);
-    QString                specialValueText() const;
+    QString suffix() const;
+    void setSuffix(const QString &s);
 
-    virtual void        setWrapping(bool on);
-    bool                wrapping() const;
+    QString specialValueText() const;
+    void setSpecialValueText(const QString &s);
 
-    enum ButtonSymbols { UpDownArrows, PlusMinus };
-    virtual void        setButtonSymbols(ButtonSymbols);
-    ButtonSymbols        buttonSymbols() const;
+    int singleStep() const;
+    void setSingleStep(int val);
+    void clearSingleStep();
 
-    virtual void        setValidator(const QValidator* v);
-    const QValidator * validator() const;
+    int minimum() const;
+    void setMinimum(int min);
+    void clearMinimum();
 
-    QSize                sizeHint() const;
-    QSize                minimumSizeHint() const;
+    int maximum() const;
+    void setMaximum(int max);
+    void clearMaximum();
 
-    int         minValue() const;
-    int         maxValue() const;
-    void setMinValue(int);
-    void setMaxValue(int);
-    int         lineStep() const;
-    void setLineStep(int);
-    int  value() const;
-
-    QRect                upRect() const;
-    QRect                downRect() const;
-
-public slots:
-    virtual void        setValue(int value);
-    virtual void        setPrefix(const QString &text);
-    virtual void        setSuffix(const QString &text);
-    virtual void        stepUp();
-    virtual void        stepDown();
-    virtual void         setEnabled(bool enabled);
-    virtual void         selectAll();
-
-signals:
-    void                valueChanged(int value);
-    void                valueChanged(const QString &valueText);
+#ifdef QT_COMPAT
+    inline QT_COMPAT void setRange(int min, int max) { setMinimum(min); setMaximum(max); }
+    inline QT_COMPAT void setLineStep(int step) { setSingleStep(step); }
+    inline QT_COMPAT void setMaxValue(int val) { setMaximum(val); }
+    inline QT_COMPAT void setMinValue(int val) { setMinimum(val); }
+    inline QT_COMPAT int maxValue() const { return maximum(); }
+    inline QT_COMPAT int minValue() const { return minimum(); }
+#endif
 
 protected:
-    virtual QString        mapValueToText(int value);
-    virtual int                mapTextToValue(bool* ok);
-    QString                currentValueText();
+    virtual QString mapValueToText(int v) const;
+    virtual int mapTextToValue(QString *text, QValidator::State *state) const;
 
-    virtual void        updateDisplay();
-    virtual void        interpretText();
+public slots:
+    void setValue(int val);
 
-    QLineEdit*                editor() const;
-
-    virtual void        valueChange();
-    virtual void        rangeChange();
-
-    void keyPressEvent(QKeyEvent *);
-    void focusOutEvent(QFocusEvent *);
-    void                resizeEvent(QResizeEvent* ev);
-#ifndef QT_NO_WHEELEVENT
-    void                wheelEvent(QWheelEvent *);
-#endif
-
-    void                changeEvent(QEvent *);
-
-protected slots:
-    void                textChanged();
-
-private:
-    void initSpinBox();
-    QSpinBoxPrivate* d;
-    QLineEdit* vi;
-    QValidator* validate;
-    QString pfix;
-    QString sfix;
-    QString specText;
-
-    uint wrap                : 1;
-    uint edited                : 1;
-
-    void arrangeWidgets();
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QSpinBox(const QSpinBox&);
-    QSpinBox& operator=(const QSpinBox&);
-#endif
-
+signals:
+    void valueChanged(int);
+    void valueChanged(QString);
 };
 
-#endif // QT_NO_SPINBOX
+class QDoubleSpinBoxPrivate;
+class QDoubleSpinBox : public QAbstractSpinBox
+{
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QDoubleSpinBox);
 
-#endif // QSPINBOX_H
+    Q_PROPERTY(double value READ value WRITE setValue)
+    Q_PROPERTY(double maximum READ maximum WRITE setMaximum RESET clearMinimum)
+    Q_PROPERTY(double minimum READ minimum WRITE setMinimum RESET clearMaximum)
+    Q_PROPERTY(double singleStep READ singleStep WRITE setSingleStep RESET clearSingleStep)
+    Q_PROPERTY(int precision READ precision WRITE setPrecision RESET clearPrecision)
+    Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
+    Q_PROPERTY(QString suffix READ suffix WRITE setSuffix)
+    Q_PROPERTY(QString specialValueText READ specialValueText WRITE setSpecialValueText)
+
+
+public:
+    QDoubleSpinBox(QWidget *parent = 0, WFlags f = 0);
+    QDoubleSpinBox(double min, double max, double step = 1, int prec = 0, QWidget *parent = 0, WFlags f = 0);
+
+    double value() const;
+
+    QString prefix() const;
+    void setPrefix(const QString &p);
+
+    QString suffix() const;
+    void setSuffix(const QString &s);
+
+    QString specialValueText() const;
+    void setSpecialValueText(const QString &s);
+
+    double singleStep() const;
+    void setSingleStep(double val);
+    void clearSingleStep();
+
+    double minimum() const;
+    void setMinimum(double min);
+    void clearMinimum();
+
+    double maximum() const;
+    void setMaximum(double max);
+    void clearMaximum();
+
+    int precision() const;
+    void setPrecision(int prec);
+    void clearPrecision();
+
+    virtual QString mapValueToText(double v) const;
+    virtual double mapTextToValue(QString *text, QValidator::State *state) const;
+
+public slots:
+    void setValue(double val);
+
+signals:
+    void valueChanged(double);
+    void valueChanged(QString);
+};
+
+
+#endif

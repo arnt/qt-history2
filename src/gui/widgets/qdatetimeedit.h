@@ -1,267 +1,95 @@
-/****************************************************************************
-**
-** Definition of date and time edit classes.
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the widgets module of the Qt GUI Toolkit.
-** EDITIONS: FREE, ENTERPRISE
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
-
 #ifndef QDATETIMEEDIT_H
 #define QDATETIMEEDIT_H
 
-#ifndef QT_H
-#include "qwidget.h"
-#include "qstring.h"
-#include "qdatetime.h"
-#endif // QT_H
-
-#ifndef QT_NO_DATETIMEEDIT
-
-class Q_COMPAT_EXPORT QDateTimeEditBase : public QWidget
-{
-    Q_OBJECT
-public:
-    QDateTimeEditBase(QWidget* parent=0, const char* name=0)
-        : QWidget(parent, name) {}
-
-    virtual bool setFocusSection(int sec) = 0;
-    virtual QString sectionFormattedText(int sec) = 0;
-    virtual void addNumber(int sec, int num) = 0;
-    virtual void removeLastNumber(int sec) = 0;
-
-public slots:
-    virtual void stepUp() = 0;
-    virtual void stepDown() = 0;
-
-private:
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QDateTimeEditBase(const QDateTimeEditBase &);
-    QDateTimeEditBase &operator=(const QDateTimeEditBase &);
-#endif
-};
-
-class QDateEditPrivate;
-
-class Q_COMPAT_EXPORT QDateEdit : public QDateTimeEditBase
-{
-    Q_OBJECT
-    Q_ENUMS(Order)
-    Q_PROPERTY(Order order READ order WRITE setOrder)
-    Q_PROPERTY(QDate date READ date WRITE setDate)
-    Q_PROPERTY(bool autoAdvance READ autoAdvance WRITE setAutoAdvance)
-    Q_PROPERTY(QDate maxValue READ maxValue WRITE setMaxValue)
-    Q_PROPERTY(QDate minValue READ minValue WRITE setMinValue)
-
-public:
-    QDateEdit(QWidget* parent=0,  const char* name=0);
-    QDateEdit(const QDate& date, QWidget* parent=0,  const char* name=0);
-    ~QDateEdit();
-
-    enum Order { DMY, MDY, YMD, YDM };
-
-    QSize sizeHint() const;
-    QSize minimumSizeHint() const;
-
-public slots:
-    virtual void setDate(const QDate& date);
-
-public:
-    QDate date() const;
-    virtual void setOrder(Order order);
-    Order order() const;
-    virtual void setAutoAdvance(bool advance);
-    bool autoAdvance() const;
-
-    virtual void setMinValue(const QDate& d) { setRange(d, maxValue()); }
-    QDate minValue() const;
-    virtual void setMaxValue(const QDate& d) { setRange(minValue(), d); }
-    QDate maxValue() const;
-    virtual void setRange(const QDate& min, const QDate& max);
-    QString separator() const;
-    virtual void setSeparator(const QString& s);
-
-    // Make removeFirstNumber() virtual in QDateTimeEditBase in 4.0
-    void removeFirstNumber(int sec);
-
-signals:
-    void valueChanged(const QDate& date);
-
-protected:
-    bool event(QEvent *e);
-    void timerEvent(QTimerEvent *);
-    void resizeEvent(QResizeEvent *);
-    void stepUp();
-    void stepDown();
-    QString sectionFormattedText(int sec);
-    void addNumber(int sec, int num);
-
-    void removeLastNumber(int sec);
-    bool setFocusSection(int s);
-
-    virtual void setYear(int year);
-    virtual void setMonth(int month);
-    virtual void setDay(int day);
-    virtual void fix();
-    virtual bool outOfRange(int y, int m, int d) const;
-
-protected slots:
-    void updateButtons();
-
-private:
-    void init();
-    int sectionOffsetEnd(int sec) const;
-    int sectionLength(int sec) const;
-    QString sectionText(int sec) const;
-    QDateEditPrivate* d;
-
-#if defined(Q_DISABLE_COPY)
-    QDateEdit(const QDateEdit &);
-    QDateEdit &operator=(const QDateEdit &);
-#endif
-};
-
-class QTimeEditPrivate;
-
-class Q_COMPAT_EXPORT QTimeEdit : public QDateTimeEditBase
-{
-    Q_OBJECT
-    Q_FLAGS(Display)
-    Q_PROPERTY(QTime time READ time WRITE setTime)
-    Q_PROPERTY(bool autoAdvance READ autoAdvance WRITE setAutoAdvance)
-    Q_PROPERTY(QTime maxValue READ maxValue WRITE setMaxValue)
-    Q_PROPERTY(QTime minValue READ minValue WRITE setMinValue)
-    Q_PROPERTY(Display display READ display WRITE setDisplay)
-
-public:
-    enum Display {
-        Hours        = 0x01,
-        Minutes        = 0x02,
-        Seconds        = 0x04,
-        /*Reserved = 0x08,*/
-        AMPM        = 0x10
-    };
-
-    QTimeEdit(QWidget* parent=0,  const char* name=0);
-    QTimeEdit(const QTime& time, QWidget* parent=0,  const char* name=0);
-    ~QTimeEdit();
-
-    QSize sizeHint() const;
-    QSize minimumSizeHint() const;
-
-public slots:
-    virtual void setTime(const QTime& time);
-
-public:
-    QTime time() const;
-    virtual void setAutoAdvance(bool advance);
-    bool autoAdvance() const;
-
-    virtual void setMinValue(const QTime& d) { setRange(d, maxValue()); }
-    QTime minValue() const;
-    virtual void setMaxValue(const QTime& d) { setRange(minValue(), d); }
-    QTime maxValue() const;
-    virtual void setRange(const QTime& min, const QTime& max);
-    QString separator() const;
-    virtual void setSeparator(const QString& s);
-
-    uint display() const;
-    void setDisplay(uint disp);
-
-    // Make removeFirstNumber() virtual in QDateTimeEditBase in 4.0
-    void removeFirstNumber(int sec);
-
-signals:
-    void valueChanged(const QTime& time);
-
-protected:
-    bool event(QEvent *e);
-    void timerEvent(QTimerEvent *e);
-    void resizeEvent(QResizeEvent *);
-    void stepUp();
-    void stepDown();
-    QString sectionFormattedText(int sec);
-    void addNumber(int sec, int num);
-    void removeLastNumber(int sec);
-    bool setFocusSection(int s);
-
-    virtual bool outOfRange(int h, int m, int s) const;
-    virtual void setHour(int h);
-    virtual void setMinute(int m);
-    virtual void setSecond(int s);
-
-protected slots:
-    void updateButtons();
-
-private:
-    void init();
-    QString sectionText(int sec);
-    QTimeEditPrivate* d;
-
-#if defined(Q_DISABLE_COPY)
-    QTimeEdit(const QTimeEdit &);
-    QTimeEdit &operator=(const QTimeEdit &);
-#endif
-};
-
+#include <qdatetime.h>
+#include <qabstractspinbox.h>
 
 class QDateTimeEditPrivate;
-
-class Q_COMPAT_EXPORT QDateTimeEdit : public QWidget
+class QDateTimeEdit : public QAbstractSpinBox
 {
     Q_OBJECT
+
+    Q_ENUMS(Section)
     Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
+    Q_PROPERTY(QDate date READ date WRITE setDate)
+    Q_PROPERTY(QTime time READ time WRITE setTime)
+    Q_PROPERTY(QDate maximumDate READ maximumDate WRITE setMaximumDate RESET clearMaximumDate)
+    Q_PROPERTY(QDate minimumDate READ minimumDate WRITE setMinimumDate RESET clearMinimumDate)
+    Q_PROPERTY(QTime maximumTime READ maximumTime WRITE setMaximumTime RESET clearMaximumTime)
+    Q_PROPERTY(QTime minimumTime READ minimumTime WRITE setMinimumTime RESET clearMinimumTime)
+    Q_PROPERTY(SectionFlags currentSection READ currentSection WRITE setCurrentSection)
+    Q_PROPERTY(Section display READ display)
+    Q_PROPERTY(QString format READ format WRITE setFormat)
 
 public:
-    QDateTimeEdit(QWidget* parent=0, const char* name=0);
-    QDateTimeEdit(const QDateTime& datetime, QWidget* parent=0,
-                   const char* name=0);
-    ~QDateTimeEdit();
+    enum SectionFlags {
+	None = 0x0000,
+	AMPM = 0x0001,
+	MSecs = 0x0002,
+	Seconds = 0x0004,
+	Minutes = 0x0008,
+	Hours = 0x0010,
+	Days = 0x0100,
+	Months = 0x0200,
+	Years = 0x0400
+    };
 
-    QSize sizeHint() const;
-    QSize minimumSizeHint() const;
+    Q_DECLARE_FLAGS(Section, SectionFlags);
 
-public slots:
-    virtual void setDateTime(const QDateTime & dt);
+    QDateTimeEdit(QWidget *parent = 0, WFlags f = 0);
+    QDateTimeEdit(const QDateTime &t, QWidget *parent = 0, WFlags f = 0);
+    QDateTimeEdit(const QTime &t, QWidget *parent = 0, WFlags f = 0);
 
-public:
     QDateTime dateTime() const;
+    QDate date() const;
+    QTime time() const;
 
-    QDateEdit* dateEdit() { return de; }
-    QTimeEdit* timeEdit() { return te; }
+    QDate minimumDate() const;
+    void setMinimumDate(const QDate &min);
+    void clearMinimumDate();
 
-    virtual void setAutoAdvance(bool advance);
-    bool autoAdvance() const;
+    QDate maximumDate() const;
+    void setMaximumDate(const QDate &max);
+    void clearMaximumDate();
 
-signals:
-    void valueChanged(const QDateTime& datetime);
+    QTime minimumTime() const;
+    void setMinimumTime(const QTime &min);
+    void clearMinimumTime();
+
+    QTime maximumTime() const;
+    void setMaximumTime(const QTime &max);
+    void clearMaximumTime();
+
+    Section display() const;
+
+    SectionFlags currentSection() const;
+    void setCurrentSection(SectionFlags section);
+
+    QString format() const;
+    bool setFormat(const QString &format);
 
 protected:
-    // ### make init() private in Qt 4.0
-    void init();
-    void resizeEvent(QResizeEvent *);
+    virtual void keyPressEvent(QKeyEvent *e);
+    virtual void wheelEvent(QWheelEvent *e);
+    virtual void focusInEvent(QFocusEvent *e);
+    virtual bool focusNextPrevChild(bool next);
+    virtual QString mapDateTimeToText(const QDateTime &date) const;
+    virtual QDateTime mapTextToDateTime(QString *text, QValidator::State *state) const;
+    virtual void stepBy(int steps);
+    virtual StepEnabled stepEnabled() const;
 
-protected slots:
-    // ### make these two functions private in Qt 4.0,
-    //     and merge them into one with no parameter
-    void newValue(const QDate& d);
-    void newValue(const QTime& t);
+public slots:
+    void setDateTime(const QDateTime &dateTime);
+    void setDate(const QDate &date);
+    void setTime(const QTime &time);
+
+signals:
+    void dateTimeChanged(const QDateTime &date);
+    void timeChanged(const QTime &date);
+    void dateChanged(const QDate &date);
 
 private:
-    QDateEdit* de;
-    QTimeEdit* te;
-    QDateTimeEditPrivate* d;
-
-#if defined(Q_DISABLE_COPY)
-    QDateTimeEdit(const QDateTimeEdit &);
-    QDateTimeEdit &operator=(const QDateTimeEdit &);
-#endif
+    Q_DECLARE_PRIVATE(QDateTimeEdit);
 };
 
-#endif
 #endif

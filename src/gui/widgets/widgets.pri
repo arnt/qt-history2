@@ -7,6 +7,8 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qbutton.h \
 	widgets/qabstractbutton.h \
 	widgets/qabstractbutton_p.h \
+	widgets/qabstractspinbox.h \
+	widgets/qabstractspinbox_p.h \
 	widgets/qdialogbuttons_p.h \
 	widgets/qcheckbox.h \
 	widgets/qcombobox.h \
@@ -70,6 +72,7 @@ HEADERS += widgets/qbuttongroup.h \
 SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qbutton.cpp \
 	widgets/qabstractbutton.cpp \
+	widgets/qabstractspinbox.cpp \
 	widgets/qdialogbuttons.cpp \
 	widgets/qcheckbox.cpp \
 	widgets/qcombobox.cpp \
@@ -126,7 +129,7 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qwidgetplugin.cpp \
         widgets/qrubberband.cpp \
 	widgets/qworkspace.cpp
-   
+
 
 !embedded:mac:SOURCES += widgets/qmenu_mac.cpp
 
