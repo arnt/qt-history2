@@ -295,6 +295,9 @@ static bool my_xt;
 
   Use this constructor when writing a new Qt application which
   needs to use some existing Xt/Motif widgets.
+
+  The \a argc and \a argv arguments are passed to the QApplication
+  constructor.
 */
 QXtApplication::QXtApplication(int& argc, char** argv,
 	const char* appclass, XrmOptionDescRec *options,
@@ -329,6 +332,18 @@ QXtApplication::QXtApplication(Display *display, HANDLE visual, HANDLE colormap)
 }
 
 
+/*!
+    \overload
+  Constructs a QApplication from the \a display of an already-initialized
+  Xt application.  If \a visual and \a colormap are non-zero, the application
+  will use those as the default Visual and Colormap contexts.
+
+  Use this constructor when introducing Qt widgets into an existing
+  Xt/Motif application.
+
+  The \a argc and \a argv arguments are passed to the QApplication
+  constructor.
+*/
 QXtApplication::QXtApplication(Display *display, int argc, char **argv,
 			       HANDLE visual, HANDLE colormap)
     : QApplication(display, argc, argv, visual, colormap)
@@ -438,6 +453,12 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
   Use this constructor to utilize Qt widgets in an Xt/Motif
   application.  The QXtWidget is a QWidget, so you can create
   subwidgets, layouts, etc. using Qt functionality.
+
+  The \a name is the object name passed to the QWidget constructor.
+  The widget's parent is \a parent.
+
+  If the \a managed parameter is TRUE and \a parent in not NULL,
+  XtManageChild it used to manage the child.
 */
 QXtWidget::QXtWidget(const char* name, Widget parent, bool managed)
     : QWidget( 0, name, WResizeNoErase ), xtw( 0 )
@@ -450,7 +471,7 @@ QXtWidget::QXtWidget(const char* name, Widget parent, bool managed)
 }
 
 /*!
-  Constructs a QXtWidget of the given \a widget_class.
+  Constructs a QXtWidget of the given \a widget_class called \a name.
 
   Use this constructor to utilize Xt or Motif widgets in a Qt
   application.  The QXtWidget looks and behaves
@@ -461,6 +482,8 @@ QXtWidget::QXtWidget(const char* name, Widget parent, bool managed)
   of any kind. If there isn't a parent or the parent is just a normal
   QWidget, \a widget_class should be something like \c
   topLevelShellWidgetClass.
+
+  The arguments, \a args, \a num_args are passed on to XtCreateWidget.
 
   If the \a managed parameter is TRUE and \a parent in not NULL,
   XtManageChild it used to manage the child.
@@ -516,7 +539,9 @@ QXtWidget::~QXtWidget()
 
 /*!
   Reimplemented to produce the Xt effect of getting focus when the
-  mouse enters the widget. <em>This may be changed.</em>
+  mouse enters the widget. The event is passed in \a e.
+
+  \warning This may be changed.
 */
 bool QXtWidget::x11Event( XEvent * e )
 {

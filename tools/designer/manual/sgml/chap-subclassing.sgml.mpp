@@ -236,11 +236,8 @@ We'll now lay out the widgets and connect up the slots we need.
 <orderedlist numeration="arabic">
 <listitem>
 <para id="andd">
-Click the form so that no widgets are selected. \key[Ctrl+Click] the Standard
-radio button and drag the rubber band so that it touches the other two
-radio buttons, then release. Press \key[Ctrl+L] (lay out
-vertically). Click the Credit Rating button group, then press
-\key[Ctrl+H] (lay out horizontally).
+Click the credit rating group box then press \key[Ctrl+L] (lay out
+vertically). 
 </para>
 </listitem>
 <listitem>

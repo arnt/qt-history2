@@ -260,7 +260,7 @@ void QStyle::polishPopupMenu( QPopupMenu *)
     If \a r is larger than the area needed to render the \a
     text the rectangle that is returned will be offset within \a r in
     accordance with the alignment \a flags. For example if \a flags is
-    \c{AlignVCenter | AlignHCenter} the returned rectangle will be
+    \c AlignCenter the returned rectangle will be
     centered within \a r. If \a r is smaller than the area needed the
     rectangle that is returned will be \e larger than \a r (the
     smallest rectangle large enough to render the \a text or \a
@@ -1325,9 +1325,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   Possible values are Qt::AlignLeft, Qt::AlignCenter and
   Qt::AlignRight.
 
-    \value SH_Header_Arrow_Alignment the alignment for the arrow that
-    may appear in list or table headers to indicate sorting. Possible
-    values are Qt::AlignTop or Qt::AlignBottom.
+    \value SH_Header_Arrow_Alignment the placement of the sorting
+    indicator may appear in list or table headers.
+    Possible values are Qt::Left or Qt::Right.
 
   \sa styleHint()
 */

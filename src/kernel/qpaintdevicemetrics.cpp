@@ -37,7 +37,6 @@
 
 #include "qpaintdevicemetrics.h"
 
-// NOT REVISED
 /*!
   \class QPaintDeviceMetrics qpaintdevicemetrics.h
   \brief The QPaintDeviceMetrics class provides information about a
@@ -45,10 +44,10 @@
 
   \ingroup graphics images
 
-  Sometimes when drawing graphics it is necessary to obtain information about the physical
-  characteristics of a paint device.  This class
-  provides just that.  For example, to compute the aspect ratio of a
-  paint device:
+  Sometimes when drawing graphics it is necessary to obtain
+  information about the physical characteristics of a paint device.
+  This class provides this information.  For example, to compute the
+  aspect ratio of a paint device:
 
   \code
     QPaintDeviceMetrics pdm( myWidget );
@@ -56,12 +55,13 @@
   \endcode
 
   QPaintDeviceMetrics contains methods to provide the width and height
-  of a device in both pixels and millimeters, the number of colors
-  the device supports, the number of bit planes, and finally the
-  resolution of the device.
+  of a device in both pixels (width() and height()) and millimeters
+  (widthMM() and heightMM()), the number of colors the device supports
+  (numColors()), the number of bit planes (depth()), and the
+  resolution of the device (logicalDpiX() and logicalDpiY()).
 
-  Note that it is not always possible for QPaintDeviceMetrics to compute
-  the values you ask for, particularly for external devices.  The ultimate
+  It is not always possible for QPaintDeviceMetrics to compute the
+  values you ask for, particularly for external devices.  The ultimate
   example is asking for the resolution of of a QPrinter that is set to
   "print to file": who knows what printer that file will end up on?
 
@@ -80,14 +80,14 @@ QPaintDeviceMetrics::QPaintDeviceMetrics( const QPaintDevice *pd )
   \fn int QPaintDeviceMetrics::width() const
 
   Returns the width of the paint device in default coordinate system
-  units (e.g., pixels for QPixmap and QWidget).
+  units (e.g. pixels for QPixmap and QWidget).
 */
 
 /*!
   \fn int QPaintDeviceMetrics::height() const
 
   Returns the height of the paint device in default coordinate system
-  units (e.g., pixels for QPixmap and QWidget).
+  units (e.g. pixels for QPixmap and QWidget).
 */
 
 /*!

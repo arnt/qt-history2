@@ -62,17 +62,17 @@
   example, by QPainter::setWorldMatrix().
 
   Example (draw on a paint device):
-  \code
-    void MyWidget::paintEvent( QPaintEvent * )
-    {
-	QPainter p;				// our painter
-	p.begin( this );			// start painting widget
-	p.setPen( red );			// blue outline
-	p.setBrush( yellow );			// yellow fill
-	p.drawEllipse( 10,20, 100,100 );	// 100x100 ellipse at 10,20
-	p.end();				// painting done
-    }
-  \endcode
+\code
+void MyWidget::paintEvent( QPaintEvent * )
+{
+    QPainter p;                       // our painter
+    p.begin( this );                  // start painting the widget
+    p.setPen( red );                  // red outline
+    p.setBrush( yellow );             // yellow fill
+    p.drawEllipse( 10, 20, 100,100 ); // 100x100 ellipse at positin (10, 20)
+    p.end();                          // painting done
+}
+\endcode
 
   The bit block transfer is an extremely useful operation for copying pixels
   from one paint device to another (or to itself).
@@ -80,7 +80,7 @@
 
   Example (scroll widget contents 10 pixels to the right):
   \code
-    bitBlt( myWidget, 10,0, myWidget );
+    bitBlt( myWidget, 10, 0, myWidget );
   \endcode
 
   \warning Qt requires that a QApplication object must exist before any paint
@@ -193,10 +193,10 @@ void QPaintDevice::setX11Data( const QPaintDeviceX11Data* d )
   If \a def is TRUE, makes a QPaintDeviceX11Data struct filled with the default
   values.
 
-  In any case the caller is responsible for deleting the returned struct. But
-  notice that the struct is a shared class, so other classes might also have a
-  reference to it. The reference count of the returned QPaintDeviceX11Data* is
-  0.
+  In either case the caller is responsible for deleting the returned
+  struct. But notice that the struct is a shared class, so other
+  classes might also have a reference to it. The reference count of
+  the returned QPaintDeviceX11Data* is 0.
 */
 
 QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
@@ -234,7 +234,8 @@ QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
 
 /*!
   \fn bool QPaintDevice::isExtDev() const
-  Returns TRUE if the device is a so-called external paint device.
+  Returns TRUE if the device is an external paint device; otherwise
+  returns FALSE.
 
   External paint devices cannot be bitBlt()'ed from.
   QPicture and QPrinter are external paint devices.
@@ -257,7 +258,7 @@ Qt::HANDLE QPaintDevice::handle() const
 
 /*!
   Returns the window system handle of the paint device for XRender support.
-  Use of this function is not portable.  This function can return zero
+  Use of this function is not portable.  This function can return 0
   if XRender support is not compiled into Qt, if the XRender extension is
   not supported on the X11 display, or if the handle could not be created.
 */
@@ -277,14 +278,14 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 */
 
 /*!
-  \fn int QPaintDevice::x11AppScreen ()
+  \fn int QPaintDevice::x11AppScreen()
 
   Returns the screen number on the X display global to the application
   (X11 only).  Using this function is not portable.
 */
 
 /*!
-  \fn int QPaintDevice::x11AppDepth ()
+  \fn int QPaintDevice::x11AppDepth()
 
   Returns the depth of the X display global to the application (X11 only).
   Using this function is not portable.
@@ -293,7 +294,7 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 */
 
 /*!
-  \fn int QPaintDevice::x11AppCells ()
+  \fn int QPaintDevice::x11AppCells()
 
   Returns the number of entries in the colormap of the X display global to
   the application (X11 only).  Using this function is not portable.
@@ -302,7 +303,7 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 */
 
 /*!
-  \fn HANDLE QPaintDevice::x11AppColormap ()
+  \fn HANDLE QPaintDevice::x11AppColormap()
 
   Returns the colormap of the X display global to the application (X11
   only).  Using this function is not portable.
@@ -403,9 +404,10 @@ static int dpiX=0,dpiY=0;
 extern void     qX11ClearFontNameCache(); // defined in qfont_x11.cpp
 
 /*!
-  Sets the value returned by x11AppDpiX() to \a dpi.  The default is 
-  determined by the display configuration.  Changing this value will 
+  Sets the value returned by x11AppDpiX() to \a dpi.  The default is
+  determined by the display configuration.  Changing this value will
   alter the scaling of fonts and many other metrics and is not recommended.
+  Using this function is not portable.
 
   \sa x11SetAppDpiY()
 */
@@ -416,9 +418,10 @@ void QPaintDevice::x11SetAppDpiX(int dpi)
 }
 
 /*!
-  Sets the value returned by x11AppDpiY() to \a dpi.  The default is 
-  determined by the display configuration.  Changing this value will 
+  Sets the value returned by x11AppDpiY() to \a dpi.  The default is
+  determined by the display configuration.  Changing this value will
   alter the scaling of fonts and many other metrics and is not recommended.
+  Using this function is not portable.
 
   \sa x11SetAppDpiX()
 */
@@ -431,6 +434,7 @@ void QPaintDevice::x11SetAppDpiY(int dpi)
 /*!  Returns the horizontal DPI of the X display (X11 only).  Using this
   function is not portable. See QPaintDeviceMetrics for portable access to
   related information.
+  Using this function is not portable.
 
   \sa x11AppDpiY(), x11SetAppDpiX(), QPaintDeviceMetrics::logicalDpiX()
 */
@@ -451,6 +455,7 @@ int QPaintDevice::x11AppDpiX()
 /*!  Returns the vertical DPI of the X11 display (X11 only).  Using this
   function is not portable. See QPaintDeviceMetrics for portable access to
   related information.
+  Using this function is not portable.
 
   \sa x11AppDpiX(), x11SetAppDpiY(), QPaintDeviceMetrics::logicalDpiY()
 */
@@ -471,8 +476,9 @@ int QPaintDevice::x11AppDpiY()
 /*!
   \fn bool QPaintDevice::paintingActive() const
 
-  Returns TRUE if the device is being painted, i.e., someone has called
-  QPainter::begin() and not yet QPainter::end() for this device.
+  Returns TRUE if the device is being painted, i.e. someone has called
+  QPainter::begin() but not yet QPainter::end() for this device;
+  otherwise returns FALSE.
 
   \sa QPainter::isActive()
 */
@@ -584,27 +590,27 @@ static GC cache_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
   \relates QPaintDevice
 
   Copies a block of pixels from \a src to \a dst, perhaps merging each
-  pixel according to \a rop.  \a sx, \a sy is the top-left pixel in \a
-  src (0, 0 by default), \a dx, \a dy is the top-left position in \a
-  dst and \a sw, \a sh is the size of the copied block (all of \a src
-  by default).
+  pixel according to the raster operation \a rop.  \a sx, \a sy is the
+  top-left pixel in \a src (0, 0) by default, \a dx, \a dy is the
+  top-left position in \a dst and \a sw, \a sh is the size of the
+  copied block (all of \a src by default).
 
   The most common values for \a rop are CopyROP and XorROP; the \l
   Qt::RasterOp documentation defines all the possible values.
 
   If \a ignoreMask is TRUE (the default is FALSE) and \a src is a
-  masked QPixmap, the entire blit is masked by \a {src}->mask().
+  masked QPixmap, the entire blit is masked by \a{src}->mask().
 
   If \a src, \a dst, \a sw or \a sh is 0, bitBlt() does nothing.  If
-  \a sw or \a sh is negative bitBlt() copies starting at \a sx (resp.
+  \a sw or \a sh is negative bitBlt() copies starting at \a sx (and resp.
   \a sy) and ending at the right end (resp. bottom) of \a src.
 
   \a src must be a QWidget or QPixmap. You cannot blit from
   a QPrinter, for example. bitBlt() does nothing if you attempt to
   blit from an unsupported device.
 
-  bitBlt() also does not with if \a src has a greated depth than \e
-  dst.  If you need to e.g. draw a 24-bit pixmap on an 8-bit widget,
+  bitBlt() does nothing if \a src has a greater depth than \e dst.  If
+  you need to, for example, draw a 24-bit pixmap on an 8-bit widget,
   you must use drawPixmap().
 */
 
@@ -906,8 +912,7 @@ void QPaintDevice::setResolution( int )
 {
 }
 
-/*!\
-  internal
+/*!\internal
 */
 int QPaintDevice::resolution() const
 {
