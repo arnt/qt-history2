@@ -140,11 +140,17 @@ protected:
                 defaultButtonStart = 0;
             if (!progressbars.isEmpty()) {
                 ++progressFrame;
-                for (int i = 0; i < progressbars.size(); ++i) {
+                int i = 0;
+                while (i < progressbars.size()) {
                     QProgressBar *pb = progressbars.at(i);
-                    if (pb->totalSteps() == 0 || pb->progress() > 0
-                        && pb->progress() < pb->totalSteps())
-                        pb->update();
+                    if (!pb) {
+                        progressbars.removeAt(i);
+                    } else {
+                        if (pb->totalSteps() == 0 || pb->progress() > 0
+                            && pb->progrss() < pb->totalSteps())
+                            pb->update();
+                        ++i;
+                    }
                 }
             }
         } else {
@@ -223,6 +229,22 @@ void QMacStyleCG::polish(QWidget *w)
 
 void QMacStyleCG::unPolish(QWidget *w)
 {
+    QPushButton *btn = ::qt_cast<QPushButton *>(w);
+    if (btn && btn == d->defaultButton)
+        d->defaultButton = 0;
+    
+    QProgressBar *pbar = ::qt_cast<QProgressBar *>(w);
+    if (pbar)
+        d->progressbars.remove(pbar);
+    
+    if (::qt_cast<QPopupMenu *>(w) || w->testAttribute(QWidget::WA_MacMetalStyle)) {
+        QPalette pal = w->palette();
+        QPixmap tmp;
+        QBrush background(tmp);
+        pal.setBrush(QPalette::Background, background);
+        pal.setBrush(QPalette::Button, background);
+        w->setPalette(pal);
+    }
     QWindowsStyle::unPolish(w);
 }
 
@@ -562,7 +584,8 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
         HIThemeDrawTrack(&tdi, 0, static_cast<CGContextRef>(p->handle()), kHIThemeOrientationNormal);
         break; }
     case CE_ProgressBarLabel:
-        break; // Why?
+    case CE_ProgressBarGroove:
+        break;
     default:
 	QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
     }
@@ -780,7 +803,6 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl control, const QW
         } else {
             HIThemeTrackDrawInfo tdi = *getTrackDrawInfo(control, scrollbar);
             if (HIThemeHitTestTrack(&tdi, &pt, &part)) {
-                qDebug("part is %d", part);
                 if (part == kControlPageUpPart)
                     sc = SC_ScrollBarSubPage;
                 else if (part == kControlPageDownPart)
@@ -856,6 +878,7 @@ QPixmap QMacStyleCG::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
 bool QMacStyleCG::eventFilter(QObject *o, QEvent *e)
 {
     QPushButton *btn = ::qt_cast<QPushButton *>(o);
+    QProgressBar *pb = ::qt_cast<QProgressBar *>(o);
     if (btn) {
         switch (e->type()) {
         default:
@@ -892,6 +915,21 @@ bool QMacStyleCG::eventFilter(QObject *o, QEvent *e)
                 }
             }
             break; }
+        }
+    } else if (pb) {
+        switch (e->type()) {
+        default:
+            break;
+        case QEvent::Show:
+            if (!d->progressbars.contains(pb)) {
+                d->progressbars.append(pb);
+                if (d->timerID <= 0)
+                    d->timerID = startTimer(QMacStyleCGPrivate::RefreshRate);
+            }
+            break;
+        case QEvent::Hide:
+            d->progressbars.remove(pb);
+            break;
         }
     }
     return QWindowsStyle::eventFilter(o, e);
