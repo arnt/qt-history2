@@ -350,7 +350,10 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 
 void QTextEditPrivate::updateCurrentCharFormat()
 {
-    currentCharFormat = cursor.charFormat();
+    QTextCharFormat fmt = cursor.charFormat();
+    if (fmt == currentCharFormat)
+        return;
+    currentCharFormat = fmt;
 
     emit q->currentCharFormatChanged(currentCharFormat);
     // compat signals
