@@ -24,9 +24,9 @@ example:
 
 
 To compile drivers as dynamically loaded plugins, see the
-QTDIR/src/sql/src directory.  Use 'configure -help' for a complete
-list of configure options.  See the Qt documentation for a complete
-list of supported database drivers.
+QTDIR/plugins/src/sqldrivers directory.  Use 'configure -help' for a 
+complete list of configure options.  See the Qt documentation for a 
+complete list of supported database drivers.
 
 
 

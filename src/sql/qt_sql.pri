@@ -53,8 +53,8 @@ sql {
 	}			
 
 	contains(sql-driver, psql) {
-		HEADERS += $$SQL_H/src/p$$SQL_CPP/qsql_psql.h
-		SOURCES += $$SQL_CPP/src/p$$SQL_CPP/qsql_psql.cpp
+		HEADERS += $$SQL_H/drivers/psql/qsql_psql.h
+		SOURCES += $$SQL_CPP/drivers/psql/qsql_psql.cpp
 		DEFINES += QT_SQL_POSTGRES
 		unix {
 			LIBS += -lpq
@@ -65,8 +65,8 @@ sql {
 	}
 
 	contains(sql-driver, mysql) {
-		HEADERS += $$SQL_H/src/my$$SQL_CPP/qsql_mysql.h
-		SOURCES += $$SQL_CPP/src/my$$SQL_CPP/qsql_mysql.cpp
+		HEADERS += $$SQL_H/drivers/mysql/qsql_mysql.h
+		SOURCES += $$SQL_CPP/drivers/mysql/qsql_mysql.cpp
 		DEFINES += QT_SQL_MYSQL
 		unix {
 			LIBS += -lmysqlclient
@@ -77,8 +77,8 @@ sql {
 	}
 	
 	contains(sql-driver, odbc) {
-		HEADERS += $$SQL_H/src/odbc/qsql_odbc.h
-		SOURCES += $$SQL_CPP/src/odbc/qsql_odbc.cpp
+		HEADERS += $$SQL_H/drivers/odbc/qsql_odbc.h
+		SOURCES += $$SQL_CPP/drivers/odbc/qsql_odbc.cpp
 		DEFINES += QT_SQL_ODBC
 		unix {
 			LIBS += -lodbc
@@ -89,8 +89,8 @@ sql {
 	}
 
 	contains(sql-driver, oci) {
-		HEADERS += $$SQL_H/src/oci/qsql_oci.h
-		SOURCES += $$SQL_CPP/src/oci/qsql_oci.cpp
+		HEADERS += $$SQL_H/drivers/oci/qsql_oci.h
+		SOURCES += $$SQL_CPP/drivers/oci/qsql_oci.cpp
 		DEFINES += QT_SQL_OCI
 		unix {
 			LIBS += -lclntsh
