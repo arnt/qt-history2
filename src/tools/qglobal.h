@@ -1142,19 +1142,7 @@ Q_DECLARE_TYPEINFO(unsigned char, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(bool, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(float, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(double, Q_PRIMITIVE_TYPE);
-/*
-Q_DECLARE_TYPEINFO(const long, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(const int, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(const short, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(const char, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(const unsigned long, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(const unsigned int, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(const unsigned short, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(const unsigned char, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(const bool, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(const float, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(const double, Q_PRIMITIVE_TYPE);
-*/
+
 /*
   void*, const void* and function pointers are special, since deleting
   them is undefined.
@@ -1166,11 +1154,11 @@ template <> inline void qDelete(QFunctionPointer &) { }
 template <> inline void qDelete(QFunctionPointerWithArgs &) { }
 
 
-void *qMalloc(size_t size);
-void qFree(void *ptr);
-void *qRealloc(void *ptr, size_t size);
-int qRand(void);
-void *qMemCopy(void *dest, const void *src, size_t n);
+Q_EXPORT void *qMalloc(size_t size);
+Q_EXPORT void qFree(void *ptr);
+Q_EXPORT void *qRealloc(void *ptr, size_t size);
+Q_EXPORT int qRand(void);
+Q_EXPORT void *qMemCopy(void *dest, const void *src, size_t n);
 
 
 //
