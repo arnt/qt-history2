@@ -6051,12 +6051,15 @@ void QCheckListItem::init()
 */
 QCheckListItem::~QCheckListItem()
 {
-    if ( myType == RadioButton && d->exclusive && d->exclusive->d->exclusive == this )
+    if ( myType == RadioButton
+	 && d->exclusive && d->exclusive->d
+	 && d->exclusive->d->exclusive == this )
 	d->exclusive->turnOffChild();
     d->exclusive = 0; // so the children won't try to access us.
     if ( d->statesDict )
 	delete d->statesDict;
     delete d;
+    d = 0;
 }
 
 /*!
