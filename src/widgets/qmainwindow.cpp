@@ -854,7 +854,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 #endif
 	    if ( it.key().intersects( d->oldPosRect ) ) {
 		QRect ir = it.key().intersect( d->oldPosRect );
-		if ( rect_extend( ir, o, TRUE ) < 3 )
+		if ( rect_extend( ir, o, TRUE ) < 5 )
 		    continue;
 		if ( rect_extend( ir, o, TRUE ) < ( 3 * rect_extend( it.key(), o, TRUE ) ) / 4 ) {
 		    if ( rect_pos( ir, o, TRUE ) <= rect_pos( it.key(), o, TRUE ) ) {
