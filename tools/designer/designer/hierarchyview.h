@@ -122,7 +122,7 @@ protected:
     void contentsMouseDoubleClickEvent( QMouseEvent *e );
 
 private:
-    void save( QListViewItem *p );
+    void save( QListViewItem *p, QListViewItem *i );
 
 private slots:
     void objectClicked( QListViewItem *i );

@@ -639,13 +639,12 @@ void FunctionList::objectClicked( QListViewItem *i )
 void FunctionList::contentsMouseDoubleClickEvent( QMouseEvent *e )
 {
     QListViewItem *i = itemAt( contentsToViewport( e->pos() ) );
-    if ( !i || i->parent() )
+    if ( !i )
 	return;
     if ( i->text( 0 ) == tr( "Functions" ) )
 	return;
-    if ( i->text( 0 ) == tr( "protected" ) || i->parent() && i->parent()->text( 0 ) == "protected" ) // ### should we be able to add functions here as well?
-	return;
-    if ( i->text( 0 ) == tr( "public" ) || i->parent() && i->parent()->text( 0 ) == "public"  ) // ### should we be able to add functions here as well?
+    if ( i->parent() && i->parent()->text( 0 ) == tr( "protected" ) ||
+	 i->parent() && i->parent()->text( 0 ) == tr( "public" ) )
 	return;
     HierarchyItem *item = new HierarchyItem( i, QString::null, QString::null, QString::null );
     item->setRenameEnabled( 0, TRUE );
@@ -663,11 +662,6 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	return;
     if ( i->text( 0 ) == tr( "Functions" ) )
 	return;
-
-    if ( i->text( 0 ) == tr( "protected" ) || i->text( 0 ) == tr( "public" ) ) {
-	
-	return;
-    }
 
     if ( i->parent() && i->parent()->text( 0 ) == "protected" ||
 	 i->parent() && i->parent()->text( 0 ) == "public"  ) {
@@ -698,11 +692,15 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
     const int NEW_ITEM = 1;
     const int DEL_ITEM = 2;
     menu.insertItem( tr( "New" ), NEW_ITEM );
-    if ( i->parent() )
+    bool forceChild = FALSE;
+    if ( i->parent() && i->parent()->text( 0 ) != tr( "protected" ) && i->parent()->text( 0 ) != tr( "public" ) ) {
 	menu.insertItem( tr( "Delete" ), DEL_ITEM );
+	forceChild = TRUE;
+    }
     int res = menu.exec( pos );
     if ( res == NEW_ITEM ) {
-	HierarchyItem *item = new HierarchyItem( i->parent() ? i->parent() : i, QString::null, QString::null, QString::null );
+	HierarchyItem *item = new HierarchyItem( ( !forceChild && i->parent() ) ? i->parent() : i,
+						 QString::null, QString::null, QString::null );
 	item->setRenameEnabled( 0, TRUE );
 	setCurrentItem( item );
 	ensureItemVisible( item );
@@ -712,7 +710,7 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
     } else if ( res == DEL_ITEM ) {
 	QListViewItem *p = i->parent();
 	delete i;
-	save( p );
+	save( p, 0 );
     }
 }
 
@@ -722,16 +720,25 @@ void FunctionList::renamed( QListViewItem *i )
 	newItem = 0;
     if ( !i->parent() )
 	return;
-    save( i->parent() );
+    save( i->parent(), i );
 }
 
-void FunctionList::save( QListViewItem *p )
+void FunctionList::save( QListViewItem *p, QListViewItem *i )
 {
+    if ( i && ( p->text( 0 ) == tr( "protected" ) || p->text( 0 ) == tr( "public" ) ) ) {
+	MetaDataBase::addSlot( formWindow, i->text( 0 ).latin1(), p->text( 0 ),
+			       formWindow->project()->language(), "void" );
+	MainWindow::self->editFunction( i->text( 0 ).left( i->text( 0 ).find( "(" ) ),
+					formWindow->project()->language(), TRUE );
+	MainWindow::self->objectHierarchy()->updateFunctionList();
+	return;
+    }
+
     LanguageInterface *lIface = MetaDataBase::languageInterface( formWindow->project()->language() );
     if ( !lIface )
 	return;
     QStringList lst;
-    QListViewItem *i = p->firstChild();
+    i = p->firstChild();
     while ( i ) {
 	lst << i->text( 0 );
 	i = i->nextSibling();
