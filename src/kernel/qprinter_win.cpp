@@ -109,6 +109,7 @@ QPrinter::QPrinter( PrinterMode m )
     page_order = FirstPageFirst;
     color_mode = GrayScale;
     ncopies     = 1;
+    appcolcopies  = TRUE;
     usercolcopies = FALSE;
     from_pg     = to_pg = min_pg  = max_pg = 0;
     state       = PST_IDLE;
@@ -621,8 +622,12 @@ bool QPrinter::setup( QWidget *parent )
 	if ( result ) {
 	    // writePdlg {
 	    pd.Flags = PD_RETURNDC;
-	    if ( !usercolcopies ) // ### was appcolcopies
+	    if ( !appcolcopies ) 	    
 		pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
+	    else
+		pd.Flags |= PD_NOPAGENUMS;
+	    if ( usercolcopies )
+		pd.Flags |= PD_COLLATE;
             if ( outputToFile() )
                 pd.Flags |= PD_PRINTTOFILE;
             pd.hwndOwner = parent ? parent->winId() : 0;
@@ -686,8 +691,10 @@ bool QPrinter::setup( QWidget *parent )
 
 	if ( result ) {
 	    pd.Flags = PD_RETURNDC;
-	    if ( !usercolcopies ) // ### was appcolatecopies
+	    if ( !appcolcopies ) 
                 pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
+	    else
+		pd.Flags |= PD_NOPAGENUMS;
             if ( outputToFile() )
                 pd.Flags |= PD_PRINTTOFILE;
             pd.hwndOwner = parent ? parent->winId() : 0;
@@ -1035,5 +1042,6 @@ QSize QPrinter::margins() const
     return QSize( GetDeviceCaps( handle(), PHYSICALOFFSETX ) * res / GetDeviceCaps( hdc, LOGPIXELSX ),
                   GetDeviceCaps( handle(), PHYSICALOFFSETY ) * res / GetDeviceCaps( hdc, LOGPIXELSY ) );
 }
+
 
 #endif // QT_NO_PRINTER
