@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#22 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#23 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -35,16 +35,23 @@
 **
 **********************************************************************/
 
-// Step 3)
+#include "qglobal.h"
 #if defined(Q_OS_LINUX)
-// import FNDELAY from <fcntl.h>
+// This is gory!
+// <fcntl.h> defines 'FNDELAY' only if __USE_BSD is defined. __USE_BSD is
+// defined in <features.h> if _BSD_SOURCE is defined.
+// Alas "qsocketdevice.h" includes "qiodevice.h" which includes "qcstring.h"
+// which includes <string.h> which includes <features.h>. So _BSD_SOURCE has
+// to be defined before "qsocketdevice.h"...
+// One more good reason to centralize even platform-dependant specification
+// macros like _BSD_SOURCE in "qglobal.h".
 #  define _BSD_SOURCE
 #endif
-// Step 4)
-#include <unistd.h>
 
 #include "qsocketdevice.h"
+
 #ifndef QT_NO_NETWORK
+
 #include "qwindowdefs.h"
 #include <string.h>
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#23 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#24 $
 **
 ** Implementation of QDns class.
 **
@@ -44,6 +44,8 @@
 // if _BSD_SOURCE is defined.
 // Alas "qdns.h" includes "qcstring.h" which includes <string.h> which
 // includes <features.h>. So _BSD_SOURCE has to be defined before "qdns.h"...
+// One more good reason to centralize even platform-dependant specification
+// macros like _BSD_SOURCE in "qglobal.h".
 #  define _BSD_SOURCE
 #endif
 #if defined(Q_OS_OSF)
