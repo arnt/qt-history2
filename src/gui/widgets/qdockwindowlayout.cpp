@@ -18,7 +18,6 @@
 #include <qdebug.h>
 #include <qevent.h>
 #include <qstyle.h>
-#include <qtimer.h>
 #include <qvector.h>
 
 #include <private/qlayoutengine_p.h>
@@ -210,7 +209,7 @@ void QDockWindowLayout::setGeometry(const QRect &rect)
 
     QLayout::setGeometry(rect);
 
-    if (relayout_type == QInternal::RelayoutNormal) {
+    if (relayout_type != QInternal::RelayoutDragging) {
         bool first = true;
         for (int i = 0; i < layout_info.count(); ++i) {
             const QDockWindowLayoutInfo &info = layout_info.at(i);
@@ -476,8 +475,6 @@ QDockWindowLayoutInfo &QDockWindowLayout::insert(int index, QLayoutItem *layouti
                 Q_ASSERT(!layout_info[it].is_sep);
 
 		QDockWindowSeparator *sep = new QDockWindowSeparator(this, parentWidget());
-		if (parentWidget()->isVisible())
-		    QTimer::singleShot(0, sep, SLOT(show()));
 		sep_item = new QWidgetItem(sep);
 	    } else {
 		const int sep_extent =
@@ -506,8 +503,6 @@ QDockWindowLayoutInfo &QDockWindowLayout::insert(int index, QLayoutItem *layouti
 	QLayoutItem *sep_item = 0;
 	if (!dummy) {
 	    QDockWindowSeparator *sep = new QDockWindowSeparator(this, parentWidget());
-	    if (parentWidget()->isVisible())
-		QTimer::singleShot(0, sep, SLOT(show()));
 	    sep_item = new QWidgetItem(sep);
 	} else {
 	    const int sep_extent =
