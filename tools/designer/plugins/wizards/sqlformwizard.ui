@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>683</width>
-            <height>430</height>
+            <height>428</height>
         </rect>
     </property>
     <property name="caption">
@@ -389,7 +389,7 @@
             <cstring>populatePage</cstring>
         </property>
         <attribute name="title">
-            <string>Select Fields</string>
+            <string>Displayed Fields</string>
         </attribute>
         <grid>
             <property name="name">
@@ -787,7 +787,7 @@
                             </sizepolicy>
                         </property>
                         <property name="text">
-                            <string>&lt;big&gt;&lt;b&gt;Select Fields&lt;/b&gt;&lt;/big&gt;</string>
+                            <string>&lt;big&gt;&lt;b&gt;Displayed Fields&lt;/b&gt;&lt;/big&gt;</string>
                         </property>
                         <property name="alignment">
                             <set>AlignAuto|AlignCenter</set>
@@ -800,7 +800,7 @@
                             <cstring>checkBoxAutoPopulate</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Select &amp;Fields</string>
+                            <string>Displayed &amp;Fields</string>
                         </property>
                         <property name="checked">
                             <bool>true</bool>
@@ -1906,11 +1906,6 @@
                     </spacer>
                 </vbox>
             </widget>
-            <widget class="QListBox" row="1" column="4">
-                <property name="name">
-                    <cstring>listBoxSortedField</cstring>
-                </property>
-            </widget>
             <widget class="QLayoutWidget" row="0" column="1">
                 <property name="name">
                     <cstring>Layout10</cstring>
@@ -1955,14 +1950,9 @@
                     </spacer>
                 </vbox>
             </widget>
-            <widget class="QListBox" row="1" column="2">
+            <widget class="QLayoutWidget" row="0" column="2" rowspan="1" colspan="3">
                 <property name="name">
-                    <cstring>listBoxSortField</cstring>
-                </property>
-            </widget>
-            <widget class="QLayoutWidget" row="1" column="3">
-                <property name="name">
-                    <cstring>Layout7</cstring>
+                    <cstring>Layout13</cstring>
                 </property>
                 <vbox>
                     <property name="name">
@@ -1974,6 +1964,81 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>TextLabel1_3</cstring>
+                        </property>
+                        <property name="text">
+                            <string>(a valid WHERE clause, e.g. id &gt; 100)</string>
+                        </property>
+                    </widget>
+                    <widget class="QMultiLineEdit">
+                        <property name="name">
+                            <cstring>editFilter</cstring>
+                        </property>
+                    </widget>
+                </vbox>
+            </widget>
+            <widget class="QLayoutWidget" row="1" column="4">
+                <property name="name">
+                    <cstring>Layout10</cstring>
+                </property>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>0</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>TextLabel2</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Sort By</string>
+                        </property>
+                    </widget>
+                    <widget class="QListBox">
+                        <property name="name">
+                            <cstring>listBoxSortedField</cstring>
+                        </property>
+                    </widget>
+                </vbox>
+            </widget>
+            <widget class="QLayoutWidget" row="1" column="3">
+                <property name="name">
+                    <cstring>Layout11</cstring>
+                </property>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>0</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <spacer>
+                        <property name="name" stdset="0">
+                            <cstring>Spacer2_2</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
                     <widget class="QPushButton">
                         <property name="name">
                             <cstring>buttonAddSortField</cstring>
@@ -2068,9 +2133,9 @@
                     </widget>
                 </vbox>
             </widget>
-            <widget class="QLayoutWidget" row="0" column="2" rowspan="1" colspan="3">
+            <widget class="QLayoutWidget" row="1" column="2">
                 <property name="name">
-                    <cstring>Layout13</cstring>
+                    <cstring>Layout12</cstring>
                 </property>
                 <vbox>
                     <property name="name">
@@ -2084,15 +2149,15 @@
                     </property>
                     <widget class="QLabel">
                         <property name="name">
-                            <cstring>TextLabel1_3</cstring>
+                            <cstring>TextLabel1_4</cstring>
                         </property>
                         <property name="text">
-                            <string>(a valid WHERE clause)</string>
+                            <string>Available Fields</string>
                         </property>
                     </widget>
-                    <widget class="QMultiLineEdit">
+                    <widget class="QListBox">
                         <property name="name">
-                            <cstring>editFilter</cstring>
+                            <cstring>listBoxSortField</cstring>
                         </property>
                     </widget>
                 </vbox>
