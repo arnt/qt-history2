@@ -2525,7 +2525,9 @@ void QTextDocument::doLayout( QPainter *p, int w )
 QPixmap *QTextDocument::bufferPixmap( const QSize &s )
 {
     if ( !buf_pixmap ) {
-	buf_pixmap = new QPixmap( s );
+	int w = QABS( s.width() );
+	int h = QABS( s.height() );
+	buf_pixmap = new QPixmap( w, h );
     } else {
 	if ( buf_pixmap->width() < s.width() ||
 	     buf_pixmap->height() < s.height() ) {
