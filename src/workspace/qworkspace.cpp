@@ -373,8 +373,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	int x = w->x();
 	int y = w->y();
 	bool hasPos = x != 0 || y != 0;
-	int width = w->width();
-	int height = w->height();
+	QSize s = w->size().expandedTo( w->minimumSizeHint() );
 	if ( !hasSize && w->sizeHint().isValid() )
 	    w->adjustSize();
 
@@ -393,7 +392,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	if ( !hasPos ) 
 	    place( child );
 	if ( hasSize )
-	    child->resize(width + child->baseSize().width(), height + child->baseSize().height() );
+	    child->resize( s + child->baseSize() );
 	else
 	    child->adjustSize();
 	if ( hasPos )
