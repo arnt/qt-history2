@@ -1380,13 +1380,19 @@ void QApplication::setGlobalStrut( const QSize& strut )
 }
 
 #ifndef QT_NO_COMPONENT
+
+#ifdef Q_WS_WIN
+extern const char *qAppFileName();
+#endif
+
 /*!
   Returns a list of paths that the application will search when
   dynamically loading libraries.
   The installation directory for plugins is the only entry if no
   paths have been set.  The default installation directory for plugins
   is \c INSTALL/plugins, where \c INSTALL is the directory where Qt was
-  installed.
+  installed. On Windows, the directory of the application executable (NOT the
+  working directory) is also added to the plugin paths.
 
   If you want to iterate over the list, you should iterate over a
   copy, e.g.
@@ -1410,6 +1416,12 @@ QStringList QApplication::libraryPaths()
 	app_libpaths = new QStringList;
 	if ( QFile::exists( qInstallPathPlugins() ) )
             app_libpaths->append( qInstallPathPlugins() );
+#ifdef Q_WS_WIN
+	QString app_location = qAppFileName();
+	app_location.truncate( app_location.findRev( '\\' ) );
+	if ( app_location != qInstallPathPlugins() && QFile::exists( app_location ) )
+	    app_libpaths->append( app_location );
+#endif
     }
     return *app_libpaths;
 }
