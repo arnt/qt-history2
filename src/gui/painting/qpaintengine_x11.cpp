@@ -459,7 +459,6 @@ void qt_erase_background(QPaintDevice *pd, int screen,
 void qt_draw_transformed_rect(QPaintEngine *pe, int x, int y, int w,  int h, bool fill)
 {
     QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pe);
-    QPainter *pp = p->painter();
 
     XPoint points[5];
     int xp = x,  yp = y;
