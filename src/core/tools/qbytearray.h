@@ -299,7 +299,7 @@ private:
     static Data shared_null;
     static Data shared_empty;
     Data *d;
-    explicit QByteArray(Data *dd, int /*dummy*/, int /*dummy*/) : d(dd) {}
+    QByteArray(Data *dd, int /*dummy*/, int /*dummy*/) : d(dd) {}
     void realloc(int alloc);
     void expand(int i);
 

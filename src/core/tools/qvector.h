@@ -49,7 +49,7 @@ class QVector
 public:
     inline QVector() : p(&QVectorData::shared_null) { ++d->ref; }
     explicit QVector(int size);
-    explicit QVector(int size, const T &t);
+    QVector(int size, const T &t);
     inline QVector(const QVector &v) : d(v.d) { ++d->ref; if (!d->sharable) detach_helper(); }
     inline ~QVector() { if (!d) return; if (!--d->ref) free(d); }
     QVector &operator=(const QVector &v);

@@ -22,8 +22,8 @@ class Q_CORE_EXPORT QStringMatcher
 {
 public:
     QStringMatcher();
-    explicit QStringMatcher(const QString &pattern,
-                            Qt::CaseSensitivity cs = Qt::CaseSensitive);
+    QStringMatcher(const QString &pattern,
+                   Qt::CaseSensitivity cs = Qt::CaseSensitive);
     QStringMatcher(const QStringMatcher &other);
     ~QStringMatcher();
 

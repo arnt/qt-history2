@@ -21,7 +21,7 @@ class Q_CORE_EXPORT QDate
 {
 public:
     QDate() { jd = 0; }
-    explicit QDate(int y, int m, int d);
+    QDate(int y, int m, int d);
 
     bool isNull() const { return jd == 0; }
     bool isValid() const;
@@ -101,7 +101,7 @@ class Q_CORE_EXPORT QTime
 {
 public:
     QTime() { ds = 0; }
-    explicit QTime(int h, int m, int s = 0, int ms = 0);
+    QTime(int h, int m, int s = 0, int ms = 0);
 
     bool isNull() const { return ds == 0; }
     bool isValid() const;

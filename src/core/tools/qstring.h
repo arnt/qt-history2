@@ -50,9 +50,9 @@ class Q_CORE_EXPORT QString
 {
 public:
     inline QString();
-    explicit QString(const QChar *unicode, int size);
+    QString(const QChar *unicode, int size);
     explicit QString(QChar c);
-    explicit QString(int size, QChar c);
+    QString(int size, QChar c);
     inline QString(const QLatin1String &latin1);
     inline QString(const QString &);
     inline ~QString();
@@ -462,7 +462,7 @@ private:
     static Data shared_null;
     static Data shared_empty;
     Data *d;
-    explicit QString(Data *dd, int /*dummy*/):d(dd){}
+    QString(Data *dd, int /*dummy*/) : d(dd) {}
 #ifndef QT_NO_TEXTCODEC
     static QTextCodec *codecForCStrings;
 #endif
