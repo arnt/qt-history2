@@ -31,7 +31,7 @@ exists($$HEADERS_PRI) {
     targ_headers.files = $$INSTALL_HEADERS
     targ_headers.path = $$[QT_INSTALL_HEADERS]/$$TARGET
     targ_headers.commands = $$fromfile($$HEADERS_PRI, CLASSES_COPY)
-    targ_headers.commands ~= s,PREFIXPATH,$$targ_headers.path,g
+    targ_headers.commands ~= s,PREFIXPATH,$(INSTALL_ROOT)/$$targ_headers.path,g
     INSTALLS += targ_headers
     contains(INSTALLS, framework) {
           framework.files += $$INSTALL_HEADERS
