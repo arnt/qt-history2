@@ -1760,7 +1760,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 		int yp = y + offsets[i].y;
 		if ( transform )
 		    p->map( xp, yp, &xp, &yp );
-		FT_UInt glyph = *(glyphs + i);
+		// FT_UInt glyph = *(glyphs + i);
 		XftDrawString16( draw, &col, fnt, xp, yp, (XftChar16 *) (glyphs+i), 1);
 #ifdef FONTENGINE_DEBUG
 		glyph_metrics_t gi = boundingBox( glyphs[i] );

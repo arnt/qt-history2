@@ -49,6 +49,7 @@ in doc/dnd.doc, where the documentation system can see it. */
 #include "qwidget.h"
 #include "qevent.h"
 #include "qt_x11_p.h"
+#include "qx11info_x11.h"
 
 #include <stdlib.h>
 
@@ -751,7 +752,7 @@ QByteArray qt_motifdnd_obtain_data( const char *mimeType )
 
 void qt_motifdnd_enable( QWidget *widget, bool )
 {
-    DndWriteReceiverProperty( widget->x11Display(), widget->winId(),
+    DndWriteReceiverProperty( widget->x11Info()->display(), widget->winId(),
 			      DND_DRAG_DYNAMIC);
 }
 
@@ -778,7 +779,7 @@ void qt_motifdnd_handle_msg( QWidget * /* w */ , const XEvent * xe, bool /* pass
 	       send a drop site enter or drop site leave or echo */
 
 	    QPoint p( dnd_data.x, dnd_data.y );
-	    QWidget *c = QApplication::widgetAt( p, TRUE );
+	    QWidget *c = QApplication::widgetAt( p );
 	    if (c)
 		p = c->mapFromGlobal(p);
 

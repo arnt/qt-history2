@@ -240,12 +240,12 @@ static bool qt_xdnd_enable( QWidget* w, bool on )
 		return FALSE;
 
 	    // As per Xdnd4, use XdndProxy
-	    XGrabServer( w->x11Display() );
+	    XGrabServer( w->x11Info()->display() );
 	    Atom type = None;
 	    int f;
 	    unsigned long n, a;
 	    WId *proxy_id_ptr;
-	    XGetWindowProperty( w->x11Display(), w->winId(),
+	    XGetWindowProperty( w->x11Info()->display(), w->winId(),
 				ATOM(XdndProxy), 0, 1, False,
 		XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id_ptr );
 	    WId proxy_id = 0;
@@ -255,7 +255,7 @@ static bool qt_xdnd_enable( QWidget* w, bool on )
 		proxy_id_ptr = 0;
 		// Already exists. Real?
 		qt_ignore_badwindow();
-		XGetWindowProperty( w->x11Display(), proxy_id,
+		XGetWindowProperty( w->x11Info()->display(), proxy_id,
 		    ATOM(XdndProxy), 0, 1, False,
 		    XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id_ptr );
 		if ( qt_badwindow() || type != XA_WINDOW || !proxy_id_ptr || *proxy_id_ptr != proxy_id ) {
@@ -269,23 +269,23 @@ static bool qt_xdnd_enable( QWidget* w, bool on )
 	    if ( !proxy_id ) {
 		xdnd_widget = desktop_proxy = new QWidget;
 		proxy_id = desktop_proxy->winId();
-		XChangeProperty ( w->x11Display(),
+		XChangeProperty ( w->x11Info()->display(),
 		    w->winId(), ATOM(XdndProxy),
 		    XA_WINDOW, 32, PropModeReplace,
 		    (unsigned char *)&proxy_id, 1 );
-		XChangeProperty ( w->x11Display(),
+		XChangeProperty ( w->x11Info()->display(),
 		    proxy_id, ATOM(XdndProxy),
 		    XA_WINDOW, 32, PropModeReplace,
 		    (unsigned char *)&proxy_id, 1 );
 	    }
 
-	    XUngrabServer( w->x11Display() );
+	    XUngrabServer( w->x11Info()->display() );
 	} else {
 	    xdnd_widget = w->topLevelWidget();
 	}
 	if ( xdnd_widget ) {
 	    Atom atm = (Atom)qt_xdnd_version;
-	    XChangeProperty ( xdnd_widget->x11Display(), xdnd_widget->winId(),
+	    XChangeProperty ( xdnd_widget->x11Info()->display(), xdnd_widget->winId(),
 			      ATOM(XdndAware), XA_ATOM, 32, PropModeReplace,
 			      (unsigned char *)&atm, 1 );
 	    return TRUE;
@@ -294,7 +294,7 @@ static bool qt_xdnd_enable( QWidget* w, bool on )
 	}
     } else {
 	if ( w->isDesktop() ) {
-	    XDeleteProperty( w->x11Display(), w->winId(),
+	    XDeleteProperty( w->x11Info()->display(), w->winId(),
 			     ATOM(XdndProxy) );
 	    delete desktop_proxy;
 	    desktop_proxy = 0;

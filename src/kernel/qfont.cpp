@@ -35,6 +35,10 @@
 #include "qpainter_p.h"
 #include "qtextengine_p.h"
 
+#ifdef Q_WS_X11
+#include "qx11info_x11.h"
+#endif
+
 // #define QFONTCACHE_DEBUG
 #ifdef QFONTCACHE_DEBUG
 #  define FC_DEBUG qDebug
@@ -108,7 +112,7 @@ QFontPrivate::QFontPrivate()
       rawMode( FALSE ), underline( FALSE ), overline( FALSE ), strikeOut( FALSE )
 {
 #ifdef Q_WS_X11
-    screen = QPaintDevice::x11AppScreen();
+    screen = QX11Info::appScreen();
 #else
     screen = 0;
 #endif // Q_WS_X11
@@ -1473,7 +1477,7 @@ void QFont::removeSubstitution( const QString &familyName )
   // ### removeSubstitutionList()
     initFontSubst();
 
-    fontSubst.remove(familyName);
+    fontSubst.erase(familyName);
 }
 
 
@@ -1678,7 +1682,7 @@ QDataStream &operator<<( QDataStream &s, const QFont &font )
 	Q_INT16 pointSize = (Q_INT16) font.d->request.pointSize;
 	if ( pointSize == -1 ) {
 #ifdef Q_WS_X11
-	    pointSize = (Q_INT16)(font.d->request.pixelSize*720/QPaintDevice::x11AppDpiY());
+	    pointSize = (Q_INT16)(font.d->request.pixelSize*720/QX11Info::appDpiY());
 #else
 	    pointSize = (Q_INT16)QFontInfo( font ).pointSize() * 10;
 #endif
