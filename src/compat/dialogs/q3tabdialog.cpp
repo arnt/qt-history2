@@ -11,9 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qtabdialog.h"
-
-#ifndef QT_NO_TABDIALOG
+#include "q3tabdialog.h"
 
 #include "qtabbar.h"
 #include "qtabwidget.h"
@@ -24,28 +22,30 @@
 #include "qtabwidget.h"
 #include "qwidgetstack.h"
 #include "qlayout.h"
+using namespace Qt;
 
 /*!
-  \class QTabDialog qtabdialog.h
+  \class Q3TabDialog qtabdialog.h
 
-  \brief The QTabDialog class provides a stack of tabbed widgets.
+  \brief The Q3TabDialog class provides a stack of tabbed widgets.
 
-  \compat
+  \ingroup dialogs
+  \mainclass
 
   A tabbed dialog is one in which several "tab pages" are available.
   By clicking on a tab page's tab or by pressing the indicated
   Alt+\e{letter} key combination, the user can select which tab page
   they want to use.
 
-  QTabDialog provides a tab bar consisting of single row of tabs at
+  Q3TabDialog provides a tab bar consisting of single row of tabs at
   the top; each tab has an associated widget which is that tab's
-  tab page. In addition, QTabDialog provides an OK button and the
+  tab page. In addition, Q3TabDialog provides an OK button and the
   following optional buttons: Apply, Cancel, Defaults and Help.
 
-  The normal way to use QTabDialog is to do the following in the
+  The normal way to use Q3TabDialog is to do the following in the
   constructor:
   \list 1
-  \i Create a QTabDialog.
+  \i Create a Q3TabDialog.
   \i Create a QWidget for each of the pages in the tab dialog, insert
   children into it, set up geometry management for it, and use
   addTab() (or insertTab()) to set up a tab and keyboard accelerator
@@ -89,45 +89,46 @@
   Note that even if a tab is disabled, the page can still be visible;
   for example, if all of the tabs happen to be disabled.
 
-  You can change a tab's label and icon using changeTab(). A tab
+  You can change a tab's label and iconset using changeTab(). A tab
   page can be removed with removePage() and shown with showPage(). The
   current page is given by currentPage().
 
-  QTabDialog does not support tabs on the sides or bottom, nor can
+  Q3TabDialog does not support tabs on the sides or bottom, nor can
   you set or retrieve the visible page. If you need more functionality
-  than QTabDialog provides, consider creating a QDialog and using a
+  than Q3TabDialog provides, consider creating a QDialog and using a
   QTabBar with QTabWidgets.
 
-  Most of the functionality in QTabDialog is provided by a QTabWidget.
+  Most of the functionality in Q3TabDialog is provided by a QTabWidget.
+
+  <img src=qtabdlg-m.png> <img src=qtabdlg-w.png>
 
   \sa QDialog
 */
 
 /*!
-  \fn void QTabDialog::selected(const QString &name);
+  \fn void Q3TabDialog::selected(const QString &);
+  \obsolete
 
   This signal is emitted whenever a tab is selected (raised),
-  including during the first show(). The tab's \a name is passed.
+  including during the first show().
 
   \sa raise()
 */
 
-/*!
-    \fn void QTabDialog::currentChanged(QWidget* widget);
+/*! \fn void Q3TabDialog::currentChanged(QWidget*);
 
-    This signal is emitted whenever the current page changes. The new
-    page's is given by \a widget.
+  This signal is emitted whenever the current page changes.
 
-    \sa currentPage(), showPage(), tabLabel()
+  \sa currentPage(), showPage(), tabLabel()
 */
 
 
 // add comments about delete, ok and apply
 
-class QTabDialogPrivate
+class Q3TabDialogPrivate
 {
 public:
-    QTabDialogPrivate();
+    Q3TabDialogPrivate();
 
     QTabWidget* tw;
 
@@ -140,35 +141,37 @@ public:
     QBoxLayout * tll;
 };
 
-QTabDialogPrivate::QTabDialogPrivate()
-        : tw(0),
-          ok(0), cb(0), db(0), hb(0), ab(0),
-          tll(0)
+Q3TabDialogPrivate::Q3TabDialogPrivate()
+	: tw(0),
+	  ok(0), cb(0), db(0), hb(0), ab(0),
+	  tll(0)
 { }
 
 /*!
-  Constructs a QTabDialog with only an OK button.
+  Constructs a Q3TabDialog with only an OK button.
   The \a parent, \a name, \a modal and widget flag, \a f, arguments
   are passed on to the QDialog constructor.
 */
 
-QTabDialog::QTabDialog(QWidget *parent, const char *name, bool modal,
-                        Qt::WFlags f)
+Q3TabDialog::Q3TabDialog(QWidget *parent, const char *name, bool modal,
+			WFlags f)
     : QDialog(parent, name, modal, f)
 {
-    d = new QTabDialogPrivate;
+    d = new Q3TabDialogPrivate;
+    Q_CHECK_PTR(d);
 
     d->tw = new QTabWidget(this, "tab widget");
-    connect (d->tw, SIGNAL (selected(QString)), this, SIGNAL(selected(QString)));
+    connect (d->tw, SIGNAL (selected(const QString&)), this, SIGNAL(selected(const QString&)));
     connect (d->tw, SIGNAL (currentChanged(QWidget*)), this, SIGNAL(currentChanged(QWidget*)));
 
     d->ok = new QPushButton(this, "ok");
+    Q_CHECK_PTR(d->ok);
     d->ok->setText(tr("OK"));
     d->ok->setDefault(true);
     connect(d->ok, SIGNAL(clicked()),
-             this, SIGNAL(applyButtonPressed()));
+	     this, SIGNAL(applyButtonPressed()));
     connect(d->ok, SIGNAL(clicked()),
-             this, SLOT(accept()));
+	     this, SLOT(accept()));
 }
 
 
@@ -176,7 +179,7 @@ QTabDialog::QTabDialog(QWidget *parent, const char *name, bool modal,
   Destroys the tab dialog.
 */
 
-QTabDialog::~QTabDialog()
+Q3TabDialog::~Q3TabDialog()
 {
     delete d;
 }
@@ -190,7 +193,7 @@ QTabDialog::~QTabDialog()
   size of the old and new fonts.
 */
 
-void QTabDialog::setFont(const QFont & font)
+void Q3TabDialog::setFont(const QFont & font)
 {
     QDialog::setFont(font);
     setSizes();
@@ -198,7 +201,7 @@ void QTabDialog::setFont(const QFont & font)
 
 
 /*!
-  \fn void QTabDialog::applyButtonPressed();
+  \fn void Q3TabDialog::applyButtonPressed();
 
   This signal is emitted when either the Apply or OK button is clicked.
 
@@ -217,7 +220,7 @@ void QTabDialog::setFont(const QFont & font)
   hasCancelButton()
 */
 
-bool QTabDialog::hasDefaultButton() const
+bool Q3TabDialog::hasDefaultButton() const
 {
      return d->db != 0;
 }
@@ -231,14 +234,14 @@ bool QTabDialog::hasDefaultButton() const
   hasCancelButton()
 */
 
-bool QTabDialog::hasHelpButton() const
+bool Q3TabDialog::hasHelpButton() const
 {
      return d->hb != 0;
 }
 
 
 /*!
-  \fn void QTabDialog::cancelButtonPressed();
+  \fn void Q3TabDialog::cancelButtonPressed();
 
   This signal is emitted when the Cancel button is clicked. It is
   automatically connected to QDialog::reject(), which will hide the
@@ -259,14 +262,14 @@ bool QTabDialog::hasHelpButton() const
   hasDefaultButton()
 */
 
-bool QTabDialog::hasCancelButton() const
+bool Q3TabDialog::hasCancelButton() const
 {
      return d->cb != 0;
 }
 
 
 /*!
-  \fn void QTabDialog::defaultButtonPressed();
+  \fn void Q3TabDialog::defaultButtonPressed();
 
   This signal is emitted when the Defaults button is pressed. It
   should reset the dialog (but not the application) to the "factory
@@ -280,7 +283,7 @@ bool QTabDialog::hasCancelButton() const
 
 
 /*!
-  \fn void QTabDialog::helpButtonPressed();
+  \fn void Q3TabDialog::helpButtonPressed();
 
   This signal is emitted when the Help button is pressed. It
   could be used to present information about how to use the dialog.
@@ -297,7 +300,7 @@ bool QTabDialog::hasCancelButton() const
   hasDefaultButton()
 */
 
-bool QTabDialog::hasApplyButton() const
+bool Q3TabDialog::hasApplyButton() const
 {
     return d->ab != 0;
 }
@@ -311,23 +314,23 @@ bool QTabDialog::hasApplyButton() const
   hasDefaultButton()
 */
 
-bool QTabDialog::hasOkButton() const
+bool Q3TabDialog::hasOkButton() const
 {
     return d->ok != 0;
 }
 
 
 /*!
-  \fn void QTabDialog::aboutToShow()
+  \fn void Q3TabDialog::aboutToShow()
 
   This signal is emitted by show() when it is time to set the state of
   the dialog's contents. The dialog should reflect the current state
   of the application when it appears; if there is any possibility that
   the state of the application may change between the time you call
-  QTabDialog::QTabDialog() and QTabDialog::show(), you should set the
+  Q3TabDialog::Q3TabDialog() and Q3TabDialog::show(), you should set the
   dialog's state in a slot and connect this signal to it.
 
-  This applies mainly to QTabDialog objects that are kept around
+  This applies mainly to Q3TabDialog objects that are kept around
   hidden, rather than being created, shown, and deleted afterwards.
 
   \sa applyButtonPressed(), show(), cancelButtonPressed()
@@ -336,28 +339,19 @@ bool QTabDialog::hasOkButton() const
 
 /*!\reimp
 */
-void QTabDialog::show()
+void Q3TabDialog::show()
 {
     //   Reimplemented in order to delay show()'ing of every page
     //   except the initially visible one, and in order to emit the
     //   aboutToShow() signal.
     if (topLevelWidget() == this)
-        d->tw->setFocus();
+	d->tw->setFocus();
     emit aboutToShow();
     setSizes();
     setUpLayout();
     QDialog::show();
 }
 
-
-/*!
-  Ensures that tab page \a i is visible and appropriately sized.
-*/
-
-void QTabDialog::showTab(int i)
-{
-    d->tw->setCurrentIndex(i);
-}
 
 
 /*!
@@ -381,7 +375,7 @@ void QTabDialog::showTab(int i)
   \sa insertTab()
 */
 
-void QTabDialog::addTab(QWidget * child, const QString &label)
+void Q3TabDialog::addTab(QWidget * child, const QString &label)
 {
     d->tw->addTab(child, label);
 }
@@ -390,12 +384,12 @@ void QTabDialog::addTab(QWidget * child, const QString &label)
 
 /*! \overload
 
-  This version of the function shows the \a icon as well as the \a
+  This version of the function shows the \a iconset as well as the \a
   label on the tab of \a child.
 */
-void QTabDialog::addTab(QWidget *child, const QIcon& icon, const QString &label)
+void Q3TabDialog::addTab(QWidget *child, const QIcon& iconset, const QString &label)
 {
-    d->tw->addTab(child, icon, label);
+    d->tw->addTab(child, iconset, label);
 }
 
 
@@ -423,7 +417,7 @@ void QTabDialog::addTab(QWidget *child, const QIcon& icon, const QString &label)
   \sa addTab()
 */
 
-void QTabDialog::insertTab(QWidget * child, const QString &label, int index)
+void Q3TabDialog::insertTab(QWidget * child, const QString &label, int index)
 {
     d->tw->insertTab(child, label, index);
 }
@@ -431,14 +425,13 @@ void QTabDialog::insertTab(QWidget * child, const QString &label, int index)
 
 /*! \overload
 
-  This version of the function shows the \a icon as well as the \a
+  This version of the function shows the \a iconset as well as the \a
   label on the tab of \a child.
  */
-void QTabDialog::insertTab(QWidget *child, const QIcon& icon, const QString &label, int index)
+void Q3TabDialog::insertTab(QWidget *child, const QIcon& iconset, const QString &label, int index)
 {
-    d->tw->insertTab(child, icon, label, index);
+    d->tw->insertTab(child, iconset, label, index);
 }
-
 
 /*!
   Replaces the QTabBar heading the dialog by the given tab bar, \a tb.
@@ -446,7 +439,7 @@ void QTabDialog::insertTab(QWidget *child, const QIcon& icon, const QString &lab
   or the behavior is undefined.
   \sa tabBar()
 */
-void QTabDialog::setTabBar(QTabBar* tb)
+void Q3TabDialog::setTabBar(QTabBar* tb)
 {
     d->tw->setTabBar(tb);
     setUpLayout();
@@ -456,7 +449,7 @@ void QTabDialog::setTabBar(QTabBar* tb)
   Returns the currently set QTabBar.
   \sa setTabBar()
 */
-QTabBar* QTabDialog::tabBar() const
+QTabBar* Q3TabDialog::tabBar() const
 {
     return d->tw->tabBar();
 }
@@ -465,15 +458,17 @@ QTabBar* QTabDialog::tabBar() const
 
   \warning If used carelessly, this function can easily surprise or
   confuse the user.
+
+  \sa QTabBar::setCurrentTab()
 */
 
-void QTabDialog::showPage(QWidget * w)
+void Q3TabDialog::showPage(QWidget * w)
 {
     d->tw->showPage(w);
 }
 
 
-/*!
+/*! \obsolete
   Returns true if the page with object name \a name is enabled and
   false if it is disabled.
 
@@ -483,10 +478,10 @@ void QTabDialog::showPage(QWidget * w)
   \sa setTabEnabled(), QWidget::isEnabled()
 */
 
-bool QTabDialog::isTabEnabled(const char* name) const
+bool Q3TabDialog::isTabEnabled(const char* name) const
 {
     if (!name)
-        return false;
+	return false;
     QObjectList l = this->queryList("QWidget", name, false, true);
     if (!l.isEmpty()) {
         for (int i = 0; i < l.size(); ++i) {
@@ -501,18 +496,18 @@ bool QTabDialog::isTabEnabled(const char* name) const
 }
 
 
-/*!
+/*!\obsolete
 
   Finds the page with object name \a name, enables/disables it
   according to the value of \a enable and redraws the page's tab
   appropriately.
 
-  QTabDialog uses QWidget::setEnabled() internally, rather than keeping a
+  Q3TabDialog uses QWidget::setEnabled() internally, rather than keeping a
   separate flag.
 
   Note that even a disabled tab/page may be visible. If the page is
-  already visible QTabDialog will not hide it; if all the pages
-  are disabled QTabDialog will show one of them.
+  already visible Q3TabDialog will not hide it; if all the pages
+  are disabled Q3TabDialog will show one of them.
 
   The object name is used (rather than the tab label) because the tab
   text may not be invariant in multi-language applications.
@@ -520,10 +515,10 @@ bool QTabDialog::isTabEnabled(const char* name) const
   \sa isTabEnabled(), QWidget::setEnabled()
 */
 
-void QTabDialog::setTabEnabled(const char* name, bool enable)
+void Q3TabDialog::setTabEnabled(const char* name, bool enable)
 {
     if (!name)
-        return;
+	return;
     QObjectList l = this->queryList("QWidget", name, false, true);
     if (!l.isEmpty()) {
         for (int i = 0; i < l.size(); ++i) {
@@ -544,7 +539,9 @@ void QTabDialog::setTabEnabled(const char* name, bool enable)
 
   When Apply is clicked, the applyButtonPressed() signal is emitted.
 
-  If \a text is a null string, no button is shown.
+  If \a text is a
+  \link QString::operator!() null string\endlink,
+  no button is shown.
 
   \sa setCancelButton() setDefaultButton() applyButtonPressed()
 */
@@ -556,7 +553,7 @@ void QTabDialog::setTabEnabled(const char* name, bool enable)
   \sa setTabEnabled(), QWidget::isEnabled()
 */
 
-bool QTabDialog::isTabEnabled(QWidget* w) const
+bool Q3TabDialog::isTabEnabled(QWidget* w) const
 {
     return d->tw->isTabEnabled(w);
 }
@@ -575,7 +572,7 @@ bool QTabDialog::isTabEnabled(QWidget* w) const
   \sa isTabEnabled(), QWidget::setEnabled()
 */
 
-void QTabDialog::setTabEnabled(QWidget* w, bool enable)
+void Q3TabDialog::setTabEnabled(QWidget* w, bool enable)
 {
     d->tw->setTabEnabled(w, enable);
 }
@@ -590,26 +587,28 @@ void QTabDialog::setTabEnabled(QWidget* w, bool enable)
 
   When Apply is clicked, the applyButtonPressed() signal is emitted.
 
-  If \a text is a null string, no button is shown.
+  If \a text is a
+  \link QString::operator!() null string\endlink,
+  no button is shown.
 
   \sa setCancelButton() setDefaultButton() applyButtonPressed()
 */
-void QTabDialog::setApplyButton(const QString &text)
+void Q3TabDialog::setApplyButton(const QString &text)
 {
-    if (text.size() == 0 && d->ab) {
-        delete d->ab;
-        d->ab = 0;
-        setSizes();
+    if (text.isEmpty() && d->ab) {
+	delete d->ab;
+	d->ab = 0;
+	setSizes();
     } else {
-        if (!d->ab) {
-            d->ab = new QPushButton(this, "apply settings");
-            connect(d->ab, SIGNAL(clicked()),
-                     this, SIGNAL(applyButtonPressed()));
-            setUpLayout();
-        }
-        d->ab->setText(text);
-        setSizes();
-        //d->ab->show();
+	if (!d->ab) {
+	    d->ab = new QPushButton(this, "apply settings");
+	    connect(d->ab, SIGNAL(clicked()),
+		     this, SIGNAL(applyButtonPressed()));
+	    setUpLayout();
+	}
+	d->ab->setText(text);
+	setSizes();
+	//d->ab->show();
     }
 }
 
@@ -619,7 +618,7 @@ void QTabDialog::setApplyButton(const QString &text)
   Adds an Apply button to the dialog. The button's text is set to
   a localizable "Apply".
  */
-void QTabDialog::setApplyButton()
+void Q3TabDialog::setApplyButton()
 {
     setApplyButton(tr("Apply"));
 }
@@ -631,27 +630,29 @@ void QTabDialog::setApplyButton()
 
   When Help is clicked, the helpButtonPressed() signal is emitted.
 
-  If \a text is a null string, no button is shown.
+  If \a text is a
+  \link QString::operator!() null string\endlink,
+  no button is shown.
 
   \sa setApplyButton() setCancelButton() helpButtonPressed()
 */
 
-void QTabDialog::setHelpButton(const QString &text)
+void Q3TabDialog::setHelpButton(const QString &text)
 {
-    if (text.size() == 0) {
-        delete d->hb;
-        d->hb = 0;
-        setSizes();
+    if (text.isEmpty()) {
+	delete d->hb;
+	d->hb = 0;
+	setSizes();
     } else {
-        if (!d->hb) {
-            d->hb = new QPushButton(this, "give help");
-            connect(d->hb, SIGNAL(clicked()),
-                     this, SIGNAL(helpButtonPressed()));
-            setUpLayout();
-        }
-        d->hb->setText(text);
-        setSizes();
-        //d->hb->show();
+	if (!d->hb) {
+	    d->hb = new QPushButton(this, "give help");
+	    connect(d->hb, SIGNAL(clicked()),
+		     this, SIGNAL(helpButtonPressed()));
+	    setUpLayout();
+	}
+	d->hb->setText(text);
+	setSizes();
+	//d->hb->show();
     }
 }
 
@@ -662,7 +663,7 @@ void QTabDialog::setHelpButton(const QString &text)
   Adds a Help button to the dialog. The button's text is set to
   a localizable "Help".
  */
-void QTabDialog::setHelpButton()
+void Q3TabDialog::setHelpButton()
 {
     setHelpButton(tr("Help"));
 }
@@ -676,27 +677,29 @@ void QTabDialog::setHelpButton()
 
   When Defaults is clicked, the defaultButtonPressed() signal is emitted.
 
-  If \a text is a null string, no button is shown.
+  If \a text is a
+  \link QString::operator!() null string\endlink,
+  no button is shown.
 
   \sa setApplyButton() setCancelButton() defaultButtonPressed()
 */
 
-void QTabDialog::setDefaultButton(const QString &text)
+void Q3TabDialog::setDefaultButton(const QString &text)
 {
-    if (text.size() == 0) {
-        delete d->db;
-        d->db = 0;
-        setSizes();
+    if (text.isEmpty()) {
+	delete d->db;
+	d->db = 0;
+	setSizes();
     } else {
-        if (!d->db) {
-            d->db = new QPushButton(this, "back to default");
-            connect(d->db, SIGNAL(clicked()),
-                     this, SIGNAL(defaultButtonPressed()));
-            setUpLayout();
-        }
-        d->db->setText(text);
-        setSizes();
-        //d->db->show();
+	if (!d->db) {
+	    d->db = new QPushButton(this, "back to default");
+	    connect(d->db, SIGNAL(clicked()),
+		     this, SIGNAL(defaultButtonPressed()));
+	    setUpLayout();
+	}
+	d->db->setText(text);
+	setSizes();
+	//d->db->show();
     }
 }
 
@@ -707,7 +710,7 @@ void QTabDialog::setDefaultButton(const QString &text)
   Adds a Defaults button to the dialog. The button's text is set to
   a localizable "Defaults".
  */
-void QTabDialog::setDefaultButton()
+void Q3TabDialog::setDefaultButton()
 {
     setDefaultButton(tr("Defaults"));
 }
@@ -723,29 +726,31 @@ void QTabDialog::setDefaultButton()
   When Cancel is clicked, the cancelButtonPressed() signal is emitted.
   The dialog is closed at the same time.
 
-  If \a text is a null string, no button is shown.
+  If \a text is a
+  \link QString::operator!() null string\endlink,
+  no button is shown.
 
   \sa setApplyButton() setDefaultButton() cancelButtonPressed()
 */
 
-void QTabDialog::setCancelButton(const QString &text)
+void Q3TabDialog::setCancelButton(const QString &text)
 {
-    if (text.size() == 0) {
-        delete d->cb;
-        d->cb = 0;
-        setSizes();
+    if (text.isEmpty()) {
+	delete d->cb;
+	d->cb = 0;
+	setSizes();
     } else {
-        if (!d->cb) {
-            d->cb = new QPushButton(this, "cancel dialog");
-            connect(d->cb, SIGNAL(clicked()),
-                     this, SIGNAL(cancelButtonPressed()));
-            connect(d->cb, SIGNAL(clicked()),
-                     this, SLOT(reject()));
-            setUpLayout();
-        }
-        d->cb->setText(text);
-        setSizes();
-        //d->cb->show();
+	if (!d->cb) {
+	    d->cb = new QPushButton(this, "cancel dialog");
+	    connect(d->cb, SIGNAL(clicked()),
+		     this, SIGNAL(cancelButtonPressed()));
+	    connect(d->cb, SIGNAL(clicked()),
+		     this, SLOT(reject()));
+	    setUpLayout();
+	}
+	d->cb->setText(text);
+	setSizes();
+	//d->cb->show();
     }
 }
 
@@ -757,7 +762,7 @@ void QTabDialog::setCancelButton(const QString &text)
   a localizable "Cancel".
  */
 
-void QTabDialog::setCancelButton()
+void Q3TabDialog::setCancelButton()
 {
     setCancelButton(tr("Cancel"));
 }
@@ -768,7 +773,7 @@ void QTabDialog::setCancelButton()
   \sa setSizes() setApplyButton() setCancelButton() setDefaultButton()
 */
 
-void QTabDialog::setUpLayout()
+void Q3TabDialog::setUpLayout()
 {
     // the next four are probably the same, really?
     const int topMargin = 6;
@@ -797,33 +802,33 @@ void QTabDialog::setUpLayout()
 
     buttonRow->addSpacing(rightMargin);
     if (d->cb) {
-        buttonRow->addWidget(d->cb, 0);
-        buttonRow->addSpacing(betweenButtonsMargin);
-        d->cb->raise();
+	buttonRow->addWidget(d->cb, 0);
+	buttonRow->addSpacing(betweenButtonsMargin);
+	d->cb->raise();
     }
 
     if (d->ab) {
-        buttonRow->addWidget(d->ab, 0);
-        buttonRow->addSpacing(betweenButtonsMargin);
-        d->ab->raise();
+	buttonRow->addWidget(d->ab, 0);
+	buttonRow->addSpacing(betweenButtonsMargin);
+	d->ab->raise();
     }
 
     if (d->db) {
-        buttonRow->addWidget(d->db, 0);
-        buttonRow->addSpacing(betweenButtonsMargin);
-        d->db->raise();
+	buttonRow->addWidget(d->db, 0);
+	buttonRow->addSpacing(betweenButtonsMargin);
+	d->db->raise();
     }
 
     if (d->hb) {
-        buttonRow->addWidget(d->hb, 0);
-        buttonRow->addSpacing(betweenButtonsMargin);
-        d->hb->raise();
+	buttonRow->addWidget(d->hb, 0);
+	buttonRow->addSpacing(betweenButtonsMargin);
+	d->hb->raise();
     }
 
     if (d->ok) {
-        buttonRow->addWidget(d->ok, 0);
-        buttonRow->addSpacing(betweenButtonsMargin);
-        d->ok->raise();
+	buttonRow->addWidget(d->ok, 0);
+	buttonRow->addSpacing(betweenButtonsMargin);
+	d->ok->raise();
     }
 
     // add one custom widget here
@@ -839,7 +844,7 @@ void QTabDialog::setUpLayout()
   \sa setUpLayout() setFont()
 */
 
-void QTabDialog::setSizes()
+void Q3TabDialog::setSizes()
 {
     // compute largest button size
     QSize s(0, 0);
@@ -847,86 +852,86 @@ void QTabDialog::setSizes()
     int bh = s.height();
 
     if (d->ok) {
-        s = d->ok->sizeHint();
-        if (s.width() > bw)
-            bw = s.width();
-        if (s.height() > bh)
-            bh = s.height();
+	s = d->ok->sizeHint();
+	if (s.width() > bw)
+	    bw = s.width();
+	if (s.height() > bh)
+	    bh = s.height();
     }
 
     if (d->ab) {
-        s = d->ab->sizeHint();
-        if (s.width() > bw)
-            bw = s.width();
-        if (s.height() > bh)
-            bh = s.height();
+	s = d->ab->sizeHint();
+	if (s.width() > bw)
+	    bw = s.width();
+	if (s.height() > bh)
+	    bh = s.height();
     }
 
     if (d->db) {
-        s = d->db->sizeHint();
-        if (s.width() > bw)
-            bw = s.width();
-        if (s.height() > bh)
-            bh = s.height();
+	s = d->db->sizeHint();
+	if (s.width() > bw)
+	    bw = s.width();
+	if (s.height() > bh)
+	    bh = s.height();
     }
 
     if (d->hb) {
-        s = d->hb->sizeHint();
-        if (s.width() > bw)
-            bw = s.width();
-        if (s.height() > bh)
-            bh = s.height();
+	s = d->hb->sizeHint();
+	if (s.width() > bw)
+	    bw = s.width();
+	if (s.height() > bh)
+	    bh = s.height();
     }
 
     if (d->cb) {
-        s = d->cb->sizeHint();
-        if (s.width() > bw)
-            bw = s.width();
-        if (s.height() > bh)
-            bh = s.height();
+	s = d->cb->sizeHint();
+	if (s.width() > bw)
+	    bw = s.width();
+	if (s.height() > bh)
+	    bh = s.height();
     }
 
     // and set all the buttons to that size
     if (d->ok)
-        d->ok->setFixedSize(bw, bh);
+	d->ok->setFixedSize(bw, bh);
     if (d->ab)
-        d->ab->setFixedSize(bw, bh);
+	d->ab->setFixedSize(bw, bh);
     if (d->db)
-        d->db->setFixedSize(bw, bh);
+	d->db->setFixedSize(bw, bh);
     if (d->hb)
-        d->hb->setFixedSize(bw, bh);
+	d->hb->setFixedSize(bw, bh);
     if (d->cb)
-        d->cb->setFixedSize(bw, bh);
+	d->cb->setFixedSize(bw, bh);
 
     // fiddle the tab chain so the buttons are in their natural order
     QWidget * w = d->ok;
 
     if (d->hb) {
-        if (w)
-            setTabOrder(w, d->hb);
-        w = d->hb;
+	if (w)
+	    setTabOrder(w, d->hb);
+	w = d->hb;
     }
     if (d->db) {
-        if (w)
-            setTabOrder(w, d->db);
-        w = d->db;
+	if (w)
+	    setTabOrder(w, d->db);
+	w = d->db;
     }
     if (d->ab) {
-        if (w)
-            setTabOrder(w, d->ab);
-        w = d->ab;
+	if (w)
+	    setTabOrder(w, d->ab);
+	w = d->ab;
     }
     if (d->cb) {
-        if (w)
-            setTabOrder(w, d->cb);
-        w = d->cb;
+	if (w)
+	    setTabOrder(w, d->cb);
+	w = d->cb;
     }
     setTabOrder(w, d->tw);
 }
 
 /*!\reimp
 */
-void QTabDialog::resizeEvent(QResizeEvent * e)
+void Q3TabDialog::resizeEvent(QResizeEvent * e)
 {
     QDialog::resizeEvent(e);
 }
@@ -934,7 +939,7 @@ void QTabDialog::resizeEvent(QResizeEvent * e)
 
 /*!\reimp
 */
-void QTabDialog::paintEvent(QPaintEvent *)
+void Q3TabDialog::paintEvent(QPaintEvent *)
 {
 }
 
@@ -946,27 +951,29 @@ void QTabDialog::paintEvent(QPaintEvent *)
   and the current settings in the dialog box should be applied to
   the application. The dialog then closes.
 
-  If \a text is a null string, no button is shown.
+  If \a text is a
+  \link QString::operator!() null string\endlink,
+  no button is shown.
 
   \sa setCancelButton() setDefaultButton() applyButtonPressed()
 */
 
-void QTabDialog::setOkButton(const QString &text)
+void Q3TabDialog::setOkButton(const QString &text)
 {
-    if (text.size() == 0) {
-        delete d->ok;
-        d->ok = 0;
-        setSizes();
+    if (text.isEmpty()) {
+	delete d->ok;
+	d->ok = 0;
+	setSizes();
     } else {
-        if (!d->ok) {
-            d->ok = new QPushButton(this, "ok");
-            connect(d->ok, SIGNAL(clicked()),
-                     this, SIGNAL(applyButtonPressed()));
-            setUpLayout();
-        }
-        d->ok->setText(text);
-        setSizes();
-        //d->ok->show();
+	if (!d->ok) {
+	    d->ok = new QPushButton(this, "ok");
+	    connect(d->ok, SIGNAL(clicked()),
+		     this, SIGNAL(applyButtonPressed()));
+	    setUpLayout();
+	}
+	d->ok->setText(text);
+	setSizes();
+	//d->ok->show();
     }
 }
 /*!
@@ -976,23 +983,30 @@ void QTabDialog::setOkButton(const QString &text)
   a localizable "OK".
  */
 
-void QTabDialog::setOkButton()
+void Q3TabDialog::setOkButton()
 {
     setOkButton(tr("OK"));
 }
 
 
-/*!
-    \fn void QTabDialog::setOKButton(const QString &text)
-
-    Use setOkButton(\a text) instead.
+/*
+    \overload
+  Old version of setOkButton(), provided for backward compatibility.
 */
+void Q3TabDialog::setOKButton(const QString &text)
+{
+    // Ugly workaround for original "OK" default argument
+    QString newText(text);
+    if (text.isNull())
+	newText = QString::fromLatin1("OK");
+    setOkButton(newText);
+}
 
 
 /*!  Returns the text in the tab for page \a w.
 */
 
-QString QTabDialog::tabLabel(QWidget * w) const
+QString Q3TabDialog::tabLabel(QWidget * w)
 {
     return d->tw->tabLabel(w);
 }
@@ -1000,11 +1014,10 @@ QString QTabDialog::tabLabel(QWidget * w) const
 
 /*!  \reimp
 */
-void QTabDialog::changeEvent(QEvent *ev)
+void Q3TabDialog::styleChange(QStyle& s)
 {
-    if(ev->type() == QEvent::StyleChange)
-        setSizes();
-    QDialog::changeEvent(ev);
+    QDialog::styleChange(s);
+    setSizes();
 }
 
 
@@ -1013,7 +1026,7 @@ tab dialog. The tab dialog does its best to make sure that this value
 is never 0 (but if you try hard enough, it can be).
 */
 
-QWidget * QTabDialog::currentPage() const
+QWidget * Q3TabDialog::currentPage() const
 {
     return d->tw->currentPage();
 }
@@ -1022,27 +1035,26 @@ QWidget * QTabDialog::currentPage() const
  \overload
   Defines a new \a label for the tab of page \a w
  */
-void QTabDialog::changeTab(QWidget *w, const QString &label)
+void Q3TabDialog::changeTab(QWidget *w, const QString &label)
 {
     d->tw->changeTab(w, label);
 }
 
 /*!
-    Changes tab page \a w's icon to \a icon and label to \a label.
+    Changes tab page \a w's iconset to \a iconset and label to \a label.
 
  */
-void QTabDialog::changeTab(QWidget *w, const QIcon& icon, const QString &label)
+void Q3TabDialog::changeTab(QWidget *w, const QIcon& iconset, const QString &label)
 {
-    d->tw->changeTab(w, icon, label);
+    d->tw->changeTab(w, iconset, label);
 }
 
 /*! Removes page \a w from this stack of widgets. Does not
   delete \a w.
-  \sa showPage(), QWidgetStack::removeWidget()
+  \sa showPage(), QTabWidget::removePage(), QWidgetStack::removeWidget()
 */
-void QTabDialog::removePage(QWidget * w)
+void Q3TabDialog::removePage(QWidget * w)
 {
     d->tw->removePage(w);
 }
 
-#endif
