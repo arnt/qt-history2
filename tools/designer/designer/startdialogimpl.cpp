@@ -55,6 +55,7 @@ StartDialog::StartDialog( QWidget *parent, const QStringList& projects,
 
 void StartDialog::accept()
 {
+    hide();
     if ( checkShowInFuture->isChecked() ) { // means don't show it anymore
 	QSettings config;
 	// No search path for unix, only needs application name
