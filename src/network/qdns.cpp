@@ -2264,8 +2264,7 @@ typedef DWORD (WINAPI *GNP)( PFIXED_INFO, PULONG );
 static QString getWindowsRegString( HKEY key, const QString &subKey )
 {
     QString s;
-#ifdef UNICODE
-    if ( qt_winunicode ) {
+    QT_WA( {
 	char buf[1024];
 	DWORD bsz = sizeof(buf);
 	int r = RegQueryValueEx( key, subKey.ucs2(), 0, 0, (LPBYTE)buf, &bsz );
@@ -2278,9 +2277,7 @@ static QString getWindowsRegString( HKEY key, const QString &subKey )
 		s = ptr;
 	    delete [] ptr;
 	}
-    } else 
-#endif
-    {
+    } , {
 	char buf[512];
 	DWORD bsz = sizeof(buf);
 	int r = RegQueryValueExA( key, subKey.local8Bit(), 0, 0, (LPBYTE)buf, &bsz );
@@ -2293,7 +2290,7 @@ static QString getWindowsRegString( HKEY key, const QString &subKey )
 		s = ptr;
 	    delete [] ptr;
 	}
-    }
+    } );
     return s;
 }
 
@@ -2302,16 +2299,15 @@ static bool getDnsParamsFromRegistry( const QString &path,
 {
     HKEY k;
     int r;
-#ifdef UNICODE
-    if ( qt_winunicode )
+    QT_WA( {
 	r = RegOpenKeyEx( HKEY_LOCAL_MACHINE,
 			  path.ucs2(),
 			  0, KEY_READ, &k );
-    else
-#endif
+    } , {
 	r = RegOpenKeyExA( HKEY_LOCAL_MACHINE,
 			   path,
 			   0, KEY_READ, &k );
+    } );
 
     if ( r == ERROR_SUCCESS ) {
 	*domainName = getWindowsRegString( k, "DhcpDomain" );

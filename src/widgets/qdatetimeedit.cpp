@@ -113,10 +113,7 @@ static void readLocaleSettings()
     lTimeSep = new QString();
 
 #if defined(Q_WS_WIN)
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-    if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
+    QT_WA( {
 	TCHAR data[10];
 	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDATE, data, 10 );
 	*lDateSep = QString::fromUcs2( data );
@@ -132,12 +129,7 @@ static void readLocaleSettings()
 	QString pm = QString::fromUcs2( data );
 	if ( !pm.isEmpty()  )
 	    lPM = new QString( pm );
-#ifndef Q_OS_TEMP
-    } else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-    {
+    } , {
 	char data[10];
 	GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SDATE, (char*)&data, 10 );
 	*lDateSep = QString::fromLocal8Bit( data );
@@ -153,8 +145,7 @@ static void readLocaleSettings()
 	QString pm = QString::fromLocal8Bit( data );
 	if ( !pm.isEmpty() )
 	    lPM = new QString( pm );
-    }
-#endif
+    } );
 #else
     *lDateSep = "-";
     *lTimeSep = ":";

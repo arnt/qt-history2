@@ -275,12 +275,11 @@ static HANDLE openlock( const QString &name, int /*type*/ )
 
     HANDLE fd = 0;
 
-#if defined(UNICODE)
-    if ( qWinVersion() & Qt::WV_NT_based )
+    QT_WA( {
 	fd = CreateFileW( name.ucs2(), GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
-    else
-#endif
+    } , {
 	fd = CreateFileA( name.local8Bit(), GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+    } );
 
     if ( !LockFile( fd, 0, 0, -1, -1 ) ) {
 #ifdef QT_CHECK_STATE
@@ -440,10 +439,16 @@ QSettingsPrivate::QSettingsPrivate()
     QString appSettings(QDir::homeDirPath() + "/.qt/");
     QString defPath;
 #ifdef Q_WS_WIN
+#ifdef Q_OS_TEMP
+	TCHAR path[MAX_PATH];
+	SHGetSpecialFolderPath( 0, path, CSIDL_APPDATA, FALSE );
+	appSettings  = QString::fromUcs2( path );
+	SHGetSpecialFolderPath( 0, path, CSIDL_COMMON_APPDATA, FALSE );
+	defPath = QString::fromUcs2( path );
+#else
     QLibrary library( "shell32" );
     library.setAutoUnload( FALSE );
-#if defined(UNICODE)
-    if ( qWinVersion() & Qt::WV_NT_based ) {
+    QT_WA( {
 	typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, LPTSTR, int, BOOL);
 	GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve( "SHGetSpecialFolderPathW" );
 	if ( SHGetSpecialFolderPath ) {
@@ -453,9 +458,7 @@ QSettingsPrivate::QSettingsPrivate()
 	    SHGetSpecialFolderPath( 0, path, CSIDL_COMMON_APPDATA, FALSE );
 	    defPath = QString::fromUcs2( path );
 	}
-    } else
-#endif
-    {
+    } , {
 	typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, char*, int, BOOL);
 	GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve( "SHGetSpecialFolderPathA" );
 	if ( SHGetSpecialFolderPath ) {
@@ -465,7 +468,8 @@ QSettingsPrivate::QSettingsPrivate()
 	    SHGetSpecialFolderPath( 0, path, CSIDL_COMMON_APPDATA, FALSE );
 	    defPath = QString::fromLocal8Bit( path );
 	}
-    }
+    } );
+#endif // Q_OS_TEMP
 #else
 // for now
 #define QSETTINGS_DEFAULT_PATH_SUFFIX "/etc/settings"

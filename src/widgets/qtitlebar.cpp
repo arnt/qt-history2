@@ -208,16 +208,11 @@ void QTitleBar::readColors()
 	pal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTIONTEXT)) );
 	if ( qt_winver != Qt::WV_95 && qt_winver != WV_NT ) {
 	    BOOL gradient;
-#ifdef Q_OS_TEMP
-	    SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
-#else
-#if defined(UNICODE)
-	    if ( qt_winver & Qt::WV_NT_based )
+	    QT_WA( {
 		SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
-	    else
-#endif
+	    } , {
 		SystemParametersInfoA( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
-#endif
+	    } );
 	    if ( gradient ) {
 		pal.setColor( QPalette::Active, QColorGroup::Base, qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION)) );
 		pal.setColor( QPalette::Inactive, QColorGroup::Base, qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTINACTIVECAPTION)) );

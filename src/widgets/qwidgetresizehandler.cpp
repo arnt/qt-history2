@@ -259,22 +259,13 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 
 #if defined(Q_WS_WIN)
     MSG msg;
-#if defined(UNICODE)
-#  ifndef Q_OS_TEMP
-    if ( qWinVersion() & WV_NT_based ) {
-#  endif
+    QT_WA( {
 	while(PeekMessageW( &msg, widget->winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ))
 	    ;
-#  ifndef Q_OS_TEMP
-    } else
-#  endif
-#endif
-#ifndef Q_OS_TEMP
-    {
+    } , {
 	while(PeekMessageA( &msg, widget->winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ))
 	    ;
-    }
-#endif
+    } );
 #endif
 
     QApplication::syncX();

@@ -4839,8 +4839,7 @@ QFileIconProvider * QFileDialog::iconProvider()
 static QString getWindowsRegString( HKEY key, const QString &subKey )
 {
     QString s;
-#ifdef UNICODE
-    if ( qt_winunicode ) {
+    QT_WA( {
 	char buf[1024];
 	DWORD bsz = sizeof(buf);
 	int r = RegQueryValueEx( key, subKey.ucs2(), 0, 0, (LPBYTE)buf, &bsz );
@@ -4853,9 +4852,7 @@ static QString getWindowsRegString( HKEY key, const QString &subKey )
 		s = ptr;
 	    delete [] ptr;
 	}
-    } else 
-#endif
-    {
+    } , {
 	char buf[512];
 	DWORD bsz = sizeof(buf);
 	int r = RegQueryValueExA( key, subKey.local8Bit(), 0, 0, (LPBYTE)buf, &bsz );
@@ -4868,7 +4865,7 @@ static QString getWindowsRegString( HKEY key, const QString &subKey )
 		s = ptr;
 	    delete [] ptr;
 	}
-    }
+    } );
     return s;
 }
 
@@ -4877,19 +4874,6 @@ static void initPixmap( QPixmap &pm )
     pm.fill( Qt::white );
 }
 
-#ifdef UNICODE
-typedef UINT(WINAPI*PtrExtractIconExW)(LPCTSTR, int, HICON*, HICON*, UINT);
-static PtrExtractIconExW ptr_ExtractIconExW = 0;
-static PtrExtractIconExW ptrExtractIconExW()
-{
-    static bool tried = FALSE;
-    if ( !tried && !ptr_ExtractIconExW ) {
-	tried = TRUE;
-	ptr_ExtractIconExW = (PtrExtractIconExW)QLibrary::resolve( "shell32.dll", "ExtractIconExW" );
-    }
-    return ptr_ExtractIconExW;
-}
-#endif
 
 QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
     : QFileIconProvider( parent, name )
@@ -4904,32 +4888,30 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
     UINT res;
 
     // ---------- get default folder pixmap
-#ifdef UNICODE
-    if ( qt_winunicode )
+    QT_WA( {
 	r = RegOpenKeyEx( HKEY_CLASSES_ROOT,
 			   L"folder\\DefaultIcon",
 			   0, KEY_READ, &k );
-    else
-#endif
+    } , {
 	r = RegOpenKeyExA( HKEY_CLASSES_ROOT,
 			   "folder\\DefaultIcon",
 			   0, KEY_READ, &k );
+    } );
     if ( r == ERROR_SUCCESS ) {
 	s = getWindowsRegString( k, QString::null );
 	RegCloseKey( k );
 
 	QStringList lst = QStringList::split( ",", s );
 
-#ifdef UNICODE
-	if ( qt_winunicode && ptrExtractIconExW() )
-	    res = (UINT)ptr_ExtractIconExW( lst[ 0 ].simplifyWhiteSpace().ucs2(),
+	QT_WA( {
+	    res = ExtractIconExW( lst[ 0 ].simplifyWhiteSpace().ucs2(),
 				  lst[ 1 ].simplifyWhiteSpace().toInt(),
 				  0, &si, 1 );
-	else
-#endif
+	} , {
 	    res = ExtractIconExA( lst[ 0 ].simplifyWhiteSpace().local8Bit(),
 				  lst[ 1 ].simplifyWhiteSpace().toInt(),
 				  0, &si, 1 );
+	} );
 
 	if ( res ) {
 	    defaultFolder.resize( pixw, pixh );
@@ -4948,14 +4930,13 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
     }
 
     //------------------------------- get default file pixmap
-#ifdef UNICODE
-	if ( qt_winunicode && ptrExtractIconExW() )
-	res = (UINT)ptr_ExtractIconExW( L"shell32.dll",
+    QT_WA( {
+	res = ExtractIconExW( L"shell32.dll",
 				 0, 0, &si, 1 );
-    else
-#endif
+    } , {
 	res = ExtractIconExA( "shell32.dll",
 				 0, 0, &si, 1 );
+    } );
 
     if ( res ) {
 	defaultFile.resize( pixw, pixh );
@@ -4971,14 +4952,13 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
     }
 
     //------------------------------- get default exe pixmap
-#ifdef UNICODE
-    if ( qt_winunicode && ptrExtractIconExW() )
-	res = (UINT)ptr_ExtractIconExW( L"shell32.dll",
+    QT_WA( {
+	res = ExtractIconExW( L"shell32.dll",
 			      2, 0, &si, 1 );
-    else
-#endif
+    } , {
 	res = ExtractIconExA( "shell32.dll",
 			  2, 0, &si, 1 );
+    } );
 
     if ( res ) {
 	defaultExe.resize( pixw, pixh );
@@ -5015,14 +4995,13 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 
 	HKEY k, k2;
 	int r;
-#ifdef UNICODE
-	if ( qt_winunicode ) 
+	QT_WA( {
 	    r = RegOpenKeyEx( HKEY_CLASSES_ROOT, ext.ucs2(),
 			      0, KEY_READ, &k );
-	else
-#endif
+	} , {
 	    r = RegOpenKeyExA( HKEY_CLASSES_ROOT, ext.local8Bit(),
 			       0, KEY_READ, &k );
+	} );
 	QString s;
 	if ( r == ERROR_SUCCESS ) {
 	    s = getWindowsRegString( k, QString::null );
@@ -5033,14 +5012,13 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	}
 	RegCloseKey( k );
 
-#ifdef UNICODE
-	if ( qt_winunicode )
+	QT_WA( {
 	    r = RegOpenKeyEx( HKEY_CLASSES_ROOT, QString( s + "\\DefaultIcon" ).ucs2(),
 			       0, KEY_READ, &k2 );
-	else
-#endif
+	} , {
 	    r = RegOpenKeyExA( HKEY_CLASSES_ROOT, QString( s + "\\DefaultIcon" ).local8Bit() ,
 	    		       0, KEY_READ, &k2 );
+	} );
 	if ( r == ERROR_SUCCESS ) {
 	    s = getWindowsRegString( k2, QString::null );
 	} else {
@@ -5063,14 +5041,13 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	    }
 	}
 
-#ifdef UNICODE
-	if ( qt_winunicode && ptrExtractIconExW() )
-	    res = (UINT)ptr_ExtractIconExW( filepath.ucs2(), lst[ 1 ].stripWhiteSpace().toInt(),
+	QT_WA( {
+	    res = ExtractIconExW( filepath.ucs2(), lst[ 1 ].stripWhiteSpace().toInt(),
 				  NULL, &si, 1 );
-	else
-#endif
+	} , {
 	    res = ExtractIconExA( filepath.local8Bit(), lst[ 1 ].stripWhiteSpace().toInt(),
 				  NULL, &si, 1 );
+	} );
 
 	if ( res ) {
 	    pix.resize( pixw, pixh );
@@ -5089,26 +5066,24 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
     } else {
 	HICON si;
 	UINT res;
-#ifdef UNICODE
-	if ( qt_winunicode && ptrExtractIconExW() )
-	    res = (UINT)ptr_ExtractIconExW( fi.absFilePath().ucs2(), -1,
+	QT_WA( {
+	    res = ExtractIconExW( fi.absFilePath().ucs2(), -1,
 				  0, 0, 1 );
-	else
-#endif
+	} , {
 	    res = ExtractIconExA( fi.absFilePath().local8Bit(), -1,
 				  0, 0, 1 );
+	} );
 
 	if ( res == 0 ) {
 	    return &defaultExe;
 	} else {
-#ifdef UNICODE
-	    if ( qt_winunicode && ptrExtractIconExW() )
-		res = (UINT)ptr_ExtractIconExW( fi.absFilePath().ucs2(), res - 1,
+	    QT_WA( {
+		res = ExtractIconExW( fi.absFilePath().ucs2(), res - 1,
 				      0, &si, 1 );
-	    else
-#endif
+	    } , {
 		res = ExtractIconExA( fi.absFilePath().local8Bit(), res - 1,
 				      0, &si, 1 );
+	    } );
 	}
 
 	if ( res ) {
@@ -5717,17 +5692,13 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
  	if ( !bShowHiddenFiles ) {
 	    if ( d->url.isLocalFile() ) {
 		QString file = d->url.path() + inf.name();
-#if defined(UNICODE)
-		if ( qWinVersion() & Qt::WV_NT_based ) {
+		QT_WA( {
 		    if ( GetFileAttributesW( file.ucs2() ) & FILE_ATTRIBUTE_HIDDEN )
 			continue;
-		}
-		else
-#endif
-		{
+		} , {
 		    if ( GetFileAttributesA( file.local8Bit() ) & FILE_ATTRIBUTE_HIDDEN )
 			continue;
-		}
+		} );
 	    } else {
 		if ( inf.name() != ".." && inf.name()[0] == QChar('.') )
 		    continue;
