@@ -461,7 +461,6 @@ UnixMakefileGenerator::processPrlFiles()
 							     l.replace("\"","")));
 		    } else if(opt.startsWith("-l") && !processed[opt]) {
 			QString lib = opt.right(opt.length() - 2);
-			qDebug("Looking for %s", lib.latin1());
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
  			    if(!project->isActiveConfig("compile_libtool")) { //give them the .libs..
  				QString la = mdd->local_dir + Option::dir_sep + "lib" + lib + Option::libtool_ext;
@@ -473,7 +472,6 @@ UnixMakefileGenerator::processPrlFiles()
  			    }
 
 			    QString prl = mdd->local_dir + Option::dir_sep + "lib" + lib;
-			    qDebug("Looking in %s", prl.latin1());
 			    if(processPrlFile(prl)) {
 				if(prl.startsWith(mdd->local_dir))
 				    prl.replace(0, mdd->local_dir.length(), mdd->real_dir);
