@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#95 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#96 $
 #
 # this is a massive hack, written very quickly
 #
@@ -83,7 +83,7 @@ sub processcode {
     s/\s+$/\n/s;
     s!\\/(.*?\n)!//$1!gs;
 
-    s@(\n#include\s+(?:\"|(?:&lt;)))(.*?.h)((?:\"|(?:&gt;)))@
+    s@(\n#include\s+(?:\042|(?:&lt;)))(.*?.h)((?:\042|(?:&gt;)))@
 	if ( defined( $anchor{$2} ) ) {
 	    sprintf("%s<a href=%s>%s</a>%s", $1, $anchor{$2}, $2, $3);
 	} else {
@@ -777,7 +777,7 @@ sub readh {
 	    $cookie = $1;
 	    $sig = $2;
 	    $def = $3;
-	    $sig =~ s/^(\w+)T\b/$1/s;
+	    $sig =~ s/^(\w+)T\b/$1/gs;
 	    $_ = $sig;
 	    s/[:\s].*//;
 	    $def =~ s/\b$_(?:)T\b/$_/gs;
