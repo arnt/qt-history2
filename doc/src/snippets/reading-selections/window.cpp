@@ -76,9 +76,9 @@ void MainWindow::clearSelection()
 void MainWindow::selectAll()
 {
     QModelIndex parent = QModelIndex();
-    QModelIndex topLeft = model->index(0, 0, parent, QModelIndex::View);
+    QModelIndex topLeft = model->index(0, 0, parent);
     QModelIndex bottomRight = model->index(model->rowCount(parent)-1,
-        model->columnCount(parent)-1, parent, QModelIndex::View);
+        model->columnCount(parent)-1, parent);
 
     QItemSelection selection(topLeft, bottomRight, model);
     selectionModel->select(selection, QItemSelectionModel::Select);

@@ -68,12 +68,22 @@ QVariant TableModel::data(const QModelIndex &index, int /* role */) const
 {
     if (!index.isValid())
         return QVariant();
-    if (index.type() == QModelIndex::HorizontalHeader)
-        return QString("Column %1").arg(index.column());
-    if (index.type() == QModelIndex::VerticalHeader)
-        return QString("Row %1").arg(index.row());
 
     return rowList[index.row()][index.column()];
+}
+
+/*!
+    Returns the appropriate header string depending on the orientation of
+    the header and the section.
+*/
+
+QVariant TableModel::headerData(int section, Qt::Orientation orientation,
+                                int /* role */) const
+{
+    if (orientation == Qt::Horizontal)
+        return QString("Column %1").arg(section);
+    else
+        return QString("Row %1").arg(section);
 }
 
 /*!
@@ -96,9 +106,10 @@ bool TableModel::isEditable(const QModelIndex &/*index*/) const
     The dataChanged() signal is emitted if the item is changed.
 */
 
-bool TableModel::setData(const QModelIndex &index, int role, const QVariant &value)
+bool TableModel::setData(const QModelIndex &index, int role,
+                         const QVariant &value)
 {
-    if (!index.isValid() || index.type() != QModelIndex::View || role != EditRole)
+    if (!index.isValid() || role != EditRole)
         return false;
 
     rowList[index.row()][index.column()] = value.toInt();

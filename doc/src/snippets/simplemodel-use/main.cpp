@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     int numRows = model->rowCount(QModelIndex());
 
     for (int row = 0; row < numRows; ++row) {
-        QModelIndex index = model->index(row, 0, QModelIndex(), QModelIndex::View);
+        QModelIndex index = model->index(row, 0, QModelIndex());
 
         QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
         qDebug("%s", text.ascii());

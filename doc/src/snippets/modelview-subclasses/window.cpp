@@ -76,8 +76,7 @@ void MainWindow::openFile(const QString &fileName)
         Q_INT16 right;
 
         for (int row = 0; row < rows; ++row) {
-            QModelIndex index = model->index(row, 0, QModelIndex(),
-                QModelIndex::View);
+            QModelIndex index = model->index(row, 0, QModelIndex());
 
             stream >> left >> right;
             model->setData(index, QAbstractItemModel::EditRole, int(left / 256));

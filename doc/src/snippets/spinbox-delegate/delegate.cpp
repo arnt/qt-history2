@@ -46,19 +46,16 @@ QItemDelegate::EditorType SpinBoxDelegate::editorType(const QAbstractItemModel *
     no editor widget was created.
 */
 
-QWidget *SpinBoxDelegate::editor(BeginEditAction action, QWidget *parent,
+QWidget *SpinBoxDelegate::editor(QWidget *parent,
     const QStyleOptionViewItem & /* option */,
     const QAbstractItemModel * /* model */,
     const QModelIndex & /* index */)
 {
-    if (action != QItemDelegate::NeverEdit) {
-        QSpinBox *spinBox = new QSpinBox(parent);
-        spinBox->setMinimum(0);
-        spinBox->setMaximum(100);
+    QSpinBox *spinBox = new QSpinBox(parent);
+    spinBox->setMinimum(0);
+    spinBox->setMaximum(100);
 
-        return spinBox;
-    }
-    return 0;
+    return spinBox;
 }
 
 /*!
@@ -66,11 +63,10 @@ QWidget *SpinBoxDelegate::editor(BeginEditAction action, QWidget *parent,
     widget to the model before destroying it.
 */
 
-void SpinBoxDelegate::releaseEditor(EndEditAction action, QWidget *editor,
-    QAbstractItemModel *model, const QModelIndex &index)
+void SpinBoxDelegate::releaseEditor(QWidget *editor)
 {
-    if (action == QItemDelegate::Accepted)
-        setModelData(editor, model, index);
+// ### Where does the data get written back to the model?
+//    setModelData(editor, model, index);
 
     delete editor;
 }

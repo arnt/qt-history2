@@ -41,10 +41,7 @@ QVariant StringListModel::data(const QModelIndex &index, int /* role */) const
 {
     if (!index.isValid())
         return QVariant();
-    if (index.type() == QModelIndex::HorizontalHeader)
-        return index.column();
-    if (index.type() == QModelIndex::VerticalHeader)
-        return index.row();
+
     return stringList.at(index.row());
 }
 
@@ -71,8 +68,7 @@ bool StringListModel::isEditable(const QModelIndex &/*index*/) const
 bool StringListModel::setData(const QModelIndex &index, int role,
                               const QVariant &value)
 {
-    if (index.isValid() && index.type() == QModelIndex::View &&
-        role == EditRole) {
+    if (index.isValid() && role == EditRole) {
 
         stringList.replace(index.row(), value.toString());
         emit dataChanged(index, index);

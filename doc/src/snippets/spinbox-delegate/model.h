@@ -28,6 +28,8 @@ public:
     int rowCount() const;
     int columnCount() const;
     QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = DisplayRole) const;
 
     bool isEditable(const QModelIndex &index) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);

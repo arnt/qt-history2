@@ -16,6 +16,8 @@
     Provides a table model for use in various examples.
 */
 
+#include <QtGui>
+
 #include "model.h"
 
 /*!
@@ -60,8 +62,6 @@ int TableModel::columnCount() const
 /*!
     Returns an appropriate value for the requested data.
     If the view requests an invalid index, an invalid variant is returned.
-    If a header is requested then we just return the column or row number,
-    depending on the orientation of the header.
     Any valid index that corresponds to a string in the list causes that
     string to be returned.
 */
@@ -70,16 +70,26 @@ QVariant TableModel::data(const QModelIndex &index, int /* role */) const
 {
     if (!index.isValid())
         return QVariant();
-    if (index.type() == QModelIndex::HorizontalHeader)
-        return QString("Column %1").arg(index.column());
-    if (index.type() == QModelIndex::VerticalHeader)
-        return QString("Row %1").arg(index.row());
 
     return rowList[index.row()][index.column()];
 }
 
 /*!
-    Returns true so that all items in the string list can be edited.
+    Returns the appropriate header string depending on the orientation of
+    the header and the section.
+*/
+
+QVariant TableModel::headerData(int section, Qt::Orientation orientation,
+                                int /* role */) const
+{
+    if (orientation == Qt::Horizontal)
+        return QString("Column %1").arg(section);
+    else
+        return QString("Row %1").arg(section);
+}
+
+/*!
+    Returns true so that all items in the model can be edited.
 */
 
 bool TableModel::isEditable(const QModelIndex &/*index*/) const
@@ -88,19 +98,19 @@ bool TableModel::isEditable(const QModelIndex &/*index*/) const
 }
 
 /*!
-    Changes an item in the string list, but only if the following conditions
+    Changes an item in the model, but only if the following conditions
     are met:
 
     * The index supplied is valid.
-    * The index corresponds to an item to be shown in a view.
     * The role associated with editing text is specified.
 
     The dataChanged() signal is emitted if the item is changed.
 */
 
-bool TableModel::setData(const QModelIndex &index, int role, const QVariant &value)
+bool TableModel::setData(const QModelIndex &index, int role,
+                         const QVariant &value)
 {
-    if (!index.isValid() || index.type() != QModelIndex::View || role != EditRole)
+    if (!index.isValid() || role != EditRole)
         return false;
 
     rowList[index.row()][index.column()] = value.toString();
@@ -112,7 +122,8 @@ bool TableModel::setData(const QModelIndex &index, int role, const QVariant &val
     Inserts a number of rows into the model at the specified position.
 */
 
-bool TableModel::insertRows(int position, const QModelIndex &/*index*/, int rows)
+bool TableModel::insertRows(int position, const QModelIndex &/*index*/,
+                            int rows)
 {
     int columns = columnCount();
 
@@ -133,7 +144,8 @@ bool TableModel::insertRows(int position, const QModelIndex &/*index*/, int rows
     empty strings.
 */
 
-bool TableModel::insertColumns(int position, const QModelIndex &/*index*/, int columns)
+bool TableModel::insertColumns(int position, const QModelIndex &/*index*/,
+                               int columns)
 {
     int rows = rowCount();
 
@@ -151,7 +163,8 @@ bool TableModel::insertColumns(int position, const QModelIndex &/*index*/, int c
     Removes a number of rows from the model at the specified position.
 */
 
-bool TableModel::removeRows(int position, const QModelIndex &/*index*/, int rows)
+bool TableModel::removeRows(int position, const QModelIndex &/*index*/,
+                            int rows)
 {
     emit rowsRemoved(QModelIndex(), position, position+rows-1);
 
@@ -167,7 +180,8 @@ bool TableModel::removeRows(int position, const QModelIndex &/*index*/, int rows
     Each row is shortened by the number of columns specified.
 */
 
-bool TableModel::removeColumns(int position, const QModelIndex &/*index*/, int columns)
+bool TableModel::removeColumns(int position, const QModelIndex &/*index*/,
+                               int columns)
 {
     int rows = rowCount();
     emit columnsRemoved(QModelIndex(), position, position+columns-1);

@@ -29,12 +29,10 @@ public:
     QItemDelegate::EditorType editorType(const QAbstractItemModel *model,
         const QModelIndex &index) const;
 
-    QWidget *editor(BeginEditAction action, QWidget *parent,
-        const QStyleOptionViewItem &option, const QAbstractItemModel *model,
-        const QModelIndex &index);
+    QWidget *editor(QWidget *parent, const QStyleOptionViewItem &option,
+                    const QAbstractItemModel *model, const QModelIndex &index);
 
-    void releaseEditor(EndEditAction action, QWidget *editor,
-                       QAbstractItemModel *model, const QModelIndex &index);
+    void releaseEditor(QWidget *editor);
 
     void setEditorData(QWidget *editor, const QAbstractItemModel *model,
                        const QModelIndex &index) const;

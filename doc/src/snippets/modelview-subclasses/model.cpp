@@ -43,10 +43,10 @@ int LinearModel::rowCount() const
     is ignored.
 */
 
-QModelIndex LinearModel::index(int row, int column, const QModelIndex &parent, QModelIndex::Type type) const
+QModelIndex LinearModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (isValid(row, column, parent))
-        return createIndex(row, column, 0, type);
+        return createIndex(row, column, 0);
     else
         return QModelIndex();
 }
@@ -55,10 +55,7 @@ QVariant LinearModel::data(const QModelIndex &index, int /* role */) const
 {
     if (!index.isValid())
         return QVariant();
-    if (index.type() == QModelIndex::HorizontalHeader)
-        return index.column();
-    if (index.type() == QModelIndex::VerticalHeader)
-        return index.row();
+
     return values.at(index.row());
 }
 
@@ -82,9 +79,10 @@ bool LinearModel::isEditable(const QModelIndex &/*index*/) const
     The dataChanged() signal is emitted if the item is changed.
 */
 
-bool LinearModel::setData(const QModelIndex &index, int role, const QVariant &value)
+bool LinearModel::setData(const QModelIndex &index, int role,
+                          const QVariant &value)
 {
-    if (!index.isValid() || index.type() != QModelIndex::View || role != EditRole)
+    if (!index.isValid() || role != EditRole)
         return false;
     values.replace(index.row(), value.toInt());
     emit dataChanged(index, index);
@@ -95,7 +93,8 @@ bool LinearModel::setData(const QModelIndex &index, int role, const QVariant &va
     Inserts a number of rows into the model at the specified position.
 */
 
-bool LinearModel::insertRows(int position, const QModelIndex &/*index*/, int rows)
+bool LinearModel::insertRows(int position, const QModelIndex &/*index*/,
+                             int rows)
 {
     values.insert(position, rows, 0);
 
@@ -107,7 +106,8 @@ bool LinearModel::insertRows(int position, const QModelIndex &/*index*/, int row
     Removes a number of rows from the model at the specified position.
 */
 
-bool LinearModel::removeRows(int position, const QModelIndex &/*index*/, int rows)
+bool LinearModel::removeRows(int position, const QModelIndex &/*index*/,
+                             int rows)
 {
     emit rowsRemoved(QModelIndex(), position, position+rows-1);
     values.remove(position, rows);

@@ -89,7 +89,7 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation,
 }
 
 /*!
-    Returns true so that all items in the string list can be edited.
+    Returns true so that all items in the model can be edited.
 */
 
 bool TableModel::isEditable(const QModelIndex &/*index*/) const
@@ -98,7 +98,7 @@ bool TableModel::isEditable(const QModelIndex &/*index*/) const
 }
 
 /*!
-    Changes an item in the string list, but only if the following conditions
+    Changes an item in the model, but only if the following conditions
     are met:
 
     * The index supplied is valid.
