@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#3 $
 **
 ** Implementation of QImage class
 **
@@ -19,7 +19,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#3 $";
 #endif
 
 
@@ -39,13 +39,15 @@ static void read_pbm_image( QImageIO * );
 static void write_pbm_image( QImageIO * );
 static void read_xbm_image( QImageIO * );
 static void write_xbm_image( QImageIO * );
+static void read_xpm_image( QImageIO * );
+static void write_xpm_image( QImageIO * );
 
 
 // --------------------------------------------------------------------------
-// QImageInfo and QImageIO functions
+// QImageData and QImageIO functions
 //
 
-QImageInfo::QImageInfo()
+QImageData::QImageData()
 {
     spec  = Any;
     width = height = depth = ncols = -1;
@@ -54,7 +56,7 @@ QImageInfo::QImageInfo()
     bigend = FALSE;	/* TODO!!! How to handle this??? */
 }
 
-QImageInfo::~QImageInfo()
+QImageData::~QImageData()
 {
     delete carr;
     delete bits;
@@ -111,6 +113,8 @@ void install_standard_handlers()		// install standard handlers
 				 read_pbm_image, write_pbm_image );
 	QImage::defineIOHandler( "XBM", "^#define",
 				 read_xbm_image, write_xbm_image );
+	QImage::defineIOHandler( "XPM", "/\\*.XPM.\\*/",
+				 read_xpm_image, write_xpm_image );
 	is_installing_standards = FALSE;
     }
 }
@@ -163,7 +167,7 @@ void QImage::defineIOHandler( const char *format,
 QImage::QImage()
 {
     install_standard_handlers();
-    data = new QImageData;
+    data = new QImagePix;
     CHECK_PTR( data );
     data->pm = 0;
 }
@@ -171,7 +175,7 @@ QImage::QImage()
 QImage::QImage( int w, int h, int depth )
 {
     install_standard_handlers();
-    data = new QImageData;
+    data = new QImagePix;
     CHECK_PTR( data );
     data->pm = new QPixMap( w, h, depth );
 }
@@ -179,7 +183,7 @@ QImage::QImage( int w, int h, int depth )
 QImage::QImage( const QPixMap &pixmap )
 {
     install_standard_handlers();
-    data = new QImageData;
+    data = new QImagePix;
     CHECK_PTR( data );
     data->pm = (QPixMap*)&pixmap;
 }
@@ -191,10 +195,10 @@ QImage::QImage( const QImage &image )
     data->ref();
 }
 
-QImage::QImage( const QImageInfo *image )
+QImage::QImage( const QImageData *image )
 {
     install_standard_handlers();
-    data = new QImageData;
+    data = new QImagePix;
     CHECK_PTR( data );
     data->pm = 0;
     createImage( image );
@@ -210,7 +214,7 @@ QImage &QImage::operator=( const QPixMap &pixmap )
 {
     if ( data->deref() )
 	delete data;
-    data = new QImageData;
+    data = new QImagePix;
     CHECK_PTR( data );
     data->pm = (QPixMap*)&pixmap;
     return *this;
@@ -284,6 +288,7 @@ int QImage::numColors() const
 bool QImage::trueColor() const
 {
     debug( "NOT SUPPORTED YET" );
+    return FALSE;
 }
 
 
@@ -310,7 +315,7 @@ void QImage::fill( const QColor &color )
 }
 
 
-void QImage::createImage( const QImageInfo *image )
+void QImage::createImage( const QImageData *image )
 {						// create image from data
     if ( data->pm )
 	data->pm->createPixMap( image );
@@ -462,6 +467,28 @@ QDataStream &operator>>( QDataStream &s, QImage &image )
 
 
 // --------------------------------------------------------------------------
+// Misc. utility functions
+//
+
+static QString fbname( const char *fileName )	// get file basename
+{
+    QString s = fileName;
+    if ( s.isNull() )
+	s = "dummy";
+    else {
+	int i;
+	if ( (i=s.findRev('/')) >= 0 )
+	    s = &s[i];
+	if ( (i=s.findRev('\\')) >= 0 )
+	    s = &s[i];
+	if ( (i=s.find('.')) >= 0 )
+	    s.truncate( i );
+    }
+    return s;
+}
+
+
+// --------------------------------------------------------------------------
 // Qt image read/write functions
 //
 
@@ -539,7 +566,6 @@ static void read_xbm_image( QImageIO *image )	// read X bitmap image data
 {
     const       buflen = 260;
     char        buf[buflen];
-    bool        error = FALSE;
     QRegExp     r1, r2;
     QIODevice  *d = image->iodev;
     int	        i;
@@ -616,15 +642,8 @@ static void read_xbm_image( QImageIO *image )	// read X bitmap image data
 static void write_xbm_image( QImageIO *image )	// write X bitmap image data
 {
     QIODevice *d = image->iodev;
-    int    w = image->width, h = image->height, depth = image->depth, i;
-    char  *fn = image->fname ? image->fname : "dummy";
-    QString s  = fn;
-    if ( (i=s.findRev('/')) >= 0 )		// get file basename
-	s = &s[i];
-    if ( (i=s.findRev('\\')) >= 0 )
-	s = &s[i];
-    if ( (i=s.find('.')) >= 0 )
-	s.truncate( i );
+    int w = image->width, h = image->height, depth = image->depth, i;
+    QString s = fbname(image->fname);		// get file base name
     char buf[100];
     sprintf( buf, "#define %s_width %d\n",  (char *)s, w );
     d->writeBlock( buf, strlen(buf) );
@@ -666,4 +685,92 @@ static void write_xbm_image( QImageIO *image )	// write X bitmap image data
     strcpy( p, " };\n" );
     d->writeBlock( buf, strlen(buf) );
     image->status = 0;
+}
+
+
+// --------------------------------------------------------------------------
+// XPM image read/write functions
+//
+
+static int read_xpm_char( QIODevice *d )
+{
+    static bool inside_quotes = FALSE;
+    static int  save_char = 256;
+    int c;
+    if ( save_char != 256 ) {
+	c = save_char;
+	save_char = 256;
+	return c;
+    }
+    if ( (c=d->getch()) == EOF )
+	return EOF;
+    if ( c == '"' )				// start or end of quotes
+	inside_quotes = !inside_quotes;
+    else {
+	if ( !inside_quotes && c == '/' ) {	// C /* .. */ comment?
+	    if ( (c=d->getch()) == EOF )
+		return c;
+	    if ( c == '*' ) {			// yes, it is a comment
+		while ( TRUE ) {
+		    if ( (c=d->getch()) == EOF )
+			return c;
+		    else if ( c == '*' ) {
+			if ( (c=d->getch()) == EOF )
+			    return c;
+			if ( c == '/' ) {
+			    c = d->getch();
+			    break;
+			}
+		    }
+		}
+	    }
+	    else
+		save_char = c;
+	}
+    }
+    return c;
+}
+
+
+static void read_xpm_image( QImageIO *image )	// read XPM image data
+{
+    const       buflen = 200;
+    char        buf[buflen];
+    char       *p = buf;
+    QRegExp     r = "/\\*.XPM.\\*/";    
+    QIODevice  *d = image->iodev;
+    int	        c, i;
+    int	      	cpp, ncols, w, h;
+
+    image->status = 1;				// assume format error
+    d->readLine( buf, buflen );			// "/* XPM */"
+    if ( r.match(buf) < 0 )
+	return;
+    while ( (c=read_xpm_char(d)) != EOF && c != '"' )
+	;
+    while ( (c=read_xpm_char(d)) != EOF && c != '"' )
+	*p++ = c;
+    if ( c == EOF )
+	return;
+    *p = '\0';
+    sscanf( buf, "%d %d %d %d", &w, &h, &ncols, &cpp );
+    debug( "%d %d %d %d", w, h, ncols, cpp );
+    if ( ncols > 256 )				// 24 bit colors
+	image->depth = 24;
+    else if ( ncols > 2 )			// standard 8 bit color
+	image->depth = 8;
+    else					// monochrome
+	image->depth = 2;
+    image->ncols = ncols;
+    image->width = w;
+    image->height = h;
+}
+
+
+static void write_xpm_image( QImageIO *image )	// write XPM image data
+{
+    QIODevice *d = image->iodev;
+    int w = image->width, h = image->height, depth = image->depth, i;
+    QString s = fbname(image->fname);		// get file base name
+    char buf[100];
 }

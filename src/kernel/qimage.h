@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#1 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#2 $
 **
 ** Definition of QImage class
 **
@@ -17,7 +17,7 @@
 #include "qstring.h"
 
 
-struct QImageInfo;
+struct QImageData;
 struct QImageIO;
 typedef void (*image_io_handler)( QImageIO * );	// image IO handler
 
@@ -29,7 +29,7 @@ public:
     QImage( int w, int h, int depth=-1 );
     QImage( const QPixMap & );
     QImage( const QImage & );
-    QImage( const QImageInfo * );
+    QImage( const QImageData * );
    ~QImage();
     QImage     &operator=( const QPixMap & );
     QImage     &operator=( const QImage & );
@@ -52,7 +52,7 @@ public:
 
     uchar      *bits()		const;
 
-    void	createImage( const QImageInfo * );
+    void	createImage( const QImageData * );
 
     void	resize( int width, int height );
     void	resize( const QSize & );
@@ -80,7 +80,7 @@ public:
     friend QDataStream &operator>>( QDataStream &, QImage & );
 
 private:
-    struct QImageData : QShared {		// image data
+    struct QImagePix : QShared {		// image pixel data
 	QPixMap *pm;
     } *data;
 };
@@ -104,9 +104,9 @@ QDataStream &operator>>( QDataStream &, QImage & );
 // Abstract image description for image processing and storage.
 //
 
-struct QImageInfo {
-    QImageInfo();
-   ~QImageInfo();
+struct QImageData {
+    QImageData();
+   ~QImageData();
     enum ImageSpec { Any, TrueColor, ColorMap, GrayScale, BitMap };
     ImageSpec  spec;				// image specification
     int	       width;				// image width
@@ -120,7 +120,7 @@ struct QImageInfo {
 
 struct QIODevice;
 
-struct QImageIO : public QImageInfo {
+struct QImageIO : public QImageData {
     QImageIO();
    ~QImageIO();
     int	       status;				// IO status
