@@ -1341,7 +1341,7 @@ public:
     QTextFormat();
     virtual ~QTextFormat() {}
     QTextFormat( const QStyleSheetItem *s );
-    QTextFormat( const QFont &f, const QColor &c );
+    QTextFormat( const QFont &f, const QColor &c, QTextFormatCollection *parent = 0 );
     QTextFormat( const QTextFormat &fm );
     QTextFormat makeTextFormat( const QStyleSheetItem *style, const QMap<QString,QString>& attr ) const;
     QTextFormat& operator=( const QTextFormat &fm );
@@ -1441,8 +1441,9 @@ public:
     virtual QTextFormat *format( QTextFormat *f );
     virtual QTextFormat *format( QTextFormat *of, QTextFormat *nf, int flags );
     virtual QTextFormat *format( const QFont &f, const QColor &c );
-    void remove( QTextFormat *f );
-
+    virtual void remove( QTextFormat *f );
+    virtual QTextFormat *createFormat( const QTextFormat &f ) { return new QTextFormat( f ); }
+    virtual QTextFormat *createFormat( const QFont &f, const QColor &c ) { return new QTextFormat( f, c, this ); }
     void debug();
 
     void setPainter( QPainter *p );

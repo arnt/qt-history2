@@ -183,13 +183,13 @@ QTextFormat::QTextFormat( const QStyleSheetItem *style )
     updateStyleFlags();
 }
 
-QTextFormat::QTextFormat( const QFont &f, const QColor &c )
+QTextFormat::QTextFormat( const QFont &f, const QColor &c, QTextFormatCollection *parent )
     : fn( f ), col( c ), fm( QFontMetrics( f ) ), linkColor( TRUE ),
       logicalFontSize( 3 ), stdPointSize( f.pointSize() ), painter( 0 ),
       different( NoFlags )
 {
     ref = 0;
-    collection = 0;
+    collection = parent;
     leftBearing = fm.minLeftBearing();
     rightBearing = fm.minRightBearing();
     hei = fm.height();

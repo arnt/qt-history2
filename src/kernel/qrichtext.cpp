@@ -4804,7 +4804,7 @@ QTextFormatCollection::QTextFormatCollection()
     : cKey( 307 ), sheet( 0 )
 {
     defFormat = new QTextFormat( QApplication::font(),
-				     QApplication::palette().color( QPalette::Active, QColorGroup::Text ) );
+				 QApplication::palette().color( QPalette::Active, QColorGroup::Text ) );
     lastFormat = cres = 0;
     cflags = -1;
     cKey.setAutoDelete( TRUE );
@@ -4840,7 +4840,7 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *f )
  // QTextFormatCollection::setPainter() which breaks printing on
  // windows
     if ( f->isAnchor() ) {
-	lastFormat = new QTextFormat( *f );
+	lastFormat = createFormat( *f );
 	lastFormat->collection = 0;
 	return lastFormat;
     }
@@ -4859,7 +4859,7 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *f )
 #ifdef DEBUG_COLLECTION
     qDebug( "need '%s', worst case!", f->key().latin1() );
 #endif
-    lastFormat = new QTextFormat( *f );
+    lastFormat = createFormat( *f );
     lastFormat->collection = this;
     cKey.insert( lastFormat->key(), lastFormat );
     return lastFormat;
@@ -4875,7 +4875,7 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *of, QTextFormat *nf, in
 	return cres;
     }
 
-    cres = new QTextFormat( *of );
+    cres = createFormat( *of );
     kof = of->key();
     knf = nf->key();
     cflags = flags;
@@ -4939,7 +4939,7 @@ QTextFormat *QTextFormatCollection::format( const QFont &f, const QColor &c )
 	return cachedFormat;
     }
 
-    cachedFormat = new QTextFormat( f, c );
+    cachedFormat = createFormat( f, c );
     cachedFormat->collection = this;
     cKey.insert( cachedFormat->key(), cachedFormat );
 #ifdef DEBUG_COLLECTION
