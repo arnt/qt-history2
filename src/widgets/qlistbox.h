@@ -108,7 +108,7 @@ public:
 
     int numItemsVisible() const;
 
-    int currentItem() const;
+    QListBoxItem* currentItem() const;
     QString currentText() const { return text(currentItem()); }
     virtual void setCurrentItem( int index );
     virtual void setCurrentItem( QListBoxItem * );

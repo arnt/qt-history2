@@ -2805,12 +2805,12 @@ this function returns 0.
 \sa setSelected() setMultiSelection()
 */
 
-int QListBox::selectedItem() const
+QListBoxItem* QListBox::selectedItem() const
 {
     if ( d->selectionMode != Single )
 	return 0;
     if ( isSelected( currentItem() ) )
-	return index( d->current );
+	return  d->current;
     return 0;
 }
 
