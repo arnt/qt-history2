@@ -159,7 +159,6 @@ void QPainter::cleanup()
 {
 }
 
-//I assume this will work, but I need to find a test case FIXME!
 void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 {
     qDebug("Need to test this! %s:%d", __FILE__, __LINE__);
@@ -495,7 +494,6 @@ bool QPainter::begin( const QPaintDevice *pd )
     } 
 
     if ( testf(ExtDev) ) {               // external device
-        // FIXME: Untested modification
         ww = vw = pdev->metric( QPaintDeviceMetrics::PdmWidth ); // sanders
         wh = vh = pdev->metric( QPaintDeviceMetrics::PdmHeight ); // sanders
     } 
@@ -1260,7 +1258,6 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 
 void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 {
-    // FIXME transformation is broken
     if ( !isActive() )
         return;
     if ( testf(ExtDev|VxF|WxF) ) {
@@ -1862,7 +1859,7 @@ void QPainter::initPaintDevice(bool force) {
 	offy = wp.y();
 
 	if(!w->isVisible()) 
-	    clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible, this is hacky FIXME!!!
+	    clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible!!!
         else if ( unclipped ) 
 	    clippedreg = w->clippedRegion(FALSE);	    //just clip my bounding rect
 	else if(!paintevents.isEmpty() && (*paintevents.current()) == pdev) 
