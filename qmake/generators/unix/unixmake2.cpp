@@ -1324,8 +1324,6 @@ UnixMakefileGenerator::writeLibtoolFile(const QString &target)
 void
 UnixMakefileGenerator::writePkgConfigFile(const QString &target)
 {
-    qDebug( "writePkgConfigFile(%s)", target.ascii() );
-
     QString lname = target;
     int slsh = target.findRev(Option::dir_sep);
     if(slsh != -1)
