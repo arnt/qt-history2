@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#212 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#213 $
 #
 # this is a massive hack, written very quickly
 #
@@ -860,6 +860,15 @@ sub storeclass {
     $def =~ s/struct[^\;\{]*\{.*?\}\s*\w*\s*\;\s*//gs;
     $def =~ s/;\s*$//s;
 
+    my $p = undef;
+    # (((( matches
+    while ( $def =~ /Q_PROPERTY\s*\(\s*([^)]+),\s*([^)]+),\s*([^)]+),\s*([^)]+)\)/g ) {
+	$p .= "\n" if defined($p);
+	$p .= "$1,$2,$3,$4";
+    }
+    $properties{$url} = $p; # NOT USED YET
+    $def =~ s/Q_PROPERTY\s*\([^)]*\)//g;
+
     $def =~ s/\)\s*\{.*?\}\s*/\);\n/gs;
     $members{$url} = $def;
 
@@ -1691,7 +1700,6 @@ sub printclass {
 			   (?:private\b\s*?)|
 			   (?:protected\b\s*?)|
 			   (?:public\b\s*?)|
-			   (?:qproperties\b\s*?)|
 			   (?:signals\b\s*?)|
 			   (?:slots\b\s*?))+):\s*//sx);
 	next if (/^\s*friend\b/);
