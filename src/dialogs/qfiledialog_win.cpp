@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#6 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#7 $
 **
 ** Implementation of QFileDialog Windows-specific functionality
 **
@@ -35,65 +35,23 @@ extern Qt::WindowsVersion qt_winver;	// defined in qapplication_win.cpp
 const int maxNameLen = 255;
 const int maxMultiLen = 16383;
 
+// Returns the wildcard part of a filter.
 static
-void splitFilter( const QString& rawFilter, QString* filterName,
-		  QString* filterExp )
+QString extractFilter( const QString& rawFilter )
 {
-    if ( !filterName || !filterExp )
-	return;
-    QRegExp r( QString::fromLatin1("([a-zA-Z0-9;\\.\\*\\?]*)$") );
+    QString result;
+    QRegExp r( QString::fromLatin1("([ a-zA-Z0-9;\\.\\*\\?]*)$") );
     int len;
     int index = r.match( rawFilter, 0, &len );
     if ( index >= 0 ) {
-	*filterExp = rawFilter.mid( index+1, len-2 );
-	*filterName = qApp->translate( "QFileDialog",
-				       rawFilter.left( index-1 ) );
+	result = rawFilter.mid( index+1, len-2 );
+    } else {
+	result = rawFilter;
     }
-    else {
-	*filterExp = rawFilter;
-	*filterName = rawFilter;
-	filterName->prepend( QString::fromLatin1( "(" ) );
-	filterName->append( QString::fromLatin1( ")" ) );	
-    }
+    return result.replace(QRegExp(" "),";");
 }
 
-
-static
-void addFilterA( QBuffer* buf, const QString& rawFilter )
-{
-    if ( !rawFilter.isEmpty() ) {
-	QString filterName;
-	QString filterExp;
-	splitFilter( rawFilter, &filterName, &filterExp );
-	QCString fName = filterName.local8Bit();
-	buf->writeBlock( fName.data(), fName.length() + 1 );
-	QCString fExp = filterExp.local8Bit();
-	buf->writeBlock( fExp.data(), fExp.length() + 1 );
-    }
-}
-
-
-static
-void addFilter( QBuffer* buf, const QString& rawFilter )
-{
-    if ( !rawFilter.isEmpty() ) {
-	QString fName;
-	QString fExp;
-	splitFilter( rawFilter, &fName, &fExp );
-	buf->writeBlock( (const char*)qt_winTchar( fName, TRUE ),
-			 ( fName.length() + 1 ) * sizeof(TCHAR) );
-	buf->writeBlock( (const char*)qt_winTchar( fExp, TRUE ),
-			 ( fExp.length() + 1 ) * sizeof(TCHAR) );
-    }
-}
-
-// Static vars for OFNA funcs:
-QCString aInitDir;
-QCString aInitSel;
-QCString aTitle;
-QByteArray aFilter;
-// Use ANSI strings and API
-
+// Makes a list of filters from ;;-separated text.
 static QStringList makeFiltersList( const QString &filter )
 {
     if ( filter.isEmpty() )
@@ -111,12 +69,38 @@ static QStringList makeFiltersList( const QString &filter )
     return QStringList::split( filter, sep );
 }
 
+// Makes a NUL-oriented Windows filter from a Qt filter.
+static
+QString winFilter( const QString& filter )
+{
+    QStringList filterLst = makeFiltersList( filter );
+    QStringList::Iterator it = filterLst.begin();
+    QString winfilters;
+    for ( ; it != filterLst.end(); ++it ) {
+        winfilters += *it;
+        winfilters += QChar::null; 
+        winfilters += extractFilter(*it);
+        winfilters += QChar::null;
+    }
+    winfilters += QChar::null;
+    return winfilters;
+}
+
+
+
+// Static vars for OFNA funcs:
+static QCString aInitDir;
+static QCString aInitSel;
+static QCString aTitle;
+static QCString aFilter;
+// Use ANSI strings and API
+
 static
 OPENFILENAMEA* makeOFNA( QWidget* parent,
 			 const QString& initialSelection,
 			 const QString& initialDirectory,
-			 const char* rawTitle,
-			 const QString& rawFilter,
+			 const QString& title,
+			 const QString& filters,
 			 QFileDialog::Mode mode )
 {
     if ( parent )
@@ -124,7 +108,7 @@ OPENFILENAMEA* makeOFNA( QWidget* parent,
     else
 	parent = qApp->mainWidget();
 
-    aTitle = qApp->translate( "QFileDialog", rawTitle ).local8Bit();
+    aTitle = title.local8Bit();
     aInitDir = QDir::convertSeparators( initialDirectory ).local8Bit();
     if ( initialSelection.isEmpty() )
 	aInitSel = "";
@@ -132,35 +116,14 @@ OPENFILENAMEA* makeOFNA( QWidget* parent,
 	aInitSel = QDir::convertSeparators( initialSelection ).local8Bit();
     int maxLen = mode == QFileDialog::ExistingFiles ? maxMultiLen : maxNameLen;
     aInitSel.resize( maxLen + 1 );		// make room for return value
-
-//      aFilter.resize( 0 );	// > 0 for opt?
-//      QBuffer buf( aFilter );
-//      buf.open( IO_WriteOnly );
-//      //addFilterA( &buf, rawFilter );
-//      //addFilterA( &buf, QString::fromLatin1( "All Files (*.*)" ) );
-//      buf.putch( 0 );				// Termination
-//      buf.close();
-
-    QStringList filterLst = makeFiltersList( rawFilter );
-    QDir tmpDir;
-    QStringList::Iterator it = filterLst.begin();
-    QString filterBuffer;
-    for ( ; it != filterLst.end(); ++it ) {
-        tmpDir.setNameFilter( *it );
-        QString pattern = tmpDir.nameFilter();
-        filterBuffer += *it;
-        filterBuffer += QChar::null; 
-        filterBuffer += pattern;
-        filterBuffer += QChar::null;
-    }
-    filterBuffer += QChar::null;
+    aFilter = filters.local8Bit();
     
     OPENFILENAMEA* ofn = new OPENFILENAMEA;
     memset( ofn, 0, sizeof(OPENFILENAMEA) );
 
     ofn->lStructSize	= sizeof(OPENFILENAMEA);
     ofn->hwndOwner	= parent ? parent->winId() : 0;
-    ofn->lpstrFilter	= filterBuffer.latin1();
+    ofn->lpstrFilter	= aFilter.data();
     ofn->lpstrFile	= aInitSel.data();
     ofn->nMaxFile	= maxLen;
     ofn->lpstrInitialDir = aInitDir.data();
@@ -186,17 +149,17 @@ void cleanUpOFNA( OPENFILENAMEA** ofn )
 
 
 // Static vars for OFN funcs:
-TCHAR* tTitle;
-TCHAR* tInitDir;
-TCHAR* tInitSel;
-QByteArray tFilter;
+static TCHAR* tTitle;
+static TCHAR* tInitDir;
+static TCHAR* tInitSel;
+static TCHAR* tFilter;
 
 static
 OPENFILENAME* makeOFN( QWidget* parent,
 		       const QString& initialSelection,
 		       const QString& initialDirectory,
-		       const char* rawTitle,
-		       const QString& rawFilter,
+		       const QString& title,
+		       const QString& filters,
 		       QFileDialog::Mode mode )
 {
     if ( parent )
@@ -204,12 +167,12 @@ OPENFILENAME* makeOFN( QWidget* parent,
     else
 	parent = qApp->mainWidget();
 
-    QString title = qApp->translate( "QFileDialog", rawTitle );
     QString initDir = QDir::convertSeparators( initialDirectory );
     QString initSel = QDir::convertSeparators( initialSelection );
 
     tTitle = (TCHAR*)qt_winTchar_new( title );
     tInitDir = (TCHAR*)qt_winTchar_new( initDir );
+    tFilter = (TCHAR*)qt_winTchar_new( filters );
     int maxLen = mode == QFileDialog::ExistingFiles ? maxMultiLen : maxNameLen;
     tInitSel = new TCHAR[maxLen+1];
     tInitSel[0] = 0;
@@ -217,21 +180,12 @@ OPENFILENAME* makeOFN( QWidget* parent,
 	memcpy( tInitSel, qt_winTchar( initSel, TRUE ),
 		(initSel.length()+1) * sizeof(TCHAR) );
 
-    tFilter.resize( 0 );	// > 0 for opt?
-    QBuffer buf( tFilter );
-    buf.open( IO_WriteOnly );
-    addFilter( &buf, rawFilter );
-    addFilter( &buf, QString::fromLatin1( "All Files (*.*)" ) );
-    TCHAR nullChar = 0;
-    buf.writeBlock( (const char*)&nullChar, sizeof(TCHAR) );  // Termination
-    buf.close();
-
     OPENFILENAME* ofn = new OPENFILENAME;
     memset( ofn, 0, sizeof(OPENFILENAME) );
 
     ofn->lStructSize	= sizeof(OPENFILENAME);
     ofn->hwndOwner	= parent ? parent->winId() : 0;
-    ofn->lpstrFilter	= (TCHAR*)tFilter.data();
+    ofn->lpstrFilter	= tFilter;
     ofn->lpstrFile	= tInitSel;
     ofn->nMaxFile	= maxLen;
     ofn->lpstrInitialDir = tInitDir;
@@ -253,6 +207,8 @@ void cleanUpOFN( OPENFILENAME** ofn )
 {
     delete *ofn;
     *ofn = 0;
+    delete tFilter;
+    tFilter = 0;
     delete tTitle;
     tTitle = 0;
     delete tInitDir;
@@ -271,8 +227,8 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
     if ( qt_winver != WV_NT ) {
 	// Use ANSI strings and API
 	OPENFILENAMEA* ofn = makeOFNA( parent, initialSelection,
-				       *initialDirectory, "Open",
-				       filter, ExistingFile );
+				       *initialDirectory, tr("Open"),
+				       winFilter(filter), ExistingFile );
 	if ( GetOpenFileNameA( ofn ) )
 	    result = QString::fromLocal8Bit( ofn->lpstrFile );
 	cleanUpOFNA( &ofn );
@@ -280,8 +236,8 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
     else {
 	// Use Unicode or ANSI strings and API
 	OPENFILENAME* ofn = makeOFN( parent, initialSelection,
-				     *initialDirectory, "Open",
-				     filter, ExistingFile );
+				     *initialDirectory, tr("Open"),
+				     winFilter(filter), ExistingFile );
 	if ( GetOpenFileName( ofn ) )
 	    result = qt_winQString( ofn->lpstrFile );
 	cleanUpOFN( &ofn );
@@ -308,8 +264,8 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
     if ( qt_winver != WV_NT ) {
 	// Use ANSI strings and API
 	OPENFILENAMEA* ofn = makeOFNA( parent, initialSelection,
-				       *initialDirectory, "Save As",
-				       filter, AnyFile );
+				       *initialDirectory, tr("Save As"),
+				       winFilter(filter), AnyFile );
 	if ( GetSaveFileNameA( ofn ) )
 	    result = QString::fromLocal8Bit( ofn->lpstrFile );
 	cleanUpOFNA( &ofn );
@@ -317,8 +273,8 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
     else {
 	// Use Unicode or ANSI strings and API
 	OPENFILENAME* ofn = makeOFN( parent, initialSelection,
-				     *initialDirectory, "Save As",
-				     filter, AnyFile );
+				     *initialDirectory, tr("Save As"),
+				     winFilter(filter), AnyFile );
 	if ( GetSaveFileName( ofn ) )
 	    result = qt_winQString( ofn->lpstrFile );
 	cleanUpOFN( &ofn );
@@ -348,7 +304,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
     if ( qt_winver != WV_NT ) {
 	// Use ANSI strings and API
 	OPENFILENAMEA* ofn = makeOFNA( parent, QString::null,
-				       *initialDirectory, "Open",
+				       *initialDirectory, tr("Open"),
 				       filter, ExistingFiles );
 	if ( GetOpenFileNameA( ofn ) ) {
 	    QCString fileOrDir = ofn->lpstrFile;
@@ -378,7 +334,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
     else {
 	// Use Unicode or ANSI strings and API
 	OPENFILENAME* ofn = makeOFN( parent, QString::null,
-				     *initialDirectory, "Open",
+				     *initialDirectory, tr("Open"),
 				     filter, ExistingFiles );
 	if ( GetOpenFileName( ofn ) ) {
 	    QString fileOrDir = qt_winQString( ofn->lpstrFile );
