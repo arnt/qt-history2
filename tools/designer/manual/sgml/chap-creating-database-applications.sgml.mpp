@@ -3,19 +3,21 @@
 <chapter id="creating-database-applications">
 <title>Creating Database Applications</>
 
-<!-- TODO 2 sidebars 
-    QDataTable Default Behaviour for INS/UPD/DEL
-    QDataBrowser Default Behaviour for INS/UPD/DEL
--->
-
 <para>
 This chapter shows you how to use Qt's data-aware widgets from within
-\qd. If you wish to run the examples or
-create your own applications using these widgets you need access to
-a SQL database and a Qt database driver that can connect to the
-database. At the time of writing the drivers that Qt supports are QODBC
-(Open Database Connectivity), QOCI (Oracle), QPSQL6 (PostgreSQL 6),
-QPSQL7 (PostgreSQL 7) and QMYSQL (MySQL). 
+\qd. It demonstrates \ins, \upd and \del in both \class[QDataTable]s
+(tables) and \class[QDataBrowser]s (forms). It also shows how to code
+Master-Detail relationships and Drilldown. A simple approach to Foreign
+key handling is been presented, and a more sophisticated approach is
+given in the SQL module documentation.
+</para>
+
+<para>
+If you wish to run the examples or create your own applications using
+these widgets you need access to a SQL database and a Qt database driver
+that can connect to the database. At the time of writing the drivers
+that Qt supports are QODBC (Open Database Connectivity), QOCI (Oracle),
+QPSQL6 (PostgreSQL 6), QPSQL7 (PostgreSQL 7) and QMYSQL (MySQL). 
 </para>
 
 <para>
@@ -394,26 +396,26 @@ bool createConnections()
 	    key lookups.
 	    </para>
 
-	</sect3>
+	    <sidebar><title>A Note on Foreign Keys</title>
+	    <para>
+	    In most relational databases tables contain fields which are
+	    foreign keys into other tables. In our book database example the
+	    formatid in the book table is a foreign key into the format
+	    table, and the authorid in the book table is a foreign key into
+	    the author table. When we present a form to the end user we do
+	    not usually want the foreign key itself to be visible but rather
+	    the text associated with it. Thus, we would want the format name
+	    to appear rather than the format id when we show the book table.
+	    Whilst this can be achieved programmatically, e.g. using
+	    calculated fields, it is far easier to create a view that
+	    encompases the fields we wish to make visible to the user. A
+	    view also places the burden of work on the database rather than
+	    the client application. In the examples we have created the
+	    book_view view to demonstrate this approach.
+	    </para>
+	    </sidebar>
 
-	<sidebar><title>A Note on Foreign Keys</title>
-	<para>
-	In most relational databases tables contain fields which are
-	foreign keys into other tables. In our book database example the
-	formatid in the book table is a foreign key into the format
-	table, and the authorid in the book table is a foreign key into
-	the author table. When we present a form to the end user we do
-	not usually want the foreign key itself to be visible but rather
-	the text associated with it. Thus, we would want the format name
-	to appear rather than the format id when we show the book table.
-	Whilst this can be achieved programmatically, e.g. using
-	calculated fields, it is far easier to create a view that
-	encompases the fields we wish to make visible to the user. A
-	view also places the burden of work on the database rather than
-	the client application. In the examples we have created the
-	book_view view to demonstrate this approach.
-	</para>
-	</sidebar>
+	</sect3>
 
     </sect2>
 
@@ -843,7 +845,14 @@ bool createConnections()
 
 <sect1 id="using-qdatabrowser-and-qdataview">
 <title>Using \class[QDataBrowser] and \class[QDataView]</>
- 
+
+<para>
+<figure><title>The Book Application's Edit Books Dialog</title>
+\img[book-book9-dialog]
+</figure>
+</para>
+
+
     <sect2 id="drilling-down-to-a-form-with-qdatabrowser">
     <title>Drilling Down to a Form with \class[QDataBrowser]</>
 
@@ -1117,8 +1126,10 @@ bool createConnections()
 		sort to those that applied to the main form's book_view
 		\class[QDataTable]. We refresh the \class[QDataBrowser]
 		and seek to the same record the user was viewing on the
-		main form. Finally we exec the dialog and delete it when
-		the user has finished with it.
+		main form. Then we exec the dialog and delete it when
+		the user has finished with it. Finally we update the
+		BookDataTable to reflect any changes that were made in
+		the dialog.
 		\P
 	    </listitem> 
 
@@ -1209,7 +1220,6 @@ bool createConnections()
 
 	</orderedlist>
 	</para>
-	</para>
 	</sect3>
 
 
@@ -1217,33 +1227,130 @@ bool createConnections()
 	<title>Handling Foreign Keys in a \class[QDataBrowser]</title>
 
 	<para>
+	Qt's SQL module provides two approaches to dealing with foreign
+	keys. The most powerful and flexible is to subclass widgets and
+	use property maps to relate the widgets to the database. This
+	approach is described in the <ulink
+	url="http://doc.trolltech.com/sql.html#Custom_Editor_Widgets">Qt
+	SQL Module documentation</>, particularly the StatusPicker
+	example. A simpler approach that can be taken wholly within \qd
+	is presented here. 
 	</para>
 
 	<para>
-	</para>
+	We will add a new field to the EditBookForm so that authors can
+	be edited along with the title and price. Once we've handled the
+	visual design we'll write the code to make it all work.
 
-<!--
-Rough notes on book7
+	\list[1]
+	\item\p
+	First we'll add the new widgets. Click the BookDataBrowser and
+	click the \button[Break Layout] toolbar button. Drag the bottom
+	of the form down and drag each set of buttons down to make some
+	room below the title and price QLineEdits. Click the
+	\button[Text Label] toolbar button and click on the form beneath
+	the Price label. Click the Text Label and change its text to
+	'Author'. Click the \button[ComboBox] toolbar button and click
+	on the form beneath the price QLineEdit. In the Property Window
+	change the ComboBox's name to ComboBoxAuthor and change its
+	sizePolicy hSizeType to Expanding. 
+	\P\Item
 
-Explain that we are doing it the easy one-off way. For more power youcan
-create your own custom edit widgets, see 
-doc.trolltech.com/sql.html#Custom_Editor_Widgets particularly the
-StatusPicker example.
+	\item\p
+	Now we'll lay out the dialog. Shift+Click the Author label and
+	the ComboBox then click the \button[Lay Out Horizontally]
+	toolbar button. Now click the BookDataBrowser and click the
+	\button[Lay Out in a Grid] toolbar button.
+	\P\Item
+	\List1
 
-click the databrowser & break layout
-drag the buttons down
-add a label 'Author' and a combo box
-call combobox ComboBoxAuthor and change the table to author_view
-make the combobox horiz size policy Expanding/Fixed
-click author lable + combo and Lay Out Horizontally
-click teh databrowser & Lay Out in a Grid
+	\p
+	We need to write some code so that the ComboBox will populate
+	with author names and scroll to the current book's author. We
+	also need to ensure that we put the author's id into the book
+	table's authorid field when a book record is inserted or
+	updated. We'll ensure the code is executed at the right time by
+	putting it in slots and connecting signals to our slots. 
+	\P
 
-USE BEGIN SIGNALS
+	\list[1]
+	\item\p
+	Create two new slots called 'beforeUpdateBook(QSqlRecord *buffer)' and
+	'primeUpdateBook(QSqlRecord *buffer)'. (Click \menu[Edit|Slots],
+	then in the Edit Slots dialog click New Slot and enter the first
+	new slot. Click New Slot again and enter the second slot then
+	click \ok.)
+	\P\Item
 
-create a slot primeUpdateBook(QSqlRecord *)
+	\item\p
+	When the user navigates through the dialog each time they move
+	to a new record a \fn[primeUpdate] signal is emitted. We connect
+	to this so that we can update the ComboBox's display. Just
+	before a record is updated or inserted into the database a
+	\fn[beforeUpdate] or \fn[beforeInsert] signal is emitted. We
+	connect our \fn[beforeUpdateBook] slot to both these signals so
+	that we can ensure that the book's authorid field is correctly
+	populated.
+	\P
 
+	\p
+	Click the BookDataBrowser and drag the mouse to the form;
+	release the mouse and the Edit Connections dialog will appear.
+	Connect the \fn[beforeUpdate] signal to our
+	\fn[beforeUpdateBook] slot. Connect the \fn[beforeInsert] signal
+	to our \fn[beforeUpdateBook] slot. Finally connect the
+	\fn[primeUpdate] signal to our \fn[primeUpdateBook] slot.
+	\P\Item
 
--->
+	\item\p
+	All that remains is to write the underlying code. All the
+	code snippets are taken from 
+	\f[qt/tools/designer/eg/book/book7/editbook.cpp].
+	    \list[1,1]
+	    \item\p
+	    We start with
+	    the \fn[init] function; this is called after the dialog is
+	    constructed and we will use it to populate the ComboBox with
+	    author names.
+<programlisting>
+\scan eg/book/book7/editbook.cpp /EditBookForm::init/ /^}/ 
+</programlisting>
+	    Here we execute a query to get a list of author names and
+	    insert each one into the ComboBox. 
+	    \P\Item
+
+	    \item\p
+	    We next write the code which will be executed just before a
+	    record is updated in the database.
+<programlisting>
+\scan eg/book/book7/editbook.cpp /EditBookForm::beforeUpdateBook/ /^}/ 
+</programlisting>
+	    We look up the id of the ComboBox's current author and place
+	    it in the update buffer's authorid field.
+	    \P\Item
+
+	    \item\p
+	    As the user navigates through the records we ensure
+	    that the ComboBox reflects the current author. 
+<programlisting>
+\scan eg/book/book7/editbook.cpp /EditBookForm::primeUpdateBook/ /^}/ 
+</programlisting>
+	    Firstly we look up the book's author and secondly we iterate
+	    through the ComboBox's items until we find the author and
+	    set the ComboBox's current item to the matching author.
+	    \P\Item
+	    \List1
+
+	\P\Item
+
+	\List1
+<para>
+The book example demonstrates the basic techniques needed for SQL
+programming with Qt. Additional information on the Qt SQL classes,
+especially the \class[QSqlQuery] and \class[QSqlCursor] classes is
+provided in the <ulink url="http://doc.trolltech.com/sql.html">Qt SQL
+Module documentation</>.
+</para>
 
 	</sect3>
 
