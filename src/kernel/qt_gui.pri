@@ -223,48 +223,42 @@ kernel {
 }
 
 newpainter {
-        DEFINES += Q_Q4PAINTER
-
-  	HEADERS -= $$KERNEL_H/qpainter.h
-
-	SOURCES -= $$KERNEL_CPP/qpainter.cpp
-
-	SOURCES += $$KERNEL_CPP/qabstractgc.cpp \
-		   $$KERNEL_CPP/q4painter.cpp \
-		   $$KERNEL_CPP/qbrush.cpp \
-		   $$KERNEL_CPP/qpen.cpp
-
-	HEADERS += $$KERNEL_P/q4painter_p.h \ 
-		   $$KERNEL_H/q4painter.h \
-		   $$KERNEL_H/qabstractgc.h 
-
+    DEFINES += Q_Q4PAINTER
+    #remove
+    HEADERS -= $$KERNEL_H/qpainter.h
+    SOURCES -= $$KERNEL_CPP/qpainter.cpp
+    #add
+    SOURCES += $$KERNEL_CPP/qabstractgc.cpp \
+	       $$KERNEL_CPP/q4painter.cpp \
+	       $$KERNEL_CPP/qbrush.cpp \
+	       $$KERNEL_CPP/qpen.cpp
+    HEADERS += $$KERNEL_P/q4painter_p.h \ 
+	       $$KERNEL_H/q4painter.h \
+	       $$KERNEL_H/qabstractgc.h 
+    #platform
     win32 { 
+        #remove
 	SOURCES -= $$KERNEL_CPP/qpainter_win.cpp
-
+        #add
 	SOURCES += $$KERNEL_CPP/qwin32gc.cpp
-
-	HEADERS += $$KERNEL_P/qwin32gc_p.h \
-		   $$KERNEL_H/qwin32gc.h
-    }
-
-    x11 { 
-
+	HEADERS += $$KERNEL_P/qwin32gc_p.h $$KERNEL_H/qwin32gc.h
+    } else:x11 { 
+        #remove
 	SOURCES -= $$KERNEL_CPP/qpainter_x11.cpp	
-
+        #add
 	SOURCES += $$KERNEL_CPP/qx11gc.cpp
-
-	HEADERS += $$KERNEL_H/qx11gc.h \
-		   $$KERNEL_P/qx11gc_p.h
-    }
-
-    embedded { 
-
+	HEADERS += $$KERNEL_H/qx11gc.h $$KERNEL_P/qx11gc_p.h
+    } else:embedded { 
+        #remove
 	SOURCES -= $$KERNEL_CPP/qpainter_qws.cpp	
-
+        #add
 	SOURCES += $$KERNEL_CPP/qwsgc_qws.cpp
-
-	HEADERS += $$KERNEL_H/qwsgc_qws.h \
-		   $$KERNEL_P/qwsgc_p.h
+	HEADERS += $$KERNEL_H/qwsgc_qws.h $$KERNEL_P/qwsgc_p.h
+    } else:mac {
+        #remove
+	SOURCES -= $$KERNEL_CPP/qpainter_mac.cpp	
+        #add
+	SOURCES += $$KERNEL_CPP/qgc_mac.cpp
+	HEADERS += $$KERNEL_H/qgc_mac.h #$$KERNEL_P/qgc_mac_p.h
     }
-
 }

@@ -63,7 +63,7 @@ public:
     void drawTextItem(int x, int y, const QTextItem &ti, int textflags);
 
     virtual Qt::HANDLE handle() const;
-
+    inline Type type() const { return QAbstractGC::QWS; }
 
     static void initialize();
     static void cleanup();

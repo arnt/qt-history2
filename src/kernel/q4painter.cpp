@@ -702,6 +702,16 @@ void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
 {
     if (!isActive())
 	return;
+
+    if(xRnd >= 100)                          // fix ranges
+	xRnd = 99;
+    if(yRnd >= 100)
+	yRnd = 99;
+    if(xRnd <= 0 || yRnd <= 0) {             // draw normal rectangle
+	drawRect(x, y, w, h);                 
+	return;
+    }
+
     dgc->updateState(ds);
 
     qt_fix_rect(ds, &x, &y, &w, &h);

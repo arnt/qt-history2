@@ -277,6 +277,12 @@ bool QWin32GC::begin(const QPaintDevice *pdev, QPainterState *state, bool unclip
 	       "\n\tYou must end() the painter before a second begin()\n");
 // 	return true;
     }
+    if(pdev->devType() == QInternal::Widget && 
+       !static_cast<const QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
+	qWarning("QPainter::begin: Widget painting can only begin as a "
+		 "result of a paintEvent");
+//	return false;
+    }
 
     setActive(true);
     d->device = pdev;

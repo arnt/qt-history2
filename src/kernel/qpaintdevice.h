@@ -222,9 +222,13 @@ protected:
     ushort	devFlags;			// device flags
     ushort	painters;			// refcount
 
-    friend class QWin32GC;
     friend class QPainter;
     friend class QPaintDeviceMetrics;
+#if defined(Q_WS_WIN)
+    friend class QWin32GC;
+#elif defined(Q_WS_MAC)
+    friend class QQuickDrawGC;
+#endif
 #if defined(Q_WS_MAC)
     friend Q_GUI_EXPORT void unclippedScaledBitBlt( QPaintDevice *, int, int, int, int,
 						const QPaintDevice *, int, int, int, int, Qt::RasterOp, bool, bool );

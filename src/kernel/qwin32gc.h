@@ -51,6 +51,7 @@ public:
     void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool optim);
 
     HDC handle() const; // ### Still not liking this...
+    inline Type type() const { return QAbstractGC::Windows; }
 
     static void initialize();
     static void cleanup();

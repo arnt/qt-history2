@@ -18,6 +18,7 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
+#include "qgc_mac.h"
 #include "qt_mac.h"
 
 QPaintDevice *g_cur_paintdev = 0;
@@ -36,6 +37,9 @@ QPaintDevice::QPaintDevice(uint devflags)
     painters = 0;
     hd = 0;
     cg_hd = 0;
+#ifdef Q_Q4PAINTER
+    deviceGC = new QQuickDrawGC(this);
+#endif
 }
 
 QPaintDevice::~QPaintDevice()

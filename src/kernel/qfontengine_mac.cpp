@@ -10,11 +10,14 @@
 **
 ****************************************************************************/
 
-#include "qfontengine_p.h"
 #include <qglobal.h>
-#include "qpixmapcache.h"
-#include "qbitmap.h"
-#include "qapplication_p.h"
+#include <qpixmapcache.h>
+#include <qbitmap.h>
+#include <qgc_mac.h>
+#include <private/q4painter_p.h>
+#include <private/qapplication_p.h>
+#include <private/qfontengine_p.h>
+#include <private/qpainter_p.h>
 
 #ifndef QMAC_FONT_NO_ANTIALIAS
 # include "qpixmap.h"
@@ -85,11 +88,19 @@ void
 QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 		     const QScriptItem *si, int textFlags)
 {
-    if(p->txop >= QPainter::TxScale) {
+#ifdef Q_Q4PAINTER
+    int txop = p->d->txop;
+    QWMatrix xmat = p->d->matrix;
+#else
+    int txop = p->txop;
+    QWMatrix xmat = p->xmat;
+#endif
+
+    if(txop >= QPainter::TxScale) {
 	int aw = si->width, ah = si->ascent + si->descent + 1;
 	if(aw == 0 || ah == 0)
 	    return;
-	QWMatrix mat1 = p->xmat, mat2 = QPixmap::trueMatrix(mat1, aw, ah);
+	QWMatrix mat1 = xmat, mat2 = QPixmap::trueMatrix(mat1, aw, ah);
 	QBitmap *wx_bm = 0;
 	{
 	    QBitmap bm(aw, ah, TRUE);	// create bitmap
@@ -124,51 +135,54 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 	unclippedBitBlt(p->device(), qRound(nfx-dx), qRound(nfy-dy), &pm, 0, 0, -1, -1, Qt::CopyROP, FALSE, FALSE );
 	delete wx_bm;
 	return;
-    } else if(p->txop == QPainter::TxTranslate) {
+    } else if(txop == QPainter::TxTranslate) {
 	p->map(x, y, &x, &y);
     }
 
     QPoint off;
     QRegion rgn;
-    p->initPaintDevice(FALSE, &off, &rgn);
+#ifdef Q_Q4PAINTER
+    if(p->d->gc && (p->d->gc->type() == QAbstractGC::QuickDraw || p->d->gc->type() == QAbstractGC::CoreGraphics)) {
+	QQuickDrawGC *mgc = (QQuickDrawGC*)p->d->gc;
+	mgc->initPaintDevice(false, &off, &rgn);
+	if(rgn.isEmpty())
+	    return;
+#ifdef USE_CORE_GRAPHICS
+	QMacSavedPortInfo::setClipRegion(rgn);
+#endif
+    }
+#else
+    p->initPaintDevice(false, &off, &rgn);
     if(rgn.isEmpty())
 	return;
 #ifdef USE_CORE_GRAPHICS
     QMacSavedPortInfo::setClipRegion(rgn);
 #endif
-
-    x += off.x();
-    y += off.y();
-
-    uchar task = DRAW;
-    if(textFlags != 0)
-	task |= WIDTH; //I need the width for these..
+#endif
 
     glyph_t *glyphs = engine->glyphs(si);
     advance_t *advances = engine->advances(si);
     qoffset_t *offsets = engine->offsets(si);
-
-    p->updateBrush();
     if(p->backgroundMode() == Qt::OpaqueMode) {
 	glyph_metrics_t br = boundingBox(glyphs, advances, offsets, si->num_glyphs);
-	Rect r;
-	r.left = x + br.x;
-	r.top = y + br.y;
-	r.right = r.left + br.width;
-	r.bottom = r.top + br.height;
-	::RGBColor f;
-	QColor qf = p->backgroundColor();
-	f.red = qf.red()*256;
-	f.green = qf.green()*256;
-	f.blue = qf.blue()*256;
-	RGBForeColor(&f);
-	PaintRect(&r);
+	p->fillRect(x+br.x, y+br.y, br.width, br.height, p->backgroundColor());
     }
+#ifdef Q_Q4PAINTER
+    if(p->d->gc && p->d->gc->type() == QAbstractGC::QuickDraw)
+	((QQuickDrawGC*)p->d->gc)->setupQDFont();
+#else
     p->updatePen();
-    if(p->testf(QPainter::DirtyFont))
-	p->updateFont();
+    p->updateFont();
+#endif
+
+    x += off.x();
+    y += off.y();
+
 
     int w = 0;
+    uchar task = DRAW;
+    if(textFlags != 0)
+	task |= WIDTH; //I need the width for these..
     if(si->analysis.bidiLevel % 2 ) {
 	offsets += si->num_glyphs;
 	advances += si->num_glyphs;

@@ -205,7 +205,6 @@ public:
 
 private:
     friend class QFontEngine;
-    friend class QFontEngineWin;
     friend void qt_format_text( const QFont& font, const QRect &_r,
 				int tf, const QString& str, int len, QRect *brect,
 				int tabstops, int* tabarray, int tabarraylen,
@@ -236,13 +235,17 @@ private:
     double idy() const;
 
     QPainterPrivate *d;
-#ifdef Q_WS_X11
+#if defined( Q_WS_X11 )
     friend class QFontEngineBox;
     friend class QFontEngineXLFD;
     friend class QFontEngineXft;
-#endif
-#ifdef Q_WS_QWS
+#elif defined( Q_WS_WIN )
+    friend class QFontEngineWin;
+#elif defined( Q_WS_QWS )
     friend class QWSManager;
+#elif defined( Q_WS_MAC )
+    friend class QFontEngineMac;
+    friend class QMacStylePainter;
 #endif
 };
 

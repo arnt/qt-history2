@@ -514,6 +514,12 @@ void QX11GC::cleanup()
 
 bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 {
+    if(pdev->devType() == QInternal::Widget && 
+       !static_cast<const QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
+	qWarning("QPainter::begin: Widget painting can only begin as a "
+		 "result of a paintEvent");
+//	return false;
+    }
     d->pdev = const_cast<QPaintDevice *>(pdev);
 
     if ( isActive() ) {                         // already active painting

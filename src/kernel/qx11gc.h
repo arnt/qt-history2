@@ -50,6 +50,7 @@ public:
     void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool optim);
 
     virtual Qt::HANDLE handle() const;
+    inline Type type() const { return QAbstractGC::X11; }
 
     inline Display *x11Display() const;
     inline int x11Screen() const;

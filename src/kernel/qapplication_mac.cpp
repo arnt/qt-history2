@@ -23,7 +23,11 @@
 #include "private/qcolor_p.h"
 #include "qwidget.h"
 #include "qbitarray.h"
-#include "qpainter.h"
+#ifdef Q_Q4PAINTER
+#  include "qgc_mac.h"
+#else
+#  include "qpainter.h"
+#endif
 #include "qpixmapcache.h"
 #include "qdatetime.h"
 #include "qtextcodec.h"
@@ -391,8 +395,9 @@ void qt_mac_update_os_settings()
 	    QFont fnt(p2qstring(f_name), f_size, (f_style & ::bold) ? QFont::Bold : QFont::Normal,
 		      (bool)(f_style & ::italic));
 	    bool set_font = TRUE;
-	    if(QApplication::app_fonts) {
-		if(QFont *oldfnt = QApplication::app_fonts->find(mac_widget_fonts[i].qt_class))
+	    extern QAsciiDict<QFont> *app_fonts;  //qapplication.cpp
+	    if(app_fonts) {
+		if(QFont *oldfnt = app_fonts->find(mac_widget_fonts[i].qt_class))
 		    set_font = !(fnt == *oldfnt);
 	    }
 	    if(set_font) {
@@ -459,8 +464,9 @@ void qt_mac_update_os_settings()
 			     pal.color(QPalette::Active, QPalette::Text));
 	    }
 	    bool set_palette = TRUE;
-	    if(QApplication::app_palettes) {
-		if(QPalette *oldpal = QApplication::app_palettes->find(mac_widget_colours[i].qt_class))
+	    extern QAsciiDict<QPalette> *app_palettes; //qapplication.cpp
+	    if(app_palettes) {
+		if(QPalette *oldpal = app_palettes->find(mac_widget_colours[i].qt_class))
 		    set_palette = !(pal == *oldpal);
 	    }
 	    if(set_palette && pal != apppal) {
@@ -892,7 +898,11 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 	QColor::initialize();
 	QFont::initialize();
 	QCursor::initialize();
-	QPainter::initialize();
+#ifdef Q_Q4PAINTER
+	QQuickDrawGC::initialize();
+#else
+ 	QPainter::initialize();
+#endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::initialize();
 #endif
@@ -933,7 +943,11 @@ void qt_cleanup()
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::cleanup();
 #endif
+#ifdef Q_Q4PAINTER
+	QQuickDrawGC::cleanup();
+#else
 	QPainter::cleanup();
+#endif
 	QFont::cleanup();
 	QColor::cleanup();
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)

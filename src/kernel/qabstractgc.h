@@ -82,6 +82,21 @@ public:
     virtual Qt::HANDLE handle() const = 0;
 #endif
 
+    enum Type {
+	//X11
+	X11,
+	//Windows
+	Windows,
+	//Mac
+	QuickDraw, CoreGraphics,
+	//QWS
+	QWS,
+
+	User = 50,				// first user type id
+	MaxUser = 100				// last user type id
+    };
+    virtual Type type() const = 0;
+
     enum { IsActive           	= 0x00000001,
 	   ExtDev             	= 0x00000002,
 	   IsStartingUp       	= 0x00000004,

@@ -437,8 +437,8 @@ void qt_setMaxWindowRect(const QRect& r)
 */
 
 // Default application palettes and fonts (per widget type)
-static QAsciiDict<QPalette> *app_palettes = 0;
-static QAsciiDict<QFont> *app_fonts = 0;
+Q_GUI_EXPORT QAsciiDict<QPalette> *app_palettes = 0;
+Q_GUI_EXPORT QAsciiDict<QFont> *app_fonts = 0;
 
 QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
