@@ -2000,7 +2000,7 @@ void MetaObjectGenerator::readVarsInfo(ITypeInfo *typeinfo, ushort nVars)
         // generate a set slot
         if (!(vardesc->wVarFlags & VARFLAG_FREADONLY))
             addSetterSlot(variableName);
-        
+
 #if 0 // documentation in metaobject would be cool?
         // get function documentation
         BSTR bstrDocu;
