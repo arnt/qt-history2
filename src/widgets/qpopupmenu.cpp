@@ -1499,7 +1499,7 @@ void QPopupMenu::drawContents( QPainter* p )
 	    y = contentsRect().y();
 	    x +=itemw;
 	}
-	if ( !mi->widget() )
+	if (!mi->widget() && (!p->hasClipping() || p->clipRegion().contains(QRect(x, y, itemw, itemh))))
 	    drawItem( p, tab, mi, row == actItem, x, y, itemw, itemh );
 	y += itemh;
 	++row;
