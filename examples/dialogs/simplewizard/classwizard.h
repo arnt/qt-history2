@@ -23,9 +23,6 @@ protected:
     QWidget *createPage(int index);
     void accept();
 
-private slots:
-    void classNameChanged();
-
 private:
     FirstPage *firstPage;
     SecondPage *secondPage;
@@ -42,6 +39,9 @@ class FirstPage : public QWidget
 
 public:
     FirstPage(ClassWizard *wizard);
+
+private slots:
+    void classNameChanged();
 
 private:
     QLabel *topLabel;

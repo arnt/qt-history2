@@ -2,8 +2,6 @@
 
 #include "classwizard.h"
 
-/* qmake ignore Q_OBJECT */
-
 ClassWizard::ClassWizard(QWidget *parent)
     : SimpleWizard(parent)
 {
@@ -69,6 +67,8 @@ void ClassWizard::accept()
         block += " : public " + baseClass;
     block += "\n";
     block += "{\n";
+
+    /* qmake ignore Q_OBJECT */
 
     if (qobjectMacro) {
         block += "    Q_OBJECT\n";
@@ -165,11 +165,6 @@ void ClassWizard::accept()
     QDialog::accept();
 }
 
-void ClassWizard::classNameChanged()
-{
-    setButtonEnabled(!firstPage->classNameLineEdit->text().isEmpty());
-}
-
 FirstPage::FirstPage(ClassWizard *wizard)
     : QWidget(wizard)
 {
@@ -204,7 +199,7 @@ FirstPage::FirstPage(ClassWizard *wizard)
     defaultCtorRadioButton->setChecked(true);
 
     connect(classNameLineEdit, SIGNAL(textChanged(QString)),
-            wizard, SLOT(classNameChanged()));
+            this, SLOT(classNameChanged()));
     connect(defaultCtorRadioButton, SIGNAL(toggled(bool)),
             copyCtorCheckBox, SLOT(setEnabled(bool)));
 
@@ -226,6 +221,12 @@ FirstPage::FirstPage(ClassWizard *wizard)
     layout->addWidget(qobjectMacroCheckBox, 4, 0, 1, 2);
     layout->addWidget(groupBox, 5, 0, 1, 2);
     layout->setRowStretch(6, 1);
+}
+
+void FirstPage::classNameChanged()
+{
+    ClassWizard *wizard = qt_cast<ClassWizard *>(parent());
+    wizard->setButtonEnabled(!classNameLineEdit->text().isEmpty());
 }
 
 SecondPage::SecondPage(ClassWizard *wizard)
