@@ -58,12 +58,35 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
 	    return QString( getenv( varName ) );
 	}
     }
+    if( envBlock & LocalEnv ) {
+	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
+	    TCHAR *varNameT = (TCHAR*)qt_winTchar( varName, TRUE );
+	    int size = GetEnvironmentVariableW( varNameT, 0, 0 );
+	    if ( size == 0 )
+		return QString::null;
+	    TCHAR *data = new TCHAR[ size ];
+	    GetEnvironmentVariableW( varNameT, data, size );
+	    QString ret = qt_winQString( data );
+	    delete[] data;
+	    return ret;
+	} else {
+	    QCString varNameL = varName.local8Bit();
+	    int size = GetEnvironmentVariableA( varNameL.data(), 0, 0 );
+	    if ( size == 0 )
+		return QString::null;
+	    char *data = new char[ size ];
+	    GetEnvironmentVariableA( varNameL.data(), data, size );
+	    QString ret = QString::fromLocal8Bit( data );
+	    delete[] data;
+	    return ret;
+	}
+    }
 #elif defined(Q_OS_UNIX)
 // Persistent environment on Unix is not supported yet.
-#endif
     if( envBlock & LocalEnv ) {
 	return QString( getenv( varName ) );
     }
+#endif
     return QString::null;
 }
 
