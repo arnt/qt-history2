@@ -1236,13 +1236,32 @@ bool MainWindow::fileSave()
 	    ( (SourceFile*)e->object() )->save();
 	
     }
-    if ( !formWindow() )
+
+    FormWindow *fw = 0;
+
+    QWidget *w = MainWindow::self->workspace->activeWindow();
+    if ( w ) {
+	if ( w->inherits( "SourceEditor" ) ) {
+	    se = (SourceEditor*)w;
+	    if ( se->object()->inherits( "FormWindow" ) )
+		fw = (FormWindow*)se->object();
+	    else if ( se->object()->inherits( "SourceFile" ) ) {
+		( (SourceFile*)se->object() )->save();
+		return TRUE;
+	    }
+	}
+    }
+
+    if ( !fw )
+	fw = formWindow();
+
+    if ( !fw )
 	return FALSE;
-    if ( formWindow()->fileName().isEmpty() ) {
+    if ( fw->fileName().isEmpty() ) {
 	return fileSaveAs();
     } else {
 	QApplication::setOverrideCursor( WaitCursor );
-	formWindow()->save( formWindow()->fileName() );
+	fw->save( fw->fileName() );
 	if ( se )
 	    se->updateTimeStamp();
 	QApplication::restoreOverrideCursor();
