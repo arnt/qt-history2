@@ -684,12 +684,6 @@ void QLineEdit::clearModified()
 }
 
 /*!
-    \obsolete
-    \property QLineEdit::hasMarkedText
-    \brief whether part of the text has been selected by the user. Use hasSelectedText instead.
-*/
-
-/*!
     \property QLineEdit::hasSelectedText
     \brief whether there is any text selected
 
@@ -704,12 +698,6 @@ bool QLineEdit::hasSelectedText() const
 {
     return d->hasSelectedText();
 }
-
-/*!
-  \obsolete
-  \property QLineEdit::markedText
-  \brief the text selected by the user. Use selectedText instead.
-*/
 
 /*!
     \property QLineEdit::selectedText
@@ -769,7 +757,7 @@ bool QLineEdit::getSelection( int *start, int *end )
 /*!
     Selects text from position \a start and for \a length characters.
 
-    \sa deselect() selectAll() getSelection()
+    \sa deselect() selectAll() selectedText()
 */
 
 void QLineEdit::setSelection( int start, int length )

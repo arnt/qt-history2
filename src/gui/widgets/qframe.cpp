@@ -159,8 +159,8 @@ QFramePrivate::QFramePrivate()
     Constructs a frame widget with frame style \c NoFrame and a
     1-pixel frame width.
 
-    The \a parent, \a name and \a f arguments are passed to the
-    QWidget constructor.
+    The \a parent and \a f arguments are passed to the QWidget
+    constructor.
 */
 
 QFrame::QFrame(QWidget* parent, WFlags f)
@@ -168,11 +168,13 @@ QFrame::QFrame(QWidget* parent, WFlags f)
 {
 }
 
+/*! \internal */
 QFrame::QFrame(QFramePrivate &dd, QWidget* parent, WFlags f)
     : QWidget(dd, parent, f)
 {
 }
 
+/*! \internal */
 QFrame::QFrame(QWidget *parent, const char *name, WFlags f)
     : QWidget(*new QFramePrivate, parent, f)
 {
@@ -426,18 +428,9 @@ int QFrame::frameWidth() const
 
 
 /*!
-    \property QFrame::frameRect
-    \brief the frame rectangle
+    Returns the frame's rectangle.
 
-    The frame rectangle is the rectangle the frame is drawn in. By
-    default, this is the entire widget. Setting this property does \e
-    not cause a widget update.
-
-    If this property is set to a null rectangle (for example
-    \c{QRect(0, 0, 0, 0)}), then the frame rectangle is equivalent to
-    the \link QWidget::rect() widget rectangle\endlink.
-
-    \sa contentsRect()
+    \sa setFrameRect() contentsRect()
 */
 
 QRect QFrame::frameRect() const
@@ -448,6 +441,18 @@ QRect QFrame::frameRect() const
         return d->frect;
 }
 
+/*!
+    Sets the frame's rectangle to \a r. The frame's rectangle is the
+    rectangle the frame is drawn in. By default, this is the entire
+    widget. Calling this function does \e not cause a widget update.
+
+    If \a r is a null rectangle (for example \c{QRect(0, 0, 0, 0)}),
+    then the frame rectangle is equivalent to the \link
+    QWidget::rect() widget rectangle\endlink.
+
+    \sa contentsRect()
+*/
+
 void QFrame::setFrameRect(const QRect &r)
 {
     d->frect = r.isValid() ? r : rect();
@@ -455,8 +460,7 @@ void QFrame::setFrameRect(const QRect &r)
 
 
 /*!
-    \property QFrame::contentsRect
-    \brief the rectangle inside the frame
+    Returns the rectangle inside the frame.
 
     \sa frameRect(), drawContents()
 */

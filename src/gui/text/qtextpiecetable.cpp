@@ -442,7 +442,7 @@ void QTextPieceTable::undoRedo(bool undo)
 }
 
 /*!
-  appends a custom undo item to the undo stack.
+    Appends a custom undo \a item to the undo stack.
 */
 void QTextPieceTable::appendUndoItem(QAbstractUndoItem *item)
 {

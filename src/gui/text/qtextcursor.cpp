@@ -727,6 +727,8 @@ QTextList *QTextCursor::insertList(const QTextListFormat &format)
 }
 
 /*!
+    \overload
+
     Inserts a new block at the current position and makes it the first
     list item of a newly created list with the given \a style. Returns
     the created list.
@@ -761,6 +763,8 @@ QTextList *QTextCursor::createList(const QTextListFormat &format)
 }
 
 /*!
+    \overload
+
     Creates and returns a new list with the given \a style and makes the
     current paragraph the cursor is in the first list item.
 
@@ -796,6 +800,8 @@ int QTextCursor::listItemNumber() const
 }
 
 /*!
+    \overload
+
     Creates a new table with the given dimension (\a rows and \a cols), inserts
     it at the current position and returns the table object.
     The cursor is positioned at the beginning of the first cell.
@@ -806,9 +812,10 @@ QTextTable *QTextCursor::insertTable(int rows, int cols)
 }
 
 /*!
-    Creates a new table with the given dimension (\a rows and \a cols) and the
-    given \format, inserts it at the current position and returns the table object.
-    The cursor is positioned at the beginning of the first cell.
+    Creates a new table with the given dimension (\a rows and \a cols)
+    and the given \a format, inserts it at the current position and
+    returns the table object. The cursor is positioned at the
+    beginning of the first cell.
  */
 QTextTable *QTextCursor::insertTable(int rows, int cols, const QTextTableFormat &format)
 {

@@ -36,7 +36,7 @@ void QTextDocument::undoRedo(bool undo)
 }
 
 /*!
-  aappends a custom undo item to the undo stack.
+    Appends a custom undo \a item to the undo stack.
 */
 void QTextDocument::appendUndoItem(QAbstractUndoItem *item)
 {
@@ -44,9 +44,10 @@ void QTextDocument::appendUndoItem(QAbstractUndoItem *item)
 }
 
 /*!
-  Enables/disables the undo stack for the document.
-  Disabling it will also remove all undo items currently on the stack.
-  The default is enabled.
+    Enables the document's undo stack if \a enable is true; disables
+    it if \a enable is false. Disabling the undo stack will also
+    remove all undo items currently on the stack. The default is
+    enabled.
 */
 void QTextDocument::enableUndoRedo(bool enable)
 {
