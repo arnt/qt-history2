@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#54 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#55 $
 **
 ** Definition of QIconView widget class
 **
@@ -183,7 +183,9 @@ public:
     bool intersects( QRect r ) const;
 
     virtual void setFont( const QFont &font );
+    virtual void setColor( const QColor &color );
     QFont font() const;
+    QColor color() const;
 
     virtual void setViewMode( QIconSet::Size mode );
     QIconSet::Size viewMode() const;
@@ -231,6 +233,7 @@ private:
     QRect itemRect, itemTextRect, itemIconRect;
     QFontMetrics *fm;
     QFont *f;
+    QColor *c;
     QIconSet::Size itemViewMode;
     QIconViewItemLineEdit *renameBox;
     bool isReady;
@@ -337,10 +340,12 @@ public:
     void setResortItemsWhenInsert( bool sort, bool ascending = TRUE );
     bool resortItemsWhenInsert() const;
     bool sortOrder() const;
-
     virtual void setRearrangeEnabled( bool b );
     bool rearrangeEnabled() const;
 
+    virtual void setItemFont( const QFont &font );
+    virtual void setItemColor( const QColor &color );
+    
     bool eventFilter( QObject * o, QEvent * );
 
     QSize minimumSizeHint() const;

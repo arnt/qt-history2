@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#121 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#122 $
 **
 ** Definition of QIconView widget class
 **
@@ -132,7 +132,10 @@ struct QIconViewPrivate
     bool singleClickMode;
     QCursor oldCursor;
     bool resortItemsWhenInsert, sortOrder;
-
+    bool hasOwnColor, hasOwnFont;
+    QColor ownColor;
+    QFont ownFont;
+    
     struct SingleClickConfig {
 	SingleClickConfig()
 	    : normalText( 0 ), normalTextCol( 0 ),
@@ -692,6 +695,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after, const QSt
 void QIconViewItem::init()
 {
     f = 0;
+    c = 0;
     if ( view ) {
 	itemKey = itemText;
 	dirty = TRUE;
@@ -711,6 +715,8 @@ QIconViewItem::~QIconViewItem()
 {
     if ( f )
 	delete f;
+    if ( c )
+	delete c;
     view->removeItem( this );
     removeRenameBox();
 }
@@ -1141,7 +1147,7 @@ bool QIconViewItem::intersects( QRect r ) const
 }
 
 /*!
-  Changes font of this item to \a font.
+  Changes the font of this item to \a font.
 */
 
 void QIconViewItem::setFont( const QFont &font )
@@ -1156,6 +1162,31 @@ void QIconViewItem::setFont( const QFont &font )
     fm = new QFontMetrics( *f );
     calcRect();
     repaint();
+}
+
+
+/*!
+  Changes the color of this item to \a color.
+*/
+
+void QIconViewItem::setColor( const QColor &color )
+{
+    if ( !c )
+	c = new QColor;
+    *c = color;
+
+    repaint();
+}
+
+/*!
+  Returns the color of this item.
+*/
+
+QColor QIconViewItem::color() const
+{
+    if ( !c )
+	return view->colorGroup().text();
+    return *c;
 }
 
 /*!
@@ -1354,21 +1385,30 @@ void QIconViewItem::calcRect( const QString &text_ )
 
 void QIconViewItem::paintItem( QPainter *p )
 {
+    p->save();
+    
     if ( f )
 	p->setFont( *f );
     else
 	p->setFont( view->font() );
 
+    if ( c )
+	p->setPen( *c );
+    
     if ( view->d->singleClickMode ) {
-	if ( view->d->highlightedItem == this ) {
+	if ( view->d->highlightedItem == this ) { // if this is the highlighted item
+	    // item's font is strongest and overrides other settings
 	    if ( view->d->singleClickConfig.highlightedText && !f )
 		p->setFont( *view->d->singleClickConfig.highlightedText );
+	    // singlie click highlighte color is strongest and overrides other settings
 	    if ( view->d->singleClickConfig.highlightedTextCol )
 		p->setPen( *view->d->singleClickConfig.highlightedTextCol );
 	} else {
+	    // item's font is strongest and overrides other settings
 	    if ( view->d->singleClickConfig.normalText && !f )
 		p->setFont( *view->d->singleClickConfig.normalText );
-	    if ( view->d->singleClickConfig.normalTextCol )
+	    // item's color is strongest and overrides other settings
+	    if ( view->d->singleClickConfig.normalTextCol && !c )
 		p->setPen( *view->d->singleClickConfig.normalTextCol );
 	}
     }
@@ -1414,6 +1454,8 @@ void QIconViewItem::paintItem( QPainter *p )
 
 	p->restore();
     }
+    
+    p->restore();
 }
 
 /*!
@@ -1752,7 +1794,9 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->singleClickSelectTimer = new QTimer( this );
     d->resortItemsWhenInsert = FALSE;
     d->sortOrder = TRUE;
-
+    d->hasOwnColor = FALSE;
+    d->hasOwnFont = FALSE;
+    
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
@@ -1820,6 +1864,13 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
     if ( !item )
 	return;
 
+    viewport()->setUpdatesEnabled( FALSE );
+    if ( d->hasOwnFont )
+	item->setFont( d->ownFont );
+    if ( d->hasOwnColor )
+	item->setColor( d->ownColor );
+    viewport()->setUpdatesEnabled( TRUE );
+    
     if ( !d->firstItem ) {
 	d->firstItem = d->lastItem = item;
 	item->prev = 0;
@@ -2324,6 +2375,38 @@ void QIconView::setUseSingleClickMode( bool b )
 bool QIconView::useSingleClickMode() const
 {
     return d->singleClickMode;
+}
+
+/*!
+  Sets the \a font for the text of all items in the iconview.
+  New items which are inserted also get this settings.
+*/
+
+void QIconView::setItemFont( const QFont &font )
+{
+    viewport()->setUpdatesEnabled( FALSE );
+    QIconViewItem *item = d->firstItem;
+    for ( ; item; item = item->next )
+	item->setFont( font );
+    d->hasOwnFont = TRUE;
+    d->ownFont = font;
+    viewport()->setUpdatesEnabled( TRUE );
+}
+
+/*!
+  Sets the \a color for the text of all items in the iconview.
+  New items which are inserted also get this settings.
+*/
+
+void QIconView::setItemColor( const QColor &color )
+{
+    viewport()->setUpdatesEnabled( FALSE );
+    QIconViewItem *item = d->firstItem;
+    for ( ; item; item = item->next )
+	item->setColor( color );
+    d->hasOwnColor = TRUE;
+    d->ownColor = color;
+    viewport()->setUpdatesEnabled( TRUE );
 }
 
 /*!
