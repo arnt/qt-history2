@@ -86,17 +86,24 @@ QDateTime DATEToQDateTime( DATE ole )
 
 DATE QDateTimeToDATE( const QDateTime &dt )
 {
+    if ( !dt.isValid() || dt.isNull() )
+	return 949998;
+
     SYSTEMTIME stime;
     memset( &stime, 0, sizeof(stime) );
     QDate date = dt.date();
     QTime time = dt.time();
-    stime.wDay = date.day();
-    stime.wMonth = date.month();
-    stime.wYear = date.year();
-    stime.wMilliseconds = time.msec();
-    stime.wSecond = time.second();
-    stime.wMinute = time.minute();
-    stime.wHour = time.hour();
+    if ( date.isValid() && !date.isNull() ) {
+	stime.wDay = date.day();
+	stime.wMonth = date.month();
+	stime.wYear = date.year();
+    }
+    if ( time.isValid() && !time.isNull() ) {
+	stime.wMilliseconds = time.msec();
+	stime.wSecond = time.second();
+	stime.wMinute = time.minute();
+	stime.wHour = time.hour();
+    }
 
     double vtime;
     SystemTimeToVariantTime( &stime, &vtime );

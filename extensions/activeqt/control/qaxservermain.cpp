@@ -300,7 +300,7 @@ static const char* const type_map[][2] =
     // QVariant/Qt Value data types
     { "int",		"int" },
     { "uint",		"int" },
-    { "bool",		"bool" },
+    { "bool",		"VARIANT_BOOL" },
     { "QString",	"BSTR" },
     { "double",		"double" },
     { "QCString",	"BSTR" },
@@ -693,7 +693,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		    out << ", nonbrowsable";
 		if ( isBindable )
 		    out << ", requestedit";
-		out << "] HRESULT " << name << "(" << type << " newVal);" << endl;
+		out << "] HRESULT " << name << "([in] " << type << " newVal);" << endl;
 	    }
 
 	    if ( !ok )
