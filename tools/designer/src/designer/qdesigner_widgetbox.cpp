@@ -22,6 +22,7 @@
 QDesignerWidgetBox::QDesignerWidgetBox(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
+    setObjectName(QLatin1String("WidgetBox"));
     WidgetBox *widget = new WidgetBox(workbench->core(), this);
     workbench->core()->setWidgetBox(widget);
 

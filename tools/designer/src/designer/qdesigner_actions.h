@@ -110,6 +110,7 @@ private slots:
     void previewForm();
     void notImplementedYet();
     void editPreferences();
+    void shutdown();
 
 private:
     bool saveFormAs(AbstractFormWindow *fw);

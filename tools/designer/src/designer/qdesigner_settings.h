@@ -14,25 +14,24 @@
 #ifndef QDESIGNER_SETTINGS_H
 #define QDESIGNER_SETTINGS_H
 
+#include <QtCore/QRect>
 #include <QtCore/QSettings>
 
-class QDesignerSettings: public QObject
+class QDesignerToolWindow;
+class QDesignerSettings : public QSettings
 {
-    Q_OBJECT
 public:
-    QDesignerSettings(QObject *parent = 0);
+    QDesignerSettings();
     virtual ~QDesignerSettings();
 
     QStringList formTemplatePaths() const;
 
-// ### protected:
-    inline QSettings *settings();
+    void setGeometryFor(QWidget *w, const QRect &fallBack = QRect()) const;
+    void saveGeometryFor(const QWidget *w);
 
 private:
-    QSettings m_settings;
+    void setGeometryHelper(QWidget *w, const QString &key, const QRect &fallBack) const;
+    void saveGeometryHelper(const QWidget *w, const QString &key);
 };
-
-inline QSettings *QDesignerSettings::settings()
-{ return &m_settings; }
 
 #endif // QDESIGNER_SETTINGS_H

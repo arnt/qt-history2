@@ -38,7 +38,7 @@
 
 QDesignerMainWindow::QDesignerMainWindow(QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags),
-      m_workbench(0)
+      m_workbench(0), m_savedAlready(false)
 {
     initialize();
 
@@ -268,6 +268,10 @@ void QDesignerMainWindow::closeEvent(QCloseEvent *ev)
     for (int i = 0; i < totalWindows; ++i)
         m_workbench->formWindow(i)->close();
 
-    //saveSettings();
+    // Protect against getting two close events.
+    if (!m_savedAlready) {
+        m_workbench->saveSettings();
+        m_savedAlready = true;
+    }
     QApplication::instance()->quit();
 }

@@ -22,6 +22,7 @@
 QDesignerPropertyEditor::QDesignerPropertyEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
+    setObjectName(QLatin1String("PropertyEditor"));
     PropertyEditor *widget = new PropertyEditor(workbench->core(), this);
     workbench->core()->setPropertyEditor(widget);
 

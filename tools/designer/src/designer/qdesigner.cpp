@@ -28,7 +28,6 @@ extern int qInitResources_widgetbox();
 QDesigner::QDesigner(int &argc, char **argv)
     : QApplication(argc, argv),
       m_server(0),
-      m_settings(0),
       m_session(0),
       m_mainWindow(0)
 {
@@ -50,11 +49,6 @@ QDesignerSession *QDesigner::session() const
     return m_session;
 }
 
-QDesignerSettings *QDesigner::settings() const
-{
-    return m_settings;
-}
-
 QDesignerMainWindow *QDesigner::mainWindow() const
 {
     return m_mainWindow;
@@ -69,7 +63,6 @@ void QDesigner::initialize()
 {
     // initialize the sub components
     m_server = new QDesignerServer(this);
-    m_settings = new QDesignerSettings(this);
     m_session = new QDesignerSession(this);
     m_mainWindow = new QDesignerMainWindow();
 
@@ -92,13 +85,13 @@ bool QDesigner::event(QEvent *ev)
         eaten = true;
         break;
     case QEvent::Close: {
-            QCloseEvent *closeEvent = static_cast<QCloseEvent *>(ev);
-            sendEvent(m_mainWindow, closeEvent);
-            if (closeEvent->isAccepted())
-                eaten = QApplication::event(ev);
-            eaten = true;
-        }
+        QCloseEvent *closeEvent = static_cast<QCloseEvent *>(ev);
+        sendEvent(m_mainWindow, closeEvent);
+        if (closeEvent->isAccepted())
+            eaten = QApplication::event(ev);
+        eaten = true;
         break;
+    }
     default:
         eaten = QApplication::event(ev);
         break;

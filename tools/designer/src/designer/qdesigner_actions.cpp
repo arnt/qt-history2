@@ -30,6 +30,7 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
+#include <QtGui/QCloseEvent>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
@@ -102,7 +103,7 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
 
     m_quitAction = new QAction(tr("&Quit"), this);
     connect(m_quitAction, SIGNAL(triggered()),
-            qDesigner, SLOT(quit()));
+            this, SLOT(shutdown()));
     m_fileActions->addAction(m_quitAction);
 
 //
@@ -602,4 +603,15 @@ bool QDesignerActions::writeOutForm(AbstractFormWindow *fw, const QString &saveF
     }
     fw->setDirty(false);
     return true;
+}
+
+void QDesignerActions::shutdown()
+{
+
+    // Follow the idea from the Mac, i.e. send the Application a close event
+    // and if it's accepted, quit.
+    QCloseEvent ev;
+    QApplication::sendEvent(qDesigner, &ev);
+    if (ev.isAccepted())
+        qDesigner->quit();
 }

@@ -33,7 +33,6 @@ public:
     virtual ~QDesigner();
 
     QDesignerMainWindow *mainWindow() const;
-    QDesignerSettings *settings() const;
     QDesignerSession *session() const;
     QDesignerServer *server() const;
 
@@ -48,7 +47,6 @@ private slots:
 
 private:
     QDesignerServer *m_server;
-    QDesignerSettings *m_settings;
     QDesignerSession *m_session;
     QDesignerMainWindow *m_mainWindow;
 };

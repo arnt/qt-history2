@@ -22,6 +22,7 @@
 QDesignerObjectInspector::QDesignerObjectInspector(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
+    setObjectName(QLatin1String("ObjectInspector"));
     ObjectInspector *widget = new ObjectInspector(workbench->core(), this);
     workbench->core()->setObjectInspector(widget);
 

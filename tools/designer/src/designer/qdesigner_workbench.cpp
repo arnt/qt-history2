@@ -16,6 +16,7 @@
 #include "qdesigner_mainwindow.h"
 #include "qdesigner_toolwindow.h"
 #include "qdesigner_formwindow.h"
+#include "qdesigner_settings.h"
 #include "qdesigner_widgetbox.h"
 #include "qdesigner_propertyeditor.h"
 #include "qdesigner_objectinspector.h"
@@ -153,7 +154,7 @@ void QDesignerWorkbench::switchToNeutralMode()
      if (m_mode == NeutralMode)
          return;
 
-     mainWindow()->setFocus();
+    mainWindow()->setFocus();
 
     m_mode = NeutralMode;
 
@@ -216,13 +217,17 @@ void QDesignerWorkbench::switchToWorkspaceMode()
 
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
         tw->setParent(magicalParent());
-        tw->setGeometry(m_geometries.value(tw, tw->geometryHint()));
+        QRect g = m_geometries.value(tw, tw->geometryHint());
+        tw->resize(g.size());
+        tw->move(g.topLeft());
         tw->show();
     }
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
         fw->setParent(magicalParent());
-        fw->setGeometry(m_geometries.value(fw, fw->geometryHint()));
+        QRect g = m_geometries.value(fw, fw->geometryHint());
+        fw->resize(g.size());
+        fw->move(g.topLeft());
         fw->show();
     }
 
@@ -241,28 +246,35 @@ void QDesignerWorkbench::switchToTopLevelMode()
     QDesignerToolWindow *widgetBoxWrapper = 0;
     if (0 != (widgetBoxWrapper = findToolWindow(core()->widgetBox()))) {
         QRect g = m_geometries.value(widgetBoxWrapper, widgetBoxWrapper->geometryHint());
-        widgetBoxWrapper->setParent(mainWindow());
-        mainWindow()->setCentralWidget(widgetBoxWrapper);
-        mainWindow()->setGeometry(g);
-        widgetBoxWrapper->show();
+        QMainWindow *mw = mainWindow();
+        widgetBoxWrapper->setParent(mw);
+        mw->setCentralWidget(widgetBoxWrapper);
+        mw->resize(g.size());
+        mw->move(g.topLeft());
         widgetBoxWrapper->action()->setEnabled(false);
     }
 
-    foreach (QDesignerToolWindow *tw, m_toolWindows) {
-        if (tw == widgetBoxWrapper)
-            continue;
-
-        tw->setParent(magicalParent(), Qt::WStyle_Tool);
-        tw->setGeometry(m_geometries.value(tw, tw->geometryHint()));
-        tw->show();
+    if (m_geometries.isEmpty()) {
+        readInSettings();
+    } else {
+        foreach (QDesignerToolWindow *tw, m_toolWindows) {
+            if (tw != widgetBoxWrapper) {
+                tw->setParent(magicalParent(), Qt::WStyle_Tool);
+                QRect g = m_geometries.value(tw, tw->geometryHint());
+                tw->resize(g.size());
+                tw->move(g.topLeft());
+            }
+            tw->show();
+        }
     }
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
         fw->setParent(magicalParent(), Qt::WType_TopLevel);
-        fw->setGeometry(m_geometries.value(fw, fw->geometryHint()));
+        QRect g = m_geometries.value(fw, fw->geometryHint());
+        fw->resize(g.size());
+        fw->move(g.topLeft());
         fw->show();
     }
-
     mainWindow()->showNormal();
 }
 
@@ -397,4 +409,16 @@ void QDesignerWorkbench::initializeCorePlugins()
     }
 }
 
+void QDesignerWorkbench::readInSettings()
+{
+    QDesignerSettings settings;
+    foreach (QDesignerToolWindow *tw, m_toolWindows)
+        settings.setGeometryFor(tw, tw->geometryHint());
+}
 
+void QDesignerWorkbench::saveSettings() const
+{
+    QDesignerSettings settings;
+    foreach (QDesignerToolWindow *tw, m_toolWindows)
+        settings.saveGeometryFor(tw);
+}

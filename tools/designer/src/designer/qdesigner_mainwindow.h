@@ -70,6 +70,7 @@ private:
     QMenu *m_formMenu;
     QMenu *m_toolMenu;
     QMenu *m_windowMenu;
+    bool m_savedAlready;
 };
 
 

@@ -78,6 +78,8 @@ public:
     QRect availableGeometry() const;
     int marginHint() const;
 
+    void saveSettings() const;
+
 signals:
     void toolWindowAdded(QDesignerToolWindow *toolWindow);
     void toolWindowRemoved(QDesignerToolWindow *toolWindow);
@@ -109,6 +111,7 @@ private slots:
 private:
     QWidget *magicalParent() const;
     AbstractFormWindowManager *formWindowManager() const;
+    void readInSettings();
 
 private:
     AbstractFormEditor *m_core;
