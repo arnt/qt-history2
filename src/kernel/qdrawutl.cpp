@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutl.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qdrawutl.cpp#2 $
 **
 ** Implementation of draw utilities
 **
@@ -12,7 +12,7 @@
 
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutl.cpp#1 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutl.cpp#2 $")
 
 
 /*!
@@ -323,10 +323,10 @@ void drawWinButton( QPainter *p, int x, int y, int w, int h,
 {
     if ( sunken )
 	drawWinShades( p, x, y, w, h,
-		       g.dark(), g.light(), g.mid(), g.background(), fill );
+		       black, g.light(), g.dark(), g.background(), fill );
     else
 	drawWinShades( p, x, y, w, h,
-		       g.light(), g.dark(), g.background(), g.mid(), fill );
+		       g.light(), black, g.background(), g.dark(), fill );
 }
 
 
@@ -336,10 +336,10 @@ void drawWinPanel( QPainter *p, int x, int y, int w, int h,
 {
     if ( sunken )
 	drawWinShades( p, x, y, w, h,
-		       g.mid(), g.light(), g.dark(), g.background(), fill );
+		       g.dark(), g.light(), black, g.background(), fill );
     else
 	drawWinShades( p, x, y, w, h,
-		       g.background(), g.dark(), g.light(), g.mid(), fill );
+		       g.background(), black, g.light(), g.dark(), fill );
 }
 
 
