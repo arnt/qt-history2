@@ -74,11 +74,11 @@ protected:
     QString imageFileName( const Location& location, const QString& fileBase );
     void setImageFileExtensions( const QStringList& extensions );
     void unknownAtom( const Atom *atom );
-    bool matchAhead( const Atom *atom, Atom::Type expectedAtomType );
     QMap<QString, QString> &formattingLeftMap();
     QMap<QString, QString> &formattingRightMap();
 
     static QString trimmedTrailing(const QString &string);
+    static bool matchAhead( const Atom *atom, Atom::Type expectedAtomType );
 
 private:
     void generateOverload( const Node *node, CodeMarker *marker );

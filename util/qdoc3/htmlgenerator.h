@@ -90,6 +90,7 @@ private:
     void findAllFunctions(const InnerNode *node);
     void findAllLegaleseTexts(const InnerNode *node);
     static int hOffset(const Node *node);
+    static bool isThreeColumnEnumValueTable(const Atom *atom);
 
 #if 0
     NavigationBar currentNavigationBar;
@@ -99,6 +100,7 @@ private:
     bool inLink;
     bool inTableHeader;
     int numTableRows;
+    bool threeColumnEnumValueTable;
     QString link;
     QStringList sectionNumber;
     QRegExp funcLeftParen;

@@ -873,7 +873,29 @@ bool CppCodeParser::matchEnumItem( EnumNode *enume )
 	    readToken();
 	}
     }
-    enume->addItem( EnumItem(name, val.toString()) );
+
+    QString strVal = val.toString();
+    if (strVal.isEmpty()) {
+        if (enume->items().isEmpty()) {
+            strVal = "0";
+        } else {
+            QString last = enume->items().last().value();
+            bool ok;
+            int n = last.toInt(&ok);
+            if (ok) {
+                if (last.startsWith("0") && last.size() > 1) {
+                    if (last.startsWith("0x") || last.startsWith("0X"))
+                        strVal = last.left(2) + QString::number(n + 1, 16);
+                    else
+                        strVal = "0" + QString::number(n + 1, 8);
+                } else {
+                    strVal = QString::number(n + 1);
+                }
+            }
+        }
+    }
+
+    enume->addItem( EnumItem(name, strVal) );
     return true;
 }
 

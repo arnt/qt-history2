@@ -223,6 +223,7 @@ public:
     const QList<EnumItem>& items() const { return itms; }
     Access itemAccess( const QString& name ) const;
     const TypedefNode *flagsType() const { return ft; }
+    QString itemValue(const QString &name) const;
 
 private:
     QList<EnumItem> itms;

@@ -461,6 +461,15 @@ Node::Access EnumNode::itemAccess(const QString &name) const
     }
 }
 
+QString EnumNode::itemValue(const QString &name) const
+{
+    foreach (const EnumItem &item, itms) {
+        if (item.name() == name)
+            return item.value();
+    }
+    return QString();
+}
+
 TypedefNode::TypedefNode( InnerNode *parent, const QString& name )
     : LeafNode( Typedef, parent, name ), ae(0)
 {

@@ -18,7 +18,8 @@
 static bool showBrokenLinks = false;
 
 HtmlGenerator::HtmlGenerator()
-    : inLink(false), inTableHeader(false), numTableRows(0), funcLeftParen("\\S(\\()"), tre(0)
+    : inLink(false), inTableHeader(false), numTableRows(0), threeColumnEnumValueTable(true),
+      funcLeftParen("\\S(\\()"), tre(0)
 {
 }
 
@@ -100,6 +101,7 @@ void HtmlGenerator::startText(const Node * /* relative */, CodeMarker * /* marke
     inLink = false;
     inTableHeader = false;
     numTableRows = 0;
+    threeColumnEnumValueTable = true;
     link = "";
     sectionNumber.clear();
 }
@@ -319,8 +321,15 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	} else if ( atom->string() == ATOM_LIST_TAG ) {
 	    out() << "<dl>\n";
 	} else if ( atom->string() == ATOM_LIST_VALUE ) {
-	    out() << "<table border=\"1\" cellpadding=\"2\" cellspacing=\"1\""
-		     " width=\"100%\">\n";
+            threeColumnEnumValueTable = isThreeColumnEnumValueTable(atom);
+            if (threeColumnEnumValueTable) {
+	        out() << "<table border=\"1\" cellpadding=\"2\" cellspacing=\"1\" width=\"100%\">\n"
+                         "<tr><th width=\"25%\">Constant</th><th width=\"15%\">Value</th>"
+                         "<th width=\"60%\">Description</th></th>\n";
+            } else {
+                out() << "<table border=\"1\" cellpadding=\"2\" cellspacing=\"1\" width=\"40%\">\n"
+                      << "<tr><th width=\"60%\">Constant</th><th width=\"40%\">Value</th></th>\n";
+            }
 	} else {
             out() << "<ol type=";
             if ( atom->string() == ATOM_LIST_UPPERALPHA ) {
@@ -345,8 +354,22 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	if ( atom->string() == ATOM_LIST_TAG ) {
 	    out() << "<dt>";
 	} else { // ( atom->string() == ATOM_LIST_VALUE )
-	    out() << "<tr><td valign=\"top\" width=\"25%\"><tt>"
-                  << protect(plainCode(marker->markedUpEnumValue(atom->next()->string(), relative)));
+	    out() << "<tr><td valign=\"top\"><tt>"
+                  << protect(plainCode(marker->markedUpEnumValue(atom->next()->string(),
+                                                                 relative)))
+                  << "</tt><td align=\"center\" valign=\"top\">";
+
+            QString itemValue;
+            if (relative->type() == Node::Enum) {
+                const EnumNode *enume = static_cast<const EnumNode *>(relative);
+                itemValue = enume->itemValue(atom->next()->string());
+            }
+
+            if (itemValue.isEmpty())
+                out() << "&nbsp;";
+            else
+                out() << "<tt>" << protect(itemValue) << "</tt>";
+
             skipAhead = 1;
 	}
 	break;
@@ -358,9 +381,11 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	if ( atom->string() == ATOM_LIST_TAG ) {
 	    out() << "<dd>";
 	} else if ( atom->string() == ATOM_LIST_VALUE ) {
-	    out() << "</tt></td><td>";
-	    if ( matchAhead(atom, Atom::ListItemRight) )
-		out() << "&nbsp;";
+            if (threeColumnEnumValueTable) {
+                out() << "</td><td valign=\"top\">";
+	        if ( matchAhead(atom, Atom::ListItemRight) )
+		    out() << "&nbsp;";
+            }
 	} else {
 	    out() << "<li>";
 	}
@@ -457,8 +482,9 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
                       << "cellspacing=\"1\" border=\"0\">\n";
             else
                 out() << "<table align=\"center\" cellpadding=\"2\" cellspacing=\"1\" border=\"0\">\n";
-        } else
+        } else {
             out() << "<table align=\"center\" cellpadding=\"2\" cellspacing=\"1\" border=\"0\">\n";
+        }
         numTableRows = 0;
 	break;
     case Atom::TableRight:
@@ -1812,4 +1838,14 @@ int HtmlGenerator::hOffset(const Node *node)
     default:
 	return 3;
     }
+}
+
+bool HtmlGenerator::isThreeColumnEnumValueTable(const Atom *atom)
+{
+    while (atom != 0 && !(atom->type() == Atom::ListRight && atom->string() == ATOM_LIST_VALUE)) {
+        if (atom->type() == Atom::ListItemLeft && !matchAhead(atom, Atom::ListItemRight))
+            return true;
+        atom = atom->next();
+    }
+    return false;
 }

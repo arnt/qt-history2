@@ -2,11 +2,7 @@
   main.cpp
 */
 
-#include <QtAlgorithms>
-#include <QCoreApplication>
-#include <qdir.h>
-#include <QHash>
-#include <qtranslator.h>
+#include <QtCore>
 
 #include <stdlib.h>
 

@@ -2,11 +2,7 @@
   config.cpp
 */
 
-#include <qdir.h>
-#include <qfile.h>
-#include <qregexp.h>
-#include <qtemporaryfile.h>
-#include <stdlib.h>
+#include <QtCore>
 
 #include "archiveextractor.h"
 #include "config.h"
@@ -260,6 +256,7 @@ QStringList Config::getAllFiles(const QString &filesVar, const QString &dirsVar,
 {
     QStringList result = getStringList(filesVar);
     QStringList dirs = getStringList(dirsVar);
+
     QString nameFilter = getString(filesVar + dot + CONFIG_FILEEXTENSIONS);
     if (nameFilter.isEmpty())
 	nameFilter = defaultNameFilter;
@@ -661,13 +658,14 @@ QStringList Config::getFilesHere(const QString& dir, const QString& nameFilter)
     QStringList fileNames;
     QStringList::Iterator fn;
 
-    dirInfo.setNameFilters(QStringList(nameFilter.split(' ')));
+    dirInfo.setNameFilters(nameFilter.split(' '));
     dirInfo.setSorting( QDir::Name );
     dirInfo.setFilter( QDir::Files );
     fileNames = dirInfo.entryList();
     fn = fileNames.begin();
     while ( fn != fileNames.end() ) {
-	result += dirInfo.filePath( *fn );
+        if (!fn->startsWith("~"))
+            result += dirInfo.filePath( *fn );
 	++fn;
     }
 

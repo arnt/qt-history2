@@ -1,6 +1,7 @@
 From Jasmin:
 
-  * show enum values
+  * be smart about enum types Foo::Bar vs. Bar when comparing functions
+  * be smart about const & non-const when comparing functions
 
   * expand QObjectList -> QList<QObject *>
   * Don't use "..." in enums for just one value
