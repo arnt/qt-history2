@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#130 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#131 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#130 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#131 $");
 
 
 /*!
@@ -754,7 +754,7 @@ QSize QComboBox::sizeHint() const
     QFontMetrics fm = fontMetrics();
 
     int extraW = 20;
-    int maxW = 5 * fm.height() + 18;;
+    int maxW = count() ? 18 : 7 * fm.width('x') + 18;
     int maxH = QMAX( fm.height(), 12 );
 
     for( i = 0; i < count(); i++ ) {
