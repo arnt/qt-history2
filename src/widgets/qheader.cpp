@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#98 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -363,7 +363,7 @@ int QHeader::cellAt( int c ) const
 	while ( i >= 0 && pos < cellPos( i ) )
 	    i--;
     }
-    
+
     return i >= count() ? -1 : i;
 }
 
@@ -612,6 +612,15 @@ QRect QHeader::sRect( int i )
 }
 
 
+/*!
+  Sets the icon on logical section \a i to \a iconset and the text to \a s. 
+  If the section does not exist, nothing happens.
+  If \a size is non-negative, the section width is set to \a size.
+
+  Any icon set that has been defined for this section remains
+  unchanged.
+*/
+
 void QHeader::setLabel( int i, const QIconSet& iconset, const QString &s, int size )
 {
     if ( i < 0 || i >= count() )
@@ -686,7 +695,7 @@ void QHeader::removeLabel( int index )
 {
     if ( index < 0 || index > count() - 1 )
 	return;
-    
+
     if ( index < count() - 1 ) {
 	for ( int i = index; i < count() - 1; ++i ) {
 	    int ns = cellSize( i + 1 );
@@ -697,7 +706,7 @@ void QHeader::removeLabel( int index )
 	    setCellSize( i, ns );
 	}
     }
-    
+
     data->sizes.resize( data->sizes.size() - 1 );
     data->heights.resize( data->heights.size() - 1 );
     data->labels.resize( data->labels.size() - 1 );
