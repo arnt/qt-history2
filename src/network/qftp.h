@@ -129,7 +129,6 @@ protected:
 
 private:
     void init();
-    bool parseDir( const QString &buffer, const QString userName, QUrlInfo *info );
     bool checkConnection( QNetworkOperation *op );
     void closeInternal();
     void reinitCommandSocket();
@@ -145,10 +144,6 @@ private slots:
     void startNextCommand();
     void piFinished( int, const QString& );
     void piConnectState( int );
-    void piConnectDTP( const QString&, Q_UINT16 );
-    void dtpConnected();
-    void dtpConnectionClosed();
-    void dtpReadyRead();
 
 protected slots:
     // ### make these private in Qt 4.0
