@@ -841,7 +841,18 @@ void QWidget::repaint(const QRegion& r)
 	return;
 
     setWState(WState_InPaintEvent);
+#ifndef Q_OS_TEMP
     ValidateRgn( winId(), rgn.handle() );
+#else
+    if ( reg.handle() ) {
+        QRect qr = reg.boundingRect();
+        RECT r = { qr.x(), qr.y(), qr.right(), qr.bottom() };
+        ValidateRect( winId(), &r );
+    } else {
+        // Entire area
+        ValidateRect( winId(), NULL );
+    }
+#endif
     qt_set_paintevent_clipping( this, rgn );
 
     if (!testAttribute(WA_NoBackground)) {
