@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#44 $
+** $Id: //depot/qt/main/src/tools/qstring.h#45 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -97,8 +97,10 @@ int qstrnicmp( const char *, const char *, uint len );
 
 // qchecksum: Internet checksum
 
+#if !defined(QT_CLEAN_NAMESPACE)
 UINT16 qchecksum( const char *s, uint len );
-
+#endif
+Q_UINT16 qChecksum( const char *s, uint len );
 
 /*****************************************************************************
   QByteArray class

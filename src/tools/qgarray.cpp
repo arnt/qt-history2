@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#36 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#37 $
 **
 ** Implementation of QGArray class
 **
@@ -26,7 +26,7 @@
 #include "qstring.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#37 $");
 
 
 #define USE_MALLOC				// comment to use new/delete
@@ -243,13 +243,13 @@ bool QGArray::fill( const char *d, int len, uint sz )
     if ( sz == 1 )				// 8 bit elements
 	memset( data(), *d, len );
     else if ( sz == 4 ) {			// 32 bit elements
-	register INT32 *x = (INT32*)data();
-	INT32 v = *((INT32*)d);
+	register Q_INT32 *x = (Q_INT32*)data();
+	Q_INT32 v = *((Q_INT32*)d);
 	while ( len-- )
 	    *x++ = v;
     } else if ( sz == 2 ) {			// 16 bit elements
-	register INT16 *x = (INT16*)data();
-	INT16 v = *((INT16*)d);
+	register Q_INT16 *x = (Q_INT16*)data();
+	INT16 v = *((Q_INT16*)d);
 	while ( len-- )
 	    *x++ = v;
     } else {					// any other size elements
@@ -519,8 +519,8 @@ int QGArray::find( const char *d, uint index, uint sz ) const
 	    }
 	    break;
 	case 2: {				// 16 bit elements
-	    register INT16 *x = (INT16*)(data() + index);
-	    INT16 v = *((INT16*)d);
+	    register Q_INT16 *x = (INT16*)(data() + index);
+	    Q_INT16 v = *((Q_INT16*)d);
 	    for ( i=index; i<shd->len; i+=2 ) {
 		if ( *x++ == v )
 		    break;
@@ -529,8 +529,8 @@ int QGArray::find( const char *d, uint index, uint sz ) const
 	    }
 	    break;
 	case 4: {				// 32 bit elements
-	    register INT32 *x = (INT32*)(data() + index);
-	    INT32 v = *((INT32*)d);
+	    register Q_INT32 *x = (Q_INT32*)(data() + index);
+	    Q_INT32 v = *((Q_INT32*)d);
 	    for ( i=index; i<shd->len; i+=4 ) {
 		if ( *x++ == v )
 		    break;
@@ -573,8 +573,8 @@ int QGArray::contains( const char *d, uint sz ) const
 	    }
 	    break;
 	case 2: {				// 16 bit elements
-	    register INT16 *x = (INT16*)data();
-	    INT16 v = *((INT16*)d);
+	    register Q_INT16 *x = (Q_INT16*)data();
+	    Q_INT16 v = *((Q_INT16*)d);
 	    i /= 2;
 	    while ( i-- ) {
 		if ( *x++ == v )
@@ -583,8 +583,8 @@ int QGArray::contains( const char *d, uint sz ) const
 	    }
 	    break;
 	case 4: {				// 32 bit elements
-	    register INT32 *x = (INT32*)data();
-	    INT32 v = *((INT32*)d);
+	    register Q_INT32 *x = (Q_INT32*)data();
+	    Q_INT32 v = *((Q_INT32*)d);
 	    i /= 4;
 	    while ( i-- ) {
 		if ( *x++ == v )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#43 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#44 $
 **
 ** Global functions
 **
@@ -16,7 +16,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#44 $");
 
 
 #define QT_VERSION "1.1"
@@ -83,7 +83,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 #endif
 	return FALSE;
     }
-    if ( sizeof(INT8) != 1 || sizeof(INT16) != 2 || sizeof(INT32) != 4 ||
+    if ( sizeof(Q_INT8) != 1 || sizeof(Q_INT16) != 2 || sizeof(Q_INT32) != 4 ||
 	 sizeof(float) != 4 || sizeof(double) != 8 ) {
 #if defined(CHECK_RANGE)
 	fatal( "qSysInfo: Unsupported system data type size" );

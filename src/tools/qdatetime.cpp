@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#50 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#51 $
 **
 ** Implementation of date and time classes
 **
@@ -33,7 +33,7 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetime.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetime.cpp#51 $");
 
 
 static const uint FIRST_DAY	= 2361222;	// Julian day for 17520914
@@ -1017,12 +1017,12 @@ QDateTime QDateTime::currentDateTime()
   \relates QDate
   Writes the date to the stream.
 
-  Serialization format: [UINT32], Julian day.
+  Serialization format: [Q_UINT32], Julian day.
 */
 
 QDataStream &operator<<( QDataStream &s, const QDate &d )
 {
-    return s << (UINT32)(d.jd);
+    return s << (Q_UINT32)(d.jd);
 }
 
 /*!
@@ -1032,7 +1032,7 @@ QDataStream &operator<<( QDataStream &s, const QDate &d )
 
 QDataStream &operator>>( QDataStream &s, QDate &d )
 {
-    UINT32 jd;
+    Q_UINT32 jd;
     s >> jd;
     d.jd = jd;
     return s;
@@ -1042,12 +1042,12 @@ QDataStream &operator>>( QDataStream &s, QDate &d )
   \relates QTime
   Writes a time to the stream.
 
-  Serialization format: [UINT32], milliseconds since midnight.
+  Serialization format: [Q_UINT32], milliseconds since midnight.
 */
 
 QDataStream &operator<<( QDataStream &s, const QTime &t )
 {
-    return s << (UINT32)(t.ds);
+    return s << (Q_UINT32)(t.ds);
 }
 
 /*!
@@ -1057,7 +1057,7 @@ QDataStream &operator<<( QDataStream &s, const QTime &t )
 
 QDataStream &operator>>( QDataStream &s, QTime &t )
 {
-    UINT32 ds;
+    Q_UINT32 ds;
     s >> ds;
     t.ds = ds;
     return s;

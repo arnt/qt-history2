@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#88 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#89 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#89 $");
 
 
 /*****************************************************************************
@@ -233,7 +233,7 @@ int qstrnicmp( const char *str1, const char *str2, uint len )
 }
 
 
-static UINT16 crc_tbl[16];
+static Q_UINT16 crc_tbl[16];
 static bool   crc_tbl_init = FALSE;
 
 static void createCRC16Table()			// build CRC16 lookup table
@@ -272,13 +272,38 @@ static void createCRC16Table()			// build CRC16 lookup table
   The checksum is independent of the byte order (endianness).
 */
 
+Q_UINT16 qChecksum( const char *data, uint len )
+{
+    if ( !crc_tbl_init ) {			// create lookup table
+	createCRC16Table();
+	crc_tbl_init = TRUE;
+    }
+    register Q_UINT16 crc = 0xffff;
+    uchar c;
+    uchar *p = (uchar *)data;
+    while ( len-- ) {
+	c = *p++;
+	crc = ((crc >> 4) & 0x0fff) ^ crc_tbl[((crc ^ c) & 15)];
+	c >>= 4;
+	crc = ((crc >> 4) & 0x0fff) ^ crc_tbl[((crc ^ c) & 15)];
+    }
+    return (~crc & 0xffff);
+}
+
+/*!
+  \relates QByteArray
+
+  Please use qChecksum; this function is provided only for
+  upward compatibility.
+*/
+
 UINT16 qchecksum( const char *data, uint len )
 {
     if ( !crc_tbl_init ) {			// create lookup table
 	createCRC16Table();
 	crc_tbl_init = TRUE;
     }
-    register UINT16 crc = 0xffff;
+    register Q_UINT16 crc = 0xffff;
     uchar c;
     uchar *p = (uchar *)data;
     while ( len-- ) {
@@ -315,7 +340,7 @@ UINT16 qchecksum( const char *data, uint len )
   \relates QByteArray
   Writes a byte array to a stream and returns a reference to the stream.
 
-  The serialization format is the byte array size (\c UINT32) followed by
+  The serialization format is the byte array size (\c Q_UINT32) followed by
   this number of bytes.
 */
 
@@ -331,7 +356,7 @@ QDataStream &operator<<( QDataStream &s, const QByteArray &a )
 
 QDataStream &operator>>( QDataStream &s, QByteArray &a )
 {
-    UINT32 len;
+    Q_UINT32 len;
     s >> len;					// read size of array
     if ( !a.resize( (uint)len ) ) {		// resize array
 #if defined(CHECK_NULL)
@@ -1577,7 +1602,7 @@ QString &QString::operator+=( char c )
   \relates QString
   Writes a string to the stream.
 
-  Output format: [length (UINT32) data...]
+  Output format: [length (Q_UINT32) data...]
 */
 
 QDataStream &operator<<( QDataStream &s, const QString &str )
@@ -1592,7 +1617,7 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
 
 QDataStream &operator>>( QDataStream &s, QString &str )
 {
-    UINT32 len;
+    Q_UINT32 len;
     s >> len;					// read size of string
     if ( !str.QByteArray::resize( (uint)len )) {// resize string
 #if defined(CHECK_NULL)
