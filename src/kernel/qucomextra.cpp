@@ -60,6 +60,12 @@ QVariant &QUType_QVariant::get( QUObject * o )
 
 bool QUType_QVariant::canConvertFrom( QUObject *o, QUType *t )
 {
+    if ( isEqual( o->type, &static_QUType_QString )
+      || isEqual( o->type, &static_QUType_int )
+      || isEqual( o->type, &static_QUType_bool )
+      || isEqual( o->type, &static_QUType_double )
+      || isEqual( o->type, &static_QUType_charstar ) )
+	return TRUE;
     return t->canConvertTo( o, this );
 }
 
@@ -70,7 +76,24 @@ bool QUType_QVariant::canConvertTo( QUObject * /*o*/, QUType * /*t*/ )
 
 bool QUType_QVariant::convertFrom( QUObject *o, QUType *t )
 {
-    return t->convertTo( o, this );
+    QVariant *var = 0;
+    if ( isEqual( o->type, &static_QUType_QString ) )
+	var = new QVariant( static_QUType_QString.get( o ) );
+    else if ( isEqual( o->type, &static_QUType_int ) )
+	var = new QVariant( static_QUType_int.get( o ) );
+    else if ( isEqual( o->type, &static_QUType_bool ) )
+	var = new QVariant( static_QUType_bool.get( o ), 42 );
+    else if ( isEqual( o->type, &static_QUType_double ) )
+	var = new QVariant( static_QUType_double.get( o ) );
+    else if ( isEqual( o->type, &static_QUType_charstar ) )
+	var = new QVariant( static_QUType_charstar.get( o ) );
+    else
+	return t->convertTo( o, this );
+
+    o->type->clear( o );
+    o->payload.ptr = var;
+    o->type = this;
+    return TRUE;
 }
 
 bool QUType_QVariant::convertTo( QUObject * /*o*/, QUType * /*t*/ )
