@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.h#17 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.h#18 $
 **
 ** Definition of QTableView class
 **
@@ -118,6 +118,7 @@ protected:
 
     void	scroll( int xPixels, int yPixels );
     void	updateScrollBars();
+    void	updateTableSize();
 
 private:
     void	coverCornerSquare( bool );

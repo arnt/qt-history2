@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#66 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#66 $");
 
 
 const int sbDim = 16;
@@ -72,7 +72,8 @@ void CornerSquare::paintEvent( QPaintEvent * )
   call to setTableFlags(), some table content manipulation, and an
   implementation of paintCell().  Subclasses that need cells with
   variable width or height must reimplement cellHeight() and/or
-  cellWidth().
+  cellWidth(). Use updateTableSize() to tell QTableView when the
+  width or height has changed. 
 
   When you read this documentation, it is important to understand the
   distinctions between the four coordinate systems involved.
@@ -550,9 +551,10 @@ void QTableView::setOffset( int x, int y, bool updateScrBars )
   Returns the width of column \e col, in pixels.
 
   This function is virtual and must be reimplemented by subclasses that
-  have variable cell widths.
+  have variable cell widths. Note that if the total table width 
+  changes, updateTableSize() must be called.
 
-  \sa setCellWidth(), cellHeight(), totalWidth()
+  \sa setCellWidth(), cellHeight(), totalWidth(), updateTableSize()
 */
 
 int QTableView::cellWidth( int )
@@ -601,7 +603,8 @@ void QTableView::setCellWidth( int cellWidth )
   Returns the height of row \e row, in pixels.
 
   This function is virtual and must be reimplemented by subclasses that
-  have variable cell heights.
+  have variable cell heights.  Note that if the total table height
+  changes, updateTableSize() must be called.
 
   \sa setCellHeight(), cellWidth(), totalHeight()
 */
@@ -2310,4 +2313,21 @@ void QTableView::showOrHideScrollBars()
 		cornerSquare->hide();
 	}
     }
+}
+
+
+/*!
+  Updates the scroll bars and internal state.
+
+  Call this function when the table view's total size is changed;
+  typically because the result of cellHeight() or cellWidth() have changed.
+  
+  This function does not repaint the widget.
+*/
+
+void QTableView::updateTableSize()
+{
+    updateScrollBars( horSteps | horGeometry | horRange |
+		      verSteps | verGeometry | verRange );
+    showOrHideScrollBars();    
 }
