@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#42 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#43 $
 **
 ** Implementation of QFileDialog class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#43 $");
 
 
 /*!
@@ -69,8 +69,6 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#42 $");
 QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
     : QDialog( parent, name, modal )
 {
-    QFontMetrics fm = fontMetrics();
-    resize( fm.width("x")*50 , fm.height()*23 );
     init();
     filterEdit->setText( "*" );
     d.convertToAbs();
@@ -87,8 +85,6 @@ QFileDialog::QFileDialog( const char *dirName, const char *filter,
 			  QWidget *parent, const char *name, bool modal )
     : QDialog( parent, name, modal )
 {
-    QFontMetrics fm = fontMetrics();
-    resize( fm.width("x")*50 , fm.height()*23 );
     init();
     if ( filter )
 	d.setNameFilter( filter );
@@ -106,6 +102,12 @@ QFileDialog::QFileDialog( const char *dirName, const char *filter,
 
 void QFileDialog::init()
 {
+    QFontMetrics fm = fontMetrics();
+    QWidget *desk = QApplication::desktop();
+    int w = QMIN(fm.width("x")*50, desk->width()-50);
+    int h = QMIN(fm.height()*23, desk->height()-50);
+    resize( w, h );
+
     filterEdit = new QLineEdit(		     this, "filterEdit"	  );
     pathBox    = new QComboBox(		     this, "pathBox"	  );
     dirs       = new QListBox(		     this, "dirList"	  );
