@@ -822,6 +822,11 @@ QDate QDate::addMonths( int nmonths ) const
 	}
     }
 
+    QDate tmp(y,m,1);
+    
+    if( d > tmp.daysInMonth() )
+	d = tmp.daysInMonth();
+
     QDate date(y, m, d);
     return date;
 

@@ -967,6 +967,8 @@ QApplication::~QApplication()
 #ifndef QT_NO_REMOTE
     remoteControl = 0; // The actual instance is in a plugin and will be destroyed automatically
 #endif // QT_NO_REMOTE
+    QObject *tipmanager = child( "toolTipManager", "QTipManager", FALSE );
+    delete tipmanager;
 
     delete qt_desktopWidget;
     qt_desktopWidget = 0;

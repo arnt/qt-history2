@@ -93,18 +93,12 @@ $$MSVCDSP_HEADERS
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # End Group
-# Begin Group "Forms"
+
 $$MSVCDSP_FORMS
-# Prop Default_Filter "ui"
-# End Group
-# Begin Group "Lexables"
+$$MSVCDSP_TRANSLATIONS
 $$MSVCDSP_LEXSOURCES
-# Prop Default_Filter "l"
-# End Group
-# Begin Group "Yaccables"
 $$MSVCDSP_YACCSOURCES
-# Prop Default_Filter "y"
-# End Group
+
 # Begin Group "Generated"
 $$MSVCDSP_MOCSOURCES
 $$MSVCDSP_FORMSOURCES

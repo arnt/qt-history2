@@ -6,6 +6,7 @@
 #include "../../../src/3rdparty/zlib/zlib.h"
 #include "../keygen/keyinfo.h"
 #ifdef Q_OS_UNIX
+#  include <sys/stat.h>
 #  include <unistd.h>
 #  include <sys/types.h>
 #  include <utime.h>
@@ -92,6 +93,15 @@ bool QArchive::writeFile( const QString& fileName, const QString& localPath )
 		outStream << (int)ChunkFile;
 		outStream << fi.fileName().latin1();
 		outStream << fi.lastModified();
+		{
+		    int perm = -1;
+#ifdef Q_OS_UNIX
+		    struct stat st;
+		    if(!::stat(fi.filePath().latin1(), &st))
+			perm = (int)st.st_mode;
+#endif
+		    outStream << perm;
+		}
 	        if( verbosityMode & Source )
 		    emit operationFeedback( "Deflating " + fi.absFilePath() + "..." );
 		else if( verbosityMode & Destination )
@@ -190,10 +200,9 @@ bool QArchive::writeDir( const QString &dirName1, bool includeLastComponent, con
 
 	dirIter.toLast();
 	while( ( pFi = dirIter.current() ) ) {
-	    if( pFi->fileName()[0] != '.' ) {
+	    if( pFi->fileName() != "." && pFi->fileName() != ".." ) {
 		if( pFi->isDir() )
-		    writeDir( pFi->absFilePath(), 
-			      TRUE, localPath + "/" + 
+		    writeDir( pFi->absFilePath(), TRUE, localPath + "/" + 
 			      pFi->fileName() ); // Subdirs should always get its name in the archive.
 		else
 		    writeFile( pFi->absFilePath(), localPath );
@@ -297,13 +306,14 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 	    inBuffer.resize( entryLength );
 	    inStream->readRawBytes( inBuffer.data(), entryLength );
 	    entryName = inBuffer.data();
-
+	    
+	    int filePerm;
 	    QDateTime timeStamp;
 	    QString fileName = QDir::convertSeparators( outDir.absPath() + QString( "/" ) + entryName );
 	    outFile.setName( fileName );
 	    if( outFile.open( IO_WriteOnly ) ) {
-		// Get timestamp from the archive
-		*inStream >> timeStamp;
+		*inStream >> timeStamp; 		// Get timestamp from the archive
+		*inStream >> filePerm;
 		outStream.setDevice( &outFile );
 		*inStream >> entryLength;
 		if( verbosityMode & Source )
@@ -336,6 +346,8 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 		struct utimbuf tb;
 		tb.actime = tb.modtime = t.secsTo(timeStamp);
 		utime(fileName.latin1(), &tb);
+		if(filePerm != -1) 
+		    chmod(fileName.latin1(), (mode_t)filePerm);
 #endif
 	    }
 	} else if(chunktype == ChunkSymlink) {
@@ -353,8 +365,6 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 		emit operationFeedback( "Linking " + symName + "... " );
 	    else if( verbosityMode & Destination )
 		emit operationFeedback( "Linking " + fileName + "... " );
-
-
 #ifdef Q_OS_UNIX
 	    symlink( symName.latin1(), fileName.latin1() );
 #endif

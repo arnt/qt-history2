@@ -32,6 +32,7 @@ public:
 
 	void splitFileName( CString &file, CString &filepath, CString &filetitle, CString& fileext );
 	void runDesigner( const CString& file );
+	void runLinguist( const CString& file );
 
 	void SetApplicationObject(IApplication* m_pApplication);
 	IApplication* GetApplicationObject() { return m_pApplication; }
@@ -108,6 +109,8 @@ protected:
 	XDebuggerEventsObj* m_pDebuggerEventsObj;
 
 public:
+	STDMETHOD(QMsDevStartAssistant)();
+	STDMETHOD(QMsDevStartLinguist)();
 // ICommands methods
 	STDMETHOD(QMsDevNewQtProject)();
 	STDMETHOD(QMsDevNewQtDialog)();

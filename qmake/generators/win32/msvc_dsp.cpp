@@ -176,6 +176,19 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    t << "# Begin Source File\n\nSOURCE=.\\" << base << "\n# End Source File" << endl;
 		}
 	    }
+	    else if(variable == "MSVCDSP_TRANSLATIONS" ) {
+		if(project->variables()["TRANSLATIONS"].isEmpty())
+		    continue;
+
+		t << "# Begin Group \"Translations\"\n";
+		t << "# Prop Default_Filter \"ts\"\n";
+
+		QStringList &list = project->variables()["TRANSLATIONS"];
+		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it)
+		    t << "# Begin Source File\n\nSOURCE=.\\" << *it << "\n# End Source File" << endl;
+
+		t << "\n# End Group\n";
+	    }
 	    else if (variable == "MSVCDSP_MOCSOURCES" && project->isActiveConfig("moc")) {
 		if ( project->variables()["SRCMOC"].isEmpty())
 		    continue;
@@ -210,6 +223,10 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 	    else if(variable == "MSVCDSP_FORMS") {
 		if(project->variables()["FORMS"].isEmpty())
 		    continue;
+
+		t << "# Begin Group \"Forms\"\n";
+		t << "# Prop Default_Filter \"ui\"\n";
+
 		bool imagesBuildDone = FALSE;	    // Dirty hack to make it not create an output step for images more than once
 		QString uicpath = var("QMAKE_UIC");
 		uicpath = uicpath.replace(QRegExp("\\..*$"), "") + " ";
@@ -273,9 +290,14 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    if ( !imagesBuildDone )
 			imagesBuildDone = TRUE;
 		}
+
+		t << "\n# End Group\n";
 	    } else if(variable == "MSVCDSP_LEXSOURCES") {
 		if(project->variables()["LEXSOURCES"].isEmpty())
 		    continue;
+
+		t << "# Begin Group \"Lexables\"\n";
+		t << "# Prop Default_Filter \"l\"\n";
 
 		QString lexpath = var("QMAKE_LEX") + varGlue("QMAKE_LEXFLAGS", " ", " ", "") + " ";
 
@@ -301,9 +323,15 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		
 		      << "# End Source File" << endl;
 		}
+
+		t << "\n# End Group\n";
+
 	    } else if(variable == "MSVCDSP_YACCSOURCES") {
 		if(project->variables()["YACCSOURCES"].isEmpty())
 		    continue;
+
+		t << "# Begin Group \"Yaccables\"\n";
+		t << "# Prop Default_Filter \"y\"\n";
 
 		QString yaccpath = var("QMAKE_YACC") + varGlue("QMAKE_YACCFLAGS", " ", " ", "") + " ";
 
@@ -330,6 +358,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		      << "# End Source File" << endl;
 		}
+
+		t << "\n# End Group\n";
 	    }
 	    else if( variable == "MSVCDSP_CONFIGMODE" ) {
 		if( project->isActiveConfig( "release" ) )

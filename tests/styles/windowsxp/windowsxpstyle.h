@@ -40,7 +40,11 @@ public:
 		      SFlags how = Style_Default,
 		      const QStyleOption& = QStyleOption::Default ) const;
 
-    QRect subRect( SubRect r, const QWidget *widget ) const;
+    void drawControlMask( ControlElement element,
+			  QPainter *p,
+			  const QWidget *widget,
+			  const QRect &r,
+			  const QStyleOption& = QStyleOption::Default ) const;
 
     void drawComplexControl( ComplexControl control,
 			     QPainter* p,
@@ -56,17 +60,15 @@ public:
     int pixelMetric( PixelMetric metic,
 		     const QWidget *widget = 0 ) const;
 
-    QSize sizeFromContents( ContentsType contents,
-			    const QWidget *w,
-			    const QSize &contentsSize,
-			    const QStyleOption& = QStyleOption::Default ) const;
-
-    QPixmap stylePixmap( StylePixmap stylepixmap,
-			 const QWidget * = 0,
-			 const QStyleOption& = QStyleOption::Default ) const;
+    QRect querySubControlMetrics( ComplexControl control,
+				  const QWidget *widget,
+				  SubControl sc,
+				  const QStyleOption& = QStyleOption::Default ) const;
 
 protected:
     bool eventFilter( QObject *o, QEvent *e );
+
+    void updateRegion( QWidget *widget );
 
 private:
     QWindowsXPStylePrivate *d;

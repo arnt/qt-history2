@@ -455,6 +455,10 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
     }
 
     d->active->internalRaise();
+    if ( d->vbar )
+	d->vbar->raise();
+    if ( d->hbar )
+	d->hbar->raise();
 
     if ( change_focus ) {
 	if ( d->focus.find( d->active ) >=0 ) {
@@ -1588,7 +1592,7 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 
     if ( titlebar ) {
 	int th = titlebar->sizeHint().height();
-	titlebar->setGeometry( r.x() , r.y(), r.width(), th );
+	titlebar->setGeometry( r.x() , r.y(), r.width(), th ); // ### need another style hint: TitleBarHasFrame for XP
 	cr = QRect( r.x(), r.y() + titlebar->height() + (shademode ? 5 : 1),
 	    r.width(), r.height() - titlebar->height() - 2 );
     } else {

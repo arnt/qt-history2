@@ -36,7 +36,9 @@ library QMsDev
 		[id(5), helpstring("Methode QMsDevGenerateQtProject")] HRESULT QMsDevGenerateQtProject();
 		[id(6), helpstring("Methode QMsDevNewQtProject")] HRESULT QMsDevNewQtProject();
 		[id(7), helpstring("Methode QMsDevAddQtDialog")] HRESULT QMsDevNewQtDialog();
-		[id(8), helpstring( "Method QMsDevCreateDSP" )] HRESULT QMsDevCreateDSP();
+		[id(8), helpstring("Method QMsDevCreateDSP")] HRESULT QMsDevCreateDSP();
+		[id(9), helpstring("method QMsDevStartLinguist")] HRESULT QMsDevStartLinguist();
+		[id(10), helpstring("method QMsDevStartAssistant")] HRESULT QMsDevStartAssistant();
 	};
 
 	//  Klassen-Informationen für CCommands

@@ -35,6 +35,11 @@ struct EDITOR_EXPORT Paren
     Type type;
     QChar chr;
     int pos;
+
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const Paren & ) const {
+	return type == type && chr == chr && pos == pos; }
+#endif
 };
 
 typedef QValueList<Paren> ParenList;

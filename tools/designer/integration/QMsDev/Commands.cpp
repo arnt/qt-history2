@@ -133,6 +133,10 @@ HRESULT CCommands::XApplicationEvents::DocumentOpen(IDispatch* theDocument)
 	    DsSaveStatus saved;
 	    pText->Close( CComVariant(dsSaveChangesNo), &saved );
 	    m_pCommands->runDesigner( filepath + file );
+	} else if ( fileext == "ts" ) {
+	    DsSaveStatus saved;
+	    pText->Close( CComVariant(dsSaveChangesNo), &saved );
+	    m_pCommands->runLinguist( filepath + file );
 	}
     }
 
@@ -162,7 +166,7 @@ HRESULT CCommands::XApplicationEvents::WindowActivate(IDispatch* theWindow)
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-    // only run designer if it was intended
+    // only run if it was intended
     if ( dontOpen ) {
 	dontOpen = FALSE;
 	return S_OK;
@@ -192,6 +196,8 @@ HRESULT CCommands::XApplicationEvents::WindowActivate(IDispatch* theWindow)
 	m_pCommands->splitFileName( file, filepath, filename, fileext );
 	if ( fileext == "ui" )
 	    m_pCommands->runDesigner( filepath + file );
+	else if ( fileext == "ts" )
+	    m_pCommands->runLinguist( filepath + file );
     }
 
     return S_OK;
@@ -546,11 +552,11 @@ void CCommands::runDesigner( const CString &file )
 
     path = getenv("QTDIR");
     if ( path.IsEmpty() ) {
-	// Get the designer location from the registry
+	// Get the location from the registry
 	CRegKey key;
 	char* value = new char[256];
 	unsigned long length;
-	if (key.Open(HKEY_CURRENT_USER, "Software\\Trolltech\\Qt\\Qt GUI Designer") == ERROR_SUCCESS) {
+	if (key.Open(HKEY_CURRENT_USER, "Software\\Trolltech\\Qt Designer") == ERROR_SUCCESS) {
 	    length = 255;
 	    key.QueryValue( value, "PathToExe", &length );
 	    path = value;
@@ -559,7 +565,7 @@ void CCommands::runDesigner( const CString &file )
 	    command = value;
 	    key.Close();
 	} else {
-	    ::MessageBox(NULL, "Can't locate Qt GUI Designer", 
+	    ::MessageBox(NULL, "Can't locate Qt Designer", 
 			       "Error", MB_OK | MB_ICONINFORMATION);
 	    return;
 	}
@@ -573,13 +579,52 @@ void CCommands::runDesigner( const CString &file )
 
     if ( spawnl(_P_NOWAIT, path+"\\"+command, command, "-client", file, 0 ) == -1 ) {
 	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_FALSE));
-	::MessageBox(NULL, "Failed to run Qt GUI Designer: "+command, 
+	::MessageBox(NULL, "Failed to run Qt Designer: "+command, 
 			   "Start Designer", MB_OK | MB_ICONINFORMATION);
 	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
-    } else {
-	m_pApplication->PrintToOutputWindow( CComBSTR("Qt Designer started...") );
     }
 }
+
+void CCommands::runLinguist( const CString &file )
+{
+    CString path;
+    CString command;
+
+    path = getenv("QTDIR");
+    if ( path.IsEmpty() ) {
+	// Get the location from the registry
+	CRegKey key;
+	char* value = new char[256];
+	unsigned long length;
+	if (key.Open(HKEY_CURRENT_USER, "Software\\Trolltech\\Qt Linguist") == ERROR_SUCCESS) {
+	    length = 255;
+	    key.QueryValue( value, "PathToExe", &length );
+	    path = value;
+	    length = 255;
+	    key.QueryValue( value, "NameOfExe", &length );
+	    command = value;
+	    key.Close();
+	} else {
+	    ::MessageBox(NULL, "Can't locate Qt Linguist", 
+			       "Error", MB_OK | MB_ICONINFORMATION);
+	    return;
+	}
+	delete[] value;
+    } else {
+	command = "linguist.exe";
+	path+="\\bin";
+    }
+
+    // Run the linguist with option "file"
+
+    if ( spawnl(_P_NOWAIT, path+"\\"+command, command, file, 0 ) == -1 ) {
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_FALSE));
+	::MessageBox(NULL, "Failed to run Qt Linguist: "+command, 
+			   "Start Designer", MB_OK | MB_ICONINFORMATION);
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
+    }
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 // Ccommands-Methoden
@@ -1279,5 +1324,71 @@ STDMETHODIMP CCommands::QMsDevCreateDSP()
 
 STDMETHODIMP CCommands::QMsDevAddUICStep()
 {
+    return S_OK;
+}
+
+STDMETHODIMP CCommands::QMsDevStartLinguist()
+{
+    AFX_MANAGE_STATE(AfxGetStaticModuleState())
+	
+    CString file;
+    CString filepath;
+    CString filename;
+    CString fileext;
+    
+    // Get the active file
+    file = getActiveFileName();
+    splitFileName( file, filepath, filename, fileext );
+    
+    // Check if we can use the file
+    if ( file.IsEmpty() || fileext != "ts" )
+	return S_FALSE;
+    
+    runDesigner( filepath + file );
+    
+    return S_OK;
+}
+
+STDMETHODIMP CCommands::QMsDevStartAssistant()
+{
+    AFX_MANAGE_STATE(AfxGetStaticModuleState())
+
+    CString path;
+    CString command;
+
+    path = getenv("QTDIR");
+    if ( path.IsEmpty() ) {
+	// Get the location from the registry
+	CRegKey key;
+	char* value = new char[256];
+	unsigned long length;
+	if (key.Open(HKEY_CURRENT_USER, "Software\\Trolltech\\Qt Assistant") == ERROR_SUCCESS) {
+	    length = 255;
+	    key.QueryValue( value, "PathToExe", &length );
+	    path = value;
+	    length = 255;
+	    key.QueryValue( value, "NameOfExe", &length );
+	    command = value;
+	    key.Close();
+	} else {
+	    ::MessageBox(NULL, "Can't locate Qt Assistant", 
+			       "Error", MB_OK | MB_ICONINFORMATION);
+	    return S_FALSE;
+	}
+	delete[] value;
+    } else {
+	command = "assistant.exe";
+	path+="\\bin";
+    }
+
+    // Run the assistant
+
+    if ( spawnl(_P_NOWAIT, path+"\\"+command, command, 0 ) == -1 ) {
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_FALSE));
+	::MessageBox(NULL, "Failed to run Qt Assistant: "+command, 
+			   "Start Designer", MB_OK | MB_ICONINFORMATION);
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
+    }
+
     return S_OK;
 }
