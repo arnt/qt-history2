@@ -2,9 +2,18 @@
 
 \section1 Introduction
 
-\QD provides menu options that have corresponding toolbar buttons. The
-toolbar buttons give you a way to take shortcuts when working with
-forms instead of having to go through a menu each time.
+\QD's toolbar buttons provide fast access to common functionality. 
+
+Toolbar buttons are grouped in several toolbars. Toolbars have a
+handle at the left hand side which can be clicked to minimize the
+toolbar. Toolbars that have been minimized have their handle appear
+just under the menu bar; click the handle to restore the toolbar to
+the last position it occupied. You can drag a toolbar's handle to
+move the toolbar to a different position in the toolbar area. Toolbars
+can be dragged out of the toolbar area entirely and made into
+stand-alone tool palettes. To hide a tool palette click its close
+button. To restore a hidden tool palette, right click the tool area,
+then click the name of the tool palette you wish to restore.
 
 \img menufile.png
 \caption file
@@ -12,22 +21,20 @@ forms instead of having to go through a menu each time.
 \section1 The File Toolbar Buttons
 
 \list
-\i \Toolbutton New Click this toolbar button (or press
+\i \Toolbutton New\BR Click this toolbar button (or press
 \Key Ctrl+N) to create a new project, form or file. This option
 invokes the \l{The New File Dialog}.
 
-\i \Toolbutton Open Click this toolbar button (or press\Key Ctrl+O) to
-open existing projects, forms or files. The \l{Open Dialog} appears
-and the file name and type must be selected.
+\i \Toolbutton Open\BR Click this toolbar button (or press\Key Ctrl+O)
+to open existing projects, forms or files. This button invokes the
+\l{File Open Dialog} which is used to select files. 
 
-\i \Toolbutton Save Click this toolbar button (or press \Key Ctrl+S) to
-save the project, forms, and files. For a new project with no
-forms or files added to it, click 'Save' to save the project before exiting.
-For new forms, click 'Save' and the \l{Save As Dialog} appears. For
-forms that have been saved previously click 'Save'. For new files or
-for files that have been changed, click 'Save'. 
+\i \Toolbutton Save\BR Click this toolbar button (or press \Key Ctrl+S) to
+save the project, forms and files. For a new project that has no
+forms or files, click 'Save' to save the project before exiting.
+For new forms, click 'Save' and the \l{Form Save As Dialog} appears. 
 
-\i \Toolbutton {Active Project} Click the combobox to view the names of
+\i \Toolbutton {Active Project}\BR Click the combobox to view the names of
 the projects that are currently open and select a project name to
 toggle between the projects.
 
@@ -36,33 +43,34 @@ toggle between the projects.
 \section1 The Edit Toolbar Buttons
 
 \list
-\i \Toolbutton Undo Click this toolbar button (or press \Key Ctrl+Z) to
+\i \Toolbutton Undo\BR Click this toolbar button (or press \Key Ctrl+Z) to
 undo an action. The name of the last action that was performed appears
-after the word 'Undo' in this toolbar button. 
+after the word 'Undo' in this toolbar button's tooltip. 
 
-\i \Toolbutton Redo Click this toolbar button (or press \Key Ctrl+Y) to
-redo an action.The name of the last action that was performed appears
-after the word 'Redo' in this toolbar button.
+\i \Toolbutton Redo\BR Click this toolbar button (or press \Key Ctrl+Y) to
+redo an action. The name of the last action that was performed appears
+after the word 'Redo' in this toolbar button's tooltip.
 
-\i \Toolbutton Cut Click this toolbar button (or press \Key
+\i \Toolbutton Cut\BR Click this toolbar button (or press \Key
 Ctrl+X) to delete the selected item from the current form or file and
 copy it to the clipboard.
 
-\i \Toolbutton Copy Click this toolbar button (or press \Key Ctrl+C) to
+\i \Toolbutton Copy\BR Click this toolbar button (or press \Key Ctrl+C) to
 copy the selected item from the current form or file to the clipboard.
 
-\i \Toolbutton {Paste} Click this toolbar button (or press \Key Ctrl+V) to
-paste the selected item from the clipboard into the current form or file.
+\i \Toolbutton {Paste}\BR Click this toolbar button (or press \Key
+Ctrl+V) to paste the selected item (if any) from the clipboard into
+the current form or file.
 
 \endlist
 
 \section1 The Search Toolbar Buttons
 
 \list
-\i \Toolbutton Find Click this toolbar button (or press \Key Ctrl+F) to
+\i \Toolbutton Find\BR Click this toolbar button (or press \Key Ctrl+F) to
 invoke the \l{Find Text Dialog}. 
 
-\i \Toolbutton{Find Incremental} Click this toolbar button (or press
+\i \Toolbutton{Find Incremental}\BR Click this toolbar button (or press
 \Key Alt+I) to place the cursor in the text box located next to the
 \Toolbutton {Find} toolbar button. Type characters into the text box; as
 you type \QD will highlight the first occurrence of the text that it
@@ -82,59 +90,62 @@ this mode.
 \section2 Tools
 
 \list
-\i \Toolbutton Pointer Click this toolbar button (or press \Key F2) to
+\i \Toolbutton Pointer\BR Click this toolbar button (or press \Key F2) to
 deselect any selected widget toolbar button. The pointer is also used
 to stop inserting new widgets if you double clicked a widget toolbar
 button.
 
-\i \Toolbutton{Connect Signals and Slots} Click this toolbar button (or
+\i \Toolbutton{Connect Signals and Slots}\BR Click this toolbar button (or
 press \Key F3) to connect signals and slots. Then, click on a widget and
 drag the pink rubber band to the widget (or form) that you want to
 connect to. Release the mouse button and the \l{Edit Connections
 Dialog} will appear.
 
-\i \Toolbutton {Tab Order} Click this toolbar button (or press \Key F4) to
+\i \Toolbutton {Tab Order}\BR Click this toolbar button (or press \Key F4) to
 set the tab order for all the widgets on the form that can accept
 keyboard focus. Click this toolbar button and blue circles with numbers on
 them appear next to the widgets. Click the widget that you want to be
 first in the tab order, then click the widget that should be next in
 the tab order, and continue until all the widgets have the tab order
 numbers you want. If you make a mistake, double click the first widget
-and start again.  
+and start again. Press \Key Esc to leave tab order mode. If you want
+to revert your changes, leave tab order mode, then undo.
 
 \endlist
 
 \section2 Buttons
 
 \list
-\i \Toolbutton PushButton Click this toolbar button and click the form
+\i \Toolbutton PushButton\BR Click this toolbar button, then click the form,
 to place a Pushbutton on the form.
 
-\i \Toolbutton ToolButton Click this toolbar button and click the form
+\i \Toolbutton ToolButton\BR Click this toolbar button, then click the form,
 to place a Toolbutton on the form.
 
-\i \Toolbutton RadioButton Click this toolbar button and click the
-form to place a Radiobutton on the form. 
+\i \Toolbutton RadioButton\BR Click this toolbar button, then click the
+form, to place a Radiobutton on the form. Always place RadioButtons
+inside ButtonGroups so that Qt will automatically ensure that only one
+RadioButton in the group is active at any one time.
 
-\i \Toolbutton CheckBox Click this toolbar button and
-click the form to place a CheckBox on the form.
+\i \Toolbutton CheckBox\BR Click this toolbar button, then
+click the form, to place a CheckBox on the form.
 
 \endlist
 
 \section2 Containers
 
 \list
-\i \Toolbutton GroupBox Click this option and 
-click the form to place a GroupBox on the form.
+\i \Toolbutton GroupBox\BR Click this toolbar button, then 
+click the form, to place a GroupBox on the form.
 
-\i \Toolbutton ButtonGroup Click this option and
-click the form to place a ButtonGroup on the form.
+\i \Toolbutton ButtonGroup\BR Click this toolbar button, then
+click the form, to place a ButtonGroup on the form.
 
-\i \Toolbutton Frame Click this option and
-click the form to place a Frame on the form.
+\i \Toolbutton Frame\BR Click this toolbar button, then
+click the form, to place a Frame on the form.
 
-\i \Toolbutton TabWidget Click this option and
-click the form to place a TabWidget on the form. To add or remove
+\i \Toolbutton TabWidget\BR Click this toolbar button, then
+click the form, to place a TabWidget on the form. To add or remove
 tabs, right click the tab widget and choose 'Add Page' or 'Remove
 Page' as required. 
 
@@ -144,16 +155,16 @@ Page' as required.
 \section2 Views
 
 \list
-\i \Toolbutton ListBox Click this option and
-click the form to place a ListBox on the form.
+\i \Toolbutton ListBox\BR Click this toolbar button, then click the
+form, to place a ListBox on the form.
 
-\i \Toolbutton ListView Click this option and
-click the form to place a ListView on the form.
+\i \Toolbutton ListView\BR Click this toolbar button, then click the
+form, to place a ListView on the form.
 
-\i \Toolbutton {Icon View} Click this option and
-click the form to place an Icon on the form.
+\i \Toolbutton {Icon View}\BR Click this toolbar button, then click the
+form, to place an Icon on the form.
 
-\i \Toolbutton Table Click this option and click the form to
+\i \Toolbutton Table\BR Click this toolbar button, then click the form to
 place a Table on the form.
 
 \endlist
@@ -161,129 +172,129 @@ place a Table on the form.
 \section2 Database
 
 \list
-\i \Toolbutton DataTable Click this option and 
-click the form to place a DataTable on the form.
+\i \Toolbutton DataTable\BR Click this toolbar button, then click the
+form, to place a DataTable on the form.
 
-\i \Toolbutton DataBrowser Click this option and 
-click the form to place a DataBrowser on the form.
+\i \Toolbutton DataBrowser\BR Click this toolbar button, then click the
+form, to place a DataBrowser on the form.
 
-\i \Toolbutton DataView Click this option and click the
-form to place a DataView on the form.
+\i \Toolbutton DataView\BR Click this toolbar button, then click the
+form, to place a DataView on the form.
 
 \endlist
 
 \section2 Input
 
 \list
-\i \Toolbutton LineEdit Click this option and click the form to place
-a LineEdit on the form.
+\i \Toolbutton LineEdit\BR Click this toolbar button, then click the
+form, to place a LineEdit on the form.
 
-\i \Toolbutton SpinBox Click this option and 
-click the form to place a SpinBox on the form.
+\i \Toolbutton SpinBox\BR Click this toolbar button, then click the
+form, to place a SpinBox on the form.
 
-\i \Toolbutton DateEdit Click this option and 
-click the form to place a DateEdit on the form.
+\i \Toolbutton DateEdit\BR Click this toolbar button, then click the
+form, to place a DateEdit on the form.
 
-\i \Toolbutton TimeEdit Click this option and 
-click the form to place a TimeEdit on the form.
+\i \Toolbutton TimeEdit\BR Click this toolbar button, then click the
+form, to place a TimeEdit on the form.
 
-\i \Toolbutton DateTimeEdit Click this option and 
-click the form to place a DateTimeEdit on the form.
+\i \Toolbutton DateTimeEdit\BR Click this toolbar button, then click the
+form, to place a DateTimeEdit on the form.
 
-\i \Toolbutton TextEdit Click this option and 
-click the form to place a TextEdit on the form.
+\i \Toolbutton TextEdit\BR Click this toolbar button, then click the
+form, to place a TextEdit on the form.
 
-\i \Toolbutton ComboBox Click this option and 
-click the form to place a ComboBox on the form.
+\i \Toolbutton ComboBox\BR Click this toolbar button, then click the
+form, to place a ComboBox on the form.
 
-\i \Toolbutton Slider Click this option and 
-click the form to place a Slider on the form.
+\i \Toolbutton Slider\BR Click this toolbar button, then click the
+form, to place a Slider on the form.
 
-\i \Toolbutton ScrollBar Click this option and 
-click the form to place a Scrollbar on the form.
+\i \Toolbutton ScrollBar\BR Click this toolbar button, then click the
+form, to place a Scrollbar on the form.
 
-\i \Toolbutton Dial Click this option and 
-click the form to place a Dial on the form.
+\i \Toolbutton Dial\BR Click this toolbar button, then click the
+form, to place a Dial on the form.
 
 \endlist
 
 \section2 Display
 
 \list
-\i \Toolbutton TextLabel Click this option  and 
-click the form to place a TextLabel on the form.
+\i \Toolbutton TextLabel\BR Click this toolbar button, then click the
+form, to place a TextLabel on the form.
 
-\i \Toolbutton PixmapLabel Click this option and 
-click the form to place a PixmapLabel on the form.
+\i \Toolbutton PixmapLabel\BR Click this toolbar button, then click the
+form, to place a PixmapLabel on the form.
 
-\i \Toolbutton LCDNumber Click this option and 
-click the form to place a LCDNumber on the form.
+\i \Toolbutton LCDNumber\BR Click this toolbar button, then click the
+form, to place a LCDNumber on the form.
 
-\i \Toolbutton Line Click this option and 
-click the form to place a Line on the form.
+\i \Toolbutton Line\BR Click this toolbar button, then click the
+form, to place a Line on the form.
 
-\i \Toolbutton ProgressBar Click this option and 
-click the form to place a ProgressBar on the form.
+\i \Toolbutton ProgressBar\BR Click this toolbar button, then click the
+form, to place a ProgressBar on the form.
 
-\i \Toolbutton TextBrowser Click this option and 
-click the form to place a TextBrowser on the form.
+\i \Toolbutton TextBrowser\BR Click this toolbar button, then click the
+form, to place a TextBrowser on the form.
 
 \endlist
 
 \section2 Custom
 
-\list
-\i \Toolbutton {My Custom Widget} Click this option and click
-the form to place a Custom Widget on the form. Note:This toolbar button
-appears only if you have created a widget using Tools|Custom|Edit Custom
-Widgets.
+\list 
+\i \Toolbutton {My Custom Widget}\BR Click this toolbar button,
+then click the form, to place a Custom Widget on the form. Note: this
+toolbar button only appears if you have created a custom widget using
+\Menu{Tools|Custom|Edit Custom Widgets}.
 
 \endlist
 
 \section2 The Layout Toolbar Buttons
 
 \list
-\i \Toolbutton {Adjust Size} Click this toolbar button (or press \Key
+\i \Toolbutton {Adjust Size}\BR Click this toolbar button (or press \Key
 Ctrl+J) to adjust the size of the widget to it's recommended size.
 
-\i \Toolbutton {Lay Out Horizontally} Click this toolbar button (or
+\i \Toolbutton {Lay Out Horizontally}\BR Click this toolbar button (or
 press \Key Ctrl+H) to lay out the selected widgets or layouts side by
 side. Use \Key Shift+Click to select each widget or layout, and then
-choose this toolbar button to group them horizontally.Note that for
+choose this toolbar button to group them horizontally. Note that for
 complex widgets it is sometimes easiest to select widgets and layouts
-by clicking them in the Widgets tab of the \l{Object Explorer} window.
+by clicking them in the Widgets tab of the \l{Object Explorer Window}.
 
-\i \Toolbutton {Lay Out Vertically} Click this toolbar button (or press
+\i \Toolbutton {Lay Out Vertically}\BR Click this toolbar button (or press
 \Key Ctrl+L) to lay out the selected widgets one above the other. Use
 \Key Shift+Click to select each widget or layout, and then choose this
 toolbar button to group them vertically. Note that for complex widgets it
 is sometimes easiest to select widgets and layouts by clicking them in
-the Widgets tab of the \l{Object Explorer} window.
+the Widgets tab of the \l{Object Explorer Window}.
 
-\i \Toolbutton {Lay out in a Grid} Click this toolbar button (or press
+\i \Toolbutton {Lay out in a Grid}\BR Click this toolbar button (or press
 \Key Ctrl+G)
 
-\i \Toolbutton {Lay Out Horizontally (in Splitter)} Click this toolbar
+\i \Toolbutton {Lay Out Horizontally (in Splitter)}\BR Click this toolbar
 button to lay out the selected groups of widgets or layouts side by
 side with a splitter between each group. Use \Key Shift+Click to
 select each widget or layout, and then choose this toolbar button to
 group them horizontally. Note that for complex widgets it is sometimes
 easiest to select widgets and layouts by clicking them in the Widgets
-tab of the \l{Object Explorer} window.
+tab of the \l{Object Explorer Window}.
 
-\i \Toolbutton {Lay Out Vertically (in Splitter)} Click this toolbar
+\i \Toolbutton {Lay Out Vertically (in Splitter)}\BR Click this toolbar
 button to lay out the selected groups of widgets or layouts one above the other
 with a splitter between each group. Use \Key{Shift+Click} to select
 each widget or layout, and then choose this toolbar button to group
 them vertically. Note that for complex widgets it is sometimes easiest
 to select widgets and layouts by clicking them in the Widgets tab of
-the \l{Object Explorer} window.
+the \l{Object Explorer Window}.
 
-\i \Toolbutton {Break Layout} Click this toolbar button (or press \Key
-Ctrl+B) to break apart layouts that have been created. Click on the
-layout and select this option; the layouts are then seperated. 
+\i \Toolbutton {Break Layout}\BR Click this toolbar button (or press
+\Key Ctrl+B) to break a layout. Click on the layout and select this
+option; the layout is deleted. 
 
-\i \Toolbutton {Add Spacer} Click this toolbar button to add a spacer
+\i \Toolbutton {Add Spacer}\BR Click this toolbar button to add a spacer
 to widgets that take up too much space on the form. The spacer
 consumes extra space in the layout.
 
@@ -292,10 +303,10 @@ consumes extra space in the layout.
 \section1 The Help Toolbar Button
 
 \list
-\i \Toolbutton{What's This?} Click this toolbar button to invoke a small
-question mark that is linked to the pointer. Click the pointer on a
+\i \Toolbutton{What's This?}\BR Click this menu option to invoke a small
+question mark that is attached to the mouse pointer. Click on a
 feature which you would like more information about. A message box
-appears with information about the feature.
+appears with information about the feature. 
 
 \endlist
 
