@@ -242,12 +242,12 @@ CFG_QCONFIG=full
 CFG_EMBEDDED=no
 CFG_DEBUG=auto
 CFG_SHARED=yes
-CFG_GIF=no
 CFG_SM=auto
 CFG_XSHAPE=auto
 CFG_XINERAMA=auto
 CFG_ZLIB=auto
-CFG_PNG=auto
+CFG_GIF=no
+CFG_PNG=yes
 CFG_LIBPNG=auto
 CFG_JPEG=auto
 CFG_LIBJPEG=auto
@@ -818,29 +818,18 @@ while [ "$#" -gt 0 ]; do
 	;;
     libpng)
 	[ "$VAL" = "yes" ] && VAL=qt
-	if [ "$VAL" = "no " ]; then
-	    echo "-no-png is left for compatibility, in the future please use -no-imgfmt-png"
-	    CFG_PNG=no
-	fi
 	if [ "$VAL" = "qt" ] || [ "$VAL" = "no" ] || [ "$VAL" = "system" ]; then
 	    CFG_LIBPNG="$VAL"
 	else
 	    UNKNOWN_OPT=yes
 	fi
 	;;
-    libjpeg|jpeg)
+    libjpeg)
 	[ "$VAL" = "yes" ] && VAL=qt
-	if [ "$VAR" = "jpeg" ]; then
-	    echo "-${VAL}-jpeg is left for compatibility, in the future please use -${VAL}-libjpeg"
-	fi
 	if [ "$VAL" = "qt" ] || [ "$VAL" = "no" ] || [ "$VAL" = "system" ]; then
 	    CFG_LIBJPEG="$VAL"
 	else
 	    UNKNOWN_OPT=yes
-	fi
-	if [ "$VAL" = "no " ]; then
-	    echo "-no-jpeg is left for compatibility, in the future please use -no-imgfmt-jpeg"
-	    CFG_JPEG=no
 	fi
 	;;
     nas-sound)
@@ -937,11 +926,24 @@ while [ "$#" -gt 0 ]; do
 	if [ "$VAR" = "imgfmt" ]; then
 	    [ "$OPT" = "qt" ] && OPT=yes
 	    # now $OPT is "no", "yes", or "plugin"
-	    case "$VAL" in
-	    jpeg) CFG_JPEG=$OPT ;;
-	    png) CFG_PNG=$OPT ;;
-	    *) ERROR=yes ;;
-	    esac
+	    if [ "$VAL" = "gif" ] && [ "$OPT" = "yes" ]; then
+	        echo "GIF is only available as a plugin"
+	        CFG_GIF=plugin
+	    else
+	        CFG_GIF=$OPT
+	    fi
+	    if [ "$VAL" = "jpeg" ] && [ "$OPT" = "yes" ]; then
+	        echo "JPEG is only available as a plugin"
+	        CFG_JPEG=plugin
+	    else
+	        CFG_JPEG=$OPT
+	    fi
+	    if [ "$VAL" = "png" ] && [ "$OPT" = "plugin" ]; then
+	        echo "PNG is only available as a built-in"
+	        CFG_PNG=yes
+	    else
+	        CFG_PNG=$OPT
+	    fi
 	else
 	    if [ "$VAR" = "style" ]; then
 		ERROR=yes
@@ -1155,6 +1157,15 @@ if [ "$CFG_DEBUG" = "auto" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG build_all"
 fi
 
+#detect zlib
+if [ "$CFG_ZLIB" = "auto" ]; then
+    if $unixtests/checkavail "libzlib" $OPT_VERBOSE -lz zlib.h; then
+       CFG_ZLIB=system
+    else
+       CFG_ZLIB=yes
+    fi
+fi
+
 #detect how jpeg should be built
 if [ "$CFG_JPEG" = "auto" ]; then
     if [ "$CFG_SHARED" = "yes" ]; then
@@ -1171,23 +1182,7 @@ if [ "$CFG_LIBJPEG" = "auto" ]; then
     fi
 fi
 
-#detect zlib
-if [ "$CFG_ZLIB" = "auto" ]; then
-    if $unixtests/checkavail "libzlib" $OPT_VERBOSE -lz zlib.h; then
-       CFG_ZLIB=system
-    else
-       CFG_ZLIB=yes
-    fi
-fi
-
 #detect how png should be built
-if [ "$CFG_PNG" = "auto" ]; then
-    if [ "$CFG_SHARED" = "yes" ]; then
-	CFG_PNG=plugin
-    else
-	CFG_PNG=yes
-    fi
-fi
 if [ "$CFG_LIBPNG" = "auto" ]; then
     if $unixtests/checkavail "libpng" $OPT_VERBOSE -lpng png.h; then
        CFG_LIBPNG=system
