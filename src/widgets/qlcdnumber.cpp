@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#78 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -64,7 +64,7 @@
   href=http://www.nvg.ntnu.no/sinclair/spectrum.htm>Sinclair
   Spectrum</a>.
 
-  <img src=qlcdnum-m.gif> <img src=qlcdnum-w.gif>
+  <img src=qlcdnum-m.png> <img src=qlcdnum-w.png>
 
   \sa QLabel, QFrame
 */

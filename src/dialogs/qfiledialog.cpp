@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#182 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#183 $
 **
 ** Implementation of QFileDialog class
 **
@@ -676,7 +676,7 @@ void QFileDialogPrivate::MCItem::paint( QPainter * p )
     open( s ); // open() being your function to read the file
   \endcode
 
-  <img src=qfiledlg-m.gif> <img src=qfiledlg-w.gif>
+  <img src=qfiledlg-m.png> <img src=qfiledlg-w.png>
 
   \sa QPrintDialog
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#69 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -65,7 +65,7 @@
   do not change the appearance of the buttons, but you can use
   setFontPropagation() and setPalettePropagation() to change that.
 
-  <img src=qbttngrp-m.gif> <img src=qbttngrp-w.gif>
+  <img src=qbttngrp-m.png> <img src=qbttngrp-w.png>
 
   \sa QButton, QPushButton, QCheckBox, QRadioButton
 */

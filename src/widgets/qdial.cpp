@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#19 $
 **
 ** Implementation of something useful.
 **
@@ -103,7 +103,7 @@ public:
   arrow keys move by lineStep(), page up and page down by pageStep()
   and Home and End to minValue() and maxValue().
 
-  <img src=qdial-m.gif> <img src=qdial-w.gif>
+  <img src=qdial-m.png> <img src=qdial-w.png>
 
   \sa QScrollBar QSpinBox
   <a href="guibooks.html#fowler">GUI Design Handbook: Slider</a>

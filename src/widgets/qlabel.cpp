@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#120 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#121 $
 **
 ** Implementation of QLabel widget class
 **
@@ -88,7 +88,7 @@ class QLabelPrivate
 
   Both lines are flush with the right side of the label.
 
-  <img src=qlabel-m.gif> <img src=qlabel-w.gif>
+  <img src=qlabel-m.png> <img src=qlabel-w.png>
 
   A label may also be used to provide a slightly larger amount of
   information, for example a few lines help text in a dialog. For this

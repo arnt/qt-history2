@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#40 $
 **
 ** Implementation of QStatusBar class
 **
@@ -74,7 +74,7 @@
   handle generally works differently than the one provided by the
   system; we hope to reduce this difference in the future.
 
-  <img src=qstatusbar-m.gif> <img src=qstatusbar-w.gif>
+  <img src=qstatusbar-m.png> <img src=qstatusbar-w.png>
 
   \sa QToolBar QMainWindow QLabel
   <a href="http://www.microsoft.com/win32dev/uiguide/uigui192.htm">Microsoft Style Guide,</a>

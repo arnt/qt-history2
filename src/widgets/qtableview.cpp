@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#113 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#114 $
 **
 ** Implementation of QTableView class
 **
@@ -109,7 +109,7 @@ void QCornerSquare::paintEvent( QPaintEvent * )
   the opposite order of all pixel operations, which take first the
   horizontal (x), then the vertical (y).
 
-  <img src=qtablevw-m.gif> <img src=qtablevw-w.gif>
+  <img src=qtablevw-m.png> <img src=qtablevw-w.png>
 
   \warning the functions setNumRows(), setNumCols(), setCellHeight(),
   setCellWidth(), setTableFlags() and clearTableFlags() may cause

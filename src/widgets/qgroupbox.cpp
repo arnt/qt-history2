@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#61 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -49,7 +49,7 @@
   Qt also provides a more specialized group box, QButtonGroup, that is
   very useful for organizing buttons in a group.
 
-  <img src=qgrpbox-m.gif> <img src=qgrpbox-w.gif>
+  <img src=qgrpbox-m.png> <img src=qgrpbox-w.png>
 */
 
 

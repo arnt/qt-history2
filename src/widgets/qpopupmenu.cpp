@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#223 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#224 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -102,7 +102,7 @@ static void popupSubMenuLater( int msec, QObject * receiver ) {
 
   \important insertItem clear text pixmap
 
-  <img src=qpopmenu-m.gif> <img src=qpopmenu-w.gif>
+  <img src=qpopmenu-m.png> <img src=qpopmenu-w.png>
 
   \sa QMenuBar
   <a href="guibooks.html#fowler">GUI Design Handbook: Menu, Drop-Down and

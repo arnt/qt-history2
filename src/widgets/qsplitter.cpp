@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#69 $
 **
 **  Splitter widget
 **
@@ -194,7 +194,7 @@ public:
   If you hide() a child, its space will be distributed among the other
   children. When you show() it again, it will be reinstated.
 
-  <img src=qsplitter-m.gif> <img src=qsplitter-w.gif>
+  <img src=qsplitter-m.png> <img src=qsplitter-w.png>
 
   \sa QTabBar
 */

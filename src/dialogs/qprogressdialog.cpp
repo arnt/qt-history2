@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#44 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#45 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -105,7 +105,7 @@ struct QProgressData
     progress.setProgress( numFiles );
   \endcode
 
-  <img src=qprogdlg-m.gif> <img src=qprogdlg-w.gif>
+  <img src=qprogdlg-m.png> <img src=qprogdlg-w.png>
 
   \sa QDialog QProgressBar
   <a href="guibooks.html#fowler">GUI Design Handbook: Progress Indicator</a>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#61 $
 **
 ** Implementation of movie classes
 **
@@ -89,7 +89,7 @@
   of Qt.  We recommend using the PNG format, which is available in the
   <a href="imageio.html">Qt Image IO Extension</a> package.
 
-  <img src="qmovie.gif">
+  <img src="qmovie.png">
 
   \sa QLabel::setMovie()
 */
@@ -897,7 +897,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char *member)
 ** QMovieFilePrivate meta object code from reading C++ file 'standard input'
 **
 ** Created: Fri Aug 21 01:55:09 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.60 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.61 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

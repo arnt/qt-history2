@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#136 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#137 $
 **
 ** Implementation of QPushButton class
 **
@@ -44,7 +44,7 @@
   A push button has \c TabFocus as a default focusPolicy(), i.e. it can
   get keyboard focus by tabbing but not by clicking.
 
-  <img src="qpushbt-m.gif"> <img src="qpushbt-w.gif">
+  <img src="qpushbt-m.png"> <img src="qpushbt-w.png">
 
   \sa QRadioButton QToolButton
   <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#210 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#211 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -84,7 +84,7 @@ struct QLineEditPrivate {
   The default key bindings are described in keyPressEvent(); they cannot
   be customized except by inheriting the class.
 
-  <img src=qlined-m.gif> <img src=qlined-w.gif>
+  <img src=qlined-m.png> <img src=qlined-w.png>
 
   \sa QMultiLineEdit QLabel QComboBox
   <a href="guibooks.html#fowler">GUI Design Handbook: Field, Entry,</a>

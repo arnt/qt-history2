@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#72 $
 **
 ** Implementation of QTabBar class
 **
@@ -96,7 +96,7 @@ struct QTabPrivate {
   addTab() creates a new tab and adds it to the bar. <li> selectTab()
   decides which, if any, tab the user selects with the mouse. </ul>
 
-  <img src=qtabbar-m.gif> <img src=qtabbar-w.gif>
+  <img src=qtabbar-m.png> <img src=qtabbar-w.png>
 */
 
 /*!

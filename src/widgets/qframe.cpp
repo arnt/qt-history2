@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#89 $
 **
 ** Implementation of QFrame widget class
 **
@@ -82,7 +82,7 @@
   This table shows the most useful combinations of styles and widths
   (and some rather useless ones):
 
-  <img src=frames.gif height=422 width=520 alt="Table of frame styles">
+  <img src=frames.png height=422 width=520 alt="Table of frame styles">
 
   For obvious reasons, \c NoFrame isn't shown.  The gray areas next to
   the \c VLine and \c HLine examples are there because the widgets in

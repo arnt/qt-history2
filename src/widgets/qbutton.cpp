@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#143 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#144 $
 **
 ** Implementation of QButton widget class
 **
@@ -179,7 +179,7 @@ QTimer *QButton::timer()
 
   \code
     QPushButton *p;
-    p->setPixmap( QPixmap("print.gif") );
+    p->setPixmap( QPixmap("print.png") );
     p->setAccel( ALT+Key_F7 );
   \endcode
 

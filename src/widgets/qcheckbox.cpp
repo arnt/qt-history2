@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#96 $
 **
 ** Implementation of QCheckBox class
 **
@@ -41,7 +41,7 @@
   represents an independent switch that can be on (checked) or off
   (unchecked).
 
-  <img src=qchkbox-m.gif> <img src=qchkbox-w.gif>
+  <img src=qchkbox-m.png> <img src=qchkbox-w.png>
 
   \sa QButton QRadioButton
   <a href="guibooks.html#fowler">Fowler: Check Box.</a>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#4 $
 **
 ** Implementation of QSizeGrip class
 **
@@ -51,7 +51,7 @@ extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
   a status bar (eg. you are using QMainWindow), then you don't need to
   use this widget explicitly.
 
-  <img src=qresizecorner-m.gif> <img src=qresizecorner-w.gif>
+  <img src=qresizecorner-m.png> <img src=qresizecorner-w.png>
 
   \sa QStatusBar
 */

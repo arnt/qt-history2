@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#101 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#102 $
 **
 ** Implementation of QScrollView class
 **
@@ -250,7 +250,7 @@ a large panning area with some widgets, a large panning area with many widgets.
 <dt><b>One Big Widget</b>
 <dd>
 
-<img src=qscrollview-vp2.gif>
+<img src=qscrollview-vp2.png>
 
 The first, simplest usage of QScrollView depicated above is
 appropriate for scrolling areas
@@ -281,7 +281,7 @@ do.
 <dt><b>Very Big View, some Widgets</b>
 <dd>
 
-<img src=qscrollview-vp.gif>
+<img src=qscrollview-vp.png>
 
 The second usage of QScrollView depicated above is
 appropriate when few, if any, widgets are on a very large scrolling area
@@ -309,7 +309,7 @@ the scrollview moves the child widgets individually.
 <dt><b>Very Big View, many Widgets</b>
 <dd>
 
-<img src=qscrollview-cl.gif>
+<img src=qscrollview-cl.png>
 
 The final usage of QScrollView depicated above is
 appropriate when many widgets are on a very large scrolling area
@@ -364,7 +364,7 @@ is the "corner" (if you don't set a cornerWidget())
 and the frame, everything else being covered up by the viewport,
 clipper, or scrollbars.
 
-<img src=qscrollview-m.gif> <img src=qscrollview-w.gif>
+<img src=qscrollview-m.png> <img src=qscrollview-w.png>
 */
 
 

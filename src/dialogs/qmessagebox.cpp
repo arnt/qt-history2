@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#98 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#99 $
 **
 ** Implementation of QMessageBox class
 **
@@ -361,7 +361,7 @@ static const char* critical_xpm[]={
 
   QMessageBox has no signals or slots.
 
-  <img src=qmsgbox-m.gif> <img src=qmsgbox-w.gif>
+  <img src=qmsgbox-m.png> <img src=qmsgbox-w.png>
 
   \sa QDialog, <a href="http://www.iarchitect.com/errormsg.htm">Isys on
   error messages,</a>
@@ -1312,4 +1312,4 @@ void QMessageBoxLabel::initMetaObject()
 // was trying to convert a file from one format to another.
 // Apparently, I...
 //
-// http://www.people.cornell.edu/pages/mlj8/cant.gif
+// http://www.people.cornell.edu/pages/mlj8/cant.png

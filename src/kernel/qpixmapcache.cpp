@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#33 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -162,7 +162,7 @@ void cleanup_pixmap_cache()
     if ( (pp=QPixmapCache::find("my_previous_copy", pm)) ) {
 	p = *pp;
     } else {
-	p.load("bigimage.gif");
+	p.load("bigimage.png");
 	QPixmapCache::insert("my_previous_copy", new QPixmap(p));
     }
     painter->drawPixmap(0, 0, p);
@@ -184,7 +184,7 @@ QPixmap *QPixmapCache::find( const QString &key )
   \code
     QPixmap p;
     if ( !QPixmapCache::find("my_previous_copy", pm) ) {
-	pm.load("bigimage.gif");
+	pm.load("bigimage.png");
 	QPixmapCache::insert("my_previous_copy", pm);
     }
     painter->drawPixmap(0, 0, p);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#68 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -77,7 +77,7 @@
   the virtual functions mapValueToText() and mapTextToValue() and
   setting another, suitable validator using setValidator().
 
-  <img src=qspinbox-m.gif> <img src=qspinbox-w.gif>
+  <img src=qspinbox-m.png> <img src=qspinbox-w.png>
 
   \sa QScrollBar QSlider
   <a href="guibooks.html#fowler">GUI Design Handbook: Spin Box</a>

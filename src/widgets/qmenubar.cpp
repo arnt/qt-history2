@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#143 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#144 $
 **
 ** Implementation of QMenuBar class
 **
@@ -44,7 +44,7 @@
 
   menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
 
-  <img src=qmenubar-m.gif> <img src=qmenubar-w.gif>
+  <img src=qmenubar-m.png> <img src=qmenubar-w.png>
 
   \sa QPopupMenu
   <a href="guibooks.html#fowler">GUI Design Handbook: Menu Bar</a>

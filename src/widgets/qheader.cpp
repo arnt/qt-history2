@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#85 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -62,7 +62,7 @@ struct QHeaderData
   This class can be used without a table view, if you need to control
   table-like structures.
 
-  <img src=qheader-m.gif> <img src=qheader-w.gif>
+  <img src=qheader-m.png> <img src=qheader-w.png>
 
   \sa QListView QTableView
   <a href="http://www.microsoft.com/win32dev/uiguide/uigui181.htm">Microsoft Style Guide</a>

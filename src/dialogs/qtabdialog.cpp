@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#88 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#89 $
 **
 ** Implementation of QTabDialog class
 **
@@ -156,7 +156,7 @@
 
   Most of the functionality in QTabDialog is provided by a QTabWidget.
 
-  <img src=qtabdlg-m.gif> <img src=qtabdlg-w.gif>
+  <img src=qtabdlg-m.png> <img src=qtabdlg-w.png>
 
   \sa QDialog
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#63 $
 **
 ** Implementation of QMainWindow class
 **
@@ -88,7 +88,7 @@
   toolbars.  This feature is planned for inclusion in one of the next
   releases.
 
-  <img src=qmainwindow-m.gif> <img src=qmainwindow-w.gif>
+  <img src=qmainwindow-m.png> <img src=qmainwindow-w.png>
 
   \sa QToolBar QStatusBar QMenuBar QToolTipGroup QDialog
 */

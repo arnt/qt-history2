@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#247 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#248 $
 **
 ** Implementation of QListBox widget class
 **
@@ -521,7 +521,7 @@ highlighted.
   \warning The list box assumes ownership of all list box items
   and will delete them when is does  not need them any more.
 
-  <img src=qlistbox-m.gif> <img src=qlistbox-w.gif>
+  <img src=qlistbox-m.png> <img src=qlistbox-w.png>
 
   \sa QListView QComboBox QButtonGroup
   <a href="guibooks.html#fowler">GUI Design Handbook: List Box (two

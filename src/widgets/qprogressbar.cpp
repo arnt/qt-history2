@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#42 $
 **
 ** Implementation of QProgressBar class
 **
@@ -40,7 +40,7 @@
   QProgressBar only implements the basic progress display, while
   QProgressDialog provides a fuller encapsulation.
 
-  <img src=qprogbar-m.gif> <img src=qprogbar-w.gif>
+  <img src=qprogbar-m.png> <img src=qprogbar-w.png>
 
   \sa QProgressDialog
   <a href="guibooks.html#fowler">GUI Design Handbook: Progress Indicator</a>

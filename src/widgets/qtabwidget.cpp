@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#19 $
 **
 ** Implementation of QTabWidget class
 **
@@ -78,7 +78,7 @@
   the top, providing the tabs) and a QWidgetStack (most of the area,
   organizing the individual pages).
 
-  <img src=qtabwidget-m.gif> <img src=qtabwidget-w.gif>
+  <img src=qtabwidget-m.png> <img src=qtabwidget-w.png>
 
   \sa QTabDialog
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#163 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#164 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1603,7 +1603,7 @@ int QFontMetrics::lineSpacing() const
   a distance appropriate for drawing a subsequent character
   after \e ch.
 
-  <img src=bearings.gif align=right>
+  <img src=bearings.png align=right>
   Some of the metrics are described in the image to the right.
   The tall dark rectangle covers the logical width() of a character.
   The shorter
