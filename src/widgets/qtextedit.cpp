@@ -1415,12 +1415,15 @@ void QTextEdit::drawCursor( bool visible )
     cursor->parag()->document()->nextDoubleBuffered = TRUE;
     if ( !cursor->nestedDepth() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	int x = r.x() - cursor->totalOffsetX() + cursor->x() - 5;
+	int dist = 5;
+	if ( ( cursor->parag()->alignment() & Qt::AlignJustify ) == Qt::AlignJustify )
+	    dist = 50;
+	int x = r.x() - cursor->totalOffsetX() + cursor->x() - dist;
 	x = QMAX( x, 0 );
 	p.setClipRect( QRect( x - contentsX(),
-			      r.y() - cursor->totalOffsetY() + cursor->y() - contentsY(), 10, h ) );
+			      r.y() - cursor->totalOffsetY() + cursor->y() - contentsY(), 2 * dist, h ) );
 	doc->drawParag( &p, cursor->parag(), x,
-			r.y() - cursor->totalOffsetY() + cursor->y(), 10, h, pix, cg, visible, cursor );
+			r.y() - cursor->totalOffsetY() + cursor->y(), 2 * dist, h, pix, cg, visible, cursor );
     } else {
 	doc->drawParag( &p, cursor->parag(), r.x() - cursor->totalOffsetX(),
 			r.y() - cursor->totalOffsetY(), r.width(), r.height(),
