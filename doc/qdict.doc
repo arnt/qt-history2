@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qdict.doc,v 1.1 1995/12/15 15:40:11 hanord Exp $
+** $Id: qdict.doc,v 1.2 1995/12/15 15:56:18 hanord Exp $
 **
 ** QDict and QDictIterator class documentation
 **
@@ -57,7 +57,8 @@
 
   The dictionary in our example maps \c char* keys to \c char* items.
   Note that the mapping is case-insensitive (set in the constructor).
-  QDict implements the [] operator to lookup an item.
+  QDict implements the \link operator[] [] operator\endlink to lookup
+  an item.
 
   The dictionary item's class or type, \c char* in our example, must be
   defined prior to the dictionary definition. Some compilers allow a
@@ -330,7 +331,7 @@
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn type *QDict::find( const char *key )
+  \fn type *QDict::find( const char *key ) const
   Returns the item associated with \e key, or null if the key does not
   exist in the dictionary.
 
@@ -345,7 +346,7 @@
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn type *QDict::operator[]( const char *key )
+  \fn type *QDict::operator[]( const char *key ) const
   Returns the item associated with \e key, or null if the key does not
   exist in the dictionary.
 
@@ -360,7 +361,7 @@
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn void QDict::statistics()
+  \fn void QDict::statistics() const
   Debugging-only function that prints out the dictionary distribution
   using debug().
  ----------------------------------------------------------------------------*/
