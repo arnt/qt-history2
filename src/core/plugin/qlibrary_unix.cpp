@@ -79,8 +79,10 @@ bool QLibraryPrivate::load_sys()
 
     QStringList suffixes(""), prefixes("");
     prefixes << "lib";
-# if defined(Q_OS_HPUX)
+#if defined(Q_OS_HPUX)
     suffixes << ".sl";
+#elif defined(Q_OS_AIX)
+    suffixes << ".a";
 #else
     suffixes << ".so";
 #endif
