@@ -284,7 +284,7 @@ void QSqlTable::endInsert()
     int i;
     for ( i = d->editRow; i <= d->insertRowLast; ++i )
 	updateRow( i );
-    for ( int i = d->editRow; i < d->insertRowLast; ++i )
+    for ( i = d->editRow; i < d->insertRowLast; ++i )
 	verticalHeader()->setLabel( i, verticalHeader()->label( i+1 ) );
     verticalHeader()->setLabel( d->insertRowLast, d->insertHeaderLabelLast );
     d->editRow = -1;
