@@ -780,8 +780,19 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
                          kHIThemeOrientationNormal);
         if (sub & SC_SliderTickmarks) {
             int numMarks = slider->maximum() / slider->pageStep();
-            HIThemeDrawTrackTickMarks(&tdi, numMarks, static_cast<CGContextRef>(p->handle()),
-                                      kHIThemeOrientationNormal);
+            if (tdi.trackInfo.slider.thumbDir == kThemeThumbPlain) {
+                // They asked for both, so we'll give it to them.
+                tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
+                HIThemeDrawTrackTickMarks(&tdi, numMarks, static_cast<CGContextRef>(p->handle()),
+                                          kHIThemeOrientationNormal);
+                tdi.trackInfo.slider.thumbDir = kThemeThumbUpward;
+                HIThemeDrawTrackTickMarks(&tdi, numMarks, static_cast<CGContextRef>(p->handle()),
+                                          kHIThemeOrientationNormal);
+            } else {
+                HIThemeDrawTrackTickMarks(&tdi, numMarks, static_cast<CGContextRef>(p->handle()),
+                                          kHIThemeOrientationNormal);
+                
+            }
         }
         break; }
     default:
