@@ -6553,6 +6553,7 @@ void QTextEdit::polish()
     // been added to the widget before it is shown
     if ( d->optimMode )
 	scrollToBottom();
+    QWidget::polish();
 }
 
 #endif // QT_TEXTEDIT_OPTIMIZATION
