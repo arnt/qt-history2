@@ -150,7 +150,7 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
     primaryIndex()).
 
     Similarly, when deleting an existing database record, first move
-    the record you wish to delete.  Then, call primeDelete() to get
+    to the record you wish to delete.  Then, call primeDelete() to get
     the pointer to the edit buffer.  Finally, call del() to delete the
     record from the database.  Again, the values in the edit buffer
     will be used to locate and delete the appropriate record.
