@@ -11,10 +11,12 @@ facilities and has snippets of code which demonstrate the Qt approach
 to programming. It gives you the 'big picture.'
 
 If you want to program purely in C++, designing your interfaces in
-code without the aid of any design tools, read the \link tutorial.html
-Tutorial\endlink. The tutorial is designed to get you into Qt
+code without the aid of any design tools, read the tutorials. \link
+tutorial.html Tutorial #1\endlink is designed to get you into Qt
 programming, with the emphasis on working code rather than being a
-tour of features.
+tour of features. \link tutorial2.html Tutorial #2\endlink presents a
+more real-world example, demonstrating how to code menus, toolbars,
+file loading and saving, dialogs, etc.
 
 If you want to design your user interfaces using a design tool,
 then read at least the first few chapters of the \link

@@ -52,32 +52,32 @@ How to Learn Qt\endlink if you haven't already done so.
 
 Tutorial chapters:
 \list 1
-\i \link t1.html Hello, World!\endlink
-\i \link t2.html Calling it Quits\endlink
-\i \link t3.html Family Values\endlink
-\i \link t4.html Let There Be Widgets\endlink
-\i \link t5.html Building Blocks\endlink
-\i \link t6.html Building Blocks Galore!\endlink
-\i \link t7.html One Thing Leads to Another\endlink
-\i \link t8.html Preparing for Battle\endlink
-\i \link t9.html With Cannon You Can\endlink
-\i \link t10.html Smooth as Silk\endlink
-\i \link t11.html Giving It a Shot\endlink
-\i \link t12.html Hanging in the Air the Way Bricks Don't\endlink
-\i \link t13.html Game Over\endlink
-\i \link t14.html Facing the Wall\endlink
+\i \link tutorial1-01.html Hello, World!\endlink
+\i \link tutorial1-02.html Calling it Quits\endlink
+\i \link tutorial1-03.html Family Values\endlink
+\i \link tutorial1-04.html Let There Be Widgets\endlink
+\i \link tutorial1-05.html Building Blocks\endlink
+\i \link tutorial1-06.html Building Blocks Galore!\endlink
+\i \link tutorial1-07.html One Thing Leads to Another\endlink
+\i \link tutorial1-08.html Preparing for Battle\endlink
+\i \link tutorial1-09.html With Cannon You Can\endlink
+\i \link tutorial1-10.html Smooth as Silk\endlink
+\i \link tutorial1-11.html Giving It a Shot\endlink
+\i \link tutorial1-12.html Hanging in the Air the Way Bricks Don't\endlink
+\i \link tutorial1-13.html Game Over\endlink
+\i \link tutorial1-14.html Facing the Wall\endlink
 \endlist
 
 This little game doesn't look much like a modern GUI application. It
 uses a good few of the GUI techniques, but after you've worked through
-it, we recommend reading the \link simple-application.html Simple
-Application Walkthrough \endlink too. That discusses a very simple
-application with all the common features (menu bars, tool bars,
-on-line help, printing, a couple of dialogs) in detail.
+it, we recommend reading \link tutorial2.html Tutorial #2\endlink. The
+second tutorial is a little more formal and covers the features of
+typical application including menubars, toolbars, loading and saving,
+dialogs, etc.
 
 */
 
-/*! \page t1.html
+/*! \page tutorial1-01.html
 
 \title Qt Tutorial - Chapter 1: Hello, World!
 
@@ -206,20 +206,20 @@ Try to resize the window. Press the button. If you're running X
 Window, try running the program with the -geometry option
 (for example, \c {-geometry 100x200+10+20}).
 
-You're now ready for \link t2.html Chapter 2.\endlink
+You're now ready for \link tutorial1-02.html Chapter 2.\endlink
 
-[\link t2.html Next tutorial\endlink]
+[\link tutorial1-02.html Next tutorial\endlink]
 [\link tutorial.html Main tutorial page\endlink]
 
 */
 
-/*! \page t2.html
+/*! \page tutorial1-02.html
 
 \title Qt Tutorial - Chapter 2: Calling it Quits
 
 \img t2.png Screenshot of tutorial two
 
-Having created a window in \link t1.html Chapter 1, \endlink we will
+Having created a window in \link tutorial1-01.html Chapter 1, \endlink we will
 now go on to make the application quit properly when the user tells it to.
 
 We will also use a font that is more exciting than the default one.
@@ -281,7 +281,7 @@ describes this topic in detail.
 When you run this program, you will see an even smaller window than in
 Chapter 1, filled with an even smaller button.
 
-(See \link t1.html#compiling Compiling\endlink for how to create a
+(See \link tutorial1-01.html#compiling Compiling\endlink for how to create a
 makefile and build the application.)
 
 \section1 Exercises
@@ -292,15 +292,15 @@ would seem to make some difference.
 Are there any other signals in QPushButton you can connect to quit?
 Hint: The QPushButton inherits most of its behavior from QButton.
 
-You're now ready for \link t3.html Chapter 3.\endlink
+You're now ready for \link tutorial1-03.html Chapter 3.\endlink
 
-[\link t1.html Previous tutorial\endlink]
-[\link t3.html Next tutorial\endlink]
+[\link tutorial1-01.html Previous tutorial\endlink]
+[\link tutorial1-03.html Next tutorial\endlink]
 [\link tutorial.html Main tutorial page\endlink]
 
 */
 
-/*! \page t3.html
+/*! \page tutorial1-03.html
 
 \title Qt Tutorial - Chapter 3: Family Values
 
@@ -357,7 +357,7 @@ which uses the button's size hint and size change policy to set the
 button's size and position. (See \l QWidget::sizeHint() and \l
 QWidget::setSizePolicy() for more information about these functions.)
 
-(See \link t1.html#compiling Compiling\endlink for how to create a
+(See \link tutorial1-01.html#compiling Compiling\endlink for how to create a
 makefile and build the application.)
 
 \section1 Exercises
@@ -367,15 +367,15 @@ button's size-change policy?  What happens to the button's height if
 you run the program with a bigger font?  What happens if you try to
 make the window \e really small?
 
-You're now ready for \link t4.html Chapter 4.\endlink
+You're now ready for \link tutorial1-04.html Chapter 4.\endlink
 
-[\link t2.html Previous tutorial\endlink]
-[\link t4.html Next tutorial\endlink]
+[\link tutorial1-02.html Previous tutorial\endlink]
+[\link tutorial1-04.html Next tutorial\endlink]
 [\link tutorial.html Main tutorial page\endlink]
 
 */
 
-/*! \page t4.html
+/*! \page tutorial1-04.html
 
 \title Qt Tutorial - Chapter 4: Let There Be Widgets
 
@@ -467,7 +467,7 @@ This program is very similar in behavior to the previous one. The
 difference lies in the way we have implemented it. It does behave
 slightly differently, however. Just try to resize it to see.
 
-(See \link t1.html#compiling Compiling\endlink for how to create a
+(See \link tutorial1-01.html#compiling Compiling\endlink for how to create a
 makefile and build the application.)
 
 \section1 Exercises
@@ -476,15 +476,15 @@ Try to create another MyWidget object in main(). What happens?
 
 Try to add more buttons or put in widgets other than QPushButton.
 
-You're now ready for \link t5.html Chapter 5.\endlink
+You're now ready for \link tutorial1-05.html Chapter 5.\endlink
 
-[\link t3.html Previous tutorial\endlink]
-[\link t5.html Next tutorial\endlink]
+[\link tutorial1-03.html Previous tutorial\endlink]
+[\link tutorial1-05.html Next tutorial\endlink]
 [\link tutorial.html Main tutorial page\endlink]
 
 */
 
-/*! \page t5.html
+/*! \page tutorial1-05.html
 
 \title Qt Tutorial - Chapter 5: Building Blocks
 
@@ -554,7 +554,7 @@ widget handles resizing well. Notice that the LCD number widget
 changes in size when the window is resized (because it can), but the
 others stay about the same (because otherwise they would look stupid).
 
-(See \link t1.html#compiling Compiling\endlink for how to create a
+(See \link tutorial1-01.html#compiling Compiling\endlink for how to create a
 makefile and build the application.)
 
 \section1 Exercises
@@ -569,15 +569,15 @@ Perhaps it would have been better to use \l QSpinBox than a slider?
 
 Try to make the application quit when the LCD number overflows.
 
-You're now ready for \link t6.html Chapter 6.\endlink
+You're now ready for \link tutorial1-06.html Chapter 6.\endlink
 
-[\link t4.html Previous tutorial\endlink]
-[\link t6.html Next tutorial\endlink]
+[\link tutorial1-04.html Previous tutorial\endlink]
+[\link tutorial1-06.html Next tutorial\endlink]
 [\link tutorial.html Main tutorial page\endlink]
 
 */
 
-/*! \page t6.html
+/*! \page tutorial1-06.html
 
 \title Qt Tutorial - Chapter 6: Building Blocks Galore!
 
@@ -602,7 +602,7 @@ constructor. This sort of widget is not very useful, so we'll add some API later
 \printuntil }
 
 This is lifted straight from the
-\link t5.html#constructor MyWidget constructor \endlink in Chapter 5.
+\link tutorial1-05.html#constructor MyWidget constructor \endlink in Chapter 5.
 The only differences are that the button is left out and the class
 is renamed.
 
@@ -644,7 +644,7 @@ This program shows how easy it is to use many widgets at a time. Each
 one behaves like the slider and LCD number in the previous
 chapter. Again, the difference lies in the implementation.
 
-(See \link t1.html#compiling Compiling\endlink for how to create a
+(See \link tutorial1-01.html#compiling Compiling\endlink for how to create a
 makefile and build the application.)
 
 \section1 Exercises
@@ -655,10 +655,10 @@ The source contains three occurrences of "4". What happens if you
 change the one in the \l QGrid constructor call?  What about the other
 two?  Why is this?
 
-You're now ready for \link t7.html Chapter 7.\endlink
+You're now ready for \link tutorial1-07.html Chapter 7.\endlink
 
-[\link t5.html Previous tutorial\endlink]
-[\link t7.html Next tutorial\endlink]
+[\link tutorial1-05.html Previous tutorial\endlink]
+[\link tutorial1-07.html Next tutorial\endlink]
 [\link tutorial.html Main tutorial page\endlink]
 
 */
@@ -667,7 +667,7 @@ You're now ready for \link t7.html Chapter 7.\endlink
 /*! \file t7/lcdrange.cpp */
 /*! \file t7/main.cpp */
 
-/*! \page t7.html
+/*! \page tutorial1-07.html
 
 \title Qt Tutorial - Chapter 7: One Thing Leads to Another
 
@@ -688,7 +688,7 @@ in the \c t7 subdirectory.
 
 \section2 \l t7/lcdrange.h
 
-This file is mainly lifted from \link t6.html#main main.cpp \endlink in
+This file is mainly lifted from \link tutorial1-06.html#main main.cpp \endlink in
 Chapter 6; only the changes are noted here.
 
 \quotefile t7/lcdrange.h
@@ -753,7 +753,7 @@ signal you'll see called <i>something</i>Changed().
 
 \quotefile t7/lcdrange.cpp
 
-This file is mainly lifted from \link t6.html#main t6/main.cpp \endlink, and
+This file is mainly lifted from \link tutorial1-06.html#main t6/main.cpp \endlink, and
 only the changes are noted here.
 
 \skipto connect
@@ -851,10 +851,10 @@ seven LCDs back to 50.
 Click to the left of the handle on the bottom right slider. What
 happens?  Why is this the correct behavior?
 
-You're now ready for \link t8.html Chapter 8.\endlink
+You're now ready for \link tutorial1-08.html Chapter 8.\endlink
 
-[\link t6.html Previous tutorial\endlink]
-[\link t8.html Next tutorial\endlink]
+[\link tutorial1-06.html Previous tutorial\endlink]
+[\link tutorial1-08.html Next tutorial\endlink]
 [\link tutorial.html Main tutorial page\endlink]
 
 */
@@ -865,7 +865,7 @@ You're now ready for \link t8.html Chapter 8.\endlink
 /*! \file t8/cannon.cpp */
 /*! \file t8/main.cpp */
 
-/*! \page t8.html
+/*! \page tutorial1-08.html
 
 \title Qt Tutorial - Chapter 8: Preparing for Battle
 
@@ -1114,7 +1114,7 @@ value. Upon resizing, CannonField is given as much space as possible.
 On Windows machines with an 8-bit display the new background color is
 dithered to death. The next chapter works around this.
 
-(See \link t7.html#compiling Compiling\endlink for how to create a
+(See \link tutorial1-07.html#compiling Compiling\endlink for how to create a
 makefile and build the application.)
 
 \section1 Exercises
@@ -1136,10 +1136,10 @@ the program's running?  (It is Meta+Q on a few keyboards.)
 
 Center the text in the CannonField.
 
-You're now ready for \link t9.html Chapter 9.\endlink
+You're now ready for \link tutorial1-09.html Chapter 9.\endlink
 
-[\link t7.html Previous tutorial\endlink]
-[\link t9.html Next tutorial\endlink]
+[\link tutorial1-07.html Previous tutorial\endlink]
+[\link tutorial1-09.html Next tutorial\endlink]
 [\link tutorial.html Main tutorial page\endlink]
 
 */
@@ -1150,7 +1150,7 @@ You're now ready for \link t9.html Chapter 9.\endlink
 /*! \file t9/cannon.cpp */
 /*! \file t9/main.cpp */
 
-/*! \page t9.html
+/*! \page tutorial1-09.html
 
 \title Qt Tutorial - Chapter 9: With Cannon You Can
 
@@ -1277,7 +1277,7 @@ Chapter 8.
 You may notice that the cannon flickers annoyingly, especially on a
 slow machine. We'll fix this in the next chapter.
 
-(See \link t7.html#compiling Compiling\endlink for how to create a
+(See \link tutorial1-07.html#compiling Compiling\endlink for how to create a
 makefile and build the application.)
 
 \section1 Exercises
@@ -1287,10 +1287,10 @@ Set a different pen instead of NoPen. Set a patterned brush.
 Try "Q&uit" or "Qu&it" as button text instead of "&Quit". What
 happens?
 
-You're now ready for \link t10.html Chapter 10.\endlink
+You're now ready for \link tutorial1-10.html Chapter 10.\endlink
 
-[\link t8.html Previous tutorial\endlink]
-[\link t10.html Next tutorial\endlink]
+[\link tutorial1-08.html Previous tutorial\endlink]
+[\link tutorial1-10.html Next tutorial\endlink]
 [\link tutorial.html Main tutorial page\endlink]
 
 */
@@ -1301,7 +1301,7 @@ You're now ready for \link t10.html Chapter 10.\endlink
 /*! \file t10/cannon.cpp */
 /*! \file t10/main.cpp */
 
-/*! \page t10.html
+/*! \page tutorial1-10.html
 
 \title Qt Tutorial - Chapter 10: Smooth as Silk
 
@@ -1473,7 +1473,7 @@ We initialize the force value to 25.
 
 The flicker has gone and we have a force control.
 
-(See \link t7.html#compiling Compiling\endlink for how to create a
+(See \link tutorial1-07.html#compiling Compiling\endlink for how to create a
 makefile and build the application.)
 
 
@@ -1489,10 +1489,10 @@ new addStep() and subtractStep() slots in LCDRange, like \l
 QSlider::addStep(). If you're bothered by the way the left and right
 keys work (I am!), change that too.
 
-You're now ready for \link t11.html Chapter 11.\endlink
+You're now ready for \link tutorial1-11.html Chapter 11.\endlink
 
-[\link t9.html Previous tutorial\endlink]
-[\link t11.html Next tutorial\endlink]
+[\link tutorial1-09.html Previous tutorial\endlink]
+[\link tutorial1-11.html Next tutorial\endlink]
 [\link tutorial.html Main tutorial page\endlink]
 
 */
@@ -1503,7 +1503,7 @@ You're now ready for \link t11.html Chapter 11.\endlink
 /*! \file t11/cannon.cpp */
 /*! \file t11/main.cpp */
 
-/*! \page t11.html
+/*! \page tutorial1-11.html
 
 \title Qt Tutorial - Chapter 11: Giving It a Shot
 
@@ -1683,7 +1683,7 @@ of the CannonField.
 
 The cannon can shoot, but there's nothing to shoot at.
 
-(See \link t7.html#compiling Compiling\endlink for how to create a
+(See \link tutorial1-07.html#compiling Compiling\endlink for how to create a
 makefile and build the application.)
 
 
@@ -1694,10 +1694,10 @@ help.
 
 Change the color of the cannon when a shot is in the air.
 
-You're now ready for \link t12.html Chapter 12.\endlink
+You're now ready for \link tutorial1-12.html Chapter 12.\endlink
 
-[\link t10.html Previous tutorial\endlink]
-[\link t12.html Next tutorial\endlink]
+[\link tutorial1-10.html Previous tutorial\endlink]
+[\link tutorial1-12.html Next tutorial\endlink]
 [\link tutorial.html Main tutorial page\endlink]
 
 */
@@ -1708,7 +1708,7 @@ You're now ready for \link t12.html Chapter 12.\endlink
 /*! \file t12/cannon.cpp */
 /*! \file t12/main.cpp */
 
-/*! \page t12.html
+/*! \page tutorial1-12.html
 
 \title Qt Tutorial - Chapter 12: Hanging in the Air the Way Bricks Don't
 
@@ -1994,7 +1994,7 @@ The LCDRange widgets look a bit strange - the built-in layout
 management in QVBox gives the labels too much space and the rest not
 enough. We'll fix that in the next chapter.
 
-(See \link t7.html#compiling Compiling\endlink for how to create a
+(See \link tutorial1-07.html#compiling Compiling\endlink for how to create a
 makefile and build the application.)
 
 \section1 Exercises
@@ -2016,10 +2016,10 @@ visible. Hint: \l QWidget::setMinimumSize() is your friend.
 Not easy; make it possible to have several shots in the air at the
 same time. Hint: make a Shot object.
 
-You're now ready for \link t13.html Chapter 13.\endlink
+You're now ready for \link tutorial1-13.html Chapter 13.\endlink
 
-[\link t11.html Previous tutorial\endlink]
-[\link t13.html Next tutorial\endlink]
+[\link tutorial1-11.html Previous tutorial\endlink]
+[\link tutorial1-13.html Next tutorial\endlink]
 [\link tutorial.html Main tutorial page\endlink]
 
 */
@@ -2032,7 +2032,7 @@ You're now ready for \link t13.html Chapter 13.\endlink
 /*! \file t13/gamebrd.cpp */
 /*! \file t13/main.cpp */
 
-/*! \page t13.html
+/*! \page tutorial1-13.html
 
 \title Qt Tutorial - Chapter 13: Game Over
 
@@ -2350,7 +2350,7 @@ change.
 Hits and shots left are displayed and the program keeps track of them.
 The game can end, and there's a button to start a new game.
 
-(See \link t7.html#compiling Compiling\endlink for how to create a
+(See \link tutorial1-07.html#compiling Compiling\endlink for how to create a
 makefile and build the application.)
 
 
@@ -2362,10 +2362,10 @@ Make some splatter effects when the shot hits the target.
 
 Implement multiple targets.
 
-You're now ready for \link t14.html Chapter 14.\endlink
+You're now ready for \link tutorial1-14.html Chapter 14.\endlink
 
-[\link t12.html Previous tutorial\endlink]
-[\link t14.html Next tutorial\endlink]
+[\link tutorial1-12.html Previous tutorial\endlink]
+[\link tutorial1-14.html Next tutorial\endlink]
 [\link tutorial.html Main tutorial page\endlink]
 
 */
@@ -2378,7 +2378,7 @@ You're now ready for \link t14.html Chapter 14.\endlink
 /*! \file t14/gamebrd.cpp */
 /*! \file t14/main.cpp */
 
-/*! \page t14.html
+/*! \page tutorial1-14.html
 
 \title Qt Tutorial - Chapter 14: Facing the Wall
 
@@ -2619,7 +2619,7 @@ cannon's angle using the mouse. The barrier makes it a little more
 challenging to play the game. We also have a nice looking frame
 around the CannonField.
 
-(See \link t7.html#compiling Compiling\endlink for how to create a
+(See \link tutorial1-07.html#compiling Compiling\endlink for how to create a
 makefile and build the application.)
 
 
@@ -2641,8 +2641,8 @@ programming art!}
 Cf. Chapter 27 of The TeXbook
 \endomit
 
-[\link t13.html Previous tutorial\endlink]
-[\link t1.html First tutorial\endlink]
+[\link tutorial1-13.html Previous tutorial\endlink]
+[\link tutorial1-01.html First tutorial\endlink]
 [\link tutorial.html Main tutorial page\endlink]
 
 */
