@@ -54,7 +54,7 @@ class QSqlField;
 class QSqlPropertyMap;
 class QSqlTablePrivate;
 
-class Q_EXPORT QSqlTable : public QTable, public QSqlNavigatorBase
+class Q_EXPORT QSqlTable : public QTable, public QSqlNavigator
 {
     Q_OBJECT
 

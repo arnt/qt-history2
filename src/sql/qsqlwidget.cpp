@@ -41,43 +41,43 @@
 /* ATTENTION: this file must remain in sync with qsqldialog.cpp */
 
 QSqlWidget::QSqlWidget( QWidget *parent, const char *name, WFlags fl )
-    : QWidget( parent, name, fl ), QSqlNavigator()
+    : QWidget( parent, name, fl ), QSqlFormNavigator()
 {
 }
 
 void QSqlWidget::setBoundryChecking( bool active )
 {
-    QSqlNavigator::setBoundryChecking( active );
+    QSqlFormNavigator::setBoundryChecking( active );
 }
 
 bool QSqlWidget::boundryChecking() const
 {
-    return QSqlNavigator::boundryChecking();
+    return QSqlFormNavigator::boundryChecking();
 }
 
 void QSqlWidget::setSort( const QSqlIndex& sort )
 {
-    QSqlNavigator::setSort( sort );
+    QSqlFormNavigator::setSort( sort );
 }
 
 void QSqlWidget::setSort( const QStringList& sort )
 {
-    QSqlNavigator::setSort( sort );
+    QSqlFormNavigator::setSort( sort );
 }
 
 QStringList  QSqlWidget::sort() const
 {
-    return QSqlNavigator::sort();
+    return QSqlFormNavigator::sort();
 }
 
 void QSqlWidget::setFilter( const QString& filter )
 {
-    QSqlNavigator::setFilter( filter );
+    QSqlFormNavigator::setFilter( filter );
 }
 
 QString QSqlWidget::filter() const
 {
-    return QSqlNavigator::filter();
+    return QSqlFormNavigator::filter();
 }
 
 /*! \fn void firstRecordAvailable( bool available )
@@ -94,42 +94,42 @@ QString QSqlWidget::filter() const
 
 void QSqlWidget::insertRecord()
 {
-    QSqlNavigator::insertRecord();
+    QSqlFormNavigator::insertRecord();
 }
 
 void QSqlWidget::updateRecord()
 {
-    QSqlNavigator::updateRecord();
+    QSqlFormNavigator::updateRecord();
 }
 
 void QSqlWidget::deleteRecord()
 {
-    QSqlNavigator::deleteRecord();
+    QSqlFormNavigator::deleteRecord();
 }
 
 void QSqlWidget::firstRecord()
 {
-    QSqlNavigator::firstRecord();
+    QSqlFormNavigator::firstRecord();
 }
 
 void QSqlWidget::lastRecord()
 {
-    QSqlNavigator::lastRecord();
+    QSqlFormNavigator::lastRecord();
 }
 
 void QSqlWidget::nextRecord()
 {
-    QSqlNavigator::nextRecord();
+    QSqlFormNavigator::nextRecord();
 }
 
 void QSqlWidget::prevRecord()
 {
-    QSqlNavigator::prevRecord();
+    QSqlFormNavigator::prevRecord();
 }
 
 void QSqlWidget::clearForm()
 {
-    QSqlNavigator::clearForm();
+    QSqlFormNavigator::clearForm();
 }
 
 void QSqlWidget::emitFirstRecordAvailable( bool available )

@@ -177,7 +177,7 @@ public:
 */
 
 QSqlTable::QSqlTable ( QWidget * parent, const char * name )
-    : QTable( parent, name ), QSqlNavigatorBase()
+    : QTable( parent, name ), QSqlNavigator()
 {
     init();
 }
@@ -191,7 +191,7 @@ QSqlTable::QSqlTable ( QWidget * parent, const char * name )
 */
 
 QSqlTable::QSqlTable ( QSqlCursor* cursor, bool autoPopulate, QWidget * parent, const char * name )
-    : QTable( parent, name )
+    : QTable( parent, name ), QSqlNavigator()
 {
     init();
     setCursor( cursor, autoPopulate );
@@ -301,7 +301,7 @@ void QSqlTable::setColumn( uint col, const QSqlField* field )
 
 QString QSqlTable::filter() const
 {
-    return QSqlNavigatorBase::filter();
+    return QSqlNavigator::filter();
 }
 
 /*! Sets the filter to be used on the displayed data to \a filter.  To
@@ -312,7 +312,7 @@ QString QSqlTable::filter() const
 
 void QSqlTable::setFilter( const QString& filter )
 {
-    QSqlNavigatorBase::setFilter( filter );
+    QSqlNavigator::setFilter( filter );
 }
 
 /*! Sets the sort to be used on the displayed data to \a sort.  If
@@ -324,7 +324,7 @@ void QSqlTable::setFilter( const QString& filter )
 
 void QSqlTable::setSort( const QStringList& sort )
 {
-    QSqlNavigatorBase::setSort( sort );
+    QSqlNavigator::setSort( sort );
 }
 
 /*! Sets the sort to be used on the displayed data to \a sort.  If
@@ -335,7 +335,7 @@ void QSqlTable::setSort( const QStringList& sort )
 
 void QSqlTable::setSort( const QSqlIndex& sort )
 {
-    QSqlNavigatorBase::setSort( sort );
+    QSqlNavigator::setSort( sort );
 }
 
 
@@ -353,7 +353,7 @@ void QSqlTable::setSort( const QSqlIndex& sort )
 
 QStringList QSqlTable::sort() const
 {
-    return QSqlNavigatorBase::sort();
+    return QSqlNavigator::sort();
 }
 
 /*! If \a confirm is TRUE, all edits will be confirmed with the user
@@ -1671,7 +1671,7 @@ void QSqlTable::refresh()
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
 	return;
-    QSqlNavigatorBase::refresh();
+    QSqlNavigator::refresh();
     setSize( cursor );
 }
 
@@ -1684,7 +1684,7 @@ bool QSqlTable::findBuffer( const QSqlIndex& idx, int atHint )
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
 	return FALSE;
-    bool found = QSqlNavigatorBase::findBuffer( idx, atHint );
+    bool found = QSqlNavigator::findBuffer( idx, atHint );
     if ( found )
 	setCurrentCell( cursor->at(), currentColumn() );
     return found;

@@ -41,43 +41,43 @@
 /* ATTENTION: this file must remain in sync with qsqlwidget.cpp */
 
 QSqlDialog::QSqlDialog( QWidget *parent, const char *name, bool modal, WFlags f )
-    : QDialog( parent, name, modal, f ), QSqlNavigator()
+    : QDialog( parent, name, modal, f ), QSqlFormNavigator()
 {
 }
 
 void QSqlDialog::setBoundryChecking( bool active )
 {
-    QSqlNavigator::setBoundryChecking( active );
+    QSqlFormNavigator::setBoundryChecking( active );
 }
 
 bool QSqlDialog::boundryChecking() const
 {
-    return QSqlNavigator::boundryChecking();
+    return QSqlFormNavigator::boundryChecking();
 }
 
 void QSqlDialog::setSort( const QSqlIndex& sort )
 {
-    QSqlNavigator::setSort( sort );
+    QSqlFormNavigator::setSort( sort );
 }
 
 void QSqlDialog::setSort( const QStringList& sort )
 {
-    QSqlNavigator::setSort( sort );
+    QSqlFormNavigator::setSort( sort );
 }
 
 QStringList  QSqlDialog::sort() const
 {
-    return QSqlNavigator::sort();
+    return QSqlFormNavigator::sort();
 }
 
 void QSqlDialog::setFilter( const QString& filter )
 {
-    QSqlNavigator::setFilter( filter );
+    QSqlFormNavigator::setFilter( filter );
 }
 
 QString QSqlDialog::filter() const
 {
-    return QSqlNavigator::filter();
+    return QSqlFormNavigator::filter();
 }
 
 /*! \fn void firstRecordAvailable( bool available )
@@ -94,42 +94,42 @@ QString QSqlDialog::filter() const
 
 void QSqlDialog::insertRecord()
 {
-    QSqlNavigator::insertRecord();
+    QSqlFormNavigator::insertRecord();
 }
 
 void QSqlDialog::updateRecord()
 {
-    QSqlNavigator::updateRecord();
+    QSqlFormNavigator::updateRecord();
 }
 
 void QSqlDialog::deleteRecord()
 {
-    QSqlNavigator::deleteRecord();
+    QSqlFormNavigator::deleteRecord();
 }
 
 void QSqlDialog::firstRecord()
 {
-    QSqlNavigator::firstRecord();
+    QSqlFormNavigator::firstRecord();
 }
 
 void QSqlDialog::lastRecord()
 {
-    QSqlNavigator::lastRecord();
+    QSqlFormNavigator::lastRecord();
 }
 
 void QSqlDialog::nextRecord()
 {
-    QSqlNavigator::nextRecord();
+    QSqlFormNavigator::nextRecord();
 }
 
 void QSqlDialog::prevRecord()
 {
-    QSqlNavigator::prevRecord();
+    QSqlFormNavigator::prevRecord();
 }
 
 void QSqlDialog::clearForm()
 {
-    QSqlNavigator::clearForm();
+    QSqlFormNavigator::clearForm();
 }
 
 void QSqlDialog::emitFirstRecordAvailable( bool available )

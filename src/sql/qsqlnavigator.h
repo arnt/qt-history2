@@ -47,18 +47,18 @@
 
 class QSqlCursor;
 class QSqlForm;
-class QSqlNavigatorBasePrivate;
+class QSqlNavigatorPrivate;
 
-class Q_EXPORT QSqlNavigatorBase
+class Q_EXPORT QSqlNavigator
 {
 public:
-    QSqlNavigatorBase();
-    virtual ~QSqlNavigatorBase();
+    QSqlNavigator();
+    virtual ~QSqlNavigator();
 
-    virtual void setSort( const QSqlIndex& sort );
-    virtual void setSort( const QStringList& sort );
+    void setSort( const QSqlIndex& sort );
+    void setSort( const QStringList& sort );
     QStringList  sort() const;
-    virtual void setFilter( const QString& filter );
+    void setFilter( const QString& filter );
     QString filter() const;
 
     virtual QSqlCursor* defaultCursor() = 0;
@@ -67,14 +67,14 @@ public:
     virtual bool findBuffer( const QSqlIndex& idx, int atHint = 0 );
 
 private:
-    QSqlNavigatorBasePrivate* d;
+    QSqlNavigatorPrivate* d;
 };
 
-class Q_EXPORT QSqlNavigator : public QSqlNavigatorBase
+class Q_EXPORT QSqlFormNavigator : public QSqlNavigator
 {
 public:
-    QSqlNavigator();
-    ~QSqlNavigator();
+    QSqlFormNavigator();
+    ~QSqlFormNavigator();
 
     enum Boundry {
 	Unknown,
@@ -95,7 +95,7 @@ public:
     void clearForm();
 
     Boundry boundry();
-    virtual void setBoundryChecking( bool active );
+    void setBoundryChecking( bool active );
     bool boundryChecking() const;
 
     virtual QSqlForm* defaultForm();

@@ -46,7 +46,7 @@
 #include "qstring.h"
 #include "qstringlist.h"
 
-class QSqlNavigatorBasePrivate
+class QSqlNavigatorPrivate
 {
 public:
     QString ftr;
@@ -55,7 +55,7 @@ public:
 
 
 /*!
-  \class QSqlNavigatorBase qsqlnavigator.h
+  \class QSqlNavigator qsqlnavigator.h
   \brief Navigate a database cursor
 
   \module sql
@@ -65,7 +65,7 @@ public:
   re-selecting) the cursor and searching for records within the
   cursor.
 
-  QSqlNavigatorBase is not functional on its own. A variety of
+  QSqlNavigator is not functional on its own. A variety of
   subclasses provide immediately usable behaviour; this class is a
   pure abstract superclass providing the behaviour that is shared
   among all the concrete SQL navigator classes.
@@ -76,9 +76,9 @@ public:
 
 */
 
-QSqlNavigatorBase::QSqlNavigatorBase()
+QSqlNavigator::QSqlNavigator()
 {
-    d = new QSqlNavigatorBasePrivate();
+    d = new QSqlNavigatorPrivate();
 }
 
 
@@ -86,32 +86,32 @@ QSqlNavigatorBase::QSqlNavigatorBase()
 
 */
 
-QSqlNavigatorBase::~QSqlNavigatorBase()
+QSqlNavigator::~QSqlNavigator()
 {
     delete d;
 }
 
-void QSqlNavigatorBase::setSort( const QSqlIndex& sort )
+void QSqlNavigator::setSort( const QSqlIndex& sort )
 {
     setSort( sort.toStringList() );
 }
 
-void QSqlNavigatorBase::setSort( const QStringList& sort )
+void QSqlNavigator::setSort( const QStringList& sort )
 {
     d->srt = sort;
 }
 
-QStringList  QSqlNavigatorBase::sort() const
+QStringList  QSqlNavigator::sort() const
 {
     return d->srt;
 }
 
-void QSqlNavigatorBase::setFilter( const QString& filter )
+void QSqlNavigator::setFilter( const QString& filter )
 {
     d->ftr = filter;
 }
 
-QString QSqlNavigatorBase::filter() const
+QString QSqlNavigator::filter() const
 {
     return d->ftr;
 }
@@ -125,7 +125,7 @@ QString QSqlNavigatorBase::filter() const
 
 */
 
-void QSqlNavigatorBase::refresh()
+void QSqlNavigator::refresh()
 {
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
@@ -140,7 +140,7 @@ void QSqlNavigatorBase::refresh()
     cursor->select( currentFilter, newSort );
 }
 
-/*! \fn QSqlCursor* QSqlNavigatorBase::defaultCursor()
+/*! \fn QSqlCursor* QSqlNavigator::defaultCursor()
   Returns a pointer to the default cursor used for navigation, or 0
   if there is no default cursor.
 
@@ -237,7 +237,7 @@ update.  For example:
 */
 
 //## possibly add sizeHint parameter
-bool QSqlNavigatorBase::findBuffer( const QSqlIndex& idx, int atHint )
+bool QSqlNavigator::findBuffer( const QSqlIndex& idx, int atHint )
 {
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
@@ -344,7 +344,7 @@ bool QSqlNavigatorBase::findBuffer( const QSqlIndex& idx, int atHint )
 
 
 /*!
-  \class QSqlNavigator qsqlnavigator.h
+  \class QSqlFormNavigator qsqlnavigator.h
   \brief Navigate a database cursor/form
 
   \module sql
@@ -353,7 +353,7 @@ bool QSqlNavigatorBase::findBuffer( const QSqlIndex& idx, int atHint )
   by QSqlWidget and QSqlDialog to provide automatic cursor navigation
   when editing/browsing a database cursor.
 
-  QSqlNavigator can determine boundry conditions of the cursor (i.e.,
+  QSqlFormNavigator can determine boundry conditions of the cursor (i.e.,
   whether the cursor is on the first or last record) with boundry().
   This can be used, for example, to update widgets according to the
   position of the navigator within the cursor.
@@ -362,7 +362,7 @@ bool QSqlNavigatorBase::findBuffer( const QSqlIndex& idx, int atHint )
 
 */
 
-/*! \enum QSqlNavigator::Boundry
+/*! \enum QSqlFormNavigator::Boundry
 
   This enum type describes where the navigator is currently positioned.
 
@@ -393,8 +393,8 @@ bool QSqlNavigatorBase::findBuffer( const QSqlIndex& idx, int atHint )
 
 */
 
-QSqlNavigator::QSqlNavigator()
-    : QSqlNavigatorBase(), boundryCheck( TRUE )
+QSqlFormNavigator::QSqlFormNavigator()
+    : QSqlNavigator(), boundryCheck( TRUE )
 {
 }
 
@@ -403,7 +403,7 @@ QSqlNavigator::QSqlNavigator()
 
 */
 
-QSqlNavigator::~QSqlNavigator()
+QSqlFormNavigator::~QSqlFormNavigator()
 {
 }
 
@@ -416,7 +416,7 @@ QSqlNavigator::~QSqlNavigator()
 
 */
 
-int QSqlNavigator::insertRecord()
+int QSqlFormNavigator::insertRecord()
 {
     QSqlCursor* cursor = defaultCursor();
     QSqlForm* form = defaultForm();
@@ -439,7 +439,7 @@ int QSqlNavigator::insertRecord()
 
 */
 
-int QSqlNavigator::updateRecord()
+int QSqlFormNavigator::updateRecord()
 {
     QSqlCursor* cursor = defaultCursor();
     QSqlForm* form = defaultForm();
@@ -466,7 +466,7 @@ int QSqlNavigator::updateRecord()
 
 */
 
-int QSqlNavigator::deleteRecord()
+int QSqlFormNavigator::deleteRecord()
 {
     QSqlCursor* cursor = defaultCursor();
     QSqlForm* form = defaultForm();
@@ -497,7 +497,7 @@ first record, otherwise FALSE is returned.
 
 */
 
-bool QSqlNavigator::firstRecord()
+bool QSqlFormNavigator::firstRecord()
 {
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
@@ -520,7 +520,7 @@ last record, otherwise FALSE is returned.
 
 */
 
-bool QSqlNavigator::lastRecord()
+bool QSqlFormNavigator::lastRecord()
 {
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
@@ -544,7 +544,7 @@ last record and FALSE is returned.
 
 */
 
-bool QSqlNavigator::nextRecord()
+bool QSqlFormNavigator::nextRecord()
 {
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
@@ -567,7 +567,7 @@ the first record and FALSE is returned.
 
 */
 
-bool QSqlNavigator::prevRecord()
+bool QSqlFormNavigator::prevRecord()
 {
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
@@ -588,7 +588,7 @@ default form.
 
 */
 
-void QSqlNavigator::clearForm()
+void QSqlFormNavigator::clearForm()
 {
     QSqlCursor* cursor = defaultCursor();
     if ( cursor )
@@ -603,7 +603,7 @@ if there is no default form.  The default implementation returns 0.
 
 */
 
-QSqlForm* QSqlNavigator::defaultForm()
+QSqlForm* QSqlFormNavigator::defaultForm()
 {
     return 0;
 }
@@ -614,7 +614,7 @@ QSqlForm* QSqlNavigator::defaultForm()
 
 */
 
-void QSqlNavigator::handleError( const QSqlError& )
+void QSqlFormNavigator::handleError( const QSqlError& )
 {
 }
 
@@ -626,7 +626,7 @@ position.
 
   \sa Boundry
 */
-QSqlNavigator::Boundry QSqlNavigator::boundry()
+QSqlFormNavigator::Boundry QSqlFormNavigator::boundry()
 {
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
@@ -655,12 +655,12 @@ QSqlNavigator::Boundry QSqlNavigator::boundry()
     return b;
 }
 
-void QSqlNavigator::setBoundryChecking( bool active )
+void QSqlFormNavigator::setBoundryChecking( bool active )
 {
     boundryCheck = active;
 }
 
-bool QSqlNavigator::boundryChecking() const
+bool QSqlFormNavigator::boundryChecking() const
 {
     return boundryCheck;
 }
@@ -670,7 +670,7 @@ default cursor and calls virtual 'emit' functions which derived
 classes can reimplement to emit signals.
 */
 
-void QSqlNavigator::updateBoundry()
+void QSqlFormNavigator::updateBoundry()
 {
     if ( boundryCheck ) {
 	Boundry bound = boundry();
@@ -715,19 +715,19 @@ void QSqlNavigator::updateBoundry()
     }
 }
 
-void QSqlNavigator::emitFirstRecordAvailable( bool )
+void QSqlFormNavigator::emitFirstRecordAvailable( bool )
 {
 }
 
-void QSqlNavigator::emitLastRecordAvailable( bool )
+void QSqlFormNavigator::emitLastRecordAvailable( bool )
 {
 }
 
-void QSqlNavigator::emitNextRecordAvailable( bool )
+void QSqlFormNavigator::emitNextRecordAvailable( bool )
 {
 }
 
-void QSqlNavigator::emitPrevRecordAvailable( bool )
+void QSqlFormNavigator::emitPrevRecordAvailable( bool )
 {
 }
 

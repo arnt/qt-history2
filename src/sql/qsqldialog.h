@@ -45,7 +45,7 @@
 #include "qstringlist.h"
 #endif // QT_H
 
-class Q_EXPORT QSqlDialog : public QDialog, public QSqlNavigator
+class Q_EXPORT QSqlDialog : public QDialog, public QSqlFormNavigator
 {
     Q_OBJECT
     Q_PROPERTY( bool boundryChecking READ boundryChecking WRITE setBoundryChecking )
@@ -55,13 +55,13 @@ class Q_EXPORT QSqlDialog : public QDialog, public QSqlNavigator
 public:
     QSqlDialog( QWidget *parent = 0, const char *name = 0, bool modal = FALSE, WFlags f = 0 );
 
-    void setBoundryChecking( bool active );
+    virtual void setBoundryChecking( bool active );
     bool boundryChecking() const;
 
-    void setSort( const QSqlIndex& sort );
-    void setSort( const QStringList& sort );
+    virtual void setSort( const QSqlIndex& sort );
+    virtual void setSort( const QStringList& sort );
     QStringList  sort() const;
-    void setFilter( const QString& filter );
+    virtual void setFilter( const QString& filter );
     QString filter() const;
 
 signals:
