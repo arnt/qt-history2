@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#12 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#12 $";
 #endif
 
 
@@ -509,7 +509,7 @@ void QObject::activate_signal( const char *signal, TYPE param )		      \
     QConnectionList *clist;						      \
     if ( !connections || signalsBlocked() ||				      \
 	 !(clist=connections->find(signal)) )				      \
-	return;			1				1	      \
+	return;								      \
     typedef void (QObject::*RT)( TYPE );				      \
     typedef RT *PRT;							      \
     QConnectionListIt it(*clist);					      \
