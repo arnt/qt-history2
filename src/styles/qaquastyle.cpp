@@ -8606,8 +8606,11 @@ public:
 
   This class implements the Aqua look and feel. It's an
   experimental class that tries to resemble a Macinosh-like GUI style
-  with the QStyle system. The emulation is, however, far from being
-  perfect yet.
+  with the QStyle system. The emulation is far from being
+  perfect.
+
+  Note that the functions provided by QAquaStyle are reimplementations
+  of QStyle functions; see QStyle for their documentation.
 */
 
 static int qAquaGetNum( const QString & s )
@@ -9194,7 +9197,7 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 }
 
 /*!
-    Constructs a QAquaStyle
+    Constructs a QAquaStyle object.
 */
 QAquaStyle::QAquaStyle()
 {
