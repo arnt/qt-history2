@@ -913,11 +913,11 @@ static void laTeXifyImages( QString& html )
 	if ( fileContents(qdocOutputDir + src).isEmpty() )
 	    return;
 
-	if ( src.endsWith(QString(".png")) ) {
-	    src = src.left( src.length() - 4 );
-	    if ( system(QString("convert %1.png %2.eps")
+	if ( src.endsWith(QString(".png")) || src.endsWith(QString(".jpg")) ) {
+	    QString dst = src.left( src.length() - 4 ) + ".eps";
+	    if ( system(QString("convert %1 %2")
 			.arg(qdocOutputDir + src)
-			.arg(qdocOutputDir + src).latin1()) == 0 ) {
+			.arg(qdocOutputDir + dst).latin1()) == 0 ) {
 		html.replace( k, img.matchedLength(),
 			      QString("\\includegraphics[scale=0.45]{%1}")
 			      .arg(qdocOutputDir + src) );
