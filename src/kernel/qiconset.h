@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.h#8 $
+** $Id: //depot/qt/main/src/kernel/qiconset.h#9 $
 **
 ** Definition of QIconSet class
 **
@@ -48,6 +48,8 @@ public:
     QPixmap pixmap( Size, Mode ) const;
     QPixmap pixmap() const;
     bool isGenerated( Size, Mode ) const;
+
+    void detach();
 
     QIconSet &operator=( const QIconSet & );
 
