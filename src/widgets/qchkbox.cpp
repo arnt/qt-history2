@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#29 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#29 $";
 #endif
 
 
@@ -269,7 +269,8 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 	    p->setPen( g.foreground() );
 	    p->drawLineSegments( amark );
 	    p->setPen( g.dark() );
-	    for ( int i=0; i<(int)sizeof(check_mark_pix)/sizeof(QCOORD); i+=2 )
+	    for ( int i=0; i<(int)(sizeof(check_mark_pix)/sizeof(QCOORD));
+			   i+=2 )
 		p->drawPoint( x1 + check_mark_pix[i],
 			      y1 + check_mark_pix[i+1] );
 	}
