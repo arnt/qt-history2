@@ -1,96 +1,55 @@
 /*! \page qaxserver-demo-simple.html
 
-  \title A standard ActiveX and the "simple" ActiveQt widget.
+    \title A standard ActiveX and the "simple" ActiveQt widget.
 
-\raw html
-<object ID="QSimpleAX" CLASSID="CLSID:DF16845C-92CD-4AAB-A982-EB9840E74669"
-CODEBASE=http://www.trolltech.com/demos/simpleax.cab>
-    <PARAM NAME="text" VALUE="A simple control">
-    <PARAM NAME="value" VALUE="1">
-[Object not available! Did you forget to build and register the server?]
-</object>
-
-<FORM>
-    <INPUT TYPE="BUTTON" VALUE="About..." onClick="QSimpleAX.about()">
-</FORM>
-
-<object ID="Calendar" CLASSID="CLSID:8E27C92B-1264-101C-8A2F-040224009C02">
-[Standard Calendar control not available!]
-    <PARAM NAME="day" VALUE="1">
-</object>
-
-<FORM>
-    <INPUT TYPE="BUTTON" VALUE="Today" onClick="Calendar.Today()">
-</FORM>
-
-<SCRIPT LANGUAGE=VBScript>
-Sub Calendar_Click()
-    MsgBox( "Calendar Clicked!" )
-End Sub
-
-Sub QSimpleAX_TextChanged( str )
-    document.title = str
-End Sub
-</SCRIPT>
-
-<SCRIPT LANGUAGE=JavaScript>
-function QSimpleAX::ValueChanged( Newvalue )
-{
-    Calendar.Day = Newvalue;
-}
-</SCRIPT>
-\endraw
+    \input simple-demo.qdocinc
 */
 
 /*! \page qaxserver-example-simple.html
     \ingroup qaxserver-examples
-  \title A simple ActiveQt control (executable)
-
+    \title A simple ActiveQt control (executable)
 
   The ActiveX control in this example is a layouted QWidget
-  with a QSlider, a QLCDNumber and a QLineEdit.
-  It provides a signal/slot/property interface to change the
-  values of the slider and the line edit, and to get notified
-  of any property changes.
+    with a QSlider, a QLCDNumber and a QLineEdit.
+    It provides a signal/slot/property interface to change the
+    values of the slider and the line edit, and to get notified
+    of any property changes.
 
-  It demonstrates the use of QAxBindable::requestPropertyChange()
-  and QAxBindable::propertyChanged(), and the use of the default
-  QAxFactory through the QAXFACTORY_DEFAULT macro.
+    It demonstrates the use of QAxBindable::requestPropertyChange()
+    and QAxBindable::propertyChanged(), and the use of the default
+    QAxFactory through the QAXFACTORY_DEFAULT macro.
 
-  \quotefile simple/main.cpp
+    \quotefile simple/main.cpp
 
-  The Qt implementation of the ActiveX for this example is
-  \skipto class QSimpleAX
-  \printto #include
+    The Qt implementation of the ActiveX for this example is
+    \skipto class QSimpleAX
+    \printto #include
 
-  The control is exported using the default QAxFactory
-  \skipto QAXFACTORY
-  \printuntil )
+    The control is exported using the default QAxFactory
+    \skipto QAXFACTORY
+    \printuntil )
 
-  To build the example you must first build the \link qaxserver.html
-  QAxServer \endlink library. Then run qmake and your make tool in 
-  \c examples/simple.
+    To build the example you must first build the \link qaxserver.html
+    QAxServer \endlink library. Then run qmake and your make tool in 
+    \c examples/simple.
 
-  <hr>
+    The \link qaxserver-demo-simple.html demonstration \endlink requires your
+    WebBrowser to support ActiveX controls, and scripting to be enabled.
 
-  The \link qaxserver-demo-simple.html demonstration \endlink requires your
-  WebBrowser to support ActiveX controls, and scripting to be enabled.
+    The simple ActiveX control is embedded using the \c <object> tag.
+    \quotefile simple/simple.doc
+    \skipto <object ID
+    \printuntil </object>
 
-  The simple ActiveX control is embedded using the \c <object> tag.
-  \quotefile simple/simple.doc
-  \skipto <object ID
-  \printuntil </object>
+    A simple HTML button is connected to the ActiveQt's about() slot.
+    \printuntil </FORM>
 
-  A simple HTML button is connected to the ActiveQt's about() slot.
-  \printuntil </FORM>
+    A second ActiveX control - the standard Calendar Control - is instantiated
+    \skipto <object ID
+    \printuntil </object>
 
-  A second ActiveX control - the standard Calendar Control - is instantiated
-  \skipto <object ID
-  \printuntil </object>
+    Events from the ActiveX controls are handled using both Visual Basic Script
+    and JavaScript.
 
-  Events from the ActiveX controls are handled using both Visual Basic Script
-  and JavaScript.
-  \skipto VBScript
-  \printuntil </SCRIPT>
-  \printuntil </SCRIPT>
+    \input simple-demo.qdocinc
 */

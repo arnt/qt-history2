@@ -1,91 +1,39 @@
-/*! \page qaxserver-demo-wrapper.html
+/*!
+    \page qaxserver-demo-wrapper.html
 
-  \title Standard Qt widgets in an HTML page
+    \title Standard Qt widgets in an HTML page
 
-\raw html
-<SCRIPT LANGUAGE=VBScript>
-Sub ToolButton_Clicked()
-    RadioButton.text = InputBox( "Enter something", "Wrapper Demo" )
-End Sub
-
-Sub PushButton_clicked()
-    MsgBox( "Thank you!" )
-End Sub
-
-Sub CheckBox_toggled( state )
-    if state = 0 then
-        CheckBox.text = "Check me!"
-    else
-        CheckBox.text = "Uncheck me!"
-    end if
-End Sub
-</SCRIPT>
-<p>
-A QPushButton:<br>
-<object ID="PushButton" CLASSID="CLSID:2B262458-A4B6-468B-B7D4-CF5FEE0A7092"
-CODEBASE=http://www.trolltech.com/demos/wrapperax.cab>
-    <PARAM NAME="text" VALUE="Click me!">
-[Object not available! Did you forget to build and register the server?]
-</object><br>
-
-<p>
-A QCheckBox:<br>
-<object ID="CheckBox" CLASSID="CLSID:6E795de9-872d-43cf-a831-496ef9d86c68"
-CODEBASE=http://www.trolltech.com/demos/wrapperax.cab>
-    <PARAM NAME="text" VALUE="Check me!">
-[Object not available! Did you forget to build and register the server?]
-</object><br>
-
-<p>
-A QToolButton:<br>
-<object ID="ToolButton" CLASSID="CLSID:7c0ffe7a-60c3-4666-bde2-5cf2b54390a1"
-CODEBASE=http://www.trolltech.com/demos/wrapperax.cab>
-[Object not available! Did you forget to build and register the server?]
-</object><br>
-
-<p>
-A QRadioButton:<br>
-<object ID="RadioButton" CLASSID="CLSID:afcf78c8-446c-409a-93b3-ba2959039189"
-CODEBASE=http://www.trolltech.com/demos/wrapperax.cab>
-    <PARAM NAME="text" VALUE="Tune me!">
-[Object not available! Did you forget to build and register the server?]
-</object><br>
-
-\endraw
+    \input wrapper-demo.qdocinc
 */
 
 /*! \page qaxserver-example-wrapper.html
     \ingroup qaxserver-examples
-  \title Standard Qt widgets as ActiveX controls (in-process)
+    \title Standard Qt widgets as ActiveX controls (in-process)
 
-  The ActiveX controls in this example are the standard button
-  classes QPushButton, QCheckBox and QRadioButton as provided by 
-  Qt.
+    The ActiveX controls in this example are the standard button
+    classes QPushButton, QCheckBox and QRadioButton as provided by 
+    Qt.
 
-  It demonstrates how to export existing QWidget classes as ActiveX
-  controls, and the use of QAxFactory together with the QAXFACTORY_EXPORT
-  macro.
+    It demonstrates how to export existing QWidget classes as ActiveX
+    controls, and the use of QAxFactory together with the QAXFACTORY_EXPORT
+    macro.
 
-  \quotefile wrapper/main.cpp 
-  \skipto class
-  \printuntil };
-  The factory implementation returns the list of supported controls,
-  creates controls on request and provides information about the unique
-  IDs of the COM classes and interfaces for each control.
+    \quotefile wrapper/main.cpp 
+    \skipto class
+    \printuntil };
+    The factory implementation returns the list of supported controls,
+    creates controls on request and provides information about the unique
+    IDs of the COM classes and interfaces for each control.
 
-  \printuntil }
-  The factory is exported using the QAXFACTORY_EXPORT macro.
+    \printuntil }
+    The factory is exported using the QAXFACTORY_EXPORT macro.
 
-  To build the example you must first build the \link qaxserver.html
-  QAxServer \endlink library. Then run qmake and your make tool in 
-  \c examples/wrapper.
+    To build the example you must first build the \link qaxserver.html
+    QAxServer \endlink library. Then run qmake and your make tool in 
+    \c examples/wrapper.
 
-  <hr>
+    The \link qaxserver-demo-wrapper.html demonstration \endlink requires your
+    WebBrowser to support ActiveX controls, and scripting to be enabled.
 
-  The \link qaxserver-demo-wrapper.html demonstration \endlink requires your
-  WebBrowser to support ActiveX controls, and scripting to be enabled.
-
-  \quotefile wrapper/wrapper.doc
-  \skipuntil raw html
-  \printto endraw
+    \input wrapper-demo.qdocinc
 */

@@ -1,37 +1,40 @@
-/*! \page qaxserver-demo-menus.html
+/*!
+    \page qaxserver-demo-menus.html
     \preliminary
 
-  \title Menubar merging
+    \title Menubar Merging
 
-  This example is not full functional at the moment.
+    This example is not full functional at the moment.
 
-\raw html
-<object ID="QMenus" CLASSID="CLSID:4dc3f340-a6f7-44e4-a79b-3e9217695fbd"
-CODEBASE=http://www.trolltech.com/demos/menusax.cab>
-[Object not available! Did you forget to build and register the server?]
-</object>
-\endraw
+    \raw HTML
+    <object ID="QMenus" CLASSID="CLSID:4dc3f340-a6f7-44e4-a79b-3e9217695fbd"
+    CODEBASE=http://www.trolltech.com/demos/menusax.cab>
+    [Object not available! Did you forget to build and register the server?]
+    </object>
+    \endraw
 */
 
-/*! \page qaxserver-example-menus.html
+/*!
+    \page qaxserver-example-menus.html
     \ingroup qaxserver-examples
     \preliminary
 
-  \title Menubar merging
+    \title Menubar Merging
 
-  This example demonstrates the use of QMenuBar and QStatusBar in
-  a QMainWindow to implement an in-place active control.
+    This example demonstrates the use of QMenuBar and QStatusBar in
+    a QMainWindow to implement an in-place active control.
 
-  To build the example you must first build the \link qaxserver.html
-  QAxServer \endlink library. Then run qmake and your make tool in 
-  \c examples/menus.
+    To build the example you must first build the \link qaxserver.html
+    QAxServer \endlink library. Then run qmake and your make tool in 
+    \c examples/menus.
 
-  <hr>
+    The \link qaxserver-demo-menus.html demonstration \endlink requires your
+    WebBrowser to support ActiveX controls, and scripting to be enabled.
 
-  The \link qaxserver-demo-menus.html demonstration \endlink requires your
-  WebBrowser to support ActiveX controls, and scripting to be enabled.
-
-  \quotefile menus/menus.doc
-  \skipuntil raw html
-  \printto endraw
+    \raw HTML
+    <object ID="QMenus" CLASSID="CLSID:4dc3f340-a6f7-44e4-a79b-3e9217695fbd"
+    CODEBASE=http://www.trolltech.com/demos/menusax.cab>
+    [Object not available! Did you forget to build and register the server?]
+    </object>
+    \endraw
 */
