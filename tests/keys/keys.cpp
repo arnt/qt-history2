@@ -58,8 +58,9 @@ public:
 	    line.sprintf("%2s %6s %3s    %3s %4s", "", "key", "asc", "sta", "uni");
 	else {
 	    line.sprintf("%2s %6x %3x(%c) %3x %02x%02x%s ", type, e->key(), e->ascii(),
-	    e->ascii() ? e->ascii() : ' ', e->state(), e->text()[0].row, e->text()[0].cell,
-	    e->isAutoRepeat() ? " AUTO" : "");
+		(e->ascii() ? e->ascii() : ' '),
+		e->state(), e->text()[0].row(), e->text()[0].cell(),
+		(e->isAutoRepeat() ? " AUTO" : ""));
 	    line += e->text();
 	}
 	log.insertLine( line );
@@ -89,12 +90,15 @@ Main *m;
 
 void myout( QtMsgType type, const char *msg )
 {
+    m->text(msg);
+#if 0
     static QFile* f = 0;
     if ( !f ) {
 	f = new QFile("out.log");
 	f->open(IO_WriteOnly);
     }
     f->writeBlock(msg,strlen(msg));
+#endif
 }
 
 
@@ -109,7 +113,6 @@ T(QCursor)
 T(QRect)
 T(QColor)
 T(WId)
-T(WFlags)
 T(QPaintDevice)
 T(QWExtra)
     QApplication::setColorSpec( QApplication::CustomColor );
@@ -119,7 +122,7 @@ T(QWExtra)
     QApplication::setFont(f);
 
     m = new Main;
-    //qInstallMsgHandler(myout);
+    qInstallMsgHandler(myout);
     m->setCaption("Test");
     a.setMainWidget( m );
     m->show();
