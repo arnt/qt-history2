@@ -25,7 +25,7 @@ struct QWSEvent : QWSProtocolItem {
 	SelectionClear,
 	SelectionRequest,
 	SelectionNotify,
-	DesktopRect,
+	MaxWindowRect,
 	PCOPMessage,
 	NEvent
     };
@@ -57,9 +57,9 @@ struct QWSConnectedEvent : QWSEvent {
     char *display;
 };
 
-struct QWSDesktopRectEvent : QWSEvent {
-    QWSDesktopRectEvent()
-	: QWSEvent( DesktopRect, sizeof( simpleData ), (char*)&simpleData ) { }
+struct QWSMaxWindowRectEvent : QWSEvent {
+    QWSMaxWindowRectEvent()
+	: QWSEvent( MaxWindowRect, sizeof( simpleData ), (char*)&simpleData ) { }
     struct SimpleData {
 	int window;
 	QRect rect;

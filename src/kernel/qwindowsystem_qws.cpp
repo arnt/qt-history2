@@ -82,7 +82,7 @@ typedef void RequestRegionF( int, QRegion );
 typedef void SetAltitudeF( const QWSChangeAltitudeCommand* );
 extern QQueue<QWSCommand> *qt_get_server_queue();
 
-static QRect desktop_rect;
+static QRect maxwindow_rect;
 
 static int get_object_id()
 {
@@ -195,11 +195,11 @@ void QWSClient::sendConnectedEvent( const char *display_spec )
     sendEvent( &event );
 }
 
-void QWSClient::sendDesktopRectEvent()
+void QWSClient::sendMaxWindowRectEvent()
 {
-    QWSDesktopRectEvent event;
+    QWSMaxWindowRectEvent event;
     event.simpleData.window = 0;
-    event.simpleData.rect = desktop_rect;
+    event.simpleData.rect = maxwindow_rect;
     sendEvent(&event);
 }
 
@@ -662,8 +662,8 @@ void QWSServer::newConnection( int socket )
     for (int i=0; i<20; i++)
 	invokeCreate(0,client[socket]);
 
-    if ( !desktop_rect.isEmpty() )
-	client[socket]->sendDesktopRectEvent();
+    if ( !maxwindow_rect.isEmpty() )
+	client[socket]->sendMaxWindowRectEvent();
 }
 
 void QWSServer::clientClosed()
@@ -905,18 +905,18 @@ void QWSServer::refresh()
     syncRegions();
 }
 
-void QWSServer::setDesktopRect(const QRect& r)
+void QWSServer::setMaxWindowRect(const QRect& r)
 {
-    if ( desktop_rect != r ) {
-	desktop_rect = r;
-	sendDesktopRectEvents();
+    if ( maxwindow_rect != r ) {
+	maxwindow_rect = r;
+	sendMaxWindowRectEvents();
     }
 }
 
-void QWSServer::sendDesktopRectEvents()
+void QWSServer::sendMaxWindowRectEvents()
 {
     for (ClientIterator it = qwsServer->client.begin(); it != qwsServer->client.end(); ++it )
-	(*it)->sendDesktopRectEvent();
+	(*it)->sendMaxWindowRectEvent();
 }
 
 void QWSServer::sendMouseEvent(const QPoint& pos, int state)

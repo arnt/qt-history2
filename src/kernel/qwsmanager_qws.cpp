@@ -244,7 +244,8 @@ void QWSDecoration::minimize( QWidget * )
 void QWSDecoration::maximize( QWidget *widget )
 {
     // find out how much space the decoration needs
-    QRect desk = QApplication::desktop()->rect();
+    extern QRect qt_maxWindowRect;
+    QRect desk = qt_maxWindowRect;
     QRect dummy;
     QRegion r = region(widget, dummy);
     QRect rect = r.boundingRect();

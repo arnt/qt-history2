@@ -760,6 +760,8 @@ bool QWidget::isMinimized() const
 
 void QWidget::showMaximized()
 {
+    extern QRect qt_maxWindowRect;
+
     if ( testWFlags(WType_TopLevel) ) {
 	createTLExtra();
 #ifndef QT_NO_QWS_MANAGER
@@ -768,7 +770,7 @@ void QWidget::showMaximized()
 	} else
 #endif
 	{
-	    setGeometry( QApplication::desktop()->rect() );
+	    setGeometry( qt_maxWindowRect );
 	}
     }
     show();

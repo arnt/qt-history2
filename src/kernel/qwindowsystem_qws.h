@@ -178,8 +178,8 @@ public:
     
     static void setKeyboardFilter( KeyboardFilter *f );
 #endif    
-    static void setDesktopRect(const QRect&);
-    static void sendDesktopRectEvents();
+    static void setMaxWindowRect(const QRect&);
+    static void sendMaxWindowRectEvents();
     static void sendMouseEvent(const QPoint& pos, int state);
     static QMouseHandler *mouseHandler();
     static QList<QWSInternalWindowInfo> * windowList();
@@ -357,7 +357,7 @@ public:
 
     void sendEvent( QWSEvent* event );
     void sendConnectedEvent( const char *display_spec );
-    void sendDesktopRectEvent();
+    void sendMaxWindowRectEvent();
     void sendRegionModifyEvent( int winid, QRegion exposed, bool ack );
     void sendFocusEvent( int winid, bool get );
     void sendPropertyNotifyEvent( int property, int state );

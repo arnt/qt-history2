@@ -8,8 +8,8 @@ QWSEvent *QWSEvent::factory( int type )
     case QWSEvent::Connected:
 	event = new QWSConnectedEvent;
 	break;
-    case QWSEvent::DesktopRect:
-	event = new QWSDesktopRectEvent;
+    case QWSEvent::MaxWindowRect:
+	event = new QWSMaxWindowRectEvent;
 	break;
     case QWSEvent::Mouse:
 	event = new QWSMouseEvent;

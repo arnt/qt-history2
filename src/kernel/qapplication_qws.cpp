@@ -1953,22 +1953,10 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	    else if ( widget )
 		keywidget = (QETWidget*)widget->topLevelWidget();
 	}
-    } else if ( event->type==QWSEvent::DesktopRect ) {
-	QRect r = ((QWSDesktopRectEvent*)event)->simpleData.rect;
-	desktop()->setGeometry(r); // for anyone with a filter on that
-	// Re-resize any maximized windows
-	QWidgetList* l = topLevelWidgets();
-	if ( l ) {
-	    QWidget *w = l->first();
-	    while ( w ) {
-		if ( w->isVisible() && w->isMaximized() )
-		{
-		    w->showMaximized();
-		}
-		w = l->next();
-	    }
-	    delete l;
-	}
+    } else if ( event->type==QWSEvent::MaxWindowRect ) {
+	QRect r = ((QWSMaxWindowRectEvent*)event)->simpleData.rect;
+	extern void qt_setMaxWindowRect(const QRect& r);
+	qt_setMaxWindowRect(r);
 	return 0;
     } else if ( widget && event->type==QWSEvent::Mouse ) {
 	// The mouse event is to one of my top-level widgets

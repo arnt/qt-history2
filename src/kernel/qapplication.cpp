@@ -280,6 +280,7 @@ int	  QApplication::cursor_flash_time = 1000;	// text caret flash time
 int	  QApplication::mouse_double_click_time = 400;	// mouse dbl click limit
 int	  QApplication::wheel_scroll_lines = 3;		// number of lines to scroll
 bool	  qt_is_gui_used;
+QRect qt_maxWindowRect;
 static int drag_time = 500;
 static int drag_distance = 4;
 static bool reverse_layout = false;
@@ -291,6 +292,23 @@ bool	  QApplication::animate_combo	= FALSE;
 bool	  QApplication::animate_tooltip	= FALSE;
 bool	  QApplication::fade_tooltip	= FALSE;
 
+void qt_setMaxWindowRect(const QRect& r)
+{
+    qt_maxWindowRect = r;
+    // Re-resize any maximized windows
+    QWidgetList* l = QApplication::topLevelWidgets();
+    if ( l ) {
+	QWidget *w = l->first();
+	while ( w ) {
+	    if ( w->isVisible() && w->isMaximized() )
+	    {
+		w->showMaximized();
+	    }
+	    w = l->next();
+	}
+	delete l;
+    }
+}
 #ifdef QT_THREAD_SUPPORT
 QMutex * QApplication::qt_mutex=0;
 #endif
@@ -583,6 +601,7 @@ QApplication::QApplication( int &argc, char **argv, Type type )
 
 void QApplication::construct( int &argc, char **argv, Type type )
 {
+    qt_maxWindowRect = QRect();
     qt_is_gui_used = (type != Tty);
     init_precmdline();
     static const char *empty = "";
