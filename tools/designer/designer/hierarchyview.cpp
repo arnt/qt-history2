@@ -1088,7 +1088,7 @@ void FormDefinitionView::renamed( QListViewItem *i )
 
 void FormDefinitionView::save( QListViewItem *p, QListViewItem *i )
 {
-    if ( i->text( 0 ).isEmpty() ) {
+    if ( i && i->text( 0 ).isEmpty() ) {
 	delete i;
 	return;
     }
