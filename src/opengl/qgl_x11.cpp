@@ -461,8 +461,9 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
 		// bug workaround - some systems (eg. FireGL) refuses to return an overlay
 		// visual if the GLX_TRANSPARENT_TYPE_EXT attribute is specfied, even if
 		// the implementation supports transparent overlays
-		int tmpSpec[] = { GLX_LEVEL, f.plane(), GLX_TRANSPARENT_TYPE_EXT,
-				  GLX_TRANSPARENT_INDEX_EXT, None };
+ 		int tmpSpec[] = { GLX_LEVEL, f.plane(), GLX_TRANSPARENT_TYPE_EXT,
+ 				  f.rgba() ? GLX_TRANSPARENT_RGB_EXT : GLX_TRANSPARENT_INDEX_EXT,
+				  None };
 		XVisualInfo * vinf = glXChooseVisual( d->paintDevice->x11Display(),
 						      d->paintDevice->x11Screen(), tmpSpec );
 		if ( !vinf ) {
@@ -476,7 +477,7 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
     if ( f.plane() && useTranspExt ) {
 	// Required to avoid non-transparent overlay visual(!) on some systems
 	spec[i++] = GLX_TRANSPARENT_TYPE_EXT;
-	spec[i++] = GLX_TRANSPARENT_INDEX_EXT; //# Depending on format, really
+	spec[i++] = f.rgba() ? GLX_TRANSPARENT_RGB_EXT : GLX_TRANSPARENT_INDEX_EXT;
     }
 #endif
 
@@ -604,8 +605,12 @@ QColor QGLContext::overlayTransparentColor() const
 	int myScreen = ((XVisualInfo*)vi)->screen;
 	for ( int i = 0; i < (int)trans_colors.size(); i++ ) {
 	    if ( trans_colors[i].vis == myVisualId &&
-		 trans_colors[i].screen == myScreen )
-		return QColor( qRgb( 1, 2, 3 ), trans_colors[i].color );
+		 trans_colors[i].screen == myScreen ) {
+		XColor col;
+		col.pixel = trans_colors[i].color;
+		XQueryColor( d->paintDevice->x11Display(), d->paintDevice->x11Colormap(), &col );
+		return QColor( qRgb( col.red, col.green, col.blue ), trans_colors[i].color );
+	    }
 	}
     }
     return QColor();		// Invalid color
