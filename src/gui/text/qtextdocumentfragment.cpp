@@ -30,7 +30,6 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
 
     QTextDocumentPrivate *priv = cursor.d->priv;
     formatCollection = *priv->formatCollection();
-    const QString originalText = priv->buffer();
 
     if (cursor.hasComplexSelection()) {
         QTextTable *table = cursor.currentTable();
