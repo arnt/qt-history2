@@ -45,7 +45,6 @@
 #ifndef QT_NO_COMBOBOX
 
 
-struct QComboData;
 class QPtrStrList;
 class QStringList;
 class QLineEdit;
@@ -195,7 +194,8 @@ private:
     bool	getMetrics( int *dist, int *buttonW, int *buttonH ) const;
     int		completionIndex( const QString &, int ) const;
 
-    QComboData	*d;
+    class Data;
+    Data	*d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -265,9 +265,10 @@ public:
 };
 
 
-struct QComboData
+class QComboBox::Data
 {
-    QComboData( QComboBox *cb ): usingLBox( FALSE ), pop( 0 ), lBox( 0 ), combo( cb )
+public:
+    Data( QComboBox *cb ): usingLBox( FALSE ), pop( 0 ), lBox( 0 ), combo( cb )
     {
 	duplicatesEnabled = TRUE;
 	cb->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
@@ -312,7 +313,7 @@ private:
 
 };
 
-void QComboData::updateLinedGeometry()
+void QComboBox::Data::updateLinedGeometry()
 {
     if ( !ed || !combo )
 	return;
@@ -394,7 +395,7 @@ static inline bool checkIndex( const char *method, const char * name,
 QComboBox::QComboBox( QWidget *parent, const char *name )
     : QWidget( parent, name, WResizeNoErase )
 {
-    d = new QComboData( this );
+    d = new Data( this );
     if ( style() == WindowsStyle ) {
 	setUpListBox();
     } else {
@@ -433,7 +434,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     : QWidget( parent, name, WResizeNoErase )
 {
-    d = new QComboData( this );
+    d = new Data( this );
     setUpListBox();
 
     d->current = 0;
