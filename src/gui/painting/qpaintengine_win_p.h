@@ -184,6 +184,11 @@ public:
     */
     void fillGradient(const QRect &r);
 
+    /*!
+      Fill the rect current alpha brush
+    */
+    void fillAlpha(const QRect &r);
+
     uint gdiplusInUse : 1;
     QGdiplusPaintEngine *gdiplusEngine;
 };

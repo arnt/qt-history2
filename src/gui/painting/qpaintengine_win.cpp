@@ -518,6 +518,9 @@ void QWin32PaintEngine::drawRect(const QRect &r)
             SelectObject(d->hdc, d->hbrush);
         }
         return;
+    } else if (d->brushStyle == Qt::SolidPattern && d->brush.color().alpha() != 255) {
+        d->fillAlpha(r);
+        return;
     }
 
     if (d->nocolBrush) {
@@ -1779,6 +1782,32 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
     }
 }
 
+void QWin32PaintEnginePrivate::fillAlpha(const QRect &r)
+{
+    Q_ASSERT(brush.style() == Qt::SolidPattern);
+    Q_ASSERT(brush.color().alpha() != 255);
+
+    TRIVERTEX polygon[4];
+    polygon[0] = createVertex(r.left(), r.top(), brush.color());
+    polygon[1] = createVertex(r.right(), r.top(), brush.color());
+    polygon[2] = createVertex(r.right(), r.bottom(), brush.color());
+    polygon[3] = createVertex(r.left(), r.bottom(), brush.color());
+
+    GRADIENT_TRIANGLE gTri[] = { { 0, 1, 2 }, { 2, 3, 0 } };
+
+    HDC memdc = CreateCompatibleDC(hdc);
+    HBITMAP bitmap = CreateCompatibleBitmap(hdc, r.width(), r.height());
+    SelectObject(memdc, bitmap);
+
+    GradientFill(memdc, polygon, 4, gTri, 2, GRADIENT_FILL_TRIANGLE);
+
+    BLENDFUNCTION bf = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
+    AlphaBlend(hdc, r.x(), r.y(), r.width(), r.height(), memdc, 0, 0, r.width(), r.height(), bf);
+
+    DeleteObject(bitmap);
+    DeleteDC(memdc);
+}
+
 void QWin32PaintEnginePrivate::beginGdiplus()
 {
     if (!qt_resolved_gdiplus)
@@ -1825,8 +1854,9 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
         | QPaintEngine::UsesFontEngine
         | QPaintEngine::LinearGradients;
 
-    if (qt_gdiplus_support)
-        commonFeatures |= QPaintEngine::SolidAlphaFill;
+    commonFeatures |= QPaintEngine::SolidAlphaFill;
+
+
 
     return commonFeatures;
 }
