@@ -525,9 +525,9 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
 void QWin32PaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
 #ifdef QT_DEBUG_DRAW
-    qDebug() << " -> QWin32PaintEngine::drawPolygon()" << p.size() << mode;
-    for (int i=0; i<p.size(); ++i)
-        qDebug() << " --->" << p.at(i);
+    qDebug() << " -> QWin32PaintEngine::drawPolygon()" << pointCount << mode;
+    for (int i=0; i<pointCount; ++i)
+        qDebug() << " --->" << points[i];
 #endif
     Q_ASSERT(isActive());
     if (d->tryGdiplus()) {
@@ -566,7 +566,7 @@ void QWin32PaintEngine::drawPolygon(const QPointF *points, int pointCount, Polyg
 
         POINT *cPoints;
         int cCount;
-        d->polygonClipper.clipPolygon((qt_float_point*)points, pointCount, &cPoints, &cCount);
+        d->polygonClipper.clipPolygon((qt_float_point*)points, pointCount, &cPoints, &cCount, false);
 
         if (cCount == 0)
             return;
@@ -848,7 +848,7 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
 {
 #ifdef QT_DEBUG_DRAW
         printf(" - QWin32PaintEngine::drawTextItem(), (%.2f,%.2f), string=%s\n",
-               pos.x(), pos.y(), QString::fromRawData(ti.chars, ti.num_chars).latin1());
+               pos.x(), pos.y(), QString::fromRawData(ti.chars, ti.num_chars).toLatin1().data());
 #endif
 
     if (d->tryGdiplus()) {
