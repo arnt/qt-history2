@@ -36,11 +36,9 @@ void ImportApp::doImport()
 		    QString customerName = internCursor.value( "customername" ).toString();
 		    QString customerAddress = internCursor.value( "address" ).toString();
 
-//		    customerAddress.replace( QRegExp( "[\r\n ]" ), " " );
 		    QSqlCursor axaptaCursor( "CustTable", true, axaptaDB );
 
-		    axaptaCursor.select( "Name = '" + customerName + "' and Address = '" + customerAddress + "' and dataareaid = 'ts3'" );
-//		    axaptaCursor.select( "Name = '" + customerName + "' and replace( replace( replace( Address, ' ' ), chr( 13 ), ' '), chr( 10 ), ' ' ) = '" + customerAddress + "' and dataareaid = 'ts3'" );
+		    axaptaCursor.select( "Name = '" + customerName.left( 29 ) + "' and Address = '" + customerAddress + "' and dataareaid = 'ts3'" );
 		    axaptaCursor.first();
 		    if( axaptaCursor.isValid() ) {
 			    // We found a record, hooray :)
