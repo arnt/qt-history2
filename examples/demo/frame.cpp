@@ -211,7 +211,7 @@ void Frame::clickedCategory( QListBoxItem *item )
 		qDebug("Lazy creation of %s failed", item->text().latin1());
 	    }
 	}
-	stack->raiseWidget( c->widget() );
+	stack->raiseWidget( c->widget() );    
     }
 }
 
@@ -230,6 +230,29 @@ void Frame::updateTranslators()
     translator->load( QString( "translations/demo_%1" ).arg( QTextCodec::locale() ) );
 }
 
+void
+Frame::setCurrentCategory( QWidget *w )
+{
+    for(int i = 0; i < categories->count(); i++) {
+	QListBoxItem *item = categories->item(i);
+	if(((CategoryItem*)item)->widget() == w) {
+	    categories->setCurrentItem( i );
+	    clickedCategory( item );
+	    break;
+	}
+    }
+}
+
+
+void
+Frame::setCurrentCategory( const QString &s )
+{
+    if(QListBoxItem *i = categories->findItem(s)) {
+	categories->setCurrentItem( i );
+	clickedCategory( i );
+    }
+}
+
 bool Frame::event( QEvent *e )
 {
     if ( e->type() == QEvent::LocaleChange )
@@ -237,4 +260,3 @@ bool Frame::event( QEvent *e )
 
     return QMainWindow::event( e );
 }
-

@@ -90,7 +90,7 @@ QWidget *Frame::createCategory(const QString &cat)
 	tab = new QTabWidget();
 	TextEdit *te = new TextEdit( tab );
 	te->load( "textdrawing/example.html" );
-	te->load( "textdrawing/bidi.txt" );
+//	te->load( "textdrawing/bidi.txt" );
 	w = te;
 	tab->addTab( w, tr( "Richtext Editor" ) );
 	QString home = QString(getenv("QTDIR")) + "/doc/html/index.html";
@@ -115,10 +115,15 @@ QWidget *Frame::createCategory(const QString &cat)
 
 int main( int argc, char **argv )
 {
+    QString category;
     QApplication a( argc, argv );
 #ifdef Q_OS_MACX
     setenv("QTDIR", QDir::cleanDirPath(QDir::currentDirPath() + QDir::separator() + ".." + QDir::separator() + ".."), 0);
 #endif
+    for(int i = 1; i < argc-1; i++) {
+	if(!qstrcmp(argv[i], "-demo")) 
+	    category = argv[++i];
+    }
 
     Frame::updateTranslators();
 
@@ -167,6 +172,8 @@ int main( int argc, char **argv )
     QPixmap joypix_sel( joyicon_sel );
     frame.addCategory( NULL, joypix, joypix_sel, "Games" );
 #endif
+    if( !category.isEmpty() ) 
+	frame.setCurrentCategory( category );
 
     a.setMainWidget( &frame );
     frame.show();

@@ -22,8 +22,11 @@ public:
 
     void addCategory( QWidget *w, const QPixmap &p, const QString &n );
     void addCategory( QWidget *w, const QPixmap &p1, const QPixmap &p2, const QString &n );
+    void setCurrentCategory( QWidget * );
+    void setCurrentCategory( const QString & );
 
     static void updateTranslators();
+
 
 private slots:
     void setStyle( const QString& );
