@@ -22,9 +22,7 @@ logic.
 We'll start with a general description of how to subclass a form and
 follow with a short example. Note that subclassing has some
 disadvantages compared with putting your code into a form directly;
-see Extending the functionality of a form
-[p.~@PageOf{extending.the.functionality.of.a.form}] in The Designer
-Approach [p.~@PageOf{the.designer.approach}] chapter for details.
+see @NamePageRef{extending.the.functionality.of.a.form} for details.
 
 @BeginSubSections
 @SubSection
@@ -265,8 +263,7 @@ Slots } to invoke the @Win{View and Edit Connections} dialog.
 Create a new connection that connects the OK button's clicked() signal
 to the form's accept() slot. Create a second connection that connects
 the Cancel button's clicked() signal to the form's reject() slot. (See
-Creating Signals and Slots Connections
-[p.~@PageOf{signals.and.slots.connections}].)
+@NamePageRef{signals.and.slots.connections}.)
 
 @LP
 We want the amount spin box to be enabled only if the special
@@ -612,7 +609,9 @@ slots.
 
         if ( creditForm->exec() ) {
             // The user accepted, act accordingly
-            QSpinBox *amount = (QSpinBox *) creditForm->child( "amountSpinBox", "QSpinBox" );
+            QSpinBox *amount = (QSpinBox *)creditForm->child(
+                                               "amountSpinBox",
+                                               "QSpinBox" );
             if ( amount )
                 ratingTextLabel->setText( amount->text() );
         }
@@ -694,7 +693,9 @@ contains the code for @File{mainform.ui}'s slots:
 
         if ( creditForm->exec() ) {
             // The user accepted, act accordingly
-            QSpinBox *amount = (QSpinBox *) creditForm->child( "amountSpinBox", "QSpinBox" );
+            QSpinBox *amount = (QSpinBox *)creditForm->child(
+                                               "amountSpinBox",
+                                               "QSpinBox" );
             if ( amount )
                 ratingTextLabel->setText( amount->text() );
         }

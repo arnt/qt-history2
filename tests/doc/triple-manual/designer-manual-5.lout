@@ -208,12 +208,13 @@ files and the images collection to your own Makefiles.
     @Tag { extending.the.functionality.of.a.form }
 @Begin
 @LP
-First let us look at a small figure that shows the relationship
+First let us look at a figure that shows the relationship
 between @File{.ui} files, generated code and application
 code:
 
 @DP
 @Figure
+    @Caption { Code files and user interface files }
 @Diag 
     font { Helvetica Base }
     hsize { 24s }
@@ -304,6 +305,7 @@ is via @Cpp inheritance as shown in the next figure:
 
 @DP
 @Figure
+    @Caption { Code files and user interface files (subclassing) }
 @Diag 
     font { Helvetica Base }
 #    hsize { 22s }
@@ -413,6 +415,7 @@ This is how it works:
 
 @DP
 @Figure
+    @Caption { Code files and user interface files (using .ui.h files) }
 @Diag 
     font { Helvetica Base }
     hsize { 24s }

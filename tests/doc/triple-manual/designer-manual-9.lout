@@ -10,7 +10,7 @@
 @LP
 @QDR can be customized in two ways: you can add custom widgets, and
 you can change aspects of how @QDR works. Custom widgets are covered
-in Creating Custom Widgets [p.~@PageOf{creating.custom.widgets}]. This
+in @NamePageRef{creating.custom.widgets}. This
 section will focus on customizing @QDR itself.
 
 @LP
@@ -222,7 +222,7 @@ existing container widget.
 If you want to base the template on a custom widget you must
 first add it to @QDR's custom widgets. Click @B{Tools"|"Custom"|"Edit
 Custom Widgets} to invoke the @Win{Edit Custom Widgets} dialog.
-(This dialog is explained in more detail in Simple Custom Widgets [p.~@PageOf{simple.custom.widgets}].)
+(This dialog is explained in more detail in @NamePageRef{simple.custom.widgets}.)
 Click @Option{New Widget}. Change the Class from 'MyCustomWidget'
 to 'SizeAware'. Click the Headerfile ellipsis button and select
 the file @File{"qt/tools/designer/examples/sizeaware/sizeaware.h"}.

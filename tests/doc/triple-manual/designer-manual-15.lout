@@ -9,9 +9,10 @@
 @Begin
 @LP
 By default @QDR starts up with three windows on the
-left hand side. They are the @Win{Project Overview} Window [p.~@PageOf{project.overview.window}], the Object
-Explorer Window, and the Property Editor"/"Signal Handlers Window [p.~@PageOf{property.editor.signal.handlers.window}].
-This chapter explains each window in detail.
+left hand side. They are the @TitleOf{project.overview.window}, the
+@TitleOf{object.explorer.window}, and the
+@TitleOf{property.editor.signal.handlers.window}. This chapter
+explains each window in detail.
 
 @End @Section
 @Section

@@ -244,15 +244,15 @@ in the running form).
     @Rowa
 	A {
 @Figure
-    @Location { Raw }
     @Caption { Selecting widgets for laying out }
+    @Location { Raw }
     0.5 @Scale @IncludeGraphic { "images/dialog1selewidg.eps.gz" }
 
 	}
 	B {
 @Figure
-    @Location { Raw }
     @Caption { Selected widgets ready for laying out }
+    @Location { Raw }
     0.5 @Scale @IncludeGraphic { "images/dialog1selewidg1.eps.gz" }
 }
 }
@@ -365,7 +365,7 @@ size.
 When previewing the form, try pressing @Option{Tab} to move between
 widgets that can accept focus. It is most likely that the tab
 order is correct. If it isn't, we can easily change it: see the
-Changing the Tab Order [p.~@PageOf{changing.the.tab.order.sidebar}]
+``Changing the Tab Order'' [p.~@PageOf{changing.the.tab.order.sidebar}]
 sidebar.
 
 @End @SubSubSection
@@ -424,8 +424,8 @@ If you prefer the tab order that you had before this one, click
 #@LP
 #@Centre @Box linewidth {  none } paint { white }
 @Figure 
-    @Location { Raw }
     @Caption { Tab Order Mode }
+    @Location { Raw }
     0.5 @Scale @IncludeGraphic { "images/dialog1tab.eps.gz" }
 
 }
@@ -678,9 +678,8 @@ they've saved this one.
 
 @LP
 Try building and running the application. You should now be able
-to add your own colors. (If it doesn't build see the
-@NamePageRef{troubleshooting}
-section.)
+to add your own colors. (If it doesn't build see 
+@NamePageRef{troubleshooting}.)
 
 @LP
 The application is essentially complete. We can load and save
@@ -1059,8 +1058,7 @@ the Type to `slot', then click @OK.
 
 @LP
 Save the application (@Option{Ctrl+S}), then build it and try out
-some searches. (If it doesn't build see the
-@NamePageRef{troubleshooting} section.)
+some searches. (If it doesn't build see @NamePageRef{troubleshooting}.)
 
 @End @SubSection
 @EndSubSections
@@ -1411,7 +1409,7 @@ Build the application and run it. Change to the icon view and
 change one or two of the options in the options dialog. Move
 the window and resize it. Exit the application and restart it;
 your view, window size and position and your options are all
-restored. (If it doesn't build see the @NamePageRef{troubleshooting} section.)
+restored. (If it doesn't build see @NamePageRef{troubleshooting}.)
 
 @End @Section
 @Section

@@ -342,10 +342,13 @@
   # @ChapterNumbers		{ Arabic	} # kind of chapter numbers
   # @FirstChapterNumber		{ 1		} # first chapter number (Arabic)
   # @SectionNumbers		{ Arabic	} # kind of section numbers
+  @SectionNumbers		{ None		} # kind of section numbers
   # @FirstSectionNumber		{ 1		} # first section number (Arabic)
   # @SubSectionNumbers		{ Arabic	} # kind of subsection numbers
+  @SubSectionNumbers		{ None		} # kind of subsection numbers
   # @FirstSubSectionNumber	{ 1		} # first subsect number (Arabic)
   # @SubSubSectionNumbers	{ Arabic	} # kind of sub-subs. numbers
+  @SubSubSectionNumbers		{ None		} # kind of sub-subs. numbers
   # @FirstSubSubSectionNumber	{ 1		} # first sub-sub number (Arabic)
   # @AppendixNumbers		{ UCAlpha	} # kind of appendix numbers
   # @FirstAppendixNumber	{ 1		} # first appendix num (Arabic)

@@ -22,6 +22,9 @@ macro @TTGreenColour		{{cmyk 0.40 0.00 1.00 0.01}}
 macro @LightGreyColour		{{rgb 0.90 0.90 0.90}}
 
 macro @SidebarPP { //0.75f 0c @Wide &0c }
+macro @SidebarLP { //0.75f 0c @Wide &0c }
+macro @SBPP { //0.75f 0c @Wide &0c }
+macro @SBLP { //0.75f 0c @Wide &0c }
 
 def @C right x { { 0.875 1.00 } @Scale { Courier Base } @Font x }
 macro @Code { @C }

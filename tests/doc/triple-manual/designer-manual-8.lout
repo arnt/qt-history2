@@ -341,8 +341,8 @@ appear.
 @LI{
 The @Win{Database Connection and Table} wizard page is used to
 set up a connection if one doesn't exist and to choose the table
-or view for the @Class{QDataTable}qdatatable @Index{ QDataTable }. (See Setting Up Qt Designer's
-Connections.)
+or view for the @Class{QDataTable}qdatatable @Index{ QDataTable }.
+(See @NamePageRef{setting.up.qt.designer.s.connections}.)
 @LP
 Click the connection you wish to use, listed in the left hand
 list box, e.g. "\""(default)"\"". The available tables and views will
@@ -356,7 +356,7 @@ which fields should be displayed in the @Class{QDataTable}qdatatable
 the primary key (if there is one) are in the Displayed Fields
 [p.~@PageOf{displayed.fieldsxx}] list box. The left- and
 right-pointing blue arrow buttons can be used to move fields between
-the Displayed Fields [p.~@PageOf{displayed.fieldsxx}] and the
+the Displayed Fields and the
 Available Fields list boxes. The blue up and down pointing arrow
 buttons are used to select the display order of the displayed fields.
 @LP
@@ -511,7 +511,8 @@ action:
         QSqlQuery query;
         query.exec( "UPDATE sequence SET sequence = sequence + 1 "
                     "WHERE tablename='author';" );
-        query.exec( "SELECT sequence FROM sequence WHERE tablename='author';" );
+        query.exec( "SELECT sequence FROM sequence "
+                    "WHERE tablename='author';" );
         if ( query.next() ) {
             buffer->setValue( "id", query.value( 0 ) );
         }
@@ -638,8 +639,8 @@ of the form.
 @LI{
 Now click on the @Class{QDataTable}qdatatable @Index{ QDataTable }
 toolbutton and click on the bottom half of the form. The SQL Table
-Wizard will appear. (This Wizard is explained in Quickly Viewing a
-Database Table [p.~@PageOf{quickly.viewing.a.database.table}].)
+Wizard will appear. (This Wizard is explained in 
+@NamePageRef{quickly.viewing.a.database.table}.)
 @List style { 3.num }
 @LI{
 Click the connection you're using and click the book table. Click
@@ -863,7 +864,7 @@ The Data Browser Wizard [p.~@PageOf{data.browser.wizard}] will appear.
 The @Win{Database Connection and Table} wizard page is used to set up
 a connection if one doesn't exist and to choose the table or view for
 the @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser }. (See
-Setting Up Qt Designer's Connections.)
+@NamePageRef{setting.up.qt.designer.s.connections}.)
 @LP
 Click the connection you wish to use, listed in the Connection
 list box, e.g. "\""(default)"\"". The available tables and views will
@@ -878,13 +879,13 @@ order. By default all fields except the primary key (if there is one)
 are in the right hand Displayed Fields
 [p.~@PageOf{displayed.fieldsxx}] list box. The left and right blue
 arrow buttons can be used to move fields between the Displayed Fields
-[p.~@PageOf{displayed.fieldsxx}] and the Available Fields list boxes.
+and the Available Fields list boxes.
 The blue up and down arrow buttons are used to select the display
 order of the displayed fields.
 @LP
 We don't want to see the authorid foreign key field on the form,
 so move it to the Available Fields list box. Also, move the title
-field to the top of the Displayed Fields [p.~@PageOf{displayed.fieldsxx}] list. Click the @Option{Next}
+field to the top of the Displayed Fields list. Click the @Option{Next}
 button.
 }
 @LI{
@@ -1046,7 +1047,9 @@ following:
 @LD @Code @RawVerbatim @Begin
     void BookForm::editClicked()
     {
-        EditBookForm *dialog = new EditBookForm( this, "Edit Book Form", TRUE );
+        EditBookForm *dialog = new EditBookForm( this,
+                                                 "Edit Book Form",
+                                                 TRUE );
         QSqlCursor cur( "book" );
         dialog->BookDataBrowser->setSqlCursor( &cur );
         dialog->BookDataBrowser->setFilter( BookDataTable->filter() );
@@ -1339,7 +1342,8 @@ We use a single function for storing author id's and returning
 qstring @Index{ QString }
 them so that we can use a static data structure.
 @LD @Code @RawVerbatim @Begin
-    void EditBookForm::mapAuthor( const QString & name, int & id, bool populate )
+    void EditBookForm::mapAuthor( const QString & name,
+                                  int & id, bool populate )
     {
         if ( populate )
             authorMap[ name ] = id;

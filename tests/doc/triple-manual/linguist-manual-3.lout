@@ -615,7 +615,7 @@ Toggles the visibility of the different toolbars.}
     margin { 0c }
     rulegap { 0c }
     rulewidth { 0c }
-    aformat { @Cell marginright { 0.3f } A | @Cell B }
+    aformat { @Cell marginright { 0.3f } iv { top } A | @Cell iv { ctr } B }
 {
 @Rowa A {
 @Figure @Location { Raw } @IncludeGraphic { "images/fileopen.eps.gz" }}

@@ -87,13 +87,13 @@ is @Option{Edit"|"Find in Text} and the keyboard shortcut is @Option{Ctrl+F}.
 }
 @TagItem{
 @Option{Print}}{ Invokes the @Win{Print} dialog. The menu option is @Option{File"|"Print}
-and the keyboard shortcut is @Option{Ctrl+P}.
+and the shortcut is @Option{Ctrl+P}.
 }
 @TagItem{
-@Option{Zoom in}}{ Increases the font size. The menu option is @Option{View"|"Zoom in} and the keyboard shortcut is @Option{Ctrl++}.
+@Option{Zoom in}}{ Increases the font size. The menu option is @Option{View"|"Zoom in} and the shortcut is @Option{Ctrl++}.
 }
 @TagItem{
-@Option{Zoom out}}{ Decreases the font size. The menu option is @Option{View"|"Zoom out} and the keyboard shortcut is @Option{Ctrl+-}.
+@Option{Zoom out}}{ Decreases the font size. The menu option is @Option{View"|"Zoom out} and the shortcut is @Option{Ctrl+-}.
 }
 @EndList
 
@@ -264,7 +264,7 @@ new category appears in the Categories list box with a checkbox to its
 left. Leave the box checked to display all of the category's available
 documentation. To remove a category, select it from the list box and
 click @Option{Delete}. For further information about categories read
-@NamePageRef{adding.documentation.to.qt.assistant}.}
+``@TitleOf{adding.documentation.to.qt.assistant}'', below.}
 @EndList
 @End @SubSubSection
 @EndSubSubSections

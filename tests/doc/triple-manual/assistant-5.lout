@@ -10,7 +10,7 @@ for and press @Option{Enter} or click @Option{Search}. The search is always
 case insensitive, so Deep, dEEp and DEEP are all treated as the
 same. The following search patterns can be used:
 
-@TaggedList labelwidth { 6f }
+@TaggedList labelwidth { 7f }
 @TagItem{ @Code{deep} } { lists all the documents that contain the
 word `deep'
 }

@@ -18,9 +18,9 @@ In this chapter we explain each @QDR wizard.
     @Tag { main.window.wizard }
 @Begin
 @LP
-The Main Window Wizard [p.~@PageOf{main.window.wizard}] is invoked by
-clicking the Main Window form template in the New File Dialog
-[p.~@PageOf{new.file.dialog}]. This wizard helps you to create a main
+The Main Window Wizard is invoked by
+clicking the Main Window form template in the 
+@NamePageRef{new.file.dialog}. This wizard helps you to create a main
 window with actions, menu options and toolbars.
 
 
@@ -54,18 +54,17 @@ Click @Option{Next} to move on to the next wizard page.
     @Caption { The Main Window wizard's Setup Toolbar tab }
     0.45 @Scale @IncludeGraphic { "images/qd-mainwinwzdpage2.eps.gz" }
 @LP
-The 'Setup Toolbar [p.~@PageOf{setup.toolbar}]' wizard page is used to populate a toolbar
+The Setup Toolbar  wizard page is used to populate a toolbar
 with actions from each of the default action categories. Click
 the Category combobox to select which set of actions you wish
 to work on. The Actions listbox lists the actions available for
-the current category. The Toolbar [p.~@PageOf{the.toolbar}] listbox lists the toolbar buttons
-you want to create. Click the blue left and right arrow buttons
-to move actions into or out of the Toolbar list box. Click the
-blue up and down arrow buttons to move actions up and down within
-the Toolbar list box. Note that the '<Separator>' item in the
-Actions list box may be moved to the Toolbar list box as often
-as required and will cause a separator to appear in the finished
-toolbar.
+the current category. The Toolbar listbox
+lists the toolbar buttons you want to create. Click the blue left and
+right arrow buttons to move actions into or out of the Toolbar list
+box. Click the blue up and down arrow buttons to move actions up and
+down within the Toolbar list box. Note that the '<Separator>' item in
+the Actions list box may be moved to the Toolbar list box as often as
+required and will cause a separator to appear in the finished toolbar.
 
 @LP
 Click @Option{Back} if you want to return to the 'Choose available
@@ -81,7 +80,7 @@ of the wizard pages to leave the wizard without making any changes.
     @Tag { data.table.wizard }
 @Begin
 @LP
-The Data Table Wizard [p.~@PageOf{data.table.wizard}] is automatically invoked by clicking the
+The Data Table Wizard is automatically invoked by clicking the
 datatable widget and placing it on the form. The datatable widget
 is used to create tabular views of database data.
 
@@ -91,11 +90,11 @@ is used to create tabular views of database data.
     @Tag{choose.the.database.and.table}
 @Begin
 @LP
-The 'Choose the Database and Table [p.~@PageOf{choose.the.database.and.tablexx}]' wizard page appears first.
+The Choose the Database and Table wizard page appears first.
 The available databases are displayed in the 'Database Connection'
 listbox. Choose a connection by clicking it. If there are no
 connections listed in the listbox, click @Option{Setup Database Connections}
-to invoke the Edit Database Connections Dialog [p.~@PageOf{edit.database.connections.dialog}]. The 'Table' listbox
+to invoke the @NamePageRef{edit.database.connections.dialog}. The 'Table' listbox
 shows all the tables and views that are available through the
 selected database connection. Select a table or view by clicking
 it.
@@ -115,12 +114,12 @@ Click @Option{Next} to move on to the next wizard page.
     @Caption { The Data Table wizard's Displayed Fields tab }
     0.45 @Scale @IncludeGraphic { "images/qd-datatablewzdpage2.eps.gz" }
 @LP
-The 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' wizard page is
+The Displayed Fields  wizard page is
 used to select fields that will be displayed in the table. By default,
 every field except the table or view's primary key, is initially
 placed in the 'Displayed Fields' list. Click the blue left and right
 arrow buttons to move fields from the 'Available Fields' listbox and
-into or out of the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]'
+into or out of the Displayed Fields
 listbox. Click the blue up and down arrow buttons to move fields up
 and down within the 'Displayed Fields' listbox. The order in which
 fields appear in the 'Displayed Fields' listbox is the order they are
@@ -129,7 +128,7 @@ left-most column.
 
 @LP
 Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
-if you want to return to the 'Choose the Database and Table [p.~@PageOf{choose.the.database.and.tablexx}]'
+if you want to return to the @NamePageRef{choose.the.database.and.table}
 wizard page.
 
 @End @SubSection
@@ -141,7 +140,7 @@ wizard page.
     @Caption { The Data Table wizard's Table Properties tab }
     0.45 @Scale @IncludeGraphic { "images/qd-datatablewzdpage3.eps.gz" }
 @LP
-The 'Table Properties [p.~@PageOf{table.properties}]' wizard page is used to set the Data Table's
+The Table Properties wizard page is used to set the Data Table's
 initial editing options. Check the 'Read-Only' checkbox to prevent
 records from being edited, deleted or added. Check the checkboxes
 in the 'Confirmations' section to force the user to confirm their
@@ -151,7 +150,7 @@ a column's header (which displays the field name).
 
 @LP
 Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
-if you want to return to the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' wizard page.
+if you want to return to the Displayed Fields wizard page.
 
 @End @SubSection
 @SubSection
@@ -178,7 +177,7 @@ to descending and vice versa.
 
 @LP
 Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
-if you want to return to the 'Table Properties [p.~@PageOf{table.properties}]' wizard page.
+if you want to return to the @NamePageRef{table.properties} wizard page.
 
 @End @SubSection
 @SubSection
@@ -223,11 +222,11 @@ widget is used to create a form view of database data.
     @Caption { The Data Browser wizard }
     0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzd.eps.gz" }
 @LP
-The 'Choose the Database and Table [p.~@PageOf{choose.the.database.and.tablexx}]' wizard page appears first.
+The Choose the Database and Table wizard page appears first.
 The available databases are displayed in the 'Database Connection'
 listbox. Choose a connection by clicking it. If there are no
 connections listed in the listbox, click @Option{Setup Database Connections}
-to invoke the Edit Database Connections Dialog [p.~@PageOf{edit.database.connections.dialog}]. The 'Table' listbox
+to invoke the @NamePageRef{edit.database.connections.dialog}. The 'Table' listbox
 shows all the tables and views that are available through the
 selected database connection. Select a table or view by clicking
 it.
@@ -244,16 +243,16 @@ Click @Option{Next} to move on to the next wizard page.
     @Caption { The Data Browser wizard's Displayed Fields tab }
     0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage2.eps.gz" }
 @LP
-The 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' wizard page is used to select fields that
+The Displayed Fields wizard page is used to select fields that
 will be displayed in the table. Click the blue left and right
 arrow buttons to move fields from the 'Available Fields' listbox
-and into or out of the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' listbox. Click the
+and into or out of the Displayed Fields listbox. Click the
 blue up and down arrow buttons to move fields up and down within
-the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' listbox.
+the Displayed Fields listbox.
 
 @LP
 Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
-if you want to return to the 'Choose the Database and Table [p.~@PageOf{choose.the.database.and.tablexx}]'
+if you want to return to the @NamePageRef{choose.the.database.and.tablex}
 wizard page.
 
 @End @SubSection
@@ -262,7 +261,7 @@ wizard page.
     @Tag{navigation.and.editing}
 @Begin
 @LP
-The 'Navigation and Editing [p.~@PageOf{navigation.and.editing}]' wizard page is used to create navigation
+The Navigation and Editing wizard page is used to create navigation
 and editing buttons.
 
 @LP
@@ -298,7 +297,7 @@ signal.
 
 @LP
 Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
-if you want to return to the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' wizard page.
+if you want to return to the @NamePageRef{displayed.fieldsx} wizard page.
 
 @End @SubSection
 @SubSection
@@ -322,7 +321,7 @@ to descending and vice versa.
 
 @LP
 Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
-if you want to return to the 'Navigation and Editing [p.~@PageOf{navigation.and.editing}]' wizard
+if you want to return to the @NamePageRef{navigation.and.editing} wizard
 page.
 
 @Figure
@@ -404,11 +403,11 @@ is used to create a read-only form view of database data.
     @Caption { The Data View wizard }
     0.45 @Scale @IncludeGraphic { "images/qd-dataviewwzd.eps.gz" }
 @LP
-The 'Choose the Database and Table [p.~@PageOf{choose.the.database.and.tablexx}]' wizard page appears first.
+The Choose the Database and Table wizard page appears first.
 The available databases are displayed in the 'Database Connection'
 listbox. Choose a connection by clicking it. If there are no
 connections listed in the listbox, click @Option{Setup Database Connections}
-to invoke the Edit Database Connections Dialog [p.~@PageOf{edit.database.connections.dialog}]. The 'Table' listbox
+to invoke the @NamePageRef{edit.database.connections.dialog}. The 'Table' listbox
 shows all the tables and views that are available through the
 selected database connection. Select a table or view by clicking
 it.
@@ -422,16 +421,16 @@ Click @Option{Next} to move on to the next wizard page.
     @Tag{displayed.fieldsxx}
 @Begin
 @LP
-The 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' wizard page is used to select fields that
+The Displayed Fields wizard page is used to select fields that
 will be displayed in the table. Click the blue left and right
 arrow buttons to move fields from the 'Available Fields' listbox
-and into or out of the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' listbox. Click the
+and into or out of the Displayed Fields listbox. Click the
 blue up and down arrow buttons to move fields up and down within
-the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' listbox.
+the Displayed Fields listbox.
 
 @LP
 Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
-if you want to return to the 'Choose the Database and Table [p.~@PageOf{choose.the.database.and.tablexx}]'
+if you want to return to the @NamePageRef{choose.the.database.and.tablexx}
 wizard page.
 
 @Figure
@@ -455,7 +454,7 @@ click the 'Labels on top' radio button.
 
 @LP
 Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
-if you want to return to the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' wizard page.
+if you want to return to the @NamePageRef{displayed.fieldsxx} wizard page.
 
 @End @SubSection
 @SubSection

@@ -37,7 +37,7 @@ you want to do once you start up @QDR.
 This tab is the default when you start up @QDR. Choose
 to start a new project or to create a file by selecting the appropriate
 icon from the window. For more information about the different
-file types available, see the The File Dialogs [p.~@PageOf{the.file.dialogs}] section.
+file types available, see @NamePageRef{the.file.dialogs}.
 
 @LP
 Click the "\""Don't show this dialog in the future"\"" checkbox to
@@ -125,8 +125,8 @@ project.
 @Begin
 @LP
 Click @Option{@Cpp Project} to start a new project. This option
-invokes the Project Settings Dialog
-[p.~@PageOf{project.settings.dialog}]. @Cpp projects are saved as
+invokes the
+@NamePageRef{project.settings.dialog}. @Cpp projects are saved as
 @File{".pro"} files, which include the information @QDR needs to
 manage projects. When you add a form to your project in @QDR, it is
 automatically added to the FORMS section of the project file. The
@@ -225,7 +225,7 @@ along with Help, OK and Cancel buttons along the bottom.
     @Tag{c.source.file}
 @Begin
 @LP
-Click @Option{@Cpp Source File [p.~@PageOf{c.source.file}]} to create
+Click @Option{@Cpp Source File} to create
 a new empty @Cpp file. The file will automatically be added to the
 project when it is saved.
 
@@ -235,7 +235,7 @@ project when it is saved.
     @Tag{c.header.file}
 @Begin
 @LP
-Click @Option{@Cpp Header File [p.~@PageOf{c.header.file}]} to create
+Click @Option{@Cpp Header File} to create
 a new empty @Cpp header file. The file will automatically be added to
 the project when it is saved.
 
@@ -245,8 +245,8 @@ the project when it is saved.
     @Tag{c.main.file}
 @Begin
 @LP
-Click @Option{@Cpp Main File [p.~@PageOf{c.main.file}]} to invoke the
-Configure Main-File Dialog [p.~@PageOf{configure.main.file.dialog}]
+Click @Option{@Cpp Main File} to invoke the
+@NamePageRef{configure.main.file.dialog}
 which will create a basic @File{"main.cpp"} file automatically. @Cpp
 Main file is not an option if you do not have a project open. In
 addition, this file type is not avalable in the @Win{Qt Designer
@@ -297,7 +297,7 @@ implement your own database connections function.
     @Caption { The File Open dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-open.eps.gz" }
 @LP
-Click @Option{File"|"Open} (or press@Option{Ctrl+O}) to invoke the
+Click @Option{File"|"Open} (or press @Option{Ctrl+O}) to invoke the
 @Win{Open}
 dialog. Use this dialog to open existing files.
 
@@ -405,9 +405,10 @@ Click @Option{Create} to create the template. Click @Cancel to
 leave the dialog without creating a template.
 
 @LP
-If you create a template it will appear in the New File Dialog [p.~@PageOf{new.file.dialog}].
-Templates are useful when you have to produce a large number
-of similar forms, or where you want to 'brand' your forms.
+If you create a template it will appear in the
+@NamePageRef{new.file.dialog}. Templates are useful when you have to
+produce a large number of similar forms, or where you want to 'brand'
+your forms.
 
 @End @SubSection
 @EndSubSections
@@ -802,7 +803,7 @@ As Dialog}.
     @Caption { The Project Settings dialog's @Cpp tab }
  0.45 @Scale @IncludeGraphic { "images/rd-projset2.eps.gz" }
 @LP
-Click the @Cpp Tab [p.~@PageOf{c.tab}] to change the @File{"qmake"} options.
+Click the @Cpp Tab to change the @File{"qmake"} options.
 See the qmake documentation for details on what these options
 mean. Click the 'Template' combobox and choose application or
 library to create makefiles for building applications or libraries.
@@ -844,7 +845,7 @@ project settings.
  0.45 @Scale @IncludeGraphic { "images/rd-find.eps.gz" }
 @LP
 Click @Option{Search"|"Find} (or press @Option{Ctrl+F}) to invoke the
-Find Text Dialog [p.~@PageOf{text.dialog}]. Use this dialog to find
+Find Text Dialog. Use this dialog to find
 specific text in a project file.
 
 @LP
@@ -1092,7 +1093,7 @@ This dialog provides information about @QDR such as
 the version, the licensing terms, conditions, and disclaimers.
 
 @LP
-Click the 'x' located at the top right corner of the dialog to
+Click the 'X' located at the top right corner of the dialog to
 close the dialog.
 
 @End @SubSection
@@ -1105,7 +1106,7 @@ Click @Option{Help"|"About Qt} to invoke the @Win{About Qt Dialog}.
 This dialog provides information about Qt.
 
 @LP
-Click the 'x' located at the title of the dialog to close the
+Click the 'X' located at the title of the dialog to close the
 dialog.
 
 @End @SubSection

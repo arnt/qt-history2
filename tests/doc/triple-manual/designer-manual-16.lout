@@ -15,7 +15,7 @@ One way to parse a @File{".ui"} file is to use Qt and the
 @Class{QDomDocument}qdomdocument @Index{ QDomDocument } class; this is how @QDR does it:
 see the @File{"uilib/qwidgetfactory.h"} and @File{"uilib/qwidgetfactory.cpp"}
 source files. For information on dynamically loading and running
-@File{".ui"} files see Loading and Executing a Dynamic Dialog.
+@File{".ui"} files see @NamePageRef{loading.and.executing.a.dynamic.dialog}.
 
 @LP
 The doctype of a @File{".ui"} file is simply "\""UI"\"", so the
@@ -204,8 +204,8 @@ element.
 @LP
 Note that these are the 'old-style' custom widgets that show
 up on the form as grey rectangles. Use plugins to seamlessly
-integrate your custom widgets into @QDR -- see Creating
-Custom Widgets with Plugins.
+integrate your custom widgets into @QDR -- see 
+@NamePageRef{creating.custom.widgets.with.plugins}.
 
 @LP
 Each custom widget has a class name and a header file. They also
@@ -249,7 +249,7 @@ This tag is only relevant to Windows users.
 @LP
 If you have a class that requires some Windows-specific export
 macro, e.g. for classes in a DLL that need to be declared like
-this: @Code{class win_specific_declaration_goes_here Class},
+this: @Code{class} @Code{win_specific_declaration_goes_here} @Code{Class},
 you can use the @Code{<exportmacro>} tag. (In standard
 Qt we use the @Code{Q_EXPORT} macro, e.g. @Code{class Q_EXPORT QWidget}.) If you use this tag you must also:
 
@@ -297,7 +297,7 @@ The @Code{functions} element contains a list of functions.
 Functions are standard @Cpp functions. It is possible to specify
 various attributes to create a function's signature, for example:
 
-@NumberedList
+@BulletList
 @LI{
 access: @Code{private}, @Code{protected} or 
 @Code{public}. Default: @Code{public}
@@ -345,7 +345,7 @@ libraries. See the @Code{saveImageData} function in
 @LD @Code @RawVerbatim @Begin
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="409">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523234530022630543251d2e253d856405bffcbc54105b19c856360003103711c6b53006ab440370316528264b4c198450c5808a94d1ed00aac214832b43124b544ec414d34b4c4c441103f11341120831309758313d0cf3b0840b7258d55a73010092c14eca</data>
+        <data format="XPM.GZ" length="409">789cd3d7528808f...092c14eca</data>
     </image>
 </images>
 @End @RawVerbatim
@@ -368,13 +368,16 @@ for a @File{".ui"}'s @File{".ui.h"} file.
 
 @LD @Code @RawVerbatim @Begin
 <includes>
-    <include location="local" impldecl="in implementation">pixmapcollection.h</include>
-    <include location="local" impldecl="in implementation">pixmapchooser.h</include>
+    <include location="local"
+        impldecl="in implementation">pixmapcollection.h</include>
+    <include location="local"
+        impldecl="in implementation">pixmapchooser.h</include>
     <include location="local" impldecl="in implementation">project.h</include>
     <include location="global" impldecl="in implementation">qfileinfo.h</include>
     <include location="global" impldecl="in implementation">qimage.h</include>
     <include location="global" impldecl="in declaration">qpixmap.h</include>
-    <include location="local" impldecl="in implementation">pixmapcollectioneditor.ui.h</include>
+    <include location="local"
+        impldecl="in implementation">pixmapcollectioneditor.ui.h</include>
 </includes>
 @End @RawVerbatim
 @End @SubSection
@@ -389,8 +392,6 @@ overridden on a case-by-case basis.
 @LD @Code @RawVerbatim @Begin
 <layoutdefaults spacing="6" margin="11"/>
 @End @RawVerbatim
-@LP
-See also layoutfunctions.
 
 @End @SubSection
 @SubSection
@@ -442,6 +443,8 @@ Each menu item has one or more actions and optionally separators.
         <separator/>
         <action name="fileExitAction"/>
     </item>
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
     <item text="&amp;Help" name="PopupMenu_2">
         <action name="helpAboutAction"/>
         <action name="helpAboutQtAction"/>
@@ -507,7 +510,7 @@ The @Code{slots} element contains a list of slots. Each
 @End @RawVerbatim
 qaction @Index{ QAction }
 @LP
-For available attributes see functions.
+For available attributes see @NamePageRef{functions}.
 
 @End @SubSection
 @SubSection
@@ -563,6 +566,8 @@ property values for the relevant widget.
         <action name="editCopyAction"/>
         <action name="editPasteAction"/>
     </toolbar>
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
     <toolbar dock="2">
         <property name="name">
             <cstring>Toolbar</cstring>
@@ -668,6 +673,8 @@ widget.
         <property name="margin">
             <number>11</number>
         </property>
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
         <property name="spacing">
             <number>6</number>
         </property>
@@ -714,12 +721,13 @@ and should not be used. Use includes instead. }
 and should not be used. Use variables instead. }
 
 @End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { Datatype Elements }
     @Tag { datatype.elements }
 @Begin
-@NumberedList
+@BulletList
 @LI{
 @Code{bool} - a boolean value (0 or 1), e.g. @Code{"<bool>1</bool>"}
 }
@@ -736,51 +744,51 @@ and should not be used. Use variables instead. }
 type, e.g. @Code{"<cursor>4</cursor>"}. The valid integers
 for the cursor type are:
 
-@NumberedList
-@LI{
-0 - ArrowCursor
+@TaggedList
+@TagItem{
+0 }{ ArrowCursor
 }
-@LI{
-1 - UpArrowCursor
+@TagItem{
+1 }{ UpArrowCursor
 }
-@LI{
-2 - CrossCursor
+@TagItem{
+2 }{ CrossCursor
 }
-@LI{
-3 - WaitCursor
+@TagItem{
+3 }{ WaitCursor
 }
-@LI{
-4 - IbeamCursor
+@TagItem{
+4 }{ IbeamCursor
 }
-@LI{
-5 - SizeVerCursor
+@TagItem{
+5 }{ SizeVerCursor
 }
-@LI{
-6 - SizeHorCursor
+@TagItem{
+6 }{ SizeHorCursor
 }
-@LI{
-7 - SizeBDiagCursor
+@TagItem{
+7 }{ SizeBDiagCursor
 }
-@LI{
-8 - SizeFDiagCursor
+@TagItem{
+8 }{ SizeFDiagCursor
 }
-@LI{
-9 - SizeAllCursor
+@TagItem{
+9 }{ SizeAllCursor
 }
-@LI{
-10 - BlankCursor
+@TagItem{
+10 }{ BlankCursor
 }
-@LI{
-11 - SplitVCursor
+@TagItem{
+11 }{ SplitVCursor
 }
-@LI{
-12 - SplitHCursor
+@TagItem{
+12 }{ SplitHCursor
 }
-@LI{
-13 - PointingHandCursor
+@TagItem{
+13 }{ PointingHandCursor
 }
-@LI{
-14 - ForbiddenCursor
+@TagItem{
+14 }{ ForbiddenCursor
 }
 @EndList}
 @LI{
@@ -847,27 +855,28 @@ Example:
 }
 @LI{
 @Code{sizepolicy} - an integer which indicates the size
-type, e.g. @Code{"<hsizetype>5</hsizetype><vsizetype>4</vsizetype>"}.
+type, e.g. @Code{"<hsizetype>5</hsizetype>"}
+@Code{<"vsizetype>4</vsizetype>"}.
 The valid integers for the size type are:
 
-@NumberedList
-@LI{
-0 - Fixed
+@TaggedList
+@TagItem{
+0 }{ Fixed
 }
-@LI{
-1 - Minimum
+@TagItem{
+1 }{ Minimum
 }
-@LI{
-3 - MinimumExpanding
+@TagItem{
+3 }{ MinimumExpanding
 }
-@LI{
-4 - Maximum
+@TagItem{
+4 }{ Maximum
 }
-@LI{
-5 - Preferred
+@TagItem{
+5 }{ Preferred
 }
-@LI{
-7 - Expanding
+@TagItem{
+7 }{ Expanding
 }
 @EndList}
 @LI{
@@ -875,8 +884,16 @@ The valid integers for the size type are:
 @Code{"<string>Some text</string>"}
 }
 @EndList
-@LD @Heading { Complex Datatype Elements{@PageMark{complex.datatype.elements}} }
-@LD @I { palette{@PageMark{palette}} }
+@End @Section
+@Section
+    @Title { Complex Datatype Elements }
+    @Tag{complex.datatype.elements}
+@Begin
+@BeginSubSections
+@SubSection
+    @Title { palette }
+    @Tag{ palette }
+@Begin
 @LP
 This element holds colors for user interface elements for each
 color group. For example:
@@ -914,6 +931,7 @@ color group. For example:
 @LP
 See color for the format of the @Code{<color>} element.
 
+@End @SubSection
 @EndSubSections
 @End @Section
 @EndSections

@@ -185,7 +185,8 @@ Click the fifth label. Change the label's @Prop{text} property to
     @Caption { The metric conversion form's labels }
     0.45 @Scale @IncludeGraphic { "images/qs-txtlbl.eps.gz" }
 @LP
-See also @NamePageRef{using.the.property.editor}.
+See also the ``Using the Property Editor''
+@PageRef{using.the.property.editor.sidebar} sidebar.
 @End @SubSubSection
 @SubSubSection
     @Title { Adding Line Edits, Comboboxes, and Spinboxes }
