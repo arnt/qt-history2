@@ -235,7 +235,7 @@ MyClass::tr():
 After the comment, all references to \c MyClass::tr() will be
 understood as meaning \c MyNamespace::MyClass::tr().
 
-\section2 Tranlating Text that is Outside of a QObject subclass
+\section2 Translating Text that is Outside of a QObject subclass
 
 \section3 Using QApplication::translate()
 
