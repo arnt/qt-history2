@@ -41,7 +41,7 @@
 /* ATTENTION: this file must remain in sync with qsqldialog.cpp */
 
 QSqlWidget::QSqlWidget( QWidget *parent, const char *name, WFlags fl )
-    : QWidget( parent, name, fl )
+    : QWidget( parent, name, fl ), QSqlNavigator()
 {
 }
 
