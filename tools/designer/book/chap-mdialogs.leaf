@@ -39,7 +39,7 @@ to the FORMS section of the project file. The \File .pro file contains
 the list of forms (\File .ui files) used in the project. \QD reads and
 writes \File .ui files, e.g. form.ui. The uic (user interface
 compiler) creates both a header file, e.g. form.h, and an
-implementation file, e.g.form.cpp, from the \File .ui file. 
+implementation file, e.g. form.cpp, from the \File .ui file. 
 
 \section3 Dialog Forms
 
@@ -110,7 +110,7 @@ will automatically be added to the project when it is saved.
 \section3 C++ Main File
 
 Click C++ Main File to invoke the \Dialog {Configure Main-File
-Dialog}. 
+Dialog} which will create a basic \File main.cpp file automatically. 
 
 \img qd-fileopen.png
 \caption File Open Dialog
@@ -174,6 +174,10 @@ for Template' scroll bar to choose a base class for the template.
 Click \Button Create to create the template. Click \CANCEL to leave
 the dialog without creating a template.
 
+If you create a template it will appear in the \l{New File Dialog}.
+Templates are useful when you have to produce a large number of
+similar forms, or where you want to 'brand' your forms.
+
 \section1 The Edit Dialogs
 
 \img qd-editslots.png
@@ -194,8 +198,9 @@ the column headers to sort the slots. To create a new slot, click the
 should replace by typing the new name in the 'Slot' line edit. The
 'Return Type' is also a default that can be changed by typing in the
 line edit. To change the 'Specifier' or 'Access', click the combobox
-and choose a type. To remove a slot from the listbox, click the slot
-you want to delete, and then click the \Button{Delete Slot} button.
+and choose a the required specifier or access. To remove a slot, click
+the slot you want to delete, and then click the \Button{Delete Slot}
+button.
 
 Click \OK to save all changes made to slots. Click \CANCEL to leave
 the dialog without making any changes to slots.   
@@ -207,19 +212,19 @@ the dialog without making any changes to slots.
 \section2 View Connections Dialog 
 
 Click \Menu{Edit|Connections} to invoke the \Dialog{View Connections}
-dialog. This dialog displays the connections that currently exist between
-signals and slots.
+dialog. This dialog displays the current signals and slots
+connections.
 
 When this dialog is invoked, all existing connections are shown in the
 listbox. The column headers Sender, Signal, Receiver, and Slot provide
 details about each connection. Click the column headers to sort the
 connections. To remove a connection from the listbox, click the
 connection you want to disconnect and then click the \Button
-{Disconnect}.To edit a connection, click the \Button {Edit...} button
+{Disconnect}. To edit a connection, click the \Button {Edit...} button
 to invoke the \Dialog{Edit Connections Dialog}. 
 
-Click the \Button Close button to leave the dialog without making any
-changes to connections.
+Changes made in this dialog take immediate effect. Click the \Button
+Close button to leave the dialog.
 
 \img qd-editformsettings.png
 \caption Form Settings
@@ -235,8 +240,7 @@ layout properties.
 
 In the Settings section, you can change the name of the form by typing in the
 'Class Name' line edit. You can also enter text to the 'Comment' and
-'Author' line edits or choose to leave them blank, since they are not
-required.
+'Author' line edits or leave them blank, since they are not required.
 
 \section3 Pixmaps
 
@@ -250,7 +254,7 @@ If you do not want \QD to handle the images, (or are not using a
 project) choose either 'Save Inline' or 'Use Function'. 'Save Inline'
 saves the pixmaps in the \File .ui files. The disadvantage of this
 approach is that it stores images in the forms in which they're used,
-i.e.images cannot be shared across forms. Click 'Use Function' to use
+i.e. images cannot be shared across forms. Click 'Use Function' to use
 your own icon-loader function for loading pixmaps. Type the function's
 name (with no signature) in the 'Use Function' line edit. This
 function will be used in the generated code for loading pixmaps. Your
@@ -270,7 +274,7 @@ dialog without making any changes.
 
 Click \Menu{Edit|Preferences} to invoke the \Dialog Preferences
 dialog. This dialog has a tab for 'General' preferences. If you have
-the C++ Editor plug-in, the dialog will also have a tab for C++
+the C++ Editor plugin, the dialog will also have a tab for the C++
 Editor.
 
 \img qd-editpreferencesgeneral.png
@@ -282,11 +286,11 @@ The 'General' tab has sections for Background, Grid, General, and
 Toolbars. 
 
 The Background section defaults to 'Pixmap'. To change the default, click the
-\Button {Select a Pixmap} button next to the 'Pixmap' radiobutton to invoke
-the \Dialog{Choose a Pixmap... Dialog}. Click the 'Color' radiobutton
+\Button {Select a Pixmap} button next to the 'Pixmap' radio button to invoke
+the \Dialog{Choose a Pixmap... Dialog}. Click the 'Color' radio button
 to change the background to a color instead of a pixmap. Click the
 \Button {Choose a Color} button located to the right of the 'Color'
-radiobutton to invoke the \Dialog{Select Color Dialog}.
+radio button to invoke the \Dialog{Select Color Dialog}.
 
 The 'General' section of the General tab has three checkboxes that are
 checked by default. Click the 'Restore last workspace on startup'
@@ -299,7 +303,7 @@ disable the ability to update or delete data in the database to which
 you are connected when working with database widgets. To change the
 path \QD uses to find it's online documentation, click the
 'Documentation Path' line edit and type a new path. It would be
-unlikely to have to change the path, but it is possible to. Another
+unlikely to have to change this path. Another
 way to change the path is to click the \Button {ellipsis...} button
 located to the right of the line edit. This invokes the \Dialog{Find
 Directory Dialog}.
@@ -311,14 +315,14 @@ their forms and rarely make any use of the grid. The grid is provided
 for the rare occasions when a form is created using widgets with fixed
 sizes and positions. When 'Show Grid' is checked, you can customize
 the grid's appearance. When it is unchecked, the 'Grid' section is
-greyed out. The 'Snap to Grid' checkbox is also checked by default.
+disabled. The 'Snap to Grid' checkbox is also checked by default.
 When it is checked, widgets are placed on a dot (snap to the grid)
 using the X|Y resolution. When it is unchecked, the 'Grid-X' and
-'Grid-Y' spin boxes are greyed out. Click the 'Grid X' and 'Grid Y'
+'Grid-Y' spin boxes are disabled. Click the 'Grid X' and 'Grid Y'
 spinboxes to customize the grid settings for all forms.
 
 The 'Toolbars' section has a 'Show Text Labels' checkbox. Click the
-checkbox to display the textlabels for each icon shown in the \QD
+checkbox to display the text labels for each icon shown in the \QD
 toolbar.
 
 \img qd-editpreferencesc++.png
@@ -326,15 +330,17 @@ toolbar.
 
 \section3 C++ Editor Tab
 
-The C++ Editor gives you options to customize the editor. The 'Syntax
-Highlighting' section lets you change the way the syntax is viewed in
-the editor. Click the 'Element' listbox and choose an
+The C++ Editor tab provides options for customizing the editor. The
+'Syntax Highlighting' section lets you change the way the syntax is
+viewed in the editor. Click the 'Element' listbox and choose an
 element. Click the 'Family' listbox to change the font style for that
 element. Click the 'Size' spinbox to choose a font size. You can
 change the font to Bold, Italic, or Underline by clicking the
-corresponding checkbox. Click the \Button Color button to invoke the
-\Dialog{Select Color Dialog}. As you make changes to each element, you
-can view the changes in the 'Preview' line edit.
+corresponding checkbox. Note, that all the fonts used derive from the
+'Standard' element, so if you want to change the font used for
+everything, change the 'Standard' element. Click the \Button Color
+button to invoke the \Dialog{Select Color Dialog}. As you make changes
+to each element, you can view the changes in the 'Preview' line edit.
 
 The 'Options' section has the Wordwrap, Completion, and Parentheses
 Matching checkboxes checked by default. Click the checkboxes to
@@ -351,8 +357,8 @@ Click \OK to accept changes to \Dialog Preferences dialog. Click
 \target dialog-add
 \section2 Add Dialog
 
-Click \Menu {Project|Add File} to invoke the \Dialog Add dialog. This dialog
-adds new files imported from outside of Designer.
+Click \Menu {Project|Add File} to invoke the \Dialog Add dialog. Use
+this dialog to add files to the current project.
 
 The \Dialog Add dialog defaults the directory and file type. To choose
 a different directory, click the 'Look In' combobox. Choose a file and
@@ -375,15 +381,15 @@ the dialog without opening a file.
 \section2 Image Collection Dialog
 
 Click \Menu{Project|Image Collection} to invoke the \Dialog{Manage
-Image Collection Dialog}. Use this dialog to view images that
-currently exist, to add new images, or to delete images.  
+Image Collection Dialog}. Use this dialog to view the project's images,
+add new images, or delete images.  
 
 To add an image, click the \Button Add button to invoke the \Dialog{Choose
-Images... Dialog}. To delete an image from from the listbox, click the
+Images... Dialog}. To delete an image from from the iconview, click the
 image and then click the \Button Delete button.
 
-Click the \Button Close button to leave the dialog without editing or
-adding images.
+Changes made to the image collection are applied immediately. Click
+the \Button Close button to leave the dialog.
 
 \img qd-projectdbaseconnections.png
 \caption Edit Database Connections
@@ -427,7 +433,7 @@ The 'Settings' tab shows information about the project. The Project
 File line edit defaults the project name. To change the name, type a new
 name in the line edit. To save the project, click the \Button
 {ellipsis...} button located next to Project File to invoke the
-\Dialog{Save As Dialog}. The 'Language' line edit is greyed out. Click
+\Dialog{Save As Dialog}. The 'Language' line edit is disabled. Click
 the 'Description' line edit if you want to add additional information
 about the project.
 
@@ -445,19 +451,19 @@ Dialog}.
 
 \section3 C++ Tab
 
-Click the C++ Tab ### Refer to the QMake documentation for details on
-how to use these options. Click the 'Template' combobox and choose
-application or library to create makefiles for building applications
-or libraries. Click the 'Config' combobox to select the project
-configuration and compiler options for all platforms, or specific
-platforms. Type the Config value in the line edit. Click the 'Libs'
-combobox to select a platform. Type the library values in the line
-edit. Click the 'Defines' combobox and select a platform. 'Defines'
-values are added as compiler C preprocessor macros. Type the 'Defines'
-values in the line edit. Click the 'Includepath' combobox to select a
-platform. Includepath specifies the #include directories that should
-be searched when compiling the project. Type the 'Includepath' values
-in the line edit.   
+Click the C++ Tab to change \Cmd qmake options. See the qmake
+documentation for details on what these options mean. Click the
+'Template' combobox and choose application or library to create
+makefiles for building applications or libraries. Click the 'Config'
+combobox to select the project configuration and compiler options for
+all platforms, or specific platforms. Type the Config value in the
+line edit. Click the 'Libs' combobox to select a platform. Type the
+library values in the line edit. Click the 'Defines' combobox and
+select a platform. 'Defines' values are added as compiler C
+preprocessor macros. Type the 'Defines' values in the line edit. Click
+the 'Includepath' combobox to select a platform. Includepath specifies
+the #include directories that should be searched when compiling the
+project. Type the 'Includepath' values in the line edit.   
 
 Cick \OK to accept changes to the project settings. Click
 \CANCEL to exit the dialog without making any changes to the project
@@ -478,14 +484,14 @@ To find the text you want in a file, type the text in the
 'Find' combobox. You can make the search more specific by checking any
 or all of the checkboxes in the 'Options' section. Click the 'Whole
 words only' checkbox to narrow the search to whole words. Click 'Case
-Sensitive' to search for text that is case sensitive, based on the text
-you typed in the combobox. Click 'Start at Beginning' to start the
-search from the beginning of the file. The 'Direction' section
-offers the 'Forward' radiobutton and the 'Backward' radiobutton to
-specify the direction to perform the search in the file. Click the
-\Button Find button to start the search. When the text is found, it is
-highlighted in the file. Continue clicking \Button Find to search the
-whole file for other occurrences of the text. 
+Sensitive' to search for text that is identical to the text typed in
+the combobox. Click 'Start at Beginning' to start the search from the
+beginning of the file. The 'Direction' section offers the 'Forward'
+radio button and the 'Backward' radio button to specify the direction to
+perform the search in the file. Click the \Button Find button to start
+the search. When the text is found, it is highlighted in the file.
+Continue clicking \Button Find to search for subsequent occurrences of
+the search text. 
 
 Click the \Button Close button to leave the dialog.
 
@@ -504,17 +510,17 @@ combobox. Type the new text in the 'Replace' combobox. You can make
 the search more specific by checking any or all of the checkboxes in
 the 'Options' section. Click the 'Whole words only' checkbox to narrow
 the search to whole words. Click 'Case Sensitive' to search for text
-that is case sensitive, based on the text you typed in the combobox.
-Click 'Start at Beginning' to start the search from the beginning of
-the file. The 'Direction' section offers the 'Forward' radiobutton and
-the 'Backward' radiobutton to specify the direction to perform the
-search in the file.
+that identical to the text you typed in the combobox. Click 'Start at
+Beginning' to start the search from the beginning of the file. The
+'Direction' section offers the 'Forward' radio button and the
+'Backward' radio button to specify the direction to perform the search
+in the file.
 
 Click the \Button Replace button to search and replace the text. When
 the text is found, it is highlighted in the file. Continue clicking
 \Button Replace button to search and replace each occurrence of the
 text in the file. Click \Button {Replace All} button to replace all
-occurences of the text in the file at one time. 
+occurences of the search text in the file at once. 
 
 Click the \Button Close button to leave the dialog.
 
@@ -536,9 +542,6 @@ Click the \Button Close button to leave the dialog.
 
 \section1 The Help Dialogs
 
-\img qd-qtdesigner1dialog.png
-\caption Qt Designer Dialog
-
 \target dialog-qt-designer
 \section2  Qt Designer Dialog
 
@@ -548,9 +551,6 @@ licensing terms, conditions, and disclaimers.
 
 Click the 'x' located at the top right corner of the dialog to close
 the dialog.
-
-\img qd-qtdesigner2dialog.png
-\caption Qt Designer Dialog
 
 \target dialog-qt-designer
 \section2 Qt Designer Dialog
@@ -565,14 +565,23 @@ the dialog.
 \caption Configure Main-File Dialog
 
 Click File|New|C++ Main-File to invoke the \l{Configure
-Main-File} dialog. Use this dialog to configure the main file and its
-forms.
+Main-File} dialog. Use this dialog to automatically generate a \File
+main.cpp file which invokes your main form.
 
 To change the default file name, type it in the 'Filename' line edit.
-Choose the form to use as the application's main form from the line edit by clicking it. 
+Choose the form to use as the application's main form from the line
+edit by clicking it. 
 
 Click \OK to accept the configurations and \QD will create a default
-'main.cpp' file. Click \CANCEL to leave the dialog.
+\File main.cpp file. Click \CANCEL to leave the dialog.
+
+Note for database programmers. If you create a \File main.cpp file
+using \QD, this file will \e not include the \Func createConnections()
+function. We do not include this function because it needs the
+username and password for the database connection, and you may prefer
+to handle these differently from our simple example function. As a
+result, applications that preview correctly in \QD will not run unless
+you implement your own database connections function.
 
 \img qd-filesaveprojectsettingsdialog.png
 \caption Save Project Settings 
@@ -581,14 +590,13 @@ Click \OK to accept the configurations and \QD will create a default
 \section1 Save Project Settings Dialog
 
 The \Dialog {Save Project Settings} message box is invoked by clicking
-File|Close or File|Exit for an open project to which changes have been
-made, but not previously saved. The dialog displays the text 'Save
-changes to your project.pro'?. Click \Button Yes to save the changes.
-If the project has any forms which have not been previously saved, the
-\Dialog {Save Form As} dialog is invoked when you click \Button Yes.
-Click \Button No to close the project without saving any changes.
-Click \Button Cancel to leave the dialog without closing the project
-and without making any changes.
+\Menu File|Close or \Menu File|Exit for an open project with unsaved
+changes. The dialog displays the text 'Save changes to your
+project.pro'?. Click \Button Yes to save the changes. If the project
+has any forms with unsaved changes, the \Dialog {Save Form As} dialog
+is invoked when you click \Button Yes. Click \Button No to close the
+project without saving any changes. Click \CANCEL to leave the
+dialog without closing the project and without making any changes.
 
 \img qd-filesaveformdialog.png
 \caption Save Form 
@@ -597,16 +605,16 @@ and without making any changes.
 \section1 Save Form Dialog
 
 The \Dialog {Save Form} message is invoked in several ways. One way is
-to click File|Close for a form that has never been saved, or has been
-saved previously but has had changes made to it. The dialog is also
-invoked by clicking File|Exit for a form that has never been saved, or
-has been saved previously but has had changes made to it. The dialog
-displays 'Save Changes to the Form?'. Click \Button Yes to save the
-form. If the form has not been previously saved, the \Dialog{Save Form
-As Dialog} is invoked. Click \Button No to close the form without
-saving any changes or without saving the form if it has not been saved
-previously. Click \Button Cancel to leave the dialog without closing
-or exiting the form and without saving the form.
+to click \Menu File|Close for a form that has never been saved, or has
+been saved previously but has had changes made to it. The dialog is
+also invoked by clicking \Menu File|Exit for a form that has never
+been saved, or has been saved previously but has had changes made to
+it. The dialog displays 'Save Changes to the Form?'. Click \Button Yes
+to save the form. If the form has not been previously saved, the
+\Dialog{Save Form As Dialog} is invoked. Click \Button No to close the
+form without saving any changes or without saving the form if it has
+not been saved previously. Click \CANCEL to leave the dialog without
+closing or exiting the form and without saving the form.
 
 \img qd-filesaveformasdialog.png
 \caption Save Form As Dialog
@@ -723,7 +731,7 @@ custom widget is often a specialization (subclass) of another widget
 or a combination of widgets working together or a blend of both these
 approaches. If you simply want a collection of widgets in a particular
 configuration it is easiest to create them, select them as a group,
-and copy and paste them as required within Qt Designer. Custom widgets
+and copy and paste them as required within \QD. Custom widgets
 are generally created when you need to add new functionality to
 existing widgets or groups of widgets. To add create a new widget,
 click the \Button {New Widget} button. You will find more information
@@ -907,7 +915,7 @@ inactive, or disabled palettes. If you choose 'Active Palette', the
 dialog presents three categories used for designing the palette. The
 categories are the Auto, Central Color Roles, and 3-D Shadow Effects.
 If you choose 'Inactive Palette' or 'Disabled Palette', all categories
-are greyed out except 'Auto'. Click the 'Auto' section checkboxes to
+are disabled except 'Auto'. Click the 'Auto' section checkboxes to
 build the inactive or disabled palettes from the active palette. For
 an active palette, click the 'Central color roles' combobox to select a
 color role for the palette. Click the \Button 'Choose Pixmap' button
