@@ -1052,7 +1052,8 @@ void QWidget::setBaseSize( int basew, int baseh )
 static void drawTileAligned(QPainter& p, const QRect& r, const QPixmap& pm)
 {
     p.setClipRect(r);
-    p.drawTiledPixmap(r,pm,QPoint(r.x()%pm.width(),r.y()%pm.height()));
+    if ( !pm.isNull() )
+	p.drawTiledPixmap(r,pm,QPoint(r.x()%pm.width(),r.y()%pm.height()));
 }
 
 void QWidget::erase( int x, int y, int w, int h )

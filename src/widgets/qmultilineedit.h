@@ -242,8 +242,10 @@ private slots:
     void	dndTimeout();
 
 private:
+#ifndef QT_NO_MIME
     QCString pickSpecial(QMimeSource* ms, bool always_ask, const QPoint&);
     void       pasteSpecial(const QPoint&);
+#endif
     struct QMultiLineEditRow {
 	QMultiLineEditRow( QString string, int width, bool nl = TRUE )
 	    :s(string), w(width), newline( nl )

@@ -2061,8 +2061,10 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
 	    copy();
 	else if ( r == id[ IdPaste ] )
 	    paste();
+ #ifndef QT_NO_MIME
 	else if ( r == id[ IdPasteSpecial ] )
 	    pasteSpecial(QCursor::pos());
+ #endif
 #endif
 	else if ( r == id[ IdClear ] )
 	    clear();
@@ -2560,6 +2562,7 @@ void QMultiLineEdit::paste()
     pasteSubType("plain");
 }
 
+#ifndef QT_NO_MIME
 /*!
   Prompts the user for a type from a list of text types available,
   Then copies text from the clipboard onto the current cursor position.
@@ -2600,7 +2603,8 @@ QCString QMultiLineEdit::pickSpecial(QMimeSource* ms, bool always_ask, const QPo
     }
     return QCString();
 }
-#endif
+#endif // QT_NO_MIME
+#endif // QT_NO_CLIPBOARD
 
 
 /*!

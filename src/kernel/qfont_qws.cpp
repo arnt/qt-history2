@@ -418,5 +418,7 @@ void QFont::setPixelSizeFloat( float pixelSize )
 */
 void QFont::qwsRenderToDisk(bool all)
 {
+#ifndef QT_NO_QWS_SAVEFONTS
     memorymanager->savePrerenderedFont(handle(), all);
+#endif
 }

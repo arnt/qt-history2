@@ -409,8 +409,8 @@ void QVrTPanelHandlerPrivate::readMouseData()
     static QPoint prev;
     static int prev_pressure = 0;
     static bool pressed = FALSE;
-    static bool reverse = TRUE;  // = TRUE; Osprey axis reversed
-//    static bool reverse = FALSE;  // = TRUE; Osprey axis reversed
+//    static bool reverse = TRUE;  // = TRUE; Osprey axis reversed
+    static bool reverse = FALSE;  // = TRUE; Osprey axis reversed
 
     #define EMIT_MOUSE \
 	QPoint q = QPoint((prev.x()+addx)*qt_screen->width()/(brx-tlx), \

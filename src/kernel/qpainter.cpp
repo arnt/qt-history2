@@ -1962,9 +1962,10 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 #ifdef _WS_QWS_
     //### Hackish
  #ifndef QT_NO_TRANSFORMATIONS
-    if ( gfx && (txop==TxNone||txop==TxTranslate) && !testf(ExtDev) )
+    if ( !image.isNull() && gfx &&
+	(txop==TxNone||txop==TxTranslate) && !testf(ExtDev) )
  #else
-    if ( gfx && !testf(ExtDev) )
+    if ( !image.isNull() && gfx && !testf(ExtDev) )
  #endif
     {
         if(sw<0)
