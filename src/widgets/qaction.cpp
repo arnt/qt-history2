@@ -842,6 +842,20 @@ void QAction::addedTo( int index, QPopupMenu *menu )
 void QAction::showStatusText( const QString& text )
 {
 #ifndef QT_NO_STATUSBAR
+    // find out whether we are clearing the status bar by the popup that actually set the text
+    static QPopupMenu *lastmenu = 0;
+    QObject *s = (QObject*)sender();
+    if ( s ) {
+	QPopupMenu *menu = (QPopupMenu*)s->qt_cast( "QPopupMenu" );
+	if ( menu && !!text )
+	    lastmenu = menu;
+	else if ( menu && text.isEmpty() ) {
+	    if ( lastmenu && menu != lastmenu )
+		return;
+	    lastmenu = 0;
+	}
+    }
+
     QObject* par = parent();
     QObject* lpar = 0;
     QStatusBar *bar = 0;
