@@ -139,7 +139,7 @@ rename \c {todo.c} to \c {todo.cpp}.
 Next, we add the appropriate includes for the QMotif and QApplication
 classes.
 
-\quotefile walkthrough/todo-gettingstarted.cpp
+\quotefile walkthrough/start/todo.cpp
 
 \skipto // Qt includes
 \printuntil #include <qmotif.h>
@@ -172,7 +172,7 @@ Fortunately, the changes are not too large. Most files included from
 existing C projects are not C++ compatible, so we make them compatible
 by wrapping them in an \c {extern "C"} block.
 
-\quotefile walkthrough/todo-gettingstarted.cpp
+\quotefile walkthrough/start/todo.cpp
 
 \skipuntil Wrap non-standard includes
 \printuntil } // extern "C"
@@ -263,7 +263,7 @@ todo.cpp.  We remove the \c Xmd/Help.h include, the \c *help_manager
 resource string, the \c help_cb() function forward declaration and the
 \c help_widget global variable.
 
-\quotefile walkthrough/todo-dialogs.cpp
+\quotefile walkthrough/dialogs/todo.cpp
 
 \skipto Demo include files
 \printuntil Xmd/Help.h
@@ -331,7 +331,7 @@ dialogs.
 We need to include the appropriate headers for QMotifWidget and
 QFileDialog in \c todo.cpp.
 
-\quotefile walkthrough/todo-dialogs.cpp
+\quotefile walkthrough/dialogs/todo.cpp
 
 \skipto Qt includes
 \printuntil qmotifwidget.h
@@ -358,7 +358,7 @@ file_dialog variable, and the code to create the dialog. We also
 remove the \c PresentFDialog() callback function. None of this code
 is needed to use QFileDialog.
 
-\quotefile walkthrough/todo-dialogs.cpp
+\quotefile walkthrough/dialogs/todo.cpp
 
 \skipto Motif include files
 \printuntil Xm/FileSB.h
@@ -392,7 +392,7 @@ and \c Save() functions.
 
 First we must change the declaration of these two functions.
 
-\quotefile walkthrough/todo-dialogs.cpp
+\quotefile walkthrough/dialogs/todo.cpp
 
 \skipto Wrap extern/callback functions and global variables with extern "C"
 \skipto void Open
@@ -430,7 +430,7 @@ The changes required to make \c {actions.cpp} compile are minimal. We
 need to wrap more C header files and global variables in an \c {extern
 "C"} block.
 
-\quotefile walkthrough/actions-mainwindow.cpp
+\quotefile walkthrough/dialogs/actions.cpp
 
 \skipuntil Wrap non-standard includes and global variables with extern "C"
 \printuntil extern int maxpages
@@ -460,7 +460,7 @@ QMessageBox::information().
 First, we need to make sure we include the proper header for
 QMessageBox.
 
-\quotefile walkthrough/actions-mainwindow.cpp
+\quotefile walkthrough/dialogs/actions.cpp
 
 \skipto Qt includes
 \printline
@@ -480,7 +480,7 @@ completely.
 Next, we change \c {todo.cpp} to pass the top-level QMotifWidget as the
 \c client_data tot he \c DeletePage() function.
 
-\quotefile walkthrough/todo-dialogs.cpp
+\quotefile walkthrough/dialogs/todo.cpp
 
 \skipto XtManageChild(selected_menu[SELECTED_DELETE]);
 \printuntil (XtCallbackProc) DeletePage, (XtPointer) &toplevel
@@ -493,7 +493,7 @@ The changes required to make \c {io.cpp} compile are minimal. We need
 to wrap more C header files and global variables in an \c {extern "C"}
 block.
 
-\quotefile walkthrough/io-mainwindow.cpp
+\quotefile walkthrough/dialogs/io.cpp
 
 \skipuntil Wrap non-standard includes and global variables with extern "C"
 \printuntil Page AllocPage()
@@ -520,7 +520,7 @@ QMessageBox::warning().
 
 First, we need to make sure we include the proper header for QMessageBox.
 
-\quotefile walkthrough/io-mainwindow.cpp
+\quotefile walkthrough/dialogs/io.cpp
 
 \skipto Qt includes
 \printline
@@ -566,7 +566,7 @@ argument to the \c EditPage function, which we will use as the parent
 for our new \c PageEditDialog.  We do this the same way as we have
 done for the \e Open and \e {Save As} dialogs in \c todo.cpp.
 
-\quotefile walkthrough/todo-dialogs.cpp
+\quotefile walkthrough/dialogs/todo.cpp
 
 \skipto XtManageChild(selected_menu[SELECTED_PROPERTIES]);
 \printuntil (XtCallbackProc) EditPage, (XtPointer) &toplevel );
@@ -574,7 +574,7 @@ done for the \e Open and \e {Save As} dialogs in \c todo.cpp.
 The \c EditPage() function is implemented in \c actions.cpp.  We start
 by adding the includes needed for the \c PageEditDialog and QLineEdit.
 
-\quotefile walkthrough/actions-mainwindow.cpp
+\quotefile walkthrough/dialogs/actions.cpp
 
 \skipto // PageEditDialog includes
 \printline
@@ -675,7 +675,7 @@ Now that the \e Print dialog has the appropriate \e accept and \e
 reject callbacks, we can use QMotifDialog.  First we need to include
 the QMotifDialog header in \c todo.cpp.
 
-\quotefile walkthrough/todo-dialogs.cpp
+\quotefile walkthrough/dialogs/todo.cpp
 
 \skipto qmotifdialog.h
 \printline
@@ -733,7 +733,7 @@ implementation.
 We begin by adding the necessary includes for QApplication,
 QMessageBox and QMotifWidget.
 
-\quotefile walkthrough/mainwindow-mainwindow.ui.h
+\quotefile walkthrough/mainwindow/mainwindow.ui.h
 
 \skipto Qt includes
 \printuntil qmotifwidget.h
@@ -793,7 +793,7 @@ code being removed.
 
 First, we add the include for our new \e {Main Window}.
 
-\quotefile walkthrough/todo-mainwindow.cpp
+\quotefile walkthrough/mainwindow/todo.cpp
 
 \skipto Qt based Main Window
 \printuntil mainwindow.h
@@ -836,7 +836,7 @@ so we remove them.
 
 We do not need the toplevel shell either.
 
-\quotefile walkthrough/todo-mainwindow.cpp
+\quotefile walkthrough/mainwindow/todo.cpp
 
 \skipto Widget shell;
 \printuntil Widget file_dialog;
@@ -851,15 +851,15 @@ Next, we remove all references to the shell variable in the \c New(),
 In \c main(), we make the large changes.  First, we use our new \c
 MainWindow instead of QMotifWidget with \c XmMainWindow.
 
-\quotefile walkthrough/todo-mainwindow.cpp
+\quotefile walkthrough/mainwindow/todo.cpp
 
 \skipto QMotif integrator
-\printuntil context	= integrator.applicationContext();
+\printuntil   app.setMainWidget( &mainwindow );
 
 We will now use QMotifWidget to create the \c XmNotebook widget.
 
 \skipto n = 0;
-\printuntil (XtCallbackProc) PageChange, NULL);
+\printuntil notebook = center->motifWidget();
 
 We remove all of the code used to create the Motif menus.  The
 remaining code in \c main() is self-explanatory.
@@ -867,74 +867,15 @@ remaining code in \c main() is self-explanatory.
 \printuntil return app.exec();
 \printline
 
-\section1 Preparing to Replace the \e {View} Widget
+\section1 Refactoring Existing Code
 
-\target redesign-decision
-
-We are ready to start replacing the \e {View} widget.  However, our
-example program uses the \c XmNotebook widget class.  Qt does not
-provide a direct equivalent of this class, so we are faced with 3
-possibilities, each with several advantages and disadvantages.
-
-\list 1
-
-\i We can continue the conversion using existing Qt widgets.
-
-\list
-
-\i Advantages - The widgets provided by Qt are well designed and
-tested, allowing us to quickly redesign the user interface.
-
-\i Disadvantages - Most, if not all, of the existing data structures
-and code will need to be modified or rewritten.  New code must be
-written to maintain compatibility with previous versions of our
-application.
-
-\endlist
-
-\i We can write a new QWidget subclass that is identical to the \c
-XmNotebook widget class.
-
-\list
-
-\i Advantages - The existing data structures will not change, allowing
-compatibility with previous and future versions.
-
-\i Disadvantages - The new widget will need to be written and
-regression tested.  Existing code in our applicaton will need to be
-changed in order to deal with the new widget's API.
-
-\endlist
-
-\i We can leave the \c XmNotebook widget untouched.
-
-\list
-
-\i Advantages - The existing data structures and code remain
-unchanged, allowing us to continue development on other projects,
-new features, etc.
-
-\i Disadvantages - This is the simplest solution, but the application
-will still be dependent upon X11; we will not be able to deploy our
-application on all platforms supported by Qt.
-
-\endlist
-
-\endlist
-
-We will use the first approach to complete the migration of the
-example project used in this walkthrough.  However, we will first
-cleanup the existing code a bit.
-
-\section2 Refactoring Existing Code
-
-Note: In the opinion of the author, the existing code is slightly
+In the opinion of the author, the existing code is slightly
 disorganized.  Even though the code \e does work, some cleanups and
 reorganization can only help with readability and maintainability.
 The steps described below are not necessary during the migration
 process but are included for completeness.
 
-\section3 Migrating Data Structures to C++
+\section2 Migrating Data Structures to C++
 
 The \c Page data structure is an opaque data type.  The real data
 structure is called \c PageRec; \c Page defined to be a pointer to a
@@ -949,7 +890,7 @@ The \c PageRec struct declaration is removed from \c page.h.  We
 declare a \c Page struct with the same data members as \c PageRec, a
 constructor and a destructor.
 
-\quotefile walkthrough/page-refactor.h
+\quotefile walkthrough/refactor/page.h
 \skipto struct Page {
 \printuntil int lastcursorpos;
 \printline
@@ -993,7 +934,98 @@ Code that accesses the global \c options variable does not need to be
 modified since the data members of the \c Options struct did not
 change.  The existing code will continue to work.
 
-\section3 Moving Existing Code
+\section2 Using \e new and \e delete
+
+The destructors of the \c Page and \c Options structs use \e delete
+instead of \c XtFree() to deallocate all \c char* members.  This is a
+necessary change since we are migrating away from Xt/Motif.  We need
+to fix existing code that modifies the \c Page struct members to use
+\e new and \e delete ( instead of \c XtMalloc(), \c XtNewString() and
+\c XtFree() ).
+
+The \c PageChange() function in \c todo.cpp simply saves the contents
+and cursor position of current page before calling \c SetPage().  We
+use \e new and \e delete when modifying members of the \c Page struct.
+
+\quotefile walkthrough/refactor/todo.cpp
+\skipto PageChange(Widget, XtPointer, XmNotebookCallbackStruct *cs)
+\printuntil delete [] pages[currentPage] -> page;
+
+When storing the context of the \c XmText widget, we use \c qstrdup()
+to make a copy of the string returned by the \c XmTextGetString()
+function.
+
+\printuntil SetPage(cs -> page_number - 1);
+\printline
+
+The \c ReadDB() function in \c io.cpp needs similar changes.  We
+replace all use of \c XtMalloc() and \c XtNewString() with \e new and
+\c qstrdup(), respectively.
+
+This needs to be done just after opening the file.
+
+\quotefile walkthrough/refactor/io.cpp
+\skipto if (input != NULL) {
+\printuntil pages[0] = new Page();
+
+... when starting a new page ...
+
+\code
+    ...
+\endcode
+\skipto pages[number] -> page = buffer;
+\printuntil pages[number] = new Page();
+
+... and when reading in the label and tab texts/
+
+\code
+    ...
+\endcode
+\skipto pages[number] -> label = qstrdup( &line[2] );
+\printline
+\code
+    ...
+\endcode
+\skipto pages[number] -> majorTab = qstrdup( &line[2] );
+\printline
+\code
+    ...
+\endcode
+\skipto pages[number] -> minorTab = qstrdup( &line[2] );
+\printline
+
+The \c ReadDB() function uses \c XtRealloc() to expand the data
+storage buffer.  Unfortunately, C++ does not provide a way to
+reallocate an existing block of data, so we have to do this ourselves.
+
+\skipto // C++ doesn't have 'renew'
+\printuntil max = newmax;
+
+There is also one occurance in \c ReadDB() where we call \c XtMalloc()
+with an argument of 2.  This was done when a file could not be read.
+Creating an empty string is not necessary, so we remove this code
+instead of using \e new.
+
+\skipto if (input == NULL) {
+\printuntil } else {
+\printuntil }
+
+The \c SaveDB() function in \c io.cpp also needs these changes.  We
+change one occurange of \c XtFree() to \e delete.
+
+\skipto void SaveDB(char* filename)
+\skipto Make sure to grab current page
+\printuntil delete pages[currentPage] -> page;
+
+Finally, We need to replace 2 occurances of \c XtNewString() in the \c
+main() function in \c todo.cpp.
+
+\quotefile walkthrough/refactor/todo.cpp
+\skipto if (options.todoFile == NULL) {
+\printuntil options.todoFile = qstrdup( options.todoFile );
+\printline
+
+\section2 Moving Existing Code
 
 The rest of the refactoring process involves moving existing code into
 new places.  Currently, each function in the \c mainwindow.ui.h file
@@ -1049,14 +1081,14 @@ added to each file.
 
 Includes for \c actions.cpp:
 
-\quotefile walkthrough/actions-refactor.cpp
+\quotefile walkthrough/refactor/actions.cpp
 
 \skipto // Motif includes
 \printuntil #include "page.h"
 
 Includes for \c io.cpp:
 
-\quotefile walkthrough/io-refactor.cpp
+\quotefile walkthrough/refactor/io.cpp
 
 \skipto // Qt includes
 \printuntil #include <Exm/TabB.h>
@@ -1064,14 +1096,14 @@ Includes for \c io.cpp:
 
 Includes for \c todo.cpp:
 
-\quotefile walkthrough/todo-refactor.cpp
+\quotefile walkthrough/refactor/todo.cpp
 
 \skipto // MainWindow includes
 \printuntil #include "page.h"
 
 Includes for \c mainwindow.ui.h:
 
-\quotefile walkthrough/mainwindow-refactor.ui.h
+\quotefile walkthrough/refactor/mainwindow.ui.h
 
 \skipto // PageEditDialog includes
 \printuntil #include <Xmd/Print.h>
@@ -1081,10 +1113,61 @@ Includes for \c mainwindow.ui.h:
 
 \section1 Replacing the \e {View} Widget
 
-As mentioned \link #redesign-decision above\endlink, we will replace
-the existing interface with widgets included in the Qt library.  We
-will use QTextEdit, QLabel and QSpinBox to provide a similar look.
-The only difference is that we will not have tabs.
+We are ready to start replacing the \e {View} widget.  However, our
+example program uses the \c XmNotebook widget class.  Qt does not
+provide a direct equivalent of this class, so we are faced with 3
+possibilities, each with several advantages and disadvantages.
+
+\list 1
+
+\i We can continue the conversion using existing Qt widgets.
+
+\list
+
+\i Advantages - The widgets provided by Qt are well designed and
+tested, allowing us to quickly redesign the user interface.
+
+\i Disadvantages - Most, if not all, of the existing data structures
+and code will need to be modified or rewritten.  New code must be
+written in a way that maintains compatibility with previous versions
+of our application.
+
+\endlist
+
+\i We can write a new QWidget subclass that is identical to the \c
+XmNotebook widget class.
+
+\list
+
+\i Advantages - The existing data structures will not change, allowing
+compatibility with previous and future versions.
+
+\i Disadvantages - The new widget will need to be written and
+regression tested.  Existing code in our applicaton will need to be
+changed in order to deal with the new widget's API.
+
+\endlist
+
+\i We can leave the \c XmNotebook widget untouched.
+
+\list
+
+\i Advantages - The existing data structures and code remain
+unchanged, allowing us to continue development on other projects,
+new features, etc.
+
+\i Disadvantages - This is the simplest solution, but the application
+will still be dependent upon X11; we will not be able to deploy our
+application on all platforms supported by Qt.
+
+\endlist
+
+\endlist
+
+We will use the first approach to complete the migration of the
+example project used in this walkthrough, using QTextEdit, QLabel and
+QSpinBox to provide a similar look.  The only difference is that we
+will not have tabs.
 
 We use the \link designer-manual.html Qt Designer\endlink to add the
 QTextEdit, QLabel and QSpinBox widgets to the \e {Main Window} widget.
@@ -1095,28 +1178,14 @@ reference on the use of \e {Qt Designer}.
 
 \section2 Data Structure Modifications
 
-\target use-new-and-delete
-
 The \c Page struct contains \c majorPB and \c minorPB members which
-need to be removed.  We also change the destructor of the \c Page
-struct to deallocate all members with \e delete instead of \c
-XtFree().  This is a necessary change since we are migrating away from
-Xt/Motif.  While replacing the \e {View} widget, we will make sure to
-fix existing code that modifies the \c Page struct members to use \e
-new and \e delete ( instead of \c XtMalloc(), \c XtNewString() and \c
-XtFree() ).
+need to be removed.  These members correspond to the tabs displayed in
+the existing version.  The new version will not have any tabs, so we
+remove them.
 
 \quotefile walkthrough/page.h
-
 \skipto struct Page {
 \printuntil int lastcursorpos;
-\printline
-
-The \c Options struct also uses \c XtFree() in its destructor.  We
-change this to use \e delete as well.
-
-\skipto struct Options {
-\printuntil char *todoFile;
 \printline
 
 \section2 Code Modifications
@@ -1183,11 +1252,6 @@ MainWindow::pageChange() function in \c mainwindow.ui.h.  As with the
 \c MainWindow::setPae() function, we need to modify the code to use
 the new widgets in our \e {Main Window} widget.
 
-This function simply saves the contents and cursor position of current
-page before calling \c MainWindow::setPage().  As mentioned \link
-#use-new-and-delete above\endlink, we use \e new and \e delete when
-modifying members of the \c Page struct.
-
 Note: QTextEdit::text() returns a QString, which needs to be converted
 into a normal \c char* array.  To do this we create a copy of the
 string in the local encoding.  We need to make the copy using \c
@@ -1237,94 +1301,40 @@ functions.
 \skipto QMessageBox::warning( this, "IO Error", message.arg(filename) );
 \printline
 
-Let us examine the changes needed for in \c MainWindow::readDB().  Due
-to \link #use-new-and-delete changes\endlink in the data structures,
-we need to replace all use of \c XtMalloc() and \c XtNewString() with
-\e new and \c qstrdup(), respectively.
-
-This needs to be done just after opening the file.
+After reading the file in the \c MainWindow::readDB() function, we set
+the current and maximum values of the \c spinbox to the appropriate
+values.
 
 \quotefile walkthrough/io.cpp
-\skipto if (input != NULL) {
-\printuntil pages[0] = new Page();
 
-... when starting a new page ...
-
-\code
-    ...
-\endcode
-\skipto pages[number] -> page = buffer;
-\printuntil pages[number] = new Page();
-
-... and when reading in the label and tab texts/
-
-\code
-    ...
-\endcode
-\skipto pages[number] -> label = qstrdup( &line[2] );
-\printline
-\code
-    ...
-\endcode
-\skipto pages[number] -> majorTab = qstrdup( &line[2] );
-\printline
-\code
-    ...
-\endcode
-\skipto pages[number] -> minorTab = qstrdup( &line[2] );
-\printline
-
-The \c MainWindow::readDB() function uses \c XtRealloc() to expand the
-data storage buffer.  Unfortunately, C++ does not provide a way to
-reallocate an existing block of data, so we have to do this ourselves.
-
-\skipto // C++ doesn't have 'renew'
-\printuntil max = newmax;
-
-There is also one occurance in \c MainWindow::readDB() where we call
-\c XtMalloc() with an argument of 2.  This was done when a file could
-not be read.  Creating an empty string is not necessary, so we remove
-this code instead of using \e new.
-
-\skipto if (input == NULL) {
-\printuntil } else {
-\printuntil }
-
-After reading the file, we set the current and maximum values of the
-\c spinbox to the appropriate values.
-
+\skipto void MainWindow::readDB( char *filename )
 \skipto maxpages = number;
 \printuntil spinbox->setValue( 1 );
+\printuntil }
 
-Next, let us examine the changes needed for in \c
-MainWindow::saveDB().  We need to change one occurange of \c
-XtFree() to \e delete, again due to \link #use-new-and-delete
-changes\endlink in the data structures.  
+In the \c MainWindow::saveDB() function, we need to store the text
+currently displayed, so we use QTextEdit::text() instead of \c
+XmTextGetString().  Note: QTextEdit::text() returns a QString, which
+needs to be converted into a normal \c char* array.  To do this we
+create a copy of the string in the local encoding.  We need to make
+the copy using \c qstrdup() because the data contained in the QCString
+returned by QString::local8Bit() is deallocated when the QCString is
+destroyed.
 
 \skipto void MainWindow::saveDB( char *filename )
-\skipto Make sure to grab current page
-\printuntil delete pages[currentPage] -> page;
-
-We need to store the text currently displayed, so we change \c
-XmTextGetString() to QTextEdit::text().  Note: QTextEdit::text()
-returns a QString, which needs to be converted into a normal \c char*
-array.  To do this we create a copy of the string in the local
-encoding.  We need to make the copy using \c qstrdup() because the
-data contained in the QCString returned by QString::local8Bit() is
-deallocated when the QCString is destroyed.
-
+\skipto Make sure to grab the current page
 \printuntil pages[currentPage] -> page = qstrdup( textedit->text().local8Bit() );
 \printline
 
 \target actions-cpp-viewwidget-modifications
 
-Due to the \link #use-new-and-delete removal\endlink of the \c majorPB
-and \c minorPB members from the \c Page struct, the \c FixPages()
-function in \c actions.cpp is no longer needed.  We remove the
-implementation and forward declaration of \c FixPages() from \c
-actions.cpp and \c page.h, respectively.  Calls to \c FixPages() are
-removed from the \c MainWindow::selNewPage() and \c
-MainWindow::selDeletePage(), both of which are in \c mainwindow.ui.h.
+Due to the removal of the \c majorPB and \c minorPB members from the
+\c Page struct, the \c FixPages() function in \c actions.cpp is no
+longer needed.  We remove the implementation and forward declaration
+of \c FixPages() from \c actions.cpp and \c page.h, respectively.
+Calls to \c FixPages() are removed from the \c
+MainWindow::selNewPage() and \c MainWindow::selDeletePage(), both of
+which are in \c mainwindow.ui.h.
 
 We move \c AdjustPages() to \c mainwindow.ui.h and make it \c static,
 since it is only used in this file.  We remove the forward declaration
@@ -1339,7 +1349,7 @@ Now that we have implemented our new \e View widget, we need to remove
 the old Motif based view widget from \c todo.cpp.
 
 Since we will not be using any Motif widgets, we remove all Motif \c
-#include statements, including qmotifwidget.h. 
+#include statements, including \c qmotifwidget.h. 
 
 \quotefile walkthrough/todo.cpp
 
@@ -1359,13 +1369,6 @@ creating the \c mainwindow widget.
 
 \skipto int main( int argc, char **argv )
 \printuntil app.setMainWidget( &mainwindow );
-
-We need to use replace 2 occurances of \c XtNewString() to work \link
-#use-new-and-delete changes\endlink made to the data structures.
-
-\skipto struct passwd *user = getpwuid(getuid());
-\printuntil options.todoFile = qstrdup( options.todoFile );
-\printline
 
 Since the \c ReadDB() and \c SetPage() functions have been change into
 the \c MainWindow member functions, we need to call these functions
