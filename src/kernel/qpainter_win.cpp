@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#143 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#144 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -47,7 +47,7 @@ struct QWinFont
 };
 
 
-#define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
+#define COLOR_VALUE(c) ((flags & RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
 
 
 /*****************************************************************************
