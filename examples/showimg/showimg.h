@@ -15,6 +15,7 @@
 
 #include <qwidget.h>
 #include <qimage.h>
+#include <qpixmap.h>
 
 
 class QLabel;
