@@ -1295,19 +1295,6 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	}
 #endif //QT_NO_LISTVIEW
 
-    case CC_SpinWidget:
-	switch ( sub ) {
-	case SC_SpinWidgetUp:
-	case SC_SpinWidgetDown:
-	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, flags,
-					      sub, subActive, data );
-	    break;
-	case SC_SpinWidgetFrame:
-	    qDrawWinPanel( p, r, cg, TRUE );
-	    break;
-	}
-	break;
-
 #ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
 	if ( sub & SC_ComboBoxArrow ) {

@@ -1346,38 +1346,50 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	}
 #endif //QT_NO_TITLEBAR
 
-    case CC_SpinWidget:
-	switch( controls ) {
-	case SC_SpinWidgetUp:
-	case SC_SpinWidgetDown: {
-	    const QSpinWidget * sw = (const QSpinWidget *) widget;
-	    SFlags flags = Style_Default;
-	    PrimitiveElement pe = (controls == SC_SpinWidgetUp) ?
-				  PE_SpinWidgetUp : PE_SpinWidgetDown;
-
-	    flags |= Style_Enabled;
-	    if (active == controls ) {
+    case CC_SpinWidget: {
+	const QSpinWidget * sw = (const QSpinWidget *) widget;
+	SFlags flags;
+	PrimitiveElement pe;
+	
+	if ( controls & SC_SpinWidgetFrame )
+	    qDrawWinPanel( p, r, cg, TRUE ); //cstyle == Sunken );
+	
+	if ( controls & SC_SpinWidgetUp ) {
+	    flags = Style_Default | Style_Enabled;
+	    if (active == SC_SpinWidgetUp ) {
 		flags |= Style_On;
 		flags |= Style_Sunken;
 	    } else
 		flags |= Style_Raised;
+	    if ( sw->buttonSymbols() == QSpinWidget::PlusMinus )
+		pe = PE_SpinWidgetPlus;
+	    else
+		pe = PE_SpinWidgetUp;
 
-	    if ( sw->buttonSymbols() == QSpinWidget::PlusMinus ) {
-		if ( controls == SC_SpinWidgetUp )
-		    pe = PE_SpinWidgetPlus;
-		else
-		    pe = PE_SpinWidgetMinus;
-	    }
-
-	    drawPrimitive(PE_ButtonBevel, p, r, cg, flags);
-	    drawPrimitive(pe, p, r, cg, flags);
-	    break; }
-
-	case SC_SpinWidgetFrame:
-	    qDrawWinPanel( p, r, cg, TRUE ); //cstyle == Sunken );
-	    break;
+	    QRect re = sw->upRect();
+	    QColorGroup ucg = sw->isUpEnabled() ? cg : sw->palette().disabled();
+	    drawPrimitive(PE_ButtonBevel, p, re, ucg, flags);
+	    drawPrimitive(pe, p, re, ucg, flags);
 	}
-	break;
+
+	if ( controls & SC_SpinWidgetDown ) {
+	    flags = Style_Default | Style_Enabled;
+	    if (active == SC_SpinWidgetDown ) {
+		flags |= Style_On;
+		flags |= Style_Sunken;
+	    } else
+		flags |= Style_Raised;
+	    if ( sw->buttonSymbols() == QSpinWidget::PlusMinus )
+		pe = PE_SpinWidgetMinus;
+	    else
+		pe = PE_SpinWidgetDown;
+
+	    QRect re = sw->downRect();
+	    QColorGroup dcg = sw->isDownEnabled() ? cg : sw->palette().disabled();
+	    drawPrimitive(PE_ButtonBevel, p, re, dcg, flags);
+	    drawPrimitive(pe, p, re, dcg, flags);
+	}
+	break; }
 
 #ifndef QT_NO_SLIDER
     case CC_Slider:

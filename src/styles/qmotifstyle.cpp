@@ -1073,14 +1073,22 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 				     void **data ) const
 {
     switch ( control ) {
-    case CC_SpinWidget:
-	if ( sub & SC_SpinWidgetUp || sub & SC_SpinWidgetDown )
-	    QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags,
-					      sub, subActive, data );
+    case CC_SpinWidget: {
+	SCFlags drawSub = SC_None;
 	if ( sub & SC_SpinWidgetFrame )
 	    qDrawShadePanel( p, r, cg, TRUE,
 			     pixelMetric( PM_DefaultFrameWidth) );
-	break;
+
+	if ( sub & SC_SpinWidgetUp || sub & SC_SpinWidgetDown ) {
+	    if ( sub & SC_SpinWidgetUp )
+		drawSub |= SC_SpinWidgetUp;
+	    if ( sub & SC_SpinWidgetDown )
+		drawSub |= SC_SpinWidgetDown;
+	    
+	    QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags,
+					      drawSub, subActive, data );
+	}
+	break; }
 
     case CC_Slider:
 	{

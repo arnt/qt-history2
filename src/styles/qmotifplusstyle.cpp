@@ -1378,8 +1378,10 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 		    pe = PE_SpinWidgetPlus;
 		else
 		    pe = PE_SpinWidgetUp;
-
-		drawPrimitive(pe, p, r, cg, flags);
+		
+		QRect re = sw->upRect();
+		QColorGroup ucg = sw->isUpEnabled() ? cg : sw->palette().disabled();
+		drawPrimitive(pe, p, re, ucg, flags);
 	    }
 
 	    if (controls & SC_SpinWidgetDown) {
@@ -1393,7 +1395,9 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 		else
 		    pe = PE_SpinWidgetDown;
 
-		drawPrimitive(pe, p, r, cg, flags);
+		QRect re = sw->downRect();
+		QColorGroup dcg = sw->isDownEnabled() ? cg : sw->palette().disabled();
+		drawPrimitive(pe, p, re, dcg, flags);
 	    }
 
 	    break;
