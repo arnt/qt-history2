@@ -1269,8 +1269,8 @@ bool QFont::operator<( const QFont &f ) const
     if ( r1.addStyle != r2.addStyle ) return r1.addStyle < r2.addStyle;
 #endif // Q_WS_X11
 
-    int f1attrs = f.d->underline<<2 + f.d->overline<<1 + f.d->strikeOut;
-    int f2attrs = d->underline<<2 + d->overline<<1 + d->strikeOut;
+    int f1attrs = (f.d->underline << 2) + (f.d->overline << 1) + f.d->strikeOut;
+    int f2attrs = (d->underline << 2) + (d->overline << 1) + d->strikeOut;
     return f1attrs < f2attrs;
 }
 
