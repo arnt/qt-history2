@@ -1789,6 +1789,23 @@ void QTextEdit::changeEvent(QEvent *ev)
     }
 }
 
+/*! \reimp
+*/
+void QTextEdit::wheelEvent(QWheelEvent *ev)
+{
+    if (d->readOnly) {
+        if (ev->state() & Qt::ControlButton) {
+            const int delta = ev->delta();
+            if (delta > 0)
+                zoomOut();
+            else if (delta < 0)
+                zoomIn();
+            return;
+        }
+    }
+    QViewport::wheelEvent(ev);
+}
+
 /*!
     This function is called to create a right mouse button popup menu
     at the document position \a pos. If you want to create a custom

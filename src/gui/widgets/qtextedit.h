@@ -193,6 +193,7 @@ protected:
     virtual void focusOutEvent(QFocusEvent *ev);
     virtual void showEvent(QShowEvent *);
     virtual void changeEvent(QEvent *ev);
+    virtual void wheelEvent(QWheelEvent *ev);
 
     virtual QMenu *createContextMenu(const QPoint &pos);
 
