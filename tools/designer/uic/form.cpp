@@ -229,6 +229,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	if ( !(*it).isEmpty() )
 	    out << "#include \"" << *it << "\"" << endl;
     }
+    out << endl;
 
     // forward declarations for child widgets and layouts
     out << "class QVBoxLayout;" << endl;
