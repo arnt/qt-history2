@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpluginmanager.h#1 $
+** $Id: //depot/qt/main/src/kernel/qinterfacemanager.h#1 $
 **
-** Definition of QPlugInManager class
+** Definition of QInterfaceManager class
 **
 ** Created : 2000-01-01
 **
@@ -55,7 +55,7 @@ class Q_EXPORT QInterfaceManager
 {
 public:
     QInterfaceManager( const QString& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so",
-	 QApplicationInterface* appIface = 0, QPlugIn::LibraryPolicy pol = QPlugIn::Default )
+	 QApplicationInterface* appIface = 0, QLibrary::Policy pol = QLibrary::Default )
 	: interfaceId( id ), defPol( pol ), appInterface( appIface )
     {
 	// Every library is unloaded on destruction of the manager
@@ -77,7 +77,7 @@ public:
 	}
     }
 
-    QPlugIn* addLibrary( const QString& file )
+    QLibrary* addLibrary( const QString& file )
     {
 	if ( file.isEmpty() )
 	    return 0;
@@ -85,7 +85,7 @@ public:
 	if ( libDict[file] )
 	    return 0;
 
-	QPlugIn* plugin = new QPlugIn( file, appInterface, defPol );
+	QLibrary* plugin = new QLibrary( file, appInterface, defPol );
 	bool useful = FALSE;
 
 	if ( plugin->load() ) {
@@ -121,7 +121,7 @@ public:
 	if ( file.isEmpty() )
 	    return FALSE;
 
-	QPlugIn* plugin = libDict[ file ];
+	QLibrary* plugin = libDict[ file ];
 	if ( !plugin )
 	    return FALSE;
 
@@ -144,12 +144,12 @@ public:
 	return unloaded;
     }
 
-    void setDefaultPolicy( QPlugIn::LibraryPolicy pol )
+    void setDefaultPolicy( QLibrary::Policy pol )
     {
 	defPol = pol;
     }
 
-    QPlugIn::LibraryPolicy defaultPolicy() const
+    QLibrary::Policy defaultPolicy() const
     {
 	return defPol;
     }
@@ -158,13 +158,13 @@ public:
     {
 	if ( feature.isEmpty() )
 	    return 0;
-	QPlugIn* plugin = plugDict[feature];
+	QLibrary* plugin = plugDict[feature];
 	if ( !plugin )
 	    return 0;
 	return (Type*)plugin->queryInterface( "*/"+interfaceId+"*" );
     }
 
-    QPlugIn* plugIn( const QString& feature ) const
+    QLibrary* plugIn( const QString& feature ) const
     {
 	if ( feature.isEmpty() )
 	    return 0;
@@ -174,7 +174,7 @@ public:
     QStringList featureList() const
     {
 	QStringList list;
-	QDictIterator<QPlugIn> it( plugDict );
+	QDictIterator<QLibrary> it( plugDict );
 
 	while( it.current() ) {
 	    list << it.currentKey();
@@ -184,7 +184,7 @@ public:
 	return list;
     }
 
-    QPlugIn* plugInFromFile( const QString& fileName ) const
+    QLibrary* plugInFromFile( const QString& fileName ) const
     {
 	if ( fileName.isEmpty() )
 	    return 0;
@@ -194,7 +194,7 @@ public:
     QStringList libraryList() const
     {
 	QStringList list;
-	QDictIterator<QPlugIn> it( libDict );
+	QDictIterator<QLibrary> it( libDict );
 
 	while ( it.current() ) {
 	    list << it.currentKey();
@@ -206,11 +206,11 @@ public:
 
     bool selectFeature( const QString& feature )
     {
-	QPlugIn* plugin = 0;
+	QLibrary* plugin = 0;
 	if ( !!feature )
 	    plugin = plugDict[feature];
 
-	QDictIterator<QPlugIn> it( libDict );
+	QDictIterator<QLibrary> it( libDict );
 	while ( it.current() ) {
 	    if ( it.current() == plugin && !it.current()->loaded() )
 		it.current()->load();
@@ -224,7 +224,7 @@ public:
 
     bool unloadFeature( const QString& feature )
     {
-	QPlugIn *plugin = 0;
+	QLibrary *plugin = 0;
 	if ( feature.isEmpty() || !(plugin = plugDict[feature]) )
 	    return FALSE;
 
@@ -235,10 +235,10 @@ public:
 
 private:
     QString interfaceId;
-    QDict<QPlugIn> plugDict;	    // Dict to match feature with plugin
-    QDict<QPlugIn> libDict;	    // Dict to match library file with plugin
+    QDict<QLibrary> plugDict;	    // Dict to match feature with library
+    QDict<QLibrary> libDict;	    // Dict to match library file with library
 
-    QPlugIn::LibraryPolicy defPol;
+    QLibrary::Policy defPol;
     QApplicationInterface* appInterface;
 };
 

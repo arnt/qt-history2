@@ -12,7 +12,7 @@ class Q_EXPORT QSqlDriverPlugInManager : public QInterfaceManager< QSqlDriverInt
 {
 public:
     QSqlDriverPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so",
-			     QApplicationInterface* = 0, QPlugIn::LibraryPolicy pol = QPlugIn::Default );
+			     QApplicationInterface* = 0, QLibrary::Policy pol = QLibrary::Default );
 
     QSqlDriver* create( const QString& name );
 };
