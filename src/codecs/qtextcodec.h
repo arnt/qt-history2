@@ -114,7 +114,8 @@ protected:
     static int simpleHeuristicNameMatch(const char* name, const char* hint);
 
 private:
-    static QTextCodec *cftr, *cfcs;
+    static QTextCodec *cftr;
+    static QTextCodec *cfcs;
     friend class QFont;
 };
 
