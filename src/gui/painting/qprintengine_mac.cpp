@@ -51,12 +51,12 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
             ret = false;
         }
     }
-    
+
     if (PMSessionBeginDocument(d->session, d->settings, d->format) != noErr) {
         d->state == QPrinter::Error;
         ret = false;
     }
-    
+
     if (ret) {
         d->state = QPrinter::Active;
         d->newPage_helper();
@@ -492,7 +492,9 @@ bool QMacPrintEnginePrivate::newPage_helper()
     CGContextScaleCTM(hd, 1, -1);
     CGContextTranslateCTM(hd, 0, -paper.height());
     if (ret && !fullPage)
-        CGContextTranslateCTM(hd, page.x(), page.y());
+        CGContextTranslateCTM(hd, page.x() - paper.x(), page.y() - paper.y());
+    orig_xform = CGContextGetCTM(hd);
+    setClip(0);
     return ret;
 }
 
