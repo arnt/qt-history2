@@ -141,6 +141,17 @@ char *qstrncpy( char *dst, const char *src, uint len )
 }
 
 /*!
+    \fn uint qstrlen( const char *str );
+
+    \relates QCString
+
+    A safe strlen function.
+
+    Returns the number of characters that precede the terminating '\0'.
+    or 0 if \a str is 0.
+*/
+
+/*!
     \fn int qstrcmp( const char *str1, const char *str2 );
 
     \relates QCString
