@@ -1840,12 +1840,7 @@ void QObject::cleanupEventFilter()
   If there are no accessibility tools listening to this event, the performance penalty for
   emitting this signal is minor.
 
-  If an accessibility tool is running, Qt will generate an \link QEvent::Accessibility
-  accessibilty event \endlink when requested, and call the \link accessibilityEvent() event handler \endlink
-  of this object. The event handler has to update the contents of it's associated
-  QAccessibleInterface implementation.
-
-  \sa accessibilityInterface(), accessibilityEvent()
+  \sa accessibilityInterface()
 */
 
 void QObject::accessibilityChanged( int reason )
@@ -1872,9 +1867,14 @@ void QObject::notifyAccessibility( int reason )
 
 /*!
   Reimplement this function for QObject subclasses that are accessible,
-  and return a new object that implements the QAccessibleInterface.
+  and return a new object that implements the QAccessibleInterface. Do
+  not call \link QUnknownInterface::addRef() addRef() \endlink on the 
+  returned object.
 
   The default implementation return always NULL.
+
+  \warning Do not call this function. Instead, use QAccessible::accessibleInterface(),
+  as this will cache the interface pointer as appropriate for the underlying system.
 */
 QAccessibleInterface *QObject::accessibleInterface()
 {
