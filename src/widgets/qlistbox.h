@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#28 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#29 $
 **
 ** Definition of QListBox widget class
 **
@@ -173,13 +173,12 @@ inline const char *QListBox::string( int index ) const
 }
 inline bool QListBox::stringCopy() const
 {
-    qObsolete("QListBox","stringCopy","mail -s Flame hanord@troll.no");
+    qObsolete("QListBox","stringCopy" );
     return TRUE; 
 }
-inline void setStringCopy( bool ) 
+inline void QListBox::setStringCopy( bool ) 
 {
-    qObsolete("QListBox","setStringCopy","mail -s Flame hanord@troll.no");
-
+    qObsolete("QListBox","setStringCopy" );
 }
 #endif
 
