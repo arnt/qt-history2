@@ -88,7 +88,7 @@ QFSDirEngine::entryList(int filterSpec, const QStringList &filters) const
         QString fn = QFile::decodeName(QByteArray(file->d_name));
         fi.setFile(d->path + '/' + fn);
 #ifndef QT_NO_REGEXP
-        if(!(filterSpec & QDir::AllDirs && fi.isDir())) {
+        if(!(filterSpec & QDir::Dirs && fi.isDir())) {
             bool matched = false;
             for(QStringList::ConstIterator sit = filters.begin(); sit != filters.end(); ++sit) {
                 QRegExp rx(*sit, QString::CaseSensitive, QRegExp::Wildcard);
