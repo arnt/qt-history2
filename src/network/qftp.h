@@ -118,8 +118,7 @@ signals:
     void stateChanged( int );
     void listInfo( const QUrlInfo& );
     void newData( const QByteArray& );
-    void dataSize( int );
-    void dataProgress( int );
+    void dataTransferProgress( int, int );
     void rawCommandReply( int, const QString& );
 
     void start( int );

@@ -120,6 +120,13 @@ public:
     void setDevice( QIODevice * );
     void writeData();
 
+    void setBytesTotal( int bytes )
+    {
+	bytesTotal = bytes;
+	bytesDone = 0;
+	emit dataTransferProgress( bytesDone, bytesTotal );
+    }
+
     bool hasError() const;
     QString errorMessage() const;
     void clearError();
@@ -129,7 +136,7 @@ public:
 signals:
     void listInfo( const QUrlInfo& );
     void newData( const QByteArray& );
-    void dataProgress( int );
+    void dataTransferProgress( int, int );
 
     void connectState( int );
 
@@ -143,7 +150,8 @@ private slots:
 private:
     QFtpPI *pi;
     QString err;
-    int totalBytes;
+    int bytesDone;
+    int bytesTotal;
     bool callWriteData;
 
     union {
@@ -178,7 +186,6 @@ signals:
     void connectState( int );
     void finished( const QString& );
     void error( const QString& );
-    void dataSize( int );
     void rawFtpReply( int, const QString& );
 
 private slots:
@@ -320,7 +327,7 @@ void QFtpDTP::writeData()
 	qDebug( "QFtpDTP::writeData: write %d bytes", data.ba->size() );
 #endif
 	if ( data.ba->size() == 0 )
-	    emit dataProgress( 0 );
+	    emit dataTransferProgress( 0, bytesTotal );
 	else
 	    writeBlock( data.ba->data(), data.ba->size() );
 	close();
@@ -338,8 +345,8 @@ void QFtpDTP::writeData()
 	    writeBlock( buf, read );
 	}
 	if ( data.dev->atEnd() ) {
-	    if ( totalBytes==0 && bytesToWrite()==0 )
-		emit dataProgress( 0 );
+	    if ( bytesDone==0 && bytesToWrite()==0 )
+		emit dataTransferProgress( 0, bytesTotal );
 	    close();
 	    data_ba = FALSE;
 	    data.ba = 0;
@@ -493,7 +500,7 @@ bool QFtpDTP::parseDir( const QString &buffer, const QString &userName, QUrlInfo
 
 void QFtpDTP::slotConnected()
 {
-    totalBytes = 0;
+    bytesDone = 0;
 #if defined(QFTPDTP_DEBUG)
     qDebug( "QFtpDTP::connectState( CsConnected )" );
 #endif
@@ -536,11 +543,11 @@ void QFtpDTP::slotReadyRead()
 	    return;
 	}
 	ba.resize( bytesRead );
-	totalBytes += bytesRead;
+	bytesDone += bytesRead;
 #if defined(QFTPDTP_DEBUG)
-	qDebug( "QFtpDTP read: %d bytes (total %d bytes)", (int)bytesRead, totalBytes );
+	qDebug( "QFtpDTP read: %d bytes (total %d bytes)", (int)bytesRead, bytesDone );
 #endif
-	emit dataProgress( totalBytes );
+	emit dataTransferProgress( bytesDone, bytesTotal );
 	if ( !data_ba && data.dev )
 	    data.dev->writeBlock( ba );
 	else
@@ -577,11 +584,11 @@ void QFtpDTP::slotConnectionClosed()
 
 void QFtpDTP::slotBytesWritten( int bytes )
 {
-    totalBytes += bytes;
+    bytesDone += bytes;
 #if defined(QFTPDTP_DEBUG)
-    qDebug( "QFtpDTP::bytesWritten( %d )", totalBytes );
+    qDebug( "QFtpDTP::bytesWritten( %d )", bytesDone );
 #endif
-    emit dataProgress( totalBytes );
+    emit dataTransferProgress( bytesDone, bytesTotal );
     if ( callWriteData )
 	writeData();
 }
@@ -845,7 +852,7 @@ bool QFtpPI::processReply()
     } else if ( replyCodeInt == 213 ) {
 	// 213 File status.
 	if ( currentCmd.startsWith("SIZE ") )
-	    emit dataSize( replyText.simplifyWhiteSpace().toInt() );
+	    dtp.setBytesTotal( replyText.simplifyWhiteSpace().toInt() );
     } else if ( replyCode[0]==1 && currentCmd.startsWith("STOR ") ) {
 	dtp.writeData();
     }
@@ -1054,15 +1061,13 @@ void QFtp::init()
 	    SLOT(piFinished( const QString& )) );
     connect( &d->pi, SIGNAL(error(const QString&)),
 	    SLOT(piError(const QString&)) );
-    connect( &d->pi, SIGNAL(dataSize(int)),
-	    SIGNAL(dataSize(int)) );
     connect( &d->pi, SIGNAL(rawFtpReply(int, const QString&)),
 	    SLOT(piFtpReply(int, const QString&)) );
 
     connect( &d->pi.dtp, SIGNAL(newData(const QByteArray&)),
 	    SIGNAL(newData(const QByteArray&)) );
-    connect( &d->pi.dtp, SIGNAL(dataProgress(int)),
-	    SIGNAL(dataProgress(int)) );
+    connect( &d->pi.dtp, SIGNAL(dataTransferProgress(int,int)),
+	    SIGNAL(dataTransferProgress(int,int)) );
     connect( &d->pi.dtp, SIGNAL(listInfo(const QUrlInfo&)),
 	    SIGNAL(listInfo(const QUrlInfo&)) );
 }
@@ -1120,10 +1125,7 @@ void QFtp::init()
 /*!  \fn void QFtp::newData( const QByteArray &data )
   This signal is emitted ###
 */
-/*!  \fn void QFtp::dataSize( int size )
-  This signal is emitted ###
-*/
-/*!  \fn void QFtp::dataProgress( int size )
+/*!  \fn void QFtp::dataTransferProgress( int bytesDone, int bytesTotal )
   This signal is emitted ###
 */
 /*!  \fn void QFtp::rawCommandReply( int replyCode, const QString &detail );
@@ -1500,13 +1502,13 @@ void QFtp::startNextCommand()
 	if ( c->command == Put ) {
 	    if ( c->data_ba && c->data.ba ) {
 		d->pi.dtp.setData( c->data.ba );
-		emit dataSize( c->data.ba->size() );
+		d->pi.dtp.setBytesTotal( c->data.ba->size() );
 	    } else if ( !c->data_ba && c->data.dev ) {
 		d->pi.dtp.setDevice( c->data.dev );
 		if ( c->data.dev->isSequentialAccess() )
-		    emit dataSize( 0 );
+		    d->pi.dtp.setBytesTotal( 0 );
 		else
-		    emit dataSize( c->data.dev->size() );
+		    d->pi.dtp.setBytesTotal( c->data.dev->size() );
 	    }
 	} else if ( c->command == Get ) {
 	    if ( !c->data_ba && c->data.dev ) {
@@ -1555,7 +1557,7 @@ void QFtp::piError( const QString &text )
 
     // non-fatal errors
     if ( c->command==Get && d->pi.currentCommand().startsWith("SIZE ") ) {
-	emit dataSize( -1 );
+	d->pi.dtp.setBytesTotal( -1 );
 	return;
     } else if ( c->command==Put && d->pi.currentCommand().startsWith("ALLO ") ) {
 	return;
@@ -2269,7 +2271,7 @@ void QFtp::dataConnected()
 	qDebug( "QFtp S: %s", cmd.latin1() );
 #endif
 	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
-	emit dataTransferProgress( 0, getTotalSize, operationInProgress() );
+	emit QNetworkProtocol::dataTransferProgress( 0, getTotalSize, operationInProgress() );
     } break;
     case OpPut: { // upload file
 	if ( !operationInProgress() || operationInProgress()->arg( 0 ).isEmpty() ) {
@@ -2362,7 +2364,7 @@ void QFtp::dataReadyRead()
 	    s.resize( bytesRead );
 	emit data( s, operationInProgress() );
 	getDoneSize += bytesRead;
-	emit dataTransferProgress( getDoneSize, getTotalSize, operationInProgress() );
+	emit QNetworkProtocol::dataTransferProgress( getDoneSize, getTotalSize, operationInProgress() );
 	// qDebug( "%s", s.data() );
     } break;
     case OpMkDir: {
@@ -2384,7 +2386,7 @@ void QFtp::dataReadyRead()
 void QFtp::dataBytesWritten( int nbytes )
 {
     putWritten += nbytes;
-    emit dataTransferProgress( putWritten, putToWrite, operationInProgress() );
+    emit QNetworkProtocol::dataTransferProgress( putWritten, putToWrite, operationInProgress() );
     if ( putWritten >= putToWrite ) {
 	dataSocket->close();
 	QTimer::singleShot( 1, this, SLOT( dataClosed() ) );
