@@ -960,7 +960,7 @@ void QScrollView::updateScrollBars()
 
     QSize newVisibleSize( visibleWidth(), visibleHeight() );
     if ( d->clipped_viewport && oldVisibleSize != newVisibleSize ) {
-	QResizeEvent e( oldVisibleSize, newVisibleSize );
+	QResizeEvent e( newVisibleSize, oldVisibleSize );
 	viewportResizeEvent( &e );
     }
 }
@@ -970,9 +970,8 @@ void QScrollView::updateScrollBars()
 */
 void QScrollView::show()
 {
-    //     Ensures that scroll bars have the correct size when the
-    //     widget is shown.
-    if (isVisible()) return;
+    if ( isVisible() )
+	return;
     QWidget::show();
     updateScrollBars();
     d->hideOrShowAll(this);
@@ -982,8 +981,6 @@ void QScrollView::show()
  */
 void QScrollView::resize( int w, int h )
 {
-    //   Ensures that scroll bars have the correct size when the widget is
-    //   resized.
     QWidget::resize( w, h );
 }
 
@@ -991,17 +988,13 @@ void QScrollView::resize( int w, int h )
 */
 void QScrollView::resize( const QSize& s )
 {
-    //   Ensures that scroll bars have the correct size when the widget is
-    //   resized.
-    resize(s.width(),s.height());
+    resize( s.width(), s.height() );
 }
 
 /*! \reimp
 */
 void QScrollView::resizeEvent( QResizeEvent* event )
 {
-    // Ensures that scroll bars have the correct size when the widget
-    // is resized.
     QFrame::resizeEvent( event );
 
 #if 0
@@ -1341,7 +1334,8 @@ int QScrollView::childY(QWidget* child)
 
 bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 {
-    if (!d) return FALSE; // we are destructing
+    if ( !d )
+	return FALSE; // we are destructing
     if ( obj == d->viewport || obj == d->clipped_viewport ) {
         switch ( e->type() ) {
             /* Forward many events to viewport...() functions */
@@ -1349,7 +1343,8 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
             viewportPaintEvent( (QPaintEvent*)e );
             break;
         case QEvent::Resize:
-            viewportResizeEvent( (QResizeEvent *) e);
+	    if ( !d->clipped_viewport )
+		viewportResizeEvent( (QResizeEvent *)e );
             break;
         case QEvent::MouseButtonPress:
             viewportMousePressEvent( (QMouseEvent*)e );
@@ -2200,8 +2195,6 @@ void QScrollView::drawContents(QPainter*, int, int, int, int)
 */
 void QScrollView::frameChanged()
 {
-    // Ensures that scrollbars have the correct size when the frame
-    // style changes.
     updateScrollBars();
 }
 
