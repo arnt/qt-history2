@@ -387,23 +387,22 @@ void QTableView::paintEvent(QPaintEvent *e)
 
     // setup temp variables for the painting
 
-    bool showGrid = d->showGrid;
-    int gridSize = showGrid ? 1 : 0;
-    int gridHint = style()->styleHint(QStyle::SH_Table_GridLineColor, 0, this);
-    QColor gridColor = gridHint != -1
-                       ? static_cast<QRgb>(gridHint)
-                       : palette().color(QPalette::Mid);
-    QPen gridPen = QPen(gridColor, 0, d->gridStyle);
-
-    QItemSelectionModel *sels = selectionModel();
-    QHeaderView *verticalHeader = d->verticalHeader;
-    QHeaderView *horizontalHeader = d->horizontalHeader;
-    QModelIndex current = currentIndex();
-    bool focus = hasFocus() && current.isValid();
-    QStyle::StyleFlags state = option.state;
-    bool alternate = d->alternatingColors;
-    QColor oddColor = d->oddColor;
-    QColor evenColor = d->evenColor;
+    const bool showGrid = d->showGrid;
+    const int gridSize = showGrid ? 1 : 0;
+    const int gridHint = style()->styleHint(QStyle::SH_Table_GridLineColor, 0, this);
+    const QColor gridColor = gridHint != -1
+                             ? static_cast<QRgb>(gridHint)
+                             : palette().color(QPalette::Mid);
+    const QPen gridPen = QPen(gridColor, 0, d->gridStyle);
+    const QItemSelectionModel *sels = selectionModel();
+    const QHeaderView *verticalHeader = d->verticalHeader;
+    const QHeaderView *horizontalHeader = d->horizontalHeader;
+    const QModelIndex current = currentIndex();
+    const bool focus = hasFocus() && current.isValid();
+    const QStyle::StyleFlags state = option.state;
+    const bool alternate = d->alternatingColors;
+    const QColor oddColor = d->oddColor;
+    const QColor evenColor = d->evenColor;
 
     // do the actual painting
 

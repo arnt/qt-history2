@@ -508,8 +508,8 @@ void QTreeView::ensureVisible(const QModelIndex &index)
 void QTreeView::paintEvent(QPaintEvent *e)
 {
     QStyleOptionViewItem option = viewOptions();
-    QBrush base = option.palette.base();
-    QRect area = e->rect();
+    const QBrush base = option.palette.base();
+    const QRect area = e->rect();
 
     if (d->viewItems.isEmpty() || d->header->count() == 0) {
         QPainter painter(d->viewport);
@@ -534,19 +534,18 @@ void QTreeView::paintEvent(QPaintEvent *e)
     d->left = qMin(d->left, d->right);
     d->right = qMax(tmp, d->right);
 
-    QStyle::StyleFlags state = option.state;
-    bool alternate = d->alternatingColors;
-    QColor oddColor = d->oddColor;
-    QColor evenColor = d->evenColor;
+    const QStyle::StyleFlags state = option.state;
+    const bool alternate = d->alternatingColors;
+    const QColor oddColor = d->oddColor;
+    const QColor evenColor = d->evenColor;
+    const int t = area.top();
+    const int b = area.bottom() + 1;
+    const int v = verticalScrollBar()->value();
+    const int c = d->viewItems.count();
+    const QVector<QTreeViewItem> viewItems = d->viewItems;
 
-    int t = area.top();
-    int b = area.bottom() + 1;
-    int v = verticalScrollBar()->value();
-    int c = d->viewItems.count();
     int i = d->itemAt(v); // first item
     int y = d->topItemDelta(v, d->height(i));
-
-    QVector<QTreeViewItem> viewItems = d->viewItems;
 
     while (y < b && i < c) {
         int h = d->height(i); // actual height
@@ -590,16 +589,16 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
                         const QModelIndex &index) const
 {
     QStyleOptionViewItem opt = option;
-    QBrush base = option.palette.base();
-    int y = option.rect.y();
-    int width, height = option.rect.height();
+    const QBrush base = option.palette.base();
+    const int y = option.rect.y();
+    const QModelIndex parent = index.parent();
+    const QHeaderView *header = d->header;
+    const QModelIndex current = selectionModel()->currentIndex();
+    const bool focus = hasFocus() && current.isValid();
+    const bool reverse = isRightToLeft();
+    const QStyle::StyleFlags state = opt.state;
 
-    QModelIndex parent = index.parent();
-    QHeaderView *header = d->header;
-    QModelIndex current = selectionModel()->currentIndex();
-    bool focus = hasFocus() && current.isValid();
-    bool reverse = isRightToLeft();
-    QStyle::StyleFlags state = opt.state;
+    int width, height = option.rect.height();
 
     int position;
     int headerSection;
@@ -643,14 +642,15 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
 void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
                              const QModelIndex &index) const
 {
+    const bool reverse = isRightToLeft();
+    const int indent = d->indent;
+    const int outer = d->rootDecoration ? 0 : 1;
+    int level = d->viewItems.at(d->current).level;
+    QRect primitive(reverse ? rect.left() : rect.right(), rect.top(), indent, rect.height());
+
     QModelIndex parent = index.parent();
     QModelIndex current = parent;
     QModelIndex ancestor = current.parent();
-    bool reverse = isRightToLeft();
-    int indent = d->indent;
-    int level = d->viewItems.at(d->current).level;
-    int outer = d->rootDecoration ? 0 : 1;
-    QRect primitive(reverse ? rect.left() : rect.right(), rect.top(), indent, rect.height());
 
     QStyleOption opt(0);
     opt.palette = palette();
