@@ -38,6 +38,7 @@
 #include "msvc_vcproj.h"
 #include "option.h"
 #include <qdir.h>
+#include <stdlib.h>
 #include <qregexp.h>
 
 #if defined(Q_OS_WIN32)
@@ -211,7 +212,7 @@ void VcprojGenerator::initConfiguration()
     vcProject.Configuration.ImportLibrary = vcProject.Configuration.linker.ImportLibrary;
     vcProject.Configuration.IntermediateDirectory = project->first("OBJECTS_DIR");
     temp = (projectTarget == StaticLib) ? project->first("DESTDIR"):project->first("DLLDESTDIR");
-    vcProject.Configuration.OutputDirectory = ( temp.isEmpty() ? "." : temp );
+    vcProject.Configuration.OutputDirectory = ( temp.isEmpty() ? QString(".") : temp );
     vcProject.Configuration.PrimaryOutput = project->first("PrimaryOutput");
     vcProject.Configuration.WholeProgramOptimization = vcProject.Configuration.compiler.WholeProgramOptimization;
     temp = project->first("UseOfATL");
@@ -460,9 +461,6 @@ void VcprojGenerator::initOld()
 	project->variables()["QMAKE_APP_FLAG"].append("1");
     else if(project->first("TEMPLATE") == "vclib")
 	project->variables()["QMAKE_LIB_FLAG"].append("1");
-
-    // If QMakeSpec is not set in the .pro file,
-    // grab it from the environment
     if ( project->variables()["QMAKESPEC"].isEmpty() )
 	project->variables()["QMAKESPEC"].append( getenv("QMAKESPEC") );
 

@@ -1569,7 +1569,7 @@ void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
 	fname.truncate( dot );
 
     int slash = str.findRev( '\\' );  
-    QString pname = ( slash != -1 ) ? str.left( slash+1 ) : ".\\";
+    QString pname = ( slash != -1 ) ? str.left( slash+1 ) : QString(".\\");
 
     strm << _begFileConfiguration;
     strm << _Name5;
