@@ -49,6 +49,9 @@ public:
     void setFileName(const QString &fileName);
     QString fileName() const;
 
+    void setFormat(const QByteArray &format);
+    QByteArray format() const;
+
     void setBackgroundColor(const QColor &color);
     QColor backgroundColor() const;
 
