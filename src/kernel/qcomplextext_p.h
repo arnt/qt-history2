@@ -35,6 +35,7 @@ struct Q_EXPORT QBidiContext : public QShared {
 };
 
 struct Q_EXPORT QBidiControl {
+    QBidiControl() { context = 0; }
     QBidiControl( QBidiContext *c, QBidiStatus s)
     { context = c; if( context ) context->ref(); status = s; }
     ~QBidiControl() { if ( context ) context->deref(); }
@@ -88,6 +89,7 @@ public:
     static QPointArray positionMarks( QFontPrivate *f, const QString &str, int pos, QRect *boundingRect = 0 );
 
     static QList<QTextRun> *bidiReorderLine( QBidiControl *control, const QString &str, int start, int len );
+    static QString bidiReorderString( const QString &str, QChar::Direction basicDir = QChar::DirON );
 };
 
 

@@ -1254,3 +1254,55 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
     
     return runs;
 }
+
+
+QString QComplexText::bidiReorderString( const QString &str, QChar::Direction basicDir = QChar::DirON )
+{
+    // ### fix basic direction
+    QBidiControl *control = new QBidiControl();
+    int lineStart = 0;
+    int lineEnd = 0;
+    int len = str.length();
+    QString visual;
+    visual.setUnicode( 0, len );
+    QChar *vch = (QChar *)visual.unicode();
+    const QChar *ch = str.unicode();
+    while( lineStart < len ) {
+	lineEnd = lineStart;
+	while( *ch != '\n' && lineEnd < len ) {
+	    ch++;
+	    lineEnd++;
+	}
+	QList<QTextRun> *runs = bidiReorderLine( control, str, lineStart, lineEnd - lineStart );
+
+	// reorder the content of the line, and output to visual
+	QTextRun *r = runs->first();
+	while ( r ) {
+	    if(r->level %2) {
+		// odd level, need to reverse the string
+		int pos = r->stop;
+		while(pos >= r->start) {
+		    *vch = str[pos];
+		    vch++;
+		    pos--;
+		}
+	    } else {
+		int pos = r->start;
+		while(pos <= r->stop) {
+		    *vch = str[pos];
+		    vch++;
+		    pos++;
+		}
+	    }
+	    r = runs->next();
+	}
+	if ( *ch == '\n' ) {
+	    *vch = *ch;
+	    vch++;
+	    ch++;
+	    lineEnd++;
+	}
+	lineStart = lineEnd;
+    }
+    return visual;
+}
