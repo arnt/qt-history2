@@ -51,8 +51,7 @@ DspMakefileGenerator::writeMakefile(QTextStream &t)
 {
     if(project->variables()["TEMPLATE"].first() == "vcapp" || 
        project->variables()["TEMPLATE"].first() == "vclib") {
-	writeDspParts(t);
-	return MakefileGenerator::writeMakefile(t);
+	return writeDspParts(t);
     }	
     else if(project->variables()["TEMPLATE"].first() == "subdirs") {
 	writeSubDirs(t);
@@ -180,6 +179,60 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		     "\t$(BuildCmds)\n\n" 
 		     "\"moc_" + fname + ".cpp" ": \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 		     "\t$(BuildCmds)\n\n" "# End Custom Build\n\n";
+
+		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build 
+		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
+		      << "!ENDIF \n\n"
+		      << "# End Source File" << endl;
+		}
+	    } else if(variable == "MSVCDSP_LEXSOURCES") {
+		if(project->variables()["LEXSOURCES"].isEmpty())
+		    continue;
+
+		QString lexpath = var("TMAKE_LEX") + varGlue("TMAKE_LEXFLAGS", " ", " ", "") + " ";
+
+		QStringList &l = project->variables()["LEXSOURCES"];    
+		for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+		    t <<  "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl;
+
+		    QString fname = (*it);
+		    fname.replace(QRegExp("\\.l"), Option::lex_mod + Option::cpp_ext);
+
+		    QString build = "\n\n# Begin Custom Build - Lex'ing " + (*it) + "...\n" 
+			"InputPath=.\\" + (*it) + "\n\n"
+			"\"" + fname + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
+			"\t" + lexpath + (*it) + "\\\n"
+			"\tdel " + fname + "\\\n"
+			"\tcopy lex.yy.c " + fname + "\n\n" +
+			"# End Custom Build\n\n";
+
+		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build 
+		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
+		      << "!ENDIF \n\n"
+		      << "# End Source File" << endl;
+		}
+	    } else if(variable == "MSVCDSP_YACCSOURCES") {
+		if(project->variables()["YACCSOURCES"].isEmpty())
+		    continue;
+
+		QString yaccpath = var("TMAKE_YACC") + varGlue("TMAKE_YACCFLAGS", " ", " ", "") + " ";
+
+		QStringList &l = project->variables()["YACCSOURCES"];    
+		for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+		    t <<  "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl;
+
+		    QString fname = (*it);
+		    fname.replace(QRegExp("\\.y"), Option::yacc_mod);
+
+		    QString build = "\n\n# Begin Custom Build - Yacc'ing " + (*it) + "...\n" 
+			"InputPath=.\\" + (*it) + "\n\n"
+			"\"" + fname + Option::cpp_ext + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
+			"\t" + yaccpath + (*it) + "\\\n"
+			"\tdel " + fname + Option::h_ext + "\\\n"
+			"\trename y.tab.h " + fname + Option::h_ext + "\n\n" +
+			"\tdel " + fname + Option::cpp_ext + "\\\n"
+			"\trename y.tab.c " + fname + Option::cpp_ext + "\n\n" +
+			"# End Custom Build\n\n";
 
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build 
 		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build

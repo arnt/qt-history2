@@ -105,5 +105,13 @@ $$MSVCDSP_INTERFACEHEADERS
 $$MSVCDSP_INTERFACES
 # Prop Default_Filter "ui"
 # End Group
+# Begin Group "Lexables"
+$$MSVCDSP_LEXSOURCES
+# Prop Default_Filter "l"
+# End Group
+# Begin Group "Yaccables"
+$$MSVCDSP_YACCSOURCES
+# Prop Default_Filter "y"
+# End Group
 # End Target
 # End Project
