@@ -1272,21 +1272,25 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge )
 	if ( dockWindow->area() != d->topDock )
 	    dockWindow->removeFromDock( FALSE );
 	d->topDock->moveDockWindow( dockWindow );
+	emit dockWindowPositionChanged( dockWindow );
 	break;
     case DockBottom:
 	if ( dockWindow->area() != d->bottomDock )
 	    dockWindow->removeFromDock( FALSE );
 	d->bottomDock->moveDockWindow( dockWindow );
+	emit dockWindowPositionChanged( dockWindow );
 	break;
     case DockRight:
 	if ( dockWindow->area() != d->rightDock )
 	    dockWindow->removeFromDock( FALSE );
 	d->rightDock->moveDockWindow( dockWindow );
+	emit dockWindowPositionChanged( dockWindow );
 	break;
     case DockLeft:
 	if ( dockWindow->area() != d->leftDock )
 	    dockWindow->removeFromDock( FALSE );
 	d->leftDock->moveDockWindow( dockWindow );
+	emit dockWindowPositionChanged( dockWindow );
 	break;
     case DockTornOff:
 	dockWindow->undock();
