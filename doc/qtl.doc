@@ -32,7 +32,7 @@
 <h1 align=center>Qt Template Library</h1><br clear="all">
 
 In contrast to the containers based on \l QCollection, the Qt template
-library implements a value based approach comparable to the C++
+library implements a value-based approach comparable to the C++
 Standard Template Library (STL).
 
 It currently provides the containers \l QMap, \l QValueList and \l
@@ -72,8 +72,8 @@ Examples for value based classes are QRect, QPoint, QSize and all
 simple C++ types like int, bool or double.
 
 The Qt template library is designed for speed. Especially iterators
-are extremely fast. On the drawback side, less error checking than in
-the QCollection based containers is done. A template library container
+are extremely fast. On the drawback side, less error checking is done
+than in the QCollection based containers. A template library container
 for example does not track associated iterators. This makes certain
 validy checks, like on removing items, impossible to perform
 automatically.
@@ -83,10 +83,10 @@ automatically.
 The Qt template library deals with value objects, not with pointers.
 For that reason, there is no other way of iterating over containers
 than using iterators. This is no disadvantage as the size of an
-iterator matches the size of a normal pointer, namely 32 or 64 bits
+iterator matches the size of a normal pointer - 32 or 64 bits
 depending on your CPU architecture.
 
-In order to iterate over some container, do like this:
+To iterate over a container, use a loop like this:
 
 \code
 	typedef QValueList<int> List;
@@ -96,12 +96,12 @@ In order to iterate over some container, do like this:
 \endcode
 
 begin() returns the iterator pointing at the first element, while
-end() returns an iterator that points \e behind the last
+end() returns an iterator that points \e after the last
 element. end() marks an invalid position, it can never be
 dereferenced. It's the break condition in any iteration, may it be
 from begin() or fromLast(). For maximum speed, use increment or
-decrement iterators with the prefix operator instead of the the
-postfix one, since these are slightly faster.
+decrement iterators with the prefix operator (++it, --it) instead of the the
+postfix one (it++, it--), since the former is slightly faster.
 
 The same concept applies to the other container classes:
 
@@ -120,14 +120,14 @@ The same concept applies to the other container classes:
 There are two kind of iterators, the volatile iterator shown in the
 examples above and a version that returns a const reference to its
 current object, the ConstIterator. Const iterators are required
-whenever the container itself is const, for example a member variable
+whenever the container itself is const, such as a member variable
 inside a const function. Assigning a ConstIterator to a normal
 Iterator is not allowed as it would violate const semantics.
 
 <h2> Algorithms </h2>
 
-The template library defines a couple of algorithms that operate on
-its containers, namely qHeapSort(), qBubbleSort(), qSwap() and
+The template library defines a number of algorithms that operate on
+its containers: qHeapSort(), qBubbleSort(), qSwap() and
 qCopy(). These algorithms are implemented as template functions.
 
 qHeapSort() and qBubbleSort() provide the well known sorting
@@ -151,13 +151,12 @@ algorithms. You can use them like this:
 
 The first example sorts the entire list. The second one sorts all
 elements enclosed in the two iterators, namely 100, 1234 and 12.  The
-third example shows that iterators really are just pointers and can be
+third example shows that iterators act like pointers and can be
 treated as such.
 
-Note that the sorting templates naturally won't work with
-const iterators.
+Naturally, the sorting templates won't work with const iterators.
 
-A second utility is qSwap(). It exchanges the values of two variables:
+Another utility is qSwap(). It exchanges the values of two variables:
 
 \code
 	QString second( "Einstein" );
@@ -176,9 +175,9 @@ of it to an OutputIterator, in this case a QTextOStreamIterator:
 	qCopy( l, QTextOStreamIterator( str ) );
 \endcode
 
-In addition, you can use any usual iterator as OutputIterator. Just
-make sure that right hand of the iterator are as many elements present
-as you want to insert. The following example illustrates that:
+In addition, you can use any QTL iterator as the OutputIterator. Just
+make sure that the right hand of the iterator has as many elements present
+as you want to insert. The following example illustrates this:
 
 \code
 	QStringList l1, l2;
@@ -204,7 +203,7 @@ it possible to copy a slice of a container:
 
 If you write new algorithms, consider writing them as template
 functions in order to make them usable with as many containers
-possible.  In the above example, you could just as well print out a
+possible.  In the above example, you could just as easily print out a
 standard C++ array with qCopy():
 
 \code
@@ -217,10 +216,10 @@ standard C++ array with qCopy():
 <h2> Streaming </h2>
 
 All mentioned containers can be serialized with the respective
-streaming operators. Here is an example. It assumes that \c str is
-some \l QDataStream:
+streaming operators. Here is an example.
 
 \code
+	QDataStream str(...);
 	QValueList<QRect> l;
 	// ... fill the list here
 	str << l;
