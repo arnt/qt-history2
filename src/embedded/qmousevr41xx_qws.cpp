@@ -32,6 +32,7 @@
 
 #include "qmousevr41xx_qws.h"
 
+#ifndef QT_NO_QWS_MOUSE_VR41
 #include "qwindowsystem_qws.h"
 #include "qsocketnotifier.h"
 #include "qtimer.h"
@@ -164,3 +165,4 @@ void QWSVr41xxMouseHandlerPrivate::readMouseData()
 }
 
 #include "qmousevr41xx_qws.moc"
+#endif //QT_NO_QWS_MOUSE_VR41

@@ -36,6 +36,7 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 #if !defined(Q_OS_FREEBSD) && !defined (QT_NO_QWS_LINUXFB)
 #include <linux/fb.h>

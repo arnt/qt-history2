@@ -32,6 +32,7 @@
 
 #include "qmouseyopy_qws.h"
 
+#ifndef QT_NO_QWS_MOUSE_YOPY
 #include "qwindowsystem_qws.h"
 #include "qsocketnotifier.h"
 #include "qapplication.h"
@@ -140,3 +141,4 @@ void QWSYopyMouseHandlerPrivate::readMouseData()
 }
 
 #include "qmouseyopy_qws.moc"
+#endif //QT_NO_QWS_MOUSE_YOPY

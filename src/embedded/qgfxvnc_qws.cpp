@@ -498,7 +498,7 @@ QVNCServer::QVNCServer()
 }
 
 QVNCServer::QVNCServer( int id )
-    : QServerSocket( 5900 + id, 0, 0 )
+    : QServerSocket( 5900 + id, (int)0, (QObject*)0 )
 {
     qDebug( "QVNCServer created" );
     handleMsg = FALSE;

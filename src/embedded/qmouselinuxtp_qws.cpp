@@ -32,6 +32,7 @@
 
 #include "qmouselinuxtp_qws.h"
 
+#ifndef QT_NO_QWS_MOUSE_LINUXTP
 #include "qwindowsystem_qws.h"
 #include "qsocketnotifier.h"
 #include "qtimer.h"
@@ -282,3 +283,4 @@ void QWSLinuxTPMouseHandlerPrivate::readMouseData()
 }
 
 #include "qmouselinuxtp_qws.moc"
+#endif //QT_NO_QWS_MOUSE_LINUXTP

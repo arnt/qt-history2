@@ -76,7 +76,7 @@ private:
 };
 
 QWSUsbKeyboardHandler::QWSUsbKeyboardHandler(const QString &device)
-    QWSPC101KeyboardHandler( device )
+    : QWSPC101KeyboardHandler( device )
 {
     d = new QWSUsbKbPrivate( this, device );
 }
