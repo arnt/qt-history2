@@ -218,10 +218,6 @@ public slots:
 
     void previewForm();
     void previewForm( const QString& );
-    void windowPropertyEditor( bool );
-    void windowHierarchyView( bool );
-    void windowFormList( bool );
-    void windowActionEditor( bool );
 
     void toolsCustomWidget();
 
@@ -336,7 +332,6 @@ private:
     QString fileFilter;
 
     QMap<QAction*, Project*> projects;
-    QAction *actionWindowPropertyEditor;
     QAction *actionEditUndo, *actionEditRedo, *actionEditCut, *actionEditCopy,
     *actionEditPaste, *actionEditDelete,
     *actionEditAdjustSize,
@@ -348,7 +343,7 @@ private:
     QAction* actionPointerTool, *actionConnectTool, *actionOrderTool;
     QAction* actionCurrentTool;
     QAction *actionHelpContents, *actionHelpAbout, *actionHelpAboutQt, *actionHelpWhatsThis;
-    QAction *actionWindowHierarchyView, *actionWindowFormList, *actionHelpManual, *actionWindowActionEditor;
+    QAction *actionHelpManual;
     QAction *actionToolsCustomWidget, *actionEditPreferences, *actionEditProjectSettings;
     QAction *actionWindowTile, *actionWindowCascade, *actionWindowClose, *actionWindowCloseAll;
     QAction *actionWindowNext, *actionWindowPrevious;

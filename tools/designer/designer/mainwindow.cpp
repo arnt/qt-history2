@@ -190,7 +190,6 @@ MainWindow::MainWindow( bool asClient )
     actionGroupTools = 0;
     prefDia = 0;
     windowMenu = 0;
-    actionWindowPropertyEditor = 0;
     hierarchyView = 0;
     actionEditor = 0;
     currentProject = 0;
@@ -261,6 +260,9 @@ MainWindow::MainWindow( bool asClient )
     delete w;
     w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QFrame" ), this, 0, FALSE );
     delete w;
+
+    setAppropriate( (QDockWindow*)actionEditor->parentWidget(), FALSE );
+    actionEditor->parentWidget()->hide();
 
     statusBar()->setSizeGripEnabled( TRUE );
 }
@@ -1033,33 +1035,9 @@ void MainWindow::setupPreviewActions()
 
 void MainWindow::setupWindowActions()
 {
-    if ( !actionWindowPropertyEditor ) {
-	actionWindowPropertyEditor = new QAction( tr( "Property Editor" ), tr( "Property &Editor" ), 0, this, 0, TRUE );
-	actionWindowPropertyEditor->setStatusTip( tr("Toggles the Property Editor") );
-	actionWindowPropertyEditor->setWhatsThis( tr("<b>Toggle the Property Editor</b>"
-						     "<p>Use the property editor to change the attributes of the "
-						     "widgets in your form.</p>") );
-	connect( actionWindowPropertyEditor, SIGNAL( toggled(bool) ), this, SLOT( windowPropertyEditor(bool) ) );
-
-	actionWindowHierarchyView = new QAction( tr( "Object Hierarchy" ), tr( "Object &Hierarchy" ), 0, this, 0, TRUE );
-	actionWindowHierarchyView->setStatusTip( tr("Toggles the Object Hierarchy view") );
-	actionWindowHierarchyView->setWhatsThis( tr("<b>Toggle the Object Hierarchy view</b>"
-						    "<p>The object hierarchy gives a quick overview about the relations "
-						    "between the widgets in your form.</p>") );
-	connect( actionWindowHierarchyView, SIGNAL( toggled(bool) ), this, SLOT( windowHierarchyView(bool) ) );
-
-	actionWindowFormList = new QAction( tr( "Form List" ), tr( "&Form List" ), 0, this, 0, TRUE );
-	actionWindowFormList->setStatusTip( tr("Toggles the Form List") );
-	actionWindowFormList->setWhatsThis( tr("<b>Toggle the Form List</b>"
-					       "<p>The Form List displays the filenames of all open forms, and a flag indicates "
-					       "which forms have been changed.</p>") );
-	connect( actionWindowFormList, SIGNAL( toggled(bool) ), this, SLOT( windowFormList(bool) ) );
-
-	actionWindowActionEditor = new QAction( tr( "Action Editor" ), tr( "&Action Editor" ), 0, this, 0, TRUE );
-	actionWindowActionEditor->setStatusTip( tr("Toggles the Action Edior") );
-	actionWindowActionEditor->setWhatsThis( tr("<b>Toggle the Action Editor</b>"
-					       "<p>Todo</p>") );
-	connect( actionWindowActionEditor, SIGNAL( toggled(bool) ), this, SLOT( windowActionEditor(bool) ) );
+    static bool windowActionsSetup = FALSE;
+    if ( !windowActionsSetup ) {
+	windowActionsSetup = TRUE;
 
 	actionWindowTile = new QAction( tr( "Tile" ), tr( "&Tile" ), 0, this );
 	actionWindowTile->setStatusTip( tr("Arranges all windows tiled") );
@@ -1109,10 +1087,8 @@ void MainWindow::setupWindowActions()
     actionWindowTile->addTo( windowMenu );
     actionWindowCascade->addTo( windowMenu );
     windowMenu->insertSeparator();
-    actionWindowPropertyEditor->addTo( windowMenu );
-    actionWindowHierarchyView->addTo( windowMenu );
-    actionWindowFormList->addTo( windowMenu );
-    actionWindowActionEditor->addTo( windowMenu );
+    windowMenu->insertItem( tr( "&Views" ), createDockWindowMenu( NoToolBars ) );
+    windowMenu->insertItem( tr( "&Toolbars" ), createDockWindowMenu( OnlyToolBars ) );
     QWidgetList windows = workspace->windowList();
     if ( windows.count() && formWindow() )
 	windowMenu->insertSeparator();
@@ -1215,7 +1191,7 @@ void MainWindow::setupPropertyEditor()
 					"<p>You can resize the columns of the editor by dragging the separators of the list "
 					"header.</p>") );
     propGeom = QRect( 0, 0, 300, 600 );
-    actionWindowPropertyEditor->setOn( TRUE );
+    dw->show();
 }
 
 void MainWindow::setupOutputWindow()
@@ -1243,15 +1219,15 @@ void MainWindow::setupHierarchyView()
     addToolBar( dw, Qt::Left );
     dw->setWidget( hierarchyView );
 
-    dw->setCaption( tr( "Object Hierarchy" ) );
+    dw->setCaption( tr( "Object Explorer" ) );
     dw->setFixedExtentWidth( 300 );
     hvGeom = QRect( -1, -1, 300, 500 );
-    QWhatsThis::add( hierarchyView, tr("<b>The Hierarchy View</b>"
-				      "<p>The object hierarchy gives a quick overview about the relations "
+    QWhatsThis::add( hierarchyView, tr("<b>The Object Explorer</b>"
+				      "<p>The object explorer gives a quick overview about the relations "
 				      "between the widgets in your form. You can use the clipboard functions using "
 				      "a context menu for each item in the view.</p>"
-				      "<p>The columns can be resized by dragging the separator in the list header.</p>" ) );
-    actionWindowHierarchyView->setOn( FALSE );
+				      "<p>The columns can be resized by dragging the separator in the list header.</p>"
+				       "<p>On the second tab you can see all the declared slots, variables, includes, etc. of the form.</p>") );
     dw->hide();
 }
 
@@ -1264,13 +1240,11 @@ void MainWindow::setupFormList()
     addToolBar( dw, Qt::Left );
     dw->setWidget( formList );
 
-    dw->setCaption( tr( "Forms" ) );
+    dw->setCaption( tr( "Files" ) );
     flGeom = QRect( -1, -1, 300, 600 );
-    QWhatsThis::add( formList, tr("<b>The Form List</b>"
-				  "<p>The Form List displays the filenames of all open forms, and a flag indicates "
-				  "which forms have been changed.</p>"
-				  "<p>The columns can be resized by dragging the separator in the list header.</p>") );
-    actionWindowFormList->setOn( TRUE );
+    QWhatsThis::add( formList, tr("<b>The File List</b>"
+				  "<p>The File List displays all files of the project, including forms and pixmaps</p>") );
+    dw->show();
 }
 
 void MainWindow::setupActionEditor()
@@ -1285,7 +1259,6 @@ void MainWindow::setupActionEditor()
     dw->setFixedExtentWidth( 300 );
     dw->setCaption( tr( "Action Editor" ) );
     QWhatsThis::add( actionEditor, tr("<b>The Action Editor</b><p>Todo Whatsthis</p>" ) );
-    actionWindowActionEditor->setOn( FALSE );
     dw->hide();
     setAppropriate( dw, FALSE );
 }
@@ -2507,58 +2480,6 @@ static void correctGeometry( QWidget *wid, QWidget *workspace )
     wid->parentWidget()->resize( w, h );
 }
 
-void MainWindow::windowPropertyEditor( bool showIt )
-{
-    if ( !propertyEditor )
-	setupPropertyEditor();
-    if ( showIt ) {
-	propertyEditor->parentWidget()->show();
-	propertyEditor->setFocus();
-    } else {
-	propertyEditor->parentWidget()->hide();
-    }
-    actionWindowPropertyEditor->setOn( showIt );
-}
-
-void MainWindow::windowHierarchyView( bool showIt )
-{
-    if ( !hierarchyView )
-	setupHierarchyView();
-    if ( showIt ) {
-	hierarchyView->parentWidget()->show();
-	hierarchyView->setFocus();
-    } else {
-	hierarchyView->parentWidget()->hide();
-    }
-    actionWindowHierarchyView->setOn( showIt );
-}
-
-void MainWindow::windowFormList( bool showIt )
-{
-    if ( !formList )
-	setupFormList();
-    if ( showIt ) {
-	formList->parentWidget()->show();
-	formList->setFocus();
-    } else {
-	formList->parentWidget()->hide();
-    }
-    actionWindowFormList->setOn( showIt );
-}
-
-void MainWindow::windowActionEditor( bool showIt )
-{
-    if ( !actionEditor )
-	setupActionEditor();
-    if ( showIt ) {
-	actionEditor->parentWidget()->show();
-	actionEditor->setFocus();
-    } else {
-	actionEditor->parentWidget()->hide();
-    }
-    actionWindowActionEditor->setOn( showIt );
-}
-
 void MainWindow::toolsCustomWidget()
 {
     statusBar()->message( tr( "Edit custom widgets..." ) );
@@ -2866,14 +2787,6 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	correctGeometry( hierarchyView, workspace );
 	correctGeometry( formList, workspace );
 	checkTempFiles();
-	connect( propertyEditor->parentWidget(), SIGNAL( visibilityChanged( bool ) ),
-		 this, SLOT( windowPropertyEditor( bool ) ) );
-	connect( hierarchyView->parentWidget(), SIGNAL( visibilityChanged( bool ) ),
-		 this, SLOT( windowHierarchyView( bool ) ) );
-	connect( formList->parentWidget(), SIGNAL( visibilityChanged( bool ) ),
-		 this, SLOT( windowFormList( bool ) ) );
-	connect( actionEditor->parentWidget(), SIGNAL( visibilityChanged( bool ) ),
-		 this, SLOT( windowActionEditor( bool ) ) );
 	return TRUE;
     case QEvent::Wheel:
 	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
@@ -3047,7 +2960,11 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	}
 	formlist()->activeFormChanged( (FormWindow*)w );
 	setAppropriate( (QDockWindow*)actionEditor->parentWidget(), lastActiveFormWindow->mainContainer()->inherits( "QMainWindow" ) );
-	actionWindowActionEditor->setOn( lastActiveFormWindow->mainContainer()->inherits( "QMainWindow" ) );
+	if ( appropriate( (QDockWindow*)actionEditor->parentWidget() ) )
+	    actionEditor->parentWidget()->show();
+	else
+	    actionEditor->parentWidget()->hide();
+
 	actionEditor->setFormWindow( lastActiveFormWindow );
 	if ( formList && ( (FormWindow*)w )->project() && ( (FormWindow*)w )->project() != currentProject ) {
 	    for ( QMap<QAction*, Project *>::Iterator it = projects.begin(); it != projects.end(); ++it ) {
@@ -3555,9 +3472,6 @@ void MainWindow::writeConfig()
 
     config.writeEntry( keybase + "View/TextLabels", usesTextLabel() );
     config.writeEntry( keybase + "View/BigIcons", usesBigPixmaps() );
-    config.writeEntry( keybase + "View/PropertyEditor", actionWindowPropertyEditor->isOn() );
-    config.writeEntry( keybase + "View/HierarchyView", actionWindowHierarchyView->isOn() );
-    config.writeEntry( keybase + "View/FormList", actionWindowFormList->isOn() );
 
     QString fn = QDir::homeDirPath() + "/.designerrctb2";
     QFile f( fn );
@@ -3674,9 +3588,6 @@ void MainWindow::readConfig()
 
 	setUsesTextLabel( config.readBoolEntry( keybase + "View/TextLabels", FALSE ) );
 	setUsesBigPixmaps( FALSE /*config.readBoolEntry( "BigIcons", FALSE )*/ ); // ### disabled for now
-	actionWindowPropertyEditor->setOn( config.readBoolEntry( keybase + "View/PropertyEditor", TRUE ) );
-	actionWindowHierarchyView->setOn( config.readBoolEntry( keybase + "View/HierarchyView", TRUE ) );
-	actionWindowFormList->setOn( config.readBoolEntry( keybase + "View/FormList", FALSE ) );
     }
 
     num = config.readNumEntry( keybase + "CustomWidgets/num" );
@@ -3819,9 +3730,6 @@ void MainWindow::readOldConfig()
 	config.setGroup( "View" );
 	setUsesTextLabel( config.readBoolEntry( "TextLabels", FALSE ) );
 	setUsesBigPixmaps( FALSE /*config.readBoolEntry( "BigIcons", FALSE )*/ ); // ### disabled for now
-	actionWindowPropertyEditor->setOn( config.readBoolEntry( "PropertyEditor", FALSE ) );
-	actionWindowHierarchyView->setOn( config.readBoolEntry( "HierarchyView", FALSE ) );
-	actionWindowFormList->setOn( config.readBoolEntry( "FormList", FALSE ) );
     }
 
     config.setGroup( "CustomWidgets" );
