@@ -42,6 +42,7 @@ private:
 struct NETRootInfoPrivate {
     // information about the X server
     Display *display;
+    NETSize rootSize;
     Window root;
     Window supportwindow;
     const char *name;
@@ -87,7 +88,7 @@ struct NETWinInfoPrivate {
     Window kde_dockwin_for;
 
     unsigned long properties;
-    
+
     Bool managed;
 
     int ref;

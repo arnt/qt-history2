@@ -490,6 +490,11 @@ void NETRootInfo::setClientListStacking(Window *wins, unsigned int num) {
     p->stacking_count = num;
     if (p->stacking) delete [] p->stacking;
     p->stacking = nwindup(wins, num);
+    
+#ifdef    DEBUG
+    fprintf(stderr, "NETRootInfo::SetClientListStacking: setting list with %ld windows\n",
+	    p->clients_count);
+#endif
 
     XChangeProperty(p->display, p->root, net_client_list_stacking, XA_WINDOW, 32,
 		    PropModeReplace, (unsigned char *) p->stacking,
@@ -1230,8 +1235,8 @@ NETWinInfo::NETWinInfo(Display *d, Window win, Window rwin,
     p->display = d;
     p->window = win;
     p->root = rwin;
-    p->state = 0;
-    p->type = Normal;
+    p->state = Unknown;
+    p->type = Unknown;
     p->name = (char *) 0;
     p->desktop = p->pid = p->handled_icons = 0;
     p->managed = False;
@@ -1475,7 +1480,7 @@ unsigned long NETWinInfo::event(XEvent *e) {
 	    if (e->xclient.message_type == net_wm_state) {
 		dirty = WMState;
 
-		changeState(e->xclient.data.l[0]);
+		changeState(e->xclient.data.l[0], e->xclient.data.l[1]);
 	    } else if (e->xclient.message_type == net_wm_desktop) {
 		dirty = WMDesktop;
 

@@ -119,22 +119,24 @@ private:
 
 class NETWinInfo : public NET {
 public:
-    NETWinInfo(Display *, Window, Window, unsigned long, Role = Client);
-    NETWinInfo(const NETWinInfo &);
+    NETWinInfo(Display * /* display */, Window /* root window */,
+	       Window /* support window */, unsigned long /* support flags */,
+	       Role /* role */ = Client);
+    NETWinInfo(const NETWinInfo & /* wininfo */);
     virtual ~NETWinInfo();
-    
+
     inline unsigned long properties() const;
 
-    void setIcon(NETIcon, Bool = true);
-    void setIconGeometry(NETRect);
-    void setStrut(NETStrut);
-    void setState(unsigned long, unsigned long);
-    void setWindowType(WindowType);
-    void setName(const char *);
-    void setDesktop(CARD32);
-    void setPid(CARD32);
-    void setHandledIcons(Bool);
-    void setKDEDockWinFor(Window);
+    void setIcon(NETIcon /* icon */, Bool /* replace */ = true);
+    void setIconGeometry(NETRect /* rect */);
+    void setStrut(NETStrut /* strut */);
+    void setState(unsigned long /* state */, unsigned long /* mask */);
+    void setWindowType(WindowType /* type */);
+    void setName(const char * /* name */);
+    void setDesktop(CARD32 /* desktop */);
+    void setPid(CARD32 /* pid */);
+    void setHandledIcons(Bool /* handled */);
+    void setKDEDockWinFor(Window /* window */);
 
     NETIcon icon(int = -1, int = -1) const;
 
@@ -155,12 +157,12 @@ public:
 
 
 protected:
-    virtual void changeDesktop(CARD32) { }
-    virtual void changeState(CARD32) { }
+    virtual void changeDesktop(CARD32 /* desktop */) { }
+    virtual void changeState(CARD32 /* state */, CARD32 /* mask */) { }
 
 
 private:
-    void update(unsigned long);
+    void update(unsigned long /* dirty */);
 
     NETWinInfoPrivate *p;
     Role role;

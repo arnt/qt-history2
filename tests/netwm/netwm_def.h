@@ -61,6 +61,7 @@ public:
     };
 
     enum WindowType {
+	Unknown = -1,
 	Normal  = 0,
 	Desktop = 1,
 	Dock    = 2,
@@ -78,14 +79,6 @@ public:
 	SkipTaskbar  = 1<<5
     };
 
-    /*
-      enum StateChange {
-          Remove = 0,
-	  Add    = 1,
-	  Toggle = 2
-      };
-    */
-    
     enum Direction {
 	TopLeft      =0,
 	Top          =1,
@@ -130,7 +123,7 @@ public:
 	WMPing              = 1<<25,
 	WMKDEDockWinFor     = 1<<26, // NOT STANDARD
 	XAWMState           = 1<<27  // NOT STANDARD
-	
+
     };
 };
 
