@@ -84,7 +84,7 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 
     if ( richtextMode ) {
 	QPopupMenu *stylesMenu = new QPopupMenu( this );
-	menuBar->insertItem( tr( "Styles" ), stylesMenu );
+	menuBar->insertItem( tr( "&Styles" ), stylesMenu );
 
 	basicToolBar = new QToolBar( tr( "Basics" ), this, DockTop );
 
@@ -115,7 +115,7 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 	basicToolBar->addSeparator();
 
 	QPopupMenu *layoutMenu = new QPopupMenu( this );
-	menuBar->insertItem( tr( "Layout" ), layoutMenu );
+	menuBar->insertItem( tr( "&Layout" ), layoutMenu );
 
 	QAction *brAction = new QAction( this );
 	brAction->setIconSet( QPixmap::fromMimeSource( "textlinebreak.png" ) );
@@ -158,7 +158,7 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 
 
 	QPopupMenu *fontMenu = new QPopupMenu( this );
-	menuBar->insertItem( tr( "Font" ), fontMenu );
+	menuBar->insertItem( tr( "&Font" ), fontMenu );
 
 	fontToolBar = new QToolBar( "Fonts", this, DockTop );
 

@@ -64,7 +64,7 @@
                     <cstring>Widget8</cstring>
                 </property>
                 <attribute name="title">
-                    <string>New File/Project</string>
+                    <string>&amp;New File/Project</string>
                 </attribute>
                 <grid>
                     <property name="name">
@@ -97,7 +97,7 @@
                     <cstring>tab</cstring>
                 </property>
                 <attribute name="title">
-                    <string>Open File/Project</string>
+                    <string>&amp;Open File/Project</string>
                 </attribute>
                 <hbox>
                     <property name="name">
@@ -116,7 +116,7 @@
                     <cstring>Widget9</cstring>
                 </property>
                 <attribute name="title">
-                    <string>Recently Opened</string>
+                    <string>&amp;Recently Opened</string>
                 </attribute>
                 <grid>
                     <property name="name">
@@ -191,7 +191,7 @@
                         <cstring>buttonHelp</cstring>
                     </property>
                     <property name="text">
-                        <string>Help</string>
+                        <string>&amp;Help</string>
                     </property>
                     <property name="accel">
                         <number>4144</number>
