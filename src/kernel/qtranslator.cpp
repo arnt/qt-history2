@@ -27,6 +27,7 @@
 #include "qtranslator.h"
 #include "qfileinfo.h"
 #include "qtextcodec.h"
+#include "qlist.h"
 
 #if defined(UNIX)
 #define QT_USE_MMAP

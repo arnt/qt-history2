@@ -32,6 +32,7 @@
 #include "qdict.h"
 #include "qcolor.h"
 #include "qfont.h"
+#include "qlist.h"
 
 
 class QStyleSheetItem;

@@ -28,17 +28,17 @@
 
 #ifndef QT_H
 #include "qnamespace.h"
-#include "qapplication.h"
 #include "qstring.h"
 #include "qregion.h"
 #endif // QT_H
+
 class QPainter;
 class QWidget;
 class QStyleSheet;
 class QBrush;
-
-
+class QMimeSourceFactory;
 class QSimpleRichTextData;
+
 
 class Q_EXPORT QSimpleRichText
 {

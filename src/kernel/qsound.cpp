@@ -23,9 +23,9 @@
 **
 *****************************************************************************/
 
-
 #include "qsound.h"
-#include <qapplication.h>
+#include "qapplication.h"
+#include "qlist.h"
 
 static QList<QAuServer> *servers=0;
 

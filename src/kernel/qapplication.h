@@ -28,8 +28,6 @@
 
 #ifndef QT_H
 #include "qwidget.h"
-#include "qlist.h"
-
 #include "qasciidict.h"
 #include "qpalette.h"
 #include "qtranslator.h"
@@ -38,6 +36,7 @@
 class QSessionManager;
 class QStyle;
 class QTranslator;
+template <class T> class QList;
 
 class QApplication;
 extern Q_EXPORT QApplication *qApp;		// global application object
