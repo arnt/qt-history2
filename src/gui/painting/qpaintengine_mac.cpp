@@ -54,43 +54,6 @@ extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 extern const uchar *qt_patternForBrush(int, bool); //qbrush.cpp
 extern QPixmap qt_pixmapForBrush(int, bool); //qbrush.cpp
 
-// paintevent magic to provide Windows semantics on Qt/Mac
-class paintevent_item
-{
-    QPaintDevice* dev;
-    QRegion clipRegion;
-public:
-    paintevent_item(QPaintDevice *dv, QRegion r) : dev(dv), clipRegion(r) { }
-    inline bool operator==(const QPaintDevice *rhs) const { return rhs == dev; }
-    inline bool operator!=(const QPaintDevice *rhs) const { return !(this->operator==(rhs)); }
-    inline QPaintDevice *device() const { return dev; }
-    inline QRegion region() const { return clipRegion; }
-};
-QStack<paintevent_item*> paintevents;
-static paintevent_item *qt_mac_get_paintevent() { return paintevents.isEmpty() ? 0 : paintevents.top(); }
-
-void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region)
-{
-    QRegion r = region;
-    if(dev && dev->devType() == QInternal::Widget) {
-        QWidget *w = (QWidget *)dev;
-        QPoint mp(posInWindow(w));
-        r.translate(mp.x(), mp.y());
-    }
-    if(paintevent_item *curr = qt_mac_get_paintevent()) {
-        if(curr->device() == dev)
-            r &= curr->region();
-    }
-    paintevents.push(new paintevent_item(dev, r));
-}
-
-void qt_clear_paintevent_clipping()
-{
-    if(paintevents.isEmpty())
-        return;
-    delete paintevents.pop();
-}
-
 //Implemented for qt_mac_p.h
 QMacCGContext::QMacCGContext(QPainter *p)
 {
@@ -151,7 +114,6 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
     assignf(IsActive | DirtyFont);
 
     d->clip.serial = 0;
-    d->paintevent = 0;
     d->clip.dirty = false;
     d->offx = d->offy = 0;
     bool unclipped = false;
@@ -804,14 +766,9 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
             d->clip.pdev = QRegion(0, 0, d->pdev->width(), d->pdev->height());
         }
     } else if(d->pdev->devType() == QInternal::Widget) {                    // device is a widget
-        paintevent_item *pevent = qt_mac_get_paintevent();
-        if(pevent && (*pevent) != d->pdev)
-            pevent = 0;
         QWidget *w = (QWidget*)d->pdev;
         if(!(remade_clip = force)) {
-            if(pevent != d->paintevent)
-                remade_clip = true;
-            else if(!w->isVisible())
+            if(!w->isVisible())
                 remade_clip = d->clip.serial;
             else
                 remade_clip = (d->clip.serial != w->d_func()->clippedSerial(!d->unclipped));
@@ -829,9 +786,11 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
                 d->clip.pdev = w->d_func()->clippedRegion(!d->unclipped);
                 d->clip.serial = w->d_func()->clippedSerial(!d->unclipped);
             }
-            if(pevent)
-                d->clip.pdev &= pevent->region();
-            d->paintevent = pevent;
+            QRegion sysClip = systemClip();
+            if(!sysClip.isEmpty()) {
+                sysClip.translate(wp.x(), wp.y());
+                d->clip.pdev &= sysClip;
+            }
         }
     } else if(d->pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)d->pdev;
@@ -1658,12 +1617,11 @@ QCoreGraphicsPaintEnginePrivate::setClip(const QRegion *rgn)
             mp = posInWindow(w);
             qt_mac_clip_cg(hd, w->d->clippedRegion(), &mp, &orig_xform);
         }
-        if(paintevent_item *pevent = qt_mac_get_paintevent()) {
-            if((*pevent) == pdev)
-                qt_mac_clip_cg(hd, pevent->region(), &mp, &orig_xform);
-        }
+        QRegion sysClip = q->systemClip();
+        if(!sysClip.isEmpty())
+            qt_mac_clip_cg(hd, sysClip, 0, &orig_xform);
         if(rgn)
-            qt_mac_clip_cg(hd, *rgn, 0, 0); //already device relative
+            qt_mac_clip_cg(hd, *rgn, 0, 0);
     }
 }
 

@@ -435,7 +435,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
 
                     //setup the context
                     widget->setAttribute(Qt::WA_WState_InPaintEvent);
-                    qt_set_paintevent_clipping(widget, qrgn);
+                    widget->paintEngine()->setSystemClip(qrgn);
 
                     //handle the erase
                     if(!widget->testAttribute(Qt::WA_NoBackground) &&
@@ -471,7 +471,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                         QPainter::restoreRedirected(widget);
 
                     //cleanup
-                    qt_clear_paintevent_clipping();
+                    widget->paintEngine()->setSystemClip(QRegion());
                     widget->setAttribute(Qt::WA_WState_InPaintEvent, false);
                     if(!widget->testAttribute(Qt::WA_PaintOutsidePaintEvent) && widget->paintingActive())
                         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");

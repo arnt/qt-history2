@@ -40,7 +40,6 @@ struct qt_float_point
     float x, y;
 };
 
-class paintevent_item;
 class QQuickDrawPaintEnginePrivate;
 class QCoreGraphicsPaintEnginePrivate;
 class QQuickDrawPaintEngine : public QPaintEngine
@@ -150,7 +149,6 @@ public:
         : QPaintEnginePrivate()
     {
         saved = 0;
-        paintevent = 0;
         clip.serial = 0;
         clip.dirty = locked = unclipped = false;
         clip.pdev = clip.paintable = QRegion();
@@ -173,7 +171,6 @@ public:
     QPixmap *brush_style_pix;
     uint unclipped : 1, locked : 1;
     QMacSavedPortInfo *saved;
-    paintevent_item *paintevent;
     QPolygonClipper<qt_float_point, qt_float_point, float> polygonClipper;
 
     struct {
