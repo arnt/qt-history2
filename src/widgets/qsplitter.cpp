@@ -741,7 +741,7 @@ void QSplitter::doResize()
     int i;
     int n = data->list.count();
     QMemArray<QLayoutStruct> a( n );
-    for ( i = 0; i< n; i++ ) {
+    for ( i = 0; i < n; i++ ) {
 	a[i].init();
 	QSplitterLayoutStruct *s = data->list.at(i);
 	if ( s->wid->isHidden() ) {
@@ -777,13 +777,12 @@ void QSplitter::doResize()
 	QSplitterLayoutStruct *s = data->list.at(i);
 	setG( s->wid, a[i].pos, a[i].size );
     }
-
 }
 
 
 void QSplitter::recalc( bool update )
 {
-    int fi = 2*frameWidth();
+    int fi = 2 * frameWidth();
     int maxl = fi;
     int minl = fi;
     int maxt = QWIDGETSIZE_MAX;
@@ -795,43 +794,52 @@ void QSplitter::recalc( bool update )
       The splitter before the first visible widget is hidden.
       The splitter before any other visible widget is visible.
     */
-    for ( int i = 0; i< n; i++ ) {
+    for ( int i = 0; i < n; i++ ) {
 	QSplitterLayoutStruct *s = data->list.at(i);
 	if ( !s->isSplitter ) {
-	    QSplitterLayoutStruct *p = (i > 0) ? p = data->list.at( i-1 ) : 0;
+	    QSplitterLayoutStruct *p = ( i > 0 ) ? p = data->list.at( i - 1 )
+					: 0;
 	    if ( p && p->isSplitter )
+		// may trigger new recalc
 		if ( first || s->wid->isHidden() )
-		    p->wid->hide(); //may trigger new recalc
+		    p->wid->hide(); 
 		else
-		    p->wid->show(); //may trigger new recalc
+		    p->wid->show();
 	    if ( !s->wid->isHidden() )
 		first = FALSE;
 	}
     }
 
-    bool empty=TRUE;
-    for ( int j = 0; j< n; j++ ) {
-	QSplitterLayoutStruct *s = data->list.at(j);
+    bool empty = TRUE;
+    for ( int j = 0; j < n; j++ ) {
+	QSplitterLayoutStruct *s = data->list.at( j );
 	if ( !s->wid->isHidden() ) {
 	    empty = FALSE;
 	    if ( s->isSplitter ) {
 		minl += s->sizer;
 		maxl += s->sizer;
 	    } else {
-		QSize minS = minSize(s->wid);
+		QSize minS = minSize( s->wid );
 		minl += pick( minS );
 		maxl += pick( s->wid->maximumSize() );
-		mint = QMAX( mint, trans( minS ));
+		mint = QMAX( mint, trans(minS) );
 		int tm = trans( s->wid->maximumSize() );
 		if ( tm > 0 )
 		    maxt = QMIN( maxt, tm );
 	    }
 	}
     }
-    if ( empty )
-	maxl = maxt = 0;
-    else
+    if ( empty ) {
+	if ( parentWidget() != 0 && parentWidget()->inherits("QSplitter") ) {
+	    // nested splitters; be nice
+	    maxl = maxt = 0;
+	} else {
+	    // QSplitter with no children yet
+	    maxl = QWIDGETSIZE_MAX;
+	}
+    } else {
 	maxl = QMIN( maxl, QWIDGETSIZE_MAX );
+    }
     if ( maxt < mint )
 	maxt = mint;
 
@@ -922,7 +930,7 @@ void QSplitter::moveToFirst( QWidget *w )
 	    found = TRUE;
 	    QSplitterLayoutStruct *p = data->list.prev();
 	    if ( p ) { // not already at first place
-		data->list.take(); //take p
+		data->list.take(); // take p
 		data->list.take(); // take s
 		data->list.insert( 0, p );
 		data->list.insert( 0, s );
@@ -931,9 +939,9 @@ void QSplitter::moveToFirst( QWidget *w )
 	}
 	s = data->list.next();
     }
-     if ( !found )
+    if ( !found )
 	addWidget( w, TRUE );
-     recalcId();
+    recalcId();
 }
 
 
