@@ -1,12 +1,12 @@
 #include "plugmainwindow.h"
 #include "qapplicationinterfaces.h"
 
-QApplicationInterface* PlugApplication::requestInterface( const QCString& request )
+QApplicationInterface* PlugApplication::requestApplicationInterface( const QCString& request )
 {
-    if ( request == "PlugMainWindowInterface" )
+    if ( request == "QActionInterface" )
 	return mwIface ? mwIface : ( mwIface = new PlugMainWindowInterface );
     else
-	return QApplication::requestInterface( request );
+	return QApplication::requestApplicationInterface( request );
 }
 
 int main( int argc, char** argv )
