@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#90 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#91 $
 **
 ** Definition of QWidget class
 **
@@ -70,6 +70,9 @@ public:
     QSize	 sizeIncrement() const;
     void	 setSizeIncrement( const QSize & );
     void	 setSizeIncrement( int w, int h );
+
+    void	 setFixedSize( const QSize & );
+    void	 setFixedSize( int w, int h );
 
   // Widget coordinate mapping
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#127 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#128 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#127 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#128 $")
 
 
 /*----------------------------------------------------------------------------
@@ -653,6 +653,27 @@ QSize QWidget::maximumSize() const
 QSize QWidget::sizeIncrement() const
 {
     return extra ? QSize(extra->incw,extra->inch) : QSize(0,0);
+}
+
+
+/*! Sets both the minimum and maximum sizes of the widget to \e s,
+  thereby preventing it from ever growing or shrinking.
+
+  \sa setMaximumSize() setMinimumSize() */
+
+void QWidget::setFixedSize( const QSize & s)
+{
+    setMinimumSize( s );
+    setMaximumSize( s );
+}
+
+
+/*! \overload void QWidget::setFixedSize( int w, int h ) */
+
+void QWidget::setFixedSize( int w, int h )
+{
+    setMinimumSize( w, h );
+    setMaximumSize( w, h );
 }
 
 
