@@ -284,7 +284,7 @@ bool QSqlNavigatorBase::relocate( QSqlCursor* cursor, const QSqlRecord* buf, con
 
 */
 
-/*! \enum Boundry
+/*! \enum QSqlNavigator::Boundry
 
   This enum type describes where the navigator is currently positioned.
 

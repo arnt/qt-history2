@@ -106,7 +106,7 @@ public:
     QStringList srt;
 };
 
-/*! \enum Confirm
+/*! \enum QSqlTable::Confirm
 
   This enum type describes edit confirmations.
 
@@ -119,7 +119,7 @@ public:
   </ul>
 */
 
-/*! \enum Mode
+/*! \enum QSqlTable::Mode
 
   This enum type describes table editing modes.
 
