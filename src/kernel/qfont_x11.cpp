@@ -262,9 +262,9 @@ static inline float pixelSize( const QFontDef &request, QPaintDevice *paintdevic
     float pSize;
     if ( request.pointSize != -1 ) {
 	if ( paintdevice )
-	    pSize = request.pointSize * QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 720. + 0.5;
+	    pSize = request.pointSize * QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 720.;
 	else
-	    pSize = request.pointSize * QPaintDevice::x11AppDpiY() / 720. + 0.5;
+	    pSize = request.pointSize * QPaintDevice::x11AppDpiY() / 720.;
     } else {
 	pSize = request.pixelSize;
     }
@@ -277,9 +277,9 @@ static inline float pointSize( const QFontDef &fd, QPaintDevice *paintdevice )
     float pSize;
     if ( fd.pointSize == -1 ) {
 	if ( paintdevice )
-	    pSize = fd.pixelSize * 10 * QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 72. + 0.5;
+	    pSize = fd.pixelSize * 10 * QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 72.;
 	else
-	    pSize = fd.pixelSize * 10 * QPaintDevice::x11AppDpiY() / 72. + 0.5;
+	    pSize = fd.pixelSize * 10 * QPaintDevice::x11AppDpiY() / 72.;
     } else {
 	pSize = fd.pointSize;
     }
@@ -1368,6 +1368,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
     int slant_value;
     double size_value;
     int mono_value;
+    const char *sizeFormat;
 
     weight_value = request.weight;
     if (weight_value == 0)
@@ -1388,7 +1389,17 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
     else
 	slant_value = XFT_SLANT_ROMAN;
 
-    size_value = pixelSize( request, paintdevice );
+    if ( paintdevice && QPaintDeviceMetrics( paintdevice ).logicalDpiY() != QPaintDevice::x11AppDpiY() ) {
+	size_value = pixelSize( request, paintdevice );
+	sizeFormat = XFT_PIXEL_SIZE;
+    } else if ( request.pointSize != -1 ) {
+	size_value = request.pointSize / 10.;
+	sizeFormat = XFT_SIZE;
+    } else {
+	size_value = request.pixelSize;
+	sizeFormat = XFT_PIXEL_SIZE;
+    }
+	
     mono_value = request.fixedPitch ? XFT_MONO : XFT_PROPORTIONAL;
 
     switch (request.styleHint) {
@@ -1417,7 +1428,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 				      XFT_FAMILY, XftTypeString, generic_value.data(),
 				      XFT_WEIGHT, XftTypeInteger, weight_value,
 				      XFT_SLANT, XftTypeInteger, slant_value,
-				      XFT_PIXEL_SIZE, XftTypeDouble, size_value,
+				      sizeFormat, XftTypeDouble, size_value,
 				      XFT_SPACING, XftTypeInteger, mono_value,
 				      0);
 	else if (! familyName.isNull())
@@ -1427,7 +1438,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 				      XFT_FAMILY, XftTypeString, generic_value.data(),
 				      XFT_WEIGHT, XftTypeInteger, weight_value,
 				      XFT_SLANT, XftTypeInteger, slant_value,
-				      XFT_PIXEL_SIZE, XftTypeDouble, size_value,
+				      sizeFormat, XftTypeDouble, size_value,
 				      XFT_SPACING, XftTypeInteger, mono_value,
 				      0);
 	else
@@ -1436,7 +1447,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 				      XFT_FAMILY, XftTypeString, generic_value.data(),
 				      XFT_WEIGHT, XftTypeInteger, weight_value,
 				      XFT_SLANT, XftTypeInteger, slant_value,
-				      XFT_PIXEL_SIZE, XftTypeDouble, size_value,
+				      sizeFormat, XftTypeDouble, size_value,
 				      XFT_SPACING, XftTypeInteger, mono_value,
 				      0);
     } else {
@@ -1448,7 +1459,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 				      XFT_FAMILY, XftTypeString, generic_value.data(),
 				      XFT_WEIGHT, XftTypeInteger, weight_value,
 				      XFT_SLANT, XftTypeInteger, slant_value,
-				      XFT_PIXEL_SIZE, XftTypeDouble, size_value,
+				      sizeFormat, XftTypeDouble, size_value,
 				      0);
 	else if (! familyName.isNull())
 	    pattern = XftPatternBuild(0,
@@ -1457,7 +1468,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 				      XFT_FAMILY, XftTypeString, generic_value.data(),
 				      XFT_WEIGHT, XftTypeInteger, weight_value,
 				      XFT_SLANT, XftTypeInteger, slant_value,
-				      XFT_PIXEL_SIZE, XftTypeDouble, size_value,
+				      sizeFormat, XftTypeDouble, size_value,
 				      0);
 	else
 	    pattern = XftPatternBuild(0,
@@ -1465,7 +1476,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 				      XFT_FAMILY, XftTypeString, generic_value.data(),
 				      XFT_WEIGHT, XftTypeInteger, weight_value,
 				      XFT_SLANT, XftTypeInteger, slant_value,
-				      XFT_PIXEL_SIZE, XftTypeDouble, size_value,
+				      sizeFormat, XftTypeDouble, size_value,
 				      0);
     }
 
@@ -1800,7 +1811,7 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 		resx = atoi(tokens[ResolutionX]);
 		resy = atoi(tokens[ResolutionY]);
 	    }
-	    pSize = (int)pixelSize( request, paintdevice );
+	    pSize = (int) (pixelSize( request, paintdevice ) + 0.5 );
 
 	    bestName.sprintf( "-%s-%s-%s-%s-%s-%s-%i-*-%i-%i-%s-*-%s-%s",
 			      tokens[Foundry],
@@ -1896,7 +1907,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	float percentDiff;
 	pSize = atoi(tokens[PixelSize]);
 
-	int reqPSize = (int)pixelSize( request, paintdevice );
+	int reqPSize = (int) (pixelSize( request, paintdevice ) + 0.5);
 
 	if ( reqPSize != 0 ) {
 	    diff = (float)QABS(pSize - reqPSize);
@@ -1981,9 +1992,9 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 	float _pointSize = pointSize( actual, paintdevice );
 	float _pixelSize = pixelSize( actual, paintdevice );
 	if ( actual.pointSize == -1 )
-	    actual.pointSize = (int)_pointSize;
+	    actual.pointSize = (int)(_pointSize + 0.5);
 	else
-	    actual.pixelSize = (int)_pixelSize;
+	    actual.pixelSize = (int) (_pixelSize + 0.5);
 
 	QFontDef font;
 	if ( fillFontDef(x11data.fontstruct[script]->name, &font, 0)) {
@@ -2005,9 +2016,9 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 	actual.dirty = FALSE;
 
 	if ( actual.pointSize == -1 )
-	    actual.pointSize = (int)pointSize( actual, paintdevice );
+	    actual.pointSize = (int)(pointSize( actual, paintdevice ) +.5);
 	else
-	    actual.pixelSize = (int)pixelSize( actual, paintdevice );
+	    actual.pixelSize = (int)(pixelSize( actual, paintdevice ) +.5);
 	
 	return;
     }
@@ -2023,9 +2034,9 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 	exactMatch = FALSE;
 
 	if ( actual.pointSize == -1 )
-	    actual.pointSize = (int)pointSize( actual, paintdevice );
+	    actual.pointSize = (int)(pointSize( actual, paintdevice ) +.5);
 	else
-	    actual.pixelSize = (int)pixelSize( actual, paintdevice );
+	    actual.pixelSize = (int)(pixelSize( actual, paintdevice ) +.5);
     }
 
     actual.underline = request.underline;
