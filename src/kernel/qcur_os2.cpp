@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_os2.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qcur_os2.cpp#3 $
 **
 ** Implementation of QCursor class for OS/2 PM
 **
@@ -16,7 +16,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_os2.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_os2.cpp#3 $";
 #endif
 
 
@@ -27,7 +27,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_os2.cpp#2 $";
 const QCursor arrowCursor;
 const QCursor upArrowCursor;
 const QCursor crossCursor;
-const QCursor hourGlassCursor;
+const QCursor waitCursor;
 const QCursor ibeamCursor;
 const QCursor sizeVerCursor;
 const QCursor sizeHorCursor;
@@ -44,7 +44,7 @@ static QCursor *cursorTable[] = {		// order is important!!
     (QCursor*)&arrowCursor,
     (QCursor*)&upArrowCursor,
     (QCursor*)&crossCursor,
-    (QCursor*)&hourGlassCursor,
+    (QCursor*)&waitCursor,
     (QCursor*)&ibeamCursor,
     (QCursor*)&sizeVerCursor,
     (QCursor*)&sizeHorCursor,
@@ -136,7 +136,7 @@ void QCursor::update()				// update/load cursor
 	case CrossCursor:
 	    sh = SPTR_ARROW;
 	    break;
-	case HourGlassCursor:
+	case WaitCursor:
 	    sh = SPTR_WAIT;
 	    break;
 	case IbeamCursor:

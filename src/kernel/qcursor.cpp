@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#8 $
 **
 ** Implementation of QCursor class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor.cpp#8 $";
 #endif
 
 
@@ -39,7 +39,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor.cpp#7 $";
   <dt> arrowCursor <dd> standard arrow cursor
   <dt> upArrowCursor <dd> upwards arrow
   <dt> crossCursor <dd> crosshair
-  <dt> hourGlassCursor <dd> hourglass/watch
+  <dt> waitCursor <dd> hourglass/watch
   <dt> ibeamCursor <dd> ibeam/text entry
   <dt> sizeVerCursor <dd> vertical resize
   <dt> sizeHorCursor <dd> horizontal resize

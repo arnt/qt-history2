@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_win.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qcur_win.cpp#6 $
 **
 ** Implementation of QCursor class for Windows
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_win.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_win.cpp#6 $";
 #endif
 
 
@@ -59,7 +59,7 @@ QCursorData::~QCursorData()
 const QCursor arrowCursor;
 const QCursor upArrowCursor;
 const QCursor crossCursor;
-const QCursor hourGlassCursor;
+const QCursor waitCursor;
 const QCursor ibeamCursor;
 const QCursor sizeVerCursor;
 const QCursor sizeHorCursor;
@@ -76,7 +76,7 @@ static QCursor *cursorTable[] = {		// the order is important!!
     (QCursor*)&arrowCursor,
     (QCursor*)&upArrowCursor,
     (QCursor*)&crossCursor,
-    (QCursor*)&hourGlassCursor,
+    (QCursor*)&waitCursor,
     (QCursor*)&ibeamCursor,
     (QCursor*)&sizeVerCursor,
     (QCursor*)&sizeHorCursor,
@@ -247,7 +247,7 @@ void QCursor::update() const			// update/load cursor
 	case CrossCursor:
 	    sh = IDC_CROSS;
 	    break;
-	case HourGlassCursor:
+	case WaitCursor:
 	    sh = IDC_WAIT;
 	    break;
 	case IbeamCursor:

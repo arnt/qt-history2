@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#21 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#21 $";
 #endif
 
 
@@ -69,7 +69,7 @@ QCursorData::~QCursorData()
 const QCursor arrowCursor;
 const QCursor upArrowCursor;
 const QCursor crossCursor;
-const QCursor hourGlassCursor;
+const QCursor waitCursor;
 const QCursor ibeamCursor;
 const QCursor sizeVerCursor;
 const QCursor sizeHorCursor;
@@ -86,7 +86,7 @@ static QCursor *cursorTable[] = {		// the order is important!!
     (QCursor*)&arrowCursor,
     (QCursor*)&upArrowCursor,
     (QCursor*)&crossCursor,
-    (QCursor*)&hourGlassCursor,
+    (QCursor*)&waitCursor,
     (QCursor*)&ibeamCursor,
     (QCursor*)&sizeVerCursor,
     (QCursor*)&sizeHorCursor,
@@ -414,7 +414,7 @@ void QCursor::update() const			// update/load cursor
 	case CrossCursor:
 	    sh = XC_crosshair;
 	    break;
-	case HourGlassCursor:
+	case WaitCursor:
 	    sh = XC_watch;
 	    break;
 	case IbeamCursor:
