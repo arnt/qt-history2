@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#17 $
+# $Id: //depot/qt/main/GNUmakefile.inc#18 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -190,7 +190,7 @@ ifeq ($(LIBTARGET),1)
 else
 	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).mips-static-debug \
 	    "DASHMIPS=-mips" "TMAKE_LIBDIR_QT=$(QTDIR)/lib-mips" \
-	    "CONFIG+=staticlib debug" "TMAKE_LINK=mipsel-linux-g++" "TMAKE_CC=mipsel-linux-gcc" "TMAKE_CXX=mipsel-linux-g++" "OBJECTS_DIR=.obj/$(PROJOBJ)mips-static-debug"
+	    "CONFIG+=static debug" "TMAKE_LINK=mipsel-linux-g++" "TMAKE_CC=mipsel-linux-gcc" "TMAKE_CXX=mipsel-linux-g++" "OBJECTS_DIR=.obj/$(PROJOBJ)mips-static-debug"
 endif
 
 GNUmakefile$(PROJMAK).mips-static-release: $(PROJECT).pro GNUmakefile
@@ -202,11 +202,11 @@ ifeq ($(LIBTARGET),1)
 	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).mips-static-release \
 	    "DASHMIPS=-mips" "TMAKE_LIBDIR_QT=$(QTDIR)/lib-mips" \
 	    "DESTDIR=../lib-mips" \
-	    "CONFIG+=staticlib release" "TMAKE_LINK=mipsel-linux-g++" "TMAKE_CXX=mipsel-linux-g++" "OBJECTS_DIR=.obj/$(PROJOBJ)mips-static-release"
+	    "CONFIG+=staticlib release" "TMAKE_LINK=mipsel-linux-g++" "TMAKE_CC=mipsel-linux-gcc" "TMAKE_CXX=mipsel-linux-g++" "OBJECTS_DIR=.obj/$(PROJOBJ)mips-static-release"
 else
 	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).mips-static-release \
 	    "DASHMIPS=-mips" "TMAKE_LIBDIR_QT=$(QTDIR)/lib-mips" \
-	    "CONFIG+=staticlib release" "TMAKE_LINK=mipsel-linux-g++" "TMAKE_CXX=mipsel-linux-g++" "OBJECTS_DIR=.obj/$(PROJOBJ)mips-static-release"
+	    "CONFIG+=static release" "TMAKE_LINK=mipsel-linux-g++" "TMAKE_CC=mipsel-linux-gcc" "TMAKE_CXX=mipsel-linux-g++" "OBJECTS_DIR=.obj/$(PROJOBJ)mips-static-release"
 endif
 
 
