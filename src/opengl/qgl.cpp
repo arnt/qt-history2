@@ -1735,4 +1735,4 @@ display format of a rendering context.
 </ul>
 
 Many applications need only the high-level QGLWidget class. The other QGL
-classes provide advanced features.  */
+classes provide advanced features. */

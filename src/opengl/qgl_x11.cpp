@@ -331,7 +331,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	return FALSE;
     glFormat.setDirectRendering( glXIsDirect( disp, (GLXContext)cx ) );
     if ( deviceIsPixmap() ) {
-#ifdef GLX_MESA_pixmap_colormap
+#if defined(GLX_MESA_pixmap_colormap) && defined(QGL_USE_MESA_EXT)
 	gpm = glXCreateGLXPixmapMESA( disp, (XVisualInfo *)vi,
 				      paintDevice->handle(),
 				      choose_cmap( disp, (XVisualInfo *)vi ) );
@@ -867,7 +867,7 @@ void QGLWidget::setContext( QGLContext *context,
 	cmw[0] = w;
     }
 
-#if defined(GLX_MESA_release_buffers)
+#if defined(GLX_MESA_release_buffers) && defined(QGL_USE_MESA_EXT)
     if ( oldcx && oldcx->windowCreated() )
 	glXReleaseBuffersMESA( x11Display(), winId() );
 #endif
@@ -894,7 +894,7 @@ bool QGLWidget::renderCxPm( QPixmap* pm )
 	return FALSE;
 
     GLXPixmap glPm;
-#ifdef GLX_MESA_pixmap_colormap
+#if defined(GLX_MESA_pixmap_colormap) && defined(QGL_USE_MESA_EXT)
     glPm = glXCreateGLXPixmapMESA( x11Display(),
 				   (XVisualInfo*)glcx->vi,
 				   (Pixmap)pm->handle(),
