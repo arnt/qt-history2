@@ -158,6 +158,11 @@ QUuid::QUuid(const char *text)
     \sa toString()
 */
 
+static QString uuidhex(uint data, int digits)
+{
+    return QString::number(data, 16).rightJustified(digits, '0');
+}
+
 /*!
     QString QUuid::toString() const
 
@@ -167,13 +172,18 @@ QString QUuid::toString() const
 {
     QString result;
 
-    result = "{" + QString::number(data1, 16).rightJustified(8, '0') + "-";
-    result += QString::number((int)data2, 16).rightJustified(4, '0') + "-";
-    result += QString::number((int)data3, 16).rightJustified(4, '0') + "-";
-    result += QString::number((int)data4[0], 16).rightJustified(2, '0');
-    result += QString::number((int)data4[1], 16).rightJustified(2, '0') + "-";
+    QChar dash = '-';
+    result = "{" + uuidhex(data1,8);
+    result += dash;
+    result += uuidhex(data2,4);
+    result += dash;
+    result += uuidhex(data3,4);
+    result += dash;
+    result += uuidhex(data4[0],2);
+    result += uuidhex(data4[1],2);
+    result += dash;
     for (int i = 2; i < 8; i++)
-        result += QString::number((int)data4[i], 16).rightJustified(2, '0');
+        result += uuidhex(data4[i],2);
 
     return result + "}";
 }
