@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrlist.h#16 $
+** $Id: //depot/qt/main/src/tools/qstrlist.h#17 $
 **
 ** Definition of QStrList, QStrIList and QStrListIterator classes
 **
@@ -32,9 +32,10 @@ class QStrList : public QStrListBase
 {
 public:
     QStrList( bool deepCopies=TRUE ) { dc = deepCopies; }
-    QStrList( const QStrList &list ) { dc = FALSE; operator=(list); }
+    QStrList( const QStrList &list );
    ~QStrList()			{ clear(); }
-    inline QStrList &operator=( const QStrList &list );
+    QStrList& operator=( const QStrList& list );
+
 private:
     GCI	  newItem( GCI d )	{ return dc ? qstrdup( (const char*)d ) : d; }
     void  deleteItem( GCI d )	{ if ( dc ) delete[] (char*)d; }
@@ -69,5 +70,10 @@ inline QStrList & QStrList::operator=( const QStrList &list )
     return *this;
 }
 
+inline QStrList::QStrList( const QStrList& list )
+{
+    dc = FALSE;
+    operator=(list);
+}
 
 #endif // QSTRLIST_H
