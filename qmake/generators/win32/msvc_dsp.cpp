@@ -762,7 +762,9 @@ DspMakefileGenerator::init()
 	msvcdsp_project = Option::output.name();
 
     msvcdsp_project = msvcdsp_project.right( msvcdsp_project.length() - msvcdsp_project.findRev( "\\" ) - 1 );
-    msvcdsp_project = msvcdsp_project.left( msvcdsp_project.findRev( "." ) );
+    int dotFind = msvcdsp_project.findRev( "." );
+    if ( dotFind != -1 )
+	msvcdsp_project = msvcdsp_project.left( dotFind );
     msvcdsp_project.replace("-", "");
 
     project->variables()["MSVCDSP_PROJECT"].append(msvcdsp_project);
