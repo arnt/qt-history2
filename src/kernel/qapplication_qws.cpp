@@ -3061,9 +3061,6 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	exposed.setRects( event->rectangles, event->simpleData.nrectangles );
 	QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
 	exposed = qt_screen->mapFromDevice( exposed, s );
-#ifndef QT_NO_QWS_MANAGER
-	exposed |= extraExposed;
-#endif
 	/*
 	for ( int i = 0; i < event->simpleData.nrectangles; i++ )
 	    qDebug( "exposed: %d, %d %dx%d",
@@ -3073,6 +3070,9 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 		event->rectangles[i].height() );
 	*/
 	repaintDecoration( exposed );
+#ifndef QT_NO_QWS_MANAGER
+	exposed |= extraExposed;
+#endif
 	repaintHierarchy( exposed );
     }
 
