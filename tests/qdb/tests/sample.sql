@@ -47,22 +47,23 @@ insert into alltypes values( 96, 62, 'xsdfsdf', 'more', '2000-01-01');
 insert into alltypes values( 97, 72, 'swdfsdf', 'more', '2000-01-01');
 insert into alltypes values( 98, 82, 'sdsddfsdf', 'more', '2000-01-01');
 insert into alltypes values( 99, 92, 'sfdfsdf', 'more', '2000-01-01');
+insert into alltypes values( NULL, NULL, NULL, NULL, NULL );
 
---update alltypes set c2 = 'updated' where n1 = 1;
---update alltypes set c2 = 'updated1' where n1 = 1;
---update alltypes set c2 = 'updated2' where n1 = 1;
---update alltypes set c2 = 'updated3' where n1 = 1;
---update alltypes set c2 = 'updated4' where n1 = 1;
---update alltypes set n2 = 999 where n1 = 1;
---update alltypes set d1 = '1972-04-18' where n1 = 1;
+update alltypes set c2 = 'updated' where n1 = 1;
+update alltypes set c2 = 'updated1' where n1 = 1;
+update alltypes set c2 = 'updated2' where n1 = 1;
+update alltypes set c2 = 'updated3' where n1 = 1;
+update alltypes set c2 = 'updated4' where n1 = 1;
+update alltypes set n2 = 999 where n1 = 1;
+update alltypes set d1 = '1972-04-18' where n1 = 1;
 
 -- actually change a primary key
---update alltypes set n1 = 999 where n1 = 1;
+update alltypes set n1 = 999 where n1 = 1;
 
 -- change a whole bunch of records
--- ## jasmin: generates wrong code
---update alltypes set c1 = 'mass update' where n1 > 1;
+update alltypes set c1 = 'mass update' where n1 > 1;
 
 -- complex where clause
--- ## jasmin: parens seem to generate wrong code
---update alltypes set c1 = 'complex update' where n1 = 91 OR ( n1+n2 > 189 );
+update alltypes set c1 = 'complex update' where n1 = 91 OR ( n1+n2 > 189 );
+
+delete from alltypes;
