@@ -2473,6 +2473,12 @@ bool QCanvasText::collidesWith(  const QCanvasSprite* s,
     beyond the edge of the canvas's area. Collision detection only works
     for canvas items which are wholly or partly within the canvas's
     area.
+
+  Note that if items have a velocity (see \l setVelocity()), then
+  collision testing is done based on where the item \e will be when
+  it moves, not its current location. For example, a "ball" item doesn't
+  need to actually embed into a "wall" item before a collision is detected.
+  For items without velocity, plain intersection is used.
 */
 QCanvasItemList QCanvasItem::collisions(bool exact) const
 {
@@ -2480,7 +2486,7 @@ QCanvasItemList QCanvasItem::collisions(bool exact) const
 }
 
 /*!
-  Returns a list of canvas items that intersect with the point \a p.
+  Returns a list of canvas items that collide with the point \a p.
   The list is ordered by z coordinates, from highest z coordinate
   (front-most item) to lowest z coordinate (rear-most item).
 */
@@ -2492,7 +2498,7 @@ QCanvasItemList QCanvas::collisions(const QPoint& p) const
 /*!
   \overload
 
-  Returns a list of items which intersect with the rectangle \a r.
+  Returns a list of items which collide with the rectangle \a r.
   The list is ordered by z coordinates, from highest z coordinate
   (front-most item) to lowest z coordinate (rear-most item).
 */
@@ -2530,9 +2536,10 @@ QCanvasItemList QCanvas::collisions(const QPointArray& chunklist,
 	    for (QCanvasItemList::ConstIterator it=l->begin(); it!=l->end(); ++it) {
 		QCanvasItem *g=*it;
 		if ( g != item ) {
-		    if ( !seen.find(g) && (!exact || item->collidesWith(g)) ) {
+		    if ( !seen.find(g) ) {
 			seen.replace(g,(void*)1);
-			result.append(g);
+			if ( !exact || item->collidesWith(g) )
+			    result.append(g);
 		    }
 		}
 	    }
@@ -3799,7 +3806,10 @@ QPointArray QCanvasRectangle::chunks() const
 */
 QRect QCanvasPolygonalItem::boundingRect() const
 {
-    return areaPoints().boundingRect();
+    QRect r = areaPoints().boundingRect();
+    r.setWidth(r.width()-1);
+    r.setHeight(r.height()-1);
+    return r;
 }
 
 /*!
