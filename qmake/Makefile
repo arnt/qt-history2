@@ -7,8 +7,8 @@ CFLAGS	    =	/c /Fo$@ \
 		/W3 /nologo /O1 \
 		/I. /Igenerators /Igenerators\unix /Igenerators\win32 /Igenerators\mac /I..\include /I..\src\tools \
 		/I..\mkspecs\win32-msvc \
- 		/DQT_NO_TEXTCODEC /DQT_NO_UNICODETABLES /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL \
- 		/DQT_NO_COMPRESS /DUNICODE /DHAVE_QCONFIG_CPP
+		/DQT_NO_TEXTCODEC /DQT_NO_UNICODETABLES /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL \
+		/DQT_NO_COMPRESS /DUNICODE /DHAVE_QCONFIG_CPP
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =	/DEBUG
 LIBS	    =	ole32.lib advapi32.lib
@@ -26,8 +26,8 @@ CFLAGS	    =	-c -o$@ \
 		-tWR -w -w-hid -O1 \
 		-I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac -I..\include -I..\src\tools \
 		-I..\mkspecs\win32-borland \
- 		-DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL -DQT_NO_COMPRESS -DUNICODE \
- 		-DHAVE_QCONFIG_CPP
+		-DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL -DQT_NO_COMPRESS -DUNICODE \
+		-DHAVE_QCONFIG_CPP
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =	-L$(BCB)\lib -c -x -Gn -ap -Tpe c0x32.obj
 LIBS	    =	import32.lib cw32i.lib
@@ -38,13 +38,13 @@ ADDCLEAN    =	qmake.tds
 #qmake code
 OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.obj mingw_make.obj \
 	msvc_nmake.obj msvc_dsp.obj msvc_vcproj.obj option.obj winmakefile.obj projectgenerator.obj \
- 	metrowerks_xml.obj pbuilder_pbx.obj msvc_objectmodel.obj property.obj meta.obj
+	metrowerks_xml.obj pbuilder_pbx.obj msvc_objectmodel.obj property.obj meta.obj
 
 #qt code
 QTOBJS=qchar.obj qstring.obj quuid.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qbytearray.obj qcstring.obj qdatastream.obj \
- 	qgarray.obj qbuffer.obj qglist.obj qlist.obj qptrcollection.obj qfile.obj qfile_win.obj qregexp.obj qgvector.obj \
- 	qvector.obj qbitarray.obj qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj \
- 	qstringlist.obj qmap.obj qlibrary.obj qlibrary_win.obj qconfig.obj qsettings.obj qsettings_win.obj qunicodetables.obj
+	qgarray.obj qbuffer.obj qglist.obj qlist.obj qptrcollection.obj qfile.obj qfile_win.obj qregexp.obj qgvector.obj \
+	qvector.obj qbitarray.obj qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj \
+	qstringlist.obj qmap.obj qlibrary.obj qlibrary_win.obj qconfig.obj qsettings.obj qsettings_win.obj qunicodetables.obj qlinkedlist.obj
 
 
 
@@ -116,6 +116,9 @@ qglist.obj: ..\src\compat\qglist.cpp
 qlist.obj: ..\src\tools\qlist.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qlist.cpp
 
+qlinkedlist.obj: ..\src\tools\qlinkedlist.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qlinkedlist.cpp
+
 qptrcollection.obj: ..\src\compat\qptrcollection.cpp
 	$(CXX) $(CXXFLAGS) ..\src\compat\qptrcollection.cpp
 
@@ -144,10 +147,10 @@ qdir.obj: ..\src\tools\qdir.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qdir.cpp
 
 qsettings.obj: ..\src\tools\qsettings.cpp
- 	$(CXX) $(CXXFLAGS) ..\src\tools\qsettings.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qsettings.cpp
 
 qsettings_win.obj: ..\src\tools\qsettings_win.cpp
- 	$(CXX) $(CXXFLAGS) ..\src\tools\qsettings_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qsettings_win.cpp
 
 qfileinfo_win.obj: ..\src\tools\qfileinfo_win.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qfileinfo_win.cpp
