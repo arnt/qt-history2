@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#48 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -83,6 +83,7 @@ void QGroupBox::init()
     align = AlignLeft;
     fs = QFrame::Box | QFrame::Sunken;
     setFrameStyle( fs );
+    accel = 0;
 }
 
 
@@ -113,7 +114,7 @@ static QChar shortcutChar( const QString &str )
   accelerator if the \a title contains & followed by an appropriate
   letter.  This produces "User information" with the U underscored and
   Alt-U moves the keyboard focus into the group.
-  
+
   \code
     g->setTitle( "&User information" );
   \endcode
