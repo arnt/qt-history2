@@ -41,6 +41,7 @@
 #include "../../qsqlresult.h"
 #include "../../qsqlfield.h"
 #include "../../qsqlindex.h"
+#include <mysql.h>
 
 class QMYSQLDriverPrivate;
 class QMYSQLResultPrivate;
@@ -52,14 +53,16 @@ class QMYSQLResult : public QSqlResult
 public:
     QMYSQLResult( const QMYSQLDriver* db );
     ~QMYSQLResult();
+
+    MYSQL_RES* result();
 protected:
-    void 		cleanup();
-    bool 		fetch( int i );
-    bool 		fetchLast();
-    bool 		fetchFirst();
-    QVariant 		data( int field );
+    void		cleanup();
+    bool		fetch( int i );
+    bool		fetchLast();
+    bool		fetchFirst();
+    QVariant		data( int field );
     bool		isNull( int field );
-    bool 		reset ( const QString& query );
+    bool		reset ( const QString& query );
     int                 size();
     int                 numRowsAffected();
 private:
@@ -72,19 +75,20 @@ class QMYSQLDriver : public QSqlDriver
 public:
     QMYSQLDriver( QObject * parent=0, const char * name=0 );
     ~QMYSQLDriver();
-    bool    	          hasTransactionSupport() const;
+    bool	          hasTransactionSupport() const;
     bool                  hasQuerySizeSupport() const;
     bool                  canEditBinaryFields() const;
-    bool    		open( const QString & db,
-    				const QString & user = QString::null,
+    bool		open( const QString & db,
+				const QString & user = QString::null,
 				const QString & password = QString::null,
 				const QString & host = QString::null );
-    void 		close();
+    void		close();
     QSqlQuery		createQuery() const;
     QStringList         tables( const QString& user ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
     QSqlRecord          record( const QString& tablename ) const;
     QSqlRecord          record( const QSqlQuery& query ) const;
+    MYSQL*              mysql();
 private:
     void		init();
     QMYSQLDriverPrivate* d;

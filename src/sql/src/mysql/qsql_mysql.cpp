@@ -43,7 +43,6 @@
 #define NO_CLIENT_LONG_LONG
 #include <qt_windows.h>
 #endif
-#include <mysql.h>
 
 #define QMYSQL_DRIVER_NAME "QMYSQL"
 
@@ -99,8 +98,8 @@ QVariant::Type qDecodeMYSQLType( int mysqltype )
     case FIELD_TYPE_TINY_BLOB :
     case FIELD_TYPE_MEDIUM_BLOB :
     case FIELD_TYPE_LONG_BLOB :
- 	type = QVariant::ByteArray;
- 	break;
+	type = QVariant::ByteArray;
+	break;
     default:
     case FIELD_TYPE_ENUM :
     case FIELD_TYPE_SET :
@@ -125,6 +124,11 @@ QMYSQLResult::~QMYSQLResult()
     delete d;
 }
 
+MYSQL_RES* QMYSQLResult::result()
+{
+    return d->result;
+}
+
 void QMYSQLResult::cleanup()
 {
     if ( d->result ) {
@@ -139,11 +143,11 @@ void QMYSQLResult::cleanup()
 bool QMYSQLResult::fetch( int i )
 {
     if ( at() == i )
-        return TRUE;
+	return TRUE;
     mysql_data_seek( d->result, i );
     d->row = mysql_fetch_row( d->result );
     if ( !d->row )
-        return FALSE;
+	return FALSE;
     setAt( i );
     return TRUE;
 }
@@ -212,9 +216,9 @@ bool QMYSQLResult::isNull( int field )
 bool QMYSQLResult::reset ( const QString& query )
 {
     if ( !driver() )
-        return FALSE;
+	return FALSE;
     if ( !driver()-> isOpen() || driver()->isOpenError() )
-        return FALSE;
+	return FALSE;
     cleanup();
     if ( mysql_real_query( d->mysql, query, query.length() ) ) {
 	setLastError( qMakeError("Unable to execute query", QSqlError::Statement, d ) );
@@ -282,12 +286,12 @@ bool QMYSQLDriver::canEditBinaryFields() const
 }
 
 bool QMYSQLDriver::open( const QString & db,
-    			const QString & user,
+			const QString & user,
 			const QString & password,
 			const QString & host)
 {
     if ( isOpen() )
-        close();
+	close();
     if ( (d->mysql = mysql_init((MYSQL*) 0)) &&
 	    mysql_real_connect( d->mysql,
 				host,
@@ -305,7 +309,7 @@ bool QMYSQLDriver::open( const QString & db,
 	    return FALSE;
 	}
     } else {
-    	    setLastError( qMakeError( "Unable to connect", QSqlError::Connection, d ) );
+	    setLastError( qMakeError( "Unable to connect", QSqlError::Connection, d ) );
 	    mysql_close( d->mysql ) ;
 	    return FALSE;
     }
@@ -316,7 +320,7 @@ bool QMYSQLDriver::open( const QString & db,
 void QMYSQLDriver::close()
 {
     if ( isOpen() ) {
-        mysql_close( d->mysql );
+	mysql_close( d->mysql );
 	setOpen( FALSE );
 	setOpenError( FALSE );
     }
@@ -330,7 +334,7 @@ QSqlQuery QMYSQLDriver::createQuery() const
 QStringList QMYSQLDriver::tables( const QString& ) const
 {
     MYSQL_RES* tableRes = mysql_list_tables( d->mysql, NULL );
-    MYSQL_ROW 	row;
+    MYSQL_ROW	row;
     QStringList tl;
     int i = 0;
     while ( TRUE ) {
@@ -394,4 +398,9 @@ QSqlRecord QMYSQLDriver::record( const QSqlQuery& query ) const
 	mysql_field_seek( p->result, 0 );
     }
     return fil;
+}
+
+MYSQL* QMYSQLDriver::mysql()
+{
+    return d->mysql;
 }
