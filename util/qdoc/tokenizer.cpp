@@ -72,6 +72,7 @@ int Tokenizer::getToken()
 			 strcmp(yyLex, "typename") == 0 ||
 			 strcmp(yyLex, "Q_EXPORT") == 0 ||
 			 strcmp(yyLex, "Q_TEMPLATE_INLINE") == 0 ||
+			 strcmp(yyLex, "Q_INLINE_TEMPLATES") == 0 ||
 			 strcmp(yyLex, "Q_TYPENAME") == 0 )
 			break;
 		    return Tok_Ident;
