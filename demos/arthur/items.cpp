@@ -60,6 +60,7 @@ public:
         } else {
             QColor c = color;
             c.setAlpha(c.alpha()/2);
+            c = c.dark();
             p->setBrush(c);
         }
         switch (shape) {

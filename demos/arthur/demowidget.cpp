@@ -55,7 +55,7 @@ DemoWidget::DemoWidget(QWidget *parent)
 
 void DemoWidget::startAnimation()
 {
-    if (!animationTimer.isActive())
+    if (!animationTimer.isActive() && timeoutRate >= 0)
 	animationTimer.start(timeoutRate, this);
 }
 
