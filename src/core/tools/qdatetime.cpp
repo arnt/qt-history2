@@ -27,6 +27,11 @@
 #include <time.h>
 #endif
 
+#if defined(Q_WS_MAC)
+#include <private/qcore_mac_p.h>
+extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
+#endif
+
 static const uint FIRST_DAY = 2361222;        // Julian day for 1752-09-14
 static const int FIRST_YEAR = 1752;     // wrong for many countries
 static const uint SECS_PER_DAY = 86400;
@@ -765,18 +770,7 @@ QString QDate::toString(Qt::DateFormat f) const
     switch (f) {
     case Qt::LocalDate:
         {
-#ifndef Q_WS_WIN
-            tm tt;
-            memset(&tt, 0, sizeof(tm));
-            char buf[255];
-            tt.tm_mday = day();
-            tt.tm_mon = month() - 1;
-            tt.tm_year = year() - 1900;
-
-            static const char * avoidEgcsWarning = "%x";
-            if (strftime(buf, sizeof(buf), avoidEgcsWarning, &tt))
-                return QString::fromLocal8Bit(buf);
-#else
+#ifdef Q_WS_WIN
             SYSTEMTIME st;
             memset(&st, 0, sizeof(SYSTEMTIME));
             st.wYear = year();
@@ -791,6 +785,44 @@ QString QDate::toString(Qt::DateFormat f) const
                 if (GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, 0, (char*)&buf, 255))
                     return QString::fromLocal8Bit(buf);
             });
+#elif defined(Q_WS_MAC)
+            CFGregorianDate macGDate;
+            macGDate.year = year();
+            macGDate.month = month();
+            macGDate.day = day();
+            macGDate.hour = 0;
+            macGDate.minute = 0;
+            macGDate.second = 0.0;
+            QCFType<CFDateRef> myDate = CFDateCreate(0, CFGregorianDateGetAbsoluteTime(macGDate, 0));
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+            if (QSysInfo::MacintoshVersion > QSysInfo::MV_10_DOT_3) {
+                QCFType<CFLocaleRef> mylocale = CFLocaleCopyCurrent();
+                QCFType<CFDateFormatterRef> myFormatter = CFDateFormatterCreate(kCFAllocatorDefault,
+                                                                                mylocale, kCFDateFormatterLongStyle,
+                                                                                kCFDateFormatterNoStyle);
+                return QCFString(CFDateFormatterCreateStringWithDate(0, myFormatter, myDate));
+            } else
+#endif
+            {
+                Handle intlHandle = GetIntlResource(1);
+                LongDateTime oldDate;
+                UCConvertCFAbsoluteTimeToLongDateTime(CFGregorianDateGetAbsoluteTime(macGDate, 0),
+                                                      &oldDate);
+                Str255 pString;
+                LongDateString(&oldDate, true, pString, intlHandle);
+                return qt_mac_from_pascal_string(pString);
+            }
+#else
+            tm tt;
+            memset(&tt, 0, sizeof(tm));
+            char buf[255];
+            tt.tm_mday = day();
+            tt.tm_mon = month() - 1;
+            tt.tm_year = year() - 1900;
+
+            static const char * avoidEgcsWarning = "%x";
+            if (strftime(buf, sizeof(buf), avoidEgcsWarning, &tt))
+                return QString::fromLocal8Bit(buf);
 #endif
             return QString();
         }
@@ -1422,16 +1454,7 @@ QString QTime::toString(Qt::DateFormat f) const
     switch (f) {
     case Qt::LocalDate:
         {
-#ifndef Q_WS_WIN
-            tm tt;
-            memset(&tt, 0, sizeof(tm));
-            char buf[255];
-            tt.tm_sec = second();
-            tt.tm_min = minute();
-            tt.tm_hour = hour();
-            if (strftime(buf, sizeof(buf), "%X", &tt))
-                return QString::fromLocal8Bit(buf);
-#else
+#ifdef Q_WS_WIN
             SYSTEMTIME st;
             memset(&st, 0, sizeof(SYSTEMTIME));
             st.wHour = hour();
@@ -1447,6 +1470,50 @@ QString QTime::toString(Qt::DateFormat f) const
                 if (GetTimeFormatA(LOCALE_USER_DEFAULT, 0, &st, 0, (char*)&buf, 255))
                     return QString::fromLocal8Bit(buf);
             });
+#elif defined (Q_WS_MAC)
+            CFGregorianDate macGDate;
+            // Assume this is local time and the current date
+            QDate dt = QDate::currentDate();
+            macGDate.year = dt.year();
+            macGDate.month = dt.month();
+            macGDate.day = dt.day();
+            macGDate.hour = hour();
+            macGDate.minute = minute();
+            macGDate.second = second();
+            QCFType<CFTimeZoneRef> myTz = CFTimeZoneCopyDefault();
+            QCFType<CFDateRef> myDate = CFDateCreate(0,
+                                                     CFGregorianDateGetAbsoluteTime(macGDate,
+                                                                                    myTz));
+#  if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_DOT_3) {
+
+                QCFType<CFLocaleRef> mylocale = CFLocaleCopyCurrent();
+                QCFType<CFDateFormatterRef> myFormatter = CFDateFormatterCreate(kCFAllocatorDefault,
+                                                                       mylocale,
+                                                                       kCFDateFormatterNoStyle,
+                                                                       kCFDateFormatterMediumStyle);
+                return QCFString(CFDateFormatterCreateStringWithDate(0, myFormatter, myDate));
+            } else
+#  endif
+            {
+                // For Jaguar, must use the older non-recommended Stuff
+                Handle intlHandle = GetIntlResource(1);
+                LongDateTime oldDate;
+                UCConvertCFAbsoluteTimeToLongDateTime(CFGregorianDateGetAbsoluteTime(macGDate, myTz),
+                                                      &oldDate);
+                Str255 pString;
+                LongTimeString(&oldDate, true, pString, intlHandle);
+                return qt_mac_from_pascal_string(pString);
+            }
+#else
+            tm tt;
+            memset(&tt, 0, sizeof(tm));
+            char buf[255];
+            tt.tm_sec = second();
+            tt.tm_min = minute();
+            tt.tm_hour = hour();
+            if (strftime(buf, sizeof(buf), "%X", &tt))
+                return QString::fromLocal8Bit(buf);
 #endif
             return QString();
         }
