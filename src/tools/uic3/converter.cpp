@@ -364,12 +364,6 @@ void Ui3Reader::fixActionGroup(DomActionGroup *g)
 
 QString Ui3Reader::fixClassName(const QString &className) const
 {
-#if 0
-    if (className == QLatin1String("QLayoutWidget"))
-        return QLatin1String("QWidget");
-    else 
-#endif
-
     if (className == QLatin1String("QListViewItem"))
         return QLatin1String("Q3ListViewItem");
     else if (className == QLatin1String("QTimeEdit"))
@@ -857,7 +851,7 @@ DomProperty *Ui3Reader::readProperty(const QDomElement &e)
 
     if (p->kind() == DomProperty::Unknown) {
         delete p;
-        p = 0;
+        p = 0;    
     }
 
     return p;
