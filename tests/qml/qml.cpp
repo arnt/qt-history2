@@ -336,12 +336,14 @@ QMLRow::QMLRow()
     x = y = width = height = base = 0;
     start = end = 0;
     parent = 0;
+    dirty = TRUE;
 }
 
 QMLRow::QMLRow( QMLContainer* box, QPainter* p, QMLNode* &t, QMLContainer* &par, int w)
 {
     x = y = width = height = base = 0;
     start = end = 0;
+    dirty = TRUE;
 
     width = w;
 
@@ -425,20 +427,30 @@ QMLRow::~QMLRow()
 }
 
 
-void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch)
+void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch, bool onlyDirty)
 {
 
     if (!intersects(cx-obx, cy-oby, cw,ch))
- 	return;
+  	return;
 
+    if (start->isBox) {
+	//we have to draw the box
+	((QMLBox*)start)->draw(p, obx+x, oby+y, ox, oy, cx, cy, cw, ch, dirty?FALSE:onlyDirty);
+	dirty = FALSE;
+	return;
+    }
+
+    if (onlyDirty) {
+	if (!dirty)
+	    return;
+    }
+    p->eraseRect(x+obx-ox, y+oby-oy, width, height);
+    
+    dirty = FALSE;
+    
     QMLNode* t = start;
     QMLContainer* par = parent;
 
-    if (t->isBox) {
-	//we have to draw the box
-	((QMLBox*)t)->draw(p, obx+x, oby+y, ox, oy, cx, cy, cw, ch);
-	return;
-    }
 
     int tx = x;
     do {
@@ -629,10 +641,10 @@ QMLBox::~QMLBox()
 }
 
 
-void QMLBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch)
+void QMLBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch, bool onlyDirty)
 {
     for (QMLRow* row = rows.first(); row; row = rows.next()) {
-	row->draw(this, p, obx, oby, ox, oy, cx, cy, cw, ch);
+	row->draw(this, p, obx, oby, ox, oy, cx, cy, cw, ch, onlyDirty);
     }
 }
 
@@ -707,8 +719,10 @@ void QMLBox::update(QPainter* p, QMLRow* r)
 	    QMLRow tr (this, p, n, par, r->width);
 	    fast_exit &= r->end == tr.end && r->height == tr.height;
 	}
-	if (fast_exit)
+	if (fast_exit) {
+	    r->dirty = TRUE;
 	    return;
+	}
     }
 
     int oldHeight = height;
@@ -719,8 +733,9 @@ void QMLBox::update(QPainter* p, QMLRow* r)
 	
     if (height != oldHeight) { // we have to inform our parent
 	QMLBox* b = parentBox();
-	if (b)
+	if (b){
 	    b->update( p ); // TODO SLOW
+	}
     }
 }
 
@@ -1216,9 +1231,17 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 	    for (unsigned int i = 0; i < e->text().length(); i++)
 		doc->cursor->insert( &p, e->text()[i] );
 	}
-	resizeContents(doc->width, doc->height);
-	ensureVisible(doc->cursor->x, doc->cursor->y);
-	viewport()->repaint();
+    {
+	QPainter p( viewport() );
+	doc->draw(&p, 0, 0, contentsX(), contentsY(), 
+		  contentsX(), contentsY(), 
+		  viewport()->width(), viewport()->height(), TRUE);
+    }
+    showCursor();
+    resizeContents(doc->width, doc->height);
+    ensureVisible(doc->cursor->x, doc->cursor->y);
+
+	//viewport()->repaint();
     }
 
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qml/qml.h#1 $
+** $Id: //depot/qt/main/tests/qml/qml.h#2 $
 **
 ** Definition of something or other
 **
@@ -139,12 +139,13 @@ public:
     int height;
     int base;
     bool intersects(int xr, int yr, int wr, int hr);
-    void draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch);
+    void draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch, bool onlyDirty = FALSE);
     QMLNode* hitTest(QMLContainer* box, QPainter* p, int obx, int oby, int xarg, int yarg);
 
 
     bool locate(QMLContainer* box, QPainter* p, QMLNode* node, int &lx, int &ly, int &lh);
 
+    bool dirty;
 
     QMLNode* start;
     QMLNode* end;
@@ -180,9 +181,9 @@ public:
     QMLBox( const QMLStyle &stl);
     ~QMLBox();
 
-    void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch);
+    void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch, bool onlyDirty = FALSE);
     void resize (QPainter* p, int newWidth);
-    
+
     void update(QPainter* p, QMLRow* r = 0);
 
 
@@ -244,16 +245,16 @@ public:
     int x;
     int y;
     int height;
-    
+
     QMLRow* row;
     int rowY;
     int rowHeight;
-    
+
     int width() { return 2; }
 
     QMLNode *node;
     QMLContainer *nodeParent;
-    
+
     void insert(QPainter* p, const QChar& c);
 
     void right(QPainter* p);
@@ -261,8 +262,8 @@ public:
     void up(QPainter* p);
     void down(QPainter* p);
     void goTo(QPainter* p, int xarg, int yarg);
-    
-    
+
+
     void goTo(QMLNode* n, QMLContainer* par);
     void calculatePosition(QPainter* p);
 
@@ -289,7 +290,7 @@ protected:
 private:
     QMLDocument* doc;
     bool cursor_hidden;
-    
+
 };
 
 
