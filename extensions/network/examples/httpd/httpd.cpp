@@ -33,9 +33,9 @@ private slots:
 	    QStringList tokens = QStringList::split(QRegExp("[ \n\r][ \n\r]*"),socket->readLine());
 	    if ( tokens[0] == "GET" ) {
 		QTextStream os(socket);
-		os << "<h1>Nothing to see here</h1>";
+		os << "<h1>Nothing to see here</h1>\n";
+		socket->close();
 	    }
-	    socket->close();
 	}
     }
     void discardClient()
