@@ -1972,8 +1972,14 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	// which one?
 	QPoint p(event->asMouse()->simpleData.x_root,
 		 event->asMouse()->simpleData.y_root);
+	static QWidget *pressGrab = 0;
+	static int btnstate = 0;
 
 	QETWidget *w = (QETWidget*)QWidget::mouseGrabber();
+	if ( w && !event->asMouse()->simpleData.state && pressGrab == w ) {
+	    pressGrab->releaseMouse();
+	    pressGrab = 0;
+	}
 #ifndef QT_NO_QWS_MANAGER
 	if ( !w )
 	    w = (QETWidget*)QWSManager::grabbedMouse();
@@ -1981,16 +1987,18 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 #endif
 	if (w) {
 	    widget = w;
+	    btnstate = event->asMouse()->simpleData.state;
 	} else
 #ifndef QT_NO_QWS_MANAGER
-	    if (!wm || !(wm->region().contains(p)))
+	if (!wm || !(wm->region().contains(p)))
 #endif
-		{
-	    static int btnstate = 0;
+	{
 	    static QWidget *gw = 0;
 	    w = (QETWidget*)findChildWidget(widget, widget->mapFromParent(p));
 	    w = w ? (QETWidget*)w : widget;
 	    if ( event->asMouse()->simpleData.state && !btnstate ) {
+		w->grabMouse();
+		pressGrab = w;
 		btnstate = event->asMouse()->simpleData.state;
 		gw = w;
 		if ( !widget->isActiveWindow() &&
