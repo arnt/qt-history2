@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollect.h#3 $
+** $Id: //depot/qt/main/src/tools/qcollect.h#4 $
 **
 ** Definition of base class for all collection classes
 **
@@ -27,8 +27,8 @@ class QGDict;
 class QCollection				// inherited by all collections
 {
 public:
-    bool autoDelete()	const	    { return del_item; }
-    void setAutoDelete( bool del )  { del_item = del; }
+    bool autoDelete()	const	       { return del_item; }
+    void setAutoDelete( bool enable )  { del_item = enable; }
 
     virtual uint  count() const = 0;
     virtual void  clear() = 0;			// delete all objects
