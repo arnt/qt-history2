@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#71 $
 **
 ** Implementation of QDialog class
 **
@@ -335,7 +335,7 @@ void QDialog::closeEvent( QCloseEvent *e )
 
 void QDialog::show()
 {
-    if ( testWFlags(WState_Visible) )
+    if ( testWState(QWS_Visible) )
 	return;
     if ( !did_resize )
 	adjustSize();
@@ -392,7 +392,7 @@ void QDialog::show()
 
 void QDialog::hide()
 {
-    bool ex = testWFlags(WState_Visible) && testWFlags(WType_Modal);
+    bool ex = testWState(QWS_Visible) && testWFlags(WType_Modal);
     QWidget::hide();
     if ( ex )
 	qApp->exit_loop();

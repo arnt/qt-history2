@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#196 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#197 $
 **
 ** Implementation of QListView widget class
 **
@@ -2044,7 +2044,7 @@ void QListView::updateGeometries()
 	 tw < d->h->offset() + d->h->width() )
 	horizontalScrollBar()->setValue( tw - QListView::d->h->width() );
     resizeContents( tw, th );
-    if ( d->h->testWFlags( WState_ForceHide ) ) {
+    if ( d->h->testWState( QWS_ForceHide ) ) {
 	setMargins( 0, 0, 0, 0 );
     } else {
 	QSize hs( d->h->sizeHint() );

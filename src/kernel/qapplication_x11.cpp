@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#428 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#429 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -279,6 +279,8 @@ void qt_x11_intern_atom( const char *, Atom * );
 class QETWidget : public QWidget		// event translator widget
 {
 public:
+    void setWState( WFlags f )		{ QWidget::setWState(f); }
+    void clearWState( WFlags f )	{ QWidget::clearWState(f); }
     void setWFlags( WFlags f )		{ QWidget::setWFlags(f); }
     void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
     bool translateMouseEvent( const XEvent * );
@@ -1324,7 +1326,7 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets that have
-	if ( w->testWFlags(WState_OwnCursor) )	//   set a cursor
+	if ( w->testWState(QWS_OwnCursor) )	//   set a cursor
 	    XDefineCursor( w->x11Display(), w->winId(), app_cursor->handle() );
 	++it;
     }
@@ -1356,7 +1358,7 @@ void QApplication::restoreOverrideCursor()
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// set back to original cursors
-	if ( w->testWFlags(WState_OwnCursor) )
+	if ( w->testWState(QWS_OwnCursor) )
 	    XDefineCursor( w->x11Display(), w->winId(),
 			   app_cursor ? app_cursor->handle()
 			   : w->cursor().handle() );
@@ -1410,13 +1412,13 @@ void QApplication::setGlobalMouseTracking( bool enable )
 	register QWidget *w;
 	while ( (w=it.current()) ) {
 	    if ( app_tracking > 0 ) {		// switch on
-		if ( !w->testWFlags(WState_MouseTracking) ) {
+		if ( !w->testWState(QWS_MouseTracking) ) {
 		    w->setMouseTracking( TRUE );
-		    w->clearWFlags(WState_MouseTracking);
+		    w->clearWState(QWS_MouseTracking);
 		}
 	    } else {				// switch off
-		if ( !w->testWFlags(WState_MouseTracking) ) {
-		    w->setWFlags(WState_MouseTracking);
+		if ( !w->testWState(QWS_MouseTracking) ) {
+		    w->setWState(QWS_MouseTracking);
 		    w->setMouseTracking( FALSE );
 		}
 	    }
@@ -1607,18 +1609,18 @@ void qPRCreate( const QWidget *widget, Window oldwin )
     }
     wPRmapper->insert( (long)oldwin, widget );	// add old window to mapper
     QETWidget *w = (QETWidget *)widget;
-    w->setWFlags( WState_Reparented );			// set reparented flag
+    w->setWState( QWS_Reparented );		// set reparented flag
 }
 
 void qPRCleanup( QETWidget *widget )
 {
-    if ( !(wPRmapper && widget->testWFlags(WState_Reparented)) )
+    if ( !(wPRmapper && widget->testWState(QWS_Reparented)) )
 	return;					// not a reparented widget
     QWidgetIntDictIt it(*wPRmapper);
     QWidget *w;
     while ( (w=it.current()) ) {
 	if ( w == widget ) {			// found widget
-	    widget->clearWFlags( WState_Reparented );	// clear reparented flag
+	    widget->clearWState( QWS_Reparented ); // clear reparented flag
 	    wPRmapper->remove( it.currentKey());// old window no longer needed
 	    if ( wPRmapper->count() == 0 ) {	// became empty
 		delete wPRmapper;		// then reset alt mapper
@@ -1977,7 +1979,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		break;
 	    }
 	}
-	else if ( widget->testWFlags(WState_Reparented) )
+	else if ( widget->testWState(QWS_Reparented) )
 	    qPRCleanup( widget );		// remove from alt mapper
     }
 
@@ -2047,8 +2049,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case GraphicsExpose:
     case Expose:				// paint event
-	if ( widget->testWFlags( WState_ForceHide ) ) {
-	    widget->setWFlags( WState_Visible );
+	if ( widget->testWState(QWS_ForceHide) ) {
+	    widget->setWState( QWS_Visible );
 	    widget->hide();
 	} else {
 	    widget->translatePaintEvent( event );
@@ -2097,16 +2099,16 @@ int QApplication::x11ProcessEvent( XEvent* event )
     break;
 
     case UnmapNotify:			// window hidden
-	if ( widget->testWFlags( WState_Visible ) ) {
-	    widget->clearWFlags( WState_Visible );
+	if ( widget->testWState( QWS_Visible ) ) {
+	    widget->clearWState( QWS_Visible );
 	    QHideEvent e(TRUE);
 	    QApplication::sendEvent( widget, &e );
 	}
 	break;
 	
     case MapNotify:				// window shown
-	if ( !widget->testWFlags( WState_Visible ) ) {
-	    widget->setWFlags( WState_Visible );
+	if ( !widget->testWState(QWS_Visible) ) {
+	    widget->setWState( QWS_Visible );
 	    QShowEvent e(TRUE);
 	    QApplication::sendEvent( widget, &e );
 	}
@@ -3430,7 +3432,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	isAccel = a.isAccepted();
     }
 
-    if (!isAccel && !text.isEmpty() && keyCompression ) {
+    if ( !isAccel && !text.isEmpty() && testWState(QWS_CompressKeys) ) {
 	// the widget wants key compression so it gets it
 	int	codeIntern = -1;
 	int	countIntern = 0;
@@ -3704,9 +3706,9 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     }
 
     QPaintEvent e( paintRegion );
-    setWFlags( WState_InPaintEvent );
+    setWState( QWS_InPaintEvent );
     QApplication::sendEvent( this, &e );
-    clearWFlags( WState_InPaintEvent );
+    clearWState( QWS_InPaintEvent );
     return TRUE;
 }
 
@@ -3746,7 +3748,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     if ( !testWFlags(WType_TopLevel) )
 	return TRUE;				// child widget
 
-    clearWFlags(WState_ConfigPending);
+    clearWState(QWS_ConfigPending);
 
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#184 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#185 $
 **
 ** Implementation of QListBox widget class
 **
@@ -716,7 +716,7 @@ void QListBox::removeItem( int index )
 	return;
     bool currentChanged = ( current == index );
 
-    if( current > 0 && (current > index || current >= count()-1) )
+    if( current > 0 && (current > index || current >= (int)count()-1) )
 	current--;
     bool    updt = autoUpdate() && itemVisible( index );
     QListBoxItem *lbi = itemList->take( index );

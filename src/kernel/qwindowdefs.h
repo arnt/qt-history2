@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#140 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#141 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -183,50 +183,63 @@ Q_EXPORT void *qt_find_obj_child( QObject *, const char *, const char * );
 	((type*)qt_find_obj_child(parent,#type,name))
 
 
+// QWidget state flags (internal)
+
+const uint QWS_Created		= 0x00000001;
+const uint QWS_Disabled		= 0x00000002;
+const uint QWS_Visible		= 0x00000004;
+const uint QWS_ForceHide	= 0x00000008;
+const uint QWS_OwnCursor	= 0x00000010;
+const uint QWS_MouseTracking	= 0x00000020;
+const uint QWS_CompressKeys	= 0x00000040;
+const uint QWS_BlockUpdates	= 0x00000080;
+const uint QWS_InPaintEvent	= 0x00000100;
+const uint QWS_ClickToFocus	= 0x00000200;
+const uint QWS_TabToFocus	= 0x00000400;
+const uint QWS_Reparented	= 0x00000800;
+const uint QWS_ConfigPending	= 0x00001000;
+const uint QWS_Resized		= 0x00002000;
+const uint QWS_AutoMask		= 0x00004000;
+const uint QWS_Polished		= 0x00008000;
+const uint QWS_DND		= 0x00010000;
+const uint QWS_USPositionX	= 0x00020000;
+const uint QWS_PaletteSet	= 0x00040000;
+const uint QWS_PaletteFixed	= 0x00080000;
+const uint QWS_FontSet		= 0x0010000;
+const uint QWS_FontFixed	= 0x0020000;
+
+
 // Widget flags
 
 typedef uint WFlags;
 
-const uint WState_Created	= 0x00000001;	// widget state flags
-const uint WState_Disabled	= 0x00000002;
-const uint WState_Visible	= 0x00000004;
-const uint WState_ForceHide	= 0x00000008;
-const uint WState_OwnCursor	= 0x00000010;
-const uint WState_MouseTracking	= 0x00000020;
-const uint WState_BlockUpdates	= 0x00000040;
-const uint WState_InPaintEvent	= 0x00000080;
-const uint WState_ClickToFocus	= 0x00000100;
-const uint WState_TabToFocus	= 0x00000200;
-const uint WState_Reparented	= 0x00000400;
-const uint WState_ConfigPending	= 0x00000800;
+const uint WType_TopLevel	= 0x00000000;	// widget type flags
+const uint WType_Modal		= 0x00000000;
+const uint WType_Popup		= 0x00000000;
+const uint WType_Desktop	= 0x00000000;
 
-const uint WType_TopLevel	= 0x00001000;	// widget type flags
-const uint WType_Modal		= 0x00002000;
-const uint WType_Popup		= 0x00004000;
-const uint WType_Desktop	= 0x00008000;
-
-const uint WStyle_Customize	= 0x00010000;	// window style flags
-const uint WStyle_NormalBorder	= 0x00020000;
-const uint WStyle_DialogBorder	= 0x00040000;
+const uint WStyle_Customize	= 0x00000001;	// window style flags
+const uint WStyle_NormalBorder	= 0x00000002;
+const uint WStyle_DialogBorder	= 0x00000004;
 const uint WStyle_NoBorder	= 0x00000000;
-const uint WStyle_Title		= 0x00080000;
-const uint WStyle_SysMenu	= 0x00100000;
-const uint WStyle_Minimize	= 0x00200000;
-const uint WStyle_Maximize	= 0x00400000;
+const uint WStyle_Title		= 0x00000008;
+const uint WStyle_SysMenu	= 0x00000010;
+const uint WStyle_Minimize	= 0x00000020;
+const uint WStyle_Maximize	= 0x00000040;
 const uint WStyle_MinMax	= WStyle_Minimize | WStyle_Maximize;
-const uint WStyle_Tool		= 0x00800000;
-const uint WStyle_Mask		= 0x00ff0000;
+const uint WStyle_Tool		= 0x00000080;
+const uint WStyle_Reserved1	= 0x00000100;
+const uint WStyle_Reserved2	= 0x00000200;
+const uint WStyle_Reserved3	= 0x00000400;
+const uint WStyle_Reserved4	= 0x00000800;
+const uint WStyle_Mask		= 0x00000fff;
 
-const uint WReserved1		= 0x01000000;
-const uint WReserved2		= 0x02000000;
-
-const uint WDestructiveClose	= 0x04000000;	// misc flags
-const uint WPaintDesktop	= 0x08000000;
-const uint WPaintUnclipped	= 0x10000000;
-const uint WPaintClever		= 0x20000000;
-const uint WResizeNoErase	= 0x40000000;
-
-const uint WMouseNoMask		= 0x80000000;
+const uint WDestructiveClose	= 0x00001000;	// misc flags
+const uint WPaintDesktop	= 0x00002000;
+const uint WPaintUnclipped	= 0x00004000;
+const uint WPaintClever		= 0x00008000;
+const uint WResizeNoErase	= 0x00010000;
+const uint WMouseNoMask		= 0x00020000;
 
 
 // Image conversion flags

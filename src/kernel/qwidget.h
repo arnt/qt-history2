@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#204 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#205 $
 **
 ** Definition of QWidget class
 **
@@ -85,7 +85,7 @@ public:
     int		 height()	const;
     QRect	 rect()		const;
     QRect	 childrenRect() const;
-    QRegion childrenRegion() const;
+    QRegion	 childrenRegion() const;
 
     QSize	 minimumSize()	 const;
     QSize	 maximumSize()	 const;
@@ -101,10 +101,6 @@ public:
     void	 setMinimumHeight( int minh );
     void	 setMaximumWidth( int maxw );
     void	 setMaximumHeight( int maxh );
-
-    virtual void setMask( const QBitmap & );
-    virtual void setMask( const QRegion & );
-    void	 clearMask();
 
     QSize	 sizeIncrement() const;
     void	 setSizeIncrement( const QSize & );
@@ -133,35 +129,35 @@ public:
 			  PaletteBackground, PaletteShadow, PaletteHighlight,
 			  PaletteHighlightedText };
 
-    BackgroundMode backgroundMode() const;
-    virtual void	   setBackgroundMode( BackgroundMode );
+    BackgroundMode	backgroundMode() const;
+    virtual void	setBackgroundMode( BackgroundMode );
 
-    const QColor  &backgroundColor() const;
-    const QColor  &foregroundColor() const;
-    virtual void  setBackgroundColor( const QColor & );
+    const QColor &	backgroundColor() const;
+    const QColor &	foregroundColor() const;
+    virtual void	setBackgroundColor( const QColor & );
 
-    const QPixmap *backgroundPixmap() const;
-    virtual void   setBackgroundPixmap( const QPixmap & );
+    const QPixmap *	backgroundPixmap() const;
+    virtual void	setBackgroundPixmap( const QPixmap & );
 
-    const QColorGroup &colorGroup() const;
-    const QPalette    &palette()    const;
-    virtual void       setPalette( const QPalette & );
+    const QColorGroup & colorGroup() const;
+    const QPalette &	palette()    const;
+    virtual void	setPalette( const QPalette & );
     void setPalette( const QPalette &, bool fixed );
 
-    const QFont &font()		const;
-    virtual void setFont( const QFont & );
-    void setFont( const QFont &, bool fixed );
-    QFontMetrics fontMetrics()	const;
-    QFontInfo	 fontInfo()	const;
+    const QFont &	font() const;
+    virtual void	setFont( const QFont & );
+    void		setFont( const QFont &, bool fixed );
+    QFontMetrics	fontMetrics() const;
+    QFontInfo	 	fontInfo() const;
 
     enum PropagationMode { NoChildren, AllChildren,
 			   SameFont, SamePalette = SameFont };
 
-    PropagationMode fontPropagation() const;
-    virtual void setFontPropagation( PropagationMode );
+    PropagationMode	fontPropagation() const;
+    virtual void	setFontPropagation( PropagationMode );
 
-    PropagationMode palettePropagation() const;
-    virtual void setPalettePropagation( PropagationMode );
+    PropagationMode	palettePropagation() const;
+    virtual void	setPalettePropagation( PropagationMode );
 
     const QCursor      &cursor() const;
     virtual void	setCursor( const QCursor & );
@@ -172,6 +168,10 @@ public:
     QString		iconText() const;
     bool		hasMouseTracking() const;
 
+    virtual void	setMask( const QBitmap & );
+    virtual void	setMask( const QRegion & );
+    void		clearMask();
+
 public slots:
     virtual void	setCaption( const QString &);
     virtual void	setIcon( const QPixmap & );
@@ -180,117 +180,114 @@ public slots:
 
     // Keyboard input focus functions
 
-    virtual void setFocus();
-    void	 clearFocus();
+    virtual void	setFocus();
+    void		clearFocus();
 
 public:
     enum FocusPolicy
     { NoFocus = 0, TabFocus = 0x1, ClickFocus = 0x2, StrongFocus = 0x3 };
 
-    bool	 isActiveWindow() const;
-    virtual void setActiveWindow();
-    bool	 isFocusEnabled() const;
-    FocusPolicy	 focusPolicy() const;
-    virtual void setFocusPolicy( FocusPolicy );
-    bool	 hasFocus() const;
-    static void	 setTabOrder( QWidget *, QWidget * );
-    virtual void setFocusProxy( QWidget * );
-    QWidget *	 focusProxy() const;
+    bool		isActiveWindow() const;
+    virtual void	setActiveWindow();
+    bool		isFocusEnabled() const;
+    FocusPolicy		focusPolicy() const;
+    virtual void	setFocusPolicy( FocusPolicy );
+    bool		hasFocus() const;
+    static void		setTabOrder( QWidget *, QWidget * );
+    virtual void	setFocusProxy( QWidget * );
+    QWidget *		focusProxy() const;
 
   // Grab functions
 
-    void	 grabMouse();
-    void	 grabMouse( const QCursor & );
-    void	 releaseMouse();
-    void	 grabKeyboard();
-    void	 releaseKeyboard();
-    static QWidget *mouseGrabber();
-    static QWidget *keyboardGrabber();
+    void		grabMouse();
+    void		grabMouse( const QCursor & );
+    void		releaseMouse();
+    void		grabKeyboard();
+    void		releaseKeyboard();
+    static QWidget *	mouseGrabber();
+    static QWidget *	keyboardGrabber();
 
   // Update/refresh functions
 
-    bool	 isUpdatesEnabled() const;
+    bool	 	isUpdatesEnabled() const;
 
 public slots:
-    virtual void setUpdatesEnabled( bool enable );
-    void	 update();
-    void	 update( int x, int y, int w, int h );
-    void	 update( const QRect& );
-    void	 repaint();
-    void	 repaint( bool erase );
-    void	 repaint( int x, int y, int w, int h, bool erase=TRUE );
-    void	 repaint( const QRect &, bool erase=TRUE );
-    void	 repaint( const QRegion &, bool erase=TRUE );
+    virtual void	setUpdatesEnabled( bool enable );
+    void		update();
+    void		update( int x, int y, int w, int h );
+    void		update( const QRect& );
+    void		repaint();
+    void		repaint( bool erase );
+    void		repaint( int x, int y, int w, int h, bool erase=TRUE );
+    void		repaint( const QRect &, bool erase=TRUE );
+    void		repaint( const QRegion &, bool erase=TRUE );
 
   // Widget management functions
 
-    virtual void show();
-    virtual void hide();
+    virtual void	show();
+    virtual void	hide();
 #ifndef QT_NO_COMPAT
-    void	 iconify()
-	{ showMinimized(); }
+    void		iconify()	{ showMinimized(); }
 #endif
-    virtual void showMinimized();
-    virtual void showMaximized();
-    virtual void showNormal();
-    virtual void polish();
-    bool	 close();
+    virtual void	showMinimized();
+    virtual void	showMaximized();
+    virtual void	showNormal();
+    virtual void	polish();
+    bool		close();
+
+    void		raise();
+    void		lower();
+    virtual void	move( int x, int y );
+    void		move( const QPoint & );
+    virtual void	resize( int w, int h );
+    void		resize( const QSize & );
+    virtual void	setGeometry( int x, int y, int w, int h );
+    virtual void	setGeometry( const QRect & );
 
 public:
-    virtual bool close( bool forceKill );
-    bool	 isVisible()	const;
-    bool	 isVisibleTo(QWidget*) const;
-    bool	 isVisibleToTLW() const;
+    virtual bool	close( bool forceKill );
+    bool		isVisible()	const;
+    bool		isVisibleTo(QWidget*) const;
+    bool		isVisibleToTLW() const;
 
-public slots:
-    void	 raise();
-    void	 lower();
-    virtual void move( int x, int y );
-    void	 move( const QPoint & );
-    virtual void resize( int w, int h );
-    void	 resize( const QSize & );
-    virtual void setGeometry( int x, int y, int w, int h );
-    virtual void setGeometry( const QRect & );
-
-public:
-    virtual QSize sizeHint() const;
+    virtual QSize	sizeHint() const;
     virtual QSizePolicy sizePolicy() const;
-    virtual void  adjustSize();
-    QLayout *layout() const { return lay_out; }
-    virtual void reparent( QWidget *parent, WFlags, const QPoint &,
-			   bool showIt=FALSE );
+    virtual void	adjustSize();
+    QLayout *		layout() const { return lay_out; }
+    virtual void	reparent( QWidget *parent, WFlags, const QPoint &,
+				  bool showIt=FALSE );
 #ifndef QT_NO_COMPAT
-    void	 recreate( QWidget *parent, WFlags f, const QPoint & p,
-			   bool showIt=FALSE )
+    void		recreate( QWidget *parent, WFlags f, const QPoint & p,
+				 bool showIt=FALSE )
 	{ reparent(parent,f,p,showIt); }
 #endif
 
-    void	 erase();
-    void	 erase( int x, int y, int w, int h );
-    void	 erase( const QRect & );
-    void	 erase( const QRegion & );
-    void	 scroll( int dx, int dy );
+    void		erase();
+    void		erase( int x, int y, int w, int h );
+    void		erase( const QRect & );
+    void		erase( const QRegion & );
+    void		scroll( int dx, int dy );
 
-    void	 drawText( int x, int y, const QString &);
-    void	 drawText( const QPoint &, const QString &);
+    void		drawText( int x, int y, const QString &);
+    void		drawText( const QPoint &, const QString &);
 
   // Misc. functions
 
-    QWidget	*focusWidget() const;
+    QWidget *		focusWidget() const;
 
   // drag and drop
 
-    virtual void setAcceptDrops( bool on );
-    bool	 acceptDrops() const;
+    bool		acceptDrops() const;
+    virtual void	setAcceptDrops( bool on );
 
-    virtual void setAutoMask(bool);
-    bool autoMask() const;
-
+    virtual void	setAutoMask(bool);
+    bool		autoMask() const;
 				
 public:
-    QWidget	*parentWidget() const;
-    bool	 testWFlags( WFlags n ) const;
-    static QWidget	 *find( WId );
+    QWidget *		parentWidget() const;
+    bool		testWState( uint n ) const;
+    bool		testWFlags( uint n ) const;
+    static QWidget *	find( WId );
     static QWidgetMapper *wmapper();
 
   // Event handlers
@@ -348,9 +345,12 @@ protected:
 			 bool destroyOldWindow = TRUE );
     virtual void destroy( bool destroyWindow = TRUE,
 			  bool destroySubWindows = TRUE );
-    WFlags	 getWFlags()	const;
-    virtual void setWFlags( WFlags );
-    void	 clearWFlags( WFlags n );
+    uint	 getWState() const;
+    virtual void setWState( uint );
+    void	 clearWState( uint n );
+    uint	 getWFlags() const;
+    virtual void setWFlags( uint );
+    void	 clearWFlags( uint n );
 
     virtual void setFRect( const QRect & );
     virtual void setCRect( const QRect & );
@@ -358,7 +358,6 @@ protected:
     virtual bool focusNextPrevChild( bool next );
 
     QWExtra	*extraData();
-
     QFocusData	*focusData();
 
     void	setSizeGrip(bool);
@@ -389,7 +388,11 @@ private:
     void         setBackgroundEmpty();
 
     WId		 winid;
-    WFlags	 flags;
+    uint	 widget_state;
+    uint	 widget_flags;
+    uint	 propagate_font    : 2;
+    uint	 propagate_palette : 2;
+    uint	 focus_policy      : 2;
     QPoint	 fpos;
     QRect	 crect;
     QColor	 bg_col;
@@ -397,17 +400,17 @@ private:
     QFont	 fnt;
     QLayout 	*lay_out;
     QWExtra	*extra;
-    uint automask : 1;
-    uint polished : 1;
-    uint paletteState : 2; // 0 uninitialized, 1 initialized, 2 fix
-    uint fontState : 2; // 0 uninitialized, 1 initialized, 2 fix
-    uint propagateFont: 2;
-    uint propagatePalette: 2;
-    uint dnd : 1; // drop enable
-    uint keyCompression : 1;
-#if defined(_WS_X11_)
-    uint usposition : 1;
-#endif
+    /*
+    uint	 automask : 1;
+    uint	 polished : 1;
+    uint	 paletteState : 2; // 0 uninitialized, 1 initialized, 2 fix
+    uint	 fontState : 2; // 0 uninitialized, 1 initialized, 2 fix
+    uint	 dnd : 1; // drop enable
+    uint	 keyCompression : 1;
+if defined(_WS_X11_)
+    uint	 usposition : 1;
+endif
+    */
 
     static void	 createMapper();
     static void	 destroyMapper();
@@ -432,8 +435,12 @@ private:	// Disabled copy constructor and operator=
 };
 
 
+inline bool QWidget::testWState( WFlags f ) const
+{ return (widget_state & f) != 0; }
+
 inline bool QWidget::testWFlags( WFlags f ) const
-{ return (flags & f) != 0; }
+{ return (widget_flags & f) != 0; }
+
 
 inline WId QWidget::winId() const
 { return winid; }
@@ -451,7 +458,7 @@ inline bool QWidget::isDesktop() const
 { return testWFlags(WType_Desktop); }
 
 inline bool QWidget::isEnabled() const
-{ return !testWFlags(WState_Disabled); }
+{ return !testWState(QWS_Disabled); }
 
 inline QRect QWidget::frameGeometry() const
 { return QRect(fpos,frameSize()); }
@@ -511,17 +518,16 @@ inline QFontInfo QWidget::fontInfo() const
 { return QFontInfo(font()); }
 
 inline bool QWidget::hasMouseTracking() const
-{ return testWFlags(WState_MouseTracking); }
+{ return testWState(QWS_MouseTracking); }
 
 inline bool  QWidget::isFocusEnabled() const
-{ return testWFlags(WState_TabToFocus|WState_ClickToFocus); }
+{ return testWState(QWS_TabToFocus|QWS_ClickToFocus); }
 
 inline QWidget::FocusPolicy QWidget::focusPolicy() const
-{ return (FocusPolicy)((testWFlags(WState_TabToFocus) ? (int)TabFocus : 0) +
-		       (testWFlags(WState_ClickToFocus)?(int)ClickFocus:0)); }
+{ return (FocusPolicy)focus_policy; }
 
 inline bool QWidget::isUpdatesEnabled() const
-{ return !testWFlags(WState_BlockUpdates); }
+{ return !testWState(QWS_BlockUpdates); }
 
 inline void QWidget::update( const QRect &r )
 { update( r.x(), r.y(), r.width(), r.height() ); }
@@ -545,7 +551,7 @@ inline bool QWidget::close()
 { return close( FALSE ); }
 
 inline bool QWidget::isVisible() const
-{ return testWFlags(WState_Visible); }
+{ return testWState(QWS_Visible); }
 
 inline void QWidget::move( const QPoint &p )
 { move( p.x(), p.y() ); }
@@ -565,14 +571,23 @@ inline QWidget *QWidget::parentWidget() const
 inline QWidgetMapper *QWidget::wmapper()
 { return mapper; }
 
+inline WFlags QWidget::getWState() const
+{ return widget_state; }
+
+inline void QWidget::setWState( WFlags f )
+{ widget_state |= f; }
+
+inline void QWidget::clearWState( WFlags f )
+{ widget_state &= ~f; }
+
 inline WFlags QWidget::getWFlags() const
-{ return flags; }
+{ return widget_flags; }
 
 inline void QWidget::setWFlags( WFlags f )
-{ flags |= f; }
+{ widget_flags |= f; }
 
 inline void QWidget::clearWFlags( WFlags f )
-{ flags &= ~f; }
+{ widget_flags &= ~f; }
 
 
 // Extra QWidget data
@@ -594,8 +609,8 @@ struct QTLWExtra {
     uint     iconic: 1;				// iconified [cur. win32 only]
 #if defined(_WS_X11_)
     QRect    normalGeometry;			// used by showMin/maximized
-    WId parentWinId;				// parent window Id (valid after reparenting)
-    uint embedded : 1;			// window is embedded in another Qt application
+    WId	     parentWinId;			// parent window Id (valid after reparenting)
+    uint     embedded : 1;			// window is embedded in another Qt application
 #endif
 #if defined(_WS_X11_)
     void    *xic;				// XIM Input Context
@@ -617,9 +632,8 @@ struct QWExtra {
     WId xDndProxy;				// XDND forwarding to embedded windows
 #endif
     char     bg_mode;				// background mode
-    uint sizegrip : 1;				// size grip
+    uint     sizegrip : 1;			// size grip
 };
-
 
 
 #endif // QWIDGET_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#342 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#343 $
 **
 ** Implementation of QWidget class
 **
@@ -522,23 +522,21 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 {
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
-    flags = f;
-    extra = 0;					// no extra widget info
-    automask = 0;
-    polished = 0;
-    paletteState = 0;
-    fontState = 0;
-    propagateFont = 0;
-    propagatePalette = 0;
-    keyCompression = 0;
+    widget_state = 0;
+    widget_flags = f;
+    propagate_font = 0;
+    propagate_palette = 0;
+    focus_policy = 0;
     lay_out = 0;
+    extra = 0;					// no extra widget info
     create();					// platform-dependent init
-    QApplication::postEvent( this,		// make sure move/resize events
-			     new QMoveEvent( fpos, fpos ) ); // are sent to all
-    QApplication::postEvent( this,		// widgets
-			     new QResizeEvent( crect.size(), crect.size() ) );
+    // make sure move/resize events are sent to all widgets
+    QApplication::postEvent( this, new QMoveEvent( fpos, fpos ) );
+    QApplication::postEvent( this, new QResizeEvent(crect.size(),
+						    crect.size()) );
+#warning "Arnt, can you have a look at this - tabtofocus no longer widget flag"
     if ( isTopLevel() ||			// kludge alert
-	 testWFlags(WState_TabToFocus) ) {	// focus was set using WFlags
+	 testWState(QWS_TabToFocus) ) {		// focus was set using WFlags
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
  	    fd->focusWidgets.append( this );
@@ -982,16 +980,16 @@ void QWidget::setEnabled( bool enable )
     if ( isEnabled() == enable) // nothing to do
 	return;
     if ( enable ) {
-	if ( testWFlags(WState_Disabled) ) {
-	    clearWFlags( WState_Disabled );
+	if ( testWState(QWS_Disabled) ) {
+	    clearWState( QWS_Disabled );
 	    setBackgroundFromMode();
 	    enabledChange( TRUE );
 	}
     } else {
-	if ( !testWFlags(WState_Disabled) ) {
+	if ( !testWState(QWS_Disabled) ) {
 	    if ( focusWidget() == this )
 		focusNextPrevChild( TRUE );
-	    setWFlags( WState_Disabled );
+	    setWState( QWS_Disabled );
 	    setBackgroundFromMode();
 	    enabledChange( FALSE );
 	}
@@ -1584,6 +1582,7 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
   You can also use QApplication::setPalette() if you want to change
   the color scheme of your entire application, or of all new widgets.
 */
+
 void QWidget::setBackgroundMode( BackgroundMode m )
 {
     if ( m==NoBackground )
@@ -1709,10 +1708,10 @@ void QWidget::backgroundPixmapChange( const QPixmap & )
 
 const QColorGroup &QWidget::colorGroup() const
 {
-    if (!paletteState){
-	(void) palette();
+    if ( !testWState(QWS_PaletteSet) ){
+	palette();				// initialize palette
     }
-    if ( testWFlags(WState_Disabled) )
+    if ( testWState(QWS_Disabled) )
 	return pal.disabled();
     else if ( qApp->focus_widget == this && focusPolicy() != NoFocus )
 	return pal.active();
@@ -1733,10 +1732,10 @@ const QColorGroup &QWidget::colorGroup() const
 
 const QPalette &QWidget::palette() const
 {
-    if (!paletteState){
+    if ( testWState(QWS_PaletteSet) ){
 	QWidget* that = (QWidget*)this;
 	that->pal = *QApplication::palette( that );
-	that->paletteState = 1;
+	that->setWState(QWS_PaletteSet);
 	if (that->pal == *QApplication::palette() && parentWidget() )
 	    that->pal = parentWidget()->palette();
     }
@@ -1780,17 +1779,16 @@ void QWidget::setPalette( const QPalette &p )
 
 
 /*!
-
   Like setPalette(const QPalette&) but has an additional flag to
   indicate whether the palette should be fix for the widget. Fixed
   means that QApplication::setPalette() will not touch the current
   setting. This Function calls setPalette(const QPalette&).
-
 */
+
 void QWidget::setPalette( const QPalette &p, bool fixed )
 {
-    paletteState = fixed?2:1;
-    setPalette(p);
+    setWState( fixed ? (QWS_PaletteSet|QWS_PaletteFixed) : QWS_PaletteSet );
+    setPalette( p );
 }
 
 /*!
@@ -1830,10 +1828,10 @@ void QWidget::paletteChange( const QPalette & )
 
 const QFont &QWidget::font() const
 {
-    if (!fontState) {
+    if ( testWState(QWS_FontSet) ) {
 	QWidget* that = (QWidget*)this;
 	that->fnt = *QApplication::font( that );
-	that->fontState = 1;
+	that->setWState( QWS_FontSet );
 	if (that->fnt == *QApplication::font() && that->parentWidget() )
 	    that->fnt = that->parentWidget()->font();
     }
@@ -1868,8 +1866,8 @@ void QWidget::setFont( const QFont &font )
     QFont old = QWidget::font();
     fnt = font;
     fnt.handle();				// force load font
-    if (!fontState)
-	fontState = 1; // indicate initialized
+    if ( !testWState(QWS_FontSet) )
+	setWState(QWS_FontSet);			// indicate initialized
     fontChange( old );
     PropagationMode m = fontPropagation();
     if ( m != NoChildren && children() ) {
@@ -1886,17 +1884,16 @@ void QWidget::setFont( const QFont &font )
 }
 
 /*!
-
   Like setFont(const QFont&) but has an additional flag to
   indicate whether the font should be fix for the widget. Fixed
   means that QApplication::setFont() will not touch the current
   setting. This Function calls setFont(const QFont&).
-
 */
+
 void QWidget::setFont( const QFont &font, bool fixed )
 {
-    fontState = fixed?2:1;
-    setFont(font);
+    setWState( fixed ? (QWS_FontSet|QWS_FontFixed) : QWS_FontSet );
+    setFont( font );
 }
 
 /*!
@@ -1947,12 +1944,12 @@ void QWidget::fontChange( const QFont & )
 
 const QCursor &QWidget::cursor() const
 {
-    if ( testWFlags( WState_OwnCursor) != 0 )
+    if ( testWState(QWS_OwnCursor) )
 	return (extra && extra->curs)
 	    ? *extra->curs
 	    : arrowCursor;
     else
-	return isTopLevel()?arrowCursor:parentWidget()->cursor();
+	return isTopLevel() ? arrowCursor : parentWidget()->cursor();
 }
 
 
@@ -2020,9 +2017,9 @@ QString QWidget::iconText() const
 void QWidget::setMouseTracking( bool enable )
 {
     if ( enable )
-	setWFlags( WState_MouseTracking );
+	setWState( QWS_MouseTracking );
     else
-	clearWFlags( WState_MouseTracking );
+	clearWState( QWS_MouseTracking );
     return;
 }
 #endif // _WS_X11_
@@ -2145,7 +2142,7 @@ void QWidget::setFocus()
 	return;
 
     if ( isFocusEnabled() ) {
-	if ( testWFlags(WState_TabToFocus) ) {
+	if ( testWState(QWS_TabToFocus) ) {
 	    // move the tab focus pointer only if this widget can be
 	    // tabbed to or from.
 	    f->it.toFirst();
@@ -2248,7 +2245,7 @@ bool QWidget::focusNextPrevChild( bool next )
 
     do {
 	if ( w && w != startingPoint &&
-	     w->testWFlags( WState_TabToFocus ) && !w->focusProxy() &&
+	     w->testWState( QWS_TabToFocus ) && !w->focusProxy() &&
 	     w->isVisibleToTLW() && w->isEnabledToTLW() )
 	    candidate = w;
 	w = next ? f->focusWidgets.prev() : f->focusWidgets.next();
@@ -2340,10 +2337,14 @@ QFocusData * QWidget::focusData( bool create )
   (and also recommended!) to turn the compression on.
 
   \sa QKeyEvent::text();
- */
+*/
+
 void QWidget::setKeyCompression(bool compress)
 {
-    keyCompression = compress;
+    if ( compress )
+	setWState( QWS_CompressKeys );
+    else
+	clearWState( QWS_CompressKeys );
 }
 
 
@@ -2673,22 +2674,19 @@ void QWidget::setFocusPolicy( FocusPolicy policy )
 {
     if ( focusProxy() )
 	focusProxy()->setFocusPolicy( policy );
-
     if ( policy ) {
 	QFocusData * f = focusData( TRUE );
 	if ( f->focusWidgets.findRef( this ) < 0 )
  	    f->focusWidgets.append( this );
     }
-
     if ( policy & TabFocus )
-	setWFlags( WState_TabToFocus );
+	setWState( QWS_TabToFocus );
     else
-	clearWFlags( WState_TabToFocus );
-
+	clearWState( QWS_TabToFocus );
     if ( policy & ClickFocus )
-	setWFlags( WState_ClickToFocus );
+	setWState( QWS_ClickToFocus );
     else
-	clearWFlags( WState_ClickToFocus );
+	clearWState( QWS_ClickToFocus );
 }
 
 
@@ -2723,9 +2721,9 @@ void QWidget::setFocusPolicy( FocusPolicy policy )
 void QWidget::setUpdatesEnabled( bool enable )
 {
     if ( enable )
-	clearWFlags( WState_BlockUpdates );
+	clearWState( QWS_BlockUpdates );
     else
-	setWFlags( WState_BlockUpdates );
+	setWState( QWS_BlockUpdates );
 }
 
 
@@ -2768,7 +2766,7 @@ bool qt_modal_state();				// --- "" ---
 
 void QWidget::show()
 {
-    if ( testWFlags(WState_Visible) )
+    if ( testWState(QWS_Visible) )
 	return;
     if ( extra ) {
 	int w = crect.width();
@@ -2794,7 +2792,7 @@ void QWidget::show()
 	    ++it;
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
-		if ( !widget->testWFlags(WState_ForceHide) && !widget->isTopLevel() )
+		if ( !widget->testWState(QWS_ForceHide) && !widget->isTopLevel() )
 		    widget->show();
 	    }
 	}
@@ -2806,9 +2804,9 @@ void QWidget::show()
 	    QApplication::activePopupWidget()->hide();
     }
 
-    if ( polished == 0) {
+    if ( !testWState(QWS_Polished) ) {
 	polish();
-	polished = 1;
+	setWState(QWS_Polished);
 	setBackgroundFromMode();
     }
 
@@ -2841,8 +2839,8 @@ void QWidget::show()
 
 void QWidget::hide()
 {
-    setWFlags( WState_ForceHide );
-    if ( !testWFlags(WState_Visible) )
+    setWState( QWS_ForceHide );
+    if ( !testWState(QWS_Visible) )
 	return;
 
     if ( testWFlags(WType_Modal) )
@@ -2852,7 +2850,7 @@ void QWidget::hide()
 
     hideWindow();
 
-    clearWFlags( WState_Visible );
+    clearWState( QWS_Visible );
 
     // next bit tries to move the focus if the focus widget is now
     // hidden.
@@ -3069,14 +3067,26 @@ QSize QWidget::sizeHint() const
 
   Widget state flags:
   <dl compact>
-  <dt>WState_Created<dd> The widget has a valid winId().
-  <dt>WState_Disabled<dd> Disables mouse and keyboard events.
-  <dt>WState_Visible<dd> show() has been called.
-  <dt>WState_ForceHide<dd> hide() has been called before first show().
-  <dt>WState_AcceptFocus<dd> The widget can take keyboard focus.
-  <dt>WState_MouseTracking<dd> Mouse tracking is enabled.
-  <dt>WState_BlockUpdates<dd> Repaints and updates are disabled.
-  <dt>WState_InPaintEvent<dd> Currently processing a paint event.
+  <dt>QWS_Created<dd> The widget has a valid winId().
+  <dt>QWS_Disabled<dd> Disables mouse and keyboard events.
+  <dt>QWS_Visible<dd> show() has been called.
+  <dt>QWS_ForceHide<dd> hide() has been called before first show().
+  <dt>QWS_OwnCursor<dd> A cursor has been set for this widget.
+  <dt>QWS_MouseTracking<dd> Mouse tracking is enabled.
+  <dt>QWS_CompressKeys<dd> Compress keyboard events.
+  <dt>QWS_BlockUpdates<dd> Repaints and updates are disabled.
+  <dt>QWS_InPaintEvent<dd> Currently processing a paint event.
+  <dt>QWS_Reparented<dd> The widget has been reparented.
+  <dt>QWS_ConfigPending<dd> A config (resize/move) event is pending.
+  <dt>QWS_Resized<dd> The widget has been resized.
+  <dt>QWS_AutoMask<dd> The widget has an automatic mask, see setAutoMask().
+  <dt>QWS_Polished<dd> The widget has an auomatic mask, see setAutoMask().
+  <dt>QWS_DND<dd> The widget supports drag and drop, see setAcceptDrops().
+  <dt>QWS_USPositionX<dd> X11 only: Set the USPosition size hint.
+  <dt>QWS_PaletteSet<dd> The palette has been set.
+  <dt>QWS_PaletteFixed<dd> The widget has a fixed palette.
+  <dt>QWS_FontSet<dd> The font has been set.
+  <dt>QWS_FontFixed<dd> The widget has a fixed font.
   </dl>
 
   Widget type flags:
@@ -3104,19 +3114,14 @@ QSize QWidget::sizeHint() const
 
   Misc. flags:
   <dl compact>
-  <dt>WState_OwnCursor<dd> Flags that a cursor has been set.
   <dt>WDestructiveClose<dd> The widget is deleted when its closed.
   <dt>WPaintDesktop<dd> The widget wants desktop paint events.
   <dt>WPaintUnclipped<dd> Paint without clipping child widgets.
   <dt>WPaintClever<dd> The widget wants every update rectangle.
-  <dt>WState_ConfigPending<dd> Config (resize,move) event pending.
   <dt>WResizeNoErase<dd> Widget resizing should not erase the widget.
 			This allows smart-repainting to avoid flicker.
   <dt>WMouseNoMask<dd> Even if the widget has a mask, mouse events
 			are delivered for the entire rectangle.
-  <dt>WState_Reparented<dd> The widget has been reparented.
-  <dt>WExportFontMetrics<dd> Somebody refers the font's metrics.
-  <dt>WExportFontInfo<dd> Somebody refers the font's info.
   </dl>
 */
 
@@ -3474,7 +3479,7 @@ void QWidget::focusInEvent( QFocusEvent * )
 {
     if ( focusPolicy() != NoFocus || !isTopLevel() ) {
 	repaint();
-	if ( automask )
+	if ( testWState(QWS_AutoMask) )
 	    updateMask();
     }
 }
@@ -3498,7 +3503,7 @@ void QWidget::focusOutEvent( QFocusEvent * )
 {
     if ( focusPolicy() != NoFocus || !isTopLevel() ){
 	repaint();
-	if ( automask )
+	if ( testWState(QWS_AutoMask) )
 	    updateMask();
     }
 }
@@ -3605,7 +3610,7 @@ void QWidget::moveEvent( QMoveEvent * )
 
 void QWidget::resizeEvent( QResizeEvent * )
 {
-    if (automask)
+    if ( testWState(QWS_AutoMask) )
 	updateMask();
 }
 
@@ -3788,7 +3793,8 @@ bool QWidget::x11Event( XEvent * )
 #endif
 
 
-/*!  Returns the font propagation mode of this widget.  The default
+/*!
+  Returns the font propagation mode of this widget.  The default
   font propagation mode is \c NoChildren, but you can set it to \a
   SameFont or \a AllChildren.
 
@@ -3797,11 +3803,12 @@ bool QWidget::x11Event( XEvent * )
 
 QWidget::PropagationMode QWidget::fontPropagation() const
 {
-    return (PropagationMode)propagateFont;
+    return (PropagationMode)propagate_font;
 }
 
 
-/*!  Sets the font propagation mode to \a m.
+/*!
+  Sets the font propagation mode to \a m.
 
   if \a m is \c NoChildren (the default), setFont() does not change
   any children's fonts.  If it is \c SameFont, setFont() changes the
@@ -3814,7 +3821,7 @@ QWidget::PropagationMode QWidget::fontPropagation() const
 
 void QWidget::setFontPropagation( PropagationMode m )
 {
-    propagateFont = (int)m;
+    propagate_font = (int)m;
 }
 
 
@@ -3827,7 +3834,7 @@ void QWidget::setFontPropagation( PropagationMode m )
 
 QWidget::PropagationMode QWidget::palettePropagation() const
 {
-    return (PropagationMode)propagatePalette;
+    return (PropagationMode)propagate_palette;
 }
 
 
@@ -3844,7 +3851,7 @@ QWidget::PropagationMode QWidget::palettePropagation() const
 
 void QWidget::setPalettePropagation( PropagationMode m )
 {
-    propagatePalette = (int)m;
+    propagate_palette = (int)m;
 }
 
 /*!
@@ -3870,13 +3877,15 @@ void QWidget::setPalettePropagation( PropagationMode m )
   \sa autoMask(), updateMask(), setMask(), clearMask()
 */
 
-void QWidget::setAutoMask(bool b)
+void QWidget::setAutoMask( bool enable )
 {
-    automask = b;
-    if (!b)
-	clearMask();
-    else
+    if ( enable ) {
+	setWState(QWS_AutoMask);
 	updateMask();
+    } else {
+	clearWState(QWS_AutoMask);
+	clearMask();
+    }
 }
 
 /*!
@@ -3884,9 +3893,10 @@ void QWidget::setAutoMask(bool b)
 
   \sa setAutoMask(), updateMask(), setMask(), clearMask()
 */
+
 bool QWidget::autoMask() const
 {
-    return automask;
+    return testWState(QWS_AutoMask);
 }
 
 /*!
