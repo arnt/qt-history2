@@ -22,7 +22,6 @@ HEADERS += \
         widgets/qframe.h \
         widgets/qframe_p.h \
         widgets/qgrid.h \
-        widgets/qgridview.h \
         widgets/qgroupbox.h \
         widgets/qhbox.h \
         widgets/qlabel.h \
@@ -83,7 +82,6 @@ SOURCES += \
         widgets/qeffects.cpp \
         widgets/qframe.cpp \
         widgets/qgrid.cpp \
-        widgets/qgridview.cpp \
         widgets/qgroupbox.cpp \
         widgets/qhbox.cpp \
         widgets/qlabel.cpp \
