@@ -304,9 +304,9 @@ static short        mouseXPos, mouseYPos;                // mouse pres position 
 static short        mouseGlobalXPos, mouseGlobalYPos; // global mouse press position
 
 extern QWidgetList *qt_modal_stack;                // stack of modal widgets
-static bool            ignoreNextMouseReleaseEvent = false; // ignore the next mouse release
-                                                         // event if return from a modal
-                                                         // widget
+
+// window where mouse buttons have been pressed
+static Window pressed_window = None;
 
 static QWidget     *popupButtonFocus = 0;
 static QWidget     *popupOfPopupButtonFocus = 0;
@@ -2732,7 +2732,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
 {
     switch (event->type) {
     case ButtonPress:
-        ignoreNextMouseReleaseEvent = false;
+        pressed_window = event->xbutton.window;
         qt_x_user_time = event->xbutton.time;
         // fallthrough intended
     case ButtonRelease:
@@ -2985,10 +2985,8 @@ int QApplication::x11ProcessEvent(XEvent* event)
     switch (event->type) {
 
     case ButtonRelease:                        // mouse event
-        if (ignoreNextMouseReleaseEvent) {
-            ignoreNextMouseReleaseEvent = false;
+	if (pressed_window != widget->winId())
             break;
-        }
         // fall through intended
     case ButtonPress:
         if (event->xbutton.root != RootWindow(widget->x11Info()->display(),
@@ -3342,7 +3340,6 @@ void qt_enter_modal(QWidget *widget)
     qt_modal_stack->insert(0, widget);
     app_do_modal = true;
     curWin = 0;
-    ignoreNextMouseReleaseEvent = false;
 }
 
 
@@ -3359,7 +3356,6 @@ void qt_leave_modal(QWidget *widget)
         }
     }
     app_do_modal = qt_modal_stack != 0;
-    ignoreNextMouseReleaseEvent = true;
 
     if (widget->parentWidget()) {
         QEvent e(QEvent::WindowUnblocked);
