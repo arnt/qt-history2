@@ -275,6 +275,11 @@ void QGLContext::fixBufferRect()
 		d->oldR = QRect(offs[0], offs[1], offs[2], offs[3]);
 		aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
 	    }
+#ifdef MACOSX_102
+	    if(!aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
+		aglEnable((AGLContext)cx, AGL_CLIP_REGION);
+	    aglSetInteger((AGLContext)cx, AGL_CLIP_REGION, (const GLint *)clp.handle());
+#endif
 	}
 	if(update) {
 	    aglUpdateContext((AGLContext)cx);

@@ -63,13 +63,15 @@ QM_EXPORT_OPENGL inline const char *qGLVersion() {
 #endif
 
 #if defined(Q_WS_MAC)
-#if 0 && !defined( QMAC_OPENGL_DOUBLEBUFFER )
+#if !defined( QMAC_OPENGL_DOUBLEBUFFER )
 /* This macro is different now. If the macro is not defined QGLWidget will
  * try to determine when you need double buffering.  If set to 0 it will
  * never double buffer and *can* be acclerated. If set to 1 (the default)
  * it will always double buffer. Unlike before the value of this macro does
  * not upset binary compatability either. */
-#define QMAC_OPENGL_DOUBLEBUFFER 1
+#ifdef MACOSX_102
+# define QMAC_OPENGL_DOUBLEBUFFER 0
+#endif
 #endif
 # include <OpenGL/gl.h>
 # include <OpenGL/glu.h>
