@@ -183,7 +183,7 @@ public:
 		    y %= h;
 		} else if ( shape=='b' ) {
 		    poly.translate(x,y);
-		    ptr->drawQuadBezier(poly);
+		    ptr->drawCubicBezier(poly);
 		    poly.translate(-x,-y);
 		    x += 12345*i;
 		    y += 2345+i;
@@ -268,7 +268,7 @@ public:
     }
 };
 
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
     MyQApplication app(argc,argv);
     Image i(argc > 1);

@@ -706,7 +706,7 @@ void DrawView::drawShape( QPainter *p, const QPoint &pnt, Shape shape,
 	case Bezier: {
 	    QPointArray tmpArr = bezPoints.copy();
 	    tmpArr.translate( pnt.x(), pnt.y() );
-	    p->drawQuadBezier( tmpArr );
+	    p->drawCubicBezier( tmpArr );
 	    break;
 	}
 	case Bitmap:

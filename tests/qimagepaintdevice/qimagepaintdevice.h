@@ -110,7 +110,7 @@ private:
     void drawChord(const QRect& r, int i1, int i2);
     void drawLineSegments(const QPointArray& pa);
     void drawPolyline(const QPointArray& pa);
-    void drawQuadBezier(const QPointArray& pa);
+    void drawCubicBezier(const QPointArray& pa);
     void drawPolygon(const QPointArray& pa, int i);
     void drawText(QPoint p, const QString& s);
     void drawPixmap(QPoint p, QPixmap pm);

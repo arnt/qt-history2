@@ -141,7 +141,7 @@ void drawPolygon( QPainter & p, const QRect &r )
 }
 
 
-void drawQuadBezier( QPainter & p, const QRect &r )
+void drawCubicBezier( QPainter & p, const QRect &r )
 {
     QPointArray a( 4 );
     a[0] = r.topLeft();
@@ -149,15 +149,15 @@ void drawQuadBezier( QPainter & p, const QRect &r )
     a[2] = r.bottomRight();
     a[3] = r.topRight();
     p.setPen( QPen( Qt::black, 3 ) );
-    p.drawQuadBezier( a );
+    p.drawCubicBezier( a );
     p.setPen( Qt::white );
-    p.drawQuadBezier( a );
+    p.drawCubicBezier( a );
     a[1] = r.bottomRight();
     a[2] = r.bottomLeft();
     p.setPen( QPen( Qt::blue, 3 ) );
-    p.drawQuadBezier( a );
+    p.drawCubicBezier( a );
     p.setPen( Qt::white );
-    p.drawQuadBezier( a );
+    p.drawCubicBezier( a );
 }
 
 
@@ -321,7 +321,7 @@ void drawPicture( QPainter & p, const QRect &r )
     drawPolyline( p2, QRect( r.bottomLeft(), r.center() ).normalize() );
     p2.restore();
     p2.save();
-    drawQuadBezier( p2, QRect( r.bottomRight(), r.center() ).normalize() );
+    drawCubicBezier( p2, QRect( r.bottomRight(), r.center() ).normalize() );
     p2.restore();
     p2.end();
     p.drawPicture( picture );
@@ -338,7 +338,7 @@ typedef void (*TestFunction)(QPainter &, const QRect &);
 TestFunction f[18] = {
     drawPoint, drawPoints, drawLine, drawRect, drawWinFocusRect,
     drawEllipse, drawArc, drawChord, drawLineSegments, drawPolyline,
-    drawPolygon, drawQuadBezier, drawPixmap, drawImage,
+    drawPolygon, drawCubicBezier, drawPixmap, drawImage,
     drawTiledPixmap, drawText, drawPicture, drawTextMetrics
 };
 
@@ -346,7 +346,7 @@ TestFunction f[18] = {
 const char * n[18] = {
     "drawPoint", "drawPoints", "drawLine", "drawRect", "drawWinFocusRect",
     "drawEllipse", "drawArc", "drawChord", "drawLineSegments", "drawPolyline",
-    "drawPolygon", "drawQuadBezier", "drawPixmap", "drawImage",
+    "drawPolygon", "drawCubicBezier", "drawPixmap", "drawImage",
     "drawTiledPixmap", "drawText", "drawPicture", "fontMetrics"
 };
 

@@ -121,7 +121,7 @@ void Streamer::paintPrimitives( QPainter& p )
 
     const QCOORD c4[] = { 520, 120, 530, 180, 570, 120, 580, 180 };
     QPointArray a4( 4, c4 );
-    p.drawQuadBezier( a4 );
+    p.drawCubicBezier( a4 );
     
     QPixmap pm( open_xpm );
     p.drawPixmap( 650 - pm.width()/2, 150-pm.height()/2, pm );
