@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#17 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#18 $
 **
 ** Definition of QPaintDevice class
 **
@@ -43,7 +43,6 @@ class QPaintDevice				// device for QPainter
 friend class QPainter;
 friend class QPaintDeviceMetrics;
 public:
-    QPaintDevice();
     virtual ~QPaintDevice();
 
     int	     devType()	      const { return devFlags & PDT_MASK; }
