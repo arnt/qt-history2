@@ -970,7 +970,8 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
 		  << "$(MOC) " <<  " -f" << (*it) << " " << tmpfile <<" -o " << m << endl << endl;
 	    } else {
 		t << m << ": " << deps << "\n\t"
-		  << "$(MOC)" << " $(DEFINES) $(INCPATH) " << (*it) << " -o " << m << endl << endl;
+		  << "$(MOC)" << " $(DEFINES) $(INCPATH) " << varGlue("QMAKE_COMPILER_DEFINES","-D"," -D"," ") 
+		  << (*it) << " -o " << m << endl << endl;
 	    }
 	}
     }
