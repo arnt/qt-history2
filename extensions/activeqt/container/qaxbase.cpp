@@ -3876,7 +3876,7 @@ QAxObject *QAxBase::querySubObject(const char *name, QList<QVariant> &vars)
     switch (res.vt) {
     case VT_DISPATCH:
         if (res.pdispVal) {
-            if (rettype == "IDispatch*") {
+            if (rettype.isEmpty() || rettype == "IDispatch*") {
                 object = new QAxObject(res.pdispVal, qObject());
             } else if (QMetaType::type(rettype)) {
                 QVariant qvar = VARIANTToQVariant(res, rettype, 0);
@@ -3888,7 +3888,7 @@ QAxObject *QAxBase::querySubObject(const char *name, QList<QVariant> &vars)
         break;
     case VT_UNKNOWN:
         if (res.punkVal) {
-            if (rettype == "IUnknown*") {
+            if (rettype.isEmpty() || rettype == "IUnknown*") {
                 object = new QAxObject(res.punkVal, qObject());
             } else if (QMetaType::type(rettype)) {
                 QVariant qvar = VARIANTToQVariant(res, rettype, 0);
