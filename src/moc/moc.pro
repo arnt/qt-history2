@@ -2,7 +2,7 @@ TEMPLATE	= app
 TARGET		= moc
 
 CONFIG 	       += console qtinc
-CONFIG         -= qt 
+CONFIG         -= qt
 build_all:CONFIG += release
 mac:CONFIG     -= resource_fork incremental
 DEFINES	       += QT_MOC QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT \
@@ -21,7 +21,7 @@ OBJECTS_DIR	= .
 
 
 HEADERS = moc.h preprocessor.h scanner.h symbols.h token.h utils.h \
-           generator.h outputrevision.h
+           generator.h outputrevision.h qdatetime_p.h
 SOURCES =  moc.cpp \
            preprocessor.cpp \
            main.cpp \
@@ -46,14 +46,14 @@ SOURCES	+= ../core/tools/qbytearray.cpp	\
 		  ../core/tools/qstringmatcher.cpp \
                   ../core/tools/qunicodetables.cpp	\
 		  ../core/tools/qstringlist.cpp	\
-		  ../core/tools/qmap.cpp		\ 
+		  ../core/tools/qmap.cpp		\
 		  ../core/tools/qvector.cpp          \
 		  ../core/tools/qlocale.cpp \
 		  ../core/kernel/qinternal.cpp
 
 unix:SOURCES += ../core/io/qfileengine_unix.cpp
 
-win32:SOURCES += ../core/io/qfileengine_win.cpp 
+win32:SOURCES += ../core/io/qfileengine_win.cpp
 
 macx: {
    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)

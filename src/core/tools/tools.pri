@@ -9,6 +9,7 @@ HEADERS +=  \
 	tools/qchar.h \
 	tools/qcleanuphandler.h \
 	tools/qdatetime.h \
+	tools/qdatetime_p.h \
 	tools/qhash.h \
 	tools/qlinkedlist.h \
 	tools/qlist.h \

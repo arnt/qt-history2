@@ -69,6 +69,7 @@ public:
 #ifndef QT_NO_DATESTRING
     static QDate fromString(const QString &s, Qt::DateFormat f = Qt::TextDate);
 #endif
+    static QDate fromString(const QString &s, const QString &format);
     static bool isValid(int y, int m, int d);
     static bool isLeapYear(int year);
 #ifdef QT_COMPAT
@@ -133,6 +134,7 @@ public:
 #ifndef QT_NO_DATESTRING
     static QTime fromString(const QString &s, Qt::DateFormat f = Qt::TextDate);
 #endif
+    static QTime fromString(const QString &s, const QString &format);
     static bool isValid(int h, int m, int s, int ms = 0);
 
 #ifdef QT_COMPAT
@@ -206,6 +208,7 @@ public:
 #ifndef QT_NO_DATESTRING
     static QDateTime fromString(const QString &s, Qt::DateFormat f = Qt::TextDate);
 #endif
+    static QDateTime fromString(const QString &s, const QString &format);
 
 #ifdef QT_COMPAT
     inline QT_COMPAT void setTime_t(uint secsSince1Jan1970UTC, Qt::TimeSpec spec) {
