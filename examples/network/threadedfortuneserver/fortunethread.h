@@ -17,7 +17,7 @@ signals:
     void error(QTcpSocket::SocketError socketError);
 
 private:
-    int socket;
+    int socketDescriptor;
     QString text;
 };
 

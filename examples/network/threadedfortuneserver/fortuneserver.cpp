@@ -16,9 +16,7 @@ FortuneServer::FortuneServer(QObject *parent)
 void FortuneServer::incomingConnection(int socketDescriptor)
 {
     QString fortune = fortunes.at(rand() % fortunes.size());
-    FortuneThread *thread = new FortuneThread(socketDescriptor,
-                                              fortune,
-                                              this);
+    FortuneThread *thread = new FortuneThread(socketDescriptor, fortune, this);
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
 }

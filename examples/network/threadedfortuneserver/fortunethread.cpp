@@ -3,14 +3,14 @@
 #include <QtNetwork>
 
 FortuneThread::FortuneThread(int socketDescriptor, const QString &fortune, QObject *parent)
-    : QThread(parent), socket(socketDescriptor), text(fortune)
+    : QThread(parent), socketDescriptor(socketDescriptor), text(fortune)
 {
 }
 
 void FortuneThread::run()
 {
     QTcpSocket tcpSocket;
-    if (!tcpSocket.setSocketDescriptor(socket)) {
+    if (!tcpSocket.setSocketDescriptor(socketDescriptor)) {
         emit error(tcpSocket.error());
         return;
     }
