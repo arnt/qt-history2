@@ -15,7 +15,7 @@
     subclass, QAxWidget, that acts as a container for ActiveX
     controls, and a QObject subclass, QAxObject, that can be used to
     easily access non-visual COM objects. Scripting COM objects embedded
-    using these classes is possible through the QAxScript.
+    using these classes is possible through the QAxScript class.
 
     This module is part of the \link activeqt.html ActiveQt
     framework\endlink. (To make an application into an ActiveX server
