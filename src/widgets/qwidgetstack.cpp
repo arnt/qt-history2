@@ -357,28 +357,6 @@ void QWidgetStack::raiseWidget( QWidget * w )
 }
 
 /*!
-    Returns TRUE if \a w is a child of this widget stack; otherwise
-    returns FALSE.
-*/
-
-bool QWidgetStack::isMyChild( QWidget * w )
-{
-    const QObjectList * c = children();
-    if ( !c || !w || w == invisible )
-	return FALSE;
-    QObjectListIt it( *c );
-    QObject * o;
-
-    while( (o=it.current()) != 0 ) {
-	++it;
-	if ( o->isWidgetType() && o == w )
-	    return TRUE;
-    }
-    return FALSE;
-}
-
-
-/*!
     \reimp
 */
 
