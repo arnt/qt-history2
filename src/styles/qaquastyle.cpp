@@ -549,6 +549,12 @@ void QAquaStyle::polish( QWidget * w )
 	layout->setMargin( 0 );
     }
 
+    if(w->inherits("QTipLabel")) {
+	QLabel *label = (QLabel*)w;
+	label->setFrameStyle(QFrame::NoFrame);
+	label->setLineWidth( 1 );
+    }
+
     if ( !w->isTopLevel() ) {
         if( !w->inherits("QSplitter") && w->backgroundPixmap() &&
             (w->backgroundMode() == QWidget::PaletteBackground) && qApp->palette().isCopyOf(w->palette()))
