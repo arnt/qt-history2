@@ -1,20 +1,35 @@
+<?xml version="1.0" encoding='utf-8'  ?>
+
+<!-- This is a test-file for the DOM classes -->
+
+<!DOCTYPE a [
+    <!-- the DoctypeDecl part... -->
+    <?foo bar?>
+]>
+
+<!-- You like PIs? -->
+<?hmpfl grmpf ?>
+
 <a>
-  <b1>
-    <c1/>
-  </b1>
-  <b2>
-    Some text at the beginning
-    <c2.1>
-    ...and some nested text...
-    </c2.1>
-    Some text just in between
-    <c2.2/>
-    And some text at the end
-  </b2>
-  <b3/>
-  <b4 attr1="foo" attr2='bar'>
-    <![CDATA[ This is a CDATA section. Pretty amazing... <> ]...]]...]]>
-    <!-- And a nice comment, isn't it? -->
-    <?snafu is a nice processing-instruction?>
-  </b4>
+    <b1>
+	<c1/>
+    </b1>
+    <b2>
+	Some text at the beginning
+	<c2.1>
+	    ...and some nested text...
+	</c2.1>
+	Some text just in between
+	<c2.2/>
+	And some text at the end
+    </b2>
+    <b3/>
+    <b4 attr1="foo" attr2='bar'>
+	<![CDATA[ This is a CDATA section. Pretty amazing... <> ]...]]...]]>
+	<!-- And a nice comment, isn't it? -->
+	<?snafu is a nice processing-instruction?>
+    </b4>
 </a>
+
+<?fnord pis are cool?>
+<!-- Another a nice comment, isn't it? -->
