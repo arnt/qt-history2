@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#25 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#26 $
 **
 ** Implementation of Network Extension Library
 **
@@ -244,8 +244,12 @@ void QFtp::readyRead()
     } else if ( s.left( 3 ) == "530" ) { // Login incorrect
 	close();
 	QString msg( tr( "Login Incorrect" ) );
-	if ( operationInProgress() )
+	dequeueOperation();
+	if ( operationInProgress() ) {
 	    operationInProgress()->setProtocolDetail( msg );
+	    operationInProgress()->setState( StFailed );
+	    operationInProgress()->setErrorCode( ErrLoginIncorrect );
+	}
 	emit finished( operationInProgress() );
     } else
 	;//qWarning( "unknown result: %s", s.data() );
