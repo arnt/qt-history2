@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#6 $
 **
 ** Implementation of QRegExp class
 **
@@ -8,6 +8,8 @@
 **
 ** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
 **
+** --------------------------------------------------------------------------
+** This regular expression implementation is inspired by Ozan Yigit's regexp.
 *****************************************************************************/
 
 #include "qregexp.h"
@@ -19,7 +21,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#6 $";
 #endif
 
 
@@ -29,6 +31,7 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#5 $";
 // Character classes are encoded as 256 bits, i.e. 16*16 bits.
 //
 
+const ushort CHR	= 0x4000;		// character
 const ushort BOL	= 0x8001;		// beginning of line 	^
 const ushort EOL	= 0x8002;		// end of line		$
 const ushort BOW	= 0x8003;		// beginning of word	\<
@@ -55,15 +58,26 @@ const PatOverflow	= 4;			// pattern too long
 QRegExp::QRegExp()
 {
     rxdata = 0;
+    cs = TRUE;
+    wc = FALSE;
     error = PatOk;
 }
 
-QRegExp::QRegExp( const char *pattern, bool wildcard )
+QRegExp::QRegExp( const char *pattern, bool caseSensitive, bool wildcard )
 {
     rxstring = pattern;
     rxdata = 0;
-    if ( wildcard )
-	wc2rx();
+    cs = caseSensitive;
+    wc = wildcard;
+    compile();
+}
+
+QRegExp::QRegExp( const QRegExp &r )
+{
+    rxstring = r.pattern();
+    rxdata = 0;
+    cs = r.caseSensitive();
+    wc = r.wildcard();
     compile();
 }
 
@@ -87,6 +101,28 @@ QRegExp &QRegExp::operator=( const char *pattern )
 }
 
 
+bool QRegExp::operator==( const QRegExp &r ) const
+{
+    return rxstring == r.rxstring && cs == r.cs && wc == r.wc;
+}
+
+
+void QRegExp::setWildcard( bool wildcard )
+{
+    if ( wildcard != wc ) {
+	wc = wildcard;
+	compile();
+    }
+}
+
+void QRegExp::setCaseSensitive( bool cases )
+{
+    if ( cases != cs ) {
+	cs = cases;
+	compile();
+    }
+}
+
 //
 // Find the first instance of the regexp pattern in a string.
 //
@@ -102,9 +138,58 @@ int QRegExp::match( const char *str, int index, int *len ) const
     if ( *d == BOL )				// match from beginning of line
 	ep = matchstr( d, p, p );
     else {
-	if ( (*d & 0x8000) == 0 ) {
-	    while ( *p && *p != (char)*d )	// find first char occurrence
-		p++;
+#if 0
+	if ( (*d & 0x8000) == 0 ) {		// find first char occurrence
+
+	    if ( cs ) {				// case sensitive
+		while ( *p && *p != (char)*d )
+		    p++;
+	    }
+	    else {				// case insensitive
+		while ( *p && tolower(*p) != (char)*d )
+		    p++;
+	    }
+	    if ( *p && p > str+index && *(d+1) ^ 0x8000 == 0x0fff ) {
+		d++;
+		if ( cs ) {			// case sensitive
+		    while ( *p && *p != (char)*d )
+			p++;
+		}
+		else {				// case insensitive
+		    while ( *p && tolower(*p) != (char)*d )
+			p++;
+		}		
+	    }
+	}
+#endif
+#if 0
+	if ( *d & CHR ) {			// starting with a char
+	    char *start = (char *)str + index;
+	    if ( cs ) {				// case sensitive
+		while ( 1 ) {
+		    while ( *p && *p != (char)*d )
+			p++;
+		    if ( *p && p > start && *(d+1) & CHR ) {
+			d++;
+			continue;
+		    }
+		    else
+			break;
+		}
+	    }
+	    else {				// case insensitive
+	    }
+	}
+#endif
+	if ( *d & CHR ) {
+	    if ( cs ) {				// case sensitive
+		while ( *p && *p != (char)*d )
+		    p++;
+	    }
+	    else {				// case insensitive
+		while ( *p && tolower(*p) != (char)*d )
+		    p++;
+	    }
 	}
 	while ( *p ) {				// regular match
 	    if ( (ep=matchstr(d,p,(char*)str+index)) )
@@ -115,7 +200,7 @@ int QRegExp::match( const char *str, int index, int *len ) const
     if ( ep ) {					// match
 	if ( len )
 	    *len = ep - p;
-	return (int)(p - str);
+	return (int)(p - str);			// return index
     }
     else {					// no match
 	if ( len )
@@ -124,22 +209,27 @@ int QRegExp::match( const char *str, int index, int *len ) const
     }
 }
 
-
 inline bool iswordchar( int x )
 {
     return isalnum(x) || x == '_';
 }
 
-
 char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
-{
+{						// recursively match string
     register char *p = str;
     ushort *d = rxd;
 
     while ( *d ) {
-	if ( (*d & 0x8000) == 0 ) {		// match char
-	    if ( *p++ != (char)*d )
-		return 0;
+	if ( *d & CHR ) {			// match char
+	    if ( cs ) {				// case sensitive
+		if ( *p++ != (char)*d )
+		    return 0;
+	    }
+	    else {				// case insensitive
+		if ( tolower(*p) != (char)*d )
+		    return 0;
+		p++;
+	    }
 	    d++;
 	}
 	else switch ( *d++ ) {
@@ -172,9 +262,15 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 	    case CLO:				// Kleene closure
 		{
 		char *first_p = p;
-		if ( (*d & 0x8000) == 0 ) {	// match char
-		    while ( *p && *p == (char)*d )
-			p++;
+		if ( *d & CHR ) {		// match char
+		    if ( cs ) {			// case sensitive
+			while ( *p && *p == (char)*d )
+			    p++;
+		    }
+		    else {			// case insensitive
+			while ( *p && tolower(*p) == (char)*d )
+			    p++;
+		    }
 		}
 		else switch ( *d ) {
 		    case ANY:
@@ -203,9 +299,15 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 	    case OPT:				// optional closure
 		{
 		char *first_p = p;
-		if ( (*d & 0x8000) == 0 ) {	// match char
-		    if ( *p && *p == (char)*d )
-			p++;
+		if ( *d & CHR ) {		// match char
+		    if ( cs ) {			// case sensitive
+			if ( *p && *p == (char)*d )
+			    p++;
+		    }
+		    else {			// case insensitive
+			if ( *p && tolower(*p) == (char)*d )
+			    p++;
+		    }
 		}
 		else switch ( *d ) {
 		    case ANY:
@@ -244,11 +346,9 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 // Ex:   *.cpp	==> ^.*\.cpp$
 //
 
-void QRegExp::wc2rx()
+static QString wc2rx( const char *pattern )
 {
-    register char *p = (char *)rxstring;
-    if ( !p )					// no regexp pattern
-	return;
+    register char *p = (char *)pattern;
     QString wcpattern = "^";
     char c;
     while ( (c=*p++) ) {
@@ -264,13 +364,14 @@ void QRegExp::wc2rx()
 	    case '\\':
 	    case '^':
 	    case '$':
+	    case '[':
 		wcpattern += '\\';
 		break;
 	}
 	wcpattern += c;
     }
     wcpattern += '$';
-    rxstring = wcpattern;			// set new regexp pattern
+    return wcpattern;				// return new regexp pattern
 }
 
 
@@ -342,7 +443,9 @@ static int char_val( char **str )		// get char value
 ushort *dump( ushort *p )			// DEBUG !!!
 {
     while ( *p != END ) {
-	switch ( *p++ ) {
+	if ( *p & CHR )
+	    debug( "\tCHR\t%c (%d)", *(p-1)&0xff, *(p-1)&0xff );
+	else switch ( *p++ ) {
 	    case BOL:
 	        debug( "\tBOL" );
 		break;
@@ -383,10 +486,6 @@ ushort *dump( ushort *p )			// DEBUG !!!
 		debug( "\tOPT" );
 		p = dump( p );
 		break;
-	    default:
-		ASSERT( (*(p-1) & 0x8000) == 0 );
-		debug( "\tCHR\t%c (%d)", *(p-1), *(p-1) );
-		break;
 	}
     }
     debug( "\tEND" );
@@ -416,7 +515,8 @@ void QRegExp::compile()
 
     error = PatOk;				// assume pattern is ok
 
-    char   *p = rxstring;			// pattern pointer
+    QString pattern = wc ? wc2rx(rxstring) : rxstring;
+    char   *p = pattern;			// pattern pointer
     ushort *d = rxarray;			// data pointer
     ushort *prev_d = 0;
 
@@ -427,7 +527,7 @@ void QRegExp::compile()
 
 	    case '^':				// beginning of line
 		prev_d = d;
-		GEN( p == rxstring.data() ? BOL : *p );
+		GEN( p == pattern.data() ? BOL : *p );
 		p++;
 		break;
 
@@ -490,8 +590,13 @@ void QRegExp::compile()
 		}
 		memset( d, 0, 16*sizeof(ushort) );
 		for ( int i=0; i<256; i++ ) {	// set bits
-		    if ( cc[i] ^ neg )
+		    if ( cc[i] ^ neg ) {
 			d[i >> 4] |= (1 << (i & 0xf));
+			if ( !cs && isalpha(i) ) {
+			    int j = islower(i) ? toupper(i) : tolower(i);
+			    d[j >> 4] |= (1 << (j & 0xf));
+			}
+		    }
 		}
 		d += 16;
 		p++;
@@ -539,8 +644,12 @@ void QRegExp::compile()
 		    GEN( *++p == '<' ? BOW : EOW );
 		    p++;
 		}
-		else
-		    GEN( char_val(&p) );
+		else {
+		    int c = char_val(&p);
+		    if ( !cs )
+			c = tolower( c );
+		    GEN( CHR | c );
+		}
 	}
 	if ( d >= rxarray + maxlen ) {		// oops!
 	    error = PatOverflow;		// pattern too long	    
@@ -552,7 +661,9 @@ void QRegExp::compile()
     rxdata = new ushort[ len ];			// copy from rxarray to rxdata
     CHECK_PTR( rxdata );
     memcpy( rxdata, rxarray, len*sizeof(ushort) );
+#if defined(DEBUG)
 //  dump( rxdata );	// uncomment this line for debugging!!!
+#endif
 }
 
 
