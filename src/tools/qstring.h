@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#5 $
+** $Id: //depot/qt/main/src/tools/qstring.h#6 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -7,7 +7,7 @@
 ** Author  : Haavard Nord
 ** Created : 920609
 **
-** Copyright (C) 1992-1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1992-1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -140,28 +140,99 @@ public:
     bool	isEmpty() const { return QGArray::size() <= 1; }
     uint	length()  const;		// length of QString excl. \0
     bool	resize( uint newlen );		// resize incl. \0 terminator
-    int		fill( char c, int len = -1 );	// resize and fill string
+    bool	fill( char c, int len = -1 );	// resize and fill string
 
-    QString copy() const			// get deep copy
-		{ QString tmp( (const char *)this->data() ); return tmp; }
+    QString	copy() const			// get deep copy
+		  { QString tmp( (const char *)this->data() ); return tmp; }
 
-    void	sprintf( const char *format, ... );
+    QString    &sprintf( const char *format, ... );
     bool	stripWhiteSpace();		// removes white space
 
-    int		find( char c, uint index = 0, bool cs=TRUE ) const;
-    int		find( const char *str, uint index = 0, bool cs=TRUE ) const;
+    int		find( char c, int index=0, bool cs=TRUE ) const;
+    int		find( const char *str, int index=0, bool cs=TRUE ) const;
+    int		findRev( char c, int index=-1, bool cs=TRUE) const;
+    int		findRev( const char *str, int index=-1, bool cs=TRUE) const;
     int		contains( char c, bool cs=TRUE ) const;
     int		contains( const char *str, bool cs=TRUE ) const;
 
-    bool	setGrow( uint index, char c );	// set and grow if necessary
+    QString	left( uint len )	const;	// get left substring
+    QString	right( uint len )	const;	// get right substring
+    QString	mid( uint index, uint len) const; // get mid substring
 
-//		operator char *() const	      { return data(); }
+    QString	leftJustify( uint width, char fill=' ' )  const;
+    QString	rightJustify( uint width, char fill=' ' ) const;
+
+    QString    &lower();
+    QString    &upper();
+
+    QString    &insert( uint index, const char * );
+    QString    &insert( uint index, char );
+    QString    &remove( uint index, uint len );
+    QString    &replace( uint index, uint len, const char * );
+
+    short	toShort( bool *ok=0 )	const;	// convert string to short
+    ushort	toUShort( bool *ok=0 )	const;	// convert string to ushort
+    int		toInt( bool *ok=0 )	const;	// convert string to int
+    uint	toUInt( bool *ok=0 )	const;	// convert string to uint
+    long	toLong( bool *ok=0 )	const;	// convert string to long
+    ulong	toULong( bool *ok=0 )	const;	// convert string to ulong    
+    float	toFloat( bool *ok=0 )	const;	// convert string to float
+    double	toDouble( bool *ok=0 )	const;	// convert string to double
+
+    QString    &setStr( const char *s );	// copy s, but not deref
+    QString    &setNum( short );		// set string from short
+    QString    &setNum( ushort );		// set string from ushort
+    QString    &setNum( int );			// set string from int
+    QString    &setNum( uint );			// set string from uint
+    QString    &setNum( long );			// set string from long
+    QString    &setNum( ulong );		// set string from ulong
+    QString    &setNum( float, char f='g', int prec=-1 );
+    QString    &setNum( double, char f='g', int prec=-1 );
+
+    bool	setExpand( uint index, char c );// set and expand if necessary
+
+		operator char *() const	      { return data(); }
 		operator const char *() const { return (pcchar)data(); }
     bool	operator !() const	      { return isNull(); }
     QString    &operator+=( const QString &s ); // append s to this string
     QString    &operator+=( const char *str );	// append str to this string
     QString    &operator+=( char c );		// append c to this string
 };
+
+
+// --------------------------------------------------------------------------
+// QString inline functions
+//
+
+inline short QString::toShort( bool *ok ) const
+{ return (short)toLong(ok); }
+
+inline ushort QString::toUShort( bool *ok ) const
+{ return (ushort)toULong(ok); }
+
+inline int QString::toInt( bool *ok ) const
+{ return (int)toLong(ok); }
+
+inline uint QString::toUInt( bool *ok ) const
+{ return (uint)toLong(ok); }
+
+inline float QString::toFloat( bool *ok ) const
+{ return (float)toDouble(ok); }
+
+inline QString &QString::setNum( short n )
+{ return setNum((long)n); }
+
+inline QString &QString::setNum( ushort n )
+{ return setNum((ulong)n); }
+
+inline QString &QString::setNum( int n )
+{ return setNum((long)n); }
+
+inline QString &QString::setNum( uint n )
+{ return setNum((ulong)n); }
+
+inline QString &QString::setNum( float n, char f, int prec )
+{ return setNum((double)n,f,prec); }
 
 
 // --------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#4 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -7,7 +7,7 @@
 ** Author  : Haavard Nord
 ** Created : 920722
 **
-** Copyright (C) 1992-1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1992-1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#4 $";
 #endif
 
 
@@ -170,8 +170,8 @@ bool QString::resize( uint len )		// resize incl. \0 terminator
 }
 
 
-void QString::sprintf( const char *format, ... )// make formatted string
-{
+QString &QString::sprintf( const char *format, ... )
+{						// make formatted string
     va_list ap;
     va_start( ap, format );
     if ( size() < 255 )
@@ -179,6 +179,7 @@ void QString::sprintf( const char *format, ... )// make formatted string
     vsprintf( data(), format, ap );
     resize( strlen(data()) );			// truncate
     va_end( ap );
+    return *this;
 }
 
 bool QString::stripWhiteSpace()			// strip white space
@@ -212,7 +213,7 @@ bool QString::stripWhiteSpace()			// strip white space
     return TRUE;
 }
 
-int QString::fill( char c, int len )		// fill string with c
+bool QString::fill( char c, int len )		// fill string with c
 {
     if ( len < 0 )
 	len = length();
@@ -223,15 +224,11 @@ int QString::fill( char c, int len )		// fill string with c
 }
 
 
-int QString::find( char c, uint index, bool cs ) const
+int QString::find( char c, int index, bool cs ) const
 {						// find char
-    if ( index >= size() ) {
-#if defined(CHECK_RANGE)
-	warning( "QString::find: Index %d out of range", index );
-#endif
+    if ( (uint)index >= size() )		// index outside string
 	return -1;
-    }
-    char *d;
+    register char *d;
     if ( cs )					// case sensitive
 	d = strchr( data()+index, c );
     else {
@@ -245,15 +242,11 @@ int QString::find( char c, uint index, bool cs ) const
     return d ? (int)(d - data()) : -1;
 }
 
-int QString::find( const char *str, uint index, bool cs ) const
+int QString::find( const char *str, int index, bool cs ) const
 {						// find substring
-    if ( index >= size() ) {
-#if defined(CHECK_RANGE)
-	warning( "QString::find: Index %d out of range", index );
-#endif
+    if ( (uint)index >= size() )		// index outside string
 	return -1;
-    }
-    char *d;
+    register char *d;
     if ( cs )					// case sensitive
 	d = strstr( data()+index, str );
     else {					// case insensitive
@@ -268,6 +261,55 @@ int QString::find( const char *str, uint index, bool cs ) const
 	    d = 0;
     }
     return d ? (int)(d - data()) : -1;
+}
+
+int QString::findRev( char c, int index, bool cs ) const
+{						// reverse find char
+    if ( index < 0 ) {				// neg index ==> start from end
+	index = length();
+	if ( index == 0 )
+	    return -1;
+    }
+    else if ( index >= size() )			// bad index
+	return -1;
+    char *b = data();
+    register char *d = b+index;
+    if ( cs ) {					// case sensitive
+	while ( *d != c && d >= b )
+	    d--;
+    }
+    else {
+	c = tolower( c );
+	while ( tolower(*d) != c && d >= b )
+	    d--;
+    }
+    return d >= b ? (int)(d - b) : -1;
+}
+
+int QString::findRev( const char *str, int index, bool cs ) const
+{						// reverse find substring
+    int slen = strlen(str);
+    if ( index < 0 )				// neg index ==> start from end
+	index = length()-slen;
+    else if ( index >= size() )			// bad index
+	return -1;
+    else if ( index + slen > length() )		// str would be too long
+	index = length() - slen;
+    if ( index < 0 )
+	return -1;
+
+    register char *d = data() + index;
+    if ( cs ) {					// case sensitive
+	for ( int i=index; i>=0; i-- )
+	    if ( strncmp(d--,str,slen)==0 )
+		return i;
+    }
+    else {					// case insensitive
+	for ( int i=index; i>=0; i-- )
+	    if ( strnicmp(d--,str,slen)==0 )
+		return i;
+    }
+    return -1;
 }
 
 int QString::contains( char c, bool cs ) const	// get # c's
@@ -314,7 +356,297 @@ int QString::contains( const char *str, bool cs ) const
 }
 
 
-bool QString::setGrow( uint index, char c )	// set and grow if necessary
+QString QString::left( uint len ) const		// get left substring
+{
+    if ( isEmpty() ) {
+	QString empty;
+	return empty;
+    }
+    else if ( len >= size() ) {
+	QString same( data() );
+	return same;
+    }
+    else {
+	QString s( len+1 );
+	strncpy( s.data(), data(), len );
+	s[len] = '\0';
+	s.resize( (int)strchr(s.data(),0) - (int)s.data() );
+	return s;
+    }
+}
+
+QString QString::right( uint len ) const	// get right substring
+{
+    if ( isEmpty() ) {
+	QString empty;
+	return empty;
+    }
+    else if ( len >= size() ) {
+	QString same( data() );
+	return same;
+    }
+    else {
+	register char *p = strchr(data(),0) - len;
+	if ( p < data() )
+	    p = data();
+	QString s( p );
+	return s;
+    }
+}
+
+QString QString::mid( uint index, uint len ) const // get mid substring
+{
+    int slen = strlen( data() );
+    if ( isEmpty() || index >= slen ) {
+	QString empty;
+	return empty;
+    }
+    else {
+	register char *p = data()+index;
+	QString s( len+1 );
+	strncpy( s.data(), p, len );
+	s[len] = '\0';
+	s.resize( (int)strchr(s.data(),0) - (int)s.data() );
+	return s;
+    }
+}
+
+QString QString::leftJustify( uint width, char fill ) const
+{
+    QString tmp;
+    int len = strlen(data());
+    int padlen = width - len;
+    if ( padlen > 0 ) {
+	tmp.resize( len+padlen+1 );
+	memcpy( tmp.data(), data(), len );
+	memset( tmp.data()+len, fill, padlen );
+	tmp[len+padlen] = '\0';
+    }
+    else
+	tmp = copy();
+    return tmp;
+}
+
+QString QString::rightJustify( uint width, char fill ) const
+{
+    QString tmp;
+    int len = strlen(data());
+    int padlen = width - len;
+    if ( padlen > 0 ) {
+	tmp.resize( len+padlen+1 );
+	memset( tmp.data(), fill, padlen );
+	memcpy( tmp.data()+padlen, data(), len );
+	tmp[len+padlen] = '\0';
+    }
+    else
+	tmp = copy();
+    return tmp;
+}
+
+
+QString &QString::lower()			// convert to lower case
+{
+    if ( !isEmpty() ) {
+	register char *p = data();
+	while ( *p ) {
+	    *p = tolower(*p);
+	    p++;
+	}
+    }
+    return *this;
+}
+
+QString &QString::upper()			// convert to upper case
+{
+    if ( !isEmpty() ) {
+	register char *p = data();
+	while ( *p ) {
+	    *p = toupper(*p);
+	    p++;
+	}
+    }
+    return *this;
+}
+
+
+QString &QString::insert( uint index, const char *s )
+{						// insert s into string
+    int len = strlen(s);
+    if ( len == 0 )
+	return *this;
+    int olen = length();
+    int nlen = olen + len;
+    if ( index >= olen ) {			// insert after end of string
+	if ( QByteArray::resize(nlen+index-olen+1) ) {
+	    memset( data()+olen, ' ', index-olen );
+	    memcpy( data()+index, s, len+1 );
+	}
+    }
+    else if ( QByteArray::resize(nlen+1) ) {	// normal insert
+#if defined(_OS_SUN_) || defined(_CC_OC_)
+	register char *sd = data()+length();	// no ANSI memmove
+    	register char *ss = sd - len;
+	int cnt = olen - index + 1;
+	while ( cnt-- )
+	    *sd-- = *ss--;
+#else
+	memmove( data()+index+len, data()+index, olen-index+1 );
+#endif
+	memcpy( data()+index, s, len );
+    }
+    return *this;
+}
+
+QString &QString::insert( uint index, char c )	// insert char
+{
+    char buf[2];
+    buf[0] = c;
+    buf[1] = '\0';
+    return insert( index, buf );
+}
+
+QString &QString::remove( uint index, uint len )// remove part of string
+{
+    int olen = length();
+    if ( index + len > olen ) {			// range problems
+	if ( index >= olen )			// index outside string
+	    return *this;
+	len = olen - index;			// adjust len
+    }
+#if defined(_OS_SUN_) || defined(_CC_OC_)
+    register char *sd = data()+index;		// no ANSI memmove
+    register char *ss = sd + len;
+    int cnt = olen - index + 1;
+    while ( cnt-- )
+	*sd++ = *ss++;
+#else
+    memmove( data()+index, data()+index+len, olen-index+1 );
+#endif
+    QByteArray::resize(size()-len);
+    return *this;
+}
+
+QString &QString::replace( uint index, uint len, const char *s )
+{						// replace part of string
+    remove( index, len );
+    insert( index, s );
+    return *this;
+}
+
+
+long QString::toLong( bool *ok ) const		// convert string to long
+{
+    char *end;
+    long val = strtol( data(), &end, 0 );
+    if ( ok ) {
+	if ( end == 0 || *end == '\0' )
+	    *ok = TRUE;
+	else
+	    *ok = FALSE;
+    }
+    return val;
+}
+
+ulong QString::toULong( bool *ok ) const	// convert string to ulong
+{
+    char *end;
+    ulong val = strtoul( data(), &end, 0 );
+    if ( ok ) {
+	if ( end == 0 || *end == '\0' )
+	    *ok = TRUE;
+	else
+	    *ok = FALSE;
+    }
+    return val;
+}
+
+double QString::toDouble( bool *ok ) const	// convert string to double
+{
+    char *end;
+    double val = strtod( data(), &end );
+    if ( ok ) {
+	if ( end == 0 || *end == '\0' )
+	    *ok = TRUE;
+	else
+	    *ok = FALSE;
+    }
+    return val;
+}
+
+
+QString &QString::setStr( const char *s )	// copy string, but not deref
+{
+    if ( s )					// valid string
+	store( s, strlen(s)+1 );
+    else					// empty
+	resize( 0 );
+    return *this;
+}
+
+QString &QString::setNum( long n )		// set string from long
+{
+    char buf[20];
+    register char *p = &buf[19];
+    bool neg;
+    if ( n < 0 ) {
+	neg = TRUE;
+	n = -n;
+    }
+    else
+	neg = FALSE;
+    *p = '\0';
+    do {
+	*--p = ((int)(n%10)) + '0';
+	n /= 10;
+    } while ( n );
+    if ( neg )
+	*--p = '-';
+    store( p, strlen(p)+1 );
+    return *this;
+}
+
+QString &QString::setNum( ulong n )		// set string from ulong
+{
+    char buf[20];
+    register char *p = &buf[19];
+    *p = '\0';
+    do {
+	*--p = ((int)(n%10)) + '0';
+	n /= 10;
+    } while ( n );
+    store( p, strlen(p)+1 );
+    return *this;
+}
+
+QString &QString::setNum( double n, char f, int prec )
+{
+#if defined(CHECK_RANGE)
+    if ( !(f=='f' || f=='F' || f=='e' || f=='E' || f=='g' || f=='G') )
+	warning( "QString::setNum: Invalid format char '%c'", f );
+#endif
+    char format[20];
+    register char *fs = format;			// generate format string
+    *fs++ = '%';				//   "%.<prec>l<f>"
+    if ( prec < 0 )
+	prec = 6;
+    else
+    if ( prec > 99 )
+	prec = 99;
+    *fs++ = '.';
+    if ( prec >= 10 ) {
+	*fs++ = prec / 10 + '0';
+	*fs++ = prec % 10 + '0';
+    }
+    else
+	*fs++ = prec + '0';
+    *fs++ = 'l';
+    *fs++ = f;
+    *fs = '\0';
+    return sprintf( format, n );
+}
+
+
+bool QString::setExpand( uint index, char c )	// set and expand if necessary
 {
     if ( index >= length() ) {
 	uint oldlen = length();
