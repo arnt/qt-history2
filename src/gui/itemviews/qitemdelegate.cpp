@@ -137,12 +137,9 @@ void QItemDelegate::paint(QPainter *painter,
 
     // do layout
     value = model->data(index, QAbstractItemModel::DecorationRole);
-    QPixmap pixmap;
-    QRect pixmapRect;
-    if (value.isValid() && !value.isNull()) {
-        pixmap = decoration(opt, value);
-        pixmapRect = QRect(0, 0, opt.decorationSize.width(), opt.decorationSize.height());
-    }
+    QPixmap pixmap = decoration(opt, value);
+    QRect pixmapRect = pixmap.rect();
+
     QFontMetrics fontMetrics(opt.font);
     QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
     QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.height());
@@ -408,9 +405,12 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
 
     textRect->adjust(-textMargin, 0, textMargin, 0);
 
+    QSize pm;
+    if (pixmapRect->isValid())
+        pm = option.decorationSize;
     if (hint) {
-        w = qMax(textRect->width(), pixmapRect->width()) + bb;
-        h = qMax(textRect->height(), pixmapRect->height()) + bb;
+        w = qMax(textRect->width(), pm.width()) + bb;
+        h = qMax(textRect->height(), pm.height()) + bb;
     } else {
         x += border;
         y += border;
@@ -442,33 +442,33 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
     }
     switch (position) {
     case QStyleOptionViewItem::Top: {
-        if (!pixmapRect->isEmpty())
-            pixmapRect->setHeight(pixmapRect->height() + bb); // add space
-        decoration.setRect(x, y, w, pixmapRect->height());
-        h = hint ? textRect->height() : h - pixmapRect->height();
-        display.setRect(x, y + pixmapRect->height(), w, h);
+        if (!pm.isEmpty())
+            pm.setHeight(pm.height() + bb); // add space
+        decoration.setRect(x, y, w, pm.height());
+        h = hint ? textRect->height() : h - pm.height();
+        display.setRect(x, y + pm.height(), w, h);
         break; }
     case QStyleOptionViewItem::Bottom: {
         if (!textRect->isEmpty())
             textRect->setHeight(textRect->height() + bb); // add space
-        h = hint ? textRect->height() + pixmapRect->height() : h;
-        decoration.setRect(x, y + h - pixmapRect->height(), w, pixmapRect->height());
-        h = hint ? textRect->height() : h - pixmapRect->height();
+        h = hint ? textRect->height() + pm.height() : h;
+        decoration.setRect(x, y + h - pm.height(), w, pm.height());
+        h = hint ? textRect->height() : h - pm.height();
         display.setRect(x, y, w, h);
         break; }
     case QStyleOptionViewItem::Left: {
-        if (!pixmapRect->isEmpty())
-            pixmapRect->setWidth(pixmapRect->width() + bb); // add space
-        decoration.setRect(x, y, pixmapRect->width(), h);
-        w = hint ? textRect->width() : w - pixmapRect->width() - cw;
-        display.setRect(x + pixmapRect->width(), y, w, h);
+        if (!pm.isEmpty())
+            pm.setWidth(pm.width() + bb); // add space
+        decoration.setRect(x, y, pm.width(), h);
+        w = hint ? textRect->width() : w - pm.width() - cw;
+        display.setRect(x + pm.width(), y, w, h);
         break; }
     case QStyleOptionViewItem::Right: {
         if (!textRect->isEmpty())
             textRect->setWidth(textRect->width() + bb); // add space
-        w = hint ? textRect->width() + pixmapRect->width() : w;
-        decoration.setRect(x + w - pixmapRect->width() - cw, y, pixmapRect->width(), h);
-        w = hint ? textRect->width() : w - pixmapRect->width() - cw;
+        w = hint ? textRect->width() + pm.width() : w;
+        decoration.setRect(x + w - pm.width() - cw, y, pm.width(), h);
+        w = hint ? textRect->width() : w - pm.width() - cw;
         display.setRect(x, y, w, h);
         break; }
     default:
