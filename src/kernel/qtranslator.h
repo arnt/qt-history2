@@ -35,63 +35,6 @@
 #ifndef QT_NO_TRANSLATION
 
 class QTranslatorPrivate;
-class QTranslatorMessage;
-
-
-class Q_EXPORT QTranslator: public QObject
-{
-    Q_OBJECT
-public:
-    QTranslator( QObject * parent, const char * name = 0 );
-    ~QTranslator();
-
-// ### find( const char *, const char *, const char * ) obsolete in Qt 3 ?
-    QString find( const char *, const char *, const char * ) const;
-// ### find( const char *, const char * ) obsolete in Qt 3
-    virtual QString find( const char *, const char * ) const;
-// ### findMessage made virtual in Qt 3
-    QTranslatorMessage findMessage( const char *, const char *,
-				    const char * ) const;
-
-    bool load( const QString & filename,
-	       const QString & directory = QString::null,
-	       const QString & search_delimiters = QString::null,
-	       const QString & suffix = QString::null );
-
-    enum SaveMode { Everything, Stripped };
-
-    bool save( const QString & filename, SaveMode mode = Everything );
-
-    void clear();
-
-    void insert( const QTranslatorMessage& );
-// ### insert() obsolete in Qt 3
-    void insert( const char *, const char *, const QString & );
-    void remove( const QTranslatorMessage& );
-// ### first remove obsolete in Qt 3
-    void remove( const char *, const char * );
-    bool contains( const char *, const char *, const char * ) const;
-// ### contains removed in Qt 3,
-    bool contains( const char *, const char * ) const;
-
-// ### squeeze() obsolete in Qt 3,
-// ### replaced by squeeze( SaveMode mode = Everything )
-    void squeeze( SaveMode );
-    void squeeze();
-    void unsqueeze();
-
-    QValueList<QTranslatorMessage> messages() const;
-    QString toUnicode( const char * ) const;
-
-private:
-    QTranslatorPrivate * d;
-
-private:	// Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QTranslator( const QTranslator & );
-    QTranslator &operator=( const QTranslator & );
-#endif
-};
 
 
 class Q_EXPORT QTranslatorMessage {
@@ -119,16 +62,22 @@ public:
 
     enum Prefix { NoPrefix, Hash, HashContext, HashContextSourceText,
     		  HashContextSourceTextComment };
-    void write( QDataStream & s,
-    		QTranslator::SaveMode mode = QTranslator::Everything,
+    void write( QDataStream & s, bool strip,
 		Prefix prefix = HashContextSourceTextComment ) const;
     Prefix commonPrefix( const QTranslatorMessage& ) const;
 
-    bool operator<( const QTranslatorMessage& ) const;
+    bool operator==( const QTranslatorMessage& m ) const;
+    bool operator!=( const QTranslatorMessage& m ) const
+    { return !operator==( m ); }
+    bool operator<( const QTranslatorMessage& m ) const;
+    bool operator<=( const QTranslatorMessage& m ) const
+    { return !operator>( m ); }
+    bool operator>( const QTranslatorMessage& m ) const
+    { return this->operator<( m ); }
+    bool operator>=( const QTranslatorMessage& m ) const
+    { return !operator<( m ); }
 
 private:
-    uint rehash();
-
     uint h;
     QCString cx;
     QCString st;
@@ -138,6 +87,62 @@ private:
 
     enum Tag { Tag_End = 1, Tag_SourceText16, Tag_Translation, Tag_Context16,
 	       Tag_Hash, Tag_SourceText, Tag_Context, Tag_Comment, Tag_Type };
+};
+
+
+class Q_EXPORT QTranslator: public QObject
+{
+    Q_OBJECT
+public:
+    QTranslator( QObject * parent, const char * name = 0 );
+    ~QTranslator();
+
+// ### find( const char *, const char *, const char * ) obsolete in Qt 3.0 ?
+    QString find( const char *, const char *, const char * ) const;
+// ### find( const char *, const char * ) obsolete in Qt 3.0
+    virtual QString find( const char *, const char * ) const;
+// ### findMessage made virtual in Qt 3.0
+    QTranslatorMessage findMessage( const char *, const char *,
+				    const char * ) const;
+
+    bool load( const QString & filename,
+	       const QString & directory = QString::null,
+	       const QString & search_delimiters = QString::null,
+	       const QString & suffix = QString::null );
+
+    enum SaveMode { Everything, Stripped };
+
+    bool save( const QString & filename, SaveMode mode = Everything );
+
+    void clear();
+
+    void insert( const QTranslatorMessage& );
+// ### insert() obsolete in Qt 3.0
+    void insert( const char *, const char *, const QString & );
+    void remove( const QTranslatorMessage& );
+// ### first remove obsolete in Qt 3.0
+    void remove( const char *, const char * );
+    bool contains( const char *, const char *, const char * ) const;
+// ### contains removed in Qt 3.0
+    bool contains( const char *, const char * ) const;
+
+// ### squeeze() obsolete in Qt 3.0
+// ### replaced by squeeze( SaveMode mode = Everything )
+    void squeeze( SaveMode );
+    void squeeze();
+    void unsqueeze();
+
+    QValueList<QTranslatorMessage> messages() const;
+    QString toUnicode( const char * ) const;
+
+private:
+    QTranslatorPrivate * d;
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QTranslator( const QTranslator & );
+    QTranslator &operator=( const QTranslator & );
+#endif
 };
 
 #endif // QT_NO_TRANSLATION

@@ -270,7 +270,7 @@ public:
 
   <ul>
   <li> \c Everything - files are saved with all contents
-  <li> \c Stripped - files are saved with just what's needed for end-users.
+  <li> \c Stripped - files are saved with just what's needed for end-users
   </ul>
 
   Note that when QTranslator loads a stripped file, most functions do
@@ -494,8 +494,8 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 
 
 /*!  Saves this message file to \a filename, overwriting the previous
-  contents of \a filename.  If \a mode is Everything (this is the
-  default), all the information is preserved.  If \a mode is Stripped,
+  contents of \a filename.  If \a mode is \c Everything (this is the
+  default), all the information is preserved.  If \a mode is \c Stripped,
   all information that is not necessary for find() is stripped away.
 
   \sa load()
@@ -625,7 +625,7 @@ void QTranslator::squeeze( SaveMode mode )
 	    cpNext = (int) it.key().commonPrefix( next.key() );
 	offsets.replace( QTranslatorPrivate::Offset(it.key(),
 			 ms.device()->at()), (void*)0 );
-	it.key().write( ms, mode,
+	it.key().write( ms, mode == Stripped,
 			(QTranslatorMessage::Prefix) QMAX(cpPrev, cpNext + 1) );
     }
 
@@ -1028,14 +1028,15 @@ QString QTranslator::toUnicode( const char * str ) const
   <li> \c Unfinished - the translation is absent or unusable
   <li> \c Finished - the translation is present and useful
   <li> \c Obsolete - the translation is present but useless for the user (it
-       may still be useful for the human translator, or may return)
+       may still be useful for the human translator, or may be made useful
+       again)
   </ul>
 
   \sa setType() type()
 */
 
-/*!  Constructs an Unfinished translator message with extended key ( 0, "", "",
-  "" ) and QString::null as translation.
+/*!  Constructs an \c Unfinished translator message with extended key
+  ( 0, "", "", "" ) and QString::null as translation.
 */
 
 QTranslatorMessage::QTranslatorMessage()
@@ -1044,7 +1045,7 @@ QTranslatorMessage::QTranslatorMessage()
 }
 
 
-/*!  Constructs an translator message of a certain \a type (Unfinished by
+/*!  Constructs an translator message of a certain \a type (\c Unfinished by
   default) with extended key ( \e h, \a context, \a sourceText, \a comment ),
   where \e h is computed from \a sourceText and \a comment, and possibly with a
   \a translation.
@@ -1058,7 +1059,7 @@ QTranslatorMessage::QTranslatorMessage( const char * context,
     : cx( context ), st( sourceText ), cm( comment ), tn( translation ),
       ty( type )
 {
-    rehash();
+    h = ::hash( st + cm );
 }
 
 
@@ -1081,7 +1082,7 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
 	    stream.readRawBytes( &tag, 1 );
 	switch( (Tag)tag ) {
 	case Tag_End:
-	    rehash();
+	    h = ::hash( st + cm );
 	    return;
 	case Tag_SourceText16:
 	    stream >> str16;
@@ -1136,7 +1137,6 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
   versions of Qt.
 */
 
-
 /*! \fn const char *QTranslatorMessage::context() const
 
   Returns the context for this message (e.g., "FunnyDialog").
@@ -1181,7 +1181,7 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
 
   Returns the type of this message.
 
-  The default value is Unfinished.
+  The default value is \c Unfinished.
 
   \sa setType()
 */
@@ -1196,22 +1196,21 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
   <li> \c HashContext - only ( \e h, \e c )
   <li> \c HashContextSourceText - only ( \e h, \e c, \e s )
   <li> \c HashContextSourceTextComment - the whole extended key, ( \e h, \e c,
-       \e s, \e m ).
+       \e s, \e m )
   </ul>
 
   \sa write() commonPrefix()
 */
 
-/*!  Writes this translator message to a \a stream.  If \a mode is Everything
-  (the default), all the information in the message is written.  If \a mode is
-  Stripped, only the part of the extended key specified by \a prefix is written
-  with the translation (HashContextSourceTextComment by default).
+/*!  Writes this translator message to a \a stream.  If \a strip is FALSE (the
+  default), all the information in the message is written.  If \a strip is TRUE,
+  only the part of the extended key specified by \a prefix is written with the
+  translation (\c HashContextSourceTextComment by default).
 
   \sa commonPrefix()
 */
 
-void QTranslatorMessage::write( QDataStream & stream,
-				QTranslator::SaveMode mode,
+void QTranslatorMessage::write( QDataStream & stream, bool strip,
 				Prefix prefix ) const
 {
     char tag;
@@ -1221,8 +1220,7 @@ void QTranslatorMessage::write( QDataStream & stream,
     stream << tn;
 
     bool mustWriteHash = TRUE;
-
-    if ( mode == QTranslator::Everything )
+    if ( !strip )
 	prefix = HashContextSourceTextComment;
 
     switch ( prefix ) {
@@ -1249,7 +1247,7 @@ void QTranslatorMessage::write( QDataStream & stream,
 	}
     }
 
-    if ( mode == QTranslator::Everything ) {
+    if ( !strip ) {
 	tag = (char)Tag_Type;
 	stream.writeRawBytes( &tag, 1 );
 	stream << (Q_UINT8)ty;
@@ -1265,7 +1263,7 @@ void QTranslatorMessage::write( QDataStream & stream,
 
   For example, if the extended key is for this message is ( 42, "FunnyDialog",
   "Yes", "Funny?" ) and that for \a m is ( 42, "FunnyDialog", "No", "Funny?" ),
-  returns HashContext.
+  returns \c HashContext.
 
   \sa write()
 */
@@ -1285,7 +1283,24 @@ QTranslatorMessage::Prefix QTranslatorMessage::commonPrefix(
 }
 
 
-/*!  Returns TRUE if the extended key of this object is lexicographically less
+/*!  Returns TRUE if the extended key of this object is equal to that of \a m,
+  otherwise FALSE.
+*/
+
+bool QTranslatorMessage::operator==( const QTranslatorMessage& m ) const
+{
+    return h == m.h && cx == m.cx && st == m.st && cm == m.cm;
+}
+
+
+/*! \fn bool QTranslatorMessage::operator!=( const QTranslatorMessage& m ) const
+
+  Returns TRUE if the extended key of this object is different from that of
+  \a m, otherwise FALSE.
+*/
+
+
+/*!  Returns TRUE if the extended key of this object is lexicographically before
   than that of \a m, otherwise FALSE.
 */
 
@@ -1297,10 +1312,16 @@ bool QTranslatorMessage::operator<( const QTranslatorMessage& m ) const
 }
 
 
-uint QTranslatorMessage::rehash()
-{
-    h = ::hash( st + cm );
-    return h;
-}
+/*! \fn bool QTranslatorMessage::operator<=( const QTranslatorMessage& m ) const
+
+  Returns TRUE if the extended key of this object is lexicographically before
+  that of \a m or if they are equal, otherwise FALSE.
+*/
+
+/*! \fn bool QTranslatorMessage::operator>( const QTranslatorMessage& m ) const
+
+  Returns TRUE if the extended key of this object is lexicographically after
+  that of \a m, otherwise FALSE.
+*/
 
 #endif // QT_NO_TRANSLATION
