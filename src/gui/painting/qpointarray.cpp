@@ -453,8 +453,10 @@ void QPointArray::makeEllipse(int x, int y, int w, int h)
 
 QPointArray QPointArray::cubicBezier() const
 {
-    if (size() <= 4)
+    if (size() != 4) {
+	qWarning( "QPointArray::bezier: The array must have 4 control points" );
         return QPointArray();
+    }
     QPolygon polygon = QBezier(at(0), at(1), at(2), at(3)).toPolygon();
     return polygon.toPointArray();
 }
