@@ -12,8 +12,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>593</width>
-            <height>476</height>
+            <width>589</width>
+            <height>474</height>
         </rect>
     </property>
     <property name="caption">
@@ -184,16 +184,19 @@
         <receiver>MulticlipForm</receiver>
         <slot>deleteClipping()</slot>
     </connection>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="public" language="C++" returnType="void">addClipping()</slot>
     <slot access="public" language="C++" returnType="void">dataChanged()</slot>
     <slot access="public" language="C++" returnType="void">deleteClipping()</slot>
-    <slot access="public" language="C++" returnType="void">destroy()</slot>
-    <slot access="public" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
     <slot access="public" language="C++" returnType="void">selectionChanged()</slot>
     <slot access="public" language="C++" returnType="void">copyPrevious()</slot>
-    <slot access="public" language="C++" returnType="void">clippingChanged( const QString &amp; s )</slot>
+    <slot access="public" language="C++" returnType="void">clippingChanged( const QString &amp; clipping )</slot>
 </connections>
 <functions>
+    <function name="destroy()" >{ 
+    
+}</function>
     <function name="addClipping()" >{ 
     QString text = currentLineEdit-&gt;text(); 
     if ( ! text.isEmpty() ) { 
@@ -219,9 +222,6 @@
     <function name="deleteClipping()" >{  
     clippingChanged( "" );  
     clippingsListBox-&gt;removeItem( clippingsListBox-&gt;currentItem() ); 
-}</function>
-    <function name="destroy()" >{ 
-    
 }</function>
     <function name="init()" >{ 
     lengthLCDNumber-&gt;setBackgroundColor( darkBlue ); 
@@ -250,8 +250,8 @@
     } 
 }</function>
     <function name="clippingChanged(const QString&amp;)" >{ 
-    currentLineEdit-&gt;setText( s ); 
-    lengthLCDNumber-&gt;display( (int)s.length() );  
+    currentLineEdit-&gt;setText( clipping ); 
+    lengthLCDNumber-&gt;display( (int)clipping.length() );  
 }</function>
 </functions>
 <tabstops>

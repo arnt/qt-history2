@@ -1,14 +1,14 @@
 targets = chap-preface.sgml \
 	chap-one.sgml \
-	chap-two.sgml \
+	chap-main-windows.sgml \
+	chap-subclassing.sgml \
+	chap-advanced-widgets.sgml \
+	chap-customizing.sgml \
+	chap-custom-controls.sgml \
+	chap-creating-database-applications.sgml \
 	chap-02.sgml \
 	chap-03.sgml \
 	chap-04.sgml \
-	chap-advanced-widgets.sgml \
-	chap-customizing.sgml \
-	chap-main-windows.sgml \
-	chap-custom-controls.sgml \
-	chap-creating-database-applications.sgml \
 	chap-06.sgml \
 	chap-07.sgml \
 	chap-08.sgml \

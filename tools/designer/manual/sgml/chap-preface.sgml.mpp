@@ -1,5 +1,5 @@
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
-<chapter>
+<!DOCTYPE preface PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+<preface>
 <title>Preface</title>
 
 <sect1>
@@ -30,50 +30,47 @@
     \P
 
     \p
-    This manual has been almost completely rewritten to provide more and
-    better examples and to explain the new features and functionality that \qd
-    now provides. The manual is divided into two parts. The chapters in the
-    first part introduce you to \qd by leading you through the development of
-    example applications that demonstrate \qd's facilities. The second part is
-    a comprehensive reference. 
-    </para>
-    <para>
-    Chapter two covers the basics of building a Qt application with
-    Designer. All the chapters are written to be as self-contained as
-    possible so that you can use them independently; excepting that all
-    the chapters after chapter two assume that you are famililar with
-    the contents of chapter two. Here's a brief overview of the
-    chapters:
+    The manual is divided into two parts. The first part, chapters one
+    to seven, consists of tutorials which introduce you to \qd by
+    leading you through the development of example applications. The
+    second part, chapters eight to ten, provide a comprehensive
+    reference. The tutorial chapters are written to be as self-contained
+    as possible, but all of them assume that you are familiar with the
+    material in chapter one which covers the basics of building a Qt
+    application with Designer. Here's a brief overview of the chapters:
     <itemizedlist> 
     <listitem> 
     \p
-    Chapter two introduces \qd and takes you step by step through
-    the creation of a small but fully functional application.
-    Along
-    the way you will learn how to create a form and add widgets to it.
-    In the course of the chapter you will use the form and property
-    editors to customize the application, and learn how to lay out a form
-    using the layout tools. You'll also learn how to use Qt's signals
-    and slots mechanism and \qd's built-in code editor to create and
-    implement our own custom slots. We will also explain how to use
-    \cmd[qmake] to generate a Makefile so that you can compile and run
-    the application. 
+    Chapter one introduces \qd and takes you step by step through the
+    creation of a small but fully functional application. Along the way
+    you will learn how to create a form and add widgets to it. In the
+    course of the chapter you will use the form and property editors to
+    customize the application, and learn how to lay out a form using the
+    layout tools. You'll also learn how to use Qt's signals and slots
+    mechanism and \qd's built-in code editor to make the application
+    functional. We will also explain how to use \cmd[qmake] to generate
+    a Makefile so that you can compile and run the application. 
     \P
     </listitem>
 
     <listitem> 
     <para>
-    Chapter three demonstrates how to create an application's main
-    window, including toolbars and menus.     
+    In chapter two we will create a simple text editor. Through writing
+    this application you will learn how to create a main window with menus
+    and toolbars. We will see how to use Qt's built-in functionality to
+    handle common tasks (e.g. copy and paste handling), and how to
+    create our own functionality for our own menu items and toolbar
+    buttons.
     </para>
     </listitem>
 
     <listitem> 
     \p
-    Chapter four will show you how to subclass a form; this allows you
+    Chapter three will show you how to subclass a form; this allows you
     to clearly separate the user interface from the underlying code that
-    implements its functionality. This chapter will also explain how you
-    can create dialogs dynamically directly from
+    implements its functionality. Additional information on \cmd[qmake]
+    and \cmd[uic] is included in this chapter. This chapter will also
+    explain how you can create dialogs dynamically directly from
     <filename>.ui</filename> files using
     <classname>QWidgetFactory</classname>, and how to access
     sub-widgets.
@@ -82,13 +79,13 @@
 
     <listitem>
     <para>
-    Chapter five introduces some of Qt's more advanced widgets.
+    Chapter four introduces some of Qt's more advanced widgets.
     </para>
     </listitem>
 
     <listitem> 
     <para>
-    Chapter six explains how you can create your own custom widgets.
+    Chapter five explains how you can create your own custom widgets.
     Both the simple method, that was introduced with the first version of
     \qd, and the new more powerful method using plugins, are explained.
     </para>
@@ -96,7 +93,7 @@
 
     <listitem>
     <para>
-    Chapter seven introduces Qt's SQL classes and takes you through an
+    Chapter six introduces Qt's SQL classes and takes you through an
     example that demonstrates how to execute SQL queries and how to set
     up master-detail relationships, perform drilldown and handle foreign
     keys.
@@ -105,15 +102,15 @@
 
     <listitem>
     <para>
-    Chapter eight focuses on \qd itself, showing you how to customize
+    Chapter seven focuses on \qd itself, showing you how to customize
     Designer, how to integrate Designer with IDEs and how to create
-    Makefiles if you don't wish to use \cmd[qmake]. 
+    Makefiles. 
     </para>
     </listitem>
 
     <listitem>
     <para>
-    Chapter's nine to eleven contain the reference material describing
+    Chapter's eight to ten contain the reference material describing
     \qd's menus, toolbars, dialogs and key bindings.
     </para>
     </listitem>
@@ -176,4 +173,4 @@ application.
 
 </sect1>
 
-</chapter>
+</preface>

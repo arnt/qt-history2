@@ -9,7 +9,6 @@
 *****************************************************************************/
 
 #include <qapplication.h>
-#include <qclipboard.h>
 #include "multiclip.h"
 
 

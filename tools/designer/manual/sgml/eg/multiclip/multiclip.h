@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form interface generated from reading ui file 'multiclip.ui'
 **
-** Created: Wed Feb 14 13:43:47 2001
+** Created: Thu Feb 15 11:01:27 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -45,14 +45,16 @@ public:
 
 
 public slots:
-    virtual void init();
-    virtual void destroy();
     virtual void addClipping();
-    virtual void copyPrevious();
     virtual void dataChanged();
     virtual void deleteClipping();
     virtual void selectionChanged();
-    virtual void clippingChanged( const QString & s );
+    virtual void copyPrevious();
+    virtual void clippingChanged( const QString & clipping );
+
+protected slots:
+    virtual void destroy();
+    virtual void init();
 
 protected:
     QVBoxLayout* MulticlipFormLayout;

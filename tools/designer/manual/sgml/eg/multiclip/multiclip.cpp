@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form implementation generated from reading ui file 'multiclip.ui'
 **
-** Created: Wed Feb 14 13:43:47 2001
+** Created: Thu Feb 15 11:01:29 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -45,7 +45,7 @@ MulticlipForm::MulticlipForm( QWidget* parent,  const char* name, bool modal, WF
 {
     if ( !name )
 	setName( "MulticlipForm" );
-    resize( 593, 476 ); 
+    resize( 589, 474 ); 
     setCaption( tr( "Multiclip" ) );
     MulticlipFormLayout = new QVBoxLayout( this ); 
     MulticlipFormLayout->setSpacing( 6 );
@@ -119,6 +119,9 @@ MulticlipForm::MulticlipForm( QWidget* parent,  const char* name, bool modal, WF
 
     // signals and slots connections
     connect( quitPushButton, SIGNAL( clicked() ), this, SLOT( accept() ) );
+    connect( addPushButton, SIGNAL( clicked() ), this, SLOT( addClipping() ) );
+    connect( copyPushButton, SIGNAL( pressed() ), this, SLOT( copyPrevious() ) );
+    connect( deletePushButton, SIGNAL( clicked() ), this, SLOT( deleteClipping() ) );
 
     // tab order
     setTabOrder( currentLineEdit, clippingsListBox );
@@ -127,6 +130,7 @@ MulticlipForm::MulticlipForm( QWidget* parent,  const char* name, bool modal, WF
     setTabOrder( addPushButton, copyPushButton );
     setTabOrder( copyPushButton, deletePushButton );
     setTabOrder( deletePushButton, quitPushButton );
+    init();
 }
 
 /*  
@@ -134,25 +138,8 @@ MulticlipForm::MulticlipForm( QWidget* parent,  const char* name, bool modal, WF
  */
 MulticlipForm::~MulticlipForm()
 {
+    destroy();
     // no need to delete child widgets, Qt does it all for us
-}
-
-void MulticlipForm::init()
-{ 
-    lengthLCDNumber->setBackgroundColor( darkBlue ); 
-    currentLineEdit->setFocus(); 
-     
-    cb = qApp->clipboard(); 
-    connect( cb, SIGNAL( dataChanged() ), SLOT( dataChanged() ) ); 
-    if ( cb->supportsSelection() ) 
-	connect( cb, SIGNAL( selectionChanged() ), SLOT( selectionChanged() ) ); 
-     
-    dataChanged(); 
-}
-
-void MulticlipForm::destroy()
-{
-    qWarning( "MulticlipForm::destroy(): Not implemented yet!" );
 }
 
 void MulticlipForm::addClipping()
@@ -169,18 +156,6 @@ void MulticlipForm::addClipping()
 	} 
 	if ( i != -1 )  
 	    clippingsListBox->insertItem( text, 0 );   	     
-    } 
-}
-
-void MulticlipForm::copyPrevious()
-{ 
-    if ( clippingsListBox->currentItem() != -1 ) { 
-	cb->setText( clippingsListBox->currentText() ); 
-	if ( cb->supportsSelection() ) { 
-	    cb->setSelectionMode( TRUE ); 
-	    cb->setText( clippingsListBox->currentText() ); 
-	    cb->setSelectionMode( FALSE ); 
-	} 
     } 
 }
 
@@ -206,9 +181,38 @@ void MulticlipForm::selectionChanged()
     cb->setSelectionMode( FALSE );  
 }
 
-void MulticlipForm::clippingChanged( const QString & s )
+void MulticlipForm::copyPrevious()
 { 
-    currentLineEdit->setText( s ); 
-    lengthLCDNumber->display( (int)s.length() );  
+    if ( clippingsListBox->currentItem() != -1 ) { 
+	cb->setText( clippingsListBox->currentText() ); 
+	if ( cb->supportsSelection() ) { 
+	    cb->setSelectionMode( TRUE ); 
+	    cb->setText( clippingsListBox->currentText() ); 
+	    cb->setSelectionMode( FALSE ); 
+	} 
+    } 
+}
+
+void MulticlipForm::clippingChanged( const QString & clipping )
+{ 
+    currentLineEdit->setText( clipping ); 
+    lengthLCDNumber->display( (int)clipping.length() );  
+}
+
+void MulticlipForm::destroy()
+{
+}
+
+void MulticlipForm::init()
+{ 
+    lengthLCDNumber->setBackgroundColor( darkBlue ); 
+    currentLineEdit->setFocus(); 
+     
+    cb = qApp->clipboard(); 
+    connect( cb, SIGNAL( dataChanged() ), SLOT( dataChanged() ) ); 
+    if ( cb->supportsSelection() ) 
+	connect( cb, SIGNAL( selectionChanged() ), SLOT( selectionChanged() ) ); 
+     
+    dataChanged(); 
 }
 
