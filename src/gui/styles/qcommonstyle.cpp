@@ -794,9 +794,9 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         if (const QStyleOptionProgressBar *pb = qt_cast<const QStyleOptionProgressBar *>(opt)) {
             QColor penColor = pb->palette.highlightedText().color();
             QColor *pColor = 0;
-            if (pb->textVisible && pb->progress * 2 >= pb->maximum)
+            if ((pb->textAlignment & Qt::AlignCenter) && pb->textVisible && pb->progress * 2 >= pb->maximum)
                 pColor = &penColor;
-            drawItem(p, pb->rect, pb->textAlignment | Qt::TextSingleLine, pb->palette,
+            drawItem(p, pb->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->palette,
                      pb->state & Style_Enabled, pb->text, -1, pColor);
         }
         break;
@@ -1295,18 +1295,18 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
         if (const QStyleOptionProgressBar *pb = qt_cast<const QStyleOptionProgressBar *>(opt)) {
             int textw = 0;
             if (pb->textVisible)
-                textw = fm.width("100%") + 6;
+                textw = qMax(fm.width(pb->text), fm.width("100%")) + 6;
 
-            if (pb->textAlignment & Qt::AlignCenter) {
+            if ((pb->textAlignment & Qt::AlignCenter) == 0) {
                 if (sr != SR_ProgressBarLabel)
                     r.setCoords(pb->rect.left(), pb->rect.top(),
                                 pb->rect.right() - textw, pb->rect.bottom());
                 else
                     r.setCoords(pb->rect.right() - textw, pb->rect.top(),
                                 pb->rect.right(), pb->rect.bottom());
-            }
-            else
+            } else {
                 r = pb->rect;
+            }
         }
         break;
     case SR_DockWindowHandleRect:

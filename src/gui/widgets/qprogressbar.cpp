@@ -43,7 +43,7 @@ public:
 #define q q_func()
 
 QProgressBarPrivate::QProgressBarPrivate()
-    : minimum(0), maximum(100), value(-1), alignment(Qt::AlignCenter), textVisible(true)
+    : minimum(0), maximum(100), value(-1), alignment(Qt::AlignAuto), textVisible(true)
 {
 }
 
@@ -63,7 +63,6 @@ QStyleOptionProgressBar QProgressBarPrivate::getStyleOption() const
     opt.textAlignment = alignment;
     opt.textVisible = textVisible;
     opt.text = q->text();
-    opt.q3IndicatorFollowsStyle = false;
 
     return opt;
 }

@@ -187,7 +187,6 @@ public:
     Qt::Alignment textAlignment;
     bool textVisible;
 
-    bool q3IndicatorFollowsStyle;
 
     QStyleOptionProgressBar();
 

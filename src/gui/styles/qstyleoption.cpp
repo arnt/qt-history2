@@ -471,10 +471,8 @@ QStyleOptionTab::QStyleOptionTab(int version)
     \value CenterIndicator Indicates that the percentage indicator \l
         progressBarString should be centered.
     \value PercentageVisible Indicates that the \l progressBarString should also be drawn.
-    \value IndicatorFollowsStyle Indicates that the \l progressBarString should
         follow the style.
 
-    \sa features, QProgressBar::indicatorFollowsStyle, QProgressBar::centerIndicator
 */
 
 /*!
@@ -484,8 +482,7 @@ QStyleOptionTab::QStyleOptionTab(int version)
 
 QStyleOptionProgressBar::QStyleOptionProgressBar()
     : QStyleOption(QStyleOptionProgressBar::Version, SO_ProgressBar),
-      minimum(0), maximum(0), progress(0), textAlignment(0), textVisible(false),
-      q3IndicatorFollowsStyle(false)
+      minimum(0), maximum(0), progress(0), textAlignment(0), textVisible(false)
 {
 }
 
@@ -494,8 +491,7 @@ QStyleOptionProgressBar::QStyleOptionProgressBar()
 */
 QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
     : QStyleOption(version, SO_ProgressBar),
-      minimum(0), maximum(0), progress(0), textAlignment(0), textVisible(false),
-      q3IndicatorFollowsStyle(false)
+      minimum(0), maximum(0), progress(0), textAlignment(0), textVisible(false)
 {
 }
 
