@@ -32,7 +32,7 @@ GroupBoxTaskMenu::GroupBoxTaskMenu(QGroupBox *groupbox, QObject *parent)
       m_groupbox(groupbox)
 {
     m_editTitleAction = new QAction(tr("Edit title"), this);
-    connect(m_editTitleAction, SIGNAL(activated()), this, SLOT(editTitle()));
+    connect(m_editTitleAction, SIGNAL(triggered()), this, SLOT(editTitle()));
 }
 
 GroupBoxTaskMenu::~GroupBoxTaskMenu()
