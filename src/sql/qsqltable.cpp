@@ -102,6 +102,8 @@ public:
     int lastAt;
     QString ftr;
     QStringList srt;
+    QStringList fld;
+    QStringList fldLabel;
 };
 
 /*! \enum QSqlTable::Confirm
@@ -151,16 +153,17 @@ public:
   queries to be displayed as quickly as possible, with minimum memory
   usage.
 
-  QSqlTable inherits QTable's API and extends it with functions to sort
-  and filter the data and sort columns. See setFilter(), setSort(),
-  setSorting() and sortColumn().
+  QSqlTable inherits QTable's API and extends it with functions to
+  sort and filter the data and sort columns. See setCursor(),
+  setFilter(), setSort(), setSorting(), sortColumn() and refresh().
 
-  When displaying editable cursors, cell editing will be enabled.
-  QSqlTable can be used to modify existing data and to enter new
-  records.  When a user makes changes to a field in the table, the
-  cursor's edit buffer is used.  The table will not send changes in the
-  record to the database until the user moves to a different record in
-  the grid.  If there is a problem updating data, errors will be handled
+  When displaying editable cursors, cell editing will be enabled (for
+  more information on editable cursors, see \l QSqlCursor).  QSqlTable
+  can be used to modify existing data and to enter new records.  When
+  a user makes changes to a field in the table, the cursor's edit
+  buffer is used.  The table will not send changes in the edit buffer
+  to the database until the user moves to a different record in the
+  grid.  If there is a problem updating data, errors will be handled
   automatically (see handleError() to change this behavior). QSqlTable
   creates editors using the default \l QSqlEditorFactory. Different
   editor factories can be used by calling installEditorFactory(). Cell
@@ -170,10 +173,12 @@ public:
   cursor (see setCursor()), or manually (see addColumn() and
   removeColumn()).
 
-  The table automatically uses the properties of the cursor record to
+  The table automatically uses many of the properties of the cursor to
   format the display of data within cells (alignment, visibility,
-  etc.).  You can change the appearance of cells by reimplementing
-  paintField().
+  etc.).  However, the filter and sort defined within the table (see
+  setFilter() and setSort()) are used instead of the filter and sort
+  set on the cursor.  You can change the appearance of cells by
+  reimplementing paintField().
 
 */
 
@@ -187,13 +192,14 @@ QSqlTable::QSqlTable ( QWidget * parent, const char * name )
     init();
 }
 
-/*!  Constructs a table using the cursor \a cursor.  If
-  \a autoPopulate is TRUE (the default is FALSE), columns are
+/*!  Constructs a table using the cursor \a cursor.  If \a
+  autoPopulate is TRUE (the default is FALSE), columns are
   automatically created based upon the fields in the \a cursor record.
   Note that \a autoPopulate only governs the creation of columns; to
-  load the cursor's data use refresh(). If the \a cursor is read only,
-  the table becomes read only.  The table adopts the cursor's driver's
-  definition for representing NULL values as strings.
+  load the cursor's data into the table use refresh(). If the \a
+  cursor is read only, the table becomes read only.  In addition, the
+  table adopts the cursor's driver's definition for representing NULL
+  values as strings.
 */
 
 QSqlTable::QSqlTable ( QSqlCursor* cursor, bool autoPopulate, QWidget * parent, const char * name )
@@ -233,26 +239,32 @@ QSqlTable::~QSqlTable()
 }
 
 
-/*!  Adds \a field from the current cursor as the next column to be
-  diplayed.  Fields which are not visible and fields which are part of
-  a cursor's primary index are not displayed. If there is no current
-  cursor, nothing happens.
+/*!  Adds \a fieldName as the next column to be diplayed.  If \a label
+  is specified, it is used as the column header label, otherwise the
+  field's display label is used when setCursor() is called.
 
-  \sa QSqlField setCursor()
+  \sa setCursor() refresh()
 
 */
 
-void QSqlTable::addColumn( const QSqlField* field )
+void QSqlTable::addColumn( const QString& fieldName, const QString& label = QString::null )
 {
-    if ( defaultCursor() && field &&
-	 defaultCursor()->isVisible( field->name() ) &&
-	 !defaultCursor()->primaryIndex().contains( field->name() ) ) {
-	setNumCols( numCols() + 1 );
-	d->colIndex.append( defaultCursor()->position( field->name() ) );
-	setColumnReadOnly( numCols()-1, field->isReadOnly() );
-	QHeader* h = horizontalHeader();
-	h->setLabel( numCols()-1, defaultCursor()->displayLabel( field->name() ) );
-    }
+    d->fld += fieldName;
+    d->fldLabel += label;
+}
+
+/*!  Sets column \a col to display field \a field.  If \a label is
+  specified, it is used as the column header label, otherwise the
+  field's display label is used when setCursor() is called.
+
+  \sa setCursor() refresh()
+
+*/
+
+void QSqlTable::setColumn( uint col, const QString& fieldName, const QString& label = QString::null )
+{
+    d->fld[col]= fieldName;
+    d->fldLabel[col] = label;
 }
 
 /*!  Removes column \a col from the list of columns to be diplayed.
@@ -264,37 +276,9 @@ void QSqlTable::addColumn( const QSqlField* field )
 
 void QSqlTable::removeColumn( uint col )
 {
-    if ( col >= (uint)numCols() )
-	return;
-    QHeader* h = horizontalHeader();
-    for ( uint i = col; i < (uint)numCols()-1; ++i )
-	h->setLabel( i, h->label(i+1) );
-    setNumCols( numCols()-1 );
-    QSqlTablePrivate::ColIndex::Iterator it = d->colIndex.at( col );
-    if ( it != d->colIndex.end() )
-	d->colIndex.remove( it );
-}
-
-/*!  Sets column \a col to display field \a field.  If \a col does not
-  exist, nothing happens.
-
-  \sa QSqlField
-
-*/
-
-void QSqlTable::setColumn( uint col, const QSqlField* field )
-{
-    if ( col >= (uint)numCols() )
-	return;
-    if ( !defaultCursor() )
-	return;
-    if ( defaultCursor()->isVisible( field->name() ) && !defaultCursor()->primaryIndex().field( field->name() ) ) {
-	d->colIndex[ col ] = defaultCursor()->position( field->name() );
-	setColumnReadOnly( col, field->isReadOnly() );
-	QHeader* h = horizontalHeader();
-	h->setLabel( col, field->name() );
-    } else {
-	removeColumn( col );
+    if ( d->fld.at( col ) != d->fld.end() ) {
+	d->fld.remove( d->fld.at( col ) );
+	d->fldLabel.remove( d->fldLabel.at( col ) );
     }
 }
 
@@ -331,7 +315,7 @@ void QSqlTable::setFilter( const QString& filter )
 
   \code
     QStringList fields = QStringList() << "duedate" << "amountdue";
-    thisTable->setSort( fields ); 
+    thisTable->setSort( fields );
   \endcode
 
   will produce an ORDER BY clause like this:
@@ -1132,7 +1116,7 @@ void QSqlTable::reset()
 	horizontalHeader()->setSortIndicator( -1 );
 }
 
-/*!  Returns the index of the field within the current SQL query that is 
+/*!  Returns the index of the field within the current SQL query that is
   displayed in column \a i.
 
 */
@@ -1479,15 +1463,6 @@ int QSqlTable::fieldAlignment( const QSqlField* field )
 }
 
 
-/*!  Adds the fields in \a fieldList to the column header.
-*/
-
-void QSqlTable::addColumns( const QSqlRecord& fieldList )
-{
-    for ( uint j = 0; j < fieldList.count(); ++j )
-	addColumn( fieldList.field(j) );
-}
-
 /*!  If the \a sql driver supports query sizes, the number of rows in
   the table is set to the size of the query.  Otherwise, the table
   dynamically resizes itself as it is scrolled.  If \q sql is not
@@ -1535,10 +1510,10 @@ void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelet
 	    delete d->cursor;
 	reset();
 	d->cursor = cursor;
-	setNumCols(0);
-	d->colIndex.clear();
-	if ( autoPopulate )
-	    addColumns( *d->cursor );
+	if ( autoPopulate ) {
+	    for ( uint i = 0; i < d->cursor->count(); ++i )
+		addColumn( d->cursor->field( i )->name(), d->cursor->displayLabel( d->cursor->field( i )->name() ) );
+	}
 	setReadOnly( d->cursor->isReadOnly() ); // ## do this by default?
 	setNullText(d->cursor->driver()->nullText() );
 	setAutoDelete( autoDelete );
@@ -1713,6 +1688,26 @@ void QSqlTable::refresh()
     if ( !cursor )
 	return;
     QSqlNavigator::refresh();
+    setNumCols(0);
+    d->colIndex.clear();
+    if ( d->fld.count() ) {
+	QSqlField* field = 0;
+	for ( uint i = 0; i < d->fld.count(); ++i ) {
+	    field = defaultCursor()->field( d->fld[ i ] );
+	    if ( field &&
+		 defaultCursor()->isVisible( field->name() ) &&
+		 !defaultCursor()->primaryIndex().contains( field->name() ) ) {
+		setNumCols( numCols() + 1 );
+		d->colIndex.append( defaultCursor()->position( field->name() ) );
+		setColumnReadOnly( numCols()-1, field->isReadOnly() );
+		QHeader* h = horizontalHeader();
+		QString label = d->fldLabel[ i ];
+		if ( label == QString::null )
+		    label = defaultCursor()->displayLabel( field->name() );
+		h->setLabel( numCols()-1, label );
+	    }
+	}
+    }
     setSize( cursor );
 }
 

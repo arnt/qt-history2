@@ -985,8 +985,13 @@ void Uic::createFormImpl( const QDomElement &e )
 		      it2 != dbForms[ (*it) ].end();
 		      ++it2 ) {
 		    dbFormCount++;
-		    if ( !(*it2).isEmpty() )
+		    if ( !(*it2).isEmpty() ) {
 			out << indent << (*it2) << "Form = new QSqlForm( this, \"" << (*it2) << "\" );" << endl;
+			for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+			    createFormImpl( n, (*it2), (*it), (*it2) );
+			}
+
+		    }
 		}
 	    }
 	}
@@ -1160,26 +1165,6 @@ void Uic::createFormImpl( const QDomElement &e )
 			    out << indent << indent << indent << "QSqlCursor* c = new QSqlCursor( \"" << tab << "\", " << conn << "Connection );" << endl;
 			out << indent << indent << indent << c << "->setCursor( c, FALSE, TRUE );" << endl;
 			out << indent << indent << "}" << endl;
-			// create implementation
-			QDomElement n2;
-			for ( n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
-			    if ( n2.tagName() == "column" ) {
-				QString fieldName;
-				QString fieldLabel;
-				// ### also need pixmap support in QSqlTable
-				QDomElement n3;
-				for ( n3 = n2.firstChild().toElement(); !n3.isNull(); n3 = n3.nextSibling().toElement() ) {
-				    if ( n3.tagName() == "property"  && n3.attribute( "name" ) == "text" )
-					fieldLabel = n3.firstChild().firstChild().toText().data();
-				    if ( n3.tagName() == "property"  && n3.attribute( "name" ) == "field" )
-					fieldName = n3.firstChild().firstChild().toText().data();
-				}
-				if ( !fieldName.isEmpty() && !fieldLabel.isEmpty() ) {
-				    out << indent << indent << "c->setDisplayLabel( \"" << fieldName << "\" , \"" << fieldLabel << "\" );" << endl;
-				    out << indent << indent << c << "->addColumn( c->field( \"" << fieldName << "\" ) );" << endl;
-				}
-			    }
-			}
 			out << indent << indent << "if ( !c->isActive() )" << endl;
 			out << indent << indent << indent << c << "->refresh();" << endl;
 			out << indent << "}" << endl;
@@ -1267,7 +1252,7 @@ void Uic::createFormImpl( const QDomElement& e, const QString& form, const QStri
     if ( e.tagName() == "widget" &&
 	 e.attribute( "class" ) != "QSqlTable" ) {
 	if ( isWidgetInTable( e, connection, table ) )
-	    out << indent << indent << form << "Form->insert( " << getObjectName( e ) << ", buf->field( \"" << getDatabaseInfo( e, "field" ) << "\" ) );" << endl;
+	    out << indent << form << "Form->insert( " << getObjectName( e ) << ", " << fixString( getDatabaseInfo( e, "field" ) ) << " );" << endl;
     }
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
@@ -1320,9 +1305,7 @@ void Uic::createDatabaseImpl( const QDomElement& e )
 		      ++it3 ) {
 		    if ( (*it3) == (*it2) ) { // form for table
 			out << indent << indent << "QSqlRecord* buf = " << (*it2) << "Cursor->editBuffer();" << endl;
-			for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-			    createFormImpl( n, (*it3), (*it), (*it2) );
-			}
+			out << indent << indent << (*it3) << "Form->setRecord( buf );" << endl;
 		    }
 		    out << indent << indent << (*it3) << "Form->readFields();" << endl;
 		}
@@ -1577,7 +1560,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		QString s = createListViewColumnImpl( n, objName );
 		if ( !s.isEmpty() )
 		    out << s;
-	    } else if ( objClass ==  "QTable" ) {
+	    } else if ( objClass ==  "QTable" || objClass == "QSqlTable" ) {
 		QString s = createTableRowColumnImpl( n, objName );
 		if ( !s.isEmpty() )
 		    out << s;
@@ -1859,6 +1842,7 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
 
 QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &parent )
 {
+    QString objClass = getClassName( e.parentNode().toElement() );
     QDomElement n = e.firstChild().toElement();
     QString txt;
     QString pix;
@@ -1884,6 +1868,7 @@ QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &pare
 
     // ### This generated code sucks! We have to set the number of
     // rows/cols before and then only do setLabel/()
+    // ### careful, though, since QSqlTable has an API which makes this code pretty good
 
     QString s;
     if ( isRow ) {
@@ -1895,13 +1880,19 @@ QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &pare
 	    s += indent + parent + "->verticalHeader()->setLabel( " + parent + "->numRows() - 1, "
 		 + pix + ", " + trmacro + "( " + fixString( txt ) + " ) );\n";
     } else {
-	s = indent + parent + "->setNumCols( " + parent + "->numCols() + 1 );";
-	if ( pix.isEmpty() )
-	    s += indent + parent + "->horizontalHeader()->setLabel( " + parent + "->numCols() - 1, "
-		 + trmacro + "( " + fixString( txt ) + " ) );\n";
-	else
-	    s += indent + parent + "->horizontalHeader()->setLabel( " + parent + "->numCols() - 1, "
-		 + pix + ", " + trmacro + "( " + fixString( txt ) + " ) );\n";
+	if ( objClass == "QTable" ) {
+	    s = indent + parent + "->setNumCols( " + parent + "->numCols() + 1 );";
+	    if ( pix.isEmpty() )
+		s += indent + parent + "->horizontalHeader()->setLabel( " + parent + "->numCols() - 1, "
+		     + trmacro + "( " + fixString( txt ) + " ) );\n";
+	    else
+		s += indent + parent + "->horizontalHeader()->setLabel( " + parent + "->numCols() - 1, "
+		     + pix + ", " + trmacro + "( " + fixString( txt ) + " ) );\n";
+	} else if ( objClass == "QSqlTable" ) {
+	    // ### also need pixmap support in QSqlTable
+	    if ( !txt.isEmpty() && !field.isEmpty() )
+		out << indent << parent << "->addColumn( " << fixString( field ) << ", " << fixString( txt ) << " );" << endl;
+	}
     }
     return s;
 }

@@ -73,10 +73,9 @@ public:
     QSqlTable ( QSqlCursor* cursor, bool autoPopulate = FALSE, QWidget * parent = 0, const char * name = 0 );
     ~QSqlTable();
 
-    virtual void addColumn( const QSqlField* field );
+    virtual void addColumn( const QString& fieldName, const QString& label = QString::null );
     virtual void removeColumn( uint col );
-    virtual void setColumn( uint col, const QSqlField* field );
-    virtual void addColumns( const QSqlRecord& fieldList );
+    virtual void setColumn( uint col, const QString& fieldName, const QString& label = QString::null );
 
     QString      nullText() const;
     QString      trueText() const;

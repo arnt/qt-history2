@@ -50,6 +50,7 @@ class QSqlCursor;
 class QSqlEditorFactory;
 class QSqlPropertyMap;
 class QWidget;
+class QSqlFormPrivate;
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
@@ -64,8 +65,8 @@ public:
     QSqlForm( QObject * parent = 0, const char * name = 0 );
     ~QSqlForm();
 
-    virtual void insert( QWidget * widget, QSqlField * field );
-    virtual void remove( QWidget * widget );
+    virtual void insert( QWidget * widget, const QString& field );
+    virtual void remove( const QString& field );
     uint         count() const;
 
     QWidget *   widget( uint i ) const;
@@ -73,6 +74,8 @@ public:
     QWidget *   fieldToWidget( QSqlField * field ) const;
 
     void        installPropertyMap( QSqlPropertyMap * map );
+
+    virtual void setRecord( QSqlRecord* buf );
 
 public slots:
     virtual void readField( QWidget * widget );
@@ -83,9 +86,12 @@ public slots:
     virtual void clear();
     virtual void clearValues( bool nullify = FALSE );
 
+protected:
+    virtual void insert( QWidget * widget, QSqlField * field );
+    virtual void remove( QWidget * widget );
+
 private:
-    QMap< QWidget *, QSqlField * > map;
-    QSqlPropertyMap * propertyMap;
+    QSqlFormPrivate* d;
 };
 
 #endif // QT_NO_SQL
