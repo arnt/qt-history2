@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#35 $
+# $Id: //depot/qt/main/GNUmakefile.inc#36 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -19,13 +19,15 @@ PROJECT=qt
 endif
 ifeq ($(QT_EMBEDDED),mips)
 # MIPS_OPT="-mcpu=r4000 -mips3" # Doesn't work?
-TMAKEHACKEXTRA="DASHCROSS=-mips" "TMAKE_CXXFLAGS+=$(MIPS_OPT) -fnonnull-objects -fshort-enums -fshared-data" "TMAKE_LINK_SHLIB=mipsel-linux-g++ -fnonnull-objects" "TMAKE_LINK=mipsel-linux-g++" "TMAKE_CC=mipsel-linux-gcc $(MIPS_OPT)" "TMAKE_CXX=mipsel-linux-g++"
+TMAKEHACKEXTRA="TMAKE_CXXFLAGS+=$(MIPS_OPT) -fnonnull-objects -fshort-enums -fshared-data" "TMAKE_LINK_SHLIB=mipsel-linux-g++ -fnonnull-objects" "TMAKE_LINK=mipsel-linux-g++" "TMAKE_CC=mipsel-linux-gcc $(MIPS_OPT)" "TMAKE_CXX=mipsel-linux-g++"
+DASHCROSS=-mips
 ifndef QT_TARGET
 QT_TARGET=release
 endif
 endif
 ifeq ($(QT_EMBEDDED),arm)
-TMAKEHACKEXTRA="DASHCROSS=-arm" "TMAKE_CXXFLAGS+=$(MIPS_OPT) -fshort-enums -fshared-data" "TMAKE_LINK_SHLIB=arm-linux-g++ " "TMAKE_LINK=arm-linux-g++" "TMAKE_CC=arm-linux-gcc $(MIPS_OPT)" "TMAKE_CXX=arm-linux-g++"
+TMAKEHACKEXTRA="TMAKE_CXXFLAGS+=$(MIPS_OPT) -fshort-enums -fshared-data" "TMAKE_LINK_SHLIB=arm-linux-g++ " "TMAKE_LINK=arm-linux-g++" "TMAKE_CC=arm-linux-gcc $(MIPS_OPT)" "TMAKE_CXX=arm-linux-g++"
+DASHCROSS=-arm
 ifndef QT_TARGET
 QT_TARGET=debug
 endif
@@ -40,7 +42,7 @@ PROJMAK=-e-$(QT_EMBEDDED)
 TMAKEPATH=$(TMAKEDIR)/lib/qws/linux-$(QT_EMBEDDED)-g++
 export TMAKEPATH
 
-TMAKEPREHACK="CONFIG+=embedded" "CONFIG+=internal"
+TMAKEPREHACK="CONFIG+=embedded" "CONFIG+=internal" "DASHCROSS=$(DASHCROSS)"
 
 else
 
