@@ -67,7 +67,7 @@ void qAxInit()
     InitializeCriticalSection( &qAxModuleSection );
 
     QString libFile( qAxModuleFilename );
-    LoadTypeLibEx( (ushort*)libFile.ucs2(), REGKIND_NONE, &qAxTypeLibrary );
+    LoadTypeLibEx( (TCHAR*)libFile.ucs2(), REGKIND_NONE, &qAxTypeLibrary );
 }
 
 void qAxCleanup()
@@ -509,7 +509,11 @@ bool ignoreProps( const char *test )
 
 #define STRIPCB(x) x = x.mid( 1, x.length()-2 )
 
+#if defined(Q_CC_BOR)
+extern "C" __stdcall HRESULT DumpIDL( const QString &outfile, const QString &ver )
+#else
 HRESULT DumpIDL( const QString &outfile, const QString &ver )
+#endif
 {
     QTextStream out;
     QString outpath = outfile.left( outfile.findRev( "\\" ) );
