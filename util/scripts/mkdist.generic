@@ -76,7 +76,7 @@ fi
 
 echo "Removing internal files..." >&2
 cd ${DISTDIR}/qt/src
-rm -fv `make showinternal`
+tmake qtinternal.pro -e "Expand('INTERNAL')" | xargs rm -fv
 
 # Remove Netscape-owned code (docs direct user to PluginSDK)
 rm -rf ${DISTDIR}/qt/extensions/nsplugin/src/np*
@@ -91,15 +91,14 @@ echo "Auto-detected the Qt version number -- " $VERSION >&2
 QTDIR=${DISTDIR}/qt
 export QTDIR
 
+echo "Creates symlinks for Qt header files" >&2
+${QTDIR}/bin/syncqt > /dev/null
+
 if [ "$nodoc" = "yes" ]; then
   echo "Documentation won't be generated" >& 2
 else
   echo "Generating documentation" >&2
-  make -s -C ${QTDIR}/src include
   mkdir -p ${DISTDIR}/qt/doc/html
-  make -s -C ${QTDIR}/extensions/opengl/src include
-  make -s -C ${QTDIR}/extensions/imageio/src include
-  make -s -C ${QTDIR}/extensions/nsplugin/src include
   mkdir -p ${DISTDIR}/qt/extensions/opengl/html
   mkdir -p ${DISTDIR}/qt/extensions/imageio/html
   mkdir -p ${DISTDIR}/qt/extensions/nsplugin/html
@@ -161,7 +160,7 @@ if [ "${platform}" = "win" ]; then
   mv extensions/imageio/src/q*.h include
   mv extensions/nsplugin/src/q*.h include
   rm -rf makefiles
-  find . -name 'Makefile*' -o -name 'qtx11.*' | xargs rm -vf
+  find . -name 'GNUmakefile*' -o -name 'qtx11.*' | xargs rm -vf
   echo "Converting Unix text files to DOS..." >&2
   cd ${DISTDIR}
   find qt -type f -print | fmt -1 | \
@@ -170,7 +169,8 @@ fi
 
 if [ "${platform}" = "x11" ]; then
   cd ${DISTDIR}/qt
-  find . -name '*.mak' -o -name 'qtwin.*' | xargs rm -vf
+  rm bin/*.bat
+  find . -name 'Makefile' -o -name 'qtwin.*' | xargs rm -vf
   echo 'Building make files...' >&2
   ${QTDIR}/util/scripts/makemake
   mv ${QTDIR}/util/scripts/propagate ${QTDIR}
