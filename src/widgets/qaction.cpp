@@ -899,6 +899,7 @@ void QAction::showStatusText( const QString& text )
 */
 void QAction::menuStatusText( int id )
 {
+    static int lastId = 0;
     QString text;
     QPtrListIterator<QActionPrivate::MenuItem> it( d->menuitems);
     QActionPrivate::MenuItem* mi;
@@ -912,6 +913,9 @@ void QAction::menuStatusText( int id )
 
     if ( !text.isEmpty() )
 	showStatusText( text );
+    else if ( id != lastId )
+	clearStatusText();
+    lastId = id;
 }
 
 /*! Clears the status text.
