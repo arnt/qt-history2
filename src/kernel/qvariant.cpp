@@ -1552,7 +1552,7 @@ const QString QVariant::toString() const
 	return toDateTime().toString( Qt::ISODate );
 #endif
     case Bool:
-	return QString::number( toInt() );
+	return toInt() ? "true" : "false";
 #ifndef QT_NO_ACCEL
     case KeySequence:
 	return (QString) *( (QKeySequence*)d->value.ptr );
