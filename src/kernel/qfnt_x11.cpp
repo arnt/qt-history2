@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#85 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#84 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#85 $");
 
 
 static const int fontFields = 14;
@@ -510,7 +510,7 @@ void QFont::load( HANDLE ) const
 	if ( !d->fin ) {			// font was never loaded
 	    d->fin = new QFontInternal( n );
 	    CHECK_PTR( d->fin );
-	    fontDict->insert( n, d->fin );
+	    fontDict->insert( d->fin->name(), d->fin );
 	}
     }
     XFontStruct *f = d->fin->f;
@@ -530,7 +530,7 @@ void QFont::load( HANDLE ) const
 	// If we get a cache overflow, we make room for this font only
 	if ( size > fontCache->maxCost() + reserveCost )
 	    fontCache->setMaxCost( size + reserveCost );
-	if ( !fontCache->insert(n, d->fin, size) ) {
+	if ( !fontCache->insert(d->fin->name(), d->fin, size) ) {
 #if defined(DEBUG)
 	    fatal( "QFont::load: Cache overflow error" );
 #endif

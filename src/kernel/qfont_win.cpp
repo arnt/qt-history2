@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#34 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -28,7 +28,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#34 $");
 
 
 static HANDLE stock_sysfont = 0;
@@ -292,7 +292,7 @@ void QFont::load( HANDLE ) const
 	if ( !d->fin ) {			// font was never loaded
 	    d->fin = new QFontInternal( k );
 	    CHECK_PTR( d->fin );
-	    fontDict->insert( k, d->fin );
+	    fontDict->insert( d->fin->key(), d->fin );
 	}
     }
     if ( !d->fin->font() ) {			// font not loaded
@@ -300,7 +300,7 @@ void QFont::load( HANDLE ) const
 	d->fin->hfont = create( &d->fin->stockFont, 0 );
 	SelectObject( d->fin->hdc, d->fin->hfont );
 	GetTextMetrics( d->fin->hdc, &d->fin->tm );
-	fontCache->insert( k, d->fin, 1 );
+	fontCache->insert( d->fin->key(), d->fin, 1 );
 	initFontInfo();
     }
     d->exactMatch = TRUE;
