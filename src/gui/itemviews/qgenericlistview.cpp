@@ -296,6 +296,13 @@ void QGenericListView::setSpacing(int space)
  	startItemsLayout();
 }
 
+void QGenericListView::setGridSize(const QSize &size)
+{
+    d->gridSize = size;
+    if (isVisible())
+ 	startItemsLayout();
+}
+
 void QGenericListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode)
 {
     QRect crect(rect.left() + contentsX(), rect.top() + contentsY(), rect.width(), rect.height());
