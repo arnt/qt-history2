@@ -255,11 +255,28 @@ void *QPersistentModelIndex::data() const
 
   Returns the parent QModelIndex for this persisten index.
 */
-QModelIndex QPersistentModelIndex:: parent() const
+QModelIndex QPersistentModelIndex::parent() const
 {
     return d->index.parent();
 }
 
+/*!
+  \internal
+*/
+
+QModelIndex QPersistentModelIndex::sibling(int row, int column) const
+{
+    return d->index.sibling(row, column);
+}
+
+/*!
+  \internal
+*/
+
+QModelIndex QPersistentModelIndex::child(int row, int column) const
+{
+    return d->index.child(row, column);
+}
 
 /*!
   \fn QAbstractItemModel *QPersistentModelIndex::model() const
@@ -802,25 +819,9 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
 {
     if (indexes.count() <= 0)
         return 0;
-
-    QByteArray encoded;
-    QDataStream stream(&encoded, QIODevice::WriteOnly);
-    QModelIndexList::ConstIterator it = indexes.begin();
-    for (; it != indexes.end(); ++it) {
-        QMap<int, QVariant> data = itemData(*it);
-        stream << data.count(); // roles
-        QMap<int, QVariant>::ConstIterator it2 = data.begin();
-        for (; it2 != data.end(); ++it2) {
-            stream << it2.key();
-            stream << it2.value();
-        }
-        stream << rowCount(*it); // children
-        stream << columnCount(*it); // children
-    }
-
     QMimeData *data = new QMimeData();
     QString format = mimeTypes().at(0);
-    data->setData(format, encoded);
+    data->setData(format, encodedData(indexes));
     return data;
 }
 
@@ -841,30 +842,7 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, QDrag::DropAction a
     if (columnCount(parent) <= 0)
         return false;
     // decode and insert
-    QByteArray encoded = data->data(format);
-    QDataStream stream(&encoded, QIODevice::ReadOnly);
-    int count, role, rows, columns;
-    QVariant value;
-    QModelIndex idx;
-    QVector<QModelIndex> parents;
-    while (!stream.atEnd()) {
-        insertRows(row, 1, parent);
-        int column = 0;
-        while (!stream.atEnd() && column < columnCount(parent)) {
-            idx = index(row, column, parent); // only insert in col 0
-            stream >> count; // roles
-            for (int i = 0; i < count; ++i) {
-                stream >> role;
-                stream >> value;
-                setData(idx, value, role);
-            }
-            stream >> rows; // children
-            stream >> columns; // children
-            ++column;
-        }
-        ++row;
-    }
-    return true;
+    return decodeData(row, parent, data->data(format));
 }
 
 /*!
@@ -1198,6 +1176,58 @@ bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation,
     This function provides a consistent interface that model subclasses must
     use to create model indexes.
 */
+
+/*!
+  \internal
+*/
+QByteArray QAbstractItemModel::encodedData(const QModelIndexList &indexes) const
+{
+    QByteArray encoded;
+    QDataStream stream(&encoded, QIODevice::WriteOnly);
+    QModelIndexList::ConstIterator it = indexes.begin();
+    for (; it != indexes.end(); ++it) {
+        QMap<int, QVariant> data = itemData(*it);
+        stream << data.count(); // roles
+        QMap<int, QVariant>::ConstIterator it2 = data.begin();
+        for (; it2 != data.end(); ++it2) {
+            stream << it2.key();
+            stream << it2.value();
+        }
+        stream << rowCount(*it); // children
+        stream << columnCount(*it); // children
+    }
+    return encoded;
+}
+
+/*!
+  \internal
+*/
+bool QAbstractItemModel::decodeData(int row, const QModelIndex &parent, QByteArray encoded)
+{
+    QDataStream stream(&encoded, QIODevice::ReadOnly);
+    int count, role, rows, columns;
+    QVariant value;
+    QModelIndex idx;
+    QVector<QModelIndex> parents;
+    while (!stream.atEnd()) {
+        insertRows(row, 1, parent);
+        int column = 0;
+        while (!stream.atEnd() && column < columnCount(parent)) {
+            idx = index(row, column, parent); // only insert in col 0
+            stream >> count; // roles
+            for (int i = 0; i < count; ++i) {
+                stream >> role;
+                stream >> value;
+                setData(idx, value, role);
+            }
+            stream >> rows; // children
+            stream >> columns; // children
+            ++column;
+        }
+        ++row;
+    }
+    return true;
+}
 
 /*!
   \internal

@@ -74,6 +74,8 @@ public:
     int column() const;
     void *data() const;
     QModelIndex parent() const;
+    QModelIndex sibling(int row, int column) const;
+    QModelIndex child(int row, int column) const;
     const QAbstractItemModel *model() const;
     bool isValid() const;
 private:
@@ -232,6 +234,9 @@ protected:
 
     inline QModelIndex createIndex(int row, int column, void *data = 0) const
         { return QModelIndex(row, column, data, this); }
+
+    QByteArray encodedData(const QModelIndexList &indexes) const;
+    bool decodeData(int row, const QModelIndex &parent, QByteArray encoded);
 
     void invalidatePersistentIndexes(const QModelIndex &parent = QModelIndex());
     int persistentIndexesCount() const;
