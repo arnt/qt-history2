@@ -1,12 +1,18 @@
-Qt is a complete and well-developed object-oriented framework for
+%SPECIAL-snapshot
+This software is dependent on specific functionality included only
+in Qt snapshot version %VERSION%.  It will not work with any other
+releases of Qt.  Upgrade/downgrade to that version, or look for a
+new version of this software.
+
+%Qt is a complete and well-developed object-oriented framework for
 developing graphical user interface (GUI) applications using C++.
 
-This release, Qt 1.40, is free only for development of free software for
-the X Window System. If you are using Qt for developing commercial or
-other non-free software, you must have a professional license. Please see
-http://www.troll.no/pricing.html for how to obtain this.
+Qt is free only for development of free software for the X Window System.
+If you are using Qt for developing commercial or other non-free software,
+you must have a professional license.
+Please see http://www.troll.no/pricing.html for how to obtain this.
 
-This release includes the complete Qt source code for X and makefiles
+Qt includes the complete Qt source code for X and makefiles
 for Linux, Solaris, SunOS, FreeBSD, OSF/1, Irix, BSD/OS, NetBSD, SCO,HP-UX
 and AIX. New platforms may be added in the future.
 

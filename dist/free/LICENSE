@@ -1,5 +1,6 @@
 
-                        QT FREE EDITION LICENSE
+                        QT FREE EDITION LICENSE%SPECIAL-snapshot
+                         FOR SNAPSHOT RELEASES%
 
 Copyright (C) 1992-1998 Troll Tech AS. All rights reserved. 
 
@@ -23,7 +24,13 @@ provided that:
 
       You accept this license. 
       Your software does not require modifications to Qt Free Edition. 
-      You satisfy ONE of the following three requirements 
+      %SPECIAL-snapshot
+      You clearly specify in all releases of your software which uses a
+       snapshot release that your software relies on that specific version
+       of Qt by including the file README.QT which was provided with the
+       snapshot release (this is the only difference between this and the
+       free edition license for non-snashot releases).
+      %You satisfy ONE of the following three requirements 
       EITHER 
             Users of your software can freely obtain source code for the
             software, freely modify the source code (possibly with

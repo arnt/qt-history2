@@ -75,8 +75,8 @@ Please note: the latest version of this and other FAQ lists are available at:
 
        Some platforms do not support three-level version numbering,
        therefore the bugfix release following version 1.2 was called
-       1.21. Version 1.30 is the first major release after 1.2, and the
-       next major release will be 1.40.
+       1.21. Version 1.30 is the first major release after 1.2, and
+       1.40 the next major release.
 
     9.I don't want to give away my source code. What do I do? 
 
