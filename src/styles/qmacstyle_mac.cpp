@@ -68,6 +68,10 @@ extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
 static ThemeWindowType macWinType = kThemeUtilityWindow;
 static QColor qt_mac_highlight_active_color = QColor( 0xC2, 0xC2, 0xC2 );
 static QColor qt_mac_highlight_inactive_color = qt_mac_highlight_active_color.light();
+#ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
+static QColor qt_mac_text_active_color = Qt::black;
+static QColor qt_mac_text_inactive_color = Qt::black;
+#endif
 static const int macItemFrame         = 2;    // menu item frame width
 static const int macItemHMargin       = 3;    // menu item hor text margin
 static const int macItemVMargin       = 2;    // menu item ver text margin
@@ -277,11 +281,22 @@ void QMacStyle::polish( QApplication* app )
 
     QEvent ev(QEvent::Style);
     QApplication::sendEvent(this, &ev);
-    pal.setColor( QPalette::Active, QColorGroup::Highlight, qt_mac_highlight_active_color );
-    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, qt_mac_highlight_inactive_color );
-    pal.setColor( QPalette::Disabled, QColorGroup::Highlight, QColor( 0xC2, 0xC2, 0xC2 ) );
-    pal.setColor( QColorGroup::HighlightedText, black);
-
+    pal.setColor(QPalette::Active, QColorGroup::Highlight, qt_mac_highlight_active_color);
+    pal.setColor(QPalette::Inactive, QColorGroup::Highlight, qt_mac_highlight_inactive_color);
+    pal.setColor(QPalette::Disabled, QColorGroup::Highlight, QColor( 0xC2, 0xC2, 0xC2 ));
+#ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
+    pal.setColor(QPalette::Active, QColorGroup::Text, qt_mac_text_active_color);
+    pal.setColor(QPalette::Active, QColorGroup::Foreground, qt_mac_text_active_color);
+    pal.setColor(QPalette::Active, QColorGroup::HighlightedText, qt_mac_text_active_color);
+    pal.setColor(QPalette::Inactive, QColorGroup::Text, qt_mac_text_inactive_color);
+    pal.setColor(QPalette::Disabled, QColorGroup::Text, qt_mac_text_inactive_color);
+    pal.setColor(QPalette::Inactive, QColorGroup::Foreground, qt_mac_text_inactive_color);
+    pal.setColor(QPalette::Disabled, QColorGroup::Foreground, qt_mac_text_inactive_color);
+    pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, qt_mac_text_inactive_color);
+    pal.setColor(QPalette::Disabled, QColorGroup::HighlightedText, qt_mac_text_inactive_color);
+#else
+    pal.setColor(QColorGroup::HighlightedText, black);
+#endif
     app->setPalette( pal, TRUE );
 }
 
@@ -1516,15 +1531,36 @@ bool QMacStyle::event(QEvent *e)
 	QColor hac = QColor(c.red / 256, c.green / 256, c.blue / 256);
 	GetThemeBrushAsColor(MAC_INACTIVE_HIGHLIGHT_COLOR, 32, true, &c );
 	QColor hic = QColor(c.red / 256, c.green / 256, c.blue / 256);
-	if(e->spontaneous() && (hac != qt_mac_highlight_active_color ||
-	    hic != qt_mac_highlight_inactive_color)) {
+#ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
+	GetThemeTextColor(kThemeTextColorDialogActive, 32, true, &c);
+	QColor tac = QColor(c.red / 256, c.green / 256, c.blue / 256);
+	GetThemeTextColor(kThemeTextColorDialogInactive, 32, true, &c);
+	QColor tic = QColor(c.red / 256, c.green / 256, c.blue / 256);
+#endif
+	if(e->spontaneous() && 
+	   (hac != qt_mac_highlight_active_color ||
+#ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
+	    tac != qt_mac_text_active_color || tic != qt_mac_text_inactive_color ||
+#endif
+	    hic != qt_mac_highlight_inactive_color )) {
 	    qt_mac_highlight_active_color = hac;
 	    qt_mac_highlight_inactive_color = hic;
 	    QPalette pal = qApp->palette();
-	    pal.setColor(QPalette::Active, QColorGroup::Highlight, 
-			  qt_mac_highlight_active_color);
-	    pal.setColor(QPalette::Inactive, QColorGroup::Highlight, 
-			  qt_mac_highlight_inactive_color);
+	    pal.setColor(QPalette::Active, QColorGroup::Highlight, hac);
+	    pal.setColor(QPalette::Inactive, QColorGroup::Highlight, hic);
+#ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
+	    qt_mac_text_active_color = tac;
+	    qt_mac_text_inactive_color = tic;
+	    pal.setColor(QPalette::Active, QColorGroup::Text, tac);
+	    pal.setColor(QPalette::Active, QColorGroup::Foreground, tac);
+	    pal.setColor(QPalette::Active, QColorGroup::HighlightedText, tac);
+	    pal.setColor(QPalette::Inactive, QColorGroup::Text, tic);
+	    pal.setColor(QPalette::Disabled, QColorGroup::Text, tic);
+	    pal.setColor(QPalette::Inactive, QColorGroup::Foreground, tic);
+	    pal.setColor(QPalette::Disabled, QColorGroup::Foreground, tic);
+	    pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, tic);
+	    pal.setColor(QPalette::Disabled, QColorGroup::HighlightedText, tic);
+#endif
 	    qApp->setPalette(pal, TRUE);
 	}
     }

@@ -37,6 +37,9 @@
 #endif // QT_H
 
 #ifndef QT_NO_STYLE_AQUA
+#ifdef Q_WS_MAC
+//#define QMAC_QAQUA_MODIFY_TEXT_COLOURS
+#endif
 
 #include <qwidget.h>
 #include <qguardedptr.h>
@@ -151,7 +154,7 @@ static inline void qAquaPolishFont( QWidget *w )
 			     (bool)(f_style & ::italic)));
 	}
     }
-#if 0
+#ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
     if( !w->ownPalette() ) {
 	ThemeBrush active = kThemeTextColorDialogActive, 
 		 inactive = kThemeTextColorDialogInactive;
@@ -168,7 +171,7 @@ static inline void qAquaPolishFont( QWidget *w )
 	    active = kThemeTextColorPopupLabelActive;
 	    inactive = kThemeTextColorPopupLabelInactive;
 	} else {
-//	    set_colour = FALSE;
+	    set_colour = FALSE;
 	}
 	if(set_colour) {
 	    QColor qc;
