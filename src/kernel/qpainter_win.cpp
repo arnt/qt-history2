@@ -1136,9 +1136,8 @@ void QPainter::setClipping( bool enable )
 	    double yoff = 0;
 	    QPrinter* printer = (QPrinter*)pdev;
 	    if ( printer->fullPage() ) {	// must adjust for margins
-		QSize margins = printer->margins();
-		xoff = -margins.width();
-		yoff = -margins.height();
+		xoff = - GetDeviceCaps( printer->handle(), PHYSICALOFFSETX );
+		yoff = - GetDeviceCaps( printer->handle(), PHYSICALOFFSETY );
 	    }
 	    rgn = QWMatrix( xscale, 0, 0, yscale, xoff, yoff ) * rgn;
 	}
