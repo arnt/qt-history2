@@ -9,6 +9,7 @@
 #include <qapplication.h>
 #include <qvariant.h>
 #include <qinputdialog.h>
+#include <qpainter.h>
 
 #ifdef _WS_WIN_
 #undef LIBEXPORT
@@ -16,6 +17,10 @@
 #else
 #define LIBEXPORT
 #endif
+
+QCleanUpHandler<QPixmap> pixmaps;
+
+static QPixmap *unknown_icon = 0;
 
 class TestInterface : public QObject, public QActionInterface
 {
@@ -78,18 +83,29 @@ QStrList TestInterface::queryInterfaceList() const
 
 QAction* TestInterface::create( const QString& actionname, QObject* parent )
 {
+    if ( !unknown_icon ) {
+	unknown_icon = new QPixmap( 22, 22 );
+	unknown_icon->fill( Qt::white );
+
+	QPainter paint( unknown_icon );
+	paint.setPen( Qt::black );
+	paint.drawText( 0, 0, 22, 22, Qt::AlignHCenter | AlignVCenter, "?" );
+	paint.end();
+
+	pixmaps.addCleanUp( unknown_icon );
+    }
     if ( actionname == "Open Dialog" ) {
-	QAction* a = new QAction( actionname, QIconSet(), "Open &dialog", Qt::CTRL + Qt::Key_D, parent, actionname );
+	QAction* a = new QAction( actionname, QIconSet(*unknown_icon), "Open &dialog", Qt::CTRL + Qt::Key_D, parent, actionname );
 	connect( a, SIGNAL(activated()), this, SLOT(openDialog()) );
 	actions.addCleanUp( a );
 	return a;
     } else if ( actionname == "Show Text" ) {
-	actionTurnOnText = new QAction( actionname, QIconSet(), "&Show Text", Qt::CTRL + Qt::Key_T, parent, actionname, TRUE );
+	actionTurnOnText = new QAction( actionname, QIconSet(*unknown_icon), "&Show Text", Qt::CTRL + Qt::Key_T, parent, actionname, TRUE );
 	connect( actionTurnOnText, SIGNAL(activated()), this, SLOT(toggleText()) );
 	actions.addCleanUp( actionTurnOnText );
 	return actionTurnOnText;
     } else if ( actionname == "Set central widget" ) {
-	QAction* a = new QAction( actionname, QIconSet(), "Set central &widget", Qt::CTRL + Qt::Key_W, parent, actionname );
+	QAction* a = new QAction( actionname, QIconSet(*unknown_icon), "Set central &widget", Qt::CTRL + Qt::Key_W, parent, actionname );
 	connect( a, SIGNAL(activated()), this, SLOT(selectWidget()) );
 	actions.addCleanUp( a );
 	return a;
