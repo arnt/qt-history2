@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#79 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -31,6 +31,7 @@
 #include "qobjectdict.h"
 #include "qimage.h"
 #include "qbuffer.h"
+#include "qt_gif.h"
 #include <ctype.h>
 
 
@@ -681,9 +682,10 @@ QByteArray QImageDrag::encodedData(const char* fmt) const
 */
 bool QImageDrag::canDecode( QMimeSource* e )
 {
-    return e->provides( "image/ppm" )
+    return e->provides( "image/png" )
+        || e->provides( "image/ppm" )
         || e->provides( "image/bmp" )
-        || e->provides( "image/gif" );
+        || ( qt_builtin_gif_reader() && e->provides( "image/gif" ) );
     // ### more Qt images types
 }
 
@@ -697,8 +699,10 @@ bool QImageDrag::decode( QMimeSource* e, QImage& img )
 {
     QByteArray payload = e->encodedData( "image/ppm" );
     if ( payload.isEmpty() )
-	payload = e->encodedData( "image/bmp" );
+	payload = e->encodedData( "image/png" );
     if ( payload.isEmpty() )
+	payload = e->encodedData( "image/bmp" );
+    if ( payload.isEmpty() ) // if we get gif, try it even if !builtin
 	payload = e->encodedData( "image/gif" );
     // ### more Qt images types
     if ( payload.isEmpty() )
@@ -843,10 +847,11 @@ void QUrlDrag::setUrls( QStrList urls )
 {
     QByteArray a;
     int c=0;
-    for (const char* s = urls.first(); s; s = urls.next() ) {
-	int l = strlen(s)+1;
+    for ( const char* s = urls.first(); s; s = urls.next() ) {
+	int l = strlen(s)+2;
 	a.resize(c+l);
 	memcpy(a.data()+c,s,l);
+	memcpy(a.data()+c+l,"\r\n",2);
 	c+=l;
     }
     a.resize(c-1); // chop off last nul
