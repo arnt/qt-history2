@@ -214,7 +214,7 @@ uchar *QIOEngine::map(QIODevice::Offset /*offset*/, Q_LONG /*len*/)
 
    \sa map
  */
-void QIOEngine::unmap(uchar */*data*/)
+void QIOEngine::unmap(uchar * /*data*/)
 {
 
 }
