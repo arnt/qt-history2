@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#10 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#10 $";
 #endif
 
 
@@ -1035,7 +1035,7 @@ bool QETWidget::translateCloseEvent( const XEvent * )
     QEvent evt( Event_Close );
     if ( SEND_EVENT( this, &evt ) ) {		// close widget
 	hide();
-	if ( qApp->mainWidget() == this || nWidgets() == 1 )
+	if ( qApp->mainWidget() == this )
 	    qApp->quit();
 	else
 	    return TRUE;			// delete widget
