@@ -21,24 +21,19 @@ class to add splash screens to applications (QSplashScreen), a toolbox
 widget that provides a column of tabbed widgets (QToolBox), and a
 class to manage per-thread data storage (QThreadStorage).
 
-The SQL module includes a number of improvements. The most notable
-improvements are:
--A native IBM DB2 driver.
--We've completed the support for stored procedures and it is now
-possible to access out parameters as well.
--Support for 64 bit fields and values has been added - this eliminates
-the need to convert these values to/from strings.
--We have added support for setting connection parameters, this makes it
-e.g. possible to conveniently open a SSL connection to a MySQL or
-PostgreSQL database.
--Some changes has been made to the drivers so that it is now possible
-for a user to instantiate driver objects and handle the actual
-database connection him/herself, if that is required.
--It is now possible to add custom database drivers without compiling them
-as plugins with the QSqlDatabase::registerSqlDriver() call.
--A new class, QSqlSelectCursor, has been added which makes it much
-more convenient to display result sets from general SQL queries in
-e.g. a QDataTable.
+The SQL module received a fair bit of attention this time. The most
+notable improvements are a native IBM DB2 driver, complete support for
+stored procedures including the possibility to access out-parameters,
+and native support for 64 bit fields without having to convert to or
+from strings. We also added support for setting connection parameters.
+This way you can e.g. conveniently open a SSL connection to a MySQL or
+PostgreSQL database. If you need even more customization, e.g. for an
+Oracle database, you you can setup the connection yourself and
+instantiate a Qt driver object on top of it.  An extended SQL cursor
+class has been added that makes it more convenient to display result
+sets from general SQL queries (QSqlSelectCursor), and you can add
+custom database drivers without compiling them as plugins (see
+QSqlDatabase::registerSqlDriver()).
 
 QLineEdit - the one-line text editor - now supports validation input
 masks. The feature complements the previous QValidatorConcept and
@@ -183,6 +178,10 @@ Qt Assistant
 - QSplitter
 	New properties opaqueResize, childrenCollapsible and
 	handleWidth.
+
+- QSqlSelectCursor [new]
+	This new QSqlCursor subclass provides browsing of general SQL
+	SELECT statements.
 
 - QString
 	Added 64 bit support. New functions multiArg(), reserve(),
