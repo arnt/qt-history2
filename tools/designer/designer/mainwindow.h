@@ -64,6 +64,7 @@ struct DesignerProject;
 class ReplaceDialog;
 class GotoLineDialog;
 class SourceFile;
+class FormFile;
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
@@ -110,7 +111,7 @@ public:
     QPopupMenu *setupNormalHierarchyMenu( QWidget *parent );
     QPopupMenu *setupTabWidgetHierarchyMenu( QWidget *parent, const char *addSlot, const char *removeSlot );
 
-    FormWindow *openFormWindow( const QString &fn, bool validFileName = TRUE );
+    FormWindow *openFormWindow( const QString &fn, bool validFileName = TRUE, FormFile *ff = 0 );
     bool isCustomWidgetUsed( MetaDataBase::CustomWidget *w );
 
     void setGrid( const QPoint &p );

@@ -382,12 +382,12 @@ void Project::parse()
     proName = QFileInfo( filename ).baseName();
 
     QStringList::ConstIterator it;
-    
+
     uifiles = parse_multiline_part( contents, "FORMS" );
     uifiles += parse_multiline_part( contents, "INTERFACES" ); // compatibility
     for ( it = uifiles.begin(); it != uifiles.end(); ++it )
 	(void) new FormFile( *it, FALSE, this );
-    
+
 
     int i = contents.find( "DBFILE" );
     if ( i != -1 ) {
@@ -1109,6 +1109,7 @@ SourceFile* Project::findSourceFile( const QString& filename ) const
     while ( it.current() ) {
 	if ( it.current()->fileName() == filename )
 	    return it.current();
+	++it;
     }
     return 0;
 }
@@ -1119,6 +1120,7 @@ FormFile* Project::findFormFile( const QString& filename ) const
     while ( it.current() ) {
 	if ( it.current()->fileName() == filename )
 	    return it.current();
+	++it;
     }
     return 0;
 }

@@ -145,12 +145,15 @@ void CustomFormItem::insert( Project *pro )
     QString filename = templateFileName();
     if ( !filename.isEmpty() && QFile::exists( filename ) ) {
 	Resource resource( MainWindow::self );
-	if ( !resource.load( filename, FALSE ) ) {
+	FormFile *ff = new FormFile( filename, TRUE, pro );
+	if ( !resource.load( ff ) ) {
 	    QMessageBox::information( MainWindow::self, MainWindow::tr("Load Template"),
 				      MainWindow::tr("Couldn't load form description from template " +
 						     filename ) );
+	    delete ff;
 	    return;
 	}
+	ff->setFileName( QString::null );
 	if ( MainWindow::self->formWindow() ) {
 	    MainWindow::self->formWindow()->setFileName( QString::null );
 	    unifyFormName( MainWindow::self->formWindow(), MainWindow::self->qWorkspace() );

@@ -42,6 +42,7 @@ class QDesignerGridLayout;
 class QListViewItem;
 class QMainWindow;
 struct LanguageInterface;
+class FormFile;
 
 class Resource
 {
@@ -62,8 +63,8 @@ public:
     void setWidget( FormWindow *w );
     QWidget *widget() const;
 
-    bool load( const QString& filename, bool keepname = TRUE );
-    bool load( QIODevice*, const QString& filename = QString::null, bool keepname = TRUE );
+    bool load( FormFile *ff );
+    bool load( FormFile *ff, QIODevice* );
     QString copy();
 
     bool save( const QString& filename);

@@ -2571,5 +2571,6 @@ FormFile *FormWindow::formFile() const
 void FormWindow::setFormFile( FormFile *f )
 {
     ff = f;
-    connect( this, SIGNAL( modificationChanged(bool, const QString&) ), ff, SIGNAL( modificationChanged() ) );
+    if ( ff )
+	connect( this, SIGNAL( modificationChanged(bool, const QString&) ), ff, SIGNAL( modificationChanged() ) );
 }

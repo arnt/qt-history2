@@ -145,17 +145,17 @@ QWidget *Resource::widget() const
     return toplevel;
 }
 
-bool Resource::load( const QString& filename, bool keepname )
+bool Resource::load( FormFile *ff )
 {
-    if ( filename.isEmpty() )
+    if ( !ff || ff->fileName().isEmpty() )
 	return FALSE;
-    currFileName = filename;
+    currFileName = ff->fileName();
     mainContainerSet = FALSE;
 
-    QFile f( filename );
+    QFile f( ff->fileName() );
     f.open( IO_ReadOnly );
 
-    bool b = load( &f, filename, keepname );
+    bool b = load( ff, &f );
     f.close();
 
     return b;
@@ -163,7 +163,7 @@ bool Resource::load( const QString& filename, bool keepname )
 
 #undef slots
 
-bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
+bool Resource::load( FormFile *ff, QIODevice* dev )
 {
     langIface = MetaDataBase::languageInterface( MainWindow::self->currProject()->language() );
     if ( langIface )
@@ -178,7 +178,6 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
 
     DomTool::fixDocument( doc );
 
-    FormFile *ff = new FormFile( filename, FALSE, MainWindow::self->currProject() );
     toplevel = formwindow = new FormWindow( ff, mainwindow->qWorkspace(), 0 );
     formwindow->setProject( MainWindow::self->currProject() );
     formwindow->setMainWindow( mainwindow );
@@ -368,9 +367,6 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
 	MetaDataBase::setMetaInfo( formwindow, metaInfo );
 	MetaDataBase::setExportMacro( formwindow->mainContainer(), exportMacro );
     }
-
-    if ( formwindow && !filename.isEmpty() && keepname )
-	formwindow->setFileName( filename );
 
     loadExtraSource();
 

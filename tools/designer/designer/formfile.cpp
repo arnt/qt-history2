@@ -59,10 +59,14 @@ FormFile::FormFile( const QString &fn, bool temp, Project *p )
 FormFile::~FormFile()
 {
     pro->removeFormFile( this );
+    if ( formWindow() )
+	formWindow()->setFormFile( 0 );
 }
 
 void FormFile::setFormWindow( FormWindow *f )
 {
+    if ( fw )
+	fw->setFormFile( 0 );
     fw = f;
     if ( fw )
 	fw->setFormFile( this );
@@ -75,9 +79,12 @@ void FormFile::setEditor( SourceEditor *e )
 
 void FormFile::setFileName( const QString &fn )
 {
+    if ( fn == filename )
+	return;
     if ( fn.isEmpty() ) {
 	fileNameTemp = TRUE;
 	filename = createUnnamedFileName();
+	return;
     }
     filename = fn;
     timeStamp.setFileName( filename + codeExtension() );
@@ -299,12 +306,7 @@ void FormFile::showFormWindow()
 	formWindow()->setFocus();
 	return;
     }
-    FormWindow *fw = MainWindow::self->openFormWindow( pro->makeAbsolute( filename ) );
-    if ( fw ) {
-	setFormWindow( fw );
-	delete fw->formFile();
-	fw->setFormFile( this );
-    }
+    MainWindow::self->openFormWindow( pro->makeAbsolute( filename ), TRUE, this );
 }
 
 void FormFile::showEditor()

@@ -1145,13 +1145,12 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
     }
 }
 
-FormWindow *MainWindow::openFormWindow( const QString &filename, bool validFileName )
+FormWindow *MainWindow::openFormWindow( const QString &filename, bool validFileName, FormFile *ff )
 {
     if ( filename.isEmpty() )
 	return 0;
 
     bool makeNew = FALSE;
-    static bool blockCheck = FALSE;
 
     if ( !QFile::exists( filename ) ) {
 	makeNew = TRUE;
@@ -1164,25 +1163,14 @@ FormWindow *MainWindow::openFormWindow( const QString &filename, bool validFileN
     if ( !makeNew ) {
 	statusBar()->message( tr( "Reading file %1...").arg( filename ) );
 	if ( QFile::exists( filename ) ) {
-#if 0
-	    if ( !blockCheck && currentProject->hasUiFile( currentProject->makeRelative( filename ) ) ) {
-		FormWindow *fw = currentProject->formWindow( currentProject->makeRelative( filename ) );
-		if ( fw ) {
-		    fw->setFocus();
-		    return fw;
-		} else {
-		    blockCheck = TRUE;
-		    // this calls MainWindow::openFormWindow() again
-		    //wspace->openForm( currentProject->makeRelative( filename ) );
-		    // ##### project should do this
-		    blockCheck = FALSE;
-		    return 0;
-		}
+	    FormFile *ff2 = currentProject->findFormFile( currentProject->makeRelative( filename ) );
+	    if ( ff2 && ff2->formWindow() ) {
+		ff2->formWindow()->setFocus();
+		return ff2->formWindow();
 	    }
-#endif
 	    QApplication::setOverrideCursor( WaitCursor );
 	    Resource resource( this );
-	    bool b = resource.load( filename ) && (FormWindow*)resource.widget();
+	    bool b = resource.load( ff ) && (FormWindow*)resource.widget();
 	    if ( !validFileName && resource.widget() )
 		( (FormWindow*)resource.widget() )->setFileName( QString::null );
 	    QApplication::restoreOverrideCursor();
@@ -1192,6 +1180,7 @@ FormWindow *MainWindow::openFormWindow( const QString &filename, bool validFileN
 	    } else {
 		statusBar()->message( tr( "Failed to load file %1").arg( filename ), 5000 );
 		QMessageBox::information( this, tr("Load File"), tr("Couldn't load file %1").arg( filename ) );
+		delete ff;
 	    }
 	    return (FormWindow*)resource.widget();
 	} else {
