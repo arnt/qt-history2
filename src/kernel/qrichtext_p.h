@@ -576,18 +576,19 @@ private:
 class QTextTableCell;
 class QTextParag;
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class Q_EXPORT QMap<int, QColor>;
-template class Q_EXPORT QMap<int, bool>;
-// MOC_SKIP_END
-#endif
-
 struct Q_EXPORT QTextDocumentSelection
 {
     QTextCursor startCursor, endCursor;
     bool swapped;
 };
+
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QMap<int, QColor>;
+template class Q_EXPORT QMap<int, bool>;
+template class Q_EXPORT QMap<int, QTextDocumentSelection>;
+// MOC_SKIP_END
+#endif
 
 class Q_EXPORT QTextDocument : public QObject
 {
@@ -944,12 +945,6 @@ inline bool QTextString::isRightToLeft() const
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class Q_EXPORT QVector<QStyleSheetItem>;
-// MOC_SKIP_END
-#endif
-
 struct Q_EXPORT QTextParagSelection
 {
     int start, end;
@@ -984,6 +979,13 @@ private:
 
 };
 
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QVector<QStyleSheetItem>;
+template class Q_EXPORT QMap<int, QTextParagSelection>;
+template class Q_EXPORT QMap<int, QTextParagLineStart*>;
+// MOC_SKIP_END
+#endif
 
 class Q_EXPORT QTextParag
 {
