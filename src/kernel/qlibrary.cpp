@@ -396,7 +396,7 @@ QLibrary::QLibrary( const QString& filename, Policy pol )
 */
 QLibrary::~QLibrary()
 {
-    if ( libPol == Manual && !unload() ) {
+    if ( libPol == Manual || !unload() ) {
 	entry->release();
 	entry = 0;
     }
