@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/themes/themes.h#2 $
+** $Id: //depot/qt/main/examples/themes/themes.h#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -20,7 +20,7 @@ class Themes: public QMainWindow
     Q_OBJECT
 
 public:
-    Themes( QWidget *parent = 0L, const char *name = 0L, WFlags f = WType_TopLevel );
+    Themes( QWidget *parent = 0, const char *name = 0, WFlags f = WType_TopLevel );
 
 protected:
     QTabWidget *tabwidget;

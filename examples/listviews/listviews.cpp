@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listviews/listviews.cpp#6 $
+** $Id: //depot/qt/main/examples/listviews/listviews.cpp#7 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -150,7 +150,7 @@ void ListViews::initFolders()
     for ( unsigned int i = 1; i < 20; i++ ) {
 	QString str;
 	str = QString( "Folder %1" ).arg( i );
-	Folder *f = new Folder( 0L, str );
+	Folder *f = new Folder( 0, str );
 	for ( unsigned int j = 1; j < 5; j++ ) {
 	    QString str2;
 	    str2 = QString( "Sub Folder %1" ).arg( j );

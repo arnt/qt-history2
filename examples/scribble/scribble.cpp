@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/scribble/scribble.cpp#1 $
+** $Id: //depot/qt/main/examples/scribble/scribble.cpp#2 $
 **
 ** Copyright ( C ) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -136,7 +136,7 @@ Scribble::Scribble( QWidget *parent, const char *name )
 
 void Scribble::slotSave()
 {
-    QPopupMenu *menu = new QPopupMenu( 0L );
+    QPopupMenu *menu = new QPopupMenu( 0 );
     QIntDict<QString> formats;
     formats.setAutoDelete( TRUE );
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/addressbook/ab_centralwidget.h#1 $
+** $Id: //depot/qt/main/examples/addressbook/ab_centralwidget.h#2 $
 **
 ** Copyright ( C ) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -27,7 +27,7 @@ class ABCentralWidget : public QWidget
     Q_OBJECT
 
 public:
-    ABCentralWidget( QWidget *parent, const char *name = 0L );
+    ABCentralWidget( QWidget *parent, const char *name = 0 );
 
     void save( const QString &filename );
     void load( const QString &filename );

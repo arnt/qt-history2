@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/cursor/cursor.cpp#2 $
+** $Id: //depot/qt/main/examples/cursor/cursor.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -64,7 +64,7 @@ public:
 
 CursorView::CursorView()			// construct view
 {
-    static struct {
+    struct {
 	QCursor *cursor;			// cursor
 	char 	*name;				// cursor name
     } list[] = {
