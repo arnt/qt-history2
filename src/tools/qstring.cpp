@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#121 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#122 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -439,8 +439,8 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
 */
 QChar* QString::asciiToUnicode( const QByteArray& ba, uint& len )
 {
-    uint l = 0;
-    while ( l < ba.size() && ba[l] )
+    int l = 0;
+    while ( l < (int)ba.size() && ba[l] )
 	l++;
     char* str = ba.data();
     QChar *uc = new QChar[l];

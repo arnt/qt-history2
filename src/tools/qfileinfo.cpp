@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#39 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#40 $
 **
 ** Implementation of QFileInfo class
 **
@@ -44,8 +44,8 @@ extern "C" int readlink( QString , void *, uint );
 
 static void convertSeparators( QString& s )
 {
-    for (int i=0; i<s.length(); i++) {
-	if ( s[i] ==  '\\' )
+    for (int i=0; i<(int)s.length(); i++) {
+	if ( s[i] == '\\' )
 	    s[i] = '/';
     }
 }

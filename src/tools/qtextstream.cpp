@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#57 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#58 $
 **
 ** Implementation of QTextStream class
 **
@@ -1437,7 +1437,7 @@ QTextStream &QTextStream::writeBlock( QString p, uint len )
 	break;
       case UnicodeBigEndian: {
 	    ushort *u = new ushort[len];
-	    for (uint i=0; i<len; i++)
+	    for (int i=0; i<(int)len; i++)
 		u[i] = p[i];
 	    dev->writeBlock( (char*)u, len*sizeof(ushort) );
 	    delete [] u;
@@ -1445,7 +1445,7 @@ QTextStream &QTextStream::writeBlock( QString p, uint len )
 	break;
       case UnicodeLittleEndian: {
 	    ushort *u = new ushort[len];
-	    for (uint i=0; i<len; i++)
+	    for (int i=0; i<(int)len; i++)
 		u[i] = p[i] << 8;
 	    dev->writeBlock( (char*)u, len*sizeof(ushort) );
 	    delete [] u;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#57 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#58 $
 **
 ** Implementation of QDir class
 **
@@ -47,7 +47,7 @@ static void slashify( QString& n )
 {
     if ( n.isNull() )
 	return;
-    for ( int i=0; i<n.length(); i++ ) {
+    for ( int i=0; i<(int)n.length(); i++ ) {
 	if ( n[i] ==  '\\' )
 	    n[i] = '/';
     }
@@ -415,11 +415,9 @@ QString QDir::convertSeparators( QString pathName )
 {
     QString n( pathName );
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
-    char *p = n.data();
-    while ( p && *p ) {
-	if ( *p == '/' )
-	    *p = '\\';
-	p++;
+    for ( int i=0; i<n.length(); i++ ) {
+	if ( n[i] == '/' )
+	    n[i] = '\\';
     }
 #endif
     return n;
