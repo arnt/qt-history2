@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#151 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#152 $
 **
 ** Implementation of QFileDialog class
 **
@@ -569,7 +569,7 @@ void QFileDialogPrivate::MCList::setUpContents()
 	}
 	setNumCols( widths->size() );
 
-	items = new QVector<QListViewItem>( i );
+	items = new QVector<QListViewItem>( count );
 	i = 0;
 	file = lv->firstChild();
 	// may have the wrong order.  fix that later.
