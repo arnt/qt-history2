@@ -56,7 +56,6 @@
 #include "qwsmanager_qws.h"
 #endif
 
-// NOT REVISED
 /*!
   \class QWidget qwidget.h
   \brief The QWidget class is the base class of all user interface objects.
@@ -587,8 +586,8 @@ this has to be combined with WStyle_SysMenu for it to work.
 <li> \c WStyle_Maximize - adds a maximize button.  Note that on Windows
 this has to be combined with WStyle_SysMenu for it to work.
 
-<li> \c WStyle_MinMax - is equal to \c WStyle_Minimize|WStyle_Maximize.  
-Note that on Windows this has to be combined with WStyle_SysMenu for 
+<li> \c WStyle_MinMax - is equal to \c WStyle_Minimize|WStyle_Maximize.
+Note that on Windows this has to be combined with WStyle_SysMenu for
 it to work.
 
 <li> \c WStyle_ContextHelp - adds a context help button to dialogs.
@@ -2564,22 +2563,24 @@ bool QWidget::hasFocus() const
     return qApp->focusWidget() == w;
 }
 
-/*!
-  Gives the keyboard input focus to the widget (or its focus proxy).
+/*!  Gives the keyboard input focus to this widget (or its focus
+  proxy).
 
-  First, a \link focusOutEvent() focus out event\endlink is sent to the
-  focus widget (if any) to tell it that it is about to lose the
-  focus. Then a \link focusInEvent() focus in event\endlink is sent to
-  this widget to tell it that it just received the focus.
+  First, a focus out event is sent to the focus widget (if any) to
+  tell it that it is about to lose the focus. Then a focus in event is
+  sent to this widget to tell it that it just received the focus. (Of
+  course, if the two are the same nothing happens.
 
-  setFocus() gives focus to a widget regardless of its focus policy.
+  setFocus() gives focus to a widget regardless of its focus policy,
+  but does not clear any keyboard grab (see grabKeyboard()).
 
   \warning If you call setFocus() in a function which may itself be
   called from focusOutEvent() or focusInEvent(), you may see infinite
   recursion.
 
-  \sa hasFocus(), clearFocus(), focusInEvent(), focusOutEvent(),
-  setFocusPolicy(), QApplication::focusWidget()
+  \sa hasFocus() clearFocus() focusInEvent() focusOutEvent()
+  setFocusPolicy() QApplication::focusWidget() grabKeyboard()
+  grabMouse()
 */
 
 void QWidget::setFocus()
@@ -2595,19 +2596,6 @@ void QWidget::setFocus()
     QFocusData * f = focusData(TRUE);
     if ( f->it.current() == this && qApp->focusWidget() == this )
 	return;
-
-    // ### why do we do this twice? - bad merge?
-
-    f->it.toFirst();
-    while ( f->it.current() != this && !f->it.atLast() )
-	++f->it;
-    // at this point, the iterator should point to 'this'.  if it
-    // does not, 'this' must not be in the list - an error, but
-    // perhaps possible.  fix it.
-    if ( f->it.current() != this ) {
-	f->focusWidgets.append( this );
-	f->it.toLast();
-    }
 
     f->it.toFirst();
     while ( f->it.current() != this && !f->it.atLast() )

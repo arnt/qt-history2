@@ -1016,25 +1016,29 @@ void QWidget::setMouseTracking( bool enable )
 /*!
   Grabs the mouse input.
 
-  This widget will be the only one to receive mouse events until
-  releaseMouse() is called.
+  This widget reveives all mouse events and other widgets none until
+  releaseMouse() is called. Keyboard events are not affected. Use
+  grabKeyboard() if you want to grab that.
 
-  \warning Grabbing the mouse might lock the terminal.
+  \warning Bugs in mouse-grabbing applications very often lock the
+  terminal. Use this function with extreme caution, and consider using
+  the -nograb command line option while debugging.
 
-  It is almost never necessary to grab the mouse when using Qt since
-  Qt grabs and releases it sensibly.  In particular, Qt grabs the
-  mouse when a button is pressed and keeps it until the last button is
+  It is almost never necessary to grab the mouse when using Qt, as Qt
+  grabs and releases it sensibly.  In particular, Qt grabs the mouse
+  when a mouse button is pressed and keeps it until the last button is
   released.
 
-  Beware that only widgets actually shown on the screen may grab the
-  mouse input.
+  Note that only visible widgets can grab mouse input. If isVisible()
+  returns FALSE for a widget, that widget can not call grabMouse().
 
-  \sa releaseMouse(), grabKeyboard(), releaseKeyboard()
+  \sa releaseMouse() grabKeyboard() releaseKeyboard()
+  grabKeyboard() focusWidget()
 */
 
 void QWidget::grabMouse()
 {
-    if ( !qt_nograb() ) {
+    if ( isVisible() && !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
 #if defined(QT_CHECK_STATE)
@@ -1116,15 +1120,21 @@ void QWidget::releaseMouse()
     }
 }
 
-/*!
-  Grabs all keyboard input.
+/*!  Grabs the keyboard input.
 
-  This widget will receive all keyboard events, independent of the active
-  window.
+  This widget reveives all keyboard events and other widgets none
+  until releaseKeyboard() is called. Mouse events are not
+  affected. Use grabMouse() if you want to grab that.
+  
+  The focus widget is not affected, except that it doesn't receive any
+  keyboard events. setFocus() moves the focus as usual, but the new
+  focus widget receives keyboard events only after releaseKeyboard()
+  is called.
 
-  \warning Grabbing the keyboard might lock the terminal.
-
-  \sa releaseKeyboard(), grabMouse(), releaseMouse()
+  If a different widget is currently grabbing keyboard input, that
+  widget's grab is released first.
+  
+  \sa releaseKeyboard() grabMouse() releaseMouse() focusWidget()
 */
 
 void QWidget::grabKeyboard()

@@ -327,10 +327,15 @@ QButton::~QButton()
 */
 
 /*!
-  \fn void QButton::clicked() This signal is emitted when the button
-  is activated, i.e. first pressed down and then released when the
-  mouse cursor is inside the button, or when the accelerator key is
-  typed, or when animateClick() is called.
+  \fn void QButton::clicked()
+
+  This signal is emitted when the button is activated, i.e. first
+  pressed down and then released when the mouse cursor is inside the
+  button, or when the accelerator key is typed, or when animateClick()
+  is called.
+
+  The QButtonGroup::clicked() signal does the same job, if you want to
+  connect several buttons to the same slot.
 
   \sa pressed(), released(), toggled()
 */

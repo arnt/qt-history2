@@ -336,9 +336,11 @@ QButton *QButtonGroup::find( int id ) const
 
 /*!
   \fn void QButtonGroup::clicked( int id )
-  This signal is emitted when a button in the group is
-  \link QButton::clicked() clicked\endlink.
-  The \e id argument is the button's identifier.
+
+  This signal is emitted when a button in the group is clicked.  The
+  \e id argument is the button's identifier.
+
+  \sa QButton::clicked() insert() (about the identifier)
 */
 
 
@@ -481,7 +483,7 @@ void QButtonGroup::setButton( int id )
 /*!
   If \a on is TRUE, this button group will treat radio buttons as
   mutually exclusive, and other buttons according to
-  isExclusive(). 
+  isExclusive().
 */
 
 void QButtonGroup::setRadioButtonExclusive( bool on)

@@ -346,6 +346,8 @@ void QLineEdit::setText( const QString &text )
   end. This is useful when a default value has been inserted,
   since if the user types before clicking on the widget the
   selected text will be erased.
+  
+  \sa setSelection() deselect()
 */
 
 void QLineEdit::selectAll()
@@ -361,6 +363,8 @@ void QLineEdit::selectAll()
 /*!
   Deselects all text (i.e. removes marking) and leaves the cursor at the
   current position.
+
+  \sa setSelection() selectAll()
 */
 
 void QLineEdit::deselect()
@@ -1646,7 +1650,10 @@ void QLineEdit::clear()
 
 
 /*!  Sets the marked area of this line edit to start at \a start and
-  be \a length characters long. */
+  be \a length characters long.
+
+  \sa deselect() selectAll()
+*/
 
 void QLineEdit::setSelection( int start, int length )
 {
@@ -1761,7 +1768,10 @@ void QLineEdit::blinkOn()
     if ( !hasFocus() )
 	return;
 
-    d->blinkTimer.start( d->cursorOn?QApplication::cursorFlashTime() / 2 : 0, TRUE );
+    d->blinkTimer.start( d->cursorOn
+			 ? QApplication::cursorFlashTime() / 2
+			 : 0,
+			 TRUE );
     blinkSlot();
 }
 
@@ -1785,6 +1795,7 @@ void QLineEdit::updateOffset()
     }
 }
 
+
 void QLineEdit::updateSelection()
 {
     int pos = d->cursor->index();
@@ -1796,8 +1807,10 @@ void QLineEdit::updateSelection()
 	selectionEnd = selectionStart;
 	selectionStart = pos;
     }
-    d->parag->setSelection( QTextDocument::Standard, selectionStart, selectionEnd );
+    d->parag->setSelection( QTextDocument::Standard,
+			    selectionStart, selectionEnd );
 }
+
 
 void QLineEdit::removeSelectedText()
 {
@@ -1815,6 +1828,7 @@ void QLineEdit::removeSelectedText()
     d->undoRedoInfo.clear();
 }
 
+
 /*! Undoes the last operation */
 
 void QLineEdit::undo()
@@ -1823,6 +1837,7 @@ void QLineEdit::undo()
     d->parag->undo( d->cursor );
     update();
 }
+
 
 /*! Redoes the last operation */
 
