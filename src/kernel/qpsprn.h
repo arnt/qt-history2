@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.h#1 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.h#2 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -35,6 +35,7 @@ private:
     QTextStream stream;
     int		pageCount;
     bool	dirtyMatrix;
+    QString     fontsUsed;
     friend class QPrinter;
 };
 
