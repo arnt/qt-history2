@@ -1083,7 +1083,8 @@ void QDockWindow::swapRect( QRect &r, Qt::Orientation o, const QPoint &offset, Q
 
 QWidget *QDockWindow::areaAt( const QPoint &gp )
 {
-    QWidget *w = qApp->widgetAt( gp, TRUE );
+    QWidget *w =
+	topLevelWidget()->childAt( topLevelWidget()->mapFromGlobal( gp ), TRUE );
 
     if ( w && ( w == this || w == titleBar ) && parentWidget() )
 	w = parentWidget()->childAt( parentWidget()->mapFromGlobal( gp ) );
