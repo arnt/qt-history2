@@ -1067,7 +1067,7 @@ void QWidget::erase( const QRegion& reg )
     p.setClipRegion(reg);
     if ( extra && extra->bg_pix ) {
 	if ( !extra->bg_pix->isNull() ) {
-	    QPoint point(xoff%extra->bg_pix->width(), yoff%extra->bg_pix->height());
+	    QPoint point(rr.x()+(xoff%extra->bg_pix->width()), rr.y()+(yoff%extra->bg_pix->height()));
 	    p.drawTiledPixmap(rr,*extra->bg_pix, point);
 	}
     } else {
