@@ -4209,7 +4209,7 @@ void QTextParag::setFormat( int index, int len, QTextFormat *f, bool useCollecti
     QTextFormat *of;
     for ( int i = 0; i < len; ++i ) {
 	of = str->at( i + index ).format();
-	if ( !changed && f->key() != of->key() )
+	if ( !changed && ( !of || f->key() != of->key() ) )
 	    changed = TRUE;
 	if ( invalid == -1 &&
 	     ( f->font().family() != of->font().family() ||
