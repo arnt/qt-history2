@@ -5870,6 +5870,7 @@ QScreen::QScreen(int display_id)
     entryp=0;
     clearCacheFunc = 0;
     grayscale = false;
+    screencols = 0;
 }
 
 /*!
