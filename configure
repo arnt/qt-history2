@@ -1472,14 +1472,14 @@ then
 fi
 
 #do the qmake..
-if [ -x "$relpath/bin/syncqt" ]
+if [ -r "$relpath/bin/syncqt" ]
 then
-    QTDIR=$relpath $relpath/bin/syncqt -inc $relpath/include
+    QTDIR=$relpath perl $relpath/bin/syncqt -inc $relpath/include
 
     # when doing shadow builds, make sure we have includes there too
     if [ "$relpath" != `pwd` ]
     then
-	QTDIR=$relpath $relpath/bin/syncqt -inc $outpath/include
+	QTDIR=$relpath perl $relpath/bin/syncqt -inc $outpath/include
     fi
 fi
 
