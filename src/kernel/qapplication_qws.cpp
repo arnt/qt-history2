@@ -360,7 +360,7 @@ private:
 #ifndef QT_NO_QWS_MULTIPROCESS
     QWSSocket *csocket;
 #endif
-    QPtrList<QWSEvent> queue;
+    QList<QWSEvent*> queue;
 
     QWSConnectedEvent* connected_event;
     QWSMouseEvent* mouse_event;
@@ -732,10 +732,8 @@ void QWSDisplay::Data::offsetPendingExpose( int window, const QPoint &offset )
 
     region_offset = offset;
     region_offset_window = window;
-
-    QListIterator<QWSEvent> it(queue);
-    for ( ; it.current(); ++it ) {
-	QWSEvent *e = it.current();
+    for (int i = 0; i < queue.size(); ++i) {
+	QWSEvent *e = queue.at(i);
 	if ( e->type == QWSEvent::RegionModified ) {
 	    QWSRegionModifiedEvent *re = (QWSRegionModifiedEvent *)e;
 	    if ( !re->simpleData.is_ack && region_offset_window == re->window() ) {

@@ -69,19 +69,18 @@ public:
     QPoint curPt;
 };
 
-static QList<QPainter> *widgetPainterList = 0;
+static QList<QPainter*> *widgetPainterList = 0;
 
 void qwsUpdateActivePainters()
 {
     if ( widgetPainterList ) {
-	QPainter *ptr = widgetPainterList->first();
-	while ( ptr ) {
+	for (int i = 0; i < widgetPainterList->size(); ++i) {
+	    QPainter *ptr = widgetPainterList->at(i);
 	    ptr->save();
 	    delete ptr->gfx;
 	    ptr->gfx = ptr->device()->graphicsContext();
 	    ptr->setf( QPainter::VolatileDC );
 	    ptr->restore();
-	    ptr = widgetPainterList->next();
 	}
     }
 }
@@ -188,7 +187,7 @@ void QPainter::destroy()
 void QPainter::init()
 {
     if ( !widgetPainterList )
-	widgetPainterList = new QList<QPainter>;
+	widgetPainterList = new QList<QPainter*>;
     d = new QPainterPrivate;
     flags = IsStartingUp;
     bg_col = white;				// default background color
@@ -528,7 +527,7 @@ bool QPainter::end()				// end painting
 	*paintEventSaveRegion = QRegion();
 
     if ( pdev->devType() == QInternal::Widget )
-	widgetPainterList->removeRef( this );
+	widgetPainterList->remove( this );
 
     delete gfx;
     gfx = 0;
