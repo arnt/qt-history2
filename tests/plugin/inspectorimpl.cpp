@@ -46,28 +46,24 @@ void LibraryInspector::showLibrary( QListViewItem *item )
 
     QPlugIn* plugin = libDict[item->text( 0 )];
     if ( !plugin ) {
-	details->setText( "<Can't find plugin!" );
+	details->setText( "<Can't find plugin!>" );
 	return;
     }
 
-    QString text;
+    QString text( "<table>" );
+
+    QRegExp intMatch( "*"+intID+"*", TRUE, TRUE );
 
     if ( item->text( 0 ) == intID ) {
 	QFile lib( plugin->library() );
-	text = "<table>";
 	text += QString("<tr><td><b>Size:</b></td><td>%1</td></tr>").arg( lib.size() );
 	text += "</table>";
 
 	details->setText( text );
 	return;
     }
-    QUnknownInterface *iface = (QUnknownInterface*)plugin->queryInterface( intID );
-    if ( !iface ) {
-	details->setText( "<No interface found>" );
-	return;
-    }
+    QUnknownInterface *iface = (QUnknownInterface*)plugin->queryInterface( intMatch );
 
-    text = "<table>";
     if ( intID == "QPlugInInterface" ) {
 	QPlugInInterface *piface = (QPlugInInterface*)iface;
 	text += QString("<tr><td><b>Name:</b></td><td>%1</td></tr>").arg( piface->name() );
@@ -75,11 +71,31 @@ void LibraryInspector::showLibrary( QListViewItem *item )
 	text += QString("<tr><td><b>Author:</b></td><td>%1</td></tr>").arg( piface->author() );
 	text += QString("<tr><td><b>Version:</b></td><td>%1</td></tr>").arg( piface->version() );
     }
-    text += QString("<tr><td><b>Interface:</b></td><td>%1</td></tr>").arg(iface->name());
+    if ( iface ) {
+	text += QString("<tr><td><b>Interface:</b></td><td>%1</td></tr>").arg( iface->name() );
+	iface->release();
+    } else {
+	text += QString("<tr><td><b>Interface:</b></td><td>%1</td></tr>").arg( "<i>Can't create interface</i>" );
+    }
     text += "</table>";
     details->setText( text );
+}
 
-    iface->release();
+static QString demangle( const QString& id, QString *unique = 0, QString *hierarchy = 0 )
+{
+    QString uni;
+    QString hier;
+
+    int end = id.findRev( '%' );
+    uni = ( end == -1 ) ? QString::null : id.right( id.length() - end - 1 );
+    hier = ( end == -1 ) ? id : id.left( end );
+    if ( unique )
+	*unique = uni;
+    if ( hierarchy )
+	*hierarchy = hier;
+
+    int last = hier.findRev( '/' );
+    return ( last == -1 ) ? hier : hier.right( hier.length() - last - 1 );
 }
 
 /*
@@ -91,22 +107,25 @@ void LibraryInspector::addInterface( QListViewItem *parent, QUnknownInterface *i
 	return;
 
     QString intID = iface->interfaceID();
-    int dollar  =intID.findRev( '$' );
-    QString hier = ( dollar == -1 ) ? intID : intID.left( dollar );
-    QString unique = ( dollar == -1 ) ? "" : intID.right( intID.length() - dollar - 1 );
-    int lastSlash = hier.findRev( '/' );
-    intID = ( lastSlash == -1 ) ? hier : hier.right( hier.length() - lastSlash - 1 );
+    QString uni;
+    QString hier;
+    intID = demangle( intID, &uni, &hier );
 
-    QListViewItem *item = new QListViewItem( parent, intID );
+    QListViewItem *item = new QListViewItem( parent, intID, hier, uni );
+
     QStringList ifaces = iface->interfaceList( FALSE );
     for ( QStringList::Iterator it = ifaces.begin(); it != ifaces.end(); ++it ) {
 	if ( *it == iface->interfaceID() )
 	    continue;
 	QUnknownInterface *sub = iface->queryInterface( *it, FALSE );
-	if ( sub )
+	if ( sub ) {
 	    addInterface( item, sub );
-	else
-	    new QListViewItem( item, *it );
+	} else {
+	    QString uni2;
+	    QString hier2;
+	    QString intID2 = demangle( *it, &uni2, &hier2 );
+	    new QListViewItem( item, intID2, hier2, uni2 );
+	}
     }
     iface->release();
     return;
@@ -146,7 +165,7 @@ void LibraryInspector::selectPath()
 	    libDict.insert( lib, plugin );
 
 	    QListViewItem *libItem = new QListViewItem( view, plugin->library() );
-	    QPlugInInterface *iface = (QPlugInInterface*)plugin->queryInterface( "QPlugInInterface", FALSE );
+	    QPlugInInterface *iface = (QPlugInInterface*)plugin->queryInterface( QRegExp("QPlugInInterface"), FALSE );
 	    addInterface( libItem, iface );
 	}
     }
