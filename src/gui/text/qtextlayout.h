@@ -180,7 +180,7 @@ private:
     QTextEngine *d;
 };
 
-class QTextLine
+class Q_GUI_EXPORT QTextLine
 {
 public:
     inline QTextLine() : i(0), eng(0) {}

@@ -55,11 +55,11 @@ QTextCursorPrivate::~QTextCursorPrivate()
         priv->removeCursor(this);
 }
 
-void QTextCursorPrivate::adjustPosition(int positionOfChange, int charsAddedOrRemoved, UndoCommand::Operation op)
+void QTextCursorPrivate::adjustPosition(int positionOfChange, int charsAddedOrRemoved, QTextUndoCommand::Operation op)
 {
     // not(!) <= , so that inserting text adjusts the cursor correctly
     if (position < positionOfChange ||
-        (position == positionOfChange && op == UndoCommand::KeepCursor))
+        (position == positionOfChange && op == QTextUndoCommand::KeepCursor))
         return;
 
     if (charsAddedOrRemoved < 0 && position < positionOfChange - charsAddedOrRemoved)
@@ -92,11 +92,11 @@ void QTextCursorPrivate::remove()
         return;
     int pos1 = position;
     int pos2 = adjusted_anchor;
-    UndoCommand::Operation op = UndoCommand::KeepCursor;
+    QTextUndoCommand::Operation op = QTextUndoCommand::KeepCursor;
     if (pos1 > pos2) {
         pos1 = anchor;
         pos2 = position;
-        op = UndoCommand::MoveCursor;
+        op = QTextUndoCommand::MoveCursor;
     }
 
     priv->remove(pos1, pos2-pos1, op);

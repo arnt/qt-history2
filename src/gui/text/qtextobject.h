@@ -50,7 +50,7 @@ public:
 
 class QTextBlockGroupPrivate;
 
-class QTextBlockGroup : public QTextObject
+class Q_GUI_EXPORT QTextBlockGroup : public QTextObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextBlockGroup)
@@ -68,14 +68,14 @@ protected:
     QList<QTextBlock> blockList() const;
 };
 
-class QTextFrameLayoutData {
+class Q_GUI_EXPORT QTextFrameLayoutData {
 public:
     virtual ~QTextFrameLayoutData();
 };
 
 class QTextFramePrivate;
 
-class QTextFrame : public QTextObject
+class Q_GUI_EXPORT QTextFrame : public QTextObject
 {
     Q_DECLARE_PRIVATE(QTextFrame)
     Q_OBJECT
@@ -138,7 +138,7 @@ protected:
     QTextFrame(QTextFramePrivate &p, QTextDocument *doc);
 };
 
-class QTextBlock
+class Q_GUI_EXPORT QTextBlock
 {
     QTextDocumentPrivate *p;
     int n;
@@ -205,7 +205,7 @@ public:
 Q_DECLARE_TYPEINFO(QTextBlock, Q_PRIMITIVE_TYPE);
 
 
-class QTextFragment
+class Q_GUI_EXPORT QTextFragment
 {
     const QTextDocumentPrivate *p;
     int n;

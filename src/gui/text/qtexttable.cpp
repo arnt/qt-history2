@@ -506,7 +506,7 @@ void QTextTable::insertRows(int pos, int num)
         int bfmt = p->formatCollection()->indexForFormat(QTextBlockFormat());
 //         qDebug("inserting %d cells, nCols=%d extended=%d", num*(d->nCols-extended), d->nCols, extended);
         for (int i = 0; i < num*(d->nCols-extended); ++i)
-            p->insertBlock(QTextBeginningOfFrame, pos, bfmt, cfmt, UndoCommand::MoveCursor);
+            p->insertBlock(QTextBeginningOfFrame, pos, bfmt, cfmt, QTextUndoCommand::MoveCursor);
     }
 
 //     qDebug() << "-------- end insertRows" << pos << num;
@@ -554,7 +554,7 @@ void QTextTable::insertColumns(int pos, int num)
             int cfmt = p->formatCollection()->indexForFormat(fmt);
             int bfmt = p->formatCollection()->indexForFormat(QTextBlockFormat());
             for (int i = 0; i < num; ++i)
-                p->insertBlock(QTextBeginningOfFrame, position, bfmt, cfmt, UndoCommand::MoveCursor);
+                p->insertBlock(QTextBeginningOfFrame, position, bfmt, cfmt, QTextUndoCommand::MoveCursor);
         }
     }
 
