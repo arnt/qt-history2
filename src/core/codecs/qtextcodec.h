@@ -15,6 +15,7 @@
 #define QTEXTCODEC_H
 
 #include "qstring.h"
+#include "qlist.h"
 
 #ifndef QT_NO_TEXTCODEC
 
@@ -23,7 +24,6 @@ class QIODevice;
 
 class QTextDecoder;
 class QTextEncoder;
-template <typename T> class QList;
 
 class Q_CORE_EXPORT QTextCodec
 {
