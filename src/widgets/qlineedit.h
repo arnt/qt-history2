@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#33 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#34 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -16,6 +16,7 @@
 #include "qstring.h"
 
 class QComboBox;
+class QValidator;
 
 
 class QLineEdit : public QWidget
@@ -35,6 +36,9 @@ public:
     enum	EchoMode { Normal, NoEcho, Password };
     void	setEchoMode( enum EchoMode );
     QLineEdit::EchoMode echoMode() const;
+
+    void	setValidator( QValidator * );
+    QValidator * validator() const;
 
     QSize	sizeHint() const;
 
