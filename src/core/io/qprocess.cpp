@@ -103,22 +103,9 @@
     The following example runs \c gzip to compress the string "Qt
     rocks!", without an event loop:
 
-    \omit
-    This code doesn't work
-    \code
-        QProcess gzip;
-        gzip.start("gzip", QStringList() << "-c");
-        if (!gzip.waitForStarted())
-            return false;
-
-        gzip.write("Qt rocks!");
-        gzip.flush();
-
-        QByteArray result;
-        while (gzip.waitForReadyRead())
-            result += gzip.readAll();
-    \endcode
-    \endomit
+    \quotefromfile snippets/process/process.cpp
+    \skipto QProcess gzip;
+    \printuntil result = gzip.readAll();
 
     \sa QBuffer, QFile, QTcpSocket
 */
