@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#20 $
+** $Id: //depot/qt/main/src/tools/qmap.h#21 $
 **
 ** Definition of QMap class
 **
@@ -70,38 +70,40 @@ struct QMapNode : public QMapNodeBase
 };
 
 
-template<class K, class T, class Ref, class Ptr>
-struct QMapIterator
+template<class K, class T>
+class Q_EXPORT QMapIterator
 {
+ public:
     /**
      * Typedefs
      */
-    typedef QMapIterator< K, T, Ref, Ptr > Type;
     typedef QMapNode< K, T >* NodePtr;
-    typedef QMapNode< K, T > Node;
 
     /**
      * Variables
      */
-    NodePtr node;
+    QMapNode<K,T>* node;
 
     /**
      * Functions
      */
     QMapIterator() : node( 0 ) {}
-    QMapIterator( NodePtr p ) : node( p ) {}
-    QMapIterator( const Type& i ) : node( i.node ) {}
+    QMapIterator( QMapNode<K,T>* p ) : node( p ) {}
+    QMapIterator( const QMapIterator<K,T>& it ) : node( it.node ) {}
 
-    bool operator==( const Type& x ) const { return node == x.node; }
-    bool operator!=( const Type& x ) const { return node != x.node; }
-    Ref operator*()  const { return node->data; }
+    bool operator==( const QMapIterator<K,T>& it ) const { return node == it.node; }
+    bool operator!=( const QMapIterator<K,T>& it ) const { return node != it.node; }
+    T& operator*() { return node->data; }
+    const T& operator*() const { return node->data; }
 
     // Cannot have this - some compilers are too stupid
-    //Ptr operator->() const { return &(node->data); }
+    //T* operator->() const { return &(node->data); }
 
     const K& key() const { return node->key; }
-    Ref data()     const { return node->data; }
+    T& data() { return node->data; }
+    const T& data() const { return node->data; }
 
+private:
     void inc() {
 	QMapNodeBase* tmp = node;
 	if ( tmp->right ) {
@@ -122,7 +124,7 @@ struct QMapIterator
 
     void dec() {
 	QMapNodeBase* tmp = node;
-	if (tmp->color == Node::Red &&
+	if (tmp->color == QMapNodeBase::Red &&
 	    tmp->parent->parent == tmp ) {
 	    tmp = tmp->right;
 	} else if (tmp->left != 0) {
@@ -141,24 +143,121 @@ struct QMapIterator
 	node = (NodePtr)tmp;
     }
 
-    Type& operator++() {
+public:
+    QMapIterator<K,T>& operator++() {
 	inc();
 	return *this;
     }
 
-    Type operator++(int) {
-	Type tmp = *this;
+    QMapIterator<K,T> operator++(int) {
+	QMapIterator<K,T> tmp = *this;
 	inc();
 	return tmp;
     }
 
-    Type& operator--() {
+    QMapIterator<K,T>& operator--() {
 	dec();
 	return *this;
     }
 
-    Type operator--(int) {
-	Type tmp = *this;
+    QMapIterator<K,T> operator--(int) {
+	QMapIterator<K,T> tmp = *this;
+	dec();
+	return tmp;
+    }
+};
+
+template<class K, class T>
+class Q_EXPORT QMapConstIterator
+{
+ public:
+    /**
+     * Typedefs
+     */
+    typedef QMapNode< K, T >* NodePtr;
+
+    /**
+     * Variables
+     */
+    QMapNode<K,T>* node;
+
+    /**
+     * Functions
+     */
+    QMapConstIterator() : node( 0 ) {}
+    QMapConstIterator( QMapNode<K,T>* p ) : node( p ) {}
+    QMapConstIterator( const QMapConstIterator<K,T>& it ) : node( it.node ) {}
+    QMapConstIterator( const QMapIterator<K,T>& it ) : node( it.node ) {}
+
+    bool operator==( const QMapConstIterator<K,T>& it ) const { return node == it.node; }
+    bool operator!=( const QMapConstIterator<K,T>& it ) const { return node != it.node; }
+    const T& operator*()  const { return node->data; }
+
+    // Cannot have this - some compilers are too stupid
+    //const T* operator->() const { return &(node->data); }
+
+    const K& key() const { return node->key; }
+    const T& data() const { return node->data; }
+
+private:
+    void inc() {
+        QMapNodeBase* tmp = node;
+	if ( tmp->right ) {
+	    tmp = tmp->right;
+	    while ( tmp->left )
+		tmp = tmp->left;
+	} else {
+	    QMapNodeBase* y = tmp->parent;
+	    while (tmp == y->right) {
+		tmp = y;
+		y = y->parent;
+	    }
+	    if (tmp->right != y)
+		tmp = y;
+	}
+	node = (NodePtr)tmp;
+    }
+
+    void dec() {
+	QMapNodeBase* tmp = node;
+	if (tmp->color == QMapNodeBase::Red &&
+	    tmp->parent->parent == tmp ) {
+	    tmp = tmp->right;
+	} else if (tmp->left != 0) {
+	    QMapNodeBase* y = tmp->left;
+	    while ( y->right )
+		y = y->right;
+	    tmp = y;
+	} else {
+	    QMapNodeBase* y = tmp->parent;
+	    while (tmp == y->left) {
+		tmp = y;
+		y = y->parent;
+	    }
+	    tmp = y;
+	}
+	node = (NodePtr)tmp;
+    }
+
+public:
+    QMapConstIterator<K,T>& operator++() {
+	inc();
+	return *this;
+    }
+
+    QMapConstIterator<K,T> operator++(int) {
+	QMapConstIterator<K,T> tmp = *this;
+	inc();
+	return tmp;
+    }
+
+    QMapConstIterator<K,T>& operator--() {
+	dec();
+	return *this;
+    }
+
+    QMapConstIterator<K,T> operator--(int) {
+	QMapConstIterator<K,T> tmp = *this;
 	dec();
 	return tmp;
     }
@@ -199,8 +298,8 @@ public:
     /**
      * Typedefs
      */
-    typedef QMapIterator< Key, T, T&, T* > Iterator;
-    typedef QMapIterator< Key, T, const T&, const T* > ConstIterator;
+    typedef QMapIterator< Key, T > Iterator;
+    typedef QMapConstIterator< Key, T > ConstIterator;
     typedef QMapNode< Key, T > Node;
     typedef QMapNode< Key, T >* NodePtr;
 
@@ -388,8 +487,8 @@ public:
     /**
      * Typedefs
      */
-    typedef QMapIterator< Key, T, T&, T* > Iterator;
-    typedef QMapIterator< Key, T, const T&, const T* > ConstIterator;
+    typedef QMapIterator< Key, T > Iterator;
+    typedef QMapConstIterator< Key, T > ConstIterator;
     typedef T ValueType;
     typedef QMapPrivate< Key, T > Priv;
 
@@ -397,10 +496,11 @@ public:
      * API
      */
     QMap() { sh = new QMapPrivate< Key, T >; }
-    QMap( const QMap<Key,T>& _node ) { sh = _node.sh; sh->ref(); }
+    QMap( const QMap<Key,T>& m ) { sh = m.sh; sh->ref(); }
     ~QMap() { if ( sh->deref() ) delete sh; }
 
-    QMap<Key,T>& operator=( const QMap<Key,T>& m ) { if ( sh->deref() ) delete sh; sh = m.sh; sh->ref(); return *this; }
+    QMap<Key,T>& operator= ( const QMap<Key,T>& m )
+      { if ( sh->deref() ) delete sh; sh = m.sh; sh->ref(); return *this; }
 
     Iterator begin() { detach(); return sh->begin(); }
     Iterator end() { detach(); return sh->end(); }
@@ -435,7 +535,7 @@ public:
     void remove( Iterator it ) { detach(); sh->remove( it ); }
     void remove( const Key& k ) {
         detach();
-        Iterator it = Iterator( sh->find( k ).node );
+        Iterator it( sh->find( k ).node );
         if ( it != end() )
             sh->remove( it );
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvaluelist.h#22 $
+** $Id: //depot/qt/main/src/tools/qvaluelist.h#23 $
 **
 ** Definition of QValueList class
 **
@@ -47,12 +47,12 @@ struct QValueListNode
 };
 
 template<class T>
-struct QValueListIterator
+class Q_EXPORT QValueListIterator
 {
+ public:
     /**
      * Typedefs
      */
-    typedef QValueListIterator<T> Type;
     typedef QValueListNode<T>* NodePtr;
 
     /**
@@ -65,45 +65,46 @@ struct QValueListIterator
      */
     QValueListIterator() : node( 0 ) {}
     QValueListIterator( NodePtr p ) : node( p ) {}
-    QValueListIterator( const Type& i ) : node( i.node ) {}
+    QValueListIterator( const QValueListIterator<T>& it ) : node( it.node ) {}
 
-    bool operator==( const Type& x ) const { return node == x.node; }
-    bool operator!=( const Type& x ) const { return node != x.node; }
-    T& operator*() const { return node->data; }
+    bool operator==( const QValueListIterator<T>& it ) const { return node == it.node; }
+    bool operator!=( const QValueListIterator<T>& it ) const { return node != it.node; }
+    const T& operator*() const { return node->data; }
+    T& operator*() { return node->data; }
 
     // Compilers are too dumb to understand this for QValueList<int>
     //T* operator->() const { return &(node->data); }
 
-    Type& operator++() {
+    QValueListIterator<T>& operator++() {
         node = node->next;
         return *this;
     }
 
-    Type operator++(int) {
-        Type tmp = *this;
+    QValueListIterator<T> operator++(int) {
+        QValueListIterator<T> tmp = *this;
         node = node->next;
         return tmp;
     }
 
-    Type& operator--() {
+    QValueListIterator<T>& operator--() {
         node = node->prev;
         return *this;
     }
 
-    Type operator--(int) {
-        Type tmp = *this;
+    QValueListIterator<T> operator--(int) {
+        QValueListIterator<T> tmp = *this;
         node = node->prev;
         return tmp;
     }
 };
 
 template<class T>
-struct QValueListConstIterator
+class Q_EXPORT QValueListConstIterator
 {
+ public:
     /**
      * Typedefs
      */
-    typedef QValueListConstIterator<T> Type;
     typedef QValueListNode<T>* NodePtr;
 
     /**
@@ -116,41 +117,41 @@ struct QValueListConstIterator
      */
     QValueListConstIterator() : node( 0 ) {}
     QValueListConstIterator( NodePtr p ) : node( p ) {}
-    QValueListConstIterator( const Type& i ) : node( i.node ) {}
-    QValueListConstIterator( const QValueListIterator<T>& i ) : node( i.node ) {}
+    QValueListConstIterator( const QValueListConstIterator<T>& it ) : node( it.node ) {}
+    QValueListConstIterator( const QValueListIterator<T>& it ) : node( it.node ) {}
 
-    bool operator==( const Type& x ) const { return node == x.node; }
-    bool operator!=( const Type& x ) const { return node != x.node; }
+    bool operator==( const QValueListConstIterator<T>& it ) const { return node == it.node; }
+    bool operator!=( const QValueListConstIterator<T>& it ) const { return node != it.node; }
     const T& operator*() const { return node->data; }
 
     // Compilers are too dumb to understand this for QValueList<int>
     //const T* operator->() const { return &(node->data); }
 
-    Type& operator++() {
+    QValueListConstIterator<T>& operator++() {
         node = node->next;
         return *this;
     }
 
-    Type operator++(int) {
-        Type tmp = *this;
+    QValueListConstIterator<T> operator++(int) {
+        QValueListConstIterator<T> tmp = *this;
         node = node->next;
         return tmp;
     }
 
-    Type& operator--() {
+    QValueListConstIterator<T>& operator--() {
         node = node->prev;
         return *this;
     }
 
-    Type operator--(int) {
-        Type tmp = *this;
+    QValueListConstIterator<T> operator--(int) {
+        QValueListConstIterator<T> tmp = *this;
         node = node->prev;
         return tmp;
     }
 };
 
 template <class T>
-class QValueListPrivate : public QShared
+class Q_EXPORT QValueListPrivate : public QShared
 {
 public:
     /**
@@ -276,7 +277,7 @@ public:
 };
 
 template <class T>
-class QValueList
+class Q_EXPORT QValueList
 {
 public:
     /**
@@ -290,45 +291,45 @@ public:
      * API
      */
     QValueList() { sh = new QValueListPrivate<T>; }
-    QValueList( const QValueList& _l ) { sh = _l.sh; sh->ref(); }
+    QValueList( const QValueList& l ) { sh = l.sh; sh->ref(); }
     ~QValueList() { if ( sh->deref() ) delete sh; }
 
-    QValueList<T>& operator= ( const QValueList<T>& _list )
+    QValueList<T>& operator= ( const QValueList<T>& l )
     {
         if ( sh->deref() ) delete sh;
-        sh = _list.sh;
+        sh = l.sh;
         sh->ref();
         return *this;
     }
 
-    QValueList<T> operator+ ( const QValueList<T>& _l ) const
+    QValueList<T> operator+ ( const QValueList<T>& l ) const
     {
-        QValueList<T> l( *this );
-        for( ConstIterator it = _l.begin(); it != _l.end(); ++it )
-            l.append( *it );
-        return l;
+        QValueList<T> l2( *this );
+        for( ConstIterator it = l.begin(); it != l.end(); ++it )
+            l2.append( *it );
+        return l2;
     }
 
-    QValueList<T>& operator+= ( const QValueList<T>& _l )
+    QValueList<T>& operator+= ( const QValueList<T>& l )
     {
-        for( ConstIterator it = _l.begin(); it != _l.end(); ++it )
+        for( ConstIterator it = l.begin(); it != l.end(); ++it )
             append( *it );
         return *this;
     }
 
-    bool operator== ( const QValueList<T>& _l ) const
+    bool operator== ( const QValueList<T>& l ) const
     {
-        if ( count() != _l.count() )
+        if ( count() != l.count() )
             return FALSE;
         ConstIterator it2 = begin();
-        ConstIterator it = _l.begin();
-        for( ; it != _l.end(); ++it, ++it2 )
+        ConstIterator it = l.begin();
+        for( ; it != l.end(); ++it, ++it2 )
             if ( !( *it == *it2 ) )
                 return FALSE;
         return TRUE;
     }
 
-    bool operator!= ( const QValueList<T>& _l ) const { return !( *this == _l ); }
+    bool operator!= ( const QValueList<T>& l ) const { return !( *this == l ); }
 
     Iterator begin() { detach(); return Iterator( sh->node->next ); }
     ConstIterator begin() const { return ConstIterator( sh->node->next ); }
@@ -348,9 +349,9 @@ public:
     void remove( const T& x ) { detach(); sh->remove( x ); }
 
     T& first() { detach(); return sh->node->next->data; }
-    const T& getFirst() const { return sh->node->next->data; }
+    const T& first() const { return sh->node->next->data; }
     T& last() { detach(); return sh->node->prev->data; }
-    const T& getLast() const { return sh->node->prev->data; }
+    const T& last() const { return sh->node->prev->data; }
 
     T& operator[] ( uint i ) { detach(); return sh->at(i)->data; }
     const T& operator[] ( uint i ) const { return sh->at(i)->data; }
@@ -360,7 +361,7 @@ public:
     ConstIterator find ( const T& x ) const { return ConstIterator( sh->find( sh->node->next, x) ); }
     Iterator find ( Iterator it, const T& x ) { detach(); return Iterator( sh->find( it.node, x ) ); }
     ConstIterator find ( ConstIterator it, const T& x ) const { return ConstIterator( sh->find( it.node, x ) ); }
-    int findIndex( const T& x ) { detach(); return sh->findIndex( sh->node->next, x) ; }
+    int findIndex( const T& x ) const { return sh->findIndex( sh->node->next, x) ; }
     uint contains( const T& x ) const { return sh->contains( x ); }
 
     uint count() const { return sh->nodes; }
@@ -373,7 +374,7 @@ public:
         append( x );
         return *this;
     }
-    QValueList<T>& operator<<( const T& x )
+    QValueList<T>& operator<< ( const T& x )
     {
         append( x );
         return *this;
