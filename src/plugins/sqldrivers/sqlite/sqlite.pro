@@ -21,6 +21,7 @@ win32 {
 
 !contains( LIBS, .*sqlite.* ) {
     INCLUDEPATH += ../../../3rdparty/sqlite
+    DEFINES += SQLITE_UTF8
 
     HEADERS += ../../../3rdparty/sqlite/btree.h \
                ../../../3rdparty/sqlite/config.h \
