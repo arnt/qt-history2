@@ -557,7 +557,7 @@ bool QDirModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
                              int row, const QModelIndex &parent)
 {
     Q_UNUSED(row);
-    if (!parent.isValid())
+    if (!parent.isValid() || isReadOnly())
         return false;
 
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
