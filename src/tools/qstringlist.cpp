@@ -67,9 +67,9 @@
   working with QStringList easy.
 */
 
-/*
-  ! \fn QStringList::QStringList()
-  Creates an empty list
+/*!
+ \fn QStringList::QStringList()
+  Creates an empty list.
 */
 
 /*! \fn QStringList::QStringList( const QStringList& l )
