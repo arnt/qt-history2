@@ -297,7 +297,7 @@ QSize QToolButton::sizeHint() const
 	    w = tw;
     }
     if ( d->popup && !d->delay )
-	w += style().dropDownButtonWidth();
+	w += style().menuButtonIndicatorWidth( height() );
 #ifdef Q_WS_QWS // ###### should be style option
     return QSize( w+4, h ).expandedTo( QApplication::globalStrut() );
 #else
@@ -432,8 +432,9 @@ void QToolButton::drawButton( QPainter * p )
     int y = 0;
     int w = width();
     int h = height();
+    int miw = style().menuButtonIndicatorWidth( h );
     if ( d->popup && !d->delay )
-	w -= style().dropDownButtonWidth();
+	w -= miw;
 
     const QColorGroup &g = colorGroup();
 
@@ -449,10 +450,10 @@ void QToolButton::drawButton( QPainter * p )
 
     if ( d->popup && !d->delay ) {
 	if ( uses3D() )
-	    style().drawDropDownButton( p, w, y, style().dropDownButtonWidth(), h, g, 
+	    style().drawDropDownButton( p, w, y, miw, h, g, 
 		    d->instantPopup || isDown() || isOn(), isEnabled(), autoRaise() && threeDeeButton == this );
 	style().drawArrow( p, DownArrow, d->instantPopup || isDown() || isOn(), w+2, y+4, 
-		style().dropDownButtonWidth()-4, h-8, g, isEnabled() );
+		miw-4, h-8, g, isEnabled() );
     }
 
     if ( hasFocus() && !focusProxy() ) {
@@ -475,7 +476,7 @@ void QToolButton::drawButtonLabel( QPainter * p )
     int sy = 0;
     int x, y, w, h;
     if ( d->popup && !d->delay ) 
-	style().toolButtonRect(0, 0, width() - style().dropDownButtonWidth(), height() ).rect( &x, &y, &w, &h );
+	style().toolButtonRect(0, 0, width() - style().menuButtonIndicatorWidth( height() ), height() ).rect( &x, &y, &w, &h );
     else
 	style().toolButtonRect(0, 0, width(), height() ).rect( &x, &y, &w, &h );
     if (isDown() || (isOn()&&!son) ) {

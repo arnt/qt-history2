@@ -152,7 +152,7 @@ void QSizeGrip::paintEvent( QPaintEvent *e )
 {
     QPainter painter( this );
     painter.setClipRegion(e->region());
-    style().drawSizeGrip( &painter, QRect( 0, 0, width(), height() ), colorGroup() );
+    style().drawSizeGrip( &painter, 0, 0, width(), height(), colorGroup() );
 }
 
 /*!

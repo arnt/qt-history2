@@ -449,17 +449,15 @@ void QProgressBar::drawContents( QPainter *p )
 	}
 	int nu = ( u * p_v + t_s/2 ) / t_s;
 
-	const QRect r( bar.x(), bar.y(), u*unit_width + 4, bar.height() );
-	style().drawProgressBar( &paint, r, colorGroup() );
+	style().drawProgressBar( &paint, bar.x(), bar.y(), u*unit_width + 4, bar.height(), colorGroup() );
 	
 	// Draw nu units out of a possible u of unit_width width, each
 	// a rectangle bordered by background color, all in a sunken panel
 	// with a percentage text display at the end.
 	int x = 0;
 	for (int i=0; i<nu; i++) {
-	    QRect chunk( bar.x() + x + 2, bar.y() + 2,
-			 unit_width, bar.height() - 4 );
-	    style().drawProgressChunk( &paint, chunk, palette().active() );
+	    style().drawProgressChunk( &paint, bar.x() + x + 2, bar.y() + 2,
+			 unit_width, bar.height() - 4, palette().active() );
 	    x += unit_width;
 	}
 	if ( !hasExtraIndicator && percentage_visible && total_steps ) {
@@ -473,7 +471,7 @@ void QProgressBar::drawContents( QPainter *p )
 	    }
 	} else if ( hasExtraIndicator ) {
 	    paint.setPen( colorGroup().foreground() );
-	    paint.drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
+	    paint.drawText( bar.x()+u*unit_width + 4, bar.y(), textw, bar.height(),
 		AlignCenter | SingleLine, progress_str );
 	}
     }

@@ -422,8 +422,8 @@ void QStatusBar::paintEvent( QPaintEvent * )
 	    if ( item->w->isVisible() ) {
 		if ( item->p && item->w->x()-1 < psx )
 		    psx = item->w->x()-1;
-		style().drawStatusBarSection( &p, QRect( item->w->x() - 1, item->w->y() - 1, 
-		    item->w->width()+2, item->w->height()+2 ), colorGroup(), item->p );
+		style().drawStatusBarSection( &p, item->w->x() - 1, item->w->y() - 1, 
+		    item->w->width()+2, item->w->height()+2, colorGroup(), item->p );
 	    }
 	item = d->items.next();
     }

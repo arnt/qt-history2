@@ -1300,18 +1300,18 @@ int QMotifStyle::progressChunkWidth() const
 /*!
   \reimp
 */
-void QMotifStyle::drawProgressBar( QPainter *p, const QRect &rect, const QColorGroup &g )
+void QMotifStyle::drawProgressBar( QPainter *p, int x, int y, int w, int h, const QColorGroup &g )
 {
-    qDrawShadePanel( p, rect, g, TRUE, 1 );
-    p->fillRect( rect.x() + 2, rect.y() + 2, rect.width() - 4, rect.height() - 4, g.base() );
+    qDrawShadePanel( p, x, y, w, h, g, TRUE, 1 );
+    p->fillRect( x + 2, y + 2, w - 4, h - 4, g.base() );
 }
 
 /*!
  \reimp
  */
-void QMotifStyle::drawProgressChunk( QPainter *p, const QRect &rect, const QColorGroup &g )
+void QMotifStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h, const QColorGroup &g )
 {
-    p->fillRect( rect, g.brush( QColorGroup::Highlight ) );
+    p->fillRect( x, y, w, h, g.highlight() );
 }
 
 #endif

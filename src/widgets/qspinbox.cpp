@@ -730,15 +730,19 @@ void QSpinBox::wheelEvent( QWheelEvent * e )
 */
 void QSpinBox::drawContents( QPainter *p )
 {
-    style().drawSpinBoxButton( p, down, enabled & 1 ? colorGroup() : palette().disabled(),
-			       this, TRUE, enabled & 1, theButton & 1 );
-    style().drawSpinBoxSymbol( p, down, enabled & 1 ? colorGroup() : palette().disabled(),
-			       this, TRUE, enabled & 1, theButton & 1 );
+    style().drawSpinBoxButton( p, down.x(), down.y(), down.width(), down.height(), 
+			enabled & 1 ? colorGroup() : palette().disabled(),
+			this, TRUE, enabled & 1, theButton & 1 );
+    style().drawSpinBoxSymbol( p, down.x(), down.y(), down.width(), down.height(), 
+			enabled & 1 ? colorGroup() : palette().disabled(),
+			this, TRUE, enabled & 1, theButton & 1 );
 
-    style().drawSpinBoxButton( p, up, enabled & 2 ? colorGroup() : palette().disabled(),
+    style().drawSpinBoxButton( p, up.x(), up.y(), up.width(), up.height(), 
+			enabled & 2 ? colorGroup() : palette().disabled(),
 			       this, FALSE, enabled & 2, theButton & 2 );
-    style().drawSpinBoxSymbol( p, up, enabled & 2 ? colorGroup() : palette().disabled(),
-			       this, FALSE, enabled & 2, theButton & 2 );
+    style().drawSpinBoxSymbol( p, up.x(), up.y(), up.width(), up.height(), 
+			enabled & 2 ? colorGroup() : palette().disabled(),
+			this, FALSE, enabled & 2, theButton & 2 );
 }
 
 /*!  This virtual function is called by QRangeControl whenever the

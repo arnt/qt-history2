@@ -703,10 +703,10 @@ void QTitleBarLabel::drawLabel( bool redraw )
     QPainter p( buffer );
     p.setFont( font() );
 
-    style().drawTitleBar( &p, contentsRect(), leftc, rightc, act );
+    QRect cr = contentsRect();
+    style().drawTitleBar( &p, cr.x(), cr.y(), cr.width(), cr.height(), leftc, rightc, act );
     drawFrame( &p );
-    QRect cr( 1, 1, width()-2, height()-2);
-    style().drawTitleBarLabel( &p, QRect( cr.x() + leftm, cr.y(), cr.width() - rightm, cr.height() ), cuttext, textc, act );
+    style().drawTitleBarLabel( &p, cr.x() + leftm, cr.y(), cr.width() - rightm, cr.height(), cuttext, textc, act );
 
     p.end();
 
@@ -802,11 +802,11 @@ QSize QTitleBarButton::sizeHint() const
 
 void QTitleBarButton::drawButton( QPainter *p )
 {
-    style().drawTitleBarButton( p, QRect( 0, 0, width(), height() ), colorGroup(), isDown() );
+    style().drawTitleBarButton( p, 0, 0, width(), height(), colorGroup(), isDown() );
     drawButtonLabel( p );
 }
 
 void QTitleBarButton::drawButtonLabel( QPainter *p )
 {
-    style().drawTitleBarButtonLabel( p, QRect( 0, 0, width(), height() ), pixmap(), type, isDown() );
+    style().drawTitleBarButtonLabel( p, 0, 0, width(), height(), pixmap(), type, isDown() );
 }

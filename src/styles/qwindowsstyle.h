@@ -161,8 +161,8 @@ public:
 
     // progressbar
     int progressChunkWidth() const;
-    void drawProgressBar( QPainter *p, const QRect &rect, const QColorGroup &g );
-    void drawProgressChunk( QPainter *p, const QRect &rect, const QColorGroup &g );
+    void drawProgressBar( QPainter *p, int x, int y, int w, int h, const QColorGroup &g );
+    void drawProgressChunk( QPainter *p, int x, int y, int w, int h, const QColorGroup &g );
 
 protected:
     void drawWinShades( QPainter *p,

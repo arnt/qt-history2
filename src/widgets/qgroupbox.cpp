@@ -299,10 +299,11 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 		x = 8;
 	}
 	QRect r( x, 0, tw, h );
-	style().drawGroupBoxTitle( &paint, r, colorGroup(), str, isEnabled() );
+	style().drawGroupBoxTitle( &paint, x, 0, tw, h, colorGroup(), str, isEnabled() );
 	paint.setClipRegion( event->region().subtract( r ) );	// clip everything but title
     }
-    style().drawGroupBoxFrame( &paint, frameRect(), colorGroup(), this );
+    QRect fr = frameRect();
+    style().drawGroupBoxFrame( &paint, fr.x(), fr.y(), fr.width(), fr.height(), colorGroup(), this );
     drawContents( &paint );			// draw the contents
 }
 

@@ -76,32 +76,30 @@ public:
     int menuBarFrameWidth() const { return 2; }
 
     // titlebar
-    void drawTitleBar( QPainter *p, 
-		       const QRect &r, const QColor &left, const QColor &right, 
+    void drawTitleBar( QPainter *p, int x, int y, int w, int h, const QColor &left, const QColor &right, 
 		       bool active );
-    void drawTitleBarLabel( QPainter *p, 
-		       const QRect &r, const QString &text, 
+    void drawTitleBarLabel( QPainter *p, int x, int y, int w, int h, const QString &text, 
 		       const QColor &tc, bool active );
 
-    void drawTitleBarButton( QPainter *p, const QRect &r, const QColorGroup &g, bool down );
-    void drawTitleBarButtonLabel( QPainter *p, const QRect &r, const QPixmap *, int button, bool down );
+    void drawTitleBarButton( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down );
+    void drawTitleBarButtonLabel( QPainter *p, int x, int y, int w, int h, const QPixmap *, int button, bool down );
 
     // header
-    void drawHeaderSection( QPainter *p, const QRect &rect, const QColorGroup &g, bool down );
+    void drawHeaderSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down );
 
     // spinbox
-    void drawSpinBoxButton( QPainter *p, const QRect &rect, const QColorGroup &g, 
+    void drawSpinBoxButton( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, 
 			const QSpinBox *sp, bool upDown, bool enabled, bool down );
-    void drawSpinBoxSymbol( QPainter *p, const QRect &rect, const QColorGroup &g, 
+    void drawSpinBoxSymbol( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, 
 			const QSpinBox *sp, bool upDown, bool enabled, bool down );
 
     // groupbox
-    void drawGroupBoxTitle( QPainter *p, const QRect &rect, const QColorGroup &g, const QString &text, bool enabled );
-    void drawGroupBoxFrame( QPainter *p, const QRect &rect, const QColorGroup &g, const QGroupBox *gb );
+    void drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled );
+    void drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QGroupBox *gb );
 
     // statusbar
-    void drawStatusBarSection( QPainter *p, const QRect &rect, const QColorGroup &g, bool permanent );
-    void drawSizeGrip( QPainter *p, const QRect &rect, const QColorGroup &g );
+    void drawStatusBarSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool permanent );
+    void drawSizeGrip( QPainter *p, int x, int y, int w, int h, const QColorGroup &g );
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

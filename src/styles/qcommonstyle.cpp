@@ -242,72 +242,76 @@ QRect QCommonStyle::pushButtonContentsRect( QPushButton* btn ) const
 #endif
 }
 
-void QCommonStyle::drawTitleBar( QPainter *p,
-		       const QRect &r, const QColor &left, const QColor &right,
-		       bool /*active*/ )
+void QCommonStyle::drawTitleBar( QPainter *p, int x, int y, int w, int h, 
+				const QColor &left, const QColor &right,
+				bool /*active*/ )
 {
     if ( left != right ) {
 	double rS = left.red();
 	double gS = left.green();
 	double bS = left.blue();
 
-	double rD = double(right.red() - rS) / r.width();
-	double gD = double(right.green() - gS) / r.width();
-	double bD = double(right.blue() - bS) / r.width();
+	double rD = double(right.red() - rS) / w;
+	double gD = double(right.green() - gS) / w;
+	double bD = double(right.blue() - bS) / w;
 
-	for ( int x = r.x(); x < r.width(); x++ ) {
+	for ( int sx = x; sx < w; sx++ ) {
 	    rS+=rD;
 	    gS+=gD;
 	    bS+=bD;
 	    p->setPen( QColor( (int)rS, (int)gS, (int)bS ) );
-	    p->drawLine( x, r.y(), x, r.height() );
+	    p->drawLine( sx, y, sx, h );
 	}
     } else {
-	p->fillRect( r, left );
+	p->fillRect( x, y, w, h, left );
     }
 }
 
-void QCommonStyle::drawTitleBarLabel( QPainter *p,
-		       const QRect &r, const QString &text,
-		       const QColor &tc, bool /*active*/ )
+void QCommonStyle::drawTitleBarLabel( QPainter *p, int x, int y, int w, int h, 
+				     const QString &text, const QColor &tc, bool /*active*/ )
 {
     p->setPen( tc );
-    p->drawText( r, AlignAuto | AlignVCenter | SingleLine, text );
+    p->drawText( x, y, w, h, AlignAuto | AlignVCenter | SingleLine, text );
 }
 
-void QCommonStyle::drawTitleBarButton( QPainter *p, const QRect &r, const QColorGroup &g, bool down )
+void QCommonStyle::drawTitleBarButton( QPainter *p, int x, int y, int w, int h, 
+				      const QColorGroup &g, bool down )
 {
-    drawToolButton( p, r.x(), r.y(), r.width(), r.height(), g, FALSE, down, TRUE );
+    drawToolButton( p, x, y, w, h, g, FALSE, down, TRUE );
 }
 
-void QCommonStyle::drawTitleBarButtonLabel( QPainter *p, const QRect &r, const QPixmap *pm, int /*button*/, bool down )
+void QCommonStyle::drawTitleBarButtonLabel( QPainter *p, int x, int y, int w, int h, 
+					   const QPixmap *pm, int /*button*/, bool down )
 {
     if ( pm ) {
-	QSize sdiff = r.size() - pm->size();
-	int x = 0;
-	int y = 0;
+	QSize sdiff = QRect( x, y, w, h ).size() - pm->size();
+	int sx = 0;
+	int sy = 0;
 	if ( down )
-	    getButtonShift( x, y );
+	    getButtonShift( sx, sy );
 
-	p->drawPixmap( x + sdiff.width() / 2, y + sdiff.height() / 2 ,*pm );
+	p->drawPixmap( sx + sdiff.width() / 2, sy + sdiff.height() / 2 ,*pm );
     }
 }
 
 // header
-void QCommonStyle::drawHeaderSection( QPainter *p, const QRect &rect, const QColorGroup &g, bool down )
+void QCommonStyle::drawHeaderSection( QPainter *p, int x, int y, int w, int h, 
+				     const QColorGroup &g, bool down )
 {
-    drawBevelButton( p, rect.x(), rect.y(), rect.width(), rect.height(), g, down );
+    drawBevelButton( p, x, y, w, h, g, down );
 }
 
 // spinbox
-void QCommonStyle::drawSpinBoxButton( QPainter *p, const QRect &rect, const QColorGroup &g,
-		    const QSpinBox * /*sp*/, bool /*upDown*/, bool /*enabled*/, bool down )
+void QCommonStyle::drawSpinBoxButton( QPainter *p, int x, int y, int w, int h, 
+				     const QColorGroup &g, const QSpinBox * /*sp*/, 
+				     bool /*upDown*/, bool /*enabled*/, bool down )
 {
-    drawButton( p, rect.x(), rect.y(), rect.width(), rect.height(), g, down );
+    drawButton( p, x, y, w, h, g, down );
 }
 
-void QCommonStyle::drawSpinBoxSymbol( QPainter *p, const QRect &rect, const QColorGroup &g, const QSpinBox *sp,
-			    bool downbtn, bool /*enabled*/, bool down )
+void QCommonStyle::drawSpinBoxSymbol( QPainter *p, int x, int y, int w, int h, 
+				     const QColorGroup &g, const QSpinBox *sp,
+				     bool downbtn, bool /*enabled*/, bool down )
 {
     p->save();
     if ( sp->buttonSymbols() == QSpinBox::PlusMinus ) {
@@ -316,43 +320,43 @@ void QCommonStyle::drawSpinBoxSymbol( QPainter *p, const QRect &rect, const QCol
 	p->setBrush( g.buttonText() );
 
 	int length;
-	if ( rect.width() <= 8 || rect.height() <= 6 ) {
-	    length = QMIN( rect.width()-2, rect.height()-2 );
-	} else {
-	    length = QMIN( 2*rect.width() / 3, 2*rect.height() / 3 );
- 	}
+	if ( w <= 8 || h <= 6 )
+	    length = QMIN( w-2, h-2 );
+	else
+	    length = QMIN( 2*w / 3, 2*h / 3 );
+
 	if ( !(length & 1) )
 	    length -=1;
-	int xmarg = ( rect.width() - length ) / 2;
-	int ymarg = ( rect.height() - length ) / 2;
+	int xmarg = ( w - length ) / 2;
+	int ymarg = ( h - length ) / 2;
 
-	p->drawLine( rect.left() + xmarg, ( rect.y() + rect.height() / 2 - 1 ),
-		     rect.left() + xmarg + length - 1, ( rect.y() + rect.height() / 2 - 1 ) );
+	p->drawLine( x + xmarg, ( y + h / 2 - 1 ),
+		     x + xmarg + length - 1, ( y + h / 2 - 1 ) );
 	if ( !downbtn )
-	    p->drawLine( ( rect.x() + rect.width() / 2 ) - 1, rect.top() + ymarg,
-			 ( rect.x() + rect.width() / 2 ) - 1, rect.top() + ymarg + length - 1 );
+	    p->drawLine( ( x+w / 2 ) - 1, y + ymarg,
+			 ( x+w / 2 ) - 1, y + ymarg + length - 1 );
     } else {
-	int w = rect.width()-4;
-	if ( w < 3 )
+	int sw = w-4;
+	if ( sw < 3 )
 	    return;
-	else if ( !(w & 1) )
-	    w--;
-	w -= ( w / 7 ) * 2;	// Empty border
-	int h = w/2 + 2;        // Must have empty row at foot of arrow
+	else if ( !(sw & 1) )
+	    sw--;
+	sw -= ( sw / 7 ) * 2;	// Empty border
+	int sh = sw/2 + 2;        // Must have empty row at foot of arrow
 
-	int x = rect.x() + rect.width() / 2 - w / 2 - 1;
-	int y = rect.y() + rect.height() / 2 - h / 2 - 1;
+	int sx = x + w / 2 - sw / 2 - 1;
+	int sy = y + h / 2 - sh / 2 - 1;
 
 	QPointArray a;
 	if ( downbtn )
-	    a.setPoints( 3,  0, 1,  w-1, 1,  h-2, h-1 );
+	    a.setPoints( 3,  0, 1,  sw-1, 1,  sh-2, sh-1 );
 	else
-	    a.setPoints( 3,  0, h-1,  w-1, h-1,  h-2, 1 );
-	int sx = 0;
-	int sy = 0;
+	    a.setPoints( 3,  0, sh-1,  sw-1, sh-1,  sh-2, 1 );
+	int bsx = 0;
+	int bsy = 0;
 	if ( down )
-	    getButtonShift( sx, sy );
-	p->translate( x + sx, y + sy );
+	    getButtonShift( bsx, bsy );
+	p->translate( sx + bsx, sy + bsy );
 	p->setPen( g.buttonText() );
 	p->setBrush( g.buttonText() );
 	p->drawPolygon( a );
@@ -361,12 +365,12 @@ void QCommonStyle::drawSpinBoxSymbol( QPainter *p, const QRect &rect, const QCol
 }
 
 // groupbox
-void QCommonStyle::drawGroupBoxTitle( QPainter *p, const QRect &rect, const QColorGroup &g, const QString &text, bool enabled )
+void QCommonStyle::drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled )
 {
-    drawItem( p, rect.x(), rect.y(), rect.width(), rect.height(), AlignCenter + ShowPrefix, g, enabled, 0, text );
+    drawItem( p, x, y, w, h, AlignCenter + ShowPrefix, g, enabled, 0, text );
 }
 
-void QCommonStyle::drawGroupBoxFrame( QPainter *p, const QRect & /*rect*/, const QColorGroup &g, const QGroupBox *gb )
+void QCommonStyle::drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QGroupBox *gb )
 {
     QRect		r = gb->frameRect();
     QPoint		p1, p2;
@@ -443,36 +447,36 @@ void QCommonStyle::drawGroupBoxFrame( QPainter *p, const QRect & /*rect*/, const
 }
 
 // statusbar
-void QCommonStyle::drawStatusBarSection( QPainter *p, const QRect &rect, const QColorGroup &g, bool /*permanent*/ )
+void QCommonStyle::drawStatusBarSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool /*permanent*/ )
 {
-    qDrawShadeRect( p, rect, g, TRUE, 1, 0, 0 );
+    qDrawShadeRect( p, x, y, w, h, g, TRUE, 1, 0, 0 );
 }
 
-void QCommonStyle::drawSizeGrip( QPainter *p, const QRect &rect, const QColorGroup &g )
+void QCommonStyle::drawSizeGrip( QPainter *p, int x, int y, int w, int h, const QColorGroup &g )
 {
     p->save();
-    int w = QMIN( rect.height(),rect.width() );
-    if ( rect.height() > rect.width() )
-	p->translate( 0, rect.height() - rect.width() );
+    int sw = QMIN( h,w );
+    if ( h > w )
+	p->translate( 0, h - w );
     else
-	p->translate( rect.width() - rect.height(), 0 );
+	p->translate( w - h, 0 );
 
-    int x = rect.x();
-    int y = rect.y();
-    int s = w / 3;
+    int sx = x;
+    int sy = y;
+    int s = sw / 3;
 
     for ( int i = 0; i < 3; ++i ) {
 	p->setPen( QPen( g.mid(), 1 ) );
-	p->drawLine(  x-1, w, w,  y-1 );
+	p->drawLine(  sx-1, sw, sw,  sy-1 );
 	p->setPen( QPen( g.dark(), 1 ) );
-	p->drawLine(  x, w, w,  y );
-	x += s;
-	y += s;
+	p->drawLine(  sx, sw, sw,  sy );
+	sx += s;
+	sy += s;
     }
     p->setPen( QPen( g.mid(), 1 ) );
-    p->drawPoint( w-2, w-2 );
+    p->drawPoint( sw-2, sw-2 );
     p->setPen( QPen( g.dark(), 1 ) );
-    p->drawPoint( w-1, w-1 );
+    p->drawPoint( sw-1, sw-1 );
 
     p->restore();
 }

@@ -1192,7 +1192,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     bool down = (index==handleIdx) && ( state == Pressed || state == Moving );
     p->setBrushOrigin( fr.topLeft() );
     if ( d->clicks[section] ) {
-	style().drawHeaderSection( p, fr, colorGroup(), down );
+	style().drawHeaderSection( p, fr.x(), fr.y(), fr.width(), fr.height(), colorGroup(), down );
     } else {
 	// ##### should be somhow styled in 3.0
 	if ( orientation() == Horizontal ) {
@@ -1200,7 +1200,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 
 	    // ### Hack to keep styles working
 	    p->setClipRect( fr );
-	    style().drawHeaderSection( p, QRect( fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4 ),
+	    style().drawHeaderSection( p, fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4,
 				     colorGroup(), down );
 
 	    p->setPen( colorGroup().color( QColorGroup::Mid ) );
@@ -1220,7 +1220,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 
 	    // ### Hack to keep styles working
 	    p->setClipRect( fr );
-	    style().drawHeaderSection( p, QRect( fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4 ),
+	    style().drawHeaderSection( p, fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4,
 				     colorGroup(), down );
 
 	    p->setPen( colorGroup().color( QColorGroup::Mid ) );

@@ -1552,17 +1552,17 @@ int QWindowsStyle::progressChunkWidth() const
 /*!
  \reimp
 */
-void QWindowsStyle::drawProgressBar( QPainter *p, const QRect &rect, const QColorGroup &g )
+void QWindowsStyle::drawProgressBar( QPainter *p, int x, int y, int w, int h, const QColorGroup &g )
 {
-    qDrawShadePanel( p, rect, g, TRUE, 1 );
+    qDrawShadePanel( p, x, y, w, h, g, TRUE, 1 );
 }
 
 /*!
  \reimp
  */
-void QWindowsStyle::drawProgressChunk( QPainter *p, const QRect &rect, const QColorGroup &g )
+void QWindowsStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h, const QColorGroup &g )
 {
-    p->fillRect( rect.x() + 1, rect.y() + 1, rect.width() - 2, rect.height() - 2, 
+    p->fillRect( x + 1, y + 1, w - 2, h - 2, 
 	g.brush( QColorGroup::Highlight ) );
 }
 
