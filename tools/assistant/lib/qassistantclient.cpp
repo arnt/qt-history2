@@ -283,7 +283,8 @@ void QAssistantClient::readStdError()
 	errmsg += proc->readLineStderr();
 	errmsg += "\n";
     }
-    emit error( tr( errmsg.simplifyWhiteSpace() ) );
+    if (!errmsg.isEmpty())
+	emit error( tr( errmsg.simplifyWhiteSpace() ) );
 }
 
 /*!
