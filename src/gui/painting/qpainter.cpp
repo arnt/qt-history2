@@ -1302,7 +1302,7 @@ QRegion QPainter::clipRegion() const
         switch (info.clipType) {
 
         case QPainterClipInfo::RegionClip: {
-            QMatrix matrix = (d->invMatrix * info.matrix);
+            QMatrix matrix = (info.matrix * d->invMatrix);
             if (lastWasNothing) {
                 region = info.region * matrix;
                 lastWasNothing = false;
@@ -1321,7 +1321,7 @@ QRegion QPainter::clipRegion() const
         }
 
         case QPainterClipInfo::PathClip: {
-            QMatrix matrix = (d->invMatrix * info.matrix);
+            QMatrix matrix = (info.matrix * d->invMatrix);
             if (lastWasNothing) {
                 region = QRegion((info.path * matrix).toFillPolygon().toPointArray(),
                                  info.path.fillRule());
