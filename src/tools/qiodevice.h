@@ -88,7 +88,7 @@ class QByteArray;
 class Q_EXPORT QIODevice
 {
 public:
-#if defined(QT_ABI_64BITOFFSET)
+#if defined(QT_ABI_QT4)
     typedef QtOffset Offset;
 #else
     typedef Q_ULONG Offset;
