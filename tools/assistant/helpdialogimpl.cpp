@@ -234,7 +234,36 @@ void HelpDialog::lastWinClosed()
     lwClosed = TRUE;
 }
 
-void HelpDialog::generateNewDocu()
+void HelpDialog::showProfile()
+{
+    if ( Config::configuration()->needsNewDoc() ) {
+	removeOldCacheFiles();
+	Config::configuration()->saveProfile( Config::configuration()->profile(), FALSE );
+    }
+
+    contentList.clear();
+    indexDone = FALSE;
+    titleMapDone = FALSE;
+    contentsInserted = FALSE;
+    if ( fullTextIndex ) {
+	delete fullTextIndex;
+	fullTextIndex = 0;
+    }
+    help->browsers()->setupMimeSource();
+    setupTitleMap();
+
+    if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Contents" ) ) ) {
+	QTimer::singleShot( 0, this, SLOT( insertContents() ) );
+    }
+    else if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Index" ) ) ) {
+	QTimer::singleShot( 0, this, SLOT( loadIndexFile() ) );
+    }
+    else if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Search" ) ) ) {
+	QTimer::singleShot( 0, this, SLOT( setupFullTextIndex() ) );
+    }
+}
+
+void HelpDialog::removeOldCacheFiles()
 {
     QString dir = QDir::homeDirPath() + "/.assistant";
     if( !QFile::exists( dir ) && !QDir().mkdir( dir ) ) {
@@ -252,35 +281,6 @@ void HelpDialog::generateNewDocu()
 	    f.remove();
 	}
     }
-    indexDone = FALSE;
-    titleMapDone = FALSE;
-    contentsInserted = FALSE;
-    contentList.clear();
-    if ( fullTextIndex ) {
-	delete fullTextIndex;
-	fullTextIndex = 0;
-    }
-    setupTitleMap();
-    if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Contents" ) ) ) {
-	QTimer::singleShot( 0, this, SLOT( insertContents() ) );
-    }
-    else if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Index" ) ) ) {
-	QTimer::singleShot( 0, this, SLOT( loadIndexFile() ) );
-    }
-    else if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Search" ) ) ) {
-	QTimer::singleShot( 0, this, SLOT( setupFullTextIndex() ) );
-    }
-}
-
-bool HelpDialog::isValidCategory( QString category )
-{
-    QStringList list = Config::configuration()->selectedCategories();
-    QStringList::iterator it = list.begin();
-    for( ; it != list.end(); ++it ){
-	if( ((*it).lower() == category.lower()) || ( *it == "all" ) )
-	    return TRUE;
-    }
-    return FALSE;
 }
 
 void HelpDialog::loadIndexFile()
@@ -398,8 +398,6 @@ void HelpDialog::buildKeywordDB()
 	    QMessageBox::critical( this, tr( "Parse Error" ), tr( msg ) );
 	    continue;
 	}
-	if( !isValidCategory( handler.getCategory() ) )
-	    continue;
 
 	QFileInfo finfo( *i );
 	QString dir = finfo.dirPath( TRUE ) + "/";
@@ -431,10 +429,15 @@ void HelpDialog::setupTitleMap()
 {
     if ( titleMapDone )
 	return;
+    if ( Config::configuration()->needsNewDoc() ) {
+	removeOldCacheFiles();
+	Config::configuration()->saveProfile( Config::configuration()->profile(), FALSE );
+    }
     if ( contentList.isEmpty() )
 	getAllContents();
 
     titleMapDone = TRUE;
+    titleMap.clear();
     QDictIterator<ContentList> lstIt( contentList );
     for ( ; lstIt.current(); ++lstIt ) {
 	QValueList<ContentItem> &lst = *(lstIt.current());
@@ -451,7 +454,7 @@ void HelpDialog::setupTitleMap()
 
 void HelpDialog::getAllContents()
 {
-    QFile contentFile( QDir::homeDirPath() + "/.assitant/contentdb." + Config::configuration()->profileName() );
+    QFile contentFile( QDir::homeDirPath() + "/.assistant/contentdb." + Config::configuration()->profileName() );
     contentList.clear();
     if ( !contentFile.open( IO_ReadOnly ) ) {
 	buildContentDict();
@@ -501,8 +504,6 @@ void HelpDialog::buildContentDict()
 	bool ok = reader.parse( source );
 	file.close();
 	if( ok ){
-	    if( !isValidCategory( handler.getCategory() ) )
-		continue;
 	    contentList.insert( *it, new QValueList<ContentItem>( handler.getContentItems() ) );
 	} else {
 	    QString msg = QString( "In file %1:\n%2" )

@@ -27,41 +27,18 @@
 #include <qptrlist.h>
 #include <qlistview.h>
 
-struct listItem {
-    listItem( QString ln, QString sn, int de )
-	: lname( ln ), sname( sn ), d( de ) {}
-    QString lname;
-    QString sname;
-    int d;
-};
-
-struct stateListItem {
-    stateListItem( QListViewItem *i, bool state )
-	: item( i ), isChecked( state ) {}
-    QListViewItem *item;
-    bool isChecked;
-};
-
-
-class CheckListItem : public QObject, public QCheckListItem
+class ProfileCheckItem : public QCheckListItem
 {
-    Q_OBJECT
-
 public:
-    CheckListItem( CheckListItem *parent, const QString &text,
-	const QString &fullcat );
-    CheckListItem( QListView *parent, const QString &text,
-	const QString &fullcat );
-    QString getFullCategory();
+    ProfileCheckItem( QListView *parent, const QString &name );
+    ProfileCheckItem( ProfileCheckItem *parent, const QString& pN );
     int rtti() const;
-    CheckListItem* getCurrentItem( QListView *parent );
-    CheckListItem* getCheckItem( QListViewItem* );
-    void stateChange( bool state );
+    static int RTTI;
+    void activate();
+    QString profileName() const;
 private:
-    QString fullCategory;
-
+    QString profName;
 };
-
 
 
 class SettingsDialog : public SettingsDialogBase
@@ -70,15 +47,13 @@ class SettingsDialog : public SettingsDialogBase
 
 public:
     SettingsDialog( QWidget *parent, const char* name = 0 );
-    QStringList documentationList() const;
-    QStringList selCategoriesList() const;
+    void setCurrentProfile();
 
 protected slots:
     void selectColor();
-    void addDocuFile();
-    void removeDocuFile();
-    void addCategory();
-    void deleteCategory();
+    void addProfile();
+    void removeProfile();
+    void modifyProfile();
     void browseWebApp();
     void browsePDFApplication();
     void browseHomepage();
@@ -86,19 +61,16 @@ protected slots:
     void reject();
 
 signals:
-    void docuFilesChanged();
+    void profileChanged();
 
 private:
     void init();
-    void insertCategories();
-    void makeCategoryList();
-    void checkItem( CheckListItem* );
-    QStringList getCheckedItemList();
     void setFile( QLineEdit *le, const QString &caption );
-    bool changed, selectionChanged;
-    QStringList docuFileList, docuTitleList, catListAvail, catListSel;
-    QPtrList<CheckListItem> catItemList;
-    CheckListItem *allItem;
+    ProfileCheckItem* currentCheckedProfile();
+    void setupProfiles();
+    bool profileAttributesChanged;
+    QStringList deleteProfilesList;
+    QString oldProfile, newProfile;
 };
 
 #endif

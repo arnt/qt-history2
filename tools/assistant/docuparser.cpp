@@ -55,7 +55,7 @@ bool DocuParser::startDocument()
     depth = 0;
     contentList.clear();
     indexList.clear();
-    category = "undefined";
+    imageDir = "";
 
     return TRUE;
 }
@@ -70,7 +70,7 @@ bool DocuParser::startElement( const QString &, const QString &,
 	conURL = contentRef;
 	docTitle = attr.value( "title" );
 	title = docTitle;
-	category = attr.value( "category" );
+	imageDir = attr.value( "imagedir" );
 	contentList.append( ContentItem( title, contentRef, depth ) );
     }
     else if( qname == "section" && ( state == StateContent || state == StateSect ) ) {
@@ -148,9 +148,9 @@ bool DocuParser::fatalError( const QXmlParseException& exception )
     return QXmlDefaultHandler::fatalError( exception );
 }
 
-QString DocuParser::getCategory() const
+QString DocuParser::getImageDir() const
 {
-    return category;
+    return imageDir;
 }
 
 QString DocuParser::getDocumentationTitle() const
@@ -166,4 +166,9 @@ QValueList<ContentItem> DocuParser::getContentItems()
 QPtrList<IndexItem> DocuParser::getIndexItems()
 {
     return indexList;
+}
+
+QString DocuParser::getIconName() const
+{
+    return iconName;
 }

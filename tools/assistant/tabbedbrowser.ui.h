@@ -7,7 +7,8 @@
 ** place of a destructor.
 *****************************************************************************/
 
-#include "docuparser.h"
+#include <qfileinfo.h>
+
 #include "config.h"
 
 void TabbedBrowser::forward()
@@ -54,7 +55,6 @@ void TabbedBrowser::previousTab()
 	tab->setCurrentPage( idx );
 }
 
-
 void TabbedBrowser::newTab( const QString &lnk )
 {
     MainWindow *mainWin = mainWindow();
@@ -82,24 +82,21 @@ void TabbedBrowser::newTab( const QString &lnk )
     }
 }
 
-
 void TabbedBrowser::zoomIn()
 {
     currentBrowser()->zoomIn();
 }
-
 
 void TabbedBrowser::zoomOut()
 {
     currentBrowser()->zoomOut();
 }
 
-
 void TabbedBrowser::init()
 {
     tabLinkUnderline = FALSE;
     tabStyleSheet = new QStyleSheet( QStyleSheet::defaultSheet() );
-    tabMimeFactory = new QMimeSourceFactory(); //  *QMimeSourceFactory::defaultFactory() );
+    tabMimeFactory = new QMimeSourceFactory();
     while( tab->count() )
 	tab->removePage( tab->page(0) );
     //    newTab( QString::null );
@@ -107,24 +104,20 @@ void TabbedBrowser::init()
 	     this, SLOT( transferFocus() ) );
 }
 
-
 void TabbedBrowser::updateTitle( const QString &title )
 {
     tab->changeTab( currentBrowser(), title );
 }
-
 
 MainWindow* TabbedBrowser::mainWindow()
 {
     return (MainWindow*) parent();
 }
 
-
 void TabbedBrowser::newTab()
 {
     newTab( QString::null );
 }
-
 
 void TabbedBrowser::transferFocus()
 {
@@ -141,7 +134,7 @@ void TabbedBrowser::setup()
 {
     Config *config = Config::configuration();
 
-    QString base( qInstallPathDocs() );
+    //QString base( qInstallPathDocs() );
 
     QFont fnt( font() );
     QFontInfo fntInfo( fnt );
@@ -163,7 +156,8 @@ void TabbedBrowser::setup()
     tabStyleSheet->item( "code" )->setFontFamily( family );
     tabStyleSheet->item( "tt" )->setFontFamily( family );
 
-    tabMimeFactory->addFilePath( base + "/html" );
+    //tabMimeFactory->addFilePath( base + "/html" );
+    setupMimeSource();
     newTab( QString::null );
 }
 
@@ -197,7 +191,6 @@ void TabbedBrowser::setPalette( const QPalette &pal )
 	( (QTextBrowser*) tab->page( i ) )->setPalette( pal );
 }
 
-
 QStyleSheet* TabbedBrowser::styleSheet()
 {
     return tabStyleSheet;
@@ -208,12 +201,10 @@ bool TabbedBrowser::linkUnderline()
     return tabLinkUnderline;
 }
 
-
 void TabbedBrowser::copy()
 {
     currentBrowser()->copy();
 }
-
 
 void TabbedBrowser::closeTab()
 {
@@ -223,7 +214,6 @@ void TabbedBrowser::closeTab()
     tab->removePage( win );
     delete win;
 }
-
 
 QStringList TabbedBrowser::sources()
 {
@@ -238,4 +228,18 @@ QStringList TabbedBrowser::sources()
 QMimeSourceFactory *TabbedBrowser::mimeSourceFactory()
 {
     return tabMimeFactory;
+}
+
+void TabbedBrowser::setupMimeSource()
+{
+    Config *config = Config::configuration();
+    QStringList docList = config->docFiles();
+    QValueListConstIterator<QString> it = docList.begin();
+    for ( ; it != docList.end(); ++it )
+    {
+	QFileInfo fi( *it );
+	tabMimeFactory->addFilePath( fi.dirPath( TRUE ) );
+	if ( !config->docImageDir( *it ).isEmpty() )
+	    tabMimeFactory->addFilePath( config->docImageDir( *it ) );
+    }
 }

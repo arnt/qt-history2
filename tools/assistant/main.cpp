@@ -19,9 +19,7 @@
 **********************************************************************/
 
 #include "mainwindow.h"
-#include "docuparser.h"
 #include "helpdialogimpl.h"
-#include "profile.h"
 #include "config.h"
 
 #include <qapplication.h>
@@ -123,102 +121,13 @@ void AssistantServer::newConnection( int socket )
     emit newConnect();
 }
 
-
-
-class EditDocs
-{
-public:
-    EditDocs();
-    bool addDocFile( const QString &file );
-    void removeDocFile( const QString &file );
-    void initDocFiles();
-private:
-    void addItemToList( const QString &rcEntry, const QString &item );
-};
-
-EditDocs::EditDocs()
-{
-}
-
-bool EditDocs::addDocFile( const QString & /*file*/ )
-{
-//     QFileInfo fi( file );
-//     if ( !fi.isReadable() ) {
-// 	printf( "error: file %s is not readable!\n\n", file.latin1() );
-// 	return FALSE;
-//     }
-//     initDocFiles();
-//     DocuParser handler;
-//     QFile f( file );
-//     QXmlInputSource source( f );
-//     QXmlSimpleReader reader;
-//     reader.setContentHandler( &handler );
-//     reader.setErrorHandler( &handler );
-//     bool ok = reader.parse( source );
-//     f.close();
-//     if ( !ok ) {
-// 	QString afp = fi.absFilePath();
-// 	printf( "error: file %s has a wrong format!\n\n", afp.latin1() );
-// 	return FALSE;
-//     }
-//     if ( handler.getCategory().isEmpty() )
-// 	return TRUE;
-//     QString title = handler.getDocumentationTitle();
-//     if ( title.isEmpty() )
-// 	title = fi.absFilePath();
-//     addItemToList( DocuParser::DocumentKey + "AdditionalDocFiles", fi.absFilePath() );
-//     addItemToList( DocuParser::DocumentKey + "AdditionalDocTitles", title );
-//     addItemToList( DocuParser::DocumentKey + "CategoriesAvailable", handler.getCategory() );
-//     addItemToList( DocuParser::DocumentKey + "CategoriesSelected", handler.getCategory() );
-
-    return TRUE;
-}
-
-void EditDocs::addItemToList( const QString & /*rcEntry*/, const QString & /*item*/ )
-{
-//     QSettings settings;
-//     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-//     QStringList list = settings.readListEntry( rcEntry );
-//     QStringList::iterator it = list.begin();
-//     for ( ; it != list.end(); ++it ) {
-// 	if ( item.lower() == (*it).lower() )
-// 	    return;
-//     }
-//     list << item;
-//     settings.writeEntry( rcEntry, list );
-//     settings.writeEntry( DocuParser::DocumentKey + "NewDoc", TRUE );
-}
-
-void EditDocs::removeDocFile( const QString & /*file*/ )
-{
-//     if ( file.isEmpty() )
-// 	return;
-//     QFileInfo fi( file );
-//     HelpDialog::removeDocFile( fi.absFilePath() );
-}
-
-void EditDocs::initDocFiles()
-{
-    // ### Move this to someplace else
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QString firstRunString = settings.readEntry( DocuParser::DocumentKey + "FirstRunString" );
-    if ( firstRunString == QString( QT_VERSION_STR ) )
-	return;
-    QString path = QString( qInstallPathDocs() ) + "/html/";
-    QStringList lst;
-    settings.writeEntry( DocuParser::DocumentKey + "FirstRunString", QString( QT_VERSION_STR ) );
-    settings.writeEntry( DocuParser::DocumentKey + "NewDoc", TRUE );
-}
-
 int main( int argc, char ** argv )
 {
     bool withGUI = TRUE;
     if ( argc > 1 ) {
 	QString arg( argv[1] );
 	arg = arg.lower();
-	if ( arg == "-addcontentfile" ||
-	     arg == "-removecontentfile" ||
+	if ( arg == "-addprofile" ||
 	     arg == "-help" )
 	    withGUI = FALSE;
     }
@@ -227,8 +136,7 @@ int main( int argc, char ** argv )
     QString resourceDir;
     AssistantServer *as = 0;
     QStringList catlist;
-    Profile *profile = 0;
-    QString file = "";
+    QString file, profileName;
     bool server = FALSE;
     if ( argc == 2 ) {
 	if ( (argv[1])[0] != '-' )
@@ -242,41 +150,33 @@ int main( int argc, char ** argv )
 		file = argv[i];
 	    } else if ( QString( argv[i] ).lower() == "-server" ) {
 	        server = TRUE;
-	    } else if ( QString( argv[i] ).lower() == "-category" ) {
-		INDEX_CHECK( "Missing category argument!" );
+	    } else if ( QString( argv[i] ).lower() == "-addprofile" ) {
+		INDEX_CHECK( "Missing profile argument!" );
+		QString path = "";
 		i++;
-		catlist << QString(argv[i]).lower();
-	    } else if ( QString( argv[i] ).lower() == "-addcontentfile" ) {
-		INDEX_CHECK( "Missing contents file argument!" );
-		i++;
-		EditDocs ed;
-		if ( !ed.addDocFile( argv[i] ) )
+		if( i+1 < argc )
+		    path = QString( argv[i+1] );
+		if ( !Config::addProfile( QString( argv[i] ), path ) )
 		    exit( 1 );
 		exit( 0 );
-	    } else if ( QString( argv[i] ).lower() == "-removecontentfile" ) {
-		INDEX_CHECK( "Missing contents file argument!" );
-		i++;
-		EditDocs ed;
-		ed.removeDocFile( argv[i] );
-		exit( 0 );
 	    } else if ( QString( argv[i] ).lower() == "-profile" ) {
-		profile = Profile::createProfile( argv[++i] );
+		INDEX_CHECK( "Missing profile argument!" );
+		profileName = argv[++i];
 	    } else if ( QString( argv[i] ).lower() == "-help" ) {
 		printf( "Usage: assistant [option]\n" );
 		printf( "Options:\n" );
 		printf( " -file Filename          assistant opens the specified file\n" );
-		printf( " -category Category      displays all documentations which\n" );
-		printf( "                         belong to this category. This\n" );
-		printf( "                         option can be set serveral times\n" );
 		printf( " -server                 reads commands from a socket after\n" );
 		printf( "                         assistant has started\n" );
-		printf( " -addContentFile File    adds the documentation found in the\n" );
-		printf( "                         specified file. Make sure that this\n" );
-		printf( "                         file has the right format. For further\n" );
-		printf( "                         informations have a look at the\n" );
-		printf( "                         assistant online help.\n" );
-		printf( " -removeContentFile File removes the specified documentation\n" );
-		printf( "                         file.\n" );
+		printf( " -profile Name           starts assistant and displays the\n" );
+		printf( "                         profile Name.\n" );
+		printf( " -addProfile File [Path] adds the profile defined in File.\n" );
+		printf( "                         Specify the location of the content\n" );
+		printf( "                         files via Path. Otherwise it is\n" );
+		printf( "                         assumed that the content file is in\n" );
+		printf( "                         the same directory as the profile.\n" );
+		printf( "                         For further informations have a look\n" );
+		printf( "                         at the assistant online help.\n" );
 		printf( " -help                   shows this help\n" );
 		exit( 0 );
 	    } else if ( QString( argv[i] ).lower() == "-resourcedir" ) {
@@ -299,45 +199,8 @@ int main( int argc, char ** argv )
     translator.load( QString("assistant_") + QTextCodec::locale(), resourceDir );
     a.installTranslator( &translator );
 
-    if ( profile ) {
-	if ( !profile->isValid() ) {
-	    qWarning( "There was an error while reading the profile!" );
-	    return 1;
-	}
-    } else {
-	profile = Profile::createDefaultProfile();
-    }
+    Config *conf = new Config( profileName );
 
-
-    Config *conf = new Config( profile );
-
-//     QSettings *config = new QSettings();
-//     config->insertSearchPath( QSettings::Windows, "/Trolltech" );
-//     QStringList oldSelected = config->readListEntry( DocuParser::DocumentKey
-// 						     + "CategoriesSelectedOld" );
-//     if ( !catlist.isEmpty() ) {
-// 	QStringList buf;
-// 	QStringList oldCatList = config->readListEntry( DocuParser::DocumentKey
-// 							+ "CategoriesAvailable" );
-// 	for ( QStringList::iterator it1 = catlist.begin(); it1 != catlist.end(); ++it1 ) {
-// 	    for ( QStringList::Iterator it2 = oldCatList.begin(); it2 != oldCatList.end(); ++it2 ) {
-// 		if ( (*it2).startsWith( *it1 ) )
-// 		    buf << (*it2);
-// 	    }
-// 	}
-// 	if ( oldSelected.isEmpty() ) {
-// 	    QStringList selected = config->readListEntry( DocuParser::DocumentKey
-// 							  + "CategoriesSelected" );
-// 	    config->writeEntry( DocuParser::DocumentKey
-// 				+ "CategoriesSelectedOld", selected );
-// 	}
-// 	config->writeEntry( DocuParser::DocumentKey + "CategoriesSelected", buf );
-// 	config->writeEntry( DocuParser::DocumentKey + "NewDoc", TRUE );
-//     } else if ( !oldSelected.isEmpty() ) {
-// 	config->removeEntry( DocuParser::DocumentKey + "CategoriesSelectedOld" );
-// 	config->writeEntry( DocuParser::DocumentKey + "CategoriesSelected", oldSelected );
-// 	config->writeEntry( DocuParser::DocumentKey + "NewDoc", TRUE );
-//     }
     bool max = conf->isMaximized();
     QString link = conf->source();
 
@@ -346,9 +209,6 @@ int main( int argc, char ** argv )
 // 	EditDocs ed;
 // 	ed.initDocFiles();
 //     }
-
-//     delete config;
-//     config = 0;
 
     QGuardedPtr<MainWindow> mw = new MainWindow( 0, "Assistant", Qt::WDestructiveClose );
 

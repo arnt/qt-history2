@@ -8,37 +8,37 @@
 #include <qpixmap.h>
 #include <qmap.h>
 
-class DocuParser;
 class Profile;
 
 class Config
 {
 public:
 
-    Config( Profile *p );
+    Config( const QString &name );
+    Config();
 
-    void load();
+    void load( const QString &name );
     void save();
     Profile *profile() const { return profil; }
     QString profileName() const { return profil->props["name"]; }
     bool isDefaultProfile() const { return profil->isDefaultProfile(); }
+    bool setCurrentProfile( const QString &name );
 
     // From profile, read only
+    QStringList profiles() const;
     QString title() const;
     QString aboutApplicationMenuText() const;
     QString aboutURL() const;
     QStringList docFiles() const;
     QString docTitle( const QString & ) const;
-    QString docCategory( const QString & ) const;
+    QString docImageDir( const QString & ) const;
     QString docContentsURL( const QString & ) const;
     QString docBasePath() const;
     QPixmap docIcon( const QString & ) const;
     QPixmap applicationIcon() const;
+    bool needsNewDoc() const;
 
     // From QSettings, read / write
-    QStringList selectedCategories() const { return selCat; }
-    void setSelectedCategories( const QStringList &lst ) { selCat = lst; }
-
     QString webBrowser() const { return webBrows; }
     void setWebBrowser( const QString &cmd ) { webBrows = cmd; }
 
@@ -79,20 +79,25 @@ public:
     void setMainWindowLayout( const QString &layout ) { mainWinLayout = layout; }
 
     bool isDifferentProfile() const { return profDiffer; }
+    void saveProfile( Profile *profile, bool changed = FALSE );
+    Profile* loadProfile( const QString &name );
+    void removeProfile( const QString &name );
+    void reloadProfiles();
 
     static Config *configuration();
+    static bool addProfile( const QString &profileFileName,
+			    const QString &path );
 
 private:
     Config( const Config &c );
     Config& operator=( const Config &c );
 
-    DocuParser *parser( const QString & ) const;
+    void saveSettings();
 
 private:
     Profile *profil;
-    QMap<QString,DocuParser*> parserCache;
 
-    QStringList selCat;
+    QStringList profileNames;
     QString webBrows;
     QString home;
     QString pdfApp;

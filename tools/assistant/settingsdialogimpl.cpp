@@ -21,6 +21,7 @@
 #include "settingsdialogimpl.h"
 #include "docuparser.h"
 #include "config.h"
+#include "profiledialogimpl.h"
 
 #include <qapplication.h>
 #include <qpushbutton.h>
@@ -37,74 +38,39 @@
 #include <qsettings.h>
 #include <qtimer.h>
 #include <qtoolbutton.h>
+#include <qmap.h>
 
-#define RTTI 3973
+int ProfileCheckItem::RTTI = 7391;
 
-CheckListItem::CheckListItem( CheckListItem *parent, const QString &text,
-    const QString &fullcat )
-    : QCheckListItem(  parent, text, QCheckListItem::CheckBox ),
-    fullCategory( fullcat )
+ProfileCheckItem::ProfileCheckItem( QListView *parent, const QString &name )
+    : QCheckListItem( parent, name, QCheckListItem::RadioButtonController )
 {
 
 }
 
-CheckListItem::CheckListItem( QListView *parent, const QString &text,
-    const QString &fullcat )
-    : QCheckListItem(  parent, text, QCheckListItem::CheckBox ),
-    fullCategory( fullcat )
+ProfileCheckItem::ProfileCheckItem( ProfileCheckItem *parent,
+    const QString &pN )
+    : QCheckListItem( parent, pN, QCheckListItem::RadioButton )
 {
-
+    profName = pN;
 }
 
-int CheckListItem::rtti() const
+int ProfileCheckItem::rtti() const
 {
-    return RTTI;
+    return ProfileCheckItem::RTTI;
 }
 
-CheckListItem* CheckListItem::getCurrentItem( QListView *parent )
+void ProfileCheckItem::activate()
 {
-    QListViewItem *i = parent->currentItem();
-    if ( i->rtti() == RTTI )
-	return (CheckListItem*)i;
-    return 0;
+    setState( QCheckListItem::On );
 }
 
-CheckListItem* CheckListItem::getCheckItem( QListViewItem *i )
+QString ProfileCheckItem::profileName() const
 {
-    if ( i->rtti() == RTTI )
-	return (CheckListItem*)i;
-    return 0;
+    return profName;
 }
 
-void CheckListItem::stateChange( bool /*state*/ )
-{
-    QPtrStack<stateListItem> stackState;
 
-    QListViewItemIterator it( listView() );
-    bool disableNext = FALSE;
-    int depth = -1;
-
-    while( it.current() ) {
-	it.current()->setEnabled( TRUE );
-	if ( disableNext && it.current()->depth() > depth ) {
-	    it.current()->setEnabled( FALSE );
-	}
-	if ( disableNext && it.current()->depth() <= depth ) {
-	    disableNext = FALSE;
-	    depth = -1;
-	}
-	if ( getCheckItem( it.current() )->isOn() && !disableNext ) {
-	    depth = it.current()->depth();
-	    disableNext = TRUE;
-	}
-	++it;
-    }
-}
-
-QString CheckListItem::getFullCategory()
-{
-    return fullCategory;
-}
 
 SettingsDialog::SettingsDialog( QWidget *parent, const char* name )
     : SettingsDialogBase( parent, name )
@@ -116,126 +82,34 @@ void SettingsDialog::init()
 {
     Config *config = Config::configuration();
 
-    changed = FALSE;
-    selectionChanged = FALSE;
-
     browserApp->setText( config->webBrowser() );
     homePage->setText( config->homePage() );
     pdfApp->setText( config->pdfReader() );
-
-    catListAvail.clear();
-    docuFileBox->clear();
-    docuFileList = config->docFiles();
-    docuTitleList = config->docFiles();
-    QStringList::iterator it = docuTitleList.begin();
-    for ( ; it != docuTitleList.end(); ++it ) {
-	docuFileBox->insertItem( config->docTitle( *it ) );
-	catListAvail.append( config->docCategory( *it ) );
-    }
-
-    catListSel = config->selectedCategories();
-
-    insertCategories();
-
-    if( !config->isDefaultProfile() ) {
-	buttonDelete->setEnabled( FALSE );
-	buttonAdd->setEnabled( FALSE );
-	docuFileBox->setEnabled( FALSE );
-    }
+    oldProfile = config->profileName();
+    profileAttributesChanged = FALSE;
+    setupProfiles();
 }
 
-void SettingsDialog::insertCategories()
+void SettingsDialog::setCurrentProfile()
 {
-    if ( catListAvail.isEmpty() )
-	catListSel << "all";
-
-    catListView->clear();
-    catItemList.clear();
-
-    allItem = new CheckListItem( catListView, tr( "all" ), "all" );
-    checkItem( allItem );
-    catItemList.append( allItem );
-
-    makeCategoryList();
-
-    QPtrList<listItem> itemList;
-    QStringList::iterator it = catListAvail.begin();
-    for ( ; it != catListAvail.end(); ++it ) {
-	QString str( *it );
-	int pos = str.findRev( '/' );
-	QString sn = str.right( str.length() - pos - 1 );
-	listItem *li = new listItem( str, sn, str.contains( '/' ) );
-	itemList.append( li );
-    }
-
-    QPtrListIterator<listItem> pit(itemList);
-    listItem *item;
-    QPtrStack<CheckListItem> stack;
-    stack.clear();
-    CheckListItem *listItem;
-    int depth = 0;
-    bool root = FALSE;
-
-    while ( ( item = pit.current() ) != 0 ) {
-	++pit;
-	if( item->d == 0 ){
-	    listItem = new CheckListItem( allItem, item->sname, item->lname );
-	    checkItem( listItem );
-	    catItemList.append( listItem );
-	    stack.push( listItem );
-	    depth = 1;
-	    root = TRUE;
-	}
-	else{
-	    if( (item->d > depth) && (root) ){
-		depth = item->d;
-		stack.push( listItem );
-	    }
-	    if( item->d == depth ){
-	        listItem = new CheckListItem( stack.top(), item->sname, item->lname );
-		checkItem( listItem );
-		catItemList.append( listItem );
-	    }
-	    else if( item->d < depth ){
-		stack.pop();
-		depth--;
-		--pit;
-	    }
-	}
-    }
-    allItem->setOpen( TRUE );
-    if ( !itemList.isEmpty() )
-	listItem->stateChange( FALSE );
+    oldProfile = Config::configuration()->profileName();
+    setupProfiles();
 }
 
-void SettingsDialog::checkItem( CheckListItem *item )
+ProfileCheckItem* SettingsDialog::currentCheckedProfile()
 {
-    if ( catListSel.find( item->getFullCategory() ) != catListSel.end() )
-	item->setOn( TRUE );
-}
-
-void SettingsDialog::makeCategoryList( void )
-{
-    QStringList::iterator i = catListAvail.begin();
-    for ( ; i != catListAvail.end(); ++i )
-	*i = (*i).simplifyWhiteSpace().replace( ' ', '_' );
-    catListAvail.sort();
-
-    for ( i = catListAvail.begin(); i != catListAvail.end(); ++i ) {
-	QString str( *i );
-	int pos = str.findRev( '/' );
-        str.remove( pos,  str.length() - pos );
-        bool found = FALSE;
-        if ( catListAvail.find( str ) != catListAvail.end() )
-	    found = TRUE;
-	if ( !found ) {
-	    i = catListAvail.insert( i, str );
-	    i = catListAvail.begin();
-	}
+    QPtrList<QListViewItem> lst;
+    QListViewItemIterator it( profileView );
+    ProfileCheckItem *item;
+    while ( it.current() ) {
+	if( (it.current())->rtti() != ProfileCheckItem::RTTI )
+	    continue;
+	item = (ProfileCheckItem*)(it.current());
+	if ( item->state() == QCheckListItem::On )
+	    return item;
+	++it;
     }
-    catListAvail.sort();
-    for ( i = catListAvail.begin(); i != catListAvail.end(); ++i )
-	*i = (*i).replace( '_', ' ' );
+    return 0;
 }
 
 void SettingsDialog::selectColor()
@@ -244,127 +118,53 @@ void SettingsDialog::selectColor()
     colorButton->setPaletteBackgroundColor( c );
 }
 
-void SettingsDialog::addDocuFile()
+void SettingsDialog::setupProfiles()
 {
-    QFileDialog *fd = new QFileDialog ( QDir::homeDirPath(), "xml Files (*.xml)", this );
-    fd->setCaption( tr( "Qt Assistant - Add Documentation" ) );
+    Config *config = Config::configuration();
+    config->reloadProfiles();
+    QStringList profs = config->profiles();
 
-    if ( fd->exec() == QDialog::Accepted ) {
-	QString file = fd->selectedFile();
-	QFileInfo fi( file );
-	if ( !fi.isReadable() ) {
-	    QMessageBox::warning( this, tr( "Qt Assistant" ),
-			tr( "File " + file + " is not readable!" ) );
-	    return;
+    profileView->clear();
+    ProfileCheckItem *root = new ProfileCheckItem( profileView, tr( "Profiles" ) );
+    root->setOpen( TRUE );
+
+    ProfileCheckItem *ci;
+    QValueListConstIterator<QString> it = profs.begin();
+    for ( ; it != profs.end(); ++it ) {
+	ci = new ProfileCheckItem( root, *it );
+	ci->setSelected( FALSE );
+	if ( *it == config->profileName() ) {
+	    ci->activate();
+	    ci->setSelected( TRUE );
 	}
-	QFile f( file );
-	DocuParser handler;
-	QXmlInputSource source( f );
-        QXmlSimpleReader reader;
-	reader.setContentHandler( &handler );
-	reader.setErrorHandler( &handler );
-	setCursor( waitCursor );
-	qApp->processEvents();
-	bool ok = reader.parse( source );
-	setCursor( arrowCursor );
-	f.close();
-	if ( !ok ) {
-	    QString msg = QString( "In file %1:\n%2" )
-			  .arg( QFileInfo( file ).absFilePath() )
-			  .arg( handler.errorProtocol() );
-	    QMessageBox::critical( this, tr( "Parse Error" ), tr( msg ) );
-	    return;
-	}
-	QString title = handler.getDocumentationTitle();
-	if ( title.isEmpty() )
-	    title = file;
-	docuFileBox->insertItem( title );
-	docuTitleList << title;
-	docuFileList << file;
-	changed = TRUE;
-	QString cat = handler.getCategory();
-	if ( cat.isEmpty() )
-	    return;
-	if ( catListAvail.find( cat ) == catListAvail.end() )
-	    catListAvail << cat;
-	if ( catListSel.find( cat ) == catListSel.end() ) {
-	    catListSel << cat;
-	    selectionChanged = TRUE;
-	}
-	insertCategories();
     }
+
+    //if( !config->isDefaultProfile() )
+    //	buttonDelete->setEnabled( FALSE );
 }
 
-void SettingsDialog::removeDocuFile()
+void SettingsDialog::addProfile()
 {
-    QStringList::iterator it = docuTitleList.begin();
-    QStringList::iterator it1 = docuFileList.begin();
-
-    while ( it != docuTitleList.end() && it1 != docuFileList.end() ) {
-	if ( *it == docuFileBox->currentText() ) {
-	    docuTitleList.remove( it );
-	    docuFileList.remove( it1 );
-	    changed = TRUE;
-	    break;
-	}
-	++it;
-	++it1;
-    }
-    docuFileBox->removeItem( docuFileBox->currentItem() );
+    ProfileDialog pd( this );
+    if ( pd.exec() == QDialog::Accepted )
+	setupProfiles();
 }
 
-void SettingsDialog::addCategory()
+void SettingsDialog::removeProfile()
 {
-    QString cat = catName->text();
-    catName->clear();
-    if( cat.isEmpty() || cat.find( '/' ) > -1  )
-	return;
-
-    CheckListItem *item = allItem;
-    item = item->getCurrentItem( catListView );
-
-    if ( item == 0 )
-	return;
-
-    QString fullcat = item->getFullCategory() + "/" + cat;
-    if ( catListAvail.find( fullcat ) == catListAvail.end() ) {
-	catListAvail << fullcat;
-	CheckListItem *cl = new CheckListItem( item, cat, fullcat );
-	item->stateChange( item->isOn() );
-	catItemList.append( cl );
-    }
+    ProfileCheckItem *item = currentCheckedProfile();
+    deleteProfilesList << item->profileName();
+    delete item;
+    item = 0;
 }
 
-void SettingsDialog::deleteCategory()
+void SettingsDialog::modifyProfile()
 {
-    CheckListItem *item = allItem;
-    item = item->getCurrentItem( catListView );
-
-    if ( item->getFullCategory().lower() == "all" ) {
-	QMessageBox::warning( this, tr( "Qt Assistant" ),
-	    tr( "This item can not be deleted!" ) );
-	return;
-    }
-
-    if ( item->firstChild() != 0 ) {
-	QMessageBox::warning( this, tr( "Qt Assistant" ),
-	    tr( "This branch is not empty!\nFirstly, all contents have to be removed." ) );
-	return;
-    }
-
-    QStringList::iterator it = catListAvail.begin();
-    bool deleted = FALSE;
-    for ( ; it != catListAvail.end(); ++it ) {
-	if ( ( (*it).lower() == item->getFullCategory().lower() ) && !deleted ) {
-	    delete item;
-	    catListSel.remove( *it );
-	    it = catListAvail.remove( it );
-	    if ( it != catListAvail.begin() )
-		--it;
-	    changed = TRUE;
-	    deleted = TRUE;
-	}
-    }
+    ProfileCheckItem *item = currentCheckedProfile();
+    ProfileDialog pd( this, item->profileName() );
+    if ( pd.exec() == QDialog::Accepted )
+	setupProfiles();
+    profileAttributesChanged = pd.profileChanged();
 }
 
 void SettingsDialog::browseWebApp()
@@ -403,26 +203,21 @@ void SettingsDialog::accept()
     config->setHomePage( homePage->text() );
     config->setPdfReader( pdfApp->text() );
 
-    // ### Get back to this
-//     settings->writeEntry( DocuParser::DocumentKey + "AdditionalDocFiles", docuFileList );
-//     settings->writeEntry( DocuParser::DocumentKey + "AdditionalDocTitles", docuTitleList );
-//     settings->writeEntry( DocuParser::DocumentKey + "CategoriesAvailable", catListAvail );
-
     hide();
 
-    bool changedCategory = FALSE;
-    catListSel.sort();
-    QStringList newCatListSel = getCheckedItemList();
-    if ( catListSel != newCatListSel || selectionChanged ) {
-	catListSel = newCatListSel;
-	config->setSelectedCategories( catListSel );
-	changedCategory = TRUE;
+    QValueListConstIterator<QString> it = deleteProfilesList.begin();
+    for ( ; it != deleteProfilesList.end(); ++it )
+	config->removeProfile( *it );
+
+    ProfileCheckItem *item = currentCheckedProfile();
+    if ( item )
+	newProfile = item->profileName();
+
+    if ( newProfile != oldProfile || profileAttributesChanged ) {
+	config->setCurrentProfile( newProfile );
+	emit profileChanged();
     }
 
-    if ( changed ||  changedCategory ) {
-	changed = FALSE;
-	emit docuFilesChanged();
-    }
     done( Accepted );
 }
 
@@ -430,61 +225,4 @@ void SettingsDialog::reject()
 {
     init();
     done( Rejected );
-}
-
-QStringList SettingsDialog::getCheckedItemList()
-{
-    QStringList list;
-    QPtrStack<stateListItem> stackState;
-    CheckListItem *ci = allItem;
-
-    QListViewItemIterator it( catListView );
-    bool root = FALSE;
-    bool isChecked = FALSE;
-    int depth = -1;
-    while( it.current() ){
-	if( it.current()->depth() == 0 ){
-	    isChecked = ci->getCheckItem( it.current() )->isOn();
-	    stackState.push( new stateListItem( it.current(), isChecked ) );
-	    if ( isChecked )
-		list << ci->getCheckItem( it.current() )->getFullCategory();
-	    depth = it.current()->depth();
-	    root = TRUE;
-	    isChecked = FALSE;
-	}
-	else{
-	    if( (it.current()->depth() > depth) && (root) ){
-		depth = it.current()->depth();
-		isChecked = FALSE;
-		isChecked = ci->getCheckItem( it.current() )->isOn() || stackState.top()->isChecked;
-		stackState.push( new stateListItem( it.current(), isChecked ) );
-	    }
-	    if( it.current()->depth() == depth ){
-		stackState.pop();
-		isChecked = FALSE;
-		isChecked = ci->getCheckItem( it.current() )->isOn() || stackState.top()->isChecked;
-		stackState.push( new stateListItem( it.current(), isChecked ) );
-		if ( isChecked )
-		    list << ci->getCheckItem( it.current() )->getFullCategory();
-	    }
-	    else if( it.current()->depth() < depth ){
-		stackState.pop();
-		depth--;
-		it--;
-	    }
-	}
-	++it;
-    }
-    list.sort();
-    return list;
-}
-
-QStringList SettingsDialog::documentationList() const
-{
-    return docuFileList;
-}
-
-QStringList SettingsDialog::selCategoriesList() const
-{
-    return catListSel;
 }

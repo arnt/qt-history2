@@ -590,9 +590,10 @@
     <slot>showSearchLink( const QString &amp; link, const QStringList &amp; terms )</slot>
     <slot>showGoActionLink()</slot>
     <slot>showAssistantHelp()</slot>
+    <slot>updateProfileSettings()</slot>
 </slots>
 <functions>
-    <function access="private">setupGoActions( const QStringList &amp; docList, const QStringList &amp; catList )</function>
+    <function access="private">setupGoActions()</function>
     <function access="private" returnType="bool">insertActionSeparator()</function>
     <function returnType="bool">close( bool alsoDelete )</function>
     <function specifier="non virtual" returnType="TabbedBrowser *">browsers()</function>

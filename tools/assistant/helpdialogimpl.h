@@ -94,7 +94,7 @@ protected slots:
     void setupFullTextIndex();
     void currentTabChanged( const QString &s );
     void currentIndexChanged( QListBoxItem *i );
-    void generateNewDocu();
+    void showProfile();
     void showTopic();
     void searchInIndex( const QString &s );
     void addBookmark();
@@ -124,6 +124,7 @@ private slots:
 
 private:
     typedef QValueList<ContentItem> ContentList;
+    void removeOldCacheFiles();
     void buildKeywordDB();
     Q_UINT32 getFileAges();
     void showIndexTopic();
@@ -132,12 +133,10 @@ private:
     void setupTitleMap();
     void saveBookmarks();
     void showContentsTopic();
-    bool isValidCategory( QString category );
     void showInitDoneMessage();
     void buildContentDict();
 
     QMap<QString, QString> titleMap;
-    QMap<QString, uint> categoryMap;
     bool indexDone, bookmarksInserted, titleMapDone, contentsInserted;
     bool lwClosed;
     MainWindow *help;

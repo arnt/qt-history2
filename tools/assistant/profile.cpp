@@ -65,7 +65,6 @@ bool ProfileHandler::startElement( const QString & /*namespaceURI*/,
 	}
 	break;
     case StateProperty:
-	return FALSE;
     case StateDocfile:
 	return FALSE;
     }
@@ -82,7 +81,6 @@ bool ProfileHandler::endElement( const QString & /*namespaceURI*/,
     case StateProfile:
 	break;
     case StateProperty:
-	state = StateProfile;
     case StateDocfile:
 	state = StateProfile;
     }
@@ -92,6 +90,9 @@ bool ProfileHandler::endElement( const QString & /*namespaceURI*/,
 bool ProfileHandler::characters( const QString &chars )
 {
     switch( state ) {
+    case StateNone:
+    case StateProfile:
+	break;
     case StateProperty:
 	profile->props[propertyName.lower()] = chars;
 	break;
@@ -99,9 +100,6 @@ bool ProfileHandler::characters( const QString &chars )
 	profile->docs.append( chars );
 	if( !propertyName.isNull() )
 	    profile->icons[chars.lower()] = propertyName;
-	break;
-    default:
-	break;
     }
     return TRUE;
 }
@@ -118,7 +116,8 @@ Profile *Profile::createDefaultProfile()
     Profile *profile = new Profile;
     profile->valid = TRUE;
     profile->defProf = TRUE;
-    profile->props["name"] = "defaultprofile";
+    profile->changed = TRUE;
+    profile->props["name"] = "default";
     profile->props["applicationicon"] = "appicon.png";
     profile->props["aboutmenutext"] = "About Qt";
     profile->props["abouturl"] = "about_qt_url";
@@ -137,25 +136,50 @@ Profile *Profile::createDefaultProfile()
     profile->addDocFileIcon( path + "designer.xml", "designer.png" );
     profile->addDocFileIcon( path + "assistant.xml", "assistant.png" );
     profile->addDocFileIcon( path + "linguist.xml", "linguist.png" );
+    profile->addDocFileIcon( path + "qmake.xml", "" );
+
+    profile->addDocFileTitle( path + "qt.xml", "Qt Reference Documentation" );
+    profile->addDocFileTitle( path + "designer.xml", "Qt Designer Manual" );
+    profile->addDocFileTitle( path + "assistant.xml", "Qt Assistant Manual" );
+    profile->addDocFileTitle( path + "linguist.xml", "Guide to the Qt Translation Tools" );
+    profile->addDocFileTitle( path + "qmake.xml", "qmake User Guide" );
+
+    profile->addDocFileImageDir( path + "qt.xml", path + "../../gif/" );
+    profile->addDocFileImageDir( path + "designer.xml", path + "../../gif/" );
+    profile->addDocFileImageDir( path + "assistant.xml", path + "../../gif/" );
+    profile->addDocFileImageDir( path + "linguist.xml", path + "../../gif/" );
+    profile->addDocFileImageDir( path + "qmake.xml", path + "../../gif/" );
 
     return profile;
 }
 
 
 Profile::Profile()
-    : valid( FALSE ), defProf( FALSE )
+    : valid( FALSE ), defProf( FALSE ), changed( FALSE )
 {
 }
 
-void Profile::load( const QString &name )
+Profile::Profile( const Profile *p )
+{
+    props = p->props;
+    docs = p->docs;
+    icons = p->icons;
+    titles = p->titles;
+    imageDirs = p->imageDirs;
+    valid = p->valid;
+    defProf = p->defProf;
+    changed = p->changed;
+}
+
+bool Profile::load( const QString &name )
 {
     QFile file( name );
     if( !file.exists() ) {
 	qWarning( "Profile does not exist: %s", name.latin1() );
-	return;
+	return FALSE;
     } else if( !file.open( IO_ReadOnly ) ) {
 	qWarning( "Profile could not be opened: %s", name.latin1() );
-	return;
+	return FALSE;
     }
 
     QXmlInputSource insrc( &file );
@@ -166,10 +190,11 @@ void Profile::load( const QString &name )
 
     if( !valid ) {
 	qWarning( "Failed to parse profile: %s", name.latin1() );
+	return FALSE;
     } else if ( props["name"].isNull() ) {
 	qWarning( "Profile does not contain required property 'name'" );
 	valid = FALSE;
-	return;
+	return FALSE;
     }
 #ifdef PROFILE_DEBUG
     else {
@@ -194,7 +219,38 @@ void Profile::load( const QString &name )
 	}
     }
 #endif
-
+    changed = TRUE;
+    return TRUE;
 }
 
+void Profile::save( const QString &name )
+{
+    QFile file( name );
+    if ( !file.open( IO_WriteOnly ) ) {
+	qWarning( "Profile could not be saved" );
+	return;
+    }
+    QString indent( "    " );
+    QTextStream s( &file );
+    s << "<profile>" << endl;
 
+    QValueList<QString> keys = props.keys();
+    QValueList<QString>::ConstIterator it = keys.begin();
+    QString buf;
+    while( it != keys.end() ) {
+	    buf = QString( "<property name=\"%1\">%2</property>" )
+		  .arg( *it ).arg( props[*it] );
+	    s << indent << buf << endl;
+	    it++;
+    }
+    s << endl;
+    QStringList::ConstIterator docfiles = docs.begin();
+    while( docfiles != docs.end() ) {
+	buf = QString( "<docfile icon=\"%1\">%2</docfile>" )
+	      .arg( icons[*docfiles] ).arg( *docfiles );
+	s << indent << buf << endl;
+	docfiles++;
+    }
+    s << "</profile>";
+    file.close();
+}

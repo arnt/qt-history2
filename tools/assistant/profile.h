@@ -31,6 +31,7 @@ class Profile
 {
     friend class ProfileHandler;
     friend class Config;
+    friend class ProfileDialog;
 
 public:
     inline bool isDefaultProfile() const;
@@ -38,6 +39,8 @@ public:
 
     inline void addDocFile( const QString &docfile );
     inline void addDocFileIcon( const QString docfile, const QString &icon );
+    inline void addDocFileTitle( const QString docfile, const QString &title );
+    inline void addDocFileImageDir( const QString docfile, const QString &imgDir );
     inline void addProperty( const QString &name, const QString &value );
 
     static Profile* createProfile( const QString &file );
@@ -45,13 +48,18 @@ public:
 
 private:
     Profile();
-    void load( const QString &str );
+    Profile( const Profile *p );
+    bool load( const QString &name );
+    void save( const QString &name );
 
 private:
     int valid:1;
     int defProf:1;
+    bool changed;
     QMap<QString,QString> props;
     QMap<QString,QString> icons;
+    QMap<QString,QString> titles;
+    QMap<QString,QString> imageDirs;
     QStringList docs;
 };
 
@@ -70,6 +78,18 @@ inline void Profile::addDocFileIcon( const QString docfile,
 				     const QString &icon )
 {
     icons[docfile] = icon;
+}
+
+inline void Profile::addDocFileTitle( const QString docfile,
+				      const QString &title )
+{
+    titles[docfile] = title;
+}
+
+inline void Profile::addDocFileImageDir( const QString docfile,
+				     const QString &imgDir )
+{
+    imageDirs[docfile] = imgDir;
 }
 
 inline void Profile::addProperty( const QString &name,

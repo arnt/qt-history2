@@ -1,23 +1,23 @@
 <!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>SettingsDialogBase</class>
-<comment>*********************************************************************
-** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
-**
-** This file is part of Qt Assistant.
-**
-** This file may be distributed and/or modified under the terms of the
-** GNU General Public License version 2 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-** See http://www.trolltech.com/gpl/ for GPL licensing information.
-**
-** Contact info@trolltech.com if any conditions of this licensing are
-** not clear to you.
-**
+<comment>*********************************************************************
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
+**
+** This file is part of Qt Assistant.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
 *********************************************************************</comment>
 <widget class="QDialog">
     <property name="name">
@@ -348,39 +348,72 @@
                     <cstring>tab</cstring>
                 </property>
                 <attribute name="title">
-                    <string>Documentation</string>
+                    <string>Profiles</string>
                 </attribute>
-                <vbox>
+                <hbox>
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QListBox">
+                    <widget class="QListView">
+                        <column>
+                            <property name="text">
+                                <string>Available Profiles</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>true</bool>
+                            </property>
+                            <property name="resizable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
                         <property name="name">
-                            <cstring>docuFileBox</cstring>
+                            <cstring>profileView</cstring>
                         </property>
                     </widget>
                     <widget class="QLayoutWidget">
                         <property name="name">
-                            <cstring>Layout9</cstring>
+                            <cstring>layout9</cstring>
                         </property>
-                        <hbox>
+                        <vbox>
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>buttonAdd</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>&amp;Add...</string>
+                                </property>
+                                <property name="accel">
+                                    <string>Alt+A</string>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>buttonModify</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>&amp;Modify</string>
+                                </property>
+                                <property name="accel">
+                                    <string>Alt+M</string>
+                                </property>
+                            </widget>
                             <spacer>
                                 <property name="name">
-                                    <cstring>Spacer2</cstring>
+                                    <cstring>spacer10_2</cstring>
                                 </property>
                                 <property name="orientation">
-                                    <enum>Horizontal</enum>
+                                    <enum>Vertical</enum>
                                 </property>
                                 <property name="sizeType">
                                     <enum>Expanding</enum>
                                 </property>
                                 <property name="sizeHint">
                                     <size>
-                                        <width>0</width>
-                                        <height>20</height>
+                                        <width>21</width>
+                                        <height>31</height>
                                     </size>
                                 </property>
                             </spacer>
@@ -391,192 +424,10 @@
                                 <property name="text">
                                     <string>&amp;Delete</string>
                                 </property>
-                            </widget>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>Spacer3</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>0</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>buttonAdd</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>&amp;Add...</string>
+                                <property name="accel">
+                                    <string>Alt+D</string>
                                 </property>
                             </widget>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>Spacer4</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>0</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                        </hbox>
-                    </widget>
-                </vbox>
-            </widget>
-            <widget class="QWidget">
-                <property name="name">
-                    <cstring>tab</cstring>
-                </property>
-                <attribute name="title">
-                    <string>Categories</string>
-                </attribute>
-                <hbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>Layout36</cstring>
-                        </property>
-                        <grid>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QPushButton" row="1" column="0">
-                                <property name="name">
-                                    <cstring>buttonDeleteCat</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>&amp;Delete</string>
-                                </property>
-                            </widget>
-                            <spacer row="1" column="1">
-                                <property name="name">
-                                    <cstring>Spacer3_2</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>0</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                            <widget class="QListView" row="0" column="0" rowspan="1" colspan="2">
-                                <column>
-                                    <property name="text">
-                                        <string>Categories</string>
-                                    </property>
-                                    <property name="clickable">
-                                        <bool>true</bool>
-                                    </property>
-                                    <property name="resizable">
-                                        <bool>true</bool>
-                                    </property>
-                                </column>
-                                <property name="name">
-                                    <cstring>catListView</cstring>
-                                </property>
-                                <property name="resizeMode">
-                                    <enum>AllColumns</enum>
-                                </property>
-                            </widget>
-                        </grid>
-                    </widget>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>Layout37</cstring>
-                        </property>
-                        <vbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>Spacer8</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Vertical</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>0</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                            <widget class="QLabel">
-                                <property name="name">
-                                    <cstring>TextLabel1_2</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Category &amp;Name:</string>
-                                </property>
-                                <property name="buddy" stdset="0">
-                                    <cstring>catName</cstring>
-                                </property>
-                            </widget>
-                            <widget class="QLineEdit">
-                                <property name="name">
-                                    <cstring>catName</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>4</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>buttonAddCat</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>&amp;Add</string>
-                                </property>
-                            </widget>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>Spacer9</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Vertical</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>0</height>
-                                    </size>
-                                </property>
-                            </spacer>
                         </vbox>
                     </widget>
                 </hbox>
@@ -656,34 +507,22 @@
         <slot>reject()</slot>
     </connection>
     <connection>
-        <sender>buttonDelete</sender>
-        <signal>clicked()</signal>
-        <receiver>docuFileBox</receiver>
-        <slot>clearSelection()</slot>
-    </connection>
-    <connection>
         <sender>buttonAdd</sender>
         <signal>clicked()</signal>
         <receiver>SettingsDialogBase</receiver>
-        <slot>addDocuFile()</slot>
+        <slot>addProfile()</slot>
     </connection>
     <connection>
         <sender>buttonDelete</sender>
         <signal>clicked()</signal>
         <receiver>SettingsDialogBase</receiver>
-        <slot>removeDocuFile()</slot>
+        <slot>removeProfile()</slot>
     </connection>
     <connection>
-        <sender>buttonAddCat</sender>
+        <sender>buttonModify</sender>
         <signal>clicked()</signal>
         <receiver>SettingsDialogBase</receiver>
-        <slot>addCategory()</slot>
-    </connection>
-    <connection>
-        <sender>buttonDeleteCat</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialogBase</receiver>
-        <slot>deleteCategory()</slot>
+        <slot>modifyProfile()</slot>
     </connection>
     <connection>
         <sender>buttonBrowse</sender>
@@ -712,25 +551,19 @@
     <tabstop>linkUnderlineCB</tabstop>
     <tabstop>browserApp</tabstop>
     <tabstop>buttonBrowse</tabstop>
-    <tabstop>docuFileBox</tabstop>
     <tabstop>buttonDelete</tabstop>
     <tabstop>buttonAdd</tabstop>
-    <tabstop>catListView</tabstop>
-    <tabstop>buttonDeleteCat</tabstop>
-    <tabstop>catName</tabstop>
-    <tabstop>buttonAddCat</tabstop>
     <tabstop>buttonOk</tabstop>
     <tabstop>buttonCancel</tabstop>
 </tabstops>
 <slots>
     <slot>selectColor()</slot>
-    <slot>addDocuFile()</slot>
-    <slot>removeDocuFile()</slot>
-    <slot>addCategory()</slot>
-    <slot>deleteCategory()</slot>
+    <slot>addProfile()</slot>
+    <slot>removeProfile()</slot>
     <slot>browseWebApp()</slot>
     <slot>browsePDFApplication()</slot>
     <slot>browseHomepage()</slot>
+    <slot>modifyProfile()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -51,15 +51,7 @@ void MainWindow::init()
 
     Config *config = Config::configuration();
 
-#ifndef Q_WS_MACX
-    setIcon( config->applicationIcon() );
-#endif
-
-    actionAboutApplication->setMenuText( config->aboutApplicationMenuText() );
-
-    if( !config->title().isNull() )
-	setCaption( config->title() );
-
+    updateProfileSettings();
 
     dw = new QDockWindow( QDockWindow::InDock, this );
     helpDock = new HelpDialog( dw, this );
@@ -73,7 +65,7 @@ void MainWindow::init()
     setObjectsEnabled( FALSE );
 
     // read geometry configuration
-    setupGoActions( config->docFiles(), config->selectedCategories() );
+    setupGoActions();
 
     if ( !config->isMaximized() ) {
 	QRect geom = config->geometry();
@@ -148,7 +140,7 @@ void MainWindow::setup()
     setObjectsEnabled( TRUE );
 }
 
-void MainWindow::setupGoActions( const QStringList & /*docList*/, const QStringList &catList )
+void MainWindow::setupGoActions()
 {
     Config * config = Config::configuration();
     QStringList docFiles = config->docFiles();
@@ -170,10 +162,9 @@ void MainWindow::setupGoActions( const QStringList & /*docList*/, const QStringL
     QStringList::ConstIterator it = docFiles.begin();
     for ( ; it != docFiles.end(); ++it ) {
 	QString cur = *it;
-	QString cat = config->docCategory( cur );
 	QString title = config->docTitle( cur );
 	QPixmap pix = config->docIcon( cur );
-	if( catList.contains( cat ) && !pix.isNull() ) {
+	if( !pix.isNull() ) {
 	    if( !separatorInserted ) {
 		goMenu->insertSeparator();
 		separatorInserted = TRUE;
@@ -385,10 +376,11 @@ void MainWindow::showLink( const QString &link )
 	qDebug( "The link is empty!" );
     }
 
-    QMimeSourceFactory *factory = tabs->mimeSourceFactory();
     int find = link.find( '#' );
     QString name = find >= 0 ? link.left( find ) : link;
+    QMimeSourceFactory *factory = tabs->mimeSourceFactory();
     const QMimeSource *mime = factory->data( name );
+    tabs->setSource( link );
     if( mime ) {
 	tabs->setSource( link );
     } else if ( link=="assistant_about_text" ) {
@@ -431,7 +423,8 @@ void MainWindow::showSettingsDialog( int page )
 {
     if ( !settingsDia ){
 	settingsDia = new SettingsDialog( this );
-	connect( settingsDia, SIGNAL( docuFilesChanged() ), helpDock, SLOT( generateNewDocu() ));
+	connect( settingsDia, SIGNAL( profileChanged() ), helpDock, SLOT( showProfile() ) );
+	connect( settingsDia, SIGNAL( profileChanged() ), this, SLOT( updateProfileSettings() ) );
     }
     QFontDatabase fonts;
     settingsDia->fontCombo->insertStringList( fonts.families() );
@@ -440,6 +433,7 @@ void MainWindow::showSettingsDialog( int page )
     settingsDia->fixedfontCombo->lineEdit()->setText( tabs->styleSheet()->item( "pre" )->fontFamily() );
     settingsDia->linkUnderlineCB->setChecked( tabs->linkUnderline() );
     settingsDia->colorButton->setPaletteBackgroundColor( tabs->palette().color( QPalette::Active, QColorGroup::Link ) );
+    settingsDia->setCurrentProfile();
     if ( page != -1 )
 	settingsDia->settingsTab->setCurrentPage( page );
 
@@ -459,7 +453,7 @@ void MainWindow::showSettingsDialog( int page )
 	}
     }
 
-    setupGoActions( settingsDia->documentationList(), settingsDia->selCategoriesList() );
+    setupGoActions();
 
     QFont fnt( tabs->QWidget::font() );
     fnt.setFamily( settingsDia->fontCombo->currentText() );
@@ -589,4 +583,15 @@ void MainWindow::showAssistantHelp()
 HelpDialog* MainWindow::helpDialog()
 {
     return helpDock;
+}
+
+void MainWindow::updateProfileSettings()
+{
+    Config *config = Config::configuration();
+#ifndef Q_WS_MACX
+    setIcon( config->applicationIcon() );
+#endif
+    actionAboutApplication->setMenuText( config->aboutApplicationMenuText() );
+    if( !config->title().isNull() )
+	setCaption( config->title() );
 }

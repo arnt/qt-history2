@@ -67,17 +67,18 @@ public:
 
     QValueList<ContentItem> getContentItems();
     QPtrList<IndexItem> getIndexItems();
-    QString getCategory() const;
+    QString getImageDir() const;
     QString getDocumentationTitle() const;
+    QString getIconName() const;
 
     // Since We don't want problems with documentation
     // from version to version, this string stores the correct
-    // version string to save documents and categories.
+    // version string to save documents.
     static const QString DocumentKey;
 
 private:
-    QString category, contentRef, indexRef, errorProt, conURL;
-    QString docTitle, title;
+    QString imageDir, contentRef, indexRef, errorProt, conURL;
+    QString docTitle, title, iconName;
     int depth;
     States state;
     QValueList<ContentItem> contentList;

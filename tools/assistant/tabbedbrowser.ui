@@ -97,6 +97,7 @@
     <function specifier="non virtual" returnType="QStyleSheet *">styleSheet()</function>
     <function specifier="non virtual" returnType="bool">linkUnderline()</function>
     <function specifier="non virtual" returnType="QStringList">sources()</function>
+    <function specifier="non virtual">setupMimeSource()</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
