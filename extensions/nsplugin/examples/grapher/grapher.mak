@@ -32,6 +32,7 @@ NULL=nul
 !ENDIF 
 ################################################################################
 # Begin Project
+# PROP Target_Last_Scanned "grapher - Win32 Debug"
 RSC=rc.exe
 CPP=cl.exe
 MTL=mktyplib.exe
@@ -51,10 +52,14 @@ MTL=mktyplib.exe
 OUTDIR=.\Release
 INTDIR=.\Release
 
-ALL : 
+ALL : "$(OUTDIR)\grapher.dll"
 
 CLEAN : 
-	-@erase 
+	-@erase "$(INTDIR)\grapher.obj"
+	-@erase "$(INTDIR)\grapher.res"
+	-@erase "$(OUTDIR)\grapher.dll"
+	-@erase "$(OUTDIR)\grapher.exp"
+	-@erase "$(OUTDIR)\grapher.lib"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -70,6 +75,7 @@ CPP_SBRS=.\.
 MTL_PROJ=/nologo /D "NDEBUG" /win32 
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
+RSC_PROJ=/l 0x409 /fo"$(INTDIR)/grapher.res" /d "NDEBUG" 
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -78,14 +84,22 @@ BSC32_SBRS= \
 	
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /verbose /dll /machine:I386 /nodefaultlib:"libcmtd"
 LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
- advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib\
- odbccp32.lib /nologo /subsystem:windows /dll /incremental:no\
- /pdb:"$(OUTDIR)/grapher.pdb" /machine:I386 /out:"$(OUTDIR)/npgrapher.dll"\
+ advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /verbose /dll\
+ /incremental:no /pdb:"$(OUTDIR)/grapher.pdb" /machine:I386\
+ /nodefaultlib:"libcmtd" /out:"$(OUTDIR)/grapher.dll"\
  /implib:"$(OUTDIR)/grapher.lib" 
 LINK32_OBJS= \
-	
+	"$(INTDIR)\grapher.obj" \
+	"$(INTDIR)\grapher.res" \
+	"..\..\..\..\lib\qnp.lib" \
+	"..\..\..\..\lib\qt.lib"
+
+"$(OUTDIR)\grapher.dll" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
+    $(LINK32) @<<
+  $(LINK32_FLAGS) $(LINK32_OBJS)
+<<
 
 !ELSEIF  "$(CFG)" == "grapher - Win32 Debug"
 
@@ -102,17 +116,25 @@ LINK32_OBJS= \
 OUTDIR=.\Debug
 INTDIR=.\Debug
 
-ALL : 
+ALL : "$(OUTDIR)\npgrapher.dll"
 
 CLEAN : 
-	-@erase 
+	-@erase "$(INTDIR)\grapher.obj"
+	-@erase "$(INTDIR)\grapher.res"
+	-@erase "$(INTDIR)\vc40.idb"
+	-@erase "$(INTDIR)\vc40.pdb"
+	-@erase "$(OUTDIR)\npgrapher.dll"
+	-@erase "$(OUTDIR)\npgrapher.exp"
+	-@erase "$(OUTDIR)\npgrapher.ilk"
+	-@erase "$(OUTDIR)\npgrapher.lib"
+	-@erase "$(OUTDIR)\npgrapher.pdb"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /c
-# ADD CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /c
-CPP_PROJ=/nologo /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
+# ADD CPP /MTd /W3 /Gm /GX /Zi /Od /I "./" /D "_DEBUG" /D "_WINDOWS" /D "WIN32" /YX /c
+CPP_PROJ=/MTd /W3 /Gm /GX /Zi /Od /I "./" /D "_DEBUG" /D "_WINDOWS" /D "WIN32"\
  /Fp"$(INTDIR)/grapher.pch" /YX /Fo"$(INTDIR)/" /Fd"$(INTDIR)/" /c 
 CPP_OBJS=.\Debug/
 CPP_SBRS=.\.
@@ -121,6 +143,7 @@ CPP_SBRS=.\.
 MTL_PROJ=/nologo /D "_DEBUG" /win32 
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
+RSC_PROJ=/l 0x409 /fo"$(INTDIR)/grapher.res" /d "_DEBUG" 
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -129,14 +152,23 @@ BSC32_SBRS= \
 	
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /debug /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /debug /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /dll /debug /machine:I386 /nodefaultlib:"LIBCMTD" /out:"Debug/npgrapher.dll"
+# SUBTRACT LINK32 /verbose
 LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
- advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib\
- odbccp32.lib /nologo /subsystem:windows /dll /incremental:yes\
- /pdb:"$(OUTDIR)/grapher.pdb" /debug /machine:I386 /out:"$(OUTDIR)/npgrapher.dll"\
- /implib:"$(OUTDIR)/grapher.lib" 
+ advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /dll\
+ /incremental:yes /pdb:"$(OUTDIR)/npgrapher.pdb" /debug /machine:I386\
+ /nodefaultlib:"LIBCMTD" /out:"$(OUTDIR)/npgrapher.dll"\
+ /implib:"$(OUTDIR)/npgrapher.lib" 
 LINK32_OBJS= \
-	
+	"$(INTDIR)\grapher.obj" \
+	"$(INTDIR)\grapher.res" \
+	"..\..\..\..\lib\qnp.lib" \
+	"..\..\..\..\lib\qt.lib"
+
+"$(OUTDIR)\npgrapher.dll" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
+    $(LINK32) @<<
+  $(LINK32_FLAGS) $(LINK32_OBJS)
+<<
 
 !ENDIF 
 
@@ -170,6 +202,99 @@ LINK32_OBJS= \
 
 !ENDIF 
 
+################################################################################
+# Begin Source File
+
+SOURCE=.\grapher.cpp
+DEP_CPP_GRAPH=\
+	".\grapher.moc"\
+	{$(INCLUDE)}"\qarray.h"\
+	{$(INCLUDE)}"\qbrush.h"\
+	{$(INCLUDE)}"\qbuffer.h"\
+	{$(INCLUDE)}"\qbutton.h"\
+	{$(INCLUDE)}"\qcollect.h"\
+	{$(INCLUDE)}"\qcolor.h"\
+	{$(INCLUDE)}"\qconnect.h"\
+	{$(INCLUDE)}"\qcursor.h"\
+	{$(INCLUDE)}"\qdialog.h"\
+	{$(INCLUDE)}"\qevent.h"\
+	{$(INCLUDE)}"\qfont.h"\
+	{$(INCLUDE)}"\qfontinf.h"\
+	{$(INCLUDE)}"\qfontmet.h"\
+	{$(INCLUDE)}"\qframe.h"\
+	{$(INCLUDE)}"\qgarray.h"\
+	{$(INCLUDE)}"\qgeneric.h"\
+	{$(INCLUDE)}"\qglist.h"\
+	{$(INCLUDE)}"\qglobal.h"\
+	{$(INCLUDE)}"\qiodev.h"\
+	{$(INCLUDE)}"\qlist.h"\
+	{$(INCLUDE)}"\qmenubar.h"\
+	{$(INCLUDE)}"\qmenudta.h"\
+	{$(INCLUDE)}"\qmetaobj.h"\
+	{$(INCLUDE)}"\qmsgbox.h"\
+	{$(INCLUDE)}"\qnp.h"\
+	{$(INCLUDE)}"\qobjdefs.h"\
+	{$(INCLUDE)}"\qobject.h"\
+	{$(INCLUDE)}"\qpaintd.h"\
+	{$(INCLUDE)}"\qpainter.h"\
+	{$(INCLUDE)}"\qpalette.h"\
+	{$(INCLUDE)}"\qpen.h"\
+	{$(INCLUDE)}"\qpixmap.h"\
+	{$(INCLUDE)}"\qpntarry.h"\
+	{$(INCLUDE)}"\qpoint.h"\
+	{$(INCLUDE)}"\qpopmenu.h"\
+	{$(INCLUDE)}"\qpushbt.h"\
+	{$(INCLUDE)}"\qrect.h"\
+	{$(INCLUDE)}"\qregion.h"\
+	{$(INCLUDE)}"\qshared.h"\
+	{$(INCLUDE)}"\qsignal.h"\
+	{$(INCLUDE)}"\qsize.h"\
+	{$(INCLUDE)}"\qstring.h"\
+	{$(INCLUDE)}"\qtablevw.h"\
+	{$(INCLUDE)}"\qtstream.h"\
+	{$(INCLUDE)}"\qwidget.h"\
+	{$(INCLUDE)}"\qwindefs.h"\
+	{$(INCLUDE)}"\qwmatrix.h"\
+	
+
+"$(INTDIR)\grapher.obj" : $(SOURCE) $(DEP_CPP_GRAPH) "$(INTDIR)"
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=\qt\lib\qt.lib
+
+!IF  "$(CFG)" == "grapher - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "grapher - Win32 Debug"
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=\qt\lib\qnp.lib
+
+!IF  "$(CFG)" == "grapher - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "grapher - Win32 Debug"
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\grapher.rc
+
+"$(INTDIR)\grapher.res" : $(SOURCE) "$(INTDIR)"
+   $(RSC) $(RSC_PROJ) $(SOURCE)
+
+
+# End Source File
 # End Target
 # End Project
 ################################################################################

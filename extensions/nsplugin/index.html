@@ -1,18 +1,18 @@
 <html>
 <head>
-<title>Qt-based LiveConnect Plugins for Netscape</title>
+<title>Qt-based LiveConnect Plugins</title>
 </head>
 <body bgcolor=#ffffff>
-<h1 align=center>Qt-based LiveConnect Plugins for Netscape</h1>
+<h1 align=center>Qt-based LiveConnect Plugins for Netscape and Explorer</h1>
 
 <hr>
 
 <p>
-The Netscape WWW browser allows for Plugins software to be added to
-support information presentation to supplement normal WWW browsing.
-The Plugin interface is described fully
+The Netscape and Explorer WWW browsers allow for Plugin software to be
+added to support information presentation to supplement normal WWW
+browsing.  The Plugin interface is described
 <a href=http://home.netscape.com/comprod/products/navigator/version_2.0/plugins/index.html>
-here</a>.
+in Netscape's handbook.</a>
 
 <p>
 The Qt-based Netscape Plugin software makes it easy to write such plugins such
@@ -20,13 +20,19 @@ that they can be used on both Unix/Linux and Windows/95/NT.
 
 <h2>How-to</h2>
 
-To find out how to write Qt-based Netscape Plugins,
-read the <a href=html/annotated.html>plugin class documentation</a>.
+First, build the Netscape Plugin extension library, found in the
+<tt>extensions/nsplugin/src</tt> directory of your Qt distribution.
+Then, to find out how to write Qt-based Netscape Plugins,
+read the <a href=html/annotated.html>plugin class documentation</a>, and
+examine the example plugins listed below.
+Note that under Windows, plugins must be named
+<tt>np</tt><i>something</i><tt>.dll</tt>,
+or the browser will ignore them.
 
 <h2>Examples</h2>
 
 The following example programs are available to demonstrate the use of the
-Qt GUI toolkit for making Plugins for Netscape.
+Qt GUI toolkit for making Netscape Plugins.
 <ul>
  <li><b><a href=examples/grapher/>Grapher</a></b> - graph data <em>without resorting to GIFs</em>
  <li><b><a href=examples/qtimage/>QtImage</a></b> - plugin for Qt-supported image formats, <em>including PNG.</em>
@@ -34,7 +40,7 @@ Qt GUI toolkit for making Plugins for Netscape.
 
 <h2>Known Bugs</h2>
 <ul>
- <li> Some instability with Beta release Netscape Communicator.
+ <li> Some instability with Beta release Netscape Communicator for X11.
  <li> When grabbing (eg. popup menus), should not stop trapping Dangerous
         events until the grabbing finishes.  Need QApplication to have
         test of need for this (eg. popupActive()).
