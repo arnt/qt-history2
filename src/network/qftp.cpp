@@ -144,6 +144,8 @@ public:
     QString currentCommand() const
     { return currentCmd; }
 
+    bool rawCommand;
+
     QFtpDTP dtp; // the PI has a DTP which is not the design of RFC 959, but it
 		 // makes the design simpler this way
 signals:
@@ -585,6 +587,7 @@ void QFtpDTP::socketBytesWritten( int bytes )
  *********************************************************************/
 QFtpPI::QFtpPI( QObject *parent ) :
     QObject( parent ),
+    rawCommand(FALSE),
     dtp( this ),
     commandSocket( 0, "QFtpPI_socket" ),
     state( Begin ), abortState( None ),
@@ -821,7 +824,9 @@ bool QFtpPI::processReply()
     // special actions on certain replies
     int replyCodeInt = 100*replyCode[0] + 10*replyCode[1] + replyCode[2];
     emit rawFtpReply( replyCodeInt, replyText );
-    if ( replyCodeInt == 227 ) {
+    if ( rawCommand ) {
+	rawCommand = FALSE;
+    } else if ( replyCodeInt == 227 ) {
 	// 227 Entering Passive Mode (h1,h2,h3,h4,p1,p2)
 	int l = replyText.find( "(" );
 	int r = replyText.find( ")" );
@@ -2029,8 +2034,11 @@ void QFtp::piConnectState( int state )
 
 void QFtp::piFtpReply( int code, const QString &text )
 {
-    if ( currentCommand() == RawCommand )
+    if ( currentCommand() == RawCommand ) {
+	QFtpPrivate *d = ::d( this );
+	d->pi.rawCommand = TRUE;
 	emit rawCommandReply( code, text );
+    }
 }
 
 /*!
