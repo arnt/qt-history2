@@ -2544,27 +2544,25 @@ bool QTextDocument::inSelection( int selId, const QPoint &pos ) const
 
 void QTextDocument::doLayout( QPainter *p, int w )
 {
+    if ( !is_printer( p ) )
+	p = 0;
     withoutDoubleBuffer = ( p != 0 );
     flow_->setWidth( w );
     cw = w;
     vw = w;
-    if ( is_printer( p ) )
-	fCollection->setPainter( p );
+    fCollection->setPainter( p );
     QTextParag *parag = fParag;
     while ( parag ) {
 	parag->invalidate( 0 );
-	if ( is_printer( p ) )
-	    parag->setPainter( p, TRUE );
+	parag->setPainter( p, TRUE );
 	parag->format();
 	parag = parag->next();
     }
 
-    if ( is_printer( p ) )
-	fCollection->setPainter( 0 );
+    fCollection->setPainter( 0 );
     parag = fParag;
     while ( parag ) {
-	if ( is_printer( p ) )
-	    parag->setPainter( 0, FALSE );
+	parag->setPainter( 0, FALSE );
 	parag = parag->next();
     }
 }
