@@ -394,6 +394,13 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	ff = FindFirstFileA(qt_win95Name(p),(WIN32_FIND_DATAA*)&finfo);
     } );
 
+    if ( !fList ) {
+	fList  = new QStringList;
+	Q_CHECK_PTR( fList );
+    } else {
+	fList->clear();
+    }
+
     if ( ff == FF_ERROR ) {
 	// if it is a floppy disk drive, it might just not have a file on it
 	if ( plen > 1 && p[1] == ':' &&
@@ -490,13 +497,6 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #undef	IS_HIDDEN
 #undef	IS_SYSTEM
 #undef	FF_ERROR
-
-    if ( !fList ) {
-	fList  = new QStringList;
-	Q_CHECK_PTR( fList );
-    } else {
-	fList->clear();
-    }
 
     // Sort...
     QDirSortItem* si= new QDirSortItem[fiList->count()];
