@@ -216,7 +216,8 @@ public:
     bool isTextChanged() const { return textChanged; }
     bool isBidi() const;
     bool isRightToLeft() const;
-    void setRightToLeft( bool rtl ) { rightToLeft = rtl; }
+    QChar::Direction direction() const;
+    void setDirection( QChar::Direction d ) { dir = d; textChanged = TRUE; }
 
     QMemArray<QTextStringChar> subString( int start = 0, int len = 0xFFFFFF ) const;
     QMemArray<QTextStringChar> rawData() const { return data; }
@@ -231,7 +232,8 @@ private:
     QMemArray<QTextStringChar> data;
     uint textChanged : 1;
     uint bidi : 1; // true when the paragraph has right to left characters
-    uint rightToLeft : 1; // true if the basic direction of the paragraph is right to left.
+    uint rightToLeft : 1;
+    uint dir : 5;
 };
 
 inline bool QTextString::isBidi() const
@@ -243,7 +245,14 @@ inline bool QTextString::isBidi() const
 
 inline bool QTextString::isRightToLeft() const
 {
+    if ( textChanged )
+	checkBidi();
     return rightToLeft;
+}
+
+inline QChar::Direction QTextString::direction() const
+{
+    return (QChar::Direction) dir;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

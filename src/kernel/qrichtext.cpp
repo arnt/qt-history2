@@ -1479,7 +1479,7 @@ void QTextDocument::setPlainText( const QString &text )
 struct Q_EXPORT Tag {
     Tag(){}
     Tag( const QString&n, const QStyleSheetItem* s, const QTextFormat& f )
-	:name(n),style(s), format(f), alignment(Qt::AlignAuto), direction(QChar::DirL),liststyle(QStyleSheetItem::ListDisc) {
+	:name(n),style(s), format(f), alignment(Qt::AlignAuto), direction(QChar::DirON),liststyle(QStyleSheetItem::ListDisc) {
 	    wsm = QStyleSheetItem::WhiteSpaceNormal;
     }
     QString name;
@@ -1922,9 +1922,9 @@ static QString align_to_string( const QString &tag, int a )
 
 static QString direction_to_string( const QString &tag, int d )
 {
-    if ( d == QChar::DirR &&
+    if ( d != QChar::DirON &&
 	 ( tag == "p" || tag == "div" || tag == "li" || tag[ 0 ] == 'h' ) )
-	return " dir=\"rtl\"";
+	return ( d == QChar::DirL? " dir=\"ltr\"" : " dir=\"rtl\"" );
     return "";
 }
 
@@ -3195,6 +3195,7 @@ QTextString::QTextString()
     textChanged = FALSE;
     bidi = FALSE;
     rightToLeft = FALSE;
+    dir = QChar::DirON;
 }
 
 QTextString::QTextString( const QTextString &s )
@@ -3202,6 +3203,7 @@ QTextString::QTextString( const QTextString &s )
     textChanged = s.textChanged;
     bidi = s.bidi;
     rightToLeft = s.rightToLeft;
+    dir = s.dir;
     data = s.subString();
 }
 
@@ -3321,14 +3323,42 @@ void QTextString::setFormat( int index, QTextFormat *f, bool useCollection )
 
 void QTextString::checkBidi() const
 {
-    if ( rightToLeft ) {
-	    ((QTextString *)this)->bidi = TRUE;
-	    return;
-    }
+    bool rtlKnown = FALSE;
+    if ( dir == QChar::DirR ) {
+	((QTextString *)this)->bidi = TRUE;
+	((QTextString *)this)->rightToLeft = TRUE;
+	return;
+    } else if ( dir == QChar::DirL ) {
+	((QTextString *)this)->rightToLeft = FALSE;
+	rtlKnown = TRUE;
+    } else {
+	((QTextString *)this)->rightToLeft = FALSE;
+    }	
+    
     int len = data.size();
     const QTextStringChar *c = data.data();
     ((QTextString *)this)->bidi = FALSE;
     while( len ) {
+	if ( !rtlKnown ) {
+	    switch( c->c.direction() )
+	    {
+		case QChar::DirL:
+		case QChar::DirLRO:
+		case QChar::DirLRE:
+		    ((QTextString *)this)->rightToLeft = FALSE;
+		    rtlKnown = TRUE;
+		    break;
+		case QChar::DirR:
+		case QChar::DirAL:
+		case QChar::DirRLO:
+		case QChar::DirRLE:
+		    ((QTextString *)this)->rightToLeft = TRUE;
+		    rtlKnown = TRUE;
+		    break;
+		default:
+		    break;
+	    }
+	}
 	uchar row = c->c.row();
 	if( (row > 0x04 && row < 0x09) || row > 0xfa ) {
 	    ((QTextString *)this)->bidi = TRUE;
@@ -4781,7 +4811,7 @@ void QTextParag::hide()
 void QTextParag::setDirection( QChar::Direction d )
 {
     if ( str ) {
-	str->setRightToLeft( (d == QChar::DirR) );
+	str->setDirection( d );
 	setChanged( TRUE );
 	invalidate( 0 );
 	format( -1, TRUE );
@@ -4790,10 +4820,7 @@ void QTextParag::setDirection( QChar::Direction d )
 
 QChar::Direction QTextParag::direction() const
 {
-    QChar::Direction d = QChar::DirL;
-    if ( str )
-	d = (str->isRightToLeft() ? QChar::DirR : QChar::DirL);
-    return d;
+    return (str ? str->direction() : QChar::DirON );
 }
 
 
