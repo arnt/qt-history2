@@ -115,7 +115,8 @@ kernel {
 		  $$KERNEL_CPP/qsound_win.cpp \
 		  $$KERNEL_CPP/qwidget_win.cpp \
 		  $$KERNEL_CPP/qole_win.c \
-		  $$KERNEL_CPP/qfontengine_win.cpp
+		  $$KERNEL_CPP/qfontengine_win.cpp \
+		  $$KERNEL_CPP/qguieventloop_win.cpp
 
 	wince-* {
 		SOURCES -= $$KERNEL_CPP/qfontengine_win.cpp
