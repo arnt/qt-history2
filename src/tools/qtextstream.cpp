@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#5 $
 **
 ** Implementation of QTextStream class
 **
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#5 $";
 #endif
 
 
@@ -481,6 +481,7 @@ QTextStream &QTextStream::operator<<( double f )// write double value
     }
     else
 	*fs++ = prec + '0';
+    ASSERT( prec > 0 && prec <10 );	// TESTING
     *fs++ = 'l';
     *fs++ = f_char;
     *fs = '\0';
@@ -536,6 +537,17 @@ QTextStream &QTextStream::operator<<( void *ptr )// any pointer
     output_int( I_LONG | I_UNSIGNED, (ulong)ptr, FALSE );
     flags( f );
     return *this;
+}
+
+
+QTextStream &QTextStream::readRawBytes( char *s, uint len )
+{
+    dev->readBlock( s, len );
+}
+
+QTextStream &QTextStream::writeRawBytes( const char *s, uint len )
+{
+    dev->writeBlock( s, len );
 }
 
 

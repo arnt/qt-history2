@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#4 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#5 $
 **
 ** Definition of QTextStream class
 **
@@ -53,6 +53,10 @@ public:
     QTextStream &operator<<( double );
     QTextStream &operator<<( const char * );
     QTextStream &operator<<( void * );		// any pointer
+
+    QTextStream	&readRawBytes( char *, uint len );
+
+    QTextStream	&writeRawBytes( const char *, uint len );
 
     enum {
 	skipws	  = 0x0001,			// skip whitespace on input
