@@ -5306,8 +5306,8 @@ void QTextTable::enterAt( QTextDocument *&doc, QTextParag *&parag, int &idx, int
     doc = cell->richText();
     parag = doc->firstParag();
     idx = 0;
-    ox += cell->geometry().x() + outerborder + parent->x();
-    oy += cell->geometry().y() + outerborder;
+    ox += cell->geometry().x() + outerborder + parent->x() + innerborder;
+    oy += cell->geometry().y() + outerborder + innerborder;
 }
 
 void QTextTable::next( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
@@ -5326,8 +5326,8 @@ void QTextTable::next( QTextDocument *&doc, QTextParag *&parag, int &idx, int &o
     doc = cell->richText();
     parag = doc->firstParag();
     idx = 0;
-    ox += cell->geometry().x() + outerborder + parent->x();
-    oy += cell->geometry().y() + outerborder;
+    ox += cell->geometry().x() + outerborder + parent->x() + innerborder;
+    oy += cell->geometry().y() + outerborder + innerborder;
 }
 
 void QTextTable::prev( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
@@ -5346,8 +5346,8 @@ void QTextTable::prev( QTextDocument *&doc, QTextParag *&parag, int &idx, int &o
     doc = cell->richText();
     parag = doc->firstParag();
     idx = parag->length() - 1;
-    ox += cell->geometry().x() + outerborder + parent->x();
-    oy += cell->geometry().y() + outerborder;
+    ox += cell->geometry().x() + outerborder + parent->x() + innerborder;
+    oy += cell->geometry().y() + outerborder + innerborder;
 }
 
 void QTextTable::down( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
@@ -5374,8 +5374,8 @@ void QTextTable::down( QTextDocument *&doc, QTextParag *&parag, int &idx, int &o
     doc = cell->richText();
     parag = doc->firstParag();
     idx = 0;
-    ox += cell->geometry().x() + outerborder + parent->x();
-    oy += cell->geometry().y() + outerborder;
+    ox += cell->geometry().x() + outerborder + parent->x() + innerborder;
+    oy += cell->geometry().y() + outerborder + innerborder;
 }
 
 void QTextTable::up( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
@@ -5402,8 +5402,8 @@ void QTextTable::up( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox,
     doc = cell->richText();
     parag = doc->lastParag();
     idx = parag->length() - 1;
-    ox += cell->geometry().x() + outerborder + parent->x();
-    oy += cell->geometry().y() + outerborder;
+    ox += cell->geometry().x() + outerborder + innerborder + parent->x();
+    oy += cell->geometry().y() + outerborder + innerborder;
 }
 
 QTextTableCell::QTextTableCell( QTextTable* table,

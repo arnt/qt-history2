@@ -15,7 +15,7 @@
 
 //#define TEST_BIDI
 //#define TEST_TEXTBROWSER
-#define TEST_TEXTFLOW
+//#define TEST_TEXTFLOW
 
 #include "qtextbrowser.h"
 #include "qtextview.h"
@@ -384,7 +384,7 @@ int main( int argc, char ** argv )
     mw.setCentralWidget( &ed );
     mw.setEdit( &ed );
 #endif
-    
+
     QString fn = "qtextedit.cpp";
     if ( argc > 1 )
 	fn = argv[ 1 ];
@@ -400,7 +400,7 @@ int main( int argc, char ** argv )
 
     ed.viewport()->setFocus();
 #endif
-    
+
     a.setMainWidget( &mw );
     mw.resize( 650, 700 );
     mw.show();
@@ -409,7 +409,7 @@ int main( int argc, char ** argv )
     t.resize ( 100, 100 );
     t.show();
 #endif
-    
+
 #if defined(TEST_TEXTBROWSER)
     QTextBrowser b;
     ( (QMimeSourceFactory*)b.mimeSourceFactory() )->setFilePath( "/home/reggie/tmp/release/qt-2.2.0/doc/html" );
