@@ -20,11 +20,11 @@ TetrixWindow::TetrixWindow()
     linesLcd = new QLCDNumber(5, this);
     linesLcd->setSegmentStyle(QLCDNumber::Filled);
 
-    quitButton  = new QPushButton(tr("&Quit"),this);
-    quitButton->setFocusPolicy(Qt::NoFocus);
-    startButton = new QPushButton(tr("&New Game"),this);
+    startButton = new QPushButton(tr("&Start"), this);
     startButton->setFocusPolicy(Qt::NoFocus);
-    pauseButton = new QPushButton(tr("&Pause"),this);
+    quitButton = new QPushButton(tr("&Quit"), this);
+    quitButton->setFocusPolicy(Qt::NoFocus);
+    pauseButton = new QPushButton(tr("&Pause"), this);
     pauseButton->setFocusPolicy(Qt::NoFocus);
 
     connect(startButton, SIGNAL(clicked()), board, SLOT(start()));
@@ -53,8 +53,8 @@ TetrixWindow::TetrixWindow()
     setFixedSize(550, 370);
 }
 
-void TetrixWindow::createLabel(const QString &text, int x, int y, int width,
-                               int height)
+void TetrixWindow::createLabel(const QString &text, int x, int y,
+                               int width, int height)
 {
     QLabel *label = new QLabel(text, this);
     label->setGeometry(x, y, width, height);

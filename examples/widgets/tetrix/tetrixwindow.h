@@ -24,8 +24,8 @@ private:
     QLCDNumber *scoreLcd;
     QLCDNumber *levelLcd;
     QLCDNumber *linesLcd;
-    QPushButton *quitButton;
     QPushButton *startButton;
+    QPushButton *quitButton;
     QPushButton *pauseButton;
 };
 
