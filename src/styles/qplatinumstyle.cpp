@@ -50,16 +50,18 @@
 #include "qslider.h"
 #include <limits.h>
 
-// NOT REVISED
 /*!
-  \class QPlatinumStyle qplatinumstyle.h
-  \brief The QPlatinumStyle class provides Mac/Platinum look and feel.
-  \ingroup appearance
+    \class QPlatinumStyle qplatinumstyle.h
+    \brief The QPlatinumStyle class provides Mac/Platinum look and feel.
 
-  This class implements the Platinum look and feel. It's an
-  experimental class that tries to resemble a Macinosh-like GUI style
-  with the QStyle system. The emulation is, however, far from being
-  perfect yet.
+    \ingroup appearance
+
+    This class implements the Platinum look and feel. It's an
+    experimental class that tries to resemble a Macinosh-like GUI
+    style with the QStyle system. The emulation is currently far from
+    perfect.
+
+    \sa QAquaStyle
 */
 
 
@@ -1522,8 +1524,8 @@ QRect QPlatinumStyle::subRect( SubRect r, const QWidget *widget ) const
 }
 
 /*!
-  Mixes two colors \a c1 and \a c2 to a new color.
-  */
+    Mixes two colors \a c1 and \a c2 to a new color.
+*/
 QColor QPlatinumStyle::mixedColor(const QColor &c1, const QColor &c2) const
 {
     int h1,s1,v1,h2,s2,v2;
@@ -1533,10 +1535,10 @@ QColor QPlatinumStyle::mixedColor(const QColor &c1, const QColor &c2) const
 }
 
 /*!
-  Draws the nifty Macintosh decoration used on sliders using painter \a p and
-  colorgroup \a g. \a x, \a y, \a w, \a h and \a horizontal specify the geometry
-  and orientation of the riffles.
-  */
+    Draws the nifty Macintosh decoration used on sliders using painter
+    \a p and colorgroup \a g. \a x, \a y, \a w, \a h and \a horizontal
+    specify the geometry and orientation of the riffles.
+*/
 void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
 				  const QColorGroup &g, bool horizontal ) const
 {

@@ -74,14 +74,15 @@ static const int motifCheckMarkSpace    = 12;
 
 
 /*!
-  \class QMotifStyle qmotifstyle.h
-  \brief The QMotifStyle class provides Motif look and feel.
-  \ingroup appearance
+    \class QMotifStyle qmotifstyle.h
+    \brief The QMotifStyle class provides Motif look and feel.
 
-  This class implements the Motif look and feel. It closely resembles
-  the original Motif look as defined by the Open Group, with the
-  addition of some minor improvements. The Motif style is Qt's default
-  GUI style on UNIX platforms.
+    \ingroup appearance
+
+    This class implements the Motif look and feel. It closely
+    resembles the original Motif look as defined by the Open Group,
+    but with some minor improvements. The Motif style is Qt's default
+    GUI style on UNIX platforms.
 */
 
 /*!
@@ -104,27 +105,27 @@ QMotifStyle::~QMotifStyle()
 }
 
 /*!
-  If \a arg is FALSE, the style will polish the
-  application's color palette to emulate the
-  Motif way of highlighting, which is a simple inversion between the
-  base and the text color.
+    If \a arg is FALSE, the style will polish the application's color
+    palette to emulate the Motif way of highlighting, which is a
+    simple inversion between the base and the text color.
 
-  The effect will show up the next time an application palette is set
-  via QApplication::setPalette(). The current color palette of the
-  application remains unchanged.
+    The effect will show up the next time an application palette is
+    set via QApplication::setPalette(). The current color palette of
+    the application remains unchanged.
 
-  \sa QStyle::polish()
- */
+    \sa QStyle::polish()
+*/
 void QMotifStyle::setUseHighlightColors( bool arg )
 {
     highlightCols = arg;
 }
 
 /*!
-  Returns TRUE if the style treats the highlight colors of the palette
-  in a Motif-like manner, which is a simple inversion between the base and the
-  text color; otherwise returns FALSE. The default is FALSE.
- */
+    Returns TRUE if the style treats the highlight colors of the
+    palette in a Motif-like manner, which is a simple inversion
+    between the base and the text color; otherwise returns FALSE. The
+    default is FALSE.
+*/
 bool QMotifStyle::useHighlightColors() const
 {
     return highlightCols;
@@ -838,7 +839,7 @@ void QMotifStyle::drawControl( ControlElement element,
 
 	    const QTabBar * tb = (const QTabBar *) widget;
 	    const QTab * t = opt.tab();
-	
+
 	    int dfw = pixelMetric( PM_DefaultFrameWidth, tb );
 	    bool selected = flags & Style_Selected;
 	    int o =  dfw > 1 ? 1 : 0;
@@ -1420,7 +1421,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 
 		    // Expand line height to edge of rectangle if there's a
 		    // child, and it's visible
-		    if ( child && (child->height() > 0) ) { 
+		    if ( child && (child->height() > 0) ) {
 			linebot = r.height();
 		    }
 

@@ -82,23 +82,24 @@ public:
 };
 
 /*!
-  \class QSGIStyle qsgistyle.h
-  \brief The QSGIStyle class provides SGI/Irix look and feel.
-  \ingroup appearance
+    \class QSGIStyle qsgistyle.h
+    \brief The QSGIStyle class provides SGI/Irix look and feel.
 
-  This class implements the SGI look and feel. It resembles the
-  SGI/Irix Motif GUI style as closely as QStyle allows.
+    \ingroup appearance
+
+    This class implements the SGI look and feel. It resembles the
+    SGI/Irix Motif GUI style as closely as QStyle allows.
 */
 
 /*!
-  Constructs a QSGIStyle.
+    Constructs a QSGIStyle.
 
-  If \a useHighlightCols is FALSE (default value), the style will
-  polish the application's color palette to emulate the Motif way of
-  highlighting, which is a simple inversion between the base and the
-  text color.
+    If \a useHighlightCols is FALSE (default value), the style will
+    polish the application's color palette to emulate the Motif way of
+    highlighting, which is a simple inversion between the base and the
+    text color.
 
-  \sa QMotifStyle::useHighlightColors()
+    \sa QMotifStyle::useHighlightColors()
 */
 QSGIStyle::QSGIStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols ), isApplicationStyle( 0 )
 {
@@ -106,7 +107,7 @@ QSGIStyle::QSGIStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols ),
 }
 
 /*!
-  Destroys the style.
+    Destroys the style.
 */
 QSGIStyle::~QSGIStyle()
 {
@@ -114,11 +115,10 @@ QSGIStyle::~QSGIStyle()
 }
 
 /*!
-  \reimp
+    \reimp
 
-  Changes some application-wide settings to be
-  SGI-like, e.g., sets bold/italic font for
-  the menu system.
+    Changes some application-wide settings to be SGI-like, e.g. sets a
+    bold italic font for menu options.
 */
 void
 QSGIStyle::polish( QApplication* app)
@@ -172,10 +172,11 @@ QSGIStyle::unPolish( QApplication* /* app */ )
     QApplication::setFont( f, TRUE ); // get rid of the special fonts for special widget classes
 }
 
-/*! \reimp
+/*!
+    \reimp
 
-  Installs an event filter for several widget classes
-  to enable hovering.
+    Installs an event filter for several widget classes to enable
+    hovering.
 */
 void
 QSGIStyle::polish( QWidget* w )
@@ -285,7 +286,7 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
 		d->lastScrollbarRect.rect = ((QScrollBar*)widget)->sliderRect();
 		d->lastScrollbarRect.scrollbar = ((QScrollBar*)widget);
 		widget->repaint( FALSE );
-	    } else 
+	    } else
 #endif
 	    {
 #ifndef QT_NO_SLIDER
@@ -1002,8 +1003,8 @@ void QSGIStyle::drawControl( ControlElement element,
 			cflags |= Style_On;
 
 		    if ( mi->isChecked() ) {
-			QRect er( x+sgiItemFrame+1, y+sgiItemFrame+3, 
-				  pixelMetric(PM_IndicatorWidth), 
+			QRect er( x+sgiItemFrame+1, y+sgiItemFrame+3,
+				  pixelMetric(PM_IndicatorWidth),
 				  pixelMetric(PM_IndicatorHeight) );
 			er.addCoords( 1, 1, -1, -1 );
 			drawPrimitive( PE_ButtonBevel, p, er, cg, cflags, opt );
@@ -1210,7 +1211,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 
 	    if ( sub & SC_ComboBoxArrow ) {
 		p->save();
-		QRect er = 
+		QRect er =
 		    QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb, SC_ComboBoxArrow ), cb );
 
 		er.addCoords( 0, 3, 0, 0 );
@@ -1268,8 +1269,8 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	    if ( sub & SC_ScrollBarAddPage ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarAddPage, opt ), widget );
 		QRegion region( er );
-		if ( d->lastScrollbarRect.scrollbar == scrollbar && 
-		     d->lastScrollbarRect.rect.isValid() && 
+		if ( d->lastScrollbarRect.scrollbar == scrollbar &&
+		     d->lastScrollbarRect.rect.isValid() &&
 		     er.intersects( d->lastScrollbarRect.rect ) ) {
 		    region = region.subtract( d->lastScrollbarRect.rect );
 		    p->setClipRegion( region );
@@ -1282,7 +1283,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		drawPrimitive( PE_ScrollBarAddPage, p, er, cg, flags & ~Style_MouseOver, opt );
 
 		if ( d->lastScrollbarRect.scrollbar == scrollbar &&
-		     d->lastScrollbarRect.rect.isValid() && 
+		     d->lastScrollbarRect.rect.isValid() &&
 		     er.intersects( d->lastScrollbarRect.rect ) ) {
 		    if ( sub & SC_ScrollBarSlider && handle.isValid() ) {
 			region = er;
@@ -1298,8 +1299,8 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	    if ( sub & SC_ScrollBarSubPage ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSubPage, opt ), widget );
 		QRegion region( er );
-		if ( d->lastScrollbarRect.scrollbar == scrollbar && 
-		     d->lastScrollbarRect.rect.isValid() && 
+		if ( d->lastScrollbarRect.scrollbar == scrollbar &&
+		     d->lastScrollbarRect.rect.isValid() &&
 		     er.intersects( d->lastScrollbarRect.rect ) ) {
 		    region = region.subtract( d->lastScrollbarRect.rect );
 		    p->setClipRegion( region );
@@ -1310,7 +1311,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		}
 		drawPrimitive( PE_ScrollBarSubPage, p, er, cg, flags & ~Style_MouseOver, opt );
 		if ( d->lastScrollbarRect.scrollbar == scrollbar &&
-		     d->lastScrollbarRect.rect.isValid() && 
+		     d->lastScrollbarRect.rect.isValid() &&
 		     er.intersects( d->lastScrollbarRect.rect ) ) {
 		    if ( sub & SC_ScrollBarSlider && handle.isValid() ) {
 			region = er;

@@ -82,11 +82,12 @@ static bool use2000style = TRUE;
 enum QSliderDirection { SlUp, SlDown, SlLeft, SlRight };
 
 /*!
-  \class QWindowsStyle qwindowsstyle.h
-  \brief The QWindowsStyle class provides a Microsoft Windows-like look and feel.
-  \ingroup appearance
+    \class QWindowsStyle qwindowsstyle.h
+    \brief The QWindowsStyle class provides a Microsoft Windows-like look and feel.
 
-  This style is Qt's default GUI style on Windows.
+    \ingroup appearance
+
+    This style is Qt's default GUI style on Windows.
 */
 
 /*!
@@ -1415,7 +1416,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 		    // Expand line height to edge of rectangle if there's a
 		    // child, and it's visible
-		    if ( child && (child->height() > 0) ) { 
+		    if ( child && (child->height() > 0) ) {
 			linebot = r.height();
 		    }
 

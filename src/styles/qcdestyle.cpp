@@ -44,39 +44,38 @@
 #include "qbutton.h"
 #include <limits.h>
 
-// NOT REVISED
 /*!
-  \class QCDEStyle qcdestyle.h
-  \brief The QCDEStyle class provides a CDE look and feel.
+    \class QCDEStyle qcdestyle.h
+    \brief The QCDEStyle class provides a CDE look and feel.
 
-  \ingroup appearance
+    \ingroup appearance
 
-  This style provides a slightly improved Motif look similar to some
-  versions of the Common Desktop Environment (CDE). The main
-  differences are thinner frames and more modern radio buttons and
-  check boxes. Together with a dark background and a bright
-  text/foreground color, the style looks quite attractive (at least
-  for Motif fans).
+    This style provides a slightly improved Motif look similar to some
+    versions of the Common Desktop Environment (CDE). The main
+    differences are thinner frames and more modern radio buttons and
+    checkboxes. Together with a dark background and a bright
+    text/foreground color, the style looks quite attractive (at least
+    for Motif fans).
 
-  Note that the functions provided by QCDEStyle are reimplementations
-  of QStyle functions; see QStyle for their documentation.
-
+    Note that the functions provided by QCDEStyle are
+    reimplementations of QStyle functions; see QStyle for their
+    documentation.
 */
 
 /*!
     Constructs a QCDEStyle.
 
-    If \a useHighlightCols is FALSE (the default), then the style
-    will polish the application's color palette to emulate the Motif
-    way of highlighting, which is a simple inversion between the base
-    and the text color.
+    If \a useHighlightCols is FALSE (the default), then the style will
+    polish the application's color palette to emulate the Motif way of
+    highlighting, which is a simple inversion between the base and the
+    text color.
 */
 QCDEStyle::QCDEStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols )
 {
 }
 
 /*!
-  Destroys the style.
+    Destroys the style.
 */
 QCDEStyle::~QCDEStyle()
 {

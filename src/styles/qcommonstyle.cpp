@@ -63,17 +63,17 @@
 #include <qpixmap.h>
 #include "../widgets/qtitlebar_p.h"
 
-// NOT REVISED
 /*!
-  \class QCommonStyle qcommonstyle.h
-  \brief The QCommonStyle class encapsulates the common Look and Feel of a GUI.
+    \class QCommonStyle qcommonstyle.h
+    \brief The QCommonStyle class encapsulates the common Look and Feel of a GUI.
 
-  \ingroup appearance
+    \ingroup appearance
 
-  This abstract class implements some of the widget's look and feel
-  that is common to all GUI styles provided and shipped as part of Qt.
+    This abstract class implements some of the widget's look and feel
+    that is common to all GUI styles provided and shipped as part of
+    Qt.
 
-  All the functions are documented in \l QStyle.
+    All the functions are documented in \l QStyle.
 */
 
 /*!
@@ -89,7 +89,7 @@
 static QPainter *activePainter = 0;
 
 /*!
-  Constructs a QCommonStyle.
+    Constructs a QCommonStyle.
 */
 QCommonStyle::QCommonStyle() : QStyle()
 {

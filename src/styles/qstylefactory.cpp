@@ -90,26 +90,26 @@ QStyleFactoryPrivate::~QStyleFactoryPrivate()
 #endif //QT_NO_COMPONENT
 
 /*!
-  \class QStyleFactory qstylefactory.h
-  \brief The QStyleFactory class creates QStyle objects.
+    \class QStyleFactory qstylefactory.h
+    \brief The QStyleFactory class creates QStyle objects.
 
-  The style factory creates a QStyle object for a given key with
-  QStyleFactory::create(key).
+    The style factory creates a QStyle object for a given key with
+    QStyleFactory::create(key).
 
-  The styles are either built-in or dynamically loaded from a style
-  plugin (see \l QStylePlugin).
+    The styles are either built-in or dynamically loaded from a style
+    plugin (see \l QStylePlugin).
 
-  QStyleFactory::keys() returns a list of valid keys, typically
-  including "windows", "motif", "cde", "motifplus", "platinum", "sgi"
-  and "compact". Depending on the platform, "windowsxp", "aqua" or
-  "macintosh" may be available.
-
+    QStyleFactory::keys() returns a list of valid keys, typically
+    including "windows", "motif", "cde", "motifplus", "platinum",
+    "sgi" and "compact". Depending on the platform, "windowsxp",
+    "aqua" or "macintosh" may be available.
 */
 
-/*!  Creates a QStyle object that matches \a key. This is either a
-  built-in style, or a style from a style plugin.
+/*!
+    Creates a QStyle object that matches \a key. This is either a
+    built-in style, or a style from a style plugin.
 
-  \sa keys()
+    \sa keys()
 */
 QStyle *QStyleFactory::create( const QString& key )
 {
@@ -183,10 +183,9 @@ QStyle *QStyleFactory::create( const QString& key )
 
 #ifndef QT_NO_STRINGLIST
 /*!
-  Returns the list of keys  this factory can create
-  styles for.
+    Returns the list of keys this factory can create styles for.
 
-  \sa create()
+    \sa create()
 */
 QStringList QStyleFactory::keys()
 {

@@ -128,22 +128,23 @@ static void drawMotifPlusShade(QPainter *p,
 
 
 /*!
-  \class QMotifPlusStyle qmotifplusstyle.h
-  \brief The QMotifPlusStyle class provides a more sophisticated Motif-ish look and feel.
-  \ingroup appearance
+    \class QMotifPlusStyle qmotifplusstyle.h
+    \brief The QMotifPlusStyle class provides a more sophisticated Motif-ish look and feel.
 
- This class implements a Motif-ish look and feel with more
- sophisticated bevelling as used by the GIMP Toolkit (GTK+) for
- Unix/X11.
+    \ingroup appearance
+
+    This class implements a Motif-ish look and feel with the more
+    sophisticated bevelling as used by the GIMP Toolkit (GTK+) for
+    Unix/X11.
 */
 
 /*!
-  Constructs a QMotifPlusStyle
+    Constructs a QMotifPlusStyle
 
-  If \a hoveringHighlight is TRUE (the default), then the style will not
-  highlight push buttons, checkboxes, radiobuttons, comboboxes, scrollbars
-  or sliders.
- */
+    If \a hoveringHighlight is TRUE (the default), then the style will
+    not highlight push buttons, checkboxes, radiobuttons, comboboxes,
+    scrollbars or sliders.
+*/
 QMotifPlusStyle::QMotifPlusStyle(bool hoveringHighlight) : QMotifStyle(TRUE)
 {
     if ( !singleton )
