@@ -52,7 +52,6 @@ win32 {
 
 
  	SOURCES += \
-		painting/qcolor_win.cpp \
 		painting/qcolormap_win.cpp \
 		painting/qpaintdevice_win.cpp \
 		painting/qpaintengine_win.cpp \
