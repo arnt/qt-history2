@@ -60,8 +60,6 @@
 
 #define BUTTON_WIDTH	16
 #define BUTTON_HEIGHT	14
-#define TITLEBAR_SEPARATION 1
-
 
 // REVISED: arnt
 
@@ -340,9 +338,9 @@ void QWorkspace::childEvent( QChildEvent * e)
 	if ( !hasSize && w->sizeHint().isValid() )
 	    w->adjustSize();
 
-	QRect wrect = QRect( w->x(), w->y(), w->width(), w->height() );
 	QWorkspaceChild* child = new QWorkspaceChild( w, this, "qt_workspacechild" );
 	child->installEventFilter( this );
+
 	connect( child, SIGNAL( popupOperationMenu( const QPoint& ) ),
 		 this, SLOT( popupOperationMenu( const QPoint& ) ) );
 	connect( child, SIGNAL( showOperationMenu() ),
@@ -359,9 +357,9 @@ void QWorkspace::childEvent( QChildEvent * e)
 
 	place( child );
 	if ( hasSize )
-	    child->resize( wrect.width(), wrect.height() + child->baseSize().height() );
+	    child->resize( w->width(), w->height() + child->baseSize().height() );
 	if ( hasPos )
-	    child->move( wrect.x(), wrect.y() );
+	    child->move( w->x(), w->y() );
 
 	activateWindow( w );
 	updateWorkspace();
@@ -697,7 +695,7 @@ void QWorkspace::minimizeWindow( QWidget* w)
 void QWorkspace::normalizeWindow( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
-    if ( !w || w && (!w->testWFlags( WStyle_MinMax ) || w->testWFlags( WStyle_Tool) ) )
+    if ( !w )
 	return;
     if ( c ) {
 	QWorkspace *fake = (QWorkspace*)w;
@@ -1434,10 +1432,9 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	    titlebar->setIcon( *childWidget->icon() );
 	int th = titlebar->sizeHint().height();
 	p = QPoint( contentsRect().x(),
-		    th + TITLEBAR_SEPARATION +
-		    contentsRect().y() );
+		    th + contentsRect().y() );
 	s = QSize( cs.width() + 2*frameWidth(),
-		   cs.height() + 2*frameWidth() + th +TITLEBAR_SEPARATION );
+		   cs.height() + 2*frameWidth() + th + 2 );
     } else {
 	p = QPoint( contentsRect().x(), contentsRect().y() );
 	s = QSize( cs.width() + 2*frameWidth(),
@@ -1454,7 +1451,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     widgetResizeHandler->setSizeProtection( !parent->scrollBarsEnabled() );
     connect( widgetResizeHandler, SIGNAL( activate() ),
 	     this, SLOT( activate() ) );
-    widgetResizeHandler->setExtraHeight( ( titlebar ? titlebar->sizeHint().height() : 0 ) + TITLEBAR_SEPARATION + 1 );
+    widgetResizeHandler->setExtraHeight( ( titlebar ? titlebar->sizeHint().height() : 0 ) + 1 );
 }
 
 QWorkspaceChild::~QWorkspaceChild()
@@ -1475,9 +1472,9 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 
     if ( titlebar ) {
 	int th = titlebar->sizeHint().height();
-	titlebar->setGeometry( r.x() , r.y() + 1, r.width(), th );
-	cr = QRect( r.x(), r.y() + titlebar->height() + TITLEBAR_SEPARATION + (shademode ? 5 : 0 ) + 1,
-	    r.width() , r.height() - titlebar->height() - TITLEBAR_SEPARATION - 2 );
+	titlebar->setGeometry( r.x() , r.y(), r.width()-r.x(), th );
+	cr = QRect( r.x(), r.y() + titlebar->height() + (shademode ? 5 : 0 ),
+	    r.width() , r.height() - titlebar->height() - 2 );
     } else {
 	cr = r;
     }
@@ -1494,8 +1491,7 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 QSize QWorkspaceChild::baseSize() const
 {
     int th = titlebar ? titlebar->sizeHint().height() : 0;
-    int ts = titlebar ? TITLEBAR_SEPARATION : 0;
-    return QSize( 2*frameWidth(), 2*frameWidth() + th + ts);
+    return QSize( 2*frameWidth(), 2*frameWidth() + th );
 }
 
 QSize QWorkspaceChild::minimumSizeHint() const
@@ -1548,7 +1544,10 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	((QWorkspace*)parentWidget())->showWindow( windowWidget() );
 	break;
     case QEvent::ShowMaximized:
-	((QWorkspace*)parentWidget())->maximizeWindow( windowWidget() );
+	if ( windowWidget()->testWFlags( WStyle_Maximize ) && !windowWidget()->testWFlags( WStyle_Tool ) )
+	    ((QWorkspace*)parentWidget())->maximizeWindow( windowWidget() );
+	else
+	    ((QWorkspace*)parentWidget())->normalizeWindow( windowWidget() );
 	break;
     case QEvent::ShowMinimized:
 	((QWorkspace*)parentWidget())->minimizeWindow( windowWidget() );
@@ -1850,7 +1849,7 @@ void QWorkspaceChild::showShaded()
 	QWorkspaceChild* fake = (QWorkspaceChild*)windowWidget();
 	fake->setWState( WState_Minimized );
 
-	resize( width(), titlebar->height() + TITLEBAR_SEPARATION + 2*lineWidth() );
+	resize( width(), titlebar->height() + 2*lineWidth() + 1 );
     }
     widgetResizeHandler->setActive( !shademode );
 }
