@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#533 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#534 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3548,6 +3548,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	}
     }
 
+#if 0
 #ifndef Q_EE
     static int c  = 0;
     extern void qt_dialog_default_key();
@@ -3566,6 +3567,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	}
     }
 #undef Q_EE
+#endif
 #endif
 
     if ( qApp->inPopupMode() ) {			// in popup mode
