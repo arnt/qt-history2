@@ -204,6 +204,18 @@ QAxWidget::QAxWidget( const QString &c, QWidget *parent, const char *name, WFlag
     setControl( c );
 }
 
+/*!
+    Creates a QAxWidget that wraps the COM object referenced by \a iface.
+    \a parent, \a name and \a f are propagated to the QWidget contructor.
+*/
+QAxWidget::QAxWidget( IUnknown *iface, QObject *parent, const char *name, WFlags f )
+: QWidget( parent, name, f ), QAxBase( iface )
+{
+}
+
+/*!
+    \internal
+*/
 void QAxWidget::initContainer()
 {
     container = new QWidget( this );

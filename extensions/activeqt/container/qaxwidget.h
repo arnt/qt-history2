@@ -47,6 +47,7 @@ public:
 
     QAxWidget( QWidget* parent = 0, const char* name = 0, WFlags f = 0 );
     QAxWidget( const QString &c, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
+    QAxWidget( IUnknown *iface, QObject *parent = 0, const char *name = 0, WFlags f = 0 );
     ~QAxWidget();
 
     void clear();
