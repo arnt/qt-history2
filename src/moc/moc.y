@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#192 $
+** $Id: //depot/qt/main/src/moc/moc.y#193 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -216,7 +216,7 @@ public:
   This table is copied from qvariant.cpp. If you change
   one, change both.
 */
-static const int ntypes = 29;
+static const int ntypes = 30;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -247,7 +247,8 @@ static const char* const type_map[ntypes] =
     "QSizePolicy",
     "QDate",
     "QTime",
-    "QDateTime"
+    "QDateTime",
+    "QByteArray"
 };
 
 int qvariant_nameToType( const char* name )
@@ -2467,7 +2468,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#192 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#193 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;

@@ -110,7 +110,8 @@ public:
 	SizePolicy,
 	Date,
 	Time,
-	DateTime
+	DateTime,
+	ByteArray
     };
 
     QVariant();
@@ -140,6 +141,7 @@ public:
     QVariant( const QDate& );
     QVariant( const QTime& );
     QVariant( const QDateTime& );
+    QVariant( const QByteArray& );    
     QVariant( const QValueList<QVariant>& );
     QVariant( const QMap<QString,QVariant>& );
     QVariant( int );
@@ -161,7 +163,7 @@ public:
     bool isValid() const;
 
     void clear();
-    
+
     const QString toString() const;
     const QCString toCString() const;
     const QStringList toStringList() const;
@@ -183,6 +185,7 @@ public:
     const QDate toDate() const;
     const QTime toTime() const;
     const QDateTime toDateTime() const;
+    const QByteArray toByteArray() const;    
     int toInt( bool * ok=0 ) const;
     uint toUInt( bool * ok=0 ) const;
     bool toBool() const;
@@ -220,6 +223,7 @@ public:
     QDate& asDate();
     QTime& asTime();
     QDateTime& asDateTime();
+    QByteArray& asByteArray();    
     int& asInt();
     uint& asUInt();
     bool& asBool();

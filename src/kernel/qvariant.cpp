@@ -40,6 +40,7 @@
 #ifndef QT_NO_PROPERTIES
 
 #include "qstring.h"
+#include "qcstring.h"
 #include "qfont.h"
 #include "qpixmap.h"
 #include "qimage.h"
@@ -158,6 +159,9 @@ QVariantPrivate::QVariantPrivate( QVariantPrivate* d )
 	case QVariant::DateTime:
 	    value.ptr = new QDateTime( *((QDateTime*)d->value.ptr) );
 	    break;
+	case QVariant::ByteArray:
+	    value.ptr = new QByteArray( *((QByteArray*)d->value.ptr) );
+	    break;
 	case QVariant::Int:
 	    value.i = d->value.i;
 	    break;
@@ -260,6 +264,9 @@ void QVariantPrivate::clear()
 	    break;
 	case QVariant::DateTime:
 	    delete (QDateTime*)value.ptr;
+	    break;
+	case QVariant::ByteArray:
+	    delete (QByteArray*)value.ptr;
 	    break;
 	case QVariant::Invalid:
 	case QVariant::Int:
@@ -374,6 +381,7 @@ void QVariantPrivate::clear()
   <li> \c Date - a QDate
   <li> \c Time - a QTime
   <li> \c DateTime - a QDateTime
+  <li> \c ByteArray - a QByteArray
   <li> \c SizePolicy - a QSizePolicy
 
   </ul>
@@ -673,6 +681,16 @@ QVariant::QVariant( const QDateTime& val )
 }
 
 /*!
+  Constructs a new variant with a bytearray value.
+*/
+QVariant::QVariant( const QByteArray& val )
+{
+    d = new QVariantPrivate;
+    d->typ = ByteArray;
+    d->value.ptr = new QByteArray( val );
+}
+
+/*!
   Constructs a new variant with an integer value.
 */
 QVariant::QVariant( int val )
@@ -800,7 +818,7 @@ void QVariant::clear()
 
    (Search for the word 'Attention' in moc.y.)
 */
-static const int ntypes = 29;
+static const int ntypes = 30;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -831,7 +849,8 @@ static const char* const type_map[ntypes] =
     "QSizePolicy",
     "QDate",
     "QTime",
-    "QDateTime"
+    "QDateTime",
+    "QByteArray"
 };
 
 
@@ -1077,6 +1096,13 @@ void QVariant::load( QDataStream& s )
 	    d->value.ptr = x;
 	}
 	break;
+    case ByteArray:
+	{
+	    QByteArray* x = new QByteArray;
+	    s >> *x;
+	    d->value.ptr = x;
+	}
+	break;
     }
     d->typ = t;
 }
@@ -1178,6 +1204,9 @@ void QVariant::save( QDataStream& s ) const
 	break;
     case DateTime:
 	s << *((QDateTime*)d->value.ptr);
+	break;
+    case ByteArray:
+	s << *((QByteArray*)d->value.ptr);
 	break;
     case Invalid:
 	s << QString(); // ### looks wrong.
@@ -1284,7 +1313,7 @@ QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
 
 /*!
   Returns the variant as a QString if the variant has type()
-  String, CString, Int, Uint, Bool, Double, Date, Time, or DateTime, 
+  String, CString, Int, Uint, Bool, Double, Date, Time, or DateTime,
   or QString::null otherwise.
 
   \sa asString()
@@ -1585,7 +1614,7 @@ const QCursor QVariant::toCursor() const
 const QDate QVariant::toDate() const
 {
     if ( d->typ == Date )
-	return *((QDate*)d->value.ptr);	
+	return *((QDate*)d->value.ptr);
     if ( d->typ == String )
 	return QDate::fromString( *((QString*)d->value.ptr), Qt::ISODate );
     return QDate();
@@ -1603,7 +1632,7 @@ const QTime QVariant::toTime() const
 	return *((QTime*)d->value.ptr);
     if ( d->typ == String )
 	return QTime::fromString( *((QString*)d->value.ptr), Qt::ISODate );
-    return QTime();    
+    return QTime();
 }
 
 /*!
@@ -1615,19 +1644,32 @@ const QTime QVariant::toTime() const
 const QDateTime QVariant::toDateTime() const
 {
     if ( d->typ == DateTime )
-	return *((QDateTime*)d->value.ptr);	
+	return *((QDateTime*)d->value.ptr);
     if ( d->typ == String )
 	return QDateTime::fromString( *((QString*)d->value.ptr), Qt::ISODate );
     return QDateTime();
 }
 
 /*!
+  Returns the variant as a QByteArray if the variant has type()
+  ByteArray, or an empty bytearray otherwise.
+
+  \sa asByteArray()
+*/
+const QByteArray QVariant::toByteArray() const
+{
+    if ( d->typ == ByteArray )
+	return *((QByteArray*)d->value.ptr);
+    return QByteArray();
+}
+
+/*!
   Returns the variant as an int if the variant has type()
   String, CString, Int, UInt, Double or Bool, or 0 otherwise.
 
-  If \a ok is non-null, \a*ok is set to TRUE if there are no conceivable errors, 
+  If \a ok is non-null, \a*ok is set to TRUE if there are no conceivable errors,
   and FALSE if the conversion could not be done.
-  
+
   \sa asInt()
 */
 int QVariant::toInt( bool * ok ) const
@@ -1635,7 +1677,7 @@ int QVariant::toInt( bool * ok ) const
     if( d->typ == String )
 	return ((QString*)d->value.ptr)->toInt( ok );
     if ( d->typ == CString )
-	return ((QCString*)d->value.ptr)->toInt( ok ); 
+	return ((QCString*)d->value.ptr)->toInt( ok );
     if ( ok )
 	*ok = canCast( UInt );
     if( d->typ == Int )
@@ -1654,9 +1696,9 @@ int QVariant::toInt( bool * ok ) const
   Returns the variant as an unsigned int if the variant has type()
   String, CString, UInt, Int, Double or Bool, or 0 otherwise.
 
-  If \a ok is non-null, \a*ok is set to TRUE if there are no conceivable errors, 
+  If \a ok is non-null, \a*ok is set to TRUE if there are no conceivable errors,
   and FALSE if the conversion could not be done.
-  
+
   \sa asUInt()
 */
 uint QVariant::toUInt( bool * ok ) const
@@ -1664,7 +1706,7 @@ uint QVariant::toUInt( bool * ok ) const
     if( d->typ == String )
 	return ((QString*)d->value.ptr)->toUInt( ok );
     if ( d->typ == CString )
-	return ((QCString*)d->value.ptr)->toUInt( ok ); 
+	return ((QCString*)d->value.ptr)->toUInt( ok );
     if ( ok )
 	*ok = canCast( UInt );
     if( d->typ == Int )
@@ -1705,7 +1747,7 @@ bool QVariant::toBool() const
   Returns the variant as a double if the variant has type()
   String, CString, Double, Int, UInt or Bool, or 0.0 otherwise.
 
-  If \a ok is non-null, \a*ok is set to TRUE if there are no conceivable errors, 
+  If \a ok is non-null, \a*ok is set to TRUE if there are no conceivable errors,
   and FALSE if the conversion could not be done.
 
   \sa asDouble()
@@ -1715,7 +1757,7 @@ double QVariant::toDouble( bool * ok ) const
     if( d->typ == String )
 	return ((QString*)d->value.ptr)->toDouble( ok );
     if ( d->typ == CString )
-	return ((QCString*)d->value.ptr)->toDouble( ok ); 
+	return ((QCString*)d->value.ptr)->toDouble( ok );
     if ( ok )
 	*ok = canCast( Double );
     if ( d->typ == Double )
@@ -1789,6 +1831,7 @@ Q_VARIANT_AS(SizePolicy)
 Q_VARIANT_AS(Date)
 Q_VARIANT_AS(Time)
 Q_VARIANT_AS(DateTime)
+Q_VARIANT_AS(ByteArray)
 
 /*! \fn QString& QVariant::asString()
 
@@ -2008,6 +2051,16 @@ Q_VARIANT_AS(DateTime)
   \sa toDateTime()
 */
 
+/*! \fn QByteArray& QVariant::asByteArray()
+
+  Tries to convert the variant to hold a QByteArray value. If that
+  is not possible then the variant is set to an empty bytearray.
+
+  Returns a reference to the stored bytearray.
+
+  \sa toByteArray()
+*/
+
 /*!
   Returns the variant's value as int reference.
 */
@@ -2211,6 +2264,8 @@ bool QVariant::operator==( const QVariant &v ) const
 	return v.toTime() == toTime();
     case DateTime:
 	return v.toDateTime() == toDateTime();
+    case ByteArray:
+	return v.toByteArray() == toByteArray();
     case Invalid:
 	break;
     }
