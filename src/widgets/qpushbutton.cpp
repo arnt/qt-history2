@@ -376,7 +376,7 @@ QSize QPushButton::sizeHint() const
 	if(!empty || !w)
 	    w += sz.width();
 	if(!empty || !h)
-	    h += sz.height();
+	    h = QMAX(h, sz.height());
     }
 
     return (style().sizeFromContents(QStyle::CT_PushButton, this, QSize(w, h)).
