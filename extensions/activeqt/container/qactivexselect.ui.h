@@ -15,7 +15,11 @@
 
 #include <qsettings.h>
 #include <qapplication.h>
+#include <qmessagebox.h>
+
 #include <qt_windows.h>
+#include <ocidl.h> 
+#include "../shared/types.h"
 
 class ListBoxText : public QListBoxText
 {
@@ -93,14 +97,38 @@ void QActiveXSelect::openLater()
 	return;
     }
     if ( exec() ) {
-	activex->setControl( ActiveX->text() );
-	DesignerFormWindow *form = designer->currentForm();
-	if ( form ) {
-	    form->setPropertyChanged( activex, "control", TRUE );
-	    form->clearSelection();
-	    qApp->processEvents();
-	    form->selectWidget( activex );
-	    form->setCurrentWidget( activex );
+	QUuid clsid = ActiveX->text();
+	QString key;
+
+	IClassFactory2 *cf2 = 0;
+	CoGetClassObject(clsid, CLSCTX_SERVER, 0, IID_IClassFactory2, (void**)&cf2);
+	if (cf2) {
+	    BSTR bKey;
+	    HRESULT hres = cf2->RequestLicKey(0, &bKey);
+	    if (hres == CLASS_E_NOTLICENSED) {
+		QMessageBox::warning(parentWidget(), tr("Licensed Control"),
+		    tr("The control requires a design-time license"));
+		clsid = QUuid();
+	    } else {
+		key = BSTRToQString(bKey);
+	    }
+	    cf2->Release();
+	}
+
+	if (!clsid.isNull()) {
+	    if (key.isEmpty())
+		activex->setControl(clsid);
+	    else
+		activex->setControl(clsid + ":" + key);
+
+	    DesignerFormWindow *form = designer->currentForm();
+	    if ( form ) {
+		form->setPropertyChanged( activex, "control", TRUE );
+		form->clearSelection();
+		qApp->processEvents();
+		form->selectWidget( activex );
+		form->setCurrentWidget( activex );
+	    }
 	}
 	designer->release();
 	delete this;
