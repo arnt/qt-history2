@@ -401,7 +401,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool do_sync, bool top_level)
 {
     static int mid = 0;
-    MenuAttributes attr = 0;
+    MenuAttributes attr = kMenuAttrAutoDisable;
 #if !defined(QMAC_QMENUBAR_NO_EVENT)
     attr |= kMenuItemAttrCustomDraw;
 #endif
