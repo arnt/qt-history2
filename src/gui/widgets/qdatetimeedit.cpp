@@ -944,6 +944,7 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
                 edit->setCursorPosition(c);
             }
         }
+        updateSpinBox();
     }
     currentsection = s;
     ignorecursorpositionchanged = false;
