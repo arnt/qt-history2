@@ -91,6 +91,9 @@ void ConnectionViewer::currentConnectionChanged( QListViewItem *i )
 
 void ConnectionViewer::readConnections()
 {
+    QWidgetList selection = formWindow->selectedWidgets();
+    bool noselection = selection.isEmpty();
+
     QValueList<MetaDataBase::Connection> connectionlist
 	= MetaDataBase::connections( formWindow );
     for ( QValueList<MetaDataBase::Connection>::Iterator it = connectionlist.begin(); it != connectionlist.end(); ++it ) {
@@ -98,7 +101,14 @@ void ConnectionViewer::readConnections()
 	     !MetaDataBase::hasSlot( formWindow, MetaDataBase::normalizeSlot( (*it).slot ).latin1() ) )
 	    continue;
 	QListViewItem *i = new QListViewItem( connectionListView );
+	
 	MetaDataBase::Connection conn = *it;
+	if(!noselection) {
+	    if (conn.sender->isWidgetType() && !selection.contains((QWidget*)(conn.sender))
+		&& conn.receiver->isWidgetType() && !selection.contains((QWidget*)(conn.receiver)))
+		continue;
+	}
+	
 	i->setText( 0, conn.sender->name() );
 	i->setText( 1, conn.signal );
 	i->setText( 2, conn.receiver->name() );
