@@ -109,6 +109,9 @@ extern "C" {
 #  endif
 #endif // QT_NO_XRENDER
 
+#ifndef QT_NO_XKB
+#  include <X11/XKBlib.h>
+#endif // QT_NO_XKB
 
 #if !defined(XlibSpecificationRelease)
 #define X11R4

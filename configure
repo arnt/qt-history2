@@ -387,6 +387,7 @@ MNG=no
 XRENDER=auto
 XFTFREETYPE=auto
 TABLET=auto
+XKB=auto
 STL=auto
 FT=yes
 NAS_SOUND=no
@@ -623,6 +624,12 @@ do
 	;;
    -xft)
 	XFTFREETYPE=yes
+	;;
+   -no-xkb)
+	XKB=no
+	;;
+   -xkb)
+	XKB=yes
 	;;
    -enable-*)
 	MODULE=`echo $1 | sed "s/-enable-//"`
@@ -948,16 +955,15 @@ then
 	$x11tests/opengl.test $XQMAKESPEC $THREAD $VERBOSE && MODULES=`echo $MODULES | sed -e 's/opengl//'`
     fi
     # Auto-detect XRender support
-    if [ $XRENDER = auto ]
+    if [ $XRENDER != no ]
     then
 	XRENDER=yes
 	$x11tests/xrender.test $XQMAKESPEC $VERBOSE && XRENDER=no && XFTFREETYPE=no
-    elif [ $XRENDER = no ]
-    then
+    else
 	XFTFREETYPE=no
     fi
     # Auto-detect XftFreeType support
-    if [ $XRENDER = yes ] && [ $XFTFREETYPE = auto ]
+    if [ $XRENDER = yes ] && [ $XFTFREETYPE != no ]
     then
 	XFTFREETYPE=yes
 	$x11tests/xfreetype.test $XQMAKESPEC $VERBOSE $x11tests && XFTFREETYPE=no
@@ -981,7 +987,7 @@ then
 	$x11tests/sm.test $XQMAKESPEC $VERBOSE && SM=no
     fi
     # Auto-detect Xinerama support
-    if [ $XINERAMA = auto ]
+    if [ $XINERAMA != no ]
     then
 	XINERAMA=yes
 	$x11tests/xinerama.test $XQMAKESPEC $VERBOSE && XINERAMA=no
@@ -1002,6 +1008,13 @@ then
 	fi
 	;;
     esac
+
+    # Auto-detect XKB support
+    if [ $XKB != no ]
+    then
+        XKB=yes
+	$x11tests/xkb.test $XQMAKESPEC $VERBOSE && XKB=no
+    fi
 fi
 
 #unix
@@ -1185,6 +1198,14 @@ if [ "$X11_PLATFORM" = "yes" ]; then
 	XIY="*"
 	XIN=" "
     fi
+    if [ "x$XKB" = "xno" ]
+    then
+        XKY=" "
+        XKN="*"
+    else
+        XKY="*"
+        XKN=" "
+    fi
     cat << EOF
 
 Qt/X11 only:
@@ -1206,6 +1227,9 @@ Qt/X11 only:
 
  $XIN  -no-tablet ......... Do not compile Tablet support.
  $XIY  -tablet ............ Compile Tablet support (currently only on IRIX).
+
+ $XKN  -no-xkb ............ Do not compile XKB (X KeyBoard extension) support.
+ $XKY  -xkb ............... Compile XKB support.
 
 EOF
 fi
@@ -1535,6 +1559,10 @@ then
 	QMAKE_CONFIG="$QMAKE_CONFIG tablet"
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXi\""
     fi
+    if [ "x$XKB" = "xyes" ]
+    then
+        QMAKE_CONFIG="$QMAKE_CONFIG xkb"
+    fi
 fi
 [ "x$GIF" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG gif"
 [ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG zlib"
@@ -1736,6 +1764,7 @@ then
     echo "Tablet support ...... $TABLET"
     echo "XRender support ..... $XRENDER"
     echo "XftFreeType support . $XFTFREETYPE"
+    echo "XKB Support ......... $XKB"
 fi
 echo
 

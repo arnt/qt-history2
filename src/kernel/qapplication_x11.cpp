@@ -1735,6 +1735,13 @@ void qt_init_internal( int *argcptr, char **argv,
 	}
 #endif // QT_NO_XRENDER
 
+#ifndef QT_NO_XKB
+	// If XKB is detected, set the GrabsUseXKBState option so input method
+	// compositions continue to work (ie. deadkeys)
+	unsigned int state = XkbPCF_GrabsUseXKBStateMask;
+	(void) XkbSetPerClientControls(appDpy, state, &state);
+#endif
+
 	// Misc. initialization
 
 	QColor::initialize();
@@ -3876,7 +3883,7 @@ void QApplication::openPopup( QWidget *popup )
 	(*activeBeforePopup) = active_window;
     }
     popupWidgets->append( popup );		// add to end of list
-    
+
     if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse/keyboard
 	int r = XGrabKeyboard( popup->x11Display(), popup->winId(), TRUE,
 			       GrabModeSync, GrabModeAsync, CurrentTime );
@@ -3887,7 +3894,7 @@ void QApplication::openPopup( QWidget *popup )
 				     LeaveWindowMask | PointerMotionMask),
 			      GrabModeSync, GrabModeAsync,
 			      None, None, CurrentTime );
-	    
+
 	    if ( (popupGrabOk = (r == GrabSuccess)) )
 		XAllowEvents( popup->x11Display(), SyncPointer, CurrentTime );
 	}

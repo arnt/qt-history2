@@ -1,0 +1,63 @@
+#!/bin/sh
+
+
+XKB=yes
+XCONFIG=$1/qmake.conf
+VERBOSE=$2
+
+
+# debuggery
+
+if [ "$VERBOSE" = "yes" ]
+then
+    echo "XKB auto-detection..."
+fi
+    
+
+# check for headers
+
+if [ "$XKB" = "yes" ]
+then
+    INC="X11/XKBlib.h"
+    XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $1/qmake.conf`
+    INCDIRS="$XDIRS /usr/include /include"
+    F=
+    for INCDIR in $INCDIRS
+    do
+	if [ -f $INCDIR/$INC ]
+	then
+	    F=yes
+	    if [ "$VERBOSE" = "yes" ]
+	    then
+		echo "  Found $INC in $INCDIR"
+	    fi
+	    break
+	fi
+    done
+    if [ -z "$F" ]
+    then
+	XKB=no
+	if [ "$VERBOSE" = "yes" ]
+	then
+	    echo "  Could not find $INC anywhere in $INCDIRS"
+	fi
+    fi
+fi
+
+
+# done
+
+if [ "$XKB" != "yes" ]
+then
+    if [ "$VERBOSE" = "yes" ]
+    then
+	echo "XKB disabled."
+    fi
+    exit 0
+else
+    if [ "$VERBOSE" = "yes" ]
+    then
+	echo "XKB enabled."
+    fi
+    exit 1
+fi
