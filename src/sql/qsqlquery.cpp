@@ -205,15 +205,27 @@ bool QSqlQuery::exec ( const QString& query )
 	return FALSE;
     d->sqlResult->setActive( FALSE );
     d->sqlResult->setAt( QSql::BeforeFirst );
-    if ( !driver() )
+    if ( !driver() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning("QSqlQuery::exec: no driver" );
+#endif
 	return FALSE;
+    }
     if ( d->count > 1 )
 	*this = driver()->createQuery();
     d->sqlResult->setQuery( query.stripWhiteSpace() );
-    if ( !driver()->isOpen() || driver()->isOpenError() )
+    if ( !driver()->isOpen() || driver()->isOpenError() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning("QSqlQuery::exec: database not open" );
+#endif
 	return FALSE;
-    if ( query.isNull() || query.length() == 0 )
+    }
+    if ( query.isNull() || query.length() == 0 ) {
+#ifdef QT_CHECK_RANGE
+	qWarning("QSqlQuery::exec: empty query" );
+#endif
 	return FALSE;
+    }
 #ifdef QT_DEBUG_SQL
     qDebug( "\n QSqlQuery: " + query );
 #endif
