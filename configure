@@ -1174,8 +1174,8 @@ Installation options:
 			 in directory. You can specify this option multiple
 			 times so as to only make specific directories.
     -nomake regexp ..... This will prevent matches of regexp from being built
-			 you may use this to exclude certain projects in a directory
-			 included in -make.
+			 you may use this to exclude certain projects in
+			 a directory included in -make.
 
     -profile ........... Enable profiling with gprof (adds -pg options)
 
