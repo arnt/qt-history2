@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#98 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#99 $
 **
 ** Implementation of QLabel widget class
 **
@@ -175,11 +175,15 @@ QLabel::~QLabel()
 
 void QLabel::init()
 {
-    lpixmap    = 0;
-    align      = AlignLeft | AlignVCenter | ExpandTabs;
+    lpixmap = 0;
+    lmovie = 0;
+    lbuddy = 0;
+    lpixmap = 0;
+    accel = 0;
+    align = AlignLeft | AlignVCenter | ExpandTabs;
     extraMargin= -1;
     autoresize = FALSE;
-    d      = 0;
+    d = 0;
 }
 
 /*!
@@ -208,14 +212,16 @@ void QLabel::setText( const QString &text )
 	delete lpixmap;
 	lpixmap = 0;
     }
-    accel->clear();
+    if ( accel )
+	accel->clear();
     QString p = strchr( ltext, '&' );
     while( !p.isEmpty() && p[1] == '&' )
 	p = strchr( ((const char*)p)+2, '&' );
     if ( !p.isEmpty() && isalpha(p[1]) ) {
-	accel->connectItem(
-			   accel->insertItem( ALT+toupper(p[1]) ),
-			   this, SLOT(acceleratorSlot()) );
+	if ( !accel )
+	    accel = new QAccel( this, "accel label accel" );
+	accel->connectItem( accel->insertItem( ALT+toupper(p[1]) ),
+			    this, SLOT(acceleratorSlot()) );
     }
     if ( autoresize ) {
 	QSize s = sizeHint();
@@ -277,7 +283,8 @@ void QLabel::setPixmap( const QPixmap &pixmap )
 	adjustSize();
     else
 	updateLabel();
-    accel->clear();
+    if ( accel )
+	accel->clear();
 }
 
 
@@ -672,6 +679,8 @@ void QLabel::setBuddy( QWidget *buddy )
     while( !p.isEmpty() && p[1] == '&' )
 	p = strchr( ((const char*)p)+2, '&' );
     if ( !p.isEmpty() && isalnum(p[1]) ) {
+	if ( !accel )
+	    accel = new QAccel( this, "accel label accel" );
 	accel->connectItem( accel->insertItem(ALT+toupper(p[1])),
 				  this, SLOT(acceleratorSlot()) );
     }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#44 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#45 $
 **
 ** Definition of QLabel widget class
 **
@@ -83,8 +83,8 @@ private:
     void	updateLabel();
     QString	ltext;
     QPixmap    *lpixmap;
-    QWidget *	lbuddy;
     QMovie *	lmovie;
+    QWidget *	lbuddy;
     ushort	align;
     int		extraMargin:8;
     uint	autoresize:1;
