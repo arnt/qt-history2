@@ -1,10 +1,10 @@
-#ifndef THREAD_H
-#define THREAD_H
+#ifndef FORTUNETHREAD_H
+#define FORTUNETHREAD_H
 
 #include <QThread>
 #include <QMutex>
 
-class Thread : public QThread
+class FortuneThread : public QThread
 {
     Q_OBJECT
 

@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-#include "thread.h"
+#include "fortunethread.h"
 
 class QLabel;
 class QLineEdit;
@@ -31,7 +31,7 @@ private:
     QPushButton *getFortuneButton;
     QPushButton *quitButton;
 
-    Thread thread;
+    FortuneThread thread;
     QString currentFortune;
 };
 

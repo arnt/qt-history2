@@ -1,8 +1,8 @@
 #include <QtNetwork>
 
-#include "thread.h"
+#include "fortunethread.h"
 
-void Thread::requestNewFortune(const QString &hostName, Q_UINT16 port)
+void FortuneThread::requestNewFortune(const QString &hostName, Q_UINT16 port)
 {
     QMutexLocker lock(&mutex);
     this->hostName = hostName;
@@ -10,7 +10,7 @@ void Thread::requestNewFortune(const QString &hostName, Q_UINT16 port)
     start();
 }
 
-void Thread::run()
+void FortuneThread::run()
 {
     const int Timeout = 5 * 1000;
 
