@@ -48,17 +48,14 @@
 #ifdef Q_OS_WIN32
 // Windows
 #include "qt_windows.h"
-#include "qapplication_p.h"
-#include "qapplication.h"
 
 extern void qSystemWarning( const QString& message, int code = -1 );
 
 static HINSTANCE qt_load_library( const QString& lib )
 {
-    QApplication::winVersion();
     HINSTANCE handle;
 #if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based )
+    if ( qWinVersion() & Qt::WV_NT_based )
 	handle = LoadLibraryW( (TCHAR*)qt_winTchar(lib, TRUE) );
     else
 #endif
