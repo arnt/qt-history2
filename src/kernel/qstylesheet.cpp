@@ -1458,31 +1458,39 @@ void QStyleSheet::scaleFont( QFont& font, int logicalSize ) const
 	logicalSize = 1;
     if ( logicalSize > 7 )
 	logicalSize = 7;
-    int basePointSize = font.pointSize();
+    int baseSize = font.pointSize();
+    bool pixel = FALSE;
+    if ( baseSize == -1 ) {
+	baseSize = font.pixelSize();
+	pixel = TRUE;
+    }
     int s;
     switch ( logicalSize ) {
     case 1:
-	s =  basePointSize/2;
+	s =  baseSize/2;
 	break;
     case 2:
-	s = (8 * basePointSize) / 10;
+	s = (8 * baseSize) / 10;
 	break;
     case 4:
-	s =  (12 * basePointSize) / 10;
+	s =  (12 * baseSize) / 10;
 	break;
     case 5:
-	s = (15 * basePointSize) / 10;
+	s = (15 * baseSize) / 10;
 	break;
     case 6:
-	s = 2 * basePointSize;
+	s = 2 * baseSize;
 	break;
     case 7:
-	s = (24 * basePointSize) / 10;
+	s = (24 * baseSize) / 10;
 	break;
     default:
-	s = basePointSize;
+	s = baseSize;
     }
-    font.setPointSize( s );
+    if ( pixel )
+	font.setPixelSize( s );
+    else
+	font.setPointSize( s );
 }
 
 #endif // QT_NO_RICHTEXT

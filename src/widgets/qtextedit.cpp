@@ -4521,7 +4521,13 @@ void QTextEdit::setFont( const QFont &f )
     diff *= -1;
     doc->setWidth( visibleWidth() + diff );
 
-    doc->updateFontSizes( f.pointSize() );
+    int s = f.pointSize();
+    bool usePixels = FALSE;
+    if ( s == -1 ) {
+	s = f.pixelSize();
+	usePixels = TRUE;
+    }
+    doc->updateFontSizes( s, usePixels );
     doc->updateFontAttributes( f, old );
     lastFormatted = doc->firstParag();
     formatMore();

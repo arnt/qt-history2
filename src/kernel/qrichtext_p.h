@@ -820,7 +820,7 @@ public:
 
     void setStyleSheet( QStyleSheet *s );
     void updateStyles();
-    void updateFontSizes( int base );
+    void updateFontSizes( int base, bool usePixels );
     void updateFontAttributes( const QFont &f, const QFont &old );
 #ifndef QT_NO_MIME
     void setMimeSourceFactory( QMimeSourceFactory *f ) { if ( f ) factory_ = f; }
@@ -1551,6 +1551,7 @@ public:
     QString styleName() const { return style; }
 
     int changed() const { return different; }
+    bool fontSizesInPixels() { return usePixelSizes; }
 
 protected:
     virtual void generateKey();
@@ -1564,6 +1565,7 @@ private:
     QFontMetrics fm;
     uint missp : 1;
     uint linkColor : 1;
+    uint usePixelSizes : 1;
     int leftBearing, rightBearing;
     VerticalAlignment ha;
     uchar widths[ 256 ];
@@ -1572,7 +1574,7 @@ private:
     int ref;
     QString k;
     int logicalFontSize;
-    int stdPointSize;
+    int stdSize;
     static QPainter *pntr;
     QString style;
     int different;
@@ -1609,7 +1611,7 @@ public:
     QStyleSheet *styleSheet() const { return sheet; }
     void setStyleSheet( QStyleSheet *s ) { sheet = s; }
     void updateStyles();
-    void updateFontSizes( int base );
+    void updateFontSizes( int base, bool usePixels );
     void updateFontAttributes( const QFont &f, const QFont &old );
     QDict<QTextFormat> dict() const { return cKey; }
 

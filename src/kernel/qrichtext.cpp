@@ -3114,7 +3114,13 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 
 void QTextDocument::setDefaultFont( const QFont &f )
 {
-    updateFontSizes( f.pointSize() );
+    int s = f.pointSize();
+    bool usePixels = FALSE;
+    if ( s == -1 ) {
+	s = f.pixelSize();
+	usePixels = TRUE;
+    }
+    updateFontSizes( s, usePixels );
 }
 
 #ifndef QT_NO_TEXTCUSTOMITEM
@@ -3337,15 +3343,22 @@ int QTextFormat::width( const QChar &c ) const
 	    return w;
 	} else {
 	    QFont f( fn );
-	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
+	    if ( usePixelSizes )
+		f.setPixelSize( ( f.pixelSize() * 2 ) / 3 );
+	    else
+		f.setPointSize( ( f.pointSize() * 2 ) / 3 );
 	    QFontMetrics fm_( f );
 	    return fm_.width( c );
 	}
     }
 
     QFont f( fn );
-    if ( ha != AlignNormal )
-	f.setPointSize( ( f.pointSize() * 2 ) / 3 );
+    if ( ha != AlignNormal ) {
+	if ( usePixelSizes )
+	    f.setPixelSize( ( f.pixelSize() * 2 ) / 3 );
+	else
+	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
+    }
     pntr->setFont( f );
 
     return pntr->fontMetrics().width( c );
@@ -3361,14 +3374,21 @@ int QTextFormat::width( const QString &str, int pos ) const
 	    w = fm.charWidth( str, pos );
 	} else {
 	    QFont f( fn );
-	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
+	    if ( usePixelSizes )
+		f.setPixelSize( ( f.pixelSize() * 2 ) / 3 );
+	    else
+		f.setPointSize( ( f.pointSize() * 2 ) / 3 );
 	    QFontMetrics fm_( f );
 	    w = fm_.charWidth( str, pos );
 	}
     } else {
 	QFont f( fn );
-	if ( ha != AlignNormal )
-	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
+	if ( ha != AlignNormal ) {
+	    if ( usePixelSizes )
+		f.setPixelSize( ( f.pixelSize() * 2 ) / 3 );
+	    else
+		f.setPointSize( ( f.pointSize() * 2 ) / 3 );
+	}
 	pntr->setFont( f );
 	w = pntr->fontMetrics().charWidth( str, pos );
     }
@@ -3579,12 +3599,12 @@ void QTextDocument::updateStyles()
 	d->updateStyles();
 }
 
-void QTextDocument::updateFontSizes( int base )
+void QTextDocument::updateFontSizes( int base, bool usePixels )
 {
     for ( QTextDocument *d = childList.first(); d; d = childList.next() )
-	d->updateFontSizes( base );
+	d->updateFontSizes( base, usePixels );
     invalidate();
-    fCollection->updateFontSizes( base );
+    fCollection->updateFontSizes( base, usePixels );
 }
 
 void QTextDocument::updateFontAttributes( const QFont &f, const QFont &old )
@@ -4611,13 +4631,19 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 #endif
 	} else if ( format->vAlign() == QTextFormat::AlignSuperScript ) {
 	    QFont f( painter.font() );
-	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
+	    if ( format->fontSizesInPixels() )
+		f.setPixelSize( ( f.pixelSize() * 2 ) / 3 );
+	    else
+		f.setPointSize( ( f.pointSize() * 2 ) / 3 );
 	    painter.setFont( f );
 	    painter.drawText( startX, lastY + baseLine - ( painter.fontMetrics().height() / 2 ),
 			      str, start, len, dir );
 	} else if ( format->vAlign() == QTextFormat::AlignSubScript ) {
 	    QFont f( painter.font() );
-	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
+	    if ( format->fontSizesInPixels() )
+		f.setPixelSize( ( f.pixelSize() * 2 ) / 3 );
+	    else
+		f.setPointSize( ( f.pointSize() * 2 ) / 3 );
 	    painter.setFont( f );
 	    painter.drawText( startX, lastY + baseLine + painter.fontMetrics().height() / 6, str, start, len, dir );
 	}
@@ -4654,8 +4680,15 @@ void QTextParag::drawLabel( QPainter* p, int x, int y, int w, int h, int base, c
     p->setPen( defFormat->color() );
 
     QFont font2( defFormat->font() );
-    if ( length() > 0 && at( 0 )->format() )
-	font2.setPointSize( at( 0 )->format()->font().pointSize() );
+    if ( length() > 0 ) {
+	QTextFormat *format = at( 0 )->format();
+	if ( format ) {
+	    if ( format->fontSizesInPixels() )
+		font2.setPixelSize( at( 0 )->format()->font().pixelSize() );
+	    else
+		font2.setPointSize( at( 0 )->format()->font().pointSize() );
+	}
+    }
     p->setFont( font2 );
     QFontMetrics fm( p->fontMetrics() );
     int size = fm.lineSpacing() / 3;
@@ -6000,8 +6033,12 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *of, QTextFormat *nf, in
 	cres->fn.setUnderline( nf->fn.underline() );
     if ( flags & QTextFormat::Family )
 	cres->fn.setFamily( nf->fn.family() );
-    if ( flags & QTextFormat::Size )
-	cres->fn.setPointSize( nf->fn.pointSize() );
+    if ( flags & QTextFormat::Size ) {
+	if ( of->usePixelSizes )
+	    cres->fn.setPixelSize( nf->fn.pixelSize() );
+	else
+	    cres->fn.setPointSize( nf->fn.pointSize() );
+    }
     if ( flags & QTextFormat::Color )
 	cres->col = nf->col;
     if ( flags & QTextFormat::Misspelled )
@@ -6101,20 +6138,28 @@ void QTextFormatCollection::updateStyles()
     updateKeys();
 }
 
-void QTextFormatCollection::updateFontSizes( int base )
+void QTextFormatCollection::updateFontSizes( int base, bool usePixels )
 {
     QDictIterator<QTextFormat> it( cKey );
     QTextFormat *f;
     while ( ( f = it.current() ) ) {
 	++it;
-	f->stdPointSize = base;
-	f->fn.setPointSize( f->stdPointSize );
+	f->stdSize = base;
+	f->usePixelSizes = usePixels;
+	if ( usePixels )
+	    f->fn.setPixelSize( f->stdSize );
+	else
+	    f->fn.setPointSize( f->stdSize );
 	styleSheet()->scaleFont( f->fn, f->logicalFontSize );
 	f->update();
     }
     f = defFormat;
-    f->stdPointSize = base;
-    f->fn.setPointSize( f->stdPointSize );
+    f->stdSize = base;
+    f->usePixelSizes = usePixels;
+    if ( usePixels )
+	f->fn.setPixelSize( f->stdSize );
+    else
+	f->fn.setPointSize( f->stdSize );
     styleSheet()->scaleFont( f->fn, f->logicalFontSize );
     f->update();
     updateKeys();
@@ -6228,6 +6273,7 @@ void QTextFormat::setPointSize( int s )
     if ( s == fn.pointSize() )
 	return;
     fn.setPointSize( s );
+    usePixelSizes = FALSE;
     update();
 }
 
@@ -6363,7 +6409,10 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 		if ( a[0] == '+' || a[0] == '-' )
 		    n += format.logicalFontSize;
 		format.logicalFontSize = n;
-		format.fn.setPointSize( format.stdPointSize );
+		if ( format.usePixelSizes )
+		    format.fn.setPixelSize( format.stdSize );
+		else
+		    format.fn.setPointSize( format.stdSize );
 		style->styleSheet()->scaleFont( format.fn, format.logicalFontSize );
 	    }
 	    if ( attr.contains("style" ) ) {
@@ -6372,7 +6421,10 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 		    QString s = a.mid( a.find( ':' ) + 1 );
 		    int n = s.left( s.length() - 2 ).toInt();
 		    format.logicalFontSize = 0;
-		    format.fn.setPointSize( n );
+		    if ( format.usePixelSizes )
+			format.fn.setPixelSize( n );
+		    else
+			format.fn.setPointSize( n );
 		}
 	    }
 	    if ( attr.contains("face") ) {
@@ -6401,11 +6453,17 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 		format.fn.setPointSize( style->fontSize() );
 	    } else if ( style->logicalFontSize() != QStyleSheetItem::Undefined ) {
 		format.logicalFontSize = style->logicalFontSize();
-		format.fn.setPointSize( format.stdPointSize );
+		if ( format.usePixelSizes )
+		    format.fn.setPixelSize( format.stdSize );
+		else
+		    format.fn.setPointSize( format.stdSize );
 		style->styleSheet()->scaleFont( format.fn, format.logicalFontSize );
 	    } else if ( style->logicalFontSizeStep() ) {
 		format.logicalFontSize += style->logicalFontSizeStep();
-		format.fn.setPointSize( format.stdPointSize );
+		if ( format.usePixelSizes )
+		    format.fn.setPixelSize( format.stdSize );
+		else
+		    format.fn.setPointSize( format.stdSize );
 		style->styleSheet()->scaleFont( format.fn, format.logicalFontSize );
 	    }
 	    if ( !style->fontFamily().isEmpty() )

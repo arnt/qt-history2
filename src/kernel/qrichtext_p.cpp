@@ -161,20 +161,34 @@ QTextFormat::~QTextFormat()
 }
 
 QTextFormat::QTextFormat()
-    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( qApp->font().pointSize() ),
+    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdSize( qApp->font().pointSize() ),
       different( NoFlags )
 {
     ref = 0;
+
+    usePixelSizes = FALSE;
+    if ( stdSize == -1 ) {
+	stdSize = qApp->font().pixelSize();
+	usePixelSizes = TRUE;
+    }
+    
     missp = FALSE;
     ha = AlignNormal;
     collection = 0;
 }
 
 QTextFormat::QTextFormat( const QStyleSheetItem *style )
-    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( qApp->font().pointSize() ),
+    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdSize( qApp->font().pointSize() ),
       different( NoFlags )
 {
     ref = 0;
+
+    usePixelSizes = FALSE;
+    if ( stdSize == -1 ) {
+	stdSize = qApp->font().pixelSize();
+	usePixelSizes = TRUE;
+    }
+
     this->style = style->name();
     missp = FALSE;
     ha = AlignNormal;
@@ -201,9 +215,14 @@ QTextFormat::QTextFormat( const QStyleSheetItem *style )
 
 QTextFormat::QTextFormat( const QFont &f, const QColor &c, QTextFormatCollection *parent )
     : fn( f ), col( c ), fm( QFontMetrics( f ) ), linkColor( TRUE ),
-      logicalFontSize( 3 ), stdPointSize( f.pointSize() ), different( NoFlags )
+      logicalFontSize( 3 ), stdSize( f.pointSize() ), different( NoFlags )
 {
     ref = 0;
+    usePixelSizes = FALSE;
+    if ( stdSize == -1 ) {
+	stdSize = f.pixelSize();
+	usePixelSizes = TRUE;
+    }
     collection = parent;
     leftBearing = fm.minLeftBearing();
     rightBearing = fm.minRightBearing();
@@ -231,7 +250,8 @@ QTextFormat::QTextFormat( const QTextFormat &f )
     hei = f.hei;
     asc = f.asc;
     dsc = f.dsc;
-    stdPointSize = f.stdPointSize;
+    stdSize = f.stdSize;
+    usePixelSizes = f.usePixelSizes;
     logicalFontSize = f.logicalFontSize;
     missp = f.missp;
     ha = f.ha;
@@ -255,7 +275,8 @@ QTextFormat& QTextFormat::operator=( const QTextFormat &f )
     hei = f.hei;
     asc = f.asc;
     dsc = f.dsc;
-    stdPointSize = f.stdPointSize;
+    stdSize = f.stdSize;
+    usePixelSizes = f.usePixelSizes;
     logicalFontSize = f.logicalFontSize;
     missp = f.missp;
     ha = f.ha;
@@ -344,40 +365,14 @@ int QTextFormat::leading() const
 
 void QTextFormat::generateKey()
 {
-    k = QString::number( fn.pointSize() );
-    k += '/';
-    k += QString::number( fn.weight() );
-    k += '/';
-    k += QString::number( (int)fn.underline() );
-    k += '/';
-    k += QString::number( (int)fn.strikeOut() );
-    k += '/';
-    k += QString::number( (int)fn.italic() );
-    k += '/';
-    k += QString::number( (uint)col.rgb() );
-    k += '/';
-    k += fn.family();
-    k += '/';
-    k += QString::number( (int)isMisspelled() );
-    k += '/';
-    k += QString::number( (int)vAlign() );
+    k = getKey( fn, col, isMisspelled(), vAlign() );
 }
 
 QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled, VerticalAlignment a )
 {
-    QString k = QString::number( fn.pointSize() );
-    k += '/';
-    k += QString::number( fn.weight() );
-    k += '/';
-    k += QString::number( (int)fn.underline() );
-    k += '/';
-    k += QString::number( (int)fn.strikeOut() );
-    k += '/';
-    k += QString::number( (int)fn.italic() );
+    QString k = fn.key();
     k += '/';
     k += QString::number( (uint)col.rgb() );
-    k += '/';
-    k += fn.family();
     k += '/';
     k += QString::number( (int)misspelled );
     k += '/';
