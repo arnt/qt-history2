@@ -1297,7 +1297,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
         break;
     case SR_DockWindowHandleRect:
         if (const QStyleOptionDockWindow *dw = qt_cast<const QStyleOptionDockWindow *>(opt)) {
-            if (!dw->docked || !dw->isCloseEnabled)
+            if (!dw->docked || !dw->closeEnabled)
                 r.setRect(0, 0, dw->rect.width(), dw->rect.height());
             else {
                 if (dw->state & Style_Horizontal)
@@ -2033,8 +2033,8 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
     case CC_SpinBox:
         if (const QStyleOptionSpinBox *spinbox = qt_cast<const QStyleOptionSpinBox *>(opt)) {
 
-            int fw = spinbox->frame ? pixelMetric(PM_SpinBoxFrameWidth, spinbox, widget) : 0;
-            int slider = spinbox->slider ? qMax(int(spinbox->rect.height() / 20),
+            int fw = spinbox->showFrame ? pixelMetric(PM_SpinBoxFrameWidth, spinbox, widget) : 0;
+            int slider = spinbox->showSliderIndicator ? qMax(int(spinbox->rect.height() / 20),
                                              pixelMetric(PM_SpinBoxSliderHeight, spinbox, widget))
                                          : 0;
             QSize bs;
@@ -2059,7 +2059,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
             case SC_SpinBoxSlider:
                 ret = (slider > 0 ? QRect(lx, spinbox->rect.height() - fw - slider, rx, slider) : QRect()); break;
             case SC_SpinBoxFrame:
-                ret = spinbox->frame ? spinbox->rect : QRect();
+                ret = spinbox->showFrame ? spinbox->rect : QRect();
             default:
                 break;
             }

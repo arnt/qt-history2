@@ -1507,8 +1507,8 @@ QStyleOptionSpinBox QDateTimeEditPrivate::styleOption() const
     totalDays += (double)minimum.toDateTime().time().msecsTo(maximum.toDateTime().time()) / (24 * 3600 * 1000);
 
     opt.percentage = days / totalDays;
-    opt.slider = slider;
-    opt.frame = frame;
+    opt.showSliderIndicator = slider;
+    opt.showFrame = frame;
     return opt;
 }
 

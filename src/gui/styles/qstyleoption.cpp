@@ -799,7 +799,8 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 
 QStyleOptionSpinBox::QStyleOptionSpinBox()
     : QStyleOptionComplex(Version, SO_SpinBox), buttonSymbols(QAbstractSpinBox::UpDownArrows),
-      stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0), slider(false), frame(true)
+      stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0), showSliderIndicator(false),
+      showFrame(true)
 {
 }
 
@@ -808,7 +809,8 @@ QStyleOptionSpinBox::QStyleOptionSpinBox()
 */
 QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
     : QStyleOptionComplex(version, SO_SpinBox), buttonSymbols(QAbstractSpinBox::UpDownArrows),
-      stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0), slider(false), frame(true)
+      stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0), showSliderIndicator(false),
+      showFrame(true)
 {
 }
 
@@ -836,12 +838,12 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
 */
 
 /*!
-    \property QStyleOptionSpinBox::slider
+    \property QStyleOptionSpinBox::showSliderIndicator
     \brief Indicates whether the slider indicator should be drawn.
 */
 
 /*!
-    \property QStyleOptionSpinBox::frame
+    \property QStyleOptionSpinBox::showFrame
     \brief Indicates whether a frame should be drawn.
 */
 
@@ -1026,7 +1028,7 @@ QStyleOptionListView::QStyleOptionListView(int version)
 */
 
 QStyleOptionDockWindow::QStyleOptionDockWindow()
-    : QStyleOption(Version, SO_DockWindow), docked(false), isCloseEnabled(false)
+    : QStyleOption(Version, SO_DockWindow), docked(false), closeEnabled(false)
 {
 }
 
@@ -1034,7 +1036,7 @@ QStyleOptionDockWindow::QStyleOptionDockWindow()
     \internal
 */
 QStyleOptionDockWindow::QStyleOptionDockWindow(int version)
-    : QStyleOption(version, SO_DockWindow), docked(false), isCloseEnabled(false)
+    : QStyleOption(version, SO_DockWindow), docked(false), closeEnabled(false)
 {
 }
 
@@ -1044,7 +1046,7 @@ QStyleOptionDockWindow::QStyleOptionDockWindow(int version)
 */
 
 /*!
-    \property QStyleOptionDockWindow::isCloseEnabled
+    \property QStyleOptionDockWindow::closeEnabled
     \brief Indicates that the dock window has a close button.
 */
 

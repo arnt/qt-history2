@@ -253,7 +253,7 @@ protected:
             opt.rect.setRect(x, 0, 30, 10);
             opt.palette = palette();
             opt.docked = dw->area();
-            opt.isCloseEnabled = dw->isCloseEnabled();
+            opt.closeEnabled = dw->isCloseEnabled();
             opt.state = QStyle::Style_None;
             if (i == pressedHandle)
                 opt.state |= QStyle::Style_On;

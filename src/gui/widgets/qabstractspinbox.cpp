@@ -1041,8 +1041,8 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
         opt.activeSubControls = QStyle::SC_SpinBoxDown;
 
     opt.percentage = (value - minimum) / (maximum - minimum);
-    opt.slider = slider;
-    opt.frame = frame;
+    opt.showSliderIndicator = slider;
+    opt.showFrame = frame;
     return opt;
 }
 

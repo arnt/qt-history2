@@ -89,7 +89,7 @@ QSize Q3DockWindowResizeHandle::sizeHint() const
 
     opt.rect = rect();
     opt.docked = dockWindow->area();
-    opt.isCloseEnabled = dockWindow->isCloseEnabled();
+    opt.closeEnabled = dockWindow->isCloseEnabled();
     int sw = 2 * style().pixelMetric(QStyle::PM_SplitterWidth, &opt, this) / 3;
     return (style().sizeFromContents(QStyle::CT_DockWindow, &opt, QSize(sw, sw), fontMetrics(),
             this).expandedTo(QApplication::globalStrut()));
@@ -391,7 +391,7 @@ void Q3DockWindowHandle::paintEvent(QPaintEvent *e)
 
     opt.rect = rect();
     opt.docked = dockWindow->area();
-    opt.isCloseEnabled = dockWindow->isCloseEnabled();
+    opt.closeEnabled = dockWindow->isCloseEnabled();
     opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_DockWindowHandleRect, &opt,
                                                   fontMetrics(), this), this);
     style().drawPrimitive(QStyle::PE_DockWindowHandle, &opt, &p, this);

@@ -217,8 +217,8 @@ public:
     QStyleOptionMenuItem();
 
     QDOC_PROPERTY(MenuItemType menuItemType);
-    QDOC_PROPERTY(CheckState checkState);
-    QDOC_PROPERTY(bool exclusive);
+    QDOC_PROPERTY(CheckType checkType);
+    QDOC_PROPERTY(bool checked);
     QDOC_PROPERTY(QRect menuRect);
     QDOC_PROPERTY(QString text);
     QDOC_PROPERTY(QIcon icon);
@@ -267,12 +267,12 @@ public:
     enum { Version = 1 };
 
     bool docked;
-    bool isCloseEnabled;
+    bool closeEnabled;
 
     QStyleOptionDockWindow();
 
     QDOC_PROPERTY(bool docked);
-    QDOC_PROPERTY(bool isCloseEnabled);
+    QDOC_PROPERTY(bool closeEnabled);
 
 protected:
     QStyleOptionDockWindow(int version);
@@ -384,16 +384,16 @@ public:
     QAbstractSpinBox::ButtonSymbols buttonSymbols;
     QAbstractSpinBox::StepEnabled stepEnabled;
     double percentage;
-    bool slider;
-    bool frame;
+    bool showSliderIndicator;
+    bool showFrame;
 
     QStyleOptionSpinBox();
 
     QDOC_PROPERTY(QAbstractSpinBox::ButtonSymbols buttonSymbols);
     QDOC_PROPERTY(QAbstractSpinBox::StepEnabled stepEnabled);
     QDOC_PROPERTY(double percentage);
-    QDOC_PROPERTY(bool slider);
-    QDOC_PROPERTY(bool frame);
+    QDOC_PROPERTY(bool showSliderIndicator);
+    QDOC_PROPERTY(bool showFrame);
 
 protected:
     QStyleOptionSpinBox(int version);
