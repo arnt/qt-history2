@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#26 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -494,7 +494,7 @@ QString QMultiLineEdit::text() const
     if ( contents->count() == 0 )
 	return QString( "" );
 
-    QString tmp = *(contents->at( 0 ));
+    QString tmp = contents->at( 0 )->copy();
     for( int i = 1 ; i < (int)contents->count() ; i++ ) {
 	tmp += "\n";
 	tmp += *(contents->at( i ));

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#61 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#60 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#61 $");
 
 
 /*!
@@ -283,14 +283,14 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	emit returnPressed();
 	return;
     }
-     if ( e->ascii() >= 32 && e->key() != Key_Delete ) {
+    if ( e->ascii() >= 32 && e->key() != Key_Delete ) {
+	if ( hasMarkedText() ) {
+	    tbuf.remove( minMark(), maxMark() - minMark() );
+	    cursorPos = minMark();
+	    if ( cursorPos < offset )
+		offset = cursorPos;
+	}
 	if ( (int)tbuf.length() < maxLen ) {
-	    if ( hasMarkedText() ) {
-		tbuf.remove( minMark(), maxMark() - minMark() );
-		cursorPos = minMark();
-		if ( cursorPos < offset )
-		    offset = cursorPos;
-	    }
 	    tbuf.insert( cursorPos, e->ascii() );
 	    cursorRight( FALSE );			// will repaint
 	    emit textChanged( tbuf.data() );
@@ -300,92 +300,92 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
     int unknown = 0;
     if ( e->state() & ControlButton ) {
 	switch ( e->key() ) {
-	    case Key_A:
-	    case Key_Left:
-		home( e->state() & ShiftButton );
-		break;
-	    case Key_B:
-		cursorLeft( e->state() & ShiftButton );
-		break;
-	    case Key_C:
-		if ( hasMarkedText() ) {
-		    copyText();
+	case Key_A:
+	case Key_Left:
+	    home( e->state() & ShiftButton );
+	    break;
+	case Key_B:
+	    cursorLeft( e->state() & ShiftButton );
+	    break;
+	case Key_C:
+	    if ( hasMarkedText() ) {
+		copyText();
+	    }
+	    break;
+	case Key_D:
+	    del();
+	    break;
+	case Key_E:
+	case Key_Right:
+	    end( e->state() & ShiftButton );
+	    break;
+	case Key_F:
+	    cursorRight( e->state() & ShiftButton );
+	    break;
+	case Key_H:
+	    backspace();
+	    break;
+	case Key_V: {			// paste
+	    QString t = QApplication::clipboard()->text();
+	    if ( !t.isEmpty() ) {
+		int i = t.find( '\n' );	// no multiline text
+		if ( i >= 0 )
+		    t.truncate( i );
+		uchar *p = (uchar *) t.data();
+		while ( *p ) {		// unprintable becomes space
+		    if ( *p < 32 )
+			*p = 32;
+		    p++;
 		}
-		break;
-	    case Key_D:
+		if ( hasMarkedText() ) {
+		    tbuf.remove( minMark(), maxMark() - minMark() );
+		    cursorPos = minMark();
+		    if ( cursorPos < offset )
+			offset = cursorPos;
+		}
+		int tlen = t.length();
+		int blen = tbuf.length();
+		if ( tlen+blen >= maxLen ) {
+		    if ( blen >= maxLen )
+			break;
+		    t.truncate( maxLen-tlen );
+		}
+		tbuf.insert( cursorPos, t );
+		cursorRight( FALSE, tlen );
+		emit textChanged( tbuf.data() );
+	    }
+	}
+	case Key_X:
+	    if ( hasMarkedText() ) {
+		copyText();
 		del();
-		break;
-	    case Key_E:
-	    case Key_Right:
-		end( e->state() & ShiftButton );
-		break;
-	    case Key_F:
-		cursorRight( e->state() & ShiftButton );
-		break;
-	    case Key_H:
-		backspace();
-		break;
-	    case Key_V: {			// paste
-		QString t = QApplication::clipboard()->text();
-		if ( !t.isEmpty() ) {
-		    int i = t.find( '\n' );	// no multiline text
-		    if ( i >= 0 )
-			t.truncate( i );
-		    uchar *p = (uchar *) t.data();
-		    while ( *p ) {		// unprintable becomes space
-			if ( *p < 32 )
-			    *p = 32;
-			p++;
-		    }
-		    if ( hasMarkedText() ) {
-			tbuf.remove( minMark(), maxMark() - minMark() );
-			cursorPos = minMark();
-			if ( cursorPos < offset )
-			    offset = cursorPos;
-		    }
-		    int tlen = t.length();
-		    int blen = tbuf.length();
-		    if ( tlen+blen >= maxLen ) {
-			if ( blen >= maxLen )
-			    break;
-			t.truncate( maxLen-tlen );
-		    }
-		    tbuf.insert( cursorPos, t );
-		    cursorRight( FALSE, tlen );
-		    emit textChanged( tbuf.data() );
-		}
-		}
-	    case Key_X:
-		if ( hasMarkedText() ) {
-		    copyText();
-		    del();
-		}
-		break;
-	    default:
-		unknown++;
+	    }
+	    break;
+	default:
+	    unknown++;
 	}
     } else {
 	switch ( e->key() ) {
-	    case Key_Left:
-		cursorLeft( e->state() & ShiftButton );
-		break;
-	    case Key_Right:
-		cursorRight( e->state() & ShiftButton );
-		break;
-	    case Key_Backspace:
-		backspace();
-		break;
-	    case Key_Home:
-		home( e->state() & ShiftButton );
-		break;
-	    case Key_End:
-		end( e->state() & ShiftButton );
-		break;
-	    case Key_Delete:
-		del();
-		break;
-	    default:
-		unknown++;
+	case Key_Left:
+	    cursorLeft( e->state() & ShiftButton );
+	    break;
+	case Key_Right:
+	    cursorRight( e->state() & ShiftButton );
+	    break;
+	case Key_Backspace:
+	    backspace();
+	    break;
+	case Key_Home:
+	    home( e->state() & ShiftButton );
+	    break;
+	case Key_End:
+	    end( e->state() & ShiftButton );
+	    break;
+	case Key_Delete:
+	    del();
+	    break;
+	default:
+	    unknown++;
 	}
     }
 
