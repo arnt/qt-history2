@@ -392,7 +392,7 @@ public:
 			delete [] (QUEnumItem*)uEnum->items;
 			delete uEnum;
 		    } else if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
-			int *vartype = (int*)param->typeExtra;
+			char *vartype = (char*)param->typeExtra;
 			delete vartype;
 		    } else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
 			char *type = (char*)param->typeExtra;
@@ -422,7 +422,7 @@ public:
 			delete [] (QUEnumItem*)uEnum->items;
 			delete uEnum;
 		    } else if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
-			int *vartype = (int*)param->typeExtra;
+			char *vartype = (char*)param->typeExtra;
 			delete vartype;
 		    } else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
 			char *type = (char*)param->typeExtra;
@@ -1169,19 +1169,19 @@ static inline void QStringToQUType( const QString& fulltype, QUParameter *param,
 	param->type = &static_QUType_QVariant;
     } else if ( type == "QColor" ) {
 	param->type = &static_QUType_varptr;
-	param->typeExtra = new int(QVariant::Color);
+	param->typeExtra = new char(QVariant::Color);
     } else if ( type == "QDateTime" ) {
 	param->type = &static_QUType_varptr;
-	param->typeExtra = new int(QVariant::DateTime);
+	param->typeExtra = new char(QVariant::DateTime);
     } else if ( type == "QFont" ) {
 	param->type = &static_QUType_varptr;
-	param->typeExtra = new int(QVariant::Font);
+	param->typeExtra = new char(QVariant::Font);
     } else if ( type == "QPixmap" ) {
 	param->type = &static_QUType_varptr;
-	param->typeExtra = new int(QVariant::Pixmap);
+	param->typeExtra = new char(QVariant::Pixmap);
     } else if ( type == "QValueList<QVariant>" ) {
 	param->type = &static_QUType_varptr;
-	param->typeExtra = new int(QVariant::List);
+	param->typeExtra = new char(QVariant::List);
     } else if ( enumDict[type] ) {
 	QMetaEnum *enumData = enumDict[type];
 	param->type = &static_QUType_enum;
@@ -2303,7 +2303,7 @@ QString QAxBase::generateDocumentation()
 		else if ( QUType::isEqual( &static_QUType_enum, param->type ) )
 		    returntype = ((QUEnum*)param->typeExtra)->name;
 		else if ( QUType::isEqual( &static_QUType_varptr, param->type ) ) {
-		    QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
+		    QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 		    returntype = QVariant::typeToName( vartype );
 		} else {
 		    returntype = param->type->desc();
@@ -2869,9 +2869,9 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 		if ( QUType::isEqual( retparam->type, &static_QUType_ptr ) )
 		    type = (const char*)retparam->typeExtra;
 		else if ( QUType::isEqual( retparam->type, &static_QUType_QVariant ) )
-		    type = QVariant::typeToName( (QVariant::Type)*(int*)retparam->typeExtra );
+		    type = QVariant::typeToName( (QVariant::Type)*(char*)retparam->typeExtra );
 		else if ( QUType::isEqual( retparam->type, &static_QUType_varptr ) )
-		    type = QVariant::typeToName( (QVariant::Type)*(int*)retparam->typeExtra );
+		    type = QVariant::typeToName( (QVariant::Type)*(char*)retparam->typeExtra );
 		else
 		    type = retparam->type->desc();
 	    }

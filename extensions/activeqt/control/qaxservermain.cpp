@@ -707,7 +707,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 
 #if QT_VERSION >= 0x030100
 		if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
-		    QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
+		    QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 		    QCString type = QVariant::typeToName( vartype );
 		    paramType = convertTypes( type, &ok );
 		} else 
@@ -817,7 +817,11 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		    paramType = convertTypes( type, &ok );
 		} else 
 #endif
-		    if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
+		if ( QUType::isEqual( param->type, &static_QUType_QVariant ) ) {
+		    QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
+		    QCString type = QVariant::typeToName( vartype );
+		    paramType = convertTypes( type, &ok );
+		} else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
 		    QCString type = (const char*)param->typeExtra;
 		    if ( type.right(1) == "&" )
 			type = type.left( type.length()-1 );
