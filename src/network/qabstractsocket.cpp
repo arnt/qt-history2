@@ -805,10 +805,8 @@ void QAbstractSocketPrivate::abortConnectionAttempt()
     qDebug("QAbstractSocketPrivate::abortConnectionAttempt() (timed out)");
 #endif
     d->writeSocketNotifier->setEnabled(false);
-    testConnection();
 
-    if (state != Qt::ConnectedState)
-        qInvokeMetaMember(q, "connectToNextAddress");
+    testConnection();
 }
 
 /*! \internal
