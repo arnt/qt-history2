@@ -14,13 +14,25 @@ class Q_GUI_EXPORT QToolBar : public QFrame
     Q_DECLARE_PRIVATE(QToolBar);
     Q_OBJECT
 
+    Q_PROPERTY(bool movable READ isMovable WRITE setMovable)
+    Q_PROPERTY(Qt::ToolBarAreaFlags allowedAreas READ allowedAreas WRITE setAllowedAreas)
     Q_PROPERTY(Qt::ToolBarArea area READ area WRITE setArea)
 
 public:
     QToolBar(QMainWindow *parent);
     ~QToolBar();
 
+    void setParent(QMainWindow *parent);
     QMainWindow *mainWindow() const;
+
+    void setMovable(bool movable = true);
+    bool isMovable() const;
+
+    void setAllowedAreas(Qt::ToolBarAreaFlags areas);
+    Qt::ToolBarAreaFlags allowedAreas() const;
+
+    void setArea(Qt::ToolBarArea area, bool linebreak = false);
+    Qt::ToolBarArea area() const;
 
     inline void addAction(QAction *action)
     { QWidget::addAction(action); }
@@ -42,13 +54,13 @@ public:
     QAction *addSeparator();
     QAction *insertSeparator(QAction *before);
 
-    Qt::ToolBarArea area() const;
-    void setArea(Qt::ToolBarArea area, bool linebreak = false);
 
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QToolBar(QMainWindow *parent, const char *name);
-    inline QT_COMPAT void setLabel(const QString &label) { setWindowTitle(label); }
-    inline QT_COMPAT QString label() const { return windowTitle(); }
+    inline QT_COMPAT void setLabel(const QString &label)
+    { setWindowTitle(label); }
+    inline QT_COMPAT QString label() const
+    { return windowTitle(); }
 #endif
 
 signals:

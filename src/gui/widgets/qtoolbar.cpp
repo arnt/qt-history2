@@ -224,11 +224,18 @@ class QToolBarPrivate : public QFramePrivate
 {
     Q_DECLARE_PUBLIC(QToolBar);
 public:
+    inline QToolBarPrivate()
+        : movable(true), allowedAreas(Qt::AllToolBarAreas), area(Qt::ToolBarAreaTop),
+          handle(0), extension(0)
+    { }
+
     void actionTriggered();
-    Qt::ToolBarArea area;
+
+    bool movable;
     Qt::ToolBarAreaFlags allowedAreas;
-    QToolBarExtension *extension;
+    Qt::ToolBarArea area;
     QToolBarHandle *handle;
+    QToolBarExtension *extension;
     void init();
 };
 
@@ -255,7 +262,7 @@ void QToolBarPrivate::init()
 QToolBar::QToolBar(QMainWindow *parent)
     : QFrame(*new QToolBarPrivate, parent)
 {
-    Q_ASSERT_X(parent != 0, "QMainWindow", "parent cannot be zero");
+    Q_ASSERT_X(parent != 0, "QToolBar", "parent cannot be zero");
     d->init();
 }
 
@@ -263,7 +270,7 @@ QToolBar::QToolBar(QMainWindow *parent)
 QToolBar::QToolBar(QMainWindow *parent, const char *name)
     : QFrame(*new QToolBarPrivate, parent)
 {
-    Q_ASSERT_X(parent != 0, "QMainWindow", "parent cannot be zero");
+    Q_ASSERT_X(parent != 0, "QToolBar", "parent cannot be zero");
     d->init();
     setObjectName(name);
 }
@@ -273,8 +280,95 @@ QToolBar::~QToolBar()
 {
 }
 
+void QToolBar::setParent(QMainWindow *parent)
+{ QFrame::setParent(parent); }
+
 QMainWindow *QToolBar::mainWindow() const
 { return qt_cast<QMainWindow *>(parentWidget()); }
+
+void QToolBar::setMovable(bool movable)
+{
+    d->movable = movable;
+    d->handle->setShown(d->movable);
+}
+
+bool QToolBar::isMovable() const
+{ return d->movable; }
+
+void QToolBar::setAllowedAreas(Qt::ToolBarAreaFlags areas)
+{ d->allowedAreas = (areas & Qt::ToolBarAreaMask); }
+
+Qt::ToolBarAreaFlags QToolBar::allowedAreas() const
+{ return d->allowedAreas; }
+
+void QToolBar::setArea(Qt::ToolBarArea area, bool linebreak)
+{
+    Q_ASSERT_X(((d->allowedAreas & area) == area),
+               "QToolBar::setArea", "specified 'area' is not an allowed area");
+
+    Q_ASSERT(parentWidget() && qt_cast<QMainWindowLayout *>(parentWidget()->layout()));
+    QMainWindowLayout *mainwin_layout = qt_cast<QMainWindowLayout *>(parentWidget()->layout());
+    mainwin_layout->add(this, area, linebreak);
+
+    int pos;
+    switch (area) {
+    case Qt::ToolBarAreaLeft:   pos = 0; break;
+    case Qt::ToolBarAreaRight:  pos = 1; break;
+    case Qt::ToolBarAreaTop:    pos = 2; break;
+    case Qt::ToolBarAreaBottom: pos = 3; break;
+    default:
+        Q_ASSERT(false);
+        break;
+    }
+
+    QBoxLayout *box = qt_cast<QBoxLayout *>(layout());
+    Q_ASSERT_X(box != 0, "QToolBar::setArea", "internal error");
+
+    switch (pos) {
+    case 0: // Left
+    case 1: // Right
+	box->setDirection(QBoxLayout::TopToBottom);
+	box->setAlignment(Qt::AlignTop);
+	d->extension->setOrientation(Qt::Vertical);
+	setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
+	break;
+
+    case 2: // Top
+    case 3: // Bottom
+	box->setDirection(QBoxLayout::LeftToRight);
+	box->setAlignment(Qt::AlignLeft);
+	d->extension->setOrientation(Qt::Horizontal);
+	setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
+	break;
+
+    default:
+	Q_ASSERT_X(false, "QToolBar::setArea", "internal error");
+    }
+
+    // change the orientation of any separators
+    QLayoutItem *item = 0;
+    int i = 0;
+    while ((item = box->itemAt(i++))) {
+	QToolBarSeparator *sep = qt_cast<QToolBarSeparator *>(item->widget());
+	if (sep) {
+	    if (box->direction() == QBoxLayout::LeftToRight
+		|| box->direction() == QBoxLayout::RightToLeft)
+		sep->setOrientation(Qt::Horizontal);
+	    else
+		sep->setOrientation(Qt::Vertical);
+	}
+    }
+
+    // if we're dragging - swap the offset coords around as well
+    if (d->handle->state) {
+	QPoint p = d->handle->state->offset;
+	d->handle->state->offset = QPoint(p.y(), p.x());
+    }
+    d->area = area;
+}
+
+Qt::ToolBarArea QToolBar::area() const
+{ return d->area; }
 
 QAction *QToolBar::addAction(const QString &text)
 {
@@ -463,74 +557,6 @@ void QToolBar::resizeEvent(QResizeEvent *)
 	    d->extension->menu()->clear();
 	d->extension->hide();
     }
-}
-
-Qt::ToolBarArea QToolBar::area() const
-{
-    return d->area;
-}
-
-void QToolBar::setArea(Qt::ToolBarArea area, bool linebreak)
-{
-    Q_ASSERT(parentWidget() && qt_cast<QMainWindowLayout *>(parentWidget()->layout()));
-    QMainWindowLayout *mainwin_layout = qt_cast<QMainWindowLayout *>(parentWidget()->layout());
-    mainwin_layout->add(this, area, linebreak);
-
-    int pos;
-    switch (area) {
-    case Qt::ToolBarAreaLeft:   pos = 0; break;
-    case Qt::ToolBarAreaRight:  pos = 1; break;
-    case Qt::ToolBarAreaTop:    pos = 2; break;
-    case Qt::ToolBarAreaBottom: pos = 3; break;
-    default:
-        Q_ASSERT(false);
-        break;
-    }
-
-    QBoxLayout *box = qt_cast<QBoxLayout *>(layout());
-    Q_ASSERT_X(box != 0, "QToolBar::setArea", "internal error");
-
-    switch (pos) {
-    case 0: // Left
-    case 1: // Right
-	box->setDirection(QBoxLayout::TopToBottom);
-	box->setAlignment(Qt::AlignTop);
-	d->extension->setOrientation(Qt::Vertical);
-	setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
-	break;
-
-    case 2: // Top
-    case 3: // Bottom
-	box->setDirection(QBoxLayout::LeftToRight);
-	box->setAlignment(Qt::AlignLeft);
-	d->extension->setOrientation(Qt::Horizontal);
-	setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
-	break;
-
-    default:
-	Q_ASSERT_X(false, "QToolBar::setArea", "internal error");
-    }
-
-    // change the orientation of any separators
-    QLayoutItem *item = 0;
-    int i = 0;
-    while ((item = box->itemAt(i++))) {
-	QToolBarSeparator *sep = qt_cast<QToolBarSeparator *>(item->widget());
-	if (sep) {
-	    if (box->direction() == QBoxLayout::LeftToRight
-		|| box->direction() == QBoxLayout::RightToLeft)
-		sep->setOrientation(Qt::Horizontal);
-	    else
-		sep->setOrientation(Qt::Vertical);
-	}
-    }
-
-    // if we're dragging - swap the offset coords around as well
-    if (d->handle->state) {
-	QPoint p = d->handle->state->offset;
-	d->handle->state->offset = QPoint(p.y(), p.x());
-    }
-    d->area = area;
 }
 
 #include "moc_qtoolbar.cpp"
