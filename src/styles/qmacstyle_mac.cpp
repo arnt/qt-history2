@@ -889,7 +889,7 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 {
     ThemeDrawState tds = kThemeStateActive;
     if(qAquaActive(cg)) {
-	if(!(flags & Style_Enabled))
+	if(!(flags & Style_Enabled)) 
 	    tds = kThemeStateUnavailable;
     } else if(flags & Style_Enabled) {
 	tds = kThemeStateInactive;
@@ -1010,7 +1010,7 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
     case CC_SpinWidget: {
 	QSpinWidget * sw = (QSpinWidget *) widget;
 	if((sub & SC_SpinWidgetDown) || (sub & SC_SpinWidgetUp)) {
-	    if(sw->isUpEnabled() || sw->isDownEnabled())
+	    if(!sw->isUpEnabled() && !sw->isDownEnabled())
 		tds = kThemeStateUnavailable;
 	    if(subActive == SC_SpinWidgetDown)
 		tds = kThemeStatePressedDown;

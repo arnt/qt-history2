@@ -220,8 +220,8 @@ void QSpinWidget::windowActivationChange( bool active )
 	d->stopTimer();
 	d->buttonDown = 0;
 	d->theButton = 0;
-	update();
     }    
+    QWidget::windowActivationChange(active);
 }
 
 
@@ -310,7 +310,7 @@ void QSpinWidget::paintEvent( QPaintEvent * )
     QPainter p( this );
 
     QStyle::SFlags flags = QStyle::Style_Default;
-    if (isEnabled())
+    if (isEnabled()) 
 	flags |= QStyle::Style_Enabled;
     if (hasFocus() || focusProxy() && focusProxy()->hasFocus())
 	flags |= QStyle::Style_HasFocus;
@@ -328,7 +328,7 @@ void QSpinWidget::paintEvent( QPaintEvent * )
 					QStyle::SC_SpinWidgetFrame ), this );
     style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
 				fr, colorGroup(),
-				QStyle::Style_Default,
+				flags,
 				QStyle::SC_All,
 				active );
 }
