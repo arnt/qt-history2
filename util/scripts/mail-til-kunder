@@ -53,8 +53,38 @@ foreach $line ( <CUSTOMERS> ) {
     print MAIL
 "Dear Qt customer, 
 
-Qt version 1.30 is now released, it is the next major release
-after 1.2. 
+Qt version 1.31 is now released, it is a bug fix release tith the
+following bugs fixed (compared to 1.30):
+
+Changing the font of a QButton, QPushButton, QCheckBox or QRadioButton now
+works correctly.
+
+QRadiobutton:    Correct toggling in a QButtonGroup when activated by an
+                 accelerator.
+
+QPopupMenu:      Items updated correctly when activated by an accelerator.
+
+QProgressBar:    Base color is no longer fixed to white.
+
+QProgressDialog: setLabel() and setCancelButton() now ensure that a given
+	         widget is shown and is a child of QProgressDialog.
+
+QWidget:         setEnabled( FALSE ) now moves focus correctly.
+
+QLineEdit and
+QMultiLineEdit:  In keyPressEvent() backspace no longer inserts an
+                 unprintable character with some rare keyboard layouts.
+
+QMenubar:        Mouse presses on items without any popup menu are now
+		 always recognized.
+
+Changes to fix compile problems under IRIX.
+
+Changes to fix compile problems on some versions of AIX.
+
+Changes to fix compile problems with aCC on HP-UX.
+
+Minor documentation fixes.
 ";
 
 
