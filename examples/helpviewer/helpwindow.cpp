@@ -242,14 +242,15 @@ void HelpWindow::print()
 	if( !p.isActive() ) // starting printing failed
 	    return;
 	QPaintDeviceMetrics metrics(p.device());
-	int dpix = metrics.logicalDpiX();
 	int dpiy = metrics.logicalDpiY();
-	const int margin = 72; // pt
-	QRect body(margin*dpix/72, margin*dpiy/72,
-		   metrics.width()-margin*dpix/72*2,
-		   metrics.height()-margin*dpiy/72*2 );
-	QSimpleRichText richText( browser->text(), QFont(), browser->context(), browser->styleSheet(),
-				  browser->mimeSourceFactory(), body.height() );
+	int margin = (int) ( (2/2.54)*dpiy ); // 2 cm margins
+	QRect body( margin, margin, metrics.width() - 2*margin, metrics.height() - 2*margin );
+	QSimpleRichText richText( browser->text(),
+				  QFont(),
+				  browser->context(),
+				  browser->styleSheet(),
+				  browser->mimeSourceFactory(),
+				  body.height() );
 	richText.setWidth( &p, body.width() );
 	QRect view( body );
 	int page = 1;

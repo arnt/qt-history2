@@ -31,6 +31,7 @@
 #include <qpaintdevicemetrics.h>
 #include <qwhatsthis.h>
 #include <qaction.h>
+#include <qsimplerichtext.h>
 #include <qevent.h>
 
 #include "filesave.xpm"
@@ -41,7 +42,7 @@
 ApplicationWindow::ApplicationWindow()
     : QMainWindow( 0, "example application main window", WDestructiveClose )
 {
-    printer = new QPrinter;
+    printer = new QPrinter( QPrinter::HighResolution );
 
     QAction * fileNewAction;
     QAction * fileOpenAction;
@@ -229,36 +230,40 @@ void ApplicationWindow::saveAs()
 
 void ApplicationWindow::print()
 {
-    const int Margin = 10;
-    int pageNo = 1;
-
+    printer->setFullPage( TRUE );
     if ( printer->setup(this) ) {		// printer dialog
 	statusBar()->message( "Printing..." );
 	QPainter p;
-	if( !p.begin( printer ) )              // paint on printer
-            return;
-
-	p.setFont( e->font() );
-	int yPos	= 0;			// y-position for each line
-	QFontMetrics fm = p.fontMetrics();
-	QPaintDeviceMetrics metrics( printer ); // need width/height
-						// of printer surface
-	for( int i = 0 ; i < e->lines() ; i++ ) {
-	    if ( Margin + yPos > metrics.height() - Margin ) {
-		QString msg( "Printing (page " );
-		msg += QString::number( ++pageNo );
-		msg += ")...";
-		statusBar()->message( msg );
-		printer->newPage();		// no more room on this page
-		yPos = 0;			// back to top of page
-	    }
-	    p.drawText( Margin, Margin + yPos,
-			metrics.width(), fm.lineSpacing(),
-			ExpandTabs | DontClip,
-			e->text( i ) );
-	    yPos = yPos + fm.lineSpacing();
+	if( !p.begin( printer ) ) {               // paint on printer
+	    statusBar()->message( "Printing aborted", 2000 );
+	    return;
 	}
-	p.end();				// send job to printer
+
+	QPaintDeviceMetrics metrics( p.device() );
+	int dpiy = metrics.logicalDpiY();
+	int margin = (int) ( (2/2.54)*dpiy ); // 2 cm margins
+	QRect body( margin, margin, metrics.width() - 2*margin, metrics.height() - 2*margin );
+	QSimpleRichText richText( QStyleSheet::convertFromPlainText(e->text()),
+				  QFont(),
+				  e->context(),
+				  e->styleSheet(),
+				  e->mimeSourceFactory(),
+				  body.height() );
+	richText.setWidth( &p, body.width() );
+  	QRect view( body );
+	int page = 1;
+	do {
+	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
+	    view.moveBy( 0, body.height() );
+	    p.translate( 0 , -body.height() );
+	    p.drawText( view.right() - p.fontMetrics().width( QString::number( page ) ),
+			view.bottom() + p.fontMetrics().ascent() + 5, QString::number( page ) );
+	    if ( view.top()  >= richText.height() )
+		break;
+	    printer->newPage();
+	    page++;
+	} while (TRUE);
+
 	statusBar()->message( "Printing completed", 2000 );
     } else {
 	statusBar()->message( "Printing aborted", 2000 );

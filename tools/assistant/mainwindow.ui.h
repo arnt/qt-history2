@@ -287,11 +287,9 @@ void MainWindow::goHome()
 
 void MainWindow::print()
 {
-    QPrinter printer;
+    QPrinter printer( QPrinter::HighResolution );
     printer.setFullPage( TRUE );
     if ( printer.setup( this ) ) {
-	QPaintDeviceMetrics screen( this );
-	printer.setResolution( screen.logicalDpiY() );
 	QPainter p;
 	if ( !p.begin( &printer ) )
 	    return;
@@ -301,12 +299,12 @@ void MainWindow::print()
 
 	QPaintDeviceMetrics metrics(p.device());
 	QTextBrowser *browser = tabs->currentBrowser();
-	int dpix = metrics.logicalDpiX();
 	int dpiy = metrics.logicalDpiY();
-	const int margin = 72; // pt
-	QRect body( margin*dpix/72, margin*dpiy/72,
-		    metrics.width()-margin*dpix/72*2,
-		    metrics.height()-margin*dpiy/72*2 );
+	int margin = (int) ( (2/2.54)*dpiy );
+	QRect body( margin,
+		    margin,
+		    metrics.width() - 2 * margin,
+		    metrics.height() - 2 * margin );
 	QSimpleRichText richText( browser->text(), browser->QWidget::font(), browser->context(), browser->styleSheet(),
 				  browser->mimeSourceFactory(), body.height(),
 				  Qt::black, FALSE );

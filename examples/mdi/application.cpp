@@ -35,6 +35,7 @@
 #include <qpaintdevicemetrics.h>
 #include <qwhatsthis.h>
 #include <qvbox.h>
+#include <qsimplerichtext.h>
 
 #include "filesave.xpm"
 #include "fileopen.xpm"
@@ -72,7 +73,7 @@ ApplicationWindow::ApplicationWindow()
 			   this, SLOT(save()), fileTools, "save file" );
 
 #ifndef QT_NO_PRINTER
-    printer = new QPrinter;
+    printer = new QPrinter( QPrinter::HighResolution );
     QPixmap printIcon;
 
     printIcon = QPixmap( fileprint );
@@ -399,38 +400,42 @@ void MDIWindow::saveAs()
 void MDIWindow::print( QPrinter* printer)
 {
 #ifndef QT_NO_PRINTER
-    const int Margin = 10;
     int pageNo = 1;
 
     if ( printer->setup(this) ) {		// printer dialog
+        printer->setFullPage( TRUE );
 	emit message( "Printing...", 0 );
 	QPainter p;
 	if ( !p.begin( printer ) )
 	    return;				// paint on printer
-	p.setFont( medit->font() );
-	int yPos        = 0;			// y position for each line
-	QFontMetrics fm = p.fontMetrics();
-	QPaintDeviceMetrics metrics( printer ); // need width/height
-	// of printer surface
-	for( int i = 0 ; i < medit->numLines() ; i++ ) {
-	    if ( Margin + yPos > metrics.height() - Margin ) {
-		QString msg( "Printing (page " );
-		msg += QString::number( ++pageNo );
-		msg += ")...";
-		emit message( msg, 0 );
-		printer->newPage();		// no more room on this page
-		yPos = 0;			// back to top of page
-	    }
-	    p.drawText( Margin, Margin + yPos,
-			metrics.width(), fm.lineSpacing(),
-			ExpandTabs | DontClip,
-			medit->textLine( i ) );
-	    yPos = yPos + fm.lineSpacing();
-	}
-	p.end();				// send job to printer
-	emit message( "Printing completed", 2000 );
-    } else {
-	emit message( "Printing aborted", 2000 );
+	QPaintDeviceMetrics metrics( p.device() );
+	int dpiy = metrics.logicalDpiY();
+	int margin = (int) ( (2/2.54)*dpiy ); // 2 cm margins
+	QRect body( margin, margin, metrics.width() - 2*margin, metrics.height() - 2*margin );
+	QSimpleRichText richText( QStyleSheet::convertFromPlainText(medit->text()),
+				  QFont(),
+				  medit->context(),
+				  medit->styleSheet(),
+				  medit->mimeSourceFactory(),
+				  body.height() );
+	richText.setWidth( &p, body.width() );
+  	QRect view( body );
+	int page = 1;
+	do {
+	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
+	    view.moveBy( 0, body.height() );
+	    p.translate( 0 , -body.height() );
+	    p.drawText( view.right() - p.fontMetrics().width( QString::number( page ) ),
+			view.bottom() + p.fontMetrics().ascent() + 5, QString::number( page ) );
+	    if ( view.top()  >= richText.height() )
+		break;
+	    QString msg( "Printing (page " );
+	    msg += QString::number( ++pageNo );
+	    msg += ")...";
+	    emit message( msg, 0 );
+	    printer->newPage();
+	    page++;
+	} while (TRUE);
     }
 #endif
 }
