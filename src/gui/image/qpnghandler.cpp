@@ -18,6 +18,7 @@
 #include <qlist.h>
 #include <qcoreapplication.h>
 #include <qvariant.h>
+#include <qvector.h>
 
 #include <png.h>
 

@@ -14,6 +14,7 @@
 #include "private/qbmphandler_p.h"
 
 #include <qimage.h>
+#include <qvector.h>
 
 static void swapPixel01(QImage *image)        // 1-bpp: swap 0 and 1 pixels
 {

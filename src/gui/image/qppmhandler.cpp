@@ -14,6 +14,7 @@
 #include "private/qppmhandler_p.h"
 #include <qimage.h>
 #include <qvariant.h>
+#include <qvector.h>
 #include <ctype.h>
 
 /*****************************************************************************
