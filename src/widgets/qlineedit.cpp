@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#2 $
 **
 ** Implementation of QLineEdit class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#2 $";
 #endif
 
 
@@ -233,6 +233,7 @@ bool QLineEdit::keyPressEvent( QKeyEvent *k )
 
     if ( p )
 	paint();
+    return TRUE;
 }
 
 
@@ -321,13 +322,10 @@ void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
 		      LEFT_MARGIN, TOP_MARGIN,
 		      sz.width()  - LEFT_MARGIN - RIGHT_MARGIN + 1,
 		      sz.height() - TOP_MARGIN - BOTTOM_MARGIN + 1) );
-    p->setClipping( TRUE );
 
     int tDispWidth = sz.width() - LEFT_MARGIN - RIGHT_MARGIN;
-
-    int displayLength = xPosToCursorPos(displayText, font(),
-			    sz.width() - LEFT_MARGIN - RIGHT_MARGIN,
-			    sz.width() - LEFT_MARGIN - RIGHT_MARGIN);
+    int displayLength = xPosToCursorPos( displayText, font(),
+					 tDispWidth, tDispWidth );
     if ( displayText[ displayLength ] != '\0' )
 	displayLength++;
 
