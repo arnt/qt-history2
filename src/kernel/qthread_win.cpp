@@ -118,7 +118,13 @@ public:
 };
 
 static QIntDict<QThreadPrivate> *threadDict = 0;
-static QCriticalSection *dictSection = 0;
+static QCriticalSection *dictSection_ = 0;
+static QCriticalSection *dictSection()
+{
+    if ( !dictSection_ )
+	dictSection_ = new QCriticalSection();
+    return dictSection_;
+}
 
 #if defined(Q_C_CALLBACKS)
 extern "C"
@@ -132,9 +138,6 @@ static unsigned int __stdcall start_thread(void* that )
 
 QThreadPrivate::QThreadPrivate()
 {
-    if ( !dictSection )
-	dictSection = new QCriticalSection();
-
     handle = 0;
     id = 0;
     running = FALSE;
@@ -153,20 +156,16 @@ QThreadPrivate::~QThreadPrivate()
 	qSystemWarning("Thread destroy failure");
 #endif
     }
-    if ( dictSection && !threadDict ) {
-	delete dictSection;
-	dictSection = 0;
-    }
 }
 
 void QThreadPrivate::internalRun( QThread* that )
 {
     QThreadPrivate *d = that->d;
-    dictSection->enter();
+    dictSection()->enter();
     if ( !threadDict )
 	threadDict = new QIntDict<QThreadPrivate>();
     threadDict->insert( d->id, d );
-    dictSection->leave();
+    dictSection()->leave();
 
     d->running = TRUE;
     d->finished = FALSE;
@@ -174,14 +173,12 @@ void QThreadPrivate::internalRun( QThread* that )
     d->finished = TRUE;
     d->running = FALSE;
 
-    dictSection->enter();
-    threadDict->remove( d->id );
-    if ( !threadDict->count() ) {
-	delete threadDict;
-	threadDict = 0;
+    dictSection()->enter();
+    if ( threadDict ) {
+	threadDict->remove( d->id );
     }
     d->id = 0;
-    dictSection->leave();
+    dictSection()->leave();
 
     if ( d->deleted )
 	delete d;
@@ -223,13 +220,13 @@ void QThread::postEvent( QObject *o,QEvent *e )
 void QThread::exit()
 {
     DWORD id = GetCurrentThreadId();
-    dictSection->enter();
+    dictSection()->enter();
     QThreadPrivate *that = threadDict->take( id );
     if ( !threadDict->count() ) {
 	delete threadDict;
 	threadDict = 0;
     }
-    dictSection->leave();
+    dictSection()->leave();
 
     if ( that ) {
 	that->running = FALSE;
@@ -264,11 +261,18 @@ QThread::QThread()
 
 QThread::~QThread()
 {
-    if ( dictSection ) {
-	dictSection->enter();
-	if ( threadDict )
-	    threadDict->remove( d->id );
-	dictSection->leave();
+    if ( threadDict ) {
+	dictSection()->enter();
+	threadDict->remove( d->id );
+	dictSection()->leave();
+	if ( !threadDict->count() ) {
+	    delete threadDict;
+	    threadDict = 0;
+	}
+    }
+    if ( dictSection_ && !threadDict ) {
+	delete dictSection_;
+	dictSection_ = 0;
     }
 
     if( d->running && !d->finished ) {
