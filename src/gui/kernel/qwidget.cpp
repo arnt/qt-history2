@@ -3625,6 +3625,9 @@ void QWidget::show()
     if (testWState(Qt::WState_ExplicitShowHide|Qt::WState_Hidden) == Qt::WState_ExplicitShowHide)
         return;
 
+    bool wasResized = testAttribute(Qt::WA_Resized);
+    uint initialWindowState = windowState();
+
     if (isTopLevel()
         && !testAttribute(Qt::WA_SetWindowIcon)
         && (!d->extra || !d->extra->topextra || !d->extra->topextra->icon))
@@ -3657,13 +3660,12 @@ void QWidget::show()
 #endif
 
     // adjust size if necessary
-    if (!testAttribute(Qt::WA_Resized)
+    if (!wasResized
         && (isTopLevel() || !parentWidget()->d->layout))  {
         if (isTopLevel()) {
-            uint state = windowState();
             adjustSize();
-            if (windowState() != state)
-                setWindowState(state);
+            if (windowState() != initialWindowState)
+                setWindowState(initialWindowState);
         } else {
             adjustSize();
         }
