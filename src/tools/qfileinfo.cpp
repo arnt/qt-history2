@@ -472,3 +472,4 @@ bool QFileInfo::convertToAbs()
     return QDir::isRelativePath( fn );
 }
 #endif
+

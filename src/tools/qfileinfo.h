@@ -103,6 +103,7 @@ public:
     bool	isFile()	const;
     bool	isDir()		const;
     bool	isSymLink()	const;
+    bool        isShortcut()    const;
 
     QString	readLink()	const;
 
@@ -122,7 +123,7 @@ private:
     void	doStat() const;
     static void slashify( QString & );
     static void makeAbs( QString & );
-
+    
     QString	fn;
     QFileInfoCache *fic;
     bool	cache;

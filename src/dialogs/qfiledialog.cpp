@@ -3137,9 +3137,9 @@ void QFileDialog::okClicked()
     QString fn( nameEdit->text() );
     
 #if defined(Q_WS_WIN)
-    if ( fn.length() > 3 && fn.right( 4 ) == ".lnk" ) {
-        fn = resolveShortcut( d->url.path() + fn );
-        nameEdit->setText( fn );
+    QFileInfo fi( d->url.path() + fn );
+    if ( fi.isShortcut() ) {
+        nameEdit->setText( fi.readLink() );
     }
 #endif
 
@@ -3549,9 +3549,9 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 	return;
 
 #if defined(Q_WS_WIN)
-    if ( newItem->text(0).length() > 3 && newItem->text(0).right( 4 ) == ".lnk" ) {
-        QString fn = resolveShortcut( d->url.path() + newItem->text(0) );
-        nameEdit->setText( fn );
+    QFileInfo fi( d->url.path() + newItem->text(0) );
+    if ( fi.isShortcut() ) {
+        nameEdit->setText( fi.readLink() ); 
         okClicked();
         return;
     }
@@ -5486,18 +5486,6 @@ void QFileDialog::goBack()
     if ( d->history.count() < 2 )
 	d->goBack->setEnabled( FALSE );
     setUrl( d->history.last() );
-}
-
-/*!
-  This static function can be used to resolve a Windows shortcut file (.lnk).
-  It is only available for Windows users.
-*/
-
-QString QFileDialog::resolveShortcut( const QString& linkfile )
-{
-#if defined(Q_WS_WIN)
-    return resolveLinkFile( linkfile );
-#endif
 }
 
 // a class with wonderfully inflexible flexibility. why doesn't it

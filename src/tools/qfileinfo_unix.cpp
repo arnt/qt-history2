@@ -422,3 +422,8 @@ QString QFileInfo::absFilePath() const
 
 }
 #endif
+
+bool QFileInfo::isShortcut() const
+{
+    return FALSE;
+}

@@ -133,8 +133,6 @@ public:
     static void setIconProvider( QFileIconProvider * );
     static QFileIconProvider * iconProvider();
 
-    static QString resolveShortcut( const QString& );
-
     // non-static function for special needs
 
     QString selectedFile() const;

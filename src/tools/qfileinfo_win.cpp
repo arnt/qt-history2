@@ -43,7 +43,9 @@
 #include <windows.h>
 #include <direct.h>
 #include <tchar.h>
-
+#include <objbase.h>
+#include <shlobj.h>
+#include <initguid.h>
 
 static QString currentDirOfDrive( char ch )
 {
@@ -110,13 +112,60 @@ bool QFileInfo::isSymLink() const
     return FALSE;
 }
 
+/*!
+  This function returns TRUE if the file is a Windows shortcut file
+*/
+
+bool QFileInfo::isShortcut() const
+{
+    if ( fn.right( 4 ) == ".lnk" )
+        return TRUE;
+    else
+        return FALSE;
+}
 
 QString QFileInfo::readLink() const
 {
-    QString r;
-    return r;
-}
+    IShellLink *psl;                            // pointer to IShellLink i/f
+    HRESULT hres;
+    WIN32_FIND_DATA wfd;
+    QString fileLinked = fn;
+    char szGotPath[MAX_PATH];
+    // Get pointer to the IShellLink interface.
 
+    hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+                                IID_IShellLink, (LPVOID *)&psl);
+
+    if (SUCCEEDED(hres)) {    // Get pointer to the IPersistFile interface.
+        IPersistFile *ppf;
+        hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
+        if (SUCCEEDED(hres))  {
+            WORD wsz[MAX_PATH];
+
+            // Ensure string is Unicode.
+            MultiByteToWideChar(CP_ACP, 0, fn.latin1(), -1, wsz, MAX_PATH);
+
+            hres = ppf->Load(wsz, STGM_READ);
+            if (SUCCEEDED(hres)) {        // Resolve the link.
+
+                hres = psl->Resolve(0, SLR_ANY_MATCH);
+
+                if (SUCCEEDED(hres)) {
+                    qstrcpy(szGotPath, fn.latin1());
+
+                    hres = psl->GetPath((TCHAR*)szGotPath, MAX_PATH,
+                                (WIN32_FIND_DATA *)&wfd, SLGP_SHORTPATH);
+
+                    fileLinked = qt_winQString(szGotPath);
+                    
+                }
+            }
+            ppf->Release();
+        }
+        psl->Release();
+    }
+    return fileLinked;
+}
 
 
 QString QFileInfo::owner() const
