@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#38 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -218,9 +218,11 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe )
     //if ( !w->neveHadAChildWithDropEventsOn() )
 	//return; // haven't been set up for dnd
 
+    qt_xdnd_target_answerwas = FALSE;
+
     const long *l = xe->xclient.data.l;
     int version = (int)(((unsigned long)(l[1])) >> 24);
-
+    
     if ( version > 2 )
 	return;
 
@@ -243,7 +245,7 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe )
 void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 {
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
-
+    
     QPoint p( (l[2] & 0xffff0000) >> 16, l[2] & 0x0000ffff );
     QWidget * c = find_child( w, p );
 
@@ -269,6 +271,7 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
     QDragMoveEvent me( p );
 
     if ( qt_xdnd_current_widget != c ) {
+	qt_xdnd_target_answerwas = FALSE;
 	if ( qt_xdnd_current_widget ) {
 	    QDragLeaveEvent e;
 	    QApplication::sendEvent( qt_xdnd_current_widget, &e );
@@ -288,20 +291,20 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 
     if ( !c->acceptDrops() ) {
 	qt_xdnd_current_widget = 0;
-	return;
+	answerRect = QRect( p, QSize( 1, 1 ) );
+    } else {
+	qt_xdnd_current_widget = c;
+	qt_xdnd_current_position = p;
+	qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
+
+	QApplication::sendEvent( c, &me );
+	qt_xdnd_target_answerwas = me.isAccepted();
+	if ( me.isAccepted() )
+	    response.data.l[1] = 1; // yess!!!!
+	else
+	    response.data.l[0] = 0;
+	answerRect = me.answerRect().intersect( c->rect() );
     }
-
-    qt_xdnd_current_widget = c;
-    qt_xdnd_current_position = p;
-    qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
-
-    QApplication::sendEvent( c, &me );
-    qt_xdnd_target_answerwas = me.isAccepted();
-    if ( me.isAccepted() )
-	response.data.l[1] = 1; // yess!!!!
-    else
-	response.data.l[0] = 0;
-    answerRect = me.answerRect().intersect( c->rect() );
     answerRect = QRect( c->mapToGlobal( answerRect.topLeft() ),
 			answerRect.size() );
 
@@ -332,7 +335,6 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 
 void qt_handle_xdnd_status( QWidget * w, const XEvent * xe )
 {
-
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
     QDragResponseEvent e( (int)(l[1] & 1) );
     QApplication::sendEvent( w, &e );
@@ -340,11 +342,10 @@ void qt_handle_xdnd_status( QWidget * w, const XEvent * xe )
     QPoint p( (l[2] & 0xffff0000) >> 16, l[2] & 0x0000ffff );
     QSize s( (l[3] & 0xffff0000) >> 16, l[3] & 0x0000ffff );
     if ( s.width() < 4096 && s.height() < 4097 &&
-	 s.width() > 0 && s.height() > 0 ) {
+	 s.width() > 0 && s.height() > 0 )
 	qt_xdnd_source_sameanswer = QRect( p, s );
-    }
     else
-	qt_xdnd_source_sameanswer = QRect( p, QSize( 1, 1 ) );
+	qt_xdnd_source_sameanswer = QRect();
 }
 
 
@@ -543,8 +544,9 @@ void QDragManager::move( const QPoint & globalPos )
 {
     if ( qt_xdnd_source_sameanswer.contains( globalPos ) &&
 	 qt_xdnd_source_sameanswer.isValid() &&
-	 !qt_xdnd_source_sameanswer.isEmpty() ) // ### probably unnecessary
+	 !qt_xdnd_source_sameanswer.isEmpty() ) { // ### probably unnecessary
 	return;
+    }
 
     Window target = 0;
     int lx = 0, ly = 0;
@@ -560,7 +562,6 @@ void QDragManager::move( const QPoint & globalPos )
 
     if ( target == 0 )
 	target = qt_xrootwin();
-
 
     QWidget * w = QWidget::find( (WId)target );
 
