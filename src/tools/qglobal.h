@@ -39,8 +39,8 @@
 #define QGLOBAL_H
 
 
-#define QT_VERSION	300
-#define QT_VERSION_STR	"3.0.0-snapshot"
+#define QT_VERSION       300
+#define QT_VERSION_STR   "3.0.0-snapshot"
 
 
 //
@@ -434,7 +434,7 @@ typedef	__int64			Q_LONG;		// word up to 64 bit signed
 typedef unsigned __int64	Q_ULONG;	// word up to 64 bit unsigned
 #else
 // LP64 64-bit model on Linux
-typedef long			Q_LONG;		
+typedef long			Q_LONG;
 typedef unsigned long		Q_ULONG;
 #endif
 
