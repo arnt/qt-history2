@@ -75,6 +75,8 @@ if ( $#fromBranchFiles == -1 ) {
 $targetBranch{"qt-3.0"} = "3.1";
 $targetBranch{"qt-3.1"} = "main";
 $targetBranch{"qtopia-1"} = "main";
+$targetBranch{"qtest-main"} = "stable";
+$targetBranch{"qtest-stable"} = "main";
 
 $product = $pathComponents[3];
 $fromBranch = $pathComponents[4];
