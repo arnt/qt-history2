@@ -83,7 +83,7 @@ class Q_CORE_EXPORT QCoreVariant
     inline QCoreVariant();
     inline ~QCoreVariant();
     inline QCoreVariant(Type type);
-    inline QCoreVariant(Type type, void *v);
+    inline QCoreVariant(Type type, const void *v);
     inline QCoreVariant(const QCoreVariant &other);
 
 #ifndef QT_NO_DATASTREAM
@@ -247,7 +247,7 @@ protected:
 template <typename T>
 void qVariantSet(QCoreVariant &v, const T &t, const char *typeName)
 {
-    v = QCoreVariant((QCoreVariant::Type)qRegisterMetaType<T>(typeName), (void*)&t); //FIXME
+    v = QCoreVariant(QCoreVariant::Type(qRegisterMetaType<T>(typeName)), &t);
 }
 
 template <typename T>
@@ -268,7 +268,7 @@ inline QCoreVariant::~QCoreVariant()
 { if (!--d->ref) cleanUp(d); }
 inline QCoreVariant::QCoreVariant(Type type)
 { d = create(type, 0); }
-inline QCoreVariant::QCoreVariant(Type type, void *v)
+inline QCoreVariant::QCoreVariant(Type type, const void *v)
 { d = create(type, v); d->is_null = false; }
 inline QCoreVariant::QCoreVariant(const QCoreVariant &p) : d(p.d)
 { ++d->ref; }
