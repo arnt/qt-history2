@@ -61,6 +61,11 @@
 
 #include "qt_x11.h"
 
+#if !defined(QT_NO_XFTFREETYPE) && defined(QT_NO_XFTNAMEUNPARSE)
+Bool XftNameUnparse (XftPattern *, char *, int);
+#endif
+
+
 // #define QFONTLOADER_DEBUG
 // #define QFONTLOADER_DEBUG_VERBOSE
 
@@ -2290,8 +2295,8 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 	if (name.isNull()) {
 	    // no font name... this can only happen with Unicode
-	    //qDebug("QFontLoader: no font name - this must be unicode (%d %s)",
-	    //script, script_table[script].list[script_table[script].index]);
+	    // qDebug("QFontLoader: no font name - this must be unicode (%d %s)",
+	    // script, script_table[script].list[script_table[script].index]);
 
 	    name = k + "NU";
 	}
