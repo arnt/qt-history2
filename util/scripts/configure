@@ -225,13 +225,13 @@ UNAME_SYSTEM=`(uname -s) 2>/dev/null` || UNAME_SYSTEM=unknown
 UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
 
 ARCH=""
-if [ -f configs/linux-x86-g++-shared ]
+if [ -f configs/linux-generic-g++-shared ]
 then
     # This is a Qt/Embedded distribution
-    PLATFORMS="linux-mips-g++ linux-x86-g++"
+    PLATFORMS="linux-generic-g++ linux-mips-g++ linux-x86-g++"
     case "$UNAME_MACHINE" in
      *86) ARCH=x86-
-    ;; *) continue
+    ;; *) ARCH=generic-
     esac
 else
     ##### Generate?  Look in configs/?

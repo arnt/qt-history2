@@ -33,8 +33,8 @@ static char ident[] = "$Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $";
 The installation procedure is different for the different Qt platforms:
 
 <ul>
- <li><a href=install-x11.html>X11 - the UNIX GUI</a>
- <li><a href=install-win.html>Windows - the Microsoft GUI</a>
+ <li><a href=install-x11.html>Qt/X11 - the UNIX GUI</a>
+ <li><a href=install-win.html>Qt/Windows - the Microsoft GUI</a>
  <li><a href=install-qws.html>Qt/Embedded - the light-weight GUI for embedded devices</a>
 </ul>
 */

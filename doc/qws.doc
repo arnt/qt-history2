@@ -27,16 +27,17 @@ to be modified for other platforms.
 </pre>
 
 <p>
-For platforms other than Linux/x86, you may need to to add options
-to <tt>configure</tt> to specify the platform to build <i>on</i> and the
-platform to build <i>for</i>. To build on Linux/x86 for the Linux/MIPSEL
-target, you would use:
+The configuration system is designed to allow platform-specific options
+to be added, but in general all Linux system which have framebuffer
+support can use the "linux-generic-g++" platform.
+The configuration system also supports cross-compilers:
+to build <i>on</i> Linux/x86 <i>for</i> the Linux/MIPSEL target, you would use:
 <pre>
 	./configure -platform linux-x86-g++ -xplatform linux-mips-g++
 </pre>
 <p>
-Only a small number of configurations are predefined. Porting to new
-Linux platforms is a trivial matter - see the files in <tt>configs/</tt>.
+Only a small number of configurations are predefined, all much the same.
+Configurations files are found in <tt>configs/</tt>.
 
 <h3> Enable framebuffer support</h3>
 

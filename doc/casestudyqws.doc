@@ -29,7 +29,7 @@
 
 This document describes the steps involved in installing Linux on an embedded
 device and building a Qt/Embedded application.  The target device is the
-Cassiopeia E-100/E-105.  The device has a mips vr4121 processor, 16MB RAM
+Cassiopeia E-100/E-105.  The device has a MIPS Vr4121 processor, 16MB RAM
 (32MB in E-105), a Compact Flash slot and a 240x320 16 bit per pixel LCD
 display.
 <p>

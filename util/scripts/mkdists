@@ -444,14 +444,14 @@ for $platform ( "x11", "qws" ) {
 
     # tar up the two supplementals
 
-    chdir( "$distdir/$platform-free" );
-    system( "tar cf ../qt-$platformname-$version$type.tar ." );
+    chdir( "$distdir/$platform-free" ) if $platform eq "x11";
+    system( "tar cf ../qt-$platformname-$version$type.tar ." ) if $platform eq "x11";
     chdir( "$distdir/$platform-commercial" );
     system( "tar cf ../qt-$platformname-$version$type-commercial.tar ." );
 
     # then run tar for real, on the unix tree.
     chdir( "$distdir/$platform" );
-    open( "TAR1$platformname", "tar rf ../qt-$platformname-$version$type.tar . |" );
+    open( "TAR1$platformname", "tar rf ../qt-$platformname-$version$type.tar . |" ) if $platform eq "x11";
     open( "TAR2$platformname", "tar rf ../qt-$platformname-$version$type-commercial.tar . |" );
     # those will run in the background, accessing the same files at the
     # same time, mostly.  later, we'll compress.
@@ -615,10 +615,10 @@ if (!$notplatform{win}) {
 for $platform ( "x11", "embedded" ) {
     next if $notplatform{$platform};
 
-    close "TAR1$platform";
+    close "TAR1$platform" if $platform eq "x11";
     close "TAR2$platform";
 
-    system( "gzip -9 $distdir/qt-$platform-$version$type.tar" );
+    system( "gzip -9 $distdir/qt-$platform-$version$type.tar" ) if $platform eq "x11";
     system( "gzip -9 $distdir/qt-$platform-$version$type-commercial.tar" );
 }
 
