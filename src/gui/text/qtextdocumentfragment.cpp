@@ -604,21 +604,37 @@ bool QTextHTMLImporter::closeTag(int i)
 
 void QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
 {
+    // ### spans
     table->columns = 0;
+
+    QList<int> constraintTypes;
+    QList<int> constraintValues;
+
+    bool inFirstRow = true;
     foreach (int row, at(tableNodeIdx).children) {
         if (at(row).tag == QLatin1String("tr")) {
-
             int colsInRow = 0;
+
             foreach (int cell, at(row).children)
-                if (at(cell).isTableCell)
+                if (at(cell).isTableCell) {
                     ++colsInRow;
 
+                    if (inFirstRow || colsInRow > constraintTypes.count()) {
+                        Q_ASSERT(colsInRow == constraintTypes.count() + 1);
+
+                        constraintTypes << at(cell).tableColConstraint;
+                        constraintValues << at(cell).tableColConstraintValue;
+                    }
+                }
+
             table->columns = qMax(table->columns, colsInRow);
+            inFirstRow = false;
         }
     }
 
     QTextTableFormat fmt = d->formatCollection.objectFormat(table->tableIndex).toTableFormat();
     fmt.setColumns(table->columns);
+    fmt.setTableColumConstraints(constraintTypes, constraintValues);
     d->formatCollection.setObjectFormat(table->tableIndex, fmt);
 }
 

@@ -438,7 +438,8 @@ QTextHtmlParserNode::QTextHtmlParserNode()
       fontItalic(false), fontUnderline(false), fontOverline(false), fontStrikeOut(false), fontFixedPitch(false),
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), fontPointSize(DefaultFontSize),
       fontWeight(QFont::Normal), alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
-      imageWidth(-1), imageHeight(-1), wsm(WhiteSpaceModeUndefined)
+      imageWidth(-1), imageHeight(-1), tableColConstraint(QTextTableFormat::VariableLength), tableColConstraintValue(0), 
+      wsm(WhiteSpaceModeUndefined)
 {
     margin[QTextHtmlParser::MarginLeft] = 0;
     margin[QTextHtmlParser::MarginRight] = 0;
@@ -1031,6 +1032,25 @@ void QTextHtmlParser::parseAttributes()
         } else if (node->id == Html_tr) {
             if (key == QLatin1String("bgcolor"))
                 node->bgColor.setNamedColor(value);
+        } else if (node->isTableCell) {
+            if (key == "width") {
+                bool ok = false;
+                int val = value.toInt(&ok);
+                if (ok) {
+                    node->tableColConstraint = QTextTableFormat::FixedLength;
+                    node->tableColConstraintValue = val;
+                } else {
+                    value = value.trimmed();
+                    if (!value.isEmpty() && value.at(value.length() - 1) == QLatin1Char('%')) {
+                        value.chop(1);
+                        val = value.toInt(&ok);
+                        if (ok) {
+                            node->tableColConstraint = QTextTableFormat::PercentageLength;
+                            node->tableColConstraintValue = val;
+                        }
+                    }
+                }
+            }
         }
 
         if (key == QLatin1String("style")) {

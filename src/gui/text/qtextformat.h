@@ -102,6 +102,8 @@ public:
         FramePadding = 0x4082,
         Width = 0x4100,
         Height = 0x4101,
+        TableColumnConstraints = 0x4280,
+        TableColumnConstraintValues = 0x4281,
 
         // table cell properties
         TableCellRowSpan = 0x4810,
@@ -440,14 +442,25 @@ public:
 class Q_GUI_EXPORT QTextTableFormat : public QTextFrameFormat
 {
 public:
+    enum TableColumnConstraint { FixedLength = 0, VariableLength, PercentageLength };
+
     inline QTextTableFormat() : QTextFrameFormat() { setObjectType(TableObject); }
 
-    bool isValid() const { return isTableFormat(); }
+    inline bool isValid() const { return isTableFormat(); }
 
-    int columns() const
+    inline int columns() const
     { return intProperty(TableColumns, 1); }
-    void setColumns(int columns)
+    inline void setColumns(int columns)
     { setProperty(TableColumns, columns, 1); }
+
+    inline void setTableColumConstraints(const QList<int> &constraintTypes, const QList<int> &values)
+    {
+        setProperty(TableColumnConstraints, constraintTypes);
+        setProperty(TableColumnConstraintValues, values);
+    }
+
+    inline QList<int> tableColumnConstraintTypes() const { return intListProperty(TableColumnConstraints); }
+    inline QList<int> tableColumnConstraintValues() const { return intListProperty(TableColumnConstraintValues); }
 };
 
 #endif

@@ -591,20 +591,68 @@ void QTextDocumentLayoutPrivate::setTableWidths(QTextTable *table)
 {
     // layout frame has already set contents width and relayouted child frames
 
-    int columns = table->columns();
+    const int columns = table->columns();
     QTextTableData *td = static_cast<QTextTableData *>(data(table));
 
     // ### fix padding
-    int margin = td->margin + td->border;
+    const int margin = td->margin + td->border;
+
+    QTextTableFormat fmt = table->format();
+    const QList<int> constraints = fmt.tableColumnConstraintTypes();
+    const QList<int> constraintValues = fmt.tableColumnConstraintValues();
+
+    Q_ASSERT(constraints.count() == columns);
+    Q_ASSERT(constraintValues.count() == columns);
 
     // #### calculate real width
-    int w = td->contentsWidth - (columns-1)*td->border;
+    int totalWidth = td->contentsWidth - (columns-1)*td->border;
     td->widths.resize(columns);
+
+    td->widths.fill(0);
+
+    // set fixed values, figure out total percentages used and number of
+    // variable length cells
+    int totalPercentage = 0;
+    int variableCols = 0;
+    for (int i = 0; i < columns; ++i)
+        if (constraints.at(i) == QTextTableFormat::FixedLength) {
+            td->widths[i] = constraintValues.at(i);
+            totalWidth -= constraintValues.at(i);
+        } else if (constraints.at(i) == QTextTableFormat::PercentageLength) {
+            totalPercentage += constraintValues.at(i);
+        } else if (constraints.at(i) == QTextTableFormat::VariableLength) {
+            variableCols++;
+        }
+
+    // set percentage values
+    const int totalPercentagedWidth = totalWidth * totalPercentage / 100;
+    for (int i = 0; i < columns; ++i)
+        if (constraints.at(i) == QTextTableFormat::PercentageLength)
+            td->widths[i] = totalPercentagedWidth * constraintValues.at(i) / totalPercentage;
+
+    totalWidth -= totalPercentagedWidth;
+
+    // set variable columns first to their minimum width
+    // ### todo
+    for (int i = 0; i < columns; ++i)
+        if (constraints.at(i) == QTextTableFormat::VariableLength)
+            td->widths[i] = 0;
+
+    // distribute remaining space to variable cols
+    if (variableCols) {
+        const int width = totalWidth / variableCols;
+        for (int i = 0; i < columns; ++i)
+            if (constraints.at(i) == QTextTableFormat::VariableLength)
+                td->widths[i] += width;
+    }
+
+    /*
     for (int i = columns; i > 0; --i) {
         int cw = w/i;
         td->widths[i-1] = cw;
         w -= cw;
     }
+    */
 
     td->columnPositions.resize(columns);
     td->columnPositions[0] = margin;
