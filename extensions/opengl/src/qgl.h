@@ -52,9 +52,7 @@ const char *qGLVersion();
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-
-
-
+class QColorMap;
 class QPixmap;
 #if defined(Q_GLX)
 class QGLOverlayWidget;
@@ -186,6 +184,7 @@ protected:
     HDC			dc;
     WId			win;
     int			pixelFormatId;
+    QColorMap*		cmap;
 #elif defined(Q_GLX)
     void*		vi;
     void*		cx;

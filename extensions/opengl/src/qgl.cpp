@@ -720,6 +720,8 @@ QGLContext::QGLContext( const QGLFormat &format, QPaintDevice *device )
 #if defined(Q_WGL)
     dc = 0;
     win = 0;
+    pixelFormatId = 0;
+    cmap = 0;
 #endif
     crWin = FALSE;
     initDone = FALSE;
