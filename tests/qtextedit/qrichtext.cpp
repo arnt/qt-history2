@@ -4024,13 +4024,13 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
     }
 
     int align = parag->alignment();
-    if( align & Qt::AlignAuto ) {
+    if( align == Qt::AlignAuto ) {
 	// align according to directionality of the paragraph...
 	if ( string->isRightToLeft() )
 	    align = Qt::AlignRight;
     }
     
-    if ( parag->alignment() & Qt::AlignHCenter || parag->alignment() & Qt::AlignRight ) {
+    if ( align & Qt::AlignHCenter || align & Qt::AlignRight ) {
 	int last = 0;
 	QMap<int, QTextParag::LineStart*>::Iterator it = parag->lineStartList().begin();
 	while ( TRUE ) {
@@ -4050,7 +4050,41 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 	    if ( it == parag->lineStartList().end() )
 		break;
 	}
-    }
+    } else if ( align & Qt::AlignJustify ) {
+	int last = 0;
+	QMap<int, QTextParag::LineStart*>::Iterator it = parag->lineStartList().begin();
+	while ( TRUE ) {
+	    int space = it.data()->space;
+	    it++;
+	    int i = 0;
+	    if ( it == parag->lineStartList().end() )
+		i = parag->length() - 1;
+	    else
+		i = it.key() - 1;
+	    c = &string->at( i );
+	    if ( parag->alignment() & Qt::AlignHCenter )
+		space /= 2;
+	    int numSpaces = 0;
+	    for ( int j = last; j <= i; ++j ) {
+		if( isBreakable( string, j ) ) {
+		    numSpaces++;
+		}
+	    }
+	    int toAdd = 0;
+	    for ( int j = last + 1; j <= i; ++j ) {
+		if( isBreakable( string, i ) && numSpaces ) {
+		    int s = space / numSpaces;
+		    toAdd += s;
+		    space -= s;
+		    numSpaces--;
+		}
+		string->at( j ).x += toAdd;
+	    }
+	    last = i + 1;
+	    if ( it == parag->lineStartList().end() )
+		break;
+	}
+    }	
 
     int m = parag->bottomMargin();
     if ( parag->next() )

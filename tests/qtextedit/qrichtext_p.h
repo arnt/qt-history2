@@ -1837,13 +1837,13 @@ inline int QTextParag::alignment() const
 	return align;
     QStyleSheetItem *item = style();
     if ( !item )
-	return Qt::AlignLeft;
+	return Qt::AlignAuto;
     for ( int i = 0; i < (int)styleSheetItemsVec.size(); ++i ) {
 	item = styleSheetItemsVec[ i ];
 	if ( item->alignment() != QStyleSheetItem::Undefined )
 	    return item->alignment();
     }
-    return Qt::AlignLeft;
+    return Qt::AlignAuto;
 }
 
 inline QVector<QStyleSheetItem> QTextParag::styleSheetItems() const

@@ -48,7 +48,7 @@ void QTextEdit::init()
 
     doc->setFormatter( new QTextFormatterBreakWords( doc ) );
     currentFormat = doc->formatCollection()->defaultFormat();
-    currentAlignment = Qt::AlignLeft;
+    currentAlignment = Qt::AlignAuto;
 
     viewport()->setBackgroundMode( PaletteBase );
     viewport()->setAcceptDrops( TRUE );
@@ -1515,7 +1515,7 @@ int QTextEdit::maxLines() const
 
 void QTextEdit::resetFormat()
 {
-    setAlignment( Qt::AlignLeft );
+    setAlignment( Qt::AlignAuto );
     setParagType( QStyleSheetItem::DisplayBlock, -1 );
     setFormat( doc->formatCollection()->defaultFormat(), QTextFormat::Format );
 }

@@ -168,12 +168,24 @@ public:
 	right->setFixedSize( s, s );
 	connect( right, SIGNAL( stateChanged( int ) ),
 		 this, SLOT( rightChanged( int ) ) );
+	justify = new QPushButton( "J", tb );
+	justify->setToggleButton( TRUE );
+	justify->setFixedSize( s, s );
+	connect( justify, SIGNAL( stateChanged( int ) ),
+		 this, SLOT( justifyChanged( int ) ) );
+	aauto = new QPushButton( "A", tb );
+	aauto->setToggleButton( TRUE );
+	aauto->setFixedSize( s, s );
+	connect( aauto, SIGNAL( stateChanged( int ) ),
+		 this, SLOT( autoChanged( int ) ) );
 	QButtonGroup *g = new QButtonGroup( this );
 	g->hide();
 	g->setExclusive( TRUE );
 	g->insert( left );
 	g->insert( center );
 	g->insert( right );
+	g->insert( justify );
+	g->insert( aauto );
 	
 	tb->addSeparator();
 
@@ -278,6 +290,20 @@ private slots:
 	edit->setAlignment( Qt::AlignRight );
 	lock = FALSE;
     }
+    void justifyChanged( int state ) {
+	if ( lock || state != 2 )
+	    return;
+	lock = TRUE;
+	edit->setAlignment( Qt::AlignJustify );
+	lock = FALSE;
+    }
+    void autoChanged( int state ) {
+	if ( lock || state != 2 )
+	    return;
+	lock = TRUE;
+	edit->setAlignment( Qt::AlignAuto );
+	lock = FALSE;
+    }
     void styleChanged( int i ) {
 	if ( lock )
 	    return;
@@ -326,6 +352,8 @@ private slots:
 	left->setOn( a == Qt::AlignLeft );
 	center->setOn( a == Qt::AlignHCenter );
 	right->setOn( a == Qt::AlignRight );
+	justify->setOn( a == Qt::AlignJustify );
+	aauto->setOn( a == Qt::AlignAuto );
 	lock = FALSE;
     }
 
@@ -337,7 +365,7 @@ private slots:
 private:
     QToolBar *tb;
     QComboBox *fontCombo, *sizeCombo, *styleCombo;
-    QPushButton *bold, *italic, *underline, *color, *left, *center, *right, *save;
+    QPushButton *bold, *italic, *underline, *color, *left, *center, *right, *justify, *aauto, *save;
     QTextEdit *edit;
     bool lock;
 
