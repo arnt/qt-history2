@@ -137,7 +137,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 		    interesting = FALSE;
 		}
 		len=OBJ_LEN;
-	    } else if(!strncmp(big_buffer+x, "Q_DISPATH", DIS_LEN)) {
+	    } else if(!strncmp(big_buffer+x, "Q_DISPATCH", DIS_LEN)) {
 		len=DIS_LEN;
 	    }
 	    if(SYMBOL_CHAR(*(big_buffer+x+len)))
