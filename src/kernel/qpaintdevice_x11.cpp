@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#35 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#34 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#35 $";
 #endif
 
 
@@ -152,8 +152,9 @@ bool QPaintDevice::cmd( int, QPDevCmdParam * )
 
 /*!
 Internal virtual function that returns paint device metrics.
-
 Implemented by all subclasses.
+
+Use the QPaintDeviceMetrics class instead.
 */
 
 long QPaintDevice::metric( int ) const
