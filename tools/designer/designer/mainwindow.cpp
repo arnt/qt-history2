@@ -749,7 +749,7 @@ void MainWindow::helpContents()
 		int to = s.findRev( "\"" );
 		if ( to == -1 )
 		    continue;
-		propertyDocumentation[ s.mid( from + 1, to - from - 1 ) ] = s.mid( to + 2 );
+		propertyDocumentation[ s.mid( from + 1, to - from - 1 ) ] = s.mid( to + 2 ) + "-prop";
 	    }
 	    f.close();
 	} else {
@@ -759,7 +759,7 @@ void MainWindow::helpContents()
     }
 
     if ( propertyEditor->widget() ) {
-	if ( workspace->activeWindow() == propertyEditor && !propertyEditor->currentProperty().isEmpty() ) {
+	if ( !propertyEditor->currentProperty().isEmpty() ) {
 	    QMetaObject* mo = propertyEditor->metaObjectOfCurrentProperty();
 	    QString s;
 	    QString cp = propertyEditor->currentProperty();
