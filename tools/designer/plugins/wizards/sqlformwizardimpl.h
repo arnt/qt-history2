@@ -61,6 +61,7 @@ private:
     DesignerFormWindow *formWindow;
     enum Mode {
 	None,
+	View,
 	Form,
 	Table
     };

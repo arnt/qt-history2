@@ -44,20 +44,25 @@
 SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
 			      QWidget* parent, DesignerFormWindow *fw, const char* name, bool modal, WFlags fl )
     : SqlFormWizardBase( parent, name, modal, fl ), widget( w ), appIface( aIface ),
-      mode( None )
+     mode( None )
 {
     formWindow = fw;
-    setFinishEnabled( databasePage, FALSE );
-    setFinishEnabled( sqlPage, TRUE );
+    setFinishEnabled( finishPage, TRUE );
 
     /* set mode of operation */
     if ( widget->inherits( "QSqlTable" ) ) {
 	setCaption( "SQL Table Wizard" );
 	mode = Table;
 	setAppropriate( navigPage, FALSE );
-    } else {
+    } else if ( widget->inherits( "QSqlDataForm" ) ) {
 	setCaption( "SQL Form Wizard" );
 	setAppropriate( tablePropertiesPage, FALSE );
+	mode = Form;
+    } else if ( widget->inherits( "QSqlDataView" ) ) {
+	setCaption( "SQL View Wizard" );
+	setAppropriate( tablePropertiesPage, FALSE );
+	setAppropriate( navigPage, FALSE );
+	setAppropriate( sqlPage, FALSE);
 	mode = Form;
     }
 
@@ -267,6 +272,8 @@ void SqlFormWizard::setupPage1()
     for ( DesignerDatabase *d = databases.first(); d; d = databases.next() )
 	lst << d->name();
     listBoxConnection->insertStringList( lst );
+    if ( lst.count() )
+	listBoxConnection->setCurrentItem( 0 );
     delete proIface;
 }
 
@@ -283,7 +290,7 @@ static QPushButton *create_widget( QWidget *parent, const char *name,
 
 void SqlFormWizard::accept()
 {
-    if ( !appIface )
+    if ( !appIface || mode == None )
 	return;
 
 #ifndef QT_NO_SQL
@@ -347,6 +354,7 @@ void SqlFormWizard::accept()
     switch ( mode ) {
     case None:
 	break;
+    case View:
     case Form:
 	for( j = 0; j < listBoxSelectedField->count(); j++ ){
 
@@ -357,14 +365,16 @@ void SqlFormWizard::accept()
 	    QString labelName = field->name();
 	    labelName = labelName.mid(0,1).upper() + labelName.mid(1);
 	    labelName.replace( QRegExp("_"), " " );
-	    label = (QLabel*)formWindow->create( "QLabel", widget, QString( "label" + labelName ) );
+	    label = (QLabel*)formWindow->create( "QLabel", widget,
+						 QString( "label" + labelName ) );
 	    label->setText( labelName );
 	    label->setGeometry( SPACING, row+SPACING, SPACING*3, SPACING );
 	    formWindow->setPropertyChanged( label, "text", TRUE );
 	    formWindow->setPropertyChanged( label, "geometry", TRUE );
 
 	    editorDummy = f->createEditor( widget, field );
-	    editor = formWindow->create( editorDummy->className(), widget, QString( QString( editorDummy->className() ) + labelName) );
+	    editor = formWindow->create( editorDummy->className(), widget,
+					 QString( QString( editorDummy->className() ) + labelName) );
 	    delete editorDummy;
 	    editor->setGeometry( SPACING * 5, row+SPACING, SPACING*3, SPACING );
 	    formWindow->setPropertyChanged( editor, "geometry", TRUE );
@@ -380,20 +390,31 @@ void SqlFormWizard::accept()
 
 	if ( checkBoxNavig->isChecked() ) {
 	    if ( checkBoxFirst->isChecked() ) {
-		QPushButton *pb = create_widget( widget, "PushButtonFirst", "|< &First",
-						 QRect( SPACING * 10, SPACING, SPACING * 3, SPACING ), formWindow );
+		QPushButton *pb = create_widget( widget, "PushButtonFirst",
+						 "|< &First",
+						 QRect( SPACING * 10, SPACING,
+							SPACING * 3, SPACING ),
+						 formWindow );
 		formWindow->addConnection( pb, "clicked()", widget, "firstRecord()" );
-		formWindow->addConnection( widget, "firstRecordAvailable( bool )", pb, "setEnabled( bool )" );
+		formWindow->addConnection( widget, "firstRecordAvailable( bool )",
+					   pb, "setEnabled( bool )" );
 	    }
 	    if ( checkBoxPrev->isChecked() ) {
-		QPushButton *pb = create_widget( widget, "PushButtonPrev", "<< &Prev",
-						 QRect( SPACING * 13, SPACING, SPACING * 3, SPACING ), formWindow );
+		QPushButton *pb = create_widget( widget, "PushButtonPrev",
+						 "<< &Prev",
+						 QRect( SPACING * 13, SPACING,
+							SPACING * 3, SPACING ),
+						 formWindow );
 		formWindow->addConnection( pb, "clicked()", widget, "prevRecord()" );
-		formWindow->addConnection( widget, "prevRecordAvailable( bool )", pb, "setEnabled( bool )" );
+		formWindow->addConnection( widget, "prevRecordAvailable( bool )",
+					   pb, "setEnabled( bool )" );
 	    }
 	    if ( checkBoxNext->isChecked() ) {
-		QPushButton *pb = create_widget( widget, "PushButtonNext", "&Next >>",
-						 QRect( SPACING * 16, SPACING, SPACING * 3, SPACING ), formWindow );
+		QPushButton *pb = create_widget( widget, "PushButtonNext",
+						 "&Next >>",
+						 QRect( SPACING * 16, SPACING,
+							SPACING * 3, SPACING ),
+						 formWindow );
 		formWindow->addConnection( pb, "clicked()", widget, "nextRecord()" );
 		formWindow->addConnection( widget, "nextRecordAvailable( bool )", pb, "setEnabled( bool )" );
 	    }
