@@ -336,7 +336,7 @@ struct Q_EXPORT QUType_charstar : public QUType
     const QUuid *uuid() const;
     const char *desc() const;
 
-    void set( QUObject *, const char*, bool take = false );
+    void set( QUObject *, const char*, bool take = FALSE );
     char* get( QUObject *o ){ return o->payload.charstar.ptr; }
     bool canConvertFrom( QUObject *, QUType * );
     bool canConvertTo( QUObject *, QUType * );

@@ -24,10 +24,10 @@ struct QUType_Null : public QUType
     const QUuid *uuid() const { return &TID_QUType_Null; }
     const char *desc() const { return "null"; }
 
-    bool canConvertFrom( QUObject *, QUType * ) { return false; }
-    bool canConvertTo( QUObject *, QUType * ) { return false; }
-    bool convertFrom( QUObject *, QUType * ) { return false; }
-    bool convertTo( QUObject *, QUType * ) { return false; }
+    bool canConvertFrom( QUObject *, QUType * ) { return FALSE; }
+    bool canConvertTo( QUObject *, QUType * ) { return FALSE; }
+    bool convertFrom( QUObject *, QUType * ) { return FALSE; }
+    bool convertTo( QUObject *, QUType * ) { return FALSE; }
 };
 static QUType_Null static_QUType_Null;
 QUType *pQUType_Null = &static_QUType_Null;
@@ -48,7 +48,7 @@ void QUType_enum::set( QUObject *o, int v )
 bool QUType_enum::canConvertFrom( QUObject *o, QUType *t )
 {
     if ( isEqual( t, pQUType_int ) ) // ## todo unsigned int?
-	return true;
+	return TRUE;
 
     return t->canConvertTo( o, this );
 }
@@ -66,16 +66,16 @@ bool QUType_enum::convertFrom( QUObject *o, QUType *t )
 	return t->convertTo( o, this );
 
     o->type = this;
-    return true;
+    return TRUE;
 }
 
 bool QUType_enum::convertTo( QUObject *o, QUType *t )
 {
     if ( isEqual( t,  pQUType_int ) ) {
 	o->type = pQUType_int;
-	return true;
+	return TRUE;
     }
-    return false;
+    return FALSE;
 }
 
 
@@ -99,7 +99,7 @@ bool QUType_ptr::canConvertFrom( QUObject *o, QUType *t )
 
 bool QUType_ptr::canConvertTo( QUObject *, QUType * )
 {
-    return false;
+    return FALSE;
 }
 
 bool QUType_ptr::convertFrom( QUObject *o, QUType *t )
@@ -109,7 +109,7 @@ bool QUType_ptr::convertFrom( QUObject *o, QUType *t )
 
 bool QUType_ptr::convertTo( QUObject *, QUType * )
 {
-    return false;
+    return FALSE;
 }
 
 // {97A2594D-6496-4402-A11E-55AEF2D4D25C}
@@ -132,7 +132,7 @@ bool QUType_iface::canConvertFrom( QUObject *o, QUType *t )
 
 bool QUType_iface::canConvertTo( QUObject *, QUType * )
 {
-    return false;
+    return FALSE;
 }
 
 bool QUType_iface::convertFrom( QUObject *o, QUType *t )
@@ -142,7 +142,7 @@ bool QUType_iface::convertFrom( QUObject *o, QUType *t )
 
 bool QUType_iface::convertTo( QUObject *, QUType * )
 {
-    return false;
+    return FALSE;
 }
 
 // {2F358164-E28F-4bf4-9FA9-4E0CDCABA50B}
@@ -179,10 +179,10 @@ bool QUType_idisp::convertTo( QUObject *o, QUType *t )
     if ( isEqual( t, pQUType_iface ) ) {
 	o->payload.iface = (QUnknownInterface*)o->payload.idisp;
 	o->type = pQUType_iface;
-	return true;
+	return TRUE;
     }
-#endif    
-    return false;
+#endif
+    return FALSE;
 }
 
 // {CA42115D-13D0-456c-82B5-FC10187F313E}
@@ -205,7 +205,7 @@ bool QUType_bool::canConvertFrom( QUObject *o, QUType *t )
 
 bool QUType_bool::canConvertTo( QUObject *, QUType * )
 {
-    return false;
+    return FALSE;
 }
 
 bool QUType_bool::convertFrom( QUObject *o, QUType *t )
@@ -215,7 +215,7 @@ bool QUType_bool::convertFrom( QUObject *o, QUType *t )
 
 bool QUType_bool::convertTo( QUObject *, QUType * )
 {
-    return false;
+    return FALSE;
 }
 
 
@@ -235,7 +235,7 @@ void QUType_int::set( QUObject *o, int v )
 bool QUType_int::canConvertFrom( QUObject *o, QUType *t )
 {
     if ( isEqual( t, pQUType_double ) )
-	return true;
+	return TRUE;
 
     return t->canConvertTo( o, this );
 }
@@ -253,7 +253,7 @@ bool QUType_int::convertFrom( QUObject *o, QUType *t )
 	return t->convertTo( o, this );
 
     o->type = this;
-    return true;
+    return TRUE;
 }
 
 bool QUType_int::convertTo( QUObject *o, QUType *t )
@@ -261,9 +261,9 @@ bool QUType_int::convertTo( QUObject *o, QUType *t )
     if ( isEqual( t,  pQUType_double ) ) {
 	o->payload.d = (double)o->payload.i;
 	o->type = pQUType_double;
-	return true;
+	return TRUE;
     }
-    return false;
+    return FALSE;
 }
 
 // {2D0974E5-0BA6-4ec2-8837-C198972CB48C}
@@ -282,7 +282,7 @@ void QUType_double::set( QUObject *o, double v )
 bool QUType_double::canConvertFrom( QUObject *o, QUType *t )
 {
     if ( isEqual( t, pQUType_int ) )
-	return true;
+	return TRUE;
 
     return t->canConvertTo( o, this );
 }
@@ -300,7 +300,7 @@ bool QUType_double::convertFrom( QUObject *o, QUType *t )
 	return t->convertTo( o, this );
 
     o->type = this;
-    return true;
+    return TRUE;
 }
 
 bool QUType_double::convertTo( QUObject *o, QUType *t )
@@ -308,9 +308,9 @@ bool QUType_double::convertTo( QUObject *o, QUType *t )
     if ( isEqual( t,  pQUType_int ) ) {
 	o->payload.i = (int) o->payload.d;
 	o->type = pQUType_int;
-	return true;
+	return TRUE;
     }
-    return false;
+    return FALSE;
 }
 
 // {EFCDD1D4-77A3-4b8e-8D46-DC14B8D393E9}
@@ -329,10 +329,10 @@ void QUType_charstar::set( QUObject *o, const char* v, bool take )
 	} else {
 	    o->payload.charstar.ptr = 0;
 	}
-	o->payload.charstar.owner = true;
+	o->payload.charstar.owner = TRUE;
     } else {
 	o->payload.charstar.ptr = (char*) v;
-	o->payload.charstar.owner = false;
+	o->payload.charstar.owner = FALSE;
     }
     o->type = this;
 }
@@ -344,7 +344,7 @@ bool QUType_charstar::canConvertFrom( QUObject *o, QUType *t )
 
 bool QUType_charstar::canConvertTo( QUObject *, QUType * )
 {
-    return false;
+    return FALSE;
 }
 
 bool QUType_charstar::convertFrom( QUObject *o, QUType *t )
@@ -354,7 +354,7 @@ bool QUType_charstar::convertFrom( QUObject *o, QUType *t )
 
 bool QUType_charstar::convertTo( QUObject *, QUType * )
 {
-    return false;
+    return FALSE;
 }
 
 void QUType_charstar::clear( QUObject *o )
@@ -385,7 +385,7 @@ bool QUType_QString::canConvertFrom( QUObject *o, QUType *t )
     if ( isEqual( t, pQUType_charstar ) ||
 	 isEqual( t, pQUType_double ) ||
 	 isEqual( t, pQUType_int ) )
-	return true;
+	return TRUE;
 
     return t->canConvertTo( o, this );
 }
@@ -412,7 +412,7 @@ bool QUType_QString::convertFrom( QUObject *o, QUType *t )
     o->type->clear( o );
     o->payload.ptr = str;
     o->type = this;
-    return true;
+    return TRUE;
 }
 
 bool QUType_QString::convertTo( QUObject *o, QUType *t )
@@ -420,7 +420,7 @@ bool QUType_QString::convertTo( QUObject *o, QUType *t )
     QString *str = (QString *)o->payload.ptr;
     if ( isEqual( t, pQUType_charstar ) ) {
 	o->payload.charstar.ptr = qstrdup( str->local8Bit().data() );
-	o->payload.charstar.owner = true;
+	o->payload.charstar.owner = TRUE;
 	o->type = pQUType_charstar;
     } else if ( isEqual( t,  pQUType_int ) ) {
 	o->payload.l = str->toLong();
@@ -429,10 +429,10 @@ bool QUType_QString::convertTo( QUObject *o, QUType *t )
 	o->payload.d = str->toDouble();
 	o->type = pQUType_double;
     } else {
-        return false;
+        return FALSE;
     }
     delete str;
-    return true;
+    return TRUE;
 }
 
 void QUType_QString::clear( QUObject *o )
@@ -462,7 +462,7 @@ bool QUType_QVariant::canConvertFrom( QUObject *o, QUType *t )
 
 bool QUType_QVariant::canConvertTo( QUObject * /*o*/, QUType * /*t*/ )
 {
-    return false;
+    return FALSE;
 }
 
 bool QUType_QVariant::convertFrom( QUObject *o, QUType *t )
@@ -472,7 +472,7 @@ bool QUType_QVariant::convertFrom( QUObject *o, QUType *t )
 
 bool QUType_QVariant::convertTo( QUObject * /*o*/, QUType * /*t*/ )
 {
-    return false;
+    return FALSE;
 }
 
 void QUType_QVariant::clear( QUObject *o )
