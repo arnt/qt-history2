@@ -93,6 +93,7 @@ void generateNameSpace(QTextStream &out, const QMetaObject *mo, const QByteArray
     out << "#include <qaxobject.h>" << endl;
     out << "#include <qaxwidget.h>" << endl;
     out << "#include <qdatetime.h>" << endl;
+    out << "#include <qpixmap.h>" << endl;
     out << endl;
     out << "struct IDispatch;" << endl;
 
