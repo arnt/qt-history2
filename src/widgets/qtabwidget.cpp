@@ -598,6 +598,7 @@ void QTabWidget::setTabBar( QTabBar* tb)
         tb->reparent( this, QPoint(0,0), TRUE );
     delete d->tabs;
     d->tabs = tb;
+    setFocusProxy( d->tabs );
     connect( d->tabs, SIGNAL(selected(int)),
              this,    SLOT(showTab(int)) );
     setUpLayout();
