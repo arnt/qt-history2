@@ -69,6 +69,10 @@ public:
 static bool inMenu = FALSE;
 #endif
 
+#if defined(Q_WS_X11)
+extern int qt_xfocusout_grab_counter; // defined in qapplication_x11.cpp
+#endif
+
 /*!
     \class QMenuBar qmenubar.h
     \brief The QMenuBar class provides a horizontal menu bar.
@@ -533,6 +537,9 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	    // Start waiting for Alt release on focus widget
 	    } else {
 		waitforalt = 1;
+#if defined(Q_WS_X11)
+		QMenuData::d->aInt = qt_xfocusout_grab_counter;
+#endif
 		if ( f && f != object )
 		    f->installEventFilter( this );
 	    }
@@ -557,7 +564,11 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	if ( waitforalt &&
 	     event->type() == QEvent::KeyRelease &&
 	     (((QKeyEvent *)event)->key() == Key_Alt ||
-	      ((QKeyEvent *)event)->key() == Key_Meta) ) {
+	      ((QKeyEvent *)event)->key() == Key_Meta)
+#if defined(Q_WS_X11)
+		&& QMenuData::d->aInt == qt_xfocusout_grab_counter
+#endif
+	    ) {
 	    setAltMode( TRUE );
 	    if ( object->parent() )
 		object->removeEventFilter( this );

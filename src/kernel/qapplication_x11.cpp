@@ -307,6 +307,8 @@ static bool sm_blockUserInput = FALSE;		// session management
 // one day in the future we will be able to have static objects in libraries....
 static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 
+int qt_xfocusout_grab_counter = 0;
+
 #if defined (QT_TABLET_SUPPORT)
 // since XInput event classes aren't created until we actually open an XInput
 // device, here is a static list that we will use later on...
@@ -3431,6 +3433,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 	if ( !widget->isTopLevel() )
 	    break;
+	if ( event->xfocus.mode == NotifyGrab )
+	    qt_xfocusout_grab_counter++;
 	if ( event->xfocus.mode != NotifyNormal )
 	    break;
 	if ( event->xfocus.detail != NotifyAncestor &&
