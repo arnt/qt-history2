@@ -3568,12 +3568,19 @@ CACHEFILE=$outpath/.qmake.cache
 [ -f $CACHEFILE.tmp ] && rm -f $CACHEFILE.tmp
 cat >>$CACHEFILE.tmp <<EOF
 CONFIG += $QMAKE_CONFIG dylib create_prl link_prl depend_includepath QTDIR_build
-QMAKESPEC = $XPLATFORM
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
 QMAKE_ABSOLUTE_SOURCE_ROOT = \$\$QT_SOURCE_TREE
 ARCH = $ARCH
 EOF
+
+#dump the qmake spec
+if [ -d "$outpath/mkspecs/$XPLATFORM" ]; then
+   echo "QMAKESPEC = \$\$QT_BUILD_TREE/mkspecs/$XPLATFORM" >>$CACHEFILE.tmp 
+else
+   echo "QMAKESPEC = $XPLATFORM" >>$CACHEFILE.tmp 
+fi
+
 # cmdline args
 quoted=no
 tmp=""
@@ -3979,7 +3986,7 @@ cat <<EOF
 	architecture.
 
 	Qt will use the 'generic' architecture instead, which will use
-	non-atomic operations instead.  Applications that rely atomic
+	non-atomic operations instead.  Applications that rely on atomic
 	operation support will NOT work with this library!
 EOF
 fi

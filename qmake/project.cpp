@@ -1200,6 +1200,7 @@ QMakeProject::doProjectTest(const QString& func, const QString &params, QMap<QSt
    5) your QMAKESPEC/features dir
    6) your data_install/mkspecs/FEATURES_DIR
    7) environment variable QTDIR/mkspecs/FEATURES_DIR
+   8) your QMAKESPEC/../features dir
 
    FEATURES_DIR is defined as:
 
@@ -1293,6 +1294,11 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
                 for(QStringList::Iterator concat_it = concat.begin();
                     concat_it != concat.end(); ++concat_it)
                     feature_roots << (QString(qtdir) + mkspecs_concat + (*concat_it));
+            }
+            if(!Option::mkfile::qmakespec.isEmpty()) {
+                for(QStringList::Iterator concat_it = concat.begin();
+                    concat_it != concat.end(); ++concat_it)
+                    feature_roots << (QDir::cleanPath(Option::mkfile::qmakespec + "/../") + (*concat_it));
             }
 #ifdef QT_INSTALL_PREFIX
             for(QStringList::Iterator concat_it = concat.begin();
