@@ -549,7 +549,8 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
             d->header->setOffset(offset);
         }
     }
-    d->viewport->scroll(dx, dy);
+    //d->viewport->scroll(dx, dy);
+    d->viewport->update();
 }
 
 void QGenericTreeView::contentsChanged()

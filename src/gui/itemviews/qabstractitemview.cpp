@@ -81,6 +81,13 @@ void QAbstractItemViewPrivate::init()
 
     QApplication::postEvent(q, new QMetaCallEvent(QEvent::InvokeSlot,
                                q->metaObject()->indexOfSlot("doItemsLayout()"), q));
+    
+    q->setAttribute(WA_PaintOnScreen);
+    q->setAttribute(WA_NoBackground);
+    q->setAttribute(WA_NoSystemBackground);
+    viewport->setAttribute(WA_PaintOnScreen);
+    viewport->setAttribute(WA_NoBackground);
+    viewport->setAttribute(WA_NoSystemBackground);
 }
 
 /*!
@@ -427,7 +434,7 @@ void QAbstractItemView::focusInEvent(QFocusEvent *e)
     QViewport::focusInEvent(e);
     QModelIndex item = currentItem();
     if (item.isValid())
-        updateItem(item);
+        d->viewport->update(itemViewportRect(item));
 }
 
 void QAbstractItemView::focusOutEvent(QFocusEvent *e)
@@ -435,7 +442,7 @@ void QAbstractItemView::focusOutEvent(QFocusEvent *e)
     QViewport::focusOutEvent(e);
     QModelIndex item = currentItem();
     if (item.isValid())
-        updateItem(item);
+        d->viewport->update(itemViewportRect(item));
 }
 
 void QAbstractItemView::keyPressEvent(QKeyEvent *e)
@@ -701,24 +708,6 @@ QSize QAbstractItemView::itemSizeHint(const QModelIndex &item) const
     return itemDelegate()->sizeHint(fontMetrics(), options, item);
 }
 
-void QAbstractItemView::updateItem(const QModelIndex &item)
-{
-    QRect rect = itemViewportRect(item);
-    if (rect.isValid())
-        d->viewport->update(itemViewportRect(item));
-}
-
-void QAbstractItemView::updateRow(const QModelIndex &item)
-{
-    QModelIndex parent = model()->parent(item);
-    int row = item.row();
-    int columns = model()->columnCount(parent);
-    QModelIndex left = model()->index(row, 0, parent);
-    QModelIndex right = model()->index(row, columns - 1, parent);
-    QRect rect = itemViewportRect(left) | itemViewportRect(right);
-    d->viewport->update(rect);
-}
-
 int QAbstractItemView::rowSizeHint(int row) const
 {
     QItemOptions options;
@@ -771,7 +760,7 @@ void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModel
         if (d->currentEditor && topLeft == currentItem())
             itemDelegate()->setEditorData(d->currentEditor, topLeft);
         else
-            updateItem(topLeft);
+            d->viewport->update(itemViewportRect(topLeft));
         return;
     }
     doItemsLayout();

@@ -88,9 +88,6 @@ public:
 
     QSize itemSizeHint(const QModelIndex &item) const;
 
-    virtual void updateItem(const QModelIndex &item);
-    virtual void updateRow(const QModelIndex &item);
-
     virtual int rowSizeHint(int row) const;
     virtual int columnSizeHint(int column) const;
 
@@ -177,6 +174,11 @@ protected:
     void resizeEvent(QResizeEvent *e);
     void showEvent(QShowEvent *e);
     void timerEvent(QTimerEvent *e);
+
+    // double buffered drawing
+
+    QRect scrollHorizontally(int dx);
+    QRect scrollVertically(int dy);
 
 private slots:
     void fetchMore();

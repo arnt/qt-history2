@@ -391,10 +391,11 @@ void QGenericListView::ensureItemVisible(const QModelIndex &item)
 
 void QGenericListView::scrollContentsBy(int dx, int dy)
 {
-    QRect rect = d->draggedItemsRect;
-    rect.moveBy(dx, dy);
-    d->viewport->scroll(dx, dy);
-    d->viewport->repaint(rect);
+    //QRect rect = d->draggedItemsRect;
+    //rect.moveBy(dx, dy);
+    //d->viewport->scroll(dx, dy);
+    //d->viewport->repaint(rect);
+    d->viewport->update();
 }
 
 void QGenericListView::resizeContents(int w, int h)
@@ -518,9 +519,9 @@ void QGenericListView::dropEvent(QDropEvent *e)
         for (int i = 0; i < indices.count(); ++i) {
             QModelIndex index = indices.at(i);
             QRect rect = itemRect(index);
+            d->viewport->update(d->mapToViewport(rect));
             moveItem(index.row(), rect.topLeft() + delta);
             d->viewport->update(d->mapToViewport(rect));
-            updateItem(index);
         }
         stopAutoScroll();
     } else {
@@ -562,8 +563,13 @@ void QGenericListView::getViewOptions(QItemOptions *options) const
 
 void QGenericListView::paintEvent(QPaintEvent *e)
 {
-    QPainter painter(viewport());
+    QPainter painter(d->viewport);
+
+    QItemOptions options;
+    getViewOptions(&options);
+    
     QRect area = e->rect();
+    painter.fillRect(area, options.palette.base());
     area.moveBy(horizontalScrollBar()->value(), verticalScrollBar()->value());
 
     // fill the intersectVector
@@ -571,9 +577,6 @@ void QGenericListView::paintEvent(QPaintEvent *e)
         d->intersectingStaticSet(area);
     else
         d->intersectingDynamicSet(area);
-
-    QItemOptions options;
-    getViewOptions(&options);
 
     QModelIndex current = currentItem();
     QAbstractItemDelegate *delegate = itemDelegate();

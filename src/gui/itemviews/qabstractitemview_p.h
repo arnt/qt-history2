@@ -55,6 +55,8 @@ public:
     int autoScrollMargin;
     int autoScrollInterval;
     int autoScrollCount;
+
+    QPixmap backBuffer;
 };
 
 /*

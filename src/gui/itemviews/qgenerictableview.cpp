@@ -158,7 +158,8 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
         vscroll = d->leftHeader->offset() - offset;
         d->leftHeader->setOffset(offset);
     }
-    d->viewport->scroll(hscroll, vscroll);
+    //d->viewport->scroll(hscroll, vscroll);
+    d->viewport->update();
 }
 
 void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
@@ -173,12 +174,12 @@ void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
 
 void QGenericTableView::paintEvent(QPaintEvent *e)
 {
+//    QPainter painter(&d->backBuffer);
     QPainter painter(d->viewport);
     QRect area = e->rect();
 
     int colfirst = columnAt(area.left());
     int collast = columnAt(area.right());
-//    qDebug("%d %d : %d", colfirst, collast, d->topHeader->offset());
     if (colfirst > collast) {
         int tmp = colfirst;
         colfirst = collast;
@@ -218,7 +219,7 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
             QModelIndex item = model()->index(r, c, root());
             if (item.isValid()) {
                 options.itemRect = QRect(colp, rowp, colw - 1, rowh - 1);
-                options.selected = sels ? sels->isSelected(item) : 0;
+                options.selected = sels->isSelected(item);
                 options.focus = (focus && item == current);
                 painter.fillRect(colp, rowp, colw, rowh,
                                  (options.selected ? options.palette.highlight() :
@@ -229,6 +230,9 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
                 drawGrid(&painter, colp, rowp, colw - 1, rowh - 1);
         }
     }
+//     painter.end();
+//     painter.begin(d->viewport);
+//     painter.drawPixmap(0, 0, d->backBuffer);
 }
 
 bool QGenericTableView::event(QEvent *e)
