@@ -35,7 +35,9 @@
 **
 **********************************************************************/
 
+#ifdef Q_WS_WIN
 #include "qt_windows.h"			// needed for bsearch on some platforms
+#endif
 
 #define	 QGARRAY_CPP
 #include "qgarray.h"
