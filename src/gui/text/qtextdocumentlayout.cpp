@@ -711,9 +711,9 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                     layoutCell(table, cell, &layoutStruct);
 
                     int widthToDistribute = layoutStruct.minimumWidth;
-                    for (int n = cspan; n > 0; --n) {
-                        const int col = i + n - 1;
-                        int w = widthToDistribute / n;
+                    for (int n = 0; n < cspan; ++n) {
+                        const int col = i + n;
+                        int w = widthToDistribute / (cspan - n);
                         td->minWidths[col] = qMax(td->minWidths.at(col), w);
                         widthToDistribute -= td->minWidths.at(col);
                         if (widthToDistribute <= 0)
@@ -745,11 +745,13 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
 
     td->rowPositions.resize(rows);
     td->rowPositions[0] = margin;
+
+    bool haveRowSpannedCells = false;
+
     for (int r = 0; r < rows; ++r) {
         if (r > 0)
             td->rowPositions[r] = td->rowPositions.at(r-1) + td->heights.at(r-1) + td->border;
 
-//        const int y = td->rowPositions.at(r) + td->padding;
         for (int c = 0; c < columns; ++c) {
             QTextTableCell cell = table->cellAt(r, c);
             const int rspan = cell.rowSpan();
@@ -758,28 +760,56 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
             if (cspan > 1 && cell.column() != c)
                 continue;
 
-            if (rspan > 1 && cell.row() != r)
-                    continue;
+            if (rspan > 1) {
+                haveRowSpannedCells = true;
+                continue;
+            }
 
-//            layoutStruct.y = y;
-//            layoutStruct.x_left = td->columnPositions.at(c) + td->padding;
-//            layoutStruct.x_right = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1) - td->padding;
             layoutStruct.y = 0;
             layoutStruct.x_left = 0;
             layoutStruct.x_right = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
                                    - td->columnPositions.at(c) - 2 * td->padding;
             layoutCell(table, cell, &layoutStruct);
 
-            //int heightToDistribute = layoutStruct.y + td->padding - y;
-            int heightToDistribute = layoutStruct.y + td->padding;
-            for (int n = rspan; n > 0; --n) {
-                const int row = r + n - 1;
-                int h = heightToDistribute / n;
-                td->heights[row] = qMax(td->heights.at(row), h);
+            td->heights[r] = qMax(td->heights.at(r), layoutStruct.y + 2*td->padding);
+        }
+    }
 
-                heightToDistribute -= td->heights.at(row);
-                if (heightToDistribute <= 0)
-                    break;
+    if (haveRowSpannedCells) {
+        for (int r = 0; r < rows; ++r) {
+            if (r > 0)
+                td->rowPositions[r] = td->rowPositions.at(r-1) + td->heights.at(r-1) + td->border;
+
+            for (int c = 0; c < columns; ++c) {
+                QTextTableCell cell = table->cellAt(r, c);
+                const int rspan = cell.rowSpan();
+                const int cspan = cell.columnSpan();
+
+                if (cspan > 1 && cell.column() != c)
+                    continue;
+
+                if (rspan == 1)
+                    continue;
+
+                if (cell.row() != r)
+                    continue;
+
+                layoutStruct.y = 0;
+                layoutStruct.x_left = 0;
+                layoutStruct.x_right = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
+                                       - td->columnPositions.at(c) - 2 * td->padding;
+                layoutCell(table, cell, &layoutStruct);
+
+                int heightToDistribute = layoutStruct.y + 2*td->padding;
+                for (int n = 0; n < rspan; ++n) {
+                    const int row = r + n;
+                    int h = heightToDistribute / (rspan - n);
+                    td->heights[row] = qMax(td->heights.at(row), h);
+
+                    heightToDistribute -= td->heights.at(row);
+                    if (heightToDistribute <= 0)
+                        break;
+                }
             }
         }
     }
