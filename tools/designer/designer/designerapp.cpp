@@ -42,11 +42,11 @@ void set_splash_status( const QString &txt )
     if ( !splash )
 	return;
     splash->repaint( FALSE );
-    QApplication::flushX();
+    QApplication::flush();
     QPainter p( splash );
     p.setPen( Qt::white );
     p.drawText( 5, splash->fontMetrics().height(), txt );
-    QApplication::flushX();
+    QApplication::flush();
 }
 
 #if defined(HAVE_KDE)
@@ -94,7 +94,7 @@ QLabel *DesignerApplication::showSplash()
 	splash->move( screen.center() - QPoint( splash->width() / 2, splash->height() / 2 ) );
 	splash->show();
 	splash->repaint( FALSE );
-	QApplication::flushX();
+	QApplication::flush();
 	set_splash_status( "Initializing..." );
     }
 
