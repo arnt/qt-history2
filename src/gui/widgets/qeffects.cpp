@@ -22,6 +22,7 @@
 #include "qtimer.h"
 #include "qdatetime.h"
 #include "qpointer.h"
+#include "qpainter.h"
 
 /*
   Internal class to get access to protected QWidget-members
