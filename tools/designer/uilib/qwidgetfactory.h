@@ -1,5 +1,4 @@
-//depot/qt/main/tools/designer/uilib/qwidgetfactory.h#8 - edit change 55390 (text)
- /**********************************************************************
+/**********************************************************************
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
@@ -32,11 +31,16 @@
 #include <qaction.h>
 #endif // QT_H
 
-class QWidget;
-class QLayout;
+class QDomDocument;
 class QDomElement;
+class QLayout;
+class QListView;
 class QListViewItem;
+class QMenuBar;
 class QTable;
+class QWidget;
+class QWidgetFactoryPrivate;
+class UibStrTable;
 
 class QWidgetFactory
 {
@@ -61,11 +65,21 @@ private:
     QWidget *createWidgetInternal( const QDomElement &e, QWidget *parent, QLayout* layout, const QString &classNameArg );
     QLayout *createLayout( QWidget *widget, QLayout*  layout, LayoutType type, bool setDefaults = FALSE );
     LayoutType layoutType( QLayout *l ) const;
+    void setProperty( QObject* widget, const QString &prop, QVariant value );
     void setProperty( QObject* widget, const QString &prop, const QDomElement &e );
     void createSpacer( const QDomElement &e, QLayout *layout );
     QImage loadFromCollection( const QString &name );
+    QPixmap loadPixmap( const QString &name );
     QPixmap loadPixmap( const QDomElement &e );
     QColorGroup loadColorGroup( const QDomElement &e );
+    void createListViewColumn( QListView *lv, const QString& txt,
+			       const QPixmap& pix, bool clickable,
+			       bool resizable );
+#ifndef QT_NO_TABLE
+    void createTableColumnOrRow( QTable *table, const QString& txt,
+				 const QPixmap& pix, const QString& field,
+				 bool isRow );
+#endif
     void createColumn( const QDomElement &e, QWidget *widget );
     void loadItem( const QDomElement &e, QPixmap &pix, QString &txt, bool &hasPixmap );
     void createItem( const QDomElement &e, QWidget *widget, QListViewItem *i = 0 );
@@ -76,7 +90,35 @@ private:
     void loadFunctions( const QDomElement &e );
     QAction *findAction( const QString &name );
     void loadExtraSource();
-    QString translate( const QString& sourceText, const QString& comment = "" );
+    QString translate( const char *sourceText, const char *comment = "" );
+
+    void unpackUInt16( QDataStream& in, Q_UINT16& n );
+    void unpackUInt32( QDataStream& in, Q_UINT32& n );
+    void unpackByteArray( QDataStream& in, QByteArray& array );
+    void unpackCString( const UibStrTable& strings, QDataStream& in,
+			QCString& cstr );
+    void unpackString( const UibStrTable& strings, QDataStream& in,
+		       QString& str );
+    void unpackStringSplit( const UibStrTable& strings, QDataStream& in,
+			    QString& str );
+    void unpackVariant( const UibStrTable& strings, QDataStream& in,
+			QVariant& value );
+    void inputSpacer( const UibStrTable& strings, QDataStream& in,
+    		      QLayout *parent );
+    void inputColumnOrRow( const UibStrTable& strings, QDataStream& in,
+			   QObject *parent, bool isRow );
+    void inputItem( const UibStrTable& strings, QDataStream& in,
+		    QObject *parent, QListViewItem *parentItem = 0 );
+    void inputMenuItem( QObject **objects, const UibStrTable& strings,
+			QDataStream& in, QMenuBar *menuBar );
+    QObject *inputObject( QObject **objects, int& numObjects,
+			  const UibStrTable& strings, QDataStream& in, 
+			  QWidget *ancestorWidget, QObject *parent,
+			  QCString className = "" );
+    QWidget *createFromUiFile( QDomDocument doc, QObject *connector,
+			       QWidget *parent, const char *name );
+    QWidget *createFromUibFile( QDataStream& in, QObject *connector,
+				QWidget *parent, const char *name );
 
 private:
     struct Image {
@@ -126,7 +168,7 @@ private:
 
     QValueList<Image> images;
     QWidget *toplevel;
-    QListViewItem *lastItem;
+    QWidgetFactoryPrivate *d;
     QMap<QString, QString> *dbControls;
     QMap<QString, QStringList> dbTables;
     QMap<QWidget*, SqlWidgetConnection> sqlWidgetConnections;
@@ -136,11 +178,11 @@ private:
     QMap<QObject *, EventFunction> eventMap;
     QMap<QString, QString> languageSlots;
     QMap<QString, Functions*> languageFunctions;
-    QStringList variables;
+    QStringList vars;
     QStringList noDatabaseWidgets;
     bool usePixmapCollection;
-    int defMargin, defSpacing;
-
+    int defMargin;
+    int defSpacing;
 };
 
 #endif

@@ -32,20 +32,25 @@ enum BlockTag { Block_End = '$', Block_Actions = 'A', Block_Buddies = 'B',
 		Block_Toolbars = 'O', Block_Variables = 'V',
 		Block_Widget = 'W' };
 
-enum ObjectTag { Object_End = '$', Object_Action = 'A',
-		 Object_ActionGroup = 'G', Object_ActionRef = 'F',
-		 Object_Attribute = 'B', Object_GridCell = 'D',
-		 Object_Item = 'I', Object_PaletteProperty = 'P',
-		 Object_StringProperty = 'Z', Object_VariantProperty = 'V',
-		 Object_Separator = 'S', Object_Spacer = 'Y',
-		 Object_SubLayout = 'L', Object_SubWidget = 'W',
-		 Object_TableColumn = 'C', Object_TableRow = 'R' };
+enum ObjectTag { Object_End = '$', Object_ActionRef = 'X',
+		 Object_Attribute = 'B', Object_Column = 'C',
+		 Object_Event = 'E', Object_FontProperty = 'F',
+		 Object_GridCell = 'G', Object_Item = 'I',
+		 Object_MenuItem = 'M', Object_PaletteProperty = 'P',
+		 Object_Row = 'R', Object_Separator = 'S', Object_Spacer = 'Y',
+		 Object_SubAction = 'A', Object_SubLayout = 'L',
+		 Object_SubWidget = 'W', Object_TextProperty = 'T',
+		 Object_VariantProperty = 'V' };
 
 enum PaletteTag { Palette_End = '$', Palette_Active = 'A',
 		  Palette_Inactive = 'I', Palette_Disabled = 'D',
 		  Palette_Color = 'C', Palette_Pixmap = 'P' };
 
 enum IntroFlag { Intro_Pixmapinproject = 0x1 };
+
+enum FontFlag { Font_Family = 0x1, Font_PointSize = 0x2, Font_Bold = 0x4,
+		Font_Italic = 0x8, Font_Underline = 0x10,
+		Font_StrikeOut = 0x20 };
 
 enum ConnectionFlag { Connection_Language = 0x1, Connection_Sender = 0x2,
 		      Connection_Signal = 0x4, Connection_Receiver = 0x8,

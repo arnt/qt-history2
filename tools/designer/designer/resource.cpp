@@ -720,7 +720,8 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    ts << makeIndent( indent ) << "</widget>" << endl;
 	}
     } else if ( obj->inherits( "QWizard" ) ) {
-	QWizard* wiz = (QWizard*)obj; for ( int i = 0; i < wiz->pageCount(); ++i ) {
+	QWizard* wiz = (QWizard*)obj;
+	for ( int i = 0; i < wiz->pageCount(); ++i ) {
 	    QWidget *w = wiz->page( i );
 	    if ( !w )
 		continue;
@@ -809,7 +810,7 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	    ts << makeIndent( indent ) << "<bool>" << mkBool( lv->header()->isClickEnabled( i ) )<< "</bool>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</property>" << endl;
-	    ts << makeIndent( indent ) << "<property name=\"resizeable\">" << endl;
+	    ts << makeIndent( indent ) << "<property name=\"resizable\">" << endl;
 	    indent++;
 	    ts << makeIndent( indent ) << "<bool>" << mkBool( lv->header()->isResizeEnabled( i ) ) << "</bool>" << endl;
 	    indent--;
@@ -1478,7 +1479,7 @@ void Resource::createColumn( const QDomElement &e, QWidget *widget )
 	QPixmap pix;
 	bool hasPixmap = FALSE;
 	QString txt;
-	bool clickable = TRUE, resizeable = TRUE;
+	bool clickable = TRUE, resizable = TRUE;
 	while ( !n.isNull() ) {
 	    if ( n.tagName() == "property" ) {
 		QString attrib = n.attribute( "name" );
@@ -1490,8 +1491,8 @@ void Resource::createColumn( const QDomElement &e, QWidget *widget )
 		    hasPixmap = !pix.isNull();
 		} else if ( attrib == "clickable" )
 		    clickable = v.toBool();
-		else if ( attrib == "resizeable" )
-		    resizeable = v.toBool();
+		else if ( attrib == "resizable" )
+		    resizable = v.toBool();
 	    }
 	    n = n.nextSibling().toElement();
 	}
@@ -1502,8 +1503,8 @@ void Resource::createColumn( const QDomElement &e, QWidget *widget )
 	}
 	if ( !clickable )
 	    lv->header()->setClickEnabled( clickable, i );
-	if ( !resizeable )
-	    lv->header()->setResizeEnabled( resizeable, i );
+	if ( !resizable )
+	    lv->header()->setResizeEnabled( resizable, i );
     }
 #ifndef QT_NO_TABLE
     else if ( widget->inherits( "QTable" ) ) {

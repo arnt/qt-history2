@@ -498,13 +498,13 @@
                             </widget>
                             <widget class="QCheckBox" row="3" column="0" rowspan="1" colspan="2">
                                 <property name="name">
-                                    <cstring>colResizeable</cstring>
+                                    <cstring>colResizable</cstring>
                                 </property>
                                 <property name="text">
                                     <string>Re&amp;sizable</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>The column's width will be resizeable if this option is checked.</string>
+                                    <string>The column's width will be resizable if this option is checked.</string>
                                 </property>
                             </widget>
                         </grid>
@@ -805,7 +805,7 @@
         <slot>columnPixmapChosen()</slot>
     </connection>
     <connection>
-        <sender>colResizeable</sender>
+        <sender>colResizable</sender>
         <signal>toggled(bool)</signal>
         <receiver>ListViewEditorBase</receiver>
         <slot>columnResizable(bool)</slot>
@@ -931,6 +931,6 @@
     <tabstop>colDeletePixmap</tabstop>
     <tabstop>colChoosePixmap</tabstop>
     <tabstop>colClickable</tabstop>
-    <tabstop>colResizeable</tabstop>
+    <tabstop>colResizable</tabstop>
 </tabstops>
 </UI>

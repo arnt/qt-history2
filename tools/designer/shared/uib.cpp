@@ -23,11 +23,11 @@
 static const char commonStrings[] =
     "\0()\0(bool)\0(const QString&)\0(int)\0C++\0Layout1\0PNG\0QCheckBox\0"
     "QComboBox\0QDialog\0QFrame\0QGridLayout\0QGroupBox\0QHBoxLayout\0QLabel\0"
-    "QLayoutWidget\0QLineEdit\0QListView\0QPushButton\0QRadioButton\0"
-    "QVBoxLayout\0QWidget\0TextLabel1\0XPM.GZ\0accept\0autoDefault\0buddy\0"
-    "caption\0clicked\0default\0destroy\0frameShadow\0frameShape\0geometry\0"
-    "init\0margin\0maximumSize\0minimumSize\0name\0reject\0sizePolicy\0"
-    "spacing\0text\0title\0toolTip\0unnamed\0whatsThis";
+    "QLineEdit\0QListView\0QPushButton\0QRadioButton\0QVBoxLayout\0QWidget\0"
+    "TextLabel1\0XPM.GZ\0accept\0autoDefault\0buddy\0caption\0clicked\0"
+    "default\0destroy\0frameShadow\0frameShape\0geometry\0init\0margin\0"
+    "maximumSize\0minimumSize\0name\0reject\0sizePolicy\0spacing\0text\0title\0"
+    "toolTip\0unnamed\0whatsThis";
 
 UibStrTable::UibStrTable()
     : out( table, IO_WriteOnly ), start( sizeof(commonStrings) )

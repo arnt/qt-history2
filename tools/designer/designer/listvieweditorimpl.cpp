@@ -196,7 +196,7 @@ void ListViewEditor::currentColumnChanged( QListBoxItem *i )
 	colText->setText( "" );
 	colText->blockSignals( FALSE );
 	colClickable->setEnabled( FALSE );
-	colResizeable->setEnabled( FALSE );
+	colResizable->setEnabled( FALSE );
 	return;
     }
 
@@ -204,7 +204,7 @@ void ListViewEditor::currentColumnChanged( QListBoxItem *i )
     colPixmap->setEnabled( TRUE );
     colDeletePixmap->setEnabled( i->pixmap() && !i->pixmap()->isNull() );
     colClickable->setEnabled( TRUE );
-    colResizeable->setEnabled( TRUE );
+    colResizable->setEnabled( TRUE );
 
     colText->blockSignals( TRUE );
     colText->setText( c->text );
@@ -214,7 +214,7 @@ void ListViewEditor::currentColumnChanged( QListBoxItem *i )
     else
 	colPixmap->setText( "" );
     colClickable->setChecked( c->clickable );
-    colResizeable->setChecked( c->resizable );
+    colResizable->setChecked( c->resizable );
 }
 
 void ListViewEditor::newColumnClicked()
@@ -519,7 +519,7 @@ void ListViewEditor::setupColumns()
     colText->setEnabled( FALSE );
     colPixmap->setEnabled( FALSE );
     colClickable->setEnabled( FALSE );
-    colResizeable->setEnabled( FALSE );
+    colResizable->setEnabled( FALSE );
 
     if ( colPreview->firstItem() )
 	colPreview->setCurrentItem( colPreview->firstItem() );

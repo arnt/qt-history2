@@ -609,7 +609,7 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
     QString txt;
     QString com;
     QString pix;
-    bool clickable = FALSE, resizeable = FALSE;
+    bool clickable = FALSE, resizable = FALSE;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "property" ) {
 	    QString attrib = n.attribute("name");
@@ -625,8 +625,8 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
 		}
 	    } else if ( attrib == "clickable" )
 		clickable = v.toBool();
-	    else if ( attrib == "resizeable" )
-		resizeable = v.toBool();
+	    else if ( attrib == "resizable" || attrib == "resizeable" )
+		resizable = v.toBool();
 	}
 	n = n.nextSibling().toElement();
     }
@@ -640,7 +640,7 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
 	s += indent + parent + "->header()->setLabel( " + parent + "->header()->count() - 1, " + pix + ", " + trcall( txt, com ) + " );\n";
     if ( !clickable )
 	s += indent + parent + "->header()->setClickEnabled( FALSE, " + parent + "->header()->count() - 1 );\n";
-    if ( !resizeable )
+    if ( !resizable )
 	s += indent + parent + "->header()->setResizeEnabled( FALSE, " + parent + "->header()->count() - 1 );\n";
     return s;
 }

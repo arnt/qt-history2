@@ -63,7 +63,7 @@ CustomWidgetEditor::CustomWidgetEditor( QWidget *parent, MainWindow *mw )
     sizeVer->setEnabled( FALSE );
     checkContainer->setEnabled( FALSE );
     localGlobalCombo->setEnabled( FALSE );
-    editClass->setValidator( new AsciiValidator( editClass ) );
+    editClass->setValidator( new AsciiValidator( ":", editClass ) );
     editSignal->setValidator( new AsciiValidator( TRUE, editSignal ) );
     editSlot->setValidator( new AsciiValidator( TRUE, editSignal ) );
     editProperty->setValidator( new AsciiValidator( editSignal ) );
