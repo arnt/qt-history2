@@ -466,108 +466,231 @@ public:
 };
 
 
-// NOT REVISED
+
 /*! \class QMainWindow qmainwindow.h
 
-  \brief The QMainWindow class provides a typical main application
-  window, with a menu bar, tool bars and a status bar.
+  \brief The QMainWindow class provides a main application window, with
+  a menu bar, dockable tool bars and a status bar.
 
   \ingroup application
 
-  In addition, you need the large central widget, which you supply and
-  tell QMainWindow about using setCentralWidget(), and perhaps a few
-  tool bars - or dock windows in general-, which you can add using
-  addDockWindow().
+    Main windows are most often used to provide menus, toolbars and a
+    status bar around a large central widget, such as a text edit or
+    drawing canvas. QMainWindow is usually subclassed since this makes
+    it easier to encapsulate the central widget, menus and toolbars as
+    well as the window's state. Subclassing makes it possible to create
+    the slots that are called when the user clicks menu items or toolbar
+    buttons. We'll briefly review adding menu items and toolbar buttons
+    then describe the facilities of QMainWindow itself.
 
-  The central widget is not touched by QMainWindow.  QMainWindow
-  manages its geometry, and that is all.  For example, the
-  application/application.cpp example (an editor) sets a QMultiLineEdit
-  to be the central widget.
+    \code
+    QMainWindow *mw = new QMainWindow;
+    QTextEdit edit = new QTextEdit( mw, "editor" );
+    edit->setFocus();
+    mw->setCaption( "Main Window" );
+    mw->setCentralWidget( edit );
+    mw->show();
+    \endcode
 
-  QMainWindow automatically detects the creation of a menu bar or
-  status bar if you specify the QMainWindow as parent, or you can use
-  the provided menuBar() and statusBar() functions.  menuBar() and
-  statusBar() create a suitable widget if one doesn't exist, and
-  updates the window's layout to make space.
+    QMainWindows may be created in their own right as shown above.  The
+    central widget is added with setCentralWidget(). Menus can be added
+    to the default menu bar, widgets can be added to the status bar and
+    toolbars can be added to any of the dock areas.
 
-  QMainWindow also provides a QToolTipGroup connected to the status
-  bar.  toolTipGroup() provides access to the QToolTipGroup, but there
-  is no way to set the tool tip group.
+    \walkthrough application/main.cpp
+    \skipto ApplicationWindow
+    \printuntil show
+    \endcode
 
-  The QMainWindow allows by default dock window (toolbar) docking in
-  all areas.  You can use setDockEnabled() to enable and disable
-  docking areas for toolbars. Currently, \c Top, \c Left, \c Right, \c
-  Bottom, \c Minimized and \c TornOff (floating) are meaningful.
+    In the extract above ApplicationWindow is a subclass of QMainWindow
+    that we must write for ourselves; this is the commonest approach to
+    using QMainWindow. (The source for the extracts in this description
+    are taken from \l examples/application/main.cpp, \l
+    examples/application/application.cpp, examples/action/main.cpp, \l
+    and examples/action/application.cpp )
 
-  For further documentation note, that toolbars are just dock windows
-  with some extra functionality. So everything which applies to dock
-  windows also applies to toolbars. See the documentation of
-  QDockWindow and QToolBar for further information.
+    When subclassing we add the menu items and toolbars in the
+    subclass's constructor. If we've created a QMainWindow instance
+    directly we can add menu items and toolbars just as easily by
+    passing the QMainWindow instance as the parent instead of the \e
+    this pointer.
 
-  Several functions let you change the appearance of a QMainWindow
-  globally: <ul>
+    \walkthrough application/application.cpp
+    \skipto help = new
+    \printuntil about
 
-  <li> setRightJustification() determines whether QMainWindow should
-  ensure that the toolbars/dock windows fill the available space. This
-  is nearly never usful, rather use
-  QDockWindow::setHorizontalStretchable() and
-  QDockWindow::setVerticalStretchable()) to make specific dock
-  windows/toolbars stretchable.
+    Here we've added a new menu with one menu item. The menu has been
+    inserted into the menu bar that QMainWindow provides by default and
+    which is accessible through the menuBar() function. The slot will be
+    called when the menu item is clicked.
 
-  <li> setUsesBigPixmaps() determines whether QToolButton (and other
-  classes) should draw small or large pixmaps (see QIconSet for more
-  about that),
+    \walkthrough application/application.cpp
+    \skipto fileTools 
+    \printuntil setLabel
+    \skipto QToolButton
+    \printuntil open file
 
-  <li> setUsesTextLabel() determines whether the toolbar buttons (and
-  other classes), should display a textlabel in addition to pixmaps
-  (see QToolButton for more about that).
+    This extract shows the creation of a toolbar with one toolbar
+    button. QMainWindow supplies four dock areas for toolbars. When a
+    toolbar is created as a child of a QMainWindow (or derived
+    class) instance it will be placed in a dock area (at the top by
+    default). The slot will be called when the toolbar button is
+    clicked.
+    
+    \walkthrough application/application.cpp
+    \skipto editor
+    \printuntil statusBar
 
-  </ul>
+    Having created the menus and toolbar we create an instance of the
+    large central widget, give it the focus and set it as the main
+    window's central widget. In the example we've also set the status
+    bar, accessed via the statusBar() function, to an initial message
+    which will be displayed for two seconds. Note that you can add
+    additional widgets to the status bar, for example labels, to show
+    further status information. See the QStatusBar documentation for
+    details, particularly the addWidget() function.
 
-  Dock windows can be dragged by the user into each enabled docking
-  area, inside each docking area and undocked (floated).. This feature
-  can be enabled and disabled using setDockWindowsMovable().  By
-  default this feature is enabled. If the \c Minimized dock is enabled
-  the user can hide(minimize)/show(restore) a dock window with a click
-  on the toolbar handle. The handles of all minimized toolbars are
-  drawn below the menu bar in one row, and if the user moves the mouse
-  cursor onto such a handle, the caption of the dock window is
-  displayed in a tool tip (see QDockWindow::caption() or
-  QToolBar::label()). So if you enable the Minimized dock, you should
-  specify a meaningful caption/label for each dock
-  window/toolbar. With a double click on a dock window handle, the
-  dockwindow gets undocked. With a double click on a floating dock
-  window's titlebar the dock window gets docked again.
+    Often we want to synchronise a toolbar button with a menu item,
+    for example, if the user clicks a 'bold' toolbar button we want the
+    'bold' menu item to be checked. This syncronisation can be achieved
+    automatically by creating actions and adding the actions to the
+    toolbar and menu.
 
-  All this management of dock windows and toolbars is infact done by
-  QDockArea, but this is done transparently through the QMainWindow API.
+    \walkthrough action/application.cpp
+    \skipto QAction * fileOpen
+    \printline
+    \skipto fileOpenAction
+    \printuntil choose
 
-  Normally dock windows are moved transparently (this means while the
-  user drags one, a rectangle is drawn on the screen). With
-  setOpaqueMoving() it's possible to switch between opaque and
-  transparent moving of toolbars.
+    Here we create an action with an icon which will be used in any menu
+    and toolbar that the action is added to. We've also given the action
+    a menu name, '&Open', and a keyboard shortcut. The connection that we
+    have made will be used when the user clicks either the menu item \e
+    or the toolbar button. 
 
-  The main window's menubar is static (on the top) by default. If you
-  want a movable menubar, create a QMenuBar as stretchable widget
-  inside its own movable dock window or toolbar and restrict this
-  dock window to only live within the Top or Bottom dock:
+    \walkthrough action/application.cpp
+    \skipto QPopupMenu * file
+    \printuntil menuBar
+    \skipto fileOpen
+    \printline
 
-  \code
-  QToolBar *tb = new QToolBar( this );
-  addToolBar( tb, tr( "Menubar" ), Top, FALSE );
-  QMenuBar *mb = new QMenuBar( tb );
-  mb->setFrameStyle( QFrame::NoFrame );
-  tb->setStretchableWidget( mb );
-  setDockEnabled( tb, Left, FALSE );
-  setDockEnabled( tb, Right, FALSE );
-  \endcode
+    The extract above shows the creation of a popup menu. We add the menu
+    to the QMainWindow's menu bar and add our action.
+
+    \walkthrough action/application.cpp
+    \skipto QToolBar * fileTool
+    \printuntil OpenAction
+
+    Here we create a new toolbar as a child of the QMainWindow and add
+    our action to the toolbar.
+
+    We'll now explore the functionality offered by QMainWindow.
+   
+    The main window will take care of the dock areas, and the geometry
+    of the central widget, but all other aspects of the central widget
+    are left to you. QMainWindow automatically detects the creation of a
+    menu bar or status bar if you specify the QMainWindow as parent, or
+    you can use the provided menuBar() and statusBar() functions.
+    menuBar() and statusBar() create a suitable widget if one doesn't
+    exist, and update the window's layout to make space.
+
+    QMainWindow provides a QToolTipGroup connected to the status bar.
+    toolTipGroup() provides access to the default QToolTipGroup. 
+    It isn't possible to set a different tool tip group.
+
+    New dock windows and toolbars can be added to a QMainWindow using
+    addDockWindow(). Dock windows are moved with moveDockWindow() and
+    removed with removeDockWindow(). QMainWindow allows default dock
+    window (toolbar) docking in all its dock areas (top, left, right,
+    bottom).  You can use setDockEnabled() to enable and disable docking
+    areas for toolbars. When adding or moving dock windows you can
+    specify their 'edge' (dock area). The currently available edges are:
+    \c Top, \c Left, \c Right, \c Bottom, \c Minimized and \c TornOff
+    (floating). (See \l Qt::Dock for an explanation of these areas.)
+    Note that the *ToolBar functions are included for backward
+    compatibility, all new code should use the *DockWindow functions.
+    QToolbar is a subclass of QDockWindow so all functions that work
+    with dock windows work on toolbars in the same way.
+
+    Some functions change the appearance of a QMainWindow globally: 
+    <ul>
+    <li>QDockWindow::setHorizontalStretchable() and
+    QDockWindow::setVerticalStretchable() are used to make specific dock
+    windows or toolbars stretchable.
+    <li>setUsesBigPixmaps() is used to set whether tool buttons should
+    draw small or large pixmaps (see QIconSet for more information).
+    <li>setUsesTextLabel() is used to set whether tool buttons 
+    should display a textual label in addition to pixmaps
+    (see QToolButton for more information).
+    </ul>
+
+    The user can drag dock windows into any enabled docking area. Dock
+    windows can also be dragged \e within a docking area, for example to
+    rearrange the order of some toolbars. Dock windows can also be
+    dragged outside any docking area (undocked, or 'floated'). Being
+    able to drag dock windows can be enabled (the default) and disabled
+    using setDockWindowsMovable(). If the user clicks the close button
+    on a floating dock window the window will disappear. To get the dock
+    window back the user must right click a dock area, then click the
+    name of the dock window they want to restore. Visible dock windows
+    have a tick by their name in the right click pop up menu. This menu
+    is created automatically as required by createDockWindowMenu(). It
+    may not always be appropriate for this menu to be available. The 
+    setAppropriate() function is used to inform the main window whether
+    or not the right click dock window menu should be popped up.
+    Double clicking a dock window handle undocks (floats) the dock
+    window. Double clicking a floating dock window's titlebar will dock
+    the floating dock window. 
+    
+    If the \c Minimized dock is enabled the user can hide (minimize) a
+    dock window or show (restore) a minimized dock window by clicking
+    the dock window handle. The handles of all minimized toolbars are
+    drawn below the menu bar (usually at the left) in a row. If the user
+    hovers the mouse cursor over one of the handles, the caption of the
+    dock window is displayed in a tool tip (see QDockWindow::caption()
+    or QToolBar::label()), so if you enable the \c Minimized dock, it is
+    best to specify a meaningful caption or label for each dock window.
+    To minimize a dock window programmatically use moveDockWindow()
+    with an edge of \c Minimized.
+
+    Dock windows are moved transparently by default, i.e.
+    during the drag an outline rectangle is drawn on the screen
+    representing the position of the dock window as it moves. If you
+    want the dock window to be shown normally whilst it is moved use
+    setOpaqueMoving().
+
+    The location of a dock window can be determined by calling
+    getLocation(). For movable dock windows we can line them up to
+    minimize wasted space with lineUpDockWindows(). Pointers to the dock
+    areas area available from topDock(), leftDock(), rightDock() and
+    bottomDock(). A customize menu item is added to the pop up dock
+    window menu if isCustomizable() returns TRUE; it returns FALSE by
+    default. Reimplement isCustomizable() and customize() if you want to
+    offer this extra menu item, for example, to allow the user to change
+    settings relating to the main window and its toolbars and dock
+    windows.
+
+    The main window's menu bar is fixed (at the top) by default. If you
+    want a movable menu bar, create a QMenuBar as a stretchable widget
+    inside its own movable dock window and restrict this
+    dock window to only live within the \c Top or \c Bottom dock:
+
+    \code
+    QToolBar *tb = new QToolBar( this );
+    addToolBar( tb, tr( "Menubar" ), Top, FALSE );
+    QMenuBar *mb = new QMenuBar( tb );
+    mb->setFrameStyle( QFrame::NoFrame );
+    tb->setStretchableWidget( mb );
+    setDockEnabled( tb, Left, FALSE );
+    setDockEnabled( tb, Right, FALSE );
+    \endcode
 
   An application with multiple dock windows can choose to save the
-  current dock window layout in order to restore it in the next
-  session. You can do this by using the streaming operators for
+  current dock window layout in order to restore it later, e.g. in the
+  next session. You can do this by using the streaming operators for
   QMainWindow.
 
-  To save the layout and all positions do this:
+  To save the layout and positions of all the dock windows do this:
 
   \code
   QFile f( filename );
@@ -578,8 +701,8 @@ public:
   }
   \endcode
 
-  To restore the dock window positions and sizes (normally on the next
-  start of the applications), do following:
+  To restore the dock window positions and sizes (normally when the
+  application is next started), do following:
 
   \code
   QFile f( filename );
@@ -590,12 +713,19 @@ public:
   }
   \endcode
 
+    QMainWindow's management of dock windows and toolbars is done
+    behind-the-scenes by QDockArea, although this is handled
+    transparently.
+
+    The QSettings class can be used to store application settings, such
+    as dock window positions and sizes.
+
   For multi-document interfaces (MDI), use a QWorkspace as central
   widget.
 
   <img src=qmainwindow-m.png> <img src=qmainwindow-w.png>
 
-  \sa QToolBar QDockWindow QStatusBar QMenuBar QToolTipGroup QDialog
+  \sa QToolBar QDockWindow QStatusBar QAction QMenuBar QPopupMenu QToolTipGroup QDialog
 */
 
 /*!
@@ -603,21 +733,37 @@ public:
 
   Each dock window can be in one of the following positions:
 
-  \value Top  above the central widget, below the menubar.
+  \value Top  above the central widget, below the menu bar.
 
   \value Bottom  below the central widget, above the status bar.
 
   \value Left  to the left of the central widget.
 
-  \value Right to the left of the central widget.
+  \value Right to the right of the central widget.
 
-  \value Minimized the toolbar is not shown - all handles of minimized
-  toolbars are drawn in one row below the menu bar.
+  \value Minimized the toolbar is not shown; the handles of all
+  minimized toolbars are drawn in one row below the menu bar.
 
-  \value TornOff floating dock window as own top level window which
-  always stays on to of the mainwindow.
+  \value TornOff the dock window floats as its own top level window
+  which always stays on top of the main window.
 
   \value Unmanaged not managed by a QMainWindow.
+*/
+
+/*!
+    \enum DockWindows
+
+    Right-clicking a dock area will pop up a menu
+    (createDockWindowMenu() is called automatically).
+
+    \value OnlyToolBars The menu will list all the toolbars,
+    but not any other dock windows.
+    
+    \value NoToolBars The menu will list dock windows but not toolbars. 
+    
+    \value AllDockWindows The menu will list all toolbars and other dock
+    windows. (This is the default.)
+
 */
 
 /*!  Constructs an empty main window. */
@@ -1645,7 +1791,11 @@ void QMainWindow::setDockMenuEnabled( bool b )
 /*!  Creates a menu which contains all toolbars (if \a dockWindows
   equals \c OnlyToolBars ), all dockwindows (if \a dockWindows equals
   \c NoToolBars) or all toolbars and dockwindows ( if \a dockWindows
-  equals AllDockWindows)..
+  equals AllDockWindows).
+
+  This function is called internally when necessary, e.g. when the user
+  right clicks a dock area, but may be reimplemented if you wish to
+  customize its behaviour.
 
   The items representing the toolbars and dockwindows are checkable,
   so the user sees the current state of the window and can also
