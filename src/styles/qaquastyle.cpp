@@ -13370,7 +13370,7 @@ void QAquaStyle::drawRangeControlWidgetSymbol( QPainter *, int, int,
 }
 
 void 
-QAquaStyle::titleBarMetrics( const QTitleBar*tb, int &ctrlW, int &ctrlH, int &titleH, int &titleW) const
+QAquaStyle::titleBarMetrics( const QTitleBar*tb, int &ctrlW, int &ctrlH, int &titleW, int &titleH) const
 {
     titleH = 21;
     if(tb->window) {
