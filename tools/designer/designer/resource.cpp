@@ -1045,7 +1045,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	    if ( !changed.contains( "geometry" ) )
 		changed << "geometry";
 	}
-    } else if ( w->inherits( "QLayout" ) ) { // #### should be cleaner (RS)... now clean enough???
+    } else if ( w->inherits( "QLayout" ) ) {
 	if ( MetaDataBase::spacing( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) ) > -1 )
 	    changed << "spacing";
 	if ( MetaDataBase::margin( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) ) > -1 )
@@ -1181,8 +1181,7 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 	ts << makeIndent( indent ) << "<number>" << QString::number( dob ) << "</number>" << endl;
 	break;
     case QVariant::KeySequence:
-	num = value.toInt();
-	ts << makeIndent( indent ) << "<number>" << QString::number( num ) << "</number>" << endl;
+	ts << makeIndent( indent ) << "<string>" << entitize( value.toString() ) << "</string>" << endl;
 	break;
     case QVariant::UInt:
 	unum = value.toUInt();

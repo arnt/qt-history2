@@ -1764,6 +1764,8 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop,
     if ( offset != -1 ) {
 	if ( prop == "geometry" && obj == toplevel ) {
 	    toplevel->resize( value.toRect().size() );
+	} else if ( prop == "accel" ) {
+	    obj->setProperty( prop, value.toKeySequence() );
 	} else {
 	    if ( value.type() == QVariant::String ||
 		 value.type() == QVariant::CString ) {
