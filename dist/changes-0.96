@@ -1,0 +1,20 @@
+Here is a list of (major) changes in Qt from 0.95 to 0.96.
+
+Bug-fixes, optimizations and much improved documentation, of course.
+
+There are few changes in the API (Qt header files).
+
+
+QBitmap:
+--------
+  Constructor takes "const uchar *bits" instead of "const char *"
+  because of sign problems (uchar = unsigned char).
+
+
+QWidget:
+--------
+  New protected virtual functions styleChange(), backgroundColorChange(),
+  backgroundPixmapChange(), paletteChange() and fontChange().
+  These functions are called from setStyle(), setBackgroundColor() etc.
+  You can reimplement them to if you need to know when widget properties
+  changed and to optimize updates.
