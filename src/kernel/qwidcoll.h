@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidcoll.h#10 $
+** $Id: //depot/qt/main/src/kernel/qwidcoll.h#11 $
 **
 ** Definition of QWidget collections
 **
@@ -12,18 +12,7 @@
 #ifndef QWIDCOLL_H
 #define QWIDCOLL_H
 
-#ifndef QT_H
-#include "qwidget.h"
-#include "qlist.h"
-#include "qintdict.h"
-#endif // QT_H
-
-
-typedef Q_DECLARE(QListM,QWidget)		QWidgetList;
-typedef Q_DECLARE(QListIteratorM,QWidget)	QWidgetListIt;
-
-typedef Q_DECLARE(QIntDictM,QWidget)		QWidgetIntDict;
-typedef Q_DECLARE(QIntDictIteratorM,QWidget)	QWidgetIntDictIt;
-
+#include "qwidgetlist.h"
+#include "qwidgetintdict.h"
 
 #endif // QWIDCOLL_H
