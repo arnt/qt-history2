@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#23 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -706,14 +706,14 @@ void QTextContainer::setParent( QTextContainer* p)
     fnt = 0;
     if ( col.isValid() )
 	col = QColor();
-    
+
     // set the parent
     parent = p;
 }
 
 void QTextContainer::setColor( const QColor& c)
 {
-    col = c; 
+    col = c;
 }
 
 
@@ -980,14 +980,14 @@ QTextFont::QTextFont( const QStyleSheetItem *stl, const QMap<QString, QString> &
 QTextFont::~QTextFont()
 {
 }
-    
+
 void QTextFont::setParent( QTextContainer* p)
 {
     QTextContainer::setParent( p );
-    
+
     if ( attributes() && attributes()->contains("color") )
 	setColor( QColor( (*attributes())["color"] ) );
-    
+
     if ( attributes() && attributes()->contains("size") ) {
 	QString a = (*attributes())["size"];
 	int n = a.toInt();
@@ -998,7 +998,7 @@ void QTextFont::setParent( QTextContainer* p)
 	    f.setPointSize( n );
 	setFont( f );
     }
-    
+
     //### TODO some more font attributes
 }
 
@@ -2197,7 +2197,7 @@ QMap<QCString, QChar> *htmlMap()
   	html_map->insert("szlig", 'ß');
   	html_map->insert("copy", '©');
   	html_map->insert("deg", '°');
-  	html_map->insert("mico", 'µ');
+  	html_map->insert("micro", 'µ');
   	html_map->insert("plusmn", '±');
     }
     return html_map;
@@ -2208,17 +2208,17 @@ QChar QRichText::parseHTMLSpecialChar(const QString& doc, int& pos)
     QCString s;
     pos++;
     int recoverpos = pos;
-    while ( pos < int(doc.length()) && doc[pos] != ';' && pos < recoverpos + 6) {
+    while ( pos < int(doc.length()) && doc[pos] != ';' && !doc[pos].isSpace() && pos < recoverpos + 6) {
 	s += doc[pos];
 	pos++;
     }
-    if (doc[pos] != ';' ) {
+    if (doc[pos] != ';' && !doc[pos].isSpace() ) {
 	pos = recoverpos;
 	return '&';
     }
     pos++;
 
-    if ( s.length() > 1 && s[0] == '?') {
+    if ( s.length() > 1 && s[0] == '#') {
 	return s.mid(1).toInt();
     }
 
