@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qeucmapper.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qeucmapper.cpp#2 $
 **
 ** Implementation of QEUCMapper class
 **
@@ -16455,7 +16455,7 @@ char* QEUCMapper::fromUnicode(QString uc) const
 {
     char* result = new char[uc.length()*2+1];
     char* cursor = result;
-    for (uint i=0; i<uc.length(); i++) {
+    for (int i=0; i<(int)uc.length(); i++) {
 	QChar ch = uc[i];
 	if ( !ch.row && ch.cell < 128 ) {
 	    *cursor++ = ch.row;
