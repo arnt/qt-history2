@@ -36,12 +36,12 @@ public slots:
     QVariant call(const QString &function, QValueList<QVariant> &arguments = QValueList<QVariant>());
 
 signals:
-    void scriptEntered();
-    void scriptFinished();
-    void scriptFinished(const QVariant &result);
-    void scriptFinished(int code, const QString &source,const QString &description, const QString &help);
-    void scriptStateChanged(int state);
-    void scriptError(int code, const QString &description, int sourcePosition, const QString &sourceText);
+    void entered();
+    void finished();
+    void finished(const QVariant &result);
+    void finished(int code, const QString &source,const QString &description, const QString &help);
+    void stateChanged(int state);
+    void error(int code, const QString &description, int sourcePosition, const QString &sourceText);
 
 protected:
     virtual void updateScripts();
