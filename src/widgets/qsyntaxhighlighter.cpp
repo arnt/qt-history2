@@ -113,7 +113,7 @@ QSyntaxHighlighter::QSyntaxHighlighter( QTextEdit *textEdit )
 {
     textEdit->document()->setPreProcessor( new QSyntaxHighlighterInternal( this ) );
     textEdit->document()->invalidate();
-    textEdit->document()->repaintContents( FALSE );
+    textEdit->repaintContents( FALSE );
 }
 
 /*!
