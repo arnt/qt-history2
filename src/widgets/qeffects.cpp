@@ -12,6 +12,7 @@ class QAccessWidget : public QWidget
 {
     friend class QAlphaWidget;
     friend class QScrollEffect;
+    friend class QRollEffect;
 public:
     QAccessWidget( QWidget* parent = 0, const char* name = 0, WFlags f = 0 )
     {}
@@ -100,14 +101,13 @@ void QAlphaWidget::run( int time )
 	duration = time;
 
 	connect( &anim, SIGNAL(timeout()), this, SLOT(render()));
-	anim.start( 40 );
+	anim.start( 10 );
     } else {
         widget->clearWState( WState_Visible );
 	widget->setWState( WState_ForceHide );
 	widget->show();
     }
 }
-
 
 bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
 {
@@ -176,15 +176,19 @@ void QAlphaWidget::alphaBlend()
     }
 }
 
-// Internal class QScrollEffect
+// Internal class QRollEffect
 
-class QScrollEffect : public QObject
+class QRollEffect : public QWidget
 {
     Q_OBJECT
 public:
-    QScrollEffect( QWidget* w, int time, Qt::Orientation orient );
+    QRollEffect( QWidget* w, Qt::Orientation orient );
 
-    void run();
+    void run( int time );
+
+protected:
+    void paintEvent( QPaintEvent* );
+    bool eventFilter( QObject*, QEvent* );
 
 private slots:
     void scroll();
@@ -192,27 +196,32 @@ private slots:
 private:
     QAccessWidget* widget;
 
-    int currentWidth;
     int currentHeight;
-    int totalWidth;
+    int currentWidth;
     int totalHeight;
-    QSize minSize;
+    int totalWidth;
 
     int duration;
     bool grow;
+    bool done;
+    bool showWidget;
     Qt::Orientation orientation;
 
     QTimer anim;
     QTime checkTime;
+
+    QPixmap pm;
 };
 
-QScrollEffect::QScrollEffect( QWidget* w, int time, Qt::Orientation orient )
-: QObject( w ), duration(time), orientation(orient)
+QRollEffect::QRollEffect( QWidget* w, Qt::Orientation orient )
+: QWidget(0, 0, 
+	  WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WStyle_StaysOnTop | WResizeNoErase | WRepaintNoErase )
+  , orientation(orient)
 {
-    widget = (QAccessWidget*) w; 
+    widget = (QAccessWidget*) w;
     ASSERT( widget );
 
-    widget->setWFlags( WResizeNoErase | WRepaintNoErase );
+    setBackgroundMode( NoBackground );
 
     widget->installEventFilter( this );
 
@@ -224,97 +233,139 @@ QScrollEffect::QScrollEffect( QWidget* w, int time, Qt::Orientation orient )
 	totalHeight = widget->sizeHint().height();
     }
 
-    minSize = widget->minimumSize();
-    widget->setMinimumSize( 0, 0 );
-
     if ( widget->testWState( WState_ForceHide) ) {
 	grow = TRUE;
-	currentHeight = 0;
-	currentWidth = 0;
-
-	switch ( orientation )
-	{
-	case Horizontal:
-	    widget->resize( currentWidth, totalHeight );
-	    break;
-	case Vertical:
-	    widget->resize( totalWidth, currentHeight );
-	    break;
-	}
-
-	widget->show();
+	currentHeight = orientation == Horizontal ? totalHeight : 0;
+	currentWidth = orientation == Vertical ? totalWidth : 0;
     } else {
 	grow = FALSE;
 	currentHeight = totalHeight;
-	currentWidth = totalWidth;    
+	currentWidth = totalWidth;   
     }
+
+    move( widget->geometry().x(),widget->geometry().y() );
+    resize( widget->size().width(), widget->size().height() );
+
+    pm = QPixmap::grabWidget( widget );
+
 }
 
-void QScrollEffect::run()
+void QRollEffect::paintEvent( QPaintEvent* e )
 {
+    bitBlt( this, QPoint( currentWidth - totalWidth,currentHeight - totalHeight), &pm );
+}
+
+bool QRollEffect::eventFilter( QObject* o, QEvent* e )
+{
+    switch ( e->type() )
+    {
+    case QEvent::Move:
+	move( widget->geometry().x(),widget->geometry().y() );
+	update();
+	break;
+    case QEvent::Hide:
+    case QEvent::Close:
+	showWidget = FALSE;
+	done = TRUE;
+	scroll();
+	break;
+    default:
+	break;
+    }
+    return QWidget::eventFilter( o, e );
+}
+
+void QRollEffect::run( int time )
+{
+    duration  = time;
     if ( !widget )
 	return;
 
     connect( &anim, SIGNAL(timeout()), this, SLOT(scroll()));
-    anim.start( 40 );
+
+    widget->setWState( WState_Visible );
+    widget->clearWState( WState_ForceHide );
+
+    show();
+
+    if ( !grow )
+	widget->hide();
+
+    showWidget = grow;
+    done = FALSE;
+    anim.start( 10 );
     checkTime.start();
 }
 
-void QScrollEffect::scroll()
+void QRollEffect::scroll()
 {
-    bool done;
-
-    switch ( orientation )
-    {
-    case Horizontal:
-	if ( grow ) {
-	    currentWidth = totalWidth * checkTime.elapsed() / duration;
-	    done = (currentWidth >= totalWidth);
-	    widget->resize( QMIN( currentWidth, totalWidth ), totalHeight );
-	} else {
-	    currentWidth = totalWidth - totalWidth * checkTime.elapsed() / duration;
-	    done = (currentHeight <= 0 );
-	    widget->resize( QMAX( currentWidth, 0 ), totalHeight );
+    if ( !done ) {
+	switch ( orientation )
+	{
+	case Horizontal:
+	    if ( grow ) {
+		currentWidth = totalWidth * checkTime.elapsed() / duration;
+		done = (currentWidth >= totalWidth);
+		resize( QMIN( currentWidth, totalWidth ), totalHeight );
+	    } else {
+		currentWidth = totalWidth - totalWidth * checkTime.elapsed() / duration;
+		done = (currentHeight <= 0 );
+		resize( QMAX( currentWidth, 0 ), currentHeight );
+	    }
+	    break;
+	case Vertical:
+	    if ( grow ) {
+		currentHeight = totalHeight * checkTime.elapsed() / duration;
+		done = (currentHeight >= totalHeight);
+		resize( totalWidth, QMIN( currentHeight, totalHeight ) );
+	    } else {
+		currentHeight = totalHeight - totalHeight * checkTime.elapsed() / duration;
+		done = (currentHeight <= 0 );
+		resize( currentWidth, QMAX( currentHeight, 0) );
+	    }
+	    break;
 	}
-	break;
-    case Vertical:
-	if ( grow ) {
-	    currentHeight = totalHeight * checkTime.elapsed() / duration;
-	    done = (currentHeight >= totalHeight);
-	    widget->resize( totalWidth, QMIN( currentHeight, totalHeight ) );
-	} else {
-	    currentHeight = totalHeight - totalHeight * checkTime.elapsed() / duration;
-	    done = (currentHeight <= 0 );
-	    widget->resize( totalWidth, QMAX( currentHeight, 0) );
-	}	
-	break;
     }
     if ( done ) {
 	anim.stop();
-	if ( minSize.isValid() )
-	    widget->setMinimumSize( minSize );
-	if ( !grow )
-	    widget->hide();
+	widget->clearWState( WState_Visible );
+	BackgroundMode bgm = widget->backgroundMode();
+	widget->setBackgroundMode( NoBackground );
+	if ( showWidget )
+	    widget->show();
+	hide();
+	if ( showWidget) {
+	    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
+	    widget->setBackgroundMode( bgm );
+	    widget->setWState( WState_Visible );
+	}
 	delete this;
     }
 }
 
+
 #include "qeffects.moc"
 
-// external statical functions
+// global functions
 
-static QScrollEffect* scroll = 0;
+static QRollEffect* roll = 0;
 
 void scrollEffect( QWidget* w, Qt::Orientation orient, int time )
 {
-    scroll = new QScrollEffect( w, time, orient );
-    scroll->run();
+    qApp->sendPostedEvents( w, QEvent::Move );
+    qApp->sendPostedEvents( w, QEvent::Resize );
+
+    roll = new QRollEffect( w, orient );
+    roll->run( time );
 }
 
 static QAlphaWidget* blend = 0;
 
 void fadeEffect( QWidget* w, int time )
 {
+    qApp->sendPostedEvents( w, QEvent::Move );
+    qApp->sendPostedEvents( w, QEvent::Resize );
+
     blend = new QAlphaWidget( w );
     blend->run( time );
 }
