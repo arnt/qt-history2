@@ -23,7 +23,7 @@
 #include "qregexp.h"
 #include "qtimer.h"
 #include "qfileinfo.h"
-#include "qptrdict.h" // binary compatibility
+#include "qhash.h"
 
 //#define QFTPPI_DEBUG
 //#define QFTPDTP_DEBUG
@@ -963,7 +963,7 @@ public:
     { pending.setAutoDelete( TRUE ); }
 
     QFtpPI pi;
-    QPtrList<QFtpCommand> pending;
+    QList<QFtpCommand *> pending;
     bool close_waitForStateChange;
     QFtp::State state;
     QFtp::Error error;
@@ -972,7 +972,7 @@ public:
     bool npWaitForLoginDone;
 };
 
-static QPtrDict<QFtpPrivate> *d_ptr = 0;
+static QHash<void *, QFtpPrivate *> *d_ptr = 0;
 static void cleanup_d_ptr()
 {
     delete d_ptr;
@@ -981,15 +981,16 @@ static void cleanup_d_ptr()
 static QFtpPrivate* d( const QFtp* foo )
 {
     if ( !d_ptr ) {
-	d_ptr = new QPtrDict<QFtpPrivate>;
+	d_ptr = new QHash<void *, QFtpPrivate *>;
 	d_ptr->setAutoDelete( TRUE );
 	qAddPostRoutine( cleanup_d_ptr );
     }
-    QFtpPrivate* ret = d_ptr->find( (void*)foo );
-    if ( ! ret ) {
+    QFtpPrivate* ret = d_ptr->value((void *)foo, 0);
+    if (!ret) {
 	ret = new QFtpPrivate;
-	d_ptr->replace( (void*) foo, ret );
+        d_ptr->insert((void *)foo, ret);
     }
+    
     return ret;
 }
 
@@ -1771,7 +1772,7 @@ void QFtp::abort()
 int QFtp::currentId() const
 {
     QFtpPrivate *d = ::d( this );
-    QFtpCommand *c = d->pending.getFirst();
+    QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( c == 0 )
 	return 0;
     return c->id;
@@ -1786,7 +1787,7 @@ int QFtp::currentId() const
 QFtp::Command QFtp::currentCommand() const
 {
     QFtpPrivate *d = ::d( this );
-    QFtpCommand *c = d->pending.getFirst();
+    QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( c == 0 )
 	return None;
     return c->command;
@@ -1805,7 +1806,7 @@ QFtp::Command QFtp::currentCommand() const
 QIODevice* QFtp::currentDevice() const
 {
     QFtpPrivate *d = ::d( this );
-    QFtpCommand *c = d->pending.getFirst();
+    QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( !c )
 	return 0;
     if ( c->is_ba )
@@ -1840,7 +1841,7 @@ void QFtp::clearPendingCommands()
     QFtpPrivate *d = ::d( this );
     QFtpCommand *c = 0;
     if ( d->pending.count() > 0 )
-	c = d->pending.take( 0 );
+	c = d->pending.takeFirst();
     d->pending.clear();
     if ( c )
 	d->pending.append( c );
@@ -1904,7 +1905,7 @@ void QFtp::startNextCommand()
 {
     QFtpPrivate *d = ::d( this );
 
-    QFtpCommand *c = d->pending.getFirst();
+    QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( c == 0 )
 	return;
 
@@ -1946,7 +1947,7 @@ void QFtp::startNextCommand()
 void QFtp::piFinished( const QString& )
 {
     QFtpPrivate *d = ::d( this );
-    QFtpCommand *c = d->pending.getFirst();
+    QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( c == 0 )
 	return;
 
@@ -1973,7 +1974,7 @@ void QFtp::piFinished( const QString& )
 void QFtp::piError( int errorCode, const QString &text )
 {
     QFtpPrivate *d = ::d( this );
-    QFtpCommand *c = d->pending.getFirst();
+    QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
 
     // non-fatal errors
     if ( c->command==Get && d->pi.currentCommand().startsWith("SIZE ") ) {
