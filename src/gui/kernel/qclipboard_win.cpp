@@ -177,9 +177,7 @@ public:
                 if (cf) {
                     HANDLE h = GetClipboardData(cf);
                     if (h) {
-                        char *src = (char *)GlobalLock(h);
-                        int s = GlobalSize(h);
-                        QConstByteArray cr(src,s);
+                        const QByteArray cr = QByteArray::fromRawData((char *)GlobalLock(h), GlobalSize(h));
                         r = c->convertToMime(cr,mime,cf);
                         GlobalUnlock(h);
                         break;

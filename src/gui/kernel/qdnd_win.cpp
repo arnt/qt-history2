@@ -396,9 +396,7 @@ QByteArray qt_olednd_obtain_data(const char *format)
             HRESULT hr = current_dropobj->GetData(fmtetc+i, &medium);
             if (!FAILED(hr)) {
                 HGLOBAL hText = medium.hGlobal;
-                char* d = (char*)GlobalLock(hText);
-                int len = GlobalSize(hText);
-                QConstByteArray r(d, len);
+                const QByteArray r = QByteArray::fromRawData((char*)GlobalLock(hText), GlobalSize(hText));
                 result = wm->convertToMime(r,format,cf);
                 GlobalUnlock(hText);
                 ReleaseStgMedium(&medium);
