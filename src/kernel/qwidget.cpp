@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#336 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#337 $
 **
 ** Implementation of QWidget class
 **
@@ -979,6 +979,8 @@ bool QWidget::isEnabledToTLW() const
 
 void QWidget::setEnabled( bool enable )
 {
+    if ( isEnabled() == enable) // nothing to do
+	return;
     if ( enable ) {
 	if ( testWFlags(WState_Disabled) ) {
 	    clearWFlags( WState_Disabled );
