@@ -98,11 +98,6 @@ protected:
     virtual int numRowsAffected() = 0;
     virtual QSqlRecord record() const;
 
-    virtual bool poll();
-    virtual int pollDescriptor() const;
-    virtual bool resetAsync(const QString &sqlquery);
-    virtual void cancelAsync();
-
 private:
     QSqlResultPrivate* d;
     void resetBindCount(); // HACK

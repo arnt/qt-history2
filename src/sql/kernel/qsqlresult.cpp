@@ -722,49 +722,4 @@ QSqlRecord QSqlResult::record() const
     return QSqlRecord();
 }
 
-/*!
-    Polls the database driver to find out whether results are
-    available. Returns false when all results have been processed
-    or if there was an error. Returns true if the poll was successful
-    and needs to be invoked again.
- */
-bool QSqlResult::poll()
-{
-    return false;
-}
-
-/*!
-   Returns the file descriptor on which data will be made available
-   by the database system. You can use a QSocketNotifier to call
-   poll() if data is available.
-
-   Returns -1 if the database does not support file descriptors.
- */
-int QSqlResult::pollDescriptor() const
-{
-    return -1;
-}
-
-/*!
-  Asynchronously executes the \a query. This call does not block.
-  In order to retreive the results, poll() has to be called.
-
-  While an asynchronous query is executed, you cannot call any other
-  method than poll(), pollDescriptor() or cancelAsync().
-
-  Returns false if there was an error or if the driver is not able
-  to execute queries asynchronously, otherwise true.
- */
-bool QSqlResult::resetAsync(const QString & /* query */)
-{
-    return false;
-}
-
-/*!
-  Cancels the execution of an asynchronous query.
- */
-void QSqlResult::cancelAsync()
-{
-}
-
 #endif // QT_NO_SQL

@@ -408,45 +408,6 @@ QSqlRecord QPSQLResult::record() const
     return info;
 }
 
-bool QPSQLResult::poll()
-{
-   if (!PQconsumeInput(d->driver->connection)) {
-        setLastError(qMakeError(QLatin1String("Unable to fetch data from the server"),
-                                QSqlError::ConnectionError, d->driver));
-        return false;
-    }
-    if (PQisBusy(d->driver->connection))
-        return true; // continue polling
-    d->result = PQgetResult(d->driver->connection);
-    d->processResults();
-    return false;
-}
-
-int QPSQLResult::pollDescriptor() const
-{
-    return PQsocket(d->driver->connection);
-}
-
-bool QPSQLResult::resetAsync(const QString &query)
-{
-    cleanup();
-    const QSqlDriver *dr = driver();
-    if (!dr || !dr->isOpen() || dr->isOpenError())
-        return false;
-    if (!PQsendQuery(d->driver->connection,
-                     d->driver->isUtf8 ? query.utf8() : query.local8Bit())) {
-        setLastError(qMakeError(QLatin1String("Unable to execute asynchronous query"),
-                                QSqlError::ConnectionError, d->driver));
-        return false;
-    }
-    return true;
-}
-
-void QPSQLResult::cancelAsync()
-{
-    PQrequestCancel(d->driver->connection);
-}
-
 ///////////////////////////////////////////////////////////////////
 
 static bool setEncodingUtf8(PGconn* connection)
