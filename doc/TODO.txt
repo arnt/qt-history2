@@ -120,6 +120,8 @@ QHostAddress (rms)
   out the own IP address; perhaps static member of QHostAddress?
   (see support/arc-08/16270)
 
+QLineEdit
+  public undo/redo API, like in QMultiLineEdit right now (borland)
 
 New functionality
 -----------------
