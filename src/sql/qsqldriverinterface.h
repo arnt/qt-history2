@@ -43,14 +43,14 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlDriver;
-class Q_EXPORT QSqlDriverInterface : public QUnknownInterface
-{
-public:
-    QSqlDriverInterface( QUnknownInterface *parent = 0 ) 
-	: QUnknownInterface( parent ) {}
-    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "QSqlDriverInterface" ); }
+// {EDDD5AD5-DF3C-400c-A711-163B72FE5F61}
+Q_GUID( IID_QSqlDriverInterface, 
+0xeddd5ad5, 0xdf3c, 0x400c, 0xa7, 0x11, 0x16, 0x3b, 0x72, 0xfe, 0x5f, 0x61);
 
+class QSqlDriver;
+
+interface Q_EXPORT QSqlDriverInterface : public QUnknownInterface
+{
     virtual QStringList featureList() const = 0;
     virtual QSqlDriver* create( const QString& name ) = 0;
 };

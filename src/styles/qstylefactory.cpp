@@ -56,7 +56,7 @@ static QInterfaceManager<QStyleInterface> *manager = 0;
 
 static void ensureManager() {
         if ( !manager ) {
-        manager = new QInterfaceManager<QStyleInterface>( "QStyleInterface" );
+        manager = new QInterfaceManager<QStyleInterface>( IID_QStyleInterface );
 
         QString defpath(getenv("QTDIR"));
         if (! defpath.isNull() && ! defpath.isEmpty()) {

@@ -3,17 +3,17 @@
 
 #ifndef QT_H
 #include "qcomponentinterface.h"
+#include <qstringlist.h>
 #endif // QT_H
 
 class QStyle;
 
-class Q_EXPORT QStyleInterface : public QUnknownInterface
+// {FC1B6EBE-053C-49c1-A483-C377739AB9A5}
+Q_GUID( IID_QStyleInterface, 
+0xfc1b6ebe, 0x53c, 0x49c1, 0xa4, 0x83, 0xc3, 0x77, 0x73, 0x9a, 0xb9, 0xa5);
+
+interface Q_EXPORT QStyleInterface : public QUnknownInterface
 {
-public:
-    QStyleInterface( QUnknownInterface *parent = 0 ) 
-	: QUnknownInterface( parent ) {}
-    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "QStyleInterface" ); }
-    
     virtual QStringList featureList() const = 0; 
     virtual QStyle* create( const QString& style ) = 0;
 };
