@@ -151,35 +151,16 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     }
     t << endl << "|" << endl;
 
-    if ( !project->variables()["QMAKE_POST_LINK"].isEmpty() )
-	t << "\t" <<var("QMAKE_POST_LINK") << endl;
-
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
 	QStringList dlldirs = project->variables()["DLLDESTDIR"];
 	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
 	    t << "\n\t" << "-$(COPY_FILE) $(TARGET) " << *dlldir;
 	}
     }
-    QString targetfilename = project->variables()["TARGET"].first();
-    if(project->isActiveConfig("activeqt")) {
-	QString version;
-	if (!project->variables()["VERSION"].isEmpty())
-	    version = project->variables()["VERSION"].first();
-	if ( version.isEmpty() )
-	    version = "1.0";
 
-	if ( project->isActiveConfig("dll")) {
-	    t << "\n\t" << ("-$(IDC) $(TARGET) /idl tmp\\" + targetfilename + ".idl -version " + version);
-	    t << "\n\t" << ("-$(IDL) tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl");
-	    t << "\n\t" << ("-$(IDC) $(TARGET) /tlb tmp\\" + targetfilename + ".tlb");
-	    t << "\n\t" << ("-$(IDC) $(TARGET) /regserver" );
-	} else {
-	    t << "\n\t" << ("-$(TARGET) -dumpidl tmp\\" + targetfilename + ".idl -version " + version);
-	    t << "\n\t" << ("-$(IDL) tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl");
-	    t << "\n\t" << ("-$(IDC) $(TARGET) /tlb tmp\\" + targetfilename + ".tlb");
-	    t << "\n\t" << ("-$(TARGET) -regserver");
-	}
-    }
+    if ( !project->variables()["QMAKE_POST_LINK"].isEmpty() )
+	t << "\t" <<var("QMAKE_POST_LINK") << endl;
+
     t << endl << endl;
 
     if(!project->variables()["RC_FILE"].isEmpty()) {
@@ -228,10 +209,6 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
       << varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
       << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
       << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
-    if ( project->isActiveConfig("activeqt")) {
-	t << ("\n\t-$(DEL_FILE) tmp\\" + targetfilename + ".*");
-	t << "\n\t-$(DEL_FILE) tmp\\dump.*";
-    }
     if(!project->isEmpty("IMAGES"))
 	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-$(DEL_FILE) ", "\n\t-$(DEL_FILE) ", "");
     t << endl;
@@ -313,12 +290,6 @@ BorlandMakefileGenerator::init()
 		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
 			(*libit).replace(QRegExp("qt(mt)?\\.lib"), ver);
 		}
-	    }
-	    if ( project->isActiveConfig( "activeqt" ) ) {
-		project->variables().remove("QMAKE_LIBS_QT_ENTRY");
-		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "qaxserver.lib";
-		if ( project->isActiveConfig( "dll" ) )
-		    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_ENTRY"];
 	    }
 	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) 
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_ENTRY"];

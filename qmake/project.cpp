@@ -1683,9 +1683,9 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		}
 	    } else if(val.lower() == "quote") {
 		replacement = arg_list.join(" ");
-		replacement = replacement.replace("[^\\]\\n", "\n");
-		replacement = replacement.replace("[^\\]\\t", "\t");
-		replacement = replacement.replace("[^\\]\\r", "\r");
+		replacement = replacement.replace("\\n", "\n");
+		replacement = replacement.replace("\\t", "\t");
+		replacement = replacement.replace("\\r", "\r");
 	    } else if(val.lower() == "files") {
 		if(arg_list.count() != 1) {
 		    fprintf(stderr, "%s:%d files(pattern) requires one argument\n",

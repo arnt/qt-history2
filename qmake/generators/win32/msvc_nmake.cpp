@@ -194,33 +194,13 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	  << "$(OBJECTS) $(OBJMOC)";
     }
     t << endl << "<<" << endl;
-    if ( !project->variables()["QMAKE_POST_LINK"].isEmpty() )
-	t << "\t" << var( "QMAKE_POST_LINK" ) << endl;
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
 	QStringList dlldirs = project->variables()["DLLDESTDIR"];
 	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) 
 	    t << "\n\t" << "-$(COPY_FILE) $(TARGET) " << *dlldir;
     }
-    QString targetfilename = project->variables()["TARGET"].first();
-    if(project->isActiveConfig("activeqt")) {
-	QString version;
-	if (!project->variables()["VERSION"].isEmpty())
-	    version = project->variables()["VERSION"].first();
-	if ( version.isEmpty() )
-	    version = "1.0";
-
-	if ( project->isActiveConfig("dll")) {
-	    t << "\n\t" << ("-$(IDC) $(TARGET) /idl tmp\\" + targetfilename + ".idl -version " + version);
-	    t << "\n\t" << ("-$(IDL) tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl");
-	    t << "\n\t" << ("-$(IDC) $(TARGET) /tlb tmp\\" + targetfilename + ".tlb");
-	    t << "\n\t" << ("-$(IDC) $(TARGET) /regserver" );
-	} else {
-	    t << "\n\t" << ("-$(TARGET) -dumpidl tmp\\" + targetfilename + ".idl -version " + version);
-	    t << "\n\t" << ("-$(IDL) tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl");
-	    t << "\n\t" << ("-$(IDC) $(TARGET) /tlb tmp\\" + targetfilename + ".tlb");
-	    t << "\n\t" << "-$(TARGET) -regserver";
-	}
-    }
+    if ( !project->variables()["QMAKE_POST_LINK"].isEmpty() )
+	t << "\t" << var( "QMAKE_POST_LINK" ) << endl;
     t << endl << endl;
 
     if(!project->variables()["RC_FILE"].isEmpty()) {
@@ -345,15 +325,8 @@ NmakeMakefileGenerator::init()
 			(*libit).replace(QRegExp("qt(-mt)?\\.lib"), ver);
 		}
 	    }
-	    if ( project->isActiveConfig( "activeqt" ) ) {
-		project->variables().remove("QMAKE_LIBS_QT_ENTRY");
-		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "qaxserver.lib";
-		if ( project->isActiveConfig( "dll" ) )
-		    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_ENTRY"];
-	    }
-	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) {
+	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") )
 		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
-	    }
 	}
     }
     if ( project->isActiveConfig("dll") ) {
@@ -442,9 +415,5 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".pdb");
 	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".ilk");
 	project->variables()["QMAKE_CLEAN"].append("vc*.pdb");
-    }
-    if ( project->isActiveConfig("activeqt")) {
-	project->variables()["QMAKE_CLEAN"].append("tmp\\" + project->first("QMAKE_ORIG_TARGET") + ".*");
-	project->variables()["QMAKE_CLEAN"].append("tmp\\dump.*");
     }
 }
