@@ -1274,6 +1274,7 @@ Q_KERNEL_EXPORT void qFree(void *ptr);
 Q_KERNEL_EXPORT void *qRealloc(void *ptr, size_t size);
 Q_KERNEL_EXPORT int qRand(void);
 Q_KERNEL_EXPORT void *qMemCopy(void *dest, const void *src, size_t n);
+Q_KERNEL_EXPORT void *qMemSet(void *dest, int c, size_t n);
 
 
 //

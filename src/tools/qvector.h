@@ -273,6 +273,9 @@ void QVector<T>::realloc(int size, int alloc)
 	    while (i != b)
 		new (--i) T(*--j);
 	}
+    } else if (QTypeInfo<T>::isPointer && size > d->size) {
+	// initialize newly allocated memory to 0
+	qMemSet(x.d->array + d->size, 0, (size-d->size)*sizeof(T));
     }
     x.d->size = size;
     x.d->alloc = alloc;
