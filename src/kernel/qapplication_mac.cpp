@@ -1752,7 +1752,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
 		    QApplication::sendSpontaneousEvent( popupwidget, &qwe);
 		} else {
-		    QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
+		    QMouseEvent qme( etype, plocal, p, button, state | keys );
 		    QApplication::sendSpontaneousEvent( popupwidget, &qme );
 		}
 		if(app->activePopupWidget() != popupwidget && qt_closed_popup)
