@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id$
+** $Id: qt/qprocess_unix.cpp   3.1.2   edited Feb 18 17:41 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -1172,6 +1172,8 @@ void QProcess::socketRead( int fd )
 #endif
     if ( fd == 0 )
 	return;
+    if ( !d->proc )
+	return;
     QMembuf *buffer = 0;
     int n;
     if ( fd == d->proc->socketStdout ) {
@@ -1377,3 +1379,4 @@ QProcess::PID QProcess::processIdentifier()
 }
 
 #endif // QT_NO_PROCESS
+
