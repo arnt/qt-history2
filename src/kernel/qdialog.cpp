@@ -366,8 +366,8 @@ void QDialog::show()
 	    int w, h;
 	    QWidget * current = it.current();
 	    ++it;
-	    w = current->frameGeometry().width() - current->width();
-	    h = current->frameGeometry().height() - current->height();
+	    w = current->geometry().x() - current->x();
+	    h = current->geometry().y() - current->y();
 
 	    extraw = QMAX( extraw, w );
 	    extrah = QMAX( extrah, h );
@@ -375,13 +375,13 @@ void QDialog::show()
 	delete list;
 
 	if ( w )
-	    p = QPoint( w->x() + w->width()/2,
-			w->y() + w->height()/ 2 );
+	    p = QPoint( w->geometry().x() + w->width()/2,
+			w->geometry().y() + w->height()/ 2 );
 	else
 	    p = QPoint( desk->width()/2, desk->height()/2 );
 
 	p = QPoint( p.x()-width()/2 - extraw,
-		    p.y()-height()/2 - extraw );
+		    p.y()-height()/2 - extrah );
 
 	if ( p.x() + extraw + width() > desk->width() )
 	    p.setX( desk->width() - width() - extraw );
@@ -392,7 +392,7 @@ void QDialog::show()
 	    p.setY( desk->height() - height() - extrah );
 	if ( p.y() < 0 )
 	    p.setY( 0 );
-	
+
 	move( p );
     }
     QWidget::show();
