@@ -1139,6 +1139,8 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, QGly
 	    unsigned short uc = ::mirroredChar(str[i]).unicode();
 	    glyphs[i].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
 	    if ( !glyphs[i].glyph ) {
+		if (uc == 0xa0)
+		    uc = 0x20;
 		glyph_t glyph = XftCharIndex( QX11Info::appDisplay(), _font, uc );
 		glyphs[i].glyph = glyph;
 		if ( uc < cmapCacheSize )
@@ -1150,6 +1152,8 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, QGly
 	    unsigned short uc = str[i].unicode();
 	    glyphs[i].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
 	    if ( !glyphs[i].glyph ) {
+		if (uc == 0xa0)
+		    uc = 0x20;
 		glyph_t glyph = XftCharIndex( QX11Info::appDisplay(), _font, uc );
 		glyphs[i].glyph = glyph;
 		if ( uc < cmapCacheSize )
