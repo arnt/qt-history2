@@ -49,8 +49,8 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
 
     // Attempt to resolve getaddrinfo(); without it we'll have to fall
     // back to gethostbyname(), which has no IPv6 support.
-    typedef int (*getaddrinfoProto)(const char *, const char *, const qt_addrinfo *, qt_addrinfo **);
-    typedef int (*freeaddrinfoProto)(qt_addrinfo *);
+    typedef int (__stdcall *getaddrinfoProto)(const char *, const char *, const qt_addrinfo *, qt_addrinfo **);
+    typedef int (__stdcall *freeaddrinfoProto)(qt_addrinfo *);
     getaddrinfoProto local_getaddrinfo;
     freeaddrinfoProto local_freeaddrinfo;
     local_getaddrinfo = (getaddrinfoProto) QLibrary::resolve("ws2_32.dll", "getaddrinfo");
