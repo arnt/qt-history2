@@ -754,8 +754,10 @@ QAbstractItemModel::~QAbstractItemModel()
     \value AccessibleDescriptionRole A description of the item for accessibility
                                      purposes.
 
+   User roles:
+
     \value UserRole       The first role that can be used for
-                          application-specific purposes.
+                                     application-specific purposes.
 */
 
 /*!
