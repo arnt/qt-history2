@@ -18,6 +18,6 @@ for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Compat; do
    cd "${3}/Library/Frameworks/${lib}.framework" 
    (Products="no-license"; Licensee="not-licensed"; . $HOME/.qt-license >/dev/null 2>&1
    t "Versions/Current/$lib" "$Licensee" "$Products"
-   t "Versions/Current/${lib}_debug" "$Licensee" "$Products")
+   [ -e "Versions/Current/${lib}_debug" ] && t "Versions/Current/${lib}_debug" "$Licensee" "$Products")
 done
 
