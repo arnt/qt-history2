@@ -142,7 +142,7 @@ static int optDictSize( int n )
   QMetaObject member functions
  *****************************************************************************/
 
-// ## To disappear in Qt 3.0
+// ### To disappear in Qt 3.0
 
 /*!\internal
  */
@@ -883,3 +883,18 @@ bool QMetaProperty::stored( QObject* o ) const
   
   \internal
 */
+
+QMetaObjectInit::QMetaObjectInit(void(*)()) // ### remove 3.0
+{
+    // ### Was removed, then put it back for Qt-2.0.2 compat.
+    //     Is code needed here for programs built with Qt-2.0.2 to
+    //     work properly ?
+}
+
+int QMetaObjectInit::init() // ### remove 3.0
+{
+    // ### Was removed, then put it back for Qt-2.0.2 compat.
+    //     Is code needed here for programs built with Qt-2.0.2 to
+    //     work properly ?
+    return 0;
+}

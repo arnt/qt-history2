@@ -211,4 +211,11 @@ inline void QMetaProperty::setFlags( uint f )
 inline void QMetaProperty::clearFlags( uint f )
 { flags &= ~(uint)f; }
 
+// ### remove 3.0 (binary compatibility with Qt-2.0.2)
+class Q_EXPORT QMetaObjectInit {
+public:
+    QMetaObjectInit(void(*)());
+    static int init();
+};
+
 #endif // QMETAOBJECT_H
