@@ -945,6 +945,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
                 accum = 0;
                 bitcount = 0;
                 sp = stack;
+                firstcode = oldcode = 0;
                 needfirst = false;
                 out_of_bounds = false;
             }
