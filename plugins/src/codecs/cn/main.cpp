@@ -1,4 +1,4 @@
-#include <qtextcodecinterface.h>
+#include <qtextcodecplugin.h>
 #include <qtextcodec.h>
 #include <qptrlist.h>
 #include <qapplication.h>
@@ -7,23 +7,14 @@
 #include <private/qfontcodecs_p.h>
 
 
-class CNTextCodecs : public QTextCodecFactoryInterface
+class CNTextCodecs : public QTextCodecPlugin
 {
 public:
     CNTextCodecs();
-    virtual ~CNTextCodecs();
 
-    // unknown interface
-    QRESULT queryInterface(const QUuid &, QUnknownInterface **);
-    Q_REFCOUNT;
-
-    // feature list interface
-    QStringList featureList() const;
-
-    // text codec interface
+    QStringList keys() const;
     QTextCodec *createForMib( int );
     QTextCodec *createForName( const QString & );
-
 
 private:
     QPtrList<QTextCodec> codecs;
@@ -34,31 +25,7 @@ CNTextCodecs::CNTextCodecs()
 {
 }
 
-
-CNTextCodecs::~CNTextCodecs()
-{
-}
-
-
-QRESULT CNTextCodecs::queryInterface(const QUuid &uuid, QUnknownInterface **iface)
-{
-    *iface = 0;
-
-    if (uuid == IID_QUnknown )
-	*iface = (QUnknownInterface *) this;
-    else if (uuid == IID_QFeatureList )
-	*iface = (QFeatureListInterface *) this;
-    else if (uuid == IID_QTextCodecFactory )
-	*iface = (QTextCodecFactoryInterface*) this;
-    else
-	return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-
-QStringList CNTextCodecs::featureList() const
+QStringList CNTextCodecs::keys() const
 {
     QStringList list;
     list << "GBK" << "gb2312.1980-0";
@@ -127,7 +94,5 @@ QTextCodec *CNTextCodecs::createForName( const QString &name )
 }
 
 
-Q_EXPORT_COMPONENT()
-{
-    Q_CREATE_INSTANCE( CNTextCodecs );
-}
+Q_EXPORT_PLUGIN( CNTextCodecs );
+
