@@ -685,7 +685,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                     const QTextTableCell cell = table->cellAt(row, i);
                     const int cspan = cell.columnSpan();
 
-                    if (cspan >= 1 && i != cell.column())
+                    if (cspan > 1 && i != cell.column())
                         continue;
 
                     LayoutStruct layoutStruct;
