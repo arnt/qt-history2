@@ -53,12 +53,6 @@ class QSqlPropertyMap;
 class QWidget;
 class QSqlFormPrivate;
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class Q_EXPORT QMap<QWidget*, QSqlField*>;
-// MOC_SKIP_END
-#endif
-
 class Q_EXPORT QSqlForm : public QObject
 {
     Q_OBJECT
