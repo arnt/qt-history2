@@ -1,4 +1,4 @@
-\chapter Reference: Windows
+chapter Reference: Windows
 
 \section1 Introduction
 
@@ -16,15 +16,40 @@ name of the file in the line edit above the files list.
 
 \section1 Object Explorer Window
 
-This window lists the current form's widgets and slots.
+The Object Explorer window lists the current form's widgets and slots.
 The window contains two tabs, the Widgets tab and the Source tab. 
 
 Click the Widgets tab to view all the widgets for the current form.
 The widgets are listed by name and class. Click a widget in the list
 to highlight it in the corresponding form.
 
-Click the Source tab to view and edit the current form's slots,
-variables, includes, etc.
+Click the Source tab to view the current form's declared slots,
+forward declarations, includes, and class variables. To invoke menus
+with other options, right click any of the directories or
+subdirectories listed in the source tab.
+
+To edit or add slots, right click the Slots folder and select 'Edit'
+to invoke the \Dialog{Edit Slots Dialog}. Right click the Public,
+Protected, or Private subdirectories and click 'New' to invoke the
+\Dialog{Edit Slots Dialog}. Right click a slot in the list to invoke a
+menu with additional options for the slot. To add new slots, choose
+'New' from the mneu, which invokes the \Dialog{Edit Slots Dialog}. To
+change the properties of the selected slot, choose 'Properties' which
+invokes the \Dialog{Edit Slots Dialog}. To open the C++ editor and
+jump to the implementation of the selected slot, choose 'Goto
+Implementation'. To remove the selected slot, choose 'Delete'. 
+
+Right click 'Forward Declarations', 'Includes (in declaration)',
+'Class Variables', and 'Includes (in implementation)' to invoke a menu
+with the 'new' or 'edit' options. Choose 'New' to invoke a line edit
+for typing a declaration, variable, or include. Right click 'Forward
+Declarations' and choose 'Edit' to invoke the \Dialog {Edit Forward
+Declarations Dialog'. Right click 'Includes (in declaration)' and
+choose'Edit' to invoke the \Dialog {Edit Includes (in Declaration)
+Dialog}. Right click 'Class variables' and choose 'Edit' to invoke the
+\Dialog {Edit Class Variables Dialog}. Right click 'Includes (in
+Implementation)' and choose 'Edit' to invoke the \Dialog {Edit
+Includes (in Implementation) Dialog}. 
 
 \section1 Property Editor/Signal Handlers Window
 

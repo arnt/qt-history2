@@ -897,19 +897,19 @@ to leave the dialog without saving any changes.
 \target dialog-edit-iconview
 \section2 Edit Iconview
 
-Right click an iconview widget on the form and select 'Edit' to invoke this
-dialog. Use the dialog to add, change, or remove items from the
+Right click an iconview widget on the form and select 'Edit' to invoke
+this dialog. Use the dialog to add, change, or remove items from the
 iconview. To add an item to the iconview, click the \Button {New Item}
 button. To change the name of the item, click the 'Text' line edit and
 type a new name. To add a pixmap, click the \Button {ellipsis...}
-button, which invokes the \Dialog {Choose an Image Dialog}. To remove a
-pixmap, click the \Button {Delete Pixmap} button. To delete an item
+button, which invokes the \Dialog {Choose an Image Dialog}. To remove
+a pixmap, click the \Button {Delete Pixmap} button. To delete an item
 from the listbox, click the item and then click the \Button {Delete
 Item} button.
 
-Click \Button Apply to accept changes to the iconview widget. Click \OK to
-leave the dialog once the changes have been accepted. Click \CANCEL to
-leave the dialog without saving any changes. 
+Click \Button Apply to accept changes to the iconview widget. Click
+\OK to leave the dialog once the changes have been accepted. Click
+\CANCEL to leave the dialog without saving any changes. 
 
 \target dialog-edit-table
 \section2 Edit Table
@@ -926,9 +926,10 @@ click the column number in the smaller listbox and then click the
 \Button {Delete Column} button. To change a column name, click the
 'Label' line edit and type the new text. To add a pixmap, click the
 \Button {ellipsis...} button, which invokes the \Dialog {Choose an
-Image Dialog}. To remove a pixmap, click the \Button {Delete Pixmap}
-button.To move a column in the listbox, click the \Button {Move Up} or
-\Button {Move Down} buttons.
+Image Dialog}. To remove a pixmap from the current column of the
+selected item, click the \Button {Delete Pixmap} button. To move a
+column in the listbox, click the \Button {Move Up} or \Button {Move
+Down} buttons.
 
 \section3 The Rows Tab
 
@@ -938,10 +939,10 @@ click the row number in the smaller listbox and then click the
 \Button {Delete Column} button. To change a row's name, click the row,
 or the row number, and then click the 'Label' line edit and type the
 new text. To add a pixmap, click the \Button {ellipsis...} button,
-which invokes the \Dialog {Choose an Image Dialog}. To remove a
-pixmap, click the \Button {Delete Pixmap} button.To move a row in
-the listbox, click the \Button {Move Up} or \Button {Move Down}
-buttons. Click 
+which invokes the \Dialog {Choose an Image Dialog}. To remove a pixmap
+from the current row of the selected item, click the \Button {Delete
+Pixmap} button. To move a row in the listbox, click the \Button {Move
+Up} or \Button {Move Down} buttons.  
 
 Click \Button Apply to accept changes to the table widget. Click \OK
 to leave the dialog once the changes have been accepted. Click \CANCEL
