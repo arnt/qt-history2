@@ -58,6 +58,10 @@ QSqlDatabase* QSqlConnection::database( const QString& name )
 {
     QSqlConnection* sqlConnection = instance();
     QSqlDatabase* db = sqlConnection->dbDict.find( name );
+#ifdef CHECK_RANGE
+    if ( !db )
+	qWarning("Warning: QSqlConnection unable to find database " + name );
+#endif    
     if ( db && !db->isOpen() )
 	db->open();
     return db;
@@ -83,7 +87,9 @@ QSqlDatabase* QSqlConnection::addDatabase( const QString& type,
 {
     QSqlDatabase* database = new QSqlDatabase( type, db, user, password, host );
     QSqlConnection* sqlConnection = instance();
+    qDebug("adding database:" + type + " " + db + " " + user + " " + password + " " + host );
     sqlConnection->dbDict.insert( name, database );
+    qDebug("database added");
     return database;
 }
 

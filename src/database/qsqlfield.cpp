@@ -22,6 +22,19 @@ QSqlResultField::QSqlResultField( const QString& fieldName, int fieldNumber, QVa
     val.cast( type );
 }
 
+QSqlResultField::QSqlResultField( const QSqlResultField& other )
+    : nm( other.nm ), num( other.num ), val( other.val )
+{
+}
+
+QSqlResultField& QSqlResultField::operator=( const QSqlResultField& other )
+{
+    nm = other.nm;
+    num = other.num;
+    val = other.val;
+    return *this;
+}
+
 /*!
   Destroys the object and frees any allocated resources.
 
@@ -87,6 +100,24 @@ QSqlField::QSqlField( const QString& fieldName, int fieldNumber, QVariant::Type 
 {
 
 }
+
+QSqlField::QSqlField( const QSqlField& other )
+    : QSqlResultField( other ), label( other.label ), ro( other.ro ), nul( other.nul ), pIdx( other.pIdx ), iv( other.iv ), cf( other.cf )
+{
+}
+
+QSqlField& QSqlField::operator=( const QSqlField& other )
+{
+    QSqlResultField::operator=( other );
+    label = other.label;
+    ro = other.ro;
+    nul = other.nul;
+    pIdx = other.pIdx;
+    iv = other.iv;
+    cf = other.cf;
+    return *this;
+}
+
 
 /*!
   Destroys the object and frees any allocated resources.

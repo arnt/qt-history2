@@ -78,22 +78,49 @@ QSql::~QSql()
     }
 }
 
-/*! \fn QSql::QSql( const QSql& other )
-    Copy constructor.  QSql is implicitly shared.
+/*! 
+    Copy constructor.  
 */
+
+QSql::QSql( const QSql& other )
+    : d(other.d)
+{
+    d->ref();
+}
+
+QSql::QSql( QSqlResult * r )
+{
+    d = new QSqlResultShared( r );
+}
 
 /*!
     Creates a QSql object which uses database \a databaseName.
 */
 QSql::QSql( const QString& databaseName )
 {
+    d = new QSqlResultShared( 0 );    
     *this = ( QSqlConnection::database( databaseName )->driver()->createResult() );
 }
 
+//QSql::QSql( const QString& query, const QString& databaseName = QSqlConnection::defaultDatabase )
+//{
+//    d = new QSqlResultShared( 0 );        
+//    *this = ( QSqlConnection::database( databaseName )->driver()->createResult() );
+//    *this << query;
+//}
 
-/*! \fn QSql& QSql::operator=( const QSql& other )
-    Assigns \a other.  QSql is implicitly shared.
+/*! 
+    Assigns \a other.
 */
+
+QSql& QSql::operator=( const QSql& other )
+{
+    other.d->ref();
+    deref();
+    d = other.d;
+    return *this;
+}
+
 
 /*!  Returns TRUE if field \a field is NULL, otherwise returns FALSE.  The result
      must be active and valid before calling this method.  In addition, for some drivers,
@@ -123,14 +150,21 @@ bool QSql::isNull( int field ) const
 
 */
 
-bool QSql::operator<< ( const QString& query )
+bool QSql::setQuery ( const QString& query )
 {
+    if ( d->count > 1 )
+	*this = driver()->createResult();	    
     d->sqlResult->setActive( FALSE );
     d->sqlResult->setAt( QSqlResult::BeforeFirst );
     d->sqlResult->sql = query.stripWhiteSpace();
     if ( !driver()->isOpen() || driver()->isOpenError() )
 	return FALSE;
     return d->sqlResult->reset( query );
+}
+
+bool QSql::operator<< ( const QString& query )
+{
+    return setQuery( query );
 }
 
 /*! Returns the value of field \a i (zero based) in the result as reported by the database, or
@@ -175,7 +209,7 @@ int QSql::at() const
 }
 
 
-/*! Returns the current query used, or QString::null if there is none.
+/*! Returns the current query used, or QString::null if there is no current query.
 
 */
 
@@ -215,6 +249,7 @@ const QSqlDriver* QSql::driver() const
 */
 bool QSql::seek( int i, bool relative )
 {
+    checkDetach();
     if ( isActive() ) {
         int actualIdx;
 	if ( !relative ) { // random seek
@@ -285,6 +320,7 @@ bool QSql::seek( int i, bool relative )
 
 bool QSql::next()
 {
+    checkDetach();
     if ( isActive() ) {
 	switch ( at() ) {
 	    case QSqlResult::BeforeFirst:
@@ -318,6 +354,7 @@ bool QSql::next()
 
 bool QSql::previous()
 {
+    checkDetach();
     if ( isActive() ) {
 	switch ( at() ) {
 	    case QSqlResult::BeforeFirst:
@@ -342,6 +379,7 @@ bool QSql::previous()
 
 bool QSql::first()
 {
+    checkDetach();
     if ( isActive() )
 	return d->sqlResult->fetchFirst();
     return FALSE;
@@ -354,6 +392,7 @@ bool QSql::first()
 
 bool QSql::last()
 {
+    checkDetach();
     if ( isActive() )
 	return d->sqlResult->fetchLast();
     return FALSE;
@@ -427,6 +466,34 @@ bool QSql::isValid() const
 bool QSql::isActive() const
 {
     return d->sqlResult->isActive();
+}
+
+/*!
+  \internal
+*/
+  
+void QSql::deref()
+{
+    if ( d->deref() ) {
+	delete d;
+	d = 0;
+    }
+}
+
+/*!
+  \internal
+*/
+  
+bool QSql::checkDetach()
+{
+    if ( d->count > 1 ) {
+	QString sql = d->sqlResult->sql;	
+	qDebug("QSql::checkDetach():" + sql );
+	*this = driver()->createResult();	    
+	setQuery( sql );
+	return TRUE;
+    }
+    return FALSE;
 }
 
 #endif // QT_NO_SQL

@@ -14,6 +14,8 @@ class Q_EXPORT QSqlResultField
 {
 public:
     QSqlResultField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid );
+    QSqlResultField( const QSqlResultField& other );
+    QSqlResultField& operator=( const QSqlResultField& other );
     virtual ~QSqlResultField();
 
     QVariant&     value();
@@ -28,16 +30,18 @@ public:
     bool operator==( const QSqlResultField& ) const { return FALSE; }
 #endif
 private:
-    QVariant      val;
     QString       nm;
     int           num;
+    QVariant      val;    
 };
 
 class Q_EXPORT QSqlField : public QSqlResultField
 {
 public:
     QSqlField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid );
-    virtual ~QSqlField();
+    QSqlField( const QSqlField& other );
+    QSqlField& operator=( const QSqlField& other );
+    ~QSqlField();
 
     void          setDisplayLabel( const QString& l ) { label = l; }
     QString       displayLabel() const { return label; }
@@ -69,11 +73,16 @@ class Q_EXPORT QSqlFields
 {
 public:
     QSqlFields() {}
-    QSqlFields( const QSqlFields<T>& l )
+    QSqlFields( const QSqlFields<T>& other )
+	: fieldList( other.fieldList ), fieldListStr( other.fieldListStr ), posMap( other.posMap )
     {
-	fieldList = l.fieldList;
-	fieldListStr = l.fieldListStr;
-	posMap = l.posMap;
+    }
+    QSqlFields< T >& operator=( const QSqlFields<T>& other )
+    {
+	fieldList = other.fieldList;
+	fieldListStr = other.fieldListStr;
+	posMap = other.posMap;
+	return *this;
     }
     QSqlFields( const T& t )
     {
@@ -140,9 +149,9 @@ public:
 	return pflist;
     }
 private:
+    QValueList< T > fieldList;    
     QString fieldListStr;
     QMap< QString, int > posMap;
-    QValueList< T > fieldList;
 };
 
 typedef QSqlFields< QSqlField > QSqlFieldList;

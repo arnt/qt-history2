@@ -18,7 +18,7 @@ class QSqlResultInfo;
 
 struct Q_EXPORT QSqlResultShared : public QShared
 {
-    QSqlResultShared( QSqlResult* result = 0 )
+    QSqlResultShared( QSqlResult* result )
     : sqlResult(result)
     {}
     virtual ~QSqlResultShared();
@@ -28,30 +28,17 @@ struct Q_EXPORT QSqlResultShared : public QShared
 class Q_EXPORT QSql
 {
 public:
-    QSql( QSqlResult * r )
-    {
-	d = new QSqlResultShared( r );
-    }
+    QSql( QSqlResult * r );
     QSql( const QString& databaseName = QSqlConnection::defaultDatabase );
+    QSql( const QSql& other );
     virtual ~QSql();
-    QSql( const QSql& other )
-    : d(other.d)
-    {
-    	d->ref();
-    }
-    QSql& operator=( const QSql& other )
-    {
-	other.d->ref();
-	deref();
-	d = other.d;
-	return *this;
-    }
+    QSql& operator=( const QSql& other );
     bool            isValid() const;
     bool            isActive() const;
     bool	    isNull( int field ) const;
     int             at() const;
     QString         query() const;
-    const QSqlDriver*   driver() const;
+    bool	    setQuery ( const QString& query );        
     bool	    operator<< ( const QString& query );
     QVariant 	    operator[] ( int i );
     QVariant        value( int i );
@@ -64,14 +51,11 @@ public:
     int             size() const;
     int             affectedRows() const;
     QSqlError	    lastError() const;
+protected:
+    const QSqlDriver*   driver() const;    
 private:
-    void deref()
-    {
-	if ( d->deref() ) {
-	    delete d;
-	    d = 0;
-	}
-    }
+    void            deref();
+    bool            checkDetach();
     QSqlResultShared* d;
 };
 
