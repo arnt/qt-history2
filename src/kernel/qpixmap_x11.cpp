@@ -908,7 +908,7 @@ QImage QPixmap::convertToImage() const
   Converts image \a img and sets this pixmap. Returns TRUE if successful;
   otherwise returns FALSE.
 
-  The \a conversion_flags argument is a bitwise-OR of the 
+  The \a conversion_flags argument is a bitwise-OR of the
   \l{Qt::ImageConversionFlags}.
   Passing 0 for \a conversion_flags gives all the default options.
 
@@ -1533,7 +1533,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		GC gc = XCreateGC(x11Display(), data->alphapm->hd, 0, 0);
 		XPutImage(dpy, data->alphapm->hd, gc, axi, 0, 0, 0, 0, w, h);
 		XFreeGC(x11Display(), gc);
-
 		qSafeXDestroyImage(axi);
 	    }
 	}
@@ -1787,6 +1786,69 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 #endif
 	if ( data->mask )			// xform mask, too
 	    pm.setMask( data->mask->xForm(matrix) );
+
+#ifndef QT_NO_XRENDER
+	// transform the alpha channel
+	XImage *axi = 0;
+	if ( qt_use_xrender && data->alphapm ) {
+	    if ((axi = XGetImage(x11Display(), data->alphapm->handle(),
+				 0, 0, ws, hs, AllPlanes, ZPixmap))) {
+		sbpl = axi->bytes_per_line;
+		sptr = (uchar *) axi->data;
+		bpp  = axi->bits_per_pixel;
+		dbytes = dbpl * h;
+		dptr = (uchar *) malloc(dbytes);
+		Q_CHECK_PTR(dptr);
+		memset(dptr, 0, dbytes);
+		if ( axi->bitmap_bit_order == MSBFirst )
+		    type = QT_XFORM_TYPE_MSBFIRST;
+		else
+		    type = QT_XFORM_TYPE_LSBFIRST;
+
+		if (qt_xForm_helper( mat, axi->xoffset, type, bpp, dptr, w,
+				     0, h, sptr, sbpl, ws, hs )) {
+		    delete pm.data->alphapm;
+		    pm.data->alphapm = new QPixmap; // create a null pixmap
+
+		    // setup pixmap data
+		    pm.data->alphapm->data->w = w;
+		    pm.data->alphapm->data->h = h;
+		    pm.data->alphapm->data->d = 8;
+
+		    // create 8bpp pixmap and render picture
+		    pm.data->alphapm->hd =
+			XCreatePixmap(x11Display(),
+				      RootWindow(x11Display(), x11Screen()),
+				      w, h, 8);
+
+		    XRenderPictFormat *format = 0;
+		    XRenderPictFormat req;
+		    ulong mask = PictFormatType | PictFormatDepth | PictFormatAlphaMask;
+		    req.type = PictTypeDirect;
+		    req.depth = 8;
+		    req.direct.alphaMask = 0xff;
+		    format = XRenderFindFormat(x11Display(), mask, &req, 0);
+		    if (format)
+			pm.data->alphapm->rendhd =
+			    XRenderCreatePicture(x11Display(), pm.data->alphapm->hd,
+						 format, 0, 0);
+
+		    XImage *axi2 = XCreateImage(x11Display(), (Visual *) x11Visual(),
+						8, ZPixmap, 0, (char *)dptr, w, h, 8, 0);
+
+		    if (axi2) {
+			// the data is deleted by qSafeXDestroyImage
+			GC gc = XCreateGC(x11Display(), pm.data->alphapm->hd, 0, 0);
+			XPutImage(dpy, pm.data->alphapm->hd, gc, axi2, 0, 0, 0, 0, w, h);
+			XFreeGC(x11Display(), gc);
+			qSafeXDestroyImage(axi2);
+		    }
+		}
+		qSafeXDestroyImage(axi);
+	    }
+	}
+#endif
+
 	return pm;
     }
 }
