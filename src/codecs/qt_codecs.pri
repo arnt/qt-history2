@@ -5,7 +5,7 @@ tools {
 	CODECS_P		= codecs
 	HEADERS += \
 # 		$$CODECS_H/qasmocodec.h \
-		$$CODECS_H/qbig5codec.h \
+		  $$CODECS_H/qbig5codec.h \
 		  $$CODECS_H/qeucjpcodec.h \
 		  $$CODECS_H/qeuckrcodec.h \
 		  $$CODECS_H/qisciicodec_p.h \
@@ -35,12 +35,4 @@ tools {
 		  $$CODECS_CPP/qutfcodec.cpp \
 		  $$CODECS_CPP/qtextcodecfactory.cpp \
 		  $$CODECS_CPP/qtextcodecplugin.cpp
-
-	x11:SOURCES += $$CODECS_CPP/qfontcncodec.cpp  \
-	               $$CODECS_CPP/qfonthkcodec.cpp  \
-	               $$CODECS_CPP/qfontjpcodec.cpp  \
-		       $$CODECS_CPP/qfontkrcodec.cpp  \
-		       $$CODECS_CPP/qfontlaocodec.cpp \
-		       $$CODECS_CPP/qfonttwcodec.cpp
-	x11:HEADERS += $$CODECS_P/qfontcodecs_p.h
 }

@@ -193,6 +193,17 @@ kernel {
 	      HEADERS += $$KERNEL_H/qfunctions_wce.h
 	      SOURCES += $$KERNEL_CPP/qfunctions_wce.cpp
 	}
+
+	x11 {
+ 	    CODECS_P		= codecs
+ 	    SOURCES += $$CODECS_CPP/qfontcncodec.cpp  \
+	               $$CODECS_CPP/qfonthkcodec.cpp  \
+	               $$CODECS_CPP/qfontjpcodec.cpp  \
+		       $$CODECS_CPP/qfontkrcodec.cpp  \
+		       $$CODECS_CPP/qfontlaocodec.cpp \
+		       $$CODECS_CPP/qfonttwcodec.cpp
+	    HEADERS += $$CODECS_P/qfontcodecs_p.h
+ 	}
 }
 
 newpainter {
