@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#100 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#101 $
 **
 ** Global type declarations and definitions
 **
@@ -133,15 +133,15 @@
 #define _CC_SUN_
 #elif defined(__DECCXX)
 #define _CC_DEC_
-#elif defined(_OS_HPUX_) && defined(c_plusplus)
-// must be last, since the HP compiers we have seen do not identify
-// themselves in any documented manner
-//
-// adding insult to injury, the only way to differentiate between
-// HP aCC and HP CC appears to be testing for c_plusplus
-#define _CC_HP_
 #elif defined(_OS_HPUX_)
-#define _CC_HP_ACC_
+// this test from from aCC online help
+#if __cplusplus >= 199707L
+// this is the aCC
+#define CC_HP_ACC_
+#else
+// this is the CC
+#define CC_HP_
+#endif // __cplusplus >= 199707L
 #else
 #error "Qt has not been tested with this compiler - talk to qt-bugs@troll.no"
 #endif
