@@ -7,15 +7,15 @@ for(dir, EXTRAS) {
 
 SOURCES = paintwidget_mac.cpp paintwidget_unix.cpp paintwidget_win.cpp
 macx {
-    SOURCES = find(SOURCES, "_mac")
+    SOURCES = $$find(SOURCES, "_mac")
 }
 
 CONFIG = release
 CONFIG += $$OTHER_CONFIG_VALUES
-CONFIG = unique(CONFIG)
+CONFIG = $$unique(CONFIG)
 
 CONFIG += debug
-options = find(CONFIG, "debug") find(CONFIG, "release")
+options = $$find(CONFIG, "debug") $$find(CONFIG, "release")
 count(options, 2) {
     message("Both release and debug specified.")
 }
