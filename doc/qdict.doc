@@ -39,7 +39,7 @@
  *****************************************************************************/
 
 /*!
-    \class QDict qdict.h
+    \class QDict
     \brief The QDict class is a template class that provides a
     dictionary based on QString keys.
 
@@ -53,7 +53,7 @@
 
     QDict is implemented as a template class. Define a template
     instance QDict\<X\> to create a dictionary that operates on
-    pointers to X (X*).
+    pointers to X (X *).
 
     A dictionary is a collection of key-value pairs. The key is a
     QString used for insertion, removal and lookup. The value is a
@@ -359,10 +359,6 @@
 
     Equivalent to the [] operator.
 
-    \warning Your application will crash if you call find() on an
-    empty dictionary; you can check with isEmpty() or count(). We
-    don't perform this check for efficiency reasons. 
-
     \sa operator[]()
 */
 
@@ -376,10 +372,6 @@
     recently inserted item will be found.
 
     Equivalent to the find() function.
-
-    \warning Your application will crash if you call find() on an
-    empty dictionary; you can check with isEmpty() or count(). We
-    don't perform this check for efficiency reasons. 
 
     \sa find()
 */
