@@ -69,9 +69,8 @@ MainWindow::MainWindow()
     // populate toolbar
     QToolBar* toolbar = new QToolBar( this );
     QToolButton* assistantButton = new QToolButton( toolbar );
-    assistantButton->setIconSet
-	( QPixmap( QString("%1/tools/assistant/images/appicon.png").arg(qInstallPath()) ) );
-    QWhatsThis::whatsThisButton ( toolbar );
+    assistantButton->setIconSet( QPixmap("appicon.png") );
+    QWhatsThis::whatsThisButton( toolbar );
 
     //create tooltipgroup
     QToolTipGroup * tipGroup = new QToolTipGroup( this );
