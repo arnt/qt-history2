@@ -1060,22 +1060,30 @@ void QAquaStyle::drawControl( ControlElement element,
 	int xpos = x;
 	if ( reverse )
 	    xpos += w - checkcol;
-	if ( checked ) {
-	    int mw = checkcol + aquaItemFrame;
-	    int mh = h - 2*aquaItemFrame;
-	    SFlags cflags = Style_Default;
-	    if (! dis)
-		cflags |= Style_Enabled;
-	    if (act)
-		cflags |= Style_On;
-	    drawPrimitive( PE_CheckMark, p, QRect(x + aquaItemFrame + 2, y + aquaItemFrame,
-						  mw-4, mh), itemg, cflags, opt );
-	} else if ( !act ) {
-	    p->fillRect(xpos, y, checkcol , h,
-			g.brush( QColorGroup::Button ));
-	}
 
 	if ( mi->iconSet() ) {              // draw iconset
+	    if ( checked ) {
+		QRect vrect = visualRect( QRect( xpos, y, checkcol, h ), r );
+		if ( act && !dis ) {
+		    qDrawShadePanel( p, vrect.x(), y, checkcol, h,
+				     cg, TRUE, 1, &cg.brush( QColorGroup::Button ) );
+		} else {
+		    QBrush fill( cg.light(), Dense4Pattern );
+		    // set the brush origin for the hash pattern to the x/y coordinate
+		    // of the menu item's checkmark... this way, the check marks have
+		    // a consistent look
+		    QPoint origin = p->brushOrigin();
+		    p->setBrushOrigin( vrect.x(), y );
+		    qDrawShadePanel( p, vrect.x(), y, checkcol, h, cg, TRUE, 1,
+				     &fill );
+		    // restore the previous brush origin
+		    p->setBrushOrigin( origin );
+		}
+	    } else if ( !act ) {
+		p->fillRect(xpos, y, checkcol, h,
+			    g.brush( QColorGroup::Button ));
+	    }
+
 	    QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
 	    if (act && !dis )
 		mode = QIconSet::Active;
@@ -1369,7 +1377,7 @@ int QAquaStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     int ret = 0;
     switch(metric) {
     case PM_PopupMenuScrollerHeight:
-	ret = 20;
+	ret = 10;
 	break;
     case PM_DefaultFrameWidth:
 	if(widget && 
