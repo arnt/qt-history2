@@ -53,7 +53,13 @@
 #  include <private/qmutexpool_p.h>
 #endif // QT_THREAD_SUPPORT
 
-#define USE_MALLOC				// comment to use new/delete
+/*
+  If USE_MALLOC isn't defined, we use new[] and delete[] to allocate
+  memory. The documentation for QMemArray<T>::assign() explicitly
+  mentions that the array is freed using free(), so don't mess around
+  with USE_MALLOC unless you know what you're doing.
+*/
+#define USE_MALLOC
 
 #undef NEW
 #undef DELETE

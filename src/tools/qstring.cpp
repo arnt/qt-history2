@@ -2262,9 +2262,6 @@ QString& QString::fill( QChar c, int len )
 
 int QString::find( QChar c, int index, bool cs ) const
 {
-#ifdef MACOSX_101
-    return find( QString( c ), index, cs );
-#else
     const uint l = length();
     if ( index < 0 )
 	index += l;
@@ -2283,7 +2280,6 @@ int QString::find( QChar c, int index, bool cs ) const
     if ( uint(uc - unicode()) >= l )
 	return -1;
     return (int)(uc - unicode());
-#endif
 }
 
 /* an implementation of the Boyer-Moore search algorithm
