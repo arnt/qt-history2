@@ -5,10 +5,6 @@ Critical
 Severe
 ------
 
-Line in grid layout (Reggie)
-    When putting a horizontal line in a grid layout, and
-    breaking that it is too small to fit into the layout again. When
-    breaking a layout make sure all widgets are >= (16, 16)</DD>
 
 Corrupted designerrc (Reggie)
     When the .designerrc is empty or corrupted designer crashes on
