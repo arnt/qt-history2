@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#95 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#96 $
 **
 ** Definition of QListView widget class
 **
@@ -244,19 +244,19 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-public slots:
-    void triggerUpdate();
-
 #ifdef QT_BUILDER
     bool configure( const QDomElement& element );
 #endif // QT_BUILDER
+
+public slots:
+    void triggerUpdate();
 
 signals:
     void selectionChanged();
     void selectionChanged( QListViewItem * );
     void currentChanged( QListViewItem * );
     void clicked( QListViewItem * );
-    
+
     void doubleClicked( QListViewItem * );
     void returnPressed( QListViewItem * );
     void rightButtonClicked( QListViewItem *, const QPoint&, int );
