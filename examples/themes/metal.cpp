@@ -186,16 +186,29 @@ void MetalStyle::drawPrimitive( PrimitiveElement pe,
 			     bool(flags & (Style_Sunken|Style_On|Style_Down)), TRUE );
 	    break;
 	}
-//     case PE_ScrollBarAddLine:
-// 	{
-// 	    int b = 2;
-// 	    int w;
-// 	    if ( flags & Style_Horizontal )
-// 		w = r.height();
-// 	    else
-// 		r.width();	    
-// 	    bool sunken = flags & Style_Sunken;
-// 	    QRect rect( b, b, 
+    case PE_ScrollBarAddLine:	
+	{
+	    drawMetalButton( p, r.x(), r.y(), r.width(), r.height(),
+			     flags & Style_Down, !flags & Style_Horizontal );
+	    drawPrimitive( flags & Style_Horizontal ? PE_ArrowRight : PE_ArrowDown,
+			   p, r, cg, flags );
+	    break;
+	}
+    case PE_ScrollBarSubLine:
+	{
+	    drawMetalButton( p, r.x(), r.y(), r.width(), r.height(),
+			     flags & Style_Down, !flags & Style_Horizontal );
+	    drawPrimitive( flags & Style_Horizontal ? PE_ArrowLeft : PE_ArrowUp,
+			   p, r, cg, flags );
+	    break;
+	}
+	
+    case PE_ScrollBarSlider:
+	{
+	    drawMetalButton( p, r.x(), r.y(), r.width(), r.height(), FALSE,
+			     flags & Style_Horizontal );
+	    break;
+	}
     default:
 	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags );
 	break;
@@ -216,12 +229,12 @@ void MetalStyle::drawControl( ControlElement element,
 	    const QPushButton *btn;
 	    btn = (const QPushButton*)widget;
 	    int x1, y1, x2, y2;
-	    
+	
 	    r.coords( &x1, &y1, &x2, &y2 );
-	    
+	
 	    p->setPen( cg.foreground() );
 	    p->setBrush( QBrush(cg.button(), NoBrush) );
-	    
+	
 	    QBrush fill;
 	    if ( btn->isDown() )
 		fill = cg.brush( QColorGroup::Mid );
@@ -229,7 +242,7 @@ void MetalStyle::drawControl( ControlElement element,
 		fill = QBrush( cg.mid(), Dense4Pattern );
 	    else
 		fill = cg.brush( QColorGroup::Button );
-	    
+	
 	    if ( btn->isDefault() ) {
 		QPointArray a;
 		a.setPoints( 9,
@@ -247,10 +260,10 @@ void MetalStyle::drawControl( ControlElement element,
 		flags |= Style_On;
 	    if ( btn->isDown() )
 		flags |= Style_Down;
-	    drawPrimitive( PE_ButtonCommand, p, 
+	    drawPrimitive( PE_ButtonCommand, p,
 			   QRect( x1, y1, x2 - x1 + 1, y2 - y1 + 1),
 			   cg, flags );
-	    
+	
 	    if ( btn->isMenuButton() ) {
 		flags = Style_Default;
 		if ( btn->isEnabled() )
@@ -270,7 +283,7 @@ void MetalStyle::drawControl( ControlElement element,
 	    btn = (const QPushButton*)widget;
 	    int x, y, w, h;
 	    r.rect( &x, &y, &w, &h );
-	    
+	
 	    int x1, y1, x2, y2;
 	    r.coords( &x1, &y1, &x2, &y2 );
 	    int dx = 0;
@@ -318,11 +331,11 @@ void MetalStyle::drawComplexControl( ComplexControl cc,
 	    QRect handle = querySubControlMetrics( CC_Slider, widget,
 						   SC_SliderHandle, data);
 	    if ( sub & SC_SliderGroove )
-		QWindowsStyle::drawComplexControl( cc, p, widget, r, cg, how, 
+		QWindowsStyle::drawComplexControl( cc, p, widget, r, cg, how,
 						   SC_SliderGroove, subActive, data );
 	    if ( (sub & SC_SliderHandle) && handle.isValid() )
 		drawMetalButton( p, handle.x(), handle.y(), handle.width(),
-				 handle.height(), FALSE, 
+				 handle.height(), FALSE,
 				 slider->orientation() == QSlider::Horizontal);
 	    break;
 	}
@@ -330,7 +343,7 @@ void MetalStyle::drawComplexControl( ComplexControl cc,
 	{
 	    // not exactly correct...
 	    const QComboBox *cmb = ( const QComboBox* ) widget;
-	    
+	
 	    qDrawWinPanel( p, r.x(), r.y(), r.width(), r.height(), cg, TRUE,
 			   cmb->isEnabled() ? &cg.brush( QColorGroup::Base ) :
 			                      &cg.brush( QColorGroup::Background ) );
@@ -341,7 +354,80 @@ void MetalStyle::drawComplexControl( ComplexControl cc,
 			   cg, cmb->isEnabled() ? Style_Enabled : Style_Default );
 	    break;
 	}
-			  
+    case CC_ScrollBar:
+	{
+	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
+	    QRect addline, subline, addpage, subpage, slider, first, last;
+	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
+
+	    subline = querySubControlMetrics(cc, widget, SC_ScrollBarSubLine, data);
+	    addline = querySubControlMetrics(cc, widget, SC_ScrollBarAddLine, data);
+	    subpage = querySubControlMetrics(cc, widget, SC_ScrollBarSubPage, data);
+	    addpage = querySubControlMetrics(cc, widget, SC_ScrollBarAddPage, data);
+	    slider  = querySubControlMetrics(cc, widget, SC_ScrollBarSlider,  data);
+	    first   = querySubControlMetrics(cc, widget, SC_ScrollBarFirst,   data);
+	    last    = querySubControlMetrics(cc, widget, SC_ScrollBarLast,    data);
+
+       	    if ((sub & SC_ScrollBarSubLine) && subline.isValid())
+		drawPrimitive(PE_ScrollBarSubLine, p, subline, cg,
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
+			      ((subActive == SC_ScrollBarSubLine) ?
+			       Style_Down : Style_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       Style_Horizontal : 0));
+	    if ((sub & SC_ScrollBarAddLine) && addline.isValid())
+		drawPrimitive(PE_ScrollBarAddLine, p, addline, cg,
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
+			      ((subActive == SC_ScrollBarAddLine) ?
+			       Style_Down : Style_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       Style_Horizontal : 0));
+	    if ((sub & SC_ScrollBarSubPage) && subpage.isValid())
+		drawPrimitive(PE_ScrollBarSubPage, p, subpage, cg,
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
+			      ((subActive == SC_ScrollBarSubPage) ?
+			       Style_Down : Style_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       Style_Horizontal : 0));
+	    if ((sub & SC_ScrollBarAddPage) && addpage.isValid())
+		drawPrimitive(PE_ScrollBarAddPage, p, addpage, cg,
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
+			      ((subActive == SC_ScrollBarAddPage) ?
+			       Style_Down : Style_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       Style_Horizontal : 0));
+       	    if ((sub & SC_ScrollBarFirst) && first.isValid())
+		drawPrimitive(PE_ScrollBarFirst, p, first, cg,
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
+			      ((subActive == SC_ScrollBarFirst) ?
+			       Style_Down : Style_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       Style_Horizontal : 0));
+	    if ((sub & SC_ScrollBarLast) && last.isValid())
+		drawPrimitive(PE_ScrollBarLast, p, last, cg,
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
+			      ((subActive == SC_ScrollBarLast) ?
+			       Style_Down : Style_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       Style_Horizontal : 0));
+	    if ((sub & SC_ScrollBarSlider) && slider.isValid()) {
+		drawPrimitive(PE_ScrollBarSlider, p, slider, cg,
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
+			      ((subActive == SC_ScrollBarSlider) ?
+			       Style_Down : Style_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       Style_Horizontal : 0));
+
+		// ### perhaps this should not be able to accept focus if maxedOut?
+		if (scrollbar->hasFocus()) {
+		    QRect fr(slider.x() + 2, slider.y() + 2,
+			     slider.width() - 5, slider.height() - 5);
+		    drawPrimitive(PE_FocusRect, p, fr, cg, Style_Default);
+		}
+	    }
+
+	    break;
+	}
     default:
 	QWindowsStyle::drawComplexControl( cc, p, widget, r, cg, how, sub, subActive,
 					   data );
@@ -354,7 +440,7 @@ void MetalStyle::drawComplexControl( ComplexControl cc,
 
 
 /*!
-  Draw a metallic button, sunken if \a sunken is TRUE, horizontal if 
+  Draw a metallic button, sunken if \a sunken is TRUE, horizontal if
   /a horz is TRUE.
 */
 
@@ -363,23 +449,23 @@ void MetalStyle::drawMetalButton( QPainter *p, int x, int y, int w, int h,
 {
     QColor top1("#878769691515");
     QColor top2("#C6C6B4B44949");
-    
+
     QColor bot2("#70705B5B1414");
     QColor bot1("56564A4A0E0E"); //first from the bottom
-    
+
     QColor highlight("#E8E8DDDD6565");
     QColor subh1("#CECEBDBD5151");
     QColor subh2("#BFBFACAC4545");
-    
+
     QColor topgrad("#B9B9A5A54040");
     QColor botgrad("#89896C6C1A1A");
-    
+
 
     int x2 = x + w - 1;
     int y2 = y + h - 1;
-    
+
     //frame:
-    
+
     p->setPen( top1 );
     p->drawLine( x, y2, x, y );
     p->drawLine( x, y, x2-1, y );
@@ -398,8 +484,8 @@ void MetalStyle::drawMetalButton( QPainter *p, int x, int y, int w, int h,
     int i = 0;
     int x1 = x + 2;
     int y1 = y + 2;
-    if ( horz ) 
-	x2 = x2 - 2; 
+    if ( horz )
+	x2 = x2 - 2;
     else
 	y2 = y2 - 2;
     // Note that x2/y2 mean something else from this point down...
@@ -408,8 +494,8 @@ void MetalStyle::drawMetalButton( QPainter *p, int x, int y, int w, int h,
                     p->drawLine( x1, y1+i, x2, y1+i ); \
 		 else \
                     p->drawLine( x1+i, y1, x1+i, y2 ); \
-                 i++; 
-    
+                 i++;
+
     if ( !sunken ) {
 	p->setPen( highlight );
 	DRAWLINE;
@@ -421,7 +507,7 @@ void MetalStyle::drawMetalButton( QPainter *p, int x, int y, int w, int h,
     }
     // gradient:
     int ng = (horz ? h : w) - 8; // how many lines for the gradient?
-    
+
     int h1, h2, s1, s2, v1, v2;
     if ( !sunken ) {
 	topgrad.hsv( &h1, &s1, &v1 );
@@ -430,17 +516,17 @@ void MetalStyle::drawMetalButton( QPainter *p, int x, int y, int w, int h,
 	botgrad.hsv( &h1, &s1, &v1 );
 	topgrad.hsv( &h2, &s2, &v2 );
     }
-    
+
     if ( ng > 1 ) {
 	
 	for ( int j =0; j < ng; j++ ) {
-	    p->setPen( QColor( h1 + ((h2-h1)*j)/(ng-1), 
-			       s1 + ((s2-s1)*j)/(ng-1), 
-			       v1 + ((v2-v1)*j)/(ng-1),  QColor::Hsv ) ); 
+	    p->setPen( QColor( h1 + ((h2-h1)*j)/(ng-1),
+			       s1 + ((s2-s1)*j)/(ng-1),
+			       v1 + ((v2-v1)*j)/(ng-1),  QColor::Hsv ) );
 	    DRAWLINE;
 	}
     } else if ( ng == 1 ) {
-	p->setPen( QColor( (h1+h2)/2, (s1+s2)/2, (v1+v2)/2, QColor::Hsv ) ); 
+	p->setPen( QColor( (h1+h2)/2, (s1+s2)/2, (v1+v2)/2, QColor::Hsv ) );
 	DRAWLINE;
     }
     if ( sunken ) {
@@ -454,6 +540,6 @@ void MetalStyle::drawMetalButton( QPainter *p, int x, int y, int w, int h,
 	DRAWLINE;
 	DRAWLINE;
     }
-    
+
 }
 
