@@ -1097,8 +1097,6 @@ void QTextLine::layout(int width, LineWidthUnit unit)
         eng->shape(item);
         const QCharAttributes *attributes = eng->attributes();
         const QScriptItem &current = eng->items[item];
-        line.ascent = qMax(line.ascent, current.ascent);
-        line.descent = qMax(line.descent, current.descent);
 
         if (current.isObject) {
             QTextFormat format = eng->formats->format(eng->items[item].format);
@@ -1122,6 +1120,8 @@ void QTextLine::layout(int width, LineWidthUnit unit)
 
             ++item;
             ++glyphCount;
+            line.ascent = qMax(line.ascent, current.ascent);
+            line.descent = qMax(line.descent, current.descent);
             continue;
         }
 
@@ -1184,6 +1184,8 @@ void QTextLine::layout(int width, LineWidthUnit unit)
 
             line.textWidth += tmpw;
             line.length += next - pos;
+            line.ascent = qMax(line.ascent, current.ascent);
+            line.descent = qMax(line.descent, current.descent);
 
             pos = next;
         } while (pos < length);
