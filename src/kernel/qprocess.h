@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.h#19 $
+** $Id: //depot/qt/main/src/kernel/qprocess.h#20 $
 **
 ** Implementation of QProcess class
 **
@@ -128,6 +128,9 @@ private slots:
 
 private:
     friend class QProcessPrivate;
+#if defined(Q_OS_UNIX)
+    friend class QProcessManager;
+#endif
 };
 
 #endif // QT_NO_PROCESS
