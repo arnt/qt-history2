@@ -49,7 +49,7 @@ struct QUrlOperatorPrivate
   \class QUrlOperator qurloperator.h
 
   \brief The QUrlOperator class provides common operations on URLs
-  ("get" and more).
+  (get() and more).
 
   This class operates on hirachical structures (like filesystems)
   using URLs. Its API allows do all common operations on it
@@ -82,7 +82,7 @@ struct QUrlOperatorPrivate
   For more information about the Qt Network Architecture take a look
   at the <a href="network.html">Qt Network Documentation</a>.
 
-  \sa QNetworkProtocol::QNetworkProtocol(), QNetworkOperation::QNetworkOperation()
+  \sa QNetworkProtocol, QNetworkOperation
 */
 
 /*!
@@ -94,7 +94,7 @@ struct QUrlOperatorPrivate
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
 
-  \sa QNetworkOperation::QNetworkOperation(), QNetworkProtocol::QNetworkProtocol()
+  \sa QNetworkOperation, QNetworkProtocol
 */
 
 
@@ -108,7 +108,7 @@ struct QUrlOperatorPrivate
   To check if the operation was successful or not, check the state and
   error code of the operation object.
 
-  \sa QNetworkOperation::QNetworkOperation(), QNetworkProtocol::QNetworkProtocol()
+  \sa QNetworkOperation, QNetworkProtocol
 */
 
 /*!
@@ -119,7 +119,7 @@ struct QUrlOperatorPrivate
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
 
-  \sa QNetworkOperation::QNetworkOperation(), QNetworkProtocol::QNetworkProtocol()
+  \sa QNetworkOperation, QNetworkProtocol
 */
 
 /*!
@@ -129,9 +129,10 @@ struct QUrlOperatorPrivate
   and the directory has been created. \a i holds the information
   about the new directory.
   \a op is the pointer to the operation object, which contains all infos
-  of the operation, including the state and so on.
+  of the operation, including the state and so on and using op->arg1()
+  you also get the filename of the new directory.
 
-  \sa QNetworkOperation::QNetworkOperation(), QNetworkProtocol::QNetworkProtocol()
+  \sa QNetworkOperation, QNetworkProtocol
 */
 
 /*!
@@ -145,7 +146,7 @@ struct QUrlOperatorPrivate
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
 
-  \sa QNetworkOperation::QNetworkOperation(), QNetworkProtocol::QNetworkProtocol()
+  \sa QNetworkOperation, QNetworkProtocol
 */
 
 /*!
@@ -159,7 +160,7 @@ struct QUrlOperatorPrivate
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
 
-  \sa QNetworkOperation::QNetworkOperation(), QNetworkProtocol::QNetworkProtocol()
+  \sa QNetworkOperation, QNetworkProtocol
 */
 
 /*!
@@ -173,7 +174,7 @@ struct QUrlOperatorPrivate
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
 
-  \sa QNetworkOperation::QNetworkOperation(), QNetworkProtocol::QNetworkProtocol()
+  \sa QNetworkOperation, QNetworkProtocol
 */
 
 /*!
@@ -185,7 +186,7 @@ struct QUrlOperatorPrivate
   which is processed. \a bytesTotal may be -1, which means that the number of total
   bytes is not known.
 
-  \sa QNetworkOperation::QNetworkOperation(), QNetworkProtocol::QNetworkProtocol()
+  \sa QNetworkOperation, QNetworkProtocol
 */
 
 /*!
@@ -303,22 +304,22 @@ QUrlOperator::~QUrlOperator()
 
 /*!
   Starts listing the childs of this URL (e.g. of a directory). The signal
-  start( QNetworkOperation *  is emitted, before the first entry is listed,
-  and after the last one finished( QNetworkOperation * ) is emitted.
-  For each new entry, the newChild( QUrlInfo &, QNetworkOperation * )
+  start()  is emitted, before the first entry is listed,
+  and after the last one finished() is emitted.
+  For each new entry, the newChild()
   signals is emitted.
-  If an error occures, also the signal finished( QNetworkOperation * )
+  If an error occures, also the signal finished()
   is emitted, so check the state of the network operation pointer!
 
   As the operation will not be executed immediately, a pointer to the
   QNetworkOperation object, which is created by this method, is
   returned. This object contains all data about the operation and is
-  is used to refer to this operation later (e.g. in the signals which are emitted
+  used to refer to this operation later (e.g. in the signals which are emitted
   by the QUrlOperator). The return value can be also 0 if the operation object
   couldn't be created.
 
-  This path of this QUrlOperator has to point to a directory and not to a file,
-  else this operation might not work!
+  The path of this QUrlOperator has to point to a directory, because the childs
+  of this directory will be listed, and not to a file, else this operation might not work! 
 */
 
 const QNetworkOperation *QUrlOperator::listChildren()
@@ -350,22 +351,23 @@ const QNetworkOperation *QUrlOperator::listChildren()
 
 /*!
   Tries to create a directory (child) with the name \a dirname.
-  If it has been successful an newChild( QUrlInfo &, QNetworkOperation * )
+  If it has been successful a newChild()
   signal with the new child is emitted, and the
-  createdDirectory( QUrlInfo &, QNetworkOperation * ) with
+  createdDirectory() signal with
   the information about the new child is emitted too.
-  Also finished( QNetworkOperation * ) (on success or failure) is emitted,
+  Also finished() (on success or failure) is emitted,
   after the operation has been processed, so check the state of the network
   operation object to see if the operation was successful or not.
 
   As the operation will not be executed immediately, a pointer to the
   QNetworkOperation object, which is created by this method, is
   returned. This object contains all data about the operation and is
-  is used to refer to this operation later (e.g. in the signals which are emitted
+  used to refer to this operation later (e.g. in the signals which are emitted
   by the QUrlOperator). The return value can be also 0 if the operation object
   couldn't be created.
 
-  This path of this QUrlOperator has to point to a directory and not to a file,
+  This path of this QUrlOperator has to point to a directory, as the new directory
+  will be created in this path, and not to a file,
   else this operation might not work!
 */
 
@@ -397,19 +399,20 @@ const QNetworkOperation *QUrlOperator::mkdir( const QString &dirname )
 
 /*!
   Tries to remove the file (child) \a filename.
-  If it has been successful the signal removed( QNetworkProtocol * ) is emitted.
-  Also finished( QNetworkOperation * ) (on success or failure) is emitted after
+  If it has been successful the signal removed() is emitted.
+  Also finished() (on success or failure) is emitted after
   the operation has been processed, so check the state of the network operation
   object to see if the operation was successful or not.
 
   As the operation will not be executed immediately, a pointer to the
   QNetworkOperation object, which is created by this method, is
   returned. This object contains all data about the operation and is
-  is used to refer to this operation later (e.g. in the signals which are emitted
+  used to refer to this operation later (e.g. in the signals which are emitted
   by the QUrlOperator). The return value can be also 0 if the operation object
   couldn't be created.
 
-  This path of this QUrlOperator has to point to a directory and not to a file,
+  This path of this QUrlOperator has to point to a directory, because if \a filename
+  is relative, it will be tried to remove it in this directory, and not to a file,
   else this operation might not work!
 */
 
@@ -441,20 +444,21 @@ const QNetworkOperation *QUrlOperator::remove( const QString &filename )
 
 /*!
   Tries to rename the file (child) \a oldname by \a newname.
-  If it has been successful the signal itemChanged( QNetworkOperation * )
+  If it has been successful the signal itemChanged()
   is emitted.
-  Also finished( QNetworkOperation * ) (on success or failure) is emitted after
+  Also finished() (on success or failure) is emitted after
   the operation has been processed, so check the state of the network operation
   object to see if the operation was successful or not.
 
   As the operation will not be executed immediately, a pointer to the
   QNetworkOperation object, which is created by this method, is
   returned. This object contains all data about the operation and is
-  is used to refer to this operation later (e.g. in the signals which are emitted
+  used to refer to this operation later (e.g. in the signals which are emitted
   by the QUrlOperator). The return value can be also 0 if the operation object
   couldn't be created.
 
-  This path of this QUrlOperator has to point to a directory and not to a file,
+  This path of this QUrlOperator has to point to a directory, as \a oldname and
+  \a newname are handled relaitvie to this directory, and not to a file,
   else this operation might not work!
 */
 
@@ -487,7 +491,7 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
 /*!
   Copies the file \a from to \a to. If \a move is TRUE,
   the file is moved (copied and removed). \a from has to point to a file and
-  \a to must point to a directory.
+  \a to must point to a directory (into which \a from is copied).
   The copying is done using get() and put() operations. If you want to get notified
   about the progress of the operation, connect to the dataTransferProgress()
   signal. But you have to know, that the get() and the put() operations emit
@@ -497,7 +501,7 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
   the operation from which the signal comes (you get this by asking for the type of the
   QNetworkOperation pointer you also get as last argument of this signal).
 
-  Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
+  Also at the end finished() (on success or failure) is emitted,
   so check the state of the network operation object to see if the
   operation was successful or not.
 
@@ -588,7 +592,7 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
 /*!
   Copies \a files to the directory \a dest. If \a move is TRUE,
   the files are moved and not copied. \a dest has to point to a directory.
-  Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
+  Also at the end finished() (on success or failure) is emitted,
   so check the state of the network operation object to see if the
   operation was successful or not.
 
@@ -646,11 +650,11 @@ bool QUrlOperator::isDir( bool *ok )
   is QString::null, to get data from the location to which this
   URL points (see QUrl::fileName() and QUrl::encodedPathAndQuery()). What
   exactly happens then is depending on the network protocol.
-  When data comes in, the data( const QByteArray &, QNetworkOperation * ) signal
+  When data comes in, the data() signal
   is emitted. As it's unlikely that all the data comes in at once, multiple
   data() signals will be emitted.
   During processing the operation the dataTransferProgress() is emitted.
-  Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
+  Also at the end finished() (on success or failure) is emitted,
   so check the state of the network operation object to see if the
   operation was successful or not.
 
@@ -687,7 +691,8 @@ bool QUrlOperator::isDir( bool *ok )
   This means if \a location is not empty and relative, it must not
   contain any queries or references, just the name of a child. So,
   if you need to specify a query or reference do it like in the first
-  example or specify the full URL as \a location.
+  example or specify the full URL (like 
+  http://www.whatever.org/cgi-bin/search.pl?cmd=Hallo) as \a location.
 
   \sa copy()
  */
@@ -729,9 +734,9 @@ const QNetworkOperation *QUrlOperator::get( const QString &location )
   URL points. What exaclty happens is depending on the network
   protocol. Also depending on the network protocol
   after putting data some data might come back. In this case the
-  data( const QByteArray &, QNetworkOperation * ) signal is emitted.
+  data() signal is emitted.
   During processing the operation the dataTransferProgress() is emitted.
-  Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
+  Also at the end finished() (on success or failure) is emitted,
   so check the state of the network operation object to see if the
   operation was successful or not.
 

@@ -88,19 +88,19 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
   "%00" in the path while this is ok for the query.
 
   QUrl is normally used like that:
-  
+
   \code
   QUrl u( "http://www.troll.no" );
   // or
   QUrl u( "file:/home/myself/Mail", "Inbox" );
   \endcode
-  
+
   Then you can access the parts of the URL, change them and do
   some more stuff.
-  
+
   To allow easy working with QUrl and QString together, QUrl implements
   the needed cast and assign operators. So you can do following:
-  
+
   \code
   QUrl u( "http://www.troll.no" );
   QString trollHome = u;
@@ -108,12 +108,12 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
   QString trollHome( "http://www.kde.org" );
   QUrl u( trollHome );
   \endcode
-  
-  If you want to use an URL to work on a hirachical filesystem
-  (locally or remote) the class QUrlOperator, which is derived
+
+  If you want to use an URL to work on a hirarchical structures
+  (e.g. locally or remote filesystem) the class QUrlOperator, which is derived
   fro QUrl, may be interesting for you.
 
-  \sa QUrlOperator::QUrlOperator()
+  \sa QUrlOperator
 */
 
 
@@ -132,7 +132,7 @@ QUrl::QUrl()
 /*!
   Constructs and URL using \a url and parses this string.
 
-  You can pass strings like "/home/qt", in this case the protocol 
+  You can pass strings like "/home/qt", in this case the protocol
   "file" is assumed.
 */
 
@@ -170,21 +170,21 @@ bool QUrl::isRelativeUrl( const QString &url )
   Constructs and URL taking \a url as base and \a relUrl_ as
   relative URL to \a url. If \a relUrl_ is not relative,
   \a relUrl_ is taken as new URL.
-  
-  For example, the path of 
-  
+
+  For example, the path of
+
   \code
   QUrl u( "ftp://ftp.troll.no/qt/source", "qt-2.0.2.tar.gz" );
   \endcode
-  
+
   will be "/qt/src/qt-2.0.2.tar.gz".
-  
-  And 
+
+  And
 
   \code
   QUrl u( "ftp://ftp.troll.no/qt/source", "/usr/local" );
   \endcode
-  
+
   will result in a new URL, with "/usr/local" as path
   and "file" as protocol.
 */
@@ -689,7 +689,7 @@ bool QUrl::parse( const QString& url )
   Assign operator. Parses \a url and assigns the resulting
   data to this class.
 
-  You can pass strings like "/home/qt", in this case the protocol 
+  You can pass strings like "/home/qt", in this case the protocol
   "file" is assumed.
 */
 
@@ -1039,7 +1039,7 @@ QString QUrl::toString( bool encodedPath, bool forcePrependProtocol ) const
 
 /*!
   Composes a string of the URL and returns it.
-  
+
   \sa QUrl::toString()
 */
 
