@@ -287,7 +287,7 @@ cat << EOF
 # This makefile builds architecture link trees.
 #
 # For example, say 'make linux-gcc-shared' to create a shared library for
-# Linux using GNU gcc. Or 'make osf1-cxx-static' to create a static library
+# Linux using GNU gcc, or 'make osf1-cxx-static' to create a static library
 # for OSF/1 Alpha using the DEC C++ compiler.
 #
 # Read PORTING for instructions how to port Qt to a new platform.
@@ -299,12 +299,12 @@ EOF
 echo ../makefiles/*-* | fmt -1 | sed -e 's-.*/--' -e 's/-.*//' | fmt -1 | uniq | fmt -70 | sed 's/^/	@echo "	"/'
 cat << EOF
 	@echo
-	@echo Each of these make targets make build directories for all of the
-	@echo configurations supported on that operating system.
+	@echo Each of these make targets creates build directories for all of
+	@echo the configurations supported on that platform.
 	@echo
-	@echo make list gives a complete list of supported configurations.
+	@echo \"make list\" shows a complete list of supported configurations.
 	@echo
-	@echo make alldirs builds _all_ the directories.
+	@echo \"make alldirs\" creates _all_ the build directories.
 
 list: 
 	@echo Supported configurations:
