@@ -363,6 +363,7 @@ QLineEdit::QLineEdit( const QString& text, const QString &inputMask, QWidget* pa
     if ( d->maskData ) {
 	QString ms = d->maskString( 0, text );
 	d->init( ms + d->clearString( ms.length(), d->maxLength - ms.length() ) );
+	d->cursor = d->nextMaskBlank( ms.length() );
     } else {
 	d->init( text );
     }
@@ -1023,6 +1024,7 @@ QString QLineEdit::inputMask() const
 void QLineEdit::setInputMask( const QString &inputMask )
 {
     d->parseInputMask( inputMask );
+    d->moveCursor( d->nextMaskBlank( 0 ) );
 }
 
 /*!
@@ -1670,9 +1672,11 @@ void QLineEdit::imEndEvent( QIMEvent *e )
 
 void QLineEdit::focusInEvent( QFocusEvent* e )
 {
-    if ( e->reason() == QFocusEvent::Tab ||
-	 e->reason() == QFocusEvent::Backtab  ||
-	 e->reason() == QFocusEvent::Shortcut )
+    if ( d->maskData )
+	d->moveCursor( d->nextMaskBlank( 0 ) );
+    else if ( e->reason() == QFocusEvent::Tab ||
+	      e->reason() == QFocusEvent::Backtab  ||
+	      e->reason() == QFocusEvent::Shortcut )
 	selectAll();
     if ( !d->cursorTimer )
 	d->cursorTimer = startTimer( QApplication::cursorFlashTime()/2 );
