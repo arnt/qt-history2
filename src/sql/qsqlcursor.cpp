@@ -282,7 +282,7 @@ QSqlRecord & QSqlCursor::operator=( const QSqlRecord & list )
 
 /*!  Returns the primary index associated with the cursor as defined
   in the database, or an empty index if there is no primary index.  If
-  \a prime is TRUE, the index fields are set to the current value of
+  \a prime is TRUE (the default), the index fields are set to the current value of
   the cursor fields they correspond to.
 
 */
