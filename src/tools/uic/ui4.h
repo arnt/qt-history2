@@ -109,7 +109,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -153,7 +152,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -189,7 +187,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -235,7 +232,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -267,6 +263,11 @@ public:
     inline void setAttributeName(const QString & a) { m_aName = a; m_hasName = true; }
     inline void clearAttributeName() { m_hasName = false; }
 
+    inline QString attributeMenu() const { return m_aMenu; }
+    inline bool hasAttributeMenu() const { return m_hasMenu; }
+    inline void setAttributeMenu(const QString & a) { m_aMenu = a; m_hasMenu = true; }
+    inline void clearAttributeMenu() { m_hasMenu = false; }
+
     inline QList<DomProperty *> elementProperty() const { return m_eProperty; }
     inline void setElementProperty(const QList<DomProperty *> & a) { m_eProperty = a; };
 
@@ -277,13 +278,14 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
     // attributes
     QString m_aName;
     bool m_hasName;
+    QString m_aMenu;
+    bool m_hasMenu;
 
     // elements
     QList<DomProperty *> m_eProperty;
@@ -311,7 +313,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -341,7 +342,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -375,7 +375,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -413,7 +412,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -445,7 +443,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -476,7 +473,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -527,7 +523,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -563,7 +558,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -594,7 +588,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -627,7 +620,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -664,7 +656,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -703,7 +694,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -735,7 +725,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -775,7 +764,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -843,7 +831,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
     Kind m_kind;
@@ -883,7 +870,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -912,7 +898,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -944,7 +929,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -1014,7 +998,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -1062,7 +1045,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -1099,7 +1081,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -1130,7 +1111,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -1165,7 +1145,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -1214,7 +1193,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -1252,7 +1230,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -1291,7 +1268,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -1332,7 +1308,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -1367,7 +1342,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -1403,7 +1377,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -1440,7 +1413,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -1486,7 +1458,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -1520,7 +1491,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
 
@@ -1646,7 +1616,6 @@ public:
     inline void setText(const QString &text) { m_text = text; }
 private:
     QString m_text;
-    QDomElement m_element;
 
     inline void reset(bool full=true);
     Kind m_kind;
@@ -1714,6 +1683,7 @@ inline DomActionGroup::DomActionGroup()
 inline DomAction::DomAction()
 {
     m_hasName = false;
+    m_hasMenu = false;
 }
 
 inline DomActionRef::DomActionRef()
@@ -2206,6 +2176,7 @@ inline void DomAction::read(const QDomElement &node)
 {
     // attributes
     if (node.hasAttribute("name")) setAttributeName(node.attribute("name"));
+    if (node.hasAttribute("menu")) setAttributeMenu(node.attribute("menu"));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2944,6 +2915,9 @@ inline QDomElement DomAction::write(QDomDocument &doc, const QString &tagName)
     QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Action").toLower());
     if (m_hasName)
         node.setAttribute(QString("name").toLower(), m_aName);
+
+    if (m_hasMenu)
+        node.setAttribute(QString("menu").toLower(), m_aMenu);
 
 
     QDomElement child;
@@ -3972,6 +3946,7 @@ inline void DomAction::reset(bool full)
 {
     if (full) {
     m_hasName = false;
+    m_hasMenu = false;
     }
 
     qDeleteAll(m_eProperty);

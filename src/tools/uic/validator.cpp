@@ -20,6 +20,7 @@
 Validator::Validator(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option())
 {
+    this->uic = uic;
 }
 
 void Validator::accept(DomUI *node)
@@ -35,6 +36,17 @@ void Validator::accept(DomWidget *node)
 
     if (widgetClass == QLatin1String("Line"))
         node->setAttributeClass(QLatin1String("QFrame"));
+
+    QString menuName = driver->findOrInsertWidget(node);
+    if (uic->customWidgetsInfo()->extends(widgetClass, "QMenu")) {
+        DomAction *menuAction = new DomAction();
+        menuAction->setAttributeName(menuName + "Action");
+        menuAction->setAttributeMenu(menuName);
+
+        QList<DomAction*> actions = node->elementAction();
+        actions.append(menuAction);
+        node->setElementAction(actions);
+    }
 
     TreeWalker::accept(node);
 }

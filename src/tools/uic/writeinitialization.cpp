@@ -262,8 +262,6 @@ void WriteInitialization::accept(DomLayout *node)
         }
     }
 
-    //bool isMainWindow = m_widgetChain.top()->attributeClass() == QLatin1String("QMainWindow");
-
     output << option.indent << varName << " = new " << className << "(";
 
     if (isMainWindow) {
@@ -381,6 +379,9 @@ void WriteInitialization::accept(DomActionGroup *node)
 
 void WriteInitialization::accept(DomAction *node)
 {
+    if (node->hasAttributeMenu())
+        return;
+
     QString actionName = driver->findOrInsertAction(node);
     QString varName = driver->findOrInsertWidget(m_widgetChain.top());
 
@@ -394,12 +395,21 @@ void WriteInitialization::accept(DomAction *node)
 void WriteInitialization::accept(DomActionRef *node)
 {
     QString actionName = node->attributeName();
-    if (actionName.isEmpty() || !m_widgetChain.top())
+    bool isSeparator = actionName == QLatin1String("separator");
+
+    if (actionName.isEmpty() || !m_widgetChain.top()) {
         return;
+    } else if (driver->actionGroupByName(actionName)) {
+        return;
+    } else if (!(driver->actionByName(actionName) || isSeparator)) {
+        fprintf(stderr, "Warning: action `%s' not declared\n",
+            actionName.latin1());
+        return;
+    }
 
     QString varName = driver->findOrInsertWidget(m_widgetChain.top());
 
-    if (m_widgetChain.top() && actionName == QLatin1String("separator")) {
+    if (m_widgetChain.top() && isSeparator) {
         QString parentClass = m_widgetChain.top()->attributeClass();
 
         // separator is always reserved!
@@ -410,8 +420,9 @@ void WriteInitialization::accept(DomActionRef *node)
     actionOut << option.indent << varName << "->addAction(" << node->attributeName() << ");\n";
 }
 
-void WriteInitialization::writeProperties(const QString &varName, const QString &className,
-                                     const QList<DomProperty*> &lst)
+void WriteInitialization::writeProperties(const QString &varName,
+                                          const QString &className,
+                                          const QList<DomProperty*> &lst)
 {
     bool isTopLevel = m_widgetChain.count() == 1;
 
@@ -1022,10 +1033,15 @@ void WriteInitialization::initializeMenu(DomWidget *w, const QString &parentWidg
     if (attributes.contains("title"))
         title = attributes.value("title")->elementString();
 
-    QString varName = driver->findOrInsertWidget(w);
-    output << option.indent << varName << "Action = new QAction("
-           << trCall(title, w->attributeClass())
-           << ", " << varName
-           << ", " << parentWidget << ");\n";
+    QString menuName = driver->findOrInsertWidget(w);
+    QString menuAction = menuName + QLatin1String("Action");
+
+    DomAction *action = driver->actionByName(menuAction);
+    if (action && action->hasAttributeMenu()) {
+        output << option.indent << menuAction << " = new QAction("
+            << trCall(title, w->attributeClass())
+            << ", " << menuName
+            << ", " << parentWidget << ");\n";
+    }
 }
 

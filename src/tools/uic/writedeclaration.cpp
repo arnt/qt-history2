@@ -43,7 +43,6 @@ void WriteDeclaration::accept(DomUI *node)
         if (connection == QLatin1String("(default)"))
             continue;
 
-        // ### the var `<connection>Connection' can be already used!!!
         output << option.indent << "QSqlDatabase *" << connection << "Connection;\n";
     }
 
@@ -74,9 +73,6 @@ void WriteDeclaration::accept(DomWidget *node)
     QString className = QLatin1String("QWidget");
     if (node->hasAttributeClass())
         className = node->attributeClass();
-
-    if (uic->customWidgetsInfo()->extends(className, "QMenu"))
-        output << option.indent << "QAction *" << driver->findOrInsertWidget(node) << "Action" << ";\n";
 
     output << option.indent << className << " *" << driver->findOrInsertWidget(node) << ";\n";
 

@@ -38,6 +38,7 @@ private:
     Driver *driver;
     QTextStream &output;
     const Option &option;
+    Uic *uic;
 };
 
 #endif // VALIDATOR_H
