@@ -72,6 +72,38 @@ static int ucstricmp( const QString &as, const QString &bs )
     return ::lower( *a ).unicode() - ::lower( *b ).unicode();
 }
 
+static int getFontWeight( const QString &weightString )
+{
+    QString s = weightString.lower();
+
+    // Test in decreasing order of commonness
+    if (s == "medium" ||
+	s == "normal")
+	return QFont::Normal;
+    if (s == "bold")
+	return QFont::Bold;
+    if (s == "demibold" || s == "demi bold")
+	return QFont::DemiBold;
+    if (s == "black")
+	return QFont::Black;
+    if (s == "light")
+	return QFont::Light;
+
+    if (s.contains("bold")) {
+	if (s.contains("demi"))
+	    return (int) QFont::DemiBold;
+	return (int) QFont::Bold;
+    }
+
+    if (s.contains("light"))
+	return (int) QFont::Light;
+
+    if (s.contains("black"))
+	return (int) QFont::Black;
+
+    return (int) QFont::Normal;
+}
+
 #ifdef Q_WS_X11
 struct QtFontEncoding
 {
@@ -111,7 +143,6 @@ QtFontEncoding *QtFontSize::encodingID( int id, bool add )
     return encodings + count++;
 }
 #endif // Q_WS_X11
-
 
 struct QtFontStyle
 {
@@ -178,8 +209,7 @@ struct QtFontStyle
 QtFontStyle::Key::Key( const QString &styleString )
     : italic( FALSE ), oblique( FALSE ), weight( QFont::Normal ), stretch( 0 )
 {
-    if ( styleString.contains( "Bold" ) )
-	weight = QFont::Bold;
+    weight = getFontWeight( styleString );
 
     if ( styleString.contains( "Italic" ) )
 	 italic = TRUE;
@@ -291,6 +321,7 @@ struct QtFontFamily
 #endif
     bool fullyLoaded : 1;
     QString name;
+    QString rawName;
 #ifdef Q_WS_X11
     QCString fontFilename;
     int fontFileIndex;
@@ -1021,22 +1052,24 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 static QString styleString( int weight, bool italic, bool oblique )
 {
     QString result;
-    if ( weight >= QFont::Bold ) {
-        if ( italic )
-            result = "Bold Italic";
-        else if ( oblique )
-            result = "Bold Oblique";
-	else
-	    result = "Bold";
-    } else {
-        if ( italic )
-            result = "Italic";
-        else if ( oblique )
-            result = "Oblique";
-        else
-            result = "Normal";
-    }
-    return result;
+    if ( weight >= QFont::Black )
+	result = "Black";
+    else if ( weight >= QFont::Bold )
+	result = "Bold";
+    else if ( weight >= QFont::DemiBold )
+	result = "Demi Bold";
+    else if ( weight < QFont::Normal )
+	result = "Light";
+
+    if ( italic )
+	result += " Italic";
+    else if ( oblique )
+	result += " Oblique";
+
+    if ( result.isEmpty() )
+	result = "Normal";
+
+    return result.simplifyWhiteSpace();
 }
 
 /*!
@@ -1521,7 +1554,8 @@ QFont QFontDatabase::font( const QString &family, const QString &style,
     QtFontStyle *s = allStyles.style( styleKey );
 
     // ### perhaps do a bit of matching to find the most compatible font?
-    if ( !s ) s = allStyles.styles[0];
+    if ( !s && allStyles.count )
+	s = allStyles.styles[0];
 
     if ( !s ) // no styles found?
 	return QApplication::font();

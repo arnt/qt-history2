@@ -496,46 +496,6 @@ static inline bool isFixedPitch( char **tokens )
 	    tokens[Spacing][0] == 'C');
 }
 
-
-static int getFontWeight( const QCString &weightString, bool adjustScore = FALSE )
-{
-    // Test in decreasing order of commonness
-    if ( weightString == "medium" )       return QFont::Normal;
-    else if ( weightString == "bold" )    return QFont::Bold;
-    else if ( weightString == "demibold") return QFont::DemiBold;
-    else if ( weightString == "black" )   return QFont::Black;
-    else if ( weightString == "light" )   return QFont::Light;
-
-    QCString s(weightString.lower());
-
-    if ( s.contains("bold") ) {
-	if ( adjustScore )
-	    return (int) QFont::Bold - 1;  // - 1, not sure that this IS bold
-	else
-	    return (int) QFont::Bold;
-    }
-
-    if ( s.contains("light") ) {
-	if ( adjustScore )
-	    return (int) QFont::Light - 1; // - 1, not sure that this IS light
-	else
-	    return (int) QFont::Light;
-    }
-
-    if ( s.contains("black") ) {
-	if ( adjustScore )
-	    return (int) QFont::Black - 1; // - 1, not sure this IS black
-	else
-	    return (int) QFont::Black;
-    }
-
-    if ( adjustScore )
-	return (int) QFont::Normal - 2;	   // - 2, we hope it's close to normal
-
-    return (int) QFont::Normal;
-}
-
-
 /*
   Fills in a font definition (QFontDef) from an XLFD (X Logical Font
   Description).
@@ -785,6 +745,7 @@ static void loadXft()
     XftFontSet  *fonts;
 
     QString familyName;
+    QString rawName;
     char *value;
     int weight_value;
     int slant_value;
@@ -808,7 +769,8 @@ static void loadXft()
 				XFT_FAMILY, 0, &value) != XftResultMatch )
 	    continue;
 	// 	capitalize( value );
-	familyName = value;
+	rawName = familyName = value;
+	familyName.replace('-', ' ');
 
 	slant_value = XFT_SLANT_ROMAN;
 	weight_value = XFT_WEIGHT_MEDIUM;
@@ -820,6 +782,7 @@ static void loadXft()
 	XftPatternGetInteger (fonts->fonts[i], XFT_INDEX, 0, &index_value);
 
 	QtFontFamily *family = db->family( familyName, TRUE );
+	family->rawName = rawName;
 	family->hasXft = TRUE;
 
 #ifdef QT_XFT2
@@ -1196,6 +1159,9 @@ static void initializeDb()
 
 
 #ifdef QFONTDATABASE_DEBUG
+    // load everything at startup in debug mode.
+    loadXlfds( 0,  -1 );
+
     // print the database
     for ( int f = 0; f < db->count; f++ ) {
 	QtFontFamily *family = db->families[f];
@@ -1292,9 +1258,9 @@ QFontEngine *loadEngine( QFont::Script script,
 	    XftPatternAddString( pattern, XFT_FOUNDRY,
 				 foundry->name.local8Bit().data() );
 
-	if ( !family->name.isEmpty() )
+	if ( !family->rawName.isEmpty() )
 	    XftPatternAddString( pattern, XFT_FAMILY,
-				 family->name.local8Bit().data() );
+				 family->rawName.local8Bit().data() );
 
 	const char *stylehint_value = 0;
 	switch ( request.styleHint ) {
