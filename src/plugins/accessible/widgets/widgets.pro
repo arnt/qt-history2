@@ -5,8 +5,6 @@ CONFIG  += qt dll plugin
 DESTDIR  = $$QT_BUILD_TREE/plugins/accessible
 VERSION  = 1.0.0
 
-DEFINES += QT_COMPAT_WARNINGS
-
 QTDIR_build:REQUIRES += accessibility
 
 SOURCES  += main.cpp \

@@ -82,12 +82,12 @@ QString QAccessiblePopup::text(Text t, int child) const
     switch (t) {
     case Name:
 	if (!child)
-	    return popupMenu()->caption();
+	    return popupMenu()->windowTitle();
 	return qacc_stripAmp(popupMenu()->text(id));
     case Help:
 	return popupMenu()->whatsThis(id);
     case Accelerator:
-	return QAccel::keyToString(popupMenu()->accel(id));
+	return (QString)popupMenu()->accel(id);
     default:
 	break;
     }

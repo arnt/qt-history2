@@ -115,7 +115,7 @@ QString QAccessibleButton::text(Text t, int child) const
 	{
 	    QPushButton *pb = qt_cast<QPushButton*>(object());
 	    if (pb && pb->isDefault())
-		str = QAccel::keyToString(Key_Enter);
+		str = (QString)QKeySequence(Key_Enter);
 	    if (str.isEmpty())
 		str = qacc_hotKey(button()->text());
 	}

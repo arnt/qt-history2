@@ -125,9 +125,9 @@ QButton *QAccessibleTabBar::button(int child) const
     if (child <= tabBar()->count())
 	return 0;
     if (child - tabBar()->count() == 1)
-	return qt_cast<QButton*>(tabBar()->child("qt_left_btn"));
+	return qFindChild<QButton*>(tabBar(), "qt_left_btn");
     if (child - tabBar()->count() == 2)
-	return qt_cast<QButton*>(tabBar()->child("qt_right_btn"));
+	return qFindChild<QButton*>(tabBar(), "qt_right_btn");
     Q_ASSERT(false);
     return 0;
 }
@@ -380,7 +380,7 @@ QString QAccessibleComboBox::text(Text t, int child) const
 	break;
     case Accelerator:
 	if (child == OpenList)
-	    str = QAccel::keyToString(Key_Down);
+	    str = (QString)QKeySequence(Key_Down);
     case Value:
 	if (comboBox()->editable())
 	    str = comboBox()->lineEdit()->text();
@@ -548,7 +548,7 @@ QString QAccessibleTitleBar::text(Text t, int child) const
 	break;
     case Value:
 	if (!child || child == 2)
-	    return titleBar()->window()->caption();
+	    return titleBar()->window()->windowTitle();
 	break;
 /*
     case DefaultAction:
