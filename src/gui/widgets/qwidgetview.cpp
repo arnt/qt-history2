@@ -33,16 +33,26 @@ public:
 
 
 /*!
-
     \class QWidgetView
-    \brief The QWidgetView class provides on-demand scroll bars around a widget.
+    \brief The QWidgetView class provides a scrolling view onto another widget.
 
     \ingroup basic
     \mainclass
 
-    The widget view's widget must be set with setWidget(); it can be
-    retrieved by widget(). The widget view's widget can be set
-    resizable with setWidgetResizable().
+    A widget view is used to display the contents of a child widget within
+    a frame. If the widget exceeds the size of the frame, the view can
+    provide scroll bars so that the entire child widget can be accessed.
+
+    When using a widget view to display the contents of a custom widget,
+    it is important to ensure that the \l{QWidget::sizeHint} size hint of the
+    child widget is set to a suitable value. If a standard QWidget is used
+    for the child widget, it may be necessary to call
+    \l{QWidget::setMinimumSize} to ensure that the contents of the widget are
+    shown correctly within the widget view.
+
+    The child widget must be specified with setWidget(); it can be
+    retrieved with widget(). The view can be made to be resizable with
+    the setWidgetResizable() function.
 */
 
 
