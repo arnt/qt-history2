@@ -1,5 +1,5 @@
 TEMPLATE 	= app
-CONFIG		+= qt warn_on debug
+CONFIG		+= qt warn_off release
 HEADERS		= frame.h \
 		  qthumbwheel.h \
                   display.h \
