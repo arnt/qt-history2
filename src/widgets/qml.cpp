@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#12 $
 **
 ** Implementation of QML classes
 **
@@ -391,7 +391,7 @@ void QMLStyle::setMargin(QMLStyle::Margin m, int v)
 	d->margin[MarginLeft] = v;
 	d->margin[MarginRight] = v;
     }
-    else 
+    else
 	d->margin[m] = v;
 }
 
@@ -585,7 +585,7 @@ public:
     const QDict<QString>* attributes() const;
 
     const QMLContainer* anchor() const;
-    
+
     QMLContainer* findAnchor(const QString& name ) const;
 
 protected:
@@ -617,8 +617,10 @@ inline QFont QMLContainer::font() const
 inline QColor QMLContainer::color(const QColor& c) const
 {
     QColor sc = style->color();
-    if ( sc.isValid() )
-	return sc;
+    if ( sc.isValid() ) {
+	if (!style->isAnchor() || ( attributes() && attributes()->find("href") ) )
+	    return sc;
+    }
     return parent?parent->color(c):c;
 }
 
@@ -670,13 +672,13 @@ public:
 
     int width;
     int height;
-    
+
     //    QMLNode* locate(int x, int y);
     QMLRow*  locate(QPainter* p, QMLNode* node, int &lx, int &ly, int &lh, int&lry, int &lrh);
 
     QMLNode* hitTest(QPainter* p, int obx, int oby, int xarg, int yarg);
 
-    int numberOfSubBox( QMLBox* subbox);
+    int numberOfSubBox( QMLBox* subbox, bool onlyListItems);
     QMLStyle::ListStyle listStyle();
 
 };
@@ -817,7 +819,7 @@ void QMLStyleSheet::init()
 
     style = new QMLStyle( this, "strong" );
     style->setFontWeight( QFont::Bold);
-    
+
     style = new QMLStyle( this, "h1" );
     style->setFontWeight( QFont::Bold);
     style->setFontSize(24);
@@ -860,11 +862,21 @@ void QMLStyleSheet::init()
 
     style = new QMLStyle( this, "code" );
     style->setFontFamily( "courier" );
-    
+
     new QMLStyle(this, "img");
     new QMLStyle(this, "br");
     new QMLStyle(this, "hr");
 
+    style = new QMLStyle( this, "table" );
+    style->setDisplayMode(QMLStyle::DisplayBlock);
+    style = new QMLStyle( this, "head" );
+    style->setDisplayMode(QMLStyle::DisplayNone);
+    style = new QMLStyle( this, "pre" );
+    style->setFontFamily( "courier" );
+    style->setDisplayMode(QMLStyle::DisplayBlock);
+    style = new QMLStyle( this, "blockquote" );
+    style->setDisplayMode(QMLStyle::DisplayBlock);
+    style->setMargin(QMLStyle::MarginAll, 8 );
 }
 
 
@@ -941,6 +953,7 @@ QMLNode* QMLStyleSheet::tag( const QString& name,
     // process containers
     switch ( style->displayMode() ) {
     case QMLStyle::DisplayBlock:
+    case QMLStyle::DisplayNone:
     case QMLStyle::DisplayListItem:
 	return new QMLBox( style, attr );
     default: // inline, none
@@ -963,18 +976,18 @@ public:
     bool isValid() const;
 
     void dump();
-    
+
 private:
     void init( const QString& doc, const QWidget* w = 0 );
 
-    void parse (QMLContainer* current, QMLNode* lastChild, const QString& doc, int& pos);
+    bool parse (QMLContainer* current, QMLNode* lastChild, const QString& doc, int& pos);
     bool eatSpace(const QString& doc, int& pos);
     bool eat(const QString& doc, int& pos, const QChar& c);
     bool lookAhead(const QString& doc, int& pos, const QChar& c);
     QString parseOpenTag(const QString& doc, int& pos, QDict<QString> &attr);
     bool eatCloseTag(const QString& doc, int& pos, const QString& open);
     QChar parseHTMLSpecialChar(const QString& doc, int& pos);
-    QString parseWord(const QString& doc, int& pos, bool insideTag = FALSE);
+    QString parseWord(const QString& doc, int& pos, bool insideTag = FALSE, bool lower = FALSE);
     QString parsePlainText(const QString& doc, int& pos);
     bool hasPrefix(const QString& doc, int pos, const QChar& c);
     bool hasPrefix(const QString& doc, int pos, const QString& s);
@@ -1607,7 +1620,7 @@ const QMLContainer* QMLContainer::anchor() const
 
 QMLContainer* QMLContainer::findAnchor(const QString& name ) const
 {
-    if (style->isAnchor() && attributes() && 
+    if (style->isAnchor() && attributes() &&
 	attributes()->find("name") && *attributes()->find("name") == name)
 	return (QMLContainer*)this;
 
@@ -1774,7 +1787,7 @@ void QMLBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy
 	    {
 		int n = 1;
 		if ( b )
-		    n = b->numberOfSubBox( this );
+		    n = b->numberOfSubBox( this, TRUE );
 		QString l;
 		switch ( s ) {
 		case QMLStyle::ListLowerAlpha:
@@ -1837,6 +1850,10 @@ void QMLBox::setWidth(QPainter* p, int newWidth, bool forceResize)
     if (newWidth == width && !forceResize) // no need to resize
 	return;
 
+    if (style->displayMode() == QMLStyle::DisplayNone) {
+	height = 0;
+	return;
+    }
 
     QList<QMLRow> oldRows;
     if ( newWidth == width ){
@@ -2001,15 +2018,18 @@ QMLNode* QMLBox::hitTest(QPainter* p, int obx, int oby, int xarg, int yarg)
 }
 
 
-int QMLBox::numberOfSubBox( QMLBox* subbox)
+int QMLBox::numberOfSubBox( QMLBox* subbox, bool onlyListItems)
 {
     QMLNode* i = child;
     int n = 1;
     while (i && i != subbox ) {
+	if (!onlyListItems || (i->isBox && ((QMLBox*)i)->style->displayMode() == QMLStyle::DisplayListItem) )
+	    n++;
 	i = i->nextSibling();
-	n++;
     }
-    return n;
+    if (i)
+	return n;
+    return 1;
 }
 
 
@@ -2664,11 +2684,14 @@ void QMLProvider::setImage(const QString& name, const QPixmap& pm)
 */
 QPixmap QMLProvider::image(const QString &name) const
 {
+    debug("qmlprovider: look for image %s", name.ascii());
     QPixmap* p = images[name];
+    debug("lookup done");
     if (p)
 	return *p;
-    else
-	return QPixmap( searchPath + "/" + name );
+    else {
+	return QPixmap( absoluteFilename( name ) );
+    }
 }
 
 /*!
@@ -2686,11 +2709,13 @@ void QMLProvider::setDocument(const QString &name, const QString& doc)
 */
 QString QMLProvider::document(const QString &name) const
 {
+    debug("qmlprovider: look for document %s", name.ascii());
     QString* s = documents[name];
+    debug("lookup done");
     if (s)
 	return *s;
     {
-	QFile f (searchPath + "/" + name);
+	QFile f ( absoluteFilename( name ) );
 	QString d;
 	if ( f.open( IO_ReadOnly ) ) {
 	    QTextStream t( &f );
@@ -2702,6 +2727,19 @@ QString QMLProvider::document(const QString &name) const
 }
 
 
+QString QMLProvider::absoluteFilename( const QString& name) const
+{
+    QString file;
+    if ( name.left(6) == "file:/") {
+	file = name.right( name.length()-5);
+    }
+    else if (name[0] == '/')
+	file = name;
+    else
+	file = searchPath + name;
+    return file;
+}
+
 /*!
   If an item cannot be found in the definitions set by setDocument()
   and setImage(), the default implementations of image() and document()
@@ -2712,7 +2750,23 @@ QString QMLProvider::document(const QString &name) const
  */
 void QMLProvider::setPath( const QString &path )
 {
-     searchPath = path;
+    searchPath = path;
+    if ( searchPath.left(6) == "file:/") {
+	searchPath = searchPath.right( searchPath.length()-5);
+    }
+    if (!searchPath.isEmpty() && searchPath[searchPath.length()-1]!='/')
+	searchPath += '/';
+}
+
+
+/*!
+ */
+void QMLProvider::setReferenceDocument( const QString &doc )
+{
+    QString file = absoluteFilename( doc );
+    int slash = file.findRev('/');
+    if ( slash != -1 )
+	searchPath = file.left( slash + 1);
 }
 
 /*!
@@ -2791,11 +2845,11 @@ bool QMLDocument::isValid() const
 }
 
 
-void QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QString &doc, int& pos)
+bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QString &doc, int& pos)
 {
-    //     eatSpace(doc, pos);
     while ( valid && pos < int(doc.length() )) {
 	bool sep = FALSE;
+	int beforePos = pos;
 	if (hasPrefix(doc, pos, QChar('<')) ){
 	    if (hasPrefix(doc, pos+1, QChar('/'))) {
 		if (current->isBox){ // todo this inserts a hitable null character
@@ -2813,65 +2867,85 @@ void QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 		    lastChild = n;
 		    l = n;
 		}
-		return;
+		return TRUE;
 	    }
 	    QDict<QString> attr;
 	    attr.setAutoDelete( TRUE );
 	    QString tagname = parseOpenTag(doc, pos, attr);
-	    if ( tagname.isEmpty() ){
-		// nothing to do
+	    
+	    QString curname = current->style->name();
+	    if ( (tagname == "p" && curname == "p") || (tagname == "li" && curname == "p" )
+		 || (tagname == "li" && curname == "li" ) ) {
+		pos = beforePos;
+		return FALSE;
 	    }
-	    else {
-		QMLNode* tag = sheet_->tag(tagname, attr, *provider_);
-		if (tag->isContainer ) {
-		    sep = eatSpace(doc, pos);
-		    if (current == this && !attr.isEmpty() ) {
-			setAttributes( attr );
-		    }
-		    QMLContainer* ctag = (QMLContainer*) tag;
-		    valid &= ctag != 0;
-		    if (valid) {
-			QMLNode* l = lastChild;
-			if (!l){
-			    current->child  = ctag;
-			    ctag->isLastSibling = 1;
-			}
-			else {
-			    l->next = ctag;
-			    l->isLastSibling = 0;
-			}
-			
-			ctag->parent = current; //TODO
-			ctag ->next = current;
+	    
+	    QMLNode* tag = sheet_->tag(tagname, attr, *provider_);
+	    if (tag->isContainer ) {
+		sep = eatSpace(doc, pos);
+		if (current == this && !attr.isEmpty() ) {
+		    setAttributes( attr );
+		}
+		QMLContainer* ctag = (QMLContainer*) tag;
+		valid &= ctag != 0;
+		if (valid) {
+		    QMLNode* l = lastChild;
+		    if (!l){
+			current->child  = ctag;
 			ctag->isLastSibling = 1;
-			lastChild = ctag;
+		    }
+		    else {
+			l->next = ctag;
+			l->isLastSibling = 0;
+		    }
 			
-			parse(ctag, 0, doc, pos);
+		    ctag->parent = current; //TODO
+		    ctag ->next = current;
+		    ctag->isLastSibling = 1;
+		    lastChild = ctag;
+
+		    bool ctagUnknown = ctag->style->name().isEmpty() ;
+		    if ( ctagUnknown || ctag->isBox )
+			eatSpace(doc, pos); // no whitespace within an unknown container or box
+		    
+		    if (parse(ctag, 0, doc, pos) ) {
 			sep |= eatSpace(doc, pos);
+			int recoverPos = pos;
 			valid = (hasPrefix(doc, pos, QChar('<'))
 				 && hasPrefix(doc, pos+1, QChar('/'))
 				 && eatCloseTag(doc, pos, tagname) );
-			if (!valid)
-			    return;
-			if ( ctag->isBox ) // no whitespace between boxes
-			    sep |= eatSpace(doc, pos);
+			    
+			// sloppy mode ###
+			if (!valid) {
+			    pos = recoverPos;
+			    valid = TRUE;
+			    return TRUE;
+			}
+			
+			if (!valid) 
+			    return TRUE;
 		    }
+		    if ( ctagUnknown || ctag->isBox ) // no whitespace between unknown containers or boxes
+			sep |= eatSpace(doc, pos);
 		}
-		else { // empty tags
-		    if (valid) {
-			QMLNode* l = lastChild;
-			if (!l){
-			    current->child  = tag;
-			    tag->isLastSibling = 1;
-			}
-			else {
-			    l->next = tag;
-			    l->isLastSibling = 0;
-			}
-			tag ->next = current;
+	    }
+	    else { // empty tags
+		if (valid) {
+		    QMLNode* l = lastChild;
+		    if (!l){
+			current->child  = tag;
 			tag->isLastSibling = 1;
-			lastChild = tag;
 		    }
+		    else {
+			l->next = tag;
+			l->isLastSibling = 0;
+		    }
+		    tag ->next = current;
+		    tag->isLastSibling = 1;
+		    lastChild = tag;
+			
+		    if (tag->isSimpleNode && tag->c == '\n')
+			eatSpace(doc, pos);
 		}
 	    }
 	}
@@ -2897,7 +2971,7 @@ void QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 	    }
 	}
     }
-
+    return TRUE;
 }
 
 bool QMLDocument::eatSpace(const QString& doc, int& pos)
@@ -2938,11 +3012,13 @@ QChar QMLDocument::parseHTMLSpecialChar(const QString& doc, int& pos)
 	return '>';
     if ( s == "amp")
 	return '&';
+    if ( s == "nbsp")
+	return ' ';
     pos = recoverpos;
     return '&';
 }
 
-QString QMLDocument::parseWord(const QString& doc, int& pos, bool insideTag)
+QString QMLDocument::parseWord(const QString& doc, int& pos, bool insideTag, bool lower)
 {
     QString s;
 
@@ -2966,7 +3042,7 @@ QString QMLDocument::parseWord(const QString& doc, int& pos, bool insideTag)
 		pos++;
 	    }
 	}
-	if (insideTag)
+	if (lower)
 	    s = s.lower();
     }
     valid &= pos <= int(doc.length());
@@ -3012,16 +3088,17 @@ QString QMLDocument::parseOpenTag(const QString& doc, int& pos,
 				  QDict<QString> &attr)
 {
     pos++;
-    QString tag = parseWord(doc, pos, TRUE);
+    QString tag = parseWord(doc, pos, TRUE, TRUE);
     eatSpace(doc, pos);
-    
+
     if (tag[0] == '!') {
-	if (tag.left(3) == "!--") { 
+	if (tag.left(3) == "!--") {
 	    // eat comments
 	    while ( valid && !hasPrefix(doc, pos, "-->" ) && pos < int(doc.length()) )
 		pos++;
 	    if ( valid && hasPrefix(doc, pos, "-->" ) ) {
-		pos += 4; 
+		pos += 4;
+		eatSpace(doc, pos);
 	    }
 	    else
 		valid = FALSE;
@@ -3031,8 +3108,10 @@ QString QMLDocument::parseOpenTag(const QString& doc, int& pos,
 	    // eat strange internal tags
 	    while ( valid && !hasPrefix(doc, pos, QChar('>')) && pos < int(doc.length()) )
 		pos++;
-	    if ( valid && hasPrefix(doc, pos, QChar('>')) )
+	    if ( valid && hasPrefix(doc, pos, QChar('>')) ) {
 		pos++;
+		eatSpace(doc, pos);
+	    }
 	    else
 		valid = FALSE;
 	    return QString::null;
@@ -3040,14 +3119,25 @@ QString QMLDocument::parseOpenTag(const QString& doc, int& pos,
     }
 
     while (valid && !lookAhead(doc, pos, '>') ) {
-	QString key = parseWord(doc, pos, TRUE);
+	QString key = parseWord(doc, pos, TRUE, TRUE);
 	eatSpace(doc, pos);
-	if (eat(doc, pos, '=') ){
-	    eatSpace(doc, pos);
-	    QString value = parseWord(doc, pos, TRUE);
-	    attr.insert(key, new QString(value) );
-	    eatSpace(doc, pos);
+	if ( key.isEmpty()) {
+	    // error recovery
+	    while ( pos < int(doc.length()) && !lookAhead(doc, pos, '>'))
+		pos++;
+	    break;
 	}
+	QString value;
+	if (hasPrefix(doc, pos, QChar('=')) ){
+	    pos++;
+	    eatSpace(doc, pos);
+	    bool lower = ( key != "source") && ( key != "src" ) && (key != "href");
+	    value = parseWord(doc, pos, TRUE, lower);
+	}
+	else
+	    value = "true";
+	attr.insert(key, new QString(value) );
+	eatSpace(doc, pos);
     }
 
     eat(doc, pos, '>');
@@ -3058,7 +3148,7 @@ bool QMLDocument::eatCloseTag(const QString& doc, int& pos, const QString& open)
 {
     pos++;
     pos++;
-    QString tag = parseWord(doc, pos, TRUE);
+    QString tag = parseWord(doc, pos, TRUE, TRUE);
     eatSpace(doc, pos);
     eat(doc, pos, '>');
     valid &= tag == open;
@@ -3197,7 +3287,7 @@ class QMLViewData
 public:
     QMLStyleSheet* sheet_;
     QMLDocument* doc_;
-    const QMLProvider* provider_;
+    QMLProvider* provider_;
     QString txt;
     QColorGroup mypapcolgrp;
     QColorGroup papcolgrp;
@@ -3345,7 +3435,7 @@ void QMLView::setStyleSheet( QMLStyleSheet* styleSheet )
 
   \sa setProvider()
 */
-const QMLProvider* QMLView::provider() const
+QMLProvider* QMLView::provider() const
 {
     if (!d->provider_)
 	return QMLProvider::defaultProvider();
@@ -3359,7 +3449,7 @@ const QMLProvider* QMLView::provider() const
 
   \sa provider()
 */
-void QMLView::setProvider( const QMLProvider* newProvider )
+void QMLView::setProvider( QMLProvider* newProvider )
 {
     d->provider_ = newProvider;
     viewport()->update();
@@ -3895,7 +3985,10 @@ public:
     QPoint lastClick;
     QStack<QString> stack;
     QStack<QString> forwardStack;
+    QStack<QString> stackPath;
+    QStack<QString> forwardStackPath;
     QString home;
+    QString homepath;
     QString curmain;
 };
 
@@ -3906,6 +3999,8 @@ public:
 QMLBrowser::QMLBrowser(QWidget *parent, const char *name)
     : QMLView( parent, name )
 {
+    setProvider( new QMLProvider( this ) );
+    provider()->setPath( QMLProvider::defaultProvider()->path() );
     d = new QMLBrowserData;
 
     viewport()->setMouseTracking( TRUE );
@@ -3940,15 +4035,19 @@ void QMLBrowser::setDocument(const QString& name)
 	if ( main.isEmpty() )
 	    main = d->curmain;
     }
+
     QString url = main;
     if (!mark.isEmpty()) {
 	url += "#";
 	url += mark;
     }
     
+    QString path = provider()->path();
+    
     if ( d->curmain != main ) {
 	d->curmain = main;
 	QString doc = provider()->document( main );
+	provider()->setReferenceDocument( main );
 	if ( isVisible() ) {
 	    QString firstTag = doc.left( doc.find('>' )+1 );
 	    QMLDocument tmp( firstTag );
@@ -3959,15 +4058,18 @@ void QMLBrowser::setDocument(const QString& name)
 	}
 	setContents( doc );
     }
-    
+
     if ( d->stack.isEmpty() || *d->stack.top() != url) {
 	emit backwardAvailable( !d->stack.isEmpty() );
 	d->stack.push(new QString( url ) );
+	d->stackPath.push(new QString( path ) );
     }
-    if ( d->home.isNull() )
+    if ( d->home.isNull() ) {
 	d->home = url;
+	d->homepath = path;
+    }
 		
-    
+
     if ( !mark.isEmpty() )
 	scrollToAnchor( mark );
     else
@@ -4029,9 +4131,13 @@ void QMLBrowser::backward()
     if ( d->stack.count() <= 1)
 	return;
     d->forwardStack.push( d->stack.pop() );
+    d->forwardStackPath.push( d->stackPath.pop() );
     QString* ps = d->stack.pop();
+    QString* path = d->stackPath.pop();
+    provider()->setPath( *path );
     setDocument( *ps );
     delete ps;
+    delete path;
     emit forwardAvailable( TRUE );
 }
 
@@ -4046,9 +4152,12 @@ void QMLBrowser::forward()
     if ( d->forwardStack.isEmpty() )
 	return;
     QString* ps = d->forwardStack.pop();
-    emit forwardAvailable( !d->forwardStack.isEmpty() );
+    QString* path = d->forwardStackPath.pop();
+    provider()->setPath( *path );
     setDocument( *ps );
     delete ps;
+    delete path;
+    emit forwardAvailable( !d->forwardStack.isEmpty() );
 }
 
 /*!
@@ -4057,8 +4166,10 @@ void QMLBrowser::forward()
 */
 void QMLBrowser::home()
 {
-    if (!d->home.isNull() )
+    if (!d->home.isNull() ) {
+	provider()->setPath( d->homepath );
 	setDocument( d->home );
+    }
 }
 
 /*!
@@ -4239,7 +4350,7 @@ void QMLBrowser::popupDetail( const QString& contents, const QPoint& pos )
 void QMLBrowser::scrollToAnchor(const QString& name)
 {
     int x1,y1,h,ry,rh;
-    
+
     QMLContainer* anchor = currentDocument().findAnchor( name );
     if ( !anchor )
 	return;
@@ -4253,7 +4364,7 @@ void QMLBrowser::scrollToAnchor(const QString& name)
 	QPainter p(viewport());
 	(void) node->parent()->box()->locate( &p, node, x1, y1, h, ry, rh );
     }
-    
+
     setContentsPos( contentsX(), y1 );
 }
 

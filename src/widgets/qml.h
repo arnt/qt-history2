@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.h#4 $
+** $Id: //depot/qt/main/src/widgets/qml.h#5 $
 **
 ** Definition of QML classes
 **
@@ -107,6 +107,7 @@ public:
 
     virtual void setPath( const QString &path );
     QString path() const;
+    virtual void setReferenceDocument( const QString &doc );
 
     // TODO add nifty pixmap cache stuff
 
@@ -114,6 +115,7 @@ private:
     QDict<QPixmap>images;
     QDict<QString>documents;
     QString searchPath;
+    QString absoluteFilename( const QString&) const;
 };
 
 class QMLNode;
@@ -128,7 +130,7 @@ public:
     static QMLStyleSheet* defaultSheet();
     static void setDefaultSheet( QMLStyleSheet* );
 
-    
+
     QMLStyle* style( const QString& name);
     void insert( QMLStyle* style);
 
@@ -192,8 +194,8 @@ public:
     void setPaperColorGroup( const QColorGroup& colgrp);
     const QColorGroup &paperColorGroup() const;
 
-    void setProvider( const QMLProvider* newProvider );
-    const QMLProvider* provider() const;
+    void setProvider( QMLProvider* newProvider );
+    QMLProvider* provider() const;
 
     QString documentTitle() const;
 
@@ -271,7 +273,7 @@ public:
     virtual void setDocument(const QString& name);
 
     void setContents( const QString& contents );
-    
+
     void scrollToAnchor(const QString& name);
 
 
