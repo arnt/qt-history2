@@ -745,7 +745,7 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 			  '(' IDENTIFIER ',' STRING ',' prop_access_function ',' prop_access_function ')'
 				  {
 				      Q_PROPERTYdetected = TRUE;
-				      props.append( new Property( lineNo, $4,$6,$8,$10) );
+				      props.append( new Property( lineNo, $4,$6,$10,$8) );
 				      BEGIN tmpYYStart;
 				  }
 			  opt_property_candidates
@@ -2000,7 +2000,7 @@ int generateProps()
 	    }
 
 	    if ( enumpos != -1 )
-		fprintf( out, "    props_tbl[%d].enumType = &enums[%i];\n", entry, enumpos );
+		fprintf( out, "    props_tbl[%d].enumType = &enum_tbl[%i];\n", entry, enumpos );
 	    else if (!isPropertyType( it.current()->type ) )
 		fprintf( out, "    props_tbl[%d].setState(QMetaProperty::UnresolvedEnum);\n", entry );
 
