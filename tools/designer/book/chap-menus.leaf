@@ -10,7 +10,7 @@ and its use. For menu options that invoke a dialog box or which have
 a corresponding toolbar button, there is a cross-reference to the
 detailed explanation that appears in the relevant chapter.
 
-\img qd-filemenu.png
+\img qd-filemenu1.png
 \caption The File Menu
 
 \section1 The File Menu
@@ -70,7 +70,7 @@ or that has been saved but has had changes made to it, the
 
 See also \l{The File Toolbar Buttons}.
 
-\img qd-editmenu.png
+\img qd-editmenu1.png
 \caption The Edit Menu
 
 \section1 The Edit Menu
@@ -329,7 +329,7 @@ this menu option only appears if you have created a widget using
 
 See also \l{The Tools Toolbar Buttons}.
 
-\img qd-layoutmenu.png
+\img qd-layoutmenu1.png
 \caption The Layout Menu
 
 \section1 The Layout Menu 
@@ -419,7 +419,7 @@ form in the SGI style.
 
 \endlist
 
-\img qd-windowmenu.png
+\img qd-windowmenu1.png
 \caption The Window Menu
 
 \section1 The Window Menu
