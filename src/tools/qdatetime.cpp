@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#32 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#33 $
 **
 ** Implementation of date and time classes
 **
@@ -31,7 +31,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#33 $";
 #endif
 
 
@@ -62,6 +62,7 @@ const char *QDate::weekdayNames[] ={
   \class QDate qdatetm.h
   \brief The QDate class provides date functions.
   \ingroup tools
+  \ingroup time
 
   The QDate is based on the Gregorian (modern western) calendar. England
   adopted the Gregorian calendar on September 14th 1752, which is the
@@ -70,6 +71,9 @@ const char *QDate::weekdayNames[] ={
   than England, thus the week day of early dates might be incorrect for
   these countries (but correct for England).  The end of time is reached
   around 8000AD, by which time we expect Qt to be obsolete.
+
+  \sa QTime, QDateTime
+
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -417,8 +421,13 @@ void QDate::jul2greg( ulong jd, int &y, int &m, int &d )
 
 /*----------------------------------------------------------------------------
   \class QTime qdatetm.h
+
   \brief The QTime class provides time functions 24 hours a day.
+
+  \capt Time functions
+
   \ingroup tools
+  \ingroup time
 
   The time resolution of QTime is a millisecond, although the accuracy
   depends on the underlying operating system.  Some operating systems
@@ -713,10 +722,16 @@ void QTime::start()				// start clock
 }
 
 /*----------------------------------------------------------------------------
-  Restarts for timing, and returns the number of milliseconds that have elapsed
-  since the last start() or restart().
+
+  Sets *this to the current time, and returns the number of
+  milliseconds that have elapsed since the last start() or restart().
+
+  restart is guaranteed to be atomic, and so is very handy for
+  repeated measurements; call start() to start the first measurement,
+  then restart() for each later measurement.
+
   \sa start(), elapsed()
- ----------------------------------------------------------------------------*/
+  ----------------------------------------------------------------------------*/
 
 long QTime::restart()				// restart clock
 {
@@ -747,10 +762,16 @@ long QTime::elapsed()				// msecs since start/restart
   \class QDateTime qdatetm.h
   \brief The QDateTime class combines QDate and QTime into a single class.
   \ingroup tools
+  \ingroup time
 
   QDateTime provides high precision date and time functions since it
-  can work with all dates since September 14. 1752, with the resolution up
-  to a millisecond.
+  can work with Gregorian dates up to about year 8000.
+
+  Most countries that use the Gregorian calendar switched to it
+  between 1550 and 1920.
+
+  \sa QDate QTime
+
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -875,13 +896,7 @@ QDateTime QDateTime::addSecs( long nsecs ) const // add seconds
 /*----------------------------------------------------------------------------
   Returns the number of days between this datetime and \e dt.
 
-  Example:
-  \code
-    QDateTime dt = QDateTime::currentDateTime();
-    QDateTime x( QDate(dt.year(),12,24), QTime(17,00) );
-    debug( "There are %d seconds to christmas", dt.secsTo(x) );
-  \endcode
-  \sa addDays()
+  \sa addDays() secsTo()
  ----------------------------------------------------------------------------*/
 
 long QDateTime::daysTo( const QDateTime &dt ) const // days difference
@@ -891,7 +906,15 @@ long QDateTime::daysTo( const QDateTime &dt ) const // days difference
 
 /*----------------------------------------------------------------------------
   Returns the number of seconds between this datetime and \e dt.
-  \sa addSecs()
+
+  Example:
+  \code
+    QDateTime dt = QDateTime::currentDateTime();
+    QDateTime x( QDate(dt.year(),12,24), QTime(17,00) );
+    debug( "There are %d seconds to christmas", dt.secsTo(x) );
+  \endcode
+
+  \sa addSecs() daysTo()
  ----------------------------------------------------------------------------*/
 
 long QDateTime::secsTo( const QDateTime &dt ) const // seconds difference
