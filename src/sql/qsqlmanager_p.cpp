@@ -55,6 +55,7 @@ public:
     QSqlCursorManagerPrivate()
 	: cur( 0 ), autoDelete( FALSE )
     {}
+
     QString ftr;
     QStringList srt;
     QSqlCursor* cur;
@@ -84,7 +85,7 @@ public:
 
 QSqlCursorManager::QSqlCursorManager()
 {
-    d = new QSqlCursorManagerPrivate();
+    d = new QSqlCursorManagerPrivate;
 }
 
 
@@ -248,8 +249,8 @@ bool QSqlCursorManager::refresh()
    match the field values in \a cur that correspond to \a idx.
 */
 
-bool q_index_matches( const QSqlCursor* cur,
-		      const QSqlRecord* buf, const QSqlIndex& idx )
+static bool index_matches( const QSqlCursor* cur, const QSqlRecord* buf,
+			   const QSqlIndex& idx )
 {
     bool indexEquals = FALSE;
     for ( uint i = 0; i < idx.count(); ++i ) {
@@ -264,63 +265,51 @@ bool q_index_matches( const QSqlCursor* cur,
     return indexEquals;
 }
 
-/* \internal
-
-   Return less than, equal to or greater than 0 if buf1 is less than,
- equal to or greater than buf2 according to fields described in idx
- (currently only uses first field) ##
+/*
+  Return less than, equal to or greater than 0 if buf1 is less than,
+  equal to or greater than buf2 according to fields described in idx.
+  (### Currently only uses first field.)
 */
 
-int q_compare( const QSqlRecord* buf1, const QSqlRecord* buf2, const QSqlIndex& idx )
+static int compare_recs( const QSqlRecord* buf1, const QSqlRecord* buf2,
+			 const QSqlIndex& idx )
 {
     int cmp = 0;
 
-    //    QString s1, s2; //##
-
-    //    for ( uint i = 0; i < idx.count(); ++i ) {
     int i = 0;
-	const QString fn( idx.field(i)->name() );
-	const QSqlField* f1 = buf1->field( fn );
-	bool reverse = FALSE;
-	if ( idx.isDescending( i ) )
-	     reverse = TRUE;
-	if ( f1 ) {
-	    switch( f1->type() ) { // ## more types?
-	    case QVariant::String:
-	    case QVariant::CString:
-		if ( f1->value().toString().simplifyWhiteSpace() < buf2->value( fn ).toString().simplifyWhiteSpace() )
-		    cmp = -1;
-		else if ( f1->value().toString().simplifyWhiteSpace() > buf2->value( fn ).toString().simplifyWhiteSpace() )
-		    cmp = 1;
-		break;
-	    default:
-		if ( f1->value().toDouble() < buf2->value( fn ).toDouble() )
-		    cmp = -1;
-		else if ( f1->value().toDouble() > buf2->value( fn ).toDouble() )
-		    cmp = 1;
-		break;
-	    }
-	}
-	//	s1 = f1->value().toString().simplifyWhiteSpace() + ";"; ### what is this?
-	//	s2 = buf2->value( fn ).toString().simplifyWhiteSpace() + ";";
-	//    }
-    if ( reverse ) {
-	if ( cmp < 0 )
-	    cmp = 1;
-	else if ( cmp > 0 )
-	    cmp = -1;
-    }
-    return cmp;
+    const QString fn( idx.field(i)->name() );
+    const QSqlField* f1 = buf1->field( fn );
 
+    if ( f1 ) {
+	switch ( f1->type() ) { // ### more types?
+	case QVariant::String:
+	case QVariant::CString:
+	    cmp = f1->value().toString().simplifyWhiteSpace().compare(
+		          buf2->value(fn).toString().simplifyWhiteSpace() );
+	    break;
+	default:
+	    if ( f1->value().toDouble() < buf2->value( fn ).toDouble() )
+		cmp = -1;
+	    else if ( f1->value().toDouble() > buf2->value( fn ).toDouble() )
+		cmp = 1;
+	}
+    }
+
+    if ( idx.isDescending(i) )
+	cmp = -cmp;
+    return cmp;
 }
 
 #ifdef QT_DEBUG_DATAMANAGER
-void qt_debug_datamanger_buffer( const QString& msg, QSqlRecord* cursor )
+static void debug_datamanager_buffer( const QString& msg, QSqlRecord* cursor )
 {
     qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-    qDebug(msg);
+    qDebug( "%s", msg.latin1() );
     for ( uint j = 0; j < cursor->count(); ++j ) {
-	qDebug(cursor->field(j)->name() + " type:" + QString(cursor->field(j)->value().typeName()) + " value:" + cursor->field(j)->value().toString() );
+	qDebug( "%s", (cursor->field(j)->name() + " type:"
+		       + QString(cursor->field(j)->value().typeName())
+		       + " value:" + cursor->field(j)->value().toString())
+		       .latin1() );
     }
 }
 #endif
@@ -341,7 +330,7 @@ update.  For example:
     QSqlCursor* myCursor = myManager.cursor();
     ...
     QSqlRecord* buf = myCursor->primeUpdate();
-    buf->setValue( "name", "Dave" );
+    buf->setValue( "name", "Ola" );
     buf->setValue( "city", "Oslo" );
     ...
     myCursor->update();  // update current record
@@ -371,7 +360,7 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 #endif
     /* check the hint */
     if ( cur->seek( atHint ) )
-	indexEquals = q_index_matches( cur, buf, idx );
+	indexEquals = index_matches( cur, buf, idx );
 
     if ( !indexEquals ) {
 #ifdef QT_DEBUG_DATAMANAGER
@@ -383,57 +372,59 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 	int endIdx = atHint + pageSize;
 	for ( int j = startIdx; j <= endIdx; ++j ) {
 	    if ( cur->seek( j ) ) {
-		indexEquals = q_index_matches( cur, buf, idx );
+		indexEquals = index_matches( cur, buf, idx );
 		if ( indexEquals )
 		    break;
 	    }
 	}
     }
 
-    if ( !indexEquals && cur->driver()->hasFeature( QSqlDriver::QuerySize ) && cur->sort().count() ) {
+    if ( !indexEquals && cur->driver()->hasFeature( QSqlDriver::QuerySize )
+	 && cur->sort().count() ) {
 #ifdef QT_DEBUG_DATAMANAGER
-	qDebug(" Using binary-like search...");
+	qDebug(" Using binary search...");
 #endif
-	/* binary-like search based on record buffer and current sort fields */
+	// binary search based on record buffer and current sort fields
 	int lo = 0;
 	int hi = cur->size();
 	int mid;
-	if ( q_compare( buf, cur, cur->sort() ) >= 0 )
+	if ( compare_recs( buf, cur, cur->sort() ) >= 0 )
 	    lo = cur->at();
-	while( lo != hi ) {
+	while ( lo != hi ) {
 	    mid = lo + (hi - lo) / 2;
 	    if ( !cur->seek( mid ) )
 		break;
-	    if ( q_index_matches( cur, buf, idx ) ) {
+	    if ( index_matches( cur, buf, idx ) ) {
 		indexEquals = TRUE;
 		break;
 	    }
-	    int c = q_compare( buf, cur, cur->sort() );
-	    if ( c < 0 )
+	    int c = compare_recs( buf, cur, cur->sort() );
+	    if ( c < 0 ) {
 		hi = mid;
-	    else if ( c == 0 ) {
+	    } else if ( c == 0 ) {
 		// found it, but there may be duplicates
 		int at = mid;
 		do {
 		    mid--;
 		    if ( !cur->seek( mid ) )
 			break;
-		    if ( q_index_matches( cur, buf, idx ) ) {
+		    if ( index_matches( cur, buf, idx ) ) {
 			indexEquals = TRUE;
 			break;
 		    }
-		} while ( q_compare( buf, cur, cur->sort() ) == 0 );
+		} while ( compare_recs( buf, cur, cur->sort() ) == 0 );
+
 		if ( !indexEquals ) {
 		    mid = at;
 		    do {
 			mid++;
 			if ( !cur->seek( mid ) )
 			    break;
-			if ( q_index_matches( cur, buf, idx ) ) {
+			if ( index_matches( cur, buf, idx ) ) {
 			    indexEquals = TRUE;
 			    break;
 			}
-		    } while ( q_compare( buf, cur, cur->sort() ) == 0 );
+		    } while ( compare_recs( buf, cur, cur->sort() ) == 0 );
 		}
 		break;
 	    } else if ( c > 0 ) {
@@ -456,7 +447,7 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 	}
 	for ( ;; ) {
 	    indexEquals = FALSE;
-	    indexEquals = q_index_matches( cur, buf, idx );
+	    indexEquals = index_matches( cur, buf, idx );
 	    if ( indexEquals )
 		break;
 	    if ( !cur->next() )
@@ -807,7 +798,7 @@ bool QDataManager::confirmEdits() const
 
 bool QDataManager::confirmInsert() const
 {
-    return ( d->confEdits[ QSql::Insert ] );
+    return d->confEdits[ QSql::Insert ];
 }
 
 /*! \internal
@@ -818,7 +809,7 @@ bool QDataManager::confirmInsert() const
 
 bool QDataManager::confirmUpdate() const
 {
-    return ( d->confEdits[ QSql::Update ] );
+    return d->confEdits[ QSql::Update ];
 }
 
 /*! \internal
@@ -829,7 +820,7 @@ bool QDataManager::confirmUpdate() const
 
 bool QDataManager::confirmDelete() const
 {
-    return ( d->confEdits[ QSql::Delete ] );
+    return d->confEdits[ QSql::Delete ];
 }
 
 /*! \internal
@@ -866,48 +857,37 @@ bool QDataManager::confirmCancels() const
 
 QSql::Confirm QDataManager::confirmEdit( QWidget* parent, QSql::Op m )
 {
-    QString cap;
-    switch ( m ) {
-    case QSql::None:
-	return QSql::Cancel;
-    case QSql::Insert:
-	cap = "Insert";
-	break;
-    case QSql::Update:
-	cap = "Update";
-	break;
-    case QSql::Delete:
-	cap = "Delete";
-	break;
+    int ans = 2;
+    if ( m == QSql::Delete ) {
+	ans = QMessageBox::information( parent,
+					qApp->translate( "QSql", "Delete" ),
+					qApp->translate( "QSql", "Delete this record?" ),
+					qApp->translate( "QSql", "Yes" ),
+					qApp->translate( "QSql", "No" ),
+					QString::null, 0, 1 );
+    } else if ( m != QSql::None ) {
+	QString caption;
+	if ( m == QSql::Insert ) {
+	    caption = qApp->translate( "QSql", "Insert" );
+	} else { // QSql::Update
+	    caption = qApp->translate( "QSql", "Update" );
+	}
+	ans = QMessageBox::information( parent, caption,
+					qApp->translate( "QSql", "Save edits?" ),
+					qApp->translate( "QSql", "Yes" ),
+					qApp->translate( "QSql", "No" ),
+					qApp->translate( "QSql", "Cancel" ),
+					0, 2 );
     }
-    int ans = 1;
-    if ( m == QSql::Delete )
-	ans = QMessageBox::information ( parent, qApp->tr( cap ),
-					 qApp->tr("Delete this record?"),
-					 qApp->tr( "Yes" ),
-					 qApp->tr( "No" ),
-					 QString::null, 0, 1 );
-    else
-	ans = QMessageBox::information ( parent, qApp->tr( cap ),
-					 qApp->tr( "Save edits?" ),
-					 qApp->tr( "Yes" ),
-					 qApp->tr( "No" ),
-					 qApp->tr( "Cancel" ), 0, 2 );
-    QSql::Confirm conf = QSql::No;
+
     switch ( ans ) {
     case 0:
-	conf = QSql::Yes;
-	break;
+	return QSql::Yes;
     case 1:
-	conf = QSql::No;
-	break;
-    case 2:
-	conf = QSql::Cancel;
-	break;
+	return QSql::No;
     default:
-	qWarning("QDataManager::confirmEdit: unknown response");
+	return QSql::Cancel;
     }
-    return conf;
 }
 
 /*!  \internal
@@ -921,25 +901,21 @@ QSql::Confirm QDataManager::confirmEdit( QWidget* parent, QSql::Op m )
 
 */
 
-QSql::Confirm  QDataManager::confirmCancel( QWidget* parent, QSql::Op )
+QSql::Confirm QDataManager::confirmCancel( QWidget* parent, QSql::Op )
 {
-    QSql::Confirm conf = QSql::No;
-    switch ( QMessageBox::information ( parent, qApp->tr( "Confirm" ),
-					qApp->tr( "Cancel your edits?" ),
-					qApp->tr( "Yes" ),
-					qApp->tr( "No" ), QString::null, 0, 1 ) ) {
+    switch ( QMessageBox::information( parent,
+				       qApp->translate( "QSql", "Confirm" ),
+				       qApp->translate( "QSql", "Cancel your edits?" ),
+				       qApp->translate( "QSql", "Yes" ),
+				       qApp->translate( "QSql", "No" ),
+				       QString::null, 0, 1 ) ) {
     case 0:
-	conf = QSql::Yes;
-	break;
+	return QSql::Yes;
     case 1:
-	conf = QSql::No;
-	break;
-    case -1:
-	conf = QSql::Cancel;
-	break;
+	return QSql::No;
+    default:
+	return QSql::Cancel;
     }
-    return conf;
 }
-
 
 #endif
