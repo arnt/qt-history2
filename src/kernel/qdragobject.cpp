@@ -1481,43 +1481,48 @@ QString QUriDrag::uriToLocalFile(const char* uri)
 {
     QString file;
 
-    if ( uri && 0==qstrnicmp(uri,"file:/",6) ) {
+    if (!uri)
+	return file;
+    if (0==qstrnicmp(uri,"file:/",6)) // It is a local file uri
 	uri += 6;
-	bool local = uri[0] != '/' || ( uri[0] != '\0' && uri[1] == '/' );
+    else if (QString(uri).find(":/") != -1) // It is a different scheme uri
+	return file;
+    
+    bool local = uri[0] != '/' || ( uri[0] != '\0' && uri[1] == '/' );
 #ifdef Q_WS_X11
-	// do we have a hostname?
-        if ( !local && uri[0] == '/' && uri[2] != '/' ) {
-	    // then move the pointer to after the 'hostname/' part of the uri
-            const char* hostname_end = strchr( uri+1, '/' );
-            if ( hostname_end != NULL ) {
-                char hostname[ 257 ];
-                if ( gethostname( hostname, 255 ) == 0 ) {
-                    hostname[ 256 ] = '\0';
-                    if ( qstrncmp( uri+1, hostname, hostname_end - ( uri+1 )) == 0 ) {
-                        uri = hostname_end + 1; // point after the slash
-                        local = TRUE;
-                    }
-                }
-            }
-        }
-#endif
-	if ( local ) {
-	    file = uriToUnicodeUri(uri);
-	    if ( uri[1] == '/' ) {
-		file.remove((uint)0,1);
-	    } else {
-		file.insert(0,'/');
+    // do we have a hostname?
+    if ( !local && uri[0] == '/' && uri[2] != '/' ) {
+	// then move the pointer to after the 'hostname/' part of the uri
+	const char* hostname_end = strchr( uri+1, '/' );
+	if ( hostname_end != NULL ) {
+	    char hostname[ 257 ];
+	    if ( gethostname( hostname, 255 ) == 0 ) {
+		hostname[ 256 ] = '\0';
+		if ( qstrncmp( uri+1, hostname, hostname_end - ( uri+1 )) == 0 ) {
+		    uri = hostname_end + 1; // point after the slash
+		    local = TRUE;
+		}
 	    }
-#ifdef Q_WS_WIN
-	    if ( file.length() > 2 && file[0] == '/' && file[2] == '|' ) {
-		file[2] = ':';
-		file.remove(0,1);
-	    }
-	    // Leave slash as slashes.
-#endif
 	}
     }
-
+#endif
+    if ( local ) {
+	file = uriToUnicodeUri(uri);
+	if ( uri[1] == '/' ) {
+	    file.remove((uint)0,1);
+	} else {
+		file.insert(0,'/');
+	}
+#ifdef Q_WS_WIN
+	if ( file.length() > 2 && file[0] == '/' && file[2] == '|' ) {
+	    file[2] = ':';
+	    file.remove(0,1);
+	} else if (file.length() > 2 && file[0] == '/' && file[1].isLetter() && file[2] == ':') {
+	    file.remove(0, 1); 
+	}
+	// Leave slash as slashes.
+#endif
+    }
     return file;
 }
 
