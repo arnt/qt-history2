@@ -502,7 +502,7 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you HAVE to change it in qmetaobject.h too
-const int  formatRevision = 15;		// moc output format revision
+const int  formatRevision = 16;		// moc output format revision
 
 %}
 
@@ -2252,14 +2252,25 @@ char *straddSpc( const char *s1, const char *s2,
 
 // Generate C++ code for building member function table
 
-QCString pureSuperClassName()
+
+/*
+  We call B::qt_invoke() rather than A::B::qt_invoke() to
+  work around a bug in MSVC 6. The bug occurs if the
+  super-class is in a namespace and the sub-class isn't.
+  
+  Exception: if B == classname
+*/
+QCString purestSuperClassName()
 {
     QCString result;
     int pos = g->superClassName.findRev( "::" );
-    if ( pos != -1 )
+    if ( pos != -1 ) {
 	result = g->superClassName.right( g->superClassName.length() - pos - 2 );
-    else
+	if ( result == g->className )
+	    result = g->superClassName;
+    } else {
 	result = g->superClassName;
+    }
     return result;
 }
 
@@ -3122,7 +3133,7 @@ void generateClass()		      // generate C++ source code for a class
 		}
 	    }
 	    fprintf( out, "    activate_signal( clist, o );\n" );
-	    
+	
 	    // get return values from inOut parameters
 	    if ( !f->args->isEmpty() ) {
 		offset = 0;
@@ -3203,22 +3214,18 @@ void generateClass()		      // generate C++ source code for a class
 	}
 	fprintf( out, "    default:\n" );
 
-	/*
-	  We call B::qt_invoke() rather than A::B::qt_invoke() to
-	  work around a bug in MSVC 6. The bug occurs if the
-	  super-class is in a namespace and the sub-class isn't.
-	*/
-	if ( !g->superClassName.isEmpty() && !isQObject )
+	if ( !g->superClassName.isEmpty() && !isQObject ) {
 	    fprintf( out, "\treturn %s::qt_invoke(_id,_o);\n",
-		     (const char *) pureSuperClassName() );
-	else
+		     (const char *) g->superClassName );
+	} else {
 	    fprintf( out, "\treturn FALSE;\n" );
+	}
 	fprintf( out, "    }\n" );
 	fprintf( out, "    return TRUE;\n}\n" );
     } else {
 	if ( !g->superClassName.isEmpty()  && !isQObject )
 	    fprintf( out, "    return %s::qt_invoke(_id,_o);\n}\n",
-		     (const char *) pureSuperClassName() );
+		     (const char *) purestSuperClassName() );
 	else
 	    fprintf( out, "    return FALSE;\n}\n" );
     }
@@ -3273,7 +3280,7 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "    default:\n" );
 	if ( !g->superClassName.isEmpty()  && !isQObject )
 	    fprintf( out, "\treturn %s::qt_emit(_id,_o);\n",
-		     (const char *) pureSuperClassName() );
+		     (const char *) purestSuperClassName() );
 	else
 	    fprintf( out, "\treturn FALSE;\n" );
 	fprintf( out, "    }\n" );
@@ -3281,7 +3288,7 @@ void generateClass()		      // generate C++ source code for a class
     } else {
 	if ( !g->superClassName.isEmpty()  && !isQObject )
 	    fprintf( out, "    return %s::qt_emit(_id,_o);\n}\n",
-		     (const char *) pureSuperClassName() );
+		     (const char *) purestSuperClassName() );
 	else
 	    fprintf( out, "    return FALSE;\n}\n" );
     }
@@ -3391,7 +3398,7 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "    default:\n" );
 	if ( !g->superClassName.isEmpty()  && !isQObject )
 	    fprintf( out, "\treturn %s::qt_property( _p, _f, _v );\n",
-		     (const char *) pureSuperClassName() );
+		     (const char *) purestSuperClassName() );
 	else
 	    fprintf( out, "\treturn FALSE;\n" );
 	fprintf( out, "    }\n" );
@@ -3399,7 +3406,7 @@ void generateClass()		      // generate C++ source code for a class
     } else {
 	if ( !g->superClassName.isEmpty() &&  !isQObject )
 	    fprintf( out, "    return %s::qt_property( _p, _f, _v);\n}\n",
-		     (const char *) pureSuperClassName() );
+		     (const char *) purestSuperClassName() );
 	else
 	    fprintf( out, "    return FALSE;\n}\n" );
     }
