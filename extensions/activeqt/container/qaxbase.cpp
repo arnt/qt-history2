@@ -3376,7 +3376,9 @@ bool QAxBase::isNull() const
     This generic signal gets emitted when the COM object issues the
     event \a name. \a argc is the number of parameters provided by the
     event (DISPPARAMS.cArgs), and \a argv is the pointer to the
-    parameter values (DISPPARAMS.rgvarg).
+    parameter values (DISPPARAMS.rgvarg). Note that the order of parameter
+    values is turned around, ie. the last element of the array is the first
+    parameter in the function.
 
     Use this signal if the event has parameters of unsupported data
     types. Otherwise, connect directly to the signal \a name.
