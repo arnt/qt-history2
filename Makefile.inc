@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/Makefile.inc#3 $
+# $Id: //depot/qt/main/Makefile.inc#4 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -47,6 +47,7 @@ Makefile.debug: $(PROJECT).pro Makefile
 !IF $(LIBTARGET) == 1
 	syncqt
 !ENDIF
+	-@mkdir .obj
 	-@mkdir .obj\debug
 	tmake $(PROJECT).pro -o Makefile.debug \
 	    "CONFIG+=debug" "OBJECTS_DIR=.obj/debug"
@@ -55,6 +56,7 @@ Makefile.release: $(PROJECT).pro Makefile
 !IF $(LIBTARGET) == 1
 	syncqt
 !ENDIF
+	-@mkdir .obj
 	-@mkdir .obj\release
 	tmake $(PROJECT).pro -o Makefile.release \
 	    "CONFIG+=release" "OBJECTS_DIR=.obj/release"
