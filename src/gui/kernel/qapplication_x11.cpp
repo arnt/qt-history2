@@ -299,7 +299,6 @@ static long qt_mode_switch_remove_mask = 0;
 
 // flags for extensions for special Languages, currently only for RTL languages
 static bool         qt_use_rtl_extensions = false;
-bool qt_hebrew_keyboard_hack = false;
 
 static Window        mouseActWindow             = 0;        // window where mouse is
 static int        mouseButtonPressed   = 0;        // last mouse button pressed
@@ -1592,12 +1591,7 @@ void qt_init(QApplicationPrivate *priv, int,
         QX11Info::x_appvisual_arr = new void*[appScreenCount];
         QX11Info::x_appdefvisual_arr = new bool[appScreenCount];
 
-        int screen;
-        QString serverVendor(ServerVendor(X11->display));
-        if (serverVendor.contains("XFree86") && VendorRelease(X11->display) < 40300000)
-            qt_hebrew_keyboard_hack = true;
-
-        for (screen = 0; screen < appScreenCount; ++screen) {
+        for (int screen = 0; screen < appScreenCount; ++screen) {
             QX11Info::x_appdepth_arr[screen] = DefaultDepth(X11->display, screen);
             QX11Info::x_appcells_arr[screen] = DisplayCells(X11->display, screen);
             QX11Info::x_approotwindow_arr[screen] = RootWindow(X11->display, screen);
@@ -1652,9 +1646,9 @@ void qt_init(QApplicationPrivate *priv, int,
             // always the case (according to the X server), so we need
             // to make sure that our internal data is setup in a way
             // that is compatible with our assumptions
-            if (vis->c_class == TrueColor &&
-                 QX11Info::x_appdepth_arr[screen] == 8 &&
-                 QX11Info::x_appcells_arr[screen] == 8)
+            if (vis->c_class == TrueColor
+                && QX11Info::x_appdepth_arr[screen] == 8
+                && QX11Info::x_appcells_arr[screen] == 8)
                 QX11Info::x_appcells_arr[screen] = 256;
 
             if (colormap && screen == appScreen) {
@@ -1663,8 +1657,7 @@ void qt_init(QApplicationPrivate *priv, int,
                 QX11Info::x_appdefcolormap_arr[screen] = false;
             } else {
                 if (vis->c_class == TrueColor) {
-                    QX11Info::x_appdefcolormap_arr[screen] =
-                        QX11Info::x_appdefvisual_arr[screen];
+                    QX11Info::x_appdefcolormap_arr[screen] = QX11Info::x_appdefvisual_arr[screen];
                 } else {
                     QX11Info::x_appdefcolormap_arr[screen] =
                         !qt_cmap_option && QX11Info::x_appdefvisual_arr[screen];
@@ -1673,27 +1666,21 @@ void qt_init(QApplicationPrivate *priv, int,
                 if (QX11Info::x_appdefcolormap_arr[screen]) {
                     // use default colormap
                     XStandardColormap *stdcmap;
-                    VisualID vid =
-                        XVisualIDFromVisual((Visual *)
-                                            QX11Info::x_appvisual_arr[screen]);
-                    int i, count;
-
+                    VisualID vid = XVisualIDFromVisual((Visual *) QX11Info::x_appvisual_arr[screen]);
                     QX11Info::x_appcolormap_arr[screen] = 0;
 
+                    QByteArray serverVendor(ServerVendor(X11->display));
                     if (! serverVendor.contains("Hewlett-Packard")) {
                         // on HPUX 10.20 local displays, the RGB_DEFAULT_MAP colormap
                         // doesn't give us correct colors. Why this happens, I have
                         // no clue, so we disable this for HPUX
-                        if (XGetRGBColormaps(X11->display,
-                                             QX11Info::appRootWindow(screen),
+                        int count;
+                        if (XGetRGBColormaps(X11->display, QX11Info::appRootWindow(screen),
                                              &stdcmap, &count, XA_RGB_DEFAULT_MAP)) {
-                            i = 0;
-                            while (i < count &&
-                                   QX11Info::x_appcolormap_arr[screen] == 0) {
-                                if (stdcmap[i].visualid == vid) {
-                                    QX11Info::x_appcolormap_arr[screen] =
-                                        stdcmap[i].colormap;
-                                }
+                            int i = 0;
+                            while (i < count && QX11Info::x_appcolormap_arr[screen] == 0) {
+                                if (stdcmap[i].visualid == vid)
+                                    QX11Info::x_appcolormap_arr[screen] = stdcmap[i].colormap;
                                 i++;
                             }
 
@@ -1701,15 +1688,12 @@ void qt_init(QApplicationPrivate *priv, int,
                         }
                     }
 
-                    if (QX11Info::x_appcolormap_arr[screen] == 0) {
-                        QX11Info::x_appcolormap_arr[screen] =
-                            DefaultColormap(X11->display, screen);
-                    }
+                    if (QX11Info::x_appcolormap_arr[screen] == 0)
+                        QX11Info::x_appcolormap_arr[screen] = DefaultColormap(X11->display, screen);
                 } else {
                     // create a custom colormap
                     QX11Info::x_appcolormap_arr[screen] =
-                        XCreateColormap(X11->display, QX11Info::appRootWindow(screen),
-                                        vis, AllocNone);
+                        XCreateColormap(X11->display, QX11Info::appRootWindow(screen), vis, AllocNone);
                 }
             }
         }
