@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#82 $
 **
 ** Implementation of QTabBar class
 **
@@ -427,7 +427,8 @@ void QTabBar::paintEvent( QPaintEvent * e )
     QPainter p( this );
 
     p.setBrushOrigin( rect().bottomLeft() );
-    p.fillRect(0, 0, width(), height(), QBrush( colorGroup().brush( QColorGroup::Background ) ));
+    p.fillRect( 0, 0, width(), height(),
+		QBrush( colorGroup().brush( QColorGroup::Background ) ));
 
     QTab * t;
     t = l->first();
