@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/activex/qactivex/qactivex.cpp#1 $
+** $Id: //depot/qt/main/tests/activex/qactivex/qactivex.cpp#2 $
 **
 ** Implementation of QActiveXControl
 **
@@ -58,9 +58,9 @@ QActiveXControl::~QActiveXControl()
 void QActiveXControl::updateControl()
 {
     if ( com_control ) {
-	CComControl *cc = (CComControl*)com_control;
-	cc->SendOnDataChange();
-	cc->FireViewChange();
+	CComControlBase *ccb = (CComControlBase*)com_control;
+	ccb->SendOnDataChange();
+	ccb->FireViewChange();
     }
 }
 
@@ -132,26 +132,26 @@ void QActiveXControl::setActive( bool active, HANDLE parentWindow )
     if ( active ) {
 	old_parent = GetParent( winId() );
 	old_style  = GetWindowLong( winId(), GWL_STYLE );
-	SetParent( winId(), parentWindow );
+	SetParent( winId(), (HWND)parentWindow );
 	SetWindowLong( winId(), GWL_STYLE, WS_CHILD
 		       | WS_CLIPSIBLINGS | WS_CLIPCHILDREN );
 	show();
     } else {
 	hide();
-	SetParent( winId(), old_parent );
+	SetParent( winId(), (HWND)old_parent );
 	SetWindowLong( winId(), GWL_STYLE, old_style );
 	old_parent = 0;
     }
     QEvent e( active ?
-	      Event_ActivateControl : Event_DeactivateControl );
+	      QEvent::ActivateControl : QEvent::DeactivateControl );
     QApplication::sendEvent( this, &e );
 }
 
 
 class QAtlPaintDevice : public QPaintDevice {
 public:
-    QAtlPaintDevice( HANDLE h )
-	: QPaintDevice(PDT_SYSTEM) { hdc = h; }
+    QAtlPaintDevice( HDC h )
+	: QPaintDevice(QInternal::System) { hdc = h; }
 };
 
 
@@ -179,10 +179,10 @@ void QActiveXControl::drawControlAtl( void *atlDrawInfo )
 bool QActiveXControl::event( QEvent *e )
 {
     switch ( e->type() ) {
-	case Event_ActivateControl:
+	case QEvent::ActivateControl:
 	    activateEvent( e );
 	    break;
-	case Event_DeactivateControl:
+	case QEvent::DeactivateControl:
 	    deactivateEvent( e );
 	    break;
 	default:

@@ -4,5 +4,3 @@ DEFINES		= QT_DLL
 HEADERS		= qactivex.h
 SOURCES		= qactivex.cpp
 TARGET		= qactivex
-
-win32-msvc:TMAKE_CFLAGS += -GX
