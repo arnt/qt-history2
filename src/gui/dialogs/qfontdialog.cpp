@@ -69,7 +69,7 @@ public:
     QFontListView(QWidget *parent);
     inline QFontListModel *model() const { return static_cast<QFontListModel *>(QGenericTreeView::model()); }
     inline void setCurrentItem(int item) {
-        QGenericTreeView::setCurrentItem(model()->index(item, 0));
+        QGenericTreeView::setCurrentItem(static_cast<QAbstractItemModel*>(model())->index(item, 0));
     }
     inline int currentItem() const {
         return QGenericTreeView::currentItem().row();

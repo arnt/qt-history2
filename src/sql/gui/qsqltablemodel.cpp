@@ -555,13 +555,13 @@ void QSqlTableModel::cancelChanges()
     case OnRowChange:
         d->editBuffer.clear();
         if (d->editIndex >= 0)
-            emit dataChanged(index(d->editIndex, 0), index(d->editIndex, d->rec.count()));
+            emit dataChanged(createIndex(d->editIndex, 0), createIndex(d->editIndex, d->rec.count()));
         break;
     case OnManualSubmit: {
         QList<int> keys = d->cache.keys();
         d->cache.clear();
         for (int i = 0; i < keys.count(); ++i)
-            emit dataChanged(index(keys.at(i), 0), index(keys.at(i), d->rec.count()));
+            emit dataChanged(createIndex(keys.at(i), 0), createIndex(keys.at(i), d->rec.count()));
         break; }
     }
     d->editQuery.clear();

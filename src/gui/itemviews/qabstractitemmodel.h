@@ -197,11 +197,7 @@ class Q_GUI_EXPORT QAbstractTableModel : public QAbstractItemModel
 
 public:
     QAbstractTableModel(QObject *parent = 0);
-    virtual ~QAbstractTableModel();
-
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
-                      QModelIndex::Type type = QModelIndex::View) const;
-    QModelIndex parent(const QModelIndex &child) const;
+    ~QAbstractTableModel();
 
     virtual int rowCount() const = 0;
     virtual int columnCount() const = 0;
@@ -210,21 +206,33 @@ protected:
     QAbstractTableModel(QAbstractItemModelPrivate &dd, QObject *parent);
 
 private:
+    QModelIndex index(int row, int column, const QModelIndex &parent, QModelIndex::Type type) const;
+    QModelIndex parent(const QModelIndex &child) const;
+
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
 };
 
-class Q_GUI_EXPORT QAbstractListModel : public QAbstractTableModel
+class Q_GUI_EXPORT QAbstractListModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
     QAbstractListModel(QObject *parent = 0);
-    virtual ~QAbstractListModel();
+    ~QAbstractListModel();
+
+    virtual int rowCount() const = 0;
     int columnCount() const { return 1; }
 
 protected:
     QAbstractListModel(QAbstractItemModelPrivate &dd, QObject *parent);
+
+private:
+    QModelIndex index(int row, int column, const QModelIndex &parent, QModelIndex::Type type) const;
+    QModelIndex parent(const QModelIndex &child) const;
+
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
 };
 
 #endif

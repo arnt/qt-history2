@@ -1068,7 +1068,7 @@ QGroupBox *QPrintDialogUnix::setupDestination()
             quality = 1;
         }
     }
-    d->view->setCurrentItem(d->model->index(best, 0));
+    d->view->setCurrentItem(static_cast<QAbstractItemModel*>(d->model)->index(best, 0));
 
     if (etcLpDefault)                 // Avoid purify complaint
         delete[] etcLpDefault;

@@ -1143,7 +1143,7 @@ QAbstractTableModel::~QAbstractTableModel()
 }
 
 QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &parent,
-                                     QModelIndex::Type type) const
+                                       QModelIndex::Type type) const
 {
     return isValid(row, column, parent) ? createIndex(row, column, 0, type) : QModelIndex();
 }
@@ -1172,19 +1172,41 @@ int QAbstractTableModel::columnCount(const QModelIndex &parent) const
 */
 
 QAbstractListModel::QAbstractListModel(QObject *parent)
-    : QAbstractTableModel(parent)
+    : QAbstractItemModel(parent)
 {
 
 }
 
 QAbstractListModel::QAbstractListModel(QAbstractItemModelPrivate &dd, QObject *parent)
-    : QAbstractTableModel(dd, parent)
+    : QAbstractItemModel(dd, parent)
 {
 
-}   
-
+}
 
 QAbstractListModel::~QAbstractListModel()
 {
 
+}
+
+QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &parent,
+                                      QModelIndex::Type type) const
+{
+    return isValid(row, column, parent) ? createIndex(row, column, 0, type) : QModelIndex();
+}
+
+QModelIndex QAbstractListModel::parent(const QModelIndex &) const
+{
+    return QModelIndex();
+}
+
+int QAbstractListModel::rowCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+    return rowCount();
+}
+
+int QAbstractListModel::columnCount(const QModelIndex &) const
+{
+    return columnCount();
 }
