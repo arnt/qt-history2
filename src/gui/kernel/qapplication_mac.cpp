@@ -528,7 +528,7 @@ static void qt_mac_event_release(QWidget *w, EventRef &event)
         QWidget *widget = 0;
         if(GetEventParameter(event, kEventParamQWidget, typeQWidget, 0, sizeof(widget), 0, &widget) == noErr
            && w == widget) {
-            if (IsEventInQueue(GetMainEventQueue(), event))  
+            if (IsEventInQueue(GetMainEventQueue(), event))
                 RemoveEventFromQueue(GetMainEventQueue(), event);
             qt_mac_event_release(event);
         }
@@ -962,6 +962,7 @@ void qt_cleanup()
         QAccessible::cleanup();
 #endif
         QQuickDrawPaintEngine::cleanup();
+        QCursor::cleanup();
         QFont::cleanup();
         QColormap::cleanup();
         if(qt_mac_safe_pdev) {
@@ -1292,8 +1293,8 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled, E
             set_active = !(GetCurrentKeyModifiers() & cmdKey);
         if(set_active) {
             widget->raise();
-            if(!widget->isActiveWindow() && widget->isTopLevel() && !widget->isDesktop() 
-               && !widget->isPopup() && !qt_mac_is_macsheet(widget) 
+            if(!widget->isActiveWindow() && widget->isTopLevel() && !widget->isDesktop()
+               && !widget->isPopup() && !qt_mac_is_macsheet(widget)
                && (widget->isModal() || !::qt_cast<QDockWindow *>(widget))) {
                 widget->setActiveWindow();
                 if(windowPart == inContent) {
@@ -1906,7 +1907,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             if((QWidget *)qt_mouseover != widget) {
 #ifdef DEBUG_MOUSE_MAPS
                 qDebug("Entering: %p - %s (%s), Leaving %s (%s)", (QWidget*)widget,
-                       widget ? widget->metaObject()->className() : "none", 
+                       widget ? widget->metaObject()->className() : "none",
                        widget ? widget->objectName().local8Bit() : "",
                        qt_mouseover ? qt_mouseover->metaObject()->className() : "none",
                        qt_mouseover ? qt_mouseover->objectName().local8Bit() : "");
@@ -2477,7 +2478,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     if (!qt_modal_state()) {
                         QCloseEvent ev;
                         QApplication::sendSpontaneousEvent(app, &ev);
-                        if(ev.isAccepted()) 
+                        if(ev.isAccepted())
                             app->quit();
                     } else {
                         QApplication::beep();
@@ -2498,7 +2499,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             RemoveEventLoopTimer(mac_context_timer);
             mac_context_timer = 0;
         }
-        if(request_context_hold_pending) 
+        if(request_context_hold_pending)
             qt_mac_event_remove(request_context_hold_pending);
     }
 

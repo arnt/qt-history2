@@ -314,7 +314,6 @@ void QCursor::initialize()
     for (int shape = 0; shape <= Qt::LastCursor; ++shape)
         qt_cursorTable[shape] = new QCursorData(shape);
     initialized = true;
-    qAddPostRoutine(cleanup);
 }
 
 QCursorData *QCursor::find_cur(int shape)
