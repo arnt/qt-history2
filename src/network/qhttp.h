@@ -163,6 +163,8 @@ public:
 
     int setHost(const QString &hostname, Q_UINT16 port=80);
     int setSocket(QSocket *socket);
+    int setUser(const QString &username,
+                const QString &password = QString::null);
 
     int setProxy(const QString &host, int port,
                  const QString &username = QString::null,
@@ -237,6 +239,7 @@ private:
     friend class QHttpNormalRequest;
     friend class QHttpSetHostRequest;
     friend class QHttpSetSocketRequest;
+    friend class QHttpSetUserRequest;
     friend class QHttpSetProxyRequest;
     friend class QHttpCloseRequest;
     friend class QHttpPGHRequest;

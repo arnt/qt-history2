@@ -101,6 +101,9 @@ public:
 
     QMembuf rba;
 
+    QString userName;
+    QString password;
+
     QString proxyHost;
     int proxyPort;
     QString proxyUser;
@@ -286,6 +289,38 @@ void QHttpSetHostRequest::start(QHttp *http)
 {
     http->d->hostname = hostname;
     http->d->port = port;
+    http->finishedWithSuccess();
+}
+
+/****************************************************
+ *
+ * QHttpSetUserRequest
+ *
+ ****************************************************/
+
+class QHttpSetUserRequest : public QHttpRequest
+{
+public:
+    QHttpSetUserRequest(const QString &userName, const QString &password) :
+        user(userName), pass(password)
+    { }
+
+    void start(QHttp *);
+
+    QIODevice* sourceDevice()
+    { return 0; }
+    QIODevice* destinationDevice()
+    { return 0; }
+
+private:
+    QString user;
+    QString pass;
+};
+
+void QHttpSetUserRequest::start(QHttp *http)
+{
+    http->d->userName = user;
+    http->d->password = pass;
     http->finishedWithSuccess();
 }
 
@@ -1630,10 +1665,37 @@ int QHttp::setHost(const QString &hostname, Q_UINT16 port)
     Replaces the internal QSocket that QHttp uses with the given \a
     socket. This is useful if you want to use your own custom QSocket
     subclass instead of the plain QSocket that QHttp uses by default.
+
+    The function does not block and returns immediately. The request
+    is scheduled, and its execution is performed asynchronously. The
+    function returns a unique identifier which is passed by
+    requestStarted() and requestFinished().
+
+    When the request is started the requestStarted() signal is
+    emitted. When it is finished the requestFinished() signal is
+    emitted.
 */
 int QHttp::setSocket(QSocket *socket)
 {
     return addRequest(new QHttpSetSocketRequest(socket));
+}
+
+/*!
+    This function sets the user name \a userName and password \a
+    password for web pages that require authentication.
+
+    The function does not block and returns immediately. The request
+    is scheduled, and its execution is performed asynchronously. The
+    function returns a unique identifier which is passed by
+    requestStarted() and requestFinished().
+
+    When the request is started the requestStarted() signal is
+    emitted. When it is finished the requestFinished() signal is
+    emitted.
+*/
+int QHttp::setUser(const QString &userName, const QString &password)
+{
+    return addRequest(new QHttpSetUserRequest(userName, password));
 }
 
 /*!
@@ -1883,6 +1945,17 @@ void QHttp::sendRequest()
         }
 
         d->hostname = d->proxyHost;
+    }
+
+    // Username support. Insert the user and password into the query
+    // string.
+    if (!d->userName.isEmpty()) {
+        QByteArray pass = d->userName.toAscii();
+        if (!d->password.isEmpty()) {
+            pass += ":";
+            pass += d->password.toAscii();
+        }
+        d->header.setValue("Authorization", "Basic " + pass.toBase64());
     }
 
     if (d->hostname.isNull()) {
