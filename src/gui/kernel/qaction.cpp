@@ -63,7 +63,7 @@ QAction::QAction(const QIconSet &icon, const QString &text, QActionGroup* parent
     d->icons = new QIconSet(icon);
     d->text = text;
     d->group = parent;
-    if(parent) 
+    if(parent)
         parent->addAction(this);
 }
 
@@ -305,11 +305,6 @@ QActionGroup::QActionGroup(QObject* parent) : QObject(*new QActionGroupPrivate, 
 {
 }
 
-QActionGroup::QActionGroup(QObject* parent, bool e) : QObject(*new QActionGroupPrivate, parent)
-{
-    d->exclusive = e;
-}
-
 QActionGroup::~QActionGroup()
 {
 }
@@ -426,7 +421,7 @@ void QActionGroup::internalDataChanged()
     if(!action)
         qWarning("not possible..");
     if(d->exclusive && action->isChecked() && action != d->current) {
-        if(d->current) 
+        if(d->current)
             d->current->setChecked(false);
         d->current = action;
     }

@@ -141,7 +141,6 @@ class Q_GUI_EXPORT QActionGroup : public QObject
 
 public:
     QActionGroup(QObject* parent);
-    QActionGroup(QObject* parent, bool exclusive);
     ~QActionGroup();
 
     QAction *addAction(QAction* a);
