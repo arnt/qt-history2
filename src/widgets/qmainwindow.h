@@ -154,7 +154,7 @@ protected:
     void styleChange( QStyle& );
 
 private slots:
-    void slotPositionChanged();
+    void slotPlaceChanged();
 
 private:
     QMainWindowPrivate * d;

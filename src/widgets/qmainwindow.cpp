@@ -862,8 +862,8 @@ void QMainWindow::addDockWindow( QDockWindow * toolBar,
     toolBar->setNewLine( newLine );
     if ( d->dockWidgets.find( toolBar ) == -1 )
 	d->dockWidgets.append( toolBar );
-    connect( toolBar, SIGNAL( positionChanged() ),
-	     this, SLOT( slotPositionChanged() ) );
+    connect( toolBar, SIGNAL( placeChanged( QDockWindow::Place ) ),
+	     this, SLOT( slotPlaceChanged() ) );
     toolBar->installEventFilter( this );
 }
 
@@ -974,8 +974,8 @@ void QMainWindow::removeDockWindow( QDockWindow * toolBar )
 {
     toolBar->hide();
     d->dockWidgets.removeRef( toolBar );
-    disconnect( toolBar, SIGNAL( positionChanged() ),
-		this, SLOT( slotPositionChanged() ) );
+    disconnect( toolBar, SIGNAL( placeChanged( QDockWindow::Place ) ),
+		this, SLOT( slotPlaceChanged() ) );
     toolBar->removeEventFilter( this );
 }
 
@@ -1614,7 +1614,7 @@ bool QMainWindow::showDockMenu( const QPoint &globalPos )
     return TRUE;
 }
 
-void QMainWindow::slotPositionChanged()
+void QMainWindow::slotPlaceChanged()
 {
     if ( sender()->inherits( "QDockWindow" ) )
 	emit dockWidgetPositionChanged( (QDockWindow*)sender() );

@@ -110,7 +110,7 @@ public:
 
 signals:
     void orientationChanged( Orientation o );
-    void positionChanged();
+    void placeChanged( QDockWindow::Place p );
     void visibilityChanged( bool );
 
 public slots:
