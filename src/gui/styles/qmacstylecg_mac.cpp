@@ -460,15 +460,15 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
         if (!w)
             break;
         const QSlider *slider = static_cast<const QSlider *>(w);
-        bool tracking = slider->tracking();
+        bool tracking = slider->hasTracking();
         HIThemeTrackDrawInfo tdi;
         tdi.version = qt_mac_hitheme_version;
         //tdi.kind = qt_aqua_size_constrain(w) == QAquaSizeSmall ? kThemeSmallSlider
         //                                                      : kThemeMediumSlider;
         tdi.kind = kThemeSlider;
         tdi.bounds = *qt_glb_mac_rect(r, p);
-        tdi.min = slider->minValue();
-        tdi.max = slider->maxValue();
+        tdi.min = slider->minimum();
+        tdi.max = slider->maximum();
         tdi.value = slider->value();
         tdi.reserved = 0;
         tdi.attributes = kThemeTrackShowThumb;
@@ -502,12 +502,12 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
             macRect.origin.y = 0;
         }
         tdi.bounds = macRect;
-        if (!tracking) // a little too much indirection, but at least it's consistent.
-            macRect = *qt_glb_mac_rect(slider->sliderRect());
+        if (!tracking)
+            macRect = *qt_glb_mac_rect(querySubControlMetrics(CC_Slider, w, SC_SliderHandle));
         HIThemeDrawTrack(&tdi, tracking ? 0 : &macRect, static_cast<CGContextRef>(p->handle()),
                          kHIThemeOrientationNormal);
         if (sub && SC_SliderTickmarks) {
-            int numMarks = slider->maxValue() / slider->pageStep();
+            int numMarks = slider->maximum() / slider->pageStep();
             HIThemeDrawTrackTickMarks(&tdi, numMarks, static_cast<CGContextRef>(p->handle()),
                                       kHIThemeOrientationNormal);
         }
@@ -570,14 +570,16 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
     switch (control) {
     case CC_Slider: {
         const QSlider *slider = static_cast<const QSlider *>(widget);
+        int available = pixelMetric(PM_SliderSpaceAvailable, slider);
         HIThemeTrackDrawInfo tdi;
         tdi.version = qt_mac_hitheme_version;
         tdi.kind = kThemeSlider;
         tdi.bounds = *qt_glb_mac_rect(widget->rect());
-        tdi.min = slider->minValue();
-        tdi.max = slider->maxValue();
-        if (!slider->tracking())
-            tdi.value = slider->valueFromPosition(slider->sliderStart());
+        tdi.min = slider->minimum();
+        tdi.max = slider->maximum();
+        if (!slider->hasTracking())
+            tdi.value = QStyle::valueFromPosition(slider->minimum(), slider->maximum(),
+                                                  slider->sliderPosition(), available);
         else
             tdi.value = slider->value();
         tdi.attributes = kThemeTrackShowThumb;

@@ -1365,8 +1365,8 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 	    ttdi.kind = kThemeSmallScrollBar;
 	ttdi.bounds = *qt_glb_mac_rect(r, p);
-	ttdi.min = scrollbar->minValue();
-	ttdi.max = scrollbar->maxValue();
+	ttdi.min = scrollbar->minimum();
+	ttdi.max = scrollbar->maximum();
 	ttdi.value = scrollbar->value();
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(scrollbar->orientation() == Qt::Horizontal)
@@ -1401,8 +1401,8 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 	    ttdi.kind = kThemeSmallSlider;
 	ttdi.bounds = *qt_glb_mac_rect(widget->rect(), p);
-	ttdi.min = sldr->minValue();
-	ttdi.max = sldr->maxValue();
+	ttdi.min = sldr->minimum();
+	ttdi.max = sldr->maximum();
 	ttdi.value = sldr->value();
 	ttdi.attributes |= kThemeTrackShowThumb;
 #if QT_MACOSX_VERSION >= 0x1020
@@ -1706,8 +1706,8 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl control,
 	if(qt_aqua_size_constrain(w) == QAquaSizeSmall)
 	    ttdi.kind = kThemeSmallScrollBar;
 	ttdi.bounds = *qt_glb_mac_rect(w->rect());
-	ttdi.min = scrollbar->minValue();
-	ttdi.max = scrollbar->maxValue();
+	ttdi.min = scrollbar->minimum();
+	ttdi.max = scrollbar->maximum();
 	ttdi.value = scrollbar->value();
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(scrollbar->orientation() == Qt::Horizontal)
@@ -1749,8 +1749,8 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl control,
 	    ttdi.attributes |= kThemeTrackHasFocus;
 #endif
 	ttdi.bounds = *qt_glb_mac_rect(w->rect());
-	ttdi.min = sldr->minValue();
-	ttdi.max = sldr->maxValue();
+	ttdi.min = sldr->minimum();
+	ttdi.max = sldr->maximum();
 	ttdi.value = sldr->value();
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(sldr->orientation() == Qt::Horizontal)
@@ -1919,8 +1919,8 @@ QStyle::SubControl QMacStyleQD::querySubControl(ComplexControl control,
 	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 	    ttdi.kind = kThemeSmallScrollBar;
 	ttdi.bounds = *qt_glb_mac_rect(widget->rect());
-	ttdi.min = scrollbar->minValue();
-	ttdi.max = scrollbar->maxValue();
+	ttdi.min = scrollbar->minimum();
+	ttdi.max = scrollbar->maximum();
 	ttdi.value = scrollbar->value();
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(scrollbar->orientation() == Qt::Horizontal)

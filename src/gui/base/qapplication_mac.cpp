@@ -943,7 +943,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 	    QString path = argv[0];
             QString tmpStr = QString("/Contents/MacOS/") + appName;
             if (path.endsWith(tmpStr)) {
-                int rfork = path.findRev('/', path.length() - tmpStr.length() - 1);
+                int rfork = path.lastIndexOf('/', path.length() - tmpStr.length() - 1);
                 if (rfork != -1)
                     QDir::setCurrent(path.left(rfork + 1));
             }

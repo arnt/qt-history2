@@ -16,156 +16,67 @@
 #define QSLIDER_H
 
 #ifndef QT_H
-#include "qwidget.h"
-#include "qrangecontrol.h"
+#include <qabstractslider.h>
+#include <qwidget.h>
 #endif // QT_H
 
 #ifndef QT_NO_SLIDER
 
-struct QSliderPrivate;
+class QSliderPrivate;
 
-class QTimer;
-
-class Q_GUI_EXPORT QSlider : public QWidget, public QRangeControl
+class Q_GUI_EXPORT QSlider : public QAbstractSlider
 {
     Q_OBJECT
-    Q_ENUMS( TickSetting )
-    Q_PROPERTY( int minValue READ minValue WRITE setMinValue )
-    Q_PROPERTY( int maxValue READ maxValue WRITE setMaxValue )
-    Q_PROPERTY( int lineStep READ lineStep WRITE setLineStep )
-    Q_PROPERTY( int pageStep READ pageStep WRITE setPageStep )
-    Q_PROPERTY( int value READ value WRITE setValue )
-    Q_PROPERTY( bool tracking READ tracking WRITE setTracking )
-    Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
-    Q_PROPERTY( TickSetting tickmarks READ tickmarks WRITE setTickmarks )
-    Q_PROPERTY( int tickInterval READ tickInterval WRITE setTickInterval )
+    Q_ENUMS(TickSetting)
+    Q_PROPERTY(TickSetting tickmarks READ tickmarks WRITE setTickmarks)
+    Q_PROPERTY(int tickInterval READ tickInterval WRITE setTickInterval)
 
 public:
-    enum TickSetting { NoMarks = 0, Above = 1, Left = Above,
-		       Below = 2, Right = Below, Both = 3 };
+    enum TickSetting { NoMarks = 0, Above = 1, Left = Above, Below = 2, Right = Below, Both = 3 };
 
-    QSlider( QWidget *parent=0, const char* name = 0 );
-    QSlider( Orientation, QWidget *parent=0, const char* name = 0 );
-    QSlider( int minValue, int maxValue, int pageStep, int value, Orientation,
-	     QWidget *parent=0, const char* name = 0 );
+    QSlider(QWidget *parent = 0);
+    QSlider(Orientation orientation, QWidget *parent = 0);
+
     ~QSlider();
 
-    virtual void	setOrientation( Orientation );
-    Orientation orientation() const;
-    virtual void	setTracking( bool enable );
-    bool	tracking() const;
-    virtual void 	setPalette( const QPalette & );
-
-    int sliderStart() const;
-    QRect sliderRect() const;
     QSize sizeHint() const;
-    void setSizePolicy( QSizePolicy sp );
-    void setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE );
-
-    QSizePolicy sizePolicy() const;
     QSize minimumSizeHint() const;
 
-    virtual void setTickmarks( TickSetting );
-    TickSetting tickmarks() const { return ticks; }
+    void setTickmarks(TickSetting ts);
+    TickSetting tickmarks() const;
 
-    virtual void setTickInterval( int );
-    int 	tickInterval() const { return tickInt; }
-
-    int	 minValue() const;
-    int	 maxValue() const;
-    void setMinValue( int );
-    void setMaxValue( int );
-    int	 lineStep() const;
-    int	 pageStep() const;
-    void setLineStep( int );
-    void setPageStep( int );
-    int  value() const;
-
-public slots:
-    virtual void	setValue( int );
-    void	addStep();
-    void	subtractStep();
-    void	addLine();
-    void	subtractLine();
-
-signals:
-    void	valueChanged( int value );
-    void	sliderPressed();
-    void	sliderMoved( int value );
-    void	sliderReleased();
+    void setTickInterval(int ti);
+    int tickInterval() const;
 
 protected:
-    void	resizeEvent( QResizeEvent * );
-    void	paintEvent( QPaintEvent * );
-
-    void	keyPressEvent( QKeyEvent * );
-    void	mousePressEvent( QMouseEvent * );
-    void	mouseReleaseEvent( QMouseEvent * );
-    void	mouseMoveEvent( QMouseEvent * );
-#ifndef QT_NO_WHEELEVENT
-    void	wheelEvent( QWheelEvent * );
-#endif
-    void	focusInEvent( QFocusEvent *e );
-    void	focusOutEvent( QFocusEvent *e );
-
-    void	valueChange();
-    void	rangeChange();
-
-private slots:
-    void	repeatTimeout();
+    void paintEvent(QPaintEvent *ev);
+    void keyPressEvent(QKeyEvent *ev);
+    void mousePressEvent(QMouseEvent *ev);
+    void mouseReleaseEvent(QMouseEvent *ev);
+    void mouseMoveEvent(QMouseEvent *ev);
 
 private:
-    enum State { Idle, Dragging, TimingUp, TimingDown };
-
-    void	init();
-    int		positionFromValue( int ) const;
-    int		valueFromPosition( int ) const;
-    void	moveSlider( int );
-    void	reallyMoveSlider( int );
-    void	resetState();
-    int		available() const;
-    int		goodPart( const QPoint& ) const;
-    void	initTicks();
-
-    QSliderPrivate *d;
-    QTimer	*timer;
-    QCOORD	sliderPos;
-    int		sliderVal;
-    QCOORD	clickOffset;
-    State	state;
-    bool	track;
-    QCOORD	tickOffset;
-    TickSetting	ticks;
-    int		tickInt;
-    Orientation orient;
-
-private:	// Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QSlider( const QSlider & );
-    QSlider &operator=( const QSlider & );
+    Q_DECL_PRIVATE(QSlider);
+  
+#ifdef QT_COMPAT
+public:
+    QSlider(QWidget *parent = 0, const char *name = 0);
+    QSlider(Orientation, QWidget *parent = 0, const char *name = 0);
+    QSlider(int minValue, int maxValue, int pageStep, int value, Orientation orientation,
+                      QWidget *parent = 0, const char *name = 0);
+    inline QT_COMPAT int sliderStart() const { return sliderPosition(); }
+    inline QT_COMPAT QRect sliderRect() const
+    { return style().querySubControlMetrics(QStyle::CC_Slider, this, QStyle::SC_SliderHandle); }
+public slots:
+    inline QT_COMPAT void addStep() { triggerAction(SliderSingleStepAdd); };
+    inline QT_COMPAT void subtractStep() { triggerAction(SliderSingleStepSub); };
 #endif
-    friend class QMacStyleCG;
+private:
+#if defined(Q_DISABLE_COPY)     // Disabled copy constructor and operator
+    QSlider(const QSlider &);
+    QSlider &operator=(const QSlider &);
+#endif  
 };
-
-inline bool QSlider::tracking() const
-{
-    return track;
-}
-
-inline QSlider::Orientation QSlider::orientation() const
-{
-    return orient;
-}
-
-inline int QSlider::sliderStart() const
-{
-    return sliderPos;
-}
-
-inline void QSlider::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )
-{
-    QWidget::setSizePolicy( hor, ver, hfw );
-}
 
 #endif // QT_NO_SLIDER
 

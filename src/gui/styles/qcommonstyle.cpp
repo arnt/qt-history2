@@ -37,10 +37,10 @@
 #include "qradiobutton.h"
 #include "qbitmap.h"
 #include "qprogressbar.h"
-#include "private/qdialogbuttons_p.h"
+#include <private/qdialogbuttons_p.h>
 #include <limits.h>
 #include <qpixmap.h>
-#include "../widgets/qtitlebar_p.h"
+#include <private/qtitlebar_p.h>
 #include <qtoolbox.h>
 
 /*!
@@ -1441,40 +1441,6 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
     return rect;
 }
 
-#ifndef QT_NO_RANGECONTROL
-/*
-  I really need this and I don't want to expose it in QRangeControl..
-*/
-static int qPositionFromValue( const QRangeControl * rc, int logical_val,
-			       int span )
-{
-    if ( span <= 0 || logical_val < rc->minValue() ||
-	 rc->maxValue() <= rc->minValue() )
-	return 0;
-    if ( logical_val > rc->maxValue() )
-	return span;
-
-    uint range = rc->maxValue() - rc->minValue();
-    uint p = logical_val - rc->minValue();
-
-    if ( range > (uint)INT_MAX/4096 ) {
-	const int scale = 4096*2;
-	return ( (p/scale) * span ) / (range/scale);
-	// ### the above line is probably not 100% correct
-	// ### but fixing it isn't worth the extreme pain...
-    } else if ( range > (uint)span ) {
-	return (2*p*span + range) / (2*range);
-    } else {
-	uint div = span / range;
-	uint mod = span % range;
-	return p*div + (2*p*mod + range) / (2*range);
-    }
-    //equiv. to (p*span)/range + 0.5
-    // no overflow because of this implicit assumption:
-    // span <= 4096
-}
-#endif // QT_NO_RANGECONTROL
-
 /*! \reimp */
 void QCommonStyle::drawComplexControl( ComplexControl control,
 				       QPainter *p,
@@ -1499,7 +1465,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	{
 	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
 	    QRect addline, subline, addpage, subpage, slider, first, last;
-	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
+	    bool maxedOut = (scrollbar->minimum() == scrollbar->maximum());
 
 	    subline = querySubControlMetrics(control, widget, SC_ScrollBarSubLine, opt);
 	    addline = querySubControlMetrics(control, widget, SC_ScrollBarAddLine, opt);
@@ -1835,9 +1801,9 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    int interval = sl->tickInterval();
 
 	    if ( interval <= 0 ) {
-		interval = sl->lineStep();
-		if ( qPositionFromValue( sl, interval, available ) -
-		     qPositionFromValue( sl, 0, available ) < 3 )
+		interval = sl->singleStep();
+		if (QStyle::positionFromValue(sl->minimum(), sl->maximum(), interval, available)
+                    - QStyle::positionFromValue(sl->minimum(), sl->maximum(), 0, available) < 3)
 		    interval = sl->pageStep();
 	    }
 
@@ -1852,11 +1818,12 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    p->fillRect(0, 0, tickOffset, sl->width(),
 				pal.brush(QPalette::Background));
 		p->setPen( pal.foreground() );
-		int v = sl->minValue();
+		int v = sl->minimum();
 		if ( !interval )
 		    interval = 1;
-		while ( v <= sl->maxValue() + 1 ) {
-		    pos = qPositionFromValue( sl, v, available ) + fudge;
+		while ( v <= sl->maximum() + 1 ) {
+		    pos = QStyle::positionFromValue(sl->minimum(), sl->maximum(), v, available)
+                          + fudge;
 		    if ( sl->orientation() == Horizontal )
 			p->drawLine( pos, 0, pos, tickOffset-2 );
 		    else
@@ -1873,11 +1840,12 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    p->fillRect(tickOffset + thickness, 0, tickOffset, sl->height(),
 				pal.brush(QPalette::Background));
 		p->setPen( pal.foreground() );
-		int v = sl->minValue();
+		int v = sl->minimum();
 		if ( !interval )
 		    interval = 1;
-		while ( v <= sl->maxValue() + 1 ) {
-		    pos = qPositionFromValue( sl, v, available ) + fudge;
+		while ( v <= sl->maximum() + 1 ) {
+		    pos = QStyle::positionFromValue(sl->minimum(), sl->maximum(), v, available)
+                          + fudge;
 		    if ( sl->orientation() == Horizontal )
 			p->drawLine( pos, tickOffset+thickness+1, pos,
 				     tickOffset+thickness+1 + available-2 );
@@ -2068,16 +2036,15 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 		    int sliderPos = 0;
 		    int len   = pixelMetric( PM_SliderLength, sl );
 
-		    sliderPos = sl->sliderStart();
+		    sliderPos = sl->sliderPosition();
 
-		    if ( sl->orientation() == Horizontal )
-			return QRect( sliderPos, tickOffset, len, thickness );
-		    return QRect( tickOffset, sliderPos, thickness, len ); }
+		    if (sl->orientation() == Horizontal)
+			return QRect(sliderPos, tickOffset, len, thickness);
+		    return QRect(tickOffset, sliderPos, thickness, len); }
 	    case SC_SliderGroove: {
-		if ( sl->orientation() == Horizontal )
-		    return QRect( 0, tickOffset, sl->width(), thickness );
-		return QRect( tickOffset, 0, thickness, sl->height() );	}
-
+		if (sl->orientation() == Horizontal)
+		    return QRect(0, tickOffset, sl->width(), thickness);
+		return QRect(tickOffset, 0, thickness, sl->height());	}
 	    default:
 		break;
 	    }
@@ -2234,14 +2201,27 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 #endif
 	    break;
 	}
-
+    case CC_Slider:
+        {
+            QRect r;
+            // Check for handle first, then the groove.
+            r = visualRect(querySubControlMetrics(control, widget, SC_SliderHandle, opt), widget);
+            if (r.isValid() && r.contains(pos)) {
+                ret = SC_SliderHandle;
+            } else {
+                r = visualRect(querySubControlMetrics(control, widget, SC_SliderGroove, opt),
+                               widget);
+                if (r.isValid() && r.contains(pos))
+                    ret = SC_SliderGroove;
+            }
+            break;
+        }
     default:
 	break;
     }
 
     return ret;
 }
-
 
 /*! \reimp */
 int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
