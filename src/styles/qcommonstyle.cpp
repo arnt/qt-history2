@@ -1745,7 +1745,8 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    return QRect(lx, fw, rx, widget->height() - 2*fw);
 	case SC_SpinWidgetFrame:
 	    return widget->rect();
-	default: break;
+	default:
+	    break;
 	}
 	break; }
 
@@ -1763,8 +1764,8 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    return QRect(x+3, y+3, wi-6-16, he-6);
 	case SC_ComboBoxListBoxPopup:
 	    return opt.rect();
+	default:
 	    break;
-	default: break;
 	}
 	break; }
 
