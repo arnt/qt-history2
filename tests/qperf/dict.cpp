@@ -6,8 +6,8 @@
 #endif
 #include "words.inc"
 
-QDict<int> wordDict(601);
-QDict<int> wordDictAscii(601);
+QDict<int>      wordDict(601);
+QAsciiDict<int> wordDictAscii(601);
 #if QT_VERSION >= 200
 QMap<QString,int*> wordMap;
 #endif
@@ -113,9 +113,20 @@ static int dict_lookup_map()
 #endif
 }
 
-static int dict_insdel()
+static int dict_insdel_ascii()
 {
     const char *s1 = "Troll Tech";
+    int i;
+    for ( i=0; i<1000; i++ ) {
+	wordDictAscii.insert(s1,(int*)123);
+	wordDictAscii.remove(s1);
+    }
+    return i*4;
+}
+
+static int dict_insdel_string()
+{
+    QString s1 = "Troll Tech";
     int i;
     for ( i=0; i<1000; i++ ) {
 	wordDict.insert(s1,(int*)123);
@@ -127,7 +138,7 @@ static int dict_insdel()
 static int dict_insdel_map()
 {
 #if QT_VERSION >= 200
-    QString s1("Troll Tech");
+    QString s1 = "Troll Tech";
     int i;
     for ( i=0; i<1000; i++ ) {
 	wordMap.insert(s1,(int*)123);
@@ -144,6 +155,7 @@ QPERF_BEGIN(dict,"QDict tests")
     QPERF(dict_lookup_ascii_string,"QAsciiDict lookup, using QString")
     QPERF(dict_lookup_string_ascii,"QDict lookup, using char *")
     QPERF(dict_lookup_map,"QMap lookup, using QString")
-    QPERF(dict_insdel,"Insert and delete const char *")
+    QPERF(dict_insdel_ascii,"Insert and delete QAsciiDict/char*")
+    QPERF(dict_insdel_string,"Insert and delete QDict/QString")
     QPERF(dict_insdel_map,"Insert and delete for QMap")
 QPERF_END(dict)
