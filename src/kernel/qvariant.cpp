@@ -1869,6 +1869,8 @@ const QDateTime QVariant::toDateTime() const
 	return *((QDateTime*)d->value.ptr);
     if ( d->typ == String )
 	return QDateTime::fromString( *((QString*)d->value.ptr), Qt::ISODate );
+    if ( d->typ == Date )
+	return QDateTime( *((QDate*)d->value.ptr) );
     return QDateTime();
 }
 

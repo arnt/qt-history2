@@ -1515,6 +1515,11 @@ QPixmap QCanvas::backgroundPixmap() const
 void QCanvas::setBackgroundPixmap( const QPixmap& p )
 {
     setTiles(p, 1, 1, p.width(), p.height());
+    QCanvasView* view = d->viewList.first();
+    while ( view != 0 ) {
+	view->updateContents();
+	view = d->viewList.next();
+    }
 }
 
 /*!

@@ -356,10 +356,13 @@ static QSize smartMaxSize( const QWidgetItem *i, int align = 0 )
 }
 
 /*!
-  This function stores the spacer item's rect \a r so that it can be
-  returned by geometry().
+  Stores the spacer item's rect \a r so that it can be returned by
+  geometry().
 */
-void QSpacerItem::setGeometry( const QRect &r ) { rect = r; }
+void QSpacerItem::setGeometry( const QRect &r )
+{
+    rect = r;
+}
 
 /*!
   Sets the geometry of this item's widget to be contained within rect
@@ -428,13 +431,20 @@ bool QWidgetItem::hasHeightForWidth() const
 int QWidgetItem::heightForWidth( int w ) const
 {
     if ( isEmpty() )
-	return 0; // ### -1?
+	return -1;
     int hfw;
     if ( wid->layout() )
-	hfw =  wid->layout()->totalHeightForWidth( w );
+	hfw = wid->layout()->totalHeightForWidth( w );
     else
 	hfw = wid->heightForWidth( w );
-    return QMAX( QMIN( hfw, wid->maximumHeight() ), wid->minimumHeight());
+
+    if ( hfw > wid->maximumHeight() )
+	hfw = wid->maximumHeight();
+    if ( hfw < wid->minimumHeight() )
+	hfw = wid->minimumHeight();
+    if ( hfw < 1 )
+	hfw = 1;
+    return hfw;
 }
 
 /*!
