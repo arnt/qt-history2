@@ -4077,20 +4077,22 @@ bool QWidget::event( QEvent *e )
 	case QEvent::KeyPress: {
 	    QKeyEvent *k = (QKeyEvent *)e;
 	    bool res = FALSE;
-	    if ( k->key() == Key_Backtab ||
-		 (k->key() == Key_Tab &&
-		  (k->state() & ShiftButton)) ) {
-		QFocusEvent::setReason( QFocusEvent::Backtab );
-		res = focusNextPrevChild( FALSE );
-		QFocusEvent::resetReason();
+	    if ( !(k->state() & ControlButton || k->state() & AltButton) ) {
+		if ( k->key() == Key_Backtab ||
+		     (k->key() == Key_Tab &&
+		      (k->state() & ShiftButton)) ) {
+		    QFocusEvent::setReason( QFocusEvent::Backtab );
+		    res = focusNextPrevChild( FALSE );
+		    QFocusEvent::resetReason();
 
-	    } else if ( k->key() == Key_Tab ) {
-		QFocusEvent::setReason( QFocusEvent::Tab );
-		res = focusNextPrevChild( TRUE );
-		QFocusEvent::resetReason();
+		} else if ( k->key() == Key_Tab ) {
+		    QFocusEvent::setReason( QFocusEvent::Tab );
+		    res = focusNextPrevChild( TRUE );
+		    QFocusEvent::resetReason();
+		}
+		if ( res )
+		    break;
 	    }
-	    if ( res )
-		break;
 	    keyPressEvent( k );
 	    if ( !k->isAccepted() )
 		return FALSE;
