@@ -1,6 +1,6 @@
 QPSQL
 - add large object support in the driver only
-- check out the number of new/deletes going on with QPSQLResult, there seems to be too many
+- [fixed]check out the number of new/deletes going on with QPSQLResult, there seems to be too many
 
 All drivers
 - ensure proper "primary index" support when generating field lists
@@ -25,5 +25,8 @@ QSqlIndex
 QSqlFieldList
 - get rid of fieldStrList cache thing for now
 
+Sql tables
+- [done]allow data to be displayed without using setNumRows() or QSql::size().
 
+- replace Q_UNUSED with unnamed parms
 
