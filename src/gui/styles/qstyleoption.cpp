@@ -1082,3 +1082,15 @@ void QStyleOption::init(const QWidget *w)
     \sa Size
 */
 
+/*!
+    \fn T qt_cast(const QStyleOption *opt)
+    Returns a T or 0 depending on the type of \a opt. This is equivalent of a dynamic_cast.
+*/
+
+/*!
+    \fn T qt_cast(QStyleOption *opt)
+    \overload
+    This is the non-const version of the qt_cast taking \a opt.
+
+    Returns a T or 0 depending on the type of \a opt. This is equivalent of a dynamic_cast.
+*/
