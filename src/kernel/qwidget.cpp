@@ -672,6 +672,7 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \value WindowFullScreen The window fills the entire screen without any frame around it.
     \value WindowActive The window is the active window, i.e. it has keyboard focus.
 
+*/
 
 /*!
     Constructs a widget which is a child of \a parent, with the name
