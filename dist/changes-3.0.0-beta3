@@ -44,7 +44,7 @@ Qt Designer
  - Added the option "-nofwd" to uic which supresses the generation of
    forward declarations for custom classes in the generated output.
 
-- The way how custom slots and editing these slots directly in the Qt
+-  The way how custom slots and editing these slots directly in the Qt
    Designer is handled has been changed. Originally the code for these
    slots was saved into the .ui XML file together with the user
    interface description and the uic did put this code into the
@@ -72,6 +72,12 @@ Qt Designer
 Qt Functions
 ========================================
 
+QApplication
+------------
+
+ - flush() no longer calls sendPostedEvents(), as this might be unsafe
+   under certain circumstances.
+
 QDataTable
 ----------
 
@@ -91,6 +97,11 @@ QDateEdit
 
  - Fixed wrong default size policy and missing size hint.
  - Improved focus and tab handling.
+
+QEffects
+--------
+
+ - Tooltips and popup menus scroll and fade again
 
 QTable
 ------
@@ -121,8 +132,15 @@ QTextEdit
    cursorPositionChanged(QTextCursor*) is only of limited use. Added a
    more useful signal in addition.
 
+ - Overrides accelerators for all shortcuts used to edit text.
+
 New signal:
 	void cursorPositionChanged( int para, int pos );
+
+QLineEdit
+---------
+
+ - Overrides accelerators for all shortcuts used to edit text.
 
 QLibrary
 --------
