@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#40 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#41 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -142,6 +142,8 @@ class QListM_QPainter;				// internal class for QPainter
 // Global platform-independent types and functions
 
 typedef short QCOORD;				// coordinate type
+const QCOORD_MIN = -32768;
+const QCOORD_MAX =  32767;
 
 char *qAppName();				// get application name
 
