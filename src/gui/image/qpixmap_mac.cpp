@@ -899,7 +899,7 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, bool imask)
 #endif
     CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
     CGDataProviderRef provider = CGDataProviderCreateWithData(0, addr, bpl*px.height(), 0);
-    CGImageRef image = CGImageCreate(px.width(), px.height(), 8, px.depth(), bpl, colorspace, 
+    CGImageRef image = CGImageCreate(px.width(), px.height(), 8, 32, bpl, colorspace, 
 				     imask ? kCGImageAlphaNoneSkipFirst : kCGImageAlphaFirst,
 				     provider, 0, 0, kCGRenderingIntentDefault);
     CGDataProviderRelease(provider);
