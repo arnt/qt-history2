@@ -43,23 +43,24 @@ ItemViewContainer::ItemViewContainer(QAbstractItemView *itemView, QComboBox *par
     setFrameStyle(QFrame::Box|QFrame::Plain);
     setLineWidth(1);
 
-    // set item view
-    setItemView(itemView);
-
-    // add widgets to layout and create scrollers if needed
+    // we need a vertical layout
     QBoxLayout *layout =  new QBoxLayout(QBoxLayout::TopToBottom, this);
     layout->setSpacing(0);
     layout->setMargin(0);
+
+    // set item view
+    setItemView(itemView);
+
+    // add scroller arrows if style needs them
     QStyleOptionComboBox opt = comboStyleOption();
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
         top = new Scroller(QAbstractSlider::SliderSingleStepSub, this);
         bottom = new Scroller(QAbstractSlider::SliderSingleStepAdd, this);
     }
     if (top) {
-        layout->addWidget(top);
+        layout->insertWidget(0, top);
         connect(top, SIGNAL(doScroll(int)), this, SLOT(scrollItemView(int)));
     }
-    layout->addWidget(view);
     if (bottom) {
         layout->addWidget(bottom);
         connect(bottom, SIGNAL(doScroll(int)), this, SLOT(scrollItemView(int)));
@@ -154,9 +155,10 @@ void ItemViewContainer::setItemView(QAbstractItemView *itemView)
         view = 0;
     }
 
-    // setup the listview
+    // setup the item view
     view = itemView;
     view->setParent(this);
+    qt_cast<QBoxLayout*>(layout())->insertWidget(top ? 1 : 0, view);
     view->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     view->installEventFilter(this);
     view->viewport()->installEventFilter(this);
