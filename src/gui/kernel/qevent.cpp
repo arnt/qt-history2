@@ -1581,9 +1581,12 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 /*!
     \fn int QTabletEvent::xTilt() const
 
-    Returns the difference from the perpendicular in the X Axis.
+    Returns the angle between the device (a pen, for example) and the
+    perpendicular in the direction of the x axis.
     Positive values are towards the tablet's physical right. The angle
     is in the range -60 to +60 degrees.
+
+    \img tabletevent-xtilt.png
 
     \sa yTilt()
 */
@@ -1591,9 +1594,12 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 /*!
     \fn int QTabletEvent::yTilt() const
 
-    Returns the difference from the perpendicular in the Y Axis.
+    Returns the angle between the device (a pen, for example) and the
+    perpendicular in the direction of the y axis.
     Positive values are towards the bottom of the tablet. The angle is
     within the range -60 to +60 degrees.
+
+    \img tabletevent-ytilt.png
 
     \sa xTilt()
 */
