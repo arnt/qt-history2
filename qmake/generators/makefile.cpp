@@ -74,7 +74,6 @@ static bool createDir(const QString& fullPath)
 {
     if(QFile::exists(fullPath))
 	return FALSE;
-
     QDir dirTmp;
     bool ret = TRUE;
     QString pathComponent, tmpPath;
@@ -1465,8 +1464,12 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 		decl_dir = decl.section(Option::dir_sep,0,-2);
 	    if(impl_dir.isEmpty())
 		impl_dir = impl.section(Option::dir_sep,0,-2);
+	    if (QDir::isRelativePath(impl_dir))
+		impl_dir.prepend(Option::output_dir + Option::dir_sep);
 	    if(!impl_dir.isEmpty())
-		createDir(Option::output_dir + Option::dir_sep + impl_dir);
+		createDir(impl_dir);
+	    if (QDir::isRelativePath(decl_dir))
+		decl_dir.prepend(Option::output_dir + Option::dir_sep);
 	    if(!decl_dir.isEmpty() && decl_dir != impl_dir) 
 		createDir(Option::output_dir + Option::dir_sep + decl_dir);
 	}
