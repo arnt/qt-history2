@@ -7,6 +7,7 @@
 #include <qapplication.h>
 #include <qfile.h>
 #include <qaccel.h>
+#include <qcursor.h>
 #include <qmultilineedit.h>
 
 class Main : public QWidget {
