@@ -8,6 +8,7 @@ HEADERS += \
 	image/qgif.h \
 	image/qiconset.h \
 	image/qimage.h \
+	image/qimageio.h \
 	image/qimageformatplugin.h \
 	image/qmovie.h \
 	image/qpaintengine_pic_p.h \
@@ -23,6 +24,7 @@ SOURCES += \
 	image/qbitmap.cpp \
 	image/qiconset.cpp \
 	image/qimage.cpp \
+	image/qimageio.cpp \
 	image/qimageformatplugin.cpp \
 	image/qmovie.cpp \
 	image/qpaintengine_pic.cpp \

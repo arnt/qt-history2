@@ -21,6 +21,7 @@
 
 #include "qiodevice.h"
 #include "qjpegio.h"
+#include "qimageio.h"
 
 #include <stdio.h>      // jpeglib needs this to be pre-included
 #include <setjmp.h>

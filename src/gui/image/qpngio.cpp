@@ -16,6 +16,7 @@
 #ifndef QT_NO_IMAGEIO_PNG
 
 #include "qasyncimageio.h"
+#include "qimageio.h"
 #include "qiodevice.h"
 #include "qlist.h"
 #include "qcoreapplication.h"

@@ -15,6 +15,7 @@
 #define QT_CLEAN_NAMESPACE
 #endif
 #include <qimageformatplugin.h>
+#include <qstringlist.h>
 
 #ifndef QT_NO_IMAGEFORMATPLUGIN
 

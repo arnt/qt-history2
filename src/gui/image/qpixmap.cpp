@@ -24,6 +24,7 @@
 #include "qdragobject.h"
 #include "qevent.h"
 #include "qfile.h"
+#include "qimageio.h"
 
 #if defined(Q_WS_X11)
 #include "qx11info_x11.h"

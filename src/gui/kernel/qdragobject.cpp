@@ -28,7 +28,8 @@
 #include "qpoint.h"
 #include "qwidget.h"
 #include "qbuffer.h"
-#include "qgif.h"
+#include "qimageio.h"
+#include "qimage.h"
 #include "qregexp.h"
 #include "qdir.h"
 #include <ctype.h>

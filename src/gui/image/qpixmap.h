@@ -14,13 +14,14 @@
 #ifndef QPIXMAP_H
 #define QPIXMAP_H
 
-#include "qcolor.h" // char*->QColor conversion
-#include "qnamespace.h"
 #include "qpaintdevice.h"
+#include "qcolor.h"
+#include "qnamespace.h"
 #include "qstring.h" // char*->QString conversion
 #include "qimage.h"
 
 class QPixmapPrivate;
+class QColor;
 
 #if defined(Q_WS_WIN)
 // Internal pixmap memory optimization class for Windows 9x
