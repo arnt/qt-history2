@@ -300,6 +300,7 @@ private:
     friend class QTextLayout;
     friend class QTextEngine;
     friend class QTextLine;
+    friend class QScriptLine;
     friend class QGLContext;
     friend class QWin32PaintEngine;
     friend class QPainterPath;

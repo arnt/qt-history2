@@ -1372,3 +1372,21 @@ void QTextEngine::justify(const QScriptLine &line)
  end:
     const_cast<QScriptLine &>(line).justified = true;
 }
+
+void QScriptLine::setDefaultHeight(QTextEngine *eng)
+{
+    QFont f;
+    QFontEngine *e;
+
+    if (eng->fnt) {
+        e = eng->fnt->engineForScript(QFont::Latin);
+    } else {
+        f = eng->block.charFormat().font();
+        if (eng->docLayout)
+            f = f.resolve(eng->docLayout->defaultFont());
+        e = f.d->engineForScript(QFont::Latin);
+    }
+
+    ascent = e->ascent();
+    descent = e->descent();
+}

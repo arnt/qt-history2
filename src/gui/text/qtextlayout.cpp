@@ -872,8 +872,10 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
             float descent = sl.descent;
             if (itm >= 0) {
                 const QScriptItem &si = d->items.at(itm);
-                ascent = si.ascent;
-                descent = si.descent;
+                if (si.ascent > 0.0)
+                    ascent = si.ascent;
+                if (si.descent > 0.0)
+                    descent = si.descent;
             }
 
             p->setPen(Qt::black);
@@ -1068,20 +1070,7 @@ void QTextLine::layout(int width, LineWidthUnit unit)
     line.textWidth = 0;
 
     if (!eng->items.size()) {
-        QFont f;
-        QFontEngine *e;
-
-        if (eng->fnt) {
-            e = eng->fnt->engineForScript(QFont::Latin);
-        } else {
-            f = eng->block.charFormat().font();
-            if (eng->docLayout)
-                f = f.resolve(eng->docLayout->defaultFont());
-            e = f.d->engineForScript(QFont::Latin);
-        }
-
-        line.ascent = e->ascent();
-        line.descent = e->descent();
+        line.setDefaultHeight(eng);
         return;
     }
 
@@ -1119,8 +1108,13 @@ void QTextLine::layout(int width, LineWidthUnit unit)
 
             line.length++;
             // the width of the linesep doesn't count into the textwidth
-            if (eng->string[current.position] == QChar::LineSeparator)
+            if (eng->string[current.position] == QChar::LineSeparator) {
+                // if the line consists only of the line separator make sure
+                // we have a sane height
+                if (line.length == 1)
+                    line.setDefaultHeight(eng);
                 goto found;
+            }
             line.textWidth += current.width;
 
             ++item;
@@ -1193,8 +1187,8 @@ void QTextLine::layout(int width, LineWidthUnit unit)
         ++item;
     }
  found:
-//     qDebug("line length = %d, ascent=%d, descent=%d, textWidth=%d (%d)", line.length, line.ascent.value(),
-//            line.descent.value(), line.textWidth.value(), line.textWidth);
+//     qDebug("line length = %d, ascent=%d, descent=%d, textWidth=%d (%d)", line.length, int(line.ascent),
+//            int(line.descent), int(line.textWidth), int(line.textWidth));
 //     qDebug("        : '%s'", eng->string.mid(line.from, line.length).utf8());
 
     eng->minWidth = qMax(eng->minWidth, minw);

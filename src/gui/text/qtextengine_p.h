@@ -222,6 +222,7 @@ struct QScriptLine
     mutable uint justified : 1;
     mutable uint gridfitted : 1;
     float height() const { return ascent + descent + 1.; }
+    void setDefaultHeight(QTextEngine *eng);
 };
 Q_DECLARE_TYPEINFO(QScriptLine, Q_PRIMITIVE_TYPE);
 
