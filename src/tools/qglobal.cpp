@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#16 $
 **
 ** Global functions
 **
@@ -15,7 +15,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#15 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#16 $")
 
 
 /*----------------------------------------------------------------------------
@@ -237,6 +237,43 @@ void fatal( const char *msg, ... )
 #endif
     }
 }
+
+
+
+/*----------------------------------------------------------------------------
+  \fn void ASSERT( bool test )
+  Prints a warning message containing the source code file name and line number
+  if \e test is FALSE.
+
+  This is really a macro defined in qglobal.h.
+
+  ASSERT is useful for testing required conditions in your program.
+
+  \sa warning()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn void CHECK_PTR( void *p )
+  If \e p is null, a fatal messages says that the program ran out of memory
+  and exits.  If \e p is not null, nothing happens.
+
+  This is really a macro defined in qglobal.h.
+
+  \warning CHECK_PTR only works for the development release of the Qt
+  library.  In the release library, CHECK_PTR will be substituted with
+  nothing.
+
+  Example:
+  \code
+    int *a;
+    CHECK_PTR( a = new int[80] );	// DO NOT DO THIS
+      // do this instead
+    a = new int[80];
+    CHECK_PTR( a );			// this is fine
+  \endcode
+
+  \sa fatal()
+ ----------------------------------------------------------------------------*/
 
 
 //
