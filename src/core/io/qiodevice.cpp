@@ -616,7 +616,7 @@ QIODevice::close()
 void
 QIODevice::flush()
 {
-    if(isOpen() && ioEngine()) 
+    if(isOpen() && ioEngine())
         ioEngine()->flush();
 }
 
@@ -646,7 +646,7 @@ QIODevice::size() const
 QIODevice::Offset
 QIODevice::at() const
 {
-    if (!isOpen()) 
+    if (!isOpen())
         return 0;
     return ioEngine()->at();
 }
@@ -655,6 +655,9 @@ QIODevice::at() const
     Sets the I/O device position to \a pos.  Returns true if the
     position was successfully set, i.e. \a pos is within range and the
     seek was successful; otherwise returns false.
+
+    If the device is sequential, \a offset is treated as relative to
+    the current position.
 
     \sa size()
 */
@@ -666,8 +669,6 @@ QIODevice::seek(QIODevice::Offset offset)
         qWarning("QIODevice::seek: IODevice is not open");
         return false;
     }
-    if (isSequentialAccess()) 
-        return false;
     if(ioEngine()->seek(offset)) {
         resetStatus();
         return true;
