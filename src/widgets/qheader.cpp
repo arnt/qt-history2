@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#19 $
 **
 **  Table header
 **
@@ -160,6 +160,21 @@ int QHeader::cellSize( int i ) const
 {
     int s = pSize( i );  
     return s;
+}
+
+
+
+/*!
+  Returns the position in pixels of section \a i of the header.  \a i is the
+  actual index.
+*/
+
+int QHeader::cellPos( int i ) const
+{
+    /* cvs conflict here */
+
+    int r = pPos( i ); 
+    return r + offset();
 }
 
 

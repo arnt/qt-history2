@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#8 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#9 $
 **
 **  Table header
 **
@@ -37,6 +37,7 @@ public:
 
     void	setCellSize( int i, int s );
     int		cellSize( int i ) const;
+    int		cellPos( int i ) const;
     int		count() const;
 
     int 	offset() const;
