@@ -3112,6 +3112,21 @@ else
     chmod -w $outpath/include/qconfig.h
 fi
 
+#-------------------------------------------------------------------------------
+# save configuration into .qt.config
+#-------------------------------------------------------------------------------
+
+QTCONFIG=$outpath/.qt.config
+[ -f $QTCONFIG.tmp ] && rm -f $QTCONFIG.tmp
+cat >>$QTCONFIG.tmp <<EOF
+QT_CONFIG += $QT_CONFIG
+EOF
+# replace .qt.config if it differs from the newly created temp file
+if cmp -s $QTCONFIG.tmp $QTCONFIG; then
+    rm -f $QTCONFIG.tmp
+else
+    mv -f $QTCONFIG.tmp $QTCONFIG
+fi
 
 #-------------------------------------------------------------------------------
 # save configuration into .qmake.cache
@@ -3121,7 +3136,6 @@ CACHEFILE=$outpath/.qmake.cache
 [ -f $CACHEFILE.tmp ] && rm -f $CACHEFILE.tmp
 cat >>$CACHEFILE.tmp <<EOF
 CONFIG += $QMAKE_CONFIG dylib create_prl link_prl QTDIR_build
-QT_CONFIG += $QT_CONFIG
 QMAKESPEC = $XPLATFORM
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath

@@ -51,6 +51,7 @@ install: qmake
 	[ -d @QT_INSTALL_BINS@ ] || mkdir -p @QT_INSTALL_BINS@
 	-cp -f @BUILD_PATH@/bin/qmake @QT_INSTALL_BINS@
 	[ -d @QT_INSTALL_DATA@ ] || mkdir -p @QT_INSTALL_DATA@
+	-cp -r -f @SOURCE_PATH@/.qt.config @QT_INSTALL_DATA@
 	-cp -r -f @SOURCE_PATH@/mkspecs @QT_INSTALL_DATA@
 
 clean::
