@@ -117,7 +117,6 @@ struct QLineEditPrivate {
 	cursor = new QTextCursor( 0 );
 	cursor->setParagraph( parag );
     }
-    static QPixmap* pm; // only used when we have focus
 
     ~QLineEditPrivate()
     {
@@ -217,7 +216,6 @@ struct QLineEditPrivate {
     QClipboard::Mode clipboard_mode;
 };
 
-QPixmap* QLineEditPrivate::pm = 0;
 
 /*!
   \class QLineEdit qlineedit.h
@@ -675,7 +673,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    home( e->state() & ShiftButton );
 #else
 	    selectAll();
-#endif	
+#endif
 	    break;
 	case Key_B:
 	    cursorForward( e->state() & ShiftButton, -1 );
@@ -932,8 +930,6 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
     if ( d->cursorOn )
 	blinkSlot();
     update();
-    delete QLineEditPrivate::pm;
-    QLineEditPrivate::pm = 0;
 }
 
 /*!\reimp
@@ -948,15 +944,8 @@ void QLineEdit::drawContents( QPainter *painter )
     int lineheight = QMIN( fontMetrics().lineSpacing() + 4, height() );
     int linetop = (height() - lineheight ) / 2;
 
-    // always double buffer when we have focus, and keep the pixmap
-    // around until we loose focus again. If we do not have focus,
-    // only use the standard shared buffer.
-
-    if ( hasFocus() && !QLineEditPrivate::pm && !QSharedDoubleBuffer::getRawPixmap( width(), lineheight ) )
-	QLineEditPrivate::pm = new QPixmap; // create special while-we-have-focus buffer. Deleted in focusOutEvent
-
-    QSharedDoubleBuffer buffer( !hasFocus(), FALSE, QLineEditPrivate::pm );
-    buffer.begin( painter, 0, linetop, width(), lineheight );
+    QSharedDoubleBuffer buffer( painter, 0, linetop, width(), lineheight,
+				hasFocus() ? QSharedDoubleBuffer::Force : 0 );
     buffer.painter()->setPen( colorGroup().text() );
     const QBrush &bg = g.brush((isEnabled() && !isReadOnly()) ? QColorGroup::Base :
 			       QColorGroup::Background);

@@ -504,10 +504,9 @@ void QDateTimeEditor::paintEvent( QPaintEvent * )
 	}
     }
 
-    QSharedDoubleBuffer buffer( (bool) FALSE, (bool) FALSE );
-    buffer.begin( this );
-    const QBrush &bg = colorGroup().brush( isEnabled() ? QColorGroup::Base
-				    : QColorGroup::Background );
+    QSharedDoubleBuffer buffer( this );
+    const QBrush &bg =
+	colorGroup().brush( isEnabled() ? QColorGroup::Base : QColorGroup::Background );
     buffer.painter()->fillRect( 0, 0, width(), height(), bg );
     d->paint( txt, hasFocus(), *buffer.painter(), colorGroup(), rect(),
 	      style() );

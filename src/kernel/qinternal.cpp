@@ -42,8 +42,10 @@
 #include "qcleanuphandler.h"
 
 static QPixmap* qdb_shared_pixmap = 0;
+static QPixmap *qdb_force_pixmap = 0;
 static QSharedDoubleBuffer* qdb_owner = 0;
-static QCleanupHandler<QPixmap> qdb_cleanup_pixmap;
+
+QCleanupHandler<QPixmap> qdb_pixmap_cleanup;
 
 #ifdef Q_WS_MACX
 bool QSharedDoubleBuffer::dblbufr = FALSE;
@@ -53,12 +55,14 @@ bool QSharedDoubleBuffer::dblbufr = TRUE;
 
 
 /*
-  hardLimitWidth/Height: if >= 0, the maximum number of pixels that get double buffered.
+  hardLimitWidth/Height: if >= 0, the maximum number of pixels that
+  get double buffered.
 
-  sharedLimitWidth/Height: if >= 0, the maximum number of pixels the shared double buffer can keep.
+  sharedLimitWidth/Height: if >= 0, the maximum number of pixels the
+  shared double buffer can keep.
 
-  For x with sharedLimitSize < x <= hardLimitSize, temporary buffers are constructed.
-
+  For x with sharedLimitSize < x <= hardLimitSize, temporary buffers
+  are constructed.
  */
 static const int hardLimitWidth = -1;
 static const int hardLimitHeight = -1;
@@ -72,193 +76,564 @@ static const int sharedLimitWidth = 640;
 static const int sharedLimitHeight = 100;
 #endif
 
-QSharedDoubleBuffer::QSharedDoubleBuffer( bool mustShare, bool initializeBg, QPixmap* pm )
-    : wid(0), rx(0), ry(0), rw(0), rh(0), p(0), xp(0), pix(0),xpix(pm),mustsh(mustShare),initbg(initializeBg)
+// *******************************************************************
+// QSharedDoubleBufferCleaner declaration and implementation
+// *******************************************************************
+
+/* \internal
+   This class is responsible for cleaning up the pixmaps created by the
+   QSharedDoubleBuffer class.  When QSharedDoubleBuffer creates a
+   pixmap larger than the shared limits, this class deletes it after a
+   specified amount of time.
+
+   When the large pixmap is created/used, you must call start(). If the
+   large pixmap is ever deleted, you must call stop().  The start()
+   method always restarts the timer, so if the large pixmap is
+   constantly in use, the timer will never fire, and the pixmap will
+   not be constantly created and destroyed.
+*/
+
+static const int shared_double_buffer_cleanup_timeout = 30000; // 30 seconds
+
+// declaration
+
+class QSharedDoubleBufferCleaner : public QObject
+{
+public:
+    QSharedDoubleBufferCleaner( void );
+
+    void start( void );
+    void stop( void );
+
+    void doCleanup( void );
+
+    bool event( QEvent *e );
+
+private:
+    int timer_id;
+};
+
+// implementation
+
+/* \internal
+   Creates a QSharedDoubleBufferCleaner object. The timer is not
+   started when creating the object.
+*/
+QSharedDoubleBufferCleaner::QSharedDoubleBufferCleaner( void )
+    : QObject( 0, "internal shared double buffer cleanup object" ),
+      timer_id( -1 )
 {
 }
 
+/* \internal
+   Starts the cleanup timer.  Any previously running timer is stopped.
+*/
+void QSharedDoubleBufferCleaner::start( void )
+{
+    stop();
+    timer_id = startTimer( shared_double_buffer_cleanup_timeout );
+}
 
-QSharedDoubleBuffer::QSharedDoubleBuffer( QWidget* widget,  int x, int y, int w, int h )
-    : wid(0), rx(0), ry(0), rw(0), rh(0), p(0), xp(0), pix(0),xpix(0),mustsh(1),initbg(1)
+/* \internal
+   Stops the cleanup timer, if it is running.
+*/
+void QSharedDoubleBufferCleaner::stop( void )
+{
+    if ( timer_id != -1 )
+	killTimer( timer_id );
+    timer_id = -1;
+}
+
+/* \internal
+ */
+void QSharedDoubleBufferCleaner::doCleanup( void )
+{
+    qdb_pixmap_cleanup.remove( &qdb_force_pixmap );
+    delete qdb_force_pixmap;
+    qdb_force_pixmap = 0;
+}
+
+/* \internal
+   Event handler reimplementation.  Calls doCleanup() when the timer
+   fires.
+*/
+bool QSharedDoubleBufferCleaner::event( QEvent *e )
+{
+    if ( e->type() != QEvent::Timer )
+	return FALSE;
+
+    QTimerEvent *event = (QTimerEvent *) e;
+    if ( event->timerId() == timer_id ) {
+	doCleanup();
+	stop();
+    }
+#ifdef QT_CHECK_STATE
+    else {
+	qWarning( "QSharedDoubleBufferCleaner::event: invalid timer event received." );
+	return FALSE;
+    }
+#endif // QT_CHECK_STATE
+
+    return TRUE;
+}
+
+// static instance
+static QSharedDoubleBufferCleaner *static_cleaner = 0;
+QSingleCleanupHandler<QSharedDoubleBufferCleaner> cleanup_static_cleaner;
+
+inline static QSharedDoubleBufferCleaner *staticCleaner()
+{
+    if ( ! static_cleaner ) {
+	static_cleaner = new QSharedDoubleBufferCleaner();
+	cleanup_static_cleaner.set( &static_cleaner );
+    }
+    return static_cleaner;
+}
+
+
+// *******************************************************************
+// QSharedDoubleBuffer implementation
+// *******************************************************************
+
+/* \internal
+   \enum DoubleBufferFlags
+
+   \value InitBG initialize the background of the double buffer.
+
+   \value Force disable shared buffer size limits.
+
+   \value Default InitBG and Force are used by default.
+*/
+
+/* \internal
+   \enum DoubleBufferState
+
+   \value Active indicates that the buffer may be used.
+
+   \value BufferActive indicates that painting with painter() will be
+   double buffered.
+
+   \value ExternalPainter indicates that painter() will return a
+   painter that was not created by QSharedDoubleBuffer.
+*/
+
+/* \internal
+   \class QSharedDoubleBuffer
+
+   This class provides a single, reusable double buffer.  This class
+   is used internally by Qt widgets that need double buffering, which
+   prevents each individual widget form creating a double buffering
+   pixmap.
+
+   Using a single pixmap double buffer and sharing it across all
+   widgets is nicer on window system resources.
+*/
+
+/* \internal
+   Creates a QSharedDoubleBuffer with flags \f.
+
+   \sa DoubleBufferFlags
+*/
+QSharedDoubleBuffer::QSharedDoubleBuffer( DBFlags f )
+    : wid( 0 ), rx( 0 ), ry( 0 ), rw( 0 ), rh( 0 ), flags( f ), state( 0 ),
+      p( 0 ), external_p( 0 ), pix( 0 )
+{
+}
+
+/* \internal
+   Creates a QSharedDoubleBuffer with flags \f. The \a widget, \a x,
+   \a y, \a w and \a h arguments are passed to begin().
+
+   \sa DoubleBufferFlags begin()
+*/
+QSharedDoubleBuffer::QSharedDoubleBuffer( QWidget* widget,
+					  int x, int y, int w, int h,
+					  DBFlags f )
+    : wid( 0 ), rx( 0 ), ry( 0 ), rw( 0 ), rh( 0 ), flags( f ), state( 0 ),
+      p( 0 ), external_p( 0 ), pix( 0 )
 {
     begin( widget, x, y, w, h );
 }
 
-QSharedDoubleBuffer::QSharedDoubleBuffer( QPainter* painter, int x, int y, int w, int h )
-    : wid(0), rx(0), ry(0), rw(0), rh(0), p(0), xp(0), pix(0),xpix(0),mustsh(1),initbg(1)
+/* \internal
+   Creates a QSharedDoubleBuffer with flags \f. The \a painter, \a x,
+   \a y, \a w and \a h arguments are passed to begin().
+
+   \sa DoubleBufferFlags begin()
+*/
+QSharedDoubleBuffer::QSharedDoubleBuffer( QPainter* painter,
+					  int x, int y, int w, int h,
+					  DBFlags f)
+    : wid( 0 ), rx( 0 ), ry( 0 ), rw( 0 ), rh( 0 ), flags( f ), state( 0 ),
+      p( 0 ), external_p( 0 ), pix( 0 )
 {
     begin( painter, x, y, w, h );
 }
 
-QSharedDoubleBuffer::QSharedDoubleBuffer( QWidget *widget, const QRect &r )
-    : wid(0), rx(0), ry(0), rw(0), rh(0), p(0), xp(0), pix(0),xpix(0),mustsh(1),initbg(1)
+/* \internal
+   Creates a QSharedDoubleBuffer with flags \f. The \a widget and
+   \a r arguments are passed to begin().
+
+   \sa DoubleBufferFlags begin()
+*/
+QSharedDoubleBuffer::QSharedDoubleBuffer( QWidget *widget, const QRect &r, DBFlags f )
+    : wid( 0 ), rx( 0 ), ry( 0 ), rw( 0 ), rh( 0 ), flags( f ), state( 0 ),
+      p( 0 ), external_p( 0 ), pix( 0 )
 {
     begin( widget, r );
 }
 
-QSharedDoubleBuffer::QSharedDoubleBuffer( QPainter *painter, const QRect &r )
-    : wid(0), rx(0), ry(0), rw(0), rh(0), p(0), xp(0), pix(0),xpix(0),mustsh(1),initbg(1)
+/* \internal
+   Creates a QSharedDoubleBuffer with flags \f. The \a painter and
+   \a r arguments are passed to begin().
+
+   \sa DoubleBufferFlags begin()
+*/
+QSharedDoubleBuffer::QSharedDoubleBuffer( QPainter *painter, const QRect &r, DBFlags f )
+    : wid( 0 ), rx( 0 ), ry( 0 ), rw( 0 ), rh( 0 ), flags( f ), state( 0 ),
+      p( 0 ), external_p( 0 ), pix( 0 )
 {
     begin( painter, r );
 }
 
+/* \internal
+   Destructs the QSharedDoubleBuffer and calls end() if the buffer is
+   active.
 
+   \sa isActive() end()
+*/
 QSharedDoubleBuffer::~QSharedDoubleBuffer()
 {
-    if ( wid )
+    if ( isActive() )
         end();
 }
 
+/* \internal
+   Starts double buffered painting in the area specified by \a x,
+   \a y, \a w and \a h on \a painter.  Painting should be done using the
+   QPainter returned by QSharedDoubleBuffer::painter().
+
+   The double buffered area will be updated when calling end().
+
+   \sa painter() isActive() end()
+*/
 bool QSharedDoubleBuffer::begin( QPainter* painter, int x, int y, int w, int h )
 {
     if ( isActive() ) {
 #if defined(QT_CHECK_STATE)
         qWarning( "QSharedDoubleBuffer::begin: Buffer is already active."
                   "\n\tYou must end() the buffer before a second begin()" );
-#endif
+#endif // QT_CHECK_STATE
         return FALSE;
     }
 
-    xp = painter;
+    external_p = painter;
 
-    if ( xp->device()->devType() == QInternal::Widget ) {
-        if ( w < 0 )
-            w = wid ? wid->width() : 0;
-        if ( h < 0 )
-            h = wid ? wid->height() : 0;
-        if ( dblbufr &&
-             ( hardLimitWidth < 0 ||  w <= hardLimitWidth ) &&
-             ( hardLimitHeight < 0 ||  h <= hardLimitHeight ) &&
-             ( !mustsh || ( w <= sharedLimitWidth && h <= sharedLimitHeight )
-               || ( xpix && w <= xpix->width() && h <= xpix->height() ) ) )
-            return begin( (QWidget*) xp->device(), x, y, w, h );
-        if ( initbg )
-            ( (QWidget*) xp->device() )->erase( x, y, w, h );
-    }
+    if ( painter->device()->devType() == QInternal::Widget )
+	return begin( (QWidget *) painter->device(), x, y, w, h );
+
+    state = Active;
+
     rx = x;
     ry = y;
     rw = w;
     rh = h;
-    p = xp;
+
+    if ( ( pix = getPixmap() ) ) {
+#ifdef Q_WS_X11
+	if ( painter->device()->x11Screen() != pix->x11Screen() )
+	    pix->x11SetScreen( painter->device()->x11Screen() );
+	QPixmap::x11SetDefaultScreen( pix->x11Screen() );
+#endif // Q_WS_X11
+
+	state |= BufferActive;
+	if ( flags & InitBG ) {
+	    pix->fill( wid, rx, ry );
+	}
+	p = new QPainter( pix, painter->device() );
+    } else {
+	state |= ExternalPainter;
+	p = external_p;
+
+	// ### what do we do about InitBG here?
+    }
+
     return TRUE;
 }
 
-QPixmap* QSharedDoubleBuffer::getRawPixmap( int w, int h )
-{
-    if ( w > sharedLimitWidth || h > sharedLimitHeight )
-        return 0;
+/* \internal
 
-    if ( qdb_owner ) {
-        qdb_cleanup_pixmap.remove( &qdb_shared_pixmap );
-        qdb_shared_pixmap = new QPixmap( w, h );
-        qdb_cleanup_pixmap.add( &qdb_shared_pixmap );
-        qdb_owner = 0;
-    } else {
-        if ( !qdb_shared_pixmap  )
-            qdb_shared_pixmap = new QPixmap( w, h );
-        else if ( qdb_shared_pixmap->width() < w  || qdb_shared_pixmap->height() < h)
-            qdb_shared_pixmap->resize( w, h );
-    }
-    return qdb_shared_pixmap;
-}
 
+   Starts double buffered painting in the area specified by \a x,
+   \a y, \a w and \a h on \a widget.  Painting should be done using the
+   QPainter returned by QSharedDoubleBuffer::painter().
+
+   The double buffered area will be updated when calling end().
+
+   \sa painter() isActive() end()
+*/
 bool QSharedDoubleBuffer::begin( QWidget* widget, int x, int y, int w, int h )
 {
     if ( isActive() ) {
 #if defined(QT_CHECK_STATE)
         qWarning( "QSharedDoubleBuffer::begin: Buffer is already active."
                   "\n\tYou must end() the buffer before a second begin()" );
-#endif
+#endif // QT_CHECK_STATE
         return FALSE;
     }
+
+    state = Active;
 
     wid = widget;
-    if ( !wid )
-        return FALSE;
-
-    if ( w < 0 )
-        w = wid->width();
-    if ( h < 0 )
-        h = wid->height();
-
     rx = x;
     ry = y;
-    rw = w;
-    rh = h;
+    rw = w <= 0 ? wid->width() : w;
+    rh = h <= 0 ? wid->height() : h;
 
-    if ( !dblbufr || !w || !h ||
-         ( hardLimitWidth >= 0 && w > hardLimitWidth ) ||
-         ( hardLimitHeight >= 0 && h > hardLimitHeight ) ||
-         ( mustsh  && ( w > sharedLimitWidth || h > sharedLimitWidth )
-           && ! (xpix && w <= xpix->width() && h <= xpix->height() ) )  ||
-         wid->backgroundMode() == Qt::X11ParentRelative ) {
-	if ( initbg )
-	    widget->erase( x, y, w, h );
-        p = new QPainter( widget );
-        return TRUE;
-    }
-
-    if ( xpix ) {
-        xpix->resize( w, h );
-        pix = xpix;
-    } else {
-        if ( ( pix = getRawPixmap( w, h ) ) )
-            qdb_owner = this;
-        else
-            pix = new QPixmap( w, h );
-    }
-
+    if ( ( pix = getPixmap() ) ) {
 #ifdef Q_WS_X11
-    if ( widget->x11Screen() != pix->x11Screen() )
-        pix->x11SetScreen( widget->x11Screen() );
-    QPixmap::x11SetDefaultScreen( pix->x11Screen() );
-#endif
+	if ( wid->x11Screen() != pix->x11Screen() )
+	    pix->x11SetScreen( wid->x11Screen() );
+	QPixmap::x11SetDefaultScreen( pix->x11Screen() );
+#endif // Q_WS_X11
 
-    if ( initbg )
-        pix->fill( wid, rx, ry );
-    p = new QPainter( pix, wid );
-    p->setBrushOrigin( -rx, -ry );
-    p->translate( -rx, -ry );
+	state |= BufferActive;
+	if ( flags & InitBG ) {
+	    pix->fill( wid, rx, ry );
+	}
+	p = new QPainter( pix, wid );
+    } else {
+	if ( external_p ) {
+	    state |= ExternalPainter;
+	    p = external_p;
+	} else {
+	    p = new QPainter( wid );
+	}
+
+	if ( flags & InitBG ) {
+	    wid->erase( rx, ry, rw, rh );
+	}
+    }
+
+    if ( ! ( state & ExternalPainter ) ) {
+	// newly created painters should be translated to the origin
+	// of the widget, so that paint methods can draw onto the double
+	// buffered painter in widget coordinates.
+	p->setBrushOrigin( -rx, -ry );
+	p->translate( -rx, -ry );
+    }
+
     return TRUE;
 }
 
+/* \internal
+   Ends double buffered painting.  The contents of the shared double
+   buffer pixmap are drawn onto the destination by calling flush(),
+   and ownership of the shared double buffer pixmap is released.
+
+   \sa begin() flush()
+*/
 bool QSharedDoubleBuffer::end()
 {
-    if ( !p )
-        return FALSE;
+    if ( ! isActive() ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSharedDoubleBuffer::end: Buffer is not active."
+		  "\n\tYou must call begin() before calling end()." );
+#endif // QT_CHECK_STATE
+	return FALSE;
+    }
+
+    if ( ! ( state & ExternalPainter ) ) {
+	p->end();
+	delete p;
+    }
+
     flush();
+
+    if ( pix ) {
+	releasePixmap();
+    }
+
     wid = 0;
-    if ( this == qdb_owner )
-        qdb_owner = 0;
-    if ( p != xp )
-        delete p;
-    p = 0;
-    xp = 0;
-    if ( pix != qdb_shared_pixmap && pix != xpix )
-        delete pix;
+    rx = ry = rw = rh = 0;
+    // do not reset flags!
+    state = 0;
+
+    p = external_p = 0;
     pix = 0;
-    xpix = 0;
+
     return TRUE;
 }
 
+/* \internal
+   Paints the contents of the shared double buffer pixmap onto the
+   destination.  The destination is determined from the arguments
+   based to begin().
+
+   Note: You should not need to call this function, since it is called
+   from end().
+
+   \sa begin() end()
+*/
 void QSharedDoubleBuffer::flush()
 {
-    if ( !pix )
-        return;
-    if ( xp )
-        xp->drawPixmap( rx, ry, *pix, 0, 0, rw, rh );
-    else if ( wid && wid->isVisible() ) {
-        QPainter p(wid);
-        p.drawPixmap(rx, ry, *pix, 0, 0, rw, rh);
-    }
+    if ( ! isActive() || ! ( state & BufferActive ) )
+	return;
+
+    if ( external_p )
+	external_p->drawPixmap( rx, ry, *pix, 0, 0, rw, rh );
+    else if ( wid && wid->isVisible() )
+	bitBlt( wid, rx, ry, pix, 0, 0, rw, rh );
 }
 
+/* \internal
+   Aquire ownership of the shared double buffer pixmap, subject to the
+   following conditions:
+
+   \list 1
+   \i double buffering is enabled globally.
+   \i the shared double buffer pixmap is not in use.
+   \i the size specified in begin() is valid, and within limits.
+   \endlist
+
+   If all of these conditions are met, then this QSharedDoubleBuffer
+   object becomes the owner of the shared double buffer pixmap.  The
+   shared double buffer pixmap is resize if necessary, and this
+   function returns a pointer to the pixmap.  Ownership must later be
+   relinquished by calling releasePixmap().
+
+   If none of the above conditions are met, this function returns
+   zero.
+
+   \sa releasePixmap()
+*/
+QPixmap *QSharedDoubleBuffer::getPixmap()
+{
+    if ( isDisabled() ) {
+	// double buffering disabled globally
+	return 0;
+    }
+
+    if ( qdb_owner ) {
+	// shared pixmap already in use
+	return 0;
+    }
+
+    if ( rw <= 0 || rh <= 0 ||
+	 ( hardLimitWidth > 0 && rw >= hardLimitWidth ) ||
+	 ( hardLimitHeight > 0 && rh >= hardLimitHeight ) ) {
+	// invalid size, or hard limit reached
+	return 0;
+    }
+
+    if ( rw >= sharedLimitWidth || rh >= sharedLimitHeight ) {
+	if ( flags & Force ) {
+	    // need to create a big pixmap and start the cleaner
+	    if ( ! qdb_force_pixmap ) {
+		qdb_force_pixmap = new QPixmap( rw, rh );
+		qdb_pixmap_cleanup.add( &qdb_force_pixmap );
+	    } else if ( qdb_force_pixmap->width () < rw ||
+			qdb_force_pixmap->height() < rh ) {
+		qdb_force_pixmap->resize( rw, rh );
+	    }
+	    qdb_owner = this;
+	    staticCleaner()->start();
+	    return qdb_force_pixmap;
+	}
+
+	// size is outside shared limit
+	return 0;
+    }
+
+    if ( ! qdb_shared_pixmap ) {
+	qdb_shared_pixmap = new QPixmap( rw, rh );
+	qdb_pixmap_cleanup.add( &qdb_shared_pixmap );
+    } else if ( qdb_shared_pixmap->width() < rw ||
+		qdb_shared_pixmap->height() < rh ) {
+	qdb_shared_pixmap->resize( rw, rh );
+    }
+    qdb_owner = this;
+    return qdb_shared_pixmap;
+}
+
+/* \internal
+   Releases ownership of the shared double buffer pixmap.
+
+   \sa getPixmap()
+*/
+void QSharedDoubleBuffer::releasePixmap()
+{
+    if ( qdb_owner != this ) {
+	// sanity check
+
+#ifdef QT_CHECK_STATE
+	qWarning( "QSharedDoubleBuffer::releasePixmap: internal error."
+		  "\n\t%p does not own shared pixmap, %p does.",
+		  this, qdb_owner );
+#endif // QT_CHECK_STATE
+
+	return;
+    }
+
+    qdb_owner = 0;
+}
+
+/* \internal
+   \fn bool QSharedDoubleBuffer::isDisabled()
+
+   Returns TRUE is double buffering is disabled globally, FALSE otherwise.
+*/
+
+/* \internal
+   \fn void QSharedDoubleBuffer::setDisabled( bool off )
+
+   Disables global double buffering \a off is TRUE, otherwise global
+   double buffering is enabled.
+*/
+
+/* \internal
+   Deletes the shared double buffer pixmap.  You should not need to
+   call this function, since it is called from the QApplication
+   destructor.
+*/
 void QSharedDoubleBuffer::cleanup()
 {
-    if (qdb_shared_pixmap) {
-	qdb_cleanup_pixmap.remove( &qdb_shared_pixmap );
-	delete qdb_shared_pixmap;
-    }
-    qdb_owner = 0;
+    qdb_pixmap_cleanup.remove( &qdb_shared_pixmap );
+    qdb_pixmap_cleanup.remove( &qdb_force_pixmap );
+    delete qdb_shared_pixmap;
+    delete qdb_force_pixmap;
     qdb_shared_pixmap = 0;
+    qdb_force_pixmap = 0;
+    qdb_owner = 0;
 }
+
+/* \internal
+   \fn bool QSharedDoubleBuffer::begin( QWidget *widget, const QRect &r )
+   \overload
+*/
+
+/* \internal
+   \fn bool QSharedDoubleBuffer::begin( QPainter *painter, const QRect &r )
+   \overload
+*/
+
+/* \internal
+   \fn QPainter *QSharedDoubleBuffer::painter() const
+
+   Returns the active painter on the double buffered area,
+   or zero if double buffered painting is not active.
+*/
+
+/* \internal
+   \fn bool QSharedDoubleBuffer::isActive() const
+
+   Returns TRUE if double buffered painting is active, FALSE otherwise.
+*/
+
+/* \internal
+   \fn bool QSharedDoubleBuffer::isBuffered() const
+
+   Returns TRUE if painting is double buffered, FALSE otherwise.
+*/
+
+

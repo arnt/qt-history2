@@ -291,7 +291,7 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 	    d->buttonDown = ctrl;
 	    d->moveOffset = mapToParent( e->pos() );
 	    break;
-	
+
 	default:
 	    break;
 	}
@@ -322,7 +322,7 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 		if( testWFlags( WStyle_MinMax ) && testWFlags( WStyle_Tool ) )
 		    emit doShade();
 		break;
-	
+
 	    case QStyle::SC_TitleBarNormalButton:
 		if( testWFlags( WStyle_MinMax ) && !testWFlags( WStyle_Tool ) )
 		    emit doNormal();
@@ -346,7 +346,7 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 		if( testWFlags( WStyle_SysMenu ) ) {
 		    d->buttonDown = QStyle::SC_None;
 		    repaint(FALSE);
-		    emit doClose();		
+		    emit doClose();
 		    return;
 		}
 		break;
@@ -460,8 +460,7 @@ void QTitleBar::paintEvent(QPaintEvent *)
 	ctrls ^= under_mouse;
     }
 
-    QSharedDoubleBuffer buffer( (bool)FALSE, (bool)FALSE );
-    buffer.begin( this, rect() );
+    QSharedDoubleBuffer buffer( this, rect() );
     style().drawComplexControl(QStyle::CC_TitleBar, buffer.painter(), this, rect(),
 			       colorGroup(),
 			       isEnabled() ? QStyle::Style_Enabled :

@@ -1921,7 +1921,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	int xo = r;
 	// we default to AlignVCenter.
 	int yo = ( height() - icon->height() ) / 2;
-	
+
 	// I guess we may as well always respect vertical alignment.
         if ( align & AlignBottom )
     	    yo = height() - icon->height();
@@ -1931,8 +1931,8 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	    if ( align & AlignRight )
 		xo = width - 2 * marg - iconWidth;
 	    else if ( align & AlignHCenter )
-		xo = ( width - iconWidth ) / 2;	    
-	}	
+		xo = ( width - iconWidth ) / 2;
+	}
 	if ( reverse )
 		xo = width - 2 * marg - iconWidth;
 	p->drawPixmap( xo, yo, *icon );
@@ -2665,9 +2665,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		int align = columnAlignment( ac );
 		if ( align == AlignAuto ) align = AlignLeft;
 		if ( d->useDoubleBuffer ) {
-		    QSharedDoubleBuffer buffer( TRUE, FALSE );
-		    QRect a( QPoint( 0, 0 ), QSize( r.width(), current->i->height() ) );
-		    buffer.begin( p, a );
+		    QRect a( 0, 0, r.width(), current->i->height() );
+		    QSharedDoubleBuffer buffer( p, a, QSharedDoubleBuffer::Force );
 		    if ( buffer.isBuffered() )
 			paintEmptyArea( buffer.painter(), a );
 		    buffer.painter()->setFont( p->font() );
@@ -5120,7 +5119,7 @@ QRect QListView::itemRect( const QListViewItem * i ) const
 
   If \a column is -1, sorting is disabled and the user cannot sort
   columns by clicking on the column headers. If \a column is larger than
-  the number of columns the user has to click on a column header to 
+  the number of columns the user has to click on a column header to
   sort the list view.
 */
 

@@ -61,11 +61,22 @@ class QPixmap;
 class Q_EXPORT QSharedDoubleBuffer
 {
 public:
-    QSharedDoubleBuffer( bool mustShare = TRUE, bool initializeBg = TRUE, QPixmap* pm = 0);
-    QSharedDoubleBuffer( QWidget* widget, int x = 0, int y = 0, int w = -1, int h = -1 );
-    QSharedDoubleBuffer( QPainter* painter, int x = 0, int y = 0, int w = -1, int h = -1 );
-    QSharedDoubleBuffer( QWidget *widget, const QRect &r );
-    QSharedDoubleBuffer( QPainter *painter, const QRect &r );
+    enum DoubleBufferFlags {
+	InitBG		= 0x01,
+	Force		= 0x02,
+	Default		= InitBG | Force
+    };
+    typedef uint DBFlags;
+
+    QSharedDoubleBuffer( DBFlags f );
+    QSharedDoubleBuffer( QWidget* widget,
+			 int x = 0, int y = 0, int w = -1, int h = -1,
+			 DBFlags f = Default );
+    QSharedDoubleBuffer( QPainter* painter,
+			 int x = 0, int y = 0, int w = -1, int h = -1,
+			 DBFlags f = Default );
+    QSharedDoubleBuffer( QWidget *widget, const QRect &r, DBFlags f = Default );
+    QSharedDoubleBuffer( QPainter *painter, const QRect &r, DBFlags f = Default );
     ~QSharedDoubleBuffer();
 
     bool begin( QWidget* widget, int x = 0, int y = 0, int w = -1, int h = -1 );
@@ -82,16 +93,28 @@ public:
 
     static bool isDisabled() { return !dblbufr; }
     static void setDisabled( bool off ) { dblbufr = !off; }
-    static QPixmap* getRawPixmap( int w, int h );
+
     static void cleanup();
 
 private:
-    QWidget* wid;
+    enum DoubleBufferState {
+	Active		= 0x0100,
+	BufferActive	= 0x0200,
+	ExternalPainter	= 0x0400
+    };
+    typedef uint DBState;
+
+    QPixmap *getPixmap();
+    void releasePixmap();
+
+    QWidget *wid;
     int rx, ry, rw, rh;
-    QPainter *p, *xp;
-    QPixmap *pix, *xpix;
-    uint mustsh : 1;
-    uint initbg : 1;
+    DBFlags flags;
+    DBState state;
+
+    QPainter *p, *external_p;
+    QPixmap *pix;
+
     static bool dblbufr;
 };
 
@@ -105,9 +128,9 @@ inline QPainter* QSharedDoubleBuffer::painter() const
 { return p; }
 
 inline bool QSharedDoubleBuffer::isActive() const
-{ return p != 0; }
+{ return ( state & Active ); }
 
 inline bool QSharedDoubleBuffer::isBuffered() const
-{ return pix != 0; }
+{ return ( state & BufferActive ); }
 
 #endif // QINTERNAL_P_H
