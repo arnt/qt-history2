@@ -374,6 +374,7 @@ public:
     bool setStretchFactor(QLayout *l, int stretch);
     bool setAlignment(QWidget *w, Alignment alignment);
     bool setAlignment(QLayout *l, Alignment alignment);
+    inline void setAlignment(Alignment alignment) { QLayoutItem::setAlignment(alignment); }
 
     QSize sizeHint() const;
     QSize minimumSize() const;
