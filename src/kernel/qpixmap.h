@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#67 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#68 $
 **
 ** Definition of QPixmap class
 **
@@ -96,10 +96,11 @@ protected:
     struct QPixmapData : public QShared {	// internal pixmap data
 	QCOORD	w, h;
 	short	d;
-	uint	dirty  : 1;
-	uint	optim  : 1;
-	uint	uninit : 1;
-	uint	bitmap : 1;
+	uint	dirty	 : 1;
+	uint	optim	 : 1;
+	uint	uninit	 : 1;
+	uint	bitmap	 : 1;
+	uint	selfmask : 1;
 	int	ser_no;
 	QBitmap *mask;
 #if defined(_WS_WIN_)
