@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#233 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#234 $
 **
 ** Implementation of QFileDialog class
 **
@@ -865,7 +865,7 @@ void QFileListBox::rename()
 
             filedialog->rereadDir();
             filedialog->setSelection( newfile );
-            for ( unsigned int i = 0; i < count(); ++i ) {
+            for ( uint i = 0; i < count(); ++i ) {
                 if ( text( i ) == lined->text() ) {
                     setCurrentItem( i );
                     break;
@@ -879,7 +879,7 @@ void QFileListBox::rename()
 
 void QFileListBox::cancelRename()
 {
-    renameItem = 0L;
+    renameItem = 0;
     lined->hide();
     viewport()->setFocusProxy( this );
     setFocusPolicy( StrongFocus );
@@ -1218,7 +1218,7 @@ void QFileListView::rename()
 
 void QFileListView::cancelRename()
 {
-    renameItem = 0L;
+    renameItem = 0;
     lined->hide();
     viewport()->setFocusProxy( this );
     setFocusPolicy( StrongFocus );
@@ -2039,7 +2039,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     QStringList lst;
     if ( !filter.isEmpty() )
         lst.append( filter );
-        
+
     return QFileDialog::getOpenFileName( lst, startWith, parent, name );
 }
 
@@ -2084,7 +2084,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
   \sa getSaveFileName()
 */
 
-QString QFileDialog::getOpenFileName( const QStringList &filters, const QString &startWith, 
+QString QFileDialog::getOpenFileName( const QStringList &filters, const QString &startWith,
                                       QWidget *parent, const char* name )
 {
     makeVariables();
@@ -2174,7 +2174,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     QStringList lst;
     if ( !filter.isEmpty() )
         lst.append( filter );
-        
+
     return QFileDialog::getSaveFileName( lst, startWith, parent, name );
 }
 
@@ -2220,7 +2220,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
   \sa getOpenFileName()
 */
 
-QString QFileDialog::getSaveFileName( const QStringList &filters, 
+QString QFileDialog::getSaveFileName( const QStringList &filters,
                                       const QString & startWith,
                                       QWidget *parent, const char* name )
 {
@@ -3307,8 +3307,8 @@ void QFileDialog::modeButtonsDestroyed()
   "c:\\quake\\quake").
 
   \a filter is the default glob pattern (which the user can change).
-  The default is all files.  
-  
+  The default is all files.
+
   \a dir is the starting directory.  If \a
   dir is not supplied, QFileDialog picks something presumably useful
   (such as the directory where the user selected something last, or
@@ -3333,7 +3333,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
     QStringList lst;
     if ( !filter.isEmpty() )
         lst.append( filter );
-        
+
     return QFileDialog::getOpenFileNames( lst, dir, parent, name );
 }
 
@@ -3343,7 +3343,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
   "c:\\quake\\quake").
 
   All files matching a filter of the list \a filters are listed.
-  
+
   \a dir is the starting directory.  If \a
   dir is not supplied, QFileDialog picks something presumably useful
   (such as the directory where the user selected something last, or
