@@ -1158,6 +1158,10 @@ int QAquaStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     int ret = 0;
     switch(metric) {
+    case PM_TabBarTabShiftHorizontal:
+    case PM_TabBarTabShiftVertical:
+	ret = 0;
+	break;
     case PM_PopupMenuScrollerHeight:
 	ret = 10;
 	break;

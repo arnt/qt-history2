@@ -620,10 +620,13 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	int pixh = pixmap.height();
 	r.setLeft( r.left() + pixw + 4 );
 	r.setRight( r.right() + 2 );
-	// ### the pixmap shift should probably not be hardcoded..
-	p->drawPixmap( br.left() + 2 + ((selected == TRUE) ? 0 : 2),
-		       br.center().y()-pixh/2 + ((selected == TRUE) ? 0 : 2),
-		       pixmap );
+
+	int xoff = 0, yoff = 0;
+	if(selected) {
+	    xoff = style().pixelMetric(QStyle::PM_TabBarTabShiftHorizontal, this);
+	    yoff = style().pixelMetric(QStyle::PM_TabBarTabShiftVertical, this);
+	}
+	p->drawPixmap( br.left() + 2 + xoff, br.center().y()-pixh/2 + yoff, pixmap );
     }
 
     QStyle::SFlags flags = QStyle::Style_Default;

@@ -1413,18 +1413,15 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PM_ButtonShiftVertical  vertical contents shift of a button when the
 	button is down.
 
-
     \value PM_DefaultFrameWidth  default frame width, usually 2.
     \value PM_SpinBoxFrameWidth  frame width of a spin box.
     \value PM_MDIFrameWidth frame width of an MDI window.
     \value PM_MDIMinimizedWidth width of a minimized MSI window.
 
-
     \value PM_MaximumDragDistance  Some feels require the scrollbar or
 	other sliders to jump back to the original position when the
 	mouse pointer is too far away while dragging. A value of -1
 	disables this behavior.
-
 
     \value PM_ScrollBarExtent  width of a vertical scrollbar and the
 	height of a horizontal scrollbar.
@@ -1432,14 +1429,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	scrollbar's slider and the minimum width of a horiztonal
 	scrollbar slider.
 
-
     \value PM_SliderThickness  total slider thickness.
     \value PM_SliderControlThickness  thickness of the slider handle.
     \value PM_SliderLength length of the slider.
     \value PM_SliderTickmarkOffset the offset between the tickmarks
 	and the slider.
     \value PM_SliderSpaceAvailable  the available space for the slider to move.
-
 
     \value PM_DockWindowSeparatorExtent  width of a separator in a
 	horiztonal dock window and the height of a separator in a
@@ -1449,9 +1444,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	vertical dock window.
     \value PM_DockWindowFrameWidth  frame width of a dock window.
 
-
     \value PM_MenuBarFrameWidth  frame width of a menubar.
-
 
     \value PM_TabBarTabOverlap number of pixels the tabs should overlap.
     \value PM_TabBarTabHSpace extra space added to the tab width.
@@ -1460,10 +1453,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	and the tab pages.
     \value PM_TabBarBaseOverlap number of pixels the tab bar overlaps
 	the tab bar base.
-
+    \value PM_TabBarTabShiftHorizontal horizontal pixel shift when a
+        tab is selected.
+    \value PM_TabBarTabShiftVertical vertical pixel shift when a
+        tab is selected.
 
     \value PM_ProgressBarChunkWidth  width of a chunk in a progress bar indicator.
-
 
     \value PM_SplitterWidth  width of a splitter.
 

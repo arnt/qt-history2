@@ -480,6 +480,8 @@ public:
 	PM_HeaderMargin,
 	PM_HeaderMarkSize,
 	PM_HeaderGripMargin,
+	PM_TabBarTabShiftHorizontal,
+	PM_TabBarTabShiftVertical,
 
 	// do not add any values below/greater than this
 	PM_CustomBase =		0xf0000000

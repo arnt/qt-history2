@@ -2326,6 +2326,11 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 24;
 	break;
 
+    case PM_TabBarTabShiftHorizontal:
+    case PM_TabBarTabShiftVertical:
+	ret = 2;
+	break;
+
 #ifndef QT_NO_TABBAR
     case PM_TabBarTabVSpace:
 	{
