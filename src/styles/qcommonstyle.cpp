@@ -865,7 +865,10 @@ void QCommonStyle::drawControl( ControlElement element,
 
 		// nu < tnu, if last chunk is only a partial chunk
 		int tnu, nu;
-		tnu = nu = p_v * u / (t_s - 1);
+		if ( 1 == t_s )
+		    tnu = nu = p_v * u;
+		else
+		    tnu = nu = p_v * u / (t_s - 1);
 
 		if (nu * unit_width > w)
 		    nu--;
