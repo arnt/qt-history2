@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#11 $
 **
 ** Implementation of QScrollBar class
 **
@@ -16,7 +16,7 @@
 #include "qwmatrix.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#11 $";
 #endif
 
 
@@ -91,7 +91,7 @@ void QScrollBar::init()
     pressedControl   = NONE;
     clickedAt	     = FALSE;
     setForegroundColor( lightGray );
-    setBackgroundColor( foregroundColor().dark(1.12) );
+    setBackgroundColor( foregroundColor().dark(112) );
 }
 
 
