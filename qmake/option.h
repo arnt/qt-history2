@@ -141,6 +141,6 @@ private:
     static int parseCommandLine(int, char **, int=0);
 };
 
-inline void fixEnvVariables(QString &x) { x = Option::fixString(x, Option::FixEnvVars); }
+inline QString fixEnvVariables(const QString &x) { return Option::fixString(x, Option::FixEnvVars); }
 
 #endif /* __OPTION_H__ */

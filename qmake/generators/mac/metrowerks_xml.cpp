@@ -66,8 +66,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
     for(QStringList::Iterator val_it = extra_objs.begin();
         val_it != extra_objs.end(); ++val_it) {
         if((*val_it).startsWith("-L")) {
-            QString dir((*val_it).right((*val_it).length() - 2));
-            fixEnvVariables(dir);
+            QString dir = fixEnvVariables((*val_it).right((*val_it).length() - 2));
             if(project->variables()["DEPENDPATH"].indexOf(dir) == -1 &&
                project->variables()["INCLUDEPATH"].indexOf(dir) == -1)
                 project->variables()["INCLUDEPATH"].append(dir);
@@ -88,9 +87,8 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
             QString lib=(*val_it);
             int s = lib.lastIndexOf('/');
             if(s != -1) {
-                QString dir = lib.left(s);
+                QString dir = fixEnvVariables(lib.left(s));
                 lib = lib.right(lib.length() - s - 1);
-                fixEnvVariables(dir);
                 if(project->variables()["DEPENDPATH"].indexOf(dir) == -1 &&
                    project->variables()["INCLUDEPATH"].indexOf(dir) == -1)
                     project->variables()["INCLUDEPATH"].append(dir);
@@ -617,7 +615,7 @@ MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v, bool)
     }
     QString volume = st_volume;
 
-    fixEnvVariables(p);
+    p = fixEnvVariables(p);
     if(p.startsWith("\"") && p.endsWith("\""))
         p = p.mid(1, p.length() - 2);
     if(p.isEmpty())

@@ -1856,8 +1856,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
             fprintf(stderr, "%s:%d prompt(question) cannot be used when '-o -' is used.\n",
                     parser.file.toLatin1().constData(), parser.line_no);
         } else {
-            QString msg = args.first();
-            fixEnvVariables(msg);
+            QString msg = fixEnvVariables(args.first());
             if(!msg.endsWith("?"))
                 msg += "?";
             fprintf(stderr, "Project %s: %s ", func.toUpper().toLatin1().constData(),
@@ -2043,8 +2042,7 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
             return false;
         }
         QMakeProject proj(place);
-        QString file = args[0];
-        fixEnvVariables(file);
+        QString file = fixEnvVariables(args[0]);
         int di = file.lastIndexOf(Option::dir_sep);
         QString oldpwd = qmake_getpwd();
         if(di != -1) {
@@ -2133,8 +2131,7 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
                     parser.line_no);
             return false;
         }
-        QString msg = args[1];
-        fixEnvVariables(msg);
+        QString msg = fixEnvVariables(args[1]);
         debug_msg(args[0].toInt(), "Project DEBUG: %s", msg.toLatin1().constData());
         return true;
     } else if(func == "error" || func == "message" || func == "warning") {
@@ -2143,8 +2140,7 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
                     parser.line_no, func.toLatin1().constData());
             return false;
         }
-        QString msg = args.first();
-        fixEnvVariables(msg);
+        QString msg = fixEnvVariables(args.first());
         fprintf(stderr, "Project %s: %s\n", func.toUpper().toLatin1().constData(), msg.toLatin1().constData());
         if(func == "error")
             exit(2);
