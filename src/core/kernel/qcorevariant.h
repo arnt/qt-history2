@@ -269,12 +269,15 @@ protected:
 
     Private d;
 
+#ifndef QT_MOC
     static const Handler *handler;
+#endif
 
     void create(int type, const void *copy);
     void *castOrDetach(Type t);
 };
 
+#ifndef QT_MOC
 typedef QList<QCoreVariant> QCoreVariantList;
 typedef QMap<QString, QCoreVariant> QCoreVariantMap;
 
@@ -385,6 +388,7 @@ bool qVariantGet(const QCoreVariant &v, T &t)
     return true;
 }
 
+#endif
 inline QCoreVariant::QCoreVariant() {}
 inline bool QCoreVariant::isValid() const { return d.type != Invalid; }
 
