@@ -134,7 +134,7 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path, QWidget* par
     setRightJustification( TRUE );
     setDockEnabled( Left, FALSE );
     setDockEnabled( Right, FALSE );
-    
+
     pathCombo->insertItem( home_ );
     pathCombo->installEventFilter( this );
     QObjectList *l = queryList( "QLineEdit" );
@@ -250,12 +250,8 @@ void HelpWindow::print()
 	QRect body(margin*dpix/72, margin*dpiy/72,
 		   metrics.width()-margin*dpix/72*2,
 		   metrics.height()-margin*dpiy/72*2 );
-	double scale = 0.75;
-	p.scale(scale, scale );
-	body = QRect( int(body.x()/scale), int(body.y()/scale), 
-		      int(body.width()/scale), int(body.height()/scale) );
-	QFont font("times");
-	QSimpleRichText richText( browser->text(), font, browser->context(), browser->styleSheet(), 
+	QFont font("times", 10);
+	QSimpleRichText richText( browser->text(), font, browser->context(), browser->styleSheet(),
 				  browser->mimeSourceFactory(), body.height() );
 	richText.setWidth( &p, body.width() );
 	QRect view( body );
@@ -265,7 +261,7 @@ void HelpWindow::print()
 	    view.moveBy( 0, body.height() );
 	    p.translate( 0 , -body.height() );
 	    p.setFont( font );
-	    p.drawText( view.right() - p.fontMetrics().width( QString::number(page) ), 
+	    p.drawText( view.right() - p.fontMetrics().width( QString::number(page) ),
 			view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page) );
 	    if ( view.top()  >= richText.height() )
 		break;
@@ -296,7 +292,7 @@ bool HelpWindow::eventFilter( QObject * o, QEvent * e )
 {
     if ( QMainWindow::eventFilter( o, e ) )
 	return TRUE;
-    
+
     QObjectList *l = queryList( "QLineEdit" );
     if ( !l || !l->first() )
         return FALSE;
