@@ -1351,6 +1351,19 @@ void QWidget::showWindow()
     if(isDesktop()) //desktop is always visible
 	return;
 
+    if(isTopLevel()) {
+	QDesktopWidget *dsk = QApplication::desktop();
+	if (dsk) {
+	    int movex = x(), movey = y();
+	    QRect r = frameGeometry();
+	    QRect avail = dsk->availableGeometry(dsk->screenNumber(this));
+		if (r.bottom() > avail.bottom())
+		    movey = avail.bottom() - r.height();
+		if (r.right() > avail.right())
+		    movex = avail.right() - r.width();
+		move( QMAX( avail.left(), movex), QMAX( avail.top(), movey )); 
+	}
+    }
     fstrut_dirty = TRUE;
     dirtyClippedRegion(TRUE);
     if(isTopLevel()) {
