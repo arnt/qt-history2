@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#189 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#190 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1194,7 +1194,7 @@ sub readc {
 
 
     while ($c =~ m@
-	   (?:/\*[-\!][-\s]*
+	   (?:/\*\!\s*
 	    ((?:[^\*]|(?:\*[^/]))*?)
 	    -*\*/)\s*
 	   (?:([A-Za-z_](?:[^\{;\*]|(?:\*[^/]))+)\s*\x7b)?@gsx) {
