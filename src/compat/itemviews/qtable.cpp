@@ -2123,7 +2123,6 @@ void QTable::init(int rows, int cols)
 
 QTable::~QTable()
 {
-    delete d;
     setUpdatesEnabled(false);
     for (int i = 0; i < contents.size(); ++i) {
         if (contents.at(i)) {
@@ -2135,6 +2134,8 @@ QTable::~QTable()
         delete widgets.at(i);
     while (!selections.isEmpty())
         delete selections.takeFirst();
+
+    delete d;
 }
 
 void QTable::setReadOnly(bool b)
