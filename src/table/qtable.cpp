@@ -4452,8 +4452,10 @@ void QTable::updateColWidgets( int col )
     \sa QHeader::indexChange() rowIndexChanged()
 */
 
-void QTable::columnIndexChanged( int, int, int )
+void QTable::columnIndexChanged( int, int fromIndex, int toIndex )
 {
+    if ( doSort && lastSortCol == fromIndex && topHeader )
+	topHeader->setSortIndicator( toIndex, topHeader->sortIndicatorOrder() );
     repaintContents( contentsX(), contentsY(),
 		     visibleWidth(), visibleHeight(), FALSE );
 }
@@ -5523,7 +5525,7 @@ void QTable::sortColumn( int col, bool ascending, bool wholeRows )
     }
     setUpdatesEnabled( updatesEnabled );
     if ( topHeader )
- 	topHeader->setSortIndicator( col, ascending );
+ 	topHeader->setSortIndicator( col, ascending ? Qt::Ascending : Qt::Descending );
 
     if ( !wholeRows )
 	repaintContents( columnPos( col ), contentsY(),
