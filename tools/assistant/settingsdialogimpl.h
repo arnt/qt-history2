@@ -94,6 +94,7 @@ private:
     void makeCategoryList();
     void checkItem( CheckListItem* );
     QStringList getCheckedItemList();
+    void setFile( QLineEdit *le, const QString &caption );
     bool changed, selectionChanged;
     QStringList docuFileList, docuTitleList, catListAvail, catListSel;
     QPtrList<CheckListItem> catItemList;

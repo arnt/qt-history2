@@ -369,43 +369,31 @@ void SettingsDialog::deleteCategory()
 
 void SettingsDialog::browseWebApp()
 {
-    QFileDialog *fd = new QFileDialog( this );
-    fd->setCaption( tr( "Qt Assistant - Set Web Browser" ) );
-    fd->setMode( QFileDialog::AnyFile );
-    fd->setDir( QDir::homeDirPath() );
-
-    if ( fd->exec() == QDialog::Accepted ) {
-	if ( !fd->selectedFile().isEmpty() )
-	    browserApp->setText( fd->selectedFile() );
-    }
+    setFile( browserApp, tr( "Qt Assistant - Set Web Browser" ) );
 }
 
 void SettingsDialog::browsePDFApplication()
 {
-    QFileDialog *fd = new QFileDialog( this );
-    fd->setCaption( tr( "Qt Assistant - Set PDF Browser" ) );
-    fd->setMode( QFileDialog::AnyFile );
-    fd->setDir( QDir::homeDirPath() );
-
-    if ( fd->exec() == QDialog::Accepted ) {
-	if ( !fd->selectedFile().isEmpty() )
-	   pdfApp->setText( fd->selectedFile() );
-    }
+    setFile( pdfApp, tr( "Qt Assistant - Set PDF Browser" ) );
 }
 
 void SettingsDialog::browseHomepage()
 {
+    setFile( homePage, tr( "Qt Assistant - Set Homepage" ) );
+}
+
+void SettingsDialog::setFile( QLineEdit *le, const QString &caption )
+{
     QFileDialog *fd = new QFileDialog( this );
-    fd->setCaption( tr( "Qt Assistant - Set Homepage" ) );
+    fd->setCaption( caption );
     fd->setMode( QFileDialog::AnyFile );
     fd->setDir( QDir::homeDirPath() );
 
     if ( fd->exec() == QDialog::Accepted ) {
 	if ( !fd->selectedFile().isEmpty() )
-	    homePage->setText( fd->selectedFile() );
+	   le->setText( fd->selectedFile() );
     }
 }
-
 
 void SettingsDialog::accept()
 {
