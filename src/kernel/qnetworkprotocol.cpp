@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#19 $
 **
 ** Implementation of QFileDialog class
 **
@@ -483,19 +483,6 @@ void QNetworkProtocol::clearOperationQueue()
     d->operationQueue.setAutoDelete( TRUE );
     d->operationQueue.clear();
 }
-
-/*!
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- */
 
 
 struct QNetworkOperationPrivate
