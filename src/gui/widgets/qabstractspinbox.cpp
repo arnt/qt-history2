@@ -955,15 +955,15 @@ Q4StyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
     opt.stepEnabled = q->stepEnabled();
     opt.activeParts = 0;
     opt.buttonSymbols = buttonsymbols;
-    opt.parts = QStyle::SC_SpinBoxFrame|QStyle::PE_SpinBoxUp|QStyle::PE_SpinBoxDown;
-    if (slider) {
-        opt.parts |= QStyle::PE_SpinBoxSlider;
-    }
-    if (d->buttonstate & Up) {
-        opt.activeParts = QStyle::PE_SpinBoxUp;
-    } else if (buttonstate & Down) {
-        opt.activeParts = QStyle::PE_SpinBoxDown;
-    }
+    opt.parts = QStyle::SC_SpinBoxFrame | QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown;
+    if (slider)
+        opt.parts |= QStyle::SC_SpinBoxSlider;
+
+    if (buttonstate & Up)
+        opt.activeParts = QStyle::SC_SpinBoxUp;
+    else if (buttonstate & Down)
+        opt.activeParts = QStyle::SC_SpinBoxDown;
+
     opt.percentage = (value - minimum) / (maximum - minimum);
     opt.slider = slider;
     return opt;
