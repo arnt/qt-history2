@@ -45,6 +45,7 @@ public:
           section(-1),
           target(-1),
           pressed(-1),
+          hover(-1),
           movableSections(false),
           clickableSections(false),
           highlightSelected(false),
@@ -94,6 +95,7 @@ public:
     int section; // used for resizing and moving sections
     int target;
     int pressed;
+    int hover;
     bool movableSections;
     bool clickableSections;
     bool highlightSelected;

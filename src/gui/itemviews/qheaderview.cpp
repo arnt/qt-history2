@@ -1119,6 +1119,36 @@ void QHeaderView::currentChanged(const QModelIndex &old, const QModelIndex &curr
     d->viewport->repaint(oldRect|currentRect);
 }
 
+
+/*!
+  \reimp
+*/
+
+bool QHeaderView::event(QEvent *e)
+{
+    Q_D(QHeaderView);
+    switch (e->type()) {
+    case QEvent::HoverEnter: {
+        QHoverEvent *e = static_cast<QHoverEvent*>(e);
+        d->hover = logicalIndexAt(e->pos());
+        updateSection(d->hover);
+        break; }
+    case QEvent::HoverLeave: {
+        updateSection(d->hover);
+        d->hover = -1;
+        break; }
+    case QEvent::HoverMove: {
+        updateSection(d->hover);
+        QHoverEvent *e = static_cast<QHoverEvent*>(e);
+        d->hover = logicalIndexAt(e->pos());
+        updateSection(d->hover);
+        break; }
+    default:
+        break;
+    }
+    return QAbstractItemView::event(e);
+}
+
 /*!
   \reimp
 */
@@ -1341,8 +1371,10 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     if (window()->isActiveWindow())
         state |= QStyle::State_Active;
     if (d->clickableSections) {
+        if (logicalIndex == d->hover)
+            state |= QStyle::State_MouseOver;
         if (logicalIndex == d->pressed)
-            state |= QStyle::State_Sunken;
+            state |= QStyle::State_Down;
         else if (d->highlightSelected && d->isSectionSelected(logicalIndex))
             state |= QStyle::State_On;
     }

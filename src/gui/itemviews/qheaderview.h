@@ -127,6 +127,7 @@ protected:
     void initializeSections(int start, int end);
     void currentChanged(const QModelIndex &old, const QModelIndex &current);
 
+    bool event(QEvent *e);
     void paintEvent(QPaintEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
