@@ -113,4 +113,20 @@ private:
     Q_DISABLE_COPY(QDateTimeEdit)
 };
 
+class QTimeEdit : public QDateTimeEdit
+{
+    Q_OBJECT
+public:
+    QTimeEdit(QWidget *parent = 0);
+    QTimeEdit(const QTime &t, QWidget *parent = 0);
+};
+
+class QDateEdit : public QDateTimeEdit
+{
+    Q_OBJECT
+public:
+    QDateEdit(QWidget *parent = 0);
+    QDateEdit(const QDate &t, QWidget *parent = 0);
+};
+
 #endif

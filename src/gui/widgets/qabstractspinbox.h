@@ -64,12 +64,14 @@ public:
     void setAlignment(Qt::Alignment flag);
     Qt::Alignment alignment() const;
 
-    void selectAll();
-
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
     void interpretText();
+    bool eventFilter(QObject *object, QEvent *event);
+public slots:
+    void selectAll();
+
 protected:
     void resizeEvent(QResizeEvent *e);
     void keyPressEvent(QKeyEvent *e);
@@ -89,6 +91,7 @@ protected:
     void showEvent(QShowEvent *e);
 
     QLineEdit *lineEdit() const;
+    void setLineEdit(QLineEdit *e);
 
     virtual void stepBy(int steps);
     virtual StepEnabled stepEnabled() const;

@@ -76,7 +76,7 @@ public slots:
 
 signals:
     void valueChanged(int);
-    void valueChanged(QString);
+    void valueChanged(const QString &);
 
 private:
     Q_DISABLE_COPY(QSpinBox)
@@ -133,7 +133,7 @@ public slots:
 
 signals:
     void valueChanged(double);
-    void valueChanged(QString);
+    void valueChanged(const QString &);
 
 private:
     Q_DISABLE_COPY(QDoubleSpinBox)

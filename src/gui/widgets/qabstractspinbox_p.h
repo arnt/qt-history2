@@ -42,7 +42,7 @@ bool operator>(const QCoreVariant &arg1, const QCoreVariant &arg2);
 #define DATE_MAX QDate(7999, 12, 31)
 #define DATETIME_MIN QDateTime(DATE_MIN, TIME_MIN)
 #define DATETIME_MAX QDateTime(DATE_MAX, TIME_MAX)
-#define DATE_INITIAL QDate(1753, 1, 1)
+#define DATE_INITIAL QDate(2000, 1, 1)
 
 enum EmitPolicy {
     EmitIfChanged,

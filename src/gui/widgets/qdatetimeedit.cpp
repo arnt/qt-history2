@@ -56,6 +56,7 @@ public:
 
     QDateTimeEditPrivate();
 
+    void readLocaleSettings();
 
     void emitSignals();
     void setValue(const QCoreVariant &val, EmitPolicy ep);
@@ -66,7 +67,6 @@ public:
 
     QStyleOptionSpinBox styleOption() const;
     QCoreVariant valueForPosition(int pos) const;
-
 
     void clearSection(Section s);
 
@@ -95,6 +95,7 @@ public:
     static QString stateName(int s);
 
     QString format;
+    static QString defaultDateFormat, defaultTimeFormat, defaultDateTimeFormat;
     QString escapedFormat;
     QList<SectionNode> sections;
     SectionNode first, last;
@@ -106,6 +107,10 @@ public:
     mutable QCoreVariant cached;
     mutable QString cachedText;
 };
+
+QString QDateTimeEditPrivate::defaultTimeFormat;
+QString QDateTimeEditPrivate::defaultDateFormat;
+QString QDateTimeEditPrivate::defaultDateTimeFormat;
 
 #define d d_func()
 #define q q_func()
@@ -169,21 +174,20 @@ public:
 /*!
     \fn void QDateTimeEdit::timeChanged(const QTime &time)
 
-    This signal is emitted whenever the time is changed. The
-    new time is passed in \a time.
+    This signal is emitted whenever the time is changed. The new time
+    is passed in \a time.
 */
 
 /*!
     \fn void QDateTimeEdit::dateChanged(const QDate &date)
 
-    This signal is emitted whenever the date is changed. The
-    new date is passed in \a date.
+    This signal is emitted whenever the date is changed. The new date
+    is passed in \a date.
 */
 
 
 /*!
-    Constructs an empty date time editor with a \a parent. The format
-    is set to "yyyy.MM.dd hh:mm:ss" by default.
+    Constructs an empty date time editor with a \a parent.
 */
 
 QDateTimeEdit::QDateTimeEdit(QWidget *parent)
@@ -192,13 +196,15 @@ QDateTimeEdit::QDateTimeEdit(QWidget *parent)
     d->minimum = QCoreVariant(DATETIME_MIN);
     d->maximum = QCoreVariant(DATETIME_MAX);
     d->value = QCoreVariant(QDateTime(DATE_INITIAL, TIME_MIN));
-    setFormat("yyyy.MM.dd hh:mm:ss");
+    if (!setFormat(d->defaultDateTimeFormat)) {
+        d->defaultDateTimeFormat = QLatin1String("MM/dd/yy hh:mm:ss");
+        Q_ASSERT(setFormat(d->defaultDateTimeFormat));
+    }
 }
 
 /*!
     Constructs an empty date time editor with a \a parent. The value
-    is set to \a datetime. The format is set to "yyyy.MM.dd hh:mm:ss"
-    by default.
+    is set to \a datetime.
 */
 
 QDateTimeEdit::QDateTimeEdit(const QDateTime &datetime, QWidget *parent)
@@ -206,16 +212,18 @@ QDateTimeEdit::QDateTimeEdit(const QDateTime &datetime, QWidget *parent)
 {
     d->minimum = QCoreVariant(DATETIME_MIN);
     d->maximum = QCoreVariant(DATETIME_MAX);
-    d->value = datetime.isValid() ? QCoreVariant(datetime)
-				  : QCoreVariant(QDateTime(DATE_INITIAL, TIME_MIN));
-    setFormat("yyyy.MM.dd hh:mm:ss");
+    d->value = datetime.isValid() ? QCoreVariant(datetime) : QCoreVariant(QDateTime(DATE_INITIAL, TIME_MIN));
+    if (!setFormat(d->defaultDateTimeFormat)) {
+        d->defaultDateTimeFormat = QLatin1String("MM/dd/yy hh:mm:ss");
+        Q_ASSERT(setFormat(d->defaultDateTimeFormat));
+    }
 }
 
 /*!
     \fn QDateTimeEdit::QDateTimeEdit(const QDate &date, QWidget *parent)
 
     Constructs an empty date time editor with a \a parent.
-    The value is set to \a date. The format is set to "yyyy.MM.dd".
+    The value is set to \a date.
 */
 
 QDateTimeEdit::QDateTimeEdit(const QDate &date, QWidget *parent)
@@ -224,14 +232,17 @@ QDateTimeEdit::QDateTimeEdit(const QDate &date, QWidget *parent)
     d->minimum = QCoreVariant(DATETIME_MIN);
     d->maximum = QCoreVariant(DATETIME_MAX);
     d->value = QCoreVariant(QDateTime(date.isValid() ? date : DATE_INITIAL, TIME_MIN));
-    setFormat("yyyy.MM.dd");
+    if (!setFormat(d->defaultDateFormat)) {
+        d->defaultDateFormat = QLatin1String("MM/dd/yy");
+        Q_ASSERT(setFormat(d->defaultDateFormat));
+    }
 }
 
 /*!
     \fn QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent)
 
     Constructs an empty date time editor with a \a parent.
-    The value is set to \a time. The format is set to "hh:mm:ss".
+    The value is set to \a time.
 */
 
 QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent)
@@ -240,7 +251,10 @@ QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent)
     d->minimum = QCoreVariant(DATETIME_MIN);
     d->maximum = QCoreVariant(DATETIME_MAX);
     d->value = QCoreVariant(QDateTime(DATE_INITIAL, time.isValid() ? time : TIME_MIN));
-    setFormat("hh:mm:ss");
+    if (!setFormat(d->defaultTimeFormat)) {
+        d->defaultDateFormat = QLatin1String("hh:mm:ss");
+        Q_ASSERT(setFormat(d->defaultTimeFormat));
+    }
 }
 
 QDateTime QDateTimeEdit::dateTime() const
@@ -334,7 +348,7 @@ void QDateTimeEdit::setMinimumDate(const QDate &min)
 
 void QDateTimeEdit::clearMinimumDate()
 {
-    d->setBoundary(Minimum, QCoreVariant(QDateTime(DATE_MIN, d->minimum.toTime()))); // something to prevent this from being invalid by default?
+    d->setBoundary(Minimum, QCoreVariant(QDateTime(DATE_MIN, d->minimum.toTime())));
 }
 
 /*!
@@ -833,6 +847,47 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
     return ret;
 }
 
+
+/*!
+    Constructs an empty time editor with a \a parent.
+*/
+
+
+QTimeEdit::QTimeEdit(QWidget *parent)
+    : QDateTimeEdit(TIME_MIN, parent)
+{
+}
+
+/*!
+    Constructs an empty time editor with a \a parent. The time is set
+    to \a time.
+*/
+
+QTimeEdit::QTimeEdit(const QTime &t, QWidget *parent)
+    : QDateTimeEdit(t, parent)
+{
+}
+
+/*!
+    Constructs an empty date editor with a \a parent.
+*/
+
+QDateEdit::QDateEdit(QWidget *parent)
+    : QDateTimeEdit(DATE_INITIAL, parent)
+{
+}
+
+/*!
+    Constructs an empty date editor with a \a parent. The date is set
+    to \a date.
+*/
+
+QDateEdit::QDateEdit(const QDate &dt, QWidget *parent)
+    : QDateTimeEdit(dt, parent)
+{
+}
+
+
 // --- QDateTimeEditPrivate ---
 
 /*!
@@ -851,6 +906,7 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
     last.section = LastSection;
     last.pos = -1;
     useprivate = true;
+    readLocaleSettings();
 }
 
 /*!
@@ -950,6 +1006,105 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
     ignorecursorpositionchanged = false;
 
 }
+
+
+/*!
+  \internal
+
+   Try to get the format from the local settings
+*/
+
+void QDateTimeEditPrivate::readLocaleSettings()
+{
+    static bool done = false;
+    if (done)
+        return;
+
+    done = true;
+
+    // Time
+    QString str = QTime(12, 34, 56, 789).toString(Qt::LocalDate);
+    int index = str.indexOf(QLatin1String("12"));
+    if (index != -1)
+        str.replace(index, 2, QLatin1String("hh"));
+
+    index = str.indexOf(QLatin1String("34"));
+    if (index != -1)
+        str.replace(index, 2, QLatin1String("mm"));
+
+    index = str.indexOf(QLatin1String("56"));
+    if (index != -1)
+        str.replace(index, 2, QLatin1String("ss"));
+
+    index = str.indexOf(QLatin1String("789"));
+    if (index != -1)
+        str.replace(index, 3, QLatin1String("zzz"));
+
+    index = str.indexOf(QLatin1String("pm"), 0, Qt::CaseInsensitive);
+    if (index != -1)
+        str.replace(index, 2, str.at(index) == QLatin1Char('p') ? QLatin1String("ap") : QLatin1String("AP"));
+
+    defaultTimeFormat = str;
+
+    // Date
+    str = QDate(1999, 11, 22).toString(Qt::LocalDate);
+    index = str.indexOf(QLatin1String("22"));
+    if (index != -1)
+        str.replace(index, 2, QLatin1String("dd"));
+
+    index = str.indexOf(QLatin1String("11"));
+    if (index != -1)
+        str.replace(index, 2, QLatin1String("MM"));
+
+    index = str.indexOf(QLatin1String("99"));
+    if (index > 1 && str.at(index - 1) == QLatin1Char('9') && str.at(index - 2) == QLatin1Char('9')) {
+        str.replace(index - 2, 4, QLatin1String("yyyy"));
+    } else if (index != -1){
+        str.replace(index, 2, QLatin1String("yy"));
+    }
+
+    defaultDateFormat = str;
+
+    // DateTime
+    str = QDateTime(QDate(1999, 10, 22), QTime(12, 34, 56, 789)).toString(Qt::LocalDate);
+    index = str.indexOf(QLatin1String("12"));
+    if (index != -1)
+        str.replace(index, 2, QLatin1String("hh"));
+
+    index = str.indexOf(QLatin1String("34"));
+    if (index != -1)
+        str.replace(index, 2, QLatin1String("mm"));
+
+    index = str.indexOf(QLatin1String("56"));
+    if (index != -1)
+        str.replace(index, 2, QLatin1String("ss"));
+
+    index = str.indexOf(QLatin1String("789"));
+    if (index != -1)
+        str.replace(index, 3, QLatin1String("zzz"));
+
+    index = str.indexOf(QLatin1String("pm"), 0, Qt::CaseInsensitive);
+    if (index != -1)
+        str.replace(index, 2, str.at(index) == QLatin1Char('p') ? QLatin1String("ap") : QLatin1String("AP"));
+
+    index = str.indexOf(QLatin1String("22"));
+    if (index != -1)
+        str.replace(index, 2, QLatin1String("dd"));
+
+    index = str.indexOf(QLatin1String("10"));
+    if (index != -1)
+        str.replace(index, 2, QLatin1String("MM"));
+
+    index = str.indexOf(QLatin1String("99"));
+    if (index > 1 && str.at(index - 1) == QLatin1Char('9') && str.at(index - 2) == QLatin1Char('9')) {
+        str.replace(index - 2, 4, QLatin1String("yyyy"));
+    } else if (index != -1 ){
+        str.replace(index, 2, QLatin1String("yy"));
+    }
+
+    defaultDateTimeFormat = str;
+}
+
 
 /*!
     \internal
@@ -1090,16 +1245,16 @@ QCoreVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
     const int max = absoluteMax(s);
 
     if (val < min) {
-	val = (wrapping ? max : min);
+	val = (wrapping ? max - (min - val) + 1 : min);
     } else if (val > max) {
-	val = (wrapping ? min : max);
+	val = (wrapping ? min + val - max - 1 : max);
     }
 
     const int tmp = v.toDate().day();
     setDigit(&v, s, val); // if this sets year or month it will make sure that days are lowered if needed.
 
     //changing one section should only modify that section, if possible
-    if (!(s&AMPMSection) && (v < minimum || v > maximum)) {
+    if (!(s & AMPMSection) && (v < minimum || v > maximum)) {
         const int localmin = getDigit(minimum, s);
         const int localmax = getDigit(maximum, s);
 
@@ -1127,7 +1282,31 @@ QCoreVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
         cachedday = qMax(tmp, cachedday);
     }
 
-    return bound(v, value, steps);
+    if (v < minimum) {
+        QCoreVariant t = v;
+        setDigit(&t, s, steps < 0 ? max : min);
+        if (!(t < minimum || t > maximum)) {
+            v = t;
+        } else {
+            setDigit(&t, s, getDigit(steps < 0 ? maximum : minimum, s));
+            if (!(t < minimum || t > maximum)) {
+                v = t;
+            }
+        }
+    } else if (v > maximum) {
+        QCoreVariant t = v;
+        setDigit(&t, s, steps > 0 ? min : max);
+        if (!(t < minimum || t > maximum)) {
+            v = t;
+        } else {
+            setDigit(&t, s, getDigit(steps > 0 ? minimum : maximum, s));
+            if (!(t < minimum || t > maximum)) {
+                v = t;
+            }
+        }
+    }
+
+    return bound(v);
 }
 
 QCoreVariant QDateTimeEditPrivate::valueForPosition(int pos) const
@@ -1275,6 +1454,7 @@ QDateTimeEdit::Section QDateTimeEditPrivate::publicSection(Section s) const
 
 bool QDateTimeEditPrivate::addSection(QList<SectionNode> *list, Section ds, int pos)
 {
+    Q_ASSERT(list);
     for (int i=0; i<list->size(); ++i) {
 	if ((list->at(i).section & ~Internal) == (ds & ~Internal)) {
             DEBUG("Could not add section %s to pos %d because it is already in the list", sectionName(ds).latin1(), pos);
@@ -1502,7 +1682,7 @@ QDateTimeEditPrivate::Section QDateTimeEditPrivate::sectionAt(int index) const
         return (index == last.pos ? LastSection : NoSection);
     }
     for (int i=0; i<sections.size(); ++i) {
-	int tmp = sections.at(i).pos;
+	const int tmp = sections.at(i).pos;
         if (index < tmp + sectionSize(sections.at(i).section)) {
             return (index < tmp ? NoSection : sections.at(i).section);
         }
@@ -1700,6 +1880,7 @@ QString QDateTimeEditPrivate::toString(const QCoreVariant &var) const
 
 QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *stateptr) const
 {
+    Q_ASSERT(text);
     int year, month, day, hour, minute, second, msec;
     const QDateTime &dt = value.toDateTime();
     year = dt.date().year();
@@ -1778,6 +1959,7 @@ QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *
 
 int QDateTimeEditPrivate::sectionValue(Section s, QString *text, QValidator::State *stateptr) const
 {
+    Q_ASSERT(text);
     QValidator::State state = QValidator::Invalid;
     int num = 0;
     QString st = sectionText(*text, s);
