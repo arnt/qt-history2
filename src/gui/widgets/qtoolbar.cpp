@@ -30,6 +30,7 @@
 #include "qcombobox.h"
 #include "qtimer.h"
 #include "qstyle.h"
+#include "qmap.h"
 
 static const char * const arrow_v_xpm[] = {
     "7 9 3 1",
@@ -70,6 +71,8 @@ public:
     bool moving;
     QToolBarExtensionWidget *extension;
     QPopupMenu *extensionPopup;
+
+    QMap<QAction *, QWidget *> actions;
 };
 
 
@@ -680,26 +683,39 @@ void QToolBar::resizeEvent(QResizeEvent *e)
 void QToolBar::actionEvent(QActionEvent *e)
 {
     // ################ temporary hack to see something in the toolbars
-    if (e->type() != QEvent::ActionAdded)
-        return;
-    QAction *a = e->action();
-    if (a->isSeparator()) {
-        addSeparator();
-    } else {
-        QToolButton* btn = new QToolButton(this);
-        btn->setToggleButton(a->isCheckable());
-        QIconSet icon = a->icon();
-        if (!icon.isNull())
-            btn->setIconSet(icon);
-        connect(btn, SIGNAL(clicked()), a, SIGNAL(triggered()));
-        connect(btn, SIGNAL(clicked()), a, SIGNAL(activated()));
+    if (e->type() == QEvent::ActionAdded) {
+        QAction *a = e->action();
+        QWidget *w;
+        if (a->isSeparator()) {
+            w = new QToolBarSeparator(orientation(), this, "toolbar separator");
+        } else {
+            QToolButton* btn = new QToolButton(this);
+            btn->setToggleButton(a->isCheckable());
+            QIconSet icon = a->icon();
+            if (!icon.isNull())
+                btn->setIconSet(icon);
+            connect(btn, SIGNAL(clicked()), a, SIGNAL(triggered()));
+            connect(btn, SIGNAL(clicked()), a, SIGNAL(activated()));
 //         connect(btn, SIGNAL(toggled(bool)), a, SLOT(toolButtonToggled(bool)));
 // #ifndef QT_NO_TOOLTIP
 //         connect(&(d->tipGroup), SIGNAL(showTip(QString)), this, SLOT(showStatusText(QString)));
 //         connect(&(d->tipGroup), SIGNAL(removeTip()), this, SLOT(clearStatusText()));
 // #endif
-    }
 
+            w = btn;
+        }
+        d->actions.insert(a, w);
+    } else if (e->type() == QEvent::ActionRemoved) {
+        QAction *a = e->action();
+        delete d->actions.take(a);
+    } else if (e->type() == QEvent::ActionChanged) {
+        QAction *a = e->action();
+        QWidget *w = d->actions.value(a);
+        if (w) {
+            w->setShown(a->isVisible());
+            w->setEnabled(a->isEnabled());
+        }
+    }
 }
 
 
