@@ -44,8 +44,8 @@ protected slots:
     void connected();
     void closed();
     void readyRead();
-    void error();
-    
+    void error( int );
+
 };
 
 #endif

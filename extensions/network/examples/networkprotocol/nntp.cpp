@@ -29,8 +29,8 @@ Nntp::Nntp()
 	     this, SLOT( closed() ) );
     connect( commandSocket, SIGNAL( readyRead() ),
 	     this, SLOT( readyRead() ) );
-    connect( commandSocket, SIGNAL( error() ),
-	     this, SLOT( error() ) );
+    connect( commandSocket, SIGNAL( error( int ) ),
+	     this, SLOT( error( int ) ) );
     commandSocket->setMode( QSocket::Ascii );
 }
 
@@ -255,15 +255,18 @@ void Nntp::readArticle()
     }
 }
 
-void Nntp::error()
+void Nntp::error( int code )
 {
-    // this signal is called if connecting to the server failed
-    if ( operationInProgress() ) {
-	QString msg = tr( "Host not found or couldn't connect to: \n" + url()->host() );
-	operationInProgress()->setState( StFailed );
-	operationInProgress()->setProtocolDetail( msg );
-	operationInProgress()->setErrorCode( (int)ErrHostNotFound );
-	clearOperationQueue();
-	emit finished( operationInProgress() );
+    if ( code == QSocket::ErrHostNotFound ||
+	 code == QSocket::ErrConnectionRefused ) {
+	// this signal is called if connecting to the server failed
+	if ( operationInProgress() ) {
+	    QString msg = tr( "Host not found or couldn't connect to: \n" + url()->host() );
+	    operationInProgress()->setState( StFailed );
+	    operationInProgress()->setProtocolDetail( msg );
+	    operationInProgress()->setErrorCode( (int)ErrHostNotFound );
+	    clearOperationQueue();
+	    emit finished( operationInProgress() );
+	}
     }
 }

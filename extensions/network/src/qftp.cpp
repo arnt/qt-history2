@@ -80,8 +80,8 @@ QFtp::QFtp()
 	     this, SLOT( closed() ) );
     connect( commandSocket, SIGNAL( readyRead() ),
 	     this, SLOT( readyRead() ) );
-    connect( commandSocket, SIGNAL( error() ),
-	     this, SLOT( error() ) );
+    connect( commandSocket, SIGNAL( error( int ) ),
+	     this, SLOT( error( int ) ) );
     connect( dataSocket, SIGNAL( hostFound() ),
 	     this, SLOT( dataHostFound() ) );
     connect( dataSocket, SIGNAL( connected() ),
@@ -770,16 +770,19 @@ void QFtp::reinitCommandSocket()
 {
 }
 
-void QFtp::error()
+void QFtp::error( int code )
 {
-    if ( dataSocket->isOpen() )
-	dataSocket->close();
-    if ( operationInProgress() ) {
-	QString msg = tr( "Host not found or couldn't connect to: \n" + url()->host() );
-	operationInProgress()->setState( StFailed );
-	operationInProgress()->setProtocolDetail( msg );
-	operationInProgress()->setErrorCode( (int)ErrHostNotFound );
-	clearOperationQueue();
-	emit finished( operationInProgress() );
+    if ( code == QSocket::ErrHostNotFound ||
+	 code == QSocket::ErrConnectionRefused ) {
+	if ( dataSocket->isOpen() )
+	    dataSocket->close();
+	if ( operationInProgress() ) {
+	    QString msg = tr( "Host not found or couldn't connect to: \n" + url()->host() );
+	    operationInProgress()->setState( StFailed );
+	    operationInProgress()->setProtocolDetail( msg );
+	    operationInProgress()->setErrorCode( (int)ErrHostNotFound );
+	    clearOperationQueue();
+	    emit finished( operationInProgress() );
+	}
     }
 }

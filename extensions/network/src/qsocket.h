@@ -39,6 +39,12 @@ class QSocket : public QObject, public QIODevice
 {
     Q_OBJECT
 public:
+    enum Error {
+	ErrConnectionRefused, 
+	ErrHostNotFound,
+	ErrSocketRead
+    };
+    
     QSocket( QObject *parent=0, const char *name=0 );
     QSocket( int socket, QObject *parent=0, const char *name=0 );
    ~QSocket();
@@ -83,7 +89,7 @@ signals:
     void	 delayedCloseFinished();
     void	 readyRead();
     void	 bytesWritten( int nbytes );
-    void	 error();
+    void	 error( int );
 
 protected slots:
     virtual void sn_read();

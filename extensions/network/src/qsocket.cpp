@@ -339,7 +339,7 @@ void QSocket::tryConnecting()
     if ( l.isEmpty() ) {
 	if ( !d->dns->isWorking() ) {
 	    d->state = Idle;
-	    emit error();
+	    emit error( ErrHostNotFound );
 	}
 	return;
     }
@@ -348,7 +348,7 @@ void QSocket::tryConnecting()
     d->state = Connecting;
     if ( d->socket->connect( l[0], d->port ) == FALSE ) {
 	d->state = Idle;
-	emit error();
+	emit error( ErrConnectionRefused );
     }
 #if defined(QSOCKET_DEBUG)
     QString canonical = d->dns->canonicalName();
@@ -1005,7 +1005,7 @@ void QSocket::sn_read()
 #if defined(CHECK_RANGE)
 		qWarning( "QSocket::sn_read: Close error" );
 #endif
-		emit error();			// socket close error
+		emit error( ErrSocketRead );			// socket close error
 		return;
 	    }
 	    a = new QByteArray( nread );
@@ -1022,7 +1022,7 @@ void QSocket::sn_read()
 	    qWarning( "QSocket::sn_read: Read error" );
 #endif
 	    delete a;
-	    emit error();			// socket read error
+	    emit error( ErrSocketRead );			// socket read error
 	}
 	if ( nread != nbytes ) {		// unexpected
 #if defined(CHECK_RANGE)
@@ -1053,7 +1053,7 @@ void QSocket::sn_write()
 	    emit connected();
 	} else {
 	    d->state = Idle;
-	    emit error();
+	    emit error( ErrConnectionRefused );
 	    return;
 	}
 #if defined(QSOCKET_DEBUG)
