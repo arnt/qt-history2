@@ -46,6 +46,8 @@ public:
     void setType(QCoreVariant::Type type);
 
     void setRequiredStatus(RequiredStatus status);
+    inline void setRequired(bool required)
+    { setRequiredStatus(required ? Required : Optional); }
     void setLength(int fieldLength);
     void setPrecision(int precision);
     void setDefaultValue(const QCoreVariant &value);
