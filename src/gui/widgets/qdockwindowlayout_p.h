@@ -41,13 +41,12 @@ struct QDockWindowLayoutInfo
     int max_size;
 
     uint is_sep     : 1;
-    uint is_dummy   : 1;
     uint is_dropped : 1;
     uint reserved   : 13;
 
     inline QDockWindowLayoutInfo(QLayoutItem *i)
 	: item(i), cur_pos(-1), cur_size(-1), min_size(1), max_size(-1),
-	  is_sep(0), is_dummy(0), is_dropped(0), reserved(0)
+	  is_sep(0), is_dropped(0), reserved(0)
     { }
 };
 
@@ -86,7 +85,7 @@ public:
 
     void setOrientation(Qt::Orientation o);
     QLayoutItem *find(QWidget *widget);
-    QDockWindowLayoutInfo &insert(int index, QLayoutItem *layoutitem, bool dummy = false);
+    QDockWindowLayoutInfo &insert(int index, QLayoutItem *layoutitem);
 
     void dump();
 
