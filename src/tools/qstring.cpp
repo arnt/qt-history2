@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#102 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#103 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#102 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#103 $");
 
 
 /*****************************************************************************
@@ -1447,13 +1447,9 @@ uint QString::toUInt( bool *ok ) const
 double QString::toDouble( bool *ok ) const
 {
     char *end;
-    double val = strtod( data(), &end );
-    if ( ok ) {
-	if ( end == 0 || *end == '\0' )
-	    *ok = TRUE;
-	else
-	    *ok = FALSE;
-    }
+    double val = strtod( data() ? data() : "", &end );
+    if ( ok )
+	*ok = ( data() && *data() && ( end == 0 || *end == '\0' ) );
     return val;
 }
 
