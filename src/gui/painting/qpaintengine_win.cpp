@@ -894,10 +894,6 @@ void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const
 
 void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textFlags)
 {
-    HANDLE brush = SelectObject(d->hdc, stock_whiteBrush);
-    Rectangle(d->hdc, 0, 0, 300, 300);
-    SelectObject(d->hdc, brush);
-
 #ifdef QT_DEBUG_DRAW
     printf(" - QWin32PaintEngine::drawTextItem(), (%d,%d), flags=%x, string=%s\n",
            int(p.x()), int(p.y()), textFlags, QString::fromRawData(ti.chars, ti.num_chars).latin1());
