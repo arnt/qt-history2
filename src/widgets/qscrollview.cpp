@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#123 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#124 $
 **
 ** Implementation of QScrollView class
 **
@@ -33,6 +33,7 @@
 #include "qscrollview.h"
 #include "qptrdict.h"
 #include "qapplication.h"
+
 
 const int coord_limit = 4000;
 
@@ -498,6 +499,8 @@ QSize QScrollView::viewportSize( int x, int y ) const
 
     bool needh, needv;
     bool showh, showv;
+    int hsbExt = horizontalScrollBar()->sizeHint().height();
+    int vsbExt = verticalScrollBar()->sizeHint().width();
 
     if ( d->policy != AutoOne || d->anyVisibleChildren() ) {
 	// Do we definitely need the scrollbar?
@@ -520,11 +523,11 @@ QSize QScrollView::viewportSize( int x, int y ) const
 	    showv = needv;
 
 	// Given other scrollbar will be shown, NOW do we need one?
-	if ( showh && h-verticalScrollBar()->extent()-tmarg-bmarg < y ) {
+	if ( showh && h-vsbExt-tmarg-bmarg < y ) {
 	    if (d->vMode == Auto)
 		showv=TRUE;
 	}
-	if ( showv && w-horizontalScrollBar()->extent()-lmarg-rmarg < x ) {
+	if ( showv && w-hsbExt-lmarg-rmarg < x ) {
 	    if (d->hMode == Auto)
 		showh=TRUE;
 	}
@@ -534,8 +537,8 @@ QSize QScrollView::viewportSize( int x, int y ) const
 	showv = d->vMode == AlwaysOn;
     }
 
-    return QSize( w-lmarg-rmarg - (showv ? verticalScrollBar()->extent() : 0),
-		  h-tmarg-bmarg - (showh ? horizontalScrollBar()->extent() : 0) );
+    return QSize( w-lmarg-rmarg - (showv ? vsbExt : 0),
+		  h-tmarg-bmarg - (showh ? hsbExt : 0) );
 }
 
 
@@ -563,6 +566,9 @@ void QScrollView::updateScrollBars()
     bool showh;
     bool showv;
 
+    int hsbExt = horizontalScrollBar()->sizeHint().height();
+    int vsbExt = verticalScrollBar()->sizeHint().width();
+    
     if ( d->policy != AutoOne || d->anyVisibleChildren() ) {
 	// Do we definitely need the scrollbar?
 	needh = w-lmarg-rmarg < contentsWidth();
@@ -584,12 +590,12 @@ void QScrollView::updateScrollBars()
 	    showv = needv;
 
 	// Given other scrollbar will be shown, NOW do we need one?
-	if ( showh && h-verticalScrollBar()->extent()-tmarg-bmarg < contentsHeight() ) {
+	if ( showh && h-vsbExt-tmarg-bmarg < contentsHeight() ) {
 	    needv=TRUE;
 	    if (d->vMode == Auto)
 		showv=TRUE;
 	}
-	if ( showv && w-horizontalScrollBar()->extent()-lmarg-rmarg < contentsWidth() ) {
+	if ( showv && w-hsbExt-lmarg-rmarg < contentsWidth() ) {
 	    needh=TRUE;
 	    if (d->hMode == Auto)
 		showh=TRUE;
@@ -603,7 +609,7 @@ void QScrollView::updateScrollBars()
 
     // Hide unneeded scrollbar, calculate viewport size
     if ( showh ) {
-        porth=h-horizontalScrollBar()->extent()-tmarg-bmarg;
+        porth=h-hsbExt-tmarg-bmarg;
     } else {
 	if (!needh)
 	    hslide( 0 ); // move to left
@@ -611,7 +617,7 @@ void QScrollView::updateScrollBars()
 	porth=h-tmarg-bmarg;
     }
     if ( showv ) {
-	portw=w-verticalScrollBar()->extent()-lmarg-rmarg;
+	portw=w-vsbExt-lmarg-rmarg;
     } else {
 	if (!needv)
 	    vslide( 0 ); // move to top
@@ -640,43 +646,43 @@ void QScrollView::updateScrollBars()
     // Position the scrollbars, viewport, and corner widget.
     int bottom;
     if ( showh ) {
-	int right = ( showv || cornerWidget() ) ? w-verticalScrollBar()->extent() : w;
+	int right = ( showv || cornerWidget() ) ? w-vsbExt : w;
 	if ( style() == WindowsStyle )
-            setHBarGeometry(d->hbar, fw, h-horizontalScrollBar()->extent()-fw,
-                            right-fw-fw, horizontalScrollBar()->extent() );
+            setHBarGeometry(d->hbar, fw, h-hsbExt-fw,
+                            right-fw-fw, hsbExt );
 	else
-            setHBarGeometry(d->hbar, 0, h-horizontalScrollBar()->extent(), right,
-                            horizontalScrollBar()->extent() );
-	bottom=h-horizontalScrollBar()->extent();
+            setHBarGeometry(d->hbar, 0, h-hsbExt, right,
+                            hsbExt );
+	bottom=h-hsbExt;
     } else {
         bottom=h;
     }
     if ( showv ) {
 	clipper()->setGeometry( lmarg, tmarg,
-                                w-verticalScrollBar()->extent()-lmarg-rmarg,
+                                w-vsbExt-lmarg-rmarg,
                                 bottom-tmarg-bmarg );
 	if ( style() == WindowsStyle )
 	    changeFrameRect(QRect(0, 0, w, h) );
 	else
-	    changeFrameRect(QRect(0, 0, w-verticalScrollBar()->extent(), bottom));
+	    changeFrameRect(QRect(0, 0, w-vsbExt, bottom));
 	if (cornerWidget()) {
 	    if ( style() == WindowsStyle )
-                setVBarGeometry( d->vbar, w-verticalScrollBar()->extent()-fw,
-                                 fw, verticalScrollBar()->extent(),
-                                 h-horizontalScrollBar()->extent()-fw-fw );
+                setVBarGeometry( d->vbar, w-vsbExt-fw,
+                                 fw, vsbExt,
+                                 h-hsbExt-fw-fw );
 	    else
-                setVBarGeometry( d->vbar, w-verticalScrollBar()->extent(), 0,
-                                 verticalScrollBar()->extent(),
-                                 h-horizontalScrollBar()->extent() );
+                setVBarGeometry( d->vbar, w-vsbExt, 0,
+                                 vsbExt,
+                                 h-hsbExt );
 	}
 	else {
 	    if ( style() == WindowsStyle )
-                setVBarGeometry( d->vbar, w-verticalScrollBar()->extent()-fw,
-                                 fw, verticalScrollBar()->extent(),
+                setVBarGeometry( d->vbar, w-vsbExt-fw,
+                                 fw, vsbExt,
                                  bottom-fw-fw );
 	    else
-                setVBarGeometry( d->vbar, w-verticalScrollBar()->extent(), 0,
-                                 verticalScrollBar()->extent(), bottom );
+                setVBarGeometry( d->vbar, w-vsbExt, 0,
+                                 vsbExt, bottom );
 	}
     } else {
 	if ( style() == WindowsStyle )
@@ -688,15 +694,15 @@ void QScrollView::updateScrollBars()
     }
     if ( d->corner ) {
 	if ( style() == WindowsStyle )
-            d->corner->setGeometry( w-verticalScrollBar()->extent()-fw,
-                                    h-horizontalScrollBar()->extent()-fw,
-                                    verticalScrollBar()->extent(),
-                                    horizontalScrollBar()->extent() );
+            d->corner->setGeometry( w-vsbExt-fw,
+                                    h-hsbExt-fw,
+                                    vsbExt,
+                                    hsbExt );
 	else
-            d->corner->setGeometry( w-verticalScrollBar()->extent(),
-                                    h-horizontalScrollBar()->extent(),
-                                    verticalScrollBar()->extent(),
-                                    horizontalScrollBar()->extent() );
+            d->corner->setGeometry( w-vsbExt,
+                                    h-hsbExt,
+                                    vsbExt,
+                                    hsbExt );
     }
 
     if ( contentsX()+visibleWidth() > contentsWidth() ) {

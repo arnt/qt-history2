@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#125 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#126 $
 **
 ** Implementation of QTableView class
 **
@@ -41,6 +41,10 @@ enum ScrollBarDirtyFlags {
     verMask	  = 0x0F,
     horMask	  = 0xF0
 };
+
+
+#define HSBEXT horizontalScrollBar()->sizeHint().height()
+#define VSBEXT verticalScrollBar()->sizeHint().width()
 
 
 class QCornerSquare : public QWidget		// internal class
@@ -1083,8 +1087,8 @@ void QTableView::coverCornerSquare( bool enable )
 	CHECK_PTR( cornerSquare );
 	cornerSquare->setGeometry( maxViewX() + frameWidth() + 1,
 				   maxViewY() + frameWidth() + 1,
-                                   verticalScrollBar()->extent(),
-                                 horizontalScrollBar()->extent());
+                                   VSBEXT,
+                                 HSBEXT);
     }
     if ( autoUpdate() && cornerSquare ) {
 	if ( enable )
@@ -1434,7 +1438,7 @@ QScrollBar *QTableView::verticalScrollBar() const
     if ( !vScrollBar ) {
 	QScrollBar *sb = new QScrollBar( QScrollBar::Vertical, that );
 	sb->setCursor( arrowCursor );
-        sb->resize( sb->extent(), 16 ); // 16 is irrelevant
+        sb->resize( sb->sizeHint() ); // height is irrelevant
 	CHECK_PTR(sb);
 	sb->setTracking( FALSE );
 	sb->setFocusPolicy( NoFocus );
@@ -1463,7 +1467,7 @@ QScrollBar *QTableView::horizontalScrollBar() const
     if ( !hScrollBar ) {
 	QScrollBar *sb = new QScrollBar( QScrollBar::Horizontal, that );
 	sb->setCursor( arrowCursor );
-	sb->resize( 16, sb->extent() ); // 16 is irrelevant
+	sb->resize( sb->sizeHint() ); // width is irrelevant
 	sb->setFocusPolicy( NoFocus );
 	CHECK_PTR(sb);
 	sb->setTracking( FALSE );
@@ -1827,7 +1831,7 @@ int QTableView::minViewY() const
 int QTableView::maxViewX() const
 {
     return width() - 1 - frameWidth()
-        - (tFlags & Tbl_vScrollBar ? verticalScrollBar()->extent()
+        - (tFlags & Tbl_vScrollBar ? VSBEXT
            : 0);
 }
 
@@ -1843,7 +1847,7 @@ int QTableView::maxViewX() const
 int QTableView::maxViewY() const
 {
     return height() - 1 - frameWidth()
-        - (tFlags & Tbl_hScrollBar ? horizontalScrollBar()->extent()
+        - (tFlags & Tbl_hScrollBar ? HSBEXT
            : 0);
 }
 
@@ -1916,11 +1920,11 @@ void QTableView::doAutoScrollBars()
     }
 
     if ( testTableFlags(Tbl_autoHScrollBar) && vScrollOn && !hScrollOn )
-	if ( w > viewW - verticalScrollBar()->extent() )
+	if ( w > viewW - VSBEXT )
 	    hScrollOn = TRUE;
 
     if ( testTableFlags(Tbl_autoVScrollBar) && hScrollOn && !vScrollOn )
-	if ( h > viewH - horizontalScrollBar()->extent() )
+	if ( h > viewH - HSBEXT )
 	    vScrollOn = TRUE;
 
     setHorScrollBar( hScrollOn, FALSE );
@@ -1975,9 +1979,9 @@ void QTableView::updateScrollBars( uint f )
 
     if ( testTableFlags(Tbl_hScrollBar) && (sbDirty & horMask) != 0 ) {
 	if ( sbDirty & horGeometry )
-	    hScrollBar->setGeometry( 0,height() - horizontalScrollBar()->extent(),
+	    hScrollBar->setGeometry( 0,height() - HSBEXT,
                                      viewWidth() + frameWidth()*2,
-                                   horizontalScrollBar()->extent());
+                                   HSBEXT);
 
 	if ( sbDirty & horSteps ) {
 	    if ( cellW )
@@ -1999,8 +2003,8 @@ void QTableView::updateScrollBars( uint f )
 
     if ( testTableFlags(Tbl_vScrollBar) && (sbDirty & verMask) != 0 ) {
 	if ( sbDirty & verGeometry )
-	    vScrollBar->setGeometry( width() - verticalScrollBar()->extent(), 0,
-                                     verticalScrollBar()->extent(),
+	    vScrollBar->setGeometry( width() - VSBEXT, 0,
+                                     VSBEXT,
                                      viewHeight() + frameWidth()*2 );
 
 	if ( sbDirty & verSteps ) {
@@ -2033,9 +2037,9 @@ void QTableView::updateScrollBars( uint f )
 void QTableView::updateFrameSize()
 {
     int rw = width()  - ( testTableFlags(Tbl_vScrollBar) ?
-                          verticalScrollBar()->extent() : 0 );
+                          VSBEXT : 0 );
     int rh = height() - ( testTableFlags(Tbl_hScrollBar) ?
-                          horizontalScrollBar()->extent() : 0 );
+                          HSBEXT : 0 );
     if ( rw < 0 )
 	rw = 0;
     if ( rh < 0 )

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#83 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2559,9 +2559,9 @@ QSize QMultiLineEdit::minimumSizeHint() const
     h += frameWidth();
     w += frameWidth();
     if ( testTableFlags(Tbl_hScrollBar|Tbl_autoHScrollBar) )
-	w += verticalScrollBar()->extent();
+	w += verticalScrollBar()->sizeHint().width();
     if ( testTableFlags(Tbl_vScrollBar|Tbl_autoVScrollBar) )
-	h += horizontalScrollBar()->extent();;
+	h += horizontalScrollBar()->sizeHint().height();
     return QSize(w,h);
 }
 
