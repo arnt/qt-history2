@@ -255,7 +255,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 {
     if (qApp->type() == QApplication::Tty) {
         qWarning("QPixmap: Cannot create a QPixmap when no GUI "
-                  "is being used");
+                 "is being used");
     }
 
     static int serial = 0;
@@ -302,18 +302,18 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     data->w = w;
     data->h = h;
     data->hd = (Qt::HANDLE)XCreatePixmap(data->xinfo->display(),
-				     RootWindow(data->xinfo->display(),
-						data->xinfo->screen()),
-				     w, h, data->d);
+                                         RootWindow(data->xinfo->display(),
+                                                    data->xinfo->screen()),
+                                         w, h, data->d);
 
 #ifndef QT_NO_XFT
     if (X11->has_xft) {
         if (data->d == 1) {
-            data->xft_hd = (HANDLE) XftDrawCreateBitmap(data->xinfo->display(), data->hd);
+            data->xft_hd = (Qt::HANDLE) XftDrawCreateBitmap(data->xinfo->display(), data->hd);
         } else {
-            data->xft_hd = (HANDLE) XftDrawCreate(data->xinfo->display(), data->hd,
-						  (Visual *) data->xinfo->visual(),
-						  data->xinfo->colormap());
+            data->xft_hd = (Qt::HANDLE) XftDrawCreate(data->xinfo->display(), data->hd,
+                                                      (Visual *) data->xinfo->visual(),
+                                                      data->xinfo->colormap());
         }
     }
 #endif // QT_NO_XFT
@@ -379,7 +379,7 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
 
 #ifndef QT_NO_XFT
     if (X11->has_xft)
-        data->xft_hd = (HANDLE) XftDrawCreateBitmap (data->xinfo->display (), data->hd);
+        data->xft_hd = (Qt::HANDLE) XftDrawCreateBitmap (data->xinfo->display (), data->hd);
 #endif // QT_NO_XFT
 
     if (flipped_bits)                                // Avoid purify complaint
@@ -1015,7 +1015,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 
 #ifndef QT_NO_XFT
         if (X11->has_xft)
-            data->xft_hd = (HANDLE) XftDrawCreateBitmap(data->xinfo->display(), data->hd);
+            data->xft_hd = (Qt::HANDLE) XftDrawCreateBitmap(data->xinfo->display(), data->hd);
 #endif // QT_NO_XFT
 
         if (tmp_bits)                                // Avoid purify complaint
@@ -1431,10 +1431,11 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 #ifndef QT_NO_XFT
         if (X11->has_xft) {
             if (data->d == 1) {
-                data->xft_hd = (HANDLE) XftDrawCreateBitmap(data->xinfo->display (), data->hd);
+                data->xft_hd = (Qt::HANDLE) XftDrawCreateBitmap(data->xinfo->display (), data->hd);
             } else {
-                data->xft_hd = (HANDLE) XftDrawCreate(data->xinfo->display (), data->hd,
-						      (Visual *) data->xinfo->visual(), data->xinfo->colormap());
+                data->xft_hd = (Qt::HANDLE) XftDrawCreate(data->xinfo->display (), data->hd,
+                                                          (Visual *) data->xinfo->visual(),
+                                                          data->xinfo->colormap());
             }
         }
 #endif // QT_NO_XFT
@@ -1487,7 +1488,8 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
                               w, h, 8);
 
             data->alphapm->data->xft_hd =
-                (HANDLE) XftDrawCreateAlpha(data->xinfo->display(), data->alphapm->data->hd, 8);
+                (Qt::HANDLE)
+                XftDrawCreateAlpha(data->xinfo->display(), data->alphapm->data->hd, 8);
 
             XImage *axi = XCreateImage(data->xinfo->display(), (Visual *) data->xinfo->visual(),
                                        8, ZPixmap, 0, 0, w, h, 8, 0);
@@ -1842,10 +1844,11 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
                                       w, h, 8);
 
                     pm.data->alphapm->data->xft_hd =
-                        (HANDLE) XftDrawCreateAlpha(data->xinfo->display(),
-                                                     pm.data->alphapm->data->hd, 8);
+                        (Qt::HANDLE) XftDrawCreateAlpha(data->xinfo->display(),
+                                                        pm.data->alphapm->data->hd, 8);
 
-                    XImage *axi2 = XCreateImage(data->xinfo->display(), (Visual *) data->xinfo->visual(),
+                    XImage *axi2 = XCreateImage(data->xinfo->display(),
+                                                (Visual *) data->xinfo->visual(),
                                                 8, ZPixmap, 0, (char *)dptr, w, h, 8, 0);
 
                     if (axi2) {
