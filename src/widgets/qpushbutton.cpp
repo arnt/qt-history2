@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#98 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#97 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#98 $");
 
 
 /*!
@@ -422,10 +422,10 @@ void QPushButton::drawButtonLabel( QPainter *paint )
   Handles focus in events for the push button.
 */
 
-void QPushButton::focusInEvent( QFocusEvent * )
+void QPushButton::focusInEvent( QFocusEvent *e )
 {
     if ( autoDefButton )
 	setDefault( TRUE );
-    repaint( FALSE );
+    QButton::focusInEvent( e );
 }
 

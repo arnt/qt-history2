@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#84 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,21 +16,41 @@
 #include "qkeycode.h"
 #include "qtimer.h"
 #include "qaccel.h"
+#include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#84 $");
 
 
 static const int autoRepeatDelay  = 300;
 static const int autoRepeatPeriod = 100;
 
+static const int drawingPixWidth  = 300;
+static const int drawingPixHeight = 100;
+
+
+/* 
+  Returns a pixmap of dimension (drawingPixWidth x drawingPixHeight). The
+  pixmap is used by paintEvent for flicker-free drawing.
+ */
+
+static QPixmap *getDrawingPixmap()
+{
+    QPixmap *pm = QPixmapCache::find( "$qt-button-drawpix" );
+    if ( !pm ) {
+	pm = new QPixmap( drawingPixWidth, drawingPixHeight );
+	CHECK_PTR( pm );
+	QPixmapCache::insert( "$qt-button-drawpix", pm );
+    }
+    return pm;
+}
+
 
 struct QButtonData
 {
-    QButtonData() : group(0), pm(0) {}
+    QButtonData() : group(0) {}
     QButtonGroup *group;
     QTimer	  timer;
-    QPixmap * pm;
 };
 
 void QButton::ensureData()
@@ -52,7 +72,6 @@ void QButton::setGroup( QButtonGroup* g )
     ensureData();
     d->group = g;
 }
-
 
 QTimer *QButton::timer()
 {
@@ -208,8 +227,6 @@ QButton::~QButton()
     if ( group() )				// remove from button group
 	group()->remove( this );
     delete bpixmap;
-    if ( d && d->pm )
-	delete d->pm;
     delete d;
 }
 
@@ -280,7 +297,7 @@ void QButton::setText( const char *text )
 	setAccel( 0 );
     if ( newAccelChar )
 	setAccel( ALT+toupper(newAccelChar) );
-    update();
+    repaint( FALSE );
 }
 
 
@@ -326,7 +343,7 @@ void QButton::setPixmap( const QPixmap &pixmap )
 	adjustSize();
     if ( oldAccelChar )
 	setAccel( 0 );
-    update();
+    repaint( FALSE );
 }
 
 
@@ -687,19 +704,32 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
 
 void QButton::paintEvent( QPaintEvent *event )
 {
-    ensureData();
-    if ( !d->pm )
-	d->pm = new QPixmap( width(), height() );
-    else if ( d->pm->size() != size() )
-	d->pm->resize( size() );
+    if ( width() <= drawingPixWidth && height() <= drawingPixHeight  ) {
+	QPixmap *pm = getDrawingPixmap();
+	ASSERT( pm );
 
-    QPainter paint( d->pm );
+	QPainter paint( pm );
 
-    paint.fillRect( rect(), backgroundBrush() );
-    drawButton( &paint );
-    paint.end();
+	paint.fillRect( rect(), backgroundBrush() );
+	drawButton( &paint );
+	paint.end();
+	
+	bitBlt( this, event->rect().topLeft(), pm, event->rect() );
+    } else {
+	QPainter paint;
+	paint.begin( this );
 
-    bitBlt( this, event->rect().topLeft(), d->pm, event->rect(), CopyROP );
+	// This optimization is worth it, since we often call repaint()
+	// to draw exactly the whole button.
+	if ( event && !event->rect().contains(rect()) )
+	    paint.setClipRect( event->rect() );
+
+	erase( event->rect() );
+	drawButton( &paint );
+	paint.end();
+    }
+
+
 }
 
 #if QT_VERSION == 200
@@ -711,9 +741,9 @@ void QButton::paintEvent( QPaintEvent *event )
   \sa focusOutEvent()
 */
 
-void QButton::focusInEvent( QFocusEvent *e )
+void QButton::focusInEvent( QFocusEvent * )
 {
-    QWidget::focusInEvent( e );
+    repaint( FALSE );
 }
 
 /*!
@@ -721,9 +751,9 @@ void QButton::focusInEvent( QFocusEvent *e )
   \sa focusInEvent()
 */
 
-void QButton::focusOutEvent( QFocusEvent *e )
+void QButton::focusOutEvent( QFocusEvent * )
 {
-    QWidget::focusOutEvent( e );
+    repaint( FALSE );
 }
 
 
