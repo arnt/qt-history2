@@ -1672,7 +1672,7 @@ void QTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTex
 
 int QTextDocumentLayout::pageCount() const
 {
-    return (int)(document()->pageSize().height()/documentSize().height()) + 1;
+    return (int)(documentSize().height()/document()->pageSize().height()) + 1;
 }
 
 QSizeF QTextDocumentLayout::documentSize() const
