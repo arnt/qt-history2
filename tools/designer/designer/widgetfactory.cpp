@@ -1169,8 +1169,10 @@ QString WidgetFactory::defaultSignal( QObject *w )
 {
     if ( w->inherits( "QRadioButton" ) || w->inherits( "QCheckBox" ) )
 	return "toggled";
-    else if ( w->inherits( "QButton" ) )
+    else if ( w->inherits( "QButton" ) || w->inherits( "QButtonGroup" ) )
 	return "clicked";
+    else if ( w->inherits( "QTextBrowser" ) )
+	return "linkClicked";
     else if ( w->inherits( "QLineEdit" ) || w->inherits( "QTextEdit" ) )
 	return "textChanged";
     else if ( w->inherits( "QListView" ) || w->inherits( "QIconView" ) ||
@@ -1178,6 +1180,15 @@ QString WidgetFactory::defaultSignal( QObject *w )
 	return "selectionChanged";
     else if ( w->inherits( "QTabWidget" ) )
 	return "selected";
+    else if ( w->inherits( "QWidgetStack" ) )
+	return "aboutToShow";
+    else if ( w->inherits( "QSpinBox" ) || w->inherits( "QSlider" ) ||
+	      w->inherits( "QScrollBar" ) || w->inherits( "QDateEdit" ) ||
+	      w->inherits( "QTimeEdit" ) || w->inherits( "QDateTimeEdit" ) ||
+	      w->inherits( "QDial" ) )
+	return "valueChanged";
+    else if ( w->inherits( "QComboBox" ) )
+	return "activated";
     return QString::null;
 }
 
