@@ -2,7 +2,6 @@ TEMPLATE    =	subdirs
 
 SUBDIRS	=	aclock \
 		action \
-		action/actiongroup \
 		action/toggleaction \
 		addressbook \
 		application \
@@ -78,7 +77,7 @@ win32:SUBDIRS +=	    sound
 iconview:SUBDIRS += fileiconview \
 		    iconview \
 		    iconview/simple_dd
-				
+
 
 network:SUBDIRS +=  network/clientserver/client \
 		    network/clientserver/server \
