@@ -1,0 +1,135 @@
+@SysInclude { tbl }
+@SysInclude { diag }
+@SysInclude { xrgb }
+@SysInclude { picture }
+@Illustration
+    @InitialFont { Helvetica Base 10p }
+{
+@Diag
+    hsize { 2.25c }
+    ahsize { 2.25c }
+    bhsize { 2.25c }
+    break { clines }
+    abreak { clines }
+    bbreak { clines }
+    paint { @Xrgb aliceblue }
+    apaint { @Xrgb cornsilk }
+    aoutline { curvebox }
+    bpaint { @Xrgb slategray1 }
+    coutlinestyle { noline }
+    cpaint { lightyellow }
+    cmargin { 0c }
+    cvsize { 0.1c }
+    chsize { 0.1c }
+    arrowwidth { 0.75f }
+    arrowlength { 0.75f }
+    backarrowwidth { 0.75f }
+    backarrowlength { 0.75f }
+    pathwidth { medium }
+    pathdashlength { 0.3f }
+{
+@Tbl
+    #rule { yes } rulecolour {red}
+    indent { ctr }
+    iv { ctr }
+    marginvertical { 0.25c }
+    marginhorizontal { 0.5c }
+    aformat { @Cell A | @Cell B | @Cell C | @Cell indent { left } D }
+    bformat { @Cell A | @Cell B | @StartHSpan @Cell C | @HSpan }
+    cformat { @StartVSpan @Cell A | @Cell B | @StartVSpan @Cell C | @VSpan }
+    dformat { @Cell A | @Cell B | @Cell C |
+	      @StartVSpan @Cell paint { lightgrey } iv { foot } strut { no } D }
+    eformat { @Cell A | @Cell B | @Cell C | @VSpan }
+{
+    @Rowb
+	C { PRO:: @Node { Multi-platform .pro project file (plain text) } }
+    @Rowa
+	A { LUPDATE:: @ANode { lupdate } }
+	B { QMAKE:: @ANode { qmake } }
+    @Rowa
+	A { TS:: @BNode { .ts files (XML) } }
+	B { MAKEFILE:: @BNode { make file } }
+    @Rowa
+	A { LINGUIST:: @CurveBox paint { @Xrgb yellowgreen } { @I{Qt Linguist} } }
+	B { MAKETOOL:: @CurveBox paint { @Xrgb thistle1 } { make tool } }
+	C { DESIGNER:: @CurveBox paint { @Xrgb yellowgreen } { @I{Qt Designer} } }
+	D { VISUALSTUDIO:: @CurveBox paint { @Xrgb green }
+		{ Development Environment (Visual Studio, Emacs, etc.) } }
+    @Rowa
+	B { UI:: @BNode { .ui files (XML) } }
+    @Rowa
+	A { TSX:: @Node { .ts files (XML) } }
+	B { UIC:: @ANode { uic } }
+    @Rowa
+	A { LRELEASE:: @ANode { lrelease } }
+	B { CPP:: @BNode { C++ class
+.h "&" .cpp files } }
+	C { UIH:: @Node { .ui.h files } }
+	D { CPPX:: @Node { C++ class
+.h "&" .cpp files } }
+    @Rowd
+	B { MOC:: @ANode { moc } }
+	D {
+	    @Tbl
+		#rule { yes } rulecolour {red}
+		strut { no }
+		break { lines }
+		cformat { @StartHSpan @Cell indent { ctr } A | @HSpan | @HSpan }
+		bformat { @StartHSpan @Cell A | @HSpan | @HSpan }
+		aformat { @Cell A | @Cell B | @Cell indent { right } C }
+	    {
+		@Rowc A { @Underline Key }
+		@Rowa
+		    A { produces "&"
+consumes }
+		    B { @CNode }
+		    C { @CNode }
+		    @Rowa
+		    A { produces }
+		    B { @CNode }
+		    C { @CNode }
+		    @Rowa
+		    A { consumes }
+		    B { @CNode }
+		    C { @CNode }
+		    @Rowa
+		    A { controls }
+		    B { @CNode }
+		    C { @CNode }
+		@Rowb A { @CurveBox paint { @Xrgb yellowgreen } { Qt GUI
+Application }}
+		@Rowb A { @ANode { Qt command line tool } }
+		@Rowb A { @CurveBox paint { @Xrgb green } { GUI
+Application } }
+		@Rowb A { @Node { developer file } }
+		@Rowb A { @BNode { generated file } }
+	    }
+	}
+    @Rowe
+	B { MOCCPP:: @BNode { moc_*.cpp files } }
+    @Rowe
+	C { COMPILER:: @CurveBox paint { @Xrgb thistle1 } { compiler } }
+    @Rowe
+	C { OBJECTS:: @BNode { object files } }
+    @Rowe
+	C { LINKER:: @CurveBox paint { @Xrgb thistle1 } { linker } }
+    @Rowc
+	A { QM:: @BNode { .qm files
+(binary) } }
+	C { EXE:: @CurveBox paint { @Xrgb green }
+	    { Native
+executable
+(Windows,
+X11, Mac~OS~X) } }
+}
+//
+@VHArrow from { LUPDATE } to { PRO } pathstyle{dotted}
+@VHArrow from { QMAKE } to { PRO } pathstyle{dotted}
+@Arrow from { LUPDATE } to { TS }
+@Arrow from { TS } to { LINGUIST }
+@Link from { LINGUIST } to { TSX } arrow { both } pathstyle { dashed }
+@Arrow from { TSX } to { LRELEASE }
+@Arrow from { LRELEASE } to { QM }
+@HVHArrow from { MAKETOOL } to { LUPDATE } pathdashlength{0.6f} pathstyle{dashed}
+}
+}
