@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
 <class>OptionsPage</class>
 <widget class="QWidget">
     <property name="name">
@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>443</width>
-            <height>288</height>
+            <width>449</width>
+            <height>279</height>
         </rect>
     </property>
     <property name="caption">
@@ -118,13 +118,21 @@
                         </widget>
                         <widget class="QCheckBox">
                             <property name="name">
-                                <cstring>installExamples</cstring>
-                            </property>
-                            <property name="enabled">
-                                <bool>false</bool>
+                                <cstring>installTools</cstring>
                             </property>
                             <property name="text">
-                                <string>Install &amp;examples</string>
+                                <string>Install &amp;Tools</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox">
+                            <property name="name">
+                                <cstring>installExamples</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Install &amp;Examples</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -134,11 +142,8 @@
                             <property name="name">
                                 <cstring>installTutorials</cstring>
                             </property>
-                            <property name="enabled">
-                                <bool>false</bool>
-                            </property>
                             <property name="text">
-                                <string>Install &amp;tutorials</string>
+                                <string>Install T&amp;utorials</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -182,7 +187,7 @@
                     </vbox>
                 </widget>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Spacer1</cstring>
                     </property>
                     <property name="orientation">

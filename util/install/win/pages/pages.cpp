@@ -136,8 +136,6 @@ OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
     : OptionsPage( parent, name, fl )
 {
     installDocs->hide();
-    installExamples->hide();
-    installTutorials->hide();
 #if defined(Q_OS_WIN32)
     installPath->setText(
 	    QString( "C:\\Qt\\" ) +

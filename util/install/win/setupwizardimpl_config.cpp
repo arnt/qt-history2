@@ -273,11 +273,6 @@ void SetupWizardImpl::cleanDone()
 	args += "-no-style-sgi";
 #  endif
 
-    if( optionsPage && !optionsPage->installExamples->isChecked() )
-	args += "-no-examples";
-    if( optionsPage && !optionsPage->installTutorials->isChecked() )
-	args += "-no-tutorials";
-
 #  if defined(Q_OS_WIN32)
     if( qWinVersion() & WV_NT_based ) {
 #  elif defined(Q_OS_UNIX)

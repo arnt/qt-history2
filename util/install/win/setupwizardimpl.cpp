@@ -950,6 +950,14 @@ void SetupWizardImpl::configDone()
 	connect( &make, SIGNAL( readyReadStderr() ), this, SLOT( readMakeError() ) );
 
 	args << makeCmds[ globalInformation.sysId() ];
+	args << "sub-src";
+	args << "sub-plugins";
+	if ( optionsPage->installTools->isChecked() )
+	    args << "sub-tools";
+	if ( optionsPage->installTutorials->isChecked() )
+	    args << "sub-tutorial";
+	if ( optionsPage->installExamples->isChecked() )
+	    args << "sub-examples";
 
 	make.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
 	make.setArguments( args );
@@ -1818,11 +1826,13 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 		if( !dir.exists( targetName ) )
 		    createDir( targetName );
 		if( topLevel ) {
-		    if( fi->fileName() == "doc" )
+		    if ( fi->fileName() == "doc" )
 			doCopy = optionsPage->installDocs->isChecked();
-		    else if( fi->fileName() == "tutorial" )
+		    else if ( fi->fileName() == "tools" )
+			doCopy = optionsPage->installTools->isChecked();
+		    else if ( fi->fileName() == "tutorial" )
 			doCopy = optionsPage->installTutorials->isChecked();
-		    else if( fi->fileName() == "examples" )
+		    else if ( fi->fileName() == "examples" )
 			doCopy = optionsPage->installExamples->isChecked();
 		}
 		if( doCopy )
