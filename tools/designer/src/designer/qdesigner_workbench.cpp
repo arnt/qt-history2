@@ -159,9 +159,11 @@ void QDesignerWorkbench::switchToNeutralMode()
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
         if (tw->isVisible()) {
             // use the actual geometry
-            QPoint pos = tw->pos();
-            if (QWidget *p = tw->parentWidget())
-                pos = p->mapToGlobal(pos);
+            QPoint pos = tw->topLevelWidget()->pos();
+            if (!tw->isTopLevel())
+                if (QWidget *p = tw->parentWidget())
+                    if (QWidget *pp = p->parentWidget())
+                        pos = tw->mapTo(pp, pos); // in workspace
 
             m_geometries.insert(tw, QRect(pos, tw->size()));
         }
@@ -172,9 +174,11 @@ void QDesignerWorkbench::switchToNeutralMode()
     foreach (QDesignerFormWindow *fw, m_formWindows) {
         if (fw->isVisible()) {
             // use the actual geometry
-            QPoint pos = fw->pos();
-            if (QWidget *p = fw->parentWidget())
-                pos = p->mapToGlobal(pos);
+            QPoint pos = fw->topLevelWidget()->pos();
+            if (!fw->isTopLevel())
+                if (QWidget *p = fw->parentWidget())
+                    if (QWidget *pp = p->parentWidget())
+                        pos = fw->mapTo(pp, pos); // in workspace
 
             m_geometries.insert(fw, QRect(pos, fw->size()));
         }
