@@ -13,6 +13,7 @@
 
 #include <private/qfontengine_p.h>
 
+#include "qbitmap.h"
 #include "qpainter.h"
 #include "qpainterpath.h"
 
