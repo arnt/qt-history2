@@ -21,7 +21,7 @@
 QList<MainWindow*> MainWindow::windows;
 
 #if defined(Q_WS_WIN)
-extern Q_EXPORT int qt_ntfs_permission_lookup;
+extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
 #endif
 
 MainWindow::MainWindow()
@@ -126,7 +126,7 @@ void MainWindow::setup()
 #if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
     QAccel *acc = new QAccel(this);
 //     acc->connectItem(acc->insertItem(Key_F5), browser, SLOT(reload()));
-    acc->connectItem(acc->insertItem(QKeySequence("SHIFT+CTRL+=")), actionZoomIn, SIGNAL(triggered()));
+    acc->connectItem(acc->insertItem(QKeySequence("SHIFT+CTRL+=")), gui.actionZoomIn, SIGNAL(triggered()));
 #endif
 
     QAccel *a = new QAccel(this, dw);

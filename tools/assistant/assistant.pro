@@ -3,7 +3,7 @@ LANGUAGE = C++
 TARGET         = assistant
 
 CONFIG        += qt warn_off
-QT += compat xml
+QT += compat xml network
 
 uic4.output  = ui_${QMAKE_FILE_BASE}.h
 uic4.commands = uic4 ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
@@ -66,7 +66,11 @@ else:QT += network
 else:QT += xml
 include( ../../src/qt_professional.pri )
 
-win32:RC_FILE = assistant.rc
+win32 {
+    LIBS += shell32.lib
+    RC_FILE = assistant.rc
+}
+
 mac:RC_FILE = assistant.icns
 
 #target.path = $$bins.path
