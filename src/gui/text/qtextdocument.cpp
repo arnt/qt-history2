@@ -418,7 +418,7 @@ void QTextDocument::setHtml(const QString &html)
     If \a from is 0 (the default) the search begins from the beginning
     of the document; otherwise from the specified position.
 */
-QTextCursor QTextDocument::find(const QString &_expr, int from, FindFlags options) const
+QTextCursor QTextDocument::find(const QString &_expr, int from, FindFlags options, FindDirection direction) const
 {
     if (_expr.isEmpty())
         return QTextCursor();
@@ -443,22 +443,45 @@ QTextCursor QTextDocument::find(const QString &_expr, int from, FindFlags option
     re.setCaseSensitivity(cs);
 
     QTextBlock block = d->blocksFind(pos);
-    while (block.isValid()) {
-        const int blockOffset = qMax(0, pos - block.position());
-        QString text = block.text();
-        int idx = -1;
 
-        if (options & FindWholeWords)
-            idx = text.indexOf(re, blockOffset);
-        else
-            idx = text.indexOf(expr, blockOffset, cs);
+    if (direction == FindForward) {
+        while (block.isValid()) {
+            const int blockOffset = qMax(0, pos - block.position());
+            QString text = block.text();
+            int idx = -1;
 
-        if (idx >= 0) {
-            QTextCursor cursor(docHandle(), block.position() + blockOffset + idx);
-            cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
-            return cursor;
+                if (options & FindWholeWords)
+                    idx = text.indexOf(re, blockOffset);
+                else
+                    idx = text.indexOf(expr, blockOffset, cs);
+
+                if (idx >= 0) {
+                    QTextCursor cursor(docHandle(), block.position() + blockOffset + idx);
+                    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
+                    return cursor;
+                }
+
+                block = block.next();
         }
-        block = block.next();
+    } else {
+        while (block.isValid()) {
+            const int blockOffset = qMin(pos - block.position(), block.length() - 1);
+            QString text = block.text();
+            int idx = -1;
+
+            if (options & FindWholeWords)
+                idx = text.lastIndexOf(re, blockOffset);
+            else
+                idx = text.lastIndexOf(expr, blockOffset, cs);
+
+            if (idx >= 0) {
+                QTextCursor cursor(docHandle(), block.position() + blockOffset + idx);
+                cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, expr.length());
+                return cursor;
+            }
+
+            block = block.previous();
+        }
     }
 
     return QTextCursor();
@@ -475,10 +498,10 @@ QTextCursor QTextDocument::find(const QString &_expr, int from, FindFlags option
 
     By default the search is case-sensitive, and can match anywhere.
 */
-QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, FindFlags options) const
+QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, FindFlags options, FindDirection direction) const
 {
     const int pos = (from.isNull() ? 0 : from.selectionEnd());
-    return find(expr, pos, options);
+    return find(expr, pos, options, direction);
 }
 
 

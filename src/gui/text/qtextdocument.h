@@ -100,8 +100,14 @@ public:
     };
     Q_DECLARE_FLAGS(FindFlags, FindFlag);
 
-    QTextCursor find(const QString &exp, int from = 0, FindFlags options = 0) const;
-    QTextCursor find(const QString &exp, const QTextCursor &from, FindFlags options = 0) const;
+    enum FindDirection
+    {
+        FindForward,
+        FindBackward
+    };
+
+    QTextCursor find(const QString &exp, int from = 0, FindFlags options = 0, FindDirection direction = FindForward) const;
+    QTextCursor find(const QString &exp, const QTextCursor &from, FindFlags options = 0, FindDirection direction = FindForward) const;
 
     QTextFrame *frameAt(int pos) const;
     QTextFrame *rootFrame() const;
