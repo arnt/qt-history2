@@ -1,10 +1,14 @@
+@SysInclude { tbl }
+@SysInclude { diag }
 @Include { triple.lout }
+# defs.lout
 @Book
-    @Title { Qt's Graphical Tools }
+    @Title { Qt's Graphical Development Tools }
     @Edition { Second Edition }
     @Publisher { Trolltech AS }
+    @AfterTitlePage { @Include { forematter.lout } }
 //
-# TODO Set page size
+# TODO Add assistant screenshot from whitepaper
 @Include { assistant-1.lout }
 @Include { assistant-2.lout }
 @Include { assistant-3.lout }

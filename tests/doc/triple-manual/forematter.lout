@@ -1,0 +1,39 @@
+@BI{ Qt's Graphical Development Tools }
+@DP
+@DP
+@DP
+Copyright @CopyRight 2002 Trolltech AS. All Rights Reserved.
+@DP
+Printed in Norway
+@DP
+@DP
+Printing History:
+@ID lines @Break {
+1st Edition, 2001
+2nd Printing, 2001
+2nd Edition, 2002
+}
+@DP @DP @DP @DP 
+No part of this book may be reproduced, in any form or by any means,
+without permission in writing from the copyright holder.
+Trolltech{@TradeMark}, Qt{@TradeMark} and the Trolltech logo are
+registered trademarks of Trolltech. All other products named are
+trademarks of their respective owners.
+@DP
+The software described in this book is furnished under a license
+agreement or non-disclosure agreement. The software may be used or
+copied only in accordance with the terms of the agreement. The
+information in this book is furnished for informational use only, is
+subject to change without notice, and does not represent a  commitment
+on the part of Trolltech AS. Trolltech AS assumes no responsibility or
+liability for any errors or inaccuracies that may appear in this book.
+@DP @DP @DP @DP 
+@Http{www.trolltech.com} 
+@LP
+@Http{doc.trolltech.com}
+@DP @DP @DP @DP 
+ISBN red @Colour ISBN?
+@DP
+MAN red @Colour PartNumber?
+@PP
+

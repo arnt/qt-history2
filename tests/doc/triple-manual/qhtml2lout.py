@@ -30,6 +30,7 @@ FIX_FIGURE_RE = re.compile(
 		    r'([^{}]*?@IncludeGraphic[^}]*?\})'
 		    r'\s*\x03@QD\{(.+?)\}\x04'
 		    , re.DOTALL)
+FIX_SIDEBAR_RE = re.compile(r'@QD\{\n@B\{([^}]+)\}\n(?:@PP)?', re.DOTALL)
 
 ENTITY_TO_LOUT = { 
       '60': '<',
@@ -428,6 +429,9 @@ def process(file):
     data = FIX_FIGURE_RE.sub(r'\1\n    @Caption { \3 }\n\2', data)
     data = data.replace('\x03', '')
     data = data.replace('\x04', '')
+    data = FIX_SIDEBAR_RE.sub(
+	    r'@Figure\n@Box paint { @LightGreyColour } margin { 0.5f }'
+	    r'{@LLP @Centre @Heading{\1}\n', data)
 
     fh = open(file[file.rfind('/') + 1:file.rfind('.') + 1] + 'lout', 'w')
     fh.write(data)
