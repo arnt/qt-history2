@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#25 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#26 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -63,7 +63,7 @@
 #if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
 // FIONREAD is #defined inside <sys/filio.h>.
 // Define BSD_COMP to have <sys/ioctl.h> include <sys/filio.h>.
-// Solaris 2.5.1, 7, and 8.
+// Verified on Solaris 2.5.1, 7, and 8.
 #  define BSD_COMP
 #endif
 #include <sys/ioctl.h>
@@ -112,12 +112,27 @@
 
 // ### Undefine this if you have problems with missing FNDELAY.
 // ### Please document and #ifdef against OS and OS release.
-// ### Will hopefully remove this before 3.0 release if all goes well.
+// ### Will hopefully remove this in Qt 3.0 if all goes well.
+// ### Brad, is this OK with BSDs?
 #if 0
 #if !defined (O_NDELAY) && defined (FNDELAY)
 #  define O_NDELAY FNDELAY
 #endif
 #endif
+
+#if defined(SOCKLEN_T)
+#  undef SOCKLEN_T
+#endif
+
+// ### Instead of the following "mess", I suggest:
+// ### 1) check whether _XOPEN_UNIX is defined (XPG5) and use socklen_t
+// ### 2) else whether _XOPEN_XPG4 is defined (XPG4) and use size_t
+// ### 3) else use int
+// ### 4) #ifdef against the OS only in the case of a broken platform
+// ### The old code is commented but I keep it here to ease the
+// ### transition.
+
+#if 0 // ### remove before 3.0
 
 // This mess (it's not yet a mess but I'm sure it'll be one before it's
 // done) defines SOCKLEN_T to socklen_t or whatever else, for this system.
@@ -129,10 +144,6 @@
 // setting for example _XOPEN_SOURCE=500 and we don't do that.
 //
 // Note: size_t seems to have been a short-lived non-LP64 compatible error.
-
-#if defined(SOCKLEN_T)
-#  undef SOCKLEN_T
-#endif
 
 #if defined(Q_OS_LINUX) && defined(__GLIBC__) && ( __GLIBC__ >= 2 )
 // new linux is Single Unix 1998, not old linux
@@ -171,6 +182,21 @@
 // Unix 1998 even when it is available.
 #  define SOCKLEN_T int
 #endif
+
+#else // ### remove before 3.0
+
+#include <unistd.h>
+#if defined(_XOPEN_UNIX)
+// XPG5 is supported
+#  define SOCKLEN_T socklen_t
+#elif defined(_XOPEN_XPG4)
+// XPG4 is supported
+#  define SOCKLEN_T size_t
+#else
+#  define SOCKLEN_T int
+#endif
+
+#endif // ### remove before 3.0
 
 // The next mess deals with EAGAIN and/or EWOULDBLOCK.
 #if !defined(EAGAIN) && !defined(EWOULDBLOCK)
