@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#278 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#279 $
 **
 ** Implementation of QApplication class
 **
@@ -451,7 +451,7 @@ QApplication::QApplication( int &argc, char **argv)
   otherwise a non-GUI application is created.
 
   \warning This functionality is experimental.
-  
+
   This constructor is only available on X11 in this version of the Qt
   library.
 */
@@ -977,7 +977,7 @@ QFont QApplication::font( const QWidget* w )
 	}
     }
     if ( !app_font ) {
-	app_font = new QFont( "Helvtica" );
+	app_font = new QFont( "Helvetica" );
 	CHECK_PTR( app_font );
     }
     return *app_font;
