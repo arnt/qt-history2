@@ -73,7 +73,7 @@ QString OpenGLWidgetInterface::group( const QString& description )
 QString OpenGLWidgetInterface::iconSet( const QString& description )
 {
     if ( description == "QGLWidget" )
-	return "pixmap.xpm";
+	return "pushbutton.xpm";
     return QString::null;
 }
 
