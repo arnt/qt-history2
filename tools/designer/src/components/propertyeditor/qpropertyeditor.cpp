@@ -82,6 +82,7 @@ void View::setInitialInput(IProperty *initialInput)
     }
 
     header()->setResizeMode(QHeaderView::Stretch, 1);
+    resizeColumnToContents(0);
 }
 
 

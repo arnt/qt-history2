@@ -179,6 +179,8 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
 
     m_treeWidget->viewport()->setUpdatesEnabled(true);
     m_treeWidget->viewport()->update();
+
+    m_treeWidget->resizeColumnToContents(0);
 }
 
 void ObjectInspector::slotSelectionChanged()
