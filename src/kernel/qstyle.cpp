@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#7 $
 **
 ** Implementation of QStyle class
 **
@@ -738,8 +738,6 @@ static const char *button_xpm[] = {
 ".rb..g.e#s.YaPbV#z.wbnbV.wbn#Dbn.OaP.4.y.4#N.K.K#T#t.U.Q#z.w#F#YazanaNan.bap#Ga0az#0#P#b#KbR.Z#aaz#ibK#h#u.wbC#B#b.1bebs#B#D#baLbcbA.k#P#G#E#S#2.K.8bAbL.Tbw.6.K#G#0.wbVbVbV#s#s.e.Oba.K.4aT.k.0"
 };
 
-
-
 /*!
   \class QStyle qstyle.h
   \brief Encapsulates common Look and Feel of a GUI.
@@ -905,7 +903,7 @@ QStyle::drawPushButton( QPushButton* , QPainter *)
 {
 }
 
-void 
+void
 QStyle::drawPushButtonLabel( QPushButton*, QPainter *)
 {
 }
@@ -1123,12 +1121,12 @@ void QWindowsStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
     QRect r = btn->rect();
     int x, y, w, h;
     r.rect( &x, &y, &w, &h );
-    
+
     int x1, y1, x2, y2;
     btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
     int dx = 0;
     int dy = 0;
-    if ( btn->isMenuButton() ) 
+    if ( btn->isMenuButton() )
 	dx = (y2-y1) / 3;
     if ( dx || dy )
 	p->translate( dx, dy );
@@ -1227,7 +1225,7 @@ void QMotifStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
     btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
     int dx = 0;
     int dy = 0;
-    if ( btn->isMenuButton() ) 
+    if ( btn->isMenuButton() )
 	dx = (y2-y1) / 3;
     if ( dx || dy )
 	p->translate( dx, dy );
@@ -1375,19 +1373,82 @@ void QHMotifStyle::polish( QWidget* w)
 }
 
 
+static void drawroundrect( QPainter *p, QCOORD x, QCOORD y, 
+			   QCOORD w, QCOORD h, QCOORD d )
+{
+    int rx = (200*d)/w;
+    int ry = (200*d)/h;
+    p->drawRoundRect( x, y, w, h, rx, ry );
+}
 void QHMotifStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 			     const QColorGroup &g, bool sunken, const QBrush* fill)
 {
+#if 0
+
+    static QImage *img1;
+    static QImage *img2;
+    static QImage *img3;
+    if ( !img1 ) {
+	QImage img(raytraced_button_xpm);
+	int hh = img.height();
+	int ww = img.width();
+	int dd = ww/3;
+	img1 = new QImage;
+	*img1 = img.copy( 0, 0, dd, hh );
+	img2 = new QImage;
+	*img2 = img.copy( dd, 0, ww-2*dd, hh );
+	img3 = new QImage;
+	*img3 = img.copy( ww-dd, 0, dd, hh );
+    }
+    
+    int w1 = img1->width();
+    int w3 = img3->width();
+    int w2 = w - w1 - w3;
+    
+    QImage scaledImage = img1->smoothScale( w1, h );
+    QPixmap pix;
+    pix.convertFromImage( *img1 );//scaledImage );
+    p->drawPixmap( x, y, pix );
+
+    if ( w2 > 0 ) {
+	scaledImage = img2->smoothScale( w2, h );
+	pix.convertFromImage( *img2); //scaledImage );
+	p->drawPixmap( x+w1, y, pix );
+    }
+    scaledImage = img3->smoothScale( w3, h );
+    pix.convertFromImage( *img3 );//scaledImage );
+    p->drawPixmap( x+w1+w2, y, pix );
+
+
+//    static QPixmap* darkpixmap = 0;
+//    if (!pixmap) {
+//	  pixmap = new QPixmap;
+//	  pixmap->convertFromImage(img);
+//	  for (int i=0; i<img.numColors(); i++) {
+//	      QRgb rgb = img.color(i);
+//	      QColor c(rgb);
+//	      rgb = c.dark().rgb();
+//	      img.setColor(i,rgb);
+//	  }
+//	  darkpixmap = new QPixmap;
+//	  darkpixmap->convertFromImage(img);
+//    }
+//    if (!pixmap)
+//	  return;
+//    p->drawPixmap( x, y, *pixmap );
+
+#else
     qDrawShadePanel( p, x, y, w, h, g, sunken, 5);
 	
     QBrush oldBrush = p->brush();
     p->setPen( NoPen );
     p->setBrush( fill?*fill:(sunken?g.fillMid():g.fillButton()));
-    p->drawRoundRect( x+3, y+3, w-6, h-6, 5, 50 ); 
+    drawroundrect( p, x+3, y+3, w-6, h-6, 5 );
     p->setBrush( oldBrush );
 
     p->setPen( g.foreground() );
-    p->drawRoundRect( x, y, w, h, 10, 50 );
+    drawroundrect( p, x, y, w, h, 8 );
+#endif
 }
 
 void QHMotifStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
@@ -1401,7 +1462,7 @@ void QHMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
     GUIStyle gs   = guiStyle();
     QColorGroup g = btn->colorGroup();
     int x1, y1, x2, y2;
-    
+
 //     if (!btn->autoMask())
 // 	btn->setAutoMask( TRUE );
 
@@ -1452,22 +1513,22 @@ void QHMotifStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
     QRect r = btn->rect();
     int x, y, w, h;
     r.rect( &x, &y, &w, &h );
-    
+
     int x1, y1, x2, y2;
     btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
     int dx = 0;
     int dy = 0;
-    if ( btn->isMenuButton() ) 
+    if ( btn->isMenuButton() )
 	dx = (y2-y1) / 3;
     if ( dx || dy )
 	p->translate( dx, dy );
-    
+
     x += 2;  y += 2;  w -= 4;  h -= 4;
     QColorGroup g = btn->colorGroup();
     drawItem( p, x, y, w, h,
 	      AlignCenter|ShowPrefix,
 	      g, btn->isEnabled(),
-	      btn->pixmap(), btn->text(), -1, 
+	      btn->pixmap(), btn->text(), -1,
 	      btn->isDown() || btn->isOn() );
 
     if ( dx || dy )
@@ -1480,7 +1541,7 @@ QRect QHMotifStyle::buttonRect( int x, int y, int w, int h){
 
 void QHMotifStyle::drawButtonMask( QPainter *p, int x, int y, int w, int h)
 {
-    p->drawRoundRect( x, y, w, h, 10, 50 );
+    drawroundrect( p, x, y, w, h, 8 );
 }
 
 
