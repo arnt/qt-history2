@@ -4,7 +4,7 @@ Getting Started with Qt/Mac Evaluation version
 
 Thank you for choosing to evaluate Qt/Mac for Mac OS X!
 
-Please read the file LICENSE and agree to its contents before 
+Please read the file LICENSE.txt and agree to its contents before 
 you start using the Qt/Mac Evaluation version.
 
 This Qt/Mac Evaluation version has the following limitations compared
@@ -13,7 +13,7 @@ to the full Qt/Mac Professional and Enterprise Editions:
 * The Qt source code is not included. Instead, the Qt library is provided
 pre-compiled.
 
-* The library is time-limited to work until April 1, 2002.
+* The library is time-limited
 
 * The library is pre-built as a dynamic, multi-threaded library without
 debugging information. In the full versions, you may choose to build it as
@@ -61,7 +61,7 @@ Before using the evaluation version you must:
     to double-click on applications in the finder. To copy Qt, do the
     following:
 
-    ln -s $QTDIR/lib/libqt-mt.dylib.3.0.1 /usr/lib
+    ln -s $QTDIR/lib/libqt-mt.dylib.3.0.2/usr/lib
 
     Qt/Designer requires the following libraries:
 
@@ -75,7 +75,7 @@ Before using the evaluation version you must:
 3.  You should be able to run any of the programs in $QTDIR/examples/ or
     $QTDIR/bin/ at this point.  To link you own apps against Qt/Mac you
     will want to include files from $QTDIR/include and link against
-    $QTDIR/lib/libqt.dylib.
+    $QTDIR/lib/libqt-mt.dylib.
 
 
 The Qt Reference Manual
@@ -105,8 +105,8 @@ you save a project. It can also be manually created easily with a text editor.
 
 If you have been using tmake in the past you may simply copy your .pro 
 files onto Mac OS X and run qmake over them. Currently qmake will generate 
-unix-like Makefile specifically for Mac OS X. In the future, qmake will 
-support CodeWarrior and/or Project Builder.
+unix-like Makefile specifically for Mac OS X. Currently qmake supports 
+Project Builder. In the future it will also support CodeWarrior.
 
 See the qmake section in the Qt reference manual for further information.
 
