@@ -421,7 +421,15 @@ table {
 }
 
 INCLUDEPATH	+= ../shared ../uilib
-LIBS		+= -L$$QT_BUILD_TREE/lib -lqui -lqassistantclient
+LIBS            += -L$$QT_BUILD_TREE/lib -lqui
+
+hpux-acc {
+	LIBS            += $$QT_BUILD_TREE/lib/libqassistantclient.a
+}
+
+!hpux-acc {
+	LIBS		+= -lqassistantclient
+}
 
 TRANSLATIONS	= designer_de.ts designer_fr.ts
 

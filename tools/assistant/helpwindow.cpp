@@ -193,7 +193,7 @@ void HelpWindow::openLinkInNewPage( const QString &link )
 
 QPopupMenu *HelpWindow::createPopupMenu( const QPoint& pos )
 {
-    QPopupMenu *m = new QPopupMenu( this );
+    QPopupMenu *m = new QPopupMenu(0);
     lastAnchor = anchorAt( pos );
     if ( !lastAnchor.isEmpty() ) {
 	if ( lastAnchor.at( 0 ) == '#' ) {

@@ -298,6 +298,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
      } else if ( objClass != "QToolBar" && objClass != "QMenuBar" ) { // standard widgets
 	 WidgetInterface *iface = 0;
 	 widgetManager()->queryInterface( objClass, &iface );
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 	 int id = WidgetDatabase::idFromClassName( objClass );
 	 if ( WidgetDatabase::isContainer( id ) && WidgetDatabase::isCustomPluginWidget( id ) && iface ) {
 	     QWidgetContainerInterfacePrivate *iface2 = 0;

@@ -45,7 +45,7 @@
 
 QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
 		    const char *name, WFlags flags )
-    : QScrollView( parent, name, flags ), qwslock(NULL)
+    : QScrollView( parent, name, flags ), emulateTouchscreen(FALSE), qwslock(NULL)
 {
     displayid = display_id;
     viewport()->setMouseTracking( TRUE );
@@ -424,7 +424,11 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
 	leading = r.x();
 	return QImage( data + hdr->dataoffset + r.y() * hdr->linestep,
 		    hdr->width, r.height(), hdr->depth, hdr->clut,
+#ifndef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
 		    0, QImage::LittleEndian );
+#else
+		    0, QImage::BigEndian );
+#endif
       }
     }
     return QImage();

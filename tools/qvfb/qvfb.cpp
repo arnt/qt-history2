@@ -285,7 +285,6 @@ void QVFb::configure()
 
     if ( config->exec() ) {
 	int id = view->displayId(); // not settable yet
-	view->setTouchscreenEmulation( config->touchScreen->isChecked() );
 	if ( config->size_240_320->isChecked() ) {
 	    w=240; h=320;
 	} else if ( config->size_320_240->isChecked() ) {
@@ -315,6 +314,7 @@ void QVFb::configure()
 	if ( w != view->displayWidth() || h != view->displayHeight()
 		|| d != view->displayDepth() || skin != currentSkin )
 	    init( id, w, h, d, skin );
+	view->setTouchscreenEmulation( config->touchScreen->isChecked() );
     } else {
 	view->setGamma(ogr, ogg, ogb);
     }

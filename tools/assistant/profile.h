@@ -13,6 +13,7 @@
 #ifndef PROFILE_H
 #define PROFILE_H
 
+#include <qfileinfo.h>
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qmap.h>
@@ -22,10 +23,9 @@ class DocuParser;
 class Profile
 {
 public:
-    enum ProfileType { DefaultProfile, UserProfile };    
-    
+    enum ProfileType { DefaultProfile, UserProfile };
     Profile();
-    
+
     inline bool isValid() const;
 
     inline void addDCF( const QString &docfile );
@@ -42,7 +42,7 @@ public:
 
     inline DocuParser *docuParser() const { return dparser; }
     inline void setDocuParser( DocuParser *dp ) { dparser = dp; }
-    
+
     static Profile* createDefaultProfile();
     static QString makeRelativePath( const QString &base, const QString &path );
 
@@ -63,11 +63,12 @@ inline bool Profile::isValid() const
     return valid;
 }
 
-inline void Profile::addDCFTitle( const QString &dcf, const QString &title )
+inline void Profile::addDCFTitle(const QString &dcf, const QString &title)
 {
-    dcfTitles[title] = dcf;
-    if( docs.contains( dcf ) == 0 )
-	docs << dcf;
+    QString absdcf = QFileInfo(dcf).absFilePath();
+    dcfTitles[title] = absdcf;
+    if (docs.contains(absdcf) == 0)
+	docs << absdcf;
 }
 
 inline void Profile::addDCF( const QString &docfile )
@@ -102,7 +103,7 @@ inline void Profile::addProperty( const QString &name,
 
 inline bool Profile::hasDocFile( const QString &name )
 {
-    return docs.contains( name );    
+    return docs.contains( name );
 }
 
 #endif
