@@ -54,7 +54,8 @@ QMAKE_RPATH             = -Wl,-rpath,
 
 QMAKE_LIBS		=
 QMAKE_LIBS_QT		= -lqt
-QMAKE_LIBS_THREAD	= -lqt-mt
+QMAKE_LIBS_QT_THREAD    = -lqt-mt
+QMAKE_LIBS_THREAD	= 
 
 QMAKE_MOC		= $(QTDIR)/bin/moc
 QMAKE_UIC		= $(QTDIR)/bin/uic
