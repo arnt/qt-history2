@@ -68,6 +68,7 @@ main(int argc, char **argv)
     QString oldpwd = QDir::current().currentDirPath();
 
     QMakeProject proj;
+    int exit_val = 0;
     for(QStringList::Iterator pfile = Option::project_files.begin();
 	pfile != Option::project_files.end(); pfile++) {
 	QString fn = (*pfile);
@@ -87,6 +88,7 @@ main(int argc, char **argv)
 	/* read project.. */
 	if(!proj.read(fn, oldpwd)) {
 	    fprintf(stderr, "Error processing project file: %s\n", (*pfile).latin1());
+	    exit_val = 2;
 	    continue;
 	}
 
@@ -95,6 +97,7 @@ main(int argc, char **argv)
 	QString gen = proj.variables()["MAKEFILE_GENERATOR"].first(), def_mkfile;
 	if(gen.isEmpty()) {
 	    fprintf(stderr, "No generator specified in config file: %s\n", fn.latin1());
+	    exit_val = 3;
 	} else if(gen == "UNIX") {
 	    mkfile = new UnixMakefileGenerator(&proj);
 	} else if(gen == "MSVC") {
@@ -108,6 +111,7 @@ main(int argc, char **argv)
 	    mkfile = new BorlandMakefileGenerator(&proj);
 	} else {
 	    fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
+	    exit_val = 4;
 	}
 
 	if(mkfile) {
@@ -134,7 +138,7 @@ main(int argc, char **argv)
 		    Option::output_dir = Option::fixPathToTargetOS(fi.dirPath());
 		    if(!Option::output.open(IO_WriteOnly | IO_Translate)) {
 			fprintf(stderr, "Failure to open file: %s\n", Option::output.name().latin1());
-			return 666;
+			return 5;
 		    }
 		}
 	    }
@@ -142,6 +146,7 @@ main(int argc, char **argv)
 		fprintf(stderr, "Unable to generate makefile for: %s\n", (*pfile).latin1());
 		if(!using_stdout)
 		    QFile::remove(Option::output.name());
+		exit_val = 6;
 	    }
 	    delete mkfile;
 	}
@@ -154,5 +159,5 @@ main(int argc, char **argv)
 	    }
 	}
     }
-    return 0;
+    return exit_val;
 }
