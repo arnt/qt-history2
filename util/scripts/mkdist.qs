@@ -587,6 +587,7 @@ function compile(platform, edition, platformName)
     // remove any previous packages/dirs/scripts for this platform
     execute(["ssh", login, "rm -rf", platformName + "*"]);
     execute(["ssh", login, "rm -rf", "buildbinary" + platform + "*"]);
+    execute(["ssh", login, "rm -rf", "installscript" + platform + "*"]);
 
     if (platform == "win" && options["zip"]) {
 	// copy zip package to host
@@ -653,11 +654,18 @@ function compile(platform, edition, platformName)
 	// run the install script and create compiler
 	execute(["ssh", login, "cmd", "/c", "makensis.exe", "installscriptwin.nsi"]);
 
-	// cleanup host
+	//copy the result back
+	execute(["scp", login + ":" + platformName + ".exe", outputDir + "/."]);
+
 
     } else if (platform == "mac") {
 
     }
+
+    // clean up on host after building binaries
+    execute(["ssh", login, "rm -rf", platformName + "*"]);
+    execute(["ssh", login, "rm -rf", "buildbinary" + platform + "*"]);
+    execute(["ssh", login, "rm -rf", "installscript" + platform + "*"]);
 }
 
 /************************************************************
