@@ -33,17 +33,11 @@
 **
 **********************************************************************/
 
-
-/*****************************************************************************
-  QSortedList documentation
- *****************************************************************************/
-
 /*!
   \class QSortedList qsortedlist.h
   \brief The QSortedList class provides a list sorted by operator< and operator==.
 
-  \ingroup collection
-  \ingroup tools
+  \obsolete
 
   If you want to sort a QPtrList you have to reimplement the
   QGList::compareItems() method.  If the elements of your list support

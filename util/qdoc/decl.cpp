@@ -659,6 +659,8 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 	out.setSubHeading( QString("[<a href=\"%1.html\">%2 module</a>]")
 			   .arg(classDoc()->module().lower())
 			   .arg(classDoc()->module()) );
+    else if ( obsolete() )
+	out.setSubHeading( QString("[obsolete]") );
 
     if ( classDoc() != 0 ) {
 	out.putsMeta( "<p>" );
