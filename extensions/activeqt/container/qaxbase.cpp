@@ -395,6 +395,10 @@ public:
     bool useMetaObject:1;
 
     QMap<QCString, bool> *propWritable;
+#if QT_VERSION < 0x030100
+    QMetaEnum *enums;
+    int numEnums;
+#endif
 };
 
 
@@ -660,7 +664,12 @@ void QAxBase::clear()
 		for ( int p = 0; p < slot->count; ++p ) {
 		    const QUParameter *param = &(slot->parameters[p]);
 		    delete [] (char*)param->name;
-		    if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
+		    if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
+			// delete uEnum arrays, but not the strings (shared with the QMetaEnum)
+			QUEnum *uEnum = (QUEnum*)param->typeExtra;
+			delete [] (QUEnumItem*)uEnum->items;
+			delete uEnum;
+		    } else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
 			const char *type = (const char*)param->typeExtra;
 			delete [] (char*)type;
 		    }
@@ -682,7 +691,12 @@ void QAxBase::clear()
 		for ( int p = 0; p < signal->count; ++p ) {
 		    const QUParameter *param = &(signal->parameters[p]);
 		    delete [] (char*)param->name;
-		    if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
+		    if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
+			// delete uEnum arrays, but not the strings (shared with the QMetaEnum)
+			QUEnum *uEnum = (QUEnum*)param->typeExtra;
+			delete [] (QUEnumItem*)uEnum->items;
+			delete uEnum;
+		    } else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
 			const char *type = (const char*)param->typeExtra;
 			delete [] (char*)type;
 		    }
@@ -695,6 +709,7 @@ void QAxBase::clear()
 	if ( metaobj->numSignals() )
 	    delete [] (QMetaData*)metaobj->signal( 0 );
 
+	// clean up properties
 	for ( i = 0; i < metaobj->numProperties(); ++i ) {
 	    const QMetaProperty *property = metaobj->property( i );
 	    delete [] (char*)property->n;
@@ -702,6 +717,21 @@ void QAxBase::clear()
 	}
 	if ( metaobj->numProperties() )
 	    delete [] (QMetaProperty*)metaobj->property( 0 );
+
+	// clean up enums
+#if QT_VERSION < 0x030100
+	if ( d->enums ) {
+	    for ( i = 0; i < d->numEnums; ++i ) {
+		for ( uint j = 0; j < d->enums[i].count; ++j ) {
+		    QMetaEnum::Item item = d->enums[i].items[j];
+		    delete[] (char*)item.key;
+		}
+		delete [] (char*)d->enums[i].name;
+		delete [] (QMetaEnum::Item*)d->enums[i].items;
+	    }
+	    delete [] (QMetaEnum*)d->enums;
+	}
+#endif
     }
     delete metaobj;
     metaobj = 0;
@@ -769,9 +799,10 @@ static inline QString constRefify( const QString& type )
     return crtype;
 }
 
-static inline void QStringToQUType( const QString& type, QUParameter *param )
+static inline void QStringToQUType( const QString& type, QUParameter *param, const QDict<QMetaEnum> &enumDict )
 {
     param->typeExtra = 0;
+    QMetaEnum *enumData = 0;
     if ( type == "int" || type == "long" ) {
 	param->type = &static_QUType_int;
     } else if ( type == "bool" ) {
@@ -788,6 +819,19 @@ static inline void QStringToQUType( const QString& type, QUParameter *param )
     } else if ( type == "IDispatch*" ) {
 	param->type = &static_QUType_idisp;
 	param->typeExtra = "QDispatchInterface";
+    } else if ( (enumData = enumDict.find( type )) != 0 ) {
+	param->type = &static_QUType_enum;
+	QUEnum *uEnum = new QUEnum;
+	uEnum->count = enumData->count;
+	uEnum->name = enumData->name;
+	uEnum->set = enumData->set;
+	uEnum->items = new QUEnumItem[uEnum->count];
+	for ( uint item = 0; item < uEnum->count; ++item ) {
+	    QUEnumItem *uEnumItem = (QUEnumItem *)uEnum->items+item;
+	    uEnumItem->key = enumData->items[item].key;
+	    uEnumItem->value = enumData->items[item].value;
+	}
+	param->typeExtra = uEnum;
     } else {
 	param->type = &static_QUType_ptr;
 	QString ptype = type;
@@ -796,6 +840,33 @@ static inline void QStringToQUType( const QString& type, QUParameter *param )
 	param->typeExtra = new char[ ptype.length() + 1 ];
 	param->typeExtra = qstrcpy( (char*)param->typeExtra, ptype );
     }
+}
+
+static QString usertypeToQString( TYPEDESC tdesc, ITypeInfo *info, const QDict<QMetaEnum>& enumlist )
+{
+    if ( tdesc.vt != VT_USERDEFINED )
+	return QString::null;
+
+    HREFTYPE usertype = tdesc.hreftype;
+    CComPtr<ITypeInfo> usertypeinfo;
+    info->GetRefTypeInfo( usertype, &usertypeinfo );
+    if ( usertypeinfo ) {
+	CComPtr<ITypeLib> usertypelib;
+	UINT index;
+	usertypeinfo->GetContainingTypeLib( &usertypelib, &index );
+	if ( usertypelib ) {
+	    // get type name
+	    BSTR usertypename;
+	    usertypelib->GetDocumentation( index, &usertypename, 0, 0, 0 );
+	    QString userTypeName = BSTRToQString( usertypename );
+	    SysFreeString( usertypename );
+	    // known enum?
+	    QMetaEnum *metaEnum = enumlist.find( userTypeName );				    
+	    if ( metaEnum )
+		return userTypeName;
+	}
+    }
+    return QString::null;
 }
 
 /*!
@@ -862,10 +933,13 @@ QMetaObject *QAxBase::metaObject() const
     QDict<QUMethod> signallist; // QUMethods deleted
     QDict<QMetaProperty> proplist;
     proplist.setAutoDelete( TRUE ); // deep copied when creating metaobject
-    QDict<QString> infolist; 
+    QDict<QString> infolist;
     infolist.setAutoDelete( TRUE ); // deep copied when creating metaobject
-    QDict<QString> enumlist; 
+    QDict<QMetaEnum> enumlist;
     enumlist.setAutoDelete( TRUE ); // deep copied when creating metaobject
+    QDict<QMetaEnum> enumDict;	    // dict for fast lookup when generation property/parameter information
+    UINT index = 0;
+    QMetaEnum *enum_data = 0;
 
     // this string gets all the warnings, so that a client application
     // can use the classInfo "debugInfo" to get debug information about
@@ -895,384 +969,259 @@ QMetaObject *QAxBase::metaObject() const
 	}
     }
 
-    // create default signal and slots
     CComPtr<IDispatch> disp;
     ptr->QueryInterface( IID_IDispatch, (void**)&disp );
     if ( disp ) {
-	UINT count;
-	disp->GetTypeInfoCount( &count );
-	// this is either 0 or 1, but anyway...
-	if ( count ) {
-	    CComPtr<ITypeInfo> info;
-	    disp->GetTypeInfo( 0, LOCALE_USER_DEFAULT, &info );
-	    // read type information
-	    while ( info ) {
-		ushort nFuncs = 0;
-		ushort nVars = 0;
-		ushort nImpl = 0;
-		// get information about type
-		TYPEATTR *typeattr;
-		info->GetTypeAttr( &typeattr );
-		bool interesting = TRUE;
-		if ( typeattr ) {
-		    // get number of functions, variables, and implemented interfaces
-		    nFuncs = typeattr->cFuncs;
-		    nVars = typeattr->cVars;
-		    nImpl = typeattr->cImplTypes;
-
-		    if ( ( typeattr->typekind == TKIND_DISPATCH || typeattr->typekind == TKIND_INTERFACE ) &&
-			( typeattr->guid != IID_IDispatch && typeattr->guid != IID_IUnknown ) ) {
-			// UUID
-			QUuid uuid( typeattr->guid );
-			QString uuidstr = uuid.toString().upper();
-			uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
-			static interfacecount = 0;
-			infolist.insert( QString("Interface %1").arg(++interfacecount), new QString( uuidstr ) );
-
-			info->ReleaseTypeAttr( typeattr );
+	CComPtr<ITypeInfo> info;
+	disp->GetTypeInfo( 0, LOCALE_USER_DEFAULT, &info );
+	CComPtr<ITypeLib> typelib;
+	info->GetContainingTypeLib( &typelib, &index );
+	// Read enum information from type library
+	if ( typelib ) {
+	    index = typelib->GetTypeInfoCount();
+	    for ( UINT i = 0; i < index; ++i ) {
+		TYPEKIND typekind;
+		typelib->GetTypeInfoType( i, &typekind );
+		if ( typekind == TKIND_ENUM ) {
+		    // Get the type information for the enum
+		    CComPtr<ITypeInfo> enuminfo;
+		    typelib->GetTypeInfo( i, &enuminfo );
+		    if ( !enuminfo )
+			continue;
+		    
+		    // Get the name of the enumeration
+		    BSTR enumname;
+		    QString enumName;
+		    if ( typelib->GetDocumentation( i, &enumname, 0, 0, 0 ) == S_OK ) {
+			enumName = BSTRToQString( enumname );
+			SysFreeString( enumname );
 		    } else {
-			interesting = FALSE;
+			enumName = QString( "enum%1" ).arg( enumlist.count() );
 		    }
+		    
+		    // Get the attributes of the enum type
+		    TYPEATTR *typeattr = 0;
+		    enuminfo->GetTypeAttr( &typeattr );
+		    if ( typeattr ) {
+			// Create the QMetaEnum
+			QMetaEnum * metaEnum = new QMetaEnum;
+			metaEnum->name = new char[enumName.length() + 1];
+			metaEnum->name = qstrcpy( (char*)metaEnum->name, enumName );
+			metaEnum->items = new QMetaEnum::Item[typeattr->cVars];
+			metaEnum->count = typeattr->cVars;
+			metaEnum->set = FALSE;
+			
+			// Get all values of the enumeration
+			for ( UINT vd = 0; vd < typeattr->cVars; ++vd ) {
+			    VARDESC *vardesc = 0;
+			    enuminfo->GetVarDesc( vd, &vardesc );
+			    if ( vardesc && vardesc->varkind == VAR_CONST ) {
+				int value = vardesc->lpvarValue->lVal;
+				int memid = vardesc->memid;
+				// Get the name of the value
+				BSTR valuename;
+				QString valueName;
+				UINT maxNamesOut;
+				enuminfo->GetNames( memid, &valuename, 1, &maxNamesOut );
+				if ( maxNamesOut ) {
+				    valueName = BSTRToQString( valuename );
+				    SysFreeString( valuename );
+				} else {
+				    valueName = QString( "value%1" ).arg( vd );
+				}
+				// Add to QMetaEnum
+				QMetaEnum::Item *items = (QMetaEnum::Item*)metaEnum->items;
+				items[vd].value = value;
+				items[vd].key = new char[valueName.length()+1];
+				items[vd].key = qstrcpy( (char*)metaEnum->items[vd].key, valueName );
+			    }
+			    enuminfo->ReleaseVarDesc( vardesc );
+			}
+			// Add QMetaEnum to dict
+			enumlist.insert( enumName, metaEnum );
+		    }
+		    enuminfo->ReleaseTypeAttr( typeattr );
 		}
+	    }
+	}
+        
+	// setup enum data array
+	index = 0;
+	enum_data = enumlist.count() ? new QMetaEnum[enumlist.count()] : 0;
+	QDictIterator<QMetaEnum> enum_it( enumlist );
+	while ( enum_it.current() ) {
+	    QMetaEnum metaEnum = *enum_it.current();
+	    enum_data[index].name = metaEnum.name;
+	    enum_data[index].count = metaEnum.count;
+	    enum_data[index].items = metaEnum.items;
+	    enum_data[index].set = metaEnum.set;
+	    enumDict.insert( enum_it.currentKey(), enum_data+index );
+	    ++index;
+	    ++enum_it;
+	}
+#if QT_VERSION < 0x030100
+	d->enums = enum_data;
+	d->numEnums = enumlist.count();
+#endif
 
-		// get information about all functions
-		if ( interesting ) for ( ushort fd = 0; fd < nFuncs ; ++fd ) {
-		    FUNCDESC *funcdesc;
-		    info->GetFuncDesc( fd, &funcdesc );
-		    if ( !funcdesc )
-			break;
+	// read type information
+	while ( info ) {
+	    ushort nFuncs = 0;
+	    ushort nVars = 0;
+	    ushort nImpl = 0;
+	    // get information about type
+	    TYPEATTR *typeattr;
+	    info->GetTypeAttr( &typeattr );
+	    bool interesting = TRUE;
+	    if ( typeattr ) {
+		// get number of functions, variables, and implemented interfaces
+		nFuncs = typeattr->cFuncs;
+		nVars = typeattr->cVars;
+		nImpl = typeattr->cImplTypes;
 
-		    // get function prototype
-		    TYPEDESC typedesc = funcdesc->elemdescFunc.tdesc;
+		if ( ( typeattr->typekind == TKIND_DISPATCH || typeattr->typekind == TKIND_INTERFACE ) &&
+		    ( typeattr->guid != IID_IDispatch && typeattr->guid != IID_IUnknown ) ) {
+		    // UUID
+		    QUuid uuid( typeattr->guid );
+		    QString uuidstr = uuid.toString().upper();
+		    uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
+		    static interfacecount = 0;
+		    infolist.insert( QString("Interface %1").arg(++interfacecount), new QString( uuidstr ) );
 
-		    QString function;
-		    QString returnType;
-		    QString prototype;
-		    QStringList parameters;
-		    QStringList paramTypes;
+		    info->ReleaseTypeAttr( typeattr );
+		} else {
+		    interesting = FALSE;
+		}
+	    }
 
-		    // parse function description
-		    bool unsupported = FALSE;
-		    QString firstUnsupported;
-		    BSTR bstrNames[256];
-		    UINT maxNames = 255;
-		    UINT maxNamesOut;
-		    info->GetNames( funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
-		    for ( int p = 0; p < (int)maxNamesOut; ++ p ) {
-			bool wasUnsupported = unsupported;
-			QString paramName = BSTRToQString( bstrNames[p] );
-			SysFreeString( bstrNames[p] );
+	    // get information about all functions
+	    if ( interesting ) for ( ushort fd = 0; fd < nFuncs ; ++fd ) {
+		FUNCDESC *funcdesc;
+		info->GetFuncDesc( fd, &funcdesc );
+		if ( !funcdesc )
+		    break;
 
-			// function name
-			if ( !p ) {
-			    function = paramName;
-			    prototype = function + "(";
+		// get function prototype
+		TYPEDESC typedesc = funcdesc->elemdescFunc.tdesc;
 
-			    // get return value
+		QString function;
+		QString returnType;
+		QString prototype;
+		QStringList parameters;
+		QStringList paramTypes;
+
+		// parse function description
+		bool unsupported = FALSE;
+		BSTR bstrNames[256];
+		UINT maxNames = 255;
+		UINT maxNamesOut;
+		info->GetNames( funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
+		for ( int p = 0; p < (int)maxNamesOut; ++ p ) {
+		    QString paramName = BSTRToQString( bstrNames[p] );
+		    SysFreeString( bstrNames[p] );
+
+		    // function name
+		    if ( !p ) {
+			function = paramName;
+			prototype = function + "(";
+
+			// get return value
+			if ( typedesc.vt == VT_USERDEFINED )
+			    returnType = usertypeToQString( typedesc, info, enumDict );
+			if ( returnType.isEmpty() )
 			    returnType = typedescToQString( typedesc );
-			    returnType = guessTypes( returnType, function );
-			    unsupported = unsupported || UNSUPPORTED(returnType)
+			returnType = guessTypes( returnType, function );
+			unsupported = unsupported || UNSUPPORTED(returnType)
 
-			    if ( funcdesc->invkind == INVOKE_FUNC && returnType != "void" ) {
-				parameters << "return";
-				paramTypes << returnType;
-			    }
-			    if ( unsupported )
-				firstUnsupported = returnType;
-
-			    continue;
+			if ( funcdesc->invkind == INVOKE_FUNC && returnType != "void" ) {
+			    parameters << "return";
+			    paramTypes << returnType;
 			}
 
-			// parameter
-			bool optional = p > funcdesc->cParams - funcdesc->cParamsOpt;
-			QString ptype;
-			TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
-			ptype = typedescToQString( tdesc );
-			ptype = guessTypes( ptype, function );
-			unsupported = unsupported || UNSUPPORTED(ptype)
-
-			if ( funcdesc->invkind == INVOKE_FUNC )
-			    ptype = constRefify( ptype );
-
-			prototype += ptype;
-			if ( optional )
-			    ptype += "=0";
-			paramTypes << ptype;
-			parameters << paramName;
-			if ( p < funcdesc->cParams )
-			    prototype += ",";
-
-			if ( !wasUnsupported && unsupported && firstUnsupported.isEmpty() )
-			    firstUnsupported = ptype + " " + paramName;
-		    }
-		    if ( !!prototype )
-			prototype += ")";
-
-		    QMetaProperty *prop = 0;
-
-		    // get type of function
-		    if ( !(funcdesc->wFuncFlags & FUNCFLAG_FHIDDEN) ) switch( funcdesc->invkind ) {			
-		    case INVOKE_PROPERTYGET: // property
-		    case INVOKE_PROPERTYPUT:
-			{
-			    if ( unsupported ) {
-#ifndef QT_NO_DEBUG
-				qWarning( "%s: Property is of unsupported type: ", QString( returnType + " " + prototype ).latin1() );
-#endif
-				debugInfo += QString( "%1: Property is of unsupported type.\n" ).arg( returnType + " "+ function );
-				break;
-			    }
-			    if ( funcdesc->cParams > 1 ) {
-#ifndef QT_NO_DEBUG
-				qWarning( "%s: Too many parameters in property.", function.latin1() );
-#endif
-				debugInfo += QString( "%1: Too many parameters in property.\n").arg( function );
-				break;
-			    }
-			    prop = proplist[function];
-			    if ( !prop ) {
-				prop = new QMetaProperty;
-				proplist.insert( function, prop );
-				prop->meta = (QMetaObject**)&metaobj;
-				prop->_id = -1;
-				prop->enumData = 0;
-				prop->flags = PropStored;
-				if ( !(funcdesc->wFuncFlags & FUNCFLAG_FNONBROWSABLE) )
-				    prop->flags |= PropDesignable;
-				if ( !(funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED) )
-				    prop->flags |= PropScriptable;
-				if ( funcdesc->wFuncFlags & FUNCFLAG_FREQUESTEDIT )
-				    prop->flags |= PropRequesting;
-
-				QString ptype = paramTypes[0];
-				if ( ptype.isEmpty() )
-				    ptype = returnType;
-				if ( ptype != "void" ) {
-				    prop->t = new char[ptype.length()+1];
-				    prop->t = qstrcpy( (char*)prop->t, ptype );
-				} else {
-				    prop->t = 0;
-				}
-				prop->n = new char[function.length()+1];
-				prop->n = qstrcpy( (char*)prop->n, function );
-
-				if ( funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE ) {
-				    prop->flags |= PropBindable;
-				    QAxEventSink *eventSink = d->eventSink.find( iid_propNotifySink );
-				    if ( !eventSink && d->useEventSink ) {
-					eventSink = new QAxEventSink( that );
-					d->eventSink.insert( iid_propNotifySink, eventSink );
-				    }
-				    // generate changed signal
-				    QString signalName = function + "Changed";
-				    QString signalParam = constRefify( ptype );
-				    QString signalProto = signalName + "(" + signalParam + ")";
-				    QString paramName = "value";
-				    if ( !signallist.find( signalProto ) ) {
-					QUMethod *signal = new QUMethod;
-					signal->name = new char[signalName.length()+1];
-					signal->name = qstrcpy( (char*)signal->name, signalName );
-					signal->count = 1;
-					QUParameter *param = new QUParameter;
-					param->name = new char[paramName.length()+1];
-					param->name = qstrcpy( (char*)param->name, paramName );
-					param->inOut = QUParameter::In;
-					QStringToQUType( signalParam, param );
-					signal->parameters = param;
-
-					signallist.insert( signalProto, signal );
-				    }
-				    if ( eventSink )
-					eventSink->addProperty( funcdesc->memid, function, signalProto );
-				}
-			    } else if ( !prop->t ) {
-				QString ptype = paramTypes[0];
-				if ( ptype.isEmpty() )
-				    ptype = returnType;
-				if ( paramTypes.isEmpty() )
-				    paramTypes.append( ptype );
-				else
-				    paramTypes[0] = ptype;
-				prop->t = new char[ptype.length()+1];
-				prop->t = qstrcpy( (char*)prop->t, ptype );
-			    }
-			    if ( funcdesc->invkind == INVOKE_PROPERTYGET ) {
-				prop->flags |= QMetaProperty::Readable;
-			    } else {
-				prop->flags |= QMetaProperty::Writable;
-			    }
-			    if ( !prop->t )
-				break;
-			    // fall through to generate put function as slot
-			}
-			if ( funcdesc->invkind != INVOKE_PROPERTYPUT )
-			    break;
-
-		    case INVOKE_FUNC: // method
-			{
-			    if ( unsupported ) {
-#ifndef QT_NO_DEBUG
-				qWarning( "%s: Function has parameter of unsupported datatype: ", QString( returnType + " " + prototype ).latin1() );
-#endif
-				debugInfo += QString( "%1: Function has parameters of unsupported datatype.\n" ).arg( QString( returnType + " " + prototype ) );
-				break;
-			    }
-			    if ( funcdesc->invkind == INVOKE_PROPERTYPUT && prop ) {
-				QString set;
-				QString pname = function;
-				QString firstletter = function.left(1);
-				if ( firstletter == firstletter.upper() ) {
-				    set = "Set";
-				} else {
-				    set = "set";
-				    function = firstletter.upper() + function.mid(1);
-				}
-				function = set + function;
-				QString ptype = prop->type();
-				ptype = prop->type();
-				if ( ptype.isEmpty() )
-				    ptype = returnType;
-				ptype = constRefify( ptype );
-				prototype = function + "(" + ptype + ")";
-
-				if ( !!ptype )
-				    paramTypes = ptype;
-				parameters = pname;
-				if ( slotlist.find( prototype ) )
-				    break;
-			    }
-			    bool defargs;
-			    QString defprototype = prototype;
-			    do {
-				defargs = FALSE;
-				QUMethod *slot = new QUMethod;
-				slot->name = new char[function.length()+1];
-				slot->name = qstrcpy( (char*)slot->name, function );
-				slot->count = parameters.count();
-				QUParameter *params = slot->count ? new QUParameter[slot->count] : 0;
-				int offset = parameters[0] == "return" ? 1 : 0;
-				for ( int p = 0; p< slot->count; ++p ) {
-				    QString paramName = parameters[p];
-				    QString paramType = paramTypes[p];
-				    if ( paramType.right( 2 ) == "=0" ) {
-					paramType.truncate( paramType.length()-2 );
-					paramTypes[p] = paramType;
-					defargs = TRUE;
-					slot->count = p;
-					prototype = function + "(";
-					for ( int pp = offset; pp < p; ++pp ) {
-					    prototype += paramTypes[pp];
-					    if ( pp < p-1 )
-						prototype += ",";
-					}
-					prototype += ")";
-					break;
-				    }
-				    params[p].name = new char[paramName.length()+1];
-				    params[p].name = qstrcpy( (char*)params[p].name, paramName );
-				    params[p].inOut = 0;
-				    if ( !p && paramName == "return" ) {
-					params[p].inOut = QUParameter::Out;
-				    } else if ( funcdesc->lprgelemdescParam + p - offset ) {
-					ushort inout = funcdesc->lprgelemdescParam[p-offset].paramdesc.wParamFlags;
-					if ( inout & PARAMFLAG_FIN )
-					    params[p].inOut |= QUParameter::In;
-					if ( inout & PARAMFLAG_FOUT )
-					    params[p].inOut |= QUParameter::Out;
-				    }
-
-				    QStringToQUType( paramType, params + p );
-				}
-
-				slot->parameters = params;
-				slotlist.insert( prototype, slot );
-				prototype = defprototype;
-			    } while ( defargs );
-			}
-			break;
-
-		    default:
-			break;
-		    }
-
-#if 0 // documentation in metaobject would be cool?
-		    // get function documentation
-		    BSTR bstrDocu;
-		    info->GetDocumentation( funcdesc->memid, 0, &bstrDocu, 0, 0 );
-		    QString strDocu = BSTRToQString( bstrDocu );
-		    if ( !!strDocu )
-			desc += "[" + strDocu + "]";
-		    desc += "\n";
-		    SysFreeString( bstrDocu );
-#endif
-		    info->ReleaseFuncDesc( funcdesc );
-		}
-		
-		// get information about all variables
-		if ( interesting ) for ( ushort vd = 0; vd < nVars; ++vd ) {
-		    VARDESC *vardesc;
-		    info->GetVarDesc( vd, &vardesc );
-		    if ( !vardesc )
-			break;
-
-		    // no use if it's not a dispatched variable
-		    if ( vardesc->varkind != VAR_DISPATCH ) {
-			info->ReleaseVarDesc( vardesc );
 			continue;
 		    }
 
-		    // get variable type
-		    TYPEDESC typedesc = vardesc->elemdescVar.tdesc;
-		    QString variableType = typedescToQString( typedesc );
-		    bool unsupported = UNSUPPORTED(variableType);
+		    // parameter
+		    bool optional = p > funcdesc->cParams - funcdesc->cParamsOpt;
+		    TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
+		    QString ptype;
+		    // userdefined type
+		    if ( tdesc.vt == VT_USERDEFINED )
+			ptype = usertypeToQString( tdesc, info, enumDict );
+		    if ( ptype.isEmpty() )
+			ptype = typedescToQString( tdesc );
+		    ptype = guessTypes( ptype, function );
+		    unsupported = unsupported || UNSUPPORTED(ptype)
 
-		    // get variable name
-		    QString variableName;
+		    if ( funcdesc->invkind == INVOKE_FUNC )
+			ptype = constRefify( ptype );
 
-		    BSTR bstrNames[256];
-		    UINT maxNames = 255;
-		    UINT maxNamesOut;
-		    info->GetNames( vardesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
-		    for ( int v = 0; v < (int)maxNamesOut; ++v ) {
-			QString varName = BSTRToQString( bstrNames[v] );
-			SysFreeString( bstrNames[v] );
+		    prototype += ptype;
+		    if ( optional )
+			ptype += "=0";
+		    paramTypes << ptype;
+		    parameters << paramName;
+		    if ( p < funcdesc->cParams )
+			prototype += ",";
+		}
+		if ( !!prototype )
+		    prototype += ")";
 
-			if ( !v ) {
-			    variableName = varName;
-			    continue;
-			}
-		    }
+		QMetaProperty *prop = 0;
 
-		    if ( unsupported ) {
+		// get type of function
+		if ( !(funcdesc->wFuncFlags & FUNCFLAG_FHIDDEN) ) switch( funcdesc->invkind ) {			
+		case INVOKE_PROPERTYGET: // property
+		case INVOKE_PROPERTYPUT:
+		    {
+			if ( unsupported ) {
 #ifndef QT_NO_DEBUG
-			qWarning( "%1: Property is of unsupported datatype", QString( variableType + " " + variableName ).latin1() );
+			    qWarning( "%s: Property is of unsupported type: ", QString( returnType + " " + prototype ).latin1() );
 #endif
-			debugInfo = QString( "%1: Property is of unsupported datatype" ).arg( variableType + " " + variableName );
-		    } else if ( !(vardesc->wVarFlags & VARFLAG_FHIDDEN) ) {
-			// generate meta property
-			QMetaProperty *prop = proplist[variableName];
+			    debugInfo += QString( "%1: Property is of unsupported type.\n" ).arg( returnType + " "+ function );
+			    break;
+			}
+			if ( funcdesc->cParams > 1 ) {
+#ifndef QT_NO_DEBUG
+			    qWarning( "%s: Too many parameters in property.", function.latin1() );
+#endif
+			    debugInfo += QString( "%1: Too many parameters in property.\n").arg( function );
+			    break;
+			}
+			prop = proplist[function];
 			if ( !prop ) {
+			    QString ptype = paramTypes[0];
+			    if ( ptype.isEmpty() )
+				ptype = returnType;
+
 			    prop = new QMetaProperty;
-			    proplist.insert( variableName, prop );
+			    proplist.insert( function, prop );
 			    prop->meta = (QMetaObject**)&metaobj;
 			    prop->_id = -1;
-			    prop->enumData = 0;
-			    prop->flags = QMetaProperty::Readable | PropStored;
-			    if ( !(vardesc->wVarFlags & VARFLAG_FREADONLY) )
-				prop->flags |= QMetaProperty::Writable;;
-			    if ( !(vardesc->wVarFlags & VARFLAG_FNONBROWSABLE) )
+			    if ( !ptype.isEmpty() )
+				prop->enumData = enumDict.find( ptype );
+			    else
+				prop->enumData = 0;
+			    prop->flags = PropStored;
+			    if ( !(funcdesc->wFuncFlags & FUNCFLAG_FNONBROWSABLE) )
 				prop->flags |= PropDesignable;
-			    if ( !(vardesc->wVarFlags & VARFLAG_FRESTRICTED) )
+			    if ( !(funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED) )
 				prop->flags |= PropScriptable;
-			    if ( vardesc->wVarFlags & VARFLAG_FREQUESTEDIT )
+			    if ( funcdesc->wFuncFlags & FUNCFLAG_FREQUESTEDIT )
 				prop->flags |= PropRequesting;
+			    if ( prop->enumData )
+				prop->flags |= QMetaProperty::EnumOrSet;
 
-			    prop->t = new char[variableType.length()+1];
-			    prop->t = qstrcpy( (char*)prop->t, variableType );
-			    prop->n = new char[variableName.length()+1];
-			    prop->n = qstrcpy( (char*)prop->n, variableName );
+			    if ( ptype != "void" ) {
+				prop->t = new char[ptype.length()+1];
+				prop->t = qstrcpy( (char*)prop->t, ptype );
+			    } else {
+				prop->t = 0;
+			    }
+			    prop->n = new char[function.length()+1];
+			    prop->n = qstrcpy( (char*)prop->n, function );
 
-			    if ( vardesc->wVarFlags & VARFLAG_FBINDABLE ) {
+			    if ( funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE ) {
 				prop->flags |= PropBindable;
 				QAxEventSink *eventSink = d->eventSink.find( iid_propNotifySink );
 				if ( !eventSink && d->useEventSink ) {
@@ -1280,8 +1229,8 @@ QMetaObject *QAxBase::metaObject() const
 				    d->eventSink.insert( iid_propNotifySink, eventSink );
 				}
 				// generate changed signal
-				QString signalName = variableName + "Changed";
-				QString signalParam = constRefify( variableType );
+				QString signalName = function + "Changed";
+				QString signalParam = constRefify( ptype );
 				QString signalProto = signalName + "(" + signalParam + ")";
 				QString paramName = "value";
 				if ( !signallist.find( signalProto ) ) {
@@ -1293,73 +1242,301 @@ QMetaObject *QAxBase::metaObject() const
 				    param->name = new char[paramName.length()+1];
 				    param->name = qstrcpy( (char*)param->name, paramName );
 				    param->inOut = QUParameter::In;
-				    QStringToQUType( signalParam, param );
+				    QStringToQUType( signalParam, param, enumDict );
 				    signal->parameters = param;
 
 				    signallist.insert( signalProto, signal );
 				}
 				if ( eventSink )
-				    eventSink->addProperty( vardesc->memid, variableName, signalProto );
+				    eventSink->addProperty( funcdesc->memid, function, signalProto );
 			    }
+			} else if ( !prop->t ) {
+			    QString ptype = paramTypes[0];
+			    if ( ptype.isEmpty() )
+				ptype = returnType;
+			    if ( paramTypes.isEmpty() )
+				paramTypes.append( ptype );
+			    else
+				paramTypes[0] = ptype;
+			    prop->t = new char[ptype.length()+1];
+			    prop->t = qstrcpy( (char*)prop->t, ptype );
 			}
+			if ( funcdesc->invkind == INVOKE_PROPERTYGET ) {
+			    prop->flags |= QMetaProperty::Readable;
+			} else {
+			    prop->flags |= QMetaProperty::Writable;
+			}
+			if ( !prop->t )
+			    break;
+			// fall through to generate put function as slot
+		    }
+		    if ( funcdesc->invkind != INVOKE_PROPERTYPUT )
+			break;
 
-			// generate a set slot
-			if ( !(vardesc->wVarFlags & VARFLAG_FREADONLY) ) {
-			    QString firstletter = variableName.left(1);
+		case INVOKE_FUNC: // method
+		    {
+			if ( funcdesc->invkind == INVOKE_PROPERTYPUT && prop ) {
 			    QString set;
+			    QString pname = function;
+			    QString firstletter = function.left(1);
 			    if ( firstletter == firstletter.upper() ) {
 				set = "Set";
 			    } else {
 				set = "set";
+				function = firstletter.upper() + function.mid(1);
 			    }
+			    function = set + function;
+			    QString ptype = prop->type();
+			    ptype = prop->type();
+			    if ( ptype.isEmpty() )
+				ptype = returnType;
+			    ptype = constRefify( ptype );
+			    prototype = function + "(" + ptype + ")";
 
-			    variableType = constRefify( variableType );
-			    QString function = set + variableName;
-			    QString prototype = function + "(" + variableType + ")";
-
-			    if ( !slotlist.find( prototype ) ) {
-				QUMethod *slot = new QUMethod;
-				slot->name = new char[ function.length() + 1 ];
-				slot->name = qstrcpy( (char*)slot->name, function );
-				slot->count = 1;
-				QUParameter *params = new QUParameter;
-				params->inOut = QUParameter::In;
-				params->name = new char[ variableName.length() + 1 ];
-				params->name = qstrcpy( (char*)params->name, variableName );
-
-				QStringToQUType( variableType, params );
-
-				slot->parameters = params;
-				slotlist.insert( prototype, slot );
-			    }
+			    if ( !!ptype )
+				paramTypes = ptype;
+			    parameters = pname;
+			    if ( slotlist.find( prototype ) )
+				break;
 			}
+			bool defargs;
+			QString defprototype = prototype;
+			unsupported = FALSE; // try to generate slots for all methods
+			do {
+			    defargs = FALSE;
+			    QUMethod *slot = new QUMethod;
+			    slot->name = new char[function.length()+1];
+			    slot->name = qstrcpy( (char*)slot->name, function );
+			    slot->count = parameters.count();
+			    QUParameter *params = slot->count ? new QUParameter[slot->count] : 0;
+			    int offset = parameters[0] == "return" ? 1 : 0;
+			    for ( int p = 0; p< slot->count; ++p ) {
+				QString paramName = parameters[p];
+				QString paramType = paramTypes[p];
+				if ( paramType.right( 2 ) == "=0" ) {
+				    paramType.truncate( paramType.length()-2 );
+				    paramTypes[p] = paramType;
+				    defargs = TRUE;
+				    slot->count = p;
+				    prototype = function + "(";
+				    for ( int pp = offset; pp < p; ++pp ) {
+					prototype += paramTypes[pp];
+					if ( pp < p-1 )
+					    prototype += ",";
+				    }
+				    prototype += ")";
+				    break;
+				}
+				params[p].name = new char[paramName.length()+1];
+				params[p].name = qstrcpy( (char*)params[p].name, paramName );
+				params[p].inOut = 0;
+				if ( !p && paramName == "return" ) {
+				    params[p].inOut = QUParameter::Out;
+				} else if ( funcdesc->lprgelemdescParam + p - offset ) {
+				    ushort inout = funcdesc->lprgelemdescParam[p-offset].paramdesc.wParamFlags;
+				    if ( inout & PARAMFLAG_FIN )
+					params[p].inOut |= QUParameter::In;
+				    if ( inout & PARAMFLAG_FOUT )
+					params[p].inOut |= QUParameter::Out;
+				}
+				if ( paramType != "UNSUPPORTED" )
+				    QStringToQUType( paramType, params + p, enumDict );
+				else
+				    unsupported = TRUE;
+			    }
 
-#if 0 // documentation in metaobject would be cool?
-			// get function documentation
-			BSTR bstrDocu;
-			info->GetDocumentation( vardesc->memid, 0, &bstrDocu, 0, 0 );
-			QString strDocu = BSTRToQString( bstrDocu );
-			if ( !!strDocu )
-			    desc += "[" + strDocu + "]";
-			desc += "\n";
-			SysFreeString( bstrDocu );
+			    slot->parameters = params;
+			    if ( !unsupported ) {
+				slotlist.insert( prototype, slot );
+			    } else {
+#ifndef QT_NO_DEBUG
+				    qWarning( "%s: Function has parameter of unsupported type: ", prototype );
 #endif
+				    debugInfo += QString( "%1: Function has parameter of unsupported type.\n" ).arg( prototype );
+			    }			    
+			    prototype = defprototype;
+			} while ( defargs );
 		    }
-		    info->ReleaseVarDesc( vardesc );
+		    break;
+
+		default:
+		    break;
 		}
 
-		if ( !nImpl )
+#if 0 // documentation in metaobject would be cool?
+		// get function documentation
+		BSTR bstrDocu;
+		info->GetDocumentation( funcdesc->memid, 0, &bstrDocu, 0, 0 );
+		QString strDocu = BSTRToQString( bstrDocu );
+		if ( !!strDocu )
+		    desc += "[" + strDocu + "]";
+		desc += "\n";
+		SysFreeString( bstrDocu );
+#endif
+		info->ReleaseFuncDesc( funcdesc );
+	    }
+	    
+	    // get information about all variables
+	    if ( interesting ) for ( ushort vd = 0; vd < nVars; ++vd ) {
+		VARDESC *vardesc;
+		info->GetVarDesc( vd, &vardesc );
+		if ( !vardesc )
 		    break;
 
-		// go up one base class
-		HREFTYPE pRefType;
-		info->GetRefTypeOfImplType( 0, &pRefType );
-		CComPtr<ITypeInfo> baseInfo;
-		info->GetRefTypeInfo( pRefType, &baseInfo );
-		if ( info == baseInfo ) // IUnknown inherits IUnknown ???
-		    break;
-		info = baseInfo;
+		// no use if it's not a dispatched variable
+		if ( vardesc->varkind != VAR_DISPATCH ) {
+		    info->ReleaseVarDesc( vardesc );
+		    continue;
+		}
+
+		// get variable type
+		TYPEDESC typedesc = vardesc->elemdescVar.tdesc;
+		QString variableType;
+		if ( typedesc.vt == VT_USERDEFINED )
+		    usertypeToQString( typedesc, info, enumlist );
+		if ( variableType.isEmpty() ) 
+		    variableType = typedescToQString( typedesc );
+
+		// get variable name
+		QString variableName;
+
+		BSTR bstrNames[256];
+		UINT maxNames = 255;
+		UINT maxNamesOut;
+		info->GetNames( vardesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
+		for ( int v = 0; v < (int)maxNamesOut; ++v ) {
+		    QString varName = BSTRToQString( bstrNames[v] );
+		    SysFreeString( bstrNames[v] );
+
+		    if ( !v ) {
+			variableName = varName;
+			continue;
+		    }
+		}
+		variableType = guessTypes( variableType, variableName );
+		bool unsupported = UNSUPPORTED(variableType);
+
+		if ( unsupported ) {
+#ifndef QT_NO_DEBUG
+		    qWarning( "%1: Property is of unsupported datatype", QString( variableType + " " + variableName ).latin1() );
+#endif
+		    debugInfo = QString( "%1: Property is of unsupported datatype" ).arg( variableType + " " + variableName );
+		} else if ( !(vardesc->wVarFlags & VARFLAG_FHIDDEN) ) {
+		    // generate meta property
+		    QMetaProperty *prop = proplist[variableName];
+		    if ( !prop ) {
+			prop = new QMetaProperty;
+			proplist.insert( variableName, prop );
+			prop->meta = (QMetaObject**)&metaobj;
+			prop->_id = -1;
+			if ( !variableType.isEmpty() )
+			    prop->enumData = enumDict.find( variableType );
+			else
+			    prop->enumData = 0;
+			prop->flags = QMetaProperty::Readable | PropStored;
+			if ( !(vardesc->wVarFlags & VARFLAG_FREADONLY) )
+			    prop->flags |= QMetaProperty::Writable;;
+			if ( !(vardesc->wVarFlags & VARFLAG_FNONBROWSABLE) )
+			    prop->flags |= PropDesignable;
+			if ( !(vardesc->wVarFlags & VARFLAG_FRESTRICTED) )
+			    prop->flags |= PropScriptable;
+			if ( vardesc->wVarFlags & VARFLAG_FREQUESTEDIT )
+			    prop->flags |= PropRequesting;
+			if ( prop->enumData != 0 )
+			    prop->flags |= QMetaProperty::EnumOrSet;
+
+			prop->t = new char[variableType.length()+1];
+			prop->t = qstrcpy( (char*)prop->t, variableType );
+			prop->n = new char[variableName.length()+1];
+			prop->n = qstrcpy( (char*)prop->n, variableName );
+
+			if ( vardesc->wVarFlags & VARFLAG_FBINDABLE ) {
+			    prop->flags |= PropBindable;
+			    QAxEventSink *eventSink = d->eventSink.find( iid_propNotifySink );
+			    if ( !eventSink && d->useEventSink ) {
+				eventSink = new QAxEventSink( that );
+				d->eventSink.insert( iid_propNotifySink, eventSink );
+			    }
+			    // generate changed signal
+			    QString signalName = variableName + "Changed";
+			    QString signalParam = constRefify( variableType );
+			    QString signalProto = signalName + "(" + signalParam + ")";
+			    QString paramName = "value";
+			    if ( !signallist.find( signalProto ) ) {
+				QUMethod *signal = new QUMethod;
+				signal->name = new char[signalName.length()+1];
+				signal->name = qstrcpy( (char*)signal->name, signalName );
+				signal->count = 1;
+				QUParameter *param = new QUParameter;
+				param->name = new char[paramName.length()+1];
+				param->name = qstrcpy( (char*)param->name, paramName );
+				param->inOut = QUParameter::In;
+				QStringToQUType( signalParam, param, enumDict );
+				signal->parameters = param;
+
+				signallist.insert( signalProto, signal );
+			    }
+			    if ( eventSink )
+				eventSink->addProperty( vardesc->memid, variableName, signalProto );
+			}
+		    }
+
+		    // generate a set slot
+		    if ( !(vardesc->wVarFlags & VARFLAG_FREADONLY) ) {
+			QString firstletter = variableName.left(1);
+			QString set;
+			if ( firstletter == firstletter.upper() ) {
+			    set = "Set";
+			} else {
+			    set = "set";
+			}
+
+			variableType = constRefify( variableType );
+			QString function = set + variableName;
+			QString prototype = function + "(" + variableType + ")";
+
+			if ( !slotlist.find( prototype ) ) {
+			    QUMethod *slot = new QUMethod;
+			    slot->name = new char[ function.length() + 1 ];
+			    slot->name = qstrcpy( (char*)slot->name, function );
+			    slot->count = 1;
+			    QUParameter *params = new QUParameter;
+			    params->inOut = QUParameter::In;
+			    params->name = new char[ variableName.length() + 1 ];
+			    params->name = qstrcpy( (char*)params->name, variableName );
+
+			    QStringToQUType( variableType, params, enumDict );
+
+			    slot->parameters = params;
+			    slotlist.insert( prototype, slot );
+			}
+		    }
+
+#if 0 // documentation in metaobject would be cool?
+		    // get function documentation
+		    BSTR bstrDocu;
+		    info->GetDocumentation( vardesc->memid, 0, &bstrDocu, 0, 0 );
+		    QString strDocu = BSTRToQString( bstrDocu );
+		    if ( !!strDocu )
+			desc += "[" + strDocu + "]";
+		    desc += "\n";
+		    SysFreeString( bstrDocu );
+#endif
+		}
+		info->ReleaseVarDesc( vardesc );
 	    }
+
+	    if ( !nImpl )
+		break;
+
+	    // go up one base class
+	    HREFTYPE pRefType;
+	    info->GetRefTypeOfImplType( 0, &pRefType );
+	    CComPtr<ITypeInfo> baseInfo;
+	    info->GetRefTypeInfo( pRefType, &baseInfo );
+	    if ( info == baseInfo ) // IUnknown inherits IUnknown ???
+		break;
+	    info = baseInfo;
 	}
     }
 
@@ -1516,7 +1693,7 @@ QMetaObject *QAxBase::metaObject() const
 					params[p].inOut |= QUParameter::Out;
 				}
 
-				QStringToQUType( paramType, params + p );
+				QStringToQUType( paramType, params + p, enumDict );
 			    }
 			    signal->parameters = params;
 			    signallist.insert( prototype, signal );
@@ -1547,7 +1724,7 @@ QMetaObject *QAxBase::metaObject() const
 	infolist.insert( "debugInfo", new QString( debugInfo ) );
 
     // setup slot data
-    int index = 0;
+    index = 0;
     QMetaData *const slot_data = slotlist.count() ? new QMetaData[slotlist.count()] : 0;
     QDictIterator<QUMethod> slot_it( slotlist );
     while ( slot_it.current() ) {
@@ -1610,20 +1787,6 @@ QMetaObject *QAxBase::metaObject() const
 
 	++index;
 	++prop_it;
-    }
-
-    // setup enum data
-    index = 0;
-    QMetaEnum *const enum_data = enumlist.count() ? new QMetaEnum[enumlist.count()] : 0;
-    QDictIterator<QString> enum_it( enumlist );
-    while ( enum_it.current() ) {
-	QString info = *enum_it.current();
-	QString key = enum_it.currentKey();
-	enum_data[index].name = new char[key.length()+1];
-	enum_data[index].name = qstrcpy( (char*)enum_data[index].name, key );
-	//###
-	++index;
-	++enum_it;
     }
 
     // setup class info data
@@ -1943,13 +2106,31 @@ static inline QCString qt_rmWS( const char *s )
 */
 bool QAxBase::internalInvoke( const QCString &name, void *inout, const QVariant &var )
 {
+    QVariant realVar = var;
+    QCString function = name;
+    int id = metaObject()->findSlot( qt_rmWS(function), TRUE );
+    if ( id >= 0 ) {
+	const QMetaData *slot = metaObject()->slot( id, TRUE );
+	function = slot->method->name;
+	if ( ( realVar.type() == QVariant::String || realVar.type() == QVariant::CString )
+	    && QUType::isEqual( slot->method->parameters[1].type, &static_QUType_enum ) ) {
+	    QUEnum *uEnum = (QUEnum *)slot->method->parameters[1].typeExtra;
+	    for ( uint eItem = 0; eItem < uEnum->count; eItem++ ) {
+		if ( uEnum->items[eItem].key == var.toString() ) {
+		    realVar = uEnum->items[eItem].value;
+		    break;
+		}
+	    }
+	}
+    }
+
     CComPtr<IDispatch> disp;
     ptr->QueryInterface( IID_IDispatch, (void**)&disp );
     if ( !disp || !inout )
 	return FALSE;
 
     DISPID dispid;
-    OLECHAR *names = (TCHAR*)qt_winTchar(name, TRUE );
+    OLECHAR *names = (TCHAR*)qt_winTchar(function, TRUE );
     disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid );
     if ( dispid == DISPID_UNKNOWN ) {
 #ifdef QT_CHECK_STATE
@@ -1969,7 +2150,8 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, const QVariant 
 	params.rgdispidNamedArgs = 0;
 	params.rgvarg = 0;
     } else {
-	arg = QVariantToVARIANT( var );
+	int id = metaObject()->findSlot( name, TRUE );
+	arg = QVariantToVARIANT( realVar );
 	params.cArgs = 1;
 	params.cNamedArgs = 0;
 	params.rgdispidNamedArgs = 0;
@@ -2057,20 +2239,22 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
 	slot = slot_data->method;
 
 	QUObject obj[9];
+	const void *typeExtra[9];
 	// obj[0] is the result
 	int o;
 	int ret = slot->count && slot->parameters[0].inOut == QUParameter::Out;
 	for ( o = 0; o < slot->count-ret; ++o ) {
 	    obj[o+1].type = slot->parameters[o+ret].type;
+	    typeExtra[o+1] = slot->parameters[o+ret].typeExtra;
 	}
-	QVariantToQUObject( var1, obj[1] );
-	QVariantToQUObject( var2, obj[2] );
-	QVariantToQUObject( var3, obj[3] );
-	QVariantToQUObject( var4, obj[4] );
-	QVariantToQUObject( var5, obj[5] );
-	QVariantToQUObject( var6, obj[6] );
-	QVariantToQUObject( var7, obj[7] );
-	QVariantToQUObject( var8, obj[8] );
+	QVariantToQUObject( var1, obj[1], typeExtra[1] );
+	QVariantToQUObject( var2, obj[2], typeExtra[2] );
+	QVariantToQUObject( var3, obj[3], typeExtra[3] );
+	QVariantToQUObject( var4, obj[4], typeExtra[4] );
+	QVariantToQUObject( var5, obj[5], typeExtra[5] );
+	QVariantToQUObject( var6, obj[6], typeExtra[6] );
+	QVariantToQUObject( var7, obj[7], typeExtra[7] );
+	QVariantToQUObject( var8, obj[8], typeExtra[8] );
 
 	qt_invoke( id, obj );
 
@@ -2115,7 +2299,8 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
 
 /*!
     Returns a pointer to a QAxObject wrapping the COM object provided by the method or 
-    property \a name, passing \a var as an optional parameter.
+    property \a name, passing \a var as an optional parameter. If \a name is provided by
+    a method the string has to include the full function prototype.
 
     The returned object is a child of this object (which is either of type QAxObject or
     QAxWidget), and is deleted when this object is being  deleted. It is however safe to 
@@ -2129,7 +2314,8 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
     QAxWidget outlook( "Outlook.Application" );
     QAxObject *session = outlook.createSubObject( "Session" );
     if ( session ) {
-	// ...
+	QAxObject *defFolder = session->createSubObject( "GetDefaultFolder(OlDefaultFolders)", "olFolderContacts" );
+	//...
     }
     \endcode
 */
@@ -2138,13 +2324,16 @@ QAxObject *QAxBase::querySubObject( const QCString &name, const QVariant &var )
     QAxObject *object = 0;
 
     VARIANTARG res;
+
     internalInvoke( name, &res, var );
     switch ( res.vt ) {
     case VT_DISPATCH:
-	object = new QAxObject( res.pdispVal, qObject(), name );
+	if ( res.pdispVal )
+	    object = new QAxObject( res.pdispVal, qObject(), name );
 	break;
     case VT_UNKNOWN:
-	object = new QAxObject( res.punkVal, qObject(), name );
+	if ( res.punkVal )
+	    object = new QAxObject( res.punkVal, qObject(), name );
 	break;
     case VT_EMPTY:
 #ifdef QT_CHECK_STATE

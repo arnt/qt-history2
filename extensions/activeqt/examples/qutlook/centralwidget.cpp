@@ -231,7 +231,7 @@ bool ABCentralWidget::setupOutlook()
     QAxObject *session = outlook->querySubObject( "Session" );
     if ( !session )
 	return FALSE;
-    QAxObject *defFolder = session->querySubObject( "GetDefaultFolder", 10 /*olFolderContacts*/ );
+    QAxObject *defFolder = session->querySubObject( "GetDefaultFolder(OlDefaultFolders)", "olFolderContacts" );
     if ( !defFolder )
 	return FALSE;
 

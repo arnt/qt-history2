@@ -52,39 +52,11 @@ void ChangeProperties::propertySelected( QListViewItem *item )
     
     if ( !item )
 	return;
-    
-    QVariant value = activex->property( item->text(0) );
-    QString valueString;
-    switch ( value.type() ) {
-    case QVariant::Color:
-	{
-	    QColor col = value.toColor();
-	    valueString = col.name();
-	}
-	break;
-    case QVariant::Font:
-	{
-	    QFont fnt = value.toFont();
-	    valueString = fnt.toString();
-	}
-	break;
-    case QVariant::Bool:
-	{
-	    valueString = value.toBool() ? "true" : "false";
-	}
-	break;	
-    default:
-	valueString =  value.toString();
-	break;
-    }
-    editValue->setText( valueString );
-    
 
-
+    editValue->setText( item->text( 2 ) );
     QString prop = item->text(0);
     valueLabel->setText( prop + " =" );
 
-    
     const QMetaObject *mo = activex->metaObject();
     const QMetaProperty *property = mo->property( mo->findProperty( prop, FALSE ), FALSE );
 
@@ -177,7 +149,12 @@ void ChangeProperties::updateProperties()
 	    const QMetaProperty *property = mo->property( i, FALSE );
 	    QListViewItem *item = new QListViewItem( listProperties );
 	    item->setText( 0, property->name() );
-	    item->setText( 1, property->type() );
+	    if ( property->isEnumType() ) {
+		const QMetaEnum *enumData = property->enumData;
+		item->setText( 1, enumData->name );
+	    } else {
+		item->setText( 1, property->type() );
+	    }
 	    QVariant var = activex->property( property->name() );
 	    
 	    switch ( var.type() ) {
@@ -198,11 +175,21 @@ void ChangeProperties::updateProperties()
 		    item->setText( 2, var.toBool() ? "true" : "false" );
 		}
 		break;
+	    case QVariant::Int:
+		if ( property->isEnumType() ) {
+		    const QMetaEnum *enumData = property->enumData;
+		    int val = var.toInt();
+		    for ( uint j = 0; j < enumData->count; ++j ) {
+			if ( enumData->items[j].value == val )
+			    item->setText( 2, enumData->items[j].key );
+		    }
+		    break;
+		}
+		//FALLTHROUGH
 	    default:
 		item->setText( 2, var.toString() );
 		break;
 	    }
-	    
  
 	    if ( property->testFlags( PropRequesting ) ) {
 		CheckListItem *check = new CheckListItem( listEditRequests, property->name() );

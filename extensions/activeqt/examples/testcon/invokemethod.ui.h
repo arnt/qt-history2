@@ -49,12 +49,15 @@ void InvokeMethod::methodSelected( const QString &method )
 	QString pname = param->name ? param->name : "<unnamed>";
 	item->setText( 0, pname );
 	QString ptype;
-	if ( param->type && !QUType::isEqual( param->type, &static_QUType_ptr ) ) {
-	    ptype = param->type->desc();
-	} else if ( param->type ) {
-	    ptype = (const char*)param->typeExtra;
-	} else {
+	if ( !param->type ) {
 	    ptype = "<unknown type>";
+	} else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
+	    ptype = (const char*)param->typeExtra;
+	} else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
+	    QUEnum *uEnum = (QUEnum*)param->typeExtra;
+	    ptype = uEnum->name;
+	} else {
+	    ptype = param->type->desc();
 	}
 	item->setText( 1, ptype );
     }
