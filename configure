@@ -1062,21 +1062,6 @@ WHICH=$unixtests/which.test
 ### skip this if the user just needs help...
 if [ "$OPT_HELP" != "yes" ]; then
 
-# create the include and include/qmake directory (for qconfig.h and qmodules.h)
-[ -d $outpath/include/qmake ] || mkdir -p $outpath/include/qmake
-
-# create temporary qconfig.h for compiling qmake
-# when building qmake, we use #defines for the install paths,
-# however they are real functions in the library
-cat >>$outpath/include/qmake/qconfig.h <<EOF
-/* All features enabled while building qmake */
-EOF
-
-# create temporary qmodules.h for compiling qmake
-cat >>$outpath/include/qmake/qmodules.h <<EOF
-/* All modules enabled while building qmake */
-EOF
-
 # is this a shadow build?
 if [ "$OPT_SHADOW" = "maybe" ]; then
     OPT_SHADOW=no
@@ -2517,6 +2502,24 @@ fi
 # build qmake
 if true; then ###[ '!' -f "$outpath/bin/qmake" ];
     echo "Creating qmake. Please wait..."
+    OLD_QCONFIG_H=
+    if [ -e "$outpath/include/qconfig.h" ]; then
+         OLD_QCONFIG_H="$outpath/include/qconfig.h"
+         mv -f "$OLD_QCONFIG_H" "${OLD_QCONFIG_H}.old"
+    fi
+    OLD_QMODULES_H=
+    if [ -e "$outpath/include/qmodules.h" ]; then
+         OLD_QMODULES_H="$outpath/include/qmodules.h"
+         mv -f "$OLD_QMODULES_H" "${OLD_QMODULES_H}.old"
+    fi
+
+    # create temporary qconfig.h for compiling qmake
+    # when building qmake, we use #defines for the install paths,
+    # however they are real functions in the library
+    echo "/* All features enabled while building qmake */" >$outpath/include/qconfig.h #temporary config
+    echo "/* All modules enabled while building qmake */" >$outpath/include/qmodules.h #temporary modules
+
+    #mkspecs/default is used as a (gasp!) default mkspec so QMAKESPEC needn't be set once configured
     rm -f mkspecs/default
     ln -s `echo $QMAKESPEC | sed "s,^${relpath}/mkspecs/,,"` mkspecs/default
     # fix makefiles
@@ -2581,14 +2584,12 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	fi
     done
 
-    (cd $outpath/qmake; $MAKE || (echo "qmake failed to build. Aborting." && exit 2)) || exit 2
+    QMAKE_BUILD_ERROR=no
+    (cd $outpath/qmake; $MAKE) || QMAKE_BUILD_ERROR=yes
+    [ ! -z "$OLD_QCONFIG_H" ] && mv -f "${OLD_QCONFIG_H}.old" "$OLD_QCONFIG_H" #put back qconfig.h
+    [ ! -z "$OLD_QCONFIG_H" ] && mv -f "${OLD_QMODULES_H}.old" "$OLD_QMODULES_H" #put back qmodules.h
+    [ "$QMAKE_BUILD_ERROR" = "yes" ] && exit 2
 fi
-
-# clean up temporary qconfig.h and qmodules.h
-rm -f $outpath/include/qmake/qconfig.h
-rm -f $outpath/include/qmake/qmodules.h
-rmdir $outpath/include/qmake
-
 
 #-------------------------------------------------------------------------------
 # tests that need qmake
