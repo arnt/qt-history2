@@ -447,12 +447,12 @@ void QMetaObject::fixProperty( QMetaProperty* prop, bool fix_enum_type )
 
   if ( prop->get == 0 )
   {
-    fatal("In class %s the property %s has no get function. The same applies for its super classes.",
+    qWarning("In class %s the property %s has no get function. The same applies for its super classes.",
 	  className(), prop->name );
   }
   if ( fix_enum_type && !prop->enumType )
   {
-    fatal("In class %s the property %s has the illegal type %s.",
+    qWarning("In class %s the property %s has the illegal type %s.",
 	  className(), prop->name, prop->type );
   }
 }
