@@ -158,16 +158,14 @@ QListBoxPrivate::~QListBoxPrivate()
 
 
 /*!
-  \class QListBoxItem
-  \ingroup advanced
+    \class QListBoxItem qlistbox.h
+    \brief The QListBoxItem class is the base class of all list box items.
 
-  \brief The QListBoxItem class is the base class of all list box items.
+    This class is an abstract base class used for all list box items.
+    If you need to insert customized items into a QListBox you must
+    inherit this class and reimplement paint(), height() and width().
 
-  This class is an abstract base class used for all list box items. If you
-  need to insert customized items into a QListBox you must inherit
-  this class and reimplement paint(), height() and width().
-
-  \sa QListBox
+    \sa QListBox
 */
 
 /*!
@@ -192,46 +190,58 @@ QListBoxPrivate::~QListBoxPrivate()
 
 /*!
     \fn bool QListBox::autoScrollBar() const
-    Returns TRUE if vScrollBarMode() is Auto; otherwise returns FALSE.
+
+    Returns TRUE if vScrollBarMode() is \c Auto; otherwise returns
+    FALSE.
 */
 
 /*!
     \fn void QListBox::setAutoScrollBar( bool enable )
-    If \a enable is TRUE sets setVScrollBarMode() to AlwaysOn;
-    otherwise sets setVScrollBarMode() to AlwaysOff.
+
+    If \a enable is TRUE sets setVScrollBarMode() to \c AlwaysOn;
+    otherwise sets setVScrollBarMode() to \c AlwaysOff.
 */
 
 /*!
     \fn bool QListBox::scrollBar() const
-    Returns FALSE if vScrollBarMode() is AlwaysOff; otherwise returns TRUE.
+
+    Returns FALSE if vScrollBarMode() is \c AlwaysOff; otherwise
+    returns TRUE.
 */
 
 /*!
     \fn void QListBox::setScrollBar( bool enable )
-    If \a enable is TRUE sets setVScrollBarMode() to AlwaysOn;
-    otherwise sets setVScrollBarMode() to AlwaysOff.
+
+    If \a enable is TRUE sets setVScrollBarMode() to \c AlwaysOn;
+    otherwise sets setVScrollBarMode() to \c AlwaysOff.
 */
 
 /*!
     \fn bool QListBox::autoBottomScrollBar() const
-    Returns TRUE if hScrollBarMode() is Auto; otherwise returns FALSE.
+
+    Returns TRUE if hScrollBarMode() is \c Auto; otherwise returns
+    FALSE.
 */
 
 /*!
     \fn void QListBox::setAutoBottomScrollBar( bool enable )
-    If \a enable is TRUE sets setHScrollBarMode() to AlwaysOn;
-    otherwise sets setHScrollBarMode() to AlwaysOff.
+
+    If \a enable is TRUE sets setHScrollBarMode() to \c AlwaysOn;
+    otherwise sets setHScrollBarMode() to \c AlwaysOff.
 */
 
 /*!
     \fn bool QListBox::bottomScrollBar() const
-    Returns FALSE if vScrollBarMode() is AlwaysOff; otherwise returns TRUE.
+
+    Returns FALSE if vScrollBarMode() is \c AlwaysOff; otherwise
+    returns TRUE.
 */
 
 /*!
     \fn void QListBox::setBottomScrollBar( bool enable )
-    If \a enable is TRUE sets setHScrollBarMode() to AlwaysOn;
-    otherwise sets setHScrollBarMode() to AlwaysOff.
+
+    If \a enable is TRUE sets setHScrollBarMode() to \c AlwaysOn;
+    otherwise sets setHScrollBarMode() to \c AlwaysOff.
 */
 
 /*!
@@ -318,7 +328,7 @@ QListBoxPrivate::~QListBoxPrivate()
 
 
 /*!
-  Constructs an empty list box item in the list box \a listbox.
+    Constructs an empty list box item in the list box \a listbox.
 */
 
 QListBoxItem::QListBoxItem( QListBox* listbox )
@@ -337,9 +347,9 @@ QListBoxItem::QListBoxItem( QListBox* listbox )
 }
 
 /*!
-  Constructs an empty list box item in the list box \a listbox and
-  inserts it after the item \a after. If \a after is 0, the item
-  is inserted at the beginning.
+    Constructs an empty list box item in the list box \a listbox and
+    inserts it after the item \a after or at the beginning if \a after
+    is 0.
 */
 
 QListBoxItem::QListBoxItem( QListBox* listbox, QListBoxItem *after )
@@ -359,7 +369,7 @@ QListBoxItem::QListBoxItem( QListBox* listbox, QListBoxItem *after )
 
 
 /*!
-  Destroys the list box item.
+    Destroys the list box item.
 */
 
 QListBoxItem::~QListBoxItem()
@@ -370,36 +380,36 @@ QListBoxItem::~QListBoxItem()
 
 
 /*!
-  Defines whether the list box item is responsible for drawing itself
-  in a highlighted state when being selected.
+    Defines whether the list box item is responsible for drawing
+    itself in a highlighted state when being selected.
 
-  If \a b is FALSE (the default), the list box will draw some
-  default highlight indicator before calling paint().
+    If \a b is FALSE (the default), the list box will draw some
+    default highlight indicator before calling paint().
 
-  \sa selected(), paint()
- */
+    \sa selected(), paint()
+*/
 void QListBoxItem::setCustomHighlighting( bool b )
 {
     custom_highlight = b;
 }
 
 /*!
-  \fn void QListBoxItem::paint( QPainter *p )
+    \fn void QListBoxItem::paint( QPainter *p )
 
-  Implement this function to draw your item.  You will
-  need to pass the QPainter that will draw the item in \a p.
+    Implement this function to draw your item. You must pass the
+    QPainter that will draw the item in \a p.
 
-  \sa height(), width()
+    \sa height(), width()
 */
 
 /*!
-  \fn int QListBoxItem::width( const QListBox* lb ) const
+    \fn int QListBoxItem::width( const QListBox* lb ) const
 
-  Implement this function to return the width of your item.
-  The \a lb parameter is the same as listBox() and is provided
-  for convenience and compatibility.
+    Implement this function to return the width of your item. The \a
+    lb parameter is the same as listBox() and is provided for
+    convenience and compatibility.
 
-  \sa paint(), height()
+    \sa paint(), height()
 */
 int QListBoxItem::width(const QListBox*)  const
 {
@@ -407,13 +417,13 @@ int QListBoxItem::width(const QListBox*)  const
 }
 
 /*!
-  \fn int QListBoxItem::height( const QListBox* lb ) const
+    \fn int QListBoxItem::height( const QListBox* lb ) const
 
-  Implement this function to return the height of your item.
-  The \a lb parameter is the same as listBox() and is provided
-  for convenience and compatibility.
+    Implement this function to return the height of your item. The \a
+    lb parameter is the same as listBox() and is provided for
+    convenience and compatibility.
 
-  \sa paint(), width()
+    \sa paint(), width()
 */
 int QListBoxItem::height(const QListBox*)  const
 {
@@ -422,9 +432,9 @@ int QListBoxItem::height(const QListBox*)  const
 
 
 /*!
-  Returns the text of the item. This text is also used for sorting.
+    Returns the text of the item. This text is also used for sorting.
 
-  \sa setText()
+    \sa setText()
 */
 QString QListBoxItem::text() const
 {
@@ -432,9 +442,10 @@ QString QListBoxItem::text() const
 }
 
 /*!
-  Returns the pixmap associated with the item, if any.
+    Returns the pixmap associated with the item, or 0 if there isn't
+    one.
 
-  The default implementation returns a null pointer.
+    The default implementation returns 0.
 */
 const QPixmap *QListBoxItem::pixmap() const
 {
@@ -442,10 +453,10 @@ const QPixmap *QListBoxItem::pixmap() const
 }
 
 /*!
-  If \a b is TRUE then this item can be selected by the user;
-  otherwise this item cannot be selected by the user.
+    If \a b is TRUE then this item can be selected by the user;
+    otherwise this item cannot be selected by the user.
 
-  \sa isSelectable()
+    \sa isSelectable()
 */
 
 void QListBoxItem::setSelectable( bool b )
@@ -460,9 +471,9 @@ void QListBoxItem::setSelectable( bool b )
 }
 
 /*!
-  Returns TRUE if this item is selectable; otherwise returns FALSE.
+    Returns TRUE if this item is selectable; otherwise returns FALSE.
 
-  \sa setSelectable()
+    \sa setSelectable()
 */
 
 bool QListBoxItem::isSelectable() const
@@ -477,30 +488,33 @@ bool QListBoxItem::isSelectable() const
 }
 
 /*!
-  \fn void QListBoxItem::setText( const QString &text )
+    \fn void QListBoxItem::setText( const QString &text )
 
-  Sets the text of the QListBoxItem to \a text. This \a text is
-  also used for sorting.  The text is not shown unless
-  explicitly drawn in paint().
+    Sets the text of the QListBoxItem to \a text. This \a text is also
+    used for sorting. The text is not shown unless explicitly drawn in
+    paint().
 
-  \sa text()
+    \sa text()
 */
 
 
 /*!
-  \class QListBoxText qlistbox.h
-  \ingroup advanced
-  \brief The QListBoxText class provides list box items that display text.
+    \class QListBoxText qlistbox.h
+    \brief The QListBoxText class provides list box items that display text.
 
-  The text is drawn in the widget's current font. If you need several
-  different fonts, you must implement your own subclass of QListBoxItem.
+    \ingroup advanced
 
-  \sa QListBox, QListBoxItem
+    The text is drawn in the widget's current font. If you need
+    several different fonts, you must implement your own subclass of
+    QListBoxItem.
+
+    \sa QListBox, QListBoxItem
 */
 
 
 /*!
-  Constructs a list box item in list box \a listbox showing the text \a text.
+    Constructs a list box item in list box \a listbox showing the text
+    \a text.
 */
 QListBoxText::QListBoxText( QListBox *listbox, const QString &text )
     :QListBoxItem( listbox )
@@ -509,7 +523,7 @@ QListBoxText::QListBoxText( QListBox *listbox, const QString &text )
 }
 
 /*!
-  Constructs a list box item showing the text \a text.
+    Constructs a list box item showing the text \a text.
 */
 
 QListBoxText::QListBoxText( const QString &text )
@@ -519,8 +533,9 @@ QListBoxText::QListBoxText( const QString &text )
 }
 
 /*!
-  Constructs a list box item in list box \a listbox showing the text
-  \a text. The item gets inserted after the item \a after.
+    Constructs a list box item in list box \a listbox showing the text
+    \a text. The item is inserted after the item \a after, or at the
+    beginning if \a after is 0.
 */
 
 QListBoxText::QListBoxText( QListBox* listbox, const QString &text, QListBoxItem *after )
@@ -530,7 +545,7 @@ QListBoxText::QListBoxText( QListBox* listbox, const QString &text, QListBoxItem
 }
 
 /*!
-  Destroys the item.
+    Destroys the item.
 */
 
 QListBoxText::~QListBoxText()
@@ -538,7 +553,7 @@ QListBoxText::~QListBoxText()
 }
 
 /*!
-  Draws the text using \a painter.
+    Draws the text using \a painter.
 */
 
 void QListBoxText::paint( QPainter *painter )
@@ -548,9 +563,9 @@ void QListBoxText::paint( QPainter *painter )
 }
 
 /*!
-  Returns the height of a line of text in list box \a lb.
+    Returns the height of a line of text in list box \a lb.
 
-  \sa paint(), width()
+    \sa paint(), width()
 */
 
 int QListBoxText::height( const QListBox* lb ) const
@@ -560,9 +575,9 @@ int QListBoxText::height( const QListBox* lb ) const
 }
 
 /*!
-  Returns the width of this line in list box \a lb.
+    Returns the width of this line in list box \a lb.
 
-  \sa paint(), height()
+    \sa paint(), height()
 */
 
 int QListBoxText::width( const QListBox* lb ) const
@@ -574,18 +589,16 @@ int QListBoxText::width( const QListBox* lb ) const
 int QListBoxText::RTTI = 1;
 
 /*!
-  \fn int QListBoxText::rtti() const
-  \reimp
-  Returns 1.
+    \fn int QListBoxText::rtti() const
 
-  Although often frowned upon by purists, Run Time Type Identification
-  is very useful in this case, as it allows a QListBox to be an
-  efficient indexed storage mechanism.
+    \reimp
 
-  Make your derived classes return their own values for rtti(), and
-  you can distinguish between listbox items. You should use values
-  greater than 1000, preferably a large random number, to allow for
-  extensions to this class.
+    Returns 1.
+
+    Make your derived classes return their own values for rtti(), and
+    you can distinguish between listbox items. You should use values
+    greater than 1000 preferably a large random number, to allow for
+    extensions to this class.
 */
 
 int QListBoxText::rtti() const
@@ -594,20 +607,22 @@ int QListBoxText::rtti() const
 }
 
 /*!
-  \class QListBoxPixmap
-  \ingroup advanced
-  \brief The QListBoxPixmap class provides list box items with a pixmap
-  and optional text.
+    \class QListBoxPixmap qlistbox.h
+    \brief The QListBoxPixmap class provides list box items with a
+    pixmap and optional text.
 
-  Items of this class are drawn with the pixmap on the left with the
-  optional text to the right of the pixmap.
+    \ingroup advanced
 
-  \sa QListBox, QListBoxItem
+    Items of this class are drawn with the pixmap on the left with the
+    optional text to the right of the pixmap.
+
+    \sa QListBox, QListBoxItem
 */
 
 
 /*!
-  Constructs a new list box item in list box \a listbox showing the pixmap \a pixmap.
+    Constructs a new list box item in list box \a listbox showing the
+    pixmap \a pixmap.
 */
 
 QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pixmap )
@@ -617,7 +632,7 @@ QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pixmap )
 }
 
 /*!
-  Constructs a new list box item showing the pixmap \a pixmap.
+    Constructs a new list box item showing the pixmap \a pixmap.
 */
 
 QListBoxPixmap::QListBoxPixmap( const QPixmap &pixmap )
@@ -627,8 +642,9 @@ QListBoxPixmap::QListBoxPixmap( const QPixmap &pixmap )
 }
 
 /*!
-  Constructs a new list box item in list box \a listbox showing the
-  pixmap \a pixmap. The item gets inserted after the item \a after.
+    Constructs a new list box item in list box \a listbox showing the
+    pixmap \a pixmap. The item gets inserted after the item \a after,
+    or at the beginning if \a after is 0.
 */
 
 QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pixmap, QListBoxItem *after )
@@ -639,7 +655,7 @@ QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pixmap, QListB
 
 
 /*!
-  Destroys the item.
+    Destroys the item.
 */
 
 QListBoxPixmap::~QListBoxPixmap()
@@ -648,8 +664,8 @@ QListBoxPixmap::~QListBoxPixmap()
 
 
 /*!
-  Constructs a new list box item in list box \a listbox showing the pixmap
-  \a pix and the text \a text.
+    Constructs a new list box item in list box \a listbox showing the
+    pixmap \a pix and the text \a text.
 */
 QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pix, const QString& text)
     : QListBoxItem( listbox )
@@ -659,8 +675,8 @@ QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pix, const QSt
 }
 
 /*!
-  Constructs a new list box item showing the pixmap
-  \a pix and the text to \a text.
+    Constructs a new list box item showing the pixmap \a pix and the
+    text to \a text.
 */
 QListBoxPixmap::QListBoxPixmap( const QPixmap & pix, const QString& text)
     : QListBoxItem()
@@ -670,9 +686,9 @@ QListBoxPixmap::QListBoxPixmap( const QPixmap & pix, const QString& text)
 }
 
 /*!
-  Constructs a new list box item in list box \a listbox showing the pixmap
-  \a pix and the string \a text. The item gets inserted after the
-  item \a after.
+    Constructs a new list box item in list box \a listbox showing the
+    pixmap \a pix and the string \a text. The item gets inserted after
+    the item \a after, or at the beginning if \a after is 0.
 */
 QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap & pix, const QString& text,
 				QListBoxItem *after )
@@ -683,14 +699,14 @@ QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap & pix, const QS
 }
 
 /*!
-  \fn const QPixmap *QListBoxPixmap::pixmap() const
+    \fn const QPixmap *QListBoxPixmap::pixmap() const
 
-  Returns the pixmap associated with the item.
+    Returns the pixmap associated with the item.
 */
 
 
 /*!
-  Draws the pixmap using \a painter.
+    Draws the pixmap using \a painter.
 */
 
 void QListBoxPixmap::paint( QPainter *painter )
@@ -712,9 +728,9 @@ void QListBoxPixmap::paint( QPainter *painter )
 }
 
 /*!
-  Returns the height of the pixmap in list box \a lb.
+    Returns the height of the pixmap in list box \a lb.
 
-  \sa paint(), width()
+    \sa paint(), width()
 */
 
 int QListBoxPixmap::height( const QListBox* lb ) const
@@ -728,9 +744,9 @@ int QListBoxPixmap::height( const QListBox* lb ) const
 }
 
 /*!
-  Returns the width of the pixmap plus some margin in list box \a lb.
+    Returns the width of the pixmap plus some margin in list box \a lb.
 
-  \sa paint(), height()
+    \sa paint(), height()
 */
 
 int QListBoxPixmap::width( const QListBox* lb ) const
@@ -744,18 +760,16 @@ int QListBoxPixmap::width( const QListBox* lb ) const
 int QListBoxPixmap::RTTI = 2;
 
 /*!
-  \fn int QListBoxPixmap::rtti() const
-  \reimp
-  Returns 2.
+    \fn int QListBoxPixmap::rtti() const
 
-  Although often frowned upon by purists, Run Time Type Identification
-  is very useful in this case, as it allows a QListBox to be an
-  efficient indexed storage mechanism.
+    \reimp
 
-  Make your derived classes return their own values for rtti(), and
-  you can distinguish between listbox items. You should use values
-  greater than 1000 preferably a large random number, to allow for
-  extensions to this class.
+    Returns 2.
+
+    Make your derived classes return their own values for rtti(), and
+    you can distinguish between listbox items. You should use values
+    greater than 1000 preferably a large random number, to allow for
+    extensions to this class.
 */
 
 int QListBoxPixmap::rtti() const
@@ -764,191 +778,202 @@ int QListBoxPixmap::rtti() const
 }
 
 /*!
-  \class QListBox
-  \brief The QListBox widget provides a list of selectable, read-only items.
+    \class QListBox qlistbox.h
+    \brief The QListBox widget provides a list of selectable, read-only items.
 
-  \ingroup advanced
-  \mainclass
+    \ingroup advanced
+    \mainclass
 
-  This is typically a single-column list in which zero or one item
-  is selected, but it can also be used in many other ways.
+    This is typically a single-column list in which zero or one item
+    is selected, but it can also be used in many other ways.
 
-  QListBox will add scroll bars as necessary, but it isn't intended for
-  \e really big lists.	If you want more than a few thousand items,
-  it's probably better to use a different widget mainly because the
-  scroll bars won't provide very good navigation, but also because
-  QListBox may become slow with huge lists.
+    QListBox will add scroll bars as necessary, but it isn't intended
+    for \e really big lists. If you want more than a few thousand
+    items, it's probably better to use a different widget mainly
+    because the scroll bars won't provide very good navigation, but
+    also because QListBox may become slow with huge lists. (See
+    QListView and QTable for possible alternatives.)
 
-  There are a variety of selection modes described in the
-  QListBox::SelectionMode documentation. The default is
-  \c Single selection mode, but you can change it using setSelectionMode().
-  (setMultiSelection() is still provided for compatibility with Qt
-  1.x. We recomment using setSelectionMode() in all code.)
+    There are a variety of selection modes described in the
+    QListBox::SelectionMode documentation. The default is \c Single
+    selection mode, but you can change it using setSelectionMode().
+    (setMultiSelection() is still provided for compatibility with Qt
+    1.x. We recomment using setSelectionMode() in all code.)
 
-  Because QListBox offers multiple selection it must display keyboard
-  focus and selection state separately.  Therefore there are functions
-  both to set the selection state of an item, i.e. setSelected(), and to
-  select which item displays keyboard focus, i.e. setCurrentItem().
+    Because QListBox offers multiple selection it must display
+    keyboard focus and selection state separately. Therefore there are
+    functions both to set the selection state of an item, i.e.
+    setSelected(), and to select which item displays keyboard focus,
+    i.e. setCurrentItem().
 
-  The list box normally arranges its items in a single column and adds a
-  vertical scroll bar if required. It is possible to have a
-  different fixed number of columns (setColumnMode()), or as many
-  columns as will fit in the list box's assigned screen space
-  (setColumnMode( FitToWidth )), or to have a fixed number of rows
-  (setRowMode()) or as many rows as will fit in the list box's
-  assigned screen space (setRowMode( FitToHeight )).  In all these
-  cases QListBox will add scroll bars, as appropriate, in at least one
-  direction.
+    The list box normally arranges its items in a single column and
+    adds a vertical scroll bar if required. It is possible to have a
+    different fixed number of columns (setColumnMode()), or as many
+    columns as will fit in the list box's assigned screen space
+    (setColumnMode( FitToWidth )), or to have a fixed number of rows
+    (setRowMode()) or as many rows as will fit in the list box's
+    assigned screen space (setRowMode( FitToHeight )). In all these
+    cases QListBox will add scroll bars, as appropriate, in at least
+    one direction.
 
-  If multiple rows are used, each row can be as high as necessary (the
-  normal setting), or you can request that all items will have the
-  same height by calling setVariableHeight( FALSE ).  The same applies
-  to a column's width, see setVariableWidth().
+    If multiple rows are used, each row can be as high as necessary
+    (the normal setting), or you can request that all items will have
+    the same height by calling setVariableHeight( FALSE ). The same
+    applies to a column's width, see setVariableWidth().
 
-  The items discussed are QListBoxItem objects. QListBox provides
-  methods to insert new items as strings, as pixmaps, and as
-  QListBoxItem * (insertItem() with various arguments), and to replace
-  an existing item with a new string, pixmap or QListBoxItem
-  (changeItem() with various arguments).  You can also remove items
-  singly with removeItem() or clear() the entire list box.  Note that
-  if you create a QListBoxItem yourself and insert it, it becomes the
-  property of QListBox and you must not delete it.  (QListBox will
-  delete it when appropriate.)
+    The items discussed are QListBoxItem objects. QListBox provides
+    methods to insert new items as strings, as pixmaps, and as
+    QListBoxItem * (insertItem() with various arguments), and to
+    replace an existing item with a new string, pixmap or QListBoxItem
+    (changeItem() with various arguments). You can also remove items
+    singly with removeItem() or clear() the entire list box. Note that
+    if you create a QListBoxItem yourself and insert it, it becomes
+    the property of QListBox and you must not delete it. (QListBox
+    will delete it when appropriate.)
 
-  You can also create a QListBoxItem, such as QListBoxText or
-  QListBoxPixmap, with the list box as first parameter. The item will
-  then append itself. When you delete an item it is automatically
-  removed from the list box.
+    You can also create a QListBoxItem, such as QListBoxText or
+    QListBoxPixmap, with the list box as first parameter. The item
+    will then append itself. When you delete an item it is
+    automatically removed from the list box.
 
-  The list of items can be arbitrarily large; QListBox will add scroll
-  bars if necessary. QListBox can display a single-column (the common
-  case) or multiple-columns, and offers both single and multiple
-  selection. (QListBox does not support multiple-column items, or tree
-  hierarchies; use QListView if you require such functionality.)
+    The list of items can be arbitrarily large; QListBox will add
+    scroll bars if necessary. QListBox can display a single-column
+    (the common case) or multiple-columns, and offers both single and
+    multiple selection. QListBox does not support multiple-column
+    items (but QListView and QTable do), or tree hierarchies (but
+    QListView does).
 
-  The list box items can be accessed both as QListBoxItem objects
-  (recommended) and using integer indexes (the original QListBox
-  implementation used an array of strings internally, and the API
-  still supports this mode of operation).  Everything can be done
-  using the new objects; most things can be done using the indexes,
-  too, but unfortunately not everything.
+    The list box items can be accessed both as QListBoxItem objects
+    (recommended) and using integer indexes (the original QListBox
+    implementation used an array of strings internally, and the API
+    still supports this mode of operation). Everything can be done
+    using the new objects; most things can be done using the indexes,
+    too, but unfortunately not everything.
 
-  Each item in a QListBox contains a QListBoxItem.  One of the items
-  can be the current item.  The highlighted() signal is emitted when a
-  new item gets highlighted, e.g. because the user clicks on it or
-  QListBox::setCurrentItem() is called. The selected() signal is
-  emitted when the user double-clicks on an item or presses Enter
-  when an item is highlighted.
+    Each item in a QListBox contains a QListBoxItem. One of the items
+    can be the current item. The highlighted() signal is emitted when
+    a new item gets highlighted, e.g. because the user clicks on it or
+    QListBox::setCurrentItem() is called. The selected() signal is
+    emitted when the user double-clicks on an item or presses Enter
+    when an item is highlighted.
 
-  If the user does not select anything, no signals are emitted and
-  currentItem() returns -1.
+    If the user does not select anything, no signals are emitted and
+    currentItem() returns -1.
 
-  A list box has \c WheelFocus as a default focusPolicy(), i.e. it can
-  get keyboard focus by tabbing, clicking and through the use of the
-  mouse wheel.
+    A list box has \c WheelFocus as a default focusPolicy(), i.e. it
+    can get keyboard focus by tabbing, clicking and through the use of
+    the mouse wheel.
 
-  New items can be inserted using insertItem(), insertStrList()
-  or insertStringList(). inSort() is obsolete because this method is quite
-  inefficient.  It's preferable to insert the items normally and call
-  sort() afterwards, or to insert a sorted QStringList().
+    New items can be inserted using insertItem(), insertStrList() or
+    insertStringList(). inSort() is obsolete because this method is
+    quite inefficient. It's preferable to insert the items normally
+    and call sort() afterwards, or to insert a sorted QStringList().
 
-  By default, vertical and horizontal scroll bars are added and
-  removed as necessary. setHScrollBarMode() and setVScrollBarMode()
-  can be used to change this policy.
+    By default, vertical and horizontal scroll bars are added and
+    removed as necessary. setHScrollBarMode() and setVScrollBarMode()
+    can be used to change this policy.
 
-  If you need to insert types other than strings and pixmaps, you must
-  define new classes which inherit QListBoxItem.
+    If you need to insert types other than strings and pixmaps, you
+    must define new classes which inherit QListBoxItem.
 
-  \warning The list box assumes ownership of all list box items
-  and will delete them when it does not need them any more.
+    \warning The list box assumes ownership of all list box items and
+    will delete them when it does not need them any more.
 
-  <img src=qlistbox-m.png> <img src=qlistbox-w.png>
+    <img src=qlistbox-m.png> <img src=qlistbox-w.png>
 
-  \sa QListView QComboBox QButtonGroup
-  \link guibooks.html#fowler GUI Design Handbook: List Box (two
-  sections)\endlink
+    \sa QListView QComboBox QButtonGroup
+    \link guibooks.html#fowler GUI Design Handbook: List Box (two
+    sections)\endlink
 */
 
-/*! \enum QListBox::SelectionMode
+/*!
+    \enum QListBox::SelectionMode
 
-  This enumerated type is used by QListBox to indicate how it reacts
-  to selection by the user.  It has four values:
+    This enumerated type is used by QListBox to indicate how it reacts
+    to selection by the user.
 
-  \value Single  When the user selects an item, any already-selected
-  item becomes unselected and the user cannot unselect the selected
-  item. This means that the user can never clear the selection, even
-  though the selection may be cleared by the application programmer
-  using QListBox::clearSelection().
+    \value Single  When the user selects an item, any already-selected
+    item becomes unselected and the user cannot unselect the selected
+    item. This means that the user can never clear the selection, even
+    though the selection may be cleared by the application programmer
+    using QListBox::clearSelection().
 
-  \value Multi  When the user selects an item the selection status of
-  that item is toggled and the other items are left alone.
+    \value Multi  When the user selects an item the selection status
+    of that item is toggled and the other items are left alone.
 
-  \value Extended When the user selects an item the selection is
-  cleared and the new item selected.  However, if the user presses the
-  Ctrl key when clicking on an item, the clicked item gets toggled and
-  all other items are left untouched. And if the user presses the
-  Shift key while clicking on an item, all items between the current
-  item and the clicked item get selected or unselected, depending on
-  the state of the clicked item. Also, multiple items can be selected
-  by dragging the mouse while the left mouse button is kept pressed.
+    \value Extended When the user selects an item the selection is
+    cleared and the new item selected. However, if the user presses
+    the Ctrl key when clicking on an item, the clicked item gets
+    toggled and all other items are left untouched. And if the user
+    presses the Shift key while clicking on an item, all items between
+    the current item and the clicked item get selected or unselected,
+    depending on the state of the clicked item. Also, multiple items
+    can be selected by dragging the mouse while the left mouse button
+    is kept pressed.
 
-  \value NoSelection  Items cannot be selected.
+    \value NoSelection  Items cannot be selected.
 
-  In other words, \c Single is a real single-selection list box, \c
-  Multi is a real multi-selection list box, \c Extended is a list box
-  in which users can select multiple items but usually want to select
-  either just one or a range of contiguous items, and \c NoSelection
-  is for a list box where the user can look but not touch.
+    In other words, \c Single is a real single-selection list box, \c
+    Multi is a real multi-selection list box, \c Extended is a list
+    box in which users can select multiple items but usually want to
+    select either just one or a range of contiguous items, and \c
+    NoSelection is for a list box where the user can look but not
+    touch.
 */
 
 
-/*! \enum QListBox::LayoutMode
+/*!
+    \enum QListBox::LayoutMode
 
-  This enum type is used to specify how QListBox lays out its rows and
-  columns.
+    This enum type is used to specify how QListBox lays out its rows
+    and columns.
 
-  The possible values for each row or column mode are:
+    \value FixedNumber  There is a fixed number of rows (or columns).
 
-  \value FixedNumber  There is a fixed number of rows (or columns).
+    \value FitToWidth   There are as many columns as will fit
+    on-screen.
 
-  \value FitToWidth   There are as many columns as will fit on-screen.
+    \value FitToHeight  There are as many rows as will fit on-screen.
 
-  \value FitToHeight  There are as many rows as will fit on-screen.
+    \value Variable  There are as many rows as are required by the
+    column mode. (Or as many columns as required by the row mode.)
 
-  \value Variable  There are as many rows as are required by the
-  column mode.  (Or as many columns as required by the row mode.)
-
-  Example: When you call setRowMode( FitToHeight ), columnMode()
-  automatically becomes \c Variable to accommodate the row mode you've
-  set.
+    Example: When you call setRowMode( FitToHeight ), columnMode()
+    automatically becomes \c Variable to accommodate the row mode
+    you've set.
 */
 
-/*! \fn void  QListBox::onItem( QListBoxItem *i )
-  This signal is emitted when the user moves the mouse cursor onto an
-  item, similar to the QWidget::enterEvent() function.  \a i is the
-  QListBoxItem that the mouse has moved on.
+/*!
+    \fn void  QListBox::onItem( QListBoxItem *i )
+
+    This signal is emitted when the user moves the mouse cursor onto
+    an item, similar to the QWidget::enterEvent() function. \a i is
+    the QListBoxItem that the mouse has moved on.
 */
 
 // ### bug here too? enter/leave event may noit considered. move the
 // mouse out of the window and back in, to the same item - does it
 // work?
 
-/*! \fn void  QListBox::onViewport()
-  This signal is emitted when the user moves the mouse cursor from an
-  item to an empty part of the list box.
+/*!
+    \fn void  QListBox::onViewport()
+
+    This signal is emitted when the user moves the mouse cursor from
+    an item to an empty part of the list box.
 */
 
 
 /*!
-  Constructs a new empty list box, with \a parent as a parent and \a name
-  as object name.
+    Constructs a new empty list box called \a name and with parent \a
+    parent.
 
-  Performance is boosted by modifying the widget flags \a f so that only
-  part of the QListBoxItem children is redrawn.  This may be unsuitable
-  for custom QListBoxItem classes, in which case \c WStaticContents and
-  \c WRepaintNoErase should be cleared immediately after construction.
+    Performance is boosted by modifying the widget flags \a f so that
+    only part of the QListBoxItem children is redrawn. This may be
+    unsuitable for custom QListBoxItem classes, in which case \c
+    WStaticContents and \c WRepaintNoErase should be cleared
+    immediately after construction.
 
-  \sa QWidget::clearWFlags() Qt::WidgetFlags
+    \sa QWidget::clearWFlags() Qt::WidgetFlags
 */
 
 QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
@@ -987,7 +1012,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 QListBox * QListBox::changedListBox = 0;
 
 /*!
-  Destroys the list box.  Deletes all list box items.
+    Destroys the list box. Deletes all list box items.
 */
 
 QListBox::~QListBox()
@@ -999,212 +1024,224 @@ QListBox::~QListBox()
     d = 0;
 }
 
-/*! \fn void QListBox::pressed( QListBoxItem *item )
+/*!
+    \fn void QListBox::pressed( QListBoxItem *item )
 
-  This signal is emitted when the user presses any mouse button. If \a
-  item is non-null, the cursor is on \a item. If \a item is null, the
-  mouse cursor isn't on any item.
+    This signal is emitted when the user presses any mouse button. If
+    \a item is not 0, the cursor is on \a item. If \a item is 0, the
+    mouse cursor isn't on any item.
 
-  Note that you must not delete any QListBoxItem objects in slots
-  connected to this signal.
+    Note that you must not delete any QListBoxItem objects in slots
+    connected to this signal.
 */
 
 /*!
-  \overload void QListBox::pressed( QListBoxItem *item, const QPoint &pnt )
+    \overload void QListBox::pressed( QListBoxItem *item, const QPoint &pnt )
 
-  This signal is emitted when the user presses any mouse button. If \a
-  item is non-null, the cursor is on \a item. If \a item is null, the
-  mouse cursor isn't on any item.
+    This signal is emitted when the user presses any mouse button. If
+    \a item is not 0, the cursor is on \a item. If \a item is 0, the
+    mouse cursor isn't on any item.
 
-  \a pnt is the position of the mouse cursor in the global coordinate
-  system (QMouseEvent::globalPos()). (If the click's press and release
-  differ by a pixel or two, \a pnt is the  position at release time.)
+    \a pnt is the position of the mouse cursor in the global
+    coordinate system (QMouseEvent::globalPos()).
 
-  Note that you must not delete any QListBoxItem objects in slots
-  connected to this signal.
+    Note that you must not delete any QListBoxItem objects in slots
+    connected to this signal.
 
-  \sa mouseButtonPressed() rightButtonPressed() clicked()
-*/
-
-/*! \fn void QListBox::clicked( QListBoxItem *item )
-
-  This signal is emitted when the user clicks any mouse button. If \a
-  item is non-null, the cursor is on \a item. If \a item is null, the
-  mouse cursor isn't on any item.
-
-  Note that you must not delete any QListBoxItem objects in slots
-  connected to this signal.
+    \sa mouseButtonPressed() rightButtonPressed() clicked()
 */
 
 /*!
-  \overload void QListBox::clicked( QListBoxItem *item, const QPoint &pnt )
+    \fn void QListBox::clicked( QListBoxItem *item )
 
-  This signal is emitted when the user clicks any mouse button. If \a
-  item is non-null, the cursor is on \a item. If \a item is null, the
-  mouse cursor isn't on any item.
+    This signal is emitted when the user clicks any mouse button. If
+    \a item is not 0, the cursor is on \a item. If \a item is 0, the
+    mouse cursor isn't on any item.
 
-  \a pnt is the position of the mouse cursor in the global coordinate
-  system (QMouseEvent::globalPos()). (If the click's press and release
-  differ by a pixel or two, \a pnt is the  position at release time.)
-
-  Note that you must not delete any QListBoxItem objects in slots
-  connected to this signal.
+    Note that you must not delete any QListBoxItem objects in slots
+    connected to this signal.
 */
 
 /*!
-  \fn void QListBox::mouseButtonClicked (int button, QListBoxItem * item, const QPoint & pos)
+    \overload void QListBox::clicked( QListBoxItem *item, const QPoint &pnt )
 
-  This signal is emitted when the user clicks mouse button \a
-  button. If \a item is non-null, the cursor is on \a item. If \a item
-  is null, the mouse cursor isn't on any item.
+    This signal is emitted when the user clicks any mouse button. If
+    \a item is not 0, the cursor is on \a item. If \a item is 0, the
+    mouse cursor isn't on any item.
 
-  \a pos is the position of the mouse cursor in the global coordinate
-  system (QMouseEvent::globalPos()). (If the click's press and release
-  differ by a pixel or two, \a pos is the  position at release time.)
+    \a pnt is the position of the mouse cursor in the global
+    coordinate system (QMouseEvent::globalPos()). (If the click's
+    press and release differs by a pixel or two, \a pnt is the
+    position at release time.)
 
-  Note that you must not delete any QListBoxItem objects in slots
-  connected to this signal.
+    Note that you must not delete any QListBoxItem objects in slots
+    connected to this signal.
 */
 
 /*!
-  \fn void QListBox::mouseButtonPressed (int button, QListBoxItem * item, const QPoint & pos)
+    \fn void QListBox::mouseButtonClicked (int button, QListBoxItem * item, const QPoint & pos)
 
-  This signal is emitted when the user presses mouse button \a
-  button. If \a item is non-null, the cursor is on \a item. If \a item
-  is null, the mouse cursor isn't on any item.
+    This signal is emitted when the user clicks mouse button \a
+    button. If \a item is not 0, the cursor is on \a item. If \a item
+    is 0, the mouse cursor isn't on any item.
 
-  \a pos is the position of the mouse cursor in the global
-  coordinate system (QMouseEvent::globalPos()).
+    \a pos is the position of the mouse cursor in the global
+    coordinate system (QMouseEvent::globalPos()). (If the click's
+    press and release differs by a pixel or two, \a pos is the
+    position at release time.)
 
-  Note that you must not delete any QListBoxItem objects in slots
-  connected to this signal.
-*/
-
-/*! \fn void QListBox::doubleClicked( QListBoxItem *item )
-
-  This signal is emitted whenever an item is double-clicked.  It's
-  emitted on the second button press, not the second button release.
-  \a item is the item item on which the user did the double-click. \a
-  item may be 0.
-*/
-
-
-/*! \fn void QListBox::returnPressed( QListBoxItem * )
-
-  This signal is emitted when Enter or Return is pressed.  The
-  argument is currentItem().
-*/
-
-/*! \fn void QListBox::rightButtonClicked( QListBoxItem *, const QPoint& )
-
-  This signal is emitted when the right button is clicked (i.e. when
-  it's released at the same point where it was pressed).  The
-  arguments are the relevant QListBoxItem (may be 0) and the point in
-  global coordinates.
-*/
-
-
-/*! \fn void QListBox::rightButtonPressed (QListBoxItem *, const QPoint & )
-
-  This signal is emitted when the right button is pressed.  The
-  arguments are the relevant QListBoxItem (may be 0) and the point in
-  global coordinates.
+    Note that you must not delete any QListBoxItem objects in slots
+    connected to this signal.
 */
 
 /*!
-  \fn void QListBox::contextMenuRequested( QListBoxItem *item, const QPoint & pos )
+    \fn void QListBox::mouseButtonPressed (int button, QListBoxItem * item, const QPoint & pos)
 
-  This signal is emitted when the user invokes a context menu with the
-  right mouse button or with special system keys, with \a item being
-  the item under the mouse cursor or the current item, respectively.
+    This signal is emitted when the user presses mouse button \a
+    button. If \a item is not 0, the cursor is on \a item. If \a item
+    is 0, the mouse cursor isn't on any item.
 
-  \a pos is the position for the context menu in the global coordinate system.
+    \a pos is the position of the mouse cursor in the global
+    coordinate system (QMouseEvent::globalPos()).
+
+    Note that you must not delete any QListBoxItem objects in slots
+    connected to this signal.
 */
 
 /*!
-  \fn void QListBox::selectionChanged()
+    \fn void QListBox::doubleClicked( QListBoxItem *item )
 
-  This signal is emitted when the selection set of a
-  list box changes. This signal is emitted in each selection mode.
-  If the user selects five items by drag-selecting,
-  QListBox tries to emit just one selectionChanged() signal so the
-  signal can be connected to computationally expensive slots.
+    This signal is emitted whenever an item is double-clicked. It's
+    emitted on the second button press, not the second button release.
+    If \a item is not 0, the cursor is on \a item. If \a item is 0,
+    the mouse cursor isn't on any item.
+*/
 
-  \sa selected() currentItem()
+
+/*!
+    \fn void QListBox::returnPressed( QListBoxItem * )
+
+    This signal is emitted when Enter or Return is pressed. The
+    argument is currentItem().
 */
 
 /*!
-  \overload void QListBox::selectionChanged( QListBoxItem *item )
+    \fn void QListBox::rightButtonClicked( QListBoxItem *, const QPoint& )
 
-  This signal is emitted when the selection in a Single selection
-  list box changes. \a item is the new selected list box item.
-
-  \sa selected() currentItem()
+    This signal is emitted when the right button is clicked (i.e. when
+    it's released at the same point where it was pressed). The
+    arguments are the relevant QListBoxItem (may be 0) and the point
+    in global coordinates.
 */
 
-/*! \fn void QListBox::currentChanged( QListBoxItem *item )
 
-  This signal is emitted when the user highlights a new current item.
-  \a item is the new current list box item.
+/*!
+    \fn void QListBox::rightButtonPressed (QListBoxItem *, const QPoint & )
 
-  \sa setCurrentItem() currentItem()
-*/
-
-/*! \fn void QListBox::highlighted( int index )
-
-  This signal is emitted when the user highlights a new current item.
-  \a index is the index of the highlighted item.
-
-  \sa selected() currentItem() selectionChanged()
+    This signal is emitted when the right button is pressed. The
+    arguments are the relevant QListBoxItem (may be 0) and the point
+    in global coordinates.
 */
 
 /*!
-  \overload void QListBox::highlighted( QListBoxItem * )
+    \fn void QListBox::contextMenuRequested( QListBoxItem *item, const QPoint & pos )
 
-  This signal is emitted when the user highlights a new current item.
-  The argument is a pointer to the new current item.
+    This signal is emitted when the user invokes a context menu with
+    the right mouse button or with special system keys, with \a item
+    being the item under the mouse cursor or the current item,
+    respectively.
 
-  \sa selected() currentItem() selectionChanged()
+    \a pos is the position for the context menu in the global
+    coordinate system.
 */
 
 /*!
-  \overload void QListBox::highlighted( const QString &)
+    \fn void QListBox::selectionChanged()
 
-  This signal is emitted when the user highlights a new current item
-  and the new item is a string.	 The argument is the text of the
-  new current item.
+    This signal is emitted when the selection set of a list box
+    changes. This signal is emitted in each selection mode. If the
+    user selects five items by drag-selecting, QListBox tries to emit
+    just one selectionChanged() signal so the signal can be connected
+    to computationally expensive slots.
 
-  \sa selected() currentItem() selectionChanged()
-*/
-
-/*! \fn void QListBox::selected( int index )
-
-  This signal is emitted when the user double-clicks on an item or
-  presses Enter when an item is highlighted.  \a index is the index
-  of the selected item.
-
-  \sa highlighted() selectionChanged()
+    \sa selected() currentItem()
 */
 
 /*!
-  \overload void QListBox::selected( QListBoxItem * )
+    \overload void QListBox::selectionChanged( QListBoxItem *item )
 
-  This signal is emitted when the user double-clicks on an item or
-  presses Enter when an item is highlighted.  The argument is a
-  pointer to the new selected item.
+    This signal is emitted when the selection in a \c Single selection
+    list box changes. \a item is the newly selected list box item.
 
-  \sa highlighted() selectionChanged()
+    \sa selected() currentItem()
 */
 
 /*!
-  \overload void QListBox::selected( const QString &)
+    \fn void QListBox::currentChanged( QListBoxItem *item )
 
-  This signal is emitted when the user double-clicks on an item or
-  presses Enter while an item is highlighted, and the selected item
-  is (or has) a string.	 The argument is the text of the selected
-  item.
+    This signal is emitted when the user highlights a new current
+    item. \a item is the new current list box item.
 
-  \sa highlighted() selectionChanged()
+    \sa setCurrentItem() currentItem()
+*/
+
+/*!
+    \fn void QListBox::highlighted( int index )
+
+    This signal is emitted when the user highlights a new current
+    item. \a index is the index of the highlighted item.
+
+    \sa selected() currentItem() selectionChanged()
+*/
+
+/*!
+    \overload void QListBox::highlighted( QListBoxItem * )
+
+    This signal is emitted when the user highlights a new current
+    item. The argument is a pointer to the new current item.
+
+    \sa selected() currentItem() selectionChanged()
+*/
+
+/*!
+    \overload void QListBox::highlighted( const QString &)
+
+    This signal is emitted when the user highlights a new current item
+    and the new item is a string. The argument is the text of the new
+    current item.
+
+    \sa selected() currentItem() selectionChanged()
+*/
+
+/*!
+    \fn void QListBox::selected( int index )
+
+    This signal is emitted when the user double-clicks on an item or
+    presses Enter when an item is highlighted. \a index is the index
+    of the selected item.
+
+    \sa highlighted() selectionChanged()
+*/
+
+/*!
+    \overload void QListBox::selected( QListBoxItem * )
+
+    This signal is emitted when the user double-clicks on an item or
+    presses Enter when an item is highlighted. The argument is a
+    pointer to the new selected item.
+
+    \sa highlighted() selectionChanged()
+*/
+
+/*!
+    \overload void QListBox::selected( const QString &)
+
+    This signal is emitted when the user double-clicks on an item or
+    presses Enter while an item is highlighted, and the selected item
+    is (or has) a string. The argument is the text of the selected
+    item.
+
+    \sa highlighted() selectionChanged()
 */
 
 /*! \reimp */
@@ -1217,8 +1254,8 @@ void QListBox::setFont( const QFont &font )
 
 
 /*!
-  \property QListBox::count
-  \brief the number of items in the list box
+    \property QListBox::count
+    \brief the number of items in the list box
 */
 
 uint QListBox::count() const
@@ -1228,21 +1265,22 @@ uint QListBox::count() const
 
 
 /*!
-  Inserts the string list \a list into the list at position \a index.
+    Inserts the string list \a list into the list at position \a
+    index.
 
-  If \a index is negative, \a list is inserted at the end of the list.	If
-  \a index is too large, the operation is ignored.
+    If \a index is negative, \a list is inserted at the end of the
+    list. If \a index is too large, the operation is ignored.
 
-  \warning This function uses \c{const char *} rather than
-  QString, so we recommend against using it.  It is provided so that
-  legacy code will continue to work, and so that programs that
-  certainly will not need to handle code outside a single 8-bit locale
-  can use it.  See insertStringList() which uses real QStrings.
+    \warning This function uses \c{const char *} rather than QString,
+    so we recommend against using it. It is provided so that legacy
+    code will continue to work, and so that programs that certainly
+    will not need to handle code outside a single 8-bit locale can use
+    it. See insertStringList() which uses real QStrings.
 
-  \warning This function is never significantly faster than a loop
-  around insertItem().
+    \warning This function is never significantly faster than a loop
+    around insertItem().
 
-  \sa insertItem(), insertStringList()
+    \sa insertItem(), insertStringList()
 */
 
 void QListBox::insertStrList( const QStrList *list, int index )
@@ -1259,15 +1297,16 @@ void QListBox::insertStrList( const QStrList *list, int index )
 
 
 /*!
-  Inserts the string list \a list into the list at position \a index.
+    Inserts the string list \a list into the list at position \a
+    index.
 
-  If \a index is negative, \a list is inserted at the end of the list.	If
-  \a index is too large, the operation is ignored.
+    If \a index is negative, \a list is inserted at the end of the
+    list. If \a index is too large, the operation is ignored.
 
-  \warning This function is never significantly faster than a loop
-  around insertItem().
+    \warning This function is never significantly faster than a loop
+    around insertItem().
 
-  \sa insertItem(), insertStrList()
+    \sa insertItem(), insertStrList()
 */
 
 void QListBox::insertStringList( const QStringList & list, int index )
@@ -1281,23 +1320,24 @@ void QListBox::insertStringList( const QStringList & list, int index )
 
 
 /*!
-  \overload
+    \overload
 
-  Inserts the string list \a list into the list at position \a index.
+    Inserts the string list \a list into the list at position \a
+    index.
 
-  If \a index is negative, \a list is inserted at the end of the list.	If
-  \a index is too large, the operation is ignored.
+    If \a index is negative, \a list is inserted at the end of the
+    list. If \a index is too large, the operation is ignored.
 
-  \warning This function uses \c{const char *} rather than
-  QString, so we recommend against using it.  It is provided so that
-  legacy code will continue to work, and so that programs that
-  certainly will not need to handle code outside a single 8-bit locale
-  can use it.  See insertStringList() which uses real QStrings.
+    \warning This function uses \c{const char *} rather than QString,
+    so we recommend against using it. It is provided so that legacy
+    code will continue to work, and so that programs that certainly
+    will not need to handle code outside a single 8-bit locale can use
+    it. See insertStringList() which uses real QStrings.
 
-  \warning This function is never significantly faster than a loop
-  around insertItem().
+    \warning This function is never significantly faster than a loop
+    around insertItem().
 
-  \sa insertItem(), insertStringList()
+    \sa insertItem(), insertStringList()
 */
 
 void QListBox::insertStrList( const QStrList & list, int index )
@@ -1317,24 +1357,25 @@ void QListBox::insertStrList( const QStrList & list, int index )
 
 
 /*!
-  \overload
+    \overload
 
-  Inserts the \a numStrings strings of the array \a strings into the
-  list at position \a index.
+    Inserts the \a numStrings strings of the array \a strings into the
+    list at position \a index.
 
-  If \a index is negative, insertStrList() inserts \a strings at the end
-  of the list.	If \a index is too large, the operation is ignored.
+    If \a index is negative, insertStrList() inserts \a strings at the
+    end of the list. If \a index is too large, the operation is
+    ignored.
 
-  \warning This function uses \c{const char *} rather than
-  QString, so we recommend against using it.  It is provided so that
-  legacy code will continue to work, and so that programs that
-  certainly will not need to handle code outside a single 8-bit locale
-  can use it.  See insertStringList() which uses real QStrings.
+    \warning This function uses \c{const char *} rather than QString,
+    so we recommend against using it. It is provided so that legacy
+    code will continue to work, and so that programs that certainly
+    will not need to handle code outside a single 8-bit locale can use
+    it. See insertStringList() which uses real QStrings.
 
-  \warning This function is never significantly faster than a loop
-  around insertItem().
+    \warning This function is never significantly faster than a loop
+    around insertItem().
 
-  \sa insertItem(), insertStringList()
+    \sa insertItem(), insertStringList()
 */
 
 void QListBox::insertStrList( const char **strings, int numStrings, int index )
@@ -1358,12 +1399,12 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
 }
 
 /*!
-  Inserts the item \a lbi into the list at position \a index.
+    Inserts the item \a lbi into the list at position \a index.
 
-  If \a index is negative or larger than the number of items in the list
-  box, \a lbi is inserted at the end of the list.
+    If \a index is negative or larger than the number of items in the
+    list box, \a lbi is inserted at the end of the list.
 
-  \sa insertStrList()
+    \sa insertStrList()
 */
 
 void QListBox::insertItem( const QListBoxItem *lbi, int index )
@@ -1425,13 +1466,12 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 }
 
 /*!
-  \overload
+    \overload
 
-  Inserts the item \a lbi into the list after the item \a after.
+    Inserts the item \a lbi into the list after the item \a after, or
+    at the beginning if \a after is 0.
 
-  If \a after is 0, \a lbi is inserted at the beginning.
-
-  \sa insertStrList()
+    \sa insertStrList()
 */
 
 void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
@@ -1482,14 +1522,15 @@ void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
 }
 
 /*!
-  \overload
+    \overload
 
-  Inserts a new list box text item with the text \a text into the list
-  at position \a index.
+    Inserts a new list box text item with the text \a text into the
+    list at position \a index.
 
-  If \a index is negative, \a text is inserted at the end of the list.
+    If \a index is negative, \a text is inserted at the end of the
+    list.
 
-  \sa insertStrList()
+    \sa insertStrList()
 */
 
 void QListBox::insertItem( const QString &text, int index )
@@ -1498,14 +1539,15 @@ void QListBox::insertItem( const QString &text, int index )
 }
 
 /*!
-  \overload
+    \overload
 
-  Inserts a new list box pixmap item with the pixmap \a pixmap into
-  the list at position \a index.
+    Inserts a new list box pixmap item with the pixmap \a pixmap into
+    the list at position \a index.
 
-  If \a index is negative, \a pixmap is inserted at the end of the list.
+    If \a index is negative, \a pixmap is inserted at the end of the
+    list.
 
-  \sa insertStrList()
+    \sa insertStrList()
 */
 
 void QListBox::insertItem( const QPixmap &pixmap, int index )
@@ -1514,14 +1556,15 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
 }
 
 /*!
-  \overload
+    \overload
 
-  Inserts a new list box pixmap item with the pixmap \a pixmap and the
-  text \a text into the list at position \a index.
+    Inserts a new list box pixmap item with the pixmap \a pixmap and
+    the text \a text into the list at position \a index.
 
-  If \a index is negative, \a pixmap is inserted at the end of the list.
+    If \a index is negative, \a pixmap is inserted at the end of the
+    list.
 
-  \sa insertStrList()
+    \sa insertStrList()
 */
 
 void QListBox::insertItem( const QPixmap &pixmap, const QString &text, int index )
@@ -1530,11 +1573,11 @@ void QListBox::insertItem( const QPixmap &pixmap, const QString &text, int index
 }
 
 /*!
-  Removes and deletes the item at position \a index. If \a index is equal
-  to currentItem(), a new item gets highlighted and the highlighted() signal
-  is emitted.
+    Removes and deletes the item at position \a index. If \a index is
+    equal to currentItem(), a new item gets highlighted and the
+    highlighted() signal is emitted.
 
-  \sa insertItem(), clear()
+    \sa insertItem(), clear()
 */
 
 void QListBox::removeItem( int index )
@@ -1545,9 +1588,9 @@ void QListBox::removeItem( int index )
 
 
 /*!
-  Deletes all the items in the list.
+    Deletes all the items in the list.
 
-  \sa removeItem()
+    \sa removeItem()
 */
 
 void QListBox::clear()
@@ -1584,11 +1627,10 @@ void QListBox::clear()
 
 
 /*!
-  Returns the text at position \a index, or a
-  \link QString::operator!() null string\endlink
-  if there is no text at that position.
+    Returns the text at position \a index, or QString::null if there
+    is no text at that position.
 
-  \sa pixmap()
+    \sa pixmap()
 */
 
 QString QListBox::text( int index ) const
@@ -1601,9 +1643,10 @@ QString QListBox::text( int index ) const
 
 
 /*!
-  Returns a pointer to the pixmap at position \a index, or 0 if there is no
-  pixmap there.
-  \sa text()
+    Returns a pointer to the pixmap at position \a index, or 0 if
+    there is no pixmap there.
+
+    \sa text()
 */
 
 const QPixmap *QListBox::pixmap( int index ) const
@@ -1615,14 +1658,14 @@ const QPixmap *QListBox::pixmap( int index ) const
 }
 
 /*!
-  \overload
+    \overload
 
-  Replaces the item at position \a index with a new list box text item
-  with text \a text.
+    Replaces the item at position \a index with a new list box text
+    item with text \a text.
 
-  The operation is ignored if \a index is out of range.
+    The operation is ignored if \a index is out of range.
 
-  \sa insertItem(), removeItem()
+    \sa insertItem(), removeItem()
 */
 
 void QListBox::changeItem( const QString &text, int index )
@@ -1632,14 +1675,14 @@ void QListBox::changeItem( const QString &text, int index )
 }
 
 /*!
-  \overload
+    \overload
 
-  Replaces the item at position \a index with a new list box pixmap item
-  with pixmap \a pixmap.
+    Replaces the item at position \a index with a new list box pixmap
+    item with pixmap \a pixmap.
 
-  The operation is ignored if \a index is out of range.
+    The operation is ignored if \a index is out of range.
 
-  \sa insertItem(), removeItem()
+    \sa insertItem(), removeItem()
 */
 
 void QListBox::changeItem( const QPixmap &pixmap, int index )
@@ -1649,14 +1692,14 @@ void QListBox::changeItem( const QPixmap &pixmap, int index )
 }
 
 /*!
-  \overload
+    \overload
 
-  Replaces the item at position \a index with a new list box pixmap item
-  with pixmap \a pixmap and text \a text.
+    Replaces the item at position \a index with a new list box pixmap
+    item with pixmap \a pixmap and text \a text.
 
-  The operation is ignored if \a index is out of range.
+    The operation is ignored if \a index is out of range.
 
-  \sa insertItem(), removeItem()
+    \sa insertItem(), removeItem()
 */
 
 void QListBox::changeItem( const QPixmap &pixmap, const QString &text, int index )
@@ -1668,12 +1711,12 @@ void QListBox::changeItem( const QPixmap &pixmap, const QString &text, int index
 
 
 /*!
-  Replaces the item at position \a index with \a lbi.	If \a
-  index is negative or too large, changeItem() does nothing.
+    Replaces the item at position \a index with \a lbi.	If \a index is
+    negative or too large, changeItem() does nothing.
 
-  The item that has been changed will become selected.
+    The item that has been changed will become selected.
 
-  \sa insertItem(), removeItem()
+    \sa insertItem(), removeItem()
 */
 
 void QListBox::changeItem( const QListBoxItem *lbi, int index )
@@ -1688,10 +1731,10 @@ void QListBox::changeItem( const QListBoxItem *lbi, int index )
 
 
 /*!
-  \property QListBox::numItemsVisible
-  \brief the number of visible items.
+    \property QListBox::numItemsVisible
+    \brief the number of visible items.
 
-  Both partially and entirely visible items are counted.
+    Both partially and entirely visible items are counted.
 */
 
 int QListBox::numItemsVisible() const
@@ -1743,21 +1786,21 @@ int QListBox::currentItem() const
 
 
 /*!
-  \property QListBox::currentText
-  \brief the text of the current item.
+    \property QListBox::currentText
+    \brief the text of the current item.
 
-  This is equivalent to text(currentItem()).
+    This is equivalent to text(currentItem()).
 */
 
 
 /*!
-  \property QListBox::currentItem
-  \brief the current highlighted item
+    \property QListBox::currentItem
+    \brief the current highlighted item
 
-  When setting this property, the highlighting is moved and the list
-  box scrolled as necessary.
+    When setting this property, the highlighting is moved and the list
+    box scrolled as necessary.
 
-  If no item has been highlighted, currentItem() returns -1.
+    If no item has been highlighted, currentItem() returns -1.
 */
 
 void QListBox::setCurrentItem( int index )
@@ -1766,10 +1809,10 @@ void QListBox::setCurrentItem( int index )
 }
 
 
-/*! \overload
+/*!
+    \overload
 
-  Sets the current item to the QListBoxItem \a i.
-
+    Sets the current item to the QListBoxItem \a i.
 */
 void QListBox::setCurrentItem( QListBoxItem * i )
 {
@@ -1820,8 +1863,11 @@ void QListBox::setCurrentItem( QListBoxItem * i )
 }
 
 
-/*!  Returns a pointer to the item at position \a index, or 0 if \a
-index is out of bounds. \sa index()
+/*!
+    Returns a pointer to the item at position \a index, or 0 if \a
+    index is out of bounds.
+
+    \sa index()
 */
 
 QListBoxItem *QListBox::item( int index ) const
@@ -1860,10 +1906,10 @@ QListBoxItem *QListBox::item( int index ) const
 
 
 /*!
-  Returns the index of \a lbi, or -1 if the item is not in this
-  list box or \a lbi is a null pointer.
+    Returns the index of \a lbi, or -1 if the item is not in this list
+    box or \a lbi is 0.
 
-\sa item()
+    \sa item()
 */
 
 int QListBox::index( const QListBoxItem * lbi ) const
@@ -1898,8 +1944,8 @@ int QListBox::index( const QListBoxItem * lbi ) const
 
 
 /*!
-  Returns TRUE if the item at position \a index is at least partly
-  visible; otherwise returns FALSE.
+    Returns TRUE if the item at position \a index is at least partly
+    visible; otherwise returns FALSE.
 */
 
 bool QListBox::itemVisible( int index )
@@ -1910,9 +1956,10 @@ bool QListBox::itemVisible( int index )
 
 
 /*!
-  \overload
+    \overload
 
-  Returns TRUE if \a item is at least partly visible; otherwise returns FALSE.
+    Returns TRUE if \a item is at least partly visible; otherwise
+    returns FALSE.
 */
 
 bool QListBox::itemVisible( const QListBoxItem * item )
@@ -2605,7 +2652,7 @@ bool QListBox::eventFilter( QObject *o, QEvent *e )
 }
 
 /*!
-  Repaints the item at position \a index in the list.
+    Repaints the item at position \a index in the list.
 */
 
 void QListBox::updateItem( int index )
@@ -2616,9 +2663,9 @@ void QListBox::updateItem( int index )
 
 
 /*!
-  \overload
+    \overload
 
-  Repaints the QListBoxItem \a i.
+    Repaints the QListBoxItem \a i.
 */
 
 void QListBox::updateItem( QListBoxItem * i )
@@ -2631,13 +2678,13 @@ void QListBox::updateItem( QListBoxItem * i )
 
 
 /*!
-  \property QListBox::selectionMode
-  \brief the selection mode of the list box
+    \property QListBox::selectionMode
+    \brief the selection mode of the list box
 
-  Sets the list box's selection mode, which may be one of
-  \c Single (the default), \c Extended, \c Multi or \c NoSelection.
+    Sets the list box's selection mode, which may be one of \c Single
+    (the default), \c Extended, \c Multi or \c NoSelection.
 
-  \sa SelectionMode
+    \sa SelectionMode
 */
 
 void QListBox::setSelectionMode( SelectionMode mode )
@@ -2692,10 +2739,10 @@ void QListBox::setMultiSelection( bool enable )
 
 
 /*!
-  Toggles the selection status of currentItem() and repaints if
-  the list box is a Multi selection list box.
+    Toggles the selection status of currentItem() and repaints if the
+    list box is a \c Multi selection list box.
 
-  \sa setMultiSelection()
+    \sa setMultiSelection()
 */
 
 void QListBox::toggleCurrentItem()
@@ -2713,10 +2760,11 @@ void QListBox::toggleCurrentItem()
 }
 
 
-/*! \overload
+/*!
+    \overload
 
-  If \a select is TRUE the item at position \a index is selected;
-  otherwise the item is deselected.
+    If \a select is TRUE the item at position \a index is selected;
+    otherwise the item is deselected.
 */
 
 void QListBox::setSelected( int index, bool select )
@@ -2726,16 +2774,16 @@ void QListBox::setSelected( int index, bool select )
 
 
 /*!
-  Selects \a item if \a select is TRUE or unselects it if \a select
-  is FALSE, and repaints the item appropriately.
+    Selects \a item if \a select is TRUE or unselects it if \a select
+    is FALSE, and repaints the item appropriately.
 
-  If the list box is a Single selection list box and \a select is TRUE,
-  setSelected() calls setCurrentItem().
+    If the list box is a \c Single selection list box and \a select is
+    TRUE, setSelected() calls setCurrentItem().
 
-  If the list box is a Single selection list box, \a select is FALSE,
-  setSelected() calls clearSelection().
+    If the list box is a \c Single selection list box, \a select is
+    FALSE, setSelected() calls clearSelection().
 
-  \sa setMultiSelection(), setCurrentItem(), clearSelection(), currentItem()
+    \sa setMultiSelection(), setCurrentItem(), clearSelection(), currentItem()
 */
 
 void QListBox::setSelected( QListBoxItem * item, bool select )
@@ -2784,7 +2832,7 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
 
 
 /*!
-  Returns TRUE if item \a i is selected; otherwise returns FALSE.
+    Returns TRUE if item \a i is selected; otherwise returns FALSE.
 */
 
 bool QListBox::isSelected( int i ) const
@@ -2800,9 +2848,9 @@ bool QListBox::isSelected( int i ) const
 
 
 /*!
-  \overload
+    \overload
 
-  Returns TRUE if item \a i is selected; otherwise returns FALSE.
+    Returns TRUE if item \a i is selected; otherwise returns FALSE.
 */
 
 bool QListBox::isSelected( const QListBoxItem * i ) const
@@ -2833,10 +2881,10 @@ QListBoxItem* QListBox::selectedItem() const
 
 
 /*!
-  Deselects all items, if possible.
+    Deselects all items, if possible.
 
-  Note that a Single selection list box will automatically select an
-  item if it has keyboard focus.
+    Note that a \c Single selection list box will automatically select
+    an item if it has keyboard focus.
 */
 
 void QListBox::clearSelection()
@@ -2844,12 +2892,13 @@ void QListBox::clearSelection()
     selectAll( FALSE );
 }
 
-/*!  In Multi and Extended modes, this function sets all items to be
-  selected if \a select is TRUE, and to be unselected if \a select is
-  FALSE.
+/*!
+    In \c Multi and \c Extended modes, this function sets all items to
+    be selected if \a select is TRUE, and to be unselected if \a
+    select is FALSE.
 
-  In Single and NoSelection modes, this function only changes the
-  selection status of currentItem().
+    In \c Single and \c NoSelection modes, this function only changes
+    the selection status of currentItem().
 */
 
 void QListBox::selectAll( bool select )
@@ -2868,7 +2917,8 @@ void QListBox::selectAll( bool select )
 }
 
 /*!
-  Inverts the selection. Only works in Multi and Extended selection mode.
+    Inverts the selection. Only works in \c Multi and \c Extended
+    selection mode.
 */
 
 void QListBox::invertSelection()
@@ -2913,9 +2963,10 @@ QSize QListBox::minimumSizeHint() const
 }
 
 
-/*!  Ensures that a single paint event will occur at the end of the
-  current event loop iteration.	 If \a doLayout is TRUE, the layout is
-  also redone.
+/*!
+    Ensures that a single paint event will occur at the end of the
+    current event loop iteration. If \a doLayout is TRUE, the layout
+    is also redone.
 */
 
 void QListBox::triggerUpdate( bool doLayout )
@@ -2937,12 +2988,12 @@ void QListBox::setColumnMode( LayoutMode mode )
 
 
 /*!
-  \overload
+    \overload
 
-  Sets the column layout mode for this list box to \c FixedNumber and
-  sets the number of displayed columns to \a columns.
+    Sets the column layout mode for this list box to \c FixedNumber
+    and sets the number of displayed columns to \a columns.
 
-  \sa setRowMode() columnMode() numColumns()
+    \sa setRowMode() columnMode() numColumns()
 */
 
 void QListBox::setColumnMode( int columns )
@@ -2965,12 +3016,12 @@ void QListBox::setRowMode( LayoutMode mode )
 }
 
 /*!
-  \overload
+    \overload
 
-  Sets the row layout mode for this list box to \c FixedNumber and sets the
-  number of displayed rows to \a rows.
+    Sets the row layout mode for this list box to \c FixedNumber and
+    sets the number of displayed rows to \a rows.
 
-  \sa columnMode rowMode numRows()
+    \sa columnMode rowMode numRows()
 */
 
 void QListBox::setRowMode( int rows )
@@ -2984,16 +3035,14 @@ void QListBox::setRowMode( int rows )
 }
 
 /*!
-  \property QListBox::columnMode
-  \brief the column layout mode for this list box.
+    \property QListBox::columnMode
+    \brief the column layout mode for this list box.
 
-  \sa rowMode numColumns
+    setColumnMode() sets the layout mode and adjusts the number of
+    displayed columns. The row layout mode automatically becomes \c
+    Variable, unless the column mode is \c Variable.
 
-  setColumnMode() sets the layout mode and adjusts the number of
-  displayed columns. The row layout mode automatically becomes
-  \c Variable, unless the column mode is \c Variable.
-
-  \sa setRowMode() columnMode()
+    \sa setRowMode() columnMode() rowMode numColumns
 */
 
 
@@ -3007,16 +3056,16 @@ QListBox::LayoutMode QListBox::columnMode() const
 
 
 /*!
-  \property QListBox::rowMode
-  \brief the row layout mode for this list box
+    \property QListBox::rowMode
+    \brief the row layout mode for this list box
 
-  This property is normally \c Variable.
+    This property is normally \c Variable.
 
-  setRowMode() sets the layout mode and adjusts the number of displayed
-  rows. The column layout mode automatically becomes \c Variable, unless
-  the row mode is \c Variable.
+    setRowMode() sets the layout mode and adjusts the number of
+    displayed rows. The column layout mode automatically becomes \c
+    Variable, unless the row mode is \c Variable.
 
-  \sa columnMode rowMode
+    \sa columnMode rowMode
 */
 
 
@@ -3030,13 +3079,13 @@ QListBox::LayoutMode QListBox::rowMode() const
 
 
 /*!
-  \property QListBox::numColumns
-  \brief the number of columns in the list box
+    \property QListBox::numColumns
+    \brief the number of columns in the list box
 
-  This is normally 1, but can be different if \l QListBox::columnMode or
-  \l QListBox::rowMode has been set.
+    This is normally 1, but can be different if \l
+    QListBox::columnMode or \l QListBox::rowMode has been set.
 
-  \sa columnMode rowMode numRows
+    \sa columnMode rowMode numRows
 */
 
 int QListBox::numColumns() const
@@ -3051,13 +3100,13 @@ int QListBox::numColumns() const
 
 
 /*!
-  \property QListBox::numRows
-  \brief the number of rows in the list box.
+    \property QListBox::numRows
+    \brief the number of rows in the list box.
 
-  This is equal to the number of items in the default single-column
-  layout, but can be different.
+    This is equal to the number of items in the default single-column
+    layout, but can be different.
 
-  \sa columnMode rowMode numColumns
+    \sa columnMode rowMode numColumns
 */
 
 int QListBox::numRows() const
@@ -3071,8 +3120,9 @@ int QListBox::numRows() const
 }
 
 
-/*!  This function does the hard layout work.  You should never need
-  to call it.
+/*!
+    This function does the hard layout work. You should never need to
+    call it.
 */
 
 void QListBox::doLayout() const
@@ -3180,9 +3230,10 @@ void QListBox::doLayout() const
 }
 
 
-/*! Lay the items out in a \a columns by \a rows array.	 The array may
-  be too big: doLayout() is expected to call this with the
-  right values.
+/*!
+    Lay the items out in a \a columns by \a rows array. The array may
+    be too big: doLayout() is expected to call this with the right
+    values.
 */
 
 void QListBox::tryGeometry( int rows, int columns ) const
@@ -3257,8 +3308,9 @@ void QListBox::tryGeometry( int rows, int columns ) const
 }
 
 
-/*!  Returns the row index of the current item, or -1 if no item is
-  the current item.
+/*!
+    Returns the row index of the current item, or -1 if no item is the
+    current item.
 */
 
 int QListBox::currentRow() const
@@ -3273,8 +3325,9 @@ int QListBox::currentRow() const
 }
 
 
-/*!  Returns the column index of the current item, or -1 if no item is
-  the current item.
+/*!
+    Returns the column index of the current item, or -1 if no item is
+    the current item.
 */
 
 int QListBox::currentColumn() const
@@ -3303,10 +3356,10 @@ void QListBox::setTopItem( int index )
 }
 
 /*!
-  Scrolls the list box so the item at position \a index in the list
-  is displayed in the bottom row of the list box.
+    Scrolls the list box so the item at position \a index in the list
+    is displayed in the bottom row of the list box.
 
-  \sa setTopItem()
+    \sa setTopItem()
 */
 
 void QListBox::setBottomItem( int index )
@@ -3326,8 +3379,8 @@ void QListBox::setBottomItem( int index )
 
 
 /*!
-  Returns a pointer to the item at point \a p, which is in on-screen
-  coordinates, or a null pointer if there is no item at \a p.
+    Returns the item at point \a p, which is in on-screen coordinates,
+    or a 0 if there is no item at \a p.
 */
 
 QListBoxItem * QListBox::itemAt( const QPoint& p ) const
@@ -3366,7 +3419,8 @@ QListBoxItem * QListBox::itemAt( const QPoint& p ) const
 }
 
 
-/*!  Ensures that the current item is visible.
+/*!
+    Ensures that the current item is visible.
 */
 
 void QListBox::ensureCurrentVisible()
@@ -3452,15 +3506,15 @@ void QListBox::doAutoScroll()
 
 
 /*!
-  \property QListBox::topItem
-  \brief the index of an item at the top of the screen.
+    \property QListBox::topItem
+    \brief the index of an item at the top of the screen.
 
-  When getting this property and the listbox has multiple columns, an
-  arbitrary item is selected and returned.
+    When getting this property and the listbox has multiple columns,
+    an arbitrary item is selected and returned.
 
-  When setting this property, the list box is scrolled so the item at
-  position \e index in the list is displayed in the top row of the
-  list box.
+    When setting this property, the list box is scrolled so the item
+    at position \e index in the list is displayed in the top row of
+    the list box.
 */
 
 int QListBox::topItem() const
@@ -3475,15 +3529,14 @@ int QListBox::topItem() const
 
 
 /*!
-  \property QListBox::variableHeight
-  \brief whether this list box has variable-height rows
+    \property QListBox::variableHeight
+    \brief whether this list box has variable-height rows
 
-  When the list box has variable-height rows (the default), each
-  row is as high as the highest item in that row.  When it has
-  same-sized rows, all rows are as high as the highest item in
-  the list box.
+    When the list box has variable-height rows (the default), each row
+    is as high as the highest item in that row. When it has same-sized
+    rows, all rows are as high as the highest item in the list box.
 
-  \sa variableWidth
+    \sa variableWidth
 */
 
 bool QListBox::variableHeight() const
@@ -3503,15 +3556,15 @@ void QListBox::setVariableHeight( bool enable )
 
 
 /*!
-  \property QListBox::variableWidth
-  \brief whether this list box has variable-width columns
+    \property QListBox::variableWidth
+    \brief whether this list box has variable-width columns
 
-  When the list box has variable-width columns, each column is as
-  wide as the widest item in that column.  When it has same-sized
-  columns (the default), all columns are as wide as the widest item
-  in the list box.
+    When the list box has variable-width columns, each column is as
+    wide as the widest item in that column. When it has same-sized
+    columns (the default), all columns are as wide as the widest item
+    in the list box.
 
-  \sa variableHeight
+    \sa variableHeight
 */
 
 bool QListBox::variableWidth() const
@@ -3531,7 +3584,7 @@ void QListBox::setVariableWidth( bool enable )
 
 
 /*!
-  Repaints just what really needs to be repainted.
+    Repaints only what really needs to be repainted.
 */
 void QListBox::refreshSlot()
 {
@@ -3664,10 +3717,11 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
 }
 
 
-/*!  Returns the height in pixels of the item with index \a index.  \a
-index defaults to 0.
+/*!
+    Returns the height in pixels of the item with index \a index. \a
+    index defaults to 0.
 
-If \a index is too large, this function returns 0.
+    If \a index is too large, this function returns 0.
 */
 
 int QListBox::itemHeight( int index ) const
@@ -3679,10 +3733,11 @@ int QListBox::itemHeight( int index ) const
 }
 
 
-/*!  Returns the index of the column at \a x, which is in the
-    listbox's coordinates, not in on-screen coordinates.
+/*!
+    Returns the index of the column at \a x, which is in the listbox's
+    coordinates, not in on-screen coordinates.
 
-  If there is no column that spans \a x, columnAt() returns -1.
+    If there is no column that spans \a x, columnAt() returns -1.
 */
 
 int QListBox::columnAt( int x ) const
@@ -3701,10 +3756,11 @@ int QListBox::columnAt( int x ) const
 }
 
 
-/*!  Returns the index of the row at \a y, which is in the listbox's
-  coordinates, not in on-screen coordinates.
+/*!
+    Returns the index of the row at \a y, which is in the listbox's
+    coordinates, not in on-screen coordinates.
 
-  If there is no row that spans \a y, rowAt() returns -1.
+    If there is no row that spans \a y, rowAt() returns -1.
 */
 
 int QListBox::rowAt( int y ) const
@@ -3740,9 +3796,10 @@ int QListBox::rowAt( int y ) const
 }
 
 
-/*!  Returns the rectangle on the sizecreen that \a item occupies in
-  viewport()'s coordinates, or an invalid rectangle if \a item is a null
-  pointer or is not currently visible.
+/*!
+    Returns the rectangle on the screen that \a item occupies in
+    viewport()'s coordinates, or an invalid rectangle if \a item is 0
+    or is not currently visible.
 */
 
 QRect QListBox::itemRect( QListBoxItem *item ) const
@@ -3779,7 +3836,7 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
   position.
 
   All items must be inserted with inSort() to maintain the sorting
-  order.  inSort() treats any pixmap (or user-defined type) as
+  order. inSort() treats any pixmap (or user-defined type) as
   lexicographically less than any string.
 
   \sa insertItem(), sort()
@@ -3811,7 +3868,7 @@ int QListBox::inSort( const QListBoxItem * lbi )
   returns the position.
 
   All items must be inserted with inSort() to maintain the sorting
-  order.  inSort() treats any pixmap (or user-defined type) as
+  order. inSort() treats any pixmap (or user-defined type) as
   lexicographically less than any string.
 
   \sa insertItem(), sort()
@@ -3873,8 +3930,9 @@ void QListBox::adjustItems()
 }
 
 
-/*!  Provided for compatibility with the old QListBox.
-    We recommend using QListBoxItem::paint()
+/*!
+    Provided for compatibility with the old QListBox. We recommend
+    using QListBoxItem::paint() instead.
 
     Repaints the cell at \a row, \a col using painter \a p.
 */
@@ -3929,7 +3987,7 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 }
 
 /*!
-  Returns the width of the widest item in the list box.
+    Returns the width of the widest item in the list box.
 */
 
 long QListBox::maxItemWidth() const
@@ -3962,7 +4020,7 @@ void QListBox::showEvent( QShowEvent * )
   \obsolete
 
   Returns the vertical pixel-coordinate in \a *yPos, of the list box
-  item at position \a index in the list.  Returns FALSE if the item is
+  item at position \a index in the list. Returns FALSE if the item is
   outside the visible area.
 */
 bool QListBox::itemYPos( int index, int *yPos ) const
@@ -3978,20 +4036,24 @@ bool QListBox::itemYPos( int index, int *yPos ) const
 
 #endif
 
-/*! \fn bool QListBoxItem::isSelected() const
-  Returns TRUE if the item is selected; otherwise returns FALSE.
+/*!
+    \fn bool QListBoxItem::isSelected() const
 
-  \sa QListBox::isSelected(), isCurrent()
+    Returns TRUE if the item is selected; otherwise returns FALSE.
+
+    \sa QListBox::isSelected(), isCurrent()
 */
+
 /*!
   \fn bool QListBoxItem::selected() const
   \obsolete
 */
 
 /*!
-  Returns TRUE if the item is the current item; otherwise returns FALSE.
+    Returns TRUE if the item is the current item; otherwise returns
+    FALSE.
 
-  \sa QListBox::currentItem(), QListBox::item(), isSelected()
+    \sa QListBox::currentItem(), QListBox::item(), isSelected()
 */
 bool QListBoxItem::isCurrent() const
 {
@@ -4003,14 +4065,17 @@ bool QListBoxItem::isCurrent() const
   \obsolete
 */
 
-/*! \fn void QListBox::centerCurrentItem()
-  If there is a current item, the list box is scrolled
-  so that this item is displayed centered.
+/*!
+    \fn void QListBox::centerCurrentItem()
 
-  \sa QListBox::ensureCurrentVisible()
+    If there is a current item, the list box is scrolled so that this
+    item is displayed centered.
+
+    \sa QListBox::ensureCurrentVisible()
 */
 
-/*! Returns a pointer to the list box containing this item.
+/*!
+    Returns a pointer to the list box containing this item.
 */
 
 QListBox * QListBoxItem::listBox() const
@@ -4020,12 +4085,12 @@ QListBox * QListBoxItem::listBox() const
 
 
 /*!
-  Removes \a item from the list box and causes an update of the screen
-  display.  The item is not deleted.  You should normally not need to
-  call this function because QListBoxItem::~QListBoxItem() calls it.  The
-  normal way to delete an item is with \c delete.
+    Removes \a item from the list box and causes an update of the
+    screen display. The item is not deleted. You should normally not
+    need to call this function because QListBoxItem::~QListBoxItem()
+    calls it. The normal way to delete an item is with \c delete.
 
-  \sa QListBox::insertItem()
+    \sa QListBox::insertItem()
 */
 void QListBox::takeItem( const QListBoxItem * item )
 {
@@ -4133,13 +4198,13 @@ void QListBox::clearInputString()
 }
 
 /*!
-  Finds the first list box item that has the text
-  \a text and returns it, or returns 0 of no
-  such item could be found.  If ComparisonFlags are
-  specified in \a compare then these flags are used, otherwise
-  the default is a case-insensitive, begins with search.
+    Finds the first list box item that has the text \a text and
+    returns it, or returns 0 of no such item could be found. If
+    \c ComparisonFlags are specified in \a compare then these flags
+    are used, otherwise the default is a case-insensitive, "begins
+    with" search.
 
-  \sa Qt::StringComparisonMode
+    \sa Qt::StringComparisonMode
 */
 
 QListBoxItem *QListBox::findItem( const QString &text, ComparisonFlags compare ) const
@@ -4271,7 +4336,8 @@ void QListBox::doRubberSelection( const QRect &old, const QRect &rubber )
 
 
 /*!
-  Returns whether the user is selecting items using a rubber band rectangle.
+    Returns TRUE if the user is selecting items using a rubber band
+    rectangle; otherwise returns FALSE.
 */
 
 bool QListBox::isRubberSelecting() const
@@ -4280,10 +4346,11 @@ bool QListBox::isRubberSelecting() const
 }
 
 
-/*!  Returns the item that comes after this in the list box. If this is
-  the last item, a null pointer is returned.
+/*!
+    Returns the item that comes after this in the list box. If this is
+    the last item, 0 is returned.
 
-  \sa prev()
+    \sa prev()
 */
 
 QListBoxItem *QListBoxItem::next() const
@@ -4291,10 +4358,11 @@ QListBoxItem *QListBoxItem::next() const
     return n;
 }
 
-/*!  Returns the item which comes before this in the list box. If this is
-  the first item, a null pointer is returned.
+/*!
+    Returns the item which comes before this in the list box. If this
+    is the first item, 0 is returned.
 
-  \sa next()
+    \sa next()
 */
 
 QListBoxItem *QListBoxItem::prev() const
@@ -4303,8 +4371,8 @@ QListBoxItem *QListBoxItem::prev() const
 }
 
 /*!
-  Returns the first item in this list box. If the list box is empty
-  this will be 0.
+    Returns the first item in this list box. If the list box is empty,
+    returns 0.
 */
 
 QListBoxItem *QListBox::firstItem() const
@@ -4339,8 +4407,8 @@ static int cmpListBoxItems( const void *n1, const void *n2 )
     If \a ascending is TRUE sorts the items in ascending order;
     otherwise sorts in descending order.
 
-  To compare the items, the text (QListBoxItem::text()) of the items
-  is used.
+    To compare the items, the text (QListBoxItem::text()) of the items
+    is used.
 */
 
 void QListBox::sort( bool ascending )
@@ -4501,16 +4569,13 @@ void QListBox::windowActivationChange( bool oldActive )
 
 int QListBoxItem::RTTI = 0;
 
-/*! Returns 0.
+/*!
+    Returns 0.
 
-  Although often frowned upon by purists, Run Time Type Identification
-  is very useful in this case, as it allows a QListBox to be an
-  efficient indexed storage mechanism.
-
-  Make your derived classes return their own values for rtti(), and
-  you can distinguish between listbox items. You should use values
-  greater than 1000 preferably a large random number, to allow for
-  extensions to this class.
+    Make your derived classes return their own values for rtti(), and
+    you can distinguish between listbox items. You should use values
+    greater than 1000 preferably a large random number, to allow for
+    extensions to this class.
 */
 
 int QListBoxItem::rtti() const
