@@ -3895,13 +3895,25 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    if(av==255) {
 	        // Do nothing - we already have source values in r,g,b
 	    } else if(av==0) {
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+	        r = *(tmp+1);
+	        g = *(tmp+2);
+	        b = *(tmp+3);
+#else		
 	        r = *(tmp+2);
 	        g = *(tmp+1);
 	        b = *(tmp+0);
+#endif
 	    } else {
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		r = ((r-*(tmp+1)) * av) / 256 + *(tmp+1);
+		g = ((g-*(tmp+2)) * av) / 256 + *(tmp+2);
+		b = ((b-*(tmp+3)) * av) / 256 + *(tmp+3);
+#else
 		r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
 		g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
 		b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
+#endif
 	    }
 	    *(alphaptr++) = (r << 16) | (g << 8) | b;
 	}
