@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#82 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#81 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#82 $");
 
 
 /*
@@ -1193,11 +1193,23 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	w++;
 	h++;
     }
-    if ( nocolBrush )
-	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
-    Rectangle( hdc, x, y, x+w, y+h );
-    if ( nocolBrush )
-	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
+    if ( nocolBrush ) {
+	if ( bg_mode == TransparentMode )
+	{
+ 	    if ( cbrush.color() == color0 )
+		// DPna  dest = dest AND NOT pattern
+		PatBlt( hdc, x, y, w, h, 0x000A0329 );
+	    else
+		// DPo   dest = dest OR pattern
+		PatBlt( hdc, x, y, w, h, 0x00FA0089 );
+	} else {
+	    SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
+	    Rectangle( hdc, x, y, x+w, y+h );
+	    SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
+	}
+    } else {
+        Rectangle( hdc, x, y, x+w, y+h );
+    }
 }
 
 
