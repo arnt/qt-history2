@@ -5,7 +5,7 @@
 **
 ** Created : 931031
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -612,7 +612,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    if ( destroyWindow )
 		XftDrawDestroy( (XftDraw *) rendhd );
 	    else
-		::free( (void*) rendhd );
+		free( (void*) rendhd );
 	    rendhd = 0;
 	}
 #endif // QT_NO_XFTFREETYPE
