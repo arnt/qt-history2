@@ -272,7 +272,8 @@ void QMenuBar::macCreateNativeMenubar()
     mac_dirty_menubar = 1;
     QWidget *p = parentWidget();
     if(p && (!menubars || !menubars->find((int)topLevelWidget())) && 
-       ((p->inherits("QMainWindow") && !p->parentWidget()) || p->inherits("QToolBar"))) {
+       ((p->inherits("QMainWindow") && !p->parentWidget()) || p->inherits("QToolBar") ||
+	topLevelWidget() == qApp->mainWidget() || !qApp->mainWidget())) {
 	mac_eaten_menubar = 1;
 	if(!menubars)
 	    menubars = new QIntDict<QMenuBar>();
