@@ -74,6 +74,7 @@ FtpWindow::FtpWindow(QWidget *parent)
 
 void FtpWindow::connectToFtpServer()
 {
+    QApplication::setOverrideCursor(Qt::WaitCursor);
     ftp->connectToHost(ftpServerLineEdit->text());
     ftp->login();
     ftp->list();
@@ -134,6 +135,7 @@ void FtpWindow::ftpCommandFinished(int /* commandId */, bool error)
     }
 
     if (ftp->currentCommand() == QFtp::Get) {
+        QApplication::restoreOverrideCursor();
         if (error) {
             statusLabel->setText(tr("Canceled download of %1.")
                                  .arg(file->fileName()));
@@ -151,6 +153,7 @@ void FtpWindow::ftpCommandFinished(int /* commandId */, bool error)
     }
 
     if (ftp->currentCommand() == QFtp::List) {
+        QApplication::restoreOverrideCursor();
         if (isDirectory.isEmpty()) {
             fileList->appendItem(tr("<empty>"));
             fileList->setEnabled(false);
@@ -183,12 +186,14 @@ void FtpWindow::processItem(QListWidgetItem *item)
         ftp->cd(name);
         ftp->list();
         cdToParentButton->setEnabled(true);
+        QApplication::setOverrideCursor(Qt::WaitCursor);
         return;
     }
 }
 
 void FtpWindow::cdToParent()
 {
+    QApplication::setOverrideCursor(Qt::WaitCursor);
     fileList->clear();
     isDirectory.clear();
     currentPath = currentPath.left(currentPath.lastIndexOf('/'));
