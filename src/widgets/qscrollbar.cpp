@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#41 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#40 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#41 $")
 
 
 /*----------------------------------------------------------------------------
@@ -711,10 +711,9 @@ static void initWinArrows()
 
 static void qDrawWinArrow( QPainter *p, ArrowType type, bool /* down */,
 			   int x, int y, int w, int h,
-			   const QColorGroup &g )
+			   const QColorGroup & /* g */ )
 {
 //    int	 dim = QMIN(w,h);       not used, removed by EE 27/9-95 ###
-    g = g;			     // --- " ---	
     if ( !win_u_arrow )
 	initWinArrows();
     QPixmap *a = 0;
