@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qwerty/qwerty.cpp#2 $
+** $Id: //depot/qt/main/examples/qwerty/qwerty.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -22,10 +22,6 @@
 
 #include <qtextcodec.h>
 
-typedef QList<Editor> EditorList;
-
-static EditorList *spawnedEditors = 0;		// list of  editors spawned by
-						// Editor::newDoc()
 
 static QList<QTextCodec> *codecList = 0;
 
@@ -33,7 +29,7 @@ enum { Uni = 0, MBug = 1, Lat1 = 2, Codec = 5 };
 
 
 Editor::Editor( QWidget * parent , const char * name )
-    : QWidget( parent, name )
+    : QWidget( parent, name, WDestructiveClose )
 {
     m = new QMenuBar( this, "menu" );
     QPopupMenu * file = new QPopupMenu();
@@ -50,13 +46,15 @@ Editor::Editor( QWidget * parent , const char * name )
     file->insertSeparator();
     file->insertItem( "&Print", this, SLOT(print()),    ALT+Key_P );
     file->insertSeparator();
-    file->insertItem( "&Close", this, SLOT(closeDoc()),ALT+Key_W );
+    file->insertItem( "&Close", this, SLOT(close()),ALT+Key_W );
     file->insertItem( "&Quit",  qApp, SLOT(quit()),     ALT+Key_Q );
 
     connect( save_as, SIGNAL(activated(int)), this, SLOT(saveAsEncoding(int)) );
     rebuildCodecList();
-    
+
+    changed = FALSE;
     e = new QMultiLineEdit( this, "editor" );
+    connect( e, SIGNAL( textChanged() ), this, SLOT( textChanged() ) );
     e->setFont( QFont("Helvetica", 24) );
 
     e->setFocus();
@@ -64,13 +62,6 @@ Editor::Editor( QWidget * parent , const char * name )
 
 Editor::~Editor()
 {
-    if ( spawnedEditors ) {
-	spawnedEditors->removeRef( this );	 // does nothing if not in list
-	if ( spawnedEditors->count() == 0 ) {
-	    delete spawnedEditors;
-	    spawnedEditors = 0;
-	}
-    }
 }
 
 void Editor::rebuildCodecList()
@@ -92,10 +83,7 @@ void Editor::rebuildCodecList()
 
 void Editor::newDoc()
 {
-    if ( !spawnedEditors )
-	spawnedEditors = new EditorList;
     Editor *ed = new Editor;
-    spawnedEditors->append( ed );	       	// add to list of spawned eds
     ed->resize( 400, 400 );
     ed->show();
 }
@@ -124,16 +112,16 @@ void Editor::load( const QString& fileName )
     e->repaint();
     setCaption( fileName );
 
-    //extern void qt_qstring_stats();
-    //qt_qstring_stats();
+    changed = FALSE;
 }
 
-void Editor::save()
+bool Editor::save()
 {
     //storing filename (proper save) is left as an exercise...
     QString fn = QFileDialog::getSaveFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )
-	saveAs( fn );
+	return saveAs( fn );
+    return FALSE;
 }
 
 void Editor::saveAsEncoding( int code )
@@ -141,7 +129,7 @@ void Editor::saveAsEncoding( int code )
     //storing filename (proper save) is left as an exercise...
     QString fn = QFileDialog::getSaveFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )
-	saveAs( fn, code );
+	(void) saveAs( fn, code );
 }
 
 void Editor::addEncoding()
@@ -171,14 +159,14 @@ void Editor::addEncoding()
 }
 
 
-void Editor::saveAs( const QString& fileName, int code )
+bool Editor::saveAs( const QString& fileName, int code )
 {
     QFile f( fileName );
     if ( !f.open( IO_WriteOnly ) ) {
 	QMessageBox::warning(this,"I/O Error",
 		    QString("The file could not be opened.\n\n")
 			+fileName);
-	return;
+	return FALSE;
     }
     QTextStream t(&f);
     if ( code >= Codec )
@@ -192,6 +180,8 @@ void Editor::saveAs( const QString& fileName, int code )
     t << e->text();
     f.close();
     setCaption( fileName );
+    changed = FALSE;
+    return TRUE;
 }
 
 
@@ -222,10 +212,6 @@ void Editor::print()
     }
 }
 
-void Editor::closeDoc()
-{
-    close();					// will call closeEvent()
-}
 
 void Editor::resizeEvent( QResizeEvent * )
 {
@@ -233,12 +219,34 @@ void Editor::resizeEvent( QResizeEvent * )
 	e->setGeometry( 0, m->height(), width(), height() - m->height() );
 }
 
-void Editor::closeEvent( QCloseEvent * )
+void Editor::closeEvent( QCloseEvent *e )
 {
-    if ( spawnedEditors &&
-	 spawnedEditors->findRef(this) != -1 ){	// Was it created by newDoc()?
-	delete this;				// Goodbye cruel world!
-    } else {
-	hide();					// Original editor, just hide
+    e->accept();
+    
+    if ( changed ) { // the text has been changed
+	switch ( QMessageBox::warning( this, "Qwerty",
+					"Save changes to Document?",
+					tr("&Yes"),
+					tr("&No"),
+					tr("Cancel"),
+					0, 2) ) {
+	case 0: // yes
+	    if ( save() )
+		e->accept();
+	    else
+		e->ignore();
+	    break;
+	case 1: // no
+	    e->accept();
+	    break;
+	default: // cancel
+	    e->ignore();
+	    break;
+	}
     }
+}
+
+void Editor::textChanged()
+{
+    changed = TRUE;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qwerty/qwerty.h#2 $
+** $Id: //depot/qt/main/examples/qwerty/qwerty.h#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -27,25 +27,26 @@ public slots:
     void newDoc();
     void load();
     void load( const QString& fileName );
-    void save();
+    bool save();
     void print();
-    void closeDoc();
     void addEncoding();
 
 protected:
     void resizeEvent( QResizeEvent * );
     void closeEvent( QCloseEvent * );
 
-private slots:    
+private slots:
     void saveAsEncoding( int );
+    void textChanged();
 
 private:
-    void saveAs( const QString& fileName, int code=-1 );
+    bool saveAs( const QString& fileName, int code=-1 );
     void rebuildCodecList();
     QMenuBar 	   *m;
     QMultiLineEdit *e;
     QPrinter        printer;
     QPopupMenu	   *save_as;
+    bool changed;
 };
 
 #endif // QWERTY_H
