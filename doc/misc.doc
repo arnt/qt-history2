@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.6 1996/12/10 21:23:34 agulbra Exp $
+** $Id: misc.doc,v 2.7 1997/04/10 07:21:53 aavit Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,39 +8,24 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.6 1996/12/10 21:23:34 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.7 1997/04/10 07:21:53 aavit Exp $";
 #endif
 
 
 /*! \page faq.html
+
 <title>Qt toolkit - FAQ</title>
 </head><body bgcolor="#ffffff">
 <h1 align="center">
 Frequently Asked Questions
-</h1>
+</h1><center>This documentation can be <a href="/dl/">downloaded</a> in full</center>
 <ol>
-<li>
-Will Qt continue to be free? 
-<p>
-A: We will continue to release free versions for the X Window System,
-and they will be free for free software development.
-<p>
-<li>
-
-The Qt demos I've seen only have one window.  Can I have several
-windows in one application?
-
-<p>
-A: Yes, easily.
-
-
-
 <li>
 What kind of licenses exist for Qt?
 <p>
-A: The Qt toolkit is available under several licenses; the free license
-for X, a license for shareware developers for X and a fully-fledged
-professional license.
+A: The Qt toolkit is available under two different licenses:
+The professional license, and the free license for developing free
+software for the X platform.	
 <p>
 <li>
 What are the differences between the professional and free versions of Qt?
@@ -48,6 +33,12 @@ What are the differences between the professional and free versions of Qt?
 A: You can write commercial software using the professional license.
 The library itself is the same. You also get one year of free support
 when you buy a professional license.
+<p>
+<li>
+Will you continue to have a free license?
+<p>
+A: We will continue to release free versions for non-commercial use
+on the X Window System.
 <p>
 <li>
 Can I write software for internal use in my company/organization using
@@ -87,7 +78,7 @@ answer.
 <li>
 I don't want to give away my source. What do I do? 
 <p>
-A: Then you need a shareware or professional license. 
+A: Then you need a  professional license. 
 <p>
 <li>
 Can I charge for my application? 
@@ -113,14 +104,19 @@ their work to ftp.troll.no.
 <li>
 Who is Troll Tech and what are your future plans?  
 <p>
-A: Troll Tech consists (now) of four talented, hard-working
-programmers who work day and night to improve Qt, and enjoy it. We
-started the company in 1994, but parts of Qt were written for earlier
-projects. The first line of code was written in 1992.
+A: Troll Tech is a company based in Oslo, the capital of Norway. Our
+business idea is to develop and market our multi-platform, superior
+quality, GUI toolkit: Qt.
 <p>
-Our income comes from selling Qt licenses and from a development
-contract with a customer; we develop code based on Qt for the
-Norwegian division of NCR (previously AT&T).
+Troll Tech was founded in 1994. However, the core team of
+designers at Troll Tech started developing Qt already in
+1992. Ever since then, Qt has steadily expanded and improved. Qt is
+currently used in hundreds of software development projects world wide.
+<p>
+In addition to Qt development and support, Troll Tech engages on a
+consultancy basis in a large-scale software development project. The
+project, which naturally is based on Qt, is run by the Norwegian
+division of NCR (previously AT&T).
 <p>
 <li>
 Can I use Qt's classes without writing a graphical user interface?  
@@ -204,8 +200,15 @@ A: We sell support and maintenance contracts.  We try to support the
 free users, and we take all bug reports seriously, no matter who
 they come from.
 <p>
-But, of course, if there's too much to do we have to put more
+But, of course, when there's too much to do we have to put more
 emphasis on paying customers.
+<p>
+<li>
+<p>
+The Qt demos I've seen only have one window.  Can I have several
+windows in one application?
+<p>
+A: Yes, easily.
 <p>
 <li>
 Is there a mailing list or something for Qt?
@@ -236,6 +239,7 @@ Ebner.  See
 http://www.cis.ohio-state.edu/~jharris/dlgedit/</a> for more
 information.
 </ol>
+
 */
 
 /*! \page license.html
@@ -243,48 +247,41 @@ information.
 <title>Qt License Statement</title>
 </head><body bgcolor="#ffffff">
 <p>
-
-This is the free software license for Qt version \version; it mainly
+This is the free software license for Qt version 1.2; it mainly
 covers development of free software for the free software community.
 We believe that it does not constrain development of free software
 noticeably.  (<a href="mailto:info@troll.no">Write to us</a> if you
 feel hampered, and we may be able to do something about it.)
-
 <p>
-
-The <a href="/pricing.html">professional</a> and <a
-href="/shareware.html">shareware</a> licenses are much less restrictive
+<p>
+The <a href="/pricing.html">professional</a> license is much less restrictive
 than this one.
-
-<hr>
-
-<h1 align=center>TROLL TECH FREE SOFTWARE LICENSE</h1>
-
-Copyright &copy; 1992-1996 Troll Tech AS.  All rights reserved.
-
 <p>
-
-This is the free software license for Qt version \version; it covers
+<hr>
+<p>
+<h1 align=center>TROLL TECH FREE SOFTWARE LICENSE</h1><center>This documentation can be <a href="/dl/">downloaded</a> in full</center>
+<p>
+Copyright &copy; 1992-1996 Troll Tech AS.  All rights reserved.
+<p>
+<p>
+This is the free software license for Qt version 1.2; it covers
 private use, use of third-party application programs based on Qt, and
 development of free software for the free software community.
-
+<p>
 <h2 align=center>COPYRIGHT AND RESTRICTIONS</h2>
-
+<p>
 The Qt toolkit is a product of Troll Tech AS. This license is limited to
 use with the X Window System.
-
 <p>
-
+<p>
 You may copy this version of the Qt toolkit provided that the entire
 archive is distributed unchanged and as a whole, including this notice.
-
 <p>
-
+<p>
 You may use this version of the Qt toolkit to compile, link and run
 application programs legally developed by third parties.
-
 <p>
-
+<p>
 You may use the Qt toolkit to create application programs provided that:
 <ul>
 <li>You accept this license.
@@ -304,9 +301,8 @@ You may use the Qt toolkit to create application programs provided that:
  LICENSE, version 2 or later, as defined by the Free Software Foundation.
  </dl>
 </ul>
-
 <p>
-
+<p>
 If you are paid to develop something with Qt or it is a part of your job
 the following conditions also apply:
 <ul>
@@ -322,9 +318,8 @@ the following conditions also apply:
     <li>That your organization considers the software to be free software.
     </ul>
 </ul>
-
 <p>
-
+<p>
 You may also use the Qt toolkit to create reusable components (such as
 libraries) provided that you accept the terms above, and in addition that:
 <ul>
@@ -337,31 +332,29 @@ AS.  Freely distributable programs may generally use Qt for free, see
 <li>README.QT is distributed along with your components.
 <li>Qt is not distributed <em>as an integral part</em> of your components.
 </ul>
-
-
+<p>
 <h2 align=center>LIMITATIONS OF LIABILITY</h2>
- 
+<p>
 Troll Tech AS makes no obligation under this license to support or upgrade
 Qt, or assist in the use of Qt.
-
 <p>
-
+<p>
 In no event shall Troll Tech AS be liable for any lost revenue or profits
 or other direct, indirect, special, incidental or consequential damages,
 even if Troll Tech has been advised of the possibility of such damages.
-
 <p>
-
+<p>
 <strong>
 QT IS PROVIDED AS IS WITH NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY
 OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 </strong>
-
+<p>
 <hr>
-
+<p>
 <p align=center>
 (The <a href="faq.html">FAQ</a> contains a number of questions related
 to the license.)
+
 */
 
 /*! \page troll.html
@@ -369,44 +362,45 @@ to the license.)
 <title>Troll Tech Contact Information</title>
 </head>
 <body bgcolor="#ffffff">
-
+<p>
 <h1 align=center>
 <img src="letter.gif" align=right width=48 height=48>
 Contact Troll Tech
 </h1>
-
+We mostly rely on the Internet for communication.
+<p>
+<h2>E-Mail</h2>
+<p>
+We can be reached via the following e-mail addresses:
+<ul>
+<li>General inquiries: <a href="mailto:info@troll.no">info@troll.no</a>.
+<li>Sales or pricing questions: <a href="mailto:sales@troll.no">sales@troll.no</a>.
+<li>Qt bug reports and other Qt-related mail: <a href="mailto:qt-bugs@troll.no">qt-bugs@troll.no</a>.
+<li>Comments about our web pages: <a href="mailto:www@troll.no">www@troll.no</a>.
+</ul>
+<p>
 <h2>Regular Mail</h2>
-
+<p>
 Troll Tech AS<br>
 Postboks 6133 Etterstad<br>
 N-0602 Oslo<br>
 NORWAY<br>
-
 <p>
-
-Fax: +47 22 64 69 49.
-
-<h2>Electronically</h2>
-
-We can be reached via the following e-mail addresses:
-<ul>
-<li>General inquiries: <a href="mailto:info@troll.no">info@troll.no</a>.
-<li>Sales questions: <a href="mailto:sales@troll.no">sales@troll.no</a>.
-<li>Comments about our web pages: <a href="mailto:www@troll.no">www@troll.no</a>.
-<li>Qt bug reports and other Qt-related mail: <a href="mailto:qt-bugs@troll.no">qt-bugs@troll.no</a>.
-</ul>
-
+<h2>Fax</h2>
+<p>
+Fax no: +47 22 64 69 49.
+<p>
+<h2>Mailing Lists</h2>
 <p>
 There is a mailing list for Qt users.  Send a message containing the
 single word "subscribe" to <a
 href="mailto:qt-interest-request@troll.no">qt-interest-request@troll.no</a>
 to join the list.  You will receive a receipt from the list server within
 a few minutes.
-
 <p>
-Send a message containig the word "subscribe" to
-href="mailto:qt-announce-request@troll.no">qt-announce-request@troll.no</a>
-to be notified when new versions of Qt are released.  You will receive
+Send a message containing the word "subscribe" to
+<a href="mailto:qt-announce-request@troll.no">qt-announce-request@troll.no</a>
+if you want to be notified when new versions of Qt are released.  You will receive
 a receipt from the list server within a few minutes.
 
 */
