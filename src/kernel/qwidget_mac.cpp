@@ -206,6 +206,16 @@ void qt_mac_update_metal_style(QWidget *w)
     }
 }
 
+static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr, const Rect *geo, WindowPtr *w)
+{
+    Rect null_rct;
+    SetRect(&null_rct, 0, 0, 0, 0);
+    OSStatus ret = CreateNewWindow(wclass, wattr, &null_rct, w);
+    if(ret == noErr)
+	SetWindowBounds(*w, kWindowContentRgn, geo);
+    return ret;
+}
+
 bool qt_mac_update_sizer(QWidget *w, int up=0)
 {
     if(!w || !w->isTopLevel())
@@ -357,7 +367,7 @@ static bool qt_create_root_win() {
 	h = qMax(h, (*g)->gdRect.bottom);
     }
     SetRect(&r, 0, 0, w, h);
-    CreateNewWindow(kOverlayWindowClass, kWindowNoAttributes, &r, &qt_root_win);
+    qt_mac_create_window(kOverlayWindowClass, kWindowResizableAttribute, &r, &qt_root_win);
     if(!qt_root_win)
 	return false;
     qAddPostRoutine(qt_clean_root_win);
@@ -891,7 +901,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	} else
 #endif
 	{
-	    if(OSStatus ret = CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id))
+	    if(OSStatus ret = qt_mac_create_window(wclass, wattr, &r, (WindowRef *)&id))
 		qDebug("Qt: internal: %s:%d If you reach this error please contact Trolltech and include the\n"
 		       "      WidgetFlags used in creating the widget (%ld)", __FILE__, __LINE__, ret);
 	    if(!desktop) { 	//setup an event callback handler on the window
@@ -944,11 +954,11 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	InstallWindowContentPaintProc((WindowPtr)id, NewWindowPaintUPP(qt_erase), 0, this);
 #endif
 	if(testWFlags(WType_Popup) || testWFlags(WStyle_Tool))
-	    SetWindowModality((WindowPtr)id, kWindowModalityNone, 0);
-	fstrut_dirty = true; // when we create a toplevel widget, the frame strut should be dirty
+	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
+	fstrut_dirty = TRUE; // when we create a toplevel widget, the frame strut should be dirty
+	hd = (void *)id;
 	if(!mac_window_count++)
 	    QMacSavedPortInfo::setPaintDevice(this);
-	hd = (void *)id;
 	macWidgetChangedWindow();
 	setWinId(id);
 	if(d->extra && !d->extra->mask.isNull())
@@ -1785,8 +1795,11 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
 	if(isResize && isMaximized())
 	    clearWState(WState_Maximized);
 	Rect r;
-	SetRect(&r, x, y, x + w, y + h);
-	SetWindowBounds((WindowPtr)hd, kWindowContentRgn, &r);
+	QPoint tl = frameGeometry().topLeft();
+	if(isResize)
+	    SizeWindow((WindowPtr)hd, w, h, 1);
+	if(isMove)
+	    MoveWindowStructure((WindowPtr)hd, x, y);
 	dirtyClippedRegion(TRUE);
     }
 
