@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#75 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#74 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#75 $");
 
 
 const int sbDim = 16;
@@ -1274,8 +1274,7 @@ void QTableView::paintEvent( QPaintEvent *e )
 	eraseInPaint = e;
     }
 
-    QPainter paint;
-    paint.begin( this );
+    QPainter paint( this );
 
     if ( !contentsRect().contains( updateR ) ) {// update frame ?
 	drawFrame( &paint );
@@ -1299,7 +1298,6 @@ void QTableView::paintEvent( QPaintEvent *e )
     int	 xStart, yStart;
     if ( !colXPos( firstCol, &xStart ) || !rowYPos( firstRow, &yStart ) ) {
 	paint.eraseRect( updateR ); // erase area outside cells but in view
-	paint.end();
 	return;
     }
     int	  maxX	= updateR.right();
@@ -1371,7 +1369,6 @@ void QTableView::paintEvent( QPaintEvent *e )
 	    paint.eraseRect( frameWidth(), yPos,
 			     xPos - frameWidth(), maxY - yPos + 1 );
     }
-    paint.end();
 }
 
 /*!

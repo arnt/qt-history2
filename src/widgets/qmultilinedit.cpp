@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#87 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -315,8 +315,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
     ASSERT(buffer);
     buffer->fill ( g.base() );
 
-    QPainter p;
-    p.begin( buffer );
+    QPainter p( buffer );
     p.setFont( painter->font() );
     p.translate( -updateR.left(), -updateR.top() );
 

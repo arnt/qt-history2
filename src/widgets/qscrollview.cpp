@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#19 $
 **
 ** Implementation of QScrollView class
 **
@@ -469,8 +469,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	}
     } else if ( obj == &d->viewport ) {
 	if ( e->type() == Event_Paint ) {
-	    QPainter p;
-	    p.begin(&d->viewport);
+	    QPainter p(&d->viewport);
 	    QPaintEvent* pe = (QPaintEvent*)e;
 	    p.setClipRect(pe->rect());
 	    int ex = pe->rect().x() - contentsX();
@@ -478,7 +477,6 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	    int ew = pe->rect().width();
 	    int eh = pe->rect().height();
 	    drawContentsOffset(&p, contentsX(), contentsY(), ex, ey, ew, eh);
-	    p.end();
 	}
     }
     return FALSE;  // always continue with standard event processing

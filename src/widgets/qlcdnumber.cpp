@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#50 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#50 $");
 
 
 /*!
@@ -615,12 +615,11 @@ void QLCDNumber::drawContents( QPainter *p )
 
 void QLCDNumber::internalDisplay( const char *s )
 {
-    QPainter p;
     QString buffer(ndigits+1);
     int i;
     int len = strlen(s);
+    QPainter p( this );
 
-    p.begin( this );
     if ( !smallPoint ) {
 	if ( len >= ndigits ) {
 	    for( i=0; i<(int)ndigits; i++ )	// trunc too long string
@@ -669,7 +668,6 @@ void QLCDNumber::internalDisplay( const char *s )
 	}
 	drawString(buffer,p,&newPoints);
     }
-    p.end();
 }
 
 /*!

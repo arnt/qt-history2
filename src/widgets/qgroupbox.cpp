@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#30 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -12,7 +12,7 @@
 #include "qgrpbox.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#30 $");
 
 
 /*!
@@ -133,9 +133,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
     QRect	r   = cr;
     int		len = str.length();
     QColorGroup g = colorGroup();
-    QPainter	paint;
-
-    paint.begin( this );
+    QPainter	paint( this );
 
     if ( event )
 	paint.setClipRect( event->rect() );
@@ -175,5 +173,4 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	paint.drawText( r, AlignCenter, str, len );
     }
     drawContents( &paint );
-    paint.end();
 }
