@@ -1017,8 +1017,6 @@ void QMenuBar::drawContents( QPainter *p )
 		flags |= QStyle::Style_HasFocus;
 	    style().drawControl(QStyle::CE_MenuBarItem, buffer.painter(), this,
 				r, g, flags, QStyleOption(mi));
-	    if(!buffer.isBuffered())
-		buffer.painter()->flush(r);
 	}
     }
 

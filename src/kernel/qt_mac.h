@@ -109,30 +109,27 @@ inline bool QMacSavedPortInfo::flush(QPaintDevice *pdev)
 #ifdef Q_WS_MACX
     if ( pdev->devType() == QInternal::Widget ) {
 	QWidget *w = (QWidget *)pdev;
-	if ( !w->isHidden() && QDIsPortBuffered(GetWindowPort((WindowPtr)w->handle())))
+	if ( !w->isHidden() && QDIsPortBuffered(GetWindowPort((WindowPtr)w->handle()))) {
 	    QDFlushPortBuffer(GetWindowPort((WindowPtr)w->handle()), NULL);
-    } else if( pdev->devType() == QInternal::Pixmap || pdev->devType() == QInternal::Printer) {
-	QDFlushPortBuffer((GWorldPtr)pdev->handle(), NULL);
-    }
+	    return TRUE;
+	}
+    } 
 #endif
-    return TRUE;
+    return FALSE;
 }
 
 inline bool QMacSavedPortInfo::flush(QPaintDevice *pdev, const QRegion &r, bool force) 
 {
 #ifdef Q_WS_MACX
-    CGrafPtr toFlush = NULL;
     if ( pdev->devType() == QInternal::Widget ) {
 	QWidget *w = (QWidget *)pdev;
-	if ( w->isHidden() || !QDIsPortBuffered(GetWindowPort((WindowPtr)w->handle())))
-	    return FALSE;
-	toFlush = GetWindowPort((WindowPtr)w->handle());
-    } else if( pdev->devType() == QInternal::Pixmap || pdev->devType() == QInternal::Printer) {
-	toFlush = (GWorldPtr)pdev->handle();
-    }
-    QDFlushPortBuffer(toFlush, r.handle(force));
+	if ( !w->isHidden() || QDIsPortBuffered(GetWindowPort((WindowPtr)w->handle()))) {
+	    QDFlushPortBuffer(GetWindowPort((WindowPtr)w->handle()), r.handle(force));
+	    return TRUE;
+	}
+    } 
 #endif
-    return TRUE;
+    return FALSE;
 }
 
 inline bool QMacSavedPortInfo::setClipRegion(const QRect &rect)
