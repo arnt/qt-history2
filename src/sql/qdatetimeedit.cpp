@@ -1076,8 +1076,7 @@ void QDateEdit::setDay( int day )
     if ( day > 31 )
 	day = 31;
     if ( d->m > 0 && d->y > 1752 ) {
-	bool valid = FALSE;
-	while ( !(valid = QDate::isValid( d->y, d->m, day ) ) )
+	while ( !QDate::isValid( d->y, d->m, day ) )
 	    --day;
 	if ( !outOfRange( d->y, d->m, day ) )
 	    d->d = day;
