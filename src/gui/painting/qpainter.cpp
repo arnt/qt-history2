@@ -667,7 +667,7 @@ void QPainter::setRasterOp(RasterOp op)
     }
     d->state->rasterOp = op;
     if (d->engine)
-	d->engine->updateRasterOp(d->state);
+	d->engine->setDirty(QPaintEngine::DirtyRasterOp);
 }
 
 void QPainter::setFont(const QFont &font)
