@@ -142,7 +142,7 @@ private:
     void setCurrentContext(const QModelIndex &indx);
     void setCurrentMessage(const QModelIndex &indx);
     QString friendlyPhraseBookName(const PhraseBook &pb) const;
-    PhraseBook TrWindow::phraseBookFromFileName(QString name) const;
+    PhraseBook phraseBookFromFileName(QString name) const;
     bool openPhraseBook(const QString &name);
     bool phraseBooksContains(QString name);
     bool savePhraseBook(QString &name, const PhraseBook &pb);
