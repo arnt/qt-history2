@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/msg2qm/msg2qm.cpp#5 $
+** $Id: //depot/qt/main/util/msg2qm/msg2qm.cpp#6 $
 **
 ** This is a utility program for converting findtr msgfiles to
 ** qtranslator messagefiles
@@ -84,8 +84,8 @@ void addTranslation( QTranslator* translator, const QString& msgid, const QStrin
 	else if (defaultScope)
 	    scope = *defaultScope;
 
-	int hash = translator->hash( scope.ascii(), id.ascii() );
-	if (translator->contains( hash, scope.ascii(), id.ascii() ) ) {
+	//int hash = translator->hash( scope.ascii(), id.ascii() );
+	if (translator->contains( /*hash,*/ scope.ascii(), id.ascii() ) ) {
 	    debug("Error: \"%s\" already in use", msgid.ascii() );
 	}
 	else {
@@ -98,7 +98,7 @@ void addTranslation( QTranslator* translator, const QString& msgid, const QStrin
                 exit(1);
             }
             QString u_msgstr = codec->toUnicode(msgstr.ascii(), msgstr.length());
-	    translator->insert( hash, u_msgstr );
+	    translator->insert( scope.latin1(), msgid.latin1(), u_msgstr );
 	    //debug("'%s':'%s'-->'%s'", scope.ascii(), msgid.ascii(), msgstr.ascii() );
 	}
     }
