@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#234 $
+** $Id: //depot/qt/main/src/moc/moc.y#235 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -270,7 +270,7 @@ enum Member { SignalMember,
 	      SlotMember,
 	      PropertyCandidateMember,
 	      MethodMember,
-	      EventMember,
+	      EventMember
 	    };
 
 void	 addMember( Member );			// add tmpFunc to current class
@@ -1345,7 +1345,7 @@ int main( int argc, char **argv )
     init();
 
     bool autoInclude = TRUE;
-    char *error	     = 0;
+    const char *error	     = 0;
     g->qtPath = "";
     for ( int n=1; n<argc && error==0; n++ ) {
 	QCString arg = argv[n];
@@ -2110,7 +2110,7 @@ const int Slot_Num   = 1;
 const int Signal_Num = 2;
 const int Prop_Num = 3;
 
-void generateFuncs( FuncList *list, char *functype, int num )
+void generateFuncs( FuncList *list, const char *functype, int num )
 {
     Function *f;
     for ( f=list->first(); f; f=list->next() ) {
@@ -3119,12 +3119,12 @@ void generateDispatch()
 
 void generateClass()		      // generate C++ source code for a class
 {
-    char *hdr1 = "/****************************************************************************\n"
+    const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
-    char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#234 $)\n**\n";
-    char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
-    char *hdr4 = "*****************************************************************************/\n\n";
+    const char *hdr2 = "** Created: %s\n"
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#235 $)\n**\n";
+    const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
+    const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
 
     if ( skipClass )				// don't generate for class

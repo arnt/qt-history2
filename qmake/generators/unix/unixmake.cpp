@@ -154,7 +154,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	t << "all: " << ofile <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
 	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
-	  << "[ -d " << project->variables()["DESTDIR"].first()
+	  << "[ -d " << project->variables()["DESTDIR"].first() + "."
 	  << " ] || mkdir -p " << project->variables()["DESTDIR"].first() << "\n\t"
 	  << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
     } else if(!project->isActiveConfig("staticlib")) {

@@ -200,6 +200,7 @@ public:
     QString text(const QImageTextKeyLang&) const;
     void setText(const char* key, const char* lang, const QString&);
 #endif
+    class QImageDataMisc;
 private:
     void	init();
     void	reinit();
@@ -207,7 +208,6 @@ private:
     static void	warningIndexRange( const char *, int );
     QSize	scaleSize( const QSize &s, ScaleMode mode ) const;
 
-    class QImageDataMisc;
     struct QImageData : public QShared {	// internal image data
 	int	w;				// image width
 	int	h;				// image height

@@ -15,6 +15,7 @@ extern QString logo_fn;
 
 int main(int argc, char** argv)
 {
+    printf("here %d %p\n", argc, argv);
     QApplication app(argc,argv);
 
     /*
