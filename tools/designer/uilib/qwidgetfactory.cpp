@@ -2499,6 +2499,8 @@ void QWidgetFactory::loadMenuBar( const QDomElement &e )
 	    mb->insertItem( translate( n.attribute( "text" ).utf8() ), popup );
 	} else if ( n.tagName() == "property" ) {
 	    setProperty( mb, n.attribute( "name" ), n.firstChild().toElement() );
+	} else if ( n.tagName() == "separator" ) {
+	    mb->insertSeparator();
 	}
 	n = n.nextSibling().toElement();
     }

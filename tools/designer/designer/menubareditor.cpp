@@ -229,18 +229,6 @@ MenuBarEditorItem * MenuBarEditor::createItem( int index )
     return i;
 }
 
-MenuBarEditorItem * MenuBarEditor::createSeparator( int index )
-{
-    if ( hasSeparator ) {
-	return 0;
-    }
-    MenuBarEditorItem * i = createItem( index );
-    i->setSeparator( TRUE );
-    i->setMenuText( "separator" );
-    hasSeparator = TRUE;
-    return i;
-}
-
 void MenuBarEditor::insertItem( MenuBarEditorItem * item, int index )
 {
     item->menu()->parentMenu = this;
@@ -271,6 +259,18 @@ void MenuBarEditor::insertItem( QString text, QActionGroup * group, int id, int 
     if ( !text.isNull() )
 	item->setMenuText( text );
     insertItem( item, index );
+}
+
+
+void MenuBarEditor::insertSeparator( int index )
+{
+    if ( hasSeparator ) {
+	return;
+    }
+    MenuBarEditorItem * i = createItem( index );
+    i->setSeparator( TRUE );
+    i->setMenuText( "separator" );
+    hasSeparator = TRUE;
 }
 
 void MenuBarEditor::removeItemAt( int index )
@@ -601,7 +601,7 @@ void MenuBarEditor::mouseDoubleClickEvent( QMouseEvent * )
 {
     currentIndex = findItem( mousePressPos );
     if ( currentIndex > itemList.count() ) {
-	(void)createSeparator();
+	insertSeparator();
 	update();
     } else {
 	showLineEdit();
@@ -756,7 +756,7 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	case Qt::Key_Return:
 	case Qt::Key_F2:
 	    if ( currentIndex > itemList.count() ) {
-		(void)createSeparator();
+		insertSeparator();
 	    } else {
 		showLineEdit();
 	    }

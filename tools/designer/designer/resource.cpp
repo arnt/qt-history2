@@ -2888,7 +2888,7 @@ void Resource::loadMenuBar( const QDomElement &e )
 	} else if ( n.tagName() == "property" ) {
 	    setObjectProperty( mb, n.attribute( "name" ), n.firstChild().toElement() );
 	} else if ( n.tagName() == "separator" ) {
-	    (void)mb->createSeparator();
+	    mb->insertSeparator();
 	}
 	n = n.nextSibling().toElement();
     }

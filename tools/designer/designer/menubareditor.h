@@ -68,12 +68,12 @@ public:
     FormWindow * formWindow();
 
     MenuBarEditorItem * createItem( int index = -1 );
-    MenuBarEditorItem * createSeparator( int index = -1 );
-    //int insertItem( QString name, PopupMenuEditor * menu, int id = -1, int index = -1 ); //FIXME: change funcs to return id
     void insertItem( MenuBarEditorItem * item, int index = -1 );
     void insertItem( QString text, PopupMenuEditor * menu, int id = -1, int index = -1 );
     void insertItem( QString text, QActionGroup * group, int id = -1, int index = -1 );
 
+    void insertSeparator( int index = -1 );
+    
     void removeItemAt( int index );
     void removeItem( MenuBarEditorItem * item );
     void removeItem( int id );

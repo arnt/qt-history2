@@ -441,22 +441,28 @@ void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, c
     QString objName = getObjectName( n );
     out << indent << objName << " = new QMenuBar( this, \"" << objName << "\" );" << endl;
     createObjectImpl( n, parentClass, parent );
+    int i = 0;
+    QDomElement c = n.firstChild().toElement();
+    while ( !c.isNull() ) {
+	if ( c.tagName() == "item" ) {
+	    QString itemName = c.attribute( "name" );
+	    out << endl;
+	    out << indent << itemName << " = new QPopupMenu( this );" << endl;
 
-    QDomNodeList nl = n.elementsByTagName( "item" );
-    for ( int i = 0; i < (int) nl.length(); i++ ) {
-	QDomElement ae = nl.item( i ).toElement();
-	QString itemName = ae.attribute( "name" );
-	out << indent << itemName << " = new QPopupMenu( this );" << endl;
-	out << endl;
-
-	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
-	    if ( n2.tagName() == "action" )
-		out << indent << n2.attribute( "name" ) << "->addTo( " << itemName << " );" << endl;
-	    else if ( n2.tagName() == "separator" )
-		out << indent << itemName << "->insertSeparator();" << endl;
+	    for ( QDomElement n2 = c.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
+		if ( n2.tagName() == "action" )
+		    out << indent << n2.attribute( "name" ) << "->addTo( " << itemName << " );" << endl;
+		else if ( n2.tagName() == "separator" )
+		    out << indent << itemName << "->insertSeparator();" << endl;
+	    }
+	    out << indent << objName << "->insertItem( \"\", " << itemName << ", " << i << " );" << endl;
+	    trout << indent << objName << "->findItem( " << i << " )->setText( " << trcall( c.attribute( "text" ) ) << " );" << endl;
+	} else if ( c.tagName() == "separator" ) {
+	    out << endl;
+	    out << indent << objName << "->insertSeparator( " << i << " );" << endl;
 	}
-	out << indent << objName << "->insertItem( \"\", " << itemName << ", " << i << " );" << endl;
-	trout << indent << objName << "->findItem( " << i << " )->setText( " << trcall( ae.attribute( "text" ) ) << " );" << endl;
+	c = c.nextSibling().toElement();
+	i++;
     }
 }
 

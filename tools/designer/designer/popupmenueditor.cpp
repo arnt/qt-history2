@@ -1207,7 +1207,6 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 int PopupMenuEditor::drawAction( QPainter & p, QAction * a, int x, int y )
 {
     QPixmap icon = a->iconSet().pixmap( QIconSet::Automatic, QIconSet::Normal );
-    //p.drawPixmap( x + borderSize, y + borderSize, icon );
     p.drawPixmap( x + ( iconWidth - icon.width() ) / 2,
 		  y + ( iconWidth - icon.height() ) / 2,
 		  icon );
