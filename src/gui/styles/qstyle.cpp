@@ -404,9 +404,8 @@ QRect QStyle::itemRect(QPainter *painter, const QRect &rect, int alignment, bool
 void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const QPalette &pal,
                       bool enabled, const QString& text, int len, const QColor *penColor) const
 {
-    QRect r = rect.adjusted(0,0,-1,-1);
     int x, y, w, h;
-    r.getRect(&x, &y, &w, &h);
+    rect.getRect(&x, &y, &w, &h);
 
     painter->setPen(penColor ? *penColor : pal.foreground().color());
     if (!text.isEmpty()) {
