@@ -125,13 +125,17 @@ int main( int argc, char * argv[] )
 		if ( !dbpaths )
 		    dbpaths = new QStringList();
 		dbpaths->append( QFile::decodeName( argv[++n] ) );
-	    } else if ( opt == "v" ) {
+	    } else if ( opt == "version" ) {
 		fprintf( stderr,
 			 "User Interface Compiler for Qt version %s\n",
 			 QT_VERSION_STR );
 		exit( 1 );
+	    } else if ( opt == "help" ) {
+		break;
 	    } else if ( opt == "fix" ) {
 		fix = TRUE;
+	    } else {
+		error = "Unrecognized option";
 	    }
 	} else {
 	    if ( imagecollection )
@@ -172,7 +176,8 @@ int main( int argc, char * argv[] )
 		 "\t-nounload       Don't unload plugins after processing\n"
 		 "\t-tr func        Use func() instead of tr() for i18n\n"
 		 "\t-L path         Additional plugin search path\n"
-		 "\t-v              Display version of uic\n"
+		 "\t-version        Display version of uic\n"
+		 "\t-help           Display this information\n"
 		 , argv[0], argv[0], argv[0], argv[0], argv[0], argv[0]);
 	exit( 1 );
     }
