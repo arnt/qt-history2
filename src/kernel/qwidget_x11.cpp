@@ -852,9 +852,13 @@ static XTextProperty*
 qstring_to_xtp( const QString& s )
 {
     static XTextProperty tp = { 0, 0, 0, 0 };
+    static bool free_prop = TRUE; // we can't free tp.value in case it references
+    // the data of the static QCString below.
     if ( tp.value ) {
-	XFree( tp.value );
+	if ( free_prop )
+	    XFree( tp.value );
 	tp.value = 0;
+	free_prop = TRUE;
     }
 
     static const QTextCodec* mapper = QTextCodec::codecForLocale();
@@ -878,6 +882,7 @@ qstring_to_xtp( const QString& s )
 	tp.encoding = XA_STRING;
 	tp.format = 8;
 	tp.nitems = qcs.length();
+	free_prop = FALSE;
     }
 
     // ### If we knew WM could understand unicode, we could use
