@@ -885,7 +885,8 @@ QListWidgetItem *QListWidget::currentItem() const
 */
 void QListWidget::setCurrentItem(QListWidgetItem *item)
 {
-    setCurrentIndex(d->model()->index(item));
+    selectionModel()->setCurrentIndex(d->model()->index(item),
+                                      d->selectionMode == SingleSelection ? QItemSelectionModel::ClearAndSelect : QItemSelectionModel::NoUpdate);
 }
 
 /*!

@@ -1466,7 +1466,8 @@ void QAbstractItemView::keyboardSearch(const QString &search)
     QModelIndexList match;
     match = model()->match(start, QAbstractItemModel::DisplayRole, searchString);
     if (!match.isEmpty() && match.at(0).isValid()) {
-        setCurrentIndex(match.at(0));
+        selectionModel()->setCurrentIndex(match.at(0),
+            d->selectionMode == SingleSelection ? QItemSelectionModel::ClearAndSelect : QItemSelectionModel::NoUpdate);
     }
 }
 
