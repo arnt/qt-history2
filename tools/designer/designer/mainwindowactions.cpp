@@ -594,7 +594,8 @@ void MainWindow::setupFileActions()
 	a->addTo( tb );
 	a->addTo( fileMenu );
     } else {
-	a = new QActionGroup( this, 0, FALSE );
+	actionGroupNew = new QActionGroup( this, 0, FALSE );
+	 a = actionGroupNew;
 	( (QActionGroup*)a )->setUsesDropDown( TRUE );
 	a->setText( tr( "New" ) );
 	a->setMenuText( tr( "&New..." ) );
@@ -617,7 +618,8 @@ void MainWindow::setupFileActions()
 	newFile->setAccel( ALT + Key_N );
 	newFile->setStatusTip( tr( "Creates a new file." ) );
 	connect( newFile, SIGNAL( activated() ), this, SLOT( fileNewFile() ) );
-
+	actionNewFile = newFile;
+	
 	a->addTo( tb );
 	a->addTo( fileMenu );
     }
@@ -644,12 +646,13 @@ void MainWindow::setupFileActions()
     a->setWhatsThis(whatsThisFrom( "File|Close" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileClose() ) );
     connect( this, SIGNAL( hasActiveWindowOrProject(bool) ), a, SLOT( setEnabled(bool) ) );
-    if ( !singleProject )
+    if ( !singleProject ) {
 	a->addTo( fileMenu );
-
-    fileMenu->insertSeparator();
+	fileMenu->insertSeparator();
+    }
 
     a = new QAction( this, 0 );
+    actionFileSave = a;
     a->setText( tr( "Save" ) );
     a->setMenuText( tr( "&Save" ) );
     a->setIconSet( createIconSet("filesave.xpm") );
@@ -678,10 +681,10 @@ void MainWindow::setupFileActions()
     a->setWhatsThis( whatsThisFrom( "File|Save All" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSaveAll() ) );
     connect( this, SIGNAL( hasActiveWindowOrProject(bool) ), a, SLOT( setEnabled(bool) ) );
-    if ( !singleProject )
+    if ( !singleProject ) {
 	a->addTo( fileMenu );
-
-    fileMenu->insertSeparator();
+	fileMenu->insertSeparator();
+    }
 
     a = new QAction( this, 0 );
     a->setText( tr( "Create Template" ) );
@@ -716,6 +719,7 @@ void MainWindow::setupFileActions()
 	fileMenu->insertSeparator();
 
     a = new QAction( this, 0 );
+    actionFileExit = a;
     a->setText( tr( "Exit" ) );
     a->setMenuText( tr( "E&xit" ) );
     a->setStatusTip( tr( "Quits the application and prompts to save any changed forms, source files or project settings" ) );

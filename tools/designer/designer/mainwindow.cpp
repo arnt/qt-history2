@@ -3572,6 +3572,28 @@ void MainWindow::showGUIStuff( bool b )
 	menubar->removeItem( toolsMenuId );
 	menubar->removeItem( toolsMenuId + 1 );
 	menubar->removeItem( toolsMenuId + 2 );
+	disconnect( this, SIGNAL( hasActiveForm(bool) ), actionEditAccels, SLOT( setEnabled(bool) ) );
+	disconnect( this, SIGNAL( hasActiveForm(bool) ), actionEditSlots, SLOT( setEnabled(bool) ) );
+	disconnect( this, SIGNAL( hasActiveForm(bool) ), actionEditConnections, SLOT( setEnabled(bool) ) );
+	disconnect( this, SIGNAL( hasActiveForm(bool) ), actionEditSource, SLOT( setEnabled(bool) ) );
+	disconnect( this, SIGNAL( hasActiveForm(bool) ), actionEditFormSettings, SLOT( setEnabled(bool) ) );
+	actionEditFormSettings->setEnabled( FALSE );
+	actionEditSource->setEnabled( FALSE );
+	actionEditConnections->setEnabled( FALSE );
+	actionEditSlots->setEnabled( FALSE );
+	actionEditAccels->setEnabled( FALSE );
+	( (QDockWindow*)propertyEditor->parentWidget() )->
+	    setCaption( tr( "Signal Handlers" ) );
+	actionGroupNew->removeFrom( fileMenu );
+	actionGroupNew->removeFrom( projectToolBar );
+	actionFileSave->removeFrom( fileMenu );
+	actionFileSave->removeFrom( projectToolBar );
+	actionFileExit->removeFrom( fileMenu );
+	actionNewFile->addTo( fileMenu );
+	actionNewFile->addTo( projectToolBar );
+	actionFileSave->addTo( fileMenu );
+	actionFileSave->addTo( projectToolBar );
+	actionFileExit->addTo( fileMenu );
     } else {
 	setAppropriate( (QDockWindow*)toolBox->parentWidget(), TRUE );
 	toolBox->parentWidget()->show();
@@ -3587,5 +3609,25 @@ void MainWindow::showGUIStuff( bool b )
 	menubar->insertItem( tr( "&Tools" ), toolsMenu, toolsMenuId, toolsMenuIndex );
 	menubar->insertItem( tr( "&Layout" ), layoutMenu, toolsMenuId + 1, toolsMenuIndex + 1 );
 	menubar->insertItem( tr( "&Preview" ), previewMenu, toolsMenuId + 2, toolsMenuIndex + 2 );
+	connect( this, SIGNAL( hasActiveForm(bool) ), actionEditAccels, SLOT( setEnabled(bool) ) );
+	connect( this, SIGNAL( hasActiveForm(bool) ), actionEditSlots, SLOT( setEnabled(bool) ) );
+	connect( this, SIGNAL( hasActiveForm(bool) ), actionEditConnections, SLOT( setEnabled(bool) ) );
+	connect( this, SIGNAL( hasActiveForm(bool) ), actionEditSource, SLOT( setEnabled(bool) ) );
+	connect( this, SIGNAL( hasActiveForm(bool) ), actionEditFormSettings, SLOT( setEnabled(bool) ) );
+	actionEditFormSettings->setEnabled( TRUE );
+	actionEditSource->setEnabled( TRUE );
+	actionEditConnections->setEnabled( TRUE );
+	actionEditSlots->setEnabled( TRUE );
+	actionEditAccels->setEnabled( TRUE );
+	( (QDockWindow*)propertyEditor->parentWidget() )->
+	    setCaption( tr( "Property Editor/Signal Handlers" ) );
+	actionFileSave->removeFrom( fileMenu );
+	actionFileSave->removeFrom( projectToolBar );
+	actionFileExit->removeFrom( fileMenu );
+	actionGroupNew->addTo( fileMenu );
+	actionGroupNew->addTo( projectToolBar );
+	actionFileSave->addTo( fileMenu );
+	actionFileSave->addTo( projectToolBar );
+	actionFileExit->addTo( fileMenu );
     }
 }

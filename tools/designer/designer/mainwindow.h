@@ -403,8 +403,9 @@ private:
     QAction *actionWindowTile, *actionWindowCascade, *actionWindowClose, *actionWindowCloseAll;
     QAction *actionWindowNext, *actionWindowPrevious;
     QAction *actionEditFormSettings, *actionEditAccels;
-    QAction *actionEditSource;
+    QAction *actionEditSource, *actionNewFile, *actionFileSave, *actionFileExit;
     QAction *actionSearchFind, *actionSearchIncremetal, *actionSearchReplace, *actionSearchGotoLine;
+    QActionGroup *actionGroupNew;
 
     QPopupMenu *rmbWidgets;
     QPopupMenu *rmbFormWindow;
