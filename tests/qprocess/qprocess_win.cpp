@@ -58,6 +58,8 @@ static bool socketpair( int type, int s[2] )
 
     return TRUE;
 #else
+    struct sockaddr_in sock_in;
+
     s[0] = socket( AF_INET, type, 0 );
     if ( s[0] == INVALID_SOCKET ) {
 	s[0] = 0;
@@ -65,7 +67,13 @@ static bool socketpair( int type, int s[2] )
     }
     s[1] = s[0];
 
-    return TRUE;
+    sock_in.sin_family = AF_INET;
+    sock_in.sin_port = 0;
+    sock_in.sin_addr.s_addr = INADDR_ANY;
+    if ( bind( s[0], (struct sockaddr *) &sock_in, sizeof( sock_in ) ) < 0 ) {
+	closesocket( s[0] );
+	return FALSE;
+    }
 #endif
 }
 
@@ -102,6 +110,17 @@ bool QProcess::start()
 	}
 	if ( !socketpair( SOCK_STREAM, socketStderr ) ) {
 	    return FALSE;
+	}
+	// ### test my socketpair function
+	char grmpf[] = "Wet wet wet...";
+	DWORD written;
+	if ( !WriteFile( (HANDLE)(&(socketStdin[1])), grmpf, 5, &written, 0 ) ) {
+	    LPVOID lpMsgBuf;
+	    FormatMessage(     FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+		    FORMAT_MESSAGE_FROM_SYSTEM |     FORMAT_MESSAGE_IGNORE_INSERTS,    NULL,
+		    GetLastError(),
+		    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+		    (LPTSTR) &lpMsgBuf,    0,    NULL );
 	}
 
 	// construct the arguments for CreateProcess()
@@ -327,14 +346,22 @@ QByteArray QProcess::readStdout()
     readBuffer.resize( (i-1) * defsize + r );
     return readBuffer;
 #else
-    // get the number of bytes that are waiting to be read
-    char dummy;
-    unsigned long r, i;
-    PeekNamedPipe( pipeStdout[0], &dummy, 1, &r, &i, 0 );
-    // and read it!
-    QByteArray readBuffer( i );
-    if ( i > 0 ) {
-	ReadFile( pipeStdout[0], readBuffer.data(), i, &r, 0 );
+    if ( QApplication::winVersion() & Qt::WV_NT_based ) {
+	unsigned long r, i = 2;
+	QByteArray readBuffer( i );
+	if ( i > 0 ) {
+	    ReadFile( pipeStdout[0], readBuffer.data(), i, &r, 0 );
+	}
+    } else {
+	// get the number of bytes that are waiting to be read
+	char dummy;
+	unsigned long r, i;
+	PeekNamedPipe( pipeStdout[0], &dummy, 1, &r, &i, 0 );
+	// and read it!
+	QByteArray readBuffer( i );
+	if ( i > 0 ) {
+	    ReadFile( pipeStdout[0], readBuffer.data(), i, &r, 0 );
+	}
     }
     return readBuffer;
 #endif
