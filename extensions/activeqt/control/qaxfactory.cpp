@@ -479,7 +479,7 @@ extern char qAxModuleFilename[MAX_PATH];
 */
 QString QAxFactory::serverDirPath()
 {
-    return QFileInfo(QString::fromLocal8Bit(qAxModuleFilename)).dirPath();
+    return QFileInfo(QString::fromLocal8Bit(qAxModuleFilename)).absolutePath();
 }
 
 /*!
