@@ -4283,12 +4283,12 @@ void qt_format_text(const QFont &font, const QRectF &_r,
     const QChar *end = chr + len;
     bool haveLineSep = false;
     while (chr != end) {
-        if (*chr == '\r' || (singleline && *chr == '\n')) {
+        if (*chr == QLatin1Char('\r') || (singleline && *chr == QLatin1Char('\n'))) {
             *chr = ' ';
-        } else if (*chr == '\n') {
+        } else if (*chr == QLatin1Char('\n')) {
             *chr = QChar::LineSeparator;
             haveLineSep = true;
-        } else if (*chr == '&') {
+        } else if (*chr == QLatin1Char('&')) {
             ++maxUnderlines;
         }
         ++chr;
@@ -4296,12 +4296,12 @@ void qt_format_text(const QFont &font, const QRectF &_r,
     if (!expandtabs) {
         chr = (QChar*)text.unicode();
         while (chr != end) {
-            if (*chr == '\t')
-                *chr = ' ';
+            if (*chr == QLatin1Char('\t'))
+                *chr = QLatin1Char(' ');
             ++chr;
         }
     } else if (!tabarraylen && !tabstops) {
-        tabstops = qRound(fm.width('x')*8);
+        tabstops = qRound(fm.width(QLatin1Char('x'))*8);
     }
 
     if (hidemnmemonic || showmnemonic) {
@@ -4311,12 +4311,12 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         QChar *cin = cout;
         int l = len;
         while (l) {
-            if (*cin == '&') {
+            if (*cin == QLatin1Char('&')) {
                 ++cin;
                 --l;
                 if (!l)
                     break;
-                if (*cin != '&' && !hidemnmemonic)
+                if (*cin != QLatin1Char('&') && !hidemnmemonic)
                     underlinePositions[numUnderlines++] = cout - text.unicode();
             }
             *cout = *cin;
