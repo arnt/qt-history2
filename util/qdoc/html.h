@@ -8,7 +8,7 @@
 #include <qregexp.h>
 #include <qstring.h>
 
-inline QString htmlProtect( const QString& str )
+inline QString htmlProtect( const QString& str, bool escapeBackslash = TRUE )
 {
     static QRegExp amp( QChar('&') ); // HTML metacharacters
     static QRegExp lt( QChar('<') );
@@ -19,7 +19,8 @@ inline QString htmlProtect( const QString& str )
     t.replace( amp, QString("&amp;") );
     t.replace( lt, QString("&lt;") );
     t.replace( gt, QString("&gt;") );
-    t.replace( backslash, QString("&#92;") );
+    if ( escapeBackslash )
+	t.replace( backslash, QString("&#92;") );
     return t;
 }
 

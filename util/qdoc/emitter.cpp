@@ -14,6 +14,7 @@
 #include "config.h"
 #include "doc.h"
 #include "emitter.h"
+#include "html.h"
 #include "htmlwriter.h"
 #include "messages.h"
 #include "stringset.h"
@@ -106,6 +107,15 @@ static void emitHtmlHeaderFile( const QString& headerFilePath,
     out.putsMeta( "<hr>\n<pre>\n" );
     out.puts( fullText );
     out.putsMeta( "</pre>\n" );
+}
+
+/*
+  Returns a string suitable for writing to the propertydocs file (XML).
+*/
+static QString fixedPropertyDoc( const QString& html )
+{
+    // HTML protect or XML protect, that's the same here
+    return htmlProtect( html, FALSE );
 }
 
 void BookEmitter::start( const Resolver *resolver )
@@ -277,8 +287,11 @@ void DocEmitter::nailDownDocs()
 		    link += QChar( '#' ) + Decl::ref( (*p)->name() );
 
 		// avoid Q_OVERRIDE
-		if ( !(*p)->readFunction().isEmpty() )
+		if ( !(*p)->readFunction().isEmpty() ) {
 		    pmap.insert( key, link );
+		    if ( (*p)->doc() != 0 )
+			pdoc.insert( (*p)->fullName(), (*p)->propertyDoc() );
+		}
 		++p;
 	    }
 
@@ -485,7 +498,7 @@ void DocEmitter::emitHtml() const
     }
 
     /*
-      Write the four special files: index, propertyindex, titleindex, and
+      Write four special files: index, propertyindex, titleindex, and
       whatsthis.
     */
     if ( lmap.count() > 1 ) {
@@ -504,7 +517,7 @@ void DocEmitter::emitHtml() const
 	}
     }
 
-    if ( pmap.count() > 1 ) {
+    if ( pmap.count() > 0 ) {
 	BinaryWriter propertyindex( QString("propertyindex") );
 	QMap<QString, QString>::ConstIterator p = pmap.begin();
 	while ( p != pmap.end() ) {
@@ -546,6 +559,26 @@ void DocEmitter::emitHtml() const
 	    }
 	    ++w;
 	}
+    }
+
+    /*
+      Write a fifth special file: propertydocs. It's an XML file.
+    */
+    if ( pdoc.count() > 0 ) {
+	BinaryWriter propertydocs( QString("propertydocs") );
+
+	propertydocs.puts( "<!DOCTYPE PROP><PROP>\n" );
+
+	QMap<QString, PropertyDoc *>::ConstIterator p = pdoc.begin();
+	while ( p != pdoc.end() ) {
+	    propertydocs.puts( "<property>\n    <name>" );
+	    propertydocs.puts( p.key().latin1() );
+	    propertydocs.puts( "</name>\n    <doc>" );
+	    propertydocs.puts( fixedPropertyDoc((*p)->finalHtml()).latin1() );
+	    propertydocs.puts( "</doc>\n</property>\n" );
+	    ++p;
+	}
+	propertydocs.puts( "</PROP>\n" );
     }
 }
 

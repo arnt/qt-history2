@@ -117,6 +117,8 @@ public:
 
     void printHtml( HtmlWriter& out ) const;
 
+    QString finalHtml() const;
+
 protected:
     QString html;
 
@@ -130,7 +132,6 @@ private:
 #endif
 
     QString htmlTableOfContents() const;
-    QString finalHtml() const;
 
     Kind ki;
     Location lo;
