@@ -272,8 +272,10 @@ static void cleanup_object_trees()
 {
     delete object_trees;
     object_trees = 0;
+#ifdef QT_THREAD_SUPPORT
     delete obj_trees_mutex;
     obj_trees_mutex = 0;
+#endif
 }
 
 static void ensure_object_trees()
@@ -284,9 +286,11 @@ static void ensure_object_trees()
 
 static void insert_tree( QObject* obj )
 {
+#ifdef QT_THREAD_SUPPORT
     if ( !obj_trees_mutex )
 	obj_trees_mutex = new QMutex();
     QMutexLocker locker( obj_trees_mutex );
+#endif
     if ( !object_trees )
 	ensure_object_trees();
     object_trees->insert(0, obj );
@@ -295,7 +299,9 @@ static void insert_tree( QObject* obj )
 static void remove_tree( QObject* obj )
 {
     if ( object_trees ) {
+#ifdef QT_THREAD_SUPPORT
 	QMutexLocker locker( obj_trees_mutex );
+#endif
 	object_trees->removeRef( obj );
     }
 }
