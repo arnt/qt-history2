@@ -647,10 +647,11 @@ void Project::save()
     remove_multiline_contents( contents, "FORMS" );
     remove_multiline_contents( contents, "INTERFACES" ); // compatibility
 
-    if ( !uifiles.isEmpty() ) {
+    if ( !formfiles.isEmpty() ) {
 	contents += "FORMS\t= ";
-	for ( QStringList::Iterator it = uifiles.begin(); it != uifiles.end(); ++it )
-	    contents += *it + " ";
+	for ( QPtrListIterator<FormFile> fit = formfiles;
+	      fit.current(); ++fit )
+	    contents += fit.current()->fileName() + " ";
 	contents += "\n";
     }
 
