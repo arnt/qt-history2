@@ -153,7 +153,7 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
             uchar byte = line[x/8];
             if (x > w - 8 || byte != all) {
                 for (int b = 8; b > 0 && x < w; --b) {
-                    if (!(byte & 0x80) == !all) {
+                    if (!(byte & 0x01) == !all) {
                         // More of the same
                     } else {
                         // A change.
@@ -165,7 +165,7 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
                             all = ~zero;
                         }
                     }
-                    byte <<= 1;
+                    byte >>= 1;
                     ++x;
                 }
             } else {
