@@ -12,6 +12,9 @@ of the supported platforms, as described in \l {Styles and Themes}.
 This technique also enables developers to derive their own custom
 styles to provide a distinct look for their applications.
 
+\Image architecture-diag
+\caption Qt's Architecture
+
 Qt uses the low-level APIs of the different platforms it supports.
 This differs from traditional 'layered' cross-platform toolkits that
 are thin wrappers over single-platform toolkits (e.g. MFC on Windows
