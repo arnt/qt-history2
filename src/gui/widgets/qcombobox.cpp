@@ -300,6 +300,12 @@ QStyleOptionComboBox ItemViewContainer::comboStyleOption() const
     \value InsertAtBottom      The string will be inserted after the last item in the combobox.
     \value InsertAfterCurrent  The string is inserted after the current item in the combobox.
     \value InsertBeforeCurrent The string is inserted before the current item in the combobox.
+    \omitvalue NoInsertion
+    \omitvalue AtTop
+    \omitvalue AtCurrent
+    \omitvalue AtBottom
+    \omitvalue AfterCurrent
+    \omitvalue BeforeCurrent
 */
 
 /*!
@@ -319,13 +325,6 @@ QStyleOptionComboBox ItemViewContainer::comboStyleOption() const
 */
 
 /*!
-    \fn void QComboBox::activated(const QModelIndex &)
-
-    \internal
-
-*/
-
-/*!
     \fn void QComboBox::highlighted(int index)
 
     This signal is sent when an item in the combobox is highlighted. The
@@ -337,24 +336,6 @@ QStyleOptionComboBox ItemViewContainer::comboStyleOption() const
 
     This signal is sent when an item in the combobox is highlighted. The
     item's \a text is given.
-*/
-
-/*!
-    \fn void QComboBox::highlighted(const QModelIndex &index)
-
-    \internal
-
-    This signal is sent when an item in the combobox is highlighted. The
-    item's model item \a index is given.
-*/
-
-/*!
-    \fn void QComboBox::rootChanged(const QModelIndex &old, const QModelIndex &root)
-
-    \internal
-
-    This signal is sent when the root model item for the combobox is changed.
-    Both the \a old root index and the new \a root index are given.
 */
 
 /*!
@@ -1596,6 +1577,96 @@ QVariant QComboBox::inputMethodQuery(Qt::InputMethodQuery query) const
     Use setItem() instead, for example, setItem(index, QIcon(pixmap),text).
 */
 
+/*!
+    \fn void QComboBox::addItem(const QString &text, const QVariant &userData)
+
+    Adds an item to the combobox with the given \a text, and containing the
+    specified \a userData. The item is appended to the list of existing items.
+*/
+
+/*!
+    \fn void QComboBox::addItem(const QIcon &icon, const QString &text,
+                                const QVariant &userData)
+
+    Adds an item to the combobox with the given \a icon and \a text, and
+    containing the specified \a userData. The item is appended to the list of
+    existing items.
+*/
+
+/*!
+    \fn void QComboBox::addItems(const QStringList &texts)
+
+    Adds each of the strings in the given \a texts to the combobox. Each item
+    is appended to the list of existing items in turn.
+*/
+
+/*!
+    \fn void QComboBox::editTextChanged(const QString &text)
+
+    This signal is emitted when the text in the combobox's line edit
+    widget is changed. The new text is specified by \a text.
+*/
+
+/*!
+    \fn QComboBox::InsertPolicy QComboBox::insertionPolicy() const
+    \compat
+
+    Use QComboBox::insertPolicy instead.
+*/
+
+/*!
+    \fn void QComboBox::setInsertionPolicy(InsertPolicy policy)
+    \compat
+
+    Use QComboBox::insertPolicy instead.
+*/
+
+/*!
+    \fn void QComboBox::setCurrentText(const QString &text)
+    \compat
+
+    Use setItemText() instead.
+
+    \sa currentItem()
+*/
+
+/*!
+    \fn QString QComboBox::text(int index) const
+    \compat
+
+    Use itemText() instead.
+*/
+
+/*!
+    \fn QPixmap QComboBox::pixmap(int index) const
+    \compat
+
+    Use itemIcon() instead.
+*/
+
+/*!
+    \fn void QComboBox::insertStringList(const QStringList &list, int index)
+    \compat
+
+    Use insertItems() instead.
+*/
+
+/*!
+    \fn void QComboBox::insertItem(const QString &text, int index)
+    \compat
+*/
+
+/*!
+    \fn void QComboBox::clearEdit()
+    \compat
+
+    Use clearEditText() instead.
+*/
+
+/*!
+    \typedef QComboBox::InsertPolicy QComboBox::Policy
+    \compat
+*/
 
 #include "moc_qcombobox.cpp"
 

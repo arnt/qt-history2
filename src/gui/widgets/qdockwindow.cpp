@@ -575,6 +575,7 @@ void QDockWindowPrivate::toggleView(bool b)
                                   or floated.
 
     \omitvalue DockWindowFeatureMask
+    \omitvalue Reserved
 */
 
 /*!
