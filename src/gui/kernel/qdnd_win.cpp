@@ -426,11 +426,11 @@ QVariant QDropData::retrieveData(const QString &format, QVariant::Type) const
     return qt_olednd_obtain_data(format);
 }
 
-static QDrag::DropAction current_mode = QDrag::DefaultAction;
+static QDrag::DropAction current_mode = QDrag::CopyAction;
 
-QDrag::DropAction QDragManager::drag(QDragPrivate *o, QDrag::DropAction mode)
+QDrag::DropAction QDragManager::drag(QDrag *d)
 {
-    if (object == o || !o->source)
+   /* if (object == o || !o->source)
         return QDrag::NoAction;
 
     if (object) {
@@ -505,6 +505,8 @@ QDrag::DropAction QDragManager::drag(QDragPrivate *o, QDrag::DropAction mode)
         return QDrag::MoveAction;
     return QDrag::CopyAction;
         //&& !acceptact;
+        */
+    return QDrag::CopyAction;
 }
 
 void qt_olednd_unregister(QWidget* widget, QOleDropTarget *dst)
@@ -877,11 +879,11 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     }
 
     current_dropobj = pDataObj;
-    QDragEnterEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)), QDragManager::self()->dropData);
+    QDragEnterEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)), QDrag::CopyAction, QDragManager::self()->dropData);
 
     acceptfmt = true; // set this true to get the correct initial action
     QueryDrop(grfKeyState, pdwEffect);
-
+/*
     if (*pdwEffect & DROPEFFECT_MOVE)
         de.setAction(QDropEvent::Move);
     else if (*pdwEffect & DROPEFFECT_LINK)
@@ -902,7 +904,7 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
         *pdwEffect = DROPEFFECT_COPY;
     else if (de.action() == QDropEvent::Link)
         *pdwEffect = DROPEFFECT_LINK;
-
+*/
     return NOERROR;
 }
 
@@ -930,8 +932,8 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
     last_effect = *pdwEffect;
     last_keystate = grfKeyState;
 
-    QDragMoveEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)), QDragManager::self()->dropData);
-    if (*pdwEffect & DROPEFFECT_MOVE)
+    QDragMoveEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)), QDrag::CopyAction, QDragManager::self()->dropData);
+   /* if (*pdwEffect & DROPEFFECT_MOVE)
         de.setAction(QDropEvent::Move);
     else if (*pdwEffect & DROPEFFECT_LINK)
         de.setAction(QDropEvent::Link);
@@ -950,7 +952,7 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
         *pdwEffect = DROPEFFECT_COPY;
     else if (de.action() == QDropEvent::Link)
         *pdwEffect = DROPEFFECT_LINK;
-
+*/
     return NOERROR;
 }
 
@@ -981,8 +983,8 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 
         if (global_src)
             global_src->target = widget;
-        QDropEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)), QDragManager::self()->dropData);
-        if (*pdwEffect & DROPEFFECT_MOVE)
+        QDropEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)), QDrag::CopyAction, QDragManager::self()->dropData);
+     /*   if (*pdwEffect & DROPEFFECT_MOVE)
             de.setAction(QDropEvent::Move);
         else if (*pdwEffect & DROPEFFECT_LINK)
             de.setAction(QDropEvent::Link);
@@ -994,7 +996,7 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 
         acceptfmt = de.isAccepted();
         acceptact = de.isActionAccepted();
-
+*/
         if (!acceptfmt)
             *pdwEffect = DROPEFFECT_NONE;
         else if (acceptact)
@@ -1013,6 +1015,7 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 
         acceptfmt = false;
         current_dropobj = 0;
+        
         return NOERROR;
     }
 
@@ -1071,12 +1074,12 @@ void QDragManager::updatePixmap()
             cursor = 0;
         }
 
-        QPixmap pm = object->pixmap;
+        QPixmap pm = object->pixmap();
         if (pm.isNull()) {
             // None.
         } else {
             cursor = new HCURSOR[n_cursor];
-            QPoint pm_hot = object->hotspot;
+            QPoint pm_hot = object->hotSpot();
             for (int cnum=0; cnum<n_cursor; cnum++) {
                 QPixmap cpm = pm_cursor[cnum];
 
