@@ -2382,14 +2382,18 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 
             // return value
 	    if (!type.isEmpty()) {
-                varp[0] = QVariant(QVariant::nameToType(slot.type()));
+                varp[0] = QVariant(QVariant::nameToType(type));
                 if (varp[0].type() == QVariant::Invalid && mo->indexOfEnumerator(slot.type()) != -1)
                     varp[0] = QVariant(QVariant::Int);
 
-                if (varp[0].type() == QVariant::Invalid)
-                    argv[0] = 0;
-                else
+                if (varp[0].type() == QVariant::Invalid) {
+                    if (type == "QVariant")
+                        argv[0] = varp;
+                    else
+                        argv[0] = 0;
+                } else {
                     argv[0] = const_cast<void*>(varp[0].constData());
+                }
                 if (type.endsWith("*")) {
                     argv_pointer[0] = argv[0];
                     argv[0] = argv_pointer;
@@ -2410,7 +2414,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		    }
 		}
                 if (!type.isEmpty() && pvarResult) {
-                    if (!varp[0].isValid())
+                    if (!varp[0].isValid() && type != "QVariant")
                         qVariantSet(varp[0], argv_pointer[0], type);
 //                        varp[0] = QVariant::UserData(argv_pointer[0], type);
 		    ok = QVariantToVARIANT(varp[0], *pvarResult, type);
