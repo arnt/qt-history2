@@ -55,7 +55,7 @@ QString HelpNavigationContentsItem::link() const
 }
 
 HelpNavigation::HelpNavigation( QWidget *parent, const QString &indexFile,
-				const QString &titleFile, const char *name = 0 )
+				const QString &titleFile, const char *name )
     : QWidget( parent, name )
 {
     QVBoxLayout *layout = new QVBoxLayout( this );
@@ -116,6 +116,8 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &indexFile,
     setupContentsView( titleFile );
 }
 
+
+
 class MyString : public QString
 {
 public:
@@ -126,6 +128,7 @@ public:
     }
     QString lower;
 };
+
 bool operator<=( const MyString &s1, const MyString &s2 )
 { return s1.lower <= s2.lower; }
 bool operator<( const MyString &s1, const MyString &s2 )
@@ -140,13 +143,15 @@ void HelpNavigation::loadIndexFile( const QString &indexFile, const QString &tit
 	return;
     QTextStream ts( &f );
     HelpNavigationListItem *lastItem = 0;
+
     
-    QValueList<MyString> lst;
+    //### if constructed on stack, it will crash on WindowsNT
+    QValueList<MyString>* lst = new QValueList<MyString>;
     while ( !ts.atEnd() )
-	lst.append(ts.readLine());
-    qHeapSort( lst );
-    QValueList<MyString>::Iterator it = lst.begin();
-    for ( ; it != lst.end(); ++it ) {
+	lst->append(ts.readLine());
+    qHeapSort( *lst );
+    QValueList<MyString>::Iterator it = lst->begin();
+    for ( ; it != lst->end(); ++it ) {
 	QString s( *it );
 	if ( s.find( "::" ) != -1 )
 	    continue;
@@ -158,7 +163,7 @@ void HelpNavigation::loadIndexFile( const QString &indexFile, const QString &tit
 	    continue;
 	QString link = s.mid( to + 2, 0xFFFFFF );
 	s = s.mid( from + 1, to - from - 1 );
-	
+
 	if ( s.isEmpty() )
 	    continue;
 	if ( !lastItem || lastItem->text() != s )
@@ -180,6 +185,7 @@ void HelpNavigation::loadIndexFile( const QString &indexFile, const QString &tit
 	link = link.simplifyWhiteSpace();
 	titleMap[ link ] = title;
     }
+    delete lst;
 }
 
 void HelpNavigation::searchInIndexLine( const QString &s )
@@ -294,7 +300,7 @@ void HelpNavigation::setupContentsView( const QString &titleFile )
 		    title += " (" + s2 + ")";
 		}
 	    }
-		
+
 	    lastItem = new HelpNavigationContentsItem( lastGroup, lastItem );
 	    lastItem->setText( 0, title );
 	    lastItem->setLink( link );
