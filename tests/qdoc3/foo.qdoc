@@ -1,0 +1,2 @@
+macro.Bold = "\\b{\1}"
+macro.Bold.html = "<b>\2</b>"
