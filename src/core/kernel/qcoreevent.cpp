@@ -10,11 +10,11 @@
     \ingroup environment
 
     Qt's main event loop (QApplication::exec()) fetches native window
-    system events from the event queue, translates them into QEvents
+    system events from the event queue, translates them into QEvents,
     and sends the translated events to QObjects.
 
     In general, events come from the underlying window system
-    (spontaneous() returns true) but it is also possible to manually
+    (spontaneous() returns true), but it is also possible to manually
     send events using QApplication::sendEvent() and
     QApplication::postEvent() (spontaneous() returns false).
 
@@ -42,54 +42,54 @@
     This enum type describes the state of the mouse and the modifier
     buttons.
 
-    \value NoButton  used when the button state does not refer to any
+    \value NoButton        The button state does not refer to any
     button (see QMouseEvent::button()).
-    \value LeftButton  set if the left button is pressed, or if this
-    event refers to the left button. (The left button may be
-    the right button on left-handed mice.)
-    \value RightButton  the right button.
-    \value MidButton  the middle button.
-    \value ShiftButton  a Shift key on the keyboard is also pressed.
-    \value ControlButton  a Ctrl key on the keyboard is also pressed.
-    \value AltButton  an Alt key on the keyboard is also pressed.
-    \value MetaButton a Meta key on the keyboard is also pressed.
-    \value Keypad  a keypad button is pressed.
-    \value KeyButtonMask a mask for ShiftButton, ControlButton,
-    AltButton and MetaButton.
-    \value MouseButtonMask a mask for LeftButton, RightButton and MidButton.
+    \value LeftButton      The left button is pressed, or an event refers
+    to the left button. (The left button may be the right button on
+    left-handed mice.)
+    \value RightButton     The right button.
+    \value MidButton       The middle button.
+    \value ShiftButton     A Shift key on the keyboard is pressed.
+    \value ControlButton   A Ctrl key on the keyboard is pressed.
+    \value AltButton       An Alt key on the keyboard is pressed.
+    \value MetaButton      A Meta key on the keyboard is pressed.
+    \value Keypad          A keypad button is pressed.
+    \value KeyButtonMask   A mask for ShiftButton, ControlButton,
+    AltButton, and MetaButton.
+    \value MouseButtonMask A mask for LeftButton, RightButton, and MidButton.
 */
 
 /*!
     \enum QEvent::Type
 
     This enum type defines the valid event types in Qt. The event
-    types and the specialized classes for each type are these:
+    types and the specialized classes for each type are as follows:
 
     \value None  Not an event.
 
-    \value Accessibility  Accessibility information is requested.
-    \value ActionChanged An action has been changed.
-    \value ActionAdded A new action has been added.
-    \value ActionRemoved An actio has been removed.
-    \value ActivateControl  Internal event used by Qt on some platforms.
-    \value ActivationChange Widget's top level window activation state has changed
-    \value ApplicationFontChange  Default application font changed.
-    \value ApplicationPaletteChange  Default application palette changed.
-    \value ChildAdded  Object gets a child, \l{QChildEvent}.
-    \value ChildPolished  Object child gets polished, \l{QChildEvent}.
-    \value ChildRemoved  Object loses a child, \l{QChildEvent}.
-    \value Clipboard  Clipboard contents have changed.
-    \value Close  Widget was closed (permanently), \l{QCloseEvent}.
-    \value ContextMenu  Context popup menu, \l{QContextMenuEvent}
-    \value Create  Reserved.
-    \value DeactivateControl  Internal event used by Qt on some platforms.
-    \value DeferredDelete  The object will be deleted after it has cleaned up.
-    \value Destroy  Reserved.
-    \value DragEnter  A drag-and-drop enters widget, \l{QDragEnterEvent}.
-    \value DragLeave  A drag-and-drop leaves widget, \l{QDragLeaveEvent}.
-    \value DragMove  A drag-and-drop is in progress, \l{QDragMoveEvent}.
-    \value DragResponse  Internal event used by Qt on some platforms.
-    \value Drop  A drag-and-drop is completed, \l{QDropEvent}.
+    \value Accessibility      Accessibility information is requested.
+    \value ActionChanged      An action has been changed.
+    \value ActionAdded        A new action has been added.
+    \value ActionRemoved      An action has been removed.
+    \value ActivateControl    Internal event used by Qt on some platforms.
+    \value ActivationChange   A widget's top-level window activation state has changed.
+    \value ApplicationFontChange    The default application font has changed.
+    \value ApplicationPaletteChange The default application palette has changed.
+    \value ChildAdded     An object gets a child, \l{QChildEvent}.
+    \value ChildPolished  An object child gets polished, \l{QChildEvent}.
+    \value ChildRemoved   An object loses a child, \l{QChildEvent}.
+    \value Clipboard      The clipboard contents have changed.
+    \value Close          Widget was closed (permanently), \l{QCloseEvent}.
+    \value ContextMenu    Context popup menu, \l{QContextMenuEvent}
+    \value Create         Reserved.
+    \value DeactivateControl Internal event used by Qt on some platforms.
+    \value DeferredDelete    The object will be deleted after it has cleaned up.
+    \value Destroy      Reserved.
+    \value DragEnter    The cursor enters a widget during a drag and drop action, \l{QDragEnterEvent}.
+    \value DragLeave    The cursor leaves a widget during a drag and drop action, \l{QDragLeaveEvent}.
+    \value DragMove     A drag and drop action is in progress, \l{QDragMoveEvent}.
+    \value DragResponse Internal event used by Qt on some platforms.
+    \value Drop  A drag and drop action is completed, \l{QDropEvent}.
     \value EmbeddingControl  Internal event used by Qt on some platforms.
     \value EmitSignal
     \value EnabledChange Widget's enabled state has changed
@@ -163,7 +163,7 @@
     \value AccessibleQueryHelp Used by the accessibility module to find out the help text for complex widgets.
     \value AccessibleQueryDescription Used by the accessibility module to find out the description for comple x widgets.
 
-    \value User  User defined event.
+    \value User  User-defined event.
     \value MaxUser  Last user event id.
 
     User events should have values between User and MaxUser inclusive.
@@ -195,8 +195,8 @@ QEvent::~QEvent()
 /*!
     \fn bool QEvent::spontaneous() const
 
-    Returns true if the event originated outside the application, i.e.
-    it is a system event; otherwise returns false.
+    Returns true if the event originated outside the application
+    (a system event); otherwise returns false.
 */
 
 
@@ -245,9 +245,9 @@ QEvent::~QEvent()
     added or removed.
 
     In both cases you can only rely on the child being a QObject, or
-    if isWidgetType() returns true, a QWidget (Reason: in the \c
-    ChildAdded case the child is not yet fully constructed, in the \c
-    ChildRemoved case it might have been destructed already).
+    if isWidgetType() returns true, a QWidget. This is because
+    in the \c ChildAdded case the child is not yet fully constructed;
+    in the \c ChildRemoved case it might have already been destructed.
 
     The handler for these events is QObject::childEvent().
 */
@@ -255,7 +255,8 @@ QEvent::~QEvent()
 /*!
     \fn QChildEvent::QChildEvent(Type type, QObject *child)
 
-    Constructs a child event object for child \a child with type \a type.
+    Constructs a child event object of a particular \a type for the
+    \a child.
 */
 
 /*!
@@ -274,7 +275,8 @@ QEvent::~QEvent()
 /*!
     \fn bool QChildEvent::removed() const
 
-    Returns true if the object lost a child; otherwise returns false.
+    Returns true if a child has been removed from the object; otherwise
+    returns false.
 */
 
 /*!
@@ -289,7 +291,7 @@ QEvent::~QEvent()
     \ingroup events
 
     QCustomEvent is a generic event class for user-defined events.
-    User defined events can be sent to widgets or other QObject
+    User-defined events can be sent to widgets or other QObject
     instances using QApplication::postEvent() or
     QApplication::sendEvent(). Subclasses of QWidget can easily
     receive custom events by implementing the QWidget::customEvent()
@@ -297,21 +299,20 @@ QEvent::~QEvent()
 
     QCustomEvent objects should be created with a type ID that
     uniquely identifies the event type. To avoid clashes with the
-    Qt-defined events types, the value should be at least as large as
-    the value of the "User" entry in the QEvent::Type enum.
+    event types defined in Qt, the value should be at least as
+    large as the value of the "User" entry in the QEvent::Type enum.
 
-    QCustomEvent contains a generic void* data member that may be used
-    for transferring event-specific data to the receiver. Note that
-    since events are normally delivered asynchronously, the data
-    pointer, if used, must remain valid until the event has been
-    received and processed.
+    QCustomEvent contains a generic \c void* data member that may
+    be used for transferring event-specific data to the receiver.
+    Note that since events are normally delivered asynchronously,
+    the data pointer, if used, must remain valid until the event
+    has been received and processed.
 
     QCustomEvent can be used as-is for simple user-defined event
     types, but normally you will want to make a subclass of it for
-    your event types. In a subclass, you can add data members that are
-    suitable for your event type.
+    your event types. In a subclass, you can add data members that
+    are suitable for your event type, as in the following example:
 
-    Example:
     \code
     class ColorChangeEvent : public QCustomEvent
     {
@@ -344,7 +345,7 @@ QEvent::~QEvent()
 
 
 /*!
-    Constructs a custom event object with event type \a type. The
+    Constructs a custom event object with the event \a type. The
     value of \a type must be at least as large as QEvent::User. The
     data pointer is set to 0.
 */
@@ -358,14 +359,14 @@ QCustomEvent::QCustomEvent(int type)
 /*!
     \fn QCustomEvent::QCustomEvent(Type type, void *data)
 
-    Constructs a custom event object with the event type \a type and a
+    Constructs a custom event object with the event \a type and a
     pointer to \a data. (Note that any int value may safely be cast to
     QEvent::Type).
 */
 
 
 /*!
-    \fn void QCustomEvent::setData(void* data)
+    \fn void QCustomEvent::setData(void *data)
 
     Sets the generic data pointer to \a data.
 
