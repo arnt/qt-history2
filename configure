@@ -103,6 +103,7 @@ then
     echo
     echo "This is the Trolltech Edition of Qt."
     echo
+    EMB="/Embedded" #fixme
 else
     if [ -f LICENSE ]
     then
