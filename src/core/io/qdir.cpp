@@ -1683,10 +1683,12 @@ QDir::cleanPath(const QString &path)
         ret = name;
     else
 	ret = QString(out.data(), used);
-#if 0
-    if (ret.endsWith("/") || ret.endsWith("//"))
+
+    // Strip away last slash except for root directories
+    if (ret.endsWith("/")
+        && !(ret.size() == 1 || (ret.size() == 3 && ret.at(1) == QLatin1Char(':'))))
         ret = ret.left(ret.length() - 1);
-#endif
+
     return ret;
 }
 
