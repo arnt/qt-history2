@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#22 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#22 $";
 #endif
 
 
@@ -117,7 +117,7 @@ void QScrollBar::valueChange()
     positionSliderFromValue();
     if ( tmp != sliderPos )
 	PRIV->drawControls( ADD_PAGE | SLIDER | SUB_PAGE , pressedControl );
-    emit newValue(value());
+    emit valueChanged(value());
 }
 
 void QScrollBar::stepChange()
@@ -211,7 +211,7 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 	    directSetValue( calculateValueFromSlider() );
             emit sliderReleased();
 	    if ( value() != previousValue() )
-		emit newValue( value() );
+		emit valueChanged( value() );
 	    break;
 	case ADD_LINE:
 	case SUB_LINE:
@@ -243,7 +243,7 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
                 emit sliderMoved( newVal );
 	    if ( track && newVal != value() ) {
 		directSetValue( newVal ); // Set directly, painting done below
-		emit newValue( value() );
+		emit valueChanged( value() );
 	    }
             slidePreviousVal = newVal;
 	    sliderPos = newSliderPos;
