@@ -1,26 +1,37 @@
+Here is a list of (major) changes in Qt from 0.97 to 0.98.
+As usual, we fixed some bugs and improved the documentation.
+
+
 moc:
-	Moc previously gave a syntax error when the word "class" was found
-	in a string outside a class declaration. This bug has now been
-	fixed.
+----
+  Moc previously gave a syntax error when the word "class" was found
+  in a string outside a class declaration. This bug has now been
+  fixed.
+
+  More moc arguments, run "moc -h" for details.
 
 
-QDate:     
+QDate:
+------
+  These were protected, now private:
 	static const char *monthNames[];
 	static const char *weekdayNames[];
 	uint  	 jd;
-	    are private (previously protected)
+
+
+QListBox:
+---------
+  QLBItem replaced by more flexible QListBoxItem (for custom listbox
+  entries).
 
 
 QTime:
-
+------
+  This was protected, now private:
 	uint   ds;
-	    is private (previously protected)
 
 
-
-
-
-
-
-
-
+QWidget:
+--------
+  You can specify a custom widget frame. See the widget constructor doc.
+  resize() and setGeometry() obeys the widget's minimum/maximim size.
