@@ -72,10 +72,6 @@ public:
     uint clip_serial;
     QX11Info *xinfo;
     QPoint bg_origin;
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-    Pixmap xrender_pix;
-    ::Picture xrender_pict;
-#endif
 };
 
 #endif // QX11PAINTENGINE_P_H

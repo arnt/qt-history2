@@ -495,13 +495,6 @@ QX11PaintEngine::QX11PaintEngine(QPaintDevice *target)
     d->hd = target->handle();
     d->pdev = target;
     d->xinfo = 0;
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-    d->xrender_pix = XCreatePixmap(d->dpy, d->hd, 128, 128, 32);
-    d->xrender_pict = XRenderCreatePicture(d->dpy, d->xrender_pix, XRenderFindStandardFormat(d->dpy, PictStandardARGB32), 0, 0);
-    XRenderPictureAttributes ra;
-    ra.repeat = true;
-    XRenderChangePicture(d->dpy, d->xrender_pict, CPRepeat, &ra);
-#endif
 }
 
 QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr, QPaintDevice *target)
@@ -512,21 +505,10 @@ QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr, QPaintDevice *tar
     d->hd = target->handle();
     d->pdev = target;
     d->xinfo = 0;
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-    d->xrender_pix = XCreatePixmap(d->dpy, d->hd, 128, 128, 32);
-    d->xrender_pict = XRenderCreatePicture(d->dpy, d->xrender_pix, XRenderFindStandardFormat(d->dpy, PictStandardARGB32), 0, 0);
-    XRenderPictureAttributes ra;
-    ra.repeat = true;
-    XRenderChangePicture(d->dpy, d->xrender_pict, CPRepeat, &ra);
-#endif
 }
 
 QX11PaintEngine::~QX11PaintEngine()
 {
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-    XRenderFreePicture(d->dpy, d->xrender_pict);
-    XFreePixmap(d->dpy, d->xrender_pix);
-#endif
 }
 
 void QX11PaintEngine::initialize()
@@ -685,14 +667,18 @@ void QX11PaintEngine::drawRect(const QRect &r)
 		XRenderColor xc;
 		QColor qc = d->cbrush.color();
 
-		xc.red = qc.red() << 8 | qc.red();
-		xc.green = qc.green() << 8 | qc.green();
-		xc.blue = qc.blue() << 8 | qc.blue();
-		xc.alpha = qc.alpha() << 8 | qc.alpha();
+                const uint A = qc.alpha(),
+                           R = qc.red(),
+                           G = qc.green(),
+                           B = qc.blue();
 
-		XRenderFillRectangle(d->dpy, PictOpSrc, d->xrender_pict, &xc, 0, 0, r.width(), r.height());
-		XRenderComposite(d->dpy, PictOpOver, d->xrender_pict, d->xrender_pict, pict,
-				 0, 0, 0, 0, r.x(), r.y(), r.width(), r.height());
+                xc.alpha = (A | A << 8);
+                xc.red   = (R | R << 8) * xc.alpha / 0x10000;
+                xc.green = (B | G << 8) * xc.alpha / 0x10000;
+                xc.blue  = (B | B << 8) * xc.alpha / 0x10000;
+
+                XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc,
+                                     r.x(), r.y(), r.width(), r.height());
 		return;
 	    }
 	}
