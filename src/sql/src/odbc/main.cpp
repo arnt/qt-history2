@@ -42,7 +42,7 @@ class QODBCDriverPlugin : public QSqlDriverInterface
 public:
     QODBCDriverPlugin();
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     unsigned long addRef();
     unsigned long release();
 
@@ -58,19 +58,17 @@ QODBCDriverPlugin::QODBCDriverPlugin()
 {
 }
 
-QUnknownInterface *QODBCDriverPlugin::queryInterface( const QUuid &uuid )
+QRESULT QODBCDriverPlugin::queryInterface( const QUuid& uuid, QUnknownInterface** iface )
 {
-    QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	*iface = (QUnknownInterface*)this;
     else if ( uuid == IID_QFeatureListInterface )
-	iface = (QFeatureListInterface*)this;
+	*iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_QSqlDriverInterface )
-	iface = (QSqlDriverInterface*)this;
+	*iface = (QSqlDriverInterface*)this;
 
-    if ( iface )
-	iface->addRef();
-    return iface;
+    if ( *iface )
+	(*iface)->addRef();
 }
 
 unsigned long QODBCDriverPlugin::addRef()
