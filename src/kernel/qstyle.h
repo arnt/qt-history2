@@ -381,7 +381,7 @@ public:
 	*/
     };
 
-    virtual int pixelMetric( PixelMetric metic,
+    virtual int pixelMetric( PixelMetric metric,
 			     const QWidget *widget = 0 ) const = 0;
 
 
