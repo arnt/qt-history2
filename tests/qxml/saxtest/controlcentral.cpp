@@ -161,7 +161,7 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 		rawData.resize( size );
 		source.setData( rawData );
 		QString tmp = source.data();
-		src->append( "---------------------------------------------------------" );
+		src->append( "\n---------------------------------------------------------\n" );
 		src->append( tmp );
 		source.setData( tmp );
 	    }
@@ -190,7 +190,7 @@ qDebug( "*** parse continue" );
 	    }
 	    ++it;
 	}
-	src->append( "---------------------------------------------------------" );
+	src->append( "\n---------------------------------------------------------\n" );
     }
 
     new XMLFileItem( lview, filename, errorStatus, time,
