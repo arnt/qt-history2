@@ -655,15 +655,10 @@ QVariant QSqlCursor::calculateField( uint )
     return QVariant();
 }
 
-void QSqlCursor::detach()
-{
-    exec( QString::null );
-}
-
 /*
   \internal
 
-  Make sure fieldlist is synced with sql.
+  Ensure fieldlist is synced with query.
 
 */
 void QSqlCursor::sync()

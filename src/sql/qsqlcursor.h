@@ -50,7 +50,6 @@ public:
     bool              canInsert() const;
     bool              canUpdate() const;
     bool              canDelete() const;
-    void              detach();
 
     bool              select();
     bool              select( const QSqlIndex& sort );
@@ -67,7 +66,7 @@ protected:
 
     virtual void      primeInsert( QSqlRecord* buf );
     virtual void      primeUpdate( QSqlRecord* buf );
-    
+
     virtual QVariant  calculateField( uint fieldNumber );
     virtual int       update( const QString & filter, bool invalidate = TRUE );
     virtual int       del( const QString & filter, bool invalidate = TRUE );
@@ -75,8 +74,8 @@ protected:
 private:
     void              sync();
     int               apply( const QString& q, bool invalidate );
-    QSqlRecord&       operator=( const QSqlRecord & list );    
-    QString           fieldEqualsValue( QSqlRecord* rec, const QString& prefix, const QString& fieldSep, const QSqlIndex & i = QSqlIndex() );    
+    QSqlRecord&       operator=( const QSqlRecord & list );
+    QString           fieldEqualsValue( QSqlRecord* rec, const QString& prefix, const QString& fieldSep, const QSqlIndex & i = QSqlIndex() );
     QSqlCursorPrivate*  d;
 };
 
