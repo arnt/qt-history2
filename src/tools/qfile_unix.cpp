@@ -695,6 +695,4 @@ void QFile::close()
 	setStatus( IO_UnspecifiedError );
 	setErrorStringErrno( errno );
     }
-
-    return;
 }

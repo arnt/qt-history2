@@ -33,6 +33,8 @@
 #include "qfiledefs_p.h"
 #include <limits.h>
 
+extern const char* qt_fileerr_read;
+
 QCString qt_win95Name(const QString s)
 {
     if ( s[0] == '/' && s[1] == '/' ) {
@@ -242,6 +244,7 @@ bool QFile::open( int m )
 	    setStatus( IO_ResourceError );
 	else
 	    setStatus( IO_OpenError );
+	setErrorStringErrno( errno );
     }
     return ok;
 }
@@ -377,12 +380,15 @@ Q_LONG QFile::readBlock( char *p, Q_ULONG len )
 	    if ( len && nread <= 0 ) {
 		nread = 0;
 		setStatus(IO_ReadError);
+		setErrorStringErrno( errno );
 	    }
 	} else {					// buffered file
 	    nread += fread( p, 1, len - nread, fh );
 	    if ( (uint)nread != len ) {
-		if ( ferror( fh ) || nread==0 )
+		if ( ferror( fh ) || nread==0 ) {
 		    setStatus(IO_ReadError);
+		    setErrorString( qt_fileerr_read );
+		}
 	    }
 	}
     }
@@ -416,6 +422,7 @@ Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 	    setStatus( IO_ResourceError );
 	else
 	    setStatus( IO_WriteError );
+	setErrorStringErrno( errno );
 	if ( isRaw() )				// recalc file position
 	    ioIndex = (int)QT_LSEEK( fd, 0, SEEK_CUR );
 	else
@@ -455,8 +462,10 @@ void QFile::close()
 	}
 	init();					// restore internal state
     }
-    if (!ok)
+    if (!ok) {
 	setStatus (IO_UnspecifiedError);
+	setErrorStringErrno( errno );
+    }
 
     return;
 }

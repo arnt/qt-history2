@@ -38,6 +38,8 @@
 #include <string.h>
 #include <stdio.h>
 
+extern const char* qt_fileerr_read;
+
 const unsigned char * p_str(const char * c, int len=-1); //qglobal.cpp
 
 bool qt_file_access( const QString& fn, int t )
@@ -199,6 +201,7 @@ bool QFile::open( int m )
 	    setStatus( IO_ResourceError );
 	else
 	    setStatus( IO_OpenError );
+	setErrorStringErrno( errno );
     }
     return ok;
 }
@@ -358,12 +361,15 @@ Q_LONG QFile::readBlock( char *p, Q_ULONG len )
 	    if ( len && nread <= 0 ) {
 		nread = 0;
 		setStatus(IO_ReadError);
+		setErrorStringErrno( errno );
 	    }
 	} else {					// buffered file
 	    nread += fread( p, 1, len-nread, fh );
 	    if ( (uint)nread != len ) {
-		if ( ferror( fh ) || nread==0 )
+		if ( ferror( fh ) || nread==0 ) {
 		    setStatus(IO_ReadError);
+		    setErrorString( qt_fileerr_read );
+		}
 	    }
 	}
     }
@@ -398,6 +404,7 @@ Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 	    setStatus( IO_ResourceError );
 	else
 	    setStatus( IO_WriteError );
+	setErrorStringErrno( errno );
 	if ( isRaw() )				// recalc file position
 	    ioIndex = (Offset)::lseek( fd, 0, SEEK_CUR );
 	else
@@ -434,6 +441,8 @@ void QFile::close()
 	}
 	init();					// restore internal state
     }
-    if (!ok)
+    if (!ok) {
 	setStatus( IO_UnspecifiedError );
+	setErrorStringErrno( errno );
+    }
 }
