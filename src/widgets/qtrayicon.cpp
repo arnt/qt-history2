@@ -2,8 +2,8 @@
 #include "qpopupmenu.h"
 
 /*!
-  \class QTrayWidget qtraywidget.h
-  \brief The QTrayWidget class provides an API to add icons to the system tray.
+  \class QTrayIcon qtrayicon.h
+  \brief The QTrayIcon class implements an entry in the system tray.
 */
 
 /*!
