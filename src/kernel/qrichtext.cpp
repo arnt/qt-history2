@@ -3996,7 +3996,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		}
 		if ( ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && paintEnd != -1 &&
 		     at( paintEnd )->c.isSpace() ) {
-		    int add = str->at(paintEnd).x - str->at(paintEnd-1).x - str->width(paintEnd-1); 
+		    int add = str->at(paintEnd).x - str->at(paintEnd-1).x - str->width(paintEnd-1);
 		    bw += ( lastDirection ? 0 : add );
 		}
 		drawParagString( painter, qstr, paintStart, paintEnd - paintStart + 1, x, lastY,
@@ -5189,6 +5189,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    ww = c->format()->width( ' ' );
 	}
 
+	// last character ("invisible" space) has no width
 	if ( i == len - 1 )
 	    ww = 0;
 	
