@@ -101,9 +101,8 @@ public:
 struct QWidgetContainerInterfacePrivate : public QUnknownInterface
 {
 public:
-    virtual QWidget *containerOfWidget( const QString &f, QWidget *widget ) const = 0;
-    virtual QWidgetList containersOf( const QString &f, QWidget *widget ) const = 0;
-    virtual bool isPassiveInteractor( const QString &f, QWidget *widget ) const = 0;
+    virtual QWidget *containerOfWidget( const QString &f, QWidget *container ) const = 0;
+    virtual bool isPassiveInteractor( const QString &f, QWidget *container ) const = 0;
 
     virtual bool supportsPages( const QString &f ) const = 0;
 
@@ -119,6 +118,7 @@ public:
     virtual QWidget *page( const QString &key, QWidget *container, int index ) const = 0;
     virtual void renamePage( const QString &key, QWidget *container,
 			     int index, const QString &newName ) const = 0;
+    virtual QWidgetList pages( const QString &f, QWidget *container ) const = 0;
 };
 #endif
 

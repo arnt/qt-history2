@@ -940,6 +940,16 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return 0;
 
     QWidget *w = iface->create( className, parent, name );
+#ifdef CONTAINER_CUSTOM_WIDGETS
+    if ( init && WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( className ) ) ) {
+	QWidgetContainerInterfacePrivate *iface2 = 0;
+	iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&iface2 );
+	if ( iface2 ) {
+	    iface2->addPage( className, w, "Page", -1 );
+	    iface2->release();
+	}
+    }
+#endif
     iface->release();
     return w;
 }

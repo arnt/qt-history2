@@ -99,6 +99,7 @@ class QWidgetFactoryPrivate
 public:
     QCString translationContext;
     QListViewItem *lastItem;
+    QDict<bool> customWidgets;
 };
 
 static QPtrList<QWidgetFactory> widgetFactories;
@@ -242,6 +243,7 @@ QWidgetFactory::QWidgetFactory()
       usePixmapCollection( FALSE ), defMargin( 11 ), defSpacing( 6 )
 {
     widgetFactories.setAutoDelete( TRUE );
+    d->customWidgets.setAutoDelete( TRUE );
 }
 
 /*! \fn QWidgetFactory::~QWidgetFactory()
@@ -250,14 +252,6 @@ QWidgetFactory::QWidgetFactory()
 QWidgetFactory::~QWidgetFactory()
 {
     delete d;
-#if 0
-    delete widgetInterfaceManager;
-    widgetInterfaceManager = 0;
-    delete languageInterfaceManager;
-    languageInterfaceManager = 0;
-    delete interpreterInterfaceManager;
-    interpreterInterfaceManager = 0;
-#endif
 }
 
 /*!
@@ -280,7 +274,8 @@ QWidgetFactory::~QWidgetFactory()
   The ownership of the returned widget is passed to the caller.
 */
 
-QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector, QWidget *parent, const char *name )
+QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector,
+				 QWidget *parent, const char *name )
 {
     setupPluginDir();
     QFile f( uiFile );
@@ -1410,7 +1405,8 @@ void QWidgetFactory::addWidgetFactory( QWidgetFactory *factory )
     \endlist
 */
 
-QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent, const char *name ) const
+QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent,
+				       const char *name ) const
 {
     // create widgets we know
     if ( className == "QPushButton" ) {
@@ -1526,14 +1522,17 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     // try to create it using the loaded widget plugins
     if ( !widgetInterfaceManager )
 	widgetInterfaceManager =
-	    new QPluginManager<WidgetInterface>( IID_Widget, QApplication::libraryPaths(), *qwf_plugin_dir );
+	    new QPluginManager<WidgetInterface>( IID_Widget, QApplication::libraryPaths(),
+						 *qwf_plugin_dir );
 
     QInterfacePtr<WidgetInterface> iface = 0;
     widgetInterfaceManager->queryInterface( className, &iface );
     if ( iface ) {
 	QWidget *w = iface->create( className, parent, name );
-	if ( w )
+	if ( w ) {
+	    d->customWidgets.replace( className.latin1(), new bool(TRUE) );
 	    return w;
+	}
     }
 
     // hope we have a factory which can do it
@@ -1564,7 +1563,8 @@ bool QWidgetFactory::supportsWidget( const QString &widget )
     return ( availableWidgetMap->find( widget ) != availableWidgetMap->end() );
 }
 
-QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *parent, QLayout* layout, const QString &classNameArg )
+QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *parent,
+					       QLayout* layout, const QString &classNameArg )
 {
     d->lastItem = 0;
     QDomElement n = e.firstChild().toElement();
@@ -1622,6 +1622,14 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	}
     }
 
+#ifdef CONTAINER_CUSTOM_WIDGETS
+    QString parentClassName = parent ? parent->className() : 0;
+    bool isPlugin = parent ? !!d->customWidgets.find( parent->className() ) : FALSE;
+    if ( isPlugin )
+	qWarning( "####### loading custom container widgets without page support not implemented!" );
+    // ### TODO loading for custom container widgets without pages
+#endif
+
     int idx = 0;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "spacer" ) {
@@ -1639,7 +1647,8 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    obj = layout;
 	    n = n.firstChild().toElement();
 	    if ( parentLayout && parentLayout->inherits( "QGridLayout" ) )
-		( (QGridLayout*)parentLayout )->addMultiCellLayout( layout, row, row + rowspan - 1, col, col + colspan - 1 );
+		( (QGridLayout*)parentLayout )->addMultiCellLayout( layout, row,
+				    row + rowspan - 1, col, col + colspan - 1 );
 	    continue;
 	} else if ( n.tagName() == "grid" ) {
 	    QLayout *parentLayout = layout;
@@ -1650,7 +1659,8 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    obj = layout;
 	    n = n.firstChild().toElement();
 	    if ( parentLayout && parentLayout->inherits( "QGridLayout" ) )
-		( (QGridLayout*)parentLayout )->addMultiCellLayout( layout, row, row + rowspan - 1, col, col + colspan - 1 );
+		( (QGridLayout*)parentLayout )->addMultiCellLayout( layout, row,
+				    row + rowspan - 1, col, col + colspan - 1 );
 	    continue;
 	} else if ( n.tagName() == "vbox" ) {
 	    QLayout *parentLayout = layout;
@@ -1661,14 +1671,15 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    obj = layout;
 	    n = n.firstChild().toElement();
 	    if ( parentLayout && parentLayout->inherits( "QGridLayout" ) )
-		( (QGridLayout*)parentLayout )->addMultiCellLayout( layout, row, row + rowspan - 1, col, col + colspan - 1 );
+		( (QGridLayout*)parentLayout )->addMultiCellLayout( layout, row,
+				    row + rowspan - 1, col, col + colspan - 1 );
 	    continue;
 	} else if ( n.tagName() == "property" && obj ) {
 	    setProperty( obj, n.attribute( "name" ), n.firstChild().toElement() );
 	} else if ( n.tagName() == "attribute" && w ) {
 	    QString attrib = n.attribute( "name" );
 	    QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
-	    if ( parent != 0 ) {
+	    if ( parent ) {
 		if ( parent->inherits( "QTabWidget" ) ) {
 		    if ( attrib == "title" )
 			( (QTabWidget*)parent )->insertTab( w, v.toString() );
@@ -1678,6 +1689,24 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 		} else if ( parent->inherits( "QWizard" ) ) {
 		    if ( attrib == "title" )
 			( (QWizard*)parent )->addPage( w, v.toString() );
+#ifdef CONTAINER_CUSTOM_WIDGETS
+		} else if ( isPlugin ) {
+		    if ( attrib == "label" ) {
+			WidgetInterface *iface = 0;
+			widgetInterfaceManager->queryInterface( parentClassName, &iface );
+			if ( iface ) {
+			    QWidgetContainerInterfacePrivate *iface2 = 0;
+			    iface->queryInterface( IID_QWidgetContainer,
+						   (QUnknownInterface**)&iface2 );
+			    if ( iface2 ) {
+				iface2->insertPage( parentClassName,
+						    (QWidget*)parent, v.toString(), -1, w );
+				iface2->release();
+			    }
+			    iface->release();
+			}
+		    }
+#endif
 		}
 	    }
 	} else if ( n.tagName() == "item" ) {
@@ -1693,7 +1722,8 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
     return w;
 }
 
-QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout* layout, LayoutType type, bool isQLayoutWidget )
+QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout* layout,
+				       LayoutType type, bool isQLayoutWidget )
 {
     int spacing = defSpacing;
     int margin = defMargin;

@@ -86,16 +86,15 @@ class QWidgetContainerPluginPrivate;
 class Q_EXPORT QWidgetContainerPlugin : public QWidgetPlugin
 {
 //MOC_SKIP_BEGIN
-Q_OBJECT
+    Q_OBJECT
 //MOC_SKIP_END
 
 public:
     QWidgetContainerPlugin();
     ~QWidgetContainerPlugin();
 
-    virtual QWidget* containerOfWidget( const QString &key, QWidget *widget ) const;
-    virtual QWidgetList containersOf( const QString &key, QWidget *widget ) const;
-    virtual bool isPassiveInteractor( const QString &key, QWidget *widget ) const;
+    virtual QWidget* containerOfWidget( const QString &key, QWidget *container ) const;
+    virtual bool isPassiveInteractor( const QString &key, QWidget *container ) const;
 
     virtual bool supportsPages( const QString &key ) const;
 
@@ -111,6 +110,7 @@ public:
     virtual QWidget *page( const QString &key, QWidget *container, int index ) const;
     virtual void renamePage( const QString &key, QWidget *container,
 			     int index, const QString &newName ) const;
+    virtual QWidgetList pages( const QString &key, QWidget *container ) const;
 };
 #endif
 #endif

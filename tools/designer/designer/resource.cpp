@@ -785,30 +785,57 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 		QWidgetContainerInterfacePrivate *iface2 = 0;
 		iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&iface2 );
 		if ( iface2 ) {
-		    QWidgetList containers = iface2->containersOf( obj->className(), (QWidget*)obj );
-		    if ( !containers.isEmpty() ) {
-			saved = TRUE;
-			for ( QWidget *w = containers.first(); w; w = containers.next() ) {
-			    if ( WidgetDatabase::
-				 idFromClassName( WidgetFactory::classNameOf( w ) ) == -1 )
-				continue; // we don't know this widget
-			    ts << makeIndent( indent ) << "<widget class=\"" << w->className()
-			       << "\">" << endl;
-			    ++indent;
-			    ts << makeIndent( indent ) << "<property name=\"name\">" << endl;
-			    indent++;
-			    ts << makeIndent( indent ) << "<cstring>" << entitize( w->name() )
-			       << "</cstring>" << endl;
-			    indent--;
-			    ts << makeIndent( indent ) << "</property>" << endl;
-			    saveChildrenOf( w, ts, indent );
-			    --indent;
-			    ts << makeIndent( indent ) << "</widget>" << endl;
+		    if ( iface2->supportsPages( className ) )  {
+			QWidgetList containers = iface2->pages( className, (QWidget*)obj );
+			if ( !containers.isEmpty() ) {
+			    saved = TRUE;
+			    int i = 0;
+			    for ( QWidget *w = containers.first(); w; w = containers.next(), ++i ) {
+				if ( WidgetDatabase::
+				     idFromClassName( WidgetFactory::classNameOf( w ) ) == -1 )
+				    continue; // we don't know this widget
+				ts << makeIndent( indent ) << "<widget class=\""
+				   << WidgetFactory::classNameOf( w )
+				   << "\">" << endl;
+				++indent;
+				ts << makeIndent( indent ) << "<property name=\"name\">" << endl;
+				indent++;
+				ts << makeIndent( indent ) << "<cstring>" << entitize( w->name() )
+				   << "</cstring>" << endl;
+				indent--;
+				ts << makeIndent( indent ) << "</property>" << endl;
+				ts << makeIndent( indent ) << "<attribute name=\"label\">" << endl;
+				indent++;
+				ts << makeIndent( indent ) << "<cstring>"
+				   << entitize( iface2->pageLabel( className, (QWidget*)obj, i ) )
+				   << "</cstring>" << endl;
+				indent--;
+				ts << makeIndent( indent ) << "</attribute>" << endl;
+				saveChildrenOf( w, ts, indent );
+				--indent;
+				ts << makeIndent( indent ) << "</widget>" << endl;
+			    }
 			}
+		    } else {
+			saved = TRUE;
+			QWidget *w = iface2->containerOfWidget( className, (QWidget*)obj );
+			ts << makeIndent( indent ) << "<widget class=\""
+			   << WidgetFactory::classNameOf( w )
+			   << "\">" << endl;
+			++indent;
+			ts << makeIndent( indent ) << "<property name=\"name\">" << endl;
+			indent++;
+			ts << makeIndent( indent ) << "<cstring>" << entitize( w->name() )
+			   << "</cstring>" << endl;
+			indent--;
+			ts << makeIndent( indent ) << "</property>" << endl;
+			saveChildrenOf( w, ts, indent );
+			--indent;
+			ts << makeIndent( indent ) << "</widget>" << endl;
 		    }
 		    iface2->release();
-		    iface->release();
 		}
+		iface->release();
 	    }
 	}
 #endif
@@ -1434,7 +1461,14 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	colspan = 1;
 
     QString className = e.attribute( "class", "QWidget" );
-
+#ifdef CONTAINER_CUSTOM_WIDGETS
+    QString parentClassName = WidgetFactory::classNameOf( parent );
+    bool isPlugin =
+	WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( parentClassName ) );
+    if ( isPlugin )
+	qWarning( "####### loading custom container widgets without page support not implemented!" );
+    // ### TODO loading for custom container widgets without pages
+#endif
     if ( !className.isNull() ) {
 	obj = WidgetFactory::create( WidgetDatabase::idFromClassName( className ), parent, 0, FALSE );
 	if ( !obj )
@@ -1469,9 +1503,23 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	layout = 0;
 
 	if ( w && formwindow ) {
-	    if ( !parent || ( !parent->inherits( "QTabWidget" ) && !parent->inherits("QWidgetStack") && !parent->inherits( "QWizard" ) ) )
+	    if ( !parent ||
+		 ( !parent->inherits( "QTabWidget" ) &&
+		   !parent->inherits("QWidgetStack") &&
+		   !parent->inherits( "QWizard" )
+#ifdef CONTAINER_CUSTOM_WIDGETS
+		   && !isPlugin
+#endif
+		     ) )
 		formwindow->insertWidget( w, pasting );
-	    else if ( parent && ( parent->inherits( "QTabWidget" ) || parent->inherits("QWidgetStack") || parent->inherits( "QWizard" ) ) )
+	    else if ( parent &&
+		      ( parent->inherits( "QTabWidget" ) ||
+			parent->inherits("QWidgetStack") ||
+			parent->inherits( "QWizard" )
+#ifdef CONTAINER_CUSTOM_WIDGETS
+			|| isPlugin
+#endif
+			  ) )
 		MetaDataBase::addEntry( w );
 	}
     }
@@ -1510,6 +1558,23 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    } else if ( parent->inherits( "QWizard" ) ) {
 		if ( attrib == "title" )
 		    ( (QWizard*)parent )->addPage( w, v.toString() );
+#ifdef CONTAINER_CUSTOM_WIDGETS
+	    } else if ( isPlugin ) {
+		if ( attrib == "label" ) {
+		    WidgetInterface *iface = 0;
+		    widgetManager()->queryInterface( parentClassName, &iface );
+		    if ( iface ) {
+			QWidgetContainerInterfacePrivate *iface2 = 0;
+			iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&iface2 );
+			if ( iface2 ) {
+			    iface2->insertPage( parentClassName,
+						(QWidget*)parent, v.toString(), -1, w );
+			    iface2->release();
+			}
+			iface->release();
+		    }
+		}
+#endif
 	    }
 	} else if ( n.tagName() == "item" ) {
 	    createItem( n, w );

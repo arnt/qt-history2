@@ -97,7 +97,6 @@ public:
     bool isContainer( const QString &widget ) const;
 #ifdef CONTAINER_CUSTOM_WIDGETS
     QWidget* containerOfWidget( const QString &key, QWidget *widget ) const;
-    QWidgetList containersOf( const QString &key, QWidget *widget ) const;
     bool isPassiveInteractor( const QString &key, QWidget *widget ) const;
     bool supportsPages( const QString &key ) const;
     QWidget *addPage( const QString &key, QWidget *container, const QString &name, int index ) const;
@@ -112,6 +111,7 @@ public:
     QString pageLabel( const QString &key, QWidget *container, int index ) const;
     QWidget *page( const QString &key, QWidget *container, int index ) const;
     void renamePage( const QString &key, QWidget *container, int index, const QString &newName ) const;
+    QWidgetList pages( const QString &key, QWidget *container ) const;
 #endif
 
     bool init();
@@ -239,14 +239,6 @@ QWidget* QWidgetPluginPrivate::containerOfWidget( const QString &key, QWidget *w
     return widget;
 }
 
-QWidgetList QWidgetPluginPrivate::containersOf( const QString &key, QWidget *widget ) const
-{
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
-    if ( p )
-	return p->containersOf( key, widget );
-    return QWidgetList();
-}
-
 int QWidgetPluginPrivate::count( const QString &key, QWidget *container ) const
 {
     QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
@@ -334,6 +326,15 @@ void QWidgetPluginPrivate::renamePage( const QString &key, QWidget *container,
     if ( p )
 	p->renamePage( key, container, index, newName );
 }
+
+QWidgetList QWidgetPluginPrivate::pages( const QString &key, QWidget *container ) const
+{
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    if ( p )
+	return p->pages( key, container );
+    return QWidgetList();
+}
+
 #endif
 
 /*!
@@ -439,12 +440,6 @@ QWidget* QWidgetContainerPlugin::containerOfWidget( const QString &, QWidget *wi
     return widget;
 }
 
-QWidgetList QWidgetContainerPlugin::containersOf( const QString &, QWidget *widget ) const
-{
-    Q_UNUSED( widget )
-    return QWidgetList();
-}
-
 int QWidgetContainerPlugin::count( const QString &, QWidget * ) const
 {
     return 0;
@@ -496,6 +491,11 @@ void QWidgetContainerPlugin::movePage( const QString &, QWidget *, int, int ) co
 
 void QWidgetContainerPlugin::renamePage( const QString &, QWidget *, int, const QString & ) const
 {
+}
+
+QWidgetList QWidgetContainerPlugin::pages( const QString &, QWidget * ) const
+{
+    return QWidgetList();
 }
 
 #endif
