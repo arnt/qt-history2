@@ -886,8 +886,15 @@ uint
 QFSFileEngine::fileFlags(uint type) const
 {
     uint ret = 0;
-    if(type & PermsMask)
+    if(type & PermsMask) {
 	ret |= d->getPermissions();
+        // ### Workaround pascals ### above. Since we always set all properties to true
+        // we need to disable read and exec access if the file does not exists
+        if (d->doStat())
+            ret |= ExistsFlag;
+        else
+            ret &= 0x2222;
+    }
     if(type & TypesMask) {
 	if(d->doStat()) {
 	    if(d->file.endsWith(".lnk"))
