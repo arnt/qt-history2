@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.h#11 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.h#12 $
 **
 ** Definition of QScrollBar class
 **
@@ -36,7 +36,7 @@ public:
 
     virtual void setPalette( const QPalette & );
 
-signals:
+protected signals:
     void	newValue( long value );
     void	sliderPressed();
     void	sliderMoved( long value );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#8 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#9 $
 **
 ** Definition of QMenuBar class
 **
@@ -30,7 +30,7 @@ public:
     void	show();				// reimplemented show
     void	hide();				// reimplemented hide
 
-signals:
+protected signals:
     void	activated( int itemId );
     void	highlighted( int itemId );
 
@@ -42,7 +42,7 @@ protected:
     void	mouseMoveEvent( QMouseEvent * );
     void	keyPressEvent( QKeyEvent * );
 
-slots:
+private slots:
     void	subActivated( int itemId );
     void	subHighlighted( int itemId );
     void	accelActivated( int itemId );

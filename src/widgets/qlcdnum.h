@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.h#7 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.h#8 $
 **
 ** Definition of QLCDNumber class
 **
@@ -35,7 +35,7 @@ public:
 
     QLCDNumber::Mode mode() const;
 
-slots:						/* methods!!! */
+public slots:
     void    display( int num );
     void    display( long num );
     void    display( float num );
@@ -44,7 +44,7 @@ slots:						/* methods!!! */
     void    setMode( Mode );
     void    smallDecimalPoint( bool );
 
-signals:
+protected signals:
     void    overflow();
 
 protected:

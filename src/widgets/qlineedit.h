@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#8 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#9 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -24,12 +24,14 @@ public:
     QLineEdit( QWidget *parent=0, const char *name=0 );
    ~QLineEdit();
 
-    void    setText( const char * );
     char   *text() const;
     void    setMaxLength( int );
     int	    maxLength() const;
 
-signals:
+public slots:
+    void    setText( const char * );
+
+protected signals:
     void    textChanged( char * );
 
 protected:

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#8 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#9 $
 **
 ** Definition of QListBox widget class
 **
@@ -94,7 +94,7 @@ public:
     void	 centerCurrentItem();
     int		 numItemsVisible();
 
-signals:
+protected signals:
     void	 highlighted( int index );
     void	 selected( int index );
 

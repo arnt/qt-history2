@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#3 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#4 $
 **
 ** Definition of QButtonGroup class
 **
@@ -30,10 +30,10 @@ public:
     void insert( QButton *, int id=-1 );
     void remove( QButton * );
 
-signals:
+protected signals:
     void clicked( int id );
 
-slots:
+protected slots:
     void buttonClicked();
 
 private:

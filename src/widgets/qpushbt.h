@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.h#11 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.h#12 $
 **
 ** Definition of QPushButton class
 **
@@ -39,7 +39,7 @@ public:
     void	setGeometry( int x, int y, int w, int h );
     void	setGeometry( const QRect & );
 
-signals:
+private signals:
     void	becameDefault();
 
 protected:
