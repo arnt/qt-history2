@@ -458,7 +458,7 @@ void QDesktopWidget::resizeEvent( QResizeEvent * )
     delete d;
     d = new QDesktopWidgetPrivate( this );
 
-    for ( int i = 0; i < QMIN(oldscreencount, d->screenCount); ++i ) {
+    for ( int i = 0; i < qMin(oldscreencount, d->screenCount); ++i ) {
 	QRect oldrect = oldrects[i];
 	QRect newrect = d->rects->at(i);
 	if ( oldrect != newrect )
@@ -466,7 +466,7 @@ void QDesktopWidget::resizeEvent( QResizeEvent * )
     }
 
 #ifdef Q_OS_TEMP
-    for ( int j = 0; j < QMIN(oldscreencount, d->screenCount); ++j ) {
+    for ( int j = 0; j < qMin(oldscreencount, d->screenCount); ++j ) {
 	QRect oldrect = oldworkrects[j];
 	QRect newrect = d->workrects->at(j);
 	if ( oldrect != newrect )

@@ -293,9 +293,9 @@ void QStatusBar::reformat()
 	if (!item || item->p)
 	    break;
 	l->addWidget( item->w, item->s );
-	int itemH = QMIN(item->w->sizeHint().height(),
+	int itemH = qMin(item->w->sizeHint().height(),
 			 item->w->maximumHeight());
-	maxH = QMAX( maxH, itemH );
+	maxH = qMax( maxH, itemH );
     }
 
     l->addStretch( 0 );
@@ -305,14 +305,14 @@ void QStatusBar::reformat()
 	if (!item)
 	    break;
 	l->addWidget( item->w, item->s );
-	int itemH = QMIN(item->w->sizeHint().height(),
+	int itemH = qMin(item->w->sizeHint().height(),
 			 item->w->maximumHeight());
-	maxH = QMAX( maxH, itemH );
+	maxH = qMax( maxH, itemH );
     }
     l->addSpacing( 4 );
 #ifndef QT_NO_SIZEGRIP
     if ( d->resizer ) {
-	maxH = QMAX( maxH, d->resizer->sizeHint().height() );
+	maxH = qMax( maxH, d->resizer->sizeHint().height() );
 	d->box->addSpacing( 1 );
 	d->box->addWidget( d->resizer, 0, AlignBottom );
     }
@@ -484,14 +484,14 @@ bool QStatusBar::event( QEvent *e )
 	    item = d->items.at(i);
 	    if (!item)
 		break;
-	    int itemH = QMIN(item->w->sizeHint().height(),
+	    int itemH = qMin(item->w->sizeHint().height(),
 			    item->w->maximumHeight());
-	    maxH = QMAX( maxH, itemH );
+	    maxH = qMax( maxH, itemH );
 	}
 
 #ifndef QT_NO_SIZEGRIP
 	if ( d->resizer )
-	    maxH = QMAX( maxH, d->resizer->sizeHint().height() );
+	    maxH = qMax( maxH, d->resizer->sizeHint().height() );
 #endif
 
 	if ( maxH != d->savedStrut )

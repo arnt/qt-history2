@@ -1973,7 +1973,7 @@ int QFontMetrics::ascent() const
     QFontEngine *latin_engine = d->engineForScript( QFont::Latin );
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
-    return QMAX(engine->ascent(), latin_engine->ascent());
+    return qMax(engine->ascent(), latin_engine->ascent());
 }
 
 
@@ -1995,7 +1995,7 @@ int QFontMetrics::descent() const
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
 
-    return QMAX(engine->descent(), latin_engine->descent());
+    return qMax(engine->descent(), latin_engine->descent());
 }
 
 /*!
@@ -2013,8 +2013,8 @@ int QFontMetrics::height() const
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
 
-    return (QMAX(engine->ascent(), latin_engine->ascent()) +
-	    QMAX(engine->descent(), latin_engine->descent()) + 1);
+    return (qMax(engine->ascent(), latin_engine->ascent()) +
+	    qMax(engine->descent(), latin_engine->descent()) + 1);
 }
 
 /*!
@@ -2031,7 +2031,7 @@ int QFontMetrics::leading() const
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
 
-    return QMAX(engine->leading(), latin_engine->leading());
+    return qMax(engine->leading(), latin_engine->leading());
 }
 
 /*!
@@ -2048,9 +2048,9 @@ int QFontMetrics::lineSpacing() const
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
 
-    return (QMAX(engine->leading(), latin_engine->leading()) +
-	    QMAX(engine->ascent(), latin_engine->ascent()) +
-	    QMAX(engine->descent(), latin_engine->descent()) + 1);
+    return (qMax(engine->leading(), latin_engine->leading()) +
+	    qMax(engine->ascent(), latin_engine->ascent()) +
+	    qMax(engine->descent(), latin_engine->descent()) + 1);
 }
 
 /*!
@@ -2070,7 +2070,7 @@ int QFontMetrics::minLeftBearing() const
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
 
-    return QMIN(engine->minLeftBearing(), latin_engine->minLeftBearing());
+    return qMin(engine->minLeftBearing(), latin_engine->minLeftBearing());
 }
 
 /*!
@@ -2090,7 +2090,7 @@ int QFontMetrics::minRightBearing() const
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
 
-    return QMIN(engine->minRightBearing(), latin_engine->minRightBearing());
+    return qMin(engine->minRightBearing(), latin_engine->minRightBearing());
 }
 
 /*!
@@ -2103,7 +2103,7 @@ int QFontMetrics::maxWidth() const
     Q_ASSERT( engine != 0 );
     Q_ASSERT( lengine != 0 );
 
-    return QMAX(engine->maxCharWidth(), lengine->maxCharWidth());
+    return qMax(engine->maxCharWidth(), lengine->maxCharWidth());
 }
 
 /*!
@@ -3098,7 +3098,7 @@ void QFontCache::timerEvent( QTimerEvent * )
       calculation correct, we are more interested in speed, and use
       in_use_cost as a floor for new_max_cost
     */
-    uint new_max_cost = QMAX( QMAX( max_cost / 2, in_use_cost ), min_cost );
+    uint new_max_cost = qMax( qMax( max_cost / 2, in_use_cost ), min_cost );
 
     FC_DEBUG( "  after sweep, in use %u kb, total %u kb, max %u kb, new max %u kb",
 	      in_use_cost, total_cost, max_cost, new_max_cost );

@@ -366,7 +366,7 @@ void QDataTable::adjustColumn( int col )
     int w = fontMetrics().width( horizontalHeader()->label( col ) + "W" );
     cur->seek( QSql::BeforeFirst );
     while ( cur->next() ) {
-	w = QMAX( w, fontMetrics().width( fieldToString( cur->field( indexOf( col ) ) ) ) + 10 );
+	w = qMax( w, fontMetrics().width( fieldToString( cur->field( indexOf( col ) ) ) ) + 10 );
     }
     setColumnWidth( col, w );
     cur->seek( oldRow );

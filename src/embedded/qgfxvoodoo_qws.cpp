@@ -458,7 +458,7 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
 	// important for getting the right results with an overlapping
 	// blt
 
-	int mx = QMIN(xp,xp2);
+	int mx = qMin(xp,xp2);
 	if ( mx < 0 ) {
 	    xp -= mx;
 	    xp2 -= mx;

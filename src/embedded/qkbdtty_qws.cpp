@@ -123,9 +123,9 @@ void QWSTtyKeyboardHandler::processKeyEvent(int unicode, int keycode,
     if (ctrl && alt && keycode >= Qt::Key_F1 && keycode <= Qt::Key_F10)
 	term = keycode - Qt::Key_F1 + 1;
     else if (ctrl && alt && keycode == Qt::Key_Left)
-	term = QMAX(vtQws - 1, 1);
+	term = qMax(vtQws - 1, 1);
     else if (ctrl && alt && keycode == Qt::Key_Right)
-	term = QMIN(vtQws + 1, 10);
+	term = qMin(vtQws + 1, 10);
     if (term && !isPress) {
 	ioctl(kbdFD, VT_ACTIVATE, term);
 	return;

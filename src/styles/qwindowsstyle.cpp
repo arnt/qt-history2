@@ -666,9 +666,9 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    if ( checkable ) {
 		// space for the checkmarks
 		if (use2000style)
-		    maxpmw = QMAX( maxpmw, 20 );
+		    maxpmw = qMax( maxpmw, 20 );
 		else
-		    maxpmw = QMAX( maxpmw, 12 );
+		    maxpmw = qMax( maxpmw, 12 );
 	    }
 
 	    int checkcol = maxpmw;
@@ -940,7 +940,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	    NONCLIENTMETRICS ncm;
 	    ncm.cbSize = sizeof(NONCLIENTMETRICS);
 	    if ( SystemParametersInfo( SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0 ) )
-		ret = QMAX( ncm.iScrollHeight, ncm.iScrollWidth );
+		ret = qMax( ncm.iScrollHeight, ncm.iScrollWidth );
 	    else
 #endif
 		ret = QCommonStyle::pixelMetric( metric, widget );
@@ -949,7 +949,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 #endif
 
     case PM_SplitterWidth:
-	ret = QMAX( 6, QApplication::globalStrut().width() );
+	ret = qMax( 6, QApplication::globalStrut().width() );
 	break;
 
     case PM_MDIFrameWidth:
@@ -1020,13 +1020,13 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 		h = windowsSepHeight;
 	    } else {
 		if (mi->pixmap())
-		    h = QMAX(h, mi->pixmap()->height() + 2*windowsItemFrame);
+		    h = qMax(h, mi->pixmap()->height() + 2*windowsItemFrame);
 		else if (! mi->text().isNull())
-		    h = QMAX(h, popup->fontMetrics().height() + 2*windowsItemVMargin +
+		    h = qMax(h, popup->fontMetrics().height() + 2*windowsItemVMargin +
 			     2*windowsItemFrame);
 
 		if (mi->iconSet() != 0)
-		    h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
+		    h = qMax(h, mi->iconSet()->pixmap(QIconSet::Small,
 						      QIconSet::Normal).height() +
 			     2*windowsItemFrame);
 	    }
@@ -1451,7 +1451,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 			    lh = child ? child->height() : 0;
 		        else
 			    lh = p->fontMetrics().height() + 2 * v->itemMargin();
-		        lh = QMAX( lh, QApplication::globalStrut().height() );
+		        lh = qMax( lh, QApplication::globalStrut().height() );
 		        if ( lh % 2 > 0 )
 			    lh++;
 			linebot = y + lh/2;

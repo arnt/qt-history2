@@ -4966,15 +4966,15 @@ void QGfxRaster<depth,type>::drawPolyline( const QPointArray &a,int index, int n
     if((*gfx_optype))
 	sync();
     (*gfx_optype)=0;
-    //int m=QMIN( index+npoints-1, int(a.size())-1 );
+    //int m=qMin( index+npoints-1, int(a.size())-1 );
 
     int loopc;
     int end;
     end=(index+npoints) > (int)a.size() ? a.size() : index+npoints;
 #ifdef GFX_CORRECT_POLYLINE_JOIN
     if ( myrop != CopyROP && npoints > 1 ) {
-	gfx_storedLineBufferSize = QMAX(clipbounds.height(),clipbounds.width());
-	gfx_storedLineBufferSize = QMAX(gfx_storedLineBufferSize,10);
+	gfx_storedLineBufferSize = qMax(clipbounds.height(),clipbounds.width());
+	gfx_storedLineBufferSize = qMax(gfx_storedLineBufferSize,10);
 	gfx_storedLineRd = new QPoint [gfx_storedLineBufferSize];
 	gfx_storedLineWr = new QPoint [gfx_storedLineBufferSize];
 	gfx_storeLine = TRUE;
@@ -5204,7 +5204,7 @@ void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
     if (dx == 0 && dy == 0)
 	return;
 
-    GFX_START(QRect(QMIN(rx+xoffs,sx+xoffs), QMIN(ry+yoffs,sy+yoffs), w+QABS(dx)+1, h+QABS(dy)+1))
+    GFX_START(QRect(qMin(rx+xoffs,sx+xoffs), qMin(ry+yoffs,sy+yoffs), w+QABS(dx)+1, h+QABS(dy)+1))
 
     srcbits=buffer;
     srclinestep=linestep();
@@ -5518,9 +5518,9 @@ void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
     QRect cursRect(rx, ry, w+1, h+1);
     /* ???
     if (buffer_offset >= 0 && src_buffer_offset >= 0) {
-	cursRect = QRect( QMIN(rx,srcoffs.x()), QMIN(ry,srcoffs.y()),
-			QMAX(w, sw)+QABS(rx - srcoffs.x())+1,
-			QMAX(h, sh)+QABS(ry - srcoffs.y())+1 );
+	cursRect = QRect( qMin(rx,srcoffs.x()), qMin(ry,srcoffs.y()),
+			qMax(w, sw)+QABS(rx - srcoffs.x())+1,
+			qMax(h, sh)+QABS(ry - srcoffs.y())+1 );
     } else if (src_buffer_offset >= 0) {
 	cursRect = QRect(srcoffs.x(), srcoffs.y(), sw+1, sh+1);
     }

@@ -312,7 +312,7 @@ void QScrollViewData::viewportResized( int w, int h )
 	if (r) {
 	    QSize sh = r->child->sizeHint();
 	    sh = sh.boundedTo( r->child->maximumSize() );
-	    r->child->resize( QMAX(w,sh.width()), QMAX(h,sh.height()) );
+	    r->child->resize( qMax(w,sh.width()), qMax(h,sh.height()) );
 	}
 
     }
@@ -928,7 +928,7 @@ void QScrollView::updateScrollBars()
 	d->vbar->setRange( 0, 0 );
     }
     if ( needh ) {
-	d->hbar->setRange( 0, QMAX(0, d->contentsWidth()-portw) );
+	d->hbar->setRange( 0, qMax(0, d->contentsWidth()-portw) );
 	d->hbar->setSteps( QScrollView::d->hbar->lineStep(), portw );
     } else {
 	d->hbar->setRange( 0, 0 );
@@ -1018,16 +1018,16 @@ void QScrollView::updateScrollBars()
         int x;
 #if 0
         if ( reverse )
-            x =QMIN(0,d->contentsWidth()-visibleWidth());
+            x =qMin(0,d->contentsWidth()-visibleWidth());
         else
 #endif
-            x =QMAX(0,d->contentsWidth()-visibleWidth());
+            x =qMax(0,d->contentsWidth()-visibleWidth());
         d->hbar->setValue(x);
         // Do it even if it is recursive
         moveContents( -x, -d->contentsY() );
     }
     if ( d->contentsY()+visibleHeight() > contentsHeight() ) {
-        int y=QMAX(0,contentsHeight()-visibleHeight());
+        int y=qMax(0,contentsHeight()-visibleHeight());
         d->vbar->setValue(y);
         // Do it even if it is recursive
         moveContents( -d->contentsX(), -y );
@@ -1958,7 +1958,7 @@ void QScrollView::setContentsPos( int x, int y )
 */
 void QScrollView::scrollBy( int dx, int dy )
 {
-    setContentsPos( QMAX( d->contentsX()+dx, 0 ), QMAX( d->contentsY()+dy, 0 ) );
+    setContentsPos( qMax( d->contentsX()+dx, 0 ), qMax( d->contentsY()+dy, 0 ) );
 }
 
 /*!
@@ -2009,12 +2009,12 @@ void QScrollView::moveContents(int x, int y)
     if ( -x+visibleWidth() > d->contentsWidth() )
 #if 0
         if( QApplication::reverseLayout() )
-            x=QMAX(0,-d->contentsWidth()+visibleWidth());
+            x=qMax(0,-d->contentsWidth()+visibleWidth());
         else
 #endif
-            x=QMIN(0,-d->contentsWidth()+visibleWidth());
+            x=qMin(0,-d->contentsWidth()+visibleWidth());
     if ( -y+visibleHeight() > contentsHeight() )
-        y=QMIN(0,-contentsHeight()+visibleHeight());
+        y=qMin(0,-contentsHeight()+visibleHeight());
 
     int dx = x - d->vx;
     int dy = y - d->vy;
@@ -2697,7 +2697,7 @@ void QScrollView::doDragAutoScroll()
         d->autoscroll_time--;
         d->autoscroll_timer.start( d->autoscroll_time );
     }
-    int l = QMAX( 1, ( initialScrollTime- d->autoscroll_time ) );
+    int l = qMax( 1, ( initialScrollTime- d->autoscroll_time ) );
 
     int dx = 0, dy = 0;
     if ( p.y() < autoscroll_margin ) {

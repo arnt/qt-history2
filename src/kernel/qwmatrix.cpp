@@ -452,20 +452,20 @@ QRect QWMatrix::mapRect( const QRect &rect ) const
 	    double xmax = x0;
 	    double ymax = y0;
 	    MAPDOUBLE( rect.right() + 1, rect.top(), x, y );
-	    xmin = QMIN( xmin, x );
-	    ymin = QMIN( ymin, y );
-	    xmax = QMAX( xmax, x );
-	    ymax = QMAX( ymax, y );
+	    xmin = qMin( xmin, x );
+	    ymin = qMin( ymin, y );
+	    xmax = qMax( xmax, x );
+	    ymax = qMax( ymax, y );
 	    MAPDOUBLE( rect.right() + 1, rect.bottom() + 1, x, y );
-	    xmin = QMIN( xmin, x );
-	    ymin = QMIN( ymin, y );
-	    xmax = QMAX( xmax, x );
-	    ymax = QMAX( ymax, y );
+	    xmin = qMin( xmin, x );
+	    ymin = qMin( ymin, y );
+	    xmax = qMax( xmax, x );
+	    ymax = qMax( ymax, y );
 	    MAPDOUBLE( rect.left(), rect.bottom() + 1, x, y );
-	    xmin = QMIN( xmin, x );
-	    ymin = QMIN( ymin, y );
-	    xmax = QMAX( xmax, x );
-	    ymax = QMAX( ymax, y );
+	    xmin = qMin( xmin, x );
+	    ymin = qMin( ymin, y );
+	    xmax = qMax( xmax, x );
+	    ymax = qMax( ymax, y );
 	    double w = xmax - xmin;
 	    double h = ymax - ymin;
 	    xmin -= ( xmin - x0 ) / w;
@@ -533,11 +533,11 @@ QPointArray QWMatrix::operator *( const QPointArray &a ) const
 		ymin = dp[i].y;
 		yminp = i;
 	    }
-	    xmax = QMAX( xmax, dp[i].x );
-	    ymax = QMAX( ymax, dp[i].y );
+	    xmax = qMax( xmax, dp[i].x );
+	    ymax = qMax( ymax, dp[i].y );
 	}
-	double w = QMAX( xmax - xmin, 1. );
-	double h = QMAX( ymax - ymin, 1. );
+	double w = qMax( xmax - xmin, 1. );
+	double h = qMax( ymax - ymin, 1. );
 	for( i = 0; i < size; i++ ) {
 	    dp[i].x += (dp[i].x - xmin)/w;
 	    dp[i].y += (dp[i].y - ymin)/h;
@@ -550,13 +550,13 @@ QPointArray QWMatrix::operator *( const QPointArray &a ) const
 	xmax = INT_MIN;
 	ymax = xmax;
 	for( i = 0; i < size; i++ ) {
-	    xmin = QMIN( xmin, dp[i].x );
-	    ymin = QMIN( ymin, dp[i].y );
-	    xmax = QMAX( xmax, dp[i].x );
-	    ymax = QMAX( ymax, dp[i].y );
+	    xmin = qMin( xmin, dp[i].x );
+	    ymin = qMin( ymin, dp[i].y );
+	    xmax = qMax( xmax, dp[i].x );
+	    ymax = qMax( ymax, dp[i].y );
 	}
-	w = QMAX( xmax - xmin, 1. );
-	h = QMAX( ymax - ymin, 1. );
+	w = qMax( xmax - xmin, 1. );
+	h = qMax( ymax - ymin, 1. );
 
 	QPointArray result( size );
 	QPoint *dr = result.data();
@@ -667,10 +667,10 @@ QPointArray QWMatrix::mapToPolygon( const QRect &rect ) const
 	double ymax = y[0];
 	int i;
 	for( i = 1; i< 4; i++ ) {
-	    xmin = QMIN( xmin, x[i] );
-	    ymin = QMIN( ymin, y[i] );
-	    xmax = QMAX( xmax, x[i] );
-	    ymax = QMAX( ymax, y[i] );
+	    xmin = qMin( xmin, x[i] );
+	    ymin = qMin( ymin, y[i] );
+	    xmax = qMax( xmax, x[i] );
+	    ymax = qMax( ymax, y[i] );
 	}
 	double w = xmax - xmin;
 	double h = ymax - ymin;

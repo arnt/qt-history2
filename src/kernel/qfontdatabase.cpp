@@ -54,7 +54,7 @@ static int ucstricmp( const QString &as, const QString &bs )
 	return 1;
     if ( b == 0 )
 	return -1;
-    int l=QMIN(as.length(),bs.length());
+    int l=qMin(as.length(),bs.length());
     while ( l-- && ::lower( *a ) == ::lower( *b ) )
 	a++,b++;
     if ( l==-1 )

@@ -419,7 +419,7 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
 				lastitem = item;
 				n++;
 				matchFound = true;
-				if (n > QMAX(clash,0))
+				if (n > qMax(clash,0))
 				    goto doclash;
 			    } else {
 				identicalDisabled = true;

@@ -390,7 +390,7 @@ QSize QPushButton::sizeHint() const
 	int iw = iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
 	int ih = iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height();
 	w += iw;
-	h = QMAX( h, ih );
+	h = qMax( h, ih );
     }
 #endif
     if ( isMenuButton() )
@@ -410,7 +410,7 @@ QSize QPushButton::sizeHint() const
 	if(!empty || !w)
 	    w += sz.width();
 	if(!empty || !h)
-	    h = QMAX(h, sz.height());
+	    h = qMax(h, sz.height());
     }
 
     return (style().sizeFromContents(QStyle::CT_PushButton, this, QSize(w, h)).

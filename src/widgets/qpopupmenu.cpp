@@ -1009,7 +1009,7 @@ void QPopupMenu::updateSize()
 	if ( mi->custom() )
 	    mi->custom()->setFont( font() );
 	if ( mi->iconSet() != 0)
-	    maxPMWidth = QMAX( maxPMWidth,
+	    maxPMWidth = qMax( maxPMWidth,
 			       mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4 );
     }
 
@@ -1038,7 +1038,7 @@ void QPopupMenu::updateSize()
 	    if( ! mi->isSeparator() ) {
 		if ( mi->custom() ) {
 		    if ( mi->custom()->fullSpan() ) {
-			maxWidgetWidth = QMAX( maxWidgetWidth,
+			maxWidgetWidth = qMax( maxWidgetWidth,
 					       mi->custom()->sizeHint().width() );
 		    } else {
 			QSize s ( mi->custom()->sizeHint() );
@@ -1102,7 +1102,7 @@ void QPopupMenu::updateSize()
 	    }
 	} else if( height + 2*frameWidth() >= dh ) {
 	    ncols++;
-	    max_height = QMAX(max_height, height - itemHeight);
+	    max_height = qMax(max_height, height - itemHeight);
 	    height = 0;
 	}
 	if ( w > max_width )
@@ -1123,12 +1123,12 @@ void QPopupMenu::updateSize()
 	max_width = maxWidgetWidth - tab;
 
     if ( ncols == 1 )
-	setMaximumSize( QMAX( minimumWidth(), max_width + tab + 2*frameWidth() ),
-		      QMAX( minimumHeight() , height + 2*frameWidth() ) );
+	setMaximumSize( qMax( minimumWidth(), max_width + tab + 2*frameWidth() ),
+		      qMax( minimumHeight() , height + 2*frameWidth() ) );
     else
-	setMaximumSize( QMAX( minimumWidth(),
+	setMaximumSize( qMax( minimumWidth(),
 			      (ncols*(max_width + tab)) + 2*frameWidth() ),
-			QMAX( minimumHeight(), QMIN( max_height + 2*frameWidth() + 1, dh ) ) );
+			qMax( minimumHeight(), qMin( max_height + 2*frameWidth() + 1, dh ) ) );
     resize( maximumSize() );
     badSize = FALSE;
 
@@ -1376,10 +1376,10 @@ int QPopupMenu::itemHeight( QMenuItem *mi ) const
         h = fm.height();
 
     if ( !mi->isSeparator() && mi->iconSet() != 0 )
-        h = QMAX(h, mi->iconSet()->pixmap( QIconSet::Small,
+        h = qMax(h, mi->iconSet()->pixmap( QIconSet::Small,
 					   QIconSet::Normal ).height());
     if ( mi->custom() )
-        h = QMAX(h, mi->custom()->sizeHint().height());
+        h = qMax(h, mi->custom()->sizeHint().height());
 
     return h;
 }
@@ -2173,7 +2173,7 @@ void QPopupMenu::subScrollTimer() {
 	else if(pos.y() > y() + height())
 	    factor = pos.y() - (y() + height());
 	int msecs = 250 - ((factor / 10) * 40);
-	if(d->scroll.lastScroll.msecsTo(QTime::currentTime()) < QMAX(0, msecs))
+	if(d->scroll.lastScroll.msecsTo(QTime::currentTime()) < qMax(0, msecs))
 	    return;
 	d->scroll.lastScroll = QTime::currentTime();
     }

@@ -613,7 +613,7 @@ QImage QPixmap::convertToImage() const
 
 	    // copy each scanline
 	    char *src = axi->data;
-	    int bpl = QMIN(alpha.bytesPerLine(), axi->bytes_per_line);
+	    int bpl = qMin(alpha.bytesPerLine(), axi->bytes_per_line);
 	    for (int y = 0; y < h; y++ ) {
 		memcpy( alpha.scanLine(y), src, bpl );
 		src += axi->bytes_per_line;
@@ -747,7 +747,7 @@ QImage QPixmap::convertToImage() const
 	}
     } else if ( xi->bits_per_pixel == d ) {	// compatible depth
 	char *xidata = xi->data;		// copy each scanline
-	int bpl = QMIN(image.bytesPerLine(),xi->bytes_per_line);
+	int bpl = qMin(image.bytesPerLine(),xi->bytes_per_line);
 	for ( int y=0; y<h; y++ ) {
 	    memcpy( image.scanLine(y), xidata, bpl );
 	    xidata += xi->bytes_per_line;
@@ -934,7 +934,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    if ( image.numColors() == 2 ) {
 		QRgb c0 = image.color(0);	// Auto: convert to best
 		QRgb c1 = image.color(1);
-		conv8 = QMIN(c0,c1) != qRgb(0,0,0) || QMAX(c0,c1) != qRgb(255,255,255);
+		conv8 = qMin(c0,c1) != qRgb(0,0,0) || qMax(c0,c1) != qRgb(255,255,255);
 	    } else {
 		// eg. 1-color monochrome images (they do exist).
 		conv8 = TRUE;
@@ -1964,14 +1964,14 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
     if ( sw < 0 )
 	sw = src->width() - sx;
     else
-	sw = QMIN( src->width()-sx, sw );
-    sw = QMIN( dst->width()-dx, sw );
+	sw = qMin( src->width()-sx, sw );
+    sw = qMin( dst->width()-dx, sw );
 
     if ( sh < 0 )
 	sh = src->height() - sy ;
     else
-	sh = QMIN( src->height()-sy, sh );
-    sh = QMIN( dst->height()-dy, sh );
+	sh = qMin( src->height()-sy, sh );
+    sh = qMin( dst->height()-dy, sh );
 
     if ( sw <= 0 || sh <= 0 )
 	return;

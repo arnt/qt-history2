@@ -120,7 +120,7 @@ int QSjisCodec::mibEnum() const
 */
 QByteArray QSjisCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
-    int l = QMIN((int)uc.length(),lenInOut);
+    int l = qMin((int)uc.length(),lenInOut);
     int rlen = l*2+1;
     QByteArray rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();

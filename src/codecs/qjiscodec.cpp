@@ -176,7 +176,7 @@ int QJisCodec::mibEnum() const
 /*! \internal */
 QByteArray QJisCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
-    int l = QMIN((int)uc.length(),lenInOut);
+    int l = qMin((int)uc.length(),lenInOut);
     QByteArray result;
     Iso2022State state = Ascii;
     Iso2022State prev = Ascii;

@@ -1654,7 +1654,7 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	    int ldepth = cursor->paragraph()->listDepth();
 	    if ( cursor->paragraph()->isListItem() && ldepth == 1 ) {
 		cursor->paragraph()->setListItem( FALSE );
-	    } else if ( QMAX( ldepth, 1 ) == 1 ) {
+	    } else if ( qMax( ldepth, 1 ) == 1 ) {
 		cursor->paragraph()->setListItem( FALSE );
 		cursor->paragraph()->setListDepth( 0 );
 	    } else {
@@ -2089,7 +2089,7 @@ void QTextEdit::drawCursor( bool visible )
 	if ( ( cursor->paragraph()->alignment() & Qt::AlignJustify ) == Qt::AlignJustify )
 	    dist = 50;
 	int x = r.x() - cursor->totalOffsetX() + cursor->x() - dist;
-	x = QMAX( x, 0 );
+	x = qMax( x, 0 );
 	p.setClipRect( QRect( x - contentsX(),
 			      r.y() - cursor->totalOffsetY() + cursor->y() - contentsY(), 2 * dist, h ) );
 	doc->drawParagraph( &p, cursor->paragraph(), x,
@@ -2797,14 +2797,14 @@ void QTextEdit::formatMore()
 	lastBottom = lastFormatted->rect().bottom();
 	if ( i == 0 )
 	    firstVisible = lastBottom < cr.bottom();
-	bottom = QMAX( bottom, lastBottom );
+	bottom = qMax( bottom, lastBottom );
 	lastFormatted = lastFormatted->next();
     }
 
     if ( bottom > contentsHeight() ) {
-	resizeContents( contentsWidth(), QMAX( doc->height(), bottom ) );
+	resizeContents( contentsWidth(), qMax( doc->height(), bottom ) );
     } else if ( !lastFormatted && lastBottom < contentsHeight() ) {
- 	resizeContents( contentsWidth(), QMAX( doc->height(), lastBottom ) );
+ 	resizeContents( contentsWidth(), qMax( doc->height(), lastBottom ) );
 	if ( contentsHeight() < visibleHeight() )
 	    updateContents( 0, contentsHeight(), visibleWidth(),
 			    visibleHeight() - contentsHeight() );
@@ -2813,7 +2813,7 @@ void QTextEdit::formatMore()
     if ( lastFormatted )
 	formatTimer->start( interval, TRUE );
     else
-	interval = QMAX( 0, interval );
+	interval = qMax( 0, interval );
 }
 
 void QTextEdit::doResize()
@@ -3465,7 +3465,7 @@ void QTextEdit::setParagType( QStyleSheetItem::DisplayMode dm,
 		start->setListDepth( 1 );
 	} else if ( start->isListItem() ) {
 	    start->setListItem( FALSE );
-	    start->setListDepth( QMAX( start->listDepth()-1, 0 ) );
+	    start->setListDepth( qMax( start->listDepth()-1, 0 ) );
 	}
 	start = start->next();
     }
@@ -4738,7 +4738,7 @@ QString QTextEdit::documentTitle() const
 
 void QTextEdit::makeParagVisible( QTextParagraph *p )
 {
-    setContentsPos( contentsX(), QMIN( p->rect().y(), contentsHeight() - visibleHeight() ) );
+    setContentsPos( contentsX(), qMin( p->rect().y(), contentsHeight() - visibleHeight() ) );
 }
 
 /*!
@@ -4765,7 +4765,7 @@ void QTextEdit::scrollToAnchor( const QString& name )
 	    QString a = c->anchorName();
 	    if ( a == name ||
 		 (a.contains( '#' ) && QStringList::split( '#', a ).contains( name ) ) ) {
-		setContentsPos( contentsX(), QMIN( cursor.paragraph()->rect().top() + cursor.totalOffsetY(), contentsHeight() - visibleHeight() ) );
+		setContentsPos( contentsX(), qMin( cursor.paragraph()->rect().top() + cursor.totalOffsetY(), contentsHeight() - visibleHeight() ) );
 		break;
 	    }
 	}
@@ -4798,7 +4798,7 @@ QString QTextEdit::anchorAt( const QPoint& pos, AnchorAttribute attr )
 
 void QTextEdit::documentWidthChanged( int w )
 {
-    resizeContents( QMAX( visibleWidth(), w), contentsHeight() );
+    resizeContents( qMax( visibleWidth(), w), contentsHeight() );
 }
 
 /*! \internal
@@ -5512,7 +5512,7 @@ void QTextEdit::zoomIn( int range )
 void QTextEdit::zoomOut( int range )
 {
     QFont f( QScrollView::font() );
-    f.setPointSize( QMAX( 1, QFontInfo(f).pointSize() - range ) );
+    f.setPointSize( qMax( 1, QFontInfo(f).pointSize() - range ) );
     setFont( f );
 }
 

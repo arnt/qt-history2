@@ -246,7 +246,7 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 		LOGFONTA lf;
 		memset( &lf, 0, sizeof( LOGFONTA ) );
 		QByteArray lfam = familyName.toLocal8Bit();
-		memcpy( lf.lfFaceName, lfam.data(), QMIN( LF_FACESIZE, lfam.length() ) );
+		memcpy( lf.lfFaceName, lfam.data(), qMin( LF_FACESIZE, lfam.length() ) );
 		HFONT hfont = CreateFontIndirectA( &lf );
 		HGDIOBJ oldobj = SelectObject( hdc, hfont );
 		GetTextCharsetInfo( hdc, &signature, 0 );
@@ -337,7 +337,7 @@ void populate_database(const QString& fam)
         if ( fam.isNull() ) {
             lf.lfFaceName[0] = 0;
         } else {
-            memcpy( lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
+            memcpy( lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
         }
         lf.lfPitchAndFamily = 0;
 
@@ -351,7 +351,7 @@ void populate_database(const QString& fam)
         } else {
             QByteArray lname = fam.toLocal8Bit();
             memcpy(lf.lfFaceName,lname.data(),
-                QMIN(lname.length()+1,32));  // 32 = Windows hard-coded
+                qMin(lname.length()+1,32));  // 32 = Windows hard-coded
         }
         lf.lfPitchAndFamily = 0;
 
@@ -364,7 +364,7 @@ void populate_database(const QString& fam)
         if ( fam.isNull() ) {
             lf.lfFaceName[0] = 0;
         } else {
-            memcpy( lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
+            memcpy( lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
         }
         lf.lfPitchAndFamily = 0;
 
@@ -629,13 +629,13 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
 	    fam = "Arial"; // MS Sans Serif has bearing problems in italic, and does not scale
 
 	QT_WA( {
-	    memcpy(lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
+	    memcpy(lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
 	    hfont = CreateFontIndirect( &lf );
 	} , {
 	    // LOGFONTA and LOGFONTW are binary compatible
 	    QByteArray lname = fam.toLocal8Bit();
 	    memcpy(lf.lfFaceName,lname.data(),
-		QMIN(lname.length()+1,32));  // 32 = Windows hard-coded
+		qMin(lname.length()+1,32));  // 32 = Windows hard-coded
 	    hfont = CreateFontIndirectA( (LOGFONTA*)&lf );
 	} );
 #ifndef QT_NO_DEBUG

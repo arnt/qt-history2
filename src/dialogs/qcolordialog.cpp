@@ -689,7 +689,7 @@ void QColorLuminancePicker::setVal( int v )
 {
     if ( val == v )
 	return;
-    val = QMAX( 0, QMIN(v,255));
+    val = qMax( 0, qMin(v,255));
     delete pix; pix=0;
     repaint( FALSE ); //###
     emit newHsv( hue, sat, val );
@@ -786,8 +786,8 @@ QSize QColorPicker::sizeHint() const
 
 void QColorPicker::setCol( int h, int s )
 {
-    int nhue = QMIN( QMAX(0,h), 360 );
-    int nsat = QMIN( QMAX(0,s), 255);
+    int nhue = qMin( qMax(0,h), 360 );
+    int nsat = qMin( qMax(0,s), 255);
     if ( nhue == hue && nsat == sat )
 	return;
     QRect r( colPt(), QSize(20,20) );

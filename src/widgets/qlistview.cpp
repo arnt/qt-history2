@@ -861,7 +861,7 @@ void QListViewItem::startRename( int col )
     QRect r = lv->itemRect( this );
     r = QRect( lv->viewportToContents( r.topLeft() ), r.size() );
     r.setLeft( lv->header()->sectionPos( col ) );
-    r.setWidth( QMIN( lv->header()->sectionSize( col ) - 1, lv->visibleWidth() - r.left() ) );
+    r.setWidth( qMin( lv->header()->sectionSize( col ) - 1, lv->visibleWidth() - r.left() ) );
     if ( col == 0 )
 	r.setLeft( r.left() + lv->itemMargin() + ( depth() + ( lv->rootIsDecorated() ? 1 : 0 ) ) * lv->treeStepSize() - 1 );
     if ( pixmap( col ) )
@@ -1532,7 +1532,7 @@ void QListViewItem::setup()
     int ph = 0;
     for ( uint i = 0; i < v->d->column.size(); ++i ) {
 	if ( pixmap( i ) )
-	    ph = QMAX( ph, pixmap( i )->height() );
+	    ph = qMax( ph, pixmap( i )->height() );
     }
     int h;
     if ( mlenabled ) {
@@ -1541,14 +1541,14 @@ void QListViewItem::setup()
 	    int lines = text( c ).count( QChar('\n') ) + 1;
 	    int tmph = v->d->fontMetricsHeight
 		       + v->fontMetrics().lineSpacing() * ( lines - 1 );
-	    h = QMAX( h, tmph );
+	    h = qMax( h, tmph );
 	}
 	h += 2*v->itemMargin();
     } else {
-	h = QMAX( v->d->fontMetricsHeight, ph ) + 2*v->itemMargin();
+	h = qMax( v->d->fontMetricsHeight, ph ) + 2*v->itemMargin();
     }
 
-    h = QMAX( h, QApplication::globalStrut().height());
+    h = qMax( h, QApplication::globalStrut().height());
 
     if ( h % 2 > 0 )
 	h++;
@@ -2119,7 +2119,7 @@ void QListViewItem::paintCell( QPainter * p, const QPalette & pal,
 
     if ( mlenabled && column == 0 && isOpen() && childCount() ) {
 	int textheight = fm.size( align, t ).height() + 2 * lv->itemMargin();
-	textheight = QMAX( textheight, QApplication::globalStrut().height() );
+	textheight = qMax( textheight, QApplication::globalStrut().height() );
 	if ( textheight % 2 > 0 )
 	    textheight++;
 	if ( textheight < height() ) {
@@ -2158,7 +2158,7 @@ int QListViewItem::width( const QFontMetrics& fm,
     const QPixmap * pm = pixmap( c );
     if ( pm )
 	w += pm->width() + lv->itemMargin(); // ### correct margin stuff?
-    return QMAX( w, QApplication::globalStrut().width() );
+    return qMax( w, QApplication::globalStrut().width() );
 }
 
 
@@ -2908,11 +2908,11 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	    r.setRect( x, current->y - oy, w, ih );
 	    if ( d->h->mapToActual( 0 ) == 0 || ( current->l == 0 && !rootIsDecorated() ) ) {
-		int offsetx = QMIN( current->l * treeStepSize(), d->h->cellSize( cell ) );
+		int offsetx = qMin( current->l * treeStepSize(), d->h->cellSize( cell ) );
 		r.setLeft( r.left() + offsetx );
 		current->i->paintFocus( p, palette(), r );
 	    } else {
-		int xdepth = QMIN( treeStepSize() * ( current->i->depth() + ( rootIsDecorated() ? 1 : 0) )
+		int xdepth = qMin( treeStepSize() * ( current->i->depth() + ( rootIsDecorated() ? 1 : 0) )
 			     + itemMargin(), d->h->cellSize( cell ) );
 		xdepth += d->h->cellPos( cell );
 		QRect r1( r );
@@ -2942,10 +2942,10 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    int rleft = tx + current->l*treeStepSize();
 	    int rright = rleft + treeStepSize();
 
-	    int crtop = QMAX( rtop, cy );
-	    int crbottom = QMIN( rbottom, cy+ch );
-	    int crleft = QMAX( rleft, cx );
-	    int crright = QMIN( rright, cx+cw );
+	    int crtop = qMax( rtop, cy );
+	    int crbottom = qMin( rbottom, cy+ch );
+	    int crleft = qMax( rleft, cx );
+	    int crright = qMin( rright, cx+cw );
 
 	    r.setRect( crleft-ox, crtop-oy,
 		       crright-crleft, crbottom-crtop );
@@ -4326,8 +4326,8 @@ void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 		p += QPoint( width() / 2, ( r.height() / 2 ) );
 	    else
 		p += QPoint( columnWidth( 0 ) / 2, ( r.height() / 2 ) );
-	    p.rx() = QMAX( 0, p.x() );
-	    p.rx() = QMIN( visibleWidth(), p.x() );
+	    p.rx() = qMax( 0, p.x() );
+	    p.rx() = qMin( visibleWidth(), p.x() );
 	    emit contextMenuRequested( item, viewport()->mapToGlobal( p ), -1 );
 	}
     } else {
@@ -5370,7 +5370,7 @@ QListViewItem * QListView::currentItem() const
 
     \code
     QRect r( listView->itemRect( item ) );
-    r.setHeight( (QCOORD)(QMIN( item->totalHeight(),
+    r.setHeight( (QCOORD)(qMin( item->totalHeight(),
 				listView->viewport->height() - r.y() ) ) )
     \endcode
 
@@ -5712,7 +5712,7 @@ void QListView::widthChanged( const QListViewItem* item, int c )
 		QString title = header()->label( col );
 		int tw = fm.width( title );
 		tw += 40;
-		w = QMAX( w, tw );
+		w = qMax( w, tw );
 	    }
 	    if ( col == 0 ) {
 		int indent = treeStepSize() * item->depth();
@@ -6504,9 +6504,9 @@ void QCheckListItem::setup()
 {
     QListViewItem::setup();
     int h = height();
-    h = QMAX( listView()->style().pixelMetric(QStyle::PM_CheckListButtonSize, listView()),
+    h = qMax( listView()->style().pixelMetric(QStyle::PM_CheckListButtonSize, listView()),
 	      h );
-    h = QMAX( h, QApplication::globalStrut().height() );
+    h = qMax( h, QApplication::globalStrut().height() );
     setHeight( h );
 }
 
@@ -6525,7 +6525,7 @@ int QCheckListItem::width( const QFontMetrics& fm, const QListView* lv, int colu
 	    r +=  lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, lv) + 4;
 	}
     }
-    return QMAX( r, QApplication::globalStrut().width() );
+    return qMax( r, QApplication::globalStrut().width() );
 }
 
 /*!
@@ -7994,7 +7994,7 @@ void QListView::adjustColumn( int col )
     int w = d->h->sectionSizeHint( col, fontMetrics() ).width();
     if ( d->h->iconSet( col ) )
 	w += d->h->iconSet( col )->pixmap().width();
-    w = QMAX( w, 20 );
+    w = qMax( w, 20 );
     QFontMetrics fm( fontMetrics() );
     QListViewItemIterator it( this );
     int rootDepth = rootIsDecorated() ? treeStepSize() : 0;
@@ -8004,9 +8004,9 @@ void QListView::adjustColumn( int col )
 	int iw = item->width( fm, this, col );
 	if ( 0 == col )
 	    iw += itemMargin() + rootDepth + item->depth()*treeStepSize() - 1;
-	w = QMAX( w, iw );
+	w = qMax( w, iw );
     }
-    w = QMAX( w, QApplication::globalStrut().width() );
+    w = qMax( w, QApplication::globalStrut().width() );
     setColumnWidth( col, w );
 
     d->h->adjustHeaderSize( oldw - w );

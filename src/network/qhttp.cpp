@@ -1893,7 +1893,7 @@ void QHttp::slotBytesWritten( int written )
 	return;
 
     if ( d->socket.bytesToWrite() == 0 ) {
-	int max = QMIN( 4096, d->postDevice->size() - d->postDevice->at() );
+	int max = qMin( 4096, d->postDevice->size() - d->postDevice->at() );
 	QByteArray arr( max );
 
 	int n = d->postDevice->readBlock( arr.data(), max );
@@ -2008,7 +2008,7 @@ void QHttp::slotReadyRead()
 		    }
 
 		    // read data
-		    uint toRead = QMIN( (Q_LONG)n, d->chunkedSize );
+		    uint toRead = qMin( (Q_LONG)n, d->chunkedSize );
 		    if ( !arr )
 			arr = new QByteArray;
 		    uint oldArrSize = arr->size();
@@ -2030,7 +2030,7 @@ void QHttp::slotReadyRead()
 		    }
 		}
 	    } else if ( d->response.hasContentLength() ) {
-		n = QMIN( d->response.contentLength() - d->bytesDone, n );
+		n = qMin( d->response.contentLength() - d->bytesDone, n );
 		if ( n > 0 ) {
 		    arr = new QByteArray( n );
 		    Q_LONG read = d->socket.readBlock( arr->data(), n );

@@ -381,8 +381,8 @@ static void miIntersectO(register QRegionPrivate &dest, register QRect *r1, QRec
     pNextRect = dest.rects.data() + dest.numRects;
 
     while (r1 != r1End && r2 != r2End) {
-        x1 = QMAX(r1->left(), r2->left());
-        x2 = QMIN(r1->right(), r2->right());
+        x1 = qMax(r1->left(), r2->left());
+        x2 = qMin(r1->right(), r2->right());
 
         /*
          * If there's any overlap between the two rectangles, add that
@@ -620,7 +620,7 @@ static void miRegionOp(register QRegionPrivate &dest, QRegionPrivate *reg1, QReg
      * have to worry about using too much memory. I hope to be able to
      * nuke the realloc() at the end of this function eventually.
      */
-    dest.rects.resize(QMAX(reg1->numRects,reg2->numRects) * 2);
+    dest.rects.resize(qMax(reg1->numRects,reg2->numRects) * 2);
 
     /*
      * Initialize ybot and ytop.
@@ -678,15 +678,15 @@ static void miRegionOp(register QRegionPrivate &dest, QRegionPrivate *reg1, QReg
          * the other, this entire loop will be passed through n times.
          */
         if (r1->top() < r2->top()) {
-            top = QMAX(r1->top(), ybot + 1);
-            bot = QMIN(r1->bottom(), r2->top() - 1);
+            top = qMax(r1->top(), ybot + 1);
+            bot = qMin(r1->bottom(), r2->top() - 1);
 
             if (nonOverlap1Func != 0 && bot >= top)
                 (*nonOverlap1Func)(dest, r1, r1BandEnd, top, bot);
             ytop = r2->top();
         } else if (r2->top() < r1->top()) {
-            top = QMAX(r2->top(), ybot + 1);
-            bot = QMIN(r2->bottom(), r1->top() - 1);
+            top = qMax(r2->top(), ybot + 1);
+            bot = qMin(r2->bottom(), r1->top() - 1);
 
             if (nonOverlap2Func != 0 && bot >= top)
                 (*nonOverlap2Func)(dest, r2, r2BandEnd, top, bot);
@@ -708,7 +708,7 @@ static void miRegionOp(register QRegionPrivate &dest, QRegionPrivate *reg1, QReg
          * Now see if we've hit an intersecting band. The two bands only
          * intersect if ybot >= ytop
          */
-        ybot = QMIN(r1->bottom(), r2->bottom());
+        ybot = qMin(r1->bottom(), r2->bottom());
         curBand = dest.numRects;
         if (ybot >= ytop)
             (*overlapFunc)(dest, r1, r1BandEnd, r2, r2BandEnd, ytop, ybot);
@@ -736,7 +736,7 @@ static void miRegionOp(register QRegionPrivate &dest, QRegionPrivate *reg1, QReg
                 r1BandEnd = r1;
                 while (r1BandEnd < r1End && r1BandEnd->top() == r1->top())
                     ++r1BandEnd;
-                (*nonOverlap1Func)(dest, r1, r1BandEnd, QMAX(r1->top(), ybot + 1), r1->bottom());
+                (*nonOverlap1Func)(dest, r1, r1BandEnd, qMax(r1->top(), ybot + 1), r1->bottom());
                 r1 = r1BandEnd;
             } while (r1 != r1End);
         }
@@ -745,7 +745,7 @@ static void miRegionOp(register QRegionPrivate &dest, QRegionPrivate *reg1, QReg
             r2BandEnd = r2;
             while (r2BandEnd < r2End && r2BandEnd->top() == r2->top())
                  ++r2BandEnd;
-            (*nonOverlap2Func)(dest, r2, r2BandEnd, QMAX(r2->top(), ybot + 1), r2->bottom());
+            (*nonOverlap2Func)(dest, r2, r2BandEnd, qMax(r2->top(), ybot + 1), r2->bottom());
             r2 = r2BandEnd;
         } while (r2 != r2End);
     }
@@ -909,10 +909,10 @@ static void UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPriva
 
     miRegionOp(dest, reg1, reg2, miUnionO, miUnionNonO, miUnionNonO);
 
-    dest.extents.setCoords(QMIN(reg1->extents.left(), reg2->extents.left()),
-                           QMIN(reg1->extents.top(), reg2->extents.top()),
-                           QMAX(reg1->extents.right(), reg2->extents.right()),
-                           QMAX(reg1->extents.bottom(), reg2->extents.bottom()));
+    dest.extents.setCoords(qMin(reg1->extents.left(), reg2->extents.left()),
+                           qMin(reg1->extents.top(), reg2->extents.top()),
+                           qMax(reg1->extents.right(), reg2->extents.right()),
+                           qMax(reg1->extents.bottom(), reg2->extents.bottom()));
 }
 
 /*======================================================================
@@ -1955,10 +1955,10 @@ static QRegionPrivate *PolygonRegion(const QPoint *Pts, int Count, int rule)
                && (Pts[3].x() == Pts[0].x())) || ((Pts[0].x() == Pts[1].x())
                && (Pts[1].y() == Pts[2].y()) && (Pts[2].x() == Pts[3].x())
                && (Pts[3].y() == Pts[0].y())))) {
-        region->extents.setLeft( QMIN(Pts[0].x(), Pts[2].x()) );
-        region->extents.setTop( QMIN(Pts[0].y(), Pts[2].y()) );
-        region->extents.setRight( QMAX(Pts[0].x(), Pts[2].x()) );
-        region->extents.setBottom( QMAX(Pts[0].y(), Pts[2].y()) );
+        region->extents.setLeft( qMin(Pts[0].x(), Pts[2].x()) );
+        region->extents.setTop( qMin(Pts[0].y(), Pts[2].y()) );
+        region->extents.setRight( qMax(Pts[0].x(), Pts[2].x()) );
+        region->extents.setBottom( qMax(Pts[0].y(), Pts[2].y()) );
         if ((region->extents.left() <= region->extents.right()) &&
             (region->extents.top() <= region->extents.bottom())) {
             region->numRects = 1;
@@ -2570,10 +2570,10 @@ void QRegion::setRects(const QRect *rects, int num)
         for (int i = 0; i < num; ++i) {
             const QRect &rect = rects[i];
             d->qt_rgn->rects[i] = rect;
-            left = QMIN(rect.left(), left);
-            right = QMAX(rect.right(), right);
-            top = QMIN(rect.top(), top);
-            bottom = QMAX(rect.bottom(), bottom);
+            left = qMin(rect.left(), left);
+            right = qMax(rect.right(), right);
+            top = qMin(rect.top(), top);
+            bottom = qMax(rect.bottom(), bottom);
         }
         d->qt_rgn->extents = QRect(QPoint(left, top), QPoint(right, bottom));
     }

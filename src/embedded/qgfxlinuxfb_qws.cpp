@@ -421,7 +421,7 @@ bool QLinuxFbScreen::initDevice()
 		rbits=gbits=bbits=8;
 		break;
 	}
-	screencols=cmap.len=1<<QMAX(rbits,QMAX(gbits,bbits));
+	screencols=cmap.len=1<<qMax(rbits,qMax(gbits,bbits));
 	cmap.red=(unsigned short int *)
 		 malloc(sizeof(unsigned short int)*256);
 	cmap.green=(unsigned short int *)

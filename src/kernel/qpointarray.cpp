@@ -499,7 +499,7 @@ void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2, const QWMa
 
     int m = 3;
     int max;
-    int q = int(QMAX(QABS(xP - xQ), QABS(yP - yQ)));
+    int q = int(qMax(QABS(xP - xQ), QABS(yP - yQ)));
     if (arc)
 	q *= 2;
     do {
@@ -713,7 +713,7 @@ static int pnt_on_line(const int *p, const int *q, const int *t)
     if(q[0] == p[0] && q[1] == p[1] && q[0] == t[0] && q[1] == t[1])
 	return 2;
     if (QABS((q[1] - p[1]) * (t[0] - p[0]) - (t[1] - p[1]) * (q[0] - p[0])) >=
-	QMAX(QABS(q[0] - p[0]), QABS(q[1] - p[1])))
+	qMax(QABS(q[0] - p[0]), QABS(q[1] - p[1])))
 	return 0;
     if (((q[0] < p[0]) && (p[0] < t[0])) || ((q[1] < p[1]) && (p[1] < t[1])))
 	return 1;
@@ -800,8 +800,8 @@ QPointArray QPointArray::cubicBezier() const
     }
 
     QRect r = boundingRect();
-    int m = QMAX(r.width(), r.height()) / 2;
-    m = QMIN(m, 30);				// m = number of result points
+    int m = qMax(r.width(), r.height()) / 2;
+    m = qMin(m, 30);				// m = number of result points
     if (m < 2)
 	m = 2;
     QPointArray p(m);				// p = Bezier point array
@@ -842,7 +842,7 @@ QPointArray QPointArray::cubicBezier() const
 	return pa;
     } else {
 	QRect r = boundingRect();
-	int m = 4 + 2 * QMAX(r.width(), r.height());
+	int m = 4 + 2 * qMax(r.width(), r.height());
 	double *p = new double[m];
 	double ctrl[8];
 	int i;

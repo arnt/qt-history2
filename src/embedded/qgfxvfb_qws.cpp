@@ -329,7 +329,7 @@ void QGfxVFb<depth,type>::scroll( int x,int y,int w,int h,int sx,int sy )
     QWSDisplay::grab( TRUE );
     int dy = sy - y;
     int dx = sx - x;
-    ((QVFbScreen *)gfx_screen)->setDirty( QRect(QMIN(x,sx) + xoffs, QMIN(y,sy) + yoffs,
+    ((QVFbScreen *)gfx_screen)->setDirty( QRect(qMin(x,sx) + xoffs, qMin(y,sy) + yoffs,
 			   w+abs(dx), h+abs(dy)) );
     QGfxRaster<depth,type>::scroll( x, y, w, h, sx, sy );
     QWSDisplay::ungrab();

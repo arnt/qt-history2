@@ -683,9 +683,9 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     overlap = style().pixelMetric( QStyle::PM_TabBarBaseOverlap, this );
 
     if ( reverse ) {
-	tabx = QMIN( width() - t.width(), width() - t.width() - lw + 2 ) - lcw;
+	tabx = qMin( width() - t.width(), width() - t.width() - lw + 2 ) - lcw;
     } else {
-	tabx = QMAX( 0, lw - 2 ) + lcw;
+	tabx = qMax( 0, lw - 2 ) + lcw;
     }
     if ( d->pos == Bottom ) {
 	taby = height() - t.height() - lw;
@@ -714,7 +714,7 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	d->tabBase->show();
 
     d->stack->setGeometry( 0, stacky, width(), height() - (exth-overlap) -
-			   t.height()+QMAX(0, lw-2));
+			   t.height()+qMax(0, lw-2));
 
     d->dirty = FALSE;
     if ( !onlyCheck )
@@ -747,7 +747,7 @@ QSize QTabWidget::sizeHint() const
     QSize s( d->stack->sizeHint() );
     QSize t( d->tabs->sizeHint().boundedTo( QSize(200,200) ) );
 
-    QSize sz( QMAX( s.width(), t.width() ), s.height() + t.height() +
+    QSize sz( qMax( s.width(), t.width() ), s.height() + t.height() +
 	      ( d->tabBase->isVisible() ? d->tabBase->height() : 0 ) );
     return style().sizeFromContents(QStyle::CT_TabWidget, this, sz).expandedTo(QApplication::globalStrut());
 }
@@ -766,7 +766,7 @@ QSize QTabWidget::minimumSizeHint() const
     }
     QSize s( d->stack->minimumSizeHint() );
     QSize t( d->tabs->minimumSizeHint() );
-    QSize sz( QMAX( s.width(), t.width() ), s.height() + t.height() +
+    QSize sz( qMax( s.width(), t.width() ), s.height() + t.height() +
 	      ( d->tabBase->isVisible() ? d->tabBase->height() : 0 ) );
     return style().sizeFromContents(QStyle::CT_TabWidget, this, sz).expandedTo(QApplication::globalStrut());
 }

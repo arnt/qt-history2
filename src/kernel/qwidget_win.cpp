@@ -1210,10 +1210,10 @@ void qWinRequestConfig( WId, int, int, int, int, int );
 void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 {
     if ( d->extra ) {				// any size restrictions?
-	w = QMIN(w,d->extra->maxw);
-	h = QMIN(h,d->extra->maxh);
-	w = QMAX(w,d->extra->minw);
-	h = QMAX(h,d->extra->minh);
+	w = qMin(w,d->extra->maxw);
+	h = qMin(h,d->extra->maxh);
+	w = qMax(w,d->extra->minw);
+	h = qMax(h,d->extra->minh);
     }
     if ( w < 1 )				// invalid size
 	w = 1;
@@ -1279,7 +1279,7 @@ void QWidget::setMinimumSize( int minw, int minh )
     d->extra->minh = minh;
     if ( minw > width() || minh > height() ) {
 	bool resized = testAttribute(WA_Resized);
-	resize( QMAX(minw,width()), QMAX(minh,height()) );
+	resize( qMax(minw,width()), qMax(minh,height()) );
 	setAttribute(WA_Resized, resized); //not a user resize
     }
     updateGeometry();
@@ -1290,15 +1290,15 @@ void QWidget::setMaximumSize( int maxw, int maxh )
     if ( maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX ) {
 	qWarning("QWidget::setMaximumSize: The largest allowed size is (%d,%d)",
 		 QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
-	maxw = QMIN( maxw, QWIDGETSIZE_MAX );
-	maxh = QMIN( maxh, QWIDGETSIZE_MAX );
+	maxw = qMin( maxw, QWIDGETSIZE_MAX );
+	maxh = qMin( maxh, QWIDGETSIZE_MAX );
     }
     if ( maxw < 0 || maxh < 0 ) {
 	qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
 		"are not possible",
 		name( "unnamed" ), className(), maxw, maxh );
-	maxw = QMAX( maxw, 0 );
-	maxh = QMAX( maxh, 0 );
+	maxw = qMax( maxw, 0 );
+	maxh = qMax( maxh, 0 );
     }
     d->createExtra();
     if ( d->extra->maxw == maxw && d->extra->maxh == maxh )
@@ -1307,7 +1307,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
     d->extra->maxh = maxh;
     if ( maxw < width() || maxh < height() ) {
 	bool resized = testAttribute(WA_Resized);
-	resize( QMIN(maxw,width()), QMIN(maxh,height()) );
+	resize( qMin(maxw,width()), qMin(maxh,height()) );
 	setAttribute(WA_Resized, resized); //not a user resize
     }
     updateGeometry();

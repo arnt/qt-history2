@@ -200,12 +200,12 @@ void QGroupBox::setTextSpacer()
 	    for ( QLayoutIterator it = layout()->iterator(); it.current(); ++it ) {
 		if ( it.current()->layout() ) {
 		    m += it.current()->layout()->margin();
-		    sp = QMAX( sp, it.current()->layout()->spacing() );
+		    sp = qMax( sp, it.current()->layout()->spacing() );
 		    break;
 		}
 	    }
-	    h = QMAX( fh-m, h );
-	    h += QMAX( sp - (h+m - fh), 0 );
+	    h = qMax( fh-m, h );
+	    h += qMax( sp - (h+m - fh), 0 );
 	}
     }
     d->spacer->changeSize( w, h, QSizePolicy::Minimum, QSizePolicy::Fixed );

@@ -230,7 +230,7 @@ inline char *QCircularBuffer::alloc(uint size)
 		buf[curr_buff].resize(getbuf_cache_size*2);
 	} else {
 	    int sz = buf[curr_buff].size();
-	    buf[curr_buff].resize(QMAX((uint)sz + (sz / 2), (getbuf_cache_size*2)));
+	    buf[curr_buff].resize(qMax((uint)sz + (sz / 2), (getbuf_cache_size*2)));
 	}
     }
     int off = used;
@@ -248,7 +248,7 @@ inline char *QCircularBuffer::take(uint size, uint *real_size)
 	size = used;
     }
     if(real_size)
-	*real_size = QMIN(size, buf[start_buff].size() - start_off);
+	*real_size = qMin(size, buf[start_buff].size() - start_off);
     return buf[start_buff].data()+start_off;
 }
 
@@ -835,11 +835,11 @@ bool QTextStream::ts_getbuf( QChar* buf, uint len, uchar end_flags, uint *l )
 	    /* We don't use buffer_len here, but instead use a "guess" at how
 	       much to decode. We do this to avoid decoding more than we need to
 	       (but it will grab more with each iteration if necesary) --Sam */
-	    int need_num = QMIN((len - rnum) * iter, buffer_len);
+	    int need_num = qMin((len - rnum) * iter, buffer_len);
 	    QString s = d->decoder->toUnicode( buffer_data, need_num );
 	    d->cacheReadBuf.free(need_num);
 
-	    uint used_len = QMIN((len - rnum), (uint)s.length());
+	    uint used_len = qMin((len - rnum), (uint)s.length());
 	    if(end_flags) {
 		for(uint i = 0; i < used_len; i++) {
 		    if(int end = ts_end(s.unicode()+i, used_len - i, end_flags)) {

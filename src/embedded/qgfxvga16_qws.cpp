@@ -1550,7 +1550,7 @@ void QGfxVga16::drawPolyline( const QPointArray &a,int index, int npoints )
 {
     BEGIN_PROFILING
 
-    //int m=QMIN( index+npoints-1, int(a.size())-1 );
+    //int m=qMin( index+npoints-1, int(a.size())-1 );
     VGA16_GFX_START(clipbounds)
     int loopc;
     int end;
@@ -1612,7 +1612,7 @@ void QGfxVga16::scroll( int rx,int ry,int w,int h,int sx, int sy )
     if (dx == 0 && dy == 0)
 	return;
 
-    VGA16_GFX_START(QRect(QMIN(rx+xoffs,sx+xoffs), QMIN(ry+yoffs,sy+yoffs), w+QABS(dx)+1, h+QABS(dy)+1))
+    VGA16_GFX_START(QRect(qMin(rx+xoffs,sx+xoffs), qMin(ry+yoffs,sy+yoffs), w+QABS(dx)+1, h+QABS(dy)+1))
 
     srcbits=buffer;
     src_normal_palette=TRUE;

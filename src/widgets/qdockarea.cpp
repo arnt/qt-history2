@@ -109,8 +109,8 @@ QSize QDockAreaLayout::sizeHint() const
 	    x = dw->x();
 	    pw = dw->width();
 	}
-	h = QMAX( h, dw->height() + plush );
-	w = QMAX( w, dw->width() + plusw );
+	h = qMax( h, dw->height() + plush );
+	w = qMax( w, dw->width() + plusw );
     }
 
     if ( hasHeightForWidth() )
@@ -142,9 +142,9 @@ void QDockAreaLayout::invalidate()
 static int start_pos( const QRect &r, Qt::Orientation o )
 {
     if ( o == Qt::Horizontal ) {
-	return QMAX( 0, r.x() );
+	return qMax( 0, r.x() );
     } else {
-	return QMAX( 0, r.y() );
+	return qMax( 0, r.y() );
     }
 }
 
@@ -169,9 +169,9 @@ static int space_left( const QRect &r, int pos, Qt::Orientation o )
 static int dock_extent( QDockWindow *w, Qt::Orientation o, int maxsize )
 {
     if ( o == Qt::Horizontal )
-	return QMIN( maxsize, QMAX( w->sizeHint().width(), w->fixedExtent().width() ) );
+	return qMin( maxsize, qMax( w->sizeHint().width(), w->fixedExtent().width() ) );
     else
-	return QMIN( maxsize, QMAX( w->sizeHint().height(), w->fixedExtent().height() ) );
+	return qMin( maxsize, qMax( w->sizeHint().height(), w->fixedExtent().height() ) );
 }
 
 static int dock_strut( QDockWindow *w, Qt::Orientation o )
@@ -179,13 +179,13 @@ static int dock_strut( QDockWindow *w, Qt::Orientation o )
     if ( o != Qt::Horizontal ) {
 	int wid;
 	if ( ( wid = w->fixedExtent().width() ) != -1 )
-	    return QMAX( wid, QMAX( w->minimumSize().width(), w->minimumSizeHint().width() ) );
-	return QMAX( w->sizeHint().width(), QMAX( w->minimumSize().width(), w->minimumSizeHint().width() ) );
+	    return qMax( wid, qMax( w->minimumSize().width(), w->minimumSizeHint().width() ) );
+	return qMax( w->sizeHint().width(), qMax( w->minimumSize().width(), w->minimumSizeHint().width() ) );
     } else {
 	int hei;
 	if ( ( hei = w->fixedExtent().height() ) != -1 )
-	    return QMAX( hei, QMAX( w->minimumSizeHint().height(), w->minimumSize().height() ) );
-	return QMAX( w->sizeHint().height(), QMAX( w->minimumSizeHint().height(), w->minimumSize().height() ) );
+	    return qMax( hei, qMax( w->minimumSizeHint().height(), w->minimumSize().height() ) );
+	return qMax( w->sizeHint().height(), qMax( w->minimumSizeHint().height(), w->minimumSize().height() ) );
     }
 }
 
@@ -240,10 +240,10 @@ static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int l
 	    continue;
 	}
 	if ( !last->isStretchable() ) {
-	    int w = QMIN( lastRect.width(), maxsize );
+	    int w = qMin( lastRect.width(), maxsize );
 	    set_geometry( last, lastRect.x(), lastRect.y(), w, lastRect.height(), o );
 	} else {
-	    int w = QMIN( (*it).rect.x() - lastRect.x(), maxsize );
+	    int w = qMin( (*it).rect.x() - lastRect.x(), maxsize );
 	    set_geometry( last, lastRect.x(), lastRect.y(), w,
 			  last->isResizeEnabled() ? linestrut : lastRect.height(), o );
 	}
@@ -253,10 +253,10 @@ static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int l
     if ( !last )
 	return;
     if ( !last->isStretchable() ) {
-	int w = QMIN( lastRect.width(), maxsize );
+	int w = qMin( lastRect.width(), maxsize );
 	set_geometry( last, lastRect.x(), lastRect.y(), w, lastRect.height(), o );
     } else {
-	int w = QMIN( fullextent - lastRect.x() - ( o == Qt::Vertical ? 1 : 0 ), maxsize );
+	int w = qMin( fullextent - lastRect.x() - ( o == Qt::Vertical ? 1 : 0 ), maxsize );
 	set_geometry( last, lastRect.x(), lastRect.y(), w,
 		      last->isResizeEnabled() ? linestrut : lastRect.height(), o );
     }
@@ -281,7 +281,7 @@ QSize QDockAreaLayout::minimumSize() const
 	++it;
 	if ( dw->isHidden() )
 	    continue;
-	s = QMAX( s, dock_strut( dw, orientation() ) );
+	s = qMax( s, dock_strut( dw, orientation() ) );
     }
 
     return orientation() == Horizontal ? QSize( 0, s ? s+2 : 0 ) :  QSize( s, 0 );
@@ -328,9 +328,9 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	int op = pos;
 	int dockExtend = dock_extent( dw, orientation(), maxsize );
 	if ( !dw->isStretchable() ) {
-	    pos = QMAX( pos, dw->offset() );
+	    pos = qMax( pos, dw->offset() );
 	    if ( pos + dockExtend > size_extent( r.size(), orientation() ) - 1 )
-		pos = QMAX( op, size_extent( r.size(), orientation() ) - 1 - dockExtend );
+		pos = qMax( op, size_extent( r.size(), orientation() ) - 1 - dockExtend );
 	}
 	if ( !lastLine.isEmpty() && !dw->newLine() && space_left( rect, pos, orientation() ) < dockExtend )
 	    shrink_extend( dw, dockExtend, space_left( rect, pos, orientation() ), orientation() );
@@ -358,16 +358,16 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	    // try to make the best position
 	    int op = pos;
 	    if ( !dw->isStretchable() )
-		pos = QMAX( pos, dw->offset() );
+		pos = qMax( pos, dw->offset() );
 	    if ( pos + dockExtend > size_extent( r.size(), orientation() ) - 1 )
-		pos = QMAX( op, size_extent( r.size(), orientation() ) - 1 - dockExtend );
+		pos = qMax( op, size_extent( r.size(), orientation() ) - 1 - dockExtend );
 	}
 	// do some calculations and add the remember the rect which the docking widget requires for the placing
 	QRect dwRect(pos, sectionpos, dockExtend, dock_strut( dw, orientation()  ) );
 	lastLine.append( DockData( dw, dwRect ) );
 	if ( qt_cast<QToolBar*>(dw) )
-	    tbstrut = QMAX( tbstrut, dock_strut( dw, orientation() ) );
-	linestrut = QMAX( dock_strut( dw, orientation() ), linestrut );
+	    tbstrut = qMax( tbstrut, dock_strut( dw, orientation() ) );
+	linestrut = qMax( dock_strut( dw, orientation() ), linestrut );
 	add_size( dockExtend, pos, orientation() );
     }
 
@@ -645,15 +645,15 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 	if ( dw->isResizeEnabled() )
 	    hasResizable = TRUE;
 	if ( orientation() != Qt::Horizontal )
-	    mse = QMAX( QMAX( dw->fixedExtent().width(), dw->width() ), mse );
+	    mse = qMax( qMax( dw->fixedExtent().width(), dw->width() ), mse );
 	else
-	    mse = QMAX( QMAX( dw->fixedExtent().height(), dw->height() ), mse );
+	    mse = qMax( qMax( dw->fixedExtent().height(), dw->height() ), mse );
     }
     if ( !hasResizable && w->isResizeEnabled() ) {
 	if ( orientation() != Qt::Horizontal )
-	    mse = QMAX( w->fixedExtent().width(), mse );
+	    mse = qMax( w->fixedExtent().width(), mse );
 	else
-	    mse = QMAX( w->fixedExtent().height(), mse );
+	    mse = qMax( w->fixedExtent().height(), mse );
     }
 
     QDockWindow *dockWindow = 0;
@@ -843,9 +843,9 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 
     if ( mse != -10 && w->isResizeEnabled() ) {
 	if ( orientation() != Qt::Horizontal )
-	    w->setFixedExtentWidth( QMIN( QMAX( w->minimumWidth(), mse ), w->sizeHint().width() ) );
+	    w->setFixedExtentWidth( qMin( qMax( w->minimumWidth(), mse ), w->sizeHint().width() ) );
 	else
-	    w->setFixedExtentHeight( QMIN( QMAX( w->minimumHeight(), mse ), w->sizeHint().height() ) );
+	    w->setFixedExtentHeight( qMin( qMax( w->minimumHeight(), mse ), w->sizeHint().height() ) );
     }
 
     updateLayout();
@@ -1126,13 +1126,13 @@ int QDockArea::maxSpace( int hint, QDockWindow *dw )
     if ( orientation() == Horizontal ) {
 	w->setFixedExtentWidth( -1 );
 	if ( !tb )
-	    min = QMAX( w->minimumSize().width(), w->minimumSizeHint().width() );
+	    min = qMax( w->minimumSize().width(), w->minimumSizeHint().width() );
 	else
 	    min = w->sizeHint().width();
     } else {
 	w->setFixedExtentHeight( -1 );
 	if ( !tb )
-	    min = QMAX( w->minimumSize().height(), w->minimumSizeHint().height() );
+	    min = qMax( w->minimumSize().height(), w->minimumSizeHint().height() );
 	else
 	    min = w->sizeHint().height();
     }
@@ -1165,9 +1165,9 @@ void QDockArea::setFixedExtent( int d, QDockWindow *dw )
 		continue;
 	}
 	if ( orientation() == Horizontal )
-	    d = QMAX( d, w->minimumHeight() );
+	    d = qMax( d, w->minimumHeight() );
 	else
-	    d = QMAX( d, w->minimumWidth() );
+	    d = qMax( d, w->minimumWidth() );
 	if ( w->isResizeEnabled() )
 	    lst.append( w );
     }

@@ -1025,10 +1025,10 @@ void QDragManager::updatePixmap()
 	    for (int cnum=0; cnum<n_cursor; cnum++) {
 		QPixmap cpm = pm_cursor[cnum];
 
-		int x1 = QMIN(-pm_hot.x(),0);
-		int x2 = QMAX(pm.width()-pm_hot.x(),cpm.width());
-		int y1 = QMIN(-pm_hot.y(),0);
-		int y2 = QMAX(pm.height()-pm_hot.y(),cpm.height());
+		int x1 = qMin(-pm_hot.x(),0);
+		int x2 = qMax(pm.width()-pm_hot.x(),cpm.width());
+		int y1 = qMin(-pm_hot.y(),0);
+		int y2 = qMax(pm.height()-pm_hot.y(),cpm.height());
 
 		int w = x2-x1+1;
 		int h = y2-y1+1;
@@ -1056,8 +1056,8 @@ void QDragManager::updatePixmap()
 		{
 		    QPainter p(&colorbits);
 		    p.fillRect(0,0,w,h,color1);
-		    p.drawPixmap(QMAX(0,-pm_hot.x()),QMAX(0,-pm_hot.y()),pm);
-		    p.drawPixmap(QMAX(0,pm_hot.x()),QMAX(0,pm_hot.y()),cpm);
+		    p.drawPixmap(qMax(0,-pm_hot.x()),qMax(0,-pm_hot.y()),pm);
+		    p.drawPixmap(qMax(0,pm_hot.x()),qMax(0,pm_hot.y()),cpm);
 		}
 
 		QBitmap maskbits(w,h,TRUE,QPixmap::NormalOptim);
@@ -1066,17 +1066,17 @@ void QDragManager::updatePixmap()
 		    if ( pm.mask() ) {
 			QBitmap m(*pm.mask());
 			m.setMask(m);
-			p.drawPixmap(QMAX(0,-pm_hot.x()),QMAX(0,-pm_hot.y()),m);
+			p.drawPixmap(qMax(0,-pm_hot.x()),qMax(0,-pm_hot.y()),m);
 		    } else {
-			p.fillRect(QMAX(0,-pm_hot.x()),QMAX(0,-pm_hot.y()),
+			p.fillRect(qMax(0,-pm_hot.x()),qMax(0,-pm_hot.y()),
 			    pm.width(),pm.height(),color1);
 		    }
 		    if ( cpm.mask() ) {
 			QBitmap m(*cpm.mask());
 			m.setMask(m);
-			p.drawPixmap(QMAX(0,pm_hot.x()),QMAX(0,pm_hot.y()),m);
+			p.drawPixmap(qMax(0,pm_hot.x()),qMax(0,pm_hot.y()),m);
 		    } else {
-			p.fillRect(QMAX(0,pm_hot.x()),QMAX(0,pm_hot.y()),
+			p.fillRect(qMax(0,pm_hot.x()),qMax(0,pm_hot.y()),
 			    cpm.width(),cpm.height(),
 			    color1);
 		    }
@@ -1085,8 +1085,8 @@ void QDragManager::updatePixmap()
 		HBITMAP im = qt_createIconMask(maskbits);
 		ICONINFO ii;
 		ii.fIcon     = FALSE;
-		ii.xHotspot  = QMAX(0,pm_hot.x());
-		ii.yHotspot  = QMAX(0,pm_hot.y());
+		ii.xHotspot  = qMax(0,pm_hot.x());
+		ii.yHotspot  = qMax(0,pm_hot.y());
 		ii.hbmMask   = im;
 		ii.hbmColor  = colorbits.hbm();
 		cursor[cnum] = CreateIconIndirect(&ii);

@@ -588,7 +588,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
     fw -= t->label.count('&') * fm.width('&');
     fw += t->label.count("&&") * fm.width('&');
     int w = iw + fw + 4;
-    int h = QMAX(fm.height() + 4, ih );
+    int h = qMax(fm.height() + 4, ih );
     paintLabel( p, QRect( r.left() + (r.width()-w)/2 - 3,
 			  r.top() + (r.height()-h)/2,
 			  w, h ), t, t->id == keyboardFocusTab() );
@@ -1075,12 +1075,12 @@ void QTabBar::layoutTabs()
 	    iw = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
 	    ih = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
 	}
-	int h = QMAX( fm.height(), ih );
-	h = QMAX( h, QApplication::globalStrut().height() );
+	int h = qMax( fm.height(), ih );
+	h = qMax( h, QApplication::globalStrut().height() );
 
 	h += vframe;
 	t->r = QRect(QPoint(x, 0), style().sizeFromContents(QStyle::CT_TabBarTab, this,
-   	             QSize( QMAX( lw + hframe + iw, QApplication::globalStrut().width() ), h ),
+   	             QSize( qMax( lw + hframe + iw, QApplication::globalStrut().width() ), h ),
 		     QStyleOption(t) ));
 	x += t->r.width() - overlap;
 	r = r.unite( t->r );

@@ -25,7 +25,7 @@ QByteArray QUtf8Codec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     int l = uc.length();
     if (lenInOut > 0)
-	l = QMIN(l, lenInOut);
+	l = qMin(l, lenInOut);
     int rlen = l*3+1;
     QByteArray rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();

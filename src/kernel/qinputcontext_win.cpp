@@ -288,7 +288,7 @@ static QString getString( HIMC himc, DWORD dwindex, int *selStart = 0, int *selL
     int len = getCompositionString( himc, dwindex, 0, 0 ) + 1;
     if ( !buffer || len > buflen ) {
 	delete [] buffer;
-	buflen = QMIN( len, 256 );
+	buflen = qMin( len, 256 );
 	buffer = new char[ buflen ];
     }
 
@@ -301,7 +301,7 @@ static QString getString( HIMC himc, DWORD dwindex, int *selStart = 0, int *selL
 	int attrlen = getCompositionString( himc, dwindex, 0, 0 ) + 1;
 	if ( !attrbuffer || attrlen> attrbuflen ) {
 	    delete [] attrbuffer;
-	    attrbuflen = QMIN( attrlen, 256 );
+	    attrbuflen = qMin( attrlen, 256 );
 	    attrbuffer = new char[ attrbuflen ];
 	}
 	attrlen = getCompositionString( himc, GCS_COMPATTR, attrbuffer, attrbuflen );
@@ -309,11 +309,11 @@ static QString getString( HIMC himc, DWORD dwindex, int *selStart = 0, int *selL
 	*selLength = -1;
 	for ( int i = 0; i < attrlen; i++ ) {
 	    if ( attrbuffer[i] & ATTR_TARGET_CONVERTED ) {
-		*selStart = QMIN( *selStart, i );
-		*selLength = QMAX( *selLength, i );
+		*selStart = qMin( *selStart, i );
+		*selLength = qMax( *selLength, i );
 	    }
 	}
-	*selLength = QMAX(0, *selLength - *selStart + 1);
+	*selLength = qMax(0, *selLength - *selStart + 1);
     }
 
     if ( len <= 0 )

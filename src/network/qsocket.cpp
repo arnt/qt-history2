@@ -1075,7 +1075,7 @@ void QSocket::sn_read( bool force )
 	// event is processed. A new read operation would then block.
 	// This code is also useful when QSocket is used without an
 	// event loop.
-	nread = d->socket->readBlock( buf, maxToRead ? QMIN((Q_LONG)sizeof(buf),maxToRead) : sizeof(buf) );
+	nread = d->socket->readBlock( buf, maxToRead ? qMin((Q_LONG)sizeof(buf),maxToRead) : sizeof(buf) );
 	if ( nread == 0 ) {			// really closed
 #if defined(QSOCKET_DEBUG)
 	    qDebug( "QSocket (%s): sn_read: Connection closed", name() );
@@ -1112,10 +1112,10 @@ void QSocket::sn_read( bool force )
 	if ( nbytes > (int)sizeof(buf) ) {
 	    // big
 	    a = new QByteArray( nbytes );
-	    nread = d->socket->readBlock( a->data(), maxToRead ? QMIN(nbytes,maxToRead) : nbytes );
+	    nread = d->socket->readBlock( a->data(), maxToRead ? qMin(nbytes,maxToRead) : nbytes );
 	} else {
 	    a = 0;
-	    nread = d->socket->readBlock( buf, maxToRead ? QMIN((Q_LONG)sizeof(buf),maxToRead) : sizeof(buf) );
+	    nread = d->socket->readBlock( buf, maxToRead ? qMin((Q_LONG)sizeof(buf),maxToRead) : sizeof(buf) );
 	    if ( nread > 0 ) {
 		// ##### could setRawData
 		a = new QByteArray( nread );

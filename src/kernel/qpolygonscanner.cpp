@@ -561,8 +561,8 @@ miCreateETandAET(int count, DDXPointPtr pts, EdgeTable *ET,
 		return FALSE;
 	    }
 
-            ET->ymax = QMAX(ET->ymax, PrevPt->y);
-            ET->ymin = QMIN(ET->ymin, PrevPt->y);
+            ET->ymax = qMax(ET->ymax, PrevPt->y);
+            ET->ymin = qMin(ET->ymin, PrevPt->y);
             pETEs++;
         }
 

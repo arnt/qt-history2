@@ -1622,8 +1622,8 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 	start = from;
 	end = from+len;
     } else {
-	start = QMAX( 0,  from - 8 );
-	end = QMIN( (int)str.length(), from + len + 8 );
+	start = qMax( 0,  from - 8 );
+	end = qMin( (int)str.length(), from + len + 8 );
     }
     QConstString cstr( str.unicode() + start, end - start );
     from -= start;

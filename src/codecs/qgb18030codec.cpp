@@ -156,7 +156,7 @@ int QGb18030Codec::mibEnum() const
 /*! \reimp */
 QByteArray QGb18030Codec::fromUnicode(const QString& uc, int& lenInOut) const
 {
-    int l = QMIN((int)uc.length(),(lenInOut<0)?(int)uc.length():lenInOut);
+    int l = qMin((int)uc.length(),(lenInOut<0)?(int)uc.length():lenInOut);
     int rlen = l*4+1;
     QByteArray rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();
@@ -550,7 +550,7 @@ QTextDecoder* QGbkCodec::makeDecoder() const
 /*! \reimp */
 QByteArray QGbkCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
-    int l = QMIN((int)uc.length(),(lenInOut<0)?(int)uc.length():lenInOut);
+    int l = qMin((int)uc.length(),(lenInOut<0)?(int)uc.length():lenInOut);
     int rlen = l*2+1;
     QByteArray rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();
@@ -749,7 +749,7 @@ QTextDecoder* QGb2312Codec::makeDecoder() const
 /*! \reimp */
 QByteArray QGb2312Codec::fromUnicode(const QString& uc, int& lenInOut) const
 {
-    int l = QMIN((int)uc.length(),(lenInOut<0)?(int)uc.length():lenInOut);
+    int l = qMin((int)uc.length(),(lenInOut<0)?(int)uc.length():lenInOut);
     int rlen = l*2+1;
     QByteArray rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();

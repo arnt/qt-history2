@@ -495,7 +495,7 @@ void QSlider::wheelEvent( QWheelEvent * e )
 	offset_owner = this;
 	offset = 0;
     }
-    offset += -e->delta()*QMAX(pageStep(),lineStep())/120;
+    offset += -e->delta()*qMax(pageStep(),lineStep())/120;
     if (QABS(offset)<1)
 	return;
     setValue( value() + int(offset) );
@@ -538,7 +538,7 @@ void QSlider::focusOutEvent( QFocusEvent * e )
 void QSlider::moveSlider( int pos )
 {
     int  a = available();
-    int newPos = QMIN( a, QMAX( 0, pos ) );
+    int newPos = qMin( a, qMax( 0, pos ) );
     int newVal = valueFromPosition( newPos );
     if (style().styleHint(QStyle::SH_Slider_SnapToValue, this))
 	newPos = positionFromValue( newVal );
@@ -781,7 +781,7 @@ void QSlider::setTickmarks( TickSetting s )
 
 void QSlider::setTickInterval( int i )
 {
-    tickInt = QMAX( 0, i );
+    tickInt = qMax( 0, i );
     update();
 }
 

@@ -50,7 +50,7 @@ static inline void positionCluster( QTextEngine *engine, QScriptItem *si, int gf
 
     if ( si->analysis.script == QFont::Hebrew ) {
 	// we need to attach below the baseline, because of the hebrew iud.
-	baseInfo.height= QMAX( baseInfo.height, -baseInfo.y );
+	baseInfo.height= qMax( baseInfo.height, -baseInfo.y );
     }
     QRect baseRect( baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height );
 
@@ -58,7 +58,7 @@ static inline void positionCluster( QTextEngine *engine, QScriptItem *si, int gf
 //     qDebug( "baseInfo: %d/%d (%d/%d) off=%d/%d", baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height, baseInfo.xoff, baseInfo.yoff );
 
     int size = f->ascent()/10;
-    int offsetBase = (size - 4) / 4 + QMIN( size, 4 ) + 1;
+    int offsetBase = (size - 4) / 4 + qMin( size, 4 ) + 1;
 //     qDebug("offset = %d", offsetBase );
 
     bool rightToLeft = si->analysis.bidiLevel % 2;

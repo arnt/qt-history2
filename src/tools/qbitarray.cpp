@@ -194,11 +194,11 @@ void QBitArray::resize(int size)
 
 QBitArray &QBitArray::operator&=(const QBitArray &a)
 {
-    resize(QMAX(size(), a.size()));
+    resize(qMax(size(), a.size()));
     uchar *a1 = (uchar *)d.data()+1;
     const uchar *a2 = (const uchar *)a.d.constData() + 1;
-    int n = QMIN(d.size(), a.d.size()) - 1;
-    int p = QMAX(d.size(), a.d.size()) - 1 - n;
+    int n = qMin(d.size(), a.d.size()) - 1;
+    int p = qMax(d.size(), a.d.size()) - 1 - n;
     while (n-- > 0)
 	*a1++ &= *a2++;
     while (p-- > 0)
@@ -225,10 +225,10 @@ QBitArray &QBitArray::operator&=(const QBitArray &a)
 
 QBitArray &QBitArray::operator|=(const QBitArray &a)
 {
-    resize(QMAX(size(), a.size()));
+    resize(qMax(size(), a.size()));
     uchar *a1 = (uchar *)d.data()+1;
     const uchar *a2 = (const uchar *)a.d.constData()+1;
-    int n = QMIN(d.size(), a.d.size()) - 1;
+    int n = qMin(d.size(), a.d.size()) - 1;
     while (n-- > 0)
 	*a1++ |= *a2++;
     return *this;
@@ -253,10 +253,10 @@ QBitArray &QBitArray::operator|=(const QBitArray &a)
 
 QBitArray &QBitArray::operator^=(const QBitArray &a)
 {
-    resize(QMAX(size(), a.size()));
+    resize(qMax(size(), a.size()));
     uchar *a1 = (uchar *)d.data();
     const uchar *a2 = (const uchar *)a.d.constData();
-    int n = QMIN(d.size(), a.d.size()) - 1;
+    int n = qMin(d.size(), a.d.size()) - 1;
     while (n-- > 0)
 	*a1++ ^= *a2++;
     return *this;

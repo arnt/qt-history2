@@ -885,8 +885,8 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
 
     QSize s1 = d->ok->sizeHint();
     QSize s2 = cancel->sizeHint();
-    s1 = QSize( QMAX(s1.width(), s2.width()),
-		QMAX(s1.height(), s2.height()) );
+    s1 = QSize( qMax(s1.width(), s2.width()),
+		qMax(s1.height(), s2.height()) );
 
     d->ok->setFixedSize( s1 );
     cancel->setFixedSize( s1 );
@@ -1479,14 +1479,14 @@ void QPrintDialog::printRangeSelected( int id )
 void QPrintDialog::setFirstPage( int fp )
 {
     if ( d->printer )
-	d->lastPage->setRange( fp, QMAX(fp, QPrintDialog::d->printer->maxPage()) );
+	d->lastPage->setRange( fp, qMax(fp, QPrintDialog::d->printer->maxPage()) );
 }
 
 
 void QPrintDialog::setLastPage( int lp )
 {
     if ( d->printer )
-	d->firstPage->setRange( QMIN(lp, QPrintDialog::d->printer->minPage()), lp );
+	d->firstPage->setRange( qMin(lp, QPrintDialog::d->printer->minPage()), lp );
 }
 
 

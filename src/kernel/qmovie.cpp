@@ -502,7 +502,7 @@ void QMoviePrivate::receive(const uchar* b, int bytecount)
 
 int QMoviePrivate::bufferSpace()
 {
-    return QMIN(buf_size, (int)(source->size()-source->at()));
+    return qMin(buf_size, (int)(source->size()-source->at()));
 }
 
 void QMoviePrivate::pollForData()

@@ -453,7 +453,7 @@ void write_jpeg_image(QImageIO* iio)
 	}
 
 	jpeg_set_defaults(&cinfo);
-	int quality = iio->quality() >= 0 ? QMIN(iio->quality(),100) : 75;
+	int quality = iio->quality() >= 0 ? qMin(iio->quality(),100) : 75;
 #if defined(Q_OS_UNIXWARE)
 	jpeg_set_quality(&cinfo, quality, B_TRUE /* limit to baseline-JPEG values */);
 	jpeg_start_compress(&cinfo, B_TRUE);

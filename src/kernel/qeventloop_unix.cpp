@@ -288,7 +288,7 @@ void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
     list.insert( i, sn );
 
     FD_SET( sockfd, fds );
-    d->sn_highest = QMAX( d->sn_highest, sockfd );
+    d->sn_highest = qMax( d->sn_highest, sockfd );
 }
 
 void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
@@ -321,7 +321,7 @@ void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
 	d->sn_highest = -1;
 	for ( int i=0; i<3; i++ ) {
 	    if ( !d->sn_vec[i].list.isEmpty() )
-		d->sn_highest = QMAX( d->sn_highest,  // list is fd-sorted
+		d->sn_highest = qMax( d->sn_highest,  // list is fd-sorted
 				      d->sn_vec[i].list.first()->fd );
 	}
     }
@@ -507,12 +507,12 @@ int QEventLoopPrivate::eventloopSelect(uint flags, timeval *t)
     if ( xfd != -1 ) {
 	// select for events on the event socket - only on X11
 	FD_SET( xfd, &sn_vec[0].select_fds );
-	highest = QMAX( highest, xfd );
+	highest = qMax( highest, xfd );
     }
 #endif
 
     FD_SET( thread_pipe[0], &sn_vec[0].select_fds );
-    highest = QMAX( highest, thread_pipe[0] );
+    highest = qMax( highest, thread_pipe[0] );
     int nsel = select(highest + 1, &sn_vec[0].select_fds, &sn_vec[1].select_fds,
 		      &sn_vec[2].select_fds, t);
 

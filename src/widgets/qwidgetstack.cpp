@@ -134,7 +134,7 @@ int QWidgetStack::addWidget( QWidget * w, int id )
     else if ( id == -1 )
 	id = pseq_no++;
     else
-	pseq_no = QMAX(pseq_no, id + 1);
+	pseq_no = qMax(pseq_no, id + 1);
 	// use id >= 0 as-is
 
     dict->insert( id, w );

@@ -106,7 +106,7 @@ public:
     inline int numRows() const { return rr; }
     inline int numCols() const { return cc; }
     inline void expand( int rows, int cols )
-    { setSize( QMAX(rows, rr), QMAX(cols, cc) ); }
+    { setSize( qMax(rows, rr), qMax(cols, cc) ); }
     inline void setRowStretch( int r, int s )
     { expand( r + 1, 0 ); rStretch[r] = s; setDirty(); }
     inline void setColStretch( int c, int s )
@@ -252,8 +252,8 @@ void QGridLayoutData::recalcHFW( int w, int spacing )
     }
 
     hfw_width = w;
-    hfw_height = QMIN( QLAYOUTSIZE_MAX, h );
-    hfw_minheight = QMIN( QLAYOUTSIZE_MAX, h );
+    hfw_height = qMin( QLAYOUTSIZE_MAX, h );
+    hfw_minheight = qMin( QLAYOUTSIZE_MAX, h );
 }
 
 int QGridLayoutData::heightForWidth( int w, int margin, int spacing )
@@ -326,8 +326,8 @@ QSize QGridLayoutData::findSize( QCOORD QLayoutStruct::*size, int spacer ) const
     }
     if ( n )
 	w += ( n - 1 ) * spacer;
-    w = QMIN( QLAYOUTSIZE_MAX, w );
-    h = QMIN( QLAYOUTSIZE_MAX, h );
+    w = qMin( QLAYOUTSIZE_MAX, w );
+    h = qMin( QLAYOUTSIZE_MAX, h );
 
     return QSize( w, h );
 }
@@ -370,7 +370,7 @@ QSize QGridLayoutData::minimumSize( int spacer ) const
 void QGridLayoutData::setSize( int r, int c )
 {
     if ( (int)rowData.size() < r ) {
-	int newR = QMAX( r, rr * 2 );
+	int newR = qMax( r, rr * 2 );
 	rowData.resize( newR );
 	rStretch.resize( newR );
 	rSpacing.resize( newR );
@@ -381,7 +381,7 @@ void QGridLayoutData::setSize( int r, int c )
 	}
     }
     if ( (int)colData.size() < c ) {
-	int newC = QMAX( c, cc * 2 );
+	int newC = qMax( c, cc * 2 );
 	colData.resize( newC );
 	cStretch.resize( newC );
 	cSpacing.resize( newC );
@@ -469,11 +469,11 @@ void QGridLayoutData::addData( QGridBox *box, bool r, bool c )
 
     if ( c ) {
 	if ( !cStretch[box->col] )
-	    colData[box->col].stretch = QMAX( colData[box->col].stretch,
+	    colData[box->col].stretch = qMax( colData[box->col].stretch,
 					      box->hStretch() );
-	colData[box->col].sizeHint = QMAX( hint.width(),
+	colData[box->col].sizeHint = qMax( hint.width(),
 					   colData[box->col].sizeHint );
-	colData[box->col].minimumSize = QMAX( minS.width(),
+	colData[box->col].minimumSize = qMax( minS.width(),
 					      colData[box->col].minimumSize );
 
 	qMaxExpCalc( colData[box->col].maximumSize, colData[box->col].expansive,
@@ -482,11 +482,11 @@ void QGridLayoutData::addData( QGridBox *box, bool r, bool c )
     }
     if ( r ) {
 	if ( !rStretch[box->row] )
-	    rowData[box->row].stretch = QMAX( rowData[box->row].stretch,
+	    rowData[box->row].stretch = qMax( rowData[box->row].stretch,
 					      box->vStretch() );
-	rowData[box->row].sizeHint = QMAX( hint.height(),
+	rowData[box->row].sizeHint = qMax( hint.height(),
 					   rowData[box->row].sizeHint );
-	rowData[box->row].minimumSize = QMAX( minS.height(),
+	rowData[box->row].minimumSize = qMax( minS.height(),
 					      rowData[box->row].minimumSize );
 
 	qMaxExpCalc( rowData[box->row].maximumSize, rowData[box->row].expansive,
@@ -535,7 +535,7 @@ static void distributeMultiBox( QVector<QLayoutStruct> &chain, int spacing,
 	exp = exp || chain[i].expansive;
 	chain[i].empty = FALSE;
 	if ( stretchArray[i] == 0 )
-	    chain[i].stretch = QMAX(chain[i].stretch,stretch);
+	    chain[i].stretch = qMax(chain[i].stretch,stretch);
     }
     w += spacing * ( end - start );
     wh += spacing * ( end - start );
@@ -648,14 +648,14 @@ void QGridLayoutData::addHfwData( QGridBox *box, int width )
     QVector<QLayoutStruct> &rData = *hfwData;
     if ( box->hasHeightForWidth() ) {
 	int hint = box->heightForWidth( width );
-	rData[box->row].sizeHint = QMAX( hint, rData[box->row].sizeHint );
-	rData[box->row].minimumSize = QMAX( hint, rData[box->row].minimumSize );
+	rData[box->row].sizeHint = qMax( hint, rData[box->row].sizeHint );
+	rData[box->row].minimumSize = qMax( hint, rData[box->row].minimumSize );
     } else {
 	QSize hint = box->sizeHint();
 	QSize minS = box->minimumSize();
-	rData[box->row].sizeHint = QMAX( hint.height(),
+	rData[box->row].sizeHint = qMax( hint.height(),
 					 rData[box->row].sizeHint );
-	rData[box->row].minimumSize = QMAX( minS.height(),
+	rData[box->row].minimumSize = qMax( minS.height(),
 					    rData[box->row].minimumSize );
     }
 }
@@ -2248,8 +2248,8 @@ void QBoxLayout::setupGeom()
 	    if ( !ignore )
 		qMaxExpCalc( maxh, verexp,
 			     max.height(), exp & QSizePolicy::Vertically );
-	    minh = QMAX( minh, min.height() );
-	    hinth = QMAX( hinth, hint.height() );
+	    minh = qMax( minh, min.height() );
+	    hinth = qMax( hinth, hint.height() );
 
 	    a[i].sizeHint = hint.width();
 	    a[i].maximumSize = max.width();
@@ -2265,8 +2265,8 @@ void QBoxLayout::setupGeom()
 	    if ( !ignore )
 		qMaxExpCalc( maxw, horexp,
 			     max.width(), exp & QSizePolicy::Horizontally );
-	    minw = QMAX( minw, min.width() );
-	    hintw = QMAX( hintw, hint.width() );
+	    minw = qMax( minw, min.width() );
+	    hintw = qMax( hintw, hint.width() );
 
 	    a[i].sizeHint = hint.height();
 	    a[i].maximumSize = max.height();
@@ -2307,8 +2307,8 @@ void QBoxLayout::calcHfw( int w )
 	qGeomCalc( a, 0, n, 0, w, spacing() );
 	for ( int i = 0; i < n; i++ ) {
 	    QBoxLayoutItem *box = data->list.at(i);
-	    h = QMAX( h, box->hfw(a[i].size) );
-	    mh = QMAX( mh, box->mhfw(a[i].size) );
+	    h = qMax( h, box->hfw(a[i].size) );
+	    mh = qMax( mh, box->mhfw(a[i].size) );
 	}
     } else {
 	bool first = TRUE;

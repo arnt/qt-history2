@@ -506,8 +506,8 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 
     for ( i = 0; i < numRuns; i++ ) {
 	QScriptItem &si = d->items[d->firstItemInLine+visual[i]];
-	asc = QMAX( asc, si.ascent );
-	desc = QMAX( desc, si.descent );
+	asc = qMax( asc, si.ascent );
+	desc = qMax( desc, si.descent );
     }
 
     int left = x;

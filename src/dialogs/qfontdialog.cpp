@@ -462,13 +462,13 @@ QListBoxFontText::QListBoxFontText( const QString & text )
 int QListBoxFontText::height( const QListBox * ) const
 {
     QFontMetrics fm(cfont);
-    return QMAX( fm.lineSpacing() + 2, QApplication::globalStrut().height() );
+    return qMax( fm.lineSpacing() + 2, QApplication::globalStrut().height() );
 }
 
 int QListBoxFontText::width( const QListBox * )  const
 {
     QFontMetrics fm(cfont);
-    return QMAX( fm.width( text() ) + 6, QApplication::globalStrut().width() );
+    return qMax( fm.width( text() ) + 6, QApplication::globalStrut().width() );
 }
 
 void QListBoxFontText::paint( QPainter *painter )

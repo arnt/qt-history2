@@ -740,7 +740,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	    r.rect(&x, &y, &w, &h);
 
 	    if (checkable)
-		maxpmw = QMAX(maxpmw, 15);
+		maxpmw = qMax(maxpmw, 15);
 
 	    int checkcol = maxpmw;
 

@@ -913,8 +913,8 @@ void QLabel::movieUpdated(const QRect& rect)
 	r = style().itemRect( 0, r, align, isEnabled(), &(mov->framePixmap()),
 			      QString::null );
 	r.moveBy(rect.x(), rect.y());
-	r.setWidth(QMIN(r.width(), rect.width()));
-	r.setHeight(QMIN(r.height(), rect.height()));
+	r.setWidth(qMin(r.width(), rect.width()));
+	r.setHeight(qMin(r.height(), rect.height()));
 	repaint( r, mov->framePixmap().mask() != 0 );
     }
 }

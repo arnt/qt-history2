@@ -660,8 +660,8 @@ void QSplitter::doMove( bool backwards, int pos, int id, int delta, bool upLeft,
 	    int dd = backwards ? pos - pick( topLeft(w) )
 			       : pick( bottomRight(w) ) - pos + 1;
 	    if ( dd > 0 || (!isCollapsed(w) && !mayCollapse) ) {
-		dd = QMAX( pick(qSmartMinSize(w)),
-			   QMIN(dd, pick(w->maximumSize())) );
+		dd = qMax( pick(qSmartMinSize(w)),
+			   qMin(dd, pick(w->maximumSize())) );
 	    } else {
 		dd = 0;
 	    }
@@ -717,8 +717,8 @@ void QSplitter::getRange( int id, int *farMin, int *min, int *max, int *farMax )
     int maxVal;
     int farMaxVal;
 
-    int smartMinBefore = QMAX( minBefore, pick(r.size()) - maxAfter );
-    int smartMaxBefore = QMIN( maxBefore, pick(r.size()) - minAfter );
+    int smartMinBefore = qMax( minBefore, pick(r.size()) - maxAfter );
+    int smartMaxBefore = qMin( maxBefore, pick(r.size()) - minAfter );
 
     if ( orient == Vertical || !QApplication::reverseLayout() ) {
 	minVal = pick( r.topLeft() ) + smartMinBefore;
@@ -793,7 +793,7 @@ int QSplitter::adjustPos( int pos, int id, int *farMin, int *min, int *max,
 	    int delta = pos - *max;
 	    int width = *farMax - *max;
 
-	    if ( delta > width / 2 && delta >= QMIN(Threshold, width) ) {
+	    if ( delta > width / 2 && delta >= qMin(Threshold, width) ) {
 		return *farMax;
 	    } else {
 		return *max;
@@ -803,7 +803,7 @@ int QSplitter::adjustPos( int pos, int id, int *farMin, int *min, int *max,
 	int delta = *min - pos;
 	int width = *min - *farMin;
 
-	if ( delta > width / 2 && delta >= QMIN(Threshold, width) ) {
+	if ( delta > width / 2 && delta >= qMin(Threshold, width) ) {
 	    return *farMin;
 	} else {
 	    return *min;
@@ -936,10 +936,10 @@ void QSplitter::recalc( bool update )
 		QSize minS = qSmartMinSize( s->wid );
 		minl += pick( minS );
 		maxl += pick( s->wid->maximumSize() );
-		mint = QMAX( mint, trans(minS) );
+		mint = qMax( mint, trans(minS) );
 		int tm = trans( s->wid->maximumSize() );
 		if ( tm > 0 )
-		    maxt = QMIN( maxt, tm );
+		    maxt = qMin( maxt, tm );
 	    }
 	}
     }
@@ -952,7 +952,7 @@ void QSplitter::recalc( bool update )
 	    maxl = QWIDGETSIZE_MAX;
 	}
     } else {
-	maxl = QMIN( maxl, QWIDGETSIZE_MAX );
+	maxl = qMin( maxl, QWIDGETSIZE_MAX );
     }
     if ( maxt < mint )
 	maxt = mint;
@@ -1103,7 +1103,7 @@ QSize QSplitter::sizeHint() const
 	    QSize s = static_cast<QWidget*>(o)->sizeHint();
 	    if ( s.isValid() ) {
 		l += pick( s );
-		t = QMAX( t, trans( s ) );
+		t = qMax( t, trans( s ) );
 	    }
 	}
     }
@@ -1127,7 +1127,7 @@ QSize QSplitter::minimumSizeHint() const
 	    QSize s = qSmartMinSize( (QWidget*)o );
 	    if ( s.isValid() ) {
 		l += pick( s );
-		t = QMAX( t, trans( s ) );
+		t = qMax( t, trans( s ) );
 	    }
 	}
     }
@@ -1222,7 +1222,7 @@ void QSplitter::setSizes( QList<int> list )
     QSplitterLayoutStruct *s = d->list.first();
     while ( s && it != list.end() ) {
 	if ( !s->isHandle ) {
-	    s->sizer = QMAX( *it, 0 );
+	    s->sizer = qMax( *it, 0 );
 	    int smartMinSize = pick( qSmartMinSize(s->wid) );
 	    // Make sure that we reset the collapsed state.
 	    if ( s->sizer == 0 ) {

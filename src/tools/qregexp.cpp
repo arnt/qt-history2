@@ -1461,7 +1461,7 @@ void QRegExpEngine::heuristicallyChooseHeuristic()
 	  check whether they are good or bad.
 	*/
 	int badCharScore = 0;
-	int step = QMAX(1, NumBadChars / 32);
+	int step = qMax(1, NumBadChars / 32);
 	for (int i = 1; i < NumBadChars; i += step) {
 	    if (occ1[i] == NoOccurrence)
 		badCharScore += minl;
@@ -2369,7 +2369,7 @@ void QRegExpEngine::Box::cat(const Box& b)
 #ifndef QT_NO_REGEXP_OPTIM
     if (maxl != InftyLen) {
 	if (rightStr.length() + b.leftStr.length() >
-	     QMAX(str.length(), b.str.length())) {
+	     qMax(str.length(), b.str.length())) {
 	    earlyStart = minl - rightStr.length();
 	    lateStart = maxl - rightStr.length();
 	    str = rightStr + b.leftStr;
@@ -2921,7 +2921,7 @@ int QRegExpEngine::parse(const QChar *pattern, int len)
     */
     int ns = s.size(); // number of states
 #ifndef QT_NO_REGEXP_OPTIM
-    mmSlideTabSize = QMAX(minl + 1, 16);
+    mmSlideTabSize = qMax(minl + 1, 16);
 #else
     mmSlideTabSize = 0;
 #endif

@@ -27,7 +27,7 @@
 static int menuBarHeightForWidth( QMenuBar *menubar, int w )
 {
     if ( menubar && !menubar->isHidden() && !menubar->isTopLevel() )
-	return menubar->heightForWidth( QMAX(w, menubar->minimumWidth()) );
+	return menubar->heightForWidth( qMax(w, menubar->minimumWidth()) );
     else
 	return 0;
 }
@@ -337,12 +337,12 @@ void QWidgetItem::setGeometry( const QRect &r )
     if ( align & (Qt::AlignHorizontal_Mask | Qt::AlignVertical_Mask) ) {
 	QSize pref = wid->sizeHint().expandedTo( wid->minimumSize() ); //###
 	if ( align & Qt::AlignHorizontal_Mask )
-	    s.setWidth( QMIN( s.width(), pref.width() ) );
+	    s.setWidth( qMin( s.width(), pref.width() ) );
 	if ( align & Qt::AlignVertical_Mask ) {
 	    if ( hasHeightForWidth() )
-		s.setHeight( QMIN( s.height(), heightForWidth(s.width()) ) );
+		s.setHeight( qMin( s.height(), heightForWidth(s.width()) ) );
 	    else
-		s.setHeight( QMIN( s.height(), pref.height() ) );
+		s.setHeight( qMin( s.height(), pref.height() ) );
 	}
     }
     Qt::Alignment alignHoriz = QApplication::horizontalAlignment( align );
@@ -979,8 +979,8 @@ QSize QLayout::totalMaximumSize() const
 #endif
 
     if ( isTopLevel() )
-	s = QSize( QMIN( s.width() + b, QLAYOUTSIZE_MAX ),
-		   QMIN( s.height() + h, QLAYOUTSIZE_MAX ) );
+	s = QSize( qMin( s.width() + b, QLAYOUTSIZE_MAX ),
+		   qMin( s.height() + h, QLAYOUTSIZE_MAX ) );
     return s;
 }
 
@@ -1786,15 +1786,15 @@ QRect QLayout::alignmentRect( const QRect &r ) const
 
     if ( (expanding() & QSizePolicy::Horizontally) ||
 	 !(a & Qt::AlignHorizontal_Mask ) ) {
-	s.setWidth( QMIN(r.width(), ms.width()) );
+	s.setWidth( qMin(r.width(), ms.width()) );
     }
     if ( (expanding() & QSizePolicy::Vertically) ||
 	 !(a & Qt::AlignVertical_Mask) ) {
-	s.setHeight( QMIN(r.height(), ms.height()) );
+	s.setHeight( qMin(r.height(), ms.height()) );
     } else if ( hasHeightForWidth() ) {
 	int hfw = heightForWidth( s.width() );
 	if ( hfw < s.height() )
-	    s.setHeight( QMIN(hfw, ms.height()) );
+	    s.setHeight( qMin(hfw, ms.height()) );
     }
 
     int x = r.x();

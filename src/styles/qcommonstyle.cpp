@@ -306,9 +306,9 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	int length;
 	int x = r.x(), y = r.y(), w = r.width(), h = r.height();
 	if ( w <= 8 || h <= 6 )
-	    length = QMIN( w-2, h-2 );
+	    length = qMin( w-2, h-2 );
 	else
-	    length = QMIN( 2*w / 3, 2*h / 3 );
+	    length = qMin( 2*w / 3, 2*h / 3 );
 
 	if ( !(length & 1) )
 	    length -=1;
@@ -462,7 +462,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	int x, y, w, h;
 	r.rect(&x, &y, &w, &h);
 
-	int sw = QMIN( h,w );
+	int sw = qMin( h,w );
 	if ( h > w )
 	    p->translate( 0, h - w );
 	else
@@ -1112,7 +1112,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	for(unsigned int i = 0, cnt = 0; i < (sizeof(btns)/sizeof(btns[0])); i++) {
 	    if(dbtns->isButtonVisible(btns[i])) {
 		QSize szH = dbtns->sizeHint(btns[i]);
-		int mwidth = QMAX(bwidth, szH.width()), mheight = QMAX(bheight, szH.height());
+		int mwidth = qMax(bwidth, szH.width()), mheight = qMax(bheight, szH.height());
 		if(dbtns->orientation() == Horizontal) {
 		    start -= mwidth;
 		    if(cnt)
@@ -1869,7 +1869,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	bs.setHeight( widget->height()/2 - fw );
 	if ( bs.height() < 8 )
 	    bs.setHeight( 8 );
-	bs.setWidth( QMIN( bs.height() * 8 / 5, widget->width() / 4 ) ); // 1.6 -approximate golden mean
+	bs.setWidth( qMin( bs.height() * 8 / 5, widget->width() / 4 ) ); // 1.6 -approximate golden mean
 	bs = bs.expandedTo( QApplication::globalStrut() );
 	int y = fw;
 	int x, lx, rx;
@@ -1939,19 +1939,19 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	switch (sc) {
 	case SC_ScrollBarSubLine:	    // top/left button
 	    if (scrollbar->orientation() == Qt::Horizontal) {
-		int buttonWidth = QMIN(scrollbar->width()/2, sbextent);
+		int buttonWidth = qMin(scrollbar->width()/2, sbextent);
 		return QRect( 0, 0, buttonWidth, sbextent );
 	    } else {
-		int buttonHeight = QMIN(scrollbar->height()/2, sbextent);
+		int buttonHeight = qMin(scrollbar->height()/2, sbextent);
 		return QRect( 0, 0, sbextent, buttonHeight );
 	    }
 
 	case SC_ScrollBarAddLine:	    // bottom/right button
 	    if (scrollbar->orientation() == Qt::Horizontal) {
-		int buttonWidth = QMIN(scrollbar->width()/2, sbextent);
+		int buttonWidth = qMin(scrollbar->width()/2, sbextent);
 		return QRect( scrollbar->width() - buttonWidth, 0, buttonWidth, sbextent );
 	    } else {
-		int buttonHeight = QMIN(scrollbar->height()/2, sbextent);
+		int buttonHeight = qMin(scrollbar->height()/2, sbextent);
 		return QRect( 0, scrollbar->height() - buttonHeight, sbextent, buttonHeight );
 	    }
 
@@ -2192,13 +2192,13 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     case PM_TitleBarHeight: {
 	if ( widget ) {
 	    if ( widget->testWFlags( WStyle_Tool ) ) {
-		ret = QMAX( widget->fontMetrics().lineSpacing(), 16 );
+		ret = qMax( widget->fontMetrics().lineSpacing(), 16 );
 #ifndef QT_NO_MAINWINDOW
 	    } else if ( qt_cast<QDockWindow*>(widget) ) {
-		ret = QMAX( widget->fontMetrics().lineSpacing(), 13 );
+		ret = qMax( widget->fontMetrics().lineSpacing(), 13 );
 #endif
 	    } else {
-		ret = QMAX( widget->fontMetrics().lineSpacing(), 18 );
+		ret = qMax( widget->fontMetrics().lineSpacing(), 18 );
 	    }
 	} else {
 	    ret = 0;
@@ -2221,7 +2221,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	if (! widget)
 	    ret = 12;
 	else
-	    ret = QMAX(12, (widget->height() - 4) / 3);
+	    ret = qMax(12, (widget->height() - 4) / 3);
 	break;
 
     case PM_ButtonShiftHorizontal:
@@ -2248,7 +2248,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	    int s = bar->orientation() == Qt::Horizontal ?
 		    QApplication::globalStrut().height()
 		    : QApplication::globalStrut().width();
-	    ret = QMAX( 16, s );
+	    ret = qMax( 16, s );
 	}
 	break;
 #endif
@@ -2421,11 +2421,11 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	for(unsigned int i = 0, cnt = 0; i < (sizeof(btns)/sizeof(btns[0])); i++) {
 	    if(dbtns->isButtonVisible(btns[i])) {
 		QSize szH = dbtns->sizeHint(btns[i]);
-		int mwidth = QMAX(bwidth, szH.width()), mheight = QMAX(bheight, szH.height());
+		int mwidth = qMax(bwidth, szH.width()), mheight = qMax(bheight, szH.height());
 		if(dbtns->orientation() == Horizontal)
-		    h = QMAX(h, mheight);
+		    h = qMax(h, mheight);
 		else
-		    w = QMAX(w, mwidth);
+		    w = qMax(w, mwidth);
 
 		if(cnt)
 		    w += bspace;
@@ -2471,7 +2471,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    int h = pixelMetric( PM_IndicatorHeight, widget );
 	    int margins = (!checkbox->pixmap() && checkbox->text().isEmpty()) ? 0 : 10;
 	    sz += QSize(irect.right() + margins, 4 );
-	    sz.setHeight( QMAX( sz.height(), h ) );
+	    sz.setHeight( qMax( sz.height(), h ) );
 #endif
 	    break;
 	}
@@ -2484,7 +2484,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    int h = pixelMetric( PM_ExclusiveIndicatorHeight, widget );
 	    int margins = (!radiobutton->pixmap() && radiobutton->text().isEmpty()) ? 0 : 10;
 	    sz += QSize(irect.right() + margins, 4 );
-	    sz.setHeight( QMAX( sz.height(), h ) );
+	    sz.setHeight( qMax( sz.height(), h ) );
 #endif
 	    break;
 	}
@@ -2525,12 +2525,12 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 		h = 2;
 	    } else {
 		if (mi->pixmap())
-		    h = QMAX(h, mi->pixmap()->height() + 4);
+		    h = qMax(h, mi->pixmap()->height() + 4);
 		else
-		    h = QMAX(h, popup->fontMetrics().height() + 8);
+		    h = qMax(h, popup->fontMetrics().height() + 8);
 
 		if (mi->iconSet() != 0)
-		    h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
+		    h = qMax(h, mi->iconSet()->pixmap(QIconSet::Small,
 						      QIconSet::Normal).height() + 4);
 	    }
 

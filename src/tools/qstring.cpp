@@ -62,7 +62,7 @@ static int ucstrcmp(const QString &as, const QString &bs)
 	return 1;
     if (b == 0)
 	return -1;
-    int l=QMIN(as.length(),bs.length());
+    int l=qMin(as.length(),bs.length());
     while (l-- && *a == *b)
 	a++,b++;
     if (l==-1)
@@ -430,7 +430,7 @@ void QString::realloc(int alloc)
 	Data *x = (Data*) qMalloc(sizeof(Data)+alloc*sizeof(QChar));
 	*x = *d;
 	x->data = x->array;
-	::memcpy(x->data, d->data, QMIN(alloc, d->alloc)*sizeof(QChar));
+	::memcpy(x->data, d->data, qMin(alloc, d->alloc)*sizeof(QChar));
 	x->c = 0;
 	x->cache = 0;
 	x->ref = 1;
@@ -449,7 +449,7 @@ void QString::realloc()
 void QString::expand(int i)
 {
     int sz = d->size;
-    resize(QMAX(i+1, d->size));
+    resize(qMax(i+1, d->size));
     if (d->size - 1 > sz) {
 	ushort *n = d->data + d->size - 1;
 	ushort *e = d->data + sz;
@@ -537,7 +537,7 @@ QString& QString::insert(int i, QChar c)
 	i += d->size;
     if (i < 0)
 	return *this;
-   expand(QMAX(i, d->size));
+   expand(qMax(i, d->size));
    ::memmove(d->data + i + 1, d->data + i, (d->size - i)*sizeof(QChar));
    d->data[i] = c.unicode();
    return *this;
@@ -567,7 +567,7 @@ QString& QString::insert(int i, const QString& s)
     d->cache = 0;
     // protect against s == *this
     QString t = s;
-    expand(QMAX(d->size, i) + t.d->size - 1);
+    expand(qMax(d->size, i) + t.d->size - 1);
     ::memmove(d->data + i + t.d->size, d->data + i, (d->size - i - t.d->size)*sizeof(QChar));
     memcpy(d->data + i, t.d->data, t.d->size*sizeof(QChar));
     return *this;
@@ -818,7 +818,7 @@ bool operator==(const QString &s1, const QString &s2)
 int QString::indexOf(QChar c, int from, QString::CaseSensitivity cs) const
 {
     if (from < 0)
-	from = QMAX(from + d->size, 0);
+	from = qMax(from + d->size, 0);
     if (from  < d->size) {
 	const QChar *n = (const QChar*)d->data + from - 1;
 	const QChar *e = (const QChar*)d->data + d->size;

@@ -208,7 +208,7 @@ void QColor::initialize()
 	    colormodel = d8;
 	    // Create the g_our_alloc array, which remembers which color pixels
 	    // we allocated.
-	    screendata[scr]->g_cells = QMIN(ncols,256);
+	    screendata[scr]->g_cells = qMin(ncols,256);
 	    screendata[scr]->g_carr  = new XColor[screendata[scr]->g_cells];
 	    memset( screendata[scr]->g_carr, 0,
 		    screendata[scr]->g_cells*sizeof(XColor) );

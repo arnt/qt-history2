@@ -557,7 +557,7 @@ void QListBoxText::paint( QPainter *painter )
 int QListBoxText::height( const QListBox* lb ) const
 {
     int h = lb ? lb->fontMetrics().lineSpacing() + 2 : 0;
-    return QMAX( h, QApplication::globalStrut().height() );
+    return qMax( h, QApplication::globalStrut().height() );
 }
 
 /*!
@@ -569,7 +569,7 @@ int QListBoxText::height( const QListBox* lb ) const
 int QListBoxText::width( const QListBox* lb ) const
 {
     int w = lb ? lb->fontMetrics().width( text() ) + 6 : 0;
-    return QMAX( w, QApplication::globalStrut().width() );
+    return qMax( w, QApplication::globalStrut().width() );
 }
 
 int QListBoxText::RTTI = 1;
@@ -725,8 +725,8 @@ int QListBoxPixmap::height( const QListBox* lb ) const
     if ( text().isEmpty() )
 	h = pm.height();
     else
-	h = QMAX( pm.height(), lb->fontMetrics().lineSpacing() + 2 );
-    return QMAX( h, QApplication::globalStrut().height() );
+	h = qMax( pm.height(), lb->fontMetrics().lineSpacing() + 2 );
+    return qMax( h, QApplication::globalStrut().height() );
 }
 
 /*!
@@ -738,8 +738,8 @@ int QListBoxPixmap::height( const QListBox* lb ) const
 int QListBoxPixmap::width( const QListBox* lb ) const
 {
     if ( text().isEmpty() )
-	return QMAX( pm.width() + 6, QApplication::globalStrut().width() );
-    return QMAX( pm.width() + lb->fontMetrics().width( text() ) + 6,
+	return qMax( pm.width() + 6, QApplication::globalStrut().width() );
+    return qMax( pm.width() + lb->fontMetrics().width( text() ) + 6,
 	    QApplication::globalStrut().width() );
 }
 
@@ -2301,10 +2301,10 @@ void QListBox::updateSelection()
 		}
 		triggerUpdate( FALSE );
 	    } else {
-		int c = QMIN( d->mouseMoveColumn, d->mousePressColumn );
-		int r = QMIN( d->mouseMoveRow, d->mousePressRow );
-		int c2 = QMAX( d->mouseMoveColumn, d->mousePressColumn );
-		int r2 = QMAX( d->mouseMoveRow, d->mousePressRow );
+		int c = qMin( d->mouseMoveColumn, d->mousePressColumn );
+		int r = qMin( d->mouseMoveRow, d->mousePressRow );
+		int c2 = qMax( d->mouseMoveColumn, d->mousePressColumn );
+		int r2 = qMax( d->mouseMoveRow, d->mousePressRow );
 		bool changed = FALSE;
 		while( c <= c2 ) {
 		    QListBoxItem * i = item( c*numRows()+r );
@@ -3020,9 +3020,9 @@ QSize QListBox::sizeHint() const
 	   d->columnPos[i] < 200 )
 	i++;
     int x;
-    x = QMIN( 200, d->columnPos[i] +
+    x = qMin( 200, d->columnPos[i] +
 	      2 * style().pixelMetric( QStyle::PM_DefaultFrameWidth ) );
-    x = QMAX( 40, x );
+    x = qMax( 40, x );
 
     i = 0;
     while( i < 10 &&
@@ -3030,9 +3030,9 @@ QSize QListBox::sizeHint() const
 	   d->rowPos[i] < 200 )
 	i++;
     int y;
-    y = QMIN( 200, d->rowPos[i] +
+    y = qMin( 200, d->rowPos[i] +
 	      2 * style().pixelMetric( QStyle::PM_DefaultFrameWidth ) );
-    y = QMAX( 40, y );
+    y = qMax( 40, y );
 
     QSize s( x, y );
     setCachedSizeHint( s );
@@ -3288,7 +3288,7 @@ void QListBox::doLayout() const
     int w = d->columnPos[(int)d->columnPos.size()-1];
     int h = d->rowPos[(int)d->rowPos.size()-1];
     QSize s( viewportSize( w, h ) );
-    w = QMAX( w, s.width() );
+    w = qMax( w, s.width() );
 
     d->columnPosOne = d->columnPos[1];
     // extend the column for simple single-column listboxes
@@ -3845,10 +3845,10 @@ int QListBox::rowAt( int y ) const
     if ( r < 0 )
 	return -1;
     if ( l <= d->rowPosCache && d->rowPosCache <= r ) {
-	if ( d->rowPos[ QMAX( l, d->rowPosCache - 10 ) ] <= y
-	     && y <= d->rowPos[ QMIN( r, d->rowPosCache + 10 ) ] ) {
-	    l = QMAX( l, d->rowPosCache - 10 );
-	    r = QMIN( r, d->rowPosCache + 10 );
+	if ( d->rowPos[ qMax( l, d->rowPosCache - 10 ) ] <= y
+	     && y <= d->rowPos[ qMin( r, d->rowPosCache + 10 ) ] ) {
+	    l = qMax( l, d->rowPosCache - 10 );
+	    r = qMin( r, d->rowPosCache + 10 );
 	}
     }
     int i = ( (l+r+1) / 2 );
@@ -3965,8 +3965,8 @@ void QListBox::resizeEvent( QResizeEvent *e )
 	 d->numColumns == 1) {
 	int w = d->columnPosOne;
 	QSize s( viewportSize( w, contentsHeight() ) );
-	w = QMAX( w, s.width() );
-	d->columnPos[1] = QMAX( w, d->columnPosOne );
+	w = qMax( w, s.width() );
+	d->columnPos[1] = qMax( w, d->columnPosOne );
 	resizeContents( d->columnPos[1], contentsHeight() );
     }
 

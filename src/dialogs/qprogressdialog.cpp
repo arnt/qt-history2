@@ -332,8 +332,8 @@ void QProgressDialog::setLabel( QLabel *label )
 	    label->reparent( this, 0, QPoint(0,0), FALSE );
 	}
     }
-    int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
-    int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
+    int w = qMax( isVisible() ? width() : 0, sizeHint().width() );
+    int h = qMax( isVisible() ? height() : 0, sizeHint().height() );
     resize( w, h );
     if (label)
 	label->show();
@@ -358,8 +358,8 @@ void QProgressDialog::setLabelText( const QString &text )
 {
     if ( label() ) {
 	label()->setText( text );
-	int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
-	int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
+	int w = qMax( isVisible() ? width() : 0, sizeHint().width() );
+	int h = qMax( isVisible() ? height() : 0, sizeHint().height() );
 	resize( w, h );
     }
 }
@@ -391,8 +391,8 @@ void QProgressDialog::setCancelButton( QPushButton *cancelButton )
 			    d->cancel, SIGNAL(clicked()) );
 #endif
     }
-    int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
-    int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
+    int w = qMax( isVisible() ? width() : 0, sizeHint().width() );
+    int h = qMax( isVisible() ? height() : 0, sizeHint().height() );
     resize( w, h );
     if (cancelButton)
 	cancelButton->show();
@@ -413,8 +413,8 @@ void QProgressDialog::setCancelButtonText( const QString &cancelButtonText )
     } else {
 	setCancelButton(0);
     }
-    int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
-    int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
+    int w = qMax( isVisible() ? width() : 0, sizeHint().width() );
+    int h = qMax( isVisible() ? height() : 0, sizeHint().height() );
     resize( w, h );
 }
 
@@ -435,8 +435,8 @@ void QProgressDialog::setBar( QProgressBar *bar )
 #endif
     delete d->bar;
     d->bar = bar;
-    int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
-    int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
+    int w = qMax( isVisible() ? width() : 0, sizeHint().width() );
+    int h = qMax( isVisible() ? height() : 0, sizeHint().height() );
     resize( w, h );
 }
 
@@ -583,8 +583,8 @@ void QProgressDialog::setProgress( int progress )
 		}
 	    }
 	    if ( need_show ) {
-		int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
-		int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
+		int w = qMax( isVisible() ? width() : 0, sizeHint().width() );
+		int h = qMax( isVisible() ? height() : 0, sizeHint().height() );
 		resize( w, h );
 		show();
 		d->shown_once = TRUE;
@@ -627,7 +627,7 @@ QSize QProgressDialog::sizeHint() const
     int h = margin_tb*2 + bh.height() + sh.height() + spacing;
     if ( d->cancel )
 	h += d->cancel->sizeHint().height() + spacing;
-    return QSize( QMAX(200, sh.width() + 2*margin_lr), h );
+    return QSize( qMax(200, sh.width() + 2*margin_lr), h );
 }
 
 /*!\reimp
@@ -651,7 +651,7 @@ void QProgressDialog::layout()
 {
     int sp = spacing;
     int mtb = margin_tb;
-    int mlr = QMIN(width()/10, margin_lr);
+    int mlr = qMin(width()/10, margin_lr);
     const bool centered =
 	bool(style().styleHint(QStyle::SH_ProgressDialog_CenterCancelButton, this));
 
@@ -664,16 +664,16 @@ void QProgressDialog::layout()
     // dialog can be made very small if the user demands it so.
     for (int attempt=5; attempt--; ) {
 	cspc = d->cancel ? cs.height() + sp : 0;
-	lh = QMAX(0, height() - mtb - bh.height() - sp - cspc);
+	lh = qMax(0, height() - mtb - bh.height() - sp - cspc);
 
 	if ( lh < height()/4 ) {
 	    // Getting cramped
 	    sp /= 2;
 	    mtb /= 2;
 	    if ( d->cancel ) {
-		cs.setHeight(QMAX(4,cs.height()-sp-2));
+		cs.setHeight(qMax(4,cs.height()-sp-2));
 	    }
-	    bh.setHeight(QMAX(4,bh.height()-sp-1));
+	    bh.setHeight(qMax(4,bh.height()-sp-1));
 	} else {
 	    break;
 	}
@@ -774,8 +774,8 @@ bool QProgressDialog::autoClose() const
 void QProgressDialog::showEvent( QShowEvent *e )
 {
     QDialog::showEvent( e );
-    int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
-    int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
+    int w = qMax( isVisible() ? width() : 0, sizeHint().width() );
+    int h = qMax( isVisible() ? height() : 0, sizeHint().height() );
     resize( w, h );
     forceTimer->stop();
 }

@@ -632,7 +632,7 @@ inline bool operator!=(const QString &s, QString::Null)
 inline QCharRef QString::at(int i)
 { Q_ASSERT(i >= 0); return QCharRef(*this, i); }
 inline QChar &QString::ref(uint i)
-{ if ((int)i > d->size || d->ref != 1) resize(QMAX((int)i, d->size)); return (QChar&)d->data[i]; }
+{ if ((int)i > d->size || d->ref != 1) resize(qMax((int)i, d->size)); return (QChar&)d->data[i]; }
 #endif
 
 #ifndef QT_NO_DATASTREAM

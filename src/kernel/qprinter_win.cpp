@@ -1107,8 +1107,8 @@ bool QPrinter::printSetup( QWidget *parent )
             if ( outputToFile() )
                 pd.Flags |= PD_PRINTTOFILE;
             pd.hwndOwner = parent ? parent->winId() : 0;
-            pd.nFromPage = QMAX(from_pg,min_pg);
-            pd.nToPage   = QMIN(to_pg,max_pg);
+            pd.nFromPage = qMax(from_pg,min_pg);
+            pd.nToPage   = qMin(to_pg,max_pg);
             if ( pd.nFromPage > pd.nToPage )
                 pd.nFromPage = pd.nToPage = 0;
             pd.nCopies   = ncopies;
@@ -1176,8 +1176,8 @@ bool QPrinter::printSetup( QWidget *parent )
             if ( outputToFile() )
                 pd.Flags |= PD_PRINTTOFILE;
             pd.hwndOwner = parent ? parent->winId() : 0;
-            pd.nFromPage = QMAX(from_pg,min_pg);
-            pd.nToPage   = QMIN(to_pg,max_pg);
+            pd.nFromPage = qMax(from_pg,min_pg);
+            pd.nToPage   = qMin(to_pg,max_pg);
             if ( pd.nFromPage > pd.nToPage )
                 pd.nFromPage = pd.nToPage = 0;
             pd.nCopies   = ncopies;
@@ -1291,7 +1291,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
 
     if ( ncols > 0  && !image.isNull()) {       // image with color map
         RGBQUAD *r = (RGBQUAD*)(bmi_data + sizeof(BITMAPINFOHEADER));
-        ncols = QMIN(ncols,image.numColors());
+        ncols = qMin(ncols,image.numColors());
         for ( int i=0; i<ncols; i++ ) {
             QColor c = image.color(i);
             r[i].rgbRed = c.red();

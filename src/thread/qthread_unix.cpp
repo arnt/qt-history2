@@ -324,7 +324,7 @@ void QThread::start(Priority priority)
 		// crudely scale our priority enum values to the prio_min/prio_max
 		prio = (((prio_max - prio_min) / TimeCriticalPriority) *
 			priority) + prio_min;
-		prio = QMAX(prio_min, QMIN(prio_max, prio));
+		prio = qMax(prio_min, qMin(prio_max, prio));
 		break;
 	    }
 

@@ -489,7 +489,7 @@ template <typename T>
 Q_OUTOFLINE_TEMPLATE int QList<T>::indexOf(const T &t, int from) const
 {
     if (from < 0)
-	from = QMAX(from + p.size(), 0);
+	from = qMax(from + p.size(), 0);
     if (from < p.size()) {
 	Node *n = (Node*) p.at(from -1);
 	Node *e = (Node*) p.end();

@@ -700,10 +700,10 @@ void QGIFFormat::disposePrevious( QImage& img, QImageConsumer* consumer )
 
     if ( disposed ) return;
 
-    int l = QMIN(swidth-1,left);
-    int r = QMIN(swidth-1,right);
-    int t = QMIN(sheight-1,top);
-    int b = QMIN(sheight-1,bottom);
+    int l = qMin(swidth-1,left);
+    int r = qMin(swidth-1,right);
+    int t = qMin(sheight-1,top);
+    int b = qMin(sheight-1,bottom);
 
     switch (disposal) {
       case NoDisposal:
@@ -850,9 +850,9 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 
 		// disbelieve ridiculous logical screen sizes,
 		// unless the image frames are also large.
-		if ( swidth/10 > QMAX(width,200) )
+		if ( swidth/10 > qMax(width,200) )
 		    swidth = -1;
-		if ( sheight/10 > QMAX(height,200) )
+		if ( sheight/10 > qMax(height,200) )
 		    sheight = -1;
 
 		if ( swidth <= 0 )
@@ -875,8 +875,8 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		top = newtop;
 
 		// Sanity check frame size - must fit on "screen".
-		if (left >= swidth) left=QMAX(0, swidth-1);
-		if (top >= sheight) top=QMAX(0, sheight-1);
+		if (left >= swidth) left=qMax(0, swidth-1);
+		if (top >= sheight) top=qMax(0, sheight-1);
 		if (left+width >= swidth) {
 		    if ( width <= swidth )
 			left=swidth-width;
@@ -890,8 +890,8 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 			height=sheight-top;
 		}
 
-		right=QMAX( 0, left+width-1);
-		bottom=QMAX(0, top+height-1);
+		right=qMax( 0, left+width-1);
+		bottom=qMax(0, top+height-1);
 		lcmap=!!(hold[9]&0x80);
 		interlace=!!(hold[9]&0x40);
 		//bool lcmsortflag=!!(hold[9]&0x20);
@@ -920,18 +920,18 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		}
 
 		if ( disposal == RestoreImage ) {
-		    int l = QMIN(swidth-1,left);
-		    int r = QMIN(swidth-1,right);
-		    int t = QMIN(sheight-1,top);
-		    int b = QMIN(sheight-1,bottom);
+		    int l = qMin(swidth-1,left);
+		    int r = qMin(swidth-1,right);
+		    int t = qMin(sheight-1,top);
+		    int b = qMin(sheight-1,bottom);
 		    int w = r-l+1;
 		    int h = b-t+1;
 
 		    if (backingstore.width() < w
 			|| backingstore.height() < h) {
 			// We just use the backing store as a byte array
-			backingstore.create( QMAX(backingstore.width(), w),
-					     QMAX(backingstore.height(), h),
+			backingstore.create( qMax(backingstore.width(), w),
+					     qMax(backingstore.height(), h),
 					     32);
 			memset( img.bits(), 0, img.numBytes() );
 		    }
@@ -1210,7 +1210,7 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
       case 1:
 	{
 	    int i;
-	    my = QMIN(7, bottom-y);
+	    my = qMin(7, bottom-y);
 	    if ( trans_index < 0 ) // Don't dup with transparency
 		for (i=1; i<=my; i++)
 		    memcpy(img.scanLine(y+i)+left, img.scanLine(y)+left,
@@ -1233,7 +1233,7 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
       case 2:
 	{
 	    int i;
-	    my = QMIN(3, bottom-y);
+	    my = qMin(3, bottom-y);
 	    if ( trans_index < 0 ) // Don't dup with transparency
 		for (i=1; i<=my; i++)
 		    memcpy(img.scanLine(y+i)+left, img.scanLine(y)+left,
@@ -1252,7 +1252,7 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
       case 3:
 	{
 	    int i;
-	    my = QMIN(1, bottom-y);
+	    my = qMin(1, bottom-y);
 	    if ( trans_index < 0 ) // Don't dup with transparency
 		for (i=1; i<=my; i++)
 		    memcpy(img.scanLine(y+i)+left, img.scanLine(y)+left,

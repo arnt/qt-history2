@@ -154,7 +154,7 @@ QByteArray QIsciiCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     int l = uc.length();
     if (len_in_out > 0)
-	l = QMIN(l, len_in_out);
+	l = qMin(l, len_in_out);
     QByteArray result;
     result.reserve(2*l); //worst case
 

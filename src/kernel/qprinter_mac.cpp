@@ -63,7 +63,7 @@ QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal:
 		for( ; count > 0; --count )
 		    if (PMPrinterGetIndexedPrinterResolution( printer, count, &pres ) == noErr) {
 			found = TRUE;
-			maxRes = QMAX( (uint)pres.vRes, maxRes );
+			maxRes = qMax( (uint)pres.vRes, maxRes );
 			res = maxRes;
 		    }
 	}

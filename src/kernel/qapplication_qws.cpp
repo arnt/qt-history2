@@ -1812,10 +1812,10 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 		w = main_widget->width();
 	    if ( (m & HeightValue) == 0 )
 		h = main_widget->height();
-	    w = QMIN(w,maxSize.width());
-	    h = QMIN(h,maxSize.height());
-	    w = QMAX(w,minSize.width());
-	    h = QMAX(h,minSize.height());
+	    w = qMin(w,maxSize.width());
+	    h = qMin(h,maxSize.height());
+	    w = qMax(w,minSize.width());
+	    h = qMax(h,minSize.height());
 	    if ( (m & XNegative) ) {
 		x = desktop()->width()  + x - w;
 		qt_widget_tlw_gravity = 3;

@@ -329,8 +329,8 @@ static bool qt_create_root_win() {
     Rect r;
     int w = 0, h = 0;
     for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) {
-	w = QMAX(w, (*g)->gdRect.right);
-	h = QMAX(h, (*g)->gdRect.bottom);
+	w = qMax(w, (*g)->gdRect.right);
+	h = qMax(h, (*g)->gdRect.bottom);
     }
     SetRect(&r, 0, 0, w, h);
     CreateNewWindow(kOverlayWindowClass, kWindowNoAttributes, &r, &qt_root_win);
@@ -680,8 +680,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     if(isDesktop()) {
 	int w = 0, h = 0;
 	for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) {
-	    w = QMAX(w, (*g)->gdRect.right);
-	    h = QMAX(h, (*g)->gdRect.bottom);
+	    w = qMax(w, (*g)->gdRect.right);
+	    h = qMax(h, (*g)->gdRect.bottom);
 	}
 	dskr = QRect(0, 0, w, h);
     } else {
@@ -1476,7 +1476,7 @@ void QWidget::showWindow()
 		if (r.right() > avail.right())
 		    movex = avail.right() - r.width();
 		// +2 to prevent going under the menu bar
-		move(QMAX(avail.left(), movex), QMAX(avail.top() + 2, movey));
+		move(qMax(avail.left(), movex), qMax(avail.top() + 2, movey));
 	}
     }
     fstrut_dirty = true;
@@ -1730,10 +1730,10 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
 	    else
 		ChangeWindowAttributes((WindowRef)handle(), kWindowFullZoomAttribute, 0);
 	}
-	w = QMIN(w,extra->maxw);
-	h = QMIN(h,extra->maxh);
-	w = QMAX(w,extra->minw);
-	h = QMAX(h,extra->minh);
+	w = qMin(w,extra->maxw);
+	h = qMin(h,extra->maxh);
+	w = qMax(w,extra->minw);
+	h = qMax(h,extra->minh);
 
 	// Deal with size increment
 	if(QTLWExtra *top = d->topData()) {
@@ -1852,7 +1852,7 @@ void QWidget::setMinimumSize(int minw, int minh)
     d->extraData()->minh = minh;
     if(minw > width() || minh > height()) {
 	bool resized = testAttribute(WA_Resized);
-	resize(QMAX(minw,width()), QMAX(minh,height()));
+	resize(qMax(minw,width()), qMax(minh,height()));
 	setAttribute(WA_Resized, resized); //not a user resize
     }
     updateGeometry();
@@ -1865,15 +1865,15 @@ void QWidget::setMaximumSize(int maxw, int maxh)
 		"The largest allowed size is (%d,%d)",
 		 name("unnamed"), className(), QWIDGETSIZE_MAX,
 		QWIDGETSIZE_MAX);
-	maxw = QMIN(maxw, QWIDGETSIZE_MAX);
-	maxh = QMIN(maxh, QWIDGETSIZE_MAX);
+	maxw = qMin(maxw, QWIDGETSIZE_MAX);
+	maxh = qMin(maxh, QWIDGETSIZE_MAX);
     }
     if(maxw < 0 || maxh < 0) {
 	qWarning("Qt: QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
 		"are not possible",
 		name("unnamed"), className(), maxw, maxh);
-	maxw = QMAX(maxw, 0);
-	maxh = QMAX(maxh, 0);
+	maxw = qMax(maxw, 0);
+	maxh = qMax(maxh, 0);
     }
     d->createExtra();
     if(d->extraData()->maxw == maxw && d->extraData()->maxh == maxh)
@@ -1882,7 +1882,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     d->extraData()->maxh = maxh;
     if(maxw < width() || maxh < height()) {
 	bool resized = testAttribute(WA_Resized);
-	resize(QMIN(maxw,width()), QMIN(maxh,height()));
+	resize(qMin(maxw,width()), qMin(maxh,height()));
 	setAttribute(WA_Resized, resized); //not a user resize
     }
     updateGeometry();

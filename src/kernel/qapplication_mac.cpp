@@ -2175,7 +2175,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		}
 		QKeyEvent accel_ev(QEvent::AccelOverride, mychar, modifiers,
 				   accel_str, ekind == kEventRawKeyRepeat,
-				   QMAX(1, accel_str.length()));
+				   qMax(1, accel_str.length()));
 		if(qt_tryAccelEvent(widget, &accel_ev)) {
 #ifdef DEBUG_KEY_MAPS
 		    qDebug("KeyEvent: %s::%s consumed Accel: %04x %c %s %d",
@@ -2243,7 +2243,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		}
 		QKeyEvent ke(etype, mychar, modifiers,
 			     mystr, ekind == kEventRawKeyRepeat,
-			     QMAX(1, mystr.length()));
+			     qMax(1, mystr.length()));
 		QApplication::sendSpontaneousEvent(widget,&ke);
 	    }
 	} else if(etype == QEvent::KeyPress) {

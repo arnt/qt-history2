@@ -481,7 +481,7 @@ void QScrollBar::wheelEvent( QWheelEvent *e )
     if ( e->orientation() != orient && !rect().contains(e->pos()) )
 	return;
     e->accept();
-    int step = QMIN( QApplication::wheelScrollLines()*lineStep(),
+    int step = qMin( QApplication::wheelScrollLines()*lineStep(),
 		     pageStep() );
     if ( ( e->state() & ControlButton ) || ( e->state() & ShiftButton ) )
 	step = pageStep();
@@ -628,8 +628,8 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 
 	int newSliderPos = (HORIZONTAL ? e->pos().x() : e->pos().y())
 			   - sliderLength/2;
-	newSliderPos = QMIN( newSliderPos, sliderMax - sliderLength );
-	newSliderPos = QMAX( newSliderPos, sliderMin );
+	newSliderPos = qMin( newSliderPos, sliderMax - sliderLength );
+	newSliderPos = qMax( newSliderPos, sliderMin );
 	setValue( sliderPosToRangeValue(newSliderPos) );
 	sliderPos = newSliderPos;
 	pressedControl = QStyle::SC_ScrollBarSlider;

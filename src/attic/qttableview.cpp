@@ -1403,8 +1403,8 @@ void QtTableView::resizeEvent( QResizeEvent * )
 		      verSteps | verGeometry | verRange );
     showOrHideScrollBars();
     updateFrameSize();
-    int maxX = QMIN( xOffs, maxXOffset() );			// ### can be slow
-    int maxY = QMIN( yOffs, maxYOffset() );
+    int maxX = qMin( xOffs, maxXOffset() );			// ### can be slow
+    int maxY = qMin( yOffs, maxYOffset() );
     setOffset( maxX, maxY );
 }
 
@@ -1978,7 +1978,7 @@ void QtTableView::updateScrollBars( uint f )
 
 	if ( sbDirty & horSteps ) {
 	    if ( cellW )
-		hScrollBar->setSteps( QMIN(cellW,viewWidth()/2), viewWidth() );
+		hScrollBar->setSteps( qMin(cellW,viewWidth()/2), viewWidth() );
 	    else
 		hScrollBar->setSteps( 16, viewWidth() );
 	}
@@ -2002,7 +2002,7 @@ void QtTableView::updateScrollBars( uint f )
 
 	if ( sbDirty & verSteps ) {
 	    if ( cellH )
-		vScrollBar->setSteps( QMIN(cellH,viewHeight()/2), viewHeight() );
+		vScrollBar->setSteps( qMin(cellH,viewHeight()/2), viewHeight() );
 	    else
 		vScrollBar->setSteps( 16, viewHeight() );  // fttb! ###
 	}
@@ -2044,9 +2044,9 @@ void QtTableView::updateFrameSize()
 	setFrameRect( QRect(0,0,rw,rh) );
 
 	if ( rw != fw )
-	    update( QMIN(fw,rw) - frameWidth() - 2, 0, frameWidth()+4, rh );
+	    update( qMin(fw,rw) - frameWidth() - 2, 0, frameWidth()+4, rh );
 	if ( rh != fh )
-	    update( 0, QMIN(fh,rh) - frameWidth() - 2, rw, frameWidth()+4 );
+	    update( 0, qMin(fh,rh) - frameWidth() - 2, rw, frameWidth()+4 );
     }
 }
 

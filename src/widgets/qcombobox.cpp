@@ -333,7 +333,7 @@ public:
     QComboBoxPopupItem(QListBoxItem *i) : QCustomMenuItem(), li(i), sc(0, 0) {  }
     virtual bool fullSpan() const { return TRUE; }
     virtual void paint( QPainter*, const QPalette&, bool, bool, int, int, int, int);
-    virtual QSize sizeHint() { if (sc.isNull()) sc = QSize(li->width(li->listBox()), QMAX(25, li->height(li->listBox()))); return sc; }
+    virtual QSize sizeHint() { if (sc.isNull()) sc = QSize(li->width(li->listBox()), qMax(25, li->height(li->listBox()))); return sc; }
 };
 void QComboBoxPopupItem::paint( QPainter* p, const QPalette&, bool,
 				bool, int x, int y, int, int)
@@ -1035,7 +1035,7 @@ QSize QComboBox::sizeHint() const
     QFontMetrics fm = fontMetrics();
 
     int maxW = count() ? 18 : 7 * fm.width(QChar('x')) + 18;
-    int maxH = QMAX( fm.lineSpacing(), 14 ) + 2;
+    int maxH = qMax( fm.lineSpacing(), 14 ) + 2;
 
     if ( !d->usingListBox() ) {
 	w = d->popup()->sizeHint().width() - 2* d->popup()->frameWidth();
@@ -1300,7 +1300,7 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
 
     // Correction for motif style, where arrow is smaller
     // and thus has a rect that doesn't fit the button.
-    arrowRect.setHeight( QMAX(  height() - (2 * arrowRect.y()), arrowRect.height() ) );
+    arrowRect.setHeight( qMax(  height() - (2 * arrowRect.y()), arrowRect.height() ) );
 
     if ( count() && ( !editable() || arrowRect.contains( e->pos() ) ) ) {
 	d->arrowPressed = FALSE;
@@ -1464,7 +1464,7 @@ void QComboBox::wheelEvent( QWheelEvent *e )
 static int listHeight( QListBox *l, int sl )
 {
     if ( l->count() > 0 )
-	return QMIN( l->count(), (uint)sl) * l->item( 0 )->height(l);
+	return qMin( l->count(), (uint)sl) * l->item( 0 )->height(l);
     else
 	return l->sizeHint().height();
 }

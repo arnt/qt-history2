@@ -3203,16 +3203,16 @@ static inline QSize qt_initial_size(QWidget *w) {
 	exp = w->sizePolicy().expanding();
     }
     if ( exp & QSizePolicy::Horizontally )
-	s.setWidth( QMAX( s.width(), 200 ) );
+	s.setWidth( qMax( s.width(), 200 ) );
     if ( exp & QSizePolicy::Vertically )
-	s.setHeight( QMAX( s.height(), 150 ) );
+	s.setHeight( qMax( s.height(), 150 ) );
 #if defined(Q_WS_X11)
     QRect screen = QApplication::desktop()->screenGeometry( w->x11Screen() );
 #else // all others
     QRect screen = QApplication::desktop()->screenGeometry( w->pos() );
 #endif
-    s.setWidth( QMIN( s.width(), screen.width()*2/3 ) );
-    s.setHeight( QMIN( s.height(), screen.height()*2/3 ) );
+    s.setWidth( qMin( s.width(), screen.width()*2/3 ) );
+    s.setHeight( qMin( s.height(), screen.height()*2/3 ) );
     return s;
 }
 

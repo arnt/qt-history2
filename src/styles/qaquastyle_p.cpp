@@ -585,26 +585,26 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 		    sz = QIconSet::Large;
 		QSize iconSize = QIconSet::iconSize(sz);
 		QPixmap pm = bt->iconSet().pixmap(sz, QIconSet::Normal);
-		width = QMAX(width, QMAX(iconSize.width(), pm.width()));
-		height = QMAX(height, QMAX(iconSize.height(), pm.height()));
+		width = qMax(width, qMax(iconSize.width(), pm.width()));
+		height = qMax(height, qMax(iconSize.height(), pm.height()));
 	    }
 	    if(!bt->text().isNull() && bt->usesTextLabel()) {
 		int text_width = bt->fontMetrics().width(bt->text()),
 		   text_height = bt->fontMetrics().height();
 		if(bt->textPosition() == QToolButton::Under) {
-		    width = QMAX(width, text_width);
+		    width = qMax(width, text_width);
 		    height += text_height;
 		} else {
 		    width += text_width;
-		    width = QMAX(height, text_height);
+		    width = qMax(height, text_height);
 		}
 	    }
 	} else {
 	    width = szHint.width();
 	    height = szHint.height();
 	}
-	width =  QMAX(20, width +  5); //border
-	height = QMAX(20, height + 5); //border
+	width =  qMax(20, width +  5); //border
+	height = qMax(20, height + 5); //border
 	ret = QSize(width, height);
     } else if(ct == QStyle::CT_Slider) {
 	int w = -1;

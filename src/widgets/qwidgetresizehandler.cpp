@@ -38,7 +38,7 @@ QWidgetResizeHandler::QWidgetResizeHandler( QWidget *parent, QWidget *cw, const 
     widget->setMouseTracking( TRUE );
     QFrame *frame = qt_cast<QFrame*>(widget);
     range = frame ? frame->frameWidth() : RANGE;
-    range = QMAX( RANGE, range );
+    range = qMax( RANGE, range );
     activeForMove = activeForResize = TRUE;
     qApp->installEventFilter( this );
 }
@@ -207,9 +207,9 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
     QPoint pp = globalPos - moveOffset;
 
     int fw = 0;
-    int mw = QMAX( childWidget->minimumSizeHint().width(),
+    int mw = qMax( childWidget->minimumSizeHint().width(),
 		   childWidget->minimumWidth() );
-    int mh = QMAX( childWidget->minimumSizeHint().height(),
+    int mh = qMax( childWidget->minimumSizeHint().height(),
 		   childWidget->minimumHeight() );
     if ( childWidget != widget ) {
 	QFrame *frame = qt_cast<QFrame*>(widget);

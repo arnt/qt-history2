@@ -89,12 +89,12 @@ static inline void qMaxExpCalc( QCOORD & max, bool &exp,
 {
     if ( exp ) {
 	if ( boxexp )
-	    max = QMAX( max, boxmax );
+	    max = qMax( max, boxmax );
     } else {
 	if ( boxexp )
 	    max = boxmax;
 	else
-	    max = QMIN( max, boxmax );
+	    max = qMin( max, boxmax );
     }
     exp = exp || boxexp;
 }

@@ -1082,14 +1082,14 @@ QSize QHeader::sectionSizeHint( int section, const QFontMetrics& fm ) const
 	for ( int i = 0; i < lines; ++i ) {
 	    QString s = label->section( '\n', i, i );
 	    int tmpw = fm.width( s );
-	    w = QMAX( w, tmpw );
+	    w = qMax( w, tmpw );
 	}
 	bound.setWidth( w );
     }
     int arrowWidth = 0;
     if ( d->sortSection == section )
 	arrowWidth = ( ( orient == Qt::Horizontal ? height() : width() ) / 2 ) + 8;
-    int height = QMAX( bound.height() + 2, ih ) + 4;
+    int height = qMax( bound.height() + 2, ih ) + 4;
     int width = bound.width() + style().pixelMetric( QStyle::PM_HeaderMargin ) * 4
 	+ iw + arrowWidth;
     return QSize( width, height );
@@ -1204,7 +1204,7 @@ QSize QHeader::sizeHint() const
 	for ( int i = 0; i < count(); i++ ) {
 	    int h = orient == Horizontal ?
 		    sectionSizeHint( i, fm ).height() : sectionSizeHint( i, fm ).width();
-	    d->height = QMAX( d->height, h );
+	    d->height = qMax( d->height, h );
 	}
 	d->heightDirty = FALSE;
     }
@@ -1212,14 +1212,14 @@ QSize QHeader::sizeHint() const
     if ( orient == Horizontal ) {
 	height = fm.lineSpacing() + 6;
 	width = 0;
-	height = QMAX( height, d->height );
+	height = qMax( height, d->height );
 	for ( int i = 0; i < count(); i++ )
 	    width += d->fullSize < -1 ? d->sizes[i] :
 		     sectionSizeHint( mapToSection( i ), fm ).width();
     } else {
 	width = fm.width( ' ' );
 	height = 0;
-	width = QMAX( width, d->height );
+	width = qMax( width, d->height );
 	for ( int i = 0; i < count(); i++ )
 	    height += d->fullSize < -1 ? d->sizes[i] :
 		      sectionSizeHint( mapToSection( i ), fm ).height();

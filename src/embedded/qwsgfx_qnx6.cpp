@@ -237,10 +237,10 @@ void QQnxFbGfx<depth,type>::fillRect(int rx, int ry, int w, int h) {
 	       && fillTop <= clipRect.bottom()
 	       && fillRight >= clipRect.left()
 	       && fillBottom >= clipRect.top()) {
-	    int clippedFillLeft = QMAX(clipRect.left(), fillLeft);
-	    int clippedFillTop = QMAX(clipRect.top(), fillTop);
-	    int clippedFillRight = QMIN(clipRect.right(), fillRight);
-	    int clippedFillBottom = QMIN(clipRect.bottom(), fillBottom);
+	    int clippedFillLeft = qMax(clipRect.left(), fillLeft);
+	    int clippedFillTop = qMax(clipRect.top(), fillTop);
+	    int clippedFillRight = qMin(clipRect.right(), fillRight);
+	    int clippedFillBottom = qMin(clipRect.bottom(), fillBottom);
 qDebug("left %d top %d right %d bottom %d",clippedFillLeft,clippedFillTop,
 	clippedFillRight,clippedFillBottom);
 	    coreFuncList.draw_solid_rect(&ctx, pixel,

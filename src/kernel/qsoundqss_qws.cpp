@@ -164,7 +164,7 @@ private:
 	if ( wavedata_remaining >= 0 ) {
 	    if ( out >= max ) {
 		max = dev->readBlock((char*)data,
-		    (uint)QMIN(sound_buffer_size,wavedata_remaining));
+		    (uint)qMin(sound_buffer_size,wavedata_remaining));
 		wavedata_remaining -= max;
 		out = 0;
 		if ( max <= 0 ) {

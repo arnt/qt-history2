@@ -7219,7 +7219,7 @@ bool QXmlSimpleReader::insertXmlRef( const QString &data, const QString &name, b
 	d->xmlRef.push( data );
     }
     d->xmlRefName.push( name );
-    int n = QMAX( d->parameterEntities.count(), d->entities.count() );
+    int n = qMax( d->parameterEntities.count(), d->entities.count() );
     if ( d->xmlRefName.count() > n+1 ) {
 	// recursive entities
 	reportParseError( XMLERR_RECURSIVEENTITIES );

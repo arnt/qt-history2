@@ -224,7 +224,7 @@ int QIODeviceSource::readyToSend()
     if ( iod->status() != IO_Ok || !(iod->state() & IO_Open) )
 	return -1;
 
-    int n = QMIN((uint)buf_size, iod->size()-iod->at()); // ### not 64-bit safe
+    int n = qMin((uint)buf_size, iod->size()-iod->at()); // ### not 64-bit safe
                                                          // ### not large file safe
     return n ? n : -1;
 }
@@ -325,7 +325,7 @@ void QDataPump::tryToPump()
     }
     if (!supply)
 	return;
-    source->sendTo(sink, QMIN(supply, demand));
+    source->sendTo(sink, qMin(supply, demand));
 
     timer.start(0, TRUE);
 }

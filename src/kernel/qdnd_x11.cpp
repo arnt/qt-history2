@@ -1078,7 +1078,7 @@ void QDragManager::move( const QPoint & globalPos )
 	    if ( r != Success ) {
 		target = 0;
 	    } else {
-		target_version = QMIN(qt_xdnd_version,tv ? *tv : 1);
+		target_version = qMin(qt_xdnd_version,tv ? *tv : 1);
 		if ( tv )
 		    XFree( tv );
 		if ( !qt_badwindow() && type )

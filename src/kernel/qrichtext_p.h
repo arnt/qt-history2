@@ -1668,7 +1668,7 @@ inline int QTextDocument::y() const
 
 inline int QTextDocument::width() const
 {
-    return QMAX( cw, flow_->width() );
+    return qMax( cw, flow_->width() );
 }
 
 inline int QTextDocument::visibleWidth() const
@@ -1698,7 +1698,7 @@ inline void QTextDocument::setLastParagraph( QTextParagraph *p )
 
 inline void QTextDocument::setWidth( int w )
 {
-    cw = QMAX( w, minw );
+    cw = qMax( w, minw );
     flow_->setWidth( cw );
     vw = w;
 }
@@ -1944,7 +1944,7 @@ inline void QTextParagraph::append( const QString &s, bool reallyAtEnd )
     if ( reallyAtEnd )
 	insert( str->length(), s );
     else
-	insert( QMAX( str->length() - 1, 0 ), s );
+	insert( qMax( str->length() - 1, 0 ), s );
 }
 
 inline QTextParagraph *QTextParagraph::prev() const

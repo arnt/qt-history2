@@ -897,16 +897,16 @@ int QMenuBar::calculateRects( int max_width )
 	    if ( i && separator < 0 )
 		separator = i;
 	} else if ( mi->pixmap() ) {			// pixmap item
-	    w = QMAX( mi->pixmap()->width() + 4, QApplication::globalStrut().width() );
-	    h = QMAX( mi->pixmap()->height() + 4, QApplication::globalStrut().height() );
+	    w = qMax( mi->pixmap()->width() + 4, QApplication::globalStrut().width() );
+	    h = qMax( mi->pixmap()->height() + 4, QApplication::globalStrut().height() );
 	} else if ( !mi->text().isNull() ) {	// text item
 	    QString s = mi->text();
 	    w = fm.boundingRect( s ).width()
 		+ 2*motifItemHMargin;
 	    w -= s.count('&')*fm.width('&');
 	    w += s.count("&&")*fm.width('&');
-	    w = QMAX( w, QApplication::globalStrut().width() );
-	    h = QMAX( fm.height() + motifItemVMargin, QApplication::globalStrut().height() );
+	    w = qMax( w, QApplication::globalStrut().width() );
+	    h = qMax( fm.height() + motifItemVMargin, QApplication::globalStrut().height() );
 	} else if ( mi->isSeparator() ) {	// separator item
 	    if ( style().styleHint(QStyle::SH_GUIStyle) == MotifStyle )
 		separator = i; //### only motif?
@@ -1350,7 +1350,7 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 
     if ( i < 0 || actItem < 0 ) {
 	// just one item needs repainting
-	int n = QMAX( actItem, i );
+	int n = qMax( actItem, i );
 	actItem = i;
 	if ( irects && n >= 0 )
 	    repaint( irects[n], FALSE );

@@ -856,7 +856,7 @@ void QMacStyle::drawControl(ControlElement element,
 	     irect = *qt_glb_mac_rect(r, p, FALSE);
 
 	if(checkable)
-	    maxpmw = QMAX(maxpmw, 12); // space for the checkmarks
+	    maxpmw = qMax(maxpmw, 12); // space for the checkmarks
 
 	ThemeMenuState tms = kThemeMenuActive;
 	if(!mi->isEnabled())
@@ -1950,7 +1950,7 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 	for(unsigned int i = 0, cnt = 0; i < (sizeof(macBtnOrder)/sizeof(macBtnOrder[0])); i++) {
 	    if(dbtns->isButtonVisible(macBtnOrder[i])) {
 		QSize szH = dbtns->sizeHint(macBtnOrder[i]);
-		int mwidth = QMAX(bwidth, szH.width()), mheight = QMAX(bheight, szH.height());
+		int mwidth = qMax(bwidth, szH.width()), mheight = qMax(bheight, szH.height());
 		if(dbtns->orientation() == Horizontal) {
 		    start -= mwidth;
 		    if(cnt)
@@ -2179,11 +2179,11 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	for(unsigned int i = 0, cnt = 0; i < (sizeof(macBtnOrder)/sizeof(macBtnOrder[0])); i++) {
 	    if(dbtns->isButtonVisible(macBtnOrder[i])) {
 		QSize szH = dbtns->sizeHint(macBtnOrder[i]);
-		int mwidth = QMAX(bwidth, szH.width()), mheight = QMAX(bheight, szH.height());
+		int mwidth = qMax(bwidth, szH.width()), mheight = qMax(bheight, szH.height());
 		if(dbtns->orientation() == Horizontal)
-		    h = QMAX(h, mheight);
+		    h = qMax(h, mheight);
 		else
-		    w = QMAX(w, mwidth);
+		    w = qMax(w, mwidth);
 
 		if(cnt)
 		    w += bspace;
@@ -2207,9 +2207,9 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	    } else {
 		QSize szH = dbtns->sizeHint(QDialogButtons::Help);
 		if(dbtns->orientation() == Horizontal)
-		    w += QMAX(bwidth, szH.width());
+		    w += qMax(bwidth, szH.width());
 		else
-		    h += QMAX(bheight, szH.height());
+		    h += qMax(bheight, szH.height());
 	    }
 	}
 	const int fw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
@@ -2250,12 +2250,12 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	    h = ash;
 	} else {
 	    if(mi->pixmap())
-		h = QMAX(h, mi->pixmap()->height() + 4);
+		h = qMax(h, mi->pixmap()->height() + 4);
 	    else
-		h = QMAX(h, popup->fontMetrics().height() + 2);
+		h = qMax(h, popup->fontMetrics().height() + 2);
 
 	    if(mi->iconSet() != 0)
-		h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
+		h = qMax(h, mi->iconSet()->pixmap(QIconSet::Small,
 						  QIconSet::Normal).height() + 4);
 	}
 
@@ -2271,7 +2271,7 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	if(checkable || maxpmw > 0)
 	    w += 2;
 	if(widget->parentWidget() && widget->parentWidget()->inherits("QComboBox") && widget->parentWidget()->isVisible())
-	    w = QMAX(w, querySubControlMetrics(CC_ComboBox, widget->parentWidget(), SC_ComboBoxEditField).width());
+	    w = qMax(w, querySubControlMetrics(CC_ComboBox, widget->parentWidget(), SC_ComboBoxEditField).width());
 	else
 	    w += 12;
 	sz = QSize(w, h);

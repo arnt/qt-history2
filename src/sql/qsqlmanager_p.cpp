@@ -349,7 +349,7 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 #endif
 	/* check current page */
 	int pageSize = 20;
-	int startIdx = QMAX( atHint - pageSize, 0 );
+	int startIdx = qMax( atHint - pageSize, 0 );
 	int endIdx = atHint + pageSize;
 	for ( int j = startIdx; j <= endIdx; ++j ) {
 	    if ( cur->seek( j ) ) {

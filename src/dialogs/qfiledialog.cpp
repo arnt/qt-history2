@@ -1453,7 +1453,7 @@ void QFileListBox::startRename( bool check )
     int x = r.x() + bdr;
     int y = r.y();
     int w = item( i )->width( this ) - bdr;
-    int h = QMAX( lined->height() + 2, r.height() );
+    int h = qMax( lined->height() + 2, r.height() );
     y = y + r.height() / 2 - h / 2;
 
     lined->parentWidget()->setGeometry( x, y, w + 6, h );
@@ -1866,7 +1866,7 @@ void QFileDialogQFileListView::startRename( bool check )
     int x = r.x() + bdr;
     int y = r.y();
     int w = columnWidth( 0 ) - bdr;
-    int h = QMAX( lined->height() + 2, r.height() );
+    int h = qMax( lined->height() + 2, r.height() );
     y = y + r.height() / 2 - h / 2;
 
     lined->parentWidget()->setGeometry( x, y, w + 6, h );
@@ -2016,7 +2016,7 @@ int QFileDialogPrivate::MCItem::height( const QListBox * lb ) const
 {
     int hf = lb->fontMetrics().height();
     int hp = pixmap() ? pixmap()->height() : 0;
-    return QMAX(hf, hp) + 2;
+    return qMax(hf, hp) + 2;
 }
 
 
@@ -2043,7 +2043,7 @@ void QFileDialogPrivate::MCItem::paint( QPainter * ptr )
     int h;
 
     if ( pixmap() )
-	h = QMAX( fm.height(), pixmap()->height()) + 2;
+	h = qMax( fm.height(), pixmap()->height()) + 2;
     else
 	h = fm.height() + 2;
 
@@ -2695,7 +2695,7 @@ void QFileDialog::init()
     if ( lastWidth == 0 ) {
 	QRect screen = QApplication::desktop()->screenGeometry( pos() );
 	if ( screen.width() < 1024 || screen.height() < 768 ) {
-	    resize( QMIN(screen.width(), 420), QMIN(screen.height(), 236) );
+	    resize( qMin(screen.width(), 420), qMin(screen.height(), 236) );
 	} else {
 	    QSize s = files->sizeHint();
 	    s = QSize( s.width() + 300, s.height() + 82 );
@@ -3781,8 +3781,8 @@ void QFileDialog::updateGeometries()
     QSize r, t;
 
     // we really should have a QSize::unite()
-#define RM r.setWidth( QMAX(r.width(),t.width()) ); \
-r.setHeight( QMAX(r.height(),t.height()) )
+#define RM r.setWidth( qMax(r.width(),t.width()) ); \
+r.setHeight( qMax(r.height(),t.height()) )
 
     // labels first
     r = d->pathL->sizeHint();

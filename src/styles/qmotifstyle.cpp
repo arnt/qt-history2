@@ -502,9 +502,9 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 	    int length;
 	    int x = r.x(), y = r.y(), w = r.width(), h = r.height();
 	    if ( w <= 8 || h <= 6 )
-		length = QMIN( w-2, h-2 );
+		length = qMin( w-2, h-2 );
 	    else
-		length = QMIN( 2*w / 3, 2*h / 3 );
+		length = qMin( 2*w / 3, 2*h / 3 );
 
 	    if ( !(length & 1) )
 		length -=1;
@@ -979,7 +979,7 @@ void QMotifStyle::drawControl( ControlElement element,
 	    r.rect(&x, &y, &w, &h);
 
 	    if ( checkable )
-		maxpmw = QMAX( maxpmw, motifCheckMarkSpace );
+		maxpmw = qMax( maxpmw, motifCheckMarkSpace );
 
 	    int checkcol = maxpmw;
 
@@ -1351,7 +1351,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 			    lh = child ? child->height() : 0;
 			else
 			    lh = p->fontMetrics().height() + 2 * v->itemMargin();
-			lh = QMAX( lh, QApplication::globalStrut().height() );
+			lh = qMax( lh, QApplication::globalStrut().height() );
 			if ( lh % 2 > 0 )
 			    lh++;
 			linebot = y + lh/2;
@@ -1435,7 +1435,7 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 	break;
 
     case PM_SplitterWidth:
-	ret = QMAX( 10, QApplication::globalStrut().width() );
+	ret = qMax( 10, QApplication::globalStrut().width() );
 	break;
 
     case PM_SliderLength:
@@ -1521,7 +1521,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	bs.setHeight( widget->height()/2 );
 	if ( bs.height() < 8 )
 	    bs.setHeight( 8 );
-	bs.setWidth( QMIN( bs.height() * 8 / 5, widget->width() / 4 ) ); // 1.6 -approximate golden mean
+	bs.setWidth( qMin( bs.height() * 8 / 5, widget->width() / 4 ) ); // 1.6 -approximate golden mean
 	bs = bs.expandedTo( QApplication::globalStrut() );
 	int y = 0;
 	int x, lx, rx;

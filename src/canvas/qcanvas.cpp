@@ -1307,11 +1307,11 @@ void QCanvas::drawChanges(const QRect& inarea)
 void QCanvas::ensureOffScrSize( int osw, int osh )
 {
     if ( osw > offscr.width() || osh > offscr.height() )
-	offscr.resize(QMAX(osw,offscr.width()),
-		      QMAX(osh,offscr.height()));
+	offscr.resize(qMax(osw,offscr.width()),
+		      qMax(osh,offscr.height()));
     else if ( offscr.width() == 0 || offscr.height() == 0 )
-	offscr.resize( QMAX( offscr.width(), 1),
-		       QMAX( offscr.height(), 1 ) );
+	offscr.resize( qMax( offscr.width(), 1),
+		       qMax( offscr.height(), 1 ) );
 }
 
 /*!
@@ -1723,7 +1723,7 @@ void QCanvas::setTiles( QPixmap p,
     }
     if ( h + v > 10 ) {
 	int s = scm(tilewidth,tileheight);
-	retune( s < 128 ? s : QMAX(tilewidth,tileheight) );
+	retune( s < 128 ? s : qMax(tilewidth,tileheight) );
     }
     setAllChanged();
 }

@@ -672,8 +672,8 @@ void QMessageBox::resizeButtons()
     QSize maxSize;
     for ( i=0; i<mbd->numButtons; i++ ) {
         QSize s = mbd->pb[i]->sizeHint();
-        maxSize.setWidth(  QMAX(maxSize.width(), s.width()) );
-        maxSize.setHeight( QMAX(maxSize.height(),s.height()) );
+        maxSize.setWidth(  qMax(maxSize.width(), s.width()) );
+        maxSize.setHeight( qMax(maxSize.height(),s.height()) );
     }
     mbd->buttonSize = maxSize;
     for ( i=0; i<mbd->numButtons; i++ )
@@ -900,7 +900,7 @@ QSize QMessageBox::sizeHint() const
         if ( h < mbd->iconLabel.height() + 3*border + bh && n )
             h = mbd->iconLabel.height() + 3*border + bh;
     }
-    int w = QMAX( buttons, labelSize.width() + lmargin ) + 2*border;
+    int w = qMax( buttons, labelSize.width() + lmargin ) + 2*border;
     QRect screen = QApplication::desktop()->screenGeometry( pos() );
     if ( w > screen.width() )
         w = screen.width();

@@ -697,7 +697,7 @@ void QTranslator::squeeze( SaveMode mode )
 	offsets.replace( QTranslatorPrivate::Offset(it.key(),
 			 ms.device()->at()), (void*)0 );
 	it.key().write( ms, mode == Stripped,
-			(QTranslatorMessage::Prefix) QMAX(cpPrev, cpNext + 1) );
+			(QTranslatorMessage::Prefix) qMax(cpPrev, cpNext + 1) );
     }
 
     d->offsetArray->resize( 0 );
@@ -774,7 +774,7 @@ void QTranslator::squeeze( SaveMode mode )
 		hTable[i] = (Q_UINT16) ( upto >> 1 );
 		do {
 		    uint len = (uint) qstrlen( con );
-		    len = QMIN( len, 255u );
+		    len = qMin( len, 255u );
 		    t << (Q_UINT8) len;
 		    t.writeRawBytes( con, len );
 		    upto += 1 + len;

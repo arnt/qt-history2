@@ -400,7 +400,7 @@ void QCursor::update() const
 	    invm = mbits.numColors() > 1 &&
 		   qGray(mbits.color(0)) < qGray(mbits.color(1));
 	}
-	int n = QMAX( 1, bbits.width() / 8 );
+	int n = qMax( 1, bbits.width() / 8 );
 	int h = bbits.height();
 	uchar* xBits = new uchar[h*n];
 	uchar* xMask = new uchar[h*n];

@@ -339,9 +339,9 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 	int length;
 	int x = r.x(), y = r.y(), w = r.width(), h = r.height();
 	if ( w <= 8 || h <= 6 )
-	    length = QMIN( w-2, h-2 );
+	    length = qMin( w-2, h-2 );
 	else
-	    length = QMIN( 2*w / 3, 2*h / 3 );
+	    length = qMin( 2*w / 3, 2*h / 3 );
 
 	if ( !(length & 1) )
 	    length -=1;
@@ -443,7 +443,7 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 	int x, y, w, h;
 	r.rect(&x, &y, &w, &h);
 
-	int sw = QMIN( h,w );
+	int sw = qMin( h,w );
 	if ( h > w )
 	    p->translate( 0, h - w );
 	else
@@ -684,7 +684,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    r.rect(&x, &y, &w, &h);
 
 	    if ( checkable ) {
-	        maxpmw = QMAX( maxpmw, 12 );
+	        maxpmw = qMax( maxpmw, 12 );
 	    }
 
 	    int checkcol = maxpmw;
@@ -1072,7 +1072,7 @@ int QPocketPCStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 #endif // QT_NO_SLIDER
 
     case PM_SplitterWidth:
-	ret = 6; // QMAX( 6, QApplication::globalStrut().width() );
+	ret = 6; // qMax( 6, QApplication::globalStrut().width() );
 	break;
 
     case PM_ScrollBarSliderMin:
@@ -1091,7 +1091,7 @@ int QPocketPCStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	if (! widget)
 	    ret = 8; // 12;
 	else
-	    ret = 8; // QMAX(12, (widget->height() - 4) / 3);
+	    ret = 8; // qMax(12, (widget->height() - 4) / 3);
 	break;
 
     case PM_ButtonShiftHorizontal:
@@ -1531,13 +1531,13 @@ QSize QPocketPCStyle::sizeFromContents( ContentsType contents,
 		break;
 	    } else {
 		if (mi->pixmap())
-		    h = QMAX(h, mi->pixmap()->height() + 2*pocketpcItemFrame);
+		    h = qMax(h, mi->pixmap()->height() + 2*pocketpcItemFrame);
 		else if (! mi->text().isNull())
-		    h = QMAX(h, popup->fontMetrics().height() + 2*pocketpcItemVMargin +
+		    h = qMax(h, popup->fontMetrics().height() + 2*pocketpcItemVMargin +
 			     2*pocketpcItemFrame);
 
 		if (mi->iconSet() != 0)
-		    h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
+		    h = qMax(h, mi->iconSet()->pixmap(QIconSet::Small,
 						      QIconSet::Normal).height() +
 			     2*pocketpcItemFrame);
 	    }
@@ -1586,7 +1586,7 @@ QSize QPocketPCStyle::sizeFromContents( ContentsType contents,
 	    QRect irect = subRect(SR_CheckBoxIndicator, widget);
 	    int h = pixelMetric( PM_IndicatorHeight, widget );
 	    sz += QSize(irect.right() + (checkbox->text().isEmpty() ? 0 : 10), 4 );
-	    sz.setHeight( QMAX( sz.height(), h ) );
+	    sz.setHeight( qMax( sz.height(), h ) );
 	    break;
 	}
 
@@ -1596,7 +1596,7 @@ QSize QPocketPCStyle::sizeFromContents( ContentsType contents,
 	    QRect irect = subRect(SR_RadioButtonIndicator, widget);
 	    int h = pixelMetric( PM_ExclusiveIndicatorHeight, widget );
 	    sz += QSize(irect.right() + (radiobutton->text().isEmpty() ? 0 : 10), 4 );
-	    sz.setHeight( QMAX( sz.height(), h ) );
+	    sz.setHeight( qMax( sz.height(), h ) );
 	    break;
 	}
 

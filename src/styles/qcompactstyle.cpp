@@ -100,10 +100,10 @@ static int popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const QFontMe
 	h = fm.height() + 2*motifItemVMargin + 2*motifItemFrame - 1;
 
     if ( !mi->isSeparator() && mi->iconSet() != 0 ) {
-	h = QMAX( h, mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height() + 2*motifItemFrame );
+	h = qMax( h, mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height() + 2*motifItemFrame );
     }
     if ( mi->custom() )
-	h = QMAX( h, mi->custom()->sizeHint().height() + 2*motifItemVMargin + 2*motifItemFrame ) - 1;
+	h = qMax( h, mi->custom()->sizeHint().height() + 2*motifItemVMargin + 2*motifItemFrame ) - 1;
     return h;
 }
 
@@ -141,7 +141,7 @@ void QCompactStyle::drawControl( ControlElement element, QPainter *p, const QWid
 	    r.rect( &x, &y, &w, &h );
 
 	    if ( checkable )
-		maxpmw = QMAX( maxpmw, 8 ); // space for the checkmarks
+		maxpmw = qMax( maxpmw, 8 ); // space for the checkmarks
 
 	    int checkcol	  =     maxpmw;
 

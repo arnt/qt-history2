@@ -347,7 +347,7 @@ void QDial::repaintScreen( const QRect *cr )
 	br.setWidth( br.width() + 2 );
 	br.setHeight( br.height() + 2 );
 	if ( d->showNotches ) {
-	    int r = QMIN( width(), height() ) / 2;
+	    int r = qMin( width(), height() ) / 2;
 	    br.moveBy( -r / 6, - r / 6 );
 	    br.setWidth( br.width() + r / 3 );
 	    br.setHeight( br.height() + r / 3 );
@@ -613,7 +613,7 @@ bool QDial::wrapping() const
 int QDial::notchSize() const
 {
     // radius of the arc
-    int r = QMIN( width(), height() )/2;
+    int r = qMin( width(), height() )/2;
     // length of the whole arc
     int l = (int)(r*(d->wrapping ? 6 : 5)*m_pi/6);
     // length of the arc from minValue() to minValue()+pageStep()
@@ -759,7 +759,7 @@ QSize QDial::sizeHint() const
 
 QPointArray QDial::calcArrow( double &a ) const
 {
-    int r = QMIN( width(), height() ) / 2;
+    int r = qMin( width(), height() ) / 2;
     if ( maxValue() == minValue() )
 	a = m_pi / 2;
     else if ( d->wrapping )
@@ -793,7 +793,7 @@ QPointArray QDial::calcArrow( double &a ) const
 
 QRect QDial::calcDial() const
 {
-    double r = QMIN( width(), height() ) / 2.0;
+    double r = qMin( width(), height() ) / 2.0;
     double d_ = r / 6.0;
     double dx = d_ + ( width() - 2 * r ) / 2.0 + 1;
     double dy = d_ + ( height() - 2 * r ) / 2.0 + 1;
@@ -807,7 +807,7 @@ QRect QDial::calcDial() const
 
 int QDial::calcBigLineSize() const
 {
-    int r = QMIN( width(), height() ) / 2;
+    int r = qMin( width(), height() ) / 2;
     int bigLineSize = r / 6;
     if ( bigLineSize < 4 )
 	bigLineSize = 4;
@@ -823,7 +823,7 @@ int QDial::calcBigLineSize() const
 void QDial::calcLines()
 {
     if ( !d->lines.size() ) {
-	double r = QMIN( width(), height() ) / 2.0;
+	double r = qMin( width(), height() ) / 2.0;
 	int bigLineSize = calcBigLineSize();
 	double xc = width() / 2.0;
 	double yc = height() / 2.0;

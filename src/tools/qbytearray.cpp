@@ -410,7 +410,7 @@ QByteArray qUncompress( const uchar* data, int nbytes )
     }
     ulong expectedSize = ( data[0] << 24 ) | ( data[1] << 16 ) |
 		       ( data[2] <<  8 ) | ( data[3]       );
-    ulong len = QMAX( expectedSize,  1ul );
+    ulong len = qMax( expectedSize,  1ul );
     QByteArray baunzip;
     int res;
     do {
@@ -555,7 +555,7 @@ void QByteArray::realloc(int alloc)
 	Data *x = (Data*) qMalloc(sizeof(Data)+alloc);
 	if (!x)
 	    return;
-	::memcpy(x, d, sizeof(Data)+QMIN(alloc, d->alloc));
+	::memcpy(x, d, sizeof(Data)+qMin(alloc, d->alloc));
 	x->ref = 1;
 	x->data = x->array;
 	x = qAtomicSetPtr(&d, x);
@@ -567,7 +567,7 @@ void QByteArray::realloc(int alloc)
 
 void QByteArray::expand(int i)
 {
-    resize(QMAX(i+1, d->size));
+    resize(qMax(i+1, d->size));
 }
 
 QByteArray &QByteArray::operator=(const char *s)
@@ -671,7 +671,7 @@ QByteArray &QByteArray::insert(int i, char c)
     if (i < 0)
 	return *this;
     int oldsize = d->size;
-    expand(QMAX(i, d->size));
+    expand(qMax(i, d->size));
     if (i > oldsize)
 	memset(d->data + oldsize, 0x20, i - oldsize);
     else
@@ -686,7 +686,7 @@ QByteArray &QByteArray::insert(int i, const char *s)
 	return *this;
     int l = strlen(s);
     int oldsize = d->size;
-    expand(QMAX(d->size, i) + l - 1);
+    expand(qMax(d->size, i) + l - 1);
     if (i > oldsize)
 	memset(d->data + oldsize, 0x20, i - oldsize);
     else
@@ -699,7 +699,7 @@ QByteArray &QByteArray::insert(int i, const QByteArray &a)
 {
     if (i < 0 || a.d->size == 0)
 	return *this;
-    expand(QMAX(d->size, i) + a.d->size - 1);
+    expand(qMax(d->size, i) + a.d->size - 1);
     ::memmove(d->data + i + a.d->size, d->data + i, (d->size - i - a.d->size)*sizeof(char));
     memcpy(d->data + i, a.d->data, a.d->size*sizeof(char));
     return *this;
@@ -856,7 +856,7 @@ QByteArray &QByteArray::replace(char before, char after)
 int QByteArray::indexOf(char c, int i) const
 {
     if (i < 0)
-	i = QMAX(i + d->size, 0);
+	i = qMax(i + d->size, 0);
     if (i < d->size) {
 	const char *n = d->data + i - 1;
 	const char *e = d->data + d->size;

@@ -183,9 +183,9 @@ void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 	    int d = dockWindow->height() + dy;
 	    if ( orientation() != dockWindow->area()->orientation() ) {
 		dockWindow->setFixedExtentHeight( -1 );
-		d = QMAX( d, dockWindow->minimumHeight() );
+		d = qMax( d, dockWindow->minimumHeight() );
 		int ms = dockWindow->area()->maxSpace( d, dockWindow );
-		d = QMIN( d, ms );
+		d = qMin( d, ms );
 		dockWindow->setFixedExtentHeight( d );
 	    } else {
 		dockWindow->area()->setFixedExtent( d, dockWindow );
@@ -199,9 +199,9 @@ void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 	    int d = dockWindow->width() + dx;
 	    if ( orientation() != dockWindow->area()->orientation() ) {
 		dockWindow->setFixedExtentWidth( -1 );
-		d = QMAX( d, dockWindow->minimumWidth() );
+		d = qMax( d, dockWindow->minimumWidth() );
 		int ms = dockWindow->area()->maxSpace( d, dockWindow );
-		d = QMIN( d, ms );
+		d = qMin( d, ms );
 		dockWindow->setFixedExtentWidth( d );
 	    } else {
 		dockWindow->area()->setFixedExtent( d, dockWindow );
@@ -1360,10 +1360,10 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 	QPoint topLeft = currRect.topLeft();
 	QRect screen = qApp->desktop()->availableGeometry( topLeft );
 	if ( !screen.contains( topLeft ) ) {
-	    topLeft.setY(QMAX(topLeft.y(), screen.top()));
-	    topLeft.setY(QMIN(topLeft.y(), screen.bottom()-height()));
-	    topLeft.setX(QMAX(topLeft.x(), screen.left()));
-	    topLeft.setX(QMIN(topLeft.x(), screen.right()-width()));
+	    topLeft.setY(qMax(topLeft.y(), screen.top()));
+	    topLeft.setY(qMin(topLeft.y(), screen.bottom()-height()));
+	    topLeft.setX(qMax(topLeft.x(), screen.left()));
+	    topLeft.setX(qMin(topLeft.x(), screen.right()-width()));
 	}
 	move( topLeft );
     }
@@ -1907,8 +1907,8 @@ void QDockWindow::showEvent( QShowEvent *e )
     if (curPlace == OutsideDock && (parent() && strcmp(parent()->name(), "qt_hide_dock") != 0)) {
 	QRect sr = qApp->desktop()->availableGeometry( this );
 	if ( !sr.contains( pos() ) ) {
-	    int nx = QMIN( QMAX( x(), sr.x() ), sr.right()-width() );
-	    int ny = QMIN( QMAX( y(), sr.y() ), sr.bottom()-height() );
+	    int nx = qMin( qMax( x(), sr.x() ), sr.right()-width() );
+	    int ny = qMin( qMax( y(), sr.y() ), sr.bottom()-height() );
 	    move( nx, ny );
 	}
     }

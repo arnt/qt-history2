@@ -659,18 +659,18 @@ glyph_metrics_t QFontEngineXLFD::boundingBox( const glyph_t *glyphs, const advan
 	if (xcs) {
 	    int x = overall.xoff + offsets[i].x - xcs->lbearing;
 	    int y = overall.yoff + offsets[i].y - xcs->ascent;
-	    overall.x = QMIN( overall.x, x );
-	    overall.y = QMIN( overall.y, y );
-	    xmax = QMAX( xmax, overall.xoff + offsets[i].x + xcs->rbearing );
-	    ymax = QMAX( ymax, y + xcs->ascent + xcs->descent );
+	    overall.x = qMin( overall.x, x );
+	    overall.y = qMin( overall.y, y );
+	    xmax = qMax( xmax, overall.xoff + offsets[i].x + xcs->rbearing );
+	    ymax = qMax( ymax, y + xcs->ascent + xcs->descent );
 	    overall.xoff += advances[i];
 	} else {
 	    int size = ascent();
-	    overall.x = QMIN(overall.x, overall.xoff );
-	    overall.y = QMIN(overall.y, overall.yoff - size );
-	    ymax = QMAX( ymax, overall.yoff );
+	    overall.x = qMin(overall.x, overall.xoff );
+	    overall.y = qMin(overall.y, overall.yoff - size );
+	    ymax = qMax( ymax, overall.yoff );
 	    overall.xoff += size;
-	    xmax = QMAX( xmax, overall.xoff );
+	    xmax = qMax( xmax, overall.xoff );
 	}
     }
     overall.height = ymax - overall.y;
@@ -722,8 +722,8 @@ int QFontEngineXLFD::descent() const
 
 int QFontEngineXLFD::leading() const
 {
-    int l = qRound((QMIN(_fs->ascent, _fs->max_bounds.ascent)
-		    + QMIN(_fs->descent, _fs->max_bounds.descent)) * _scale * 0.15 );
+    int l = qRound((qMin(_fs->ascent, _fs->max_bounds.ascent)
+		    + qMin(_fs->descent, _fs->max_bounds.descent)) * _scale * 0.15 );
     return (l > 0) ? l : 1;
 }
 
@@ -1140,11 +1140,11 @@ glyph_metrics_t QFontEngineLatinXLFD::boundingBox( const glyph_t *glyphs_const,
 					  offsets + start,
 					  end - start );
 
-	overall.x = QMIN( overall.x, gm.x );
-	overall.y = QMIN( overall.y, gm.y );
+	overall.x = qMin( overall.x, gm.x );
+	overall.y = qMin( overall.y, gm.y );
 	overall.width = overall.xoff + gm.width;
-	overall.height = QMAX( overall.height + overall.y, gm.height + gm.y ) -
-			 QMIN( overall.y, gm.y );
+	overall.height = qMax( overall.height + overall.y, gm.height + gm.y ) -
+			 qMin( overall.y, gm.y );
 	overall.xoff += gm.xoff;
 	overall.yoff += gm.yoff;
 
@@ -1169,11 +1169,11 @@ glyph_metrics_t QFontEngineLatinXLFD::boundingBox( const glyph_t *glyphs_const,
 				      offsets + start,
 				      end - start );
 
-    overall.x = QMIN( overall.x, gm.x );
-    overall.y = QMIN( overall.y, gm.y );
+    overall.x = qMin( overall.x, gm.x );
+    overall.y = qMin( overall.y, gm.y );
     overall.width = overall.xoff + gm.width;
-    overall.height = QMAX( overall.height + overall.y, gm.height + gm.y ) -
-		     QMIN( overall.y, gm.y );
+    overall.height = qMax( overall.height + overall.y, gm.height + gm.y ) -
+		     qMin( overall.y, gm.y );
     overall.xoff += gm.xoff;
     overall.yoff += gm.yoff;
 
@@ -1820,10 +1820,10 @@ glyph_metrics_t QFontEngineXft::boundingBox( const glyph_t *glyphs, const advanc
 	getGlyphInfo( &xgi, _font, glyphs[i] );
 	int x = overall.xoff + offsets[i].x - xgi.x;
 	int y = overall.yoff + offsets[i].y - xgi.y;
-	overall.x = QMIN( overall.x, x );
-	overall.y = QMIN( overall.y, y );
-	xmax = QMAX( xmax, x + xgi.width );
-	ymax = QMAX( ymax, y + xgi.height );
+	overall.x = qMin( overall.x, x );
+	overall.y = qMin( overall.y, y );
+	xmax = qMax( xmax, x + xgi.width );
+	ymax = qMax( ymax, y + xgi.height );
 	overall.xoff += advances[i];
     }
     overall.height = ymax - overall.y;
@@ -1871,7 +1871,7 @@ int QFontEngineXft::descent() const
 // #### use Freetype to determine this
 int QFontEngineXft::leading() const
 {
-    int l = QMIN(_font->height - (_font->ascent + _font->descent),
+    int l = qMin(_font->height - (_font->ascent + _font->descent),
 		 int(((_font->ascent + _font->descent) >> 4)*_scale));
     return (l > 0) ? l : 1;
 }

@@ -552,8 +552,8 @@ void QPixmap::resize( int w, int h )
 #endif // Q_WS_X11
     if ( !data->uninit && !isNull() )		// has existing pixmap
 	bitBlt( &pm, 0, 0, this, 0, 0,		// copy old pixmap
-		QMIN(width(), w),
-		QMIN(height(),h), CopyROP, TRUE );
+		qMin(width(), w),
+		qMin(height(),h), CopyROP, TRUE );
 #if defined(Q_WS_MAC)
     if(data->alphapm) {
 	data->alphapm->resize(w, h);
@@ -931,7 +931,7 @@ bool QPixmap::doImageIO( QImageIO* io, int quality ) const
     if ( quality > 100  || quality < -1 )
 	qWarning( "QPixmap::save: quality out of range [-1,100]" );
     if ( quality >= 0 )
-	io->setQuality( QMIN(quality,100) );
+	io->setQuality( qMin(quality,100) );
     return io->write();
 }
 

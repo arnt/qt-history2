@@ -141,16 +141,16 @@ QSize QMainWindowLayout::sizeHint() const
 
     if ( left ) {
 	w += left->sizeHint().width();
-	h = QMAX( h, left->sizeHint().height() );
+	h = qMax( h, left->sizeHint().height() );
     }
     if ( right ) {
 	w += right->sizeHint().width();
-	h = QMAX( h, right->sizeHint().height() );
+	h = qMax( h, right->sizeHint().height() );
     }
     if ( central ) {
 	w += central->sizeHint().width();
 	int diff = extraPixels();
-	h = QMAX( h, central->sizeHint().height() + diff );
+	h = qMax( h, central->sizeHint().height() + diff );
     }
     return QSize( w, h );
 }
@@ -163,19 +163,19 @@ QSize QMainWindowLayout::minimumSize() const
     if ( left ) {
 	QSize ms = left->minimumSizeHint().expandedTo( left->minimumSize() );
 	w += ms.width();
-	h = QMAX( h, ms.height() );
+	h = qMax( h, ms.height() );
     }
     if ( right ) {
 	QSize ms = right->minimumSizeHint().expandedTo( right->minimumSize() );
 	w += ms.width();
-	h = QMAX( h, ms.height() );
+	h = qMax( h, ms.height() );
     }
     if ( central ) {
 	QSize min = central->minimumSize().isNull() ?
 		    central->minimumSizeHint() : central->minimumSize();
 	w += min.width();
 	int diff = extraPixels();
-	h = QMAX( h, min.height() + diff );
+	h = qMax( h, min.height() + diff );
     }
     return QSize( w, h );
 }

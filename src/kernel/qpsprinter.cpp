@@ -5567,7 +5567,7 @@ QByteArray compress( const QImage & image, bool gray ) {
 		if ( x > 10 ) x = 10;
 		sizeUncompressed[x]++;
 #endif
-                int l = QMIN( 8, index - emittedUntil );
+                int l = qMin( 8, index - emittedUntil );
 		if ( outOffset + l + 2 >= outLen ) {
 		    outLen *= 2;
 		    out = (char *) realloc( out, outLen );
@@ -5756,9 +5756,9 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
         }
         int suby = 0;
         while( suby < height ) {
-            drawImage(paint, x, y + suby/scaleY, w, QMIN( subheight, height-suby )/scaleY,
-		      img.copy( 0, suby, width, QMIN( subheight, height-suby ) ),
-		      mask.isNull() ? mask : mask.copy( 0, suby, width, QMIN( subheight, height-suby ) ));
+            drawImage(paint, x, y + suby/scaleY, w, qMin( subheight, height-suby )/scaleY,
+		      img.copy( 0, suby, width, qMin( subheight, height-suby ) ),
+		      mask.isNull() ? mask : mask.copy( 0, suby, width, qMin( subheight, height-suby ) ));
             suby += subheight;
         }
     } else {

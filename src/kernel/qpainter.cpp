@@ -2816,8 +2816,8 @@ void qt_format_text( const QFont& font, const QRect &_r,
     int right = 0;
 
     QTextLayout textLayout( text, fnt );
-    int rb = QMAX( 0, -fm.minRightBearing() );
-    int lb = QMAX( 0, -fm.minLeftBearing() );
+    int rb = qMax( 0, -fm.minRightBearing() );
+    int lb = qMax( 0, -fm.minLeftBearing() );
 
     if ( text.isEmpty() ) {
 	height = fm.height();
@@ -2834,7 +2834,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    textLayout.setBoundary( underlinePositions[i]+1 );
 	}
 
-	int lineWidth = wordbreak ? QMAX(0, r.width()-rb-lb) : INT_MAX;
+	int lineWidth = wordbreak ? qMax(0, r.width()-rb-lb) : INT_MAX;
 	if(!wordbreak)
 	    tf |= Qt::IncludeTrailingSpaces;
 
@@ -2887,8 +2887,8 @@ void qt_format_text( const QFont& font, const QRect &_r,
 
 	    if ( state != QTextLayout::LineEmpty || linesep ) {
 		//qDebug("finalizing line: lw=%d ascent = %d, descent=%d lineleft=%d lineright=%d", lineWidth+add, ascent, descent,lineLeft, lineRight  );
-		left = QMIN( left, lineLeft );
-		right = QMAX( right, lineRight );
+		left = qMin( left, lineLeft );
+		right = qMax( right, lineRight );
 		height += ascent + descent + 1;
 		add = 0;
 		if ( linesep )

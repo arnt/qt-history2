@@ -146,7 +146,7 @@ static void readLocaleSettings()
 	// this code needs to change if new formats are added
 
 #ifndef Q_WS_WIN
-	QString sep = d.mid( QMIN( dpos, mpos ) + 2, QABS( dpos - mpos ) - 2 );
+	QString sep = d.mid( qMin( dpos, mpos ) + 2, QABS( dpos - mpos ) - 2 );
 	if ( d.count( sep ) == 2 ) {
 	    *lDateSep = sep;
 	}
@@ -1046,10 +1046,10 @@ QSize QDateEdit::sizeHint() const
     constPolish();
     QFontMetrics fm( font() );
     int fw = style().pixelMetric( QStyle::PM_DefaultFrameWidth, this );
-    int h = QMAX( fm.lineSpacing(), 14 ) + 2;
+    int h = qMax( fm.lineSpacing(), 14 ) + 2;
     int w = 2 + fm.width( '9' ) * 8 + fm.width( d->ed->separator() ) * 2 + d->controls->upRect().width() + fw * 4;
 
-    return QSize( w, QMAX(h + fw * 2,20) ).expandedTo( QApplication::globalStrut() );
+    return QSize( w, qMax(h + fw * 2,20) ).expandedTo( QApplication::globalStrut() );
 }
 
 /*! \reimp
@@ -2497,7 +2497,7 @@ QSize QTimeEdit::sizeHint() const
 	    w += fm.width( QString::fromLatin1( "AM" ) ) + 4;
     }
 
-    return QSize( w, QMAX(h + fw * 2,20) ).expandedTo( QApplication::globalStrut() );
+    return QSize( w, qMax(h + fw * 2,20) ).expandedTo( QApplication::globalStrut() );
 }
 
 /*! \reimp
@@ -2651,7 +2651,7 @@ QSize QDateTimeEdit::minimumSizeHint() const
     QSize dsh = de->minimumSizeHint();
     QSize tsh = te->minimumSizeHint();
     return QSize( dsh.width() + tsh.width(),
-		  QMAX( dsh.height(), tsh.height() ) );
+		  qMax( dsh.height(), tsh.height() ) );
 }
 
 /*!  \internal
@@ -2680,7 +2680,7 @@ QSize QDateTimeEdit::sizeHint() const
     QSize dsh = de->sizeHint();
     QSize tsh = te->sizeHint();
     return QSize( dsh.width() + tsh.width(),
-		  QMAX( dsh.height(), tsh.height() ) );
+		  qMax( dsh.height(), tsh.height() ) );
 }
 
 /*!

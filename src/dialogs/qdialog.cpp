@@ -723,8 +723,8 @@ void QDialog::adjustPosition( QWidget* w)
 	    int framew = current->geometry().x() - current->x();
 	    int frameh = current->geometry().y() - current->y();
 
-	    extraw = QMAX( extraw, framew );
-	    extrah = QMAX( extrah, frameh );
+	    extraw = qMax( extraw, framew );
+	    extrah = qMax( extrah, frameh );
 	}
     }
 
@@ -880,11 +880,11 @@ void QDialog::showExtension( bool showIt )
 		 .expandedTo( d->extension->minimumSize() )
 		 .boundedTo( d->extension->maximumSize() ) );
 	if ( d->orientation == Horizontal ) {
-	    int h = QMAX( height(), s.height() );
+	    int h = qMax( height(), s.height() );
 	    d->extension->setGeometry( width(), 0, s.width(), h );
 	    setFixedSize( width() + s.width(), h );
 	} else {
-	    int w = QMAX( width(), s.width() );
+	    int w = qMax( width(), s.width() );
 	    d->extension->setGeometry( 0, height(), w, s.height() );
 	    setFixedSize( w, height() + s.height() );
 	}
@@ -909,9 +909,9 @@ QSize QDialog::sizeHint() const
     if ( d->extension )
 	if ( d->orientation == Horizontal )
 	    return QSize( QWidget::sizeHint().width(),
-			QMAX( QWidget::sizeHint().height(),d->extension->sizeHint().height() ) );
+			qMax( QWidget::sizeHint().height(),d->extension->sizeHint().height() ) );
 	else
-	    return QSize( QMAX( QWidget::sizeHint().width(), d->extension->sizeHint().width() ),
+	    return QSize( qMax( QWidget::sizeHint().width(), d->extension->sizeHint().width() ),
 			QWidget::sizeHint().height() );
 
     return QWidget::sizeHint();
@@ -924,9 +924,9 @@ QSize QDialog::minimumSizeHint() const
     if ( d->extension )
 	if (d->orientation == Horizontal )
 	    return QSize( QWidget::minimumSizeHint().width(),
-			QMAX( QWidget::minimumSizeHint().height(), d->extension->minimumSizeHint().height() ) );
+			qMax( QWidget::minimumSizeHint().height(), d->extension->minimumSizeHint().height() ) );
 	else
-	    return QSize( QMAX( QWidget::minimumSizeHint().width(), d->extension->minimumSizeHint().width() ),
+	    return QSize( qMax( QWidget::minimumSizeHint().width(), d->extension->minimumSizeHint().width() ),
 			QWidget::minimumSizeHint().height() );
 
     return QWidget::minimumSizeHint();

@@ -365,7 +365,7 @@ UINT qt_GetDIBColorTable( HDC hdc, DIBSECTION *ds, UINT uStartIndex, UINT cEntri
 
     UINT cColors = ds->dsBmih.biClrUsed ? ds->dsBmih.biClrUsed :
 		   1 << (ds->dsBmih.biBitCount*ds->dsBmih.biPlanes);
-    cColors = QMIN( cColors, cEntries );
+    cColors = qMin( cColors, cEntries );
 
     QCE_DEBUG( 2, qDebug( "   ColorTable:" ) );
     for ( UINT iColor = uStartIndex; iColor < cColors; iColor++ ) {

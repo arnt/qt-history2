@@ -248,7 +248,7 @@ bool QGArray::resize( uint newsize, Optimization optim )
     if ( shd->data ) {				// existing data
 #if defined(DONT_USE_REALLOC)
 	char *newdata = NEW(char,newsize);	// manual realloc
-	memcpy( newdata, shd->data, QMIN(shd->len,newmaxl) );
+	memcpy( newdata, shd->data, qMin(shd->len,newmaxl) );
 	DELETE(shd->data);
 	shd->data = newdata;
 #else

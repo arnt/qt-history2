@@ -513,7 +513,7 @@ void QProcess::socketWrite( int )
     while ( !d->stdinBuf.isEmpty() && isRunning() ) {
 	if ( !WriteFile( d->pipeStdin[1],
 		    d->stdinBuf.first()->data() + d->stdinBufRead,
-		    QMIN( (uint)8192, d->stdinBuf.first()->size() - d->stdinBufRead ),
+		    qMin( (uint)8192, d->stdinBuf.first()->size() - d->stdinBufRead ),
 		    &written, 0 ) ) {
 	    d->lookup->start( 100 );
 	    return;

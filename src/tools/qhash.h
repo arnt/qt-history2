@@ -62,7 +62,7 @@ inline void QHashData::shrink()
 {
     --size;
     if (size == (numBuckets >> 3) && numBits > userNumBits)
-	rehash(QMAX(numBits - 2, userNumBits));
+	rehash(qMax(numBits - 2, userNumBits));
 }
 
 inline QHashData::Node *QHashData::first_node()
@@ -488,7 +488,7 @@ template <class Key, class T>
 inline void QHash<Key, T>::reserve(int size)
 {
     detach();
-    d->rehash(QMIN(-size, -1));
+    d->rehash(qMin(-size, -1));
 }
 
 template <class Key, class T>

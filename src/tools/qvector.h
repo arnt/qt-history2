@@ -404,7 +404,7 @@ template <typename T>
 int QVector<T>::indexOf(const T &t, int from) const
 {
     if (from < 0)
-	from = QMAX(from + d->size, 0);
+	from = qMax(from + d->size, 0);
     if (from < d->size) {
 	T* n = d->array + from - 1;
 	T* e = d->array + d->size;

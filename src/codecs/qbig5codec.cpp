@@ -171,7 +171,7 @@ QTextDecoder* QBig5Codec::makeDecoder() const
 QByteArray QBig5Codec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     //qDebug("QBig5Codec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
-    int l = QMIN((int)uc.length(),lenInOut);
+    int l = qMin((int)uc.length(),lenInOut);
     int rlen = l*3+1;
     QByteArray rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();
@@ -457,7 +457,7 @@ QTextDecoder* QBig5hkscsCodec::makeDecoder() const
 QByteArray QBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     //qDebug("QBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
-    int l = QMIN((int)uc.length(),lenInOut);
+    int l = qMin((int)uc.length(),lenInOut);
     int rlen = l*3+1;
     QByteArray rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();

@@ -943,13 +943,13 @@ QSize QTableItem::sizeHint() const
     QString t = text();
     if ( !wordwrap && t.find( '\n' ) == -1 )
 	return QSize( s.width() + table()->fontMetrics().width( text() ) + 10,
-		      QMAX( s.height(), table()->fontMetrics().height() ) ).expandedTo( strutSize );
+		      qMax( s.height(), table()->fontMetrics().height() ) ).expandedTo( strutSize );
 
     QRect r = table()->fontMetrics().boundingRect( x + 2, 0, table()->columnWidth( col() ) - x - 4, 0,
 						   wordwrap ? (alignment() | WordBreak) : alignment(),
 						   text() );
-    r.setWidth( QMAX( r.width() + 10, table()->columnWidth( col() ) ) );
-    return QSize( r.width(), QMAX( s.height(), r.height() ) ).expandedTo( strutSize );
+    r.setWidth( qMax( r.width() + 10, table()->columnWidth( col() ) ) );
+    return QSize( r.width(), qMax( s.height(), r.height() ) ).expandedTo( strutSize );
 }
 
 /*!
@@ -1604,7 +1604,7 @@ QSize QCheckTableItem::sizeHint() const
 		      table()->style().pixelMetric( QStyle::PM_IndicatorHeight ) );
     sz.setWidth( sz.width() + 6 );
     QSize sh( QTableItem::sizeHint() );
-    return QSize( sh.width() + sz.width(), QMAX( sh.height(), sz.height() ) ).
+    return QSize( sh.width() + sz.width(), qMax( sh.height(), sz.height() ) ).
 	expandedTo( QApplication::globalStrut() );
 }
 
@@ -2063,9 +2063,9 @@ void QTable::init( int rows, int cols )
     // Initialize headers
     int i = 0;
     for ( i = 0; i < numCols(); ++i )
-	topHeader->resizeSection( i, QMAX( 100, QApplication::globalStrut().height() ) );
+	topHeader->resizeSection( i, qMax( 100, QApplication::globalStrut().height() ) );
     for ( i = 0; i < numRows(); ++i )
-	leftHeader->resizeSection( i, QMAX( 20, QApplication::globalStrut().width() ) );
+	leftHeader->resizeSection( i, qMax( 20, QApplication::globalStrut().width() ) );
     topHeader->setUpdatesEnabled( TRUE );
     leftHeader->setUpdatesEnabled( TRUE );
 
@@ -2934,8 +2934,8 @@ void QTable::paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch )
     // Regions work with shorts, so avoid an overflow and adjust the
     // table size to the visible size
     QSize ts( tableSize() );
-    ts.setWidth( QMIN( ts.width(), visibleWidth() ) );
-    ts.setHeight( QMIN( ts.height(), visibleHeight() ) );
+    ts.setWidth( qMin( ts.width(), visibleWidth() ) );
+    ts.setHeight( qMin( ts.height(), visibleHeight() ) );
 
     // Region of the rect we should draw, calculated in viewport
     // coordinates, as a region can't handle bigger coordinates
@@ -3380,8 +3380,8 @@ int QTable::addSelection( const QTableSelection &s )
 
     const int maxr = numRows()-1;
     const int maxc = numCols()-1;
-    QTableSelection *sel = new QTableSelection( QMIN(s.anchorRow(), maxr), QMIN(s.anchorCol(), maxc),
-				    QMIN(s.bottomRow(), maxr), QMIN(s.rightCol(), maxc) );
+    QTableSelection *sel = new QTableSelection( qMin(s.anchorRow(), maxr), qMin(s.anchorCol(), maxc),
+				    qMin(s.bottomRow(), maxr), qMin(s.rightCol(), maxc) );
 
     selections.append( sel );
 
@@ -3459,10 +3459,10 @@ void QTable::selectCells( int start_row, int start_col, int end_row, int end_col
     const int maxr = numRows()-1;
     const int maxc = numCols()-1;
 
-    start_row = QMIN( maxr, QMAX( 0, start_row ) );
-    start_col = QMIN( maxc, QMAX( 0, start_col ) );
-    end_row = QMIN( maxr, end_row );
-    end_col = QMIN( maxc, end_col );
+    start_row = qMin( maxr, qMax( 0, start_row ) );
+    start_col = qMin( maxc, qMax( 0, start_col ) );
+    end_row = qMin( maxr, end_row );
+    end_col = qMin( maxc, end_col );
     QTableSelection sel( start_row, start_col, end_row, end_col );
     addSelection( sel );
 }
@@ -3475,7 +3475,7 @@ void QTable::selectCells( int start_row, int start_col, int end_row, int end_col
 // ### Make this virtual in 4.0 and remove hack for QDataTable
 void QTable::selectRow( int row )
 {
-    row = QMIN(numRows()-1, row);
+    row = qMin(numRows()-1, row);
     if ( row < 0 )
 	return;
     bool isDataTable = FALSE;
@@ -3496,7 +3496,7 @@ void QTable::selectRow( int row )
 // ### Make this virtual in 4.0
 void QTable::selectColumn( int col )
 {
-    col = QMIN(numCols()-1, col);
+    col = qMin(numCols()-1, col);
     QTableSelection sel( 0, col, numRows() - 1, col );
     addSelection( sel );
 }
@@ -3899,7 +3899,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		if ( (ke->key() == Key_Tab) && !(ke->state() & ShiftButton) ) {
 		    if ( currentColumn() >= numCols() - 1 )
 			return TRUE;
-		    int cc  = QMIN( numCols() - 1, currentColumn() + 1 );
+		    int cc  = qMin( numCols() - 1, currentColumn() + 1 );
 		    while ( cc < numCols() ) {
 			QTableItem *i = item( currentRow(), cc );
 			if ( !isColumnReadOnly( cc ) && (!i || i->isEnabled()) )
@@ -3910,14 +3910,14 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		} else { // Key_BackTab
 		    if ( currentColumn() == 0 )
 			return TRUE;
-		    int cc  = QMAX( 0, currentColumn() - 1 );
+		    int cc  = qMax( 0, currentColumn() - 1 );
 		    while ( cc >= 0 ) {
 			QTableItem *i = item( currentRow(), cc );
 			if ( !isColumnReadOnly( cc ) && (!i || i->isEnabled()) )
 			    break;
 			--cc;
 		    }
-		    setCurrentCell( currentRow(), QMAX( 0, currentColumn() - 1 ) );
+		    setCurrentCell( currentRow(), qMax( 0, currentColumn() - 1 ) );
 		}
 		itm = item( curRow, curCol );
 		if ( beginEdit( curRow, curCol, FALSE ) )
@@ -4032,29 +4032,29 @@ void QTable::keyPressEvent( QKeyEvent* e )
     int r;
     switch ( e->key() ) {
     case Key_Left:
-	tmpCol = QMAX( 0, tmpCol - 1 );
+	tmpCol = qMax( 0, tmpCol - 1 );
 	navigationKey = TRUE;
 	break;
     case Key_Right:
-	tmpCol = QMIN( numCols() - 1, tmpCol + 1 );
+	tmpCol = qMin( numCols() - 1, tmpCol + 1 );
 	navigationKey = TRUE;
 	break;
     case Key_Up:
-	tmpRow = QMAX( 0, tmpRow - 1 );
+	tmpRow = qMax( 0, tmpRow - 1 );
 	navigationKey = TRUE;
 	break;
     case Key_Down:
-	tmpRow = QMIN( numRows() - 1, tmpRow + 1 );
+	tmpRow = qMin( numRows() - 1, tmpRow + 1 );
 	navigationKey = TRUE;
 	break;
     case Key_Prior:
-	r = QMAX( 0, rowAt( rowPos( tmpRow ) - visibleHeight() ) );
+	r = qMax( 0, rowAt( rowPos( tmpRow ) - visibleHeight() ) );
 	if ( r < tmpRow || tmpRow < 0 )
 	    tmpRow = r;
 	navigationKey = TRUE;
 	break;
     case Key_Next:
-	r = QMIN( numRows() - 1, rowAt( rowPos( tmpRow ) + visibleHeight() ) );
+	r = qMin( numRows() - 1, rowAt( rowPos( tmpRow ) + visibleHeight() ) );
 	if ( r > tmpRow )
 	    tmpRow = r;
 	else
@@ -4080,7 +4080,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	if ( (e->key() == Key_Tab) && !(e->state() & ShiftButton) ) {
 	    if ( currentColumn() >= numCols() - 1 )
 		return;
-	    int cc  = QMIN( numCols() - 1, currentColumn() + 1 );
+	    int cc  = qMin( numCols() - 1, currentColumn() + 1 );
 	    while ( cc < numCols() ) {
 		QTableItem *i = item( currentRow(), cc );
 		if ( !isColumnReadOnly( cc ) && (!i || i->isEnabled()) )
@@ -4091,14 +4091,14 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	} else { // Key_BackTab
 	    if ( currentColumn() == 0 )
 		return;
-	    int cc  = QMAX( 0, currentColumn() - 1 );
+	    int cc  = qMax( 0, currentColumn() - 1 );
 	    while ( cc >= 0 ) {
 		QTableItem *i = item( currentRow(), cc );
 		if ( !isColumnReadOnly( cc ) && (!i || i->isEnabled()) )
 		    break;
 		--cc;
 	    }
-	    setCurrentCell( currentRow(), QMAX( 0, currentColumn() - 1 ) );
+	    setCurrentCell( currentRow(), qMax( 0, currentColumn() - 1 ) );
 	}
 	return;
     default: // ... or start in-place editing
@@ -5182,13 +5182,13 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
     }
 
     int top, left, bottom, right;
-    top = QMIN( oldSelection ? oldSelection->topRow() : newSelection->topRow(),
+    top = qMin( oldSelection ? oldSelection->topRow() : newSelection->topRow(),
 		newSelection ? newSelection->topRow() :oldSelection->topRow() );
-    left = QMIN( oldSelection ? oldSelection->leftCol() : newSelection->leftCol(),
+    left = qMin( oldSelection ? oldSelection->leftCol() : newSelection->leftCol(),
 		 newSelection ? newSelection->leftCol() : oldSelection->leftCol() );
-    bottom = QMAX( oldSelection ? oldSelection->bottomRow() : newSelection->bottomRow(),
+    bottom = qMax( oldSelection ? oldSelection->bottomRow() : newSelection->bottomRow(),
 		   newSelection ? newSelection->bottomRow() : oldSelection->bottomRow() );
-    right = QMAX( oldSelection ? oldSelection->rightCol() : newSelection->rightCol(),
+    right = qMax( oldSelection ? oldSelection->rightCol() : newSelection->rightCol(),
 		  newSelection ? newSelection->rightCol() : oldSelection->rightCol() );
 
     if ( updateHorizontal && numCols() > 0 && left >= 0 && !isRowSelection( selectionMode() ) ) {
@@ -5286,14 +5286,14 @@ void QTable::clearSelection( bool repaint )
 QRect QTable::rangeGeometry( int topRow, int leftCol,
 			     int bottomRow, int rightCol, bool &optimize )
 {
-    topRow = QMAX( topRow, rowAt( contentsY() ) );
-    leftCol = QMAX( leftCol, columnAt( contentsX() ) );
+    topRow = qMax( topRow, rowAt( contentsY() ) );
+    leftCol = qMax( leftCol, columnAt( contentsX() ) );
     int ra = rowAt( contentsY() + visibleHeight() );
     if ( ra != -1 )
-	bottomRow = QMIN( bottomRow, ra );
+	bottomRow = qMin( bottomRow, ra );
     int ca = columnAt( contentsX() + visibleWidth() );
     if ( ca != -1 )
-	rightCol = QMIN( rightCol, ca );
+	rightCol = qMin( rightCol, ca );
     optimize = TRUE;
     QRect rect;
     for ( int r = topRow; r <= bottomRow; ++r ) {
@@ -5611,21 +5611,21 @@ void QTable::adjustColumn( int col )
     int w = topHeader->sectionSizeHint( col, fontMetrics() ).width();
     if ( topHeader->iconSet( col ) )
 	w += topHeader->iconSet( col )->pixmap().width();
-    w = QMAX( w, 20 );
+    w = qMax( w, 20 );
     for ( int i = 0; i < numRows(); ++i ) {
 	QTableItem *itm = item( i, col );
 	if ( !itm ) {
 	    QWidget *widget = cellWidget( i, col );
 	    if ( widget )
-		w = QMAX( w, widget->sizeHint().width() );
+		w = qMax( w, widget->sizeHint().width() );
 	} else {
 	    if ( itm->colSpan() > 1 )
-		w = QMAX( w, itm->sizeHint().width() / itm->colSpan() );
+		w = qMax( w, itm->sizeHint().width() / itm->colSpan() );
 	    else
-		w = QMAX( w, itm->sizeHint().width() );
+		w = qMax( w, itm->sizeHint().width() );
 	}
     }
-    w = QMAX( w, QApplication::globalStrut().width() );
+    w = qMax( w, QApplication::globalStrut().width() );
     setColumnWidth( col, w );
 }
 
@@ -5639,23 +5639,23 @@ void QTable::adjustColumn( int col )
 void QTable::adjustRow( int row )
 {
     int h = 20;
-    h = QMAX( h, leftHeader->sectionSizeHint( row, leftHeader->fontMetrics() ).height() );
+    h = qMax( h, leftHeader->sectionSizeHint( row, leftHeader->fontMetrics() ).height() );
     if ( leftHeader->iconSet( row ) )
-	h = QMAX( h, leftHeader->iconSet( row )->pixmap().height() );
+	h = qMax( h, leftHeader->iconSet( row )->pixmap().height() );
     for ( int i = 0; i < numCols(); ++i ) {
 	QTableItem *itm = item( row, i );
 	if ( !itm ) {
 	    QWidget *widget = cellWidget( row, i );
 	    if ( widget )
-		h = QMAX( h, widget->sizeHint().height() );
+		h = qMax( h, widget->sizeHint().height() );
 	} else {
 	    if ( itm->rowSpan() > 1 )
-		h = QMAX( h, itm->sizeHint().height() / itm->rowSpan() );
+		h = qMax( h, itm->sizeHint().height() / itm->rowSpan() );
 	    else
-		h = QMAX( h, itm->sizeHint().height() );
+		h = qMax( h, itm->sizeHint().height() );
 	}
     }
-    h = QMAX( h, QApplication::globalStrut().height() );
+    h = qMax( h, QApplication::globalStrut().height() );
     setRowHeight( row, h );
 }
 
@@ -5928,8 +5928,8 @@ void QTable::insertRows( int row, int count )
 
     setNumRows( numRows() + count );
 
-    int cr = QMAX( 0, currentRow() );
-    int cc = QMAX( 0, currentColumn() );
+    int cr = qMax( 0, currentRow() );
+    int cc = qMax( 0, currentColumn() );
     setCurrentCell( cr, cc );
 
     for ( int i = numRows() - count - 1; i > row; --i )
@@ -5961,8 +5961,8 @@ void QTable::insertColumns( int col, int count )
 
     setNumCols( numCols() + count );
 
-    int cr = QMAX( 0, currentRow() );
-    int cc = QMAX( 0, currentColumn() );
+    int cr = qMax( 0, currentRow() );
+    int cc = qMax( 0, currentColumn() );
     setCurrentCell( cr, cc );
 
     for ( int i = numCols() - count - 1; i > col; --i )
@@ -6740,7 +6740,7 @@ void QTableHeader::updateStretches()
 	if ( i == (int)stretchable.count() - 1 &&
 	     sectionPos( i ) + pd < dim )
 	    pd = dim - sectionPos( i );
-	resizeSection( i, QMAX( 20, pd ) );
+	resizeSection( i, qMax( 20, pd ) );
     }
     blockSignals( block );
     table->repaintContents( FALSE );
@@ -6762,8 +6762,8 @@ void QTableHeader::updateSelections()
 	return;
     int a = sectionAt( startPos );
     int b = sectionAt( endPos );
-    int start = QMIN( a, b );
-    int end = QMAX( a, b );
+    int start = qMin( a, b );
+    int end = qMax( a, b );
     register int *s = states.data();
     for ( int i = 0; i < count(); ++i ) {
 	if ( i < start || i > end )

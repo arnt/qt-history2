@@ -325,10 +325,10 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 	    QRect r=cliprect[loopc];
 	    if(xp<=r.right() && yp<=r.bottom() &&
 	       x2>=r.left() && y2>=r.top()) {
-		x3 = QMAX( r.left(), xp );
-		y3 = QMAX( r.top(),  yp );
-		x4 = QMIN( r.right(),  x2 );
-		y4 = QMIN( r.bottom(), y2 );
+		x3 = qMax( r.left(), xp );
+		y3 = qMax( r.top(),  yp );
+		x4 = qMin( r.right(),  x2 );
+		y4 = qMin( r.bottom(), y2 );
 		int hh=(y4-y3)+1;
 		int p=y3;
 		int t=linestep();
@@ -474,7 +474,7 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 	int xp2=srcwidgetoffs.x() + sx;
 	int yp2=srcwidgetoffs.y() + sy;
 
-	int mx = QMIN(xp,xp2);
+	int mx = qMin(xp,xp2);
 	if ( mx < 0 ) {
 	    //Matrox does not like blt to/from negative X coords
 	    //so we clip against left edge of screen.

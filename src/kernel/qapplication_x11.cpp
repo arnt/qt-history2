@@ -1442,7 +1442,7 @@ void qt_init( QApplicationPrivate *priv, int,
 		mwIconic = !mwIconic;
 	    } else if ( arg == "-ncols" ) {   // xv and netscape use this name
 		if ( ++i < argc )
-		    qt_ncols_option = QMAX(0,atoi(argv[i]));
+		    qt_ncols_option = qMax(0,atoi(argv[i]));
 	    } else if ( arg == "-visual" ) {  // xv and netscape use this name
 		if ( ++i < argc ) {
 		    QString s = QString(argv[i]).lower();
@@ -2413,10 +2413,10 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 		w = main_widget->width();
 	    if ( (m & HeightValue) == 0 )
 		h = main_widget->height();
-	    w = QMIN(w,maxSize.width());
-	    h = QMIN(h,maxSize.height());
-	    w = QMAX(w,minSize.width());
-	    h = QMAX(h,minSize.height());
+	    w = qMin(w,maxSize.width());
+	    h = qMin(h,maxSize.height());
+	    w = qMax(w,minSize.width());
+	    h = qMax(h,minSize.height());
 	    if ( (m & XNegative) ) {
 		x = desktop()->width()  + x - w;
 		qt_widget_tlw_gravity = NorthEastGravity;
@@ -4886,7 +4886,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     if ( type == QEvent::KeyPress && !grab ) {
 	// send accel events if the keyboard is not grabbed
 	QKeyEvent a( type, code, state, text, autor,
-		     QMAX( QMAX(count,1), int(text.length())) );
+		     qMax( qMax(count,1), int(text.length())) );
 	if ( qt_tryAccelEvent( this, &a ) )
 	    return TRUE;
     }
@@ -5024,7 +5024,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     }
 
     QKeyEvent e( type, code, state, text, autor,
-		 QMAX(QMAX(count,1), int(text.length())) );
+		 qMax(qMax(count,1), int(text.length())) );
     return QApplication::sendSpontaneousEvent( this, &e );
 }
 

@@ -275,7 +275,7 @@ static void closeAllOpenFds()
 #elif defined(OPEN_MAX)
     i = (int)OPEN_MAX;
 #else
-    i = QMAX( 256, fds[0] );
+    i = qMax( 256, fds[0] );
 #endif // Q_OS_OS2EMX           // ways-to-set i
     while( --i > 0 )
 	::close( i );

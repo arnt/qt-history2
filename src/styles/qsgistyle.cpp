@@ -393,7 +393,7 @@ int QSGIStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 	return 12;
 
     case PM_SplitterWidth:
-	return QMAX( 10, QApplication::globalStrut().width() );
+	return qMax( 10, QApplication::globalStrut().width() );
 
     default:
 	break;
@@ -957,7 +957,7 @@ void QSGIStyle::drawControl( ControlElement element,
 	    r.rect(&x, &y, &w, &h);
 
 	    if ( checkable )
-		maxpmw = QMAX( maxpmw, sgiCheckMarkSpace );
+		maxpmw = qMax( maxpmw, sgiCheckMarkSpace );
 	    int checkcol = maxpmw;
 
 	    if (mi && mi->isSeparator() ) {

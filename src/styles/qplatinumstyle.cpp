@@ -1345,18 +1345,18 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 	switch ( sc ) {
 	case SC_ScrollBarSubLine:
 	    if ( sb->orientation() == Qt::Horizontal ) {
-		int buttonw = QMIN( sb->width() / 2, sbextent );
+		int buttonw = qMin( sb->width() / 2, sbextent );
 		return QRect( sb->width() - 2 * buttonw, 0, buttonw, sbextent );
 	    } else {
-		int buttonh = QMIN( sb->height() / 2, sbextent );
+		int buttonh = qMin( sb->height() / 2, sbextent );
 		return QRect( 0, sb->height() - 2 * buttonh, sbextent, buttonh );
 	    }
 	case SC_ScrollBarAddLine:
 	    if ( sb->orientation() == Qt::Horizontal ) {
-		int buttonw = QMIN( sb->width() / 2, sbextent );
+		int buttonw = qMin( sb->width() / 2, sbextent );
 		return QRect( sb->width() - buttonw, 0, sbextent, buttonw );
 	    } else {
-		int buttonh = QMIN( sb->height() / 2, sbextent );
+		int buttonh = qMin( sb->height() / 2, sbextent );
 		return QRect(0, sb->height() - buttonh, sbextent, buttonh );
 	    }
 	case SC_ScrollBarSubPage:

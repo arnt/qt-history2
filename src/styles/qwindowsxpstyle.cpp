@@ -821,7 +821,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 		w = (QWidget *) p->device();
 		QWidget *p = w->parentWidget();
 		if ( qt_cast<QDockWindow*>(p) && !qt_cast<QToolBar*>(p) ) {
-		    int drawArea = QMIN( r.right() - r.left(), r.bottom() - r.top() );
+		    int drawArea = qMin( r.right() - r.left(), r.bottom() - r.top() );
 		    drawDockTitle = ( drawArea >= w->fontMetrics().height() );
 		    isDockWindow = TRUE;
 		    title = p->windowCaption();
@@ -1801,7 +1801,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 
 		    // paint stuff in the magical area
 		    QListView* v = item->listView();
-		    int lh = QMAX( p->fontMetrics().height() + 2 * v->itemMargin(),
+		    int lh = qMax( p->fontMetrics().height() + 2 * v->itemMargin(),
 				   QApplication::globalStrut().height() );
 		    if ( lh % 2 > 0 )
 			lh++;
@@ -2036,7 +2036,7 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 	return 160;
 
     case PM_SplitterWidth:
-	return QMAX( 5, QApplication::globalStrut().width() );;
+	return qMax( 5, QApplication::globalStrut().width() );;
 
     default:
 	break;

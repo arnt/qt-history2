@@ -389,14 +389,14 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
     if ( sw < 0 )
 	sw = src->width() - sx;
     else
-	sw = QMIN( src->width()-sx, sw );
-    sw = QMIN( dst->width()-dx, sw );
+	sw = qMin( src->width()-sx, sw );
+    sw = qMin( dst->width()-dx, sw );
 
     if ( sh < 0 )
 	sh = src->height() - sy ;
     else
-	sh = QMIN( src->height()-sy, sh );
-    sh = QMIN( dst->height()-dy, sh );
+	sh = qMin( src->height()-sy, sh );
+    sh = qMin( dst->height()-dy, sh );
 
     if ( sw <= 0 || sh <= 0 )
 	return;

@@ -1254,10 +1254,10 @@ static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
 	  (pts[1].y() == pts[2].y()) &&
 	  (pts[2].x() == pts[3].x()) &&
 	  (pts[3].y() == pts[0].y())))) {
-	region->extents.setLeft( QMIN(pts[0].x(), pts[2].x()) );
-	region->extents.setTop( QMIN(pts[0].y(), pts[2].y()) );
-	region->extents.setRight( QMAX(pts[0].x(), pts[2].x()) );
-	region->extents.setBottom( QMAX(pts[0].y(), pts[2].y()) );
+	region->extents.setLeft( qMin(pts[0].x(), pts[2].x()) );
+	region->extents.setTop( qMin(pts[0].y(), pts[2].y()) );
+	region->extents.setRight( qMax(pts[0].x(), pts[2].x()) );
+	region->extents.setBottom( qMax(pts[0].y(), pts[2].y()) );
 	if ((region->extents.left() <= region->extents.right()) &&
 	    (region->extents.top() <= region->extents.bottom())) {
 	    region->numRects = 1;

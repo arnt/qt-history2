@@ -547,10 +547,10 @@ void QWorkspace::place(QWidget *w)
 		    r2.setRect(l->x(), l->y(), l->width(), l->height());
 
 		if (r2.intersects(r1)) {
-		    r2.setCoords(QMAX(r1.left(), r2.left()),
-				 QMAX(r1.top(), r2.top()),
-				 QMIN(r1.right(), r2.right()),
-				 QMIN(r1.bottom(), r2.bottom())
+		    r2.setCoords(qMax(r1.left(), r2.left()),
+				 qMax(r1.top(), r2.top()),
+				 qMin(r1.right(), r2.right()),
+				 qMin(r1.bottom(), r2.bottom())
 				 );
 
 		    overlap += (r2.right() - r2.left()) *
@@ -1583,13 +1583,13 @@ void QWorkspace::tile()
 	    qApp->sendPostedEvents( 0, QEvent::ShowNormal );
 	    used[row*cols+col] = TRUE;
 	    if ( add ) {
-		c->setGeometry( col*w, row*h, QMIN( w, c->windowWidget()->maximumWidth()+c->baseSize().width() ),
-					      QMIN( 2*h, c->windowWidget()->maximumHeight()+c->baseSize().height() ) );
+		c->setGeometry( col*w, row*h, qMin( w, c->windowWidget()->maximumWidth()+c->baseSize().width() ),
+					      qMin( 2*h, c->windowWidget()->maximumHeight()+c->baseSize().height() ) );
 		used[(row+1)*cols+col] = TRUE;
 		add--;
 	    } else {
-		c->setGeometry( col*w, row*h, QMIN( w, c->windowWidget()->maximumWidth()+c->baseSize().width() ),
-					      QMIN( h, c->windowWidget()->maximumHeight()+c->baseSize().height() ) );
+		c->setGeometry( col*w, row*h, qMin( w, c->windowWidget()->maximumWidth()+c->baseSize().width() ),
+					      qMin( h, c->windowWidget()->maximumHeight()+c->baseSize().height() ) );
 	    }
 	    while( row < rows && col < cols && used[row*cols+col] ) {
 		col++;
@@ -2211,8 +2211,8 @@ void QWorkspaceChild::adjustToFullscreen()
     } else {
 	int w = parentWidget()->width() + width() - childWidget->width();
 	int h = parentWidget()->height() + height() - childWidget->height();
-	w = QMAX( w, childWidget->minimumWidth() );
-	h = QMAX( h, childWidget->minimumHeight() );
+	w = qMax( w, childWidget->minimumWidth() );
+	h = qMax( h, childWidget->minimumHeight() );
 	setGeometry( -childWidget->x(), -childWidget->y(), w, h );
     }
     setWState( WState_Maximized );
@@ -2379,8 +2379,8 @@ QRect QWorkspace::updateWorkspace()
 	    vsbExt = 0;
 
 	if ( showv ) {
-	    d->vbar->setSteps( QMAX( height() / 12, 30 ), height()  - hsbExt );
-	    d->vbar->setRange( QMIN( 0, d->yoffset + QMIN( 0, r.top() ) ), QMAX( 0, d->yoffset + QMAX( 0, r.bottom() - height() + hsbExt + 1) ) );
+	    d->vbar->setSteps( qMax( height() / 12, 30 ), height()  - hsbExt );
+	    d->vbar->setRange( qMin( 0, d->yoffset + qMin( 0, r.top() ) ), qMax( 0, d->yoffset + qMax( 0, r.bottom() - height() + hsbExt + 1) ) );
 	    d->vbar->setGeometry( width() - vsbExt, 0, vsbExt, height() - hsbExt );
 	    d->vbar->setValue( d->yoffset );
 	    d->vbar->show();
@@ -2389,8 +2389,8 @@ QRect QWorkspace::updateWorkspace()
 	}
 
 	if ( showh ) {
-	    d->hbar->setSteps( QMAX( width() / 12, 30 ), width() - vsbExt );
-	    d->hbar->setRange( QMIN( 0, d->xoffset + QMIN( 0, r.left() ) ), QMAX( 0, d->xoffset + QMAX( 0, r.right() - width() + vsbExt  + 1) ) );
+	    d->hbar->setSteps( qMax( width() / 12, 30 ), width() - vsbExt );
+	    d->hbar->setRange( qMin( 0, d->xoffset + qMin( 0, r.left() ) ), qMax( 0, d->xoffset + qMax( 0, r.right() - width() + vsbExt  + 1) ) );
 	    d->hbar->setGeometry( 0, height() - hsbExt, width() - vsbExt, hsbExt );
 	    d->hbar->setValue( d->xoffset );
 	    d->hbar->show();

@@ -468,12 +468,12 @@ QSize QSpinBox::sizeHint() const
     int wx = fm.width( ' ' )*2;
     QString s;
     s = prefix() + ( (QSpinBox*)this )->mapValueToText( minValue() ) + suffix();
-    w = QMAX( w, fm.width( s ) + wx);
+    w = qMax( w, fm.width( s ) + wx);
     s = prefix() + ( (QSpinBox*)this )->mapValueToText( maxValue() ) + suffix();
-    w = QMAX(w, fm.width( s ) + wx );
+    w = qMax(w, fm.width( s ) + wx );
     if ( !specialValueText().isEmpty() ) {
 	s = specialValueText();
-	w = QMAX( w, fm.width( s ) + wx );
+	w = qMax( w, fm.width( s ) + wx );
     }
     return style().sizeFromContents(QStyle::CT_SpinBox, this,
 				    QSize( w + d->controls->downRect().width(),
@@ -488,7 +488,7 @@ QSize QSpinBox::sizeHint() const
 QSize QSpinBox::minimumSizeHint() const
 {
     int w = vi->minimumSizeHint().width() + d->controls->downRect().width();
-    int h = QMAX( vi->minimumSizeHint().height(), d->controls->minimumSizeHint().height() );
+    int h = qMax( vi->minimumSizeHint().height(), d->controls->minimumSizeHint().height() );
     return QSize( w, h );
 }
 

@@ -446,8 +446,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    } else {
 		src_pm->convertToAlphaPixmap();
 		if ( dst_pm->mask() ) {
-		    int width = QMIN( dst_pm->mask()->width()-dx, sw );
-		    int height = QMIN( dst_pm->mask()->height()-dy, sh );
+		    int width = qMin( dst_pm->mask()->width()-dx, sw );
+		    int height = qMin( dst_pm->mask()->height()-dy, sh );
 		    MaskBlt( dst_dc, dx, dy, width, height, src_pm->hdc, sx, sy, dst_pm->mask()->hbm(),
 			    dx, dy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
 		} else {

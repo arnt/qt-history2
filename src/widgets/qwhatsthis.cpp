@@ -664,7 +664,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 	// squeeze it in if that would result in part of what's this
 	// being only partially visible
     if ( x + w  + shadowWidth > sx+screen.width() )
-	x = (widget? (QMIN(screen.width(),
+	x = (widget? (qMin(screen.width(),
 			   pos.x() + widget->width())
 		      ) : screen.width() )
 	    - w;
@@ -684,7 +684,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 	// squeeze it in if that would result in part of what's this
 	// being only partially visible
     if ( y + h + shadowWidth > sy+screen.height() )
-	y = ( widget ? (QMIN(screen.height(),
+	y = ( widget ? (qMin(screen.height(),
 			     pos.y() + widget->height())
 			) : screen.height() )
 	    - h;

@@ -783,7 +783,7 @@ QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
 #endif
     if ( fnt ) fnt->ref();
 
-    num_glyphs = QMAX( 16, str.length()*3/2 );
+    num_glyphs = qMax( 16, str.length()*3/2 );
     int space_charAttributes = (sizeof(QCharAttributes)*str.length()+sizeof(void*)-1)/sizeof(void*);
     int space_logClusters = (sizeof(unsigned short)*str.length()+sizeof(void*)-1)/sizeof(void*);
     int space_glyphs = (sizeof(glyph_t)*num_glyphs+sizeof(void*)-1)/sizeof(void*);
@@ -1049,10 +1049,10 @@ glyph_metrics_t QTextEngine::boundingBox( int from,  int len ) const
 		    QFontEngine *fe = si->fontEngine;
 		    glyph_metrics_t m = fe->boundingBox( glyphs+glyphStart, advances+glyphStart,
 						       offsets+glyphStart, glyphEnd-glyphStart );
-		    gm.x = QMIN( gm.x, m.x + gm.xoff );
-		    gm.y = QMIN( gm.y, m.y + gm.yoff );
-		    gm.width = QMAX( gm.width, m.width+gm.xoff );
-		    gm.height = QMAX( gm.height, m.height+gm.yoff );
+		    gm.x = qMin( gm.x, m.x + gm.xoff );
+		    gm.y = qMin( gm.y, m.y + gm.yoff );
+		    gm.width = qMax( gm.width, m.width+gm.xoff );
+		    gm.height = qMax( gm.height, m.height+gm.yoff );
 		    gm.xoff += m.xoff;
 		    gm.yoff += m.yoff;
 		}
