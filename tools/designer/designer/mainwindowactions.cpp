@@ -980,10 +980,11 @@ void MainWindow::fileClose()
     if ( !currentProject->isDummy() ) {
 	fileCloseProject();
     } else {
-	FormWindow* fw = formWindow();
-	if ( !fw )
-	    return; // what about source file #### TODO reggie, we need some more organization in this code
- 	fw->close();
+	QWidget *w = qworkspace->activeWindow();
+	if ( w->inherits( "FormWindow" ) )
+	    ( (FormWindow*)w )->formFile()->close();
+	else if ( w->inherits( "SourceEditor" ) )
+	    ( (SourceEditor*)w )->close();
     }
 }
 

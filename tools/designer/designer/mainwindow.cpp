@@ -1263,9 +1263,6 @@ void MainWindow::insertFormWindow( FormWindow *fw )
 	     this, SLOT( updateUndoRedo( bool, bool, const QString &, const QString & ) ) );
 
     if ( !mblockNewForms ) {
-	
-	//####### TODO Reggie, here we need to create a FormFile
-	//workspace()->addForm( fw );
     } else {
 	fw->setProject( currentProject );
     }
@@ -1311,7 +1308,6 @@ bool MainWindow::unregisterClient( FormWindow *w )
 {
     propertyEditor->closed( w );
     objectHierarchy()->closed( w );
-//     wspace->closed( w );###
     if ( w == lastActiveFormWindow )
 	lastActiveFormWindow = 0;
 

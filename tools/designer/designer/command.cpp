@@ -573,17 +573,15 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	widget->setProperty( propName, p->keyToValue( currentItemText ) );
     } else {
 	QVariant ov;
-	if ( propName == "name"	 || propName == "itemName" )
+	if ( propName == "name" || propName == "itemName" )
 	    ov = widget->property( propName );
 	widget->setProperty( propName, v );
 	if ( propName == "cursor" )
 	    MetaDataBase::setCursor( (QWidget*)widget, v.toCursor() );
 	if ( propName == "name" && widget->isWidgetType() ) {
 	    formWindow()->mainWindow()->objectHierarchy()->namePropertyChanged( (QWidget*)widget, ov );
-	    if ( formWindow()->isMainContainer( widget ) ) {
+	    if ( formWindow()->isMainContainer( widget ) )
 		formWindow()->setName( v.toCString() );
-// 		formWindow()->mainWindow()->workspace()->triggerUpdate(); //### form window should trigger this via project?
-	    }
 	}
 	if ( propName == "name" && widget->inherits( "QAction" ) &&
 	     formWindow()->mainContainer() &&
