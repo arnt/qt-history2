@@ -209,12 +209,12 @@ struct QScriptLine
 {
     short descent;
     short ascent;
-    short width;
     short x;
+    int width;
     int y;
     int from;
     int length;
-    short textWidth;
+    int textWidth;
 };
 Q_DECLARE_TYPEINFO(QScriptLine, Q_PRIMITIVE_TYPE);
 

@@ -885,9 +885,9 @@ int QTextLine::length() const
     return eng->lines[i].length;
 }
 
-
-void QTextLine::draw( QPainter *p, int x, int y )
+void QTextLine::draw( QPainter *p, int x, int y, int *underlinePositions )
 {
+    qDebug("QTextLine::draw: %d/%d", x, y);
     const QScriptLine &line = eng->lines[i];
 
     if (!line.length)
@@ -911,6 +911,7 @@ void QTextLine::draw( QPainter *p, int x, int y )
 	x += line.width - line.textWidth;
     else if (eng->textFlags & Qt::AlignHCenter)
 	x += (line.width - line.textWidth)/2;
+    qDebug("QTextLine::draw: drawing at %d/%d, line.width=%d, line.textWidth=%d", x, y, line.width, line.textWidth);
 
     QStackArray<int> visualOrder(nItems);
     QStackArray<unsigned char> levels(nItems);
@@ -926,15 +927,20 @@ void QTextLine::draw( QPainter *p, int x, int y )
 	    x += si.width;
 	    continue;
 	}
-	int start = qMax(line.from, si.position);
-	int end = qMin(lineEnd, si.position + eng->length(item));
-
 	unsigned short *logClusters = eng->logClusters(&si);
-
-	int gs = logClusters[start-si.position];
-	int ge = logClusters[end-si.position-1];
-
 	QGlyphLayout *glyphs = eng->glyphs(&si);
+
+	int start = qMax(line.from, si.position);
+	int gs = logClusters[start-si.position];
+	int end;
+	int ge;
+	if (lineEnd < si.position + eng->length(item)) {
+	    end = lineEnd;
+	    ge = logClusters[end-si.position];
+	} else {
+	    end = si.position + eng->length(item);
+	    ge = si.num_glyphs;
+	}
 
 	QFontEngine *fe = eng->fontEngine(si);
 	Q_ASSERT( fe );
@@ -945,21 +951,51 @@ void QTextLine::draw( QPainter *p, int x, int y )
 	    QColor c = chf.color();
 	    p->setPen(c);
 	}
-
 	QGlyphFragment gf;
 	gf.analysis = si.analysis;
 	gf.hasPositioning = si.hasPositioning;
 	gf.ascent = si.ascent;
 	gf.descent = si.descent;
-	gf.width = si.width;
 	gf.num_glyphs = ge - gs + 1;
 	gf.glyphs = glyphs + gs;
 	gf.font = fe;
-	p->drawGlyphs(QPoint(x, y), gf);
-	while (gs <= ge) {
-	    x += glyphs[gs].advance;
-	    ++gs;
-	}
+
+	int *ul = underlinePositions;
+	if (ul)
+	    while (*ul != -1 && *ul < start)
+		++ul;
+	do {
+	    int gtmp = ge;
+	    if (ul && *ul != -1 && *ul < end)
+		gtmp = logClusters[*ul-si.position];
+
+	    gf.num_glyphs = gtmp - gs;
+	    gf.glyphs = glyphs + gs;
+	    int w = 0;
+	    while (gs < gtmp) {
+		w += glyphs[gs].advance;
+		++gs;
+	    }
+	    gf.width = w;
+	    p->drawGlyphs(QPoint(x, y), gf);
+	    x += w;
+	    if (ul && *ul != -1 && *ul < end) {
+		// draw underline
+		gtmp = (*ul == end-1) ? ge : logClusters[*ul+1-si.position];
+		gf.num_glyphs = gtmp - gs;
+		gf.glyphs = glyphs + gs;
+		w = 0;
+		while (gs < gtmp) {
+		    w += glyphs[gs].advance;
+		    ++gs;
+		}
+		gf.width = w;
+		p->drawGlyphs(QPoint(x, y), gf, Qt::Underline);
+		x += w;
+		++ul;
+	    }
+	} while (gs < ge);
+
     }
 }
 

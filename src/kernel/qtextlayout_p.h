@@ -113,7 +113,7 @@ public:
     QTextEngine *engine() const { return eng; }
     int line() const { return i; }
 
-    void draw(QPainter *p, int x, int y);
+    void draw(QPainter *p, int x, int y, int *underlinePositions = 0);
 
 private:
     friend class QTextLayout;

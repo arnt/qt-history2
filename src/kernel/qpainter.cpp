@@ -387,6 +387,8 @@ void QPainter::setWorldXForm(bool enable)
     updateXForm();
 }
 
+#include "qtextlayout_p.h"
+
 #ifndef QT_NO_TRANSFORMATIONS
 void QPainter::scale(double sx, double sy)
 {
@@ -1211,12 +1213,12 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
     fe->draw( this, x,  y, gf, textFlags );
 }
 
-void QPainter::drawGlyphs(const QPoint& p, const QGlyphFragment &gf)
+void QPainter::drawGlyphs(const QPoint& p, const QGlyphFragment &gf, int textFlags)
 {
     if (!isActive())
 	return;
     dengine->updateState(ds);
-    gf.font->draw( this, p.x(),  p.y(), gf, 0 );
+    gf.font->draw( this, p.x(),  p.y(), gf, textFlags );
 }
 
 
@@ -1729,95 +1731,51 @@ void qt_format_text( const QFont& font, const QRect &_r,
     if ( tf & Qt::DontPrint )
 	numUnderlines = 0;
 
+    underlinePositions[numUnderlines] = -1;
     int height = 0;
-    int left = r.width();
-    int right = 0;
+    int width = 0;
 
     QTextLayout textLayout( text, fnt );
-    int rb = QMAX( 0, -fm.minRightBearing() );
-    int lb = QMAX( 0, -fm.minLeftBearing() );
 
     if ( text.isEmpty() ) {
 	height = fm.height();
-	left = right = 0;
+	width = 0;
 	tf |= QPainter::DontPrint;
     } else {
-	textLayout.beginLayout((haveLineSep || expandtabs || wordbreak) ?
-			       QTextLayout::MultiLine :
-			       (tf & Qt::DontPrint) ? QTextLayout::NoBidi : QTextLayout::SingleLine );
-
-	// break underline chars into items of their own
-	for( int i = 0; i < numUnderlines; i++ ) {
-	    textLayout.setBoundary( underlinePositions[i] );
-	    textLayout.setBoundary( underlinePositions[i]+1 );
-	}
-
-	int lineWidth = wordbreak ? QMAX(0, r.width()-rb-lb) : INT_MAX;
+	int lineWidth = wordbreak ? qMax(0, r.width()) : INT_MAX;
 	if(!wordbreak)
 	    tf |= Qt::IncludeTrailingSpaces;
+	textLayout.beginLayout((tf & Qt::DontPrint) ? QTextLayout::NoBidi : QTextLayout::SingleLine );
 
 	int leading = fm.leading();
-	int asc = fm.ascent();
-	int desc = fm.descent();
 	height = -leading;
 
-	//qDebug("\n\nbeginLayout: lw = %d, rectwidth=%d", lineWidth , r.width());
-	while ( !textLayout.atEnd() ) {
+	qDebug("\n\nbeginLayout: lw = %d, rectwidth=%d", lineWidth , r.width());
+	int from = 0;
+	while (from < text.length()) {
 	    height += leading;
-	    textLayout.beginLine( lineWidth == INT_MAX ? lineWidth : lineWidth );
-	    //qDebug("-----beginLine( %d )-----",  lineWidth );
-	    bool linesep = false;
-	    while ( 1 ) {
-		QTextItem ti = textLayout.currentItem();
- 		//qDebug("item: from=%d, ch=%x", ti.from(), text.unicode()[ti.from()].unicode() );
-		if ( expandtabs && ti.isTab() ) {
-		    int tw = 0;
-		    int x = textLayout.widthUsed();
-		    if ( tabarraylen ) {
-// 			qDebug("tabarraylen=%d", tabarraylen );
-			int tab = 0;
-			while ( tab < tabarraylen ) {
-			    if ( tabarray[tab] > x ) {
-				tw = tabarray[tab] - x;
-				break;
-			    }
-			    ++tab;
-			}
-		    } else {
-			tw = tabstops - (x % tabstops);
-		    }
- 		    //qDebug("tw = %d",  tw );
-		    if ( tw )
-			ti.setWidth( tw );
-		}
-		if ( ti.isObject() && text.unicode()[ti.from()] == QChar_linesep )
-		    linesep = true;
-
-		if ( linesep || textLayout.addCurrentItem() != QTextLayout::Ok || textLayout.atEnd() )
-		    break;
-	    }
-
-	    int ascent = asc, descent = desc, lineLeft, lineRight;
-	    textLayout.setLineWidth( r.width()-rb-lb );
-	    textLayout.endLine( 0, height, tf, &ascent, &descent,
-				&lineLeft, &lineRight );
-	    left = QMIN( left, lineLeft );
-	    right = QMAX( right, lineRight );
-	    height += ascent + descent + 1;
-	    if ( linesep )
-		textLayout.nextItem();
+	    QTextLine l = textLayout.createLine(from, height, 0, lineWidth);
+	    height += l.ascent() + l.descent();
+	    from += l.length();
+	    width = qMax(width, l.textWidth());
+	    qDebug("line got textWidth=%d", l.textWidth());
 	}
     }
 
     int yoff = 0;
+    int xoff = 0;
     if ( tf & Qt::AlignBottom )
 	yoff = r.height() - height;
     else if ( tf & Qt::AlignVCenter )
 	yoff = (r.height() - height)/2;
-
+    if ( tf & Qt::AlignRight )
+	xoff = r.width() - width;
+    else if ( tf & Qt::AlignHCenter )
+	xoff = (r.width() - width)/2;
+    qDebug("width=%d, xoff=%d, textwidth=%d", r.width(), xoff, width);
     if ( brect ) {
-	*brect = QRect( r.x() + left, r.y() + yoff, right-left + lb+rb, height );
-	//qDebug("br = %d %d %d/%d, left=%d, right=%d", brect->x(), brect->y(), brect->width(), brect->height(), left, right);
+	*brect = QRect( r.x() + xoff, r.y() + yoff, width, height );
+	qDebug("br = %d %d %d/%d, xoff=%d, yoff=%d", brect->x(), brect->y(), brect->width(), brect->height(), xoff, yoff);
     }
 
     if (!(tf & QPainter::DontPrint)) {
@@ -1845,31 +1803,24 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    }
 	}
 
-	int cUlChar = 0;
 	int _tf = 0;
 	if (fnt.underline()) _tf |= Qt::Underline;
 	if (fnt.overline()) _tf |= Qt::Overline;
 	if (fnt.strikeOut()) _tf |= Qt::StrikeOut;
 
-	//qDebug("have %d items",textLayout.numItems());
-	for ( int i = 0; i < textLayout.numItems(); i++ ) {
-	    QTextItem ti = textLayout.itemAt( i );
- 	    //qDebug("Item %d: from=%d,  length=%d,  space=%d x=%d", i, ti.from(),  ti.length(), ti.isSpace(), ti.x() );
-	    if ( ti.isTab() || ti.isObject() )
-		continue;
-	    int textFlags = _tf;
-	    if ( !noaccel && numUnderlines > cUlChar && ti.from() == underlinePositions[cUlChar] ) {
-		textFlags |= Qt::Underline;
-		cUlChar++;
-	    }
+	qDebug("have %d lines",textLayout.numLines());
+	for ( int i = 0; i < textLayout.numLines(); i++ ) {
+	    QTextLine line = textLayout.lineAt(i);
+
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
 	    extern void qt_draw_background( QPainter *pp, int x, int y, int w,  int h );
 
  	    if (painter->backgroundMode() == Qt::OpaqueMode)
- 		qt_draw_background(painter, r.x()+lb + ti.x(), r.y() + yoff + ti.y() - ti.ascent(),
-				   ti.width(), ti.ascent() + ti.descent() + 1);
+ 		qt_draw_background(painter, r.x() + line.x() + xoff, r.y() + yoff + line.y(),
+				   line.width(), line.ascent() + line.descent() + 1);
 #endif
-	    painter->drawTextItem( r.x()+lb, r.y() + yoff, ti, textFlags );
+	    qDebug("drawing line at %d/%d", r.x() + xoff, r.y() + yoff);
+	    line.draw(painter, r.x() + xoff + line.x(), r.y() + yoff, underlinePositions);
 	}
 
 	if ( restoreClipping ) {
