@@ -6275,6 +6275,9 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
     case Qt::WA_NoSystemBackground:
         d->updateSystemBackground();
         break;
+    case Qt::WA_ContentsPropagated:
+        if (isVisible())
+            d->updatePropagatedBackground();
     default:
         break;
     }
