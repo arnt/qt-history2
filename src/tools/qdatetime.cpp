@@ -894,6 +894,12 @@ QDate QDate::addYears( int nyears ) const
     int y, m, d;
     julianToGregorian( jd, y, m, d );
     y += nyears;
+    
+    QDate tmp(y,m,1);
+    
+    if( d > tmp.daysInMonth() )
+	d = tmp.daysInMonth();
+    
     QDate date(y, m, d);
     return date;
 }
