@@ -55,8 +55,6 @@ Make it possible to also include additional include files in the generated .h fi
 
 Support for namespaces
 
-Recently opened files in file menu
-
 Implement copy&paste in property editor, also if the property item is not a lineedit (Reggie)
 
 Implement length property for spacers which is used for fixed, preferred, etc. This is (Reggie)
