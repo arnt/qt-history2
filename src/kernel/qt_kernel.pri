@@ -166,11 +166,11 @@ kernel {
              DEFINES += QMAC_ONE_PIXEL_LOCK
         } else:unix {
 	   SOURCES += $$KERNEL_CPP/qprinter_unix.cpp \
+	              $$KERNEL_CPP/qpsprinter.cpp \
 		      $$KERNEL_CPP/qeventloop_unix.cpp
         }
-	unix:SOURCES += $$KERNEL_CPP/qpsprinter.cpp \
-		    $$KERNEL_CPP/qprocess_unix.cpp \
-		    $$KERNEL_CPP/qthread_unix.cpp 
+	unix:SOURCES += $$KERNEL_CPP/qprocess_unix.cpp \
+		        $$KERNEL_CPP/qthread_unix.cpp 
 
 	SOURCES += $$KERNEL_CPP/qabstractlayout.cpp \
 		  $$KERNEL_CPP/qucomextra.cpp \
