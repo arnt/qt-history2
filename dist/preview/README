@@ -31,8 +31,10 @@ feedback on. All are new to Qt, written specifically for Qt 4:
  - Tulip, a new set of template container classes.
  - Interview, a model/view architecture for item views.
  - Arthur, the Qt 4 painting framework.
- - Scribe, the Unicode text renderer with a public API for performing low-level text layout.
- - Mainwindow, a modern action-based mainwindow, toolbar, menu, and docking architecture.
+ - Scribe, the Unicode text renderer with a public API for performing
+   low-level text layout.
+ - Mainwindow, a modern action-based mainwindow, toolbar, menu, and
+   docking architecture.
 
 For a more detailed description about the preview and these five areas
 please consult tech-preview.html found in doc/html.  See also
