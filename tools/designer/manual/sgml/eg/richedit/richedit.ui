@@ -13,8 +13,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>670</width>
-            <height>476</height>
+            <width>658</width>
+            <height>470</height>
         </rect>
     </property>
     <property name="caption">
@@ -566,18 +566,18 @@
         <receiver>textEdit</receiver>
         <slot>setFocus()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
-    <slot access="public" language="C++">fileNew()</slot>
-    <slot access="public" language="C++">fileOpen()</slot>
-    <slot access="public" language="C++">fileSave()</slot>
-    <slot access="public" language="C++">fileSaveAs()</slot>
-    <slot access="public" language="C++">helpAbout()</slot>
-    <slot access="public" language="C++">helpContents()</slot>
-    <slot access="public" language="C++">helpIndex()</slot>
-    <slot access="public" language="C++">fileExit()</slot>
-    <slot access="public" language="C++">changeAlignment( QAction *align )</slot>
-    <slot access="public" language="C++">saveAndContinue( int &amp;continueAction,const QString &amp;action )</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="public" language="C++" returnType="void">fileExit()</slot>
+    <slot access="public" language="C++" returnType="void">fileNew()</slot>
+    <slot access="public" language="C++" returnType="void">fileOpen()</slot>
+    <slot access="public" language="C++" returnType="void">fileSave()</slot>
+    <slot access="public" language="C++" returnType="void">fileSaveAs()</slot>
+    <slot access="public" language="C++" returnType="void">helpAbout()</slot>
+    <slot access="public" language="C++" returnType="void">helpContents()</slot>
+    <slot access="public" language="C++" returnType="void">helpIndex()</slot>
+    <slot access="public" language="C++" returnType="void">changeAlignment( QAction * align )</slot>
+    <slot access="public" language="C++" returnType="int">saveAndContinue( const QString &amp; action )</slot>
 </connections>
 <functions>
     <function name="init()" >{
@@ -597,19 +597,19 @@
     <function name="destroy()" >{
     
 }</function>
+    <function name="fileExit()" >{
+    if ( saveAndContinue( "Exit" ) )
+	qApp-&gt;exit();
+}</function>
     <function name="fileNew()" >{
-    int continueAction;
-    saveAndContinue( continueAction, "New" );
-    if ( continueAction )
+    if ( saveAndContinue( "New" ) )
     	textEdit-&gt;clear();
 }</function>
     <function name="fileOpen()" >{
-    int continueAction;
-    saveAndContinue( continueAction, "Open" );
-    if ( continueAction ) {
+    if ( saveAndContinue( "Open" ) ) {
     	QString fileName( QFileDialog::getOpenFileName( 
 				QString::null, 
-				"Rich Text Files (*.rtx)", this ) );   
+				"Rich Text Files (*.rtx *.htm *.html)", this ) );   
     	if ( ! fileName.isEmpty() )
 		textEdit-&gt;load( fileName );
     }
@@ -623,7 +623,7 @@
 }</function>
     <function name="fileSaveAs()" >{
     QString fileName = QFileDialog::getSaveFileName( 
-    				"", "Rich Text Files (*.rtx)", this );
+    				"", "Rich Text Files (*.rtx *.htm *.html)", this );
     if ( ! fileName.isEmpty() )
     	textEdit-&gt;save( fileName );
 }</function>
@@ -636,12 +636,6 @@
     <function name="helpIndex()" >{
     
 }</function>
-    <function name="fileExit()" >{
-    int continueAction;
-    saveAndContinue( continueAction, "Exit" );
-    if ( continueAction )
-	qApp-&gt;exit();
-}</function>
     <function name="changeAlignment(QAction*)" >{
     if ( align == leftAlignAction ) 
 	textEdit-&gt;setAlignment( Qt::AlignLeft );
@@ -650,8 +644,8 @@
     else if ( align == centerAlignAction )
 	textEdit-&gt;setAlignment( Qt::AlignCenter );
 }</function>
-    <function name="saveAndContinue(int&amp;,const QString&amp;)" >{
-    continueAction = 1;
+    <function name="saveAndContinue(const QString&amp;)" >{
+    int continueAction = 1;
     
     if ( textEdit-&gt;isModified() ) {  
 	switch( QMessageBox::information(     
@@ -664,13 +658,15 @@
 	case 0: // Save; continue  
      		fileSave();  
         	break;   
-    	case 1: // Don't save; continue
+    	case 1: // Do not save; continue
         	break;   
     	case 2: // Cancel
 		continueAction = 0;
         	break;  
     	}	  
     }  
+    
+    return continueAction;
 }</function>
 </functions>
 </UI>
