@@ -321,7 +321,7 @@ void QDialog::reject()
   Event handlers
  *****************************************************************************/
 
-
+/*! \reimp */
 void QDialog::mousePressEvent( QMouseEvent * e)
 {
     if ( e->button() == RightButton ) {

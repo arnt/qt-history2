@@ -73,12 +73,13 @@ static bool si_bigEndian;
   \relates QApplication
   Obtains information about the system.
 
-  The system's word size in bits (typically 32) is returned in \e *wordSize.
-  The \e *bigEndian is set to TRUE if this is a big-endian machine,
+  The system's word size in bits (typically 32) is returned in \a wordSize.
+  The \a bigEndian is set to TRUE if this is a big-endian machine,
   or to FALSE if this is a little-endian machine.
 
-  This function calls qFatal() with a message if the computer is truly weird
-  (i.e. different endianness for 16 bit and 32 bit integers).
+  In debug mode, this function calls qFatal() with a message if the computer is 
+  truly weird (i.e. different endianness for 16 bit and 32 bit integers), in 
+  release mode it returns FALSE.
 */
 
 bool qSysInfo( int *wordSize, bool *bigEndian )
@@ -197,7 +198,7 @@ int qWinVersion()
   \fn void qDebug( const char *msg, ... )
 
   \relates QApplication
-  Prints a debug message, or calls the message handler (if it has been
+  Prints a debug message \a msg, or calls the message handler (if it has been
   installed).
 
   This function takes a format string and a list of arguments, similar to
@@ -222,7 +223,7 @@ int qWinVersion()
   \fn void qWarning( const char *msg, ... )
 
   \relates QApplication
-  Prints a warning message, or calls the message handler (if it has been
+  Prints a warning message \a msg, or calls the message handler (if it has been
   installed).
 
   This function takes a format string and a list of arguments, similar to
@@ -251,7 +252,7 @@ int qWinVersion()
   \fn void qFatal( const char *msg, ... )
 
   \relates QApplication
-  Prints a fatal error message and exits, or calls the message handler (if it
+  Prints a fatal error message \a msg and exits, or calls the message handler (if it
   has been installed).
 
   This function takes a format string and a list of arguments, similar to
@@ -472,8 +473,9 @@ void fatal( const char *msg, ... )
   \relates QApplication
 
   Prints the message \a msg and uses \a code to get a system 
-  specific error message. The system's last error code will be 
-  used if possible when no code is provided.
+  specific error message. When \a code is -1 (default), the system's last 
+  error code will be used if possible.
+  Use this method to handle failures in platform specific API calls.
 
   This function does nothing when Qt is built with Q_NO_DEBUG
   defined.
@@ -514,7 +516,7 @@ void qSystemWarning( const char* msg, int code )
   \fn void Q_ASSERT( bool test )
   \relates QApplication
   Prints a warning message containing the source code file name and line number
-  if \e test is FALSE.
+  if \a test is FALSE.
 
   This is really a macro defined in qglobal.h.
 
@@ -548,7 +550,7 @@ void qSystemWarning( const char* msg, int code )
 /*!
   \fn void Q_CHECK_PTR( void *p )
   \relates QApplication
-  If \e p is null, a fatal messages says that the program ran out of memory
+  If \a p is null, a fatal messages says that the program ran out of memory
   and exits.  If \e p is not null, nothing happens.
 
   This is really a macro defined in qglobal.h.
@@ -645,7 +647,7 @@ void qObsolete(	 const char *message )
 
 /*!
   \relates QApplication
-  Installs a Qt message handler.  Returns a pointer to the message handler
+  Installs a Qt message handler \a h.  Returns a pointer to the message handler
   previously defined.
 
   The message handler is a function that prints out debug messages,
