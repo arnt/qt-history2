@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#49 $
 **
 ** Implementation of QMenuData class
 **
@@ -14,7 +14,7 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#48 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#49 $");
 
 
 /*!
@@ -639,15 +639,19 @@ QMenuItem *QMenuData::findItem( int id ) const
 	return 0;
     QMenuItemListIt it( *mitems );
     QMenuItem *mi;
-    while ( (mi=it.current()) ) {
-	if ( mi->ident == id )			// this one?
+    while ( (mi=it.current()) ) {		// search this menu
+	++it;
+	if ( mi->ident == id )			// found item
 	    return mi;
-	if ( mi->popup_menu ) {			// recursive search
+    }
+    it.toFirst();
+    while ( (mi=it.current()) ) {		// search submenus
+	++it;
+	if ( mi->popup_menu ) {
 	    mi = mi->popup_menu->findItem( id );
-	    if ( mi )
+	    if ( mi )				// found item
 		return mi;
 	}
-	++it;
     }
     return 0;					// not found
 }
