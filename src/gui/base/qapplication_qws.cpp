@@ -169,25 +169,25 @@ QString qws_dataDir()
     if ( mkdir( dataDir.latin1(), 0700 ) ) {
 	if ( errno != EEXIST ) {
 	    qFatal( QString("Cannot create Qt/Embedded data directory: %1")
-		    .arg( dataDir ) );
+		    .arg( dataDir ).latin1() );
 	}
     }
 
     struct stat buf;
     if ( lstat( dataDir.latin1(), &buf ) )
 	qFatal( QString( "stat failed for Qt/Embedded data directory: %1" )
-		.arg( dataDir ) );
+		.arg( dataDir ).latin1() );
 
     if ( !S_ISDIR( buf.st_mode ) )
-	qFatal( QString( "%1 is not a directory" ).arg( dataDir ) );
+	qFatal( QString( "%1 is not a directory" ).arg( dataDir ).latin1() );
 
     if ( buf.st_uid != getuid() )
 	qFatal( QString( "Qt/Embedded data directory is not owned by user %1" )
-		.arg( getuid() ) );
+		.arg( getuid() ).latin1() );
 
     if ( (buf.st_mode & 0677) != 0600 )
 	qFatal( QString( "Qt/Embedded data directory has incorrect permissions: %1" )
-		.arg( dataDir ) );
+		.arg( dataDir ).latin1() );
 
     dataDir += "/";
 
@@ -2078,7 +2078,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	    w = widget; // w is the widget the cursor is in.
 	    QSize s( qt_screen->width(), qt_screen->height() );
 	    QPoint dp = qt_screen->mapToDevice( p, s );
-	    if ( widget->alloc_region.contains(dp) ) {
+	    if ( widget->data->alloc_region.contains(dp) ) {
 		// Find the child widget that the cursor is in.
 		w = (QETWidget*)findChildWidget(widget, widget->mapFromParent(p));
 		w = w ? (QETWidget*)w : widget;
@@ -2624,7 +2624,7 @@ bool QETWidget::translateMouseEvent( const QWSMouseEvent *event, int oldstate )
 	    QPoint dp = qt_screen->mapToDevice( globalPos, s );
 	    for (int i = 0; i < qApp->popupWidgets->size(); ++i) {
 		QWidget *w = qApp->popupWidgets->at(i);
-		if ( w->testWFlags(WType_Popup) && w->alloc_region.contains(dp) ) {
+		if ( w->testWFlags(WType_Popup) && w->data->alloc_region.contains(dp) ) {
 		    popup = w;
 		    break;
 		}
@@ -2795,7 +2795,7 @@ void QETWidget::repaintHierarchy(QRegion r, bool post)
     r &= geometry();
     if (r.isEmpty())
 	return;
-    r.translate(-crect.x(),-crect.y());
+    r.translate(-data->crect.x(),-data->crect.y());
 
     if (post)
 	QApplication::postEvent(this,new QWSUpdateEvent(r));
@@ -2822,7 +2822,7 @@ void QETWidget::repaintDecoration(QRegion r, bool post)
 
     if ( testWFlags(WType_TopLevel) && d->topData()->qwsManager) {
 	r &= d->topData()->qwsManager->region();
-	r.translate(-crect.x(),-crect.y());
+	r.translate(-data->crect.x(),-data->crect.y());
 	//### something's very wrong here. What are we supposed to do with r?
 	if ( post) {
 	    QApplication::postEvent(d->topData()->qwsManager, new QPaintEvent( clipRegion() ));
@@ -2839,15 +2839,15 @@ void QETWidget::updateRegion()
     if ( testWFlags(WType_Desktop) )
        return;
     if ( d->extra && !d->extra->mask.isNull() ) {
-       req_region = d->extra->mask;
-       req_region.translate(crect.x(),crect.y());
-       req_region &= crect;
+       data->req_region = d->extra->mask;
+       data->req_region.translate(data->crect.x(),data->crect.y());
+       data->req_region &= data->crect;
     } else {
-       req_region = crect;
+       data->req_region = data->crect;
     }
-    req_region = qt_screen->mapToDevice( req_region, QSize(qt_screen->width(), qt_screen->height()) );
+    data->req_region = qt_screen->mapToDevice( data->req_region, QSize(qt_screen->width(), qt_screen->height()) );
     updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
-    QRegion r( req_region );
+    QRegion r( data->req_region );
 #ifndef QT_NO_QWS_MANAGER
     QRegion wmr;
     if ( d->extra && d->extra->topextra && d->extra->topextra->qwsManager ) {
@@ -2860,7 +2860,7 @@ void QETWidget::updateRegion()
 	qwsDisplay()->requestRegion(winId(), r);
 
     setChildrenAllocatedDirty();
-    paintable_region_dirty = TRUE;
+    data->paintable_region_dirty = TRUE;
     qwsUpdateActivePainters();
 }
 
@@ -2868,10 +2868,10 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 {
     QWSRegionManager *rgnMan = qt_fbdpy->regionManager();
 
-    if ( alloc_region_index < 0 ) {
-	alloc_region_index = rgnMan->find( winId() );
+    if ( data->alloc_region_index < 0 ) {
+	data->alloc_region_index = rgnMan->find( winId() );
 
-	if ( alloc_region_index < 0 ) {
+	if ( data->alloc_region_index < 0 ) {
 	    return FALSE;
 	}
     }
@@ -2881,10 +2881,10 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 #endif
 
     QWSDisplay::grab();
-    int revision = *rgnMan->revision( alloc_region_index );
-    if ( revision != alloc_region_revision ) {
-	alloc_region_revision = revision;
-	QRegion newRegion = rgnMan->region( alloc_region_index );
+    int revision = *rgnMan->revision( data->alloc_region_index );
+    if ( revision != data->alloc_region_revision ) {
+	data->alloc_region_revision = revision;
+	QRegion newRegion = rgnMan->region( data->alloc_region_index );
 	QWSDisplay::ungrab();
 #ifndef QT_NO_QWS_MANAGER
 	if ( testWFlags(WType_TopLevel) && d->topData()->qwsManager ) {
@@ -2901,18 +2901,18 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	    newRegion -= mr;
 	}
 #endif
-	alloc_region = newRegion;
+	data->alloc_region = newRegion;
 
 	// set children's allocated region dirty
 	QObjectList childList = children();
 	for (int i = 0; i < childList.size(); ++i) {
 	    QObject* ch = childList.at(i);
 	    if (ch->isWidgetType()) {
-		static_cast<QWidget*>(ch)->alloc_region_dirty = TRUE;
+		static_cast<QWidget*>(ch)->data->alloc_region_dirty = TRUE;
 	    }
 	}
 
-	paintable_region_dirty = TRUE;
+	data->paintable_region_dirty = TRUE;
     } else {
 	QWSDisplay::ungrab();
     }

@@ -101,7 +101,7 @@ QLock::QLock( const QString &filename, char id, bool create )
 	}
     }
 #else
-    key_t semkey = ftok(filename, id);
+    key_t semkey = ftok(filename.local8Bit(), id);
     data->id = semget(semkey,0,0);
     data->owned = create;
     if ( create ) {

@@ -407,7 +407,7 @@ void QWSManager::paintEvent(QPaintEvent *)
     // Adjust our widget region to contain the window
     // manager decoration instead of the widget itself.
     QRegion r = managed->d->topData()->decor_allocated_region;
-    int rgnIdx = managed->alloc_region_index;
+    int rgnIdx = managed->data->alloc_region_index;
 
     QGfx *gfx = static_cast<QWSPaintEngine *>(painter.device()->engine())->gfx();
     if ( rgnIdx >= 0 ) {
@@ -415,7 +415,7 @@ void QWSManager::paintEvent(QPaintEvent *)
 	bool changed = FALSE;
 	QWSDisplay::grab();
 	const int *rgnRev = qt_fbdpy->regionManager()->revision( rgnIdx );
-	if ( managed->alloc_region_revision != *rgnRev ) {
+	if ( managed->data->alloc_region_revision != *rgnRev ) {
 	     newRegion = qt_fbdpy->regionManager()->region( rgnIdx );
 	     changed = TRUE;
 	}
@@ -446,7 +446,7 @@ void QWSManager::menu(const QPoint &pos)
 	// Add Style menu
 	QPopupMenu *styleMenu = new QPopupMenu();
 	for (int i = 0; WMStyleList[i].WMStyleName != NULL; i++)
-	    styleMenu->insertItem( qApp->translate("QWSDecoration", WMStyleList[i].WMStyleName), WMStyleList[i].WMStyleType );
+	    styleMenu->insertItem( qApp->translate("QWSDecoration", WMStyleList[i].WMStyleName.latin1()), WMStyleList[i].WMStyleType );
 	styleMenu->connect(styleMenu, SIGNAL(activated(int)), this, SLOT(styleMenuActivated(int)));
 //	popup->insertSeparator();
 //	popup->insertItem(tr("Style"), styleMenu);

@@ -39,7 +39,7 @@ QTextCodec* calc_mapper(const QString& charset_registry, const QString& charset_
     if ( !charset_registry.isNull() ) {
 	QString e = charset_registry+"-"+charset_encoding;
 	if ( e != "10646-1" ) // don't map Unicode, we do it faster directly.
-	    return QTextCodec::codecForName(e);
+	    return QTextCodec::codecForName(e.latin1());
     }
     return 0;
 }

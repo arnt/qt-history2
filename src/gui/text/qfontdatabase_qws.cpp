@@ -45,7 +45,7 @@ void QFontDatabase::qwsAddDiskFont( QDiskFont *qdf )
 	style->pixelSize( qdf->size/10, TRUE );
 }
 
-void QFontDatabase::createDatabase()
+static void initializeDb()
 {
     if ( db ) return;
     db = new QFontDatabasePrivate;
@@ -58,7 +58,7 @@ void QFontDatabase::createDatabase()
 
     for (int i = 0; i < qt_fontmanager->diskfonts.size(); ++i) {
         qdf = qt_fontmanager->diskfonts.at(i);
-	qwsAddDiskFont( qdf );
+	QFontDatabase::qwsAddDiskFont( qdf );
     }
 
 #ifndef QT_NO_DIR

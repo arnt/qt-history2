@@ -2326,9 +2326,9 @@ void QFontDatabase::parseFontName(const QString &name, QString &foundry, QString
     }
 }
 
-#endif // QT_NO_FONTDATABASE
 void QFontDatabase::createDatabase()
 {
     initializeDb();
 }
 
+#endif // QT_NO_FONTDATABASE
