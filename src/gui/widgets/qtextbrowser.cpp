@@ -52,7 +52,7 @@ public:
 
     bool forceLoadOnSourceChange;
 
-    QString resolvePath(const QString &name) const;
+    QString findFile(const QString &name) const;
 
     inline void documentModified()
     {
@@ -72,7 +72,7 @@ static bool isAbsoluteFileName(const QString &name)
 
 }
 
-QString QTextBrowserPrivate::resolvePath(const QString &name) const
+QString QTextBrowserPrivate::findFile(const QString &name) const
 {
     if (isAbsoluteFileName(name))
         return name;
@@ -103,14 +103,14 @@ QString QTextBrowserPrivate::resolvePath(const QString &name) const
     This class extends QTextEdit (in read-only mode), adding some
     navigation functionality so that users can follow links in
     hypertext documents. The contents of QTextEdit is set with
-    setText(), but QTextBrowser has an additional function,
+    setHtml() or setPlainText(), but QTextBrowser has an additional function,
     setSource(), which makes it possible to set the text to a named
-    document. The name is looked up in the directory of the current document
-    factory. If a document name ends with an anchor (for example, "\c
-    #anchor"), the text browser automatically scrolls to that position
-    (using scrollToAnchor()). When the user clicks on a hyperlink, the
-    browser will call setSource() itself, with the link's \c href
-    value as argument. You can track the current source by connetion
+    document. The name is looked up in a list of search paths and in the 
+    directory of the current document factory. If a document name ends with 
+    an anchor (for example, "\c #anchor"), the text browser automatically 
+    scrolls to that position (using scrollToAnchor()). When the user clicks 
+    on a hyperlink, the browser will call setSource() itself, with the link's
+    \c href value as argument. You can track the current source by connecting
     to the sourceChanged() signal.
 
     QTextBrowser provides backward() and forward() slots which you can
@@ -148,7 +148,7 @@ QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
     setReadOnly(true);
     setUndoRedoEnabled(false);
     d->viewport->setMouseTracking(true);
-    connect(document(), SIGNAL(contentsChanged()), q, SLOT(documentModified()));
+    connect(document(), SIGNAL(contentsChanged()), this, SLOT(documentModified()));
 }
 #endif
 
@@ -167,9 +167,10 @@ QTextBrowser::~QTextBrowser()
     source is unknown.
 
     When setting this property QTextBrowser tries to find a document
-    with the specified name in the directory of the current source,
-    unless the value is an absolute file path. It also checks for
-    optional anchors and scrolls the document accordingly
+    with the specified name in the paths of the searchPaths property
+    and directory of the current source, unless the value is an absolute
+    file path. It also checks for optional anchors and scrolls the document
+    accordingly
 
     If the first tag in the document is \c{<qt type=detail>}, the
     document is displayed as a popup rather than as new document in
@@ -185,6 +186,12 @@ QString QTextBrowser::source() const
         return d->stack.top();
 }
 
+/*!
+    \property QTextBrowser::searchPaths
+    \brief the list of paths to search in for documents and images.
+
+    QTextBrowser uses this list to locate images and documents.
+*/
 QStringList QTextBrowser::searchPaths() const
 {
     return d->searchPaths;
@@ -213,7 +220,7 @@ void QTextBrowser::setSource(const QString& name)
     d->textOrSourceChanged = true;
     QString source = name;
     QString anchor;
-    int hash = name.indexOf('#');
+    const int hash = name.indexOf('#');
     if (hash != -1) {
         source = name.left(hash);
         anchor = name.mid(hash+1);
@@ -222,7 +229,7 @@ void QTextBrowser::setSource(const QString& name)
     if (source.startsWith("file:"))
         source = source.mid(6);
 
-    QString url = d->resolvePath(source);
+    QString url = d->findFile(source);
     QString txt;
 
     bool doSetText = false;
@@ -470,13 +477,13 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
     of QTextImageFormat or the source attribute of the html img tag.
 
     The default implementation tries to locate the image by interpreting \a name as
-    a file name. If it is not an absolute path it tries to find the image in the same
-    directory as the current source.
+    a file name. If it is not an absolute path it tries to find the image in the paths
+    of the searchPaths property and in the same directory as the current source.
 */
 QImage QTextBrowser::loadImage(const QString &name)
 {
     QImage img;
-    img.load(d->resolvePath(name));
+    img.load(d->findFile(name));
     return img;
 }
 
