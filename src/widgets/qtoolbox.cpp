@@ -46,7 +46,7 @@
 #include <qapplication.h>
 #include <qwidgetlist.h>
 #include <qlayout.h>
-#include <qptrdict.h>
+#include <qvaluelist.h>
 #include <qtooltip.h>
 #include <qeventloop.h>
 #include <qdatetime.h>
@@ -111,34 +111,15 @@ public:
 
     inline QToolBoxPrivate()
 	: currentPage( 0 ), lastButton( 0 ), pageBackgroundMode( Qt::NoBackground )
-	{
-	    pageList.setAutoDelete( TRUE );
-	}
+	{}
 
 
     QToolBoxButton *button( QWidget *page );
     Page *page( QWidget *page );
     void updatePageBackgroundMode();
     void updateTabs( QToolBox *tb );
-    QWidget *findPageWidget( QToolButton *button );
 
-    // #### improve that algorithm at the moment that one finds the
-    // #### first available page, but it really should look in both
-    // #### directions and find the closest available page
-    inline QWidget *findClosestPage( QWidget *page )
-	{
-	    QWidget *p = 0;
-	    for ( QToolBoxPrivate::Page *c = pageList.first(); c;
-		  c = pageList.next() ) {
-		if ( c->page != page ) {
-		    p = c->page;
-		    break;
-		}
-	    }
-	    return p;
-	}
-
-    QPtrList<Page> pageList;
+    QValueList<Page> pageList;
     QVBoxLayout *layout;
     QWidget *currentPage;
     QToolBoxButton *lastButton;
@@ -147,13 +128,10 @@ public:
 
 QToolBoxPrivate::Page *QToolBoxPrivate::page( QWidget *page )
 {
-    QPtrListIterator<Page> it( pageList );
-    while ( it.current() ) {
-	Page *c = it.current();
-	++it;
-	if ( c->page == page )
-	    return c;
-    }
+    for ( QValueList<Page>::ConstIterator i = pageList.constBegin();
+	  i != pageList.constEnd(); ++i )
+	if ( (*i).page == page )
+	    return (Page*) &(*i);
     return 0;
 }
 
@@ -181,32 +159,16 @@ void QToolBoxPrivate::updatePageBackgroundMode()
 void QToolBoxPrivate::updateTabs( QToolBox *tb )
 {
     bool after = FALSE;
-    QPtrListIterator<Page> it( pageList );
-    while ( it.current() ) {
-	Page *c = it.current();
-	++it;
+    for ( QValueList<Page>::ConstIterator i = pageList.constBegin();
+	  i != pageList.constEnd(); ++i ) {
 	Qt::BackgroundMode bm = pageBackgroundMode == Qt::NoBackground ?
 				real_page( currentPage )->backgroundMode() :
 				pageBackgroundMode;
-	c->button->setBackgroundMode( after ? bm : tb->backgroundMode() );
-	c->button->update();
-	after = c->button == lastButton;
+	(*i).button->setBackgroundMode( after ? bm : tb->backgroundMode() );
+	(*i).button->update();
+	after = (*i).button == lastButton;
     }
 }
-
-QWidget *QToolBoxPrivate::findPageWidget( QToolButton *button )
-{
-    QPtrListIterator<Page> it( pageList );
-    while ( it.current() ) {
-	Page *c = it.current();
-	++it;
-	if ( c->button == button )
-	    return c->page;
-    }
-    return 0;
-}
-
-
 
 
 QSize QToolBoxButton::sizeHint() const
@@ -371,18 +333,11 @@ void QToolBox::insertPage( QWidget *page, const QIconSet &iconSet,
 {
     page->setBackgroundMode( PaletteButton );
     QToolBoxButton *button = new QToolBoxButton( this, label.latin1() );
-    QToolBoxPrivate::Page *c = new QToolBoxPrivate::Page;
-    c->button = button;
-    c->label = label;
-    c->iconSet = iconSet;
+    QToolBoxPrivate::Page c;
+    c.button = button;
+    c.label = label;
+    c.iconSet = iconSet;
     bool needRelayout = FALSE;
-    if ( index < 0 || index >= count() ) {
-	d->pageList.append( c );
-    } else {
-	d->pageList.insert( index, c );
-	needRelayout = TRUE;
-    }
-
     button->setText( label );
     if ( !iconSet.isNull() )
 	button->setIcon( iconSet );
@@ -390,11 +345,18 @@ void QToolBox::insertPage( QWidget *page, const QIconSet &iconSet,
     connect( button, SIGNAL( clicked() ), this, SLOT( buttonClicked() ) );
 
     QScrollView *sv = new QScrollView( this );
-    c->page = sv;
+    c.page = sv;
     sv->hide();
     sv->setResizePolicy( QScrollView::AutoOneFit );
     sv->addChild( page );
     sv->setFrameStyle( QFrame::NoFrame );
+
+    if ( index < 0 || index >= count() ) {
+	d->pageList.append( c );
+    } else {
+	d->pageList.insert( d->pageList.at(index), c );
+	needRelayout = TRUE;
+    }
 
     if ( !needRelayout ) {
 	d->layout->addWidget( button );
@@ -443,12 +405,16 @@ next.QuadPart = next.QuadPart + oneMill.QuadPart
 void QToolBox::buttonClicked()
 {
     QToolBoxButton *tb = (QToolBoxButton*)sender();
-    QWidget *page = d->findPageWidget( tb );
+    QWidget *page = 0;
+    for ( QValueList<QToolBoxPrivate::Page>::ConstIterator i = d->pageList.constBegin();
+	  i != d->pageList.constEnd(); ++i )
+	if ( (*i).button == tb ) {
+	    page = (*i).page;
+	    break;
+	}
 
     if ( page == d->currentPage )
 	return;
-
-
     if ( qApp->isEffectEnabled( UI_AnimateToolBox ) ) {
 	// ### This implementation can be improved by resizing the old
 	// ### and new current page accordingly. This will improve the
@@ -456,22 +422,22 @@ void QToolBox::buttonClicked()
 	int direction = 0;
 
 	QWidgetList buttons;
-	for ( QToolBoxPrivate::Page *c = d->pageList.first(); c;
-	      c = d->pageList.next() ) {
-	    if ( c->button == tb ) {
+	for ( QValueList<QToolBoxPrivate::Page>::ConstIterator i = d->pageList.constBegin();
+	      i != d->pageList.constEnd(); ++i ) {
+	    if ( (*i).button == tb ) {
 		if ( direction < 0 ) {
-		    buttons.append( c->button );
+		    buttons.append( (*i).button );
 		    break;
 		}
 		direction = 8;
-	    } else if ( c->button == d->lastButton ) {
+	    } else if ( (*i).button == d->lastButton ) {
 		if ( direction > 0 ) {
-		    buttons.append( c->button );
+		    buttons.append( (*i).button );
 		    break;
 		}
 		direction = -8;
 	    } else if ( direction != 0 ) {
-		buttons.append( c->button );
+		buttons.append( (*i).button );
 	    }
 	}
 
@@ -549,10 +515,10 @@ void QToolBox::relayout()
 {
     delete d->layout;
     d->layout = new QVBoxLayout( this );
-    for ( QToolBoxPrivate::Page *c = d->pageList.first(); c;
-	  c = d->pageList.next() ) {
-	d->layout->addWidget( c->button );
-	d->layout->addWidget( d->findPageWidget( c->button ) );
+    for ( QValueList<QToolBoxPrivate::Page>::ConstIterator i = d->pageList.constBegin();
+	  i != d->pageList.constEnd(); ++i ) {
+	d->layout->addWidget( (*i).button );
+	d->layout->addWidget( (*i).page );
     }
     QWidget *currPage = d->currentPage;
     d->currentPage = 0;
@@ -578,13 +544,19 @@ void QToolBox::removePage( QWidget *page )
     tb->hide();
     d->layout->remove( page );
     d->layout->remove( tb );
-    d->pageList.remove( d->page( page ) );
+
+   for ( QValueList<QToolBoxPrivate::Page>::Iterator i = d->pageList.begin();
+	  i != d->pageList.end(); ++i )
+       if ( (*i).page == page ) {
+	   d->pageList.erase( i );
+	   break;
+       }
 
     if ( d->pageList.isEmpty() ) {
 	d->lastButton = 0;
 	d->currentPage = 0;
     } else {
-	setCurrentPage( d->findPageWidget( d->pageList.first()->button ) );
+	setCurrentIndex( 0 );
     }
 }
 
@@ -613,8 +585,9 @@ int QToolBox::currentIndex() const
 
 QWidget *QToolBox::page( int index ) const
 {
-    QToolBoxPrivate::Page *p = d->pageList.at( index );
-    return p ? real_page( p->page ) : 0;
+    if ( index < 0 || index >= (int) d->pageList.size() )
+	return 0;
+    return real_page( (*d->pageList.at( index )).page );
 }
 
 /*!
@@ -626,12 +599,11 @@ int QToolBox::indexOf( QWidget *page ) const
     page = internal_page( page, this );
     if ( !page )
 	return -1;
-    int i = 0;
-    for ( QToolBoxPrivate::Page *c = d->pageList.first(); c;
-	  c = d->pageList.next(), ++i ) {
-	if ( c->page == page )
-	    return i;
-    }
+    int index = 0;
+    for ( QValueList<QToolBoxPrivate::Page>::ConstIterator i = d->pageList.constBegin();
+	  i != d->pageList.constEnd(); ++i, ++index )
+	if ( (*i).page == page )
+	    return index;
     return -1;
 }
 
@@ -662,7 +634,15 @@ void QToolBox::activateClosestPage( QWidget *page )
 
     QWidget *p = 0;
     if ( page == d->currentPage ) {
-	p = d->findClosestPage( page );
+	// #### improve that algorithm at the moment that one finds the
+	// #### first available page, but it really should look in both
+	// #### directions and find the closest available page
+	for ( QValueList<QToolBoxPrivate::Page>::ConstIterator i = d->pageList.constBegin();
+	      i != d->pageList.constEnd(); ++i )
+	    if ( (*i).page != page ) {
+		p = (*i).page;
+		break;
+	    }
 	if ( !p ) {
 	    d->currentPage = 0;
 	    d->lastButton = 0;
@@ -750,7 +730,7 @@ QString QToolBox::pageLabel( QWidget *page ) const
     if ( !page )
 	return QString::null;
     QToolBoxPrivate::Page *c = d->page( page );
-    return c ? c->label : QString::null;
+    return ( c ? c->label : QString::null );
 }
 
 /*!
@@ -763,7 +743,7 @@ QIconSet QToolBox::pageIconSet( QWidget *page ) const
     if ( !page )
 	return QIconSet();
     QToolBoxPrivate::Page *c = d->page( page );
-    return c ? c->iconSet : QIconSet();
+    return ( c ? c->iconSet : QIconSet() );
 }
 
 /*!
@@ -776,7 +756,7 @@ QString QToolBox::pageToolTip( QWidget *page ) const
     if ( !page )
 	return QString::null;
     QToolBoxPrivate::Page *c = d->page( page );
-    return c ? c->toolTip : QString::null;
+    return ( c ? c->toolTip : QString::null );
 }
 
 /*!
