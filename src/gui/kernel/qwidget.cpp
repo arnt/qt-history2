@@ -3636,19 +3636,19 @@ QSize QWidget::contentsMarginSize() const
     \property QWidget::focusPolicy
     \brief the way the widget accepts keyboard focus
 
-    The policy is \c QWidget::TabFocus if the widget accepts keyboard
-    focus by tabbing, \c QWidget::ClickFocus if the widget accepts
-    focus by clicking, \c QWidget::StrongFocus if it accepts both, and
-    \c QWidget::NoFocus (the default) if it does not accept focus at
+    The policy is \c Qt::TabFocus if the widget accepts keyboard
+    focus by tabbing, \c Qt::ClickFocus if the widget accepts
+    focus by clicking, \c Qt::StrongFocus if it accepts both, and
+    \c Qt::NoFocus (the default) if it does not accept focus at
     all.
 
     You must enable keyboard focus for a widget if it processes
     keyboard events. This is normally done from the widget's
     constructor. For instance, the QLineEdit constructor calls
-    setFocusPolicy(QWidget::StrongFocus).
+    setFocusPolicy(Qt::StrongFocus).
 
-    \sa focusEnabled, focusInEvent(), focusOutEvent(), keyPressEvent(),
-      keyReleaseEvent(), enabled
+    \sa focusEnabled focusInEvent() focusOutEvent() keyPressEvent()
+        keyReleaseEvent() enabled
 */
 
 Qt::FocusPolicy QWidget::focusPolicy() const
