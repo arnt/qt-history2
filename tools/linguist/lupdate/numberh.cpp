@@ -57,7 +57,7 @@ static int numberLength( const char *s )
 static QCString zeroKey( const char *key )
 {
     QCString zeroed( strlen(key) + 1 );
-    char *z = zeroed.data();
+    char *z = zeroed.detach();
     int i = 0, j = 0;
     int len;
     bool metSomething = FALSE;
@@ -84,7 +84,7 @@ static QString translationAttempt( const QString& oldTranslation,
 				   const char *oldSource,
 				   const char *newSource )
 {
-    int p = zeroKey( oldSource ).contains( '0' );
+    int p = zeroKey( oldSource ).count( '0' );
     int oldSourceLen = qstrlen( oldSource );
     QString attempt;
     QStringList oldNumbers;

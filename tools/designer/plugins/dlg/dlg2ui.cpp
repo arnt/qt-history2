@@ -441,13 +441,13 @@ void Dlg2Ui::emitVariant( const QVariant& val, const QString& stringType )
 	    emitSimpleValue( QString("pointsize"),
 			     QString::number(val.toFont().pointSize()) );
 	    if ( val.toFont().bold() )
-		emitSimpleValue( QString("bold"), QChar('1') );
+		emitSimpleValue( QString("bold"), "1" );
 	    if ( val.toFont().italic() )
-		emitSimpleValue( QString("italic"), QChar('1') );
+		emitSimpleValue( QString("italic"), "1" );
 	    if ( val.toFont().underline() )
-		emitSimpleValue( QString("underline"), QChar('1') );
+		emitSimpleValue( QString("underline"), "1" );
 	    if ( val.toFont().strikeOut() )
-		emitSimpleValue( QString("strikeout"), QChar('1') );
+		emitSimpleValue( QString("strikeout"), "1" );
 	    emitClosing( QString("font") );
 	    break;
 	case QVariant::Palette:
@@ -572,7 +572,7 @@ QString Dlg2Ui::filteredFlags( const QString& flags, const QRegExp& filter )
     QString f = flags;
     f.replace( evil, QString::null );
     QStringList splitted = QStringList::split( QChar('|'), f );
-    return splitted.grep( filter ).join( QChar('|') );
+    return splitted.grep( filter ).join( "|" );
 }
 
 void Dlg2Ui::emitFrameStyleProperty( int style )

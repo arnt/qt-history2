@@ -766,7 +766,7 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
 
     QString margin = DomTool::readProperty( e, "margin", defMargin ).toString();
     QString spacing = DomTool::readProperty( e, "spacing", defSpacing ).toString();
-    QString resizeMode = DomTool::readProperty( e, "resizeMode", QString::null ).toString();
+    QString resizeMode = DomTool::readProperty( e, "resizeMode", QString() ).toString();
 
     QString optcells;
     if ( isGrid )

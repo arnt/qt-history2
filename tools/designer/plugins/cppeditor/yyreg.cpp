@@ -37,7 +37,7 @@
 
 	$(QTDIR)/src/tools/qregexp.cpp
 	$(QTDIR)/tools/inspector/cppparser.cpp
-  
+
   You might also want to read Section 2 in the Dragon Book.
 */
 
@@ -750,11 +750,11 @@ static void matchTranslationUnit( QValueList<CppFunction> *flist )
 	      Compute important line numbers.
 	    */
 	    int functionStartLineNo = 1 + QConstString( yyIn->unicode(), yyPos )
-					  .string().contains( QChar('\n') );
+					  .string().count( QChar('\n') );
 	    int startLineNo = functionStartLineNo +
 		    QConstString( yyIn->unicode() + yyPos, startBody - yyPos )
-		    .string().contains( QChar('\n') );
-	    int endLineNo = startLineNo + body.contains( QChar('\n') );
+		    .string().count( QChar('\n') );
+	    int endLineNo = startLineNo + body.count( QChar('\n') );
 
 	    func.setLineNums( functionStartLineNo, startLineNo, endLineNo );
 	    flist->prepend( func );

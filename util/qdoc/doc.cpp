@@ -124,7 +124,7 @@ static QString keywordRef( const QString& str )
 {
     static QRegExp unfriendly( QString("[^a-zA-Z0-9_-]+") );
     QString t = str;
-    t.replace( unfriendly, QChar('-') );
+    t.replace( unfriendly, "-" );
     return t;
 }
 
@@ -343,7 +343,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			     "Expected variable name after '\\a'" );
 		} else {
 		    QString toks = arg;
-		    toks.replace( unfriendly, QChar(' ') );
+		    toks.replace( unfriendly, " " );
 		    QStringList tokl = QStringList::split( QChar(' '), toks );
 		    while ( !tokl.isEmpty() ) {
 			if ( tokl.first()[0].isLetter() )
@@ -830,7 +830,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    brief = getRestOfParagraph( yyIn, yyPos );
 		    if ( !brief.isEmpty() ) {
 			brief[0] = brief[0].lower();
-			if ( brief.endsWith(QChar('.')) )
+			if ( brief.endsWith(".") )
 			    brief.truncate( brief.length() - 1 );
 			if ( brief.endsWith(QString(" or not")) )
 			    brief.truncate( brief.length() - 7 );
@@ -1157,7 +1157,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    if ( inSidebarHeading ) {
 			yyOut += closeSidebarHeading;
 			inSidebarHeading = FALSE;
-		    } 
+		    }
 		    if ( headingBegin != -1 ) {
 			QValueList<Section> *subsects = toc;
 			while ( !subsects->last().subsections()->isEmpty() )
@@ -1581,7 +1581,7 @@ void Doc::setClassLists( const QMap<QString, QString>& allClasses,
     }
 
     // white space magic
-    t.replace( QRegExp(QChar(' ')), QString("[ \t\n]+") );
+    t.replace(" ", "[ \t\n]+" );
     t.prepend( QString("[ \t\n>]") );
     t.append( QString(")\\b)") );
 
@@ -1659,7 +1659,7 @@ QString Doc::href( const QString& name, const QString& text, bool propertize )
     QString k = keywordLinks[namex];
     if ( k.isEmpty() ) {
 	// try without the plural
-	if ( namex.endsWith(QChar('s')) )
+	if ( namex.endsWith("s") )
 	    k = keywordLinks[namex.left(textx.length() - 1)];
 	if ( k.isEmpty() ) {
 	    // try an example file
@@ -1673,7 +1673,7 @@ QString Doc::href( const QString& name, const QString& text, bool propertize )
 			if ( textx == namex && uglyProtos.exactMatch(textx) )
 			    textx = uglyProtos.cap( 1 );
 		    }
-		    if ( k.isEmpty() && namex.startsWith(QChar('#')) )
+		    if ( k.isEmpty() && namex.startsWith("#") )
 			k = namex;
 		}
 	    }
@@ -2249,7 +2249,7 @@ QString Doc::htmlSeeAlso() const
 	    } else {
 		name = toks.first();
 		toks.remove( toks.begin() );
-		text = toks.join( QChar(' ') );
+		text = toks.join( " " );
 	    }
 	}
 
@@ -2351,7 +2351,7 @@ QString Doc::finalHtml() const
 		name = getArgument( yyIn, yyPos );
 		ahref = href( name );
 		if ( ahref.length() == name.length() ||
-		     name.startsWith(QChar('#')) ) {
+		     name.startsWith("#") ) {
 		    yyOut += QString( "<tt>" );
 		    yyOut += htmlProtect( name );
 		    yyOut += QString( "</tt>" );
@@ -2674,7 +2674,7 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
     */
     QString whats;
     bool standardWording = TRUE;
-    bool finalStop = ( bf.endsWith(QChar('.')) );
+    bool finalStop = ( bf.endsWith(".") );
     if ( !finalStop )
 	bf += QChar( '.' );
 
@@ -2704,11 +2704,11 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
 	w.remove( w.begin() );
 
     if ( !w.isEmpty() &&
-	 (w.first() == QChar('a') ||
-	  w.first() == QString("an")) )
+	 (w.first() == "a" ||
+	  w.first() == "an") )
 	w.remove( w.begin() );
 
-    whats = w.join( QChar(' ') );
+    whats = w.join( " " );
     if ( !whats.isEmpty() )
 	whats.truncate( whats.length() - 1 ); // chop the final stop
 

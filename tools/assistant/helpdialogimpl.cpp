@@ -952,7 +952,7 @@ void HelpDialog::startSearch()
 	(*it) = (*it).replace( "\"", "" );
     }
     if ( str.contains( '\"' ) ) {
-	if ( (str.contains( '\"' ))%2 == 0 ) {
+	if ( (str.count( '\"' ))%2 == 0 ) {
 	    int beg = 0;
 	    int end = 0;
 	    QString s;

@@ -527,7 +527,7 @@ void PopupMenuEditor::choosePixmap( int index )
 	createItem();
     }
 
-    QIconSet icons( qChoosePixmap( 0, formWnd, 0, 0 ) ); // FIXME: check if we need more params
+    QIconSet icons( qChoosePixmap( 0, formWnd, QPixmap(), 0 ) ); // FIXME: check if we need more params
     SetActionIconsCommand * cmd = new SetActionIconsCommand( "Set icon", formWnd, a, this, icons );
     formWnd->commandHistory()->addCommand( cmd );
     cmd->execute();
@@ -1282,7 +1282,7 @@ void PopupMenuEditor::clearCurrentField()
     if ( i->isSeparator() )
 	return;
     if ( currentField == 0 ) {
-	QIconSet icons( 0 );
+	QIconSet icons( QPixmap(0, 0) );
 	SetActionIconsCommand * cmd = new SetActionIconsCommand( "Remove icon",
 								 formWnd,
 								 i->anyAction(),

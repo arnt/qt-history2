@@ -60,7 +60,7 @@ int main( int argc, char * argv[] )
     for ( int n = 1; n < argc && error == 0; n++ ) {
 	QCString arg = argv[n];
 	if ( arg[0] == '-' ) {			// option
-	    QCString opt = &arg[1];
+	    QCString opt = arg.data() + 1;
 	    if ( opt[0] == 'o' ) {		// output redirection
 		if ( opt[1] == '\0' ) {
 		    if ( !(n < argc-1) ) {
@@ -69,7 +69,7 @@ int main( int argc, char * argv[] )
 		    }
 		    outputFile = argv[++n];
 		} else
-		    outputFile = &opt[1];
+		    outputFile = opt.data() + 1;
 	    } else if ( opt[0] == 'i' || opt == "impl" ) {
 		impl = TRUE;
 		if ( opt == "impl" || opt[1] == '\0' ) {
@@ -79,7 +79,7 @@ int main( int argc, char * argv[] )
 		    }
 		    headerFile = argv[++n];
 		} else
-		    headerFile = &opt[1];
+		    headerFile = opt.data() + 1;
 	    } else if ( opt[0] == 'e' || opt == "embed" ) {
 		imagecollection = TRUE;
 		if ( opt == "embed" || opt[1] == '\0' ) {
@@ -89,7 +89,7 @@ int main( int argc, char * argv[] )
 		    }
 		    projectName = argv[++n];
 		} else {
-		    projectName = &opt[1];
+		    projectName = opt.data() + 1;
 		}
 		if ( argc > n+1 && qstrcmp( argv[n+1], "-f" ) == 0 ) {
 		    imagecollection_tmpfile = TRUE;
@@ -130,7 +130,7 @@ int main( int argc, char * argv[] )
 		    }
 		    trmacro = argv[++n];
 		} else {
-		    trmacro = &opt[1];
+		    trmacro = opt.data() + 1;
 		}
 	    } else if ( opt == "L" ) {
 		if ( !(n < argc-1) ) {

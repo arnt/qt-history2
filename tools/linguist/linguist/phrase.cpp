@@ -31,11 +31,11 @@
 static QCString protect( const QCString& str )
 {
     QCString p = str;
-    p.replace( QRegExp("\""), "&quot;" );
-    p.replace( QRegExp("&"), "&amp;" );
-    p.replace( QRegExp(">"), "&gt;" );
-    p.replace( QRegExp("<"), "&lt;" );
-    p.replace( QRegExp("'"), "&apos;" );
+    p.replace( "\"", "&quot;" );
+    p.replace( "&", "&amp;" );
+    p.replace( ">", "&gt;" );
+    p.replace( "<", "&lt;" );
+    p.replace( "'", "&apos;" );
     return p;
 }
 

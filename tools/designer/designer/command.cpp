@@ -2181,7 +2181,7 @@ AddMenuCommand::AddMenuCommand( const QString &n,
 				MenuBarEditor *b,
 				MenuBarEditorItem *i,
 				int idx )
-    : Command( n, fw ), mb( b ), item( i ), name( 0 ), index( idx )
+    : Command( n, fw ), mb( b ), item( i ), index( idx )
 { }
 
 AddMenuCommand::AddMenuCommand( const QString &n,

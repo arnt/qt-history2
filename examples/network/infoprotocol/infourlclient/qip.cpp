@@ -91,9 +91,9 @@ void Qip::socketReadyRead()
     while ( socket->canReadLine() ) {
 	line = stream.readLine();
 	if ( line.startsWith( "500" ) ) {
-	    error( ErrValid, line.mid( 4 ) ); 
+	    error( ErrValid, line.mid( 4 ) );
 	} else if ( line.startsWith( "550" ) ) {
-	    error( ErrFileNotExisting, line.mid( 4 ) ); 
+	    error( ErrFileNotExisting, line.mid( 4 ) );
 	} else if ( line.startsWith( "212+" ) ) {
 	    if ( state != List ) {
 		state = List;
@@ -109,7 +109,7 @@ void Qip::socketReadyRead()
 	    emit newChild( inf, operationInProgress() );
 	} else if ( line.startsWith( "213+" ) ) {
 	    state = Data;
-	    emit data( line.mid( 4 ).utf8(), operationInProgress() );
+	    emit data( line.mid( 4 ).toUtf8(), operationInProgress() );
 	}
 	if( line[3] == ' ' && state != Start) {
 	    state = Start;

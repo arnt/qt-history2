@@ -386,8 +386,8 @@ static bool readLine()
 	  the other way around, as we are parsing backwards.
 	*/
 	yyLinizerState->braceDepth +=
-		yyLinizerState->line.contains( '}' ) -
-		yyLinizerState->line.contains( '{' );
+		yyLinizerState->line.count( '}' ) -
+		yyLinizerState->line.count( '{' );
 
 	/*
 	  We use a dirty trick for
@@ -918,7 +918,7 @@ static int indentForStandaloneLine()
 	    YY_RESTORE();
 	}
 
-	if ( yyLine->endsWith(";") || yyLine->contains('{') > 0 ) {
+	if ( yyLine->endsWith(";") || yyLine->contains('{') ) {
 	    /*
 	      The situation is possibly this, and we want to indent
 	      "z;":

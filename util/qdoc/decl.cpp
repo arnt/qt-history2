@@ -36,7 +36,7 @@ static void printHtmlDataType( HtmlWriter& out, const CodeChunk& type,
 static void printHtmlListEntry( HtmlWriter& out, const QString& funcName,
 				const QString& className )
 {
-    out.printfMeta( "<li><a href=\"%s#%s\">", 
+    out.printfMeta( "<li><a href=\"%s#%s\">",
 		    config->classRefHref(className).latin1(),
 		    Decl::ref(funcName).latin1() );
     out.puts( funcName.latin1() );
@@ -355,19 +355,14 @@ static void fillInImportantChildren( ClassDecl *classDecl,
 QString Decl::ref( const QString& name )
 {
     static QRegExp op( QString("^operator") );
-    static QRegExp sp( QChar(' ') );
-    static QRegExp amp( QChar('&') );
-    static QRegExp lt( QChar('<') );
-    static QRegExp eq( QChar('=') );
-    static QRegExp gt( QChar('>') );
 
     if ( name.find(op) == 0 ) {
 	QString t = name;
-	t.replace( sp, QChar('-') );
-	t.replace( amp, QString("-and") );
-	t.replace( lt, QString("-lt") );
-	t.replace( eq, QString("-eq") );
-	t.replace( gt, QString("-gt") );
+	t.replace( ' ', '-' );
+	t.replace( "&", "-and" );
+	t.replace( "<", "-lt" );
+	t.replace( "=", "-eq" );
+	t.replace( ">", "-gt" );
 	return t;
     } else {
 	return name;

@@ -21,6 +21,7 @@
 #include "parser.h"
 #include <qobject.h>
 #include <qstringlist.h>
+#include <qcstring.h>
 
 class NormalizeObject : public QObject
 {
@@ -59,7 +60,7 @@ QString Parser::cleanArgs( const QString &func )
 	    }
 	}
 	res += arg;
-    }	
+    }
     res += ")";
 
     return QString::fromLatin1( NormalizeObject::normalizeSignalSlot( res.latin1() ) );

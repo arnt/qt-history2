@@ -21,6 +21,7 @@
 #include <qcursor.h>
 #include <qapplication.h>
 #include <qwmatrix.h>
+#include <qcstring.h>
 
 #include <stdlib.h>
 
@@ -275,7 +276,7 @@ QByteArray QtFileIconDrag::encodedData( const char* mime ) const
     } else if ( QString( mime ) == "text/uri-list" ) {
 	QString s = urls.join( "\r\n" );
 	a.resize( s.length() );
-	memcpy( a.data(), s.latin1(), s.length() );
+	memcpy( a.detach(), s.latin1(), s.length() );
     }
     return a;
 }

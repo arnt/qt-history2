@@ -121,7 +121,7 @@ static void setPattern( QRegExp *rx, const QString& pattern, bool plus )
     static QRegExp separators( QString("[ \t\n]*[ \t\n,;][ \t\n]*") );
 
     QString t = pattern.stripWhiteSpace();
-    t.replace( separators, QChar('|') );
+    t.replace( separators, QString("|") );
 
     if ( plus && !rx->pattern().isNull() && rx->isValid() )
 	rx->setPattern( rx->pattern() + QChar('|') + t );
@@ -172,7 +172,7 @@ static bool getImageSize( const char *fileName, int *width, int *height )
 Config::Config( int argc, char **argv )
     : maxSim( 10 ), maxAll( 100 ), wlevel( 3 ), bas( "" ), prod( "" ), co( "" ),
       vers( "" ), verssym( "" ), posth( "" ), foot( "" ), addr( "" ),
-      styl( "" ), falsesym( QChar('0') ), internal( FALSE ), autoh( TRUE ),
+      styl( "" ), falsesym( "0" ), internal( FALSE ), autoh( TRUE ),
       super( FALSE ), lin( FALSE ), frend( FALSE ), dotHtml( ".html" ),
       membersDotHtml( "-members.html" ), dotPng( ".png" )
 {
@@ -194,7 +194,7 @@ Config::Config( int argc, char **argv )
 		confFilePath = QString( argv[i] );
 	    while ( i < argc )
 		argv[i++][0] = '\0';
-	} else if ( !opt.startsWith(QChar('-')) ) {
+	} else if ( !opt.startsWith( "-" ) ) {
 	    confFilePath = opt;
 	    argv[i - 1][0] = '\0';
 	    break;
@@ -227,29 +227,29 @@ Config::Config( int argc, char **argv )
 	    break;
 
 	if ( key.contains(QChar('.')) == 1 ) {
-	    QString t = val.join( QChar(' ') );
+	    QString t = val.join( " " );
 	    aliasMap.insert( key + QString::number(numParams(t)), t );
-	} else {	
+	} else {
 	    if ( key == QString("ADDRESS") ) {
-		addr = val.join( QChar(' ') );
+		addr = val.join( " " );
 	    } else if ( key == QString("AUTOHREFS") ) {
 		autoh = isYes( singleton(key, val) );
 	    } else if ( key == QString("BASE") ) {
-		bas = val.join( QChar(' ') );
+		bas = val.join( " " );
 	    } else if ( key == QString("BOOKDIRS") ) {
 		bookdirs = val;
 	    } else if ( key == QString("COMPANY") ) {
-		co = val.join( QChar(' ') );
+		co = val.join( " " );
 	    } else if ( key == QString("DEFINE") ) {
-		defsym.setPattern( val.join(QChar('|')) );
+		defsym.setPattern( val.join("|") );
 	    } else if ( key == QString("DOCDIRS") ) {
 		docdirs = val;
 	    } else if ( key == QString("EXAMPLEDIRS") ) {
 		exampledirs = val;
 	    } else if ( key == QString("FALSE") ) {
-		falsesym.setPattern( val.join(QChar('|')) );
+		falsesym.setPattern( val.join("|") );
 	    } else if ( key == QString("FOOTER") ) {
-		foot = val.join( QChar(' ') );
+		foot = val.join( " " );
 	    } else if ( key == QString("IMAGEDIRS") ) {
 		imagedirs = val;
 	    } else if ( key == QString("INCLUDEDIRS") ) {
@@ -261,21 +261,21 @@ Config::Config( int argc, char **argv )
 	    } else if ( key == QString("MAXWARNINGS") ) {
 		maxAll = singleton( key, val ).toInt();
 	    } else if ( key == QString("ONLY") ) {
-		onlyfn.setPattern( val.join(QChar('|')) );
+		onlyfn.setPattern( val.join("|") );
 	    } else if ( key == QString("OUTPUTDIR") ) {
 		outputdir = singleton( key, val );
 	    } else if ( key == QString("POSTHEADER") ) {
-		posth = val.join( QChar(' ') );
+		posth = val.join( " " );
 	    } else if ( key == QString("PRODUCT") ) {
-		prod = val.join( QChar(' ') );
+		prod = val.join( " " );
 	    } else if ( key == QString("SOURCEDIRS") ) {
 		sourcedirs = val;
 	    } else if ( key == QString("STYLE") ) {
-		styl = val.join( QChar(' ') );
+		styl = val.join( " " );
 	    } else if ( key == QString("SUPERVISOR") ) {
 		super = isYes( key, val );
 	    } else if ( key == QString("VERSIONSTR") ) {
-		vers = val.join( QChar(' ') );
+		vers = val.join( " " );
 	    } else if ( key == QString("VERSIONSYM") ) {
 		verssym = singleton( key, val );
 	    } else if ( key == QString("WARNINGLEVEL") ) {
@@ -298,14 +298,14 @@ Config::Config( int argc, char **argv )
 	if ( opt.startsWith(QString("--")) ) {
 	    int k = opt.find( QChar('=') );
 	    if ( k == -1 ) {
-		if ( i < argc && !QString(argv[i]).startsWith(QChar('-')) )
+		if ( i < argc && !QString(argv[i]).startsWith("-") )
 		    val = QString( argv[i++] );
 		else
 		    val = QString( "yes" );
 	    } else {
 		val = opt.mid( k + 1 );
 		opt.truncate( k );
-		if ( opt.right(1) == QChar('+') ) {
+		if ( opt.right(1) == "+" ) {
 		    plus = TRUE;
 		    opt.truncate( k - 1 );
 		}
@@ -351,7 +351,7 @@ Config::Config( int argc, char **argv )
 		message( 0, "Unknown command-line option '%s'", opt.latin1() );
 		showHelp();
 	    }
-	} else if ( opt.startsWith(QChar('-')) ) {
+	} else if ( opt.startsWith("-") ) {
 	    if ( opt == QString("-a") ) {
 		autoh = TRUE;
 	    } else if ( opt == QString("-A") ) {
@@ -418,7 +418,7 @@ QString Config::verbatimHref( const QString& sourceFileName ) const
     static QRegExp evil( QString("[./]") );
 
     QString t = sourceFileName;
-    t.replace( evil, QChar('-') );
+    t.replace( evil, "-" );
     t += dotHtml;
     return t;
 }
@@ -480,12 +480,12 @@ QStringList Config::findAll( const QString& nameFilter,
 	    ++fn;
 	}
 
-	dir.setNameFilter( QChar('*') );
+	dir.setNameFilter( "*" );
 	dir.setFilter( QDir::Dirs );
 	fileNames = dir.entryList();
 	fn = fileNames.begin();
 	while ( fn != fileNames.end() ) {
-	    if ( *fn != QChar('.') && *fn != QString("..") )
+	    if ( *fn != "." && *fn != QString("..") )
 		result += findAll( nameFilter, dir.filePath(*fn) );
 	    ++fn;
 	}
@@ -557,7 +557,7 @@ QString Config::unalias( const Location& loc, const QString& alias,
 {
     QString key;
     QMap<QString, QString>::ConstIterator a;
-    
+
     key = alias + QChar( '.' ) + format + QString::number( args.count() );
     a = aliasMap.find( key );
     if ( a == aliasMap.end() ) {
@@ -607,7 +607,7 @@ bool Config::matchLine( QString *key, QStringList *val )
 		break;
 	    yyPos += valXOrY.matchedLength();
 	}
-	if ( yyIn.mid(yyPos, 1) == QChar('\n') ) {
+	if ( yyIn.mid(yyPos, 1) == "\n" ) {
 	    yyPos++;
 	    return TRUE;
 	}
@@ -615,7 +615,7 @@ bool Config::matchLine( QString *key, QStringList *val )
 
     if ( yyPos < (int) yyIn.length() )
 	message( 0, "Bad syntax in configuration file at line %d",
-		 yyIn.left(yyPos).contains(QChar('\n')) + 1 );
+		 yyIn.left(yyPos).count(QChar('\n')) + 1 );
     return FALSE;
 }
 

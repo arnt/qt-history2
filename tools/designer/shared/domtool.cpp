@@ -28,6 +28,7 @@
 #include <qsize.h>
 #include <qfont.h>
 #include <qdom.h>
+#include <qcstring.h>
 
 /*!
   \class DomTool domtool.h

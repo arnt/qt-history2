@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		= warn_on console release qtinc dylib
+CONFIG		= warn_on console release qtinc dylib debug
 isEmpty(QT_SOURCE_TREE):QT_SOURCE_TREE=$(QTDIR)
 isEmpty(QT_BUILD_TREE):QT_BUILD_TREE=$$QT_SOURCE_TREE
 DEFINES		+= QT_NO_CODECS QT_NO_UNICODETABLES QT_NO_COMPONENT QT_NODLL QT_CLEAN_NAMESPACE QT_NO_STL QT_NO_COMPRESS
@@ -56,6 +56,7 @@ SOURCES		= binarywriter.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qbuffer.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qptrcollection.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qcstring.cpp \
+		  $$QT_SOURCE_TREE/src/tools/qbytearray.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qdatastream.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qdatetime.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qdir.cpp \
@@ -70,6 +71,7 @@ SOURCES		= binarywriter.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qiodevice.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qmap.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qregexp.cpp \
+		  $$QT_SOURCE_TREE/src/tools/qchar.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qstring.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qstringlist.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qtextstream.cpp \

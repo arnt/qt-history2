@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <qbuttongroup.h>
 #include <qtoolbutton.h>
+#include <qtranslator.h>
 
 static QTranslator *translator = 0;
 static QTranslator *qt_translator = 0;

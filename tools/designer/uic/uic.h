@@ -27,6 +27,7 @@
 #include <qtextstream.h>
 #include <qpalette.h>
 #include <qvariant.h>
+#include <qcstring.h>
 
 class Uic : public Qt
 {

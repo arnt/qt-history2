@@ -46,29 +46,18 @@ static QString fixBackslashes( const QString& str )
 static QString unhtmlize( const QString& html )
 {
     static QRegExp tag( QString("<[^>]*>") );
-    static QRegExp lt( QString("&lt;") );
-    static QRegExp gt( QString("&gt;") );
-    static QRegExp amp( QString("&amp;") );
 
     QString t = html;
-    t.replace( tag, QString::null );
-    t.replace( lt, QChar('<') );
-    t.replace( gt, QChar('>') );
-    t.replace( amp, QChar('&') );
+    t.replace( tag, QString() );
+    t.replace( "&lt;", "<" );
+    t.replace( "&gt;", ">" );
+    t.replace( "&amp;", "&" );
     return t;
 }
 
 static QString sgmlProtect( const QString& str )
 {
-#if 1
     return htmlProtect( str );
-#else
-    static QRegExp amp( QChar('&') );
-    static QRegExp amp( QChar('<') );
-    static QRegExp amp( QChar('>') );
-
-    QString t = str;
-#endif
 }
 
 class Processor
@@ -1149,7 +1138,7 @@ void HtmlSynthetizer::processLink( const QString& name,
     if ( y.length() == textx.length() ) {
 	QString namex;
 
-	if ( name.startsWith(QChar('#')) ) {
+	if ( name.startsWith("#") ) {
 	    namex = analyzer()->fileSuffixForTarget( name.mid(1) );
 	    if ( !namex.isNull() ) {
 		namex.prepend( outFileBase() );
@@ -1456,7 +1445,7 @@ void SgmlSynthetizer::processCaptionEnd()
 
 void SgmlSynthetizer::processChar( QChar ch )
 {
-    w.puts( sgmlProtect(ch).latin1() );
+    w.puts( sgmlProtect(QString(ch)).latin1() );
 }
 
 void SgmlSynthetizer::processCode( const QString& text )

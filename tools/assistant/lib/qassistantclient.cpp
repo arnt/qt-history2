@@ -194,7 +194,7 @@ void QAssistantClient::openAssistant()
 	}
     }
 
-    if ( !proc->launch( QString::null ) ) {
+    if ( !proc->launch( QString() ) ) {
 	emit error( tr( "Cannot start Qt Assistant '%1'" )
 		    .arg( proc->arguments().join( " " ) ) );
 	return;

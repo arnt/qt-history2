@@ -161,15 +161,15 @@ double TetrixPiece::randomSeed = 0.33333;
 
 void TetrixPiece::setRandomSeed(double seed)
 {
-    QCString buffer;
+    QString buffer;
     if (seed < 0)
         seed = - seed;
     if (seed >= 1)
         seed = seed - (double) ((int) seed);
     buffer.sprintf("%1.5f",(float) seed);
     for (int i = 0 ; i < 5 ; i++)
-        if ((buffer[i + 2] - '0') % 2 == 0)
-	    buffer[i + 2]++;
+        if ((buffer[i + 2].unicode() - '0') % 2 == 0)
+	    buffer[i + 2] = QChar(buffer[i + 2].unicode()+1);
     randomSeed = atof(buffer);
 }
 

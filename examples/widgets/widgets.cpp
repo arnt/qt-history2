@@ -49,6 +49,7 @@
 #include <qaccel.h>
 #include <qmetaobject.h>
 #include <qpainter.h>
+#include <qcstring.h>
 
 #include "widgets.h"
 

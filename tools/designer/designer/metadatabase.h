@@ -30,6 +30,7 @@
 #include <qsize.h>
 #include <qwidgetlist.h>
 #include <qcursor.h>
+#include <qcstring.h>
 
 #include "pixmapchooser.h"
 #include "../interfaces/languageinterface.h"

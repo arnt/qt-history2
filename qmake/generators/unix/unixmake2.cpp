@@ -39,6 +39,7 @@
 #include "option.h"
 #include "meta.h"
 #include <qregexp.h>
+#include <qcstring.h>
 #include <qfile.h>
 #include <qdir.h>
 #include <time.h>

@@ -41,6 +41,7 @@
 #include <qstringlist.h>
 #include <qwidgetlist.h>
 #include <qobjectlist.h>
+#include <qcstring.h>
 
 struct DesignerProject;
 struct DesignerDatabase;

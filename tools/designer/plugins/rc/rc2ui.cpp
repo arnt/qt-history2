@@ -21,6 +21,7 @@
 
 #include "rc2ui.h"
 #include <qdir.h>
+#include <qcstring.h>
 
 /// some little helpers ///
 

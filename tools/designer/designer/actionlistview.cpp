@@ -21,6 +21,7 @@
 #include "actionlistview.h"
 #include <qdragobject.h>
 #include <qheader.h>
+#include <qcstring.h>
 
 ActionListView::ActionListView( QWidget *parent, const char *name )
     : QListView( parent, name )

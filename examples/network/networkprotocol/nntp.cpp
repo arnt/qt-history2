@@ -14,6 +14,7 @@
 #include <qurloperator.h>
 #include <qstringlist.h>
 #include <qregexp.h>
+#include <qcstring.h>
 
 Nntp::Nntp()
     : QNetworkProtocol(), connectionReady( FALSE ),
@@ -158,7 +159,7 @@ void Nntp::readyRead()
     // read the new data from the socket
     QCString s;
     s.resize( commandSocket->bytesAvailable() );
-    commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
+    commandSocket->readBlock( s.detach(), commandSocket->bytesAvailable() );
 
     if ( !url() )
 	return;

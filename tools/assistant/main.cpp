@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <qtextcodec.h>
+#include <qtranslator.h>
 
 #define INDEX_CHECK( text ) if( i+1 >= argc ) { fprintf( stderr, text "\n" ); return 1; }
 

@@ -38,7 +38,7 @@ private slots:
 		// read the packet in a byte array to be sure that you don't
 		// read too much or too less
 		QByteArray ba( packetSize );
-		readBlock( ba.data(), packetSize );
+		readBlock( ba.detach(), packetSize );
 		bytesAvail -= packetSize;
 		packetSize = 0;
 

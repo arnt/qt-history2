@@ -10,8 +10,16 @@
 
 
 
+>>>> ORIGINAL test.cpp#56
+// const char *family = "Arial Unicode Ms"; // generic
+const char *family = "Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Mangal,Rama,TCRC Youtso Unicode"; // Devanagari
+==== THEIRS test.cpp#57
 // const char *family = "Arial Unicode Ms"; // generic
 const char *family = "Sampige,Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Raghindi,Rama,TCRC Youtso Unicode"; // Devanagari
+==== YOURS test.cpp
+//const char *family = "Arial Unicode Ms"; // generic
+const char *family = "Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Mangal,Rama,TCRC Youtso Unicode"; // Devanagari
+<<<<
 // const char *family = ""; // arabic
 // const char *family = ""; // syriac
 // const char *family = ""; // Bengali
@@ -29,16 +37,16 @@ const char *family = "Sampige,Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem
 
 
 // Thai
-// const char *s = "ทำไมเขาถึงไม่พูด �าษาไทย";
+const char *s = "ทำไมเขาถึงไม่พูด �าษาไทย";
 
 // Vietnamese
-// const char *s = "Tại sao họ không thể chỉ nói tiệ̣̣́ng.";
+// const char *s = "Tại sao";// họ không thể chỉ nói tiếng Việt?";
 
 // Syriac
 // const char *s = "ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ";
 
 // Devanagari
-// const char *s = "रूस के राष्ट्रपति व्लादिमीर पुतिन ने बीजिंग पहुँचकर चीन के राष्ट्रपति जियांग ज़ेमिन से बातचीत की. बातचीत के बाद संयुक्त घोषणा में रूस और चीन ने उत्तर कोरिया, इराक़ और द्विपक्षीय मामलों पर अपना पक्ष रखा. रूस के राष्ट्रपति व्लादिमीर पुतिन ने बीजिंग पहुँचकर चीन के राष्ट्रपति जियांग ज़ेमिन से बातचीत की. बातचीत के बाद संयुक्त घोषणा में रूस और चीन ने उत्तर कोरिया, इराक़ और द्विपक्षीय मामलों पर अपना पक्ष रखा.";
+//const char *s = "रूस के राष्ट्रपति व्लादिमीर पुतिन ने बीजिंग पहुँचकर चीन के राष्ट्रपति जियांग ज़ेमिन से बातचीत की. बातचीत के बाद संयुक्त घोषणा में रूस और चीन ने उत्तर कोरिया, इराक़ और द्विपक्षीय मामलों पर अपना पक्ष रखा. रूस के राष्ट्रपति व्लादिमीर पुतिन ने बीजिंग पहुँचकर चीन के राष्ट्रपति जियांग ज़ेमिन से बातचीत की. बातचीत के बाद संयुक्त घोषणा में रूस और चीन ने उत्तर कोरिया, इराक़ और द्विपक्षीय मामलों पर अपना पक्ष रखा.";
 
 
 // Bengali
@@ -58,26 +66,28 @@ const char *family = "Sampige,Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem
 // "Hebrew: תוכנה והאינטרנט "
 // "Devanagari: रूस के राष्ट्रपति "
 // "Bengali: অাবার অাসিব ফিরে "
-// "Vietnamese: Tại sao họ không thể chỉ nói tiệ̣̣́ng "
+// "Vietnamese: Tại sao họ không thể chỉ nói tiếng "
+// "Tibetan: ས་བཅད་གཉིས་པ་། "
+// "לְמָה לָא יאםרוּן";
 // ;
 
 // latin
-// const char *s =
+// const char *s = "";
 // "KDE is a powerful Open Source graphical desktop environment for Unix workstations. It combines ease of use, contemporary functionality, and outstanding graphical design with the technological superiority of the Unix operating system. KDE is an Internet project that is truly open in every sense. Development takes place on the Internet and is discussed on our mailing lists, USENET news groups, and IRC channels to which we invite and welcome everyone."
 // ;
 
+//const char *s = "اللّغة";
 
+//const char *s = "            यूनिकोड क्या है?";
 
-const char *s = "";
+//const char *s = "ा ";
 
 int main( int argc, char **argv )
 {
     QApplication a(argc, argv);
 
-    QFontDatabase fdb;
-
     QFont f( family );
-    f.setPointSize( 24 );
+    f.setPointSize( 20 );
     a.setFont( f );
 
 #if 0

@@ -22,9 +22,9 @@ SOURCES+=project.cpp property.cpp main.cpp makefile.cpp \
          pbuilder_pbx.cpp msvc_objectmodel.cpp
 
 #Qt code
-SOURCES+=qstring.cpp qtextstream.cpp \
+SOURCES+=qchar.cpp qstring.cpp qtextstream.cpp \
          qiodevice.cpp qglobal.cpp \
-	 qgdict.cpp qcstring.cpp \
+	 qgdict.cpp qcstring.cpp qbytearray.cpp \
 	 qdatastream.cpp qgarray.cpp \
 	 qbuffer.cpp qglist.cpp \
 	 qptrcollection.cpp qfile.cpp \

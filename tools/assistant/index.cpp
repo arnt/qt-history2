@@ -25,7 +25,7 @@
 #include <qstringlist.h>
 #include <qdict.h>
 #include <qapplication.h>
-
+#include <qcstring.h>
 #include <ctype.h>
 
 int TermList::compareItems( QPtrCollection::Item i1, QPtrCollection::Item i2 )

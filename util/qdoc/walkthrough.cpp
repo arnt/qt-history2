@@ -267,7 +267,7 @@ QString Walkthrough::start( bool include, bool firstPass,
 	return QString::null;
     }
 
-    code.replace( trailingSpacesPlusNL, QChar('\n') );
+    code.replace( trailingSpacesPlusNL, "\n" );
 
     occMap.clear();
     classOccCounts.clear();
@@ -294,7 +294,7 @@ QString Walkthrough::start( bool include, bool firstPass,
 	}
 
 	if ( include ) {
-	    int numLines = code.contains( QChar('\n') );
+	    int numLines = code.count( QChar('\n') );
 	    for ( int i = 0; i < numLines; i++ )
 		incrementScores( TRUE, i, 484 );
 	}
@@ -352,7 +352,7 @@ QString Walkthrough::start( bool include, bool firstPass,
 	QStringList::Iterator p = fancylines.begin();
 	while ( p != fancylines.end() ) {
 	    (*p).prepend( QString("    ") );
-	    (*p).replace( manyNLs, QChar('\n') );
+	    (*p).replace( manyNLs, "\n" );
 	    (*p).append( QChar('\n') );
 	    ++p;
 	}
@@ -448,7 +448,7 @@ QString Walkthrough::getNextLine( const Location& docLoc )
     if ( !plainlines.isEmpty() ) {
 	s = fancylines.first();
 
-	int n = plainlines.first().contains( '\n' ) + 1;
+	int n = plainlines.first().count( '\n' ) + 1;
 	for ( int i = 0; i < n; i++ )
 	    walkloc.advance( '\n' );
 

@@ -43,6 +43,7 @@
 #include <qregexp.h>
 #include <qtextstream.h>
 #include <qvaluestack.h>
+#include <qcstring.h>
 #ifdef Q_OS_UNIX
 # include <unistd.h>
 #endif
@@ -115,7 +116,7 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=FALSE
 	    build += vals[x++]; //get that 'escape'
 	else if(!quote.isEmpty() && vals[x] == quote.top())
 	    quote.pop();
-	else if(vals[x] == '\'' || vals[x] == '"') 
+	else if(vals[x] == '\'' || vals[x] == '"')
 	    quote.push(vals[x]);
 
 	if(quote.isEmpty() && ((do_semicolon && vals[x] == ';') ||  vals[x] == ' ')) {
@@ -125,7 +126,7 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=FALSE
 	    build += vals[x];
 	}
     }
-    if(!build.isEmpty()) 
+    if(!build.isEmpty())
 	ret << build;
     return ret;
 }
@@ -162,9 +163,9 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     }
     if(!(scope_flag & (0x01 << scope_block))) {
 	/* adjust scope for each block which appears on a single line */
-	int open_brace = s.contains('{'), close_brace = s.contains('}');
+	int open_brace = s.count('{'), close_brace = s.count('}');
 	if(open_brace >= close_brace) {
-	    for(int i = open_brace - close_brace; i; i--) 
+	    for(int i = open_brace - close_brace; i; i--)
 		scope_flag &= ~(0x01 << (++scope_block));
 	} else if(close_brace) {
 	    scope_block -= (close_brace - open_brace);
@@ -295,7 +296,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 
     SKIP_WS(d);
     QString vals(d); /* vals now contains the space separated list of values */
-    int rbraces = vals.contains('}'), lbraces = vals.contains('{');
+    int rbraces = vals.count('}'), lbraces = vals.count('{');
     if(scope_block && rbraces - lbraces == 1) {
 	debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.latin1(),
 		  parser.line_no, scope_block);
@@ -498,7 +499,7 @@ QMakeProject::read(uchar cmd)
 		}
 #else
 		QStringList lst = QStringList::split(':', qmakepath);
-		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) 
+		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
 		    mkspec_roots << ((*it) + concat);
 #endif
 	    }
@@ -534,7 +535,7 @@ QMakeProject::read(uchar cmd)
 		    return FALSE;
 		}
 	    }
-	    
+
 	    if(QDir::isRelativePath(Option::mkfile::qmakespec)) {
 		bool found_mkspec = FALSE;
 		for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
@@ -556,7 +557,7 @@ QMakeProject::read(uchar cmd)
 	    while(Option::mkfile::qmakespec.endsWith(QString(QChar(QDir::separator()))))
 		Option::mkfile::qmakespec.truncate(Option::mkfile::qmakespec.length()-1);
 	    QString spec = Option::mkfile::qmakespec + QDir::separator() + "qmake.conf";
-	    if(!QFile::exists(spec) && 
+	    if(!QFile::exists(spec) &&
 	       QFile::exists(Option::mkfile::qmakespec + QDir::separator() + "tmake.conf"))
 		spec = Option::mkfile::qmakespec + QDir::separator() + "tmake.conf";
 	    debug_msg(1, "QMAKESPEC conf: reading %s", spec.latin1());
@@ -616,7 +617,7 @@ QMakeProject::read(uchar cmd)
 
     /* now let the user override the template from an option.. */
     if(!Option::user_template.isEmpty()) {
-	debug_msg(1, "Overriding TEMPLATE (%s) with: %s", vars["TEMPLATE"].first().latin1(), 
+	debug_msg(1, "Overriding TEMPLATE (%s) with: %s", vars["TEMPLATE"].first().latin1(),
 		  Option::user_template.latin1());
 	vars["TEMPLATE"].clear();
 	vars["TEMPLATE"].append(Option::user_template);
@@ -885,7 +886,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 		    }
 #else
 		    QStringList lst = QStringList::split(':', qmakepath);
-		    for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) 
+		    for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
 			feature_roots << ((*it) + concat);
 #endif
 		}

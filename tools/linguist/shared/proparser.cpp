@@ -46,7 +46,7 @@ QMap<QString, QString> proFileTagMap( const QString& text )
     for ( line = lines.begin(); line != lines.end(); ++line ) {
 	QStringList toks = QStringList::split( QChar(' '), *line );
 
-	if ( toks.count() >= 3 && 
+	if ( toks.count() >= 3 &&
 	     (toks[1] == QString("=") || toks[1] == QString("+=")) ) {
 	    QString tag = toks.first();
 	    int k = tag.findRev( QChar(':') ); // as in 'unix:'
@@ -59,11 +59,11 @@ QMap<QString, QString> proFileTagMap( const QString& text )
 
 	    if ( tagMap.contains(tag) ) {
 		if ( action == QString("=") )
-		    tagMap.replace( tag, toks.join(QChar(' ')) );
+		    tagMap.replace( tag, toks.join(" ") );
 		else
-		    tagMap[tag] += QChar( ' ' ) + toks.join( QChar(' ') );
+		    tagMap[tag] += QChar( ' ' ) + toks.join( " " );
 	    } else {
-		tagMap[tag] = toks.join( QChar(' ') );
+		tagMap[tag] = toks.join( " " );
 	    }
 	}
     }

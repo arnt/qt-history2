@@ -40,7 +40,7 @@ CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name, Desi
     completion = new CppEditorCompletion( this );
     browser = new CppEditorBrowser( this );
     int j = 0;
-    while ( SyntaxHighlighter_CPP::keywords[ j ] != QString::null )
+    while ( SyntaxHighlighter_CPP::keywords[ j ] != QString() )
 	    completion->addCompletionEntry( SyntaxHighlighter_CPP::keywords[ j++ ], 0, FALSE );
     configChanged();
 }

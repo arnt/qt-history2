@@ -165,7 +165,7 @@ static QImage loadImageData( const QString& format, ulong len, QByteArray data )
 	// qUncompress() expects the first 4 bytes to be the expected length of
 	// the uncompressed data
 	QByteArray dataTmp( data.size() + 4 );
-	memcpy( dataTmp.data()+4, data.data(), data.size() );
+	memcpy( dataTmp.detach()+4, data.data(), data.size() );
 	dataTmp[0] = ( len & 0xff000000 ) >> 24;
 	dataTmp[1] = ( len & 0x00ff0000 ) >> 16;
 	dataTmp[2] = ( len & 0x0000ff00 ) >> 8;
@@ -515,7 +515,7 @@ void QWidgetFactory::unpackByteArray( QDataStream& in, QByteArray& array )
     Q_UINT32 size;
     unpackUInt32( in, size );
     array.resize( size );
-    in.readRawBytes( array.data(), size );
+    in.readRawBytes( array.detach(), size );
 }
 
 void QWidgetFactory::unpackCString( const UibStrTable& strings, QDataStream& in,
@@ -2502,10 +2502,10 @@ void QWidgetFactory::loadPopupMenu( QPopupMenu *p, const QDomElement &e )
 		popup->setName( n2.attribute( "name" ) );
 		if ( a ) {
 		    p->setAccel( a->accel(), p->insertItem( a->iconSet(),
-					     translate( n2.attribute( "text" ).utf8().data() ),
+					     translate( n2.attribute( "text" ).utf8() ),
 					     popup ) );
 		} else {
-		    p->insertItem( translate( n2.attribute( "text" ).utf8().data() ), popup );
+		    p->insertItem( translate( n2.attribute( "text" ).utf8() ), popup );
 		}
 		loadPopupMenu( popup, n2 );
 		n = n2;

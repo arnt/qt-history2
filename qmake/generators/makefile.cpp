@@ -527,7 +527,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 			    QStringList &l = project->variables()[mocs[moc]];
 			    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 				QString file = Option::fixPathToTargetOS((*it));
-				if(file.section(Option::dir_sep, -(inc.contains('/')+1)) == inc) {
+				if(file.section(Option::dir_sep, -(inc.count('/')+1)) == inc) {
 				    fqn = (*it);
 				    if(mocs[moc] == "_HDRMOC") {
 					//Since it is include, no need to link it in as well

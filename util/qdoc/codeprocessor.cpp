@@ -240,9 +240,6 @@ QString processCodeHtml( const QString& code, const Resolver *res,
 
       The source code is '\n'-free.
     */
-    static QRegExp amp( QChar('&') );
-    static QRegExp lt( QChar('<') );
-    static QRegExp gt( QChar('>') );
     static QRegExp ginclude( QString("#include +&lt;([^&]*)&gt;") );
     static QRegExp yHasTypeX( QString(
 	    "(?:[\n:;{(]|const) +([a-zA-Z_][a-zA-Z_0-9]*)"
@@ -271,9 +268,9 @@ QString processCodeHtml( const QString& code, const Resolver *res,
     /*
       HTMLize.
     */
-    t.replace( amp, QString("&amp;") );
-    t.replace( lt, QString("&lt;") );
-    t.replace( gt, QString("&gt;") );
+    t.replace( "&", "&amp;" );
+    t.replace( "<", "&lt;" );
+    t.replace( ">", "&gt;" );
 
     if ( res == 0 || !config->autoHrefs() )
 	return t;

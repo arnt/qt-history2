@@ -119,7 +119,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	t << "\n\t" << "$(QMAKE) " << (*it)->profile << " " << buildArgs();
 	t << " -o " << (*it)->makefile;
 	if(have_dir) {
-	    int subLevels = it.current()->directory.contains(Option::dir_sep) + 1;
+	    int subLevels = it.current()->directory.count(Option::dir_sep) + 1;
 	    t << "\n\t" << "@cd ..";
 	    for(int i = 1; i < subLevels; i++ )
 		t << Option::dir_sep << "..";
@@ -135,7 +135,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	t << "\n\t" << "$(MAKE)";
         t << " -f " << (*it)->makefile;
 	if(have_dir) {
-	    int subLevels = it.current()->directory.contains(Option::dir_sep) + 1;
+	    int subLevels = it.current()->directory.count(Option::dir_sep) + 1;
 	    t << "\n\t" << "@cd ..";
 	    for(int i = 1; i < subLevels; i++ )
 		t << Option::dir_sep << "..";
@@ -152,7 +152,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	for( it.toFirst(); it.current(); ++it) {
 	    QString subdir = (*it)->directory;
 	    QString profile = (*it)->profile;
-	    int subLevels = subdir.contains(Option::dir_sep) + 1;
+	    int subLevels = subdir.count(Option::dir_sep) + 1;
 	    t << "\n\t"
 	      << "cd " << subdir << "\n\t";
 	    int lastSlash = subdir.findRev(Option::dir_sep);
@@ -181,7 +181,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	    t << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ", "");
 	if (!subdirs.isEmpty()) {
 	    for( it.toFirst(); it.current(); ++it) {
-		int subLevels = (*it)->directory.contains(Option::dir_sep) + 1;
+		int subLevels = (*it)->directory.count(Option::dir_sep) + 1;
 		bool have_dir = !(*it)->directory.isEmpty();
 		if(have_dir)
 		    t << "\n\t" << "cd " << (*it)->directory;

@@ -17,7 +17,7 @@
 #include <qmessagebox.h>
 #include <qpushbutton.h>
 #include <qtimer.h>
-
+#include <qcstring.h>
 
 void Distributor::init()
 {

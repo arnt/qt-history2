@@ -29,6 +29,7 @@
 #include <qvaluelist.h>
 #include <qmap.h>
 #include <qaction.h>
+#include <qcstring.h>
 #endif // QT_H
 
 class QDomDocument;

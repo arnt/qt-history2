@@ -22,6 +22,7 @@
 #define UIB_H
 
 #include <qdatastream.h>
+#include <qcstring.h>
 
 const Q_UINT32 UibMagic = 0xb77c61d8;
 
@@ -115,7 +116,7 @@ inline int UibStrTable::insertString( const QString& str )
 inline void UibStrTable::readBlock( QDataStream& in, int size )
 {
     table.resize( start + size );
-    in.readRawBytes( table.data() + start, size );
+    in.readRawBytes( table.detach() + start, size );
 }
 
 inline QString UibStrTable::asString( int offset ) const

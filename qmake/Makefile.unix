@@ -5,7 +5,7 @@ OBJS=project.o property.o main.o makefile.o unixmake2.o unixmake.o msvc_nmake.o 
      msvc_objectmodel.o meta.o
 
 #qt code
-QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o \
+QOBJS=qchar.o qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qbytearray.o qcstring.o \
       qdatastream.o qgarray.o qbuffer.o qglist.o qptrcollection.o qfile.o \
       qfile_unix.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o quuid.o \
       qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o \
@@ -16,9 +16,10 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp generators/makefile.cpp ge
            generators/unix/unixmake.cpp generators/win32/msvc_nmake.cpp generators/win32/borland_bmake.cpp \
 	   generators/win32/winmakefile.cpp generators/projectgenerator.cpp generators/mac/metrowerks_xml.cpp \
 	   generators/mac/pbuilder_pbx.cpp generators/win32/msvc_objectmodel.cpp \
-	   @SOURCE_PATH@/src/tools/qstring.cpp @SOURCE_PATH@/src/tools/qtextstream.cpp \
-	   @SOURCE_PATH@/src/tools/qiodevice.cpp @SOURCE_PATH@/src/tools/qglobal.cpp \
-	   @SOURCE_PATH@/src/tools/qgdict.cpp @SOURCE_PATH@/src/tools/qcstring.cpp \
+	   @SOURCE_PATH@/src/tools/char.cpp @SOURCE_PATH@/src/tools/qstring.cpp \
+	   @SOURCE_PATH@/src/tools/qtextstream.cpp @SOURCE_PATH@/src/tools/qiodevice.cpp \
+	   @SOURCE_PATH@/src/tools/qglobal.cpp @SOURCE_PATH@/src/tools/qgdict.cpp \
+	   @SOURCE_PATH@/src/tools/qbytearray.cpp @SOURCE_PATH@/src/tools/qcstring.cpp \
 	   @SOURCE_PATH@/src/tools/qdatastream.cpp @SOURCE_PATH@/src/tools/qgarray.cpp \
 	   @SOURCE_PATH@/src/tools/qbuffer.cpp @SOURCE_PATH@/src/tools/qglist.cpp \
 	   @SOURCE_PATH@/src/tools/qptrcollection.cpp @SOURCE_PATH@/src/tools/qfile.cpp \
@@ -72,6 +73,9 @@ qglobal.o: @SOURCE_PATH@/src/tools/qglobal.cpp
 qgdict.o: @SOURCE_PATH@/src/tools/qgdict.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qgdict.cpp
 
+qbytearray.o: @SOURCE_PATH@/src/tools/qbytearray.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qbytearray.cpp
+
 qcstring.o: @SOURCE_PATH@/src/tools/qcstring.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qcstring.cpp
 
@@ -83,6 +87,9 @@ qsettings_mac.o: @SOURCE_PATH@/src/tools/qsettings_mac.cpp
 
 qurl.o: @SOURCE_PATH@/src/kernel/qurl.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/kernel/qurl.cpp
+
+qchar.o: @SOURCE_PATH@/src/tools/qchar.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qchar.cpp
 
 qstring.o: @SOURCE_PATH@/src/tools/qstring.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qstring.cpp

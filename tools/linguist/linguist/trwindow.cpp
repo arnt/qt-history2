@@ -1548,7 +1548,7 @@ void TrWindow::setupMenuBar()
     viewp->insertItem( tr("&Toolbars"), createDockWindowMenu( OnlyToolBars ) );
 
     // Help
-    manualAct = new Action( helpp, tr("&Manual"), this, SLOT(manual()), 0,
+    manualAct = new Action( helpp, tr("&Manual"), this, SLOT(manual()), QString(),
 			    Key_F1 );
     helpp->insertSeparator();
     aboutAct = new Action( helpp, tr("&About"), this, SLOT(about()) );

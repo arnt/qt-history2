@@ -983,7 +983,8 @@ void MainWindow::setupHelpActions()
     connect( actionHelpRegister, SIGNAL( activated() ), this, SLOT( helpRegister() ) );
 #endif
 
-    actionHelpWhatsThis = new QAction( tr("What's This?"), QIconSet( whatsthis_image, whatsthis_image ),
+    actionHelpWhatsThis = new QAction( tr("What's This?"), QIconSet( QPixmap(whatsthis_image),
+								     QPixmap(whatsthis_image) ),
 				       tr("What's This?"), SHIFT + Key_F1, this, 0 );
     actionHelpWhatsThis->setStatusTip( tr("\"What's This?\" context sensitive help") );
     actionHelpWhatsThis->setWhatsThis( whatsThisFrom( "Help|What's This?" ) );
