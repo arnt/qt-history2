@@ -70,7 +70,7 @@ MyWidget* showLang(QString lang)
 {
 
     static QTranslator *translator = 0;
-    
+
     qApp->setPalette(QPalette(QColor(220-rand()%64,220-rand()%64,220-rand()%64)));
 
     lang = "mywidget_" + lang + ".qm";
@@ -85,7 +85,7 @@ MyWidget* showLang(QString lang)
     if ( translator ) {
 	qApp->removeTranslator( translator );
 	delete translator;
-    }	
+    }
     translator = new QTranslator( 0 );
     translator->load( lang, "." );
     qApp->installTranslator( translator );
@@ -104,8 +104,7 @@ int main( int argc, char** argv )
     srand(getpid()<<2);
 #endif
 
-    //QFont font("i18n,unifont,cyberbit;helvetica",16,50,FALSE,QFont::Unicode);
-    QFont font("unifont",16,50,FALSE,QFont::Unicode);
+    QFont font("unifont",16,50,FALSE);
     qApp->setFont(font);
 
     QString lang;
