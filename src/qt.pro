@@ -78,6 +78,9 @@ HEADERS		= $$DIALOGS_H/qbuilder.h \
 		  $$KERNEL_H/qsize.h \
 		  $$KERNEL_H/qsocketnotifier.h \
 		  $$KERNEL_H/qstyle.h \
+		  $$KERNEL_H/qwindowsstyle.h \
+		  $$KERNEL_H/qmotifstyle.h \
+		  $$KERNEL_H/qplatinumstyle.h \
 		  $$KERNEL_H/qtimer.h \
 		  $$KERNEL_H/qwidget.h \
 		  $$KERNEL_H/qwidgetintdict.h \
@@ -200,6 +203,9 @@ SOURCES		= dialogs/qbuilder.cpp \
 		  kernel/qsize.cpp \
 		  kernel/qsocketnotifier.cpp \
 		  kernel/qstyle.cpp \
+		  kernel/qwindowsstyle.cpp \
+		  kernel/qmotifstyle.cpp \
+		  kernel/qplatinumstyle.cpp \
 		  kernel/qtimer.cpp \
 		  kernel/qwidget.cpp \
 		  kernel/qwindow.cpp \
