@@ -495,6 +495,7 @@ void QVNCServer::init(uint port)
 QVNCServer::~QVNCServer()
 {
     discardClient();
+    delete client;
 }
 
 void QVNCServer::newConnection()
@@ -947,6 +948,8 @@ void QVNCServer::sendHextile()
             }
             rect.y += MAP_TILE_SIZE;
             client->flush();
+            if (client->socketState() == Qt::UnconnectedState)
+                break;
         }
 
         qvnc_screen->hdr->dirty = false;
@@ -1029,9 +1032,6 @@ void QVNCServer::checkUpdate()
 
 void QVNCServer::discardClient()
 {
-    if (client)
-        client->deleteLater();
-    client = 0;
     timer->stop();
 }
 
