@@ -2,14 +2,9 @@
 
 HEADERS += \
 	codecs/qbig5codec_p.h \
-	codecs/qeucjpcodec_p.h \
 	codecs/qeuckrcodec_p.h \
 	codecs/qisciicodec_p.h \
-	codecs/qgb18030codec_p.h \
-	codecs/qjiscodec_p.h \
-	codecs/qjpunicode.h \
 	codecs/qlatincodec_p.h \
-	codecs/qsjiscodec_p.h \
 	codecs/qsimplecodec_p.h \
 	codecs/qtextcodec.h \
 	codecs/qtsciicodec_p.h \
@@ -19,14 +14,9 @@ HEADERS += \
 
 SOURCES += \
 	codecs/qbig5codec.cpp \
-	codecs/qeucjpcodec.cpp \
 	codecs/qeuckrcodec.cpp \
 	codecs/qisciicodec.cpp \
-	codecs/qgb18030codec.cpp \
-	codecs/qjiscodec.cpp \
-	codecs/qjpunicode.cpp \
 	codecs/qlatincodec.cpp \
-	codecs/qsjiscodec.cpp \
 	codecs/qsimplecodec.cpp \
 	codecs/qtextcodec.cpp \
 	codecs/qtsciicodec.cpp \
