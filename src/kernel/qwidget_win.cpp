@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#143 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#144 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -671,6 +671,16 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
     }
 }
 
+void QWidget::repaint( const QRegion& reg, bool erase )
+{
+    if ( (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+	QPaintEvent e( reg );
+	if ( erase )
+	    this->erase( reg );
+	QApplication::sendEvent( this, &e );
+    }
+}
+
 
 /*
   \internal
@@ -932,6 +942,8 @@ void QWidget::setSizeIncrement( int w, int h )
 
 void QWidget::erase( int x, int y, int w, int h )
 {
+    // SIMILAR TO region ERASE BELOW
+
     if ( backgroundMode()==NoBackground )
 	return;
     RECT r;
@@ -965,6 +977,42 @@ void QWidget::erase( int x, int y, int w, int h )
 	pal = 0;
     }
     FillRect( hdc, &r, brush );
+    DeleteObject( brush );
+    if ( tmphdc ) {
+	ReleaseDC( winId(), hdc );
+	hdc = 0;
+    } else if ( pal ) {
+	SelectPalette( hdc, pal, FALSE );
+    }
+}
+
+void QWidget::erase( const QRegion& reg )
+{
+    // SIMILAR TO rect ERASE ABOVE
+
+    if ( backgroundMode()==NoBackground )
+	return;
+    bool     tmphdc;
+    HBRUSH   brush;
+    HPALETTE pal;
+
+    if ( !hdc ) {
+	tmphdc = TRUE;
+	hdc = GetDC( winId() );
+    } else {
+	tmphdc = FALSE;
+    }
+
+    brush = CreateSolidBrush( bg_col.pixel() );
+    if ( QColor::hPal() ) {
+	pal = SelectPalette( hdc, QColor::hPal(), FALSE );
+	RealizePalette( hdc );
+    } else {
+	pal = 0;
+    }
+
+    FillRgn( hdc, reg.handle(), brush );
+
     DeleteObject( brush );
     if ( tmphdc ) {
 	ReleaseDC( winId(), hdc );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#283 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#284 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -991,7 +991,7 @@ void QWidget::update( int x, int y, int w, int h )
   If \e w is negative, it is replaced with <code>width() - x</code>.
   If \e h is negative, it is replaced width <code>height() - y</code>.
 
-  Doing a repaint() usually is faster than doing an update(), but
+  Doing a repaint() is usually faster than doing an update(), but
   calling update() many times in a row will generate a single paint
   event.
 
@@ -1012,6 +1012,32 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	QPaintEvent e( QRect(x,y,w,h) );
 	if ( erase && w != 0 && h != 0 )
 	    XClearArea( dpy, winid, x, y, w, h, FALSE );
+	QApplication::sendEvent( this, &e );
+    }
+}
+
+/*!
+  Repaints the widget directly by calling paintEvent() directly,
+  unless updates are disabled or the widget is hidden.
+
+  Erases the widget region  \a reg if \a erase is TRUE.
+
+  Calling repaint() is usually faster than doing an update(), but
+  calling update() many times in a row will generate a single paint
+  event.
+
+  \warning If you call repaint() in a function which may itself be called
+  from paintEvent(), you may see infinite recursion. The update() function
+  never generates recursion.
+
+  \sa update(), paintEvent(), setUpdatesEnabled(), erase()
+*/
+void QWidget::repaint( const QRegion& reg, bool erase )
+{
+    if ( (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+	if ( erase )
+	    this->erase(reg);
+	QPaintEvent e( reg );
 	QApplication::sendEvent( this, &e );
     }
 }
@@ -1499,6 +1525,22 @@ void QWidget::erase( int x, int y, int w, int h )
 	h = crect.height() - y;
     if ( w != 0 && h != 0 )
 	XClearArea( dpy, winid, x, y, w, h, FALSE );
+}
+
+/*!
+  Erases the area defined by \a reg, without generating a 
+  \link paintEvent() paint event\endlink.
+
+  Child widgets are not affected.
+*/
+void QWidget::erase( const QRegion& reg )
+{
+    QArray<QRect> r = reg.rects();
+    for (uint i=0; i<r.size(); i++) {
+	const QRect& rr = r[i];
+	XClearArea( dpy, winid,
+	    rr.x(), rr.y(), rr.width(), rr.height(), FALSE );
+    }
 }
 
 /*!

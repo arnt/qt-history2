@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#181 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#182 $
 **
 ** Definition of QWidget class
 **
@@ -211,6 +211,7 @@ public slots:
     void	 repaint( bool erase=TRUE );
     void	 repaint( int x, int y, int w, int h, bool erase=TRUE );
     void	 repaint( const QRect &, bool erase=TRUE );
+    void	 repaint( const QRegion &, bool erase=TRUE );
 
   // Widget management functions
 
@@ -252,6 +253,7 @@ public:
     void	 erase();
     void	 erase( int x, int y, int w, int h );
     void	 erase( const QRect & );
+    void	 erase( const QRegion & );
     void	 scroll( int dx, int dy );
 
     void	 drawText( int x, int y, const QString &);
