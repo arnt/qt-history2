@@ -48,20 +48,12 @@
     consumer that it can start reading it. The \c bufferNotFull
     condition is signaled when the consumer has read some data,
     telling the producer that it can generate more. The \c numUsedBytes
-    is the number of bytes in the buffer that contain data that.
-
-    \omit
-    ###
+    is the number of bytes in the buffer that contain data.
 
     Together, the wait conditions, the mutex, and the \c numUsedBytes
     counter ensure that the producer is never more than \c BufferSize
     bytes ahead of the consumer, and that the consumer never reads
     data that the consumer hasn't generated yet.
-
-    The \c freeBytes semaphore is initialized with \c BufferSize,
-    because initially the entire buffer is empty. The \c usedBytes
-    semaphore is initialized to 0 (the default value if none is
-    specified).
 
     \section1 Producer Class
 
@@ -71,25 +63,36 @@
     \printuntil /^\}$/
 
     The producer generates \c DataSize bytes of data. Before it
-    writes a byte to the circular buffer, it must acquire a "free"
-    byte using the \c freeBytes semaphore. The QSemaphore::acquire()
-    call might block if the consumer hasn't kept up the pace with the
-    producer.
+    writes a byte to the circular buffer, it must first check whether
+    the buffer is full (i.e., \c numUsedBytes equals \c BufferSize).
+    If the buffer is full, the thread waits on the \c bufferNotFull
+    condition.
 
-    At the end, the producer releases a byte using the \c usedBytes
-    semaphore. The "free" byte has successfully been transformed into
-    a "used" byte, ready to be read by the consumer.
+    At the end, the producer increments \c numUsedBytes and signals
+    that the condition \c bufferNotEmpty is true, since \c
+    numUsedBytes is necessarily greater than 0.
+
+    We guard all accesses to the \c numUsedBytes variable with a
+    mutex. In addition, the QWaitCondition::wait() function accepts a
+    mutex as its argument. This mutex is unlocked before the thread
+    is put to sleep and locked when the thread wakes up. Furthermore,
+    the transition from the locked state to the wait state is atomic,
+    to prevent race conditions from occurring.
 
     \section1 Consumer Class
 
-    Let's now turn on to the \c Consumer class:
+    Let's turn to the \c Consumer class:
 
     \printline class Consumer
     \printuntil /^\}$/
 
-    The code is very similar to the producer, except that this time,
-    we acquire a "used" byte and release a "free" byte, instead of
-    the opposite.
+    The code is very similar to the producer. Before we read the
+    byte, we check whether the buffer is empty (\c numUsedBytes is 0)
+    instead of whether it's full and wait on the \c bufferNotEmpty
+    condition if it's empty. After we've read the byte, we decrement
+    \c numUsedBytes (instead of incrementing it), and we signal the
+    \c bufferNotFull condition (instead of the \c bufferNotEmpty
+    condition).
 
     \section1 The main() Function
 
@@ -101,13 +104,12 @@
 
     So what happens when we run the program? Initially, the producer
     thread is the only one that can do anything; the consumer is
-    blocked wating for the \c usedBytes semaphore to be released (its
-    initial \l{QSemaphore::available()}{available()} count is 0).
-    Once the producer has put one byte in the buffer,
-    \c{freeBytes.available()} is \c BufferSize - 1 and
-    \c{usedBytes.available()} is 1. At that point, two things can
-    happen: Either the consumer thread takes over and reads that
-    byte, or the consumer gets to produce a second byte.
+    blocked waiting for the \c bufferNotEmpty condition to be
+    signaled (\c numUsedBytes is 0). Once the producer has put one
+    byte in the buffer, \c numUsedBytes is \c BufferSize - 1 and the
+    \c bufferNotEmpty condition is signaled. At that point, two
+    things can happen: Either the consumer thread takes over and
+    reads that byte, or the consumer gets to produce a second byte.
 
     The producer-consumer model presented in this example makes it
     possible to write highly concurrent multithreaded applications.
@@ -117,11 +119,9 @@
     the buffer.
 
     Be aware though that these benefits aren't always realized.
-    Acquiring and releasing a QSemaphore has a cost. In practice, it
-    would probably be worthwhile to divide the buffer into chunks and
-    to operate on chunks instead of individual bytes. The buffer size
-    is also a parameter that must be selected carefully, based on
+    Locking and unlocking a QMutex has a cost. In practice, it would
+    probably be worthwhile to divide the buffer into chunks and to
+    operate on chunks instead of individual bytes. The buffer size is
+    also a parameter that must be selected carefully, based on
     experimentation.
-
-    \endomit
 */

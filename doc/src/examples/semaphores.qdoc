@@ -77,12 +77,12 @@
 
     \section1 Consumer Class
 
-    Let's now turn on to the \c Consumer class:
+    Let's now turn to the \c Consumer class:
 
     \printline class Consumer
     \printuntil /^\}$/
 
-    The code is very similar to the producer, except that this time,
+    The code is very similar to the producer, except that this time
     we acquire a "used" byte and release a "free" byte, instead of
     the opposite.
 
@@ -96,7 +96,7 @@
 
     So what happens when we run the program? Initially, the producer
     thread is the only one that can do anything; the consumer is
-    blocked wating for the \c usedBytes semaphore to be released (its
+    blocked waiting for the \c usedBytes semaphore to be released (its
     initial \l{QSemaphore::available()}{available()} count is 0).
     Once the producer has put one byte in the buffer,
     \c{freeBytes.available()} is \c BufferSize - 1 and
