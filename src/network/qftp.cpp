@@ -945,16 +945,22 @@ void QFtpPI::dtpConnectState( int s )
  * QFtpPrivate
  *
  *********************************************************************/
-class QFtpPrivate
+
+#include <private/qobject_p.h>
+#define d d_func()
+#define q q_func()
+
+class QFtpPrivate : public QObjectPrivate
 {
 public:
-    QFtpPrivate(QFtp *q0)
-	: q(q0), close_waitForStateChange(false), state(QFtp::Unconnected), error(QFtp::NoError) { }
+    Q_DECL_PUBLIC(QFtp);
+
+    QFtpPrivate()
+	: close_waitForStateChange(false), state(QFtp::Unconnected), error(QFtp::NoError) { }
     ~QFtpPrivate() { while (!pending.isEmpty()) delete pending.takeFirst(); }
 
     int addCommand(QFtpCommand *cmd);
 
-    QFtp *q;
     QFtpPI pi;
     QList<QFtpCommand *> pending;
     bool close_waitForStateChange;
@@ -1148,8 +1154,9 @@ int QFtpPrivate::addCommand(QFtpCommand *cmd)
     are passed to the QObject constructor.
 */
 QFtp::QFtp( QObject *parent, const char *name )
-    : QObject( parent, name )
+    : QObject(*new QFtpPrivate, parent)
 {
+    setObjectName(name);
     d->errorString = tr( "Unknown error" );
 
     connect( &d->pi, SIGNAL(connectState(int)),

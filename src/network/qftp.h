@@ -122,7 +122,7 @@ private slots:
     void piFtpReply( int, const QString& );
 
 private:
-    QFtpPrivate *d;
+    Q_DECL_PRIVATE(QFtp);
 };
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP
