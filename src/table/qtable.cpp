@@ -68,6 +68,9 @@ public:
     void setLabel( int section, const QString & s, int size = -1 );
     void setLabel( int section, const QIconSet & iconset, const QString & s,
 		   int size = -1 );
+
+    void setLabels(const QStringList & labels);
+
     void removeLabel( int section );
 
     void setSectionState( int s, SectionState state );
@@ -4845,20 +4848,14 @@ void QTable::setNumCols( int c )
 
 void QTable::setRowLabels( const QStringList &labels )
 {
-    int i = 0;
-    for ( QStringList::ConstIterator it = labels.begin();
-	  it != labels.end() && i < numRows(); ++i, ++it )
-	leftHeader->setLabel( i, *it );
+    leftHeader->setLabels(labels);
 }
 
 /*! Sets the section labels of the horizontalHeader() to \a labels */
 
 void QTable::setColumnLabels( const QStringList &labels )
 {
-    int i = 0;
-    for ( QStringList::ConstIterator it = labels.begin();
-	  it != labels.end() && i < numCols(); ++i, ++it )
-	topHeader->setLabel( i, *it );
+   topHeader->setLabels(labels);
 }
 
 /*!
@@ -7147,6 +7144,23 @@ void QTableHeader::indexChanged( int sec, int oldIdx, int newIdx )
 
     table->repaintContents( table->contentsX(), table->contentsY(),
 			    table->visibleWidth(), table->visibleHeight() );
+}
+
+void QTableHeader::setLabels(const QStringList & labels)
+{
+    int i = 0;
+    bool updates = isUpdatesEnabled();
+    setUpdatesEnabled(FALSE);
+    for ( QStringList::ConstIterator it = labels.begin();
+	  it != labels.end() && i < count(); ++i, ++it ) {
+	if (i == labels.count() - 1) {
+	    setUpdatesEnabled(updates);
+	    setLabel( i, *it );
+	} else {
+	    QHeader::setLabel( i, *it );
+	    emit sectionSizeChanged( i );
+	}
+    }
 }
 
 #include "qtable.moc"
