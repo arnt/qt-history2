@@ -363,7 +363,7 @@ QTextCursor::QTextCursor()
     Constructs a cursor pointing to the beginning of \a document.
  */
 QTextCursor::QTextCursor(QTextDocument *document)
-    : d(new QTextCursorPrivate(document->pieceTable))
+    : d(new QTextCursorPrivate(const_cast<const QTextDocument*>(document)->pieceTable))
 {
     Q_ASSERT(document->pieceTable->blocksBegin() != document->pieceTable->blocksEnd());
 }
@@ -715,7 +715,7 @@ void QTextCursor::insertBlock(const QTextBlockFormat &format)
 
 /*!
     Inserts a new block at the current position and makes it the first
-    list item of a newly created list with the given \a format. Returns 
+    list item of a newly created list with the given \a format. Returns
     the created list.
 
     \sa currentList(), createList(), insertBlock()
@@ -728,7 +728,7 @@ QTextList *QTextCursor::insertList(const QTextListFormat &format)
 
 /*!
     Inserts a new block at the current position and makes it the first
-    list item of a newly created list with the given \a style. Returns 
+    list item of a newly created list with the given \a style. Returns
     the created list.
 
     \sa currentList(), createList(), insertBlock()
@@ -740,8 +740,8 @@ QTextList *QTextCursor::insertList(int style)
 }
 
 /*!
-    Creates and returns a new list with the given \a format and makes the 
-    current paragraph the cursor is in the first list item. 
+    Creates and returns a new list with the given \a format and makes the
+    current paragraph the cursor is in the first list item.
 
     \sa currentList()
  */
@@ -761,8 +761,8 @@ QTextList *QTextCursor::createList(const QTextListFormat &format)
 }
 
 /*!
-    Creates and returns a new list with the given \a style and makes the 
-    current paragraph the cursor is in the first list item. 
+    Creates and returns a new list with the given \a style and makes the
+    current paragraph the cursor is in the first list item.
 
     \sa currentList()
  */

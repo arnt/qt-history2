@@ -128,11 +128,12 @@ Q_DECLARE_TYPEINFO(QTextHtmlParserAttribute, Q_MOVABLE_TYPE);
 
 struct QTextHtmlParserNode {
     QTextHtmlParserNode():parent(0), isBlock(0), isListItem(0), isAnchor(false), isImage(false), fontItalic(0), fontUnderline(0), fontOverline(0),
-    			fontStrikeOut(0), fontFixedPitch(0), fontPointSize(12), fontWeight(QFont::Normal),
-			alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined), listIndex(-1), indent(0),
-			imageWidth(-1), imageHeight(-1), tableIndex(-1), cellIndex(-1),
-			wsm(QStyleSheetItem::WhiteSpaceModeUndefined), style(0)
-    { margin[0] = margin[1] = margin[2] = margin[3] = margin[4] = 0; formatIndex = formatReference = 0; }
+			  fontStrikeOut(0), fontFixedPitch(0), fontPointSize(12), fontWeight(QFont::Normal),
+			  alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined), listIndex(-1), indent(0),
+			  imageWidth(-1), imageHeight(-1), tableIndex(-1), cellIndex(-1),
+			  formatIndex(0), formatReference(0), propertyId(0),
+			  wsm(QStyleSheetItem::WhiteSpaceModeUndefined), style(0)
+    { margin[0] = margin[1] = margin[2] = margin[3] = margin[4] = 0; }
     QString tag;
     QString text;
     QVector<QTextHtmlParserAttribute> attributes;
@@ -164,15 +165,9 @@ struct QTextHtmlParserNode {
     int cellIndex;
 
     // for the xml import
-    union {
-	struct {
-	    int formatIndex;
-	    int formatReference;
-	};
-	struct {
-	    int propertyId;
-	};
-    };
+    int formatIndex;
+    int formatReference;
+    int propertyId;
     // ###
     QString propertyType;
 
