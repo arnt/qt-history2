@@ -65,12 +65,18 @@ public:
 	return FALSE;
     }
     
-    static HWND winId()
+    static HWND winId( const QWidget *widget )
     {
 	if ( !hwnd ) {
-	    limboWidget = new QWidget( 0, "xp_limbo_widget" );
-	    hwnd = limboWidget->winId();
+	    if ( widget ) {
+		hwnd = widget->winId();
+	    } else {
+		limboWidget = new QWidget( 0, "xp_limbo_widget" );
+		hwnd = limboWidget->winId();
+	    }
 	}
+	if ( widget )
+	    return widget->winId();
 	return hwnd;
     }
     
@@ -95,13 +101,8 @@ HWND QWindowsXPStylePrivate::hwnd = NULL;
 
 struct XPThemeData
 {
-    XPThemeData()
-        : name( 0 ), partId( 0 ), stateId( 0 ), htheme( 0 )
-    {
-    }
-    
-    XPThemeData( LPCWSTR theme, int part, int state, const QRect &r )
-        : name( theme ),partId( part ), stateId( state ), rec( r ), htheme( 0 )
+    XPThemeData( const QWidget *w = 0, LPCWSTR theme = 0, int part = 0, int state = 0, const QRect &r = QRect() )
+        : widget( w ), name( theme ),partId( part ), stateId( state ), rec( r ), htheme( 0 )
     {
     }
     ~XPThemeData()
@@ -116,7 +117,7 @@ struct XPThemeData
 	    return NULL;
 	
         if ( !htheme )
-            htheme = OpenThemeData( QWindowsXPStylePrivate::winId(), name ); 
+            htheme = OpenThemeData( QWindowsXPStylePrivate::winId( widget ), name ); 
 	
         return htheme;
     }
@@ -148,11 +149,14 @@ struct XPThemeData
         rec = orig.rec;
         htheme = orig.htheme;
     }
-    
-    LPCWSTR name;
+
     int partId;
     int stateId;
-    QRect rec;
+    QRect rec;    
+
+private:
+    const QWidget *widget;
+    LPCWSTR name;
     HTHEME htheme;
 };
 
@@ -306,11 +310,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
     case PE_PanelMenuBar:
     case PE_PanelDockWindow:
 	{
-	    XPThemeData theme;
-	    theme.name = L"GLOBALS";
-	    theme.rec = r;
-	    theme.partId = 1;
-	    theme.stateId = 1;
+	    XPThemeData theme( 0, L"GLOBALS", 1, 1, r );
 	    DrawThemeEdge( theme.handle(), p->handle(), theme.partId, theme.stateId, &theme.rect(),
 		BDR_RAISEDINNER, BF_FLAT | BF_RECT, 0 );
 	    return;
@@ -387,7 +387,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	break;
     }
     
-    XPThemeData theme( name, partId, stateId, rect );
+    XPThemeData theme( 0, name, partId, stateId, rect );
     if ( !theme.isValid() ) {
 	QWindowsStyle::drawPrimitive( op, p, r, cg, flags, data );
 	return;
@@ -485,7 +485,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	break;
     }
     
-    XPThemeData theme( name, partId, stateId, r );
+    XPThemeData theme( widget, name, partId, stateId, r );
     if ( !theme.isValid() ) {
 	QWindowsStyle::drawControl( element, p, widget, r, cg, flags, data );
 	return;
@@ -519,8 +519,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
     case CC_SpinWidget:
         {
 	    QSpinWidget *spin = (QSpinWidget*)w;
-	    XPThemeData theme;
-	    theme.name = L"SPIN";
+	    XPThemeData theme( w, L"SPIN" );
 
 	    if ( sub & SC_SpinWidgetFrame )
 		drawPrimitive( PE_Panel, p, w->rect(), cg, Style_Default, data );
@@ -560,9 +559,8 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		drawPrimitive( PE_Panel, p, w->rect(), cg, Style_Default, data );
 
 	    if ( sub & SC_ComboBoxArrow ) {
-		XPThemeData theme;
+		XPThemeData theme( w, L"COMBOBOX" );
 		theme.rec = querySubControlMetrics( CC_ComboBox, w, SC_ComboBoxArrow, data );
-		theme.name = L"COMBOBOX"; 
 		partId = CP_DROPDOWNBUTTON;
 		QComboBox *cb = (QComboBox*)w;
 		if ( cb->listBox() && cb->listBox()->isVisible() )
@@ -583,8 +581,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	
     case CC_ScrollBar:
         {
-	    XPThemeData theme;
-	    theme.name = L"SCROLLBAR";
+	    XPThemeData theme( w, L"SCROLLBAR" );
 	    QScrollBar *bar = (QScrollBar*)w;
 	    bool maxedOut = ( bar->maxValue() == bar->minValue() );
 
@@ -693,8 +690,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
         break;
     case CC_Slider:
 	{
-	    XPThemeData theme;
-	    theme.name = L"TRACKBAR";
+	    XPThemeData theme( w, L"TRACKBAR" );
 	    QSlider *sl = (QSlider*)w;
 
 	    if ( sub & SC_SliderGroove ) {
@@ -761,8 +757,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	{
 	    const QTitleBar *titlebar = (const QTitleBar *) w;
 
-	    XPThemeData theme;
-	    theme.name = L"WINDOW";
+	    XPThemeData theme( w, L"WINDOW" );
 	    if ( sub & SC_TitleBarLabel ) {
 		theme.rec = titlebar->rect();
 		partId = WP_CAPTION;
@@ -833,8 +828,7 @@ QRect QWindowsXPStyle::subRect( SubRect r, const QWidget *widget ) const
     switch ( r ) {
     case SR_CheckBoxIndicator:
 	{
-	    XPThemeData theme;
-	    theme.name = L"BUTTON";
+	    XPThemeData theme( widget, L"BUTTON" );
 	    theme.partId = BP_CHECKBOX;
 	    theme.stateId = CBS_UNCHECKEDNORMAL;
 
@@ -848,8 +842,7 @@ QRect QWindowsXPStyle::subRect( SubRect r, const QWidget *widget ) const
 	
     case SR_RadioButtonIndicator:
 	{
-	    XPThemeData theme;
-	    theme.name = L"BUTTON";
+	    XPThemeData theme( widget, L"BUTTON" );
 	    theme.partId = BP_RADIOBUTTON;
 	    theme.stateId = RBS_UNCHECKEDNORMAL;
 
