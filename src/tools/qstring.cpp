@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#18 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,43 +21,8 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#18 $";
 #endif
-
-
-/*!
-\class QString qstring.h
-
-\brief The QString class is a handle class that provides an abstraction of
-the C style zero-terminated char array.  QString inherits QByteArray,
-which is defined as QArray\<char\>.
-
-Note that for the QString methods that take a <var>const char *</var>
-parameter, the results are undefined if the data buffer pointed to is not
-zero-terminated.  It is legal for the <var>const char *</var> parameter to
-be 0.
-
-A QString that has not been assigned to anything is <em>void</em>, i.e.
-both the length and data pointer is 0.  A QString that references the
-empty string ("", a single '\0' char) is <em>empty</em>.  Both
-<em>void</em> and <em>empty</em> QStrings are legal parameters to the
-methods. Assigning <var>const char * 0</var> to QString gives a
-<em>void</em> QString.
-
-Since QString has both an internal length specifier (from QArray) and a
-zero-terminator, there will be a conflict if somebody manually inserts a
-'\0' into the string.
-
-\code
-QString s = "networking is fun";
-s[10] = 0;
-  \/ s will be "networking"
-  \/ strlen(s) will be 10
-  \/ s.length() is still 17
-\endcode
-
-See <a href=hndlclass.html>handle classes</a> for information about how to
-use handle classes. */
 
 
 // --------------------------------------------------------------------------
@@ -253,12 +218,53 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 //
 
 /*!
+\class QString qstring.h
+
+\brief The QString class is a handle class that provides an abstraction of
+the C style zero-terminated char array.  QString inherits QByteArray,
+which is defined as QArray\<char\>.
+
+Note that for the QString methods that take a <var>const char *</var>
+parameter, the results are undefined if the data buffer pointed to is not
+zero-terminated.  It is legal for the <var>const char *</var> parameter to
+be 0.
+
+A QString that has not been assigned to anything is <em>void</em>, i.e.
+both the length and data pointer is 0.  A QString that references the
+empty string ("", a single '\0' char) is <em>empty</em>.  Both
+<em>void</em> and <em>empty</em> QStrings are legal parameters to the
+methods. Assigning <var>const char * 0</var> to QString gives a
+<em>void</em> QString.
+
+Since QString has both an internal length specifier (from QArray) and a
+zero-terminator, there will be a conflict if somebody manually inserts a
+'\0' into the string.
+
+\code
+QString s = "networking is fun";
+s[10] = 0;
+  \/ s will be "networking"
+  \/ strlen(s) will be 10
+  \/ s.length() is still 17
+\endcode
+
+See <a href=hndlclass.html>handle classes</a> for information about how to
+use handle classes. */
+
+
+/*!
 \fn QString::QString()
-Creates a \e void string.
+Constructs a \e void string.
 */
 
 /*!
-Creates a string with room for \e size characters, including the \0-terminator.
+\fn QString::QString( const QString &s )
+Constructs a shallow copy \e s.
+*/
+
+/*!
+Constructs a string with room for \e size characters, including the
+'\0'-terminator.
 */
 
 QString::QString( int size ) : QByteArray( size )
@@ -378,10 +384,10 @@ change all internal white space (any sequence of ASCII codes 9, 10,
 
 \code
 QString a = "  lots\t of\nwhite    space ";
-a.simplifyWhiteSpace();		\/ becomes "lots of white space"
+a.simplifyWhiteSpace();		\/ a: " lots of white space "
 \endcode
 
-See also: stripWhiteSpace().
+\sa stripWhiteSpace().
 */
 
 void QString::simplifyWhiteSpace()
@@ -590,7 +596,7 @@ if \e cs if FALSE.
 This function counts overlapping substrings, for example, "banana" contains
 two occurrences of "ana".
 
-See also: findRev().
+\sa findRev().
 */
 
 int QString::contains( const char *str, bool cs ) const
@@ -634,7 +640,6 @@ QString QString::left( uint len ) const		// get left substring
 	QString s( len+1 );
 	strncpy( s.data(), data(), len );
 	*(s.data()+len) = '\0';
-	s.QByteArray::resize( (int)strchr(s.data(),0) - (int)s.data() + 1 );
 	return s;
     }
 }
@@ -651,16 +656,11 @@ QString QString::right( uint len ) const	// get right substring
 	QString empty;
 	return empty;
     }
-    else if ( len >= size() ) {
-	QString same( data() );
-	return same;
-    }
     else {
-	register char *p = strchr(data(),0) - len;
+	char *p = data() + (length() - len);
 	if ( p < data() )
 	    p = data();
-	QString s( p );
-	return s;
+	return QString( p );
     }
 }
 
@@ -683,7 +683,6 @@ QString QString::mid( uint index, uint len ) const // get mid substring
 	QString s( len+1 );
 	strncpy( s.data(), p, len );
 	*(s.data()+len) = '\0';
-	s.QByteArray::resize( (int)strchr(s.data(),0) - (int)s.data() + 1 );
 	return s;
     }
 }
@@ -700,7 +699,7 @@ QString s("apple");
 QString t = s.leftJustify(8, '.');	\/ t == "apple..."
 \endcode
 
-See also: rightJustify().
+\sa rightJustify().
 */
 
 QString QString::leftJustify( uint width, char fill ) const
@@ -731,7 +730,8 @@ QString s("pie");
 QString t = s.rightJustify(8, '.');	\/ t == ".....pie"
 \endcode
 
-See also: leftJustify(). */
+\sa leftJustify().
+*/
 
 QString QString::rightJustify( uint width, char fill ) const
 {
@@ -754,7 +754,7 @@ Converts the string to lower case and returns a reference to this
 string.  At present it only handles 7-bit ASCII, or whatever the system
 tolower() handles (if $LC_CTYPE is set, most unices do the Right Thing).
 
-See also: upper().
+\sa upper().
 \todo Non-ASCII character set support
 */
 
@@ -776,7 +776,7 @@ string.  At present it only handles 7-bit ASCII, or whatever the
 system toupper() handles (if $LC_CTYPE is set, most unices do the
 Right Thing).
 
-See also: lower().
+\sa lower().
 \todo Non-ASCII character set support
 */
 
@@ -830,7 +830,7 @@ QString a = "Yes";
 a.insert( 12528, '!');			\/ ok, becomes "Yes!"
 \endcode
 
-See also: remove(), replace().
+\sa remove(), replace().
 */
 
 QString &QString::insert( uint index, char c )	// insert char
@@ -852,7 +852,7 @@ QString a = "It's a black rug";
 a.remove( 8, 6 );			\/ becomes "It's a bug"
 \endcode
 
-See also: insert(), replace().
+\sa insert(), replace().
 */
 
 QString &QString::remove( uint index, uint len )// remove part of string
@@ -870,7 +870,7 @@ QString &QString::remove( uint index, uint len )// remove part of string
 
 /*!
 Replaces \e len characters starting at position \e index from the string
-with \e s.
+with \e s, and returns a reference to the string.
 
 If \e index is too big, nothing is deleted and \e s is inserted at the
 end of the string.  If \e index is valid, but \e len is too large, \e
@@ -881,7 +881,8 @@ QString a = "Say yes!";
 a.replace( 4, 3, "NO" );		\/ becomes "Say NO!"
 \endcode
 
-See also: insert(), remove(). */
+\sa insert(), remove().
+*/
 
 QString &QString::replace( uint index, uint len, const char *s )
 {						// replace part of string
@@ -891,11 +892,13 @@ QString &QString::replace( uint index, uint len, const char *s )
 }
 
 
-/*!  Returns the string converted to a <code>long</code> value.
+/*!
+Returns the string converted to a <code>long</code> value.
 
 If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
 conceivable errors, and FALSE if the string isn't a number at all, or if
-there's trailing garbage. */
+there's trailing garbage.
+*/
 
 long QString::toLong( bool *ok ) const		// convert string to long
 {
@@ -910,10 +913,14 @@ long QString::toLong( bool *ok ) const		// convert string to long
     return val;
 }
 
-/*!  Returns the string converted to an <code>unsigned long</code>
-value.  If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
+/*!
+Returns the string converted to an <code>unsigned long</code>
+value.
+
+If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
 conceivable errors, and FALSE if the string isn't a number at all, or if
-there's trailing garbage. */
+there's trailing garbage.
+*/
 
 ulong QString::toULong( bool *ok ) const	// convert string to ulong
 {
@@ -934,7 +941,8 @@ Returns the string converted to a <code>short</code> value.
 
 If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
 conceivable errors, and FALSE if the string isn't a number at all, or if
-there's trailing garbage. */
+there's trailing garbage.
+*/
 
 /*!
 \fn ushort QString::toUShort( bool *ok ) const
@@ -943,7 +951,8 @@ value.
 
 If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
 conceivable errors, and FALSE if the string isn't a number at all, or if
-there's trailing garbage. */
+there's trailing garbage.
+*/
 
 /*!
 \fn int QString::toInt( bool *ok ) const
@@ -951,7 +960,8 @@ Returns the string converted to a <code>int</code> value.
 
 If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
 conceivable errors, and FALSE if the string isn't a number at all, or if
-there's trailing garbage. */
+there's trailing garbage.
+*/
 
 /*!
 \fn uint QString::toUInt( bool *ok ) const
@@ -960,7 +970,8 @@ value.
 
 If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
 conceivable errors, and FALSE if the string isn't a number at all, or if
-there's trailing garbage. */
+there's trailing garbage.
+*/
 
 
 /*!
@@ -968,7 +979,8 @@ Returns the string converted to a <code>double</code> value.
 
 If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
 conceivable errors, and FALSE if the string isn't a number at all, or if
-there's trailing garbage. */
+there's trailing garbage.
+*/
 
 double QString::toDouble( bool *ok ) const	// convert string to double
 {
@@ -994,7 +1006,8 @@ there's trailing garbage. */
 
 /*! Makes a deep copy of \e str without dereferencing the current string,
 i.e. all strings that share data will be modified.
-Returns a reference to this string. */
+Returns a reference to this string.
+*/
 
 QString &QString::setStr( const char *str )	// copy string, but not deref
 {
@@ -1005,8 +1018,10 @@ QString &QString::setStr( const char *str )	// copy string, but not deref
     return *this;
 }
 
-/*! Sets the string to the numerical value of \e n.
-Returns a reference to this string. */
+/*!
+Sets the string to the numerical value of \e n.
+Returns a reference to this string.
+*/
 
 QString &QString::setNum( long n )		// set string from long
 {
@@ -1030,8 +1045,10 @@ QString &QString::setNum( long n )		// set string from long
     return *this;
 }
 
-/*! Sets the string to the numerical unsigned value of \e n.
-Returns a reference to this string. */
+/*!
+Sets the string to the numerical unsigned value of \e n.
+Returns a reference to this string.
+*/
 
 QString &QString::setNum( ulong n )		// set string from ulong
 {
@@ -1049,30 +1066,35 @@ QString &QString::setNum( ulong n )		// set string from ulong
 /*!
 \fn QString &QString::setNum( int n )
  Sets the string to the numerical value of \e n.
-Returns a reference to this string. */
+Returns a reference to the string.
+*/
 
 /*!
 \fn QString &QString::setNum( uint n )
  Sets the string to the numerical unsigned value of \e n.
-Returns a reference to this string. */
+Returns a reference to the string.
+*/
 
 /*!
 \fn QString &QString::setNum( short n )
  Sets the string to the numerical value of \e n.
-Returns a reference to this string. */
+Returns a reference to the string.
+*/
 
 /*!
 \fn QString &QString::setNum( ushort n )
  Sets the string to the numerical unsigned value of \e n.
-Returns a reference to this string. */
+Returns a reference to the string.
+*/
 
 
-/*! Sets the string to the numerical value of \e n.
+/*!
+Sets the string to the numerical value of \e n.
 \arg \e f is format specifier: 'f', 'F', 'e', 'E', 'g', 'G' (same meaning as
 for sprintf()).
 \arg \e prec is the precision.
 
-Returns a reference to this string. */
+Returns a reference to the string. */
 
 QString &QString::setNum( double n, char f, int prec )
 {
@@ -1105,14 +1127,16 @@ Sets the string to the numerical value of \e n.
 for sprintf()).
 \arg \e prec is the precision.
 
-Returns a reference to this string. */
+Returns a reference to the string. */
 
 
-/*! Sets the characted at position \e index to \e c and expands the string
+/*!
+Sets the characted at position \e index to \e c and expands the string
 is necessary.
 
 Returns FALSE if this \e index was out of range and the string could not
-be expanded, otherwise TRUE. */
+be expanded, otherwise TRUE.
+*/
 
 bool QString::setExpand( uint index, char c )	// set and expand if necessary
 {
@@ -1145,7 +1169,8 @@ Returns TRUE if it is a null string, otherwise FALSE.
 
 
 /*!
-Appends \e s to this string and returns a reference to this string. */
+Appends \e s to this string and returns a reference to the string.
+*/
 
 QString& QString::operator+=( const QString &s )// append QString s to this
 {
@@ -1162,7 +1187,9 @@ QString& QString::operator+=( const QString &s )// append QString s to this
     return *this;
 }
 
-/*! Appends \e str to this string and returns a reference to this string. */
+/*!
+Appends \e str to this string and returns a reference to the string.
+*/
 
 QString& QString::operator+=( const char *str ) // append char *str to this
 {
@@ -1179,7 +1206,9 @@ QString& QString::operator+=( const char *str ) // append char *str to this
     return *this;
 }
 
-/*! Appends \e c to this string and returns a reference to this string. */
+/*!
+Appends \e c to this string and returns a reference to the string.
+*/
 
 QString& QString::operator+=( char c )		// append c to this string
 {
@@ -1192,34 +1221,3 @@ QString& QString::operator+=( char c )		// append c to this string
 
     return *this;
 }
-
-
-// --------------------------------------------------------------------------
-// Documentation for the QRegExp functions
-//
-
-/*!
-\fn int QString::find( const QRegExp &rx, int index ) const
-Finds the first occurrence of the regular expression \e rx, starting at
-position \e index.
-
-Returns the position of a match, or -1 if there was no match.
-*/
-
-/*
-\fn int QString::findRev( const QRegExp &rx, int index ) const
-Finds the first occurrence of the regular expression \e rx, starting at
-position \e index and searching backwards.
-
-Returns the position of a match, or -1 if there was no match.
-*/
-
-/*!
-\fn int QString::contains( const QRegExp &rx ) const
-Returns the number of times \e rx occurs in the string.
-
-The match is case sensitive if \e cs is TRUE, or case insensitive if \e cs
-if FALSE.
-
-This function counts overlapping regular expressions.
-*/
