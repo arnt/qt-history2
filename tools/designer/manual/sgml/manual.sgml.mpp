@@ -5,7 +5,7 @@
 <!ENTITY chap02 SYSTEM "chap-02.sgml">
 <!ENTITY chap03 SYSTEM "chap-03.sgml">
 <!ENTITY chap04 SYSTEM "chap-04.sgml">
-<!ENTITY chap05 SYSTEM "chap-05.sgml">
+<!ENTITY chapUT SYSTEM "chap-useful-techniques.sgml">
 <!ENTITY chapCC SYSTEM "chap-custom-controls.sgml">
 <!ENTITY chapDA SYSTEM "chap-creating-database-applications.sgml">
 <!ENTITY chap06 SYSTEM "chap-06.sgml">
@@ -20,7 +20,7 @@
 &chap02;
 &chap03;
 &chap04;
-&chap05;
+&chapUT
 &chapCC;
 &chapDA;
 &chap06;
