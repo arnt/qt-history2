@@ -230,6 +230,7 @@ QMAKE_VARS="$QMAKE_VARS \"styles -= motif\""
 QMAKE_VARS="$QMAKE_VARS \"styles -= motifplus\""
 QMAKE_VARS="$QMAKE_VARS \"styles -= platinum\""
 QMAKE_VARS="$QMAKE_VARS \"styles -= sgi\""
+QMAKE_VARS="$QMAKE_VARS \"styles -= compact\""
 
 
 #-------------------------------------------------------------------------------
@@ -285,6 +286,7 @@ CFG_NAS=no
 CFG_QWS_DEPTHS=prompted
 CFG_USER_BUILD_KEY=
 CFG_ACCESSIBILITY=auto
+CFG_COMPAT=yes
 CFG_ENDIAN=auto
 D_FLAGS=
 I_FLAGS=
@@ -476,6 +478,13 @@ while [ "$#" -gt 0 ]; do
 
     UNKNOWN_OPT=no
     case $VAR in
+    compat)
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_COMPAT="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+        fi
+	;;
     accessibility)
        	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    CFG_ACCESSIBILITY="$VAL"
@@ -2849,6 +2858,13 @@ if [ -n "$CFG_QWS_DEPTHS" -a "$PLATFORM_QWS" = "yes" ]; then
     fi
 fi
 
+# disable compat
+if [ "$CFG_COMPAT" = "no" ]; then
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_COMPAT"
+else
+    QT_CONFIG="$QT_CONFIG compat"
+fi
+
 # disable accessibility
 if [ "$CFG_ACCESSIBILITY" = "no" ]; then
     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_ACCESSIBILITY"
@@ -3478,6 +3494,7 @@ fi
 
 [ "$CFG_INCREMENTAL" = "yes" ] && [ '!' -z "$INCREMENTAL" ] && echo "Incremental ......... $INCREMENTAL"
 echo "Configuration ....... $QMAKE_CONFIG $QT_CONFIG"
+echo "Qt-3 compatibility... $CFG_COMPAT"
 echo "STL support ......... $CFG_STL"
 echo "PCH support ......... $CFG_PRECOMPILE"
 echo "IPv6 support ........ $CFG_IPV6"

@@ -106,7 +106,7 @@ public:
     QPointer<QWidget> toolTipWidget;
     QShortcutMap shortcutMap;
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     bool qt_compat_used;
     bool qt_compat_resolved;
     Ptrqt_tryAccelEvent qt_tryAccelEvent;

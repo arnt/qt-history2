@@ -68,7 +68,7 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::T
     is_session_restored = false;
 #endif
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     qt_compat_used = 0;
     qt_compat_resolved = 0;
     qt_tryAccelEvent = 0;
