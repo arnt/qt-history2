@@ -26,12 +26,17 @@
 class QString;
 
 struct ContentItem {
+    ContentItem()
+	: title( QString::null ), reference( QString::null ), depth( 0 ) {}
     ContentItem( const QString &t, const QString &r, int d )
 	: title( t ), reference( r ), depth( d ) {}
     QString title;
     QString reference;
     int depth;
 };
+
+QDataStream &operator>>( QDataStream &s, ContentItem &ci );
+QDataStream &operator<<( QDataStream &s, const ContentItem &ci );
 
 struct IndexItem {
     IndexItem( const QString &k, const QString &r )
@@ -59,8 +64,8 @@ public:
     bool fatalError( const QXmlParseException& exception );
     QString errorProtocol() const;
 
-    QPtrList<ContentItem>& getContentItems();
-    QPtrList<IndexItem>& getIndexItems();
+    QValueList<ContentItem> getContentItems();
+    QPtrList<IndexItem> getIndexItems();
     QString getCategory() const;
     QString getDocumentationTitle() const;
 
@@ -69,7 +74,7 @@ private:
     QString docTitle, title;
     int depth;
     States state;
-    QPtrList<ContentItem> contentList;
+    QValueList<ContentItem> contentList;
     QPtrList<IndexItem> indexList;
 };
 

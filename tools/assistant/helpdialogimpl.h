@@ -26,10 +26,12 @@
 #include <qmap.h>
 #include <qstringlist.h>
 #include <qvalidator.h>
+#include <qdict.h>
 
 #include "index.h"
 #include "helpdialog.h"
 #include "helpwindow.h"
+#include "docuparser.h"
 
 class QProgressBar;
 class MainWindow;
@@ -114,19 +116,18 @@ private slots:
     void setIndexingProgress( int prog );
 
 private:
+    typedef QValueList<ContentItem> ContentList;
     void buildKeywordDB();
     Q_UINT32 getFileAges();
-    void buildTitlemapDB();
     void showIndexTopic();
     void showBookmarkTopic();
     void insertBookmarks();
     void setupTitleMap();
     void saveBookmarks();
     void showContentsTopic();
-    bool insertContents( const QString &filename,
-			 HelpNavigationContentsItem *newEntry );
     bool isValidCategory( QString category );
     void showInitDoneMessage();
+    void buildContentDict();
 
     QMap<QString, QString> titleMap;
     QMap<QString, uint> categoryMap;
@@ -139,6 +140,8 @@ private:
     QStringList terms, foundDocs;
     bool newFullTextIndex;
     bool initDoneMsgShown;
+    void getAllContents();
+    QDict<ContentList> contentList;
 };
 
 #endif

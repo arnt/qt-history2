@@ -22,6 +22,21 @@
 #include <qxml.h>
 #include <qstring.h>
 
+QDataStream &operator>>( QDataStream &s, ContentItem &ci )
+{
+    s >> ci.title;
+    s >> ci.reference;
+    s >> ci.depth;
+    return s;
+}
+
+QDataStream &operator<<( QDataStream &s, const ContentItem &ci )
+{
+    s << ci.title;
+    s << ci.reference;
+    s << ci.depth;
+    return s;
+}
 
 DocuParser::DocuParser() : QXmlDefaultHandler()
 {
@@ -52,14 +67,14 @@ bool DocuParser::startElement( const QString &, const QString &,
 	docTitle = attr.value( "title" );
 	title = docTitle;
 	category = attr.value( "category" );
-	contentList.append( new ContentItem( title, contentRef, depth ) );
+	contentList.append( ContentItem( title, contentRef, depth ) );
     }
     else if( qname == "section" && ( state == StateContent || state == StateSect ) ) {
 	state = StateSect;
 	contentRef = attr.value( "ref" );
 	title = attr.value( "title" );
 	depth++;
-	contentList.append( new ContentItem( title, contentRef, depth ) );
+	contentList.append( ContentItem( title, contentRef, depth ) );
     }
     else if ( qname == "keyword" && state == StateSect ) {
 	state = StateKeyword;
@@ -139,12 +154,12 @@ QString DocuParser::getDocumentationTitle() const
     return docTitle;
 }
 
-QPtrList<ContentItem>& DocuParser::getContentItems()
+QValueList<ContentItem> DocuParser::getContentItems()
 {
     return contentList;
 }
 
-QPtrList<IndexItem>& DocuParser::getIndexItems()
+QPtrList<IndexItem> DocuParser::getIndexItems()
 {
     return indexList;
 }

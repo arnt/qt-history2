@@ -233,6 +233,9 @@ void HelpDialog::initialize()
 
     termsEdit->setValidator( new SearchValidator( termsEdit ) );
 
+    contentList.setAutoDelete( TRUE );
+    contentList.clear();
+
     initDoneMsgShown = FALSE;
     fullTextIndex = 0;
     indexDone = FALSE;
@@ -262,6 +265,7 @@ void HelpDialog::generateNewDocu()
     indexDone = FALSE;
     contentsDone = FALSE;
     contentsInserted = FALSE;
+    contentList.clear();
     if ( fullTextIndex ) {
 	delete fullTextIndex;
 	fullTextIndex = 0;
@@ -433,52 +437,67 @@ void HelpDialog::buildKeywordDB()
 	QDataStream s( &indexout );
 	s << fileAges;
 	s << lst;
+	indexout.close();
     }
-    indexout.close();
 }
 
 void HelpDialog::setupTitleMap()
 {
     if ( contentsDone )
 	return;
-    contentsDone = TRUE;
-    newFullTextIndex = FALSE;
-    QFile titleFile( QDir::homeDirPath() + "/.titlemapdb" );
-    if ( !titleFile.open( IO_ReadOnly ) ) {
-	newFullTextIndex = TRUE;
-	buildTitlemapDB();
-	titleFile.open( IO_ReadOnly );
-    }
+    if ( contentList.isEmpty() )
+	getAllContents();
 
-    QDataStream ds( &titleFile );
-    Q_UINT32 fileAges;
-    ds >> fileAges;
-    if ( fileAges != getFileAges() ) {
-	titleFile.close();
-	newFullTextIndex = TRUE;
-	buildTitlemapDB();
-	if ( !titleFile.open( IO_ReadOnly ) ) {
-	    QMessageBox::warning( help, tr( "Qt Assistant" ),
-		tr( "Cannot open the title file %1" ).arg( QFileInfo( titleFile ).absFilePath() ) );
-	    return;
+    QDictIterator<ContentList> lstIt( contentList );
+    for ( ; lstIt.current(); ++lstIt ) {
+	QValueList<ContentItem> &lst = *(lstIt.current());
+	QValueList<ContentItem>::iterator it;
+	QFileInfo finfo( lstIt.currentKey() );
+	QString dir = finfo.dirPath( TRUE ) + "/";
+	for ( it = lst.begin(); it != lst.end(); ++it ) {
+	    QFileInfo link( dir + (*it).reference.simplifyWhiteSpace() );
+	    titleMap[ link.absFilePath() ] = (*it).title.stripWhiteSpace();
 	}
-	ds.setDevice( &titleFile );
-	ds >> fileAges;
     }
-    ds >> titleMap;
-    titleFile.close();
     qApp->processEvents();
 }
 
-void HelpDialog::buildTitlemapDB()
+void HelpDialog::getAllContents()
+{
+    QFile contentFile( QDir::homeDirPath() + "/.contentdb" );
+    if ( !contentFile.open( IO_ReadOnly ) ) {
+	buildContentDict();
+	return;
+    }
+
+    QDataStream ds( &contentFile );
+    Q_UINT32 fileAges;
+    ds >> fileAges;
+    if ( fileAges != getFileAges() ) {
+	contentFile.close();
+	buildContentDict();
+	return;
+    }
+    QString key;
+    QValueList<ContentItem> lst;
+    while ( !ds.atEnd() ) {
+	ds >> key;
+	ds >> lst;
+	contentList.insert( key, new QValueList<ContentItem>( lst ) );
+    }
+    contentFile.close();
+    qApp->processEvents();
+
+}
+
+void HelpDialog::buildContentDict()
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     QStringList docuFiles = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles" );
 
-    titleMap.clear();
+    qApp->processEvents();
     Q_UINT32 fileAges = 0;
-
     for( QStringList::iterator it = docuFiles.begin(); it != docuFiles.end(); it++ ) {
 	DocuParser handler;
 	QFile file( *it );
@@ -499,17 +518,7 @@ void HelpDialog::buildTitlemapDB()
 	if( ok ){
 	    if( !isValidCategory( handler.getCategory() ) )
 		continue;
-
-	    QFileInfo finfo( *it );
-	    QString dir = finfo.dirPath( TRUE ) + "/";
-	    QPtrList<ContentItem> contLst = handler.getContentItems();
-	    QPtrListIterator<ContentItem> iter( contLst );
-	    ContentItem *contItem;
-	    while ( (contItem = iter.current()) != 0 ) {
-		QFileInfo link( dir + contItem->reference.simplifyWhiteSpace() );
-		titleMap[ link.absFilePath() ] = contItem->title.stripWhiteSpace();
-		++iter;
-	    }
+	    contentList.insert( *it, new QValueList<ContentItem>( handler.getContentItems() ) );
 	} else {
 	    QString msg = QString( "In file %1:\n%2" )
 			  .arg( QFileInfo( file ).absFilePath() )
@@ -518,13 +527,18 @@ void HelpDialog::buildTitlemapDB()
 	    continue;
 	}
     }
-    QFile titleFile( QDir::homeDirPath() + "/.titlemapdb" );
-    if ( titleFile.open( IO_WriteOnly ) ) {
-	QDataStream s( &titleFile );
+
+    QFile contentOut( QDir::homeDirPath() + "/.contentdb" );
+    if ( contentOut.open( IO_WriteOnly ) ) {
+	QDataStream s( &contentOut );
 	s << fileAges;
-	s << titleMap;
+	QDictIterator<ContentList> it( contentList );
+	for ( ; it.current(); ++it ) {
+	    s << it.currentKey();
+	    s << *(it.current());
+	}
+	contentOut.close();
     }
-    titleFile.close();
 }
 
 void HelpDialog::currentTabChanged( const QString &s )
@@ -734,6 +748,10 @@ void HelpDialog::insertContents()
 {
     if ( contentsInserted )
 	return;
+
+    if ( contentList.isEmpty() )
+	getAllContents();
+
     contentsInserted = TRUE;
     listContents->clear();
     setCursor( waitCursor );
@@ -742,97 +760,65 @@ void HelpDialog::insertContents()
 
     listContents->setSorting( -1 );
 
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QStringList addDocuFiles = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles" );
-    QStringList::iterator i = addDocuFiles.begin();
-    for( ; i != addDocuFiles.end(); i++ ){
-	HelpNavigationContentsItem *additionalDocu;
+    QPtrList<ContentItem> lst;
+    QDictIterator<ContentList> lstIt( contentList );
+    for ( ; lstIt.current(); ++lstIt ) {
 	QMimeSourceFactory *mime = QMimeSourceFactory::defaultFactory();
-	QFileInfo fi( *i );
-	if ( !fi.exists() ) {
-	    QMessageBox::warning( this, tr( "Warning" ),
-	    tr( "Documentation file %1 does not exist!\n"
-	        "Skipping file." ).arg( fi.absFilePath() ) );
-	    HelpDialog::removeDocFile( *i );
-	    continue;
-        }
+	QFileInfo fi( lstIt.currentKey() );
+	QString dir = fi.dirPath() + "/";
 	mime->addFilePath( fi.dirPath( TRUE ) );
 	mime->setExtensionType("html","text/html;charset=UTF-8");
 	mime->setExtensionType("png", "image/png" );
 	mime->setExtensionType("jpg", "image/jpeg" );
 	mime->setExtensionType("jpeg", "image/jpeg" );
-	additionalDocu = new HelpNavigationContentsItem( listContents, 0 );
-	additionalDocu->setPixmap( 0, *bookPixmap );
-	bool ok = insertContents( *i, additionalDocu );
-	if( !ok )
-	    delete additionalDocu;
+
+	HelpNavigationContentsItem *newEntry;
+	newEntry = new HelpNavigationContentsItem( listContents, 0 );
+	newEntry->setPixmap( 0, *bookPixmap );
+
+	HelpNavigationContentsItem *contentEntry;
+	QPtrStack<HelpNavigationContentsItem> stack;
+	stack.clear();
+	int depth = 0;
+	bool root = FALSE;
+
+	HelpNavigationContentsItem *lastItem[64];
+	for( int j = 0; j < 64; ++j )
+	    lastItem[j] = 0;
+
+
+	QValueList<ContentItem> &lst = *(lstIt.current());
+	QValueList<ContentItem>::iterator it;
+	for( it = lst.begin(); it != lst.end(); ++it ){
+	    ContentItem item = *it;
+	    if( item.depth == 0 ){
+		newEntry->setText( 0, item.title );
+		newEntry->setLink( dir + item.reference );
+		stack.push( newEntry );
+		depth = 1;
+		root = TRUE;
+	    }
+	    else{
+		if( (item.depth > depth) && root ) {
+		    depth = item.depth;
+		    stack.push( contentEntry );
+		}
+		if( item.depth == depth ) {
+		    contentEntry = new HelpNavigationContentsItem( stack.top(), lastItem[ depth ] );
+		    lastItem[ depth ] = contentEntry;
+		    contentEntry->setText( 0, item.title );
+		    contentEntry->setLink( dir + item.reference );
+		}
+		else if( item.depth < depth ) {
+		    stack.pop();
+		    depth--;
+		    item = *(--it);
+		}
+	    }
+	}
     }
     setCursor( arrowCursor );
     showInitDoneMessage();
-}
-
-bool HelpDialog::insertContents( const QString &filename, HelpNavigationContentsItem *newEntry )
-{
-    QFileInfo fi( filename );
-    QString dir = fi.dirPath() + "/";
-    QFile xmlFile( filename );
-    QXmlInputSource source( &xmlFile );
-    QXmlSimpleReader reader;
-    DocuParser handler;
-    reader.setContentHandler( &handler );
-    reader.setErrorHandler( &handler );
-    bool ok = reader.parse( source );
-    xmlFile.close();
-    if( !ok ){
-	QString msg = QString( "In file %1:\n%2" )
-		      .arg( QFileInfo( xmlFile ).absFilePath() )
-		      .arg( handler.errorProtocol() );
-	QMessageBox::critical( this, tr( "Parse Error" ), tr( msg ) );
-	return FALSE;
-    }
-
-    if( !isValidCategory( handler.getCategory() ) )
-	return FALSE;
-
-    HelpNavigationContentsItem *contentEntry;
-    QPtrStack<HelpNavigationContentsItem> stack;
-    stack.clear();
-    int depth = 0;
-    bool root = FALSE;
-    QPtrList<ContentItem> contentList = handler.getContentItems();
-
-    HelpNavigationContentsItem *lastItem[64];
-    for( int j = 0; j < 64; ++j )
-	lastItem[j] = 0;
-    ContentItem *item;
-    for( item = contentList.first(); item; item = contentList.next() ){
-	if( item->depth == 0 ){
-	    newEntry->setText( 0, item->title );
-	    newEntry->setLink( dir + item->reference );
-	    stack.push( newEntry );
-	    depth = 1;
-	    root = TRUE;
-	}
-	else{
-	    if( (item->depth > depth) && (root) ) {
-		depth = item->depth;
-		stack.push( contentEntry );
-	    }
-	    if( item->depth == depth ) {
-		contentEntry = new HelpNavigationContentsItem( stack.top(), lastItem[ depth ] );
-		lastItem[ depth ] = contentEntry;
-		contentEntry->setText( 0, item->title );
-		contentEntry->setLink( dir + item->reference );
-	    }
-	    else if( item->depth < depth ) {
-		stack.pop();
-		depth--;
-		item = contentList.prev();
-	    }
-	}
-    }
-    return TRUE;
 }
 
 void HelpDialog::currentContentsChanged( QListViewItem * )
