@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#21 $
 **
 ** Implementation of QDialog class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#21 $")
 
 
 /*!
@@ -201,7 +201,8 @@ void QDialog::show()
 	      p.y() + w->height()/2 - height()/2 );
     }
     QWidget::show();
-    did_resize = did_move = FALSE;
+    // put these in an event filter on the children instead
+    // did_resize = did_move = FALSE;
 }
 
 
