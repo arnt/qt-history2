@@ -1156,8 +1156,10 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
             d->state = QHeaderViewPrivate::MoveSection;
             d->setupSectionIndicator(d->section, pos);
         }
-        updateSection(d->pressed);
-        emit sectionPressed(d->pressed, e->button(), e->modifiers());
+        if (d->clickableSections) {
+            updateSection(d->pressed);
+            emit sectionPressed(d->pressed, e->button(), e->modifiers());
+        }
     } else if (resizeMode(handle) == Interactive) {
         d->state = QHeaderViewPrivate::ResizeSection;
         d->section = handle;
@@ -1227,8 +1229,10 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
             break;
         }
     case QHeaderViewPrivate::NoState:
-        updateSection(d->pressed);
-        emit sectionClicked(logicalIndexAt(pos), e->button(), e->modifiers());
+        if (d->clickableSections) {
+            updateSection(d->pressed);
+            emit sectionClicked(logicalIndexAt(pos), e->button(), e->modifiers());
+        }
         break;
     case QHeaderViewPrivate::ResizeSection:
         break;
@@ -1261,16 +1265,17 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
 {
     QStyle::StyleFlags state = QStyle::Style_None;
     if (d->clickableSections) {
-        bool selected = false;
-        if (d->orientation == Qt::Horizontal)
-            selected = selectionModel()->isColumnSelected(logicalIndex, QModelIndex());
-        else
-            selected = selectionModel()->isRowSelected(logicalIndex, QModelIndex());
-        if (selected)
+        if (logicalIndex == d->pressed) {
             state = QStyle::Style_Down;
-    } else {
-        if (logicalIndex == d->pressed)
-            state = QStyle::Style_Down;
+        } else {
+            bool selected = false;
+            if (d->orientation == Qt::Horizontal)
+                selected = selectionModel()->isColumnSelected(logicalIndex, QModelIndex());
+            else
+                selected = selectionModel()->isRowSelected(logicalIndex, QModelIndex());
+            if (selected)
+                state = QStyle::Style_Down;
+        }
     }
 
     int textAlignment = d->model->headerData(logicalIndex, orientation(),
