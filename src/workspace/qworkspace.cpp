@@ -85,6 +85,9 @@
   just as you'd expect. You can provide widget flags which will be
   used for the layout of the decoration or the behaviour of the widget
   itself.
+  To change the geometry of the MDI windows it is necessary to make 
+  the necessary function calls to the parentWidget() of the widget, as
+  this will move or resize the decorated window.
 
   A document window becomes active when it gets the keyboard focus.
   You can activate it using setFocus(), and the user can activate it
