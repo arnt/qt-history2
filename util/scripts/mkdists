@@ -262,7 +262,7 @@ if [ "$BRANCH" = "auto" ]; then
     if [ ! -z "$LOCAL_TREE" ]; then
        BRANCH="0.0.0"
     else
-       BRANCH=`echo "$REL_VERSION" | sed "s,\([0-9]*\.[0-9]*\).*,\1,"`
+       BRANCH=`echo "$REL_VERSION" | sed "s,\([0-9.]*\).*,\1,"`
     fi
 fi
 
@@ -414,7 +414,7 @@ fi
 
 # changes files
 [ ! -f "$DISTDIR/qt/dist/changes-$REL_VERSION" ] && status "!! Warning: qt/dist/changes-$REL_VERSION does not exist !!"
-for a in `find $DISTDIR/qt/dist/ -name "changes-$REL_VERSION"`; do
+for a in `find $DISTDIR/qt/dist/ -name "changes-$REL_VERSION*"`; do
     mv $a $DISTDIR/qt/`basename $a`
 done
 
@@ -429,8 +429,8 @@ TYPE=$SET_TYPE
 if [ "$TYPE" = "auto" ]; then
     TYPE=`grep QT_VERSION_STR $DISTDIR/qt/src/tools/qglobal.h | awk '{ print $3 }' | sed 's,["0-9.]*-\(.*\)",\1,'`
 fi
-TYPE="-${TYPE}"
-if echo $REL_VERSION | grep $TYPE >/dev/null 2>&1; then
+[ ! -z "$TYPE" ] && TYPE="-${TYPE}"
+if [ -z "$TYPE" ] || echo $REL_VERSION | grep $TYPE >/dev/null 2>&1; then
     VERSION_STR="$REL_VERSION"
 else
     VERSION_STR=${REL_VERSION}${TYPE} && [ "$TYPE" = "-snapshot" ] && VERSION_STR=`date "+${VERSION_STR}-%Y%m%d"`
@@ -439,7 +439,7 @@ fi
 sed -e "s,^\(\#define  *QT_VERSION  *\)[0-9]*$,\1${BRANCH_DIGITS},g" \
     -e "s,^\(\#define  *QT_VERSION_STR  *\)\".*\"$,\1\"${VERSION_STR}\",g" $qglobal >${TMP_FILE}
 mv ${TMP_FILE} $qglobal
-if [ "$TYPE" != "-snapshot" ] && ! myexpr "$TYPE" : "^-beta[0-9]*$"; then
+if [ "$TYPE" != "-snapshot" ] && ! -z "$TYPE" && ! myexpr "$TYPE" : "^-beta[0-9]*$"; then
     die "The qt version is ${VERSION_STR}, which confuses me terribly";
 fi
 
