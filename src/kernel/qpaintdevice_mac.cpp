@@ -353,6 +353,64 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     scaledBitBlt(dst, dx, dy, sw, sh, src, sx, sy, sw, sh, rop, imask);
 }
 
+Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
+		       const QPixmap *src, int sx, int sy, int sw, int sh )
+{
+    if ( ! dst || ! src || sw == 0 || sh == 0 || dst->depth() != src->depth() ) {
+#ifdef QT_CHECK_NULL
+	Q_ASSERT( dst != 0 );
+	Q_ASSERT( src != 0 );
+#endif
+	return;
+    }
+
+    // copy pixel data
+    bitBlt( dst, dx, dy, src, sx, sy, sw, sh, Qt::CopyROP, TRUE );
+
+    // copy mask data
+    if ( src->data->mask ) {
+	if ( ! dst->data->mask ) {
+	    dst->data->mask = new QBitmap( dst->width(), dst->height() );
+
+	    // new masks are fully opaque by default
+	    dst->data->mask->fill( Qt::color1 );
+	}
+
+	bitBlt( dst->data->mask, dx, dy,
+		src->data->mask, sx, sy, sw, sh, Qt::CopyROP, TRUE );
+    }
+
+#ifdef QMAC_PIXMAP_ALPHA
+    // copy alpha data
+    if ( ! src->data->alphapm )
+	return;
+
+    if ( sw < 0 )
+	sw = src->width() - sx;
+    else
+	sw = QMIN( src->width()-sx, sw );
+    sw = QMIN( dst->width()-dx, sw );
+
+    if ( sh < 0 )
+	sh = src->height() - sy ;
+    else
+	sh = QMIN( src->height()-sy, sh );
+    sh = QMIN( dst->height()-dy, sh );
+
+    if ( sw <= 0 || sh <= 0 )
+	return;
+
+    if ( ! dst->data->alphapm ) {
+	dst->data->alphapm = new QPixmap( dst->data->w, dst->data->h, 32 );
+
+	// new alpha pixmaps are fully opaque by default
+	dst->data->alphapm->fill( Qt::black );
+    }
+
+    bitBlt( dst->data->alphapm, dx, dy,
+	    src->data->alphapm, sx, sy, sw, sh, Qt::CopyROP, TRUE );
+#endif // QMAC_PIXMAP_ALPHA
+}
 
 Qt::HANDLE QPaintDevice::handle() const
 {
