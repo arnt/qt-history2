@@ -170,7 +170,6 @@
 #  define _CC_KAI_
 // does not define __EDG__
 #  define Q_HAS_BOOL_TYPE
-#  define Q_STATEMENT_NOT_REACHED
 #elif defined(applec)
 #  define _CC_MPW_
 #elif defined(__MWERKS__)

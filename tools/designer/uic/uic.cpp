@@ -1082,10 +1082,6 @@ QString Uic::createListBoxItemImpl( const QDomElement &e, const QString &parent 
 	return parent + "->insertItem( " + trmacro + "( \"" + fixString( txt ) + "\" ) );";
     else
 	return parent + "->insertItem( " + pix + ", " + trmacro + "( \"" + fixString( txt ) + "\" ) );";
-
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return QString::null;
-#endif
 }
 
 /*!

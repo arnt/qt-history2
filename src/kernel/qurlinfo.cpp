@@ -417,10 +417,6 @@ bool QUrlInfo::greaterThan( const QUrlInfo &i1, const QUrlInfo &i2,
     default:
 	return FALSE;
     }
-
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return FALSE;
-#endif
 }
 
 /*!
@@ -454,10 +450,6 @@ bool QUrlInfo::equal( const QUrlInfo &i1, const QUrlInfo &i2,
     default:
 	return FALSE;
     }
-
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return FALSE;
-#endif
 }
 
 /*!

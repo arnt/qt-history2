@@ -662,10 +662,6 @@ bool QUrlOperator::isDir( bool *ok )
 	    *ok = FALSE;
 	return TRUE;
     }
-
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return FALSE;
-#endif
 }
 
 /*!

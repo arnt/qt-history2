@@ -540,9 +540,6 @@ bool QSocket::consumeReadBuf( int nbytes, char *sink )
 	    return TRUE;
 	}
     }
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return FALSE;
-#endif
 }
 
 
@@ -573,9 +570,6 @@ bool QSocket::consumeWriteBuf( int nbytes )
 	    return TRUE;
 	}
     }
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return FALSE;
-#endif
 }
 
 
@@ -640,9 +634,6 @@ bool QSocket::scanNewline( QByteArray *store )
 	    }
 	}
     }
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return FALSE;
-#endif
 }
 
 

@@ -359,9 +359,6 @@ QPixmap *QtFileIconViewItem::pixmap() const
 		    return iconFolderLarge;
 	    }
 	}
-#if !defined(Q_STATEMENT_NOT_REACHED)
-	break;
-#endif
     case Link:
 	{
 	    if ( vm == QtFileIconView::Small )
@@ -369,9 +366,6 @@ QPixmap *QtFileIconViewItem::pixmap() const
 	    else
 		return iconLinkLarge;
 	}
-#if !defined(Q_STATEMENT_NOT_REACHED)
-	break;
-#endif
     default:
 	{
 	    if ( vm == QtFileIconView::Small )
@@ -379,9 +373,6 @@ QPixmap *QtFileIconViewItem::pixmap() const
 	    else
 		return iconFileLarge;
 	}
-#if !defined(Q_STATEMENT_NOT_REACHED)
-	break;
-#endif
     }
 }
 

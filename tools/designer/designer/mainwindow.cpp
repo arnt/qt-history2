@@ -2118,9 +2118,6 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	connect( formList->parentWidget(), SIGNAL( visibilityChanged( bool ) ),
 		 this, SLOT( windowFormList( bool ) ) );
 	return TRUE;
-#if !defined(Q_STATEMENT_NOT_REACHED)
-	break;
-#endif
     case QEvent::Wheel:
 	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
 	    break;

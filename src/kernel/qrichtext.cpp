@@ -3125,9 +3125,6 @@ int QTextParag::nextTab( int x )
 	int d = x / tabStopWidth;
 	return tabStopWidth * ( d + 1 );
     }
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return -1;
-#endif
 }
 
 void QTextParag::setPainter( QPainter *p )

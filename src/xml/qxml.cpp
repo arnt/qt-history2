@@ -2378,10 +2378,6 @@ bool QXmlSimpleReader::parseProlog()
 
     }
 
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
-
 parseError:
     reportParseError();
     return FALSE;
@@ -2664,10 +2660,6 @@ bool QXmlSimpleReader::parseElement()
 	}
 
     }
-
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
 
 parseError:
     reportParseError();
@@ -2956,10 +2948,6 @@ bool QXmlSimpleReader::parseContent()
 
     }
 
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
-
 parseError:
     reportParseError();
     return FALSE;
@@ -3063,10 +3051,6 @@ bool QXmlSimpleReader::parseMisc()
 	}
 
     }
-
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
 
 parseError:
     reportParseError();
@@ -3290,10 +3274,6 @@ bool QXmlSimpleReader::parsePI( bool xmldecl )
 
     }
 
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
-
 parseError:
     reportParseError();
     return FALSE;
@@ -3475,10 +3455,6 @@ bool QXmlSimpleReader::parseDoctype()
 
     }
 
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
-
 parseError:
     reportParseError();
     return FALSE;
@@ -3635,9 +3611,6 @@ bool QXmlSimpleReader::parseExternalID( bool allowPublicID )
 		    d->error = XMLERR_UNEXPECTEDCHARACTER;
 		    goto parseError;
 		}
-#if !defined(Q_STATEMENT_NOT_REACHED)
-		break;
-#endif
 	    case Done:
 		return TRUE;
 	    case -1:
@@ -3647,10 +3620,6 @@ bool QXmlSimpleReader::parseExternalID( bool allowPublicID )
 	}
 
     }
-
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
 
 parseError:
     reportParseError();
@@ -3810,10 +3779,6 @@ bool QXmlSimpleReader::parseMarkupdecl()
 
     }
 
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
-
 parseError:
     reportParseError();
     return FALSE;
@@ -3912,10 +3877,6 @@ bool QXmlSimpleReader::parsePEReference( EntityRecognitionContext context )
 	}
 
     }
-
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
 
 parseError:
     reportParseError();
@@ -4117,10 +4078,6 @@ bool QXmlSimpleReader::parseAttlistDecl()
 	}
 
     }
-
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
 
 parseError:
     reportParseError();
@@ -4364,10 +4321,6 @@ bool QXmlSimpleReader::parseAttType()
 
     }
 
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
-
 parseError:
     reportParseError();
     return FALSE;
@@ -4476,10 +4429,6 @@ bool QXmlSimpleReader::parseAttValue()
 	}
 
     }
-
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
 
 parseError:
     reportParseError();
@@ -4702,10 +4651,6 @@ bool QXmlSimpleReader::parseElementDecl()
 
     }
 
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
-
 parseError:
     reportParseError();
     return FALSE;
@@ -4829,10 +4774,6 @@ bool QXmlSimpleReader::parseNotationDecl()
 
     }
 
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
-
 parseError:
     reportParseError();
     return FALSE;
@@ -4952,10 +4893,6 @@ bool QXmlSimpleReader::parseChoiceSeq()
 	}
 
     }
-
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
 
 parseError:
     reportParseError();
@@ -5220,10 +5157,6 @@ bool QXmlSimpleReader::parseEntityDecl()
 
     }
 
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
-
 parseError:
     reportParseError();
     return FALSE;
@@ -5342,10 +5275,6 @@ bool QXmlSimpleReader::parseEntityValue()
 
     }
 
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
-
 parseError:
     reportParseError();
     return FALSE;
@@ -5448,10 +5377,6 @@ bool QXmlSimpleReader::parseComment()
 
     }
 
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
-
 parseError:
     reportParseError();
     return FALSE;
@@ -5553,10 +5478,6 @@ bool QXmlSimpleReader::parseAttribute()
 
     }
 
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
-
 parseError:
     reportParseError();
     return FALSE;
@@ -5637,10 +5558,6 @@ bool QXmlSimpleReader::parseName( bool useRef )
 
     }
 
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
-
 parseError:
     reportParseError();
     return FALSE;
@@ -5708,10 +5625,6 @@ bool QXmlSimpleReader::parseNmtoken()
 	}
 
     }
-
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
 
 parseError:
     reportParseError();
@@ -6012,10 +5925,6 @@ bool QXmlSimpleReader::parseReference( bool &charDataRead, EntityRecognitionCont
 
     }
 
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
-
 parseError:
     reportParseError();
     return FALSE;
@@ -6067,10 +5976,6 @@ bool QXmlSimpleReader::parseString( const QString& s )
 	}
 
     }
-
-#if !defined(Q_STATEMENT_NOT_REACHED)
-    return TRUE;
-#endif
 
 parseError:
     reportParseError();
