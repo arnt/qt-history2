@@ -1802,11 +1802,13 @@ void QWorkspace::tile()
 	    qApp->sendPostedEvents( 0, QEvent::ShowNormal );
 	    used[row*cols+col] = TRUE;
 	    if ( add ) {
-		c->setGeometry( col*w, row*h, w, 2*h );
+		c->setGeometry( col*w, row*h, QMIN( w, c->windowWidget()->maximumWidth()+c->baseSize().width() ), 
+					      QMIN( 2*h, c->windowWidget()->maximumHeight()+c->baseSize().height() ) );
 		used[(row+1)*cols+col] = TRUE;
 		add--;
 	    } else {
-		c->setGeometry( col*w, row*h, w, h );
+		c->setGeometry( col*w, row*h, QMIN( w, c->windowWidget()->maximumWidth()+c->baseSize().width() ),
+					      QMIN( h, c->windowWidget()->maximumHeight()+c->baseSize().height() ) );
 	    }
 	    while( row < rows && col < cols && used[row*cols+col] ) {
 		col++;
