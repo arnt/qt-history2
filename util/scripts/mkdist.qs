@@ -21,10 +21,12 @@ const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
 
 const user = System.getenv("USER");
 
-var options = [];	// list of all package options
-var tmpDir;		// directory for system temporary files
-var distDir;		// parent directory for all temp packages and the checkout dir
-var checkoutDir;	// directory for P4 checkout
+var options = [];	 // list of all package options
+var tmpDir;		 // directory for system temporary files
+var distDir;		 // parent directory for all temp packages and the checkout dir
+var checkoutDir;	 // directory for P4 checkout
+var licenseHeaders = []; // license text to put in .cpp and .h headers
+var moduleMap = [];      // maps between directories and module/class/application names
 var p4Port;
 var p4Command;
 
@@ -123,6 +125,37 @@ editionRemove["commercial"] = [ new RegExp("GPL") ];
 editionKeep["commercial"] = [ new RegExp(".") ];
 editionRemove["preview"] = [ new RegExp("GPL") ];
 editionKeep["preview"] = [ new RegExp(".") ];
+
+/************************************************************
+ * Mapping from directories to module names
+ */
+
+moduleMap["demonstration applications"]  = new RegExp("^demos");
+moduleMap["example classes"]             = new RegExp("^examples");
+moduleMap["qmake application"]           = new RegExp("^qmake");
+moduleMap["activeqt module"]             = new RegExp("^extensions/activeqt");
+moduleMap["motif module"]                = new RegExp("^extensions/motif");
+moduleMap["compatibility classes"]       = new RegExp("^src/compat");
+moduleMap["core module"]                 = new RegExp("^src/core");
+moduleMap["accessibility module"]        = new RegExp("(^src/gui/accessible|^src/plugins/accessible)");
+moduleMap["dialog module"]               = new RegExp("^src/gui/dialogs");
+moduleMap["embedded classes"]            = new RegExp("(^src/gui/embedded|^src/plugins/gfxdrivers)");
+moduleMap["item views module"]           = new RegExp("^src/gui/itemviews");
+moduleMap["gui module"]                  = new RegExp("^src/gui/kernel");
+moduleMap["painting module"]             = new RegExp("(^src/gui/painting|^src/gui/image|^src/plugins/imageformats)");
+moduleMap["style module"]                = new RegExp("(^src/gui/styles|^src/plugins/styles)");
+moduleMap["text module"]                 = new RegExp("^src/gui/text");
+moduleMap["widgets module"]              = new RegExp("^src/gui/widgets");
+moduleMap["moc application"]             = new RegExp("^src/moc");
+moduleMap["network module"]              = new RegExp("^src/network");
+moduleMap["opengl module"]               = new RegExp("^src/opengl");
+moduleMap["internationalization module"] = new RegExp("^src/plugins/codecs");
+moduleMap["sql module"]                  = new RegExp("(^src/sql|^src/plugins/sqldrivers)");
+moduleMap["tools applications"]          = new RegExp("^src/tools");
+moduleMap["window classes"]              = new RegExp("^src/winmain");
+moduleMap["xml module"]                  = new RegExp("^src/xml");
+moduleMap["assistant application"]       = new RegExp("^tools/assistant");
+moduleMap["qtconfig application"]        = new RegExp("^tools/qtconfig");
 
 /*******************************************************************************
  * Here we go
@@ -531,6 +564,7 @@ function cleanup()
 
 /************************************************************
  * copies the special dist files according to platform and edition
+ * and populates the licenseHeaders array
  */
 function copyDist(packageDir, platform, edition)
 {
@@ -567,6 +601,15 @@ function copyDist(packageDir, platform, edition)
     var dir = new Dir(packageDir);
     dir.rename("LICENSE", ".LICENSE");
     dir.rename("LICENSE-US", ".LICENSE-US");
+
+    // populate licenseHeaders with all files found in dist/licenses
+    var licenseFiles = getFileList(packageDir + "/dist/licenses");
+    for (var i in licenseFiles) {
+	var fileName = licenseFiles[i];
+	var absFileName = packageDir + "/dist/licenses/" + fileName;
+	if (File.exists(absFileName) && File.isFile(absFileName))
+	    licenseHeaders[fileName] = File.read(absFileName);
+    }
 
     //check that key files are present
     var keyFiles = ["README",
@@ -617,6 +660,10 @@ function replaceTags(packageDir, fileList, platform, edition, platName)
     replace[Date().getYear().toString()] = /\$THISYEAR\$/g;
     replace[options["version"]] = /\%VERSION\%/g;
     replace[platName] = /\%DISTNAME\%/g;
+    if (platform + "-" + edition in licenseHeaders)
+	replace[licenseHeaders[platform+"-"+edition]] = /\*\* \$LICENSE\$\n/;
+    else
+	replace[licenseHeaders[edition]] = /\*\* \$LICENSE\$\n/;
     
     var fileName = new String();
     var absFileName = new String();
@@ -631,6 +678,19 @@ function replaceTags(packageDir, fileList, platform, edition, platName)
 	    content = File.read(absFileName);
 	    for (var i in replace)
 		content = content.replace(replace[i], i);
+	    // special case for $MODULE$
+	    if (content.find(/\$MODULE\$/) != -1) {
+		var match = false;	    		
+		for (var i in moduleMap) {
+		    if (fileName.find(moduleMap[i]) != -1) {
+			content = content.replace(/\$MODULE\$/, i);
+			match = true;
+			break;
+		    }
+		}
+		if (!match)
+		    warning("No module map for: " + fileName);
+	    }
 	    File.write(absFileName, content);
 	}
     }
