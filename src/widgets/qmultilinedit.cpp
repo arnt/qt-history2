@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#115 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#116 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -55,6 +55,7 @@
 struct QMultiLineData
 {
     bool isHandlingEvent;
+    int   maxLineWidth;
 };
 
 static const int BORDER = 3;
@@ -137,12 +138,14 @@ static int xPosToCursorPos( const QString &s, const QFontMetrics &fm,
 QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     :QTableView( parent, name)
 {
+    mlData = new QMultiLineData;
+    mlData->isHandlingEvent = FALSE;
     QFontMetrics fm( font() );
     setCellHeight( fm.lineSpacing() + 1 );
     setNumCols( 1 );
 
     setNumRows( 0 );
-    setCellWidth( 1 ); // ### constant width
+    setWidth( 1 ); // ### constant width
     contents = new QList<QString>;
     contents->setAutoDelete( TRUE );
 
@@ -176,8 +179,6 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     markDragY      = 0;
     blinkTimer     = 0;
     scrollTimer    = 0;
-    mlData = new QMultiLineData;
-    mlData->isHandlingEvent = FALSE;
 }
 
 /*! \fn int QMultiLineEdit::numLines() const
@@ -267,6 +268,14 @@ void QMultiLineEdit::setReadOnly( bool on )
 	readOnly = on;
 	setCursor( on ? arrowCursor : ibeamCursor );
     }
+}
+
+/*!
+  Returns the width in pixels of the longest text line in this editor.
+*/
+int QMultiLineEdit::maxLineWidth() const
+{
+    return mlData->maxLineWidth;
 }
 
 /*!
@@ -1071,11 +1080,11 @@ void QMultiLineEdit::insertAt( const QString &txt, int line, int col )
     if ( i==0 ) { //single line
 	oldLine->insert( col, textLine );
 	int w = textWidth( *oldLine );
-	setWidth( QMAX( cellWidth(), w ) );
+	setWidth( QMAX( maxLineWidth(), w ) );
 	if ( onLineAfter )
 	    cursorX += textLine.length();
     } else {
-	int w = cellWidth();
+	int w = maxLineWidth();
 	QString newString = oldLine->mid( col, oldLine->length() );
 	oldLine->remove( col, oldLine->length() );
 	if ( onLineAfter )
@@ -1122,7 +1131,7 @@ void QMultiLineEdit::insertLine( const QString &txt, int line )
     if ( line < 0 || line >= numLines() )
 	line = numLines();
     QString textLine;
-    int w = cellWidth();
+    int w = maxLineWidth();
     uint i = 0;
     do {
 	textLine = getOneLine( txt, i );
@@ -1153,7 +1162,7 @@ void QMultiLineEdit::removeLine( int line )
     if ( cursorY >= line && cursorY > 0 )
 	cursorY--;
     bool updt = autoUpdate() && rowIsVisible( line );
-    bool recalc = textWidth( line ) == cellWidth();
+    bool recalc = textWidth( line ) == maxLineWidth();
     contents->remove( line );
     if ( contents->count() == 0 ) {
 	//debug( "remove: last one gone, inserting dummy" );
@@ -1206,7 +1215,7 @@ void QMultiLineEdit::newLine()
 {
     dummy = FALSE;
     QString *s = getString( cursorY );
-    bool recalc = cursorX != (int)s->length() && textWidth( *s ) == cellWidth();
+    bool recalc = cursorX != (int)s->length() && textWidth( *s ) == maxLineWidth();
     QString newString = s->mid( cursorX, s->length() );
     s->remove( cursorX, s->length() );
     insertLine( newString, cursorY + 1 );
@@ -1230,7 +1239,7 @@ void QMultiLineEdit::killLine()
 	del();
 	return;
     } else {
-	bool recalc = textWidth( *s ) == cellWidth();
+	bool recalc = textWidth( *s ) == maxLineWidth();
 	s->remove( cursorX, s->length() );
 	updateCell( cursorY, 0, TRUE ); //Quick fix; whole line needs update
 	if ( recalc )
@@ -1485,10 +1494,10 @@ void QMultiLineEdit::del()
 	    if ( cursorX == (int) s->length() ) { // remove newline
 		*s += *getString( cursorY + 1 );
 		int w = textWidth( *s );
-		setWidth( QMAX( cellWidth(), w ) );
+		setWidth( QMAX( maxLineWidth(), w ) );
 		removeLine( cursorY + 1 );
 	    } else {
-		bool recalc = textWidth( *s ) == cellWidth();
+		bool recalc = textWidth( *s ) == maxLineWidth();
 		s->remove( cursorX, 1 );
 		updateCell( cursorY, 0, FALSE );
 		if ( recalc )
@@ -1884,7 +1893,7 @@ void QMultiLineEdit::clear()
     while ( contents->remove() )
 	;
     cursorX = cursorY = 0;
-    setCellWidth( 1 );
+    setWidth( 1 );
     insertLine( "", -1 );
     dummy = TRUE;
     markIsOn = FALSE;
@@ -2022,20 +2031,20 @@ void QMultiLineEdit::clipboardChanged()
 }
 
 
-/*!
-  Sets cellWidth() to \a w without updating the entire widget.
-*/
+ /*!
+   Sets maxLineWidth() and maybe cellWidth() to \a w without updating the entire widget.
+ */
 
-void QMultiLineEdit::setWidth( int w )
-{
-    if ( w == cellWidth() )
-	return;
-    bool u = autoUpdate();
-    setAutoUpdate( FALSE );
-    setCellWidth( w );
-    setAutoUpdate( u );
-
-}
+ void QMultiLineEdit::setWidth( int w )
+ {
+    if ( w ==mlData->maxLineWidth )
+        return;
+     bool u = autoUpdate();
+     setAutoUpdate( FALSE );
+     mlData->maxLineWidth = w;
+     setCellWidth( QMAX( contentsRect().width(), w ) );
+     setAutoUpdate( u );
+ }
 
 
 /*!
@@ -2207,3 +2216,13 @@ QSize QMultiLineEdit::sizeHint() const
 
     return QSize( w, h );
 }
+
+/*!
+  Reimplemented to set the column width, so that repaint(FALSE) is safe.
+*/
+
+void QMultiLineEdit::resizeEvent( QResizeEvent *e )
+{
+    QTableView::resizeEvent( e );
+    setCellWidth( QMAX( contentsRect().width(), mlData->maxLineWidth ) );
+}  

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#47 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#48 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -46,7 +46,7 @@ public:
 
     QSize sizeHint() const;
     QSizePolicy sizePolicy() const;
-    
+
     bool	isReadOnly() const;
     bool	isOverwriteMode() const;
 
@@ -65,6 +65,9 @@ public:
     virtual void	setAutoUpdate( bool );
 
     virtual void	setFixedVisibleLines( int lines );
+
+
+    int 	maxLineWidth() const;
 
 public slots:
     void       clear();
@@ -95,6 +98,7 @@ protected:
     void	focusOutEvent( QFocusEvent * );
     void	timerEvent( QTimerEvent * );
     void	leaveEvent( QEvent * );
+    void	resizeEvent( QResizeEvent * );
 
     bool	hasMarkedText() const;
     QString	markedText() const;
