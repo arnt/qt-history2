@@ -41,8 +41,8 @@ public:
     void selectFile(const QString &filename);
     QStringList selectedFiles() const;
 
-    void addFilter(const QString &filter);
-    void addFilters(const QStringList &filters);
+    void setFilter(const QString &filter);
+    void setFilters(const QStringList &filters);
     QStringList filters() const;
 
     void selectFilter(const QString &filter);
@@ -148,7 +148,7 @@ protected slots:
     void currentChanged(const QModelIndex &old, const QModelIndex &current);
     void fileNameChanged(const QString &text);
     void lookInChanged(const QString &text);
-    void setFilter(const QString &filter);
+    void useFilter(const QString &filter);
     void setCurrentDir(const QString &path);
     void populateContextMenu(QMenu *menu, const QModelIndex &index) const;
     void headerClicked(int section);

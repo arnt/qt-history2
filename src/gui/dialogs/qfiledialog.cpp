@@ -235,6 +235,8 @@ const char *qt_file_dialog_filter_reg_exp =
 
 static int qt_combo_insert_unique(QComboBox *combo, const QString &text)
 {
+    if (text.isEmpty())
+        return -1;
     QListBox *box = combo->listBox();
     QListBoxItem *itm = box->findItem(text, Qt::ExactMatch);
     if (itm)
@@ -280,6 +282,8 @@ public:
     void setDirSorting(int spec);
     void setDirFilter(int spec);
     void setSelectionMode(int mode);
+
+    inline QString tr(const char *text) const { return QObject::tr(text); }
 
     QDirModel *model;
     QGenericListView *lview;
@@ -353,7 +357,6 @@ void QFileDialog::selectFile(const QString &filename)
 QStringList QFileDialog::selectedFiles() const
 {
     QModelIndexList items = d->lview->selectionModel()->selectedItems();
-    //qDebug("selected items list count %d", items.count());
     QStringList files;
     int r = -1;
     for (int i = 0; i < items.count(); ++i) {
@@ -367,14 +370,18 @@ QStringList QFileDialog::selectedFiles() const
     return files;
 }
 
-void QFileDialog::addFilter(const QString &filter)
+void QFileDialog::setFilter(const QString &filter)
 {
+    d->fileType->clear();
     d->fileType->insertItem(filter);
+    useFilter(filter);
 }
 
-void QFileDialog::addFilters(const QStringList &filters)
+void QFileDialog::setFilters(const QStringList &filters)
 {
+    d->fileType->clear();
     d->fileType->insertStringList(filters);
+    useFilter(filters.first());
 }
 
 QStringList QFileDialog::filters() const
@@ -611,9 +618,11 @@ void QFileDialog::fileNameChanged(const QString &text)
 void QFileDialog::lookInChanged(const QString &text)
 {
     if (d->lookInEdit->hasFocus() && !text.isEmpty()) {
+        QString pth = text.left(text.findRev('/'));
+        QModelIndex dirIndex = d->model->index(pth);
         QString searchText = text.section('/', -1);
-        int rowCount = d->model->rowCount(d->root());
-        QModelIndexList indices = d->model->match(d->model->topLeft(d->root()),
+        int rowCount = d->model->rowCount(dirIndex);
+        QModelIndexList indices = d->model->match(d->model->topLeft(dirIndex),
                                                   QAbstractItemModel::Display,
                                                   searchText, rowCount);
         int key = d->lookInEdit->lastKeyPressed();
@@ -636,7 +645,7 @@ void QFileDialog::lookInChanged(const QString &text)
     }
 }
 
-void QFileDialog::setFilter(const QString &filter)
+void QFileDialog::useFilter(const QString &filter)
 {
     QRegExp regexp(QString::fromLatin1(qt_file_dialog_filter_reg_exp));
     QString f = filter;
@@ -808,20 +817,20 @@ void QFileDialogPrivate::setup()
     grid->addWidget(tview, 1, 0, 1, 6);
 
     // actions
-    openAction = new QAction("&Open", q);
-    renameAction = new QAction("&Rename", q);
-    deleteAction = new QAction("&Delete", q);
-    reloadAction = new QAction("&Reload", q);
-    sortByNameAction = new QAction("Sort by &Name", q);
+    openAction = new QAction(tr("&Open"), q);
+    renameAction = new QAction(tr("&Rename"), q);
+    deleteAction = new QAction(tr("&Delete"), q);
+    reloadAction = new QAction(tr("&Reload"), q);
+    sortByNameAction = new QAction(tr("Sort by &Name"), q);
     sortByNameAction->setCheckable(true);
     sortByNameAction->setChecked(true);
-    sortBySizeAction = new QAction("Sort by &Size", q);
+    sortBySizeAction = new QAction(tr("Sort by &Size"), q);
     sortBySizeAction->setCheckable(true);
-    sortByDateAction = new QAction("Sort by &Date", q);
+    sortByDateAction = new QAction(tr("Sort by &Date"), q);
     sortByDateAction->setCheckable(true);
-    unsortedAction = new QAction("&Unsorted", q);
+    unsortedAction = new QAction(tr("&Unsorted"), q);
     unsortedAction->setCheckable(true);
-    showHiddenAction = new QAction("Show &hidden files", q);
+    showHiddenAction = new QAction(tr("Show &hidden files"), q);
     showHiddenAction->setCheckable(true);
 
     
@@ -857,16 +866,16 @@ void QFileDialogPrivate::setup()
     QObject::connect(tview->header(), SIGNAL(sectionClicked(int, ButtonState)),
                      q, SLOT(headerClicked(int)));
 
-    grid->addWidget(new QLabel("Look in:", q), 0, 0);
-    grid->addWidget(new QLabel("File name:", q), 2, 0);
-    grid->addWidget(new QLabel("Files of type:", q), 3, 0);
+    grid->addWidget(new QLabel(tr("Look in:"), q), 0, 0);
+    grid->addWidget(new QLabel(tr("File name:"), q), 2, 0);
+    grid->addWidget(new QLabel(tr("Files of type:"), q), 3, 0);
 
     // push buttons
-    QPushButton *accept = new QPushButton("Open", q);
+    QPushButton *accept = new QPushButton(tr("Open"), q);
     QObject::connect(accept, SIGNAL(clicked()), q, SLOT(accept()));
     grid->addWidget(accept, 2, 5, Qt::AlignLeft);
 
-    QPushButton *reject = new QPushButton("Cancel", q);
+    QPushButton *reject = new QPushButton(tr("Cancel"), q);
     QObject::connect(reject, SIGNAL(clicked()), q, SLOT(reject()));
     grid->addWidget(reject, 3, 5, Qt::AlignLeft);
 
@@ -891,7 +900,7 @@ void QFileDialogPrivate::setup()
     fileType->setDuplicatesEnabled(false);
     fileType->insertStringList(QFileDialog::tr("All Files (*)"));
     QObject::connect(fileType, SIGNAL(activated(const QString&)),
-                     q, SLOT(setFilter(const QString&)));
+                     q, SLOT(useFilter(const QString&)));
     grid->addWidget(fileType, 3, 2, 1, 3);
 
     // tool buttons
@@ -900,7 +909,7 @@ void QFileDialogPrivate::setup()
 
     back = new QToolButton(q);
     back->setIcon(QPixmap(back_xpm));
-    back->setToolTip("Back");
+    back->setToolTip(tr("Back"));
     back->setAutoRaise(true);
     back->setEnabled(false);
     back->setFixedSize(tools);
@@ -909,7 +918,7 @@ void QFileDialogPrivate::setup()
 
     toParent = new QToolButton(q);
     toParent->setIcon(QPixmap(cdtoparent_xpm));
-    toParent->setToolTip("Parent Directory");
+    toParent->setToolTip(tr("Parent Directory"));
     toParent->setAutoRaise(true);
     toParent->setEnabled(model->parent(root()).isValid());
     toParent->setFixedSize(tools);
@@ -918,7 +927,7 @@ void QFileDialogPrivate::setup()
 
     newFolder = new QToolButton(q);
     newFolder->setIcon(QPixmap(newfolder_xpm));
-    newFolder->setToolTip("Create New Folder");
+    newFolder->setToolTip(tr("Create New Folder"));
     newFolder->setAutoRaise(true);
     newFolder->setFixedSize(tools);
     QObject::connect(newFolder, SIGNAL(clicked()), q, SLOT(mkdir()));
@@ -926,7 +935,7 @@ void QFileDialogPrivate::setup()
 
     listMode = new QToolButton(q);
     listMode->setIcon(QPixmap(mclistview_xpm));
-    listMode->setToolTip("List View");
+    listMode->setToolTip(tr("List View"));
     listMode->setAutoRaise(true);
     listMode->setDown(true);
     listMode->setFixedSize(tools);
@@ -935,7 +944,7 @@ void QFileDialogPrivate::setup()
 
     detailMode = new QToolButton(q);
     detailMode->setIcon(QPixmap(detailedview_xpm));
-    detailMode->setToolTip("Detail View");
+    detailMode->setToolTip(tr("Detail View"));
     detailMode->setAutoRaise(true);
     detailMode->setFixedSize(tools);
     QObject::connect(detailMode, SIGNAL(clicked()), q, SLOT(showDetail()));
@@ -1126,7 +1135,7 @@ static QFileDialog *qt_create_file_dialog(QWidget *parent,
     dlg->setModal(true);
     dlg->setWindowTitle(caption);
     if (filter != QString())
-        dlg->addFilters(qt_make_filter_list(filter));
+        dlg->setFilters(qt_make_filter_list(filter));
     if (selectedFilter)
         dlg->selectFilter(*selectedFilter);
     if (!initialSelection.isEmpty())
