@@ -87,6 +87,7 @@ that is the Qt Developer Community!
  <li><b>\link #Removed Removed functions \endlink</b>
  <li><b>\link #QRegExp QRegExp \endlink</b>
  <li><b>\link #QTranslator QTranslator \endlink</b>
+ <li><b>\link #QXml QXml classes \endlink</b>
  <li><b>\link #Bezier Bezier Curves \endlink</b>
 </ul>
 
@@ -319,6 +320,33 @@ conversion, you will also gain support for translator comments and for any
 future extension.
 </dd>
 </dl>
+
+<h3><a name="QXml">QXml classes</a></h3>
+The semantics of QXmlInputSource has slightly changed. This change affects
+only code that parses the same data from the same input source multiple
+times. In that cases you have to do a QXmlInputSource::reset() before the
+second call to QXmlSimpleReader::parse().
+
+So code like:
+\code
+    QXmlInputSource source( &xmlFile );
+    QXmlSimpleReader reader;
+    ...
+    reader.parse( source );
+    ...
+    reader.parse( source );
+\endcode
+
+Has to be changed to:
+\code
+    QXmlInputSource source( &xmlFile );
+    QXmlSimpleReader reader;
+    ...
+    reader.parse( source );
+    ...
+    source.reset();
+    reader.parse( source );
+\endcode
 
 <h3><a name="Bezier">Bezier Curves</a></h3>
 The function names for Bezier curves in \c QPainter and
