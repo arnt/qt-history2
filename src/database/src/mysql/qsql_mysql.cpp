@@ -231,6 +231,7 @@ QMySQLDriver::QMySQLDriver( QObject * parent, const char * name )
 void QMySQLDriver::init()
 {
     setTransactionSupport( FALSE );
+    setQuerySizeSupport( TRUE );
     d = new QMySQLPrivate();
 }
 
