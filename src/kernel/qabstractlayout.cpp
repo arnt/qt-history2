@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#16 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -673,11 +673,10 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
     }
     case QEvent::ChildRemoved: {
 	QChildEvent *c = (QChildEvent*)e;
-	if ( 1 ) { // ###hanord: FMR c->child()->isWidgetType() ) {
-	    QWidget *w = (QWidget*)c->child();
-	    if ( w == menubar )
-		menubar = 0;
-	    removeWidget( w );
+	QWidget *w = (QWidget*)c->child();
+	if ( w == menubar )
+	    menubar = 0;
+	if (removeWidget( w ) ) {
 	    QEvent *lh = new QEvent( QEvent::LayoutHint );
 	    QApplication::postEvent( o, lh );
 	}
@@ -908,7 +907,7 @@ void QLayout::invalidate()
   The sizing types are:
 <ul>
     <li> \c Fixed - the sizeHint() is the only acceptable alternative,
-		so never grow or shrink 
+		so never grow or shrink
 		(eg. the vertical direction of a pushbutton)
     <li> \c Minimum - the sizeHint() is minimal, and sufficient. The widget
 		can be expanded, but there is no advantage to it being larger.
@@ -916,18 +915,18 @@ void QLayout::invalidate()
     <li> \c Maximum - the sizeHint() is a maximum, the widget can be shrunk
 		any amount without detriment if other widgets need the space
 	       	(eg. a separator line)
-    <li> \c Preferred - the sizeHint() is best, but the widget can 
+    <li> \c Preferred - the sizeHint() is best, but the widget can
  		be shrunk below that and still be useful. The widget
-		can be expanded, but there is no advantage to it being 
+		can be expanded, but there is no advantage to it being
 		larger than sizeHint()
 		(the default QWidget policy)
     <li> \c MinimumExpanding - the sizeHint() is a minimum,
-		the widget can make use of extra space, so it 
+		the widget can make use of extra space, so it
 		should get as much space as possible.
 		(not currently used by any standard Qt widgets)
-    <li> \c Expanding - the sizeHint() is a sensible size, but the widget can 
+    <li> \c Expanding - the sizeHint() is a sensible size, but the widget can
  		be shrunk below that and still be useful.
-		The widget can make use of extra space, so it should 
+		The widget can make use of extra space, so it should
 		get as much space as possible.
 		(eg. the horizontal direction of a slider)
 </ul>
