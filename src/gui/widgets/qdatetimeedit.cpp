@@ -877,6 +877,8 @@ void QDateTimeEdit::stepBy(int steps)
 
 QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
 {
+    if (!style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds))
+        return StepUpEnabled | StepDownEnabled;
     switch (d->currentsection) {
     case QDateTimeEditPrivate::NoSection:
     case QDateTimeEditPrivate::FirstSection:

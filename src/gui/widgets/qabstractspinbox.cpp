@@ -349,8 +349,8 @@ void QAbstractSpinBox::clear()
     Virtual function that determines whether stepping up and down is
     legal at any given time.
 
-    The up arrow will be painted as disabled unless stepEnabled() &
-    StepUpEnabled != 0.
+    The up arrow will be painted as disabled unless (stepEnabled() &
+    StepUpEnabled) != 0.
 
     The default implementation will return (StepUpEnabled|
     StepDownEnabled) if wrapping is turned on. Else it will return
@@ -365,6 +365,8 @@ void QAbstractSpinBox::clear()
 
 QAbstractSpinBox::StepEnabled QAbstractSpinBox::stepEnabled() const
 {
+    if (!style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds))
+        return StepUpEnabled | StepDownEnabled;
     StepEnabled ret = StepNone;
     if (d->wrapping || d->value < d->maximum) {
         ret |= StepUpEnabled;
