@@ -872,11 +872,11 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	updateBrush();
         QPixmap *pm = cbrush.data->pixmap;
 	if(pm && !pm->isNull()) 
-	    drawTiledPixmap(x, y, w, h, *pm, 0, 0);
+	    drawTiledPixmap(x, y, w, h, *pm, x - bro.x(), y - bro.y());
 	if(brush_style_pix) {
 	    if(!pm || pm->isNull()) 
 		PaintRect( &rect );
-	    drawTiledPixmap(x, y, w, h, *brush_style_pix, 0, 0);
+	    drawTiledPixmap(x, y, w, h, *brush_style_pix, x - bro.x(), y - bro.y());
 	}
     }
 
