@@ -54,16 +54,20 @@ public:
 	int width, height;
 	CGPatternRef fill_pattern;
 	CGColorSpaceRef fill_colorspace;
-	inline void mac_point(const int &inx, const int &iny, float *outx, float *outy) {
-	    *outx = inx;
-	    *outy = height-iny;
-	}
-	inline void mac_rect(const int &inx, const int &iny, const int &inw, const int &inh, CGRect *rct) {
-	    float x, y;
-	    mac_point(inx, iny, &x, &y);
-	    *rct = CGRectMake(x, y, inw, -inh);
-	}
     } cg_info;
+    inline void cg_mac_point(const int &inx, const int &iny, float *outx, float *outy) {
+	if(outx)
+	    *outx = inx + offx;
+	if(outy)
+	    *outy = cg_info.height-(iny+offy);
+    }
+    inline void cg_mac_point(const int &inx, const int &iny, CGPoint *p) {
+	cg_mac_point(inx, iny, &p->x, &p->y);
+    }
+    inline void cg_mac_rect(const int &inx, const int &iny, const int &inw, const int &inh, CGRect *rct) {
+	*rct = CGRectMake(0, 0, inw, -inh);
+	cg_mac_point(inx, iny, &rct->origin);
+    }
 };
 
 
@@ -288,7 +292,7 @@ void QPainter::updatePen()
 	cglinecap = kCGLineCapRound;
     CGContextSetLineCap((CGContextRef)hd, cglinecap);
     
-    CGContextSetLineWidth((CGContextRef)hd, (float)cpen.width());
+    CGContextSetLineWidth((CGContextRef)hd, (float)(cpen.width() < 1 ? 1 : cpen.width()));
 
     const QColor &col = cpen.color();
     CGContextSetRGBStrokeColor((CGContextRef)hd, qt_mac_convert_color_to_cg(col.red()),
@@ -728,8 +732,9 @@ void QPainter::flush(const QRegion &rgn, CoordinateMode m)
 {
     if(!isActive())
 	return;
-    initPaintDevice();
 
+    //QuickDraw
+    initPaintDevice();
     QRegion b;
     if(m == CoordDevice)
 	b = rgn;
@@ -737,14 +742,23 @@ void QPainter::flush(const QRegion &rgn, CoordinateMode m)
 	b = xmat * rgn;
     b.translate(d->offx, d->offy);
     QMacSavedPortInfo::flush(pdev, b & d->qd_info.paintreg, TRUE);
+
+    //CoreGraphics
+    CGContextFlush((CGContextRef)hd);
 }
 
 void QPainter::flush()
 {
     if(!isActive())
 	return;
+
+    //QuickDraw
     initPaintDevice();
     QMacSavedPortInfo::flush(pdev, d->qd_info.paintreg, TRUE);
+
+    //CoreGraphics
+    CGContextFlush((CGContextRef)hd);
+
 }
 
 void QPainter::setBackgroundColor(const QColor &c)
@@ -764,7 +778,6 @@ void QPainter::setBackgroundColor(const QColor &c)
 	updatePen();				// update pen setting
     if(!brushRef)
 	updateBrush();				// update brush setting
-
 }
 
 void QPainter::setBackgroundMode(BGMode m)
@@ -853,12 +866,40 @@ void QPainter::setClipping(bool b)
 	return;
     }
 
+    bool old_clipon = testf(ClipOn);
     if(b)
 	setf(ClipOn);
     else
 	clearf(ClipOn);
+
+    //QuickDraw
     d->qd_info.crgn_dirty = TRUE;
-    initPaintDevice(); //reset the clip region
+
+#ifdef USE_CORE_GRAPHICS
+    //CoreGraphics
+    if(hd) {
+	if(b || b != old_clipon) { //reset the clip
+	    CGContextRelease((CGContextRef)hd);
+	    if(pdev->devType() == QInternal::Widget)
+		hd = ((QWidget*)pdev)->macCGHandle(!d->unclipped);
+	    else 
+		hd = pdev->macCGHandle();
+	    CGContextRetain((CGContextRef)hd);
+	}
+	if(b) {
+	    QVector<QRect> rects = crgn.rects();
+	    const int count = rects.size();
+	    CGRect *cg_rects = (CGRect *)malloc(sizeof(CGRect)*count);
+	    for(int i = 0; i < count; i++) {
+		const QRect &r = rects[i];
+		d->cg_mac_rect(r.x(), r.y(), r.width(), r.height(), cg_rects+i);
+	    }
+	    CGContextAddRects((CGContextRef)hd, cg_rects, count);
+	    CGContextClip((CGContextRef)hd);
+	    free(cg_rects);
+	}
+    }
+#endif
 }
 
 
@@ -880,12 +921,10 @@ void QPainter::setClipRegion(const QRegion &rgn, CoordinateMode m)
 	crgn = rgn;
 	if (!redirection_offset.isNull())
 	    crgn.translate(-redirection_offset);
-    } else
+    } else {
 	crgn = xmat * rgn;
-
-    setf(ClipOn);
-    d->qd_info.crgn_dirty = TRUE;
-    initPaintDevice(); //reset clip region
+    }
+    setClipping(true);
 }
 
 void QPainter::drawPolyInternal(const QPointArray &a, bool close, bool inset)
@@ -894,11 +933,17 @@ void QPainter::drawPolyInternal(const QPointArray &a, bool close, bool inset)
 	return;
 
 #ifdef USE_CORE_GRAPHICS
-    CGContextMoveToPoint((CGContextRef)hd, a[0].x()+d->offx, a[0].y()+d->offy);
-    for(int x = 1; x < a.size(); x++)
-	CGContextAddLineToPoint((CGContextRef)hd, a[x].x()+d->offx, a[x].y()+d->offy);
-    if(close)
-	CGContextAddLineToPoint((CGContextRef)hd, a[0].x()+d->offx, a[0].y()+d->offy);
+    float cg_x, cg_y;
+    d->cg_mac_point(a[0].x(), a[0].y(), &cg_x, &cg_y);
+    CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
+    for(int x = 1; x < a.size(); x++) {
+	d->cg_mac_point(a[x].x(), a[x].y(), &cg_x, &cg_y);
+	CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);
+    }
+    if(close) {
+	d->cg_mac_point(a[0].x(), a[0].y(), &cg_x, &cg_y);
+	CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);
+    }
     if(cbrush.style() != NoBrush)
 	CGContextFillPath((CGContextRef)hd);
     if(cpen.style() != NoPen) 
@@ -1057,7 +1102,9 @@ void QPainter::moveTo(int x, int y)
 	map(x, y, &x, &y);
 
 #ifdef USE_CORE_GRAPHICS
-    CGContextMoveToPoint((CGContextRef)hd, x+d->offx, y+d->offy);
+    float cg_x, cg_y;
+    d->cg_mac_point(x, y, &cg_x, &cg_y);
+    CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
 #else
     initPaintDevice();
     MoveTo(x+d->offx, y+d->offy);
@@ -1079,9 +1126,11 @@ void QPainter::lineTo(int x, int y)
 	map(x, y, &x, &y);
 
 #ifdef USE_CORE_GRAPHICS
-    CGContextAddLineToPoint((CGContextRef)hd, x+d->offx, y+d->offy);  
+    float cg_x, cg_y;
+    d->cg_mac_point(x, y, &cg_x, &cg_y);
+    CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);  
     CGContextStrokePath((CGContextRef)hd);
-    CGContextClosePath((CGContextRef)hd);
+    CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
 #else
     initPaintDevice();
     if(d->qd_info.paintreg.isEmpty())
@@ -1109,12 +1158,21 @@ void QPainter::drawLine(int x1, int y1, int x2, int y2)
 	map(x2, y2, &x2, &y2);
     }
 
+#ifdef USE_CORE_GRAPHICS
+    float cg_x, cg_y;
+    d->cg_mac_point(x1, y1, &cg_x, &cg_y);
+    CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
+    d->cg_mac_point(x2, y2, &cg_x, &cg_y);
+    CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);  
+    CGContextStrokePath((CGContextRef)hd);
+#else
     initPaintDevice();
     if(d->qd_info.paintreg.isEmpty())
 	return;
     updatePen();
     MoveTo(x1+d->offx,y1+d->offy);
     LineTo(x2+d->offx,y2+d->offy);
+#endif
 }
 
 void QPainter::drawRect(int x, int y, int w, int h)
@@ -1144,7 +1202,7 @@ void QPainter::drawRect(int x, int y, int w, int h)
 
 #ifdef USE_CORE_GRAPHICS
     CGRect mac_rect;
-    d->cg_info.mac_rect(x+d->offx, y+d->offy, w, h, &mac_rect);
+    d->cg_mac_rect(x, y, w, h, &mac_rect);
     if(cbrush.style() != NoBrush)
 	CGContextFillRect((CGContextRef)hd, mac_rect);
     if(cpen.style() != NoPen) 
