@@ -121,9 +121,9 @@ static QString textNoAccel( const QString& text)
 
 MainWindow::MainWindow( bool asClient, bool single )
 #if defined(HAVE_KDE)
-    : KMainWindow( 0, "mainwindow", WType_TopLevel | (single ? 0 : WDestructiveClose) | WGroupLeader ),
+    : KMainWindow( 0, "designer_mainwindow", WType_TopLevel | (single ? 0 : WDestructiveClose) | WGroupLeader ),
 #else
-    : QMainWindow( 0, "mainwindow", WType_TopLevel | (single ? 0 : WDestructiveClose) | WGroupLeader ),
+    : QMainWindow( 0, "designer_mainwindow", WType_TopLevel | (single ? 0 : WDestructiveClose) | WGroupLeader ),
 #endif
       grd( 10, 10 ), sGrid( TRUE ), snGrid( TRUE ), restoreConfig( TRUE ), splashScreen( TRUE ),
       docPath( "$QTDIR/doc/html" ), fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
