@@ -170,13 +170,16 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
         w = doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, task, x, y, p);
     }
     if(w && textFlags != 0) {
+        QBrush oldBrush = p->painter()->brush();
+        p->painter()->setBrush(p->painter()->pen().color());
         int lw = lineThickness().toInt();
         if(textFlags & Qt::TextUnderline)
-            p->drawRect(QRect(x, y+underlinePosition().toInt(), si.right_to_left ? -w : w, lw));
+            p->painter()->drawRect(QRect(x, y+underlinePosition().toInt(), si.right_to_left ? -w : w, lw));
         if(textFlags & Qt::TextOverline)
-            p->drawRect(QRect(x, y + (ascent().toInt() + 1), si.right_to_left ? -w : w, lw));
+            p->painter()->drawRect(QRect(x, y - (ascent().toInt() + 1), si.right_to_left ? -w : w, lw));
         if(textFlags & Qt::TextStrikeOut)
-            p->drawRect(QRect(x, y + (ascent().toInt() / 3), si.right_to_left ? -w : w, lw));
+            p->painter()->drawRect(QRect(x, y - (ascent().toInt() / 3), si.right_to_left ? -w : w, lw));
+        p->painter()->setBrush(oldBrush);
     }
     if(p->type() == QPaintEngine::CoreGraphics && textAA != lineAA)
         CGContextSetShouldAntialias(qt_macCGHandle(p->painter()->device()), !textAA);
