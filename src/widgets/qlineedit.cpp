@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#227 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#228 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -42,7 +42,7 @@ struct QLineEditPrivate {
 	pm(0), pmDirty( TRUE ),
 	blinkTimer( l, "QLineEdit blink timer" ),
 	dragTimer( l, "QLineEdit drag timer" ),
-	inDoubleClick( FALSE ) {}
+	inDoubleClick( FALSE ), offsetDirty( FALSE ) {}
 
     bool frame;
     QLineEdit::EchoMode mode;
@@ -53,6 +53,7 @@ struct QLineEditPrivate {
     QTimer dragTimer;
     QRect cursorRepaintRect;
     bool inDoubleClick;
+    bool offsetDirty;
 };
 
 
@@ -512,6 +513,8 @@ void QLineEdit::leaveEvent( QEvent * )
 
 void QLineEdit::paintEvent( QPaintEvent *e )
 {
+    if ( d->offsetDirty )
+	updateOffset();
     if ( !d->pm || d->pmDirty ) {
 	makePixmap();
 	QPainter p( d->pm, this );
@@ -1292,7 +1295,7 @@ void QLineEdit::repaintArea( int from, int to )
     }
 
     d->pmDirty = TRUE;
-    if ( cursorPos >= a && cursorPos <= b )
+    if ( d->offsetDirty || cursorPos >= a && cursorPos <= b )
 	updateOffset();
     if ( !d->pmDirty )
 	return;
@@ -1458,9 +1461,11 @@ void QLineEdit::cursorWordBackward( bool mark )
 
 void QLineEdit::updateOffset()
 {
-    if ( !isVisible() )
+    if ( !isVisible() ) {
+	d->offsetDirty = TRUE;
 	return;
-
+    }
+    d->offsetDirty = FALSE;
     makePixmap();
     QFontMetrics fm = fontMetrics();
     int textWidth = fm.width( displayText() )+4;
