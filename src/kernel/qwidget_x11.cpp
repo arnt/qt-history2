@@ -21,7 +21,7 @@
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Unix/X11 may use this file in accordance with the Qt Commercial
 ** License Agreement provided with the Software.
-**
+**:
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
@@ -2321,8 +2321,7 @@ void QWidget::setName( const char *name )
   should never call this.
 */
 
-static Atom edesktop = 0;
-extern void qt_x11_intern_atom(const char *, Atom *);
+extern Atom qt_enlightenment_desktop;
 
 void QWidget::updateFrameStrut()
 {
@@ -2330,10 +2329,6 @@ void QWidget::updateFrameStrut()
 	fleft = fright = ftop = fbottom = 0;
 	return;
     }
-
-    // for Enlightenment
-    if (! edesktop)
-	qt_x11_intern_atom("ENLIGHTENMENT_DESKTOP", &edesktop);
 
     Atom type_ret;
     Window l = winId(), w = winId(), p, r; // target window, it's parent, root
@@ -2353,8 +2348,9 @@ void QWidget::updateFrameStrut()
    	data_ret = 0;
 	if (p == r ||
 #warning "TODO: NET WM virtual root support"
-	    (XGetWindowProperty(QPaintDevice::x11AppDisplay(), p, edesktop, 0, 1, FALSE,
-				XA_CARDINAL, &type_ret, &i_unused, &l_unused, &l_unused,
+	    (XGetWindowProperty(QPaintDevice::x11AppDisplay(), p,
+				qt_enlightenment_desktop, 0, 1, FALSE, XA_CARDINAL,
+				&type_ret, &i_unused, &l_unused, &l_unused,
 				&data_ret) == Success &&
 	     type_ret == XA_CARDINAL)) {
 	    if (data_ret)
