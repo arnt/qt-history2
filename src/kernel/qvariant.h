@@ -226,6 +226,10 @@ private:
     QVariantPrivate* d;
 };
 
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator== ( const QVariant&, const QVariant& );
+#endif
+
 class QVariantPrivate : public QShared
 {
 public:
@@ -419,10 +423,6 @@ Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant& p );
 Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant& p );
 Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant::Type& p );
 Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant::Type p );
-
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-bool operator== ( const QVariant&, const QVariant& );
-#endif
 
 
 #endif
