@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#101 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#102 $
 **
 ** Implementation of QLabel widget class
 **
@@ -33,6 +33,7 @@
 #include <ctype.h>
 #include "qimage.h"
 #include "qbitmap.h"
+#include "qapplication.h"
 
 
 class QLabelPrivate
@@ -721,6 +722,8 @@ void QLabel::movieResized(const QSize& size)
 {
     if (autoresize) adjustSize();
     movieUpdated(QRect(QPoint(0,0),size));
+    if ( !isTopLevel() )
+	QApplication::postEvent( parentWidget(), new QEvent( QEvent::LayoutHint ) );
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#331 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#332 $
 **
 ** Implementation of QWidget class
 **
@@ -193,6 +193,7 @@
 	keyReleaseEvent(),
 	focusInEvent(),
 	focusOutEvent(),
+	wheelEvent(),
 	enterEvent(),
 	leaveEvent(),
 	paintEvent(),
@@ -321,7 +322,7 @@
   <li> focusOutEvent() - called when the widget loses keyboard
   focus.
   </ul>
-
+  
   Some widgets will need to reimplement some more obscure event
   handlers, too: <ul>
 
@@ -339,6 +340,9 @@
   only passed to the widget if they are not used by the focus-change
   mechanisms.  To force those keys to be processed by your widget, you
   must override QWidget::event().
+  
+  <li> wheelEvent() -- called whenever the user turns the mouse wheel
+  while the widget has the focus.
 
   <li> enterEvent() - called when the mouse enters the widget's screen
   space.  (This excludes screen space owned by any children of the
