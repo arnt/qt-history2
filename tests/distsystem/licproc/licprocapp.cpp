@@ -12,7 +12,7 @@
 LicProcApp::LicProcApp( int argc, char** argv ) : QApplication( argc, argv )
 {
     company = "ts3";
-    interval = 120;
+    interval = 300;
     port = 801;
 
     syncTimer.start( interval * 1000, false );
@@ -22,7 +22,7 @@ LicProcApp::LicProcApp( int argc, char** argv ) : QApplication( argc, argv )
     distDB->setUserName( "distributor" );
     distDB->setDatabaseName( "dist" );
     distDB->setPassword( "sendit" );
-    distDB->setHostName( "marijuana.troll.no" );
+    distDB->setHostName( "dist.troll.no" );
 
     connect( &dns, SIGNAL( resultsReady() ), this, SLOT( dnsReady() ) );
 
@@ -51,7 +51,7 @@ void LicProcApp::dnsReady()
     QSocketDevice sock;
     QHostAddress addr;
 
-    bool b = addr.setAddress( "213.203.59.121" );
+    bool b = addr.setAddress( "213.203.59.39" );
 
     if( sock.connect( addr, port ) ) {
 	QTextStream sockStream( &sock );
