@@ -720,10 +720,6 @@ then
     echo "Performing shadow build..."
 fi
 
-### please add a comment here: what is qdir? why do we set it here?
-qdir="\$(QTDIR)"
-[ "$OPT_SHADOW" = "yes" ] && qdir="$outpath"
-
 # we may write in the build tree, let's take advantage of this
 # to test that QTDIR is correctly set to be the build tree
 touch .test.qt.
@@ -2076,7 +2072,7 @@ then
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
     rm -f src/.moc/$QMAKE_OUTDIR/allmoc.cpp # needs remaking if config changes
 fi
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$qdir/lib\""
+QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$outpath/lib\""
 QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
 
 if [ "$CFG_SHARED" = "no" ]
