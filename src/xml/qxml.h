@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#41 $
+** $Id: //depot/qt/main/src/xml/qxml.h#42 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -240,6 +240,7 @@ public:
     virtual void setDeclHandler( QXmlDeclHandler* handler ) = 0;
     virtual QXmlDeclHandler* declHandler() const = 0;
     virtual bool parse( const QXmlInputSource& input ) = 0;
+    virtual bool parse( const QXmlInputSource* input ) = 0;
 };
 
 class QM_EXPORT QXmlSimpleReader : public QXmlReader
@@ -270,7 +271,8 @@ public:
     QXmlDeclHandler* declHandler() const;
 
     bool parse( const QXmlInputSource& input );
-    virtual bool parse( const QXmlInputSource& input, bool incremental );
+    bool parse( const QXmlInputSource* input );
+    virtual bool parse( const QXmlInputSource* input, bool incremental );
     virtual bool parseContinue();
 
 private:
@@ -328,7 +330,7 @@ private:
     void next();
     bool atEnd();
 
-    void init( const QXmlInputSource& i );
+    void init( const QXmlInputSource* i );
     void initData();
 
     bool entityExist( const QString& ) const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#66 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#67 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -5425,7 +5425,7 @@ bool QDomDocumentPrivate::setContent( QXmlInputSource& source, bool namespacePro
     }
     reader.setFeature( "http://trolltech.com/xml/features/report-whitespace-only-CharData", FALSE );
 
-    if ( !reader.parse( source ) ) {
+    if ( !reader.parse( &source ) ) {
 	qWarning( "Parsing error" );
 	return FALSE;
     }

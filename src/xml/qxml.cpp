@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#89 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#90 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2215,8 +2215,13 @@ private:
 /*!
   \fn bool QXmlReader::parse( const QXmlInputSource& input )
 
-  Parses the XML document \a input. Returns TRUE if the parsing was successful,
-  otherwise FALSE.
+  \obsolete
+*/
+/*!
+  \fn bool QXmlReader::parse( const QXmlInputSource* input )
+
+  Reads an XML document from \a input and parses it. Returns TRUE if the
+  parsing was successful, otherwise FALSE.
 */
 
 
@@ -2447,20 +2452,31 @@ QXmlDeclHandler* QXmlSimpleReader::declHandler() const
 /*! \reimp */
 bool QXmlSimpleReader::parse( const QXmlInputSource& input )
 {
+    return parse( &input, FALSE );
+}
+
+/*! \reimp */
+bool QXmlSimpleReader::parse( const QXmlInputSource* input )
+{
     return parse( input, FALSE );
 }
 
 /*! \overload
-  Parses the XML document input. Returns FALSE if the parsing detects an
-  error.
+  Reads an XML document from \a input and parses it. Returns FALSE if the
+  parsing detects an error.
 
   If \a incremental is TRUE, the parser does not return FALSE when it reaches
   the end of the \a input without reaching the end of the XML file. It rather
   stores the state of the parser so that parsing can be continued at a later
   state when more data is available. You can use the function parseContinue()
-  to continue with parsing. If \a incremental is TRUE and the class was used
-  before to do incremental parsing, the state of that parsing session is lost:
-  this function will always start a new parsing session.
+  to continue with parsing. This class stores a pointer to the input source \a
+  input and the parseContinue() tries to read from that input souce. This means
+  you should not delete the input source \a input until you don't call any
+  further parseContinue().
+  
+  If \a incremental is TRUE and the class was used before to do incremental
+  parsing, the state of that parsing session is lost: this function will always
+  start a new parsing session.
 
   If \a incremental is FALSE, this function behaves like the normal parse
   function, i.e. it returns FALSE when the end of input is reached without
@@ -2470,7 +2486,7 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input )
 */
 // ### How to detect when end is reached? (If incremental is TRUE, the
 // returned TRUE doesn't mean that parsing is finished!)
-bool QXmlSimpleReader::parse( const QXmlInputSource& input, bool incremental )
+bool QXmlSimpleReader::parse( const QXmlInputSource *input, bool incremental )
 {
     init( input );
     if ( incremental ) {
@@ -6899,11 +6915,11 @@ bool QXmlSimpleReader::next_eat_ws()
   This private function initializes the reader. \a i is the input source to
   read the data from.
 */
-void QXmlSimpleReader::init( const QXmlInputSource& i )
+void QXmlSimpleReader::init( const QXmlInputSource *i )
 {
     lineNr = 0;
     columnNr = -1;
-    inputSource = (QXmlInputSource *)&i; // ### pointer stuff is not nice
+    inputSource = (QXmlInputSource *)i;
     initData();
 
     d->externParameterEntities.clear();
