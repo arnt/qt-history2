@@ -761,10 +761,12 @@ bool QProcess::canReadLine() const
 */
 void QProcess::close()
 {
-    QIODevice::close();
-    flush();
+    emit aboutToClose();
+    if (bytesToWrite() > 0)
+        flush();
     terminate();
     waitForFinished(-1);
+    setOpenMode(QIODevice::NotOpen);
 }
 
 /*! \reimp
