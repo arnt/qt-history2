@@ -133,11 +133,12 @@ static void setupWidgetListAndMap()
 	widgetInterfaceManager = new QPluginManager<WidgetInterface>( IID_Widget, QApplication::libraryPaths(), "/designer" );
 
     QStringList l = widgetInterfaceManager->featureList();
-    for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it )
+    QStringList::Iterator it;
+    for ( it = l.begin(); it != l.end(); ++it )
 	(*availableWidgetList) << *it;
 
     availableWidgetMap = new QMap<QString, bool>;
-    for ( QStringList::Iterator it = availableWidgetList->begin(); it != availableWidgetList->end(); ++it )
+    for ( it = availableWidgetList->begin(); it != availableWidgetList->end(); ++it )
 	availableWidgetMap->insert( *it, TRUE );
 }
 
