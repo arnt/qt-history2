@@ -1549,11 +1549,12 @@ void Configure::readLicense()
 	while( licenseFile.readLine( buffer, 1024 ) > 0 ) {
 	    if( buffer[ 0 ] != '#' ) {
 		QStringList components = QStringList::split( '=', buffer );
-		QStringList::Iterator it = components.begin();
-		QString key = (*it++).stripWhiteSpace().replace( "\"", QString::null ).upper();
-		QString value = (*it++).stripWhiteSpace().replace( "\"", QString::null );
-
-		licenseInfo[ key ] = value;
+		if ( components.size() >= 2 ) {
+		    QStringList::Iterator it = components.begin();
+		    QString key = (*it++).stripWhiteSpace().replace( "\"", QString::null ).upper();
+		    QString value = (*it++).stripWhiteSpace().replace( "\"", QString::null );
+		    licenseInfo[ key ] = value;
+		}
 	    }
 	}
 	licenseFile.close();
