@@ -1515,9 +1515,8 @@ void Q3MainWindow::childEvent(QChildEvent* e)
 bool Q3MainWindow::event(QEvent * e)
 {
     if (e->type() == QEvent::StatusTip) {
-        QStatusBar *sb = statusBar();
-        if (sb) {
-            sb->message(static_cast<QStatusTipEvent*>(e)->tip());
+        if (d->sb) {
+            d->sb->message(static_cast<QStatusTipEvent*>(e)->tip());
             return true;
         }
     }

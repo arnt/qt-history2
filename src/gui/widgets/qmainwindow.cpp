@@ -20,6 +20,7 @@
 #include <qapplication.h>
 #include <qmenubar.h>
 #include <qstatusbar.h>
+#include <qevent.h>
 
 #include <private/qwidget_p.h>
 #define d d_func()
@@ -300,6 +301,11 @@ bool QMainWindow::event(QEvent *event)
             }
         }
         return true;
+    } else if (event->type() == QEvent::StatusTip) {
+        if (QStatusBar *sb = d->layout->statusBar()) {
+            sb->message(static_cast<QStatusTipEvent*>(event)->tip());
+            return true;
+        }
     } else {
         return QWidget::event(event);
     }
