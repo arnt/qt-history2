@@ -39,7 +39,7 @@ class HierarchyItem : public QListViewItem
 public:
     enum Type {
 	Widget,
-	FunctionParent,
+	SlotParent,
 	Public,
 	Protected,
 	Private,
@@ -127,15 +127,15 @@ protected:
 
 };
 
-class FunctionList : public HierarchyList
+class FormDefinitionView : public HierarchyList
 {
     Q_OBJECT
 
 public:
-    FunctionList( QWidget *parent, FormWindow *fw );
+    FormDefinitionView( QWidget *parent, FormWindow *fw );
 
     void setup();
-    void refreshFunctions( bool doDelete = TRUE );
+    void refresh( bool doDelete = TRUE );
     void setCurrent( QWidget *w );
 
 protected:
@@ -180,9 +180,9 @@ public:
     void pagesChanged( QWizard *w );
     void rebuild();
     void closed( FormWindow *fw );
-    void updateFunctionList();
+    void updateFormDefinitionView();
 
-    FunctionList *functionList() const { return fList; }
+    FormDefinitionView *formDefinitionView() const { return fView; }
 
 protected slots:
     void jumpTo( const QString &func, const QString &clss,int type );
@@ -204,7 +204,7 @@ private:
     };
     FormWindow *formwindow;
     HierarchyList *listview;
-    FunctionList *fList;
+    FormDefinitionView *fView;
     SourceEditor *editor;
     QMap<QString, ClassBrowser> classBrowsers;
     SourceEditor *lastSourceEditor;

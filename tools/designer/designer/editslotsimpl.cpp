@@ -146,7 +146,7 @@ void EditSlots::okClicked()
 		slotListView->setSelected( slotListView->firstChild(), TRUE );
 	    }
 	}
-	formWindow->mainWindow()->objectHierarchy()->updateFunctionList();
+	formWindow->mainWindow()->objectHierarchy()->updateFormDefinitionView();
 	return;
     }
 
@@ -164,7 +164,7 @@ void EditSlots::okClicked()
 	cmd->execute();
     }
 
-    formWindow->mainWindow()->objectHierarchy()->updateFunctionList();
+    formWindow->mainWindow()->objectHierarchy()->updateFormDefinitionView();
     accept();
 }
 

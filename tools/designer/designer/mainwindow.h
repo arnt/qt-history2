@@ -176,6 +176,7 @@ signals:
     void hasActiveForm( bool );
     void hasActiveWindow( bool );
     void hasActiveWindowOrProject( bool );
+    void hasNonDummyProject( bool );
     void formModified( bool );
     void formWindowsChanged();
     void formWindowChanged();
@@ -269,7 +270,7 @@ private slots:
     void recentlyFilesMenuActivated( int id );
     void recentlyProjectsMenuActivated( int id );
 
-    void checkHasActiveWindowOrProject();
+    void emitProjectSignals();
 
 private:
     void setupMDI();
@@ -372,14 +373,12 @@ private:
 #if defined(QT_NON_COMMERCIAL)
     QAction *actionHelpRegister;
 #endif
-    QAction *actionToolsCustomWidget, *actionEditPreferences, *actionEditProjectSettings;
+    QAction *actionToolsCustomWidget, *actionEditPreferences;
     QAction *actionWindowTile, *actionWindowCascade, *actionWindowClose, *actionWindowCloseAll;
     QAction *actionWindowNext, *actionWindowPrevious;
     QAction *actionEditFormSettings, *actionEditAccels;
-    QAction *actionEditDatabaseConnections;
     QAction *actionEditSource;
     QAction *actionSearchFind, *actionSearchIncremetal, *actionSearchReplace, *actionSearchGotoLine;
-    QAction *actionEditPixmapCollection;
 
     QPopupMenu *rmbWidgets;
     QPopupMenu *rmbFormWindow;

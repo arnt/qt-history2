@@ -91,7 +91,7 @@ QString LanguageInterfaceImpl::createFunctionStart( const QString &className, co
 QStringList LanguageInterfaceImpl::definitions() const
 {
     QStringList lst;
-    lst << "Includes (in Implementation)" << "Includes (in Declaration)" << "Forward Declarations" << "Class Variables";
+    lst << "Includes (in Implementation)" <<  "Class Variables" << "Includes (in Declaration)" << "Forward Declarations";
     return lst;
 }
 

@@ -203,7 +203,7 @@ Project::Project( const QString &fn, const QString &pName, QPluginManager<Projec
     setFileName( fn );
     if ( !pName.isEmpty() )
 	proName = pName;
-    sources.setAutoDelete( TRUE );
+    sourcefiles.setAutoDelete( TRUE );
     modified = FALSE;
 }
 
@@ -381,8 +381,13 @@ void Project::parse()
 
     proName = QFileInfo( filename ).baseName();
 
+    QStringList::ConstIterator it;
+    
     uifiles = parse_multiline_part( contents, "FORMS" );
-    uifiles += parse_multiline_part( contents, "INTERFACES" ); // compatibilty
+    uifiles += parse_multiline_part( contents, "INTERFACES" ); // compatibility
+    for ( it = uifiles.begin(); it != uifiles.end(); ++it )
+	(void) new FormFile( *it, FALSE, this );
+    
 
     int i = contents.find( "DBFILE" );
     if ( i != -1 ) {
@@ -414,19 +419,16 @@ void Project::parse()
     if ( iface ) {
 	QStringList sourceKeys;
 	iface->sourceProjectKeys( sourceKeys );
-	for ( QStringList::Iterator spit = sourceKeys.begin(); spit != sourceKeys.end(); ++spit ) {
-	    QStringList lst = parse_multiline_part( contents, *spit );
-	    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-		SourceFile *f = new SourceFile( makeAbsolute( *it ), FALSE, this );
-		f->setFileName( *it );
-		modified = FALSE;
-	    }
+	for ( QStringList::Iterator it = sourceKeys.begin(); it != sourceKeys.end(); ++it ) {
+	    QStringList lst = parse_multiline_part( contents, *it );
+	    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it )
+		(void) new SourceFile( *it, FALSE, this );
 	}
     }
 
     updateCustomSettings();
 
-    for ( QStringList::Iterator it = csList.begin(); it != csList.end(); ++it ) {
+    for ( it = csList.begin(); it != csList.end(); ++it ) {
 	i = contents.find( *it );
 	if ( i != -1 ) {
 	    QString val = "";
@@ -497,11 +499,11 @@ void Project::removeUiFile( const QString &f, FormWindow *fw )
 
 bool Project::removeSourceFile( SourceFile *sf )
 {
-    if ( !sources.containsRef( sf ) )
+    if ( !sourcefiles.containsRef( sf ) )
 	return FALSE;
     if ( !sf->close() )
 	return FALSE;
-    sources.removeRef( sf );
+    sourcefiles.removeRef( sf );
     modified = TRUE;
     emit sourceFileRemoved( sf );
     return TRUE;
@@ -613,19 +615,15 @@ static void remove_multiline_contents( QString &contents, const QString &s, int 
 
 void Project::save()
 {
-    for ( SourceFile *sf = sources.first(); sf; sf = sources.next() ) {
+    for ( SourceFile *sf = sourcefiles.first(); sf; sf = sourcefiles.next() ) {
 	if ( !sf->save() )
 	    return;
     }
 
-
-    //#### FORMS
-    /*
-    for ( FormFile *ff = forms.first(); ff; ff = forms.next() ) {
+    for ( FormFile *ff = formfiles.first(); ff; ff = formfiles.next() ) {
 	if ( !ff->save() )
 	    return;
     }
-    */
 	
     if ( isDummy()  || filename.isEmpty() )
 	return;
@@ -694,9 +692,9 @@ void Project::save()
 
     contents += "LANGUAGE\t= " + lang + "\n";
 
-    if ( !sources.isEmpty() && iface ) {
+    if ( !sourcefiles.isEmpty() && iface ) {
 	QMap<QString, QStringList> sourceToKey;
-	for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
+	for ( SourceFile *f = sourcefiles.first(); f; f = sourcefiles.next() ) {
 	    QString key = iface->projectKeyForExtension( QFileInfo( f->fileName() ).extension() );
 	    QStringList lst = sourceToKey[ key ];
 	    lst << makeRelative( f->fileName() );
@@ -1135,9 +1133,30 @@ void Project::setActive( bool b )
 
 void Project::addSourceFile( SourceFile *sf )
 {
-    sources.append( sf );
+    sourcefiles.append( sf );
     modified = TRUE;
     emit sourceFileAdded( sf );
+}
+
+
+SourceFile* Project::findSourceFile( const QString& filename ) const
+{
+    QPtrListIterator<SourceFile> it(sourcefiles);
+    while ( it.current() ) {
+	if ( it.current()->fileName() == filename )
+	    return it.current();
+    }
+    return 0;
+}
+
+FormFile* Project::findFormFile( const QString& filename ) const
+{
+    QPtrListIterator<FormFile> it(formfiles);
+    while ( it.current() ) {
+	if ( it.current()->fileName() == filename )
+	    return it.current();
+    }
+    return 0;
 }
 
 QPtrList<FormWindow> Project::unnamedForms() const

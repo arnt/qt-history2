@@ -583,9 +583,10 @@ void Uic::createFormImpl( const QDomElement &e )
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement n2 = nl.item(i).toElement();
 	QString s = n2.firstChild().toText().data();
-	if ( n2.attribute( "impldecl", "in implementation" ) == "in implementation" &&
-	     n2.attribute( "location" ) != "local" ) {
+	if ( n2.attribute( "location" ) != "local" ) {
 	    if ( s.right( 5 ) == ".ui.h" && !QFile::exists( s ) )
+		continue;
+	    if ( n2.attribute( "impldecl", "in implementation" ) != "in implementation" )
 		continue;
 	    globalIncludes += s;
 	}
@@ -618,9 +619,10 @@ void Uic::createFormImpl( const QDomElement &e )
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement n2 = nl.item(i).toElement();
 	QString s = n2.firstChild().toText().data();
-	if ( n2.attribute( "impldecl", "in implementation" ) == "in implementation" &&
-	     n2.attribute( "location" ) == "local" &&!globalIncludes.contains( s ) ) {
+	if ( n2.attribute( "location" ) == "local" &&!globalIncludes.contains( s ) ) {
 	    if ( s.right( 5 ) == ".ui.h" && !QFile::exists( s ) )
+		continue;
+	    if ( n2.attribute( "impldecl", "in implementation" ) != "in implementation" )
 		continue;
 	    localIncludes += s;
 	}

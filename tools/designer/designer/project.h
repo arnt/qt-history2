@@ -172,13 +172,15 @@ public:
 
     void setActive( bool b );
 
-    QPtrListIterator<SourceFile> sourceFiles() const { return QPtrListIterator<SourceFile>(sources); }
+    QPtrListIterator<SourceFile> sourceFiles() const { return QPtrListIterator<SourceFile>(sourcefiles); }
     void addSourceFile( SourceFile *sf );
     bool removeSourceFile( SourceFile *sf );
+    SourceFile* findSourceFile( const QString& filename ) const;
 
     QPtrListIterator<FormFile> formFiles() const { return QPtrListIterator<FormFile>(formfiles); }
     void addFormFile( FormFile *ff );
     bool removeFormFile( FormFile *ff );
+    FormFile* findFormFile( const QString& filename ) const;
 
     QPtrList<FormWindow> unnamedForms() const;
     QPtrList<FormWindow> forms() const;
@@ -234,7 +236,7 @@ private:
     QStringList csList;
     QPluginManager<ProjectSettingsInterface> *projectSettingsPluginManager;
     PixmapCollection *pixCollection;
-    QPtrList<SourceFile> sources;
+    QPtrList<SourceFile> sourcefiles;
     QPtrList<FormFile> formfiles;
     QMap<QString, QString> inclPath, defs, lbs, cfg;
     QString templ;

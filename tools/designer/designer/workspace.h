@@ -32,34 +32,37 @@ class QDragEnterEvent;
 class MainWindow;
 class Project;
 class SourceFile;
+class FormFile;
 class QCompletionEdit;
 class SourceEditor;
 
 class WorkspaceItem : public QListViewItem
 {
 public:
-    enum Type { ProjectType, FormType, FormUiType, FormSourceType, SourceFileType };
+    enum Type { ProjectType, FormFileType, FormUiType, FormSourceType, SourceFileType };
 
     WorkspaceItem( QListView *parent, Project* p );
     WorkspaceItem( QListViewItem *parent, SourceFile* sf );
+    WorkspaceItem( QListViewItem *parent, FormFile* ff );
 
     void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );
     void updateBackColor();
 
     Type type() const { return t; }
-    
+
     bool isModified() const;
-    
+
     QString text( int ) const;
-    
+
     void fillCompletionList( QStringList& completion );
 
     Project* project;
     SourceFile* sourceFile;
-    
+    FormFile* formFile;
+
 private:
     void init();
-    
+
     QColor backgroundColor();
     QColor backColor;
     Type t;
@@ -101,9 +104,9 @@ public:
 //     void openForm( const QString &filename );
 
 public slots:
-    
+
     void update();
-    
+
     void activeFormChanged( FormWindow *fw );
     void activeEditorChanged( SourceEditor *se );
 
@@ -116,14 +119,14 @@ private slots:
     void itemClicked( int, QListViewItem *i );
     void rmbClicked( QListViewItem *i );
     void bufferChosen( const QString &buffer );
-    
+
     void projectDestroyed( QObject* );
-    
+
     void sourceFileAdded( SourceFile* );
     void sourceFileRemoved( SourceFile* );
 
 private:
-    WorkspaceItem *findItem( FormWindow *fw );
+    WorkspaceItem *findItem( FormFile *ff );
     WorkspaceItem *findItem( SourceFile *sf );
 
 private:

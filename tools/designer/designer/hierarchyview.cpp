@@ -193,7 +193,6 @@ HierarchyList::HierarchyList( QWidget *parent, FormWindow *fw, bool doConnects )
     tabWidgetMenu = 0;
     addColumn( tr( "Name" ) );
     addColumn( tr( "Class" ) );
-    setRootIsDecorated( TRUE );
     QPalette p( palette() );
     p.setColor( QColorGroup::Base, QColor( *backColor2 ) );
     (void)*selectedBack; // hack
@@ -550,7 +549,7 @@ void HierarchyList::removeTabPage()
 
 // ------------------------------------------------------------
 
-FunctionList::FunctionList( QWidget *parent, FormWindow *fw )
+FormDefinitionView::FormDefinitionView( QWidget *parent, FormWindow *fw )
     : HierarchyList( parent, fw, TRUE )
 {
     header()->hide();
@@ -560,7 +559,7 @@ FunctionList::FunctionList( QWidget *parent, FormWindow *fw )
     popupOpen = FALSE;
 }
 
-void FunctionList::setup()
+void FormDefinitionView::setup()
 {
     if ( popupOpen )
 	return;
@@ -588,35 +587,36 @@ void FunctionList::setup()
 	lIface->release();
     }
 
-    refreshFunctions( FALSE );
+    refresh( FALSE );
 }
 
-void FunctionList::refreshFunctions( bool doDelete )
+void FormDefinitionView::refresh( bool doDelete )
 {
     if ( popupOpen )
 	return;
     if ( !formWindow )
 	return;
-    if ( doDelete ) {
-	QListViewItem *i = firstChild();
-	while ( i ) {
-	    if ( i->rtti() == HierarchyItem::FunctionParent ) {
-		delete i;
-		break;
-	    }
+    QListViewItem *i = firstChild();
+    while ( i ) {
+	if ( doDelete && i->rtti() == HierarchyItem::SlotParent ) {
+	    QListViewItem* a = i;
 	    i = i->nextSibling();
+	    delete a;
+	    continue;
 	}
+	i = i->nextSibling();
     }
 
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formWindow );
-    HierarchyItem *itemFunctions = new HierarchyItem( HierarchyItem::FunctionParent,
-						      this, tr( "Functions" ), QString::null, QString::null );
-    itemFunctions->setPixmap( 0, *folderPixmap );
-    HierarchyItem *itemPrivate = new HierarchyItem( HierarchyItem::Private, itemFunctions, tr( "private" ),
+    HierarchyItem *itemSlots = new HierarchyItem( HierarchyItem::SlotParent,
+						  this, tr( "Slots" ), QString::null, QString::null );
+    itemSlots->moveItem( i );
+    itemSlots->setPixmap( 0, *folderPixmap );
+    HierarchyItem *itemPrivate = new HierarchyItem( HierarchyItem::Private, itemSlots, tr( "private" ),
 						    QString::null, QString::null );
-    HierarchyItem *itemProtected = new HierarchyItem( HierarchyItem::Protected, itemFunctions, tr( "protected" ),
+    HierarchyItem *itemProtected = new HierarchyItem( HierarchyItem::Protected, itemSlots, tr( "protected" ),
 						      QString::null, QString::null );
-    HierarchyItem *itemPublic = new HierarchyItem( HierarchyItem::Public, itemFunctions, tr( "public" ),
+    HierarchyItem *itemPublic = new HierarchyItem( HierarchyItem::Public, itemSlots, tr( "public" ),
 						   QString::null, QString::null );
     QValueList<MetaDataBase::Slot>::Iterator it = --( slotList.end() );
     if ( !slotList.isEmpty() ) {
@@ -640,15 +640,15 @@ void FunctionList::refreshFunctions( bool doDelete )
     itemPrivate->setOpen( TRUE );
     itemProtected->setOpen( TRUE );
     itemPublic->setOpen( TRUE );
-    itemFunctions->setOpen( TRUE );
+    itemSlots->setOpen( TRUE );
 }
 
 
-void FunctionList::setCurrent( QWidget * )
+void FormDefinitionView::setCurrent( QWidget * )
 {
 }
 
-void FunctionList::objectClicked( QListViewItem *i )
+void FormDefinitionView::objectClicked( QListViewItem *i )
 {
     if ( !i )
 	return;
@@ -660,8 +660,8 @@ static HierarchyItem::Type getChildType( int type )
 {
     switch ( (HierarchyItem::Type)type ) {
     case HierarchyItem::Widget:
-    case HierarchyItem::FunctionParent:
-	qWarning( "getChildType: Inserting childs dynamically to Widget or FunctionParent is not allwowed!" );
+    case HierarchyItem::SlotParent:
+	qWarning( "getChildType: Inserting childs dynamically to Widget or SlotParent is not allwowed!" );
 	return (HierarchyItem::Type)type;
     case HierarchyItem::Public:
     case HierarchyItem::Protected:
@@ -692,12 +692,12 @@ void HierarchyList::insertEntry( QListViewItem *i, const QPixmap &pix, const QSt
     item->startRename( 0 );
 }
 
-void FunctionList::contentsMouseDoubleClickEvent( QMouseEvent *e )
+void FormDefinitionView::contentsMouseDoubleClickEvent( QMouseEvent *e )
 {
     QListViewItem *i = itemAt( contentsToViewport( e->pos() ) );
     if ( !i )
 	return;
-    if ( i->rtti() == HierarchyItem::FunctionParent )
+    if ( i->rtti() == HierarchyItem::SlotParent )
 	return;
     HierarchyItem::Type t = getChildType( i->rtti() );
     if ( (int)t == i->rtti() )
@@ -720,11 +720,11 @@ void FunctionList::contentsMouseDoubleClickEvent( QMouseEvent *e )
 }
 
 
-void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
+void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 {
     if ( !i )
 	return;
-    if ( i->rtti() == HierarchyItem::FunctionParent )
+    if ( i->rtti() == HierarchyItem::SlotParent )
 	return;
 
     if ( i->rtti() == HierarchyItem::Slot ) {
@@ -764,7 +764,7 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	} else if ( res == REMOVE ) {
 	    MetaDataBase::removeSlot( formWindow, i->text( 0 ) );
 	    EditSlots::removeSlotFromCode( i->text( 0 ), formWindow );
-	    formWindow->mainWindow()->objectHierarchy()->updateFunctionList();
+	    formWindow->mainWindow()->objectHierarchy()->updateFormDefinitionView();
 	    MainWindow::self->slotsChanged();
 	}
 	return;
@@ -807,7 +807,7 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
     }
 }
 
-void FunctionList::renamed( QListViewItem *i )
+void FormDefinitionView::renamed( QListViewItem *i )
 {
     if ( newItem == i )
 	newItem = 0;
@@ -816,7 +816,7 @@ void FunctionList::renamed( QListViewItem *i )
     save( i->parent(), i );
 }
 
-void FunctionList::save( QListViewItem *p, QListViewItem *i )
+void FormDefinitionView::save( QListViewItem *p, QListViewItem *i )
 {
     if ( i && i->rtti() == HierarchyItem::Slot ) {
 	if ( i->text( 0 ).isEmpty() ) {
@@ -827,7 +827,7 @@ void FunctionList::save( QListViewItem *p, QListViewItem *i )
 			       formWindow->project()->language(), "void" );
 	MainWindow::self->editFunction( i->text( 0 ).left( i->text( 0 ).find( "(" ) ),
 					formWindow->project()->language(), TRUE );
-	MainWindow::self->objectHierarchy()->updateFunctionList();
+	MainWindow::self->objectHierarchy()->updateFormDefinitionView();
 	return;
     }
 
@@ -858,8 +858,8 @@ HierarchyView::HierarchyView( QWidget *parent )
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
     listview = new HierarchyList( this, formWindow() );
     addTab( listview, tr( "Widgets" ) );
-    fList = new FunctionList( this, formWindow() );
-    addTab( fList, tr( "Source" ) );
+    fView = new FormDefinitionView( this, formWindow() );
+    addTab( fView, tr( "Source" ) );
 
     if ( !classBrowserInterfaceManager ) {
 	classBrowserInterfaceManager = new QPluginManager<ClassBrowserInterface>( IID_ClassBrowser );
@@ -888,7 +888,7 @@ HierarchyView::HierarchyView( QWidget *parent )
 void HierarchyView::clear()
 {
     listview->clear();
-    fList->clear();
+    fView->clear();
     for ( QMap<QString, ClassBrowser>::Iterator it = classBrowsers.begin();
 	  it != classBrowsers.end(); ++it ) {
 	(*it).iface->clear();
@@ -899,9 +899,9 @@ void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
 {
     if ( fw == 0 || w == 0 ) {
 	listview->clear();
-	fList->clear();
+	fView->clear();
 	listview->setFormWindow( fw );
-	fList->setFormWindow( fw );
+	fView->setFormWindow( fw );
 	formwindow = 0;
     }
 
@@ -910,21 +910,21 @@ void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
 	if ( MainWindow::self->qWorkspace()->activeWindow() == fw )
 	    showPage( listview );
 	else
-	    showPage( fList );
+	    showPage( fView );
 	return;
     }
 
     formwindow = fw;
     listview->setFormWindow( fw );
-    fList->setFormWindow( fw );
+    fView->setFormWindow( fw );
     listview->setup();
     listview->setCurrent( w );
-    fList->setup();
+    fView->setup();
 
     if ( MainWindow::self->qWorkspace()->activeWindow() == fw )
 	showPage( listview );
     else
-	showPage( fList );
+	showPage( fView );
 
     for ( QMap<QString, ClassBrowser>::Iterator it = classBrowsers.begin();
 	  it != classBrowsers.end(); ++it )
@@ -954,9 +954,9 @@ void HierarchyView::showClassesTimeout()
     }
     formwindow = 0;
     listview->setFormWindow( 0 );
-    fList->setFormWindow( 0 );
+    fView->setFormWindow( 0 );
     listview->clear();
-    fList->clear();
+    fView->clear();
     MainWindow::self->propertyeditor()->setWidget( 0, 0 );
     editor = se;
 
@@ -1049,13 +1049,13 @@ void HierarchyView::closed( FormWindow *fw )
 {
     if ( fw == formwindow ) {
 	listview->clear();
-	fList->clear();
+	fView->clear();
     }
 }
 
-void HierarchyView::updateFunctionList()
+void HierarchyView::updateFormDefinitionView()
 {
-    fList->setup();
+    fView->setup();
 }
 
 void HierarchyView::jumpTo( const QString &func, const QString &clss, int type )

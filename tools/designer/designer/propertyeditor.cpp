@@ -3296,7 +3296,7 @@ void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 									conn );
 	    formWindow->commandHistory()->addCommand( cmd );
 	    cmd->execute();
-	    editor->formWindow()->mainWindow()->objectHierarchy()->updateFunctionList();
+	    editor->formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
 	}
     }
 }
@@ -3342,7 +3342,7 @@ void EventList::renamed( QListViewItem *i )
 		editFunction( i->text( 0 ).left( i->text( 0 ).find( "(" ) ),
 			      editor->formWindow()->project()->language(), TRUE );
 	    cmd->execute();
-	    editor->formWindow()->mainWindow()->objectHierarchy()->updateFunctionList();
+	    editor->formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
 	}
     }
 }
@@ -3359,7 +3359,7 @@ void EventList::save( QListViewItem *p )
     if ( MetaDataBase::hasEvents( formWindow->project()->language() ) ) {
 	if ( MetaDataBase::setEventFunctions( editor->widget(), formWindow,
 					      formWindow->project()->language(), p->text( 0 ), lst ) )
-	    editor->formWindow()->mainWindow()->objectHierarchy()->updateFunctionList();
+	    editor->formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
     }
 }
 

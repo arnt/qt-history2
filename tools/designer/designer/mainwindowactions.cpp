@@ -724,31 +724,35 @@ void MainWindow::setupProjectActions()
 
     projectMenu->insertSeparator();
 
-    actionEditProjectSettings = new QAction( tr( "Project Settings..." ), QPixmap(),
+    QAction* actionEditProjectSettings = new QAction( tr( "Project Settings..." ), QPixmap(),
 					  tr( "&Project Settings..." ), 0, this, 0 );
     actionEditProjectSettings->setStatusTip( tr("Opens a dialog to change the settings of the project") );
     actionEditProjectSettings->setWhatsThis( tr("<b>Edit settings of the project</b>"
 					     "<p>####TODO</p>") );
     connect( actionEditProjectSettings, SIGNAL( activated() ), this, SLOT( editProjectSettings() ) );
+    actionEditProjectSettings->setEnabled( FALSE );
+    connect( this, SIGNAL( hasNonDummyProject(bool) ), actionEditProjectSettings, SLOT( setEnabled(bool) ) );
+    actionEditProjectSettings->addTo( projectMenu );
 
-    actionEditPixmapCollection = new QAction( tr( "Image Collection..." ), QPixmap(),
+    QAction* actionEditPixmapCollection = new QAction( tr( "Image Collection..." ), QPixmap(),
 					  tr( "&Image Collection..." ), 0, this, 0 );
     actionEditPixmapCollection->setStatusTip( tr("Opens a dialog to edit the image collection of the current project") );
     actionEditPixmapCollection->setWhatsThis( tr("<b>Edit image collection of the current project</b>"
 						 "<p>####TODO</p>") );
     connect( actionEditPixmapCollection, SIGNAL( activated() ), this, SLOT( editPixmapCollection() ) );
     actionEditPixmapCollection->setEnabled( FALSE );
-
-    actionEditProjectSettings->addTo( projectMenu );
+    connect( this, SIGNAL( hasNonDummyProject(bool) ), actionEditPixmapCollection, SLOT( setEnabled(bool) ) );
     actionEditPixmapCollection->addTo( projectMenu );
 
 #ifndef QT_NO_SQL
-    actionEditDatabaseConnections = new QAction( tr( "Database Connections..." ), QPixmap(),
+    QAction* actionEditDatabaseConnections = new QAction( tr( "Database Connections..." ), QPixmap(),
 						 tr( "&Database Connections..." ), 0, this, 0 );
     actionEditDatabaseConnections->setStatusTip( tr("Opens a dialog to edit the database connections of the current project") );
     actionEditDatabaseConnections->setWhatsThis( tr("<b>Edit the database connections of the current project</b>"
 					     "<p>####TODO</p>") );
     connect( actionEditDatabaseConnections, SIGNAL( activated() ), this, SLOT( editDatabaseConnections() ) );
+    actionEditDatabaseConnections->setEnabled( FALSE );
+    connect( this, SIGNAL( hasNonDummyProject(bool) ), actionEditDatabaseConnections, SLOT( setEnabled(bool) ) );
     actionEditDatabaseConnections->addTo( projectMenu );
 #endif
 
@@ -1103,8 +1107,9 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 			additionalSources.find( fi.extension() ) != additionalSources.end() ) {
 		LanguageInterface *iface = MetaDataBase::languageInterface( currentProject->language() );
 		if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
-		    SourceFile *sf = new SourceFile( currentProject->makeRelative( filename ), FALSE, currentProject );
-		    wspace->setCurrentProject( currentProject );
+		    SourceFile *sf = currentProject->findSourceFile( currentProject->makeRelative( filename ) );
+		    if ( !sf ) 
+			sf = new SourceFile( currentProject->makeRelative( filename ), FALSE, currentProject );
 		    editSource( sf );
 		}
 	    } else if ( extension.isEmpty() ) {
@@ -1696,12 +1701,9 @@ SourceEditor *MainWindow::editSource( SourceFile *f )
 				  tr( "There is no editor plugin to edit " + lang + " code installed" ) );
 	return 0;
     }
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->language() == lang && e->object() == f ) {
-	    editor = e;
-	    break;
-	}
-    }
+    if ( f )
+	editor = f->editor();
+    
     if ( !editor ) {
 	EditorInterface *eIface = 0;
 	editorPluginManager->queryInterface( lang, &eIface );

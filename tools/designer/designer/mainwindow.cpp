@@ -153,7 +153,6 @@ MainWindow::MainWindow( bool asClient )
     currentProject = 0;
     wspace = 0;
     oWindow = 0;
-    actionEditPixmapCollection = 0;
 
     statusBar()->clear();
 #if defined(QT_NON_COMMERCIAL)
@@ -196,8 +195,8 @@ MainWindow::MainWindow( bool asClient )
 
     setupRMBMenus();
 
-    connect( this, SIGNAL( projectChanged() ), this, SLOT( checkHasActiveWindowOrProject() ) );
-    connect( this, SIGNAL( hasActiveWindow(bool) ), this, SLOT( checkHasActiveWindowOrProject() ) );
+    connect( this, SIGNAL( projectChanged() ), this, SLOT( emitProjectSignals() ) );
+    connect( this, SIGNAL( hasActiveWindow(bool) ), this, SLOT( emitProjectSignals() ) );
 
     emit hasActiveForm( FALSE );
     emit hasActiveWindow( FALSE );
@@ -1234,8 +1233,9 @@ FormWindow *MainWindow::formWindow()
     return 0;
 }
 
-void MainWindow::checkHasActiveWindowOrProject()
+void MainWindow::emitProjectSignals()
 {
+    emit hasNonDummyProject( !currentProject->isDummy() );
     emit hasActiveWindowOrProject( !!qworkspace->activeWindow() || !currentProject->isDummy() );
 }
 
@@ -2516,8 +2516,6 @@ void MainWindow::projectSelected( QAction *a )
     currentProject = p;
     if ( wspace )
 	wspace->setCurrentProject( currentProject );
-    if ( actionEditPixmapCollection )
-	actionEditPixmapCollection->setEnabled( !currentProject->isDummy() );
 }
 
 void MainWindow::openProject( const QString &fn )
@@ -2953,7 +2951,7 @@ void MainWindow::doSlotsChanged()
 {
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
 	e->refresh( FALSE );
-    hierarchyView->functionList()->refreshFunctions();
+    hierarchyView->formDefinitionView()->refresh();
 }
 
 void MainWindow::updateFunctionList()
@@ -2961,7 +2959,7 @@ void MainWindow::updateFunctionList()
     if ( !qWorkspace()->activeWindow() || !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
 	return;
     ( (SourceEditor*)qWorkspace()->activeWindow() )->save();
-    hierarchyView->functionList()->refreshFunctions();
+    hierarchyView->formDefinitionView()->refresh();
 }
 
 void MainWindow::updateWorkspace()

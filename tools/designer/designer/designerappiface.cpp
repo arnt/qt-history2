@@ -798,7 +798,7 @@ void DesignerFormWindowImpl::setImplementationIncludes( const QStringList &lst )
 	}
     }
     MetaDataBase::setIncludes( formWindow, includes );
-    formWindow->mainWindow()->objectHierarchy()->functionList()->setup();
+    formWindow->mainWindow()->objectHierarchy()->formDefinitionView()->setup();
 }
 
 void DesignerFormWindowImpl::setDeclarationIncludes( const QStringList &lst )
@@ -837,7 +837,7 @@ void DesignerFormWindowImpl::setDeclarationIncludes( const QStringList &lst )
 	}
     }
     MetaDataBase::setIncludes( formWindow, includes );
-    formWindow->mainWindow()->objectHierarchy()->functionList()->setup();
+    formWindow->mainWindow()->objectHierarchy()->formDefinitionView()->setup();
 }
 
 QStringList DesignerFormWindowImpl::forwardDeclarations() const
@@ -848,7 +848,7 @@ QStringList DesignerFormWindowImpl::forwardDeclarations() const
 void DesignerFormWindowImpl::setForwardDeclarations( const QStringList &lst )
 {
     MetaDataBase::setForwards( formWindow, lst );
-    formWindow->mainWindow()->objectHierarchy()->functionList()->setup();
+    formWindow->mainWindow()->objectHierarchy()->formDefinitionView()->setup();
 }
 
 QStringList DesignerFormWindowImpl::variables() const
@@ -859,7 +859,7 @@ QStringList DesignerFormWindowImpl::variables() const
 void DesignerFormWindowImpl::setVariables( const QStringList &lst )
 {
     MetaDataBase::setVariables( formWindow, lst );
-    formWindow->mainWindow()->objectHierarchy()->functionList()->setup();
+    formWindow->mainWindow()->objectHierarchy()->formDefinitionView()->setup();
 }
 
 void DesignerFormWindowImpl::onModificationChange( QObject *receiver, const char *slot )

@@ -38,7 +38,7 @@ public:
 
     void setText( const QString &s );
     void setModified( bool m );
-    void setFileName( const QString &fn ) { filename = fn; save(); }
+//     void setFileName( const QString &fn ) { filename = fn; save(); }
 
     bool save();
     bool saveAs();

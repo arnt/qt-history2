@@ -102,7 +102,7 @@ void FormItem::insert( Project *pro )
     // the wizard might have changed a lot, lets update everything
     MainWindow::self->actioneditor()->setFormWindow( fw );
     MainWindow::self->objectHierarchy()->setFormWindow( fw, fw );
-    MainWindow::self->objectHierarchy()->functionList()->refreshFunctions();
+    MainWindow::self->objectHierarchy()->formDefinitionView()->refresh();
     fw->killAccels( fw );
     fw->project()->setModified( TRUE );
     fw->setFocus();
