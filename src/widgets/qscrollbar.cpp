@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#137 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#138 $
 **
 ** Implementation of QScrollBar class
 **
@@ -94,10 +94,11 @@
 
   </ul>
 
-  QScrollBar only offers integer ranges, and the current
-  implementation has problems when the range is greater than a million
-  or so.  (A million is more than sufficient for today's display
-  sizes, however.)
+  QScrollBar only offers integer ranges.  Note that while QScrollBar
+  handles really big numbers, scroll bars on today's screens cannot
+  usefully control ranges above, say, 100,000 pixels.  Somewhere in
+  the vicinity of that number, it becomes very hard to control the
+  scrollbar using either keyboard or mouse.
 
   A scroll bar can be controlled by the keyboard, but it has a
   default focusPolicy() of \c NoFocus. Use setFocusPolicy() to
