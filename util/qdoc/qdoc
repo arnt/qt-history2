@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#202 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#203 $
 #
 # this is a massive hack, written very quickly
 #
@@ -574,6 +574,7 @@ sub processdocs {
 	$doc =~ s@\\reimp\b@Reimplemented for internal reasons; the API is not affected.@gs;
 
 	$doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
+	
 	$doc =~ s!\\a\s+(\S+)!<em>$1</em>!gs;
 	$doc =~ s!\\c\s+(\S+)!<code>$1</code>!gs;
 
@@ -765,6 +766,7 @@ sub mangleclass {
 sub manglefn {
     local($type, $class, $name, $sig, $const, $home) = @_;
     local($url, $d, $mc);
+    local($names);
 
     $type =~ s/\s+/-/g;
     $type =~ s/^-*(.*?)-*$/$1/;
@@ -779,6 +781,7 @@ sub manglefn {
     $url = $class . "::" . $name;
     $sig =~ s/\(.*?\)//gs;
     $d = "(";
+    $names = "";
     foreach (split(/\s*,\s*/, $sig)) {
 # kill argument name
 	s/\s*=.*//s;
@@ -789,7 +792,8 @@ sub manglefn {
 		($3 ne "int") && ($3 ne "float") && ($3 ne "char") &&
 		($3 ne "short") && ($3 ne "long") && ($3 ne "unsigned") &&
 		($3 ne "signed") && ($2 ne "")) {
-		s/\s*\w+$//;
+		s/\s*(\w+)$//;
+		$names .= $1 . " ";
 	    }
 	}
 # strip spaces around & and *
@@ -817,11 +821,10 @@ sub manglefn {
 	close MD5;
 	$md5sum =~ s/\s.*//;
 	$urls{ $url } = join("", $home, "#", substr($md5sum, 0, 6 ) );
-#	$urls{ $url } = join("", $home, "#", $uniqkeys{$home}++);
-#	printf( "%08x  %s\n", unpack("%32C*", $url), $url );
-#	$urls{ $url } = sprintf( "%s#%04x", $home, unpack("%16C*", $url) );
     }
 
+#    print "argument names for $url is $names\n";
+    $argnames{$urls{$url}} = " " . $names;
     $url = $urls{$url}; #cool!
 #    print "Saw $url ($type)\n" if ( $type =~ /QCollection/ );
 #    $url;
@@ -945,7 +948,7 @@ sub readfiles {
 	    }
 	@egsx;
 	print H $doctype, "
-<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>
+<html><head><title>
 ", $module_long, " - ", $filename, " include file
 </title>", $style, "
 </head><body bgcolor=\"#ffffff\">\n", $postheader, "
@@ -1009,7 +1012,7 @@ remains with ", $company, ".
 	@egsx;
 
 	print H $doctype, "
-<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>
+<html><head><title>
 ", $module_long, " - ", $filename, " example file
 </title>", $style, "
 </head><body bgcolor=\"#ffffff\">\n", $postheader, "\n", $doc, "\n", $h, $address;
@@ -1042,10 +1045,14 @@ sub readh {
 	    # Not a template
 	    &storeclass($filename, $sig, $def);
 	} else {
-	    $sig =~ s/^(\w+)T\b/$1/gs;
 	    $templatecookie{&mangleclass($sig)} = $cookie;
 	    &storeclass( $filename, $sig, $def );
 	}
+    }
+
+    while( $h =~ /\ntypedef (\w+)\s*<([a-zA-Z]+?)\s*>\s*(\w+);/g ) {
+	$declared{$3} = $1 . " " . $2 . " " . $filename;
+	print "saw $3: ", $declared{$3}, "\n";
     }
 
     $headerfiles{$filename} = $filename;
@@ -1189,9 +1196,7 @@ sub readc {
 	    $rfile = $hfile;
 	    $hfile =~ s/\.doc/.h/;
 	    die if ( $hfile eq "" );
-	    if (!defined($cfiles{$hfile})) {
-		readh($rfile);
-	    }
+	    readh($rfile) if (!defined($cfiles{$hfile}));
 	    $filename =~ s-^.*/--;
 	    $cfiles{$hfile} .= " " . $filename;
 	    $url = &mangleclass($class);
@@ -1231,7 +1236,7 @@ sub readc {
 		    . $2;
 	    $classes{$1} = "";
 	    $skip = 1;
-	} elsif ( $doc =~ m@^\\enum\s+(\w+)::(\w+)\s+(.*?)\s*$@s ) {
+	} elsif ( $doc =~ m@^\\enum\s+(\w+)::([\w_]+)\s+(.*?)\s*$@s ) {
 	    # it's a \enum
 	    my( $class, $member, $enumdoc ) = ( $1, $2, $3 );
 	    $skip = 1;
@@ -1553,6 +1558,14 @@ sub weirdly {
 }
 
 
+sub simpler {
+    my ($string, $file) = @_;
+
+    $string =~ s/<a href=\"$file\#/<a href=\"\#/g;
+    $string;
+}
+
+
 sub printclass {
     local ( $url ) = @_;
     local ( $class, $file, $tail, $fnheader );
@@ -1578,7 +1591,7 @@ sub printclass {
     $tail = $footer;
     $tail .= $address;
 
-    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\">\n<title>", $module_long, " - ",
+    print O $doctype, "<html><head>\n<title>", $module_long, " - ",
     $class,
     " Class</title>", $style, "
 </head><body bgcolor=\"#ffffff\">\n", $postheader, "\n",
@@ -1586,11 +1599,8 @@ sub printclass {
 
     my ($i, $family);
     if (defined($brief{$url})) {
-	print O "<p>\n", $brief{$url}, "\n";
+	print O "<p>\n", &simpler( $brief{$url}, $file ), "\n";
 	if ( defined( $extension{$url} ) ) {
-#	    print O "Part of the <a href=\"",
-#	    $extension{$url} . "\">" , $extension{$url},
-#	    "</a> extension.\n";
 	    print O "This class is part of the <b>Qt ", $extension{$url}, " Extension.</b>\n";
 	}
 	print O "<a href=\"#details\">More...</a>\n"
@@ -1844,16 +1854,19 @@ sub printclass {
 	    print O "This class is defined in the <b>Qt ", $extension{$url};
 	    print O " Extension</b>, which can be found in the <tt>qt/extensions</tt> directory.\nIt is not included in the main Qt API.\n<p>\n";
 	}
-	print O $brief{$url}, "\n<p>\n", $doc{$url}, "\n";
+	print O &simpler( $brief{$url}, $file ), "\n<p>\n"
+	  , &simpler( $doc{$url}, $file ), "\n";
     } else {
-	print O "<hr><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
+	print O "<hr><h2>Detailed Description</h2>\n"
+	  , &simpler( $doc{$url}, $file ), "\n";
     }
 
     if ( keys %enumdocs ) {
 	print O "<hr><h2>Member Type Documentation</h2>\n";
 	foreach $url ( sort keys %enumdocs ) {
 	    print O "<h3 class=\"fn\"><a name=\"", $enumdocs{$url}, "\">";
-	    print O $class, "::", $enumdocs{$url}, "</a></h3>\n", $doc{$url};
+	    print O $class, "::", $enumdocs{$url}, "</a></h3>\n"
+	      , &simpler( $doc{$url}, $file );
 	}
     }
 
@@ -1890,7 +1903,8 @@ sub printclass {
 	    s/ +/ /gs; # to nbsp
 	    s/, /, /gs; # from nbsp
 	    s/<a /<a /gs;
-	    print O "<h3 class=\"fn\">",$_,$protection,"</h3>\n<p>",$doc{$url};
+	    print O "<h3 class=\"fn\">",$_,$protection,"</h3>\n<p>"
+	      ,&simpler( $doc{$url}, $file );
 
 	    $p = "<p>";
 	
@@ -2010,7 +2024,7 @@ sub classindex {
 	|| die "can't open $outputdir/classes.html for writing";
     print O $doctype, "
 <html>
-<head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Class List</title>", $style, "
+<head><title>", $module_long, " - Class List</title>", $style, "
 </head>
 <body bgcolor=\"#ffffff\">\n", $postheader, "
 <h1 align=center>", $module, " Class Index</h1><br clear=\"all\">
@@ -2021,7 +2035,7 @@ sub classindex {
 	|| die "can't open $outputdir/annotated.html for writing";
     print P $doctype, "
 <html>
-<head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Class List</title>", $style, "
+<head><title>", $module_long, " - Class List</title>", $style, "
 </head>
 <body bgcolor=\"#ffffff\">\n", $postheader, "
 <h1 align=center>Annotated ", $module, " Class Index</h1><br clear=\"all\">
@@ -2061,7 +2075,7 @@ sub headerindex {
     local($filename);
     open(O, "> $outputdir/headers.html")
 	|| die "can't open $outputdir/headers.html for writing";
-    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - header file index</title>", $style, "
+    print O $doctype, "<html><head><title>", $module_long, " - header file index</title>", $style, "
 </head><body bgcolor=\"#ffffff\">\n", $postheader, "\n<h1 align=center>", $module, " header file index</h1><br clear=\"all\">\n<p>Here are the header files that make up the ", $module, " API:\n<ul compact>";
     foreach $filename ( sort keys %headerfiles ) {
 	$_ = $filename;
@@ -2080,7 +2094,7 @@ sub exampleindex {
     local($filename);
     open(O, "> $outputdir/examples.html")
 	|| die "can't open $outputdir/examples.html for writing";
-    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Example Programs</title>", $style, "
+    print O $doctype, "<html><head><title>", $module_long, " - Example Programs</title>", $style, "
 </head><body bgcolor=\"#ffffff\">\n", $postheader, "\n<h1 align=center>", $module, " Example Programs</h1><br clear=\"all\">\n<p>Here are some of the example programs that are included with ", $module, ":\n<ul compact>";
     foreach $filename ( sort keys %examples ) {
 	$_ = $filename;
@@ -2166,7 +2180,7 @@ sub inheritanceindex {
 	|| die "can't open $outputdir/hierarchy.html for writing";
     print O $doctype, "
 <html>
-<head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Class Hierarchy</title>", $style, "
+<head><title>", $module_long, " - Class Hierarchy</title>", $style, "
 </head>
 <body bgcolor=\"#ffffff\">\n", $postheader, "
 <h1 align=center>", $module, " Class Hierarchy</h1><br clear=\"all\">
@@ -2239,7 +2253,7 @@ sub memberlists {
 		|| die "can't open $outputdir/$file for writing";
 	    $tail = "</ul>\n" . $address;
 	    print O $doctype, "
-<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - ", $_, " member list
+<html><head><title>", $module_long, " - ", $_, " member list
 </title>", $style, "
 </head><body bgcolor=\"#ffffff\">\n", $postheader, "
 <h1 align=center>Complete Member List for ", $_, "</h1><br clear=\"all\">
@@ -2295,22 +2309,15 @@ sub functionindex {
 	    next if ( $b eq "_cast" || $b =~ /^~/ );
 	    $c = $_;
 	    $c =~ s/::.*//;
-	    next if ( $b eq $c );
-	    if ( $c eq "" ) {
-		$result = join("", $result, "\n<li><a href=\"",
-			       $anchor{$_},"\">",&html($b),"</a>" );
-	    } else {
-		if ( $a ne $b ) {
-		    $a = $b;
-		    $result = join("", $result, "\n<li>", &html($b), ":\n" );
-		} else {
-		    $result .= ", <a href=\"http://www.kbuxton.com/discordia/fnord.html\">fnord</a>"
-		      if ( $a eq "operator=" && $c eq "QGDictIterator" );
-		    $result = join( "", $result, ",\n" );
-		}
-		$result = join("", $result, "<a href=\"", $anchor{$_},
-			       "\">", $c, "</a>" );
+	    next if ( $b eq $c || $c eq "" );
+	    if ( $a ne $b ) {
+		$a = $b;
+		$result = join("", $result, "\n<li>", &html($b), ":" );
+	    } elsif ( $a eq "operator=" && $c eq "QGDictIterator" ) {
+		$result .= "\n <a href=\"http://www.kbuxton.com/discordia/fnord.html\">fnord</a>"
 	    }
+	    $result = join( "", $result, "\n <a href=\"", $anchor{$_},
+			    "\">", $c, "</a>" );
 	}
     }
     $result .= "\n</ul>";
