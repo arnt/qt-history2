@@ -874,10 +874,8 @@ void QApplication::init_precmdline()
 void QApplication::initialize( int argc, char **argv )
 {
 #ifdef QT_THREAD_SUPPORT
-    if ( !qt_mutex )
-	qt_mutex = new QMutex( TRUE );
-    if ( !postevent_mutex )
-	postevent_mutex = new QMutex( FALSE );
+    qt_mutex = new QMutex( TRUE );
+    postevent_mutex = new QMutex( FALSE );
 #endif // QT_THREAD_SUPPORT
 
     app_argc = argc;
@@ -2749,8 +2747,6 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
     }
 
 #ifdef QT_THREAD_SUPPORT
-    if ( !postevent_mutex )
-	postevent_mutex = new QMutex( FALSE );
     QMutexLocker locker( postevent_mutex );
 #endif // QT_THREAD_SUPPORT
 
@@ -2852,8 +2848,6 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	return;
 
 #ifdef QT_THREAD_SUPPORT
-    if ( !postevent_mutex )
-	postevent_mutex = new QMutex( FALSE );
     QMutexLocker locker( postevent_mutex );
 #endif
 
@@ -2967,8 +2961,6 @@ void QApplication::removePostedEvents( QObject *receiver )
 	return;
 
 #ifdef QT_THREAD_SUPPORT
-    if ( !postevent_mutex )
-	postevent_mutex = new QMutex( FALSE );
     QMutexLocker locker( postevent_mutex );
 #endif // QT_THREAD_SUPPORT
 
@@ -3015,8 +3007,6 @@ void QApplication::removePostedEvent( QEvent *  event )
     }
 
 #ifdef QT_THREAD_SUPPORT
-    if ( !postevent_mutex )
-	postevent_mutex = new QMutex( FALSE );
     QMutexLocker locker( postevent_mutex );
 #endif // QT_THREAD_SUPPORT
 
