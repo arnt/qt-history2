@@ -29,7 +29,7 @@
 #endif
 
 /*! If you write a filter plugin to import dialogs or other user
-  interfaces from a different format that .ui into the Qt Designer,
+  interfaces from a different format than .ui into the Qt Designer,
   implement this interface in that plugin.
 
   You also have to implement the function featureList() (\sa
