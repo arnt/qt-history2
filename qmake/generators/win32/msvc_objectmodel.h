@@ -347,6 +347,7 @@ protected:
     // Functions
     VCToolBase(){};
     ~VCToolBase(){};
+    virtual bool parseOption( const char* option ) = 0;
     static const QString output( QStringList &list ) {
 	return list.join(", ");
     }
@@ -354,9 +355,9 @@ protected:
 	if ( state == unset )
 	    return "";
 	QString result( property );
-	result += state;
-	result += "\""; 
-	return result;
+	if ( state == _True )
+	    return (result += "TRUE\"");
+	return (result += "FALSE\"");
     }
 };
 
@@ -366,6 +367,7 @@ public:
     // Functions
     VCCLCompilerTool();
     ~VCCLCompilerTool(){};
+    virtual bool parseOption( const char* option );
 
     // Variables
     QStringList		    AdditionalIncludeDirectories;
@@ -435,6 +437,7 @@ public:
     // Functions
     VCLinkerTool();
     ~VCLinkerTool(){};
+    virtual bool parseOption( const char* option );
 
     // Variables
     QStringList		    AdditionalDependencies;
@@ -492,12 +495,54 @@ public:
     QString		    Version;
 };
 
+class VCMIDLTool : public VCToolBase
+{
+public:
+    // Functions
+    VCMIDLTool();
+    ~VCMIDLTool();
+    virtual bool parseOption( const char* option );
+
+    // Variables
+    QStringList		    AdditionalIncludeDirectories;
+    QStringList		    AdditionalOptions;
+    QStringList		    CPreprocessOptions;
+    midlCharOption	    DefaultCharType;
+    QString		    DLLDataFileName;    // Should be list?
+    midlErrorCheckOption    EnableErrorChecks;
+    triState		    ErrorCheckAllocations;
+    triState		    ErrorCheckBounds;
+    triState		    ErrorCheckEnumRange;
+    triState		    ErrorCheckRefPointers;
+    triState		    ErrorCheckStubData;
+    QStringList		    FullIncludePath;
+    triState		    GenerateStublessProxies;
+    triState		    GenerateTypeLibrary;
+    QString		    HeaderFileName;
+    triState		    IgnoreStandardIncludePath;
+    triState		    InterfaceIdentifierFileName;
+    triState		    MkTypLibCompatible;
+    QString		    OutputDirectory;
+    QStringList		    PreprocessorDefinitions;
+    QString		    ProxyFileName;
+    QString		    RedirectOutputAndErrors;
+    structMemberAlignOption StructMemberAlignment;
+    triState		    SuppressStartupBanner;
+    midlTargetEnvironment   TargetEnvironment;
+    QString		    TypeLibraryName;
+    QStringList		    UndefinePreprocessorDefinitions;
+    triState		    ValidateParameters;
+    triState		    WarnAsError;
+    midlWarningLevelOption  WarningLevel;
+};
+
 class VCCustomBuildTool : public VCToolBase
 {
 public:
     // Functions
     VCCustomBuildTool();
     ~VCCustomBuildTool(){};
+    virtual bool parseOption( const char* option ){ return FALSE; };
 
     // Variables
     QStringList		    AdditionalDependencies;
@@ -514,6 +559,7 @@ public:
     // Functions
     VCResourceCompilerTool();
     ~VCResourceCompilerTool(){};
+    virtual bool parseOption( const char* option ){ return FALSE; };
 
     // Variables
     QStringList		    AdditionalIncludeDirectories;
@@ -534,6 +580,7 @@ protected:
     // Functions
     VCEventTool() : ExcludedFromBuild( unset ){};
     ~VCEventTool(){};
+    virtual bool parseOption( const char* option ){ return FALSE; };
 
 public:
     // Variables

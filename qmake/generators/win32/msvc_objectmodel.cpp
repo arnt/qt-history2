@@ -36,9 +36,10 @@ const char* _ImproveFloatingPointConsistency 	= "ImproveFloatingPointConsistency
 const char* _InlineFunctionExpansion 		= "InlineFunctionExpansion=\"";
 const char* _KeepComments 			= "KeepComments=\"";
 const char* _MinimalRebuild 			= "MinimalRebuild=\"";
+const char* _MkTypLibCompatible			= "MkTypLibCompatible=\"";
 const char* _ObjectFile 			= "ObjectFile=\"";
-const char* _OmitFramePointers 			= "Optimization=\"";
-const char* _Optimization 			= "OptimizeForProcessor =\"";
+const char* _OmitFramePointers 			= "OmitFramePointers=\"";
+const char* _Optimization 			= "Optimization =\"";
 const char* _OptimizeForProcessor 		= "OptimizeForProcessor=\"";
 const char* _OptimizeForWindowsApplication 	= "OptimizeForWindowsApplication=\"";
 const char* _OutputFile 			= "OutputFile=\"";
@@ -53,8 +54,10 @@ const char* _SmallerTypeCheck 			= "SmallerTypeCheck=\"";
 const char* _StringPooling 			= "StringPooling=\"";
 const char* _StructMemberAlignment 		= "StructMemberAlignment=\"";
 const char* _SuppressStartupBanner 		= "SuppressStartupBanner=\"";
+const char* _TargetEnvironment			= "TargetEnvironment=\"";
 const char* _ToolName				= "Name=\"";
 const char* _TreatWChar_tAsBuiltInType		= "TreatWChar_tAsBuiltInType=\"";
+const char* _TypeLibraryName			= "TypeLibraryName=\"";
 const char* _TurnOffAssemblyGeneration 		= "TurnOffAssemblyGeneration=\"";
 const char* _UndefineAllPreprocessorDefinitions = "UndefineAllPreprocessorDefinitions=\"";
 const char* _UndefinePreprocessorDefinitions 	= "UndefinePreprocessorDefinitions=\"";
@@ -98,6 +101,11 @@ VCCLCompilerTool::VCCLCompilerTool()
 {
 }
 
+bool VCCLCompilerTool::parseOption( const char* option )
+{
+    return FALSE;
+}
+
 // VCLinkerTool -----------------------------------------------------
 
 VCLinkerTool::VCLinkerTool()
@@ -122,6 +130,39 @@ VCLinkerTool::VCLinkerTool()
 	TurnOffAssemblyGeneration( unset ),
 	TypeLibraryResourceID( 0 )
 {
+}
+
+bool VCLinkerTool::parseOption( const char* option )
+{
+    return FALSE;
+}
+
+// VCMIDLTool -------------------------------------------------------
+VCMIDLTool::VCMIDLTool()
+    :	DefaultCharType( midlCharUnsigned ),
+	EnableErrorChecks( midlDisableAll ),
+	ErrorCheckAllocations( unset ),
+	ErrorCheckBounds( unset ),
+	ErrorCheckEnumRange( unset ),
+	ErrorCheckRefPointers( unset ),
+	ErrorCheckStubData( unset ),
+	GenerateStublessProxies( unset ),
+	GenerateTypeLibrary( unset ),
+	IgnoreStandardIncludePath( unset ),
+	InterfaceIdentifierFileName( unset ),
+	MkTypLibCompatible( unset ),
+	StructMemberAlignment( alignNotSet ),
+	SuppressStartupBanner( unset ),
+	TargetEnvironment( midlTargetWin32 ),
+	ValidateParameters( unset ),
+	WarnAsError( unset ),
+	WarningLevel( midlWarningLevel_0 )
+{
+}
+
+bool VCMIDLTool::parseOption( const char* option )
+{
+    return FALSE;
 }
 
 // VCCustomBuildTool ------------------------------------------------
