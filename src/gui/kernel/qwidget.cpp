@@ -5506,14 +5506,13 @@ bool QWidget::macEvent(EventHandlerCallRef, EventRef)
 #if defined(Q_WS_WIN)
 
 /*!
-    \fn bool QWidget::winEvent(MSG *event)
-
     This special event handler can be reimplemented in a subclass to
-    receive native Windows events which are passed in the \a event
+    receive native Windows events which are passed in the \a message
     parameter.
 
     In your reimplementation of this function, if you want to stop the
-    event being handled by Qt, return true. If you return false, this
+    event being handled by Qt, return true and set \a result to the value
+    that the window procedure should return. If you return false, this
     native event is passed back to Qt, which translates the event into
     a Qt event and sends it to the widget.
 
@@ -5521,8 +5520,10 @@ bool QWidget::macEvent(EventHandlerCallRef, EventRef)
 
     \sa QApplication::winEventFilter()
 */
-bool QWidget::winEvent(MSG *)
+bool QWidget::winEvent(MSG *message, long *result)
 {
+    Q_UNUSED(message);
+    Q_UNUSED(result);
     return false;
 }
 

@@ -309,7 +309,7 @@ public:
     void        setWState(Qt::WState f)        { QWidget::setWState(f); }
     void        clearWState(Qt::WState f) { QWidget::clearWState(f); }
     QWExtra    *xtra()                        { return d->extraData(); }
-    bool        winEvent(MSG *m)        { return QWidget::winEvent(m); }
+    bool        winEvent(MSG *m, long *r)        { return QWidget::winEvent(m, r); }
     void        markFrameStrutDirty()        { data->fstrut_dirty = 1; }
     bool        translateMouseEvent(const MSG &msg);
     bool        translateKeyEvent(const MSG &msg, bool grab);
@@ -1137,7 +1137,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
 #endif
 
     if (QEventLoop::instance()) {
-        LRESULT res;
+        LRESULT res = 0;
         if (QEventLoop::instance()->winEventFilter(&msg, &res))                // send through app filter
             RETURN(res);
     }
@@ -1256,8 +1256,9 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
             RETURN(ret);
     }
 
-    if (widget->winEvent(&msg))                // send through widget filter
-        RETURN(0);
+    LRESULT res = 0;
+    if (widget->winEvent(&msg, &res))                // send through widget filter
+        RETURN(res);
 
     if ((message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ||
            message >= WM_XBUTTONDOWN && message <= WM_XBUTTONDBLCLK)
