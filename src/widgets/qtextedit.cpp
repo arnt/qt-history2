@@ -56,8 +56,7 @@
   user input and functions to set/get/modify formatting, text, etc.
 
   As it is derived from QTextView, it supports the same functions to
-  set and load plain and HTML text. Using the save() function, the
-  current contents can also be saved in HTML.
+  set and load plain and HTML text.
 
   QTextEdit internally works on paragraphs. A paragraph is a formatted
   string which is word-wrapped to fit into the width of the
@@ -405,14 +404,6 @@
 
   Sets the number of steps the undo/redo history can maximally store
   to \a d.
-*/
-
-/*! \fn void QTextEdit::save( const QString &fn )
-
-  Saves the document to the file \a fn. If \a fn is valid, the
-  filename of the document is set to this name. If \a fn is an empty
-  string, and the document has already a filename, this one is used,
-  otherwise nothing happens.
 */
 
 /*! \fn void QTextEdit::undoAvailable( bool yes )

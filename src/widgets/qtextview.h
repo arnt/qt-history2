@@ -108,7 +108,6 @@ public:
     TextFormat textFormat() const;
     QString context() const;
     QString documentTitle() const;
-    QString fileName() const;
 
     void getSelection( int &paraFrom, int &indexFrom,
 		    int &paraTo, int &indexTo, int selNum = 0 ) const;
@@ -162,7 +161,6 @@ public slots:
     void setText( const QString &txt ) { setText( txt, QString::null ); }
     virtual void setTextFormat( TextFormat f );
     virtual void setText( const QString &txt, const QString &context );
-    virtual void load( const QString &fn );
 
     virtual void selectAll( bool select = TRUE );
     virtual void setTabStops( int ts );
@@ -333,7 +331,6 @@ private: // these are functions which actually do editing stuff, but
     void removeSelectedText();
     void doKeyboardAction( KeyboardActionPrivate action );
     void insert( const QString &text, bool indent = FALSE, bool checkNewLine = TRUE, bool removeSelected = TRUE );
-    void save( const QString &fn = QString::null );
     void readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QTextString &text, bool fillStyles = FALSE );
     void clearUndoRedo();
     bool getFormat( int parag, int index, QFont &font, QColor &color );

@@ -682,12 +682,9 @@ public:
     QTextParag *parentParag() const { return parParag; }
 
     void setText( const QString &text, const QString &context );
-    void load( const QString &fn );
     QMap<QString, QString> attributes() const { return attribs; }
     void setAttributes( const QMap<QString, QString> &attr ) { attribs = attr; }
 
-    void save( const QString &fn = QString::null );
-    QString fileName() const;
     QString text() const;
     QString text( int parag ) const;
     QString originalText() const;
@@ -854,7 +851,6 @@ private:
     QMap<int, QColor> selectionColors;
     QMap<int, QTextDocumentSelection> selections;
     QMap<int, bool> selectionText;
-    QString filename;
     QTextCommandHistory *commandHistory;
     QTextFormatter *pFormatter;
     QTextIndent *indenter;

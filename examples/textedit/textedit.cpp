@@ -205,9 +205,14 @@ void TextEdit::load( const QString &f )
     QTextEdit *edit = new QTextEdit( tabWidget );
     doConnections( edit );
     tabWidget->addTab( edit, QFileInfo( f ).fileName() );
-    edit->load( f );
+    QFile file( f );
+    if ( !file.open( IO_ReadOnly ) )
+	return;
+    QTextStream ts( &file );
+    edit->setText( ts.read() );
     tabWidget->showPage( edit );
     edit->viewport()->setFocus();
+    filenames.replace( edit, f );
 }
 
 QTextEdit *TextEdit::currentEditor() const
@@ -249,11 +254,16 @@ void TextEdit::fileSave()
 {
     if ( !currentEditor() )
 	return;
-    QString fn = currentEditor()->fileName();
-    if ( fn.isEmpty() )
+    QString fn;
+    if ( filenames.find( currentEditor() ) == filenames.end() ) {
 	fileSaveAs();
-    else
-	currentEditor()->save();
+    } else {
+	QFile file( *filenames.find( currentEditor() ) );
+	if ( !file.open( IO_WriteOnly ) )
+	    return;
+	QTextStream ts( &file );
+	ts << currentEditor()->text();
+    }
 }
 
 void TextEdit::fileSaveAs()
@@ -262,7 +272,8 @@ void TextEdit::fileSaveAs()
 	return;
     QString fn = QFileDialog::getSaveFileName( QString::null, tr( "HTML-Files (*.htm *.html);;All Files (*)" ), this );
     if ( !fn.isEmpty() ) {
-	currentEditor()->save( fn );
+	filenames.replace( currentEditor(), fn );
+	fileSave();
 	tabWidget->setTabLabel( currentEditor(), QFileInfo( fn ).fileName() );
     }
 }

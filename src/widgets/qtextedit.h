@@ -97,7 +97,6 @@ public slots:
     virtual void setModified( bool m );
     virtual void resetFormat();
     virtual void setUndoDepth( int d );
-    virtual void save( const QString &fn = QString::null );
     virtual void removeSelectedText();
 
 signals:
@@ -338,11 +337,6 @@ inline void QTextEdit::resetFormat()
 inline void QTextEdit::setUndoDepth( int d )
 {
     QTextView::setUndoDepth( d );
-}
-
-inline void QTextEdit::save( const QString &fn )
-{
-    QTextView::save( fn );
 }
 
 inline void QTextEdit::setFormat( QTextFormat *f, int flags )

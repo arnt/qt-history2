@@ -1197,7 +1197,6 @@ QTextDocument::QTextDocument( QTextDocument *p )
     fParag = 0;
     txtFormat = Qt::AutoText;
     preferRichText = FALSE;
-    filename = QString::null;
     pages = FALSE;
     focusIndicator.parag = 0;
     minw = 0;
@@ -1270,7 +1269,6 @@ void QTextDocument::clear( bool createEmptyParag )
     if ( createEmptyParag )
 	fParag = lParag = createParag( this );
     selections.clear();
-    filename = "";
 }
 
 int QTextDocument::widthUsed() const
@@ -1551,17 +1549,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
     }
 }
 
-void QTextDocument::load( const QString &fn )
-{
-    filename = fn;
-    QFile file( fn );
-    file.open( IO_ReadOnly );
-    QTextStream ts( &file );
-    QString txt = ts.read();
-    file.close();
-    setText( txt, fn );
-}
-
 void QTextDocument::setText( const QString &text, const QString &context )
 {
     oText = text;
@@ -1684,29 +1671,6 @@ void QTextDocument::invalidate()
 	s->invalidate( 0 );
 	s = s->next();
     }
-}
-
-void QTextDocument::save( const QString &fn )
-{
-    if ( !fn.isEmpty() )
-	filename = fn;
-    if ( !filename.isEmpty() ) {
-	QFile file( filename );
-	if ( file.open( IO_WriteOnly ) ) {
-	    QTextStream ts( &file );
-	    ts << text();
-	    file.close();
-	} else {
-	    qWarning( "couldn't open file %s", filename.latin1() );
-	}
-    } else {
-	qWarning( "QTextDocument::save(): couldn't save - no filename specified!" );
-    }
-}
-
-QString QTextDocument::fileName() const
-{
-    return filename;
 }
 
 void QTextDocument::selectionStart( int id, int &paragId, int &index )
@@ -3440,7 +3404,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 
 	//if something (format, etc.) changed, draw what we have so far
 	if ( ( ( ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && at(paintEnd)->c.isSpace() ) ||
-	       lastDirection != (bool)chr->rightToLeft || 
+	       lastDirection != (bool)chr->rightToLeft ||
 	       chr->startOfRun ||
 	       lastY != cy || chr->format() != lastFormat ||
 	       (paintEnd != -1 && at(paintEnd)->c =='\t') || chr->c == '\t' ||

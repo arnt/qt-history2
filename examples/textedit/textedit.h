@@ -12,6 +12,7 @@
 #define TEXTEDIT_H
 
 #include <qmainwindow.h>
+#include <qmap.h>
 
 class QAction;
 class QComboBox;
@@ -21,10 +22,10 @@ class QTextEdit;
 class TextEdit : public QMainWindow
 {
     Q_OBJECT
-    
+
 public:
     TextEdit( QWidget *parent = 0, const char *name = 0 );
-    
+
 private:
     void setupFileActions();
     void setupEditActions();
@@ -32,7 +33,7 @@ private:
     void load( const QString &f );
     QTextEdit *currentEditor() const;
     void doConnections( QTextEdit *e );
-    
+
 private slots:
     void fileNew();
     void fileOpen();
@@ -41,13 +42,13 @@ private slots:
     void filePrint();
     void fileClose();
     void fileExit();
-    
+
     void editUndo();
     void editRedo();
     void editCut();
     void editCopy();
     void editPaste();
-    
+
     void textBold();
     void textUnderline();
     void textItalic();
@@ -61,9 +62,9 @@ private slots:
     void colorChanged( const QColor &c );
     void alignmentChanged( int a );
     void editorChanged( QWidget * );
-    
+
 private:
-    QAction *actionTextBold, 
+    QAction *actionTextBold,
 	*actionTextUnderline,
 	*actionTextItalic,
 	*actionTextColor,
@@ -75,8 +76,9 @@ private:
 	*comboFont,
 	*comboSize;
     QTabWidget *tabWidget;
-    
+    QMap<QTextEdit*, QString> filenames;
+
 };
-    
+
 
 #endif

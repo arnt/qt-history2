@@ -196,18 +196,13 @@ void TextEdit::load( const QString &f )
     doConnections( edit );
     tabWidget->addTab( edit, QFileInfo( f ).fileName() );
 
-//     if ( !f.contains( "bidi" ) && !f.contains( "utf8" ) ) { // ### hack, Lars please
-// 	edit->load( f );
-//     } else
-    {
-	QFile fl( f );
-	fl.open( IO_ReadOnly );
-	QByteArray array = fl.readAll();
-	array.resize( array.size() +1 );
-	array[ (int)array.size() - 1 ] = '\0';
-	QString text = QString::fromUtf8( array.data() );
-	edit->setText( text );
-    }
+    QFile fl( f );
+    fl.open( IO_ReadOnly );
+    QByteArray array = fl.readAll();
+    array.resize( array.size() +1 );
+    array[ (int)array.size() - 1 ] = '\0';
+    QString text = QString::fromUtf8( array.data() );
+    edit->setText( text );
 
     edit->viewport()->setFocus();
     edit->setTextFormat( Qt::RichText );
@@ -251,11 +246,16 @@ void TextEdit::fileSave()
 {
     if ( !currentEditor() )
 	return;
-    QString fn = currentEditor()->fileName();
-    if ( fn.isEmpty() )
+    QString fn;
+    if ( filenames.find( currentEditor() ) == filenames.end() ) {
 	fileSaveAs();
-    else
-	currentEditor()->save();
+    } else {
+	QFile file( *filenames.find( currentEditor() ) );
+	if ( !file.open( IO_WriteOnly ) )
+	    return;
+	QTextStream ts( &file );
+	ts << currentEditor()->text();
+    }
 }
 
 void TextEdit::fileSaveAs()
@@ -264,7 +264,8 @@ void TextEdit::fileSaveAs()
 	return;
     QString fn = QFileDialog::getSaveFileName( QString::null, tr( "HTML-Files (*.htm *.html);;All Files (*)" ), this );
     if ( !fn.isEmpty() ) {
-	currentEditor()->save( fn );
+	filenames.replace( currentEditor(), fn );
+	fileSave();
 	tabWidget->setTabLabel( currentEditor(), QFileInfo( fn ).fileName() );
     }
 }
