@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#164 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#165 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1556,7 +1556,7 @@ sub printclass {
     $class = $name{$url};
 
     if (!$internal && ($doc{$url} =~ /^\s*$/)) {
-	print "skipping internal class ", $class, "\n";
+	print "skipping internal class ", $class, " (no class documentation)\n";
 	next;
     }
 
