@@ -579,7 +579,7 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 QAbstractItemModel::QAbstractItemModel(QObject *parent)
     : QObject(*new QAbstractItemModelPrivate, parent)
 {
-//    QObject::connect(this, SIGNAL(reset()), this, SLOT(resetPresistentIndexes()));
+    QObject::connect(this, SIGNAL(reset()), this, SLOT(resetPresistentIndexes()));
 }
 
 /*!
@@ -588,7 +588,7 @@ QAbstractItemModel::QAbstractItemModel(QObject *parent)
 QAbstractItemModel::QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent)
     : QObject(dd, parent)
 {
-//    QObject::connect(this, SIGNAL(reset()), this, SLOT(resetPresistentIndexes()));
+    QObject::connect(this, SIGNAL(reset()), this, SLOT(resetPresistentIndexes()));
 }
 
 /*!

@@ -574,7 +574,6 @@ void QAbstractItemView::reset()
                             this, SLOT(editorDestroyed(QObject*)));
         itemDelegate()->releaseEditor(it.value());
     }
-    d->root = QPersistentModelIndex(QModelIndex::Null, d->model);
     d->editors.clear();
     d->state = NoState;
     if (isVisible())
