@@ -2485,7 +2485,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 	if (! (xfs = XLoadQueryFont(QPaintDevice::x11AppDisplay(),
 				    fontname.data()))) {
-	    if (! script == QFont::Unicode) {
+	    if (script != QFont::Unicode) {
 
 #ifdef QFONTLOADER_DEBUG
 		qDebug("QFontLoader: load failed, trying last resort");
