@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qvariant.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qvariant.cpp#2 $
 **
 ** Implementation of QVariant class
 **
@@ -89,6 +89,15 @@ QVariant::QVariant( QDataStream& s )
   Creates a new variant with a string value.
 */
 QVariant::QVariant( const QString& _v )
+{
+  typ = Empty;
+  setValue( _v );
+}
+
+/*!
+  Creates a new variant with a string value.
+*/
+QVariant::QVariant( const char* _v )
 {
   typ = Empty;
   setValue( _v );
@@ -328,6 +337,17 @@ QString QVariant::typeName() const
   Changes the value of this variant. The previous value is dropped.
 */
 void QVariant::setValue( const QString& _value )
+{
+  clear();
+  typ = String;
+  val.ptr = new QString( _value );
+}
+
+/*!
+  Changes the value of this variant. The previous value is dropped.
+  The Variant creates a copy of the passed string.
+*/
+void QVariant::setValue( const char* _value )
 {
   clear();
   typ = String;

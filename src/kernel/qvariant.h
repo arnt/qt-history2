@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qvariant.h#1 $
+** $Id: //depot/qt/main/src/kernel/qvariant.h#2 $
 **
 ** Definition of QVariant class
 **
@@ -85,6 +85,7 @@ public:
     virtual ~QVariant();
 
     QVariant( const QString& _v );
+    QVariant( const char* _v );
     QVariant( const QStringList& _v );
     QVariant( const QValueList<int>& _v );
     QVariant( const QValueList<double>& _v );
@@ -106,6 +107,7 @@ public:
     QVariant& operator= ( const QVariant& );
 
     void setValue( const QString& );
+    void setValue( const char* );
     void setValue( const QStringList& );
     void setValue( const QValueList<int>& );
     void setValue( const QValueList<double>& );
