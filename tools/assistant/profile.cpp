@@ -161,29 +161,29 @@ Profile *Profile::createDefaultProfile()
     profile->props["basepath"] = path;
     profile->props["startpage"] = path + "/index.html";
 
-    profile->addDocFile( path + "qt.xml" );
-    profile->addDocFile( path + "designer.xml" );
-    profile->addDocFile( path + "assistant.xml" );
-    profile->addDocFile( path + "linguist.xml" );
-    profile->addDocFile( path + "qmake.xml" );
+    profile->addDocFile( path + "qt.dcf" );
+    profile->addDocFile( path + "designer.dcf" );
+    profile->addDocFile( path + "assistant.dcf" );
+    profile->addDocFile( path + "linguist.dcf" );
+    profile->addDocFile( path + "qmake.dcf" );
 
-    profile->addDocFileIcon( path + "qt.xml", "qt.png" );
-    profile->addDocFileIcon( path + "designer.xml", "designer.png" );
-    profile->addDocFileIcon( path + "assistant.xml", "assistant.png" );
-    profile->addDocFileIcon( path + "linguist.xml", "linguist.png" );
-    profile->addDocFileIcon( path + "qmake.xml", "" );
+    profile->addDocFileIcon( path + "qt.dcf", "qt.png" );
+    profile->addDocFileIcon( path + "designer.dcf", "designer.png" );
+    profile->addDocFileIcon( path + "assistant.dcf", "assistant.png" );
+    profile->addDocFileIcon( path + "linguist.dcf", "linguist.png" );
+    profile->addDocFileIcon( path + "qmake.dcf", "" );
 
-    profile->addDocFileTitle( path + "qt.xml", "Qt Reference Documentation" );
-    profile->addDocFileTitle( path + "designer.xml", "Qt Designer Manual" );
-    profile->addDocFileTitle( path + "assistant.xml", "Qt Assistant Manual" );
-    profile->addDocFileTitle( path + "linguist.xml", "Guide to the Qt Translation Tools" );
-    profile->addDocFileTitle( path + "qmake.xml", "qmake User Guide" );
+    profile->addDocFileTitle( path + "qt.dcf", "Qt Reference Documentation" );
+    profile->addDocFileTitle( path + "designer.dcf", "Qt Designer Manual" );
+    profile->addDocFileTitle( path + "assistant.dcf", "Qt Assistant Manual" );
+    profile->addDocFileTitle( path + "linguist.dcf", "Guide to the Qt Translation Tools" );
+    profile->addDocFileTitle( path + "qmake.dcf", "qmake User Guide" );
 
-    profile->addDocFileImageDir( path + "qt.xml", "../../gif/" );
-    profile->addDocFileImageDir( path + "designer.xml", "../../gif/" );
-    profile->addDocFileImageDir( path + "assistant.xml", "../../gif/" );
-    profile->addDocFileImageDir( path + "linguist.xml", "../../gif/" );
-    profile->addDocFileImageDir( path + "qmake.xml", "../../gif/" );
+    profile->addDocFileImageDir( path + "qt.dcf", "../../gif/" );
+    profile->addDocFileImageDir( path + "designer.dcf", "../../gif/" );
+    profile->addDocFileImageDir( path + "assistant.dcf", "../../gif/" );
+    profile->addDocFileImageDir( path + "linguist.dcf", "../../gif/" );
+    profile->addDocFileImageDir( path + "qmake.dcf", "../../gif/" );
 
     return profile;
 }

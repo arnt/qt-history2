@@ -259,7 +259,7 @@ void generateXmlSections( const XmlSection& rootSect, const QString& fileName,
 {
     BinaryWriter out( fileName );
     QString icon = fileName;
-    icon.replace( ".xml", ".png" );
+    icon.replace( ".dcf", ".png" );
 
     out.puts( "<!DOCTYPE DCF>\n" );
     out.puts( "<DCF ref=\"" + htmlProtect(rootSect.ref, FALSE, TRUE) );

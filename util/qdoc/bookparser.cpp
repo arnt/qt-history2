@@ -1040,9 +1040,9 @@ HtmlSynthetizer::~HtmlSynthetizer()
     rootXmlSection.title = analyzer()->title();
     if ( product == "qsa" || product == "qsad" ||
 	 product == "library" || product == "language" )
-	generateXmlSections( rootXmlSection, product + ".xml", "qt script for applications/" + product );
+	generateXmlSections( rootXmlSection, product + ".dcf", "qt script for applications/" + product );
     else
-	generateXmlSections( rootXmlSection, product + ".xml", "qt/" + product );
+	generateXmlSections( rootXmlSection, product + ".dcf", "qt/" + product );
 }
 
 void HtmlSynthetizer::processAlias( const QString& alias,

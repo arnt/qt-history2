@@ -601,7 +601,7 @@ void DocEmitter::emitHtml() const
     }
 
     /*
-      Write the <product>.xml file for Assistant.
+      Write the <product>.dcf file for Assistant.
     */
     qHeapSort( classSections );
     qHeapSort( otherSections );
@@ -635,7 +635,7 @@ void DocEmitter::emitHtml() const
     rootSection.ref = "index.html";
     generateXmlSections( rootSection,
 			 config->product().lower()
-			 .replace(QRegExp("[\\s/]"), "-") + ".xml",
+			 .replace(QRegExp("[\\s/]"), "-") + ".dcf",
 			 config->product().lower() + "/reference" );
 }
 
