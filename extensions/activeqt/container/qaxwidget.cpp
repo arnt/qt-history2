@@ -152,18 +152,23 @@ public:
     bool qt_emit( int isignal, QUObject *obj );
 
 protected:
+    bool event( QEvent *e );
     void resizeEvent( QResizeEvent *e );
     void focusInEvent( QFocusEvent *e );
     void focusOutEvent( QFocusEvent *e );
     void windowActivationChange( bool oldActive );
 
     QAxHostWindow *axhost;
+
+private:
+    int setFocusTimer;
 };
 
 QAxHostWidget::QAxHostWidget( QWidget *parent, QAxHostWindow *ax )
     : QWidget( parent, "QAxHostWidget", WResizeNoErase|WRepaintNoErase ), axhost( ax )
 {
     setBackgroundMode( NoBackground );
+    setFocusTimer = 0;
 }
 
 QAxHostWidget::~QAxHostWidget()
@@ -312,6 +317,7 @@ private:
 
     DWORD m_dwOleObject;
     HWND m_menuOwner;
+    CONTROLINFO controlInfo;
 
     QSize sizehint;
 
@@ -336,6 +342,7 @@ QAxHostWindow::QAxHostWindow( QAxWidget *c, IUnknown **ppUnk )
     inPlaceModelessEnabled = TRUE;
     m_dwOleObject = 0;
     m_menuOwner = 0;
+    memset(&controlInfo, 0, sizeof(controlInfo));
 
     statusBar = 0;
     menuBar = 0;
@@ -422,6 +429,9 @@ QAxHostWindow::QAxHostWindow( QAxWidget *c, IUnknown **ppUnk )
 	    m_spOleControl->OnAmbientPropertyChange( DISPID_AMBIENT_BACKCOLOR );
 	    m_spOleControl->OnAmbientPropertyChange( DISPID_AMBIENT_FORECOLOR );
 	    m_spOleControl->OnAmbientPropertyChange( DISPID_AMBIENT_FONT );
+
+	    controlInfo.cb = sizeof(controlInfo);
+	    m_spOleControl->GetControlInfo( &controlInfo );
 	}
 
 	BSTR userType;
@@ -616,6 +626,9 @@ HRESULT WINAPI QAxHostWindow::RequestNewObjectLayout()
 //**** IOleControlSite
 HRESULT WINAPI QAxHostWindow::OnControlInfoChanged()
 {
+    if ( m_spOleControl )
+	m_spOleControl->GetControlInfo( &controlInfo );
+
     return S_OK;
 }
 
@@ -648,15 +661,8 @@ HRESULT WINAPI QAxHostWindow::TranslateAcceleratorW(LPMSG /*lpMsg*/, DWORD /*grf
     return S_FALSE;
 }
 
-HRESULT WINAPI QAxHostWindow::OnFocus( BOOL bGotFocus )
+HRESULT WINAPI QAxHostWindow::OnFocus( BOOL /*bGotFocus*/ )
 {
-    if ( bGotFocus ) {
-	QFocusEvent e( QEvent::FocusIn );
-	QApplication::sendEvent( widget, &e );
-    } else {
-	QFocusEvent e( QEvent::FocusOut );
-	QApplication::sendEvent( widget, &e );
-    }
     return S_OK;
 }
 
@@ -720,10 +726,13 @@ HRESULT WINAPI QAxHostWindow::GetWindowContext( IOleInPlaceFrame **ppFrame, IOle
 
     lpFrameInfo->cb = sizeof(OLEINPLACEFRAMEINFO);
     lpFrameInfo->fMDIApp = FALSE;
-    ACCEL ac = { 0,0,0 };
-    lpFrameInfo->haccel = CreateAcceleratorTable(&ac, 1);;
-    lpFrameInfo->cAccelEntries = 1;
-    lpFrameInfo->hwndFrame = widget->winId();
+    ACCEL ac[] = {
+	{ 0,VK_TAB,12 },
+	{ 0, 0, 0 }
+    };
+    lpFrameInfo->haccel = CreateAcceleratorTable(ac, 2);
+    lpFrameInfo->cAccelEntries = 2;
+    lpFrameInfo->hwndFrame = widget->topLevelWidget()->winId();
 
     return S_OK;
 }
@@ -1175,18 +1184,30 @@ void QAxHostWidget::resizeEvent( QResizeEvent *e )
     }
 }
 
+bool QAxHostWidget::event( QEvent *e )
+{
+    switch ( e->type() ) {
+    case QEvent::Timer:
+	if ( ((QTimerEvent*)e)->timerId() == setFocusTimer ) {
+	    setFocusTimer = 0;
+	    RECT rcPos = { x(), y(), x()+sizeHint().width(), y()+sizeHint().height() };
+	    HRESULT res = axhost->m_spOleObject->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)axhost, 0, winId(), &rcPos );
+	}
+	break;
+    }
+
+    return QWidget::event( e );
+}
+
 void QAxHostWidget::focusInEvent( QFocusEvent *e )
 {
     QWidget::focusInEvent( e );
     if ( !axhost || axhost->m_spInPlaceActiveObject || !axhost->m_spOleObject )
 	return;
 
-    /*
-    qDebug( "QAxHostWindow::UIActivating control" );
-    RECT rcPos = { x(), y(), x()+sizehint.width(), y()+sizehint.height() };
-    
-    HRESULT res = m_spOleObject->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)this, 0, winId(), &rcPos );
-    */
+    // this is called by QWidget::setFocus which calls ::SetFocus on "this",
+    // so we have to UIActivate the control after all that had happend.
+    setFocusTimer = startTimer( 0 );
 }
 
 void QAxHostWidget::focusOutEvent( QFocusEvent *e )
@@ -1198,10 +1219,7 @@ void QAxHostWidget::focusOutEvent( QFocusEvent *e )
     if ( !axhost || !axhost->m_spInPlaceActiveObject || !axhost->m_spInPlaceObject )
 	return;
 
-    /*
-    qDebug( "QAxHostWindow::UIDeactivating control" );
-    m_spInPlaceObject->UIDeactivate();
-    */
+    axhost->m_spInPlaceObject->UIDeactivate();
 }
 
 void QAxHostWidget::windowActivationChange( bool oldActive )
@@ -1320,8 +1338,8 @@ bool QAxWidget::initialize( IUnknown **ptr )
     container->hostWidget()->resize( size() );
     container->hostWidget()->show();
 
-    setFocusPolicy( StrongFocus );
     setFocusProxy( container->hostWidget() );
+    setFocusPolicy( StrongFocus );
     if ( parentWidget() )
 	QApplication::postEvent( parentWidget(), new QEvent( QEvent::LayoutHint ) );
 
