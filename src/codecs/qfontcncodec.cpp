@@ -95,7 +95,7 @@ void QFontGb2312Codec::fromUnicode(const QChar *in, unsigned short *out, int len
     while (length--) {
 	len = qt_UnicodeToGbk(in->unicode(), buf);
 	if ( len == 2 && buf[0] > 0xa0 && buf[1] > 0xa0 ) {
-	    *out = (((buf[0] << 8) | buf[0]) & 0x7f7f);
+	    *out = (((buf[0] << 8) | buf[1]) & 0x7f7f);
 	} else {
 	    *out = 0;
 	}
