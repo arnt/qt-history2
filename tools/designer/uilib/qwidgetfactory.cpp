@@ -246,8 +246,9 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     QDomDocument doc;
     QString errMsg;
     int errLine;
+
     if ( !doc.setContent( dev, &errMsg, &errLine ) ) {
-	qDebug( QString("Parse error: ") + errMsg + QString(" in line %d"), errLine );
+	//qDebug( QString("Parse error: ") + errMsg + QString(" in line %d"), errLine );
 	return 0;
     }
 
