@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#4 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#4 $";
 #endif
 
 
@@ -449,7 +449,12 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 #endif
 	return FALSE;
     }
-    isActive = TRUE;				// set active
+    QFont  defaultFont;				// default drawing tools
+    QPen   defaultPen;
+    QBrush defaultBrush;
+    cfont = defaultFont;			// set these drawing tools
+    cpen = defaultPen;
+    cbrush = defaultBrush;
     dirtyFont = TRUE;				// set all dirty flags
     dirtyPen = TRUE;
     dirtyBrush = TRUE;
@@ -459,18 +464,17 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     extPDev = (pdev->devFlags & PDF_EXTDEV);
     dpy = pdev->dpy;
     hd = pdev->hd;				// get handle to drawable
-    pdev->devFlags |= PDF_PAINTACTIVE;
     if ( extPDev ) {
 	gc = 0;
 	if ( !pdev->cmd( PDC_BEGIN, 0 ) ) {	// could not begin painting
-	    isActive = FALSE;
-	    pdev->devFlags &= ~PDF_PAINTACTIVE;
 	    pdev = 0;
 	    return FALSE;
 	}
     }
     else
 	gc = XCreateGC( dpy, hd, 0, 0 );
+    isActive = TRUE;				// painter becomes active
+    pdev->devFlags |= PDF_PAINTACTIVE;
     gc_brush = 0;
     bg_col = white;				// default background color
     curPt = QPoint( 0, 0 );
