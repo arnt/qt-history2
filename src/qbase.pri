@@ -122,9 +122,8 @@ unix {
    QMAKE_PKGCONFIG_INCDIR = $$headers.path
 }
 
-# enable COMPAT warnings (unless compat turned off completely)
-DEFINES += QT_NO_CAST_TO_ASCII
-compat:DEFINES += QT_COMPAT_WARNINGS
+# enable COMPAT warnings.
+DEFINES += QT_COMPAT_WARNINGS QT_NO_CAST_TO_ASCII
 
 !debug_and_release|build_pass {
    CONFIG(debug, debug|release) {
