@@ -1316,7 +1316,7 @@ type_and_name:		  type_name fct_name
 						    char *tmp =
 							straddSpc($1,$2,$3,$4);
 						    tmpFunc->type = rmWS(tmp);
-						    delete tmp;
+						    delete [] tmp;
 						    tmpFunc->name = $5; }
 			| decl_specs type_name /* probably friend decl */
 						{ skipFunc = TRUE; }
