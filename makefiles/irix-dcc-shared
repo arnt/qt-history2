@@ -1,6 +1,6 @@
-diff -ur template/Makefile irix-dcc-shared/Makefile
---- template/Makefile	Mon Sep  2 00:48:45 1996
-+++ irix-dcc-shared/Makefile	Mon Sep  2 00:49:47 1996
+diff -ubr template/Makefile irix-dcc-shared/Makefile
+--- template/Makefile	Sat Oct  5 23:42:52 1996
++++ irix-dcc-shared/Makefile	Sat Oct  5 23:42:50 1996
 @@ -4,8 +4,8 @@
  # Read PORTING for instructions how to port Qt to a new platform.
  #
@@ -10,11 +10,11 @@ diff -ur template/Makefile irix-dcc-shared/Makefile
 +CC = DCC
 +CFLAGS = -O2 -fullwarn -smart
  LFLAGS	= -lqt
+ SHELL	= /bin/sh
  
- all: library tutorial examples
-diff -ur template/examples/xshape/Makefile irix-dcc-shared/examples/xshape/Makefile
---- template/examples/xshape/Makefile	Sat Aug 17 18:00:13 1996
-+++ irix-dcc-shared/examples/xshape/Makefile	Mon Sep  2 00:49:47 1996
+diff -ubr template/examples/xshape/Makefile irix-dcc-shared/examples/xshape/Makefile
+--- template/examples/xshape/Makefile	Tue Sep 24 15:38:23 1996
++++ irix-dcc-shared/examples/xshape/Makefile	Sat Oct  5 23:40:24 1996
 @@ -25,8 +25,9 @@
  
  .SUFFIXES: .cpp
@@ -26,10 +26,10 @@ diff -ur template/examples/xshape/Makefile irix-dcc-shared/examples/xshape/Makef
  
  ####### Build rules
  
-diff -ur template/library/Makefile irix-dcc-shared/library/Makefile
---- template/library/Makefile	Mon Sep  2 00:49:17 1996
-+++ irix-dcc-shared/library/Makefile	Mon Sep  2 00:54:11 1996
-@@ -78,7 +78,7 @@
+diff -ubr template/library/Makefile irix-dcc-shared/library/Makefile
+--- template/library/Makefile	Sat Oct  5 23:40:17 1996
++++ irix-dcc-shared/library/Makefile	Sat Oct  5 23:40:24 1996
+@@ -76,7 +76,7 @@
  .SUFFIXES: .cpp
  
  .cpp.o:
@@ -38,7 +38,7 @@ diff -ur template/library/Makefile irix-dcc-shared/library/Makefile
  
  # VERSION - the version number of the shared library, where applicable
  
-@@ -104,7 +104,7 @@
+@@ -102,7 +102,7 @@
  dep: depend
  
  clean:
@@ -47,9 +47,9 @@ diff -ur template/library/Makefile irix-dcc-shared/library/Makefile
  
  # For maximum compatibility with old versions of make, we generate
  # a separate rule for each meta object source file.
-diff -ur template/moc/Makefile irix-dcc-shared/moc/Makefile
---- template/moc/Makefile	Mon Sep  2 00:48:45 1996
-+++ irix-dcc-shared/moc/Makefile	Mon Sep  2 00:50:46 1996
+diff -ubr template/moc/Makefile irix-dcc-shared/moc/Makefile
+--- template/moc/Makefile	Sat Oct  5 23:39:55 1996
++++ irix-dcc-shared/moc/Makefile	Sat Oct  5 23:40:24 1996
 @@ -53,7 +53,7 @@
  all: $(TARGET)
  
@@ -68,4 +68,3 @@ diff -ur template/moc/Makefile irix-dcc-shared/moc/Makefile
  
  qbuffer.o: ../library/qbuffer.cpp
  	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
-

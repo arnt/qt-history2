@@ -1,6 +1,6 @@
-diff -ru template/Makefile netbsd/Makefile
---- template/Makefile	Fri Sep  6 11:17:23 1996
-+++ netbsd/Makefile	Fri Sep  6 15:21:05 1996
+diff -ubr template/Makefile netbsd-gcc-shared/Makefile
+--- template/Makefile	Sat Oct  5 23:42:52 1996
++++ netbsd-gcc-shared/Makefile	Sat Oct  5 23:42:51 1996
 @@ -5,8 +5,8 @@
  #
  
@@ -9,12 +9,12 @@ diff -ru template/Makefile netbsd/Makefile
 -LFLAGS	= -lqt
 +CFLAGS	= -O2 -fno-strength-reduce -Wall -W -I/usr/X11R6/include
 +LFLAGS	= -lqt -L/usr/X11R6/lib
+ SHELL	= /bin/sh
  
  all: library tutorial examples
- 
-diff -ru template/library/Makefile netbsd/library/Makefile
---- template/library/Makefile	Fri Sep  6 11:17:41 1996
-+++ netbsd/library/Makefile	Fri Sep  6 15:22:29 1996
+diff -ubr template/library/Makefile netbsd-gcc-shared/library/Makefile
+--- template/library/Makefile	Sat Oct  5 23:40:17 1996
++++ netbsd-gcc-shared/library/Makefile	Sat Oct  5 23:40:29 1996
 @@ -86,9 +86,10 @@
  
  library: $(OBJECTS) $(METAOBJ)

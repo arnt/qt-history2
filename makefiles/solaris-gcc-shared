@@ -1,6 +1,6 @@
-diff -uwr template/library/Makefile solaris-gcc-shared/library/Makefile
---- template/library/Makefile	Thu Aug 22 20:06:47 1996
-+++ solaris-gcc-shared/library/Makefile	Thu Aug 22 20:22:19 1996
+diff -ubr template/library/Makefile solaris-gcc-shared/library/Makefile
+--- template/library/Makefile	Sat Oct  5 23:40:17 1996
++++ solaris-gcc-shared/library/Makefile	Sat Oct  5 23:40:36 1996
 @@ -88,7 +88,7 @@
  	-rm -f ../lib/libqt.so.$(VERSION)
  	$(CC) -shared -Wl,-soname,libqt.so.1 \

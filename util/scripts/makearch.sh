@@ -106,6 +106,7 @@ cat <<EOF
 CC	= gcc
 CFLAGS	= -O2 -fno-strength-reduce -Wall -W
 LFLAGS	= -lqt
+SHELL	= /bin/sh
 
 all: library tutorial examples
 

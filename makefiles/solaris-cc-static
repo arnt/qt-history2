@@ -1,6 +1,6 @@
-diff -uwr template/Makefile solaris-cc-static/Makefile
---- template/Makefile	Fri Aug 23 08:49:22 1996
-+++ solaris-cc-static/Makefile	Fri Aug 23 09:13:36 1996
+diff -ubr template/Makefile solaris-cc-static/Makefile
+--- template/Makefile	Sat Oct  5 23:42:52 1996
++++ solaris-cc-static/Makefile	Sat Oct  5 23:42:51 1996
 @@ -4,9 +4,9 @@
  # Read PORTING for instructions how to port Qt to a new platform.
  #
@@ -11,12 +11,12 @@ diff -uwr template/Makefile solaris-cc-static/Makefile
 +CC	= CC
 +CFLAGS	= -O2 -pto
 +LFLAGS	= -lqt -lX11 -lsocket
+ SHELL	= /bin/sh
  
- all: moc library tutorial examples
- 
-diff -uwr template/library/Makefile solaris-cc-static/library/Makefile
---- template/library/Makefile	Fri Aug 23 08:49:50 1996
-+++ solaris-cc-static/library/Makefile	Fri Aug 23 09:12:43 1996
+ all: library tutorial examples
+diff -ubr template/library/Makefile solaris-cc-static/library/Makefile
+--- template/library/Makefile	Sat Oct  5 23:40:17 1996
++++ solaris-cc-static/library/Makefile	Sat Oct  5 23:40:36 1996
 @@ -76,7 +76,7 @@
  .SUFFIXES: .cpp
  

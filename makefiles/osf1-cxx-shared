@@ -1,6 +1,6 @@
-diff -uwr template/Makefile osf1-cxx-shared/Makefile
---- template/Makefile	Mon Sep 23 18:37:09 1996
-+++ osf1-cxx-shared/Makefile	Mon Sep 23 18:38:02 1996
+diff -ubr template/Makefile osf1-cxx-shared/Makefile
+--- template/Makefile	Sat Oct  5 23:42:52 1996
++++ osf1-cxx-shared/Makefile	Sat Oct  5 23:42:51 1996
 @@ -4,8 +4,8 @@
  # Read PORTING for instructions how to port Qt to a new platform.
  #
@@ -10,11 +10,11 @@ diff -uwr template/Makefile osf1-cxx-shared/Makefile
 +CC	= cxx
 +CFLAGS	= -O2 -x cxx
  LFLAGS	= -lqt
+ SHELL	= /bin/sh
  
- all: library tutorial examples
-diff -uwr template/examples/xshape/Makefile osf1-cxx-shared/examples/xshape/Makefile
---- template/examples/xshape/Makefile	Fri Aug 16 09:14:01 1996
-+++ osf1-cxx-shared/examples/xshape/Makefile	Mon Sep 23 18:39:15 1996
+diff -ubr template/examples/xshape/Makefile osf1-cxx-shared/examples/xshape/Makefile
+--- template/examples/xshape/Makefile	Tue Sep 24 15:38:23 1996
++++ osf1-cxx-shared/examples/xshape/Makefile	Sat Oct  5 23:40:30 1996
 @@ -13,7 +13,7 @@
  #
  
@@ -24,9 +24,9 @@ diff -uwr template/examples/xshape/Makefile osf1-cxx-shared/examples/xshape/Make
  
  ####### Files
  
-diff -uwr template/library/Makefile osf1-cxx-shared/library/Makefile
---- template/library/Makefile	Mon Sep 23 18:37:39 1996
-+++ osf1-cxx-shared/library/Makefile	Mon Sep 23 18:38:02 1996
+diff -ubr template/library/Makefile osf1-cxx-shared/library/Makefile
+--- template/library/Makefile	Sat Oct  5 23:40:17 1996
++++ osf1-cxx-shared/library/Makefile	Sat Oct  5 23:40:30 1996
 @@ -76,7 +76,7 @@
  .SUFFIXES: .cpp
  

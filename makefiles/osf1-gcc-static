@@ -1,18 +1,18 @@
-diff -uwr template/Makefile osf1-gcc-static/Makefile
---- template/Makefile	Mon Sep 23 18:37:09 1996
-+++ osf1-gcc-static/Makefile	Mon Sep 23 18:46:56 1996
+diff -ubr template/Makefile osf1-gcc-static/Makefile
+--- template/Makefile	Sat Oct  5 23:42:52 1996
++++ osf1-gcc-static/Makefile	Sat Oct  5 23:42:51 1996
 @@ -6,7 +6,7 @@
  
  CC	= gcc
  CFLAGS	= -O2 -fno-strength-reduce -Wall -W
 -LFLAGS	= -lqt
 +LFLAGS	= -lqt -lX11
+ SHELL	= /bin/sh
  
  all: library tutorial examples
- 
-diff -uwr template/examples/xshape/Makefile osf1-gcc-static/examples/xshape/Makefile
---- template/examples/xshape/Makefile	Fri Aug 16 09:14:01 1996
-+++ osf1-gcc-static/examples/xshape/Makefile	Mon Sep 23 18:47:56 1996
+diff -ubr template/examples/xshape/Makefile osf1-gcc-static/examples/xshape/Makefile
+--- template/examples/xshape/Makefile	Tue Sep 24 15:38:23 1996
++++ osf1-gcc-static/examples/xshape/Makefile	Sat Oct  5 23:40:33 1996
 @@ -13,7 +13,7 @@
  #
  
@@ -22,9 +22,9 @@ diff -uwr template/examples/xshape/Makefile osf1-gcc-static/examples/xshape/Make
  
  ####### Files
  
-diff -uwr template/library/Makefile osf1-gcc-static/library/Makefile
---- template/library/Makefile	Mon Sep 23 18:37:39 1996
-+++ osf1-gcc-static/library/Makefile	Mon Sep 23 18:46:56 1996
+diff -ubr template/library/Makefile osf1-gcc-static/library/Makefile
+--- template/library/Makefile	Sat Oct  5 23:40:17 1996
++++ osf1-gcc-static/library/Makefile	Sat Oct  5 23:40:34 1996
 @@ -76,7 +76,7 @@
  .SUFFIXES: .cpp
  

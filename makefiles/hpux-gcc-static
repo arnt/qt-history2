@@ -1,18 +1,18 @@
-diff -uwr template/Makefile hpux-gcc-static/Makefile
---- template/Makefile	Thu Aug 22 19:08:20 1996
-+++ hpux-gcc-static/Makefile	Thu Aug 22 19:44:01 1996
+diff -ubr template/Makefile hpux-gcc-static/Makefile
+--- template/Makefile	Sat Oct  5 23:42:52 1996
++++ hpux-gcc-static/Makefile	Sat Oct  5 23:42:50 1996
 @@ -6,7 +6,7 @@
  
  CC	= gcc
  CFLAGS	= -O2 -fno-strength-reduce -Wall -W
 -LFLAGS	= -lqt
 +LFLAGS	= -lqt -lX11
+ SHELL	= /bin/sh
  
- all: moc library tutorial examples
- 
-diff -uwr template/library/Makefile hpux-gcc-static/library/Makefile
---- template/library/Makefile	Thu Aug 22 19:41:49 1996
-+++ hpux-gcc-static/library/Makefile	Thu Aug 22 19:45:00 1996
+ all: library tutorial examples
+diff -ubr template/library/Makefile hpux-gcc-static/library/Makefile
+--- template/library/Makefile	Sat Oct  5 23:40:17 1996
++++ hpux-gcc-static/library/Makefile	Sat Oct  5 23:40:24 1996
 @@ -76,7 +76,7 @@
  .SUFFIXES: .cpp
  

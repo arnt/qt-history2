@@ -1,6 +1,6 @@
-diff -ur template/Makefile bsdi-gcc-static/Makefile
---- template/Makefile	Thu Sep  5 15:25:48 1996
-+++ bsdi-gcc-static/Makefile	Thu Sep  5 20:30:35 1996
+diff -ubr template/Makefile bsdi-gcc-static/Makefile
+--- template/Makefile	Sat Oct  5 23:42:52 1996
++++ bsdi-gcc-static/Makefile	Sat Oct  5 23:42:50 1996
 @@ -4,9 +4,9 @@
  # Read PORTING for instructions how to port Qt to a new platform.
  #
@@ -11,12 +11,12 @@ diff -ur template/Makefile bsdi-gcc-static/Makefile
 +CC	= shlicc2
 +CFLAGS	= -O2 -fno-strength-reduce -Wall -W -I/usr/X11R6/include
 +LFLAGS	= -lqt -L/usr/X11R6/lib -lX11
+ SHELL	= /bin/sh
  
  all: library tutorial examples
- 
-diff -ur template/library/Makefile bsdi-gcc-static/library/Makefile
---- template/library/Makefile	Thu Sep  5 15:26:13 1996
-+++ bsdi-gcc-static/library/Makefile	Thu Sep  5 20:29:47 1996
+diff -ubr template/library/Makefile bsdi-gcc-static/library/Makefile
+--- template/library/Makefile	Sat Oct  5 23:40:17 1996
++++ bsdi-gcc-static/library/Makefile	Sat Oct  5 23:40:20 1996
 @@ -76,7 +76,7 @@
  .SUFFIXES: .cpp
  

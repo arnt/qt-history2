@@ -1,6 +1,6 @@
-diff -ur template/Makefile linux-gcc-shared-debug/Makefile
---- template/Makefile	Thu Sep  5 14:33:45 1996
-+++ linux-gcc-shared-debug/Makefile	Thu Sep  5 14:40:39 1996
+diff -ubr template/Makefile linux-gcc-shared-debug/Makefile
+--- template/Makefile	Sat Oct  5 23:42:52 1996
++++ linux-gcc-shared-debug/Makefile	Sat Oct  5 23:42:51 1996
 @@ -5,7 +5,7 @@
  #
  
@@ -8,12 +8,11 @@ diff -ur template/Makefile linux-gcc-shared-debug/Makefile
 -CFLAGS	= -O2 -fno-strength-reduce -Wall -W
 +CFLAGS	= -g -Wall -W
  LFLAGS	= -lqt
+ SHELL	= /bin/sh
  
- all: library tutorial examples
-Only in linux-gcc-shared-debug: Makefile~
-diff -ur template/library/Makefile linux-gcc-shared-debug/library/Makefile
---- template/library/Makefile	Thu Sep  5 14:34:26 1996
-+++ linux-gcc-shared-debug/library/Makefile	Thu Sep  5 14:37:48 1996
+diff -ubr template/library/Makefile linux-gcc-shared-debug/library/Makefile
+--- template/library/Makefile	Sat Oct  5 23:40:17 1996
++++ linux-gcc-shared-debug/library/Makefile	Sat Oct  5 23:40:28 1996
 @@ -88,7 +88,7 @@
  	-rm -f ../lib/libqt.so.$(VERSION)
  	$(CC) -shared -Wl,-soname,libqt.so.1 \

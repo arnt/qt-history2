@@ -1,18 +1,18 @@
-diff -ur template/Makefile sco-gcc-static/Makefile
---- template/Makefile	Wed Sep  4 14:58:03 1996
-+++ sco-gcc-static/Makefile	Wed Sep  4 22:21:38 1996
+diff -ubr template/Makefile sco-gcc-static/Makefile
+--- template/Makefile	Sat Oct  5 23:42:52 1996
++++ sco-gcc-static/Makefile	Sat Oct  5 23:42:51 1996
 @@ -6,7 +6,7 @@
  
  CC	= gcc
  CFLAGS	= -O2 -fno-strength-reduce -Wall -W
 -LFLAGS	= -lqt
 +LFLAGS	= -lqt -lX11 -lsocket
+ SHELL	= /bin/sh
  
  all: library tutorial examples
- 
-diff -ur template/library/Makefile sco-gcc-static/library/Makefile
---- template/library/Makefile	Wed Sep  4 14:58:21 1996
-+++ sco-gcc-static/library/Makefile	Wed Sep  4 22:15:54 1996
+diff -ubr template/library/Makefile sco-gcc-static/library/Makefile
+--- template/library/Makefile	Sat Oct  5 23:40:17 1996
++++ sco-gcc-static/library/Makefile	Sat Oct  5 23:40:34 1996
 @@ -76,7 +76,7 @@
  .SUFFIXES: .cpp
  

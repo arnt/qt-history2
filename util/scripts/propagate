@@ -16,6 +16,7 @@ CFLAGS	=	${CFLAGS}
 LFLAGS	=	-L`pwd`/lib ${LFLAGS}
 CC	=	${CC}
 MOC	=	`pwd`/bin/moc
+SHELL   =	${SHELL}
 
 ####### End of automatically generated section
 #
