@@ -252,7 +252,6 @@ nextfile:
 bool
 ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 {
-    int i;
     QStringList tmp;
     bool did_preprocess = false;
 
@@ -300,46 +299,48 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     //DUMP SOURCES
     QMap<QString, QStringList> groups;
     QString srcs[] = { "HEADERS", "SOURCES", "SRCMOC", "QMAKE_INTERNAL_INCLUDED_FILES", QString::null };
-    for(i = 0; !srcs[i].isNull(); i++) {
-        tmp = project->variables()[srcs[i]];
-        if(srcs[i] == "QMAKE_INTERNAL_INCLUDED_FILES") {
+    for(int src = 0; !srcs[src].isNull(); src++) {
+        tmp = project->variables()[srcs[src]];
+        if(srcs[src] == "QMAKE_INTERNAL_INCLUDED_FILES") {
             QString pfile = project->projectFile();
             if(pfile != "(stdin)")
                 tmp.prepend(pfile);
         }
-        QStringList &src_list = project->variables()["QMAKE_PBX_" + srcs[i]];
+        QStringList &src_list = project->variables()["QMAKE_PBX_" + srcs[src]];
         QStringList &root_group_list = project->variables()["QMAKE_PBX_GROUPS"];
 
         //hard coded groups..
         QString src_group;
-        if(srcs[i] == "SOURCES")
+        if(srcs[src] == "SOURCES")
             src_group = "Sources";
-        else if(srcs[i] == "HEADERS")
+        else if(srcs[src] == "HEADERS")
             src_group = "Headers";
-        else if(srcs[i] == "SRCMOC")
+        else if(srcs[src] == "SRCMOC")
             src_group = "Sources [moc]";
-        else if(srcs[i] == "UICIMPLS" || srcs[i] == "FORMS")
+        else if(srcs[src] == "UICIMPLS" || srcs[src] == "FORMS")
             src_group = "Sources [uic]";
-        else if(srcs[i] == "QMAKE_IMAGE_COLLECTION")
+        else if(srcs[src] == "QMAKE_IMAGE_COLLECTION")
             src_group = "Sources [images]";
-        else if(srcs[i] == "QMAKE_INTERNAL_INCLUDED_FILES")
+        else if(srcs[src] == "QMAKE_INTERNAL_INCLUDED_FILES")
             src_group = "Sources [qmake]";
 
-        for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it) {
-            QStringList files = (*it);
+        for(int i = 0; i < tmp.count(); i++) {
+            QStringList files = tmp[i];
             bool buildable = true;
-            if(srcs[i] == "FORMS") {
-                QString form_dot_h = (*it) + Option::h_ext.first();
+            if(srcs[src] == "FORMS") {
+                QString form_dot_h = tmp[i] + Option::h_ext.first();
                 if(QFile::exists(form_dot_h))
                     files += form_dot_h;
                 buildable = false;
-            } else if(srcs[i] == "HEADERS" || srcs[i] == "QMAKE_INTERNAL_INCLUDED_FILES") {
+            } else if(srcs[src] == "HEADERS" || srcs[src] == "QMAKE_INTERNAL_INCLUDED_FILES") {
                 buildable = false;
+            } else if(srcs[src] == "SRCMOC") {
+                buildable = (i < project->variables()["OBJMOC"].count());
             }
 
             files = fileFixify(files);
-            for(QStringList::Iterator file_it = files.begin(); file_it != files.end(); ++file_it) {
-                QString file = (*file_it);
+            for(int i2 = 0; i2 < files.count(); i2++) {
+                QString file = files[i2];
                 if(file.length() >= 2 && (file[0] == '"' || file[0] == '\'') && file[(int) file.length()-1] == file[0])
                     file = file.mid(1, file.length()-2);
                 if(file.endsWith(Option::cpp_moc_ext) || file.endsWith(Option::prl_ext))
@@ -410,7 +411,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             }
         }
         if(!src_list.isEmpty()) {
-            if(srcs[i] == "SOURCES") {
+            if(srcs[src] == "SOURCES") {
                 if(project->first("TEMPLATE") == "app" && !project->isEmpty("RC_FILE")) { //Icon
                     QString icns_file = keyFor("ICNS_FILE");
                     src_list.append(icns_file);
@@ -485,7 +486,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             }
             mkt << "\n";
             mkt << "preprocess: $(MOCS) $(PARSERS)" << endl;
-            mkt << "clean preprocess_clean: mocclean parser_clean" << endl << endl;
+            mkt << "clean preprocess_clean: mocclean parser_clean compiler_clean" << endl << endl;
             mkt << "mocclean:" << "\n";
             if(!project->isEmpty("SRCMOC"))
                 mkt << "\t-rm -f $(MOCS)" << "\n";
@@ -539,7 +540,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isActiveConfig("staticlib")) { //DUMP LIBRARIES
         QStringList &libdirs = project->variables()["QMAKE_PBX_LIBPATHS"];
         QString libs[] = { "QMAKE_LFLAGS", "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
-        for(i = 0; !libs[i].isNull(); i++) {
+        for(int i = 0; !libs[i].isNull(); i++) {
             tmp = project->variables()[libs[i]];
             for(QStringList::Iterator it = tmp.begin(); it != tmp.end();) {
                 bool remove = false;
