@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#18 $
 **
 **  Splitter widget
 **
@@ -174,24 +174,22 @@ void QInternalSplitter::paintEvent( QPaintEvent * )
 
   \ingroup realwidgets
 
-  A splitter lets the user control the size of two child widgets by
-  dragging the boundary between the two children.
+  A splitter lets the user control the size of child widgets by
+  dragging the boundary between the children.
 
-  You specify the two widgets to be managed using setFirstWidget() (to
-  set the left/top widget) and setSecondWidget().
+  The current implementation is limited to two children.
+  The two widgets to be managed are the first two children added.
 
   In QSplitter the boundary can be either horizontal or vertical.  The
-  default is horizontal (the two children are side by site) and you
-  can use setOrientation( QSplitter::Vertical ) to set to to vertical.
+  default is horizontal (the children are side by side) and you
+  can use setOrientation( QSplitter::Vertical ) to set it to vertical.
 
   By default, both widgets can be as large or as small as the user
-  wishes.  You can set the current split using setRatio() (sets the
-  two widgets' relative size) or setFixed() (sets either child to be
-  of fixed size and the other to take all the slack).  Of course you
-  can also use setMinimumSize() and/or setMaximumSize() on the
-  children.
+  wishes. You can naturally use setMinimumSize() and/or
+  setMaximumSize() on the children. Use setResizeMode() to specify that
+  a widget should keep its size when the splitter is resized.
 
-  QSplitter normally resizes the two children only at the end of a
+  QSplitter normally resizes the children only at the end of a
   resize operation, but if you call setOpaqueResize( TRUE ), the
   widgets are resized as often as possible.
 
@@ -226,60 +224,19 @@ QSplitter::QSplitter( Orientation o, QWidget *parent, const char *name )
 
 void QSplitter::init()
 {
-    ratio = -1;
+    //ratio = -1;
     fixedWidget = 0;
     opaque = 0;
 
     d = new QInternalSplitter( orient, this );
 
-   setMouseTracking( TRUE );
+    setMouseTracking( TRUE );
     moving = 0;
-    w1  = w2 = 0;
+    w1 = w2 = 0;
     if ( style() == WindowsStyle )
 	bord = 3;
     else
 	bord = 5;
-}
-
-/*!  Sets \a w to be the left (or top) widget.
-
-  If there is a firstWidget() already, that widget is hidden but not
-  deleted.
-
-  \sa setSecondWidget() firstWidget()
-*/
-void QSplitter::setFirstWidget( QWidget *w ) {
-    if ( w && w == w1 )
-	return;
-    if ( w1 )
-	w1->hide();
-    if ( w && w->parentWidget() != this )
-	w->recreate( this, 0, QPoint(0,0) );
-    w1 = w;
-    if ( w1 && w2 == w1 )
-	w2 = 0;
-    recalc();
-}
-
-/*!
-  Sets \a w to be the right (or bottom) widget.
-
-  If there is a secondWidget() already, that widget is hidden but not
-  deleted.
-
-  \sa setFirstWidget() secondWidget()
-*/
-void QSplitter::setSecondWidget( QWidget *w ) {
-    if ( w && w == w2 )
-	return;
-    if ( w2 )
-	w2->hide();
-    if ( w && w->parentWidget() != this )
-	w->recreate( this, 0, QPoint(0,0) );
-    w2 = w;
-    if ( w2 && w2 == w1 )
-	w1 = 0;
-    recalc();
 }
 
 /*!  Sets the orientation to \a o.  By default the orientation is
@@ -305,25 +262,18 @@ void QSplitter::setOrientation( Orientation o )
 */
 
 
-QCOORD QSplitter::r2p( int r ) const
+QCOORD QSplitter::newpos() const 
 {
     int s = pick(contentsRect().size());
-    if ( fixedWidget )
-	return fixedWidget == 1 ? r : s - r;
-    else
+    int s1 = w1 ? pick(w1->size()) : 1;
+    int s2 = w2 ? pick(w2->size()) : 1;
+    if ( fixedWidget ) {
+	return fixedWidget == w1 ? s1 : s - s2;
+    } else {
+	int r = (256*s1) / (s1+s2);
 	return ( s * r) / 256;
+    }
 }
-
-int QSplitter::p2r( QCOORD p ) const
-{
-    int s = pick(contentsRect().size());
-    if ( fixedWidget )
-	return fixedWidget == 1 ? p : s - p;
-    else
-	return s ? ( p * 256 ) / s : 128;
-}
-
-
 
 /*!
   Reimplemented to provide childRemoveEvent(), childInsertEvent() and
@@ -352,14 +302,6 @@ void QSplitter::resizeEvent( QResizeEvent * )
     doResize();
 }
 
-
-
-void QSplitter::leaveEvent( QEvent * )
-{
-    //    setCursor( arrowCursor );
-}
-
-
 /*!
   Tells the splitter that a child widget has been removed.
 */
@@ -367,18 +309,34 @@ void QSplitter::childRemoveEvent( QChildEvent *c )
 {
     if ( c->child() == w1 ) {
 	w1 = 0;
-	recalc();
+	recalc( TRUE );
     } else if ( c->child() == w2 ) {
 	w2 = 0;
-	recalc();
+	recalc( TRUE );
     }
 }
 
 /*!
   Tells the splitter that a child widget has been inserted.
 */
-void QSplitter::childInsertEvent( QChildEvent * )
+void QSplitter::childInsertEvent( QChildEvent *c )
 {
+    if ( c->child() == d ||  c->child() == w1 || c->child() == w2 )
+	return;
+    
+    if ( !w1  ) {
+	w1 = c->child();
+    } else if ( !w2 ) {
+	w2 = c->child();
+    }
+#if defined CHECK_RANGE
+    else
+	warning( "QSplitter (%s): Error when inserting %s ( %s ), \n"
+		 "max two child widgets currently supported",
+		 name( "unnamed" ), c->child()->className(), 
+		 c->child()->name( "unnamed")  );
+#endif    
+    recalc();
 }
 
 
@@ -490,7 +448,7 @@ void QSplitter::moveSplitter( QCOORD p )
 
 int QSplitter::adjustPos( int p )
 {
-    ratio = p2r( p );
+    //    ratio = p2r( p );
 
     QRect r = contentsRect();
 
@@ -554,28 +512,25 @@ void QSplitter::doResize()
 	    w2->setGeometry( r.x(), r.y(), r.width(), r.height() );
 	return;
     }
-
-    QCOORD p = r2p( ratio );
-    //         pick(w1->size()) + bord; //current center of splitter.
-    int r = ratio;
-    moveSplitter( adjustPos( p ) );
-    ratio = r; //resize should not affect the ratio set by the user
+    moveSplitter( adjustPos( newpos() ) );
 }
 
 
-void QSplitter::recalc()
+void QSplitter::recalc( bool update)
 {
     if ( !w1 || !w2 ) {
 	QRect r = contentsRect();
 	if ( w1 ) {
 	    setMaximumSize( w1->maximumSize() );
 	    setMinimumSize( w1->minimumSize() );
-	    w1->setGeometry( r.x(), r.y(), r.width(), r.height() );
+	    if ( update )
+		w1->setGeometry( r.x(), r.y(), r.width(), r.height() );
 	}
 	else if ( w2 ){
 	    setMaximumSize( w2->maximumSize() );
 	    setMinimumSize( w2->minimumSize() );
-	    w2->setGeometry(r.x(), r.y(), r.width(), r.height() );
+	    if ( update )
+		w2->setGeometry(r.x(), r.y(), r.width(), r.height() );
 	}
 	return;
     }
@@ -598,64 +553,25 @@ void QSplitter::recalc()
 	setMaximumSize( maxt, maxl );
 	setMinimumSize( mint, minl );
     }
-    if ( ratio >= 0 ) {
-	int r = ratio;
-	moveSplitter( adjustPos( r2p(ratio) ) );
-	ratio = r; //keep old ratio
-    } else {
-	moveSplitter( adjustPos( pick(size())/2 ) );
-    }
+    if ( update )
+	moveSplitter( adjustPos( newpos() ) );
 }
 
 
-
-
-
 /*!
-  Sets the proportion of available space allocated for the first widget to
-  \a f.  A value of 0.5 means equal space for the two widgets,
-  1.0 means the second widget receives all the space.
-
-  The user can change the ratio by adjusting  the splitter.
-
-  The widgets' minimum/maximum sizes, if any, have precedence over the ratio.
-
-  \sa setFixed()
+  Sets resize mode of  \a w to \a mode.
+  \a mode can be \c Stretch (the default) which means that \a w will
+  resize when the splitter resizes, or \c KeepSize which means that 
+  \a w will keep its size.
+  
 */
 
-void QSplitter::setRatio( float f )
+void QSplitter::setResizeMode( QWidget *w, ResizeMode mode )
 {
-    fixedWidget = 0;
-    ratio = (int)(f*256);
-    doResize();
-}
-
-
-
-
-/*!
-  Sets the size of widget number \a w to \a size. \a w must be
-  \c FirstWidget or \c SecondWidget.
-  The specified widget will have a fixed size.  The user can change
-  the fixed size by adjusting the splitter.
-
-  The widgets' minimum/maximum sizes, if any, have precedence over the size
-  set.
-
-  \sa setRatio()
-*/
-
-void QSplitter::setFixed( int w, int size )
-{
-    if ( w > 1 || w < 0 ) {
-#ifdef CHECK_RANGE
-	debug( "QSplitter::setFixed(), unsupported widget number %d "
-	       "(must be 0 or 1).", w );
-#endif	
-	return;
-    }
-    fixedWidget = w + 1;
-    ratio = size;
+    if ( mode == KeepSize )
+	fixedWidget = w;
+    else
+	fixedWidget = 0;  //#### not completely correct
     doResize();
 }
 
@@ -682,4 +598,107 @@ void QSplitter::setOpaqueResize( bool on )
 QWidget * QSplitter::splitterWidget()
 {
     return (QWidget*)d;
+}
+
+#if 0
+/*!
+  Hides \a w if \a hide is TRUE, and updates the splitter.
+  
+  \warning Due to a limitation in the current implementation,
+  calling QWidget::hide() will not work.
+*/
+
+void QSplitter::setHidden( QWidget *w, bool hide )
+{
+    if ( w == w1 ) {
+	w1show = !hide;
+    } else if ( w == w2 ) {
+	w2show = !hide;
+    } else {
+#ifdef CHECK_RANGE
+	warning( "QSplitter::setHidden(), unknown widget" );
+#endif	
+	return;
+    }
+    if ( hide )
+	w->hide();
+    else 
+	w->show();
+    recalc( TRUE );
+}
+
+
+/*!
+  Returns the hidden status of \a w
+*/
+
+bool QSplitter::isHidden( QWidget *w ) const
+{
+    if ( w == w1 ) 
+	return !w1show;
+     else if ( w == w2 )
+	return !w2show;
+#ifdef CHECK_RANGE
+    else
+	warning( "QSplitter::isHidden(), unknown widget" );
+#endif	
+    return FALSE; 
+}
+#endif
+
+/*!
+  Moves \a w to the leftmost/top position.
+*/
+
+void QSplitter::moveToFirst( QWidget *w )
+{
+    if ( !w || w1 == w )
+	return;
+    if ( !w1 ) {
+	w1 = w;
+	if ( w2 == w1 )
+	    w2 = 0;
+    } else if ( w == w2 ) {
+	w2 = w1;
+	w1 = w;
+    } else if ( !w2 ) {
+	w2 = w1;
+	w1 = w;
+    } else {
+	warning( "QSplitter (%s)::toFirst  %s ( %s ), \n"
+		 "max two widgets currently supported",
+		 name( "unnamed" ), w->className(), 
+		 w->name( "unnamed")  );
+    }  
+	
+    recalc( TRUE );
+
+}
+
+/*!
+  Moves \a w to the rightmost/bottom position.
+*/
+
+void QSplitter::moveToLast( QWidget *w )
+{
+    if ( !w || w2 == w )
+	return;
+    if ( !w2 ) {
+	w2 = w;
+	if ( w2 == w1 )
+	    w1 = 0;
+    } else if ( w == w1 ) {
+	w1 = w2;
+	w2 = w;
+    } else if ( !w2 ) {
+	w1 = w2;
+	w2 = w;
+    } else {
+	warning( "QSplitter (%s)::toLast  %s ( %s ), \n"
+		 "max two widgets currently supported",
+		 name( "unnamed" ), w->className(), 
+		 w->name( "unnamed")  );
+    }     
+	
+    recalc( TRUE );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#9 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#10 $
 **
 ** Defintion of  QSplitter class
 **
@@ -22,30 +22,33 @@ class QSplitter : public QFrame
 	Q_OBJECT
 public:
     enum Orientation { Horizontal, Vertical };
-    enum Position { FirstWidget = 0, SecondWidget = 1 };
+    enum ResizeMode { Stretch, KeepSize };
     
     QSplitter( QWidget *parent=0, const char *name=0 );
     QSplitter( Orientation, QWidget *parent=0, const char *name=0 );
 
-    void setFirstWidget( QWidget * );
-    void setSecondWidget( QWidget * );
-
     void setOrientation( Orientation );
     Orientation orientation() const { return orient; }
 
-    void setRatio( float f );
-    void setFixed( int w, int size );
+    void setResizeMode( QWidget *w, ResizeMode );
 
     bool event( QEvent * );
 
     void setOpaqueResize( bool = TRUE );
     bool opaqueResize() const { return opaque; }
 
+    void moveToFirst( QWidget * );
+    void moveToLast( QWidget * );
+    
+    //void setHidden( QWidget *, bool );
+    //bool isHidden( QWidget *) const;
+
+    void refresh() { recalc( TRUE ); }
+    
 protected:
     void childInsertEvent( QChildEvent * );
     void childRemoveEvent( QChildEvent * );
     void layoutHintEvent( QEvent * );
-    void leaveEvent( QEvent * );
     void resizeEvent( QResizeEvent * );
 
     void moveSplitter( QCOORD pos );
@@ -54,15 +57,11 @@ protected:
 
     int adjustPos( int );
     void setRubberband( int );
-
-    // styleChange
-    // frameChange
-
     // virtual int border2()
 
 private:
     void init();
-    void recalc();
+    void recalc( bool update = FALSE );
     int hit( QPoint p );
     void doResize();
     QWidget *splitterWidget();
@@ -83,14 +82,14 @@ private:
     QCOORD trans( const QSize &s ) const
     { return orient == Vertical ? s.width() : s.height(); }
 
-    QCOORD r2p( int ) const;
-    int p2r( QCOORD ) const;
+    QCOORD newpos() const;
 
     QWidget *w1;
     QWidget *w2;
     int moving;
-    int ratio;
-    int fixedWidget;
+    //    bool w1show;
+    //    bool w2show;
+    QWidget *fixedWidget;
     QInternalSplitter *d;
     bool opaque;
 
