@@ -283,6 +283,7 @@
 #include "../src/widgets/qtitlebar_p.h"
 #include "../src/kernel/qrichtext_p.h"
 #include "../src/widgets/qwidgetresizehandler_p.h"
+#include "../src/tools/qlibrary_p.h"
 #endif // Private headers
 
 
