@@ -207,6 +207,11 @@ void WriteInitialization::acceptWidget(DomWidget *node)
     if (attributes.contains(QLatin1String("id")))
         id = attributes.value(QLatin1String("id"))->elementNumber();
 
+    if (uic->customWidgetsInfo()->extends(className, QLatin1String("QMenuBar"))
+        && !uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3MainWindow"))) {
+        output << option.indent << parentWidget << "->setMenuBar(" << varName <<");\n";
+    }
+
     if (uic->customWidgetsInfo()->extends(className, QLatin1String("QToolBar"))) {
         output << option.indent << parentWidget << "->addToolBar(" << varName << ");\n";
     }
@@ -455,8 +460,6 @@ void WriteInitialization::acceptActionRef(DomActionRef *node)
     QString varName = driver->findOrInsertWidget(m_widgetChain.top());
 
     if (m_widgetChain.top() && isSeparator) {
-        QString parentClass = m_widgetChain.top()->attributeClass();
-
         // separator is always reserved!
         actionOut << option.indent << varName << "->addSeparator();\n";
         return;
@@ -1107,8 +1110,6 @@ void WriteInitialization::initializeSqlDataBrowser(DomWidget *w)
 
 void WriteInitialization::initializeMenu(DomWidget *w, const QString &/*parentWidget*/)
 {
-    QHash<QString, DomProperty*> attributes = propertyMap(w->elementAttribute());
-
     QString menuName = driver->findOrInsertWidget(w);
     QString menuAction = menuName + QLatin1String("Action");
 
