@@ -155,7 +155,8 @@ editionRemove["opensource"] = [ new RegExp("^qmake/generators/win32/borland"),
 				new RegExp("^qmake/generators/mac/metrowerks"),
 				new RegExp("^qmake/generators/mac/pbuilder"),
 				new RegExp("^mkspecs/macx-mwerks"),
-				new RegExp("^mkspecs/macx-pbuilder") ];
+				new RegExp("^mkspecs/macx-pbuilder"),
+				new RegExp("^mkspecs/macx-xcode") ];
 editionKeep["opensource"] = [ new RegExp(".") ];
 
 editionRemove["preview"] = [ new RegExp("GPL") ];
