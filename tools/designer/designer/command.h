@@ -48,7 +48,7 @@ class QDesignerToolBar;
 class QMainWindow;
 class QDesignerPopupMenu;
 class QDesignerMenuBar;
-class LanguageInterface;
+struct LanguageInterface;
 
 class Command : public Qt
 {
