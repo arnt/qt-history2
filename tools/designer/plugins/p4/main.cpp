@@ -282,7 +282,7 @@ public:
     P4Interface();
     ~P4Interface();
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
     unsigned long addRef();
     unsigned long release();
 
@@ -353,7 +353,10 @@ QStringList P4Interface::featureList() const
 void P4Interface::connectTo( QUnknownInterface *ai )
 {
     if ( !appInterface && ai ) {
-	appInterface = (DesignerInterface*)ai->queryInterface( IID_DesignerInterface );
+	QUnknownInterface *temp = appInterface;
+
+	ai->queryInterface( IID_DesignerInterface, &temp );
+	appInterface = (DesignerInterface*)temp;
 	if ( !appInterface )
 	    return;
 
@@ -754,23 +757,21 @@ void P4Interface::reloadFile( const QString &filename )
     qDebug( "P4 todo: reload file after change" );
 }
 
-QUnknownInterface *P4Interface::queryInterface( const QUuid &uuid )
+QRESULT P4Interface::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
-    QUnknownInterface *iface = 0;
+    *iface = 0;
 
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)(ActionInterface*)this;
+	*iface = (QUnknownInterface*)(ActionInterface*)this;
     else if ( uuid == IID_QFeatureListInterface )
-	iface = (QFeatureListInterface*)this;
+	*iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_ActionInterface )
-	iface = (ActionInterface*)this;
+	*iface = (ActionInterface*)this;
     else if ( uuid == IID_QLibraryInterface )
-	iface = (QLibraryInterface*)this;
+	*iface = (QLibraryInterface*)this;
 
-    if ( iface )
-	iface->addRef();
-
-    return iface;
+    if ( *iface )
+	(*iface)->addRef();
 }
 
 unsigned long P4Interface::addRef()
