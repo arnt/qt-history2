@@ -120,9 +120,9 @@ MakefileGenerator::generateMocList(QString fn_target)
 		    }
 		}
 	}
-	if(!ignore_qobject && *(big_buffer+x) == 'Q' && 
-	   (!strncmp(big_buffer+x, "Q_OBJECT", OBJ_LEN) || !strncmp(big_buffer+x, "Q_DISPATCH", DIS_LEN))) {
-
+	if(*(big_buffer+x) == 'Q' && 
+	   ((!ignore_qobject && !strncmp(big_buffer+x, "Q_OBJECT", OBJ_LEN)) || 
+	    !strncmp(big_buffer+x, "Q_DISPATCH", DIS_LEN))) {
 	    int ext_pos = fn_target.findRev('.');
 	    int ext_len = fn_target.length() - ext_pos;
 	    int dir_pos =  fn_target.findRev(Option::dir_sep, ext_pos);
