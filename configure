@@ -27,7 +27,7 @@ QMAKE_CONFIG=
 
 
 #-------------------------------------------------------------------------------
-# platform detection
+# operating system detection
 #-------------------------------------------------------------------------------
 
 # need that throughout the script
@@ -36,19 +36,26 @@ UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
 UNAME_SYSTEM=`(uname -s) 2>/dev/null`  || UNAME_SYSTEM=unknown
 UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
 
-# initialize platform detection
-X11_PLATFORM=no
-CFG_PLATFORM=x11
-MAC_PLATFORM=no
-[ -d /System/Library/Frameworks/Carbon.framework ] && MAC_PLATFORM=yes
-[ -d /System/Library/Frameworks/Carbon.framework ] && CFG_PLATFORM=mac
-### need some way to trigger Qt/Embedded instead of Qt/X11 that
-### works on internal edition, other than [ -d mkspecs/qws ] - maybe
-### -embedded does the trick after all, but then options must be
-### parsed _before_ licensing
-QWS_PLATFORM=no
-[ "$MAC_PLATFORM" = "no" ] && [ -d mkspecs/qws ] && QWS_PLATFORM=maybe
-[ "$CFG_PLATFORM" != "mac" ] && [ -d mkspecs/qws ] && CFG_PLATFORM=qws
+
+#-------------------------------------------------------------------------------
+# window system detection
+#-------------------------------------------------------------------------------
+
+# Qt/X11
+# * the "default", will fall back on that
+PLATFORM_X11=no
+
+# Qt/Mac
+# * the Carbon SDK is present
+# * later test against Qt/Mac license
+PLATFORM_MAC=no
+[ -d /System/Library/Frameworks/Carbon.framework ] && PLATFORM_MAC=yes
+
+# Qt/Embedded
+# * we're not on Qt/Mac
+# * mkspecs/qws is present
+# * later test against Qt/Embedded license
+[ "$PLATFORM_MAC" = "no" ] && [ -d mkspecs/qws ] && PLATFORM_QWS=maybe
 
 
 #-------------------------------------------------------------------------------
@@ -58,12 +65,18 @@ QWS_PLATFORM=no
 # Free edition - may only be used under the terms of the QPL or GPL.
 if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]
 then
+    # Qt/X11        GPL or QPL
+    # Qt/Embedded   GPL
     Edition="free"
     Licensee="Non-Commercial"
     Products="qt-free"
 # Internal Trolltech edition.
 elif [ -f $relpath/LICENSE.TROLL ]
 then
+    # Qt/X11
+    # Qt/Embedded
+    # Qt/Mac
+    # Qt/...
     Edition="troll"
     Licensee="Trolltech"
     Products="qt-internal"
@@ -89,7 +102,7 @@ then
 	if [ -z "$LicenseKey" ]
 	then
 	    echo
-	    echo "Please enter your license key"
+	    echo "Please enter your license key:"
 	    read LicenseKey
 	fi
     fi
@@ -98,12 +111,13 @@ then
 	# get the first character of the key
 	keyTest=`echo $LicenseKey | cut -b1`
 	# this character should fit the platform
-	if [ "$CFG_PLATFORM" = "qws" ]
+	if [ "$PLATFORM_QWS" = "yes" ]
 	then
 	    case $keyTest in
 	    A|B|C|D|E|F|G|H|a|b|c|d|e|f|g|h)
-		# Feature_Embedded
-		echo ;;
+		# Qt/Embedded
+		echo
+		;;
 	    *)
 		echo
 		echo "You are not licensed for the Qt/Embedded platform."
@@ -111,44 +125,50 @@ then
 		echo "Please contact sales@trolltech.com to upgrade your license"
 		echo "to include the Qt/Embedded platform, or install the"
 		echo "Qt Free Edition if you intend to develop free software."
-		exit 1 ;;
+		exit 1
+		;;
 	    esac
-	elif [ "$CFG_PLATFORM" = "mac" ]
+	elif [ "$PLATFORM_MAC" = "yes" ]
         then
 	    case $keyTest in
 	    *) ###
-		# Feature_Mac
-		echo ;;
+		# Qt/Mac
+		echo
+		;;
 	    *)
 		echo
-		echo "You are not licensed for the Mac OS X platform."
+		echo "You are not licensed for the Qt/Mac platform."
 		echo
 		echo "Please contact sales@trolltech.com to upgrade your license"
-		echo "to include the Mac OS X platform."
-		exit 1 ;;
+		echo "to include the Qt/Mac platform."
+		exit 1
+		;;
 	    esac
 	else
 	    case $keyTest in
 	    6|7|8|9|E|F|G|H|e|f|g|h)
-		# Feature_Unix
-		echo ;;
+		# Qt/X11
+		echo
+		;;
 	    *)
 		echo
-		echo "You are not licensed for the X11 platform."
+		echo "You are not licensed for the Qt/X11 platform."
 		echo
-		echo "Please contact sales@trolltech.com to upgrade your license"
-		echo "to include the X11 platform, or install the Qt Free Edition"
+		echo "Please contact sales@trolltech.com to upgrade your license to"
+		echo "include the Qt/X11 platform, or install the Qt Free Edition"
 		echo "if you intend to develop free software."
-		exit 1 ;;
+		exit 1
+		;;
 	    esac
 	fi
 	case $keyTest in
 	4|5|8|9|C|D|G|H|c|d|g|h)
-	    # Feature_Enterprise
+	    # Enterprise
 	    Desc="Enterprise"
 	    Edition="ent"
 	    ;;
 	*)
+	    # Professional
 	    Products=qt-professional
 	    Desc="Professional"
 	    Edition="pro"
@@ -156,7 +176,7 @@ then
 	esac
 	case $keyTest in
 	3|5|7|9|B|D|F|H|b|d|f|h)
-	    # Feature_US
+	    # US
 	    cp -f $relpath/.LICENSE-US $relpath/LICENSE
 	    ;;
 	*)
@@ -175,7 +195,7 @@ else
     echo "Sorry, you are not licensed to use this software."
     echo "Try re-installing."
     echo
-    exit 0
+    exit 1
 fi
 
 # check licensed modules
@@ -195,7 +215,7 @@ CFG_LAZY_DEPS_ALLOWED=no
 CFG_EXCEPTION_SUPPORT=unspecified
 CFG_INCREMENTAL=auto
 CFG_QCONFIG=full
-if [ "$QWS_PLATFORM" = "yes" ]
+if [ "$PLATFORM_QWS" = "yes" ]
 then
     CFG_EMBEDDED=auto
 else
@@ -279,9 +299,9 @@ do
 	;;
     -embedded)
 	shift;
-	if [ "$QWS_PLATFORM" = "maybe" ]
+	if [ "$PLATFORM_QWS" = "maybe" ]
 	then
-	    QWS_PLATFORM=yes
+	    PLATFORM_QWS=yes
 	    CFG_EMBEDDED=$1
 		if [ $CFG_EMBEDDED = "qnx" ]
 		then
@@ -661,7 +681,7 @@ echo "// All modules enabled while building qmake" >$outpath/include/qmodules.h
 # - using 130 as an exit value because on bash the return value of a
 #   simple command is 128+n if the command is terminated by signal n
 #   and Ctrl+C results in SIGINT which on Linux is 2
-if [ "$MAC_PLATFORM" = "no" ]
+if [ "$PLATFORM_MAC" = "no" ]
 then
 trap "\
 [ -r qconfig.h-hold ] && mv -f $outpath/qconfig.h-hold $outpath/include/qconfig.h ;\
@@ -1044,8 +1064,8 @@ then
 fi
 
 # now look at the configs and figure out what platform we are config'd for
-[ ! -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ] && X11_PLATFORM=yes
-echo "$XQMAKESPEC" | grep mkspecs/qws >/dev/null 2>&1 && QWS_PLATFORM=yes
+[ ! -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ] && PLATFORM_X11=yes
+echo "$XQMAKESPEC" | grep mkspecs/qws >/dev/null 2>&1 && PLATFORM_QWS=yes
 
 # find default thread option for target
 if grep >/dev/null '^QMAKE_LIBS_THREAD' $XQMAKESPEC/qmake.conf
@@ -1133,7 +1153,7 @@ fi
     fi
 
 # x11
-if [ "$X11_PLATFORM" = "yes" ]
+if [ "$PLATFORM_X11" = "yes" ]
 then
     x11tests=$relpath/config.tests/x11
 
@@ -1366,7 +1386,7 @@ Third Party Image Loading Libraries:
 			 See http://www.libmng.com
 EOF
 
-if [ "$X11_PLATFORM" = "yes" ]
+if [ "$PLATFORM_X11" = "yes" ]
 then
     if [ "$CFG_SM" = "no" ]
     then
@@ -1450,7 +1470,7 @@ Qt/X11 only:
 EOF
 fi
 
-if [ "$QWS_PLATFORM" = "yes" ]
+if [ "$PLATFORM_QWS" = "yes" ]
 then
     cat << EOF
 
@@ -1495,7 +1515,7 @@ if [ "$Edition" = "free" ]
 then
     while :
     do
-	if [ "$QWS_PLATFORM" = "yes" ]
+	if [ "$PLATFORM_QWS" = "yes" ]
 	then
 	    echo
 	    echo "This is the Qt/Embedded Free Edition."
@@ -1504,7 +1524,7 @@ then
 	    echo "the GNU General Public License (GPL)."
 	    echo
 	    affix="the"
-	elif [ "$X11_PLATFORM" = "yes" ]
+	elif [ "$PLATFORM_X11" = "yes" ]
 	then
 	    echo
 	    echo "This is the Qt/X11 Free Edition."
@@ -1540,7 +1560,7 @@ then
 	    more $relpath/LICENSE.GPL
 	elif [ "$acceptance" = "Q" -o "$acceptance" = "q" ]
 	then
-	    if [ "$QWS_PLATFORM" != "yes" ]
+	    if [ "$PLATFORM_QWS" != "yes" ]
 	    then
 		more $relpath/LICENSE.QPL
 	    fi
@@ -1548,13 +1568,13 @@ then
     done
 elif [ "$Edition" = "troll" ]
 then
-    if [ "$QWS_PLATFORM" = "yes" ]
+    if [ "$PLATFORM_QWS" = "yes" ]
     then
 	Platform="Qt/Embedded"
-    elif [ "$X11_PLATFORM" = "yes" ]
+    elif [ "$PLATFORM_X11" = "yes" ]
     then
 	Platform="Qt/X11"
-    elif [ "$MAC_PLATFORM" = "yes" ]
+    elif [ "$PLATFORM_MAC" = "yes" ]
     then
 	Platform="Qt/Mac"
     else
@@ -1593,13 +1613,13 @@ else
 	    sleep 3
 	fi
     fi
-    if [ "$QWS_PLATFORM" = "yes" ]
+    if [ "$PLATFORM_QWS" = "yes" ]
     then
 	Platform="Qt/Embedded"
-    elif [ "$X11_PLATFORM" = "yes" ]
+    elif [ "$PLATFORM_X11" = "yes" ]
     then
 	Platform="Qt/X11"
-    elif [ "$MAC_PLATFORM" = "yes" ]
+    elif [ "$PLATFORM_MAC" = "yes" ]
     then
 	Platform="Qt/Mac"
     else
@@ -1684,7 +1704,7 @@ then
             grep "QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >> $mkfile
 	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QMAKE_CFLAGS_DEBUG)"
         fi
-	if [ "$MAC_PLATFORM" = "yes" ]
+	if [ "$PLATFORM_MAC" = "yes" ]
 	then
 	    echo "CARBON_CFLAGS+=-I/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Headers/" >>$mkfile
 	    echo "CARBON_LFLAGS +=-framework Carbon" >> $mkfile
@@ -1713,7 +1733,7 @@ fi
 #-------------------------------------------------------------------------------
 
 # work around broken X11 headers when using GCC 2.95 or later
-if [ "$X11_PLATFORM" = "yes" ]
+if [ "$PLATFORM_X11" = "yes" ]
 then
     NOTYPE=no
     $x11tests/notype.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath && NOTYPE=yes
@@ -2005,7 +2025,7 @@ elif [ "$CFG_GIF" = "yes" ]
 then
     QMAKE_CONFIG="$QMAKE_CONFIG gif"
 fi
-if [ "x$MAC_PLATFORM" = "xyes" ]
+if [ "x$PLATFORM_MAC" = "xyes" ]
 then
     [ "$CFG_ZLIB" = "yes" ] && CFG_ZLIB="system"
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-lz\""
@@ -2030,7 +2050,7 @@ then
 fi
 
 [ "$CFG_QWS_FREETYPE" = "yes" -a "x$CFG_EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
-if [ "$X11_PLATFORM" = "yes" ]
+if [ "$PLATFORM_X11" = "yes" ]
 then
     [ "$CFG_SM" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG x11sm"
 
@@ -2271,7 +2291,7 @@ then
 else
     echo "PNG support ......... $CFG_PNG ($CFG_LIBPNG)"
 fi
-if [ "$QWS_PLATFORM" != "yes" ]
+if [ "$PLATFORM_QWS" != "yes" ]
 then
     if echo $MODULES | grep opengl >/dev/null
     then
@@ -2281,11 +2301,11 @@ then
     fi
     echo "OpenGL support ...... $opengl"
 fi
-if [ "$QWS_PLATFORM" = "yes" ]
+if [ "$PLATFORM_QWS" = "yes" ]
 then
     echo "Embedded support .... $CFG_EMBEDDED"
 fi
-if [ "$X11_PLATFORM" = "yes" ]
+if [ "$PLATFORM_X11" = "yes" ]
 then
     echo "NAS sound support ... $CFG_NAS"
     echo "Session management .. $CFG_SM"
