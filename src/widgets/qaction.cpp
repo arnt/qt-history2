@@ -1488,9 +1488,17 @@ bool QActionGroup::addTo( QWidget* w )
 		    QWhatsThis::add( box, whatsThis() );
 #endif
 
+		int onIndex = 0;
+		bool foundOn = FALSE;
 		for ( QPtrListIterator<QAction> it( d->actions); it.current(); ++it ) {
-		    it.current()->addTo( box );
+		    QAction *action = it.current();
+		    foundOn = action->isOn();
+		    if ( qstrcmp( action->name(), "qt_separator_action" ) && !foundOn )
+			onIndex++;
+		    action->addTo( box );
 		}
+		if ( foundOn )
+		    box->setCurrentItem( onIndex );
 		connect( box, SIGNAL(activated(int)), this, SLOT( internalComboBoxActivated(int)) );
 		return TRUE;
 	    }
