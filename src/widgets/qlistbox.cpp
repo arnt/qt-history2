@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#204 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#205 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2296,7 +2296,7 @@ void QListBox::inSort( const QListBoxItem * lbi )
 	return;
 
     QListBoxItem * i = d->head;
-    int c;
+    int c = 0;
 
     while( i && i->text() < lbi->text() ) {
 	i = i->n;
