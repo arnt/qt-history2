@@ -516,8 +516,11 @@ QString QsCodeParser::quickifiedCode( const QString& code )
 		}
 	    } else if ( code[i] == 'c' && leftWordBoundary(code, i) &&
 			code.mid(i, 8) == "connect(" ) {
-		if ( connectRegExp.search(code, i, QRegExp::CaretAtOffset) !=
-		     -1 ) {
+		if ( connectRegExp.search(code, i
+#if QT_VERSION >= 0x030100
+						 , QRegExp::CaretAtOffset
+#endif
+					 ) == i ) {
 		    result += connectRegExp.cap( 1 ) + "SIGNAL(\"" +
 			      connectRegExp.cap( 2 ) + "\")" +
 			      connectRegExp.cap( 3 ) + "SLOT(\"" +
