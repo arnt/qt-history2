@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#6 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#7 $
 **
 ** Definition of layout classes
 **
@@ -18,6 +18,7 @@
 class QMenuBar;
 
 struct QLayoutData;
+
 
 class QLayout : public QObject
 {
