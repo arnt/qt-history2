@@ -350,14 +350,12 @@ void QSocket::connectToHost( const QString &host, Q_UINT16 port )
     qDebug( "QSocket (%s)::connectToHost: host %s, port %d",
 	    name(), host.ascii(), port );
 #endif
+    setSocketIntern( -1 );
+
     d->state = HostLookup;
     d->host = host;
     d->port = port;
     d->dns = new QDns( host, QDns::A );
-
-    // must be done after d->host is set, in order to be able to
-    // determine the protocol family.
-    setSocketIntern( -1 );
 
     // try if the address is already available (for faster connecting...)
     tryConnecting();
@@ -1242,8 +1240,7 @@ void QSocket::setSocketIntern( int socket )
     if ( socket >= 0 )
         sd = new QSocketDevice( socket, QSocketDevice::Stream );
     else
-        sd = new QSocketDevice( QSocketDevice::Stream, QHostAddress(d->host).isIp4Addr()
-				? QSocketDevice::Ipv4 : QSocketDevice::Ipv6, 0 );
+        sd = new QSocketDevice( QSocketDevice::Stream );
 
     if ( state() != Idle ) {
 	clearPendingData();
