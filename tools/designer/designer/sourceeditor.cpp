@@ -77,7 +77,7 @@ void SourceEditor::setObject( QObject *fw, Project *p )
     setCaption( tr( "Edit %1" ).arg( ( formWindow->inherits( "FormWindow" ) ? QString( formWindow->name() ) : ( (SourceFile*)fw )->fileName() ) ) );
     iFace->setText( sourceOfObject( formWindow, lang, iFace, lIface ) );
     if ( pro && fw->inherits( "FormWindow" ) )
-	iFace->setContext( pro->formList(), ( (FormWindow*)fw ) ->mainContainer() );
+	iFace->setContext( pro->formList(), ( (FormWindow*)fw )->mainContainer() );
     else
 	iFace->setContext( pro->formList(), 0 );
     if ( changed || fw->inherits( "SourceFile" ) ) // #### ?
@@ -234,6 +234,14 @@ void SourceEditor::refresh( bool allowSave )
     if ( allowSave )
 	save();
     iFace->setText( sourceOfObject( formWindow, lang, iFace, lIface ) );
+}
+
+void SourceEditor::resetContext()
+{
+    if ( pro && formWindow && formWindow->inherits( "FormWindow" ) )
+	iFace->setContext( pro->formList(), ( (FormWindow*)(QObject*)formWindow )->mainContainer() );
+    else
+	iFace->setContext( pro->formList(), 0 );
 }
 
 void SourceEditor::setFocus()

@@ -1209,6 +1209,11 @@ FormWindow* MainWindow::insertFormWindow( int type )
     fw->killAccels( fw );
     fw->project()->pixmapCollection()->createCppFile();
 
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	if ( e->project() == fw->project() )
+	    e->resetContext();
+    }
+
     return fw;
 }
 
@@ -3063,10 +3068,10 @@ QWidget *MainWindow::findRealForm( QWidget *wid )
 void MainWindow::formNameChanged( FormWindow *fw )
 {
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->object() == fw ) {
+	if ( e->object() == fw )
 	    e->refresh( TRUE );
-	    break;
-	}
+	if ( e->project() == fw->project() )
+	    e->resetContext();
     }
 }
 

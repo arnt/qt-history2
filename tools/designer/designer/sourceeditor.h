@@ -61,6 +61,7 @@ public:
 
     void configChanged();
     void refresh( bool allowSave );
+    void resetContext();
 
     EditorInterface *editorInterface() const { return iFace; }
 
