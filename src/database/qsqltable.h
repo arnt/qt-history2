@@ -48,10 +48,10 @@ public:
 public slots:
     void 	 findString( const QString & str, bool caseSensitive,
 			     bool backwards );
-    
+
 protected:
     QWidget *    createEditor( int row, int col, bool initFromCell ) const;
-    int          indexOf( uint i );
+    int          indexOf( uint i ) const;
     void         reset();
     void         setSize( const QSql* sql );
     void         setNumRows ( int r );

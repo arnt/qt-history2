@@ -203,8 +203,8 @@ QWidget * QSqlTable::createEditor( int row, int col, bool initFromCell ) const
 
     m.addClass( "QSqlCustomEd", "state" );
     if( initFromCell && vw->seek( row ) ){
-	w = editorFactory->createEditor( viewport(), (*vw)[col] );
-	m.setProperty( w, vw->value( col ) );
+	w = editorFactory->createEditor( viewport(), (*vw)[ indexOf( col )] );
+	m.setProperty( w, vw->value( indexOf( col ) ) );
     }
     return w;
 }
@@ -226,7 +226,7 @@ void QSqlTable::setCellContentFromEditor( int row, int col )
     if ( !editor )
 	return;
     vw->seek( row );
-    (*vw)[col] = m.property( editor );
+    (*vw)[ indexOf( col )] = m.property( editor );
 }
 
 /*!
@@ -315,7 +315,7 @@ void QSqlTable::reset()
 
 */
 
-int QSqlTable::indexOf( uint i )
+int QSqlTable::indexOf( uint i ) const
 {
     QSqlTablePrivate::ColIndex::ConstIterator it = d->colIndex.at( i );
     if ( it != d->colIndex.end() )
@@ -382,7 +382,7 @@ QString QSqlTable::text ( int row, int col ) const
     if ( !sql )
 	return QString::null;
     if ( sql->seek( row ) )
-	return sql->value( col ).toString();
+	return sql->value( indexOf( col ) ).toString();
     return QString::null;
 }
 
@@ -399,7 +399,7 @@ QVariant QSqlTable::value ( int row, int col ) const
     if ( !sql )
 	return QVariant();
     if ( sql->seek( row ) )
-	return sql->value( col );
+	return sql->value( indexOf( col ) );
     return QVariant();
 }
 
@@ -458,11 +458,11 @@ void QSqlTable::sortColumn ( int col, bool ascending,
 {
     if ( sorting() ) {
 	QSqlRowset* rset = d->rowset();
-	if ( !rset ) 
+	if ( !rset )
 	    return;
 	QSqlIndex lastSort = rset->sort();
 	QSqlIndex newSort( lastSort.tableName() );
-	newSort.append( rset->field( col ) );
+	newSort.append( rset->field( indexOf( col ) ) );
 	newSort.setDescending( 0, !ascending );
 	horizontalHeader()->setSortIndicator( col, ascending );
 	rset->select( newSort );
@@ -484,7 +484,7 @@ void QSqlTable::columnClicked ( int col )
 	    return;
 	QSqlIndex lastSort = rset->sort();
 	bool asc = TRUE;
-	if ( lastSort.count() && lastSort.field( 0 ).name() == rset->field( col ).name() )
+	if ( lastSort.count() && lastSort.field( 0 ).name() == rset->field( indexOf( col ) ).name() )
 	    asc = lastSort.isDescending( 0 );
 	sortColumn( col, asc );
     }
@@ -635,7 +635,7 @@ void QSqlTable::setView( const QSqlView& view, bool autoPopulate )
 {
     setUpdatesEnabled( FALSE );
     reset();
-    setSorting( TRUE );    
+    setSorting( TRUE );
     d->resetMode( QSqlTablePrivate::View );
     QSqlView* vw = d->view();
     (*vw) = view;
