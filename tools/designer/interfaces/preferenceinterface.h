@@ -18,40 +18,31 @@
 **
 **********************************************************************/
 
-#ifndef QCPPSYNTAXHIGHLIGHTER_H
-#define QCPPSYNTAXHIGHLIGHTER_H
+#ifndef PREFERANCEINTERFACE_H
+#define PREFERANCEINTERFACE_H
 
-#include <qrichtext_p.h>
-#include <config.h>
+#include <qcomponentinterface.h>
+#include <qwidgetlist.h>
+#include <qcstring.h>
 
-class SyntaxHighlighter_CPP : public QTextPreProcessor
+// {5c168ee7-4bee-469f-9995-6afdb04ce5a2}
+#ifndef IID_PreferenceInterface
+#define IID_PreferenceInterface QUuid( 0x5c168ee7, 0x4bee, 0x469f, 0x99, 0x95, 0x6a, 0xfd, 0xb0, 0x4c, 0xe5, 0xa2 )
+#endif
+
+struct PreferenceInterface : public QUnknownInterface
 {
-public:
-    enum CppIds {
-	Comment = 1,
-	Number,
-	String,
-	Type,
-	Keyword,
-	PreProcessor,
-	Label
+    struct Preference
+    {
+	QWidget *tab;
+	QString title;
+	QObject *receiver;
+	const char *init_slot;
+	const char *accept_slot;
     };
 
-    SyntaxHighlighter_CPP();
-    virtual ~SyntaxHighlighter_CPP() {}
-    void process( QTextDocument *doc, QTextParag *string, int start, bool invalidate = TRUE );
-    void updateStyles( const QMap<QString, Config::Style> &styles );
-
-    static QString keywords[];
-
-private:
-    QTextFormat *format( int id );
-    void addFormat( int id, QTextFormat *f );
-    void removeFormat( int id );
-
-    QTextFormat *lastFormat;
-    int lastFormatId;
-    QIntDict<QTextFormat> formats;
+    virtual QStringList featureList() const = 0;
+    virtual Preference globalPreference( const QString &feature ) = 0;
 
 };
 

@@ -22,6 +22,7 @@
 #include "syntaxhighliter_cpp.h"
 #include "indent_cpp.h"
 #include "cppcompletion.h"
+#include <qsettings.h>
 
 CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name )
     : Editor( fn, parent, name )
@@ -32,4 +33,13 @@ CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name )
     int i = 0;
     while ( SyntaxHighlighter_CPP::keywords[ i ] != QString::null )
 	    completion->addCompletionEntry( SyntaxHighlighter_CPP::keywords[ i++ ], 0 );
+    configChanged();
+}
+
+void CppEditor::configChanged()
+{
+    QMap<QString, Config::Style> styles = Config::readStyles( "/Software/Trolltech/CppEditor" );
+    config()->styles = styles;
+    ( (SyntaxHighlighter_CPP*)document()->preProcessor() )->updateStyles( config()->styles );
+    Editor::configChanged();
 }

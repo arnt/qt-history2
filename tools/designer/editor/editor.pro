@@ -5,15 +5,15 @@ HEADERS		= editor.h  \
 		  parenmatcher.h  \
 		  completion.h \
 		  viewmanager.h \
-		  markerwidget.h \
-		  preferencesimpl.h
+		  markerwidget.h\
+		  config.h
 
 SOURCES		= editor.cpp \
 		  parenmatcher.cpp  \
 		  completion.cpp \
 		  viewmanager.cpp \
 		  markerwidget.cpp \
-		  preferencesimpl.cpp
+		  config.cpp
 
 INTERFACES	= preferences.ui
 		

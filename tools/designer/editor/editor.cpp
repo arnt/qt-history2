@@ -23,6 +23,8 @@
 #include "completion.h"
 #include <qfile.h>
 #include <qrichtext_p.h>
+#include "config.h"
+#include <qapplication.h>
 
 Editor::Editor( const QString &fn, QWidget *parent, const char *name )
     : QTextEdit( parent, name )
@@ -36,6 +38,7 @@ Editor::Editor( const QString &fn, QWidget *parent, const char *name )
     parenMatcher = new ParenMatcher;
     connect( this, SIGNAL( cursorPositionChanged( QTextCursor * ) ),
 	     this, SLOT( cursorPosChanged( QTextCursor * ) ) );
+    cfg = new Config;
 }
 
 void Editor::cursorPosChanged( QTextCursor *c )
@@ -61,4 +64,10 @@ void Editor::save( const QString &fn )
 {
     if ( !filename.isEmpty() )
 	filename = fn;
+}
+
+void Editor::configChanged()
+{
+    document()->invalidate();
+    viewport()->repaint( FALSE );
 }

@@ -33,6 +33,7 @@ public:
     CppEditor( const QString &fn, QWidget *parent, const char *name );
 
     virtual EditorCompletion *completionManager() { return completion; }
+    void configChanged();
 
 protected:
     EditorCompletion *completion;

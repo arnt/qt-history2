@@ -29,6 +29,7 @@
 #include "../interfaces/languageinterface.h"
 #include "../interfaces/filterinterface.h"
 #include "../interfaces/programinterface.h"
+#include "../interfaces/preferenceinterface.h"
 #include "sourceeditor.h"
 
 #if defined(HAVE_KDE)
@@ -127,7 +128,7 @@ public:
     TemplateWizardInterface* templateWizardInterface( const QString& className );
     QUnknownInterface* designerInterface() const { return desInterface; }
     OutputWindow *outputWindow() const { return oWindow; }
-    void addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *slot );
+    void addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
 
 public slots:
     void showProperties( QObject *w );
@@ -267,7 +268,7 @@ private:
 	QWidget *w;
 	QString title;
 	QObject *receiver;
-	const char *slot;
+	const char *init_slot, *accept_slot;
     };
 
 private:
@@ -329,6 +330,7 @@ private:
     QInterfaceManager<EditorInterface> *editorPluginManager;
     QInterfaceManager<TemplateWizardInterface> *templateWizardPluginManager;
     QInterfaceManager<ProgramInterface> *programPluginManager;
+    QInterfaceManager<PreferenceInterface> *preferencePluginManager;
     QList<SourceEditor> sourceEditors;
     bool previewing;
     QUnknownInterface *desInterface;

@@ -18,41 +18,29 @@
 **
 **********************************************************************/
 
-#ifndef QCPPSYNTAXHIGHLIGHTER_H
-#define QCPPSYNTAXHIGHLIGHTER_H
+#ifndef PREFERENCEINTERFACEIMPL_H
+#define PREFERENCEINTERFACEIMPL_H
 
-#include <qrichtext_p.h>
-#include <config.h>
+#include <preferenceinterface.h>
+class QWidget;
 
-class SyntaxHighlighter_CPP : public QTextPreProcessor
+class PreferenceInterfaceImpl : public PreferenceInterface
 {
 public:
-    enum CppIds {
-	Comment = 1,
-	Number,
-	String,
-	Type,
-	Keyword,
-	PreProcessor,
-	Label
-    };
+    PreferenceInterfaceImpl();
 
-    SyntaxHighlighter_CPP();
-    virtual ~SyntaxHighlighter_CPP() {}
-    void process( QTextDocument *doc, QTextParag *string, int start, bool invalidate = TRUE );
-    void updateStyles( const QMap<QString, Config::Style> &styles );
+    QUnknownInterface *queryInterface( const QUuid& );
+    unsigned long addRef();
+    unsigned long release();
 
-    static QString keywords[];
+    QStringList featureList() const;
+    Preference globalPreference( const QString &feature );
 
 private:
-    QTextFormat *format( int id );
-    void addFormat( int id, QTextFormat *f );
-    void removeFormat( int id );
-
-    QTextFormat *lastFormat;
-    int lastFormatId;
-    QIntDict<QTextFormat> formats;
+    ulong ref;
+    QWidget *cppEditorSyntax;
 
 };
 
 #endif
+

@@ -120,23 +120,6 @@ static QMap<int, QMap<QString, int > > *wordMap = 0;
 SyntaxHighlighter_CPP::SyntaxHighlighter_CPP()
     : QTextPreProcessor(), lastFormat( 0 ), lastFormatId( -1 )
 {
-    createFormats();
-    if ( wordMap )
-	return;
-
-    wordMap = new QMap<int, QMap<QString, int> >;
-    int len;
-    for ( int i = 0; keywords[ i ] != QString::null; ++i ) {
-	len = keywords[ i ].length();
-	if ( !wordMap->contains( len ) )
-	    wordMap->insert( len, QMap<QString, int >() );
-	QMap<QString, int> &map = wordMap->operator[]( len );
-	map[ keywords[ i ] ] = Keyword;
-    }
-}
-
-void SyntaxHighlighter_CPP::createFormats()
-{
     int normalSize =  qApp->font().pointSize();
     QString normalFamily = qApp->font().family();
     QString commentFamily = "times";
@@ -157,6 +140,52 @@ void SyntaxHighlighter_CPP::createFormats()
 	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkBlue ) );
     addFormat( Label,
 	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkRed ) );
+
+    if ( wordMap )
+	return;
+
+    wordMap = new QMap<int, QMap<QString, int> >;
+    int len;
+    for ( int i = 0; keywords[ i ] != QString::null; ++i ) {
+	len = keywords[ i ].length();
+	if ( !wordMap->contains( len ) )
+	    wordMap->insert( len, QMap<QString, int >() );
+	QMap<QString, int> &map = wordMap->operator[]( len );
+	map[ keywords[ i ] ] = Keyword;
+    }
+}
+
+static int string2Id( const QString &s )
+{
+    if ( s == "Standard" )
+	return SyntaxHighlighter_CPP::Standard;
+    if ( s == "Comment" )
+	return SyntaxHighlighter_CPP::Comment;
+    if ( s == "Number" )
+	return SyntaxHighlighter_CPP::Number;
+    if ( s == "String" )
+	return SyntaxHighlighter_CPP::String;
+    if ( s == "Type" )
+	return SyntaxHighlighter_CPP::Type;
+    if ( s == "Preprocessor" )
+	return SyntaxHighlighter_CPP::PreProcessor;
+    if ( s == "Label" )
+	return SyntaxHighlighter_CPP::Label;
+    if ( s == "Keyword" )
+	return SyntaxHighlighter_CPP::Keyword;
+    return SyntaxHighlighter_CPP::Standard;
+}
+
+void SyntaxHighlighter_CPP::updateStyles( const QMap<QString, Config::Style> &styles )
+{
+    for ( QMap<QString, Config::Style>::ConstIterator it = styles.begin(); it != styles.end(); ++it ) {
+	int id = string2Id( it.key() );
+	QTextFormat *f = format( id );
+	if ( !f )
+	    continue;
+	f->setFont( (*it).font );
+	f->setColor( (*it).color );
+    }
 }
 
 void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParag *string, int, bool invalidate )

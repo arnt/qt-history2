@@ -127,3 +127,8 @@ void SourceEditor::editSelectAll()
 {
     iFace->selectAll();
 }
+
+void SourceEditor::configChanged()
+{
+    iFace->readSettings();
+}

@@ -24,6 +24,7 @@
 #include <qtextedit.h>
 #include "dlldefs.h"
 
+struct Config;
 class ParenMatcher;
 class EditorCompletion;
 
@@ -40,6 +41,9 @@ public:
     QTextCursor *textCursor() const { return QTextEdit::textCursor(); }
 
     virtual EditorCompletion *completionManager() { return 0; }
+    virtual void configChanged();
+
+    Config *config() { return cfg; }
 
 private slots:
     void cursorPosChanged( QTextCursor *c );
@@ -47,6 +51,7 @@ private slots:
 protected:
     ParenMatcher *parenMatcher;
     QString filename;
+    Config *cfg;
 
 };
 

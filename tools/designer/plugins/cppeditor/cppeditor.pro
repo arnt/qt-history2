@@ -5,7 +5,8 @@ HEADERS		= cppeditor.h  \
 		  indent_cpp.h \
 		  cppcompletion.h \
 		  editorinterfaceimpl.h \
-		  languageinterfaceimpl.h
+		  languageinterfaceimpl.h \
+		  preferenceinterfaceimpl.h
 
 SOURCES		= cppeditor.cpp \
 		  syntaxhighliter_cpp.cpp \
@@ -13,7 +14,8 @@ SOURCES		= cppeditor.cpp \
 		  cppcompletion.cpp \
 		  editorinterfaceimpl.cpp \
 		  languageinterfaceimpl.cpp \
-		  common.cpp
+		  common.cpp \
+		  preferenceinterfaceimpl.cpp
 		
 TARGET		= cppeditor
 DESTDIR		= $(QTDIR)/plugins

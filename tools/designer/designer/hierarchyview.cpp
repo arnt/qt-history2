@@ -639,7 +639,7 @@ HierarchyView::HierarchyView( QWidget *parent )
     listview = new HierarchyList( this, this );
     addTab( listview, tr( "Widgets" ) );
     fList = new FunctionList( this, this );
-    addTab( fList, tr( "Exploring" ) );
+    addTab( fList, tr( "Source" ) );
 
     formwindow = 0;
 }

@@ -21,6 +21,7 @@
 #include "editorinterfaceimpl.h"
 #include <qcomponentinterface.h>
 #include "languageinterfaceimpl.h"
+#include "preferenceinterfaceimpl.h"
 
 class CommonInterface : public QUnknownInterface
 {
@@ -36,6 +37,7 @@ private:
     unsigned long ref;
     EditorInterface *editorIface;
     LanguageInterfaceImpl *langIface;
+    PreferenceInterfaceImpl *prefIface;
 
 };
 
@@ -46,12 +48,15 @@ CommonInterface::CommonInterface()
     editorIface->addRef();
     langIface = new LanguageInterfaceImpl;
     langIface->addRef();
+    prefIface = new PreferenceInterfaceImpl;
+    prefIface->addRef();
 }
 
 CommonInterface::~CommonInterface()
 {
     editorIface->release();
     langIface->release();
+    prefIface->release();
 }
 
 QUnknownInterface *CommonInterface::queryInterface( const QUuid &uuid )
@@ -63,6 +68,8 @@ QUnknownInterface *CommonInterface::queryInterface( const QUuid &uuid )
 	iface = editorIface;
     else if ( uuid == IID_LanguageInterface )
 	iface = langIface;
+    else if ( uuid == IID_PreferenceInterface )
+	iface = prefIface;
 
     if ( iface )
 	iface->addRef();

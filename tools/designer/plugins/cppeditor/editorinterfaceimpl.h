@@ -23,9 +23,7 @@
 
 #include <editorinterface.h>
 
-class Preferences;
 class ViewManager;
-class QWidget;
 
 class EditorInterfaceImpl : public EditorInterface
 {
@@ -53,12 +51,12 @@ public:
     void scrollTo( const QString &txt );
     void splitView();
     void setContext( QObjectList *toplevels, QObject *this_ );
+    void readSettings();
 
     void setError( int line );
 
 private:
     ViewManager *viewManager;
-    QWidget *prefTab;
 
     unsigned long ref;
 };

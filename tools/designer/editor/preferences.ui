@@ -1,6 +1,21 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>PreferencesBase</class>
 <include location="local" impldecl="in declaration">dlldefs.h</include>
+<include location="local" impldecl="in declaration">config.h</include>
+<include location="global" impldecl="in declaration">qmap.h</include>
+<include location="global" impldecl="in implementation">qsettings.h</include>
+<include location="global" impldecl="in implementation">qcolordialog.h</include>
+<include location="global" impldecl="in implementation">qcheckbox.h</include>
+<include location="global" impldecl="in implementation">qpushbutton.h</include>
+<include location="local" impldecl="in implementation">editor.h</include>
+<include location="global" impldecl="in implementation">qfontdatabase.h</include>
+<include location="global" impldecl="in implementation">qcombobox.h</include>
+<include location="global" impldecl="in implementation">qpixmap.h</include>
+<include location="global" impldecl="in implementation">qlineedit.h</include>
+<variable>QString path;</variable>
+<variable>QMap&lt;QString, Config::Style&gt; styles;</variable>
+<variable>Config::Style currentStyle;</variable>
+<variable>QString currentElement;</variable>
 <widget class="QWidget">
     <property name="name">
         <cstring>PreferencesBase</cstring>
@@ -9,8 +24,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>408</width>
-            <height>334</height>
+            <width>354</width>
+            <height>197</height>
         </rect>
     </property>
     <property name="caption">
@@ -29,6 +44,12 @@
         <widget class="QLabel" row="0" column="0">
             <property name="name">
                 <cstring>TextLabel1</cstring>
+            </property>
+            <property name="frameShape">
+                <enum>MShape</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>MShadow</enum>
             </property>
             <property name="text">
                 <string>&amp;Element:</string>
@@ -71,6 +92,11 @@
             <item>
                 <property name="text">
                     <string>Label</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>Standard</string>
                 </property>
             </item>
             <property name="name">
@@ -174,19 +200,6 @@
                 </widget>
             </grid>
         </widget>
-        <widget class="QTextEdit" row="4" column="0" rowspan="1" colspan="2">
-            <property name="name">
-                <cstring>editPreview</cstring>
-            </property>
-        </widget>
-        <widget class="QLabel" row="3" column="0">
-            <property name="name">
-                <cstring>TextLabel5</cstring>
-            </property>
-            <property name="text">
-                <string>Preview:</string>
-            </property>
-        </widget>
         <spacer row="2" column="1">
             <property name="name" stdset="0">
                 <cstring>Spacer1</cstring>
@@ -207,12 +220,6 @@
     </grid>
 </widget>
 <connections>
-    <connection>
-        <sender>comboFamily</sender>
-        <signal>activated(const QString&amp;)</signal>
-        <receiver>PreferencesBase</receiver>
-        <slot>familyChanged(const QString&amp;)</slot>
-    </connection>
     <connection>
         <sender>spinSize</sender>
         <signal>valueChanged(int)</signal>
@@ -244,18 +251,116 @@
         <slot>colorClicked()</slot>
     </connection>
     <connection>
+        <sender>comboFamily</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>PreferencesBase</receiver>
+        <slot>familyChanged(const QString&amp;)</slot>
+    </connection>
+    <connection>
         <sender>listElements</sender>
-        <signal>selected(const QString&amp;)</signal>
+        <signal>highlighted(const QString&amp;)</signal>
         <receiver>PreferencesBase</receiver>
         <slot>elementChanged(const QString&amp;)</slot>
     </connection>
     <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">boldChanged( bool )</slot>
-    <slot access="protected" language="C++">elementChanged( const QString &amp; )</slot>
-    <slot access="protected" language="C++">familyChanged( const QString &amp; )</slot>
-    <slot access="protected" language="C++">italicChanged( bool )</slot>
     <slot access="protected" language="C++">colorClicked()</slot>
-    <slot access="protected" language="C++">sizeChanged( int )</slot>
-    <slot access="protected" language="C++">underlineChanged( bool )</slot>
+    <slot access="protected" language="C++">reInit()</slot>
+    <slot access="protected" language="C++">save()</slot>
+    <slot access="protected" language="C++">boldChanged( bool b )</slot>
+    <slot access="protected" language="C++">elementChanged( const QString &amp;element )</slot>
+    <slot access="protected" language="C++">familyChanged( const QString &amp;f )</slot>
+    <slot access="protected" language="C++">italicChanged( bool b )</slot>
+    <slot access="protected" language="C++">setColorPixmap( const QColor &amp;c )</slot>
+    <slot access="public" language="C++">setPath( const QString &amp;p )</slot>
+    <slot access="protected" language="C++">sizeChanged( int s )</slot>
+    <slot access="protected" language="C++">underlineChanged( bool b )</slot>
 </connections>
+<functions>
+    <function name="boldChanged(bool)" >{
+    currentStyle.font.setBold( b ); 
+}</function>
+    <function name="colorClicked()" >{
+    QColor c = QColorDialog::getColor( currentStyle.color, this );
+    if ( c.isValid() ) {
+	currentStyle.color = c;
+	setColorPixmap( c );
+    }
+}</function>
+    <function name="elementChanged(const QString&amp;)" >{
+    if ( !currentElement.isEmpty() ) {
+	styles.remove( currentElement );
+	styles.insert( currentElement, currentStyle );
+	currentElement = "";
+    }
+    QMap&lt;QString, Config::Style&gt;::Iterator it = styles.find( element );
+    if ( it == styles.end() )
+	return;
+    Config::Style s = *it;
+    currentStyle = s;
+    comboFamily-&gt;lineEdit()-&gt;setText( s.font.family() );
+    spinSize-&gt;setValue( s.font.pointSize() );
+    checkBold-&gt;setChecked( s.font.bold() );
+    checkItalic-&gt;setChecked( s.font.italic() ); 
+    checkUnderline-&gt;setChecked( s.font.underline() );
+    setColorPixmap( s.color );
+    currentElement = element;
+}</function>
+    <function name="familyChanged(const QString&amp;)" >{
+    QString oldFamily = currentStyle.font.family();
+    currentStyle.font.setFamily( f );
+    for ( QMap&lt;QString, Config::Style&gt;::Iterator it = styles.begin(); it != styles.end(); ++it ) { 
+	if ( (*it).font.family() == oldFamily ) 
+	    (*it).font.setFamily( f ); 
+    } 
+}</function>
+    <function name="init()" >{
+    QFontDatabase fdb;
+    comboFamily-&gt;insertStringList( fdb.families() );
+    listElements-&gt;setCurrentItem( listElements-&gt;firstItem() );
+    currentElement = "";
+}</function>
+    <function name="italicChanged(bool)" >{
+    currentStyle.font.setItalic( b );
+}</function>
+    <function name="reInit()" >{
+    styles = Config::readStyles( path );
+    currentElement = "";
+    elementChanged( "Comment" );   
+    for ( int i = 0; i &lt; comboFamily-&gt;count(); ++i ) {
+	if ( listElements-&gt;text( i ) == "Comment" ) {
+	    listElements-&gt;setCurrentItem( i );
+	    break;
+	}
+    }
+}</function>
+    <function name="save()" >{
+    if ( !currentElement.isEmpty() ) { 
+	styles.remove( currentElement ); 
+	styles.insert( currentElement, currentStyle ); 
+	currentElement = ""; 
+    } 
+
+    QSettings settings; 
+    Config::saveStyles( styles, path );
+}</function>
+    <function name="setColorPixmap(const QColor&amp;)" >{
+    QPixmap pm( 20, 20 );
+    pm.fill( c );
+    buttonColor-&gt;setPixmap( pm );
+}</function>
+    <function name="setPath(const QString&amp;)" >{
+    path = p;
+}</function>
+    <function name="sizeChanged(int)" >{
+    int oldSize = currentStyle.font.pointSize();
+    currentStyle.font.setPointSize( s );
+    for ( QMap&lt;QString, Config::Style&gt;::Iterator it = styles.begin(); it != styles.end(); ++it ) {
+	if ( (*it).font.pointSize() == oldSize )
+	    (*it).font.setPointSize( s );
+    }
+}</function>
+    <function name="underlineChanged(bool)" >{
+    currentStyle.font.setUnderline( b ); 
+}</function>
+</functions>
 </UI>

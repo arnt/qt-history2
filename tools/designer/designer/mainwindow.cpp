@@ -1880,6 +1880,20 @@ void MainWindow::editDatabaseConnections()
 #endif
 }
 
+class SenderObject : public QObject
+{
+    Q_OBJECT
+
+public:
+    SenderObject() {}
+    void emitSignal() { emit theSignal(); }
+
+signals:
+    void theSignal();
+
+};
+
+
 void MainWindow::editPreferences()
 {
     statusBar()->message( tr( "Edit preferences..." ) );
@@ -1908,13 +1922,19 @@ void MainWindow::editPreferences()
     connect( dia->buttonDocPath, SIGNAL( clicked() ),
 	     this, SLOT( chooseDocPath() ) );
 
+    SenderObject *senderObject = new SenderObject;
     QValueList<Tab>::Iterator it;
     for ( it = preferenceTabs.begin(); it != preferenceTabs.end(); ++it ) {
 	Tab t = *it;
 	dia->tabWidget->addTab( t.w, t.title );
-	if ( t.receiver )
-	    connect( dia->buttonOk, SIGNAL( clicked() ), t.receiver, t.slot );
+	if ( t.receiver ) {
+	    connect( dia->buttonOk, SIGNAL( clicked() ), t.receiver, t.accept_slot );
+	    connect( senderObject, SIGNAL( theSignal() ), t.receiver, t.init_slot );
+	    senderObject->emitSignal();
+	    disconnect( senderObject, SIGNAL( theSignal() ), t.receiver, t.init_slot );
+	}
     }
+    delete senderObject;
 
     if ( dia->exec() == QDialog::Accepted ) {
 	setSnapGrid( dia->checkBoxGrid->isChecked() );
@@ -1941,9 +1961,14 @@ void MainWindow::editPreferences()
     for ( it = preferenceTabs.begin(); it != preferenceTabs.end(); ++it ) {
 	Tab t = *it;
 	dia->tabWidget->removePage( t.w );
+	t.w->reparent( 0, QPoint(0,0), FALSE );
 	if ( t.receiver )
-	    disconnect( dia->buttonOk, SIGNAL( clicked() ), t.receiver, t.slot );
+	    disconnect( dia->buttonOk, SIGNAL( clicked() ), t.receiver, t.init_slot );
     }
+
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
+	e->configChanged();
+
     delete dia;
     prefDia = 0;
     statusBar()->clear();
@@ -3954,14 +3979,30 @@ void MainWindow::setupPluginManagers()
     templateWizardPluginManager = new QInterfaceManager<TemplateWizardInterface>( IID_TemplateWizardInterface, pluginDir, "*.dll; *.so" );
     MetaDataBase::setupInterfaceManagers();
     programPluginManager = new QInterfaceManager<ProgramInterface>( IID_ProgramInterface, pluginDir, "*.dll; *.so; *.dylib" );
+    preferencePluginManager = new QInterfaceManager<PreferenceInterface>( IID_PreferenceInterface, pluginDir, "*.dll; *.so; *.dylib" );
+    if ( preferencePluginManager ) {
+	QStringList lst = preferencePluginManager->featureList();
+	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	    PreferenceInterface *i = preferencePluginManager->queryInterface( *it );
+	    if ( !i )
+		continue;
+	    PreferenceInterface::Preference pf = i->globalPreference( *it );
+	    if ( pf.tab )
+		addPreferencesTab( pf.tab, pf.title, pf.receiver, pf.init_slot, pf.accept_slot );
+	    i->release();
+	}
+    }
 }
 
-void MainWindow::addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *slot )
+void MainWindow::addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot )
 {
     Tab t;
     t.w = tab;
     t.title = title;
     t.receiver = receiver;
-    t.slot = slot;
+    t.init_slot = init_slot;
+    t.accept_slot = accept_slot;
     preferenceTabs << t;
 }
+
+#include "mainwindow.moc"
