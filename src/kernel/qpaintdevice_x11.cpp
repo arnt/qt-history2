@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#31 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#31 $";
 #endif
 
 
@@ -42,13 +42,14 @@ Q2DMatrix).
 
 Here is an example how to draw on a paint device:
 \code
+void GiraffeWidget::paintEvent( QPaintEvent * e ) {
   QPainter p;				\/ our painter
-  QWidget  w;				\/ out paint device
-  p.begin( &w );			\/ start painting
+  p.begin( this );			\/ start painting
   p.setPen( red );			\/ blue outline
   p.setBrush( yellow );			\/ yellow fill
   p.drawEllipse( 10,20, 100,100 );	\/ 100x100 ellipse at 10,20
   p.end();				\/ painting done
+}
 \endcode
 
 The bit block transfer is an extremely useful operation for copying pixels
