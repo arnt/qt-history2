@@ -25,6 +25,7 @@
 <include location="global" impldecl="in implementation">qaccel.h</include>
 <include location="global" impldecl="in implementation">qfontdatabase.h</include>
 <include location="global" impldecl="in implementation">qmessagebox.h</include>
+<include location="local" implDecl="in declaration">mainwindow.ui.h</include>
 <forward>class HelpDialog;</forward>
 <forward>class HelpWindow;</forward>
 <variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
@@ -40,8 +41,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>760</width>
-            <height>623</height>
+            <width>756</width>
+            <height>621</height>
         </rect>
     </property>
     <property name="caption">
@@ -425,184 +426,4 @@
     <slot access="public" language="C++" returnType="void">showQtHelp()</slot>
     <slot access="public" language="C++" returnType="void">setFamily( const QString &amp; f )</slot>
 </connections>
-<functions>
-    <function name="init()" >{
-    setWFlags( WDestructiveClose );
-    browser = new HelpWindow( this, "qt_assistant_helpwindow" );
-    browser-&gt;setFrameStyle( QFrame::Panel | QFrame::Sunken ); 
-    setCentralWidget( browser );
-    
-    // #### hardcoded paths - probably should read the settings from somewhere
-    browser-&gt;mimeSourceFactory()-&gt;addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/designer/manual" );
-    browser-&gt;mimeSourceFactory()-&gt;addFilePath( QString( getenv( "QTDIR" ) ) + "/doc/html/designer" );
-    browser-&gt;mimeSourceFactory()-&gt;addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/linguist/doc/html" );
-    browser-&gt;mimeSourceFactory()-&gt;addFilePath( QString( getenv( "QTDIR" ) ) + "/doc/html/" );
-    
-    connect( actionGoPrev, SIGNAL( activated() ), browser, SLOT( backward() ) );
-    connect( actionGoNext, SIGNAL( activated() ), browser, SLOT( forward() ) );
-    connect( actionEditCopy, SIGNAL( activated() ), browser, SLOT( copy() ) );
-    connect( actionFileExit, SIGNAL( activated() ), qApp, SLOT( quit() ) );
-    
-    QDockWindow *dw = new QDockWindow;
-    helpDock = new HelpDialog( dw, this, browser );
-    dw-&gt;setResizeEnabled( TRUE );
-    dw-&gt;setCloseMode( QDockWindow::Always );
-    addDockWindow( dw, Left );
-    dw-&gt;setWidget( helpDock );
-    dw-&gt;setCaption( "Sidebar" );
-    dw-&gt;setFixedExtentWidth( 250 );    
- 
-    connect( helpDock, SIGNAL( showLink( const QString&amp;, const QString &amp; ) ),
-    		this, SLOT( showLink( const QString&amp;, const QString &amp; ) ) );
-    
-    goHome();
-    
-    connect( bookmarkMenu, SIGNAL( activated( int ) ),
-		this, SLOT( showBookmark( int ) ) );
-    
-    setupBookmarkMenu();
-    connect( browser, SIGNAL( highlighted( const QString &amp; ) ), statusBar(), SLOT( message( const QString &amp; ) ) );
-    connect( actionZoomIn, SIGNAL( activated() ), browser, SLOT( zoomIn() ) );
-    connect( actionZoomOut, SIGNAL( activated() ), browser, SLOT( zoomOut() ) ); 
-    
-    QAccel *a = new QAccel( this );
-    a-&gt;insertItem( CTRL+Key_L, 100 );
-    a-&gt;connectItem( 100, helpDock-&gt;editIndex, SLOT( setFocus() ) );
-             
-    QFontDatabase fonts;   
-    fontComboBox-&gt;insertStringList( fonts.families() );   
-    fontComboBox-&gt;lineEdit()-&gt;setText( browser-&gt;QWidget::font().family() );  
-    
-    QString keybase("/Qt Assistant/3.0/");
-    QSettings config;  
-    config.insertSearchPath( QSettings::Windows, "/Trolltech" );  
-    QFont fnt( browser-&gt;QWidget::font() ); 
-    fnt.setFamily( config.readEntry( keybase + "Family", fnt.family() ) );
-    fnt.setPointSize( config.readNumEntry( keybase + "Size", fnt.pointSize() ) );
-    browser-&gt;setFont( fnt ); 
-    
-    PopupMenu-&gt;insertItem( tr( "Vie&amp;ws" ), createDockWindowMenu() );
-}</function>
-    <function name="destroy()" >{
-    QString keybase("/Qt Assistant/3.0/");
-    QSettings config; 
-    config.insertSearchPath( QSettings::Windows, "/Trolltech" ); 
-    config.writeEntry( keybase + "Family",  browser-&gt;QWidget::font().family() );
-    config.writeEntry( keybase + "Size",  browser-&gt;QWidget::font().pointSize() );
-}</function>
-    <function name="about()" >{
-    static const char *about_text =
-    "&lt;p&gt;&lt;b&gt;About Qt Assistant&lt;/b&gt;&lt;/p&gt;"
-    "&lt;p&gt;The Qt documentation browser.&lt;/p&gt;"
-    "&lt;p&gt;Version 1.0&lt;/p&gt;"
-    "&lt;p&gt;(C) 2001 Trolltech AS&lt;/p&gt;";
-    QMessageBox::about( this, tr("Qt Assistant"), tr( about_text ) );
-}</function>
-    <function name="aboutQt()" >{
-    QMessageBox::aboutQt( this, tr( "Qt Assistant" ) );
-}</function>
-    <function name="find()" >{
-    if ( !findDialog ) {
-	findDialog = new FindDialog( this );
-	findDialog-&gt;setBrowser( browser );
-    }
-    findDialog-&gt;comboFind-&gt;setFocus();
-    findDialog-&gt;comboFind-&gt;lineEdit()-&gt;setSelection(
-        0, findDialog-&gt;comboFind-&gt;lineEdit()-&gt;text().length() );
-    findDialog-&gt;show();
-}</function>
-    <function name="goHome()" >{
-    // #### we need a general Qt frontpage with links to Qt Class docu, Designer Manual, Linguist Manual, etc,
-    showLink( "index.html", "Qt Reference Documentation" );
-}</function>
-    <function name="showLinguistHelp()" >{
-    showLink( "qt-translation-tools.html", tr( "Qt Linguist Manual" ) );  
-}</function>
-    <function name="print()" >{
-    QPrinter printer;
-    printer.setFullPage(TRUE);
-    if ( printer.setup() ) {
-	QPaintDeviceMetrics screen( this );
-	printer.setResolution( screen.logicalDpiY() );
-	QPainter p( &amp;printer );
-	QPaintDeviceMetrics metrics(p.device());
-	int dpix = metrics.logicalDpiX();
-	int dpiy = metrics.logicalDpiY();
-	const int margin = 72; // pt
-	QRect body( margin*dpix/72, margin*dpiy/72,
-		    metrics.width()-margin*dpix/72*2,
-		    metrics.height()-margin*dpiy/72*2 );
-	QFont font( "times", 10 );
-	QStringList filePaths = browser-&gt;mimeSourceFactory()-&gt;filePath();
-	QString file;
-	QStringList::Iterator it = filePaths.begin();
-	for ( ; it != filePaths.end(); ++it ) {
-	    file = QUrl( *it, QUrl( browser-&gt;source() ).path() ).path();
-	    if ( QFile::exists( file ) )
-		break;
-	    else
-		file = QString::null;
-	}
-	if ( file.isEmpty() )
-	    return;
-	QFile f( file );
-	if ( !f.open( IO_ReadOnly ) )
-	    return;
-	QTextStream ts( &amp;f );
-	QSimpleRichText richText( ts.read(), font, browser-&gt;context(), browser-&gt;styleSheet(),
-				  browser-&gt;mimeSourceFactory(), body.height() );
-	richText.setWidth( &amp;p, body.width() );
-	QRect view( body );
-	int page = 1;
-	do {
-	    richText.draw( &amp;p, body.left(), body.top(), view, colorGroup() );
-	    view.moveBy( 0, body.height() );
-	    p.translate( 0 , -body.height() );
-	    p.setFont( font );
-	    p.drawText( view.right() - p.fontMetrics().width( QString::number(page) ),
-			view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page) );
-	    if ( view.top()  &gt;= richText.height() )
-		break;
-	    printer.newPage();
-	    page++;
-	} while (TRUE);
-    }
-}</function>
-    <function name="setupBookmarkMenu()" >{
-    bookmarkMenu-&gt;clear();
-    bookmarks.clear();
-    bookmarkMenu-&gt;insertItem( tr( "&amp;Add Bookmark" ), helpDock, SLOT( addBookmark() ) );
-
-    QFile f( QDir::homeDirPath() + "/.bookmarks" );
-    if ( !f.open( IO_ReadOnly ) )
-	return;
-    QTextStream ts( &amp;f );
-    bookmarkMenu-&gt;insertSeparator();
-    while ( !ts.atEnd() ) {
-	QString title = ts.readLine();
-	QString link = ts.readLine();
-	bookmarks.insert( bookmarkMenu-&gt;insertItem( title ), link );
-    }
-}</function>
-    <function name="showBookmark(int)" >{
-    if ( bookmarks.find( id ) != bookmarks.end() )
-	showLink( *bookmarks.find( id ), bookmarkMenu-&gt;text( id ) );
-}</function>
-    <function name="showDesignerHelp()" >{
-    showLink( "book1.html", tr( "Qt Designer Manual" ) );
-}</function>
-    <function name="showLink(const QString&amp;,const QString&amp;)" >{
-    browser-&gt;setCaption( title );
-    browser-&gt;setSource( link );
-    browser-&gt;setFocus();
-}</function>
-    <function name="showQtHelp()" >{
-    showLink( "index.html", tr( "Qt Reference Documentation" ) ); 
-}</function>
-    <function name="setFamily(const QString&amp;)" >{
-    QFont fnt( browser-&gt;QWidget::font() );
-    fnt.setFamily( f );
-    browser-&gt;setFont( fnt );
-}</function>
-</functions>
 </UI>

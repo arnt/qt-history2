@@ -1,9 +1,11 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>FindDialog</class>
 <include location="global" impldecl="in implementation">qtextbrowser.h</include>
+<include location="local" implDecl="in declaration">finddialog.ui.h</include>
 <forward>class QTextBrowser;</forward>
 <variable>bool fromBegin;</variable>
 <variable>QTextBrowser *browser;</variable>
+<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>FindDialog</cstring>
@@ -12,8 +14,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>285</width>
-            <height>162</height>
+            <width>277</width>
+            <height>161</height>
         </rect>
     </property>
     <property name="caption">
@@ -88,7 +90,7 @@
                     <number>6</number>
                 </property>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Spacer1</cstring>
                     </property>
                     <property name="orientation">
@@ -133,6 +135,9 @@
                 <string>&amp;Direction</string>
             </property>
             <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
                 <property name="margin">
                     <number>11</number>
                 </property>
@@ -168,6 +173,9 @@
                 <string>&amp;Options</string>
             </property>
             <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
                 <property name="margin">
                     <number>11</number>
                 </property>
@@ -195,47 +203,23 @@
     </grid>
 </widget>
 <connections>
-    <connection>
+    <connection language="C++">
         <sender>PushButton1</sender>
         <signal>clicked()</signal>
         <receiver>FindDialog</receiver>
         <slot>doFind()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton2</sender>
         <signal>clicked()</signal>
         <receiver>FindDialog</receiver>
         <slot>reject()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
-    <slot access="public" language="C++">doFind()</slot>
-    <slot access="public" language="C++">setBrowser( QTextBrowser *b )</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="public" language="C++" returnType="void">doFind()</slot>
+    <slot access="public" language="C++" returnType="void">setBrowser( QTextBrowser * b )</slot>
 </connections>
-<functions>
-    <function name="init()" >{
-    browser = 0;
-    fromBegin = TRUE;
-}</function>
-    <function name="destroy()" >{
-}</function>
-    <function name="doFind()" >{
-    if ( !browser )
-	return;
-    
-    int dummy = 0;
-    if ( !fromBegin )
-	fromBegin = !browser-&gt;find( comboFind-&gt;currentText(), checkCase-&gt;isChecked(),
-			checkWords-&gt;isChecked(), radioForward-&gt;isChecked() );    
-    else
-	fromBegin = !browser-&gt;find( comboFind-&gt;currentText(), checkCase-&gt;isChecked(), 
-			checkWords-&gt;isChecked(), radioForward-&gt;isChecked(), &amp;dummy, &amp;dummy );    
-}</function>
-    <function name="setBrowser(QTextBrowser*)" >{
-    browser = b;
-    fromBegin = TRUE;
-}</function>
-</functions>
 <tabstops>
     <tabstop>comboFind</tabstop>
     <tabstop>checkWords</tabstop>

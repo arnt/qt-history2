@@ -19,6 +19,8 @@
 ** not clear to you.
 **
 *********************************************************************</comment>
+<include location="local" implDecl="in declaration">helpdialog.ui.h</include>
+<layoutdefaults spacing="6" margin="11"/>
 <widget class="QWidget">
     <property name="name">
         <cstring>HelpDialogBase</cstring>
@@ -27,8 +29,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>496</width>
-            <height>413</height>
+            <width>492</width>
+            <height>411</height>
         </rect>
     </property>
     <property name="caption">
@@ -198,7 +200,7 @@
                                 <number>6</number>
                             </property>
                             <spacer>
-                                <property name="name" stdset="0">
+                                <property name="name">
                                     <cstring>Spacer1</cstring>
                                 </property>
                                 <property name="orientation">
@@ -285,118 +287,118 @@
     </vbox>
 </widget>
 <connections>
-    <connection>
+    <connection language="C++">
         <sender>tabWidget</sender>
         <signal>selected(const QString&amp;)</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>currentTabChanged(const QString&amp;)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>listIndex</sender>
         <signal>doubleClicked(QListBoxItem*)</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>showTopic()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>listIndex</sender>
         <signal>selectionChanged(QListBoxItem*)</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>currentIndexChanged(QListBoxItem*)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>listIndex</sender>
         <signal>returnPressed(QListBoxItem*)</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>showTopic()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>listIndex</sender>
         <signal>currentChanged(QListBoxItem*)</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>currentIndexChanged(QListBoxItem*)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonAdd</sender>
         <signal>clicked()</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>addBookmark()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonRemove</sender>
         <signal>clicked()</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>removeBookmark()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>listBookmarks</sender>
         <signal>doubleClicked(QListViewItem*)</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>showTopic()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>listBookmarks</sender>
         <signal>returnPressed(QListViewItem*)</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>showTopic()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>listBookmarks</sender>
         <signal>selectionChanged(QListViewItem*)</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>currentBookmarkChanged(QListViewItem*)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>listBookmarks</sender>
         <signal>currentChanged(QListViewItem*)</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>currentBookmarkChanged(QListViewItem*)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>listContents</sender>
         <signal>currentChanged(QListViewItem*)</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>currentContentsChanged(QListViewItem*)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>listContents</sender>
         <signal>selectionChanged(QListViewItem*)</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>currentContentsChanged(QListViewItem*)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>listContents</sender>
         <signal>doubleClicked(QListViewItem*)</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>showTopic()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>listContents</sender>
         <signal>returnPressed(QListViewItem*)</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>showTopic()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>editIndex</sender>
         <signal>returnPressed()</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>showTopic()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>editIndex</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>HelpDialogBase</receiver>
         <slot>searchInIndex(const QString&amp;)</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
-    <slot access="protected" language="C++">addBookmark()</slot>
-    <slot access="protected" language="C++">currentBookmarkChanged( QListViewItem * )</slot>
-    <slot access="protected" language="C++">currentIndexChanged( QListBoxItem * )</slot>
-    <slot access="protected" language="C++">currentTabChanged( const QString &amp; )</slot>
-    <slot access="protected" language="C++">loadIndexFile()</slot>
-    <slot access="protected" language="C++">currentContentsChanged( QListViewItem * )</slot>
-    <slot access="protected" language="C++">removeBookmark()</slot>
-    <slot access="protected" language="C++">searchInIndex( const QString &amp; )</slot>
-    <slot access="protected" language="C++">showTopic()</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" language="C++" returnType="void">addBookmark()</slot>
+    <slot access="protected" language="C++" returnType="void">currentBookmarkChanged( QListViewItem * )</slot>
+    <slot access="protected" language="C++" returnType="void">currentIndexChanged( QListBoxItem * )</slot>
+    <slot access="protected" language="C++" returnType="void">currentTabChanged( const QString &amp; )</slot>
+    <slot access="protected" language="C++" returnType="void">loadIndexFile()</slot>
+    <slot access="protected" language="C++" returnType="void">currentContentsChanged( QListViewItem * )</slot>
+    <slot access="protected" language="C++" returnType="void">removeBookmark()</slot>
+    <slot access="protected" language="C++" returnType="void">searchInIndex( const QString &amp; )</slot>
+    <slot access="protected" language="C++" returnType="void">showTopic()</slot>
 </connections>
 </UI>
