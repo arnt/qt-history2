@@ -1,0 +1,58 @@
+/****************************************************************************
+** $Id: index.doc,v 1.1 1998/01/07 22:04:46 warwick Exp $
+**
+** Index page
+**
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+#if defined(DEBUG)
+static char ident[] = "$Id: index.doc,v 1.1 1998/01/07 22:04:46 warwick Exp $";
+#endif
+
+/*! \page index.html
+
+<title>Qt Documentation</title>
+</head>
+
+<body bgcolor=#ffffff>
+<h1 align=center>Qt Xt/Motif Support Extension</h1>
+
+<hr>
+
+<p>
+The Qt Xt/Motif Support Extension assists with migrating from old
+Xt and Motif GUI code to the more comfortable Qt toolkit.
+
+<h2>Information</h2>
+
+<ul>
+  <li><a href=annotated.html>Annotated class list</a>
+  <li><a href=classes.html>Hierarchical class list</a>
+  <li><a href=examples.html>Example programs</a>
+</ul>
+
+<h2>How-to</h2>
+
+<ol>
+ <li>Ensure you are using X11R6.
+ <li>Ensure the programs you wish to port are compilable by a C++
+	compiler, or at least that this is the case for the parts 
+	which need migration.
+ <li>Decide whether you are writing a new Qt application reusing
+	old Xt widgets, or introducing new Qt widgets into an
+	existing Xt/Motif application.
+</ol>
+
+<h2>Known Bugs</h2>
+
+This extension is under development.  The following problems exist:
+
+<ul>
+ <li> The different focus models of Xt, Motif, and Qt interfere.
+ <li> Clipboard handling between Xt/Motif and Qt does not work properly.
+	This can be solved by using a drag-and-drop selection model.
+</ul>
+
+*/

@@ -1,0 +1,9 @@
+TEMPLATE    =   lib
+CONFIG      =	qt debug staticlib
+HEADERS     =   ../../../include/qxt.h
+SOURCES     =   qxt.cpp
+MOC_DIR     =   .
+TARGET      =   qxt
+DESTINCDIR  =   ../../../include
+DESTDIR     =   ../../../lib
+VERSION     =   0.3

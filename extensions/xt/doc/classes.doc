@@ -1,0 +1,27 @@
+/****************************************************************************
+** $Id: classes.doc,v 1.1 1998/01/07 22:04:46 warwick Exp $
+**
+** Documentation for class overview
+**
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+#if defined(DEBUG)
+static char ident[] = "$Id: classes.doc,v 1.1 1998/01/07 22:04:46 warwick Exp $";
+#endif
+
+
+/*!
+\page classes.html
+
+<title>Qt Documentation</title>
+</head><body bgcolor="#ffffff">
+
+<h1 align=center>Annotated Qt Xt/Motif Class Index</h1>
+<p>Here are the classes in the Qt Xt/Motif extension,
+
+<multicol cols=3>
+  \classlist
+</multicol>
+*/
