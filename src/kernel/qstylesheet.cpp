@@ -1564,7 +1564,7 @@ void QStyleSheet::scaleFont( QFont& font, int logicalSize ) const
     int s;
     switch ( logicalSize ) {
     case 1:
-	s =  baseSize/2;
+	s =  7*baseSize/10;
 	break;
     case 2:
 	s = (8 * baseSize) / 10;

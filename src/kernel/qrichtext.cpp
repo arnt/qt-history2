@@ -2283,7 +2283,7 @@ QString QTextDocument::richText() const
 
 	if ( richTextExportStart && richTextExportStart->paragraph() ==p &&
 	     richTextExportStart->index() == 0 )
-	    s += "<selstart/>";
+	    s += "<!--StartFragment-->";
 
 	if ( p->isListItem() ) {
 	    s += "<li";
@@ -2656,8 +2656,8 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
 	richTextExportEnd = &c2;
 
 	QString sel = richText();
-	int from = sel.find( "<selstart/>" );
-	int to = sel.findRev( "<selend/>" );
+	int from = sel.find( "<!--StartFragment-->" );
+	int to = sel.findRev( "<!--EndFragment-->" );
 	if ( from >= 0 && from <= to )
 	    sel = sel.mid( from, to - from );
 	richTextExportStart = richTextExportEnd = 0;
@@ -4893,9 +4893,9 @@ QString QTextParagraph::richText() const
     int i;
     for ( i = 0; i < length()-1; ++i ) {
 	if ( doStart && i && richTextExportStart->index() == i )
-	    s += "<selstart/>";
+	    s += "<!--StartFragment-->";
 	if ( doEnd && richTextExportEnd->index() == i )
-	    s += "<selend/>";
+	    s += "<!--EndFragment-->";
 	QTextStringChar *c = &str->at( i );
 	if ( c->isAnchor() && !c->anchorName().isEmpty() ) {
 	    if ( c->anchorName().contains( '#' ) ) {
@@ -4932,7 +4932,7 @@ QString QTextParagraph::richText() const
 	    s += c->c;
     }
     if ( doEnd && richTextExportEnd->index() == i )
-	s += "<selend/>";
+	s += "<!--EndFragment-->";
     if ( formatChar )
 	s += formatChar->format()->makeFormatEndTags( formatCollection()->defaultFormat(), formatChar->anchorHref() );
     return s;
@@ -6261,7 +6261,7 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 	    QString a = attr["size"];
 	    int n = a.toInt();
 	    if ( a[0] == '+' || a[0] == '-' )
-		n += format.logicalFontSize;
+		n += 3;
 	    format.logicalFontSize = n;
 	    if ( format.usePixelSizes )
 		format.fn.setPixelSize( format.stdSize );
@@ -6276,7 +6276,8 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 	    QString style = a.section( ';', s, s );
 	    if ( style.startsWith("font-size:" ) && style.endsWith("pt") ) {
 		format.logicalFontSize = 0;
-		format.setPointSize( int( scaleFontsFactor * style.mid( 10, style.length() - 12 ).toInt() ) );
+		int size = int( scaleFontsFactor * style.mid( 10, style.length() - 12 ).toDouble() );
+		format.setPointSize( size );
 	    } if ( style.startsWith("font-style:" ) ) {
 		QString s = style.mid( 11 ).stripWhiteSpace();
 		if ( s == "normal" )
@@ -6290,7 +6291,11 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 		if ( ok )
 		    format.fn.setWeight( n/8 );
 	    } else if ( style.startsWith("font-family:" ) ) {
-		format.fn.setFamily( style.mid(12).section(',',0,0).stripWhiteSpace() );
+		QString family = style.mid(12).section(',',0,0);
+		family.replace( '\"', ' ' );
+		family.replace( '\'', ' ' );
+		family = family.stripWhiteSpace();
+		format.fn.setFamily( family );
 	    } else if ( style.startsWith("text-decoration:" ) ) {
 		QString s = style.mid( 16 ).stripWhiteSpace();
 		format.fn.setUnderline( s == "underline" );
@@ -7039,6 +7044,13 @@ QString QTextDocument::parseWord(const QChar* doc, int length, int& pos, bool lo
 	    }
 	}
 	eat(doc, length, pos, '"');
+    } else if (doc[pos] == '\'') {
+	pos++;
+	while ( pos < length  && doc[pos] != '\'' ) {
+	    s += doc[pos];
+	    pos++;
+	}
+	eat(doc, length, pos, '\'');
     } else {
 	static QString term = QString::fromLatin1("/>");
 	while ( pos < length

@@ -1542,8 +1542,10 @@ void QTextEdit::imEndEvent( QIMEvent *e )
 
     if ( d->preeditLength > 0 && cursor->paragraph() )
 	cursor->paragraph()->remove( d->preeditStart, d->preeditLength );
-    cursor->setIndex( d->preeditStart );
-    insert( e->text() );
+    if ( d->preeditStart >= 0 ) {
+        cursor->setIndex( d->preeditStart );
+        insert( e->text() );
+    }
     d->preeditStart = d->preeditLength = -1;
 
     repaintChanged();
@@ -4652,9 +4654,9 @@ void QTextEdit::setDocument( QTextDocument *dc )
 */
 void QTextEdit::pasteSubType( const QCString& subtype )
 {
-    QString st = subtype;
+    QCString st = subtype;
     if ( subtype != "x-qrichtext" )
-	st.prepend( "text/" );
+        st.prepend( "text/" );
     else
 	st.prepend( "application/" );
     QMimeSource *m = QApplication::clipboard()->data( d->clipboard_mode );
@@ -4662,13 +4664,16 @@ void QTextEdit::pasteSubType( const QCString& subtype )
 	return;
     if ( doc->hasSelection( QTextDocument::Standard ) )
 	removeSelectedText();
-    if ( !m->provides( st.latin1() ) )
+    if ( !m->provides( st.data() ) )
 	return;
     QString t;
-    if ( !QRichTextDrag::decode( m, t, st.latin1(), subtype ) )
+    if ( !QRichTextDrag::decode( m, t, st.data(), subtype ) )
 	return;
     if ( st == "application/x-qrichtext" ) {
-	if ( t.startsWith( "<selstart/>" ) ) {
+	int start;
+	if ( (start = t.find( "<!--StartFragment-->" )) != -1 ) {
+	    start += 20;
+	    int end = t.find( "<!--EndFragment-->" );
 	    QTextCursor oldC = *cursor;
 
 	    // during the setRichTextInternal() call the cursors
@@ -4679,7 +4684,10 @@ void QTextEdit::pasteSubType( const QCString& subtype )
 	    oldC.gotoPreviousLetter();
 	    bool couldGoBack = oldC != *cursor;
 
-	    t.remove( 0, 11 );
+	    if ( start < end )
+		t = t.mid( start, end - start );
+	    else
+		t = "";
 	    lastFormatted = cursor->paragraph();
 	    if ( lastFormatted->prev() )
 		lastFormatted = lastFormatted->prev();
@@ -4727,20 +4735,15 @@ void QTextEdit::pasteSubType( const QCString& subtype )
     } else {
 #if defined(Q_OS_WIN32)
 	// Need to convert CRLF to LF
-	int index = t.find( QString::fromLatin1("\r\n"), 0 );
-	while ( index != -1 ) {
-	    t.replace( index, 2, QChar('\n') );
-	    index = t.find( "\r\n", index );
-	}
+	t.replace( "\r\n", "\n" );
 #elif defined(Q_OS_MAC)
 	//need to convert CR to LF
-	for( unsigned int index = 0; index < t.length(); index++ )
-	    if(t[index] == '\r')
-		t[index] = '\n';
+	t.replace( '\r', '\n' );
 #endif
+	QChar *uc = (QChar *)t.unicode();
 	for ( int i=0; (uint) i<t.length(); i++ ) {
-	    if ( t[ i ] < ' ' && t[ i ] != '\n' && t[ i ] != '\t' )
-		t[ i ] = ' ';
+	    if ( uc[ i ] < ' ' && uc[ i ] != '\n' && uc[ i ] != '\t' )
+		uc[ i ] = ' ';
 	}
 	if ( !t.isEmpty() )
 	    insert( t, FALSE, TRUE );
