@@ -1,4 +1,5 @@
 /****************************************************************************
+
 **
 ** Definition of QSortedList template/macro class.
 **
@@ -26,7 +27,7 @@ class QSortedList : public QPtrList<type>
 public:
     QSortedList() {}
     QSortedList( const QSortedList<type> &l ) : QPtrList<type>(l) {}
-    ~QSortedList() { clear(); }
+    ~QSortedList() { this->clear(); }
     QSortedList<type> &operator=(const QSortedList<type> &l)
       { return (QSortedList<type>&)QPtrList<type>::operator=(l); }
 
