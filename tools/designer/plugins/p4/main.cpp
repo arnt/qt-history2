@@ -5,7 +5,22 @@
 #include <qaction.h>
 #include <qapplication.h>
 #include <qdict.h>
+#include <qpainter.h>
 
+/* XPM */
+static const char * const check_xpm[] ={
+"12 8 2 1",
+". c None",
+"c c #ff0000",
+".........ccc",
+"........ccc.",
+".......ccc..",
+"ccc...ccc...",
+".ccc.ccc....",
+"..ccccc.....",
+"...ccc......",
+"....c.......",
+};
 /* XPM */
 static const char * const sync_xpm[]={
 "16 16 5 1",
@@ -295,7 +310,7 @@ bool P4Interface::connectNotify( QApplication* theApp )
     QComponentInterface *fwIface = 0;
     
     if ( ( flIface = appInterface->queryInterface( "DesignerFormListInterface" ) ) &&
-	( fwIface = flIface->queryInterface( "DesignerFormWindowInterface" ) ) ) {
+	( fwIface = flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) ) {
 	fwIface->requestConnect( SIGNAL( modificationChanged( bool, const QString & ) ), 
 				 this, SLOT( p4MightEdit( bool, const QString & ) ) );
 	flIface->requestConnect( SIGNAL( selectionChanged() ), this, SLOT(formChanged() ) );
@@ -380,7 +395,7 @@ void P4Interface::p4Sync()
     QComponentInterface *flIface = 0;
     QComponentInterface *fwIface = 0;
     if ( !( flIface = appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = flIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+	 !( fwIface = flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
 	return;
 
     P4Sync *sync = new P4Sync( fwIface->requestProperty( "fileName" ).toString().latin1() );
@@ -396,7 +411,7 @@ void P4Interface::p4Edit()
     QComponentInterface *flIface = 0;
     QComponentInterface *fwIface = 0;
     if ( !( flIface = appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = flIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+	 !( fwIface = flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
 	return;
 
     P4Edit *edit = new P4Edit( fwIface->requestProperty( "fileName" ).toString().latin1(), TRUE );
@@ -412,7 +427,7 @@ void P4Interface::p4Submit()
     QComponentInterface *flIface = 0;
     QComponentInterface *fwIface = 0;
     if ( !( flIface = appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = flIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+	 !( fwIface = flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
 	return;
 
     P4Submit *submit = new P4Submit( fwIface->requestProperty( "fileName" ).toString().latin1() );
@@ -430,7 +445,7 @@ void P4Interface::p4Revert()
     QComponentInterface *flIface = 0;
     QComponentInterface *fwIface = 0;
     if ( !( flIface = appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = flIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+	 !( fwIface = flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
 	return;
 
     P4Revert *revert = new P4Revert( fwIface->requestProperty( "fileName" ).toString().latin1() );
@@ -447,7 +462,7 @@ void P4Interface::p4Add()
     QComponentInterface *flIface = 0;
     QComponentInterface *fwIface = 0;
     if ( !( flIface = appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = flIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+	 !( fwIface = flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
 	return;
 
     P4Add *add = new P4Add( fwIface->requestProperty( "fileName" ).toString().latin1() );
@@ -463,7 +478,7 @@ void P4Interface::p4Delete()
     QComponentInterface *flIface = 0;
     QComponentInterface *fwIface = 0;
     if ( !( flIface = appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = flIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+	 !( fwIface = flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
 	return;
 
     P4Delete *del = new P4Delete( fwIface->requestProperty( "fileName" ).toString().latin1() );
@@ -479,7 +494,7 @@ void P4Interface::p4Diff()
     QComponentInterface *flIface = 0;
     QComponentInterface *fwIface = 0;
     if ( !( flIface = appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = flIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+	 !( fwIface = flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
 	return;
 
     P4Diff *diff = new P4Diff( fwIface->requestProperty( "fileName" ).toString().latin1() );
@@ -492,17 +507,21 @@ void P4Interface::p4Refresh()
 {
     P4Info::files.clear();
 
-    QComponentInterface *flIface = 0;
-    if ( flIface = appInterface->queryInterface( "DesignerFormListInterface" ) ) {
-	QStringList formfiles = flIface->requestProperty( "fileList" ).toStringList();
-	for ( QStringList::Iterator it = formfiles.begin(); it != formfiles.end(); ++it ) {
-	    if ( (*it).isEmpty() )
-		continue;
-	    P4FStat* fs = new P4FStat( *it );
+    DesignerFormListInterface *flIface = 0;
+    if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( "DesignerFormListInterface" ) ) ) 
+	return;
+
+    QList<QComponentInterface> fwIfaces = flIface->queryFormInterfaceList();
+    QListIterator<QComponentInterface> it( fwIfaces );
+    while ( it.current() ) {
+	QString filename = it.current()->requestProperty( "fileName" ).toString();
+	if ( !!filename ) {
+	    P4FStat* fs = new P4FStat( filename );
 	    connect( fs, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
 	    connect( fs, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
 	    fs->fstat();
 	}
+	++it;
     }
     formChanged();
 }
@@ -525,10 +544,9 @@ void P4Interface::formChanged()
     QComponentInterface *flIface = 0;
     QComponentInterface *fwIface = 0;
     if ( !( flIface = appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = flIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+	 !( fwIface = flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
 	return;
     QString filename = fwIface->requestProperty( "fileName" ).toString();
-    qDebug( "%s is now the active formwindow", filename.latin1() );
     if ( filename.isEmpty() ) {
 	actionSync->setEnabled( FALSE );
 	actionEdit->setEnabled( FALSE );
@@ -575,18 +593,33 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 	P4Info::files.insert( filename, p4i );
     }
 
-    QComponentInterface *flIface = 0;
-    QComponentInterface *fwIface = 0;
-    if ( !( flIface = appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = flIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+    DesignerFormListInterface *flIface = 0;
+    
+    if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( "DesignerFormListInterface" ) ) )
 	return;
-    if ( filename != fwIface->requestProperty( "fileName" ).toString() )
+    QList<QComponentInterface> fwIfaces = flIface->queryFormInterfaceList();
+    QListIterator<QComponentInterface> it( fwIfaces );
+    QComponentInterface* fwIface = 0;
+    while ( it.current() ) {
+	fwIface = it.current();
+	++it;
+	if ( fwIface->requestProperty( "fileName" ).toString() == filename )
+	    break;
+    }
+    if ( !fwIface )
 	return;
 
     if ( p4i->controlled ) {
+	QPixmap pix = fwIface->requestProperty( "icon" ).toPixmap();
+	QPainter paint( &pix );
+	paint.setRasterOp( AndROP );
+	paint.fillRect( 0, 0, pix.width() - 1 , pix.height() - 1, gray );
+	paint.setRasterOp( CopyROP );
 	actionAdd->setEnabled( FALSE );
 	actionDelete->setEnabled( TRUE );
 	if ( p4i->opened ) {
+	    QPixmap check( (const char**)check_xpm );
+	    paint.drawPixmap( ( pix.width() - check.width() ) / 2, ( pix.height() - check.height() ) / 2, check );
 	    actionSync->setEnabled( FALSE );
 	    actionEdit->setEnabled( FALSE );
 	    actionSubmit->setEnabled( TRUE );
@@ -599,13 +632,16 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 	    actionRevert->setEnabled( FALSE );
 	    actionDiff->setEnabled( FALSE );
 	}
+	flIface->setPixmap( fwIface, 0, pix );
     } else {
+	QPixmap pix = fwIface->requestProperty( "icon" ).toPixmap();
 	actionAdd->setEnabled( TRUE );
 	actionDelete->setEnabled( FALSE );
 	actionSubmit->setEnabled( FALSE );
 	actionRevert->setEnabled( FALSE );
 	actionDiff->setEnabled( FALSE );
 	actionEdit->setEnabled( FALSE );
+	flIface->setPixmap( fwIface, 0, pix );
     }
 }
 
