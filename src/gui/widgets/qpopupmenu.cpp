@@ -1579,8 +1579,8 @@ void QPopupMenu::actionEvent(QActionEvent *e)
 	int id;
 	if (a->isSeparator())
 	    id = insertSeparator();
-	else if ( !a->iconSet().isNull() )
-	    id = insertItem( a->iconSet(), a->text() );
+	else if ( !a->icon().isNull() )
+	    id = insertItem( a->icon(), a->text() );
 	else
 	    id = insertItem( a->text() );
 	connectItem( id, this, SLOT(triggered()) );

@@ -677,8 +677,8 @@ void QToolBar::actionEvent(QActionEvent *e)
 	} else {
 	    QToolButton* btn = new QToolButton(this);
 	    btn->setToggleButton(a->isCheckable());
-	    if (!a->iconSet().isNull())
-		btn->setIconSet(a->iconSet());
+	    if (!a->icon().isNull())
+		btn->setIconSet(a->icon());
 	    btn->setTextLabel(a->text());
 	    connect( btn, SIGNAL( clicked() ), a, SIGNAL( triggered() ) );
 	}
