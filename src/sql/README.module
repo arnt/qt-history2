@@ -1,0 +1,31 @@
+Before building the Qt library, the Qt SQL module can be enabled for
+specific databases using 'configure'.  'configure' is located at the
+top of your QTDIR.
+
+Specific databases drivers can be enabled or disabled using the
+following options:
+
+	./configure [-with-sql-driver-<name>] [-without-sql-driver-<name>]
+
+This will configure the Qt library to compile the specified driver
+into the Qt lib itself.  
+
+For example, to build the postgres driver directly into the Qt
+library, configure Qt like this:
+
+	./configure -with-sql-driver-psql
+
+In addition, you may need to specify an extra include path, as some
+database drivers require headers for the database they are using, for
+example:
+
+	./configure -with-sql-driver-psql -I/usr/local/include
+
+
+To compile drivers as dynamically loaded plugins, see the
+QTDIR/src/sql/src directory.  Use 'configure -help' for a complete
+list of configure options.  See the Qt documentation for a complete
+list of supported database drivers.
+
+
+
