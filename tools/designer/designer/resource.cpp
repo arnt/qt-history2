@@ -239,9 +239,10 @@ static QString platformNeutralKeySequence(const QKeySequence &ks)
 		// Note: This character should NOT be upper()'ed, see above!
 		p = QChar(basekey & 0xffff);
 	}
+	// end copy...
+	str += p + ", ";
     }
-    // end copy...
-    str += p;
+    str.truncate(str.length() - 2);
     return str;
 #endif
 }
