@@ -51,6 +51,7 @@ QStackedBox::QStackedBox(QWidget *parent)
     :QFrame(*new QStackedBoxPrivate, parent)
 {
     d->layout = new QStackedLayout(this);
+    connect(d->layout, SIGNAL(widgetRemoved(int)), this, SIGNAL(widgetRemoved(int)));
 }
 
 /*!
@@ -85,9 +86,7 @@ int QStackedBox::insertWidget(int index, QWidget *w)
  */
 void QStackedBox::removeWidget(QWidget *w)
 {
-    int index = d->layout->indexOf(w);
     d->layout->removeWidget(w);
-    emit widgetRemoved(index);
 }
 
 
@@ -154,6 +153,4 @@ void QStackedBox::childEvent(QChildEvent *e)
 
     if (e->added() && !d->blockChildAdd && !w->isTopLevel() && d->layout->indexOf(w) < 0)
         d->layout->addWidget(w);
-    else if (e->removed())
-        removeWidget(w);
 }

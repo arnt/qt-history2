@@ -44,6 +44,9 @@ public:
     QLayoutItem *itemAt(int) const;
     QLayoutItem *takeAt(int);
     void setGeometry(const QRect &rect);
+
+signals:
+    void widgetRemoved(int index);
 private:
     QStackedLayoutPrivate *d;
 private:

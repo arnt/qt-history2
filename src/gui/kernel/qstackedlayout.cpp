@@ -116,6 +116,7 @@ QLayoutItem *QStackedLayout::takeAt(int index)
     } else if (index < d->index) {
         --d->index;
     }
+    emit widgetRemoved(index);
     return item;
 }
 
