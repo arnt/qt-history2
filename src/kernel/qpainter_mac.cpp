@@ -158,15 +158,19 @@ void QPainter::updatePen()
 {
     if ( !pdev || !pdev->handle() )
 	return;
+
+    //pen color
     ::RGBColor f;
     f.red = cpen.color().red()*256;
     f.green = cpen.color().green()*256;
     f.blue = cpen.color().blue()*256;
     RGBForeColor( &f );
-    int s = cpen.width();
-    if ( s < 1 )
-	s = 1;
-    PenSize( s, s );
+
+    //pen size
+    int dot = cpen.width();
+    if ( dot < 1 )
+	dot = 1;
+    PenSize( dot, dot );
 }
 
 
@@ -182,6 +186,17 @@ void QPainter::updateBrush()
             return;
     }
 
+    //color
+    ::RGBColor f;
+    f.red = cbrush.color().red()*256;
+    f.green = cbrush.color().green()*256;
+    f.blue = cbrush.color().blue()*256;
+    RGBForeColor( &f );
+    if ( pdev->devType() == QInternal::Widget ) {
+	bg_col = ((QWidget *)pdev)->backgroundColor();
+    }
+
+    //style
     int  bs = cbrush.style();
     uchar *pat = 0;                             // pattern
 
@@ -193,14 +208,6 @@ void QPainter::updateBrush()
         pm = cbrush.data->pixmap;
     }
 
-    ::RGBColor f;
-    f.red = cbrush.color().red()*256;
-    f.green = cbrush.color().green()*256;
-    f.blue = cbrush.color().blue()*256;
-    RGBForeColor( &f );
-    if ( pdev->devType() == QInternal::Widget ) {
-	bg_col = ((QWidget *)pdev)->backgroundColor();
-    }
 }
 
 typedef QIntDict<QPaintDevice> QPaintDeviceDict;
@@ -409,28 +416,99 @@ void QPainter::setBackgroundColor( const QColor & )
 {
 }
 
-//FIXME: Implement this
-void QPainter::setBackgroundMode( BGMode )
+void QPainter::setBackgroundMode( BGMode m)
 {
+    if ( !isActive() ) {
+#if defined(CHECK_STATE)
+	qWarning( "QPainter::setBackgroundMode: Call begin() first" );
+#endif
+	return;
+    }
+    if ( m != TransparentMode && m != OpaqueMode ) {
+#if defined(CHECK_RANGE)
+	qWarning( "QPainter::setBackgroundMode: Invalid mode" );
+#endif
+	return;
+    }
+    bg_mode = m;
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[1];
+	param[0].ival = m;
+	if ( !pdev->cmd( QPaintDevice::PdcSetBkMode, this, param ) || !hd )
+	    return;
+    }
+    if ( !penRef )
+	updatePen();				// update pen setting
+    if ( !brushRef )
+	updateBrush();				// update brush setting
 }
 
-/*!
-  Sets the raster operation to \a r.  The default is \c CopyROP.
-  \sa rasterOp()
-*/
+static int ropCodes[] = {			// ROP translation table
+    patCopy, patOr, patXor, patBic, notPatCopy,
+    notPatOr, notPatXor, notPatBic, patCopy /*huh?*/,
+    patCopy /*huh?*/, patCopy /*huh?*/, patCopy /*huh?*/,
+    patCopy /*huh?*/, patCopy /*huh?*/, patCopy /*huh?*/,
+    patCopy /*huh?*/, patCopy /*huh?*/
+};
 
-//FIXME: Implement this
-void QPainter::setRasterOp( RasterOp )
+void QPainter::setRasterOp( RasterOp r )
 {
+    if ( !isActive() ) {
+#if defined(CHECK_STATE)
+	qWarning( "QPainter::setRasterOp: Call begin() first" );
+#endif
+	return;
+    }
+    if ( (uint)r > LastROP ) {
+#if defined(CHECK_RANGE)
+	qWarning( "QPainter::setRasterOp: Invalid ROP code" );
+#endif
+	return;
+    }
+    rop = r;
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[1];
+	param[0].ival = r;
+	if ( !pdev->cmd( QPaintDevice::PdcSetROP, this, param ) || !hd )
+	    return;
+    }
+    if ( penRef )
+	updatePen();				// get non-cached pen GC
+    if ( brushRef )
+	updateBrush();				// get non-cached brush GC
+    PenMode(ropCodes[rop]);
 }
 
-//FIXME: Implement this
-void QPainter::setBrushOrigin( int, int )
+void QPainter::setBrushOrigin( int x, int y )
 {
+    if ( !isActive() ) {
+#if defined(CHECK_STATE)
+	qWarning( "QPainter::setBrushOrigin: Call begin() first" );
+#endif
+	return;
+    }
+    bro = QPoint(x,y);
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[1];
+	param[0].point = &bro;
+	if ( !pdev->cmd( QPaintDevice::PdcSetBrushOrigin, this, param ) ||
+	     !hd )
+	    return;
+    }
+    if ( brushRef )
+	updateBrush();				// get non-cached brush GC
+    //WTF? FIXME
 }
 
 void QPainter::setClipping( bool b )
 {
+    if ( !isActive() ) {
+#if defined(CHECK_STATE)
+	qWarning( "QPainter::setClipping: Call begin() first" );
+#endif
+	return;
+    }
+
     QRegion reg;
     if(b) {
 	setf(ClipOn);
@@ -457,6 +535,13 @@ void QPainter::setClipRect( const QRect &r )
 
 void QPainter::setClipRegion( const QRegion &r )
 {
+    if ( !isActive() ) {
+#if defined(CHECK_STATE)
+	qWarning( "QPainter::setClipRegion: Call begin() first" );
+#endif
+	return;
+    }
+
     QRegion rset(r);
     rset.translate(offx, offy);
     crgn = rset;
