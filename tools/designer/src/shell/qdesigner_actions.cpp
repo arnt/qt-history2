@@ -51,6 +51,9 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     m_formActions = new QActionGroup(this);
     m_formActions->setExclusive(false);
 
+    m_windowActions = new QActionGroup(this);
+    m_windowActions->setExclusive(false);
+
 //
 // file actions
 //
@@ -175,6 +178,14 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     m_previewFormAction->setShortcut(tr("CTRL+R"));
     m_formActions->addAction(m_previewFormAction);
 
+//
+// window actions
+//
+    m_showWorkbenchAction = new QAction(tr("Show &Workbench"), this);
+    m_showWorkbenchAction->setCheckable(true);
+    connect(m_showWorkbenchAction, SIGNAL(checked(bool)),
+            this, SLOT(setWorkbenchVisible(bool)));
+    m_windowActions->addAction(m_showWorkbenchAction);
 
 //
 // connections
@@ -207,6 +218,9 @@ QActionGroup *QDesignerActions::editModeActions() const
 
 QActionGroup *QDesignerActions::formActions() const
 { return m_formActions; }
+
+QActionGroup *QDesignerActions::windowActions() const
+{ return m_windowActions; }
 
 QAction *QDesignerActions::newFormAction() const
 { return m_newFormAction; }
@@ -289,6 +303,9 @@ QAction *QDesignerActions::editBuddies() const
 QAction *QDesignerActions::editTabOrders() const
 { return m_editTabOrders; }
 
+QAction *QDesignerActions::showWorkbenchAction() const
+{ return m_showWorkbenchAction; }
+
 void QDesignerActions::updateEditMode(QAction *action)
 {
     Q_ASSERT(m_editModeActions->actions().contains(action) == true);
@@ -312,3 +329,13 @@ void QDesignerActions::updateEditMode(QAction *action)
         formWindow->setEditMode(mode);
     }
 }
+
+void QDesignerActions::setWorkbenchVisible(bool visible)
+{
+    if (visible)
+        workbench()->switchToWorkspaceMode();
+    else
+        workbench()->switchToTopLevelMode();
+}
+
+

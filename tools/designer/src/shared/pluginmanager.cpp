@@ -88,9 +88,7 @@ void PluginManager::registerPlugin(const QString &plugin)
 
 void PluginManager::unregisterPlugin(const QString &plugin)
 {
-    QPluginLoader loader(plugin);
-    if (loader.unload())
-        m_registeredPlugins.removeAll(plugin);
+    m_registeredPlugins.removeAll(plugin);
 }
 
 QStringList PluginManager::pluginPaths() const

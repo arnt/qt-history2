@@ -39,6 +39,7 @@ public:
     QActionGroup *editActions() const;
     QActionGroup *editModeActions() const;
     QActionGroup *formActions() const;
+    QActionGroup *windowActions() const;
 
 //
 // file actions
@@ -83,8 +84,14 @@ public:
     QAction *adjustSizeAction() const;
     QAction *previewFormAction() const;
 
+//
+// window actions
+//
+    QAction *showWorkbenchAction() const;
+
 private slots:
     void updateEditMode(QAction *action);
+    void setWorkbenchVisible(bool visible);
 
 private:
     QDesignerMainWindow *m_mainWindow;
@@ -95,6 +102,7 @@ private:
     QActionGroup *m_editActions;
     QActionGroup *m_editModeActions;
     QActionGroup *m_formActions;
+    QActionGroup *m_windowActions;
 
     QAction *m_newFormAction;
     QAction *m_openFormAction;
@@ -126,6 +134,8 @@ private:
     QAction *m_breakLayoutAction;
     QAction *m_adjustSizeAction;
     QAction *m_previewFormAction;
+
+    QAction *m_showWorkbenchAction;
 };
 
 #endif // QDESIGNER_ACTIONS_H

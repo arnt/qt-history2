@@ -79,6 +79,9 @@ void QDesignerMainWindow::initialize()
     m_toolMenu = menuBar()->addMenu(tr("&Tool"));
 
     m_windowMenu = menuBar()->addMenu(tr("&Window"));
+    foreach (QAction *action, m_actionManager->windowActions()->actions()) {
+        m_windowMenu->addAction(action);
+    }
 
     connect(workbench(), SIGNAL(formWindowAdded(QDesignerFormWindow*)),
             this, SLOT(addFormWindow(QDesignerFormWindow*)));
@@ -91,11 +94,6 @@ void QDesignerMainWindow::initialize()
 
     connect(workbench(), SIGNAL(toolWindowRemoved(QDesignerToolWindow*)),
             this, SLOT(removeToolWindow(QDesignerToolWindow*)));
-
-    // initialization
-    foreach (QAction *action, workbench()->modeActionGroup()->actions()) {
-        m_windowMenu->addAction(action);
-    }
 
     m_windowMenu->addSeparator();
 
