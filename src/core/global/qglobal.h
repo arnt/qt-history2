@@ -1111,6 +1111,10 @@ inline void qUnused(T &x) { (void)x; }
 #  define QT_DEBUG
 #endif
 
+#ifndef qPrintable
+#  define qPrintable(string) string.toLocal8Bit().constData()
+#endif
+
 Q_CORE_EXPORT void qDebug(const char *, ...) // print debug message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
