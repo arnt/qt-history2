@@ -242,8 +242,10 @@ void QProgressBar::setIndicatorFollowsStyle( bool on )
 }
 
 /*!
-  \brief whether the current progress value is displayed or not.
   \property QProgressBar::percentageVisible
+  \brief whether the current progress value is displayed or not.
+
+  \se centerIndicator, indicatorFollowsStyle
 */
 void QProgressBar::setPercentageVisible( bool on )
 {

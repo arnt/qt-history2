@@ -451,11 +451,12 @@ bool QDateTimeEditor::setFocusSection( int sec )
 }
 
 /*! \class QDateTimeEditBase
+    \brief The QDateTimeEditBase class provides an abstraction for date and edit editors.
     \internal
-  
+
     Small abstract class that provides some functions that are common
     for both QDateEdit and QTimeEdit. Its used internally by
-    QDateTimeEditor.
+    QDateTimeEditor.  
 */
 
 /*! \fn QString QDateTimeEditBase::sectionFormattedText( int sec )
@@ -1333,8 +1334,7 @@ public:
 
 /*!
   \class QTimeEdit qdatetimeedit.h
-    \ingroup advanced time
-
+  \ingroup advanced time
   \brief The QTimeEdit class provides a time editor.
 
   QTimeEdit allows the user to edit times by using the keyboard or the
@@ -1901,8 +1901,17 @@ void QTimeEdit::resizeEvent( QResizeEvent * )
 }
 
 /*! \reimp
-
 */
+QSize QTimeEdit::sizeHint() const
+{
+    QFontMetrics fm( font() );
+    int h = fm.height();
+    int w = fm.width( '9' ) * 6 + fm.width( d->ed->separator() ) * 2 +
+	    d->controls->upRect().width() +
+	    style().pixelMetric( QStyle::PM_DefaultFrameWidth, this ) * 4;
+
+    return QSize( w, h + 2 ).expandedTo( QApplication::globalStrut() );
+}
 
 /*! 
   Enables/disables the push buttons according to the min/max time for
@@ -1917,17 +1926,6 @@ void QTimeEdit::updateButtons()
     d->controls->setDownEnabled( downEnabled );
 }
 
-QSize QTimeEdit::sizeHint() const
-{
-    QFontMetrics fm( font() );
-    int h = fm.height();
-    int w = fm.width( '9' ) * 6 + fm.width( d->ed->separator() ) * 2 +
-	    d->controls->upRect().width() +
-	    style().pixelMetric( QStyle::PM_DefaultFrameWidth, this ) * 4;
-
-    return QSize( w, h + 2 ).expandedTo( QApplication::globalStrut() );
-}
-
 
 class QDateTimeEditPrivate
 {
@@ -1938,8 +1936,7 @@ public:
 /*!
 
   \class QDateTimeEdit qdatetimeedit.h
-    \ingroup advanced time
-
+  \ingroup advanced time
   \brief The QDateTimeEdit class combines a QDateEdit and QTimeEdit
   widget into a single widget for editing datetimes.
 

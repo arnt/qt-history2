@@ -3547,7 +3547,7 @@ QCString QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
 #endif // QT_NO_MIME
 #endif // QT_NO_CLIPBOARD
 
-/*! \enum Qt::WordWrap
+/*! \enum QTextEdit::WordWrap
 
   This enum defines the QTextEdit's word wrap modes.  The following
   values are valid:
@@ -3654,7 +3654,7 @@ int QTextEdit::wrapColumnOrWidth() const
 }
 
 
-/*! \enum Qt::WrapPolicy
+/*! \enum QTextEdit::WrapPolicy
 
   This enum defines where text can be wrapped in word wrap mode.
 

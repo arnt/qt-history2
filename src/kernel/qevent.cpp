@@ -1523,7 +1523,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   every key the user types, so the widget will need to store the state
   before the composition started (the state it had when it received
   the IMStartEvent). IMComposeEvents will be delivered to the
-  \l QWIdget::imComposeEvent() function.
+  \l QWidget::imComposeEvent() function.
 
   Usually, widgets try to mark the part of the text that is part of
   the current composition in a way that is visible to the user. Mostly
@@ -1635,7 +1635,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 */
 
 /*!
-  \fn QTabletEvent( const QPoint &pos, int device, int pressure, int xTilt, int yTilt )
+  \fn QTabletEvent::QTabletEvent( const QPoint &pos, int device, int pressure, int xTilt, int yTilt )
 
   Constructs a tablet event object.
 
@@ -1650,7 +1650,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 */
 
 /*!
-  \fn QTabletEvent( const QPoint &pos, const QPoint &globalPos, int device, int pressure, int xTilt, int yTilt )
+  \fn QTabletEvent::QTabletEvent( const QPoint &pos, const QPoint &globalPos, int device, int pressure, int xTilt, int yTilt )
 
   Constructs a tablet event object.  The position when the event occurred is
   is given in \a pos and \a globalPos.  \a device contains the device type,
@@ -1665,7 +1665,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 */
 
 /*!
-  fn TabletDevice device() const
+  \fn TabletDevice QTabletEvent::device() const
   Returns the type of device that generated the event.  Useful if you
   want one end of the pen to do something different than the other.
 */

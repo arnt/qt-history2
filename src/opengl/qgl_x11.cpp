@@ -739,7 +739,7 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
     }
 }
 
-
+/*! \reimp */
 void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
 			  bool showIt )
 {

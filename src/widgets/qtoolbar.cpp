@@ -279,7 +279,7 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
 */
 
 /*!
-    \fn QToolBar( const QString &label,
+    \fn QToolBar::QToolBar( const QString &label,
 	      QMainWindow *, ToolBarDock = Top,
 	      bool newLine = FALSE, const char * name = 0 );
     \obsolete

@@ -812,7 +812,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 
 /*!
     \obsolete
-    \overload void QMainWindow::removeToolBar( QDockWindow * );
+    \fn void QMainWindow::removeToolBar( QDockWindow * );
 */
 
 /*!
