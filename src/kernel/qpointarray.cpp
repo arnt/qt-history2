@@ -507,6 +507,9 @@ void QPointArray::makeArc( int x, int y, int w, int h,
 			       int a1, int a2,
 			       const QWMatrix& xf )
 {
+    if ( --w < 0 || --h < 0 )
+	return;
+    
     bool rev = a2 < 0;
     if ( rev ) {
 	a1 += a2;
