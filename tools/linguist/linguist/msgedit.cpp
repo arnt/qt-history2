@@ -419,7 +419,7 @@ void EditorPage::fontChange(const QFont &)
    Handle layout of dock windows and the editor page.
 */
 MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
-    : QWidget(parent), tor(t)
+    : QWidgetView(parent), tor(t)
 {
     doGuesses = true;
     topDockWnd = new QDockWindow(parent);
@@ -479,22 +479,20 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     bottomDockWnd->setWidget(w);
     parent->addDockWindow(Qt::DockWindowAreaBottom, bottomDockWnd);
 
-    v = new QVBoxLayout(this);
-    sv = new QWidgetView(this);
-    sv->setObjectName("widget view");
-    sv->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    sv->setFrameStyle(QFrame::NoFrame);
+    setObjectName("widget view");
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setFrameStyle(QFrame::NoFrame);
 
-    editorPage = new EditorPage(sv, "editor page");
+    editorPage = new EditorPage(this, "editor page");
     connect(editorPage, SIGNAL(pageHeightUpdated(int)),
              SLOT(updatePageHeight(int)));
 
-    sw = new ShadowWidget(editorPage, sv);
+    sw = new ShadowWidget(editorPage, this);
     sw->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     sw->setMinimumSize(QSize(100, 150));
-    sv->setWidget(sw);
+    
+    setWidget(sw);
     editorPage->transText->installEventFilter(this);
-    v->addWidget(sv);
 
     // Signals
     connect(editorPage->pageCurl, SIGNAL(nextPage()),
@@ -568,7 +566,7 @@ void MessageEditor::updatePageHeight(int height)
 
 void MessageEditor::resizeEvent(QResizeEvent *)
 {
-    sw->resize(sv->viewport()->width(), sw->height());
+    sw->resize(viewport()->width(), sw->height());
 }
 
 QTreeView *MessageEditor::sourceTextView() const

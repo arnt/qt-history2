@@ -1862,6 +1862,10 @@ void TrWindow::readConfig()
     if (dockWindowArea(dw) != place)
         addDockWindow(place, dw);
 
+    acceleratorsAct->setChecked(config.value(keybase+ "Validators/Accelerator", true).toBool());
+    endingPunctuationAct->setChecked(config.value(keybase+ "Validators/EndingPunctuation", true).toBool());
+    phraseMatchesAct->setChecked(config.value(keybase+ "Validators/PhraseMatch", true).toBool());
+
     QApplication::sendPostedEvents();
 }
 
@@ -1887,6 +1891,10 @@ void TrWindow::writeConfig()
 
     dw = static_cast<QDockWindow *>(ptv->parent()->parent());
     config.setValue(keybase + "Geometry/PhrasewindowInDock", dockWindowArea(dw));
+
+    config.setValue(keybase+ "Validators/Accelerator", acceleratorsAct->isChecked());
+    config.setValue(keybase+ "Validators/EndingPunctuation", endingPunctuationAct->isChecked());
+    config.setValue(keybase+ "Validators/PhraseMatch", phraseMatchesAct->isChecked());
 }
 
 void TrWindow::setupRecentFilesMenu()

@@ -24,8 +24,8 @@
 #include <qshortcut.h>
 #include <qframe.h>
 #include <qtextedit.h>
+#include <qwidgetview.h>
 
-class QWidgetView;
 template <typename T> class QList;
 class QSplitter;
 class QDockWindow;
@@ -190,7 +190,7 @@ signals:
     void pageHeightUpdated(int height);
 };
 
-class MessageEditor : public QWidget
+class MessageEditor : public QWidgetView
 {
     Q_OBJECT
 public:
@@ -255,14 +255,12 @@ private:
     MessageModel *srcMdl;
     QDockWindow *topDockWnd, *bottomDockWnd;
     EditorPage *editorPage;
-    QVBoxLayout *v;
 
     QLabel * phraseLbl;
     QTreeView *phraseTv;
     PhraseModel *phrMdl;
 
     ShadowWidget *sw;
-    QWidgetView *sv;
 
     MetaTranslator *tor;
     QString sourceText;

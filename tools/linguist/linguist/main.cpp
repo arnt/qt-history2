@@ -54,9 +54,6 @@ int main(int argc, char **argv)
     TrWindow *tw = new TrWindow;
     app.setMainWidget(tw);
 
-    if (app.argc() > 1)
-    tw->openFile(QString(app.argv()[app.argc() - 1]));
-
     if (config.value(keybase + "Geometry/MainwindowMaximized", false).toBool())
         tw->showMaximized();
     else
@@ -64,7 +61,10 @@ int main(int argc, char **argv)
     
     if (splash)
         splash->finish(tw);
-    
+
+    if (app.argc() > 1)
+        tw->openFile(QString(app.argv()[app.argc() - 1]));
+
     QApplication::restoreOverrideCursor();
 
     return app.exec();
