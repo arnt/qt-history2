@@ -348,7 +348,6 @@ void QHttpCloseRequest::start( QHttp *http )
 /*!  \fn int QHttpHeader::majorVersion() const
   Returns the major protocol-version of the HTTP header.
 */
-
 /*!  \fn int QHttpHeader::minorVersion() const
   Returns the minor protocol-version of the HTTP header.
 */
@@ -1114,21 +1113,42 @@ QHttp::QHttp()
     init();
 }
 
+/*!
+    Constructs a HTTP client. The parameters \a parent and \a name are
+    passed on to the QObject constructor.
+*/
+QHttp::QHttp( QObject* parent, const char* name )
+{
+    if ( parent )
+	parent->insertChild( this );
+    setName( name );
+    init();
+}
+
+/*!
+    Constructs a HTTP client. Following requests are done by connecting to the
+    server \a hostname on port \a port. The parameters \a parent and \a name
+    are passed on to the QObject constructor.
+
+    \sa setHost()
+*/
+QHttp::QHttp( const QString &hostname, Q_UINT16 port, QObject* parent, const char* name )
+{
+    if ( parent )
+	parent->insertChild( this );
+    setName( name );
+    init();
+
+    d->hostname = hostname;
+    d->port = port;
+}
+
 void QHttp::init()
 {
     bytesRead = 0;
     d = new QHttpPrivate;
     d->errorString = tr( "Unknown error" );
 
-    // ################## signal/slot connections used in the QUrlOperator mode
-    connect( this, SIGNAL(readyRead(const QHttpResponseHeader&)),
-	     SLOT(clientReply(const QHttpResponseHeader&)) );
-    connect( this, SIGNAL(done(bool)),
-	     SLOT(clientDone(bool)) );
-    connect( this, SIGNAL(stateChanged(int)),
-	     SLOT(clientStateChanged(int)) );
-
-    // new API
     connect( &d->socket, SIGNAL( connected() ),
 	    this, SLOT( slotConnected() ) );
     connect( &d->socket, SIGNAL( connectionClosed() ),
@@ -1145,36 +1165,6 @@ void QHttp::init()
     d->idleTimer = startTimer( 0 );
 }
 
-void QHttp::setState( int s )
-{
-    d->state = (State)s;
-    emit stateChanged( s );
-}
-
-void QHttp::close()
-{
-    // If no connection is open -> ignore
-    if ( d->state == Closing || d->state == Unconnected )
-	return;
-
-    d->postDevice = 0;
-    setState( Closing );
-
-    // Already closed ?
-    if ( !d->socket.isOpen() ) {
-	d->idleTimer = startTimer( 0 );
-    } else {
-	// Close now.
-	d->socket.close();
-
-	// Did close succeed immediately ?
-	if ( d->socket.state() == QSocket::Idle ) {
-	    // Prepare to emit the requestFinished() signal.
-	    d->idleTimer = startTimer( 0 );
-	}
-    }
-}
-
 /*!
     Destroys the QHttp object. If there is an open connection, it is closed.
 */
@@ -1183,151 +1173,21 @@ QHttp::~QHttp()
     abort();
 }
 
-/*! \reimp
+/*!  \enum QHttp::State
+
+    This enum is used to specify the state the client is in.
+
+    \value Unconnected if there is no open connection
+    \value HostLookup if the client is doing a host name lookup
+    \value Connecting if the client is trying to connect to the host
+    \value Sending when the client is sending its request to the server
+    \value Reading when the client has sent its request and is reading the
+    server's response
+    \value Connected when the connection to the host is open, but the client is
+    neither sending a request, nor waiting for a response
+    \value Closing if the connection is closing down, but is not yet
+    unconnected
 */
-int QHttp::supportedOperations() const
-{
-    return OpGet | OpPut;
-}
-
-/*! \reimp
-*/
-void QHttp::operationGet( QNetworkOperation *op )
-{
-    bytesRead = 0;
-    op->setState( StInProgress );
-    QUrl u( operationInProgress()->arg( 0 ) );
-    QHttpRequestHeader header( "GET", u.encodedPathAndQuery(), 1, 0 );
-    header.setValue( "Host", u.host() );
-    setHost( u.host(), u.port() != -1 ? u.port() : 80 );
-    request( header );
-}
-
-/*! \reimp
-*/
-void QHttp::operationPut( QNetworkOperation *op )
-{
-    bytesRead = 0;
-    op->setState( StInProgress );
-    QUrl u( operationInProgress()->arg( 0 ) );
-    QHttpRequestHeader header( "POST", u.encodedPathAndQuery(), 1, 0 );
-    header.setValue( "Host", u.host() );
-    setHost( u.host(), u.port() != -1 ? u.port() : 80 );
-    request( header, op->rawArg(1) );
-}
-
-void QHttp::clientReply( const QHttpResponseHeader &rep )
-{
-    QNetworkOperation *op = operationInProgress();
-    if ( op ) {
-	if ( rep.statusCode() >= 400 && rep.statusCode() < 600 ) {
-	    op->setState( StFailed );
-	    op->setProtocolDetail(
-		    QString("%1 %2").arg(rep.statusCode()).arg(rep.reasonPhrase())
-						    );
-	    switch ( rep.statusCode() ) {
-		case 401:
-		case 403:
-		case 405:
-		    op->setErrorCode( ErrPermissionDenied );
-		    break;
-		case 404:
-		    op->setErrorCode(ErrFileNotExisting );
-		    break;
-		default:
-		    if ( op->operation() == OpGet )
-			op->setErrorCode( ErrGet );
-		    else
-			op->setErrorCode( ErrPut );
-		    break;
-	    }
-	}
-	// ### In cases of an error, should we still emit the data() signals?
-	if ( op->operation() == OpGet && bytesAvailable() > 0 ) {
-	    QByteArray ba = readAll();
-	    emit data( ba, op );
-	    bytesRead += ba.size();
-	    if ( rep.hasContentLength() ) {
-		emit dataTransferProgress( bytesRead, rep.contentLength(), op );
-	    }
-	}
-    }
-}
-
-void QHttp::clientDone( bool err )
-{
-    if ( err ) {
-	QNetworkOperation *op = operationInProgress();
-	if ( op ) {
-	    op->setState( QNetworkProtocol::StFailed );
-	    op->setProtocolDetail( errorString() );
-	    switch ( error() ) {
-		case ConnectionRefused:
-		    op->setErrorCode( ErrHostNotFound );
-		    break;
-		case HostNotFound:
-		    op->setErrorCode( ErrHostNotFound );
-		    break;
-		default:
-		    if ( op->operation() == OpGet )
-			op->setErrorCode( ErrGet );
-		    else
-			op->setErrorCode( ErrPut );
-		    break;
-	    }
-	    emit finished( op );
-	}
-    } else {
-	QNetworkOperation *op = operationInProgress();
-	if ( op ) {
-	    if ( op->state() != StFailed ) {
-		op->setState( QNetworkProtocol::StDone );
-		op->setErrorCode( QNetworkProtocol::NoError );
-	    }
-	    emit finished( op );
-	}
-    }
-}
-
-void QHttp::clientStateChanged( int state )
-{
-    if ( url() ) {
-	switch ( (State)state ) {
-	    case Connecting:
-		emit connectionStateChanged( ConHostFound, tr( "Host %1 found" ).arg( url()->host() ) );
-		break;
-	    case Sending:
-		emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url()->host() ) );
-		break;
-	    case Unconnected:
-		emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url()->host() ) );
-		break;
-	    default:
-		break;
-	}
-    } else {
-	switch ( (State)state ) {
-	    case Connecting:
-		emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
-		break;
-	    case Sending:
-		emit connectionStateChanged( ConConnected, tr( "Connected to host" ) );
-		break;
-	    case Unconnected:
-		emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
-		break;
-	    default:
-		break;
-	}
-    }
-}
-
-/****************************************************
- *
- * QHttp -- new API
- *
- ****************************************************/
-
 /*!  \fn void QHttp::stateChanged( int state )
 
   This signal is emitted ###
@@ -1378,36 +1238,6 @@ void QHttp::clientStateChanged( int state )
 
   \sa requestFinished() request() setHost() closeConnection()
 */
-
-/*!
-    Constructs a HTTP client. The parameters \a parent and \a name are
-    passed on to the QObject constructor.
-*/
-QHttp::QHttp( QObject* parent, const char* name )
-{
-    if ( parent )
-	parent->insertChild( this );
-    setName( name );
-    init();
-}
-
-/*!
-    Constructs a HTTP client. Following requests are done by connecting to the
-    server \a hostname on port \a port. The parameters \a parent and \a name
-    are passed on to the QObject constructor.
-
-    \sa setHost()
-*/
-QHttp::QHttp( const QString &hostname, Q_UINT16 port, QObject* parent, const char* name )
-{
-    if ( parent )
-	parent->insertChild( this );
-    setName( name );
-    init();
-
-    d->hostname = hostname;
-    d->port = port;
-}
 
 /*!
     Aborts a running request and clears all pending requests.
@@ -2050,22 +1880,6 @@ void QHttp::slotReadyRead()
 }
 
 /*!
-  \enum QHttp::State
-
-    This enum is used to specify the state the client is in.
-
-    \value Unconnected if there is no open connection
-    \value HostLookup if the client is doing a host name lookup
-    \value Connecting if the client is trying to connect to the host
-    \value Sending when the client is sending its request to the server
-    \value Reading when the client has sent its request and is reading the
-    server's response
-    \value Connected when the connection to the host is open, but the client is
-    neither sending a request, nor waiting for a response
-    \value Closing if the connection is closing down, but is not yet
-    unconnected
-*/
-/*!
     Returns the state of the HTTP client.
 */
 QHttp::State QHttp::state() const
@@ -2119,4 +1933,200 @@ void QHttp::killIdleTimer()
     killTimer( d->idleTimer );
     d->idleTimer = 0;
 }
+
+void QHttp::setState( int s )
+{
+    d->state = (State)s;
+    emit stateChanged( s );
+}
+
+void QHttp::close()
+{
+    // If no connection is open -> ignore
+    if ( d->state == Closing || d->state == Unconnected )
+	return;
+
+    d->postDevice = 0;
+    setState( Closing );
+
+    // Already closed ?
+    if ( !d->socket.isOpen() ) {
+	d->idleTimer = startTimer( 0 );
+    } else {
+	// Close now.
+	d->socket.close();
+
+	// Did close succeed immediately ?
+	if ( d->socket.state() == QSocket::Idle ) {
+	    // Prepare to emit the requestFinished() signal.
+	    d->idleTimer = startTimer( 0 );
+	}
+    }
+}
+
+/**********************************************************************
+ *
+ * QHttp implementation of the QNetworkProtocol interface
+ *
+ *********************************************************************/
+/*! \reimp
+*/
+int QHttp::supportedOperations() const
+{
+    return OpGet | OpPut;
+}
+
+/*! \reimp
+*/
+void QHttp::operationGet( QNetworkOperation *op )
+{
+    connect( this, SIGNAL(readyRead(const QHttpResponseHeader&)),
+	    this, SLOT(clientReply(const QHttpResponseHeader&)) );
+    connect( this, SIGNAL(done(bool)),
+	    this, SLOT(clientDone(bool)) );
+    connect( this, SIGNAL(stateChanged(int)),
+	    this, SLOT(clientStateChanged(int)) );
+
+    bytesRead = 0;
+    op->setState( StInProgress );
+    QUrl u( operationInProgress()->arg( 0 ) );
+    QHttpRequestHeader header( "GET", u.encodedPathAndQuery(), 1, 0 );
+    header.setValue( "Host", u.host() );
+    setHost( u.host(), u.port() != -1 ? u.port() : 80 );
+    request( header );
+}
+
+/*! \reimp
+*/
+void QHttp::operationPut( QNetworkOperation *op )
+{
+    connect( this, SIGNAL(readyRead(const QHttpResponseHeader&)),
+	    this, SLOT(clientReply(const QHttpResponseHeader&)) );
+    connect( this, SIGNAL(done(bool)),
+	    this, SLOT(clientDone(bool)) );
+    connect( this, SIGNAL(stateChanged(int)),
+	    this, SLOT(clientStateChanged(int)) );
+
+    bytesRead = 0;
+    op->setState( StInProgress );
+    QUrl u( operationInProgress()->arg( 0 ) );
+    QHttpRequestHeader header( "POST", u.encodedPathAndQuery(), 1, 0 );
+    header.setValue( "Host", u.host() );
+    setHost( u.host(), u.port() != -1 ? u.port() : 80 );
+    request( header, op->rawArg(1) );
+}
+
+void QHttp::clientReply( const QHttpResponseHeader &rep )
+{
+    QNetworkOperation *op = operationInProgress();
+    if ( op ) {
+	if ( rep.statusCode() >= 400 && rep.statusCode() < 600 ) {
+	    op->setState( StFailed );
+	    op->setProtocolDetail(
+		    QString("%1 %2").arg(rep.statusCode()).arg(rep.reasonPhrase())
+						    );
+	    switch ( rep.statusCode() ) {
+		case 401:
+		case 403:
+		case 405:
+		    op->setErrorCode( ErrPermissionDenied );
+		    break;
+		case 404:
+		    op->setErrorCode(ErrFileNotExisting );
+		    break;
+		default:
+		    if ( op->operation() == OpGet )
+			op->setErrorCode( ErrGet );
+		    else
+			op->setErrorCode( ErrPut );
+		    break;
+	    }
+	}
+	// ### In cases of an error, should we still emit the data() signals?
+	if ( op->operation() == OpGet && bytesAvailable() > 0 ) {
+	    QByteArray ba = readAll();
+	    emit data( ba, op );
+	    bytesRead += ba.size();
+	    if ( rep.hasContentLength() ) {
+		emit dataTransferProgress( bytesRead, rep.contentLength(), op );
+	    }
+	}
+    }
+}
+
+void QHttp::clientDone( bool err )
+{
+    if ( err ) {
+	QNetworkOperation *op = operationInProgress();
+	if ( op ) {
+	    op->setState( QNetworkProtocol::StFailed );
+	    op->setProtocolDetail( errorString() );
+	    switch ( error() ) {
+		case ConnectionRefused:
+		    op->setErrorCode( ErrHostNotFound );
+		    break;
+		case HostNotFound:
+		    op->setErrorCode( ErrHostNotFound );
+		    break;
+		default:
+		    if ( op->operation() == OpGet )
+			op->setErrorCode( ErrGet );
+		    else
+			op->setErrorCode( ErrPut );
+		    break;
+	    }
+	    emit finished( op );
+	}
+    } else {
+	QNetworkOperation *op = operationInProgress();
+	if ( op ) {
+	    if ( op->state() != StFailed ) {
+		op->setState( QNetworkProtocol::StDone );
+		op->setErrorCode( QNetworkProtocol::NoError );
+	    }
+	    emit finished( op );
+	}
+    }
+    disconnect( this, SIGNAL(readyRead(const QHttpResponseHeader&)),
+	    this, SLOT(clientReply(const QHttpResponseHeader&)) );
+    disconnect( this, SIGNAL(done(bool)),
+	    this, SLOT(clientDone(bool)) );
+    disconnect( this, SIGNAL(stateChanged(int)),
+	    this, SLOT(clientStateChanged(int)) );
+
+}
+
+void QHttp::clientStateChanged( int state )
+{
+    if ( url() ) {
+	switch ( (State)state ) {
+	    case Connecting:
+		emit connectionStateChanged( ConHostFound, tr( "Host %1 found" ).arg( url()->host() ) );
+		break;
+	    case Sending:
+		emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url()->host() ) );
+		break;
+	    case Unconnected:
+		emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url()->host() ) );
+		break;
+	    default:
+		break;
+	}
+    } else {
+	switch ( (State)state ) {
+	    case Connecting:
+		emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
+		break;
+	    case Sending:
+		emit connectionStateChanged( ConConnected, tr( "Connected to host" ) );
+		break;
+	    case Unconnected:
+		emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
+		break;
+	    default:
+		break;
+	}
+    }
+}
+
 #endif

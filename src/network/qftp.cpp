@@ -1194,8 +1194,7 @@ void QFtp::init()
 	    SIGNAL(listInfo(const QUrlInfo&)) );
 }
 
-/*!
-    \enum QFtp::State
+/*!  \enum QFtp::State
 
     This enum defines the changes of the connection state:
 
@@ -1208,8 +1207,7 @@ void QFtp::init()
 
     \sa stateChanged() state()
 */
-/*!
-    \enum QFtp::Error
+/*!  \enum QFtp::Error
 
     This enum defines the detail of the error cause:
 
@@ -1222,8 +1220,7 @@ void QFtp::init()
 
     \sa error()
 */
-/*!
-    \enum QFtp::Command
+/*!  \enum QFtp::Command
 
     This enum is used as the return value for the currentCommand() function.
     This allows you to do  actions for certain commands only, e.g. in a FTP
