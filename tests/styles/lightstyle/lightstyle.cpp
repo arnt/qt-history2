@@ -1363,6 +1363,9 @@ QSize LightStyle::sizeFromContents( ContentsType contents,
 	    if (mi->custom()) {
 		w = mi->custom()->sizeHint().width();
 		h = mi->custom()->sizeHint().height();
+		if (! mi->custom()->fullSpan() && h < 22)
+		    h = 22;
+	    } else if(mi->widget()) {
 	    } else if (mi->isSeparator()) {
 		w = 10;
 		h = 4;

@@ -932,6 +932,8 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 	    if (mi->custom()) {
 		w = mi->custom()->sizeHint().width();
 		h = mi->custom()->sizeHint().height();
+		if (! mi->custom()->fullSpan())
+		    h += 2*windowsItemVMargin + 2*windowsItemFrame;
 	    } else if ( mi->widget() ) {
 	    } else if (mi->isSeparator()) {
 		w = 10; // arbitrary

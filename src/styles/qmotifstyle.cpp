@@ -1679,6 +1679,8 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
 	    if (mi->custom()) {
 		w = mi->custom()->sizeHint().width();
 		h = mi->custom()->sizeHint().height();
+		if (! mi->custom()->fullSpan())
+		    h += 2*motifItemVMargin + 2*motifItemFrame;
 	    } else if ( mi->widget() ) {
 	    } else if ( mi->isSeparator() ) {
 		w = 10;

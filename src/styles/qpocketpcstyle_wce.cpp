@@ -1552,6 +1552,8 @@ QSize QPocketPCStyle::sizeFromContents( ContentsType contents,
 	    if (mi->custom()) {
 		w = mi->custom()->sizeHint().width();
 		h = mi->custom()->sizeHint().height();
+		if (! mi->custom()->fullSpan())
+		    h += 2*pocketpcItemVMargin + 2*pocketpcItemFrame;
 	    } else if ( mi->widget() ) {
 	    } else if (mi->isSeparator()) {
 		w = 10; // arbitrary
