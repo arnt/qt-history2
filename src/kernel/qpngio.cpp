@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#6 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -826,12 +826,19 @@ int QPNGFormat::user_chunk(png_structp png_ptr, png_infop,
 {
     // debug("Got %ld-byte %s chunk", length, png_ptr->chunk_name);
     if ( 0==strcmp((char*)png_ptr->chunk_name, "gIFg") ) {
+	QPNGImageWriter::DisposalMethod disposal = data[0] = disposal;
+	// TODO: use the disposal method
+	int ms_delay = ((data[2] << 8) | data[3])*10;
+	consumer->setFramePeriod(ms_delay);
 	return 1;
     } if ( 0==strcmp((char*)png_ptr->chunk_name, "gIFx") ) {
-	return 1;
-    } else {
-	return 0;
+	if ( strncmp(data,"NETSCAPE2.0",11)==0 ) {
+	    int looping = (data[0xC]<<8)|data[0xB];
+	    consumer->setLooping(looping);
+	    return 1;
+	}
     }
+    return 0;
 }
 #endif
 
