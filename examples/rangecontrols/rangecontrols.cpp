@@ -57,7 +57,10 @@ RangeControls::RangeControls( QWidget *parent, const char *name )
     QVBox *cell3 = new QVBox( row2 );
     cell3->setMargin( 10 );
     cell3->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
-    QSlider *hslider = new QSlider( 0, 64, 1, 33, Qt::Horizontal, cell3, "horizontal_s" );
+    QSlider *hslider = new QSlider(Qt::Horizontal, cell3);
+    hslider->setMaximum(64);
+    hslider->setPageStep(1);
+    hslider->setValue(33);
     QLCDNumber *lcd2 = new QLCDNumber( 2, cell3 );
     lcd2->display( 33 );
     lcd2->setSegmentStyle( QLCDNumber::Filled );
@@ -66,7 +69,10 @@ RangeControls::RangeControls( QWidget *parent, const char *name )
     QHBox *cell4 = new QHBox( row2 );
     cell4->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
     cell4->setMargin( 10 );
-    QSlider *vslider = new QSlider( 0, 64, 1, 8, Qt::Vertical, cell4 );
+    QSlider *vslider = new QSlider(Qt::Vertical, cell4);
+    vslider->setMaximum(64);
+    vslider->setPageStep(1);
+    vslider->setValue(8);
     QLCDNumber *lcd3 = new QLCDNumber( 3, cell4 );
     lcd3->display( 8 );
     connect( vslider, SIGNAL( valueChanged( int ) ), lcd3, SLOT( display( int ) ) );
