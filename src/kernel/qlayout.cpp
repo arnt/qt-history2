@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#102 $
 **
 ** Implementation of layout classes
 **
@@ -1071,7 +1071,7 @@ void QGridLayout::add( QLayoutItem *item, int row, int col )
 
 
 /*!
-  Adds the widget \a w to the cell grid, spanning multiple rows/columns.
+  Adds the \a item to the cell grid, spanning multiple rows/columns.
 
   Alignment is specified by \a alignmnt
 
