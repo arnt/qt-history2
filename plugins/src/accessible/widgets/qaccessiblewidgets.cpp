@@ -89,22 +89,6 @@ QString hotKey(const QString &text)
     return QString();
 }
 
-QAccessibleComplexWidget::QAccessibleComplexWidget( QWidget *w, Role r, 
-    QString name, QString description, QString value, QString help, 
-    int defAction, QString defActionName, QString accelerator, State s )
-    : QAccessibleWidget( w, r, name, description, value, help, defAction, defActionName, accelerator, s)
-{
-}
-
-int QAccessibleComplexWidget::childAt(int x, int y) const
-{
-    for (int i = 1; i <= childCount(); i++) {
-	if (rect(i).contains(x,y))
-	    return i;
-    }
-    return 0;
-}
-
 /*!
   \class QAccessibleWidgetStack qaccessible.h
   \brief The QAccessibleWidgetStack class implements the QAccessibleInterface for widget stacks.
@@ -247,7 +231,7 @@ QAccessible::State QAccessibleButton::state(int child) const
 */
 QAccessibleRangeControl::QAccessibleRangeControl(QWidget *w, Role role, QString name,
 						 QString description, QString help, QString defAction, QString accelerator)
-: QAccessibleComplexWidget(w, role, name, description, QString(), help, SetFocus, defAction, accelerator)
+: QAccessibleWidget(w, role, name, description, QString(), help, SetFocus, defAction, accelerator)
 {
 }
 
@@ -885,7 +869,7 @@ QString QAccessibleDisplay::text(Text t, int child) const
 */
 QAccessibleHeader::QAccessibleHeader(QWidget *o, QString description,
     QString value, QString help, QString defAction, QString accelerator)
-: QAccessibleComplexWidget(o, NoRole, QString(), description, value, help, SetFocus, defAction, accelerator)
+: QAccessibleWidget(o, NoRole, QString(), description, value, help, SetFocus, defAction, accelerator)
 {
     Q_ASSERT(header());
 }
@@ -930,7 +914,7 @@ int QAccessibleHeader::navigate(Relation rel, int entry, QAccessibleInterface **
     default:
 	break;
     }
-    return QAccessibleComplexWidget::navigate(rel, entry, target);
+    return QAccessibleWidget::navigate(rel, entry, target);
 }
 
 /*! \reimp */
@@ -982,7 +966,7 @@ QAccessible::State QAccessibleHeader::state(int child) const
 */
 QAccessibleTabBar::QAccessibleTabBar(QWidget *o, QString description,
     QString value, QString help, QString defAction, QString accelerator)
-    : QAccessibleComplexWidget(o, NoRole, QString(), description, value, help, Select, defAction, accelerator)
+    : QAccessibleWidget(o, NoRole, QString(), description, value, help, Select, defAction, accelerator)
 {
     Q_ASSERT(tabBar());
 }
@@ -1031,7 +1015,7 @@ int QAccessibleTabBar::navigate(Relation rel, int entry, QAccessibleInterface **
     default:
 	break;
     }
-    return QAccessibleComplexWidget::navigate(rel, entry, target);;
+    return QAccessibleWidget::navigate(rel, entry, target);;
 }
 
 /*! \reimp */
@@ -1175,7 +1159,7 @@ QVector<int> QAccessibleTabBar::selection() const
   Constructs a QAccessibleComboBox object for \a w.
 */
 QAccessibleComboBox::QAccessibleComboBox(QWidget *w)
-: QAccessibleComplexWidget(w, ComboBox)
+: QAccessibleWidget(w, ComboBox)
 {
     Q_ASSERT(comboBox());
 }
@@ -1228,13 +1212,30 @@ int QAccessibleComboBox::navigate(Relation rel, int entry, QAccessibleInterface 
     default:
 	break;
     }
-    return QAccessibleComplexWidget::navigate(rel, entry, target);
+    return QAccessibleWidget::navigate(rel, entry, target);
 }
 
 /*! \reimp */
 int QAccessibleComboBox::childCount() const
 {
     return 2;
+}
+
+/*! \reimp */
+int QAccessibleComboBox::childAt(int x, int y) const
+{
+    QPoint gp = widget()->mapToGlobal(QPoint(0, 0));
+    if (!QRect(gp.x(), gp.y(), widget()->width(), widget()->height()).contains(x, y))
+	return -1;
+
+    int ccount = childCount();
+
+    // a complex control
+    for (int i = 1; i <= ccount; ++i) {
+	if (rect(i).contains(x, y))
+	    return i;
+    }
+    return 0;
 }
 
 /*! \reimp */
@@ -1316,7 +1317,7 @@ bool QAccessibleComboBox::doAction(int action, int child)
   Constructs a QAccessibleComboBox object for \a w.
 */
 QAccessibleTitleBar::QAccessibleTitleBar(QWidget *w)
-: QAccessibleComplexWidget(w, TitleBar)
+: QAccessibleWidget(w, TitleBar)
 {
     Q_ASSERT(titleBar());
 }

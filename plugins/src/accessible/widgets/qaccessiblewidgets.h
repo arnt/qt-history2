@@ -26,17 +26,6 @@ QString buddyString(QWidget *);
 QString stripAmp(const QString&);
 QString hotKey(const QString&);
 
-class QAccessibleComplexWidget : public QAccessibleWidget
-{
-public:
-    QAccessibleComplexWidget( QWidget *o, Role r = Client, QString name = QString(), 
-	QString description = QString(), QString value = QString(), 
-	QString help = QString(), int defAction = SetFocus, QString defActionName = QString(),
-	QString accelerator = QString(), State s = Normal );
-
-    int		childAt(int x, int y) const;
-};
-
 class QAccessibleWidgetStack : public QAccessibleWidget
 {
 public:
@@ -63,7 +52,7 @@ protected:
     QButton *button() const;
 };
 
-class QAccessibleRangeControl : public QAccessibleComplexWidget
+class QAccessibleRangeControl : public QAccessibleWidget
 {
 public:
     QAccessibleRangeControl(QWidget *o, Role role, QString name = QString(), 
@@ -154,7 +143,7 @@ public:
     Role	role(int child) const;
 };
 
-class QAccessibleHeader : public QAccessibleComplexWidget
+class QAccessibleHeader : public QAccessibleWidget
 {
 public:
     QAccessibleHeader(QWidget *o, QString description = QString(), 
@@ -173,7 +162,7 @@ protected:
     QHeader *header() const;
 };
 
-class QAccessibleTabBar : public QAccessibleComplexWidget
+class QAccessibleTabBar : public QAccessibleWidget
 {
 public:
     QAccessibleTabBar(QWidget *o, QString description = QString(), 
@@ -196,12 +185,13 @@ protected:
     QTabBar *tabBar() const;
 };
 
-class QAccessibleComboBox : public QAccessibleComplexWidget
+class QAccessibleComboBox : public QAccessibleWidget
 {
 public:
     QAccessibleComboBox(QWidget *o);
 
     int		childCount() const;
+    int		childAt(int x, int y) const;
     int		navigate(Relation rel, int entry, QAccessibleInterface **target) const;
 
     QString	text(Text t, int child) const;
@@ -215,7 +205,7 @@ protected:
     QComboBox *comboBox() const;
 };
 
-class QAccessibleTitleBar : public QAccessibleComplexWidget
+class QAccessibleTitleBar : public QAccessibleWidget
 {
 public:
     QAccessibleTitleBar(QWidget *o);
