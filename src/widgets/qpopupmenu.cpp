@@ -1531,15 +1531,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    }
 	}
     }
-#ifndef QT_NO_MENUBAR
-    if ( !ok_key ) {				// send to menu bar
-	register QMenuData *top = this;		// find top level
-	while ( top->parentMenu )
-	    top = top->parentMenu;
-	if ( top->isMenuBar )
-	    ((QMenuBar*)top)->tryKeyEvent( this, e );
-    }
-#endif
+
     if ( dy && actItem < 0 ) {
 	setFirstItemActive();
     } else if ( dy ) {				// highlight next/prev
