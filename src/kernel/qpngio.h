@@ -65,6 +65,7 @@ public:
     void setDisposalMethod(DisposalMethod);
     void setLooping(int loops=0); // 0 == infinity
     void setFrameDelay(int msecs);
+    void setGamma(float);
 
     bool writeImage(const QImage& img, int x, int y);
     bool writeImage(const QImage& img, int quality, int x, int y);
@@ -81,6 +82,7 @@ private:
     DisposalMethod disposal;
     int looping;
     int ms_delay;
+    float gamma;
 };
 
 class Q_PNGEXPORT QPNGImagePacker : public QPNGImageWriter {

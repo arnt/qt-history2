@@ -3601,6 +3601,7 @@ struct QImageIOData
 {
     const char *parameters;
     int quality;
+    float gamma;
 };
 
 /*!
@@ -3642,6 +3643,11 @@ void QImageIO::init()
     d = new QImageIOData();
     d->parameters = 0;
     d->quality = -1; // default quality of the current format
+#if defined(Q_OS_MAC)
+    d->gamma=1.7;
+#else
+    d->gamma=2.2;
+#endif
     iostat = 0;
     iodev  = 0;
 }
@@ -4027,6 +4033,31 @@ void QImageIO::setParameters( const char *parameters )
     if ( d && d->parameters )
 	delete [] (char*)d->parameters;
     d->parameters = qstrdup( parameters );
+}
+
+/*!
+  Sets the gamma value at which the image will be viewed. If the image format
+  stores a gamma value for which the image is intended to be used, then this
+  setting will be used to modify the image. Setting to 0.0 will disable
+  gamma correction (ie. any specification in the file will be ignored).
+
+  The default value is platform-dependent.
+
+  \sa gamma()
+*/
+void QImageIO::setGamma( float gamma)
+{
+    d->gamma=gamma;
+}
+
+/*!
+  Returns the gamma value at which the image will be viewed.
+
+  \sa setGamma()
+*/
+float QImageIO::gamma() const
+{
+    return d->gamma;
 }
 
 /*!

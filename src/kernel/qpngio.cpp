@@ -100,18 +100,12 @@ void qpiw_flush_fn( png_structp png_ptr )
 #endif
 
 static
-void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
+void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr, float screen_gamma=0.0 )
 {
-    if ( png_get_valid(png_ptr, info_ptr, PNG_INFO_gAMA) ) {
+    if ( screen_gamma != 0.0 && png_get_valid(png_ptr, info_ptr, PNG_INFO_gAMA) ) {
 	double file_gamma;
 	png_get_gAMA(png_ptr, info_ptr, &file_gamma);
-#if defined(Q_OS_MAC)
-	// a good guess for Mac systems
-	png_set_gamma( png_ptr, 1.7, file_gamma );
-#else
-	// a good guess for PC monitors in a bright office or a dim room
-	png_set_gamma( png_ptr, 2.2, file_gamma );
-#endif
+	png_set_gamma( png_ptr, screen_gamma, file_gamma );
     }
 
     png_uint_32 width;
@@ -277,7 +271,8 @@ void read_png_image(QImageIO* iio)
     png_read_info(png_ptr, info_ptr);
 
     QImage image;
-    setup_qt(image, png_ptr, info_ptr);
+    setup_qt(image, png_ptr, info_ptr, iio->gamma());
+	
 
     png_uint_32 width;
     png_uint_32 height;
@@ -331,7 +326,8 @@ QPNGImageWriter::QPNGImageWriter(QIODevice* iod) :
     frames_written(0),
     disposal(Unspecified),
     looping(-1),
-    ms_delay(-1)
+    ms_delay(-1),
+    gamma(0.0)
 {
 }
 
@@ -352,6 +348,11 @@ void QPNGImageWriter::setLooping(int loops)
 void QPNGImageWriter::setFrameDelay(int msecs)
 {
     ms_delay = msecs;
+}
+
+void QPNGImageWriter::setGamma(float g)
+{
+    gamma = g;
 }
 
 
@@ -426,6 +427,10 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality, int off_x, in
 	    quality = 9;
 	}
 	png_set_compression_level(png_ptr, quality);
+    }
+
+    if (gamma != 0.0) {
+	png_set_gAMA(png_ptr, info_ptr, 1.0/gamma);
     }
 
     png_set_write_fn(png_ptr, (void*)this, qpiw_write_fn, qpiw_flush_fn);
@@ -586,6 +591,7 @@ void write_png_image(QImageIO* iio)
 	quality = QMAX( quality, 100 );
 	quality = (100-quality) * 9 / 91; // map [0,100] -> [9,0]
     }
+    writer.setGamma(iio->gamma());
     bool ok = writer.writeImage( iio->image(), quality );
     iio->setStatus( ok ? 0 : -1 );
 }

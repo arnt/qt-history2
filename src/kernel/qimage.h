@@ -278,6 +278,7 @@ public:
     int		quality()	const;
     QString	description()	const	{ return descr; }
     const char *parameters()	const;
+    float gamma() const;
 
     void	setImage( const QImage & );
     void	setStatus( int );
@@ -287,7 +288,8 @@ public:
     void	setQuality( int );
     void	setDescription( const QString & );
     void	setParameters( const char * );
-
+    void	setGamma( float );
+	
     bool	read();
     bool	write();
 
