@@ -227,37 +227,6 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
 */
 
 /*!
-    \enum Qt::DateFormat
-
-    \value TextDate (default) Qt format
-    \value ISODate ISO 8601 extended format (YYYY-MM-DD, or with time,
-    YYYY-MM-DDTHH:MM:SS)
-    \value LocalDate locale dependent format
-*/
-
-
-/*!
-    \enum Qt::TimeSpec
-
-    \value LocalTime Locale dependent time (Timezones and Daylight Savings Time)
-    \value UTC Coordinated Universal Time, replaces Greenwich Time
-*/
-
-/*!
-    \enum Qt::DayOfWeek
-
-    \internal
-
-    \value Monday
-    \value Tuesday
-    \value Wednesday
-    \value Thursday
-    \value Friday
-    \value Saturday
-    \value Sunday
-*/
-
-/*!
     \fn QDate::QDate()
 
     Constructs a null date. Null dates are invalid.

@@ -47,7 +47,7 @@
 */
 
 /*!
-    \class QRegExp qregexp.h
+    \class QRegExp
     \reentrant
     \brief The QRegExp class provides pattern matching using regular expressions.
 
@@ -99,19 +99,19 @@
 
     Regexps are built up from expressions, quantifiers, and assertions.
     The simplest form of expression is simply a character, e.g.
-    <b>x</b> or <b>5</b>. An expression can also be a set of
-    characters. For example, <b>[ABCD]</b>, will match an <b>A</b> or
-    a <b>B</b> or a <b>C</b> or a <b>D</b>. As a shorthand we could
-    write this as <b>[A-D]</b>. If we want to match any of the
+    \bold{x} or \bold{5}. An expression can also be a set of
+    characters. For example, \bold{[ABCD]}, will match an \bold{A} or
+    a \bold{B} or a \bold{C} or a \bold{D}. As a shorthand we could
+    write this as \bold{[A-D]}. If we want to match any of the
     captital letters in the English alphabet we can write
-    <b>[A-Z]</b>. A quantifier tells the regexp engine how many
-    occurrences of the expression we want, e.g. <b>x{1,1}</b> means
-    match an <b>x</b> which occurs at least once and at most once.
+    \bold{[A-Z]}. A quantifier tells the regexp engine how many
+    occurrences of the expression we want, e.g. \bold{x{1,1}} means
+    match an \bold{x} which occurs at least once and at most once.
     We'll look at assertions and more complex expressions later.
 
     Note that in general regexps cannot be used to check for balanced
     brackets or tags. For example if you want to match an opening html
-    \c <b> and its closing \c </b> you can only use a regexp if you
+    \c{<b>} and its closing \c{<b>}, you can only use a regexp if you
     know that these tags are not nested; the html fragment, \c{<b>bold
     <b>bolder</b></b>} will not match as expected. If you know the
     maximum level of nesting it is possible to create a regexp that
@@ -120,74 +120,74 @@
 
     We'll start by writing a regexp to match integers in the range 0
     to 99. We will require at least one digit so we will start with
-    <b>[0-9]{1,1}</b> which means match a digit exactly once. This
+    \bold{[0-9]{1,1}} which means match a digit exactly once. This
     regexp alone will match integers in the range 0 to 9. To match one
     or two digits we can increase the maximum number of occurrences so
-    the regexp becomes <b>[0-9]{1,2}</b> meaning match a digit at
+    the regexp becomes \bold{[0-9]{1,2}} meaning match a digit at
     least once and at most twice. However, this regexp as it stands
     will not match correctly. This regexp will match one or two digits
     \e within a string. To ensure that we match against the whole
-    string we must use the anchor assertions. We need <b>^</b> (caret)
+    string we must use the anchor assertions. We need \bold{^} (caret)
     which when it is the first character in the regexp means that the
     regexp must match from the beginning of the string. And we also
-    need <b>$</b> (dollar) which when it is the last character in the
+    need \bold{$} (dollar) which when it is the last character in the
     regexp means that the regexp must match until the end of the
-    string. So now our regexp is <b>^[0-9]{1,2}$</b>. Note that
-    assertions, such as <b>^</b> and <b>$</b>, do not match any
+    string. So now our regexp is \bold{^[0-9]{1,2}$}. Note that
+    assertions, such as \bold{^} and \bold{$}, do not match any
     characters.
 
     If you've seen regexps elsewhere, they may have looked different from
     the ones above. This is because some sets of characters and some
     quantifiers are so common that they have special symbols to
-    represent them. <b>[0-9]</b> can be replaced with the symbol
-    <b>\d</b>. The quantifier to match exactly one occurrence,
-    <b>{1,1}</b>, can be replaced with the expression itself. This means
-    that <b>x{1,1}</b> is exactly the same as <b>x</b> alone. So our 0
-    to 99 matcher could be written <b>^\d{1,2}$</b>. Another way of
-    writing it would be <b>^\d\d{0,1}$</b>, i.e. from the start of the
+    represent them. \bold{[0-9]} can be replaced with the symbol
+    \bold{\\d}. The quantifier to match exactly one occurrence,
+    \bold{{1,1}}, can be replaced with the expression itself. This means
+    that \bold{x{1,1}} is exactly the same as \bold{x} alone. So our 0
+    to 99 matcher could be written \bold{^\\d{1,2}$}. Another way of
+    writing it would be \bold{^\\d\\d{0,1}$}, i.e. from the start of the
     string match a digit followed by zero or one digits. In practice
-    most people would write it <b>^\d\d?$</b>. The <b>?</b> is a
-    shorthand for the quantifier <b>{0,1}</b>, i.e. a minimum of no
+    most people would write it \bold{^\\d\\d?$}. The \bold{?} is a
+    shorthand for the quantifier \bold{{0,1}}, i.e. a minimum of no
     occurrences a maximum of one occurrence. This is used to make an
-    expression optional. The regexp <b>^\d\d?$</b> means "from the
+    expression optional. The regexp \bold{^\\d\\d?$} means "from the
     beginning of the string match one digit followed by zero or one
     digits and then the end of the string".
 
     Our second example is matching the words 'mail', 'letter' or
     'correspondence' but without matching 'email', 'mailman',
     'mailer', 'letterbox' etc. We'll start by just matching 'mail'. In
-    full the regexp is, <b>m{1,1}a{1,1}i{1,1}l{1,1}</b>, but since
-    each expression itself is automatically quantified by <b>{1,1}</b>
-    we can simply write this as <b>mail</b>; an 'm' followed by an 'a'
+    full the regexp is, \bold{m{1,1}a{1,1}i{1,1}l{1,1}}, but since
+    each expression itself is automatically quantified by \bold{{1,1}}
+    we can simply write this as \bold{mail}; an 'm' followed by an 'a'
     followed by an 'i' followed by an 'l'. The symbol '|' (bar) is
     used for \e alternation, so our regexp now becomes
-    <b>mail|letter|correspondence</b> which means match 'mail' \e or
+    \bold{mail|letter|correspondence} which means match 'mail' \e or
     'letter' \e or 'correspondence'. Whilst this regexp will find the
     words we want it will also find words we don't want such as
     'email'. We will start by putting our regexp in parentheses,
-    <b>(mail|letter|correspondence)</b>. Parentheses have two effects,
+    \bold{(mail|letter|correspondence)}. Parentheses have two effects,
     firstly they group expressions together and secondly they identify
     parts of the regexp that we wish to \link #capturing-text capture
     \endlink. Our regexp still matches any of the three words but now
     they are grouped together as a unit. This is useful for building
     up more complex regexps. It is also useful because it allows us to
     examine which of the words actually matched. We need to use
-    another assertion, this time <b>\b</b> "word boundary":
-    <b>\b(mail|letter|correspondence)\b</b>. This regexp means "match
+    another assertion, this time \bold{\\b} "word boundary":
+    \bold{\\b(mail|letter|correspondence)\\b}. This regexp means "match
     a word boundary followed by the expression in parentheses followed
-    by another word boundary". The <b>\b</b> assertion matches at a \e
+    by another word boundary". The \bold{\\b} assertion matches at a \e
     position in the regexp not a \e character in the regexp. A word
     boundary is any non-word character such as a space a newline or
     the beginning or end of the string.
 
     For our third example we want to replace ampersands with the HTML
-    entity '\&amp;'. The regexp to match is simple: <b>\&</b>, i.e.
+    entity '\&amp;'. The regexp to match is simple: \bold{\&}, i.e.
     match one ampersand. Unfortunately this will mess up our text if
     some of the ampersands have already been turned into HTML
     entities. So what we really want to say is replace an ampersand
     providing it is not followed by 'amp;'. For this we need the
     negative lookahead assertion and our regexp becomes:
-    <b>\&(?!amp;)</b>. The negative lookahead assertion is introduced
+    \bold{\&(?!amp;)}. The negative lookahead assertion is introduced
     with '(?!' and finishes at the ')'. It means that the text it
     contains, 'amp;' in our example, must \e not follow the expression
     that preceeds it.
@@ -195,8 +195,8 @@
     Regexps provide a rich language that can be used in a variety of
     ways. For example suppose we want to count all the occurrences of
     'Eric' and 'Eirik' in a string. Two valid regexps to match these
-    are <b>\\b(Eric|Eirik)\\b</b> and <b>\\bEi?ri[ck]\\b</b>. We need
-    the word boundary '\b' so we don't get 'Ericsson' etc. The second
+    are \bold{\\b(Eric|Eirik)\\b} and \bold{\\bEi?ri[ck]\\b}. We need
+    the word boundary '\\b' so we don't get 'Ericsson' etc. The second
     regexp actually matches more than we want, 'Eric', 'Erik', 'Eiric'
     and 'Eirik'.
 
@@ -208,53 +208,55 @@
 
     \table
     \header \i Element \i Meaning
-    \row \i <b>c</b>
+    \row \i \bold{c}
 	 \i Any character represents itself unless it has a special
-	 regexp meaning. Thus <b>c</b> matches the character \e c.
-    \row \i <b>\\c</b>
+	 regexp meaning. Thus \bold{c} matches the character \e c.
+    \row \i \bold{\\c}
 	 \i A character that follows a backslash matches the character
 	 itself except where mentioned below. For example if you
 	 wished to match a literal caret at the beginning of a string
-	 you would write <b>\^</b>.
-    \row \i <b>\\a</b>
+	 you would write \bold{\^}.
+    \row \i \bold{\\a}
 	 \i This matches the ASCII bell character (BEL, 0x07).
-    \row \i <b>\\f</b>
+    \row \i \bold{\\f}
 	 \i This matches the ASCII form feed character (FF, 0x0C).
-    \row \i <b>\\n</b>
+    \row \i \bold{\\n}
 	 \i This matches the ASCII line feed character (LF, 0x0A, Unix newline).
-    \row \i <b>\\r</b>
+    \row \i \bold{\\r}
 	 \i This matches the ASCII carriage return character (CR, 0x0D).
-    \row \i <b>\\t</b>
+    \row \i \bold{\\t}
 	 \i This matches the ASCII horizontal tab character (HT, 0x09).
-    \row \i <b>\\v</b>
+    \row \i \bold{\\v}
 	 \i This matches the ASCII vertical tab character (VT, 0x0B).
-    \row \i <b>\\xhhhh</b>
+    \row \i \bold{\\x\e{hhhh}}
 	 \i This matches the Unicode character corresponding to the
-	 hexadecimal number hhhh (between 0x0000 and 0xFFFF). \0ooo
-	 (i.e., \zero ooo) matches the ASCII/Latin1 character
-	 corresponding to the octal number ooo (between 0 and 0377).
-    \row \i <b>. (dot)</b>
+	 hexadecimal number \e{hhhh} (between 0x0000 and 0xFFFF).
+    \row \i \bold{\\0\e{ooo}} (i.e., \\zero \e{ooo})
+         \i matches the ASCII/Latin1 character corresponding to the
+         octal number \e{ooo} (between 0 and 0377).
+    \row \i \bold{. (dot)}
 	 \i This matches any character (including newline).
-    \row \i <b>\\d</b>
+    \row \i \bold{\\d}
 	 \i This matches a digit (QChar::isDigit()).
-    \row \i <b>\\D</b>
+    \row \i \bold{\\D}
 	 \i This matches a non-digit.
-    \row \i <b>\\s</b>
+    \row \i \bold{\\s}
 	 \i This matches a whitespace (QChar::isSpace()).
-    \row \i <b>\\S</b>
+    \row \i \bold{\\S}
 	 \i This matches a non-whitespace.
-    \row \i <b>\\w</b>
+    \row \i \bold{\\w}
 	 \i This matches a word character (QChar::isLetterOrNumber() or '_').
-    \row \i <b>\\W</b>
+    \row \i \bold{\\W}
 	 \i This matches a non-word character.
-    \row \i <b>\\n</b>
-	 \i The n-th \link #capturing-text backreference \endlink,
-	 e.g. \1, \2, etc.
+    \row \i \bold{\\\e{n}}
+	 \i The \e{n}-th \link #capturing-text backreference \endlink,
+	 e.g. \\1, \\2, etc.
     \endtable
 
-    \e {Note that the C++ compiler transforms backslashes in strings
-    so to include a <b>\\</b> in a regexp you will need to enter it
-    twice, i.e. <b>\\\\</b>.}
+    \bold{Note:} The C++ compiler transforms backslashes in strings,
+    so to include a \bold{\\} in a regexp, you will need to enter it
+    twice, i.e. \c{\\}. To match the backslash character itself, you
+    will need four: \c{\\\\}.
 
     \target sets-of-characters
     \section1 Sets of Characters
@@ -267,21 +269,21 @@
     square brackets.
 
     \table
-    \row \i <b>^</b>
+    \row \i \bold{^}
 	 \i The caret negates the character set if it occurs as the
 	 first character, i.e. immediately after the opening square
-	 bracket. For example, <b>[abc]</b> matches 'a' or 'b' or 'c',
-	 but <b>[^abc]</b> matches anything \e except 'a' or 'b' or
+	 bracket. For example, \bold{[abc]} matches 'a' or 'b' or 'c',
+	 but \bold{[^abc]} matches anything \e except 'a' or 'b' or
 	 'c'.
-    \row \i <b>-</b>
+    \row \i \bold{-}
 	 \i The dash is used to indicate a range of characters, for
-	 example <b>[W-Z]</b> matches 'W' or 'X' or 'Y' or 'Z'.
+	 example \bold{[W-Z]} matches 'W' or 'X' or 'Y' or 'Z'.
     \endtable
 
     Using the predefined character set abbreviations is more portable
     than using character ranges across platforms and languages. For
-    example, <b>[0-9]</b> matches a digit in Western alphabets but
-    <b>\d</b> matches a digit in \e any alphabet.
+    example, \bold{[0-9]} matches a digit in Western alphabets but
+    \bold{\\d} matches a digit in \e any alphabet.
 
     Note that in most regexp literature sets of characters are called
     "character classes".
@@ -290,52 +292,52 @@
     \section1 Quantifiers
 
     By default an expression is automatically quantified by
-    <b>{1,1}</b>, i.e. it should occur exactly once. In the following
-    list <b>\e {E}</b> stands for any expression. An expression is a
+    \bold{{1,1}}, i.e. it should occur exactly once. In the following
+    list \bold{\e {E}} stands for any expression. An expression is a
     character or an abbreviation for a set of characters or a set of
     characters in square brackets or any parenthesised expression.
 
     \table
-    \row \i <b>\e {E}?</b>
+    \row \i \bold{\e {E}?}
 	 \i Matches zero or one occurrence of \e E. This quantifier
 	 means "the previous expression is optional" since it will
 	 match whether or not the expression occurs in the string. It
-	 is the same as <b>\e {E}{0,1}</b>. For example <b>dents?</b>
+	 is the same as \bold{\e {E}{0,1}}. For example \bold{dents?}
 	 will match 'dent' and 'dents'.
 
-    \row \i <b>\e {E}+</b>
+    \row \i \bold{\e {E}+}
 	 \i Matches one or more occurrences of \e E. This is the same
-	 as <b>\e {E}{1,MAXINT}</b>. For example, <b>0+</b> will match
+	 as \bold{\e {E}{1,MAXINT}}. For example, \bold{0+} will match
 	 '0', '00', '000', etc.
 
-    \row \i <b>\e {E}*</b>
+    \row \i \bold{\e {E}*}
 	 \i Matches zero or more occurrences of \e E. This is the same
-	 as <b>\e {E}{0,MAXINT}</b>. The <b>*</b> quantifier is often
+	 as \bold{\e {E}{0,MAXINT}}. The \bold{*} quantifier is often
 	 used by a mistake. Since it matches \e zero or more
 	 occurrences it will match no occurrences at all. For example
 	 if we want to match strings that end in whitespace and use
-	 the regexp <b>\s*$</b> we would get a match on every string.
+	 the regexp \bold{\\s*$} we would get a match on every string.
 	 This is because we have said find zero or more whitespace
 	 followed by the end of string, so even strings that don't end
 	 in whitespace will match. The regexp we want in this case is
-	 <b>\s+$</b> to match strings that have at least one
+	 \bold{\\s+$} to match strings that have at least one
 	 whitespace at the end.
 
-    \row \i <b>\e {E}{n}</b>
+    \row \i \bold{\e {E}{n}}
 	 \i Matches exactly \e n occurrences of the expression. This
 	 is the same as repeating the expression \e n times. For
-	 example, <b>x{5}</b> is the same as <b>xxxxx</b>. It is also
-	 the same as <b>\e {E}{n,n}</b>, e.g. <b>x{5,5}</b>.
+	 example, \bold{x{5}} is the same as \bold{xxxxx}. It is also
+	 the same as \bold{\e {E}{n,n}}, e.g. \bold{x{5,5}}.
 
-    \row \i <b>\e {E}{n,}</b>
+    \row \i \bold{\e {E}{n,}}
 	 \i Matches at least \e n occurrences of the expression. This
-	 is the same as <b>\e {E}{n,MAXINT}</b>.
+	 is the same as \bold{\e {E}{n,MAXINT}}.
 
-    \row \i <b>\e {E}{,m}</b>
+    \row \i \bold{\e {E}{,m}}
 	 \i Matches at most \e m occurrences of the expression. This
-	 is the same as <b>\e {E}{0,m}</b>.
+	 is the same as \bold{\e {E}{0,m}}.
 
-    \row \i <b>\e {E}{n,m}</b>
+    \row \i \bold{\e {E}{n,m}}
 	 \i Matches at least \e n occurrences of the expression and at
 	 most \e m occurrences of the expression.
     \endtable
@@ -345,13 +347,13 @@
 
     If we wish to apply a quantifier to more than just the preceding
     character we can use parentheses to group characters together in
-    an expression. For example, <b>tag+</b> matches a 't' followed by
-    an 'a' followed by at least one 'g', whereas <b>(tag)+</b> matches
+    an expression. For example, \bold{tag+} matches a 't' followed by
+    an 'a' followed by at least one 'g', whereas \bold{(tag)+} matches
     at least one occurrence of 'tag'.
 
     Note that quantifiers are "greedy". They will match as much text
-    as they can. For example, <b>0+</b> will match as many zeros as it
-    can from the first zero it finds, e.g. '2.<u>000</u>5'.
+    as they can. For example, \bold{0+} will match as many zeros as it
+    can from the first zero it finds, e.g. '2.\underline{000}5'.
     Quantifiers can be made non-greedy, see setMinimal().
 
     \target capturing-text
@@ -359,10 +361,10 @@
 
     Parentheses allow us to group elements together so that we can
     quantify and capture them. For example if we have the expression
-    <b>mail|letter|correspondence</b> that matches a string we know
+    \bold{mail|letter|correspondence} that matches a string we know
     that \e one of the words matched but not which one. Using
     parentheses allows us to "capture" whatever is matched within
-    their bounds, so if we used <b>(mail|letter|correspondence)</b>
+    their bounds, so if we used \bold{(mail|letter|correspondence)}
     and matched this regexp against the string "I sent you some email"
     we can use the cap() or capturedTexts() functions to extract the
     matched characters, in this case 'mail'.
@@ -370,14 +372,14 @@
     We can use captured text within the regexp itself. To refer to the
     captured text we use \e backreferences which are indexed from 1,
     the same as for cap(). For example we could search for duplicate
-    words in a string using <b>\b(\w+)\W+\1\b</b> which means match a
+    words in a string using \bold{\\b(\\w+)\\W+\\1\\b} which means match a
     word boundary followed by one or more word characters followed by
     one or more non-word characters followed by the same text as the
     first parenthesised expression followed by a word boundary.
 
     If we want to use parentheses purely for grouping and not for
     capturing we can use the non-capturing syntax, e.g.
-    <b>(?:green|blue)</b>. Non-capturing parentheses begin '(?:' and
+    \bold{(?:green|blue)}. Non-capturing parentheses begin '(?:' and
     end ')'. In this example we match either 'green' or 'blue' but we
     do not capture the match so we only know whether or not we matched
     but not which color we actually found. Using non-capturing
@@ -391,54 +393,54 @@
 
     Assertions make some statement about the text at the point where
     they occur in the regexp but they do not match any characters. In
-    the following list <b>\e {E}</b> stands for any expression.
+    the following list \bold{\e {E}} stands for any expression.
 
     \table
-    \row \i <b>^</b>
+    \row \i \bold{^}
 	 \i The caret signifies the beginning of the string. If you
 	 wish to match a literal \c{^} you must escape it by
-	 writing \c{\\^}. For example, <b>^#include</b> will only
+	 writing \c{\\^}. For example, \bold{^#include} will only
 	 match strings which \e begin with the characters '#include'.
 	 (When the caret is the first character of a character set it
 	 has a special meaning, see \link #sets-of-characters Sets of
 	 Characters \endlink.)
 
-    \row \i <b>$</b>
+    \row \i \bold{$}
 	 \i The dollar signifies the end of the string. For example
-	 <b>\d\s*$</b> will match strings which end with a digit
+	 \bold{\\d\\s*$} will match strings which end with a digit
 	 optionally followed by whitespace. If you wish to match a
 	 literal \c{$} you must escape it by writing
 	 \c{\\$}.
 
-    \row \i <b>\\b</b>
+    \row \i \bold{\\b}
 	 \i A word boundary. For example the regexp
-	 <b>\\bOK\\b</b> means match immediately after a word
+	 \bold{\\bOK\\b} means match immediately after a word
 	 boundary (e.g. start of string or whitespace) the letter 'O'
 	 then the letter 'K' immediately before another word boundary
 	 (e.g. end of string or whitespace). But note that the
 	 assertion does not actually match any whitespace so if we
-	 write <b>(\\bOK\\b)</b> and we have a match it will only
-	 contain 'OK' even if the string is "Its <u>OK</u> now".
+	 write \bold{(\\bOK\\b)} and we have a match it will only
+	 contain 'OK' even if the string is "It's \underline{OK} now".
 
-    \row \i <b>\\B</b>
+    \row \i \bold{\\B}
 	 \i A non-word boundary. This assertion is true wherever
-	 <b>\\b</b> is false. For example if we searched for
-	 <b>\\Bon\\B</b> in "Left on" the match would fail (space
+	 \bold{\\b} is false. For example if we searched for
+	 \bold{\\Bon\\B} in "Left on" the match would fail (space
 	 and end of string aren't non-word boundaries), but it would
-	 match in "t<u>on</u>ne".
+	 match in "t\underline{on}ne".
 
-    \row \i <b>(?=\e E)</b>
+    \row \i \bold{(?=\e E)}
 	 \i Positive lookahead. This assertion is true if the
 	 expression matches at this point in the regexp. For example,
-	 <b>const(?=\\s+char)</b> matches 'const' whenever it is
-	 followed by 'char', as in 'static <u>const</u> char *'.
-	 (Compare with <b>const\\s+char</b>, which matches 'static
-	 <u>const char</u> *'.)
+	 \bold{const(?=\\s+char)} matches 'const' whenever it is
+	 followed by 'char', as in 'static \underline{const} char *'.
+	 (Compare with \bold{const\\s+char}, which matches 'static
+	 \underline{const char} *'.)
 
-    \row \i <b>(?!\e E)</b>
+    \row \i \bold{(?!\e E)}
 	 \i Negative lookahead. This assertion is true if the
 	 expression does not match at this point in the regexp. For
-	 example, <b>const(?!\\s+char)</b> matches 'const' \e except
+	 example, \bold{const(?!\\s+char)} matches 'const' \e except
 	 when it is followed by 'char'.
     \endtable
 
@@ -452,23 +454,23 @@
     full regexps and has only four features:
 
     \table
-    \row \i <b>c</b>
+    \row \i \bold{c}
 	 \i Any character represents itself apart from those mentioned
-	 below. Thus <b>c</b> matches the character \e c.
-    \row \i <b>?</b>
+	 below. Thus \bold{c} matches the character \e c.
+    \row \i \bold{?}
 	 \i This matches any single character. It is the same as
-	 <b>.</b> in full regexps.
-    \row \i <b>*</b>
+	 \bold{.} in full regexps.
+    \row \i \bold{*}
 	 \i This matches zero or more of any characters. It is the
-	 same as <b>.*</b> in full regexps.
-    \row \i <b>[...]</b>
+	 same as \bold{.*} in full regexps.
+    \row \i \bold{[...]}
 	 \i Sets of characters can be represented in square brackets,
 	 similar to full regexps. Within the character class, like
 	 outside, backslash has no special meaning.
     \endtable
 
     For example if we are in wildcard mode and have strings which
-    contain filenames we could identify HTML files with <b>*.html</b>.
+    contain filenames we could identify HTML files with \bold{*.html}.
     This will match zero or more characters followed by a dot followed
     by 'h', 't', 'm' and 'l'.
 
@@ -490,7 +492,7 @@
     QRegExp's quantifiers are the same as Perl's greedy quantifiers.
     Non-greedy matching cannot be applied to individual quantifiers,
     but can be applied to all the quantifiers in the pattern. For
-    example, to match the Perl regexp <b>ro+?m</b> requires:
+    example, to match the Perl regexp \bold{ro+?m} requires:
     \code
     QRegExp rx("ro+m");
     rx.setMinimal(true);
@@ -502,14 +504,14 @@
     Perl's \c{/g} option can be emulated using a \link
     #cap_in_a_loop loop \endlink.
 
-    In QRegExp <b>.</b> matches any character, therefore all QRegExp
+    In QRegExp \bold{.} matches any character, therefore all QRegExp
     regexps have the equivalent of Perl's \c{/s} option. QRegExp
     does not have an equivalent to Perl's \c{/m} option, but this
     can be emulated in various ways for example by splitting the input
     into lines or by looping with a regexp that searches for newlines.
 
-    Because QRegExp is string oriented there are no \A, \Z or \z
-    assertions. The \G assertion is not supported but can be emulated
+    Because QRegExp is string oriented there are no \\A, \\Z, or \\z
+    assertions. The \\G assertion is not supported but can be emulated
     in a loop.
 
     Perl's $& is cap(0) or capturedTexts()[0]. There are no QRegExp
@@ -541,7 +543,7 @@
     to Perl's split and join functions.
 
     Note: because C++ transforms \\'s they must be written \e twice in
-    code, e.g. <b>\\b</b> must be written <b>\\\\b</b>.
+    code, e.g. \bold{\\b} must be written \bold{\\\\b}.
 
     \target code-examples
     \section1 Code Examples
@@ -553,7 +555,7 @@
     rx.search("6");           // returns 0 (matched as position 0)
     \endcode
 
-    The third string matches '<u>6</u>'. This is a simple validation
+    The third string matches '\underline{6}'. This is a simple validation
     regexp for integers in the range 0 to 99.
 
     \code
@@ -562,8 +564,8 @@
     rx.search("This_is-OK");  // returns 0 (matched at position 0)
     \endcode
 
-    The second string matches '<u>This_is-OK</u>'. We've used the
-    character set abbreviation '\S' (non-whitespace) and the anchors
+    The second string matches '\underline{This_is-OK}'. We've used the
+    character set abbreviation '\\S' (non-whitespace) and the anchors
     to match strings which contain no whitespace.
 
     In the following example we match strings containing 'mail' or
@@ -576,7 +578,7 @@
     rx.search("Please write the letter"); // returns 17
     \endcode
 
-    The second string matches "Please write the <u>letter</u>". The
+    The second string matches "Please write the \underline{letter}". The
     word 'letter' is also captured (because of the parentheses). We
     can see what text we've captured like this:
 
@@ -621,8 +623,8 @@
     the string. Note that instead of moving forward by one character
     at a time \c pos++ we could have written \c {pos +=
     rx.matchedLength()} to skip over the already matched string. The
-    count will equal 3, matching 'One <u>Eric</u> another
-    <u>Eirik</u>, and an Ericsson. How many Eiriks, <u>Eric</u>?'; it
+    count will equal 3, matching 'One \underline{Eric} another
+    \underline{Eirik}, and an Ericsson. How many Eiriks, \underline{Eric}?'; it
     doesn't match 'Ericsson' or 'Eiriks' because they are not bounded
     by non-word boundaries.
 
@@ -644,7 +646,7 @@
     address and country. Unfortunately the regexp is rather long and
     not very versatile -- the code will break if we add any more
     fields. A simpler and better solution is to look for the
-    separator, '\t' in this case, and take the surrounding text. The
+    separator, '\\t' in this case, and take the surrounding text. The
     QStringList split() function can take a separator string or regexp
     as an argument and split a string accordingly.
 
@@ -666,10 +668,10 @@
 
     Wildcard matching can be convenient because of its simplicity, but
     any wildcard regexp can be defined using full regexps, e.g.
-    <b>.*\.html$</b>. Notice that we can't match both \c .html and \c
-    .htm files with a wildcard unless we use <b>*.htm*</b> which will
+    \bold{.*\.html$}. Notice that we can't match both \c .html and \c
+    .htm files with a wildcard unless we use \bold{*.htm*} which will
     also match 'test.html.bak'. A full regexp gives us the precision
-    we need, <b>.*\\.html?$</b>.
+    we need, \bold{.*\\.html?$}.
 
     QRegExp can match case insensitively using setCaseSensitive(), and
     can use non-greedy matching, see setMinimal(). By default QRegExp
@@ -3220,7 +3222,7 @@ static void invalidateEngine(QRegExpPrivate *priv)
     \enum QRegExp::CaretMode
 
     The CaretMode enum defines the different meanings of the caret
-    (<b>^</b>) in a regular expression. The possible values are:
+    (\bold{^}) in a regular expression. The possible values are:
 
     \value CaretAtZero
 	   The caret corresponds to index 0 in the searched string.
@@ -3388,11 +3390,11 @@ bool QRegExp::isEmpty() const
     Returns true if the regular expression is valid; otherwise returns
     false. An invalid regular expression never matches.
 
-    The pattern <b>[a-z</b> is an example of an invalid pattern, since
+    The pattern \bold{[a-z} is an example of an invalid pattern, since
     it lacks a closing square bracket.
 
     Note that the validity of a regexp may also depend on the setting
-    of the wildcard flag, for example <b>*.html</b> is a valid
+    of the wildcard flag, for example \bold{*.html} is a valid
     wildcard regexp but an invalid full regexp.
 
     \sa errorString()
@@ -3447,7 +3449,7 @@ bool QRegExp::caseSensitive() const
 /*!
     Sets case sensitive matching to \a sensitive.
 
-    If \a sensitive is true, <b>\\.txt$</b> matches \c{readme.txt} but
+    If \a sensitive is true, \bold{\\.txt$} matches \c{readme.txt} but
     not \c{README.TXT}.
 
     \sa caseSensitive()
@@ -3480,7 +3482,7 @@ bool QRegExp::wildcard() const
     matching. (See \link #wildcard-matching wildcard matching
     (globbing) \endlink.)
 
-    For example, <b>r*.txt</b> matches the string \c{readme.txt} in
+    For example, \bold{r*.txt} matches the string \c{readme.txt} in
     wildcard mode, but does not match \c{readme}.
 
     \sa wildcard()
@@ -3510,14 +3512,14 @@ bool QRegExp::minimal() const
     matching is greedy (maximal) which is the default.
 
     For example, suppose we have the input string "We must be
-    \<b>bold\</b>, very \<b>bold\</b>!" and the pattern
-    <b>\<b>.*\</b></b>. With the default greedy (maximal) matching,
-    the match is "We must be <u>\<b>bold\</b>, very
-    \<b>bold\</b></u>!". But with minimal (non-greedy) matching the
-    first match is: "We must be <u>\<b>bold\</b></u>, very
-    \<b>bold\</b>!" and the second match is "We must be \<b>bold\</b>,
-    very <u>\<b>bold\</b></u>!". In practice we might use the pattern
-    <b>\<b>[^\<]+\</b></b> instead, although this will still fail for
+    <b>bold</b>, very <b>bold</b>!" and the pattern
+    \bold{<b>.*</b>}. With the default greedy (maximal) matching,
+    the match is "We must be \underline{<b>bold</b>, very
+    <b>bold</b>}!". But with minimal (non-greedy) matching, the
+    first match is: "We must be \underline{<b>bold</b>}, very
+    <b>bold</b>!" and the second match is "We must be <b>bold</b>,
+    very \underline{<b>bold</b>}!". In practice we might use the pattern
+    \bold{<b>[^<]*\</b>} instead, although this will still fail for
     nested tags.
 
     \sa minimal()
@@ -3537,7 +3539,7 @@ void QRegExp::setMinimal(bool minimal)
     in the start of string and end of string anchors, except that it
     sets matchedLength() differently.
 
-    For example, if the regular expression is <b>blue</b>, then
+    For example, if the regular expression is \bold{blue}, then
     exactMatch() returns true only for input \c blue. For inputs \c
     bluebell, \c blutak and \c lightblue, exactMatch() returns false
     and matchedLength() will return 4, 3 and 0 respectively.
@@ -3568,7 +3570,7 @@ bool QRegExp::exactMatch(const QString &str) const
     Returns the position of the first match, or -1 if there was no
     match.
 
-    The \a caretMode parameter can be used to instruct whether <b>^</b>
+    The \a caretMode parameter can be used to instruct whether \bold{^}
     should match at index 0 or at \a offset.
 
     You might prefer to use QString::find(), QString::contains() or
@@ -3611,7 +3613,7 @@ int QRegExp::search(const QString &str, int offset, CaretMode caretMode) const
     Returns the position of the first match, or -1 if there was no
     match.
 
-    The \a caretMode parameter can be used to instruct whether <b>^</b>
+    The \a caretMode parameter can be used to instruct whether \bold{^}
     should match at index 0 or at \a offset.
 
     Although const, this function sets matchedLength(),
@@ -3704,7 +3706,7 @@ int QRegExp::numCaptures() const
 
     Some regexps can match an indeterminate number of times. For
     example if the input string is "Offsets: 12 14 99 231 7" and the
-    regexp, \c{rx}, is <b>(\\d+)+</b>, we would hope to get a list of
+    regexp, \c{rx}, is \bold{(\\d+)+}, we would hope to get a list of
     all the numbers matched. However, after calling
     \c{rx.search(str)}, capturedTexts() will return the list ("12",
     "12"), i.e. the entire match was "12" and the first subexpression

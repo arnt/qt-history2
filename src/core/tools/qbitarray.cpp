@@ -233,19 +233,22 @@ void QBitArray::fill(bool val, int first, int last)
 */
 
 /*!
-    \overload bool QBitArray::operator[](int i) const
+    \fn bool QBitArray::operator[](int i) const
+    \overload
 
     Implements the [] operator for constant bit arrays.
 */
 
 /*!
-    \overload bool QBitArray::operator[](uint i)
+    \fn bool QBitArray::operator[](uint i)
+    \overload
 
     Implements the [] operator for bit arrays.
 */
 
 /*!
-    \overload bool QBitArray::operator[](uint i) const
+    \fn bool QBitArray::operator[](uint i) const
+    \overload
 
     Implements the [] operator for constant bit arrays.
 */
@@ -477,7 +480,8 @@ QBitArray operator^(const QBitArray &a1, const QBitArray &a2)
 */
 
 /*!
-    \overload QBitRef& QBitRef::operator= (bool v)
+    \fn QBitRef& QBitRef::operator= (bool v)
+    \overload
 
     Sets the value referenced by the QBitRef to \a v.
 */

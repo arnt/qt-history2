@@ -310,20 +310,22 @@ private:
 public:
 #endif
 
-    typedef QChar *Iterator;
-    typedef const QChar *ConstIterator;
-    Iterator begin();
-    ConstIterator begin() const;
-    ConstIterator constBegin() const;
-    Iterator end();
-    ConstIterator end() const;
-    ConstIterator constEnd() const;
+    typedef QChar *iterator;
+    typedef const QChar *const_iterator;
+    typedef iterator Iterator;
+    typedef const_iterator ConstIterator;
+    iterator begin();
+    const_iterator begin() const;
+    const_iterator constBegin() const;
+    iterator end();
+    const_iterator end() const;
+    const_iterator constEnd() const;
 
     // stl compatibility
-    typedef Iterator iterator;
-    typedef ConstIterator const_iterator;
     inline void push_back(QChar c) { append(c); }
     inline void push_back(const QString &s) { append(s); }
+    inline void push_front(QChar c) { prepend(c); }
+    inline void push_front(const QString &s) { prepend(s); }
 #ifndef QT_NO_CAST_FROM_ASCII
 #ifndef QT_NO_STL
     inline QString(const std::string &s): d(&shared_null)
@@ -334,6 +336,8 @@ public:
     { return operator=(s.c_str()); }
     inline void push_back(const std::string &s)
     { append(QString(s.c_str())); }
+    inline void push_front(const std::string &s)
+    { prepend(QString(s.c_str())); }
     inline QString &prepend(const std::string &s)
     { return prepend(QString(s.c_str())); }
     inline QString &append(const std::string &s)
@@ -631,17 +635,17 @@ inline QCharRef QString::operator[](int i)
 { Q_ASSERT(i >= 0); return QCharRef(*this, i); }
 inline QCharRef QString::operator[](uint i)
 { return QCharRef(*this, i); }
-inline QString::Iterator QString::begin()
+inline QString::iterator QString::begin()
 { detach(); return (QChar*) d->data; }
-inline QString::ConstIterator QString::begin() const
+inline QString::const_iterator QString::begin() const
 { return (const QChar*)d->data; }
-inline QString::ConstIterator QString::constBegin() const
+inline QString::const_iterator QString::constBegin() const
 { return (const QChar*)d->data; }
-inline QString::Iterator QString::end()
+inline QString::iterator QString::end()
 { detach(); return (QChar*) d->data + d->size; }
-inline QString::ConstIterator QString::end() const
+inline QString::const_iterator QString::end() const
 { return (const QChar*)d->data + d->size; }
-inline QString::ConstIterator QString::constEnd() const
+inline QString::const_iterator QString::constEnd() const
 { return (const QChar*)d->data + d->size; }
 inline QBool QString::contains(const QString &s, CaseSensitivity cs) const
 { return QBool(indexOf(s, 0, cs) != -1); }

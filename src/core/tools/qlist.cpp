@@ -656,6 +656,7 @@ void **QListData::erase(void **xi)
         list.lastIndexOf("B");      // returns 3
         list.lastIndexOf("B", 3);   // returns 3
         list.lastIndexOf("B", 2);   // returns 1
+	list.lastIndexOf("X");      // returns -1
     \endcode
 
     This function requires the value type to have an implementation of

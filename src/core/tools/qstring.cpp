@@ -130,7 +130,7 @@ const QString::Null QString::null=QString::Null();
     \reentrant
 
     \brief The QString class provides an abstraction of Unicode text
-    and the classic C '\0'-terminated char array.
+    and the classic C '\\0'-terminated char array.
 
     \ingroup tools
     \ingroup shared
@@ -142,10 +142,10 @@ const QString::Null QString::null=QString::Null();
 
     In all of the QString methods that take \c {const char *}
     parameters, the \c {const char *} is interpreted as a classic
-    C-style '\0'-terminated ASCII string. It is legal for the \c
+    C-style '\\0'-terminated ASCII string. It is legal for the \c
     {const char *} parameter to be 0. If the \c {const char *} is not
-    '\0'-terminated, the results are undefined. If you need to pass a
-    QString to a function that requires a C '\0'-terminated string use
+    '\\0'-terminated, the results are undefined. If you need to pass a
+    QString to a function that requires a C '\\0'-terminated string use
     ascii().
 
     Lists of strings are handled by the QStringList class. You can
@@ -200,32 +200,6 @@ const QString::Null QString::null=QString::Null();
     \sa QChar QByteArray
 */
 
-/*! \enum Qt::ComparisonFlags
-\internal
-*/
-/*!
-    \enum Qt::StringComparisonMode
-
-    This enum type is used to set the string comparison mode when
-    searching for an item. It is used by QListBox, QListView and
-    QIconView, for example. We'll refer to the string being searched
-    as the 'target' string.
-
-    \value CaseSensitive The strings must match case sensitively.
-    \value ExactMatch The target and search strings must match exactly.
-    \value BeginsWith The target string begins with the search string.
-    \value EndsWith The target string ends with the search string.
-    \value Contains The target string contains the search string.
-
-    If you OR these flags together (excluding \c CaseSensitive), the
-    search criteria be applied in the following order: \c ExactMatch,
-    \c BeginsWith, \c EndsWith, \c Contains.
-
-    Matching is case-insensitive unless \c CaseSensitive is set. \c
-    CaseSensitive may be OR-ed with any combination of the other
-    flags.
-
-*/
 QString::Data QString::shared_null = { Q_ATOMIC_INIT(1), 0, 0, 0, shared_null.array, 0, 0, 0, 0, 0, 0, {0} };
 QString::Data QString::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, 0, shared_empty.array, 0, 0, 0, 0, 0, 0, {0} };
 
@@ -499,14 +473,6 @@ QString &QString::operator=(QChar c)
 
     Makes a deep copy of \a s and returns a reference to the resultant
     QString.
-*/
-
-/*!
-    \fn bool QString::operator!() const
-
-    Returns true if the string is empty; otherwise returns false.
-
-    \sa isEmpty()
 */
 
 /*!

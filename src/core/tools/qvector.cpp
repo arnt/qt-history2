@@ -92,7 +92,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     QVector uses 0-based indexes, just like C++ arrays. To access the
     item at a particular index position, you can use operator[](). On
     non-const vectors, operator[]() returns a reference to the item
-    that can be used on the left size of an assignment:
+    that can be used on the left side of an assignment:
 
     \code
 	if (vector[0] == "Liz")
@@ -416,7 +416,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
     This operation is relatively fast, because QVector typically
     allocates more memory than necessary, so it can grow without
-    reallocating the entire vector each item.
+    reallocating the entire vector each time.
 
     \sa operator<<(), prepend(), insert()
 */
@@ -511,7 +511,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
 /*! \fn void QVector::remove(int i, int count)
 
-    Remove \a count elements from the middle of the vector, starting at
+    Removes \a count elements from the middle of the vector, starting at
     index position \a i.
 
     \sa insert(), replace(), fill()
@@ -523,6 +523,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     different from -1 (the default), the vector is resized to size \a
     size beforehand.
 
+    Example:
     \code
 	QVector<QString> vector(3);
         vector.fill("N/A");
@@ -571,6 +572,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
         vector.lastIndexOf("B");        // returns 3
         vector.lastIndexOf("B", 3);     // returns 3
         vector.lastIndexOf("B", 2);     // returns 1
+	vector.lastIndexOf("X");        // returns -1
     \endcode
 
     This function requires the value type to have an implementation of
