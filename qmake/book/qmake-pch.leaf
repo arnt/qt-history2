@@ -7,30 +7,35 @@
 \index Precompiled Headers
 \index PCH
 
-Precompiled headers are a performance feature, supported by some
-compilers, to compile a stable body of code, and store the compiled
+Precompiled headers are a performance feature supported by some
+compilers to compile a stable body of code, and store the compiled
 state of the code in a binary file. During subsequent compilations,
 the compiler will load the stored state, and continue compiling the
 specified file. Each subsequent compilation is faster because the
 stable code does not need to be recompiled.
 
-\e qmake supports the usage of precompiled headers (PCH) on some
+\e qmake supports the use of precompiled headers (PCH) on some
 platforms and build environments, including:
 \list
-\i Windows - nmake
-\i Windows - Dsp projects (VC 6.0)
-\i Windows - Vcproj projects (VC 7.0 \& 7.1)
-\i Mac OS X - Makefile
-\i Mac OS X - Xcode
+\i Windows
+    \list
+    \i nmake
+    \i Dsp projects (VC 6.0)
+    \i Vcproj projects (VC 7.0 \& 7.1)
+    \endlist
+\i Mac OS X
+    \list
+    \i Makefile
+    \i X - Xcode
+    \endlist
 \endlist
 
 \target Rules
 \section1 Rules for using PCH
 
-Since compilers solve the usage of PCH differently to others, you have 
-to take certain measures to be able to use precompiled headers on all
-supported platforms.
-There are currently two schemes:
+Since different compilers handle PCH differently, you must take
+certain measures to be able to use precompiled headers on all
+supported platforms. There are currently two schemes:
 
 \target GCC_scheme
 \section2 GCC scheme
@@ -52,24 +57,23 @@ There are currently two schemes:
 \i Compile the rest of the source file
 \endlist
 
-
-For your source code to be cross platform, it needs to follow the MSVC
-scheme. \Menu {This means that every source file has to contain an
-include statement to the header file being precompiled.}
-\e qmake will ensure that all generated files from \e uic and \e moc
-will also contain include statements to this header file.
+For your source code to be cross platform, it must follow the MSVC
+scheme. \Bold{This means that every source file must contain an
+include statement for the header file being precompiled.} \e qmake
+will ensure that all generated files from \e uic and \e moc will also
+contain include statements to this header file.
 
 \sidebar Precompiled Headers Consistency Rules using Microsoft Visual
 C++ 
 
 \target MSVC_RULES
-Here is a selection of important rules when using PCH in your project.
+Here is a selection of the most important rules when using PCH in your project.
 \list 1
 \i Macros created using the preprocessor (/D) option must be the same
-   between the compilation that created the PCH and the current
+   for the compilation that created the PCH and for the current
    compilation. The state of defined constants is not checked, but
    unpredictable results can occur if these change.
-\i PCHs do not work when preprocessing a sourcefile.
+\i PCH do not work when preprocessing a sourcefile.
 \i The compiler ignores all preprocessor directives (including
    pragmas) that appear in the source code that will be precompiled.
    The compilation specified by such preprocessor directives must be
@@ -80,7 +84,7 @@ Here is a selection of important rules when using PCH in your project.
 A more complete set of rules can be found at 
 \link http://msdn.microsoft.com/library/en-us/vccore/html/vclrfprecompiledheaderconsistencyrules.asp \endlink
 
-\e {NOTE: Not all of the rules described in the Microsoft documentation 
+\e {Not all of the rules described in the Microsoft documentation 
 are important, since qmake will enforce them automatically.}
 \endsidebar
 
@@ -91,11 +95,11 @@ are important, since qmake will enforce them automatically.}
 \target PCH_CONTENTS
 \section2 Contents of the precompiled header file
 
-The precompiled header is supposed to contain code which is \e stable
+The precompiled header must contain code which is \e stable
 and \e static throughout your project. When compiling Qt programs, it
-many be wise to add an include to \e qt.h in your precompiled header,
-to increase compilation significantly. A typical PCH may look like
-this:
+may be wise to add an include to \e qt.h in your precompiled header,
+to significantly increase compilation speed. A typical PCH might look
+like this:
 \section3 stable.h
 
 \code
@@ -103,7 +107,7 @@ this:
 	#include <iostream>
 	#include <vector>
 	#include <qt.h> // Includes all of Qt
-	#include "thirdparty\include\libmain.h"
+	#include "thirdparty/include/libmain.h"
 	#include "my_stable_class.h"
 	...
 \endcode
@@ -113,10 +117,10 @@ this:
 \section2 Sorting include statements
 
 Since some compilers skip code in your source files until they hit the
-include statement for the precompiled header file, you have to order
-your include statements in a \Menu stable and \Menu unstable fashion,
-separated by the include statement for the precompiled header file, like
-this:
+include statement for the precompiled header file, you must order
+your include statements in a \Bold stable and \Bold unstable fashion,
+separated by the include statement for the precompiled header file,
+for example, like this:
 \section3 mydialog.cpp
 
 \code
@@ -124,88 +128,86 @@ this:
 	#include <qtextedit.h>
 	#include <qpushbutton.h>
 	#include "stable.h"   // PCH, compiler stops skipping here
-	#include "mydialog.h" // MyDialogs own header file
+	#include "mydialog.h" // MyDialog's own header file
 	#include "code_under_development.h"
 	#include "very_unstable_code.h"
 	...
 \endcode
 
-Note that a class's own header file \Menu must be included after the
-PCH include statement. If not, then on some platforms the compiler will 
-skip the code, and miss the class definition.
+Note that a class's own header file \Bold must be included \e after
+the PCH include statement. If not, then on some platforms the compiler
+will skip the code, and miss the class definition.
 
 
 \target PROJECT_OPTIONS
 \section2 Project options
 
-To make your project use PCH, the only thing to need to check in your
-project settings (.pro), is to include the PRECOMPH option:
+To make your project use PCH, the only thing you need to change in
+your project settings (.pro), is to include the PRECOMPH option:
 \code
 	PRECOMPH = stable.h
 \endcode
-\e qmake will handle the rest, to assure the creation and usage of the
+\e qmake will handle the rest, to ensure the creation and use of the
 precompiled header file. 
 
 
 \target ADVANCED_WINDOWS_OPTION
 \section3 Advanced Windows option
 
-\e {This is used on Windows only}
+\e{This is used on Windows only}
 
 On the Windows platform, it is common to generate the precompiled
-header file, based on a specified CPP file. This is because, the MSVC
+header file, based on a specified \c{.cpp} file. This is because MSVC
 also lets you precompile functions and whole classes, to further
-increase the compilation speed.
+increase compilation speed.
 
-You may specify your own CPP file like this:
+You can  specify your own \c{.cpp} file like this:
 \code
 	PRECOMPCPP = stable.cpp
 \endcode
 
-Note that with qmake, you don't have to specify this CPP file, as
-\e qmake will generate one for you, which will include the header file
-specified in PRECOMPH.
-It is not advised that you use this feature, if you want your project
-to remain cross platform.
-
+Note that with qmake, you don't have to specify this \c{.cpp} file,
+since \e qmake will generate one for you, which will include the
+header file specified in \c PRECOMPH. Do not use this feature for
+multiplatform projects.
 
 \target EXAMPLE_PROJECT
 \section1 Example project
 
-You may find the following source code in the
-\e {qt/qmake/examples/precompile} directory:
+You can find the following source code in the
+\e{qt/qmake/examples/precompile} directory:
 
-\Menu mydialog.ui
+\Bold mydialog.ui
 \quotefile precompile/mydialog.ui
 \skipto <!
 \printuntil </UI>
 
-\Menu stable.h
+\Bold stable.h
 \quotefile precompile/stable.h
 \skipto #include
 \printuntil <qlabel.h>
 
-\Menu myobject.h
+\Bold myobject.h
 \quotefile precompile/myobject.h
 \skipto #include
 \printuntil }
 
-\Menu myobject.cpp
+\Bold myobject.cpp
 \quotefile precompile/myobject.cpp
 \skipto #include
 \printuntil }
 
-\Menu util.cpp
+\Bold util.cpp
 \quotefile precompile/util.cpp
 \skipto #include
 \printuntil }
 
-\Menu main.cpp
+\Bold main.cpp
 \quotefile precompile/main.cpp
 \skipto #include
 \printuntil }
 
-\Menu precompile.pro
+\Bold precompile.pro
 \quotefile precompile/precompile.pro
 \skipto #
 \printuntil .ui
