@@ -3820,7 +3820,14 @@ void QTextEdit::append( const QString &text )
 	cursor->gotoEnd();
 	if ( cursor->index() > 0 )
 	    cursor->splitAndInsertEmptyParag();
+	QTextCursor oldCursor2 = *cursor;
   	cursor->insert( text, TRUE );
+	if ( doc->useFormatCollection() && currentFormat != cursor->parag()->at( cursor->index() )->format() ) {
+	    doc->setSelectionStart( QTextDocument::Temp, &oldCursor2 );
+	    doc->setSelectionEnd( QTextDocument::Temp, cursor );
+	    doc->setFormat( QTextDocument::Temp, currentFormat, QTextFormat::Format );
+	    doc->removeSelection( QTextDocument::Temp );
+	}
 	formatMore();
 	repaintChanged();
 	ensureCursorVisible();
