@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#19 $
 **
 ** Implementation of QML classes
 **
@@ -954,6 +954,8 @@ void QMLStyleSheet::init()
     style->setFontFamily( "courier" );
     style->setDisplayMode(QMLStyle::DisplayBlock);
     style->setWhiteSpaceMode(QMLStyle::WhiteSpacePre);
+    style = new QMLStyle( this, "tt" );
+    style->setFontFamily( "courier" );
     style = new QMLStyle( this, "blockquote" );
     style->setDisplayMode(QMLStyle::DisplayBlock);
     style->setMargin(QMLStyle::MarginAll, 8 );
@@ -3253,7 +3255,7 @@ bool QMLDocument::eatCloseTag(const QString& doc, int& pos, const QString& open)
     }
     valid &= tag == open;
     if (!valid) {
-	warning( "QML Warning: Document not valid ( '%s' not closed before '%s' #%d)", 
+	warning( "QML Warning: Document not valid ( '%s' not closed before '%s' #%d)",
 		 open.ascii(), tag.ascii(), pos);
     }
     return valid;
