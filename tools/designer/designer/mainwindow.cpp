@@ -83,6 +83,8 @@
 #include <qaccel.h>
 #include <qtooltip.h>
 #include <stdlib.h>
+#include "qcategorywidget.h"
+#include "widgetaction.h"
 
 static bool mblockNewForms = FALSE;
 extern QMap<QWidget*, QString> *qwf_functions;
@@ -129,6 +131,7 @@ MainWindow::MainWindow( bool asClient, bool single )
       docPath( "$QTDIR/doc/html" ), fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
       previewing( FALSE ), databaseAutoEdit( FALSE )
 {
+    customWidgetToolBar = customWidgetToolBar2 = 0;
     init_colors();
 
     desInterface = new DesignerInterfaceImpl( this );
@@ -170,6 +173,8 @@ MainWindow::MainWindow( bool asClient, bool single )
     set_splash_status( "Setting up GUI..." );
     setupMDI();
     setupMenuBar();
+
+    setupToolbox();
 
     setupFileActions();
     setupEditActions();
@@ -310,9 +315,9 @@ void MainWindow::setupPropertyEditor()
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     propertyEditor = new PropertyEditor( dw );
-    addToolBar( dw, Qt::DockLeft );
+    addToolBar( dw, Qt::DockRight );
     dw->setWidget( propertyEditor );
-    dw->setFixedExtentWidth( 300 );
+    dw->setFixedExtentWidth( 250 );
     dw->setCaption( tr( "Property Editor/Signal Handlers" ) );
     QWhatsThis::add( propertyEditor,
 		     tr("<b>The Property Editor</b>"
@@ -354,11 +359,11 @@ void MainWindow::setupHierarchyView()
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     hierarchyView = new HierarchyView( dw );
-    addToolBar( dw, Qt::DockLeft );
+    addToolBar( dw, Qt::DockRight );
     dw->setWidget( hierarchyView );
 
     dw->setCaption( tr( "Object Explorer" ) );
-    dw->setFixedExtentWidth( 300 );
+    dw->setFixedExtentWidth( 250 );
     QWhatsThis::add( hierarchyView,
 		     tr("<b>The Object Explorer</b>"
 			"<p>The Object Explorer provides an overview of the relationships "
@@ -383,7 +388,7 @@ void MainWindow::setupWorkspace()
     wspace = new Workspace( vbox, this );
     wspace->setBufferEdit( edit );
     wspace->setCurrentProject( currentProject );
-    addToolBar( dw, Qt::DockLeft );
+    addToolBar( dw, Qt::DockRight );
     dw->setWidget( vbox );
 
     dw->setCaption( tr( "Project Overview" ) );
@@ -414,6 +419,21 @@ void MainWindow::setupActionEditor()
 				      "menus.</p>" ) );
     dw->hide();
     setAppropriate( dw, FALSE );
+}
+
+void MainWindow::setupToolbox()
+{
+    QDockWindow *dw = new QDockWindow;
+    dw->setResizeEnabled( TRUE );
+    dw->setCloseMode( QDockWindow::Always );
+    addToolBar( dw, Qt::DockLeft );
+    toolBox = new QCategoryWidget( dw );
+    dw->setWidget( toolBox );
+    dw->setFixedExtentWidth( 110 );
+    dw->setCaption( tr( "Toolbox" ) );
+    dw->show();
+    setDockEnabled( dw, Qt::DockTop, FALSE );
+    setDockEnabled( dw, Qt::DockBottom, FALSE );
 }
 
 void MainWindow::setupRMBMenus()
@@ -2536,6 +2556,7 @@ void MainWindow::rebuildCustomWidgetGUI()
 {
     customWidgetToolBar->clear();
     customWidgetMenu->clear();
+    customWidgetToolBar2->clear();
     int count = 0;
     QPtrList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
 
@@ -2543,7 +2564,7 @@ void MainWindow::rebuildCustomWidgetGUI()
     customWidgetMenu->insertSeparator();
 
     for ( MetaDataBase::CustomWidget *w = lst->first(); w; w = lst->next() ) {
-	QAction* a = new QAction( actionGroupTools, QString::number( w->id ).latin1() );
+	WidgetAction* a = new WidgetAction( actionGroupTools, QString::number( w->id ).latin1() );
 	a->setToggleAction( TRUE );
 	a->setText( w->className );
 	a->setIconSet( *w->pixmap );
@@ -2555,13 +2576,15 @@ void MainWindow::rebuildCustomWidgetGUI()
 			    "and provide a pixmap which will be used to represent the widget on the form.</p>") );
 
 	a->addTo( customWidgetToolBar );
-	a->addTo( customWidgetMenu);
+	a->addTo( customWidgetToolBar2 );
+	a->addTo( customWidgetMenu );
 	count++;
     }
+    customWidgetToolBar2->setStretchableWidget( new QWidget( customWidgetToolBar2 ) );
 
     if ( count == 0 )
 	customWidgetToolBar->hide();
-    else
+    else if ( customWidgetToolBar->isVisible() )
 	customWidgetToolBar->show();
 }
 

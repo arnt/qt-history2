@@ -64,6 +64,8 @@
 #include "dbconnectionsimpl.h"
 #include "dbconnectionimpl.h"
 #endif
+#include "widgetaction.h"
+#include "qcategorywidget.h"
 
 static const char * whatsthis_image[] = {
     "16 16 3 1",
@@ -426,7 +428,7 @@ void MainWindow::setupToolActions()
 #endif
     QWhatsThis::add( tb, tr( "<b>The Tools toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
 
-    addToolBar( tb, tr( "Tools" ), QMainWindow::DockTop, TRUE );
+    addToolBar( tb, tr( "Tools" ), QMainWindow::DockTop, FALSE );
     actionPointerTool->addTo( tb );
     actionConnectTool->addTo( tb );
     actionOrderTool->addTo( tb );
@@ -471,9 +473,15 @@ void MainWindow::setupToolActions()
 						"or double click to insert multiple widgets.") ).arg(grp)) );
 	}
 	addToolBar( tb, grp );
+	tb->hide();
 	QPopupMenu *menu = new QPopupMenu( this, grp.latin1() );
 	mmenu->insertItem( grp, menu );
 
+	QToolBar *tb2 = new QToolBar( grp, 0, toolBox, grp.latin1() );
+	tb2->setFrameStyle( QFrame::NoFrame );
+	tb2->setOrientation( Qt::Vertical );
+	toolBox->addCategory( grp, tb2 );
+	
 	if ( grp == "Custom" ) {
 	    if ( !customWidgetMenu )
 		actionToolsCustomWidget->addTo( menu );
@@ -486,7 +494,7 @@ void MainWindow::setupToolActions()
 	for ( int i = 0; i < WidgetDatabase::count(); ++i ) {
 	    if ( WidgetDatabase::group( i ) != grp )
 		continue; // only widgets, i.e. not forms and temp stuff
-	    QAction* a = new QAction( actionGroupTools, QString::number( i ).latin1() );
+	    WidgetAction* a = new WidgetAction( actionGroupTools, QString::number( i ).latin1() );
 	    a->setToggleAction( TRUE );
 	    QString atext = WidgetDatabase::className( i );
 	    if ( atext[0] == 'Q' )
@@ -511,7 +519,9 @@ void MainWindow::setupToolActions()
 	    if ( grp != "KDE" )
 		a->addTo( tb );
 	    a->addTo( menu );
+	    a->addTo( tb2 );
 	}
+	tb2->setStretchableWidget( new QWidget( tb2 ) );
     }
 
     if ( !customWidgetToolBar ) {
@@ -528,6 +538,7 @@ void MainWindow::setupToolActions()
 				 arg( tr(" Click on the buttons to insert a single widget, "
 				 "or double click to insert multiple widgets.") )) );
 	addToolBar( tb, "Custom" );
+	tb->hide();
 	customWidgetToolBar = tb;
 	QPopupMenu *menu = new QPopupMenu( this, "Custom Widgets" );
 	mmenu->insertItem( "Custom", menu );
@@ -535,6 +546,11 @@ void MainWindow::setupToolActions()
 	customWidgetToolBar->hide();
 	actionToolsCustomWidget->addTo( customWidgetMenu );
 	customWidgetMenu->insertSeparator();
+	QToolBar *tb2 = new QToolBar( "Custom Widgets", 0, toolBox, "Custom Widgets" );
+	tb2->setOrientation( Qt::Vertical );
+	tb2->setFrameStyle( QFrame::NoFrame );
+	toolBox->addCategory( "Custom Widgets", tb2 );
+	customWidgetToolBar2 = tb2;
     }
 
     resetTool();

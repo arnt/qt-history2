@@ -46,6 +46,7 @@
 #include <private/qpluginmanager_p.h>
 #include <qobjectlist.h>
 
+class QCategoryWidget;
 class PropertyEditor;
 class QWorkspace;
 class QMenuBar;
@@ -315,6 +316,7 @@ private:
     void setupWorkspace();
     void setupActionEditor();
     void setupOutputWindow();
+    void setupToolbox();
 
     void setupActionManager();
     void setupPluginManagers();
@@ -406,7 +408,7 @@ private:
     QPopupMenu *rmbWidgets;
     QPopupMenu *rmbFormWindow;
     QPopupMenu *customWidgetMenu, *windowMenu, *fileMenu, *recentlyFilesMenu, *recentlyProjectsMenu;
-    QToolBar *customWidgetToolBar, *layoutToolBar, *projectToolBar;
+    QToolBar *customWidgetToolBar, *layoutToolBar, *projectToolBar, *customWidgetToolBar2;
 
     Preferences *prefDia;
     QMap<QString,QString> propertyDocumentation;
@@ -444,6 +446,7 @@ private:
     QPopupMenu *projectMenu;
     QString menuHelpFile;
     bool singleProject;
+    QCategoryWidget *toolBox;
 
 public:
     QString lastSaveFilter;
