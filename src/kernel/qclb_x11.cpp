@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclb_x11.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qclb_x11.cpp#23 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_x11.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_x11.cpp#23 $");
 
 
 /*****************************************************************************
@@ -259,8 +259,8 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 		length = buffer->size() - offset;
 		bytes_left = 0;			// escape loop
 	    }
-	    memcpy( buffer->data()+offset, data, length );
-	    offset += length;
+	    memcpy( buffer->data()+offset, data, (unsigned int)length );
+	    offset += (unsigned int)length;
 	    XFree( (char*)data );
 	}
     }
