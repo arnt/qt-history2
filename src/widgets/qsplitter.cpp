@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#13 $
 **
 **  Splitter widget
 **
@@ -176,25 +176,25 @@ void QInternalSplitter::paintEvent( QPaintEvent * )
 
   A splitter lets the user control the size of two child widgets by
   dragging the boundary between the two children.
-  
+
   You specify the two widgets to be managed using setFirstWidget() (to
-  set the left/top widget) and setSecondWidget().  
+  set the left/top widget) and setSecondWidget().
 
   In QSplitter the boundary can be either horizontal or vertical.  The
   default is horizontal (the two children are side by site) and you
   can use setOrientation( QSplitter::Vertical ) to set to to vertical.
 
   By default, both widgets can be as large or as small as the user
-  wishes.  You can set the current size using setRatio() (sets the two
-  widgets' relative size) or adjustPos() (sets the absolute size of
-  firstChild()), and you can limit the user's ability to resize the
-  widgets by calling setMinimumSize() and/or setMaximumSize() on the
+  wishes.  You can set the current split using setRatio() (sets the
+  two widgets' relative size) or setFixed() (sets either child to be
+  of fixed size and the other to take all the slack).  Of course you
+  can also use setMinimumSize() and/or setMaximumSize() on the
   children.
 
   QSplitter normally resizes the two children only at the end of a
   resize operation, but if you call setOpaqueResize( TRUE ), the
   widgets are resized as often as possible.
-  
+
   \sa QTabBar
 */
 
@@ -240,10 +240,10 @@ void QSplitter::init()
 }
 
 /*!  Sets \a w to be the left (or top) widget.
-  
+
   If there is a firstWidget() already, that widget is hidden but not
   deleted.
-  
+
   \sa setSecondWidget() firstWidget()
 */
 void QSplitter::setFirstWidget( QWidget *w ) {
@@ -261,7 +261,7 @@ void QSplitter::setFirstWidget( QWidget *w ) {
 
 /*!
   Sets \a w to be the right (or bottom) widget.
-  
+
   If there is a secondWidget() already, that widget is hidden but not
   deleted.
 
@@ -282,7 +282,7 @@ void QSplitter::setSecondWidget( QWidget *w ) {
 
 /*!  Sets the orientation to \a o.  By default the orientation is
   horizontal (the two widgets are side by side).
-  
+
   \sa orientation()
 */
 
