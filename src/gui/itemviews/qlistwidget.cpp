@@ -629,9 +629,6 @@ QDataStream &operator>>(QDataStream &stream, const QListWidgetItem &item)
     \sa checkState()
 */
 
-#define d d_func()
-#define q q_func()
-
 class QListWidgetPrivate : public QListViewPrivate
 {
     Q_DECLARE_PUBLIC(QListWidget)
@@ -650,6 +647,7 @@ public:
 
 void QListWidgetPrivate::setup()
 {
+    Q_Q(QListWidget);
     q->setModel(new QListModel(q));
     // view signals
     QObject::connect(q, SIGNAL(pressed(QModelIndex)), q, SLOT(emitItemPressed(QModelIndex)));
@@ -670,37 +668,44 @@ void QListWidgetPrivate::setup()
 
 void QListWidgetPrivate::emitItemPressed(const QModelIndex &index)
 {
+    Q_Q(QListWidget);
     emit q->itemPressed(model()->at(index.row()));
 }
 
 void QListWidgetPrivate::emitItemClicked(const QModelIndex &index)
 {
+    Q_Q(QListWidget);
     emit q->itemClicked(model()->at(index.row()));
 }
 
 void QListWidgetPrivate::emitItemDoubleClicked(const QModelIndex &index)
 {
+    Q_Q(QListWidget);
     emit q->itemDoubleClicked(model()->at(index.row()));
 }
 
 void QListWidgetPrivate::emitItemActivated(const QModelIndex &index)
 {
+    Q_Q(QListWidget);
     emit q->itemActivated(model()->at(index.row()));
 }
 
 void QListWidgetPrivate::emitItemEntered(const QModelIndex &index)
 {
+    Q_Q(QListWidget);
     emit q->itemEntered(model()->at(index.row()));
 }
 
 void QListWidgetPrivate::emitItemChanged(const QModelIndex &index)
 {
+    Q_Q(QListWidget);
     emit q->itemChanged(model()->at(index.row()));
 }
 
 void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
                                                 const QModelIndex &previous)
 {
+    Q_Q(QListWidget);
     QListWidgetItem *currentItem = model()->at(current.row());
     emit q->currentItemChanged(currentItem, model()->at(previous.row()));
     emit q->currentTextChanged(currentItem ? currentItem->text() : QString());
@@ -869,6 +874,7 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 QListWidget::QListWidget(QWidget *parent)
     : QListView(*new QListWidgetPrivate(), parent)
 {
+    Q_D(QListWidget);
     d->setup();
 }
 
@@ -888,6 +894,7 @@ QListWidget::~QListWidget()
 
 QListWidgetItem *QListWidget::item(int row) const
 {
+    Q_D(const QListWidget);
     return d->model()->at(row);
 }
 
@@ -900,6 +907,7 @@ QListWidgetItem *QListWidget::item(int row) const
 int QListWidget::row(const QListWidgetItem *item) const
 {
     Q_ASSERT(item);
+    Q_D(const QListWidget);
     return d->model()->index(const_cast<QListWidgetItem*>(item)).row();
 }
 
@@ -912,6 +920,7 @@ int QListWidget::row(const QListWidgetItem *item) const
 
 void QListWidget::insertItem(int row, QListWidgetItem *item)
 {
+    Q_D(QListWidget);
     d->model()->insert(row, item);
 }
 
@@ -924,6 +933,7 @@ void QListWidget::insertItem(int row, QListWidgetItem *item)
 
 void QListWidget::insertItem(int row, const QString &label)
 {
+    Q_D(QListWidget);
     d->model()->insert(row, new QListWidgetItem(label));
 }
 
@@ -936,6 +946,7 @@ void QListWidget::insertItem(int row, const QString &label)
 
 void QListWidget::insertItems(int row, const QStringList &labels)
 {
+    Q_D(QListWidget);
     QListModel *model = d->model();
     int r = (row > -1 && row <= count()) ? row : count();
     for (int i = 0; i < labels.count(); ++i)
@@ -951,6 +962,7 @@ void QListWidget::insertItems(int row, const QStringList &labels)
 
 QListWidgetItem *QListWidget::takeItem(int row)
 {
+    Q_D(QListWidget);
     if (row < 0 || row >= d->model()->rowCount())
         return 0;
     return d->model()->take(row);
@@ -963,6 +975,7 @@ QListWidgetItem *QListWidget::takeItem(int row)
 
 int QListWidget::count() const
 {
+    Q_D(const QListWidget);
     return d->model()->rowCount();
 }
 
@@ -971,6 +984,7 @@ int QListWidget::count() const
 */
 QListWidgetItem *QListWidget::currentItem() const
 {
+    Q_D(const QListWidget);
     return d->model()->at(currentIndex().row());
 }
 
@@ -980,6 +994,7 @@ QListWidgetItem *QListWidget::currentItem() const
 */
 void QListWidget::setCurrentItem(QListWidgetItem *item)
 {
+    Q_D(QListWidget);
     selectionModel()->setCurrentIndex(d->model()->index(item),
                                       d->selectionMode == SingleSelection
                                       ? QItemSelectionModel::ClearAndSelect
@@ -998,6 +1013,7 @@ int QListWidget::currentRow() const
 
 void QListWidget::setCurrentRow(int row)
 {
+    Q_D(QListWidget);
     selectionModel()->setCurrentIndex(d->model()->index(row),
                                       d->selectionMode == SingleSelection
                                       ? QItemSelectionModel::ClearAndSelect
@@ -1010,6 +1026,7 @@ void QListWidget::setCurrentRow(int row)
 
 QListWidgetItem *QListWidget::itemAt(const QPoint &p) const
 {
+    Q_D(const QListWidget);
     QModelIndex index = indexAt(p);
     if (index.isValid())
         return d->model()->at(index.row());
@@ -1022,6 +1039,7 @@ QListWidgetItem *QListWidget::itemAt(const QPoint &p) const
 QRect QListWidget::visualItemRect(const QListWidgetItem *item) const
 {
     Q_ASSERT(item);
+    Q_D(const QListWidget);
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
     Q_ASSERT(index.isValid());
     return visualRect(index);
@@ -1032,6 +1050,7 @@ QRect QListWidget::visualItemRect(const QListWidgetItem *item) const
 */
 void QListWidget::sortItems(Qt::SortOrder order)
 {
+    Q_D(QListWidget);
     d->model()->sort(0, order);
 }
 
@@ -1043,6 +1062,7 @@ void QListWidget::sortItems(Qt::SortOrder order)
 void QListWidget::openPersistentEditor(QListWidgetItem *item)
 {
     Q_ASSERT(item);
+    Q_D(QListWidget);
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::openPersistentEditor(index);
 }
@@ -1055,6 +1075,7 @@ void QListWidget::openPersistentEditor(QListWidgetItem *item)
 void QListWidget::closePersistentEditor(QListWidgetItem *item)
 {
     Q_ASSERT(item);
+    Q_D(QListWidget);
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::closePersistentEditor(index);
 }
@@ -1064,6 +1085,7 @@ void QListWidget::closePersistentEditor(QListWidgetItem *item)
 */
 bool QListWidget::isItemSelected(const QListWidgetItem *item) const
 {
+    Q_D(const QListWidget);
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
     return selectionModel()->isSelected(index) && !isIndexHidden(index);
 }
@@ -1074,6 +1096,7 @@ bool QListWidget::isItemSelected(const QListWidgetItem *item) const
 */
 void QListWidget::setItemSelected(const QListWidgetItem *item, bool select)
 {
+    Q_D(QListWidget);
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
     selectionModel()->select(index, select
                              ? QItemSelectionModel::Select
@@ -1086,6 +1109,7 @@ void QListWidget::setItemSelected(const QListWidgetItem *item, bool select)
 
 QList<QListWidgetItem*> QListWidget::selectedItems() const
 {
+    Q_D(const QListWidget);
     QModelIndexList indexes = selectedIndexes();
     QList<QListWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i)
@@ -1099,6 +1123,7 @@ QList<QListWidgetItem*> QListWidget::selectedItems() const
 
 QList<QListWidgetItem*> QListWidget::findItems(const QRegExp &rx) const
 {
+    Q_D(const QListWidget);
     return d->model()->find(rx);
 }
 
@@ -1125,6 +1150,7 @@ void QListWidget::setItemHidden(const QListWidgetItem *item, bool hide)
 void QListWidget::scrollToItem(const QListWidgetItem *item)
 {
     Q_ASSERT(item);
+    Q_D(QListWidget);
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
     Q_ASSERT(index.isValid());
     QListView::scrollTo(index);
@@ -1135,6 +1161,7 @@ void QListWidget::scrollToItem(const QListWidgetItem *item)
 */
 void QListWidget::clear()
 {
+    Q_D(QListWidget);
     selectionModel()->clear();
     d->model()->clear();
 }
@@ -1147,4 +1174,6 @@ void QListWidget::setModel(QAbstractItemModel *model)
     QListView::setModel(model);
 }
 
+#define d d_func()
 #include "moc_qlistwidget.cpp"
+#undef d
