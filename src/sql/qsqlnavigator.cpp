@@ -53,6 +53,17 @@ public:
     QStringList srt;
 };
 
+
+/*!
+  \class QSqlNavigatorBase qsqlnavigator.h
+  \brief Navigate a database cursor
+
+  \module sql
+
+  This class //###
+
+*/
+
 /*!  Constructs a navigator base.
 
 */
@@ -97,26 +108,20 @@ QString QSqlNavigatorBase::filter() const
     return d->ftr;
 }
 
-/*! Refreshes the navigator using the default cursor.  If \a idx is
-  specified, the first record matching the index is selected.
+/*! Refreshes the navigator using the default cursor.  If the default
+  cursor specifies its own filter and sort, it is refreshed using
+  those values.  Otherwise, the navigator's filter and sort are
+  applied.
+
+  \sa setFilter() setSort()
+
 */
 
-bool QSqlNavigatorBase::refresh( const QSqlIndex& idx )
+void QSqlNavigatorBase::refresh()
 {
-    return refresh( defaultCursor(), defaultCursor()->editBuffer(), idx );
-}
-
-bool QSqlNavigatorBase::refresh( QSqlCursor* cursor, const QSqlRecord* buf, const QSqlIndex& idx )
-{
+    QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
-	return FALSE;
-
-    bool seekPrimary = (idx.count() ? TRUE : FALSE );
-    int lastAt = cursor->at();
-
-    QSqlIndex pi;
-    if ( seekPrimary )
-	pi = idx;
+	return;
     QString currentFilter = cursor->filter();
     if ( currentFilter.isEmpty() )
 	currentFilter = d->ftr;
@@ -125,10 +130,6 @@ bool QSqlNavigatorBase::refresh( QSqlCursor* cursor, const QSqlRecord* buf, cons
 	currentSort = d->srt;
     QSqlIndex newSort = QSqlIndex::fromStringList( currentSort, cursor );
     cursor->select( currentFilter, newSort );
-    bool found = FALSE;
-    if ( seekPrimary && buf )
-	found = QSqlNavigatorBase::relocate( cursor, buf, idx, lastAt );
-    return found;
 }
 
 /*! Returns a pointer to the default cursor used for navigation, or 0
@@ -156,40 +157,83 @@ bool q_index_matches( const QSqlRecord* buf, const QSqlIndex& idx )
     return indexEquals;
 }
 
-bool q_less( const QSqlRecord* buf1, const QSqlRecord* buf2, const QSqlIndex& idx )
+// return less than, equal to or greater than 0
+// if buf1 is less than, equal to or greater than buf2
+// according to fields described in idx (currently only uses first field)
+int q_compare( const QSqlRecord* buf1, const QSqlRecord* buf2, const QSqlIndex& idx )
 {
-    bool lessThan = FALSE;
-    for ( uint i = 0; i < idx.count(); ++i ) {
+    int cmp = 0;
+
+    QString s1, s2; //##
+
+    //    for ( uint i = 0; i < idx.count(); ++i ) {
+    int i = 0;
 	const QString fn( idx.field(i)->name() );
 	const QSqlField* f1 = buf1->field( fn );
+	bool reverse = FALSE;
+	if ( idx.isDescending( i ) )
+	     reverse = TRUE;
 	if ( f1 ) {
 	    switch( f1->type() ) { // ## more types?
 	    case QVariant::String:
 	    case QVariant::CString:
-		if ( f1->value().toString() < buf2->value( fn ).toString() )
-		    lessThan = TRUE;
-		else
-		    lessThan = FALSE;
+		if ( f1->value().toString().simplifyWhiteSpace() < buf2->value( fn ).toString().simplifyWhiteSpace() )
+		    cmp = -1;
+		else if ( f1->value().toString().simplifyWhiteSpace() > buf2->value( fn ).toString().simplifyWhiteSpace() )
+		    cmp = 1;
 		break;
 	    default:
 		if ( f1->value().toDouble() < buf2->value( fn ).toDouble() )
-		    lessThan = TRUE;
-		else
-		    lessThan = FALSE;
+		    cmp = -1;
+		else if ( f1->value().toDouble() > buf2->value( fn ).toDouble() )
+		    cmp = 1;
+		break;
 	    }
 	}
-	if ( lessThan == FALSE )
-	    break;
+	s1 = f1->value().toString().simplifyWhiteSpace() + ";";
+	s2 = buf2->value( fn ).toString().simplifyWhiteSpace() + ";";
+	//    }
+    if ( reverse ) {
+	if ( cmp < 0 )
+	    cmp = 1;
+	else if ( cmp > 0 )
+	    cmp = -1;
     }
-    return lessThan;
+    return cmp;
+
 }
 
-bool QSqlNavigatorBase::relocate( QSqlCursor* cursor, const QSqlRecord* buf, const QSqlIndex& idx, int atHint )
+/*! Relocates the default cursor to the record matching the cursor's
+edit buffer.  Only the field names specified by \a idx are used to
+determine an exact match of the cursor to the edit buffer. However,
+other fields in the edit buffer are also used during the search,
+therefore all fields in the edit buffer should be primed with
+appropriate values.  This function is typically used to relocate a
+cursor to the correct position after an insert or update.  For example:
+
+\code
+    QSqlCursor* myCursor = myNavigator.defaultCursor();
+    ...
+    QSqlRecord* buf = myCursor->primeUpdate();
+    buf->setValue( "name", "Dave" );
+    buf->setValue( "city", "Oslo" );
+    ...
+    myCursor->update();  // update current record
+    myCursor->select();  // refresh the cursor
+    myNavigator.relocate( myCursor->primaryIndex() ); // go to the updated record
+\endcode
+
+*/
+
+//## possibly add sizeHint parameter
+bool QSqlNavigatorBase::findBuffer( const QSqlIndex& idx, int atHint )
 {
+    QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
 	return FALSE;
     if ( !cursor->isActive() )
 	return FALSE;
+    QSqlRecord* buf = cursor->editBuffer();
 
     bool seekPrimary = (idx.count() ? TRUE : FALSE );
 
@@ -223,7 +267,7 @@ bool QSqlNavigatorBase::relocate( QSqlCursor* cursor, const QSqlRecord* buf, con
 	    int lo = 0;
 	    int hi = cursor->size();
 	    int mid;
-	    if ( !q_less( buf, cursor, cursor->sort() ) )
+	    if ( q_compare( buf, cursor, cursor->sort() ) >= 0 )
 		lo = cursor->at();
 	    while( lo != hi ) {
 		mid = lo + (hi - lo) / 2;
@@ -233,39 +277,53 @@ bool QSqlNavigatorBase::relocate( QSqlCursor* cursor, const QSqlRecord* buf, con
 		    indexEquals = TRUE;
 		    break;
 		}
-		if ( q_less( buf, cursor, cursor->sort() ) )
+		int c = q_compare( buf, cursor, cursor->sort() );
+		if ( c < 0 )
 		    hi = mid;
-		else
+		else if ( c == 0 ) {
+		    // found it, but there may be duplicates
+		    int at = mid;
+		    do {
+			mid--;
+			if ( !cursor->seek( mid ) )
+			    break;
+			if ( q_index_matches( cursor, idx ) ) {
+			    indexEquals = TRUE;
+			    break;
+			}
+		    } while ( q_compare( buf, cursor, cursor->sort() ) == 0 );
+		    if ( !indexEquals ) {
+			mid = at;
+			do {
+			    mid++;
+			    if ( !cursor->seek( mid ) )
+				break;
+			    if ( q_index_matches( cursor, idx ) ) {
+				indexEquals = TRUE;
+				break;
+			    }
+			} while ( q_compare( buf, cursor, cursor->sort() ) == 0 );
+		    }
+		    break;
+		} else if ( c > 0 ) {
 		    lo = mid + 1;
+		}
 	    }
 	}
 
 	if ( !indexEquals ) {
 	    /* give up, use brute force */
-
 	    int startIdx = 0;
-	    bool reverse = FALSE;
-	    if ( q_less( buf, cursor, cursor->sort() ) ) {
-		reverse = TRUE;
-		startIdx = cursor->at();
-	    } else {
-		startIdx = cursor->at();
-	    }
-
-	    if ( cursor->at() != startIdx )
+	    if ( cursor->at() != startIdx ) {
 		cursor->seek( startIdx );
+	    }
 	    for ( ;; ) {
 		indexEquals = FALSE;
 		indexEquals = q_index_matches( cursor, idx );
 		if ( indexEquals )
 		    break;
-		if ( !reverse ) {
-		    if ( !cursor->next() )
-			break;
-		} else {
-		    if ( !cursor->prev() )
-			break;
-		}
+		if ( !cursor->next() )
+		    break;
 	    }
 	}
     }
@@ -348,7 +406,8 @@ int QSqlNavigator::insertRecord()
     int ar = cursor->insert();
     if ( !ar || !cursor->isActive() )
 	handleError( cursor->lastError() );
-    refresh( cursor->primaryIndex() );
+    refresh();
+    findBuffer( cursor->primaryIndex() );
     updateBoundry();
     return ar;
 }
@@ -371,7 +430,8 @@ int QSqlNavigator::updateRecord()
     if ( !ar || !cursor->isActive() )
 	handleError( cursor->lastError() );
     else {
-	refresh( cursor->primaryIndex() );
+	refresh();
+	findBuffer( cursor->primaryIndex() );
 	updateBoundry();
 	form->readFields();
     }

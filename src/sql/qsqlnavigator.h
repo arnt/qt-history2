@@ -63,12 +63,10 @@ public:
 
     virtual QSqlCursor* defaultCursor();
 
-    virtual bool refresh( const QSqlIndex& idx = QSqlIndex() );
+    virtual void refresh();
+    virtual bool findBuffer( const QSqlIndex& idx, int atHint = 0 );
 
-    //## remove static after fixing QSqlTable to inherit from QSqlNavigatorBase
-    static bool relocate( QSqlCursor* cursor, const QSqlRecord* buf, const QSqlIndex& idx, int atHint );
 private:
-    bool refresh( QSqlCursor* cursor, const QSqlRecord* buf = 0, const QSqlIndex& idx = QSqlIndex() );
     QSqlNavigatorBasePrivate* d;
 };
 
