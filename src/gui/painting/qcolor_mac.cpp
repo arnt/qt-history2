@@ -55,7 +55,7 @@ void QColor::cleanup()
   QColor member functions
  *****************************************************************************/
 
-uint QColor::alloc()
+uint QColor::alloc(int)
 {
     d.d32.pix = qRed(d.argb) << 16 | qGreen(d.argb) << 8 | qBlue(d.argb);
     return d.d32.pix;
