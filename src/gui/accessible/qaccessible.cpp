@@ -389,7 +389,7 @@ void QAccessible::removeFactory(InterfaceFactory factory)
 }
 
 /*!
-    Installs \a handler as the function to be used by
+    Installs the given \a handler as the function to be used by
     updateAccessibility(), and returns the previously installed
     handler.
 */
@@ -401,7 +401,7 @@ QAccessible::UpdateHandler QAccessible::installUpdateHandler(UpdateHandler handl
 }
 
 /*!
-    Installs \a handler as the function to be used by setRootObject(),
+    Installs the given \a handler as the function to be used by setRootObject(),
     and returns the previously installed handler.
 */
 QAccessible::RootObjectHandler QAccessible::installRootObjectHandler(RootObjectHandler handler)
@@ -412,18 +412,18 @@ QAccessible::RootObjectHandler QAccessible::installRootObjectHandler(RootObjectH
 }
 
 /*!
-    If a QAccessibleInterface implementation exists for \a object,
-    this function returns a pointer to the implementation; otherwise
-    it returns 0.
+    If a QAccessibleInterface implementation exists for the given \a object,
+    this function returns a pointer to the implementation; otherwise it
+    returns 0.
 
     The function calls all installed factory functions (from most
     recently installed to least recently installed) until one is found
     that provides an interface for the class of \a object. If no
     factory can provide an accessibility implementation for the class
-    the function loads installed accessibility plugins and tests if
+    the function loads installed accessibility plugins, and tests if
     any of the plugins can provide the implementation.
 
-    If no implementation for the object's class is available the
+    If no implementation for the object's class is available, the
     function tries to find an implementation for the object's parent
     class, using the above strategy.
 
