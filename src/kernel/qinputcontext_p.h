@@ -87,7 +87,7 @@ public:
     void setXFontSet(const QFont &);
 
     void *ic;
-    QString text, lastcompose;
+    QString text;
     QWidget *focusWidget;
     bool composing;
     QFont font;

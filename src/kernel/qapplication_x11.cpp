@@ -3081,11 +3081,82 @@ int QApplication::x11ProcessEvent( XEvent* event )
     }
 
     int xkey_keycode = event->xkey.keycode;
-    extern int qt_compose_keycode; // in qinputcontext_x11.cpp
-    qt_compose_keycode = xkey_keycode;
-    if ( XFilterEvent( event, keywidget ? keywidget->topLevelWidget()->winId() : None ) ) {
+    if ( XFilterEvent( event,
+		       keywidget ? keywidget->topLevelWidget()->winId() : None ) ) {
 	if ( keywidget )
 	    composingKeycode = xkey_keycode; // ### not documented in xlib
+
+#ifndef QT_NO_XIM
+ 	if ( event->type != XKeyPress || ! (qt_xim_style & XIMPreeditCallbacks) )
+	    return 1;
+
+	/*
+	 * The Solaris htt input method will transform a ClientMessage
+	 * event into a filtered KeyPress event, in which case our
+	 * keywidget is still zero.
+	 */
+        if ( ! keywidget ) {
+ 	    keywidget = (QETWidget*)QWidget::keyboardGrabber();
+	    if ( keywidget ) {
+	        grabbed = TRUE;
+	    } else {
+	        if ( focus_widget )
+		    keywidget = (QETWidget*)focus_widget;
+	        if ( !keywidget ) {
+		    if ( inPopupMode() ) // no focus widget, see if we have a popup
+		        keywidget = (QETWidget*) activePopupWidget();
+		    else if ( widget )
+		        keywidget = (QETWidget*)widget->topLevelWidget();
+	        }
+	    }
+        }
+
+	/*
+	  if the composition string has been emptied, we need to send
+	  an IMEnd event.  however, we have no way to tell if the user
+	  has cancelled input, or if the user has accepted the
+	  composition.
+
+	  so, we have to look for the next keypress and see if it is
+	  the 'commit' key press (keycode == 0).  if it is, we deliver
+	  an IMEnd event with the final text, otherwise we deliver an
+	  IMEnd with empty text (meaning the user has cancelled the
+	  input).
+	*/
+	QInputContext *qic =
+	    (QInputContext *) keywidget->topLevelWidget()->topData()->xic;
+	extern bool qt_compose_emptied; // qinputcontext_x11.cpp
+	if ( qic && qic->composing && qic->focusWidget && qt_compose_emptied ) {
+	    XEvent event2;
+	    if ( XCheckTypedEvent( QPaintDevice::x11AppDisplay(),
+				   XKeyPress, &event2 ) ) {
+		if ( event2.xkey.keycode == 0 ) {
+		    // found a key event with the 'commit' string
+		    QCString data(513);
+		    KeySym sym;    // unused
+		    Status status; // unused
+		    QString text;
+		    int count = qic->lookupString( &(event2.xkey), data,
+						   &sym, &status );
+		    if ( count > 0 )
+			text = input_mapper->toUnicode( data, count );
+		    QIMEvent endevent( QEvent::IMEnd, text, -1 );
+		    QApplication::sendEvent( qic->focusWidget, &endevent );
+		} else {
+		    // found some other key event, leave it alone
+		    XPutBackEvent( QPaintDevice::x11AppDisplay(), &event2 );
+		}
+	    } else {
+		// no key event, so the user must have cancelled the composition
+		QIMEvent endevent( QEvent::IMEnd, QString::null, -1 );
+		QApplication::sendEvent( qic->focusWidget, &endevent );
+	    }
+
+	    qt_compose_emptied = FALSE;
+	    qic->focusWidget = 0;
+	}
+#endif // QT_NO_XIM
+
 	return 1;
     }
 
@@ -5162,19 +5233,6 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 
     QKeyEvent e( type, code, ascii, state, text, autor,
 		 QMAX(count, int(text.length())) );
-
-#ifndef QT_NO_XIM
-    if (qt_xim_style & XIMPreeditCallbacks) {
-	QWidget *tlw = topLevelWidget();
-	QInputContext *qic = (QInputContext *) tlw->topData()->xic;
-
-	if (qic && qic->composing && ! qic->lastcompose.isNull() &&
-	    qic->lastcompose == text) {
-	    // keyevent with same text as last compose, skip it
-	    return TRUE;
-	}
-    }
-#endif // QT_NO_XIM
     return QApplication::sendSpontaneousEvent( this, &e );
 }
 

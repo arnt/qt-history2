@@ -42,7 +42,7 @@
 #include <limits.h>
 
 
-int qt_compose_keycode = 0;
+bool qt_compose_emptied = FALSE;
 
 #if !defined(QT_NO_XIM)
 
@@ -112,7 +112,7 @@ extern "C" {
 	}
 
 	qic->composing = TRUE;
-	qic->lastcompose = qic->text = QString::null;
+	qic->text = QString::null;
 	qic->focusWidget = 0;
 
 	if ( qic->selectedChars.size() < 128 )
@@ -132,11 +132,11 @@ extern "C" {
 
 	if (qApp->focusWidget() != qic->focusWidget && qic->text.isEmpty()) {
 	    if (qic->focusWidget) {
-		QIMEvent endevent(QEvent::IMEnd, qic->lastcompose, -1);
+		QIMEvent endevent(QEvent::IMEnd, QString::null, -1);
 		QApplication::sendEvent(qic->focusWidget, &endevent);
 	    }
 
-	    qic->text = qic->lastcompose = QString::null;
+	    qic->text = QString::null;
 	    qic->focusWidget = qApp->focusWidget();
 	    qic->composing = FALSE;
 
@@ -161,6 +161,12 @@ extern "C" {
 	    (XIMPreeditDrawCallbackStruct *) call_data;
 	XIMText *text = (XIMText *) drawstruct->text;
 	int cursor = drawstruct->caret, sellen = 0;
+
+	if ( ! drawstruct->caret &&
+	     ! drawstruct->chg_first && ! drawstruct->chg_length && ! text ) {
+	    // nothing to do
+	    return 0;
+	}
 
 	if (text) {
 	    char *str = 0;
@@ -222,29 +228,17 @@ extern "C" {
 		drawstruct->chg_length = -1;
 
 	    qic->text.remove(drawstruct->chg_first, drawstruct->chg_length);
-
-	    KeySym sym = XKeycodeToKeysym(QPaintDevice::x11AppDisplay(),
-					  qt_compose_keycode, 0);
-
-	    if ( qic->text.isEmpty() ) {
-		if ( sym == XK_Return ) {
-		    // qDebug("user pressed return, send an IMEnd...");
-		    QIMEvent endevent(QEvent::IMEnd, qic->lastcompose, -1);
-		    QApplication::sendEvent(qic->focusWidget, &endevent);
-		    qic->focusWidget = 0;
-		    return 0;
-		} else {
-		    // qDebug("last char deleted, send an IMEnd with null string...");
-		    QIMEvent endevent(QEvent::IMEnd, QString::null, -1);
-		    QApplication::sendEvent(qic->focusWidget, &endevent);
-		    qic->focusWidget = 0;
-		    return 0;
-		}
+	    qt_compose_emptied = qic->text.isEmpty();
+	    if ( qt_compose_emptied ) {
+		// qDebug( "compose emptied" );
+		// don't send an empty compose, since we will send an IMEnd with
+		// either the correct compose text (or null text if the user has
+		// cancelled the compose or deleted all chars).
+		return 0;
 	    }
 	}
 
-	qic->lastcompose = qic->text;
-
+ 	// qDebug( "sending compose event" );
 	QIMComposeEvent event( QEvent::IMCompose, qic->text, cursor, sellen );
 	QApplication::sendEvent(qic->focusWidget, &event);
 	return 0;
@@ -256,11 +250,10 @@ extern "C" {
 	    return 0;
 
 	if (qic->composing && qic->focusWidget) {
-       	    QIMEvent event(QEvent::IMEnd, qic->lastcompose, -1);
+       	    QIMEvent event(QEvent::IMEnd, QString::null, -1);
 	    QApplication::sendEvent(qic->focusWidget, &event);
 	}
 
- 	qic->lastcompose = QString::null;
 	qic->composing = FALSE;
 	qic->focusWidget = 0;
 
@@ -388,10 +381,10 @@ void QInputContext::reset()
     if (focusWidget && composing && ! text.isNull()) {
 	// qDebug("QInputContext::reset: composing - sending IMEnd");
 
-	QIMEvent endevent(QEvent::IMEnd, lastcompose, -1);
+	QIMEvent endevent(QEvent::IMEnd, QString::null, -1);
 	QApplication::sendEvent(focusWidget, &endevent);
 	focusWidget = 0;
-	lastcompose = text = QString::null;
+	text = QString::null;
 	if ( selectedChars.size() < 128 )
 	    selectedChars.resize( 128 );
 	selectedChars.fill( 0 );
