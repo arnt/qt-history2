@@ -31,7 +31,7 @@ ListViewItemDrag::ListViewItemDrag( ListViewItemList &items, QWidget * parent, c
     QByteArray data( sizeof( Q_INT32 ) + sizeof( QListViewItem ) * items.count() );
     QDataStream stream( data, IO_WriteOnly );
 
-    stream << (Q_INT32)items.count();
+    stream << items.count();
 
     QListViewItem *i = items.first();
     while ( i ) {
@@ -59,7 +59,7 @@ bool ListViewItemDrag::decode( QDropEvent * event, QListView *parent, QListViewI
 	QDataStream stream( data, IO_ReadOnly );
     
 	int count = 0;
-	stream >> (Q_INT32) count;
+	stream >> count;
 
 	for( int i = 0; i < count; i++ ) {
 	    below = new QListViewItem( parent, below );
@@ -74,7 +74,7 @@ bool ListViewItemDrag::decode( QDropEvent * event, QListView *parent, QListViewI
 QDataStream & operator<< ( QDataStream & stream, const QListViewItem & item )
 {
     int columns = item.listView()->columns();
-    stream << (Q_INT32) columns;
+    stream << columns;
  
     Q_UINT8 b = 0;
 
@@ -122,8 +122,8 @@ QDataStream & operator<< ( QDataStream & stream, const QListViewItem & item )
     
 QDataStream & operator>> ( QDataStream & stream, QListViewItem & item )
 {
-    int columns;
-    stream >> (Q_INT32) columns;
+    Q_INT32 columns;
+    stream >> columns;
 
     Q_UINT8 b = 0;
 
