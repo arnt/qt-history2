@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#44 $
 **
 ** Implementation of QPointArray class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#44 $");
 
 /*!
   \class QPointVal qpntarry.h
@@ -518,11 +518,10 @@ void QPointArray::makeEllipse( int xx, int yy, int w, int h )
     int *py = new int[s];
     int x, y, i=0;
     double d1, d2;
-    double a=0.5*w, b=0.5*h;
-    double a2=a*a,  b2=b*b;
+    double a2=(w/2)*(w/2),  b2=(h/2)*(h/2);
     x = 0;
-    y = int(b);
-    d1 = b2 - a2*b + 0.25*a2;
+    y = int(h/2);
+    d1 = b2 - a2*(h/2) + 0.25*a2;
     px[i] = x;
     py[i] = y;
     i++;
@@ -540,9 +539,7 @@ void QPointArray::makeEllipse( int xx, int yy, int w, int h )
 	py[i] = y;
 	i++;
     }
-    double t1 = x+0.5;
-    double t2 = y-1;
-    d2 = b2*t1*t1 + a2*t2*t2 - a2*b2;
+    d2 = b2*(x+0.5)*(x+0.5) + a2*(y-1)*(y-1) - a2*b2;
     while ( y > 0 ) {				// region 2
 	if ( d2 < 0 ) {
 	    d2 = d2 + 2.0*b2*(x+1) + a2*(3-2*y);
@@ -556,9 +553,6 @@ void QPointArray::makeEllipse( int xx, int yy, int w, int h )
 	px[i] = x;
 	py[i] = y;
 	i++;
-    }
-    if ( i > s ) {
-	debug( "i > s!!!    i=%d,  w=%d, h=%d", i, w, h );
     }
     s = i;
     resize( 4*s );				// make full point array
