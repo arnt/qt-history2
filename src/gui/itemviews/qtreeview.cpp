@@ -1234,35 +1234,38 @@ int QTreeView::sizeHintForColumn(int column) const
 int QTreeView::indexRowSizeHint(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
-    if (!index.isValid() || d->header->count() <= 0)
-        return 0;
+    if (!index.isValid() || !model())
+        return -1;
 
-    // FIXME: use visible indexes that we later convert them to logical indexes.
-    // If the sections have moved, we end up checking too many or too few
-    int start = d->header->visualIndexAt(0);
-    int end = d->header->visualIndexAt(viewport()->width());
+    int start = -1;
+    int end = -1;
+    int count = d->header->count();
+    if (count) {
+        // If the sections have moved, we end up checking too many or too few
+        start = d->header->logicalIndexAt(0);
+        end = d->header->logicalIndexAt(viewport()->width());
+    } else {
+        // If the header has not been layed out yet, we use the model directly
+        count = model()->columnCount(index.parent());
+    }
 
     if (isRightToLeft()) {
-        start = (start == -1 ? d->header->count() - 1 : start);
+        start = (start == -1 ? count - 1 : start);
         end = (end == -1 ? 0 : end);
     } else {
         start = (start == -1 ? 0 : start);
-        end = (end == -1 ? d->header->count() - 1 : end);
+        end = (end == -1 ? count - 1 : end);
     }
-
-    start = d->header->logicalIndex(start);
-    end = d->header->logicalIndex(end);
 
     int tmp = start;
     start = qMin(start, end);
     end = qMax(tmp, end);
 
-    int height = 0;
+    int height = -1;
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
-    QModelIndex parent = index.parent();
     for (int column = start; column <= end; ++column) {
-        QModelIndex idx = d->model->index(index.row(), column, parent);
+        QModelIndex idx = index.sibling(index.row(), column);
         height = qMax(height, delegate->sizeHint(option, idx).height());
     }
 
