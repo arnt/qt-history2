@@ -706,6 +706,8 @@ private:
     QString comment;
 
     QString accum;
+
+    bool trString;
 };
 
 bool UiHandler::startElement( const QString& /* namespaceURI */,
@@ -719,6 +721,11 @@ bool UiHandler::startElement( const QString& /* namespaceURI */,
             source = atts.value( QString("text") );
     } else if ( qName == QString("string") ) {
         flush();
+        if (atts.value(QString("notr")).isEmpty() ||
+            atts.value(QString("notr")) != QString("true"))
+            trString = true;
+        else
+            trString = false;
     }
     accum.truncate( 0 );
     return TRUE;
@@ -733,7 +740,7 @@ bool UiHandler::endElement( const QString& /* namespaceURI */,
     if ( qName == QString("class") ) {
         if ( context.isEmpty() )
             context = accum;
-    } else if ( qName == QString("string") ) {
+    } else if ( qName == QString("string") && trString ) {
         source = accum;
     } else if ( qName == QString("comment") ) {
         comment = accum;
