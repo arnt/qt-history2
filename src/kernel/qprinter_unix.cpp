@@ -349,9 +349,9 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			// try to replace this process with "true" - this prevents
 			// global destructors from being called (that could possibly
 			// do wrong things to the parent process)
-			(void)execlp("true", "true", 0);
-			(void)execl("/bin/true", "true", 0);
-			(void)execl("/usr/bin/true", "true", 0);
+			(void)execlp("true", "true", (char *)0);
+			(void)execl("/bin/true", "true", (char *)0);
+			(void)execl("/usr/bin/true", "true", (char *)0);
                         ::exit( 0 );
                     }
                     dup2( fds[0], 0 );
@@ -364,7 +364,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			else
                             pr.prepend( QString::fromLatin1( "-P" ) );
                         (void)execlp( print_prog.ascii(), print_prog.ascii(),
-                                      pr.ascii(), 0 );
+                                      pr.ascii(), (char *)0 );
                     } else {
                         // if no print program has been specified, be smart
                         // about the option string too.
@@ -382,12 +382,12 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                                             QString::fromLatin1( "-d" ) );
                             lparg = lphack.ascii();
                         }
-                        (void)execlp( "lp", "lp", lparg, 0 );
-                        (void)execlp( "lpr", "lpr", lprarg, 0 );
-                        (void)execl( "/bin/lp", "lp", lparg, 0 );
-                        (void)execl( "/bin/lpr", "lpr", lprarg, 0 );
-                        (void)execl( "/usr/bin/lp", "lp", lparg, 0 );
-                        (void)execl( "/usr/bin/lpr", "lpr", lprarg, 0 );
+                        (void)execlp( "lp", "lp", lparg, (char *)0 );
+                        (void)execlp( "lpr", "lpr", lprarg, (char *)0 );
+                        (void)execl( "/bin/lp", "lp", lparg, (char *)0 );
+                        (void)execl( "/bin/lpr", "lpr", lprarg, (char *)0 );
+                        (void)execl( "/usr/bin/lp", "lp", lparg, (char *)0 );
+                        (void)execl( "/usr/bin/lpr", "lpr", lprarg, (char *)0 );
                     }
                     // if we couldn't exec anything, close the fd,
                     // wait for a second so the parent process (the
