@@ -64,6 +64,7 @@
   \link #enum \\enum \endlink,
   \link #extension \\extension \endlink,
   \link #extensionlist \\extensionlist \endlink,
+  \link #file \\file \endlink,
   \link #fn \\fn \endlink,
   \link #footnote \\footnote...\\endfootnote \endlink,
   \link #functionindex \\functionindex \endlink,
@@ -665,6 +666,9 @@
 
     Binary files are typically images, which \link #img \\img \endlink
     can include in documentation.
+
+   \i \target file
+    <b>\\file</b> ###
 
    \i \target plainpage
     <b>\\plainpage</b> embeds plain text files in C++ files.

@@ -843,8 +843,15 @@ static void matchDocsAndStuff( DocEmitter *emitter )
 		PropertyDoc *pd = (PropertyDoc *) doc;
 		decl = emitter->resolveMangled( pd->name() );
 		if ( decl != 0 && decl->kind() == Decl::Property ) {
+		    PropertyDecl *propDecl = (PropertyDecl *) decl;
 		    decl->setDoc( pd );
 		    deleteDoc = FALSE;
+
+		    if ( pd->obsolete() && propDecl->designable() )
+			warning( 1, doc->location(),
+				 "Obsolete property '%s' should not be"
+				 " designable",
+				 pd->name().latin1() );
 		} else {
 		    warning( 1, doc->location(),
 			     "Property '%s' specified with '\\property' not"
