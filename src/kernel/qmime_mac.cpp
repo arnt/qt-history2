@@ -31,7 +31,7 @@
 static QList<QMacMime*> mimes;
 
 //functions
-QCString p2qstring(const unsigned char *); //qglobal.cpp
+QByteArray p2qstring(const unsigned char *); //qglobal.cpp
 unsigned char * p_str(const QString &s); //qglobal.cpp
 OSErr FSpLocationFromFullPath(short, const void *, FSSpec *); //qsound_mac.cpp
 
