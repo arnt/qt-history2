@@ -6463,14 +6463,21 @@ void QTableHeader::mouseDoubleClickEvent( QMouseEvent *e )
 	    section--;
 	if ( section < 0 )
 	    return;
+	int oldSize = sectionSize( section );
 	if ( orientation() == Horizontal ) {
 	    table->adjustColumn( section );
+	    int newSize = sectionSize( section );
+	    if ( oldSize != newSize )
+		emit sizeChange( section, oldSize, newSize );
 	    for ( int i = 0; i < table->numCols(); ++i ) {
 		if ( table->isColumnSelected( i ) && sectionSize( i ) != 0 )
 		    table->adjustColumn( i );
 	    }
 	} else {
 	    table->adjustRow( section );
+	    int newSize = sectionSize( section );
+	    if ( oldSize != newSize )
+		emit sizeChange( section, oldSize, newSize );
 	    for ( int i = 0; i < table->numRows(); ++i ) {
 		if ( table->isRowSelected( i )  && sectionSize( i ) != 0 )
 		    table->adjustRow( i );
