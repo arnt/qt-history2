@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#129 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#130 $
 **
 ** Implementation of QLabel widget class
 **
@@ -720,8 +720,28 @@ void QLabel::drawContentsMask( QPainter *p )
 	}
     }
 
-    style().drawItem( p, cr.x(), cr.y(), cr.width(), cr.height(),
-		      align, g, isEnabled(), bm.isNull()?0:&bm, ltext );
+    if ( doc ) {
+	doc->setWidth(p, cr.width() );
+	int rw = doc->widthUsed();
+	int rh = doc->height();
+	int xo = 0;
+	int yo = 0;
+	if ( align & AlignVCenter )
+	    yo = (cr.height()-rh)/2;
+	else if ( align & AlignBottom )
+	    yo = cr.height()-rh;
+	if ( align & AlignRight )
+	    xo = cr.width()-rw;
+	else if ( align & AlignHCenter )
+	    xo = (cr.width()-rw)/2;
+	if ( style() == WindowsStyle && !isEnabled() ) {
+	    doc->draw(p, cr.x()+xo+1, cr.y()+yo+1, cr, g, 0);
+	}
+	doc->draw(p, cr.x()+xo, cr.y()+yo, cr, g, 0);
+    } else {
+	style().drawItem( p, cr.x(), cr.y(), cr.width(), cr.height(),
+			  align, g, isEnabled(), bm.isNull()?0:&bm, ltext );
+    }
 }
 
 

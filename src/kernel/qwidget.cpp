@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#444 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#445 $
 **
 ** Implementation of QWidget class
 **
@@ -564,6 +564,8 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     extra = 0;					// no extra widget info
     bg_col = pal.normal().background();		// default background color
     create();					// platform-dependent init
+    if ( !isDesktop() )
+	setBackgroundFromMode(); //### parts of this are done in create but not all (see reparent(...) )
     // make sure move/resize events are sent to all widgets
     QApplication::postEvent( this, new QMoveEvent( fpos, fpos ) );
     QApplication::postEvent( this, new QResizeEvent(crect.size(),
