@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#6 $
 **
 ** Implementation of OS/2 PM startup routines and event handling
 **
 ** Author  : Haavard Nord
 ** Created : 940707
 **
-** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -21,7 +21,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#6 $";
 #endif
 
 
@@ -61,8 +61,8 @@ public:
     bool translatePaintEvent( const QMSG & );
     bool translateConfigEvent( const QMSG & );
     bool translateCloseEvent( const QMSG & );
-    void setF( WFlags n )   { setFlag(n); }
-    void clearF( WFlags n ) { clearFlag(n); }
+    void setWFlags( WFlags n )   { setWFlags(n); }
+    void clearWFlags( WFlags n ) { clearWFlags(n); }
 };
 
 
@@ -249,7 +249,7 @@ static void qWinProcessConfigRequests()		// perform requests in queue
 	r = configRequests->dequeue();
 	QWidget *w = QWidget::find( r->id );
 	if ( w ) {				// widget exists
-	    if ( w->testFlag( WWin_Config ) )	// biting our tail
+	    if ( w->testWFlags( WWin_Config ) )	// biting our tail
 		return;
 	    if ( r->req == 0 )
 		w->move( r->x, r->y );
@@ -639,11 +639,11 @@ bool QETWidget::translateMouseEvent( const QMSG &msg )
 	    QEvent enter( Event_Enter );	// send enter event
 	    SEND_EVENT( this, &enter );
 	}
-	if ( (state == 0 || !capture) && !testFlag(WEtc_MouMove) )
+	if ( (state == 0 || !capture) && !testWFlags(WEtc_MouMove) )
 	    return TRUE;			// no button
     }
     else {					// mouse button click
-	if ( !testFlag(WState_Active) && testFlag(WType_Overlap) ) {
+	if ( !testWFlags(WState_Active) && testWFlags(WType_Overlap) ) {
 	    WinSetActiveWindow( HWND_DESKTOP, msg.hwnd );
 	    return FALSE;
 	}
@@ -753,7 +753,7 @@ bool QETWidget::translateKeyEvent( const QMSG &msg )
 bool QETWidget::translatePaintEvent( const QMSG & )
 {
     QPaintEvent evt( clientRect() );
-    setFlag( WState_Paint );
+    setWFlags( WState_Paint );
     RECTL r;
     WinQueryWindowRect( id(), &r );
     hps = WinBeginPaint( id(), 0, 0 );
@@ -762,7 +762,7 @@ bool QETWidget::translatePaintEvent( const QMSG & )
     bool res = SEND_EVENT( this, &evt );
     WinEndPaint( hps );
     hps = 0;
-    clearFlag( WState_Paint );
+    clearWFlags( WState_Paint );
     return res;
 }
 
@@ -773,7 +773,7 @@ bool QETWidget::translatePaintEvent( const QMSG & )
 
 bool QETWidget::translateConfigEvent( const QMSG &msg )
 {
-    setFlag( WWin_Config );			// set config flag
+    setWFlags( WWin_Config );			// set config flag
     QRect r = clientGeometry();			// get widget geometry
     if ( msg.msg == WM_SIZE ) {			// resize event
 	int w = SHORT1FROMMP(msg.mp2);		// new window width
@@ -786,15 +786,13 @@ bool QETWidget::translateConfigEvent( const QMSG &msg )
 	if ( isParentType() ) {			// parent type, i.e. QView
 	    debug( "starting to reposition" );
 	    QView *v = (QView *)this;
-/*
-*/
 	    if ( WinIsWindowVisible(v->id()) && v->iconText() )
 		WinSetWindowText( v->id(), v->caption() );
 	    else
 		WinSetWindowText( v->id(), v->iconText() );
 	}
 	else
-	if ( !testFlag(WType_Overlap) )		// manual redraw
+	if ( !testWFlags(WType_Overlap) )	// manual redraw
 	    update();
     }
     else if ( msg.msg == WM_MOVE ) {		// move event
@@ -806,7 +804,7 @@ bool QETWidget::translateConfigEvent( const QMSG &msg )
 	QMoveEvent evt( geometry().topLeft() );
 	SEND_EVENT( this, &evt );
     }
-    clearFlag( WWin_Config );			// clear config flag
+    clearWFlags( WWin_Config );			// clear config flag
     return TRUE;
 }
 
