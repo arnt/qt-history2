@@ -23,6 +23,8 @@ class QSplitterPrivate;
 class QTextStream;
 template <typename T> class QList;
 
+class QSplitterHandle;
+
 class Q_GUI_EXPORT QSplitter : public QFrame
 {
     Q_OBJECT
@@ -36,6 +38,9 @@ public:
     QSplitter(QWidget* parent = 0, const char* name = 0);
     QSplitter(Qt::Orientation, QWidget* parent = 0, const char* name = 0);
     ~QSplitter();
+
+    void addWidget(QWidget *w);
+    void insertWidget(int index, QWidget *w);
 
     void setOrientation(Qt::Orientation);
     Qt::Orientation orientation() const;
@@ -60,19 +65,26 @@ public:
     int handleWidth() const;
     void setHandleWidth(int);
 
+    int indexOf(QWidget *w) const;
+    QWidget *widget(int index) const;
+    int count() const;
+
+    void moveSplitter(int pos, int index);
+    void getRange(int index, int *, int *) const;
+    void setRubberband(int position);
+    int closestLegalPosition(int, int);
+    int indexOfHandle(QSplitterHandle *handle) const;
+    QSplitterHandle *handle(int index) const;
+
 protected:
+    virtual QSplitterHandle *createHandle();
+
     void childEvent(QChildEvent *);
 
     bool event(QEvent *);
     void resizeEvent(QResizeEvent *);
 
-    int idAfter(QWidget*) const;
-
-    void moveSplitter(int pos, int id);
     void changeEvent(QEvent *);
-    int adjustPos(int, int);
-    virtual void setRubberband(int);
-    void getRange(int id, int *, int *);
 
 #ifdef QT_COMPAT
 public:
@@ -83,7 +95,6 @@ public:
 private:
     Q_DISABLE_COPY(QSplitter)
     Q_DECLARE_PRIVATE(QSplitter)
-    friend class QSplitterHandle;
 #ifndef QT_NO_TEXTSTREAM
     friend Q_GUI_EXPORT QTextStream& operator<<(QTextStream&, const QSplitter&);
     friend Q_GUI_EXPORT QTextStream& operator>>(QTextStream&, QSplitter&);
@@ -94,6 +105,34 @@ private:
 Q_GUI_EXPORT QTextStream& operator<<(QTextStream&, const QSplitter&);
 Q_GUI_EXPORT QTextStream& operator>>(QTextStream&, QSplitter&);
 #endif
+
+class QSplitterHandlePrivate;
+class QSplitterHandle : public QWidget
+{
+    Q_OBJECT
+public:
+    QSplitterHandle(Qt::Orientation o, QSplitter *parent);
+    void setOrientation(Qt::Orientation o);
+    Qt::Orientation orientation() const;
+    bool opaque() const;
+    QSplitter *splitter() const;
+
+    QSize sizeHint() const;
+
+protected:
+    void paintEvent(QPaintEvent *);
+    void mouseMoveEvent(QMouseEvent *);
+    void mousePressEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
+
+    void moveSplitter(int p);
+    int closestLegalPosition(int p);
+
+private:
+    Q_DISABLE_COPY(QSplitterHandle)
+    Q_DECLARE_PRIVATE(QSplitterHandle)
+};
+
 
 #endif // QT_NO_SPLITTER
 
