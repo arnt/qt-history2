@@ -327,6 +327,8 @@ bool QDir::isRelativePath(const QString &path)
 void QDir::readDirEntries(const QStringList &nameFilters, int filterSpec, int sortSpec) const
 {
     int i;
+    fList.clear();
+    fiList.clear();
 
     bool doDirs     = (filterSpec & Dirs)       != 0;
     bool doFiles    = (filterSpec & Files)      != 0;
@@ -347,26 +349,26 @@ void QDir::readDirEntries(const QStringList &nameFilters, int filterSpec, int so
             ++sit;
         }
     }
-    bool doModified = (filterSpec & Modified)        != 0;
-    bool doSystem   = (filterSpec & System)        != 0;
+    bool doModified = (filterSpec & Modified)   != 0;
+    bool doSystem   = (filterSpec & System)     != 0;
 
-    bool      first = true;
-    QString   p = dPath;
-    int              plen = p.length();
-    HANDLE    ff;
+    bool first = true;
+    QString p = dPath;
+    int plen = p.length();
+    HANDLE ff;
     WIN32_FIND_DATA finfo;
     QFileInfo fi;
 
-#undef        IS_SUBDIR
-#undef        IS_RDONLY
-#undef        IS_ARCH
-#undef        IS_HIDDEN
-#undef        IS_SYSTEM
-#undef        FF_ERROR
+#undef IS_SUBDIR
+#undef IS_RDONLY
+#undef IS_ARCH
+#undef IS_HIDDEN
+#undef IS_SYSTEM
+#undef FF_ERROR
 
 #define IS_SUBDIR   FILE_ATTRIBUTE_DIRECTORY
 #define IS_RDONLY   FILE_ATTRIBUTE_READONLY
-#define IS_ARCH            FILE_ATTRIBUTE_ARCHIVE
+#define IS_ARCH     FILE_ATTRIBUTE_ARCHIVE
 #define IS_HIDDEN   FILE_ATTRIBUTE_HIDDEN
 #define IS_SYSTEM   FILE_ATTRIBUTE_SYSTEM
 #define FF_ERROR    INVALID_HANDLE_VALUE
@@ -386,21 +388,8 @@ void QDir::readDirEntries(const QStringList &nameFilters, int filterSpec, int so
         ff = FindFirstFileA(qt_win95Name(p),(WIN32_FIND_DATAA*)&finfo);
     });
 
-    fList.clear();
-
-    if (ff == FF_ERROR) {
-        // if it is a floppy disk drive, it might just not have a file on it
-        if (plen > 1 && p[1] == ':' &&
-                (p[0]=='A' || p[0]=='a' || p[0]=='B' || p[0]=='b')) {
-            fiList.clear();
-            return;
-        }
-        qWarning("QDir::readDirEntries: Cannot read the directory: %s (UTF-8)",
-                  dPath.utf8());
-        return;
-    }
-
-    fiList.clear();
+    if (ff == FF_ERROR) 
+        return; // cannot read the directory
 
     for (;;) {
         if (first)

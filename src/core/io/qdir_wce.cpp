@@ -204,14 +204,16 @@ bool QDir::readDirEntries(const QStringList &nameFilters,
                            int filterSpec, int sortSpec)
 {
     int i;
+    fList.clear();
+    fiList.clear();
 
-    bool doDirs            = (filterSpec & Dirs)        != 0;
-    bool doFiles    = (filterSpec & Files)        != 0;
+    bool doDirs     = (filterSpec & Dirs)       != 0;
+    bool doFiles    = (filterSpec & Files)      != 0;
     bool noSymLinks = (filterSpec & NoSymLinks) != 0;
-    bool doReadable = (filterSpec & Readable)        != 0;
-    bool doWritable = (filterSpec & Writable)        != 0;
+    bool doReadable = (filterSpec & Readable)   != 0;
+    bool doWritable = (filterSpec & Writable)   != 0;
     bool doExecable = (filterSpec & Executable) != 0;
-    bool doHidden   = (filterSpec & Hidden)        != 0;
+    bool doHidden   = (filterSpec & Hidden)     != 0;
 
     // show hidden files if the user asks explicitly for e.g. .*
     if (!doHidden && !nameFilters.size()) {
@@ -224,67 +226,42 @@ bool QDir::readDirEntries(const QStringList &nameFilters,
             ++sit;
         }
     }
-    bool doModified = (filterSpec & Modified)        != 0;
-    bool doSystem   = (filterSpec & System)        != 0;
+    bool doModified = (filterSpec & Modified)   != 0;
+    bool doSystem   = (filterSpec & System)     != 0;
 
-    bool      first = true;
-    QString   p = dPath.copy();
-    int              plen = p.length();
-    HANDLE    ff;
+    bool first = true;
+    QString p = dPath;
+    int plen = p.length();
+    HANDLE ff;
     WIN32_FIND_DATA finfo;
     QFileInfo fi;
 
-#undef        IS_SUBDIR
-#undef        IS_RDONLY
-#undef        IS_ARCH
-#undef        IS_HIDDEN
-#undef        IS_SYSTEM
-#undef        FF_ERROR
+#undef IS_SUBDIR
+#undef IS_RDONLY
+#undef IS_ARCH
+#undef IS_HIDDEN
+#undef IS_SYSTEM
+#undef FF_ERROR
 
 #define IS_SUBDIR   FILE_ATTRIBUTE_DIRECTORY
 #define IS_RDONLY   FILE_ATTRIBUTE_READONLY
-#define IS_ARCH            FILE_ATTRIBUTE_ARCHIVE
+#define IS_ARCH     FILE_ATTRIBUTE_ARCHIVE
 #define IS_HIDDEN   FILE_ATTRIBUTE_HIDDEN
 #define IS_SYSTEM   FILE_ATTRIBUTE_SYSTEM
 #define FF_ERROR    INVALID_HANDLE_VALUE
 
     if (plen == 0) {
         qWarning("QDir::readDirEntries: No directory name specified");
-        return false;
+        return;
     }
     if (p.at(plen-1) != '/' && p.at(plen-1) != '\\')
         p += '/';
     p += QString::fromLatin1("*.*");
 
-    ff = FindFirstFile((TCHAR*)p.ucs2(), &finfo);
+    ff = FindFirstFile((TCHAR*)p.utf16(), &finfo);
 
-    if (!fList) {
-        fList  = new QStringList;
-    } else {
-        fList->clear();
-    }
-
-    if (ff == FF_ERROR) {
-        // if it is a floppy disk drive, it might just not have a file on it
-        if (plen > 1 && p[1] == ':' &&
-                (p[0]=='A' || p[0]=='a' || p[0]=='B' || p[0]=='b')) {
-            if (!fiList) {
-                fiList = new QFileInfoList;
-            } else {
-                fiList->clear();
-            }
-            return true;
-        }
-        qWarning("QDir::readDirEntries: Cannot read the directory: %s (UTF-8)",
-                  dPath.utf8().data());
-        return false;
-    }
-
-    if (!fiList) {
-        fiList = new QFileInfoList;
-    } else {
-        fiList->clear();
-    }
+    if (ff == FF_ERROR) 
+        return; // cannot read the directory
 
     for (;;) {
         if (first)
@@ -304,16 +281,17 @@ bool QDir::readDirEntries(const QStringList &nameFilters,
         bool isHidden        = (attrib & IS_HIDDEN) != 0;
         bool isSystem        = (attrib & IS_SYSTEM) != 0;
 
-        QString fname = QString::fromUcs2((unsigned short *)finfo.cFileName);
+        QString fname = QString::fromUtf16((unsigned short *)finfo.cFileName);
 
+#ifndef QT_NO_REGEXP
         if (!match(nameFilters, fname) && !(allDirs && isDir))
             continue;
-
+#endif
         if  ((doDirs && isDir) || (doFiles && isFile)) {
             QString name = fname;
             slashify(name);
             if (doExecable) {
-                QString ext = name.right(4).lower();
+                QString ext = name.right(4).toLower();
                 if (ext == ".exe" || ext == ".com" || ext == ".bat" ||
                      ext == ".pif" || ext == ".cmd")
                     isExecable = true;
@@ -333,7 +311,7 @@ bool QDir::readDirEntries(const QStringList &nameFilters,
             if (!doSystem && isSystem)
                 continue;
             fi.setFile(*this, name);
-            fiList->append(new QFileInfo(fi));
+            fiList.append(fi);
         }
     }
     FindClose(ff);
@@ -346,19 +324,16 @@ bool QDir::readDirEntries(const QStringList &nameFilters,
 #undef        FF_ERROR
 
     // Sort...
-    QDirSortItem* si= new QDirSortItem[fiList->count()];
-    QFileInfo* itm;
-    i=0;
-    for (itm = fiList->first(); itm; itm = fiList->next())
-        si[i++].item = itm;
+    QDirSortItem* si= new QDirSortItem[fiList.count()];
+    for (i = 0; i < fiList.size(); ++i)
+        si[i].item = fiList.at(i);
     qt_cmp_si_sortSpec = sortSpec;
     qsort(si, i, sizeof(si[0]), qt_cmp_si);
-    // put them back in the list
-    fiList->clear();
+    fiList.clear();
     int j;
     for (j=0; j<i; j++) {
-        fiList->append(si[j].item);
-        fList->append(si[j].item->fileName());
+        fiList.append(si[j].item);
+        fList.append(si[j].item.fileName());
     }
     delete [] si;
 
@@ -367,7 +342,7 @@ bool QDir::readDirEntries(const QStringList &nameFilters,
         dirty = false;
     else
         dirty = true;
-    return true;
+    return;
 }
 
 
