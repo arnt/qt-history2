@@ -41,91 +41,145 @@
 
 #ifndef QT_NO_SOUND
 
-#include <qsocknot.h>
+#include <qpixmap.h>
+#include <qpainter.h>
 #include <qapplication.h>
+#include "qt_mac.h"
 
-
-#ifdef QT_NAS_SUPPORT
-
-class QAuServerNAS : public QAuServer {
+class QAuServerMac : public QAuServer {
     Q_OBJECT
 
 public:
-    QAuServerNAS(QObject*);
-    ~QAuServerNAS();
+    QAuServerMac(QObject* parent);
+    ~QAuServerMac();
 
-    void play(const QString&);
-    void play(QAuBucket* );
-    QAuBucket* newBucket(const QString& );
-    void deleteBucket(QAuBucket* );
+    void play(const QString& filename);
+    void play(QAuBucket* id);
+    QAuBucket* newBucket(const QString& filename);
+    void deleteBucket(QAuBucket* id);
     bool okay();
 
-public slots:
-    void dataReceived();
+private:
+    QPixmap *offscreen;
 };
 
-class QAuBucket { }; // Just an ID - we cast to and from AuBucketID
-
-QAuServerNAS::QAuServerNAS(QObject* ) :
-    QAuServer(parent,"Network Audio System")
-{
-}
-
-QAuServerNAS::~QAuServerNAS()
-{
-}
-
-void QAuServerNAS::play(const QString& )
-{
-}
-
-void QAuServerNAS::play(QAuBucket* id)
-{
-}
-
-QAuBucket* QAuServerNAS::newBucket(const QString& )
-{
-    return 0
-}
-
-void QAuServerNAS::deleteBucket(QAuBucket* )
-{
-}
-
-bool QAuServerNAS::okay()
-{
-    return false;
-}
-
-void QAuServerNAS::dataReceived()
-{
-}
-
-#include "qsound_mac.moc"
-
-#endif
-
-
-class QAuServerNull : public QAuServer {
+class QAuBucket {
 public:
-    QAuServerNull(QObject* parent);
-
-    void play(const QString&) { }
-    void play(QAuBucket*) { }
-    QAuBucket* newBucket(const QString&) { return 0; }
-    void deleteBucket(QAuBucket*) { }
-    bool okay() { return FALSE; }
+    QAuBucket( const QString& s ) : filename(s) { }
+    QString filename;
 };
 
-QAuServerNull::QAuServerNull(QObject* parent) :
-    QAuServer(parent,"Null Audio Server")
+QAuServerMac::QAuServerMac(QObject* parent) :
+    QAuServer(parent,"Mac Audio Server")
 {
+    EnterMovies();
+    offscreen = new QPixmap( 1, 1 );
 }
 
+QAuServerMac::~QAuServerMac()
+{
+    ExitMovies();
+}
+
+
+// The FSpLocationFromFullPath function is descended from Apple Source Code,
+// but changes have been made.
+pascal OSErr FSpLocationFromFullPath( short fullPathLength,
+				      const void *fullPath,
+				      FSSpec *spec)
+{
+    AliasHandle alias;
+    OSErr result;
+    Boolean wasChanged;
+    Str32 nullString;
+	
+    /* Create a minimal alias from the full pathname */
+    nullString[0] = 0;	/* null string to indicate no zone or server name */
+    result = NewAliasMinimalFromFullPath( fullPathLength, fullPath, nullString,
+					  nullString, &alias );
+    if ( result == noErr ) {
+        qDebug( "first 1" );
+	/* Let the Alias Manager resolve the alias. */
+	result = ResolveAlias( NULL, alias, spec, &wasChanged );
+		
+	/* work around Alias Mgr sloppy volume matching bug */
+	if ( spec->vRefNum == 0 )
+	{
+	    /* invalidate wrong FSSpec */
+	    spec->parID = 0;
+	    spec->name[0] =  0;
+	    result = nsvErr;
+	}
+	DisposeHandle( (Handle)alias );	/* Free up memory used */
+    }
+    return result;
+}
+
+void QAuServerMac::play( const QString& filename )
+{
+    OSErr err;
+    FSSpec fileSpec;
+    Movie aMovie = nil;
+    short movieResFile;
+
+    QString macFilename = filename.mid( 1 );
+    while ( macFilename.find( "/" ) != -1 )
+	macFilename.replace( macFilename.find( "/" ), 1, ":" );
+    //FIXME: prepend the volume name to the macFilename 
+
+    err = FSpLocationFromFullPath( macFilename.length(), macFilename.latin1(),
+				   &fileSpec ); 
+    if ( err != noErr )
+	return;
+
+    // If a movie soundtrack is played then the movie will be played on
+    // the current graphics port. So create an offscreen graphics port.
+    QPainter p( offscreen );
+
+    err = OpenMovieFile ( &fileSpec, &movieResFile, fsRdPerm );
+    if ( err != noErr )
+	return;
+
+    short           movieResID = 0;         /* want first movie */
+    Str255          movieName;
+    Boolean         wasChanged;
+    err = NewMovieFromFile (&aMovie, movieResFile,
+			    &movieResID,
+			    movieName, 
+			    newMovieActive,         /* flags */
+			    &wasChanged);
+    if ( err != noErr )
+	return;
+
+    CloseMovieFile (movieResFile);
+    StartMovie( aMovie );
+}
+
+void QAuServerMac::play(QAuBucket* id)
+{
+    play( id->filename );
+}
+
+QAuBucket* QAuServerMac::newBucket(const QString& filename)
+{
+    return new QAuBucket( filename );
+}
+
+void QAuServerMac::deleteBucket(QAuBucket* id)
+{
+    delete id;
+}
+
+bool QAuServerMac::okay()
+{
+    return TRUE;
+}
 
 QAuServer* qt_new_audio_server()
 {
-    return new QAuServerNull(qApp);
+    return new QAuServerMac( qApp );
 }
+
+#include "qsound_mac.moc"
 
 #endif // QT_NO_SOUND
