@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: shclass.doc,v 2.1 1996/10/10 14:02:12 agulbra Exp $
+** $Id: shclass.doc,v 2.2 1997/08/05 04:47:58 warwick Exp $
 **
 ** Qt Shared Classes Documentation
 **
@@ -144,6 +144,7 @@ be unacceptably slow.
 All classes that are instances of the QArray template class are explicitly
 shared:
 <ul>
+<li>\link QPalette QPalette\endlink (note: this may change in future)
 <li>\link QBitArray QBitArray\endlink
 <li>\link QByteArray QByteArray\endlink
 <li>\link QImage QImage\endlink (does not inherit QArray)
