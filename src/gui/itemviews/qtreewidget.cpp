@@ -19,6 +19,9 @@
 #include <qitemdelegate.h>
 #include <private/qtreeview_p.h>
 
+// workaround for VC++ 6.0 linker bug (?)
+typedef bool(*LessThan)(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
+
 class QTreeModel : public QAbstractItemModel
 {
     friend class QTreeWidget;
@@ -375,10 +378,8 @@ void QTreeModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order
         end = par->children.end();
     }
 
-    if (order == Qt::AscendingOrder)
-        qHeapSort(begin, end, &lessThan);
-    else
-        qHeapSort(begin, end, &greaterThan);
+    LessThan compare = order == Qt::AscendingOrder ? &lessThan : &greaterThan;
+    qHeapSort(begin, end, compare);
 
     emit dataChanged(index(0, 0, parent), index(count - 1, columnCount() - 1, parent));
 }
@@ -390,10 +391,9 @@ void QTreeModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order
 void QTreeModel::sortAll(int column, Qt::SortOrder order)
 {
     // sort top level
-    if (order == Qt::AscendingOrder)
-        qHeapSort(tree.begin(), tree.end(), &lessThan);
-    else
-        qHeapSort(tree.begin(), tree.end(), &greaterThan);
+    LessThan compare = order == Qt::AscendingOrder ? &lessThan : &greaterThan;
+    qHeapSort(tree.begin(), tree.end(), compare);
+
     // sort the children
     QList<QTreeWidgetItem*>::iterator it = tree.begin();
     for (; it != tree.end(); ++it)
@@ -855,10 +855,8 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 
 void QTreeWidgetItem::sortChildren(int column, Qt::SortOrder order, bool climb)
 {
-    if (order == Qt::AscendingOrder)
-        qHeapSort(children.begin(), children.end(), &QTreeModel::lessThan);
-    else
-        qHeapSort(children.begin(), children.end(), &QTreeModel::greaterThan);
+    LessThan compare = order == Qt::AscendingOrder ? &QTreeModel::lessThan : &QTreeModel::greaterThan;
+    qHeapSort(children.begin(), children.end(), compare);
     if (!climb)
         return;
     QList<QTreeWidgetItem*>::iterator it = children.begin();
