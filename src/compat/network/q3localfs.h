@@ -45,7 +45,7 @@
 
 #ifndef QT_NO_NETWORKPROTOCOL
 
-class Q_CORE_EXPORT Q3LocalFs : public Q3NetworkProtocol
+class Q_COMPAT_EXPORT Q3LocalFs : public Q3NetworkProtocol
 {
     Q_OBJECT
 

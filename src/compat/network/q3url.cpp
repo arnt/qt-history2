@@ -1008,7 +1008,7 @@ void Q3Url::setEncodedPathAndQuery( const QString& pathAndQuery )
     d->cleanPathDirty = TRUE;
 }
 
-extern bool qt_resolve_symlinks; // defined in qapplication.cpp
+extern Q_CORE_EXPORT bool qt_resolve_symlinks; // defined in qapplication.cpp
 
 /*!
     Returns the path of the URL. If \a correct is TRUE, the path is
