@@ -16,21 +16,21 @@ CC		= gcc
 
 #######	Files
 
-HEADERS		= qbutton.h	qchkbox.h	qlistbox.h	qlcdnum.h     \
-		  qlined.h	qpushbt.h	qradiobt.h	qrangect.h    \
-		  qscrbar.h	qtablew.h
-SOURCES		= qbutton.cpp	qchkbox.cpp	qlistbox.cpp	qlcdnum.cpp   \
-		  qlined.cpp	qpushbt.cpp	qradiobt.cpp	qrangect.cpp  \
-		  qscrbar.cpp	qtablew.cpp
-OBJECTS		= qbutton.o	qchkbox.o	qlistbox.o	qlcdnum.o     \
-		  qpushbt.o	qradiobt.o	qlined.o	qscrbar.o     \
-		  qrangect.o	qtablew.o
-SRCMETA		= mbutton.cpp	mchkbox.cpp	mlistbox.cpp	mlcdnum.cpp   \
-		  mpushbt.cpp	mradiobt.cpp	mlined.cpp	mscrbar.cpp   \
-		  mtablew.cpp
-OBJMETA		= mbutton.o	mchkbox.o	mlistbox.o	mlcdnum.o     \
-		  mpushbt.o	mradiobt.o	mlined.o	mscrbar.o     \
-		  mtablew.o
+HEADERS		= qbutton.h	qchkbox.h	qlcdnum.h	qlined.h      \
+		  qlistbox.h	qpopmenu.h	qpushbt.h	qradiobt.h    \
+		  qrangect.h	qscrbar.h	qtablew.h
+SOURCES		= qbutton.cpp	qchkbox.cpp	qlcdnum.cpp	qlined.cpp    \
+		  qlistbox.cpp	qpopmenu.cpp	qpushbt.cpp	qradiobt.cpp  \
+		  qrangect.cpp	qscrbar.cpp	qtablew.cpp
+OBJECTS		= qbutton.o	qchkbox.o	qlcdnum.o	qlined.o      \
+		  qlistbox.o	qpopmenu.o	qpushbt.o	qradiobt.o    \
+		  qrangect.o	qscrbar.o	qtablew.o
+SRCMETA		= mbutton.cpp	mchkbox.cpp	mlcdnum.cpp	mlined.cpp    \
+		  mlistbox.cpp	mpopmenu.cpp	mpushbt.cpp	mradiobt.cpp  \
+		  mscrbar.cpp	mtablew.cpp
+OBJMETA		= mbutton.o	mchkbox.o	mlcdnum.o	mlined.o      \
+		  mlistbox.o	mpopmenu.o	mpushbt.o	mradiobt.o    \
+		  mscrbar.o	mtablew.o
 TARGET		= $(LIBDIR)/libqwidgets.a
 
 #######	Implicit rules
@@ -76,14 +76,17 @@ mbutton.cpp: qbutton.h
 mchkbox.cpp: qchkbox.h
 	$(QTDIR)/bin/moc qchkbox.h -o mchkbox.cpp
 
-mlistbox.cpp: qlistbox.h
-	$(QTDIR)/bin/moc qlistbox.h -o mlistbox.cpp
-
 mlcdnum.cpp: qlcdnum.h
 	$(QTDIR)/bin/moc qlcdnum.h -o mlcdnum.cpp
 
 mlined.cpp: qlined.h
 	$(QTDIR)/bin/moc qlined.h -o mlined.cpp
+
+mlistbox.cpp: qlistbox.h
+	$(QTDIR)/bin/moc qlistbox.h -o mlistbox.cpp
+
+mpopmenu.cpp: qpopmenu.h
+	$(QTDIR)/bin/moc qpopmenu.h -o mpopmenu.cpp
 
 mpushbt.cpp: qpushbt.h
 	$(QTDIR)/bin/moc qpushbt.h -o mpushbt.cpp
@@ -154,37 +157,6 @@ qchkbox.o: /home/popcorn/home/hanord/qt/include/qpen.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/qbrush.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/qpntarry.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/qpixmap.h
-qlistbox.o: qlistbox.h qtablew.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qwidget.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qobjdefs.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qglobal.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qobject.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qstring.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qarray.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qgarray.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qshared.h
-qlistbox.o: /usr/include/string.h /usr/include/features.h
-qlistbox.o: /usr/include/sys/cdefs.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qrect.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qsize.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qpoint.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qcolor.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qfont.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qcursor.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qevent.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qstrlist.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qlist.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qglist.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qcollect.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qdstream.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qiodev.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qpainter.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qregion.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qpen.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qbrush.h
 qlcdnum.o: qlcdnum.h /home/popcorn/home/hanord/qt/include/qwidget.h
 qlcdnum.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
 qlcdnum.o: /home/popcorn/home/hanord/qt/include/qobjdefs.h
@@ -237,6 +209,66 @@ qlined.o: /home/popcorn/home/hanord/qt/include/qpen.h
 qlined.o: /home/popcorn/home/hanord/qt/include/qbrush.h
 qlined.o: /home/popcorn/home/hanord/qt/include/qpixmap.h
 qlined.o: /home/popcorn/home/hanord/qt/include/qkeycode.h
+qlistbox.o: qlistbox.h qtablew.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qwidget.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qobjdefs.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qglobal.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qobject.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qstring.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qarray.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qgarray.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qshared.h
+qlistbox.o: /usr/include/string.h /usr/include/features.h
+qlistbox.o: /usr/include/sys/cdefs.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qrect.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qsize.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qcolor.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qfont.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qcursor.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qevent.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qstrlist.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qlist.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qglist.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qcollect.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qdstream.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qiodev.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qpainter.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qregion.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qpen.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qbrush.h
+qpopmenu.o: qpopmenu.h qtablew.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qwidget.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qobjdefs.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qglobal.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qobject.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qstring.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qarray.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qgarray.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qshared.h
+qpopmenu.o: /usr/include/string.h /usr/include/features.h
+qpopmenu.o: /usr/include/sys/cdefs.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qrect.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qsize.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qcolor.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qfont.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qcursor.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qevent.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qsignal.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qbitmap.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qpixmap.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qpainter.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qregion.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qpen.h
+qpopmenu.o: /home/popcorn/home/hanord/qt/include/qbrush.h qscrbar.h
+qpopmenu.o: qrangect.h /home/popcorn/home/hanord/qt/include/qapp.h
 qpushbt.o: qpushbt.h qbutton.h /home/popcorn/home/hanord/qt/include/qwidget.h
 qpushbt.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
 qpushbt.o: /home/popcorn/home/hanord/qt/include/qobjdefs.h
@@ -383,6 +415,49 @@ mchkbox.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mchkbox.o: /home/popcorn/home/hanord/qt/include/qfont.h
 mchkbox.o: /home/popcorn/home/hanord/qt/include/qcursor.h
 mchkbox.o: /home/popcorn/home/hanord/qt/include/qevent.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qmetaobj.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qconnect.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qobject.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qobjdefs.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qglobal.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qstring.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qarray.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qgarray.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qshared.h
+mlcdnum.o: /usr/include/string.h /usr/include/features.h
+mlcdnum.o: /usr/include/sys/cdefs.h qlcdnum.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qwidget.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qrect.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qsize.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qcolor.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qfont.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qcursor.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qevent.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qbitarry.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qmetaobj.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qconnect.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qobject.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qobjdefs.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qglobal.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qstring.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qarray.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qgarray.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qshared.h
+mlined.o: /usr/include/string.h /usr/include/features.h
+mlined.o: /usr/include/sys/cdefs.h qlined.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qwidget.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qrect.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qsize.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qcolor.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qfont.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qcursor.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qevent.h
 mlistbox.o: /home/popcorn/home/hanord/qt/include/qmetaobj.h
 mlistbox.o: /home/popcorn/home/hanord/qt/include/qconnect.h
 mlistbox.o: /home/popcorn/home/hanord/qt/include/qobject.h
@@ -410,28 +485,27 @@ mlistbox.o: /home/popcorn/home/hanord/qt/include/qglist.h
 mlistbox.o: /home/popcorn/home/hanord/qt/include/qcollect.h
 mlistbox.o: /home/popcorn/home/hanord/qt/include/qdstream.h
 mlistbox.o: /home/popcorn/home/hanord/qt/include/qiodev.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qmetaobj.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qconnect.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qobject.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qobjdefs.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qglobal.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qstring.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qarray.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qgarray.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qshared.h
-mlcdnum.o: /usr/include/string.h /usr/include/features.h
-mlcdnum.o: /usr/include/sys/cdefs.h qlcdnum.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qwidget.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qrect.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qsize.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qpoint.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qcolor.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qfont.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qcursor.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qevent.h
-mlcdnum.o: /home/popcorn/home/hanord/qt/include/qbitarry.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qmetaobj.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qconnect.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qobject.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qobjdefs.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qglobal.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qstring.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qarray.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qgarray.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qshared.h
+mpopmenu.o: /usr/include/string.h /usr/include/features.h
+mpopmenu.o: /usr/include/sys/cdefs.h qpopmenu.h qtablew.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qwidget.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qrect.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qsize.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qcolor.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qfont.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qcursor.h
+mpopmenu.o: /home/popcorn/home/hanord/qt/include/qevent.h
 mpushbt.o: /home/popcorn/home/hanord/qt/include/qmetaobj.h
 mpushbt.o: /home/popcorn/home/hanord/qt/include/qconnect.h
 mpushbt.o: /home/popcorn/home/hanord/qt/include/qobject.h
@@ -474,27 +548,6 @@ mradiobt.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mradiobt.o: /home/popcorn/home/hanord/qt/include/qfont.h
 mradiobt.o: /home/popcorn/home/hanord/qt/include/qcursor.h
 mradiobt.o: /home/popcorn/home/hanord/qt/include/qevent.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qmetaobj.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qconnect.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qobject.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qobjdefs.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qglobal.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qstring.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qarray.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qgarray.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qshared.h
-mlined.o: /usr/include/string.h /usr/include/features.h
-mlined.o: /usr/include/sys/cdefs.h qlined.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qwidget.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qrect.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qsize.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qpoint.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qcolor.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qfont.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qcursor.h
-mlined.o: /home/popcorn/home/hanord/qt/include/qevent.h
 mscrbar.o: /home/popcorn/home/hanord/qt/include/qmetaobj.h
 mscrbar.o: /home/popcorn/home/hanord/qt/include/qconnect.h
 mscrbar.o: /home/popcorn/home/hanord/qt/include/qobject.h
