@@ -329,7 +329,7 @@ QByteArray Semantic::textOf(AST *node) const
     return text;
 }
 
-CodeModel::SemanticInfo Semantic::parseTranslationUnit(TranslationUnitAST *node,
+CodeModel::NamespaceScope *Semantic::parseTranslationUnit(TranslationUnitAST *node,
             TokenStreamAdapter::TokenStream *tokenStream, TypedPool<CodeModel::Item> *storage)
 {
     m_storage = storage;
@@ -350,11 +350,7 @@ CodeModel::SemanticInfo Semantic::parseTranslationUnit(TranslationUnitAST *node,
     m_imports << QList<QByteArray>();
     TreeWalker::parseTranslationUnit(node);
     m_imports.pop_back();
-
-    SemanticInfo semanticInfo;
-    semanticInfo.codeModel = globalScope;
-    semanticInfo.nameUses = m_nameUses;
-    return semanticInfo;
+    return globalScope;
 }
 
 
@@ -411,7 +407,7 @@ void Semantic::parseNamespace(NamespaceAST *ast)
 void Semantic::parseClassSpecifier(ClassSpecifierAST *ast)
 {
     if (!ast->name()){
-        emit error("Error in Semantic::parseClassSpecifier: class has no name");
+        //emit error("Error in Semantic::parseClassSpecifier: class has no name");
         return;
     }
 
@@ -444,6 +440,7 @@ void Semantic::parseClassSpecifier(ClassSpecifierAST *ast)
 
     //create TypeMember
     CodeModel::TypeMember *typeMember = CodeModel::Create<CodeModel::TypeMember>(m_storage);
+    typeMember->setNameAST(ast->name()->unqualifiedName());
     typeMember->setName(className);
     typeMember->setType(type);
     currentScope.top()->addMember(typeMember);
@@ -524,7 +521,11 @@ void Semantic::parseDeclaration(AST *funSpec, AST *storageSpec, TypeSpecifierAST
     if (t && t->declaratorId() && t->declaratorId()->unqualifiedName())
         id = textOf(t->declaratorId()->unqualifiedName());
 
- //   printf("parseDeclaration: %s\n", id.latin1());
+    if (!t || !t->declaratorId() || !t->declaratorId()->unqualifiedName())
+        return;
+    AST *nameAST = t->declaratorId()->unqualifiedName();
+    QByteArray name = textOf(nameAST);
+
 
     if (!scopeOfDeclarator(d, QList<QByteArray>()).isEmpty()){
         return;
@@ -532,7 +533,8 @@ void Semantic::parseDeclaration(AST *funSpec, AST *storageSpec, TypeSpecifierAST
 
     //create VariableMember
     CodeModel::VariableMember *variableMember = CodeModel::Create<CodeModel::VariableMember>(m_storage);
-    variableMember->setName(id);
+    variableMember->setNameAST(nameAST);
+    variableMember->setName(name);
     variableMember->setAccess(m_currentAccess);
     variableMember->setParent(currentScope.top());
     currentScope.top()->addMember(variableMember);
@@ -582,10 +584,14 @@ void Semantic::parseFunctionDeclaration(AST *funSpec, AST *storageSpec,
         }
     }
     DeclaratorAST *declarator = initDeclarator->declarator();
-    QByteArray id = textOf(declarator->declaratorId()->unqualifiedName());
+    if(!declarator || !declarator->declaratorId())
+        return;
+    AST *nameAST = declarator->declaratorId()->unqualifiedName();
+    QByteArray name = textOf(nameAST);
 
     CodeModel::FunctionMember *method = CodeModel::Create<CodeModel::FunctionMember>(m_storage);
-    method->setName(id);
+    method->setNameAST(nameAST);
+    method->setName(name);
     method->setAccess(m_currentAccess);
     method->setStatic(isStatic);
     method->setVirtual(isVirtual);
@@ -653,6 +659,8 @@ void Semantic::parseFunctionArguments(const DeclaratorAST *declarator, CodeModel
 
             if (param->declarator()){
                 QByteArray text = declaratorToString(param->declarator(), QByteArray(), true);
+                if(param->declarator()->declaratorId())
+                    arg->setNameAST(param->declarator()->declaratorId()->unqualifiedName());
                 if (!text.isEmpty())
                     arg->setName(text);
             }
@@ -752,8 +760,15 @@ void Semantic::parseUsing(UsingAST *ast)
         return;
     }
 
+    if(!ast->name())
+        return;
+    AST *nameAST = ast->name()->unqualifiedName();
+    if(!nameAST)
+        return;
+    QByteArray name = textOf(nameAST);
     CodeModel::UsingDirectiveMember *usingMember = CodeModel::Create<CodeModel::UsingDirectiveMember>(m_storage);
-    usingMember->setName(textOf(ast->name()->unqualifiedName()));
+    usingMember->setNameAST(nameAST);
+    usingMember->setName(name);
     usingMember->setParent(currentScope.top());
     usingMember->setTargetScope(targetScope);
     currentScope.top()->addMember(usingMember);
@@ -819,6 +834,7 @@ void Semantic::parseFunctionDefinition(FunctionDefinitionAST *ast)
      for(int i=0; i<arguments->count(); ++i) {
          CodeModel::Argument *argument = arguments->item(i);
          CodeModel::VariableMember *variableMember = CodeModel::Create<CodeModel::VariableMember>(m_storage);
+         variableMember->setNameAST(argument->nameAST());
          variableMember->setType(argument->type());
          variableMember->setName(argument->name());
          variableMember->setParent(functionScope);
@@ -922,8 +938,12 @@ void Semantic::createNameUse(Member *member, NameAST *name)
 {
     AST *unqualifedName = name->unqualifiedName()->name();
 
+    if(!unqualifedName || !member || !name)
+        return;
+
     CodeModel::NameUse *nameUse = CodeModel::Create<CodeModel::NameUse>(m_storage);
     nameUse->setParent(currentScope.top());
+    nameUse->setNameAST(unqualifedName);
     nameUse->setName(textOf(unqualifedName));
     nameUse->setDeclaration(member);
 
@@ -936,6 +956,7 @@ void Semantic::addNameUse(AST *node, NameUse *nameUse)
     const int tokenIndex = node->startToken();
     m_nameUses.insert(tokenIndex, nameUse);
 }
+
 
 NameUse *Semantic::findNameUse(AST *node)
 {
@@ -970,19 +991,24 @@ void Semantic::parseEnumSpecifier(EnumSpecifierAST *ast)
         return;
     }
 
-    QByteArray nameText;
-    if (ast->name())
-         nameText = textOf(ast->name());
+    if (!ast->name())
+         return;
+
+    QByteArray name = textOf(ast->name());
 
     //create a Type
     CodeModel::EnumType *type = CodeModel::Create<CodeModel::EnumType>(m_storage);
-    type->setName(nameText);
+    type->setName(name);
     currentScope.top()->addType(type);
     type->setParent(currentScope.top());
 
+
+
     //create a TypeMember
     CodeModel::TypeMember *typeMember = CodeModel::Create<CodeModel::TypeMember>(m_storage);
-    typeMember->setName(nameText);
+    if(ast->name())
+        typeMember->setNameAST(ast->name()->unqualifiedName());
+    typeMember->setName(name);
     typeMember->setType(type);
     currentScope.top()->addMember(typeMember);
     typeMember->setParent(currentScope.top());
@@ -991,6 +1017,7 @@ void Semantic::parseEnumSpecifier(EnumSpecifierAST *ast)
     List<EnumeratorAST*> l = *ast->enumeratorList();
     foreach (EnumeratorAST *current, l) {
         CodeModel::VariableMember *attr = CodeModel::Create<CodeModel::VariableMember>(m_storage);
+        typeMember->setNameAST(current->id());
         attr->setName(textOf(current->id()));
         attr->setAccess(m_currentAccess);
         attr->setStatic(true);
@@ -1051,6 +1078,8 @@ void Semantic::parseTypedef(TypedefAST *ast)
 
             //create a TypeMember
             CodeModel::TypeMember *typeMember = CodeModel::Create<CodeModel::TypeMember>(m_storage);
+            if(typeSpec->name())
+                typeMember->setNameAST(typeSpec->name()->unqualifiedName());
             typeMember->setName(id);
             typeMember->setType(typeAlias);
             currentScope.top()->addMember(typeMember);

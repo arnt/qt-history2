@@ -198,13 +198,19 @@ struct Member: public Item
 
     Member()
         : m_binding(Static), m_access(Public),
-          m_parent(0), m_constant(0), m_static(0)  {}
+          m_parent(0), m_nameAST(0), m_constant(0), m_static(0)   {}
 
     QByteArray name() const
     { return m_name; }
 
     void setName(const QByteArray &name)
     { m_name = name; }
+
+    AST * nameAST() const
+    { return m_nameAST; }
+
+    void setNameAST(AST *name)
+    { m_nameAST = name; }
 
     Binding binding() const
     { return m_binding; }
@@ -256,9 +262,10 @@ private:
     Binding m_binding;
     Access m_access;
     Scope *m_parent;
-    uint m_constant: 1;
-    uint m_static: 1;
     QByteArray m_name;
+    AST *m_nameAST;
+    uint m_constant : 1;
+    uint m_static : 1;
 };
 
 struct NamespaceScope: public Scope
@@ -640,7 +647,7 @@ private:
 struct Argument: public Item
 {
     Argument()
-        :  m_type(0) {}
+        :  m_type(0), m_nameAST(0) {}
 
     Type *type() const
     { return m_type; }
@@ -654,6 +661,12 @@ struct Argument: public Item
     void setName(const QByteArray &name)
     { m_name = name; }
 
+    AST * nameAST() const
+    { return m_nameAST; }
+
+    void setNameAST(AST *name)
+    { m_nameAST = name; }
+
     virtual FunctionMember *parent() const
     { return m_parent; }
 
@@ -664,19 +677,26 @@ private:
     FunctionMember *m_parent;
     Type *m_type;
     QByteArray m_name;
+    AST *m_nameAST;
 };
 
 
 struct NameUse: public Item
 {
     NameUse()
-        :  m_declaration(0) {}
+    : m_declaration(0) {}
 
     QByteArray name() const
     { return m_name; }
 
     void setName(const QByteArray &name)
-    { m_name = name; }
+    {  m_name = name; }
+
+    AST * nameAST() const
+    { return m_nameAST; }
+
+    void setNameAST(AST *name)
+    { m_nameAST = name; }
 
      virtual Scope *parent() const
     { return m_parent; }
@@ -692,6 +712,7 @@ struct NameUse: public Item
 
 private:
     QByteArray m_name;
+    AST *m_nameAST;
     Member *m_declaration;
     Scope *m_parent;
 };

@@ -12,7 +12,7 @@
 ****************************************************************************/
 #ifndef CODEMODELWALKER_H
 #define CODEMODELWALKER_H
-#include <codemodel.h>
+#include "codemodel.h"
 
 class CodeModelWalker
 {
@@ -34,7 +34,7 @@ public:
     virtual void parseAliasType(CodeModel::AliasType *){};
 
     virtual void parseMember(CodeModel::Member *member);
-    virtual void parseFunctionMember(CodeModel::FunctionMember *){};
+    virtual void parseFunctionMember(CodeModel::FunctionMember *);
     virtual void parseVariableMember(CodeModel::VariableMember *){};
     virtual void parseUsingDeclarationMember(CodeModel::UsingDeclarationMember *){};
     virtual void parseUsingDirectiveMember(CodeModel::UsingDirectiveMember *){};

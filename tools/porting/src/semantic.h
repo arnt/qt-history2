@@ -23,7 +23,6 @@
 #include "codemodel.h"
 #include "tokenstreamadapter.h"
 
-
 class TokenStream;
 class QByteArray;
 
@@ -34,7 +33,7 @@ public:
     Semantic();
     virtual ~Semantic();
 
-    CodeModel::SemanticInfo parseTranslationUnit( TranslationUnitAST *node,
+    CodeModel::NamespaceScope *parseTranslationUnit( TranslationUnitAST *node,
             TokenStreamAdapter::TokenStream *tokenStream, TypedPool<CodeModel::Item> *storage);
 signals:
     void error(const QByteArray &message);

@@ -11,50 +11,43 @@
 **
 ****************************************************************************/
 #include "codemodelwalker.h"
+#include <iostream>
+using namespace std;
 
 
 void CodeModelWalker::parseScope(CodeModel::Scope *scope)
 {
-    if(!scope) {
-        puts("Error in CodeModelWalker: parseScope() called with null pointer");
+    if(!scope)
         return;
-    }
+
     if(scope->toClassScope())
         parseClassScope(scope->toClassScope());
     if(scope->toNamespaceScope())
         parseNamespaceScope(scope->toNamespaceScope());
     if(scope->toBlockScope())
         parseBlockScope(scope->toBlockScope());
-/*
-    Not used any more, types accosiated with a scope
-    is now stored as a TypeMember
-    CodeModel::TypeCollection *t = scope->types();
-    if(t)
-    for (int i=0; i<t->count(); ++i)
-        parseType(t->item(i));
-*/
+
     CodeModel::MemberCollection *m = scope->members();
     if(m)
-    for (int i=0; i<m->count(); ++i)
-        parseMember(m->item(i));
+        for (int i=0; i<m->count(); ++i)
+            parseMember(m->item(i));
 
     CodeModel::ScopeCollection *c = scope->scopes();
     if(c)
-    for (int i=0; i<c->count(); ++i)
-        parseScope(c->item(i));
+        for (int i=0; i<c->count(); ++i)
+            parseScope(c->item(i));
 
     CodeModel::NameUseCollection *n = scope->nameUses();
     if(n)
-    for (int i=0; i<n->count(); ++i)
-        parseNameUse(n->item(i));
+        for (int i=0; i <n->count(); ++i) {
+            parseNameUse(n->item(i));
+        }
 }
 
 void CodeModelWalker::parseType(CodeModel::Type *type)
 {
-    if(!type) {
-        puts("Error in CodeModelWalker: parseType() called with null pointer");
+    if(!type)
         return;
-    }
     if (type->toEnumType())
         parseEnumType(type->toEnumType());
     else if (type->toClassType())
@@ -75,10 +68,9 @@ void CodeModelWalker::parseType(CodeModel::Type *type)
 
 void CodeModelWalker::parseMember(CodeModel::Member *member)
 {
-    if(!member) {
-        puts("Error in CodeModelWalker: parseMember() called with null pointer");
+    if(!member)
         return;
-    }
+
     if (member->toFunctionMember())
         parseFunctionMember(member->toFunctionMember());
     else if (member->toVariableMember())
@@ -91,3 +83,8 @@ void CodeModelWalker::parseMember(CodeModel::Member *member)
         parseTypeMember(member->toTypeMember());
 }
 
+void CodeModelWalker::parseFunctionMember(CodeModel::FunctionMember *member)
+{
+    if(member->functionBodyScope())
+        parseScope(member->functionBodyScope());
+}
