@@ -93,9 +93,14 @@ public:
         ActivateControl = 80,                   // ActiveX activation
         DeactivateControl = 81,                 // ActiveX deactivation
         ContextMenu = 82,                       // context popup menu
-        IMStart = 83,                           // input method composition start
-        IMCompose = 84,                         // input method composition
-        IMEnd = 85,                             // input method composition end
+        InputMethodStart = 83,                           // input method composition start
+        InputMethodCompose = 84,                         // input method composition
+        InputMethodEnd = 85,                             // input method composition end
+#if 0 //def QT_COMPAT
+        IMStart = InputMethodStart,                           // input method composition start
+        IMCompose = InputMethodCompose,                         // input method composition
+        IMEnd = InputMethodEnd,                             // input method composition end
+#endif
         Accessibility = 86,                     // accessibility information is requested
         TabletMove = 87,                        // Wacom tablet event
         LocaleChange = 88,                      // the system locale changed

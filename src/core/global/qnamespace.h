@@ -1123,7 +1123,9 @@ public:
         SystemScope
     };
 
-    enum ImQueryProperty {
+    enum InputMethodQuery {
+        ImMicroFocus,
+        ImFont,
         ImCursorPosition,
         ImSurroundingText,
         ImCurrentSelection
