@@ -1198,24 +1198,25 @@ static key_sym key_syms[] = {
 { '}', MAP_KEY(Qt::Key_BraceRight) },
 { '|', MAP_KEY(Qt::Key_Bar) },
 { '~', MAP_KEY(Qt::Key_AsciiTilde) },
-//function keys?
-#if 0
-{ 32, MAP_KEY(Qt::Key_F1) },
-{ 33, MAP_KEY(Qt::Key_F2) },
-{ 34, MAP_KEY(Qt::Key_F3) },
-{ 35, MAP_KEY(Qt::Key_F4) },
-{ 36, MAP_KEY(Qt::Key_F5) },
-{ 37, MAP_KEY(Qt::Key_F6) },
-{ 38, MAP_KEY(Qt::Key_F7) },
-{ 39, MAP_KEY(Qt::Key_F8) },
-{ 40, MAP_KEY(Qt::Key_F9) },
-{ 41, MAP_KEY(Qt::Key_F10) },
-{ 42, MAP_KEY(Qt::Key_F11) },
-{ 43, MAP_KEY(Qt::Key_F12) },
-#endif
 //terminator
 {   0, MAP_KEY(0) } };
-static int get_key(int key)
+
+static key_sym keyscan_syms[] = { //real scan codes
+{ 122, MAP_KEY(Qt::Key_F1) },
+{ 120, MAP_KEY(Qt::Key_F2) },
+{ 99, MAP_KEY(Qt::Key_F3) },
+{ 118, MAP_KEY(Qt::Key_F4) },
+{ 96, MAP_KEY(Qt::Key_F5) },
+{ 97, MAP_KEY(Qt::Key_F6) },
+{ 98, MAP_KEY(Qt::Key_F7) },
+{ 100, MAP_KEY(Qt::Key_F8) },
+{ 101, MAP_KEY(Qt::Key_F9) },
+{ 109, MAP_KEY(Qt::Key_F10) },
+{ 103, MAP_KEY(Qt::Key_F11) },
+{ 111, MAP_KEY(Qt::Key_F12) },
+{   0, MAP_KEY(0) } };
+
+static int get_key(int key, int scan)
 {
 #ifdef DEBUG_KEY_MAPS
     qDebug("**Mapping key: %d", key);
@@ -1224,7 +1225,7 @@ static int get_key(int key)
     //general cases..
     if(key >= '0' && key <= '9') {
 #ifdef DEBUG_KEY_MAPS
-	qDebug("General case Qt::Key_%c", key);
+	qDebug("%d: General case Qt::Key_%c", __LINE__, key);
 #endif
 	return (key - '0') + Qt::Key_0;
     }
@@ -1232,7 +1233,7 @@ static int get_key(int key)
     if((key >= 'A' && key <= 'Z') || (key >= 'a' && key <= 'z')) {
 	char tup = toupper(key);
 #ifdef DEBUG_KEY_MAPS
-	qDebug("General case Qt::Key_%c %d", tup, (tup - 'A') + Qt::Key_A);
+	qDebug("%d: General case Qt::Key_%c %d", __LINE__, tup, (tup - 'A') + Qt::Key_A);
 #endif
 	return (tup - 'A') + Qt::Key_A;
     }
@@ -1240,14 +1241,25 @@ static int get_key(int key)
     for(int i = 0; key_syms[i].qt_code; i++) {
 	if(key_syms[i].mac_code == key) {
 #ifdef DEBUG_KEY_MAPS
-	    qDebug("got key: %s", key_syms[i].desc);
+	    qDebug("%d: got key: %s", __LINE__, key_syms[i].desc);
 #endif
 	    return key_syms[i].qt_code;
 	}
     }
 
+    //last ditch try to match the scan code
+    for(int i = 0; keyscan_syms[i].qt_code; i++) {
+	if(keyscan_syms[i].mac_code == scan) {
 #ifdef DEBUG_KEY_MAPS
-    qDebug("Unknown case.. %s:%d %d", __FILE__, __LINE__, key);
+	    qDebug("%d: got key: %s", __LINE__, keyscan_syms[i].desc);
+#endif
+	    return key_syms[i].qt_code;
+	}
+    }
+
+    //oh well
+#ifdef DEBUG_KEY_MAPS
+    qDebug("Unknown case.. %s:%d %d %d", __FILE__, __LINE__, key, scan);
 #endif
     return Qt::Key_unknown;
 }
@@ -1907,24 +1919,22 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	break;
 
     case kEventClassKeyboard: {
+	char chr;
+	GetEventParameter(event, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(chr), NULL, &chr);
+	if(!chr)
+	    break;
 	UInt32 modif;
 	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(modif), NULL, &modif);
 	int modifiers = get_modifiers(modif);
-
 	UInt32 keyc;
 	GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
-	UInt32 state = 0L;
-	char chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
-				(modif & shiftKey) | keyc, &state);
-	if(!chr)
-	    break;
+	int mychar=get_key(chr, keyc);
+
 	static QTextCodec *c = NULL;
 	if(!c)
 	    c = QTextCodec::codecForName("Apple Roman");
        	QString mystr = c->toUnicode(&chr, 1);
-	int mychar=get_key(chr);
 	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
-
 	if( mac_keyboard_grabber )
 	    widget = mac_keyboard_grabber;
 	else if(focus_widget)
