@@ -536,8 +536,8 @@ QPointArray QWMatrix::operator *( const QPointArray &a ) const
 	    xmax = QMAX( xmax, dp[i].x );
 	    ymax = QMAX( ymax, dp[i].y );
 	}
-	double w = QMAX( xmax - xmin, 1 );
-	double h = QMAX( ymax - ymin, 1 );
+	double w = QMAX( xmax - xmin, 1. );
+	double h = QMAX( ymax - ymin, 1. );
 	for( i = 0; i < size; i++ ) {
 	    dp[i].x += (dp[i].x - xmin)/w;
 	    dp[i].y += (dp[i].y - ymin)/h;
@@ -555,8 +555,8 @@ QPointArray QWMatrix::operator *( const QPointArray &a ) const
 	    xmax = QMAX( xmax, dp[i].x );
 	    ymax = QMAX( ymax, dp[i].y );
 	}
-	w = QMAX( xmax - xmin, 1 );
-	h = QMAX( ymax - ymin, 1 );
+	w = QMAX( xmax - xmin, 1. );
+	h = QMAX( ymax - ymin, 1. );
 
 	QPointArray result( size );
 	QPoint *dr = result.data();
