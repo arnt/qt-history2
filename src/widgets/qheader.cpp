@@ -1231,13 +1231,15 @@ QSize QHeader::sizeHint() const
 	width = 0;
 	height = QMAX( height, d->height );
 	for ( int i = 0; i < count(); i++ )
-	    width += d->sizes[i];
+	    width += d->fullSize < -1 ? d->sizes[i] :
+		     sectionSizeHint( mapToSection( i ), fm ).width();
     } else {
 	width = fm.width( ' ' );
 	height = 0;
 	width = QMAX( width, d->height );
 	for ( int i = 0; i < count(); i++ )
-	    height += d->sizes[i];
+	    height += d->fullSize < -1 ? d->sizes[i] :
+		      sectionSizeHint( mapToSection( i ), fm ).height();
     }
     return (style().sizeFromContents(QStyle::CT_Header, this,
 				     QSize(width, height)).expandedTo(QApplication::globalStrut()));
