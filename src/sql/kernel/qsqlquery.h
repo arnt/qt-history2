@@ -35,7 +35,7 @@ public:
     Q_EXPLICIT QSqlQuery(QSqlDatabase db);
     QSqlQuery(const QSqlQuery& other);
     QSqlQuery& operator=(const QSqlQuery& other);
-    virtual ~QSqlQuery();
+    ~QSqlQuery();
 
     bool isValid() const;
     bool isActive() const;
@@ -77,10 +77,6 @@ public:
     QCoreVariant boundValue(int pos) const;
     QMap<QString, QCoreVariant> boundValues() const;
     QString executedQuery() const;
-
-protected:
-    virtual void beforeSeek();
-    virtual void afterSeek();
 
 private:
     QSqlQueryPrivate* d;

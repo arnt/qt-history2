@@ -459,12 +459,10 @@ bool QSqlQuery::seek(int index, bool relative)
 {
     if (!isSelect() || !isActive())
         return false;
-    beforeSeek();
     int actualIdx;
     if (!relative) { // arbitrary seek
         if (index < 0) {
             d->sqlResult->setAt(QSql::BeforeFirstRow);
-            afterSeek();
             return false;
         }
         actualIdx = index;
@@ -474,7 +472,6 @@ bool QSqlQuery::seek(int index, bool relative)
             if (index > 0)
                 actualIdx = index;
             else {
-                afterSeek();
                 return false;
             }
             break;
@@ -483,14 +480,12 @@ bool QSqlQuery::seek(int index, bool relative)
                 d->sqlResult->fetchLast();
                 actualIdx = at() + index;
             } else {
-                afterSeek();
                 return false;
             }
             break;
         default:
             if ((at() + index) < 0) {
                 d->sqlResult->setAt(QSql::BeforeFirstRow);
-                afterSeek();
                 return false;
             }
             actualIdx = at() + index;
@@ -500,33 +495,26 @@ bool QSqlQuery::seek(int index, bool relative)
     // let drivers optimize
     if (isForwardOnly() && actualIdx < at()) {
         qWarning("QSqlQuery::seek: cannot seek backwards in a forward only query");
-        afterSeek();
         return false;
     }
     if (actualIdx == (at() + 1) && at() != QSql::BeforeFirstRow) {
         if (!d->sqlResult->fetchNext()) {
             d->sqlResult->setAt(QSql::AfterLastRow);
-            afterSeek();
             return false;
         }
-        afterSeek();
         return true;
     }
     if (actualIdx == (at() - 1)) {
         if (!d->sqlResult->fetchPrevious()) {
             d->sqlResult->setAt(QSql::BeforeFirstRow);
-            afterSeek();
             return false;
         }
-        afterSeek();
         return true;
     }
     if (!d->sqlResult->fetch(actualIdx)) {
         d->sqlResult->setAt(QSql::AfterLastRow);
-        afterSeek();
         return false;
     }
-    afterSeek();
     return true;
 }
 
@@ -561,23 +549,18 @@ bool QSqlQuery::next()
 {
     if (!isSelect() || !isActive())
         return false;
-    beforeSeek();
     bool b = false;
     switch (at()) {
     case QSql::BeforeFirstRow:
         b = d->sqlResult->fetchFirst();
-        afterSeek();
         return b;
     case QSql::AfterLastRow:
-        afterSeek();
         return false;
     default:
         if (!d->sqlResult->fetchNext()) {
             d->sqlResult->setAt(QSql::AfterLastRow);
-            afterSeek();
             return false;
         }
-        afterSeek();
         return true;
     }
 }
@@ -617,23 +600,18 @@ bool QSqlQuery::previous()
         return false;
     }
 
-    beforeSeek();
     bool b = false;
     switch (at()) {
     case QSql::BeforeFirstRow:
-        afterSeek();
         return false;
     case QSql::AfterLastRow:
         b = d->sqlResult->fetchLast();
-        afterSeek();
         return b;
     default:
         if (!d->sqlResult->fetchPrevious()) {
             d->sqlResult->setAt(QSql::BeforeFirstRow);
-            afterSeek();
             return false;
         }
-        afterSeek();
         return true;
     }
 }
@@ -657,10 +635,8 @@ bool QSqlQuery::first()
         qWarning("QSqlQuery::seek: cannot seek backwards in a forward only query");
         return false;
     }
-    beforeSeek();
     bool b = false;
     b = d->sqlResult->fetchFirst();
-    afterSeek();
     return b;
 }
 
@@ -679,10 +655,8 @@ bool QSqlQuery::last()
 {
     if (!isSelect() || !isActive())
         return false;
-    beforeSeek();
     bool b = false;
     b = d->sqlResult->fetchLast();
-    afterSeek();
     return b;
 }
 
@@ -800,29 +774,6 @@ void QSqlQuery::setForwardOnly(bool forward)
 QSqlRecord QSqlQuery::record() const
 {
     return d->sqlResult->record();
-}
-
-/*!
-    \internal
-
-    Protected virtual function called before the internal record
-    pointer is moved to a new record. The default implementation does
-    nothing.
-*/
-void QSqlQuery::beforeSeek()
-{
-}
-
-
-/*!
-    \internal
-
-    Protected virtual function called after the internal record
-    pointer is moved to a new record. The default implementation does
-    nothing.
-*/
-void QSqlQuery::afterSeek()
-{
 }
 
 /*!
