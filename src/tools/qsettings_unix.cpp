@@ -747,7 +747,7 @@ bool QSettings::sync()
 */
 bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 {
-    QString value = readEntry( key, QString::null, ok );
+    QString value = readEntry( key, ( def ? "true" : "false" ), ok );
 
     if (value.lower() == "true")
 	return TRUE;
