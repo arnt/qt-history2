@@ -91,11 +91,11 @@ Overviews
 <tr>
 <td valign=top >
 \list
-\i \link classes.html   Complete Class List \endlink
-\i \link classes-main.html Main Classes List\endlink
-\i \link topicals.html   Structure Overview \endlink
-\i \link annotated.html   Annotated Class List \endlink
-\i \link hierarchy.html   Inheritance Hierachy \endlink
+\i \link classes.html   All Classes\endlink
+\i \link classes-main.html Main Classes\endlink
+\i \link topicals.html   Grouped Classes\endlink
+\i \link annotated.html   Annotated Classes\endlink
+\i \link hierarchy.html   Inheritance Hierarchy\endlink
 \i \link functions.html   All Functions (long) \endlink
 \i \link headers.html   Header File Index \endlink
 \endlist
