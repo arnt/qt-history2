@@ -247,6 +247,7 @@ SHARED=yes
 GIF=no
 THREAD=auto
 SM=auto
+XINERAMA=auto
 ZLIB=yes
 LIBPNG=yes
 JPEG=no
@@ -360,6 +361,12 @@ while [ -n "$1" ]; do
 	;;
    -thread)
 	THREAD=yes
+	;;
+   -no-xinerama)
+	XINERAMA=no
+	;;
+   -xinerama)
+	XINERAMA=yes
 	;;
    -freetype)
 	FT=yes
@@ -713,11 +720,25 @@ fi
 if [ $SM = auto ]
 then
     SM=no
-    for INC in `sed -n -e '/^QMAKE_CXXFLAGS_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XMKSPEC`
+    for INC in `sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XMKSPEC`
     do
 	if [ -f $INC/X11/SM/SM.h ]
 	then
 	    SM=yes
+	    break
+	fi
+    done
+fi
+
+# Auto-detect Xinerama support
+if [ $XINERAMA = auto ]
+then
+    XINERAMA=no
+    for INC in `sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XMKSPEC`
+    do
+	if [ -f $INC/X11/extensions/Xinerama.h ]
+	then
+	    XINERAMA=yes
 	    break
 	fi
     done
@@ -784,7 +805,14 @@ if [ "$HELP" = "yes" ]; then
 	SMY="*"
 	SMN=" "
     fi
-
+    if [ "x$XINERAMA" = "xno" ]
+    then
+	XRY=" "
+	XRN="*"
+    else
+	XRY="*"
+	XRN=" "
+    fi
 
     MODULES_HELP="iconview workspace network canvas table xml opengl"
     if [ -f $HOME/.qt-license ]
@@ -843,6 +871,10 @@ Installation options:
 
  $THN  -no-thread ......... Do not compile with Threading Support
  $THY  -thread ............ Compile with Threading Support
+
+ $XRN  -no-xinerama ....... Do not compile Xinerama (multihead) support.
+ $XRY  -xinerama .......... Compile Xinerama support.  Requires
+                         X11/extensions/Xinerama.h
 
  *  -qt-zlib ........... Use the zlib bundled with Qt.
     -system-zlib ....... Use a zlib from the operating system
@@ -936,6 +968,12 @@ if [ "x$THREAD" = "xyes" ]
 then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-mt"
     QMAKE_CONFIG="$QMAKE_CONFIG thread"
+fi
+if [ "x$XINERAMA" = "xno" ]
+then
+    D_FLAGS="${D_FLAGS} QT_NO_XINERAMA"
+else
+    l_FLAGS="${l_FLAGS} -lXinerama"
 fi
 
 if [ "x$EMBEDDED" != "xno" ]
@@ -1069,6 +1107,7 @@ echo "MNG support.......... $MNG"
 echo "JPEG support......... $JPEG"
 echo "NAS sound support.... $NAS_SOUND"
 echo "Session management... $SM"
+echo "Xinerama support..... $XINERAMA"
 echo
 
 #do the qmake..
