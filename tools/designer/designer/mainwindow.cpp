@@ -3537,7 +3537,7 @@ QString MainWindow::whatsThisFrom( const QString &key )
 {
     if ( menuHelpFile.isEmpty() ) {
 	QString fn( documentationPath() );
-	fn += "/designer-manual-10.html";
+	fn += "/designer-manual-11.html";
 	QFile f( fn );
 	if ( f.open( IO_ReadOnly ) ) {
 	    QTextStream ts( &f );
