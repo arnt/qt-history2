@@ -796,7 +796,10 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     td->widths.fill(0);
 
     td->minWidths.resize(columns);
-    td->minWidths.fill(0);
+    // start with a minimum width of 0. totally empty
+    // cells of default created tables are invisible otherwise
+    // and therefore hardly editable
+    td->minWidths.fill(1);
 
     td->maxWidths.resize(columns);
     td->maxWidths.fill(INT_MAX);
