@@ -479,6 +479,20 @@ bool QPSQLDriver::hasFeature(DriverFeature f) const
     }
 }
 
+/*
+   Quote a string for inclusion into the connection string
+   \ -> \\
+   ' -> \'
+   surround string by single quotes
+ */
+static QString qQuote(QString s)
+{
+    s.replace(QLatin1Char('\\'), QLatin1String("\\\\"));
+    s.replace(QLatin1Char('\''), QLatin1String("\\'"));
+    s.append(QLatin1Char('\'')).prepend(QLatin1Char('\''));
+    return s;
+}
+
 bool QPSQLDriver::open(const QString & db,
                         const QString & user,
                         const QString & password,
@@ -489,16 +503,16 @@ bool QPSQLDriver::open(const QString & db,
     if (isOpen())
         close();
     QString connectString;
-    if (host.length())
-        connectString.append(QLatin1String("host=")).append(host);
-    if (db.length())
-        connectString.append(QLatin1String(" dbname=")).append(db);
-    if (user.length())
-        connectString.append(QLatin1String(" user=")).append(user);
-    if (password.length())
-        connectString.append(QLatin1String(" password=")).append(password);
-    if (port > -1)
-        connectString.append(QLatin1String(" port=")).append(QString::number(port));
+    if (!host.isEmpty())
+        connectString.append(QLatin1String("host=")).append(qQuote(host));
+    if (!db.isEmpty())
+        connectString.append(QLatin1String(" dbname=")).append(qQuote(db));
+    if (!user.isEmpty())
+        connectString.append(QLatin1String(" user=")).append(qQuote(user));
+    if (!password.isEmpty())
+        connectString.append(QLatin1String(" password=")).append(qQuote(password));
+    if (port != -1)
+        connectString.append(QLatin1String(" port=")).append(qQuote(QString::number(port)));
 
     // add any connect options - the server will handle error detection
     if (!connOpts.isEmpty()) {
