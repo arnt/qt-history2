@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qgrid.cpp#18 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -22,6 +22,7 @@
 
 #include "qgrid.h"
 #include "qlayout.h"
+#include "qapplication.h"
 
 /*!
   \class QGrid qgrid.h
@@ -33,7 +34,7 @@
   children will be placed and sized according to their sizeHint() and
   sizePolicy() return values.
 
-  Use setMargin() to add space around the edge, and use addSpacing to
+  Use setMargin() to add space around the edge, and use setSpacing() to
   add space between the widgets.
 
   <img src=qgrid-m.png>
@@ -96,4 +97,16 @@ void QGrid::frameChanged()
     if ( !layout() )
 	return;
     layout()->setMargin( frameWidth() );
+}
+
+
+/*!
+  \reimp
+*/
+
+QSize QGrid::sizeHint() const
+{
+    QWidget *mThis = (QWidget*)this;
+    QApplication::sendPostedEvents( mThis, QEvent::ChildInserted );
+    return QFrame::sizeHint();
 }

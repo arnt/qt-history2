@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qhbox.cpp#19 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -89,4 +89,16 @@ void QHBox::setSpacing( int space )
 {
     if ( layout() )
 	layout()->setSpacing( space );
+}
+
+
+/*!
+  \reimp
+*/
+
+QSize QHBox::sizeHint() const
+{
+    QWidget *mThis = (QWidget*)this;
+    QApplication::sendPostedEvents( mThis, QEvent::ChildInserted );
+    return QFrame::sizeHint();
 }
