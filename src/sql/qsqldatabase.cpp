@@ -228,7 +228,8 @@ QSqlDatabase* QSqlDatabaseManager::addDatabase( QSqlDatabase* db, const QString 
     QSqlDatabaseManager* sqlConnection = instance();
     if( sqlConnection == 0 )
 	return 0;
-    sqlConnection->removeDatabase( name );
+    if ( contains( name ) )
+	sqlConnection->removeDatabase( name );
     sqlConnection->dbDict.insert( name, db );
     return db;
 }
