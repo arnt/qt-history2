@@ -51,17 +51,15 @@ void TextOutline::paintEvent(QPaintEvent *)
     if (attributes->antialias)
         p.setRenderHints(QPainter::LineAntialiasing);
 
-    p.setPen(Qt::red);
+    p.setPen(Qt::black);
+    p.setBrush(QBrush(QPoint(0, 0), QColor(0, 127, 255),
+                      QPoint(width(), height()), QColor(255, 255, 127)));
+    p.drawPath(xpath);
 
     drawTarget(&p, pul);
     drawTarget(&p, pbl);
     drawTarget(&p, pur);
     drawTarget(&p, pbr);
-
-    p.setPen(Qt::black);
-    p.setBrush(QBrush(QPoint(0, 0), QColor(0, 127, 255),
-                      QPoint(width(), height()), QColor(255, 255, 127)));
-    p.drawPath(xpath);
 }
 
 void TextOutline::startAnimation()
