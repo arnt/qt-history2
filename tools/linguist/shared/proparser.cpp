@@ -12,7 +12,9 @@
 
 #include "proparser.h"
 
+#include <qdir.h>
 #include <qfile.h>
+#include <qfileinfo.h>
 #include <qregexp.h>
 #include <qstringlist.h>
 #include <qtextstream.h>
@@ -47,11 +49,15 @@ QMap<QString, QString> proFileTagMap( const QString& text )
 
     /*
       Process include() commands.
+      $$PWD is a special case so we have to change it while 
+      we know where the included file is.
     */
     QRegExp callToInclude("include\\s*\\(\\s*([^()\\s]+)\\s*\\)");
     int i = 0;
     while ( (i = callToInclude.search(t, i)) != -1 ) {
 	QString after = loadFile( callToInclude.cap(1) );
+	QFileInfo fi(callToInclude.cap(1));
+	after.replace("$$PWD", fi.dirPath());
 	t.replace( i, callToInclude.matchedLength(), after );
 	i += after.length();
     }
@@ -120,6 +126,8 @@ QMap<QString, QString> proFileTagMap( const QString& text )
 	    } else {
 		if ( tagMap.contains(invocation) )
 		    after = tagMap[invocation];
+		else if (invocation.lower() == "pwd")
+		    after = QDir::currentDirPath();
 		(*it).replace( i, len, after );
 	    }
 	}
