@@ -1599,6 +1599,8 @@ extern "C" {
 typedef int (WINAPI *PtrGdiplusStartup)(Q_UINT64 **, const QtGpStartupInput *, void *);
 typedef void (WINAPI *PtrGdiplusShutdown)(Q_UINT64 *);
 
+typedef int (__stdcall *PtrGdipGetDC)(QtGpGraphics *, HDC *hdc);
+typedef int (__stdcall *PtrGdipReleaseDC)(QtGpGraphics *, HDC *hdc);
 typedef int (__stdcall *PtrGdipCreateFromHDC) (HDC hdc, QtGpGraphics **);
 typedef int (__stdcall *PtrGdipDeleteGraphics) (QtGpGraphics *);
 typedef int (__stdcall *PtrGdipSetTransform) (QtGpGraphics *, QtGpMatrix *);
@@ -1663,6 +1665,8 @@ static PtrGdiplusShutdown GdiplusShutdown = 0;               // GdiplusStartup
 
 static PtrGdipCreateFromHDC GdipCreateFromHDC = 0;           // Graphics::Graphics(hdc)
 static PtrGdipDeleteGraphics GdipDeleteGraphics = 0;         // Graphics::~Graphics()
+static PtrGdipGetDC GdipGetDC = 0;                           // Graphics::GetDC(hdc)
+static PtrGdipReleaseDC GdipReleaseDC = 0;                   // Graphics::ReleaseDC()
 static PtrGdipDrawEllipseI GdipDrawEllipseI = 0;             // Graphics::DrawEllipse(pen, x, y, w, h)
 static PtrGdipDrawLineI GdipDrawLineI = 0;                   // Graphics::DrawLine(pen, x1, y1, x2, y2)
 static PtrGdipDrawPath GdipDrawPath = 0;                     // Graphics::DrawPath(pen, path);
@@ -1735,6 +1739,8 @@ static void qt_resolve_gdiplus()
     // Graphics functions
     GdipCreateFromHDC            = (PtrGdipCreateFromHDC)      lib.resolve("GdipCreateFromHDC");
     GdipDeleteGraphics           = (PtrGdipDeleteGraphics)     lib.resolve("GdipDeleteGraphics");
+    GdipGetDC                    = (PtrGdipGetDC)              lib.resolve("GdipGetDC");
+    GdipReleaseDC                = (PtrGdipReleaseDC)          lib.resolve("GdipReleaseDC");
     GdipSetTransform             = (PtrGdipSetTransform)       lib.resolve("GdipSetWorldTransform");
     GdipSetClipRegion            = (PtrGdipSetClipRegion)      lib.resolve("GdipSetClipRegion");
     GdipResetClip                = (PtrGdipResetClip)          lib.resolve("GdipResetClip");
@@ -1795,6 +1801,8 @@ static void qt_resolve_gdiplus()
     Q_ASSERT(GdiplusShutdown);
     Q_ASSERT(GdipCreateFromHDC);
     Q_ASSERT(GdipDeleteGraphics);
+    Q_ASSERT(GdipGetDC);
+    Q_ASSERT(GdipReleaseDC);
     Q_ASSERT(GdipSetTransform);
     Q_ASSERT(GdipSetClipRegion);
     Q_ASSERT(GdipResetClip);
