@@ -16,7 +16,6 @@
 #include "option.h"
 #include "meta.h"
 #include <qdir.h>
-#include <qdict.h>
 #include <qregexp.h>
 #include <stdlib.h>
 #include <time.h>
