@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#145 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#146 $
 #
 # this is a massive hack, written very quickly
 #
@@ -2024,7 +2024,7 @@ Only the most relevant code is here.
 #
 # make a semi-graphical inheritance tree
 #
-sub inheritanceindex {
+sub classhierarchy {
     my $result;
     $result = "<ul plain>\n";
     foreach ( sort keys %members ) {
