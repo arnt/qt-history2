@@ -492,9 +492,9 @@ QAxHostWindow::QAxHostWindow(QAxWidget *c, bool bInited)
             sizehint = QSize(0, 0);
         }
         if (!(dwMiscStatus & OLEMISC_NOUIACTIVATE)) {
-            host->setFocusPolicy(QWidget::StrongFocus);
+            host->setFocusPolicy(Qt::StrongFocus);
         } else {
-            host->setFocusPolicy(QWidget::NoFocus);
+            host->setFocusPolicy(Qt::NoFocus);
         }
         
         RECT rcPos = { host->x(), host->y(), 
@@ -1372,7 +1372,7 @@ void QAxHostWidget::paintEvent(QPaintEvent*)
     QPixmap pm(size());
     pm.fill();
     QPainter painter(&pm);
-    HDC hdc = painter.handle();
+    HDC hdc = pm.winHDC();
     
     RECTL bounds;
     bounds.left = 0;
@@ -1429,7 +1429,7 @@ void QAxHostWidget::paintEvent(QPaintEvent*)
     name and \a f to the QWidget constructor. To initialize a control,
     call \link QAxBase::setControl() setControl \endlink.
 */
-QAxWidget::QAxWidget(QWidget *parent, const char *name, WFlags f)
+QAxWidget::QAxWidget(QWidget *parent, const char *name, Qt::WFlags f)
 : QWidget(parent, name, f), container(0)
 {
 }
@@ -1440,7 +1440,7 @@ QAxWidget::QAxWidget(QWidget *parent, const char *name, WFlags f)
 
     \sa setControl()
 */
-QAxWidget::QAxWidget(const QString &c, QWidget *parent, const char *name, WFlags f)
+QAxWidget::QAxWidget(const QString &c, QWidget *parent, const char *name, Qt::WFlags f)
 : QWidget(parent, name, f), container(0)
 {
     setControl(c);
@@ -1450,7 +1450,7 @@ QAxWidget::QAxWidget(const QString &c, QWidget *parent, const char *name, WFlags
     Creates a QAxWidget that wraps the COM object referenced by \a iface.
     \a parent, \a name and \a f are propagated to the QWidget contructor.
 */
-QAxWidget::QAxWidget(IUnknown *iface, QWidget *parent, const char *name, WFlags f)
+QAxWidget::QAxWidget(IUnknown *iface, QWidget *parent, const char *name, Qt::WFlags f)
 : QWidget(parent, name, f), QAxBase(iface), container(0)
 {
 }
@@ -1504,7 +1504,7 @@ bool QAxWidget::createHostWindow(bool initialized)
     container->hostWidget()->resize(size());
     container->hostWidget()->show();
     
-    if (container->hostWidget()->focusPolicy() != NoFocus) {
+    if (container->hostWidget()->focusPolicy() != Qt::NoFocus) {
         setFocusProxy(container->hostWidget());
         setFocusPolicy(container->hostWidget()->focusPolicy());
     }
@@ -1549,7 +1549,7 @@ void QAxWidget::clear()
         container->deactivate();
     
     QAxBase::clear();
-    setFocusPolicy(NoFocus);
+    setFocusPolicy(Qt::NoFocus);
     
     if (container) {
         container->releaseAll();

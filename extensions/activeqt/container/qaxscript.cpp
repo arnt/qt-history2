@@ -659,7 +659,7 @@ bool QAxScript::load(const QString &code, const QString &language)
     script_code = code;
     QString lang = language;
     if (lang.isEmpty()) {
-        if (code.contains("End Sub", QString::CaseInsensitive))
+        if (code.contains("End Sub", Qt::CaseInsensitive))
             lang = "VBScript";
         
         QList<QAxEngineDescriptor>::ConstIterator it;

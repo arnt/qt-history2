@@ -2756,7 +2756,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     disp->GetIDsOfNames(IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid);
     if (dispid == DISPID_UNKNOWN) {
         // see if we are calling a property set function as a slot
-        if (!uni_slotname.startsWith("set", QString::CaseInsensitive))
+        if (!uni_slotname.startsWith("set", Qt::CaseInsensitive))
             return index;
         uni_slotname = uni_slotname.right(uni_slotname.length() - 3);
         names = (TCHAR*)uni_slotname.utf16();
@@ -3047,7 +3047,7 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
     QString uni_function = QLatin1String(function);
     OLECHAR *names = (TCHAR*)uni_function.utf16();
     disp->GetIDsOfNames(IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid);
-    if (dispid == DISPID_UNKNOWN && uni_function.startsWith("set", QString::CaseInsensitive)) {
+    if (dispid == DISPID_UNKNOWN && uni_function.startsWith("set", Qt::CaseInsensitive)) {
         uni_function = uni_function.mid(3);
         OLECHAR *names = (TCHAR*)uni_function.utf16();
         disptype = DISPATCH_PROPERTYPUT;
