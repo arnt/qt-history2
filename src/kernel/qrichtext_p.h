@@ -90,7 +90,7 @@ class QTextFormatCollection;
 class QStyleSheetItem;
 class QTextCustomItem;
 class QTextFlow;
-class QBidiContext;
+struct QBidiContext;
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
