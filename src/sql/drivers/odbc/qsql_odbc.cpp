@@ -202,6 +202,8 @@ QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull, 
 	colSize = 255;
     } else if ( colSize > 65536 ) { // limit buffer size to 64 KB 
 	colSize = 65536;
+    } else if ( unicode ) {
+	colSize *= 2; // a tiny bit faster, since it saves a SQLGetData() call
     }
     char* buf = new char[ colSize ];
     while ( TRUE ) {
@@ -217,8 +219,14 @@ QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull, 
 		isNull = TRUE;
 		break;
 	    }
+	    // if SQL_SUCCESS_WITH_INFO is returned, indicating that
+	    // more data can be fetched, the length indicator does NOT
+	    // contain the number of bytes returned - it contains the
+	    // total number of bytes that CAN be fetched
 	    if ( unicode ) {
-		fieldVal += QString( (QChar*)buf, lengthIndicator / 2 );
+		// colSize-1: remove 0 termination when there is more data to fetch
+		int rSize = (r == SQL_SUCCESS_WITH_INFO) ? colSize-1 : lengthIndicator;
+		fieldVal += QString( (QChar*) buf, rSize / 2 );
 	    } else {
 		fieldVal += buf;
 	    }
@@ -652,9 +660,9 @@ QVariant QODBCResult::data( int field )
 	    DATE_STRUCT dbuf;
 	    r = SQLGetData( d->hStmt,
 			    current+1,
-				SQL_C_DATE,
-				(SQLPOINTER)&dbuf,
-				0,
+			    SQL_C_DATE,
+			    (SQLPOINTER)&dbuf,
+			    0,
 			    &lengthIndicator );
 	    if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) && ( lengthIndicator != SQL_NULL_DATA ) ) {
 		fieldCache[ current ] = QVariant( QDate( dbuf.year, dbuf.month, dbuf.day ) );
@@ -849,10 +857,14 @@ bool QODBCResult::exec()
     if ( extension()->index.count() > 0 ) {
 	QMap<int, QString>::Iterator it;
 	int para = 1;
-	SQLINTEGER indicator;
 	QVariant val;
 	for ( it = extension()->index.begin(); it != extension()->index.end(); ++it ) {
 	    val = extension()->values[ it.data() ];
+	    SQLINTEGER * ind = new SQLINTEGER( SQL_NTS );
+	    tmpStorage.append( qAutoDeleter(ind) );
+	    if ( val.isNull() ) {
+		*ind = SQL_NULL_DATA;
+	    }
 	    switch ( val.type() ) {
 		case QVariant::Date: {
 		    DATE_STRUCT * dt = new DATE_STRUCT;
@@ -870,7 +882,7 @@ bool QODBCResult::exec()
 					  0,
 					  (void *) dt,
 					  0,
-					  NULL );
+					  *ind == SQL_NULL_DATA ? ind : NULL );
 		    break; }
 		case QVariant::Time: {
 		    TIME_STRUCT * dt = new TIME_STRUCT;
@@ -888,7 +900,7 @@ bool QODBCResult::exec()
 					  0,
 					  (void *) dt,
 					  0,
-	        			  NULL );
+	        			  *ind == SQL_NULL_DATA ? ind : NULL );
 		    break; }
 		case QVariant::DateTime: {
 		    TIMESTAMP_STRUCT * dt = new TIMESTAMP_STRUCT;
@@ -909,11 +921,10 @@ bool QODBCResult::exec()
 					  0,
 					  (void *) dt,
 					  0,
-					  NULL );
+					  *ind == SQL_NULL_DATA ? ind : NULL );
 		    break; }
 	        case QVariant::Int: {
-		    int * v = new int;
-		    *v = val.toInt();
+		    int * v = new int( val.toInt() );
 		    tmpStorage.append( qAutoDeleter(v) );
 		    r = SQLBindParameter( d->hStmt,
 					  para,
@@ -924,11 +935,10 @@ bool QODBCResult::exec()
 					  0,
 					  (void *) v,
 					  0,
-					  NULL );
+					  *ind == SQL_NULL_DATA ? ind : NULL );
 		    break; }
  	        case QVariant::Double: {
-		    double * v = new double;
-		    *v = val.toDouble();
+		    double * v = new double( val.toDouble() );
 		    tmpStorage.append( qAutoDeleter(v) );
 		    r = SQLBindParameter( d->hStmt,
 					  para,
@@ -939,13 +949,13 @@ bool QODBCResult::exec()
 					  0,
 					  (void *) v,
 					  0,
-					  NULL );
+					  *ind == SQL_NULL_DATA ? ind : NULL );
 		    break; }
  	        case QVariant::ByteArray: {
 		    QByteArray ba = val.toByteArray();
-		    SQLINTEGER * len = new SQLINTEGER;
-		    *len = ba.size();
-		    tmpStorage.append( qAutoDeleter(len) );
+		    if ( *ind != SQL_NULL_DATA ) {
+			*ind = ba.size();
+		    }
 		    r = SQLBindParameter( d->hStmt,
 					  para,
 					  SQL_PARAM_INPUT,
@@ -955,11 +965,10 @@ bool QODBCResult::exec()
 					  0,
 					  (void *) ba.data(),
 					  ba.size(),
-					  len );
+					  ind );
 		    break; }
 	        case QVariant::String:
 		    if ( d->unicode ) {
-			indicator = SQL_NTS;
 			QString * str = new QString( val.asString() );
 			str->ucs2();
 			int len = str->length()*2;
@@ -971,14 +980,13 @@ bool QODBCResult::exec()
 					      SQL_WVARCHAR,
 					      str->length(),
 					      0,
-					      (void *) str->unicode(),
+ 					      (void *) str->unicode(),
 					      len,
-					      &indicator );
+					      ind );
 			break;
 		    }
 		    // fall through
 	        default: {
-		    indicator = SQL_NTS;
 		    QCString * str = new QCString( val.asString().local8Bit() );
 		    tmpStorage.append( qAutoDeleter(str) );
 		    r = SQLBindParameter( d->hStmt,
@@ -990,7 +998,7 @@ bool QODBCResult::exec()
 					  0,
 					  (void *) str->data(),
 					  str->length() + 1,
-					  &indicator );
+					  ind );
 		    break; }
 	    }
 	    para++;
