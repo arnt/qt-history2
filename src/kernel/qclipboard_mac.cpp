@@ -282,6 +282,8 @@ void QClipboard::clear()
 void QClipboard::ownerDestroyed()
 {
     owner = NULL;
+    clipboardData()->clear();
+    emit dataChanged();
 }
 
 
@@ -340,6 +342,7 @@ void QClipboard::setData( QMimeSource *src )
 	memcpy(buffer+sizeof(mimelen)+mimelen, ar.data(), ar.size());
 	PutScrapFlavor(scrap, (ScrapFlavorType)mactype, 0, ar.size()+mimelen+sizeof(mimelen), buffer);
     }
+    emit dataChanged();
 }
 
 void QClipboard::setSelectionMode(bool)
