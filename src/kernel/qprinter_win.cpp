@@ -435,9 +435,9 @@ static void setDefaultPrinter(const QString &printerName)
             hdevmode = 0;
         }
         hdevmode = GlobalAlloc(GHND,szDEVMODE);
-        ASSERT(hdevmode != 0);
+        Q_ASSERT(hdevmode != 0);
         DEVMODE *pDevMode = (DEVMODE *)GlobalLock(hdevmode);
-        ASSERT(pDevMode != 0);
+        Q_ASSERT(pDevMode != 0);
 
         // Copy DEVMODE from PRINTER_INFO_2 Structure
         memcpy(pDevMode,pinf2->pDevMode,szDEVMODE);
@@ -453,13 +453,13 @@ static void setDefaultPrinter(const QString &printerName)
 	    hdevnames = 0;
     }
     hdevnames = GlobalAlloc(GHND,(lDrvrName + lPrntName + lPortName) * sizeof(TCHAR) + sizeof(DEVNAMES));
-    ASSERT(hdevnames != 0);
+    Q_ASSERT(hdevnames != 0);
     DEVNAMES *pDevNames = (DEVNAMES *)GlobalLock(hdevnames);
-    ASSERT(pDevNames != 0);
+    Q_ASSERT(pDevNames != 0);
 
     // Create DEVNAMES Information from PRINTER_INFO_2 Structure
     int tcOffset = sizeof(DEVNAMES) / sizeof(TCHAR);
-    ASSERT(sizeof(DEVNAMES) == tcOffset * sizeof(TCHAR));
+    Q_ASSERT(sizeof(DEVNAMES) == tcOffset * sizeof(TCHAR));
 
     pDevNames->wDriverOffset = tcOffset;
     memcpy((LPTSTR)pDevNames + tcOffset,pinf2->pDriverName,lDrvrName * sizeof(TCHAR));

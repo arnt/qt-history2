@@ -3478,7 +3478,7 @@ QCanvasSpline::~QCanvasSpline()
 */
 void QCanvasSpline::setControlPoints(QPointArray ctrl, bool close)
 {
-    ASSERT( (int)ctrl.count() % 3 == ( close ? 0 : 1 ) );
+    Q_ASSERT( (int)ctrl.count() % 3 == ( close ? 0 : 1 ) );
     cl = close;
     bez = ctrl;
     recalcPoly();
