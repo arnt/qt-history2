@@ -1602,7 +1602,7 @@ void QMacStylePrivate::AppManDrawClickThroughButton(const Rect &macRect,
         x = cmb->rect.x() + (cmb->editable ? 0 : 2);
         y = cmb->rect.y() + (cmb->editable ? 0 : 2);
         width = macRect.right - macRect.left;
-        height = macRect.bottom - macRect.top + cmb->editable ? 2 : 0;
+        height = (macRect.bottom - macRect.top) + (cmb->editable ? 2 : 0);
     } else {
         x = opt->rect.x();
         y = opt->rect.y();
