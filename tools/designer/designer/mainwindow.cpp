@@ -558,9 +558,9 @@ QObjectList *MainWindow::runProject()
 	for ( QPtrListIterator<FormFile> forms = currentProject->formFiles();
 	      forms.current(); ++forms ) {
 	    FormFile* f = forms.current();
+	    hasForms = TRUE;
 	    if ( !f->formWindow() )
 		continue;
-	    hasForms = TRUE;
 	    FormWindow* fw = f->formWindow();
 	    QValueList<int> bps = MetaDataBase::breakPoints( fw );
 	    if ( !bps.isEmpty() )
