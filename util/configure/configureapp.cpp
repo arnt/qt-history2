@@ -52,7 +52,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "RTTI" ]	    = "no";
 
     QString version;
-    QFile profile(QString(getenv("QTDIR")) + "/src/qt.pro");
+    QFile profile(QString(getenv("QTDIR")) + "/src/qbase.pri");
     if (profile.open(IO_ReadOnly)) {
 	QTextStream read(&profile);
 	QString line;
@@ -1416,7 +1416,7 @@ void Configure::findProjects( const QString& dirName )
 	excludeTable["qnetwork.pro"]   = true;
 	excludeTable["qopengl.pro"]    = true;
 	excludeTable["qsqlkernel.pro"] = true;
-	excludeTable["qt_gui.pro"]     = true;
+	excludeTable["qgui.pro"]       = true;
 	excludeTable["qtkernel.pro"]   = true;
 	excludeTable["qtlibs.pro"]     = true;
 	excludeTable["qtmain.pro"]     = true;
