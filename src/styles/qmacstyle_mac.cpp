@@ -1305,6 +1305,9 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
 {
     SInt32 ret = 0;
     switch(sh) {
+    case SH_BlinkCursorWhenTextSelected:
+	ret = FALSE;
+	break;
     case SH_ScrollBar_StopMouseOverSlider:
         ret = TRUE;
         break;
