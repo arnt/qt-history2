@@ -61,7 +61,7 @@ public:
     constructor.
 */
 QHBoxWidget::QHBoxWidget(QWidget *parent, const char *name, Qt::WFlags f)
-    :QFrame(parent, f)
+    :QFrame(*(new QHBoxWidgetPrivate), parent, f)
 {
     Q_D(QHBoxWidget);
     QString nm(name);
@@ -79,7 +79,7 @@ QHBoxWidget::QHBoxWidget(QWidget *parent, const char *name, Qt::WFlags f)
     constructor.
 */
 QHBoxWidget::QHBoxWidget(QWidget *parent, Qt::WFlags f)
-    :QFrame(parent, f)
+    :QFrame(*(new QHBoxWidgetPrivate), parent, f)
 {
     Q_D(QHBoxWidget);
     d->lay = new QHBoxLayout(this);
@@ -100,7 +100,7 @@ QHBoxWidget::QHBoxWidget(QWidget *parent, Qt::WFlags f)
 */
 
 QHBoxWidget::QHBoxWidget(Qt::Orientation orientation, QWidget *parent , Qt::WFlags f)
-    :QFrame(parent, f)
+    :QFrame(*(new QHBoxWidgetPrivate), parent, f)
 {
     Q_D(QHBoxWidget);
     d->lay = new QBoxLayout(orientation == Qt::Horizontal
