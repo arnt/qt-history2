@@ -37,32 +37,7 @@ class QObjectUserData;
 #endif
 template<typename T>class QList;
 
-class Q_KERNEL_EXPORT QObjectList : private QList<QObject*>
-{
-public:
-    using QList<QObject*>::append;
-    using QList<QObject*>::at;
-    using QList<QObject*>::clear;
-    using QList<QObject*>::contains;
-    using QList<QObject*>::findIndex;
-    using QList<QObject*>::first;
-    using QList<QObject*>::indexOf;
-    using QList<QObject*>::insert;
-    using QList<QObject*>::isEmpty;
-    using QList<QObject*>::last;
-    using QList<QObject*>::prepend;
-    using QList<QObject*>::remove;
-    using QList<QObject*>::removeAt;
-    using QList<QObject*>::setAutoDelete;
-    using QList<QObject*>::size;
-    using QList<QObject*>::take;
-
-    using QList<QObject*>::Iterator;
-    using QList<QObject*>::begin;
-    using QList<QObject*>::end;
-
-    using QList<QObject*>::operator!;
-};
+typedef QList<QObject*> QObjectList;
 
 class Q_KERNEL_EXPORT QObject: public Qt
 {
@@ -267,6 +242,4 @@ template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
 { return (IFace *)(object ? object->qt_metacast(#IFace) : 0); }
 
 
-#define Q_DEFINED_QOBJECT
-#include "qwinexport.h"
 #endif // QOBJECT_H

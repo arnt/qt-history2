@@ -671,8 +671,7 @@ void QSocket::flush()
 		j = 0;
 		i += s;
 		++n;
-		a = d->wba.at(n);
-		s = a ? a->size() : 0;
+		s = n >= d->wba.count() ? 0 : d->wba.at(n)->size();
 	    }
 	    nwritten = d->socket->writeBlock( out, i );
 	    if ( d->wsn )
@@ -903,7 +902,7 @@ Q_LONG QSocket::writeBlock( const char *data, Q_ULONG len )
     }
     if ( len == 0 || d->state == Closing || d->state == Idle )
 	return 0;
-    QByteArray *a = d->wba.last();
+    QByteArray *a = d->wba.isEmpty() ? 0 : d->wba.last();
 
     // next bit is sensitive.  if we're writing really small chunks,
     // try to buffer up since system calls are expensive, and nagle's

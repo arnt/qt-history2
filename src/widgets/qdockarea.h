@@ -158,8 +158,6 @@ Q_GUI_EXPORT QTextStream &operator<<( QTextStream &, const QDockArea & );
 Q_GUI_EXPORT QTextStream &operator>>( QTextStream &, QDockArea & );
 #endif
 
-#define Q_DEFINED_QDOCKAREA
-#include "qwinexport.h"
 #endif
 
 #endif //QT_NO_MAINWINDOW

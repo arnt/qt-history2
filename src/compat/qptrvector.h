@@ -83,6 +83,4 @@ template<class type> inline void QPtrVector<type>::deleteItem( QPtrCollection::I
     if ( del_item ) delete (type *)d;
 }
 
-#define Q_DEFINED_QPTRVECTOR
-#include "qwinexport.h"
 #endif // QVECTOR_H

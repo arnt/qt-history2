@@ -71,7 +71,7 @@ template<class type> inline void QIntDict<type>::deleteItem( QPtrCollection::Ite
     if ( del_item ) delete (type*)d;
 }
 
-template<class type> 
+template<class type>
 class QIntDictIterator : public QGDictIterator
 {
 public:
@@ -88,6 +88,4 @@ public:
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}
 };
 
-#define Q_DEFINED_QINTDICT
-#include "qwinexport.h"
 #endif // QINTDICT_H

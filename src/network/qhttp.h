@@ -27,7 +27,6 @@
 #define QM_TEMPLATE_EXTERN_HTTP
 #else
 #define QM_EXPORT_HTTP Q_EXPORT
-#define QM_TEMPLATE_EXTERN_HTTP Q_TEMPLATE_EXTERN
 #endif
 
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
@@ -39,12 +38,6 @@ class QIODevice;
 
 class QHttpPrivate;
 class QHttpRequest;
-
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-QM_TEMPLATE_EXTERN_HTTP template class QM_EXPORT_HTTP QMap<QString, QString>;
-// MOC_SKIP_END
-#endif
 
 class QM_EXPORT_HTTP QHttpHeader
 {
@@ -251,7 +244,5 @@ private:
     friend class QHttpPGHRequest;
 };
 
-#define Q_DEFINED_QHTTP
-#include "qwinexport.h"
 #endif
 #endif

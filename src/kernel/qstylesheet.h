@@ -150,13 +150,6 @@ private:
     QStyleSheetItemData* d;
 };
 
-
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QDict<QStyleSheetItem>;
-// MOC_SKIP_END
-#endif
-
 #ifndef QT_NO_TEXTCUSTOMITEM
 class QTextCustomItem;
 #endif

@@ -187,7 +187,4 @@ Q_OUTOFLINE_TEMPLATE QDataStream& operator<<(QDataStream& s, const QValueList<T>
 }
 #endif // QT_NO_DATASTREAM
 
-#define Q_DEFINED_QVALUELIST
-#define Q_DEFINED_QVALUELIST
-#include "qwinexport.h"
 #endif // QVALUELIST_H

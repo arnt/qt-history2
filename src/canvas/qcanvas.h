@@ -27,10 +27,8 @@
 
 #if !defined( QT_MODULE_CANVAS ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_CANVAS )
 #define QM_EXPORT_CANVAS
-#define QM_TEMPLATE_EXTERN_CANVAS
 #else
 #define QM_EXPORT_CANVAS Q_GUI_EXPORT
-#define QM_TEMPLATE_EXTERN_CANVAS Q_TEMPLATE_EXTERN
 #endif
 
 #ifndef QT_NO_CANVAS
@@ -768,8 +766,6 @@ private:
 			 const QCanvasText* ) const;
 };
 
-#define Q_DEFINED_QCANVAS
-#include "qwinexport.h"
 
 // If we want to be able to a Qt version that was compiled with MSVC 6, in a
 // project that uses MSVC .NET, we have to first export QList<QCanvasItem*> in

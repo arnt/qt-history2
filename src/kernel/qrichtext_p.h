@@ -145,12 +145,6 @@ private:
     friend class QTextParagraph;
 };
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QMemArray<QTextStringChar>;
-// MOC_SKIP_END
-#endif
-
 class Q_GUI_EXPORT QTextString
 {
 public:
@@ -268,13 +262,6 @@ inline bool QTextString::validCursorPosition( int idx )
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QStack<int>;
-Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QStack<QTextParagraph*>;
-// MOC_SKIP_END
-#endif
-
 class Q_GUI_EXPORT QTextCursor
 {
 public:
@@ -385,12 +372,6 @@ protected:
 
 };
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QList<QTextCommand *>;
-// MOC_SKIP_END
-#endif
-
 class Q_GUI_EXPORT QTextCommandHistory
 {
 public:
@@ -476,11 +457,6 @@ public:
 };
 #endif
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QMap<QString, QString>;
-// MOC_SKIP_END
-#endif
 
 #ifndef QT_NO_TEXTCUSTOMITEM
 class Q_GUI_EXPORT QTextImage : public QTextCustomItem
@@ -531,14 +507,6 @@ private:
     bool shade;
 
 };
-#endif
-
-#ifndef QT_NO_TEXTCUSTOMITEM
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QList<QTextCustomItem *>;
-// MOC_SKIP_END
-#endif
 #endif
 
 class Q_GUI_EXPORT QTextFlow
@@ -654,12 +622,6 @@ private:
 };
 #endif
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QList<QTextTableCell *>;
-Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QMap<QTextCursor*, int>;
-// MOC_SKIP_END
-#endif
 
 #ifndef QT_NO_TEXTCUSTOMITEM
 class Q_GUI_EXPORT QTextTable: public QTextCustomItem
@@ -733,15 +695,6 @@ struct Q_GUI_EXPORT QTextDocumentSelection
     bool swapped;
     Q_DUMMY_COMPARISON_OPERATOR(QTextDocumentSelection)
 };
-
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QMap<int, QColor>;
-//Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QMap<int, bool>;
-Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QMap<int, QTextDocumentSelection>;
-Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QList<QTextDocument *>;
-// MOC_SKIP_END
-#endif
 
 class Q_GUI_EXPORT QTextDocument : public QObject
 {
@@ -1111,13 +1064,6 @@ public:
     int y, baseLine, h;
     int w;
 };
-
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QMap<int, QTextParagraphSelection>;
-Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QMap<int, QTextLineStart*>;
-// MOC_SKIP_END
-#endif
 
 class Q_GUI_EXPORT QTextParagraphData
 {
@@ -1550,12 +1496,6 @@ private:
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QDict<QTextFormat>;
-// MOC_SKIP_END
-#endif
 
 class Q_GUI_EXPORT QTextFormatCollection
 {

@@ -49,8 +49,6 @@ tools {
 		  $$TOOLS_CPP/qlibrary_win.cpp \
 		  $$TOOLS_CPP/qsettings_win.cpp
 
-	win32-borland:SOURCES += $$TOOLS_CPP/qwinexport.cpp
-
 	wince-* {
 		SOURCES -= $$TOOLS_CPP/qdir_win.cpp \
 			   $$TOOLS_CPP/qfile_win.cpp \

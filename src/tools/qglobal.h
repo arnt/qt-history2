@@ -876,7 +876,6 @@ class QDataStream;
 #    endif
 #    define Q_EXPORT  __declspec(dllexport)
 #    define Q_TEMPLATEDLL
-#    define Q_TEMPLATE_EXTERN
 #    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
 #  elif defined(QT_DLL)		/* use a Qt DLL library */
 #    define Q_KERNEL_EXPORT __declspec(dllimport)
@@ -887,24 +886,15 @@ class QDataStream;
 #    define Q_XML_EXPORT __declspec(dllimport)
 #    define Q_EXPORT  __declspec(dllimport)
 #    define Q_TEMPLATEDLL
-#    ifndef Q_TEMPLATE_EXTERN
-#      if defined(Q_CC_MSVC_NET)
-#        define Q_TEMPLATE_EXTERN extern
-#      else
-#        define Q_TEMPLATE_EXTERN
-#      endif
-#    endif
 #    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
 #  endif
 #elif defined(Q_OS_LINUX) && defined(Q_CC_BOR)
 #  if defined(QT_SHARED)	/* create a Qt shared library */
 #    define Q_EXPORT  __declspec(dllexport)
 #    define Q_TEMPLATEDLL
-#    define Q_TEMPLATE_EXTERN
 #    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
 #  else
 #    define Q_TEMPLATEDLL
-#    define Q_TEMPLATE_EXTERN
 #    undef  Q_DISABLE_COPY 	/* avoid unresolved externals */
 #  endif
 #else
@@ -1288,6 +1278,7 @@ Q_KERNEL_EXPORT void *qMemCopy(void *dest, const void *src, size_t n);
 #endif
 #if defined(QT_NO_WARNINGS)
 #  if defined(Q_CC_MSVC)
+#    pragma warning(disable: 4251) // class 'A' needs to have dll interface for to be used by clients of class 'B'.
 #    pragma warning(disable: 4244) // 'conversion' conversion from 'type1' to 'type2', possible loss of data
 #    pragma warning(disable: 4275) // non - DLL-interface classkey 'identifier' used as base for DLL-interface classkey 'identifier'
 #    pragma warning(disable: 4514) // unreferenced inline/local function has been removed

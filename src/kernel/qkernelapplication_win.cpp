@@ -11,6 +11,16 @@ Q_KERNEL_EXPORT HINSTANCE appInst	= 0;		// handle to app instance
 Q_KERNEL_EXPORT HINSTANCE appPrevInst	= 0;		// handle to prev app instance
 Q_KERNEL_EXPORT int appCmdShow = 0;
 
+Q_KERNEL_EXPORT HINSTANCE qWinAppInst()		// get Windows app handle
+{
+    return appInst;
+}
+
+Q_KERNEL_EXPORT HINSTANCE qWinAppPrevInst()		// get Windows prev app handle
+{
+    return appPrevInst;
+}
+
 static void	msgHandler( QtMsgType, const char* );
 
 void set_winapp_name()

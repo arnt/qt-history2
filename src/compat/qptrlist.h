@@ -160,7 +160,5 @@ public:
 			      { QGListIterator::operator=(it); return *this; }
 };
 
-#define Q_DEFINED_QPTRLIST
-#include "qwinexport.h"
 
 #endif // QPTRLIST_H

@@ -26,6 +26,4 @@ public:
     inline QGuardedPtr(T *obj) : QPointer<T>(obj){}
     inline QGuardedPtr(const QPointer<T> &p) : QPointer<T>(p) {}
 };
-#define Q_DEFINED_QGUARDEDPTR
-#include "qwinexport.h"
 #endif

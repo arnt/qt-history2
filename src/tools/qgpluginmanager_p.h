@@ -37,12 +37,6 @@
 
 #ifndef QT_NO_COMPONENT
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-//Q_TEMPLATE_EXTERN template class Q_EXPORT QDict<QLibrary>;
-// MOC_SKIP_END
-#endif
-
 class Q_EXPORT QGPluginManager
 {
 public:

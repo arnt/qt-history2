@@ -76,6 +76,4 @@ public:
     }
 };
 
-#define Q_DEFINED_QVALUEVECTOR
-#include "qwinexport.h"
 #endif // QVALUEVECTOR_H

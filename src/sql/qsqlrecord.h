@@ -56,10 +56,10 @@ public:
     virtual void append(const QSqlField& field);
     virtual void replace(int pos, const QSqlField& field);
     virtual void remove(int pos);
-    
+
 #ifndef QT_NO_COMPAT
     virtual void insert(int pos, const QSqlField& field) { replace(pos, field); }
-#endif    
+#endif
 
 
     bool                 isEmpty() const;
@@ -70,7 +70,7 @@ public:
     virtual QString      toString( const QString& prefix = QString(),
 				   const QString& sep = "," ) const;
     virtual QStringList  toStringList( const QString& prefix = QString() ) const;
-    
+
 private:
     void detach();
     QSqlRecordPrivate* d;
@@ -79,12 +79,6 @@ private:
 /******************************************/
 /*******     QSqlRecordInfo Class    ******/
 /******************************************/
-
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_SQL_EXPORT QList<QSqlFieldInfo>;
-// MOC_SKIP_END
-#endif
 
 typedef QList<QSqlFieldInfo> QSqlFieldInfoList;
 

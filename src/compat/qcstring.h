@@ -236,6 +236,4 @@ Q_EXPORT inline const QCString operator+(char c1, const QCString &s2)
     tmp += s2;
     return tmp;
 }
-#include "qwinexport.h"
-#include "qbytearray.h"
 #endif // QCSTRING_H

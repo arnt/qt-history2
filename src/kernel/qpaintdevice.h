@@ -222,6 +222,7 @@ protected:
     ushort	devFlags;			// device flags
     ushort	painters;			// refcount
 
+    friend class QWin32GC;
     friend class QPainter;
     friend class QPaintDeviceMetrics;
 #if defined(Q_WS_MAC)

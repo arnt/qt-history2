@@ -18,6 +18,7 @@
 
 #include "qapplication.h"
 #include "qwidget.h"
+#include "qpointer.h"
 
 class QAccessibleObjectPrivate
 {

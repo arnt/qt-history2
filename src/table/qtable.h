@@ -33,14 +33,8 @@
 
 #if !defined( QT_MODULE_TABLE ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_TABLE )
 #define QM_EXPORT_TABLE
-#ifndef QM_TEMPLATE_EXTERN_TABLE
-#   define QM_TEMPLATE_EXTERN_TABLE
-#endif
 #else
 #define QM_EXPORT_TABLE Q_GUI_EXPORT
-#ifndef QM_TEMPLATE_EXTERN_TABLE
-#   define QM_TEMPLATE_EXTERN_TABLE Q_TEMPLATE_EXTERN
-#endif
 #endif
 
 class QTableHeader;
@@ -85,9 +79,6 @@ private:
     int tRow, lCol, bRow, rCol;
     int aRow, aCol;
 };
-
-#define Q_DEFINED_QTABLE_SELECTION
-#include "qwinexport.h"
 
 class QM_EXPORT_TABLE QTableItem : public Qt
 {
@@ -153,9 +144,6 @@ private:
     int rw, cl;
     int rowspan, colspan;
 };
-
-#define Q_DEFINED_QTABLE_ITEM
-#include "qwinexport.h"
 
 class QM_EXPORT_TABLE QComboTableItem : public QTableItem
 {
@@ -528,7 +516,5 @@ private:
 #endif
 };
 
-#define Q_DEFINED_QTABLE
-#include "qwinexport.h"
 #endif // QT_NO_TABLE
 #endif // TABLE_H

@@ -669,7 +669,4 @@ Q_OUTOFLINE_TEMPLATE QDataStream& operator<<(QDataStream& s, const QMap<Key,T>& 
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(QMap)
 
-#define Q_DEFINED_QMAP
-#include "qwinexport.h"
-
 #endif // QMAP_H

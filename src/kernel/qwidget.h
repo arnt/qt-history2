@@ -918,7 +918,4 @@ inline void QWidget::erase(const QRect &r) { erase(r.x(), r.y(), r.width(), r.he
 
 #define QWIDGETSIZE_MAX 32767
 
-#define Q_DEFINED_QWIDGET
-#include "qwinexport.h"
-
 #endif // QWIDGET_H

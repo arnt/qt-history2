@@ -92,6 +92,4 @@ public:
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j); }
 };
 
-#define Q_DEFINED_QDICT
-#include "qwinexport.h"
 #endif // QDICT_H
