@@ -610,6 +610,21 @@ make sure that the following requirements are met:
     On Windows, you can use Visual Studio's dependency walker.
 \endlist
 
+If you are experiencing problems with loading plugins, and see output
+like this
+
+\code
+QSqlDatabase warning: QMYSQL3 driver not loaded
+QSqlDatabase: available drivers: QMYSQL3
+\endcode
+
+the problem is probably that the plugin had the wrong build key. For
+debugging purposes, remove the corresponding entry in the
+$HOME/.qt/qt_plugins_(qtversion).rc file.
+
+The next time you try to load this plugin, it will give you a more detailed
+error message.
+
 \target development
 \section1 How to write your own database driver
 
