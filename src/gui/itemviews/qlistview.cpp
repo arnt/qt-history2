@@ -1302,7 +1302,9 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
         flowPosition = topLeft.x();
         segPosition = topLeft.y();
         deltaFlowPosition = gridSize.width(); // dx
-        deltaSegPosition = useItemSize ? batchSavedDeltaSeg : gridSize.height(); // dy
+        deltaSegPosition = useItemSize
+                           ? batchSavedDeltaSeg
+                           : gridSize.height(); // dy
         deltaSegHint = gridSize.height();
     } else { // flow == QListView::TopToBottom
         segStartPosition = bounds.top();
@@ -1310,7 +1312,9 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
         flowPosition = topLeft.y();
         segPosition = topLeft.x();
         deltaFlowPosition = gridSize.height(); // dy
-        deltaSegPosition = useItemSize ? batchSavedDeltaSeg : gridSize.width(); // dx
+        deltaSegPosition = useItemSize
+                           ? batchSavedDeltaSeg
+                           : gridSize.width(); // dx
         deltaSegHint = gridSize.width();
     }
 
@@ -1385,7 +1389,9 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
         segStartPosition = bounds.left() + gap;
         segEndPosition = bounds.right();
         deltaFlowPosition = gridSize.width(); // dx
-        deltaSegPosition = (useItemSize ? batchSavedDeltaSeg : gridSize.height()); // dy
+        deltaSegPosition = (useItemSize
+                            ? batchSavedDeltaSeg
+                            : gridSize.height()); // dy
         deltaSegHint = gridSize.height();
         flowPosition = topLeft.x();
         segPosition = topLeft.y();
@@ -1393,7 +1399,9 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
         segStartPosition = bounds.top() + gap;
         segEndPosition = bounds.bottom();
         deltaFlowPosition = gridSize.height(); // dy
-        deltaSegPosition = (useItemSize ? batchSavedDeltaSeg : gridSize.width()); // dx
+        deltaSegPosition = (useItemSize
+                            ? batchSavedDeltaSeg
+                            : gridSize.width()); // dx
         deltaSegHint = gridSize.width();
         flowPosition = topLeft.y();
         segPosition = topLeft.x();
