@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#38 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#37 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#38 $")
 
 
 /*----------------------------------------------------------------------------
@@ -323,17 +323,20 @@ void QColor::setHsv( int h, int s, int v )
 	h /= 60;
 	uint p = (uint)((ulong)(2L*v*(255L-s)+255L)/510L);
 	uint q, t;
-	if ( h&1 )				// do only when necessary
+	if ( h&1 ) {				// do only when necessary
 	    q = (uint)((ulong)(2L*v*(15300L-s*f)+15300L)/30600L);
-	else
-	    t = (uint)((ulong)(2L*v*(15300L-(s*(60L-f)))+15300L)/30600L);
-	switch( h ) {
-	    case 0: r=(int)v; g=(int)t, b=(int)p; break;
+	    switch( h ) {
 	    case 1: r=(int)q; g=(int)v, b=(int)p; break;
-	    case 2: r=(int)p; g=(int)v, b=(int)t; break;
 	    case 3: r=(int)p; g=(int)q, b=(int)v; break;
-	    case 4: r=(int)t; g=(int)p, b=(int)v; break;
 	    case 5: r=(int)v; g=(int)p, b=(int)q; break;
+	    }
+	} else {
+	    t = (uint)((ulong)(2L*v*(15300L-(s*(60L-f)))+15300L)/30600L);
+	    switch( h ) {
+	    case 0: r=(int)v; g=(int)t, b=(int)p; break;
+	    case 2: r=(int)p; g=(int)v, b=(int)t; break;
+	    case 4: r=(int)t; g=(int)p, b=(int)v; break;
+	    }
 	}
     }
     setRgb( r, g, b );
