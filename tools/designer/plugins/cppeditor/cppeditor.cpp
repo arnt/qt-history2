@@ -58,7 +58,6 @@ void CppEditor::configChanged()
     QMap<QString, ConfigStyle> styles = Config::readStyles( path );
     config()->styles = styles;
     ( (SyntaxHighlighter_CPP*)document()->preProcessor() )->updateStyles( config()->styles );
-    document()->setTabStops( ( (SyntaxHighlighter_CPP*)document()->preProcessor() )->format( QTextPreProcessor::Standard )->width( 'x' ) * Config::indentTabSize( path ) );
 
     completion->setEnabled( Config::completion( path ) );
     parenMatcher->setEnabled( Config::parenMatching( path ) );
@@ -86,6 +85,8 @@ void CppEditor::configChanged()
 	document()->setIndent( 0 );
     else
 	document()->setIndent( indent );
+
+    document()->setTabStops( ( (SyntaxHighlighter_CPP*)document()->preProcessor() )->format( QTextPreProcessor::Standard )->width( 'x' ) * Config::indentTabSize( path ) );
 
     Editor::configChanged();
 }
