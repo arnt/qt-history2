@@ -1370,13 +1370,17 @@ void QPainterPathStrokerPrivate::joinPoints(const QPointF &point, const QLineF &
     printf(" -----> joinPoints: around=(%.0f, %.0f), next_p1=(%.0f, %.f) next_p2=(%.0f, %.f)\n",
            point.x(), point.y(), nextLine.x1(), nextLine.y1(), nextLine.x2(), nextLine.y2());
 #endif
+
+    int elmCount = stroke->elementCount();
+    Q_ASSERT(elmCount >= 2);
+    const QPainterPath::Element &back1 = stroke->elementAt(elmCount-1);
+
+    if (back1 == nextLine.p1()) // points connected already, don't join
+        return;
+
     if (join == FlatJoin) {
         stroke->lineTo(nextLine.p1());
     } else {
-        int elmCount = stroke->elementCount();
-        Q_ASSERT(elmCount >= 2);
-
-        QPainterPath::Element &back1 = stroke->d->elements[elmCount-1];
         const QPainterPath::Element &back2 = stroke->elementAt(elmCount-2);
         QLineF prevLine(back2.x, back2.y, back1.x, back1.y);
 
