@@ -377,10 +377,12 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
     switch (control) {
     case CC_Slider: {
         const QSlider *slider = static_cast<const QSlider *>(w);
+        bool tracking = slider->tracking();
         HIThemeTrackDrawInfo tdi;
         tdi.version = qt_mac_hitheme_version;
-        tdi.kind = qt_aqua_size_constrain(w) == QAquaSizeSmall ? kThemeSmallSlider
-                                                               : kThemeMediumSlider;
+        //tdi.kind = qt_aqua_size_constrain(w) == QAquaSizeSmall ? kThemeSmallSlider
+        //                                                      : kThemeMediumSlider;
+        tdi.kind = kThemeSlider;
         tdi.bounds = *qt_glb_mac_rect(r, p);
         tdi.min = slider->minValue();
         tdi.max = slider->maxValue();
@@ -394,17 +396,38 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
 	if (slider->orientation() == Qt::Horizontal)
 	    tdi.attributes |= kThemeTrackHorizontal;
 	tdi.enableState = slider->isEnabled() ? kThemeTrackActive : kThemeTrackDisabled;
-	if (slider->tickmarks() == QSlider::Above)
+	if (slider->tickmarks() == QSlider::NoMarks || slider->tickmarks() == QSlider::Both)
+	    tdi.trackInfo.slider.thumbDir = kThemeThumbPlain;
+	else if (slider->tickmarks() == QSlider::Above)
 	    tdi.trackInfo.slider.thumbDir = kThemeThumbUpward;
-	else if (slider->tickmarks() == QSlider::Below)
-	    tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
-        else if (slider->tickmarks() == QSlider::NoMarks)
-            tdi.trackInfo.slider.thumbDir = kThemeThumbPlain;
+        else
+            tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;;
 	if (subActive == SC_SliderGroove)
 	    tdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
 	else if (subActive == SC_SliderHandle)
 	    tdi.trackInfo.slider.pressState = kThemeThumbPressed;
-        HIThemeDrawTrack(&tdi, 0, static_cast<CGContextRef>(p->handle()), kHIThemeOrientationNormal);
+        HIRect macRect;
+        HIThemeGetTrackBounds(&tdi, &macRect);
+        // Make sure that the items are in the rectangle.
+        if (macRect.origin.x < 0) {
+            macRect.size.width += -macRect.origin.x;
+            macRect.origin.x = 0;
+        }
+        
+        if (macRect.origin.y < 0) {
+            macRect.size.height += -macRect.origin.y;
+            macRect.origin.y = 0;
+        }
+        tdi.bounds = macRect;
+        if (!tracking) // a little too much indirection, but at least it's consistent.
+            macRect = *qt_glb_mac_rect(slider->sliderRect());
+        HIThemeDrawTrack(&tdi, tracking ? 0 : &macRect, static_cast<CGContextRef>(p->handle()),
+                         kHIThemeOrientationNormal);
+        if (sub && SC_SliderTickmarks) {
+            int numMarks = slider->maxValue() / slider->pageStep();
+            HIThemeDrawTrackTickMarks(&tdi, numMarks, static_cast<CGContextRef>(p->handle()),
+                                      kHIThemeOrientationNormal);
+        }
         break; }
     default:
         QWindowsStyle::drawComplexControl(control, p, w, r, pal, flags, sub, subActive, opt);
@@ -446,6 +469,9 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_ButtonShiftVertical:
         ret = 0;
         break;
+    case PM_SliderLength:
+	ret = 17;
+	break;
     default:
 	ret = QWindowsStyle::pixelMetric(metric, widget);
 	break;
@@ -457,7 +483,67 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
 QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget *widget,
 					  SubControl sc, const QStyleOption &opt) const
 {
-    return QWindowsStyle::querySubControlMetrics(control, widget, sc, opt);
+    QRect rect;
+    switch (control) {
+    case CC_Slider: {
+        const QSlider *slider = static_cast<const QSlider *>(widget);
+        HIThemeTrackDrawInfo tdi;
+        tdi.version = qt_mac_hitheme_version;
+        tdi.kind = kThemeSlider;
+        tdi.bounds = *qt_glb_mac_rect(widget->rect());
+        tdi.min = slider->minValue();
+        tdi.max = slider->maxValue();
+        if (!slider->tracking())
+            tdi.value = slider->valueFromPosition(slider->sliderStart());
+        else
+            tdi.value = slider->value();
+        tdi.attributes = kThemeTrackShowThumb;
+        if (qMacVersion() >= Qt::MV_JAGUAR && slider->hasFocus())
+            tdi.attributes |= kThemeTrackHasFocus;
+        if (slider->orientation() == Qt::Horizontal)
+            tdi.attributes |= kThemeTrackHorizontal;
+        tdi.enableState = slider->isEnabled() ? kThemeTrackActive : kThemeTrackDisabled;
+        if (slider->tickmarks() == QSlider::Above)
+            tdi.trackInfo.slider.thumbDir = kThemeThumbUpward;
+        if (slider->tickmarks() == QSlider::Below)
+            tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
+        if (slider->tickmarks() == QSlider::NoMarks)
+            tdi.trackInfo.slider.thumbDir = kThemeThumbPlain;
+        
+        HIRect macRect;
+        HIThemeGetTrackBounds(&tdi, &macRect);
+        // Make sure that the items are in the rectangle.
+        if (macRect.origin.x < 0) {
+            macRect.size.width += -macRect.origin.x;
+            macRect.origin.x = 0;
+        }
+        
+        if (macRect.origin.y < 0) {
+            macRect.size.height += -macRect.origin.y;
+            macRect.origin.y = 0;
+        }
+        tdi.bounds = macRect;
+        switch (sc) {
+        case SC_SliderGroove:
+            HIThemeGetTrackBounds(&tdi, &macRect);
+            rect = QRect(QPoint((int)macRect.origin.x, (int)macRect.origin.y),
+                         QSize((int)macRect.size.width, (int)macRect.size.height));
+            break;
+        case SC_SliderHandle:
+            HIShapeRef shape;
+            HIThemeGetTrackThumbShape(&tdi, &shape);
+            HIShapeGetBounds(shape, &macRect);
+            rect = QRect(QPoint((int)macRect.origin.x, (int)macRect.origin.y),
+                         QSize((int)macRect.size.width, (int)macRect.size.height));
+            CFRelease(shape);
+            break;
+        }
+
+        break; }
+    default:
+        rect = QWindowsStyle::querySubControlMetrics(control, widget, sc, opt);
+    }
+    return rect;
 }
 
 QRect QMacStyleCG::subRect(SubRect sr, const QWidget *widget) const
