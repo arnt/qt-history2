@@ -191,10 +191,12 @@ void Generator::generateCode()
         QList<EnumDef> enumList;
         for (i = 0; i < cdef->enumList.count(); ++i) {
             EnumDef def = cdef->enumList.at(i);
-            if (cdef->enumDeclarations.contains(def.name))
+            if (cdef->enumDeclarations.contains(def.name)) {
                 enumList += def;
-            if (cdef->flagAliases.contains(def.name)) {
-                def.name = cdef->flagAliases.value(def.name);
+            }
+            QByteArray alias = cdef->flagAliases.value(def.name);
+            if (cdef->enumDeclarations.contains(alias)) {
+                def.name = alias;
                 enumList += def;
             }
         }

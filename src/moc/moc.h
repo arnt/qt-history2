@@ -91,7 +91,7 @@ struct ClassDef {
     QList<ClassInfoDef> classInfoList;
     QMap<QByteArray, bool> enumDeclarations;
     QList<EnumDef> enumList;
-    QMap<QString, QString> flagAliases;
+    QMap<QByteArray, QByteArray> flagAliases;
 
     int begin;
     int end;
