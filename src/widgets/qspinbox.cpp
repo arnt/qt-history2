@@ -648,6 +648,9 @@ bool QSpinBox::eventFilter( QObject* o, QEvent* ev )
 #endif
 
 
+/*!
+    \internal
+*/
 void QSpinBox::keyPressEvent(QKeyEvent *e)
 {
     if (e->key() == Key_Up) {
@@ -661,6 +664,9 @@ void QSpinBox::keyPressEvent(QKeyEvent *e)
     }
 }
 
+/*!
+    \internal
+*/
 void QSpinBox::focusOutEvent(QFocusEvent *)
 {
     if (edited)

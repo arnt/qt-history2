@@ -142,165 +142,6 @@ QListBoxPrivate::~QListBoxPrivate()
 */
 
 /*!
-    \fn bool QListBox::dragSelect() const
-    \internal
-*/
-
-/*!
-    \fn void QListBox::setDragSelect( bool )
-    \internal
-*/
-
-/*!
-    \fn bool QListBox::autoScroll() const
-    \internal
-*/
-
-/*!
-    \fn void QListBox::setAutoScroll( bool )
-    \internal
-*/
-
-/*!
-    \fn bool QListBox::autoScrollBar() const
-
-    Returns TRUE if vScrollBarMode() is \c Auto; otherwise returns
-    FALSE.
-*/
-
-/*!
-    \fn void QListBox::setAutoScrollBar( bool enable )
-
-    If \a enable is TRUE sets setVScrollBarMode() to \c AlwaysOn;
-    otherwise sets setVScrollBarMode() to \c AlwaysOff.
-*/
-
-/*!
-    \fn bool QListBox::scrollBar() const
-
-    Returns FALSE if vScrollBarMode() is \c AlwaysOff; otherwise
-    returns TRUE.
-*/
-
-/*!
-    \fn void QListBox::setScrollBar( bool enable )
-
-    If \a enable is TRUE sets setVScrollBarMode() to \c AlwaysOn;
-    otherwise sets setVScrollBarMode() to \c AlwaysOff.
-*/
-
-/*!
-    \fn bool QListBox::autoBottomScrollBar() const
-
-    Returns TRUE if hScrollBarMode() is \c Auto; otherwise returns
-    FALSE.
-*/
-
-/*!
-    \fn void QListBox::setAutoBottomScrollBar( bool enable )
-
-    If \a enable is TRUE sets setHScrollBarMode() to \c AlwaysOn;
-    otherwise sets setHScrollBarMode() to \c AlwaysOff.
-*/
-
-/*!
-    \fn bool QListBox::bottomScrollBar() const
-
-    Returns FALSE if vScrollBarMode() is \c AlwaysOff; otherwise
-    returns TRUE.
-*/
-
-/*!
-    \fn void QListBox::setBottomScrollBar( bool enable )
-
-    If \a enable is TRUE sets setHScrollBarMode() to \c AlwaysOn;
-    otherwise sets setHScrollBarMode() to \c AlwaysOff.
-*/
-
-/*!
-    \fn bool QListBox::smoothScrolling() const
-    \internal
-*/
-
-/*!
-    \fn void QListBox::setSmoothScrolling( bool )
-    \internal
-*/
-
-/*!
-    \fn bool QListBox::autoUpdate() const
-    \internal
-*/
-
-/*!
-    \fn void QListBox::setAutoUpdate( bool )
-    \internal
-*/
-
-/*!
-    \fn void QListBox::setFixedVisibleLines( int lines )
-    \internal
-*/
-
-/*!
-    \obsolete
-    \fn int QListBox::cellHeight( int i ) const
-    Returns the item height of item \a i.
-    \sa itemHeight()
-*/
-
-/*!
-    \obsolete
-    \overload int QListBox::cellHeight() const
-    Returns the item height of the first item, item 0.
-    \sa itemHeight()
-*/
-
-/*!
-    \obsolete
-    \fn int QListBox::cellWidth() const
-    Returns the maximum item width.
-    \sa maxItemWidth()
-*/
-
-/*!
-    \overload int QListBox::cellWidth(int i) const
-    \internal
-*/
-
-/*!
-    \obsolete
-    \fn int QListBox::numCols() const
-    Returns the number of columns.
-    \sa numColumns()
-*/
-
-/*!
-    \fn void QListBox::updateCellWidth()
-    \internal
-*/
-
-/*!
-    \obsolete
-    \fn int QListBox::totalWidth() const
-    Returns contentsWidth().
-*/
-
-/*!
-    \obsolete
-    \fn int QListBox::totalHeight() const
-    Returns contentsHeight().
-*/
-
-/*!
-    \obsolete
-    \fn int QListBox::findItem( int yPos ) const
-    Returns the index of the item a point (0, \a yPos).
-    \sa index() itemAt()
-*/
-
-
-/*!
     Constructs an empty list box item in the list box \a listbox.
 */
 
@@ -1303,8 +1144,6 @@ void QListBox::insertStrList( const QStrList & list, int index )
 
 
 /*!
-    \overload
-
     Inserts the \a numStrings strings of the array \a strings into the
     list at position \a index.
 
@@ -4068,11 +3907,6 @@ void QListBox::showEvent( QShowEvent * )
 */
 
 /*!
-  \fn bool QListBoxItem::selected() const
-  \obsolete
-*/
-
-/*!
     Returns TRUE if the item is the current item; otherwise returns
     FALSE.
 
@@ -4083,10 +3917,6 @@ bool QListBoxItem::isCurrent() const
     return listBox() && listBox()->hasFocus() &&
 	listBox()->item( listBox()->currentItem() ) == this;
 }
-/*!
-  \fn bool QListBoxItem::current() const
-  \obsolete
-*/
 
 /*!
     \fn void QListBox::centerCurrentItem()

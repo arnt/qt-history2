@@ -332,6 +332,9 @@ void QCanvasItemList::drawUnique( QPainter& painter )
     }
 }
 
+/*!
+    Returns the concatenation of this list and list \a l.
+*/
 QCanvasItemList QCanvasItemList::operator+(const QCanvasItemList &l) const
 {
     QCanvasItemList l2(*this);

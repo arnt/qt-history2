@@ -2036,6 +2036,9 @@ bool QDockWindow::event( QEvent *e )
     return QFrame::event( e );
 }
 
+/*!
+    Returns the dock window's title.
+*/
 QString QDockWindow::windowTitle() const
 {
     return titleBar->windowTitle();

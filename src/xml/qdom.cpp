@@ -6135,8 +6135,6 @@ bool QDomDocument::setContent( QXmlInputSource *source, QXmlReader *reader, QStr
 
     This function uses \a indent as the amount of space to indent
     subelements.
-
-    \sa toCString()
 */
 QString QDomDocument::toString( int indent ) const
 {

@@ -710,23 +710,6 @@ void QLineEdit::setAlignment( int flag )
 
 
 /*!
-  \obsolete
-  \fn void QLineEdit::cursorRight( bool, int )
-
-  Use cursorForward() instead.
-
-  \sa cursorForward()
-*/
-
-/*!
-  \obsolete
-  \fn void QLineEdit::cursorLeft( bool, int )
-  For compatibility with older applications only. Use cursorBackward()
-  instead.
-  \sa cursorBackward()
-*/
-
-/*!
     Moves the cursor forward \a steps characters. If \a mark is TRUE
     each character moved over is added to the selection; if \a mark is
     FALSE the selection is cleared.
@@ -2081,13 +2064,6 @@ void QLineEdit::setPalette( const QPalette & p )
     QWidget::setPalette( p );
     update();
 }
-
-/*!
-  \obsolete
-  \fn void QLineEdit::repaintArea( int from, int to )
-  Repaints all characters from \a from to \a to. If cursorPos is
-  between from and to, ensures that cursorPos is visible.
-*/
 
 /*! \reimp
  */

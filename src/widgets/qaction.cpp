@@ -1661,14 +1661,6 @@ void QActionGroup::addSeparator()
 }
 
 
-/*! \fn void QActionGroup::insert( QAction* a )
-
-  \obsolete
-
-  Use add() instead, or better still create the action with the action
-  group as its parent.
- */
-
 /*!
     Adds this action group to the widget \a w.
 

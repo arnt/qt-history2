@@ -752,6 +752,8 @@ void QToolButton::setIconSet( const QIconSet & set )
 	update();
 }
 
+#ifdef QT_COMPAT
+
 /*! \overload
     \obsolete
 
@@ -764,8 +766,6 @@ void QToolButton::setIconSet( const QIconSet & set )
 
   \sa iconSet QIconSet::State
 */
-
-#ifdef QT_COMPAT
 
 void QToolButton::setIconSet( const QIconSet & set, bool /* on */ )
 {

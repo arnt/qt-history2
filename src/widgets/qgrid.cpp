@@ -39,10 +39,6 @@
     \sa QVBox QHBox QGridLayout
 */
 
-/*! \enum QGrid::Direction
-    \internal
-*/
-
 /*!
     Constructs a grid widget with parent \a parent, called \a name.
     If \a orient is \c Horizontal, \a n specifies the number of
