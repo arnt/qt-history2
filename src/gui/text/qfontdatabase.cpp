@@ -308,7 +308,7 @@ struct QtFontFamily
     QtFontFamily(const QString &n)
         :
 #ifdef Q_WS_X11
-        fixedPitch(true), hasXft(false), xftScriptCheck(false), xlfdLoaded(false),
+        fixedPitch(true), hasXft(false), xftScriptCheck(false), xlfdLoaded(false), synthetic(false),
 #else
         fixedPitch(false),
 #endif
@@ -333,6 +333,7 @@ struct QtFontFamily
     bool hasXft : 1;
     bool xftScriptCheck : 1;
     bool xlfdLoaded : 1;
+    bool synthetic : 1;
 #endif
 #ifdef Q_WS_WIN
     bool scriptCheck : 1;
@@ -1006,6 +1007,12 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
 
         for (int x = 0; x < db->count; ++x) {
             QtFontFamily *try_family = db->families[x];
+
+#ifdef Q_WS_X11
+            if (try_family->synthetic)
+                continue;
+#endif
+
             if (!family_name.isEmpty()
                 && ucstricmp(try_family->name, family_name) != 0
 #ifdef Q_WS_WIN

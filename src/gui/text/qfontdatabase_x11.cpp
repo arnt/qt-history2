@@ -947,8 +947,8 @@ static void loadXft()
         QtFontFamily *family = db->family(f->qtname, true);
         family->rawName = f->rawname;
         family->hasXft = true;
-        QtFontFoundry *foundry
-            = family->foundry(QString::null,  true);
+        family->synthetic = true;
+        QtFontFoundry *foundry = family->foundry(QString::null,  true);
 
         for (int i = 0; i < QFont::LastPrivateScript; ++i) {
             if (i == QFont::UnknownScript)
@@ -965,8 +965,7 @@ static void loadXft()
             style->smoothScalable = true;
             QtFontSize *size = style->pixelSize(SMOOTH_SCALABLE, true);
             QtFontEncoding *enc = size->encodingID(-1, 0, 0, 0, 0, true);
-            enc->pitch = (spacing_value >= XFT_CHARCELL ? 'c' :
-                           (spacing_value >= XFT_MONO ? 'm' : 'p'));
+            enc->pitch = (f->fixed ? 'm' : 'p');
         }
         ++f;
     }
