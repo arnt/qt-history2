@@ -1603,6 +1603,9 @@ int QDockWindow::closeMode() const
     setHorizontallyStretchable(true) or setResizeEnabled(true).
 
     \sa setResizeEnabled()
+
+    \bug Strecthability is broken. You must call setResizeEnabled(TRUE) to get
+    proper behavior and even then QDockWindow does not limit stretchablilty.
 */
 
 void QDockWindow::setHorizontallyStretchable(bool b)
@@ -1618,6 +1621,9 @@ void QDockWindow::setHorizontallyStretchable(bool b)
     setVerticallyStretchable(true) or setResizeEnabled(true).
 
     \sa setResizeEnabled()
+
+    \bug Strecthability is broken. You must call setResizeEnabled(TRUE) to get
+    proper behavior and even then QDockWindow does not limit stretchablilty.
 */
 
 void QDockWindow::setVerticallyStretchable(bool b)
@@ -1644,6 +1650,9 @@ bool QDockWindow::isVerticallyStretchable() const
     setVerticallyStretchable(), or with setResizeEnabled().
 
     \sa setResizeEnabled()
+
+    \bug Strecthability is broken. You must call setResizeEnabled(TRUE) to get
+    proper behavior and even then QDockWindow does not limit stretchablilty.
 */
 
 bool QDockWindow::isStretchable() const
