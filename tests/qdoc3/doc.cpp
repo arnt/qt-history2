@@ -281,13 +281,15 @@ public:
 class DocPrivate : public QShared
 {
 public:
-    DocPrivate( const Location& location = Location::null );
+    DocPrivate( const Location& location = Location::null,
+		const QString& source = "" );
     ~DocPrivate();
 
     void addAlso( const Text& also );
     void constructExtra();
 
     Location loc;
+    QString src;
     Text text;
     Set<QString> *params;
     QValueList<Text> *alsoList;
@@ -296,9 +298,9 @@ public:
     DocPrivateExtra *extra;
 };
 
-DocPrivate::DocPrivate( const Location& location )
-    : loc( location ), params( 0 ), alsoList( 0 ), metaCommandSet( 0 ),
-      metaCommandMap( 0 ), extra( 0 )
+DocPrivate::DocPrivate( const Location& location, const QString& source )
+    : loc( location ), src( source ), params( 0 ), alsoList( 0 ),
+      metaCommandSet( 0 ), metaCommandMap( 0 ), extra( 0 )
 {
 }
 
@@ -327,7 +329,7 @@ void DocPrivate::constructExtra()
 class DocParser
 {
 public:
-    void parse( const QString& input, DocPrivate *docPrivate,
+    void parse( const QString& source, DocPrivate *docPrivate,
 		const Set<QString>& metaCommandSet );
 
     static QStringList exampleFiles;
@@ -392,12 +394,12 @@ private:
 QStringList DocParser::exampleFiles;
 QStringList DocParser::exampleDirs;
 
-void DocParser::parse( const QString& input, DocPrivate *docPrivate,
+void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		       const Set<QString>& metaCommandSet )
 {
-    in = input;
+    in = source;
     pos = 0;
-    len = (int) input.length();
+    len = (int) source.length();
     cachedLoc = docPrivate->loc;
     cachedPos = 0;
     priv = docPrivate;
@@ -1553,12 +1555,12 @@ Doc::Doc()
     priv = new DocPrivate;
 }
 
-Doc::Doc( const Location& location, const QString& str,
+Doc::Doc( const Location& location, const QString& source,
 	  const Set<QString>& metaCommandSet )
 {
-    priv = new DocPrivate( location );
+    priv = new DocPrivate( location, source );
     DocParser parser;
-    parser.parse( str, priv, metaCommandSet );
+    parser.parse( source, priv, metaCommandSet );
 }
 
 Doc::Doc( const Doc& doc )
@@ -1585,6 +1587,11 @@ Doc& Doc::operator=( const Doc& doc )
 const Location& Doc::location() const
 {
     return priv->loc;
+}
+
+const QString& Doc::source() const
+{
+    return priv->src;
 }
 
 bool Doc::isEmpty() const

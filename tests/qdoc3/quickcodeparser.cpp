@@ -64,6 +64,10 @@ Node *QuickCodeParser::processTopicCommand( Doc *doc, const QString& command,
 	    }
 	} else if ( (wrapperNode = tryClass("Quick" + arg)) != 0 ) {
 	    qtNode = tryClass( qtClass );
+	    if ( qtNode == 0 ) {
+		qtNode = wrapperNode;
+		wrapperNode = 0;
+	    }
 	} else if ( (wrapperNode = tryClass("Quick" + arg + "Ptr")) != 0 ) {
 	    QRegExp ptrToQtType( "(Q[A-Za-z0-9_]+)\\s*\\*" );
 	    FunctionNode *ctor =
@@ -100,9 +104,10 @@ Node *QuickCodeParser::processTopicCommand( Doc *doc, const QString& command,
 	}
 
 	ClassNode *quickNode = new ClassNode( quickTre->root(), arg );
-	merge( quickNode, qtNode, wrapperNode );
+	quickifyClass( quickNode, qtNode, wrapperNode );
 	return quickNode;
     } else if ( command == COMMAND_QUICKFN ) {
+	###
 	return 0;
     } else {
 	return CppCodeParser::processTopicCommand( doc, command, arg );
@@ -114,14 +119,104 @@ ClassNode *QuickCodeParser::tryClass( const QString& className )
     return (ClassNode *) cppTre->findNode( className, Node::Class );
 }
 
+void QuickCodeParser::quickifyClass( ClassNode *quickClass,
+				     const ClassNode *qtClass,
+				     const ClassNode *wrapperClass )
+{
+    qDebug( "%s + %s -> %s", qtClass ? qtClass->name().latin1() : "(nil)",
+	    wrapperClass ? wrapperClass->name().latin1() : "(nil)",
+	    quickClass->name().latin1() );
+
+    QMap<QString, int> blackList;
+
+    NodeList children = qtClass->childNodes();
+    if ( wrapperClass != 0 )
+	children += wrapperClass->childNodes();
+
+    NodeList::ConstIterator c = children.begin();
+    while ( c != children.end() ) {
+	if ( (*c)->access() == Node::Public &&
+	     (*c)->status() == Node::Commendable ) {
+	    if ( (*c)->type() == Node::Function )  {
+		const FunctionNode *func = (const FunctionNode *) *c;
+		quickifyFunction( quickClass, qtClass, func, &blackList );
+	    } else if ( (*c)->type() == Node::Property ) {
+		const PropertyNode *property = (const PropertyNode *) *c;
+		quickifyProperty( quickClass, qtClass, property, &blackList );
+	    }
+	}
+	++c;
+    }
+}
+
+void QuickCodeParser::quickifyFunction( ClassNode *quickClass,
+					const ClassNode *qtClass,
+					const FunctionNode *func,
+					QMap<QString, int> *blackList )
+{
+    if ( func->metaness() != FunctionNode::Plain &&
+	 !blackList->contains(func->name()) ) {
+	FunctionNode *quickFunc = new FunctionNode( quickClass, func->name() );
+	quickFunc->setLocation( func->location() );
+	quickFunc->setReturnType( quickifiedDataType(func->returnType()) );
+
+	QValueList<Parameter>::ConstIterator q = func->parameters().begin();
+	while ( q != func->parameters().end() ) {
+	    Parameter param( quickifiedDataType((*q).leftType(),
+						(*q).rightType()),
+			     "", (*q).name() );
+	    quickFunc->addParameter( param );
+	    ++q;
+	}
+
+	if ( func->doc().isEmpty() ) {
+	    if ( func->parent() != (const InnerNode *) qtClass ) {
+		const FunctionNode *qtFunc = qtClass->findFunctionNode( func );
+		if ( qtFunc != 0 && !qtFunc->doc().isEmpty() )
+		    quickifyDoc( quickFunc, qtFunc->doc() );
+	    }
+	} else {
+	    quickifyDoc( quickFunc, func->doc() );
+	}
+    }
+}
+
+void QuickCodeParser::quickifyProperty( ClassNode *quickClass,
+					const ClassNode * /* qtClass */,
+					const PropertyNode *property,
+					QMap<QString, int> *blackList )
+{
+    PropertyNode *quickProperty =
+	    new PropertyNode( quickClass, property->name() );
+    quickProperty->setLocation( property->location() );
+    quickProperty->setDataType( quickifiedDataType(property->dataType()) );
+    quickProperty->setGetter( property->getter() );
+    quickProperty->setSetter( property->setter() );
+    quickProperty->setResetter( property->resetter() );
+    quickProperty->setStored( property->isStored() );
+    quickProperty->setDesignable( property->isDesignable() );
+
+    if ( !property->doc().isEmpty() )
+	quickifyDoc( quickProperty, property->doc() );
+
+    blackList->insert( quickProperty->getter(), 0 );
+    blackList->insert( quickProperty->setter(), 0 );
+    blackList->insert( quickProperty->resetter(), 0 );
+}
+
+void QuickCodeParser::quickifyDoc( Node *quickNode, const Doc& qtDoc )
+{
+    quickNode->setDoc( qtDoc );
+}
+
 QString QuickCodeParser::quickifiedDataType( const QString& leftType,
-					     const QString& rightType )
+					     const QString& /* rightType */ )
 {
     QString s = leftType;
 
     if ( s.startsWith("const ") )
 	s = s.mid( 6 );
-    if ( s.endsWith("*") || s.endsWith("&") || s.endsWith(" ") )
+    while ( s.endsWith("*") || s.endsWith("&") || s.endsWith(" ") )
 	s.truncate( s.length() - 1 );
 
     switch ( s[0].unicode() ) {
@@ -172,63 +267,9 @@ QString QuickCodeParser::quickifiedDataType( const QString& leftType,
 	     s == "ulong" || s == "unsigned long" || s == "unsigned long int" )
 	    return "Number";
 	break;
+    case 'v':
+	if ( s == "void" )
+	    return "";
     }
     return s;
-}
-
-void QuickCodeParser::merge( ClassNode *quickClass, const ClassNode *qtClass,
-			     const ClassNode *wrapperClass )
-{
-    qDebug( "%s + %s -> %s", qtClass ? qtClass->name().latin1() : "(nil)",
-	    wrapperClass ? wrapperClass->name().latin1() : "(nil)",
-	    quickClass->name().latin1() );
-
-    QMap<QString, int> blackList;
-
-    NodeList::ConstIterator c = qtClass->childNodes().begin();
-    while ( c != qtClass->childNodes().end() ) {
-	if ( (*c)->access() == Node::Public &&
-	     (*c)->status() == Node::Commendable ) {
-	    if ( (*c)->type() == Node::Function )  {
-		const FunctionNode *qtFunc = (const FunctionNode *) *c;
-		if ( qtFunc->metaness() != FunctionNode::Plain &&
-		     !blackList.contains(qtFunc->name()) ) {
-		    FunctionNode *quickFunc =
-			    new FunctionNode( quickClass, qtFunc->name() );
-		    quickFunc->setLocation( qtFunc->location() );
-		    quickFunc->setReturnType(
-			    quickifiedDataType(qtFunc->returnType()) );
-
-		    QValueList<Parameter>::ConstIterator q =
-			    qtFunc->parameters().begin();
-		    while ( q != qtFunc->parameters().end() ) {
-			Parameter param( quickifiedDataType((*q).leftType(),
-							    (*q).rightType()),
-					 "", (*q).name() );
-			quickFunc->addParameter( param );
-			++q;
-		    }
-		}
-	    } else if ( (*c)->type() == Node::Property ) {
-		const PropertyNode *qtProp = (const PropertyNode *) *c;
-		PropertyNode *quickProp =
-			new PropertyNode( quickClass, qtProp->name() );
-		quickProp->setLocation( quickProp->location() );
-		quickProp->setDataType(
-			quickifiedDataType(qtProp->dataType()) );
-		quickProp->setGetter( qtProp->getter() );
-		quickProp->setSetter( qtProp->setter() );
-		quickProp->setResetter( qtProp->resetter() );
-		quickProp->setStored( qtProp->isStored() );
-		quickProp->setDesignable( qtProp->isDesignable() );
-
-		blackList.insert( quickProp->getter(), 0 );
-		blackList.insert( quickProp->setter(), 0 );
-#if 0
-		blackList.insert( quickProp->resetter(), 0 );
-#endif
-	    }
-	}
-	++c;
-    }
 }

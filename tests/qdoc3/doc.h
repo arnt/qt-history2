@@ -22,7 +22,7 @@ public:
 			  Section2, Section3, Section4 };
 
     Doc();
-    Doc( const Location& loc, const QString& str,
+    Doc( const Location& loc, const QString& source,
 	 const Set<QString>& metaCommandSet );
     Doc( const Doc& doc );
     ~Doc();
@@ -31,6 +31,7 @@ public:
 
     const Location& location() const;
     bool isEmpty() const;
+    const QString& source() const;
     const Text& body() const;
     const QString& baseName() const;
     SectioningUnit granularity() const;

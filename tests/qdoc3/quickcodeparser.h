@@ -26,10 +26,18 @@ protected:
 
 private:
     ClassNode *tryClass( const QString& className );
+    void quickifyClass( ClassNode *quickClass, const ClassNode *qtClass,
+			const ClassNode *wrapperClass );
+
+    void quickifyFunction( ClassNode *quickClass, const ClassNode *qtClass,
+			   const FunctionNode *func,
+			   QMap<QString, int> *blackList );
+    void quickifyProperty( ClassNode *quickClass, const ClassNode *qtClass,
+			   const PropertyNode *property,
+			   QMap<QString, int> *blackList );
+    void quickifyDoc( Node *quickNode, const Doc& qtDoc );
     QString quickifiedDataType( const QString& leftType,
 				const QString& rightType = "" );
-    void merge( ClassNode *quickClass, const ClassNode *qtClass,
-		const ClassNode *wrapperClass );
 
     Tree *cppTre;
     Tree *quickTre;
