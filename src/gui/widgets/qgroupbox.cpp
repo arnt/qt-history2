@@ -28,7 +28,48 @@
 #include "qaccessible.h"
 #endif
 
-#include "qgroupbox_p.h"
+#include <private/qwidget_p.h>
+
+class QGroupBoxPrivate : public QWidgetPrivate
+{
+    Q_DECLARE_PUBLIC(QGroupBox)
+public:
+
+    QGroupBoxPrivate():
+        spacer(0),
+        checkbox(0),
+        topMargin(0){}
+    void skip();
+    void init();
+    void calculateFrame();
+    void insertWid(QWidget*);
+    void setTextSpacer();
+#ifndef QT_NO_CHECKBOX
+    void updateCheckBoxGeometry();
+#endif
+    QString str;
+    int align;
+    int lenvisible;
+#ifndef QT_NO_ACCEL
+    QAccel * accel;
+#endif
+
+    void fixFocus();
+    void setChildrenEnabled(bool b);
+    QVBoxLayout *vbox;
+    QGridLayout *grid;
+    int row;
+    int col : 30;
+    uint bFlat : 1;
+    int nRows, nCols;
+    Orientation dir;
+    int spac, marg;
+
+    QSpacerItem *spacer;
+    QCheckBox *checkbox;
+    int topMargin;
+};
+
 #define d d_func()
 #define q q_func()
 
@@ -630,17 +671,17 @@ void QGroupBoxPrivate::skip()
     focus, and gives the focus to that widget.
 */
 
-void QGroupBox::fixFocus()
+void QGroupBoxPrivate::fixFocus()
 {
-    QWidget *fw = focusWidget();
+    QWidget *fw = q->focusWidget();
     if (!fw) {
 #ifndef QT_NO_RADIOBUTTON
         QWidget * best = 0;
 #endif
         QWidget * candidate = 0;
-        QWidget * w = this;
-        while ((w = w->nextInFocusChain()) != this) {
-            if (isAncestorOf(w) && (w->focusPolicy() & TabFocus) == TabFocus && w->isVisibleTo(this)) {
+        QWidget * w = q;
+        while ((w = w->nextInFocusChain()) != q) {
+            if (q->isAncestorOf(w) && (w->focusPolicy() & TabFocus) == TabFocus && w->isVisibleTo(q)) {
 #ifndef QT_NO_RADIOBUTTON
                 if (!best && qt_cast<QRadioButton*>(w) && ((QRadioButton*)w)->isChecked())
                     // we prefer a checked radio button or a widget that
@@ -706,7 +747,7 @@ void QGroupBoxPrivate::calculateFrame()
  */
 void QGroupBox::focusInEvent(QFocusEvent *)
 { // note no call to super
-    fixFocus();
+    d->fixFocus();
 }
 
 
@@ -787,7 +828,7 @@ void QGroupBox::setCheckable(bool b)
         if (!d->checkbox) {
             d->checkbox = new QCheckBox(title(), this, "qt_groupbox_checkbox");
             setChecked(true);
-            setChildrenEnabled(true);
+            d->setChildrenEnabled(true);
             connect(d->checkbox, SIGNAL(toggled(bool)),
                      this, SLOT(setChildrenEnabled(bool)));
             connect(d->checkbox, SIGNAL(toggled(bool)),
@@ -796,7 +837,7 @@ void QGroupBox::setCheckable(bool b)
         }
         d->checkbox->show();
     } else {
-        setChildrenEnabled(true);
+        d->setChildrenEnabled(true);
         delete d->checkbox;
         d->checkbox = 0;
     }
@@ -844,9 +885,9 @@ void QGroupBox::setChecked(bool b)
   sets all children of the group box except the qt_groupbox_checkbox
   to either disabled/enabled
 */
-void QGroupBox::setChildrenEnabled(bool b)
+void QGroupBoxPrivate::setChildrenEnabled(bool b)
 {
-    QObjectList childs = children();
+    QObjectList childs = q->children();
     if (childs.isEmpty())
         return;
     for (int i = 0; i < childs.size(); ++i) {
@@ -877,7 +918,7 @@ void QGroupBox::changeEvent(QEvent *ev)
 
         // we are being enabled - disable children
         if (!d->checkbox->isChecked())
-            setChildrenEnabled(false);
+            d->setChildrenEnabled(false);
     } else if(ev->type() == QEvent::FontChange) {
         d->updateCheckBoxGeometry();
         d->calculateFrame();
@@ -918,5 +959,7 @@ void QGroupBoxPrivate::updateCheckBoxGeometry()
     }
 }
 
+
+#include "moc_qgroupbox.cpp"
 
 #endif //QT_NO_GROUPBOX

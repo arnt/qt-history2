@@ -22,11 +22,7 @@
 #ifndef QT_NO_GROUPBOX
 
 
-class QAccel;
 class QGroupBoxPrivate;
-class QVBoxLayout;
-class QGridLayout;
-class QSpacerItem;
 
 class Q_GUI_EXPORT QGroupBox : public QWidget
 {
@@ -97,9 +93,10 @@ protected:
     void focusInEvent(QFocusEvent *);
     void changeEvent(QEvent *);
 
-private slots:
-    void fixFocus();
-    void setChildrenEnabled(bool b);
+private:
+
+    Q_PRIVATE_SLOT(void fixFocus())
+    Q_PRIVATE_SLOT(void setChildrenEnabled(bool b))
 
 private:
 
