@@ -1,4 +1,9 @@
+  * support <qglobal.h>'s typedefs with \typedef (qglobal.qdoc)
+  * fix \value (e.g. Qt::BitmapCursor in qcursor.cpp)
+  * put images in "/images"
+
   * Emit warnings when \sa fails
+  * Show in which module/library each class is
   * fix automatic links in \sectionX (e.g. qt4-getting-started.html)
   * fix resolving \typedef Qt::HANDLE
   * make links within document work
@@ -21,7 +26,6 @@ LINKS:
 
   * omit \overload in operator<< and operator>>
   * make operator-() unary and binary independent functions (no \overload)
-  * support <qglobal.h>'s typedefs with \typedef
   * remove warning for undocumented enum item like QLocale::LastLanguage
   * improve the \a warnings for overloads; if one overload documents a para, fine
 

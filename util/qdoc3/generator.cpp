@@ -90,8 +90,9 @@ void Generator::initialize(const Config &config)
 	    QString userFriendlyFilePath;
 	    QString filePath = Config::findFile(config.lastLocation(), imageFiles, imageDirs, *e,
 						imgFileExts[(*g)->format()], userFriendlyFilePath);
-	    Config::copyFile(config.lastLocation(), filePath, userFriendlyFilePath,
-			     (*g)->outputDir());
+	    if (!filePath.isEmpty())
+	        Config::copyFile(config.lastLocation(), filePath, userFriendlyFilePath,
+		    	         (*g)->outputDir());
 	    ++e;
 	}
 	++g;

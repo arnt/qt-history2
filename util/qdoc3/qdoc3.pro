@@ -1,9 +1,9 @@
 DEFINES += QDOC2_COMPAT
 QT = core
-QT += compat # until qprocess is done
 CONFIG += console
 CONFIG -= resource_fork
-HEADERS += archiveextractor.h \
+HEADERS += apigenerator.h \
+           archiveextractor.h \
 	   atom.h \
 	   bookgenerator.h \
 	   ccodeparser.h \
@@ -41,7 +41,8 @@ HEADERS += archiveextractor.h \
 	   tr.h \
 	   tree.h \
 	   uncompressor.h
-SOURCES += archiveextractor.cpp \
+SOURCES += apigenerator.cpp \
+           archiveextractor.cpp \
 	   atom.cpp \
 	   bookgenerator.cpp \
 	   ccodeparser.cpp \

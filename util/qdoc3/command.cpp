@@ -2,7 +2,7 @@
   command.cpp
 */
 
-#include <q3process.h>
+#include <QProcess>
 
 #include "command.h"
 
@@ -24,18 +24,17 @@ void executeCommand( const Location& location, const QString& format,
     if ( space != -1 )
 	toolName.truncate( space );
 
-    Q3Process process( QStringList() << "sh" << "-c" << actualCommand );
-    process.start();
-    while ( process.isRunning() )
-	;
+    QProcess process;
+    process.start("sh", QStringList() << "-c" << actualCommand );
+    process.waitForFinished();
 
-    if ( process.exitStatus() == 127 )
+    if (process.exitCode() == 127)
 	location.fatal( tr("Couldn't launch the '%1' tool")
 			.arg(toolName),
 			tr("Make sure the tool is installed and in the"
 			   " path.") );
 
-    QString errors = process.readStderr();
+    QString errors = process.readAllStandardError();
     while ( errors.endsWith("\n") )
 	errors.truncate( errors.length() - 1 );
     if ( !errors.isEmpty() )

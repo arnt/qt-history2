@@ -32,36 +32,15 @@
     Qt's SQL classes help you provide seamless database integration
     to your Qt applications.
 
-    This document is divided into six sections:
+    This document is divided into the following sections:
 
-    \list
-    \o \l{SQL Module Architecture}. This section describes how the
-    classes fit together.
-
-    \o \l{Connecting to Databases}. This section explains how to set
-    up database connections using the \l QSqlDatabase class.
-
-    \o \l{Executing SQL Statements}. This section demonstrates how to
-    issue standard data manipulation statements (\c SELECT, \c
-    INSERT, \c UPDATE, and \c DELETE) on tables in the database using
-    QSqlQuery.
-
-    \o \l{Using SQL Model Classes}. This section explains how to use
-    the QSqlQueryModel and QSqlTableModel classes, which provide a
-    higher-level API than the raw SQL used with \l QSqlQuery.
-
-    \o \l{Presenting Data in a Table View}. This section shows how to
-    display SQL data using a QTableView.
-
-    \o \l{Creating Data-Aware Forms}. This section shows how to
-    create more complex user interfaces based on a database.
-    \endlist
+    \tableofcontents
 
     This overview assumes that you have at least a basic knowledge of
     SQL. You should be able to understand simple \c SELECT, \c
     INSERT, \c UPDATE, and \c DELETE statements. Although the \l
     QSqlTableModel class provides an interface to database browsing
-    and editing that does not \e require a knowledge of SQL, a basic
+    and editing that does not require a knowledge of SQL, a basic
     understanding of SQL is highly recommended. A standard text
     covering SQL databases is \e {An Introduction to Database Systems
     (7th Ed.)} by C. J. Date, ISBN 0201385902.
@@ -70,29 +49,29 @@
 
     The SQL classes are divided into three layers:
 
-    \table
-    \row \i \bold{Driver Layer}
-         \i This comprises three classes: QSqlResult, QSqlDriver, and
-            QSqlDriverFactoryInterface. This layer provides the
+    \list
+    \o \bold{Driver Layer.}
+            This comprises the classes QSqlDriver,
+            QSqlDriverCreator<T>, QSqlDriverCreatorBase,
+            QSqlDriverPlugin, and QSqlResult. This layer provides the
             low-level bridge between the specific databases and the
-            SQL API layer. This layer is
-            \l{sql-driver.html}{documented separately} since it is
-            only relevant to driver writers.
+            SQL API layer. It is \l{sql-driver.html}{documented
+            separately} since it is only relevant to driver writers.
 
-    \row \i \bold{SQL API Layer}
-         \i These classes provide access to databases. Connections
+    \o \bold{SQL API Layer.}
+            These classes provide access to databases. Connections
             are made using the QSqlDatabase class. Database
             interaction is achieved by using the QSqlQuery class. In
             addition to QSqlDatabase and QSqlQuery, the SQL API layer
             is supported by QSqlError, QSqlField, QSqlIndex, and
             QSqlRecord.
 
-    \row \i \bold{User Interface Layer}
-         \i These classes link the data from a database to data-aware
+    \o \bold{User Interface Layer.}
+            These classes link the data from a database to data-aware
             widgets. They include QSqlQueryModel, QSqlTableModel, and
             QSqlRelationalTableModel. These classes are designed to
             work with Qt's \l{model/view classes}.
-    \endtable
+    \endlist
 
     \section1 Connecting to Databases
 
@@ -106,7 +85,7 @@
     applications that use only one database connection.
 
     The following code establishes a connection to a MySQL database
-    called \c flightdb on the local host:
+    called \c flightdb on host \c{bigblue}:
 
     \quotefromfile snippets/sqldatabase/sqldatabase.cpp
     \skipto sql_intro_snippets
@@ -116,9 +95,12 @@
     The first argument to QSqlDatabase::addDatabase() is the name of
     the driver. See the
     \l{QSqlDatabase::addDatabase()}{addDatabase()} documentation for
-    a list of drivers. We call setHostName(), setDatabaseName(),
-    setUserName(), and setPassword() to initialize the connection
-    information.
+    a list of drivers. We call
+    \l{QSqlDatabase::setHostName()}{setHostName()},
+    \l{QSqlDatabase::setDatabaseName()}{setDatabaseName()},
+    \l{QSqlDatabase::setUserName()}{setUserName()}, and
+    \l{QSqlDatabase::setPassword()}{setPassword()} to initialize the
+    connection information.
 
     Since no name was specified for the connection, the connection
     serves as the default connection. To specify a name, pass it as
@@ -127,10 +109,10 @@
     \skipto firstDB
     \printuntil secondDB
 
-    At the end, we call QSqlDatabase::open() to open the database and
-    give us access to the data. If this call fails it will return
-    false; error information can be obtained from
-    QSqlDatabase::lastError().
+    Once the connection is initialized, we must call
+    QSqlDatabase::open() to open the database and give us access to
+    the data. If this call fails it will return false; error
+    information can be obtained from QSqlDatabase::lastError().
 
     Once a connection is established, we can call the static function
     QSqlDatabase::database() from anywhere to get a pointer to a
@@ -154,10 +136,9 @@
     statements and navigating through the result set of a query.
 
     The QSqlQueryModel and QSqlTableModel classes described in the
-    \l{Using SQL Model Classes}{next section} provide a higher-level
-    interface for accessing databases. If you are unfamiliar with
-    SQL, you might want to skip this section and use these classes
-    instead.
+    next section provide a higher-level interface for accessing
+    databases. If you are unfamiliar with SQL, you might want to skip
+    directly to the next section (\l{Using SQL Model Classes}).
 
     \section2 Executing a Query
 
@@ -165,34 +146,38 @@
     call QSqlQuery::exec() with the statement:
 
     \skipto SELECT1
+    \skipline SELECT1
     \printuntil exec(
 
     The QSqlQuery constructor accepts an optional QSqlDatabase object
     that specifies which database connection to use. In the example
-    above, we don't specify any connection; the default connection is
-    used.
+    above, we don't specify any connection, so the default connection
+    is used.
 
     To check if an error occurred, we can call QSqlQuery::isActive().
-    The error is available as QSqlQuery::lastError(). For example:
-
-    \printline isActive
-    \printline showMessage
+    The error is available as QSqlQuery::lastError().
 
     \section2 Navigating the Result Set
 
     QSqlQuery provides access to the result set one record at a time.
     After the call to \l{QSqlQuery::exec()}{exec()}, QSqlQuery's
     internal pointer is located one position \e{before} the first
-    record. We must call QSqlQuery::next() once to
-    advance to the first record, then \l{QSqlQuery::next()}{next()}
-    again repeatedly to access the other records, until it returns
-    false:
+    record. We must call QSqlQuery::next() once to advance to the
+    first record, then \l{QSqlQuery::next()}{next()} again repeatedly
+    to access the other records, until it returns false. Here's a
+    typical loop that iterates over all records in order:
 
     \skipto while (query.next())
     \printuntil }
 
     The QSqlQuery::value() function returns the value of a field in
     the current record. Fields are specified as zero-based indexes.
+    QSqlQuery::value() returns a QCoreVariant, a type that can hold
+    various C++ and core Qt data types such as \c int, QString, and
+    QByteArray. The different database types are automatically mapped
+    into the closest Qt equivalent. In the code snippet, we call
+    QCoreVariant::toString() and QCoreVariant::toInt() to convert
+    variants to QString and \c int.
 
     You can iterate back and forth using QSqlQuery::next(),
     QSqlQuery::previous(), QSqlQuery::first(), QSqlQuery::last(), and
@@ -211,23 +196,336 @@
     with positive values, you can call
     QSqlQuery::setForwardOnly(true) before calling exec(). This is an
     easy optimization that will speed up the query significantly when
-    operating on large datasets.
+    operating on large result sets.
 
     \section2 Inserting, Updating, and Deleting Records
 
+    QSqlQuery can execute arbitrary SQL statement, not just
+    \c{SELECT}s. The following example inserts a record into a table
+    using \c{INSERT}:
 
+    \skipto INSERT1
+    \skipto query;
+    \printuntil );
+
+    If you want to insert many records in a row, it is often more
+    efficient to separate the query from the actual values being
+    inserted. This can be done using placeholders. Qt supports two
+    placeholder syntaxes: named binding and positional binding.
+    Here's an example of named binding (also called "Oracle-style
+    placeholders"):
+
+    \skipto NAMED BINDING
+    \skipto query;
+    \printuntil exec();
+
+    Here's an example of positional binding (also called "ODBC-style
+    placeholders"):
+
+    \skipto POSITIONAL BINDING
+    \skipto query;
+    \printuntil exec();
+
+    Both syntaxes work with all database drivers provided by Qt. If
+    the database supports the syntax natively, Qt simply forwards the
+    query to the DBMS; otherwise, Qt simulates the placeholder syntax
+    by preprocessing the query. The actual query that ends up being
+    executed by the DBMS is available as QSqlQuery::lastQuery().
+
+    When inserting multiple records, you need only to call
+    QSqlQuery::prepare() once. Then you call
+    \l{QSqlQuery::bindValue()}{bindValue()} or
+    \l{QSqlQuery::addBindValue()}{addBindValue()} followed by
+    \l{QSqlQuery::exec()}{exec()} as many times as necessary.
+
+    Besides performance, one advantage of placeholders is that you
+    can easily specify arbitrary values without having to worry about
+    escaping special characters.
+
+    Updating a record is similar to inserting it into a table:
+
+    \skipto UPDATE1
+    \skipto query;
+    \printuntil );
+
+    Again, you can use named or positional binding to associate
+    parameters to actual values.
+
+    Finally, here's an example of a \c DELETE statement:
+
+    \skipto DELETE1
+    \skipto query;
+    \printuntil );
 
     \section2 Transactions
 
+    If the underlying database engine supports transactions,
+    QSqlDriver::hasFeature(QSqlDriver::Transactions) will return
+    true. You can use QSqlDatabase::transaction() to initiate a
+    transaction, followed by the SQL commands you want to execute
+    within the context of the transaction, and then either
+    QSqlDatabase::commit() or QSqlDatabase::rollback().
+
+    Example:
+
+    \skipto TRANSACTION
+    \skipto transaction()
+    \printuntil commit()
+
+    Transactions can be used to ensure that a complex operation is
+    atomic (for example, looking up a foreign key and creating a
+    record), or to give a way to cancel a complex change in the
+    middle.
 
     \section1 Using SQL Model Classes
 
+    In addition to QSqlQuery, Qt offers three higher-level classes
+    for accessing databases. These classes are QSqlQueryModel,
+    QSqlTableModel, and QSqlRelationalTableModel.
+
+    \table
+    \row \o QSqlQueryModel
+         \o A read-only model based on an arbitrary SQL query.
+    \row \o QSqlTableModel
+         \o A read-write model that works on a single table.
+    \row \o QSqlRelationalTableModel
+         \o A QSqlTableModel subclass with foreign key support.
+    \endtable
+
+    These classes derive from QAbstractTableModel (which in turn
+    inherits from QAbstractItemModel) and make it easy to present
+    data from a database in an item view class such as QListView and
+    QTableView. This is explained in detail in the \l{Presenting Data
+    in a Table View} section.
+
+    Another advantage of using some of these classes is that it can
+    make your code less thightly bound to SQL databases. For example,
+    if you use QSqlTableModel and later decide to use XML files to
+    store data instead of a database, it is essentially just a matter
+    of replacing one data model with another.
+
+    \section2 The SQL Query Model
+
+    QSqlQueryModel offers a read-only model based on an SQL query.
+
+    Example:
+
+    \quotefromfile snippets/sqldatabase/sqldatabase.cpp
+    \skipto SQLQUERYMODEL1
+    \skipto QSqlQueryModel model;
+    \printuntil }
+
+    After setting the query using QSqlQueryModel::setQuery(), you can
+    use QSqlQueryModel::record(int) to access the individual records.
+    You can also use QSqlQueryModel::data() and any of the other
+    functions inherited from QAbstractItemModel.
+
+    \section2 The SQL Table Model
+
+    QSqlTableModel offers a read-write model that works on a single
+    SQL table at a time.
+
+    Example:
+
+    \skipto SQLTABLEMODEL1
+    \skipto QSqlTableModel model;
+    \printuntil }
+
+    QSqlTableModel is a high-level alternative to QSqlQuery for
+    navigating and modifying individual SQL tables. It typically
+    results in less code and requires no knowledge of SQL syntax.
+
+    Use QSqlTableModel::record() to retrieve a row in the table, and
+    QSqlTableModel::setRecord() to modify the row. For example, the
+    following code will increase every employee's salary by a
+    whooping 10 per cent:
+
+    \skipto SQLTABLEMODEL2
+    \skipto for (int i
+    \printuntil submit
+
+    You can also use QSqlTableModel::data() and
+    QSqlTableModel::setData(), which are inherited from
+    QAbstractItemModel, to access the data. For example, here's how
+    to update a record using
+    \l{QSqlTableModel::setData()}{setData()}:
+
+    \skipto SQLTABLEMODEL3
+    \skipto setData
+    \printuntil submit
+
+    Here's how to insert a row and populate it:
+
+    \skipto SQLTABLEMODEL4
+    \skipto insertRows(
+    \printuntil submit
+
+    Here's how to delete rows:
+
+    \printline deleteRows(
+    \printline submit
+
+    The first argument to QSqlTableModel::deleteRows() is the index
+    of the first row to delete; the second argument is the number of
+    rows to delete.
+
+    When you're done making a change to a record, you should always
+    call QSqlTableModel::submitAll() to ensure that the change is
+    performed on the database.
+
+    When and whether you actually \e need to call submitAll() depends
+    on the table's \l{QSqlTableModel::editStrategy()}{edit strategy}.
+    The default strategy is QSqlTableModel::OnRowChange, which
+    specifies that pending changes are applied to the database when
+    the user selects a different row. Other strategies are
+    QSqlTableModel::OnManualSubmit (where all changes are cached in
+    the model until you call submitAll()) and
+    QSqlTableModel::OnFieldChange (where no changes are cached).
+    These are mostly useful when QSqlTableModel is used with a view.
+
+    QSqlTableModel::OnFieldChange seems to deliver the promise that
+    you never need to call submitAll() explicitly. There are two
+    pitfalls, though:
+    
+    \list
+    \o Without any caching, performance may drop significantly.
+    \o If you modify a primary key, the record might slip through
+       your fingers are you are trying to filling it.
+    \endlist
+
+    \section2 The SQL Relational Table Model
+
+    QSqlRelationalTableModel extends QSqlTableModel to provide
+    support for foreign keys.
+
+    \table
+    \row \o \inlineimage noforeignkeys.png
+         \o \inlineimage foreignkeys.png
+    \endtable
+
+    The screenshot on the left shows a plain QSqlTableModel in a
+    QTableView. Foreign keys (\c city and \c country) aren't resolved
+    to human-readable values. The screenshot on the right shows a
+    QSqlRelationalTableModel, with foreign keys resolved into
+    human-readable text strings.
+
+    The following code snippet shows how the QSqlRelationalTableModel
+    was set up:
+
+    \quotefromfile sql/relationaltablemodel/relationaltablemodel.cpp
+    \skipto model->setTable
+    \printline model->setTable
+    \skipto setRelation
+    \printline setRelation
+    \printline setRelation
+
+    See the QSqlRelationalTableModel documentation for details.
+
     \section1 Presenting Data in a Table View
 
-    \section1 Creating Data-Aware Forms
+    The QSqlQueryModel, QSqlTableModel, and QSqlRelationalTableModel
+    classes can be used as a data source for Qt's view classes such
+    as QListView, QTableView, and QTreeView. In practice, QTableView
+    is by far the most common choice, because an SQL result set is
+    essentially a two-dimensional data structure.
 
-    \e{The Qt 4.0 beta 2 release will include some classes that will
-    make it easy to create data-aware forms, i.e. forms that get
-    their data from a database. For the moment, there is no such
-    support in Qt.}
+    \image relationaltable.png A table view displaying a QSqlTableModel
+
+    The following example creates a view based on an SQL data model:
+
+    \quotefromfile snippets/sqldatabase/sqldatabase.cpp
+    \skipto QTableView *view =
+    \printline view =
+    \printline setModel
+    \printline show()
+
+    If the model is a read-write model (e.g., QSqlTableModel), the
+    view lets the user edit the fields. You can disable this by
+    calling
+
+    \printline setEditTriggers
+
+    You can use the same model as a data source for multiple views.
+    If the user edits the model through one of the views, the other
+    views will reflect the changes as soon as they are submitted. The
+    \c sql/tablemodel example shows how it works.
+
+    View classes display a header at the top to label the columns. To
+    change the header texts, call
+    \l{QAbstractItemView::setHeaderData()}{setHeaderData()} on the
+    model. For example:
+
+    \quotefromfile sql/relationaltablemodel/relationaltablemodel.cpp
+    \skipto setHeaderData(
+    \printuntil setHeaderData(3
+
+    QTableView also has a vertical header on the left with numbers
+    identifying the rows. If you insert rows programmatically using
+    QSqlTableModel::insertRows(), the new rows will be marked with an
+    asterisk (*) until they are submitted using
+    \l{QSqlTableModel::submitAll()}{submitAll()} or automatically
+    when the user moves to another record (assuming the
+    \l{QSqlTableModel::EditStrategy}{edit strategy} is
+    QSqlTableModel::OnRowChange).
+
+    \image insertrowinmodelview.png Inserting a row in a model
+
+    Likewise, if you remove rows using
+    \l{QSqlTableModel::removeRows()}{removeRows()}, the rows will be
+    marked with an exclamation mark (!) until the change is
+    submitted.
+
+    The items in the view are rendered using a delegate. The default
+    delegate, QItemDelegate, handles the most common data types (\c
+    int, QString, QImage, etc.). The delegate is also responsible for
+    providing editor widgets (e.g., a combobox) when the user starts
+    editing an item in the view. You can create your own delegates by
+    subclassing QAbstractItemDelegate or QItemDelegate. See
+    \l{Model/View Programming} for more information.
+
+    QSqlTableModel has the drawback that it can only operate on a
+    single table at a time. If you need a read-write model that
+    operates on an arbitrary result set, you can subclass
+    QSqlQueryModel and reimplement
+    \l{QAbstractItemModel::flags()}{flags()} and
+    \l{QAbstractItemModel::setData()}{setData()} to make it
+    read-write. The following to make columns 1 and 2 of a query
+    model editable:
+
+    \quotefromfile sql/querymodel/editablesqlmodel.cpp
+    \skipto ::flags(
+    \printuntil /^\}/
+    \skipto ::setData(
+    \printuntil /^\}/
+
+    The setFirstName() helper function is defined as follows:
+
+    \skipto ::setFirstName(
+    \printuntil /^\}/
+
+    The setLastName() function is similar. See the \c sql/querymodel
+    example for the complete source code.
+
+    Subclassing a model makes it possible to customize it in many
+    ways: You can provide tooltips for the items, change the
+    background color, provide calculated values, provide different
+    values for viewing and editing, handle null values specially, and
+    more. See \l{Model/View Programming} as well as the \l
+    QAbstractItemView reference documentation for details.
+
+    If all you need is to resolve a foreign key to a more
+    human-friendly string, you can use QSqlRelationalTableModel. For
+    best results, you should also use QSqlRelationalDelegate, a
+    delegate that provides combobox editors for editing foreign keys.
+
+    \image relationaltable.png Editing a foreign key in a relational table
+
+    The \c{sql/relationaltablemodel} example illustrates how to use
+    QSqlRelationalTableModel in conjunction with
+    QSqlRelationalDelegate to provide tables with foreigh key
+    support.
+
+    \omit
+    \section1 Creating Data-Aware Forms
+    \endomit
 */

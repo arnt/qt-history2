@@ -39,9 +39,9 @@ bool EditableSqlModel::setData(const QModelIndex &index, const QVariant &value, 
 void EditableSqlModel::refresh()
 {
     setQuery("select * from person");
-    setHeaderData(0, Qt::Horizontal, QObject::tr("ID"), QAbstractItemModel::DisplayRole);
-    setHeaderData(1, Qt::Horizontal, QObject::tr("First name"), QAbstractItemModel::DisplayRole);
-    setHeaderData(2, Qt::Horizontal, QObject::tr("Last name"), QAbstractItemModel::DisplayRole);
+    setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
+    setHeaderData(1, Qt::Horizontal, QObject::tr("First name"));
+    setHeaderData(2, Qt::Horizontal, QObject::tr("Last name"));
 }
 
 bool EditableSqlModel::setFirstName(int personId, const QString &firstName)

@@ -9,9 +9,9 @@ void initializeModel(QSqlTableModel *model)
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);
     model->select();
 
-    model->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"), QAbstractItemModel::DisplayRole);
-    model->setHeaderData(1, Qt::Horizontal, QObject::tr("First name"), QAbstractItemModel::DisplayRole);
-    model->setHeaderData(2, Qt::Horizontal, QObject::tr("Last name"), QAbstractItemModel::DisplayRole);
+    model->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
+    model->setHeaderData(1, Qt::Horizontal, QObject::tr("First name"));
+    model->setHeaderData(2, Qt::Horizontal, QObject::tr("Last name"));
 }
 
 QTableView *createView(const QString &title, QSqlTableModel *model)

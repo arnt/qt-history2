@@ -961,6 +961,12 @@
     everything that is said in the \l{#qbytearray.section}{QByteArray
     section} applies for QCString as well.
 
+    \section1 QCustomEvent
+
+    ### QCustomEvent is compat
+
+    ### customEvent() signature
+
     \section1 QDataBrowser
 
     The QDataBrowser class has been moved to the \l{Qt 3 compatibility library}.

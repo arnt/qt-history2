@@ -148,7 +148,6 @@ void QTableViewPrivate::updateHorizontalScrollbar()
 
 */
 
-// ### DOC: Where does the model come from?
 /*!
     Constructs a table view with a \a parent to represent the data.
 

@@ -38,7 +38,7 @@ TitlePage::TitlePage(LicenseWizard *wizard)
 
 void TitlePage::resetPage()
 {
-    registerRadioButton->setChecked(true);    
+    registerRadioButton->setChecked(true);
 }
 
 WizardPage *TitlePage::nextPage()

@@ -1,10 +1,8 @@
 alias.also			= sa
-alias.endquotation              = endquote
 alias.group			= defgroup
 alias.i				= e
 alias.include			= input
 alias.inheaderfile		= headerfile
-alias.quotation                 = quote
 alias.quotefile			= include
 alias.quotefromfile		= quotefile
 alias.related			= relates
@@ -33,6 +31,8 @@ macro.i81                       = "\\o{8,1}"
 macro.i91                       = "\\o{9,1}"
 macro.img                       = "\\image"
 macro.quotefromfile             = "\\quotefile"
+macro.quote                     = "\\quotation"
+macro.endquote                  = "\\endquotation"
 
 spurious			= "Missing comma in .*" \
 				  "Missing pattern .*"

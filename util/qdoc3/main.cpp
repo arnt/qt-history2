@@ -10,6 +10,7 @@
 
 #include <stdlib.h>
 
+#include "apigenerator.h"
 #include "ccodeparser.h"
 #include "codemarker.h"
 #include "codeparser.h"
@@ -208,6 +209,7 @@ int main( int argc, char **argv )
     CppCodeMarker cppMarker;
     QsCodeMarker qsMarker;
 
+    ApiGenerator apiGenerator;
     HtmlGenerator htmlGenerator;
     LoutGenerator loutGenerator;
     ManGenerator manGenerator;
