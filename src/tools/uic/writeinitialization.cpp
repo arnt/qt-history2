@@ -547,7 +547,7 @@ void WriteInitialization::writeProperties(const QString &varName,
             output << option.indent << fontName << ".setWeight("
                 << f->elementWeight() << ");" << endl;
             output << option.indent << fontName << ".setStrikeOut("
-                << (f->elementStrikeOut() ? "true" : "false") << ");\b";
+                << (f->elementStrikeOut() ? "true" : "false") << ");\n";
             propertyValue = fontName;
             break;
         }
