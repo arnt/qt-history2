@@ -15,8 +15,7 @@ unix:KERNEL_H	=	kernel
 unix:TOOLS_H	=	tools
 unix:WIDGETS_H	=	widgets
 
-HEADERS     =	$$KERNEL_H/qdragobject.h \
-		$$DIALOGS_H/qfiledlg.h \
+HEADERS     =	$$DIALOGS_H/qfiledlg.h \
 		$$DIALOGS_H/qmsgbox.h \
 		$$DIALOGS_H/qprogdlg.h \
 		$$DIALOGS_H/qtabdlg.h \
@@ -31,6 +30,7 @@ HEADERS     =	$$KERNEL_H/qdragobject.h \
 		$$KERNEL_H/qconnect.h \
 		$$KERNEL_H/qcursor.h \
 		$$KERNEL_H/qdialog.h \
+		$$KERNEL_H/qdragobject.h \
 		$$KERNEL_H/qdrawutl.h \
 		$$KERNEL_H/qevent.h \
 		$$KERNEL_H/qfont.h \
@@ -132,8 +132,7 @@ HEADERS     =	$$KERNEL_H/qdragobject.h \
 		$$WIDGETS_H/qtooltip.h \
 		$$WIDGETS_H/qvalidator.h
 
-SOURCES     =	kernel/qdragobject.cpp \
-		dialogs/qfiledlg.cpp \
+SOURCES     =	dialogs/qfiledlg.cpp \
 		dialogs/qmsgbox.cpp \
 		dialogs/qprogdlg.cpp \
 		dialogs/qtabdlg.cpp \
@@ -147,6 +146,7 @@ SOURCES     =	kernel/qdragobject.cpp \
 		kernel/qconnect.cpp \
 		kernel/qcursor.cpp \
 		kernel/qdialog.cpp \
+		kernel/qdragobject.cpp \
 		kernel/qdrawutl.cpp \
 		kernel/qevent.cpp \
 		kernel/qfont.cpp \
