@@ -1291,7 +1291,10 @@ void QWorkspace::toolMenuAboutToShow()
     if ( !d->active || !d->active->windowWidget() )
 	return;
 
-    d->toolPopup->setItemEnabled( 3, !d->active->shademode );
+    QWidget *windowWidget = d->active->windowWidget();
+    bool canResize = windowWidget->maximumSize() != windowWidget->minimumSize();
+
+    d->toolPopup->setItemEnabled( 3, !d->active->shademode && canResize );
     if ( d->active->shademode )
 	d->toolPopup->changeItem( 6,
 				  QIconSet(style().stylePixmap(QStyle::SP_TitleBarUnshadeButton)), tr("&Unshade") );
