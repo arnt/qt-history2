@@ -1068,8 +1068,8 @@ bool MetaDataBase::setEventFunction( QObject *o, QObject *form, const QString &e
 	}
     }
 
-    if ( !slotExists && addIfNotExisting )
-	addSlot( form, fName.latin1(), "public",  "QuickScript" );
+    if ( !slotExists && addIfNotExisting ) // ##### use default language here
+	addSlot( form, fName.latin1(), "public",  langList[ 0 ] );
 
     r->eventFunctions.insert( event, function );
     return !slotExists;

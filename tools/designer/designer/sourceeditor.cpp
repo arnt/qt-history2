@@ -49,18 +49,18 @@ void SourceEditor::setForm( FormWindow *fw )
     save();
     formWindow = fw;
     setCaption( tr( "Edit %1" ).arg( formWindow->name() ) );
-    iFace->setText( sourceOfForm( formWindow ) );
+    iFace->setText( sourceOfForm( formWindow, lang ) );
     if ( fw->project() )
 	iFace->setContext( fw->project()->formList(), fw );
 }
 
-QString SourceEditor::sourceOfForm( FormWindow *fw )
+QString SourceEditor::sourceOfForm( FormWindow *fw, const QString &lang )
 {
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( fw );
     QMap<QString, QString> bodies = MetaDataBase::functionBodies( fw );
     QString txt;
     for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
-	if ( (*it).language != "QuickScript" ) // #### do this more generic
+	if ( (*it).language != lang )
 	    continue;
 	txt += "function " + QString( (*it).slot );
 	QMap<QString, QString>::Iterator bit = bodies.find( NormalizeObject::normalizeSignalSlot( (*it).slot ) );

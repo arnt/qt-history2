@@ -1872,7 +1872,7 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 	if ( piface ) {
 	    QStringList error;
 	    QValueList<int> line;
-	    if ( !piface->check( SourceEditor::sourceOfForm( fw ), error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
+	    if ( !piface->check( SourceEditor::sourceOfForm( fw, lang ), error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
 		oWindow->setErrorMessages( error, line );
 		if ( editorPluginManager ) {
 		    EditorInterface *eiface = (EditorInterface*)editorPluginManager->queryInterface( lang );

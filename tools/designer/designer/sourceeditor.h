@@ -39,7 +39,7 @@ public:
     void setFunction( const QString &func );
     void save();
 
-    static QString sourceOfForm( FormWindow *fw );
+    static QString sourceOfForm( FormWindow *fw, const QString &lang );
 
     QString language() const;
     void setLanguage( const QString &l );
