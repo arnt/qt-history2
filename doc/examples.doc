@@ -100,6 +100,33 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
   in its incarnation as a toggle action.
 */
 
+/*! \example action/actiongroup/editor.cpp
+
+  \heading A Tiny Example Featuring QActionGroup
+
+  This example program shows how to use an 
+  exclusive action group.
+
+  <hr>
+
+  Header file:
+
+  \include action/actiongroup/editor.h
+
+  <hr>
+
+  Implementation:
+
+  \include action/actiongroup/editor.cpp
+
+  <hr>
+
+  Main:
+
+  \include action/actiongroup/tiny_editor.cpp
+
+*/
+
 /*! \example mdi/main.cpp
 
   \heading A MDI Application
