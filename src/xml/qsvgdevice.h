@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.h#14 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.h#15 $
 **
 ** Definition of the QSVGDevice class
 **
@@ -89,7 +89,7 @@ private:
     void drawPath( const QString &data );
 
     // writing
-    void applyStyle( QDomElement *e ) const;
+    void applyStyle( QDomElement *e, int c ) const;
     void applyTransform( QDomElement *e ) const;
 
     enum ElementType {

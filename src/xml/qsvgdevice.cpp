@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#24 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#25 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -185,6 +185,7 @@ bool QSVGDevice::save( const QString &file )
     if ( !f.open ( IO_WriteOnly ) )
 	return FALSE;
     QTextStream s( &f );
+    s.setEncoding( QTextStream::UnicodeUTF8 );
     s << doc;
 
     return TRUE;
@@ -248,7 +249,6 @@ int QSVGDevice::metric( int m ) const
 bool QSVGDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 {
     pt = painter;
-    qDebug( "QSVGDevice::cmd(%d)", c );
 
     if ( c == PdcBegin ) {
 	svgName = "test";	// ###
@@ -314,14 +314,12 @@ bool QSVGDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	    e.setAttribute( "cx", rect.center().x() );
 	    e.setAttribute( "cy", rect.center().y() );
 	    e.setAttribute( "r", rect.width() / 2 );
-	    applyStyle( &e );
 	} else {
 	    e = doc.createElement( "ellipse" );
 	    e.setAttribute( "cx", rect.center().x() );
 	    e.setAttribute( "cy", rect.center().y() );
 	    e.setAttribute( "rx", rect.width() / 2 );
 	    e.setAttribute( "ry", rect.height() / 2 );
-	    applyStyle( &e );
 	}
 	break;
     case PdcDrawArc:
@@ -472,7 +470,7 @@ bool QSVGDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	    current = e;
 	// ### optimize application of attributes utilizing <g>
 	if ( dirtyStyle )		// only reset when entering
-	    applyStyle( &e );		// or leaving a <g> tag
+	    applyStyle( &e, c );	// or leaving a <g> tag
 	if ( dirtyTransform )		// same as above
 	    applyTransform( &e );
     }
@@ -952,19 +950,28 @@ void QSVGDevice::drawPath( const QString &data )
     }
 }
 
-void QSVGDevice::applyStyle( QDomElement *e ) const
+void QSVGDevice::applyStyle( QDomElement *e, int c ) const
 {
     // ### do not write every attribute each time
-    QColor c = pt->pen().color();
-    QString s = QString( "stroke:rgb(%1,%2,%3);" )
-		.arg( c.red() ).arg( c.green() ).arg( c.blue() );
-    s += QString( "stroke-width:%1;" ).arg( pt->pen().width() );
-    if ( pt->brush().style() != Qt::NoBrush ) {
-	c = pt->brush().color();
+    QColor pcol = pt->pen().color();
+    QColor bcol = pt->brush().color();
+    QString s;
+    if ( c == PdcDrawText2 || c == PdcDrawText2Formatted ) {
+	// QPainter has a reversed understanding of pen/stroke vs.
+	// brush/fill for text
 	s += QString( "fill:rgb(%1,%2,%3);" )
-	     .arg( c.red() ).arg( c.green() ).arg( c.blue() );
+	     .arg( pcol.red() ).arg( pcol.green() ).arg( pcol.blue() );
+	s += QString( "font-size:%1;" ).arg( pt->font().pointSize() );
+	s += QString( "stroke-width:0;" );
+    } else {
+	s += QString( "stroke:rgb(%1,%2,%3);" )
+	     .arg( pcol.red() ).arg( pcol.green() ).arg( pcol.blue() );
+	s += QString( "stroke-width:%1;" ).arg( pt->pen().width() );
+	if ( pt->brush().style() != Qt::NoBrush ) {
+	    s += QString( "fill:rgb(%1,%2,%3);" )
+		 .arg( bcol.red() ).arg( bcol.green() ).arg( bcol.blue() );
+	}
     }
-    s += QString( "font-size:%1" ).arg( pt->font().pointSize() );
     e->setAttribute( "style", s );
 }
 
