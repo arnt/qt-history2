@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.h#2 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.h#3 $
 **
 ** Definition of QLCDNumber class
 **
@@ -24,22 +24,25 @@ public:
     QLCDNumber( QView *p, int noOfDigits = 1 );
    ~QLCDNumber();
 
-    enum Mode {HEXADECIMAL, DECIMAL, OCTAL, BINARY};
+    enum Mode {HEX, DEC, OCT, BIN};
 
-    bool    overflow( double num ) const;
-    bool    overflow( long   num ) const;
-    
-    QLCDNumber::Mode mode() const { return base; }
+    void    setDigits( int noOfDigits );
+    int	    digits();
+    bool    checkOverflow( double num ) const;
+    bool    checkOverflow( long	  num ) const;
+
+    QLCDNumber::Mode mode() const;
 
 slots:						/* methods!!! */
-    void    display( int num )	  { display((long)num); }
+    void    display( int num );
     void    display( long num );
-    void    display( float num )  { display((double)num); }
+    void    display( float num );
     void    display( double num );
     void    display( const char *str );
     void    setMode( Mode );
     void    smallDecimalPoint( bool );
-
+signals:
+    void overflow();
 protected:
     void    resizeEvent( QResizeEvent * );
     void    paintEvent( QPaintEvent * );
@@ -47,21 +50,14 @@ protected:
 private:
     void    drawString( const char *, QPainter &, QBitArray * = NULL,
 			bool = TRUE );
-    void    drawDigit( const QPoint &, char, QPainter &, QPen & );
-    void    drawDigit( const QPoint &, char, char, QPainter &, QPen & );
-    void    drawSegment( const QPoint &, int, QPainter &, QPen &, bool= FALSE);
-    int	    digitLength()     const;
-    int	    segmentXLength()  const;
-    int	    segmentYLength()  const;
-    int	    xSpace()	      const;
-    int	    xOffset()	      const;
-    int	    yOffset()	      const;
+    void    drawDigit( const QPoint &, QPainter &, int, char, char = ' ' );
+    void    drawSegment( const QPoint &, char, QPainter &, int, bool = FALSE );
 
-    int	     nDigits;
-    QString  digits;
+    uint      nDigits	 : 8;
+    uint      base	 : 2;
+    uint      smallPoint : 1;
+    QString   digitStr;
     QBitArray points;
-    bool     smallPoint;
-    Mode     base;
 };
 
 

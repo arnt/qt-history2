@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#4 $
 **
 ** Implementation of QLCDNumber class
 **
 ** Author  : Eirik Eng
 ** Created : 940518
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,29 +16,31 @@
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#4 $";
 #endif
 
 
 static QString long2string( long num, int base, int ndigits, bool *oflow )
 {
     QString s;
-    bool negative = FALSE;
+    bool negative;
+    if ( num < 0 ) {
+	negative = TRUE;
+	num	 = -num;
+    } else {
+	negative = FALSE;
+    }
     switch( base ) {
-	case QLCDNumber::HEXADECIMAL:
+	case QLCDNumber::HEX:
 	    s.sprintf( "%*lx", ndigits, num );
 	    break;
-	case QLCDNumber::DECIMAL:
-	    if ( num < 0 ) {
-		negative = TRUE;
-		num = -num;
-	    }
+	case QLCDNumber::DEC:
 	    s.sprintf( "%*li", ndigits, num );
 	    break;
-	case QLCDNumber::OCTAL:
+	case QLCDNumber::OCT:
 	    s.sprintf( "%*lo", ndigits, num );
 	    break;
-	case QLCDNumber::BINARY: {
+	case QLCDNumber::BIN: {
 	    char buf[42];
 	    char *p = &buf[41];
 	    ulong n = num;
@@ -61,6 +63,8 @@ static QString long2string( long num, int base, int ndigits, bool *oflow )
 	    if ( s[i] != ' ' ) {
 		if ( i != 0 ) {
 		    s[i-1] = '-';
+		} else {
+		    s.insert( 0, '-' );
 		}
 		break;
 	    }
@@ -75,7 +79,7 @@ static QString long2string( long num, int base, int ndigits, bool *oflow )
 QString double2string( double num, int base, int ndigits, bool *oflow )
 {
     QString s;
-    if ( base != QLCDNumber::DECIMAL ) {
+    if ( base != QLCDNumber::DEC ) {
 	bool of = num >= 2147483648.0 || num < -2147483648.0;
 	if ( of ) {				// oops, 'long' overflow
 	    if ( oflow )
@@ -83,8 +87,7 @@ QString double2string( double num, int base, int ndigits, bool *oflow )
 	    return s;
 	}
 	s = long2string( (long)num, base, ndigits, 0 );
-    }
-    else {					// decimal base
+    } else {					// decimal base
 	s.sprintf( "%*g", ndigits, num );
 	int i = s.find('e');
 	if ( i > 0 && s[i+1]=='+' ) {
@@ -101,73 +104,75 @@ QString double2string( double num, int base, int ndigits, bool *oflow )
 char *getSegments( char ch )			// gets list of segments for ch
 {
     static char segments[30][8] =
-       { { 0, 1, 2, 4, 5, 6,-1, 0},		// 0    0 / O
-	 { 2, 5,-1, 0, 0, 0, 0, 0},		// 1    1
-	 { 0, 2, 3, 4, 6,-1, 0, 0},		// 2    2
-	 { 0, 2, 3, 5, 6,-1, 0, 0},		// 3    3
-	 { 1, 2, 3, 5,-1, 0, 0, 0},		// 4    4
-	 { 0, 1, 3, 5, 6,-1, 0, 0},		// 5    5
-	 { 0, 1, 3, 4, 5, 6,-1, 0},		// 6    6
-	 { 0, 2, 5,-1, 0, 0, 0, 0},		// 7    7
-	 { 0, 1, 2, 3, 4, 5, 6,-1},		// 8    8
-	 { 0, 1, 2, 3, 5, 6,-1, 0},		// 9    9 / g
-	 { 3,-1, 0, 0, 0, 0, 0, 0},		// 10   -
-	 { 7,-1, 0, 0, 0, 0, 0, 0},		// 11   .
-	 { 0, 1, 2, 3, 4, 5,-1, 0},		// 12   A
-	 { 1, 3, 4, 5, 6,-1, 0, 0},		// 13   B
-	 { 0, 1, 4, 6,-1, 0, 0, 0},		// 14   C
-	 { 2, 3, 4, 5, 6,-1, 0, 0},		// 15   D 
-	 { 0, 1, 3, 4, 6,-1, 0, 0},		// 16   E 
-	 { 0, 1, 3, 4,-1, 0, 0, 0},		// 17   F
-	 { 1, 3, 4, 5,-1, 0, 0, 0},		// 18   h
-	 { 1, 2, 3, 4, 5,-1, 0, 0},		// 19   H
-	 { 1, 4, 6,-1, 0, 0, 0, 0},		// 20   L
-	 { 3, 4, 5, 6,-1, 0, 0, 0},		// 21   o
-	 { 0, 1, 2, 3, 4,-1, 0, 0},		// 22   P
-	 { 3, 4,-1, 0, 0, 0, 0, 0},		// 23   r
-	 { 0, 1, 3, 5, 6,-1, 0, 0},		// 24   S
-	 { 4, 5, 6,-1, 0, 0, 0, 0},		// 25   u
-	 { 1, 2, 4, 5, 6,-1, 0, 0},		// 26   U
-	 { 1, 2, 3, 5, 6,-1, 0, 0},		// 27   Y
-	 { 8, 9,-1, 0, 0, 0, 0, 0},		// 28   :
-	 {-1, 0, 0, 0, 0, 0, 0, 0} };		// 29   empty
+       { { 0, 1, 2, 4, 5, 6,-1, 0},		// 0	0 / O
+	 { 2, 5,-1, 0, 0, 0, 0, 0},		// 1	1
+	 { 0, 2, 3, 4, 6,-1, 0, 0},		// 2	2
+	 { 0, 2, 3, 5, 6,-1, 0, 0},		// 3	3
+	 { 1, 2, 3, 5,-1, 0, 0, 0},		// 4	4
+	 { 0, 1, 3, 5, 6,-1, 0, 0},		// 5	5 / S
+	 { 0, 1, 3, 4, 5, 6,-1, 0},		// 6	6
+	 { 0, 2, 5,-1, 0, 0, 0, 0},		// 7	7
+	 { 0, 1, 2, 3, 4, 5, 6,-1},		// 8	8
+	 { 0, 1, 2, 3, 5, 6,-1, 0},		// 9	9 / g
+	 { 3,-1, 0, 0, 0, 0, 0, 0},		// 10	-
+	 { 7,-1, 0, 0, 0, 0, 0, 0},		// 11	.
+	 { 0, 1, 2, 3, 4, 5,-1, 0},		// 12	A
+	 { 1, 3, 4, 5, 6,-1, 0, 0},		// 13	B
+	 { 0, 1, 4, 6,-1, 0, 0, 0},		// 14	C
+	 { 2, 3, 4, 5, 6,-1, 0, 0},		// 15	D
+	 { 0, 1, 3, 4, 6,-1, 0, 0},		// 16	E
+	 { 0, 1, 3, 4,-1, 0, 0, 0},		// 17	F
+	 { 1, 3, 4, 5,-1, 0, 0, 0},		// 18	h
+	 { 1, 2, 3, 4, 5,-1, 0, 0},		// 19	H
+	 { 1, 4, 6,-1, 0, 0, 0, 0},		// 20	L
+	 { 3, 4, 5, 6,-1, 0, 0, 0},		// 21	o
+	 { 0, 1, 2, 3, 4,-1, 0, 0},		// 22	P
+	 { 3, 4,-1, 0, 0, 0, 0, 0},		// 23	r
+	 { 4, 5, 6,-1, 0, 0, 0, 0},		// 24	u
+	 { 1, 2, 4, 5, 6,-1, 0, 0},		// 25	U
+	 { 1, 2, 3, 5, 6,-1, 0, 0},		// 26	Y
+	 { 8, 9,-1, 0, 0, 0, 0, 0},		// 27	:
+	 { 0, 1, 2, 3,-1, 0, 0, 0},		// 28	'
+	 {-1, 0, 0, 0, 0, 0, 0, 0} };		// 29	empty
 
     if (ch >= '0' && ch <= '9')
-        return segments[ch - '0'];
+	return segments[ch - '0'];
     if (ch >= 'A' && ch <= 'F')
-        return segments[ch - 'A' + 12];
+	return segments[ch - 'A' + 12];
     if (ch >= 'a' && ch <= 'f')
-        return segments[ch - 'a' + 12];
+	return segments[ch - 'a' + 12];
     if (ch == '-')
-        return segments[10];
+	return segments[10];
     if (ch == 'O')
-        return segments[0];
+	return segments[0];
     if (ch == 'g')
-        return segments[9];
+	return segments[9];
     if (ch == '.')
-        return segments[11];
+	return segments[11];
     if (ch == 'h')
-        return segments[18];
+	return segments[18];
     if (ch == 'H')
-        return segments[19];
+	return segments[19];
     if (ch == 'l' || ch == 'L')
-        return segments[20];
+	return segments[20];
     if (ch == 'o')
-        return segments[21];
+	return segments[21];
     if (ch == 'p' || ch == 'P')
-        return segments[22];
+	return segments[22];
     if (ch == 'r' || ch == 'R')
-        return segments[23];
+	return segments[23];
     if (ch == 's' || ch == 'S')
-        return segments[24];
+	return segments[5];
     if (ch == 'u')
-        return segments[25];
+	return segments[24];
     if (ch == 'U')
-        return segments[26];
+	return segments[25];
     if (ch == 'y' || ch == 'Y')
-        return segments[27];
+	return segments[26];
     if (ch == ':')
-        return segments[28];
+	return segments[27];
+    if (ch == '\'')
+	return segments[28];
     return segments[29];
 }
 
@@ -175,19 +180,20 @@ char *getSegments( char ch )			// gets list of segments for ch
 QLCDNumber::QLCDNumber( QView *p, int noOfDigits ) : QWidget( p )
 {
     initMetaObject();
-    base = DECIMAL;
+    base = DEC;
     smallPoint = FALSE;
     if ( noOfDigits <= 0 )
-        noOfDigits = 1;
-    else if ( nDigits > 99 ) {
+	noOfDigits = 1;
+    else if ( noOfDigits > 99 ) {
 #if defined(CHECK_RANGE)
-        warning( "QLCDNumber: Maximum 99 digits allowed" );
+	warning( "QLCDNumber: Maximum 99 digits allowed" );
 #endif
 	noOfDigits = 99;
     }
     nDigits = noOfDigits;
-    digits.fill( ' ', nDigits );
+    digitStr.fill( ' ', nDigits );
     points.fill( 0, nDigits );
+    digitStr[nDigits - 1] = '0';     // Default is the number zero.
     setBackgroundColor( lightGray );
 }
 
@@ -196,38 +202,53 @@ QLCDNumber::~QLCDNumber()
 }
 
 
-bool QLCDNumber::overflow( long num ) const
+bool QLCDNumber::checkOverflow( long num ) const
 {
     bool of;
     long2string( num, base, nDigits, &of );
     return of;
 }
 
-bool QLCDNumber::overflow( double num ) const
+bool QLCDNumber::checkOverflow( double num ) const
 {
     bool of;
     double2string( num, base, nDigits, &of );
     return of;
 }
 
+QLCDNumber::Mode QLCDNumber::mode() const
+{
+    return (QLCDNumber::Mode) base;
+}
+
+void QLCDNumber::display( int num )
+{
+    display( (long) num );
+}
+
+void QLCDNumber::display( float num )
+{
+    display( (double) num );
+}
 
 void QLCDNumber::display( long num )
 {
     bool of;
     QString s = long2string( num, base, nDigits, &of );
     if ( of )
-	s = "Error";
-    display( s );
+	emit overflow();
+    else
+	display( s );
 }
-
 
 void QLCDNumber::display( double num )
 {
     bool of;
     QString s = double2string( num, base, nDigits, &of );
     if ( of )
-	s = "Error";
-    display( s );
+	emit overflow();
+    else
+	display( s );
 }
 
 
@@ -240,57 +261,52 @@ void QLCDNumber::display( const char *s )
 
     p.begin( this );
     if ( !smallPoint ) {
-	if ( len >= nDigits ) {
-	    for( i=0; i<nDigits; i++ )
+	if ( len >= nDigits ) {			  // String too long?
+	    for( i=0; i<nDigits; i++ )		  // Yes, whow first chars.
 		buffer[i] = s[len - nDigits + i];
-	}
-	else {
-	    for( i=0; i<nDigits-len; i++ )
+	} else {
+	    for( i=0; i<nDigits-len; i++ )	  // Pad with spaces.
 		buffer[i] = ' ';
 	    for( i=0; i<len; i++ )
 		buffer[nDigits - len + i] = s[i];
 	}
-        drawString( buffer, p );
-   }
-   else {
+	drawString( buffer, p );
+   } else {
 	int  index = -1;
 	bool lastWasPoint = TRUE;
-        QBitArray *newPoints = new QBitArray(nDigits);
-	CHECK_PTR( newPoints );
-	newPoints->clearBit(0);
+	QBitArray newPoints(nDigits);
+	newPoints.clearBit(0);
 	for ( i=0; i<len; i++ ) {
 	    if ( s[i] == '.' ) {
-		if ( lastWasPoint ) {
-		    if ( index == nDigits - 1 )
-		        break;
+		if ( lastWasPoint ) {		// Point already set for digit?
+		    if ( index == nDigits - 1 ) // No more digits?
+			break;
 		    index++;
-		    buffer[index] = ' ';
+		    buffer[index] = ' ';	// 2 points in a row, add space
 		}
-		newPoints->setBit(index);
+		newPoints.setBit(index);	// Set decimal point
 		lastWasPoint = TRUE;
-	    }
-	    else {
+	    } else {
 		if ( index == nDigits - 1 )
 		    break;
 		index++;
 		buffer[index] = s[i];
-		newPoints->clearBit(index);
+		newPoints.clearBit(index);     // Decimal point default off
 		lastWasPoint = FALSE;
 	    }
 	}
 	if ( index < nDigits - 1 ) {
 	    for( i=index; i>=0; i-- ) {
 		buffer[nDigits - 1 - index + i] = buffer[i];
-		newPoints->setBit( nDigits - 1 - index + i,
-				   newPoints->testBit(i) );
+		newPoints.setBit( nDigits - 1 - index + i,
+				   newPoints.testBit(i) );
 	    }
 	    for( i=0; i<nDigits-index-1; i++ ) {
 		buffer[i] = ' ';
-		newPoints->clearBit(i);
+		newPoints.clearBit(i);
 	    }
 	}
-        drawString(buffer,p,newPoints);
-	delete newPoints;
+	drawString(buffer,p,&newPoints);
     }
     p.end();
 }
@@ -299,7 +315,7 @@ void QLCDNumber::display( const char *s )
 void QLCDNumber::setMode(Mode m)
 {
     if ( base == m )
-        return;
+	return;
     base = m;
     display( "" );
 }
@@ -307,7 +323,7 @@ void QLCDNumber::setMode(Mode m)
 void QLCDNumber::smallDecimalPoint(bool b)
 {
     if ( smallPoint == b )
-        return;
+	return;
     smallPoint = b;
     display( "" );
 }
@@ -322,90 +338,89 @@ void QLCDNumber::paintEvent(QPaintEvent *)
     QPainter p;
     QColor tc, bc;
 
+
     p.begin(this);
     tc = backgroundColor().dark();
     bc = backgroundColor().light();
     p.drawShadePanel( clientRect(), tc, bc, 1, 1 );
+    p.pen().setColor( black );
     if ( smallPoint )
-        drawString( digits, p, &points, FALSE );
+	drawString( digitStr, p, &points, FALSE );
     else
-        drawString( digits, p, 0, FALSE );
+	drawString( digitStr, p, 0, FALSE );
     p.end();
 }
 
-
 void QLCDNumber::drawString( const char *s, QPainter &p,
-			     QBitArray *newPoints, bool update )
+			     QBitArray *newPoints, bool newString )
 {
     QPoint  pos;
-    QPen    pen;
-    int xOffset, yOffset;
-    int xLen = digitLength();
-    xOffset = (clientSize().width() - (nDigits*xLen - xSpace()))/2;
-    if ( segmentYLength() < segmentXLength() )
-        yOffset = (clientSize().height() - 2*segmentYLength() - 5)/2;
-    else
-        yOffset = (clientSize().height() - 2*segmentXLength() - 5)/2;
-    p.setPen(pen);
+
+    int digitSpace = smallPoint ? 2 : 1;
+    int xSegLen	   = clientWidth()*5/
+			 (nDigits*(5 + digitSpace) + digitSpace);
+    int ySegLen	   = clientHeight()*5/12;
+    int segLen	   = ySegLen > xSegLen ? xSegLen : ySegLen;
+    int xAdvance   = segLen*( 5 + digitSpace )/5;
+    int xOffset	   = ( clientWidth() - nDigits*xAdvance + segLen/5 )/2;
+    int yOffset	   = ( clientHeight() - segLen*2 )/2;
+
     for ( int i=0;  i<nDigits; i++ ) {
-	pos = QPoint(xOffset + xLen*i,yOffset);
-	if ( update )
-	    drawDigit(pos,digits[i],s[i],p,pen);
+	pos = QPoint( xOffset + xAdvance*i, yOffset );
+	if ( newString )
+	    drawDigit( pos, p, segLen, s[i], digitStr[i] );
 	else
-	    drawDigit(pos,s[i],p,pen);
+	    drawDigit( pos, p, segLen, s[i]);
 	if ( newPoints ) {
 	    char newPoint = newPoints->testBit(i) ? '.' : ' ';
-	    if ( update ) {
+	    if ( newString ) {
 		char oldPoint = points.testBit(i) ? '.' : ' ';
-		drawDigit(pos,oldPoint,newPoint,p,pen);
+		drawDigit( pos, p, segLen, newPoint, oldPoint );
+	    } else {
+		drawDigit( pos, p, segLen, newPoint );
 	    }
-	    else
-		drawDigit(pos,newPoint,p,pen);
 	}
     }
-    digits = s;
-    if ( digits.length() > nDigits )
-	digits.resize( nDigits );
-    if ( newPoints )
-	points = *newPoints;
+    if ( newString ) {
+	digitStr = s;
+	if ( digitStr.length() > nDigits )
+	    digitStr.resize( nDigits );
+	if ( newPoints )
+	    points = *newPoints;
+    }
 }
 
-
-void QLCDNumber::drawDigit( const QPoint &pos, char ch, QPainter &p, QPen &pen)
+void QLCDNumber::drawDigit( const QPoint &pos, QPainter &p, int segLen,
+			    char newCh, char oldCh )
 {
-    char *segs = getSegments(ch);
-    while ( *segs != -1 )
-	drawSegment( pos, *segs++, p, pen );
-}
+/* Draws and/or erases segments to change display of a single digit
+   from oldCh to newCh */
 
-
-void QLCDNumber::drawDigit( const QPoint &pos, char oldCh, char newCh,
-			    QPainter &p, QPen &pen )
-{
-    int  updates[14][2];
-    int  nErases;
-    int  nUpdates;
+    char updates[18][2]; // Can hold 2 times number of segments, only
+			 // first 9 used if segment table is correct.
+    int	 nErases;
+    int	 nUpdates;
     char *segs;
-    int  i,j;
+    int	 i,j;
 
-    const int erase      = 0;
-    const int draw       = 1;
+    const int erase	 = 0;
+    const int draw	 = 1;
     const int leaveAlone = 2;
 
     segs = getSegments(oldCh);
     for ( nErases=0; segs[nErases] != -1; nErases++ ) {
-	updates[nErases][0] = erase;		// get segments to erase
-	updates[nErases][1] = segs[nErases];
+	updates[nErases][0] = erase;		// get segments to erase to
+	updates[nErases][1] = segs[nErases];	// remove old char.
     }
     nUpdates = nErases;
     segs = getSegments(newCh);
     for(i = 0 ; segs[i] != -1 ; i++) {
 	for ( j=0;  j<nErases; j++ )
 	    if ( segs[i] == updates[j][1] ) {	// same segment ?
-	        updates[j][0] = leaveAlone;	// yes, already on screen
+		updates[j][0] = leaveAlone;	// yes, already on screen
 		break;
 	    }
-	if ( j == nErases ) {
+	if ( j == nErases ) {			// if not already on screen
 	    updates[nUpdates][0] = draw;
 	    updates[nUpdates][1] = segs[i];
 	    nUpdates++;
@@ -413,119 +428,117 @@ void QLCDNumber::drawDigit( const QPoint &pos, char oldCh, char newCh,
     }
     for ( i=0; i<nUpdates; i++ ) {
 	if ( updates[i][0] == draw )
-	    drawSegment( pos, updates[i][1], p, pen );
+	    drawSegment( pos, updates[i][1], p, segLen );
 	if (updates[i][0] == erase)
-	    drawSegment( pos, updates[i][1], p, pen, TRUE );
+	    drawSegment( pos, updates[i][1], p, segLen, TRUE );
     }
 }
 
-void QLCDNumber::drawSegment( const QPoint &pos, int segmentNo, QPainter &p,
-			      QPen &pen, bool erase )
+void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
+			      int segLen, bool erase )
 {
     QPoint pt = pos;
     QColor lightColor,darkColor;
     if ( erase ){
-        lightColor = backgroundColor();
-        darkColor  = lightColor;
+	lightColor = backgroundColor();
+	darkColor  = lightColor;
+    } else {
+	lightColor = backgroundColor().light();
+	darkColor  = backgroundColor().dark();
     }
-    else {
-        lightColor = backgroundColor().light();
-        darkColor  = backgroundColor().dark();
-    }
-    int yLen = segmentYLength();
-    int xLen = segmentXLength();
-    if ( xLen > yLen )
-        xLen = yLen;
-    else
-        yLen = xLen;
-    int width = xLen*2/9;
+    int width = segLen/5;
 
 #define LINETO(X,Y) p.lineTo(QPoint(pt.x() + (X),pt.y() + (Y)))
-#define LIGHT pen.setColor(lightColor)
-#define DARK  pen.setColor(darkColor)
+#define LIGHT p.pen().setColor(lightColor)
+#define DARK  p.pen().setColor(darkColor)
 
     switch ( segmentNo ) {
-        case 0 :
+	case 0 :
 	    p.moveTo(pt);
 	    LIGHT;
-	    LINETO(xLen,0);
+	    LINETO(segLen - 1,0);
 	    DARK;
-	    LINETO(xLen - width,width);
+	    LINETO(segLen - width - 1,width);
 	    LINETO(width,width);
 	    LINETO(0,0);
 	    break;
-        case 1 :
+	case 1 :
 	    pt.ry()++;
 	    p.moveTo(pt);
 	    LIGHT;
 	    LINETO(width,width);
 	    DARK;
-	    LINETO(width,yLen - width/2);
-	    LINETO(0,yLen);
+	    LINETO(width,segLen - width/2 - 2);
+	    LINETO(0,segLen - 2);
 	    LIGHT;
 	    LINETO(0,0);
 	    break;
-        case 2 :
-	    pt.rx() += xLen;
+	case 2 :
+	    pt.rx() += segLen - 1;
 	    pt.ry()++;
 	    p.moveTo(pt);
 	    DARK;
-	    LINETO(0,yLen);
-	    LINETO(-width,yLen - width/2);
+	    LINETO(0,segLen - 2);
+	    LINETO(-width,segLen - width/2 - 2);
 	    LIGHT;
 	    LINETO(-width,width);
 	    LINETO(0,0);
 	    break;
-        case 3 :
-	    pt.ry() += yLen + 2;
+	case 3 :
+	    pt.ry() += segLen;
 	    p.moveTo(pt);
 	    LIGHT;
 	    LINETO(width,-width/2);
-	    LINETO(xLen - width,-width/2);
-	    LINETO(xLen,0);
+	    LINETO(segLen - width - 1,-width/2);
+	    LINETO(segLen - 1,0);
 	    DARK;
-	    LINETO(xLen - width,width/2);
-	    LINETO(width,width/2);
+	    if (width & 1) {	// Adjust for integer division error.
+		LINETO(segLen - width - 3,width/2 + 1);
+		LINETO(width + 2,width/2 + 1);
+	    } else {
+		LINETO(segLen - width - 1,width/2);
+		LINETO(width,width/2);
+	    }
 	    LINETO(0,0);
 	    break;
-        case 4 :
-	    pt.ry() += yLen + 3;
+	case 4 :
+	    pt.ry() += segLen + 1;
 	    p.moveTo(pt);
 	    LIGHT;
 	    LINETO(width,width/2);
 	    DARK;
-	    LINETO(width,yLen - width);
-	    LINETO(0,yLen);
+	    LINETO(width,segLen - width - 2);
+	    LINETO(0,segLen - 2);
 	    LIGHT;
 	    LINETO(0,0);
 	    break;
-        case 5 :
-	    pt.rx() += xLen;
-	    pt.ry() += yLen + 3;
+	case 5 :
+	    pt.rx() += segLen - 1;
+	    pt.ry() += segLen + 1;
 	    p.moveTo(pt);
 	    DARK;
-	    LINETO(0,yLen);
-	    LINETO(-width,yLen - width);
+	    LINETO(0,segLen - 2);
+	    LINETO(-width,segLen - width - 2);
 	    LIGHT;
 	    LINETO(-width,width/2);
 	    LINETO(0,0);
 	    break;
-        case 6 :
-	    pt.ry() += 2*yLen + 4;
+	case 6 :
+	    pt.ry() += 2*segLen;
 	    p.moveTo(pt);
 	    LIGHT;
 	    LINETO(width,-width);
-	    LINETO(xLen - width,-width);
-	    LINETO(xLen,0);
+	    LINETO(segLen - width - 1,-width);
+	    LINETO(segLen - 1,0);
 	    DARK;
 	    LINETO(0,0);
 	    break;
-        case 7 :
-	    if ( smallPoint )
-		pt.rx() += xLen + xSpace()/2 - width/2 + 1;
+	case 7 :
+	    if ( smallPoint )  // If smallpoint place'.' between other digits
+		pt.rx() += segLen + width/2;
 	    else
-		pt.rx() += xLen/2 + 1;
-	    pt.ry() += 2*yLen + 4;
+		pt.rx() += segLen/2;
+	    pt.ry() += 2*segLen;
 	    p.moveTo(pt);
 	    DARK;
 	    LINETO(width,0);
@@ -534,9 +547,9 @@ void QLCDNumber::drawSegment( const QPoint &pos, int segmentNo, QPainter &p,
 	    LINETO(0,-width);
 	    LINETO(0,0);
 	    break;
-        case 8 :
-	    pt.ry() += yLen/2 + width;
-	    pt.rx() += xLen/2 - width/2 + 1;
+	case 8 :
+	    pt.ry() += segLen/2 + width;
+	    pt.rx() += segLen/2 - width/2 + 1;
 	    p.moveTo(pt);
 	    DARK;
 	    LINETO(width,0);
@@ -545,9 +558,9 @@ void QLCDNumber::drawSegment( const QPoint &pos, int segmentNo, QPainter &p,
 	    LINETO(0,-width);
 	    LINETO(0,0);
 	    break;
-        case 9 :
-	    pt.ry() += 3*yLen/2 + width;
-	    pt.rx() += xLen/2 - width/2 + 1;
+	case 9 :
+	    pt.ry() += 3*segLen/2 + width;
+	    pt.rx() += segLen/2 - width/2 + 1;
 	    p.moveTo(pt);
 	    DARK;
 	    LINETO(width,0);
@@ -557,47 +570,12 @@ void QLCDNumber::drawSegment( const QPoint &pos, int segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
 #if defined(CHECK_RANGE)
-        default :
+	default :
 	    warning( "QLCDNumber::drawSegment: Internal error."
-		     "  Illegal segment id: %s\n", segmentNo );
+		     "	Illegal segment id: %s\n", segmentNo );
 #endif
     }
-    #undef LINETO
-    #undef LIGHT
-    #undef DARK
-}
-
-
-int QLCDNumber::digitLength() const
-{
-    return (clientSize().width() - 11)/nDigits;
-}
-
-int QLCDNumber::segmentXLength() const
-{
-    return digitLength() - xSpace();
-}
-
-int QLCDNumber::segmentYLength() const
-{
-    return (clientSize().height() - 16)/2;
-}
-
-int QLCDNumber::xSpace() const
-{
-    if ( smallPoint )
-        return digitLength()*4/9;
-    else
-        return digitLength()/5;
-}
-
-int QLCDNumber::xOffset() const
-{
-    return  (clientSize().width()  -
-                (nDigits*(digitLength()) - xSpace()))/2;
-}
-
-int QLCDNumber::yOffset() const
-{
-    return  (clientSize().height() - 2*segmentYLength() - 5)/2;
+#undef LINETO
+#undef LIGHT
+#undef DARK
 }
