@@ -1859,7 +1859,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 p->setFont(mi->font);
                 const int xm = macItemFrame + maxpmw + macItemHMargin;
                 p->drawText(xpos, contentRect.y(), contentRect.width() - xm - tabwidth + 1,
-                            contentRect.height(), text_flags ^ Qt::AlignRight, s, t);
+                            contentRect.height(), text_flags ^ Qt::AlignRight, s);
                 p->restore();
             }
         }
@@ -3544,7 +3544,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 }
                 text_flags ^= Qt::AlignRight;
                 p->setFont(mi->font);
-                p->drawText(xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t);
+                p->drawText(xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s);
                 p->restore();
             }
         }
