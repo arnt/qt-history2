@@ -517,10 +517,11 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 
     int width = 0;
     SIZE s;
-    const TCHAR* tc = (const TCHAR*)qt_winTchar(str.mid(pos, len),FALSE);
+    QString substr = str.mid( pos, len );
+    const TCHAR* tc = (const TCHAR*)qt_winTchar( substr, FALSE );
     int i;
     int last = 0;
-    const QChar *uc = str.unicode() + pos;
+    const QChar *uc = substr.unicode();
     for ( i = 0; i < len; i++ ) {
 	if ( uc->combiningClass() != 0 && pos + i > 0 ) {
 	    if ( i - last > 0 ) {

@@ -16010,7 +16010,8 @@ int QString::similarityWith( const QString& target ) const
 /*!
   Returns a static Windows TCHAR* from a QString, possibly adding NUL.
 
-  The lifetime of the return value is until the next call to this function.
+  The lifetime of the return value is until the next call to this function,
+  or until the last copy of str is deleted, whatever comes first.
 */
 const void* qt_winTchar(const QString& str, bool addnul)
 {
