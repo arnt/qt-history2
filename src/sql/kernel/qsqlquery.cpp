@@ -32,23 +32,17 @@ public:
     QSqlResult* sqlResult;
     QAtomic ref;
 
-    static QSqlResult* nullResult();
+    Q_GLOBAL_STATIC_WITH_ARGS(QSqlQueryPrivate, nullQueryPrivate, (0))
+    Q_GLOBAL_STATIC(QSqlNullDriver, nullDriver)
+    Q_GLOBAL_STATIC_WITH_ARGS(QSqlNullResult, nullResult, (nullDriver()))
     static QSqlQueryPrivate* shared_null();
 };
 
 QSqlQueryPrivate* QSqlQueryPrivate::shared_null()
 {
-    // ### this is not thread safe... consider using Q_GLOBAL_STATIC instead -Brad
-    static QSqlQueryPrivate null(0);
-    null.ref.ref();
-    return &null;
-}
-
-QSqlResult *QSqlQueryPrivate::nullResult()
-{
-    static QSqlNullDriver nDriver;
-    static QSqlNullResult nResult(&nDriver);
-    return &nResult;
+    QSqlQueryPrivate *null = nullQueryPrivate();
+    null->ref.ref();
+    return null;
 }
 
 /*!
