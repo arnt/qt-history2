@@ -432,7 +432,7 @@ QTableItem::~QTableItem()
   is very useful for QTables as it allows for an
   efficient indexed storage mechanism.
 
-  To distingtuish between table items of various types create custom
+  To distinguish between table items of various types create custom
   classes derived from QTableItem and make them return one unique rtti() value
   each. It is advisable to use values
   greater than 1000, preferably large random numbers, to allow for
