@@ -21,3 +21,13 @@ then run make to build the plugin. Look at the unixODBC website for
 available ODBC drivers.
 
 
+
+Notes on Windows:
+
+The ODBC header and include files should already be installed in the
+right directories. You just have to tell your linker to include the file
+"ODBC32.LIB". To do this, run qmake as follows:
+
+cd c:\qt\src\sql\src\odbc
+qmake -o Makefile "LIBS=ODBC32.LIB" odbc.pro
+nmake
