@@ -405,6 +405,7 @@ public:
     QPen toPen() const;
     QSize toSize() const;
     QPoint toPoint() const;
+    QObject* toObject( QObject* parent = 0 ) const;
     QWidget* toWidget( QWidget* parent = 0 ) const;
     QLayout* toLayout( QWidget* parent ) const;
     QLayout* toLayout( QLayout* parent, QWidget* mainwidget = 0 ) const;
@@ -581,7 +582,7 @@ class Q_EXPORT QDomMimeSourceFactory : public QMimeSourceFactory
 public:
     QDomMimeSourceFactory();
     ~QDomMimeSourceFactory();
-    
+
     virtual QPixmap pixmap( const QString& name );
     virtual QString pixmapName( const QPixmap& pix ) const;
 
@@ -591,7 +592,7 @@ public:
 private:
     QDOM_MimeSourceFactoryPrivate* d;
 };
-		       
+		
 
 Q_EXPORT QTextStream& operator<<( QTextStream&, const QDomNode& );
 

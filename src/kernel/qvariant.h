@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qvariant.h#2 $
+** $Id: //depot/qt/main/src/kernel/qvariant.h#3 $
 **
 ** Definition of QVariant class
 **
@@ -46,6 +46,7 @@ class QSize;
 class QColor;
 class QPalette;
 class QColorGroup;
+class QIconSet;
 
 /**
  * This class acts like a union. It can hold one value at the
@@ -69,6 +70,7 @@ public:
       Color,
       Palette,
       ColorGroup,
+      IconSet,
       Point,
       Image,
       Int,
@@ -100,6 +102,7 @@ public:
     QVariant( const QColor& _v );
     QVariant( const QPalette& _v );
     QVariant( const QColorGroup& _v );
+    QVariant( const QIconSet& _v );
     QVariant( int _v );
     QVariant( bool _v );
     QVariant( double _v );
@@ -122,6 +125,7 @@ public:
     void setValue( const QColor& );
     void setValue( const QPalette& );
     void setValue( const QColorGroup& );
+    void setValue( const QIconSet& );
     void setValue( int );
     void setValue( bool );
     void setValue( double );
@@ -146,6 +150,7 @@ public:
     QColor colorValue() const;
     QPalette paletteValue() const;
     QColorGroup colorgroupValue() const;
+    QIconSet iconsetValue() const;
     int intValue() const;
     bool boolValue() const;
     double doubleValue() const;

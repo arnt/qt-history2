@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qvariant.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qvariant.cpp#3 $
 **
 ** Implementation of QVariant class
 **
@@ -23,18 +23,18 @@
 **
 *****************************************************************************/
 
-#include <qstring.h>
-#include <qfont.h>
-#include <qpixmap.h>
-#include <qimage.h>
+#include "qstring.h"
+#include "qfont.h"
+#include "qpixmap.h"
+#include "qimage.h"
 // #include <qmovie.h>
-#include <qbrush.h>
-#include <qpoint.h>
-#include <qrect.h>
-#include <qsize.h>
-#include <qcolor.h>
-#include <qpalette.h>
-
+#include "qbrush.h"
+#include "qpoint.h"
+#include "qrect.h"
+#include "qsize.h"
+#include "qcolor.h"
+#include "qpalette.h"
+#include "qiconset.h"
 #include "qvariant.h"
 
 /*!
@@ -180,7 +180,7 @@ QVariant::QVariant( const QPoint& _v )
   Creates a new variant with a rect value.
 */
 QVariant::QVariant( const QRect& _v )
-{ 
+{
   typ = Empty;
   setValue( _v );
 }
@@ -216,6 +216,15 @@ QVariant::QVariant( const QPalette& _v )
   Creates a new variant with a color group value.
 */
 QVariant::QVariant( const QColorGroup& _v )
+{
+  typ = Empty;
+  setValue( _v );
+}
+
+/*!
+  Creates a new variant with an empty iconset
+*/
+QVariant::QVariant( const QIconSet& _v )
 {
   typ = Empty;
   setValue( _v );
@@ -304,6 +313,9 @@ QVariant& QVariant::operator= ( const QVariant& p )
       break;
     case ColorGroup:
       val.ptr = new QColorGroup( p.colorgroupValue() );
+      break;
+    case IconSet:
+      val.ptr = new QIconSet( p.iconsetValue() );
       break;
     case Int:
       val.i = p.intValue();
@@ -500,6 +512,16 @@ void QVariant::setValue( const QColorGroup& _value )
 /*!
   Changes the value of this variant. The previous value is dropped.
 */
+void QVariant::setValue( const QIconSet& _value )
+{
+  clear();
+  typ = IconSet;
+  val.ptr = new QIconSet( _value );
+}
+
+/*!
+  Changes the value of this variant. The previous value is dropped.
+*/
 void QVariant::setValue( int _value )
 {
   clear();
@@ -584,6 +606,9 @@ void QVariant::clear()
     case ColorGroup:
       delete (QColorGroup*)val.ptr;
       break;
+    case IconSet:
+      delete (QIconSet*)val.ptr;
+      break;
     default:
       ASSERT( 0 );
     }
@@ -614,6 +639,7 @@ void QVariant::initTypeNameMap()
     typ_to_name[(int)Color] = QString::fromLatin1("QColor");
     typ_to_name[(int)Palette] = QString::fromLatin1("QPalette");
     typ_to_name[(int)ColorGroup] = QString::fromLatin1("QColorGroup");
+    typ_to_name[(int)IconSet] = QString::fromLatin1("QIconSet");
     typ_to_name[(int)Int] = QString::fromLatin1("int");
     typ_to_name[(int)Bool] = QString::fromLatin1("bool");
     typ_to_name[(int)Double] = QString::fromLatin1("double");
@@ -702,6 +728,9 @@ void QVariant::load( QDataStream& s )
     case ColorGroup:
       { QColorGroup x; s >> x; setValue( x ); }
       break;
+    case IconSet:
+      { QPixmap x; s >> x; setValue( QIconSet( x ) ); }
+      break;
     case Int:
       { int x; s >> x; setValue( x ); };
       break;
@@ -772,6 +801,9 @@ void QVariant::save( QDataStream& s ) const
       break;
     case ColorGroup:
       s << colorgroupValue();
+      break;
+    case IconSet:
+      s << iconsetValue().pixmap();
       break;
     case Int:
       s << intValue();
@@ -871,7 +903,7 @@ QStringList QVariant::stringListValue() const
   or typeName() first wether the variant holds the correct
   data type.
 */
-QValueList<int> QVariant::intListValue() const 
+QValueList<int> QVariant::intListValue() const
 {
   if ( typ != IntList )
     return QValueList<int>();
@@ -1030,6 +1062,20 @@ QColorGroup QVariant::colorgroupValue() const
   if ( typ != ColorGroup )
     return QColorGroup();
   return *((QColorGroup*)val.ptr);
+}
+
+/*!
+  Returns the value stored in the variant. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the variant holds the correct
+  data type.
+*/
+QIconSet QVariant::iconsetValue() const
+{
+  if ( typ != IconSet )
+    return QIconSet();
+  return *((QIconSet*)val.ptr);
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#223 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#224 $
 **
 ** Implementation of QObject class
 **
@@ -34,6 +34,7 @@
 #ifdef QT_BUILDER
 #include "qvariant.h"
 #include "qpixmap.h"
+#include "qiconset.h"
 #include "qdom.h"
 #endif // QT_BUILDER
 
@@ -2066,6 +2067,9 @@ bool QObject::setProperty( const char *_name, const QVariant& _value )
   typedef void (QObject::*ProtoColorGroup)( QColorGroup );
   typedef void (QObject::*RProtoColorGroup)( const QColorGroup& );
 
+  typedef void (QObject::*ProtoIconSet)( QIconSet );
+  typedef void (QObject::*RProtoIconSet)( const QIconSet& );
+
   QMetaProperty* p = queryMetaObject()->property( _name, TRUE );
   if ( !p )
   {
@@ -2283,6 +2287,24 @@ bool QObject::setProperty( const char *_name, const QVariant& _value )
       ASSERT( 0 );
     return TRUE;
   }
+  else if ( _value.type() == QVariant::IconSet )
+  {
+    if ( p->setSpec == 'c' )
+    {
+      ProtoIconSet m;
+      m = *((ProtoIconSet*)&p->set);
+      (this->*m)( _value.iconsetValue() );
+    }
+    else if ( p->setSpec == 'r' )
+    {
+      RProtoIconSet m;
+      m = *((RProtoIconSet*)&p->set);
+      (this->*m)( _value.iconsetValue() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
   else if ( _value.type() == QVariant::Int )
   {
     if ( p->setSpec == 'c' )
@@ -2398,6 +2420,10 @@ bool QObject::property( const char *_name, QVariant* _value ) const
   typedef QColorGroup (QObject::*ProtoColorGroup)() const;
   typedef const QColorGroup* (QObject::*PProtoColorGroup)() const;
   typedef const QColorGroup& (QObject::*RProtoColorGroup)() const;
+
+  typedef QIconSet (QObject::*ProtoIconSet)() const;
+  typedef const QIconSet* (QObject::*PProtoIconSet)() const;
+  typedef const QIconSet& (QObject::*RProtoIconSet)() const;
 
   QMetaProperty* p = queryMetaObject()->property( _name, TRUE );
   if ( !p )
@@ -2702,6 +2728,34 @@ bool QObject::property( const char *_name, QVariant* _value ) const
       ASSERT( 0 );
     return TRUE;
   }
+  else if ( strcmp( p->type, "QIconSet" ) == 0 )
+  {
+    if ( p->getSpec == 'c' )
+    {
+      ProtoIconSet m;
+      m = *((ProtoIconSet*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'r' )
+    {
+      RProtoIconSet m;
+      m = *((RProtoIconSet*)&p->get);
+      _value->setValue( (this->*m)() );
+    }
+    else if ( p->getSpec == 'p' )
+    {
+      PProtoIconSet m;
+      m = *((PProtoIconSet*)&p->get);
+      const QIconSet* p = (this->*m)();
+      if ( p )
+	_value->setValue( *p );
+      else
+	_value->setValue( QIconSet() );
+    }
+    else
+      ASSERT( 0 );
+    return TRUE;
+  }
   else if ( strcmp( p->type, "int" ) == 0 )
   {
     if ( p->getSpec == 'c' )
@@ -2855,11 +2909,11 @@ bool QObject::setConfiguration( const QDomElement& element )
 bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
 {
     QString name( p->name );
-    
+
     QVariant::Type type = QVariant::String;
     if ( !p->enumType )
 	type = QVariant::nameToType( p->type );
-    
+
     QVariant prop = element.property( name, type );
     return setProperty( name, prop );
 }
@@ -2891,7 +2945,13 @@ QDomElement QObject::configuration( QDomDocument& doc, bool properties ) const
 	    }
 	}
     }
-
+    else
+    {
+	QString x;
+	x.setNum( (long)this );
+	e.setAttribute( "__ptr", x );
+    }
+    
     return e;
 }
 

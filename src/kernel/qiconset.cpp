@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#31 $
 **
 ** Implementation of QIconSet class
 **
@@ -179,7 +179,13 @@ QIconSet &QIconSet::operator=( const QIconSet &p )
     }
 }
 
-
+/*!
+  Returns TRUE if the iconset is empty.
+*/
+bool QIconSet::isNull() const
+{
+    return ( d == 0 );
+}
 
 /*!  Set this icon set to display \a pm, which is assumed to be in
   size \a s.  If \a s is \c Automatic, QIconSet guesses the size from
@@ -442,6 +448,9 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 
 bool QIconSet::isGenerated( Size s, Mode m ) const
 {
+    if ( !d )
+	return FALSE;
+    
     if ( s == Large ) {
 	if ( m == Disabled )
 	    return d->largeDisabled.generated || !d->largeDisabled.pm;
@@ -469,6 +478,9 @@ bool QIconSet::isGenerated( Size s, Mode m ) const
 
 QPixmap QIconSet::pixmap() const
 {
+    if ( !d )
+	return QPixmap();
+    
     return d->defpm;
 }
 
@@ -481,7 +493,13 @@ QPixmap QIconSet::pixmap() const
 
 void QIconSet::detach()
 {
-    if ( !d || d->count == 1 )
+    if ( !d )
+    {
+	d = new QIconSetPrivate;
+	return;
+    }
+    
+    if ( d->count == 1 )
 	return;
 
     QIconSetPrivate * p = new QIconSetPrivate;

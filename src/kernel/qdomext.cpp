@@ -3,7 +3,14 @@
 #include "qmetaobject.h"
 #include "qdom.h"
 #include "qpixmap.h"
+#include "qiconset.h"
 
+/*!
+  A convenience function for creating widgets from a XML
+  description.
+  
+  \sa toObject()
+*/
 QWidget* QDomElement::toWidget( QWidget* _parent ) const
 {
   // QWidget* w = new QWidget( _parent );
@@ -50,6 +57,46 @@ QWidget* QDomElement::toWidget( QWidget* _parent ) const
   bool res = w->setConfiguration( *this );
 
   return (QWidget*)w;
+}
+
+QObject* QDomElement::toObject( QObject* _parent ) const
+{
+  if ( isNull() )
+    return 0;
+
+  if ( tagName() == "QDL" )
+    return firstChild().toElement().toObject( _parent );
+
+  QMetaObject* m = QMetaObjectInit::metaObject( tagName() );
+  if ( !m )
+  {
+    qDebug("Dont know class %s", tagName().ascii() );
+    return 0;
+  }
+
+  QObjectFactory f = m->factory();
+  if ( !f )
+  {
+    qDebug("Class %s has no factory", tagName().ascii() );
+    return 0;
+  }
+
+  QObject* w = (*f)( _parent );
+  if ( !w )
+  {
+    qDebug("Factory for class %s returned 0", tagName().ascii() );
+    return 0;
+  }
+
+  /* if ( !w->setConfiguration( *this ) )
+  {
+    delete w;
+    return 0;
+  }
+  */
+  bool res = w->setConfiguration( *this );
+
+  return w;
 }
 
 QLayout* QDomElement::toLayout( QWidget* _parent ) const
@@ -275,13 +322,15 @@ QVariant QDomElement::property( const QString& name, QVariant::Type type ) const
       {
 	QDomMimeSourceFactory* f = ownerDocument().mimeSourceFactory();
 	return QVariant( f->pixmap( attribute( name ) ) );
-	/* const QMimeSource* m = f->data( attribute( name ) );
-	if ( m && m->provides( "image/x-xpm" ) )
-	  return QVariant( QPixmap( m->encodedData( "image/x-xpm" ) ) );
-	if ( m && m->provides( "image/png" ) )
-	  return QVariant( QPixmap( m->encodedData( "image/png" ) ) );
-	if ( m && m->provides( "image/jpeg" ) )
-	  return QVariant( QPixmap( m->encodedData( "image/jpeg" ) ) ); */
+      }
+    }
+    break;
+  case QVariant::IconSet:
+    {
+      if ( hasAttribute( name ) )
+      {
+	QDomMimeSourceFactory* f = ownerDocument().mimeSourceFactory();
+	return QVariant( QIconSet( f->pixmap( attribute( name ) ) ) );
       }
     }
     break;
@@ -387,6 +436,16 @@ void QDomElement::setProperty( const QString& name, const QVariant& prop )
 	if ( !prop.pixmapValue().isNull() )
 	{
 	    QString n = ownerDocument().mimeSourceFactory()->pixmapName( prop.pixmapValue() );
+	    ASSERT( !n.isEmpty() );
+	    setAttribute( name, n );
+	}
+    }
+    break;
+  case QVariant::IconSet:
+    {
+	if ( !prop.iconsetValue().isNull() )
+	{
+	    QString n = ownerDocument().mimeSourceFactory()->pixmapName( prop.iconsetValue().pixmap() );
 	    ASSERT( !n.isEmpty() );
 	    setAttribute( name, n );
 	}
