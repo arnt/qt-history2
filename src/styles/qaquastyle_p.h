@@ -132,31 +132,28 @@ static inline bool qt_mac_update_palette(QPalette &pal, bool do_init)
 {
     static QPalette last_pal;
     if(do_init) {
-	pal.setColor( QPalette::Inactive, QColorGroup::ButtonText, QColor( 148,148,148 ));
-	pal.setColor( QPalette::Disabled, QColorGroup::ButtonText, QColor( 148,148,148 ));
+	last_pal = pal;
+	last_pal.setColor( QPalette::Inactive, QColorGroup::ButtonText, QColor( 148,148,148 ));
+	last_pal.setColor( QPalette::Disabled, QColorGroup::ButtonText, QColor( 148,148,148 ));
 #ifndef Q_WS_MAC
-	pal.setColor(QPalette::Active, QColorGroup::Highlight, QColor(0xC2, 0xC2, 0xC2));
-	pal.setColor(QPalette::Inactive, QColorGroup::Highlight, 
-			 mac_pal.color(QPalette::Active, QColorGroup::Highlight).light());
-	pal.setColor(QPalette::Active, QColorGroup::Shadow, Qt::gray);
-	pal.setColor(QPalette::Inactive, QColorGroup::Shadow, Qt::lightGray);
+	last_pal.setColor(QPalette::Active, QColorGroup::Highlight, QColor(0xC2, 0xC2, 0xC2));
+	last_pal.setColor(QPalette::Inactive, QColorGroup::Highlight, 
+			  last_pal.color(QPalette::Active, QColorGroup::Highlight).light());
+	last_pal.setColor(QPalette::Active, QColorGroup::Shadow, Qt::gray);
+	last_pal.setColor(QPalette::Inactive, QColorGroup::Shadow, Qt::lightGray);
+	last_pal.setColor(QColorGroup::HighlightedText, Qt::black);
 #ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
-	pal.setColor(QPalette::Active, QColorGroup::Text, Qt::black);
-	pal.setColor(QPalette::Active, QColorGroup::Foreground, Qt::black);
-	pal.setColor(QPalette::Active, QColorGroup::HighlightedText, Qt::black);
-	pal.setColor(QPalette::Inactive, QColorGroup::Text, Qt::black);
-	pal.setColor(QPalette::Inactive, QColorGroup::Foreground, Qt::black);
-	pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, Qt::black);
-#else
-	pal.setColor(QColorGroup::HighlightedText, Qt::black);
+	last_pal.setColor(QColorGroup::Text, Qt::black);
+	last_pal.setColor(QColorGroup::Foreground, Qt::black);
 #endif
 #endif
     }
+    QPalette new_pal = last_pal;
 #ifdef Q_WS_MAC
     RGBColor c;
 #define BIND_CLR(mac, palette, group) \
        GetThemeBrushAsColor(mac, 32, true, &c ); \
-       pal.setBrush(palette, group, QColor(c.red / 256, c.green / 256, c.blue / 256));
+       new_pal.setBrush(palette, group, QColor(c.red / 256, c.green / 256, c.blue / 256));
     //these came from carbon mailing list waiting for addition of
     //kThemeBrush[Primary|Secondary]HighlightColor in Appearance.h
     BIND_CLR(-3, QPalette::Active, QColorGroup::Highlight);
@@ -173,9 +170,9 @@ static inline bool qt_mac_update_palette(QPalette &pal, bool do_init)
 #endif
 #undef BIND_CLR
 #endif
-    if(do_init || last_pal != pal) {
-	pal.setDisabled(pal.inactive());
-	last_pal = pal;
+    if(do_init || new_pal != last_pal) {
+	new_pal.setDisabled(new_pal.inactive());
+	pal = last_pal = new_pal;
 	return TRUE;
     }
     return FALSE;
