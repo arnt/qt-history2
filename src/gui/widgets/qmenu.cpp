@@ -1326,6 +1326,12 @@ void Q4MenuBarPrivate::updateActions()
     int q_width = q->width()-(q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)*2);
     if(!itemsDirty && itemsWidth == q_width)
         return;
+#ifdef Q_WS_MAC
+    if(d->mac_menubar) {//nothing to see here folks, move along..
+        itemsDirty = 0;
+        return;
+    }
+#endif
     actionItems = calcActionRects(q_width);
     itemsWidth = q_width;
 #ifndef QT_NO_ACCEL
