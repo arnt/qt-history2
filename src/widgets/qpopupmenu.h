@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#52 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#53 $
 **
 ** Definition of QPopupMenu class
 **
@@ -123,6 +123,8 @@ private:
 
     friend class QMenuData;
     friend class QMenuBar;
+    
+    int internalCellHeight( QMenuItem* );
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

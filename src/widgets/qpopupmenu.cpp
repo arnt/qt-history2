@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#192 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#193 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -746,7 +746,6 @@ void QPopupMenu::updateSize()
 {
     int height	     = 0;
     int max_width    = 10;
-    int max_pm_width = 0;
     GUIStyle gs	  = style();
     QFontMetrics fm = fontMetrics();
 #if 0
@@ -757,26 +756,21 @@ void QPopupMenu::updateSize()
     bool hasSubMenu = FALSE;
     int cellh = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
     int tab_width = 0;
-    bool hasTextAndPixmapItem = FALSE;
+    maxPMWidth = 0;
+    bool oneHasIconSet = FALSE;
     while ( (mi=it.current()) ) {
+	bool thisHasIconSet = mi->iconSet() != 0;
+	oneHasIconSet |= thisHasIconSet;
 	int w = 0;
-	int itemHeight = 0;
+	int itemHeight = internalCellHeight( mi );
 	if ( mi->popup() )
 	    hasSubMenu = TRUE;
-	if ( mi->isSeparator() )
-	    itemHeight = motifSepHeight;
-	else if ( mi->pixmap() ) {
-	    itemHeight = mi->pixmap()->height() + 2*motifItemFrame;
-	    if ( mi->text().isNull() ) {
-		w = mi->pixmap()->width();	// pixmap only
-	    } else {
-		if ( gs == MotifStyle )
-		    itemHeight += 2;		// Room for check rectangle
-		hasTextAndPixmapItem = TRUE; // has text, w will be set below
-		if ( mi->pixmap()->width() > max_pm_width )
-		    max_pm_width = mi->pixmap()->width();
-	    }
+	if ( mi->isSeparator() ) {
 	}
+	else if ( mi->pixmap() ) {
+	    w = mi->pixmap()->width();	// pixmap only
+	}
+	
 	if ( !mi->text().isNull() && !mi->isSeparator() ) {
 	    if ( itemHeight < cellh )
 		itemHeight = cellh;
@@ -791,6 +785,12 @@ void QPopupMenu::updateSize()
 		w += fm.width( s );
 	    }
 	}
+	
+	if ( thisHasIconSet ) {
+	    maxPMWidth = QMAX( maxPMWidth,
+			       mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() );
+	}
+
 	height += itemHeight;
 #if defined(CHECK_NULL)
 	if ( mi->text().isNull() && !mi->pixmap() && !mi->isSeparator() )
@@ -801,15 +801,9 @@ void QPopupMenu::updateSize()
 	    max_width = w;
 	++it;
     }
-    if ( hasTextAndPixmapItem ) {
-	hasDoubleItem = TRUE;
-	maxPMWidth = max_pm_width;
-    } else {
-	hasDoubleItem = FALSE;
-	maxPMWidth    = 0;
-    }
+
     if ( gs == MotifStyle ) {
-	setCheckableFlag( isCheckable() || hasTextAndPixmapItem );
+	setCheckableFlag( isCheckable() || oneHasIconSet );
     }
     int extra_width = 0;
     if ( tab_width ) {
@@ -997,26 +991,33 @@ void QPopupMenu::setEnabled( bool enable )
 int QPopupMenu::cellHeight( int row )
 {
     QMenuItem *mi = mitems->at( row );
+    return internalCellHeight( mi );
+}
+
+/*!\internal
+ */
+int QPopupMenu::internalCellHeight( QMenuItem* mi)
+{
     int h = 0;
     if ( mi->isSeparator() ) {			// separator height
 	h = motifSepHeight;
     } else if ( mi->pixmap() ) {		// pixmap height
 	h = mi->pixmap()->height() + 2*motifItemFrame;
-	if ( !mi->text().isNull() ) {			// pixmap and text
-	    if ( style() == MotifStyle )
-		h += 2;				// Room for check rectangle
-	    QFontMetrics fm = fontMetrics();
-	    int h2 = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
-	    if ( h2 > h )
-		h = h2;
-	}
     } else {					// text height
 	QFontMetrics fm = fontMetrics();
 	h = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
     }
+    if ( !mi->isSeparator() && mi->iconSet() != 0 ) {
+	h = QMAX( h, mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height() + 2*motifItemFrame );
+	if ( style() == MotifStyle )
+ 	    h += 2;				// Room for check rectangle
+	QFontMetrics fm = fontMetrics();
+	int h2 = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
+	if ( h2 > h )
+	    h = h2;
+    }
     return h;
 }
-
 
 /*! \reimp */
 
@@ -1069,7 +1070,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 		qDrawShadePanel( p, cm, cm, cellw-2*cm, cellh-2*cm,
 				 g, TRUE, 1, &g.fillMid() );
 	    } else if ( gs == WindowsStyle ||
-			mi->pixmap() && !mi->text().isNull() ) {
+			mi->iconSet() ) {
 		qDrawShadePanel( p, cm, cm, cellw-2*cm, cellh-2*cm,
 				 g, TRUE, 1, &g.fillButton() );
 	    }
@@ -1077,10 +1078,15 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
  	    p->fillRect(cm, cm, cellw - 2*cm, cellh - 2*cm, g.fillButton());
 	}		
 
-	if ( !mi->text().isNull() && mi->pixmap() ) {		// draw pixmap
-	    QPixmap *pixmap = mi->pixmap();
-	    int pixw = pixmap->width();
-	    int pixh = pixmap->height();
+	if ( mi->iconSet() ) {		// draw iconset
+	    QIconSet::Mode mode = dis?QIconSet::Disabled:QIconSet::Normal;
+	    if ( style() == MotifStyle )
+		mode = QIconSet::Normal; // no disabled icons in Motif 
+	    if (act && !dis )
+		mode = QIconSet::Active;
+	    QPixmap pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
+	    int pixw = pixmap.width();
+	    int pixh = pixmap.height();
 	    if ( gs == MotifStyle ) {
 		if ( act && !dis ) {			// active item frame
 		    if (style().defaultFrameWidth() > 1)
@@ -1101,28 +1107,8 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    QRect cr( cm, cm, cellw-2*cm, cellh-2*cm );
 	    QRect pmr( 0, 0, pixw, pixh );
 	    pmr.moveCenter( cr.center() );
-	    if ( style() == WindowsStyle && dis ) {
-		QString k;
-		k.sprintf( "$qt-drawitem-%x", pixmap->serialNumber() );
-		QPixmap * mask = QPixmapCache::find(k);
-		bool del = FALSE;
-		if ( !mask ) {
-		    if ( pixmap->mask() )
-			mask = new QPixmap( *pixmap->mask() );
-		    else
-			mask = new QPixmap( pixmap->createHeuristicMask() );
-		    mask->setMask( *((QBitmap*)mask) );
-		    del = !QPixmapCache::insert( k, mask );
-		}
-		p->setPen( itemg.light() );
-		p->drawPixmap( pmr.left()+1, pmr.top()+1, *mask );
-		p->setPen( itemg.text() );
-		p->drawPixmap( pmr.topLeft(), *mask );
-		if ( del ) delete mask;
-	    } else {
-		p->setPen( itemg.text() );
-		p->drawPixmap( pmr.topLeft(), *pixmap );
-	    }
+	    p->setPen( itemg.text() );
+	    p->drawPixmap( pmr.topLeft(), pixmap );
 	    if ( gs == WindowsStyle ) {
 		QBrush fill = act? g.fillHighlight(): g.fillButton();
 		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh, fill);

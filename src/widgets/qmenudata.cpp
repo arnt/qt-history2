@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#71 $
 **
 ** Implementation of QMenuData class
 **
@@ -55,6 +55,7 @@ QMenuItem::QMenuItem()
     is_separator = is_checked = FALSE;
     is_enabled	 = TRUE;
     is_dirty	 = TRUE;
+    iconset_data	 = 0;
     pixmap_data	 = 0;
     popup_menu	 = 0;
     accel_key	 = 0;
@@ -167,13 +168,14 @@ uint QMenuData::count() const
 }
 
 
-/*!
-  Internal function that insert a menu item.  Called by all insertItem()
+
+    /*!
+  Internal function that insert a menu item.  Called by all insert()
   functions.
 */
 
-int QMenuData::insertAny( const QString &text, const QPixmap *pixmap,
-			  QPopupMenu *popup, int id, int index )
+int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
+			  QPopupMenu *popup, const QIconSet* iconset, int id, int index )
 {
     if ( index > (int)mitems->count() ) {
 #if defined(CHECK_RANGE)
@@ -183,47 +185,24 @@ int QMenuData::insertAny( const QString &text, const QPixmap *pixmap,
     }
     if ( index < 0 )				// append
 	index = mitems->count();
-    if ( id < -1 )				// -2, -3 etc.
+    if ( id < 0 )				// -2, -3 etc.
 	id = get_seq_id();
-    
-    /*
-    if ( popup && popup->parentMenu ){		// popup already in use
-#if defined(CHECK_STATE)
-	warning( "QMenuData::insertItem: "
-		 "popup already in use" );
-#endif
-  	return 0;
-    }
-    */
+
     register QMenuItem *mi = new QMenuItem;
     CHECK_PTR( mi );
-    mi->ident = id == -1 ? index : id;
+    mi->ident = id;
     if ( text == 0 && pixmap == 0 && popup == 0 ) {
 	mi->is_separator = TRUE;		// separator
 	mi->ident	 = -1;
     } else {
-	mi->text_data = text;
+	mi->text_data = text?*text:QString::null;
 	if ( pixmap )
 	    mi->pixmap_data = new QPixmap( *pixmap );
 	mi->popup_menu = popup;
-	if ( popup ) {
+	if ( popup )
 	    popup->selfItem = mi;
-	    /*	    
-	    menuInsPopup( popup );
-	    if ( isPopupMenu ) {		// circular popups?
-		QPopupMenu *p = (QPopupMenu*)this;
-		while ( p && p != popup )
-		    p = (QPopupMenu*)p->parentMenu;
-		if ( p ) {
-#if defined(CHECK_STATE)
-		    warning( "QMenuData::insertItem: "
-			     "Circular popup menu ignored" );
-#endif
-		    return 0;
-		}
-	    }
-	    */
-	}
+	if ( iconset )
+	    mi->iconset_data = new QIconSet( *iconset );
     }
 
     mitems->insert( index, mi );
@@ -273,11 +252,10 @@ void QMenuData::setAllDirty( bool dirty )
 }
 
 
-/*!
-  Inserts a menu item with a text and an optional accelerator key, and
-  connects it to an object/slot.
 
-  Returns a unique menu item identifier (negative integer \<= -2).
+/*!
+  Inserts a menu item with a text, an accelerator key, an id and an
+  optional index and connects it to an object/slot.
 
   Example:
   \code
@@ -291,90 +269,10 @@ void QMenuData::setAllDirty( bool dirty )
   In the example above, pressing CTRL+N or selecting "open" from the
   menu activates the myView->open() function.
 
-  Note that accelerators only work for QPopupMenu items that live in a
-  menu bar. For stand-alone popup menus, use an independent QAccel
-  object.
-
-  \warning Be careful when passing a literal 0 to insertItem(), as
-	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
-
-  \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
-  qkeycode.h
-*/
-
-int QMenuData::insertItem( const QString &text,
-			   const QObject *receiver, const char* member,
-			   int accel )
-{
-    int id = insertAny( text, 0, 0, -2, -1 );
-    connectItem( id, receiver, member );
-    if ( accel )
-	setAccel( accel, id );
-    return id;
-}
-
-/*!
-  Inserts a menu item with a pixmap and an optional accelerator key, and
-  connects it to an object/slot.
-
-  Returns a unique menu item identifier (negative integer \<= -2).
-
-  \warning Be careful when passing a literal 0 to insertItem(), as
-	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
-
-  \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
-  qkeycode.h
-*/
-
-int QMenuData::insertItem( const QPixmap &pixmap,
-			   const QObject *receiver, const char* member,
-			   int accel )
-{
-    int id = insertAny( 0, &pixmap, 0, -2, -1 );
-    connectItem( id, receiver, member );
-    if ( accel )
-	setAccel( accel, id );
-    return id;
-}
-
-/*!
-  Inserts a menu item with a pixmap, a text and an optional accelerator
-  key, and connects it to an object/slot. The pixmap will be displayed to
-  the left of the text in the item.
-
-  Returns a unique menu item identifier (negative integer \<= -2).
-
-  \warning Be careful when passing a literal 0 to insertItem(), as
-	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
-
-  \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
-  qkeycode.h
-*/
-
-int QMenuData::insertItem( const QPixmap &pixmap, const QString &text,
-			   const QObject *receiver, const char* member,
-			   int accel )
-{
-    int id = insertAny( text, &pixmap, 0, -2, -1 );
-    connectItem( id, receiver, member );
-    if ( accel )
-	setAccel( accel, id );
-    return id;
-}
-
-/*!
-  Inserts a menu item with a text, an accelerator key, an id and an
-  optional index and connects it to an object/slot.
-
   The menu item is assigned the identifier \a id or an automatically
-  generated identifier.	 It works as follows: If \a id \>= 0, this
-  identifier is assigned.  If \a id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).	If \a id is
-  any other negative integer, for instance -2, a unique identifier
-  (negative integer \<= -2) is generated.
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
 
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
@@ -395,7 +293,44 @@ int QMenuData::insertItem( const QString &text,
 			   const QObject *receiver, const char* member,
 			   int accel, int id, int index )
 {
-    int actualID = insertAny( text, 0, 0, id, index );
+    int actualID = insertAny( &text, 0, 0, 0, id, index );
+    connectItem( actualID, receiver, member );
+    if ( accel )
+	setAccel( accel, actualID );
+    return actualID;
+}
+
+/*!
+  Inserts a menu item with an icon, a text, an accelerator key, an id
+  and an optional index and connects it to an object/slot. The icon
+  will be displayed to the left of the text in the item.
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
+
+  Note that accelerators only work for QPopupMenu items that live in a
+  menu bar. For stand-alone popup menus, use an independent QAccel
+  object.
+
+  \warning Be careful when passing a literal 0 to insertItem(), as
+	some C++ compilers choose the wrong overloaded function.
+	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
+
+  \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
+  qkeycode.h
+*/
+
+int QMenuData::insertItem( const QIconSet& icon,
+			   const QString &text,
+			   const QObject *receiver, const char* member,
+			   int accel, int id, int index )
+{
+    int actualID = insertAny( &text, 0, 0, &icon, id, index );
     connectItem( actualID, receiver, member );
     if ( accel )
 	setAccel( accel, actualID );
@@ -407,11 +342,9 @@ int QMenuData::insertItem( const QString &text,
   optional index and connects it to an object/slot.
 
   The menu item is assigned the identifier \a id or an automatically
-  generated identifier.	 It works as follows: If \a id \>= 0, this
-  identifier is assigned.  If \a id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).	If \a id is
-  any other negative integer, for instance -2, a unique identifier
-  (negative integer \<= -2) is generated.
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
 
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
@@ -432,23 +365,23 @@ int QMenuData::insertItem( const QPixmap &pixmap,
 			   const QObject *receiver, const char* member,
 			   int accel, int id, int index )
 {
-    int actualID = insertAny( 0, &pixmap, 0, id, index );
+    int actualID = insertAny( 0, &pixmap, 0, 0, id, index );
     connectItem( actualID, receiver, member );
     if ( accel )
 	setAccel( accel, actualID );
     return actualID;
 }
 
+
 /*!
-  Inserts a menu item with a pixmap, a text, an accelerator key, an id and
-  an optional index and connects it to an object/slot.
+  Inserts a menu item with an icon, a pixmap, an accelerator key, an id
+  and an optional index and connects it to an object/slot. The icon
+  will be displayed to the left of the pixmap in the item.
 
   The menu item is assigned the identifier \a id or an automatically
-  generated identifier.	 It works as follows: If \a id \>= 0, this
-  identifier is assigned.  If \a id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).	If \a id is
-  any other negative integer, for instance -2, a unique identifier
-  (negative integer \<= -2) is generated.
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
 
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
@@ -465,26 +398,26 @@ int QMenuData::insertItem( const QPixmap &pixmap,
   qkeycode.h
 */
 
-int QMenuData::insertItem( const QPixmap &pixmap, const QString &text,
+int QMenuData::insertItem( const QIconSet& icon,
+			   const QPixmap &pixmap,
 			   const QObject *receiver, const char* member,
 			   int accel, int id, int index )
 {
-    int actualID = insertAny( text, &pixmap, 0, id, index );
+    int actualID = insertAny( 0, &pixmap, 0, &icon, id, index );
     connectItem( actualID, receiver, member );
     if ( accel )
 	setAccel( accel, actualID );
     return actualID;
 }
 
+
 /*!
   Inserts a menu item with a text.  Returns the menu item identifier.
 
   The menu item is assigned the identifier \a id or an automatically
-  generated identifier.	 It works as follows: If \a id \>= 0, this
-  identifier is assigned.  If \a id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).	If \a id is
-  any other negative integer, for instance -2, a unique identifier
-  (negative integer \<= -2) is generated.
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
 
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
@@ -498,24 +431,47 @@ int QMenuData::insertItem( const QPixmap &pixmap, const QString &text,
 
 int QMenuData::insertItem( const QString &text, int id, int index )
 {
-    return insertAny( text, 0, 0, id, index );
+    return insertAny( &text, 0, 0, 0, id, index );
+}
+
+/*!
+  Inserts a menu item with an icon and a text.  The icon will be
+  displayed to the left of the text in the item. Returns the menu
+  item identifier.
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
+
+  \warning Be careful when passing a literal 0 to insertItem(), as
+	some C++ compilers choose the wrong overloaded function.
+	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
+
+  \sa removeItem(), changeItem(), setAccel(), connectItem()
+*/
+
+int QMenuData::insertItem( const QIconSet& icon,
+			   const QString &text, int id, int index )
+{
+    return insertAny( &text, 0, 0, &icon, id, index );
 }
 
 /*!
   Inserts a menu item with a text and a sub menu.
   Returns the menu item identifier.
 
-  The \a popup must be deleted by the programmer.  It is not deleted when
-  this menu item is removed or when the menu is deleted.  Note that all
-  popups are automatically deleted when the application terminates. (The
-  QApplication destructor destroys all remaining widgets.)
+  The \a popup must be deleted by the programmer or by its parent
+  widget.  It is not deleted when this menu item is removed or when
+  the menu is deleted.  
 
   The menu item is assigned the identifier \a id or an automatically
-  generated identifier.	 It works as follows: If \a id \>= 0, this
-  identifier is assigned.  If \a id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).	If \a id is
-  any other negative integer, for instance -2, a unique identifier
-  (negative integer \<= -2) is generated.
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
 
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
@@ -530,18 +486,47 @@ int QMenuData::insertItem( const QString &text, int id, int index )
 int QMenuData::insertItem( const QString &text, QPopupMenu *popup,
 			   int id, int index )
 {
-    return insertAny( text, 0, popup, id, index );
+    return insertAny( &text, 0, popup, 0, id, index );
+}
+
+/*!
+  Inserts a menu item with an icon, a text and a sub menu. The icon
+  will be displayed to the left of the text in the item. Returns the
+  menu item identifier.
+
+  The \a popup must be deleted by the programmer or by its parent
+  widget.  It is not deleted when this menu item is removed or when
+  the menu is deleted.  
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
+
+  \warning Be careful when passing a literal 0 to insertItem(), as
+	some C++ compilers choose the wrong overloaded function.
+	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
+
+  \sa removeItem(), changeItem(), setAccel(), connectItem()
+*/
+
+int QMenuData::insertItem( const QIconSet& icon,
+			   const QString &text, QPopupMenu *popup,
+			   int id, int index )
+{
+    return insertAny( &text, 0, popup, &icon, id, index );
 }
 
 /*!
   Inserts a menu item with a pixmap.  Returns the menu item identifier.
 
   The menu item is assigned the identifier \a id or an automatically
-  generated identifier.	 It works as follows: If \a id \>= 0, this
-  identifier is assigned.  If \a id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).	If \a id is
-  any other negative integer, for instance -2, a unique identifier
-  (negative integer \<= -2) is generated.
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
 
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
@@ -555,24 +540,49 @@ int QMenuData::insertItem( const QString &text, QPopupMenu *popup,
 
 int QMenuData::insertItem( const QPixmap &pixmap, int id, int index )
 {
-    return insertAny( 0, &pixmap, 0, id, index );
+    return insertAny( 0, &pixmap, 0, 0, id, index );
 }
 
 /*!
-  Inserts a menu item with a pixmap and a sub menu.
-  Returns the menu item identifier.
-
-  The \a popup must be deleted by the programmer.  It is not deleted when
-  this menu item is removed or when the menu is deleted.  Note that all
-  popups are automatically deleted when the application terminates. (The
-  QApplication destructor destroys all remaining widgets.)
+  Inserts a menu item with an icon and a pixmap.  The icon will be
+  displayed to the left of the pixmap in the item. Returns the menu
+  item identifier.
 
   The menu item is assigned the identifier \a id or an automatically
-  generated identifier.	 It works as follows: If \a id \>= 0, this
-  identifier is assigned.  If \a id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).	If \a id is
-  any other negative integer, for instance -2, a unique identifier
-  (negative integer \<= -2) is generated.
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
+
+  \warning Be careful when passing a literal 0 to insertItem(), as
+	some C++ compilers choose the wrong overloaded function.
+	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
+
+  \sa removeItem(), changeItem(), setAccel(), connectItem()
+*/
+
+int QMenuData::insertItem( const QIconSet& icon,
+			   const QPixmap &pixmap, int id, int index )
+{
+    return insertAny( 0, &pixmap, 0, &icon, id, index );
+}
+
+
+/*!
+  Inserts a menu item with a pixmap and a sub menu. The icon
+  will be displayed to the left of the pixmap in the item.  Returns
+  the menu item identifier.
+
+  The \a popup must be deleted by the programmer or by its parent
+  widget.  It is not deleted when this menu item is removed or when
+  the menu is deleted.  
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
 
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
@@ -587,19 +597,23 @@ int QMenuData::insertItem( const QPixmap &pixmap, int id, int index )
 int QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 			   int id, int index )
 {
-    return insertAny( 0, &pixmap, popup, id, index );
+    return insertAny( 0, &pixmap, popup, 0, id, index );
 }
 
+
 /*!
-  Inserts a menu item with a pixmap and a text.  Returns the menu item
-  identifier.
+  Inserts a menu item with an icon, a pixmap and a sub menu. The icon
+  will be displayed to the left of the pixmap in the item.  Returns
+  the menu item identifier.
+
+  The \a popup must be deleted by the programmer or by its parent
+  widget.  It is not deleted when this menu item is removed or when
+  the menu is deleted.  
 
   The menu item is assigned the identifier \a id or an automatically
-  generated identifier.	 It works as follows: If \a id \>= 0, this
-  identifier is assigned.  If \a id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).	If \a id is
-  any other negative integer, for instance -2, a unique identifier
-  (negative integer \<= -2) is generated.
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
 
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
@@ -611,43 +625,14 @@ int QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
-int QMenuData::insertItem( const QPixmap &pixmap, const QString &text,
+int QMenuData::insertItem( const QIconSet& icon,
+			   const QPixmap &pixmap, QPopupMenu *popup,
 			   int id, int index )
 {
-    return insertAny( text, &pixmap, 0, id, index );
+    return insertAny( 0, &pixmap, popup, &icon, id, index );
 }
 
-/*!
-  Inserts a menu item with a pixmap, a text and a sub menu.
-  Returns the menu item identifier.
 
-  The \a popup must be deleted by the programmer.  It is not deleted when
-  this menu item is removed or when the menu is deleted.  Note that all
-  popups are automatically deleted when the application terminates. (The
-  QApplication destructor destroys all remaining widgets.)
-
-  The menu item is assigned the identifier \a id or an automatically
-  generated identifier.	 It works as follows: If \a id \>= 0, this
-  identifier is assigned.  If \a id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).	If \a id is
-  any other negative integer, for instance -2, a unique identifier
-  (negative integer \<= -2) is generated.
-
-  The \a index specifies the position in the menu.  The menu item is
-  appended at the end of the list if \a index is negative.
-
-  \warning Be careful when passing a literal 0 to insertItem(), as
-	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
-
-  \sa removeItem(), changeItem(), setAccel(), connectItem()
-*/
-
-int QMenuData::insertItem( const QPixmap &pixmap, const QString &text,
-			   QPopupMenu *popup, int id, int index )
-{
-    return insertAny( text, &pixmap, popup, id, index );
-}
 
 /*!
   Inserts a separator at position \a index.
@@ -662,7 +647,7 @@ int QMenuData::insertItem( const QPixmap &pixmap, const QString &text,
 
 void QMenuData::insertSeparator( int index )
 {
-    insertAny( 0, 0, 0, 0, index );
+    insertAny( 0, 0, 0, 0, 0, index );
 }
 
 /*!
@@ -755,7 +740,7 @@ int QMenuData::accel( int id ) const
 
   You can also specify the accelerator in the insertItem() function.
 
-  \sa accel(), insertItem(), QAccel, qkeycode.h
+  \sa setAccel(), accel(), insertItem(), QAccel, qkeycode.h
 */
 
 void QMenuData::setAccel( int key, int id )
@@ -770,21 +755,33 @@ void QMenuData::setAccel( int key, int id )
 
 
 /*!
+  Returns the icon set that has been set for menu item \a id, or 0 if no icon
+  set has been set.
+  \sa changeItem(), text(), pixmap()
+*/
+
+QIconSet* QMenuData::iconSet( int id ) const
+{
+    QMenuItem *mi = findItem( id );
+    return mi ? mi->iconSet() : 0;
+}
+
+/*!
   Returns the text that has been set for menu item \a id, or 0 if no text
   has been set.
-  \sa changeItem(), pixmap()
+  \sa changeItem(), pixmap(), iconSet()
 */
 
 QString QMenuData::text( int id ) const
 {
     QMenuItem *mi = findItem( id );
-    return mi ? mi->text() : QString::null;
+    return mi->text();
 }
 
 /*!
   Returns the pixmap that has been set for menu item \a id, or 0 if no pixmap
   has been set.
-  \sa changeItem(), text()
+  \sa changeItem(), text(), iconSet()
 */
 
 QPixmap *QMenuData::pixmap( int id ) const
@@ -794,7 +791,8 @@ QPixmap *QMenuData::pixmap( int id ) const
 }
 
 /*!
-  Changes the text of the menu item \a id.
+  Changes the text of the menu item \a id. If the item has an icon,
+  the icon remains unchanged.  
   \sa text()
 */
 
@@ -815,7 +813,8 @@ void QMenuData::changeItem( const QString &text, int id )
 }
 
 /*!
-  Changes the pixmap of the menu item \a id.
+  Changes the pixmap of the menu item \a id. If the item has an icon,
+  the icon remains unchanged.  
   \sa pixmap()
 */
 
@@ -830,7 +829,7 @@ void QMenuData::changeItem( const QPixmap &pixmap, int id )
 	    i->height() == pixmap.height() &&
 	    !mi->text();
 	if ( !mi->text_data.isNull() )		// delete text
-	    mi->text_data.resize( 0 );
+	    mi->text_data = QString::null;
 	mi->pixmap_data = new QPixmap( pixmap );
 	delete i; // old mi->pixmap_data, could be &pixmap
 	if ( fast_refresh )
@@ -840,32 +839,48 @@ void QMenuData::changeItem( const QPixmap &pixmap, int id )
     }
 }
 
-
 /*!
-  Changes the pixmap and text of the menu item \a id.
+  Changes the icon of the menu item \a id.
   \sa pixmap()
 */
 
-void QMenuData::changeItem( const QPixmap &pixmap, const QString &text, int id )
+void QMenuData::changeItemIconSet( const QIconSet &icon, int id )
 {
     QMenuData *parent;
     QMenuItem *mi = findItem( id, &parent );
     if ( mi ) {					// item found
-	QPixmap *i = mi->pixmap_data;
-	bool fast_refresh = i != 0 &&
-	    i->width() == pixmap.width() &&
-	    i->height() == pixmap.height();
-	if ( mi->text_data != text ) {
-	    fast_refresh = FALSE;
-	    mi->text_data = text;
-	}
-	mi->pixmap_data = new QPixmap( pixmap );
-	delete i; // old mi->pixmap_data, could be &pixmap
+	register QIconSet *i = mi->iconset_data;
+	bool fast_refresh = i != 0;
+	mi->iconset_data = new QIconSet( icon );
+	delete i; // old mi->iconset_data, could be &icon
 	if ( fast_refresh )
 	    parent->updateItem( id );
 	else
 	    parent->menuContentsChanged();
     }
+}
+
+
+/*!
+  Changes the icon and text of the menu item \a id.
+  \sa pixmap()
+*/
+
+void QMenuData::changeItem( const QIconSet &icon, const QString &text, int id )
+{
+    changeItem(text, id);
+    changeItemIconSet(icon, id);
+}
+
+/*!
+  Changes the icon and pixmap of the menu item \a id.
+  \sa pixmap()
+*/
+
+void QMenuData::changeItem( const QIconSet &icon, const QPixmap &pixmap, int id )
+{
+    changeItem(pixmap, id);
+    changeItemIconSet(icon, id);
 }
 
 
