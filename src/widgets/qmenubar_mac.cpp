@@ -313,7 +313,7 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 			CopyProcessName(&psn, &cfstr);
 			text += " " + cfstring2qstring(cfstr);
 			CFRelease(cfstr);
-		    } else {
+		    } else if(qApp->argc()) {
 			QString prog = qApp->argv()[0];
 			text += " " + prog.section('/', -1, -1);;
 		    }

@@ -111,7 +111,7 @@ extern QWidgetList *qt_modal_stack;		// stack of modal widgets
 extern bool qt_mac_in_drag; //qdnd_mac.cpp
 extern bool qt_resolve_symlinks; // from qapplication.cpp
 extern bool qt_tab_all_widgets; // from qapplication.cpp
-static char    *appName;                        // application name
+static char    *appName = NULL;                        // application name
 bool qt_scrollbar_jump_to_pos = FALSE;
 QGuardedPtr<QWidget> qt_button_down;		// widget got last button-down
 extern bool qt_tryAccelEvent(QWidget*, QKeyEvent*); // def in qaccel.cpp
@@ -262,8 +262,10 @@ static short qt_mac_find_window(int x, int y, QWidget **w=NULL)
     if(w) {
 	if(wp && !unhandled_dialogs.contains(wp)) {
 	    *w = QWidget::find((WId)wp);
+#if 0
 	    if(!*w)
 		qWarning("Qt: qt_mac_find_window: Couldn't find %d",(int)wp);
+#endif
 	} else {
 	    *w = NULL;
 	}
@@ -694,56 +696,55 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
     }
 
     // Get command line params
-    int argc = *argcptr;
-    int i, j = 1;
-    for(i=1; i < argc; i++) {
-	if(argv[i] && *argv[i] != '-') {
-	    argv[j++] = argv[i];
-	    continue;
-	}
-	QByteArray arg( argv[i] );
+    if(int argc = *argcptr) {
+	int i, j = 1;
+	for(i=1; i < argc; i++) {
+	    if(argv[i] && *argv[i] != '-') {
+		argv[j++] = argv[i];
+		continue;
+	    }
+	    QByteArray arg(argv[i]);
 #if defined(QT_DEBUG)
-	if(arg == "-nograb")
-	    appNoGrab = !appNoGrab;
-	else
+	    if(arg == "-nograb")
+		appNoGrab = !appNoGrab;
+	    else
 #endif // QT_DEBUG
-	    if(arg == "-inputstyle") {
-		if(++i < argc) {
-		    QByteArray s = QByteArray(argv[i]).lower();
-		    if(s == "onthespot")
-			qt_mac_input_spot = QT_MAC_ONTHESPOT;
-		    else if(s == "offthespot")
-			qt_mac_input_spot = QT_MAC_OFFTHESPOT;
+		if(arg == "-inputstyle") {
+		    if(++i < argc) {
+			QByteArray s = QByteArray(argv[i]).lower();
+			if(s == "onthespot")
+			    qt_mac_input_spot = QT_MAC_ONTHESPOT;
+			else if(s == "offthespot")
+			    qt_mac_input_spot = QT_MAC_OFFTHESPOT;
+			else
+			    qDebug("Qt: internal: Misunderstood input style '%s'", s.constData());
+		    }
+		} else
+#ifdef Q_WS_MACX
+		    //just ignore it, this seems to be passed from the finder (no clue what it does) FIXME
+		    if(arg.left(5) == "-psn_");
 		    else
-			qDebug("Qt: internal: Misunderstood input style '%s'", s.constData());
-		}
-	    } else
-
-#ifdef Q_WS_MACX
-	//just ignore it, this seems to be passed from the finder (no clue what it does) FIXME
-	    if(arg.left(5) == "-psn_");
-	else
 #endif
-	    argv[j++] = argv[i];
-    }
-    *argcptr = j;
-
-    // Set application name
-    char *p = strrchr(argv[0], '/');
-    appName = p ? p + 1 : argv[0];
+			argv[j++] = argv[i];
+	}
+	*argcptr = j;
+	// Set application name
+	char *p = strrchr(argv[0], '/');
+	appName = p ? p + 1 : argv[0];
 #ifdef Q_WS_MACX
-    if(qt_is_gui_used && argv[0] && *argv[0] != '/')
-	qWarning("Qt: QApplication: Warning argv[0] == '%s' is relative.\n"
-		 "In order to dispatch events correctly Mac OS X may "
-		 "require applications to be run with the *full* path to the "
-		 "executable.", argv[0]);
-
-    //special hack to change working directory to a resource fork when running from finder
-    if(p && !QDir::isRelativePath(p) && QDir::currentDirPath() == "/") {
-	QString path = argv[0];
-	int rfork = path.findRev(QString("/") + appName + ".app/");
-	if(rfork != -1)
-	    QDir::setCurrent(path.left(rfork+1));
+	if(qt_is_gui_used && argv[0] && *argv[0] != '/')
+	    qWarning("Qt: QApplication: Warning argv[0] == '%s' is relative.\n"
+		     "In order to dispatch events correctly Mac OS X may "
+		     "require applications to be run with the *full* path to the "
+		     "executable.", argv[0]);
+		  
+	//special hack to change working directory to a resource fork when running from finder
+	if(p && !QDir::isRelativePath(p) && QDir::currentDirPath() == "/") {
+	    QString path = argv[0];
+	    int rfork = path.findRev(QString("/") + appName + ".app/");
+	    if(rfork != -1)
+		QDir::setCurrent(path.left(rfork+1));
+	}
     }
 #endif
 
@@ -752,7 +753,8 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 #endif
     QMacMime::initialize();
 
-    qApp->setName(appName);
+    if(appName)
+	qApp->setName(appName);
     if(qt_is_gui_used) {
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	QMenuBar::initialize();

@@ -526,7 +526,7 @@ static void qt_fix_tooltips()
 void QApplication::process_cmdline( int* argcptr, char ** argv )
 {
     // process platform-indep command line
-    if ( !qt_is_gui_used )
+    if ( !qt_is_gui_used || !*argcptr)
 	return;
 
     int argc = *argcptr;
@@ -576,13 +576,15 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 #endif
     }
 
+    if(j >= argc) {
 #ifdef Q_WS_MACX
-    static char* empty = "\0";
-    argv[j] = empty;
+	static char* empty = "\0";
+	argv[j] = empty;
 #else
-    argv[j] = 0;
+	argv[j] = 0;
 #endif
-    *argcptr = j;
+	*argcptr = j;
+    }
 }
 
 /*!
