@@ -938,6 +938,7 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
 
     int p = d->viewIndex(parent);
     d->close(p, false);
+    d->reopen = p;
 
     int slot = metaObject()->indexOfSlot("reopen()");
     QApplication::postEvent(this, new QMetaCallEvent(slot, this));
