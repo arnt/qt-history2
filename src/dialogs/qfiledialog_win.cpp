@@ -36,6 +36,7 @@
 #include "qt_windows.h"
 #include "qregexp.h"
 #include "qbuffer.h"
+#include "qdir.h"
 #include "qstringlist.h"
 
 #include "shlobj.h"
@@ -253,7 +254,7 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
     }
 
     if ( !fi.dir().exists() )
-    *initialDirectory = tr("%HOMEPATH%");
+	*initialDirectory = QDir::homeDirPath();
 
     QString title = caption;
     if ( title.isNull() )
@@ -320,7 +321,7 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
     }
 
     if ( !fi.dir().exists() )
-    *initialDirectory = tr("%HOMEPATH%");
+	*initialDirectory = QDir::homeDirPath();
 
     QString title = caption;
     if ( title.isNull() )
@@ -388,11 +389,11 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
     }
 
     if ( !fi.exists() )
-    *initialDirectory = tr("%HOMEPATH%");
+	*initialDirectory = QDir::homeDirPath();
 
     QString title = caption;
     if ( title.isNull() )
-	title = tr("Open");
+	title = tr( "Open ");
 
     DWORD selFilIdx;
 
@@ -528,7 +529,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	parent = qApp->mainWidget();
     QString title = caption;
     if ( title.isNull() )
-	title = tr("Select A Directory");
+	title = tr( "Select a Directory" );
 #if defined(UNICODE)
     if ( qt_winver & WV_NT_based ) {
 	QString initDir = QDir::convertSeparators(initialDirectory);
