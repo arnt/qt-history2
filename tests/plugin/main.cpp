@@ -3,10 +3,18 @@
 
 QApplicationInterface* PlugApplication::requestApplicationInterface( const QCString& request )
 {
-    if ( request == "QActionInterface" )
+    if ( request == "PlugMainWindowInterface" )
 	return mwIface ? mwIface : ( mwIface = new PlugMainWindowInterface );
     else
 	return QApplication::requestApplicationInterface( request );
+}
+
+QStrList PlugApplication::queryInterfaceList() const
+{
+    QStrList list;
+    list.append( "PlugMainWindowInterface" );
+
+    return list;
 }
 
 int main( int argc, char** argv )
