@@ -1057,18 +1057,13 @@ void Dlg2Ui::matchColumnInfo( const QDomElement& columnInfo )
     if ( !checkTagName(columnInfo, QString("ColumnInfo")) )
 	return;
 
-    int spacing = 0;
-    int stretch = 1;
-
     QDomNode n = columnInfo.firstChild();
     while ( !n.isNull() ) {
 	QString tagName = n.toElement().tagName();
 	QVariant val = getValue( n.toElement(), tagName, QString("integer") );
 
 	if ( tagName == QString("Spacing") ) {
-	    spacing = val.toInt();
 	} else if ( tagName == QString("Stretch") ) {
-	    stretch = val.toInt();
 	} else {
 	    syntaxError();
 	}
@@ -1093,7 +1088,6 @@ void Dlg2Ui::matchGridLayout( const QDomElement& gridLayout )
     int autoBorder = 5;
     QString name;
     QString menu;
-    int boxStretch = 1;
     bool needsWidget = needsQLayoutWidget( gridLayout );
     bool opened = FALSE;
 
@@ -1124,7 +1118,6 @@ void Dlg2Ui::matchGridLayout( const QDomElement& gridLayout )
 	    } else if ( tagName == QString("Menu") ) {
 		menu = val;
 	    } else if ( tagName == QString("BoxStretch") ) {
-		boxStretch = val.toInt();
 	    } else {
 		syntaxError();
 	    }
