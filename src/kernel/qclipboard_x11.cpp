@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#2 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -12,17 +12,167 @@
 
 #include "qclipbrd.h"
 #include "qapp.h"
+#include "qpixmap.h"
+#include "qdatetm.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#1 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#2 $")
 
+
+/*****************************************************************************
+  Internal QClipboard functions for X11.
+ *****************************************************************************/
 
 extern Time qt_x_clipboardtime;			// def. in qapp_x11.cpp
 
+static QWidget *clipboardOwner()
+{
+    static QWidget *fakeOwner = 0;
+    if ( fakeOwner )				// fakeOwner already created
+	return fakeOwner;
+    if ( qApp->mainWidget() )			// there's a main widget
+	fakeOwner = qApp->mainWidget();
+    else					// otherwise create fake widget
+	fakeOwner = new QWidget( 0, "internalClipboardOwner" );
+    return fakeOwner;
+}
+
+enum ClipboardFormat { CFNothing, CFText, CFPixmap };
+
+static ClipboardFormat getFormat( const char *format )
+{
+    if ( strcmp(format,"TEXT") == 0 )
+	 return CFText;
+    else if ( strcmp(format,"PIXMAP") == 0 )
+	return CFPixmap;
+    return CFNothing;
+}
+
+class QClipboardData
+{
+public:
+    QClipboardData();
+   ~QClipboardData();
+
+    ClipboardFormat	format() const;
+
+    void	       *data( const char *format ) const;
+    void		setData( const char *format, void * );
+
+    char	       *text() const;
+    void		setText( const char * );
+    QPixmap	       *pixmap() const;
+    void		setPixmap( QPixmap * );
+
+    void		clear();
+
+private:
+    ClipboardFormat	f;
+    QString		t;
+    QPixmap	       *p;
+
+};
+
+QClipboardData::QClipboardData()
+{
+    f = CFNothing;
+    p = 0;
+}
+
+QClipboardData::~QClipboardData()
+{
+    delete p;
+}
+
+inline ClipboardFormat QClipboardData::format() const
+{
+    return f;
+}
+
+inline char *QClipboardData::text() const
+{
+    return t.data();
+}
+
+inline void QClipboardData::setText( const char *text )
+{
+    t = text;
+    f = CFText;
+}
+
+inline QPixmap *QClipboardData::pixmap() const
+{
+    return p;
+}
+
+inline void QClipboardData::setPixmap( QPixmap *pixmap )
+{
+    if ( p )
+	delete p;
+    p = new QPixmap( *pixmap );
+    f = CFPixmap;
+}
+
+void *QClipboardData::data( const char *format ) const
+{
+    switch ( getFormat(format) ) {
+	case CFText:
+	    return text();
+	case CFPixmap:
+	    return pixmap();
+	default:
+	    return 0;
+    }
+}
+
+void QClipboardData::setData( const char *format, void *data )
+{
+    switch ( getFormat(format) ) {
+	case CFText:
+	    setText( (const char *)data );
+	    break;
+	case CFPixmap:
+	    setPixmap( (QPixmap *)data );
+	    break;
+	default:
+	    break;
+    }
+}
+
+void QClipboardData::clear()
+{
+    t.resize( 0 );
+    delete p;
+    p = 0;
+    f = CFNothing;
+}
+
+
+static QClipboardData *internalCbData;
+
+static void cleanupClipboardData()
+{
+    delete internalCbData;
+}
+
+static QClipboardData *clipboardData()
+{	
+    if ( internalCbData == 0 ) {
+	internalCbData = new QClipboardData;
+	CHECK_PTR( internalCbData );
+	qAddPostRoutine( cleanupClipboardData );
+    }
+    return internalCbData;
+}
+
+
+/*****************************************************************************
+  QClipboard member functions for X11.
+ *****************************************************************************/
 
 /*----------------------------------------------------------------------------
   Clears the clipboard contents.
@@ -33,76 +183,204 @@ void QClipboard::clear()
 }
 
 
+/*----------------------------------------------------------------------------
+  Returns a pointer to the clipboard data, where \e format is the clipboard
+  format.
+
+  It is generally recommended to use text() or pixmap() instead.
+ ----------------------------------------------------------------------------*/
+
 void *QClipboard::data( const char *format ) const
 {
-    bool text = FALSE;
-    if ( strcmp(format,"TEXT") == 0 ) {
-	text = TRUE;
-    } else if ( strcmp(format,"PIXMAP") ) {
+    ClipboardFormat f = getFormat( format );
+    switch ( f ) {
+	case CFText:
+	    break;				// text is ok
+	case CFPixmap:
 #if defined(CHECK_RANGE)
-	warning( "QClipboard::data: PIXMAP format not supported" );
+	    warning( "QClipboard::data: PIXMAP format not supported" );
 #endif
-	return 0;
-    } else {
+	    return 0;
+	default:
 #if defined(CHECK_RANGE)
-	warning( "QClipboard::data: Unknown format: %s", format );
+	    warning( "QClipboard::data: Unknown format: %s", format );
 #endif
+	    return 0;
+    }
+
+    QClipboardData *d = clipboardData();
+    QWidget *owner = clipboardOwner();
+    Window   win   = owner->id();
+    Display *dpy   = owner->x11Display();
+
+    if ( d->format() != CFNothing ) {		// we own the clipboard
+	ASSERT( XGetSelectionOwner(dpy,XA_PRIMARY) == win );
+	return d->data(format);
+    }
+
+    if ( XGetSelectionOwner(dpy,XA_PRIMARY) == None )
 	return 0;
+
+    Atom prop = XInternAtom( dpy, "QT_SELECTION", FALSE );
+    debug( "prop = %x", (int)prop );
+    XConvertSelection( dpy, XA_PRIMARY, XA_STRING, prop, win, CurrentTime );
+
+    XFlush( dpy );
+
+    // Now wait for the SelectionNotify event
+    XEvent xevent;
+
+    QTime started = QTime::currentTime();
+    while ( TRUE ) {
+	if ( XCheckTypedWindowEvent(dpy,win,SelectionNotify,&xevent) )
+	    break;
+	QTime now = QTime::currentTime();
+	if ( started > now )			// crossed midnight
+	    started = now;
+	if ( started.msecsTo(started) > 5000 ) {
+	    debug( "selection timeout" );
+	    return 0;
+	}
     }
-    
-    Display *dpy = qt_xdisplay();
-    if ( XGetSelectionOwner(dpy,XA_PRIMARY) == None ) {
-	
-    }
+
+    debug( "processing SelectionNotify" );
+
+    prop = xevent.xselection.property;
+    win  = xevent.xselection.requestor;
+
+    static QByteArray buf( 256 );
+    Atom	actual_type;
+    ulong	nitems, bytes_after, nread=0;
+    int		actual_format;
+    uchar      *back;
+
+    do {
+	int r = XGetWindowProperty( dpy, win, prop,
+				    nread/4, 1024, TRUE,
+				    AnyPropertyType, &actual_type,
+				    &actual_format, &nitems,
+				    &bytes_after, &back );
+	if ( r != Success )
+	    debug( "XGetWindowProperty: no success" );
+	if ( actual_type != XA_STRING ) {
+	    debug( "XGetWindowProperty: actual type not XA_STRING" );
+	    char *n = XGetAtomName( dpy, actual_type );
+	    debug( "  the type is %s", n );
+	    XFree( n );
+	}
+	if ( r != Success || actual_type != XA_STRING )
+	    break;
+	while ( nread + nitems >= buf.size() )
+	    buf.resize( buf.size()*2 );
+	memcpy( buf.data()+nread, back, nitems );
+	nread += nitems;
+	XFree( back );
+    } while ( bytes_after > 0 );
+
+    buf[nread] = 0;
+
+    debug( "clipboard read %d bytes", (int)nread );
+
+    return buf.data();
 }
+
+
+/*----------------------------------------------------------------------------
+  Copies text into the clipboard, where \e format is the clipboard format
+  string and \e data is the data to be copied.
+
+  It is generally recommended to use setText() or setPixmap() instead.
+ ----------------------------------------------------------------------------*/
 
 void QClipboard::setData( const char *format, void *data )
 {
-    bool text = FALSE;
-#if defined(DEBUG)
-    ASSERT( data != 0 );
-#endif
-    if ( strcmp(format,"TEXT") == 0 ) {
-	text = TRUE;
-    } else if ( strcmp(format,"PIXMAP") ) {
+    ClipboardFormat f = getFormat( format );
+    switch ( f ) {
+	case CFText:
+	    break;
+	case CFPixmap:
 #if defined(CHECK_RANGE)
-	warning( "QClipboard::setData: PIXMAP format not supported" );
+	    warning( "QClipboard::setData: PIXMAP format not supported" );
 #endif
-	return;
-    } else {
+	    return;
+	default:
 #if defined(CHECK_RANGE)
-	warning( "QClipboard::setData: Unknown format: %s", format );
+	    warning( "QClipboard::setData: Unknown format: %s", format );
 #endif
+	    return;
+    }
+
+    QClipboardData *d = clipboardData();
+    QWidget *owner = clipboardOwner();
+    Window   win   = owner->id();
+    Display *dpy   = owner->x11Display();
+
+    if ( d->format() != CFNothing ) {		// we own the clipboard
+	ASSERT( XGetSelectionOwner(dpy,XA_PRIMARY) == win );
+	d->setData( format, data );
 	return;
     }
 
-    Display *dpy = qt_xdisplay();
-    QWidget *owner = qApp->mainWidget();
-    if ( !owner ) {
-#if defined(CHECK_NULL)
-	warning( "QClipboard::setData: A main widget is required" );
-#endif
-	return;
-    }
+    d->clear();
+    d->setData( format, data );
 
-    WId wid = owner->id();
-    XSetSelectionOwner( dpy, XA_PRIMARY, wid, qt_x_clipboardtime );
-    if ( XGetSelectionOwner(dpy,XA_PRIMARY) != wid ) {
+    XSetSelectionOwner( dpy, XA_PRIMARY, win, qt_x_clipboardtime );
+    if ( XGetSelectionOwner(dpy,XA_PRIMARY) != win ) {
 #if defined(DEBUG)
 	warning( "QClipboard::setData: Cannot set X11 selection owner" );
 #endif
 	return;
     }
-
-    
 }
 
 
 /*----------------------------------------------------------------------------
-  Handles event specifically for the clipboard.
+  Handles clipboard events (very platform-specific).
  ----------------------------------------------------------------------------*/
 
 bool QClipboard::event( QEvent *e )
 {
+    if ( e->type() != Event_Clipboard )
+	return QObject::event( e );
+    XEvent *xevent = (XEvent *)Q_CUSTOM_EVENT(e)->data();
+    char *s = "OTHER";
+    Display *dpy = qt_xdisplay();
+    QClipboardData *d = clipboardData();
+
+    switch ( xevent->type ) {
+
+	case SelectionClear:			// new selection owner
+	    clipboardData()->clear();
+	    s = "SelectionClear";
+	    break;
+
+	case SelectionNotify:
+	    clipboardData()->clear();
+	    s = "SelectionNotify";
+	    break;
+
+	case SelectionRequest: {		// someone wants our data
+	    XSelectionRequestEvent *req = &xevent->xselectionrequest;
+	    XEvent evt;
+	    evt.xselection.type	= SelectionNotify;
+	    evt.xselection.display	= req->display;
+	    evt.xselection.requestor	= req->requestor;
+	    evt.xselection.selection	= req->selection;
+	    evt.xselection.target	= req->target;
+	    evt.xselection.property	= None;
+	    evt.xselection.time	= req->time;
+	    if ( req->target == XA_STRING ) {
+		XChangeProperty ( dpy, req->requestor, req->property,
+				  XA_STRING, 8,
+				  PropModeReplace,
+				  (uchar *)d->text(), strlen(d->text()) );
+		evt.xselection.property	= req->property;
+	    }
+	    XSendEvent( dpy, req->requestor, False, 0, &evt );
+	    s = "SelectionRequest";
+	    }
+	    break;
+    }
+    debug( "QClipboard::event: %s", s );
     return TRUE;
 }
