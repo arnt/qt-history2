@@ -95,19 +95,7 @@ class QFileDialogPrivate : public QDialogPrivate
 {
     Q_DECLARE_PUBLIC(QFileDialog)
 public:
-    QFileDialogPrivate()
-        : QDialogPrivate(),
-          model(0), listView(0), treeView(0),
-          viewMode(QFileDialog::Detail),
-          fileMode(QFileDialog::AnyFile),
-          acceptMode(QFileDialog::AcceptOpen),
-          frame(0), lookIn(0), fileName(0), fileType(0),
-          openAction(0), renameAction(0), deleteAction(0),
-          reloadAction(0), sortByNameAction(0), sortBySizeAction(0),
-          sortByDateAction(0), unsortedAction(0), showHiddenAction(0),
-          acceptButton(0), cancelButton(0),
-          back(0), toParent(0), newFolder(0), detailMode(0), listMode(0)
-        {}
+    QFileDialogPrivate();
 
     // private slots
     void backClicked();
@@ -160,12 +148,14 @@ public:
         { return QDir::convertSeparators(path); }
     inline QString toInternal(const QString &path) const
         {
-            QString n(path);
 #if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
+            QString n(path);
             for (int i = 0; i < (int)n.length(); ++i)
                 if (n[i] == '\\') n[i] = '/';
-#endif
             return n;
+#else // the compile should optimize away this
+            return path;
+#endif
         }
 
     // data
@@ -801,6 +791,44 @@ void QFileDialog::accept()
 }
 
 /*!
+  \internal
+
+  Private object  constructor.
+*/
+
+QFileDialogPrivate::QFileDialogPrivate()
+    : QDialogPrivate(),
+      model(0),
+      listView(0),
+      treeView(0),
+      viewMode(QFileDialog::Detail),
+      fileMode(QFileDialog::AnyFile),
+      acceptMode(QFileDialog::AcceptOpen),
+      frame(0),
+      lookIn(0),
+      fileName(0),
+      fileType(0),
+      openAction(0),
+      renameAction(0),
+      deleteAction(0),
+      reloadAction(0),
+      sortByNameAction(0),
+      sortBySizeAction(0),
+      sortByDateAction(0),
+      unsortedAction(0),
+      showHiddenAction(0),
+      acceptButton(0),
+      cancelButton(0),
+      back(0),
+      toParent(0),
+      newFolder(0),
+      detailMode(0),
+      listMode(0)
+{
+
+}
+
+/*!
     \internal
 
     Navigates to the last directory viewed in the dialog.
@@ -959,11 +987,12 @@ void QFileDialogPrivate::deletePressed(const QModelIndex &index)
     from \a index to \a current.
 */
 
-void QFileDialogPrivate::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+void QFileDialogPrivate::currentChanged(const QModelIndex &current,
+                                        const QModelIndex &previous)
 {
     Q_UNUSED(previous);
     if (!fileName->hasFocus() && current.isValid()) {
-        QString text = model->data(current, QAbstractItemModel::DisplayRole).toString();
+        QString text = model->data(current).toString();
         fileName->setText(text);
     }
 }
@@ -1000,7 +1029,7 @@ void QFileDialogPrivate::fileNameChanged(const QString &text)
     // did we find a valid autocompletion ?
     if (result.isValid()) {
         selections->setCurrentIndex(result, QItemSelectionModel::SelectCurrent);
-        QString completed = model->data(result, QAbstractItemModel::DisplayRole).toString();
+        QString completed = model->data(result).toString();
         if (info.isAbsolute()) { // if we are doing completion in another directory, add the path first
             if (info.path() == "/")
                 completed = "/" + completed;
