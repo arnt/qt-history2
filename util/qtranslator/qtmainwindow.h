@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.h#3 $
+** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.h#4 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -22,6 +22,7 @@ class QTMessageView;
 
 class QListView;
 class QListViewItem;
+class QSplitter;
 
 /****************************************************************************
  *
@@ -47,12 +48,14 @@ protected:
     void saveMessages( const QString &filename, int col, const QString &scope );
     void saveScope();
 
+    QSplitter *splitter;
     QListView *scopes;
     QTMessageView *messages;
     QListViewItem *oldCurrent;
 
     QTPreferences *preferences;
-
+    bool save;
+    
 protected slots:
     void fileNew();
     void fileOpen();
@@ -72,7 +75,7 @@ protected slots:
     QString getMessageID( QTextStream &t, QString &line, QStringList &out );
     QString getMessageStr( QTextStream &t, QString &line );
     QString parseItem( QTextStream &t, QString &line, QString type, QStringList *lst = 0L );
-    
+
 };
 
 #endif

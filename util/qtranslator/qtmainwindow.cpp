@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.cpp#5 $
+** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.cpp#6 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -37,11 +37,13 @@
  ****************************************************************************/
 
 QTMainWindow::QTMainWindow( const char *name )
-    : QMainWindow( 0L, name ), oldCurrent( 0L ),
-      preferences( new QTPreferences )
+    : QMainWindow( 0L, name ), splitter( 0L ), 
+      oldCurrent( 0L ), preferences( new QTPreferences ),
+      save( FALSE )
 {
     setupMenu();
     setupCanvas();
+    setCaption( tr( "QTranslator [%1]" ).arg( tr( "No Project File" ) ) );
 }
 
 QTMainWindow::~QTMainWindow()
@@ -102,22 +104,35 @@ void QTMainWindow::setupMenu()
 
 void QTMainWindow::setupCanvas()
 {
-    QSplitter *splitter = new QSplitter( this );
-
+    bool setCentral = FALSE;
+    if ( !splitter ) {
+        splitter = new QSplitter( this );
+        setCentral = TRUE;
+    } else {
+        if ( scopes )
+            delete scopes;
+        if ( messages )
+            delete messages;
+    }
+        
+        
     scopes = new QListView( splitter );
     scopes->addColumn( tr( "Scope            " ) );
-
+    scopes->show();
+    
     messages = new QTMessageView( splitter );
     messages->addColumn( tr( "Original Message" ) );
     messages->setAllColumnsShowFocus( TRUE );
     messages->header()->setMovingEnabled( FALSE );
-
+    messages->show();
+    
     splitter->setResizeMode( scopes, QSplitter::KeepSize );
 
     connect( scopes, SIGNAL( currentChanged( QListViewItem * ) ),
              this, SLOT ( fillMessageList( QListViewItem * ) ) );
 
-    setCentralWidget( splitter );
+    if ( setCentral )
+        setCentralWidget( splitter );
 }
 
 void QTMainWindow::fillScopeList()
@@ -303,13 +318,48 @@ void QTMainWindow::saveScope()
 
 void QTMainWindow::fileNew()
 {
+    if ( preferences->sources.directories.count() > 0 ||
+         preferences->sources.extensions.count() > 0 ||
+         !preferences->translation.directory.isEmpty() )
+        fileSave();
+    if ( messages->firstChild() )
+        saveScope();
+    
+    preferences->sources.directories.clear();
+    preferences->sources.extensions.clear();
+    preferences->translation.directory = QString::null;
+    preferences->translation.prefix = QString::null;
+    preferences->translation.folders = FALSE;
+    preferences->languages.clear();
+    preferences->projectFile = QString::null;
+    setupCanvas();
+
+    setCaption( tr( "QTranslator [%1]" ).arg( tr( "No Project File" ) ) );
 }
 
 void QTMainWindow::fileOpen()
 {
-    preferences->projectFile = QFileDialog::getOpenFileName( preferences->projectFile );
-    if ( !preferences->projectFile.isEmpty() ) {
+    if ( preferences->sources.directories.count() > 0 ||
+         preferences->sources.extensions.count() > 0 ||
+         !preferences->translation.directory.isEmpty() )
+        fileSave();
+    if ( messages->firstChild() )
+        saveScope();
+    
+    QString file = QFileDialog::getOpenFileName( preferences->projectFile );
+    if ( !file.isEmpty() ) {
+        preferences->sources.directories.clear();
+        preferences->sources.extensions.clear();
+        preferences->translation.directory = QString::null;
+        preferences->translation.prefix = QString::null;
+        preferences->translation.folders = FALSE;
+        preferences->languages.clear();
+        preferences->projectFile = QString::null;
+
+        setCaption( tr( "QTranslator [%1]" ).arg( file ) );
+        preferences->projectFile = file;
         preferences->readProjectConfig();
+        setupCanvas();
         fillScopeList();
         setupMessageList();
     }
@@ -317,19 +367,30 @@ void QTMainWindow::fileOpen()
 
 void QTMainWindow::fileSave()
 {
+    save = TRUE;
     if ( preferences->projectFile.isEmpty() ) {
         fileSaveAs();
         return;
     }
     preferences->createProjectConfig();
     preferences->saveProjectConfig();
+    save = FALSE;
 }
 
 void QTMainWindow::fileSaveAs()
 {
-    preferences->projectFile = QFileDialog::getSaveFileName( preferences->projectFile );
-    if ( !preferences->projectFile.isEmpty() )
-         fileSave();
+    if ( save )
+        QMessageBox::information( this, tr( "Information" ), 
+                                  tr( "You haven't saved the configuration of the current\n"
+                                      "Project. Please choose now a Project File, into which\n"
+                                      "the configuration can be saved" ) );
+    
+    QString file = QFileDialog::getSaveFileName( preferences->projectFile );
+    if ( !file.isEmpty() ) {
+        setCaption( tr( "QTranslator [%1]" ).arg( file ) );
+        preferences->projectFile = file;
+        fileSave();
+    }
 }
 
 void QTMainWindow::editNewLanguage()
@@ -350,10 +411,10 @@ void QTMainWindow::editPreferences()
 
 void QTMainWindow::toolsPOT()
 {
-    QApplication::setOverrideCursor( waitCursor );
-    
     if ( !configsOk() )
         return;
+
+    QApplication::setOverrideCursor( waitCursor );
 
     QString findtr = "findtr";
     QString cmd = findtr + " ";
