@@ -513,3 +513,5 @@ QImage QTextBrowser::loadImage(const QString &name)
     return img;
 }
 
+#define d d_func()
+#include "moc_qtextbrowser.cpp"
