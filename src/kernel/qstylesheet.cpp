@@ -42,6 +42,7 @@
 #include "qrichtext_p.h"
 #include "qlayout.h"
 #include "qpainter.h"
+#include "qcleanuphandler.h"
 
 #include <stdio.h>
 
@@ -1074,11 +1075,7 @@ void QStyleSheet::init()
 
 
 static QStyleSheet* defaultsheet = 0;
-void qt_cleanup_defaultsheet()
-{
-    delete defaultsheet;
-    defaultsheet = 0;
-}
+static QCleanUpHandler<QStyleSheet> qt_cleanup_stylesheet;
 
 /*!
   Returns the application-wide default style sheet.This style sheet is
@@ -1094,7 +1091,7 @@ QStyleSheet* QStyleSheet::defaultSheet()
 {
     if (!defaultsheet) {
 	defaultsheet = new QStyleSheet();
-	qAddPostRoutine( qt_cleanup_defaultsheet );
+	qt_cleanup_stylesheet.addCleanUp( defaultsheet );
     }
     return defaultsheet;
 }
