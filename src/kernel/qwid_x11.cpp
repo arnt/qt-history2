@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#36 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#35 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#36 $";
 #endif
 
 
@@ -353,6 +353,7 @@ void QWidget::releaseKeyboard()
 
 void QWidget::setFocus()			// set keyboard focus
 {
+/*
     if ( activeWidget == this ) {		// is active widget
 	if ( !testFlag(WState_FocusA) ) {
 	    QFocusEvent e( Event_FocusOut );
@@ -370,6 +371,7 @@ void QWidget::setFocus()			// set keyboard focus
     }
     setFlag( WState_FocusA );
     activeWidget = this;
+*/
 }
 
 QWidget *QWidget::widgetInFocus()		// get focus widget
@@ -378,14 +380,36 @@ QWidget *QWidget::widgetInFocus()		// get focus widget
 }
 
 
+bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
+{
+    bool last = !testFlag( WNoUpdates );
+    if ( enable )
+	clearFlag( WNoUpdates );
+    else
+	setFlag( WNoUpdates );
+    return last;
+}
+
 void QWidget::update()				// update widget
 {
-    XClearArea( dpy, ident, 0, 0, 0, 0, TRUE );
+    if ( !testFlag(WNoUpdates) )
+	XClearArea( dpy, ident, 0, 0, 0, 0, TRUE );
 }
 
 void QWidget::update( int x, int y, int w, int h )
 {						// update part of widget
-    XClearArea( dpy, ident, x, y, w, h, TRUE );
+    if ( !testFlag(WNoUpdates) )
+	XClearArea( dpy, ident, x, y, w, h, TRUE );
+}
+
+void QWidget::repaint( const QRect &r, bool eraseArea )
+{
+    if ( !isVisible() || testFlag(WNoUpdates) )	// ignore repaint
+	return;
+    QPaintEvent e( r );				// send fake paint event
+    if ( eraseArea )
+	XClearArea( dpy, ident, r.x(), r.y(), r.width(), r.height(), FALSE );
+    QApplication::sendEvent( this, &e );
 }
 
 
@@ -571,17 +595,6 @@ void QWidget::setSizeIncrement( int w, int h )
 	size_hints.flags = 0;
 	do_size_hints( dpy, ident, extra, &size_hints );
     }
-}
-
-
-void QWidget::repaint( const QRect &r, bool eraseArea )
-{
-    if ( !isVisible() )				// ignore if not visible
-	return;
-    QPaintEvent e( r );				// send fake paint event
-    if ( eraseArea )
-	XClearArea( dpy, ident, r.x(), r.y(), r.width(), r.height(), FALSE );
-    QApplication::sendEvent( this, &e );
 }
 
 
