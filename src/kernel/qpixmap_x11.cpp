@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#143 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#144 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -113,7 +113,8 @@ static bool qt_create_mitshm_buffer( const QPaintDevice* dev, int w, int h )
 			     IPC_CREAT | 0777 );
     ok = xshminfo.shmid != -1;
     if ( ok ) {
-	xshminfo.shmaddr = xshmimg->data = shmat( xshminfo.shmid, 0, 0 );
+	xshmimg->data = shmat( xshminfo.shmid, 0, 0 );
+	xshminfo.shmaddr = xshmimg->data;
 	ok = xshminfo.shmaddr != 0;
     }
     xshminfo.readOnly = FALSE;
@@ -175,9 +176,9 @@ static int highest_bit( uint v )
 static int lowest_bit( uint v )
 {
     // returns position of lowest set bit in 'v' as an integer (0-31), or -1
- 
+
     int i;  unsigned long lb;
- 
+
     lb = 1;
     for (i=0; ((v & lb) == 0) && i<32;  i++, lb<<=1);
     if (i==32) return -1;
