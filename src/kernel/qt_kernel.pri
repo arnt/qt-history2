@@ -91,7 +91,7 @@ kernel {
 		  $$KERNEL_H/qvariant.h \
 		  $$KERNEL_P/qrichtext_p.h \
 		  $$KERNEL_P/qinternal_p.h \
-		  $$KERNEL_P/qgplugin.h \
+		  $$KERNEL_H/qgplugin.h \
 		  $$KERNEL_H/qsimplerichtext.h
 
 	win32:SOURCES += $$KERNEL_CPP/qapplication_win.cpp \
