@@ -599,10 +599,6 @@ bool QObject::event( QEvent *e )
 	childEvent( (QChildEvent*)e );
 	return TRUE;
 
-    case QEvent::PolishRequest:
-	ensurePolished();
-	return TRUE;
-
     case QEvent::Polish:
 	polishEvent(e);
 	return TRUE;

@@ -3140,6 +3140,8 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 		QPaintEvent * p = (QPaintEvent*)e;
 		if ( w->isVisible() )
 		    w->repaint( p->reg, p->erase );
+	    } else if ( e->type() == QEvent::PolishRequest) {
+		r->ensurePolished();
 	    } else {
 		QApplication::sendEvent( r, e );
 	    }
