@@ -425,77 +425,244 @@ bool QWidgetPlugin::isContainer( const QString & ) const
     return FALSE;
 }
 
+/*!
+    \class QWidgetContainerPlugin qwidgetplugin.h
+
+    \brief The QWidgetContainerPlugin class provides an abstract base
+    for complex custom container QWidget plugins.
+
+    \ingroup plugins
+
+    The widget container plugin is a subclass of QWidgetPlugin and
+    extends the interface with functions necessary for supporting
+    complex container widgets via plugins. A complex container widget
+    is a widget which has one or multiple sub widgets which act as the
+    widget's container. If the widget has multiple container
+    subwidget, only one at a time can be active- commonly referred to
+    as pages. Example of complex container widgets are QTabWidget,
+    QWidgetStack and QToolBox.
+
+    Writing a complex container widget plugin is achieved by
+    subclassing this base class. First by reimplementing
+    QWidgetPlugin's pure virtual functions keys(), create(), group(),
+    iconSet(), includeFile(), toolTip(), whatsThis() and
+    isContainer(), and exporting the class with the \c Q_EXPORT_PLUGIN
+    macro. In addition containerOfWidget(), isPassiveInteractor() and
+    supportsPages() has to be reimplemented. Depending on
+    supportsPages(), count(), currentIndex(), pageLabel(), page(),
+    pages() and createCode() has to be implemented. If it should be
+    possible to modify the pages of the container, addPage(),
+    insertPage(), removePage(), movePage() and renamePage() needs to
+    be reimplemented.
+
+    \sa QWidgetPlugin
+*/
+
+/*!
+    Constructs a complex container widget plugin. This is invoked
+    automatically by the \c Q_EXPORT_PLUGIN macro.
+*/
+
 QWidgetContainerPlugin::QWidgetContainerPlugin()
     : QWidgetPlugin()
 {
 }
 
+/*!
+    Destroys the complex container widget plugin.
+
+    You never have to call this explicitly. Qt destroys a plugin
+    automatically when it is no longer used.
+*/
+
 QWidgetContainerPlugin::~QWidgetContainerPlugin()
 {
 }
 
-QWidget* QWidgetContainerPlugin::containerOfWidget( const QString &, QWidget *widget ) const
+/*!
+    Returns the current container of the custom widget \a container
+    known under the key \a key. If the custom widget would be a tab
+    widget, this function would get the tab widget as input and return
+    the current page.
+
+    The default implementation returns \a container.
+*/
+
+QWidget* QWidgetContainerPlugin::containerOfWidget( const QString &,
+						    QWidget *widget ) const
 {
     return widget;
 }
+
+/*!
+    Returns the number of pages of the custom widget \a container
+    known under the key \a key. If the custom widget would be a tab
+    widget, this function would return the number of tabs.
+
+    The default implementation returns 0.
+*/
 
 int QWidgetContainerPlugin::count( const QString &, QWidget * ) const
 {
     return 0;
 }
 
+/*!
+    Returns the index of the currenr page of the custom widget \a
+    container known under the key \a key. If the custom widget would
+    be a tab widget, this function would return the index of the
+    current tab.
+
+    The default implementation returns -1.
+*/
+
 int QWidgetContainerPlugin::currentIndex( const QString &, QWidget * ) const
 {
     return -1;
 }
+
+/*!
+    Returns the label of the custom widget \a container's page at index
+    \a index. The custom widget is known under the key \a key. If the
+    custom widget would be a tab widget, this function would return
+    the labe of the tab at index \a index.
+
+    The default implementation returns a null string.
+*/
 
 QString QWidgetContainerPlugin::pageLabel( const QString &, QWidget *, int ) const
 {
     return QString::null;
 }
 
+/*!
+    Returns the custom widget \a container's page at index \a index. The
+    custom widget is known under the key \a key. If the custom widget
+    would be a tab widget, this function would return the tab at index
+    \a index.
+
+    The default implementation returns 0.
+*/
+
 QWidget *QWidgetContainerPlugin::page( const QString &, QWidget *, int ) const
 {
     return 0;
 }
 
-bool QWidgetContainerPlugin::isPassiveInteractor( const QString &, QWidget *widget ) const
+/*!
+    Returns whether \a container is a passive interactor widget of a
+    custom widget know as \a key. \a container is a child widget of the
+    actual custom widget.
+
+    Usually, whe a custom widget is used in Qt Designer's design mode,
+    no widget receives any mouse or key events, since Qt Designer
+    filters and processes them itself. If one or many widgets of a
+    custom widgets still need to receive such events, because the
+    widget is necessary e.g. to switch pages, this function has to
+    return TRUE for such a widget. In that case Qt Designer will not
+    filter out key and mouse events on that widget.
+
+    If the custom widget would be a tab widget, the tab bar would be a
+    passive interactor, since that one is neccesary to allow the user
+    to switch between tabs.
+
+    The default implementation returns FALSE.
+*/
+
+bool QWidgetContainerPlugin::isPassiveInteractor( const QString &,
+						 QWidget *widget ) const
 {
     Q_UNUSED( widget )
     return FALSE;
 }
+
+/*!
+    Returns wether the custom widget known under the key \a key
+    supports pages. If the custom widget would be a tab widget, this
+    function would return TRUE.
+
+    The default implementation returns FALSE.
+*/
 
 bool QWidgetContainerPlugin::supportsPages( const QString & ) const
 {
     return FALSE;
 }
 
-QWidget* QWidgetContainerPlugin::addPage( const QString &, QWidget *, const QString &, int ) const
+/*!  This function is called when a new page should be added at index
+  \a index to the custom widget \a container known under the key \a
+  key. The page should get the label \a label.
+*/
+
+QWidget* QWidgetContainerPlugin::addPage( const QString &, QWidget *,
+					  const QString &, int ) const
 {
     return 0;
 }
+
+/*!  This function is called when \a page should be added at index \a
+  index to the custom widget \a container known under the key \a key. The
+  page should get the label \a label.
+*/
 
 void QWidgetContainerPlugin::insertPage( const QString &, QWidget *,
 					 const QString &, int, QWidget * ) const
 {
 }
 
+/*!  This function is called when the page at index \a index should be
+  removed from the custom widget \a container known under the key \a
+  key.
+*/
+
 void QWidgetContainerPlugin::removePage( const QString &, QWidget *, int ) const
 {
 }
+
+/*!  This function is called when the page at index \a fromIndex
+  should be moved to index \a toIndex in the custom widget \a
+  container known under the key \a key.
+*/
 
 void QWidgetContainerPlugin::movePage( const QString &, QWidget *, int, int ) const
 {
 }
 
-void QWidgetContainerPlugin::renamePage( const QString &, QWidget *, int, const QString & ) const
+/*!  This function is called when the page at index \a index should be
+  removed from the custom widget \a container known under the key \a
+  key.
+*/
+
+void QWidgetContainerPlugin::renamePage( const QString &, QWidget *,
+					 int, const QString & ) const
 {
 }
+
+/*! This function should return a list of pages of the custom widget
+  \a container known under the key \a key.
+*/
 
 QWidgetList QWidgetContainerPlugin::pages( const QString &, QWidget * ) const
 {
     return QWidgetList();
 }
+
+/*! This function is called from Qt Designer's User Interface Compiler
+  uic, when generating C++ code for inserting a page in the custom
+  widget named \a container known under the key \a key. The name of
+  the page widget which should be inserted at the end of the container
+  is \a page, and the label of the page should be \a pageName.
+
+  If the custom widget were a QTabWidget, the implementation of this
+  function would return:
+
+  \code
+  return container + "->addTab( " + page + ", \"" + pageName + "\" )";
+  \endcode
+
+  Warning: If the code returned from this function contains invalid
+  C++ syntax, the generated uic code will not compile.
+*/
 
 QString QWidgetContainerPlugin::createCode( const QString &, const QString &,
 					    const QString &, const QString & ) const
