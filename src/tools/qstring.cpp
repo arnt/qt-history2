@@ -15570,7 +15570,7 @@ QString &QString::replace( const QString & before, const QString & after )
 		int moveto = insertstart + al;
 		memmove( d->unicode + moveto, d->unicode + movestart, (moveend - movestart)*sizeof(QChar) );
 		memcpy( d->unicode + insertstart, after.unicode(), al*sizeof(QChar) );
-		moveend = movestart;
+		moveend = movestart-bl;
 	    }
 	}
     }
