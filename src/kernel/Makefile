@@ -26,7 +26,7 @@ HEADERS =	qaccel.h	qapp.h		qbitmap.h	qbrush.h      \
 		qprinter.h	qpsprn.h	qrect.h		qregion.h     \
 		qsignal.h	qsize.h		qsocknot.h	qtimer.h      \
 		qwidcoll.h	qwidget.h	qwindefs.h	qwindow.h     \
-		qwmatrix.h
+		qwmatrix.h	qbasic.h	qgeom.h
 SOURCES =	qaccel.cpp	qapp.cpp	qapp_x11.cpp	qbitmap.cpp   \
 		qclb_x11.cpp	qclipbrd.cpp	qcol_x11.cpp	qcolor.cpp    \
 		qconnect.cpp	qcur_x11.cpp	qcursor.cpp	qdialog.cpp   \
@@ -38,7 +38,7 @@ SOURCES =	qaccel.cpp	qapp.cpp	qapp_x11.cpp	qbitmap.cpp   \
 		qptd_x11.cpp	qptr_x11.cpp	qrect.cpp	qregion.cpp   \
 		qrgn_x11.cpp	qsignal.cpp	qsize.cpp	qsocknot.cpp  \
 		qtimer.cpp	qwid_x11.cpp	qwidget.cpp	qwindow.cpp   \
-		qwmatrix.cpp
+		qwmatrix.cpp	qbasic.cpp	qgeom.cpp
 OBJECTS =	qaccel.o	qapp.o		qapp_x11.o	qbitmap.o     \
 		qclb_x11.o	qclipbrd.o	qcol_x11.o	qcolor.o      \
 		qconnect.o	qcur_x11.o	qcursor.o	qdialog.o     \
@@ -50,7 +50,7 @@ OBJECTS =	qaccel.o	qapp.o		qapp_x11.o	qbitmap.o     \
 		qptd_x11.o	qptr_x11.o	qrect.o		qregion.o     \
 		qrgn_x11.o	qsignal.o	qsize.o		qsocknot.o    \
 		qtimer.o	qwid_x11.o	qwidget.o	qwindow.o     \
-		qwmatrix.o
+		qwmatrix.o	qbasic.o	qgeom.o
 SRCMETA =	maccel.cpp	mapp.cpp	mclipbrd.cpp	mdialog.cpp   \
 		mtimer.cpp	mwidget.cpp	mwindow.cpp	msocknot.cpp
 OBJMETA =	maccel.o	mapp.o		mclipbrd.o	mdialog.o     \
