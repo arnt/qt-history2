@@ -284,13 +284,9 @@ private:
     static const QChar QEOF;
 
     // inlines
-    virtual bool is_S( const QChar& );
-    virtual bool is_Letter( const QChar& );
-    virtual bool is_NameBeginning( const QChar& );
-    virtual bool is_Digit( const QChar& );
-    virtual bool is_CombiningChar( const QChar& );
-    virtual bool is_Extender( const QChar& );
-    virtual bool is_NameChar( const QChar& );
+    bool is_S( const QChar& );
+    bool is_NameBeginning( const QChar& );
+    bool is_NameChar( const QChar& );
 
     QString& string();
     void stringClear();
@@ -499,28 +495,20 @@ private:
 //
 
 inline bool QXmlSimpleReader::is_S(const QChar& ch)
-{ return ch==' ' || ch=='\t' || ch=='\n' || ch=='\r'; }
-
-inline bool QXmlSimpleReader::is_Letter( const QChar& ch )
-{ return ch.isLetter(); }
-
+{
+    return ch==' ' || ch=='\t' || ch=='\n' || ch=='\r';
+}
 inline bool QXmlSimpleReader::is_NameBeginning( const QChar& ch )
-{ return ch=='_' || ch==':' || ch.isLetter(); }
-
-inline bool QXmlSimpleReader::is_Digit( const QChar& ch )
-{ return ch.isDigit(); }
-
-inline bool QXmlSimpleReader::is_CombiningChar( const QChar& )
-{ return FALSE; }
-
-inline bool QXmlSimpleReader::is_Extender( const QChar& )
-{ return FALSE; }
-
+{
+    return ch=='_' || ch==':' ||
+	ch.isLetter() || // ### Category Lm is not allowed
+	ch.category()==QChar::Number_Letter;
+}
 inline bool QXmlSimpleReader::is_NameChar( const QChar& ch )
 {
     return ch=='.' || ch=='-' || ch=='_' || ch==':' ||
-	is_Letter(ch) || is_Digit(ch) ||
-	is_CombiningChar(ch) || is_Extender(ch);
+    ch.isLetterOrNumber() || // ### Category No is not allowed
+    ch.isMark();
 }
 
 inline bool QXmlSimpleReader::atEnd()
