@@ -732,18 +732,23 @@ bool QTextCursor::place( const QPoint &p, QTextParag *s, bool link )
 {
     QPoint pos( p );
     QRect r;
+    QTextParag *str = s;
     if ( pos.y() < s->rect().y() )
 	pos.setY( s->rect().y() );
     while ( s ) {
 	r = s->rect();
 	r.setWidth( doc ? doc->width() : QWIDGETSIZE_MAX );
+	if ( s->isVisible() )
+	    str = s;
 	if ( pos.y() >= r.y() && pos.y() <= r.y() + r.height() || !s->next() )
 	    break;
 	s = s->next();
     }
 
-    if ( !s )
+    if ( !s || !str )
 	return FALSE;
+
+    s = str;
 
     setParag( s, FALSE );
     int y = s->rect().y();
