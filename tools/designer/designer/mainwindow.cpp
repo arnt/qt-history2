@@ -159,6 +159,7 @@ MainWindow::MainWindow( bool asClient )
 
     setupFileActions();
     setupEditActions();
+    setupProjectActions();
     setupSearchActions();
 #if defined(HAVE_KDE)
     layoutToolBar = new KToolBar( this, "Layout" );

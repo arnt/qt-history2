@@ -268,6 +268,7 @@ private:
     void setupMDI();
     void setupMenuBar();
     void setupEditActions();
+    void setupProjectActions();
     void setupSearchActions();
     void setupToolActions();
     void setupLayoutActions();

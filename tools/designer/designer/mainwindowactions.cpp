@@ -200,30 +200,6 @@ void MainWindow::setupEditActions()
     connect( actionEditFormSettings, SIGNAL( activated() ), this, SLOT( editFormSettings() ) );
     connect( this, SIGNAL( hasActiveForm(bool) ), actionEditFormSettings, SLOT( setEnabled(bool) ) );
 
-    actionEditProjectSettings = new QAction( tr( "Project Settings..." ), QPixmap(),
-					  tr( "&Project Settings..." ), 0, this, 0 );
-    actionEditProjectSettings->setStatusTip( tr("Opens a dialog to change the settings of the project") );
-    actionEditProjectSettings->setWhatsThis( tr("<b>Edit settings of the project</b>"
-					     "<p>####TODO</p>") );
-    connect( actionEditProjectSettings, SIGNAL( activated() ), this, SLOT( editProjectSettings() ) );
-
-    actionEditPixmapCollection = new QAction( tr( "Pixmap Collection..." ), QPixmap(),
-					  tr( "P&ixmap Collection..." ), 0, this, 0 );
-    actionEditPixmapCollection->setStatusTip( tr("Opens a dialog to edit the pixmap collection of the current project") );
-    actionEditPixmapCollection->setWhatsThis( tr("<b>Edit pixmap collection of the current project</b>"
-						 "<p>####TODO</p>") );
-    connect( actionEditPixmapCollection, SIGNAL( activated() ), this, SLOT( editPixmapCollection() ) );
-    actionEditPixmapCollection->setEnabled( FALSE );
-
-#ifndef QT_NO_SQL
-    actionEditDatabaseConnections = new QAction( tr( "Database Connections..." ), QPixmap(),
-						 tr( "&Database Connections..." ), 0, this, 0 );
-    actionEditDatabaseConnections->setStatusTip( tr("Opens a dialog to edit the database connections of the current project") );
-    actionEditDatabaseConnections->setWhatsThis( tr("<b>Edit the database connections of the current project</b>"
-					     "<p>####TODO</p>") );
-    connect( actionEditDatabaseConnections, SIGNAL( activated() ), this, SLOT( editDatabaseConnections() ) );
-#endif
-
     actionEditPreferences = new QAction( tr( "Preferences" ), QPixmap(),
 					 tr( "Preferences..." ), 0, this, 0 );
     actionEditPreferences->setStatusTip( tr("Opens a dialog to change preferences") );
@@ -274,12 +250,6 @@ void MainWindow::setupEditActions()
     actionEditSlots->addTo( menu );
     actionEditConnections->addTo( menu );
     actionEditFormSettings->addTo( menu );
-    menu->insertSeparator();
-    actionEditProjectSettings->addTo( menu );
-    actionEditPixmapCollection->addTo( menu );
-#ifndef QT_NO_SQL
-    actionEditDatabaseConnections->addTo( menu );
-#endif
     menu->insertSeparator();
     actionEditPreferences->addTo( menu );
 }
@@ -611,6 +581,8 @@ void MainWindow::setupFileActions()
     QToolBar* tb  = new QToolBar( this, "File" );
     tb->setCloseMode( QDockWindow::Undocked );
 #endif
+    projectToolBar = tb;
+
     QWhatsThis::add( tb, tr( "<b>The File toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
     addToolBar( tb, tr( "File" ) );
     fileMenu = new QPopupMenu( this, "File" );
@@ -700,24 +672,6 @@ void MainWindow::setupFileActions()
 
     fileMenu->insertSeparator();
 
-    QActionGroup *ag = new QActionGroup( this, 0 );
-    ag->setText( tr( "Project" ) );
-    ag->setMenuText( tr( "Project" ) );
-    ag->setExclusive( TRUE );
-    ag->setUsesDropDown( TRUE );
-    connect( ag, SIGNAL( selected( QAction * ) ), this, SLOT( projectSelected( QAction * ) ) );
-    connect( ag, SIGNAL( selected( QAction * ) ), this, SIGNAL( projectChanged() ) );
-    a = new QAction( tr( "<No Project>" ), tr( "<No Project>" ), 0, ag, 0, TRUE );
-    eProject = new Project( "", tr( "<No Project>" ), projectSettingsPluginManager );
-    projects.insert( a, eProject );
-    a->setOn( TRUE );
-    ag->addTo( fileMenu );
-    ag->addTo( tb );
-    projectToolBar = tb;
-    actionGroupProjects = ag;
-
-    fileMenu->insertSeparator();
-
     a = new QAction( this, 0 );
     a->setText( tr( "Create Template" ) );
     a->setMenuText( tr( "&Create Template..." ) );
@@ -754,6 +708,58 @@ void MainWindow::setupFileActions()
 			 "the application closes.</p>") );
     connect( a, SIGNAL( activated() ), qApp, SLOT( closeAllWindows() ) );
     a->addTo( fileMenu );
+}
+
+void MainWindow::setupProjectActions()
+{
+    QPopupMenu *projectMenu = new QPopupMenu( this, "Project" );
+    menubar->insertItem( tr( "Pr&oject" ), projectMenu );
+
+    QActionGroup *ag = new QActionGroup( this, 0 );
+    ag->setText( tr( "Active Project" ) );
+    ag->setMenuText( tr( "Active Project" ) );
+    ag->setExclusive( TRUE );
+    ag->setUsesDropDown( TRUE );
+    connect( ag, SIGNAL( selected( QAction * ) ), this, SLOT( projectSelected( QAction * ) ) );
+    connect( ag, SIGNAL( selected( QAction * ) ), this, SIGNAL( projectChanged() ) );
+    QAction *a = new QAction( tr( "<No Project>" ), tr( "<No Project>" ), 0, ag, 0, TRUE );
+    eProject = new Project( "", tr( "<No Project>" ), projectSettingsPluginManager );
+    projects.insert( a, eProject );
+    a->setOn( TRUE );
+    ag->addTo( projectMenu );
+    ag->addTo( projectToolBar );
+    actionGroupProjects = ag;
+
+    projectMenu->insertSeparator();
+
+    actionEditProjectSettings = new QAction( tr( "Project Settings..." ), QPixmap(),
+					  tr( "&Project Settings..." ), 0, this, 0 );
+    actionEditProjectSettings->setStatusTip( tr("Opens a dialog to change the settings of the project") );
+    actionEditProjectSettings->setWhatsThis( tr("<b>Edit settings of the project</b>"
+					     "<p>####TODO</p>") );
+    connect( actionEditProjectSettings, SIGNAL( activated() ), this, SLOT( editProjectSettings() ) );
+
+    actionEditPixmapCollection = new QAction( tr( "Pixmap Collection..." ), QPixmap(),
+					  tr( "P&ixmap Collection..." ), 0, this, 0 );
+    actionEditPixmapCollection->setStatusTip( tr("Opens a dialog to edit the pixmap collection of the current project") );
+    actionEditPixmapCollection->setWhatsThis( tr("<b>Edit pixmap collection of the current project</b>"
+						 "<p>####TODO</p>") );
+    connect( actionEditPixmapCollection, SIGNAL( activated() ), this, SLOT( editPixmapCollection() ) );
+    actionEditPixmapCollection->setEnabled( FALSE );
+
+    actionEditProjectSettings->addTo( projectMenu );
+    actionEditPixmapCollection->addTo( projectMenu );
+
+#ifndef QT_NO_SQL
+    actionEditDatabaseConnections = new QAction( tr( "Database Connections..." ), QPixmap(),
+						 tr( "&Database Connections..." ), 0, this, 0 );
+    actionEditDatabaseConnections->setStatusTip( tr("Opens a dialog to edit the database connections of the current project") );
+    actionEditDatabaseConnections->setWhatsThis( tr("<b>Edit the database connections of the current project</b>"
+					     "<p>####TODO</p>") );
+    connect( actionEditDatabaseConnections, SIGNAL( activated() ), this, SLOT( editDatabaseConnections() ) );
+    actionEditDatabaseConnections->addTo( projectMenu );
+#endif
+
 }
 
 void MainWindow::setupPreviewActions()
