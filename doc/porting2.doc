@@ -569,7 +569,7 @@ compatibility issues:
 
 <h4>QWidget::recreate()</h4>
 
-This function is now called \link QWidget::reparent() reparent()\endlink.
+This function is now called reparent().
 
 <h4>QWidget::setAcceptFocus(bool)</h4>
 

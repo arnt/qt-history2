@@ -30,9 +30,9 @@ const double Q_PI = 3.14159265358979323846;
     \ingroup graphics
     \ingroup shared
 
-    A QPointArray is a QVector<QPoint> vector. In addition to the
-    functions provided by QVector, QPointArray provides some
-    point-specific functions.
+    A QPointArray is a QVector<QPoint> vector. It is implicitly
+    shared. In addition to the functions provided by QVector,
+    QPointArray provides some point-specific functions.
 
     For convenient reading and writing of the point data use
     setPoints(), putPoints(), point(), and setPoint().

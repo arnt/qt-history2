@@ -243,7 +243,7 @@ QWidgetPrivate::~QWidgetPrivate()
     \row \i System functions \i
 	parentWidget(),
 	topLevelWidget(),
-	reparent(),
+	setParent(),
 	winId(),
 	find(),
 	metric().
@@ -2512,8 +2512,8 @@ void QWidgetPrivate::setPalette_helper( const QPalette &palette )
     The fontInfo() function reports the actual font that is being used
     by the widget.
 
-    As long as no special font has been set, or after unsetFont() is
-    called, this is either a special font for the widget class, the
+    As long as no special font has been set, or after setFont(QFont())
+    is called, this is either a special font for the widget class, the
     parent's font or (if this widget is a top level widget), the
     default application font.
 

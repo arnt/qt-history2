@@ -430,6 +430,8 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     \ingroup tools
 
     It is useful for manipulating memory areas with custom data.
+    QByteArrays are implicitly shared, and they are always
+    \c{\0}-terminated.
 */
 
 /*!
@@ -479,20 +481,23 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
 
     \overload
 
-    Returns a copy of the byte array's data.
+    Returns a pointer to the byte array's data. The QByteArray is
+    implicitly shared, so if you modify the data, a detach() will
+    occur (which could be expensive if there's a lot of data to copy).
 */
 
 /*!
     \fn const char *QByteArray::data() const
 
-    Returns a pointer to the byte array's data. (This is a synonym for
-    constData().)
+    Returns a pointer which provides read-only access to the byte
+    array's data.
 */
 
 /*!
     \fn const char *QByteArray::constData() const
 
-    Returns a pointer to the byte array's data.
+    Returns a pointer which provides read-only access to the byte
+    array's data.
 */
 
 /*!
