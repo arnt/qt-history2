@@ -1,10 +1,10 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#8 $
 **
 ** Implementation of QComboBox widget class
 **
 ** Author  : Eirik Eng
-** Created : 941121
+** Created : 940426
 **
 ** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#8 $";
 #endif
 
 /*!
@@ -153,8 +153,9 @@ void QComboBox::setStrList( const QStrList *list )
     }
     QStrListIterator iter( *list );
     const char *tmp;
+    int index = 0;
     while ( (tmp = iter.current()) ) {
-	d->popup->insertItem( tmp );
+	d->popup->insertItem( tmp, index++ );
 	++iter;
     }
     currentChanged();
@@ -185,8 +186,10 @@ void QComboBox::setStrList( const char **strs, int numStrings )
 	return;
     }
     int i = 0;
-    while ( (numStrings<0 && strs[i]!=0) || i<numStrings )
-	d->popup->insertItem( strs[i++] );
+    while ( (numStrings<0 && strs[i]!=0) || i<numStrings ) {
+	d->popup->insertItem( strs[i],i  );
+	i++;
+    }
     currentChanged();
 }
 
@@ -199,11 +202,10 @@ Inserts a text item at position \e index. The item will be appended if
 void QComboBox::insertItem( const char *text, int index )
 {
     int cnt = count();
-    bool append = index < 0 || index == cnt;
     if ( !checkInsertIndex( "insertItem", cnt, &index ) )
 	return;
-    d->popup->insertItem( text, index );
-    if ( !append )
+    d->popup->insertItem( text, index, index );
+    if ( index != cnt )
 	reIndex();
     if ( index == d->current )
 	currentChanged();
@@ -414,7 +416,7 @@ void QComboBox::internalHighlight( int index )
 
 
 /*!
-Reimplementes the virtual function QWidget::setBackgroundColor().
+Reimplements the virtual function QWidget::setBackgroundColor().
 
 Sets the background color for both the combo box button and the
 combo box popup list.
