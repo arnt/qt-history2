@@ -51,6 +51,11 @@ QImage:
 -------
   24-bpp pixel format no longer supported, use 32-bpp instead.
 
+  This means that you have to use uint* instead of uchar* when accessing
+  pixel values. You cannot use the uchar* pointer directly, because the
+  pixel format depends on the byte order on the underlying platform. Use
+  qRgb() and friends (qcolor.h) to access the pixels.
+
 
 QWidget:
 --------
