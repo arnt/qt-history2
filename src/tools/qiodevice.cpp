@@ -565,7 +565,8 @@ QByteArray QIODevice::readAll()
     if ( isDirectAccess() ) {
 	// we now the size
 	int n = size()-at(); // ### fix for 64-bit or large files?
-	QByteArray ba(size()-at());
+	int totalRead = 0;
+	QByteArray ba( n );
 	char* c = ba.data();
 	while ( n ) {
 	    int r = readBlock( c, n );
@@ -573,6 +574,13 @@ QByteArray QIODevice::readAll()
 		return QByteArray();
 	    n -= r;
 	    c += r;
+	    totalRead += r;
+	    // If we have a translated file, then it is possible that 
+	    // we read less bytes than size() reports
+	    if ( atEnd() ) {
+		ba.resize( totalRead );  
+		break;
+	    }
 	}
 	return ba;
     } else {
