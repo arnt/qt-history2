@@ -9,7 +9,7 @@ QT =
 
 #zlib support
 contains(QT_CONFIG, zlib) {
-    INCLUDEPATH += $(QTDIR)/3rdparty/zlib
+    INCLUDEPATH += $(QTDIR)/src/3rdparty/zlib
     SOURCES+= \
      ../../3rdparty/zlib/adler32.c \
      ../../3rdparty/zlib/compress.c \
