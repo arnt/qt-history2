@@ -766,7 +766,7 @@ static uint char_val( const QChar **str, uint *strlength )   // get char value
 		if ( ch >= '0' && ch <= '7' ) {	//octal code
 		    len--;
 		    for ( i = 0; (i < 3) && pl; i++ ) {	// up to 3 oct digits
-			c = tolower((char)*p);
+			c = (char)*p;
 			if ( c >= '0' && c <= '7' ) {
 			    v <<= 3;
 			    v += c - '0';
