@@ -2080,7 +2080,7 @@ void ExchangeActionInPopupCommand::unexecute()
 ActionEditor *ActionCommand::actionEditor()
 {
     // FIXME: handle multiple action editors
-    return (ActionEditor *) formWindow()->mainWindow()->child( 0, "ActionEditor" );    
+    return (ActionEditor *) formWindow()->mainWindow()->child( 0, "ActionEditor" );
 }
 
 // ------------------------------------------------------------
@@ -2278,3 +2278,58 @@ void RenameMenuCommand::unexecute()
 }
 
 // ------------------------------------------------------------
+
+AddToolBoxPageCommand::AddToolBoxPageCommand( const QString &n, FormWindow *fw,
+				      QToolBox *tw, const QString &label )
+    : Command( n, fw ), toolBox( tw ), toolBoxLabel( label )
+{
+    toolBoxPage = new QDesignerWidget( formWindow(), toolBox, "page" );
+    toolBoxPage->hide();
+    index = -1;
+    MetaDataBase::addEntry( toolBoxPage );
+}
+
+void AddToolBoxPageCommand::execute()
+{
+    if ( index == -1 )
+	index = toolBox->count();
+    toolBox->insertPage( toolBoxLabel,toolBoxPage, index );
+    toolBox->setCurrentPage( toolBoxPage );
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    // ### formWindow()->mainWindow()->objectHierarchy()->tabsChanged( toolBox );
+}
+
+void AddToolBoxPageCommand::unexecute()
+{
+    toolBox->removePage( toolBoxPage );
+    toolBoxPage->hide();
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    // ### formWindow()->mainWindow()->objectHierarchy()->tabsChanged( toolBox );
+}
+
+// ------------------------------------------------------------
+
+DeleteToolBoxPageCommand::DeleteToolBoxPageCommand( const QString &n, FormWindow *fw,
+					    QToolBox *tw, QWidget *page )
+    : Command( n, fw ), toolBox( tw ), toolBoxPage( page )
+{
+    toolBoxLabel = toolBox->pageLabel( toolBox->currentPage() );
+    index = toolBox->currentIndex();
+}
+
+void DeleteToolBoxPageCommand::execute()
+{
+    toolBox->removePage( toolBoxPage );
+    toolBoxPage->hide();
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    // #### formWindow()->mainWindow()->objectHierarchy()->tabsChanged( toolBox );
+}
+
+void DeleteToolBoxPageCommand::unexecute()
+{
+    toolBox->insertPage( toolBoxLabel, toolBoxPage, index );
+    toolBox->setCurrentPage( toolBoxPage );
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    // ### formWindow()->mainWindow()->objectHierarchy()->tabsChanged( toolBox );
+}
+

@@ -24,6 +24,7 @@
 #include "metadatabase.h"
 #include "mainwindow.h"
 #include "formwindow.h"
+#include "propertyeditor.h"
 #include "layout.h"
 #include "listboxeditorimpl.h"
 #include "listvieweditorimpl.h"
@@ -567,6 +568,9 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutTy
     if ( !layout && widget && widget->inherits( "QWidgetStack" ) )
 	widget = ((QWidgetStack*)widget)->visibleWidget();
 
+    if ( !layout && widget && widget->inherits( "QToolBox" ) )
+	widget = ((QToolBox*)widget)->currentPage();
+
     MetaDataBase::addEntry( widget );
 
     QLayout *l = 0;
@@ -653,6 +657,8 @@ void WidgetFactory::deleteLayout( QWidget *widget )
 	widget = ((QMainWindow*)widget)->centralWidget();
     if ( widget->inherits( "QWidgetStack" ) )
 	widget = ((QWidgetStack*)widget)->visibleWidget();
+    if ( widget->inherits( "QToolBox" ) )
+	widget = ((QToolBox*)widget)->currentPage();
     delete widget->layout();
 }
 
@@ -806,8 +812,11 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return new QComboBox( FALSE, parent, name );
     } else if ( className == "QWidget" ) {
 	if ( parent &&
-	     ( parent->inherits( "FormWindow" ) || parent->inherits( "QWizard" ) ||
-	       parent->inherits( "QTabWidget" ) || parent->inherits( "QWidgetStack" ) ||
+	     ( parent->inherits( "FormWindow" ) ||
+	       parent->inherits( "QWizard" ) ||
+	       parent->inherits( "QTabWidget" ) ||
+	       parent->inherits( "QWidgetStack" ) ||
+	       parent->inherits( "QToolBox" ) ||
 	       parent->inherits( "QMainWindow" ) ) ) {
 	    FormWindow *fw = find_formwindow( parent );
 	    if ( fw ) {
@@ -922,8 +931,8 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return mw;
     } else if ( className == "QToolBox" ) {
 	if ( !init )
-	    return new QToolBox( parent, name );
-	QToolBox *tb = new QToolBox( parent, name );
+	    return new QDesignerToolBox( parent, name );
+	QToolBox *tb = new QDesignerToolBox( parent, name );
 	FormWindow *fw = find_formwindow( parent );
 	QWidget *w = fw ? new QDesignerWidget( fw, tb, "page1" ) :
 		     new QWidget( tb, "page1" );
@@ -986,6 +995,8 @@ WidgetFactory::LayoutType WidgetFactory::layoutType( QWidget *w, QLayout *&layou
 	w = ((QMainWindow*)w)->centralWidget();
     if ( w && w->inherits( "QWidgetStack" ) )
 	w = ((QWidgetStack*)w)->visibleWidget();
+    if ( w && w->inherits( "QToolBox" ) )
+	w = ((QToolBox*)w)->currentPage();
 
     if ( w && w->inherits( "QSplitter" ) )
 	return ( (QSplitter*)w )->orientation() == Horizontal ? HBox : VBox;
@@ -1065,6 +1076,8 @@ QWidget* WidgetFactory::containerOfWidget( QWidget *w )
 	return ((QWizard*)w)->currentPage();
     if ( w->inherits( "QWidgetStack" ) )
 	return ((QWidgetStack*)w)->visibleWidget();
+    if ( w->inherits( "QToolBox" ) )
+	return ((QToolBox*)w)->currentPage();
     if ( w->inherits( "QMainWindow" ) )
 	return ((QMainWindow*)w)->centralWidget();
     if ( !WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( classNameOf( w ) ) ) )
@@ -1097,6 +1110,10 @@ QWidget* WidgetFactory::widgetOfContainer( QWidget *w )
 {
     if ( w->parentWidget() && w->parentWidget()->inherits( "QWidgetStack" ) )
 	w = w->parentWidget();
+    if ( w->parentWidget() && w->parentWidget()->parentWidget() &&
+	 w->parentWidget()->parentWidget()->parentWidget() &&
+	 w->parentWidget()->parentWidget()->parentWidget()->inherits( "QToolBox" ) )
+	return w->parentWidget()->parentWidget();
     while ( w ) {
 	int id = WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) );
 	if ( WidgetDatabase::isContainer( id ) ||
@@ -1138,6 +1155,8 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
     else if ( o->inherits( "QHideDock" ) )
 	return ( lastWasAPassiveInteractor = TRUE );
     else if ( qstrcmp( o->name(), "designer_wizardstack_button" ) == 0 )
+	return ( lastWasAPassiveInteractor = TRUE );
+    else if ( o->inherits( "QToolBoxButton" ) )
 	return ( lastWasAPassiveInteractor = TRUE );
 
     if ( !o->isWidgetType() )
@@ -1206,6 +1225,8 @@ const char* WidgetFactory::classNameOf( QObject* o )
 	return "QActionGroup";
     else if ( o->inherits( "PopupMenuEditor" ) )
 	return "QPopupMenu";
+    else if ( o->inherits( "QDesignerToolBox" ) )
+	return "QToolBox";
 #ifndef QT_NO_SQL
     else if ( o->inherits( "QDesignerDataBrowser" ) )
 	return "QDataBrowser";
@@ -1230,6 +1251,8 @@ QString WidgetFactory::defaultSignal( QObject *w )
 	return "selectionChanged";
     else if ( w->inherits( "QTabWidget" ) )
 	return "selected";
+    else if ( w->inherits( "QToolBox" ) )
+	return "currentChanged";
     else if ( w->inherits( "QWidgetStack" ) )
 	return "aboutToShow";
     else if ( w->inherits( "QSpinBox" ) || w->inherits( "QSlider" ) ||
@@ -1270,6 +1293,12 @@ void WidgetFactory::initChangedProperties( QObject *o )
     } else if ( o->inherits( "QWidgetStack" ) ) {
 	MetaDataBase::setPropertyChanged( o, "currentPage", TRUE );
 	MetaDataBase::setPropertyChanged( o, "pageName", TRUE );
+    } else if ( o->inherits( "QToolBox" ) ) {
+	MetaDataBase::setPropertyChanged( o, "currentPage", TRUE );
+	MetaDataBase::setPropertyChanged( o, "pageName", TRUE );
+	MetaDataBase::setPropertyChanged( o, "pageLabel", TRUE );
+	MetaDataBase::setPropertyChanged( o, "pageIconSet", TRUE );
+	MetaDataBase::setPropertyChanged( o, "pageToolTip", TRUE );
 #ifndef QT_NO_TABLE
     } else if ( o->inherits( "QTable" ) && !o->inherits( "QDataTable" ) ) {
 	MetaDataBase::setPropertyChanged( o, "numRows", TRUE );
@@ -1668,3 +1697,34 @@ QWidget *CustomWidgetFactory::createWidget( const QString &className, QWidget *p
     return WidgetFactory::createCustomWidget( parent, name, w );
 }
 
+QDesignerToolBox::QDesignerToolBox( QWidget *parent, const char *name )
+    : QToolBox( parent, name )
+{
+}
+
+QString QDesignerToolBox::pageLabel() const
+{
+    return QToolBox::pageLabel( currentPage() );
+}
+
+void QDesignerToolBox::setPageLabel( const QString &l )
+{
+    QToolBox::setPageLabel( currentPage(), l );
+}
+
+QCString QDesignerToolBox::pageName() const
+{
+    return currentPage()->name();
+}
+
+void QDesignerToolBox::setPageName( const QCString &n )
+{
+    currentPage()->setName( n );
+}
+
+void QDesignerToolBox::setCurrentPage( QWidget *page )
+{
+    QToolBox::setCurrentPage( page );
+    if ( MainWindow::self->propertyeditor()->widget() == this )
+	MainWindow::self->propertyeditor()->refetchData();
+}

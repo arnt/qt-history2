@@ -1577,6 +1577,15 @@ void MainWindow::setupRMBSpecialCommands( QValueList<uint> &ids,
 	}
 	ids << ( id = rmbWidgets->insertItem( tr("Add Page"), -1, 0 ) );
 	commands.insert( "add", id );
+    } else if ( w->inherits( "QToolBox" ) ) {
+	if ( ids.isEmpty() )
+	    ids << rmbWidgets->insertSeparator( 0 );
+	if ( ( (QToolBox*)w )->count() > 1 ) {
+	    ids << ( id = rmbWidgets->insertItem( tr("Delete Page"), -1, 0 ) );
+	    commands.insert( "remove", id );
+	}
+	ids << ( id = rmbWidgets->insertItem( tr("Add Page"), -1, 0 ) );
+	commands.insert( "add", id );
     } else if ( WidgetDatabase::
 		isCustomPluginWidget( WidgetDatabase::
 				      idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
@@ -1722,6 +1731,26 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 		    new DeleteTabPageCommand( tr( "Delete Page %1 of %2" ).
 					      arg( dtw->pageTitle() ).arg( tw->name() ),
 					      formWindow(), tw, tw->currentPage() );
+		formWindow()->commandHistory()->addCommand( cmd );
+		cmd->execute();
+	    }
+	}
+    } else if ( w->inherits( "QToolBox" ) ) {
+	QToolBox *tb = (QToolBox*)w;
+	if ( id == commands[ "add" ] ) {
+	    AddToolBoxPageCommand *cmd =
+		new AddToolBoxPageCommand( tr( "Add Page to %1" ).arg( tb->name() ),
+					   formWindow(),
+					   tb, "Page" );
+	    formWindow()->commandHistory()->addCommand( cmd );
+	    cmd->execute();
+	} else if ( id == commands[ "remove" ] ) {
+	    if ( tb->currentPage() ) {
+		DeleteToolBoxPageCommand *cmd =
+		    new DeleteToolBoxPageCommand( tr( "Delete Page %1 of %2" ).
+					  arg( tb->pageLabel( tb->currentPage() ) ).
+					  arg( tb->name() ),
+					  formWindow(), tb, tb->currentPage() );
 		formWindow()->commandHistory()->addCommand( cmd );
 		cmd->execute();
 	    }

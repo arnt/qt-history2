@@ -48,6 +48,7 @@ class QDesignerToolBar;
 class QMainWindow;
 class QTextEdit;
 struct LanguageInterface;
+class QToolBox;
 
 class MenuBarEditor;
 class MenuBarEditorItem;
@@ -117,7 +118,9 @@ public:
 	AddMenu,
 	RemoveMenu,
 	ExchangeMenu,
-	RenameMenu
+	RenameMenu,
+	AddToolBoxPage,
+	DeleteToolBoxPage
     };
 
     QString name() const;
@@ -1110,7 +1113,7 @@ public:
 		    FormWindow *fw,
 		    QMainWindow *mw,
 		    const QString &nm = "Menu" );
-    
+
     void execute();
     void unexecute();
     Type type() const { return AddMenu; }
@@ -1171,6 +1174,42 @@ private:
     MenuBarEditorItem *item;
     QString newName;
     QString oldName;
+};
+
+class AddToolBoxPageCommand : public Command
+{
+public:
+    AddToolBoxPageCommand( const QString &n, FormWindow *fw,
+			   QToolBox *tw, const QString &label );
+
+    void execute();
+    void unexecute();
+    Type type() const { return AddToolBoxPage; }
+
+private:
+    QToolBox *toolBox;
+    int index;
+    QWidget *toolBoxPage;
+    QString toolBoxLabel;
+
+};
+
+class DeleteToolBoxPageCommand : public Command
+{
+public:
+    DeleteToolBoxPageCommand( const QString &n, FormWindow *fw,
+			      QToolBox *tw, QWidget *page );
+
+    void execute();
+    void unexecute();
+    Type type() const { return DeleteToolBoxPage; }
+
+private:
+    QToolBox *toolBox;
+    int index;
+    QWidget *toolBoxPage;
+    QString toolBoxLabel;
+
 };
 
 #endif

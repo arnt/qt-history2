@@ -41,6 +41,7 @@
 #include <qbuttongroup.h>
 #include <qwidgetstack.h>
 #include <qguardedptr.h>
+#include <qtoolbox.h>
 
 #include "metadatabase.h"
 #include "qwidgetfactory.h"
@@ -455,6 +456,24 @@ public:
 	    ( (QButtonGroup*)parentWidget() )->insert( this, id );
 	}
     }
+
+};
+
+class QDesignerToolBox : public QToolBox
+{
+    Q_OBJECT
+    Q_PROPERTY( QString pageLabel READ pageLabel WRITE setPageLabel STORED false DESIGNABLE true )
+    Q_PROPERTY( QCString pageName READ pageName WRITE setPageName STORED false DESIGNABLE true )
+
+public:
+    QDesignerToolBox( QWidget *parent, const char *name );
+
+    QString pageLabel() const;
+    void setPageLabel( const QString &l );
+    QCString pageName() const;
+    void setPageName( const QCString &n );
+
+    void setCurrentPage( QWidget *page );
 
 };
 
