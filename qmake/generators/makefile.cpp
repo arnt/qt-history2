@@ -1478,7 +1478,6 @@ MakefileGenerator::verifyExtraCompiler(const QString &comp, const QString &file)
                 verify = verify.mid(1);
             }
 
-            bool pass = false;
             if(project->values(comp + ".CONFIG").indexOf("combine") != -1) {
                 QStringList args;
                 args << tmp_out << file;
