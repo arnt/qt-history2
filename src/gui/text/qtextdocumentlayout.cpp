@@ -676,38 +676,16 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
 
     // for variable columsn set the minimum sizes first and distribute the remaining space
     if (variableCols > 0) {
+        // minWidths array is filled with zero at this point
+
         int sharedWidth = totalWidth / variableCols;
-        for (int i = 0; i < columns; ++i)
-            if (constraints.at(i) == QTextTableFormat::VariableLength) {
-                td->minWidths[i] = 0;
-                for (int row = 0; row < rows; ++row) {
-                    const QTextTableCell cell = table->cellAt(row, i);
-                    if (cell.columnSpan() == 1) {
-                        LayoutStruct layoutStruct;
-                        layoutStruct.frame = table;
-                        layoutStruct.y = layoutStruct.x_left = 0;
-                        layoutStruct.x_right = sharedWidth - 2 * td->padding;
-
-                        layoutCell(table, cell, &layoutStruct);
-
-                        td->minWidths[i] = qMax(td->minWidths[i], layoutStruct.minimumWidth);
-                    }
-                }
-                td->widths[i] = td->minWidths[i];
-                totalWidth -= td->minWidths[i];
-            }
-
-        // second pass for cells that span more than one column
-        // ### merge?
         for (int i = 0; i < columns; ++i)
             if (constraints.at(i) == QTextTableFormat::VariableLength) {
                 for (int row = 0; row < rows; ++row) {
                     const QTextTableCell cell = table->cellAt(row, i);
                     const int cspan = cell.columnSpan();
-                    if (cspan == 1)
-                        continue;
 
-                    if (i != cell.column())
+                    if (cspan >= 1 && i != cell.column())
                         continue;
 
                     LayoutStruct layoutStruct;
@@ -717,18 +695,14 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
 
                     layoutCell(table, cell, &layoutStruct);
 
-                    int widthToDistribute = layoutStruct.minimumWidth;
+                    int widthToDistribute = layoutStruct.minimumWidth / cspan;
                     for (int n = cspan; n > 0; --n) {
-                        const int col = n - 1 + i;
-                        int w = widthToDistribute / n; // n == number of cols left to distribute on
-                        if (td->minWidths[col] < w) {
-                            totalWidth -= w - td->minWidths[col];
-                            td->minWidths[col] = w;
-                        }
+                        const int col = i + n - 1;
+                        td->minWidths[col] = qMax(td->minWidths.at(col), widthToDistribute);
                     }
-
                 }
-                td->widths[i] = td->minWidths[i];
+                td->widths[i] = td->minWidths.at(i);
+                totalWidth -= td->minWidths.at(i);
             }
 
         if (totalWidth > 0) {
