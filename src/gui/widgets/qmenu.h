@@ -35,6 +35,9 @@ public:
     void setTearOffEnabled(bool);
     bool isTearOffEnabled() const;
 
+    void setCheckable(bool);
+    bool isCheckable() const;
+
     void popup(const QPoint &pos, QAction *at=0);
     QAction *exec(const QPoint &pos, QAction *at=0); 
     QSize sizeHint() const;

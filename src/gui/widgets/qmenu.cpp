@@ -22,7 +22,6 @@
 /* Q4Menu code */
 
 // These really are QStyle::fu, but for now I just hard code them.. 
-bool doScrollThingie = false; //enables scrolling mode
 int scrollSizeDistance = 15; //the distance to center within on the desktop
 int scrollerHeight = 20; //height of the scroller area(s)
 int scrollConsumeAllSpace = false; //toggles when the popupmenu will scroll to fill the screen
@@ -68,46 +67,65 @@ QList<Q4MenuAction*> Q4MenuPrivate::calcActionRects() const
     QList<Q4MenuAction*> ret;
     QList<QAction*> items = q->actions();
 
+    //for compatability now - will have to refactor this away..
+    maxIconWidth = 0;
+    for(int i = 0; i < items.count(); i++) {
+	QAction *action = items.at(i);
+	if(!action->isVisible())
+	    continue;
+	QIconSet is = action->icon();
+	if(!is.isNull())
+	    maxIconWidth = qMax(maxIconWidth, (uint)is.pixmap(QIconSet::Small, QIconSet::Normal).width() + 4);
+    }
+
     //calculate size
     for(int i = 0, y = 0; i < items.count(); i++) {
 	QAction *action = items.at(i);
 	if(!action->isVisible())
 	    continue;
-	int w = 0, h = 0;
-	if(action->isSeparator()) {
-	    w = 25;
-	    h = 10;
-	} else if(!action->text().isNull()) {
-	    QString text = action->text(), accel = action->accel();
-	    int tab = text.indexOf('\t');
-	    if(tab != -1) {
-		accel = text.mid(tab+1);
-		text = text.left(tab);
-	    } 
 
-	    w = fm.boundingRect(text).width() + 2;
-	    w -= (text.count('&')-text.count("&&"))*fm.width('&');
-	    if(!accel.isEmpty())
-		w += fm.boundingRect(accel).width() + 15; //15 for spacing..
-	    w = qMax(w, QApplication::globalStrut().width());
-	    h = qMax(fm.height(), QApplication::globalStrut().height());
+	QSize sz;
+
+	//calc what I think the height is..
+	if(action->isSeparator()) {
+	    sz = QSize(2, 2);
+	} else {
+	    QFontMetrics fm = q->fontMetrics();
+	    {
+		QString s = action->text();
+		int w = fm.width( s );
+		w -= s.count('&') * fm.width('&');
+		w += s.count("&&") * fm.width('&');
+		sz.setWidth(w);
+	    }
+	    sz.setHeight(fm.height());
+
+	    QIconSet is = action->icon();
+	    if(!is.isNull()) {
+		QSize is_sz = is.pixmap(QIconSet::Small, QIconSet::Normal).size();
+		if(is_sz.height() > sz.height()) 
+		    sz.setHeight(is_sz.height());
+	    }
 	}
-	if(action->menu()) {
-	    w += 10;
-	}
-	if(w && h) {
-	    max_column_width = qMax(max_column_width, w);
+	qDebug("originally %d %d", sz.width(), sz.height());
+
+	//let the style modify the above height..
+	sz = q->style().sizeFromContents(QStyle::CT_PopupMenuItem, q, sz, QStyleOption(action, maxIconWidth));
+
+	if(!sz.isEmpty()) {
+	    qDebug("%s -- %d %d", action->text().latin1(), sz.width(), sz.height());
+	    max_column_width = qMax(max_column_width, sz.width());
 	    //wrapping
-	    if(!scroll && y+h > dh) {
+	    if(!scroll && y+sz.height() > dh) {
 		ncols++;
 		max_column_height = y;
 		y = 0;
 	    }
-	    y += h;
+	    y += sz.height();
 	    //append item
 	    Q4MenuAction *item = new Q4MenuAction;
 	    item->action = action;
-	    item->rect = QRect(0, 0, w, h);
+	    item->rect = QRect(0, 0, sz.width(), sz.height());
 	    ret.append(item);
 	}
     }
@@ -395,7 +413,7 @@ Q4Menu::Q4Menu(QWidget *parent) : QWidget(*new Q4MenuPrivate, parent, WType_TopL
 {
     setFocusPolicy(StrongFocus);
     setMouseTracking(style().styleHint(QStyle::SH_PopupMenu_MouseTracking));
-    if(doScrollThingie)
+    if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this))
 	d->scroll = new Q4MenuPrivate::Q4MenuScroller;
 }
 
@@ -478,6 +496,17 @@ bool Q4Menu::isTearOffEnabled() const
 {
     return d->tearoff;
 }
+
+void Q4Menu::setCheckable(bool b)
+{
+    d->checkable = b;
+}
+
+bool Q4Menu::isCheckable() const
+{
+    return d->checkable;
+}
+
 
 QSize Q4Menu::sizeHint() const
 {
@@ -627,10 +656,7 @@ void Q4Menu::paintEvent(QPaintEvent *e)
 {
     d->updateActions();
 
-    //fill the background
     QPainter p(this);
-    p.fillRect(e->rect(), blue);
-
     QRegion clippedArea;
     //draw (and calculate) the scroller regions..
     if(d->scroll) {
@@ -664,36 +690,41 @@ void Q4Menu::paintEvent(QPaintEvent *e)
     }
 
     //draw the items that need updating..
+    QRegion emptyArea = QRegion(rect()) - clippedArea;
     for(int i=0; i<(int)d->actionItems.count(); i++) {	
 	Q4MenuAction *action = d->actionItems.at(i);
 	QRect adjustedActionRect = d->actionRect(action);
 	if(!e->rect().intersects(adjustedActionRect))
 	   continue;
 
-	p.save();
 	//set the clip region to be extra safe (and adjust for the scrollers)
-	p.setClipRegion(QRegion(adjustedActionRect) - clippedArea);
+	p.save();
+	{
+	    QRegion adjustedActionReg(adjustedActionRect);
+	    emptyArea -= adjustedActionReg;
+	    p.setClipRegion(adjustedActionReg - clippedArea);
+	}
 
-	//the below will move into the style..
-	if(d->currentAction == action) 
-	    p.fillRect(adjustedActionRect, green);
+	QPalette pal = palette();
+	QStyle::SFlags flags = QStyle::Style_Default;
+	if(isEnabled() && action->action->isEnabled() && (!action->action->menu() || action->action->menu()->isEnabled())) 
+	    flags |= QStyle::Style_Enabled;
 	else
-	    p.fillRect(adjustedActionRect, red);
-	if(action->action->menu()) 
-	    p.fillRect(QRect(adjustedActionRect.right()-10, adjustedActionRect.top(), 10, adjustedActionRect.height()), 
-		       black);
+	    pal.setCurrentColorGroup(QPalette::Disabled);
+	if(d->currentAction == action)
+	    flags |= QStyle::Style_Active;
+	if(d->mouseDown)
+	    flags |= QStyle::Style_Down;
+	style().drawControl(QStyle::CE_PopupMenuItem, &p, this, adjustedActionRect, pal, flags, 
+			    QStyleOption(action->action, d->maxIconWidth, 0)); //what should the _tab be? ###
 
-	QString text = action->action->text(), accel = action->action->accel();
-	int tab = text.indexOf('\t');
-	if(tab != -1) {
-	    accel = text.mid(tab+1);
-	    text = text.left(tab);
-	} 
-	p.setPen(black);
-	p.drawText(adjustedActionRect, AlignLeft|AlignVCenter, text);
-	p.drawText(adjustedActionRect, AlignRight|AlignVCenter, accel);
-	p.restore();
+	p.restore(); //restore paint run
     }
+
+    p.save();
+    p.setClipRegion(emptyArea);
+    style().drawControl(QStyle::CE_MenuEmptyArea, &p, this, rect(), palette());
+    p.restore();
 }
 
 void Q4Menu::mousePressEvent(QMouseEvent *e)
@@ -736,9 +767,15 @@ void Q4Menu::changeEvent(QEvent *e)
 	d->itemsDirty = 1;
 	if(isVisible())
 	    resize(sizeHint());
+	if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this)) {
+	    delete d->scroll;
+	    d->scroll = 0;
+	} else if(!d->scroll) {
+	    d->scroll = new Q4MenuPrivate::Q4MenuScroller;
+	}
     } else if(e->type() == QEvent::EnabledChange) {
 	if (d->tornPopup) // torn-off menu
-	    d->tornPopup->setEnabled( isEnabled() );
+	    d->tornPopup->setEnabled(isEnabled());
     }
     QWidget::changeEvent(e);
 }
@@ -930,7 +967,7 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 		    QString s = act->action->text();
 		    if(!s.isEmpty()) {
 			int ampersand = s.indexOf('&');
-			if(ampersand >= 0 ) {
+			if(ampersand >= 0) {
 			    if(s[ampersand+1].toUpper() == c) {
 				clashCount++;
 				if(!first)
@@ -1385,7 +1422,7 @@ void Q4MenuBar::keyPressEvent(QKeyEvent *e)
 		QString s = act->action->text();
 		if(!s.isEmpty()) {
 		    int ampersand = s.indexOf('&');
-		    if(ampersand >= 0 ) {
+		    if(ampersand >= 0) {
 			if(s[ampersand+1].toUpper() == c) {
 			    clashCount++;
 			    if(!first)
@@ -1502,10 +1539,10 @@ Q4MenuBar::eventFilter(QObject *object, QEvent *event)
 	d->altPressed = false;
 	QWidget *f = ((QWidget *)object)->focusWidget();
 	if(f && !f->isTopLevel())
-	    f->removeEventFilter( this );
+	    f->removeEventFilter(this);
 	return false;
     } else if(!(event->type() == QEvent::AccelOverride ||
-		event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease ) ||
+		event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) ||
 	      !style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this)) {
 	return false;
     }
