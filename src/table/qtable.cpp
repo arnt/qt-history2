@@ -1233,9 +1233,16 @@ void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
 		      table()->style().pixelMetric( QStyle::PM_IndicatorHeight ) );
     QColorGroup c( cg );
     c.setBrush( QColorGroup::Background, c.brush( QColorGroup::Base ) );
+    QStyle::SFlags flags = QStyle::Style_Default;
+    if ( isChecked() )
+	flags |= QStyle::Style_On;
+    else
+	flags |= QStyle::Style_Off;
+    if ( isEnabled() && table()->isEnabled() )
+	flags |= QStyle::Style_Enabled;
+
     table()->style().drawPrimitive( QStyle::PE_Indicator, p,
-				    QRect( 0, ( cr.height() - sz.height() ) / 2, sz.width(), sz.height() ), c,
-				    isChecked() ? QStyle::Style_On : QStyle::Style_Off );
+				    QRect( 0, ( cr.height() - sz.height() ) / 2, sz.width(), sz.height() ), c, flags );
     int x = sz.width() + 6;
     w = w - x;
     if ( selected )
