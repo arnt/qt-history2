@@ -1749,7 +1749,7 @@ void QScrollView::setContentsPos( int x, int y )
 */
 void QScrollView::scrollBy( int dx, int dy )
 {
-    setContentsPos( contentsX()+dx, contentsY()+dy );
+    setContentsPos( QMAX( contentsX()+dx, 0 ), QMAX( contentsY()+dy, 0 ) );
 }
 
 /*!
