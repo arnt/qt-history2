@@ -75,7 +75,7 @@ public:
     virtual QStyleOptionSpinBox styleOption() const;
     virtual QCoreVariant valueForPosition(int pos) const;
 
-    virtual void emitSignals();
+    virtual void emitSignals(const QCoreVariant &old);
     virtual void refresh(EmitPolicy ep);
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;

@@ -751,7 +751,7 @@ bool QAbstractSpinBoxPrivate::specialValue() const
     Virtual function that emits signals. Reimplemented in the different subclasses.
 */
 
-void QAbstractSpinBoxPrivate::emitSignals()
+void QAbstractSpinBoxPrivate::emitSignals(const QCoreVariant &)
 {
     if (slider) {
         updateSlider();
@@ -778,8 +778,9 @@ void QAbstractSpinBoxPrivate::editorTextChanged(const QString &t)
                 edit->setText(tmp);
                 edit->blockSignals(wasBlocked);
             }
+            const QVariant &old = value;
             value = v; // don't want to call setValue because that would change the text.
-            emitSignals();
+            emitSignals(old);
 	} else {
             pendingemit = true;
         }
@@ -1090,7 +1091,7 @@ void QAbstractSpinBoxPrivate::setValue(const QCoreVariant &val, EmitPolicy ep)
     pendingemit = false;
     update();
     if (ep == AlwaysEmit || (ep == EmitIfChanged && old != value)) {
-	emitSignals();
+	emitSignals(old);
     }
 }
 

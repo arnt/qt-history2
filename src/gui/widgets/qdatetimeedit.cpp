@@ -50,7 +50,7 @@ public:
     QDateTimeEditPrivate();
 
 
-    void emitSignals();
+    void emitSignals(const QCoreVariant &old);
     QCoreVariant mapTextToValue(QString *str, QValidator::State *state) const;
     QString mapValueToText(const QCoreVariant &n) const;
     void editorCursorPositionChanged(int lastpos, int newpos);
@@ -854,16 +854,16 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
     \reimp
 */
 
-void QDateTimeEditPrivate::emitSignals()
+void QDateTimeEditPrivate::emitSignals(const QCoreVariant &old)
 {
-    QAbstractSpinBoxPrivate::emitSignals();
+    QAbstractSpinBoxPrivate::emitSignals(old);
     if (value.toDate().isValid()) {
         emit q->dateTimeChanged(value.toDateTime());
-        if (display & DateSectionMask)
+        if ((display & DateSectionMask) != 0 && old.toDate() != value.toDate())
             emit q->dateChanged(value.toDate());
     }
 
-    if (display & TimeSectionMask)
+    if ((display & TimeSectionMask) != 0 && old.toTime() != value.toTime())
         emit q->timeChanged(value.toTime());
 }
 
