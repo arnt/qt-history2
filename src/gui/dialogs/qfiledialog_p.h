@@ -27,7 +27,15 @@
 
 #include <private/qdialog_p.h>
 #include <qitemselectionmodel.h>
+#include <qabstractitemview.h>
 
+class QListView;
+class QTreeView;
+class QDirModel;
+class QComboBox;
+class QAction;
+class QPushButton;
+class QToolButton;
 class QFileDialogLineEdit;
 
 class QFileDialogPrivate : public QDialogPrivate

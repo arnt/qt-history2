@@ -15,6 +15,7 @@
 
 #ifndef QT_NO_FILEDIALOG
 
+#include <private/qfiledialog_p.h>
 #include <qapplication.h>
 #include <private/qapplication_p.h>
 #include <qt_windows.h>
@@ -282,7 +283,7 @@ extern Q_GUI_EXPORT void qt_leave_modal(QWidget*);
 extern void qt_win_eatMouseMove();
 
 QString qt_win_get_open_file_name(const QFileDialogArgs &args,
-                                  QString *initialDirector,
+                                  QString *initialDirectory,
                                   QString *selectedFilter)
 {
     QString result;
@@ -323,7 +324,7 @@ QString qt_win_get_open_file_name(const QFileDialogArgs &args,
         // Use Unicode strings and API
         OPENFILENAME* ofn = qt_win_make_OFN(args.parent, isel,
                                             *initialDirectory, title,
-                                            qt_win_filter(filter),
+                                            qt_win_filter(args.filter),
 					    QFileDialog::ExistingFile);
         if (idx)
             ofn->nFilterIndex = idx + 1;
@@ -336,7 +337,7 @@ QString qt_win_get_open_file_name(const QFileDialogArgs &args,
         // Use ANSI strings and API
         OPENFILENAMEA* ofn = qt_win_make_OFNA(args.parent, isel,
                                               *initialDirectory, title,
-                                              qt_win_filter(filter),
+                                              qt_win_filter(args.filter),
 					      QFileDialog::ExistingFile);
         if (idx)
             ofn->nFilterIndex = idx + 1;
@@ -360,7 +361,7 @@ QString qt_win_get_open_file_name(const QFileDialogArgs &args,
     fi = result;
     *initialDirectory = fi.path();
     if (selectedFilter)
-        *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
+        *selectedFilter = qt_win_selected_filter(args.filter, selFilIdx);
     return fi.absoluteFilePath();
 }
 

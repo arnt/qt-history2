@@ -1604,11 +1604,8 @@ QModelIndex QFileDialogPrivate::matchName(const QString &name, const QModelIndex
 static QString qt_working_dir; // ### ugly! Used this to save cwd
 
 #if defined(Q_WS_WIN)
-extern QString qt_win_get_open_file_name(const QString &initialSelection,
-                                         const QString &filter,
+extern QString qt_win_get_open_file_name(const QFileDialogArgs &args,
                                          QString *initialDirectory,
-                                         QWidget *parent,
-                                         const QString &caption,
                                          QString *selectedFilter);
 
 extern QString qt_win_get_save_file_name(const QString &initialSelection,
