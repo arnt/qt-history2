@@ -44,9 +44,10 @@
 
 
 //
-// The operating system, must be one of: (_OS_x_)
+// The operating system, must be one of: (Q_OS_x)
 //
 //   MAC	- Mac OS
+//   MACX	- Mac OS X
 //   MSDOS	- MS-DOS and Windows
 //   OS2	- OS/2
 //   OS2EMX	- XFree86 on OS/2 (not PM)
@@ -142,7 +143,7 @@
 
 
 //
-// The compiler, must be one of: (_CC_x_)
+// The compiler, must be one of: (Q_CC_x)
 //
 //   SYM	- Symantec C++ for both PC and Macintosh
 //   MPW	- MPW C++
@@ -267,7 +268,7 @@
 
 
 //
-// The window system, must be one of: (_WS_x_)
+// The window system, must be one of: (Q_WS_x)
 //
 //   MAC	- Mac OS
 //   QWS	- Qt/Embedded

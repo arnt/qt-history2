@@ -64,6 +64,13 @@
 # include <dirent.h>
 # include <unistd.h>
 #endif
+
+//
+// The file system, must be one of: (Q_FS_x)
+//
+//   FAT	- ?
+//
+
 #if defined(Q_OS_MSDOS) || defined(Q_OS_WIN32) || defined(Q_OS_OS2)
 # define Q_FS_FAT
 # if defined(__CYGWIN32__)
