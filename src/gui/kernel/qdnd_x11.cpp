@@ -223,7 +223,7 @@ static QWidget* desktop_proxy = 0;
 
 class QExtraWidget : public QWidget
 {
-    Q_DECLARE_PRIVATE(QWidget);
+    Q_DECLARE_PRIVATE(QWidget)
 public:
     inline QWExtra* extraData();
     inline QTLWExtra* topData();
