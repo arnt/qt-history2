@@ -85,7 +85,7 @@ QModelIndex ResourceModel::index(int row, int column,
 {
     QModelIndex result;
 
-    int d = reinterpret_cast<int>(parent.data());
+    qint64 d = reinterpret_cast<qint64>(parent.data());
     
     if (!parent.isValid()) {
         if (row < m_resource_file.prefixCount())
@@ -106,7 +106,7 @@ QModelIndex ResourceModel::parent(const QModelIndex &index) const
 {
     QModelIndex result;
 
-    int d = reinterpret_cast<int>(index.data());
+    qint64 d = reinterpret_cast<qint64>(index.data());
     
     if (index.isValid() && d != -1)
         result = createIndex(d, 0, reinterpret_cast<void*>(-1));
@@ -120,7 +120,7 @@ int ResourceModel::rowCount(const QModelIndex &parent) const
 {
     int result = 0;
     
-    int d = reinterpret_cast<int>(parent.data());
+    qint64 d = reinterpret_cast<qint64>(parent.data());
     
     if (!parent.isValid())
         result = m_resource_file.prefixCount();
@@ -136,7 +136,7 @@ int ResourceModel::columnCount(const QModelIndex &parent) const
 {
     int result = 0;
 
-    int d = reinterpret_cast<int>(parent.data());
+    qint64 d = reinterpret_cast<qint64>(parent.data());
     
     if (!parent.isValid())
         result = m_resource_file.prefixCount() == 0 ? 0 : 1;
@@ -152,7 +152,7 @@ bool ResourceModel::hasChildren(const QModelIndex &parent) const
 {
     bool result = false;
     
-    int d = reinterpret_cast<int>(parent.data());
+    qint64 d = reinterpret_cast<qint64>(parent.data());
     
     if (!parent.isValid())
         result = m_resource_file.prefixCount() > 0;
@@ -169,7 +169,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    int d = reinterpret_cast<long>(index.data());
+    qint64 d = reinterpret_cast<qint64>(index.data());
 
     QVariant result;
 
@@ -195,7 +195,7 @@ void ResourceModel::getItem(const QModelIndex &index, QString &prefix, QString &
     if (!index.isValid())
         return;
 
-    int d = reinterpret_cast<int>(index.data());
+    qint64 d = reinterpret_cast<qint64>(index.data());
 
     if (d == -1) {
         prefix = m_resource_file.prefix(index.row());
