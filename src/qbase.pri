@@ -20,17 +20,22 @@ dll:unix {
 }
 
 #exported symbol table (for linux only now)
-0:linux-g++:!isEmpty(QPRO_PWD) {
-   TARGET_MAP = lib$${TARGET}.map
-   exists($$QPRO_PWD/$$TARGET_MAP)|contains(QT_PRODUCT, qt-internal) {
-       QMAKE_LFLAGS += -Wl,--version-script=$${TARGET_MAP}
-       TARGETDEPS += $$TARGET_MAP
-       contains(QT_PRODUCT, qt-internal) {
-           VERSION_MAP.commands = $(QTDIR)/util/scripts/exports.pl -o $$TARGET_MAP $$QPRO_PWD
-           VERSION_MAP.target = $$TARGET_MAP
-           QMAKE_EXTRA_TARGETS += VERSION_MAP
-           exports.commands = [ -w "$$TARGET_MAP" ] || p4 edit "$$TARGET_MAP"; $$VERSION_MAP.commands
-           QMAKE_EXTRA_TARGETS += exports
+sam_version_map:linux-g++:!isEmpty(QPRO_PWD) {
+   0:exists($(QTDIR)/src/libqt.map) {
+       QMAKE_LFLAGS += -Wl,--version-script=$(QTDIR)/src/libqt.map
+       TARGETDEPS += $(QTDIR)/src/libqt.map
+   } else { 
+       TARGET_MAP = lib$${TARGET}.map
+       exists($$QPRO_PWD/$$TARGET_MAP)|contains(QT_PRODUCT, qt-internal) {
+           QMAKE_LFLAGS += -Wl,--version-script=$${TARGET_MAP}
+           TARGETDEPS += $$TARGET_MAP
+           contains(QT_PRODUCT, qt-internal) {
+               VERSION_MAP.commands = $(QTDIR)/util/scripts/exports.pl -o $$TARGET_MAP $$QPRO_PWD $$QPRO_SYMBOLS
+               VERSION_MAP.target = $$TARGET_MAP
+               QMAKE_EXTRA_TARGETS += VERSION_MAP
+               exports.commands = [ -w "$$TARGET_MAP" ] || p4 edit "$$TARGET_MAP"; $$VERSION_MAP.commands
+               QMAKE_EXTRA_TARGETS += exports
+            }
        }
    }
 }
