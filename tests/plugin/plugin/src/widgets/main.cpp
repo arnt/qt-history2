@@ -1,6 +1,6 @@
 #include "previewstack.h"
 #include "styledbutton.h"
-#include "../../qwidgetinterface.h"
+#include "../../../qwidgetinterface.h"
 #include <qapplication.h>
 
 #include <qworkspace.h>

@@ -1,4 +1,4 @@
-#include "../../qactioninterface.h"
+#include "../../../qactioninterface.h"
 
 #include <qaction.h>
 #include <qmainwindow.h>
@@ -109,4 +109,4 @@ LIBEXPORT bool onDisconnect()
 }
 #endif // __cplusplus
 
-#include "action.moc"
+#include "main.moc"
