@@ -11,6 +11,10 @@ int main ( int argc, char **argv )
     QStringList subkeys = settings.subkeyList( "/Trolltech" );
     for ( QStringList::Iterator it = subkeys.begin(); it != subkeys.end(); ++it ) {
 	qDebug( "/Trolltech/%s", (*it).latin1() );
+	QStringList entries = settings.entryList( "/Trolltech/" + *it );
+	for ( QStringList::Iterator it2 = entries.begin(); it2 != entries.end(); ++it2 ) {
+	    qDebug( "/Trolltech/%s/%s", (*it).latin1(), (*it2).latin1() );
+	}
     }
 
     qDebug( settings.readEntry( "/Trolltech/QSettings/string" ) );

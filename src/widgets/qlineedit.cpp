@@ -683,10 +683,17 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 #endif
 	case Key_Right:
 	case Key_Left:
-	    if ( d->parag->string()->isRightToLeft() == (e->key() == Key_Right) )
-		cursorWordBackward( e->state() & ShiftButton );
-	    else
-		cursorWordForward( e->state() & ShiftButton );
+	    if ( d->parag->string()->isRightToLeft() == (e->key() == Key_Right) ) {
+	        if ( echoMode() == Normal )
+		    cursorWordBackward( e->state() & ShiftButton );
+		else
+		    home( e->state() & ShiftButton );
+	    } else {
+		if ( echoMode() == Normal )
+		    cursorWordForward( e->state() & ShiftButton );
+		else
+		    end( e->state() & ShiftButton );
+	    }
 	    break;
 	case Key_Z:
 	    if ( !d->readonly )

@@ -1,31 +1,30 @@
-This is the final version of Qt 3.0, the cross-platform C++ GUI
-toolkit.
+This is Qt version 3.0.1, the cross-platform C++ GUI toolkit.
 
-This new generation of Qt contains many new features, improvements and
-extensions. It also includes a significantly improved Qt Designer, and
-introduces Qt Linguist, Qt Assistant and a new multi-platform build
-tool, 'qmake'. In addition to the traditional Qt platforms Linux, Unix
-and the various flavours of MS-Windows, Qt 3.0 for the first time also
+Qt 3 contains many new features, improvements and extensions. It also
+includes a significantly improved Qt Designer, and introduces Qt
+Linguist, Qt Assistant and a new multi-platform build tool,
+'qmake'. In addition to the traditional Qt platforms Linux, Unix and
+the various flavours of MS-Windows, Qt 3 for the first time also
 introduces a native port to MacOS X.
 
-Detailed information about the modifications and new features for Qt
-3.0 is included in the Online Reference Documentation.
+Detailed information about the modifications and new features for Qt 3
+is included in the Online Reference Documentation.
 
 Because of our recently increased development team, we have been able
-to realize far more of your requests in this release. Qt 3.0 is a
-great step towards realizing our vision of an ideal cross-platform
+to realize far more of your requests in this release. Qt 3 is a great
+step towards realizing our vision of an ideal cross-platform
 development tool.
 
 The Qt version 3.x series is not binary compatible with the 2.x
 series. This means programs compiled with Qt version 2.x must be
-recompiled to work with Qt 3.0.
+recompiled to work with Qt 3.
 
-Qt 3.0 is mostly, but not completely, source compatible with the Qt
-2.x series. See the document "Porting from Qt 2.x to Qt 3.0" in the
-Online Reference Documentation for information on how to port an
-existing Qt 2.x-based program to Qt 3.0. Disclaimer: the guide is not
-entirely complete, so it is possible that you'll discover issues that
-are not yet covered in the documentation.
+Qt 3 is mostly, but not completely, source compatible with the Qt 2.x
+series. See the document "Porting from Qt 2.x to Qt 3.0" in the Online
+Reference Documentation for information on how to port an existing Qt
+2.x-based program to Qt 3. Disclaimer: the guide is not entirely
+complete, so it is possible that you'll discover issues that are not
+yet covered in the documentation.
 
 The most visible change for long term Qt users is the reworked build
 system. On MS-Windows, unpack the package and start installer.exe; on
@@ -62,7 +61,7 @@ hpux-acc
 hpux-g++
 openunix-cc
 
-If you try to use Qt 3.0 on an an unsupported version of Unix, please
+If you try to use Qt 3 on an an unsupported version of Unix, please
 contact us at support@trolltech.com so that we can assist you.
 
 
@@ -70,7 +69,7 @@ How to get the release:
 
 Qt Free Edition: Download the .tar.gz archive from
 ftp.trolltech.com. To get better download times, use ftpsearch and
-search for qt-x11-free-3.0.0.tar.gz to find it on a mirror ftp site
+search for qt-x11-free-3.0.1.tar.gz to find it on a mirror ftp site
 near you.
 
 Qt Professional Edition, Qt Enterprise Edition: Holders of valid
@@ -80,7 +79,7 @@ Professional or Enterprise Edition licensee and have not received this
 e-mail.
 
 
-Any problems encountered Qt 3.0 should be reported to
+Any problems encountered Qt 3 should be reported to
 qt-bugs@trolltech.com.
 
 Qt is a trademark of Trolltech AS.

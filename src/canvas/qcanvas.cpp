@@ -564,6 +564,8 @@ void QCanvas::init(int w, int h, int chunksze, int mxclusters)
     update_timer = 0;
     bgcolor = white;
     grid = 0;
+    htiles = 0;
+    vtiles = 0;
     dblbuf = TRUE;
     debug_redraw_areas = FALSE;
 }
