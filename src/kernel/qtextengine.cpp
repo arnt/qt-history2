@@ -827,8 +827,11 @@ void QTextEngine::setText(const QString &str)
     widthOnly = false;
 
     used = 0;
+    allocated = 0;
 
     reallocate(qMax( 16, str.length()*3/2 ));
+    items.clear();
+    lines.clear();
 }
 
 QTextEngine::~QTextEngine()
