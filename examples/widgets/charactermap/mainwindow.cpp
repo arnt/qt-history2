@@ -5,12 +5,6 @@
 
 MainWindow::MainWindow()
 {
-    QMenu *fileMenu = new QMenu(tr("&File"), this);
-    fileMenu->addAction(tr("E&xit"), this, SLOT(close()),
-                        QKeySequence(tr("Ctrl+Q")));
-
-    menuBar()->addMenu(fileMenu);
-
     QWidget *centralWidget = new QWidget(this);
 
     QLabel *fontLabel = new QLabel(tr("Font:"), centralWidget);
@@ -59,7 +53,7 @@ MainWindow::MainWindow()
     centralLayout->addLayout(lineLayout);
 
     setCentralWidget(centralWidget);
-    setWindowTitle(tr("Simple Character Map"));
+    setWindowTitle(tr("Character Map"));
 }
 
 void MainWindow::findFonts()
