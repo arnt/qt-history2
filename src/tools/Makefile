@@ -11,7 +11,7 @@ LIBDIR		= $(BASEDIR)/lib
 ####### Compiler
 
 #CFLAGS		= -O2 -DNO_DEBUG -DNO_CHECK
-CFLAGS		= -g -DCHECK_MEMORY
+CFLAGS		= -O2 -DCHECK_MEMORY
 CC		= gcc
 
 ####### Files
