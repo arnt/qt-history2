@@ -9,7 +9,8 @@ class QWidget;
 class WidgetInterface : public QUnknownInterface
 {
 public:
-    virtual QStringList featureList() = 0;
+    WidgetInterface( QUnknownInterface *parent = 0 ) : QUnknownInterface( parent ) {}
+    virtual QStringList featureList() const = 0;
 
     virtual QWidget* create( const QString&, QWidget* parent = 0, const char* name = 0 ) = 0;
 
@@ -21,7 +22,7 @@ public:
     virtual QString whatsThis( const QString& ) = 0;
     virtual bool isContainer( const QString& ) = 0;
 
-    QString interfaceID() { return "WidgetInterface_QtDesigner_Trolltech_05102000_0516"; }
+    QString interfaceID() const { return "WidgetInterface_QtDesigner_Trolltech_05102000_0516"; }
 };
 
 #endif //QWIDGETINTERFACE_H
