@@ -335,9 +335,11 @@ void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
 			  bool showIt )
 {
     QWidget::reparent( parent, f, p, showIt);
+#if 0
     fixReparented();
     if ( showIt )
 	show();
+#endif
 }
 
 void QGLWidget::fixReparented()
