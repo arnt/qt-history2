@@ -50,9 +50,17 @@
 #include "sql/sqlex.h"
 #endif
 
+#ifdef Q_OS_MACX
+#include <stdlib.h>
+#include <qdir.h>
+#endif
+
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
+#ifdef Q_OS_MACX
+    setenv("QTDIR", QDir::cleanDirPath(QDir::currentDirPath() + QDir::separator() + ".." + QDir::separator() + ".."), 0);
+#endif
 
     // #### how about a splash screen?
 
