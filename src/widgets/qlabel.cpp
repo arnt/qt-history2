@@ -190,7 +190,9 @@ void QLabel::init()
     extraMargin= -1;
     autoresize = FALSE;
     textformat = Qt::AutoText;
+#if QT_FEATURE_RICHTEXT
     doc = 0;
+#endif
     
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
     d = new QLabelPrivate;
@@ -246,12 +248,14 @@ void QLabel::setText( const QString &text )
 			    this, SLOT(acceleratorSlot()) );
     }
 
+#if QT_FEATURE_RICHTEXT
     if ( textformat == RichText ||
 	 ( textformat == AutoText && QStyleSheet::mightBeRichText(ltext) ) ) {
 	doc = new QSimpleRichText( ltext, font() );
 	doc->setWidth( 10 );
 	d->minimumWidth = doc->widthUsed();
     }
+#endif
     
     if ( doc || align & WordBreak )
 	setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred, TRUE ) );
@@ -484,6 +488,7 @@ QSize QLabel::sizeForWidth( int w ) const
 	br = mov->framePixmap().rect();
     }
 #endif
+#if QT_FEATURE_RICHTEXT
     else if ( doc ) {
 	if ( w < 0 )
 	    doc->adjustSize();
@@ -493,7 +498,9 @@ QSize QLabel::sizeForWidth( int w ) const
 	}
 	br = QRect( 0, 0, doc->widthUsed(), doc->height() );
     }
-    else {
+    else
+#endif
+    {
 	bool tryWidth = (w < 0) && (align & WordBreak);
 	if ( tryWidth )
 	    w = fm.width( 'x' ) * 80;
@@ -603,6 +610,7 @@ void QLabel::drawContents( QPainter *p )
     }
     else
 #endif
+#if QT_FEATURE_RICHTEXT
     if ( doc ) {
 	doc->setWidth(p, cr.width() );
 	int rw = doc->widthUsed();
@@ -623,7 +631,9 @@ void QLabel::drawContents( QPainter *p )
 	    doc->draw(p, cr.x()+xo+1, cr.y()+yo+1, cr, cg, 0);
 	}
 	doc->draw(p, cr.x()+xo, cr.y()+yo, cr, colorGroup(), 0);
-    } else {
+    } else
+#endif
+    {
 	// ordinary text label
 	style().drawItem( p, cr.x(), cr.y(), cr.width(), cr.height(),
 			  align, colorGroup(), isEnabled(),
@@ -706,6 +716,7 @@ void QLabel::drawContentsMask( QPainter *p )
 	}
     }
 
+#if QT_FEATURE_RICHTEXT
     if ( doc ) {
 	doc->setWidth(p, cr.width() );
 	int rw = doc->widthUsed();
@@ -724,7 +735,9 @@ void QLabel::drawContentsMask( QPainter *p )
 	    doc->draw(p, cr.x()+xo+1, cr.y()+yo+1, cr, g, 0);
 	}
 	doc->draw(p, cr.x()+xo, cr.y()+yo, cr, g, 0);
-    } else {
+    } else
+#endif
+    {
 	style().drawItem( p, cr.x(), cr.y(), cr.width(), cr.height(),
 			  align, g, isEnabled(), bm.isNull()?0:&bm, ltext );
     }
@@ -922,8 +935,10 @@ void QLabel::setMovie( const QMovie& movie )
 
 void QLabel::clearContents()
 {
+#if QT_FEATURE_RICHTEXT
     delete doc;
     doc = 0;
+#endif
 
     delete lpixmap;
     lpixmap = 0;

@@ -447,6 +447,7 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 	return;
 
     QRect r;
+#if QT_FEATURE_RICHTEXT
     QSimpleRichText* doc = 0;
 
     if ( QStyleSheet::mightBeRichText( currentText ) ) {
@@ -454,7 +455,9 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 	doc->adjustSize();
 	r.setRect( 0, 0, doc->width(), doc->height() );
     }
-    else {
+    else
+#endif
+    {
 	int sw = QApplication::desktop()->width() / 3;
 	if ( sw < 200 )
 	    sw = 200;
@@ -531,11 +534,14 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
     p.drawRect( 1, 1, w-2, h-2 );
     p.setPen( whatsThat->colorGroup().foreground() );
 
+#if QT_FEATURE_RICHTEXT
     if ( doc ) {
 	doc->draw( &p, hMargin, vMargin, r, whatsThat->colorGroup(), 0 );
 	delete doc;
     }
-    else {
+    else
+#endif
+    {
 	p.drawText( hMargin, vMargin, r.width(), r.height(),
 		    AlignLeft + AlignTop + WordBreak + ExpandTabs,
 		    currentText );

@@ -33,7 +33,7 @@
 #include "qcolor.h"
 #endif // QT_H
 
-#if QT_FEATURE_WIDGETS
+#if QT_FEATURE_TEXTVIEW
 
 class QRichText;
 class QTextViewData;
@@ -146,6 +146,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_FEATURE_WIDGETS
+#endif // QT_FEATURE_TEXTVIEW
 
 #endif // QTEXTVIEW_H

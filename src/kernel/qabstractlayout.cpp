@@ -669,7 +669,9 @@ void QLayout::init()
     activated = FALSE;
     marginImpl = FALSE;
     extraData = 0;
+#if QT_FEATURE_WIDGETS
     menubar = 0;
+#endif
     enabled = TRUE;
 }
 
@@ -976,8 +978,10 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	if ( activated ) {
 	    QResizeEvent *r = (QResizeEvent*)e;
 	    int mbh = 0;
+#if QT_FEATURE_WIDGETS
 	    if ( menubar && !menubar->testWState(WState_ForceHide) )
 		mbh = menubar->heightForWidth( r->size().width() );
+#endif
 	    int b = marginImpl ? 0 : outsideBorder;
 	    setGeometry( QRect( b, mbh + b, r->size().width() - 2*b,
 				r->size().height() - mbh - 2*b ) );
@@ -989,8 +993,10 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	QChildEvent *c = (QChildEvent*)e;
 	if ( c->child()->isWidgetType() ) {
 	    QWidget *w = (QWidget*)c->child();
+#if QT_FEATURE_WIDGETS
 	    if ( w == menubar )
 		menubar = 0;
+#endif
 	    if ( removeWidget( this, w ) ) {
 		QEvent *lh = new QEvent( QEvent::LayoutHint );
 		QApplication::postEvent( o, lh );
@@ -1046,8 +1052,10 @@ int QLayout::totalHeightForWidth( int w ) const
     }
     int b = (topLevel && !marginImpl) ? 2*outsideBorder : 0;
     int h = heightForWidth( w - b ) + b;
+#if QT_FEATURE_WIDGETS
     if ( menubar )
 	h += menubar->heightForWidth( w );
+#endif
     return h;
 }
 
@@ -1068,8 +1076,10 @@ QSize QLayout::totalMinimumSize() const
 
     QSize s = minimumSize();
     int h = b;
+#if QT_FEATURE_WIDGETS
     if ( menubar )
 	h += menubar->heightForWidth( s.width() );
+#endif
     return s + QSize(b,h);
 }
 
@@ -1092,8 +1102,10 @@ QSize QLayout::totalSizeHint() const
 
     QSize s = sizeHint();
     int h = b;
+#if QT_FEATURE_WIDGETS
     if ( menubar )
 	h += menubar->heightForWidth( s.width() );
+#endif
     return s + QSize(b,h);
 }
 
@@ -1115,8 +1127,10 @@ QSize QLayout::totalMaximumSize() const
 
     QSize s = maximumSize();
     int h = b;
+#if QT_FEATURE_WIDGETS
     if ( menubar )
 	h += menubar->heightForWidth( s.width() );
+#endif
 
     if ( isTopLevel() )
 	s = QSize( QMIN( s.width() + b, QWIDGETSIZE_MAX ),
@@ -1203,6 +1217,7 @@ void QLayout::freeze( int w, int h )
     }
 }
 
+#if QT_FEATURE_WIDGETS
 
 /*!
   Makes the geometry manager take account of the menu bar \a w. All
@@ -1217,6 +1232,7 @@ void QLayout::setMenuBar( QMenuBar *w )
     menubar = w;
 }
 
+#endif
 
 /*!
   \fn QSize QLayout::sizeHint()
@@ -1316,7 +1332,10 @@ bool QLayout::activate()
     }
     activated = TRUE;
     QSize s = mainWidget()->size();
-    int mbh = menubar ? menubar->heightForWidth( s.width() ) : 0;
+    int mbh = 0;
+#if QT_FEATURE_WIDGETS
+    mbh = menubar ? menubar->heightForWidth( s.width() ) : 0;
+#endif
     int b = marginImpl ? 0 : outsideBorder;
     setGeometry( QRect( b, mbh + b,
 			s.width() - 2*b,

@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qtextview.h"
-#if QT_FEATURE_WIDGETS
+#if QT_FEATURE_TEXTVIEW
 #include "../kernel/qrichtext_p.h"
 
 #include "qapplication.h"
@@ -1016,4 +1016,4 @@ void QTextView::focusInEvent( QFocusEvent * )
 void QTextView::focusOutEvent( QFocusEvent * )
 {
 }
-#endif
+#endif  // QT_FEATURE_TEXTVIEW

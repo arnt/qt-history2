@@ -183,10 +183,12 @@ public:
     void setResizeMode( ResizeMode );
     ResizeMode resizeMode() const;
 
+#if QT_FEATURE_WIDGETS
     virtual void  setMenuBar( QMenuBar *w );
+    QMenuBar *menuBar() const { return menubar; }
+#endif
 
     QWidget *mainWidget();
-    QMenuBar *menuBar() const { return menubar; }
     bool isTopLevel() const { return topLevel; }
 
     virtual void setAutoAdd( bool );
@@ -238,7 +240,9 @@ private:
     uint enabled : 1;
     QRect rect;
     QLayoutData *extraData;
+#if QT_FEATURE_WIDGETS
     QMenuBar *menubar;
+#endif
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QLayout( const QLayout & );

@@ -25,6 +25,8 @@
 
 #include "qdial.h"
 
+#if QT_FEATURE_DIAL
+
 #include "qpainter.h"
 #include "qpointarray.h"
 #include "qtimer.h"
@@ -857,3 +859,6 @@ void QDial::calcLines()
 	}
     }
 }
+
+#endif QT_FEATURE_DIAL
+

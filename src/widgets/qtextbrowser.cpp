@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qtextbrowser.h"
-#if QT_FEATURE_WIDGETS
+#if QT_FEATURE_TEXTBROWSER
 #include "../kernel/qrichtext_p.h"
 
 #include "qapplication.h"
@@ -533,4 +533,4 @@ void QTextBrowser::showEvent( QShowEvent* e )
     QTextView::showEvent( e );
     scrollToAnchor( d->curmark );
 }
-#endif
+#endif  // QT_FEATURE_TEXTBROWSER
