@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#196 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#197 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -46,7 +46,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 #undef bzero
 extern "C" void bzero(void *, size_t len);
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#196 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#197 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2013,7 +2013,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    buttonDown = TRUE;
 	    if ( mouseActWindow == event->xbutton.window &&
 		 mouseButtonPressed == button &&
-		 (int)event->xbutton.time - mouseButtonPressTime < 400 &&
+		 (long)event->xbutton.time -(long)mouseButtonPressTime < 400 &&
 		 QABS(event->xbutton.x - mouseXPos) < 5 &&
 		 QABS(event->xbutton.y - mouseYPos) < 5 ) {
 		type = Event_MouseButtonDblClick;
