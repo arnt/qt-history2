@@ -484,9 +484,14 @@ MakefileGenerator::init()
 	    impls.append(impl);
 	    findDependencies(impl).append(decl);
 
-	    QString mocable = (v["MOC_DIR"].isEmpty() ? (fi.dirPath() + Option::dir_sep): v["MOC_DIR"].first()) +
-			      Option::moc_mod + fi.baseName() + Option::cpp_ext;
+	    QString mocable = Option::moc_mod + fi.baseName() + Option::cpp_ext;
+	    if(!v["MOC_DIR"].isEmpty())
+		mocable.prepend(v["MOC_DIR"].first());
+	    else if(fi.dirPath() != ".")
+		mocable.prepend(fi.dirPath() + Option::dir_sep);
 	    logicWarn(mocable, "SOURCES");
+	    if((*it).left(8) == "editbook") 
+		qDebug("generating %s %s", mocable.latin1(), decl.latin1());
 	    mocablesToMOC[cleanFilePath(decl)] = mocable;
 	    mocablesFromMOC[cleanFilePath(mocable)] = decl;
 	    v["_UIMOC"].append(mocable);
@@ -892,6 +897,8 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 			QFileInfo fi(file);
 			target += QString(fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
 				  " " + fi.filePath() + " " + dst + "\n\t";
+			if(fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
+			    target += var("QMAKE_STRIP") + " " + dst + "\n\t";
 		    }
 		}
  	    }
@@ -1001,10 +1008,7 @@ QString MakefileGenerator::build_args()
 {
     static QString ret;
     if(ret.isEmpty()) {
-	//qmake itself
-	ret = project->first("QMAKE_QMAKE");
-	if(ret.isEmpty())
-	    ret = "qmake"; //hope its in your path
+	ret = "$(QMAKE)";
 
 	//special variables
 	if(!project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())

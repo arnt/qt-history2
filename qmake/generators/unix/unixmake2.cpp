@@ -121,6 +121,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "RANLIB   = " << var("QMAKE_RANLIB") << endl;
     t << "MOC      = " << var("QMAKE_MOC") << endl;
     t << "UIC      = "	<< var("QMAKE_UIC") << endl;
+    t << "QMAKE    = "	<< (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
     t << "TAR      = "	<< var("QMAKE_TAR") << endl;
     t << "GZIP     = " << var("QMAKE_GZIP") << endl;
     t << "COPY     = " << var("QMAKE_COPY") << endl;
@@ -456,14 +457,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     t << endl;
 
-    QString destdir = project->first("DESTDIR");
-    if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
-	destdir += Option::dir_sep;
     t << "clean:" << clean_targets << "\n\t"
-      << "-rm -f $(OBJECTS) " << destdir << "$(TARGET)" << "\n\t";
-    if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty() &&
-       !project->isActiveConfig("plugin"))
-	t << "-rm -f " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) " << destdir << "$(TARGET2) $(TARGETA)" << "\n\t";
+      << "-rm -f $(OBJECTS) " << "\n\t";
     if(!project->isEmpty("IMAGES"))
 	t << varGlue("QMAKE_IMAGE_COLLECTION", "\t-rm -f ", " ", "") << "\n\t";
     t << varGlue("QMAKE_CLEAN","-rm -f "," ","\n\t")
@@ -476,6 +471,15 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "tmp/lib" << (*it) << ".a" << ":\n\t"
 	      << var(QString("MAKELIB") + (*it)) << endl << endl;
     }
+
+    QString destdir = project->first("DESTDIR");
+    if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
+	destdir += Option::dir_sep;
+    t << "distclean: " << "clean\n\t"
+      << "-rm -f " << destdir << "$(TARGET)" << " " << "$(TARGET)" << "\n\t";
+    if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty() &&
+       !project->isActiveConfig("plugin"))
+	t << "-rm -f " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) " << destdir << "$(TARGET2) $(TARGETA)" << "\n\t";
 
     if ( !project->isEmpty("PRECOMPH") ) {
 	QString outdir = project->first("MOC_DIR");
@@ -543,7 +547,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
       << "grep \"^qmake_all:$$\" $$pro 2>/dev/null >/dev/null && "
       << "$(MAKE) -f $(MAKEFILE) qmake_all || true; fi; ) ; done" << endl << endl;
 
-    t <<"install uiclean mocclean clean:" << "\n\t"
+    t <<"distclean install uiclean mocclean clean:" << "\n\t"
       << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) $@; fi; ) ; done" << endl << endl;
 
     t <<"FORCE:" << endl << endl;

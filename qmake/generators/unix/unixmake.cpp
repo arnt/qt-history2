@@ -357,6 +357,8 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 
 
     ret = QString("$(COPY) ") + src_targ + " " + dst_targ;
+    if(!project->isEmpty("QMAKE_STRIP"))
+	ret += "\n\t" + var("QMAKE_STRIP") + " " + dst_targ;
     if(!links.isEmpty()) {
 	for(QStringList::Iterator it = links.begin(); it != links.end(); it++) {
 	    if(Option::target_mode == Option::TARG_WIN_MODE || Option::target_mode == Option::TARG_MAC9_MODE) {

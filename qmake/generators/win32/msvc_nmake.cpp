@@ -104,8 +104,12 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     else {
 	t << "LIB	=	" << var("QMAKE_LIB") << endl;
     }
-    t << "MOC	=	" << Option::fixPathToTargetOS(var("QMAKE_MOC"), FALSE) << endl;
-    t << "UIC	=	" << var("QMAKE_UIC") << endl;
+    t << "MOC	=	" << (project->isEmpty("QMAKE_MOC") ? QString("moc") : 
+			      Option::fixPathToTargetOS(var("QMAKE_MOC"), FALSE)) << endl;
+    t << "UIC	=	" << (project->isEmpty("QMAKE_UIC") ? QString("uic") : 
+			      Option::fixPathToTargetOS(var("QMAKE_UIC"), FALSE)) << endl;
+    t << "QMAKE =       " << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : 
+			      Option::fixPathToTargetOS(var("QMAKE_QMAKE"), FALSE)) << endl;
     t << "ZIP	=	" << var("QMAKE_ZIP") << endl;
     t << "COPY  =       " << var("QMAKE_COPY") << endl;
     t << "DEL   =       " << var("QMAKE_DEL") << endl;
