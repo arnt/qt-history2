@@ -916,7 +916,7 @@ bool QApplication::processNextEvent( bool canWait )
 		    GetGlobalMouse(&point);
 		    WindowPtr wp;
 		    FindWindow(point,&wp);
-		    if(QWidget::find((WId)wp)) {
+		    if(!QWidget::find((WId)wp)) {
 			if(DeltaPoint(point, qt_last_point)) {
 			    event.what = osEvt;  
 			    event.message = mouseMovedMessage << 24;
@@ -1319,8 +1319,12 @@ int QApplication::macProcessEvent(MSG * m)
 	}
     } else if(er->what == activateEvt) {
 	widget = QWidget::find( (WId)er->message );	
-	if(widget && (er->modifiers & 0x01))
+	if(widget && (er->modifiers & 0x01)) {
 	    setActiveWindow(widget);
+	} else {
+	    while(inPopupMode())
+		activePopupWidget()->close();
+	}
     } else if( er->what == mouseDown  || er->what == mouseUp ) {
 
 	if( (er->what == mouseDown && mouse_button_state ) ||
