@@ -3561,9 +3561,11 @@ void PropertyEditor::setup()
     listview->viewport()->setUpdatesEnabled( TRUE );
     listview->updateEditorSize();
 
-    eList->viewport()->setUpdatesEnabled( FALSE );
-    eList->setup();
-    eList->viewport()->setUpdatesEnabled( TRUE );
+    if ( !wid->isA( "PropertyObject" ) ) {
+	eList->viewport()->setUpdatesEnabled( FALSE );
+	eList->setup();
+	eList->viewport()->setUpdatesEnabled( TRUE );
+    }
 }
 
 void PropertyEditor::refetchData()
