@@ -1918,9 +1918,12 @@ QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &pare
 		s += indent + parent + "->horizontalHeader()->setLabel( " + parent + "->numCols() - 1, "
 		     + pix + ", " + trmacro + "( " + fixString( txt ) + " ) );\n";
 	} else if ( objClass == "QSqlTable" ) {
-	    // ### also need pixmap support in QSqlTable
-	    if ( !txt.isEmpty() && !field.isEmpty() )
-		out << indent << parent << "->addColumn( " << fixString( field ) << ", " << fixString( txt ) << " );" << endl;
+	    if ( !txt.isEmpty() && !field.isEmpty() ) {
+		if ( pix.isEmpty() )
+		    out << indent << parent << "->addColumn( " << fixString( field ) << ", " << fixString( txt ) << " );" << endl;
+		else
+		    out << indent << parent << "->addColumn( " << fixString( field ) << ", " << fixString( txt ) << ", " << pix << " );" << endl;
+	    }
 	}
     }
     return s;
