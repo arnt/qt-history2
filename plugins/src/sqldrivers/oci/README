@@ -56,10 +56,10 @@ Choosing the option "Programmer" in the Oracle Client Installer from
 the Oracle Client Installation CD is sufficient to build the plugin. 
 
 Build the plugin as follows (here it is assumed that Oracle Client is
-installed in C:\ORACLE):
+installed in C:\oracle):
 
-cd %QTDIR%\PLUGINS\SRC\SQLDRIVERS\OCI
-qmake -o Makefile "INCLUDEPATH+=C:\ORACLE\OCI\INCLUDE" oci.pro
+cd %QTDIR%\plugins\src\sqldrivers\oci
+qmake -o Makefile "INCLUDEPATH+=C:\oracle\oci\include" oci.pro
 nmake
 
 If you are using a Borland compiler, replace "nmake" with "make" in the
@@ -69,5 +69,5 @@ Please note that the Makefile may not contain path names with special
 characters like spaces, so it is recommended that you use the 8.3 filename
 equivalent instead.
  
-Example: If Oracle is installed in "C:\PROGRAM FILES\ORACLE", use the
-following path as an argument for qmake: "C:\PROGRA~1\ORACLE" 
+Example: If Oracle is installed in "C:\program files\oracle", use the
+following path as an argument for qmake: "C:\progra~1\oracle" 

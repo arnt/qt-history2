@@ -29,7 +29,7 @@ Notes on Windows:
 The ODBC header and include files should already be installed in the
 right directories. You just have to build the plugin as follows:
 
-cd %QTDIR%\PLUGINS\SRC\SQLDRIVERS\ODBC
+cd %QTDIR%\plugins\src\sqldrivers\odbc
 qmake -o Makefile odbc.pro
 nmake
 

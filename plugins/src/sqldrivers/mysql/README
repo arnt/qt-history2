@@ -28,7 +28,7 @@ choose "Custom Install". Install the "Libs & Include Files" Module.
 Build the plugin as follows (here it is assumed that MySQL is
 installed in C:\MYSQL):
 
-cd %QTDIR%\PLUGINS\SRC\SQLDRIVERS\MYSQL
+cd %QTDIR%\plugins\src\sqldrivers\mysql
 qmake -o Makefile "INCLUDEPATH+=C:\MYSQL\INCLUDE" "LIBS+=C:\MYSQL\LIB\OPT\LIBMYSQL.LIB" mysql.pro
 nmake
 
@@ -39,5 +39,5 @@ Please note that the Makefile may not contain path names with special
 characters like space, so it is recommended that you use the 8.3 filename
 equivalent instead.
 
-Example: If MySQL is installed in "C:\PROGRAM FILES\MYSQL", use the
-following path as an argument for qmake: "C:\PROGRA~1\MYSQL" 
+Example: If MySQL is installed in "C:\program files\mysql", use the
+following path as an argument for qmake: "C:\progra~1\mysql"
