@@ -11269,7 +11269,6 @@ static int symmetricPairsSize =
 
 #endif
 
-
 static int ucstrcmp( const QString &as, const QString &bs )
 {
     const QChar *a = as.unicode();
@@ -11306,6 +11305,17 @@ static int ucstrnicmp( const QChar *a, const QChar *b, int l )
     QChar al = a->lower();
     QChar bl = b->lower();
     return al.unicode() - bl.unicode();
+}
+
+static uint computeNewMax( uint len )
+{
+    uint newMax = 4;
+    while ( newMax < len )
+	newMax *= 2;
+    // try to spare some memory
+    if ( newMax >= 1024 * 1024 && len <= newMax - (newMax >> 2) )
+	newMax -= newMax >> 2;
+    return newMax;
 }
 
 /*! \class QCharRef qstring.h
@@ -12863,13 +12873,12 @@ void QString::truncate( uint newLen )
 
 void QString::setLength( uint newLen )
 {
-    if ( d->count != 1 || newLen > d->maxl ||           // detach, grow, or
-	 ( newLen*4 < d->maxl && d->maxl > 4 ) ) {      // shrink
+    if ( d->count != 1 || newLen > d->maxl || 
+	 ( newLen * 4 < d->maxl && d->maxl > 4 ) ) {
+	// detach, grow or shrink
 	Q2HELPER(stat_copy_on_write++)
 	Q2HELPER(stat_copy_on_write_size+=d->len)
-	uint newMax = 4;
-	while ( newMax < newLen )
-	    newMax *= 2;
+	uint newMax = computeNewMax( newLen );
 	QChar* nd = QT_ALLOC_QCHAR_VEC( newMax );
 	uint len = QMIN( d->len, newLen );
 	if ( d->unicode )
@@ -15614,12 +15623,11 @@ QString& QString::setUnicode( const QChar *unicode, uint len )
 	    d->ref();
 	}
     } else if ( d->count != 1 || len > d->maxl ||
-	 ( len*4 < d->maxl && d->maxl > 4 ) ) { // detach, grown or shrink
+		( len * 4 < d->maxl && d->maxl > 4 ) ) {
+	// detach, grown or shrink
 	Q2HELPER(stat_copy_on_write++)
 	Q2HELPER(stat_copy_on_write_size+=d->len)
-	uint newMax = 4;
-	while ( newMax < len )
-	    newMax *= 2;
+	uint newMax = computeNewMax( len );
 	QChar* nd = QT_ALLOC_QCHAR_VEC( newMax );
 	if ( unicode )
 	    memcpy( nd, unicode, sizeof(QChar)*len );
