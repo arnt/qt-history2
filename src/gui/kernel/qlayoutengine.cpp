@@ -87,7 +87,7 @@ void qGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
 
         QList<int> list;
 
-        for (int i = start; i < start+count; i++) {
+        for (i = start; i < start+count; i++) {
             list << chain[i].minimumSize;
         }
 
