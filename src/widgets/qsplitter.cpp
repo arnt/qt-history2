@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#59 $
 **
 **  Splitter widget
 **
@@ -977,7 +977,7 @@ QValueList<int> QSplitter::sizes() const
 void QSplitter::setSizes( QValueList<int> list )
 {
     processChildEvents();
-    QValueList<int>::ConstIterator it = list.begin();
+    QValueList<int>::Iterator it = list.begin();
     QSplitterLayoutStruct *s = data->list.first();
     while ( s && it != list.end() ) {
 	if ( !s->isSplitter ) {
