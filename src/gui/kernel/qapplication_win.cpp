@@ -2307,6 +2307,8 @@ static ushort mouseTbl[] = {
 
 static int translateButtonState(int s, int type, int button)
 {
+    Q_UNUSED(type);
+    Q_UNUSED(button);
     int bst = 0;
     if (s & MK_LBUTTON)
         bst |= Qt::LeftButton;
@@ -3109,6 +3111,7 @@ static void tabletInit(UINT wActiveCsr, HCTX hTab)
 bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
                                       int numPackets)
 {
+    Q_UNUSED(msg);
     POINT ptNew;
     static DWORD btnNew, btnOld, btnChange;
     UINT prsNew;
