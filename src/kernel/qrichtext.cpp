@@ -2056,13 +2056,13 @@ void QTextDocument::removeSelectedText( int id, QTextCursor *cursor )
     QTextParag *tmp;
     while ( p && p != c2.parag() ) {
 	tmp = p->next();
-	dy += p->rect().height();
+	dy -= p->rect().height();
 	delete p;
 	p = tmp;
     }
     c2.parag()->remove( 0, c2.index() );
     while ( p ) {
-	p->move( -dy );
+	p->move( dy );
 	p->invalidate( 0 );
 	p->setEndState( -1 );
 	p = p->next();
@@ -3112,7 +3112,7 @@ void QTextParag::join( QTextParag *s )
     state = -1;
 }
 
-void QTextParag::move( int dy )
+void QTextParag::move( int &dy )
 {
     if ( dy == 0 )
 	return;
@@ -3128,6 +3128,7 @@ void QTextParag::move( int dy )
 	    int oh = r.height();
 	    r.setY( y );
 	    r.setHeight( oh );
+	    dy = y - oy;
 	}
     }
 }

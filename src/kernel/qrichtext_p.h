@@ -1078,7 +1078,7 @@ public:
 
     void invalidate( int chr );
 
-    void move( int dy );
+    void move( int &dy );
     void format( int start = -1, bool doMove = TRUE );
 
     bool isValid() const;
