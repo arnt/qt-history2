@@ -474,6 +474,8 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 			    continue;
 			if ( qstrcmp( obj->name(), "designer_wizardstack_button" ) == 0 )
 			    continue;
+			if ( stack->id( (QWidget*)obj ) == -1 )
+			    continue;
 			insertObject( obj, item );
 		    }
 		    delete l2;

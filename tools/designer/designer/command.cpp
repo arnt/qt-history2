@@ -925,6 +925,7 @@ void DeleteWidgetStackPageCommand::execute()
     index = widgetStack->removePage( stackPage );
     stackPage->hide();
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    formWindow()->mainWindow()->objectHierarchy()->widgetRemoved( stackPage );
 }
 
 void DeleteWidgetStackPageCommand::unexecute()
@@ -932,6 +933,7 @@ void DeleteWidgetStackPageCommand::unexecute()
     index = widgetStack->insertPage( stackPage, index );
     widgetStack->raiseWidget( stackPage );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    formWindow()->mainWindow()->objectHierarchy()->widgetInserted( stackPage );
 }
 
 // ------------------------------------------------------------
@@ -1097,7 +1099,7 @@ void RemoveConnectionCommand::unexecute()
 AddFunctionCommand::AddFunctionCommand( const QString &name, FormWindow *fw, const QCString &f,
 					const QString& spec, const QString &a, const QString &t,
 					const QString &l, const QString &rt )
-    : Command( name, fw ), function( f ), specifier( spec ), access( a ), functionType( t ), language( l ), 
+    : Command( name, fw ), function( f ), specifier( spec ), access( a ), functionType( t ), language( l ),
       returnType( rt )
 {
 }
@@ -1121,9 +1123,9 @@ void AddFunctionCommand::unexecute()
 // ------------------------------------------------------------
 
 RemoveFunctionCommand::RemoveFunctionCommand( const QString &name, FormWindow *fw, const QCString &f,
-						const QString& spec, const QString &a, const QString &t, 
+						const QString& spec, const QString &a, const QString &t,
 						const QString &l, const QString &rt )
-    : Command( name, fw ), function( f ), specifier( spec ), access( a ), functionType( t ), language( l ), 
+    : Command( name, fw ), function( f ), specifier( spec ), access( a ), functionType( t ), language( l ),
       returnType( rt )
 {
 }
