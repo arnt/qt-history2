@@ -73,7 +73,7 @@ public:
 #else
     inline int indexOf(const QString &str, int from = 0) const
     { return QList<QString>::indexOf(str, from); }
-    inline int lastIndexOf(const QString &str, int from = 0) const
+    inline int lastIndexOf(const QString &str, int from = -1) const
     { return QList<QString>::lastIndexOf(str, from); }
 #endif
 #ifdef QT_COMPAT
