@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#238 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#239 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1524,7 +1524,6 @@ void QFileDialog::init()
     nameEdit->installEventFilter( this );
 
     d->stack = new QWidgetStack( this, "files and more files" );
-    d->stack->setFrameStyle( QFrame::WinPanel + QFrame::Sunken );
 
     files = new QFileListView( d->stack, this );
     QFontMetrics fm = fontMetrics();
@@ -1561,7 +1560,6 @@ void QFileDialog::init()
     files->viewport()->installEventFilter( this );
 
     d->moreFiles = new QFileListBox( d->stack, this );
-    d->moreFiles->setFrameStyle( QFrame::NoFrame );
     d->moreFiles->setFocusPolicy( StrongFocus );
     d->moreFiles->setRowMode( QListBox::FitToHeight );
     d->moreFiles->setVariableWidth( TRUE );
