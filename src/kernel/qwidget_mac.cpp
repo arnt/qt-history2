@@ -55,6 +55,7 @@
   QWidget debug facilities
  *****************************************************************************/
 //#define DEBUG_WINDOW_RGNS
+//#define DEBUG_WINDOW_CREATE
 
 /*****************************************************************************
   QWidget globals
@@ -574,15 +575,15 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow )
 	Rect r;
 	SetRect(&r, crect.left(), crect.top(), crect.right(), crect.bottom());
 	WindowClass wclass = kSheetWindowClass;
-	if(popup || testWFlags(WStyle_Tool))
+	if(popup || testWFlags(WStyle_Tool)) 
 	    wclass = kModalWindowClass;
-	else if(testWFlags(WShowModal))
+	else if(testWFlags(WShowModal)) 
 	    wclass = kMovableModalWindowClass;
-	else if(dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop())
+	else if(dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop()) 
 	    wclass = kFloatingWindowClass;
-	else if(dialog)
+	else if(dialog) 
 	    wclass = kToolbarWindowClass;
-	else
+	else 
 	    wclass = kDocumentWindowClass;
 
 	WindowGroupRef grp = NULL;
@@ -594,7 +595,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow )
 	    } else if(testWFlags(WStyle_NormalBorder) || testWFlags(WStyle_DialogBorder)) {
 		if(wclass == kToolbarWindowClass)
 		    wclass = kFloatingWindowClass;
-		if(wclass == kDocumentWindowClass || wclass == kFloatingWindowClass)
+		if(wclass == kDocumentWindowClass || wclass == kFloatingWindowClass) 
 		    wattr |= kWindowStandardDocumentAttributes;
 	    } else {
 		grp = GetWindowGroupOfClass(wclass);
@@ -604,7 +605,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow )
 		    else if(wclass == kFloatingWindowClass)
 			wclass = kToolbarWindowClass;
 		} else {
-		    wattr |= kWindowResizableAttribute;
+		    if(wclass != kModalWindowClass)
+			wattr |= kWindowResizableAttribute;
 		}
 		if(testWFlags(WStyle_Maximize))
 		    wattr |= kWindowFullZoomAttribute;
@@ -626,6 +628,57 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow )
 	   (!testWFlags(WShowModal) && dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop()))
 	    wattr |= kWindowNoActivatesAttribute;
 #endif
+
+#ifdef DEBUG_WINDOW_CREATE
+#define ADD_DEBUG_WINDOW_NAME(x) { x, #x }
+	struct {
+	    UInt32 tag;
+	    const char *name;
+	} known_attribs[] = {
+	    ADD_DEBUG_WINDOW_NAME(kWindowCollapseBoxAttribute),
+	    ADD_DEBUG_WINDOW_NAME(kWindowHorizontalZoomAttribute),
+	    ADD_DEBUG_WINDOW_NAME(kWindowVerticalZoomAttribute),
+	    ADD_DEBUG_WINDOW_NAME(kWindowResizableAttribute),
+	    ADD_DEBUG_WINDOW_NAME(kWindowNoActivatesAttribute),
+	    ADD_DEBUG_WINDOW_NAME(kWindowLiveResizeAttribute),
+	    ADD_DEBUG_WINDOW_NAME(kWindowCloseBoxAttribute),
+	    { 0, NULL }
+	}, known_classes[] = {
+	    ADD_DEBUG_WINDOW_NAME(kToolbarWindowClass),
+	    ADD_DEBUG_WINDOW_NAME(kSheetWindowClass),
+	    ADD_DEBUG_WINDOW_NAME(kFloatingWindowClass),
+	    ADD_DEBUG_WINDOW_NAME(kDocumentWindowClass),
+	    ADD_DEBUG_WINDOW_NAME(kToolbarWindowClass),
+	    ADD_DEBUG_WINDOW_NAME(kMovableModalWindowClass),
+	    ADD_DEBUG_WINDOW_NAME(kModalWindowClass),
+	    { 0, NULL }
+	};
+#undef ADD_DEBUG_WINDOW_NAME	
+	qDebug("************* Creating new window (%s::%s)", className(), name());
+	bool found_class = FALSE;
+	for(int i = 0; known_classes[i].name; i++) {
+	    if(wclass == known_classes[i].tag) {
+		found_class = TRUE;
+		qDebug("** Class: %s", known_classes[i].name);
+		break;
+	    }
+	}
+	if(!found_class)
+	    qDebug("!! Class: Unknown! (%d)", (int)wclass);
+	if(wattr) {
+	    WindowAttributes tmp_wattr = wattr;		    
+	    qDebug("** Attributes:");
+	    for(int i = 0; tmp_wattr && known_attribs[i].name; i++) {
+		if((tmp_wattr & known_attribs[i].tag) == known_attribs[i].tag) {
+		    tmp_wattr ^= known_attribs[i].tag;
+		    qDebug("* %s", known_attribs[i].name);
+		}
+	    }
+	    if(tmp_wattr)
+		qDebug("!! Attributes: Unknown (%d)", (int)tmp_wattr);
+	}
+#endif
+
 #ifdef QMAC_USE_WDEF
 	if((wclass == kPlainWindowClass && wattr == kWindowNoAttributes) || testWFlags(WStyle_Tool)) {
 	    WindowDefSpec wds;
@@ -635,8 +688,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow )
 	} else
 #endif
 	{
-	    if(CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id))
-		qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
+	    if(OSStatus ret = CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id))
+		qDebug("Shouldn't happen %s:%d %ld", __FILE__, __LINE__, ret);
 	    if(!desktop) { 	//setup an event callback handler on the window
 		InstallWindowEventHandler((WindowRef)id, make_win_eventUPP(),
 					  GetEventTypeCount(window_events),
