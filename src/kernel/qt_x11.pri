@@ -5,6 +5,8 @@ unix {
 	!xrender:DEFINES += QT_NO_XRENDER
 	xftfreetype:LIBS += -lXft
 	!xftfreetype:DEFINES += QT_NO_XFTFREETYPE
+	!xftnameunparse:DEFINES += QT_NO_XFTNAMEUNPARSE
+	!xftnameunparse:SOURCES += $$KERNEL_CPP/xftnameunparse.c
 }
 
 nas {
