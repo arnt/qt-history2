@@ -180,11 +180,11 @@ Profile *Profile::createDefaultProfile()
     profile->addDocFileTitle( path + "linguist.xml", "Guide to the Qt Translation Tools" );
     profile->addDocFileTitle( path + "qmake.xml", "qmake User Guide" );
 
-    profile->addDocFileImageDir( path + "qt.xml", path + "../../gif/" );
-    profile->addDocFileImageDir( path + "designer.xml", path + "../../gif/" );
-    profile->addDocFileImageDir( path + "assistant.xml", path + "../../gif/" );
-    profile->addDocFileImageDir( path + "linguist.xml", path + "../../gif/" );
-    profile->addDocFileImageDir( path + "qmake.xml", path + "../../gif/" );
+    profile->addDocFileImageDir( path + "qt.xml", "../../gif/" );
+    profile->addDocFileImageDir( path + "designer.xml", "../../gif/" );
+    profile->addDocFileImageDir( path + "assistant.xml", "../../gif/" );
+    profile->addDocFileImageDir( path + "linguist.xml", "../../gif/" );
+    profile->addDocFileImageDir( path + "qmake.xml", "../../gif/" );
 
     return profile;
 }
