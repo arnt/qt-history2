@@ -412,7 +412,7 @@ void QScrollBar::mouseMoveEvent(QMouseEvent *e)
 	return;
 
     if (d->pressedControl == QStyle::SC_ScrollBarSlider) {
-	int newPosition = (HORIZONTAL ? e->pos().x() : e->pos().y()) -d->clickOffset;
+	int newPosition = d->pixelPosToRangeValue((HORIZONTAL ? e->pos().x() : e->pos().y()) -d->clickOffset);
 	int m = style().pixelMetric(QStyle::PM_MaximumDragDistance, this);
 	if (m >= 0) {
 	    QRect r = rect();
@@ -420,7 +420,7 @@ void QScrollBar::mouseMoveEvent(QMouseEvent *e)
 	    if (! r.contains(e->pos()))
 		newPosition = d->snapBackPosition;
 	}
-	setSliderPosition(d->pixelPosToRangeValue(newPosition));
+	setSliderPosition(newPosition);
     } else if (!style().styleHint(QStyle::SH_ScrollBar_ScrollWhenPointerLeavesControl)) {
 	// stop scrolling when the mouse pointer leaves a control
 	// similar to push buttons
