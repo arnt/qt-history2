@@ -10,12 +10,16 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
-
 #include "qpagesetupdialog.h"
 
 #include <private/qprintengine_mac_p.h>
 #include <private/qabstractpagesetupdialog_p.h>
+
+/*****************************************************************************
+  External functions
+ *****************************************************************************/
+extern void qt_enter_modal(QWidget *); //qapplication_mac.cpp
+extern void qt_leave_modal(QWidget *); //qapplication_mac.cpp
 
 #define d d_func()
 #define q q_func()
@@ -34,7 +38,13 @@ int QPageSetupDialog::exec()
     QMacPrintEngine *engine = static_cast<QMacPrintEngine *>(d->printer->paintEngine());
     QMacPrintEnginePrivate *ep = static_cast<QMacPrintEnginePrivate *>(engine->d_ptr);
     Boolean ret;
-    if (PMSessionPageSetupDialog(ep->session, ep->format, &ret) != noErr)
-        return Rejected;
-    return ret == true ? Accepted : Rejected;
+    { //simulate modality
+	QWidget modal_widg(0, __FILE__ "__modal_dlg",
+			   Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_DialogBorder);
+	qt_enter_modal(&modal_widg);
+        if (PMSessionPageSetupDialog(ep->session, ep->format, &ret) != noErr)
+            ret = false;
+	qt_leave_modal(&modal_widg);
+    }
+    return ret ? Accepted : Rejected;
 }

@@ -10,12 +10,17 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
 #include <private/qt_mac_p.h>
 
 #include <qprintdialog.h>
 #include <private/qabstractprintdialog_p.h>
 #include <private/qprintengine_mac_p.h>
+
+/*****************************************************************************
+  External functions
+ *****************************************************************************/
+extern void qt_enter_modal(QWidget *); //qapplication_mac.cpp
+extern void qt_leave_modal(QWidget *); //qapplication_mac.cpp
 
 class QPrintDialogPrivate : public QAbstractPrintDialogPrivate
 {
@@ -66,7 +71,13 @@ int QPrintDialog::exec()
         PMSetFirstPage(d->ep->settings, d->fromPage, false);
         PMSetLastPage(d->ep->settings, d->toPage, false);
     }
-    PMSessionPrintDialog(d->ep->session, d->ep->settings, d->ep->format, &result);
+    { //simulate modality
+	QWidget modal_widg(0, __FILE__ "__modal_dlg",
+			   Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_DialogBorder);
+	qt_enter_modal(&modal_widg);
+        PMSessionPrintDialog(d->ep->session, d->ep->settings, d->ep->format, &result);
+	qt_leave_modal(&modal_widg);
+    }
     if (result) {
         UInt32 page;
         PMGetFirstPage(d->ep->settings, &page);
