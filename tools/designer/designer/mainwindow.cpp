@@ -1358,8 +1358,9 @@ void MainWindow::activeWindowChanged( QWidget *w )
 
     if ( w && w->inherits( "SourceEditor" ) ) {
 	SourceEditor *se = (SourceEditor*)w;
+	QGuardedPtr<FormWindow> fw = se->formWindow();
 	if ( se->formWindow() &&
-	     lastActiveFormWindow != se->formWindow() ) {
+	     lastActiveFormWindow != fw ) {
 	    activeWindowChanged( se->formWindow() );
 	}
 	actionSearchFind->setEnabled( TRUE );

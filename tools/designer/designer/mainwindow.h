@@ -366,7 +366,7 @@ private:
     QWidget *lastPressWidget;
     QWorkspace *qworkspace;
     QMenuBar *menubar;
-    FormWindow *lastActiveFormWindow;
+    QGuardedPtr<FormWindow> lastActiveFormWindow;
     bool breakLayout, layoutChilds, layoutSelected;
     QPoint grd;
     bool sGrid, snGrid;
