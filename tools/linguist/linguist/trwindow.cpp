@@ -1106,11 +1106,11 @@ void TrWindow::about()
     QLabel * splash = new QLabel( &about );
     splash->setFrameStyle( QFrame::NoFrame | QFrame::Plain );
     splash->setPixmap( pixmap );
-    splash->setFixedSize( pixmap.width(), pixmap.height() );
+    splash->setScaledContents( FALSE );
     splash->setAlignment( QLabel::AlignCenter );
     layout->addWidget( splash );
 
-    QLabel * version = new QLabel( tr("Version 1.0"), &about );
+    QLabel * version = new QLabel( tr("Version 1.0-beta"), &about );
     version->setAlignment( QLabel::AlignCenter );
     layout->addWidget( version );
 

@@ -485,6 +485,12 @@
     config.writeEntry( keybase + "Size",  browser-&gt;QWidget::font().pointSize() );
 }</function>
     <function name="about()" >{
+    static const char *about_text =
+        "&lt;p&gt;&lt;b&gt;&lt;font size+=4&gt;About Qt Assistant&lt;/font&gt;&lt;/b&gt;&lt;br&gt;"
+	"The Qt documentation browser.&lt;/p&gt;"
+        "&lt;p&gt;Version 1.0-beta&lt;/p&gt;"
+        "&lt;p&gt;Copyright (C) 2001 Trolltech AS&lt;/p&gt;";
+    QMessageBox::about( this, tr("Qt Assistant"), tr( about_text ) );
 }</function>
     <function name="aboutQt()" >{
     QMessageBox::aboutQt( this, tr( "Qt Assistant" ) );
