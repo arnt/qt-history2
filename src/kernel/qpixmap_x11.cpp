@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#47 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#46 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#47 $")
 
 
 /*
@@ -447,7 +447,7 @@ QImage QPixmap::convertToImage() const
 			mono ? XYPixmap : ZPixmap );
     CHECK_PTR( xi );
 
-    enum QImage::Endian bitOrder = QImage::IgnoreEndian;
+    QImage::Endian bitOrder = QImage::IgnoreEndian;
     if ( mono ) {
 	bitOrder = xi->bitmap_bit_order == LSBFirst ?
 	    QImage::LittleEndian : QImage::BigEndian;
@@ -1285,7 +1285,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	return pm;
     }
     else {
-	Display *dpy = display();
 	int scr = qt_xscreen();
 	int dd	= DefaultDepth(dpy,scr);
 	GC  gc	= qt_xget_readonly_gc();
