@@ -179,8 +179,19 @@ void QPixmap::fill(const QColor &fillColor)
             pixel = 1;
         }
     } else if (data->image.depth() == 32) {
-        // 32-bit
-        pixel = fillColor.rgba();
+        int alpha = fillColor.alpha();
+        if (alpha != 255) {
+            if (data->image.format() == QImage::Format_RGB32)
+                data->image = data->image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+            // Premultiply pixel value.
+            pixel = qRgba(fillColor.red() * alpha / 255,
+                          fillColor.green() * alpha / 255,
+                          fillColor.blue() * alpha / 255,
+                          alpha);
+        } else {
+            pixel = fillColor.rgba();
+        }
+
     } else {
         pixel = 0;
         // ### what about 8/16-bits
