@@ -228,3 +228,493 @@ void QStyleOption::init(const QWidget *w)
 
     \brief The iconset (if any) of the header.
 */
+
+/*!
+    \class QStyleOptionButton qstyleoption.h
+    \brief QStyleOptionButton describes the parameters to draw buttons.
+
+    The QStyleOptionButton structure is used to draw \l QPushbuttons, \l
+    QCheckBoxes, and \l QRadioButtons. \l QStyleOptionToolButton is used to draw
+    a \l QToolButton.
+*/
+
+/*!
+    \enum QStyleOptionButton::ButtonFeature
+
+    This enum describles the different types of features a push button can have.
+
+    \value None	Indicates a normal push button.
+    \value Flat Indicates a flat push button.
+    \value HasMenu Indicates that the button has a drop down menu.
+
+    \sa QStyleOptionButton::features
+*/
+
+/*!
+    \fn QStyleOptionButton::QStyleOptionButton(int version)
+
+    Constructs a QStyleOptionButton with version \a version. The rest of the
+    parameters are either zero, null, or empty. It is the developer's
+    responsibilty to populate the structure with the proper parameters.
+*/
+
+/*!
+    \property QStyleOptionButton::features
+    \brief The features for the button
+
+    This variable is a bitwise OR of the features that describe this button.
+    \sa ButtonFeature
+*/
+
+/*!
+    \property QStyleOptionButton::text
+    \brief The text (if any) of the button.
+*/
+
+/*!
+    \property QStyleOptionButton::icon
+    \brief The iconset of the button (if any).
+*/
+
+/*!
+    \class QStyleOptionTab qstyleoption.h
+    \brief The QStyleOptionTab structure describe parameters for drawing a TabBar.
+
+    The QStyleOptionTab structure is used for drawing the \l QTabBar and the
+    pane for \l QTabWidget.
+*/
+
+/*!
+    \fn QStyleOptionTab::QStyleOptionTab(int version)
+
+    Constructs a QStyleOptionTab structure with version \a version. The
+    parameters are either 0, empty or null. It is the developer's
+    responsibility to populate the structure with proper values.
+*/
+
+/*!
+    \property QStyleOptionTab::shape
+    \brief The tab shape used to draw the tab.
+    \sa QTabBar::Shape
+*/
+
+/*!
+    \property QStyleOptionTab::text
+    \brief The text of the tab (if any).
+*/
+
+/*!
+    \property QStyleOptionTab::icon
+    \brief The iconset for the tab (if any).
+*/
+
+/*!
+    \property QStyleOptionTab::row
+    \brief which row the tab is currently in. 0 indicates the front row.
+
+    Currently this property is not used.
+*/
+
+/*!
+    \class QStyleOptionProgressBar qstyleoption.h
+    \brief QStyleOptionProgressBar describes the parameters necessary for drawing a progress bar.
+
+    The QStyleOptionProgressBar structure is used to draw \l QProgressBars.
+*/
+
+/*!
+    \enum QStyleOptionProgressBar::ProgressBarFeature
+
+    This describes features for a progress bar.
+    \value None Indicates a normal progress bar.
+    \value CenterIndicator Indicates that the percentage indicator \l
+    progressBarString should be centered.
+    \value PercentageVisible Indicates that the \l progressBarString should also be drawn
+    \sa QProgressBar::percentageVisible.
+    \value IndicatorFollowsStyle Indicates that the \l progressBarString should
+    follow the style.
+
+    \sa features QProgressBar::indicatorFollowsStyle QProgressBar::centerIndicator
+*/
+
+/*!
+    \fn QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
+
+    Construct a QStyleOptionProgressBar with version \a version. The values are
+    either 0 or empty. It is the responsibilty of the developer to populate the
+    structure with the proper values.
+*/
+
+/*!
+    \property QStyleOptionProgressBar::features
+    \brief Describes the features of the progress bar.
+
+    This is a bitwise OR of the features of the progress bar.
+    \sa ProgressBarFeature
+*/
+
+/*!
+    \property QStyleOptionProgressBar::progressString
+    \brief The progress of the progress bar as a string.
+
+    This is the progress in terms of a string. If the string is empty, it
+    indicates that the progress bar hasn't started yet.
+
+    \sa QProgressBar::progressString
+*/
+
+/*!
+    \property QStyleOptionProgressBar::totalSteps
+    \brief The total steps for the progress bar.
+
+    The total number of steps for the progress bar. If the totalSteps is zero,
+    it indicates that a busy indicator should be drawn instead of a standard
+    progress bar.
+
+    \sa QProgressBar::totalSteps
+*/
+
+/*!
+    \property QStyleOptionProgressBar::progress
+    \brief the current progress for the progress bar.
+
+    The current progress. If the value is -1, it indicates that the progress
+    hasn't started yet.
+*/
+
+/*!
+    \class QStyleOptionMenuItem qstyleoption.h
+    \brief QStyleOptionMenuItem describes the parameter necessary for drawing a menu item.
+
+    The QStyleOptionMenuItem is used for drawing menu items from \l QMenu and
+    from the older \l Q3PopupMenu. It is also used for drawing a variety of
+    other menu related things.
+*/
+
+/*!
+    \fn QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
+
+    Constructs a QStyleOptionMenuItem with version \a version. The values of
+    the structure are either zero, null, or empty. It is the responsibilty of
+    the developer to make sure these have proper values.
+*/
+
+/*!
+    \enum QStyleOptionMenuItem::MenuItemType
+    These values indicate the type of menu item that the structure describes.
+    \value Normal A normal menu item.
+    \value Separator A menu separator.
+    \value SubMenu Indicates the menu item points to a sub-menu.
+    \value Scroller A popup menu scroller (currently only used on Mac OS X).
+    \value TearOff A tear-off handle for the menu.
+    \value Margin The margin of the menu.
+    \value EmptyArea The empty area of the menu.
+    \value Q3Custom A custom menu item from a \l Q3PopupMenu.
+
+*/
+
+/*!
+    \enum QStyleOptionMenuItem::CheckState
+
+    These enums are used to indicate whether or not a check mark should be
+    drawn for the item, or even if it should be drawn at all.
+
+    \value NotCheckable The item is not checkable.
+    \value Checked The item is checked.
+    \value Unchecked The item can be checked, but currently is not checked.
+
+    \sa QAction::checkable QAction::checked
+*/
+
+/*!
+    \property QStyleOptionMenuItem::menuItemType
+    \brief The current menuItemType for the structure.
+    \sa MenuItemType
+*/
+
+/*!
+    \property QStyleOptionMenuItem::checkState
+    \brief The checkmark state for the structure.
+    \sa CheckState
+*/
+
+/*!
+    \property QStyleOptionMenuItem::menuRect
+    \brief The rect for the entire menu.
+*/
+
+/*!
+    \property QStyleOptionMenuItem::text
+    \brief The text (if any) for the menu item.
+
+    Note that the text format is something like this:
+    MenuText<Tab>MenuShortCut
+
+    If the menu item does not have a shortcut it will just contain the menu
+    item's text.
+*/
+
+/*!
+    \property QStyleOptionMenuItem::icon
+    \brief The icon (if any) for the menu item.
+*/
+
+/*!
+    \property QStyleOptionMenuItem::maxIconWidth
+    \brief the maximum icon width for the icon in the menu item.
+
+    This can be used for drawing the icon into the correct place or properly
+    aligning items. maxIconWidth is set regardless of whether or not the menu
+    item has an icon or not.
+*/
+
+/*!
+    \property QStyleOptionMenuItem::tabWidth
+    \brief The tab width for the menu item.
+
+    The tab width is the distance between the text of the menu item and the
+    shortcut if it contains one.
+*/
+
+/*!
+    \property QStyleOptionMenuItem::q3CustomItemSizeHint
+    \brief The size hint for a custom menu item in a \l Q3PopupMenu
+
+    This property is only used for custom menu items in Q3PopupMenus.
+    \sa Q3CustomMenuItem
+*/
+
+/*!
+    \property QStyleOptionMenuItem::q3CustomItemFullSpan
+    \brief Indicates that a custom menu item spans the entire \l rect for it.
+
+    This property is only used for custom menu items in a \l Q3PopupMenu.
+    \sa Q3CustomMenuItem
+*/
+
+/*!
+    \class QStyleOptionComplex qstyleoption.h
+    \brief The QStyleOptionComplex structure contains parameters that are
+    common to all complex controls.
+
+    This class is not used on its own. Instead it is used to derive other
+    complex control options, for example \l QStyleOptionSlider and
+    \l QStyleOptionSpinbox.
+*/
+
+/*!
+    \fn QStyleOptionComplex::QStyleOptionComplex(int version, int type = SO_Complex)
+
+    Constructs a QStyleOptioncomplex of type \a type and version \a version.
+    Usually this constructor is called by structures derived
+    QStyleOptionComplex.  The \l parts parameter is initialized to \l
+    QStyle::SC_All and the \l activeParts is linked to \l QStyle::SC_None.
+*/
+
+/*!
+    \property QStyleOptionComplex::parts
+    \brief The sub-controls that need to be painted.
+
+    This is a bitwise OR of the various parts that need to be drawn for the complex control.
+    \sa QStyle::SubControl
+*/
+
+/*!
+    \property QStyleOptionComplex::activeParts
+    \brief The sub-controls that are active for the complex control.
+
+    This a bitwise OR of the various parts that are "active" (pressed) for the complex control.
+    \sa QStyle::SubControl
+*/
+
+/*!
+    \class QStyleOptionSlider qstyleoption.h
+    \brief QStyleOptionSlider describes the parameters needed for drawing a slider.
+
+    The QStyleOptionSlider structure is used for drawing both a \l QSlider and a \l QScrollBar.
+*/
+
+/*!
+    \fn QStyleOptionSlider::QStyleOptionSlider(int version)
+    Construct a QStyleOptionSlider with version \a version.
+
+    All the values in the structure are initialized to zero. It is the
+    responsibility of the developer to set them to the proper value.
+*/
+
+/*!
+    \property QStyleOptionSlider::orientation
+    \brief Indicates whether the slider is horizontal or vertical.
+    \sa Qt::Orientation
+*/
+
+/*!
+    \property QStyleOptionSlider::minimum
+    \brief The minimum value for the slider.
+*/
+
+/*!
+    \property QStyleOptionSlider::maximum
+    \brief The maximum value for the slider.
+*/
+
+/*!
+    \property QStyleOptionSlider::tickmarks
+    \brief Indicates the type of tickmarks the slider should have, if any.
+    \sa QSlider::TickSetting
+*/
+
+/*!
+    \property QStyleOptionSlider::tickInterval
+    \brief The interval that should be drawn between tickmarks.
+*/
+
+/*!
+    \property QStyleOptionSlider::useRightToLeft
+    \brief Indicates slider control orientation.
+
+    Normally a slider increases as it moves up or to the right, useRightToLeft
+    indicates that it should do the opposite (increase as it moves down or to
+    the left). Note that this is different than \l QApplication::reverse().
+
+    \sa QStyle::positionFromValue QStyle::valueFromPosition QAbstractSlider::invertedAppearance
+*/
+
+/*!
+    \property QStyleOptionSlider::sliderPosition
+    \brief The position of the slider handle.
+
+    If the slider has active feedback (QAbstractSlider::tracking is true). This
+    value will be the same as \l sliderValue. Otherwise, it will have the
+    current position of the handle.
+
+    \sa QAbstractSlider::tracking sliderValue
+*/
+
+/*!
+    \property QStyleOptionSlider::sliderValue
+    \brief The value of the slider.
+
+    If the slider has active feedback (QAbstractSlider::tracking is true). This
+    value will be the same as \l sliderPosition. Otherwise, it will have the
+    value the slider had before the mouse was pressed.
+
+    \sa QAbstractSlider::tracking sliderPosition
+*/
+
+/*!
+    \property QStyleOptionSlider::singleStep
+    \brief The size of the single step of the slider.
+    \sa QAbstractSlider::singleStep
+*/
+
+/*!
+    \property QStyleOptionSlider::pageStep
+    \brief The size of the page step of the slider.
+    \sa QAbstractSlider::pageStep
+*/
+
+/*!
+    \class QStyleOptionSpinBox qstyleoption.h
+    \brief QStyleOptionSpinBox describes the parameters necessary for drawing a spin box.
+
+    The QStyleOptionSpinBox is used for drawing a QSpinBox and QDateTimeEdit.
+*/
+
+/*!
+    \fn QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
+    Construct a QStyleOptionSpinBox with version \a version.
+
+    The values of the structure are set to zero. It is the Developer's
+    responsiblity to set them to proper values.
+*/
+
+/*!
+    \property QStyleOptionSpinBox::buttonSymbols
+    \brief The type of button symbols to draw for the spin box.
+    \sa QAbstractSpinBox::ButtonSymbols
+*/
+
+/*!
+    \property QStyleOptionSpinBox::stepEnabled
+    \brief Indicates which buttons of the spin box are enabled.
+    \sa QAbstractSpinBox::StepEnabled
+*/
+
+/*!
+    \property QStyleOptionSpinBox::percentage
+    \brief The percentage of the spin box
+
+    The quotient of the current value divided by the and maximum value.
+*/
+
+/*!
+    \property QStyleOptionSpinBox::slider
+    \brief Indicates whether the optional slider indicator should be drawn.
+*/
+
+/*!
+    \class QStyleOptionListViewItem qsytleoption.h
+    \brief QStyleOptionListViewItem describes an item drawn in a Q3ListView
+
+    This is used by the compat Q3ListView to draw its items. It should be
+    avoided for new clases.
+
+    \sa Q3ListView Q3ListViewItem
+*/
+
+/*!
+    \enum QStyleOptionListViewItem::ListViewItemFeature
+    This enum describes the features a list view item can have.
+    \value None A standard item
+    \value Expandable The item has children that can be shown
+    \value MultiLine The item is more than one line tall.
+    \value Visible The item is visible
+    \value ParentControl The item's parent is a type of item control (QCheckListItem::Controller)
+
+    \sa Q3ListViewItem::isVisible() Q3ListViewItem::multiLinesEnabled() Q3ListViewItem::isExpandable() features
+*/
+
+/*!
+    \fn QStyleOptionListViewItem::QStyleOptionListViewItem(int version)
+
+    Construct a QStyleOptionListViewItem with version \a version.
+
+    All values in the structure are set to zero. It is the responsibility of
+    the developer to set all appropriate values.
+*/
+
+/*!
+    \property QStyleOptionListViewItem::features
+    \brief The features for this item
+
+    This is a bitwise OR of the features of the item.
+    \sa ListViewItemFeature
+*/
+
+/*!
+    \property QStyleOptionListViewItem::height
+    \brief The height of the item
+
+    This is the height of just the item (not it's children).
+    \sa Q3ListViewItem::height()
+*/
+
+/*!
+    \property QStyleOptionListViewItem::totalHeight
+    \brief The total height of the item
+
+    This is the height of the item including its children.
+    \sa Q3ListViewItem::totalHeight()
+*/
+
+/*!
+    \property QStyleOptionListViewItem::itemY
+    \brief The Y-coordinate for the item
+    \sa Q3ListViewItem::itemY()
+*/
+
+/*!
+    \property QStyleOptionListViewItem::childCount
+    \brief The number of children the item has.
+*/
