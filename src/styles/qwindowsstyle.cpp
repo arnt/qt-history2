@@ -869,7 +869,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	break;
 
     case PM_MaximumDragDistance:
-	ret = 20;
+	ret = 60;
 	break;
 
 #ifndef QT_NO_SLIDER
