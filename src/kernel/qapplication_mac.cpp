@@ -378,7 +378,7 @@ void qt_mac_update_os_settings()
 	    { "QHeader", kThemeSmallSystemFont },
 	    { "QTipLabel", kThemeSmallSystemFont },
 	    { "QMessageBoxLabel", kThemeEmphasizedSystemFont },
-	    { "QLabel", kThemeLabelFont },
+	    { "QLabel", kThemeSystemFont },
 	    { NULL, 0 } };
 	Str255 f_name;
 	SInt16 f_size;
