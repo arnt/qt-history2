@@ -292,6 +292,7 @@ private:
     static QMAC_PASCAL OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
     static QMAC_PASCAL void qt_trap_context_mouse(EventLoopTimerRef, void *);
     static QMAC_PASCAL void qt_select_timer_callbk(EventLoopTimerRef, void *);
+    static bool qt_mac_apply_settings();
     friend class QMacInputMethod;
     friend bool qt_set_socket_handler( int, int, QObject *, bool);
     friend void qt_mac_destroy_widget(QWidget *);

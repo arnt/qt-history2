@@ -5,7 +5,7 @@
 **
 ** Created : 001018
 **
-** Copyrigght (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -54,6 +54,8 @@
 #include "qclipboard.h"
 #include "qpaintdevicemetrics.h"
 #include "qcursor.h"
+#include <qsettings.h>
+#include <qstylefactory.h>
 #ifndef QT_NO_STYLE_AQUA
 #include "qaquastyle.h"
 #endif
@@ -111,6 +113,7 @@ QMutex *qt_mac_port_mutex = NULL;
 static int mouse_button_state = 0;
 static bool	app_do_modal	= FALSE;	// modal mode
 extern QWidgetList *qt_modal_stack;		// stack of modal widgets
+extern bool qt_resolve_symlinks; // from qapplication.cpp
 static char    *appName;                        // application name
 static Qt::HANDLE currentCursor;                  //current cursor
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
@@ -443,6 +446,8 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
     if(qt_is_gui_used)
 	QAquaStyle::appearanceChanged();
 #endif
+
+    QApplication::qt_mac_apply_settings();
 }
 
 /*****************************************************************************
@@ -1819,6 +1824,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    break;
 	}
 	case kEventMouseDown:
+	    if(button == QMouseEvent::LeftButton && !mac_trap_context) {
+		remove_context_timer = FALSE;
+		InstallEventLoopTimer(GetMainEventLoop(), 2, 0,
+				      NewEventLoopTimerUPP(qt_trap_context_mouse), widget,
+				      &mac_trap_context);
+	    }
 	    qt_button_down = widget;
 	    break;
 	case kEventMouseUp:
@@ -1890,13 +1901,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
 		    QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
 		    QApplication::sendSpontaneousEvent( widget, &qme );
-		}
-		if(etype == QEvent::MouseButtonPress && 
-		   button == QMouseEvent::LeftButton && !mac_trap_context) {
-		    remove_context_timer = FALSE;
-		    InstallEventLoopTimer(GetMainEventLoop(), 2, 0,
-					  NewEventLoopTimerUPP(qt_trap_context_mouse), widget,
-					  &mac_trap_context);
 		}
 	    }
 	} else {
@@ -2376,6 +2380,169 @@ void QApplication::flush()
 	}
 	delete list;
     }
+}
+
+bool QApplication::qt_mac_apply_settings()
+{
+    QSettings settings;
+
+    /*
+      Qt settings.  This is now they are written into the datastream.
+
+      /qt/Palette/ *             - QPalette
+      /qt/font                   - QFont
+      /qt/libraryPath            - QStringList
+      /qt/style                  - QString
+      /qt/doubleClickInterval    - int
+      /qt/cursorFlashTime        - int
+      /qt/wheelScrollLines       - int
+      /qt/colorSpec              - QString
+      /qt/defaultCodec           - QString
+      /qt/globalStrut            - QSize
+      /qt/GUIEffects             - QStringList
+      /qt/Font Substitutions/ *  - QStringList
+      /qt/Font Substitutions/... - QStringList
+    */
+
+    QString str;
+    QStringList strlist;
+    int i, num;
+    QPalette pal(QApplication::palette());
+    strlist = settings.readListEntry("/qt/Palette/active");
+    if (strlist.count() == QColorGroup::NColorRoles) {
+	for (i = 0; i < QColorGroup::NColorRoles; i++)
+	    pal.setColor(QPalette::Active, (QColorGroup::ColorRole) i,
+			 QColor(strlist[i]));
+    }
+    strlist = settings.readListEntry("/qt/Palette/inactive");
+    if (strlist.count() == QColorGroup::NColorRoles) {
+	for (i = 0; i < QColorGroup::NColorRoles; i++)
+	    pal.setColor(QPalette::Inactive, (QColorGroup::ColorRole) i,
+			 QColor(strlist[i]));
+    }
+    strlist = settings.readListEntry("/qt/Palette/disabled");
+    if (strlist.count() == QColorGroup::NColorRoles) {
+	for (i = 0; i < QColorGroup::NColorRoles; i++)
+	    pal.setColor(QPalette::Disabled, (QColorGroup::ColorRole) i,
+			 QColor(strlist[i]));
+    }
+
+    if ( pal != QApplication::palette()) 
+	QApplication::setPalette(pal, TRUE);
+
+    QFont font(QApplication::font());
+    // read new font
+    str = settings.readEntry("/qt/font");
+    if (! str.isNull() && ! str.isEmpty()) {
+	font.fromString(str);
+
+	if (font != QApplication::font())
+	    QApplication::setFont(font, TRUE);
+    }
+
+    // read library (ie. plugin) path list
+    QStringList pathlist =
+	settings.readListEntry("/qt/libraryPath", ':');
+    if (! pathlist.isEmpty()) {
+	QStringList::ConstIterator it = pathlist.begin();
+	while (it != pathlist.end())
+	    QApplication::addLibraryPath(*it++);
+    }
+
+    // read new QStyle
+    QString stylename = settings.readEntry("/qt/style");
+    if (! stylename.isNull() && ! stylename.isEmpty()) {
+	QStyle *style = QStyleFactory::create(stylename);
+	if (style)
+	    QApplication::setStyle(style);
+	else
+	    stylename = "default";
+    } else
+	stylename = "default";
+
+    num =
+	settings.readNumEntry("/qt/doubleClickInterval",
+			      QApplication::doubleClickInterval());
+    QApplication::setDoubleClickInterval(num);
+
+    num =
+	settings.readNumEntry("/qt/cursorFlashTime",
+			      QApplication::cursorFlashTime());
+    QApplication::setCursorFlashTime(num);
+
+    num =
+	settings.readNumEntry("/qt/wheelScrollLines",
+			      QApplication::wheelScrollLines());
+    QApplication::setWheelScrollLines(num);
+
+    QString colorspec = settings.readEntry("/qt/colorSpec",
+					   "default");
+    if (colorspec == "normal")
+	QApplication::setColorSpec(QApplication::NormalColor);
+    else if (colorspec == "custom")
+	QApplication::setColorSpec(QApplication::CustomColor);
+    else if (colorspec == "many")
+	QApplication::setColorSpec(QApplication::ManyColor);
+    else if (colorspec != "default")
+	colorspec = "default";
+
+    QString defaultcodec = settings.readEntry("/qt/defaultCodec",
+					      "none");
+    if (defaultcodec != "none") {
+	QTextCodec *codec = QTextCodec::codecForName(defaultcodec);
+	if (codec)
+	    qApp->setDefaultCodec(codec);
+    }
+
+    QStringList strut = settings.readListEntry("/qt/globalStrut");
+    if (! strut.isEmpty()) {
+	if (strut.count() == 2) {
+	    QSize sz(strut[0].toUInt(), strut[1].toUInt());
+
+	    if (sz.isValid())
+		QApplication::setGlobalStrut(sz);
+	}
+    }
+
+    QStringList effects =
+	settings.readListEntry("/qt/GUIEffects");
+
+    if (! effects.isEmpty()) {
+	if ( effects.contains("none") )
+	    QApplication::setEffectEnabled( Qt::UI_General, FALSE);
+	if ( effects.contains("general") )
+	    QApplication::setEffectEnabled( Qt::UI_General, TRUE );
+	if ( effects.contains("animatemenu") )
+	    QApplication::setEffectEnabled( Qt::UI_AnimateMenu, TRUE );
+	if ( effects.contains("fademenu") )
+	    QApplication::setEffectEnabled( Qt::UI_FadeMenu, TRUE );
+	if ( effects.contains("animatecombo") )
+	    QApplication::setEffectEnabled( Qt::UI_AnimateCombo, TRUE );
+	if ( effects.contains("animatetooltip") )
+	    QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, TRUE );
+	if ( effects.contains("fadetooltip") )
+	    QApplication::setEffectEnabled( Qt::UI_FadeTooltip, TRUE );
+    } else
+	QApplication::setEffectEnabled( Qt::UI_General, FALSE);
+
+    QStringList fontsubs =
+	settings.entryList("/qt/Font Substitutions");
+    if (!fontsubs.isEmpty()) {
+	QStringList subs;
+	QString fam, skey;
+	QStringList::Iterator it = fontsubs.begin();
+	while (it != fontsubs.end()) {
+	    fam = (*it++).latin1();
+	    skey = "/qt/Font Substitutions/" + fam;
+	    subs = settings.readListEntry(skey);
+	    QFont::insertSubstitutions(fam, subs);
+	}
+    }
+
+    qt_resolve_symlinks =
+	settings.readBoolEntry("/qt/resolveSymlinks", TRUE);
+
+    return TRUE;
 }
 
 #if 0
