@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.h#26 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.h#27 $
 **
 ** Definition of QLCDNumber class
 **
@@ -35,10 +35,10 @@ public:
     bool    checkOverflow( double num ) const;
     bool    checkOverflow( int	  num ) const;
 
-    QLCDNumber::Mode mode() const;
+    Mode mode() const;
     void    setMode( Mode );
 
-    QLCDNumber::SegmentStyle segmentStyle() const;
+    SegmentStyle segmentStyle() const;
     void    setSegmentStyle( SegmentStyle );
 
     double  value() const;

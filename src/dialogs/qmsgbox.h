@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#28 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#29 $
 **
 ** Definition of QMessageBox class
 **
@@ -90,7 +90,7 @@ public:
     const char *text() const;
     void	setText( const char * );
 
-    QMessageBox::Icon icon() const;
+    Icon	icon() const;
     void	setIcon( Icon );
 
     const QPixmap *iconPixmap() const;
