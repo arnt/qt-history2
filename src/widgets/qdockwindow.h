@@ -56,6 +56,7 @@ class Q_EXPORT QDockWindow : public QFrame
     friend class QDockArea;
     friend class QDockAreaLayout;
     friend class QMainWindow;
+    friend class QCEMainWindow;
     friend class QToolBar;
     friend class QWindowsXPStyle;
 

@@ -1300,11 +1300,15 @@ void QDockWindow::updateGui()
 		}
 	    }
 	}
+#ifndef Q_OS_TEMP
 	if ( moveEnabled )
 	    setLineWidth( 1 );
 	else
 	    setLineWidth( 0 );
 	hbox->setMargin( lineWidth() );
+#else
+	hbox->setMargin( 2 );
+#endif
 	widgetResizeHandler->setActive( FALSE );
     }
 }
