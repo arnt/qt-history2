@@ -17,7 +17,8 @@ public:
 	MSVC	= 0,
 	Borland	= 1,
 	GCC	= 2,
-	MACX	= 3
+	MACX	= 3,
+	MSVCNET = 4
     };
     void setSysId( SysId );
     SysId sysId() const;

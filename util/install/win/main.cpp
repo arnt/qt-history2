@@ -91,7 +91,9 @@ int main( int argc, char** argv )
 	    globalInformation.setReconfig( TRUE );
 
 	    QString qmakespec = QEnvironment::getEnv( "QMAKESPEC" );
-	    if ( qmakespec == "win32-msvc" ) {
+	    if ( qmakespec == "win32-msvc.net" ) {
+		globalInformation.setSysId( GlobalInformation::MSVCNET );
+	    } else if ( qmakespec == "win32-msvc" ) {
 		globalInformation.setSysId( GlobalInformation::MSVC );
 	    } else if ( qmakespec == "win32-borland" ) {
 		globalInformation.setSysId( GlobalInformation::Borland );

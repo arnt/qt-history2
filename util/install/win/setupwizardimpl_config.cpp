@@ -341,7 +341,7 @@ void SetupWizardImpl::cleanDone()
 
 void SetupWizardImpl::prepareEnvironment()
 {
-    QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++ macx-g++" );
+    QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++ macx-g++ win32-msvc.net" );
     QByteArray pathBuffer;
     QStringList path;
     QString qtDir;
@@ -410,12 +410,13 @@ void SetupWizardImpl::prepareEnvironment()
     QEnvironment::putEnv( "QMAKESPEC", mkSpecs[ globalInformation.sysId() ], envSpec );
 
 #if defined(Q_OS_WIN32)
+    // MSVC 6.0 stuff --------------------------------------------------
     if( globalInformation.sysId() == GlobalInformation::MSVC ) {
 	QString devdir = QEnvironment::getEnv( "MSDevDir" );
 	if( !devdir.length() ) {
 	    QString vsCommonDir, msDevDir, msVCDir, osDir;
 
-	    if( QMessageBox::warning( this, "Environment", "The Visual C++ environment variables has not been set\nDo you want to do this now?", "Yes", "No", QString::null, 0, 1 ) == 0 ) {
+	    if( QMessageBox::warning( this, "MSVC 6.0 Environment", "The Visual C++ environment variables has not been set\nDo you want to do this now?", "Yes", "No", QString::null, 0, 1 ) == 0 ) {
 		envSpec |= QEnvironment::PersistentEnv;
 /*
 		if( folderGroups->currentItem() == 0 )
@@ -454,6 +455,61 @@ void SetupWizardImpl::prepareEnvironment()
 	    QEnvironment::putEnv( "LIB", lib.join( ";" ), envSpec );
 	}
     }
+
+    // MSVC.NET stuff --------------------------------------------------
+    if( globalInformation.sysId() == GlobalInformation::MSVCNET ) {
+	QString envProductDir = QEnvironment::getEnv( "VCINSTALLDIR" );
+	if ( !envProductDir.length() ) {
+	    if( QMessageBox::warning( this, "MSVC.NET Environment", "The Visual C++ environment variables has not been set\nDo you want to do this now?", "Yes", "No", QString::null, 0, 1 ) == 0 ) {
+		envSpec |= QEnvironment::PersistentEnv;
+		persistentEnv = true;
+	    }
+
+	    // Finding
+	    QString vsInstallDir    = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VS", "EnvironmentDirectory", QEnvironment::LocalMachine );
+	    QString vcInstallDir    = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VS", "ProductDir", QEnvironment::LocalMachine );
+	    QString MSVCDir         = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC", "ProductDir", QEnvironment::LocalMachine );
+	    QString VS7CommonDir    = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VS", "VS7CommonDir", QEnvironment::LocalMachine );
+	    QString VS7CommonBinDir = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VS", "VS7CommonBinDir", QEnvironment::LocalMachine );
+	    QString FrameworkDir    = QEnvironment::getRegistryString( "Software\\Microsoft\\.NETFramework", "InstallRoot", QEnvironment::LocalMachine );
+	    QString FrameworkSDKDir = QEnvironment::getRegistryString( "Software\\Microsoft\\.NETFramework", "sdkInstallRoot", QEnvironment::LocalMachine );
+	    QString devEnvDir       = vsInstallDir;
+
+	    // Adding
+	    QStringList path = QStringList::split( ';', QEnvironment::getEnv( "PATH", envSpec ) );
+	    path.prepend( FrameworkSDKDir + "\\bin" );
+	    path.prepend( VS7CommonBinDir + "\\bin" );
+	    path.prepend( VS7CommonBinDir + "\\bin\\prerelease" );
+	    path.prepend( VS7CommonBinDir );
+	    path.prepend( MSVCDir + "\\Bin" );
+	    path.prepend( devEnvDir );
+
+	    QStringList incl = QStringList::split( ';', QEnvironment::getEnv( "INCLUDE", envSpec ) );
+	    incl.prepend( FrameworkSDKDir + "\\include" );
+	    incl.prepend( MSVCDir + "\\PlatformSDK\\include" );
+	    incl.prepend( MSVCDir + "\\PlatformSDK\\include\\prerelease" );
+	    incl.prepend( MSVCDir + "\\Include" );
+	    incl.prepend( MSVCDir + "\\ATLMFC\\INCLUDE" );
+
+	    QStringList lib = QStringList::split( ';', QEnvironment::getEnv( "LIB", envSpec ) );
+	    lib.prepend( FrameworkSDKDir + "\\lib" );
+	    lib.prepend( MSVCDir + "\\PlatformSDK\\lib" );
+	    lib.prepend( MSVCDir + "\\PlatformSDK\\lib\\prerelease" );
+	    lib.prepend( MSVCDir + "\\LIB" );
+	    lib.prepend( MSVCDir + "\\ATLMFC\\LIB" );
+
+	    // Commiting
+	    QEnvironment::putEnv( "VSINSTALLDIR", vsInstallDir, envSpec );
+	    QEnvironment::putEnv( "VCINSTALLDIR", vcInstallDir, envSpec );
+	    QEnvironment::putEnv( "VSCOMNTOOLS",  VS7CommonBinDir, envSpec );
+	    QEnvironment::putEnv( "FrameworkDir", FrameworkDir, envSpec );
+	    QEnvironment::putEnv( "FrameworkSDKDir", FrameworkSDKDir, envSpec );
+	    QEnvironment::putEnv( "LIB", lib.join( ";" ), envSpec );
+	    QEnvironment::putEnv( "PATH", path.join( ";" ), envSpec );
+	    QEnvironment::putEnv( "INCLUDE", incl.join( ";" ), envSpec );
+	}
+    }
+
     if( qWinVersion() & WV_NT_based ) {
 	SendNotifyMessageW( HWND_BROADCAST, WM_WININICHANGE, 0, (LPARAM)qt_winTchar(QString("Environment"),true) );
     }

@@ -392,9 +392,20 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	QString qt_version_str = archiveHeader->description();
 	if ( !qt_version_str.isEmpty() )
 	    globalInformation.setQtVersionStr( qt_version_str );
+
+	// First check for MSVC 6.0
+	QString regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine );
+	if ( regValue.length() )
+	    sysGroupButton = 1;
+
+	// MSVC.NET takes presedence over 6.0
+	regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC", "ProductDir", QEnvironment::LocalMachine );
+	if ( regValue.length() )
+	    sysGroupButton = 0;
+
 #if defined(EVAL) || defined(EDU)
 	if ( archiveHeader->findExtraData( "compiler" ) == "borland" ) {
-	    sysGroupButton = 1;
+	    sysGroupButton = 2;
 	}
 #endif
 	delete archiveHeader;
@@ -616,9 +627,12 @@ void SetupWizardImpl::clickedSystem( int sys )
 #ifndef Q_OS_MACX
     switch ( sys ) {
 	case 0:
-	    globalInformation.setSysId( GlobalInformation::MSVC );
+	    globalInformation.setSysId( GlobalInformation::MSVCNET );
 	    break;
 	case 1:
+	    globalInformation.setSysId( GlobalInformation::MSVC );
+	    break;
+	case 2:
 	    globalInformation.setSysId( GlobalInformation::Borland );
 	    break;
 	default:
@@ -776,65 +790,79 @@ void SetupWizardImpl::doFinalIntegration()
     bool common( foldersPage->folderGroups->currentItem() == 0 );
     QString qtDir = QEnvironment::getEnv( "QTDIR" );
 
+    QFile *autoexp  = 0;
+    QFile *usertype = 0;
     switch( globalInformation.sysId() ) {
 	case GlobalInformation::MSVC:
-	{
-	    QFile autoexp( foldersPage->devSysPath->text() + "\\Common\\MsDev98\\bin\\autoexp.dat" );
-	    if ( !autoexp.exists() ) {
-		autoexp.open( IO_WriteOnly );
-	    } else {
-		autoexp.open( IO_ReadOnly );
-		QString existingUserType = autoexp.readAll();
-		autoexp.close();
-		if ( existingUserType.find( "; Trolltech Qt" ) == -1 )
-		    autoexp.open( IO_WriteOnly | IO_Append );
-	    }
-
-	    if( autoexp.isOpen() ) { // First try to open the file to search for existing installations
-		QTextStream outstream( &autoexp );
-		outstream << "; Trolltech Qt" << endl;
-		outstream << "QString=<d->unicode,su> len=<d->len,u>" << endl;
-		outstream << "QCString =<shd->data, s>" << endl;
-		outstream << "QPoint =x=<xp> y=<yp>" << endl;
-		outstream << "QRect =x1=<x1> y1=<y1> x2=<x2> y2=<y2>" << endl;
-		outstream << "QSize =width=<wd> height=<ht>" << endl;
-		outstream << "QWMatrix =m11=<_m11> m12=<_m12> m21=<_m21> m22=<_m22> dx=<_dx> dy=<_dy>" << endl;
-		outstream << "QVariant =Type=<d->typ> value=<d->value>" << endl;
-		outstream << "QValueList<*> =Count=<sh->nodes>" << endl;
-		outstream << "QPtrList<*> =Count=<numNodes>" << endl;
-		outstream << "QGuardedPtr<*> =ptr=<priv->obj>" << endl;
-		outstream << "QEvent =type=<t>" << endl;
-		outstream << "QObject =class=<metaObj->classname,s> name=<objname,s>" << endl;
-		autoexp.close();
-	    }
-
-	    QFile usertype( foldersPage->devSysPath->text() + "\\Common\\MsDev98\\bin\\usertype.dat" );
-	    if ( !usertype.exists() ) {
-		usertype.open( IO_WriteOnly );
-	    } else {
-		usertype.open( IO_ReadOnly );
-		QString existingUserType = usertype.readAll();
-		usertype.close();
-		if ( existingUserType.find( "Q_OBJECT" ) == -1 )
-		    usertype.open( IO_WriteOnly | IO_Append );
-	    }
-	    if ( usertype.isOpen() ) {
-		QTextStream outstream( &usertype );
-		outstream << "Q_OBJECT" << endl;
-		outstream << "Q_PROPERTY" << endl;
-		outstream << "Q_ENUMS" << endl;
-		outstream << "emit" << endl;
-		outstream << "TRUE" << endl;
-		outstream << "FALSE" << endl;
-		outstream << "SIGNAL" << endl;
-		outstream << "SLOT" << endl;
-		outstream << "signals:" << endl;
-		outstream << "slots:" << endl;
-		usertype.close();
-	    }
-	}
-	break;
+	    autoexp = new QFile( foldersPage->devSysPath->text() + "\\Common\\MsDev98\\bin\\autoexp.dat" );
+	    usertype = new QFile( foldersPage->devSysPath->text() + "\\Common\\MsDev98\\bin\\usertype.dat" );
+	    break;
+	case GlobalInformation::MSVCNET:
+	    autoexp = new QFile( foldersPage->devSysPath->text() + "\\Common7\\Packages\\Debugger\\autoexp.dat" );
+	    usertype = new QFile( foldersPage->devSysPath->text() + "\\Common7\\Packages\\Debugger\\usertype.dat" );
+	    break;
     }
+
+    if ( autoexp ) {
+	if ( !autoexp->exists() ) {
+	    autoexp->open( IO_WriteOnly );
+	} else {
+	    autoexp->open( IO_ReadOnly );
+	    QString existingUserType = autoexp->readAll();
+	    autoexp->close();
+	    if ( existingUserType.find( "; Trolltech Qt" ) == -1 )
+		autoexp->open( IO_WriteOnly | IO_Append );
+	}
+	if( autoexp->isOpen() ) { // First try to open the file to search for existing installations
+	    QTextStream outstream( autoexp );
+	    outstream << endl;
+	    outstream << "; Trolltech Qt" << endl;
+	    outstream << "QString=<d->unicode,su> len=<d->len,u>" << endl;
+	    outstream << "QCString =<shd->data, s>" << endl;
+	    outstream << "QPoint =x=<xp> y=<yp>" << endl;
+	    outstream << "QRect =x1=<x1> y1=<y1> x2=<x2> y2=<y2>" << endl;
+	    outstream << "QSize =width=<wd> height=<ht>" << endl;
+	    outstream << "QWMatrix =m11=<_m11> m12=<_m12> m21=<_m21> m22=<_m22> dx=<_dx> dy=<_dy>" << endl;
+	    outstream << "QVariant =Type=<d->typ> value=<d->value>" << endl;
+	    outstream << "QValueList<*> =Count=<sh->nodes>" << endl;
+	    outstream << "QPtrList<*> =Count=<numNodes>" << endl;
+	    outstream << "QGuardedPtr<*> =ptr=<priv->obj>" << endl;
+	    outstream << "QEvent =type=<t>" << endl;
+	    outstream << "QObject =class=<metaObj->classname,s> name=<objname,s>" << endl;
+	    autoexp->close();
+	}
+        delete autoexp;
+    }
+
+    if ( usertype ) {
+	if ( !usertype->exists() ) {
+	    usertype->open( IO_WriteOnly );
+	} else {
+	    usertype->open( IO_ReadOnly );
+	    QString existingUserType = usertype->readAll();
+	    usertype->close();
+	    if ( existingUserType.find( "Q_OBJECT" ) == -1 )
+		usertype->open( IO_WriteOnly | IO_Append );
+	}
+	if ( usertype->isOpen() ) {
+	    QTextStream outstream( usertype );
+	    outstream << endl;
+	    outstream << "Q_OBJECT" << endl;
+	    outstream << "Q_PROPERTY" << endl;
+	    outstream << "Q_ENUMS" << endl;
+	    outstream << "emit" << endl;
+	    outstream << "TRUE" << endl;
+	    outstream << "FALSE" << endl;
+	    outstream << "SIGNAL" << endl;
+	    outstream << "SLOT" << endl;
+	    outstream << "signals:" << endl;
+	    outstream << "slots:" << endl;
+	    usertype->close();
+	}
+        delete usertype;
+    }
+
+
     /*
     ** Set up our icon folder and populate it with shortcuts.
     ** Then move to the next page.
@@ -932,7 +960,7 @@ void SetupWizardImpl::makeDone()
 
 void SetupWizardImpl::configDone()
 {
-    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make" );
+    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake" );
     QStringList args;
 
     if( globalInformation.reconfig() && !configPage->rebuildInstallation->isChecked() )
@@ -1126,6 +1154,7 @@ void SetupWizardImpl::showPageOptions()
     optionsPage->installTutorials->setEnabled( FALSE );
     optionsPage->installExtensions->setChecked( FALSE );
     optionsPage->installExtensions->setEnabled( FALSE );
+    optionsPage->sysMsvcNet->setEnabled( FALSE );
     optionsPage->sysMsvc->setEnabled( FALSE );
     optionsPage->sysBorland->setEnabled( FALSE );
 #endif
@@ -1133,11 +1162,11 @@ void SetupWizardImpl::showPageOptions()
 
 void SetupWizardImpl::showPageFolders()
 {
-    QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio path;Borland C++ Builder path;GNU C++ path" );
+    QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio 6.0 path;Borland C++ Builder path;GNU C++ path;MAC X buildtool path;Microsoft Visual Studio .NET path" );
 
     foldersPage->devSysLabel->setText( devSys[ globalInformation.sysId() ] );
-    foldersPage->devSysPath->setEnabled( globalInformation.sysId() == GlobalInformation::MSVC );
-    foldersPage->devSysPathButton->setEnabled( globalInformation.sysId() == GlobalInformation::MSVC );
+    foldersPage->devSysPath->setEnabled( (globalInformation.sysId() == GlobalInformation::MSVC) || (globalInformation.sysId() == GlobalInformation::MSVCNET) );
+    foldersPage->devSysPathButton->setEnabled( (globalInformation.sysId() == GlobalInformation::MSVC) || (globalInformation.sysId() == GlobalInformation::MSVCNET) );
 #if defined(Q_OS_WIN32)
     if( globalInformation.sysId() == GlobalInformation::MSVC ) {
 	QString devPath = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine );
@@ -1148,6 +1177,9 @@ void SetupWizardImpl::showPageFolders()
 	    msdevDir.cdUp();
 	    devPath = QDir::convertSeparators( msdevDir.absPath() );
 	}
+	foldersPage->devSysPath->setText( devPath );
+    } else if ( globalInformation.sysId() == GlobalInformation::MSVCNET ) {
+	QString devPath = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VS", "ProductDir", QEnvironment::LocalMachine );
 	foldersPage->devSysPath->setText( devPath );
     }
 #endif
@@ -2065,7 +2097,7 @@ void SetupWizardImpl::readLicenseAgreement()
 
 bool SetupWizardImpl::findXPSupport()
 {
-    if ( globalInformation.sysId() == GlobalInformation::MSVC ) {
+    if ( globalInformation.sysId() == GlobalInformation::MSVCNET ) {
 	return findFileInPaths( "uxtheme.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) &&
 	    findFileInPaths( "uxtheme.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) &&
 	    findFileInPaths( "tmschema.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) );

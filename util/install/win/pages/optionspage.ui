@@ -46,7 +46,7 @@
                     <property name="title">
                         <string>Installation options</string>
                     </property>
-                    <vbox>
+                    <grid>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
@@ -56,7 +56,7 @@
                         <property name="spacing">
                             <number>6</number>
                         </property>
-                        <widget class="QLabel">
+                        <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
                             <property name="name">
                                 <cstring>pathLabel</cstring>
                             </property>
@@ -67,7 +67,7 @@
                                 <cstring>installPath</cstring>
                             </property>
                         </widget>
-                        <widget class="QLayoutWidget">
+                        <widget class="QLayoutWidget" row="1" column="0" rowspan="1" colspan="2">
                             <property name="name">
                                 <cstring>pathLayout</cstring>
                             </property>
@@ -105,29 +105,7 @@
                                 </widget>
                             </hbox>
                         </widget>
-                        <widget class="QCheckBox">
-                            <property name="name">
-                                <cstring>installDocs</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Install &amp;documentation</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                        </widget>
-                        <widget class="QCheckBox">
-                            <property name="name">
-                                <cstring>installTools</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Install &amp;Tools</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                        </widget>
-                        <widget class="QCheckBox">
+                        <widget class="QCheckBox" row="2" column="1">
                             <property name="name">
                                 <cstring>installExamples</cstring>
                             </property>
@@ -138,7 +116,7 @@
                                 <bool>true</bool>
                             </property>
                         </widget>
-                        <widget class="QCheckBox">
+                        <widget class="QCheckBox" row="3" column="1">
                             <property name="name">
                                 <cstring>installTutorials</cstring>
                             </property>
@@ -149,7 +127,18 @@
                                 <bool>true</bool>
                             </property>
                         </widget>
-                        <widget class="QCheckBox">
+                        <widget class="QCheckBox" row="2" column="0">
+                            <property name="name">
+                                <cstring>installTools</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Install &amp;Tools</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="3" column="0">
                             <property name="name">
                                 <cstring>installExtensions</cstring>
                             </property>
@@ -160,7 +149,18 @@
                                 <bool>true</bool>
                             </property>
                         </widget>
-                    </vbox>
+                        <widget class="QCheckBox" row="4" column="0">
+                            <property name="name">
+                                <cstring>installDocs</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Install &amp;documentation</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                    </grid>
                 </widget>
                 <widget class="QButtonGroup">
                     <property name="name">
@@ -179,6 +179,14 @@
                         <property name="spacing">
                             <number>6</number>
                         </property>
+                        <widget class="QRadioButton">
+                            <property name="name">
+                                <cstring>sysMsvcNet</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Microsoft Visual C++ .&amp;NET</string>
+                            </property>
+                        </widget>
                         <widget class="QRadioButton">
                             <property name="name">
                                 <cstring>sysMsvc</cstring>
@@ -210,7 +218,7 @@
                     <property name="sizeHint">
                         <size>
                             <width>20</width>
-                            <height>20</height>
+                            <height>49</height>
                         </size>
                     </property>
                 </spacer>
