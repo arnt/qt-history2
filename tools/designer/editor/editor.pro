@@ -14,6 +14,6 @@ SOURCES		= editor.cpp \
 		  markerwidget.cpp
 		
 TARGET		= editor
-DESTDIR		= $(QTDIR)/plugins
+DESTDIR		= $(QTDIR)/lib
 VERSION		= 1.0.0
 INCLUDEPATH	+= $(QTDIR)/src/kernel $(QTDIR)/tools/designer/interfaces
