@@ -5773,7 +5773,13 @@ const QPixmap *QWidget::icon() const
 
     \row \i WA_CustomWhatsThis \i Indicates that the widget wants to
     continue operating normally in What's This mode \i Set by widget
-    author \endtable
+    author
+
+    \row \i WA_LayoutOnEntireRect \i Indicates that the widget
+    wants QLayout to operate on the entire QWidget::rect(), not only
+    on QWidget::contentsRect(). \i Set by widget author
+
+    \endtable
 */
 
 /*!

@@ -833,7 +833,8 @@ void QLayout::widgetEvent(QEvent *e)
 	    mbh = menuBarHeightForWidth( menubar, r->size().width() );
 #endif
 	    int b = marginImpl ? 0 : outsideBorder;
-	    QRect rect = parentWidget()->contentsRect();
+	    QWidget *mw = parentWidget();
+	    QRect rect = mw->testAttribute(QWidget::WA_LayoutOnEntireRect)?mw->rect():mw->contentsRect();
 	    rect.addCoords(b, mbh + b, -b, -b);
 	    setGeometry(rect);
 	} else {
@@ -1233,7 +1234,7 @@ bool QLayout::activate()
     mbh = menuBarHeightForWidth( menubar, s.width() );
 #endif
     int b = marginImpl ? 0 : outsideBorder;
-    QRect rect = mw->contentsRect();
+    QRect rect = mw->testAttribute(QWidget::WA_LayoutOnEntireRect)?mw->rect():mw->contentsRect();
     rect.addCoords(b, mbh + b, -b, -b);
     setGeometry(rect);
     if ( frozen ) {

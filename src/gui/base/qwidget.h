@@ -490,7 +490,8 @@ public:
 	WA_MacMetalStyle, //mac only
 	WA_CompositeParent,
 	WA_CompositeChild,
-	WA_CustomWhatsThis
+	WA_CustomWhatsThis,
+	WA_LayoutOnEntireRect
     };
     void setAttribute(WidgetAttribute, bool = true);
     inline bool testAttribute(WidgetAttribute) const;
