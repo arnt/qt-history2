@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#85 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#86 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -101,6 +101,11 @@ int QGDict::hashKeyString( const QString &key )
 	index = -index;
     return index;
 }
+
+/*!
+  \internal
+  Returns the hash key for \a key, which is a C string.
+*/
 
 int QGDict::hashKeyAscii( const char *key )
 {
