@@ -1005,38 +1005,7 @@ void HelpDialog::showSearchHelp()
     emit showLink( documentationPath + "/assistant-5.html" );
 }
 
-void HelpDialog::showResultPage( int )
+void HelpDialog::showResultPage( QListBoxItem *i )
 {
-    /* ###
-    viewer->blockScrolling( TRUE );
-    viewer->setCursor( waitCursor );
-    if ( viewer->source() == foundDocs[page] )
-	viewer->reload();
-    else
-	help->showLink( foundDocs[page] );
-    viewer->sync();
-    viewer->setCursor( arrowCursor );
-
-    viewer->viewport()->setUpdatesEnabled( FALSE );
-    int minPar = INT_MAX;
-    int minIndex = INT_MAX;
-    QStringList::ConstIterator it = terms.begin();
-    for ( ; it != terms.end(); ++it ) {
-	int para = 0;
-	int index = 0;
-	bool found = viewer->find( *it, FALSE, TRUE, TRUE, &para, &index );
-	while ( found ) {
-	    if ( para < minPar ) {
-		minPar = para;
-		minIndex = index;
-	    }
-	    viewer->setColor( QColor( "red" ) );
-	    found = viewer->find( *it, FALSE, TRUE, TRUE );
-	}
-    }
-    viewer->blockScrolling( FALSE );
-    viewer->viewport()->setUpdatesEnabled( TRUE );
-    viewer->setCursorPosition( minPar, minIndex );
-    viewer->updateContents();
-    */
+    emit showSearchLink( foundDocs[resultBox->index( i )], terms );
 }

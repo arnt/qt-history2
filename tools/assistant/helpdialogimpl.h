@@ -111,10 +111,11 @@ public slots:
 
 signals:
     void showLink( const QString &s );
+    void showSearchLink( const QString &s, const QStringList &terms );
 
 private slots:
     void lastWinClosed();
-    void showResultPage( int page );
+    void showResultPage( QListBoxItem *i );
     void setIndexingProgress( int prog );
 
 private:

@@ -95,6 +95,8 @@ void MainWindow::setup()
 	     helpDock, SLOT( addBookmark() ) );
     connect( helpDock, SIGNAL( showLink( const QString& ) ),
 	     this, SLOT( showLink( const QString& ) ) );
+    connect( helpDock, SIGNAL( showSearchLink( const QString&, const QStringList& ) ),
+	     this, SLOT( showSearchLink( const QString&, const QStringList&) ) );
 
     connect( bookmarkMenu, SIGNAL( activated( int ) ),
 	     this, SLOT( showBookmark( int ) ) );
@@ -516,4 +518,40 @@ void MainWindow::saveToolbarSettings()
 TabbedBrowser* MainWindow::browsers()
 {
     return tabs;
+}
+
+
+void MainWindow::showSearchLink( const QString &link, const QStringList &terms )
+{
+    HelpWindow * hw = tabs->currentBrowser();
+    hw->blockScrolling( TRUE );
+    hw->setCursor( waitCursor );
+    if ( hw->source() == link )
+	hw->reload();
+    else
+	showLink( link );
+    hw->sync();
+    hw->setCursor( arrowCursor );
+
+    hw->viewport()->setUpdatesEnabled( FALSE );
+    int minPar = INT_MAX;
+    int minIndex = INT_MAX;
+    QStringList::ConstIterator it = terms.begin();
+    for ( ; it != terms.end(); ++it ) {
+	int para = 0;
+	int index = 0;
+	bool found = hw->find( *it, FALSE, TRUE, TRUE, &para, &index );
+	while ( found ) {
+	    if ( para < minPar ) {
+		minPar = para;
+		minIndex = index;
+	    }
+	    hw->setColor( red );
+	    found = hw->find( *it, FALSE, TRUE, TRUE );
+	}
+    }
+    hw->blockScrolling( FALSE );
+    hw->viewport()->setUpdatesEnabled( TRUE );
+    hw->setCursorPosition( minPar, minIndex );
+    hw->updateContents();
 }
