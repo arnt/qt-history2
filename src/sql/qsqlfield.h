@@ -75,7 +75,7 @@ private:
 };
 
 #ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug, const QSqlField &);
+QM_EXPORT_SQL QDebug operator<<(QDebug, const QSqlField &);
 #endif
 
 #endif	// QT_NO_SQL

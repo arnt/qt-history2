@@ -476,7 +476,7 @@ private:
 };
 
 #ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug, const QEvent *);
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QEvent *);
 #endif
 
 #endif // QEVENT_H

@@ -207,7 +207,7 @@ inline bool QColor::operator!=( const QColor &c ) const
 }
 
 #ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug, const QColor &);
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QColor &);
 #endif
 
 /*****************************************************************************

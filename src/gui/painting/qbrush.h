@@ -83,7 +83,7 @@ Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QBrush & );
 #endif
 
 #ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug, const QBrush &);
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QBrush &);
 #endif
 
 #endif // QBRUSH_H

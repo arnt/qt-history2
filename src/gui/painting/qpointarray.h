@@ -64,7 +64,7 @@ public:
 };
 
 #ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug, const QPointArray &);
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QPointArray &);
 #endif
 
 /*****************************************************************************
