@@ -1162,7 +1162,7 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
 
             int xp = qRound(x+glyphs[i].offset.x());
             int yp = qRound(y+glyphs[i].offset.y());
-            ExtTextOutW(d->hdc, xp, yp, options, 0, &glyphs[i].glyph, 1, 0);
+            ExtTextOutW(d->hdc, xp, yp, options, 0, reinterpret_cast<wchar_t *>(&glyphs[i].glyph), 1, 0);
 
             if (glyphs[i].nKashidas) {
                 QChar ch(0x640); // Kashida character
@@ -1175,7 +1175,7 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
 
                     int xp = qRound(x+g[0].offset.x());
                     int yp = qRound(y+g[0].offset.y());
-                    ExtTextOutW(d->hdc, xp, yp, options, 0, &g[0].glyph, 1, 0);
+                    ExtTextOutW(d->hdc, xp, yp, options, 0, reinterpret_cast<wchar_t *>(&g[0].glyph), 1, 0);
                 }
             } else {
                 x -= ((float)glyphs[i].space_18d6) / 64;
