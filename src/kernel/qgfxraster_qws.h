@@ -136,7 +136,7 @@ typedef long long PackType;
   This is used by blt() to set up the pointer to the mask for
   Little/BigEndianMask alpha types.
 */
-GFX_INLINE unsigned char * find_pointer(unsigned char * base,int x,int y,
+inline  unsigned char * find_pointer(unsigned char * base,int x,int y,
 					       int w, int linestep, int &astat,
 					       unsigned char &ahold,
 					       bool is_bigendian, bool rev)

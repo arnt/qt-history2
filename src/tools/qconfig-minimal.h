@@ -61,7 +61,6 @@
 #define QT_NO_STYLE
 #define QT_NO_EFFECTS
 #define QT_NO_COP
-#define QT_NO_QWS_TRANSFORMED
 
 #define QT_NO_SQL
 
