@@ -109,6 +109,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
   if(!sw || !sh)
       return;
 
+  if(!dst || !src) {
+      qDebug("Asked to paint to or from a null paintdevice, something is hosed.");
+      return;
+  }
 
   //at the end of this function this will go out of scope and the destructor will restore the state
   QMacSavedPortInfo saveportstate; 
@@ -142,6 +146,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
   int dstoffx=0, dstoffy=0;
   const BitMap *dstbitmap=NULL;
   if(dst->devType() == QInternal::Widget) {
+
       QWidget *w = (QWidget *)dst;
       dstbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
       SetPortWindowPort((WindowPtr)w->handle()); //wtf?
@@ -162,6 +167,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
       //I'm paranoid..
       QRegion rgn(0,0,pm->width(),pm->height());
       SetClip((RgnHandle)rgn.handle());
+
   }
 
   if(!dstbitmap || !srcbitmap) {  //FIXME, need to handle ExtDevice!!!!!!
