@@ -134,12 +134,18 @@ struct QtFontStyle
 
     QtFontStyle( const Key &k )
 	: key( k ), bitmapScalable( FALSE ), smoothScalable( FALSE ), count( 0 ),
-	  pixelSizes( 0 ), weightName( 0 ), setwidthName( 0 ) { }
+	  pixelSizes( 0 )
+#ifdef Q_WS_X11
+	  , weightName( 0 ), setwidthName( 0 ) 
+#endif
+    { }
 
     ~QtFontStyle() {
 	free( pixelSizes );
+#ifdef Q_WS_x11
 	delete [] weightName;
 	delete [] setwidthName;
+#endif
     }
 
     Key key;
