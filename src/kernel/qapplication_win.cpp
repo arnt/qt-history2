@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#207 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#208 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -547,17 +547,16 @@ const char* qt_reg_winclass( int flags )	// register window class
     }
     uint style = 0;
     bool icon  = FALSE;
-    QString className;
+    const char *cname;
     if ( (flags & (WType_Popup|WStyle_Tool)) == 0 ) {
-	className = "QWidget";
+	cname = "QWidget";
 	style = CS_DBLCLKS;
 	icon  = TRUE;
     } else {
-	className = "QPopup";
+	cname = "QPopup";
 	style = CS_DBLCLKS | CS_SAVEBITS;
     }
 
-    const char *cname = className.ascii();
     if ( winclassNames->find(cname) )		// already registered
 	return cname;
 
