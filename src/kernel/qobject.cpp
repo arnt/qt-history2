@@ -1865,6 +1865,8 @@ void QObject::notifyAccessibility( int reason )
 {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     qt_notify_accessibility( this, reason );
+#else
+    Q_UNUSED( reason )
 #endif
 }
 
