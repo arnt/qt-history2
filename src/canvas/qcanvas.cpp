@@ -545,7 +545,7 @@ void qt_unview(QCanvas* c)
 }
 
 /*!
-  Destructs the canvas.  Does \e not destroy items on the canvas.
+  Destroys the canvas.  Does \e not destroy items on the canvas.
 */
 QCanvas::~QCanvas()
 {
@@ -560,14 +560,14 @@ QCanvas::~QCanvas()
 
 /*!
 \internal
-Returns the chunk at a chunk position.
+Returns the chunk at a chunk position \a i, \a j.
 */
 QCanvasChunk& QCanvas::chunk(int i, int j) const
 { return chunks[i+chwidth*j]; }
 
 /*!
 \internal
-Returns the chunk at a pixel position.
+Returns the chunk at a pixel position \a x, \a y.
 */
 QCanvasChunk& QCanvas::chunkContaining(int x, int y) const
 { return chunk(x/chunksize,y/chunksize); }
@@ -586,7 +586,8 @@ QCanvasItemList QCanvas::allItems()
 
 
 /*!
-Changes the size of the QCanvas. This is a slow operation.
+Changes the size of the QCanvas to have a width of \a w and a height of \a h. 
+This is a slow operation.
 */
 void QCanvas::resize(int w, int h)
 {
@@ -646,7 +647,7 @@ by using retune(), for example if you have a very large canvas and
 want to trade off speed for memory then you might set the chunk size
 to 32 or 64.
 
-\a chunksize is the size of square chunk used to break up the QCanvas
+\a chunksze is the size of square chunk used to break up the QCanvas
 into area to be considered for redrawing.  It should be about the
 average size of items in the QCanvas.  Chunks too small increase the
 amount of calculation required when drawing.  Chunks too large
@@ -715,6 +716,7 @@ void QCanvas::retune(int chunksze, int mxclusters)
 
 /*!
   \fn bool QCanvas::onCanvas( const QPoint& p ) const
+  \overload
   Returns whether the pixel position \a p is on the canvas.
 */
 
@@ -725,6 +727,7 @@ void QCanvas::retune(int chunksze, int mxclusters)
 
 /*!
   \fn bool QCanvas::validChunk( const QPoint& p ) const
+  \overload
   Returns whether the chunk position \a p is on the canvas.
 */
 
@@ -737,13 +740,13 @@ void QCanvas::retune(int chunksze, int mxclusters)
 /*!
 \fn bool QCanvas::sameChunk(int x1, int y1, int x2, int y2) const
 \internal
-Tells if the points (x1,y1) and (x2,y2) are within the same chunk.
+Tells if the points ( \a x1, \a y1 ) and ( \a x2, \a y2 ) are within the same chunk.
 */
 
 /*!
 \internal
-This method adds an element to the list of QCanvasItem objects
-in this QCanvas.  The QCanvasItem class calls this.
+This method adds an the item \a item to the list of QCanvasItem objects
+in the QCanvas.  The QCanvasItem class calls this.
 */
 void QCanvas::addItem(QCanvasItem* item)
 {
@@ -752,7 +755,7 @@ void QCanvas::addItem(QCanvasItem* item)
 
 /*!
 \internal
-This method adds an element to the list of QCanvasItem objects
+This method adds the item \a item to the list of QCanvasItem objects
 to be animated. The QCanvasItem class calls this.
 */
 void QCanvas::addAnimation(QCanvasItem* item)
@@ -762,7 +765,7 @@ void QCanvas::addAnimation(QCanvasItem* item)
 
 /*!
 \internal
-This method adds an element to the list of QCanvasItem objects
+This method adds the item \a item  to the list of QCanvasItem objects
 which are no longer to be animated. The QCanvasItem class calls this.
 */
 void QCanvas::removeAnimation(QCanvasItem* item)
@@ -772,7 +775,7 @@ void QCanvas::removeAnimation(QCanvasItem* item)
 
 /*!
 \internal
-This method removes an element from the list of QCanvasItem objects
+This method removes the item \a item from the list of QCanvasItem objects
 in this QCanvas.  The QCanvasItem class calls this.
 */
 void QCanvas::removeItem(QCanvasItem* item)
@@ -782,7 +785,7 @@ void QCanvas::removeItem(QCanvasItem* item)
 
 /*!
 \internal
-This method adds an element to the list of QCanvasView objects
+This method adds the view \a view to the list of QCanvasView objects
 viewing this QCanvas.  The QCanvasView class calls this.
 */
 void QCanvas::addView(QCanvasView* view)
@@ -797,7 +800,7 @@ void QCanvas::addView(QCanvasView* view)
 
 /*!
 \internal
-This method removes an element from the list of QCanvasView objects
+This method removes the view \a view from the list of QCanvasView objects
 viewing this QCanvas.  The QCanvasView class calls this.
 */
 void QCanvas::removeView(QCanvasView* view)
@@ -1081,7 +1084,7 @@ QRect QCanvas::changeBounds(const QRect& inarea)
 
 /*!
 \internal
-Redraw a given area of the QCanvas.
+Redraws the area \a inarea of the QCanvas.
 */
 void QCanvas::drawChanges(const QRect& inarea)
 {
@@ -1255,7 +1258,7 @@ void QCanvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buffe
 This method to informs the QCanvas that a given chunk is
 `dirty' and needs to be redrawn in the next Update.
 
-(x,y) is a chunk location.
+(\a x,\a y) is a chunk location.
 
 The sprite classes call this.  Any new derived class of QCanvasItem
 must do so too.  SetChangedChunkContaining can be used instead.
@@ -1273,7 +1276,7 @@ void QCanvas::setChangedChunk(int x, int y)
 This method to informs the QCanvas that the chunk containing a given
 pixel is `dirty' and needs to be redrawn in the next Update.
 
-(x,y) is a pixel location.
+(\a x,\a y) is a pixel location.
 
 The item classes call this.  Any new derived class of QCanvasItem must
 do so too. SetChangedChunk can be used instead.
@@ -1288,9 +1291,10 @@ void QCanvas::setChangedChunkContaining(int x, int y)
 
 /*!
 \internal
-This method adds a QCanvasItem to the list of those which need to be
-drawn if the given chunk is redrawn.  Like SetChangedChunk and
-SetChangedChunkContaining, this method marks the chunk as `dirty'.
+This method adds the QCanvasItem \a g to the list of those which need to be
+drawn if the given chunk at location ( \a x, \a y ) is redrawn.  Like 
+SetChangedChunk and SetChangedChunkContaining, this method marks the 
+chunk as `dirty'.
 */
 void QCanvas::addItemToChunk(QCanvasItem* g, int x, int y)
 {
@@ -1301,9 +1305,10 @@ void QCanvas::addItemToChunk(QCanvasItem* g, int x, int y)
 
 /*!
 \internal
-This method removes a QCanvasItem from the list of those which need to
-be drawn if the given chunk is redrawn.  Like SetChangedChunk and
-SetChangedChunkContaining, this method marks the chunk as `dirty'.
+This method removes the QCanvasItem \a g from the list of those which need to
+be drawn if the given chunk at location ( \a x, \a y ) is redrawn.  Like 
+SetChangedChunk and SetChangedChunkContaining, this method marks the chunk 
+as `dirty'.
 */
 void QCanvas::removeItemFromChunk(QCanvasItem* g, int x, int y)
 {
@@ -1315,8 +1320,8 @@ void QCanvas::removeItemFromChunk(QCanvasItem* g, int x, int y)
 
 /*!
 \internal
-This method adds a QCanvasItem to the list of those which need to be
-drawn if the chunk containing the given pixel is redrawn.  Like
+This method adds the QCanvasItem \a g to the list of those which need to be
+drawn if the chunk containing the given pixel ( \a x, \a y ) is redrawn.  Like
 SetChangedChunk and SetChangedChunkContaining, this method marks the
 chunk as `dirty'.
 */
@@ -1329,8 +1334,8 @@ void QCanvas::addItemToChunkContaining(QCanvasItem* g, int x, int y)
 
 /*!
 \internal
-This method removes a QCanvasItem from the list of those which need to
-be drawn if the chunk containing the given pixel is redrawn.
+This method removes the QCanvasItem \a g from the list of those which need to
+be drawn if the chunk containing the given pixel ( \a x, \a y ) is redrawn.
 Like SetChangedChunk and SetChangedChunkContaining, this method
 marks the chunk as `dirty'.
 */
@@ -1399,7 +1404,8 @@ void QCanvas::setBackgroundPixmap( const QPixmap& p )
 }
 
 /*!  This virtual function is called for all updates of the QCanvas.
-  It renders any background graphics.  If the canvas has a background
+  It renders any background graphics using the painter \a painter, in the
+  area \a clip.  If the canvas has a background
   pixmap or a tiled background, that graphic is used, otherwise the
   canvas is cleared in the background color.
 
@@ -1445,7 +1451,8 @@ void QCanvas::drawBackground(QPainter& painter, const QRect& clip)
 }
 
 /*! This virtual function is called for all updates of the QCanvas.
-  It renders any foreground graphics.
+  It renders any foreground graphics using the painter \a painter, in
+  the area \a clip.
 
   The same warnings regarding change apply to this method as for
   drawBackground().
@@ -1629,7 +1636,7 @@ QCanvasItem::QCanvasItem(QCanvas* canvas) :
 }
 
 /*!
-Destructs the QCanvasItem.  It is removed from its canvas.
+Destroys the QCanvasItem.  It is removed from its canvas.
 */
 QCanvasItem::~QCanvasItem()
 {
@@ -2229,6 +2236,8 @@ QCanvasItemList QCanvasItem::collisions(bool exact) const
 }
 
 /*!
+  \overload
+
   Returns a list of items which intersect with the point \a p,
   sorted from shallowest to deepest.
 */
@@ -2238,6 +2247,8 @@ QCanvasItemList QCanvas::collisions(const QPoint& p) const
 }
 
 /*!
+  \overload
+
   Returns a list of items which intersect with the rectangle \a r,
   sorted from shallowest to deepest.
 */
@@ -2252,6 +2263,8 @@ QCanvasItemList QCanvas::collisions(const QRect& r) const
 }
 
 /*!
+  \overload
+
   Returns a list of items which intersect with the chunks listed
   in \a chunklist, excluding \a item.  If \a exact is TRUE, only
   only those which actually QCanvasItem::collidesWith() \a item
@@ -2378,7 +2391,8 @@ QRect QCanvasItem::boundingRectAdvanced() const
 
 
 /*!
-  Constructs a QCanvasPixmap from an image file by loading it.
+  Constructs a QCanvasPixmap from an image file at the location 
+  specified in \a datafilename by loading it.
 */
 QCanvasPixmap::QCanvasPixmap(const QString& datafilename)
 {
@@ -2386,14 +2400,14 @@ QCanvasPixmap::QCanvasPixmap(const QString& datafilename)
     init(image);
 }
 /*!
-  Constructs a QCanvasPixmap from an image.
+  Constructs a QCanvasPixmap from the image \a image.
 */
 QCanvasPixmap::QCanvasPixmap(const QImage& image)
 {
     init(image);
 }
 /*!
-  Constructs a QCanvasPixmap from a pixmap and an offset.
+  Constructs a QCanvasPixmap from the pixmap \a pm using the offset \a offset.
 */
 QCanvasPixmap::QCanvasPixmap(const QPixmap& pm, const QPoint& offset)
 {
@@ -2425,7 +2439,7 @@ void QCanvasPixmap::init(const QPixmap& pixmap, int hx, int hy)
 }
 
 /*!
-  Destructs the pixmap.
+  Destroys the pixmap.
 */
 QCanvasPixmap::~QCanvasPixmap()
 {
@@ -2498,7 +2512,7 @@ QCanvasPixmapArray::QCanvasPixmapArray( const QString& datafilenamepattern,
     readPixmaps(datafilenamepattern,fc);
 }
 
-/*! Constructs a QCanvasPixmapArray from QPixmaps. */
+/*! Constructs a QCanvasPixmapArray from the list of QPixmaps \a list. */
 
 QCanvasPixmapArray::QCanvasPixmapArray(QList<QPixmap> list, QList<QPoint> hotspots) :
     framecount(list.count()),
@@ -2520,7 +2534,7 @@ QCanvasPixmapArray::QCanvasPixmapArray(QList<QPixmap> list, QList<QPoint> hotspo
 }
 
 /*!
-  Destructs the pixmap array.
+  Destroys the pixmap array.
 */
 QCanvasPixmapArray::~QCanvasPixmapArray()
 {
@@ -2665,7 +2679,10 @@ int QCanvasSprite::leftEdge() const
     return int(x()) - image()->hotx;
 }
 
-/*!  Returns what the x coordinate of the left edge of the sprite
+/*!  
+  \overload
+
+  Returns what the x coordinate of the left edge of the sprite
   would be if it (its hot spot) were moved to x position \a nx.
 
   \sa offset() pos()
@@ -2685,7 +2702,10 @@ int QCanvasSprite::topEdge() const
     return int(y())-image()->hoty;
 }
 
-/*!  Returns what the y coordinate of the top edge of the sprite
+/*!  
+  \overload
+
+  Returns what the y coordinate of the top edge of the sprite
   would be if it (its hot spot) were moved to y position \a ny.
 
   \sa offset() pos()
@@ -2705,7 +2725,10 @@ int QCanvasSprite::rightEdge() const
     return leftEdge()+image()->width()-1;
 }
 
-/*!  Returns what the x coordinate of the right edge of the sprite
+/*!  
+  \overload
+
+  Returns what the x coordinate of the right edge of the sprite
   would be if it (its hot spot) were moved to x position \a nx.
 
   \sa offset() pos()
@@ -2725,7 +2748,10 @@ int QCanvasSprite::bottomEdge() const
     return topEdge()+image()->height()-1;
 }
 
-/*!  Returns what the y coordinate of the top edge of the sprite
+/*!  
+  \overload
+
+  Returns what the y coordinate of the top edge of the sprite
   would be if it (its hot spot) were moved to y position \a ny.
 
   \sa offset() pos()
@@ -2846,7 +2872,7 @@ int QCanvasSprite::height() const
 
 /*!
   Draws the current image of the sprite at its current position,
-  as given by image() and x(), y().
+  as given by image() and x(), y() using the painter \a painter.
 */
 void QCanvasSprite::draw(QPainter& painter)
 {
@@ -2858,37 +2884,67 @@ void QCanvasSprite::draw(QPainter& painter)
   \brief The QCanvasView class provides an on-screen view of a QCanvas.
   \module canvas
 
-  Displays a view of a QCanvas, with scrollbars available if
-  desired. There can be more than one view of a canvas.
-
-  The view of a canvas is the object which the user can see and
-  interact with, hence any interactivity will be based on events from
-  a view. For example, by subclassing QCanvasView and overriding
-  QScrollView::contentsMousePressEvent(), an application can provide a
-  canvas where the user can interact with items on the canvas.
+  A QCanvasView is widget which is a view of a QCanvas.
+  
+  You can easily make this view interactible by subclassing QCanvasView and
+  by reimplementing QScrollView::contentsMousePressEvent().  
 
   \code
-  void MyCanvasView::contentsMousePressEvent(QMouseEvent* e)
-  {
-      QCanvasItemList list = canvas()->collisions(e->pos());
-      if ( !list.isEmpty() ) {
-	  QCanvasItem* item = list.first();
-
-	  // Process the top item
-	  ...
-      }
-  }
+    void MyCanvasView::contentsMousePressEvent( QMouseEvent* e )
+    {
+	QCanvasItemList l = canvas()->collisions(e->pos());
+        for (QCanvasItemList::Iterator it=l.begin(); it!=l.end(); ++it) {
+	    if ( (*it)->rtti() == 5 )
+		qDebug("A QCanvasRectangle lies somewhere at this point");
+	}
+    }
   \endcode
 
-  Most of the functionality of QCanvasView is the functionality
-  available for all QScrollView subclasses.
+  You can set the canvas on which the view is based by calling setCanvas()
+  and you can get a pointer to the canvas which the view is currently based, by
+  calling canvas().
+
+  You can also set a transformation matrix which will allow you to
+  "transform" the view of the canvas. For instance, this could be zooming 
+  in and out of the canvas, and also rotating.
+
+  \code
+    QWMatrix wm;
+    wm.scale( 2, 2 );	    // Zooms in by 2 times
+    wm.rotate( 90 );	    // Rotates 90 degrees clockwise
+    myCanvasView->setWorldMatrix( wm );
+  \endcode
+
+  You can set the world matrix by calling setWorldMatrix().  You have to
+  ensure that the world matrix you set is invertible (i.e. can have an 
+  opposite, for example, if you zoom in by 2 times, then the inverse would be 
+  zooming out by 2 times.)
+
+  \code
+    QWMatrix wm;
+    wm.scale( 2, 2 );
+  \endcode
+
+  This is a good matrix, because the inverse of it would be:
+
+  \code
+    QWMatrix wm;
+    wm.scale( -2, -2 );
+  \endcode
+
+  You can get a reference to the current world matrix set on the view by
+  calling worldMatrix().  You can get a reference to the current world matrix
+  inverted by calling inverseWorldMatrix().
+
+  \sa QWMatrix QPainter::setWorldMatrix() 
+
 */
 
 /*!
-  Constructs a QCanvasView.  You will probably want to call setCanvas() before
-  showing the widget.
+  Constructs a QCanvasView with the parent \a parent, and the name \a name, using 
+  the widget flags \a f.  It is not associated to any canvas, so you will need
+  to call setCanvas() before displaying a canvas.
 
-  The usual QWidget parameters may also be supplied.
 */
 QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
     QScrollView(parent,name,f)
@@ -2900,8 +2956,10 @@ QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
 }
 
 /*!
-  Constructs a QCanvasView which views \a canvas.  The
-  usual QWidget parameters may also be supplied.
+  \overload
+
+  Constructs a QCanvasView which views the canvas \a canvas, with the parent 
+  \a parent, and the name \a name, using the widget flags \a f.
 */
 QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, WFlags f) :
     QScrollView(parent,name,f)
@@ -2914,7 +2972,7 @@ QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, WFl
 }
 
 /*!
-  Destructs the view. The associated canvas is \e not deleted.
+  Destroys the view. The associated canvas is \e not deleted.
 */
 QCanvasView::~QCanvasView()
 {
@@ -2925,12 +2983,12 @@ QCanvasView::~QCanvasView()
 /*!
   \fn QCanvas* QCanvasView::canvas() const
 
-  Returns the canvas which the view is currently viewing.
+  Returns a pointer to the canvas which the QCanvasView is currently associated with.
 */
 
 
 /*!
-  Changes the QCanvas which the QCanvasView is viewing to \a canvas.
+  Sets the canvas that the QCanvasView is viewing to the canvas \a canvas.
 */
 void QCanvasView::setCanvas(QCanvas* canvas)
 {
@@ -2948,9 +3006,9 @@ void QCanvasView::setCanvas(QCanvas* canvas)
 
 #ifndef QT_NO_TRANSFORMATIONS
 /*!
-  Returns the current transformation matrix.
+  Returns a reference to the current transformation matrix.
 
-  \sa setWorldMatrix()
+  \sa setWorldMatrix() inverseWordMatrix()
 */
 const QWMatrix &QCanvasView::worldMatrix() const
 {
@@ -2958,9 +3016,9 @@ const QWMatrix &QCanvasView::worldMatrix() const
 }
 
 /*!
-  Returns the inverse of the current transformation matrix.
+  Returns a reference to the inverse of the current transformation matrix.
 
-  \sa setWorldMatrix()
+  \sa setWorldMatrix() worldMatrix()
 */
 const QWMatrix &QCanvasView::inverseWorldMatrix() const
 {
@@ -2968,12 +3026,14 @@ const QWMatrix &QCanvasView::inverseWorldMatrix() const
 }
 
 /*!
-  Sets the transform of the view to \a wm. Note that performance
-  drops considerably when this is used.
+  Sets the transformation matrix of the QCanvasView to \a wm.  The matrix must
+  be invertible (i.e. if you create a world matrix that zooms out by 2 times, then
+  the inverse of this matrix is that it will zoom in by 2 times).
+  
+  When you use this, you should note that the performance of the QCanvasView will
+  drop considerably.  
 
-  The matrix must be invertible.
-
-  \sa worldMatrix()
+  \sa worldMatrix() inverseWorldMatrix()
 */
 void QCanvasView::setWorldMatrix( const QWMatrix & wm )
 {
@@ -3010,8 +3070,8 @@ void QCanvasView::cMoving(int x, int y)
 }
 
 /*!
-Repaints the appropriate area of the QCanvas which this
-QCanvasView is viewing.
+    Repaints part of the QCanvas starting at \a cx by \a cy, with a width of
+    \a cw and a height of \a ch using the painter \a p.
 */
 void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 {
@@ -3100,7 +3160,7 @@ static const QBrush& defaultPolygonBrush()
 }
 
 /*!
-  Constructs a QCanvasPolygonalItem on \a canvas.
+  Constructs a QCanvasPolygonalItem on the canvas \a canvas.
 */
 QCanvasPolygonalItem::QCanvasPolygonalItem(QCanvas* canvas) :
     QCanvasItem(canvas),
@@ -3131,9 +3191,11 @@ bool QCanvasPolygonalItem::winding() const
     return wind;
 }
 
-/*! Sets whether the polygonal item to use \e winding algorithm for
-  determine the "inside" of the polygon, rather than the odd-even
-  algorithm.
+/*! 
+
+  This function sets the polygonal item to use \e winding algorithm for
+  determine the "inside" of the polygon if \a enable is TRUE, otherwise it 
+  uses the odd-even algorithm.
 
   The default is to use the odd-even algorithm.
 
@@ -3356,7 +3418,7 @@ void QCanvasPolygonalItem::draw(QPainter & p)
 */
 
 /*!
-  Sets the QPen used when drawing the item.
+  Sets the QPen used when drawing the item to the pen \a p.
   Note that many QCanvasPolygonalItem do not use the pen value.
 
   \sa setBrush(), pen(), drawShape()
@@ -3370,7 +3432,7 @@ void QCanvasPolygonalItem::setPen(QPen p)
 }
 
 /*!
-  Sets the QBrush used when drawing item.
+  Sets the QBrush used when drawing item to the brush \a b.
 
   \sa setPen(), brush(), drawShape()
 */
@@ -3392,7 +3454,7 @@ void QCanvasPolygonalItem::setBrush(QBrush b)
 */
 
 /*!
-  Constructs a pointless polygon on \a canvas.
+  Constructs a pointless polygon on the canvas \a canvas.
   You should call setPoints() before
   using it further.
 */
@@ -3402,7 +3464,7 @@ QCanvasPolygon::QCanvasPolygon(QCanvas* canvas) :
 }
 
 /*!
-  Destructs the polygon.
+  Destroys the polygon.
 */
 QCanvasPolygon::~QCanvasPolygon()
 {
@@ -3410,6 +3472,8 @@ QCanvasPolygon::~QCanvasPolygon()
 }
 
 /*!
+  Draws the shape using the painter \a p.
+    
   Note that QCanvasPolygon does not support an outline (pen is
   always NoPen).
 */
@@ -3473,7 +3537,7 @@ void QCanvasPolygon::moveBy(double dx, double dy)
 */
 
 /*!
-  Create a spline with no control points.
+  Create a spline with no control points on the canvas \a canvas.
 
   \sa setControlPoints()
 */
@@ -3730,7 +3794,7 @@ QPointArray QCanvasLine::areaPoints() const
 
 /*!
   \class QCanvasRectangle qcanvas.h
-  \brief The QCanvasRectangle provides a movable rectangle in a canvas
+  \brief The QCanvasRectangle class provides a movable rectangle in a canvas
   \module canvas
 
   This item paints a single rectangle which may have any pen() and
@@ -3771,7 +3835,7 @@ QCanvasRectangle::QCanvasRectangle(int x, int y, int width, int height,
 }
 
 /*!
-  Destructs the rectangle.
+  Destroys the rectangle.
 */
 QCanvasRectangle::~QCanvasRectangle()
 {
@@ -3849,7 +3913,7 @@ void QCanvasRectangle::drawShape(QPainter & p)
 
 /*!
   \class QCanvasEllipse qcanvas.h
-  \brief An ellipse with a movable center point.
+  \brief The QCanvasEllipse class provides an ellipse with a movable center point.
   \module canvas
 
   Paints an ellipse or "pie segment" with a QBrush.
@@ -3890,7 +3954,7 @@ QCanvasEllipse::QCanvasEllipse(int width, int height,
 }
 
 /*!
-  Destructs the ellipse.
+  Destroys the ellipse.
 */
 QCanvasEllipse::~QCanvasEllipse()
 {
@@ -3974,7 +4038,7 @@ QPointArray QCanvasEllipse::areaPoints() const
 }
 
 /*!
-  Draws the ellipse, centered at x(), y().
+  Draws the ellipse, centered at x(), y() using the painter \a p.
 
   Note that QCanvasPolygon does not support an outline (pen is
   always NoPen).
@@ -3992,7 +4056,7 @@ void QCanvasEllipse::drawShape(QPainter & p)
 
 /*!
 \class QCanvasText qcanvas.h
-\brief A text object on a QCanvas.
+\brief The QCanvasText class provides a text object on a QCanvas.
 \module canvas
 
   A QCanvasText has text, a font, color, and position.
@@ -4021,7 +4085,8 @@ QCanvasText::QCanvasText(const QString& t, QCanvas* canvas) :
 }
 
 /*!
-  Constructs a QCanvasText with the text \a t and font \a f, on \a canvas.
+  Constructs a QCanvasText with the text \a t and font \a f, on the 
+  canvas \a canvas.
 
   The text should not contain newlines.
 */
@@ -4034,7 +4099,7 @@ QCanvasText::QCanvasText(const QString& t, QFont f, QCanvas* canvas) :
 }
 
 /*!
-  Destruct the sprite.
+  Destroys the sprite.
 */
 QCanvasText::~QCanvasText()
 {
@@ -4064,7 +4129,7 @@ void QCanvasText::setRect()
 
 
 /*!
-  Sets the alignment flags.  These are a bitwise OR or \e some of the
+  Sets the alignment flags to \a f.  These are a bitwise OR or \e some of the
   flags available to QPainter::drawText() - see Qt::AlignmentFlags.
 
   The DontClip and WordBreak flags are not supported.
@@ -4091,7 +4156,7 @@ QString QCanvasText::text() const
 
 
 /*!
-  Sets the text to be displayed.  The text may contain newlines.
+  Sets the text displayed to \a t.  The text may contain newlines.
 
   \sa text(), setFont(), setColor()
 */
@@ -4115,7 +4180,7 @@ QFont QCanvasText::font() const
 }
 
 /*!
-  Sets the font in which the text is drawn.
+  Sets the font in which the text is drawn to the font \a f.
   \sa font()
 */
 void QCanvasText::setFont( const QFont& f )
@@ -4138,7 +4203,7 @@ QColor QCanvasText::color() const
 }
 
 /*!
-  Sets the color of the text.
+  Sets the color of the text to the color \a c.
   \sa color(), setFont()
 */
 void QCanvasText::setColor(const QColor& c)
@@ -4167,7 +4232,7 @@ void QCanvasText::moveBy(double dx, double dy)
 }
 
 /*!
-  Draws the text.
+  Draws the text using the painter \a painter.
 */
 void QCanvasText::draw(QPainter& painter)
 {
@@ -4315,7 +4380,7 @@ int QCanvasSpline::rtti() const { return 8; }
 
 
 /*!
-Constructs a QCanvasSprite which uses images from the given array.
+Constructs a QCanvasSprite which uses images from the QCanvasPixmapArray \a a.
 
 The sprite in initially at (0,0) on \a canvas, using frame 0.
 */
@@ -4328,9 +4393,8 @@ QCanvasSprite::QCanvasSprite(QCanvasPixmapArray* a, QCanvas* canvas) :
 
 
 /*!
-\fn void QCanvasSprite::setSequence(QCanvasPixmapArray* a)
-
-Set the array of images used for displaying the sprite.  Note that
+Set the array of images used for displaying the sprite from the QCanvasPixmapArray
+\a a.  Note that
 the array should have enough images for the sprites current frame()
 to be valid.
 */
@@ -4398,14 +4462,15 @@ Returns the number of frames in the QCanvasSprite's QCanvasPixmapArray.
 /*!
   \reimp
   \internal
-  Keep it visible.
+  Moves the sprite to the position \a x, \a y.
+    Keep it visible.
 */
 void QCanvasSprite::move(double x, double y) { QCanvasItem::move(x,y); }
 
 /*!
 \fn void QCanvasSprite::move(double nx, double ny, int nf)
 
-Set both the position and the frame of the sprite.
+Set both the position of the sprite to \a nx, \a ny and the number of frames to \a nf.
 */
 void QCanvasSprite::move(double nx, double ny, int nf)
 {
