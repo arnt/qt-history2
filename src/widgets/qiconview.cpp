@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#12 $
 **
 ** Definition of QIconView widget class
 **
@@ -930,7 +930,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     p->setClipRect( r );
     drawBackground( p, r );
     p->restore();
-    
+
     if ( !d->firstItem )
         return;
 
@@ -1016,7 +1016,8 @@ void QIconView::ensureItemVisible( QIconViewItem *item )
 
 void QIconView::clear()
 {
-    resizeContents( contentsWidth(), contentsHeight() );
+    resizeContents( visibleWidth() - verticalScrollBar()->width(), 
+                    visibleHeight() - horizontalScrollBar()->width() );
     setContentsPos( 0, 0 );
 
     if ( !d->firstItem )
