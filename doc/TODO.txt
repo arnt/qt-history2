@@ -403,3 +403,7 @@ QPrinter
 
 QListViewComboItem:
     A request to have a class that will easily insert a QComboBox into a QListView.
+
+QToolTip:
+    Be able to specify where the tooltip is shown, so that QListView can show the tooltip 
+    over the item rather than below.  (See support/arc-15/31217 for more).
