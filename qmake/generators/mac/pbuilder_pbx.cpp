@@ -975,7 +975,6 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
 	    version_file.close();
 	} else { debug_msg(1, "pbuilder: version.plist: Failure to open %s", version_plist.latin1()); }
 	if(version_plist.contains("Xcode")) {
-	    qDebug("xcoding it..");
 	    ret = "39";
 	} else {
 	    if(version.startsWith("2."))
