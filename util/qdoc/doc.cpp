@@ -134,7 +134,7 @@ static void skipSpacesOrNL( const QString& in, int& pos )
 	QChar ch = in[pos];
 	if ( ch == QChar('\n') ) {
 	    if ( firstNL == -1 ) {
-		firstNL = pos - 1;
+		firstNL = pos;
 	    } else {
 		pos = firstNL;
 		break;
