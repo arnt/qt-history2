@@ -18,12 +18,27 @@
 #include "qdatastream.h"
 #include "qdebug.h"
 
-#if defined(Q_WS_QWS) || defined(Q_WS_X11)
+#ifndef Q_WS_WIN
 #include "qpixmapcache.h"
 #include "qbitmap.h"
 
-QPixmap qt_pixmapForBrush(int brushStyle)
+const uchar *qt_patternForBrush(int brushStyle)
 {
+#ifdef Q_WS_MAC
+    static uchar dense1_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
+    static uchar dense2_pat[] = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
+    static uchar dense3_pat[] = { 0xaa, 0x44, 0xaa, 0x11, 0xaa, 0x44, 0xaa, 0x11 };
+    static uchar dense4_pat[] = { 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa };
+    static uchar dense5_pat[] = { 0x55, 0xbb, 0x55, 0xee, 0x55, 0xbb, 0x55, 0xee };
+    static uchar dense6_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
+    static uchar dense7_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
+    static uchar hor_pat[]    = { 0xff, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0xff };
+    static uchar ver_pat[]    = { 0xef, 0xef, 0xef, 0xef, 0xef, 0xef, 0xef, 0xef };
+    static uchar cross_pat[]  = { 0xef, 0xef, 0xef, 0x00, 0xef, 0xef, 0xef, 0xef };
+    static uchar bdiag_pat[]  = { 0x7f, 0xbf, 0xdf, 0xef, 0xf7, 0xfb, 0xfd, 0xfe };
+    static uchar fdiag_pat[]  = { 0xfe, 0xfd, 0xfb, 0xf7, 0xef, 0xdf, 0xbf, 0x7f };
+    static uchar dcross_pat[] = { 0x7e, 0xbd, 0xdb, 0xe7, 0xe7, 0xdb, 0xbd, 0x7e };
+#else
     static const uchar dense1_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
     static const uchar dense2_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
     static const uchar dense3_pat[] = { 0x55, 0xbb, 0x55, 0xee, 0x55, 0xbb, 0x55, 0xee };
@@ -64,28 +79,24 @@ QPixmap qt_pixmapForBrush(int brushStyle)
         0x22, 0x22, 0x14, 0x14, 0x08, 0x08, 0x14, 0x14, 0x22, 0x22, 0x41, 0x41,
         0x80, 0x80, 0x41, 0x41, 0x22, 0x22, 0x14, 0x14, 0x08, 0x08, 0x14, 0x14,
         0x22, 0x22, 0x41, 0x41, 0x80, 0x80, 0x41, 0x41 };
+#endif
     static const uchar * const pat_tbl[] = {
         dense1_pat, dense2_pat, dense3_pat, dense4_pat, dense5_pat,
         dense6_pat, dense7_pat,
         hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
+    Q_ASSERT(brushStyle > Qt::SolidPattern && brushStyle < Qt::LinearGradientPattern);
+    return pat_tbl[brushStyle - Qt::Dense1Pattern];
+}
 
+QPixmap qt_pixmapForBrush(int brushStyle)
+{
     QPixmap pm;
-
-    if(brushStyle>=Qt::Dense1Pattern && brushStyle <= Qt::DiagCrossPattern) {
-        QString key="$qt-brush$" + QString::number(brushStyle);
-        if (!QPixmapCache::find(key, pm)) {                        // not already in pm dict
-            const uchar * pat=pat_tbl[brushStyle-Qt::Dense1Pattern];
-            int dd=0;
-            if(brushStyle<=Qt::Dense7Pattern)
-                dd=8;
-            else if (brushStyle<=Qt::CrossPattern)
-                dd=24;
-            else
-                dd=16;
-            pm = QBitmap(dd, dd, pat, true);
-            QPixmapCache::insert(key, pm);
-        }
+    QString key = "$qt-brush$" + QString::number(brushStyle);
+    if (!QPixmapCache::find(key, pm)) {
+        pm = QBitmap(8, 8, qt_patternForBrush(brushStyle), true);
+        QPixmapCache::insert(key, pm);
     }
+
     return pm;
 }
 #endif
@@ -488,9 +499,11 @@ bool QBrush::operator==(const QBrush &b) const
 {
     if (b.d == d || (b.d->style == d->style && b.d->color == d->color)) {
         switch (d->style) {
-        case CustomPattern:
-            return static_cast<QTexturedBrushData*>(d)->pixmap
-                == static_cast<QTexturedBrushData*>(b.d)->pixmap;
+        case CustomPattern: {
+            QPixmap *us = static_cast<QTexturedBrushData *>(d)->pixmap;
+            QPixmap *them = static_cast<QTexturedBrushData *>(b.d)->pixmap;
+            return (us == them) || (us && them && QImage(*us) == QImage(*them));
+        }
         case LinearGradientPattern:
             return static_cast<QLinGradBrushData*>(d)->color2
                 == static_cast<QLinGradBrushData*>(b.d)->color2
