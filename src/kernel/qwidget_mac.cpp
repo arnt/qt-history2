@@ -2314,10 +2314,8 @@ Qt::HANDLE QWidget::macCGHandle(bool do_children) const
     GetPortBounds(GetWindowPort((WindowPtr)handle()), &port_rect);
     if(!cg_hd) {
 	CreateCGContextForPort(GetWindowPort((WindowPtr)handle()), (CGContextRef*)&cg_hd);
-#ifdef USE_TRANSLATED_CG_CONTEXT
 	CGContextTranslateCTM((CGContextRef)cg_hd, 0, (port_rect.bottom - port_rect.top));
 	CGContextScaleCTM((CGContextRef)cg_hd, 1, -1);
-#endif
     }
     qt_mac_clip_cg_handle((CGContextRef)cg_hd, ((QWidget*)this)->clippedRegion(do_children), 
 			  QRect(0, 0, port_rect.right-port_rect.left, port_rect.bottom-port_rect.top), false);

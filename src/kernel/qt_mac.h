@@ -38,9 +38,6 @@
 
 //This turns on core graphics (don't use it unless you're Sam!!!)
 //#define USE_CORE_GRAPHICS
-#ifdef USE_CORE_GRAPHICS
-# define USE_TRANSLATED_CG_CONTEXT
-#endif
 
 #endif
 

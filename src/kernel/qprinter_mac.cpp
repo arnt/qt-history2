@@ -420,10 +420,8 @@ Qt::HANDLE QPrinter::macCGHandle() const
 {
     if(!cg_hd) {
 	CreateCGContextForPort((CGrafPtr)hd, (CGContextRef*)&cg_hd);
-#ifdef USE_TRANSLATED_CG_CONTEXT
 	CGContextTranslateCTM((CGContextRef)cg_hd, 0, metric(QPaintDeviceMetrics::PdmHeight));
 	CGContextScaleCTM((CGContextRef)cg_hd, 1, -1);
-#endif
     }
     return cg_hd;
 }
