@@ -280,6 +280,9 @@ void QCheckBox::drawButtonLabel( QPainter *p )
     }
 }
 
+/*!
+  \reimp
+*/
 void QCheckBox::resizeEvent( QResizeEvent* )
 {
     int x, w, h;
@@ -299,6 +302,9 @@ void QCheckBox::resizeEvent( QResizeEvent* )
 	updateMask();
 }
 
+/*!
+  \reimp
+*/
 void QCheckBox::updateMask()
 {
 

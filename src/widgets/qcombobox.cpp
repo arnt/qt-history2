@@ -1434,6 +1434,9 @@ void QComboBox::popup()
 }
 
 
+/*!
+  \reimp
+*/
 void QComboBox::updateMask()
 {
     QBitmap bm( size() );
