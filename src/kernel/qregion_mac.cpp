@@ -120,13 +120,18 @@ static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
 {
     QImage image = bitmap.convertToImage();
 
-    RgnHandle region = NewRgn();
+    RgnHandle region = NewRgn(), rr;
 
 #define AddSpan \
 	{ \
-            RgnHandle rr = NewRgn(); \
-            SetRectRgn(rr, prev1, y, x-1, y); \
-	    UnionRgn( rr, region, region ); \
+    	   Rect rect; \
+	   SetRect(&rect, prev1, y, (x-1)+1, (y+1)); \
+	   rr = NewRgn(); \
+    	   OpenRgn(); \
+	   FrameRect(&rect); \
+	   CloseRgn(rr); \
+	   UnionRgn( rr, region, region ); \
+	   DisposeRgn(rr); \
 	}
 
     const int zero=0;
