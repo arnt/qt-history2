@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 /*! \class QSocketLayer
+    \internal
 
     \brief The QSocketLayer class provides low level access to a socket.
 \if defined(commercial)
