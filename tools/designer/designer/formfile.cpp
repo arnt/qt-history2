@@ -171,13 +171,13 @@ QString FormFile::code()
     return txt;
 }
 
-bool FormFile::save( bool withMsgBox )
+bool FormFile::save( bool withMsgBox, bool ignoreModified )
 {
     if ( !formWindow() )
 	return TRUE;
     if ( fileNameTemp )
 	return saveAs();
-    if ( !isModified() )
+    if ( !ignoreModified && !isModified() )
 	return TRUE;
     if ( ed )
 	ed->save();
@@ -246,17 +246,22 @@ bool FormFile::save( bool withMsgBox )
     return TRUE;
 }
 
-bool FormFile::saveAs()
+bool FormFile::saveAs( bool ignoreModified )
 {
     QString f = pro->makeAbsolute( fileName() );
-    if ( fileNameTemp )
+    if ( fileNameTemp && formWindow() )
 	f = pro->makeAbsolute( QString( formWindow()->name() ).lower() + ".ui" );
     bool saved = FALSE;
+    if ( ignoreModified ) {
+	QString dir = getenv( "QTSCRIPTDIR" );
+	f = QFileInfo( f ).fileName();
+	f.prepend( dir + "/" );
+    }
     while ( !saved ) {
 	QString fn = QFileDialog::getSaveFileName( f,
 					       tr( "Qt User-Interface Files (*.ui)" ) + ";;" +
 					       tr( "All Files (*)" ), MainWindow::self, 0,
-					       tr( "Save Form '%1' As ...").arg( formWindow()->name() ),
+					       tr( "Save Form '%1' As ...").arg( formName() ),
 					       &MainWindow::self->lastSaveFilter );
 	if ( fn.isEmpty() )
 	    return FALSE;
@@ -286,10 +291,10 @@ bool FormFile::saveAs()
     }
     pro->setModified( TRUE );
     timeStamp.setFileName( pro->makeAbsolute( codeFile() ) );
-    if ( ed )
+    if ( ed && formWindow() )
 	ed->setCaption( tr( "Edit %1" ).arg( formWindow()->name() ) );
     setModified( TRUE );
-    return save();
+    return save( ignoreModified );
 }
 
 bool FormFile::close()
@@ -476,6 +481,12 @@ void FormFile::createFormCode()
 	       "\n" + iface->createEmptyFunction();
     }
     parseCode( cod, FALSE );
+}
+
+void FormFile::load()
+{
+    showFormWindow();
+    loadCode();
 }
 
 bool FormFile::loadCode()

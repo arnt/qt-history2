@@ -61,8 +61,9 @@ public:
     bool isCodeEdited() const;
 
     bool loadCode();
-    bool save( bool withMsgBox = TRUE );
-    bool saveAs();
+    void load();
+    bool save( bool withMsgBox = TRUE, bool ignoreModified = FALSE );
+    bool saveAs( bool ignoreModified = FALSE );
     bool close();
     bool closeEvent();
     bool isModified( int who = WAnyOrAll );

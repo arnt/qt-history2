@@ -1481,11 +1481,11 @@ void MainWindow::fileExport( QObject *o )
 	sf->setPackage( TRUE );
     } else if ( o->inherits( "FormFile" ) ) {
 	FormFile *ff = (FormFile*)o;
-	if ( !ff->saveAs() )
+	ff->load();
+	if ( !ff->saveAs( TRUE ) )
 	    return;
 	QString fn = ff->fileName();
 	QString dir = getenv( "QTSCRIPTDIR" );
-	qDebug( "%s %s", dir.latin1(), fn.latin1() );
 	currentProject->setModified( TRUE );
 	ff->setPackage( TRUE );
     }
