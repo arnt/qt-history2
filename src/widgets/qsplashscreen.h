@@ -51,8 +51,6 @@ public:
     QSplashScreen( const QPixmap &pixmap = 0, WFlags f = 0 );
     virtual ~QSplashScreen();
 
-    void setStatus( const QString &str, int flags = AlignLeft,
-		    const QColor &color = black );
     void setPixmap( const QPixmap &pixmap );
     QPixmap* pixmap() const;
     void finish( QWidget *w );
