@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#16 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#17 $
 **
 ** Implementation of QDns class.
 **
@@ -1484,7 +1484,7 @@ QDns::QDns()
   \a rr defaults to \c A, IPv4 addresses.
 */
 
-QDns::QDns( const QString & label, QDns::RecordType rr )
+QDns::QDns( const QString & label, RecordType rr )
 {
     d = new QDnsPrivate;
     t = rr;
@@ -1506,7 +1506,7 @@ QDns::QDns( const QString & label, QDns::RecordType rr )
   \a rr defaults to \c Ptr, that maps addresses to hostnames.
 */
 
-QDns::QDns( const QHostAddress & address, QDns::RecordType rr )
+QDns::QDns( const QHostAddress & address, RecordType rr )
 {
     d = new QDnsPrivate;
     t = rr;
@@ -1787,10 +1787,7 @@ QValueList<QHostAddress> QDns::addresses() const
 }
 
 
-// ### the \fn in the documentation is not nice but qdoc wants it...
 /*!
-  \fn QValueList<MailServer> QDns::mailServers() const
-
   Returns a list of mail servers if the record type is \c Mx. The struct
   \c QDns::MailServer contains the following variables:
   <ul>
@@ -1822,10 +1819,7 @@ QValueList<QDns::MailServer> QDns::mailServers() const
 }
 
 
-// ### the \fn in the documentation is not nice but qdoc wants it...
 /*!
-  \fn QValueList<Server> QDns::servers() const
-
   Returns a list of servers if the record type is \c Srv. The struct \c
   QDns::Server contains the following variables:
   <ul>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id:$
+** $Id: //depot/qt/main/src/network/qftp.cpp#15 $
 **
 ** Implementation of QFtp class.
 **
