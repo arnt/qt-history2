@@ -964,6 +964,8 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		     cursor->index() == 0 && ( e->text() == "-" || e->text() == "*" ) ) {
 		    setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListDisc );
 		} else {
+		    if ( overWrite && !cursor->atParagEnd() )
+			cursor->remove();
 		    insert( e->text(), TRUE, FALSE );
 		}
 		break;
