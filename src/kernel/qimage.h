@@ -44,6 +44,7 @@
 #include "qstringlist.h"
 #endif // QT_H
 
+class QImageDataMisc; // internal
 #ifndef QT_NO_IMAGE_TEXT
 class QImageTextKeyLang {
 public:
@@ -87,8 +88,8 @@ public:
 
     QImage     &operator=( const QImage & );
     QImage     &operator=( const QPixmap & );
-    bool	operator==( const QImage & ) const;
-    bool	operator!=( const QImage & ) const;
+    bool   	operator==( const QImage & ) const;
+    bool   	operator!=( const QImage & ) const;
     void	detach();
     QImage	copy()		const;
     QImage	copy(int x, int y, int w, int h, int conversion_flags=0) const;
@@ -102,7 +103,7 @@ public:
     QRect	rect()		const	{ return QRect(0,0,data->w,data->h); }
     int		depth()		const	{ return data->d; }
     int		numColors()	const	{ return data->ncols; }
-    Endian	bitOrder()	const	{ return (Endian) data->bitordr; }
+    Endian 	bitOrder()	const	{ return (Endian) data->bitordr; }
 
     QRgb	color( int i )	const;
     void	setColor( int i, QRgb c );
@@ -124,7 +125,7 @@ public:
 #ifdef Q_WS_QWS
     QGfx * graphicsContext();
 #endif
-
+    
     bool	create( int width, int height, int depth, int numColors=0,
 			Endian bitOrder=IgnoreEndian );
     bool	create( const QSize&, int depth, int numColors=0,
@@ -200,7 +201,6 @@ public:
     QString text(const QImageTextKeyLang&) const;
     void setText(const char* key, const char* lang, const QString&);
 #endif
-    class QImageDataMisc;
 private:
     void	init();
     void	reinit();
@@ -245,6 +245,9 @@ Q_EXPORT QDataStream &operator>>( QDataStream &, QImage & );
 
 class QIODevice;
 typedef void (*image_io_handler)( QImageIO * ); // image IO handler
+
+
+struct QImageIOData;
 
 
 class Q_EXPORT QImageIO
@@ -296,10 +299,9 @@ private:
     QCString	frmt;				// image format
     QIODevice  *iodev;				// IO device
     QString	fname;				// file name
-    //    char       *params;		// image parameters //### change to Data *d in 3.0
+    char       *params;				// image parameters //### change to QImageIOData *d in 3.0
     QString     descr;				// image description
-    class Data;
-    Data *d;
+    QImageIOData *d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
