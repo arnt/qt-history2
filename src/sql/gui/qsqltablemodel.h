@@ -95,9 +95,13 @@ public:
     bool insertRecord(int row, const QSqlRecord &record);
     bool setRecord(int row, const QSqlRecord &record);
 
-public slots:
-    virtual bool submitChanges();
     virtual void revertRow(int row);
+
+public slots:
+    bool submit();
+    void revert();
+
+    bool submitAll();
     void revertAll();
 
 signals:

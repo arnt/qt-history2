@@ -222,6 +222,8 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
   Creates an empty QSqlTableModel and sets the parent to \a parent
   and the database connection to \a db. If \a db is not valid, the
   default database connection will be used.
+
+  The default edit strategy is OnRowChange.
  */
 QSqlTableModel::QSqlTableModel(QObject *parent, QSqlDatabase db)
     : QSqlQueryModel(*new QSqlTableModelPrivate(this), parent)
@@ -384,7 +386,7 @@ bool QSqlTableModel::isDirty(const QModelIndex &index) const
     Returns true if the value could be set or false on error, for example if \a index is
     out of bounds.
 
-    \sa editStrategy(), data(), submitChanges(), revertRow()
+    \sa editStrategy(), data(), submit(), submitAll(), revertRow()
  */
 bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
@@ -417,7 +419,7 @@ bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant 
             if (d->editBuffer.isEmpty())
                 d->clearEditBuffer();
             else if (d->editIndex != -1)
-                submitChanges();
+                submit();
         }
         d->editBuffer.setValue(index.column(), value);
         d->editIndex = index.row();
@@ -541,9 +543,12 @@ bool QSqlTableModel::deleteRowFromTable(int row)
 
 /*!
     Submits all pending changes and returns true on success.
-    \sa lastError()
+    Returns false on error, detailed error information can be
+    obtained with lastError().
+
+    \sa revertAll(), lastError()
  */
-bool QSqlTableModel::submitChanges()
+bool QSqlTableModel::submitAll()
 {
     bool isOk = true;
 
@@ -579,7 +584,7 @@ bool QSqlTableModel::submitChanges()
                 isOk |= deleteRowFromTable(it.key());
                 break;
             case QSql::None:
-                qWarning("QSqlTableModel::submitChanges: Invalid operation");
+                qWarning("QSqlTableModel::submitAll: Invalid operation");
                 break;
             }
             ++it;
@@ -593,6 +598,41 @@ bool QSqlTableModel::submitChanges()
     return isOk;
 }
 
+/*!
+    This reimplemented slot is called by the item delegates when the user stopped
+    editing the current row.
+
+    Submits the currently edited row if the model's strategy is set to OnRowChange.
+    Does nothing for the other edit strategies. Use submitAll() to submit all pending
+    changes for the OnManualSubmit strategy.
+
+    Returns false on error, otherwise true. Use lastError() to query detailed error
+    information.
+
+    \sa revert(), revertRow(), submitAll(), revertAll(), lastError()
+*/
+bool QSqlTableModel::submit()
+{
+    if (d->strategy == OnRowChange)
+        return submitAll();
+    return true;
+}
+
+/*!
+    This reimplemented slot is called by the item delegates when the user cancelled
+    editing the current row.
+
+    Reverts the changes if the model's strategy is set to OnRowChange. Does nothing
+    for the other edit strategies. Use revertAll() to revert all pending changes
+    for the OnManualSubmit strategy or revertRow() to revert a specific row.
+
+    \sa submit(), submitAll(), revertRow(), revertAll()
+*/
+void QSqlTableModel::revert()
+{
+    if (d->strategy == OnRowChange)
+        revertAll();
+}
 
 /*!
     \enum QSqlTableModel::EditStrategy
@@ -601,7 +641,7 @@ bool QSqlTableModel::submitChanges()
 
     \value OnFieldChange  All changes to the model will be applied immediately to the database.
     \value OnRowChange  Changes will be applied when the current row changes.
-    \value OnManualSubmit  All changes will be cached in the model until either submitChanges()
+    \value OnManualSubmit  All changes will be cached in the model until either submitAll()
                            or revertAll() is invoked.
 */
 
@@ -629,7 +669,7 @@ QSqlTableModel::EditStrategy QSqlTableModel::editStrategy() const
 }
 
 /*!
-    Revert all pending changes.
+    Reverts all pending changes.
  */
 void QSqlTableModel::revertAll()
 {
@@ -657,7 +697,7 @@ void QSqlTableModel::revertAll()
 }
 
 /*!
-  Reverts all changes for the current \a row.
+  Reverts all changes for the specified \a row.
  */
 void QSqlTableModel::revertRow(int row)
 {
@@ -915,7 +955,7 @@ bool QSqlTableModel::insertRecord(int row, const QSqlRecord &record)
     if (!setRecord(row, record))
         return false;
     if (d->strategy == OnFieldChange || d->strategy == OnRowChange)
-        return submitChanges();
+        return submit();
     return true;
 }
 

@@ -38,7 +38,7 @@ public:
         : QSqlQueryModelPrivate(qq),
           editIndex(-1), insertIndex(-1), sortColumn(-1),
           sortOrder(Qt::AscendingOrder),
-          strategy(QSqlTableModel::OnFieldChange)
+          strategy(QSqlTableModel::OnRowChange)
     {}
     void clear();
     QSqlRecord primaryValues(int index);
