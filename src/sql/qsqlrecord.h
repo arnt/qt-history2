@@ -25,8 +25,8 @@ public:
     QSqlRecord( const QSqlRecord& other );
     QSqlRecord& operator=( const QSqlRecord& other );
     virtual ~QSqlRecord();
-    virtual QVariant     value( int i );
-    virtual QVariant     value( const QString& name );
+    virtual QVariant     value( int i ) const;
+    virtual QVariant     value( const QString& name ) const;
     virtual void         setValue( int i, const QVariant& val );
     virtual void         setValue( const QString& name, const QVariant& val );
     int                  position( const QString& name ) const;
@@ -47,10 +47,13 @@ public:
     virtual QString      toString( const QString& prefix = QString::null ) const;
 
 private:
-    QSqlField*           findField( int i );
-    QSqlField*           findField( const QString& name );
+    const QSqlField*     findField( int i ) const;
+    QSqlField*           findField( int i );    
+    const QSqlField*     findField( const QString& name ) const;
+    QSqlField*           findField( const QString& name );    
     QValueList< QSqlField > fieldList;
 };
 
 #endif	// QT_NO_SQL
 #endif
+

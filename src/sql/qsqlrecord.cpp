@@ -54,7 +54,7 @@ QSqlRecord::~QSqlRecord()
 
 */
 
-QVariant  QSqlRecord::value( int i )
+QVariant  QSqlRecord::value( int i ) const
 {
     return findField(i)->value();
 }
@@ -65,7 +65,7 @@ QVariant  QSqlRecord::value( int i )
 
 */
 
-QVariant  QSqlRecord::value( const QString& name )
+QVariant  QSqlRecord::value( const QString& name ) const
 {
     return findField( name )->value();
 }
@@ -84,7 +84,7 @@ int QSqlRecord::position( const QString& name ) const
     }
 #ifdef QT_CHECK_RANGE
     qWarning("QSqlRecord::position: unable to find field " + name );
-#endif    
+#endif
     return -1;
 }
 
@@ -213,6 +213,23 @@ uint QSqlRecord::count() const
 
 */
 
+const QSqlField* QSqlRecord::findField( int i ) const
+{
+#ifdef QT_CHECK_RANGE
+    static QSqlField dbg;
+    if( (unsigned int) i > fieldList.count() ){
+	qWarning( "QSqlRecord::findField: index out of range" );
+	return &dbg;
+    }
+#endif // QT_CHECK_RANGE
+    return &fieldList[ i ];
+}
+
+/*!
+  \internal
+
+*/
+
 QSqlField* QSqlRecord::findField( int i )
 {
 #ifdef QT_CHECK_RANGE
@@ -224,6 +241,24 @@ QSqlField* QSqlRecord::findField( int i )
 #endif // QT_CHECK_RANGE
     return &fieldList[ i ];
 }
+
+/*!
+  \internal
+
+*/
+
+const QSqlField* QSqlRecord::findField( const QString& name ) const
+{
+#ifdef QT_CHECK_RANGE
+    static QSqlField dbg;
+    if( (unsigned int) position( name ) > fieldList.count() ){
+	qWarning( "QSqlRecord::findField : index out of range" );
+	return &dbg;
+    }
+#endif // QT_CHECK_RANGE
+    return &fieldList[ position( name ) ];
+}
+
 
 /*!
   \internal
