@@ -68,6 +68,7 @@
 
 
 // #define QFONTLOADER_DEBUG
+// #define QFONTLOADER_VERBOSE_DEBUG
 
 
 // to get which font encodings are installed:
@@ -1806,7 +1807,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	script = defaultScript;
 
     if (script > QFont::Unicode)
-	qFatal("QFontPrivate::load: script %d is out of range", script);
+	qFatal("QFontLoader: script %d is out of range", script);
 
     if (x11data.fontstruct[script] && ! request.dirty)
 	return;
@@ -1839,18 +1840,12 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 	if (! qfs) {
 
-#ifdef QFONTLOADER_DEBUG
-	    qDebug("QFP::load: trying to load unicode font");
-#endif // QFONTLOADER_DEBUG
+#ifdef QFONTLOADER_VERBOSE_DEBUG
+	    qDebug("QFontLoader: trying to load unicode font");
+#endif // QFONTLOADER_VERBOSE_DEBUG
 
 	    load(QFont::Unicode, FALSE);
 	    qfs = x11data.fontstruct[QFont::Unicode];
-
-#ifdef QFONTLOADER_DEBUG
-	} else {
-	    qDebug("QFP::load: unicode font already loaded");
-#endif // QFONTLOADER_DEBUG
-
 	}
 
 	if (qfs != (QFontStruct *) -1) {
@@ -1979,30 +1974,26 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 		    xfs->max_byte1 >= 0xff &&
 		    xfs->min_char_or_byte2 == 0 &&
 		    xfs->max_char_or_byte2 >= 0xff) {
+		    XCharStruct *xcs = xfs->per_char + 0xfffe;
 
-#ifdef QFONTLOADER_DEBUG
-		    qDebug("QFP::load: unicode font has individual charstructs");
-		    qDebug("QFP::load: m1 %d x1 %d m2 %d x2 %d",
+#ifdef QFONTLOADER__VERBOSE_DEBUG
+		    qDebug("QFontLoader: unicode font has individual charstructs");
+		    qDebug("QFontLoader: m1 %d x1 %d m2 %d x2 %d",
 			   xfs->min_byte1,
 			   xfs->max_byte1,
 			   xfs->min_char_or_byte2,
 			   xfs->max_char_or_byte2);
-#endif // QFONTLOADER_DEBUG
-
-		    XCharStruct *xcs = xfs->per_char + 0xfffe;
-
-#ifdef QFONTLOADER_DEBUG
 
 		    if (xcs) {
-			qDebug("QFP::load: bounding box for undefined char: "
+			qDebug("QFontLoader: bounding box for undefined char: "
 			       "%d %d %d",
 			       xcs->width, xcs->ascent, xcs->descent);
 		    } else {
-			qDebug("QFP::load: unicode font doesn't have undefined "
+			qDebug("QFontLoader: unicode font doesn't have undefined "
 			       "char?");
 		    }
 
-#endif // QFONTLOADER_DEBUG
+#endif // QFONTLOADER_VERBOSE_DEBUG
 
 		    if (charNonExistent(xcs) && row + cell != 0) {
 			xcs = getCharStruct2d(xfs, row, cell);
@@ -2020,45 +2011,26 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 	    if (hasChar) {
 
-#ifdef QFONTLOADER_DEBUG
-		qDebug("QFontPrivate::load: %p unicode font has char "
+#ifdef QFONTLOADER_VERBOSE_DEBUG
+		qDebug("QFontLoader: %p unicode font has char "
 		       "0x%02x%02x for %d %s", this, ch.row(), ch.cell(), script,
 		       qt_x11encodings[script][qt_x11indices[script]]);
-#endif // QFONTLOADER_DEBUG
+#endif // QFONTLOADER_VERBOSE_DEBUG
 
 		x11data.fontstruct[script] = qfs;
 		qfs->ref();
 		request.dirty = FALSE;
 
 		return;
-
-#ifdef QFONTLOADER_DEBUG
-	    } else {
-		qDebug("QFontPrivate::load: unicode font doesn't have char 0x%04x",
-		       ch.unicode());
-#endif // QFONTLOADER_DEBUG
-
 	    }
-
-#ifdef QFONTLOADER_DEBUG
-	} else {
-	    qDebug("QFontPrivate::load: unicode font tried, but doesn't exist");
-#endif // QFONTLOADER_DEBUG
-
 	}
-
-#ifdef QFONTLOADER_DEBUG
-    } else {
-	qDebug("QFontPrivate::load: not trying Unicode font");
-#endif // QFONTLOADER_DEBUG
-
     }
 
     // if we have no way to map this script, we give up
     if (! qt_x11encodings[script][qt_x11indices[script]]) {
 
 #ifdef QFONTLOADER_DEBUG
-	qDebug("QFontPrivate::load: no nothing about script %d, giving up", script);
+	qDebug("QFontLoader: no nothing about script %d, giving up", script);
 #endif // QFONTLOADER_DEBUG
 
 	x11data.fontstruct[script] = (QFontStruct *) -1;
@@ -2072,9 +2044,9 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
     if (! qxfn) {
 	// if we don't find the name in the dict, we need to find a font name
 
-#ifdef QFONTLOADER_DEBUG
+#ifdef QFONTLOADER_VERBOSE_DEBUG
 	qDebug("QFont::load: getting font name");
-#endif // QFONTLOADER_DEBUG
+#endif // QFONTLOADER_VERBOSE_DEBUG
 
 	QString name;
 	bool match;
@@ -2092,16 +2064,16 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 	if (name.isNull()) {
 	    // no font name... this can only happen with Unicode
-	    //qDebug("QFP::load: no font name - this must be unicode (%d %s)",
+	    //qDebug("QFontLoader: no font name - this must be unicode (%d %s)",
 	    //script, qt_x11encodings[script][qt_x11indices[script]]);
 
 	    name = k + "NU";
 	}
 
-#ifdef QFONTLOADER_DEBUG
-	qDebug("QFontPrivate::load: putting '%s' (%d) into name dict", name.latin1(),
+#ifdef QFONTLOADER_VERBOSE_DEBUG
+	qDebug("QFontLoader: putting '%s' (%d) into name dict", name.latin1(),
 	       name.length());
-#endif // QFONTLOADER_DEBUG
+#endif // QFONTLOADER_VERBOSE_DEBUG
 
 	// Put font name into fontNameDict
 	qxfn = new QXFontName(name.latin1(), match);
@@ -2109,9 +2081,9 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	fontNameDict->insert(k, qxfn);
     }
 
-#ifdef QFONTLOADER_DEBUG
+#ifdef QFONTLOADER_VERBOSE_DEBUG
     qDebug("QFont::load: using name '%s'", (const char *) qxfn->name);
-#endif // QFONTLOADER_DEBUG
+#endif // QFONTLOADER_VERBOSE_DEBUG
 
     exactMatch = qxfn->exactMatch;
 
@@ -2132,11 +2104,39 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	return;
     }
 
+    // get unicode -> font encoding codec
+    QTextCodec *codec = 0;
+    if (script < QFont::Unicode) {
+	codec =
+	    QTextCodec::codecForName(qt_x11encodings[script][qt_x11indices[script]]);
+
+#ifdef QFONTLOADER_DEBUG
+	if (codec) {
+	    qDebug("QFontLoader: got codec %s for script %d %s",
+		   codec->name(), script,
+		   qt_x11encodings[script][qt_x11indices[script]]);
+	}
+#endif // QFONTLOADER_DEBUG
+
+	// if we don't have a codec for the font, don't even bother loading it
+	if (! codec) {
+#ifdef QFONTLOADER_DEBUG
+	    qDebug("QFontLoader: no codec for script %d %s",
+		   script,
+		   qt_x11encodings[script][qt_x11indices[script]]);
+#endif // QFONTLOADER_DEBUG
+
+	    x11data.fontstruct[script] = (QFontStruct *) -1;
+	    fontCache->insert((const char *) n, x11data.fontstruct[script], 1);
+	    return;
+	}
+    }
+
     // font was never loaded, we need to do that now
     XFontStruct *f = 0;
     bool use_core = TRUE;
 #ifdef QFONTLOADER_DEBUG
-    qDebug("QFontPrivate::load: %p loading font for %d %s\n\t%s", this,
+    qDebug("QFontLoader: %p loading font for %d %s\n\t%s", this,
 	   script, qt_x11encodings[script][qt_x11indices[script]], (const char *) n);
 #endif // QFONTLOADER_DEBUG
 
@@ -2233,14 +2233,14 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	if (! script == QFont::Unicode) {
 
 #ifdef QFONTLOADER_DEBUG
-	    qDebug("QFontPrivate::load: load failed, trying last resort");
+	    qDebug("QFontLoader: load failed, trying last resort");
 #endif // QFONTLOADER_DEBUG
 
 	    exactMatch = FALSE;
 
 	    if (! (f = XLoadQueryFont(QPaintDevice::x11AppDisplay(),
 				      lastResortFont().latin1()))) {
-		qFatal("QFontPrivate::load: Internal error");
+		qFatal("QFontLoader: Internal error");
 	    }
 	} else {
 	    // Didn't get unicode font, set to sentinel and return
@@ -2272,20 +2272,6 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	cost *= (xftfs->max_char - xftfs->min_char) / 8;
     }
 #endif // QT_NO_XFTFREETYPE
-
-    // get unicode -> font encoding codec
-    QTextCodec *codec = 0;
-    if (script < QFont::Unicode) {
-	codec = QTextCodec::codecForName(qt_x11encodings[script][qt_x11indices[script]]);
-    }
-
-#ifdef QFONTLOADER_DEBUG
-    if (codec) {
-	qDebug("QFP::load: got codec %s for script %d %s",
-	       codec->name(), script, qt_x11encodings[script][qt_x11indices[script]]);
-    }
-#endif // QFONTLOADER_DEBUG
-
 
     qfs = new QFontStruct((Qt::HANDLE) f,
 #ifndef QT_NO_XFTFREETYPE
