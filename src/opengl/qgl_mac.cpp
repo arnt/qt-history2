@@ -233,9 +233,6 @@ void QGLContext::reset()
 
 void QGLContext::makeCurrent()
 {
-    if( currentCtx && aglGetCurrentContext() == (AGLContext) cx)
-	return;
-
     if( !d->valid) {
 #if defined(QT_CHECK_STATE)
 	qWarning("QGLContext::makeCurrent(): Cannot make invalid context current.");
@@ -592,6 +589,8 @@ bool QGLWidget::macInternalDoubleBuffer(bool fix)
 void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLContext *share_ctx,
 					   bool update)
 {
+    if(QApplication::closingDown())
+	return;
     if(QMacBlockingFunction::blocking()) { //nah, let's do it "later"
 	if(glcx) {
 	    if(!dblbuf) {
