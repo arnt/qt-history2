@@ -193,7 +193,7 @@ void QCheckBox::drawButton( QPainter *paint )
     if ( hasMouse() )
 	kf |= 16;
 
-    kf |= state() << 4;
+    kf |= state() << 5;
     QTextOStream os(&pmkey);
     os << "$qt_check_" << style().className() << "_"
        << palette().serialNumber() << "_" << kf;
