@@ -65,7 +65,7 @@
 <slots>    
     <slot>optionsDlg()</slot>
     <slot>quit()</slot>
-<slots>
+</slots>
 <functions>
     <function access="private">init()</function>
 </functions>
