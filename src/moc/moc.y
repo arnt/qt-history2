@@ -139,11 +139,18 @@ QCString castToUType( QCString ctype )
      return ctype;
 }
 
+QCString rawUType( QCString ctype )
+{
+    ctype = castToUType( ctype );
+    if ( ctype.left(6) == "const " )
+	ctype = ctype.mid( 6, ctype.length() - 6 );
+    return ctype;
+}
 
 QCString uType( QCString ctype )
 {
     if ( !validUType( ctype ) ) {
-	if ( isVariantType( castToUType(ctype) ) )
+	if ( isVariantType( rawUType(ctype) ) )
 	    return "varptr";
 	else
 	    return "ptr";
@@ -182,10 +189,10 @@ QCString uTypeExtra( QCString ctype )
 {
     QCString typeExtra = "0";
     if ( !validUType( ctype ) ) {
-	if ( isVariantType( castToUType(ctype) ) )
-	    typeExtra.sprintf("qt_variant_types+%d", qvariant_nameToType( castToUType(ctype) ) );
+	if ( isVariantType( rawUType(ctype) ) )
+	    typeExtra.sprintf("qt_variant_types+%d", qvariant_nameToType( rawUType(ctype) ) );
 	else
-	    typeExtra.sprintf( "\"%s\"", castToUType(ctype).data() );
+	    typeExtra.sprintf( "\"%s\"", rawUType(ctype).data() );
 	return typeExtra;
     }
     if ( ctype.left(6) == "const " )
