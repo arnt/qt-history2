@@ -179,10 +179,10 @@ protected:
 class Q_EXPORT QWheelEvent : public QEvent
 {
 public:
-    QWheelEvent( const QPoint &pos, int delta, int state );
-    QWheelEvent( const QPoint &pos, const QPoint& globalPos, int delta, int state )
+    QWheelEvent( const QPoint &pos, int delta, int state, Orientation orient = Vertical );
+    QWheelEvent( const QPoint &pos, const QPoint& globalPos, int delta, int state, Orientation orient = Vertical  )
 	: QEvent(Wheel), p(pos), g(globalPos), d(delta), s((ushort)state),
-	  accpt(TRUE) {}
+	  accpt(TRUE), o(orient) {}
     int	   delta()	const	{ return d; }
     const QPoint &pos() const	{ return p; }
     const QPoint &globalPos() const	{ return g; }
@@ -191,6 +191,7 @@ public:
     int	   globalX()	const	{ return g.x(); }
     int	   globalY()	const	{ return g.y(); }
     ButtonState state()	const	{ return ButtonState(s); }
+    Orientation orientation() 	const 	{ return o; }
     bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
@@ -200,6 +201,7 @@ protected:
     int d;
     ushort s;
     bool   accpt;
+    Orientation o;
 };
 
 

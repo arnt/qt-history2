@@ -436,9 +436,9 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 
   \sa pos(), delta(), state()
 */
-QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
+QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation orient )
     : QEvent(Wheel), p(pos), d(delta), s((ushort)state),
-      accpt(TRUE)
+      accpt(TRUE), o(orient)
 {
     g = QCursor::pos();
 }
@@ -1030,16 +1030,16 @@ void QFocusEvent::resetReason()
 
   \ingroup event
 
-  Context events are sent to widgets when a user triggers a menu. What triggers this is 
+  Context events are sent to widgets when a user triggers a menu. What triggers this is
   platform dependant, for example on windows pressing the menu button or releasing the
-  right button will cause this event to be sent. It is customary to use this to show a 
+  right button will cause this event to be sent. It is customary to use this to show a
   QPopupMenu when this event is triggered if you have such a context menu.
 
   ContextMenu events contain a special accept flag that tells whether the
-  receiver accepted the contextMenu.  If the event handler does not accept 
+  receiver accepted the contextMenu.  If the event handler does not accept
   the event, then whatever triggered the event will be handled as a regular input
   event if possible.
-  
+
   \sa QPopupMenu
 */
 
@@ -1075,14 +1075,14 @@ void QFocusEvent::resetReason()
 
 QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int state )
     : QEvent( ContextMenu ), p( pos ), accpt( FALSE ), reas( reason ), s((ushort)state)
-{ 
+{
     gp = QCursor::pos();
 }
 
 /*!
   \fn const QPoint &QContextMenuEvent::pos() const
 
-  Returns the position of the mouse pointer relative to the widget that received the event. 
+  Returns the position of the mouse pointer relative to the widget that received the event.
 
   \sa x(), y(), globalPos()
 */
@@ -1172,7 +1172,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 /*!
   \enum QContextMenuEvent::Reason
 
-  This type describes the reason the ContextMenuEvent was sent. 
+  This type describes the reason the ContextMenuEvent was sent.
   The values are:
 
    \value Mouse     The mouse caused the event to be sent, normally this means
