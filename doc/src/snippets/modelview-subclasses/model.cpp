@@ -110,7 +110,7 @@ bool LinearModel::insertRows(int position, const QModelIndex &/*index*/,
 bool LinearModel::removeRows(int position, const QModelIndex &/*index*/,
                              int rows)
 {
-    emit rowsRemoved(QModelIndex::Null, position, position+rows-1);
+    emit rowsAboutToBeRemoved(QModelIndex::Null, position, position+rows-1);
     values.remove(position, rows);
 
     return true;

@@ -124,7 +124,7 @@ bool StringListModel::insertRows(int position, const QModelIndex &/*index*/,
 bool StringListModel::removeRows(int position, const QModelIndex &/*index*/,
                                  int rows)
 {
-    emit rowsRemoved(QModelIndex::Null, position, position+rows-1);
+    emit rowsAboutToBeRemoved(QModelIndex::Null, position, position+rows-1);
 
     for (int row = 0; row < rows; ++row) {
         stringList.removeAt(position);
