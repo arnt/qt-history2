@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#67 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -239,13 +239,30 @@ void QHeader::init( int n )
 
 /*!
   Sets the header orientation.  The \e orientation must be
-  QQHeader::Vertical or QHeader::Horizontal.
+  QHeader::Vertical or QHeader::Horizontal.
+
+  When adding labels without the size parameter, setOrientation
+  should be called first, otherwise labels will be sized incorrectly.
   \sa orientation()
 */
 
 void QHeader::setOrientation( Orientation orientation )
 {
+    if (orient==orientation) return;
     orient = orientation;
+    int n = count();
+    if ( orient == Horizontal ) {
+	setCellWidth( 0 );
+	setCellHeight( height() );
+	setNumCols( n );
+	setNumRows( 1 );
+    } else {
+	setCellWidth( width() );
+	setCellHeight( 0 );
+	setNumCols( 1 );
+	setNumRows( n );
+    }
+    updateTableSize();
     repaint();
 }
 
@@ -419,14 +436,12 @@ void QHeader::paintCell( QPainter *p, int row, int col )
     if ( style() == WindowsStyle  &&
 	 i==handleIdx && ( state == Pressed || state == Moving ) )
 	d = 1;
-    QRect r( QH_MARGIN+d, 2+d, size - 6, height() - 4 ); //#####
 
-    if ( 0 && orient == Vertical ) { // we can't do that...
-	QWMatrix m;
-	m.rotate( 90 );
-	m.translate( 0, -width() ); //###########
-	p->setWorldMatrix( m );
-    }
+    QRect r;
+    if (orient == Horizontal )
+      r = QRect( QH_MARGIN+d, 2+d, size - 6, height() - 4 );
+    else
+      r = QRect( QH_MARGIN+d, 2+d, width() - 6, size - 4 );
 
     p->drawText ( r, AlignLeft| AlignVCenter|SingleLine, s );
 }
@@ -577,7 +592,10 @@ void QHeader::handleColumnResize( int index, int s, bool final )
     int oldSize = data->sizes[lIdx];
     int newSize = data->sizes[lIdx] = oldSize + delta;
     int repaintPos = QMIN( oldPos, s );
-    repaint(repaintPos-2, 0, width(), height());
+    if ( orient == Horizontal )
+        repaint(repaintPos-2, 0, width(), height());
+    else
+        repaint(0, repaintPos-oldSize+2, width(), height());
     if ( tracking() && oldSize != newSize )
 	emit sizeChange( lIdx, oldSize, newSize );
     else if ( final && oldHIdxSize != newSize )
@@ -640,9 +658,12 @@ int QHeader::addLabel( const QString &s, int size )
     data->sizes.resize( n + 1 );
     if ( size < 0 ) {
 	QFontMetrics fm = fontMetrics();
-        size = -fm.minLeftBearing()
-            +fm.width( s )
-            -fm.minRightBearing() + QH_MARGIN*2;
+        if ( orient == Horizontal )
+            size = -fm.minLeftBearing()
+                   +fm.width( s )
+                   -fm.minRightBearing() + QH_MARGIN*2;
+        else
+            size = fm.lineSpacing() + 6; // Use same size as horizontal QHeader
     }
     data->sizes[n-1] = size;
     data->a2l.resize( n + 1 );
@@ -670,7 +691,10 @@ int QHeader::addLabel( const QString &s, int size )
 
 void QHeader::resizeEvent( QResizeEvent * )
 {
-    setCellHeight( height() ); //######
+    if ( orient == Horizontal )
+        setCellHeight( height() );
+    else
+        setCellWidth( width() );
 }
 
 /*!
@@ -684,11 +708,15 @@ QSize QHeader::sizeHint() const
 		      ? cellSize( count()-1 ) + cellPos( count()-1 )
 		      : -1,
 		      fm.lineSpacing() + 6 );
-    else
-	return QSize( fm.lineSpacing() + 6,
+    else {
+        int width = fm.width( " " );
+        for ( int i=0 ; i<count() ; i++ )
+            width = QMAX( width , fm.width( data->labels[i] ) );
+	return QSize( width + 2*QH_MARGIN,
 		      count() > 0
 		      ? cellSize( count()-1 ) + cellPos( count()-1 )
 		      : -1 );
+    }
 }
 
 /*!
