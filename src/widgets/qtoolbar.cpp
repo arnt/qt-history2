@@ -39,6 +39,8 @@
 #include "qpopupmenu.h"
 #include "qtimer.h"
 
+//#define TOOLBAR_MENU
+
 class QArrowWidget : public QWidget
 {
 public:
@@ -608,13 +610,14 @@ QSize QToolBar::minimumSizeHint() const
 void QToolBar::resizeEvent( QResizeEvent *e )
 {
     QWidget::resizeEvent( e );
-#if 1
+#if defined(TOOLBAR_MENU)
     updateArrowStuff();
 #endif
 }
 
 void QToolBar::updateArrowStuff()
 {
+    qDebug( "here" );
     if ( orientation() == Horizontal ) {
 	int shw = sizeHint().width();
 	if ( d->arrow && d->back && d->arrow->isVisible() && d->back->isVisible() )

@@ -374,12 +374,12 @@ QSize QToolLayout::minimumSize() const
  	s = s.expandedTo( tb->t->minimumSizeHint() )
  	    .expandedTo(tb->t->minimumSize());
     }
-    
+
     if ( s.width() < 0 )
 	s.setWidth( 0 );
     if ( s.height() < 0 )
 	s.setHeight( 0 );
-    
+
     return s;
 }
 
@@ -461,6 +461,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 		QValueList<QRect>::Iterator it = rects.begin();
 		for ( t2 = row.first(); t2; t2= row.next(), ++it ) {
 		    QRect tr = *it;
+#if defined(TOOLBAR_MENU)
 		    if ( o == Qt::Horizontal ) {
 			if ( tr.width() > r.width() )
 			    tr.setWidth( r.width() );
@@ -468,6 +469,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 			if ( tr.height() > r.height() )
 			    tr.setHeight( r.height() );
 		    }
+#endif
 		    t2->t->setGeometry( tr );
 		}
 	    }
@@ -2082,8 +2084,10 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 	    moveToolBar( (QToolBar *)o, me );
 	    return TRUE;
 	}
+#if defined(TOOLBAR_MENU)
     } else if ( e->type() == QEvent::LayoutHint && o->inherits( "QToolBar" ) ) {
 	QTimer::singleShot( 0, (QToolBar*)o, SLOT( updateArrowStuff() ) );
+#endif
     }
     return QWidget::eventFilter( o, e );
 }
