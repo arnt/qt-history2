@@ -113,7 +113,7 @@ static void resolveLibs()
 		static TCHAR buffer[258];
 		DWORD bufferSize = 257;
 		GetUserNameW( buffer, &bufferSize );
-		ptrBuildTrusteeWithNameW( &currentUserTrusteeW, buffer );
+		ptrBuildTrusteeWithNameW( &currentUserTrusteeW, (ushort*)buffer );
 	    }
 	}
     }
