@@ -60,12 +60,3 @@ DONE
 19. Single click, double click, value change, traversal, focus change,
 selection change, activate (return key)
 DONE
-
-
-
-Known Bugs:
--------------
-
-- When reordering columns/rows seelctions don't work anymore - for
-selections and cursor-movement we have to use actual and not logical
-indices.
