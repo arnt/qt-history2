@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#5 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#6 $
 **
 ** Definition of QCursor class
 **
 ** Author  : Haavard Nord
 ** Created : 940219
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +18,6 @@
 
 class QCursor
 {
-friend class QWidget;
 public:
     QCursor();					// create default arrow cursor
     QCursor( int shape );			// create cursor with shape
@@ -35,22 +34,26 @@ public:
     static void	  initialize();			// initialize global cursors
     static void	  cleanup();			// cleanup global cursors
 
+#if defined(_WS_WIN_)
+    HANDLE handle() const { return hcurs; }
+#elif defined(_WS_PM_)
+    HANDLE handle() const { return hcurs; }
+#elif defined(_WS_X11_)
+    Cursor handle() const { return hcurs ? hcurs : (update(), hcurs); }
+#endif
+
 private:
-    void   update();
+    void   update() const;
     static QCursor *locate( int );
     int	   cshape;
     QBitMap *bm, *bmm;
     short  hx, hy;
 #if defined(_WS_WIN_)
     HANDLE hcurs;
-public:
-    HANDLE handle() const { return hcurs; }
 #elif defined(_WS_PM_)
     HANDLE hcurs;
-public:
-    HANDLE handle() const { return hcurs; }
 #elif defined(_WS_X11_)
-    Cursor cursor;
+    Cursor hcurs;
     Pixmap pm, pmm;
 #endif
 };
