@@ -933,6 +933,9 @@ QFont::StyleHint QFont::styleHint() const
     \value ForceOutline forces the use of outline fonts.
     \value NoAntialias don't antialias the fonts.
     \value PreferAntialias antialias if possible.
+    \value OpenGLCompatible forces the use of OpenGL compatible
+           fonts. On X11, this will cause Qt to disregard fonts from
+           the Xft font extension.
 
     Any of these may be OR-ed with one of these flags:
 
