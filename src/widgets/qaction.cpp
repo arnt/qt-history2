@@ -123,6 +123,8 @@
   holding TRUE. Therefore it is a good idea to always create actions as direct
   children of the main window.
 
+  To prevent recursions it is advisable to never create an action as a child of a widget
+  it is added to later. 
 */
 
 
