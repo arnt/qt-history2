@@ -54,6 +54,8 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
+//#define QT_SUPERSTRICT_ISO
+
 static const uint FIRST_DAY	= 2361222;	// Julian day for 1752/09/14
 static const int  FIRST_YEAR	= 1752;		// ### wrong for many countries
 static const uint SECS_PER_DAY	= 86400;
@@ -1302,7 +1304,13 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 QString QDateTime::toString( Qt::DateFormat f ) const
 {
     if ( f == Qt::ISODate ) {
-	return d.toString( Qt::ISODate ) + "T" + t.toString( Qt::ISODate );
+	return d.toString( Qt::ISODate ) +
+#ifdef QT_SUPERSTRICT_ISO
+	    "T"
+#else
+	    " "
+#endif
+	    + t.toString( Qt::ISODate );
     } else if ( f == Qt::TextDate ) {
 	QString buf = d.dayName(d.dayOfWeek());
 	buf += ' ';
