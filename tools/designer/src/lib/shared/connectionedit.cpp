@@ -643,10 +643,10 @@ void Connection::updatePixmap(EndPoint::Type type)
     QFontMetrics fm = m_edit->fontMetrics();
     QSize size = fm.size(Qt::TextSingleLine, text) + QSize(HLABEL_MARGIN*2, VLABEL_MARGIN*2);
     pm->resize(size);
-    pm->fill(m_edit->palette().color(QPalette::Base));
+    pm->fill(m_edit->palette().color(QPalette::Normal, QPalette::Base));
 
     QPainter p(pm);
-    p.setPen(m_edit->palette().color(QPalette::Text));
+    p.setPen(m_edit->palette().color(QPalette::Normal, QPalette::Text));
     p.drawText(-fm.leftBearing(text.at(0)) + HLABEL_MARGIN, fm.ascent() + VLABEL_MARGIN, text);
     p.end();
 
@@ -876,6 +876,11 @@ void ConnectionEdit::mousePressEvent(QMouseEvent *e)
 
     switch (state()) {
         case Connecting:
+            if (e->button() == Qt::RightButton) {
+                m_tmp_con->update();
+                delete m_tmp_con;
+                m_tmp_con = 0;
+            }
         case Dragging:
             break;
         case Editing:
@@ -926,7 +931,7 @@ void ConnectionEdit::mouseReleaseEvent(QMouseEvent *e)
 
     switch (state()) {
         case Connecting:
-            if (!m_widget_under_mouse.isNull()) {
+            if (m_widget_under_mouse.isNull()) {
                 m_tmp_con->update();
                 delete m_tmp_con;
                 m_tmp_con = 0;
@@ -1001,6 +1006,13 @@ void ConnectionEdit::keyPressEvent(QKeyEvent *e)
         case Qt::Key_Delete:
             if (state() == Editing)
                 deleteSelected();
+            break;
+        case Qt::Key_Escape:
+            if (state() == Connecting) {
+                m_tmp_con->update();
+                delete m_tmp_con;
+                m_tmp_con = 0;
+            }
             break;
     }
 

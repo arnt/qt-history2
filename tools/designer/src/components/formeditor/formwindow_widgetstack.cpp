@@ -61,8 +61,9 @@ void FormWindowWidgetStack::setCurrentTool(int index)
     tool->activated();
     QWidget *w = tool->editor();
     if (w != 0) {
+        if (w->rect() != rect())
+            w->setGeometry(rect());
         w->raise();
-        qDebug() << "Raising" << w;
     }
 
     emit currentToolChanged(index);
