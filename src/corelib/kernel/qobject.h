@@ -353,11 +353,11 @@ template <> inline IFace *qobject_cast_helper<IFace *>(const QObject *object, IF
 #else
 
 template<typename T>
-inline T qFindChild(const QObject *o, const QString &name = QString())
+inline T qFindChild(const QObject *o, const QString &name)
 { return static_cast<T>(qt_qFindChild_helper(o, name, reinterpret_cast<T>(0)->staticMetaObject)); }
 
 template<typename T>
-inline QList<T> qFindChildren(const QObject *o, const QString &name = QString())
+inline QList<T> qFindChildren(const QObject *o, const QString &name)
 {
     QList<T> list;
     qt_qFindChildren_helper(o, name, 0, reinterpret_cast<T>(0)->staticMetaObject,
