@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#225 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#226 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#225 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#226 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -196,8 +196,7 @@ static int qt_xio_errhandler( Display * )
   qt_init() - initializes Qt for X11
  *****************************************************************************/
 
-static
-void qt_init_internal( int *argcptr, char **argv, Display *display )
+static void qt_init_internal( int *argcptr, char **argv, Display *display )
 {
     if ( display ) {
 
@@ -384,9 +383,9 @@ void qt_init( int *argcptr, char **argv )
     qt_init_internal( argcptr, argv, 0 );
 }
 
-void qt_init( void* d )
+void qt_init( Display *display )
 {
-    qt_init_internal( 0, 0, (Display*)d );
+    qt_init_internal( 0, 0, display );
 }
 
 
