@@ -16,7 +16,7 @@
   \brief Table view implementation
 
   This class implements a table representation of a QGenericItemView working
-  on a QGenericItemModel.
+  on a QAbstractItemModel.
 */
 
 class QGenericTableViewPrivate : public QAbstractItemViewPrivate
@@ -34,7 +34,7 @@ public:
 #define d d_func()
 #define q q_func()
 
-QGenericTableView::QGenericTableView(QGenericItemModel *model, QWidget *parent)
+QGenericTableView::QGenericTableView(QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(*new QGenericTableViewPrivate, model, parent)
 {
     setLeftHeader(new QGenericHeader(model, Vertical, this));

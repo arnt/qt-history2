@@ -19,7 +19,7 @@ public:
 
     QItemSelection expandRows(const QItemSelection &selection) const;
 
-    QGenericItemModel *model;
+    QAbstractItemModel *model;
     QItemSelectionModel::SelectionMode selectionMode;
     QItemSelection ranges;
     QItemSelection currentSelection;

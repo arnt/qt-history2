@@ -21,7 +21,7 @@ public:
 	Content // set size to fit the content
     };
 
-    QGenericHeader(QGenericItemModel *model, Orientation orientation, QWidget *parent = 0);
+    QGenericHeader(QAbstractItemModel *model, Orientation orientation, QWidget *parent = 0);
     virtual ~QGenericHeader();
 
     Orientation orientation() const;

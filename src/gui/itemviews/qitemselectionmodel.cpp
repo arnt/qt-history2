@@ -4,7 +4,7 @@
 #define d d_func()
 #define q q_func()
 
-QModelIndexList QItemSelectionRange::items(const QGenericItemModel *model) const
+QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) const
 {
     QModelIndex item = model->index(top(), left(), parent());
     QModelIndexList items;
@@ -31,13 +31,13 @@ QModelIndexList QItemSelectionRange::items(const QGenericItemModel *model) const
 */
 
 QItemSelection::QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-			       const QGenericItemModel *model)
+			       const QAbstractItemModel *model)
 {
     select(topLeft, bottomRight, model);
 }
 
 void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-			    const QGenericItemModel *model)
+			    const QAbstractItemModel *model)
 {
     if (model->parent(topLeft) != model->parent(bottomRight))
   	return;
@@ -46,7 +46,7 @@ void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &botto
 			       bottomRight.row(), bottomRight.column()));
 }
 
-bool QItemSelection::contains(const QModelIndex &item, const QGenericItemModel *model) const
+bool QItemSelection::contains(const QModelIndex &item, const QAbstractItemModel *model) const
 {
     QList<QItemSelectionRange>::const_iterator it = begin();
     for (; it != end(); ++it)
@@ -55,7 +55,7 @@ bool QItemSelection::contains(const QModelIndex &item, const QGenericItemModel *
     return false;
 }
 
-QModelIndexList QItemSelection::items(QGenericItemModel *model) const
+QModelIndexList QItemSelection::items(QAbstractItemModel *model) const
 {
     QModelIndexList items;
     QList<QItemSelectionRange>::const_iterator it = begin();
@@ -105,13 +105,13 @@ QItemSelection QItemSelectionModelPrivate::expandRows(const QItemSelection &sele
   \brief QItemSelectionModel keeps a list of QItemSelection objects.
 */
 
-QItemSelectionModel::QItemSelectionModel(QGenericItemModel *model, QObject *parent)
+QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model, QObject *parent)
     : QObject(*new QItemSelectionModelPrivate, parent)
 {
     d->model = model;
 }
 
-QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QGenericItemModel *model, QObject *parent)
+QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model, QObject *parent)
     : QObject(dd, parent)
 {
     d->model = model;
@@ -318,7 +318,7 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
      return true;
 }
 
-QGenericItemModel *QItemSelectionModel::model() const
+QAbstractItemModel *QItemSelectionModel::model() const
 {
     return d->model;
 }

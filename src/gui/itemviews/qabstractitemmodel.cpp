@@ -1,4 +1,4 @@
-#include "qgenericitemmodel.h"
+#include "qabstractitemmodel.h"
 #include <qdatastream.h>
 
 /*!
@@ -6,13 +6,13 @@
 
   \brief class used to access data in the data model.
 
-  This class is used as an index into QGenericItemModel derived data models.
+  This class is used as an index into QAbstractItemModel derived data models.
   The index is used by itemviews, delegates and selection models to represent an item in the model.
   QModelIndex objects are created by the model.
 */
 
 /*!
-  \class QGenericItemModel qgenericitemmodel.h
+  \class QAbstractItemModel qgenericitemmodel.h
 
   \brief Abstract class used to provide abitrary data.
 
@@ -24,25 +24,25 @@
   The model is also responsible for sorting its data through the virtual functions
   sort() and isSortable().
 
-  To notify about changes (e.g. an item changed, new data was added, etc.), the QGenericItemModel emits the contentsChanged,
+  To notify about changes (e.g. an item changed, new data was added, etc.), the QAbstractItemModel emits the contentsChanged,
   contentsInserted and/or contentsRemoved signals.
 */
 
-QGenericItemModel::QGenericItemModel(QObject *parent)
+QAbstractItemModel::QAbstractItemModel(QObject *parent)
     : QObject(parent)
 {
 }
 
-QGenericItemModel::QGenericItemModel(QObjectPrivate &dp, QObject *parent)
+QAbstractItemModel::QAbstractItemModel(QObjectPrivate &dp, QObject *parent)
     : QObject(dp, parent)
 {
 }
 
-QGenericItemModel::~QGenericItemModel()
+QAbstractItemModel::~QAbstractItemModel()
 {
 }
 
-QModelIndex QGenericItemModel::index(int row, int column, const QModelIndex &parent,
+QModelIndex QAbstractItemModel::index(int row, int column, const QModelIndex &parent,
                                      QModelIndex::Type type) const
 {
     if (row >= 0 && row < rowCount(parent) && column >= 0 && column < columnCount(parent))
@@ -50,29 +50,29 @@ QModelIndex QGenericItemModel::index(int row, int column, const QModelIndex &par
     return QModelIndex();
 }
 
-QModelIndex QGenericItemModel::parent(const QModelIndex &) const
+QModelIndex QAbstractItemModel::parent(const QModelIndex &) const
 {
     return QModelIndex();
 }
 
-bool QGenericItemModel::hasChildren(const QModelIndex &parent) const
+bool QAbstractItemModel::hasChildren(const QModelIndex &parent) const
 {
     return (rowCount(parent) > 0) && (columnCount(parent) > 0);
 }
 
-void QGenericItemModel::fetchMore()
+void QAbstractItemModel::fetchMore()
 {
     // do nothing
 }
 
-const char *QGenericItemModel::format(int i) const
+const char *QAbstractItemModel::format(int i) const
 {
     if (i == 0)
 	return "application/x-qgenericmodeldatalist";
     return 0;
 }
 
-QByteArray QGenericItemModel::encodedData(const char *mime, const QModelIndexList &indices) const
+QByteArray QAbstractItemModel::encodedData(const char *mime, const QModelIndexList &indices) const
 {
     if (indices.count() <= 0 || QString(mime) != format(0))
 	return QByteArray();
@@ -89,12 +89,12 @@ QByteArray QGenericItemModel::encodedData(const char *mime, const QModelIndexLis
     return encoded;
 }
 
-bool QGenericItemModel::canDecode(QMimeSource *src) const
+bool QAbstractItemModel::canDecode(QMimeSource *src) const
 {
     return src->provides(format(0));
 }
 
-bool QGenericItemModel::decode(QMimeSource *src)
+bool QAbstractItemModel::decode(QMimeSource *src)
 {
     if (!canDecode(src))
 	return false;
@@ -128,7 +128,7 @@ bool QGenericItemModel::decode(QMimeSource *src)
   \sa Role
 */
 
-QMap<int, QVariant> QGenericItemModel::itemData(const QModelIndex &index) const
+QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
 {
     QMap<int, QVariant> roles;
     for (int i=0; i<User; ++i) {
@@ -139,12 +139,12 @@ QMap<int, QVariant> QGenericItemModel::itemData(const QModelIndex &index) const
     return roles;
 }
 
-void QGenericItemModel::setData(const QModelIndex &, int, const QVariant &)
+void QAbstractItemModel::setData(const QModelIndex &, int, const QVariant &)
 {
     // do nothing - read only
 }
 
-void QGenericItemModel::setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles)
+void QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles)
 {
     for (QMap<int, QVariant>::ConstIterator it = roles.begin(); it != roles.end(); ++it)
 	setData(index, it.key(), it.value());
@@ -156,48 +156,48 @@ void QGenericItemModel::setItemData(const QModelIndex &index, const QMap<int, QV
   QModelIndex on failure or the QModelIndex of the inserted item.
 */
 
-QModelIndex QGenericItemModel::insertItem(const QModelIndex &)
+QModelIndex QAbstractItemModel::insertItem(const QModelIndex &)
 {
     // read-only does nothing
     return QModelIndex();
 }
 
-bool QGenericItemModel::isSelectable(const QModelIndex &) const
+bool QAbstractItemModel::isSelectable(const QModelIndex &) const
 {
     return false;
 }
 
-bool QGenericItemModel::isEditable(const QModelIndex &) const
+bool QAbstractItemModel::isEditable(const QModelIndex &) const
 {
     return false;
 }
 
-bool QGenericItemModel::isDragEnabled(const QModelIndex &) const
+bool QAbstractItemModel::isDragEnabled(const QModelIndex &) const
 {
     return false;
 }
 
-bool QGenericItemModel::isDropEnabled(const QModelIndex &) const
+bool QAbstractItemModel::isDropEnabled(const QModelIndex &) const
 {
     return false;
 }
 
-bool QGenericItemModel::isSortable() const
+bool QAbstractItemModel::isSortable() const
 {
     return false;
 }
 
-void QGenericItemModel::sort(int, SortOrder)
+void QAbstractItemModel::sort(int, SortOrder)
 {
     // do nothing
 }
 
-bool QGenericItemModel::equal(const QModelIndex &left, const QModelIndex &right) const
+bool QAbstractItemModel::equal(const QModelIndex &left, const QModelIndex &right) const
 {
     return left == right;
 }
 
-bool QGenericItemModel::greater(const QModelIndex &left, const QModelIndex &right) const
+bool QAbstractItemModel::greater(const QModelIndex &left, const QModelIndex &right) const
 {
     if (left.row() == right.row())
 	return left.column() > right.column();

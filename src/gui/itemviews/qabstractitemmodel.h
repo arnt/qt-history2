@@ -1,5 +1,5 @@
-#ifndef QGENERICITEMMODEL_H
-#define QGENERICITEMMODEL_H
+#ifndef QABSTRACTITEMMODEL_H
+#define QABSTRACTITEMMODEL_H
 
 #ifndef QT_H
 #include <qobject.h>
@@ -9,7 +9,7 @@
 #include <qmap.h>
 #endif
 
-class QGenericItemModel;
+class QAbstractItemModel;
 
 class Q_GUI_EXPORT QModelIndex
 {
@@ -41,7 +41,7 @@ class QItemModel;
 class QModelItem;
 class QObjectPrivate;
 
-class Q_GUI_EXPORT QGenericItemModel : public QObject
+class Q_GUI_EXPORT QAbstractItemModel : public QObject
 {
     Q_OBJECT
 
@@ -56,8 +56,8 @@ public:
 	User = 32
     };
 
-    QGenericItemModel(QObject *parent = 0);
-    virtual ~QGenericItemModel();
+    QAbstractItemModel(QObject *parent = 0);
+    virtual ~QAbstractItemModel();
 
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = 0,
                               QModelIndex::Type type = QModelIndex::View) const;
@@ -100,8 +100,6 @@ public:
     inline bool less(const QModelIndex &left, const QModelIndex &right) const
 	{ return !(greater(left, right) || equal(left, right)); }
 
-    inline QObject *parent() const { return QObject::parent(); }
-
 public slots:
     virtual void fetchMore();
 
@@ -111,7 +109,7 @@ signals:
     void contentsRemoved(const QModelIndex &parent, const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
 protected:
-    QGenericItemModel(QObjectPrivate &d, QObject *parent);
+    QAbstractItemModel(QObjectPrivate &d, QObject *parent);
 };
 
 #endif

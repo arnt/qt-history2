@@ -22,7 +22,7 @@ public:
 //     QWidget *findPersistentEditor( const QModelIndexPtr &item ) const;
 //     void insertPersistentEditor( const QModelIndexPtr &item, QWidget *editor );
 
-    QGenericItemModel *model;
+    QAbstractItemModel *model;
     QPointer<QWidget> currentEditor;
     QModelIndex editItem;
     mutable QAbstractItemDelegate *delegate;
@@ -58,7 +58,7 @@ class QItemViewDragObjectPrivate : public QDragObjectPrivate
 public:
 //    static bool decode(QMimeSource *src, QModelIndexList &items);
     QModelIndexList items;
-    QGenericItemModel *model;
+    QAbstractItemModel *model;
 };
 
 #endif

@@ -8,7 +8,7 @@
 class Q_GUI_EXPORT QItemDelegate : public QAbstractItemDelegate
 {
 public:
-    QItemDelegate(QGenericItemModel *model, QObject *parent = 0);
+    QItemDelegate(QAbstractItemModel *model, QObject *parent = 0);
     virtual ~QItemDelegate();
 
     // painting

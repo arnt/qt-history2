@@ -4,7 +4,6 @@ HEADERS += \
 	itemviews/qabstractitemview.h \
         itemviews/qabstractitemview_p.h \
 	itemviews/qgenericheader.h \
-	itemviews/qgenericitemmodel.h \
 	itemviews/qgenericlistview.h \
 	itemviews/qgenericlistview_p.h \
 	itemviews/qgenerictableview.h \
@@ -13,6 +12,7 @@ HEADERS += \
 	itemviews/qitemdelegate.h \
 	itemviews/qitemselectionmodel.h \
 	itemviews/qitemselectionmodel_p.h \
+	itemviews/qabstractitemmodel.h \
 	itemviews/qlistview_.h \
 	itemviews/qtablemodel.h \
 	itemviews/qtableview.h \
@@ -22,13 +22,13 @@ HEADERS += \
 SOURCES += \
 	itemviews/qabstractitemview.cpp \
 	itemviews/qgenericheader.cpp \
-	itemviews/qgenericitemmodel.cpp \
 	itemviews/qgenericlistview.cpp \
 	itemviews/qgenerictableview.cpp \
 	itemviews/qgenerictreeview.cpp \
 	itemviews/qabstractitemdelegate.cpp \
 	itemviews/qitemdelegate.cpp \
 	itemviews/qitemselectionmodel.cpp \
+	itemviews/qabstractitemmodel.cpp \
 	itemviews/qlistview_.cpp \
 	itemviews/qtablemodel.cpp \
 	itemviews/qtableview.cpp \

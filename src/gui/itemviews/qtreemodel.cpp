@@ -48,7 +48,7 @@ void QTreeModelItem::setIconSet(int column, const QIconSet &iconSet)
 }
 
 QTreeModel::QTreeModel(int columns, QObject *parent)
-    : QGenericItemModel(parent), c(0)
+    : QAbstractItemModel(parent), c(0)
 {
     setColumnCount(columns);
 }
@@ -121,25 +121,25 @@ QIconSet QTreeModel::iconSet(const QModelIndex &index, int column) const
 void QTreeModel::setColumnText(int column, const QString &text)
 {
     QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
-    setData(index, QGenericItemModel::Display, QVariant(text));
+    setData(index, QAbstractItemModel::Display, QVariant(text));
 }
 
 void QTreeModel::setColumnIconSet(int column, const QIconSet &iconSet)
 {
     QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
-    setData(index, QGenericItemModel::Decoration, QVariant(iconSet));
+    setData(index, QAbstractItemModel::Decoration, QVariant(iconSet));
 }
 
 QString QTreeModel::columnText(int column) const
 {
     QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
-    return data(index, QGenericItemModel::Display).toString();
+    return data(index, QAbstractItemModel::Display).toString();
 }
 
 QIconSet QTreeModel::columnIconSet(int column) const
 {
     QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
-    return data(index, QGenericItemModel::Decoration).toIconSet();
+    return data(index, QAbstractItemModel::Decoration).toIconSet();
 }
 
 QTreeModelItem *QTreeModel::item(const QModelIndex &index) const

@@ -1,8 +1,7 @@
 #include "qabstractitemdelegate.h"
-#include <qgenericitemmodel.h>
+#include <qabstractitemmodel.h>
 
-//#include <private/qabstractitemdelegate_p.h>
-#include "qabstractitemdelegate_p.h"
+#include <private/qabstractitemdelegate_p.h>
 #define d d_func()
 #define q q_func()
 
@@ -29,13 +28,13 @@
   directly. For that event() can be reimplemented.
 */
 
-QAbstractItemDelegate::QAbstractItemDelegate(QGenericItemModel *model, QObject *parent)
+QAbstractItemDelegate::QAbstractItemDelegate(QAbstractItemModel *model, QObject *parent)
     : QObject(*(new QAbstractItemDelegatePrivate), parent)
 {
     d->model = model;
 }
 
-QAbstractItemDelegate::QAbstractItemDelegate(QAbstractItemDelegatePrivate &dd, QGenericItemModel *model,
+QAbstractItemDelegate::QAbstractItemDelegate(QAbstractItemDelegatePrivate &dd, QAbstractItemModel *model,
 					     QObject *parent)
     : QObject(dd, parent)
 {
@@ -47,7 +46,7 @@ QAbstractItemDelegate::~QAbstractItemDelegate()
 
 }
 
-QGenericItemModel *QAbstractItemDelegate::model() const
+QAbstractItemModel *QAbstractItemDelegate::model() const
 {
     return d->model;
 }

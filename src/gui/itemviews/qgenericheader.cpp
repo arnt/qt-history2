@@ -3,8 +3,6 @@
 #include <qbitarray.h>
 #include <qpainter.h>
 #include <qstyle.h>
-#include <qgenericitemmodel.h>
-#include <qabstractitemdelegate.h>
 #include <qevent.h>
 #include <qscrollbar.h>
 #include <private/qabstractitemview_p.h>
@@ -69,14 +67,13 @@ static const int default_height = 30;
 
 */
 
-QGenericHeader::QGenericHeader(QGenericItemModel *model, Orientation o, QWidget *parent)
+QGenericHeader::QGenericHeader(QAbstractItemModel *model, Orientation o, QWidget *parent)
     : QAbstractItemView(*new QGenericHeaderPrivate, model, parent)
 {
     setVerticalScrollBarPolicy(ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(ScrollBarAlwaysOff);
     d->orientation = o;
     setFrameStyle(NoFrame);
-    //setMargins(0, 0, 0, 0);
 
     viewport()->setMouseTracking(true);
     viewport()->setBackgroundRole(QPalette::Background);

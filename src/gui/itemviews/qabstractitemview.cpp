@@ -112,10 +112,10 @@ void QAbstractItemViewPrivate::init()
 /*!
   \class QAbstractItemView qgenericitemview.h
 
-  \brief Abstract baseclass for every view working on a QGenericItemModel
+  \brief Abstract baseclass for every view working on a QAbstractItemModel
 
   This subclass of QViewprt provides the base functionality needed
-  by every item view which works on a QGenericItemModel. It handles common
+  by every item view which works on a QAbstractItemModel. It handles common
   functionality of editing of items, keyboard and mouse handling, etc.
  Current item and  selections are handled by the QItemSelectionModel.
 
@@ -124,7 +124,7 @@ void QAbstractItemViewPrivate::init()
   finding items, etc.
 */
 
-QAbstractItemView::QAbstractItemView(QGenericItemModel *model, QWidget *parent)
+QAbstractItemView::QAbstractItemView(QAbstractItemModel *model, QWidget *parent)
     : QViewport(*(new QAbstractItemViewPrivate), parent)
 {
     Q_ASSERT(model)
@@ -132,7 +132,7 @@ QAbstractItemView::QAbstractItemView(QGenericItemModel *model, QWidget *parent)
     d->init();
 }
 
-QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QGenericItemModel *model, QWidget *parent)
+QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QAbstractItemModel *model, QWidget *parent)
     : QViewport(dd, parent)
 {
     Q_ASSERT(model)
@@ -144,7 +144,7 @@ QAbstractItemView::~QAbstractItemView()
 {
 }
 
-QGenericItemModel *QAbstractItemView::model() const
+QAbstractItemModel *QAbstractItemView::model() const
 {
     return d->model;
 }

@@ -2,7 +2,7 @@
 #define QTABLEMODEL_H
 
 #ifndef QT_H
-#include <qgenericitemmodel.h>
+#include <qabstractitemmodel.h>
 #include <qvector.h>
 #include <qiconset.h>
 #include <qstring.h>
@@ -35,7 +35,7 @@ private:
     uint select : 1;
 };
 
-class Q_GUI_EXPORT QTableModel : public QGenericItemModel
+class Q_GUI_EXPORT QTableModel : public QAbstractItemModel
 {
     Q_OBJECT
 

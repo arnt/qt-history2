@@ -17,7 +17,7 @@
   \brief Tree view implementation
 
   This class implements a tree representation of a QGenericItemView working
-  on a QGenericItemModel.
+  on a QAbstractItemModel.
 */
 
 template <typename T>
@@ -118,7 +118,7 @@ public:
 #define d d_func()
 #define q q_func()
 
-QGenericTreeView::QGenericTreeView(QGenericItemModel *model, QWidget *parent)
+QGenericTreeView::QGenericTreeView(QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(*new QGenericTreeViewPrivate, model, parent)
 {
     setHeader(new QGenericHeader(model, Horizontal, this));
@@ -502,17 +502,13 @@ void QGenericTreeView::setSelection(const QRect &rect, QItemSelectionModel::Sele
     QModelIndex br = itemAt(rect.right(), rect.bottom());
     if (!tl.isValid() || !br.isValid())
 	return;
-
-//     if (tl == d->topLeft && br == d->bottomRight)
-// 	return;
-//     d->topLeft = tl;
-//     d->bottomRight = br;
     selectionModel()->select(QItemSelection(tl, br, model()), mode, selectionBehavior());
 }
 
 QRect QGenericTreeView::selectionRect(const QItemSelection &selection) const
 {
-    int section = d->header->count() - 1;
+    int index =  d->header->count() - 1;
+    int section = d->header->section(index);
     int leftPos = d->header->sectionPosition(section);
     int rightPos = 0;
     int topPos = contentsHeight();
@@ -796,7 +792,7 @@ void QGenericTreeViewPrivate::open(int i)
 
 void QGenericTreeViewPrivate::close(int i)
 {
-    QGenericItemModel *model = q->model();
+    QAbstractItemModel *model = q->model();
     int total = items.at(i).total;
     items[i].open = false;
     QModelIndex parent = modelIndex(i);

@@ -2,7 +2,7 @@
 #define QTREEMODEL_H
 
 #ifndef QT_H
-#include <qgenericitemmodel.h>
+#include <qabstractitemmodel.h>
 #include <qlist.h>
 #include <qvector.h>
 #include <qiconset.h>
@@ -55,7 +55,7 @@ private:
     uint select : 1;
 };
 
-class Q_GUI_EXPORT QTreeModel : public QGenericItemModel
+class Q_GUI_EXPORT QTreeModel : public QAbstractItemModel
 {
     friend class QTreeModelItem;
 

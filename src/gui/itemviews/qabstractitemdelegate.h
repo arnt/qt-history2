@@ -9,7 +9,7 @@
 
 class QPainter;
 class QAbstractItemView;
-class QGenericItemModel;
+class QAbstractItemModel;
 class QModelIndex;
 
 class Q_GUI_EXPORT QItemOptions
@@ -40,10 +40,10 @@ class Q_GUI_EXPORT QAbstractItemDelegate : public QObject
     Q_DECLARE_PRIVATE(QAbstractItemDelegate);
     
 public:
-    QAbstractItemDelegate(QGenericItemModel *model, QObject *parent = 0);
+    QAbstractItemDelegate(QAbstractItemModel *model, QObject *parent = 0);
     virtual ~QAbstractItemDelegate();
 
-    QGenericItemModel *model() const;
+    QAbstractItemModel *model() const;
 
     enum EditType {
 	NoEditType,
@@ -76,7 +76,7 @@ public:
     virtual void updateEditorGeometry(QWidget *editor, const QItemOptions &options, const QModelIndex &item) const;
     
 protected:
-    QAbstractItemDelegate(QAbstractItemDelegatePrivate &, QGenericItemModel* model, QObject *parent = 0);
+    QAbstractItemDelegate(QAbstractItemDelegatePrivate &, QAbstractItemModel* model, QObject *parent = 0);
 };
 
 #endif

@@ -14,7 +14,7 @@ class Q_GUI_EXPORT QGenericTreeView : public QAbstractItemView
     Q_DECLARE_PRIVATE(QGenericTreeView);
 
 public:
-    QGenericTreeView(QGenericItemModel *model, QWidget *parent = 0);
+    QGenericTreeView(QAbstractItemModel *model, QWidget *parent = 0);
     ~QGenericTreeView();
 
     QGenericHeader *header() const;

@@ -18,7 +18,7 @@ public:
     enum Wrap { Off = 0, On = 1 };
     enum Movement { Static, Free, Snap };
 
-    QGenericListView(QGenericItemModel *model, QWidget *parent = 0);
+    QGenericListView(QAbstractItemModel *model, QWidget *parent = 0);
     ~QGenericListView();
 
     void setMovement(Movement movement);
@@ -35,7 +35,7 @@ public:
     void resizeContents(int w, int h);
 
 protected:
-    QGenericListView(QGenericListViewPrivate &, QGenericItemModel *model, QWidget *parent = 0);
+    QGenericListView(QGenericListViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsRemoved(const QModelIndex &parent,

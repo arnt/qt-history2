@@ -2,7 +2,7 @@
 #define QITEMSELECTIONMODEL_H
 
 #ifndef QT_H
-#include <qgenericitemmodel.h>
+#include <qabstractitemmodel.h>
 #include <qlist.h>
 #endif
 
@@ -26,7 +26,7 @@ public:
     inline int height() const { return b - t + 1; }
     inline QModelIndex parent() const { return p; }
 
-    inline bool contains(const QModelIndex &item, const QGenericItemModel *model) const
+    inline bool contains(const QModelIndex &item, const QAbstractItemModel *model) const
     {
 	return (p == model->parent(item)
 		&& t <= item.row() && l <= item.column()
@@ -52,7 +52,7 @@ public:
     inline bool operator!=(const QItemSelectionRange &other) const { return !operator==(other); }
     inline bool isValid() const { return (t <= b && l <= r); }
 
-    QModelIndexList items(const QGenericItemModel *model) const;
+    QModelIndexList items(const QAbstractItemModel *model) const;
 
 private:
     QModelIndex p;
@@ -65,10 +65,10 @@ class QItemSelection : public QList<QItemSelectionRange>
 {
 public:
     QItemSelection() {}
-    QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QGenericItemModel *model);
-    void select(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QGenericItemModel *model);
-    bool contains(const QModelIndex &item, const QGenericItemModel *model) const;
-    QModelIndexList items(QGenericItemModel *model) const;
+    QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QAbstractItemModel *model);
+    void select(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QAbstractItemModel *model);
+    bool contains(const QModelIndex &item, const QAbstractItemModel *model) const;
+    QModelIndexList items(QAbstractItemModel *model) const;
 };
 
 class QItemSelectionModelPrivate;
@@ -99,7 +99,7 @@ public:
 	SelectRows
     };
 
-    QItemSelectionModel(QGenericItemModel *model, QObject *parent = 0);
+    QItemSelectionModel(QAbstractItemModel *model, QObject *parent = 0);
     virtual ~QItemSelectionModel();
 
     virtual void select(const QModelIndex &item,
@@ -122,7 +122,7 @@ public:
     bool isRowSelected(int row, const QModelIndex &parent) const;
     bool isColumnSelected(int column, const QModelIndex &parent) const;
 
-    QGenericItemModel *model() const;
+    QAbstractItemModel *model() const;
     QModelIndexList selectedItems() const;
 
 signals:
@@ -130,7 +130,7 @@ signals:
     void currentChanged(const QModelIndex &oldItem, const QModelIndex &newItem);
 
 protected:
-    QItemSelectionModel(QItemSelectionModelPrivate &dd, QGenericItemModel *model, QObject *parent = 0);
+    QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model, QObject *parent = 0);
     void exchange(QItemSelection &oldSelection, const QItemSelection &newSelection, bool alterRanges = true);
     void toggle(const QItemSelection &selection, bool emitSelectionChanged = true);
     void mergeCurrentSelection();

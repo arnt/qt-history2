@@ -2,7 +2,7 @@
 #include <qalgorithms.h>
 
 QTableModel::QTableModel(int rows, int columns, QObject *parent)
-    : QGenericItemModel(parent), r(rows), c(columns),
+    : QAbstractItemModel(parent), r(rows), c(columns),
       table(rows * columns), leftHeader(rows), topHeader(columns) {}
 
 QTableModel::~QTableModel()
@@ -99,73 +99,73 @@ void QTableModel::removeColumn(int)
 void QTableModel::setText(int row, int column, const QString &text)
 {
     QModelIndex index(row, column, 0);
-    setData(index, QGenericItemModel::Display, QVariant(text));
+    setData(index, QAbstractItemModel::Display, QVariant(text));
 }
 
 void QTableModel::setIconSet(int row, int column, const QIconSet &iconSet)
 {
     QModelIndex index(row, column, 0);
-    setData(index, QGenericItemModel::Decoration, QVariant(iconSet));
+    setData(index, QAbstractItemModel::Decoration, QVariant(iconSet));
 }
 
 QString QTableModel::text(int row, int column) const
 {
     QModelIndex index(row, column, 0);
-    return data(index, QGenericItemModel::Display).toString();
+    return data(index, QAbstractItemModel::Display).toString();
 }
 
 QIconSet QTableModel::iconSet(int row, int column) const
 {
     QModelIndex index(row, column, 0);
-    return data(index, QGenericItemModel::Decoration).toIconSet();
+    return data(index, QAbstractItemModel::Decoration).toIconSet();
 }
 
 void QTableModel::setRowText(int row, const QString &text)
 {
     QModelIndex idx(row, 0, 0, QModelIndex::VerticalHeader);
-    setData(idx, QGenericItemModel::Decoration, QVariant(text));
+    setData(idx, QAbstractItemModel::Decoration, QVariant(text));
 }
 
 void QTableModel::setRowIconSet(int row, const QIconSet &iconSet)
 {
     QModelIndex index(row, 0, 0, QModelIndex::VerticalHeader);
-    setData(index, QGenericItemModel::Decoration, QVariant(iconSet));
+    setData(index, QAbstractItemModel::Decoration, QVariant(iconSet));
 }
 
 QString QTableModel::rowText(int row) const
 {
     QModelIndex index(row, 0, 0, QModelIndex::VerticalHeader);
-    return data(index, QGenericItemModel::Display).toString();
+    return data(index, QAbstractItemModel::Display).toString();
 }
 
 QIconSet QTableModel::rowIconSet(int row) const
 {
     QModelIndex index(row, 0, 0, QModelIndex::VerticalHeader);
-    return data(index, QGenericItemModel::Decoration).toIconSet();
+    return data(index, QAbstractItemModel::Decoration).toIconSet();
 }
 
 void QTableModel::setColumnText(int column, const QString &text)
 {
     QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
-    setData(index, QGenericItemModel::Display, QVariant(text));
+    setData(index, QAbstractItemModel::Display, QVariant(text));
 }
 
 void QTableModel::setColumnIconSet(int column, const QIconSet &iconSet)
 {
     QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
-    setData(index, QGenericItemModel::Decoration, QVariant(iconSet));
+    setData(index, QAbstractItemModel::Decoration, QVariant(iconSet));
 }
 
 QString QTableModel::columnText(int column) const
 {
     QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
-    return data(index, QGenericItemModel::Display).toString();
+    return data(index, QAbstractItemModel::Display).toString();
 }
 
 QIconSet QTableModel::columnIconSet(int column) const
 {
     QModelIndex idx(0, column, 0, QModelIndex::HorizontalHeader);
-    return data(idx, QGenericItemModel::Decoration).toIconSet();
+    return data(idx, QAbstractItemModel::Decoration).toIconSet();
 }
 
 void QTableModel::setItem(int row, int column, QTableModelItem *item)
@@ -227,9 +227,9 @@ QVariant QTableModel::data(const QModelIndex &index, int role) const
     const QTableModelItem *itm = item(index);
     if (!itm)
 	return QVariant();
-    if (role == QGenericItemModel::Display)
+    if (role == QAbstractItemModel::Display)
 	return itm->text();
-    if (role == QGenericItemModel::Decoration)
+    if (role == QAbstractItemModel::Decoration)
 	return itm->iconSet();
     return QVariant();
 }
@@ -241,9 +241,9 @@ void QTableModel::setData(const QModelIndex &index, int role, const QVariant &va
 	return;
     if (!itm->isEditable()) // ### should this test really be here?
 	return;
-    if (role == QGenericItemModel::Display)
+    if (role == QAbstractItemModel::Display)
 	itm->setText(value.toString());
-    else if (role == QGenericItemModel::Decoration)
+    else if (role == QAbstractItemModel::Decoration)
 	itm->setIconSet(value.toIconSet());
     emit contentsChanged(index, index);
 }

@@ -3,7 +3,7 @@
 
 #ifndef QT_H
 #include <qviewport.h>
-#include <qgenericitemmodel.h>
+#include <qabstractitemmodel.h>
 #include <qitemselectionmodel.h>
 #include <qabstractitemdelegate.h>
 #include <qdragobject.h>
@@ -18,10 +18,10 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_DECLARE_PRIVATE(QAbstractItemView);
 
 public:
-    QAbstractItemView(QGenericItemModel *model, QWidget *parent = 0);
+    QAbstractItemView(QAbstractItemModel *model, QWidget *parent = 0);
     ~QAbstractItemView();
 
-    QGenericItemModel *model() const;
+    QAbstractItemModel *model() const;
 
     void setHorizontalFactor(int factor);
     int horizontalFactor() const;
@@ -75,7 +75,7 @@ signals:
     void needMore();
 
 protected:
-    QAbstractItemView(QAbstractItemViewPrivate &, QGenericItemModel *model, QWidget *parent = 0);
+    QAbstractItemView(QAbstractItemViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
 
     enum CursorAction { MoveDown, MoveUp, MoveLeft, MoveRight, MoveHome, MoveEnd, MovePageUp, MovePageDown };
     virtual QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state) = 0;

@@ -8,7 +8,7 @@
 #include <qpoint.h>
 #include <qrect.h>
 
-QItemDelegate::QItemDelegate(QGenericItemModel *model, QObject *parent)
+QItemDelegate::QItemDelegate(QAbstractItemModel *model, QObject *parent)
     : QAbstractItemDelegate(model, parent), spacing(4)
 {
 }
@@ -20,8 +20,8 @@ QItemDelegate::~QItemDelegate()
 void QItemDelegate::paint(QPainter *painter, const QItemOptions &options, const QModelIndex &item) const
 {
     static QPoint pt(0, 0);
-    QString text = model()->data(item, QGenericItemModel::Display).toString();
-    QIconSet icons = model()->data(item, QGenericItemModel::Decoration).toIconSet();
+    QString text = model()->data(item, QAbstractItemModel::Display).toString();
+    QIconSet icons = model()->data(item, QAbstractItemModel::Decoration).toIconSet();
 
     QRect iconRect(pt, iconSize(options, icons));
     QRect textRect(pt, textSize(painter->fontMetrics(), options, text));
@@ -37,9 +37,9 @@ QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QItemOption
 {
     static QPoint pt(0, 0);
     QRect iconRect(pt, iconSize(options,
-				model()->data(item, QGenericItemModel::Decoration).toIconSet()));
+				model()->data(item, QAbstractItemModel::Decoration).toIconSet()));
     QRect textRect(pt, textSize(fontMetrics, options,
-				model()->data(item, QGenericItemModel::Display).toString()));
+				model()->data(item, QAbstractItemModel::Display).toString()));
     doLayout(options, &iconRect, &textRect, true); // makes the rects valid
     return iconRect.unite(textRect).size();
 }
@@ -55,9 +55,9 @@ QWidget *QItemDelegate::createEditor(StartEditAction action, QWidget *parent,
     if (item.type() != QModelIndex::View)
 	return 0;
     if (action & (EditKeyPressed | AnyKeyPressed | DoubleClicked)) {
-	QLineEdit *lineEdit = new QLineEdit(parent, "QItemDelegate_lineedit");
+	QLineEdit *lineEdit = new QLineEdit(parent);
 	lineEdit->setFrame(false);
-	lineEdit->setText(model()->data(item, QGenericItemModel::Edit).toString());
+	lineEdit->setText(model()->data(item, QAbstractItemModel::Edit).toString());
 	lineEdit->selectAll();
 	updateEditorGeometry(lineEdit, options, item);
 	return lineEdit;
@@ -69,14 +69,14 @@ void QItemDelegate::setContentFromEditor(QWidget *editor, const QModelIndex &ite
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
     if (lineEdit)
-	model()->setData(item, QGenericItemModel::Edit, lineEdit->text());
+	model()->setData(item, QAbstractItemModel::Edit, lineEdit->text());
 }
 
 void QItemDelegate::updateEditorContents(QWidget *editor, const QModelIndex &item) const
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
     if (lineEdit)
-	lineEdit->setText(model()->data(item, QGenericItemModel::Edit).toString());
+	lineEdit->setText(model()->data(item, QAbstractItemModel::Edit).toString());
 }
 
 void QItemDelegate::updateEditorGeometry(QWidget *editor, const QItemOptions &options, const QModelIndex &item) const
@@ -84,9 +84,9 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor, const QItemOptions &op
     static QPoint pt(0, 0);
     if (editor) {
 	QRect iconRect(pt, iconSize(options,
-				    model()->data(item, QGenericItemModel::Decoration).toIconSet()));
+				    model()->data(item, QAbstractItemModel::Decoration).toIconSet()));
  	QRect textRect(pt, textSize(editor->fontMetrics(), options,
-				    model()->data(item, QGenericItemModel::Display).toString()));
+				    model()->data(item, QAbstractItemModel::Display).toString()));
 	doLayout(options, &iconRect, &textRect, false); // makes the rects valid
 	editor->setGeometry(textRect);
     }

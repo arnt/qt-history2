@@ -10,7 +10,7 @@ class QAbstractItemDelegatePrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QAbstractItemDelegate);
     
 public:
-    QGenericItemModel *model;
+    QAbstractItemModel *model;
 };
 
 #endif

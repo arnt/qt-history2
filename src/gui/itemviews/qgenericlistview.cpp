@@ -250,13 +250,13 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
     }
 }
 
-QGenericListView::QGenericListView(QGenericItemModel *model, QWidget *parent)
+QGenericListView::QGenericListView(QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(*new QGenericListViewPrivate, model, parent)
 {
     d->prepareItemsLayout(); // initialize structures
 }
 
-QGenericListView::QGenericListView(QGenericListViewPrivate &dd, QGenericItemModel *model, QWidget *parent)
+QGenericListView::QGenericListView(QGenericListViewPrivate &dd, QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(dd, model, parent)
 {
     d->prepareItemsLayout(); // initialize structures
@@ -982,7 +982,7 @@ void QGenericListViewPrivate::prepareItemsLayout()
 void QGenericListViewPrivate::intersectingStaticSet(const QRect &area) const
 {
     intersectVector.clear();
-    QGenericItemModel *model = q->model();
+    QAbstractItemModel *model = q->model();
 
     QModelIndex root = q->root();
     int first, last, count, i, j;
@@ -1029,7 +1029,7 @@ void QGenericListViewPrivate::createItems(int to)
     QItemOptions options;
     q->getViewOptions(&options);
     QFontMetrics fontMetrics(q->font());
-    QGenericItemModel *model = q->model();
+    QAbstractItemModel *model = q->model();
     QAbstractItemDelegate *delegate = q->itemDelegate();
     QModelIndex root = q->root();
     for (int i = count; i < to; ++i) {
