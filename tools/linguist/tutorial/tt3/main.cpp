@@ -23,7 +23,6 @@ int main(int argc, char **argv)
     app.installTranslator(&translator);
 
     MainWindow *mw = new MainWindow;
-    app.setMainWidget(mw);
     mw->show();
     return app.exec();
 }

@@ -18,7 +18,6 @@ int main(int argc, char *argv[])
 
     QPushButton hello(QPushButton::tr("Hello world!"));
 
-    app.setMainWidget(&hello);
     hello.show();
     return app.exec();
 }
