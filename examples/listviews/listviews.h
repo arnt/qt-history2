@@ -16,8 +16,9 @@
 #include <qsplitter.h>
 #include <qstring.h>
 #include <qobject.h>
+#include <qlist.h>
 #include <qdatetime.h>
-#include <qptrlist.h>
+
 #include <qlistview.h>
 
 class QListView;
@@ -86,19 +87,19 @@ class Folder : public QObject
 public:
     Folder( Folder *parent, const QString &name );
     ~Folder()
-    {}
+    { lstIt = lstMessages.begin(); }
 
-    void addMessage( Message *m )
-    { lstMessages.append( m ); }
+    void addMessage( Message *m ) { lstMessages.append( m ); }
 
     QString folderName() { return fName; }
 
-    Message *firstMessage() { return lstMessages.first(); }
-    Message *nextMessage() { return lstMessages.next(); }
+    Message *firstMessage() { lstIt = lstMessages.begin(); return *lstIt; }
+    Message *nextMessage() { if(lstIt == lstMessages.end()) return 0; ++lstIt; return *lstIt; }
 
 protected:
     QString fName;
-    QPtrList<Message> lstMessages;
+    QList<Message*>::Iterator lstIt;
+    QList<Message*> lstMessages;
 
 };
 
@@ -156,7 +157,7 @@ protected:
     QLabel *message;
     QPopupMenu* menu;
 
-    QPtrList<Folder> lstFolders;
+    QList<Folder*> lstFolders;
 
 protected slots:
     void slotFolderChanged( QListViewItem* );

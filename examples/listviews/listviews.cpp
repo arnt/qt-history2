@@ -186,7 +186,7 @@ void ListViews::initFolders()
 
 void ListViews::initFolder( Folder *folder, unsigned int &count )
 {
-    for ( unsigned int i = 0; i < 15; i++, count++ ) {
+    for ( unsigned int i = 0; i < 3; i++, count++ ) {
 	QString str;
 	str = QString( "Message %1  " ).arg( count );
 	QDateTime dt = QDateTime::currentDateTime();
@@ -206,9 +206,8 @@ void ListViews::initFolder( Folder *folder, unsigned int &count )
 void ListViews::setupFolders()
 {
     folders->clear();
-
-    for ( Folder* f = lstFolders.first(); f; f = lstFolders.next() )
-	(void)new FolderListItem( folders, f );
+    for(QList<Folder*>::Iterator it = lstFolders.begin(); it != lstFolders.end(); ++it)
+	(void)new FolderListItem( folders, (*it) );
 }
 
 void ListViews::slotRMB( QListViewItem* Item, const QPoint & point, int )
@@ -227,8 +226,8 @@ void ListViews::slotFolderChanged( QListViewItem *i )
 
     FolderListItem *item = ( FolderListItem* )i;
 
-    for ( Message* msg = item->folder()->firstMessage(); msg;
-	  msg = item->folder()->nextMessage() )
+    Folder *folder = item->folder();
+    for ( Message* msg = folder->firstMessage(); msg; msg = folder->nextMessage() ) 
 	(void)new MessageListItem( messages, msg );
 }
 
