@@ -2025,7 +2025,6 @@ void qt_init_internal( int *argcptr, char **argv,
 	    XSelectInput( appDpy, QPaintDevice::x11AppRootWindow( screen ),
 			  KeymapStateMask | EnterWindowMask | LeaveWindowMask |
 			  PropertyChangeMask );
-	}
 
 #ifndef QT_NO_XRANDR
 	    if (qt_use_xrandr)
