@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#94 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#93 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#94 $");
 
 
 // Motif style parameters
@@ -430,6 +430,26 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     show();
 }
 
+
+/*!
+  \fn void QPopupMenu::activated( int id )
+  This signal is emitted when the a menu item is selected.
+  This method of receiving notification of
+  menu items selection offers an alternative to passing
+  a slot to one of the QMenuData::insertItem() methods of this class.
+
+  \sa highlighted(), QMenuData::insertItem()
+*/
+
+/*!
+  \fn void QPopupMenu::highlighted( int id )
+  This signal is emitted when the a menu item is highlighted.
+  This method of receiving notification of
+  menu items selection offers an alternative to passing
+  a slot to one of the QMenuData::insertItem() methods of this class.
+
+  \sa activated(), QMenuData::insertItem()
+*/
 
 void QPopupMenu::subActivated( int id )
 {
