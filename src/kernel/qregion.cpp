@@ -373,7 +373,7 @@ QRegion operator*(const QWMatrix &mat, const QRegion &r)
 	if ( mat.m12() == 0.0F && mat.m21() == 0.0F ) {
 	    // simple case, no rotation
 	    while ( i ) {
-		*rect = QRect( mat.map(rect->topLeft()), mat.map(rect->bottomRight()) );
+		*rect = QRect( mat.map(rect->topLeft()), mat.map(rect->bottomRight()) ).normalize();
 		rect++;
 		i--;
 	    }
