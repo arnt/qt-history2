@@ -178,6 +178,281 @@ void QAccessible::updateAccessibility(QObject *object, int control, Event reason
     }
 }
 
+struct {
+    int qt;
+    CFStringRef mac;
+    bool settable;
+} text_bindings[][10] = {
+    { { QAccessible::MenuBar, kAXMenuBarRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::ScrollBar, kAXScrollBarRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::Grip, kAXGrowAreaRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::Window, kAXWindowRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::Dialog, kAXWindowRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::AlertMessage, kAXWindowRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::ToolTip, kAXWindowRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::HelpBalloon, kAXWindowRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::PopupMenu, kAXMenuRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL }
+    },
+    { { QAccessible::MenuItem, kAXMenuItemRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::Application, kAXApplicationRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::Pane, kAXGroupRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::Grouping, kAXGroupRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::Separator, kAXSplitterRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::ToolBar, kAXToolbarRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::PageTabList, kAXTabGroupRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::ButtonMenu, kAXMenuButtonRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::ButtonDropDown, kAXPopUpButtonRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::SpinBox, kAXIncrementorRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::Slider, kAXSliderRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::ProgressBar, kAXProgressIndicatorRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::ComboBox, kAXComboBoxRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::RadioButton, kAXRadioButtonRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::CheckBox, kAXCheckBoxRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::StaticText, kAXStaticTextRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::Table, kAXTableRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::StatusBar, kAXStaticTextRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+#if QT_MACOSX_VERSION >= 0x1030
+    { { QAccessible::Column, kAXColumnRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::ColumnHeader, kAXColumnRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::Row, kAXRowRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::RowHeader, kAXRowRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::Cell, kAXUnknownRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::PushButton, kAXButtonRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::EditableText, kAXTextFieldRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::Link, kAXTextFieldRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+#else
+    { { QAccessible::TitleBar, kAXWindowTitleRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::ColumnHeader, kAXTableHeaderViewRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::RowHeader, kAXTableHeaderViewRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::Column, kAXTableColumnRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::Row, kAXTableRowRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::Cell, kAXOutlineCellRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::EditableText, kAXTextRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::Link, kAXTextRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+    { { QAccessible::PushButton, kAXPushButtonRole, false },
+      { QAccessible::Value, kAXValueAttribute, true },
+      { QAccessible::Description, kAXRoleDescriptionAttribute, false },
+      { QAccessible::Help, kAXHelpAttribute, false },
+      { -1, NULL, false }
+    },
+#endif
+    { { -1, NULL, false } }
+};
+
 QMAC_PASCAL OSStatus
 QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, void *data)
 {
@@ -235,13 +510,17 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		    CFMutableArrayRef attrs;
 		    GetEventParameter(event, kEventParamAccessibleAttributeNames, typeCFMutableArrayRef, NULL,
 				      sizeof(attrs), NULL, &attrs);
+		    for(int r = 0; text_bindings[r][0].qt != -1; r++) {
+			if(iface->role(0) == (QAccessible::Role)text_bindings[r][0].qt) {
+			    for(int a = 1; text_bindings[r][a].qt != -1; a++)
+				CFArrayAppendValue(attrs, text_bindings[r][a].mac);
+			    break;
+			}
+		    }
 		    CFArrayAppendValue(attrs, kAXChildrenAttribute);
 		    CFArrayAppendValue(attrs, kAXParentAttribute);
 		    CFArrayAppendValue(attrs, kAXPositionAttribute);
 		    CFArrayAppendValue(attrs, kAXSizeAttribute);
-		    CFArrayAppendValue(attrs, kAXRoleDescriptionAttribute);
-		    CFArrayAppendValue(attrs, kAXValueAttribute);
-		    CFArrayAppendValue(attrs, kAXHelpAttribute);
 		    CFArrayAppendValue(attrs, kAXRoleAttribute);
 		    CFArrayAppendValue(attrs, kAXEnabledAttribute);
 		    CFArrayAppendValue(attrs, kAXExpandedAttribute);
@@ -306,101 +585,14 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			size.h = sz.width();
 			size.v = sz.height();
 			SetEventParameter(event, kEventParamAccessibleAttributeValue, typeQDPoint, sizeof(size), &size);
-		    } else if(CFStringCompare(str, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo) {
-			CFStringRef str = qstring2cfstring(iface->text(Description, 0));
-			SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, sizeof(str), &str);
-		    } else if(CFStringCompare(str, kAXValueAttribute, 0) == kCFCompareEqualTo) {
-			bool ok;
-			int val = iface->text(Value, 0).toInt(&ok);
-			if(!ok)
-			    val = 0;
-			SetEventParameter(event, kEventParamAccessibleAttributeValue, typeInteger, sizeof(val), &val);
-		    } else if(CFStringCompare(str, kAXHelpAttribute, 0) == kCFCompareEqualTo) {
-			CFStringRef str = qstring2cfstring(iface->text(Help, 0));
-			SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, sizeof(str), &str);
 		    } else if(CFStringCompare(str, kAXRoleAttribute, 0) == kCFCompareEqualTo) {
 			CFStringRef role = kAXUnknownRole;
-			Role qrole = iface->role(0);
-			if(qrole == MenuBar)
-			    role = kAXMenuBarRole;
-			else if(qrole == ScrollBar)
-			    role = kAXScrollBarRole;
-			else if(qrole == Grip)
-			    role = kAXGrowAreaAttribute;
-			else if(qrole == Window || qrole == Dialog || qrole == AlertMessage || qrole == ToolTip ||
-				qrole == HelpBalloon || qrole == Client)
-			    role = kAXWindowRole;
-			else if(qrole == PopupMenu)
-			    role = kAXMenuRole;
-			else if(qrole == MenuItem)
-			    role = kAXMenuItemRole;
-			else if(qrole == Application)
-			    role = kAXApplicationRole;
-			else if(qrole == Pane || qrole == Grouping)
-			    role = kAXGroupRole;
-			else if(qrole == Separator)
-			    role = kAXSplitterRole;
-			else if(qrole == ToolBar)
-			    role = kAXToolbarRole;
-			else if(qrole == List)
-			    role = kAXListRole;
-			else if(qrole == StatusBar)
-			    role = kAXStaticTextRole;
-			else if(qrole == Table)
-			    role = kAXTableRole;
-#if QT_MACOSX_VERSION < 0x1030
-			else if(qrole == TitleBar)
-			    role = kAXWindowTitleRole;
-			else if(qrole == ColumnHeader || qrole == RowHeader)
-			    role = kAXTableHeaderViewRole;
-			else if(qrole == Column)
-			    role = kAXTableColumnRole;
-			else if(qrole == Row)
-			    role = kAXTableRowRole;
-			else if(qrole == Cell)
-			    role = kAXOutlineCellRole;
-			else if(qrole == EditableText || qrole == Link)
-			    role = kAXTextRole;
-			else if(qrole == PushButton)
-			    role = kAXPushButtonRole;
-			else if(qrole == Tree)
-			    role = kAXBoxRole;
-#else
-			else if(qrole == Column || qrole ==ColumnHeader)
-			    role = kAXColumnRole;
-			else if(qrole == Row || qrole == RowHeader)
-			    role = kAXRowRole;
-			else if(qrole == Cell)
-			    role = kAXUnknownRole;
-			else if(qrole == PushButton)
-			    role = kAXButtonRole;
-			else if(qrole == Tree)
-			    role = kAXOutlineRole;
-			else if(qrole == EditableText || qrole == Link)
-			    role = kAXTextFieldRole;
-#endif
-			else if(qrole == StaticText)
-			    role = kAXStaticTextRole;
-			else if(qrole == CheckBox)
-			    role = kAXCheckBoxRole;
-			else if(qrole == RadioButton)
-			    role = kAXRadioButtonRole;
-			else if(qrole == ComboBox)
-			    role = kAXComboBoxRole;
-			// else if(qrole == DropList)
-			//    role = kAXListRole;
-			else if(qrole == ProgressBar)
-			    role = kAXProgressIndicatorRole;
-			else if(qrole == Slider)
-			    role = kAXSliderRole;
-			else if(qrole == SpinBox)
-			    role = kAXIncrementButtonAttribute;
-			else if(qrole == ButtonDropDown)
-			    role = kAXPopUpButtonRole;
-			else if(qrole == ButtonMenu)
-			    role = kAXMenuButtonRole;
-			else if(qrole == PageTabList)
-			    role = kAXTabGroupRole;
+			for(int r = 0; text_bindings[r][0].qt != -1; r++) {
+			    if(iface->role(0) == (QAccessible::Role)text_bindings[r][0].qt) {
+				role = text_bindings[r][0].mac;
+				break;
+			    }
+			}
 			SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, sizeof(role), &role);
 		    } else if(CFStringCompare(str, kAXEnabledAttribute, 0) == kCFCompareEqualTo) {
 			Boolean val = !((iface->state(0) & Unavailable)) ? true : false;
@@ -483,7 +675,23 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, sizeof(val), &val);
 			}
 		    } else {
-			qWarning("Unknown [kEventAccessibleGetNamedAttribute]: %s", cfstring2qstring(str).latin1());
+			bool found = false;
+			for(int r = 0; text_bindings[r][0].qt != -1; r++) {
+			    if(iface->role(0) == (QAccessible::Role)text_bindings[r][0].qt) {
+				for(int a = 1; text_bindings[r][a].qt != -1; a++) {
+				    if(CFStringCompare(str, text_bindings[r][a].mac, 0) == kCFCompareEqualTo) {
+					CFStringRef str = qstring2cfstring(iface->text((QAccessible::Text)text_bindings[r][a].qt, 0));
+					SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, 
+							  sizeof(str), &str);
+					found = true;
+					break;
+				    }
+				}
+				break;
+			    }
+			}
+			if(!found)
+			    qDebug("Unknown [kEventAccessibleGetNamedAttribute]: %s", cfstring2qstring(str).latin1());
 		    }
 		    iface->release();
 		}
@@ -493,32 +701,36 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		    CFStringRef str;
 		    GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
 				      sizeof(str), NULL, &str);
-		    if(CFStringCompare(str, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo) {
-			CFStringRef val;
-			if(GetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, NULL,
-					     sizeof(val), NULL, &val) == noErr)
-			    iface->setText(Description, 0, cfstring2qstring(val));
-		    } else if(CFStringCompare(str, kAXTextAttribute, 0) == kCFCompareEqualTo) {
-			int val;
-			if(GetEventParameter(event, kEventParamAccessibleAttributeValue, typeInteger, NULL,
-					     sizeof(val), NULL, &val) == noErr)
-			    iface->setText(Value, 0, QString::number(val));
-		    } else if(CFStringCompare(str, kAXHelpAttribute, 0) == kCFCompareEqualTo) {
-			CFStringRef val;
-			if(GetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, NULL,
-					     sizeof(val), NULL, &val) == noErr)
-			    iface->setText(Help, 0, cfstring2qstring(val));
 #if 0
-		    } else if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
+		    if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
 			Boolean val;
 			if(GetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, NULL,
 					     sizeof(val), NULL, &val) == noErr) {
 			    if(val)
 				iface->doAction(0, SetFocus);
-			}
+			} 
+		    } else 
 #endif
-		    } else {
-			qWarning("Unknown [kEventAccessibleSetNamedAttribute]: %s", cfstring2qstring(str).latin1());
+			
+		    {
+			bool found = false;
+			for(int r = 0; text_bindings[r][0].qt != -1; r++) {
+			    if(iface->role(0) == (QAccessible::Role)text_bindings[r][0].qt) {
+				for(int a = 1; text_bindings[r][a].qt != -1; a++) {
+				    if(CFStringCompare(str, text_bindings[r][a].mac, 0) == kCFCompareEqualTo) {
+					CFStringRef val;
+					if(GetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, NULL,
+							     sizeof(val), NULL, &val) == noErr)
+					    iface->setText((QAccessible::Text)text_bindings[r][a].qt, 0, cfstring2qstring(val));
+					found = true;
+					break;
+				    }
+				}
+				break;
+			    }
+			}
+			if(!found)
+			    qDebug("Unknown [kEventAccessibleSetNamedAttribute]: %s", cfstring2qstring(str).latin1());
 		    }
 		    iface->release();
 		}
@@ -529,11 +741,10 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		    GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
 				      sizeof(str), NULL, &str);
 		    Boolean settable = false;
-		    if(CFStringCompare(str, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo ||
-		       CFStringCompare(str, kAXValueAttribute, 0) == kCFCompareEqualTo ||
-		       CFStringCompare(str, kAXHelpAttribute, 0) == kCFCompareEqualTo ||
-		       CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) 
+		    if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
 			settable = true;
+		    } else {
+		    }
 		    SetEventParameter(event, kEventParamAccessibleAttributeSettable, typeBoolean, sizeof(settable), &settable);
 		    iface->release();
 		}
