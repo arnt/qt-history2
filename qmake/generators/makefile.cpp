@@ -494,14 +494,19 @@ MakefileGenerator::init()
     init_already = TRUE;
 
     QMap<QString, QStringList> &v = project->variables();
-    { //paths
-	QString &asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty() ? QString::null : v["QMAKE_ABSOLUTE_SOURCE_PATH"].first();
-	asp = Option::fixPathToTargetOS(asp);
+    { //opaths
+	QString asp = QString::null;
+	if ( !v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty() ) {
+	    v["QMAKE_ABSOLUTE_SOURCE_PATH"].first() = Option::fixPathToTargetOS( asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first() );
+	    asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first();
+	}
 	if(!asp.isEmpty() && asp == Option::output_dir) //if they're the same, why bother?
 	    v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();
 	QString currentDir = QDir::currentDirPath();
 	QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("DESTDIR"), QString::null };
 	for(int x = 0; dirs[x] != QString::null; x++) {
+//	    if ( v[dirs[x]].isEmpty() )
+//		v[dirs[x]].append( "" );
 	    QString &path = v[dirs[x]].first();
 	    path = Option::fixPathToTargetOS(path);
 	    if (!path.isEmpty() ) {
