@@ -48,24 +48,26 @@ public:
     int screenCount;
 
     QMemArray<QRect> rects;
+    QMemArray<QRect> avail_rects;
     QPtrList<GDPtr> devs;
 };
 
 QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 {
-    appScreen = 0;
-    QPtrList<QRect> rs;
-    rs.setAutoDelete(TRUE);
-    for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) {
-	rs.append(new QRect((*g)->gdRect.left,    (*g)->gdRect.top,
-			    (*g)->gdRect.right -  (*g)->gdRect.left,
-			    (*g)->gdRect.bottom - (*g)->gdRect.top));
-	devs.append(g);
-    }
     int i = 0;
-    rects.resize( screenCount = rs.count() );
-    for(QPtrListIterator<QRect> it(rs); it.current(); ++it) 
-	rects[i++] = *(*it);
+    appScreen = 0;
+    for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) 
+	devs.append(g);
+    screenCount = devs.count();
+    rects.resize( screenCount);
+    avail_rects.resize( screenCount );
+    for(GDHandle g = devs.first(); g; g = devs.next(), i++) {
+	Rect r;
+	GetAvailableWindowPositioningBounds(g, &r);
+	avail_rects[i] = QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
+	r = (*g)->gdRect;
+	rects[i++] = QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
+    }
 }
 
 QDesktopWidget::QDesktopWidget()
@@ -102,13 +104,9 @@ QWidget *QDesktopWidget::screen( int )
 
 const QRect& QDesktopWidget::availableGeometry( int screen ) const
 {
-    Rect bounds;
-    GDHandle hdl = d->devs.first();
-    for(int i = 0; i < screen; i++)	
-	hdl = d->devs.next();
-    GetAvailableWindowPositioningBounds(hdl, &bounds);
-    return QRect(bounds.left, bounds.top, bounds.right - bounds.left, 
-		 bounds.bottom - bounds.top);
+    if ( screen < 0 || screen >= d->screenCount )
+	screen = d->appScreen;
+    return d->avail_rects[ screen ];
 }
 
 const QRect& QDesktopWidget::screenGeometry( int screen ) const
