@@ -480,7 +480,7 @@ void QColorDialog::setCustomColor( int i, QRgb c )
     initRGB();
     if ( i < 0 || i >= customCount() ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QColorDialog::customColor() index %d out of range", i );
+	qWarning( "QColorDialog::setCustomColor() index %d out of range", i );
 #endif
 	return;
     }
@@ -495,9 +495,9 @@ void QColorDialog::setCustomColor( int i, QRgb c )
 void QColorDialog::setStandardColor( int i, QRgb c )
 {
     initRGB();
-    if ( i < 0 || i >= customCount() ) {
+    if ( i < 0 || i >= 6*8 ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QColorDialog::standardColor() index %d out of range", i );
+	qWarning( "QColorDialog::setStandardColor() index %d out of range", i );
 #endif
 	return;
     }
