@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#233 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#234 $
 **
 ** Implementation of QListView widget class
 **
@@ -1022,6 +1022,8 @@ void QListViewItem::setText( int column, const QString &text )
 	return;
 
     l->text = text;
+    if ( parent() )
+	parent()->lsc = Unsorted;
     widthChanged( column );
     repaint();
 }
@@ -2753,7 +2755,8 @@ void QListView::keyPressEvent( QKeyEvent * e )
     if ( !e )
 	return; // subclass bug
 
-    if ( !currentItem() )
+    QListViewItem* oldCurrent = currentItem();
+    if ( !oldCurrent )
 	return;
 
     QListViewItem * i = currentItem();
@@ -2908,8 +2911,13 @@ void QListView::keyPressEvent( QKeyEvent * e )
 		     : TRUE );
 
     setCurrentItem( i );
-
     ensureItemVisible( i );
+    
+    if ( oldCurrent ) {
+	QRect r = itemRect( oldCurrent );
+	r = r.unite( itemRect( currentItem() ) );
+ 	viewport()->repaint( r.x(), r.y(), r.width(), r.height() );
+    }
 }
 
 
