@@ -837,7 +837,8 @@ QPolygon QPainterPath::toFillPolygon() const
         polygon += flats.at(i);
         if (!flats.at(i).isClosed())
             polygon += flats.at(i).first();
-        polygon += first;
+        if (i > 0)
+            polygon += first;
     }
     return polygon;
 }
@@ -886,7 +887,7 @@ QList<QPolygon> QPainterPath::toFillPolygons() const
         if (isects[i].isEmpty()) {
             polys += subpaths.at(i);
             // Close if not closed...
-            if (subpaths.at(i).isClosed())
+            if (!subpaths.at(i).isClosed())
                 polys[polys.size()-1] += subpaths.at(i).first();
         } else {
             QList<int> l = isects[i];
