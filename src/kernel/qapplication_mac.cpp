@@ -272,7 +272,6 @@ int QApplication::macProcessEvent(MSG * m)
     EventRecord * er=(EventRecord *)m;
     QWidget * twidget=QWidget::find((WId)er->message);
     Point p2=er->where;
-    GlobalToLocal(&p2);
     QWidget * widget=QApplication::widgetAt(p2.h,p2.v,true);
     if(er->what==updateEvt) {
 	wp=(WindowPtr)er->message;
@@ -419,8 +418,13 @@ int QApplication::macProcessEvent(MSG * m)
 	part=FindWindow(er->where,&wp);
 	GrafPort * gp;
 	if(part==inContent) {
-	    if(the_grabbed)
+	    if(the_grabbed) {
 		widget=the_grabbed;
+	    } else {
+	        Point pp2=er->where;
+		GlobalToLocal(&pp2);
+		widget=QApplication::widgetAt(pp2.h,pp2.v,true);
+	    }
 	    if(widget) {
 		GrafPort * g=(GrafPort *)wp;
 		int x,y;
