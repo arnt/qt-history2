@@ -46,15 +46,17 @@
 
 #if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
 #define QM_EXPORT_SQL
+#define QM_TEMPLATE_EXTERN_SQL
 #else
 #define QM_EXPORT_SQL Q_EXPORT
+#define QM_TEMPLATE_EXTERN_SQL Q_TEMPLATE_EXTERN
 #endif
 
 #ifndef QT_NO_SQL
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QValueList<bool>;
+QM_TEMPLATE_EXTERN_SQL template class Q_EXPORT QValueList<bool>;
 // MOC_SKIP_END
 #endif
 

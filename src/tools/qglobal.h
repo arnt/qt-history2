@@ -798,8 +798,8 @@ class QDataStream;
 #    define Q_EXPORT  __declspec(dllimport)
 #    define Q_TEMPLATEDLL
 #    ifndef Q_TEMPLATE_EXTERN
-#      if defined(Q_CC_MSVC)
-#        define Q_TEMPLATE_EXTERN /*extern*/ //### too many warnings, even though disabled
+#      if defined(Q_CC_MSVC_NET)
+#        define Q_TEMPLATE_EXTERN extern
 #      else
 #        define Q_TEMPLATE_EXTERN
 #      endif

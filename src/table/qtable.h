@@ -55,8 +55,10 @@
 
 #if !defined( QT_MODULE_TABLE ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_TABLE )
 #define QM_EXPORT_TABLE
+#define QM_TEMPLATE_EXTERN_TABLE
 #else
 #define QM_EXPORT_TABLE Q_EXPORT
+#define QM_TEMPLATE_EXTERN_TABLE Q_TEMPLATE_EXTERN
 #endif
 
 class QTableHeader;
@@ -223,10 +225,10 @@ private:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class QM_EXPORT_TABLE QPtrVector<QTableItem>;
-Q_TEMPLATE_EXTERN template class QM_EXPORT_TABLE QPtrVector<QWidget>;
-Q_TEMPLATE_EXTERN template class QM_EXPORT_TABLE QPtrList<QTableSelection>;
-Q_TEMPLATE_EXTERN template class QM_EXPORT_TABLE QIntDict<int>;
+QM_TEMPLATE_EXTERN_TABLE template class QM_EXPORT_TABLE QPtrVector<QTableItem>;
+QM_TEMPLATE_EXTERN_TABLE template class QM_EXPORT_TABLE QPtrVector<QWidget>;
+QM_TEMPLATE_EXTERN_TABLE template class QM_EXPORT_TABLE QPtrList<QTableSelection>;
+QM_TEMPLATE_EXTERN_TABLE template class QM_EXPORT_TABLE QIntDict<int>;
 // MOC_SKIP_END
 #endif
 

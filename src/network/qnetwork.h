@@ -39,7 +39,7 @@
 #define QNETWORK_H
 
 #ifndef QT_H
-#include <qglobal.h>
+#include "qglobal.h"
 #endif // QT_H
 
 #if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_NETWORK )

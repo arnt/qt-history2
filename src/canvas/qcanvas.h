@@ -50,8 +50,10 @@
 
 #if !defined( QT_MODULE_CANVAS ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_CANVAS )
 #define QM_EXPORT_CANVAS
+#define QM_TEMPLATE_EXTERN_CANVAS
 #else
 #define QM_EXPORT_CANVAS Q_EXPORT
+#define QM_TEMPLATE_EXTERN_CANVAS Q_TEMPLATE_EXTERN
 #endif
 
 #ifndef QT_NO_CANVAS
@@ -73,9 +75,9 @@ class QCanvasPixmap;
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class QM_EXPORT_CANVAS QPtrList< QCanvasItem >;
-template class QM_EXPORT_CANVAS QPtrList< QCanvasView >;
-template class QM_EXPORT_CANVAS QValueList< QCanvasItem* >;
+QM_TEMPLATE_EXTERN_CANVAS template class QM_EXPORT_CANVAS QPtrList< QCanvasItem >;
+QM_TEMPLATE_EXTERN_CANVAS template class QM_EXPORT_CANVAS QPtrList< QCanvasView >;
+QM_TEMPLATE_EXTERN_CANVAS template class QM_EXPORT_CANVAS QValueList< QCanvasItem* >;
 // MOC_SKIP_END
 #endif
 

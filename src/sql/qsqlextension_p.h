@@ -61,8 +61,10 @@
 
 #if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
 #define QM_EXPORT_SQL
+#define QM_TEMPLATE_EXTERN_SQL
 #else
 #define QM_EXPORT_SQL Q_EXPORT
+#define QM_TEMPLATE_EXTERN_SQL Q_TEMPLATE_EXTERN
 #endif
 
 struct Param {
@@ -81,9 +83,9 @@ struct Holder {
 };
 
 #if defined(Q_TEMPLATEDLL)
-Q_TEMPLATE_EXTERN template class QM_EXPORT_SQL QMap<QString,Param>;
-Q_TEMPLATE_EXTERN template class QM_EXPORT_SQL QMap<int,QString>;
-Q_TEMPLATE_EXTERN template class QM_EXPORT_SQL QValueVector<Holder>;
+QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QMap<QString,Param>;
+QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QMap<int,QString>;
+QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QValueVector<Holder>;
 #endif
 
 class QM_EXPORT_SQL QSqlExtension {

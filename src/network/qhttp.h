@@ -41,12 +41,15 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qnetworkprotocol.h"
+#include "qstringlist.h"
 #endif // QT_H
 
 #if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_NETWORK )
 #define QM_EXPORT_HTTP
+#define QM_TEMPLATE_EXTERN_HTTP
 #else
 #define QM_EXPORT_HTTP Q_EXPORT
+#define QM_TEMPLATE_EXTERN_HTTP Q_TEMPLATE_EXTERN
 #endif
 
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
@@ -61,7 +64,7 @@ class QHttpRequest;
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class QM_EXPORT_HTTP QMap<QString, QString>;
+QM_TEMPLATE_EXTERN_HTTP template class QM_EXPORT_HTTP QMap<QString, QString>;
 // MOC_SKIP_END
 #endif
 
