@@ -2926,7 +2926,7 @@ void PropertyList::setupProperties()
     }
 #endif
 
-    if ( w->inherits("PropertyObject") ) {
+    if ( w->isA("PropertyObject") ) {
 	const QWidgetList wl = ( (PropertyObject*)w )->widgetList();
 	QPtrListIterator<QWidget> wIt( wl );
 	while ( *wIt ) {
