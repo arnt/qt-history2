@@ -122,18 +122,18 @@ bool CheckListItem::testAndWarn()
     }
 
     if (!verify()) {
-	QString message = QString("The option '%1' is <b>not verified</b> by the installer. One or more of the following "
-		    "files could not be located on the system:<br><br>"
-		    "%2<br><br>"
-		    "Continuing with this option selected might <b>break the installation</b> process.")
+	QString message = QString("<p>The option '%1' is <b>not verified</b> by the installer. One or more of the following "
+		    "files could not be located on the system:"
+		    "<p>%2"
+		    "<p>Continuing with this option selected might <b>break the installation</b> process.")
 		    .arg(text(0)).arg(required_files.join(", "));
 	if (!file_location.isEmpty()) {
-	    message += QString("<br>The requested files are %1 and need to be installed "
-		               "in the INCLUDE, PATH and LIBS environment as appropriate.<br>").arg(file_location);
+	    message += QString("<p>The requested files are %1 and need to be installed "
+		               "in the INCLUDE, PATH and LIBS environment as appropriate.").arg(file_location);
 	}
 
 	int r = QMessageBox::warning(listView()->topLevelWidget(), "Option not Verified",
-		    message + "<br>Select anyway?", "Yes", "No" );
+		    message + "<p>Select anyway?", "Yes", "No" );
 	return r == 0;
     }
     return TRUE;
@@ -1477,7 +1477,10 @@ void SetupWizardImpl::showPageConfig()
     motifDirect->setOn( entry == "Direct" );
 
     folder = new CheckListItem( stfolder, "Windows XP" );
-    folder->addRequiredFiles("uxtheme.h");
+    folder->addRequiredFiles("uxtheme.hh");
+    folder->setRequiredFileLocation("part of the Microsoft Platform SDK, which is usually available for "
+				    "download from the following location:"
+				    "<p>http://www.microsoft.com/msdownload/platformsdk/sdkupdate/<p>");
     entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows XP", "Direct", &settingsOK );
     xpOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     xpOff->setOn( entry == "Off" );
