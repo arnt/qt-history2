@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#144 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#145 $
 **
 ** Definition of QWidget class
 **
@@ -300,6 +300,8 @@ protected:
     WId		 frm_wnd;
 #endif
 
+    QFocusData  *focusData();
+
 private slots:
     void	 focusProxyDestroyed();
 
@@ -320,7 +322,7 @@ private:
     void	 cancelResize();
     void	 sendDeferredEvents();
     void 	 reparentFocusWidgets( QWidget *parent );
-    QFocusData  *focusData( bool create = FALSE );
+    QFocusData  *focusData( bool create );
     void	 setBackgroundColorFromMode();
     void	 setBackgroundColorDirect( const QColor & );
     void	 setBackgroundModeDirect( BackgroundMode );

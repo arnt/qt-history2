@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#17 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#18 $
 **
 ** Definition of QScrollView class
 **
@@ -91,6 +91,8 @@ protected:
     int topMargin() const;
     int rightMargin() const;
     int bottomMargin() const;
+
+    bool focusNextPrevChild( bool next );
 
 private:
     void moveContents(int x, int y);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#234 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#235 $
 **
 ** Implementation of QWidget class
 **
@@ -15,6 +15,7 @@
 #include "qobjcoll.h"
 #include "qwidget.h"
 #include "qwidcoll.h"
+#include "qfocusdata.h"
 #include "qpixmap.h"
 #include "qkeycode.h"
 #include "qapp.h"
@@ -29,7 +30,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#234 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#235 $");
 
 
 /*!
@@ -415,17 +416,6 @@ inline bool QWidgetMapper::remove( WId id )
     }
     return QWidgetIntDict::remove((long)id);
 }
-
-
-// Focus data class - documented in QWidget::focusData()
-
-class QFocusData {
-public:
-    QFocusData()
-	: it(focusWidgets) {}
-    QList<QWidget> focusWidgets;
-    QListIterator<QWidget> it;
-};
 
 
 /*****************************************************************************
@@ -2032,10 +2022,19 @@ void QWidget::clearFocus()
   a web browser might reimplement it to move its "current active link"
   forwards or backwards, and call QWidget::focusNextPrevChild() only
   when it reaches the last/first.
+
+  Child widgets call focusNextPrevChild() on their parent widgets, and
+  only the top-level widget will thus make the choice of where to redirect
+  focus.  By overriding this method for an object, you thus gain control
+  of focus traversal for all child widgets.
 */
 
 bool QWidget::focusNextPrevChild( bool next )
 {
+    QWidget* p = parentWidget();
+    if ( p )
+	return p->focusNextPrevChild(next);
+
     QFocusData *f = focusData( TRUE );
 
     QWidget *startingPoint = f->it.current();
@@ -2080,8 +2079,18 @@ QWidget *QWidget::focusWidget() const
   list contains all the widgets in this top-level widget that can
   accept focus, in tab order.  An iterator points to the current focus
   widget (focusWidget() returns a pointer to this widget).
-*/
 
+  This information is useful for implementing advanced versions
+  of focusNextPrevChild().
+*/
+QFocusData * QWidget::focusData()
+{
+    return focusData(TRUE);
+}
+
+/*!
+  Internal function which lets us not create it too.
+*/
 QFocusData * QWidget::focusData( bool create )
 {
     QWidget * tlw = topLevelWidget();
@@ -2476,12 +2485,12 @@ void QWidget::hide()
 
     hideWindow();
 
+    clearWFlags( WState_Visible );
+
     // next bit tries to move the focus if the focus widget is now
     // hidden.
     if ( qApp && qApp->focusWidget() == this )
 	focusNextPrevChild( TRUE );
-
-    clearWFlags( WState_Visible );
 
     // ### Can these ever be useful?
     cancelMove();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#31 $
 **
 ** Implementation of QScrollView class
 **
@@ -14,6 +14,7 @@
 #include "qobjcoll.h"
 #include "qpainter.h"
 #include "qpixmap.h"
+#include "qfocusdata.h"
 #include "qscrollview.h"
 #include "qptrdict.h"
 #include "qapp.h"
@@ -83,6 +84,14 @@ struct QScrollViewData {
     }
 
     ChildRec* rec(QWidget* w) { return childDict.find(w); }
+    ChildRec* ancestorRec(QWidget* w)
+    {
+	while (w->parentWidget() != &viewport) {
+	    w = w->parentWidget();
+	    if (!w) return 0;
+	}
+	return rec(w);
+    }
     void deleteChildRec(ChildRec* r)
     {
 	childDict.remove(r);
@@ -543,15 +552,15 @@ void QScrollView::addChild(QWidget* child, int x, int y)
 	    r->moveTo(this,x,y);
 	    if ( d->policy > Manual )
 		d->autoResize(this); // #### better to just deal with this one widget!
+	    return;
 	}
-	return;
     }
 
     if ( d->children.isEmpty() && d->policy == Default ) {
 	setResizePolicy( AutoOne );
 	child->installEventFilter( this );
-    } else if ( d->children.isEmpty() && d->policy == AutoOne ) {
-	d->children.first()->child->removeEventFilter( this );
+    } else if ( d->policy == AutoOne ) {
+	child->removeEventFilter( this );
     }
     if ( child->parentWidget() != &d->viewport ) {
 	child->recreate( &d->viewport, 0, QPoint(0,0), FALSE );
@@ -634,6 +643,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	switch ( e->type() ) {
 	  case Event_Resize:
 	    d->autoResize(this);
+	    break;
 	}
     }
     return FALSE;  // always continue with standard event processing
@@ -643,9 +653,8 @@ bool QScrollView::event( QEvent *e )
 {
     if ( e->type() == Event_ChildRemoved ) {
 	removeChild(((QChildEvent*)e)->child());
-    } else {
-	QFrame::event(e);
     }
+    return QFrame::event(e);
 }
 
 /*!
@@ -741,7 +750,7 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
     else if ( cy < ph-ch && ch>ph )
 	cy=ph-ch;
 
-    setContentsPos( cx, cy );
+    setContentsPos( -cx, -cy );
 }
 
 /*!
@@ -1066,4 +1075,47 @@ int QScrollView::rightMargin() const
 int QScrollView::bottomMargin() const	
 {
     return d->b_marg;
+}
+
+/*!
+  Override so that traversal moves among child widgets, even if they
+  are not visible, scrolling to make them so.
+*/
+bool QScrollView::focusNextPrevChild( bool next )
+{
+    QFocusData *f = focusData();
+
+    QWidget *startingPoint = f->current();
+
+    ChildRec *r = focusWidget() ? d->ancestorRec(focusWidget()) : 0;
+    if ( r && r->wantshown && !r->child->isVisible() )
+	return FALSE;
+
+    QWidget *candidate = 0;
+    QWidget *w = next ? f->last() : f->first();
+
+    do {
+	if ( w && w != startingPoint &&
+	     w->testWFlags( WState_TabToFocus ) && !w->focusProxy() &&
+	     w->isEnabledToTLW() )
+	    candidate = w;
+	w = next ? f->prev() : f->next();
+    } while( w && !(candidate && w==startingPoint) );
+
+    if ( !candidate )
+	return FALSE;
+
+    r = d->ancestorRec(candidate);
+    if ( r ) {
+	QPoint cp = candidate->mapToGlobal(QPoint(0,0));
+	QPoint cr = r->child->mapToGlobal(QPoint(0,0)) - cp;
+	center( r->x+cr.x()+candidate->width()/2,
+		       r->y+cr.y()+candidate->height()/2,
+		       candidate->width()/2,
+		       candidate->height()/2 );
+    }
+
+    candidate->setFocus();
+
+    return TRUE;
 }
