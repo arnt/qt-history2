@@ -567,11 +567,9 @@ void QPixmap::deref()
     }
 }
 
-QPixmap QPixmap::copy() const
+QPixmap QPixmap::copy(const QRect &rect) const
 {
-    QPixmap pm = QPixmap::fromImage(data->image.copy());
-    pm.data->bitmap = data->bitmap;
-    return pm;
+    return QPixmap::fromImage(toImage().copy(rect));
 }
 
 QDataStream &operator<<(QDataStream &s, const QPixmap &pixmap)
@@ -689,3 +687,15 @@ QImage QPixmapData::createBitmapImage(int w, int h)
     bitmap.setColor(1, QColor(Qt::color1).rgba());
     return bitmap;
 }
+
+#ifdef QT3_SUPPORT
+Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
+                          const QPixmap *src, int sx, int sy, int sw, int sh)
+{
+    Q_ASSERT_X(dst, "::copyBlt", "Destination pixmap must be non null");
+    Q_ASSERT_X(src, "::copyBlt", "Source pixmap must be non null");
+
+    QPainter p(dst);
+    p.drawPixmap(dx, dy, *src, sx, sy, sw, sh, Qt::CopyPixmap);
+}
+#endif

@@ -106,6 +106,9 @@ public:
     static QPixmap fromWinHBITMAP(HBITMAP hbitmap);
 #endif
 
+    inline QPixmap copy(int x, int y, int width, int height) const;
+    QPixmap copy(const QRect &rect = QRect()) const;
+
     int serialNumber() const;
 
     bool isDetached() const;
@@ -177,7 +180,6 @@ private:
     QPixmap(int w, int h, int depth, bool);
     void init(int, int, int, bool);
     void deref();
-    QPixmap copy() const;
 #if defined(Q_WS_WIN)
     void initAlphaPixmap(uchar *bytes, int length, struct tagBITMAPINFO *bmi);
 #endif
@@ -200,6 +202,11 @@ private:
 
 Q_DECLARE_SHARED(QPixmap)
 
+
+inline QPixmap QPixmap::copy(int x, int y, int width, int height) const
+{
+    return copy(QRect(x, y, width, height));
+}
 
 /*****************************************************************************
  QPixmap stream functions

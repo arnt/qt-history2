@@ -204,30 +204,30 @@ QPixmap::~QPixmap()
 }
 
 /*!
-    Returns a \link shclass.html deep copy\endlink of the pixmap.
+    \fn QPixmap QPixmap::copy(int x, int y, int w, int h) const
+
+    \overload
+
+    Returns a \link shclass.html deep copy\endlink of the subpart of
+    the pixmap that is specified by the rectangle \a x, \a y, \a w \a
+    h.
+
+    If the rectangle is empty, the whole image is copied.
+*/
+
+/*!
+    Returns a \link shclass.html deep copy\endlink of the subpart of
+    the pixmap that is specified by \a rect.
+
+    If \a rect is empty, the whole image is copied.
 
     \sa operator=()
 */
 
-QPixmap QPixmap::copy() const
+QPixmap QPixmap::copy(const QRect &rect) const
 {
-#if defined(Q_WS_X11)
-    int old = x11SetDefaultScreen(data->xinfo.screen());
-#endif // Q_WS_X11
-
-    QPixmap pm(data->w, data->h, data->d, data->bitmap);
-
-    QPainter painter(&pm);
-    painter.drawPixmap(QPoint(0, 0), *this, Qt::CopyPixmap);
-    painter.end();
-#if defined(Q_WS_QWS)
-    pm.data->hasAlpha = data->hasAlpha;
-#endif
-#if defined(Q_WS_X11)
-    x11SetDefaultScreen(old);
-#endif // Q_WS_X11
-
-    return pm;
+    // ### This could be sped up by platform specific implementation.
+    return QPixmap::fromImage(toImage().copy(rect));
 }
 
 
