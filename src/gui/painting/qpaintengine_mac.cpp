@@ -1083,6 +1083,7 @@ static void qt_mac_dispose_pattern(void *info)
     delete pat;
 }
 
+//gradiant callback
 static void qt_mac_color_gradient_function(void *info, const float *in, float *out)
 {
     QBrush *brush = (QBrush*)info;

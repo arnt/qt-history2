@@ -79,6 +79,7 @@ public:
     {
 	hd = 0;
         shading = 0;
+        antiAliasingEnabled = 1;
     }
 
     //state info
@@ -100,19 +101,25 @@ public:
     uint antiAliasingEnabled : 1;
 
     //internal functions
-    inline void strokePath() {
-        if(current.pen.style() != Qt::NoPen)
+    inline bool strokePath() {
+        if(current.pen.style() != Qt::NoPen) {
             CGContextStrokePath(hd);
+            return true;
+        }
+        return false;
     }
-    inline void fillPath() { 
+    inline bool fillPath() { 
         if(current.brush.style() == Qt::LinearGradientPattern) {
             CGContextSaveGState(hd);
             CGContextClip(hd);
             CGContextDrawShading(hd, shading);
             CGContextRestoreGState(hd);
+            return true;
         } else if(current.brush.style() != Qt::NoBrush) {
             CGContextFillPath(hd);
+            return true;
         }
+        return false;
     }
 };
 
