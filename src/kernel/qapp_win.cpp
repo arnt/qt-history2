@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#12 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#12 $";
 #endif
 
 
@@ -70,7 +70,7 @@ static void	cleanupTimers();
 static bool	activateTimer( uint );
 static void	activateZeroTimers();
 
-static int translateKeyCode( int );
+static int	translateKeyCode( int );
 
 #if defined(_WS_WIN32_)
 #define __export
@@ -668,15 +668,23 @@ WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
     int evt_type = Event_None;
     bool result = TRUE;
 
-    if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST )
-	widget->translateMouseEvent( msg );	// mouse event
+    if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ) {
+	if ( !widget->isDisabled() ) {
+	    if ( message == WM_LBUTTONDOWN )
+		widget->setFocus();
+	    widget->translateMouseEvent( msg ); // mouse event
+	}
+    }
     else
     switch ( message ) {
 
 	case WM_KEYDOWN:			// keyboard event
 	case WM_KEYUP:
 	case WM_CHAR:
-	    result = widget->translateKeyEvent( msg );
+	    if ( qApp->focusWidget() )
+		widget = (QETWidget*)qApp->focusWidget();
+	    if ( !widget->isDisabled() )
+		widget->translateKeyEvent( msg );
 	    break;
 
 	case WM_PAINT:				// paint event
@@ -1332,10 +1340,11 @@ static ushort KeyTbl[] = {			// keyboard mapping table
 static int translateKeyCode( int key )		// get Key_... code
 {
     int code = 0;
-    if ( (key >= 'A' && key <= 'Z') || (key >= '0' && key <= '9') )
+    if ( (key >= 'A' && key <= 'Z') || (key >= '0' && key <= '9') ) {
+	debug( "wait for WM_CHAR" );
 	return 0;				// wait for WM_CHAR instead
-    else
-    if ( key >= VK_F1 && key <= VK_F24 )	// function keys
+    }
+    else if ( key >= VK_F1 && key <= VK_F24 )	// function keys
 	code = Key_F1 + (key - VK_F1);		// assumes contiguous codes!
     else {
 	int i = 0;				// any other keys
@@ -1356,9 +1365,20 @@ bool QETWidget::translateKeyEvent( const MSG &msg )
     int ascii = 0;
     int state = 0;
 
+    if ( GetKeyState(VK_SHIFT) < 0 )
+	state |= ShiftButton;
+    if ( GetKeyState(VK_CONTROL) < 0 )
+	state |= ControlButton;
+
     if ( msg.message == WM_CHAR ) {		// translated keyboard code
 	type = Event_KeyPress;
 	code = ascii = msg.wParam;
+	if ( code >= 'a' && code <= 'z' )
+	    code = toupper( code );
+	if ( (state & ControlButton) != 0 ) {
+	    if ( code >= 1 && code <= 26 )	// Ctrl+'A'..'Z'
+		code += 'A' - 1;
+	}
     }
     else {
 	code = translateKeyCode( msg.wParam );
@@ -1367,10 +1387,6 @@ bool QETWidget::translateKeyEvent( const MSG &msg )
 	type = msg.message == WM_KEYDOWN ?
 	       Event_KeyPress : Event_KeyRelease;
     }
-    if ( GetKeyState(VK_SHIFT) < 0 )
-	state |= ShiftButton;
-    if ( GetKeyState(VK_CONTROL) < 0 )
-	state |= ControlButton;
     QKeyEvent e( type, code, ascii, state );
     return QApplication::sendEvent( this, &e ); // send event
 }
