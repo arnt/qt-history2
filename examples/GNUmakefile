@@ -22,6 +22,7 @@ SUBDIRS	=	aclock \
 		drawlines \
 		forever \
 		hello \
+		helpviewer \
 		i18n \
 		layout \
 		life \
@@ -35,11 +36,10 @@ SUBDIRS	=	aclock \
 		popup \
 		progress \
 		progressbar \
-		qbrowser \
 		qdir \
 		qfd \
-		qfileiconview \
-		qiconview \
+		fileiconview \
+		iconview \
 		qmag \
 		qwerty \
 		rangecontrols \

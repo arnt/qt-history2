@@ -13,24 +13,29 @@
   This example displays a digital LCD clock and can switch between time
   and date.
 
+- fileiconview
+  This example implements a simple and not full functional filemanager using
+  a widget derived from QIconView to display the current directory and the
+  widget of the DirectoryView example to display the directory tree.
+
 - life
+   An implementation of the life game. Very UNIX-ish GUI design ;-)
+
+- helpviewer
+  The HelpViewer example implements a simple HTML help browser using 
+  Qt's richtext capabilities.
 
 - movies
   The Movies example displays animated GIF files using the QMovie and
   QLabel classes.
 
-- qbrowser
-  The QBrowser example implements a simple HTML browser using Qt's Richtext widget.
-
 - qdir
+   Shows how to use and customize Qt's file dialog. See 
+	qdir --help 
+   for details
 
 - qfd
   This example program displayes all characters of a font.
-
-- qfileiconview
-  This example implements a simple and not full functional filemanager using
-  a widget derived from QIconView to display the current directory and the
-  widget of the DirectoryView example to display the directory tree.
 
 - qmag
   This is a simple magnifier-type program.  It shows how one can do
@@ -43,6 +48,7 @@
   magnified area as a .bmp file.
 
 - qwerty
+  Small text editor to test  different character encodings.
 
 - scribble
   This example implements the famous scribble example. You can draw around
@@ -124,6 +130,11 @@
   # i18n en
   to get the english version.
 
+- iconview
+  This example implements a flexible icon view which can store
+  lots of icon items. It supports Drag'n'Drop, different selection modes,
+  view modes, rubberband selection, etc.
+
 - layout
   This example shows simple and intermediate use of Qt's layout
   classes, QGridLaout, QBoxLayout etc.
@@ -161,11 +172,6 @@
 
 - progressbar
   This example shows how to use a progressbar.
-
-- qiconview
-  This example implements a flexible icon view which can store
-  lots of icon items. It supports Drag'n'Drop, different selection modes,
-  view modes, rubberband selection, etc.
 
 - rangecontrols
   This examples shows the different types of Rangecontrols which
