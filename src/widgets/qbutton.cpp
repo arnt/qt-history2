@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#112 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#113 $
 **
 ** Implementation of QButton widget class
 **
@@ -667,13 +667,10 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
     if ( d )
         timer()->stop();
     mlbDown = FALSE;				// left mouse button up
-    bool hit;
-    hit = (isToggleButton() && isOn() && group() && group()->isExclusive())
-	  ? FALSE
-	  : hitButton( e->pos() );
     buttonDown = FALSE;
-    if ( hit ) {				// mouse release on button
-	if ( toggleBt )
+    if ( hitButton( e->pos() ) ) {		// mouse release on button
+	if ( !toggleBt || !( toggleBt && isOn() &&
+			     group() && group()->isExclusive() ) )
 	    buttonOn = !buttonOn;
 	repaint( FALSE );
 	if ( toggleBt )
@@ -695,8 +692,7 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !((e->state() & LeftButton) && mlbDown) )
 	return;					// left mouse button is up
-    bool hit = hitButton( e->pos() );
-    if ( hit ) {				// mouse move in button
+    if ( hitButton( e->pos() ) ) {		// mouse move in button
 	if ( !buttonDown ) {
 	    buttonDown = TRUE;
 	    repaint( FALSE );
