@@ -3114,7 +3114,9 @@ QString qt_winMB2QString(const char* mb, int mblen)
     }
     if (len <= 0)
         return QString::null;
-    QString s((QChar*)wc, len - 1); // len - 1: we don't want terminator
+    if (wc[len-1] == 0) // len - 1: we don't want terminator
+        --len;
+    QString s((QChar*)wc, len);
     if (wc != wc_auto)
         delete [] wc;
     return s;
@@ -3140,9 +3142,9 @@ QString QString::fromLocal8Bit(const char *str, int size)
 #if defined(Q_OS_WIN32)
     if (size >= 0) {
         QByteArray ba(str, size); // creates a '\0'-terminated deep copy
-        return qt_winMB2QString(ba);
+        return qt_winMB2QString(ba, size);
     } else {
-        return qt_winMB2QString(str);
+        return qt_winMB2QString(str, size);
     }
 #elif defined(Q_OS_UNIX)
 #  if !defined(QT_NO_TEXTCODEC)
