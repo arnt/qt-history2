@@ -26,7 +26,7 @@ template <class T> \
 class C##Iterator \
 { \
     typedef typename C<T>::const_iterator const_iterator; \
-    C<T> c; \
+    const C<T> c; \
     const_iterator i; \
 public: \
     inline C##Iterator(const C<T> &container) \
@@ -87,7 +87,7 @@ class C##Iterator \
 { \
     typedef typename C<Key,T>::const_iterator const_iterator; \
     typedef const_iterator Item; \
-    C<Key,T> c; \
+    const C<Key,T> c; \
     const_iterator i, n; \
     inline bool item_exists() const { return n != c.constEnd(); } \
 public: \
