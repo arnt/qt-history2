@@ -215,6 +215,9 @@ void QGLContext::reset()
 
 void QGLContext::makeCurrent()
 {
+    if ( aglGetCurrentContext() == (AGLContext) cx )
+	return;
+
     if ( !d->valid ) {
 #if defined(QT_CHECK_STATE)
 	qWarning("QGLContext::makeCurrent(): Cannot make invalid context current.");
@@ -253,7 +256,7 @@ void QGLContext::fixBufferRect()
 
 void QGLContext::doneCurrent()
 {
-    if ( currentCtx != this )
+    if ( aglGetCurrentContext() != (AGLContext) cx )
 	return;
     currentCtx = 0;
     aglSetCurrentContext(NULL);
