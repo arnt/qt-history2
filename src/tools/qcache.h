@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcache.h#17 $
+** $Id: //depot/qt/main/src/tools/qcache.h#18 $
 **
 ** Definition of QCache template/macro class
 **
@@ -46,15 +46,26 @@ public:
     uint  count()     const	      { return QGCache::count(); }
     uint  size()      const	      { return QGCache::size(); }
     bool  isEmpty()   const	      { return QGCache::count() == 0; }
+    void  clear()		      { QGCache::clear(); }
+
     bool  insert( const char *k, const type *d, int c=1, int p=0 )
 				      { return QGCache::insert(k,(Item)d,c,p);}
     bool  remove( const char *k )     { return QGCache::remove(k); }
     type *take( const char *k )	      { return (type *)QGCache::take(k); }
-    void  clear()		      { QGCache::clear(); }
     type *find( const char *k, bool ref=TRUE ) const
 				      { return (type *)QGCache::find(k,ref);}
     type *operator[]( const char *k ) const
 				      { return (type *)QGCache::find(k);}
+
+    bool  insert( const QString& k, const type *d, int c=1, int p=0 )
+				      { return QGCache::insert(k,(Item)d,c,p);}
+    bool  remove( const QString& k )     { return QGCache::remove(k); }
+    type *take( const QString& k )	      { return (type *)QGCache::take(k); }
+    type *find( const QString& k, bool ref=TRUE ) const
+				      { return (type *)QGCache::find(k,ref);}
+    type *operator[]( const QString& k ) const
+				      { return (type *)QGCache::find(k);}
+
     void  statistics() const	      { QGCache::statistics(); }
 private:
     void  deleteItem( Item d )	      { if ( del_item ) delete (type *)d; }
@@ -78,7 +89,9 @@ public:
     type *toLast()	      { return (type *)QGCacheIterator::toLast(); }
     operator type *() const   { return (type *)QGCacheIterator::get(); }
     type *current()   const   { return (type *)QGCacheIterator::get(); }
-    const char *currentKey() const
+    long currentKeyLong() const
+			      { return QGCacheIterator::getKeyLong();}
+    QString currentKey() const
 			      { return QGCacheIterator::getKey();}
     type *operator()()	      { return (type *)QGCacheIterator::operator()();}
     type *operator++()	      { return (type *)QGCacheIterator::operator++(); }

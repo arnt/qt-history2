@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#41 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#42 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -696,3 +696,31 @@ QCollection::Item QGCacheIterator::operator-=( uint jump )
     register QCacheItem *item = it->operator-=(jump);
     return item ? item->data : 0;
 }
+
+
+bool QGCache::insert( const QString& key, Item i, int cost, int priority )
+{
+    if ( !copyK )
+	fatal("QGCache: attempted to insert QString without copying key");
+    QCString kutf8 = key.utf8();
+    return insert( kutf8.data(), i, cost, priority );
+}
+
+bool QGCache::remove( const QString& key )
+{
+    QCString kutf8 = key.utf8();
+    return remove( kutf8.data() );
+}
+
+QGCache::Item QGCache::take( const QString& key )
+{
+    QCString kutf8 = key.utf8();
+    return take( kutf8.data() );
+}
+
+QGCache::Item QGCache::find( const QString& key, bool ref ) const
+{
+    QCString kutf8 = key.utf8();
+    return find( kutf8.data(), ref );
+}
+

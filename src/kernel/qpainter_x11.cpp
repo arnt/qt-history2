@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#290 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#291 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2442,21 +2442,23 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 // to insert and find bitmaps in the global pixmap cache.
 //
 static QString gen_xbm_key( const QWMatrix &m, const QFont &font,
-			    const char *str, int len )
+			    const QString& str, int len )
 {
     QString s = str;
     s.truncate( len );
     QString fd = font.key();
     QString k;
-    k.sprintf( "$qt$%s,%g,%g,%g,%g,%g,%g,%s", (const char *)s, //### s in UC!
-	       m.m11(), m.m12(), m.m21(),m.m22(), m.dx(), m.dy(),
-	       (const char *)fd );
+    k.sprintf( "$qt$%g,%g,%g,%g,%g,%g",
+	       m.m11(), m.m12(), m.m21(),m.m22(), m.dx(), m.dy() );
+    k += fd;
+    k += QChar(',');
+    k += s;
     return k;
 }
 
 
 static QBitmap *get_text_bitmap( const QWMatrix &m, const QFont &font,
-				 const char *str, int len )
+				 const QString& str, int len )
 {
     QString k = gen_xbm_key( m, font, str, len );
     return (QBitmap*)QPixmapCache::find( k );
@@ -2464,7 +2466,7 @@ static QBitmap *get_text_bitmap( const QWMatrix &m, const QFont &font,
 
 
 static void ins_text_bitmap( const QWMatrix &m, const QFont &font,
-			     const char *str, int len, QBitmap *bm )
+			     const QString& str, int len, QBitmap *bm )
 {
     QString k = gen_xbm_key( m, font, str, len );
     if ( !QPixmapCache::insert(k,bm) )		// cannot insert pixmap

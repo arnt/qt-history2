@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#22 $
+** $Id: //depot/qt/main/src/tools/qgcache.h#23 $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **
@@ -56,13 +56,17 @@ protected:
     int	    maxCost()	const	{ return mCost; }
     int	    totalCost() const	{ return tCost; }
     void    setMaxCost( int maxCost );
+    void    clear();
 
     bool    insert( const char *key, Item, int cost, int priority );
     bool    remove( const char *key );
     Item	    take( const char *key );
-    void    clear();
-
     Item	    find( const char *key, bool ref=TRUE ) const;
+
+    bool    insert( const QString& key, Item, int cost, int priority );
+    bool    remove( const QString& key );
+    Item	    take( const QString& key );
+    Item	    find( const QString& key, bool ref=TRUE ) const;
 
     void    statistics() const;			// output debug statistics
 
