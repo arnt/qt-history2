@@ -2871,8 +2871,10 @@ void QTextEdit::insert( const QString &text, bool indent,
     CheckNewLines is set, newline characters in \a text result in hard
     line breaks (i.e. new paragraphs). If \c checkNewLine is not set,
     the behaviour of the editor is undefined if the \a text contains
-    newlines. If \c RemoveSelected is set, any selected text (in
-    selection 0) is removed before the text is inserted.
+    newlines. (It is not possible to change QTextEdit's newline handling
+    behavior, but you can use QString::replace() to preprocess text
+    before inserting it.) If \c RemoveSelected is set, any selected
+    text (in selection 0) is removed before the text is inserted.
 
     The default flags are \c CheckNewLines | \c RemoveSelected.
 
