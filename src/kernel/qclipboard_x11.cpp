@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#6 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#5 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#6 $")
 
 
 /*****************************************************************************
@@ -328,7 +328,16 @@ void QClipboard::setData( const char *format, void *data )
 
 
 /*----------------------------------------------------------------------------
-  \fn void QClipboard::connectNotify( const char *signal )
+  \internal
+  Internal cleanup for Windows.
+ ----------------------------------------------------------------------------*/
+
+void QClipboard::ownerDestroyed()
+{
+}
+
+
+/*----------------------------------------------------------------------------
   \internal
   Internal optimization for Windows.
  ----------------------------------------------------------------------------*/
@@ -346,8 +355,8 @@ bool QClipboard::event( QEvent *e )
 {
     if ( e->type() != Event_Clipboard )
 	return QObject::event( e );
+
     XEvent *xevent = (XEvent *)Q_CUSTOM_EVENT(e)->data();
-    char *s = "OTHER";
     Display *dpy = qt_xdisplay();
     QClipboardData *d = clipboardData();
 
@@ -355,12 +364,10 @@ bool QClipboard::event( QEvent *e )
 
 	case SelectionClear:			// new selection owner
 	    clipboardData()->clear();
-	    s = "SelectionClear";
 	    break;
 
 	case SelectionNotify:
 	    clipboardData()->clear();
-	    s = "SelectionNotify";
 	    break;
 
 	case SelectionRequest: {		// someone wants our data
@@ -381,10 +388,9 @@ bool QClipboard::event( QEvent *e )
 		evt.xselection.property	= req->property;
 	    }
 	    XSendEvent( dpy, req->requestor, False, 0, &evt );
-	    s = "SelectionRequest";
 	    }
 	    break;
     }
-    //    debug( "QClipboard::event: %s", s );
+
     return TRUE;
 }
