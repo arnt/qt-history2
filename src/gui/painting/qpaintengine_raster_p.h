@@ -70,6 +70,8 @@ public:
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                     Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
+    void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,
+                   Qt::ImageConversionFlags flags = Qt::AutoColor);
     void drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &sr,
                          Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
     void drawTextItem(const QPointF &p, const QTextItem &textItem);

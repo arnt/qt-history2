@@ -820,16 +820,23 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
 
     Q_D(QRasterPaintEngine);
 
-    QPainterPath path;
-    path.addRect(r);
-
     QImage *image = qt_image_for_pixmap(pixmap);
     if (pixmap.depth() == 1)
         image = d->colorizeBitmap(image);
+    drawImage(r, *image, sr);
+}
 
+void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF &sr,
+                                   Qt::ImageConversionFlags)
+{
+#ifdef QT_DEBUG_DRAW
+    qDebug() << " - QRasterPaintEngine::drawImage(), r=" << r << " sr=" << sr << " image=" << image.size() << "depth=" << image.depth();
+#endif
+
+    Q_D(QRasterPaintEngine);
     TextureFillData textureData = {
         d->rasterBuffer,
-        (ARGB*)image->bits(), image->width(), image->height(), image->hasAlphaBuffer(),
+        (ARGB*)image.bits(), image.width(), image.height(), image.hasAlphaBuffer(),
         0., 0., 0., 0., 0., 0.,
         d->bilinear ? qDrawHelper.blendTransformedBilinear : qDrawHelper.blendTransformed
     };
@@ -856,6 +863,9 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
         textureData.dx = -(r.x() + d->matrix.dx()) + sr.x();
         textureData.dy = -(r.y() + d->matrix.dy()) + sr.y();
     }
+
+    QPainterPath path;
+    path.addRect(r);
 
     fillPath(path, &fillData);
 }
