@@ -4584,9 +4584,11 @@ static const psfont * const SimplifiedReplacements[] = {
     SongGBK2K, FangSongGBK2K, KaiGBK2K, HeiGBK2K,
     Simplified, MSungGBK, FangSong, BousungEG, GBZenKai, Helvetica, 0
 	};
+#if 0
 static const psfont * const SongGBK2KReplacements[] = {
     SongGBK2K, MSungGBK, BousungEG, Helvetica, 0
 	};
+#endif
 static const psfont * const FangSongGBK2KReplacements[] = {
     FangSongGBK2K, FangSong, Courier, 0
 	};
