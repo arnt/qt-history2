@@ -1067,12 +1067,10 @@ void QMessageBox::keyPressEvent( QKeyEvent *e )
   Static QMessageBox functions
  *****************************************************************************/
 
-/*!
+/*!\obsolete
   Opens a modal message box directly using the specified parameters.
 
-  \warning This function is kept for compatibility with old Qt programs
-  and will be removed in a future version of Qt.  Please use
-  information(), warning() or critical() instead.
+  Please use information(), warning() or critical() instead.
 */
 
 int QMessageBox::message( const QString &caption,
@@ -1087,13 +1085,11 @@ int QMessageBox::message( const QString &caption,
 }
 
 
-/*!
+/*!\obsolete
   Queries the user using a modal message box with two buttons.
   Note that \a caption is not always shown, it depends on the window manager.
 
-  \warning This function is kept for compatibility with old Qt programs
-  and will be removed in a future version of Qt.  Please use
-  information(), warning() or critical() instead.
+  Please use information(), warning() or critical() instead.
 */
 
 bool QMessageBox::query( const QString &caption,

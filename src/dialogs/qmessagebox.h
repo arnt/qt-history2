@@ -110,18 +110,18 @@ public:
     static void aboutQt( QWidget *parent,
 			 const QString& caption=QString::null );
 
-#if 1 /* OBSOLETE */
+/* OBSOLETE */
     static int message( const QString &caption,
 			const QString& text, 
 			const QString& buttonText=QString::null,
 			QWidget *parent=0, const char *name=0 );
 
+/* OBSOLETE */
     static bool query( const QString &caption,
 		       const QString& text, 
 		       const QString& yesButtonText=QString::null,
 		       const QString& noButtonText=QString::null,
 		       QWidget *parent=0, const char *name=0 );
-#endif
 
     QString	text() const;
     void	setText( const QString &);
