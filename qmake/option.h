@@ -66,7 +66,7 @@ struct Option
     static QString user_template;
     static QStringList user_vars;
     static QString cachefile;
-    static QString specfile;
+    static QString qmakepath;
     static QFile output;
     static QString output_dir;
     

@@ -62,7 +62,7 @@ bool Option::do_cache = TRUE;
 int Option::debug_level = 0;
 
 QString Option::user_template;
-QString Option::specfile;
+QString Option::qmakepath;
 QString Option::cachefile;
 QStringList Option::user_vars;
 QFile Option::output;
@@ -74,14 +74,14 @@ bool usage(const char *a0)
 {
     fprintf(stderr, "Usage: %s [options] project-files\n"
 	   "Options:\n"
-	   "\t-nocache      Don't use a cache file\n"
-	   "\t-nodepend     Don't generate dependency information\n"
-	   "\t-o file       Write output to file\n"
-	   "\t-unix         Run in unix mode\n"
-	   "\t-win32        Run in win32 mode\n"
-	   "\t-mkcache file Use file as cache\n"
-	   "\t-mkspec file  Use file as spec\n"
-	   "\t-d            Increase debug level\n", a0);
+	   "\t-nocache       Don't use a cache file\n"
+	   "\t-nodepend      Don't generate dependency information\n"
+	   "\t-o file        Write output to file\n"
+	   "\t-unix          Run in unix mode\n"
+	   "\t-win32         Run in win32 mode\n"
+	   "\t-cache file  Use file as cache\n"
+	   "\t-path dir Use dir as qmakepath\n"
+	   "\t-d             Increase debug level\n", a0);
     return FALSE;
 }
 
@@ -110,8 +110,8 @@ Option::parseCommandLine(int argc, char **argv)
 		Option::mode = UNIX_MODE;
 	    } else if(opt == "win32") {
 		Option::mode = WIN_MODE;
-	    } else if(opt == "mkspec") {
-		Option::specfile = argv[++x];
+	    } else if(opt == "qmakepath") {
+		Option::qmakepath = argv[++x];
 	    }  else if(opt == "v" || opt == "d") {
 		Option::debug_level++;
 	    } else {

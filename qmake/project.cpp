@@ -310,31 +310,31 @@ QMakeProject::read(QString project, QString pwd)
 	    }
 	    if(!cachefile.isEmpty()) {
 		read(cachefile, cache);
-		if(Option::specfile.isEmpty() && !cache["MKSPEC"].isEmpty())
-		    Option::specfile = cache["MKSPEC"].first();
+		if(Option::qmakepath.isEmpty() && !cache["QMAKEPATH"].isEmpty())
+		    Option::qmakepath = cache["QMAKEPATH"].first();
 	    }
 	}
 
 	/* parse mkspec */
-	if(Option::specfile.isNull() || Option::specfile.isEmpty()) {
-	    if(!getenv("MKSPEC")) {
-		fprintf(stderr, "MKSPEC has not been set, so mkspec cannot be deduced.\n");
+	if(Option::qmakepath.isNull() || Option::qmakepath.isEmpty()) {
+	    if(!getenv("QMAKEPATH")) {
+		fprintf(stderr, "QMAKEPATH: has not been set, so mkspec cannot be deduced.\n");
 		return FALSE;
 	    }
-	    Option::specfile = getenv("MKSPEC");
+	    Option::qmakepath = getenv("QMAKEPATH");
 	}
-	if(QDir::isRelativePath(Option::specfile)) {
+	if(QDir::isRelativePath(Option::qmakepath)) {
 	    if(!getenv("QTDIR")) {
 		fprintf(stderr, "QTDIR has not been set, so mkspec cannot be deduced.\n");
 		return FALSE;
 	    }
-	    Option::specfile.prepend(QString(getenv("QTDIR")) + QDir::separator() + "mkspecs" + QDir::separator());
+	    Option::qmakepath.prepend(QString(getenv("QTDIR")) + QDir::separator() + "mkspecs" + QDir::separator());
 	}
-	QString spec = Option::specfile + QDir::separator() + "qmake.conf";
-	debug_msg(1, "MKSPEC file: reading %s", spec.latin1());
+	QString spec = Option::qmakepath + QDir::separator() + "qmake.conf";
+	debug_msg(1, "QMAKEPATH conf: reading %s", spec.latin1());
 
 	if(!read(spec, base_vars)) {
-	    fprintf(stderr, "Failure to read MKSPEC file %s.\n", spec.latin1());
+	    fprintf(stderr, "Failure to read QMAKEPATH conf file %s.\n", spec.latin1());
 	    return FALSE;
 	}
 	if(!cachefile.isEmpty()) {
@@ -391,7 +391,7 @@ QMakeProject::isActiveConfig(const QString &x)
 	return TRUE;
     else if(Option::mode == Option::WIN_MODE && x == "win32")
 	return TRUE;
-    else if(Option::specfile.right(x.length()) == x)
+    else if(Option::qmakepath.right(x.length()) == x)
 	return TRUE;
     return ( vars["CONFIG"].findIndex(x) != -1 );
 }
