@@ -20,11 +20,11 @@
 #include <new>
 #endif
 
-#define QT_VERSION_STR   "4.0.0-b2"
+#define QT_VERSION_STR   "4.1.0"
 /*
    QT_VERSION is (major << 16) + (minor << 8) + patch.
  */
-#define QT_VERSION 0x040000
+#define QT_VERSION 0x040100
 
 #if !defined(QT_BUILD_MOC)
 #include "QtCore/qconfig.h"
