@@ -12,6 +12,7 @@
 #include <qpixmap.h>
 #include <qiconset.h>
 #include <qstyle.h>
+#include <qtimer.h>
 
 #include "config.h"
 
@@ -300,7 +301,7 @@ void TabbedBrowser::closeTab()
 	return;
     HelpWindow *win = currentBrowser();
     tab->removePage(win);
-    delete win;
+    QTimer::singleShot(0, win, SLOT(deleteLater()));
     tab->cornerWidget(Qt::TopRight)->setEnabled(tab->count() > 1);
 }
 
