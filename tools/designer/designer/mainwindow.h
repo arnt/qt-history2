@@ -112,6 +112,8 @@ public:
 
     void editFunction( const QString &func );
 
+    bool isPreviewing() const { return previewing; }
+
 public slots:
     void showProperties( QObject *w );
     void updateProperties( QObject *w );
@@ -296,7 +298,7 @@ private:
     Project *currentProject;
     QInterfaceManager<EditorInterface> *editorPluginManager;
     QList<SourceEditor> sourceEditors;
-
+    bool previewing;
 };
 
 #endif

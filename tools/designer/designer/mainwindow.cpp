@@ -145,7 +145,8 @@ MainWindow::MainWindow( bool asClient )
     : QMainWindow( 0, "mainwindow", WType_TopLevel | WDestructiveClose ),
 #endif
       grd( 10, 10 ), sGrid( TRUE ), snGrid( TRUE ), restoreConfig( TRUE ), splashScreen( TRUE ),
-      docPath( "$QTDIR/doc/html" ), fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient )
+      docPath( "$QTDIR/doc/html" ), fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
+      previewing( FALSE )
 {
 
     // ### we need a better test to find if we have Quick installed or not
@@ -1824,7 +1825,9 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 	delete l;
 	w->move( fw->mapToGlobal( QPoint(0,0) ) );
 	((MainWindow*)w )->setWFlags( WDestructiveClose );
+	previewing = TRUE;
 	w->show();
+	previewing = FALSE;
 	QApplication::restoreOverrideCursor();
 	if ( fw->project() ) {
 	    QStringList lst = MetaDataBase::fakeProperty( fw, "database" ).toStringList();
@@ -2474,7 +2477,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 		}
 	    }
 	}
-	
+
     } else if ( w == propertyEditor ) {
 	propertyEditor->resetFocus();
     } else if ( !lastActiveFormWindow ) {
