@@ -167,10 +167,15 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	    t << "\n\t" << "-copy $(TARGET) " << *dlldir;
 	}
     }
+    QString targetfilename = project->variables()["TARGET"].first();
     if(project->isActiveConfig("activeqt")) {
-	t << "\n\t" << "-$(TARGET) -dumpidl tmp\\dump.idl";
-	t << "\n\t" << "-$(IDL) tmp\\dump.idl /nologo /o tmp\\dump.midl /tlb tmp\\dump.tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl";
-	t << "\n\t" << "-$(IDC) $(TARGET) /tlb tmp\\dump.tlb";
+	QString version = project->variables()["VERSION"].first();
+	if ( version.isEmpty() )
+	    version = "1.0";
+
+	t << "\n\t" << "-$(TARGET) -dumpidl tmp\\" + targetfilename + ".idl -version " + version;
+	t << "\n\t" << "-$(IDL) tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl";
+	t << "\n\t" << "-$(IDC) $(TARGET) /tlb tmp\\" + targetfilename + ".tlb";
 	t << "\n\t" << "-$(TARGET) -regserver";
     }
     t << endl << endl;
@@ -196,8 +201,10 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
       << varGlue("UICIMPLS" ,"\n\t-del ","\n\t-del ","")
       << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","")
       << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","");
-    if ( project->isActiveConfig("activeqt"))
+    if ( project->isActiveConfig("activeqt")) {
+	t << "\n\t-del tmp\\" + targetfilename + ".*";
 	t << "\n\t-del tmp\\dump.*";
+    }
     if(!project->isEmpty("IMAGES"))
 	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-del ", "\n\t-del ", "");
     t << endl << endl;

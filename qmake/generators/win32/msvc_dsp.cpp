@@ -445,12 +445,19 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		}
 
 		t << "\n# End Group\n";
-	    }
-	    else if( variable == "MSVCDSP_CONFIGMODE" ) {
+	    } else if( variable == "MSVCDSP_CONFIGMODE" ) {
 		if( project->isActiveConfig( "release" ) )
 		    t << "Release";
 		else
 		    t << "Debug";
+	    } else if( variable == "MSVCDSP_IDLSOURCES" ) {
+		QStringList &l = project->variables()["MSVCDSP_IDLSOURCES"];
+		for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+		    t << "# Begin Source File" << endl << endl;
+		    t << "SOURCE=" << (*it) << endl;
+		    t << "# PROP Exclude_From_Build 1" << endl;
+		    t << "# End Source File" << endl << endl;
+		}
 	    }
 	    else
 		t << var(variable);
@@ -731,15 +738,18 @@ DspMakefileGenerator::init()
     if ( project->isActiveConfig("activeqt") ) {
 	QString idl = project->variables()["QMAKE_IDL"].first();
 	QString idc = project->variables()["QMAKE_IDC"].first();
+	QString version = project->variables()["VERSION"].first();
+	if ( version.isEmpty() )
+	    version = "1.0";
 
 	QString regcmd = "# Begin Special Build Tool\n"
 			"TargetPath=" + targetfilename + "\n"
 			"SOURCE=$(InputPath)\n"
-			"PostBuild_Desc=Registering ActiveX control in " + targetfilename + "\n"
+			"PostBuild_Desc=Finalizing ActiveQt server...\n"
 			"PostBuild_Cmds="
-			"%1 -dumpidl tmp\\dump.idl"
-			"\t" + idl + " tmp\\dump.idl /nologo /o tmp\\dump.midl /tlb tmp\\dump.tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
-			"\t" + idc + " %1 /tlb tmp\\dump.tlb"
+			"%1 -dumpidl tmp\\" + targetfilename + ".idl -version " + version +
+			"\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
+			"\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb"
 			"\t%1 -regserver\n"
 			"# End Special Build Tool";
 
@@ -748,6 +758,10 @@ DspMakefileGenerator::init()
 
 	executable = project->variables()["MSVCDSP_TARGETDIRDEB"].first() + "\\" + project->variables()["TARGET"].first();
 	project->variables()["MSVCDSP_REGSVR_DBG"].append( regcmd.arg(executable).arg(executable).arg(executable) );
+
+	project->variables()["MSVCDSP_IDLSOURCES"].append( "tmp\\" + targetfilename + ".idl" );
+	project->variables()["MSVCDSP_IDLSOURCES"].append( "tmp\\" + targetfilename + ".tlb" );
+	project->variables()["MSVCDSP_IDLSOURCES"].append( "tmp\\" + targetfilename + ".midl" );
     }
     if ( !project->variables()["SOURCES"].isEmpty() || !project->variables()["RC_FILE"].isEmpty() ) {
 	project->variables()["SOURCES"] += project->variables()["RC_FILE"];
