@@ -788,7 +788,7 @@ void QWSServer::newConnection( int socket )
 	client[socket]->sendMaxWindowRectEvent();
 
     // pre-provide some object id's
-    for (int i=0; i<20; i++)
+    for (int i=0; i<20 && client[socket]; i++)
 	invokeCreate(0,client[socket]);
 }
 
