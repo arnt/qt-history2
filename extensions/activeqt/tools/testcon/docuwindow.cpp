@@ -58,7 +58,7 @@ static const char *fileprint[] = {
 
 
 DocuWindow::DocuWindow( const QString& docu, QWidget *parent, QWidget *source )
-    : QMainWindow( parent, 0, WDestructiveClose )
+    : QMainWindow( parent, 0, Qt::WDestructiveClose )
 {
     setWindowTitle( source->windowTitle() + " - Documentation" );
 
