@@ -498,7 +498,13 @@ void QLineEdit::init()
     setFrame( TRUE );
 }
 
+/*!
+  Sets the line edit's text.
 
+  Note: Even if a validator has been set setText() ignores this.
+
+  \sa insert()
+*/
 void QLineEdit::setText( const QString &text )
 {
     QString maskText;
