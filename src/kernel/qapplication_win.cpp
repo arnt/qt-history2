@@ -1821,11 +1821,11 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		int ox = offset.x();
 		int oy = offset.y();
 		GetClientRect( hwnd, &r );
-		qt_erase_background
-		    ( (HDC)wParam, r.left, r.top,
-			r.right-r.left, r.bottom-r.top,
-			QBrush(widget->backgroundColor(), *widget->backgroundPixmap()),
-			ox, oy );
+		QBrush br(widget->backgroundColor());
+		if (widget->backgroundPixmap())
+		    br = QBrush(widget->backgroundColor(), *widget->backgroundPixmap());
+		qt_erase_background ( (HDC)wParam, r.left, r.top,
+						   r.right-r.left, r.bottom-r.top, br, ox, oy );
 		RETURN(TRUE);
 	    }
 	    break;
