@@ -21,6 +21,8 @@
 #include <QtGui/QAction>
 #include <QtGui/QLineEdit>
 #include <QtGui/QVariant>
+#include <QtGui/QStyle>
+#include <QtGui/QStyleOption>
 
 #include <QtCore/QEvent>
 #include <QtCore/qdebug.h>
@@ -89,8 +91,11 @@ void ButtonTaskMenu::editText()
         connect(m_editor, SIGNAL(returnPressed()), m_editor, SLOT(deleteLater()));
         connect(m_editor, SIGNAL(textChanged(const QString &)), this, SLOT(updateText(const QString&)));
         m_editor->installEventFilter(this); // ### we need this??
+        QStyleOptionButton opt;
+        opt.init(m_button);
+        QRect r = m_button->style()->subRect(QStyle::SR_PushButtonContents, &opt, m_button);
         m_editor->setParent(m_button->parentWidget(), Qt::WStyle_ToolTip);
-        m_editor->setGeometry(m_button->geometry());
+        m_editor->setGeometry(QRect(m_button->mapToParent(r.topLeft()), r.size()));
         m_editor->setFocus();
         m_editor->show();
     }
