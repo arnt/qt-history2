@@ -526,12 +526,12 @@ void QToolButton::drawButtonLabel( QPainter * p )
 	    bool sunken = ( isOn() && !son ) || isDown() || d->popup->isVisible();
 	    if ( !sunken || d->instantPopup ) {
 		if ( at == LeftArrow ) {
-		    style().drawPanel( p, 0, 0, x-1-sx, height(), colorGroup(), sunken );
+		    style().drawButton( p, 0, 0, x-1-sx, height(), colorGroup(), sunken );
 		    if ( !sunken )
 			style().drawSeparator( p, x-1-sx, -1, x-1-sx, height(), colorGroup(), TRUE );
 		} else {
 		    style().drawSeparator( p, width()-20, 0, width()-20, height(), colorGroup(), TRUE );
-		    style().drawPanel( p, width()-20, 0, 20, height(), colorGroup(), sunken );
+		    style().drawButton( p, width()-20, 0, 20, height(), colorGroup(), sunken );
 		}
 	    }
 	}
