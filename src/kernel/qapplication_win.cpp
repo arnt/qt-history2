@@ -947,7 +947,7 @@ static void msgHandler( QtMsgType t, const char* str )
 #endif
     if ( t == QtFatalMsg )
 #ifndef Q_OS_TEMP
-#if defined(Q_CC_MSVC)
+#if defined(Q_CC_MSVC) && defined(_DEBUG)
 	_CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, str );
 #else
 	ExitProcess( 1 );

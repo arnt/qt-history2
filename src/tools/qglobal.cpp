@@ -541,7 +541,7 @@ void qFatal( const char *msg, ... )
 #endif
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 	abort();				// trap; generates core dump
-#elif defined(Q_OS_WIN) && defined(Q_CC_MSVC)
+#elif defined(Q_CC_MSVC) && defined(_DEBUG)
 	_CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
 #else
 	exit( 1 );				// goodbye cruel world
@@ -575,7 +575,7 @@ void fatal( const char *msg, ... )
 #endif
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 	abort();				// trap; generates core dump
-#elif defined(Q_OS_WIN) && defined(Q_CC_MSVC)
+#elif defined(Q_CC_MSVC) && defined(_DEBUG)
 	_CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
 #else
 	exit( 1 );				// goodbye cruel world
