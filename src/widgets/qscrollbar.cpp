@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#64 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#64 $");
 
 
 /*!
@@ -116,7 +116,7 @@ static const int repeatTime	= 100;
 #define HORIZONTAL	(orientation() == Horizontal)
 #define VERTICAL	!HORIZONTAL
 #define MOTIF_BORDER	2
-#define SLIDER_MIN	6
+#define SLIDER_MIN	12 // ### motif says 6 but that's too small
 
 
 /*!
