@@ -68,6 +68,19 @@ bool qt_file_access( const QString& fn, int t )
     } );
 }
 
+bool isValidFile( const QString& fileName )
+{
+    // Only : needs to be checked for, other invalid characters
+    // are currently checked by fopen()
+    int findColon = fileName.findRev( ':' );
+    if ( findColon == -1 )
+	return TRUE;
+    else if ( findColon != 1 )
+	return FALSE;
+    else
+	return fileName[0].isLetter();
+}
+
 bool QFile::remove( const QString &fileName )
 {
     if ( fileName.isEmpty() ) {
@@ -107,6 +120,11 @@ bool QFile::open( int m )
 #endif
 	return FALSE;
     }
+    if ( !isValidFile( fn ) ) {
+	qWarning( "QFile::open: Invalid filename specified" );
+	return FALSE;
+    }
+
     bool ok = TRUE;
     if ( isRaw() ) {				// raw file I/O
 	int oflags = QT_OPEN_RDONLY;
