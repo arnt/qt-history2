@@ -136,6 +136,8 @@ QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )
 	    ((QComboBox *) w)->insertItem( "True" );
 	    break;
 	case QVariant::UInt:
+	    w = new QSpinBox( 0, 999999, 1, parent );
+	    break;
 	case QVariant::Int:
 	    w = new QSpinBox( -999999, 999999, 1, parent );
 	    break;
