@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#48 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#49 $
 **
 ** Implementation of QFontDialog
 **
@@ -702,21 +702,25 @@ void QFontDialog::setFont( const QFont &f )
 	    break;
 	}
 	if ( s.contains('-') ) {
-	    i = s.find('-');
-	    if ( famNam == s.right( s.length() - i - 1 ) ) {
-		familyHighlighted( i );
+	    int j = s.find('-');
+	    if ( famNam == s.right( s.length() - j - 1 ) ) {
+		d->familyList->setCurrentItem( i );
 		i = -1;
 		break;
 	    }
 	}
 	i++;
     }
-    if ( i == -1 )
-	return;
 
     QString styleString = d->fdb.styleString( f );
-    if ( !styleString.isEmpty() )
-	styleHighlighted( styleString );
+    if ( !styleString.isEmpty() && d->styleList->count() != 0 ) {
+	for ( i = 0 ; i < (int)d->styleList->count() ; i++ ) {
+	    if ( styleString == d->styleList->text(i) ) {
+		d->styleList->setCurrentItem( i );
+		break;
+	    }
+	}
+    }
 
     if ( d->sizeList->count() != 0 ) {
 	int pSize = f.pointSize();
@@ -727,28 +731,6 @@ void QFontDialog::setFont( const QFont &f )
 	}
 	d->sizeList->setCurrentItem( i );
     }
-
-
-    (void)f.pointSize(); // #### Was this needed Eiriken?
-#if 0
-    int a = f.pointSize();
-    a = a;
-    // ### Quick hack
-    QFontCharSet charSet = d->family.charSet( f.charSet() );
-    if ( charSet.isNull() )
-	return;
-    d->charSet = charSet;
-    updateStyles();
-
-#if 0
-    QFontStyle style = QFontStyle( f );
-    d->style = style;
-#endif
-
-    QString tmp;
-    tmp.sprintf( "%i", f.pointSize() );
-    d->sizeEdit->setText( tmp );
-#endif
 }
 
 QFont QFontDialog::font() const
