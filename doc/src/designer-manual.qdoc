@@ -13,29 +13,6 @@ Components created with \QD can also take advantage of Qt's
 signals and slots, and they can be previewed so that you can ensure
 that they will look and feel exactly as you intended.
 
-\omit
-\list
-\i \l{designer-getting-started.html}{Getting Started}
-  \list
-  \i \l{designer-getting-started.html#LaunchingDesigner}{Launching Designer}
-  \i \l{designer-getting-started.html#TheUserInterface}{The User Interface}
-  \endlist
-\i \l{designer-designing-a-component.html}{Designing a Component}
-  \list
-  \i \l{designer-designing-a-component.html#CreatingADialog}{Creating a Dialog}
-  \i \l{designer-designing-a-component.html#ComposingTheDialog}{Composing The Dialog}
-  \i \l{designer-designing-a-component.html#CreatingALayout}{Creating a Layout}
-  \i \l{designer-designing-a-component.html#SignalAndSlotConnections}{Signal and Slot Connections}
-  \endlist
-\i \l{designer-using-a-component.html}{Using a Component In Your Application}
-  \list
-  \i \l{designer-using-a-component.html#ASimpleCase}{A Simple Case}
-  \i \l{designer-using-a-component.html#UsingAPrivateInterface}{Using A Private Interface}
-  \i \l{designer-using-a-component.html#SubclassingAForm}{Subclassing a Form}
-  \endlist
-\endlist
-\endomit
-
 \section1 Contents
 
 \list
@@ -114,25 +91,29 @@ that they will look and feel exactly as you intended.
    \endraw
    \i
    \raw HTML
-   <a href="designer-editing-mode.html#sec.4">Layouts</a>
+   <a href="designer-editing-mode.html#sec.4">The Object Inspector</a>
+   \endraw
+   \i
+   \raw HTML
+   <a href="designer-editing-mode.html#sec.5">Layouts</a>
    \endraw
   \list
     \i
     \raw HTML
-    <a href="designer-editing-mode.html#sec.4.1">Applying and Breaking Layouts</a>
+    <a href="designer-editing-mode.html#sec.5.1">Applying and Breaking Layouts</a>
     \endraw
     \i
     \raw HTML
-    <a href="designer-editing-mode.html#sec.4.2">Horizontal and Vertical Layouts</a>
+    <a href="designer-editing-mode.html#sec.5.2">Horizontal and Vertical Layouts</a>
     \endraw
     \i
     \raw HTML
-    <a href="designer-editing-mode.html#sec.4.3">The Grid Layout</a>
+    <a href="designer-editing-mode.html#sec.5.3">The Grid Layout</a>
     \endraw
   \endlist
    \i
    \raw HTML
-   <a href="designer-editing-mode.html#sec.5">Previewing Forms</a>
+   <a href="designer-editing-mode.html#sec.6">Previewing Forms</a>
    \endraw
  \endlist
 \i \l{designer-using-containers.html}{Using Containers}
@@ -184,6 +165,10 @@ that they will look and feel exactly as you intended.
 \endraw
 \i
 \raw HTML
+<b><a href="designer-getting-started.html#sec.2"><i>Qt Designer</i>'s toolbox</a></b>
+\endraw
+\i
+\raw HTML
 <b><a href="designer-designing-a-component.html#sec.1">Choosing a form</a></b>
 \endraw
 \i
@@ -224,7 +209,11 @@ that they will look and feel exactly as you intended.
 \endraw
 \i
 \raw HTML
-<b><a href="designer-editing-mode.html#sec.4.1">Inserting objects into a layout</a></b>
+<b><a href="designer-editing-mode.html#sec.4">Editing properties</a></b>
+\endraw
+\i
+\raw HTML
+<b><a href="designer-editing-mode.html#sec.5.1">Inserting objects into a layout</a></b>
 \endraw
 \i
 \raw HTML
@@ -302,17 +291,32 @@ also be accessed via the menu bar.
 The tool bar displays common actions that are used when editing a form.
 These are also available via the main menu.
 
-The toolbox provides common widgets that are used to design components.
-The toolbox contains groups of widgets in different categories.
-\omit
-It can also be extended to support user-defined categories.
-\endomit
+The toolbox provides common widgets and layouts that are used to design
+components. These are grouped into categories that reflect their uses or
+features.
 \endtable
 
 Most features of \QD are accessible via the menu bar, the tool bar, or the
 toolbox. Some features are also available through context menus that can
 opened over the form windows. On most platforms, the right mouse button is
 used to open context menus.
+
+\table
+\row
+\i \inlineimage designer-toolbox.png
+\i \bold{\QD's toolbox}
+
+The toolbox provides a selection of standard Qt widgets, layouts, and other
+objects that can be used to create user interfaces on forms. Each of the
+categories in the toolbox contains widgets that have similar uses, or that
+provide related features.
+
+You can display all of the available objects in a category by clicking on
+the "+" handle next to the category label. When in
+\l{designer-editing-mode.html}{Form Editing Mode}, you can add objects to a
+form by dragging the appropriate items from the toolbox onto the form, and
+dropping them in the required locations.
+\endtable
 
 */
 
@@ -961,6 +965,27 @@ The Property Editor uses standard Qt input widgets to manage the properties
 of objects on the form. Textual properties are shown in line edits,
 integer properties are displayed in spinboxes, and compound properties such
 as colors and sizes are presented in drop-down lists of input widgets.
+\endtable
+
+\target TheObjectInspector
+\section1 The Object Inspector
+
+The Object Inspector shows an up-to-date hierarchical list of the objects
+(widgets, layouts, spacers, and other objects) on the form that is currently
+being edited.
+
+\table
+\row \i 
+\inlineimage designer-object-inspector.png
+\i \bold{Editing properties}
+
+The Object Inspector displays a hierarchical list of all the objects on the
+form that is currently being edited. To show the child objects of a container
+widget or a layout, click the "+" handle next to the object label.
+
+Each object on a form can be selected by double clicking on the corresponding
+item in the Object Inspector. This feature can be useful if you have many
+overlapping objects.
 \endtable
 
 \target Layouts
