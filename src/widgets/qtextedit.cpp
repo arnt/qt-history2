@@ -3724,6 +3724,7 @@ void QTextEdit::setWrapColumnOrWidth( int value )
     wrapWidth = value;
     if ( wrapMode == FixedColumnWidth ) {
 	document()->formatter()->setWrapAtColumn( wrapWidth );
+	doc->setWidth( visibleWidth() );
     } else {
 	document()->formatter()->setWrapAtColumn( -1 );
 	resizeContents( wrapWidth, contentsHeight() );
