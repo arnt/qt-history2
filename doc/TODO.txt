@@ -301,6 +301,9 @@ QGLFormat / QGL module
 QApplication
   Be able to query for the current state of certain keys
 
+QString
+  Have a constructor that takes a char
+
 New functionality
 -----------------
 
