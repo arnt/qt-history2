@@ -282,22 +282,16 @@ QString QTextDocument::anchorAt(const QPoint& pos) const
 /*!
     \overload
 
-    Finds the next occurrence of the string, \a expr, in all words, starting 
-    at position \a from. Returns a cursor with the match selected if \a
+    Finds the next occurrence of the string, \a expr, starting at
+    position \a from. Returns a cursor with the match selected if \a
     expr was found; otherwise returns a null cursor.
 
     If \a from is 0 (the default) the search begins from the beginning
     of the document; otherwise from the specified position.
 
-    If in \a flags CaseSensitive is not set, words independent from their case
-    will be searched on.
-
-    If in \a flags BeginsWith is set, all words starting with \a expr are matched.
-    If in \a flags EndsWith is set, all words ending with \a expr are matched.
-    If in \a flags ExactMatch is set only words exactly matching \a expr are matched.
-    If in \a flags Contains is set then any occurrence of \a expr in the text is matched.
-
-    The default for \a flags is to search case sensitive for any occurrence of \a expr .
+    The comparison is made in accordance with the
+    \l{Qt::StringComparisonFlags}, \a flags. By default the search is
+    case-sensitive, and can match anywhere.
 */
 QTextCursor QTextDocument::find(const QString &expr, int from, StringComparison flags) const
 {
