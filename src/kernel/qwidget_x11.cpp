@@ -488,6 +488,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     bool accept_drops = acceptDrops();
     if ( accept_drops )
 	setAcceptDrops( FALSE ); // dnd unregister (we will register again below)
+    if ( isTopLevel() )
+	topData()->dnd = 0; // unregister XDND atom
 
     QWidget* oldtlw = topLevelWidget();
     WId old_winid = winid;
