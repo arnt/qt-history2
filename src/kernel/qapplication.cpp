@@ -1753,13 +1753,19 @@ void QApplication::sendPostedEvents()
 }
 
 
+
+/*##############
+
+  The following was in the documentation. The code did not implement it.
+  
+  If \a receiver is 0, all objects get their events.  If \a event_type is
+  0, all types of events are dispatched.
+
+*/
 /*!
   Immediately dispatches all events which have been previously enqueued
   with QApplication::postEvent() and which are for the object \a receiver
   and have the \a event_type.
-
-  If \a receiver is 0, all objects get their events.  If \a event_type is
-  0, all types of events are dispatched.
 
   Some event compression may occur.  Note that events from the
   window system are \e not dispatched by this function.
