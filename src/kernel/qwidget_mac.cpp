@@ -147,21 +147,6 @@ QPoint posInWindow(QWidget *w)
     return QPoint(x, y);
 }
 
-bool qt_mac_update_sizer(QWidget *w, int up=0)
-{
-    if(!w || !w->isTopLevel())
-	return false;
-    w->d->createTLExtra();
-    w->d->topData()->resizer += up;
-    if(w->d->topData()->resizer ||
-       (w->d->extraData()->maxw && w->d->extraData()->maxh && w->d->extraData()->maxw == w->d->extraData()->minw &&
-	w->d->extraData()->maxh == w->d->extraData()->minh))
-	ChangeWindowAttributes((WindowRef)w->handle(), 0, kWindowResizableAttribute);
-    else
-	ChangeWindowAttributes((WindowRef)w->handle(), kWindowResizableAttribute, 0);
-    return true;
-}
-
 static inline const Rect *mac_rect(const QRect &qr)
 {
     static Rect r;
@@ -226,6 +211,12 @@ static inline bool qt_dirty_wndw_rgn_internal(const QWidget *p, const Rect *r, b
     }
     return true;
 }
+inline bool qt_dirty_wndw_rgn_internal(const QWidget *p, const QRect &r, bool clean=false)
+{
+    if(qApp->closingDown() || r.isNull())
+	return true;
+    return qt_dirty_wndw_rgn_internal(p, mac_rect(r), clean);
+}
 inline bool qt_dirty_wndw_rgn_internal(const QWidget *p, const QRegion &r, bool clean=false)
 {
     if(qApp->closingDown())
@@ -233,12 +224,39 @@ inline bool qt_dirty_wndw_rgn_internal(const QWidget *p, const QRegion &r, bool 
     else if(r.isEmpty())
 	return false;
     else if(!r.handle())
-	return qt_dirty_wndw_rgn_internal(p, mac_rect(r.boundingRect()), clean);
+	return qt_dirty_wndw_rgn_internal(p, r.boundingRect(), clean);
     if(clean) {
 	ValidWindowRgn((WindowPtr)p->handle(), r.handle());
     } else {
 	InvalWindowRgn((WindowPtr)p->handle(), r.handle());
 	qt_event_request_updates();
+    }
+    return true;
+}
+
+bool qt_mac_update_sizer(QWidget *w, int up=0)
+{
+    if(!w || !w->isTopLevel())
+	return false;
+    w->d->createTLExtra();
+    w->d->extra->topextra->resizer += up;
+    
+    bool remove_grip = (w->d->extra->topextra->resizer ||
+			(w->d->extra->maxw && w->d->extra->maxh && w->d->extra->maxw == w->d->extra->minw && w->d->extra->maxh == w->d->extra->minh));
+    WindowAttributes attr;
+    GetWindowAttributes((WindowRef)w->handle(), &attr);
+    if(remove_grip) {
+	if(attr & kWindowResizableAttribute) {
+	    ChangeWindowAttributes((WindowRef)w->handle(), 0, kWindowResizableAttribute);
+	    w->dirtyClippedRegion(true);
+	    ReshapeCustomWindow((WindowPtr)w->handle());
+	    qt_dirty_wndw_rgn("Remove size grip", w, w->rect()); 
+	}
+    } else if(!(attr & kWindowResizableAttribute)) {
+	ChangeWindowAttributes((WindowRef)w->handle(), kWindowResizableAttribute, 0);
+	w->dirtyClippedRegion(true);
+	ReshapeCustomWindow((WindowPtr)w->handle());
+	qt_dirty_wndw_rgn("Add size grip", w, w->rect()); 
     }
     return true;
 }
@@ -2500,6 +2518,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 	/*Remove window decorations from the top level window, specifically this
 	  means the GrowRgn*/
 	if(isTopLevel()) {
+#if 0
 	    QRegion contents;
 	    RgnHandle r = qt_mac_get_rgn();
 	    GetWindowRegion((WindowPtr)hd, kWindowContentRgn, r);
@@ -2509,6 +2528,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 	    }
 	    qt_mac_dispose_rgn(r);
 	    extra->clip_sibs &= contents;
+#endif
 	} else if(parentWidget()) { //clip to parent
 	    extra->clip_sibs &= parentWidget()->clippedRegion(false);
 	}
