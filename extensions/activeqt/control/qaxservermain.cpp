@@ -347,7 +347,7 @@ static QString convertTypes( const QString &qtype, bool *ok )
     }
     if ( enums && enums->contains( qtype ) ) {
 	*ok = TRUE;
-	return "Enum" + qtype;
+	return "enum " + qtype;
     }
     return qtype;
 }
@@ -617,7 +617,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 
 	    enums->append( enumerator );
 	    
-	    out << "\ttypedef enum " << enumerator << " {" << endl;
+	    out << "\tenum " << enumerator << " {" << endl;
 
 	    for ( uint j = 0; j < mEnum->count; ++j ) {
 		QString key = mEnum->items[j].key;
@@ -631,7 +631,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		    out << ", ";
 		out << endl;
 	    }
-	    out << "\t} Enum" << enumerator << ";" << endl << endl;
+	    out << "\t};" << endl << endl;
 	}
 #endif
 
