@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.cpp#3 $
+** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.cpp#4 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -174,12 +174,9 @@ QStringList QTMainWindow::getMessages( const QString &filename, const QString &s
     QStringList lst;
     while ( !s.atEnd() ) {
         line = s.readLine();
-        if ( line.left( 5 ) == "msgid" ) {
-            int start = line.find( "::" );
-            int end = line.find( '\"', start );
-            if ( start < end && start != -1 && end != -1 &&
-                 line.contains( scope ) )
-                lst.append( line.mid( start + 2, end - start - 2 ) );
+        if ( line.left( 5 ) == "msgid" && line.contains( scope ) ) {
+            QString msgid = getMessageID( s, line );
+            lst.append( msgid );
         }
     }
 
@@ -203,20 +200,12 @@ QMap< QString, QString > QTMainWindow::getTranslatedMessages( const QString &fil
     QMap< QString, QString > map;
     while ( !s.atEnd() ) {
         line = s.readLine();
-        if ( line.left( 5 ) == "msgid" ) {
-            int start = line.find( "::" );
-            int end = line.find( '\"', start );
-            if ( start < end && start != -1 && end != -1 &&
-                 line.contains( scope ) ) {
-                QString msg = line.mid( start + 2, end - start - 2 );
-                line = QString::null;
-                while ( line.left( 6 ) != "msgstr" )
-                    line = s.readLine();
-                start = line.find( '\"' );
-                end = line.find( '\"', start + 1 );
-                if ( start < end && start != -1 && end != -1 )
-                    map.insert( msg, line.mid( start + 1, end - start - 1 ) );
-            }
+        if ( line.left( 5 ) == "msgid" && line.contains( scope ) ) {
+            QString msgid = getMessageID( s, line );
+            while ( line.left( 6 ) != "msgstr" )
+                line = s.readLine();
+            QString msgstr = getMessageStr( s, line );
+            map.insert( msgid, msgstr );
         }
     }
 
@@ -250,31 +239,31 @@ void QTMainWindow::saveMessages( const QString &filename, int col, const QString
 
     QStringList out;
     QString line;
+    bool justSaved = FALSE;
     while ( !s.atEnd() ) {
         line = s.readLine();
-        if ( line.left( 5 ) == "msgid" ) {
+        if ( line.left( 5 ) == "msgid" && line.contains( scope ) ) {
+            justSaved = FALSE;
             out.append( line );
-            if ( line.contains( scope ) ) {
-                int start = line.find( "::" );
-                int end = line.find( '\"', start );
-                if ( start < end && start != -1 && end != -1 ) {
-                    QString msg = line.mid( start + 2, end - start - 2 );
-                    QString t;
-                    if ( findTranslation( msg, t, col ) ) {
-                        line = QString::null;
-                        while ( line.left( 6 ) != "msgstr" ) {
-                            if ( !line.isEmpty() )
-                                out.append( line );
-                            line = s.readLine();
-                        }
-                        line = "msgstr \"";
-                        line += t + "\"";
+            QString msgid = getMessageID( s, line, out );
+            QString t;
+            if ( findTranslation( msgid, t, col ) ) {
+                while ( line.left( 6 ) != "msgstr" ) {
+                    line = s.readLine();
+                    if ( !line.isEmpty() )
                         out.append( line );
-                    }
                 }
+                line = "msgstr \"";
+                line += t + "\"";
+                out.append( line );
+                justSaved = TRUE;
             }
-        } else
-            out.append( line );
+        } else {
+            if ( !justSaved || justSaved && line.stripWhiteSpace()[ 0 ] != '\"' ) {
+                out.append( line );
+                justSaved = FALSE;
+            }
+        }
     }
 
     f.close();
@@ -554,7 +543,7 @@ void QTMainWindow::setupMessageList()
 bool QTMainWindow::configsOk()
 {
     bool src = FALSE, ext = FALSE, tdir = FALSE;
-    
+
     if ( preferences->sources.directories.count() > 0 ) {
         src = TRUE;
         QStringList::Iterator it = preferences->sources.directories.begin();
@@ -566,28 +555,84 @@ bool QTMainWindow::configsOk()
         ext = TRUE;
     if ( QFileInfo( preferences->translation.directory ).exists() )
         tdir = TRUE;
-    
+
     bool ok = src && ext && tdir;
     bool openPrefs = FALSE;
-    
+
     if ( !src )
-        openPrefs = QMessageBox::warning( this, tr( "Error"), 
+        openPrefs = QMessageBox::warning( this, tr( "Error"),
                                           tr( "You have specified no Source Directories or one\n"
                                               "or some of them doesn't exist. Do you want to correct\n"
                                               "this now?" ), tr( "&Yes" ), tr( "&No" ) ) == 0;
     else if ( !ext )
-        openPrefs = QMessageBox::warning( this, tr( "Error"), 
+        openPrefs = QMessageBox::warning( this, tr( "Error"),
                                           tr( "You have not specified Extensions of Source files which\n"
-                                              "should get translated. Do you want to correct this now?" ), 
+                                              "should get translated. Do you want to correct this now?" ),
                                           tr( "&Yes" ), tr( "&No" ) ) == 0;
     else if ( !tdir )
-        openPrefs = QMessageBox::warning( this, tr( "Error"), 
+        openPrefs = QMessageBox::warning( this, tr( "Error"),
                                           tr( "You have specified the directory in which the Translations\n"
-                                              "should be stored.. Do you want to correct this now?" ), 
+                                              "should be stored.. Do you want to correct this now?" ),
                                           tr( "&Yes" ), tr( "&No" ) ) == 0;
 
     if ( openPrefs )
         editPreferences();
-    
+
     return ok;
 }
+
+QString QTMainWindow::parseItem( QTextStream &t, QString &line, QString type, QStringList *lst )
+{
+    QString item;
+    
+    QString tmp;
+    if ( line.left( type.length() ) == type ) {
+        int start = line.find( '\"' );
+        int end = line.findRev( '\"', line.length() - 1 );
+        item = line.mid( start + 1, end - start - 1 );
+        
+        
+        line = t.readLine();
+        if ( lst && line.left( 6 ) != "msgstr" && 
+             line.left( 5 ) != "msgid" ) 
+            lst->append( line );
+        tmp = line.stripWhiteSpace();
+        while ( tmp[ 0 ] == '\"' ) {
+            start = line.find( '\"' );
+            end = line.findRev( '\"', line.length() - 1 );
+            item += line.mid( start + 1, end - start - 1 );
+            
+            line = t.readLine();
+            if ( lst && line.left( 6 ) != "msgstr" && 
+                 line.left( 5 ) != "msgid" ) 
+                lst->append( line );
+            tmp = line.stripWhiteSpace();
+        }
+    }
+
+    return item;
+}
+
+QString QTMainWindow::getMessageID( QTextStream &t, QString &line )
+{
+    QString msgid = parseItem( t, line, "msgid" );
+    int cc = msgid.find( "::" );
+    msgid.remove( 0, cc + 2 );
+    
+    return msgid;
+}
+
+QString QTMainWindow::getMessageID( QTextStream &t, QString &line, QStringList &out )
+{
+    QString msgid = parseItem( t, line, "msgid", &out );
+    int cc = msgid.find( "::" );
+    msgid.remove( 0, cc + 2 );
+    
+    return msgid;
+}
+
+QString QTMainWindow::getMessageStr( QTextStream &t, QString &line )
+{
+    return parseItem( t, line, "msgstr" );
+}
+

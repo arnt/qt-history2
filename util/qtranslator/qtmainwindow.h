@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.h#2 $
+** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.h#3 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -15,6 +15,7 @@
 #include <qstring.h>
 #include <qmap.h>
 #include <qstringlist.h>
+#include <qtextstream.h>
 
 class QTPreferences;
 class QTMessageView;
@@ -67,7 +68,11 @@ protected slots:
     void addNewLanguage( const QString &lang );
     void setupMessageList();
     bool configsOk();
-
+    QString getMessageID( QTextStream &t, QString &line );
+    QString getMessageID( QTextStream &t, QString &line, QStringList &out );
+    QString getMessageStr( QTextStream &t, QString &line );
+    QString parseItem( QTextStream &t, QString &line, QString type, QStringList *lst = 0L );
+    
 };
 
 #endif
