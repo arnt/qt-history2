@@ -128,6 +128,13 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "MOVE     = " << var("QMAKE_MOVE") << endl;
     t << endl;
 
+    t << "####### Output directory" << endl << endl;
+    if (! project->variables()["OBJECTS_DIR"].isEmpty())
+	t << "OBJECTS_DIR = " << var("OBJECTS_DIR") << endl;
+    else
+	t << "OBJECTS_DIR = ./" << endl;
+    t << endl;
+
     /* files */
     t << "####### Files" << endl << endl;
     t << "HEADERS = " << varList("HEADERS") << endl;
