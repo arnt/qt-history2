@@ -12,9 +12,9 @@
 **
 ****************************************************************************/
 
-/*! \page sql-intro.html
+/*! \page sql.html
 
-    \title Introduction to the SQL Module
+    \title SQL Module
 
     \table
     \row \o QSql \o QSqlDatabase \o QSqlDriver \o QSqlDriverCreator
@@ -517,7 +517,7 @@
 
     The \c{sql/relationaltablemodel} example illustrates how to use
     QSqlRelationalTableModel in conjunction with
-    QSqlRelationalDelegate to provide tables with foreigh key
+    QSqlRelationalDelegate to provide tables with foreign key
     support.
 
     \omit

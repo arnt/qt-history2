@@ -3,8 +3,6 @@
 
 \title Rich Text Processing
 
-\section1 Overview
-
 The Scribe framework provides a set of classes for reading and manipulating
 structured textual documents. Unlike previous rich text support in Qt, the
 new classes are centered around the \c QTextDocument class rather than raw
@@ -44,8 +42,6 @@ See also the list of \l{text.html}{Text Related Classes}.
 \title Rich Text Document Structure
 
 \tableofcontents
-
-\section1 Overview
 
 The structured representation of a text document presents its contents as
 a hierarchy of text blocks, frames, tables, and other objects. These provide
@@ -299,8 +295,6 @@ external images via the resource mechanism
 \title The QTextCursor Interface
 
 \tableofcontents
-
-\section1 Overview
 
 The QTextCursor interface allows documents and their structure to be
 edited in a way that should be familiar to most users of text editors and

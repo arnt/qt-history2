@@ -2,16 +2,6 @@
     \page bughowto.html
     \title How to Report a Bug
 
-    \if defined(beta)
-    Trolltech has set up a special mailing list, \c qt4-preview-feedback, for
-    discussion of issues relating to the Qt 4 beta releases. To subscribe, send
-    a message containing just the word "subscribe" (without the quotes) to
-    \l{mailto:qt4-preview-feedback-request@trolltech.com}{qt4-preview-feedback-request@trolltech.com}.
-    We encourage you to use this mailing list instead of \c qt-interest for Qt 4-specific issues.
-    See \l http://lists.trolltech.com/ for more information on Trolltech's
-    mailing lists, including archived discussions.
-    \endif
-
     If you think you have found a bug in Qt, we would like to hear
     about it so that we can fix it.
 
@@ -34,6 +24,18 @@
     such a program can be created with some minor changes to one
     of the many example programs in the \c{qt/examples} directory.
 
+    \if defined(beta)
+    Trolltech has set up a special mailing list, \c qt4-preview-feedback, for
+    discussion of issues relating to the Qt 4 beta releases. To subscribe, send
+    a message containing just the word "subscribe" (without the quotes) to
+    \l{mailto:qt4-preview-feedback-request@trolltech.com}{qt4-preview-feedback-request@trolltech.com}.
+    We encourage you to use this mailing list instead of \c qt-interest for Qt 4-specific issues.
+    See \l http://lists.trolltech.com/ for more information on Trolltech's
+    mailing lists, including archived discussions.
+    \endif
+
+    \if !defined(beta)
     Please send the bug report to
     \link mailto:qt-bugs@trolltech.com qt-bugs@trolltech.com\endlink.
+    \endif
 */

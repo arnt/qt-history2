@@ -81,8 +81,8 @@
     commands based on the result of a previous command. It also
     enables you to provide detailed feedback to the user.
 
-    The network/http and network/ftp examples illustrate how to write
-    an HTTP and an FTP client.
+    The \c network/http and \c network/ftp examples illustrate how to
+    write an HTTP and an FTP client.
 
     Writing your own HTTP or FTP server is possible using the
     lower-level classes QTcpSocket and QTcpServer.
@@ -152,11 +152,12 @@
     socket, and QTcpSocket::waitForReadyRead() to get the
     QTcpSocket::readyRead() signal.
 
-    The network/fortuneclient and network/fortuneserver examples show
-    how to use QTcpSocket and QTcpServer to write TCP client-server
-    applications. See also network/blockingfortuneclient for an
-    example on how to use a synchronous QTcpSocket in a separate
-    thread, without using an event loop.
+    The \c network/fortuneclient and \c network/fortuneserver
+    examples show how to use QTcpSocket and QTcpServer to write TCP
+    client-server applications. See also \c
+    network/blockingfortuneclient for an example on how to use a
+    synchronous QTcpSocket in a separate thread, without using an
+    event loop.
 
     \section1 Using UDP with QUdpSocket
 
@@ -195,30 +196,30 @@
     \l{QUdpSocket::readyRead()}{readyRead()} signal. Call
     QUdpSocket::readDatagram() to read the datagram.
 
-    The network/broadcastsender and network/broadcastreceiver
+    The \c network/broadcastsender and \c network/broadcastreceiver
     examples show how to write a UDP sender and a UDP receiver using
     Qt.
 
-    \section1 Resolving Host Names with QDns
+    \section1 Resolving Host Names using QDns
 
     Before establishing a network connection, QTcpSocket and
-    QUdpSocket perform a name lookup, translating the host name you're
-    connecting to into an IP address. This operation is known as a DNS
-    (Domain Name Service) lookup.
+    QUdpSocket perform a name lookup, translating the host name
+    you're connecting to into an IP address. This operation is known
+    as a DNS (Domain Name Service) lookup.
 
     QDns provides a static function that lets you perform such a
     lookup yourself. By passing a host name to QDns::getHostByName()
-    together with a QObject pointer and a slot signature, QDns will
-    perform the name lookup and invoke the given slot when the results
-    are ready. The actual lookup is done in a separate thread, making
-    use of the operating system's own methods for performing name
+    with a QObject pointer and a slot signature, QDns will perform
+    the name lookup and invoke the given slot when the results are
+    ready. The actual lookup is done in a separate thread, making use
+    of the operating system's own methods for performing name
     lookups.
 
-    QDns also provides an overload of the same function that takes
-    only the host name as argument, and returns the results
-    immediately.  The name lookup is then performed in the same thread
-    as the caller. The overloaded function is useful for non-GUI
-    applications or for doing name lookups in a separate, non-GUI
-    thread. Calling this function in a GUI thread may cause your user
-    interface to freeze.
+    QDns also provides an overload of the function that takes the
+    host name as argument and returns the results. In this case, the
+    name lookup is performed in the same thread as the caller. This
+    overload is useful for non-GUI applications or for doing name
+    lookups in a separate, non-GUI thread. Calling this function in a
+    GUI thread may cause your user interface to freeze while the
+    function performs the lookup.
 */

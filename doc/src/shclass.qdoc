@@ -13,162 +13,185 @@
 ****************************************************************************/
 
 /*!
-\page shclass.html
+    \page shclass.html
 
-\title Shared Classes
+    \title Implicit Data Sharing
 
-\keyword implicit sharing
-\keyword implicitly shared
-\keyword reference counting
-\keyword shared implicitly
+    \keyword implicit sharing
+    \keyword implicitly shared
+    \keyword reference counting
+    \keyword shared implicitly
 
-Many C++ classes in Qt use implicit data sharing to maximize resource
-usage and minimize copying of data.
+    Many C++ classes in Qt use implicit data sharing to maximize resource
+    usage and minimize copying of data.
 
-\tableofcontents
+    \tableofcontents
 
-\section1 Overview
+    \section1 Overview
 
-A shared class consists of a pointer to a shared data block that
-contains a reference count and the data.
+    A shared class consists of a pointer to a shared data block that
+    contains a reference count and the data.
 
-When a shared object is created, it sets the reference count to 1. The
-reference count is incremented whenever a new object references the
-shared data, and decremented when the object dereferences the shared
-data. The shared data is deleted when the reference count becomes
-zero.
+    When a shared object is created, it sets the reference count to 1. The
+    reference count is incremented whenever a new object references the
+    shared data, and decremented when the object dereferences the shared
+    data. The shared data is deleted when the reference count becomes
+    zero.
 
-\keyword deep copy
-\keyword shallow copy
+    \keyword deep copy
+    \keyword shallow copy
 
-When dealing with shared objects, there are two ways of copying an
-object. We usually speak about \e deep and \e shallow copies. A deep
-copy implies duplicating an object. A shallow copy is a reference
-copy, i.e. just a pointer to a shared data block. Making a deep copy
-can be expensive in terms of memory and CPU. Making a shallow copy is
-very fast, because it only involves setting a pointer and incrementing
-the reference count.
+    When dealing with shared objects, there are two ways of copying an
+    object. We usually speak about \e deep and \e shallow copies. A deep
+    copy implies duplicating an object. A shallow copy is a reference
+    copy, i.e. just a pointer to a shared data block. Making a deep copy
+    can be expensive in terms of memory and CPU. Making a shallow copy is
+    very fast, because it only involves setting a pointer and incrementing
+    the reference count.
 
-Object assignment (with operator=()) for implicitly shared objects is
-implemented using shallow copies.
+    Object assignment (with operator=()) for implicitly shared objects is
+    implemented using shallow copies.
 
-The benefit of sharing is that a program does not need to duplicate
-data unnecessarily, which results in lower memory use and less copying
-of data. Objects can easily be assigned, sent as function arguments,
-and returned from functions.
+    The benefit of sharing is that a program does not need to duplicate
+    data unnecessarily, which results in lower memory use and less copying
+    of data. Objects can easily be assigned, sent as function arguments,
+    and returned from functions.
 
-Implicit sharing takes place behind the scenes; the programmer does
-not need to worry about it.
+    Implicit sharing takes place behind the scenes; the programmer does
+    not need to worry about it.
 
-\section1 Implicit Sharing in Detail
+    \section1 Implicit Sharing in Detail
 
-Implicit sharing automatically detaches the object from a shared block
-if the object is about to change and the reference count is greater
-than one. (This is often called "copy-on-write".) Explicit sharing
-leaves this job to the programmer. If an explicitly shared object is
-not detached, changing an object will change all other objects that
-refer to the same data.
+    Implicit sharing automatically detaches the object from a shared block
+    if the object is about to change and the reference count is greater
+    than one. (This is often called "copy-on-write".) Explicit sharing
+    leaves this job to the programmer. If an explicitly shared object is
+    not detached, changing an object will change all other objects that
+    refer to the same data.
 
-Implicit sharing optimizes memory use and copying of data without
-this side effect. So why didn't we implement implicit sharing for all
-shared classes? The answer is that a class that allows direct access
-to its internal data (for efficiency reasons), like QByteArray, cannot
-be implicitly shared, because it can be changed without letting
-QByteArray know.
+    Implicit sharing optimizes memory use and copying of data without
+    this side effect. So why didn't we implement implicit sharing for all
+    shared classes? The answer is that a class that allows direct access
+    to its internal data (for efficiency reasons), like QByteArray, cannot
+    be implicitly shared, because it can be changed without letting
+    QByteArray know.
 
-An implicitly shared class has total control of its internal data. In
-any member functions that modify its data, it automatically detaches
-before modifying the data.
+    An implicitly shared class has total control of its internal data. In
+    any member functions that modify its data, it automatically detaches
+    before modifying the data.
 
-The QPen class, which uses implicit sharing, detaches from the shared
-data in all member functions that change the internal data.
+    The QPen class, which uses implicit sharing, detaches from the shared
+    data in all member functions that change the internal data.
 
-Code fragment:
-\code
-    void QPen::setStyle( PenStyle s )
-    {
-	detach();        // detach from common data
-	data->style = s; // set the style member
-    }
+    Code fragment:
+    \code
+        void QPen::setStyle( PenStyle s )
+        {
+	    detach();        // detach from common data
+	    data->style = s; // set the style member
+        }
 
-    void QPen::detach()
-    {
-	if ( data->count != 1 ) // only if >1 reference
-	    *this = copy();
-    }
-\endcode
+        void QPen::detach()
+        {
+	    if ( data->count != 1 ) // only if >1 reference
+	        *this = copy();
+        }
+    \endcode
 
-This is clearly not possible for QByteArray, because the programmer
-can do the following:
+    This is clearly not possible for QByteArray, because the programmer
+    can do the following:
 
-\code
-    QByteArray array( 10 );
-    array.fill( 'a' );
-    array[0] = 'f';        // will modify array
-    array.data()[1] = 'i'; // will modify array
-\endcode
+    \code
+        QByteArray array( 10 );
+        array.fill( 'a' );
+        array[0] = 'f';        // will modify array
+        array.data()[1] = 'i'; // will modify array
+    \endcode
 
-If we monitor changes in a QByteArray, the QByteArray class would
-become unacceptably slow.
+    If we monitor changes in a QByteArray, the QByteArray class would
+    become unacceptably slow.
 
 
-\section1 Implicitly Shared Classes
+    \section1 Implicitly Shared Classes
 
-The Qt classes that are implicitly shared are:
-\list
-\i \l QBitArray
-\i \l QBitmap
-\i \l QBrush
-\i \l QByteArray
-\i \l QCursor
-\i \l QFont
-\i \l QFontInfo
-\i \l QFontMetrics
-\i \l QHash
-\i \l QIcon
-\i \l QImage
-\i \l QLinkedList
-\i \l QList
-\i \l QMap
-\i \l QPalette
-\i \l QPen
-\i \l QPicture
-\i \l QPixmap
-\i \l QPointArray
-\i \l QQueue
-\i \l QRegExp
-\i \l QRegion
-\i \l QStack
-\i \l QString
-\i \l QStringList
-\i \l QVector
-\endlist
+    The Qt classes that are implicitly shared are:
+    \list
+    \o QBitArray
+    \o QBitmap
+    \o QBrush
+    \o QByteArray
+    \o QCoreVariant
+    \o QCursor
+    \o QDir
+    \o QDomImplementation
+    \o QDomNodeList
+    \o QDomNode
+    \o QDomNamedNodeMap
+    \o QFileInfo
+    \o QFont
+    \o QFontInfo
+    \o QFontMetrics
+    \o QFontMetricsF
+    \o QGLColormap
+    \o QHash
+    \o QIcon
+    \o QImage
+    \o QKeySequence
+    \o QLinkedList
+    \o QList
+    \o QLocale
+    \o QMap
+    \o QMovie
+    \o QMultiHash
+    \o QMultiMap
+    \o QPalette
+    \o QPen
+    \o QPicture
+    \o QPixmap
+    \o QPointArray
+    \o QQueue
+    \o QRegExp
+    \o QRegion
+    \o QSqlField
+    \o QSqlQuery
+    \o QSqlRecord
+    \o QStack
+    \o QString
+    \o QStringList
+    \o QTextCursor
+    \o QTextDocumentFragment
+    \o QTextFormat
+    \o QUrl
+    \o QVariant
+    \o QVector
+    \o QX11Info
+    \endlist
 
-These classes automatically detach from common data if an object is
-about to be changed. The programmer will not even notice that the
-objects are shared. Thus you should treat separate instances of them
-as separate objects. They will always behave as separate objects but
-with the added benefit of sharing data whenever possible. For this
-reason, you can pass instances of these classes as arguments to
-functions by value without concern for the copying overhead.
+    These classes automatically detach from common data if an object is
+    about to be changed. The programmer will not even notice that the
+    objects are shared. Thus you should treat separate instances of them
+    as separate objects. They will always behave as separate objects but
+    with the added benefit of sharing data whenever possible. For this
+    reason, you can pass instances of these classes as arguments to
+    functions by value without concern for the copying overhead.
 
-Example:
-\code
-    QPixmap p1, p2;
-    p1.load( "image.bmp" );
-    p2 = p1;			// p1 and p2 share data
-    QPainter paint;
-    paint.begin( &p2 );		// cuts p2 loose from p1
-    paint.drawText( 0,50, "Hi" );
-    paint.end();
-\endcode
+    Example:
+    \code
+        QPixmap p1, p2;
+        p1.load("image.bmp");
+        p2 = p1;			// p1 and p2 share data
 
-In this example, \c p1 and \c p2 share data until QPainter::begin()
-is called for \c p2, because painting a pixmap will modify it. The
-same also happens if anything is bitBlt()'ed into \c p2.
+        QPainter paint;
+        paint.begin(&p2);		// cuts p2 loose from p1
+        paint.drawText(0,50, "Hi");
+        paint.end();
+    \endcode
 
-\warning Do not copy an implicitly shared container (QMap, QVector,
-etc.) while you are iterating over it using an \l{STL-style
-iterator}.
+    In this example, \c p1 and \c p2 share data until QPainter::begin()
+    is called for \c p2, because painting a pixmap will modify it. The
+    same also happens if anything is bitBlt()'ed into \c p2.
 
+    \warning Do not copy an implicitly shared container (QMap, QVector,
+    etc.) while you are iterating over it using an \l{STL-style
+    iterator}.
 */

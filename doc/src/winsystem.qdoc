@@ -12,68 +12,67 @@
 
 /*! \page winsystem.html
 
-\title Window System-specific Notes
+    \title Window System Specific Notes
 
-Qt is a cross-platform GUI toolkit, so almost the entire API is the
-same on all platforms and window systems. If you wish to use
-platform-specific features, and still maintain a platform-independent
-source tree, you should protect the platform-specific code using the
-appropriate \c{#ifdef} statements (see below).
+    Qt is a cross-platform GUI toolkit, so almost the entire API is the
+    same on all platforms and window systems. If you wish to use
+    platform-specific features, and still maintain a platform-independent
+    source tree, you should protect the platform-specific code using the
+    appropriate \c{#ifdef} directives (see below).
 
-\tableofcontents
+    \tableofcontents
 
-For information about which platforms are supported by Qt, see the
-\link http://www.trolltech.com/products/platforms/ Platform
-Notes\endlink. For information on distributing Qt applications, see
-\link distributingqt.html Deploying Qt Applications\endlink.
+    For information about which platforms are supported by Qt, see the
+    \link http://www.trolltech.com/products/platforms/ Platform
+    Notes\endlink. For information on distributing Qt applications, see
+    \link distributingqt.html Deploying Qt Applications\endlink.
 
-\target x11
-\section1 Qt/X11
+    \target x11
+    \section1 Qt/X11
 
-When compiling for this platform, the macro \c{Q_WS_X11} is defined.
+    When compiling for this platform, the macro \c{Q_WS_X11} is defined.
 
-\e{Not documented here. Please contact Trolltech Technical Support
-if you have queries.}
+    \e{Not documented here. Please contact Trolltech Technical Support
+    if you have queries.}
 
-\img dependencies.png Qt/X11 Dependencies
+    \img dependencies.png Qt/X11 Dependencies
 
-Note: You must compile with \e both Xft and XRender support to get
-alpha transparency support for pixmaps and images.  Configuring with
-XRender support alone is not enough.
+    Note: You must compile with \e both Xft and XRender support to get
+    alpha transparency support for pixmaps and images.  Configuring with
+    XRender support alone is not enough.
 
-\target win
-\section1 Qt/Windows
+    \target win
+    \section1 Qt/Windows
 
-When compiling for this platform, the macro \c{Q_WS_WIN} is defined.
+    When compiling for this platform, the macro \c{Q_WS_WIN} is defined.
 
-\e{Not documented here. Please contact Trolltech Technical Support
-if you have queries.}
+    \e{Not documented here. Please contact Trolltech Technical Support
+    if you have queries.}
 
-\target macosx
-\section1 Qt/Mac OS X
+    \target macosx
+    \section1 Qt/Mac OS X
 
-When compiling for this platform, the macro \c{Q_WS_MAC} is defined.
+    When compiling for this platform, the macro \c{Q_WS_MAC} is defined.
 
-\list
-\i \link mac-differences.html Qt/Mac issues\endlink
-\i \link qtmac-as-native.html Qt/Mac is Mac OS X Native\endlink
-\endlist
+    \list
+    \i \link mac-differences.html Qt/Mac-Specific Issues\endlink
+    \i \link qtmac-as-native.html Qt/Mac is Mac OS X Native\endlink
+    \endlist
 
-\target qws
-\section1 Qt/Embedded
+    \target qws
+    \section1 Qt/Embedded
 
-When compiling for this platform, the macro \c{Q_WS_QWS} is defined
-(the window system is literally the Qt Window System).
+    When compiling for this platform, the macro \c{Q_WS_QWS} is defined
+    (the window system is literally the Qt Window System).
 
-\list
- \i \link emb-install.html Installation\endlink
- \i \link emb-performance.html Qt/Embedded performance tuning\endlink
- \i \link emb-running.html Running Qt/Embedded applications\endlink
- \i \link emb-porting.html Porting your applications to Qt/Embedded\endlink
- \i \link emb-fonts.html Font formats and definitions\endlink
- \i \link emb-charinput.html Character input (keyboard, pen, ...)\endlink
- \i \link emb-pointer.html Pointer handling (mouse, pen, ...)\endlink
- \i \link emb-features.html Reduce memory use with the feature definition file\endlink
-\endlist
-
+    \list
+    \o \link emb-install.html Installation\endlink
+    \o \link emb-performance.html Qt/Embedded performance tuning\endlink
+    \o \link emb-running.html Running Qt/Embedded applications\endlink
+    \o \link emb-porting.html Porting your applications to Qt/Embedded\endlink
+    \o \link emb-fonts.html Font formats and definitions\endlink
+    \o \link emb-charinput.html Character input (keyboard, pen, ...)\endlink
+    \o \link emb-pointer.html Pointer handling (mouse, pen, ...)\endlink
+    \o \link emb-features.html Reduce memory use with the feature definition file\endlink
+    \endlist
 */

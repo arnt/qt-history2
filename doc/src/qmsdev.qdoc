@@ -12,13 +12,13 @@
 **
 ****************************************************************************/
 
-/*! 
-  \page integration.html
+/* NOT DOCUMENTED ! 
+  \page qmsdev.html
 
-  \title About the Visual Studio Integration Plugin
+  \title The QMsDev Plugin
 
   The Visual Studio Integration Plugin is currently available only to users of
-  Visual Studio 6, it offers simple ways of doing common tasks when writing a
+  Visual Studio 6. It offers simple ways of doing common tasks when writing a
   Qt application. 
 
   \tableofcontents
@@ -30,10 +30,6 @@
   plugin manually just carry out the following steps.
 
   \list
-  \i Close down any instances of Visual Studio.
-  \i Start up a command prompt.
-  \i Type \c{cd %QTDIR%\tools\designer\integration\qmsdev} at the command prompt.
-  \i Type \c nmake at the command prompt.
   \i Start up Visual Studio.
   \i Select Tools|Customize|Add-ins and Macro Files.
   \i Ensure that there is a tick next to QMsDev Developer Studio Add-In.

@@ -1,224 +1,239 @@
 /*!
-\page properties.html
+    \page properties.html
 
-\title Properties
+    \title Qt's Property System
 
-Qt provides a sophisticated property system similar to those supplied
-by some compiler vendors. However, as a compiler- and
-platform-independent library, Qt cannot rely on non-standard compiler
-features like \c __property or \c [property]. Our solution works with
-\e any standard C++ compiler on every platform we support. It's based
-on the meta-object system that also provides object communication
-through \link signalsandslots.html signals and slots\endlink.
+    Qt provides a sophisticated property system similar to those supplied
+    by some compiler vendors. However, as a compiler- and
+    platform-independent library, Qt cannot rely on non-standard compiler
+    features like \c __property or \c [property]. Our solution works with
+    \e any standard C++ compiler on every platform we support. It's based
+    on the meta-object system that also provides object communication
+    through \link signalsandslots.html signals and slots\endlink.
 
-The \c Q_PROPERTY macro in a class declaration declares a
-property. Properties can only be declared in classes that inherit \l
-QObject. A second macro, \c Q_OVERRIDE, can be used to override some
-aspects of an inherited property in a subclass. (See \link #override
-Q_OVERRIDE\endlink.)
+    The \c Q_PROPERTY macro in a class declaration declares a property.
+    Properties can only be declared in classes that inherit \l QObject. A
+    second macro, \l{#override}{Q_OVERRIDE}, can be used to override some
+    aspects of an inherited property in a subclass.
 
-To the outer world, a property appears to be similar to a data member.
-But properties have several features that distinguish them from
-ordinary data members:
+    To the outer world, a property appears to be similar to a data member.
+    But properties have several features that distinguish them from
+    ordinary data members:
 
-\list
-\i A read function. This always exists.
+    \list
+    \i A read function. This always exists.
 
-\i A write function. This is optional: read-only properties like \l
-QWidget::isDesktop() do not have one.
+    \i A write function. This is optional; read-only properties like \l
+    QWidget::isDesktop() do not have one.
 
-\i An attribute "stored" that indicates persistence. Most properties
-are stored, but a few virtual properties are not. For example, \l
-QWidget::minimumWidth() isn't stored, since it's just a view of
-\l QWidget::minimumSize(), and has no data of its own.
+    \i An attribute "stored" that indicates persistence. Most properties
+    are stored, but a few virtual properties are not. For example, \l
+    QWidget::minimumWidth() isn't stored, since it's just a view of
+    \l QWidget::minimumSize(), and has no data of its own.
 
-\i A reset function to set a property back to its context specific
-default value. This is very rare, but for example, \l QWidget::cursor
-needs this, since no call to \l QWidget::setCursor() can mean 'reset to
-the context specific cursor'.
+    \i A reset function to set a property back to its context specific
+    default value. This is very rare, but for example, \l QWidget::cursor
+    needs this, since no call to \l QWidget::setCursor() can mean 'reset to
+    the context specific cursor'.
 
-\i An attribute "designable" that indicates whether it makes sense to
-make the property available in a GUI builder (e.g. \link
-designer-manual.book Qt Designer\endlink). For most properties this 
-makes sense, but not for all, e.g. \l QAbstractButton::down. The user can
-press buttons, and the application programmer can make the program
-press its own buttons, but a GUI design tool can't press buttons.
+    \i An attribute "designable" that indicates whether it makes sense to
+    make the property available in a GUI builder (e.g. \link
+    designer-manual.book Qt Designer\endlink). For most properties this 
+    makes sense, but not for all, e.g. \l QAbstractButton::down. The user can
+    press buttons, and the application programmer can make the program
+    press its own buttons, but a GUI design tool can't press buttons.
 
-\endlist
+    \endlist
 
-The read, write and reset functions can be just about any member
-functions, inherited or not, virtual or not. The only exception is
-that member functions must be inherited from the first inherited class
-in the case of multiple inheritance.
+    The read, write and reset functions can be just about any member
+    functions, inherited or not, virtual or not. The only exception is
+    that member functions must be inherited from the first inherited class
+    in the case of multiple inheritance.
 
-Properties can be read and written through generic functions in
-QObject without knowing anything about the class in use. These two
-function calls are equivalent:
+    Properties can be read and written through generic functions in
+    QObject without knowing anything about the class in use. These two
+    function calls are equivalent:
 
-\code
-    // QButton *b and QObject *o point to the same button
-    b->setDown(true);
-    o->setProperty("down", true);
-\endcode
+    \code
+        // QButton *b and QObject *o point to the same button
+        b->setDown(true);
+        o->setProperty("down", true);
+    \endcode
 
-Equivalent, that is, except that the first is faster, and provides
-much better diagnostics at compile time. When practical, the first is
-better. However, since you can get a list of all available properties
-for any QObject through its \l QMetaObject, \l QObject::setProperty()
-can give you control over classes that weren't available at compile
-time.
+    Equivalent, that is, except that the first is faster, and provides
+    much better diagnostics at compile time. When practical, the first is
+    better. However, since you can get a list of all available properties
+    for any QObject through its \l QMetaObject, \l QObject::setProperty()
+    can give you control over classes that weren't available at compile
+    time.
 
-As well as QObject::setProperty(), there is a corresponding \l
-QObject::property() function. \l QMetaObject::propertyCount() returns
-the number of all available properties. \l QMetaObject::property()
-returns the property data for a given property index: a \l
-QMetaProperty object.
+    As well as QObject::setProperty(), there is a corresponding \l
+    QObject::property() function. \l QMetaObject::propertyCount() returns
+    the number of all available properties. \l QMetaObject::property()
+    returns the property data for a given property index: a \l
+    QMetaProperty object.
 
-Here's a simple example that shows the most important property
-functions in use:
+    Here's a simple example that shows the most important property
+    functions in use:
 
-\code
-    class MyClass : public QObject
-    {
-        Q_OBJECT
-    public:
-        MyClass(QObject * parent=0);
-        ~MyClass();
+    \code
+        class MyClass : public QObject
+        {
+            Q_OBJECT
 
-        enum Priority { High, Low, VeryHigh, VeryLow };
-        void setPriority(Priority);
-        Priority priority() const;
-    };
-\endcode
+        public:
+            MyClass(QObject * parent=0);
+            ~MyClass();
 
-The class has a property "priority" that is not yet known to the meta
-object system. In order to make the property known, you must
-declare it with the \c Q_PROPERTY macro. The syntax is as follows:
+            enum Priority { High, Low, VeryHigh, VeryLow };
+            void setPriority(Priority);
+            Priority priority() const;
+        };
+    \endcode
 
-\code
-Q_PROPERTY( type name READ getFunction [WRITE setFunction]
-            [RESET resetFunction] [DESIGNABLE bool] 
-            [SCRIPTABLE bool] [STORED bool] )
-\endcode
+    The class has a property \c priority that is not yet known to the
+    meta object system. In order to make the property known, you must
+    declare it with the \c Q_PROPERTY macro. The syntax is as
+    follows:
 
-For the declaration to be valid, the get function must be const and
-to return either the type itself, a pointer to it, or a reference to
-it. The optional write function must return void and must take exactly
-one argument, either the type itself, a pointer or a const reference
-to it. The meta object compiler enforces this.
+    \code
+        Q_PROPERTY(type name
+                   READ getFunction
+                   [WRITE setFunction]
+                   [RESET resetFunction]
+                   [DESIGNABLE bool] 
+                   [SCRIPTABLE bool]
+                   [STORED bool])
+    \endcode
 
-The type of a property can be any \l QVariant supported type or an
-enumeration type declared in the class itself. Since \c MyClass uses
-the enumeration type \c Priority for the property, this type must be
-registered with the property system as well.
+    For the declaration to be valid, the get function must be const and
+    to return either the type itself, a pointer to it, or a reference to
+    it. The optional write function must return void and must take exactly
+    one argument, either the type itself, a pointer or a const reference
+    to it. The meta object compiler enforces this.
 
-There are two exceptions to the above: The type of a property can also
-be either \link QList QList\<QVariant\>\endlink or \link
-QMap QMap\<QString,QVariant\>\endlink. In
-these cases the type must be specified as \c QList or as \c QMap
-(i.e. without their template parameters).
+    The type of a property can be any \l QVariant supported type or an
+    enumeration type declared in the class itself. Since \c MyClass uses
+    the enumeration type \c Priority for the property, this type must be
+    registered with the property system as well.
 
-It is possible to set a value by name, like this:
-\code
-    obj->setProperty( "priority", "VeryHigh" );
-\endcode
-In the case of \c QList and \c QMap properties the value passes
-is a QVariant whose value is the entire list or map.
+    There are two exceptions to the above: The type of a property can also
+    be either \link QList QList\<QVariant\>\endlink or \link
+    QMap QMap\<QString,QVariant\>\endlink. In
+    these cases the type must be specified as \c QList or as \c QMap
+    (i.e. without their template parameters).
 
-Enumeration types are registered with the \c Q_ENUMS macro. Here's the
-final class declaration including the property related declarations:
+    It is possible to set a value by name, like this:
 
-\code
-    class MyClass : public QObject
-    {
-        Q_OBJECT
-        Q_PROPERTY( Priority priority READ priority WRITE setPriority )
-        Q_ENUMS( Priority )
-    public:
-        MyClass(QObject * parent=0);
-        ~MyClass();
+    \code
+        obj->setProperty("priority", "VeryHigh");
+    \endcode
 
-        enum Priority { High, Low, VeryHigh, VeryLow };
-        void setPriority(Priority);
-        Priority priority() const;
-    };
-\endcode
+    In the case of \c QList and \c QMap properties the value passes
+    is a QVariant whose value is the entire list or map.
 
-Another similar macro is \c Q_SETS. Like \c Q_ENUMS, it registers an
-enumeration type but marks it in addition as a "set", i.e. the
-enumeration values can be OR-ed together. An I/O class might have
-enumeration values "Read" and "Write" and accept "Read|Write": such an
-enum is best handled with \c Q_SETS, rather than \c Q_ENUMS.
+    Enumeration types are registered with the \c Q_ENUMS macro. Here's the
+    final class declaration including the property related declarations:
 
-The remaining keywords in the \c Q_PROPERTY section are \c RESET, \c
-DESIGNABLE, \c SCRIPTABLE and \c STORED.
+    \code
+        class MyClass : public QObject
+        {
+            Q_OBJECT
+            Q_PROPERTY(Priority priority READ priority WRITE setPriority)
+            Q_ENUMS(Priority)
 
-\c RESET names a function that will set the property to its default
-state (which may have changed since initialization). The function
-must return void and take no arguments.
+        public:
+            MyClass(QObject *parent = 0);
+            ~MyClass();
 
-\c DESIGNABLE declares whether this property is suitable for
-modification by a GUI design tool. The default is true for
-writable properties; otherwise false. Instead of true or
-false, you can specify a boolean member function.
+            enum Priority { High, Low, VeryHigh, VeryLow };
+            void setPriority(Priority priority);
+            Priority priority() const;
+        };
+    \endcode
 
-\c SCRIPTABLE declares whether this property is suited for access by a
-scripting engine. The default is true. Instead of true or false,
-you can specify a boolean member function.
+    Another similar macro is \c Q_SETS. Like \c Q_ENUMS, it registers
+    an enumeration type but marks it in addition as a "set", i.e. the
+    enumeration values can be OR'd together. An I/O class might have
+    enumeration values \c Read and \c Write and accept \c{Read |
+    Write}: such an enum is best handled with \c Q_SETS, rather than
+    \c Q_ENUMS.
 
-\c STORED declares whether the property's value must be remembered
-when storing an object's state. Stored makes only sense for writable
-properties. The default value is true. Technically superfluous
-properties (like QPoint pos if QRect geometry is already a property)
-define this to be false.
+    The remaining keywords in the \c Q_PROPERTY section are \c RESET, \c
+    DESIGNABLE, \c SCRIPTABLE, and \c STORED.
 
+    \list
 
-Connected to the property system is an additional macro, "Q_CLASSINFO",
-that can be used to attach additional name/value-pairs to a class'
-meta object, for example:
+    \o  \c RESET names a function that will set the property to its default
+        state (which may have changed since initialization). The function
+        must return void and take no arguments.
 
-\code
-    Q_CLASSINFO( "Version", "3.0.0" )
-\endcode
+    \o  \c DESIGNABLE declares whether this property is suitable for
+        modification by a GUI design tool. The default is true for
+        writable properties; otherwise false. Instead of true or
+        false, you can specify a boolean member function.
 
-Like other meta data, class information is accessible at runtime
-through the meta object, see \l QMetaObject::classInfo() for details.
+    \o  \c SCRIPTABLE declares whether this property is suited for access by a
+        scripting engine. The default is true. Instead of true or false,
+        you can specify a boolean member function.
 
-\target override
-\section1 Q_OVERRIDE
+    \o  \c STORED declares whether the property's value must be remembered
+        when storing an object's state. Stored makes only sense for writable
+        properties. The default value is true. Technically superfluous
+        properties (like QPoint pos if QRect geometry is already a property)
+        define this to be false.
 
-When you inherit a QObject subclass you may wish to override some
-aspects of some of the class's properties.
+    \endlist
 
-For example, in QWidget we have the autoMask property defined like
-this:
-\code
-    Q_PROPERTY( bool autoMask READ autoMask WRITE setAutoMask DESIGNABLE false SCRIPTABLE false )
-\endcode
+    Connected to the property system is an additional macro, \c
+    Q_CLASSINFO, that can be used to attach additional
+    name/value-pairs to a class' meta object, for example:
 
-But we need to make the auto mask property designable in some QWidget
-subclasses. Similarly some classes will need this property to be
-scriptable (e.g. for QSA). This is achieved by overriding these
-features of the property in a subclass. In QCheckBox, for example, we
-achieve this using the following code:
-\code
-    Q_OVERRIDE( bool autoMask DESIGNABLE true SCRIPTABLE true )
-\endcode
+    \code
+        Q_CLASSINFO("Version", "3.0.0")
+    \endcode
 
-Another example is QToolButton. By default QToolButton has a read-only
-"toggleButton" property, because that's what it inherits from QButton:
-\code
-    Q_PROPERTY( bool toggleButton READ isToggleButton )
-\endcode
+    Like other meta data, class information is accessible at runtime
+    through the meta object, see \l QMetaObject::classInfo() for details.
 
-But we want to make our tool buttons able to be toggled, so we write a
-WRITE function in QToolButton, and use the following property override
-to make it acessible:
-\code
-    Q_OVERRIDE( bool toggleButton WRITE setToggleButton )
-\endcode
-The result is read-write (and scriptable and designable, since we now
-have a WRITE function) boolean property "toggleButton" for tool
-buttons.
+    \target override
+    \section1 Q_OVERRIDE
 
+    When you inherit a QObject subclass you may wish to override some
+    aspects of some of the class's properties.
+
+    For example, in QWidget we have the autoMask property defined like
+    this:
+    \code
+        Q_PROPERTY(bool autoMask READ autoMask WRITE setAutoMask DESIGNABLE false SCRIPTABLE false)
+    \endcode
+
+    But we need to make the auto mask property designable in some QWidget
+    subclasses. Similarly some classes will need this property to be
+    scriptable (e.g., for QSA). This is achieved by overriding these
+    features of the property in a subclass. In QCheckBox, for example, we
+    achieve this using the following code:
+    \code
+        Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
+    \endcode
+
+    Another example is QToolButton. By default QToolButton has a
+    read-only \c toggleButton property, because that's what it
+    inherits from QButton:
+
+    \code
+        Q_PROPERTY(bool toggleButton READ isToggleButton)
+    \endcode
+
+    But we want to make our tool buttons able to be toggled, so we write a
+    WRITE function in QToolButton, and use the following property override
+    to make it acessible:
+
+    \code
+        Q_OVERRIDE(bool toggleButton WRITE setToggleButton)
+    \endcode
+
+    The result is read-write (and scriptable and designable, since we
+    now have a "write" function) boolean property \c toggleButton
+    for tool buttons.
 */

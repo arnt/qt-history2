@@ -1,137 +1,120 @@
 /*!
-\page eventsandfilters.html
+    \page eventsandfilters.html
 
-\title Events and Event Filters
+    \title Events and Event Filters
 
-In Qt, an event is an object that inherits \l QEvent. Events are
-delivered to objects that inherit \l QObject through calling \l
-QObject::event(). Event delivery means that an event has occurred, the
-QEvent indicates precisely what, and the QObject needs to respond. Most
-events are specific to \l QWidget and its subclasses, but there are
-important events that aren't related to graphics, for example, socket
-activation, which is the event used by \l QSocketNotifier for its
-work.
+    In Qt, an event is an object that inherits QEvent. Events are
+    delivered to objects that inherit QObject through calling
+    QObject::event(). Event delivery means that an event has
+    occurred, the QEvent indicates precisely what, and the QObject
+    needs to respond. Most events are specific to QWidget and its
+    subclasses, but there are important events that aren't related to
+    graphics (e.g., \l{QTimer}{timer events}).
 
-Some events come from the window system, e.g. \l QMouseEvent, some
-from other sources, e.g. \l QTimerEvent, and some come from the
-application program. Qt is symmetric, as usual, so you can send
-events in exactly the same ways as Qt's own event loop does.
+    Some events come from the window system (e.g., QMouseEvent), some
+    from other sources (e.g., QTimerEvent), and some come from the
+    application program. Qt is symmetric, as usual, so you can send
+    events in exactly the same ways as Qt's own event loop does using
+    QCoreApplication::sendEvent() and QCoreApplication::postEvent().
 
-Most events types have special classes, most commonly \l QResizeEvent,
-\l QPaintEvent, \l QMouseEvent, \l QKeyEvent and \l QCloseEvent.
-There are many others, perhaps forty or so, but most are rather odd.
+    Most events types have special classes, notably QResizeEvent,
+    QPaintEvent, QMouseEvent, QKeyEvent, and QCloseEvent. Each class
+    subclasses QEvent and adds event-specific functions; see for
+    example QResizeEvent, which adds QResizeEvent::size() and
+    QResizeEvent::oldSize().
 
-Each class subclasses QEvent and adds event-specific functions; see,
-for example, \l QResizeEvent. In the case of QResizeEvent, \l
-QResizeEvent::size() and \l QResizeEvent::oldSize() are added.
+    Some classes support more than one actual event type. QMouseEvent
+    supports mouse button presses, double-clicks, moves, etc. The
+    event type is available as QEvent::type().
 
-Some classes support more than one event type. \l QMouseEvent
-supports mouse moves, presses, shift-presses, drags, clicks,
-right-presses, etc.
+    Since programs need to react in varied and complex ways, Qt's
+    event delivery mechanisms are flexible. The documentation for
+    QApplication::notify() concisely tells the whole story; the
+    \e{Qt Quarterly} article
+    \l{http://doc.trolltech.com/qq/qq11-events.html}{Another Look at Events}
+    rehashes it less concisely; here we
+    will explain enough for 95% of applications.
 
-Since programs need to react in varied and complex ways, Qt's
-event delivery mechanisms are flexible. The documentation for
-\l QApplication::notify() concisely tells the whole story, here we
-will explain enough for 99% of applications.
+    The normal way for an event to be delivered is by calling a virtual
+    function. For example, QPaintEvent is delivered by calling
+    QWidget::paintEvent(). This virtual function is responsible for
+    reacting appropriately, normally by repainting the widget. If you
+    do not perform all the necessary work in your implementation of the
+    virtual function, you may need to call the base class's
+    implementation. For example:
 
-The normal way for an event to be delivered is by calling a virtual
-function. For example, \l QPaintEvent is delivered by calling \l
-QWidget::paintEvent(). This virtual function is responsible for
-reacting appropriately, normally by repainting the widget. If you
-do not perform all the necessary work in your implementation of the
-virtual function, you may need to call the base class's
-implementation; for example:
-\code
-    MyTable::contentsMouseMoveEvent( QMouseEvent *me )
-    {
-	// my implementation
+    \quotefromfile snippets/events/events.cpp
+    \skipto MyCheckBox::mousePressEvent
+    \printuntil /^\}/
 
-	QTable::contentsMouseMoveEvent( me ); // hand it on
-    }
-\endcode
-If you want to replace the base class's function then you must
-implement everything yourself; but if you only want to extend the base
-class's functionality, then you implement what you want and then call
-the base class.
+    If you want to replace the base class's function, you must
+    implement everything yourself; but if you only want to extend the
+    base class's functionality, then you implement what you want and
+    then call the base class.
 
-Occasionally there isn't such an event-specific function, or the
-event-specific function isn't sufficient. The most common example is
-tab key presses. Normally, those are interpreted by QWidget to move
-the keyboard focus, but a few widgets need the tab key for themselves.
+    Occasionally there isn't such an event-specific function, or the
+    event-specific function isn't sufficient. The most common example
+    is tab key presses. Normally, those are interpreted by QWidget to
+    move the keyboard focus separately from the other keys, but a few
+    widgets need the \key{Tab} key for themselves.
 
-These objects can reimplement \l QObject::event(), the general event
-handler, and either do their event handling before or after the usual
-handling, or replace it completely. A very unusual widget that both
-interprets tab and has an application-specific custom event might
-contain:
+    These objects can reimplement QObject::event(), the general event
+    handler, and either do their event handling before or after the usual
+    handling, or replace it completely. A very unusual widget that both
+    interprets tab and has an application-specific custom event might
+    contain the following \l{QObject::event()}{event()} function:
 
-\code
-  bool MyClass:event( QEvent *evt ) {
-      if ( evt->type() == QEvent::KeyPress ) {
-	  QKeyEvent *ke = (QKeyEvent *)evt;
-	  if ( ke->key() == Key_Tab ) {
-	      // special tab handling here
-	      ke->accept();
-	      return true;
-	  }
-      } else if ( evt->type() >= QEvent::User ) {
-	  QCustomEvent *ce = (QCustomEvent*) evt;
-	  // custom event handling here
-	  return true;
-      }
-      return QWidget::event( evt );
-  }
-\endcode
+    \skipto MyWidget::event
+    \printuntil /^\}/
 
-More commonly, an object needs to look at another's events. Qt
-supports this using \l QObject::installEventFilter() (and the
-corresponding remove). For example, dialogs commonly want to filter
-key presses for some widgets, e.g. to modify Return-key handling.
+    More commonly, an object needs to look at another's events. Qt
+    supports this using QObject::installEventFilter() (and the
+    corresponding remove). For example, dialogs commonly want to filter
+    key presses for some widgets, e.g. to modify \key{Return}-key handling.
 
-An event filter gets to process events before the target object does.
-The filter's \l QObject::eventFilter() implementation is called, and
-can accept or reject the filter, and allow or deny further processing
-of the event. If all the event filters allow further processing of an
-event, the event is sent to the target object itself. If one of them
-stops processing, the target and any later event filters don't get to
-see the event at all.
+    An event filter gets to process events before the target object does.
+    The filter's QObject::eventFilter() implementation is called, and
+    can accept or reject the filter, and allow or deny further processing
+    of the event. If all the event filters allow further processing of an
+    event, the event is sent to the target object itself. If one of them
+    stops processing, the target and any later event filters don't get to
+    see the event at all.
 
-It's also possible to filter \e all events for the entire application,
-by installing an event filter on \l QApplication. This is what \l
-QToolTip does in order to see \e all the mouse and keyboard activity.
-This is very powerful, but it also slows down event delivery of every
-single event in the entire application, so it's best avoided.
+    It's also possible to filter \e all events for the entire application,
+    by installing an event filter on QApplication. This is what
+    QToolTip does in order to see \e all the mouse and keyboard activity.
+    This is very powerful, but it also slows down event delivery of every
+    single event in the entire application, so it's best avoided.
 
-The global event filters are called before the object-specific
-filters.
+    The global event filters are called before the object-specific
+    filters.
 
-Finally, many applications want to create and send their own events.
+    Finally, many applications want to create and send their own events.
 
-Creating an event of a built-in type is very simple: create an object
-of the relevant type, and then call \l QCoreApplication::sendEvent() or \l
-QCoreApplication::postEvent().
+    Creating an event of a built-in type is very simple: create an object
+    of the relevant type, and then call QCoreApplication::sendEvent() or
+    QCoreApplication::postEvent().
 
-sendEvent() processes the event immediately - when sendEvent()
-returns, (the event filters and) the object have already processed the
-event. For many event classes there is a function called isAccepted()
-that tells you whether the event was accepted or rejected by the last
-handler that was called.
+    sendEvent() processes the event immediately. When sendEvent()
+    returns, the event filters and/or the object have already
+    processed the event. For many event classes there is a function
+    called isAccepted() that tells you whether the event was accepted
+    or rejected by the last handler that was called.
 
-postEvent() posts the event on a queue for later dispatch. The next
-time Qt's main event loop runs, it dispatches all posted events, with
-some optimization. For example, if there are several resize events,
-they are are compacted into one. The same applies to paint events: \l
-QWidget::update() calls postEvent(), which minimizes flickering and
-increases speed by avoiding multiple repaints.
+    postEvent() posts the event on a queue for later dispatch. The next
+    time Qt's main event loop runs, it dispatches all posted events, with
+    some optimization. For example, if there are several resize events,
+    they are are compacted into one. The same applies to paint events:
+    QWidget::update() calls postEvent(), which eliminates flickering and
+    increases speed by avoiding multiple repaints.
 
-postEvent() is also often used during object initialization, since the
-posted event will typically be dispatched very soon after the
-initialization of the object is complete.
+    postEvent() is also often used during object initialization, since the
+    posted event will typically be dispatched very soon after the
+    initialization of the object is complete.
 
-To create events of a custom type, you need to define an event number,
-which must be greater than \c QEvent::User, and probably you also need
-to subclass \l QCustomEvent in order to pass characteristics about
-your custom event. See the documentation to \l QCustomEvent for
-details.
-
+    To create events of a custom type, you need to define an event
+    number, which must be greater than \c QEvent::User, and probably
+    you also need to subclass QEvent in order to pass characteristics
+    about your custom event. See the \l QEvent documentation for
+    details.
 */
