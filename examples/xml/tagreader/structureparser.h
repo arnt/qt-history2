@@ -1,3 +1,7 @@
+/*
+$Id$
+*/  
+
 #include <qxml.h>
 
 class QString;

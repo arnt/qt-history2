@@ -62,166 +62,153 @@ Support for SAX2 filters and the reader factory are missing at the moment.
 The Qt implementation furthermore omits all SAX1 compatibility classes 
 present in the Java interface. 
 
+To learn more about the Qt SAX2 classes please turn to
+the document covering "<a href="xml-sax.html">The Qt SAX2 implementation</a>". 
+A code example is discussed in the "<a href="xml-sax-walkthrough.html">tagreader
+Walkthrough</a>".
+
 DOM Level 1 is a W3C Recommendation for XML interfaces that maps the
 constituents of a XML document in a tree structure. Details and the
 specification of DOM Level 1 can be found at
 <a href="http://www.w3.org/DOM/">http://www.w3.org/DOM/</a>.
+More information about the DOM classes in Qt is provided in the
+appropriate <a href="xml-dom.html">overview</a>.
 
 
-<h2><a name="introSAX2">Introduction to SAX2</h2>
-
-The SAX2 interface is an event-driven mechanism to provide the user with
-document information. "Event" in this context has nothing to do with the
-term "event" you probably know from windowing systems; it means that the
-parser reports certain document information while parsing the document.
-These reported information is referred to as "event".
-
-To make it less abstract consider the following example:
-
-\code 
-<quote>To make it less abstract consider the following example:</quote>
+ 
+<h2><a name="namespaces">Namespaces</h2>
+ 
+Namespaces are a concept introduced to XML to allow a more modular design.
+Details on namespaces can be found at
+<a href="http://www.w3.org/TR/REC-xml-names/">http://www.w3.org/TR/REC-xml-names/</a>.
+ 
+Namespaces do not change the parsing behavior. They are only reported
+through the handler.
+ 
+You have to declare the namespace first. After that you can apply the
+namespace to element names or attribute names.
+ 
+Namespaces are declared like attributes; they are attributes, strictly
+speaking. You can declare a namespace prefix \c fnord to the namespace name
+\c http://trolltech.com/fnord/ with the attribute \c
+xmlns:fnord="http://trolltech.com/fnord/" (remark: namespaces are URI
+references; this does not mean that there must be any data available at the
+address; they are simply unique names, not more).  There is also one
+default namespace that can be declared: \c xmlns.
+ 
+Namespaces can be used for element names and attribute names by prepending
+the prefix with a ":" to the name. If an element name does not have a
+prefix, the default namespace is applied (the default namespace is not
+applied to attributes).
+ 
+Example:
+\code
+<fnord:document xmlns:fnord = 'http://trolltech.com/fnord/'
+                xmlns       = 'http://trolltech.com/' >
+    <element1 a = '42' fnord:b = '23'>Eris</element1>
+    <fnord:element2 c = '42' fnord:d = '23'>Discordia</fnord:element2>
+</fnord:document>
 \endcode
-
-Whilst reading (a SAX2 parser is usually referred to as "reader") 
-the above document three events would be triggered:
-<OL>
-<LI> A start tag occurs (<tt>&lt;quote&gt;</tt>).
-<LI> Character data (i.e. text) is found.
-<LI> An end tag is parsed (<tt>&lt;/quote&gt;</tt>).
-</OL>
-
-Each time such an event occurs the parser reports it so that 
-a suitable event handling routine can be invoked.
-
-Whilst this is a fast and simple approach to read XML documents
-manipulation is difficult because data are not stored, simply handled
-and discarded serially. This is when the DOM interface comes handy.
-
-The Qt XML module provides an
-abstract class, \l QXmlReader, that defines the interface for potential 
-SAX2 readers.
-At the moment Qt ships with one reader implementation, \l
-QXmlSimpleReader.
-
-The reader reports parsing events through special handler classes. In Qt
-the following ones are available:
+In this example the elements and attributes have the namespaces:
 <ul>
-<li>\l QXmlContentHandler
-    reports events related to the content of a document (e.g. the start tag,
-    or characters).
-<li>\l QXmlDTDHandler
-    reports events related to the DTD (e.g. notation declarations).
-<li>\l QXmlErrorHandler
-    reports errors or warnings that occurred during parsing.
-<li>\l QXmlEntityResolver
-    reports external entities during parsing and allows the user to resolve
-    external entities him- or herself instead of leaving it to the reader.
-<li>\l QXmlDeclHandler
-    reports further DTD related events (e.g. attribute declarations).
-    Usually users are not interested in them, but under certain circumstances
-    this class comes handy.
-<li>\l QXmlLexicalHandler
-    reports events related to the lexical structure of the document
-    (the beginning of the DTD, comments etc.). Occasionally this
-    might be useful.
+<li> \c document has the namespace URI \c http://trolltech.com/fnord/
+<li> \c element1 has the namespace URI \c http://trolltech.com/
+<li> \c element2 has the namespace URI \c http://trolltech.com/fnord/
+<li> \c a and c  have no namespace URIs
+<li> \c b and d  have the namespace URI \c http://trolltech.com/fnord/
 </ul>
-
-These classes are abstract classes describing the interface. The
-\l QXmlDefaultHandler class provides a "do nothing" default implementation for
-all of them. Therefore users need to overload only the
-QXmlDefaultHandler functions they are interested in. 
-
-To read input XML data a special class \l QXmlInputSource is used.
-
-Apart from the already mentioned ones the following SAX2 support classes 
-provide the user with useful functionality:
+ 
+The following terms are used to distinguish the parts of the names with
+namespaces:
 <ul>
-<li> \l QXmlAttributes
-     is used to pass attributes in a start element event.
-<li> \l QXmlLocator
-     is used to obtain the actual parsing position of an event.
-<li> \l QXmlNamespaceSupport
-     is used to easily implement namespace support for a reader.
+<li><i>Qualified name</i>
+    is the name as it appears in the document (in the example \c
+    fnord:element2 is a qualified name).
+<li><i>Namespace prefix</i>
+    is the prefix in a name, i.e. the part before the ":"  (in the example
+    \c fnord is a namespace prefix).
+<li><i>Local part</i>
+    is the name without the prefix (and without the ":"), i.e. the part
+    after the ":" (in the example \c element2 is a local part).
 </ul>
+If an element does not have a ":", this means that there is no namespace
+prefix and the local part is the same as the qualified name (in the example
+\c element1 has no namespace prefix and the qualified name and the local
+part are both \c element1).
+ 
+You can configure the behavior of the reader concerning namespace
+processing. This is done with the features
+\c http://xml.org/features/namespaces and
+\c http://xml.org/features/namespace-prefixes (for details on features see
+the section "<a href="xml-sax.html#featuresAndProperties">Features and properties</a>")
+int the <a href="xml-sax.html">Description of the Qt SAX2 implementation</A.
+ 
+There are four reporting behaviors that are influenced by this features:
+<ol>
+<li>The namespace prefix and local part of elements and attributes are
+    reported.
+<li>The qualified name of elements and attributes are reported.
+<li>The startPrefixMapping() and endPrefixMapping() functions of the
+    \l QXmlContentHandler are called.
+<li>Attributes that declare namespaces (i.e. the attribute \c xmlns and
+    attributes starting with \c xmlns:) are reported.
+</ol>      
 
-For a more detailed description see the document
-"<a href="xml-sax.html">How to use the Qt SAX2 classes</a>".
-
-
-<h2><a name="introDOM">Introduction to DOM</h2>
-
-DOM provides an interface to access and change the content and structure of
-an XML file. It makes a hierarchical view of the document (tree) 
-available with the root element of the XML file serving as its root. 
-Thus -- in contrast to the SAX2 interface -- an object model of the document 
-is resident in memory after parsing which makes manipulation easy. 
-
-In the Qt implementation of the DOM all
-nodes in the document tree are subclasses of \l QDomNode.
-The document itself is represented as a \l QDomDocument object.
-
-The following table lists the available node classes and 
-their potential children classes.
-<table>
+<a name="sax2namespaces"></a>
+SAX2 requires the following behavior:
+<table border="1">
 <tr>
-    <th align="left">Node type</th>
-    <th align="left">Possible children</th>
+    <th>namespaces</th><th>namespace-prefixes</th>
+    <th>Namespace prefix and local part</th><th>Qualified names</th>
+    <th>Prefix mapping</th><th>xmlns attributes</th>
 </tr>
 <tr>
-    <td>\l QDomDocument </td>
-    <td>\l QDomElement (maximum one), \l QDomProcessingInstruction,
-	\l QDomComment, \l QDomDocumentType </td>
+    <td>TRUE</td><td>FALSE</td>
+    <td>Yes</td><td>Unknown</td>
+    <td>Yes</td><td>No</td>
 </tr>
 <tr>
-    <td>\l QDomDocumentFragment </td>
-    <td>\l QDomElement, \l QDomProcessingInstruction, \l QDomComment,
-	\l QDomText, \l QDomCDATASection, \l QDomEntityReference </td>
+    <td>TRUE</td><td>TRUE</td>
+    <td>Yes</td><td>Yes</td>
+    <td>Yes</td><td>Yes</td>
 </tr>
-<tr><td>\l QDomDocumentType </td>
-    <td>no children </td>
-</tr>
-<tr><td>\l QDomEntityReference </td>
-    <td>\l QDomElement, \l QDomProcessingInstruction, \l QDomComment,
-	\l QDomText, \l QDomCDATASection, \l QDomEntityReference </td>
-</tr>
-<tr><td>\l QDomElement </td>
-    <td>\l QDomElement, \l QDomText, \l QDomComment,
-	\l QDomProcessingInstruction, \l QDomCDATASection,
-	\l QDomEntityReference </td>
-</tr>
-<tr><td>\l QDomAttr </td>
-    <td>\l QDomText, \l QDomEntityReference </td>
-</tr>
-<tr><td>\l QDomProcessingInstruction </td>
-    <td>no children </td>
-</tr>
-<tr><td>\l QDomComment </td>
-    <td>no children </td>
-</tr>
-<tr><td>\l QDomText </td>
-    <td>no children </td>
-</tr>
-<tr><td>\l QDomCDATASection </td>
-    <td>no children </td>
-</tr>
-<tr><td>\l QDomEntity </td>
-    <td>\l QDomElement, \l QDomProcessingInstruction, \l QDomComment,
-	\l QDomText, \l QDomCDATASection, \l QDomEntityReference </td>
-</tr>
-<tr><td>\l QDomNotation </td>
-    <td>no children </td>
+<tr>
+    <td>FALSE</td><td>TRUE</td>
+    <td>Unknown</td><td>Yes</td>
+    <td>Unknown</td><td>Yes</td>
 </tr>
 </table>
+The combination that both features (namespaces and namespace-prefixes) are
+FALSE is an illegal combination.
+ 
+\l QXmlSimpleReader implements the following behavior:
+<table border="1">
+<tr>
+    <th>namespaces</th><th>namespace-prefixes</th>
+    <th>Namespace prefix and local part</th><th>Qualified names</th>
+    <th>Prefix mapping</th><th>xmlns attributes</th>
+</tr>
+<tr>
+    <td>TRUE</td><td>FALSE</td>
+    <td>Yes</td><td>Yes</td>
+    <td>Yes</td><td>No</td>
+</tr>
+<tr>
+    <td>TRUE</td><td>TRUE</td>
+    <td>Yes</td><td>Yes</td>
+    <td>Yes</td><td>Yes</td>
+</tr>
+<tr>
+    <td>FALSE</td><td>TRUE</td>
+    <td>No</td><td>Yes</td>
+    <td>No</td><td>Yes</td>
+</tr>
+</table>
+ 
+The default settings are
+\c http://xml.org/features/namespaces is \c TRUE and
+\c http://xml.org/features/namespace-prefixes is \c FALSE.
+                                                                           
 
-With \l QDomNodeList and \l QDomNamedNodeMap two collection classes 
-are provided: \l QDomNodeList is a list of nodes
-whereas \l QDomNamedNodeMap is used to handle unordered sets of nodes
-(often used for attributes).
-
-The \l QDomImplementation class allows the user to query features of the
-DOM implementation.
-
-To get started please refer to the \l QDomDocument documentation that
-describes basic usage.
 
 */
