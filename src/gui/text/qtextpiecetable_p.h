@@ -70,6 +70,7 @@ public:
         BlockFormatChanged = 3,
         BlockInserted = 4,
         BlockRemoved = 5,
+        GroupFormatChange = 6,
         Custom = 8
     };
     enum Operation {
@@ -86,6 +87,7 @@ public:
         int blockFormat;
         Q_UINT32 length;
         QAbstractUndoItem *custom;
+        QTextFormatGroup *group;
     };
 
     bool tryMerge(const UndoCommand &other);
@@ -156,6 +158,8 @@ public:
 
     int nextCursorPosition(int position, QTextLayout::CursorMode mode) const;
     int previousCursorPosition(int position, QTextLayout::CursorMode mode) const;
+
+    void changeGroupFormat(QTextFormatGroup *group, int format);
 
 signals:
     void contentsChanged();

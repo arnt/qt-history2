@@ -112,6 +112,9 @@ class QTextFormatGroupPrivate : public QObjectPrivate
 public:
     QTextFormatCollection *collection;
     int index;
+
+    typedef QList<QTextBlockIterator> BlockList;
+    BlockList blocks;
 };
 
 

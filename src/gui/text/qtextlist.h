@@ -30,10 +30,6 @@ public:
     void setFormat(const QTextListFormat &format) { setCommonFormat(format); }
     QTextListFormat format() const { return commonFormat().toListFormat(); }
 
-protected:
-    void insertBlock(const QTextBlockIterator &block);
-    void removeBlock(const QTextBlockIterator &block);
-
 private:
     QTextList();
     ~QTextList();

@@ -542,6 +542,12 @@ void QTextPieceTable::undoRedo(bool undo)
             block(it)->format = c.format;
             c.format = oldFormat;
             // ########### emit doc changed signal
+        } else if (c.command == UndoCommand::GroupFormatChange) {
+            QTextFormatGroup *group = c.group;
+            int oldFormat = group->d_func()->index;
+            group->d_func()->index = c.format;
+            c.format = oldFormat;
+            // ########### emit doc changed signal
         } else if (c.command == UndoCommand::Custom) {
             if (undo)
                 c.custom->undo();
@@ -720,5 +726,47 @@ void QTextPieceTable::setBlockFormat(const QTextBlockIterator &it, const QTextBl
     if (it.atEnd())
         return;
     const QTextBlock *b = it.pt->blocks.fragment(it.n);
-    b->format = const_cast<QTextPieceTable *>(it.pt)->formatCollection()->indexForFormat(format);
+
+    int oldFormatIndex = b->format;
+    QTextBlockFormat oldFormat = it.pt->formats->blockFormat(oldFormatIndex);
+    QTextFormatGroup *oldGroup = oldFormat.group();
+    QTextFormatGroup *group = format.group();
+
+    b->format = it.pt->formats->indexForFormat(format);
+    b->invalidate();
+
+    if (it.pt->undoEnabled) {
+        UndoCommand c = { UndoCommand::BlockFormatChanged, true, UndoCommand::MoveCursor, oldFormatIndex,
+                          0, it.position(), { 1 } };
+
+        const_cast<QTextPieceTable *>(it.pt)->appendUndoItem(c);
+        Q_ASSERT(it.pt->undoPosition == it.pt->undoStack.size());
+    }
+    if (group != oldGroup) {
+        if (oldGroup)
+            oldGroup->removeBlock(it);
+        if (group)
+            group->insertBlock(it);
+    }
+}
+
+
+void QTextPieceTable::changeGroupFormat(QTextFormatGroup *group, int format)
+{
+    int oldFormatIndex = group->d_func()->index;
+    group->d_func()->index = format;
+
+    QList<QTextBlockIterator> blocks = group->blockList();
+    for (int i = 0; i < blocks.size(); ++i) {
+        // invalidate blocks and tell layout
+    }
+
+    if (undoEnabled) {
+        UndoCommand c = { UndoCommand::GroupFormatChange, true, UndoCommand::MoveCursor, oldFormatIndex,
+                          0, 0, { 1 } };
+        c.group = group;
+
+        appendUndoItem(c);
+        Q_ASSERT(undoPosition == undoStack.size());
+    }
 }

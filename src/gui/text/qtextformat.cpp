@@ -564,10 +564,18 @@ void QTextFormatGroup::setCommonFormat(const QTextFormat &format)
     // ####### undo/redo
 }
 
-void QTextFormatGroup::insertBlock(const QTextBlockIterator &)
+void QTextFormatGroup::insertBlock(const QTextBlockIterator &block)
 {
+    d->blocks.append(block);
+    qBubbleSort(d->blocks);
 }
 
-void QTextFormatGroup::removeBlock(const QTextBlockIterator &)
+void QTextFormatGroup::removeBlock(const QTextBlockIterator &block)
 {
+    d->blocks.remove(block);
+}
+
+QList<QTextBlockIterator> QTextFormatGroup::blockList() const
+{
+    return d->blocks;
 }

@@ -13,9 +13,6 @@ class QTextList;
 
 class QTextListPrivate : public QTextFormatGroupPrivate
 {
-public:
-    typedef QList<QTextBlockIterator> BlockList;
-    BlockList blocks;
 };
 
 template <class Manager>

@@ -107,13 +107,3 @@ QString QTextList::itemText(const QTextBlockIterator &blockIt) const
     return result + QChar('.');
 }
 
-void QTextList::insertBlock(const QTextBlockIterator &block)
-{
-    d->blocks.append(block);
-    qBubbleSort(d->blocks);
-}
-
-void QTextList::removeBlock(const QTextBlockIterator &block)
-{
-    d->blocks.remove(block);
-}

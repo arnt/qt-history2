@@ -36,6 +36,8 @@ public:
     QTextFormat commonFormat() const;
     void setCommonFormat(const QTextFormat &format);
 
+    QList<QTextBlockIterator> blockList() const;
+
 protected:
     virtual void insertBlock(const QTextBlockIterator &block);
     virtual void removeBlock(const QTextBlockIterator &block);
