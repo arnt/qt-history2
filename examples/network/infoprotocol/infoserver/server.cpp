@@ -146,7 +146,7 @@ SimpleServer::SimpleServer( InfoData *i, QObject* parent ) :
     QServerSocket( infoPort, 1, parent ), info( i )
 {
     if ( !ok() ) {
-	qWarning("Failed to bind to port " + QString::number( infoPort ) );
+	qWarning( "Failed to bind to port %d", infoPort );
 	exit(1);
     }
 }

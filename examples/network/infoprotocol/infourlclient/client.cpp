@@ -59,7 +59,7 @@ void Qip::operationListChildren( QNetworkOperation * )
     operationInProgress()->setState( StInProgress );
 }
 
-void Qip::operationGet( QNetworkOperation *op )
+void Qip::operationGet( QNetworkOperation * )
 {
     // send a GET command
     QTextStream os(socket);
