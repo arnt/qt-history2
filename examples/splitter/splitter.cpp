@@ -20,11 +20,13 @@
 
 
 class Test : public QWidget {
+    Q_OBJECT
 public:
     Test(QWidget* parent=0, const char* name=0, WFlags f=0);
     void paintEvent(QPaintEvent* e);
 private:
 };
+#include "splitter.moc"
 
 
 
@@ -95,6 +97,7 @@ int main( int argc, char ** argv )
     s3->setOpaqueResize( TRUE );
 
     a.setMainWidget( s1 );
+    s1->resize(200, 200);
     s1->setWindowTitle("Qt Example - Splitters");
     s1->show();
     int result = a.exec();
