@@ -113,7 +113,7 @@ public:
 #endif
 		}
 		if ( useful )
-		    plugDict.insert( iFace, plugin );
+		    plugMap.insert( iFace, plugin );
 	    }
 	}
 
