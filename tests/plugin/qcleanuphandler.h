@@ -22,6 +22,17 @@ public:
 	cleanUpObjects.insert( 0, new QGuardedPtr<Type>(object) );
     }
 
+    bool clean() {
+	QListIterator<QGuardedPtr<Type> > it( cleanUpObjects );
+	while ( it.current() ) {
+	    QGuardedPtr<Type>* guard = it.current();
+	    ++it;
+	    if ( *guard )
+		return FALSE;
+	}
+	return TRUE;
+    }
+
 protected:
     QList<QGuardedPtr<Type> > cleanUpObjects;
 };
