@@ -50,6 +50,10 @@
 #define WS_EX_TOOLWINDOW 0x00000080
 #endif
 
+#if !defined(GWLP_WNDPROC)
+#define GWLP_WNDPROC GWL_WNDPROC
+#endif
+
 const char* qt_reg_winclass( int );		// defined in qapplication_win.cpp
 void	    qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst ); // dnd_win
 QOleDropTarget* qt_olednd_register( QWidget* widget );
