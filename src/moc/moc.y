@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#100 $
+** $Id: //depot/qt/main/src/moc/moc.y#101 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -109,7 +109,7 @@ AccessPerm tmpAccessPerm;			// current access permission
 AccessPerm subClassPerm;			// current access permission
 bool	   Q_OBJECTdetected;			// TRUE if current class
 						// contains the Q_OBJECT macro
-Q1String	   tmpExpression;
+Q1String   tmpExpression;
 
 const int  formatRevision = 3;			// moc output format revision
 
@@ -1260,7 +1260,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.34 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.35 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1434,7 +1434,9 @@ void generateClass()		      // generate C++ source code for a class
 	    predef_call = TRUE;
 	}
 	if ( !predef_call && !included_list_stuff ) {
-	    fprintf( out, "\n#if QT_VERSION >= 141\n" );
+	    // yes we need it, because otherwise QT_VERSION may not be defined
+	    fprintf( out, "\n#include <%sqobjectdefs.h>\n", (const char*)qtPath );
+	    fprintf( out, "#if QT_VERSION >= 141\n" );
 	    fprintf( out, "/" "/ newer implementation\n" );
 	    fprintf( out, "#include <%sqsignalslotimp.h>\n", (const char*)qtPath );
 	    fprintf( out, "#else\n" );
