@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#40 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -20,7 +20,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#40 $");
 
 
 /*****************************************************************************
@@ -30,7 +30,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#39 $");
 
 HANDLE QColor::hpal = 0;			// application global palette
 
-static int current_alloc_context = 0;
+static bool color_init = FALSE;
+static int  current_alloc_context = 0;
 
 
 int QColor::maxColors()
@@ -61,6 +62,10 @@ int QColor::numBitPlanes()
 
 void QColor::initialize()
 {
+    if ( color_init )
+	return;
+
+    color_init = TRUE;
     if ( QApplication::colorSpec() == QApplication::NormalColor )
 	return;
 
@@ -156,6 +161,7 @@ void QColor::cleanup()
 	DeleteObject( hpal );			//   palette
 	hpal = 0;
     }
+    color_init = FALSE;
 }
 
 
@@ -191,11 +197,16 @@ QColor::QColor( QRgb rgb, uint pixel )
 
 uint QColor::alloc()
 {
-    rgbVal &= RGB_MASK;
-    if ( hpal )
-	pix = PALETTEINDEX( GetNearestPaletteIndex(hpal,rgbVal) );
-    else
-	pix = rgbVal;
+    if ( (rgbVal & RGB_INVALID) || !color_init ) {
+	rgbVal = qRgb( 0, 0, 0 );		// invalid color or state
+	pix = 0;
+    } else {
+	rgbVal &= RGB_MASK;
+	if ( hpal )
+	    pix = PALETTEINDEX( GetNearestPaletteIndex(hpal,rgbVal) );
+	else
+	    pix = rgbVal;
+    }
     return pix;
 }
 
@@ -902,11 +913,15 @@ static uint get_rgb_val( const char * )
 void QColor::setSystemNamedColor( const char *name )
 {
     rgbVal = get_rgb_val( name );
-    if ( lalloc ) {
-	rgbVal |= RGB_DIRTY;			// alloc later
+    if ( rgbVal == RGB_INVALID ) {
 	pix = 0;
     } else {
-	alloc();				// alloc now
+	if ( lalloc ) {
+	    rgbVal |= RGB_DIRTY;		// alloc later
+	    pix = 0;
+	} else {
+	    alloc();				// alloc now
+	}
     }
 }
 
