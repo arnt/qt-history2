@@ -396,7 +396,7 @@ echo Creating makefiles...
 
 sepath=`echo $relpath | sed -e's/\\./\\\\./g'`
 
-for a in `find $relpath -name Makefile.in -print | sort` ; do
+for a in `find $relpath -follow -name Makefile.in -print | sort` ; do
     buildpath=`dirname $a | sed -e "s;$sepath;.;g"`
     test -d $buildpath || mkdir -p $buildpath
     N=$buildpath/Makefile
