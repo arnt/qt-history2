@@ -384,4 +384,3 @@ int QPoint::manhattanLength() const
 {
     return QABS(x())+QABS(y());
 }
-                                                    
