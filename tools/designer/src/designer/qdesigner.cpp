@@ -21,6 +21,7 @@
 
 // designer
 #include "qdesigner.h"
+#include "qdesigner_actions.h"
 #include "qdesigner_server.h"
 #include "qdesigner_settings.h"
 #include "qdesigner_session.h"
@@ -89,21 +90,26 @@ void QDesigner::initialize()
             break;
         }
     }
-    
+
     QTranslator *translator = new QTranslator;
     QTranslator *qtTranslator = new QTranslator;
     translator->load(QLatin1String("designer_") + QLatin1String(QLocale::system().name().toLower()), resourceDir);
     qtTranslator->load(QLatin1String("qt_") + QLatin1String(QLocale::system().name().toLower()), resourceDir);
     QApplication::instance()->installTranslator(translator);
     QApplication::instance()->installTranslator(qtTranslator);
-    
+
     m_session = new QDesignerSession();
     m_workbench = new QDesignerWorkbench();
 
     emit initialized();
 
-    for ( ; arg < argc(); ++arg)
-        m_workbench->readInForm(QString::fromLocal8Bit(argv()[arg]));
+    if (arg >= argc()) {
+        if (QDesignerSettings().showNewFormOnStartup())
+            m_workbench->actionManager()->createForm();
+    } else {
+        for ( ; arg < argc(); ++arg)
+            m_workbench->readInForm(QString::fromLocal8Bit(argv()[arg]));
+    }
 }
 
 bool QDesigner::event(QEvent *ev)

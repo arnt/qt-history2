@@ -15,7 +15,6 @@
 #define DESIGNERPREFERENCES_H
 
 #include <QtCore/QObject>
-#include <QtGui/QCheckBox>
 #include <QtCore/QPointer>
 #include "preferenceinterface.h"
 
@@ -41,7 +40,7 @@ private slots:
 private:
     bool m_dirty;
     bool m_showNewDialog;
-    QPointer<QCheckBox> optShowNewDialog;
+    bool m_useSDI;
     QPointer<QWidget> m_prefWidget;
 };
 

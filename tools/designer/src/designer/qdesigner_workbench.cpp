@@ -587,3 +587,7 @@ bool QDesignerWorkbench::handleClose()
     return true;
 }
 
+QDesignerActions *QDesignerWorkbench::actionManager() const
+{
+    return m_actionManager;
+}

@@ -35,6 +35,12 @@ public:
     QStringList recentFilesList() const;
     void setRecentFilesList(const QStringList &list);
 
+    void setShowNewFormOnStartup(bool showIt);
+    bool showNewFormOnStartup() const;
+
+    void setUseSDInterface(bool useSDI);
+    bool useSDInterface() const;
+
 private:
     QStringList defaultFormTemplatePaths() const;
 

@@ -11,8 +11,10 @@
 **
 ****************************************************************************/
 
+#include "qdesigner_actions.h"
 #include "qdesigner_formwindow.h"
 #include "qdesigner_workbench.h"
+#include "qdesigner_settings.h"
 
 // sdk
 #include <abstractformeditor.h>
@@ -24,6 +26,7 @@
 
 #include <QtCore/QEvent>
 #include <QtCore/QFile>
+#include <QtCore/QTimer>
 
 #include <QtGui/QAction>
 #include <QtGui/QCloseEvent>
@@ -154,11 +157,9 @@ void QDesignerFormWindow::closeEvent(QCloseEvent *ev)
         }
     }
 
-    /*
-    if (m_formWindowManager->formWindowCount() == 1 && *accept
-            && QSettings().value("newFormDialog/ShowOnStartup", true).toBool())
-        QTimer::singleShot(200, this, SLOT(newForm()));  // Use timer in case we are quitting.
-        */
+    if (m_workbench->core()->formWindowManager()->formWindowCount() == 1 && ev->isAccepted()
+            && QDesignerSettings().showNewFormOnStartup())
+        QTimer::singleShot(200, m_workbench->actionManager(), SLOT(createForm()));  // Use timer in case we are quitting.
 }
 
 void QDesignerFormWindow::updateChanged()

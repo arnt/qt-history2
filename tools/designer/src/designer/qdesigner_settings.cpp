@@ -173,3 +173,23 @@ void QDesignerSettings::setRecentFilesList(const QStringList &sl)
 {
     setValue("recentFilesList", sl);
 }
+
+void QDesignerSettings::setShowNewFormOnStartup(bool showIt)
+{
+    setValue("newFormDialog/ShowOnStartup", showIt);
+}
+
+bool QDesignerSettings::showNewFormOnStartup() const
+{
+    return value("newFormDialog/ShowOnStartup", true).toBool();
+}
+
+void QDesignerSettings::setUseSDInterface(bool useSDI)
+{
+    setValue("UI/useSDI", useSDI);
+}
+
+bool QDesignerSettings::useSDInterface() const
+{
+    return value("UI/useSDI", true).toBool();
+}

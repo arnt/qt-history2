@@ -73,6 +73,8 @@ public:
     int formWindowCount() const;
     QDesignerFormWindow *formWindow(int index) const;
 
+    QDesignerActions *actionManager() const;
+
     QActionGroup *modeActionGroup() const;
 
     QRect availableGeometry() const;

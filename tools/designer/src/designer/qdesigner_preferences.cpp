@@ -12,13 +12,65 @@
 ****************************************************************************/
 
 #include "qdesigner_preferences.h"
+#include "qdesigner_settings.h"
 
-#include <QtCore/QSettings>
-#include <QtGui/QLabel>
-#include <QtGui/QVBoxLayout>
+#include "ui_designer_preferences.h"
+
+class DesignerPreferencesWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    DesignerPreferencesWidget(QWidget *parent);
+    bool setupPreferences();
+
+private slots:
+    void on_optShowDialog_toggled(bool toggled);
+    void on_optSDI_toggled(bool toggled);
+
+signals:
+    void settingsChanged();
+    void uiChanged(bool); // true for SDI, false for MDI
+    void newFormChanged(bool);
+
+private:
+    Ui::DesignerPreferences ui;
+};
+
+DesignerPreferencesWidget::DesignerPreferencesWidget(QWidget *parent)
+    : QWidget(parent)
+{
+    ui.setupUi(this);
+    ui.lblSDI->setPixmap(QPixmap(":/trolltech/designer/images/sdi.png").scale(320, 240));
+    ui.lblMDI->setPixmap(QPixmap(":/trolltech/designer/images/mdi.png").scale(320, 240));
+}
+
+bool DesignerPreferencesWidget::setupPreferences()
+{
+    disconnect(this, SIGNAL(uiChanged(bool)), this, SIGNAL(settingsChanged()));
+    disconnect(this, SIGNAL(newFormChanged(bool)), this, SIGNAL(settingsChanged()));
+    QDesignerSettings settings;
+    ui.optShowDialog->setChecked(settings.showNewFormOnStartup());
+    if (settings.useSDInterface())
+        ui.optSDI->setChecked(true);
+    else
+        ui.optMDI->setChecked(true);
+    connect(this, SIGNAL(uiChanged(bool)), this, SIGNAL(settingsChanged()));
+    connect(this, SIGNAL(newFormChanged(bool)), this, SIGNAL(settingsChanged()));
+    return settings.status() != QSettings::NoError;
+}
+
+void DesignerPreferencesWidget::on_optShowDialog_toggled(bool toggled)
+{
+    emit newFormChanged(toggled);
+}
+
+void DesignerPreferencesWidget::on_optSDI_toggled(bool toggled)
+{
+    emit uiChanged(toggled);
+}
 
 DesignerPreferences::DesignerPreferences(QObject *parent)
-    : PreferenceInterface(parent), m_dirty(false), m_showNewDialog(true)
+    : PreferenceInterface(parent), m_dirty(false), m_showNewDialog(true), m_useSDI(false)
 {
 }
 
@@ -29,16 +81,10 @@ DesignerPreferences::~DesignerPreferences()
 QWidget *DesignerPreferences::createPreferenceWidget(QWidget *parent)
 {
     if (!m_prefWidget) {
-        m_prefWidget = new QWidget(parent);
-        QVBoxLayout *layout = new QVBoxLayout(m_prefWidget);
-        layout->setMargin(0);
-        optShowNewDialog = new QCheckBox(tr("&Show \"New Form\" dialog on startup"), m_prefWidget);
-        optShowNewDialog->setChecked(m_showNewDialog);
-        layout->addWidget(optShowNewDialog);
-        layout->addStretch();
-        connect(optShowNewDialog, SIGNAL(toggled(bool)), this, SLOT(setShowDialog(bool)));
-        connect(optShowNewDialog, SIGNAL(toggled(bool)), this, SLOT(setSettingsDirty()));
-        connect(optShowNewDialog, SIGNAL(toggled(bool)), this, SIGNAL(changed()));
+        m_prefWidget = new DesignerPreferencesWidget(parent);
+        connect(m_prefWidget, SIGNAL(settingsChanged()), this, SLOT(setSettingsDirty()));
+        connect(m_prefWidget, SIGNAL(uiChanged(bool)), this, SLOT(updateUI(bool)));
+        connect(m_prefWidget, SIGNAL(newFormChanged(bool)), this, SLOT(setShowDialog(bool)));
     }
     return m_prefWidget;
 }
@@ -50,23 +96,25 @@ bool DesignerPreferences::settingsChanged() const
 
 bool DesignerPreferences::readSettings()
 {
-    QSettings settings;
-    m_showNewDialog = settings.value("newFormDialog/ShowOnStartup", true).toBool();
-    if (settings.status() == QSettings::NoError && optShowNewDialog)
-        optShowNewDialog->setChecked(m_showNewDialog);
-    return settings.status() == QSettings::NoError;
+    bool ret = false;
+    if (m_prefWidget)
+        ret = static_cast<DesignerPreferencesWidget *>(static_cast<QWidget *>(m_prefWidget))->setupPreferences();
+    m_dirty = false;
+    return ret;
 }
 
 bool DesignerPreferences::saveSettings()
 {
-    QSettings settings;
-    settings.setValue("newFormDialog/ShowOnStartup", m_showNewDialog);
+    QDesignerSettings settings;
+    settings.setShowNewFormOnStartup(m_showNewDialog);
+    settings.setUseSDInterface(m_useSDI);
     return settings.status() == QSettings::NoError;
 }
 
 void DesignerPreferences::setSettingsDirty()
 {
     m_dirty = true;
+    emit changed();
 }
 
 void DesignerPreferences::setShowDialog(bool enable)
@@ -83,3 +131,5 @@ QIcon DesignerPreferences::preferenceIcon() const
 {
     return QIcon();
 }
+
+#include "qdesigner_preferences.moc"

@@ -101,10 +101,10 @@ public:
 
 public slots:
     void activeFormWindowChanged(AbstractFormWindow *formWindow);
+    void createForm();
 
 private slots:
     void setWorkbenchVisible(bool visible);
-    void createForm();
     void openForm();
     void saveForm();
     void saveFormAs();
