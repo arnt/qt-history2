@@ -440,7 +440,9 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     tags[arr] = kATSULineLayoutOptionsTag;
     ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineIgnoreFontLeading
                                    | kATSLineFractDisable;
-    //layopts |= kATSLineDisableAutoAdjustDisplayPos | kATSLineDisableAllLayoutOperations | kATSLineUseDeviceMetrics;
+    if(task & WIDTH)
+        layopts |= kATSLineDisableAutoAdjustDisplayPos | kATSLineDisableAllLayoutOperations |
+                   kATSLineUseDeviceMetrics;
     if(fontDef.styleStrategy & QFont::NoAntialias)
         layopts |= kATSLineNoAntiAliasing;
     valueSizes[arr] = sizeof(layopts);
