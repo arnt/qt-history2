@@ -2384,6 +2384,10 @@ bool QGdiplusPaintEngine::begin(QPaintDevice *pdev)
     GdipCreatePen1(0xff000000, 0, 0, &d->pen);
     Q_ASSERT(d->pen);
 
+    Q_ASSERT(!d->cachedSolidBrush);
+    GdipCreateSolidFill(0xff000000, (QtGpBrush**)(&d->cachedSolidBrush));
+    Q_ASSERT(d->cachedSolidBrush);
+
     setActive(true);
 
     return true;
@@ -2459,15 +2463,9 @@ void QGdiplusPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
         d->brush = 0;
         break;
     case Qt::SolidPattern:
-        if (!d->cachedSolidBrush) {
-//             d->cachedSolidBrush = new SolidBrush(conv(brush.color()));
-            GdipCreateSolidFill(brush.color().rgba(), (QtGpBrush**)(&d->cachedSolidBrush));
-            d->brush = d->cachedSolidBrush;
-        } else {
-//             d->cachedSolidBrush->SetColor(conv(brush.color()));
-            GdipSetSolidFillColor(d->cachedSolidBrush, brush.color().rgba());
-            d->brush = d->cachedSolidBrush;
-        }
+        Q_ASSERT(d->cachedSolidBrush);
+        GdipSetSolidFillColor(d->cachedSolidBrush, brush.color().rgba());
+        d->brush = d->cachedSolidBrush;
         break;
     case Qt::LinearGradientPattern: {
         QPointF p1 = brush.gradientStart();
@@ -2788,7 +2786,7 @@ void QGdiplusPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
     }
     const uint flags = 0;
 
-    GdipDrawDriverString(d->graphics, glyphs.data(), ti.num_glyphs, font, 
+    GdipDrawDriverString(d->graphics, glyphs.data(), ti.num_glyphs, font,
                          d->cachedSolidBrush, positions.data(), flags, 0);
 
     GdipSetSolidFillColor(d->cachedSolidBrush, d->brushColor.rgb());
