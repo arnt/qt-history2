@@ -112,7 +112,6 @@ QMacControl::QMacControl(QWidget *parent, ControlRef ctrl, const char *name, WFl
     if(!parent || f & WType_TopLevel) 
 	qFatal("QMacControl must not be toplevel!!!");
     d = new QMacControlPrivate;
-    setFocusPolicy(StrongFocus);
     setControl(ctrl);
 }
 
@@ -128,7 +127,6 @@ QMacControl::QMacControl(QWidget *parent, const char *name, WFlags f) : QWidget(
     if(!parent || f & WType_TopLevel) 
 	qFatal("QMacControl must not be toplevel!!!");
     d = new QMacControlPrivate;
-    setFocusPolicy(StrongFocus);
 }
 
 /*!
@@ -162,17 +160,18 @@ QMacControl::setControl(ControlRef ctrl)
 	RemoveEventHandler(d->ctrlHandler);
     d->ctrlHandler = NULL;
     if(ctrl) {
+	//Flags
 	//sanity check
 	UInt32 tmp = 0;
 	if(!GetControlPropertySize(ctrl, qControlWidgetCreator, qControlWidgetTag, &tmp) || tmp) {
 	    qWarning("You cannot bind to a ControlRef twice!!");
 	    return;
 	}
-
 	//set a flag
 	const QMacControl *me = this;
 	SetControlProperty(ctrl, qControlWidgetCreator, qControlWidgetTag, sizeof(this), &me);
 
+	//Properties
 	//parent the control
 	ControlRef root;
 	if(GetRootControl((WindowPtr)handle(), &root) || !root)
@@ -188,15 +187,6 @@ QMacControl::setControl(ControlRef ctrl)
 	Str255 str;
 	GetControlTitle(ctrl, str);
 	setCaption(p2qstring((unsigned char *)str));
-	//mask
-	QRegion rgn;
-	GetControlRegion(ctrl, 0, rgn.handle(TRUE));
-	if(!rgn.isEmpty()) {
-	    qDebug("Set mask (this is untested)!!!");
-	    QPoint p = mapTo(topLevelWidget(), QPoint(0, 0));
-	    rgn.translate(-p.x(), -p.y());
-	    setMask(rgn);
-	}
 	//update visibility
 	if(IsControlVisible(ctrl))
 	    show();
@@ -205,12 +195,29 @@ QMacControl::setControl(ControlRef ctrl)
 	//enabled state
 	setEnabled(IsControlEnabled(ctrl));
 
+	//Features
+	UInt32 feat;
+	GetControlFeatures(ctrl, &feat);
+	//focus
+	setFocusPolicy((feat & kControlSupportsFocus) ? StrongFocus : NoFocus);
+	//mask
+	if(feat & kControlSupportsGetRegion) {
+	    qDebug("Set mask (this is untested)!!!");
+	    QRegion rgn;
+	    GetControlRegion(ctrl, 0, rgn.handle(TRUE));
+	    QPoint p = mapTo(topLevelWidget(), QPoint(0, 0));
+	    rgn.translate(-p.x(), -p.y());
+	    setMask(rgn);
+	}
+
+	//Callbacks
 	//setup event callback
 	if(!QMacControlPrivate::ctrlHandlerUPP) {
 	    QMacControlPrivate::ctrlHandlerUPP = NewEventHandlerUPP(QMacControl::ctrlEventProcessor);
 	    qAddPostRoutine( cleanup_qmaccontrol );
 	}
 	static EventTypeSpec events[] = {
+	    { kEventClassKeyboard, kEventRawKeyDown },
 	    { kEventClassControl, kEventControlDraw },
 	    { kEventClassMouse, kEventMouseDown }
 	};
@@ -256,7 +263,7 @@ QMacControl::event(QEvent *e)
 	ShowControl(d->ctrl);
 	break;
     case QEvent::FocusIn:
-	SetKeyboardFocus((WindowPtr)handle(), d->ctrl, 0);
+	SetKeyboardFocus((WindowPtr)handle(), d->ctrl, kControlFocusNextPart);
 	break;
     case QEvent::FocusOut:
 	ClearKeyboardFocus((WindowPtr)handle());
@@ -352,6 +359,23 @@ QMacControl::ctrlEventProcessor(EventHandlerCallRef er, EventRef event, void *da
 	    }
 	}
 	break;
+    case kEventClassKeyboard:
+	if(ekind == kEventRawKeyDown) {
+	    EventRecord erec;
+	    if(ConvertEventRefToEventRecord(event, &erec)) { //lazy lazy lazy..
+		HandleControlKey(ctrl->d->ctrl, (erec.message & keyCodeMask)>>16, 
+				 erec.message & charCodeMask, erec.modifiers);
+	    } else {
+		qDebug("Untested case..");
+		UInt32 keyc, modif, state;
+		GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
+		GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(modif), NULL, &modif);
+		char chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript), 
+					(modif & (shiftKey|rightShiftKey)) | keyc, &state);
+		HandleControlKey(ctrl->d->ctrl, keyc, chr, 0);
+	    }
+	}
+	break; 
     case kEventClassMouse: {
 	Point where;
 	GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, NULL,
@@ -361,6 +385,9 @@ QMacControl::ctrlEventProcessor(EventHandlerCallRef er, EventRef event, void *da
 	if(ctrl->clippedRegion(FALSE).contains(p)) {
 	    call_back = FALSE;
 	    if(ekind == kEventMouseDown) {
+		if(ctrl->focusPolicy() & ClickFocus)
+		    ctrl->setFocus(); //I must have the focus!
+
 		QMacTrackEvent te(ctrl, p);
 		QApplication::sendEvent(ctrl, &te); 
 		if(te.isAccepted())
