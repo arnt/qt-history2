@@ -48,6 +48,8 @@
 /*! \example sql/overview/del/main.cpp */
 /*! \example sql/overview/table1/main.cpp */
 /*! \example sql/overview/table2/main.cpp */
+/*! \example sql/overview/table3/main.h */
+/*! \example sql/overview/table3/main.cpp */
 /*! \example sql/overview/form1/main.cpp */
 /*! \example sql/overview/form2/main.h */
 /*! \example sql/overview/custom1/main.h */
@@ -105,6 +107,10 @@ Executing SQL Commands Using QSqlQuery</a></li>
 	<li><a href="#Editing_a_Record">Editing a Record</a></li>
 	</ul>
     <li><a href="#Custom_Editor_Widgets">Custom Editor Widgets</a></li> 
+	<ul>
+	<li><a href="#Custom_Editor_Widgets_for_Tables">
+	Custom Editor Widgets for QTables</a></li>
+	</ul>
     </ul>
 <li><a href="#Subclassing_QSqlCursor">Subclassing QSqlCursor</a></li> 
 <li><a href="#Appendix_1_Tables">Appendix 1: The Example Tables</a></li> 
@@ -162,14 +168,13 @@ QSqlQuery.
 how to use the QSqlCursor class which provides a more structured and
 powerful API than the raw SQL used with \l QSqlQuery.
 
-<a href="#Data-Aware_Widgets">Data-Aware Widgets</a>. This section
-shows how to programmatically link your database to the user
-interface. In this section we introduce the \l QSqlTable, \l QSqlForm,
-\l QSqlDialog, \l QSqlNavigator, \l QSqlPropertyMap and \l QSqlWidget
-classes. Also covered are custom data-aware widgets and the \l
-QSqlEditorFactory class. <em>Qt Designer</em> provides an easy visual
-way of achieving the same thing.  See the <em>Qt Designer</em> manual
-for more information.
+<a href="#Data-Aware_Widgets">Data-Aware Widgets</a>. This section shows
+how to programmatically link your database to the user interface. In
+this section we introduce the \l QSqlTable, \l QSqlForm, and \l
+QSqlPropertyMap classes and demonstrate how to use custom data-aware
+widgets. <em>Qt Designer</em> provides an easy visual way of achieving
+the same thing.  See the <em>Qt Designer</em> manual for more
+information.
 
 <a href="#Subclassing_QSqlCursor">Subclassing QSqlCursor</a>. This
 section gives examples of subclassing QSqlCursor. Subclassing can be
@@ -894,6 +899,75 @@ The behaviour of this example is identical to the previous one except
 that the forename and surname fields will be uppercase since they use
 our CustomEdit widget.
 
+<h3><a name="Custom_Editor_Widgets_for_Tables">
+Custom Editor Widgets for QTables</a></h3>
+
+We must reimpliment QSqlEditorFactory to use custom editor widgets in
+tables. In the following example we will create a custom editor based on
+QComboBox and a QSqlEditorFactory subclass to show how a QTable can use
+a custom editor.
+
+\dontinclude sql/overview/table3/main.h
+\skip StatusPicker
+\line StatusPicker
+\until }; 
+<h5 align="center">From \l sql/overview/table3/main.h
+</h5>
+
+We create a property, statusid, and define our READ and WRITE methods
+for it. The statusid's in the status table will probably be different
+from the combobox's indexes so we create a QMap to map combobox indexes
+to/from the statusids that we will list in the combobox.
+
+\skip CustomSqlEditor
+\line CustomSqlEditor
+\until }; 
+
+We also need to subclass QSqlEditorFactory declaring a createEditor()
+function since that is the only function we need to override. 
+
+\dontinclude sql/overview/table3/main.cpp
+\skip StatusPicker
+\line StatusPicker
+\until index2id
+\line
+\line
+<h5 align="center">From \l sql/overview/table3/main.cpp
+</h5>
+
+In the StatusPicker's constructor we create a cursor over the status
+table indexed by the name field. We then iterate over each record in the
+status table inserting each name into the combobox. We store the
+statusid for each name in the index2id QMap using the same QMap index as
+the combobox index.
+
+\skip StatusPicker
+\line StatusPicker
+\until } 
+
+The statusid property READ function simply involves looking up the
+combobox's index for the currently selected item in the index2id QMap
+which maps combobox indexes to statusids.
+
+\skip StatusPicker
+\line StatusPicker
+\until } 
+\line
+\line
+
+The statusId() function implements the statusid property's WRITE
+function. We create an iterator over a QMap and iterate over the
+index2id QMap. We compare each index2id element's data (statusid) to the
+id parameter's value. If we have a match we set the combobox's current
+item to the index2id element's key (the combobox index), and leave the
+loop.
+
+When the user edits the status field in the QSqlTable they will be
+presented with a combobox of valid status names taken from the status
+table. However the status displayed is still the raw statusid. The next
+section, <a href=#Subclassing_QSqlCursor">Subclassing QSqlCursor</a>,
+shows us how to display the looked up values of foreign keys. 
+
 <h2><a name="Subclassing_QSqlCursor">Subclassing QSqlCursor</a></h2>
 
 \dontinclude sql/overview/subclass1/main.cpp
@@ -983,7 +1057,7 @@ perform real calculations.
 
 The header file, \l sql/overview/subclass4/main.h, remains unchanged
 from the previous example, but the constructor and calculateField()
-function require some simple expansion. We'll look at each in turn
+function require some simple expansion. We'll look at each in turn.
 
 \dontinclude sql/overview/subclass4/main.cpp
 \skip InvoiceItem
@@ -1027,6 +1101,22 @@ attempts to insert a new record.
 We declare our own primeInsert() function since we will need to override
 this.
 
+The constructor and the calculateField() function remain unchanged.
+
+\dontinclude sql/overview/subclass5/main.cpp
+\skip primeInsert
+\line primeInsert
+\until }
+<h5 align="center">From \l sql/overview/subclass5/main.cpp
+</h5>
+
+We get a pointer to the internal edit buffer that the cursor uses for
+inserts and updates. The id field is a unique integer that we generate
+using the invoiceitem_seq. We default the value of the paiddate field to
+today's date and default the quantity to 1. Finally we return a pointer
+to the buffer. The rest of the code is unchanged from the previous
+version.
+
 
 <h2><a name="Appendix_1_Tables">Appendix 1: The Example Tables</a></h2> 
 
@@ -1038,7 +1128,9 @@ database. Note that sequences are not supported in all databases.
 create table people (id integer primary key, name char(40));
 
 create table staff (id integer primary key, forename char(40),
-		    surname char(40), salary float);
+		    surname char(40), salary float, statusid integer);
+
+create table status (id integer primary key, name char(30));
 
 create table creditors (id integer primary key, forename char(40),
 			surname char(40), city char(30));

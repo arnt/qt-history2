@@ -83,7 +83,6 @@ int main( int argc, char *argv[] )
 
     if ( create_connections() ) {
 	InvoiceItemCursor invoiceItemCursor;
-qDebug( "Mode: %d", invoiceItemCursor.mode() );
 
 	QSqlTable *invoiceItemTable = new QSqlTable( &invoiceItemCursor );
 
