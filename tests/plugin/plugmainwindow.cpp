@@ -28,12 +28,9 @@ PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
     if ( file ) {
 	file->insertItem( "&Add", this, SLOT( fileOpen() ) );
 	file->insertItem( "&Remove", this, SLOT( fileClose() ) );
+	file->insertSeparator();
+	file->insertItem( "&Exit", qApp, SLOT( quit() ) );
 	menuBar()->insertItem( "&PlugIn", file );
-    }
-    actionMenu = (QPopupMenu*)QWidgetFactory::create( "QPopupMenu", this );
-    if ( actionMenu ) {
-	menuBar()->insertItem( "&Actions", actionMenu );
-	connect( actionMenu, SIGNAL( activated(int) ), this, SLOT( runAction(int) ) );
     }
     widgetMenu = (QPopupMenu*)QWidgetFactory::create( "QPopupMenu", this );
     if ( widgetMenu ) {
@@ -57,7 +54,7 @@ PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
 	menuIDs.insert( wl[w], new int(widgetMenu->insertItem( wl[w] )) );
     QStringList al = QActionFactory::actionList();
     for ( uint a = 0; a < al.count(); a++ )
-	menuIDs.insert( al[a], new int(widgetMenu->insertItem( al[a] )) );
+	addAction( QActionFactory::create( al[a], this ) );
 }
 
 void PlugMainWindow::fileOpen()
@@ -76,9 +73,12 @@ void PlugMainWindow::fileOpen()
 	    menuIDs.insert( wl[i], new int(widgetMenu->insertItem( wl[i] )) );
     } else if ( ( plugin = actionManager->addLibrary( file ) ) ) {
 	statusBar()->message( tr("Action-Plugin \"%1\" loaded").arg( plugin->name() ), 3000 );
-	QStringList wl = ((QActionPlugIn*)plugin)->actions();
-	for ( uint i = 0; i < wl.count(); i++ )
-	    menuIDs.insert( wl[i], new int(actionMenu->insertItem( wl[i] )) );
+	QStringList al = ((QActionPlugIn*)plugin)->actions();
+	for ( uint a = 0; a < al.count(); a++ ) {
+	    if ( !addAction( QActionFactory::create( al[a], this ) ) ) {
+		QMessageBox::information( this, "Error", tr("Couldn't create action\n%1").arg( al[a] ) );
+	    }
+	}
     } else {
 	QMessageBox::information( this, "Error", tr("Couldn't load plugin\n%1").arg( file ) );
 	return;
@@ -231,20 +231,10 @@ void PlugMainWindow::runWidget( int id )
     QToolTip::add( w, QString("%1 ( %2 )").arg( w->className() ).arg( QWidgetFactory::widgetFactory( w->className() )->factoryName() ) );
 }
 
-void PlugMainWindow::runAction( int id )
+bool PlugMainWindow::addAction( QAction* action )
 {
-    QDictIterator<int> it( menuIDs );
-    while ( it.current() ) {
-	if ( *(it.current()) == id )
-	    break;
-	++it;
-    }
-
-    QAction* a = QActionFactory::create( it.currentKey(), this );
-    if ( !a ) {
-	QMessageBox::information( this, "Error", tr("Couldn't create action\n%1").arg( it.currentKey() ) );
-	return;
-    }
+    if ( !action )
+	return FALSE;
     if ( !pluginMenu ) {
 	pluginMenu = new QPopupMenu( this );
 	menuBar()->insertItem( "&PlugIn", pluginMenu );	
@@ -254,6 +244,8 @@ void PlugMainWindow::runAction( int id )
 	pluginTool->show();
 	addToolBar( pluginTool, "PlugIns" );
     }
-    a->addTo( pluginTool );
-    a->addTo( pluginMenu );
+    action->addTo( pluginTool );
+    action->addTo( pluginMenu );
+
+    return TRUE;
 }

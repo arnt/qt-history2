@@ -10,6 +10,7 @@ class QWidgetPlugInManager;
 class QActionPlugInManager;
 class QPopupMenu;
 class QToolBar;
+class QAction;
 
 class PlugMainWindow : public QMainWindow
 {
@@ -21,9 +22,10 @@ public slots:
     void fileOpen();
     void fileClose();
     void runWidget( int );
-    void runAction( int );
 
 protected:
+    bool addAction( QAction* );
+
     QPopupMenu* actionMenu;
     QPopupMenu* widgetMenu;
     QPopupMenu* pluginMenu;
