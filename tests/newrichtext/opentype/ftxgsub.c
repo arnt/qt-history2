@@ -398,7 +398,7 @@
   FT_Error   TT_Done_GSUB_Table( TTO_GSUBHeader* gsub )
   {
     FT_Memory memory = gsub->memory;
-    
+
     Free_LookupList( &gsub->LookupList, GSUB, memory );
     Free_FeatureList( &gsub->FeatureList, memory );
     Free_ScriptList( &gsub->ScriptList, memory );
@@ -2210,7 +2210,7 @@
 
     error = Get_Class( &csf2->ClassDef, in->string[in->pos],
                        &classes[0], NULL );
-    if ( error )
+    if ( error && error != TTO_Err_Not_Covered )
       goto End;
     known_classes = 0;
 
@@ -3017,7 +3017,7 @@
                                                 backtrack_offset, base_offset,
 					        stream ) ) != TT_Err_Ok )
         goto Fail5;
-	       
+
     if ( ( error = Load_EmptyOrClassDefinition( &ccsf2->InputClassDef, count,
                                                 input_offset, base_offset,
                                                 stream ) ) != TT_Err_Ok )
@@ -3583,7 +3583,7 @@
 
     error = Get_Class( &ccsf2->InputClassDef, in->string[in->pos],
                        &input_classes[0], NULL );
-    if ( error )
+    if ( error && error != TTO_Err_Not_Covered )
       goto End1;
 
     cscs = &ccsf2->ChainSubClassSet[input_classes[0]];
@@ -4097,7 +4097,7 @@
       return TT_Err_Invalid_Argument;
 
     memory = gsub->memory;
-    
+
     sl = &gsub->ScriptList;
     sr = sl->ScriptRecord;
 
@@ -4149,7 +4149,7 @@
       return TT_Err_Invalid_Argument;
 
     memory = gsub->memory;
-    
+
     sl = &gsub->ScriptList;
     sr = sl->ScriptRecord;
 
@@ -4301,7 +4301,7 @@
       else
         error = TTO_Err_Not_Covered;
 
-      if ( error == TTO_Err_Not_Covered ) 
+      if ( error == TTO_Err_Not_Covered )
         if ( ADD_String( in, 1, out, 1, &s_in[in->pos], 0xFFFF, 0xFFFF ) )
           return error;
     }
@@ -4378,7 +4378,7 @@
 				TTO_GSUB_String   **result )
   {
     FT_Error error;
-    
+
     TTO_GSUB_String *str;
 
     if ( ALLOC( str, sizeof( *str ) ) )
@@ -4407,7 +4407,7 @@
   {
     FT_Memory memory = str->memory;
     FT_Error error;
-    
+
     if ( new_length > str->allocated )
     {
       if ( REALLOC_ARRAY( str->string, str->allocated, new_length, FT_UShort ) )
@@ -4467,7 +4467,7 @@
       return TT_Err_Invalid_Argument;
 
     properties = gsub->LookupList.Properties;
-    
+
     tmp1.memory    = memory;
     tmp1.length    = in->length;
     tmp1.allocated = in->length;

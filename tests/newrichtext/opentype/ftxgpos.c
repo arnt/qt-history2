@@ -313,7 +313,7 @@
   FT_Error  TT_Done_GPOS_Table( TTO_GPOSHeader* gpos )
   {
     FT_Memory memory = gpos->memory;
-    
+
     Free_LookupList( &gpos->LookupList, GPOS, memory );
     Free_FeatureList( &gpos->FeatureList, memory );
     Free_ScriptList( &gpos->ScriptList, memory );
@@ -341,7 +341,7 @@
   {
     FT_Error  error;
     FT_Memory memory = stream->memory;
-    
+
     FT_ULong cur_offset, new_offset;
 
 
@@ -874,10 +874,10 @@
           return error;
 
 	if ( gpi->face->glyph->format != ft_glyph_format_outline )
-          return TTO_Err_Invalid_GPOS_SubTable;	  
+          return TTO_Err_Invalid_GPOS_SubTable;
 
 	ap = an->af.af2.AnchorPoint;
-	
+
 	outline = gpi->face->glyph->outline;
 
         /* if outline.n_points is set to zero by gfunc(), we use the
@@ -953,7 +953,7 @@
       return error;
 
     count = ma->MarkCount = GET_UShort();
-    
+
     FORGET_Frame();
 
     ma->MarkRecord = NULL;
@@ -1208,7 +1208,7 @@
       return error;
 
     count = ps->PairValueCount = GET_UShort();
-    
+
     FORGET_Frame();
 
     ps->PairValueRecord = NULL;
@@ -1450,7 +1450,7 @@
           if ( error )
 	  {
 	    if ( format1 )
-	      Free_ValueRecord( &c2r[n].Value1, format1, memory );	      
+	      Free_ValueRecord( &c2r[n].Value1, format1, memory );
             goto Fail0;
 	  }
         }
@@ -1677,11 +1677,11 @@
 
     error = Get_Class( &ppf2->ClassDef1, in->string[first_pos],
                        &cl1, NULL );
-    if ( error )
+    if ( error && error != TTO_Err_Not_Covered )
       return error;
     error = Get_Class( &ppf2->ClassDef2, in->string[in->pos],
                        &cl2, NULL );
-    if ( error )
+    if ( error && error != TTO_Err_Not_Covered )
       return error;
 
     c1r = &ppf2->Class1Record[cl1];
@@ -1813,7 +1813,7 @@
     for ( n = 0; n < count; n++ )
     {
       FT_ULong entry_offset;
-      
+
       if ( ACCESS_Frame( 2L ) )
         return error;
 
@@ -2140,7 +2140,7 @@
       return error;
 
     count = ba->BaseCount = GET_UShort();
-    
+
     FORGET_Frame();
 
     ba->BaseRecord = NULL;
@@ -2188,7 +2188,7 @@
     for ( k = 0; k < m; k++ )
     {
       ban = br[k].BaseAnchor;
-      
+
       for ( n = 0; n < num_classes; n++ )
         Free_Anchor( &ban[n], memory );
 
@@ -2455,7 +2455,7 @@
       return error;
 
     count = lat->ComponentCount = GET_UShort();
-    
+
     FORGET_Frame();
 
     lat->ComponentRecord = NULL;
@@ -2510,7 +2510,7 @@
     for ( k = 0; k < m; k++ )
     {
       lan = cr[k].LigatureAnchor;
-      
+
       for ( n = 0; n < num_classes; n++ )
         Free_Anchor( &lan[n], memory );
 
@@ -2879,7 +2879,7 @@
       return error;
 
     count = m2a->Mark2Count = GET_UShort();
-    
+
     FORGET_Frame();
 
     m2a->Mark2Record = NULL;
@@ -2927,7 +2927,7 @@
     for ( k = 0; k < m; k++ )
     {
       m2an = m2r[k].Mark2Anchor;
-      
+
       for ( n = 0; n < num_classes; n++ )
         Free_Anchor( &m2an[n], memory );
 
@@ -4038,7 +4038,7 @@
 
     error = Get_Class( &cpf2->ClassDef, in->string[in->pos],
                        &classes[0], NULL );
-    if ( error )
+    if ( error && error != TTO_Err_Not_Covered )
       goto End;
     known_classes = 0;
 
@@ -5406,7 +5406,7 @@
 
     error = Get_Class( &ccpf2->InputClassDef, in->string[in->pos],
                        &input_classes[0], NULL );
-    if ( error )
+    if ( error && error != TTO_Err_Not_Covered )
       goto End1;
 
     cpcs = &ccpf2->ChainPosClassSet[input_classes[0]];
