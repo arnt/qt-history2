@@ -32,7 +32,7 @@ public:
 	proc->addArgument( "small dialog.ui" );
 
 	connect( proc, SIGNAL(readyReadStdout()),
-		this, SLOT(readStdout()) );
+		this, SLOT(readFromStdout()) );
 	connect( proc, SIGNAL(processExited()),
 		this, SLOT(scrollToTop()) );
 
@@ -48,9 +48,10 @@ public:
     ~UicManager() {}
 
 public slots:
-    void readStdout()
+    void readFromStdout()
     {
-	// keep in mind that you might read the output in chunks
+	// Read and process the data.
+	// Keep in mind that the data might be reported in chunks.
 	output->append( proc->readStdout() );
     }
 
