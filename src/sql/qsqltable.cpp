@@ -1046,7 +1046,7 @@ void QSqlTable::refresh( QSqlCursor* cursor, const QSqlRecord* buf, const QSqlIn
 	return;
 
     bool seekPrimary = (idx.count() ? TRUE : FALSE );
-    int lastAt = d->lastAt; // ### use to optimize reseek on pri idx
+    int lastAt = d->lastAt;
 
     QSqlIndex pi;
     if ( seekPrimary )
@@ -1057,18 +1057,7 @@ void QSqlTable::refresh( QSqlCursor* cursor, const QSqlRecord* buf, const QSqlIn
     QStringList currentSort = cursor->sort().toStringList( QString::null, TRUE );
     if ( !currentSort.count() )
 	currentSort = d->srt;
-    QSqlIndex newSort;
-    for ( uint i = 0; i < currentSort.count(); ++i ) {
-	QString f = currentSort[ i ];
-	bool desc = FALSE;
-	if ( f.mid( f.length()-3 ) == "ASC" )
-	    f = f.mid( 0, f.length()-3 );
-	if ( f.mid( f.length()-4 ) == "DESC" ) {
-	    desc = TRUE;
-	    f = f.mid( 0, f.length()-4 );
-	}
-	newSort.append( *( cursor->field( f.simplifyWhiteSpace() ) ), desc );
-    }
+    QSqlIndex newSort = QSqlIndex::fromStringList( currentSort, cursor );
     cursor->select( currentFilter, newSort );
     setSize( cursor );
     bool found = FALSE;
@@ -1584,12 +1573,9 @@ void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelet
 	setNumCols(0);
 	d->colIndex.clear();
 	d->colReadOnly.clear();
-	d->ftr = QString::null;
-	d->srt.clear();
-
 	if ( autoPopulate )
 	    addColumns( *d->cursor );
-	setReadOnly( d->cursor->isReadOnly() );
+	setReadOnly( d->cursor->isReadOnly() ); // ## do this by default?
 	setNullText(d->cursor->driver()->nullText() );
 	setAutoDelete( autoDelete );
     }

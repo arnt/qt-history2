@@ -39,6 +39,8 @@
 
 #ifndef QT_NO_SQL
 
+#include "qsqlcursor.h"
+
 /*!
     \class QSqlIndex qsqlindex.h
     \brief A SQL database index.
@@ -217,6 +219,31 @@ QString QSqlIndex::createField( int i, const QString& prefix, bool verbose ) con
     if ( verbose )
 	f += " " + QString( ( isDescending( i ) ? "DESC" : "ASC" ) );
     return f;
+}
+
+/*! Returns an index based on the field descriptions in \a l and the
+  cursor \a cursor.  The field descriptions should be of the format
+  produces by toStringList().
+
+  \sa toStringList()
+
+*/
+
+QSqlIndex QSqlIndex::fromStringList( const QStringList& l, const QSqlCursor* cursor )
+{
+    QSqlIndex newSort;
+    for ( uint i = 0; i < l.count(); ++i ) {
+	QString f = l[ i ];
+	bool desc = FALSE;
+	if ( f.mid( f.length()-3 ) == "ASC" )
+	    f = f.mid( 0, f.length()-3 );
+	if ( f.mid( f.length()-4 ) == "DESC" ) {
+	    desc = TRUE;
+	    f = f.mid( 0, f.length()-4 );
+	}
+	newSort.append( *( cursor->field( f.simplifyWhiteSpace() ) ), desc );
+    }
+    return newSort;
 }
 
 /*! \fn QString QSqlIndex::cursorName() const

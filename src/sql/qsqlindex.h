@@ -78,6 +78,8 @@ public:
     QStringList      toStringList( const QString& prefix = QString::null,
 				   bool verbose = TRUE ) const;
 
+    static QSqlIndex fromStringList( const QStringList& l, const QSqlCursor* cursor );
+
 private:
     QString          createField( int i, const QString& prefix, bool verbose ) const;
     QString          cursor;
