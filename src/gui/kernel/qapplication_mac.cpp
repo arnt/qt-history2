@@ -80,6 +80,7 @@
 
 //for qt_mac.h
 QPaintDevice *qt_mac_safe_pdev = 0;
+QList<QMacWindowChangeEvent*> *QMacWindowChangeEvent::change_events = 0;
 
 /*****************************************************************************
   Internal variables and functions
@@ -98,7 +99,7 @@ static int mouse_button_state = 0;
 static int keyboard_modifiers_state = 0;
 static bool app_do_modal = false;       // modal mode
 extern QWidgetList *qt_modal_stack;     // stack of modal widgets
-extern bool qt_mac_in_drag;             //qdnd_mac.cpp
+extern bool qt_mac_in_drag;             // from qdnd_mac.cpp
 extern bool qt_resolve_symlinks;        // from qapplication.cpp
 extern bool qt_tab_all_widgets;         // from qapplication.cpp
 bool qt_mac_app_fullscreen = false;
@@ -517,7 +518,8 @@ enum {
     kEventQtRequestWakeup = 16,
     kEventQtRequestShowSheet = 17,
     kEventQtRequestActivate = 18,
-    kEventQtRequestSocketAct = 19
+    kEventQtRequestSocketAct = 19,
+    kEventQtRequestWindowChange = 20
 };
 static void qt_mac_event_release(EventRef &event)
 {
@@ -598,6 +600,27 @@ void qt_event_request_showsheet(QWidget *w)
     PostEventToQueue(GetMainEventQueue(), request_showsheet_pending, kEventPriorityStandard);
     ReleaseEvent(request_showsheet_pending);
 }
+
+/* window changing. This is a hack around Apple's missing functionality, pending the toolbox
+   team fix. --Sam */
+static EventRef request_window_change_pending = 0;
+void qt_event_request_window_change()
+{
+    if(request_window_change_pending) {
+        if(IsEventInQueue(GetMainEventQueue(), request_window_change_pending))
+            return;
+#ifdef DEBUG_DROPPED_EVENTS
+        qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
+#endif
+    }
+
+    CreateEvent(0, kEventClassQt, kEventQtRequestWindowChange, GetCurrentEventTime(),
+                kEventAttributeUserEvent, &request_window_change_pending);
+    PostEventToQueue(GetMainEventQueue(), request_window_change_pending,
+                     kEventPriorityHigh);
+    ReleaseEvent(request_window_change_pending);
+}
+
 
 /* wakeup */
 static EventRef request_wakeup_pending = 0;
@@ -761,6 +784,7 @@ void qt_mac_event_release(QWidget *w)
 static EventTypeSpec app_events[] = {
     { kEventClassQt, kEventQtRequestTimer },
     { kEventClassQt, kEventQtRequestWakeup },
+    { kEventClassQt, kEventQtRequestWindowChange },
     { kEventClassQt, kEventQtRequestSelect },
     { kEventClassQt, kEventQtRequestShowSheet },
     { kEventClassQt, kEventQtRequestContext },
@@ -1562,6 +1586,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 if(just_show) //at least the window will be visible, but the sheet flag doesn't work sadly (probalby too many sheets)
                     ShowHide(window, true);
             }
+        } else if(ekind == kEventQtRequestWindowChange) {
+            request_window_change_pending = 0;
+            QMacWindowChangeEvent::exec();
         } else if(ekind == kEventQtRequestWakeup) {
             request_wakeup_pending = 0;             //do nothing else, we just woke up!
         } else if(ekind == kEventQtRequestMenubarUpdate) {

@@ -51,6 +51,7 @@ extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle); //qregion_mac.cpp
 extern QRegion qt_mac_convert_mac_region(RgnHandle); //qregion_mac.cpp
 
+
 /*****************************************************************************
   QGLFormat UNIX/AGL-specific code
  *****************************************************************************/
@@ -365,29 +366,51 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 /*****************************************************************************
   QGLWidget AGL-specific code
  *****************************************************************************/
+
 #define d d_func()
 #define q q_func()
 
-static EventTypeSpec widget_opengl_events[] = {
+/****************************************************************************
+  Hacks to glue AGL to an HIView
+  ***************************************************************************/
+static EventTypeSpec glwindow_change_events[] = {
     { kEventClassControl, kEventControlOwningWindowChanged },
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     { kEventClassControl, kEventControlVisibilityChanged },
 #endif
     { kEventClassControl, kEventControlBoundsChanged }
 };
-static EventHandlerUPP widget_opengl_handlerUPP = 0;
-static void qt_clean_widget_opengl_handler()
+static EventHandlerUPP glwindow_change_handlerUPP = 0;
+static void qt_clean_glwindow_change_handler()
 {
-    DisposeEventHandlerUPP(widget_opengl_handlerUPP);
+    DisposeEventHandlerUPP(glwindow_change_handlerUPP);
 }
+class QMacGLWindowChangeEvent : public QMacWindowChangeEvent
+{
+    EventHandlerRef event_handler;
+    QGLWidget *context;
+public:
+    QMacGLWindowChangeEvent(QGLWidget *w) : context(w) { 
+        if(!glwindow_change_handlerUPP) {
+            glwindow_change_handlerUPP = NewEventHandlerUPP(QMacGLWindowChangeEvent::globalEventProcessor);
+            qAddPostRoutine(qt_clean_glwindow_change_handler);
+        }
+        InstallControlEventHandler(reinterpret_cast<HIViewRef>(w->winId()), 
+                                   glwindow_change_handlerUPP, GetEventTypeCount(glwindow_change_events), 
+                                   glwindow_change_events, (void *)this, &event_handler);
+    }
+    ~QMacGLWindowChangeEvent() {
+        RemoveEventHandler(event_handler);
+    }
+protected:
+    static OSStatus globalEventProcessor(EventHandlerCallRef, EventRef, void *);    
+    void windowChanged() { /*context->d->updatePaintDevice();*/ }
+};
 
-/*!
-    \internal
-*/
-OSStatus QGLWidget::globalEventProcessor(EventHandlerCallRef, EventRef event, void *data)
+OSStatus QMacGLWindowChangeEvent::globalEventProcessor(EventHandlerCallRef, EventRef event, void *data)
 {
     bool handled_event = true;
-    QGLWidget *widget = static_cast<QGLWidget*>(data);
+    QMacGLWindowChangeEvent *change = static_cast<QMacGLWindowChangeEvent*>(data);
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
     switch(eclass) {
     case kEventClassControl:
@@ -397,7 +420,7 @@ OSStatus QGLWidget::globalEventProcessor(EventHandlerCallRef, EventRef event, vo
            || ekind == kEventControlVisibilityChanged 
 #endif
            || ekind == kEventControlBoundsChanged) 
-            widget->d->updatePaintDevice();
+            change->context->d->updatePaintDevice();
         break;
     default:
         handled_event = false;
@@ -410,14 +433,7 @@ OSStatus QGLWidget::globalEventProcessor(EventHandlerCallRef, EventRef event, vo
 
 void QGLWidget::init(QGLContext *context, const QGLWidget* shareWidget)
 {
-    if(!widget_opengl_handlerUPP) {
-        widget_opengl_handlerUPP = NewEventHandlerUPP(QGLWidget::globalEventProcessor);
-        qAddPostRoutine(qt_clean_widget_opengl_handler);
-    }
-    InstallControlEventHandler(reinterpret_cast<HIViewRef>(winId()), 
-                               widget_opengl_handlerUPP, GetEventTypeCount(widget_opengl_events), 
-                               widget_opengl_events, (void *)this, &d->event_handler);
-
+    d->watcher = new QMacGLWindowChangeEvent(this);
     d->glcx = d->olcx = 0;
     d->autoSwap = true;
 

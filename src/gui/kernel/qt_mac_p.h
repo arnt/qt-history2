@@ -36,6 +36,33 @@ public:
     static bool blocking() { return block != 0; }
 };
 
+class QMacWindowChangeEvent
+{
+private:
+    static QList<QMacWindowChangeEvent*> *change_events;
+public:
+    QMacWindowChangeEvent() {
+        if(!change_events)
+            change_events = new QList<QMacWindowChangeEvent*>;
+        change_events->append(this);
+    }
+    virtual ~QMacWindowChangeEvent() {
+        change_events->removeAll(this);
+        if(change_events->isEmpty()) {
+            delete change_events;
+            change_events = 0;
+        }
+    }
+    static inline void exec() {
+        if(change_events) {
+            for(int i = 0; i < change_events->count(); i++)
+                change_events->at(i)->windowChanged();
+        }
+    }
+protected:
+    virtual void windowChanged() = 0;
+};
+
 class QMacCGContext
 {
     CGContextRef context;

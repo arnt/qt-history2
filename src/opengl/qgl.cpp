@@ -33,6 +33,8 @@ static QGLFormat* qgl_default_overlay_format = 0;
 #undef INT8
 #include "qx11info_x11.h"
 static void *gl_pixmap_visual = 0;
+#elif defined(Q_WS_MAC)
+# include <private/qt_mac_p.h>
 #endif
 
 static QCleanupHandler<QGLFormat> qgl_cleanup_format;
@@ -1348,6 +1350,10 @@ QGLWidget::~QGLWidget()
     delete d->glcx;
 #if defined(Q_WGL)
     delete d->olcx;
+#endif
+#ifdef Q_WS_MAC
+    delete d->watcher;
+    d->watcher = 0;
 #endif
 #if defined(GLX_MESA_release_buffers) && defined(QGL_USE_MESA_EXT)
     if (doRelease)

@@ -22,6 +22,9 @@
 class QGLContext;
 class QGLOverlayWidget;
 class QPixmap;
+#ifdef Q_WS_MAC
+class QMacWindowChangeEvent;
+#endif
 
 class QGLWidgetPrivate : public QWidgetPrivate
 {
@@ -42,8 +45,8 @@ public:
     QGLOverlayWidget*        olw;
 #elif defined(Q_WS_MAC)
     QGLContext* olcx;
-    EventHandlerRef event_handler;
     void updatePaintDevice();
+    QMacWindowChangeEvent *watcher;
 #endif
 };
 

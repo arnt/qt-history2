@@ -289,9 +289,6 @@ public slots:
     virtual void updateOverlayGL();
 
 protected:
-#ifdef Q_WS_MAC
-    static OSStatus globalEventProcessor(EventHandlerCallRef, EventRef, void *);
-#endif    
     bool event(QEvent *);
     virtual void initializeGL();
     virtual void resizeGL(int w, int h);
@@ -320,6 +317,9 @@ private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QGLWidget(const QGLWidget&);
     QGLWidget& operator=(const QGLWidget&);
+#endif
+#ifdef Q_WS_MAC
+    friend class QMacGLWindowChangeEvent;
 #endif
     friend class QGLContext;
     friend class QGLOverlayWidget;

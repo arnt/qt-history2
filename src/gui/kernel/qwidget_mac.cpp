@@ -73,6 +73,7 @@ extern void qt_event_request_activate(QWidget *); //qapplication_mac.cpp
 extern bool qt_event_remove_activate(); //qapplication_mac.cpp
 extern void qt_mac_event_release(QWidget *w); //qapplication_mac.cpp
 extern void qt_event_request_showsheet(QWidget *); //qapplication_mac.cpp
+extern void qt_event_request_window_change(); //qapplication_mac.cpp
 extern IconRef qt_mac_create_iconref(const QPixmap &); //qpixmap_mac.cpp
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 extern bool qt_nograb();
@@ -1423,6 +1424,7 @@ void QWidget::show_sys()
         qt_event_request_activate(this);
     } else if(!parentWidget() || parentWidget()->isVisible()) {
         HIViewSetVisible((HIViewRef)winId(), true);
+        qt_event_request_window_change();
     }
 }
 
@@ -1461,6 +1463,7 @@ void QWidget::hide_sys()
         }
     } else {
         HIViewSetVisible((HIViewRef)winId(), false);
+        qt_event_request_window_change();
     }
     deactivateWidgetCleanup();
     qt_mac_event_release(this);
@@ -1595,6 +1598,7 @@ void QWidget::raise()
         if (from >= 0)
             p->d->children.move(from, p->d->children.size() - 1);
         HIViewSetZOrder((HIViewRef)winId(), kHIViewZOrderAbove, 0);
+        qt_event_request_window_change();
     }
 }
 
@@ -1610,6 +1614,7 @@ void QWidget::lower()
         if (from >= 0)
             p->d->children.move(from, 0);
         HIViewSetZOrder((HIViewRef)winId(), kHIViewZOrderBelow, 0);
+        qt_event_request_window_change();
     }
 }
 
@@ -1629,6 +1634,7 @@ void QWidget::stackUnder(QWidget *w)
         p->d->children.move(from, to);
     }
     HIViewSetZOrder((HIViewRef)winId(), kHIViewZOrderBelow, (HIViewRef)w->winId());
+    qt_event_request_window_change();
 }
 
 /*
@@ -1814,6 +1820,7 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         //update the widget also..
         HIRect bounds = CGRectMake(0, 0, w, h);
         HIViewSetFrame((HIViewRef)winId(), &bounds);
+        qt_event_request_window_change();
 
         WindowPtr window = qt_mac_window_for(this);
         if(isMove)
