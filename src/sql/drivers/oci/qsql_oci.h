@@ -29,14 +29,13 @@
 #ifdef OCI_STMT_SCROLLABLE_READONLY
 // Switch this on if you want scrollable server-side cursors (Oracle version >= 9)
 #define QOCI_USES_VERSION_9
-//#define QOCI_USE_SCROLLABLE_CURSORS
 #endif
 
 class QOCIPrivate;
 class QOCIResultPrivate;
 class QOCIDriver;
 
-class QOCIResult : public QSqlCachedResult
+class Q_EXPORT_SQLDRIVER_OCI QOCIResult : public QSqlCachedResult
 {
     friend class QOCIDriver;
     friend class QOCIPrivate;
@@ -59,38 +58,6 @@ private:
     QOCIPrivate*        d;
     QOCIResultPrivate*  cols;
 };
-
-#ifdef QOCI_USE_SCROLLABLE_CURSORS
-class QOCI9Result : public QSqlResult
-{
-    friend class QOCIPrivate;
-    friend class QOCIDriver;
-public:
-    QOCI9Result(const QOCIDriver * db, QOCIPrivate* p);
-    ~QOCI9Result();
-    OCIStmt*    statement();
-    bool         prepare(const QString& query);
-    bool         exec();
-
-protected:
-    bool        fetchNext();
-    bool        fetchPrevious();
-    bool        fetchFirst();
-    bool        fetchLast();
-    bool        fetch(int i);
-    bool        reset (const QString& query);
-    QVariant        data(int field);
-    bool        isNull(int field);
-    int         size();
-    int         numRowsAffected();
-    QSqlRecord record() const;
-
-private:
-    QOCIPrivate*        d;
-    QOCIResultPrivate*  cols;
-    bool                cacheNext(int r);
-};
-#endif //QOCI_USE_SCROLLABLE_CURSORS
 
 class Q_EXPORT_SQLDRIVER_OCI QOCIDriver : public QSqlDriver
 {
@@ -120,7 +87,6 @@ protected:
     bool                commitTransaction();
     bool                rollbackTransaction();
 private:
-    void                init();
     void                cleanup();
     QOCIPrivate*        d;
 };
