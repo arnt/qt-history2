@@ -1530,7 +1530,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
     for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
         doVariableReplace((*arit), place);
 
-    enum ExpandFunc { E_MEMBER, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
+    enum ExpandFunc { E_MEMBER=1, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
                       E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
                       E_FIND, E_SYSTEM, E_UNIQUE, E_QUOTE, E_UPPER, E_LOWER, E_FILES,
                       E_PROMPT, E_RE_ESCAPE };
