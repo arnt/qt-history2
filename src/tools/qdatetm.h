@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.h#7 $
+** $Id: //depot/qt/main/src/tools/qdatetm.h#8 $
 **
 ** Definition of date and time classes
 **
@@ -108,6 +108,10 @@ public:
 
     static QTime currentTime();			// get current time
     static bool	 isValid( int h, int m, int s, int ms=0 );
+
+    void   start();				// start clock
+    long   restart();				// restart clock
+    long   elapsed();				// msecs since start/restart
 
 protected:
     ulong  ds;					// seconds

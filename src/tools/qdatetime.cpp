@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#9 $
 **
 ** Implementation of date and time classes
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#9 $";
 #endif
 
 
@@ -384,6 +384,25 @@ QTime QTime::currentTime()			// get current time
 bool QTime::isValid( int h, int m, int s, int ms ) // is valid time?
 {
     return (uint)h < 24 && (uint)m < 60 && (uint)s < 60 && (uint)ms < 1000;
+}
+
+
+void QTime::start()				// start clock
+{
+    *this = currentTime();
+}
+
+long QTime::restart()				// restart clock
+{
+    QTime t = currentTime();
+    long  n = msecsTo( t );
+    return n;
+}
+
+long QTime::elapsed()				// msecs since start/restart
+{
+    long  n = msecsTo( currentTime() );
+    return n;
 }
 
 
