@@ -49,7 +49,7 @@ public:
     /* Coming soon...
 	?
     QSound(int hertz, Type type=Mono);
-    void play(const ushort* data, int samples);
+    int play(const ushort* data, int samples);
     bool full();
     bool done();
     signal void notFull();
