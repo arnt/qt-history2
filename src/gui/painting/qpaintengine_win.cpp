@@ -1293,7 +1293,7 @@ void QWin32PaintEngine::updateClipPath(const QPainterPath &path, bool clipEnable
 
     if (clipEnabled && !path.isEmpty()) {
         d->composeGdiPath(path);
-        SelectClipPath(d->hdc, RGN_COPY);
+        SelectClipPath(d->hdc, RGN_AND);
     } else {
         updateClipRegion(QRegion(), false);
         setDirty(DirtyClip);
