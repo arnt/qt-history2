@@ -10,25 +10,25 @@ the capital of Norway, and with offices in Brisbane, Australia, and Santa
 Clara, California. Our flagship product is Qt, the multi-platform C++ GUI
 toolkit.
 
-Trolltech AS was founded in 1994. However, the core team of designers at
-Trolltech started developing Qt already in 1992. Ever since then, Qt has
-steadily expanded and improved. Qt is currently used in thousands of
-software development projects world wide.
+Trolltech AS was founded in 1994, although the development of Qt
+itself began in 1992. Since then, Qt has undergone continual expansion
+and improvement. Qt is currently used in thousands of software
+development projects world-wide.
 
 
 ----------------------------------------------------------------------------
 
 Is there a graphical designer/dialog builder for Qt?
 
-Yes, we offer the Qt Designer. 
+Yes, Qt Designer. 
 
 ----------------------------------------------------------------------------
 
-Is there a mailing list or something for Qt?
+Are there mailing lists for Qt?
 
 There are three: qt-interest, qt-announce and snapshot-users. You can find
-descriptions, instructions for joining them, and archive on
-http://qt-interest.trolltech.com
+descriptions, instructions for joining them, and an archive on
+http://lists.trolltech.com/
 
 ----------------------------------------------------------------------------
 
@@ -42,16 +42,22 @@ system.
 
 Is the Reference Documentation available in printed form?
 
-No. 
+No. But experimental PDF versions are available.
 
 ----------------------------------------------------------------------------
 
 Is the Reference Documentation available in PDF format?
 
-No, we prefer HTML for online-browsing. The HTML format documentation is
-included in the Qt source archive, so you can browse it off your local
-disk, you don't need to access www.trolltech.com. Open the file
-qt/doc/html/index.html with your favorite web browser.
+Experimentally, yes. 
+We recommend using the HTML format documentation which is included in
+the Qt source archive and is updated with every release, minor or
+major. You can browse from your local disk, you don't need to access
+www.trolltech.com. Open the file qt/doc/html/index.html with your
+favorite web browser, or run Qt Assistant. The PDF files are available
+from ftp://ftp.trolltech.com/qt/pdf/3.0
+The PDF files are large, only updated with major version releases, and
+their typesetting is experimental. We hope to improve the PDF
+typesetting in future, if there is sufficient demand for this format.
 
 ----------------------------------------------------------------------------
 
@@ -66,11 +72,12 @@ Edition for developing free/open source software for the X11 platform.
 What are the differences between the Professional/Enterprise Editions and
 Free Edition of Qt?
 
-You may write commercial/proprietary/non-free software only if you have
-purchased the Professional or Enterprise Edition. The library itself is
-the same. With the commercial editions, you also get technical support and
-upgrades. Qt for Microsoft Windows and Qt for Mac OS X are only available
-as Professional and Enterprise Editions.
+You may write commercial/proprietary/non-free software only if you
+have purchased the Professional or Enterprise Edition. The library
+itself is the same. With the commercial editions, you also get
+technical support and upgrades. A non-commercial edition of Qt for
+Microsoft Windows is available. Qt for Mac OS X is only available as
+Professional and Enterprise Editions.
 
 ----------------------------------------------------------------------------
 
@@ -85,9 +92,9 @@ released as free/open source software.
 
 When will version x.y be released? Will it include so-and-so feature?
 
-We try not to make public speculations about the whats and whens of the
-next Qt release, because we do not want to be known as a vaporware
-company.
+We avoid specifying which features will be available in particular
+versions or when versions will be released. This way we never make
+promises that are not kept.
 
 ----------------------------------------------------------------------------
 
@@ -115,13 +122,13 @@ Then you need a Professional or Enterprise Edition license.
 What tool do you use to create the Reference Documentation? Where can I
 get it?
 
-The documentation generator we use is an internal tool. We recommend that
-you investigate the Doxygen program, a free tool specifically designed to
-be used for projects that make use of the Qt toolkit. Doxygen offers
-functionality very similar to our internal tool, and can link to the Qt
-documentation. For more information about Doxygen, visit the Doxygen home
-page ( http://www.stack.nl/~dimitri/doxygen/ ). Note that Doxygen is an
-independent project not supported by Trolltech.
+The documentation generator we use is an internal tool. You might like
+to investigate the Doxygen program, a free tool specifically designed
+to be used for projects that make use of the Qt toolkit. Doxygen
+offers functionality very similar to our internal tool, and can link
+to the Qt documentation. For more information about Doxygen, visit the
+Doxygen home page ( http://www.stack.nl/~dimitri/doxygen/ ). Note that
+Doxygen is an independent project not supported by Trolltech.
 
 ----------------------------------------------------------------------------
 
@@ -163,18 +170,18 @@ Yes.
 
 I found this obscure bug and I need it fixed, fast! 
 
-Qt Professional and Enterprise Editions includes technical support
+Qt Professional and Enterprise Editions includes a technical support
 service. We try to support the developers using the Qt Free Edition as
 well, and we take all bug reports seriously, no matter who they come
-from. But, of course, when there's too much to do, our customers have
-higher priority.
+from. But, of course, when there's too much to do, and our customers 
+have highest priority.
 
 ----------------------------------------------------------------------------
 
 How would you compare Qt with Java?
 
-We believe Qt to be the superiour solution for most development tasks, not
-least for performance and portability reasons. Ref:
+We believe Qt to be a superiour solution for most development tasks,
+not least for performance and portability reasons. Ref:
 
 Qt vs. Java whitepaper by Matthias Kalle Dalheimer: 
 ftp://ftp.trolltech.com/qt/pdf/qt-vs-java-whitepaper.pdf
