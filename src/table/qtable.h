@@ -161,6 +161,7 @@ class Q_EXPORT QTable : public QScrollView
     Q_PROPERTY( bool showGrid READ showGrid WRITE setShowGrid )
     Q_PROPERTY( bool rowMovingEnabled READ rowMovingEnabled WRITE setRowMovingEnabled )
     Q_PROPERTY( bool columnMovingEnabled READ columnMovingEnabled WRITE setColumnMovingEnabled )
+    Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
 
     friend class QTableHeader;
 
@@ -234,6 +235,8 @@ public:
     virtual void paintFocus( QPainter *p, const QRect &r );
     QSize sizeHint() const;
 
+    bool isReadOnly() const;
+
 public slots:
     virtual void setNumRows( int r );
     virtual void setNumCols( int r );
@@ -264,6 +267,8 @@ public slots:
     void clearSelection( bool repaint = TRUE );
     virtual void setColumnMovingEnabled( bool b );
     virtual void setRowMovingEnabled( bool b );
+
+    virtual void setReadOnly( bool b );
 
 protected:
     enum EditMode { NotEditing, Editing, Replacing };
@@ -342,11 +347,14 @@ private:
     QList<QTableSelection> selections;
     QTableSelection *currentSel;
     QTimer *autoScrollTimer;
-    bool sGrid, mRows, mCols;
     int lastSortCol;
-    bool asc;
-    bool doSort;
-    bool mousePressed;
+    bool sGrid : 1;
+    bool mRows : 1;
+    bool mCols : 1;
+    bool asc : 1;
+    bool doSort : 1;
+    bool mousePressed : 1;
+    bool readOnly : 1;
     SelectionMode selMode;
     int pressedRow, pressedCol;
     QTablePrivate *d;

@@ -719,8 +719,8 @@ int QTableItem::col() const
 
 QTable::QTable( QWidget *parent, const char *name )
     : QScrollView( parent, name, WRepaintNoErase | WNorthWestGravity ),
-      currentSel( 0 ), sGrid( TRUE ), mRows( FALSE ), mCols( FALSE ),
-      lastSortCol( -1 ), asc( TRUE ), doSort( TRUE )
+      currentSel( 0 ), lastSortCol( -1 ), sGrid( TRUE ), mRows( FALSE ), mCols( FALSE ),
+      asc( TRUE ), doSort( TRUE ), readOnly( FALSE )
 {
     init( 0, 0 );
 }
@@ -736,8 +736,8 @@ QTable::QTable( QWidget *parent, const char *name )
 
 QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
     : QScrollView( parent, name, WRepaintNoErase | WNorthWestGravity ),
-      currentSel( 0 ), sGrid( TRUE ), mRows( FALSE ), mCols( FALSE ),
-      lastSortCol( -1 ), asc( TRUE ), doSort( TRUE )
+      currentSel( 0 ), lastSortCol( -1 ), sGrid( TRUE ), mRows( FALSE ), mCols( FALSE ),
+      asc( TRUE ), doSort( TRUE ), readOnly( FALSE )
 {
     init( numRows, numCols );
 }
@@ -833,6 +833,20 @@ QTable::~QTable()
     contents.setAutoDelete( TRUE );
     contents.clear();
     widgets.clear();
+}
+
+/*! Sets the table to be read-only (not editable), if \a b is TRUE. */
+
+void QTable::setReadOnly( bool b )
+{
+    readOnly = b;
+}
+
+/*! Returns whether the table is read-only (not editable) or not. */
+
+bool QTable::isReadOnly() const
+{
+    return readOnly;
 }
 
 /*!  Sets the table's selection mode to \a mode. By default multi-range
@@ -2533,6 +2547,9 @@ void QTable::setNumCols( int c )
 
 QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
 {
+    if ( isReadOnly() )
+	return 0;
+
     QWidget *e = 0;
 
     // the current item in the cell should be edited if possible
