@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#43 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -460,7 +460,6 @@ void QHeader::paintCell( QPainter *p, int row, int col )
     int i = ( orient == Horizontal ) ? col : row;
     int size = pSize( i );
     bool down = (i==handleIdx) && ( state == Pressed || state == Moving );
-    //    debug( "i = %d, handleIdx= %d, down = %d ",i ,handleIdx, down );
 
     QRect fr( 0, 0, orient == Horizontal ?  size : width(),
 	      orient == Horizontal ?  height() : size );
@@ -565,7 +564,7 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
 	//nothing
 	break;
     default:
-	debug("QHeader::mouseReleaseEvent() (%s) no state", name("unnamed") );
+	// empty, probably.  Idle, at any rate.
 	break;
     }
 }
