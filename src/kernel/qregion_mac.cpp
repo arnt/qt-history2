@@ -42,6 +42,10 @@
 #include "qbitmap.h"
 #include "qt_mac.h"
 
+#define OLD_FALSE FALSE
+#undef FALSE
+#define FALSE (bool)OLD_FALSE
+
 // NOT REVISED
 
 static QRegion *empty_region = 0;
@@ -62,6 +66,15 @@ QRegion::QRegion()
     data = empty_region->data;
     data->ref();
 }
+
+QRegion::QRegion(RgnHandle rgn)
+{
+    data = new QRegionData;
+    Q_CHECK_PTR(data);
+    data->is_null = FALSE;
+    data->rgn = NewRgn();
+    CopyRgn(rgn, data->rgn);
+}    
 
 QRegion::QRegion( bool is_null )
 {

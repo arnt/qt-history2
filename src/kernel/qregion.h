@@ -112,6 +112,10 @@ private:
 #if defined(Q_WS_WIN)
     QRegion winCombine( const QRegion &, int ) const;
 #endif
+#if defined(Q_WS_MAC)
+    friend QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, RgnHandle,RgnHandle, void *);
+    QRegion(const RgnHandle);
+#endif    
     void    exec( const QByteArray &, int ver = 0 );
     struct QRegionData : public QShared {
 #if defined(Q_WS_WIN)

@@ -145,17 +145,18 @@ static WId qt_root_win() {
     return (WId) ret;
 }
 
-QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle,
+QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn,
 			 RgnHandle, void *w)
 {
     QWidget *widget = (QWidget *)w;
     if(!widget)
 	widget = QWidget::find( (WId)window );
 
-    //I shouldn't be painting the whole region, but instead just what
-    //I'm told to paint, FIXME!
-    if ( widget )
-	paint_children(widget, QRegion(0, 0, widget->width(), widget->height()), TRUE);
+    if ( widget ) {
+        QRegion reg(rgn);
+        reg.translate(-widget->x(), -widget->y());
+  	paint_children(widget, reg, TRUE);
+    }
     return 0;
 }
 
@@ -263,7 +264,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	if(testWFlags(WType_Dialog) )
 	    wclass = kToolbarWindowClass;
 	else if(testWFlags( WType_Popup ))
+#ifdef Q_WS_MACX	
 	    wclass = kAlertWindowClass;
+#else
+            wclass = kToolbarWindowClass;
+#endif
 	else
 	    wclass = kDocumentWindowClass;
 #endif
@@ -276,9 +281,14 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 		if(wclass == kDocumentWindowClass )
 		    wattr |= kWindowStandardDocumentAttributes;
 	    } else {
+
 		//FIXME I shouldn't have to do this
 		if(wclass == kDocumentWindowClass )
+#ifdef Q_WS_MACX
 		    wclass = kSheetWindowClass;
+#else
+                    wclass = kToolbarWindowClass;
+#endif
 
 		if( testWFlags( WStyle_Maximize ) )
 		    wattr |= kWindowFullZoomAttribute;
