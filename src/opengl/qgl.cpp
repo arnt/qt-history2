@@ -1034,8 +1034,8 @@ struct DDSFormat {
 
 QGLContext::QGLContext(const QGLFormat &format, QPaintDevice *device)
 {
-    Q_D(QGLContext);
     d_ptr = new QGLContextPrivate(this);
+    Q_D(QGLContext);
     d->init(device, format);
 }
 
@@ -1045,8 +1045,8 @@ QGLContext::QGLContext(const QGLFormat &format, QPaintDevice *device)
 */
 QGLContext::QGLContext(const QGLFormat &format)
 {
-    Q_D(QGLContext);
     d_ptr = new QGLContextPrivate(this);
+    Q_D(QGLContext);
     d->init(0, format);
 }
 
