@@ -27,10 +27,10 @@ int main(int argc, char *argv[])
     int cc = 160;
  
     QAbstractItemModel *data = new PlasmaModel(rc, cc, &splitter);
-    //QItemSelectionModel *selections = new QItemSelectionModel(data, data);
+    QItemSelectionModel *selections = new QItemSelectionModel(data, data);
 
     // 1st view
-
+#if 0
     QTableView *view = new QTableView(&splitter);
     QAbstractItemDelegate *delegate = new PlasmaDelegate(view);
 
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     filter->setModel(data);
     filter->setFilter(0x00f00000);
 
-    view->setModel(filter);
+    view->setModel(data);
     view->setItemDelegate(delegate);
     //view->setSelectionModel(selections);
     view->setShowGrid(false);
@@ -49,14 +49,14 @@ int main(int argc, char *argv[])
         view->resizeColumnToContents(c);
     for (int r = 0; r < rc; ++r)
         view->resizeRowToContents(r);
-
+#endif
     // 2nd view
 
-    view = new QTableView(&splitter);
-    delegate = new PlasmaDelegate(view);
+    QTableView *view = new QTableView(&splitter);
+    QAbstractItemDelegate *delegate = new PlasmaDelegate(view);
     view->setModel(data);
     view->setItemDelegate(delegate);
-    //view->setSelectionModel(selections);
+    view->setSelectionModel(selections);
     view->setShowGrid(false);
     view->horizontalHeader()->hide();
     view->verticalHeader()->hide();
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     // 3rd view
     view = new QTableView(&splitter);
     view->setModel(data);
-    //view->setSelectionModel(selections);
+    view->setSelectionModel(selections);
     
     app.setMainWidget(&splitter);
     splitter.show();
