@@ -24,7 +24,6 @@ public:
 
     QListWidgetItem *at(int row) const;
     void insert(int row, QListWidgetItem *item);
-    void append(QListWidgetItem *item);
     void remove(QListWidgetItem *item);
     QListWidgetItem *take(int row);
 
@@ -68,15 +67,6 @@ QListWidgetItem *QListModel::at(int row) const
     if (row >= 0 && row < lst.count())
         return lst.at(row);
     return 0;
-}
-
-void QListModel::append(QListWidgetItem *item)
-{
-    Q_ASSERT(item);
-    item->model = this;
-    lst.append(item);
-    int row = lst.count() - 1;
-    emit rowsInserted(QModelIndex::Null, row, row);
 }
 
 void QListModel::remove(QListWidgetItem *item)
@@ -212,9 +202,10 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
                 |QAbstractItemModel::ItemIsEnabled),
       model(0)
 {
-    model = ::qt_cast<QListModel*>(view->model());
+    if (view)
+        model = ::qt_cast<QListModel*>(view->model());
     if (model)
-        model->append(this);
+        model->insert(model->rowCount(), this);
 }
 
 /*!
@@ -477,6 +468,7 @@ public:
     void emitDoubleClicked(const QModelIndex &index, int button);
     void emitReturnPressed(const QModelIndex &index);
     void emitSpacePressed(const QModelIndex &index);
+    void emitCurrentChanged(const QModelIndex &oldItem, const QModelIndex &newItem);
 };
 
 void QListWidgetPrivate::emitClicked(const QModelIndex &index, int button)
@@ -499,6 +491,12 @@ void QListWidgetPrivate::emitSpacePressed(const QModelIndex &index)
     emit q->spacePressed(model()->at(index.row()));
 }
 
+void QListWidgetPrivate::emitCurrentChanged(const QModelIndex &oldItem, const QModelIndex &newItem)
+{
+    emit q->currentChanged(model()->at(newItem.row()), model()->at(oldItem.row()));
+}
+
+
 #ifdef QT_COMPAT
 /*!
     Use the single-argument overload and call setObjectName() instead.
@@ -516,6 +514,10 @@ QListWidget::QListWidget(QWidget *parent, const char* name)
             SLOT(emitReturnPressed(const QModelIndex&)));
     connect(this, SIGNAL(spacePressed(const QModelIndex&)),
             SLOT(emitSpacePressed(const QModelIndex&)));
+    connect(selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(selectionChanged()));
+    connect(selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this, SLOT(emitCurrentChanged(QModelIndex,QModelIndex)));
 }
 #endif
 
@@ -620,7 +622,7 @@ void QListWidget::insertItem(int row, QListWidgetItem *item)
     \sa insertItem(), appendItem()
 */
 
-void QListWidget::insertItems(const QStringList &labels, int row)
+void QListWidget::insertItems(int row, const QStringList &labels)
 {
     QListModel *model = d->model();
     int r = (row > -1 && row <= count()) ? row : count();
@@ -629,17 +631,6 @@ void QListWidget::insertItems(const QStringList &labels, int row)
         item->setText(labels.at(i));
         model->insert(r + i, item);
     }
-}
-
-/*!
-    Appends the given \a item to the list.
-
-    \sa insertItem()
-*/
-
-void QListWidget::appendItem(QListWidgetItem *item)
-{
-    d->model()->append(item);
 }
 
 /*!
@@ -695,6 +686,18 @@ void QListWidget::setSelected(const QListWidgetItem *item, bool select)
 {
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
     selectionModel()->select(index, select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
+}
+
+/*!
+  Returns a list of all selected items.
+*/
+QList<QListWidgetItem*> QListWidget::selectedItems() const
+{
+    QModelIndexList indexList = selectionModel()->selectedIndexes();
+    QList<QListWidgetItem*> itemList;
+    for (int i=0; i<indexList.count(); ++i)
+        itemList.append(d->model()->at(indexList.at(i).row()));
+    return itemList;
 }
 
 /*!

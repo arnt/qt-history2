@@ -117,8 +117,11 @@ public:
     QListWidgetItem *item(int row) const;
     int row(const QListWidgetItem *item) const;
     void insertItem(int row, QListWidgetItem *item);
-    void insertItems(const QStringList &labels, int row = -1);
-    void appendItem(QListWidgetItem *item);
+    void insertItem(int row, const QString &label);
+    void insertItems(int row, const QStringList &labels);
+    inline void appendItem(QListWidgetItem *item) { insertItem(count(), item); }
+    inline void appendItem(const QString &label) { insertItems(count(), QStringList(label)); }
+    inline void appendItems(const QStringList &labels) { insertItems(count(), labels); }
     QListWidgetItem *takeItem(int row);
     int count() const;
     void sort(Qt::SortOrder order);
@@ -128,12 +131,16 @@ public:
 
     bool isSelected(const QListWidgetItem *item) const;
     void setSelected(const QListWidgetItem *item, bool select);
+    QList<QListWidgetItem*> selectedItems() const;
 
 signals:
     void clicked(QListWidgetItem *item, int button);
     void doubleClicked(QListWidgetItem *item, int button);
     void returnPressed(QListWidgetItem *item);
     void spacePressed(QListWidgetItem *item);
+
+    void selectionChanged();
+    void currentChanged(QListWidgetItem *current, QListWidgetItem *previous);
 
 protected:
     void removeItem(QListWidgetItem *item);
@@ -144,6 +151,7 @@ private:
     Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, int button));
     Q_PRIVATE_SLOT(d, void emitReturnPressed(const QModelIndex &index));
     Q_PRIVATE_SLOT(d, void emitSpacePressed(const QModelIndex &index));
+    Q_PRIVATE_SLOT(d, void emitCurrentChanged(const QModelIndex &oldItem, const QModelIndex &newItem));
 };
 
 #endif
