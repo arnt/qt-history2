@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#138 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#139 $
 **
 ** Implementation of QMenuBar class
 **
@@ -162,6 +162,31 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     }
     setBackgroundMode( PaletteButton );
 }
+
+
+
+/*!
+\reimp
+*/
+
+void QMenuBar::styleChange( GUIStyle )
+{
+    switch ( style().guiStyle() ) {
+	case WindowsStyle:
+	    setFrameStyle( QFrame::NoFrame );
+	    setMouseTracking( TRUE );
+	    break;
+	case MotifStyle:
+	    setFrameStyle( QFrame::Panel | QFrame::Raised );
+	    setLineWidth( motifBarFrame );
+	    break;
+	default:
+	    break;
+    }
+    updateGeometry();
+}
+
+
 
 /*!
   Destroys the menu bar.
@@ -1126,3 +1151,4 @@ bool QMenuBar::customWhatsThis() const
 {
     return TRUE;
 }
+

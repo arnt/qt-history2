@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#52 $
 **
 ** Implementation of QMainWindow class
 **
@@ -1098,4 +1098,14 @@ void QMainWindow::moveToolBar( QToolBar * t , QMouseEvent * e )
 void QMainWindow::whatsThis()
 {
     QWhatsThis::enterWhatsThisMode();
+}
+
+
+/*!
+\reimp
+*/
+
+void QMainWindow::styleChange( GUIStyle )
+{
+    setUpLayout();
 }

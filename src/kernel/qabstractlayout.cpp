@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#40 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -740,7 +740,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
     case QEvent::Resize: {
 	QResizeEvent *r = (QResizeEvent*)e;
 	int mbh = 0;
-	if ( menubar )
+	if ( menubar && !menubar->testWState(WState_ForceHide) )
 	    mbh = menubar->heightForWidth( r->size().width() );
 	if ( activated )
 	    setGeometry( QRect( outsideBorder, mbh + outsideBorder,

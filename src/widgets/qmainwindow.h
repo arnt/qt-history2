@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#27 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#28 $
 **
 ** Definition of QMainWindow class
 **
@@ -89,6 +89,7 @@ protected:
     void resizeEvent( QResizeEvent * );
     void childEvent( QChildEvent * );
     bool event( QEvent * );
+    void styleChange( GUIStyle );
 
 private:
     QMainWindowPrivate * d;

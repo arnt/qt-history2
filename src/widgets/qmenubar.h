@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#38 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#39 $
 **
 ** Definition of QMenuBar class
 **
@@ -68,6 +68,7 @@ protected:
     void	leaveEvent( QEvent * );
     void	menuContentsChanged();
     void	menuStateChanged();
+    void 	styleChange( GUIStyle );
 
 private slots:
     void	subActivated( int itemId );
