@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#2 $
 **
 ** Implementation of QRadioButton class
 **
 ** Author  : Haavard Nord
 ** Created : 940222
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#2 $";
 #endif
 
 
@@ -204,7 +204,8 @@ void QRadioButton::drawButton( QPainter *paint )
 	    { 1,7, 6,12, 12,6, 11,6, 6,11, 2,7, 3,7, 6,10, 10,6 };
 	QPen   pen( black, 0, NoPen );
 	bool   showUp = (isUp() && !isOn()) || (isDown() && isOn());
-	QBrush brush( showUp ? backgroundColor() : darkGray );
+	QColor bgc = backgroundColor();
+	QBrush brush( showUp ? bgc : darkGray );
 	QPointArray a( inner_pts, sizeof(inner_pts)/(sizeof(QCOOT)*2) );
 	p->eraseRect( x, y, w, h );
 	p->setPen( pen );

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#2 $
 **
 ** Implementation of QPushButton class
 **
 ** Author  : Haavard Nord
 ** Created : 940221
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#2 $";
 #endif
 
 
@@ -188,7 +188,8 @@ void QPushButton::drawButton( QPainter *paint )
 	}
 	if ( updated ) {			// fill
 	    brush.setStyle( SolidBrush );
-	    brush.setColor( isDown() ? black : backgroundColor() );
+	    QColor bgc = backgroundColor();
+	    brush.setColor( isDown() ? black : bgc );
 	}
 	p->drawRoundRect( x1, y1, x2-x1+1, y2-y1+1, 20, 20 );
 	if ( updated )
