@@ -715,9 +715,9 @@ QSplitterLayoutStruct *QSplitterPrivate::addWidget(QWidget *w, bool prepend)
     specify that a widget should keep its size when the splitter is
     resized, or set the stretch component of the \l sizePolicy.
 
-    Although QSplitter normally resizes the children only at the end
-    of a resize operation, if you call setOpaqueResize(true) the
-    widgets are resized as often as possible.
+    By default, QSplitter resizes the childre dynamically. If you
+    would rather have QSplitter resize the children only at the end of
+    a resize operation, call setOpaqueResize(false).
 
     The initial distribution of size between the widgets is determined
     by the initial size of each widget. You can also use setSizes() to
