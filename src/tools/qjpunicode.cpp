@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qjpunicode.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qjpunicode.cpp#4 $
 **
 ** Implementation of QJpUnicode class
 **
@@ -70,12 +70,14 @@
 #define	IsSjisChar2(c)	(((c) >= 0x40) && ((c) != 0x7f) && ((c) <= 0xfc))
 
 static uint Jisx0208ToSjis(uint h, uint l);
+static
 inline uint Jisx0208ToSjis(uint jis)
 {
     return Jisx0208ToSjis((jis & 0xff00) >> 8, (jis & 0x00ff));
 }
 
 static uint SjisToJisx0208(uint h, uint l);
+static
 inline uint SjisToJisx0208(uint sjis)
 {
     return SjisToJisx0208((sjis & 0xff00) >> 8, (sjis & 0x00ff));
