@@ -826,7 +826,7 @@ DspMakefileGenerator::init()
 	    activeQtStepPreCopyDll += 
 			     "\t" + idc + " %1 -idl tmp\\" + targetfilename + ".idl -version " + version +
 			     "\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
-			     "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb";
+			     "\t" + idc + " %2 /tlb tmp\\" + targetfilename + ".tlb";
 	    activeQtStepPostCopyDll +=
 			     "\t" + idc + " %1 /regserver\n";
 
@@ -841,7 +841,7 @@ DspMakefileGenerator::init()
 	    activeQtStepPreCopyDll += 
 			     "\t%1 -dumpidl tmp\\" + targetfilename + ".idl -version " + version +
 			     "\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
-			     "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb";
+			     "\t" + idc + " %2 /tlb tmp\\" + targetfilename + ".tlb";
 	    activeQtStepPostCopyDll +=
 			     "\t%1 -regserver\n";
 	    QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + targetfilename + ".exe";
