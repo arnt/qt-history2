@@ -65,15 +65,8 @@ public:
     int numLines() const;
 
     virtual void insertLine( const QString &s, int line = -1 );
-#if !defined(Q_NO_USING_KEYWORD)
-     using QTextEdit::insertAt;
-#endif
     virtual void insertAt( const QString &s, int line, int col, bool mark = FALSE );
     virtual void removeLine( int line );
-
-#if !defined(Q_NO_USING_KEYWORD)
-    using QTextEdit::setCursorPosition;
-#endif
     virtual void setCursorPosition( int line, int col, bool mark = FALSE );
     bool atBeginning() const;
     bool atEnd() const;
