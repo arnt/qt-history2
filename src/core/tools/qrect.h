@@ -496,6 +496,16 @@ public:
     void setHeight(qreal h);
     void setSize(const QSizeF &s);
 
+    inline qreal left() const { return xp; }
+    inline qreal top() const { return yp; }
+    inline qreal right() const { return xp + w; }
+    inline qreal bottom() const { return yp + h; }
+
+    inline QPointF topLeft() const { return QPointF(xp, yp); }
+    inline QPointF bottomRight() const { return QPointF(xp+w, yp+h); }
+    inline QPointF topRight() const { return QPointF(xp+w, yp); }
+    inline QPointF bottomLeft() const { return QPointF(xp, yp+h); }
+
     QRectF operator|(const QRectF &r) const;
     QRectF operator&(const QRectF &r) const;
     QRectF& operator|=(const QRectF &r);

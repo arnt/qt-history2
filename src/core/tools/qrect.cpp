@@ -1273,6 +1273,70 @@ bool QRectF::contains(const QRectF &r) const
 }
 
 /*!
+    \fn qreal QRectF::left() const
+
+    Returns the left coordinate of the rectangle. Identical to x().
+
+    \sa setLeft(), right(), topLeft(), bottomLeft()
+*/
+
+/*!
+    \fn qreal QRectF::top() const
+
+    Returns the top coordinate of the rectangle. Identical to y().
+
+    \sa setTop(), bottom(), topLeft(), topRight()
+*/
+
+/*!
+    \fn qreal QRectF::right() const
+
+    Returns the right coordinate of the rectangle.
+
+    \sa setRight(), left(), topRight(), bottomRight()
+*/
+
+/*!
+    \fn qreal QRectF::bottom() const
+
+    Returns the bottom coordinate of the rectangle.
+
+    \sa setBottom(), top(), bottomLeft(), bottomRight()
+*/
+
+/*!
+    \fn QPointF QRectF::topLeft() const
+
+    Returns the top-left position of the rectangle.
+
+    \sa setTopLeft(), moveTopLeft(), bottomRight(), left(), top()
+*/
+
+/*!
+    \fn QPointF QRectF::bottomRight() const
+
+    Returns the bottom-right position of the rectangle.
+
+    \sa setBottomRight(), moveBottomRight(), topLeft(), right(), bottom()
+*/
+
+/*!
+    \fn QPointF QRectF::topRight() const
+
+    Returns the top-right position of the rectangle.
+
+    \sa setTopRight(), moveTopRight(), bottomLeft(), top(), right()
+*/
+
+/*!
+    \fn QPointF QRectF::bottomLeft() const
+
+    Returns the bottom-left position of the rectangle.
+
+    \sa setBottomLeft(), moveBottomLeft(), topRight(), bottom(), left()
+*/
+
+/*!
     \fn QRectF& QRectF::operator|=(const QRectF &other)
 
     Unites this rectangle with the \a other rectangle, and returns the result.
