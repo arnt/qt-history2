@@ -1819,22 +1819,7 @@ QMetaObject* QObject::createMetaObject()
 */
 void QObject::staticMetaObject()
 {
-    if ( metaObj )
-	return;
-
-    typedef void(QObject::*m1_t0)();
-    m1_t0 v1_0 = &QObject::cleanupEventFilter;
-    QMetaData *slot_tbl = new QMetaData[1];
-    slot_tbl[0].name = "cleanupEventFilter()";
-    slot_tbl[0].ptr = *((QMember*)&v1_0);
-    typedef void(QObject::*m2_t0)();
-    m2_t0 v2_0 = &QObject::destroyed;
-    QMetaData *signal_tbl = new QMetaData[1];
-    signal_tbl[0].name = "destroyed()";
-    signal_tbl[0].ptr = *((QMember*)&v2_0);
-    metaObj = new QMetaObject( "QObject", "",
-	slot_tbl, 1,
-	signal_tbl, 1 );
+    createMetaObject();
 }
 
 /*!
@@ -2052,7 +2037,7 @@ void QObject::dumpObjectInfo()
 bool QObject::setProperty( const char *name, const QVariant& value )
 {
     //#ME this should manage all QVariant can do
-    
+
     if ( value.isEmpty() )
 	return TRUE;
 
@@ -2063,7 +2048,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 
     typedef void (QObject::*ProtoCString)( QCString );
     typedef void (QObject::*RProtoCString)( const QCString&);
-    
+
     typedef void (QObject::*ProtoInt)( int );
     typedef void (QObject::*RProtoInt)( const int& );
 
@@ -2106,7 +2091,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	return FALSE;
     }
 
-    
+
     if ( p->enumType ) {
 	if ( value.type() != QVariant::String )
 	    return FALSE;
@@ -2160,7 +2145,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    m = *((ProtoConstCharStar*)&p->set);
 	    (this->*m)( value.toCString().data() );
 	}
-	else 
+	else
 	    ASSERT( 0 );
 	return TRUE;
 	
@@ -2238,7 +2223,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	    
+	
     case QVariant::Color:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoColor m;
@@ -2268,7 +2253,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	    
+	
     case QVariant::ColorGroup:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoColorGroup m;
@@ -2283,7 +2268,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	    
+	
     case QVariant::IconSet:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoIconSet m;
@@ -2298,7 +2283,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	    
+	
     case QVariant::Int:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoInt m;
@@ -2353,10 +2338,10 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 */
 bool QObject::property( const char *name, QVariant* value ) const
 {
-    
+
     //#ME this should manage all QVariant can do
     typedef const char* (QObject::*ProtoConstCharStar)() const;
-    
+
     typedef QString (QObject::*ProtoString)() const;
     typedef const QString* (QObject::*PProtoString)() const;
     typedef const QString& (QObject::*RProtoString)() const;
@@ -2364,7 +2349,7 @@ bool QObject::property( const char *name, QVariant* value ) const
     typedef QCString (QObject::*ProtoCString)() const;
     typedef const QCString* (QObject::*PProtoCString)() const;
     typedef const QCString& (QObject::*RProtoCString)() const;
-    
+
     typedef int (QObject::*ProtoInt)() const;
     typedef const int* (QObject::*PProtoInt)() const;
     typedef const int& (QObject::*RProtoInt)() const;
@@ -2429,9 +2414,9 @@ bool QObject::property( const char *name, QVariant* value ) const
 	}
 	return FALSE;
     }
-    
+
     QVariant::Type type = QVariant::nameToType( p->type );
-    
+
     switch ( type ) {
     case QVariant::String:
 	if ( p->gspec == QMetaProperty::Class ) {
@@ -2557,7 +2542,7 @@ bool QObject::property( const char *name, QVariant* value ) const
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	    
+	
     case QVariant::Size:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoSize m;
@@ -2581,7 +2566,7 @@ bool QObject::property( const char *name, QVariant* value ) const
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	    
+	
     case QVariant::Color:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoColor m;
@@ -2629,7 +2614,7 @@ bool QObject::property( const char *name, QVariant* value ) const
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	    
+	
     case QVariant::ColorGroup:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoColorGroup m;
@@ -2701,7 +2686,7 @@ bool QObject::property( const char *name, QVariant* value ) const
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	    
+	
     case QVariant::Double:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoDouble m;
@@ -2725,7 +2710,7 @@ bool QObject::property( const char *name, QVariant* value ) const
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	    
+	
     case QVariant::Bool:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoBool m;
