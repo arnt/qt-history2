@@ -43,10 +43,10 @@ public:
 
 /*!
     \class QProxyModel
-    \brief The QProxyModel class provides support for filtering data that is
-    passed between a model and a view.
+    \brief The QProxyModel class provides support for filtering and sorting data
+    that is passed between another model and a view.
 
-
+    Proxy models provide a standard model interface 
 
     \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel
 
