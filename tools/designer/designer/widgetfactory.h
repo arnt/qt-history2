@@ -129,7 +129,8 @@ public:
 
 private:
     QPoint pressPoint;
-    bool mousePressed;
+    QWidget * dropIndicator;
+     bool mousePressed;
 };
 
 class QDesignerWizard : public QWizard

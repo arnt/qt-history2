@@ -106,6 +106,13 @@ void QLayoutWidget::paintEvent( QPaintEvent* )
 }
 
 
+QDesignerTabWidget::QDesignerTabWidget( QWidget *parent, const char *name )
+    : QTabWidget( parent, name ), dropIndicator( 0 ), mousePressed( FALSE )
+{
+    tabBar()->setAcceptDrops( true );
+    tabBar()->installEventFilter( this );
+}
+
 int QDesignerTabWidget::currentPage() const
 {
     return tabBar()->currentTab();
@@ -144,25 +151,23 @@ int QDesignerTabWidget::count() const
     return tabBar()->count();
 }
 
-QDesignerTabWidget::QDesignerTabWidget( QWidget *parent, const char *name )
-    : QTabWidget( parent, name ), mousePressed( FALSE )
-{
-    tabBar()->setAcceptDrops( true );
-    tabBar()->installEventFilter( this );
-}
-
 bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
 {
     if ( o != tabBar() ) return FALSE;
 
     QMouseEvent *me;
     QDragEnterEvent *de;
+    QRect rect;
+    QPoint pos;
+    int index = 0;
 
     switch ( e->type() ) {
         case QEvent::MouseButtonPress:
             mousePressed = true;
             me = (QMouseEvent*)e;
             pressPoint = me->pos();
+            if ( dropIndicator )
+                dropIndicator->hide();
             break;
         case QEvent::MouseMove:
             me = (QMouseEvent*)e;
@@ -172,10 +177,33 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
                 drg->dragCopy();
             }
             break;
+        case QEvent::DragLeave:
+            if ( dropIndicator )
+                dropIndicator->hide();
+            break;
         case QEvent::DragMove:
             de = (QDragEnterEvent*) e;
             if ( QTextDrag::canDecode( de ) )
                 de->accept();
+
+            for ( ; index < tabBar()->count(); index++ ) {
+                if ( tabBar()->tabAt( index )->r.contains( de->pos() ) ) {
+                    rect = tabBar()->tabAt( index )->r;
+                    break;
+                }
+            }
+
+            if ( ! dropIndicator )
+                dropIndicator = new QWidget( this );
+
+            if ( tabPosition() == Top )
+                pos = tabBar()->mapToParent( QPoint( rect.x(), rect.y() + rect.height() ) );
+            else
+                pos = tabBar()->mapToParent( QPoint( rect.x(), rect.y() ) );
+
+            dropIndicator->setBackgroundColor( colorGroup().highlight() );
+            dropIndicator->setGeometry( pos.x(), pos.y() , rect.width(), 2 );
+            dropIndicator->show();
             break;
         case QEvent::Drop:
             de = (QDragEnterEvent*) e;
@@ -200,6 +228,8 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
                                                                       QTabWidget::currentPage(), newIndex, oldIndex );
                     fw->commandHistory()->addCommand( cmd );
                     cmd->execute();
+                    if ( dropIndicator )
+                        dropIndicator->hide();
                     de->accept();
                 }
             }
@@ -216,6 +246,7 @@ void QDesignerTabWidget::movePage( QWidget* page, int newIndex )
     QString l = QTabWidget::tabLabel( page );
     removePage( page );
     insertTab( page, l, newIndex );
+    showPage( page );
 }
 
 int QDesignerWizard::currentPageNum() const
