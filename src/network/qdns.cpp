@@ -55,9 +55,15 @@
 
 #include "qplatformdefs.h"
 
-// UnixWare7 redefines socket as _socket
+// Solaris redefines connect to __xnet_connect when _XOPEN_SOURCE_EXTENDED is
+// defined.  This breaks our sources.
+#if defined(connect)
+# undef connect
+#endif
+
+// UnixWare 7 redefines socket() to _socket().  This breaks our sources.
 #if defined(socket)
-#  undef socket
+# undef socket
 #endif
 
 //#define QDNS_DEBUG
