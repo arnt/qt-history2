@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#25 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#26 $
 **
 ** Definition of QMessageBox class
 **
@@ -27,7 +27,7 @@ public:
 
     QMessageBox( QWidget *parent=0, const char *name=0 );
     QMessageBox( const char *caption, const char *text, Icon icon,
-		 int button1, int button2, int button3,
+		 int button0, int button1, int button2,
 		 QWidget *parent=0, const char *name=0, bool modal=TRUE,
 		 WFlags f=0 );
    ~QMessageBox();
@@ -38,34 +38,34 @@ public:
 
     static int information( QWidget *parent, const char *caption,
 			    const char *text,
-			    int button1, int button2=0, int button3=0 );
+			    int button0, int button1=0, int button2=0 );
     static int information( QWidget *parent, const char *caption,
 			    const char *text,
-			    const char * button1Text = "&OK",
-			    const char * button2Text = 0, 
-			    const char * button3Text = 0,
+			    const char *button0Text = "&OK",
+			    const char *button1Text = 0, 
+			    const char *button2Text = 0,
 			    int defaultButtonNumber = 0,
 			    int escapeButtonNumber = -1 );
 
     static int warning( QWidget *parent, const char *caption,
 			const char *text,
-			int button1, int button2, int button3=0 );
+			int button0, int button1, int button2=0 );
     static int warning( QWidget *parent, const char *caption,
 			const char *text,
-			const char * button1Text = "&OK",
-			const char * button2Text = 0, 
-			const char * button3Text = 0,
+			const char *button0Text = "&OK",
+			const char *button1Text = 0, 
+			const char *button2Text = 0,
 			int defaultButtonNumber = 0,
 			int escapeButtonNumber = -1 );
 
     static int critical( QWidget *parent, const char *caption,
 			 const char *text,
-			 int button1, int button2, int button3=0 );
+			 int button0, int button1, int button2=0 );
     static int critical( QWidget *parent, const char *caption,
 			 const char *text,
-			 const char * button1Text = "&OK",
-			 const char * button2Text = 0, 
-			 const char * button3Text = 0,
+			 const char *button0Text = "&OK",
+			 const char *button1Text = 0, 
+			 const char *button2Text = 0,
 			 int defaultButtonNumber = 0,
 			 int escapeButtonNumber = -1 );
     

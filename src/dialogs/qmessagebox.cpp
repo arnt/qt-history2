@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#44 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#45 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#45 $");
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -94,11 +94,14 @@ static const unsigned char critical_gif_data[] = {
   QMessageBox provides a range of different messages, arranged roughly
   along two axes: Severity and complexity.
 
-  Severity is<ul> <li> \c Information - for message boxes that are
-  part of normal operation <li> \c Warning - for message boxes that
-  tell the user about errors or ask the user how to fix an error <li>
-  \c Critical - as Warning, but for critical errors. </ul> The message
-  box has a different icon for each of the severity levels.
+  Severity is
+  <ul>
+  <li> \c Information - for message boxes that are part of normal operation,
+  <li> \c Warning - for message boxes that tell the user about errors
+  or ask the user how to fix an error, or
+  <li> \c Critical - as Warning, but for critical errors.
+  </ul>
+  The message box has a different icon for each of the severity levels.
 
   Complexity is one button (OK, sometimes Dismiss for Motif
   applications) for a simple messages, or two or even three buttons
@@ -169,8 +172,9 @@ static const unsigned char critical_gif_data[] = {
     }
   \endcode
 
-  Disk full errors are unusual (in a perfetct world, they are) and
-  they certainly can be hard to correct:
+  Disk full errors are unusual (in a perfect world, they are) and they
+  certainly can be hard to correct.  This example uses predefined buttons
+  instead of hardcoded button texts:
 
   \code
     switch( QMessageBox::warning( this, "Application name here",
@@ -178,13 +182,13 @@ static const unsigned char critical_gif_data[] = {
 				  "because the disk is full.  You can delete\n"
 				  "some files and press Retry, or you can\n"
 				  "abort the Save Preferences operation.",
-				  QMessageBox::Default | QMessageBox::Retry,
-				  QMessageBox::Escape | QMessageBox::Abort )) {
-    case Retry: // Enter or Retry
+				  QMessageBox::Retry | QMessageBox::Default,
+				  QMessageBox::Abort | QMessageBox::Escape )) {
+    case QMessageBox::Retry: // Retry or Enter
         // try again
 	break;
-    case Abort: // Enter or Retry
-        // try again
+    case QMessageBox::Abort: // Abort or Cancel
+        // abort
 	break;
     }
   \endcode
@@ -207,8 +211,8 @@ static const unsigned char critical_gif_data[] = {
   \code
      QMessageBox::about( this, "About <Application>",
                          "<Application> is a <one-paragraph blurb>\n\n"
-			 "Copyright 1951-1997 Such-and-such.  <License words "
-			 "here.>\n\n"
+			 "Copyright 1951-1997 Such-and-such.  "
+			 "<License words here.>\n\n"
 			 "For technical support, call 123456789 or see\n"
 			 "http://www.such-and-such.com/Application/\n" );
   \endcode
@@ -241,15 +245,15 @@ static const unsigned char critical_gif_data[] = {
     }
   \endcode
 
-  QMessageBox defines two enum types, Icon and an unnamed button
-  type.  Icon defines the Information, Warning and Critical icons for
+  QMessageBox defines two enum types, Icon and an unnamed button type.
+  Icon defines the \c Information, \c Warning and \c Critical icons for
   each GUI style.  It is used by the constructor, by the static member
-  functions information(), warning and critical(), and there is a
+  functions information(), warning() and critical(), and there is a
   function called standardIcon() which gives you access to the various
   icons.
 
-  The button type is a bit-field type which can have about twenty or
-  thirty values.  Its main component is the button type: <ul>
+  The button types are:
+  <ul>
   <li> \c OK - the default for single-button message boxes
   <li> \c Cancel - note that this is \e not automatically Escape
   <li> \c Yes
@@ -259,11 +263,13 @@ static const unsigned char critical_gif_data[] = {
   <li> \c Ignore
   </ul>
 
-  There are also two modifiers you can OR into the variable: <ul> <li>
-  \c Default - makes pressing Enter or Return be equivalent with
-  clicking this button.  Normally used with OK, Yes or similaro. <li>
-  \c Escape - makes pressing Escape be equivalent with this button.
-  Normally used with Abort, Cancel or similar. </ul>
+  Button types can be combined with two modifiers by using OR:
+  <ul>
+  <li> \c Default - makes pressing Enter or Return be equivalent with
+  clicking this button.  Normally used with OK, Yes or similar.
+  <li> \c Escape - makes pressing Escape be equivalent with this button.
+  Normally used with Abort, Cancel or similar.
+  </ul>
 
   The text(), icon() and iconPixmap() functions provide access to the
   current text and pixmap of a message box, and setText(), setIcon()
@@ -275,8 +281,6 @@ static const unsigned char critical_gif_data[] = {
   setButtonText() and buttonText() provide access to the buttons.
 
   QMessageBox has no signals or slots.
-
-  \sa QProgressDialog
 */
 
 
@@ -379,12 +383,12 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
 */
 
 QMessageBox::QMessageBox( const char *caption, const char *text, Icon icon,
-			  int button1, int button2, int button3,
+			  int button0, int button1, int button2,
 			  QWidget *parent, const char *name,
 			  bool modal, WFlags f )
     : QDialog( parent, name, modal, f )
 {
-    init( button1, button2, button3 );
+    init( button0, button1, button2 );
     setCaption( caption );
     setText( text );
     setIcon( icon );
@@ -401,25 +405,25 @@ QMessageBox::~QMessageBox()
 }
 
 
-void QMessageBox::init( int button1, int button2, int button3 )
+void QMessageBox::init( int button0, int button1, int button2 )
 {
     initMetaObject();
     label = new QLabel( this, "text" );
     CHECK_PTR( label );
     label->setAlignment( AlignLeft );
 
-    if ( (button3 && !button2) || (button2 && !button1) ) {
+    if ( (button2 && !button1) || (button1 && !button0) ) {
 #if defined(CHECK_RANGE)
 	::warning( "QMessageBox: Inconsistent button parameters" ); 
 #endif
-	button1 = button2 = button3 = 0;
+	button0 = button1 = button2 = 0;
     }
     mbd = new QMBData(this);
     CHECK_PTR( mbd );
     mbd->numButtons = 0;
-    mbd->button[0] = button1;
-    mbd->button[1] = button2;
-    mbd->button[2] = button3;
+    mbd->button[0] = button0;
+    mbd->button[1] = button1;
+    mbd->button[2] = button2;
     mbd->defButton = -1;
     mbd->escButton = -1;
     int i;
@@ -447,7 +451,7 @@ void QMessageBox::init( int button1, int button2, int button3 )
 	}
 	b &= ButtonMask;
 	if ( b == 0 ) {
-	    if ( i == 0 ) // ### undocumented magic! why?
+	    if ( i == 0 )			// no buttons, add an OK button
 		b = OK;
 	} else if ( b < 0 || b > LastButton ) {
 #if defined(CHECK_RANGE)
@@ -593,6 +597,7 @@ void QMessageBox::setIcon( Icon icon )
   Returns the pixmap used for a standard icon.  This
   allows the pixmaps to be used in more complex message boxes.
 */
+
 QPixmap QMessageBox::standardIcon( Icon icon, GUIStyle style )
 {
     uint icon_size;
@@ -846,10 +851,9 @@ void QMessageBox::keyPressEvent( QKeyEvent *e )
 /*!
   Opens a modal message box directly using the specified parameters.
 
-  Example:
-  \code
-    QMessageBox::message( "Warning", "Did you feed the giraffe?", "Sorry!" );
-  \endcode
+  \warning This function is kept for compatibility with old Qt programs
+  and will be removed in a future version of Qt.  Please use
+  information(), warning() or critical() instead.
 */
 
 int QMessageBox::message( const char *caption,
@@ -873,17 +877,9 @@ int QMessageBox::message( const char *caption,
   Queries the user using a modal message box with two buttons.
   Note that \a caption is not always shown, it depends on the window manager.
 
-  \a text is the question the user is to answer. \a yesButtonText defaults to
-  "Yes" and \a noButtonText defaults to "No".
-
-  Example:
-  \code
-    bool ok = QMessageBox::query( "Consider this carefully", 
-				  "Should I delete all your files?", 
-				  "Go ahead!", "Wait a minute" );
-    if ( ok )
-        deleteAllFiles();
-  \endcode
+  \warning This function is kept for compatibility with old Qt programs
+  and will be removed in a future version of Qt.  Please use
+  information(), warning() or critical() instead.
 */
 
 bool QMessageBox::query( const char *caption,
@@ -919,10 +915,10 @@ bool QMessageBox::query( const char *caption,
 
 int QMessageBox::information( QWidget *parent,
 			      const char *caption, const char *text,
-			      int button1, int button2, int button3 )
+			      int button0, int button1, int button2 )
 {
     QMessageBox *mb = new QMessageBox( caption, text, Information,
-				       button1, button2, button3,
+				       button0, button1, button2,
 				       parent, "information" );
     CHECK_PTR( mb );
     int reply = mb->exec();
@@ -944,10 +940,10 @@ int QMessageBox::information( QWidget *parent,
 
 int QMessageBox::warning( QWidget *parent,
 			  const char *caption, const char *text,
-			  int button1, int button2, int button3 )
+			  int button0, int button1, int button2 )
 {
     QMessageBox *mb = new QMessageBox( caption, text, Warning,
-				       button1, button2, button3,
+				       button0, button1, button2,
 				       parent, "warning" );
     CHECK_PTR( mb );
     int reply = mb->exec();
@@ -957,7 +953,7 @@ int QMessageBox::warning( QWidget *parent,
 
 
 /*!
-  Opens a "critical" message box with a caption, a text and up to three
+  Opens a critical message box with a caption, a text and up to three
   buttons.  Returns the identifier of the button that was clicked.
 
   If \e parent is 0, then the message box becomes an application-global
@@ -969,10 +965,10 @@ int QMessageBox::warning( QWidget *parent,
 
 int QMessageBox::critical( QWidget *parent,
 			   const char *caption, const char *text,
-			   int button1, int button2, int button3 )
+			   int button0, int button1, int button2 )
 {
     QMessageBox *mb = new QMessageBox( caption, text, Critical,
-				       button1, button2, button3,
+				       button0, button1, button2,
 				       parent, "critical" );
     CHECK_PTR( mb );
     int reply = mb->exec();
@@ -981,7 +977,8 @@ int QMessageBox::critical( QWidget *parent,
 }
 
 
-/*!  Displays a simple about box with window caption \a caption and
+/*!
+  Displays a simple about box with window caption \a caption and
   body text \a text.
 
   about() looks for a suitable icon for the box in four locations:
@@ -1020,7 +1017,9 @@ void QMessageBox::about( QWidget *parent, const char *caption,
 }
 
 
-/*! Reimplemented for implementational reasons. */
+/*!
+  Reimplemented for implementational reasons.
+*/
 
 void QMessageBox::setStyle( GUIStyle s )
 {
@@ -1034,9 +1033,9 @@ void QMessageBox::setStyle( GUIStyle s )
 
 static int textBox( QWidget *parent, QMessageBox::Icon severity,
 		    const char *caption, const char *text,
-		    const char * button0Text,
-		    const char * button1Text, 
-		    const char * button2Text,
+		    const char *button0Text,
+		    const char *button1Text, 
+		    const char *button2Text,
 		    int defaultButtonNumber,
 		    int escapeButtonNumber )
 {
@@ -1069,8 +1068,10 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
 }
 
 
-/*!  Displays an information message box with a caption, a text and
-  1-3 buttons.  Returns the identifier of the button that was clicked.
+/*!
+  Displays an information message box with a caption, a text and
+  1-3 buttons.  Returns the number of the button that was clicked
+  (0, 1 or 2).
 
   \a button0Text is the text of the first button and must be present,
   \a button1Text is the text of the second button and is optional, and
@@ -1092,9 +1093,9 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
 
 int QMessageBox::information( QWidget *parent, const char *caption,
 			      const char *text,
-			      const char * button0Text,
-			      const char * button1Text, 
-			      const char * button2Text,
+			      const char *button0Text,
+			      const char *button1Text, 
+			      const char *button2Text,
 			      int defaultButtonNumber,
 			      int escapeButtonNumber )
 {
@@ -1104,8 +1105,10 @@ int QMessageBox::information( QWidget *parent, const char *caption,
 }
 
 
-/*!  Displays a warning message box with a caption, a text and
-  1-3 buttons.  Returns the identifier of the button that was clicked.
+/*!
+  Displays a warning message box with a caption, a text and
+  1-3 buttons.  Returns the number of the button that was clicked
+  (0, 1 or 2).
 
   \a button0Text is the text of the first button and must be present,
   \a button1Text is the text of the second button and is optional, and
@@ -1127,9 +1130,9 @@ int QMessageBox::information( QWidget *parent, const char *caption,
 
 int QMessageBox::warning( QWidget *parent, const char *caption,
 				 const char *text,
-				 const char * button0Text,
-				 const char * button1Text, 
-				 const char * button2Text,
+				 const char *button0Text,
+				 const char *button1Text, 
+				 const char *button2Text,
 				 int defaultButtonNumber,
 				 int escapeButtonNumber )
 {
@@ -1139,8 +1142,10 @@ int QMessageBox::warning( QWidget *parent, const char *caption,
 }
 
 
-/*!  Displays a critical error message box with a caption, a text and
-  1-3 buttons.  Returns the identifier of the button that was clicked.
+/*!
+  Displays a critical error message box with a caption, a text and
+  1-3 buttons.  Returns the number of the button that was clicked
+  (0, 1 or 2).
 
   \a button0Text is the text of the first button and must be present,
   \a button1Text is the text of the second button and is optional, and
@@ -1162,9 +1167,9 @@ int QMessageBox::warning( QWidget *parent, const char *caption,
 
 int QMessageBox::critical( QWidget *parent, const char *caption,
 				  const char *text,
-				  const char * button0Text,
-				  const char * button1Text, 
-				  const char * button2Text,
+				  const char *button0Text,
+				  const char *button1Text, 
+				  const char *button2Text,
 				  int defaultButtonNumber,
 				  int escapeButtonNumber )
 {
