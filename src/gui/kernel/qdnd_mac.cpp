@@ -49,6 +49,7 @@ static bool acceptact = false;
 /*****************************************************************************
   Externals
  *****************************************************************************/
+extern bool qt_modal_state(); //qapplication_mac.cpp
 extern uint qGlobalPostedEventsCount(); //qapplication.cpp
 
 /*****************************************************************************
@@ -304,6 +305,17 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     GetDragMouse(dragRef, &mouse, 0L);
     if(!mouse.h && !mouse.v)
         GetGlobalMouse(&mouse);
+    if(qt_modal_state()) {
+        bool modal_block = true;
+        for(QWidget *modal = q; modal && !modal->isTopLevel(); modal = modal->parentWidget()) {
+            if(modal == QApplication::activeModalWidget()) {
+                modal_block = false;
+                break;
+            }
+        }
+        if(modal_block)
+            return false;
+    }
 
     //Dispatch events
     bool ret = true;
