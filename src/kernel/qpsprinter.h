@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.h#11 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.h#12 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -23,31 +23,39 @@
 #endif // QT_H
 
 
+struct QPSPrinterPrivate;
+
 class QPSPrinter : public QPaintDevice
 {
 private:
-    QPSPrinter( QPrinter * );
+    // QPrinter uses these
+    QPSPrinter( QPrinter *, int );
    ~QPSPrinter();
 
-    bool	cmd ( int, QPainter *, QPDevCmdParam * );
+    bool cmd ( int, QPainter *, QPDevCmdParam * );
+
+    friend class QPrinter;
+private:
+    // QPrinter does not use these
 
     QPrinter   *printer;
-    QIODevice  *device;
+    QPSPrinterPrivate *d;
     QTextStream stream;
     int		pageCount;
     bool	dirtyMatrix;
     bool	dirtyNewPage;
     bool	epsf;
     QString	fontsUsed;
-    friend class QPrinter;
-
-private:	// Disabled copy constructor and operator=
-    QPSPrinter( const QPSPrinter & );
-    QPSPrinter &operator=( const QPSPrinter & );
 
     void matrixSetup( QPainter * );
     void orientationSetup();
     void newPageSetup( QPainter * );
+    void emitHeader();
+    void setFont( const QFont & );
+
+    // Disabled copy constructor and operator=
+    QPSPrinter( const QPSPrinter & );
+    QPSPrinter &operator=( const QPSPrinter & );
 };
 
 

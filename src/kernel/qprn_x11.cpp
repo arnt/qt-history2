@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#34 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -20,12 +20,15 @@
 #include <stdlib.h>
 #if !defined(_OS_WIN32_)
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #endif
 #if defined(_OS_OS2EMX_)
 #include <process.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#34 $");
 
 
 /*****************************************************************************
@@ -47,7 +50,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#33 $");
 QPrinter::QPrinter()
     : QPaintDevice( PDT_PRINTER | PDF_EXTDEV )
 {
-    pdrv = new QPSPrinter( this );
+    pdrv = 0;
     orient = Portrait;
     page_size = A4;
     ncopies = 1;
@@ -110,16 +113,15 @@ bool QPrinter::aborted() const
 /*!
   Opens a printer setup dialog and asks the user to specify what printer
   to use and miscellaneous printer settings.
-  
+
   Now obsoleted by QPrintDialog::getPrinterSetup().
 
   Returns TRUE if the user pressed "Ok" to print, or FALSE if the
   user cancelled the operation.
 */
 
-bool QPrinter::setup( QWidget *parent )
+bool QPrinter::setup( QWidget * )
 {
-    
     return QPrintDialog::getPrinterSetup( this );
 }
 
@@ -131,89 +133,72 @@ bool QPrinter::setup( QWidget *parent )
 
 bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 {
-    QPSPrinter *ps = (QPSPrinter*)pdrv;
-    if ( c ==  PDC_BEGIN ) {			// begin; start printing
-	if ( ps && state == PST_IDLE ) {
-	    if ( !ps->epsf ) {
-		char *fname = output_file ? output_filename.data() : tmpnam(0);
-		if ( !fname || *fname == '\0' ) {
-#if defined(DEBUG)
-		    warning( "QPrinter: File name cannot be null" );
-#endif
-		    state = PST_ERROR;
-		    return TRUE;
-		}
-		QFile *output = new QFile( fname );
-		if ( !output->open(IO_ReadWrite|IO_Truncate) ) {
-#if defined(DEBUG)
-		    warning( "QPrinter: Could not create output file" );
-#endif
-		    delete output;			// could not create file
-		    state = PST_ERROR;
-		    return TRUE;
-		}
-		ps->device = output;
-		if ( ps->cmd( c, paint, p ) ) {	// successful
+    if ( c ==  PDC_BEGIN ) {
+	if ( state == PST_IDLE ) {
+	    if ( output_file ) {
+		int fd = ::open( output_filename.data(),
+				 O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
+				 0666 );
+		if ( fd >= 0 ) {
+		    pdrv = new QPSPrinter( this, fd );
 		    state = PST_ACTIVE;
-		} else {				// could not start printing
-		    ps->device = 0;
-		    delete output;
-		    state = PST_ERROR;
 		}
 	    } else {
-		if ( ps->cmd( c, paint, p ) ) {	// successful
-		    state = PST_ACTIVE;
-		} else {			// could not start printing
-		    state = PST_ERROR;
-		}
-	    }
-	    return TRUE;
-	}
-    } else if ( c == PDC_END ) {		// end; printing done
-	if ( ps && state != PST_ERROR ) {
-	    ps->cmd( c, paint, p );
-	    QFile *output = (QFile*)ps->device;
-	    if ( output ) {
-		if ( !output_file ) {		// send to printer
-		    QString pr = printer_name.copy();
-		    if ( pr.isEmpty() )		// not set, then read $PRINTER
-			pr = getenv( "PRINTER" );
-		    if ( pr.isEmpty() ) {	// no printer set
-			pr = "lp";
-		    }
-		    pr.insert( 0, "-P" );
+		QString pr = printer_name.copy();
+		if ( pr.isEmpty() )
+		    pr = getenv( "PRINTER" );
+		if ( pr.isEmpty() )
+		    pr = "lp";
+		pr.insert( 0, "-P" );
 #if defined(_OS_WIN32_)
-		    // Not implemented
-		    //	 lpr needs -Sserver argument
+		// Not implemented
+		// lpr needs -Sserver argument
 #elif defined(_OS_OS2EMX_)
-		    if ( spawnlp(P_NOWAIT,print_prog.data(), print_prog.data(),
-				 pr.data(), output->name(), 0) == -1 ) {
-			;			// couldn't exec, ignored
-		    }
-#else
-		    if ( fork() == 0 ) {	// child process
-			if ( execlp(print_prog.data(), print_prog.data(),
-				    pr.data(), output->name(), 0) == -1 ) {
-			    ;			// couldn't exec, ignored
-			}
-			exit( 0 );		// exit print job
-			QFileInfo fi( output->name() );
-			fi.dir().remove( fi.fileName() );
-		    }
-#endif
+#error "this does not work - must be rewritten to spawn and pipe"
+		if ( spawnlp(P_NOWAIT,print_prog.data(), print_prog.data(),
+			     pr.data(), output->name(), 0) == -1 ) {
+		    ;			// couldn't exec, ignored
 		}
-		output->close();
-		delete output;
-		
-		ps->device = 0;
+#else
+		QApplication::flushX();
+		int fds[2];
+		if ( pipe( fds ) != 0 ) {
+		    warning( "QPSPrinter: could not open pipe to print" );
+		    state = PST_ERROR;
+		    return FALSE;
+		}
+		if ( fork() == 0 ) {	// child process
+		    int i = getdtablesize();
+		    dup2( fds[0], 0 );
+		    while( --i >= 0 )
+			(void)fcntl( i, F_SETFD, ( i > 2 ) ? 1 : 0 );
+		    
+		    (void)execlp( print_prog.data(), print_prog.data(),
+				  pr.data(), 0 );
+		    exit( 0 );
+		} else {		// parent process
+		    ::close( fds[0] );
+		    pdrv = new QPSPrinter( this, fds[1] );
+		    state = PST_ACTIVE;
+		}
+#endif
 	    }
+	    return ((QPSPrinter*)pdrv)->cmd( c, paint, p );
+	} else {
+	    // ignore it?  I don't know
 	}
-	state = PST_IDLE;
 	return TRUE;
     } else {
-	if ( state == PST_ACTIVE || c == PDC_SETDEV ) {
-	    return ps->cmd( c, paint, p );
+	bool r = FALSE;
+	if ( state == PST_ACTIVE && pdrv ) {
+	    r = ((QPSPrinter*)pdrv)->cmd( c, paint, p );
+	    if ( c == PDC_END ) {
+		state = PST_IDLE;
+		delete pdrv;
+		pdrv = 0;
+	    }
 	}
+	return r;
     }
     return FALSE;
 }
