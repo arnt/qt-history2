@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#134 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#135 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#134 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#135 $");
 
 
 /*!
@@ -847,7 +847,7 @@ QConnectionList *QObject::receivers( const char *signal ) const
 
 
 #if QT_VERSION == 200
-#error "insertChild and removeChild should be virtual.
+#error "insertChild and removeChild should be virtual."
 #endif
 
 /*!
