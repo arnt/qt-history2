@@ -803,6 +803,7 @@ QPixmap QMacStyleQD::stylePixmap(StylePixmap stylepixmap, const QWidget *widget,
 {
     IconRef icon = 0;
     switch(stylepixmap) {
+    case SP_MessageBoxQuestion:
     case SP_MessageBoxInformation:
         GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertNoteIcon, &icon);
         break;
@@ -812,8 +813,6 @@ QPixmap QMacStyleQD::stylePixmap(StylePixmap stylepixmap, const QWidget *widget,
     case SP_MessageBoxCritical:
         GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertStopIcon, &icon);
         break;
-    case SP_MessageBoxQuestion:
-        //no idea how to do this ###
     default:
         break;
     }
@@ -1259,11 +1258,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
             else
                 xpos += xm;
             if (mi->menuItemType == QStyleOptionMenuItem::Q3Custom) {
-                // ### hmmm...
-                /*
-                int m = macItemVMargin;
-                mi->custom()->paint(p, pal, act, !dis, x+xm, y+m, w-xm-tab+1, h-2*m);
-                */
+                qWarning("Drawing of custom menu items that aren't full span is no longer allowed.");
             }
             if (mi) {
                 QString s = mi->text;
