@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#111 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#112 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -1839,14 +1839,14 @@ Q2String::operator const char *() const
 */
 
 /*!
-  \fn ushort operator[](int) const
+  \fn ushort Q2String::operator[](int) const
 
   Returns the character at \a i, or 0 if \a i is beyond the length
   of the string.
 */
 
 /*!
-  \fn ushort& operator[](int)
+  \fn ushort& Q2String::operator[](int)
 
   Returns a reference to the character at \a i, expanding
   the string with character-0 if necessary.  The resulting reference
