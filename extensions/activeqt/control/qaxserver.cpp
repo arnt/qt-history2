@@ -922,7 +922,7 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
     STRIPCB(typeLibID);
     QString typelib = filebase.right(filebase.length() - filebase.lastIndexOf("\\")-1);
     
-    if (!file.open(IO_WriteOnly))
+    if (!file.open(QIODevice::WriteOnly))
         return -1;
     
     out.setDevice(&file);

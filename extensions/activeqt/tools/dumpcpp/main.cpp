@@ -506,7 +506,7 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
 
     if (!nameSpace.isEmpty() && !(category & NoDeclaration)) {
         QFile outfile(nameSpace.toLower() + ".h");
-        if (!outfile.open(IO_WriteOnly | IO_Translate)) {
+		if (!outfile.open(QIODevice::WriteOnly | QIODevice::Translate)) {
             qWarning("dumpcpp: Could not open output file '%s'", outfile.fileName().latin1());
             return false;
         }
@@ -531,7 +531,7 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
 
     if (!(category & NoDeclaration)) {
         QFile outfile(outname + ".h");
-        if (!outfile.open(IO_WriteOnly | IO_Translate)) {
+        if (!outfile.open(QIODevice::WriteOnly | QIODevice::Translate)) {
             qWarning("dumpcpp: Could not open output file '%s'", outfile.fileName().latin1());
             return false;
         }
@@ -570,7 +570,7 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
 
     if (!(category & (NoMetaObject|NoImplementation))) {
         QFile outfile(outname + ".cpp");
-        if (!outfile.open(IO_WriteOnly | IO_Translate)) {
+        if (!outfile.open(QIODevice::WriteOnly | QIODevice::Translate)) {
             qWarning("dumpcpp: Could not open output file '%s'", outfile.fileName().latin1());
             return false;
         }
@@ -642,7 +642,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     QFile implFile(cppFile + ".cpp");
     QTextStream implOut(&implFile);
     if (!(category & (NoMetaObject|NoImplementation))) {
-        if (!implFile.open(IO_WriteOnly | IO_Translate)) {
+        if (!implFile.open(QIODevice::WriteOnly | QIODevice::Translate)) {
             qWarning("dumpcpp: Could not open output file '%s'", implFile.fileName().latin1());
             return false;
         }
@@ -656,7 +656,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     QFile declFile(cppFile + ".h");
     QTextStream declOut(&declFile);
     if(!(category & NoDeclaration)) {
-        if (!declFile.open(IO_WriteOnly | IO_Translate)) {
+        if (!declFile.open(QIODevice::WriteOnly | QIODevice::Translate)) {
             qWarning("dumpcpp: Could not open output file '%s'", declFile.fileName().latin1());
             return false;
         }

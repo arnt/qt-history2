@@ -243,7 +243,7 @@ int main(int argc, char **argv)
     if (!tlbfile.isEmpty()) {
         slashify(tlbfile);
         QFile file(tlbfile);
-        if (!file.open(IO_ReadOnly)) {
+        if (!file.open(QIODevice::ReadOnly)) {
             fprintf(stderr, "Couldn't open %s for read\n", (const char*)tlbfile.local8Bit());
             return 4;
         }

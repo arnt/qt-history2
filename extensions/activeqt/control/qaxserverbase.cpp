@@ -2607,7 +2607,7 @@ HRESULT WINAPI QAxServerBase::Load(IStream *pStm)
     }
 
     QBuffer qtbuffer(&qtarray);
-    qtbuffer.open(IO_ReadOnly | IO_Translate);
+    qtbuffer.open(QIODevice::ReadOnly | QIODevice::Translate);
     QDataStream qtstream(&qtbuffer);
     int version;
     qtstream >> version;
@@ -2636,7 +2636,7 @@ HRESULT WINAPI QAxServerBase::Load(IStream *pStm)
 HRESULT WINAPI QAxServerBase::Save(IStream *pStm, BOOL clearDirty)
 {
     QBuffer qtbuffer;
-    qtbuffer.open(IO_WriteOnly | IO_Translate);
+    qtbuffer.open(QIODevice::WriteOnly | QIODevice::Translate);
     QDataStream qtstream(&qtbuffer);
     qtstream << qtstream.version();
 

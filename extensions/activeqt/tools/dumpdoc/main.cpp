@@ -71,11 +71,11 @@ int main(int argc, char **argv)
     QFile outfile;
     if (!outname.isEmpty()) {
         outfile.setFileName(outname);
-        if (!outfile.open(IO_WriteOnly | IO_Translate)) {
+        if (!outfile.open(QIODevice::WriteOnly | QIODevice::Translate)) {
             qWarning("dumpdoc: Could not open output file '%s'", outname.data());
         }
     } else {
-        outfile.open(IO_WriteOnly, stdout);
+        outfile.open(QIODevice::WriteOnly, stdout);
     }
     QTextStream out(&outfile);
     

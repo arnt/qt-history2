@@ -1004,7 +1004,7 @@ QAxScript *QAxScriptManager::load(const QString &code, const QString &name, cons
 QAxScript *QAxScriptManager::load(const QString &file, const QString &name)
 {
     QFile f(file);
-    if (!f.open(IO_ReadOnly))
+    if (!f.open(QIODevice::ReadOnly))
         return 0;
     QByteArray data = f.readAll();
     QString contents = QString::fromLocal8Bit(data, data.size());

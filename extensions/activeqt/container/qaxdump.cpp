@@ -102,7 +102,7 @@ QString qax_generateDocumentation(QAxBase *that)
 	dispatch->GetTypeInfo(0, LOCALE_SYSTEM_DEFAULT, &typeInfo);
 
     QString docu;
-    QTextStream stream(&docu, IO_WriteOnly);
+    QTextStream stream(&docu, QIODevice::WriteOnly);
 
     const QMetaObject *mo = that->metaObject();
     QString coClass  = mo->classInfo(mo->indexOfClassInfo("CoClass")).value();
