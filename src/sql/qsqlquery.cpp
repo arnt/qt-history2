@@ -112,10 +112,13 @@ void QSqlResultShared::slotResultDestroyed()
     \endlist
 
     These functions allow the programmer to move forward, backward or
-    arbitrarily through the records returned by the query. Once an
-    active query is positioned on a valid record, data can be
-    retrieved using value(). All data is transferred from the SQL
-    backend using QVariants.
+    arbitrarily through the records returned by the query. If you only
+    need to move forward through the results, e.g. using next() or
+    using seek() with a positive offset, you can use setForwardOnly()
+    and save a significant amount of memory overhead. Once an active
+    query is positioned on a valid record, data can be retrieved using
+    value(). All data is transferred from the SQL backend using
+    QVariants.
 
     For example:
 
@@ -132,61 +135,64 @@ void QSqlResultShared::slotResultDestroyed()
     by passing the field's position in the statement, starting from 0.
     For the sake of efficiency there are no methods to access a field
     by name. (The \l QSqlCursor class provides a higher level
-    interface for that generates SQL automatically and through which
-    fields are accessed by name.)
+    interface that generates SQL automatically and through which
+    fields are accessible by name.)
 
-    QSqlQuery supports prepared query execution and binding of
-    parameter values to placeholders. Note that only input values may
-    be bound. Be aware that not all databases support these
-    features. Currently only the Oracle and ODBC drivers have proper
-    prepared query support, but the rest of the drivers support this
-    by emulating the missing features (the placeholders are simply
-    replaced with the actual value when the query is executed). It is
-    also important to know that different databases use different
-    placeholder marks for value binding. Oracle uses a \c : character
-    followed by a placeholder name, while ODBC only uses a \c ? 
-    character to identify a placeholder. In an attempt to make this
-    database independant we substitute the markers if you try to use
-    ODBC markers in a query to an Oracle database and vice versa. Note
-    that you can't mix the different bind styles by binding some
-    values using named placeholders and some using positional
-    placeholders.
-    
-    Example:
+    QSqlQuery supports prepared query execution and the binding of
+    parameter values to placeholders. Since not all databases support
+    these features, Qt emulates them when necessary. For example, the
+    Oracle and ODBC drivers have proper prepared query support, and Qt
+    makes use of it; but for databases that don't have this support,
+    Qt implements the feature itself, e.g. by replacing placeholders
+    with actual values when a query is executed.
 
+    Oracle databases identify placeholders by using a colon-name
+    syntax, e.g \c{:name}. ODBC simply uses \c ? characters. Qt
+    supports both syntaxes (although you can't mix them in the same
+    query).
+
+    Below we present the same example using each of the four different
+    binding approaches.
+
+    <b>Named binding using named placeholders</b>
     \code
-    // Named binding using named placeholders
-    QSqlQuery q;
-    q.prepare( "insert into mytable (id, name, lastname) values (:id, :name, :lname)" );
-    q.bindValue( ":id", 0 );
-    q.bindValue( ":name", "Testname" );
-    q.bindValue( ":lname", "Lastname" );
-    q.exec();
-
-    // Positional binding using named placeholders
-    QSqlQuery q;
-    q.prepare( "insert into mytable (id, name, lastname) values (:id, :name, :lname)" );
-    q.bindValue( 0, 0 );
-    q.bindValue( 1, "Testname" );
-    q.bindValue( 2, "Lastname" );
-    q.exec();
-
-    // Binding values using positional placeholders
-    QSqlQuery q;
-    q.prepare( "insert into mytable (id, name, lastname) values (?, ?, ?)" );
-    q.bindValue( 0, 0 );
-    q.bindValue( 1, "Testname" );
-    q.bindValue( 2, "Lastname" );
-    q.exec();
-    
-    // or alternatively
-    q.prepare( "insert into mytable (id, name, lastname) values (?, ?, ?)" );
-    q.addBindValue( 0 );
-    q.addBindValue( "Testname" );
-    q.addBindValue( "Lastname" );
-    q.exec();
+    QSqlQuery query;
+    query.prepare( "INSERT INTO atable (id, forename, surname) VALUES (:id, :forename, :surname)" );
+    query.bindValue( ":id", 1001 );
+    query.bindValue( ":forename", "Bart" );
+    query.bindValue( ":surname", "Simpson" );
+    query.exec();
     \endcode
-    
+
+    <b>Positional binding using named placeholders</b>
+    \code
+    QSqlQuery query;
+    query.prepare( "INSERT INTO atable (id, forename, surname) VALUES (:id, :forename, :surname)" );
+    query.bindValue( 0, 1001 );
+    query.bindValue( 1, "Bart" );
+    query.bindValue( 2, "Simpson" );
+    query.exec();
+    \endcode
+
+    <b>Binding values using positional placeholders #1</b>
+    \code
+    QSqlQuery query;
+    query.prepare( "INSERT INTO atable (id, forename, surname) VALUES (?, ?, ?)" );
+    query.bindValue( 0, 1001 );
+    query.bindValue( 1, "Bart" );
+    query.bindValue( 2, "Simpson" );
+    query.exec();
+    \endcode
+
+    <b>Binding values using positional placeholders #2</b>
+    \code
+    query.prepare( "INSERT INTO atable (id, forename, surname) VALUES (?, ?, ?)" );
+    query.addBindValue( 1001 );
+    query.addBindValue( "Bart" );
+    query.addBindValue( "Simpson" );
+    query.exec();
+    \endcode
+
     \sa QSqlDatabase QSqlCursor QVariant
 */
 
@@ -255,7 +261,7 @@ QSqlQuery& QSqlQuery::operator=( const QSqlQuery& other )
 /*!
     Returns TRUE if the query is active and positioned on a valid
     record and the \a field is NULL; otherwise returns FALSE. Note
-    that, for some drivers, isNull() will not return accurate
+    that for some drivers isNull() will not return accurate
     information until after an attempt is made to retrieve data.
 
     \sa isActive() isValid() value()
@@ -327,10 +333,10 @@ bool QSqlQuery::exec ( const QString& query )
     Returns the value of the \a{i}-th field in the query (zero based).
 
     The fields are numbered from left to right using the text of the
-    \c SELECT statement, e.g. in "SELECT forename, surname FROM
-    people", field 0 is forename and field 1 is surname. Using
-    \c{SELECT *} is not recommended because the order of the fields in
-    the query is undefined.
+    \c SELECT statement, e.g. in \c{SELECT forename, surname FROM people},
+    field 0 is \c forename and field 1 is \c surname. Using \c{SELECT *}
+    is not recommended because the order of the fields in the query is
+    undefined.
 
     An invalid QVariant is returned if field \a i does not exist, if
     the query is inactive, or if the query is positioned on an invalid
@@ -766,8 +772,11 @@ bool QSqlQuery::isSelect() const
     return d->sqlResult->isSelect();
 }
 
-/*! Returns TRUE when you can only scroll forward through a result set
-    otherwise FALSE
+/*!
+    Returns TRUE if you can only scroll \e forward through a result
+    set; otherwise returns FALSE.
+
+    \sa setForwardOnly()
 */
 bool QSqlQuery::isForwardOnly() const
 {
@@ -776,13 +785,19 @@ bool QSqlQuery::isForwardOnly() const
     return d->sqlResult->isForwardOnly();
 }
 
-/*! Sets forward only mode to \a forward. If forward is TRUE only next() and
-    seek() with positive values are allowed for navigating the results.
-    Forward only mode needs far less memory since results do not have to be cached.
+/*!
+    Sets forward only mode to \a forward. If forward is TRUE only
+    next() and seek() with positive values are allowed for navigating
+    the results. Forward only mode needs far less memory since results
+    do not have to be cached.
+
     Forward only mode is off by default.
-    Note that it is not possible to use forward only mode with data aware widgets
-    like QDataTable since they need to be able to scroll backward.
-    \sa next(), seek()
+
+    Forward only mode cannot be used with data aware widgets like
+    QDataTable, since they must to be able to scroll backward as well
+    as forward.
+
+    \sa isForwardOnly(), next(), seek()
 */
 void QSqlQuery::setForwardOnly( bool forward )
 {
@@ -847,8 +862,10 @@ void QSqlQuery::afterSeek()
 
 /*!
     Prepares the SQL query \a query for execution. The query may
-    contain placeholders for binding values. Note that placeholder
-    markers are usually database dependent.
+    contain placeholders for binding values. Both Oracle style
+    colon-name (e.g. \c{:surname}), and ODBC style (e.g. \c{?})
+    placeholders are supported; but they cannot be mixed in the same
+    query. See the \link #details Description\endlink for examples.
 
     \sa exec(), bindValue(), addBindValue()
 */
@@ -928,7 +945,7 @@ bool QSqlQuery::prepare( const QString& query )
     \overload
 
     Executes a previously prepared SQL query. Returns TRUE if the
-    query is executed successfully; otherwise returns FALSE.
+    query executed successfully; otherwise returns FALSE.
 
     \sa prepare(), bindValue(), addBindValue()
 */
@@ -988,9 +1005,9 @@ bool QSqlQuery::exec()
 /*!
     Set the placeholder \a placeholder to be bound to value \a val in
     the prepared statement. Note that the placeholder mark (e.g \c{:})
-    should be included when specifying the placeholder name.    
-    If \a type is QSql::Out or QSql::InOut, the placeholder will be
-    overwritten with data from the database after exec().
+    must be included when specifying the placeholder name. If \a type
+    is \c QSql::Out or \c QSql::InOut, the placeholder will be
+    overwritten with data from the database after the exec() call.
 
     \sa addBindValue(), prepare(), exec()
 */
@@ -1005,9 +1022,9 @@ void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val, QSql
     \overload
 
     Set the placeholder in position \a pos to be bound to value \a val
-    in the prepared statement. Field numbering starts at 0.
-    If \a type is QSql::Out or QSql::InOut, the placeholder will be
-    overwritten with data from the database after exec().
+    in the prepared statement. Field numbering starts at 0. If \a type
+    is \c QSql::Out or \c QSql::InOut, the placeholder will be
+    overwritten with data from the database after the exec() call.
 
     \sa addBindValue(), prepare(), exec()
 */
@@ -1022,9 +1039,9 @@ void QSqlQuery::bindValue( int pos, const QVariant& val, QSql::ParameterType typ
     Adds the value \a val to the list of values when using positional
     value binding. The order of the addBindValue() calls determines
     which placeholder a value will be bound to in the prepared query.
-    If \a type is QSql::Out or QSql::InOut, the placeholder will be
-    overwritten with data from the database after exec().
-    
+    If \a type is \c QSql::Out or \c QSql::InOut, the placeholder will
+    be overwritten with data from the database after the exec() call.
+
     \sa bindValue(), prepare(), exec()
 */
 void QSqlQuery::addBindValue( const QVariant& val, QSql::ParameterType type )
@@ -1037,8 +1054,8 @@ void QSqlQuery::addBindValue( const QVariant& val, QSql::ParameterType type )
 
 /*!
     \overload
-    
-    Binds the placeholder with type QSql::In.
+
+    Binds the placeholder with type \c QSql::In.
 */
 void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val )
 {
@@ -1047,8 +1064,8 @@ void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val )
 
 /*!
     \overload
-    
-    Binds the placeholder with type QSql::In.
+
+    Binds the placeholder at position \a pos with type \c QSql::In.
 */
 void QSqlQuery::bindValue( int pos, const QVariant& val )
 {
@@ -1057,8 +1074,8 @@ void QSqlQuery::bindValue( int pos, const QVariant& val )
 
 /*!
     \overload
-    
-    Binds the placeholder with type QSql::In.
+
+    Binds the placeholder with type \c QSql::In.
 */
 void QSqlQuery::addBindValue( const QVariant& val )
 {
@@ -1077,7 +1094,7 @@ QVariant QSqlQuery::boundValue( const QString& placeholder ) const
 
 /*!
     \overload
-    
+
     Returns the value for the placeholder at position \a pos.
 */
 QVariant QSqlQuery::boundValue( int pos ) const

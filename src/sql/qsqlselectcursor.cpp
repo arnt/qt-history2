@@ -58,10 +58,11 @@ public:
     QSqlSelectCursor is a convenience class that makes it possible to
     display the result set of general SQL queries in data-aware Qt
     widgets. QSqlSelectCursor is read only and does not support
-    insert, update and delete operations.
+    INSERT, UPDATE or DELETE operations.
 */
 
-/*! Constructs a read only cursor on database \a db using the query \a query.
+/*!
+    Constructs a read only cursor on database \a db using the query \a query.
  */
 QSqlSelectCursor::QSqlSelectCursor( const QString& query, QSqlDatabase* db )
     : QSqlCursor( QString::null, FALSE, db )
