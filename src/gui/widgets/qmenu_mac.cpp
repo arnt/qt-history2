@@ -155,7 +155,8 @@ static MenuCommand qt_mac_menu_merge_action(QMacMenuAction *action)
     //now the fun part
     MenuCommand ret = 0;
 #define MENU_TRANSLATE(x) QCoreApplication::instance()->translate("QMenuBar", x)
-    if(t.startsWith(MENU_TRANSLATE("About").toLower())) {
+    QString aboutString = MENU_TRANSLATE("About").toLower();
+    if(t.startsWith(aboutString) || t.endsWith(aboutString)) {
         if(t.indexOf(QRegExp(QString::fromLatin1("qt$"), Qt::CaseInsensitive)) == -1)
             ret = kHICommandAbout;
         else
