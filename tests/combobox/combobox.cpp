@@ -2,7 +2,7 @@
 #include <qcombobox.h>
 #include <qlistbox.h>
 #include <qpixmap.h>
-
+#include <qpainter.h>
 
 class MyListBoxItem : public QListBoxPixmap
 {
