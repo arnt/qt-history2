@@ -16,6 +16,7 @@
 
 #include <qbytearray.h>
 #include <qtextstream.h>
+#include <ctype.h>
 
 #define QHEXDUMP_MAX 32
 class QHexDump
