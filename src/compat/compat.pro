@@ -8,12 +8,12 @@ DEFINES += QT_BUILD_COMPAT_LIB
 
 include(../qbase.pri)
 
-PRECOMPILED_HEADER = ../gui/base/qt_gui_pch.h
+PRECOMPILED_HEADER = ../gui/kernel/qt_gui_pch.h
 
 include(tools/tools.pri)
 include(sql/sql.pri)
 include(other/other.pri)
-include(containers/containers.pri)
+include(itemviews/itemviews.pri)
 include(widgets/widgets.pri)
 
 mac:LIBS += -framework Carbon

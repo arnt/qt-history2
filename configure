@@ -1019,8 +1019,8 @@ done
 [ -z "$QT_INSTALL_SYSCONF" ]      && QT_INSTALL_SYSCONF=$QT_INSTALL_PREFIX/etc/settings
 
 # generate qconfig.cpp
-[ -d $outpath/src/core/base ] || mkdir -p $outpath/src/core/base
-cat > $outpath/src/core/base/qconfig.cpp.new <<EOF
+[ -d $outpath/src/core/global ] || mkdir -p $outpath/src/core/global
+cat > $outpath/src/core/global/qconfig.cpp.new <<EOF
 /* Install paths from configure */
 
 static const char QT_INSTALL_PREFIX      [267] = "qt_nstpath=$QT_INSTALL_PREFIX";
@@ -1046,12 +1046,12 @@ const char *qInstallPathSysconf()      { return QT_INSTALL_SYSCONF      + 11; }
 EOF
 
 # avoid unecessary rebuilds by copying only if qconfig.cpp has changed
-if cmp -s $outpath/src/core/base/qconfig.cpp $outpath/src/core/base/qconfig.cpp.new; then
-    rm -f $outpath/src/core/base/qconfig.cpp.new
+if cmp -s $outpath/src/core/global/qconfig.cpp $outpath/src/core/global/qconfig.cpp.new; then
+    rm -f $outpath/src/core/global/qconfig.cpp.new
 else
-    [ -f $outpath/src/core/base/qconfig.cpp ] && chmod +w $outpath/src/core/base/qconfig.cpp
-    mv $outpath/src/core/base/qconfig.cpp.new $outpath/src/core/base/qconfig.cpp
-    chmod -w $outpath/src/core/base/qconfig.cpp
+    [ -f $outpath/src/core/global/qconfig.cpp ] && chmod +w $outpath/src/core/global/qconfig.cpp
+    mv $outpath/src/core/global/qconfig.cpp.new $outpath/src/core/global/qconfig.cpp
+    chmod -w $outpath/src/core/global/qconfig.cpp
 fi
 
 

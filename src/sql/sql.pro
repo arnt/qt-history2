@@ -9,7 +9,7 @@ CONFIG -= opengl x11sm
 
 DEFINES += QT_BUILD_SQL_LIB
 
-PRECOMPILED_HEADER = ../core/base/qt_pch.h
+PRECOMPILED_HEADER = ../core/global/qt_pch.h
 
 include(../qbase.pri)
 

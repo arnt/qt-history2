@@ -9,14 +9,13 @@ DEFINES += QT_BUILD_CORE_LIB
 
 include(../qbase.pri)
 include(arch/$$ARCH/arch.pri)
-include(base/base.pri)
+include(global/global.pri)
 include(thread/thread.pri)
 include(tools/tools.pri)
 include(io/io.pri)
 include(library/library.pri)
+include(kernel/kernel.pri)
 include(codecs/codecs.pri)
-include(object/object.pri)
-include(other/other.pri)
 
 mac:LIBS += -framework CoreServices -framework CoreFoundation -framework ApplicationServices
 

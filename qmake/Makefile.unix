@@ -18,7 +18,7 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makef
 	   generators/mac/pbuilder_pbx.cpp generators/win32/msvc_objectmodel.cpp \
 	   @SOURCE_PATH@/src/core/tools/qchar.cpp @SOURCE_PATH@/src/core/tools/qstring.cpp \
 	   @SOURCE_PATH@/src/core/io/qtextstream.cpp @SOURCE_PATH@/src/core/io/qiodevice.cpp \
-	   @SOURCE_PATH@/src/core/base/qglobal.cpp @SOURCE_PATH@/src/core/tools/qbytearray.cpp \
+	   @SOURCE_PATH@/src/core/global/qglobal.cpp @SOURCE_PATH@/src/core/tools/qbytearray.cpp \
 	   @SOURCE_PATH@/src/core/io/qdatastream.cpp @SOURCE_PATH@/src/core/io/qbuffer.cpp \
 	   @SOURCE_PATH@/src/tools/qlist.cpp @SOURCE_PATH@/src/core/io/qfile.cpp \
 	   @SOURCE_PATH@/src/core/io/qfile_unix.cpp @SOURCE_PATH@/src/core/tools/qregexp.cpp \
@@ -27,8 +27,8 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makef
 	   @SOURCE_PATH@/src/core/io/qfileinfo_unix.cpp @SOURCE_PATH@/src/core/io/qdir_unix.cpp \
 	   @SOURCE_PATH@/src/core/io/qfileinfo.cpp @SOURCE_PATH@/src/core/tools/qdatetime.cpp \
 	   @SOURCE_PATH@/src/core/tools/qstringlist.cpp @SOURCE_PATH@/src/core/tools/qmap.cpp \
-	   @SOURCE_PATH@/src/core/base/qconfig.cpp @SOURCE_PATH@/src/core/other/qsettings.cpp \
-	   @SOURCE_PATH@/src/core/object/qurl.cpp @SOURCE_PATH@/src/core/tools/qsettings_mac.cpp \
+	   @SOURCE_PATH@/src/core/global/qconfig.cpp @SOURCE_PATH@/src/core/io/qsettings.cpp \
+	   @SOURCE_PATH@/src/core/object/qurl.cpp @SOURCE_PATH@/src/core/io/qsettings_mac.cpp \
 	   @SOURCE_PATH@/src/core/tools/qlocale.cpp @SOURCE_PATH@/src/core/tools/qlinkedlist.cpp \
 	   @SOURCE_PATH@/src/core/tools/qhash.cpp
 
@@ -66,17 +66,17 @@ qtextstream.o: @SOURCE_PATH@/src/core/io/qtextstream.cpp
 qiodevice.o: @SOURCE_PATH@/src/core/io/qiodevice.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qiodevice.cpp
 
-qglobal.o: @SOURCE_PATH@/src/core/base/qglobal.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/base/qglobal.cpp
+qglobal.o: @SOURCE_PATH@/src/core/global/qglobal.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/global/qglobal.cpp
 
 qbytearray.o: @SOURCE_PATH@/src/core/tools/qbytearray.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qbytearray.cpp
 
-qsettings.o: @SOURCE_PATH@/src/core/other/qsettings.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/other/qsettings.cpp
+qsettings.o: @SOURCE_PATH@/src/core/io/qsettings.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qsettings.cpp
 
-qsettings_mac.o: @SOURCE_PATH@/src/core/other/qsettings_mac.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/other/qsettings_mac.cpp
+qsettings_mac.o: @SOURCE_PATH@/src/core/io/qsettings_mac.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qsettings_mac.cpp
 
 qurl.o: @SOURCE_PATH@/src/core/object/qurl.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/object/qurl.cpp
@@ -144,8 +144,8 @@ qmap.o: @SOURCE_PATH@/src/core/tools/qmap.cpp
 qhash.o: @SOURCE_PATH@/src/core/tools/qhash.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qhash.cpp
 
-qconfig.o: @BUILD_PATH@/src/core/base/qconfig.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @BUILD_PATH@/src/core/base/qconfig.cpp
+qconfig.o: @BUILD_PATH@/src/core/global/qconfig.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @BUILD_PATH@/src/core/global/qconfig.cpp
 
 qlinkedlist.o: @SOURCE_PATH@/src/core/tools/qlinkedlist.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qlinkedlist.cpp

@@ -35,23 +35,21 @@ SOURCES+=qchar.cpp qstring.cpp qtextstream.cpp \
 	 qsettings.cpp qunicodetables.cpp \
 	 qlibrary.cpp qlocale.cpp 
 
-exists($$QT_BUILD_TREE/src/core/base/qconfig.cpp) {  #qconfig.cpp
+exists($$QT_BUILD_TREE/src/core/global/qconfig.cpp) {  #qconfig.cpp
     DEFINES += HAVE_QCONFIG_CPP
-    SOURCES += $$QT_BUILD_TREE/src/core/base/qconfig.cpp
+    SOURCES += $$QT_BUILD_TREE/src/core/global/qconfig.cpp
 }
 
 #where to find the Qt code, and platform dependant SOURCES
-VPATH += $$QT_SOURCE_TREE/src/core/base \
+VPATH += $$QT_SOURCE_TREE/src/core/global \
          $$QT_SOURCE_TREE/src/core/tools \
          $$QT_SOURCE_TREE/src/core/library \
 	 $$QT_SOURCE_TREE/src/core/io \
-         $$QT_SOURCE_TREE/src/core/other \
          $$QT_SOURCE_TREE/src/compat/tools
 
 unix {
    SOURCES += qfile_unix.cpp qfileinfo_unix.cpp qdir_unix.cpp
    mac {
-     VPATH += $$QT_SOURCE_TREE/src/core/object
      SOURCES += qsettings_mac.cpp qurl.cpp
    }
 }

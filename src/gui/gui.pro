@@ -17,7 +17,7 @@ win32:include(base/win.pri)
 embedded:include(embedded/embedded.pri)
 
 #modules
-include(base/base.pri)
+include(kernel/kernel.pri)
 include(image/image.pri)
 include(painting/painting.pri)
 include(text/text.pri)

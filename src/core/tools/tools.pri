@@ -6,6 +6,7 @@ HEADERS +=  \
 	tools/qbytearray.h \
 	tools/qcache.h \
 	tools/qchar.h \
+	tools/qcleanuphandler.h \
 	tools/qdatetime.h \
 	tools/qhash.h \
 	tools/qlinkedlist.h \

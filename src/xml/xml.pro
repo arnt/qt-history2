@@ -6,7 +6,7 @@ QCONFIG = core gui
 
 DEFINES += QT_BUILD_XML_LIB
 
-PRECOMPILED_HEADER = ../gui/base/qt_gui_pch.h
+PRECOMPILED_HEADER = ../gui/kernel/qt_gui_pch.h
 
 include(../qbase.pri)
 
