@@ -3950,6 +3950,7 @@ bool QTextEdit::getParagraphFormat( int para, QFont *font, QColor *color,
 
 QPopupMenu *QTextEdit::createPopupMenu( const QPoint& pos )
 {
+    Q_UNUSED( pos )
 #ifndef QT_NO_POPUPMENU
     QPopupMenu *popup = new QPopupMenu( this, "qt_edit_menu" );
     if ( !isReadOnly() ) {
