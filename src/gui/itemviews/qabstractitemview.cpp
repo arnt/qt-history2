@@ -905,7 +905,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     //emit activated(index);
     emit pressed(index);
 
-    if (e->button() == Qt::LeftButton && itemWasSelected && selectionModel()->isSelected(index))
+    if (e->button() == Qt::LeftButton)
         edit(index, SelectedClicked, e);
 }
 
