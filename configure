@@ -1506,7 +1506,7 @@ do
     test -d $dir || mkdir -p $dir
     N=$outpath/$dir/Makefile
     QMAKE_EXTRA_ARGS="\"QMAKE_ABSOLUTE_SOURCE_PATH=$relpath/$dir\""
-    PIPE="$outpath/bin/qmake $QMAKE_EXTRA_ARGS -o $N $a"
+    PIPE="$outpath/bin/qmake $QMAKE_SWITCHES $QMAKE_EXTRA_ARGS -o $N $a"
     if [ "x$CONCURRENT" = "x0" ] || [ "x$CONCURRENT" = "x1" ]
     then
 	EXEC=$PIPE
