@@ -111,7 +111,7 @@ QVariant SpreadSheetItem::display() const
         for (int r = tableWidget()->row(start); r <= tableWidget()->row(end); ++r) {
             for (int c = tableWidget()->column(start); c <= tableWidget()->column(end); ++c) {
                 const QTableWidgetItem *tableItem = tableWidget()->item(r, c);
-                if (tableItem != this)
+                if (tableItem && tableItem != this)
                     sum += tableItem->text().toInt();
             }
         }
