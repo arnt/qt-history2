@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#114 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#113 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#114 $";
 #endif
 
 
@@ -2050,7 +2050,7 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 	    bez->points	  = a2;
 	    if ( bezlist->count() > 13 )
 		bezlist->removeLast();
-	    bezlist->insert( bez );
+	    bezlist->insert( 0, bez );
 	}
 #else
 	a2 = a2.bezier();

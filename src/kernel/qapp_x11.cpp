@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#86 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -31,7 +31,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#85 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#86 $";
 #endif
 
 
@@ -386,7 +386,7 @@ void qAddPostRoutine( void (*p)() )		// add post routine
 	postRList = new QVFuncList;
 	CHECK_PTR( postRList );
     }
-    postRList->insert( (void *)p );		// store at list head
+    postRList->insert( 0, (void *)p );		// store at list head
 }
 
 
@@ -958,7 +958,7 @@ void qt_enter_modal( QWidget *widget )		// enter modal state
 	modal_stack = new QWidgetList;
 	CHECK_PTR( modal_stack );
     }
-    modal_stack->insert( widget );
+    modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
     qApp->enter_loop();
 }

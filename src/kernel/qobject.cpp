@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#53 $
 **
 ** Implementation of QObject class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#52 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#53 $";
 #endif
 
 
@@ -628,7 +628,7 @@ void QObject::insertChild( QObject *obj )	// add object object
 #endif
     obj->parentObj = this;
     if ( obj->hiPriority )
-	childObjects->insert( obj );		// high priority inserts
+	childObjects->insert( 0, obj );		// high priority inserts
     else
 	childObjects->append( obj );		// normal priority appends
 }
@@ -668,7 +668,7 @@ void QObject::installEventFilter( const QObject *obj )
 	eventFilters = new QObjectList;
 	CHECK_PTR( eventFilters );
     }
-    eventFilters->insert( obj );
+    eventFilters->insert( 0, obj );
 }
 
 /*!

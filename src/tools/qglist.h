@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#12 $
+** $Id: //depot/qt/main/src/tools/qglist.h#13 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -55,7 +55,6 @@ protected:
 
     QGList &operator=( const QGList & );	// assign from other list
 
-    void  insert( GCI );			// add item at start of list
     void  inSort( GCI );			// add item sorted in list
     void  append( GCI );			// add item at end of list
     bool  insertAt( uint index, GCI );		// add item at i'th position
@@ -98,6 +97,8 @@ protected:
     virtual QDataStream &write( QDataStream &, GCI ) const;
 
 private:
+    void  prepend( GCI );			// add item at start of list
+
     Qdnode *firstNode;				// first node
     Qdnode *lastNode;				// last node
     Qdnode *curNode;				// current node

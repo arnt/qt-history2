@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#35 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#34 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#35 $";
 #endif
 
 
@@ -278,12 +278,12 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
   Returns the optimization flag for the pixmap.
 
   The optimization flag is initially set to the global pixmap optimization
-  flag optimizedAll(), which is TRUE by default.
+  flag allAreOptimized(), which is TRUE by default.
 
-  \sa setOptimization(), optimizedAll()
+  \sa optimize(), optimizeAll()
 */
 
-bool QPixmap::optimized() const
+bool QPixmap::isOptimized() const
 {
     return data->optim;
 }
@@ -295,10 +295,10 @@ bool QPixmap::optimized() const
   Pixmap optimization makes pixmap operations faster. The disadvantage is
   that pixmap optimization consumes some extra memory.
 
-  \sa optimized(), setOptimizationAll(), optimizedAll()
+  \sa isOptimized(), optimizeAll(), allAreOptimized()
 */
 
-void QPixmap::setOptimization( bool enable )
+void QPixmap::optimize( bool enable )
 {
     if ( enable == (bool)data->optim )
 	return;
@@ -312,10 +312,10 @@ void QPixmap::setOptimization( bool enable )
 
 /*!
   Returns the global pixmap optimization flag.  The default value is TRUE.
-  \sa setOptimizationAll(), optimized()
+  \sa optimizeAll(), isOptimized()
 */
 
-bool QPixmap::optimizedAll()
+bool QPixmap::allAreOptimized()
 {
     return optimAll;
 }
@@ -326,12 +326,12 @@ bool QPixmap::optimizedAll()
   All new pixmaps that are created will be optimized if \e enable is
   TRUE, or avoid optimization if \e enable is FALSE.
 
-  Optimization can be overridden for individual pixmaps by setOptimization().
+  Optimization can be overridden for individual pixmaps by optimize().
 
-  \sa optimizedAll(), setOptimization(), optimized()
+  \sa optimizeAll(), optimize(), optimized()
 */
 
-void QPixmap::setOptimizationAll( bool enable )
+void QPixmap::optimizeAll( bool enable )
 {
     optimAll = enable;
 }

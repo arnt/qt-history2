@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#7 $
 **
 ** Implementation of QPainter class for OS/2 PM
 **
@@ -19,7 +19,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#7 $";
 #endif
 
 
@@ -299,7 +299,7 @@ QPainter::QPainter()
     bg_col = white;				// default background color
     bg_mode = TransparentMode;			// default background mode
     rop = CopyROP;				// default ROP
-    list->insert( this );			// add to list of painters
+    list->insert( 0, this );			// add to list of painters
 }
 
 QPainter::~QPainter()

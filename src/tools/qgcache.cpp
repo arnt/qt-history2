@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#14 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qstring.h"				/* used for statistics */
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#14 $";
 #endif
 
 
@@ -59,7 +59,7 @@ void QCList::reference( QCacheItem *ci )
     if ( ci == get() || findRef( ci ) >= 0 ) {
 	take();
 	ci->skipPriority = ci->priority;
-	insert( ci );
+	insert( 0, ci );
     }
 }
 
@@ -188,7 +188,7 @@ bool QGCache::insert( const char *key, GCI data, long cost, int priority )
     QCacheItem *ci = new QCacheItem( key, newItem(data), cost,
 				     (short)priority );
     CHECK_PTR( ci );
-    lruList->insert( ci );
+    lruList->insert( 0, ci );
     dict->insert( key, ci );
     tCost += cost;
     return TRUE;
@@ -203,7 +203,7 @@ void QGCache::reference( GCI data ) const
 	if ( tmp->data == data ) {
 	    lruList->take();
 	    tmp->skipPriority = tmp->priority;
-	    lruList->insert( tmp );
+	    lruList->insert( 0, tmp );
 	    return;
 	}
 	tmp = lruList->next();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#8 $
+** $Id: //depot/qt/main/src/tools/qlist.h#9 $
 **
 ** Definition of QList template/macro class
 **
@@ -43,7 +43,6 @@ public:									      \
     uint  count()   const		{ return QGList::count(); }	      \
     bool  isEmpty() const		{ return QGList::count() == 0; }      \
     bool  insert( uint i, const type *d){ return QGList::insertAt(i,(GCI)d); }\
-    void  insert( const type *d )	{ QGList::insert((GCI)d); }	      \
     void  inSort( const type *d )	{ QGList::inSort((GCI)d); }	      \
     void  append( const type *d )	{ QGList::append((GCI)d); }	      \
     bool  remove( uint i )		{ return QGList::removeAt(i); }	      \
@@ -124,7 +123,6 @@ public:
     uint  count()   const		{ return QGList::count(); }
     bool  isEmpty() const		{ return QGList::count() == 0; }
     bool  insert( uint i, const type *d){ return QGList::insertAt(i,(GCI)d); }
-    void  insert( const type *d )	{ QGList::insert((GCI)d); }
     void  inSort( const type *d )	{ QGList::inSort((GCI)d); }
     void  append( const type *d )	{ QGList::append((GCI)d); }
     bool  remove( uint i )		{ return QGList::removeAt(i); }

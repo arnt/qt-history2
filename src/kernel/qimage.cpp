@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#36 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#35 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#36 $";
 #endif
 
 /*!
@@ -1159,7 +1159,7 @@ void QImageIO::defineIOHandler( const char *format,
     p->text_mode = flags && *flags == 'T';
     p->read_image = read_image;
     p->write_image = write_image;
-    imageHandlers->insert( p );
+    imageHandlers->insert( 0, p );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#14 $
 **
 ** Implementation of QAccel class
 **
@@ -17,7 +17,7 @@
 #include "qsignal.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#14 $";
 #endif
 
 
@@ -179,7 +179,7 @@ int QAccel::insertItem( int key, int id )
 {
     if ( id == -1 )
 	id = aitems->count();
-    aitems->insert( new QAccelItem(key,id) );
+    aitems->insert( 0, new QAccelItem(key,id) );
     return id;
 }
 
