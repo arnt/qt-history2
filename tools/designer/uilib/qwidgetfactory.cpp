@@ -110,7 +110,6 @@ static QPluginManager<WidgetInterface> *widgetInterfaceManager = 0;
 static QMap<QString, bool> *availableWidgetMap = 0;
 static QStringList *availableWidgetList = 0;
 
-QMap<QWidget*, QString> *qwf_functions = 0;
 QMap<QWidget*, QString> *qwf_forms = 0;
 QString *qwf_language = 0;
 bool qwf_execute_code = TRUE;
@@ -307,24 +306,27 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     QWidgetFactory *widgetFactory = new QWidgetFactory;
     widgetFactory->toplevel = 0;
 
-    QIODevice::Offset start = dev->at();
-    Q_UINT32 magic;
-    QDataStream in( dev );
-    in >> magic;
-    if ( magic == UibMagic ) {
-	w = widgetFactory->createFromUibFile( in, connector, parent, name );
-    } else {
-	in.unsetDevice();
-	dev->at( start );
-	if ( doc.setContent( dev, &errMsg, &errLine ) ) {
-	    w = widgetFactory->createFromUiFile( doc, connector, parent, name );
+    // If we have no GUI, we only want to load the code
+    if ( qApp->type() != QApplication::Tty ) {
+	QIODevice::Offset start = dev->at();
+	Q_UINT32 magic;
+	QDataStream in( dev );
+	in >> magic;
+	if ( magic == UibMagic ) {
+	    w = widgetFactory->createFromUibFile( in, connector, parent, name );
 	} else {
-	    // qDebug( QString("Parse error: ") + errMsg + QString(" in line %d"), errLine );
+	    in.unsetDevice();
+	    dev->at( start );
+	    if ( doc.setContent( dev, &errMsg, &errLine ) ) {
+		w = widgetFactory->createFromUiFile( doc, connector, parent, name );
+	    } else {
+		// qDebug( QString("Parse error: ") + errMsg + QString(" in line %d"), errLine );
+	    }
 	}
-    }
-    if ( !w ) {
-	delete widgetFactory;
-	return 0;
+	if ( !w ) {
+	    delete widgetFactory;
+	    return 0;
+	}
     }
 
     if ( !languageInterfaceManager )
@@ -376,13 +378,16 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	    }
 	}
 #endif
+    }
 
+    if ( widgetFactory->toplevel || qwf_form_object ) {
 	if ( qwf_language && interpreterInterfaceManager && qwf_execute_code ) {
 	    InterpreterInterface *interpreterInterface = 0;
 	    interpreterInterfaceManager->queryInterface( *qwf_language, &interpreterInterface );
 	    if ( interpreterInterface ) {
 		interpreterInterface->init();
-		interpreterInterface->exec( qwf_form_object ? qwf_form_object : widgetFactory->toplevel,
+		interpreterInterface->exec( qwf_form_object ?
+					    qwf_form_object : widgetFactory->toplevel,
 					    widgetFactory->code );
 	    }
 	}

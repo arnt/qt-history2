@@ -214,6 +214,8 @@ public:
 
     QString locationOfObject( QObject *o );
 
+    bool hasGUI() const;
+
 signals:
     void projectModified();
     void sourceFileAdded( SourceFile* );

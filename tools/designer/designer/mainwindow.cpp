@@ -81,7 +81,6 @@
 #include <stdlib.h>
 
 static bool mblockNewForms = FALSE;
-extern QMap<QWidget*, QString> *qwf_functions;
 extern QMap<QWidget*, QString> *qwf_forms;
 extern QString *qwf_language;
 extern bool qwf_execute_code;
@@ -3157,7 +3156,7 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 	    if ( fw->project() != currentProject )
 		continue;
 	    if ( qstrcmp( fw->name(), o->name() ) == 0 ||
-		 fw->isFake() && currentProject->objectForFakeForm( fw ) == o ){
+		 fw->isFake() && currentProject->objectForFakeForm( fw ) == o ) {
 		if ( se ) {
 		    switch ( lm ) {
 		    case Error:
@@ -3235,13 +3234,18 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 	}
     }
 
-    if ( !qwf_forms ) {
+    FormWindow *fw = currentProject->fakeFormFor( o );
+
+    if ( !fw && !qwf_forms ) {
 	qWarning( "MainWindow::showSourceLine: qwf_forms is NULL!" );
 	return;
     }
 
     mblockNewForms = TRUE;
-    openFormWindow( currentProject->makeAbsolute( *qwf_forms->find( (QWidget*)o ) ) );
+    if ( !fw )
+	openFormWindow( currentProject->makeAbsolute( *qwf_forms->find( (QWidget*)o ) ) );
+    else
+	fw->formFile()->showEditor( FALSE );
     qApp->processEvents(); // give all views the chance to get the formwindow
     SourceEditor *se = editSource();
     if ( se ) {
