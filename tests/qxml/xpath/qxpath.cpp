@@ -90,27 +90,40 @@ public:
 	FunctionCall
     };
 
-    QXPathAtom( Type t ) :
-	type(t), parent(0)
-    {
-	children.setAutoDelete( TRUE );
-    }
+    QXPathAtom( Type t );
+    ~QXPathAtom();
 
-    ~QXPathAtom()
-    {
-	children.clear();
-    }
-
-    void addChild( QXPathAtom* child )
-    {
-	children.append( child );
-	child->parent = this;
-    }
+    void addChild( QXPathAtom* child );
 
     Type type;
     QXPathAtom *parent;
     QList<QXPathAtom> children; // QList is more complex than needed
 };
+
+/*!
+  Constructor.
+*/
+QXPathAtom::QXPathAtom( Type t ) : type(t), parent(0)
+{
+    children.setAutoDelete( TRUE );
+}
+
+/*!
+  Destructor.
+*/
+QXPathAtom::~QXPathAtom()
+{
+    children.clear();
+}
+
+/*!
+  Adds a child node.
+*/
+void QXPathAtom::addChild( QXPathAtom* child )
+{
+    children.append( child );
+    child->parent = this;
+}
 
 
 /***************************************************************
@@ -147,11 +160,17 @@ private:
 };
 
 
+/*!
+  Constructor.
+*/
 QXPathLexicalAnalyzer::QXPathLexicalAnalyzer( const QString &e ) :
     expr(e), parsePos(0), token(TkError)
 {
 }
 
+/*!
+  Destructor.
+*/
 QXPathLexicalAnalyzer::~QXPathLexicalAnalyzer()
 {
 }
@@ -494,17 +513,27 @@ QXPathNS::Axis QXPathLexicalAnalyzer::getAxis() const
 	return AxError;
 }
 
+/*!
+  Returns TRUE if the end of the expression has been reached, otherwise FALSE.
+*/
 bool QXPathLexicalAnalyzer::atEnd() const
 {
     return parsePos >= expr.length();
 }
 
+/*!
+  Moves the position to the next non-whitespace character.
+*/
 void QXPathLexicalAnalyzer::eatWs()
 {
     while ( !atEnd() && expr[parsePos].isSpace() )
 	parsePos++;
 }
 
+/*!
+  Returns the character that is \a offset away from the actual parsing position
+  without moving the position.
+*/
 QChar QXPathLexicalAnalyzer::lookAhead( int offset ) const
 {
     if ( parsePos + offset < expr.length() )
@@ -522,39 +551,43 @@ QChar QXPathLexicalAnalyzer::lookAhead( int offset ) const
 class QXPathParser : public QXPathNS
 {
 public:
-    QXPathParser( const QString& expr );
+    QXPathParser();
     ~QXPathParser();
 
-    enum State {
-	SExpr,
-	SAxisName,
-	SNodeTest,
-	STestPredicate
-    };
-
-    QXPathAtom* parse();
+    QXPathAtom* parse( const QString& expr );
 
 private:
     QXPathLexicalAnalyzer *lex;
 };
 
 
-QXPathParser::QXPathParser( const QString& expr )
+/*!
+  Constructor.
+*/
+QXPathParser::QXPathParser()
 {
-    lex = new QXPathLexicalAnalyzer( expr );
+    lex = 0;
 }
 
+/*!
+  Destructor.
+*/
 QXPathParser::~QXPathParser()
 {
     delete lex;
 }
 
-QXPathAtom* QXPathParser::parse()
+/*!
+  Parses the expression and returns the root of the tree that belongs to the
+  expression if no parsing error occurs. Otherwise this function returns 0.
+*/
+QXPathAtom* QXPathParser::parse( const QString& expr )
 {
     Token token;
-//	State s = SExpr;
     QXPathAtom *act_root = 0;
 
+    delete lex;
+    lex = new QXPathLexicalAnalyzer( expr );
     while ( !lex->atEnd() ) {
 	token = lex->nextToken();
 	switch ( token ) {
@@ -602,9 +635,13 @@ QXPathAtom* QXPathParser::parse()
 		break;
 	}
     }
+    delete lex;
+    lex = 0;
     return act_root;
 error:
     delete act_root;
+    delete lex;
+    lex = 0;
     return 0;
 }
 
@@ -617,17 +654,17 @@ error:
 class QXPathPrivate
 {
 public:
-    QXPathPrivate() : expr(0)
+    QXPathPrivate() : exprTree(0)
     {
     }
 
     ~QXPathPrivate()
     {
-	delete expr;
+	delete exprTree;
     }
 
 private:
-    QXPathAtom *expr;
+    QXPathAtom *exprTree;
     friend class QXPath;
 };
 
@@ -674,8 +711,8 @@ QXPath::~QXPath()
 */
 void QXPath::setExpression( const QString& expr )
 {
-    QXPathParser parser( expr );
-    d->expr = parser.parse();
+    QXPathParser parser;
+    d->exprTree = parser.parse( expr );
 }
 
 /*!
@@ -698,7 +735,7 @@ QString QXPath::expression() const
 */
 bool QXPath::isValid() const
 {
-    return d->expr != 0;
+    return d->exprTree != 0;
 }
 
 

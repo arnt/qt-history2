@@ -36,21 +36,9 @@ public:
     virtual int minNumParameters() = 0;
     virtual int maxNumParameters() = 0;
     virtual int typeParameter( int i ) = 0;
-#if 0
-    // If I put the function-name -> function mapping in the context, then the
-    // whole recursion of the evaluation is hidden.
-    virtual void setParameter( int i, QXPathFunction *f );
-#else
-    virtual void setParameter( int i, QXPathDataType *value );
-#endif
 
-#if 0
-    // this approach has a nicer API, but it is not that easy to subclass since
-    // you need sharing mechanism... ???
-    virtual QXPathDataType evaluate() = 0;
-#else
-    virtual void evaluate( QXPathDataType* ret ) = 0;
-#endif
+    virtual void setParameter( int i, QXPathDataType *value ) = 0;
+    virtual bool evaluate( QXPathDataType* ret ) = 0;
 };
 
 
