@@ -326,7 +326,7 @@ QTextCursor QTextDocument::find(const QString &expr, int from, StringComparison 
         int idx = -1;
         QTextLayout *layout = block.layout();
 
-        if (flags & Contains) {
+        if ((flags & ExactMatch) == 0) {
             idx = text.indexOf(expr, blockOffset, cs);
         } else {
             int i = blockOffset;
@@ -337,7 +337,7 @@ QTextCursor QTextDocument::find(const QString &expr, int from, StringComparison 
                     idx = i;
                 } else if ((flags & EndsWith) && word.endsWith(expr, cs)) {
                     idx = i + word.length() - expr.length();
-                } else if ((flags & ExactMatch)
+                } else if ((flags & ExactMatch) == ExactMatch
                            && (((cs == QString::CaseSensitive) && word == expr)
                                || (cs == QString::CaseInsensitive) && word.toLower() == expr.toLower())) {
                         idx = i;

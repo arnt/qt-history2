@@ -21,24 +21,24 @@
 #include <qstringlist.h>
 #include "qlibrary_p.h"
 #endif // QT_H
+class QFactoryLoaderPrivate;
 
 class Q_CORE_EXPORT QFactoryLoader : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QFactoryLoader)
+
 public:
     QFactoryLoader(const char *iid,
                    const QStringList &paths = QString(),
                    const QString &suffix = QString(),
+                   CaseSensitivity = CaseSensitive,
                    QObject *parent = 0);
     ~QFactoryLoader();
 
     QStringList keys() const;
     QObject *instance(const QString &key) const;
 
-private:
-    QList<QLibraryPrivate*> libraryList;
-    QMap<QString,QLibraryPrivate*> keyMap;
-    QStringList keyList;
 };
 
 #endif // QFACTORYLOADER_P_H

@@ -19,9 +19,26 @@
 #include "qfactoryinterface.h"
 #include "qfactoryloader_p.h"
 
+#include "private/qobject_p.h"
+
+class QFactoryLoaderPrivate : public QObjectPrivate
+{
+    Q_DECLARE_PUBLIC(QFactoryLoader)
+public:
+    QFactoryLoaderPrivate(){}
+    QList<QLibraryPrivate*> libraryList;
+    QMap<QString,QLibraryPrivate*> keyMap;
+    QStringList keyList;
+};
+
+#define d d_func()
+#define q q_func()
+
+
 QFactoryLoader::QFactoryLoader(const char *iid,
-                               const QStringList &paths, const QString &suffix, QObject *parent)
-    :QObject(parent)
+                               const QStringList &paths, const QString &suffix,
+                               CaseSensitivity cs, QObject *parent)
+    :QObject(*new QFactoryLoaderPrivate, parent)
 {
     QStringList filters;
 #if defined(Q_OS_WIN32)
@@ -76,17 +93,19 @@ QFactoryLoader::QFactoryLoader(const char *iid,
                 settings.writeEntry(regkey, reg);
             }
             if (!keys.isEmpty()) {
-                libraryList += library;
+                d->libraryList += library;
                 for (int k = 0; k < keys.count(); ++k) {
                     // first come first serve, unless the first
                     // library was built with a future Qt version,
                     // whereas the new one has a Qt version that fits
                     // better
-                    QString key = keys.at(k).toLower();
-                    QLibraryPrivate *previous = keyMap.value(key);
+                    QString key = keys.at(k);
+                    if (!cs)
+                        key = key.toLower();
+                    QLibraryPrivate *previous = d->keyMap.value(key);
                     if (!previous || (previous->qt_version > QT_VERSION && library->qt_version <= QT_VERSION)) {
-                        keyMap[key] = library;
-                        keyList += keys.at(k);
+                        d->keyMap[key] = library;
+                        d->keyList += keys.at(k);
                     }
                 }
             } else {
@@ -99,19 +118,20 @@ QFactoryLoader::QFactoryLoader(const char *iid,
 
 QFactoryLoader::~QFactoryLoader()
 {
-    for (int i = 0; i < libraryList.count(); ++i)
-        libraryList.at(i)->release();
+    for (int i = 0; i < d->libraryList.count(); ++i)
+        d->libraryList.at(i)->release();
 }
 
 QStringList QFactoryLoader::keys() const
 {
-    return keyList;
+    return d->keyList;
 }
 
 QObject *QFactoryLoader::instance(const QString &key) const
 {
-    if (QLibraryPrivate* library = keyMap.value(key))
+    if (QLibraryPrivate* library = d->keyMap.value(key))
         if (library->instance || library->loadPlugin())
             return library->instance();
     return 0;
 }
+

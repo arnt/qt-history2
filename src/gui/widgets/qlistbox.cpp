@@ -4053,7 +4053,7 @@ QListBoxItem *QListBox::findItem(const QString &text, StringComparison compare) 
 
     QString itmtxt;
     QString comtxt = text;
-    if (! (compare & CaseSensitive))
+    if (compare & IgnoreCase)
         comtxt = text.toLower();
 
     QListBoxItem *item;
@@ -4068,36 +4068,36 @@ QListBoxItem *QListBox::findItem(const QString &text, StringComparison compare) 
 
     if (item) {
         for (; item; item = item->n) {
-            if (! (compare & CaseSensitive))
+            if (compare & IgnoreCase)
                 itmtxt = item->text().toLower();
             else
                 itmtxt = item->text();
 
-            if (compare & ExactMatch && itmtxt == comtxt)
+            if ((compare & ExactMatch)==ExactMatch && itmtxt == comtxt)
                 return item;
             if (compare & BeginsWith && !beginsWithItem && itmtxt.startsWith(comtxt))
                 beginsWithItem = containsItem = item;
             if (compare & EndsWith && !endsWithItem && itmtxt.endsWith(comtxt))
                 endsWithItem = containsItem = item;
-            if (compare & Contains && !containsItem && itmtxt.contains(comtxt))
+            if ((compare & ExactMatch)==0 && !containsItem && itmtxt.contains(comtxt))
                 containsItem = item;
         }
 
         if (d->current && d->head) {
             item = d->head;
             for (; item && item != d->current; item = item->n) {
-                if (! (compare & CaseSensitive))
+                if (compare & IgnoreCase)
                     itmtxt = item->text().toLower();
                 else
                     itmtxt = item->text();
 
-                if (compare & ExactMatch && itmtxt == comtxt)
+                if ((compare & ExactMatch)==ExactMatch && itmtxt == comtxt)
                     return item;
                 if (compare & BeginsWith && !beginsWithItem && itmtxt.startsWith(comtxt))
                     beginsWithItem = containsItem = item;
                 if (compare & EndsWith && !endsWithItem && itmtxt.endsWith(comtxt))
                     endsWithItem = containsItem = item;
-                if (compare & Contains && !containsItem && itmtxt.contains(comtxt))
+                if ((compare & ExactMatch)==0 && !containsItem && itmtxt.contains(comtxt))
                     containsItem = item;
             }
         }

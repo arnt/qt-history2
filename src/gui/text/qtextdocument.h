@@ -70,8 +70,8 @@ public:
     QString plainText() const;
     void setPlainText(const QString &text);
 
-    QTextCursor find(const QString &exp, int from = 0, StringComparison flags = (CaseSensitive | Contains)) const;
-    QTextCursor find(const QString &exp, const QTextCursor &from, StringComparison flags = (CaseSensitive | Contains)) const;
+    QTextCursor find(const QString &exp, int from = 0, StringComparison flags = 0) const;
+    QTextCursor find(const QString &exp, const QTextCursor &from, StringComparison flags = 0) const;
 
     QTextFrame *frameAt(int pos) const;
     QTextFrame *rootFrame() const;

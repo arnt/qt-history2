@@ -169,12 +169,10 @@ public:
     inline QT_COMPAT bool find(const QString &exp, bool cs, bool wo)
     {
         StringComparison flags = 0;
-        if (cs)
-            flags |= CaseSensitive;
+        if (!cs)
+            flags |= IgnoreCase;
         if (wo)
             flags |= ExactMatch;
-        else
-            flags |= Contains;
         return find(exp, flags);
     }
 

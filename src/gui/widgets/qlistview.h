@@ -325,7 +325,7 @@ public:
     ResizeMode resizeMode() const;
 
     QListViewItem * findItem(const QString& text, int column,
-                              StringComparison = ExactMatch | CaseSensitive) const;
+                              StringComparison = ExactMatch) const;
 
     enum RenameAction { Accept, Reject };
     virtual void setDefaultRenameAction(RenameAction a);

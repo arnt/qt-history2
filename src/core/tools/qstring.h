@@ -19,6 +19,7 @@
 #include "qchar.h"
 #include "qbytearray.h"
 #include "qatomic.h"
+#include "qnamespace.h"
 #endif // QT_H
 
 #ifndef QT_NO_STL
@@ -42,7 +43,7 @@ class QStringList;
 class QTextCodec;
 class QLatin1String;
 
-class Q_CORE_EXPORT QString
+class Q_CORE_EXPORT QString : public Qt
 {
 public:
     inline QString() : d(&shared_null) { ++d->ref; }
@@ -107,8 +108,6 @@ public:
 #endif
         ;
 #endif
-    // #### move to qnamespace
-    enum CaseSensitivity { CaseInsensitive, CaseSensitive };
 
     int indexOf(QChar c, int from = 0, CaseSensitivity cs = CaseSensitive) const;
     int indexOf(const QString &s, int from = 0, CaseSensitivity cs = CaseSensitive) const;

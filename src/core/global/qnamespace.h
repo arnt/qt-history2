@@ -24,7 +24,7 @@
 class Q_CORE_EXPORT Qt {
 #ifdef Q_MOC_RUN
     Q_OBJECT
-    Q_ENUMS(Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy)
+    Q_ENUMS(Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy CaseSensitivity)
     Q_FLAGS(AlignmentFlags)
 #endif
 public:
@@ -958,14 +958,19 @@ public:
 
     // Documented in qstring.cpp
     enum StringComparisonFlags {
-        CaseSensitive   = 0x00001, // 0 0001
-        BeginsWith      = 0x00002, // 0 0010
-        EndsWith        = 0x00004, // 0 0100
-        Contains        = 0x00008, // 0 1000
-        ExactMatch      = 0x00010  // 1 0000
+        BeginsWith = 0x00001,
+        EndsWith = 0x00002,
+        ExactMatch = BeginsWith | EndsWith,
+        IgnoreCase = 0x00004
     };
 
     Q_DECLARE_FLAGS(StringComparison, StringComparisonFlags);
+
+    // Documented in qstring.cpp
+    enum CaseSensitivity {
+        CaseInsensitive,
+        CaseSensitive
+    };
 
     // Documented in qtabwidget.cpp
     enum Corner {

@@ -3676,36 +3676,36 @@ QIconViewItem *QIconView::findItem(const QString &text, StringComparison compare
 
     if (item) {
         for (; item; item = item->next) {
-            if (! (compare & CaseSensitive))
+            if (compare & IgnoreCase)
                 itmtxt = item->text().toLower();
             else
                 itmtxt = item->text();
 
-            if (compare & ExactMatch && itmtxt == comtxt)
+            if ((compare & ExactMatch)==ExactMatch && itmtxt == comtxt)
                 return item;
             if (compare & BeginsWith && !beginsWithItem && itmtxt.startsWith(comtxt))
                 beginsWithItem = containsItem = item;
             if (compare & EndsWith && !endsWithItem && itmtxt.endsWith(comtxt))
                 endsWithItem = containsItem = item;
-            if (compare & Contains && !containsItem && itmtxt.contains(comtxt))
+            if ((compare & ExactMatch)==0 && !containsItem && itmtxt.contains(comtxt))
                 containsItem = item;
         }
 
         if (d->currentItem && d->firstItem) {
             item = d->firstItem;
             for (; item && item != d->currentItem; item = item->next) {
-                if (! (compare & CaseSensitive))
+                if (compare & IgnoreCase)
                     itmtxt = item->text().toLower();
                 else
                     itmtxt = item->text();
 
-                if (compare & ExactMatch && itmtxt == comtxt)
+                if ((compare & ExactMatch)==ExactMatch && itmtxt == comtxt)
                     return item;
                 if (compare & BeginsWith && !beginsWithItem && itmtxt.startsWith(comtxt))
                     beginsWithItem = containsItem = item;
                 if (compare & EndsWith && !endsWithItem && itmtxt.endsWith(comtxt))
                     endsWithItem = containsItem = item;
-                if (compare & Contains && !containsItem && itmtxt.contains(comtxt))
+                if ((compare & ExactMatch)==0 && !containsItem && itmtxt.contains(comtxt))
                     containsItem = item;
             }
         }

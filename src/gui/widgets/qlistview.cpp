@@ -7824,7 +7824,7 @@ QListViewItem *QListView::findItem(const QString& text, int column,
 
     QString itmtxt;
     QString comtxt = text;
-    if (!(compare & CaseSensitive))
+    if (compare & CaseInsensitive)
         comtxt = comtxt.toLower();
 
     QListViewItemIterator it(d->focusItem ? d->focusItem : firstChild());
@@ -7837,16 +7837,16 @@ QListViewItem *QListView::findItem(const QString& text, int column,
     for (int pass = 0; pass < 2; pass++) {
         while ((item = it.current()) != sentinel) {
             itmtxt = item->text(column);
-            if (!(compare & CaseSensitive))
+            if (compare & IgnoreCase)
                 itmtxt = itmtxt.toLower();
 
-            if (compare & ExactMatch && itmtxt == comtxt)
+            if ((compare & ExactMatch)==ExactMatch && itmtxt == comtxt)
                 return item;
             if (compare & BeginsWith && !beginsWithItem && itmtxt.startsWith(comtxt))
                 beginsWithItem = containsItem = item;
             if (compare & EndsWith && !endsWithItem && itmtxt.endsWith(comtxt))
                 endsWithItem = containsItem = item;
-            if (compare & Contains && !containsItem && itmtxt.contains(comtxt))
+            if ((compare & ExactMatch)==0 && !containsItem && itmtxt.contains(comtxt))
                 containsItem = item;
             ++it;
         }
