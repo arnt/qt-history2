@@ -86,9 +86,9 @@ extern "C" int usleep(useconds_t);
 #if defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE-0 >= 500) && (_XOPEN_VERSION-0 >= 500)
 // on Solaris 7 and better with specific feature test macros
 // - GCC 3.0: test _XOPEN_VERSION in addition to _XOPEN_SOURCE because GCC 3.0
-//   defines _XOPEN_SOURCE to 500 without the system actually supporting SUSv2
+//   defines _XOPEN_SOURCE to 500 (without the system always supporting SUSv2)
 #define QT_SOCKLEN_T		socklen_t
-#elif defined(_XOPEN_SOURCE_EXTENDED)
+#elif defined(_XOPEN_SOURCE_EXTENDED) && defined(_XOPEN_VERSION) && (_XOPEN_VERSION-0 >= 4)
 // on Solaris 2.6 and better with specific feature test macros
 #define QT_SOCKLEN_T		size_t
 #else
