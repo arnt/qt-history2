@@ -2337,7 +2337,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		QWidget* fw = (QWidget*)receiver;
 		while ( fw->focusProxy() )
 		    fw = fw->focusProxy();
-		if ( fw->isEnabled() && fw->focusPolicy() & QWidget::WheelFocus ) {
+		if ( fw->isEnabled() && (fw->focusPolicy() & QWidget::WheelFocus) == QWidget::WheelFocus ) {
 		    QFocusEvent::setReason( QFocusEvent::Mouse);
 		    fw->setFocus();
 		    QFocusEvent::resetReason();
