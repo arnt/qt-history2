@@ -370,6 +370,7 @@ public:
         // protect initialization
         QMutexLocker locker(&cache_mutex);
         mo_cache_ref++;
+        
     }
     
     ~QAxBasePrivate()
@@ -2727,17 +2728,18 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
         QByteArray type = d->metaobj->paramType(signature, p, &out);
         QVariant qvar;
         if (type == "IDispatch*")
-            qvar = QVariant::UserData(*(IDispatch**)v[p+1], "IDispatch*");
+            qVariantSet(qvar, *(IDispatch**)v[p+1], "IDispatch*");
         else if (type == "IUnknown*")
-            qvar = QVariant::UserData(*(IUnknown**)v[p+1], "IUnknown*");
+            qVariantSet(qvar, *(IUnknown**)v[p+1], "IUnknown*");
         else
             qvar = QVariant(QVariant::nameToType(type), v[p + 1]);
         QVariantToVARIANT(qvar, params.rgvarg[params.cArgs - p - 1], type, out);
     }
     
     // return value
+    QByteArray rettype(slot.type());
     VARIANT ret;
-    VARIANT *pret = &ret;
+    VARIANT *pret = rettype.isEmpty() ? 0 : &ret;
     
     // call the method
     UINT argerr = 0;
@@ -3401,13 +3403,13 @@ QVariant QAxBase::asVariant() const
         d->initialized = true;
     }
     
-    if (d->dispatch()) {
-        return QVariant::UserData(d->dispatch(), "IDispatch*");
-    } else if (d->ptr) {
-        return QVariant::UserData(d->ptr, "IUnknown*");
-    }
+    QVariant qvar;
+    if (d->dispatch())
+        qVariantSet(qvar, d->dispatch(), "IDispatch*");
+    else if (d->ptr)
+        qVariantSet(qvar, d->ptr, "IUnknown*");
     
-    return QVariant();
+    return qvar;
 }
 
 /*!
