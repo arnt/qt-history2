@@ -810,6 +810,7 @@ public:
     ~QTextString();
 
     QString toString() const;
+    QString toReverseString() const;
 
     Char &at( int i ) const;
     int length() const;
@@ -835,7 +836,7 @@ private:
 
     QArray<Char> data;
     uint textChanged : 1;
-    uint bidi : 1; // true when the paragraph right to left characters
+    uint bidi : 1; // true when the paragraph has right to left characters
     uint rightToLeft : 1; // true if the basic direction of the paragraph is right to left.
 };
 
@@ -1024,7 +1025,7 @@ public:
 
 private:
     void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
-    void drawParagBuffer( QPainter &painter, const QString &buffer, int startX,
+    void drawParagString( QPainter &painter, const QString &str, int start, int len, int startX,
 			  int lastY, int baseLine, int bw, int h, bool drawSelections,
 			  QTextFormat *lastFormat, int i, int *selectionStarts,
 			  int *selectionEnds, const QColorGroup &cg  );
@@ -1837,8 +1838,31 @@ inline QTextString::Char &QTextString::at( int i ) const
 inline QString QTextString::toString() const
 {
     QString s;
-    for ( int i = 0; i < length(); ++i )
-	s += data[ i ].c;
+    int l = length();
+    s.setUnicode(0, l);
+    Char *c = data.data();
+    QChar *uc = (QChar *)s.unicode();
+    while ( l-- ) {
+	*uc = c->c;
+	uc++;
+	c++;
+    }
+	
+    return s;
+}
+
+inline QString QTextString::toReverseString() const
+{
+    QString s;
+    int l = length();
+    s.setUnicode(0, l);
+    Char *c = data.data() + (l-1);
+    QChar *uc = (QChar *)s.unicode();
+    while ( l-- ) {
+	*uc = c->c;
+	uc++;
+	c--;
+    }
 	
     return s;
 }
