@@ -104,7 +104,7 @@ class Q_EXPORT QTextStringChar
 public:
     // this is never called, initialize variables in QTextString::insert()!!!
     QTextStringChar() : lineStart( 0 ), type( Regular ), startOfRun( 0 ) {d.format=0;}
-    virtual ~QTextStringChar();
+    ~QTextStringChar();
 
     QChar c;
     enum Type { Regular, Custom, Mark, Shaped };
