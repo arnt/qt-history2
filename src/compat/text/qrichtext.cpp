@@ -6318,8 +6318,8 @@ QString Q3TextFormat::makeFormatChangeTags(Q3TextFormat* defaultFormat, Q3TextFo
         tag += "<a href=\"" + anchorHref + "\">";
 
     if (font() != defaultFormat->font()
-         || vAlign() != defaultFormat->vAlign()
-         || color().rgb() != defaultFormat->color().rgb()) {
+        || vAlign() != defaultFormat->vAlign()
+        || color().rgb() != defaultFormat->color().rgb()) {
         QString s;
         if (font().family() != defaultFormat->font().family())
             s += QString(s.size()?";":"") + "font-family:" + fn.family();
@@ -6329,8 +6329,30 @@ QString Q3TextFormat::makeFormatChangeTags(Q3TextFormat* defaultFormat, Q3TextFo
             s += QString(s.size()?";":"") + "font-size:" + QString::number(fn.pointSize()) + "pt";
         if (font().weight() != defaultFormat->font().weight())
             s += QString(s.size()?";":"") + "font-weight:" + QString::number(fn.weight() * 8);
-        if (font().underline() != defaultFormat->font().underline())
-            s += QString(s.size()?";":"") + "text-decoration:" + (font().underline() ? "underline" : "none");
+        QString textDecoration;
+        bool none = FALSE;
+ 	if ( font().underline() != defaultFormat->font().underline() ) {
+            if (font().underline())
+                textDecoration = "underline";
+            else
+                none = TRUE;
+        }
+ 	if ( font().overline() != defaultFormat->font().overline() ) {
+            if (font().overline())
+                textDecoration += " overline";
+            else
+                none = TRUE;
+        }
+	if ( font().strikeOut() != defaultFormat->font().strikeOut() ) {
+            if (font().strikeOut())
+                textDecoration += " line-through";
+            else
+                none = TRUE;
+        }
+        if (none && textDecoration.isEmpty())
+            textDecoration = "none";
+        if (!textDecoration.isEmpty())
+ 	    s += QString(s.size()?";":"") + "text-decoration:" + textDecoration;
         if (vAlign() != defaultFormat->vAlign()) {
             s += QString(s.size()?";":"") + "vertical-align:";
             if (vAlign() == Q3TextFormat::AlignSuperScript)
@@ -6459,7 +6481,7 @@ Q3TextFormat Q3TextFormat::makeTextFormat(const QStyleSheetItem *style, const QM
                 format.logicalFontSize = 0;
                 int size = int(scaleFontsFactor * style.mid(10, style.length() - 12).toDouble());
                 format.setPointSize(size);
-            } if (style.startsWith("font-style:")) {
+            } else if (style.startsWith("font-style:")) {
                 QString s = style.mid(11).trimmed();
                 if (s == "normal")
                     format.fn.setItalic(false);
@@ -6478,8 +6500,10 @@ Q3TextFormat Q3TextFormat::makeTextFormat(const QStyleSheetItem *style, const QM
                 family = family.trimmed();
                 format.fn.setFamily(family);
             } else if (style.startsWith("text-decoration:")) {
-                QString s = style.mid(16).trimmed();
-                format.fn.setUnderline(s == "underline");
+ 		QString s = style.mid( 16 );
+ 		format.fn.setOverline(s.contains("overline"));
+ 		format.fn.setStrikeOut(s.contains("line-through"));
+ 		format.fn.setUnderline(s.contains("underline"));
             } else if (style.startsWith("vertical-align:")) {
                 QString s = style.mid(15).trimmed();
                 if (s == "sub")
