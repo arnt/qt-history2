@@ -40,7 +40,7 @@ public:
     QList<type> &operator=(const QList<type> &l)
 			{ return (QList<type>&)QGList::operator=(l); }
     bool operator==( const QList<type> &list ) const
-    { return (QList<type>&)QGList::operator==( list ); }
+    { return QGList::operator==( list ); }
     uint  count()   const		{ return QGList::count(); }
     bool  isEmpty() const		{ return QGList::count() == 0; }
     bool  insert( uint i, const type *d){ return QGList::insertAt(i,(Item)d); }
