@@ -106,6 +106,8 @@ QUnknownInterface *OpenGLWidgetInterface::queryInterface( const QUuid& uuid )
 
     if ( uuid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)this;
+    else if ( uuid == IID_QFeatureListInterface )
+	iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_WidgetInterface )
 	iface = (WidgetInterface*)this;
 

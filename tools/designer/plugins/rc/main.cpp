@@ -35,9 +35,11 @@ QUnknownInterface *RCFilter::queryInterface( const QUuid &uuid )
 
     if ( uuid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)(ImportFilterInterface*)this;
-    if ( uuid == IID_ImportFilterInterface )
+    else if ( uuid == IID_QFeatureListInterface )
+	iface = (QFeatureListInterface*)this;
+    else if ( uuid == IID_ImportFilterInterface )
 	iface = (ImportFilterInterface*)this;
-    if ( uuid == IID_QLibraryInterface )
+    else if ( uuid == IID_QLibraryInterface )
 	iface = (QLibraryInterface*)this;
 
     if ( iface )

@@ -760,6 +760,8 @@ QUnknownInterface *P4Interface::queryInterface( const QUuid &uuid )
 
     if ( uuid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)(ActionInterface*)this;
+    else if ( uuid == IID_QFeatureListInterface )
+	iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_ActionInterface )
 	iface = (ActionInterface*)this;
     else if ( uuid == IID_QLibraryInterface )
