@@ -246,7 +246,6 @@ NmakeMakefileGenerator::init()
 	if ( !project->isActiveConfig("debug") ) {
 	    project->variables()["DEFINES"].append("NO_DEBUG");
 	}
-	const char *foo = project->variables()["TARGET"].first().latin1();
 	if ( (project->variables()["TARGET"].first() == "qt") &&
 	     !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty()) {
@@ -292,6 +291,19 @@ NmakeMakefileGenerator::init()
 	    project->variables()["TARGET_EXT"].append(".lib");
 	}
     }
+    if ( project->isActiveConfig("windows") ) {
+	if ( project->isActiveConfig("console") ) {
+	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"];
+	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_CONSOLE"];
+	} else {
+	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"];
+	}
+	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
+    } else {
+	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"];
+	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_CONSOLE"];
+    }
+
     if ( project->isActiveConfig("moc") ) {
 	setMocAware(TRUE);
     }

@@ -265,8 +265,8 @@ void
 DspMakefileGenerator::init()
 {
     if(init_flag)
-		return;
-	QStringList::Iterator it;
+	return;
+    QStringList::Iterator it;
     init_flag = TRUE;
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
@@ -328,7 +328,7 @@ DspMakefileGenerator::init()
 		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
 			(*libit).replace(QRegExp("qt\\.lib"), ver);
 		}
-		 if ( !project->isActiveConfig("dll") ) {
+		if ( !project->isActiveConfig("dll") ) {
 		    project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_DLL"];
 		}
 	    }
@@ -375,7 +375,7 @@ DspMakefileGenerator::init()
     }
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     project->variables()["QMAKE_FILETAGS"] += QStringList::split(' ',
-	"HEADERS SOURCES DEF_FILE RC_FILE TARGET QMAKE_LIBS DESTDIR DLLDESTDIR INCLUDEPATH");
+								 "HEADERS SOURCES DEF_FILE RC_FILE TARGET QMAKE_LIBS DESTDIR DLLDESTDIR INCLUDEPATH");
     QStringList &l = project->variables()["QMAKE_FILETAGS"];
     for(it = l.begin(); it != l.end(); ++it) {
 	QStringList &gdmf = project->variables()[(*it)];
@@ -401,7 +401,7 @@ DspMakefileGenerator::init()
     QStringList &proj = project->variables()["MSVCDSP_PROJECT"];
 
     for(it = proj.begin(); it != proj.end(); ++it)
-		(*it).replace(QRegExp("\\.[a-zA-Z0-9_]*$"), "");
+	(*it).replace(QRegExp("\\.[a-zA-Z0-9_]*$"), "");
 
     if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
 	project->variables()["MSVCDSP_TEMPLATE"].append("win32app.dsp");

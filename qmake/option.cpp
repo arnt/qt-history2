@@ -143,7 +143,7 @@ Option::parseCommandLine(int argc, char **argv)
     Option::moc_ext = ".moc";
     Option::cpp_ext = ".cpp";
     if(Option::mode == Option::WIN_MODE) {
-	Option::dir_sep = "\\";
+	Option::dir_sep = "\\\\";
 	Option::obj_ext =  ".obj";
     } else {
 	Option::dir_sep = "/";
@@ -164,7 +164,7 @@ QString
 Option::fixPathToTargetOS(QString in)
 {
     fixEnvVariables(in);
-    return in.replace(QRegExp(Option::mode == UNIX_MODE ? "\\" : "/"), Option::dir_sep);
+    return in.replace(QRegExp(Option::mode == UNIX_MODE ? "\\[\\]" : "/"), Option::dir_sep);
 }
 
 QString
@@ -172,9 +172,9 @@ Option::fixPathToLocalOS(QString in)
 {
     fixEnvVariables(in);
 #ifdef WIN32
-    return in.replace(QRegExp("/"), "\\");
+    return in.replace(QRegExp("/"), "\\\\");
 #else
-    return in.replace(QRegExp("\\"), "/");
+    return in.replace(QRegExp("\\[\\]"), "/");
 #endif
 }
 

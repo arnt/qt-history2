@@ -165,9 +165,15 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
 	if ( !project->variables()["QMAKE_HPUX_SHLIB"].isEmpty() ) {
 	    t << "\n\t"
+	      << "-rm -f " << var("DESTDIR") << "$(TARGET)\n\t"
+	      << "-rm -f " << var("DESTDIR") << "$(TARGET0)\n\t"
 	      << "-mv $(TARGET) $(TARGET0) " << var("DESTDIR") << endl << endl;
 	} else {
 	    t << "\n\t"
+	      << "-rm -f " << var("DESTDIR") << "$(TARGET)\n\t"
+	      << "-rm -f " << var("DESTDIR") << "$(TARGET0)\n\t"
+	      << "-rm -f " << var("DESTDIR") << "$(TARGET1)\n\t"
+	      << "-rm -f " << var("DESTDIR") << "$(TARGET2)\n\t"
 	      << "-mv $(TARGET) $(TARGET0) $(TARGET1) $(TARGET2) " << var("DESTDIR") << endl << endl;
 	}
 	t << endl << endl;
@@ -423,7 +429,7 @@ UnixMakefileGenerator::init()
 	project->variables()["VER_MIN"].append("0");
 	project->variables()["VER_PAT"].append("0");
     }
-    project->variables()["DESTDIR_TARGET"].append("$(TARGET)");
+    //project->variables()["DESTDIR_TARGET"].append("$(TARGET)");
     if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
 #if 0
 	if ( project->isActiveConfig("dll") ) {
