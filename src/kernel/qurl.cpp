@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#27 $
 **
 ** Implementation of QFileDialog class
 **
@@ -598,7 +598,191 @@ void QUrl::parse( const QString& url )
     }
 
     d->isValid = TRUE;
+    QString oldProtocol = d->protocol;
+    d->protocol = QString::null;
+    
+    const int Init 	= 0;
+    const int Protocol 	= 1;
+    const int Separator1= 2; // :
+    const int Separator2= 3; // :/
+    const int Separator3= 4; // ://
+    const int User 	= 5;
+    const int Pass 	= 6;
+    const int Host 	= 7;
+    const int Path 	= 8;
+    const int Ref 	= 9;
+    const int Query 	= 10;
+    const int Port 	= 11;
+    const int Done 	= 12;
+    
+    const int InputAlpha= 1;
+    const int InputDigit= 2;
+    const int InputSlash= 3;
+    const int InputColon= 4;
+    const int InputAt 	= 5;
+    const int InputHash = 6;
+    const int InputQuery= 7;
+    
+    static uchar table[ 12 ][ 8 ] = {
+     /* None       InputAlpha  InputDigit  InputSlash  InputColon  InputAt     InputHash   InputQuery */ 	
+	{ 0,       Protocol,   0,          Path,       0,          0,          0,          0,         }, // Init
+	{ 0,       Protocol,   0,          0,          Separator1, 0,          0,          0,         }, // Protocol
+	{ 0,       0,          0,          Separator2, 0,          0,          0,          0,         }, // Separator1
+	{ 0,       Path,       0,          Separator3, 0,          0,          0,          0,         }, // Separator2
+	{ 0,       User,       0,          Separator3, Pass,       Host,       0,          0,         }, // Separator3
+	{ 0,       User,       User,       User,       Pass,       Host,       User,       User,      }, // User
+	{ 0,       Pass,       Pass,       Pass,       Pass,       Host,       Pass,       Pass,      }, // Pass
+	{ 0,       Host,       Host,       Path,       Port,       Host,       Ref,        Query,     }, // Host
+	{ 0,       Path,       Path,       Path,       Path,       Path,       Ref,        Query,     }, // Path
+	{ 0,       Ref,        Ref,        0,          Ref,        Ref,        Ref,        Query,     }, // Ref
+	{ 0,       Query,      Query,      Query,      Query,      Query,      Query,      Query,     }, // Query
+	{ 0,       0,          Port,       Path,       0,          0,          0,          0,         }  // Port
+	
+    };
+    
+    int state = Init; // parse state
+    int input; // input token
+    bool hasAt = url.find( "@" ) != -1;
+    
+    QString buffer;
+    QChar c = url[ 0 ];
+    int i = 0;
+    
+    while ( TRUE ) {
+	
+	switch ( c ) {
+	case '?':
+	    input = InputQuery;
+	    break;
+	case '#':
+	    input = InputHash;
+	    break;
+	case '@':
+	    input = InputAt;
+	    break;
+	case ':':
+	    input = InputColon;
+	    break;
+	case '/':
+	    input = InputSlash;
+	    break;
+	case '1': case '2': case '3': case '4': case '5':
+	case '6': case '7': case '8': case '9': case '0':
+	    input = InputDigit;
+	    break;
+	default:
+	    input = InputAlpha;
+	}
+    
+    	state = table[ state ][ input ];
 
+	// #### hack: don't know how to make this better...
+	if ( ( state == Pass || state == User ) && !hasAt ) {
+	    QString p = d->protocol;
+	    if ( p.isEmpty() )
+		p = "file";
+	    if ( p == "file" )
+		state = Path;
+	    else
+		state = Host;
+	}
+	
+	switch ( state ) {
+	case Protocol:
+	    d->protocol += c;
+	    break;
+	case User:
+	    d->user += c;
+	    break;
+	case Pass:
+	    d->pass += c;
+	    break;
+	case Host:
+	    d->host += c;
+	    break;
+	case Path:
+	    d->path += c;
+	    break;
+	case Ref:
+	    d->refEncoded += c;
+	    break;
+	case Query:
+	    d->queryEncoded += c;
+	    break;
+	case Port: {
+	    QString p;
+	    p.setNum( d->port );
+	    p += c;
+	    d->port = p.toInt();
+	    } break;
+	default:
+	    break;
+	}
+    
+	++i;
+	if ( i > (int)url.length() - 1 || state == Done )
+	    break;
+	c = url[ i ];
+	
+    }
+
+    // error
+    if ( i < (int)url.length() - 1 ) {
+	emit error( ErrParse, QUrl::tr( "Error in parsing `%1'" ).arg( url ) );
+	qWarning( QUrl::tr( "Error in parsing `%1'" ).arg( url ) );
+	d->isValid = FALSE;
+	return;
+    }
+	
+    if ( d->protocol.isEmpty() )
+	d->protocol = oldProtocol;
+    
+    if ( d->path.isEmpty() )
+	d->path = "/";
+
+    // #### do some corrections, should be done nicer too
+    if ( !d->pass.isEmpty() && d->pass[ 0 ] == ':' )
+	d->pass.remove( 0, 1 );
+    if ( !d->path.isEmpty() ) {
+	if ( d->path[ 0 ] == '@' || d->path[ 0 ] == ':' )
+	    d->path.remove( 0, 1 );
+	if ( d->path[ 0 ] != '/' )
+	    d->path.prepend( "/" );
+    }
+    if ( !d->refEncoded.isEmpty() && d->refEncoded[ 0 ] == '#' )
+	d->refEncoded.remove( 0, 1 );
+    if ( !d->queryEncoded.isEmpty() && d->queryEncoded[ 0 ] == '?' )
+	d->queryEncoded.remove( 0, 1 );
+    if ( !d->host.isEmpty() && d->host[ 0 ] == '@' )
+	d->host.remove( 0, 1 );
+
+    decode( d->path );
+    
+    if ( d->networkProtocol )
+ 	delete d->networkProtocol;
+    if ( d->port == -1 ) {
+	if ( d->protocol == "ftp" )
+	    d->port = 21;
+	else if ( d->protocol == "http" )
+	    d->port = 80;
+    }
+    getNetworkProtocol();
+
+#if 0
+    qDebug( "URL: %s", url.latin1() );
+    qDebug( "protocol: %s", d->protocol.latin1() );
+    qDebug( "user: %s", d->user.latin1() );
+    qDebug( "pass: %s", d->pass.latin1() );
+    qDebug( "host: %s", d->host.latin1() );
+    qDebug( "path: %s", d->path.latin1() );
+    qDebug( "ref: %s", d->refEncoded.latin1() );
+    qDebug( "query: %s", d->queryEncoded.latin1() );
+    qDebug( "port: %d\n", d->port );
+#endif
+    
+
+// ------------------------- OLD STUFF ---------
+#if 0    
     QString port;
     int start = 0;
     uint len = url.length();
@@ -780,6 +964,8 @@ NodeErr:
     emit error( ErrParse, QUrl::tr( "Error in parsing `%1'" ).arg( url ) );
     delete []orig;
     d->isValid = FALSE;
+
+#endif
 
 }
 
