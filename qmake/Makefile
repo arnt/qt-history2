@@ -34,7 +34,7 @@ ADDCLEAN    =	qmake.tds
 !ENDIF
 
 #qmake code
-OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.obj msvc_nmake.obj msvc_dsp.obj msvc_vcproj.obj option.obj \
+OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.obj mingw_make.obj msvc_nmake.obj msvc_dsp.obj msvc_vcproj.obj option.obj \
 	winmakefile.obj projectgenerator.obj metrowerks_xml.obj pbuilder_pbx.obj msvc_objectmodel.obj
 
 #qt code
@@ -165,6 +165,9 @@ winmakefile.obj: generators/win32/winmakefile.cpp
 
 borland_bmake.obj: generators/win32/borland_bmake.cpp
 	$(CXX) $(CXXFLAGS) generators/win32/borland_bmake.cpp
+
+mingw_make.obj: generators/win32/mingw_make.cpp
+	$(CXX) $(CXXFLAGS) generators/win32/mingw_make.cpp
 
 msvc_nmake.obj: generators/win32/msvc_nmake.cpp
 	$(CXX) $(CXXFLAGS) generators/win32/msvc_nmake.cpp
