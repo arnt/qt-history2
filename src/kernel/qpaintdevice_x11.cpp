@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#91 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -109,6 +109,7 @@ QPaintDevice::QPaintDevice( uint devflags )
     if ( dpy == 0 )
 	dpy = qt_xdisplay();
     hd	= 0;
+    d = 0;
 }
 
 /*!
@@ -118,10 +119,9 @@ QPaintDevice::QPaintDevice( uint devflags )
 QPaintDevice::~QPaintDevice()
 {
 #if defined(CHECK_STATE)
-    if ( paintingActive() ) {
+    if ( paintingActive() )
 	warning( "QPaintDevice: Cannot destroy paint device that is being "
 		 "painted" );
-    }
 #endif
 }
 

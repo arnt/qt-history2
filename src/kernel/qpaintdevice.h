@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#61 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#62 $
 **
 ** Definition of QPaintDevice class
 **
@@ -36,6 +36,8 @@
 
 union QPDevCmdParam;
 
+
+class QPaintDevicePrivate;
 
 class Q_EXPORT QPaintDevice				// device for QPainter
 {
@@ -94,8 +96,9 @@ protected:
 				 const QPaintDevice *,
 				 int, int, int, int, Qt::RasterOp, bool );
 
-#if defined(_WS_X11_)
 private:
+    QPaintDevicePrivate * d;
+#if defined(_WS_X11_)
     static Display *x_display;
     static int	    x_screen;
     static int	    x_depth;
