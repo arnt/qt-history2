@@ -226,7 +226,7 @@ static Atom	qt_input_encoding	= 0;	// Qt desktop properties
 static Atom	qt_resource_manager	= 0;	// X11 Resource manager
 Atom		qt_sizegrip		= 0;	// sizegrip
 Atom		qt_wm_client_leader	= 0;
-Atom		qt_window_role		= 0;
+Atom		qt_wm_window_role	= 0;
 Atom		qt_sm_client_id		= 0;
 Atom		qt_xa_motif_wm_hints	= 0;
 Atom		qt_cde_running		= 0;
@@ -1789,7 +1789,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
 	qt_x11_intern_atom( "WM_TAKE_FOCUS", &qt_wm_take_focus );
 	qt_x11_intern_atom( "WM_CLIENT_LEADER", &qt_wm_client_leader);
-	qt_x11_intern_atom( "WINDOW_ROLE", &qt_window_role);
+	qt_x11_intern_atom( "WM_WINDOW_ROLE", &qt_wm_window_role);
 	qt_x11_intern_atom( "SM_CLIENT_ID", &qt_sm_client_id);
 	qt_x11_intern_atom( "CLIPBOARD", &qt_xa_clipboard );
 	qt_x11_intern_atom( "RESOURCE_MANAGER", &qt_resource_manager );

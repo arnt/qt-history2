@@ -94,7 +94,7 @@ int qt_x11_create_desktop_on_screen = -1;
 extern Atom qt_wm_delete_window;
 extern Atom qt_wm_take_focus;
 extern Atom qt_wm_client_leader;
-extern Atom qt_window_role;
+extern Atom qt_wm_window_role;
 extern Atom qt_sm_client_id;
 extern Atom qt_net_wm_context_help;
 extern Atom qt_xa_motif_wm_hints;
@@ -509,7 +509,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
 	// declare the widget's object name as window role
 	XChangeProperty( dpy, id,
-			 qt_window_role, XA_STRING, 8, PropModeReplace,
+			 qt_wm_window_role, XA_STRING, 8, PropModeReplace,
 			 (unsigned char *)name(), qstrlen( name() ) );
 	// If we are session managed, inform the window manager about it
 	QCString session = qApp->sessionId().latin1();
@@ -2380,9 +2380,9 @@ void QWidget::setName( const char *name )
 {
     QObject::setName( name );
     if ( isTopLevel() ) {
-	XChangeProperty( x11Display(), winId(),
-			 qt_window_role, XA_STRING, 8, PropModeReplace,
-			 (unsigned char *)name, qstrlen( name ) );
+	XChangeProperty(qt_xdisplay(), winId(),
+			qt_wm_window_role, XA_STRING, 8, PropModeReplace,
+			(unsigned char *)name, qstrlen( name ) );
     }
 }
 
