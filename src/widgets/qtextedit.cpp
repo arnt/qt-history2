@@ -2019,9 +2019,40 @@ void QTextEdit::contentsDropEvent( QDropEvent *e )
     QString text;
     bool intern = FALSE;
     if ( QTextDrag::decode( e, text ) ) {
-	if ( ( e->source() == this ||
-	       e->source() == viewport() ) &&
-	     e->action() == QDropEvent::Move ) {
+	bool hasSel = doc->hasSelection( QTextDocument::Standard );
+	bool internalDrag = e->source() == this || e->source() == viewport();
+	int dropId, dropIndex;
+	QTextCursor insertCursor = *cursor;
+	dropId = cursor->parag()->paragId();
+	dropIndex = cursor->index();
+	if ( hasSel && internalDrag ) {
+	    QTextCursor c1, c2;
+	    int selStartId, selStartIndex;
+	    int selEndId, selEndIndex;
+	    c1 = doc->selectionStartCursor( QTextDocument::Standard );
+	    c2 = doc->selectionEndCursor( QTextDocument::Standard );
+	    selStartId = c1.parag()->paragId();
+	    selStartIndex = c1.index();
+	    selEndId = c2.parag()->paragId();
+	    selEndIndex = c2.index();
+	    if ( ( ( dropId > selStartId ) || 
+		   ( dropId == selStartId && dropIndex > selStartIndex ) ) &&
+		 ( ( dropId < selEndId ) ||
+		   ( dropId == selEndId && dropIndex <= selEndIndex ) ) )
+		insertCursor = c1;
+	    if ( dropId == selEndId && dropIndex > selEndIndex ) {
+		insertCursor = c1;
+		if ( selStartId == selEndId ) {
+		    insertCursor.setIndex( dropIndex - 
+					   ( selEndIndex - selStartIndex ) );
+		} else {
+		    insertCursor.setIndex( dropIndex - selEndIndex + 
+					   selStartIndex );
+		}
+	    }
+	 }	
+	
+	if ( internalDrag && e->action() == QDropEvent::Move ) {
 	    removeSelectedText();
 	    intern = TRUE;
 	} else {
@@ -2031,7 +2062,8 @@ void QTextEdit::contentsDropEvent( QDropEvent *e )
 #endif
 	}
 	drawCursor( FALSE );
-	placeCursor( e->pos(), cursor );
+	cursor->setParag( insertCursor.parag() );
+	cursor->setIndex( insertCursor.index() );
 	drawCursor( TRUE );
 	if ( !cursor->nestedDepth() ) {
 	    insert( text, FALSE, TRUE, FALSE );
