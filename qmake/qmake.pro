@@ -51,7 +51,7 @@ qnx {
     LFLAGS += -lcpp
 }
 #installation
-target.path=$$bin.path
+target.path=$$bins.path
 
 INSTALLS        += target
 
