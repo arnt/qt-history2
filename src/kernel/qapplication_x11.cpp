@@ -2013,22 +2013,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	}
     }
 
-    // XIM segfaults on Solaris with "C" locale!
-    // The idea was that the "en_US" locale is maybe installed on all systems
-    // with a "C" locale and could be used as a fallback instead of "C". This
-    // is not the case.
-    // We'll have to take a XIM / no XIM decision at run-time.
-    // Taking a decision at compile-time using QT_NO_XIM is not enough.
-#if defined (Q_OS_SOLARIS) && !defined(QT_NO_XIM)
-    const char* locale = ::setlocale( LC_ALL, "" );
-    if ( !locale || qstrcmp( locale, "C" ) == 0 ) {
-	locale = ::setlocale( LC_ALL, "en_US" );
-	Q_ASSERT( qstrcmp( locale, "en_US" ) == 0 );
-    }
-#else
     setlocale( LC_ALL, "" );		// use correct char set mapping
-#endif
-
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
 
     if ( qt_is_gui_used ) {
