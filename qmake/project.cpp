@@ -91,8 +91,14 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     bool scope_failed = FALSE;
     int parens = 0;
     while(*d && *d != '=') {
-	if((*d == '+' || *d == '-' || *d == '*' || *d == '~') && *(d+1) == '=')
-	    break;
+	if((*d == '+' || *d == '-' || *d == '*' || *d == '~')) {
+	    if(*(d+1) == '=') {
+		break;
+	    } else if(*(d+1) == ' ') {
+		yyerror(file + ": " + *d + " must be followed immediatly by =");
+		return FALSE;
+	    }
+	}
 
 	if ( *d == '(' )
 	    ++parens;
