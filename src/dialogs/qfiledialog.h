@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#72 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#73 $
 **
 ** Definition of QFileDialog class
 **
@@ -301,6 +301,8 @@ private slots:
     void modeButtonsDestroyed();
     void urlStart( int action );
     void urlFinished( int action );
+    void copyProgress( const QString &from, const QString &to,
+		       int step, int total );
     void insertEntry( const QUrlInfo &fi );
     void removeEntry( const QString &fi );
     void createdDirectory( const QUrlInfo &info );

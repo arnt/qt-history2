@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#283 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#284 $
 **
 ** Implementation of QFileDialog class
 **
@@ -51,6 +51,7 @@
 #include "qobjectlist.h"
 #include "qcheckbox.h"
 #include "qsplitter.h"
+#include "qprogressdialog.h"
 
 #include <time.h>
 #include <ctype.h>
@@ -400,6 +401,7 @@ struct QFileDialogPrivate {
 
     bool ignoreNextKeyPress;
 
+    QProgressDialog *progressDia;
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -1517,7 +1519,8 @@ void QFileDialog::init()
     d->contentsPreview = FALSE;
     d->hadDotDot = FALSE;
     d->ignoreNextKeyPress = FALSE;
-
+    d->progressDia = 0;
+    
     d->waitFor.setAutoDelete( TRUE );
 
     d->url = QUrl( "file:/" );
@@ -1535,6 +1538,8 @@ void QFileDialog::init()
              this, SLOT( error( int, const QString & ) ) );
     connect( &d->url, SIGNAL( itemChanged( const QString &, const QString & ) ),
              this, SLOT( itemChanged( const QString &, const QString & ) ) );
+    connect( &d->url, SIGNAL( copyProgress( const QString &, const QString &, int, int ) ),
+             this, SLOT( copyProgress( const QString &, const QString &, int, int ) ) );
     connect( &d->url, SIGNAL( urlIsDir() ), this, SLOT( slotIsDir() ) );
     connect( &d->url, SIGNAL( urlIsFile() ), this, SLOT( slotIsFile() ) );
 
@@ -3572,6 +3577,12 @@ void QFileDialog::urlStart( int action )
 	    d->cdToParent->setEnabled( FALSE );
 	else
 	    d->cdToParent->setEnabled( TRUE );
+    } else if ( action == QUrl::ActCopyFiles ) {
+	d->progressDia = new QProgressDialog( this );
+	d->progressDia->setCaption( tr( "Copy File" ) );
+    } else if ( action == QUrl::ActMoveFiles ) {
+	d->progressDia = new QProgressDialog( this );
+	d->progressDia->setCaption( tr( "Move File" ) );
     }
 }
 
@@ -3584,7 +3595,31 @@ void QFileDialog::urlFinished( int action )
 	    ui.setDir( TRUE );
 	    insertEntry( ui );
 	}
+    } else if ( ( action == QUrl::ActCopyFiles || action == QUrl::ActMoveFiles ) && 
+		d->progressDia ) {
+	delete d->progressDia;
+	d->progressDia = 0;
+	rereadDir();
     }
+}
+
+void QFileDialog::copyProgress( const QString &from, const QString &to,
+				int step, int total )
+{
+    if ( !d->progressDia )
+	return;
+    
+    if ( !d->progressDia->isVisible() || step == -1 ) {
+	QLabel *l = new QLabel( d->progressDia );
+	l->setText( tr( "From: %1\nTo: %2" ).arg( from ).arg( to ) );
+	d->progressDia->setLabel( l );
+	d->progressDia->reset();
+	d->progressDia->setMinimumDuration( 0 );
+	d->progressDia->setTotalSteps( total );
+	d->progressDia->show();
+    }
+    
+    d->progressDia->setProgress( step );
 }
 
 void QFileDialog::insertEntry( const QUrlInfo &inf )
