@@ -119,9 +119,7 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
             item->setIcon(0, widgetItem->icon());
         }
 
-        QVariant ptr;
-        qVariantSet(ptr, object);
-        item->setData(0, 1000, ptr);
+        item->setData(0, 1000, qVariant(object));
 
         if (IContainer *c = qt_extension<IContainer*>(fw->core()->extensionManager(), object)) {
             for (int i=0; i<c->count(); ++i) {

@@ -108,9 +108,7 @@ void FormsOverview::formWindowAdded(AbstractFormWindow *formWindow)
 
     item->setText(0, tr("File name: %1\n").arg(fileName));
 
-    QVariant v;
-    qVariantSet(v, formWindow);
-    item->setData(0, QAbstractItemModel::UserRole + 1, v);
+    item->setData(0, QAbstractItemModel::UserRole + 1, qVariant(formWindow));
 
     connect(formWindow, SIGNAL(changed()), this, SLOT(updateForms()));
 
