@@ -2446,9 +2446,9 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
 
     \code
     QAxWidget outlook( "Outlook.Application" );
-    QAxObject *session = outlook.createSubObject( "Session" );
+    QAxObject *session = outlook.querySubObject( "Session" );
     if ( session ) {
-	QAxObject *defFolder = session->createSubObject( "GetDefaultFolder(OlDefaultFolders)", "olFolderContacts" );
+	QAxObject *defFolder = session->querySubObject( "GetDefaultFolder(OlDefaultFolders)", "olFolderContacts" );
 	//...
     }
     \endcode
