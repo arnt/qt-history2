@@ -38,8 +38,9 @@ QTOBJS= \
 	qfile.o \
 	qtemporaryfile.o \
 	qfileinfo.o \
-	qfileengine_win.o \
 	qfileengine.o \
+	qfsfileengine.o \
+	qfsfileengine_win.o \
 	qbufferedfsfileengine.o \
 	qglobal.o \
 	qhash.o \
@@ -65,13 +66,13 @@ QTOBJS= \
 
 qmake.exe: $(OBJS) $(QTOBJS)
 	$(LINKQMAKE)
-	-copy qmake.exe ..\bin\qmake.exe
+	-cmd /C copy qmake.exe ..\bin\qmake.exe
 
 clean::
-	-del $(OBJS) $(QTOBJS) $(ADDCLEAN)
+	-cmd /C del $(OBJS) $(QTOBJS) $(ADDCLEAN)
 
 distclean:: clean
-	-del qmake
+	-cmd /C del qmake
 
 .c.o:
 	$(CXX) $(CFLAGS) $<
@@ -151,12 +152,15 @@ qfile.o: ..\src\core\io\qfile.cpp
 qtemporaryfile.o: ..\src\core\io\qtemporaryfile.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qtemporaryfile.cpp
 
-qfileengine_win.o: ..\src\core\io\qfileengine_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileengine_win.cpp
-
 qfileengine.o: ..\src\core\io\qfileengine.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileengine.cpp
 
+qfsfileengine_win.o: ..\src\core\io\qfsfileengine_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsfileengine_win.cpp
+
+qfsfileengine.o: ..\src\core\io\qfsfileengine.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsfileengine.cpp
+	
 qbufferedfsfileengine.o: ..\src\core\io\qbufferedfsfileengine.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qbufferedfsfileengine.cpp
 
