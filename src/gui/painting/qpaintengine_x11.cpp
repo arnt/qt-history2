@@ -959,7 +959,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
         if (bs == CustomPattern)
             pm = *d->cbrush.pixmap();
         else
-            pm = qt_pixmapForBrush(bs, false);
+            pm = qt_pixmapForBrush(bs, true);
         pm.x11SetScreen(d->scrn);
         if (pm.depth() == 1) {
             XSetStipple(d->dpy, d->gc_brush, pm.handle());
