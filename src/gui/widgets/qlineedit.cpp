@@ -1386,7 +1386,6 @@ void QLineEdit::mouseDoubleClickEvent(QMouseEvent* e)
 
 void QLineEdit::keyPressEvent(QKeyEvent * e)
 {
-    qDebug() << "QLineEdit::keyPressEvent";
     d->setCursorVisible(true);
     if (e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return) {
         const QValidator * v = d->validator;
