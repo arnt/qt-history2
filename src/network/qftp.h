@@ -132,6 +132,8 @@ private:
     };
     int addCommand( Command cmd, const QStringList &rawCmds );
 
+    friend class QFtpCommand;
+
 private slots:
     void startNextCommand();
     void piFinished( int, const QString& );
