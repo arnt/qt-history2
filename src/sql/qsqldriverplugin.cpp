@@ -10,15 +10,18 @@
   to create your own SQL driver plugins that can be loaded dynamically
   by Qt.
   
-  Writing a SQL plugin is achieved by subclassing this baseclass, 
+  Writing a SQL plugin is achieved by subclassing this baseclass,
   reimplementing the pure virtual functions keys() and create(), and
-  exporting the class with the Q_EXPORT_PLUGIN macro.  See the \link
-  plugins-howto.html Plugins \endlink documentation for details.  
+  exporting the class with the Q_EXPORT_PLUGIN macro. Take a look at
+  the SQL plugins that comes with Qt for example implementations (see
+  \c{$QTDIR/plugins/src/sqldrivers}). Read the \link
+  plugins-howto.html plugins documentation\endlink for more info on
+  plugins.
 */
 
 /*! \fn QStringList QSqlDriverPlugin::keys() const
 
-  Returns the  list of style keys this plugin supports.
+  Returns the list of driver keys this plugin supports.
 
   \sa create()
 */
