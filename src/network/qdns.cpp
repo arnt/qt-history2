@@ -46,7 +46,7 @@
 #include "qptrlist.h"
 #include "qstring.h"
 #include "qtimer.h"
-#include "qapplication.h"
+#include "qkernelapplication.h"
 #include "qstrlist.h"
 #include "qfile.h"
 #include "qtextstream.h"
@@ -88,7 +88,7 @@ public:
     {
 #if defined(Q_DNS_SYNCHRONOUS)
 #if defined(Q_OS_UNIX)
-	noEventLoop = qApp==0 || qApp->loopLevel()==0;
+	noEventLoop = QKernelApplication::instance()==0 || QKernelApplication::instance()->loopLevel()==0;
 #else
 	noEventLoop = FALSE;
 #endif
@@ -851,7 +851,7 @@ void QDnsUgleHack::ugle( bool emitAnyway)
 
 
 QDnsManager::QDnsManager()
-    : QDnsSocket( qApp, "Internal DNS manager" ),
+    : QDnsSocket( QKernelApplication::instance(), "Internal DNS manager" ),
       queries(QList<QDnsQuery *>()),
       cache(QHash<QString, QDnsDomain *>()),
       socket( new QSocketDevice( QSocketDevice::Datagram ) )

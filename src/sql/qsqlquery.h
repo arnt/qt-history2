@@ -32,7 +32,7 @@ class QSqlDatabase;
 
 class QSqlResultShared;
 
-class Q_EXPORT QSqlQuery
+class Q_SQL_EXPORT QSqlQuery
 {
 public:
     QSqlQuery( QSqlResult * r );

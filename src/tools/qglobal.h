@@ -854,6 +854,26 @@ class QDataStream;
 #    else
 #      define Q_GUI_EXPORT __declspec(dllimport)
 #    endif
+#    if defined(QT_BUILD_SQL_LIB)
+#      define Q_SQL_EXPORT __declspec(dllexport)
+#    else
+#      define Q_SQL_EXPORT __declspec(dllimport)
+#    endif
+#    if defined(QT_BUILD_NETWORK_LIB)
+#      define Q_NETWORK_EXPORT __declspec(dllexport)
+#    else
+#      define Q_NETWORK_EXPORT __declspec(dllimport)
+#    endif
+#    if defined(QT_BUILD_OPENGL_LIB)
+#      define Q_OPENGL_EXPORT __declspec(dllexport)
+#    else
+#      define Q_OPENGL_EXPORT __declspec(dllimport)
+#    endif
+#    if defined(QT_BUILD_XML_LIB)
+#      define Q_XML_EXPORT __declspec(dllexport)
+#    else
+#      define Q_XML_EXPORT __declspec(dllimport)
+#    endif
 #    define Q_EXPORT  __declspec(dllexport)
 #    define Q_TEMPLATEDLL
 #    define Q_TEMPLATE_EXTERN
@@ -861,6 +881,10 @@ class QDataStream;
 #  elif defined(QT_DLL)		/* use a Qt DLL library */
 #    define Q_KERNEL_EXPORT __declspec(dllimport)
 #    define Q_GUI_EXPORT __declspec(dllimport)
+#    define Q_SQL_EXPORT __declspec(dllimport)
+#    define Q_NETWORK_EXPORT __declspec(dllimport)
+#    define Q_OPENGL_EXPORT __declspec(dllimport)
+#    define Q_XML_EXPORT __declspec(dllimport)
 #    define Q_EXPORT  __declspec(dllimport)
 #    define Q_TEMPLATEDLL
 #    ifndef Q_TEMPLATE_EXTERN
@@ -898,6 +922,22 @@ class QDataStream;
 
 #ifndef Q_GUI_EXPORT
 #  define Q_GUI_EXPORT
+#endif
+
+#ifndef Q_SQL_EXPORT
+#  define Q_SQL_EXPORT
+#endif
+
+#ifndef Q_NETWORK_EXPORT
+#  define Q_NETWORK_EXPORT
+#endif
+
+#ifndef Q_OPENGL_EXPORT
+#  define Q_OPENGL_EXPORT
+#endif
+
+#ifndef Q_XML_EXPORT
+#  define Q_XML_EXPORT
 #endif
 
 //

@@ -134,8 +134,8 @@ private:
 #define QRGN_RECTS	       10
 
 #ifndef QT_NO_WMATRIX
-QRegion operator*(const QWMatrix &, const QRect &);
-QRegion operator*(const QWMatrix &, const QRegion &);
+Q_GUI_EXPORT QRegion operator*(const QWMatrix &, const QRect &);
+Q_GUI_EXPORT QRegion operator*(const QWMatrix &, const QRegion &);
 #endif
 
 /*****************************************************************************

@@ -392,7 +392,7 @@ public:
 
 void QETWidget::reparentWorkaround()
 {
-    ((QWidgetIntDict*)QWidget::wmapper())->remove((long)winid);
+    QWidget::wmapper()->remove(winid);
     clearWState(WState_Created | WState_Visible | WState_ForceHide);
     winid = 0;
     QRect geom = geometry();

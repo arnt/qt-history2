@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
+#include "qkernelapplication.h"
 #include "qsocketdevice.h"
-#include "qwindowdefs.h"
 #include "qdatetime.h"
 
 #include <string.h>

@@ -24,7 +24,7 @@
 #if !defined( QT_MODULE_OPENGL ) || defined( QT_LICENSE_PROFESSIONAL )
 #define QM_EXPORT_OPENGL
 #else
-#define QM_EXPORT_OPENGL Q_EXPORT
+#define QM_EXPORT_OPENGL Q_OPENGL_EXPORT
 #endif
 
 class QWidget;

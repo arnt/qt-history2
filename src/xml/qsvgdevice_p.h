@@ -36,7 +36,7 @@
 #if !defined(QT_MODULE_XML) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_XML )
 #define QM_EXPORT_SVG
 #else
-#define QM_EXPORT_SVG Q_EXPORT
+#define QM_EXPORT_SVG Q_XML_EXPORT
 #endif
 
 #ifndef QT_NO_SVG

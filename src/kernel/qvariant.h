@@ -116,6 +116,10 @@ class Q_GUI_EXPORT QVariant : public QKernelVariant
     inline QVariant(const QMap<QString,QKernelVariant> &map);
 #endif
 
+    inline QVariant(const QSize &size);
+    inline QVariant(const QRect &rect);
+    inline QVariant(const QPoint &pt);
+
     QFont toFont() const;
     QPixmap toPixmap() const;
     const QImage toImage() const;
@@ -193,6 +197,9 @@ inline QVariant::QVariant(const QDateTime &datetime) : QKernelVariant(datetime) 
 inline QVariant::QVariant(const QList<QKernelVariant> &list) : QKernelVariant(list) {};
 inline QVariant::QVariant(const QMap<QString,QKernelVariant> &map) : QKernelVariant(map) {};
 #endif
+inline QVariant::QVariant(const QSize &size) : QKernelVariant(size) {}
+inline QVariant::QVariant(const QRect &rect) : QKernelVariant(rect) {}
+inline QVariant::QVariant(const QPoint &pt) : QKernelVariant(pt) {}
 
 inline QVariant::QVariant()
     : QKernelVariant()

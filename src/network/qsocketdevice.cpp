@@ -15,7 +15,6 @@
 #include "qsocketdevice.h"
 #ifndef QT_NO_NETWORK
 
-#include "qwindowdefs.h"
 #include <string.h>
 
 

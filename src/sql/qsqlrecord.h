@@ -26,7 +26,7 @@
 
 class QSqlRecordPrivate;
 
-class Q_EXPORT QSqlRecord
+class Q_SQL_EXPORT QSqlRecord
 {
 public:
     QSqlRecord();
@@ -82,13 +82,13 @@ private:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QList<QSqlFieldInfo>;
+Q_TEMPLATE_EXTERN template class Q_SQL_EXPORT QList<QSqlFieldInfo>;
 // MOC_SKIP_END
 #endif
 
 typedef QList<QSqlFieldInfo> QSqlFieldInfoList;
 
-class Q_EXPORT QSqlRecordInfo: public QSqlFieldInfoList
+class Q_SQL_EXPORT QSqlRecordInfo: public QSqlFieldInfoList
 {
 public:
     QSqlRecordInfo(): QSqlFieldInfoList() {}

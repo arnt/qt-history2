@@ -37,7 +37,9 @@ class QWidget;
 class QPainter;
 class QPixmap;
 
-class QMembuf
+template class Q_KERNEL_EXPORT QList<QByteArray*>;
+
+class Q_KERNEL_EXPORT QMembuf
 {
 public:
     QMembuf();
