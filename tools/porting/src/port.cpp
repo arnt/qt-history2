@@ -43,50 +43,50 @@ QString applicationDirPath;
 QString findRulesFile(QString fileName, QString programPath)
 {
     QString filePath;
-    
+
     QFile f(fileName);
     if (f.exists()) {
         filePath=fileName;
     }
-    
+
     if(filePath.isEmpty()) {
         filePath = QFileInfo(programPath).path() + "/" + fileName;
         QFile f(filePath);
         if (!f.exists())
             filePath=QString();
     }
-    
+
     if(filePath.isEmpty()) {
         filePath = QDir::cleanPath(QFile::decodeName(qInstallPathLibs()) + "/qt3to4/" + fileName);
         QFile f(filePath);
         if (!f.exists())
             filePath=QString();
     }
-    
+
     if(filePath.isEmpty()) {
         filePath = QDir::cleanPath(QFile::decodeName((qgetenv("QTDIR"))) + "/tools/porting/src/" + fileName);
         QFile f(filePath);
         if (!f.exists())
             filePath=QString();
     }
-   
+
     if(filePath.isEmpty()) {
         filePath = QDir::cleanPath(applicationDirPath + "/../lib/qt3to4/" + fileName);
         QFile f(filePath);
         if (!f.exists())
             filePath=QString();
     }
-    
+
     if(filePath.isEmpty()) {
         filePath = QDir::cleanPath(applicationDirPath + "/../tools/porting/src/" + fileName);
         QFile f(filePath);
         if (!f.exists())
             filePath=QString();
     }
-    
+
     if (!filePath.isEmpty())
         filePath = QFileInfo(filePath).absoluteFilePath();
-    
+
     return filePath;
 }
 
@@ -113,7 +113,7 @@ int projectMode(QString inFile)
         cout<<"Could not find file " << inFile.latin1() << endl;
         return 1;
     }
- 
+
     ProjectPorter porter(rulesFilePath);
     porter.portProject(inFileInfo.path(), inFileInfo.fileName());
     return 0;
@@ -140,7 +140,7 @@ int main(int argc, char**argv)
 {
     QApplication app(argc, argv);
     applicationDirPath = app.applicationDirPath();
-    
+
     QString in;
     QString out;
     if(argc !=2) {
@@ -171,17 +171,17 @@ int main(int argc, char**argv)
         retval = projectMode(in);
     else
         retval = fileMode(in);
-  
+
     QStringList report = Logger::instance()->cronologicalReport();
     QString logFileName =  "portinglog.txt";
     cout << "Writing log to " << logFileName.latin1() << endl;
     QByteArray logContents;
     QBuffer logBuffer(&logContents);
-    logBuffer.open(QIODevice::Translate | QIODevice::WriteOnly);
+    logBuffer.open(QIODevice::Text | QIODevice::WriteOnly);
     QTextStream logStream(&logBuffer);
     foreach(QString logLine, report) {
 //temporary workarond for missing Translate functionality in QTextStream
-#ifdef Q_OS_WIN	
+#ifdef Q_OS_WIN
         logStream << logLine << "\r\n";
 #else
         logStream << logLine << endl;
