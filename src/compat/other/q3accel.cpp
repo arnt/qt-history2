@@ -228,7 +228,7 @@ bool Q3AccelManager::correctSubWindow(QWidget* w, Q3AccelPrivate* d) {
     /* if we live in a MDI subwindow, ignore the event if we are
        not the active document window */
     QWidget* sw = d->watch;
-    while (sw && !sw->windowType() == Qt::SubWindow)
+    while (sw && sw->windowType() != Qt::SubWindow)
 	sw = sw->parentWidget(true);
     if (sw)  { // we are in a subwindow indeed
 	QWidget* fw = w;
