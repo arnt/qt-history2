@@ -262,43 +262,43 @@ public:
   database connection is referred to by \name.  A pointer to the newly
   added database connection is returned.  This pointer is owned by
   QSqlDatabase and will be deleted on program exit or when
-  removeDatabase() is called.  If \a name is not specified, the newly
-  added database connection becomes the default database connection
-  for the application, and subsequent calls to database() (without a
-  database name parameter) will return a pointer to it.
+  removeDatabase() is called.  If \a connectionName is not specified,
+  the newly added database connection becomes the default database
+  connection for the application, and subsequent calls to database()
+  (without a database name parameter) will return a pointer to it.
 
   \sa database() removeDatabase()
 
 */
-QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& name )
+QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& connectionName )
 {
-    return QSqlDatabaseManager::addDatabase( new QSqlDatabase( type, name ), name );
+    return QSqlDatabaseManager::addDatabase( new QSqlDatabase( type, connectionName ), connectionName );
 }
 
-/*! Returns a pointer to the database connection named \a name.  The database
-  connection must have been previously added with database().  If \a open is TRUE
-  (the default) and the database connection is not already open it is
-  opened now.  If \a name does not exist in the list of databases, 0 is
-  returned.  The pointer returned is owned by QSqlDatabase and should
-  not be deleted.
+/*! Returns a pointer to the database connection named \a name.  The
+  database connection must have been previously added with database().
+  If \a open is TRUE (the default) and the database connection is not
+  already open it is opened now.  If \a connectionName does not exist
+  in the list of databases, 0 is returned.  The pointer returned is
+  owned by QSqlDatabase and should not be deleted.
 
 */
 
-QSqlDatabase* QSqlDatabase::database( const QString& name, bool open )
+QSqlDatabase* QSqlDatabase::database( const QString& connectionName, bool open )
 {
-    return QSqlDatabaseManager::database( name, open );
+    return QSqlDatabaseManager::database( connectionName, open );
 }
 
-/*!  Removes the database connection \a name from the list of database
-  connections.  Note that there should be no open queries on the
-  database connection when this function is called, otherwise a resource leak will
-  occur.
+/*!  Removes the database connection \a connectionName from the list
+  of database connections.  Note that there should be no open queries
+  on the database connection when this function is called, otherwise a
+  resource leak will occur.
 
 */
 
-void QSqlDatabase::removeDatabase( const QString& name )
+void QSqlDatabase::removeDatabase( const QString& connectionName )
 {
-    QSqlDatabaseManager::removeDatabase( name );
+    QSqlDatabaseManager::removeDatabase( connectionName );
 }
 
 /*! Returns a list of all available database drivers.
@@ -328,14 +328,14 @@ QStringList QSqlDatabase::drivers()
     return l;
 }
 
-/*! Returns TRUE if the list of database connections contains \a name,
-  otherwise returns FALSE.
+/*! Returns TRUE if the list of database connections contains \a
+  connectionName, otherwise returns FALSE.
 
  */
 
-bool QSqlDatabase::contains( const QString& name )
+bool QSqlDatabase::contains( const QString& connectionName )
 {
-    return QSqlDatabaseManager::contains( name );
+    return QSqlDatabaseManager::contains( connectionName );
 }
 
 
@@ -548,7 +548,7 @@ bool QSqlDatabase::rollback()
 
 */
 
-void QSqlDatabase::setConnectionName( const QString& name )
+void QSqlDatabase::setDatabaseName( const QString& name )
 {
     d->dbname = name;
 }
@@ -585,7 +585,7 @@ void QSqlDatabase::setHostName( const QString& host )
 
 */
 
-QString QSqlDatabase::connectionName() const
+QString QSqlDatabase::databaseName() const
 {
     return d->dbname;
 }

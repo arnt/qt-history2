@@ -55,7 +55,7 @@ class QSqlDatabasePrivate;
 class Q_EXPORT QSqlDatabase : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY( QString connectionName  READ connectionName WRITE setConnectionName )
+    Q_PROPERTY( QString databaseName  READ databaseName WRITE setDatabaseName )
     Q_PROPERTY( QString userName  READ userName WRITE setUserName )
     Q_PROPERTY( QString password  READ password WRITE setPassword )
     Q_PROPERTY( QString hostName  READ hostName WRITE setHostName )
@@ -79,11 +79,11 @@ public:
     bool	 commit();
     bool	 rollback();
 
-    virtual void setConnectionName( const QString& name );
+    virtual void setDatabaseName( const QString& name );
     virtual void setUserName( const QString& name );
     virtual void setPassword( const QString& password );
     virtual void setHostName( const QString& host );
-    QString	 connectionName() const;
+    QString	 databaseName() const;
     QString	 userName() const;
     QString	 password() const;
     QString	 hostName() const;
@@ -95,10 +95,10 @@ public:
     QT_STATIC_CONST char * const defaultConnection;
     // MOC_SKIP_END
 
-    static QSqlDatabase* addDatabase( const QString& type, const QString& name = defaultConnection );
-    static QSqlDatabase* database( const QString& name = defaultConnection, bool open = TRUE );
-    static void          removeDatabase( const QString& name );
-    static bool          contains( const QString& name = defaultConnection );
+    static QSqlDatabase* addDatabase( const QString& type, const QString& connectionName = defaultConnection );
+    static QSqlDatabase* database( const QString& connectionName = defaultConnection, bool open = TRUE );
+    static void          removeDatabase( const QString& connectionName );
+    static bool          contains( const QString& connectionName = defaultConnection );
     static QStringList   drivers();
 
 protected:
