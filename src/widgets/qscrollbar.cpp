@@ -59,21 +59,21 @@
 
   Scroll bars include four separate controls:
   \list
-   \i The \e line-up and \e line-down controls are little buttons with
-    which the user can move one line up or down.  The meaning of "line"
+   \i The \e line-up and \e line-down controls are little buttons
+    which the user can use to move one line up or down.  The meaning of "line"
     is configurable.  In editors and list boxes it means one line of text;
     in an image viewer it might mean 20 pixels.
    \i The \e slider is the handle that indicates the current value
     of the scroll bar, which the user can drag to change the value.
-    This part of the scroll bar is sometimes called the "thumb."
+    This part of the scroll bar is sometimes called the "thumb".
    \i The \e page-up/page-down control is the area on which the slider
     slides (the scroll bar's background).  Clicking here moves the scroll
-    bar towards the click.  The meaning of "page" is also configurable
-    - in editors and list boxes it means as many lines as there is space
-    for in the widget.
+    bar towards the click.  The meaning of "page" is also
+    configurable: in editors and list boxes it means as many lines as
+    there is space for in the widget.
   \endlist
 
-  QScrollBar has not much of an API of its own; it mostly relies on
+  QScrollBar has very few of its own functions; it mostly relies on
   QRangeControl.  The most useful functions are setValue() to set the
   scroll bar directly to some value; addPage(), addLine(), subtractPage(),
   and subtractLine() to simulate the effects of clicking (useful for
@@ -90,26 +90,26 @@
   \list
   \i valueChanged() - emitted when the scroll bar's value has changed.
 	  The tracking() determines whether this signal is emitted
-	  during interaction.
+	  during user interaction.
   \i sliderPressed() - emitted when the user starts to drag the
 	  slider.
   \i sliderMoved() - emitted when the user drags the slider.
   \i sliderReleased() - emitted when the user releases the slider.
   \i nextLine() - emitted when the scroll bar has moved one line
-	  down/right.  Line is defined in QRangeControl.
+	  down or right.  Line is defined in QRangeControl.
   \i prevLine() - emitted when the scroll bar has moved one line
-	  up/left.
+	  up or left.
   \i nextPage() - emitted when the scroll bar has moved one page
-	  down/right.
+	  down or right.
   \i prevPage() - emitted when the scroll bar has moved one page
-      up/left.
+      up or left.
   \endlist
 
-  QScrollBar only offers integer ranges.  Note that although QScrollBar
-  handles very large numbers, scroll bars on today's screens cannot
+  QScrollBar only provides integer ranges.  Note that although QScrollBar
+  handles very large numbers, scroll bars on current screens cannot
   usefully control ranges above about 100,000 pixels.  Beyond that,
   it becomes difficult for the user to control the
-  scroll bar using either keyboard or mouse.
+  scroll bar using either the keyboard or the mouse.
 
   A scroll bar can be controlled by the keyboard, but it has a
   default focusPolicy() of \c NoFocus. Use setFocusPolicy() to
@@ -155,22 +155,22 @@
 
 /*!
   \fn void QScrollBar::nextLine()
-  This signal is emitted when the scroll bar scrolls one line down/right.
+  This signal is emitted when the scroll bar scrolls one line down or right.
 */
 
 /*!
   \fn void QScrollBar::prevLine()
-  This signal is emitted when the scroll bar scrolls one line up/left.
+  This signal is emitted when the scroll bar scrolls one line up or left.
 */
 
 /*!
   \fn void QScrollBar::nextPage()
-  This signal is emitted when the scroll bar scrolls one page down/right.
+  This signal is emitted when the scroll bar scrolls one page down or right.
 */
 
 /*!
   \fn void QScrollBar::prevPage()
-  This signal is emitted when the scroll bar scrolls one page up/left.
+  This signal is emitted when the scroll bar scrolls one page up or left.
 */
 
 
@@ -200,7 +200,7 @@ QScrollBar::QScrollBar( QWidget *parent, const char *name )
 /*!
   Constructs a scroll bar.
 
-  The \a orientation must be QScrollBar::Vertical or QScrollBar::Horizontal.
+  The \a orientation must be Qt::Vertical or Qt::Horizontal.
 
   The \a parent and \a name arguments are sent to the QWidget constructor.
 */
@@ -217,7 +217,7 @@ QScrollBar::QScrollBar( Orientation orientation, QWidget *parent,
   Constructs a scroll bar whose value can never be smaller than \a
   minValue or greater than \a maxValue, whose line step size is \a
   lineStep and page step size is \a pageStep and whose value is
-  initially \a value (adjusted using bound()).
+  initially \a value (which is guaranteed to be in range using bound()).
 
   If \a orientation is \c Vertical the scroll bar is vertical and if it
   is \c Horizontal the scroll bar is horizontal.
@@ -260,7 +260,7 @@ void QScrollBar::init()
   \property QScrollBar::orientation
   \brief the orientation of the scroll bar
 
-  The orientation must be QScrollBar::Vertical or QScrollBar::Horizontal.
+  The orientation must be \l Qt::Vertical or \l Qt::Horizontal.
 */
 
 void QScrollBar::setOrientation( Orientation orientation )
@@ -718,7 +718,7 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
   \fn int QScrollBar::sliderStart() const
   Returns the pixel position where the scroll bar slider starts.
 
-  It is equivalent to sliderRect().y() for vertical
+  This is equivalent to sliderRect().y() for vertical
   scroll bars or sliderRect().x() for horizontal scroll bars.
 */
 

@@ -49,6 +49,8 @@
   dequeue(). You can peek at the head item without dequeing it using
   head().
 
+  You can control the queue's deletion policy with setAutoDelete().
+
   For compatibility with the QPtrCollection classes, current() and
   remove() are provided; both operate on the head().
 
@@ -81,7 +83,7 @@
   enqueued to this queue.  Only the pointers are copied.
 
   Note that the autoDelete() flag is not modified. If it it TRUE for
-  both \a queue and this queue, deleting the two lists cause
+  both \a queue and this queue, deleting the two lists will cause
   double-deletion of the items.
 */
 
@@ -174,7 +176,7 @@
   the queue has the only pointer to the items.
   
   The default setting is FALSE, for safety. If you turn it on, be
-  careful about copying the queue - you might find yourself with two
+  careful about copying the queue: you might find yourself with two
   queues deleting the same items.
 
   \sa autoDelete()

@@ -53,7 +53,7 @@ QGfx *QGfx::createGfx( int depth, unsigned char *buffer, int w, int h,
 
 /*!
 \fn QScreen::setDirty( const QRect& )
-Indicates section of the screen has been altered. Used by the VNC
+Indicates which section of the screen has been altered. Used by the VNC
 and VFB displays; the QScreen version does nothing.
 */
 
@@ -63,8 +63,9 @@ void QScreen::setDirty( const QRect& )
 
 /*!
   \fn QScreen::isTransformed() const
-Returns true if the screen is transformed (for instance, rotated
-90 degrees). QScreen's version always returns false.
+Returns TRUE if the screen is transformed (for instance, rotated
+90 degrees); otherwise returns FALSE. QScreen's version always returns
+FALSE.
 */
 
 bool QScreen::isTransformed() const
@@ -74,8 +75,9 @@ bool QScreen::isTransformed() const
 
 /*!
   \fn QScreen::isInterlaced() const
-Returns true if the display is interlaced (for instance a television
-screen). If true drawing is altered to look better on such displays.
+Returns TRUE if the display is interlaced (for instance a television
+screen); otherwise returns FALSE. If TRUE drawing is altered to look
+better on such displays.
 */
 
 bool QScreen::isInterlaced() const
@@ -211,7 +213,7 @@ QRegion QScreen::mapFromDevice( const QRegion &r, const QSize & ) const
 
 /*!
   \fn QScreen::transformOrientation() const
-  Used by the rotated server. QScreeen implementation returns 0.
+  Used by the rotated server. The QScreeen implementation returns 0.
 */
 
 int QScreen::transformOrientation() const

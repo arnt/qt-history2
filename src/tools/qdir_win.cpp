@@ -208,7 +208,7 @@ bool QDir::isRoot() const
 }
 
 /*!
-  Renames a file.
+  Renames a file or directory.
 
   If \a acceptAbsPaths is TRUE a path starting with a separator ('/')
   will rename the file with the absolute path, if \a acceptAbsPaths is FALSE
@@ -244,7 +244,7 @@ bool QDir::rename( const QString &oldName, const QString &newName,
     }
 }
 /*!
-  Sets the application's current working directory to \a path. 
+  Sets the application's current working directory to \a path.
   Returns TRUE if the directory was successfully changed; otherwise
   returns FALSE.
 */
@@ -290,7 +290,7 @@ QString QDir::currentDirPath()
 
 /*!
   Returns the absolute path for the root directory.
-  
+
   For UNIX operating systems this returns "/". For Windows file
   systems this returns "c:/".
 

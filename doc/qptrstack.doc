@@ -45,27 +45,17 @@
   \ingroup tools
 
   Define a template instance QPtrStack\<X\> to create a stack that
-  operates on pointers to X, or X*, for example a stack to store
-  QListViewItems:
-
-  \walkthrough xml/tagreader-with-features/structureparser.h 
-  \skipto QPtrStack<QListViewItem>
-  \printline QPtrStack<QListViewItem>
+  operates on pointers to X, (X*). 
 
   A stack is a last in, first out (LIFO) structure. Items are added to
   the top of the stack with push() and retrieved from the top
-  with pop(), e.g.:
+  with pop(). Use top() to get a reference to the top element without
+  changing the stack.
 
-  \walkthrough xml/tagreader-with-features/structureparser.cpp 
-  \skipto QListViewItem
-  \printline QListViewItem
-  \skipto new QListViewItem( stack.top()
-  \printline new QListViewItem( stack.top()
-  \skipto stack.push
-  \printline stack.push
+  You can control the stack's deletion policy with setAutoDelete().
 
-  (cf. \link xml/tagreader-with-features/structureparser.cpp
-  xml/tagreader-with-features/structureparser.cpp \endlink)
+  For compatibility with the QPtrCollection classes
+  current() and remove() are provided; they both operate on the top().
 
   \sa QPtrList QPtrQueue
 */
@@ -83,12 +73,14 @@
 */
 
 /*! \fn QPtrStack<type>& QPtrStack::operator= (const QPtrStack<type>& s) 
-  Sets the contents of this stack by making a shallow copy of another stack \a s.
-  Elements currently in this stack will be deleted if autoDelete() is TRUE.
+  Sets the contents of this stack by making a shallow copy of another
+  stack \a s. Elements currently in this stack will be deleted if
+  autoDelete() is TRUE.
 */
 
 /*! \fn bool QPtrStack::isEmpty () const 
-  Returns TRUE is the stack contains no elements to be \link pop() popped\endlink.
+  Returns TRUE is the stack contains no elements to be \link pop()
+  popped\endlink; otherwise returns FALSE.
 */
 
 /*! \fn void QPtrStack::push (const type* d) 
@@ -101,7 +93,8 @@
 
 /*! \fn bool QPtrStack::remove () 
   Removes the top item from the stack and deletes it if
-  autoDelete() is TRUE.  Returns TRUE if there was an item to pop.
+  autoDelete() is TRUE.  Returns TRUE if there was an item to pop;
+  otherwise returns FALSE.
 
   \sa clear()
 */
@@ -143,12 +136,11 @@
 
 /*! \fn void QPtrStack::setAutoDelete( bool enable ) 
 
-  Defines whether \e this stack auto-deletes its contents.
+  Defines whether this stack auto-deletes its contents.
   The same as QPtrCollection::setAutoDelete().
 
-  If \a enable is TRUE the stack auto-deletes its contents
-  whereas it  never deletes them if \a enable is
-  FALSE. 
+  If \a enable is TRUE the stack auto-deletes its contents; if \a
+  enable is FALSE the stack does not delete its contents.
  
   \sa autoDelete()
 */
@@ -157,8 +149,8 @@
   \fn QDataStream& QPtrStack::read( QDataStream& s,
 				    QPtrCollection::Item& item )
 
-  Reads a stack item from the stream \a s and returns a reference to
-  the stream.
+  Reads a stack item, \a item, from the stream \a s and returns a
+  reference to the stream.
 
   The default implementation sets \a item to 0.
 

@@ -740,7 +740,7 @@
     list.append( new Employee("Jane", "Williams", 80000) );
     list.append( new Employee("Tom", "Jones", 60000) );
 
-    Employee *employee; // See QPtrListIterator
+    Employee *employee; 
     for ( employee = list.first(); employee; employee = list.next() )
 	cout << employee->surname().latin1() << ", " <<
 		employee->forename().latin1() << " earns " <<

@@ -59,15 +59,29 @@
   bottom-right corner are the same, the height and the width of
   the rectangle will both be 1.
 
-  Generally, <em>width = right - left + 1</em> and <em>height = bottom
-  - top + 1.</em> We designed it this way to make it correspond to
+  Generally, \e{width = right - left + 1} and \e{height = bottom
+  - top + 1}. We designed it this way to make it correspond to
   rectangular spaces used by drawing functions in which the width and
   height denote a number of pixels. For example, drawing a rectangle
   with width and height 1 draws a single pixel.
 
-  The default coordinate system has origin (0,0) in the top-left
-  corner, the positive direction of the y axis is downward, and the
+  The default coordinate system has origin (0, 0) in the top-left
+  corner. The positive direction of the y axis is down, and the
   positive x axis is from left to right.
+
+  A QRect can be constructed with a set of left, top, width and height
+  integers, from two QPoints or from a QPoint and a QSize. After
+  creation the dimensions can be changed, e.g. with setLeft(),
+  setRight(), setTop() and setBottom(), or by setting sizes, e.g.
+  setWidth(), setHeight() and setSize(). The dimensions can also be
+  changed with the move functions,
+  e.g. moveBy(), moveCenter(), moveBottomRight(), etc. You can also
+  add coordinates to a rectangle with addCoords().
+
+    You can test to see if a QRect contains a specific point with
+    contains(). You can also test to see if two QRects intersect with
+    intersects() (see also intersect()). To get the bounding rectangle
+    of two QRects use unite().
 
   \sa QPoint, QSize
 */
@@ -126,7 +140,7 @@ QRect::QRect( const QPoint &topLeft, const QSize &size )
 /*!
   \fn bool QRect::isNull() const
 
-  Returns TRUE if the rectangle is a null rectangle, otherwise FALSE.
+  Returns TRUE if the rectangle is a null rectangle; otherwise returns FALSE.
 
   A null rectangle has both the width and the height set to 0, that is
   right() == left() - 1 and bottom() == top() - 1.
@@ -144,11 +158,11 @@ QRect::QRect( const QPoint &topLeft, const QSize &size )
 /*!
   \fn bool QRect::isEmpty() const
 
-  Returns TRUE if the rectangle is empty, otherwise FALSE.
+  Returns TRUE if the rectangle is empty; otherwise returns FALSE.
 
   An empty rectangle has a left() \> right() or top() \> bottom().
 
-  An empty rectangle is not valid. \code isEmpty() == !isValid()\endcode
+  An empty rectangle is not valid. \c{isEmpty() == !isValid()}
 
   \sa isNull(), isValid()
 */
@@ -160,15 +174,15 @@ QRect::QRect( const QPoint &topLeft, const QSize &size )
 
   A valid rectangle has a left() \<= right() and top() \<= bottom().
 
-  \code isValid() == !isEmpty()\endcode
+  \c{isValid() == !isEmpty()}
 
   \sa isNull(), isEmpty(), normalize()
 */
 
 
 /*!
-  Returns a normalized rectangle, i.e., one that has a non-negative width
-  and height.
+  Returns a normalized rectangle, i.e. a rectangle that has a
+  non-negative width and height.
 
   It swaps left and right if left() \> right(), and swaps top and bottom if
   top() \> bottom().
@@ -232,7 +246,7 @@ QRect QRect::normalize() const
 /*!
   \fn QCOORD &QRect::rLeft()
 
-  Returns the reference to the left coordinate of the rectangle.
+  Returns a reference to the left coordinate of the rectangle.
 
   \sa rTop(), rRight(), rBottom()
 */
@@ -240,7 +254,7 @@ QRect QRect::normalize() const
 /*!
   \fn QCOORD &QRect::rTop()
 
-  Returns the reference to the top coordinate of the rectangle.
+  Returns a reference to the top coordinate of the rectangle.
 
   \sa rLeft(),  rRight(), rBottom()
 */
@@ -248,7 +262,7 @@ QRect QRect::normalize() const
 /*!
   \fn QCOORD &QRect::rRight()
 
-  Returns the reference to the right coordinate of the rectangle.
+  Returns a reference to the right coordinate of the rectangle.
 
   \sa rLeft(), rTop(), rBottom()
 */
@@ -256,7 +270,7 @@ QRect QRect::normalize() const
 /*!
   \fn QCOORD &QRect::rBottom()
 
-  Returns the reference to the bottom coordinate of the rectangle.
+  Returns a reference to the bottom coordinate of the rectangle.
 
   \sa rLeft(), rTop(), rRight()
 */
@@ -371,8 +385,8 @@ QRect QRect::normalize() const
 
 
 /*!
-  Extracts the rectangle parameters as the position \c *\a x, \c *\a y
-  and width \c *\a w and height \c *\a h.
+  Extracts the rectangle parameters as the position \a *x, \a *y
+  and width \a *w and height \a *h.
   \sa setRect(), coords()
 */
 
@@ -385,8 +399,8 @@ void QRect::rect( int *x, int *y, int *w, int *h ) const
 }
 
 /*!
-  Extracts the rectangle parameters as the top-left point \c *\a xp1,
-  \c *\a yp1 and the bottom-right point \c *\a xp2, \c *\a yp2.
+  Extracts the rectangle parameters as the top-left point \a *xp1,
+  \a *yp1 and the bottom-right point \a *xp2, \a *yp2.
   \sa setCoords(), rect()
 */
 
@@ -541,14 +555,14 @@ void QRect::addCoords( int xp1, int yp1, int xp2, int yp2 )
 /*!
   \fn int QRect::width() const
   Returns the width of the rectangle.  The width includes both the
-  left and right edges, i.e., width = right - left + 1.
+  left and right edges, i.e. width = right - left + 1.
   \sa height(), size(), setHeight()
 */
 
 /*!
   \fn int QRect::height() const
   Returns the height of the rectangle.	The height includes both the
-  top and bottom edges, i.e., height = bottom - top + 1.
+  top and bottom edges, i.e. height = bottom - top + 1.
   \sa width(), size(), setHeight()
 */
 
@@ -587,7 +601,7 @@ void QRect::setSize( const QSize &s )
 
 /*!
   Returns TRUE if the point \a p is inside or on the edge of the
-  rectangle.
+  rectangle; otherwise returns FALSE.
 
   If \a proper is TRUE, this function returns TRUE only if \a p is
   inside (not on the edge).
@@ -605,7 +619,8 @@ bool QRect::contains( const QPoint &p, bool proper ) const
 
 /*!
   \overload bool QRect::contains( int x, int y, bool proper ) const
-  Returns TRUE if the point \a x, \a y is inside this rectangle.
+  Returns TRUE if the point \a x, \a y is inside this rectangle;
+  otherwise returns FALSE.
 
   If \a proper is TRUE, this function returns TRUE only if the point
   is entirely inside (not on the edge).
@@ -613,7 +628,8 @@ bool QRect::contains( const QPoint &p, bool proper ) const
 
 /*!
     \overload
-  Returns TRUE if the rectangle \a r is inside this rectangle.
+  Returns TRUE if the rectangle \a r is inside this rectangle;
+  otherwise returns FALSE.
 
   If \a proper is TRUE, this function returns TRUE only if \a r is
   entirely inside (not on the edge).
@@ -630,7 +646,7 @@ bool QRect::contains( const QRect &r, bool proper ) const
 }
 
 /*!
-  Unites this rectangle with \a r.
+  Unites this rectangle with rectangle \a r.
 */
 QRect& QRect::operator|=(const QRect &r)
 {
@@ -639,7 +655,7 @@ QRect& QRect::operator|=(const QRect &r)
 }
 
 /*!
-  Intersects this rectangle with \a r.
+  Intersects this rectangle with rectangle \a r.
 */
 QRect& QRect::operator&=(const QRect &r)
 {
@@ -649,11 +665,10 @@ QRect& QRect::operator&=(const QRect &r)
 
 
 /*!
-  Returns the bounding rectangle of this and \a r.
+  Returns the bounding rectangle of this rectangle and rectangle \a r.
 
-  The bounding
-  rectangle of a nonempty rectangle and an empty or invalid rectangle
-  is defined to be the nonempty rectangle.
+  The bounding rectangle of a nonempty rectangle and an empty or
+  invalid rectangle is defined to be the nonempty rectangle.
 
   \sa operator|=(), operator&(), intersects(), contains()
 */
@@ -677,7 +692,7 @@ QRect QRect::operator|(const QRect &r) const
 }
 
 /*!
-  Returns the bounding rectangle of this and \a r.
+  Returns the bounding rectangle of this rectangle and rectangle \a r.
   \c{r.unite(s)} is equivalent to \c{r|s}.
 */
 QRect QRect::unite( const QRect &r ) const
@@ -687,7 +702,7 @@ QRect QRect::unite( const QRect &r ) const
 
 
 /*!
-  Returns the intersection of this rectangle and \a r.
+  Returns the intersection of this rectangle and rectangle \a r.
 
   Returns an empty rectangle if there is no intersection.
 
@@ -705,7 +720,7 @@ QRect QRect::operator&( const QRect &r ) const
 }
 
 /*!
-  Returns the intersection of this rectangle and \a r.
+  Returns the intersection of this rectangle and rectangle \a r.
   \c{r.intersect(s)} is equivalent to \c{r&s}.
 */
 QRect QRect::intersect( const QRect &r ) const
@@ -714,8 +729,9 @@ QRect QRect::intersect( const QRect &r ) const
 }
 
 /*!
-  Returns TRUE if this rectangle intersects with \a r (there is at
-  least one pixel that is within both rectangles).
+  Returns TRUE if this rectangle intersects with rectangle \a r (there
+  is at least one pixel that is within both rectangles); otherwise
+  returns FALSE.
   \sa intersect(), contains()
 */
 
@@ -728,7 +744,7 @@ bool QRect::intersects( const QRect &r ) const
 
 /*!
   \relates QRect
-  Returns TRUE if \a r1 and \a r2 are equal or FALSE if they are different.
+  Returns TRUE if \a r1 and \a r2 are equal; otherwise returns FALSE.
 */
 
 bool operator==( const QRect &r1, const QRect &r2 )
@@ -738,7 +754,7 @@ bool operator==( const QRect &r1, const QRect &r2 )
 
 /*!
   \relates QRect
-  Returns TRUE if \a r1 and \a r2 are different or FALSE if they are equal.
+  Returns TRUE if \a r1 and \a r2 are different; otherwise returns FALSE.
 */
 
 bool operator!=( const QRect &r1, const QRect &r2 )

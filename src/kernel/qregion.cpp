@@ -48,11 +48,10 @@
   \ingroup images
   \ingroup graphics
 
-  QRegion is used with QPainter::setClipRegion() to limit the paint area to what
-  needs to be painted. There is also a QWidget::repaint() that takes a QRegion parameter.
-  QRegion is the best tool for reducing flicker.
-
-
+  QRegion is used with QPainter::setClipRegion() to limit the paint
+  area to what needs to be painted. There is also a QWidget::repaint()
+  that takes a QRegion parameter. QRegion is the best tool for
+  reducing flicker.
 
   A region can be created from a rectangle, an ellipse, a polygon or a
   bitmap. Complex regions may be created by combining simple regions
@@ -68,19 +67,19 @@
   \code
     void MyWidget::paintEvent( QPaintEvent * )
     {
-	QPainter p;				// our painter
-	QRegion r1( QRect(100,100,200,80),	// r1 = elliptic region
-		    QRegion::Ellipse );
-	QRegion r2( QRect(100,120,90,30) );	// r2 = rectangular region
-	QRegion r3 = r1.intersect( r2 );	// r3 = intersection
-	p.begin( this );			// start painting widget
-	p.setClipRegion( r3 );			// set clip region
-	...					// paint clipped graphics
-	p.end();				// painting done
+    QPainter p;                         // our painter
+    QRegion r1( QRect(100,100,200,80),  // r1 = elliptic region
+                QRegion::Ellipse );
+    QRegion r2( QRect(100,120,90,30) ); // r2 = rectangular region
+    QRegion r3 = r1.intersect( r2 );    // r3 = intersection
+    p.begin( this );                    // start painting widget
+    p.setClipRegion( r3 );              // set clip region
+    ...                                 // paint clipped graphics
+    p.end();                            // painting done
     }
   \endcode
 
-  QRegion is an \link shclass.html implicitely shared\endlink class.
+  QRegion is an \link shclass.html implicitly shared\endlink class.
 
   Due to window system limitations, the width and height of a region
   is limited to 65535 on Unix/X11.
@@ -123,7 +122,7 @@ QRegion::QRegion( int x, int y, int w, int h, RegionType t )
 
 /*!
   Detaches from shared region data to makes sure that this region is the
-  only one referring the data.
+  only one referring to the data.
 
   \sa copy(), \link shclass.html shared classes\endlink
 */
@@ -136,7 +135,7 @@ void QRegion::detach()
 
 #ifndef QT_NO_DATASTREAM
 /*!
-  Executes region commands in the internal buffer and rebuild the original
+  Executes region commands in the internal buffer and rebuilds the original
   region.
 
   We do this when we read a region from the data stream.

@@ -76,6 +76,10 @@
   toggle state. When a tristate checkbox changes state, it emits the
   stateChanged() signal.
 
+  Just like QPushButton, a checkbox can display text or a pixmap. The
+  text can be set in the constructor or with setText(); the pixmap is
+  set with setPixmap().
+
   \important text(), setText(), text(), pixmap(), setPixmap(), accel(),
   setAccel(), isToggleButton(), setDown(), isDown(), isOn(), state(),
   autoRepeat(), isExclusiveToggle(), group(), setAutoRepeat(), toggle(),

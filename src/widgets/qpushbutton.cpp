@@ -58,61 +58,60 @@
 
   \ingroup basic
 
-  The push button, also referred to as a command button, is perhaps the
-  most central widget in any graphical user interface. Push it to
-  command the computer to perform some action. Typical actions are Ok,
-  Apply, Cancel, Close and Help.
+  The push button, or command button, is perhaps the most commonly
+  used widget in any graphical user interface. Push (click) a button
+  to command the computer to perform some action, or to answer a
+  question. Typical buttons are OK, Apply, Cancel, Close, Yes, No and
+  Help.
 
-  A command button is rectangular (about 80 x 22 pixels) and typically
-  displays a text label describing its action. An underscored
-  character in the label, marked with an ampersand in the text,
-  signals an accelerator key.
-
-  This code creates a push button labelled "Rock & Roll".  Due to the
-  first ampersand, the c displays underscored and the button gets the
-  automatic accelerator key Alt-C:
-
+  A command button is rectangular and typically displays a text label
+  describing its action. An underscored character in the label
+  (signified by preceding it with an ampersand in the text) indicates
+  an accelerator key, e.g.
   \code
-    QPushButton *p = new QPushButton( "Ro&ck && Roll", this );
+    QPushButton *pb = new QPushButton( "&Download", this );
   \endcode
+  In this example the accelerator is \e{Ctrl+D}, and the label text
+  will be displayed as <b><u>D</u>ownload</b>.
 
-  The text can be changed anytime later with setText(). You can also
-  define a pixmap with setPixmap(). The text/pixmap is manipulated as
-  necessary to create a "disabled" appearance according to the
-  respective GUI style when the button is disabled. In addition to the text or pixmap label, a command button
-  can also display a little icon. Use the extended constructor or setIconSet() to define this
-  icon.
+   Push buttons can display a textual label or a pixmap, and
+   optionally a small icon. These can be set using the constructors
+   and changed later using setText(), setPixmap() and setIconSet(). If
+   the button is disabled the appearance of the text or pixmap and
+   iconset will be manipulated with respect to the GUI style to make
+   the button look "disabled".
 
   A push button emits the signal clicked() when it is activated
-  with the mouse, the spacebar or a keyboard accelerator.
-  Connect to this signal to perform the button's action.  Other
-  signals of less importance are pressed() when the button is pressed
-  down and released() when it is released.
+  by the mouse, the Spacebar or by a keyboard accelerator.
+  Connect to this signal to perform the button's action. Push buttons
+  also provide less commonly used signals, for example, pressed()
+  and released().
 
   Command buttons in dialogs are by default auto-default buttons,
-  i.e., they become the default push button automatically when they
-  receive the keyboard input focus. A default button is a command
+  i.e. they become the default push button automatically when they
+  receive the keyboard input focus. A default button is a push
   button that is activated when the user hits the Enter or Return key
-  in a dialog. Adjust this behaviour with setAutoDefault(). Note that
-  auto-default buttons reserve a little extra space necessary to draw
-  a default-button indicator. If you do not want this space around
-  your buttons, call setAutoDefault(FALSE).
+  in a dialog. You can change this with setAutoDefault(). Note that
+  auto-default buttons reserve a little extra space which is necessary
+  to draw a default-button indicator. If you do not want this space
+  around your buttons, call setAutoDefault(FALSE).
 
-  Being so central, the widget has grown to accommodate a great many
+  Being so central, the button widget has grown to accommodate a great many
   variations in the past decade. The Microsoft style guide now
   shows about ten different states of Windows push buttons and the
   text implies that there are dozens more when all the combinations of
   features are taken into consideration.
 
-  Sorted roughly by importance, the most important modes or states are: <ul>
-  <li> Available or not (grayed out, disabled).
-  <li> Standard push button, toggling push button or menu button.
-  <li> On or off (only for toggling push buttons).
-  <li> Default or normal.  The default button in a dialog can
+  The most important modes or states are:
+  \list
+  \i Available or not (grayed out, disabled).
+  \i Standard push button, toggling push button or menu button.
+  \i On or off (only for toggling push buttons).
+  \i Default or normal.  The default button in a dialog can
   generally be "clicked" using the Enter or Return key.
-  <li> Auto-repeat or not.
-  <li> Pressed down or not.
-  </ul>
+  \i Auto-repeat or not.
+  \i Pressed down or not.
+  \endlist
 
   As a general rule, use a push button when the application or dialog
   window performs an action when the user clicks on it (such as Apply,
@@ -126,19 +125,20 @@
   If you need toggle behavior (see setToggleButton()) or a button
   that auto-repeats the activation signal when being pushed down like
   the arrows in a scroll bar (see setAutoRepeat()), a command button is
-  probably not what you want. When in doubt, go with a tool button.
+  probably not what you want. When in doubt, use a tool button.
 
-  A variation of a command button is a menu button. It provides not
-  just one command, but several. Use the method setPopup() to
-  associate a popup menu with a push button.
+  A variation of a command button is a menu button. These provide not
+  just one command, but several, since when they are clicked they pop
+  up a menu of options. Use the method setPopup() to associate a popup
+  menu with a push button.
 
   Other classes of buttons are option buttons (see QRadioButton) and
   check boxes (see QCheckBox).
 
   <img src="qpushbt-m.png"> <img src="qpushbt-w.png">
 
-  In Qt, the QButton class provides most of the modes and other API,
-  and QPushButton provides GUI logic.  See QButton for more
+  In Qt, the QButton base class provides most of the modes and other
+  API, and QPushButton provides GUI logic.  See QButton for more
   information about the API.
 
   \important text, setText, text, pixmap, setPixmap, accel, setAccel,
@@ -154,14 +154,14 @@
     \brief whether the push button is the auto default button
 
   If this property is set to TRUE then the push button will be the focused
-  item in a dialog when it is first shown.
+  item in a dialog when the dialog is first shown.
 */
 
 /*! \property QPushButton::default
-    \brief whether the push button is the default
+    \brief whether the push button is the default button
 
   If this property is set to TRUE then the push button will be pressed if the
-  user hits the enter key in a dialog.
+  user hits the Enter key in a dialog.
 */
 
 /*! \property QPushButton::flat
@@ -171,7 +171,7 @@
 /*! \property QPushButton::iconSet
     \brief the icon set on the push button
 
-  This property will return 0 if there is no icon set on the push button
+  This property will return 0 if the push button has no iconset
 */
 
 /*! \property QPushButton::on
@@ -227,8 +227,8 @@ QPushButton::QPushButton( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a push button with the parent \a parent and the name \a name
-  with the text \a text.
+  Constructs a push button called \a name with the parent \a parent
+  and the text \a text.
 */
 
 QPushButton::QPushButton( const QString &text, QWidget *parent,
@@ -243,7 +243,8 @@ QPushButton::QPushButton( const QString &text, QWidget *parent,
 /*!
   Constructs a push button with an \a icon and a \a text.
 
-  Note that you can also pass a QPixmap object as an icon (thanks to the implicit type conversion C++).
+  Note that you can also pass a QPixmap object as an icon (thanks to
+  the implicit type conversion provided by C++).
 
   The \a parent and \a name arguments are sent to the QWidget constructor.
 */
@@ -566,7 +567,7 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
   Associates the popup menu \a popup with this push button and
   thus turns it into a menu button.
 
-  Ownership of the popup menu is not transferred.
+  Ownership of the popup menu is \e not transferred to the push button.
 
   \sa popup()
  */
@@ -608,8 +609,8 @@ QIconSet* QPushButton::iconSet() const
 }
 
 /*!
-  Returns the associated popup menu or 0 if no popup menu has been
-  defined.
+  Returns the button's associated popup menu or 0 if no popup menu has
+  been defined.
 
   \sa setPopup()
 */

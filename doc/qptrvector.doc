@@ -51,24 +51,33 @@
 
   QPtrVector is implemented as a template class. Defines a template
   instance QPtrVector\<X\> to create a vector that contains pointers to
-  X or X*.
+  X (X*).
 
   A vector is the same as an array. The main difference between
   QPtrVector and QMemArray is that QPtrVector stores pointers to the elements,
-  whereas QMemArray stores the elements themselves (i.e., QMemArray is
-  value-based).
+  whereas QMemArray stores the elements themselves (i.e. QMemArray is
+  value-based and QPtrVector is pointer-based).
 
-  Unless otherwise stated, all functions that remove items from
-  the vector will also delete the element pointed to if auto-deletion
-  is enabled - see setAutoDelete(). By default, auto-deletion is
-  disabled - see setAutoDelete(). By default auto-deletion is disabled. This behaviour can be changed in a subclass by
-  reimplementing the virtual method deleteItem().
+  Items are added to the vector using insert() or fill(). Items are
+  removed with remove(). You can get a pointer to an item at a
+  particular index position using at().
 
-  Functions that compare items (find() and sort(),for example) will do so
+  Unless otherwise stated, all functions that remove items from the
+  vector will also delete the element pointed to if \link
+  setAutoDelete() auto-deletion\endlink is enabled. By default,
+  auto-deletion is disabled; see setAutoDelete(). This behaviour can
+  be changed in a subclass by reimplementing the virtual function
+  deleteItem().
+
+  Functions that compare items (find() and sort() for example) will do so
   using the virtual function compareItems(). The default
-  implementation of this function will compare only the absolute
+  implementation of this function only compares the 
   pointer values. Reimplement compareItems() in a subclass to get
-  searching and sorting based on the item contents.
+  searching and sorting based on the item contents. You can perform a
+  linear search for a pointer in the vector using findRef(), or a
+  binary search (of a sorted vector) using bsearch(). You can count
+  the number of times an item appears in the vector with contains() or
+  containsRef().
 
   \sa QMemArray
 */
@@ -95,7 +104,7 @@
 /*!
   \fn QPtrVector::QPtrVector( const QPtrVector<type> &v )
 
-  Constructs a copy of \a v. Only the pointers are copied (i.e., shallow copy).
+  Constructs a copy of \a v. Only the pointers are copied (i.e. shallow copy).
 */
 
 /*!
@@ -112,7 +121,7 @@
   Assigns \a v to this vector and returns a reference to this vector.
 
   This vector is first cleared and then all the items from \a v are copied
-  into the vector. Only the pointers are copied (i.e., shallow copy).
+  into the vector. Only the pointers are copied (i.e. shallow copy).
 
   \sa clear()
 */
@@ -129,7 +138,7 @@
 /*!
   \fn uint QPtrVector::size() const
 
-  Returns the size of the vector, i.e., the number of vector
+  Returns the size of the vector, i.e. the number of vector
   positions. This is also the maximum number of items the vector can
   hold.
 
@@ -150,7 +159,7 @@
 /*!
   \fn bool QPtrVector::isEmpty() const
 
-  Returns TRUE if the vector is empty, i.e., count() == 0, otherwise FALSE.
+  Returns TRUE if the vector is empty; otherwise returns FALSE.
 
   \sa count()
 */
@@ -158,7 +167,7 @@
 /*!
   \fn bool QPtrVector::isNull() const
 
-  Returns TRUE if the vector is null, otherwise FALSE.
+  Returns TRUE if the vector is null; otherwise returns FALSE.
 
   A null vector has size() == 0 and data() == 0.
 
@@ -170,7 +179,7 @@
   Resizes (expands or shrinks) the vector to \a size elements. The array
   becomes a null array if \a size == 0.
 
-  Any items in position \a size or beyond in the vector are removed.
+  Any items at position \a size or beyond in the vector are removed.
   New positions are initialized 0.
 
   Returns TRUE if successful, or FALSE if the memory cannot be allocated.
@@ -251,7 +260,7 @@
 /*!
   \fn int QPtrVector::bsearch( const type* d ) const
 
-  In a sorted array, finds the first occurrence of \a d using binary
+  In a sorted array, finds the first occurrence of \a d using a binary
   search. For a sorted array, this is generally much faster than
   find(), which does a linear search.
 
@@ -268,13 +277,15 @@
   \fn int QPtrVector::findRef( const type *d, uint i ) const
 
   Finds the first occurrence of the item pointer \a d in the vector
-  using linear search. The search starts at position \a i, which must
-  be less than size(). \a i is by default 0; i.e., the search starts at
+  using a linear search. The search starts at position \a i, which must
+  be less than size(). \a i is by default 0; i.e. the search starts at
   the start of the vector.
 
   Returns the position of \a d, or -1 if \a d could not be found.
 
   This function does \e not use compareItems() to compare items.
+
+  Use the much faster bsearch() to search a sorted vector.
 
   \sa find(), bsearch()
 */
@@ -282,14 +293,16 @@
 /*!
   \fn int QPtrVector::find( const type *d, uint i ) const
 
-  Finds the first occurrence of item \a d in the vector using linear
+  Finds the first occurrence of item \a d in the vector using a linear
   search. The search starts at position \a i, which must be less than
-  size(). \a i is by default 0; i.e., the search starts at the start of
+  size(). \a i is by default 0; i.e. the search starts at the start of
   the vector.
 
-  Returns the position of \e v, or -1 if \e v could not be found.
+  Returns the position of \a d, or -1 if \a d could not be found.
 
   Compares items using the virtual function compareItems().
+
+  Use the much faster bsearch() to search a sorted vector.
 
   \sa findRef(), bsearch()
 */
@@ -376,8 +389,8 @@
   \fn QDataStream& QPtrVector::read( QDataStream &s,
 				     QPtrCollection::Item &item )
 
-  Reads a vector item from the stream \a s and returns a reference
-  to the stream.
+  Reads a vector item, \a item, from the stream \a s and returns a
+  reference to the stream.
 
   The default implementation sets \a item to 0.
 
@@ -397,6 +410,6 @@
     
 /*!
     \fn bool QPtrVector::operator==( const QPtrVector<type> &v ) const
-    Compares this pointer vector with \a v.
+    Returns TRUE if this vector and \a v are equal; otherwise returns FALSE.
 */
 

@@ -48,7 +48,7 @@
 
 /*!
   \class QRadioButton qradiobutton.h
-  \brief The QRadioButton widget provides a radio button with a text label.
+  \brief The QRadioButton widget provides a radio button with a text or pixmap label.
 
   \ingroup basic
 
@@ -60,18 +60,17 @@
   be checked; if the user selects another button, the previously
   selected button is switched off.
 
-  Although it is technically possible to implement radio-behavior with
-  check boxes and vice versa, it is strongly recommended to stick with
-  the well-known semantics. Otherwise your users would be pretty
-  confused.
-
   The easiest way to implement a "one of many" choice is simply to
-  stick the radio buttons into QButtonGroup.
+  put the radio buttons into QButtonGroup.
 
   Whenever a button is switched on or off it emits the signal
   toggled(). Connect to this signal if you want to trigger an action
   each time the button changes state. Otherwise, use isChecked() to
   query whether or not a particular button is selected.
+
+  Just like QPushButton, a radio button can display text or a pixmap. The
+  text can be set in the constructor or with setText(); the pixmap is
+  set with setPixmap().
 
   <img src=qradiobt-m.png> <img src=qradiobt-w.png>
 
@@ -85,7 +84,7 @@
     \brief Whether the radio button is checked
 
   This property will not effect any other radio buttons unless they have been
-  placed in a QButtonGroup.
+  placed in the same QButtonGroup.
 */
 
 /*!
