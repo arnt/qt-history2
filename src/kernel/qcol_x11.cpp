@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#13 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#13 $";
 #endif
 
 
@@ -85,14 +85,6 @@ void QColor::initialize()			// called from startup routines
     ((QColor*)(&black))->pix = BlackPixel( dpy, screen );
     ((QColor*)(&white))->pix = WhitePixel( dpy, screen );
 
-    if ( white.pixel() == 0 ) {
-	((QColor*)(&color0))->pix = white.pixel();
-	((QColor*)(&color1))->pix = black.pixel();
-    }
-    else {
-	((QColor*)(&color0))->pix = black.pixel();
-	((QColor*)(&color1))->pix = white.pixel();
-    }
 #if 0 /* 0 == allocate colors on demand */
     aalloc = TRUE;				// allocate global colors
     ((QColor*)(&darkGray))->   	alloc();
