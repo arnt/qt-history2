@@ -712,12 +712,11 @@ void QDragManager::cancel(bool /* deleteSource */)
 void qt_olednd_unregister(QWidget* widget, QOleDropTarget *dst)
 {
     dst->releaseQt();
-    dst->Release();
+    dst->Release();	
 #ifndef Q_OS_TEMP
     CoLockObjectExternal(dst, false, true);
     RevokeDragDrop(widget->winId());
 #endif
-    delete dst;
 }
 
 QOleDropTarget* qt_olednd_register(QWidget* widget)
