@@ -9,7 +9,8 @@ styles {
 		  $$STYLES_H/qcdestyle.h \
 		  $$STYLES_H/qmotifplusstyle.h \
 		  $$STYLES_H/qplatinumstyle.h \
-		  $$STYLES_H/qsgistyle.h
+		  $$STYLES_H/qsgistyle.h \
+		  $$STYLES_H/qcompactstyle.h
 
 	SOURCES +=$$STYLES_CPP/qstylefactory.cpp \
 		  $$STYLES_CPP/qcommonstyle.cpp \
@@ -18,5 +19,6 @@ styles {
 		  $$STYLES_CPP/qcdestyle.cpp \
 		  $$STYLES_CPP/qmotifplusstyle.cpp \
 		  $$STYLES_CPP/qplatinumstyle.cpp \
-		  $$STYLES_CPP/qsgistyle.cpp
+		  $$STYLES_CPP/qsgistyle.cpp \
+		  $$STYLES_CPP/qcompactstyle.cpp
 }
