@@ -158,7 +158,7 @@ bool qt_free_library( void* handle )
 {
     int ok = dlclose( handle );
 #ifdef CHECK_RANGE
-    char* error = dlerror();
+    const char* error = dlerror();
     if ( error )
 	qWarning( error );
 #endif
@@ -169,7 +169,7 @@ void* qt_resolve_symbol( void* handle, const char* f )
 {
     void* address = dlsym( handle, f );
 #ifdef CHECK_RANGE
-    char* error = dlerror();
+    const char* error = dlerror();
     if ( error )
 	qWarning( error );
 #endif
