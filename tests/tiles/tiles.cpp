@@ -40,7 +40,7 @@ Tiles::Tiles()
     p.drawLine( t.rect().bottomLeft(), t.rect().topRight() );
     p.end();
 
-#if 1
+#if 0
     QBitmap mask(t.size());
     mask.fill(color1);
     t.setMask(mask);
