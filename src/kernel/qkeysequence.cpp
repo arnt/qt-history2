@@ -418,7 +418,7 @@ int QKeySequence::decodeString( const QString& str )
 #endif
 
     QString sl = accel.lower();
-    for(int i = 0; !modifiers[i].qt_key; i++) {
+    for(int i = 0; modifiers[i].qt_key; i++) {
 	if(sl.contains(modifiers[i].name)) {
 	    ret |= modifiers[i].qt_key;
 #ifndef QT_NO_REGEXP
