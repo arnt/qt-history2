@@ -23,21 +23,17 @@
 #define d d_func()
 #define q q_func()
 
-//************* QFileInfoPrivate
 class QFileInfoPrivate
 {
-    QFileInfo *q_ptr;
-    Q_DECLARE_PUBLIC(QFileInfo)
-
-protected:
-    QFileInfoPrivate(QFileInfo *, const QFileInfo *copy=0);
+public:
+    QFileInfoPrivate(const QFileInfo *copy=0);
     ~QFileInfoPrivate();
 
     void initFileEngine(const QString &);
 
     uint getFileFlags(QFileEngine::FileFlags) const;
     QDateTime &getFileTime(QFileEngine::FileTime) const;
-private:
+
     enum { CachedPerms=0x01, CachedTypes=0x02, CachedFlags=0x04,
            CachedMTime=0x10, CachedCTime=0x20, CachedATime=0x40,
            CachedSize =0x08 };
@@ -68,7 +64,7 @@ private:
     void detach();
 };
 
-QFileInfoPrivate::QFileInfoPrivate(QFileInfo *qq, const QFileInfo *copy) : q_ptr(qq)
+QFileInfoPrivate::QFileInfoPrivate(const QFileInfo *copy)
 {
     if(copy) {
         ++copy->d->data->ref;
@@ -84,7 +80,6 @@ QFileInfoPrivate::~QFileInfoPrivate()
     if (!--data->ref)
         delete data;
     data = 0;
-    q_ptr = 0;
 }
 
 void
@@ -209,7 +204,7 @@ QDateTime
     Constructs a new empty QFileInfo.
 */
 
-QFileInfo::QFileInfo() : d_ptr(new QFileInfoPrivate(this))
+QFileInfo::QFileInfo() : d_ptr(new QFileInfoPrivate())
 {
 }
 
@@ -220,7 +215,7 @@ QFileInfo::QFileInfo() : d_ptr(new QFileInfoPrivate(this))
     \sa setFile(), isRelative(), QDir::setCurrent(), QDir::isRelativePath()
 */
 
-QFileInfo::QFileInfo(const QString &file) : d_ptr(new QFileInfoPrivate(this))
+QFileInfo::QFileInfo(const QString &file) : d_ptr(new QFileInfoPrivate())
 {
     d->initFileEngine(file);
 }
@@ -235,7 +230,7 @@ QFileInfo::QFileInfo(const QString &file) : d_ptr(new QFileInfoPrivate(this))
     \sa isRelative()
 */
 
-QFileInfo::QFileInfo(const QFile &file) : d_ptr(new QFileInfoPrivate(this))
+QFileInfo::QFileInfo(const QFile &file) : d_ptr(new QFileInfoPrivate())
 {
     d->initFileEngine(file.fileName());
 }
@@ -251,7 +246,7 @@ QFileInfo::QFileInfo(const QFile &file) : d_ptr(new QFileInfoPrivate(this))
 */
 
 #ifndef QT_NO_DIR
-QFileInfo::QFileInfo(const QDir &dir, const QString &file) : d_ptr(new QFileInfoPrivate(this))
+QFileInfo::QFileInfo(const QDir &dir, const QString &file) : d_ptr(new QFileInfoPrivate())
 {
     d->initFileEngine(dir.filePath(file));
 }
@@ -261,7 +256,7 @@ QFileInfo::QFileInfo(const QDir &dir, const QString &file) : d_ptr(new QFileInfo
     Constructs a new QFileInfo that is a copy of the given \a fileinfo.
 */
 
-QFileInfo::QFileInfo(const QFileInfo &fileinfo) : d_ptr(new QFileInfoPrivate(this, &fileinfo))
+QFileInfo::QFileInfo(const QFileInfo &fileinfo) : d_ptr(new QFileInfoPrivate(&fileinfo))
 {
 
 }
