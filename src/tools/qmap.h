@@ -53,7 +53,6 @@
 
 #include <qiterator.h>
 
-#define Q_TYPENAME typename
 //#define QT_CHECK_MAP_RANGE
 
 struct Q_EXPORT QMapData
