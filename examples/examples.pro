@@ -1,5 +1,5 @@
 TEMPLATE    =	subdirs
-# removed themes for now
+
 SUBDIRS	=	aclock \
 		action \
 		action/actiongroup \
@@ -10,6 +10,7 @@ SUBDIRS	=	aclock \
 		checklists \
 		cursor \
 		customlayout \
+		component \
 		dclock \
 		dirview \
 		dragdrop \
@@ -59,36 +60,36 @@ SUBDIRS	=	aclock \
 !contains(QT_PRODUCT,qt-professional): SUBDIRS += demo
 
 thread:SUBDIRS +=   thread/guithreads \
-			thread/semaphores
+		    thread/semaphores
 
 canvas:SUBDIRS +=   canvas
 
 opengl:SUBDIRS +=   opengl/box \
-			opengl/gear \
-			opengl/glpixmap \
-			opengl/overlay \
-			opengl/sharedbox \
-			opengl/texture
+		    opengl/gear \
+		    opengl/glpixmap \
+		    opengl/overlay \
+		    opengl/sharedbox \
+		    opengl/texture
 
 nas:SUBDIRS += 	    sound
 
 iconview:SUBDIRS += fileiconview \
-			iconview \
-			iconview/simple_dd
+		    iconview \
+		    iconview/simple_dd
 				
 
 network:SUBDIRS +=  network/clientserver/client \
-			network/clientserver/server \
-			network/ftpclient \
-			network/httpd \
-			network/mail \
-			network/networkprotocol
+		    network/clientserver/server \
+		    network/ftpclient \
+		    network/httpd \
+		    network/mail \
+		    network/networkprotocol
 
 workspace:SUBDIRS+= mdi
 
 table:SUBDIRS +=    table/statistics \
-			table/small-table-demo \
-			table/bigtable
+		    table/small-table-demo \
+		    table/bigtable
 
 tablet:SUBDIRS += tablet
 
