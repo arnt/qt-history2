@@ -226,9 +226,9 @@ struct QWSQCopMessageEvent : QWSEvent {
     void setData(const char *d, int len, bool allocateMem = true) {
         QWSEvent::setData(d, len, allocateMem);
         char* p = reinterpret_cast<char*>( rawDataPtr);
-        channel = QByteArray(p, simpleData.lchannel + 1);
+        channel = QByteArray(p, simpleData.lchannel);
         p += simpleData.lchannel;
-        message = QByteArray(p, simpleData.lmessage + 1);
+        message = QByteArray(p, simpleData.lmessage);
         p += simpleData.lmessage;
         data = QByteArray(p, simpleData.ldata);
     }

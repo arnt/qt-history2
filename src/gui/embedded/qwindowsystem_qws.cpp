@@ -1377,9 +1377,9 @@ void QWSServer::sendQCopEvent(QWSClient *c, const QString &ch,
     // combine channel, message and data into one block of raw bytes
     QByteArray raw(l, 0);
     char *d = (char*)raw.data();
-    memcpy(d, ch.data(), event.simpleData.lchannel);
+    memcpy(d, ch.latin1(), event.simpleData.lchannel);
     d += event.simpleData.lchannel;
-    memcpy(d, msg.data(), event.simpleData.lmessage);
+    memcpy(d, msg.latin1(), event.simpleData.lmessage);
     d += event.simpleData.lmessage;
     memcpy(d, data.data(), event.simpleData.ldata);
 
