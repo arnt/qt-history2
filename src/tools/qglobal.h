@@ -315,6 +315,10 @@
    it separately anyway. */
 #elif defined(__DECCXX)
 #  define Q_CC_DEC
+/* Spurious (?) error messages observed on Compaq C++ V6.5-014. */
+#  define Q_NO_USING_KEYWORD
+/* Compaq C++ V6 compilers are EDG-based but I'm not sure about older
+   DEC C++ V5 compilers. */
 #  if defined(__EDG__)
 #    define Q_CC_EDG
 #  endif
