@@ -28,6 +28,7 @@
 #ifndef QT_H
 #include <private/qcom_p.h>
 #include "qiconset.h"
+#include "qwindowdefs.h" // for QWidgetList
 #endif // QT_H
 
 #ifndef QT_NO_WIDGETPLUGIN
