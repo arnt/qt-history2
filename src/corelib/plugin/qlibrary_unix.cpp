@@ -97,12 +97,11 @@ bool QLibraryPrivate::load_sys()
 # ifdef Q_OS_MAC
     suffixes << ".bundle" << ".dylib";
 #endif
+    QString attempt;
     for(int prefix = 0; !pHnd && prefix < prefixes.size(); prefix++) {
         for(int suffix = 0; !pHnd && suffix < suffixes.size(); suffix++) {
-            QString attempt(path + prefixes[prefix] + name + suffixes[suffix]);
-            QFileInfo attempt_fi(attempt);
-            if(!attempt_fi.isDir())
-                pHnd = dlopen(QFile::encodeName(attempt), RTLD_LAZY);
+            attempt = path + prefixes[prefix] + name + suffixes[suffix];
+            pHnd = dlopen(QFile::encodeName(attempt), RTLD_LAZY);
         }
     }
 #ifdef Q_OS_MAC
@@ -112,6 +111,7 @@ bool QLibraryPrivate::load_sys()
             QCFString str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
             qDebug("attemping %s", QFile::encodeName(str).data());
             pHnd = dlopen(QFile::encodeName(str), RTLD_LAZY);
+            attempt = str;
         }
     }
 # endif
@@ -121,6 +121,8 @@ bool QLibraryPrivate::load_sys()
                  qdlerror());
     }
 #endif
+    if (pHnd)
+        qualifiedFileName = attempt;
     return (pHnd != 0);
 }
 

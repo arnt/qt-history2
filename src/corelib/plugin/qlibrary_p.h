@@ -46,7 +46,7 @@ public:
 #endif
     pHnd;
 
-    QString fileName;
+    QString fileName, qualifiedFileName;
 
     bool load();
     bool loadPlugin(); // loads and resolves instance

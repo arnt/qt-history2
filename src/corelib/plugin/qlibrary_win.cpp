@@ -22,18 +22,19 @@ extern QString qt_error_string(int code);
 
 bool QLibraryPrivate::load_sys()
 {
+    QString attempt = fileName;
     QT_WA({
-        pHnd = LoadLibraryW((TCHAR*)fileName.utf16());
+        pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
     } , {
-        pHnd = LoadLibraryA(QFile::encodeName(fileName).data());
+        pHnd = LoadLibraryA(QFile::encodeName(attempt).data());
     });
 
     if (!pHnd) {
-        QString name = fileName + ".dll";
+        attempt += ".dll";
         QT_WA({
-            pHnd = LoadLibraryW((TCHAR*)name.utf16());
+            pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
         } , {
-            pHnd = LoadLibraryA(QFile::encodeName(name).data());
+            pHnd = LoadLibraryA(QFile::encodeName(attempt).data());
         });
     }
 
@@ -44,7 +45,9 @@ bool QLibraryPrivate::load_sys()
                  qt_error_string(GetLastError()).latin1());
     }
 #endif
-    return pHnd != 0;
+    if (pHnd)
+        qualifiedFileName = attempt;
+    return (pHnd != 0);
 }
 
 bool QLibraryPrivate::unload_sys()

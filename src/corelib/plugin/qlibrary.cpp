@@ -645,7 +645,10 @@ QLibrary::~QLibrary()
 
     When loading the library, QLibrary searches in all system-specific
     library locations (e.g. \c LD_LIBRARY_PATH on Unix), unless the
-    file name has an absolute path.
+    file name has an absolute path. After loading the library
+    successfully, fileName() returns the fully qualified file name of
+    the library. For example, after successfully loading the "GL"
+    library on unix, fileName() will return "libGL.so".
 */
 
 void QLibrary::setFileName(const QString &fileName)
@@ -664,7 +667,7 @@ void QLibrary::setFileName(const QString &fileName)
 QString QLibrary::fileName() const
 {
     if (d)
-        return d->fileName;
+        return d->qualifiedFileName.isEmpty() ? d->fileName : d->qualifiedFileName;
     return QString();
 }
 
