@@ -1154,7 +1154,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 
     } else if ( style() == MotifStyle ) {	// motif 2.0 style
 	style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), g,
-				    QStyle::Style_Default, QStyle::SC_All,
+				    flags, QStyle::SC_All,
 				    d->arrowDown ? QStyle::SC_ComboBoxArrow : QStyle::SC_None );
 
 	if ( !d->ed ) {
@@ -1182,11 +1182,11 @@ void QComboBox::paintEvent( QPaintEvent * )
 	p.setClipping( FALSE );
     } else {					// windows 95 style
 	style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), g,
-				    QStyle::Style_Default, QStyle::SC_All,
+				    flags, QStyle::SC_All,
 				    d->arrowDown ? QStyle::SC_ComboBoxArrow : QStyle::SC_None );
 
 	QRect re = QStyle::visualRect( style().querySubControlMetrics( QStyle::CC_ComboBox, this,
-								      QStyle::SC_ComboBoxEditField ), this );
+								       QStyle::SC_ComboBoxEditField ), this );
 	QRect textR;
 	textR.setRect( re.x()+2, re.y()+1, re.width()-4, re.height()-2 );
 	p.setClipRect( textR );
