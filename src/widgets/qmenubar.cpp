@@ -925,7 +925,7 @@ static QPixmap *getDoubleBuffer( int w, int h )
 
 void QMenuBar::drawContents( QPainter *p )
 {
-    QRegion reg( rect() );
+    QRegion reg( contentsRect() );
     QColorGroup g;
     bool e;
 
@@ -961,7 +961,7 @@ void QMenuBar::drawContents( QPainter *p )
     }
     p->save();
     p->setClipRegion( reg );
-    p->fillRect( rect(), colorGroup().brush( QColorGroup::Button ) );
+    p->fillRect( contentsRect(), colorGroup().brush( QColorGroup::Button ) );
     p->restore();
 
     // Draw the menu bar contents in the current style
