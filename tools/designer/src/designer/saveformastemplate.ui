@@ -4,24 +4,18 @@
  <exportmacro></exportmacro>
  <class>SaveFormAsTemplate</class>
  <widget class="QDialog" name="SaveFormAsTemplate" >
-  <property name="objectName" >
-   <string notr="true" >SaveFormAsTemplate</string>
-  </property>
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>481</width>
-    <height>151</height>
+    <width>391</width>
+    <height>149</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Save Form As Template...</string>
   </property>
   <layout class="QVBoxLayout" >
-   <property name="objectName" >
-    <string notr="true" />
-   </property>
    <property name="margin" >
     <number>9</number>
    </property>
@@ -30,9 +24,6 @@
    </property>
    <item>
     <layout class="QGridLayout" >
-     <property name="objectName" >
-      <string notr="true" />
-     </property>
      <property name="margin" >
       <number>1</number>
      </property>
@@ -41,15 +32,12 @@
      </property>
      <item row="0" column="1" >
       <widget class="QLineEdit" name="templateNameEdit" >
-       <property name="objectName" >
-        <string notr="true" >templateNameEdit</string>
-       </property>
        <property name="geometry" >
         <rect>
-         <x>60</x>
-         <y>3</y>
-         <width>376</width>
-         <height>23</height>
+         <x>67</x>
+         <y>1</y>
+         <width>285</width>
+         <height>22</height>
         </rect>
        </property>
        <property name="text" >
@@ -62,30 +50,24 @@
      </item>
      <item row="1" column="1" >
       <widget class="QComboBox" name="categoryCombo" >
-       <property name="objectName" >
-        <string notr="true" >categoryCombo</string>
-       </property>
        <property name="geometry" >
         <rect>
-         <x>60</x>
-         <y>31</y>
-         <width>376</width>
-         <height>24</height>
+         <x>67</x>
+         <y>29</y>
+         <width>285</width>
+         <height>26</height>
         </rect>
        </property>
       </widget>
      </item>
      <item row="1" column="0" >
       <widget class="QLabel" name="label_2" >
-       <property name="objectName" >
-        <string notr="true" >label_2</string>
-       </property>
        <property name="geometry" >
         <rect>
          <x>1</x>
-         <y>31</y>
-         <width>53</width>
-         <height>24</height>
+         <y>29</y>
+         <width>60</width>
+         <height>26</height>
         </rect>
        </property>
        <property name="frameShape" >
@@ -107,15 +89,12 @@
      </item>
      <item row="0" column="0" >
       <widget class="QLabel" name="label" >
-       <property name="objectName" >
-        <string notr="true" >label</string>
-       </property>
        <property name="geometry" >
         <rect>
          <x>1</x>
-         <y>3</y>
-         <width>53</width>
-         <height>23</height>
+         <y>1</y>
+         <width>60</width>
+         <height>22</height>
         </rect>
        </property>
        <property name="frameShape" >
@@ -135,37 +114,16 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="2" >
-      <widget class="QToolButton" name="toolButton" >
-       <property name="objectName" >
-        <string notr="true" >toolButton</string>
-       </property>
-       <property name="geometry" >
-        <rect>
-         <x>444</x>
-         <y>31</y>
-         <width>15</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="text" >
-        <string>...</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item>
     <spacer>
-     <property name="objectName" >
-      <string notr="true" >verticalSpacer_2</string>
-     </property>
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>74</y>
-       <width>463</width>
-       <height>22</height>
+       <y>71</y>
+       <width>373</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="orientation" >
@@ -181,14 +139,11 @@
    </item>
    <item>
     <widget class="QFrame" name="horizontalLine" >
-     <property name="objectName" >
-      <string notr="true" >horizontalLine</string>
-     </property>
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>102</y>
-       <width>463</width>
+       <y>97</y>
+       <width>373</width>
        <height>3</height>
       </rect>
      </property>
@@ -202,9 +157,6 @@
    </item>
    <item>
     <layout class="QHBoxLayout" >
-     <property name="objectName" >
-      <string notr="true" />
-     </property>
      <property name="margin" >
       <number>1</number>
      </property>
@@ -213,15 +165,12 @@
      </property>
      <item>
       <spacer>
-       <property name="objectName" >
-        <string notr="true" >horizontalSpacer</string>
-       </property>
        <property name="geometry" >
         <rect>
          <x>1</x>
          <y>1</y>
-         <width>297</width>
-         <height>29</height>
+         <width>197</width>
+         <height>32</height>
         </rect>
        </property>
        <property name="orientation" >
@@ -237,15 +186,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="okButton" >
-       <property name="objectName" >
-        <string notr="true" >okButton</string>
-       </property>
        <property name="geometry" >
         <rect>
-         <x>304</x>
+         <x>204</x>
          <y>1</y>
-         <width>77</width>
-         <height>29</height>
+         <width>81</width>
+         <height>32</height>
         </rect>
        </property>
        <property name="text" >
@@ -258,15 +204,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="cancelButton" >
-       <property name="objectName" >
-        <string notr="true" >cancelButton</string>
-       </property>
        <property name="geometry" >
         <rect>
-         <x>387</x>
-         <y>2</y>
-         <width>75</width>
-         <height>27</height>
+         <x>291</x>
+         <y>1</y>
+         <width>81</width>
+         <height>32</height>
         </rect>
        </property>
        <property name="text" >
@@ -279,4 +222,6 @@
   </layout>
  </widget>
  <pixmapfunction></pixmapfunction>
+ <resources/>
+ <connections/>
 </ui>

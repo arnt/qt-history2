@@ -15,6 +15,7 @@
 #include "qdesigner_settings.h"
 
 #include <QtCore/QFile>
+#include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
 #include <abstractformwindow.h>
@@ -32,9 +33,12 @@ SaveFormAsTemplate::SaveFormAsTemplate(AbstractFormWindow *formWindow, QWidget *
 
     QDesignerSettings settings;
     QStringList paths = settings.formTemplatePaths();
-    ui.categoryCombo->insertItems(0, paths);
+    ui.categoryCombo->addItems(paths);
+    ui.categoryCombo->addItem(tr("Add path..."));
+    m_addPathIndex = ui.categoryCombo->count() - 1;
     connect(ui.templateNameEdit, SIGNAL(textChanged(const QString &)),
             this, SLOT(updateOKButton(const QString &)));
+    connect(ui.categoryCombo, SIGNAL(activated(int)), this, SLOT(checkToAddPath(int)));
 }
 
 SaveFormAsTemplate::~SaveFormAsTemplate()
@@ -73,6 +77,13 @@ void SaveFormAsTemplate::on_okButton_clicked()
             }
             file.reset();
     }
+    // update the list of places too...
+    QStringList sl;
+    for (int i = 0; i < m_addPathIndex; ++i)
+        sl << ui.categoryCombo->itemText(i);
+
+    QDesignerSettings().setFormTemplatePaths(sl);
+
     accept();
 }
 
@@ -84,4 +95,21 @@ void SaveFormAsTemplate::on_cancelButton_clicked()
 void SaveFormAsTemplate::updateOKButton(const QString &str)
 {
     ui.okButton->setEnabled(!str.isEmpty());
+}
+
+void SaveFormAsTemplate::checkToAddPath(int itemIndex)
+{
+    if (itemIndex != m_addPathIndex)
+        return;
+
+    QString dir = QFileDialog::getExistingDirectory(this,
+                                                    tr("Pick a directory to save templates in"));
+    if (dir.isEmpty()) {
+        ui.categoryCombo->setCurrentIndex(0);
+        return;
+    }
+
+    ui.categoryCombo->insertItem(m_addPathIndex, dir);
+    ui.categoryCombo->setCurrentIndex(m_addPathIndex);
+    ++m_addPathIndex;
 }

@@ -499,7 +499,7 @@ void QDesignerActions::saveFormAs()
 void QDesignerActions::saveFormAsTemplate()
 {
     if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow()) {
-        SaveFormAsTemplate dlg(fw);
+        SaveFormAsTemplate dlg(fw, fw->window());
         dlg.exec();
     }
 }
