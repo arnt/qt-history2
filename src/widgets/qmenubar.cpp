@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#52 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#51 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#52 $")
 
 
 /*----------------------------------------------------------------------------
@@ -198,6 +198,8 @@ void QMenuBar::subHighlighted( int id )
 
 void QMenuBar::accelActivated( int id )
 {
+    if ( !isEnabled() )				// the menu bar is disabled
+	return;
     QMenuItem *mi = findItem( id );
     if ( mi && !mi->isDisabled() ) {
 	actItem = indexOf( id );
