@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#112 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#113 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#112 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#113 $");
 
 
 // Motif style parameters
@@ -29,7 +29,6 @@ static const int motifItemFrame		= 2;	// menu item frame width
 static const int motifSepHeight		= 2;	// separator item height
 static const int motifItemHMargin	= 3;	// menu item hor text margin
 static const int motifItemVMargin	= 2;	// menu item ver text margin
-static const int motifItemDivider	= 2;	// space btwn text and pixmap
 static const int motifArrowHMargin	= 6;	// arrow horizontal margin
 static const int motifArrowVMargin	= 2;	// arrow vertical margin
 static const int motifTabSpacing	= 12;	// space between text and tab
