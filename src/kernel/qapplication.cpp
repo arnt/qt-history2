@@ -283,6 +283,8 @@ bool	  QApplication::fade_menu	= FALSE;
 bool	  QApplication::animate_combo	= FALSE;
 bool	  QApplication::animate_tooltip	= FALSE;
 bool	  QApplication::fade_tooltip	= FALSE;
+QStringList QApplication::app_pluginpaths;
+
 
 void qt_setMaxWindowRect(const QRect& r)
 {
@@ -301,6 +303,7 @@ void qt_setMaxWindowRect(const QRect& r)
 	delete l;
     }
 }
+
 #ifdef QT_THREAD_SUPPORT
 QMutex * QApplication::qt_mutex=0;
 #endif
@@ -594,6 +597,9 @@ void QApplication::construct( int &argc, char **argv, Type type )
 
 QApplication::QApplication( Display* dpy )
 {
+    static int aargc = 1;
+    static char *aargv[] = { "unknown" , 0 };
+
     qt_is_gui_used = TRUE;
     init_precmdline();
     // ... no command line.
@@ -603,7 +609,7 @@ QApplication::QApplication( Display* dpy )
     qt_mutex = new QMutex(TRUE);
 #endif
 
-    initialize( 0, 0 );
+    initialize( aargc, aargv );
 }
 
 QApplication::QApplication(Display *dpy, int argc, char **argv)
@@ -1103,6 +1109,61 @@ void QApplication::setColorSpec( int spec )
 void QApplication::setGlobalStrut( const QSize& strut )
 {
     app_strut = strut;
+}
+
+/*!
+  \fn QStringList QApplication::pluginPaths()
+
+  Returns a list of paths where the application will search when loading
+  plugins.
+
+  \sa setPluginPaths(), addPluginPath(), removePluginPath(), QLibrary
+*/
+
+/*!
+  Sets the list of directories to search when loading plugins to \a paths.
+  If \a paths is empty, the path list is unchanged, otherwise all previous
+  paths will be replaced by this call.
+
+  \sa pluginPaths(), addPluginPath(), removePluginPath(), QLibrary
+ */
+void QApplication::setPluginPaths(const QStringList &paths)
+{
+    app_pluginpaths = paths;
+}
+
+/*!
+  Add \a path to the end of the plugin path list.  If \a path is null or
+  already in the path list, the path list is unchanged.
+
+  \sa removePluginPath(), pluginPaths(), setPluginPaths()
+ */
+void QApplication::addPluginPath(const QString &path)
+{
+    if (path.isNull()) {
+	return;
+    }
+
+    if (! app_pluginpaths.contains(path)) {
+	app_pluginpaths.append(path);
+    }
+}
+
+/*!
+  Removes \a path from the plugin path list.  If \a path is null or not
+  in the path list, the list is unchanged.
+
+  \sa addPluginPath(), pluginPaths(), setPluginPaths()
+*/
+void QApplication::removePluginPath(const QString &path)
+{
+    if (path.isNull()) {
+	return;
+    }
+
+    if (! app_pluginpaths.contains(path)) {
+	app_pluginpaths.remove(path);
+    }
 }
 
 /*!

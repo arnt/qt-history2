@@ -70,6 +70,9 @@
 #include "qwhatsthis.h" // ######## dependency
 #include "qwindowsstyle.h" // ######## dependency
 #include "qmotifplusstyle.h" // ######## dependency
+#include "qsettings.h"
+#include "qstylefactory.h"
+#include "qfileinfo.h"
 #include <stdlib.h>
 #ifndef QT_NO_SM_SUPPORT
 #include <pwd.h>
@@ -283,6 +286,7 @@ Atom            qt_clipboard_sentinel   = 0;
 Atom		qt_selection_sentinel	= 0;
 Atom		qt_wm_state		= 0;
 static Atom 	qt_desktop_properties	= 0;	// Qt desktop properties
+static Atom     qt_desktop_prop_stamp   = 0;    // Qt desktop properties timestamp
 static Atom 	qt_input_encoding 		= 0;	// Qt desktop properties
 static Atom 	qt_resource_manager	= 0;	// X11 Resource manager
 Atom 		qt_sizegrip		= 0;	// sizegrip
@@ -663,59 +667,383 @@ static void qt_x11_process_intern_atoms()
 
 static bool seems_like_KDE_is_running = FALSE;
 
-// read the _QT_DESKTOP_PROPERTIES property and apply the settings to
-// the application
+
+// read the _QT_DESKTOP_PROPERTIES property and apply the settings to the application
 static bool qt_set_desktop_properties()
 {
-
-    if ( !qt_std_pal )
+    if (! qt_std_pal)
 	qt_create_std_palette();
+
+    QString spath(getenv("HOME"));
+    spath += "/.qtrc";
 
     Atom type;
     int format;
-    ulong  nitems, after = 1;
     long offset = 0;
-    uchar *data;
+    unsigned long nitems, after;
+    unsigned char *data;
 
-    int e = XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties, 0, 1,
-				FALSE, AnyPropertyType, &type, &format, &nitems,
-				&after, &data );
-    if ( data )
-	XFree( (char *)data );
-    if ( e != Success || !nitems )
-	return FALSE;
+    bool read_settings = FALSE, success = FALSE;
 
-    QBuffer  properties;
-    properties.open( IO_WriteOnly );
-    while (after > 0) {
-	XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties,
-			    offset, 1024, FALSE, AnyPropertyType,
-			    &type, &format, &nitems, &after, &data );
-	if (format == 8) {
-	    properties.writeBlock( (char*)data, nitems );
-	    offset += nitems / 4;
+    int e = XGetWindowProperty(appDpy, appRootWin, qt_desktop_prop_stamp, 0, 1,
+			       FALSE, AnyPropertyType, &type, &format, &nitems,
+			       &after, &data);
+    if (data) {
+	XFree(data);
+    }
+
+    if (e == Success && format == 8) {
+	QBuffer ts;
+	ts.open(IO_WriteOnly);
+
+	while (after > 0) {
+	    XGetWindowProperty(appDpy, appRootWin, qt_desktop_prop_stamp,
+			       offset, 1024, FALSE, AnyPropertyType,
+			       &type, &format, &nitems, &after, &data);
+	    if (format == 8) {
+		ts.writeBlock((const char *) data, nitems);
+		offset += nitems / 4;
+	    }
+
+	    XFree(data);
 	}
 
-	XFree( (char *)data );
+	QDataStream d(ts.buffer(), IO_ReadOnly);
+
+	QDateTime timestamp;
+	QFileInfo fi(spath);
+	d >> timestamp;
+
+	if (! timestamp.isValid() || fi.lastModified() != timestamp) {
+	    read_settings = TRUE;
+	}
+    } else {
+	read_settings = TRUE;
     }
 
-    QDataStream d( properties.buffer(), IO_ReadOnly );
+    if (! read_settings) {
+	int e = XGetWindowProperty(appDpy, appRootWin, qt_desktop_properties, 0, 1,
+				   FALSE, AnyPropertyType, &type, &format, &nitems,
+				   &after, &data);
+	if (data) {
+	    XFree(data);
+	}
 
-    QPalette pal;
-    QFont font;
-    d >> pal >> font;
-    if ( pal != *qt_std_pal && pal != QApplication::palette() )
-	QApplication::setPalette( pal, TRUE );
-    *qt_std_pal = pal;
-
-    if ( font != QApplication::font() ) {
-	QApplication::setFont( font, TRUE );
+	if (e != Success || ! nitems) {
+	    read_settings = TRUE;
+	}
     }
 
-    seems_like_KDE_is_running = TRUE;
+    if (read_settings) {
+	// didn't get the property from the root window, let's try the file
+	QSettings s;
 
-    return TRUE;
+	/*
+	  Qt settings:
+
+	  /qt/palette          - QPalette
+	  /qt/font             - QFont
+	  /qt/style            - QString
+	  /qt/doubleclicktime  - int
+	  /qt/cursorflashtime  - int
+	  /qt/wheelscrolllines - int
+	  /qt/guieffects       - QString
+	  /qt/colorspec        - QString
+	  /qt/defaultcodec     - QString
+	  /qt/globalstrut      - QSize
+	  /qt/pluginpath       - QString
+
+	*/
+
+	s.setPath(QSettings::Unix, spath);
+	QVariant v;
+
+	// read new colors
+	v = s.readEntry("/qt/palette");
+	if (v.isValid() && v.type() == QVariant::Palette) {
+	    QPalette pal = v.toPalette();
+
+	    if (pal != *qt_std_pal && pal != QApplication::palette())
+		QApplication::setPalette(pal, TRUE);
+	    *qt_std_pal = pal;
+	    success = TRUE;
+	}
+
+	// read new font
+	v = s.readEntry("/qt/font");
+	if (v.isValid() && v.type() == QVariant::Font) {
+	    QFont font(v.toFont());
+
+	    if (font != QApplication::font())
+		QApplication::setFont(font, TRUE);
+	    success = TRUE;
+	}
+
+	// read new QStyle
+	QString stylename("default");
+	v = s.readEntry("/qt/style");
+	if (v.isValid() && v.type() == QVariant::String) {
+	    stylename = v.toString();
+
+	    if (stylename != "default") {
+		QStyle *style = QStyleFactory::create(stylename);
+		if (style) {
+		    QApplication::setStyle(style);
+		} else {
+		    stylename = "default";
+		}
+	    }
+
+	    success = TRUE;
+	}
+
+	v = s.readEntry("/qt/doubleclicktime");
+	if (v.isValid() && v.type() == QVariant::Int) {
+	    QApplication::setDoubleClickInterval(v.toInt());
+	    success = TRUE;
+	}
+
+	v = s.readEntry("/qt/cursorflashtime");
+	if (v.isValid() && v.type() == QVariant::Int) {
+	    QApplication::setCursorFlashTime(v.toInt());
+	    success = TRUE;
+	}
+
+	v = s.readEntry("/qt/wheelscrolllines");
+	if (v.isValid() && v.type() == QVariant::Int) {
+	    QApplication::setWheelScrollLines(v.toInt());
+	    success = TRUE;
+	}
+
+	QString colorspec("default");
+	v = s.readEntry("/qt/colorspec");
+	if (v.isValid() && v.type() == QVariant::String) {
+	    colorspec = v.toString();
+
+	    if (colorspec == "normal") {
+		QApplication::setColorSpec(QApplication::NormalColor);
+	    } else if (colorspec == "custom") {
+		QApplication::setColorSpec(QApplication::CustomColor);
+	    } else if (colorspec == "many") {
+		QApplication::setColorSpec(QApplication::ManyColor);
+	    } else if (colorspec != "default") {
+		colorspec = "default";
+	    }
+
+	    success = TRUE;
+	}
+
+	QString defaultcodec("none");
+	v = s.readEntry("/qt/defaultcodec");
+	if (v.isValid() && v.type() == QVariant::String) {
+	    QString dc(v.toString());
+
+	    QTextCodec *codec = QTextCodec::codecForName(dc);
+	    if (codec) {
+		qApp->setDefaultCodec(codec);
+	    } else {
+		defaultcodec = "default";
+	    }
+	}
+
+	v = s.readEntry("/qt/globalstrut");
+	if (v.isValid() && v.type() == QVariant::Size) {
+	    QSize sz(v.toSize());
+
+	    if (sz.isValid()) {
+		QApplication::setGlobalStrut(sz);
+	    }
+	}
+
+	QString effects;
+	v = s.readEntry("/qt/guieffects");
+	if (v.isValid() && v.type() == QVariant::String) {
+	    effects = v.toString();
+	    QStringList e(QStringList::split(" ", effects));
+
+	    if ( e.contains("general") )
+		QApplication::setEffectEnabled( Qt::UI_General, TRUE );
+	    if ( e.contains("animatemenu") )
+		QApplication::setEffectEnabled( Qt::UI_AnimateMenu, TRUE );
+	    if ( e.contains("fademenu") )
+		QApplication::setEffectEnabled( Qt::UI_FadeMenu, TRUE );
+	    if ( e.contains("animatecombo") )
+		QApplication::setEffectEnabled( Qt::UI_AnimateCombo, TRUE );
+	    if ( e.contains("animatetooltip") )
+		QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, TRUE );
+	    if ( e.contains("fadetooltip") )
+		QApplication::setEffectEnabled( Qt::UI_FadeTooltip, TRUE );
+	}
+
+	QString pluginpath;
+	v = s.readEntry("/qt/pluginpath");
+	if (v.isValid() && v.type() == QVariant::String) {
+	    pluginpath = v.toString();
+	    QStringList pathlist(QStringList::split(":", pluginpath));
+
+	    QStringList::ConstIterator it = pathlist.begin();
+	    while (it != pathlist.end()) {
+		QApplication::addPluginPath(*it);
+	    }
+	}
+
+	if (success) {
+	    QBuffer prop;
+	    QDataStream d(prop.buffer(), IO_WriteOnly);
+	    d << QApplication::palette()
+	      << QApplication::font()
+	      << stylename
+	      << QApplication::doubleClickInterval()
+	      << QApplication::cursorFlashTime()
+	      << QApplication::wheelScrollLines()
+	      << colorspec
+	      << defaultcodec
+	      << QApplication::globalStrut()
+	      << effects
+	      << pluginpath;
+
+	    XChangeProperty(appDpy, appRootWin, qt_desktop_properties,
+			    qt_desktop_properties, 8, PropModeReplace,
+			    (unsigned char *) prop.buffer().data(),
+			    prop.buffer().size());
+
+	    QBuffer stamp;
+	    QDataStream s(stamp.buffer(), IO_WriteOnly);
+	    QFileInfo fi(spath);
+	    s << fi.lastModified();
+
+	    XChangeProperty(appDpy, appRootWin, qt_desktop_prop_stamp,
+			    qt_desktop_prop_stamp, 8, PropModeReplace,
+			    (unsigned char *) stamp.buffer().data(),
+			    stamp.buffer().size());
+	}
+    } else {
+	QBuffer prop;
+	prop.open(IO_WriteOnly);
+	offset = 0;
+
+	while (after > 0) {
+	    XGetWindowProperty(appDpy, appRootWin, qt_desktop_properties,
+			       offset, 1024, FALSE, AnyPropertyType,
+			       &type, &format, &nitems, &after, &data);
+	    if (format == 8) {
+		prop.writeBlock((const char *) data, nitems);
+		offset += nitems / 4;
+	    }
+
+	    XFree(data);
+	}
+
+	QDataStream d(prop.buffer(), IO_ReadOnly);
+
+	QPalette pal;
+	QFont font;
+   	d >> pal >> font;
+
+	if (pal != *qt_std_pal && pal != QApplication::palette())
+	    QApplication::setPalette(pal, TRUE);
+	*qt_std_pal = pal;
+
+	if (font != QApplication::font()) {
+	    QApplication::setFont(font, TRUE);
+	}
+
+	if (! d.atEnd()) {
+	    QString stylename;
+	    d >> stylename;
+
+	    QStyle *style = QStyleFactory::create(stylename);
+	    if (style) {
+		QApplication::setStyle(style);
+	    }
+	}
+
+	if (! d.atEnd()) {
+	    int dci;
+	    d >> dci;
+	    QApplication::setDoubleClickInterval(dci);
+	}
+
+	if (! d.atEnd()) {
+	    int cft;
+	    d >> cft;
+	    QApplication::setCursorFlashTime(cft);
+	}
+
+	if (! d.atEnd()) {
+	    int wsl;
+	    d >> wsl;
+	    QApplication::setWheelScrollLines(wsl);
+	}
+
+	if (! d.atEnd()) {
+	    QString cs;
+	    d >> cs;
+
+	    if (cs == "normal") {
+		QApplication::setColorSpec(QApplication::NormalColor);
+	    } else if (cs == "custom") {
+		QApplication::setColorSpec(QApplication::CustomColor);
+	    } else if (cs == "many") {
+		QApplication::setColorSpec(QApplication::ManyColor);
+	    }
+	}
+
+	if (! d.atEnd()) {
+	    QString dc;
+	    d >> dc;
+
+	    QTextCodec *codec = QTextCodec::codecForName(dc);
+	    if (codec) {
+		qApp->setDefaultCodec(codec);
+	    }
+	}
+
+	if (! d.atEnd()) {
+	    QSize sz;
+	    d >> sz;
+
+	    if (sz.isValid()) {
+		QApplication::setGlobalStrut(sz);
+	    }
+	}
+
+	if (! d.atEnd()) {
+	    QString effects;
+	    d >> effects;
+	    QStringList e(QStringList::split(" ", effects));
+
+	    if ( e.contains("general") )
+		QApplication::setEffectEnabled( Qt::UI_General, TRUE );
+	    if ( e.contains("animatemenu") )
+		QApplication::setEffectEnabled( Qt::UI_AnimateMenu, TRUE );
+	    if ( e.contains("fademenu") )
+		QApplication::setEffectEnabled( Qt::UI_FadeMenu, TRUE );
+	    if ( e.contains("animatecombo") )
+		QApplication::setEffectEnabled( Qt::UI_AnimateCombo, TRUE );
+	    if ( e.contains("animatetooltip") )
+		QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, TRUE );
+	    if ( e.contains("fadetooltip") )
+		QApplication::setEffectEnabled( Qt::UI_FadeTooltip, TRUE );
+	}
+
+	if (! d.atEnd()) {
+	    QString pluginpath;
+	    d >> pluginpath;
+	    QStringList pathlist(QStringList::split(":", pluginpath));
+
+	    QStringList::ConstIterator it = pathlist.begin();
+	    while (it != pathlist.end()) {
+		QApplication::addPluginPath(*it);
+	    }
+	}
+
+	success = TRUE;
+    }
+
+    return success;
 }
+
 
 // read the _QT_INPUT_ENCODING property and apply the settings to
 // the application
@@ -741,11 +1069,11 @@ static void qt_set_input_encoding()
 	str = str.lower();
 	if ( !str.compare( "locale" ) )
 #else
-	if ( !strcasecmp( data, "locale" ) )
+	    if ( !strcasecmp( data, "locale" ) )
 #endif
-	    input_mapper = QTextCodec::codecForLocale();
-	else
-	    input_mapper = QTextCodec::codecForName( data );
+		input_mapper = QTextCodec::codecForLocale();
+	    else
+		input_mapper = QTextCodec::codecForName( data );
 	// make sure we have an input codec
 	if( !input_mapper )
 	    input_mapper = QTextCodec::codecForName( "ISO 8859-1" );
@@ -797,26 +1125,26 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 		l++;
 	    bool mine = FALSE;
 	    if ( res[l] == '*'
-	      && (res[l+1] == 'f' || res[l+1] == 'b' || res[l+1] == 'g') )
-	    {
-		// OPTIMIZED, since we only want "*[fbg].."
-
-		QCString item = res.mid( l, r - l ).simplifyWhiteSpace();
-		int i = item.find( ":" );
-		key = item.left( i ).stripWhiteSpace().mid(1);
-		value = item.right( item.length() - i - 1 ).stripWhiteSpace();
-		mine = TRUE;
-	    } else if ( res[l] == appName[0] ) {
-		if ( res.mid(l,apnl) == apn &&
-			(res[l+apnl] == '.' || res[l+apnl] == '*' ) )
+		 && (res[l+1] == 'f' || res[l+1] == 'b' || res[l+1] == 'g') )
 		{
+		    // OPTIMIZED, since we only want "*[fbg].."
+
 		    QCString item = res.mid( l, r - l ).simplifyWhiteSpace();
 		    int i = item.find( ":" );
-		    key = item.left( i ).stripWhiteSpace().mid(apnl+1);
+		    key = item.left( i ).stripWhiteSpace().mid(1);
 		    value = item.right( item.length() - i - 1 ).stripWhiteSpace();
 		    mine = TRUE;
+		} else if ( res[l] == appName[0] ) {
+		    if ( res.mid(l,apnl) == apn &&
+			 (res[l+apnl] == '.' || res[l+apnl] == '*' ) )
+			{
+			    QCString item = res.mid( l, r - l ).simplifyWhiteSpace();
+			    int i = item.find( ":" );
+			    key = item.left( i ).stripWhiteSpace().mid(apnl+1);
+			    value = item.right( item.length() - i - 1 ).stripWhiteSpace();
+			    mine = TRUE;
+			}
 		}
-	    }
 
 	    if ( mine ) {
 		if ( !font && key == "font")
@@ -947,7 +1275,7 @@ static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
     Visual *v = DefaultVisual(dpy,scr);
     if ( !vi || (vi[best].visualid == XVisualIDFromVisual(v)) ||
 	 (vi[best].depth <= 8 && qt_visual_option != TrueColor) )
-    {
+	{
 	*depth = DefaultDepth(dpy,scr);
 	*ncols = DisplayCells(dpy,scr);
     } else {
@@ -1116,13 +1444,13 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    } else if ( arg == "-geometry" ) {
 		if ( ++i < argc )
 		    mwGeometry = argv[i];
-//Ming-Che 10/10
+		//Ming-Che 10/10
 	    } else if ( arg == "-im" ) {
 		if ( ++i < argc )
 		    ximServer = argv[i];
 	    } else if ( arg == "-noxim" ) {
-		    noxim=TRUE;
-//
+		noxim=TRUE;
+		//
 	    } else if ( arg == "-iconic" ) {
 		mwIconic = !mwIconic;
 	    } else if ( arg == "-ncols" ) {   // xv and netscape use this name
@@ -1230,8 +1558,8 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    vis = find_truecolor_visual( appDpy, &QPaintDevice::x_appdepth,
 					 &QPaintDevice::x_appcells );
 	    QPaintDevice::x_appdefvisual =
-	       (XVisualIDFromVisual(vis) ==
-		XVisualIDFromVisual(DefaultVisual(appDpy,appScreen)));
+		(XVisualIDFromVisual(vis) ==
+		 XVisualIDFromVisual(DefaultVisual(appDpy,appScreen)));
 	    QPaintDevice::x_appvisual = vis;
 	}
 
@@ -1251,27 +1579,28 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
 	qt_x11_intern_atom( "WM_PROTOCOLS", &qt_wm_protocols );
 	qt_x11_intern_atom( "WM_DELETE_WINDOW", &qt_wm_delete_window );
-	qt_x11_intern_atom( "_XSETROOT_ID", &qt_xsetroot_id );
-	qt_x11_intern_atom( "_QT_SCROLL_DONE", &qt_qt_scrolldone );
-	qt_x11_intern_atom( "CLIPBOARD", &qt_xa_clipboard );
-	qt_x11_intern_atom( "_QT_SELECTION", &qt_selection_property );
-	qt_x11_intern_atom( "_QT_CLIPBOARD_SENTINEL", &qt_clipboard_sentinel );
-	qt_x11_intern_atom( "_QT_SELECTION_SENTINEL", &qt_selection_sentinel );
 	qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
 	qt_x11_intern_atom( "WM_TAKE_FOCUS", &qt_wm_take_focus );
-	qt_x11_intern_atom( "_NET_WM_CONTEXT_HELP", &qt_net_wm_context_help );
-	qt_x11_intern_atom( "RESOURCE_MANAGER", &qt_resource_manager );
-	qt_x11_intern_atom( "_QT_DESKTOP_PROPERTIES", &qt_desktop_properties );
-	qt_x11_intern_atom( "_QT_INPUT_ENCODING", &qt_input_encoding );
-	qt_x11_intern_atom( "_QT_SIZEGRIP", &qt_sizegrip );
 	qt_x11_intern_atom( "WM_CLIENT_LEADER", &qt_wm_client_leader);
 	qt_x11_intern_atom( "WINDOW_ROLE", &qt_window_role);
 	qt_x11_intern_atom( "SM_CLIENT_ID", &qt_sm_client_id);
+	qt_x11_intern_atom( "CLIPBOARD", &qt_xa_clipboard );
+	qt_x11_intern_atom( "RESOURCE_MANAGER", &qt_resource_manager );
+	qt_x11_intern_atom( "INCR", &qt_x_incr );
+	qt_x11_intern_atom( "_XSETROOT_ID", &qt_xsetroot_id );
+	qt_x11_intern_atom( "_QT_SELECTION", &qt_selection_property );
+	qt_x11_intern_atom( "_QT_CLIPBOARD_SENTINEL", &qt_clipboard_sentinel );
+	qt_x11_intern_atom( "_QT_SELECTION_SENTINEL", &qt_selection_sentinel );
+	qt_x11_intern_atom( "_QT_SCROLL_DONE", &qt_qt_scrolldone );
+	qt_x11_intern_atom( "_QT_DESKTOP_PROPERTIES", &qt_desktop_properties );
+	qt_x11_intern_atom( "_QT_DESKTOP_PROP_STAMP", &qt_desktop_prop_stamp );
+	qt_x11_intern_atom( "_QT_INPUT_ENCODING", &qt_input_encoding );
+	qt_x11_intern_atom( "_QT_SIZEGRIP", &qt_sizegrip );
+	qt_x11_intern_atom( "_NET_WM_CONTEXT_HELP", &qt_net_wm_context_help );
 	qt_x11_intern_atom( "_MOTIF_WM_HINTS", &qt_xa_motif_wm_hints );
 	qt_x11_intern_atom( "KWIN_RUNNING", &qt_kwin_running );
 	qt_x11_intern_atom( "KWM_RUNNING", &qt_kwm_running );
 	qt_x11_intern_atom( "GNOME_BACKGROUND_PROPERTIES", &qt_gbackground_properties );
-	qt_x11_intern_atom( "INCR", &qt_x_incr );
 
 	qt_xdnd_setup();
 	qt_x11_motifdnd_init();
@@ -1298,12 +1627,14 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 		      FocusChangeMask | PropertyChangeMask
 		      );
     }
-// XIM segfaults on Solaris with "C" locale!
-// The idea was that the "en_US" locale is maybe installed on all systems
-// with a "C" locale and could be used as a fallback instead of "C". This
-// is not the case.
-// We'll have to take a XIM / no XIM decision at run-time.
-// Taking a decision at compile-time using NO_XIM is not enough.
+
+
+    // XIM segfaults on Solaris with "C" locale!
+    // The idea was that the "en_US" locale is maybe installed on all systems
+    // with a "C" locale and could be used as a fallback instead of "C". This
+    // is not the case.
+    // We'll have to take a XIM / no XIM decision at run-time.
+    // Taking a decision at compile-time using NO_XIM is not enough.
 #if defined (Q_OS_SOLARIS) && !defined(NO_XIM)
     const char* locale = ::setlocale( LC_ALL, "" );
     if ( !locale || qstrcmp( locale, "C" ) == 0 ) {
@@ -1313,16 +1644,18 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 #else
     setlocale( LC_ALL, "" );		// use correct char set mapping
 #endif
+
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
 
-
     if ( qt_is_gui_used ) {
+
 #if !defined(NO_XIM)
 	qt_xim = 0;
 	QString ximServerName(ximServer);
 	if (ximServer) ximServerName.prepend("@im=");
 	if ( !XSupportsLocale() )
 	    qWarning("Qt: Locales not supported on X server");
+
 #ifdef USE_X11R6_XIM
 	else if ( ximServer &&
 		  XSetLocaleModifiers (ximServerName.ascii()) == 0 )

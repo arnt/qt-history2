@@ -2024,7 +2024,7 @@ void QFont::setPixelSizeFloat( float pixelSize )
 int QFontMetrics::ascent() const
 {
     d->load(QFontPrivate::defaultScript);
-    
+
     QFontStruct *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
     if (! qfs || qfs == (QFontStruct *) -1) {
 	return d->request.pointSize * 3 / 40;
@@ -2052,7 +2052,7 @@ int QFontMetrics::descent() const
     if (! qfs || qfs == (QFontStruct *) -1) {
 	return 0;
     }
-    
+
     XFontStruct *f = (XFontStruct *) qfs->handle;
     return f->max_bounds.descent - 1;
 }
@@ -2225,43 +2225,31 @@ int QFontMetrics::rightBearing(QChar ch) const
 int QFontMetrics::minLeftBearing() const
 {
     if ( d->actual.lbearing == SHRT_MIN ) {
-	XFontStruct *f;
-	int mlb = SHRT_MAX;
-	int mx = 0;
+	d->load(QFontPrivate::defaultScript);
 
-	for(int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-	    if (! d->x11data.fontstruct[i]) {
-		continue;
-	    }
-
-	    d->load((QFontPrivate::Script) i);
-
-	    if (! d->x11data.fontstruct[i] ||
-		d->x11data.fontstruct[i] == (QFontStruct *) -1) {
-		continue;
-	    }
-
-	    f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
-
-	    if ( f->per_char ) {
-		XCharStruct *cs = f->per_char;
-		int nc = MAXINDEX(f) + 1;
-		mx = cs->lbearing;
-
-		for (int c = 1; c < nc; c++) {
-		    int nmx = cs[c].lbearing;
-		    if (nmx < mx) mx = nmx;
-		}
-	    } else {
-		mx = f->min_bounds.lbearing;
-	    }
-
-	    if (mx < mlb) {
-		mlb = mx;
-	    }
+	QFontStruct *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
+	if (! qfs || qfs == (QFontStruct *) -1) {
+	    return 0;
 	}
 
-	d->actual.lbearing = mlb;
+	XFontStruct *f = (XFontStruct *) qfs->handle;
+
+	if ( f->per_char ) {
+	    XCharStruct *cs = f->per_char;
+	    int nc = MAXINDEX(f) + 1;
+	    int mx = cs->lbearing;
+
+	    for (int c = 1; c < nc; c++) {
+		int nmx = cs[c].lbearing;
+
+		if (nmx < mx)
+		    mx = nmx;
+	    }
+
+	    d->actual.lbearing = mx;
+	} else {
+	    d->actual.lbearing = f->min_bounds.lbearing;
+	}
     }
 
     return d->actual.lbearing;
@@ -2281,42 +2269,31 @@ int QFontMetrics::minLeftBearing() const
 int QFontMetrics::minRightBearing() const
 {
     if ( d->actual.rbearing == SHRT_MIN ) {
-	XFontStruct *f;
-	int mrb = SHRT_MAX;
-	int mx = 0;
+	d->load(QFontPrivate::defaultScript);
 
-	for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-	    if (! d->x11data.fontstruct[i]) {
-		continue;
-	    }
-
-	    d->load((QFontPrivate::Script) i);
-
-	    if (! d->x11data.fontstruct[i] ||
-		d->x11data.fontstruct[i] == (QFontStruct *) -1) {
-		continue;
-	    }
-
-	    f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
-
-	    if ( f->per_char ) {
-		XCharStruct *cs = f->per_char;
-		int nc = MAXINDEX(f) + 1;
-		mx = cs->width - cs->rbearing;
-
-		for (int c = 1; c < nc; c++) {
-		    int nmx = cs[c].width - cs[c].rbearing;
-		    if (nmx < mx) mx = nmx;
-		}
-	    } else {
-		mx = f->max_bounds.width - f->max_bounds.rbearing;
-	    }
-
-	    if (mx < mrb)
-		mrb = mx;
+	QFontStruct *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
+	if (! qfs || qfs == (QFontStruct *) -1) {
+	    return 0;
 	}
 
-	d->actual.rbearing = mrb;
+	XFontStruct *f = (XFontStruct *) qfs->handle;
+
+	if ( f->per_char ) {
+	    XCharStruct *c = f->per_char;
+	    int nc = MAXINDEX(f) + 1;
+	    int mx = c->width - c->rbearing;
+
+	    for (int i = 1; i < nc; i++) {
+		int nmx = c[i].width - c[i].rbearing;
+
+		if (nmx < mx)
+		    mx = nmx;
+	    }
+
+	    d->actual.rbearing = mx;
+	} else {
+	    d->actual.rbearing = f->max_bounds.width - f->max_bounds.rbearing;
+	}
     }
 
     return d->actual.rbearing;
@@ -2419,7 +2396,7 @@ int QFontMetrics::width(QChar ch) const
     if (! qfs || qfs == (QFontStruct *) -1) {
 	return d->request.pointSize * 3 / 40;
     }
-    
+
     XCharStruct *xcs = charStr(qfs->codec, ((XFontStruct *) qfs->handle), ch, 0);
     return xcs ? xcs->width : 0;
 }

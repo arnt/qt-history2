@@ -44,6 +44,7 @@
 #include "qpalette.h"
 #include "qtranslator.h"
 #include "qstrlist.h"
+#include "qstringlist.h"
 #endif // QT_H
 
 class QSessionManager;
@@ -118,13 +119,13 @@ public:
 
     static QWidgetList *allWidgets();
     static QWidgetList *topLevelWidgets();
-    
+
 #if defined(Q_WS_X11)
     static QWidget     *desktop( int screen = -1 );
-#else    
+#else
     static QWidget 	*desktop();
-#endif    
-    
+#endif
+
     static QWidget     *activePopupWidget();
     static QWidget     *activeModalWidget();
     static QClipboard  *clipboard();
@@ -194,6 +195,11 @@ public:
 
     static void	     setGlobalStrut( const QSize & );
     static QSize     globalStrut();
+
+    static void      setPluginPaths(const QStringList &);
+    static QStringList pluginPaths();
+    static void      addPluginPath(const QString &);
+    static void      removePluginPath(const QString &);
 
     static void setStartDragTime( int ms );
     static int startDragTime();
@@ -322,6 +328,8 @@ private:
 
     static QSize     app_strut;
 
+    static QStringList app_pluginpaths;
+
     static QAsciiDict<QPalette> *app_palettes;
     static QAsciiDict<QFont>    *app_fonts;
 
@@ -410,8 +418,13 @@ inline QSize QApplication::globalStrut()
     return app_strut;
 }
 
+inline QStringList QApplication::pluginPaths()
+{
+    return app_pluginpaths;
+}
+
 inline bool QApplication::sendEvent( QObject *receiver, QEvent *event )
-{ return qApp->notify( receiver, event ); }
+{ return qApp ? qApp->notify( receiver, event ) : FALSE; }
 
 #ifdef QT_NO_TRANSLATION
 // Simple versions

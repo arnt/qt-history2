@@ -33,6 +33,7 @@ tools {
 		  $$TOOLS_H/qptrdict.h \
 		  $$TOOLS_H/qqueue.h \
 		  $$TOOLS_H/qregexp.h \
+		  $$TOOLS_H/qsettings.h \
 		  $$TOOLS_H/qshared.h \
 		  $$TOOLS_H/qsortedlist.h \
 		  $$TOOLS_H/qstack.h \
@@ -71,6 +72,7 @@ tools {
 		  $$TOOLS_CPP/qiodevice.cpp \
 		  $$TOOLS_CPP/qmap.cpp \
 		  $$TOOLS_CPP/qregexp.cpp \
+		  $$TOOLS_CPP/qsettings.cpp \
 		  $$TOOLS_CPP/qstring.cpp \
 		  $$TOOLS_CPP/qstringlist.cpp \
 		  $$TOOLS_CPP/qtextstream.cpp
