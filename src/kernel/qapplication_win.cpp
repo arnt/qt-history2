@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#406 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#407 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1342,7 +1342,7 @@ bool QApplication::processNextEvent( bool canWait )
 	}
     }
 
-    if ( msg.message == WM_TIMER ) {		// timer message received
+    if ( msg.message == WM_TIMER && msg.hwnd != 0 ) {		// timer message received
 #if defined(QT_THREAD_SUPPORT)
 	qApp->lock();
 #endif
