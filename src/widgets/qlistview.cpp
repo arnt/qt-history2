@@ -5107,7 +5107,11 @@ void QListViewItem::moveItem( QListViewItem *after )
 	return;
     if ( parent() != after->parent() ) {
 	parent()->takeItem( this );
-	after->parent()->insertItem( this );
+	if ( after->parent() )
+	    after->parent()->insertItem( this );
+	else if ( listView() )
+	    listView()->d->r->insertItem( this );
+	    
     }
     moveToJustAfter( after );
     QListView *lv = listView();
