@@ -629,11 +629,10 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
     case BUDDY_TOOL:
 	if ( e->button() != LeftButton )
 	    break;
+	validForBuddy = FALSE;
 	if ( currTool == BUDDY_TOOL ) {
-	    if ( !w->inherits( "QLabel" ) ) {
-		validForBuddy = FALSE;
+	    if ( !w->inherits( "QLabel" ) )
 		break;
-	    }
 	    validForBuddy = TRUE;
 	    mainWindow()->statusBar()->message( tr( "Set buddy for '%1' to..." ).arg( w->name() ) );
 	} else
@@ -2286,10 +2285,16 @@ void FormWindow::drawConnectionLine()
 
     unclippedPainter->setPen( QPen( white, 2 ) );
     unclippedPainter->drawLine( startPos, currentPos );
-    unclippedPainter->setPen( QPen( darkCyan, 1 ) );
+    if ( validForBuddy )
+	unclippedPainter->setPen( QPen( darkRed, 1 ) );
+    else
+	unclippedPainter->setPen( QPen( darkCyan, 1 ) );
     unclippedPainter->drawLine( startPos, currentPos );
 
-    unclippedPainter->setPen( QPen( magenta, 1 ) );
+    if ( validForBuddy )
+	unclippedPainter->setPen( QPen( darkGreen, 1 ) );
+    else
+	unclippedPainter->setPen( QPen( magenta, 1 ) );
     if ( startWidget ) {
 	QWidget *s = (QWidget*)startWidget;
 	QPoint p = mapToForm( s, QPoint(0,0) );
