@@ -36,6 +36,17 @@
 
 bool Uic::isMainWindow = FALSE;
 
+QString Uic::getComment( const QDomNode& n )
+{
+    QDomNode child = n.firstChild();
+    while ( !child.isNull() ) {
+	if ( child.toElement().tagName() == "comment" )
+	    return child.toElement().firstChild().toText().data();
+	child = child.nextSibling();
+    }
+    return QString::null;
+}
+
 QString Uic::mkBool( bool b )
 {
     return b? "TRUE" : "FALSE";
@@ -59,6 +70,12 @@ QString Uic::fixString( const QString &str )
     s.replace( QRegExp( "\n" ), "\\n\"\n\"" );
     s.replace( QRegExp( "\r" ), "\\r" );
     return "\"" + s + "\"";
+}
+
+QString Uic::trcall( const QString& sourceText, const QString& comment )
+{
+    return trmacro + "( " + fixString( sourceText ) + ", " +
+	   fixString( comment ) + " )";
 }
 
 QString Uic::mkStdSet( const QString& prop )
@@ -367,7 +384,7 @@ void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, c
 	    else if ( n2.tagName() == "separator" )
 		out << indent << objName << "->insertSeparator();" << endl;
 	}
-	out << indent << "menuBar()->insertItem( " << trmacro << "(" << fixString( ae.attribute( "text" ) ) << "), " << objName << " );" << endl;
+	out << indent << "menuBar()->insertItem( " << trcall( ae.attribute( "text" ) ) << ", " << objName << " );" << endl;
 	out << endl;
     }
 }
@@ -380,14 +397,16 @@ QString Uic::createListBoxItemImpl( const QDomElement &e, const QString &parent 
 {
     QDomElement n = e.firstChild().toElement();
     QString txt;
+    QString com;
     QString pix;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "property" ) {
 	    QString attrib = n.attribute("name");
 	    QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
-	    if ( attrib == "text" )
+	    if ( attrib == "text" ) {
 		txt = v.toString();
-	    else if ( attrib == "pixmap" ) {
+		com = getComment( n );
+	    } else if ( attrib == "pixmap" ) {
 		pix = v.toString();
 		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
 		    pix.prepend( pixmapLoaderFunction + "( " + QString( externPixmaps ? "\"" : "" ) );
@@ -399,9 +418,9 @@ QString Uic::createListBoxItemImpl( const QDomElement &e, const QString &parent 
     }
 
     if ( pix.isEmpty() )
-	return parent + "->insertItem( " + trmacro + "( " + fixString( txt ) + " ) );";
+	return parent + "->insertItem( " + trcall( txt, com ) + " );";
     else
-	return parent + "->insertItem( " + pix + ", " + trmacro + "( " + fixString( txt ) + " ) );";
+	return parent + "->insertItem( " + pix + ", " + trcall( txt, com ) + " );";
 
     return QString::null;
 }
@@ -414,14 +433,16 @@ QString Uic::createIconViewItemImpl( const QDomElement &e, const QString &parent
 {
     QDomElement n = e.firstChild().toElement();
     QString txt;
+    QString com;
     QString pix;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "property" ) {
 	    QString attrib = n.attribute("name");
 	    QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
-	    if ( attrib == "text" )
+	    if ( attrib == "text" ) {
 		txt = v.toString();
-	    else if ( attrib == "pixmap" ) {
+		com = getComment( n );
+	    } else if ( attrib == "pixmap" ) {
 		pix = v.toString();
 		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
 		    pix.prepend( pixmapLoaderFunction + "( " + QString( externPixmaps ? "\"" : "" ) );
@@ -433,9 +454,9 @@ QString Uic::createIconViewItemImpl( const QDomElement &e, const QString &parent
     }
 
     if ( pix.isEmpty() )
-	return "(void) new QIconViewItem( " + parent + ", " + trmacro + "( " + fixString( txt ) + " ) );";
-    return "(void) new QIconViewItem( " + parent + ", " + trmacro + "( " + fixString( txt ) + " ), " + pix + " );";
-
+	return "(void) new QIconViewItem( " + parent + ", " + trcall( txt, com ) + " );";
+    else
+	return "(void) new QIconViewItem( " + parent + ", " + trcall( txt, com ) + ", " + pix + " );";
 }
 
 /*!
@@ -494,7 +515,7 @@ QString Uic::createListViewItemImpl( const QDomElement &e, const QString &parent
 
     for ( int i = 0; i < (int)textes.count(); ++i ) {
 	if ( !textes[ i ].isEmpty() )
-	    s += indent + item + "->setText( " + QString::number( i ) + ", " + trmacro + "( " + fixString( textes[ i ] ) + " ) );\n";
+	    s += indent + item + "->setText( " + QString::number( i ) + ", " + trcall( textes[ i ] ) + " );\n";
 	if ( !pixmaps[ i ].isEmpty() )
 	    s += indent + item + "->setPixmap( " + QString::number( i ) + ", " + pixmaps[ i ] + " );\n";
     }
@@ -511,15 +532,17 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
 {
     QDomElement n = e.firstChild().toElement();
     QString txt;
+    QString com;
     QString pix;
     bool clickable = FALSE, resizeable = FALSE;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "property" ) {
 	    QString attrib = n.attribute("name");
 	    QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
-	    if ( attrib == "text" )
+	    if ( attrib == "text" ) {
 		txt = v.toString();
-	    else if ( attrib == "pixmap" ) {
+		com = getComment( n );
+	    } else if ( attrib == "pixmap" ) {
 		pix = v.toString();
 		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
 		    pix.prepend( pixmapLoaderFunction + "( " + QString( externPixmaps ? "\"" : "" ) );
@@ -534,9 +557,9 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
     }
 
     QString s;
-    s = indent + parent + "->addColumn( " + trmacro + "( " + fixString( txt ) + " ) );\n";
+    s = indent + parent + "->addColumn( " + trcall( txt, com ) + " );\n";
     if ( !pix.isEmpty() )
-	s += indent + parent + "->header()->setLabel( " + parent + "->header()->count() - 1, " + pix + ", " + trmacro + "( " + fixString( txt ) + " ) );\n";
+	s += indent + parent + "->header()->setLabel( " + parent + "->header()->count() - 1, " + pix + ", " + trcall( txt, com ) + " );\n";
     if ( !clickable )
 	s += indent + parent + "->header()->setClickEnabled( FALSE, " + parent + "->header()->count() - 1 );\n";
     if ( !resizeable )
@@ -550,6 +573,7 @@ QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &pare
     QString objClass = getClassName( e.parentNode().toElement() );
     QDomElement n = e.firstChild().toElement();
     QString txt;
+    QString com;
     QString pix;
     QString field;
     bool isRow = e.tagName() == "row";
@@ -557,9 +581,10 @@ QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &pare
 	if ( n.tagName() == "property" ) {
 	    QString attrib = n.attribute("name");
 	    QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
-	    if ( attrib == "text" )
+	    if ( attrib == "text" ) {
 		txt = v.toString();
-	    else if ( attrib == "pixmap" ) {
+		com = getComment( n );
+	    } else if ( attrib == "pixmap" ) {
 		pix = v.toString();
 		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
 		    pix.prepend( pixmapLoaderFunction + "( " + QString( externPixmaps ? "\"" : "" ) );
@@ -580,25 +605,25 @@ QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &pare
 	s = indent + parent + "->setNumRows( " + parent + "->numRows() + 1 );";
 	if ( pix.isEmpty() )
 	    s += indent + parent + "->verticalHeader()->setLabel( " + parent + "->numRows() - 1, "
-		 + trmacro + "( " + fixString( txt ) + " ) );\n";
+		 + trcall( txt, com ) + " );\n";
 	else
 	    s += indent + parent + "->verticalHeader()->setLabel( " + parent + "->numRows() - 1, "
-		 + pix + ", " + trmacro + "( " + fixString( txt ) + " ) );\n";
+		 + pix + ", " + trcall( txt, com ) + " );\n";
     } else {
 	if ( objClass == "QTable" ) {
 	    s = indent + parent + "->setNumCols( " + parent + "->numCols() + 1 );";
 	    if ( pix.isEmpty() )
 		s += indent + parent + "->horizontalHeader()->setLabel( " + parent + "->numCols() - 1, "
-		     + trmacro + "( " + fixString( txt ) + " ) );\n";
+		     + trcall( txt, com ) + " );\n";
 	    else
 		s += indent + parent + "->horizontalHeader()->setLabel( " + parent + "->numCols() - 1, "
-		     + pix + ", " + trmacro + "( " + fixString( txt ) + " ) );\n";
+		     + pix + ", " + trcall( txt, com ) + " );\n";
 	} else if ( objClass == "QDataTable" ) {
 	    if ( !txt.isEmpty() && !field.isEmpty() ) {
 		if ( pix.isEmpty() )
-		    out << indent << parent << "->addColumn( " << fixString( field ) << ", " << fixString( txt ) << " );" << endl;
+		    out << indent << parent << "->addColumn( " << fixString( field ) << ", " << trcall( txt, com ) << " );" << endl;
 		else
-		    out << indent << parent << "->addColumn( " << fixString( field ) << ", " << fixString( txt ) << ", " << pix << " );" << endl;
+		    out << indent << parent << "->addColumn( " << fixString( field ) << ", " << trcall( txt, com ) << ", " << pix << " );" << endl;
 	    }
 	}
     }
@@ -1236,7 +1261,7 @@ int main( int argc, char * argv[] )
 	out << "#include \"" << headerFile << "\"" << endl << endl;
     }
 
-    Uic( out, doc, !impl, subcl, trmacro ? trmacro : "trUt8", className );
+    Uic( out, doc, !impl, subcl, trmacro ? trmacro : "trUtf8", className );
 
     if ( !protector.isEmpty() ) {
 	out << endl;

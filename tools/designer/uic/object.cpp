@@ -221,7 +221,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    if ( tags.contains( n.tagName()  ) ) {
 		QString page = createObjectImpl( n, objClass, objName );
 		QString label = DomTool::readAttribute( n, "title", "" ).toString();
-		out << indent << objName << "->insertTab( " << page << ", " << trmacro << "( " << fixString( label ) << " ) );" << endl;
+		out << indent << objName << "->insertTab( " << page << ", " << trcall( label ) << " );" << endl;
 	    }
 	}
      } else if ( objClass != "QToolBar" && objClass != "QMenuBar" ) { // standard widgets
@@ -368,19 +368,21 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	    v = fontname;
 	}
     } else if ( e.tagName() == "string" ) {
+	QString txt = e.firstChild().toText().data();
+	QString com = getComment( e.parentNode() );
+
 	if ( prop == "toolTip" && objClass != "QAction" && objClass != "QActionGroup" ) {
 	    if ( !obj.isEmpty() )
-		out << indent << "QToolTip::add(  " << obj << ", " + trmacro + "( " << fixString( e.firstChild().toText().data() ) << " ) );" << endl;
+		out << indent << "QToolTip::add( " << obj << ", " + trcall( txt, com ) << " );" << endl;
 	    else
-		out << indent << "QToolTip::add(  this, " + trmacro + "( " << fixString( e.firstChild().toText().data() ) << " ) );" << endl;
+		out << indent << "QToolTip::add( this, " << trcall( txt, com ) << " );" << endl;
 	} else if ( prop == "whatsThis" && objClass != "QAction" && objClass != "QActionGroup" ) {
 	    if ( !obj.isEmpty() )
-		out << indent << "QWhatsThis::add(  " << obj << ", " << trmacro << "( " << fixString( e.firstChild().toText().data() ) << " ) );" << endl;
+		out << indent << "QWhatsThis::add( " << obj << ", " << trcall( txt, com ) << " );" << endl;
 	    else
-		out << indent << "QWhatsThis::add(  this, " << trmacro << "( " << fixString( e.firstChild().toText().data() ) << " ) );" << endl;
+		out << indent << "QWhatsThis::add( this, " << trcall( txt, com ) << " );" << endl;
 	} else {
-	    v = trmacro + "( %1 )";
-	    v = v.arg( fixString( e.firstChild().toText().data() ) );
+	    v = trcall( txt, com );
 	}
     } else if ( e.tagName() == "cstring" ) {
 	    v = "\"%1\"";

@@ -75,6 +75,7 @@ public:
     bool isObjectRegistered( const QString& name );
     QStringList unique( const QStringList& );
 
+    QString trcall( const QString& sourceText, const QString& comment = "" );
 
 private:
     void registerLayouts ( const QDomElement& e );
@@ -93,7 +94,7 @@ private:
     {
 	Buddy( const QString& k, const QString& b )
 	    : key( k ), buddy( b ) {}
-	Buddy(){}; // for valuelist
+	Buddy(){} // for valuelist
 	QString key;
 	QString buddy;
 	bool operator==( const Buddy& other ) const
@@ -134,6 +135,7 @@ private:
     static QString fixString( const QString &str );
     static bool onlyAscii;
     static QString mkStdSet( const QString& prop );
+    static QString getComment( const QDomNode& n );
 
 };
 

@@ -742,7 +742,7 @@ void Uic::createFormImpl( const QDomElement &e )
 		out << "resize( " << w << ", " << h << " ); " << endl;
 	    } else {
 		if ( stdset )
-		    out << mkStdSet(prop ) << "( " << value << " );" << endl;
+		    out << mkStdSet( prop ) << "( " << value << " );" << endl;
 		else
 		    out << "setProperty( \"" << prop << "\", " << value << " );" << endl;
 	    }
@@ -756,7 +756,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	    if ( tags.contains( n.tagName()  ) ) {
 		QString page = createObjectImpl( n, objClass, "this" );
 		QString label = DomTool::readAttribute( n, "title", "" ).toString();
-		out << indent << "addPage( " << page << ", "<< trmacro << "( " << fixString( label ) << " ) );" << endl;
+		out << indent << "addPage( " << page << ", "<< trcall( label ) << " );" << endl;
 		QVariant def( FALSE, 0 );
 		if ( DomTool::hasAttribute( n, "backEnabled" ) )
 		    out << indent << "setBackEnabled( " << page << ", " << mkBool( DomTool::readAttribute( n, "backEnabled", def).toBool() ) << endl;
