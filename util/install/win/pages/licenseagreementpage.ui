@@ -44,7 +44,7 @@
                         <cstring>introText</cstring>
                     </property>
                     <property name="text">
-                        <string>The license could not be found in the package. The package might be corrupted.
+                        <string>The license could not be found in the package. The package might be corrupted.
 Please contact support@trolltech.com to resolve the problem.</string>
                     </property>
                 </widget>
@@ -89,41 +89,30 @@ Please contact support@trolltech.com to resolve the problem.</string>
                             <property name="title">
                                 <string></string>
                             </property>
-                            <widget class="QRadioButton">
+                            <vbox>
                                 <property name="name">
-                                    <cstring>acceptLicense</cstring>
+                                    <cstring>unnamed</cstring>
                                 </property>
-                                <property name="geometry">
-                                    <rect>
-                                        <x>10</x>
-                                        <y>10</y>
-                                        <width>55</width>
-                                        <height>18</height>
-                                    </rect>
-                                </property>
-                                <property name="text">
-                                    <string>I agree</string>
-                                </property>
-                            </widget>
-                            <widget class="QRadioButton">
-                                <property name="name">
-                                    <cstring>rejectLicense</cstring>
-                                </property>
-                                <property name="geometry">
-                                    <rect>
-                                        <x>10</x>
-                                        <y>30</y>
-                                        <width>68</width>
-                                        <height>18</height>
-                                    </rect>
-                                </property>
-                                <property name="text">
-                                    <string>I disagree</string>
-                                </property>
-                                <property name="checked">
-                                    <bool>true</bool>
-                                </property>
-                            </widget>
+                                <widget class="QRadioButton">
+                                    <property name="name">
+                                        <cstring>acceptLicense</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>I agree</string>
+                                    </property>
+                                </widget>
+                                <widget class="QRadioButton">
+                                    <property name="name">
+                                        <cstring>rejectLicense</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>I disagree</string>
+                                    </property>
+                                    <property name="checked">
+                                        <bool>true</bool>
+                                    </property>
+                                </widget>
+                            </vbox>
                         </widget>
                         <spacer>
                             <property name="name">
