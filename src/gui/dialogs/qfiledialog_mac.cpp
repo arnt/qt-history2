@@ -29,6 +29,7 @@
 #include "qstringlist.h"
 #include "qtextcodec.h"
 #include "qdesktopwidget.h"
+#include "qcstring.h"
 #include <stdlib.h>
 
 static UInt8 *str_buffer = NULL;
@@ -83,7 +84,7 @@ static QList<qt_mac_filter_name*> makeFiltersList(const QString &filter)
     }
 
     QList<qt_mac_filter_name*> ret;
-    QStringList filts = QStringList::split(sep, f);
+    QStringList filts = f.split(sep);
     for (QStringList::Iterator it = filts.begin(); it != filts.end(); ++it) {
 	qt_mac_filter_name *filter = extractFilter((*it));
 #ifdef DEBUG_FILEDIALOG_FILTERS
@@ -140,7 +141,7 @@ static QMAC_PASCAL Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
 	if(slsh != -1) 
 	    file = file.right(file.length() - slsh - 1);
     }
-    QStringList reg = QStringList::split(";", fn->regxp);
+    QStringList reg = fn->regxp.split(";");
     for(QStringList::Iterator it = reg.begin(); it != reg.end(); ++it) {
 	QRegExp rg((*it), FALSE, TRUE);
 #ifdef DEBUG_FILEDIALOG_FILTERS
