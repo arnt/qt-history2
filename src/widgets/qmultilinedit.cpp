@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#79 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -400,7 +400,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 
 int QMultiLineEdit::textWidth( QString *s )
 {
-    int w = textWidthWithTabs( QFontMetrics( font() ), *s, -1 );
+    int w = s ? textWidthWithTabs( QFontMetrics( font() ), *s, -1 ) : 0;
     return w + 2 * BORDER;
 }
 
@@ -428,8 +428,8 @@ int QMultiLineEdit::textWidth( int line )
 
 void QMultiLineEdit::focusInEvent( QFocusEvent * )
 {
-    //debug( "startTimer" );
-    //killTimers();
+    if ( dragScrolling )
+	killTimer( scrollTimer );
     blinkTimer = startTimer( blinkTime );
     cursorOn = TRUE;
     updateCell( cursorY, 0, FALSE );
@@ -442,6 +442,8 @@ void QMultiLineEdit::focusInEvent( QFocusEvent * )
 
 void QMultiLineEdit::focusOutEvent( QFocusEvent * )
 {
+    if ( dragScrolling )
+	killTimer( scrollTimer );
     killTimer( blinkTimer );
     blinkTimer = 0;
     if ( cursorOn )
@@ -450,7 +452,7 @@ void QMultiLineEdit::focusOutEvent( QFocusEvent * )
 
 
 /*!
-  Cursor blinking
+  Cursor blinking, drag scrolling.
 */
 
 void QMultiLineEdit::timerEvent( QTimerEvent *t )
@@ -460,14 +462,18 @@ void QMultiLineEdit::timerEvent( QTimerEvent *t )
 	updateCell( cursorY, 0, FALSE );
     } else if ( t->timerId() == scrollTimer ) {
 	QPoint p = mapFromGlobal( QCursor::pos() );
-	if ( p.y() < 0 )
+	if ( p.y() < 0 ) {
 	    cursorUp( TRUE );
-	else if ( p.y() > height() )
+	} else if ( p.y() > height() ) {
 	    cursorDown( TRUE );
-	else if ( p.x() < 0 )
+	} else if ( p.x() < 0 ) {
 	    cursorLeft( TRUE, FALSE );
-	else if ( p.x() > width() )
+	} else if ( p.x() > width() ) {
 	    cursorRight( TRUE, FALSE );
+	} else {
+	    dragScrolling = FALSE;
+	    killTimer( scrollTimer );
+	}
     }
 }
 
@@ -1512,6 +1518,8 @@ void QMultiLineEdit::end( bool mark )
 
 void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 {
+    if ( dragScrolling )
+	killTimer( scrollTimer );
     textDirty = FALSE;
     wordMark = FALSE;
     int newY = findRow( m->pos().y() );
