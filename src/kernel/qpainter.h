@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#4 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#5 $
 **
 ** Definition of QPainter class
 **
@@ -50,11 +50,14 @@ public:
 
   // Drawing tools
 
-    QFont	font()	const { return cfont; }	// get/set font
+    QFont      &font() { return cfont; }	// get/set font
+    QFont	getFont() const { return cfont; }
     void	setFont( const QFont & );
-    QPen	pen()	const { return cpen; }	// get/set pen
+    QPen       &pen() { return cpen; }		// get/set pen
+    QPen	getPen() const { return cpen; }
     void	setPen( const QPen & );
-    QBrush	brush() const { return cbrush; }// get/set brush
+    QBrush     &brush() { return cbrush; }	// get/set brush
+    QBrush	getBrush() const { return cbrush; }
     void	setBrush( const QBrush & );
 
   // Drawing attributes/modes
@@ -202,6 +205,8 @@ private:
     long	wm11, wm12, wm21, wm22, wdx, wdy;
     long	im11, im12, im21, im22, idx, idy;
 #endif
+    void       *ps_stack;			// painter save/restore stack
+    void	killPStack();
 
 protected:
 #if defined(_WS_WIN_)
