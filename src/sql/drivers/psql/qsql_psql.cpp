@@ -968,7 +968,7 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 	case QVariant::PointArray: {
 	    QPointArray pa = field->value().toPointArray();
 	    r = "' ";
-	    for ( uint i = 0; i < pa.size(); ++i ) {
+	    for ( int i = 0; i < (int)pa.size(); ++i ) {
 		r += "(" + QString::number( pa[i].x() ) +
 		     "," + QString::number( pa[i].y() ) + "),";
 	    }
