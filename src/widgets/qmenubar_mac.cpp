@@ -143,7 +143,7 @@ static bool updateMenuBar(QMenuBar *mbar)
 
 	MenuRef mp = createPopup(item->popup());
 	SetMenuTitle(mp, no_ampersands(item->text()));
-	InsertMenu(mp, x);
+	InsertMenu(mp, 0);
     }
     InvalMenuBar();
     return TRUE;
