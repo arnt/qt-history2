@@ -58,7 +58,7 @@ system-jpeg {
 	    ../../../../src/3rdparty/libjpeg/jquant1.c \
 	    ../../../../src/3rdparty/libjpeg/jquant2.c \
 	    ../../../../src/3rdparty/libjpeg/jutils.c \
-	    ../../../../src/3rdparty/libjpeg/jmemansi.c
+	    ../../../../src/3rdparty/libjpeg/jmemnobs.c
 }
 
 
