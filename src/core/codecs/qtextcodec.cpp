@@ -645,7 +645,6 @@ const char* QTextCodec::mimeName() const
     return name();
 }
 
-#ifdef QT_COMPAT
 /*!
     Creates a QTextDecoder which stores enough state to decode chunks
     of char* data to create chunks of Unicode data. The default
@@ -675,6 +674,7 @@ QTextEncoder* QTextCodec::makeEncoder() const
     return new QTextEncoder(this);
 }
 
+#ifdef QT_COMPAT
 /*!
     Returns a string representing the current language and
     sublanguage, e.g. "pt" for Portuguese, or "pt_br" for Portuguese/Brazil.
@@ -782,7 +782,6 @@ bool QTextCodec::canEncode(const QString& s) const
     return (state.invalidChars == 0);
 }
 
-#ifdef QT_COMPAT
 /*!
     \class QTextEncoder qtextcodec.h
     \brief The QTextEncoder class provides a state-based encoder.
@@ -856,7 +855,6 @@ QString QTextDecoder::toUnicode(const char* chars, int len)
     return c->toUnicode(chars, len, &state);
 }
 
-#endif
 
 /* the next two functions are implicitely thread safe,
    as they are only called by setup() which uses a mutex.

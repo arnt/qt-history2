@@ -824,7 +824,7 @@ bool QObject::event(QEvent *e)
 
     default:
         if (e->type() >= QEvent::User) {
-            customEvent((QCustomEvent*) e);
+            customEvent(e);
             break;
         }
         return false;

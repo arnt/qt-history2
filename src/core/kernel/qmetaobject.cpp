@@ -1427,7 +1427,11 @@ bool QMetaProperty::write(QObject *obj, const QCoreVariant &value) const
     QCoreVariant v = value;
     uint t = QCoreVariant::Invalid;
     if (isEnumType()) {
-        if (v.type() == QCoreVariant::String || v.type() == QCoreVariant::CString) {
+        if (v.type() == QCoreVariant::String
+#ifdef QT_COMPAT
+            || v.type() == QCoreVariant::CString
+#endif
+            ) {
             if (isFlagType())
                 v = QCoreVariant(menum.keysToValue(value.toByteArray()));
             else

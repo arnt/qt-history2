@@ -115,7 +115,7 @@ QByteArray QUtf8Codec::convertFromUnicode(const QChar *uc, int len, ConverterSta
 QString QUtf8Codec::convertToUnicode(const char *chars, int len, ConverterState *state) const
 {
     bool headerdone = false;
-    QChar replacement = QChar::replacement;
+    QChar replacement = QChar::ReplacementCharacter;
     int need = 0;
     uint uc = 0;
     if (state) {

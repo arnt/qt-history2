@@ -48,10 +48,8 @@ public:
     virtual const char* mimeName() const;
     virtual int mibEnum() const = 0;
 
-#ifdef QT_COMPAT
-    QT_COMPAT QTextDecoder* makeDecoder() const;
-    QT_COMPAT QTextEncoder* makeEncoder() const;
-#endif
+    QTextDecoder* makeDecoder() const;
+    QTextEncoder* makeEncoder() const;
 
     bool canEncode(QChar) const;
     bool canEncode(const QString&) const;
@@ -107,7 +105,6 @@ inline void QTextCodec::setCodecForTr(QTextCodec *c) { cftr = c; }
 inline QTextCodec* QTextCodec::codecForCStrings() { return QString::codecForCStrings; }
 inline void QTextCodec::setCodecForCStrings(QTextCodec *c) { QString::codecForCStrings = c; }
 
-#ifdef QT_COMPAT
 class Q_CORE_EXPORT QTextEncoder {
 public:
     QTextEncoder(const QTextCodec *codec) : c(codec) {}
@@ -127,7 +124,6 @@ private:
     const QTextCodec *c;
     QTextCodec::ConverterState state;
 };
-#endif
 
 #endif // QT_NO_TEXTCODEC
 #endif // QTEXTCODEC_H
