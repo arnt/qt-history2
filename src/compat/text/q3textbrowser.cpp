@@ -86,7 +86,7 @@
 class Q3TextBrowserData
 {
 public:
-    QTextBrowserData():textOrSourceChanged(false) {}
+    Q3TextBrowserData():textOrSourceChanged(false) {}
 
     QStack<QString> stack;
     QStack<QString> forwardStack;
@@ -109,7 +109,7 @@ Q3TextBrowser::Q3TextBrowser(QWidget *parent, const char *name)
     : Q3TextEdit(parent, name)
 {
     setReadOnly(true);
-    d = new QTextBrowserData;
+    d = new Q3TextBrowserData;
 
     viewport()->setMouseTracking(true);
 }

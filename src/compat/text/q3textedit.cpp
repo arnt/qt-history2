@@ -40,7 +40,7 @@
 #include "qpopupmenu.h"
 #include "qstack.h"
 #include "qmetaobject.h"
-#include "qtextbrowser.h"
+#include "q3textbrowser.h"
 #include "private/qsyntaxhighlighter_p.h"
 
 #ifndef QT_NO_ACCEL
@@ -2352,7 +2352,7 @@ void Q3TextEdit::contentsMouseReleaseEvent(QMouseEvent * e)
             QUrl u = QUrl(doc->context()).resolved(onLink);
             emitLinkClicked(u.toString(QUrl::None));
         }
-        if (QTextBrowser *browser = qt_cast<QTextBrowser*>(this))
+        if (Q3TextBrowser *browser = qt_cast<Q3TextBrowser*>(this))
             emit browser->anchorClicked(d->onName, onLink);
 
         // emitting linkClicked() may result in that the cursor winds
@@ -4634,7 +4634,7 @@ bool Q3TextEdit::handleReadOnlyKeyEvent(QKeyEvent *e)
                 emitLinkClicked(u.toString(QUrl::None));
             }
             if (!doc->focusIndicator.name.isEmpty())
-                if (QTextBrowser *browser = qt_cast<QTextBrowser*>(this))
+                if (Q3TextBrowser *browser = qt_cast<Q3TextBrowser*>(this))
                     emit browser->anchorClicked(doc->focusIndicator.name, doc->focusIndicator.href);
 
 #ifndef QT_NO_CURSOR

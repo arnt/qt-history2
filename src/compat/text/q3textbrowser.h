@@ -22,7 +22,7 @@
 
 #ifndef QT_NO_TEXTBROWSER
 
-class QTextBrowserData;
+class Q3TextBrowserData;
 
 class Q_COMPAT_EXPORT Q3TextBrowser : public Q3TextEdit
 {
@@ -63,7 +63,7 @@ protected:
     void keyPressEvent(QKeyEvent * e);
 
 private:
-    Q_DISABLE_COPY(QTextBrowser)
+    Q_DISABLE_COPY(Q3TextBrowser)
 
     void popupDetail(const QString& contents, const QPoint& pos);
     bool linksEnabled() const { return true; }
