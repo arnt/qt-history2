@@ -1,7 +1,38 @@
 #!/usr/bin/perl
 
+# for size calculation:
+#
+# TODO: start with a ./configure to make sure we start with a known baseline
+#       and can use the correct strip
+#
+# TODO: measure sizes of configure options as well
+#
+# TODO: the proper way to measure the size of a feature is 
+#       libsize(depmacros(feature)) - libsize(QT_NO_feature)
+#       (with the obvious optimizations)
+
+# for justcompile:
+#
+# TODO : remember which features worked OK last time, and schedule those
+# at the end (two pass...)
+#
+
+
+
+for ( @ARGV ) {
+    if ( $_ eq "-c" ) {
+	$justcompile=1;
+    } elsif ( /^QT_NO_/ ) {
+	push @macros_to_test, $_;
+    }
+}
+
 $ENV{TEAMBUILDER_HOSTINFO}="1"; # Who do we blame for internal compiler errors?
-$ENV{TEAMBUILDER_CC_VERSION}="2.95.2"; # Ensure we everywhere use the same compiler
+if ( $justcompile ) {
+    $ENV{TEAMBUILDER_CC_VERSION}="2.95.*"; 
+} else {
+    $ENV{TEAMBUILDER_CC_VERSION}="2.95.3"; # Ensure we everywhere use the same compiler
+}
 
 sub usemakevar {
     my ( $var, $v ) = @_;
@@ -15,24 +46,16 @@ $MOCDIR=$OBJECTS_DIR; $MOCDIR=~ s/\.obj/.moc/;
 
 $lib = "$ENV{QTDIR}/lib/$TARGET";
 
-for ( @ARGV ) {
-    if ( $_ eq "-c" ) {
-	$justcompile=1;
-    } elsif ( /^QT_NO_/ ) {
-	push @macros_to_test, $_;
-    }
-}
-
 system("rm ../include/qconfig.h tools/qconfig.h");
 system("touch tools/qconfig.h");
 system("ln -s ../src/tools/qconfig.h ../include/qconfig.h");
 
 if ( !$justcompile ) {
-    print "Initial build...\n";
-    system("make clean; make");
+    print stderr "Initial build...\n";
+    system("make clean > /dev/null  2>\&1; make >log 2>\&1") == 0 || die "Error in initial build";
 }
 
-print "Reading files...\n";
+print stderr "Reading files...\n";
 for $file ( split / /, `echo */q*[ph]` ) {
     chomp $file;
     if ( $file ne "tools/qfeatures.h" && $file !~ /^tools\/qconfig/ ) {
@@ -42,7 +65,7 @@ for $file ( split / /, `echo */q*[ph]` ) {
 
 sub libsize
 {
-    system("strip $lib");
+    system("arm-linux-strip $lib");
     return -s $lib;
 }
 
@@ -96,12 +119,13 @@ for $macro ( @macros_to_test ) {
     system("make -k >log 2>\&1");
     if ( -f $lib ) {
 	if ( $justcompile ) {
-	    print "Build OK with only $macro defined\n";
+	    print stderr "Build OK with only $macro defined\n";
 	} else {
 	    $size_with{$macro} = libsize();
-	    print "Gain with $macro = ".($fullsize-$size_with{$macro})."\n";
+	    print stderr "Gain with $macro = ".($fullsize-$size_with{$macro})."\n";
 	}
     } else {
+	print stderr "**** failure **** $macro *****\n";
 	print "\n\nBuild fails with only $macro defined:\n";
 	print "\n",`cat log`;
     }
