@@ -1706,7 +1706,7 @@ QString QTextDocument::selectedText( int id ) const
 
     QString s;
     s += c1.parag()->string()->toString().mid( c1.index() ) + "\n";
-    QTextParag *p = c1.parag();
+    QTextParag *p = c1.parag()->next();
     while ( p && p != c2.parag() ) {
 	s += p->string()->toString() + "\n";
 	p = p->next();
@@ -1723,24 +1723,28 @@ void QTextDocument::setFormat( int id, QTextFormat *f, int flags )
 
     Selection sel = *it;
 
-    QTextParag *endParag = sel.endCursor.parag();
-    QTextParag *startParag = sel.startCursor.parag();
-    if ( sel.endCursor.parag()->paragId() < sel.startCursor.parag()->paragId() ) {
-	startParag = sel.endCursor.parag();
-	endParag = sel.startCursor.parag();
+    QTextCursor c1 = sel.startCursor;
+    QTextCursor c2 = sel.endCursor;
+    if ( sel.swapped ) {
+	c2 = sel.startCursor;
+	c1 = sel.endCursor;
     }
 
-    QTextParag *p = startParag;
-    while ( p ) {
-	int end = p->selectionEnd( id );
-	if ( end == p->length() - 1 )
-	    end++;
-	p->setFormat( p->selectionStart( id ), end - p->selectionStart( id ),
-		      f, TRUE, flags );
-	if ( p == endParag )
-	    break;
+    c2.restoreState();
+    c1.restoreState();
+
+    if ( c1.parag() == c2.parag() ) {
+	c1.parag()->setFormat( c1.index(), c2.index() - c1.index() + 1, f, TRUE, flags );
+	return;
+    }
+
+    c1.parag()->setFormat( c1.index(), c1.parag()->length() - c1.index() + 1, f, TRUE, flags );
+    QTextParag *p = c1.parag()->next();
+    while ( p && p != c2.parag() ) {
+	p->setFormat( 0, p->length() - 1, f, TRUE, flags );
 	p = p->next();
     }
+    c2.parag()->setFormat( 0, c2.index(), f, TRUE, flags );
 }
 
 void QTextDocument::copySelectedText( int id )
