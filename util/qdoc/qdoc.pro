@@ -1,3 +1,4 @@
+GUID		= {e2012d93-bcbc-4700-b477-011f0c10a7ea}
 TEMPLATE	= app
 CONFIG		= warn_on console release qtinc dylib debug
 isEmpty(QT_SOURCE_TREE):QT_SOURCE_TREE=$(QTDIR)
@@ -78,6 +79,7 @@ SOURCES		= binarywriter.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qregexp.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qstack.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qstring.cpp \
+		  $$QT_SOURCE_TREE/src/tools/qlocale.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qstringlist.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qtextstream.cpp \
                   $$QT_SOURCE_TREE/src/tools/qunicodetables.cpp \

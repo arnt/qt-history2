@@ -23,7 +23,7 @@ QTOBJS=qstring.o quuid.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o
  	qgarray.o qbuffer.o qglist.o qptrcollection.o qfile.o qfile_win.o qregexp.o qgvector.o \
  	qgcache.o qbitarray.o qdir.o qfileinfo_win.o qdir_win.o qfileinfo.o qdatetime.o qhash.o \
  	qstringlist.o qmap.o qlibrary.o qlibrary_win.o qconfig.o qsettings.o qsettings_win.o qunicodetables.o qlinkedlist.o \
-	qlist.o qvector.o qbytearray.o qchar.o
+	qlist.o qvector.o qbytearray.o qchar.o qlocale.o
 
 
 qmake.exe: $(OBJS) $(QTOBJS)
@@ -50,6 +50,9 @@ qlibrary.o: ..\src\tools\qlibrary.cpp
 
 qlibrary_win.o: ..\src\tools\qlibrary_win.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qlibrary_win.cpp
+
+qlocale.o: ..\src\tools\qlocale.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qlocale.cpp
 
 qtextstream.o: ..\src\tools\qtextstream.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qtextstream.cpp

@@ -2,7 +2,8 @@
 # it is very hard to make qmake build this, when qmake is the thing it builds,
 #once you are boot strapped though, the qmake.pro will offer better coverage of a
 #platform than either of the generic makefiles
-QMAKE_INCREMENTAL = 
+GUID = {c5f058ca-cd1b-4b6a-b189-32baa89343ec}
+QMAKE_INCREMENTAL =
 SKIP_DEPENDS += qconfig.h qmodules.h
 CONFIG += console
 CONFIG -= opengl qt shared x11sm
@@ -32,10 +33,12 @@ SOURCES+=qchar.cpp qstring.cpp qtextstream.cpp \
 	 qbitarray.cpp qdir.cpp qhash.cpp \
 	 qfileinfo.cpp qdatetime.cpp qlinkedlist.cpp \
 	 qstringlist.cpp qmap.cpp \
-	 qsettings.cpp qunicodetables.cpp 
+	 qsettings.cpp qunicodetables.cpp \
+	 qlibrary.cpp qlocale.cpp \
+	 qunicodetables.cpp 
 
 exists($$QT_BUILD_TREE/src/tools/qconfig.cpp) {  #qconfig.cpp
-    DEFINES += HAVE_QCONFIG_CPP                                           
+    DEFINES += HAVE_QCONFIG_CPP
     SOURCES += $$QT_BUILD_TREE/src/tools/qconfig.cpp
 }
 

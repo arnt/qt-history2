@@ -26,6 +26,8 @@ tools {
 		  $$TOOLS_H/qiodevice.h \
 		  $$TOOLS_H/qlibrary.h \
 		  $$TOOLS_P/qlibrary_p.h \
+		  $$TOOLS_H/qlocale.h \
+		  $$TOOLS_P/qlocale_p.h \
 		  $$TOOLS_H/qmap.h \
 		  $$TOOLS_P/qpluginmanager_p.h \
 		  $$TOOLS_H/qregexp.h \
@@ -82,6 +84,7 @@ tools {
 		  $$TOOLS_CPP/qgpluginmanager.cpp \
 		  $$TOOLS_CPP/qiodevice.cpp \
 		  $$TOOLS_CPP/qlibrary.cpp \
+		  $$TOOLS_CPP/qlocale.cpp \
 		  $$TOOLS_CPP/qmap.cpp \
 		  $$TOOLS_CPP/qregexp.cpp \
 		  $$TOOLS_CPP/qshared.cpp \
