@@ -217,8 +217,6 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 	    { kEventClassWindow, kEventWindowUpdate },
 	    { kEventClassWindow, kEventWindowActivated },
 	    { kEventClassWindow, kEventWindowDeactivated },
-	    { kEventClassWindow, kEventWindowShown },
-	    { kEventClassWindow, kEventWindowHidden },
 
 	    { kEventClassApplication, kEventAppActivated },
 	    { kEventClassApplication, kEventAppDeactivated },
@@ -1561,9 +1559,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		app->setActiveWindow(NULL);
 	    while(app->inPopupMode())
 		app->activePopupWidget()->close();
-	} else if(ekind == kEventWindowShown || ekind == kEventWindowHidden) {
-
-	}
+	} 
 	break;
     case kEventClassApplication:
 	if(ekind == kEventAppActivated)
