@@ -4415,7 +4415,7 @@ int QWidget::heightForWidth( int w ) const
 
   You may also reimplement customWhatsThis() if your widget is a
   so-called "passive interactor" that is supposed to work under all
-  circumstances. Simply never call QWhatsThis::leaveWhatsThisMode() in
+  circumstances. Simply don't call QWhatsThis::leaveWhatsThisMode() in
   that case.
 
   \sa QWhatsThis::inWhatsThisMode(), QWhatsThis::leaveWhatsThisMode()

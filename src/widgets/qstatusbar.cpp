@@ -41,6 +41,7 @@
 
   \ingroup realwidgets
   \ingroup application
+  \ingroup helpsystem
 
   Each status message falls into one of three classes: <ul>
 

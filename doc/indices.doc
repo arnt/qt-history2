@@ -140,6 +140,8 @@ The Qt API consists of the following modules:
 <dd>Ready-made pop-up dialogs
 <dt><a href="geomanagement.html">Geometry Management</a>
 <dd>Classes handling automatic resizing and moving of widgets
+<dt><a href="helpsystem.html">Help System</a>
+<dd>Classes providing for all forms of online-help in your application.
 </dl>
 </td>
 <td valign="top">
@@ -320,6 +322,28 @@ like main window, menu and tool bars, tool tip help etc.
 <h1 align="center">Geometry Management</h1><br clear="all">
 
 These classes provide automatic geometry management of widgets.
+
+*/
+
+
+/*! \defgroup helpsystem.html
+
+<h1 align="center">Help System</h1><br clear="all">
+
+These classes provide for all forms of online-help in your application,
+with three levels of detail:
+
+<ol>
+    <li> Tool Tips and Status Bar message - flyweight help, extremely brief,
+	entirely integrated in the user interface, requiring little
+	or no user interaction to invoke.
+    <li> What's This? - lightweight, but can be
+	a three-paragraph explanation.
+    <li> Online Help - can encompass any amount of information,
+	but is typically slower to call up, somewhat separated
+	from the user's work, and often users feel that using online
+	help is a digression from their real task.
+</ol>
 
 */
 

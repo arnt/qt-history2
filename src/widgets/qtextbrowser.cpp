@@ -46,6 +46,7 @@
   \class QTextBrowser qtextbrowser.h
   \brief A rich text  browser with simple navigation.
   \ingroup realwidgets
+  \ingroup helpsystem
 
   This class is the same as the QTextView it inherits, with the
   addition that it provides basic navigation features to follow links

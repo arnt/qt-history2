@@ -483,6 +483,7 @@ void QTipManager::hideTip()
   balloon help) for any widget or rectangular part of a widget.
 
   \ingroup application
+  \ingroup helpsystem
 
   The tip is a short, one-line text reminding the user of the widget's
   or rectangle's function.  It is drawn immediately below the region,

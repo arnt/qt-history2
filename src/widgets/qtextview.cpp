@@ -50,6 +50,7 @@
   \class QTextView qtextview.h
   \brief A sophisticated single-page rich text viewer.
   \ingroup realwidgets
+  \ingroup helpsystem
 
   Unlike QSimpleRichText, which merely draws small pieces of rich
   text, a QTextView is a real widget, with scrollbars when necessary,
