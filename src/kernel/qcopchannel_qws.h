@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** QCOP protocol classes
 **
 ** Created : 20000616
 **
-** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QCOP_H
-#define QCOP_H
+#ifndef QCOPCHANNEL_QWS_H
+#define QCOPCHANNEL_QWS_H
 
 #ifndef QT_H
 #include "qobject.h"
@@ -79,4 +79,4 @@ private:
 
 #endif
 
-#endif
+#endif // QCOPCHANNEL_QWS_H

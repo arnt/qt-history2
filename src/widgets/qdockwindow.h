@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of the QDockWindow class
 **
 ** Created : 001010
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the workspace module of the Qt GUI Toolkit.
 **
@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#ifndef QDOCKWIDGET_H
-#define QDOCKWIDGET_H
+#ifndef QDOCKWINDOW_H
+#define QDOCKWINDOW_H
 
 #ifndef QT_H
 #include "qframe.h"
@@ -221,4 +221,4 @@ inline QDockArea *QDockWindow::area() const
 
 #endif
 
-#endif //QT_NO_MAINWINDOW
+#endif // QDOCKWINDOW_H

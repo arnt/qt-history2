@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Qt/FB central server
 **
 ** Created : 991025
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QWSUTILS_H
-#define QWSUTILS_H
+#ifndef QWSUTILS_QWS_H
+#define QWSUTILS_QWS_H
 
 #ifndef QT_H
 #include <qwssocket_qws.h>
@@ -61,5 +61,7 @@ inline void qws_write_uint( QWSSocket *socket, int i )
 
     socket->writeBlock( (char*)&i, sizeof( i ) );
 }
-#endif //QT_NO_QWS_MULTIPROCESS
-#endif
+
+#endif // QT_NO_QWS_MULTIPROCESS
+
+#endif // QWSUTILS_QWS_H

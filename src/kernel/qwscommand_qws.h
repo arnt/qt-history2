@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Qt/FB central server
 **
 ** Created : 991025
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QWSCOMMAND_H
-#define QWSCOMMAND_H
+#ifndef QWSCOMMAND_QWS_H
+#define QWSCOMMAND_QWS_H
 
 #ifndef QT_H
 #include "qwsutils_qws.h"
@@ -539,9 +539,6 @@ struct QWSResetIMCommand : public QWSCommand
     } simpleData;
 };
 
-
-
 #endif
 
-
-#endif // QWSCOMMAND_H
+#endif // QWSCOMMAND_QWS_H

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Declaration of Qt/Embedded Hydro decorations
 **
 ** Created : 000101
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -29,8 +29,9 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef __QWS_HYDRO_DECORATION_QWS_H__
-#define __QWS_HYDRO_DECORATION_QWS_H__
+
+#ifndef QWSHYDRODECORATION_QWS_H
+#define QWSHYDRODECORATION_QWS_H
 
 #ifndef QT_H
 #include "qwsdefaultdecoration_qws.h"
@@ -59,8 +60,6 @@ protected:
     virtual const char **normalizePixmap();
 };
 
-
 #endif // QT_NO_QWS_HYDRO_WM_STYLE
 
-
-#endif // __QWS_HYDRO_DECORATION_QWS_H__
+#endif // QWSHYDRODECORATION_QWS_H

@@ -28,6 +28,9 @@
 **
 **********************************************************************/
 
+#ifndef QWSMOUSE_QNX6_H
+#define QWSMOUSE_QNX6_H
+
 #include "qwindowsystem_qws.h"
 #include "qsocketnotifier.h"
 #include "qwsevent_qws.h"
@@ -79,3 +82,5 @@ class QQnxMouseHandlerPrivate : public QWSMouseHandler {
 #endif
 
 #endif // Q_OS_QNX6
+
+#endif // QWSMOUSE_QNX6_H

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QWSSocket and related classes.
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QWSSOCKETDEVICE_H
-#define QWSSOCKETDEVICE_H
+#ifndef QWSSOCKET_QWS_H
+#define QWSSOCKET_QWS_H
 
 #ifndef QT_H
 #include "qsocket.h"
@@ -72,5 +72,6 @@ private:        // Disabled copy constructor and operator=
 #endif
 };
 
-#endif //QT_NO_QWS_MULTIPROCESS
-#endif // QWSSOCKETDEVICE_H
+#endif // QT_NO_QWS_MULTIPROCESS
+
+#endif // QWSSOCKET_QWS_H

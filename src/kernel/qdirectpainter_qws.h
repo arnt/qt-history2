@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QDirectPainter class
 **
 ** Created : 010101
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QDIRECTPAINTER_H
-#define QDIRECTPAINTER_H
+#ifndef QDIRECTPAINTER_QWS_H
+#define QDIRECTPAINTER_QWS_H
 
 #ifndef QT_H
 #include <qpainter.h>
@@ -70,4 +70,5 @@ private:
 
 #endif
 #endif
-#endif // QDIRECTPAINTER_H
+
+#endif // QDIRECTPAINTER_QWS_H

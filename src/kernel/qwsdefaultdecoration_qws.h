@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Declaration of Qt/Embedded window manager decorations
 **
 ** Created : 000101
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -29,8 +29,9 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef __QWS_DEFAULT_DECORATION_H__
-#define __QWS_DEFAULT_DECORATION_H__
+
+#ifndef QWSDEFAULTDECORATION_QWS_H
+#define QWSDEFAULTDECORATION_QWS_H
 
 #ifndef QT_H
 #include "qwsmanager_qws.h"
@@ -41,7 +42,6 @@
 #define CORNER_GRAB	16
 #define BORDER_WIDTH	4
 #define BOTTOM_BORDER_WIDTH	2*BORDER_WIDTH
-
 
 
 class QWSDefaultDecoration : public QWSDecoration
@@ -81,4 +81,4 @@ private:
 
 #endif // QT_NO_QWS_MANAGER
 
-#endif
+#endif // QWSDEFAULTDECORATION_QWS_H

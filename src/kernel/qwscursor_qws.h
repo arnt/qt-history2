@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QWSCursor class
 **
 ** Created : 000101
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QWSCURSOR_H
-#define QWSCURSOR_H
+#ifndef QWSCURSOR_QWS_H
+#define QWSCURSOR_QWS_H
 
 #ifndef QT_H
 #include <qimage.h>
@@ -64,6 +64,4 @@ private:
     QRegion rgn;
 };
 
-
-
-#endif // QWSCURSOR_H
+#endif // QWSCURSOR_QWS_H

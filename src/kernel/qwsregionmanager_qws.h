@@ -5,7 +5,7 @@
 **
 ** Created : 991025
 **
-** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -29,6 +29,9 @@
 ** not clear to you.
 **
 **********************************************************************/
+
+#ifndef QWSREGIONMANAGER_QWS_H
+#define QWSREGIONMANAGER_QWS_H
 
 #ifndef QT_H
 #include "qptrvector.h"
@@ -70,3 +73,5 @@ private:
     unsigned char *data;
     int shmId;
 };
+
+#endif // QWSREGIONMANAGER_QWS_H

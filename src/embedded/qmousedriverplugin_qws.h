@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QMouseDriverPlugin
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QMOUSEDRIVERPLUGIN_H
-#define QMOUSEDRIVERPLUGIN_H
+#ifndef QMOUSEDRIVERPLUGIN_QWS_H
+#define QMOUSEDRIVERPLUGIN_QWS_H
 
 #ifndef QT_H
 #include "qgplugin.h"
@@ -61,4 +61,4 @@ private:
 
 #endif // QT_NO_COMPONENT
 
-#endif // QMOUSEDRIVERPLUGIN_H
+#endif // QMOUSEDRIVERPLUGIN_QWS_H

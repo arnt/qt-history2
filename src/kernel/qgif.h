@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** To enable built-in reading of GIF images in Qt, change the definition
 ** below to "#define QT_BUILTIN_GIF_READER 1".
@@ -12,7 +12,7 @@
 **      reader. See http://www.unisys.com/unisys/lzw/
 **      for information from Unisys
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -42,6 +42,9 @@
 **
 **********************************************************************/
 
+#ifndef QGIF_H
+#define QGIF_H
+
 #ifndef QT_H
 #include "qglobal.h"
 #endif // QT_H
@@ -51,3 +54,5 @@
 #endif
 
 bool qt_builtin_gif_reader();
+
+#endif // QGIF_H

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QFontFactory for Truetype class for QWS
 **
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QFONTFACTORY_BDF_H
-#define QFONTFACTORY_BDF_H
+#ifndef QFONTFACTORYBDF_QWS_H
+#define QFONTFACTORYBDF_QWS_H
 
 #ifndef QT_H
 #include "qfontmanager_qws.h"
@@ -58,4 +58,4 @@ private:
 
 #endif // QT_NO_BDF
 
-#endif // QFONTFACTORY_BDF_H
+#endif // QFONTFACTORYBDF_QWS_H

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Qt/FB central server
 **
 ** Created : 991025
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QWSPROPERTY_H
-#define QWSPROPERTY_H
+#ifndef QWSPROPERTY_QWS_H
+#define QWSPROPERTY_QWS_H
 
 #ifndef QT_H
 #include "qwscommand_qws.h"
@@ -74,5 +74,6 @@ private:
     Data* d;
 };
 
-#endif //QT_NO_QWS_PROPERTIES
-#endif //QWSPROPERTY_H
+#endif // QT_NO_QWS_PROPERTIES
+
+#endif // QWSPROPERTY_QWS_H

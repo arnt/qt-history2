@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QGfxRaster (unaccelerated graphics context) class
 **
 ** Created : 940721
 **
-** Copyright (C) 1992-1999 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QGFXRASTER_H
-#define QGFXRASTER_H
+#ifndef QGFXRASTER_QWS_H
+#define QGFXRASTER_QWS_H
 
 #ifndef QT_H
 #include "qgfx_qws.h"
@@ -471,7 +471,7 @@ protected:
     void hline(int,int,int );
     void hlineUnclipped(int,int,unsigned char* );
 #if defined(Q_OS_QNX6) // need a different signature for QNX acceleration, override to accel
-	virtual void hlineUnclipped(int x,int x1,int y){unsigned char *l=scanLine(y);hlineUnclipped(x,x1,l);};
+    virtual void hlineUnclipped(int x,int x1,int y){unsigned char *l=scanLine(y);hlineUnclipped(x,x1,l);};
 #endif
     void hImageLineUnclipped(int,int,unsigned char *,unsigned char *,bool);
     void hAlphaLineUnclipped(int,int,unsigned char *,unsigned char *,
@@ -481,9 +481,4 @@ protected:
     void calcPacking(void *,int,int,int&,int&,int&);
 };
 
-#endif
-
-
-
-
-
+#endif // QGFXRASTER_QWS_H

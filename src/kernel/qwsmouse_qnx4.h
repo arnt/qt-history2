@@ -28,6 +28,9 @@
 **
 **********************************************************************/
 
+#ifndef QWSMOUSE_QNX4_H
+#define QWSMOUSE_QNX4_H
+
 #include "qwindowsystem_qws.h"
 
 #ifdef Q_OS_QNX4
@@ -69,3 +72,4 @@ class QQnx4MouseHandlerPrivate : public QWSMouseHandler {
 #endif
 #endif
 
+#endif // QWSMOUSE_QNX4_H

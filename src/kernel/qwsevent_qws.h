@@ -28,8 +28,8 @@
 **
 **********************************************************************/
 
-#ifndef QWSEVENT_H
-#define QWSEVENT_H
+#ifndef QWSEVENT_QWS_H
+#define QWSEVENT_QWS_H
 
 #ifndef QT_H
 #include "qwsutils_qws.h"
@@ -296,4 +296,5 @@ struct QWSIMEvent : QWSEvent {
     QChar *text;
 };
 #endif
-#endif
+
+#endif // QWSEVENT_QWS_H

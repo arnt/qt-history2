@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QWSManager class. This manages QWS top-level windows.
 **
 ** Created : 20000308
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -29,8 +29,9 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef __QWS_MANAGER_H__
-#define __QWS_MANAGER_H__
+
+#ifndef QWSMANAGER_QWS_H
+#define QWSMANAGER_QWS_H
 
 #ifndef QT_H
 #include "qpixmap.h"
@@ -125,6 +126,6 @@ private:
 // class QWSDefaultDecoration : public QWSDecoration;
 #include "qwsdefaultdecoration_qws.h"
 
-#endif //QT_NO_QWS_MANAGER
+#endif // QT_NO_QWS_MANAGER
 
-#endif //__QWS_MANAGER_H__
+#endif // QWSMANAGER_QWS_H

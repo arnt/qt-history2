@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Voodoo defines
 **
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -29,6 +29,9 @@
 ** not clear to you.
 **
 **********************************************************************/
+
+#ifndef QGFXVOODOODEFS_QWS_H
+#define QGFXVOODOODEFS_QWS_H
 
 #ifndef QT_H
 #include <qglobal.h>
@@ -71,3 +74,5 @@
 #define HWCURC1 0x6c
 #define HWCURPATADDR 0x60
 #define HWCURLOC 0x64
+
+#endif // QGFXVOODOODEFS_QWS_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QGfxDriverPlugin
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QGFXDRIVERPLUGIN_H
-#define QGFXDRIVERPLUGIN_H
+#ifndef QGFXDRIVERPLUGIN_QWS_H
+#define QGFXDRIVERPLUGIN_QWS_H
 
 #ifndef QT_H
 #include "qgplugin.h"
@@ -61,4 +61,4 @@ private:
 
 #endif // QT_NO_COMPONENT
 
-#endif // QGFXDRIVERPLUGIN_H
+#endif // QGFXDRIVERPLUGIN_QWS_H

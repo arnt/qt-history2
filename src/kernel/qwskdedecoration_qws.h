@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Declaration of Qt/Embedded KDE decorations
 **
 ** Created : 000101
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -29,8 +29,9 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef __QWS_KDE_DECORATION_QWS_H__
-#define __QWS_KDE_DECORATION_QWS_H__
+
+#ifndef QWSKDEDECORATION_QWS_H
+#define QWSKDEDECORATION_QWS_H
 
 #ifndef QT_H
 #include "qwsdefaultdecoration_qws.h"
@@ -60,8 +61,6 @@ protected:
 */
 };
 
-
 #endif // QT_NO_QWS_KDE_WM_STYLE
 
-
-#endif // __QWS_KDE_DECORATION_QWS_H__
+#endif // QWSKDEDECORATION_QWS_H

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QGfx (graphics context) class
 **
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QGFX_H
-#define QGFX_H
+#ifndef QGFX_QWS_H
+#define QGFX_QWS_H
 
 #ifndef QT_H
 #include "qwidget.h"
@@ -430,7 +430,7 @@ extern "C" QScreen * qt_get_screen( int display_id, const char* spec );
 
 const unsigned char * qt_probe_bus();
 
-#endif
+#endif // QGFX_QWS_H
 
 
 

@@ -28,6 +28,9 @@
 **
 **********************************************************************/
 
+#ifndef QWSKEYBOARD_QNX6_H
+#define QWSKEYBOARD_QNX6_H
+
 #include "qwindowsystem_qws.h"
 #include "qwsutils_qws.h"
 #include "qgfx_qws.h"
@@ -83,3 +86,5 @@ private:
 
 #endif
 #endif
+
+#endif // QWSKEYBOARD_QNX6_H

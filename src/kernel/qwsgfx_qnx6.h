@@ -28,8 +28,8 @@
 **
 **********************************************************************/
 
-#ifndef QWSQNXFB_H
-#define QWSQNXFB_H
+#ifndef QWSGFX_QNX6_H
+#define QWSGFX_QNX6_H
 
 #include <display.h>
 #include <disputil.h>
@@ -104,7 +104,7 @@ private:
     QBitArray cursor,mask;
     QColor colour0,colour1;
 };
+
 #endif // QT_NO_QWS_CURSOR
 
-
-#endif
+#endif // QWSGFX_QNX6_H

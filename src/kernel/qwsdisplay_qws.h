@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** QWS display
 **
 ** Created : 20000616
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QWSDISPLAY_H
-#define QWSDISPLAY_H
+#ifndef QWSDISPLAY_QWS_H
+#define QWSDISPLAY_QWS_H
 
 #include "qobject.h"
 #include "qregion.h"
@@ -142,4 +142,4 @@ private:
 
 extern QWSDisplay *qt_fbdpy;
 
-#endif // QWSDISPLAY_H
+#endif // QWSDISPLAY_QWS_H

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QFontFactory for Truetype class for Embedded Qt
 **
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QFONTFACTORY_FT_H
-#define QFONTFACTORY_FT_H
+#ifndef QFONTFACTORYTTF_QWS_H
+#define QFONTFACTORYTTF_QWS_H
 
 #ifndef QT_H
 #include "qfontmanager_qws.h"
@@ -67,4 +67,4 @@ private:
 
 #endif // QT_NO_FREETYPE
 
-#endif // QFONTFACTORY_FT_H
+#endif // QFONTFACTORYTTF_QWS_H

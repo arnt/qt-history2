@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QGFXLINUXFB_H
-#define QGFXLINUXFB_H
+#ifndef QGFXLINUXFB_QWS_H
+#define QGFXLINUXFB_QWS_H
 
 #ifndef QT_NO_QWS_LINUXFB
 #include "qgfx_qws.h"
@@ -96,5 +96,5 @@ private:
 };
 
 #endif
-#endif
 
+#endif // QGFXLINUXFB_QWS_H

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Delcaration of BeOS window manager decorations
 **
 ** Created : 000101
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -29,8 +29,9 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef __QWS_BEOS_DECORATION_QWS_H__
-#define __QWS_BEOS_DECORATION_QWS_H__
+
+#ifndef QWSBEOSDECORATION_QWS_H
+#define QWSBEOSDECORATION_QWS_H
 
 #ifndef QT_H
 #include "qwsdefaultdecoration_qws.h"
@@ -56,8 +57,6 @@ protected:
 //    virtual const char **normalizePixmap();
 };
 
-
 #endif // QT_NO_QWS_BEOS_WM_STYLE
 
-
-#endif // __QWS_BEOS_DECORATION_QWS_H__
+#endif // QWSBEOSDECORATION_QWS_H

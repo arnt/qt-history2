@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QKbdDriverPlugin
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QKBDDRIVERPLUGIN_H
-#define QKBDDRIVERPLUGIN_H
+#ifndef QKBDDRIVERPLUGIN_QWS_H
+#define QKBDDRIVERPLUGIN_QWS_H
 
 #ifndef QT_H
 #include "qgplugin.h"
@@ -61,4 +61,4 @@ private:
 
 #endif // QT_NO_COMPONENT
 
-#endif // QKBDDRIVERPLUGIN_H
+#endif // QKBDDRIVERPLUGIN_QWS_H

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of Qt Sound System
 **
 ** Created : 001017
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QSOUNDQSS_H
-#define QSOUNDQSS_H
+#ifndef QSOUNDQSS_QWS_H
+#define QSOUNDQSS_QWS_H
 
 #ifndef QT_H
 #include <qserversocket.h>
@@ -89,4 +89,4 @@ signals:
 
 #endif // QT_NO_SOUND
 
-#endif
+#endif // QSOUNDQSS_QWS_H

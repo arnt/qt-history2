@@ -26,5 +26,11 @@
 ** not clear to you.
 **
 **********************************************************************/
+
+#ifndef QWINFUNCTIONS_WCE_H
+#define QWINFUNCTIONS_WCE_H
+
 #ifndef QT_H
 #endif // QT_H
+
+#endif // QWINFUNCTIONS_WCE_H

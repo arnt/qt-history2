@@ -30,6 +30,9 @@
 **
 **********************************************************************/
 
+#ifndef QGFXMATROXDEFS_QWS_H
+#define QGFXMATROXDEFS_QWS_H
+
 #ifndef QT_H
 #include <qglobal.h>
 #endif // QT_H
@@ -99,3 +102,5 @@
 
 #define XYSTRT 0x1c40
 #define XYEND 0x1c44
+
+#endif // QGFXMATROXDEFS_QWS_H

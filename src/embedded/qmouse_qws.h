@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of Qt/Embedded mouse driver
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QMOUSE_qws_H
-#define QMOUSE_qws_H
+#ifndef QMOUSE_QWS_H
+#define QMOUSE_QWS_H
 
 #ifndef QT_H
 #include <qobject.h>
@@ -92,5 +92,4 @@ private:
     unsigned int numSamples;
 };
 
-#endif
-
+#endif // QMOUSE_QWS_H

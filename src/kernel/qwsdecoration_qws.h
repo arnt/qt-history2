@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QWSDecoration class.
 **
 ** Created : 20000308
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -29,8 +29,9 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef QWSDECORATION_H
-#define QWSDECORATION_H
+
+#ifndef QWSDECORATION_QWS_H
+#define QWSDECORATION_QWS_H
 
 #ifndef QT_H
 #include "qregion.h"
@@ -63,5 +64,4 @@ public:
     virtual void paintButton(QPainter *, const QWidget *, Region, int state) = 0;
 };
 
-
-#endif
+#endif // QWSDECORATION_QWS_H

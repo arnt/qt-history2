@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QTFB_H
-#define QTFB_H
+#ifndef QWINDOWSYSTEM_QWS_H
+#define QWINDOWSYSTEM_QWS_H
 
 #ifndef QT_H
 #include <qwssocket_qws.h>
@@ -551,4 +551,4 @@ private:
     QString id;
 };
 
-#endif
+#endif // QWINDOWSYSTEM_QWS_H

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Mach64 defines
 **
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -29,6 +29,9 @@
 ** not clear to you.
 **
 **********************************************************************/
+
+#ifndef QGFXMACH64DEFS_QWS_H
+#define QGFXMACH64DEFS_QWS_H
 
 #ifndef QT_H
 #endif // QT_H
@@ -195,3 +198,4 @@
 #define CUR_OFFSET 0x0068
 #define CUR_HORZ_VERT_OFF 0x0070
 
+#endif // QGFXMACH64DEFS_QWS_H

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QMemoryManager class
 **
 ** Created : 000411
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -30,8 +30,8 @@
 **
 **********************************************************************/
 
-#ifndef QMEMORYMANAGER_H
-#define QMEMORYMANAGER_H
+#ifndef QMEMORYMANAGER_QWS_H
+#define QMEMORYMANAGER_QWS_H
 
 #ifndef QT_H
 #include "qfontmanager_qws.h"
@@ -96,4 +96,4 @@ private:
 
 extern QMemoryManager* memorymanager;
 
-#endif
+#endif // QMEMORYMANAGER_QWS_H
