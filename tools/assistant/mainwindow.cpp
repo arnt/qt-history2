@@ -618,8 +618,7 @@ void MainWindow::showSearchLink(const QString &link, const QStringList &terms)
     QTextCharFormat marker;
     marker.setTextColor(Qt::red);
 
-    QTextCursor firstHit = hw->textCursor();
-    firstHit.movePosition(QTextCursor::Start);
+    QTextCursor firstHit;
 
     foreach (QString term, terms) {
         QTextCursor c = hw->textCursor();
@@ -629,13 +628,19 @@ void MainWindow::showSearchLink(const QString &link, const QStringList &terms)
         bool found = hw->find(term, QTextDocument::FindWholeWords);
         while (found) {
             QTextCursor hit = hw->textCursor();
-            if (hit.position() < firstHit.position())
+            if (firstHit.isNull() || hit.position() < firstHit.position())
                 firstHit = hit;
 
             hit.mergeCharFormat(marker);
             found = hw->find(term, QTextDocument::FindWholeWords);
         }
     }
+
+    if (firstHit.isNull()) {
+        firstHit = hw->textCursor();
+        firstHit.movePosition(QTextCursor::Start);
+    }
+    firstHit.clearSelection();
     hw->setTextCursor(firstHit);
 
     hw->blockScrolling(false);
