@@ -297,7 +297,7 @@ public:
           back(0), toParent(0), newFolder(0), detailMode(0), listMode(0)
         {}
 
-    void setup(const QString &directory, const QStringList &nameFilter, QFileDialog::FileMode);
+    void setup(const QString &directory, const QStringList &nameFilter);
 
     void updateButtons(const QModelIndex &index);
 
@@ -577,7 +577,7 @@ QFileDialog::QFileDialog(QWidget *parent, Qt::WFlags f)
     : QDialog(*new QFileDialogPrivate, parent, f)
 {
     QDir dir = QDir::current();
-    d->setup(dir.absolutePath(), dir.nameFilters(), AnyFile);
+    d->setup(dir.absolutePath(), dir.nameFilters());
 }
 
 /*!
@@ -598,7 +598,8 @@ QFileDialog::QFileDialog(QWidget *parent,
 {
     setWindowTitle(caption);
     QStringList nameFilter = qt_make_filter_list(filter);
-    d->setup(dir, nameFilter.isEmpty() ? tr("All Files (*)") : nameFilter, fileMode);
+    d->fileMode = fileMode;
+    d->setup(dir, nameFilter.isEmpty() ? tr("All Files (*)") : nameFilter);
     if (!selectedFilter.isEmpty())
         selectFilter(selectedFilter); // slow
     if (!selectedFile.isEmpty())
@@ -1345,8 +1346,7 @@ void QFileDialog::showHidden()
 }
 
 void QFileDialogPrivate::setup(const QString &directory,
-                               const QStringList &nameFilter,
-                               QFileDialog::FileMode fileMode)
+                               const QStringList &nameFilter)
 {
     q->setSizeGripEnabled(true);
     QGridLayout *grid = new QGridLayout(q);
