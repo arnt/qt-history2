@@ -10,6 +10,7 @@ HEADERS += \
 SOURCES += \
 	styles/qstyle.cpp \
 	styles/qstylefactory.cpp \
+	styles/qstyleoption.cpp \
 	styles/qstyleplugin.cpp \
 	styles/qcommonstyle.cpp
 
