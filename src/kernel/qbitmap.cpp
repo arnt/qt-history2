@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#43 $
 **
 ** Implementation of QBitmap class
 **
@@ -97,7 +97,7 @@ QBitmap::QBitmap( int w, int h, bool clear,
 
 
 /*!
-  \overload QBitmap::QBitmap( int w, int h, bool clear, QPixmap::Optimization optimization )
+  \overload
 */
 
 QBitmap::QBitmap( const QSize &size, bool clear,
