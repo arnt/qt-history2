@@ -39,15 +39,15 @@ public:
 
     QStringList toStringList() const;
 private:
-    QPtrCollection::Item newItem(QPtrCollection::Item d) { return dc ? qstrdup(static_cast<const char*>(d)) : d; }
+    QPtrCollection::Item newItem(QPtrCollection::Item d) { return dc ? qstrdup(static_cast<char*>(d)) : d; }
     void deleteItem(QPtrCollection::Item d) { if (del_item) delete[] static_cast<char*>(d); }
     int compareItems(QPtrCollection::Item s1, QPtrCollection::Item s2) {
-        return qstrcmp(static_cast<const char*>(s1), static_cast<const char*>(s2)); }
+        return qstrcmp(static_cast<char*>(s1), static_cast<char*>(s2)); }
 #ifndef QT_NO_DATASTREAM
     QDataStream &read(QDataStream &s, QPtrCollection::Item &d)
                                 { s >> reinterpret_cast<char *&>(d); return s; }
     QDataStream &write(QDataStream &s, QPtrCollection::Item d) const
-                                { return s << static_cast<const char *>(d); }
+                                { return s << static_cast<char *>(d); }
 #endif
     bool  dc;
 };
@@ -60,7 +60,7 @@ public:
     ~QStrIList()                        { clear(); }
 private:
     int          compareItems(QPtrCollection::Item s1, QPtrCollection::Item s2)
-        { return qstricmp(static_cast<const char*>(s1), static_cast<const char*>(s2)); }
+        { return qstricmp(static_cast<char*>(s1), static_cast<char*>(s2)); }
 };
 
 

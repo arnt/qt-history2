@@ -18,7 +18,7 @@
 
 #include "qx11info_x11.h"
 #include <private/qt_x11_p.h>
-
+#include <limits.h>
 
 class QColormapPrivate
 {
