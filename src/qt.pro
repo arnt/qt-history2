@@ -70,6 +70,7 @@ win32 {
 
 	CONFIG	+= zlib
 	INCLUDEPATH += tmp
+	QMAKE_LIBS_WINDOWS += comctl32.lib
 	dll:DEFINES+=QT_MAKEDLL
 
 }
