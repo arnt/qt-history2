@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#249 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#250 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -1923,7 +1923,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    if ( nlines != (int)pa.size()/2 ) {
-		pa.resize( nlines*2 );
+		pa = QPointArray( nlines*2 );
 		for ( int i=0; i<nlines*2; i++ )
 		    pa.setPoint( i, a.point(index+i) );
 		index = 0;
@@ -1968,7 +1968,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    if ( npoints != (int)pa.size() ) {
-		pa.resize( npoints );
+		pa = QPointArray( npoints );
 		for ( int i=0; i<npoints; i++ )
 		    pa.setPoint( i, a.point(index+i) );
 		index = 0;
@@ -2022,7 +2022,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    if ( npoints != (int)a.size() ) {
-		pa.resize( npoints );
+		pa = QPointArray( npoints );
 		for ( int i=0; i<npoints; i++ )
 		    pa.setPoint( i, a.point(index+i) );
 		index = 0;
