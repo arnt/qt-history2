@@ -538,8 +538,13 @@ void *QLibrary::resolve( const char* symb )
 	return 0;
 
     void *address = d->resolveSymbol( symb );
-    if ( !address )
+    if ( !address ) {
+#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
+	// resolveSymbol() might give a warning; so let that warning look so fatal
+	qWarning( QString("Trying to resolve symbol \"_%1\" instead").arg( symb ) );
+#endif
 	address = d->resolveSymbol( QString( "_" ) + symb );
+    }
     return address;
 }
 
