@@ -910,9 +910,15 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t\t" << "SECTORDER_FLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "WARNING_CFLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "PREBINDING = " << (project->isEmpty("QMAKE_DO_PREBINDING") ? "NO" : "YES") << ";" << "\n";
-    if(!project->isEmpty("PRECOMPILED_HEADER"))
-	t << "\t\t\t\t" << "PRECOMPILE_PREFIX_HEADER = \"YES\";" << "\n"
-	  << "\t\t\t\t" << "PREFIX_HEADER = \"" <<  project->first("PRECOMPILED_HEADER") << "\";" << "\n";
+    if(!project->isEmpty("PRECOMPILED_HEADER")) {
+	if (ideType() == MAC_XCODE) {
+	    t << "\t\t\t\t" << "GCC_PRECOMPILE_PREFIX_HEADER = \"YES\";" << "\n"
+		<< "\t\t\t\t" << "GCC_PREFIX_HEADER = \"" <<  project->first("PRECOMPILED_HEADER") << "\";" << "\n";
+	} else {
+	    t << "\t\t\t\t" << "PRECOMPILE_PREFIX_HEADER = \"YES\";" << "\n"
+		<< "\t\t\t\t" << "PREFIX_HEADER = \"" <<  project->first("PRECOMPILED_HEADER") << "\";" << "\n";
+	}
+    }
     if(project->first("TEMPLATE") == "app") {
 	QString file = Option::mkfile::qmakespec + Option::dir_sep + "Info.plist.app";
 	if(QFile::exists(file)) {
@@ -938,8 +944,15 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "\t\t\t\t" << "OTHER_LDFLAGS = \"" << fixEnvsList("SUBLIBS") << " " <<
 	    fixEnvsList("QMAKE_LFLAGS") << " " << fixEnvsList("QMAKE_LIBDIR_FLAGS") <<
 	    " " << fixEnvsList("QMAKE_LIBS") << "\";" << "\n";
-    if(!project->isEmpty("DESTDIR"))
-	t << "\t\t\t\t" << "INSTALL_PATH = \"" << project->first("DESTDIR") << "\";" << "\n";
+    if(!project->isEmpty("DESTDIR")) {
+	QString dir = project->first("DESTDIR");
+	if (QDir::isRelativePath(dir))
+	    dir.prepend(QDir::currentDirPath() + Option::dir_sep);
+	t << "\t\t\t\t" << "INSTALL_DIR = \"" << dir << "\";" << "\n";
+    }
+    if ( project->first("TEMPLATE") == "lib") {
+	t << "\t\t\t\t" << "INSTALL_PATH = \"" <<  "\";" << "\n";
+    }
     if(!project->isEmpty("VERSION") && project->first("VERSION") != "0.0.0") {
 	t << "\t\t\t\t" << "DYLIB_CURRENT_VERSION = \"" << project->first("VER_MAJ") << "." 
 	  << project->first("VER_MIN") << "." << project->first("VER_PAT")  << "\";" << "\n";
@@ -965,22 +978,15 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "\t\t\t\t" << "WRAPPER_EXTENSION = app;" << "\n";
 	t << "\t\t\t\t" << "PRODUCT_NAME = " << project->first("QMAKE_ORIG_TARGET") << ";" << "\n";
     } else {
-	QString lib = project->first("QMAKE_ORIG_TARGET");
 	if(!project->isActiveConfig("plugin") && project->isActiveConfig("staticlib")) {
 	    t << "\t\t\t\t" << "LIBRARY_STYLE = STATIC;" << "\n";
-	    lib = project->first("TARGET");
 	} else {
 	    t << "\t\t\t\t" << "LIBRARY_STYLE = DYNAMIC;" << "\n";
-	    if(!project->isActiveConfig("frameworklib")) {
-		if(project->isActiveConfig("plugin"))
-		    lib = project->first("TARGET");
-		else
-		    lib = project->first("TARGET_");
-	    }
 	}
-	int slsh = lib.lastIndexOf(Option::dir_sep);
-	if(slsh != -1)
-	    lib = lib.right(lib.length() - slsh - 1);
+	QString lib = project->first("QMAKE_ORIG_TARGET");
+	if (!project->isActiveConfig("frameworklib")) {
+	    lib.prepend("lib");
+	}
 	t << "\t\t\t\t" << "PRODUCT_NAME = " << lib << ";" << "\n";
     }
     tmp = project->variables()["QMAKE_PBX_VARS"];
