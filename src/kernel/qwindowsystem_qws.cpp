@@ -39,6 +39,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
+#include <sys/mount.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ipc.h>
@@ -258,6 +260,11 @@ QWSServer::QWSServer( int flags,
     cursorNeedsUpdate=FALSE;
     cursorPos = QPoint(-1,-1); //no software cursor
     nextCursor = 0;
+
+    if(mount(0,"/var/shm","shm",0,0)) {
+	if ( errno != EBUSY )
+	    qDebug("Failed mounting shm fs on /var/shm: %s",strerror(errno));
+    }
 
     if ( !QWSDisplay::initLock( "/dev/fb0", TRUE ) )
 	qFatal( "Cannot get display lock" );
