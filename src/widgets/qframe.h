@@ -118,7 +118,7 @@ protected:
     void        styleChange( QStyle& );
 
 private:
-    void        updateFrameWidth();
+    void        updateFrameWidth(bool=FALSE);
     QRect       frect;
     int         fstyle;
     short       lwidth;

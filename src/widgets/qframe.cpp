@@ -266,7 +266,7 @@ void QFrame::setFrameStyle( int style )
             setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
     }
     fstyle = (short)style;
-    updateFrameWidth();
+    updateFrameWidth( TRUE );
 }
 
 /*! \property QFrame::lineWidth
@@ -327,80 +327,97 @@ void QFrame::setMargin( int w )
   Updated the fwidth parameter.
 */
 
-void QFrame::updateFrameWidth()
+void QFrame::updateFrameWidth( bool resetLineMetrics )
 {
     int frameType  = fstyle & MShape;
     int frameStyle = fstyle & MShadow;
+
+    if ( resetLineMetrics ) {
+	switch ( frameType ) {
+	case MenuBarPanel:
+	    mwidth = 0;
+	    lwidth = style().pixelMetric( QStyle::PM_MenuBarFrameWidth, this );
+	    break;
+	case ToolBarPanel:
+	    mwidth = 0;
+	    lwidth = style().pixelMetric( QStyle::PM_DockWindowFrameWidth, this );
+	    break;
+	case LineEditPanel:
+	case TabWidgetPanel:
+	case PopupPanel:
+	    mwidth = 0;
+	    lwidth = style().pixelMetric( QStyle::PM_DefaultFrameWidth, this );
+	    break;
+	}
+    }
 
     fwidth = -1;
 
     switch ( frameType ) {
 
     case NoFrame:
-        fwidth = 0;
-        break;
+	fwidth = 0;
+	break;
 
     case Box:
-        switch ( frameStyle ) {
-        case Plain:
-            fwidth = lwidth;
-            break;
-        case Raised:
-        case Sunken:
-            fwidth = (short)(lwidth*2 + midLineWidth() );
-            break;
-        }
-        break;
+	switch ( frameStyle ) {
+	case Plain:
+	    fwidth = lwidth;
+	    break;
+	case Raised:
+	case Sunken:
+	    fwidth = (short)(lwidth*2 + midLineWidth() );
+	    break;
+	}
+	break;
 
 	
-    case GroupBoxPanel:
     case LineEditPanel:
     case TabWidgetPanel:
-	lwidth = style().pixelMetric( QStyle::PM_DefaultFrameWidth, this );
-	// fall through
+    case PopupPanel:
+    case GroupBoxPanel:
     case Panel:
     case StyledPanel:
-    case PopupPanel:
-        switch ( frameStyle ) {
-        case Plain:
-        case Raised:
-        case Sunken:
-            fwidth = lwidth;
-            break;
-        }
-        break;
+	switch ( frameStyle ) {
+	case Plain:
+	case Raised:
+	case Sunken:
+	    fwidth = lwidth;
+	    break;
+	}
+	break;
 
     case WinPanel:
-        switch ( frameStyle ) {
-        case Plain:
-        case Raised:
-        case Sunken:
-            fwidth =  wpwidth; //WinPanel does not use lwidth!
-            break;
-        }
-        break;
+	switch ( frameStyle ) {
+	case Plain:
+	case Raised:
+	case Sunken:
+	    fwidth =  wpwidth; //WinPanel does not use lwidth!
+	    break;
+	}
+	break;
     case MenuBarPanel:
-        fwidth = lwidth = style().pixelMetric( QStyle::PM_MenuBarFrameWidth, this );
-        break;
+	fwidth = lwidth;
+	break;
     case ToolBarPanel:
-	fwidth = lwidth = style().pixelMetric( QStyle::PM_DockWindowFrameWidth, this );
-        break;
+	fwidth = lwidth;
+	break;
     case HLine:
     case VLine:
-        switch ( frameStyle ) {
-        case Plain:
-            fwidth = lwidth;
-            break;
-        case Raised:
-        case Sunken:
-            fwidth = (short)(lwidth*2 + midLineWidth());
-            break;
-        }
-        break;
+	switch ( frameStyle ) {
+	case Plain:
+	    fwidth = lwidth;
+	    break;
+	case Raised:
+	case Sunken:
+	    fwidth = (short)(lwidth*2 + midLineWidth());
+	    break;
+	}
+	break;
     }
 
-    if ( fwidth == -1 )                         // invalid style
-        fwidth = 0;
+    if ( fwidth == -1 )				// invalid style
+	fwidth = 0;
 
     fwidth += margin();
 
@@ -698,7 +715,7 @@ void QFrame::frameChanged()
  */
 void  QFrame::styleChange( QStyle& old )
 {
-    updateFrameWidth();
+    updateFrameWidth( TRUE );
     QWidget::styleChange( old );
 }
 
