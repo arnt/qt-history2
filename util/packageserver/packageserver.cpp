@@ -30,27 +30,40 @@ void PackageSocket::readClient()
     readBlock( buffer.data() + pos, bytesAvailable() );
     pos += s;
     if ( pos == size ) {
+	// delete any old qt-*.exe files
+	QDir d;
+	QStringList l = d.entryList( "qt-*.exe" );
+	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
+	    if ( d.remove(*it) )
+		qDebug( "Deleted: %s", (*it).latin1() );
+	}
+	l.clear();
+
+	// write incoming buffer from client to a.zip
 	QFile f( "a.zip" );
-	if ( !f.open( IO_WriteOnly ) )
-	    qFatal( "couldn't open" );
+	if ( !f.open( IO_WriteOnly | IO_Truncate ) )
+	    qFatal( "Couldn't open a.zip" );
 	f.writeBlock( buffer );
 
 	f.flush();
 
 #if defined(Q_OS_WIN32)
 	SleepEx( 1000, FALSE );
-#endif	
+#endif
+	// unzip and run bat script
 	system( "unzip -o a.zip" );
 	system( "build-selfextractor.bat" );
-	
-	QDir d;
-	QStringList l = d.entryList( "q*.exe" );
+
+	// send first qt-*.exe back to the client (should be only one exe)
+	l = d.entryList( "qt-*.exe" );
+	if ( l.count() != 1 )
+	    qWarning( "Multiple qt-*.exe files found!!" );
 
 	f.close();
 	f.setName( l[0] );
 	qDebug( l[0] );
 	if ( !f.open( IO_ReadOnly ) )
-	    qFatal( "could not open" );
+	    qFatal( "Could not open: %s", l[0].latin1() );
 
 	QByteArray ba( f.size() );
 	f.readBlock( ba.data(), f.size() );
