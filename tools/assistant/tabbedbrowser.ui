@@ -99,6 +99,7 @@
     <variable access="private">QWidget *lastCurrentTab;</variable>
 </variables>
 <slots>
+    <slot>init()</slot>
     <slot>forward()</slot>
     <slot>backward()</slot>
     <slot>setSource( const QString &amp; ref )</slot>
@@ -123,7 +124,6 @@
 </slots>
 <functions>
     <function returnType="HelpWindow *">currentBrowser()</function>
-    <function access="private">init()</function>
     <function returnType="MainWindow *">mainWindow()</function>
     <function specifier="non virtual" returnType="QStyleSheet *">styleSheet()</function>
     <function specifier="non virtual" returnType="bool">linkUnderline()</function>
