@@ -1113,7 +1113,7 @@ QWidget* WidgetFactory::widgetOfContainer( QWidget *w )
     if ( w->parentWidget() && w->parentWidget()->parentWidget() &&
 	 w->parentWidget()->parentWidget()->parentWidget() &&
 	 w->parentWidget()->parentWidget()->parentWidget()->inherits( "QToolBox" ) )
-	return w->parentWidget()->parentWidget();
+	return w->parentWidget()->parentWidget()->parentWidget();
     while ( w ) {
 	int id = WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) );
 	if ( WidgetDatabase::isContainer( id ) ||
@@ -1714,7 +1714,7 @@ void QDesignerToolBox::setPageLabel( const QString &l )
 
 QCString QDesignerToolBox::pageName() const
 {
-    return currentPage()->name();
+    return currentPage() ? currentPage()->name() : 0;
 }
 
 void QDesignerToolBox::setPageName( const QCString &n )

@@ -774,6 +774,30 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    --indent;
 	    ts << makeIndent( indent ) << "</widget>" << endl;
 	}
+    } else if ( obj->inherits( "QToolBox" ) ) {
+	QToolBox* tb = (QToolBox*)obj;
+	for ( int i = 0; i < tb->count(); ++i ) {
+	    QWidget *w = tb->page( i );
+	    if ( !w )
+		continue;
+	    if ( WidgetDatabase::idFromClassName(WidgetFactory::classNameOf(w)) == -1 )
+		continue; // we don't know this widget
+	    ts << makeIndent( indent ) << "<widget class=\"QWidget\">" << endl;
+	    ++indent;
+	    ts << makeIndent( indent ) << "<property name=\"name\">" << endl;
+	    indent++;
+	    ts << makeIndent( indent ) << "<cstring>" << entitize( w->name() ) << "</cstring>" << endl;
+	    indent--;
+	    ts << makeIndent( indent ) << "</property>" << endl;
+	    ts << makeIndent( indent ) << "<attribute name=\"label\">" << endl;
+	    indent++;
+	    ts << makeIndent( indent ) << "<string>" << entitize( tb->pageLabel( w ) ) << "</string>" << endl;
+	    indent--;
+	    ts << makeIndent( indent ) << "</attribute>" << endl;
+	    saveChildrenOf( w, ts, indent );
+	    --indent;
+	    ts << makeIndent( indent ) << "</widget>" << endl;
+	}
     } else if ( obj->inherits( "QWizard" ) ) {
 	QWizard* wiz = (QWizard*)obj;
 	for ( int i = 0; i < wiz->pageCount(); ++i ) {
@@ -1602,6 +1626,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    if ( !parent ||
 		 ( !parent->inherits( "QTabWidget" ) &&
 		   !parent->inherits("QWidgetStack") &&
+		   !parent->inherits("QToolBox") &&
 		   !parent->inherits( "QWizard" )
 		   && !isPlugin
 		     ) )
@@ -1609,6 +1634,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    else if ( parent &&
 		      ( parent->inherits( "QTabWidget" ) ||
 			parent->inherits("QWidgetStack") ||
+			parent->inherits("QToolBox") ||
 			parent->inherits( "QWizard" )
 			|| isPlugin
 			  ) )
@@ -1656,6 +1682,9 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    } else if ( parent->inherits( "QWidgetStack" ) ) {
 		if ( attrib == "id" )
 		    ( (QDesignerWidgetStack*)parent )->insertPage( w, v.toInt() );
+	    } else if ( parent->inherits( "QToolBox" ) ) {
+		if ( attrib == "label" )
+		    ( (QDesignerToolBox*)parent )->insertPage( v.toString(), w );
 	    } else if ( parent->inherits( "QWizard" ) ) {
 		if ( attrib == "title" )
 		    ( (QWizard*)parent )->addPage( w, v.toString() );
@@ -2956,7 +2985,7 @@ void Resource::loadMenuBar( const QDomElement &e )
 	} else if ( n.tagName() == "separator" ) {
 	    mb->insertSeparator();
 	}
-	n = n.nextSibling().toElement();	
+	n = n.nextSibling().toElement();
     }
 }
 
