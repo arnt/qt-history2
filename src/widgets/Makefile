@@ -15,6 +15,7 @@ CC	=	gcc
 
 #######	Files
 
+INTERNAL=	qheader.h 	qheader.cpp
 HEADERS =	qbttngrp.h	qbutton.h	qchkbox.h	qcombo.h      \
 		qframe.h	qgrpbox.h	qlabel.h	qlcdnum.h     \
 		qlined.h	qlistbox.h	qmenubar.h	qmenudta.h    \
@@ -27,8 +28,6 @@ SOURCES =	qbttngrp.cpp	qbutton.cpp	qchkbox.cpp	qcombo.cpp    \
 		qpopmenu.cpp	qpushbt.cpp	qradiobt.cpp	qrangect.cpp  \
 		qslider.cpp	qscrbar.cpp	qtablevw.cpp	qtooltip.cpp  \
 		qmlined.cpp     qheader.cpp	qtabbar.cpp	qspinbox.cpp
-BETA	=	qslider.cpp 	qslider.h	qheader.h 	qheader.cpp\
-		mslider.cpp 	mheader.h
 OBJECTS =	qbttngrp.o	qbutton.o	qchkbox.o	qcombo.o      \
 		qframe.o	qgrpbox.o	qlabel.o	qlcdnum.o     \
 		qlined.o	qlistbox.o	qmenubar.o	qmenudta.o    \
@@ -68,20 +67,20 @@ $(TARGET): $(OBJECTS) $(OBJMETA)
 	ar q $(TARGET) $(OBJECTS) $(OBJMETA)
 	ranlib $(TARGET)
 
+include:
+	ln -s `echo $(HEADERS) | fmt -1 | sed 's-^-../src/widgets/-'` $(INCDIR)
+
 showfiles:
 	@echo $(HEADERS) $(SOURCES) Makefile
 
-include:
-	ln -s `echo $(HEADERS) | fmt -1 | sed 's-^-../src/widgets/-'` $(INCDIR)
+showinternal:
+	@echo $(INTERNAL)
 
 showheaders:
 	@echo $(HEADERS)
 
 showsources:
 	@echo $(SOURCES)
-
-showbeta:
-	@echo $(BETA)
 
 moc: $(SRCMETA)
 

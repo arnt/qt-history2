@@ -15,9 +15,9 @@ CC	=	gcc
 
 #######	Files
 
+INTERNAL= 	
 HEADERS =	qfiledlg.h	qmsgbox.h	qprndlg.h	qtabdlg.h
 SOURCES =	qfiledlg.cpp	qmsgbox.cpp	qprndlg.cpp	qtabdlg.cpp
-BETA	= 	
 OBJECTS =	qfiledlg.o	qmsgbox.o	qprndlg.o	qtabdlg.o
 SRCMETA =	mfiledlg.cpp	mmsgbox.cpp	mprndlg.cpp	mtabdlg.cpp
 OBJMETA =	mfiledlg.o	mmsgbox.o	mprndlg.o	mtabdlg.o
@@ -41,17 +41,17 @@ $(TARGET): $(OBJECTS) $(OBJMETA)
 	ar q $(TARGET) $(OBJECTS) $(OBJMETA)
 	ranlib $(TARGET)
 
-showfiles:
-	@echo $(HEADERS) $(SOURCES) Makefile
-
 include:
 	ln -s `echo $(HEADERS) | fmt -1 | sed 's-^-../src/dialogs/-'` $(INCDIR)
 
+showfiles:
+	@echo $(HEADERS) $(SOURCES) Makefile
+
+showinternal:
+	@echo $(INTERNAL)
+
 showheaders:
 	@echo $(HEADERS)
-
-showbeta:
-	@echo $(BETA)
 
 showsources:
 	@echo $(SOURCES)

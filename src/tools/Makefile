@@ -15,6 +15,7 @@ CC	=	gcc
 
 ####### Files
 
+INTERNAL=
 HEADERS	=	qarray.h	qbitarry.h	qbuffer.h	qcache.h      \
 		qcollect.h	qdatetm.h	qdict.h		qdir.h	      \
 		qdstream.h	qfile.h		qfiledef.h	qfileinf.h    \
@@ -28,7 +29,6 @@ SOURCES	=	qbitarry.cpp	qbuffer.cpp	qcollect.cpp	qdatetm.cpp   \
 		qgarray.cpp	qgcache.cpp	qgdict.cpp	qglist.cpp    \
 		qglobal.cpp	qgvector.cpp	qiodev.cpp	qregexp.cpp   \
 		qstring.cpp	qtstream.cpp
-BETA	=
 OBJECTS	=	qbitarry.o	qbuffer.o	qcollect.o	qdatetm.o     \
 		qdir.o		qdstream.o	qfile.o		qfileinf.o    \
 		qgarray.o	qgcache.o	qgdict.o	qglist.o      \
@@ -54,20 +54,20 @@ $(TARGET): $(OBJECTS)
 	ar q $(TARGET) $(OBJECTS)
 	ranlib $(TARGET)
 
+include:
+	ln -s `echo $(HEADERS) | fmt -1 | sed 's-^-../src/tools/-'` $(INCDIR)
+
 showfiles:
 	@echo $(HEADERS) $(SOURCES) Makefile
 
-include:
-	ln -s `echo $(HEADERS) | fmt -1 | sed 's-^-../src/tools/-'` $(INCDIR)
+showinternal:
+	@echo $(BETA)
 
 showheaders:
 	@echo $(HEADERS)
 
 showsources:
 	@echo $(SOURCES)
-
-showbeta:
-	@echo $(BETA)
 
 moc:
 

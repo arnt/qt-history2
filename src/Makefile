@@ -99,7 +99,7 @@ shareddbg:
 showdirs:
 	@echo $(DIRS)
 
-showfiles showheaders showsources showbeta:
+showfiles showheaders showsources showinternal:
 	@set -e ; for a in $(DIRS) ; do $(MAKE) -s -C $$a $@ | fmt -1 | sed 's-^-'$${a}/- ; done
 
 dodepend:

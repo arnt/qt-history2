@@ -15,6 +15,7 @@ CC	=	gcc
 
 ####### Files
 
+INTERNAL=	qpshdr.txt	qmutex.h 	qthread.h	qthread.cpp
 HEADERS =	qaccel.h	qapp.h		qgmanagr.h	qbitmap.h     \
 		qbrush.h	qclipbrd.h	qcolor.h	qconnect.h    \
 		qcursor.h	qdialog.h	qdrawutl.h	qevent.h      \
@@ -39,7 +40,6 @@ SOURCES =	qaccel.cpp	qapp.cpp	qapp_x11.cpp	qgmanagr.cpp  \
 		qrect.cpp	qregion.cpp	qrgn_x11.cpp	qsignal.cpp   \
 		qsize.cpp	qsocknot.cpp	qtimer.cpp	qwid_x11.cpp  \
 		qwidget.cpp	qwindow.cpp	qwmatrix.cpp
-BETA	=	
 OBJECTS =	qaccel.o	qapp.o		qapp_x11.o	qgmanagr.o    \
 		qbitmap.o	qclb_x11.o	qclipbrd.o	qcol_x11.o    \
 		qcolor.o	qconnect.o	qcur_x11.o	qcursor.o     \
@@ -78,20 +78,20 @@ $(TARGET): $(OBJECTS) $(OBJMETA)
 	ar q $(TARGET) $(OBJECTS) $(OBJMETA)
 	ranlib $(TARGET)
 
+include:
+	ln -s `echo $(HEADERS) | fmt -1 | sed 's-^-../src/kernel/-'` $(INCDIR)
+
 showfiles:
 	@echo $(HEADERS) $(SOURCES) Makefile
 
-include:
-	ln -s `echo $(HEADERS) | fmt -1 | sed 's-^-../src/kernel/-'` $(INCDIR)
+showinternal:
+	@echo $(INTERNAL)
 
 showheaders:
 	@echo $(HEADERS)
 
 showsources:
 	@echo $(SOURCES)
-
-showbeta:
-	@echo $(BETA)
 
 moc: $(SRCMETA)
 
