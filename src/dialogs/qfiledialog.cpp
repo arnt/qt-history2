@@ -61,7 +61,7 @@
 #include "qpopupmenu.h"
 #include "qwidgetstack.h"
 #include "qbuttongroup.h"
-#include "qvector.h"
+#include "qptrvector.h"
 #include "qregexp.h"
 #include "qstrlist.h"
 #include "qtimer.h"

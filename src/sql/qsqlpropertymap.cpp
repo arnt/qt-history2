@@ -40,7 +40,7 @@
 
 #include "qwidget.h"
 #include "qcleanuphandler.h"
-#include "qobjcoll.h"
+#include "qmetaobject.h"
 #include "qmap.h"
 
 class QSqlPropertyMapPrivate
