@@ -130,7 +130,7 @@ void PieView::ensureVisible(const QModelIndex &index)
     Returns the item that covers the coordinate given in the view.
 */
 
-QModelIndex PieView::itemAt(int x, int y) const
+QModelIndex PieView::indexAt(int x, int y) const
 {
     if (m_validItems == 0)
         return QModelIndex();
@@ -252,8 +252,8 @@ void PieView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlag
 {
     // Use viewport coordinates because the itemRect() function will transform
     // them into widget coordinates.
-    QModelIndex firstIndex = itemAt(rect.left(), rect.top());
-    QModelIndex lastIndex = itemAt(rect.right(), rect.bottom());
+    QModelIndex firstIndex = indexAt(rect.left(), rect.top());
+    QModelIndex lastIndex = indexAt(rect.right(), rect.bottom());
 
     QItemSelection selection(firstIndex, lastIndex);
 

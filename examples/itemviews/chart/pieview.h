@@ -31,7 +31,7 @@ public:
 
     QRect itemViewportRect(const QModelIndex &index) const;
     void ensureVisible(const QModelIndex &index);
-    QModelIndex itemAt(int x, int y) const;
+    QModelIndex indexAt(int x, int y) const;
 
 protected slots:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
