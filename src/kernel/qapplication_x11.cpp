@@ -101,6 +101,11 @@
 
 #include "qt_x11.h"
 
+#if !defined(QT_NO_XFTFREETYPE) && defined(QT_NO_XFTNAMEUNPARSE)
+// Assume XFree86 4.0.3 implementation which is missing XftInitFtLibrary
+extern "C" Bool XftInitFtLibrary(void);
+#endif
+
 #if defined(QT_MODULE_OPENGL)
 #include <GL/glx.h>
 #endif
