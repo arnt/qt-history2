@@ -1471,7 +1471,7 @@ QString QStyleSheet::escape( const QString& plain)
     \value AutoText The text string is interpreted as for \c RichText
 	if QStyleSheet::mightBeRichText() returns TRUE, otherwise as
 	\c PlainText.
-	
+
     \value LogText A special, limited text format which is only used
     by QTextEdit in an optimized mode.
 */
@@ -1502,7 +1502,7 @@ bool QStyleSheet::mightBeRichText( const QString& text)
 	    return TRUE; // support desperate attempt of user to see <...>
 	++open;
     }
-    if ( text[open] == '<' ) {
+    if ( open < (int)text.length() && text[open] == '<' ) {
 	int close = text.find('>', open);
 	if ( close > -1 ) {
 	    QString tag;
