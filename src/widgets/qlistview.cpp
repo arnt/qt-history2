@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#303 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#304 $
 **
 ** Implementation of QListView widget class
 **
@@ -829,6 +829,7 @@ void QListViewItem::setOpen( bool o )
 
     if ( !open )
 	return;
+    
     enforceSortOrder();
 }
 
@@ -2215,7 +2216,7 @@ void QListView::updateContents()
 	return;
     // ### this function is probably very inefficient, and it is also
     // ### central to the smooth operation of QListView.  need fixing.
-    viewport()->update();
+    viewport()->repaint( FALSE );
     updateGeometries();
     ensureItemVisible( d->focusItem );
 }
@@ -4067,6 +4068,7 @@ void QListView::setOpen( QListViewItem * item, bool open )
 	return;
 
     item->setOpen( open );
+    
     if ( d->drawables )
 	d->drawables->clear();
     buildDrawableList();
