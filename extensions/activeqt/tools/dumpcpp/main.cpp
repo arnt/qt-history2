@@ -71,7 +71,6 @@ enum MemberFlags {
 extern QMetaObject *qax_readEnumInfo(ITypeLib *typeLib, const QMetaObject *parentObject);
 extern QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMetaObject *parentObject);
 extern QMetaObject *qax_readInterfaceInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMetaObject *parentObject);
-extern QByteArray qax_current_typelib;
 extern QList<QByteArray> qax_qualified_usertypes;
 
 void writeEnums(QTextStream &out, const QMetaObject *mo)
@@ -745,7 +744,6 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     HRESULT hasDocu = typelib->GetDocumentation(-1, &nameString, 0, 0, 0);
     libName = BSTRToQString(nameString);
     SysFreeString(nameString);
-    qax_current_typelib = libName.latin1();
 
     QString libVersion("1.0");
 
