@@ -408,6 +408,7 @@ QByteArray QMainWindow::saveState(int version) const
 {
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
+    stream << QMainWindowLayout::VersionMarker;
     stream << version;
     d->layout->saveState(stream);
     return data;
@@ -426,14 +427,17 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
 {
     QByteArray sd = state;
     QDataStream stream(&sd, QIODevice::ReadOnly);
-    int v;
+    int marker, v;
+    stream >> marker;
     stream >> v;
-    if (v != version)
+    if (marker != QMainWindowLayout::VersionMarker || v != version) {
+        qDebug("version mismatch");
         return false;
-    d->layout->restoreState(stream);
+    }
+    bool restored = d->layout->restoreState(stream);
     if (isVisible())
         d->layout->relayout();
-    return true;
+    return restored;
 }
 
 /*! \reimp */

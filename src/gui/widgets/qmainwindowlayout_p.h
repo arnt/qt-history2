@@ -37,7 +37,7 @@ class QMainWindowLayout : public QLayout
 {
     Q_OBJECT
 
- public:
+public:
     QMainWindowLayout(QMainWindow *mainwindow);
     ~QMainWindowLayout();
 
@@ -61,8 +61,13 @@ class QMainWindowLayout : public QLayout
                          Qt::Orientation orientation);
     Qt::DockWindowArea dockWindowArea(QDockWindow *dockwindow) const;
 
+    enum { // sentinel values used to validate state data
+        VersionMarker = 0xff,
+        ToolBarStateMarker = 0xfe,
+        DockWindowStateMarker = 0xfd
+    };
     void saveState(QDataStream &stream) const;
-    void restoreState(QDataStream &stream);
+    bool restoreState(QDataStream &stream);
 
     // QLayout interface
     void addItem(QLayoutItem *item);

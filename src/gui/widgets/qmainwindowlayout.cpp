@@ -382,11 +382,10 @@ Qt::DockWindowArea QMainWindowLayout::dockWindowArea(QDockWindow *dockwindow) co
 
 }
 
-enum { ToolBars = 0xf7001844, DockWindows = 0xf7001845 };
-
 void QMainWindowLayout::saveState(QDataStream &stream) const
 {
-    stream << ToolBars;
+    // save toolbar state
+    stream << (uchar) ToolBarStateMarker;
     stream << tb_layout_info.size(); // number of toolbar lines
     if (!tb_layout_info.isEmpty()) {
         for (int line = 0; line < tb_layout_info.size(); ++line) {
@@ -403,7 +402,9 @@ void QMainWindowLayout::saveState(QDataStream &stream) const
             }
         }
     }
-    stream << DockWindows;
+
+    // save dockwindow state
+    stream << (uchar) DockWindowStateMarker;
     int x = 0;
     for (int i = 0; i < NPOSITIONS - 1; ++i) {
         if (!layout_info[i].item)
@@ -422,37 +423,22 @@ void QMainWindowLayout::saveState(QDataStream &stream) const
         layout->saveState(stream);
         stream << layout_info[i].size;
     }
+
+    // save center widget state
     stream << layout_info[CENTER].size;
 }
 
-void QMainWindowLayout::restoreState(QDataStream &stream)
+bool QMainWindowLayout::restoreState(QDataStream &stream)
 {
-    // destroy layout
-    relayout_type = QInternal::RelayoutDragging;
-    for (int line = 0; line < tb_layout_info.size(); ++line) {
-        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
-        for (int i = 0; i < lineInfo.list.size(); ++i)
-            delete lineInfo.list[i].item;
-    }
-    tb_layout_info.clear();
-    for (int i = 0; i < NPOSITIONS - 1; ++i) {
-        delete layout_info[i].item;
-        if (layout_info[i].sep)
-            delete layout_info[i].sep->widget();
-        delete layout_info[i].sep;
-
-        layout_info[i].item = 0;
-        layout_info[i].sep = 0;
-        layout_info[i].size = QSize();
-        layout_info[i].is_dummy = false;
-    }
-    relayout_type = QInternal::RelayoutNormal;
-
     // restore toolbar layout
-    int t, lines;
-    stream >> t;
+    uchar tmarker;
+    stream >> tmarker;
+    if (tmarker != ToolBarStateMarker)
+        return false;
+
+    int lines;
     stream >> lines;
-    Q_ASSERT(t == ToolBars);
+    QList<ToolBarLineInfo> toolBarState;
     const QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(parentWidget());
     for (int line = 0; line < lines; ++line) {
         ToolBarLineInfo lineInfo;
@@ -484,15 +470,39 @@ void QMainWindowLayout::restoreState(QDataStream &stream)
             toolbar->setShown(shown);
             lineInfo.list << info;
         }
-        tb_layout_info << lineInfo;
+        toolBarState << lineInfo;
     }
 
+    if (stream.status() != QDataStream::Ok)
+        return false;
+
+    // replace existing toolbar layout
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
+        for (int i = 0; i < lineInfo.list.size(); ++i)
+            delete lineInfo.list.at(i).item;
+    }
+    tb_layout_info = toolBarState;
+
     // restore dockwindow layout
-    int d, areas;
-    stream >> d;
+    uchar dmarker;
+    stream >> dmarker;
+    if (dmarker != DockWindowStateMarker)
+        return false;
+
+    save_layout_info = new QVector<QMainWindowLayoutInfo>(layout_info);
+
+    // clear out our working copy
+    for (int i = 0; i < NPOSITIONS - 1; ++i) {
+        layout_info[i].item = 0;
+        layout_info[i].sep = 0;
+        layout_info[i].size = QSize();
+        layout_info[i].is_dummy = false;
+    }
+
+    int areas;
     stream >> areas;
-    Q_ASSERT(d == DockWindows);
-    for (int area = 0; area  < areas; ++area) {
+    for (int area = 0; area < areas; ++area) {
         int pos;
         stream >> pos;
         QDockWindowLayout * const layout =
@@ -503,6 +513,37 @@ void QMainWindowLayout::restoreState(QDataStream &stream)
 
     // restore center widget size
     stream >> layout_info[CENTER].size;
+
+    if (stream.status() != QDataStream::Ok) {
+        // restore failed, get rid of the evidence
+        for (int i = 0; i < NPOSITIONS - 1; ++i) {
+            delete layout_info[i].item;
+            if (layout_info[i].sep)
+                delete layout_info[i].sep->widget();
+            delete layout_info[i].sep;
+        }
+        layout_info = *save_layout_info;
+
+        delete save_layout_info;
+        save_layout_info = 0;
+        relayout_type = QInternal::RelayoutNormal;
+
+        return false;
+    }
+
+    // replace existing dockwindow layout
+    for (int i = 0; i < NPOSITIONS - 1; ++i) {
+        delete (*save_layout_info)[i].item;
+        if ((*save_layout_info)[i].sep)
+            delete (*save_layout_info)[i].sep->widget();
+        delete (*save_layout_info)[i].sep;
+    }
+
+    delete save_layout_info;
+    save_layout_info = 0;
+    relayout_type = QInternal::RelayoutNormal;
+
+    return true;
 }
 
 QLayoutItem *QMainWindowLayout::itemAt(int index) const
@@ -1353,10 +1394,8 @@ void QMainWindowLayout::relayout(QInternal::RelayoutType type)
 
 void QMainWindowLayout::invalidate()
 {
-    if (relayout_type != QInternal::RelayoutDragging) {
-        qDebug("QMainWindowLayout: invalidated!");
+    if (relayout_type != QInternal::RelayoutDragging)
         QLayout::invalidate();
-    }
 }
 
 void QMainWindowLayout::saveLayoutInfo()

@@ -64,8 +64,12 @@ public:
     QDockWindowLayout(QLayout *layout, Qt::DockWindowArea a, Qt::Orientation o);
     ~QDockWindowLayout();
 
+    enum { // sentinel values used to validate state data
+        Marker = 0xfc,
+        WidgetMarker = 0xfb
+    };
     void saveState(QDataStream &stream) const;
-    void restoreState(QDataStream &stream);
+    bool restoreState(QDataStream &stream);
 
     // QLayout interface
     void addItem(QLayoutItem *layoutitem);
