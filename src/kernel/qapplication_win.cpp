@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#175 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#176 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -35,9 +35,6 @@
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
 #include <windows.h>
-#ifndef WM_MOUSEWHEEL
-#define WM_MOUSEWHEEL	0x020A
-#endif
 #define bool int
 #else
 #include <windows.h>
@@ -48,6 +45,9 @@
 #endif
 #include <ole2.h>
 
+#ifndef WM_MOUSEWHEEL
+#define WM_MOUSEWHEEL	0x020A
+#endif
 
 /*****************************************************************************
   Internal variables and functions
@@ -82,7 +82,7 @@ static void	setAutoCapture( HANDLE );	// automatic capturing
 static void	releaseAutoCapture();
 
 typedef void  (*VFPTR)();
-typedef Q_DECLARE(QListM,void) QVFuncList;
+typedef QList<void> QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
 static void	msgHandler( QtMsgType, const char* );
@@ -128,7 +128,7 @@ public:
     bool	translateMouseEvent( const MSG &msg );
     bool	translateKeyEvent( const MSG &msg, bool grab );
     bool	translateWheelEvent( const MSG &msg );
-    bool	sendKeyEvent( int type, int code, int ascii, int state,
+    bool	sendKeyEvent( QEvent::Type type, int code, int ascii, int state,
 			      bool grab );
     bool	translatePaintEvent( const MSG &msg );
     bool	translateConfigEvent( const MSG &msg );
@@ -136,7 +136,7 @@ public:
 };
 
 
-typedef Q_DECLARE(QArrayM,pchar) ArgV;
+typedef QArray<pchar> ArgV;
 
 
 static void set_winapp_name()
@@ -498,7 +498,7 @@ QWidget *QApplication::desktop()
   QApplication cursor stack
  *****************************************************************************/
 
-typedef Q_DECLARE(QListM,QCursor) QCursorList;
+typedef QList<QCursor> QCursorList;
 
 static QCursorList *cursorStack = 0;
 
@@ -623,7 +623,7 @@ public:
 class QPEvent : public QEvent			// trick to set/clear posted
 {
 public:
-    QPEvent( int type ) : QEvent( type ) {}
+    QPEvent( Type type ) : QEvent( type ) {}
     void setPostedFlag()	{ posted = TRUE; }
     void clearPostedFlag()	{ posted = FALSE; }
 };
@@ -635,17 +635,15 @@ struct QPostEvent {
     QEvent   *event;
 };
 
-Q_DECLARE(QListM,QPostEvent);
-Q_DECLARE(QListIteratorM,QPostEvent);
-typedef QListM(QPostEvent)	   QPostEventList;
-typedef QListIteratorM(QPostEvent) QPostEventListIt;
+typedef QList<QPostEvent>	  QPostEventList;
+typedef QListIterator<QPostEvent> QPostEventListIt;
 static QPostEventList *postedEvents = 0;	// list of posted events
 
 
 void QApplication::postEvent( QObject *receiver, QEvent *event )
 {
     if ( !postedEvents ) {			// create list
-	postedEvents = new QListM(QPostEvent);
+	postedEvents = new QList<QPostEvent>;
 	CHECK_PTR( postedEvents );
 	postedEvents->setAutoDelete( TRUE );
     }
@@ -773,7 +771,7 @@ void qRemovePostedEvents( QObject *receiver )	// remove receiver from list
 bool qRemovePostedChildEvent( QObject *child )
 {
     if ( !postedEvents )
-	return;
+	return FALSE;
     register QPostEvent *pe = postedEvents->first();
     while ( pe ) {
 	if ( pe->event->type() == QEvent::ChildInserted
@@ -822,13 +820,12 @@ struct QWinConfigRequest {
     int	 x, y, w, h;				// request parameters
 };
 
-Q_DECLARE(QQueueM,QWinConfigRequest);
-static QQueueM(QWinConfigRequest) *configRequests = 0;
+static QQueue<QWinConfigRequest> *configRequests = 0;
 
 void qWinRequestConfig( WId id, int req, int x, int y, int w, int h )
 {
     if ( !configRequests )			// create queue
-	configRequests = new QQueueM(QWinConfigRequest);
+	configRequests = new QQueue<QWinConfigRequest>;
     QWinConfigRequest *r = new QWinConfigRequest;
     r->id = id;					// create new request
     r->req = req;
@@ -878,7 +875,7 @@ struct QSockNot {
     int	     fd;
 };
 
-typedef Q_DECLARE(QIntDictM,QSockNot)	   QSNDict;
+typedef QIntDict<QSockNot> QSNDict;
 
 static QSNDict *sn_read	  = 0;
 static QSNDict *sn_write  = 0;
@@ -1125,7 +1122,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
     if ( widget->winEvent(&msg) )		// send through widget filter
 	return 0;
 
-    int evt_type = QEvent::None;
+    QEvent::Type evt_type = QEvent::None;
     bool result = TRUE;
 
     if ( sn_msg && message == sn_msg ) {	// socket notifier message
@@ -1560,8 +1557,8 @@ struct TimerInfo {				// internal timer info
     bool     zero;				// - zero timing
     QObject *obj;				// - object to receive events
 };
-typedef Q_DECLARE(QVectorM,TimerInfo)  TimerVec; // vector of TimerInfo structs
-typedef Q_DECLARE(QIntDictM,TimerInfo) TimerDict;// fast dict of timers
+typedef QVector<TimerInfo>  TimerVec; // vector of TimerInfo structs
+typedef QIntDict<TimerInfo> TimerDict;// fast dict of timers
 
 static TimerVec  *timerVec  = 0;		// timer vector
 static TimerDict *timerDict = 0;		// timer dict
@@ -1788,15 +1785,15 @@ static void releaseAutoCapture()
 
 static ushort mouseTbl[] = {
     WM_MOUSEMOVE,	QEvent::MouseMove,		0,
-    WM_LBUTTONDOWN,	QEvent::MouseButtonPress,		LeftButton,
-    WM_LBUTTONUP,	QEvent::MouseButtonRelease,	LeftButton,
-    WM_LBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	LeftButton,
-    WM_RBUTTONDOWN,	QEvent::MouseButtonPress,		RightButton,
-    WM_RBUTTONUP,	QEvent::MouseButtonRelease,	RightButton,
-    WM_RBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	RightButton,
-    WM_MBUTTONDOWN,	QEvent::MouseButtonPress,		MidButton,
-    WM_MBUTTONUP,	QEvent::MouseButtonRelease,	MidButton,
-    WM_MBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	MidButton,
+    WM_LBUTTONDOWN,	QEvent::MouseButtonPress,	QMouseEvent::LeftButton,
+    WM_LBUTTONUP,	QEvent::MouseButtonRelease,	QMouseEvent::LeftButton,
+    WM_LBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	QMouseEvent::LeftButton,
+    WM_RBUTTONDOWN,	QEvent::MouseButtonPress,	QMouseEvent::RightButton,
+    WM_RBUTTONUP,	QEvent::MouseButtonRelease,	QMouseEvent::RightButton,
+    WM_RBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	QMouseEvent::RightButton,
+    WM_MBUTTONDOWN,	QEvent::MouseButtonPress,	QMouseEvent::MidButton,
+    WM_MBUTTONUP,	QEvent::MouseButtonRelease,	QMouseEvent::MidButton,
+    WM_MBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	QMouseEvent::MidButton,
     0,			0,				0
 };
 
@@ -1804,17 +1801,17 @@ static int translateButtonState( int s, int type, int button )
 {
     int bst = 0;
     if ( s & MK_LBUTTON )
-	bst |= LeftButton;
+	bst |= QMouseEvent::LeftButton;
     if ( s & MK_MBUTTON )
-	bst |= MidButton;
+	bst |= QMouseEvent::MidButton;
     if ( s & MK_RBUTTON )
-	bst |= RightButton;
+	bst |= QMouseEvent::RightButton;
     if ( s & MK_SHIFT )
-	bst |= ShiftButton;
+	bst |= QMouseEvent::ShiftButton;
     if ( s & MK_CONTROL )
-	bst |= ControlButton;
+	bst |= QMouseEvent::ControlButton;
     if ( GetKeyState(VK_MENU) < 0 )
-	bst |= AltButton;
+	bst |= QMouseEvent::AltButton;
 
     // Translate from Windows-style "state after event" 
     // to X-style "state before event"
@@ -1834,7 +1831,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 {
     static QPoint pos;
     static POINT gpos={-1,-1};
-    int	   type;				// event parameters
+    QEvent::Type type;				// event parameters
     int	   button;
     int	   state;
     int	   i;
@@ -1843,7 +1840,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	;
     if ( !mouseTbl[i] )
 	return FALSE;
-    type   = mouseTbl[++i];			// event type
+    type   = (QEvent::Type)mouseTbl[++i];			// event type
     button = mouseTbl[++i];			// which button
     state  = translateButtonState( msg.wParam, type, button ); // button state
 
@@ -1893,7 +1890,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    if ( testWFlags(WType_Popup) && rect().contains(pos) )
 		popup = this;
 	    else				// send to last popup
-		pos = popup->mapFromGlobal( globalPos );
+		pos = popup->mapFromGlobal( mapToGlobal(pos) );
 	}
 	QWidget *popupChild = findChildWidget( popup, pos );
 	bool releaseAfter = FALSE;
@@ -1921,7 +1918,9 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    QApplication::sendEvent( popup, &e );
 	}
     } else {					// not popup mode
-	int bs = state & (LeftButton | RightButton | MidButton);
+	int bs = state & (QMouseEvent::LeftButton
+			| QMouseEvent::RightButton
+			| QMouseEvent::MidButton);
 	if ( (type == QEvent::MouseButtonPress ||
 	      type == QEvent::MouseButtonDblClick) && bs == 0 ) {
 	    if ( QWidget::mouseGrabber() == 0 )
@@ -2060,7 +2059,7 @@ static int asciiToKeycode(char a, int state)
 {
     if ( a >= 'a' && a <= 'z' )
 	a = toupper( a );
-    if ( (state & ControlButton) != 0 ) {
+    if ( (state & QMouseEvent::ControlButton) != 0 ) {
 	if ( a >= 1 && a <= 26 )	// Ctrl+'A'..'Z'
 	    a += 'A' - 1;
     }
@@ -2074,16 +2073,16 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
     int  state = 0;
 
     if ( GetKeyState(VK_SHIFT) < 0 )
-	state |= ShiftButton;
+	state |= QMouseEvent::ShiftButton;
     if ( GetKeyState(VK_CONTROL) < 0 )
-	state |= ControlButton;
+	state |= QMouseEvent::ControlButton;
     if ( GetKeyState(VK_MENU) < 0 )
-	state |= AltButton;
+	state |= QMouseEvent::AltButton;
 
     if ( msg.message == WM_CHAR ) {
 	// a multi-character key
-	k0 = sendKeyEvent( Event_KeyPress, 0, msg.wParam, state, grab );
-	k1 = sendKeyEvent( Event_KeyRelease, 0, msg.wParam, state, grab );
+	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab );
+	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab );
     } else {
 	int code = translateKeyCode( msg.wParam );
         if ( msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN ) {
@@ -2108,14 +2107,14 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	    if ( rec ) {
 		// it is already down (so it is auto-repeating)
 		if ( code < Key_Shift || code > Key_ScrollLock ) {
-		    k0 = sendKeyEvent( Event_KeyRelease, code, rec->ascii,
+		    k0 = sendKeyEvent( QEvent::KeyRelease, code, rec->ascii,
 				       state, grab);
-		    k1 = sendKeyEvent( Event_KeyPress, code, rec->ascii,
+		    k1 = sendKeyEvent( QEvent::KeyPress, code, rec->ascii,
 				       state, grab );
 		}
 	    } else {
 		store_key_rec( msg.wParam, wm_char.wParam );
-		k0 = sendKeyEvent( Event_KeyPress, code, wm_char.wParam,
+		k0 = sendKeyEvent( QEvent::KeyPress, code, wm_char.wParam,
 				   state, grab );
 	    }
         } else {
@@ -2127,7 +2126,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		if ( !code )
 		    code = asciiToKeycode(rec->ascii ? rec->ascii : msg.wParam,
 				state);
-		k0 = sendKeyEvent( Event_KeyRelease, code, rec->ascii, state, grab);
+		k0 = sendKeyEvent( QEvent::KeyRelease, code, rec->ascii, state, grab);
 	    }
         }
     }
@@ -2140,11 +2139,11 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     int  state = 0;
 
     if ( GetKeyState(VK_SHIFT) < 0 )
-	state |= ShiftButton;
+	state |= QMouseEvent::ShiftButton;
     if ( GetKeyState(VK_CONTROL) < 0 )
-	state |= ControlButton;
+	state |= QMouseEvent::ControlButton;
     if ( GetKeyState(VK_MENU) < 0 )
-	state |= AltButton;
+	state |= QMouseEvent::AltButton;
 
     int delta =	(short) HIWORD ( msg.wParam );
     QPoint globalPos;
@@ -2176,7 +2175,7 @@ static bool isModifierKey(int code)
     return code >= Key_Shift && code <= Key_ScrollLock;
 }
 
-bool QETWidget::sendKeyEvent( int type, int code, int ascii, int state,
+bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii, int state,
 			      bool grab )
 {
     if ( type == QEvent::KeyPress && !grab ) {	// send accel event to tlw
@@ -2190,7 +2189,7 @@ bool QETWidget::sendKeyEvent( int type, int code, int ascii, int state,
 	return FALSE;
     QKeyEvent e( type, code, ascii, state );
     QApplication::sendEvent( this, &e );
-    if ( !isModifierKey(code) && state == AltButton
+    if ( !isModifierKey(code) && state == QMouseEvent::AltButton
       && type == QEvent::KeyPress && !e.isAccepted() )
 	QApplication::beep();  // emulate windows behaviour
     return e.isAccepted();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#90 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#91 $
 **
 ** Definition of QPixmap class
 **
@@ -94,6 +94,10 @@ public:
 			      const char* format=0,
 			      int conversion_flags=0 );
     bool	save( const QString& fileName, const char* format ) const;
+
+#if defined(_WS_WIN_)
+    HANDLE	hbm()		const;
+#endif
 
     int		serialNumber()	const;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#70 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -327,9 +327,9 @@ void QPixmap::fill( const QColor &fillColor )
     bool tmp_hdc = hdc == 0;
     if ( tmp_hdc )
 	allocMemDC();
-    if ( fillColor == black ) {
+    if ( fillColor == QColor::black ) {
 	PatBlt( hdc, 0, 0, data->w, data->h, BLACKNESS );
-    } else if ( fillColor == white ) {
+    } else if ( fillColor == QColor::white ) {
 	PatBlt( hdc, 0, 0, data->w, data->h, WHITENESS );
     } else {
 	HANDLE hbrush = CreateSolidBrush( fillColor.pixel() );
@@ -772,7 +772,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     if ( depth1 )
 	memset( dptr, 0xff, dbytes );
     else if ( bpp == 8 )
-	memset( dptr, white.pixel(), dbytes );
+	memset( dptr, QColor::white.pixel(), dbytes );
     else
 	memset( dptr, 0xff, dbytes );
 

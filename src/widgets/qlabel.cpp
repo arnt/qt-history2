@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#91 $
 **
 ** Implementation of QLabel widget class
 **
@@ -442,7 +442,7 @@ void QLabel::setMargin( int margin )
 
 void QLabel::setAutoResize( bool enable )
 {
-    if ( autoresize != enable ) {
+    if ( (bool)autoresize != enable ) {
 	autoresize = enable;
 	if ( autoresize )
 	    adjustSize();			// calls resize which repaints

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#52 $
 **
 ** Implementation of QAccel class
 **
@@ -79,7 +79,8 @@ struct QAccelItem {				// internal accelerator item
 typedef QList<QAccelItem> QAccelList; // internal accelerator list
 
 
-struct QAccelPrivate {
+class QAccelPrivate {
+public:
     QAccelPrivate() { aitems.setAutoDelete( TRUE ); }
     ~QAccelPrivate() {}
     QAccelList aitems;

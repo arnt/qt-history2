@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#28 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#29 $
 **
 ** Macros and definitions related to QObject
 **
@@ -72,7 +72,7 @@ class QMetaObject;
 class QSignal;
 class QConnection;
 class QEvent;
-class QMetaData;
+struct QMetaData;
 class QConnectionList;
 class QConnectionListIt;
 class QSignalDict;

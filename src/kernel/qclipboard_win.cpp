@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#19 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -118,7 +118,7 @@ bool QClipboard::event( QEvent *e )
     if ( e->type() != QEvent::Clipboard )
 	return QObject::event( e );
 
-    MSG *m = (MSG *)Q_CUSTOM_EVENT(e)->data();
+    MSG *m = (MSG *)((QCustomEvent*)e)->data();
 
     switch ( m->message ) {
 

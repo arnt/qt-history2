@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#72 $
+** $Id: //depot/qt/main/src/tools/qstring.h#73 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -304,7 +304,7 @@ public:
     static int compare( const QString& s1, const QString& s2 )
 	{ return s1.compare(s2); }
 
-    friend QDataStream &operator>>( QDataStream &, QString & );
+    friend Q_EXPORT QDataStream &operator>>( QDataStream &, QString & );
 
 #ifndef QT_NO_COMPAT
     const char* data() const { return ascii(); }

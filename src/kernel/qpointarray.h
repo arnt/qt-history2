@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.h#35 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.h#36 $
 **
 ** Definition of QPointArray class
 **
@@ -78,6 +78,10 @@ private:
 /*****************************************************************************
   QPointArray class
  *****************************************************************************/
+
+#if defined(Q_TEMPLATEDLL)
+template class Q_EXPORT QArray<QPointData>;
+#endif
 
 class Q_EXPORT QPointArray : public QArray<QPointData>
 {

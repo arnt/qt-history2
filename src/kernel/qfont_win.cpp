@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#68 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -184,17 +184,16 @@ inline QFontInternal::~QFontInternal()
 static const int fontCacheSize = 120;		// max number of loaded fonts
 
 
-Q_DECLARE(QCacheM,QFontInternal);		// inherited by QFontCache
-typedef Q_DECLARE(QCacheIteratorM,QFontInternal) QFontCacheIt;
-typedef Q_DECLARE(QDictM,QFontInternal)		 QFontDict;
-typedef Q_DECLARE(QDictIteratorM,QFontInternal)  QFontDictIt;
+typedef QCacheIterator<QFontInternal> QFontCacheIt;
+typedef QDict<QFontInternal>	      QFontDict;
+typedef QDictIterator<QFontInternal>  QFontDictIt;
 
 
-class QFontCache : public QCacheM(QFontInternal)
+class QFontCache : public QCache<QFontInternal>
 {
 public:
     QFontCache( int maxCost, int size=17, bool cs=TRUE, bool ck=TRUE )
-	: QCacheM(QFontInternal)(maxCost,size,cs,ck) {}
+	: QCache<QFontInternal>(maxCost,size,cs,ck) {}
     void deleteItem( GCI );
 };
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#76 $
 **
 ** Implementation of QColor class
 **
@@ -516,7 +516,9 @@ void QColor::setRgb( QRgb rgb )
   have greater claim on the name QColor::red.
 */
 
+#ifdef __GNUC__
 #warning "docs into r and b too --Arnt"
+#endif
 
 /*!
   \fn int QColor::g() const

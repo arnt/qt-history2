@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qqueue.h#11 $
+** $Id: //depot/qt/main/src/tools/qqueue.h#12 $
 **
 ** Definition of QQueue template/macro class
 **
@@ -29,63 +29,14 @@
 #endif // QT_H
 
 
-#if defined(USE_MACROCLASS)
-
-#include "qgeneric.h"
-
-#if !defined(name2)
-#define name2(a,b)    name2_xx(a,b)
-#define name2_xx(a,b) a##b
-#endif
-
-#if defined(DEFAULT_MACROCLASS)
-#define QQueuedeclare QQueueMdeclare
-#define QQueue QQueueM
-#endif
-#define QQueueM(type) name2(QQueueM_,type)
-
-#define QQueueMdeclare(type)						      \
-class Q_EXPORT QQueueM(type) : private QGList					      \
-{									      \
-public:									      \
-    QQueueM(type)()			{}				      \
-    QQueueM(type)( const QQueueM(type) &q ) : QGList(q) {}		      \
-   ~QQueueM(type)()			{ clear(); }			      \
-    QQueueM(type)& operator=(const QQueueM(type) &q)			      \
-			{ return (QQueueM(type)&)QGList::operator=(q); }      \
-    bool  autoDelete() const		{ return QCollection::autoDelete(); } \
-    void  setAutoDelete( bool del )	{ QCollection::setAutoDelete(del); }  \
-    uint  count()   const		{ return QGList::count(); }	      \
-    bool  isEmpty() const		{ return QGList::count() == 0; }      \
-    void  enqueue( const type *d )	{ QGList::append(GCI(d)); }	      \
-    type *dequeue()			{ return (type *)QGList::takeFirst();}\
-    bool  remove()			{ return QGList::removeFirst(); }     \
-    void  clear()			{ QGList::clear(); }		      \
-    type *head()    const		{ return (type *)QGList::cfirst(); }  \
-	  operator type *() const	{ return (type *)QGList::cfirst(); }  \
-    type *current() const		{ return (type *)QGList::cfirst(); }  \
-private:								      \
-    void  deleteItem( GCI d ) { if ( del_item ) delete (type *)d; }	      \
-}
-
-#endif // USE_MACROCLASS
-
-
-#if defined(USE_TEMPLATECLASS)
-
-#if defined(DEFAULT_TEMPLATECLASS)
-#undef	QQueue
-#define QQueue QQueueT
-#endif
-
-template<class type> class QQueueT : private QGList
+template<class type> class QQueue : private QGList
 {
 public:
-    QQueueT()				{}
-    QQueueT( const QQueueT<type> &q ) : QGList(q) {}
-   ~QQueueT()				{ clear(); }
-    QQueueT<type>& operator=(const QQueueT<type> &q)
-			{ return (QQueueT<type>&)QGList::operator=(q); }
+    QQueue()				{}
+    QQueue( const QQueue<type> &q ) : QGList(q) {}
+   ~QQueue()				{ clear(); }
+    QQueue<type>& operator=(const QQueue<type> &q)
+			{ return (QQueue<type>&)QGList::operator=(q); }
     bool  autoDelete() const		{ return QCollection::autoDelete(); }
     void  setAutoDelete( bool del )	{ QCollection::setAutoDelete(del); }
     uint  count()   const		{ return QGList::count(); }
@@ -100,8 +51,6 @@ public:
 private:
     void  deleteItem( GCI d ) { if ( del_item ) delete (type *)d; }
 };
-
-#endif // USE_TEMPLATECLASS
 
 
 #endif // QQUEUE_H

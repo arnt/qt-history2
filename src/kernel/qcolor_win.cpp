@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#48 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -157,9 +157,6 @@ void QColor::initialize()
 
     ((QColor*)(&black))->   alloc();
     ((QColor*)(&white))->   alloc();
-    ((QColor*)(&::red))->   alloc();
-    ((QColor*)(&::green))-> alloc();
-    ((QColor*)(&::blue))->  alloc();
 }
 
 

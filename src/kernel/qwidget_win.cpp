@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#131 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#132 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -46,7 +46,7 @@
 #define WS_EX_TOOLWINDOW 0x00000080
 #endif
 
-QString qt_reg_winclass( int type );	// defined in qapplication_win.cpp
+const char* qt_reg_winclass( int type );	// defined in qapplication_win.cpp
 void	    qt_enter_modal( QWidget * );
 void	    qt_leave_modal( QWidget * );
 bool	    qt_modal_state();
@@ -85,7 +85,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     bool   modal    = testWFlags(WType_Modal);
     bool   desktop  = testWFlags(WType_Desktop);
     HANDLE appinst  = qWinAppInst();
-    QString wcln = qt_reg_winclass( tool ? 1 : 0 );
+    const char* wcln = qt_reg_winclass( tool ? 1 : 0 );
     HANDLE parentw, destroyw = 0;
     WId	   id;
 
@@ -104,7 +104,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	// There's no way we can know the background color of the
 	// other window because it could be cleared using the WM_ERASEBKND
 	// message.  Therefore we assume white.
-	bg_col = white;
+	bg_col = QColor::white;
     } else {
 	bg_col = pal.normal().background();	// default background color
     }
@@ -490,13 +490,13 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	QBitmap mask;
 	if ( pixmap.mask() ) {
 	    pm.resize( pixmap.size() );
-	    pm.fill( black );
+	    pm.fill( QColor::black );
 	    bitBlt( &pm, 0, 0, &pixmap );	// make masked area black
 	    mask = *pixmap.mask();
 	} else  {
 	    pm = pixmap;
 	    mask.resize( pixmap.size() );
-	    mask.fill( color1 );
+	    mask.fill( QColor::color1 );
 	}
 	HANDLE im = createIconMask(mask);
 	ICONINFO ii;
