@@ -495,13 +495,13 @@ qtr_elips(QPointArray& a, int& offset, double dxP, double dyP, double dxQ, doubl
 /*!
   Sets the points of the array to those describing an arc of an
   ellipse with size \a w by \a h and position (\a x, \a y ), starting
-  from angle \a1, spanning \a a2, transformed by the matrix \a xf.
+  from angle \a a1, spanning \a a2, transformed by the matrix \a xf.
   The resulting array has sufficient resolution for pixel accuracy.
 
   Angles are specified in 16ths of a degree,
   i.e. a full circle equals 5760 (16*360). Positive values mean
   counter-clockwise while negative values mean clockwise direction.
-  Zero degrees is at the 3'o clock position.
+  Zero degrees is at the 3 o'clock position.
 */
 void QPointArray::makeArc( int x, int y, int w, int h,
 			       int a1, int a2,
