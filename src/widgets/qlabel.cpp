@@ -632,6 +632,7 @@ QSize QLabel::minimumSizeHint() const
     if ( d->valid_hints == frameWidth() )
 	return d->msh;
 
+    constPolish();
     d->valid_hints = frameWidth();
     d->sh = sizeForWidth( -1 );
     QSize sz( -1, -1 );
