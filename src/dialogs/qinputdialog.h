@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qlinedialog.h#5 $
+** $Id: //depot/qt/main/src/dialogs/qinputialog.h#5 $
 **
-** Definition of QLineDialog class
+** Definition of QInputDialog class
 **
 ** Created : 991212
 **
@@ -23,8 +23,8 @@
 **
 *****************************************************************************/
 
-#ifndef QLINEDIALOG_H
-#define QLINEDIALOG_H
+#ifndef QINPUTDIALOG_H
+#define QINPUTDIALOG_H
 
 #ifndef QT_H
 #include <qdialog.h>
@@ -32,37 +32,22 @@
 #endif // QT_H
 
 
-//
-//  W A R N I N G
-//  -------------
-//
-//  It is very unlikely that this code will be available in the final
-//  Qt release.  It might be available soon after then, but a number
-//  of important API changes still need to be made.
-//
-//  Thus, it is important that you do NOT use this code in an application
-//  unless you are willing for your application to be dependent on a
-//  specific snapshot releases of Qt.
-//
-
-struct QLineDialogPrivate;
+struct QInputDialogPrivate;
 
 class QLineEdit;
 class QSpinBox;
 class QComboBox;
 
-class Q_EXPORT QLineDialog : public QDialog
+class Q_EXPORT QInputDialog : public QDialog
 {
     Q_OBJECT
-    Q_ENUMS( Type )
-    Q_PROPERTY( Type type READ type WRITE setType )
 	
-public:
+private:
     enum Type { LineEdit, SpinBox, ComboBox, EditableComboBox };
 
-    QLineDialog( const QString &label, QWidget* parent = 0, const char* name = 0,
+    QInputDialog( const QString &label, QWidget* parent = 0, const char* name = 0,
 		 bool modal = TRUE, Type type = LineEdit );
-    ~QLineDialog();
+    ~QInputDialog();
 
     QLineEdit *lineEdit() const;
     QSpinBox *spinBox() const;
@@ -72,13 +57,17 @@ public:
     void setType( Type t );
     Type type() const;
 
-    static QString getText( const QString &label, const QString &text = QString::null,
+public:
+    static QString getText( const QString &caption, const QString &label, const QString &text = QString::null,
 			    bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
-    static int getInteger( const QString &label, int num = 0, int from = -2147483647, int to = 2147483647,
+    static int getInteger( const QString &caption, const QString &label, int num = 0, int from = -2147483647, 
+			   int to = 2147483647,
 			   int step = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
-    static double getDouble( const QString &label, double num = 0, double from = -2147483647, double to = 2147483647,
+    static double getDouble( const QString &caption, const QString &label, double num = 0, 
+			     double from = -2147483647, double to = 2147483647,
 			     int step = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
-    static QString getItem( const QString &label, const QStringList &list, int current = 0, bool editable = TRUE,
+    static QString getItem( const QString &caption, const QString &label, const QStringList &list, 
+			    int current = 0, bool editable = TRUE,
 			    bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
 
 private slots:
@@ -86,8 +75,10 @@ private slots:
     void tryAccept();
 
 private:
-    QLineDialogPrivate *d;
-
+    QInputDialogPrivate *d;
+    // just to avoid warnings...
+    friend class QInputDialogPrivate;
+    
 };
 
 #endif

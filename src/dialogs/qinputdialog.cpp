@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qlinedialog.cpp#5 $
+** $Id: //depot/qt/main/src/dialogs/qinputdialog.cpp#5 $
 **
-** Definition of QLineDialog class
+** Definition of QInputDialog class
 **
 ** Created : 991212
 **
@@ -23,7 +23,7 @@
 **
 *****************************************************************************/
 
-#include "qlinedialog.h"
+#include "qinputdialog.h"
 
 #include <qlayout.h>
 #include <qlabel.h>
@@ -34,64 +34,51 @@
 #include <qwidgetstack.h>
 #include <qvalidator.h>
 
-//
-//  W A R N I N G
-//  -------------
-//
-//  It is very unlikely that this code will be available in the final
-//  Qt release.  It might be available soon after then, but a number
-//  of important API changes still need to be made.
-//
-//  Thus, it is important that you do NOT use this code in an application
-//  unless you are willing for your application to be dependent on a
-//  specific snapshot releases of Qt.
-//
-
-struct QLineDialogPrivate
+struct QInputDialogPrivate
 {
     QLineEdit *lineEdit;
     QSpinBox *spinBox;
     QComboBox *comboBox, *editComboBox;
     QPushButton *ok;
     QWidgetStack *stack;
-    QLineDialog::Type type;
+    QInputDialog::Type type;
 };
 
 /*!
-  \class QLineDialog qlinedialog.h
+  \class QInputDialog qinputdialog.h
   \brief A convenience dialog to get a simple input from the user
 
-  The QLineDialog is a simple dialog which can be used if you
-  need a simple input from the user. This can be text, a number or 
+  The QInputDialog is a simple dialog which can be used if you
+  need a simple input from the user. This can be text, a number or
   an item from a list. Also a label has to be set to tell the user
   what he/she should input.
+
+  In this Qt version only the 4 static convenience functions
+  getText(), getInteger(), getDouble() and getInteger() of QInputDialog 
+  are available.
   
-  To be able to get different types of inputs, you can set the input type of
-  the dialog with setType().
-
-  To e.g. get a textual input from the user you can use one of the static
-  methods like this:
-
+  Use it like this:
+  
   \code
   bool ok = FALSE;
-  QString text = QLineDialog::getText( tr( "Please enter your name" ), QString::null, &ok, this );
+  QString text = QInputDialog::getText( tr( "Make an input" ), tr( "Please enter your name" ), QString::null, &ok, this );
   if ( ok && !text.isEmpty() )
       ;// user entered something and pressed ok
   else
       ;// user entered nothing or pressed cancel
   \endcode
-  
+
   There are more static convenience methods!
-  
+
   \sa getText(), getInteger(), getDouble(), getItem()
 */
 
-/*! 
-  \enum QLineDialog::Type
+/*!
+  \enum QInputDialog::Type
 
   This enum type specifies the type of the dialog
   (which kind of input can be done):
-  
+
   <ul>
   <li>\c LineEdit - A QLineEdit is used for taking the input, so a textual or
   (e.g. using a QValidator) a numerical input can be done. Using lineEdit()
@@ -112,15 +99,15 @@ struct QLineDialogPrivate
   to the user what he/she should input), \a parent the parent widget of the dialog, \a name
   the name of it and if you set \a modal to TRUE, the dialog pops up modally, else it pops
   up modeless. With \a type you specify the type of the dialog.
-  
+
   \sa getText(), getInteger(), getDouble(), getItem()
 */
 
-QLineDialog::QLineDialog( const QString &label, QWidget* parent, const char* name, 
+QInputDialog::QInputDialog( const QString &label, QWidget* parent, const char* name,
 			  bool modal, Type type)
     : QDialog( parent, name, modal )
 {
-    d = new QLineDialogPrivate;
+    d = new QInputDialogPrivate;
     d->lineEdit = 0;
     d->spinBox = 0;
     d->comboBox = 0;
@@ -136,7 +123,7 @@ QLineDialog::QLineDialog( const QString &label, QWidget* parent, const char* nam
     d->spinBox = new QSpinBox( d->stack );
     d->comboBox = new QComboBox( FALSE, d->stack );
     d->editComboBox = new QComboBox( TRUE, d->stack );
-    
+
     QHBoxLayout *hbox = new QHBoxLayout( 6 );
     vbox->addLayout( hbox, AlignRight );
 
@@ -155,16 +142,16 @@ QLineDialog::QLineDialog( const QString &label, QWidget* parent, const char* nam
     hbox->addWidget( d->ok );
     hbox->addWidget( cancel );
 
-    connect( d->lineEdit, SIGNAL( returnPressed() ), 
+    connect( d->lineEdit, SIGNAL( returnPressed() ),
 	     this, SLOT( tryAccept() ) );
-    connect( d->lineEdit, SIGNAL( textChanged( const QString & ) ), 
+    connect( d->lineEdit, SIGNAL( textChanged( const QString & ) ),
 	     this, SLOT( textChanged( const QString & ) ) );
-    
+
     connect( d->ok, SIGNAL( clicked() ), this, SLOT( accept() ) );
     connect( cancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 
     resize( QMAX( sizeHint().width(), 400 ), sizeHint().height() );
-    
+
     setType( type );
 }
 
@@ -172,7 +159,7 @@ QLineDialog::QLineDialog( const QString &label, QWidget* parent, const char* nam
   Returns the line edit, which is used in the LineEdit mode
 */
 
-QLineEdit *QLineDialog::lineEdit() const
+QLineEdit *QInputDialog::lineEdit() const
 {
     return d->lineEdit;
 }
@@ -181,7 +168,7 @@ QLineEdit *QLineDialog::lineEdit() const
   Returns the spinbox, which is used in the SpinBox mode
 */
 
-QSpinBox *QLineDialog::spinBox() const
+QSpinBox *QInputDialog::spinBox() const
 {
     return d->spinBox;
 }
@@ -190,7 +177,7 @@ QSpinBox *QLineDialog::spinBox() const
   Returns the combobox, which is used in the ComboBox mode
 */
 
-QComboBox *QLineDialog::comboBox() const
+QComboBox *QInputDialog::comboBox() const
 {
     return d->comboBox;
 }
@@ -199,7 +186,7 @@ QComboBox *QLineDialog::comboBox() const
   Returns the combobox, which is used in the EditableComboBox mode
 */
 
-QComboBox *QLineDialog::editableComboBox() const
+QComboBox *QInputDialog::editableComboBox() const
 {
     return d->editComboBox;
 }
@@ -208,7 +195,7 @@ QComboBox *QLineDialog::editableComboBox() const
   Sets the input type of the dialog to \a t.
 */
 
-void QLineDialog::setType( Type t )
+void QInputDialog::setType( Type t )
 {
     switch ( t ) {
     case LineEdit:
@@ -228,17 +215,17 @@ void QLineDialog::setType( Type t )
 	d->editComboBox->setFocus();
 	break;
     }
-    
+
     d->type = t;
 }
 
 /*!
   Returns the input type of the dialog.
-  
+
   \sa setType()
 */
 
-QLineDialog::Type QLineDialog::type() const
+QInputDialog::Type QInputDialog::type() const
 {
     return d->type;
 }
@@ -247,13 +234,14 @@ QLineDialog::Type QLineDialog::type() const
   Destructor.
 */
 
-QLineDialog::~QLineDialog()
+QInputDialog::~QInputDialog()
 {
     delete d;
 }
 
 /*!
-  Static convenience function to get a textual input from the user. \a label is the text which
+  Static convenience function to get a textual input from the user. \a caption is the text
+  which is displayed in the title bar of the dialog. \a label is the text which
   is shown to the user (it should mention to the user what he/she should input), \a text
   the default text which will be initially set to the line edit, \a ok a pointer to
   a bool which will be (if not 0!) set to TRUE if the user pressed ok or to FALSE if the
@@ -266,7 +254,7 @@ QLineDialog::~QLineDialog()
 
   \code
   bool ok = FALSE;
-  QString text = QLineDialog::getText( tr( "Please enter your name" ), QString::null, &ok, this );
+  QString text = QInputDialog::getText( tr( "Please enter your name" ), QString::null, &ok, this );
   if ( ok && !text.isEmpty() )
       ;// user entered something and pressed ok
   else
@@ -274,15 +262,15 @@ QLineDialog::~QLineDialog()
   \endcode
 */
 
-QString QLineDialog::getText( const QString &label, const QString &text,
+QString QInputDialog::getText( const QString &caption, const QString &label, const QString &text,
 			      bool *ok, QWidget *parent, const char *name )
 {
-    QLineDialog *dlg = new QLineDialog( label, parent, name, TRUE, LineEdit );
-    dlg->setCaption( tr( "Please enter a Text" ) );
+    QInputDialog *dlg = new QInputDialog( label, parent, name, TRUE, LineEdit );
+    dlg->setCaption( caption );
     dlg->lineEdit()->setText( text );
     if ( !text.isEmpty() )
 	dlg->lineEdit()->selectAll();
-    
+
     bool ok_ = FALSE;
     QString result;
     ok_ = dlg->exec() == QDialog::Accepted;
@@ -290,13 +278,14 @@ QString QLineDialog::getText( const QString &label, const QString &text,
 	*ok = ok_;
     if ( ok_ )
 	result = dlg->lineEdit()->text();
-    
+
     delete dlg;
     return result;
 }
 
 /*!
-  Static convenience function to get an integral input from the user. \a label is the text which
+  Static convenience function to get an integral input from the user. \a caption is the text
+  which is displayed in the title bar of the dialog. \a label is the text which
   is shown to the user (it should mention to the user what he/she should input), \a num
   the default number which will be initially set to the spinbox, \a from and \a to the
   range in which the entered number has to be, \a step the step in which the number can
@@ -311,7 +300,7 @@ QString QLineDialog::getText( const QString &label, const QString &text,
 
   \code
   bool ok = FALSE;
-  int res = QLineDialog::getInteger( tr( "Please enter a number" ), 22, 0, 1000, 2, &ok, this );
+  int res = QInputDialog::getInteger( tr( "Please enter a number" ), 22, 0, 1000, 2, &ok, this );
   if ( ok )
       ;// user entered something and pressed ok
   else
@@ -319,11 +308,11 @@ QString QLineDialog::getText( const QString &label, const QString &text,
   \endcode
 */
 
-int QLineDialog::getInteger( const QString &label, int num, int from, int to, int step,
+int QInputDialog::getInteger( const QString &caption, const QString &label, int num, int from, int to, int step,
 			    bool *ok, QWidget *parent, const char *name )
 {
-    QLineDialog *dlg = new QLineDialog( label, parent, name, TRUE, SpinBox );
-    dlg->setCaption( tr( "Please enter an integral Number" ) );
+    QInputDialog *dlg = new QInputDialog( label, parent, name, TRUE, SpinBox );
+    dlg->setCaption( caption );
     dlg->spinBox()->setRange( from, to );
     dlg->spinBox()->setSteps( step, 0 );
     dlg->spinBox()->setValue( num );
@@ -334,13 +323,14 @@ int QLineDialog::getInteger( const QString &label, int num, int from, int to, in
     if ( ok )
 	*ok = ok_;
     result = dlg->spinBox()->value();
-    
+
     delete dlg;
     return result;
 }
 
 /*!
-  Static convenience function to get a decimal input from the user. \a label is the text which
+  Static convenience function to get a decimal input from the user. \a caption is the text
+  which is displayed in the title bar of the dialog. \a label is the text which
   is shown to the user (it should mention to the user what he/she should input), \a num
   the default decimal number which will be initially set to the line edit, \a from and \a to the
   range in which the entered number has to be, \a decimals the number of decimal which
@@ -355,7 +345,7 @@ int QLineDialog::getInteger( const QString &label, int num, int from, int to, in
 
   \code
   bool ok = FALSE;
-  double res = QLineDialog::getDouble( tr( "Please enter a decimal number" ), 33.7, 0, 1000, 2, &ok, this );
+  double res = QInputDialog::getDouble( tr( "Please enter a decimal number" ), 33.7, 0, 1000, 2, &ok, this );
   if ( ok )
       ;// user entered something and pressed ok
   else
@@ -363,28 +353,30 @@ int QLineDialog::getInteger( const QString &label, int num, int from, int to, in
   \endcode
 */
 
-double QLineDialog::getDouble( const QString &label, double num, double from, double to, int decimals,
-			       bool *ok, QWidget *parent, const char *name )
+double QInputDialog::getDouble( const QString &caption, const QString &label, double num, 
+				double from, double to, int decimals,
+				bool *ok, QWidget *parent, const char *name )
 {
-    QLineDialog *dlg = new QLineDialog( label, parent, name, TRUE, LineEdit );
-    dlg->setCaption( tr( "Please enter a decimal Number" ) );
+    QInputDialog *dlg = new QInputDialog( label, parent, name, TRUE, LineEdit );
+    dlg->setCaption( caption );
     dlg->lineEdit()->setValidator( new QDoubleValidator( from, to, decimals, dlg->lineEdit() ) );
     dlg->lineEdit()->setText( QString::number( num ) );
 	dlg->lineEdit()->selectAll();
-    
+
     bool ok_ = FALSE;
     double result;
     ok_ = dlg->exec() == QDialog::Accepted;
     if ( ok )
 	*ok = ok_;
     result = dlg->lineEdit()->text().toDouble();
-    
+
     delete dlg;
     return result;
 }
 
 /*!
-  Static convenience function to let the user select an item from a string list. \a label is the text which
+  Static convenience function to let the user select an item from a string list. \a caption is the text
+  which is displayed in the title bar of the dialog. \a label is the text which
   is shown to the user (it should mention to the user what he/she should input), \a list the
   string list which is inserted into the combobox, \a current the nimber of the item which should
   be initially the current item, \a editable specifies if the combobox should be editable (if it is TRUE)
@@ -402,7 +394,7 @@ double QLineDialog::getDouble( const QString &label, double num, double from, do
   QStringList lst;
   lst << "First" << "Second" << "Third" << "Fourth" << "Fifth";
   bool ok = FALSE;
-  QString res = QLineDialog::getItem( tr( "Please select an item" ), lst, 1, TRUE, &ok, this );
+  QString res = QInputDialog::getItem( tr( "Please select an item" ), lst, 1, TRUE, &ok, this );
   if ( ok )
       ;// user selected an item and pressed ok
   else
@@ -410,11 +402,12 @@ double QLineDialog::getDouble( const QString &label, double num, double from, do
   \endcode
 */
 
-QString QLineDialog::getItem( const QString &label, const QStringList &list, int current, bool editable,
-			      bool *ok, QWidget *parent, const char *name )
+QString QInputDialog::getItem( const QString &caption, const QString &label, const QStringList &list, 
+			       int current, bool editable,
+			       bool *ok, QWidget *parent, const char *name )
 {
-    QLineDialog *dlg = new QLineDialog( label, parent, name, TRUE, editable ? EditableComboBox : ComboBox );
-    dlg->setCaption( tr( "Please select an Item" ) );
+    QInputDialog *dlg = new QInputDialog( label, parent, name, TRUE, editable ? EditableComboBox : ComboBox );
+    dlg->setCaption( caption );
     if ( editable ) {
 	dlg->editableComboBox()->insertStringList( list );
 	dlg->editableComboBox()->setCurrentItem( current );
@@ -432,7 +425,7 @@ QString QLineDialog::getItem( const QString &label, const QStringList &list, int
 	result = dlg->editableComboBox()->currentText();
     else
 	result = dlg->comboBox()->currentText();
-    
+
     delete dlg;
     return result;
 }
@@ -441,7 +434,7 @@ QString QLineDialog::getItem( const QString &label, const QStringList &list, int
   \internal
 */
 
-void QLineDialog::textChanged( const QString &s )
+void QInputDialog::textChanged( const QString &s )
 {
     d->ok->setEnabled( !s.isEmpty() );
 }
@@ -450,7 +443,7 @@ void QLineDialog::textChanged( const QString &s )
   \internal
 */
 
-void QLineDialog::tryAccept()
+void QInputDialog::tryAccept()
 {
     if ( !d->lineEdit->text().isEmpty() )
 	accept();

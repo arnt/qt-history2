@@ -9,7 +9,7 @@
 *****************************************************************************/
 
 #include <qapplication.h>
-#include <qlinedialog.h>
+#include <qinputdialog.h>
 #include <qvbox.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
@@ -41,7 +41,7 @@ public:
 private slots:
     void lined() {
 	bool ok = FALSE;
-	QString s = QLineDialog::getText( "Text:", "Default", &ok );
+	QString s = QInputDialog::getText( "Enter a Text", "Text:", "Default", &ok );
 	if ( !s.isEmpty() && ok )
 	    res->setText( "Entered Text: " + s );
 	else
@@ -50,7 +50,7 @@ private slots:
 
     void num() {
 	bool ok = FALSE;
-	int num = QLineDialog::getInteger( "Number:", 22, 0, 1000, 1, &ok );
+	int num = QInputDialog::getInteger( "Enter a Number", "Number:", 22, 0, 1000, 1, &ok );
 	if ( ok )
 	    res->setText( "Entered Number: " + QString::number( num ) );
 	else
@@ -59,7 +59,7 @@ private slots:
 
     void dbl() {
 	bool ok = FALSE;
-	double num = QLineDialog::getDouble( "Number:", 33.6, 0, 1000, 2, &ok );
+	double num = QInputDialog::getDouble( "Enter a Number", "Number:", 33.6, 0, 1000, 2, &ok );
 	if ( ok )
 	    res->setText( "Entered Number: " + QString::number( num ) );
 	else
@@ -70,7 +70,7 @@ private slots:
 	QStringList lst;
 	lst << "First" << "Second" << "Third" << "Fourth" << "Fifth";
 	bool ok = FALSE;
-	QString s = QLineDialog::getItem( "Item:", lst, 3, FALSE, &ok );
+	QString s = QInputDialog::getItem( "Select an Item", "Item:", lst, 3, FALSE, &ok );
 	if ( !s.isEmpty() && ok )
 	    res->setText( "Selected Item: " + s );
 	else
@@ -81,7 +81,7 @@ private slots:
 	QStringList lst;
 	lst << "First" << "Second" << "Third" << "Fourth" << "Fifth";
 	bool ok = FALSE;
-	QString s = QLineDialog::getItem( "Item:", lst, 3, TRUE, &ok );
+	QString s = QInputDialog::getItem( "Select an Item", "Item:", lst, 3, TRUE, &ok );
 	if ( !s.isEmpty() && ok )
 	    res->setText( "Selected Item: " + s );
 	else

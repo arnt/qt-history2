@@ -71,7 +71,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$DIALOGS_H/qprogressdialog.h \
 		  $$DIALOGS_H/qtabdialog.h \
 		  $$DIALOGS_H/qwizard.h \
-		  $$DIALOGS_H/qlinedialog.h \
+		  $$DIALOGS_H/qinputdialog.h \
 		  $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
 		  $$KERNEL_H/qapplication.h \
@@ -459,7 +459,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  dialogs/qprogressdialog.cpp \
 		  dialogs/qtabdialog.cpp \
 		  dialogs/qwizard.cpp \
-		  dialogs/qlinedialog.cpp
+		  dialogs/qinputdialog.cpp
 
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
 		  $$KERNEL_H/qpsprinter.h \
