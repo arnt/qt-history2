@@ -2,7 +2,19 @@
 
 MAKEFILES=`find . -name Makefile -print | sort`;
 
-QTDIR=`pwd`
+if [ "$QTDIR" != "$PWD" ]
+then
+    echo >&2
+    echo >&2
+    echo '   $QTDIR must be set to $PWD ('$PWD')' >&2
+    echo '   Please read INSTALL' >&2
+    echo >&2
+    echo >&2
+    exit 1
+fi
+
+
+QTDIR='$(QTDIR)'
 
 for a in $MAKEFILES ; do
     M=`dirname $a`/Makefile
