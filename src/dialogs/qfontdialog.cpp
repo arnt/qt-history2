@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#25 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#26 $
 **
 ** Implementation of QFontDialog
 **
@@ -152,7 +152,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->familyList->setFocusPolicy( NoFocus );
 
     d->familyAccel
-	= new QLabel( d->familyEdit, "&Font", this, "family accelerator" );
+	= new QLabel( d->familyEdit, tr("&Font"), this, "family accelerator" );
     d->familyAccel->setMargin( 2 );
 
     d->styleEdit = new QExpandingLineEdit( this, "font style I", TRUE );
@@ -160,7 +160,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->styleList = new QListBox( this, "font style II" );
     d->styleList->setFocusPolicy( NoFocus );
     d->styleAccel
-	= new QLabel( d->styleEdit, "Font st&yle", this, "style accelerator" );
+	= new QLabel( d->styleEdit, tr("Font st&yle"), this, "style accelerator" );
     d->styleAccel->setMargin( 2 );
 
     d->sizeEdit = new QExpandingLineEdit( this, "font size I", TRUE );
@@ -168,20 +168,20 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->sizeList = new QListBox( this, "font size II" );
     d->sizeList->setFocusPolicy( NoFocus );
     d->sizeAccel
-	= new QLabel ( d->sizeEdit, "&Size", this, "size accelerator" );
+	= new QLabel ( d->sizeEdit, tr("&Size"), this, "size accelerator" );
     d->sizeAccel->setMargin( 2 );
 
     // effects box
     d->effects = new QGroupBox( this, "font effects" );
-    d->effects->setTitle( "Effects" );
+    d->effects->setTitle( tr("Effects") );
     d->strikeout = new QCheckBox( d->effects, "strikeout on/off" );
-    d->strikeout->setText( "Stri&keout" );
+    d->strikeout->setText( tr("Stri&keout") );
     d->underline = new QCheckBox( d->effects, "underline on/off" );
-    d->underline->setText( "&Underline" );
+    d->underline->setText( tr("&Underline") );
     d->color = new QComboBox( TRUE, d->effects, "pen color" );
     d->color->setEnabled( FALSE );
     d->colorAccel
-	= new QLabel( d->color, "&Color", d->effects, "color label" );
+	= new QLabel( d->color, tr("&Color"), d->effects, "color label" );
     d->colorAccel->setMargin( 2 );
 
     d->effectsLayout = new QBoxLayout( d->effects, QBoxLayout::Down, 6, 0 );
@@ -198,13 +198,13 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     QWidget * sampleStuff = new QWidget( this, "sample and more, wrapped up" );
 
     d->sample = new QGroupBox( sampleStuff, "sample text" );
-    d->sample->setTitle( "Sample" );
+    d->sample->setTitle( tr("Sample") );
     d->sampleEdit = new QExpandingLineEdit( d->sample, "r/w sample text", FALSE );
-    d->sampleEdit->setText( "AaBbYyZz" );
+    d->sampleEdit->setText( tr("AaBbYyZz") );
     d->scriptCombo = new QExpandingComboBox( TRUE, sampleStuff, "font encoding" );
     d->scriptCombo->setFocusPolicy( StrongFocus );
     d->scriptAccel
-	= new QLabel( d->scriptCombo, "Scr&ipt", sampleStuff,"encoding label");
+	= new QLabel( d->scriptCombo, tr("Scr&ipt"), sampleStuff,"encoding label");
     d->scriptAccel->setMargin( 2 );
 
     d->sampleLayout = new QBoxLayout( sampleStuff, QBoxLayout::Down, 0 );
@@ -283,13 +283,19 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 
     d->buttonLayout = new QBoxLayout( buttonBox, QBoxLayout::Down, 0 );
 
-    d->ok = new QPushButton( "OK", buttonBox, "accept font selection" );
-    connect( d->ok, SIGNAL(clicked()), SLOT(accept()) );
+    d->ok = new QPushButton(
+		    modal ? tr("OK") : tr("Apply"),
+		    buttonBox, "accept font selection" );
+    if ( modal )
+	connect( d->ok, SIGNAL(clicked()), SLOT(accept()) );
+    connect( d->ok, SIGNAL(clicked()), SLOT(emitSelectedFont()) );
     d->buttonLayout->addWidget( d->ok, 0, AlignLeft );
 
     d->buttonLayout->addSpacing( 6 );
 
-    d->cancel = new QPushButton( "Cancel", buttonBox, "cancel" );
+    d->cancel = new QPushButton(
+		    modal ? tr("Cancel") : tr("Close"),
+		    buttonBox, "cancel/close" );
     connect( d->cancel, SIGNAL(clicked()), SLOT(reject()) );
     d->buttonLayout->addWidget( d->cancel, 0, AlignLeft );
 
@@ -388,7 +394,7 @@ QFont QFontDialog::getFont( bool *ok, const QFont *def,
     QFontDialog *dlg = new QFontDialog( parent, name, TRUE );
     if ( def )
     dlg->setFont( *def );
-    dlg->setCaption( "Font" );
+    dlg->setCaption( tr("Font") );
     if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->font();
 	if ( ok )
@@ -677,4 +683,10 @@ QFont QFontDialog::font() const
 void QFontDialog::updateSample()
 {
     d->sampleEdit->setFont( font() );
+    emit fontHighlighted(font());
+}
+
+void QFontDialog::emitSelectedFont()
+{
+    emit fontSelected(font());
 }

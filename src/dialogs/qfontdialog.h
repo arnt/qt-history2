@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#10 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#11 $
 **
 ** Definition of QFontDialog
 **
@@ -68,6 +68,10 @@ public:
     QFont font() const;
     void setFont( const QFont &font );
 
+signals:
+    void fontSelected( const QFont &font );
+    void fontHighlighted( const QFont &font );
+
 protected:
     bool eventFilter( QObject *, QEvent * );
 
@@ -95,6 +99,7 @@ private slots:
     void styleHighlighted( const QString &);
     void sizeHighlighted( const QString &);
     void updateSample();
+    void emitSelectedFont();
 
 private:
     static QFont getFont( bool *ok, const QFont *def,
