@@ -376,7 +376,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	    InterpreterInterface *interpreterInterface = 0;
 	    interpreterInterfaceManager->queryInterface( *qwf_language, &interpreterInterface );
 	    if ( interpreterInterface ) {
-		interpreterInterface->init();		
+		interpreterInterface->init();
 		interpreterInterface->exec( qwf_form_object ? qwf_form_object : widgetFactory->toplevel,
 					    widgetFactory->code );
 	    }
@@ -451,7 +451,7 @@ QWidget *QWidgetFactory::createFromUiFile( QDomDocument doc, QObject *connector,
 	} else if ( e.tagName() == "pixmapinproject" ) {
 	    usePixmapCollection = TRUE;
 	} else if ( e.tagName() == "layoutdefaults" ) {
-	    defSpacing = e.attribute( "spacing", QString::number( defSpacing ) ).toInt();	
+	    defSpacing = e.attribute( "spacing", QString::number( defSpacing ) ).toInt();
 	    defMargin = e.attribute( "margin", QString::number( defMargin ) ).toInt();
 	}
 	e = e.nextSibling().toElement();
@@ -678,7 +678,7 @@ void QWidgetFactory::inputSpacer( const UibStrTable& strings, QDataStream& in,
 		vertical = ( value == "Vertical" );
 	    } else if ( name == "sizeHint" ) {
 		w = value.toSize().width();
-		h = value.toSize().height();	
+		h = value.toSize().height();
 	    } else if ( name == "sizeType" ) {
 		sizeType = stringToSizeType( value.toString() );
 	    }
@@ -1571,9 +1571,14 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	rowspan = 1;
     if ( colspan < 1 )
 	colspan = 1;
+
+    bool isQLayoutWidget = FALSE;
+
     if ( !className.isEmpty() ) {
-	if ( !layout && className  == "QLayoutWidget" )
+	if ( !layout && className  == "QLayoutWidget" ) {
 	    className = "QWidget";
+	    isQLayoutWidget = TRUE;
+	}
 	if ( layout && className == "QLayoutWidget" ) {
 	    // hide layout widgets
 	    w = parent;
@@ -1618,9 +1623,9 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	} else if ( n.tagName() == "hbox" ) {
 	    QLayout *parentLayout = layout;
 	    if ( layout && layout->inherits( "QGridLayout" ) )
-		layout = createLayout( 0, 0, QWidgetFactory::HBox );
+		layout = createLayout( 0, 0, QWidgetFactory::HBox, isQLayoutWidget );
 	    else
-		layout = createLayout( w, layout, QWidgetFactory::HBox );
+		layout = createLayout( w, layout, QWidgetFactory::HBox, isQLayoutWidget );
 	    obj = layout;
 	    n = n.firstChild().toElement();
 	    if ( parentLayout && parentLayout->inherits( "QGridLayout" ) )
@@ -1629,9 +1634,9 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	} else if ( n.tagName() == "grid" ) {
 	    QLayout *parentLayout = layout;
 	    if ( layout && layout->inherits( "QGridLayout" ) )
-		layout = createLayout( 0, 0, QWidgetFactory::Grid );
+		layout = createLayout( 0, 0, QWidgetFactory::Grid, isQLayoutWidget );
 	    else
-		layout = createLayout( w, layout, QWidgetFactory::Grid );
+		layout = createLayout( w, layout, QWidgetFactory::Grid, isQLayoutWidget );
 	    obj = layout;
 	    n = n.firstChild().toElement();
 	    if ( parentLayout && parentLayout->inherits( "QGridLayout" ) )
@@ -1640,9 +1645,9 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	} else if ( n.tagName() == "vbox" ) {
 	    QLayout *parentLayout = layout;
 	    if ( layout && layout->inherits( "QGridLayout" ) )
-		layout = createLayout( 0, 0, QWidgetFactory::VBox );
+		layout = createLayout( 0, 0, QWidgetFactory::VBox, isQLayoutWidget );
 	    else
-		layout = createLayout( w, layout, QWidgetFactory::VBox );
+		layout = createLayout( w, layout, QWidgetFactory::VBox, isQLayoutWidget );
 	    obj = layout;
 	    n = n.firstChild().toElement();
 	    if ( parentLayout && parentLayout->inherits( "QGridLayout" ) )
@@ -1678,12 +1683,12 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
     return w;
 }
 
-QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout* layout, LayoutType type )
+QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout* layout, LayoutType type, bool isQLayoutWidget )
 {
     int spacing = defSpacing;
     int margin = defMargin;
 
-    if ( layout || !widget )
+    if ( layout || !widget || isQLayoutWidget )
 	margin = 0;
 
     if ( !layout && widget && widget->inherits( "QTabWidget" ) )
@@ -1706,7 +1711,7 @@ QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout* layout, LayoutT
 	align = Qt::AlignTop;
     }
     if ( layout ) {
-    	switch ( type ) {
+	switch ( type ) {
         case HBox:
 	    l = new QHBoxLayout( layout );
 	    break;
@@ -2082,7 +2087,7 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 	    s = s.arg( conn.signal );
 	    QString s2 = "1""%1";
 	    s2 = s2.arg( conn.slot );
-	
+
 	    QStrList signalList = sender->metaObject()->signalNames( TRUE );
 	    QStrList slotList = receiver->metaObject()->slotNames( TRUE );
 

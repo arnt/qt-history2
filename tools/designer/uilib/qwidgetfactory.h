@@ -63,7 +63,7 @@ private:
     void loadConnections( const QDomElement &e, QObject *connector );
     void loadTabOrder( const QDomElement &e );
     QWidget *createWidgetInternal( const QDomElement &e, QWidget *parent, QLayout* layout, const QString &classNameArg );
-    QLayout *createLayout( QWidget *widget, QLayout*  layout, LayoutType type );
+    QLayout *createLayout( QWidget *widget, QLayout*  layout, LayoutType type, bool isQLayoutWidget = FALSE );
     LayoutType layoutType( QLayout *l ) const;
     void setProperty( QObject* widget, const QString &prop, QVariant value );
     void setProperty( QObject* widget, const QString &prop, const QDomElement &e );
@@ -104,7 +104,7 @@ private:
     void unpackVariant( const UibStrTable& strings, QDataStream& in,
 			QVariant& value );
     void inputSpacer( const UibStrTable& strings, QDataStream& in,
-    		      QLayout *parent );
+		      QLayout *parent );
     void inputColumnOrRow( const UibStrTable& strings, QDataStream& in,
 			   QObject *parent, bool isRow );
     void inputItem( const UibStrTable& strings, QDataStream& in,
