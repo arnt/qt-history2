@@ -3,7 +3,7 @@
 #endif // QT_H
 #define QATOMIC_X86_H
 
-#if defined(__GNUC__) && defined(__i386__)
+#if defined(__GNUC__) && defined(__i386__) || defined(__INTEL_COMPILER)
 
 template <typename T>
 inline T *qAtomicSetPtr( T ** volatile ptr, T *value )

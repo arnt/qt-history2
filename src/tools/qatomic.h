@@ -7,12 +7,10 @@
 #  elif defined(__ppc__)
 #    include "qatomic_ppc.h"
 #  endif
+#elif defined(__INTEL_COMPILER)
+#  include "qatomic_x86.h"
 #elif defined(_MSC_VER)
-
-#ifndef QT_H
-#include "qatomic_win.h"
-#endif // QT_H
-
+#  include "qatomic_win.h"
 #elif defined(__sun) || defined(sun)
 #  include "qatomic_sun.h"
 #else
