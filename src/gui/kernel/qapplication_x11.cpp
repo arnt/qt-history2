@@ -1002,7 +1002,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
                 key = item.left(i).trimmed().mid(1).toLower();
                 value = item.right(item.length() - i - 1).trimmed();
                 mine = true;
-            } else if (res[l] == appName[0] || res[l] == appClass[0]) {
+            } else if (res[l] == appName[0] || (appClass && res[l] == appClass[0])) {
                 if (res.mid(l,apnl) == apn && (res[l+apnl] == '.' || res[l+apnl] == '*')) {
                     QString item = res.mid(l, r - l).simplified();
                     int i = item.indexOf(':');
