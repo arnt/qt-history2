@@ -23,7 +23,7 @@ QTextCodec *CNTextCodecs::createForMib( int mib )
 {
     switch (mib) {
     case 57:
-	return new QFontGB2312Codec;
+	return new QGb2312Codec;
     case 2025:
 	return new QGbkCodec;
     case -2025:
@@ -43,7 +43,7 @@ QTextCodec *CNTextCodecs::createForName( const QString &name )
     if (name == "GBK" || name == "gbk-0")
 	return new QGbkCodec;
     if (name == "gb2312.1980-0")
-	return new QFontGB2312Codec;
+	return new QGb2312Codec;
 
     return 0;
 }
