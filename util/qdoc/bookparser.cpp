@@ -1260,8 +1260,11 @@ void HtmlSynthetizer::processSectionHeadingEnd( int level, int topLevel )
 	sub.ref = htmlFileName;
 	sub.title = heading;
 	XmlSection *parent = &rootXmlSection;
-	for ( int i = 0; i < n; i++ )
-	    parent = &parent->subsections->last();
+	for ( int i = 0; i < n; i++ ) {
+	    if ( parent->subsections )
+		parent = &parent->subsections->last();
+	    // ### else give message?
+	}
 	appendXmlSubSection( parent, sub );
     }
 }

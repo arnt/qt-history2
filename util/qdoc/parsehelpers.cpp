@@ -200,21 +200,23 @@ void sortXmlSubSections( XmlSection *xmlSect )
 void generateXmlSubSections( QString indent, BinaryWriter& out,
 			     const XmlSection& sect )
 {
-    indent += "    ";
-    QValueList<XmlSection>::ConstIterator ss = sect.subsections->begin();
-    while ( ss != sect.subsections->end() ) {
-	out.puts( indent + "<section ref=\"" + htmlProtect( (*ss).ref, FALSE ) +
-		  "\" title=\"" + htmlProtect( (*ss).title, FALSE ) + "\"" );
-	if ( (*ss).keywords.isEmpty() && (*ss).subsections == 0 ) {
-	    out.puts( "/>\n" );
-	} else {
-	    out.puts( ">\n" );
-	    // output the keyword
-	    if ( (*ss).subsections != 0 )
-		generateXmlSubSections( indent, out, *ss );
-	    out.puts( indent + "</section>\n" );
+    if ( sect.subsections ) {
+	indent += "    ";
+	QValueList<XmlSection>::ConstIterator ss = sect.subsections->begin();
+	while ( ss != sect.subsections->end() ) {
+	    out.puts( indent + "<section ref=\"" + htmlProtect( (*ss).ref, FALSE ) +
+		      "\" title=\"" + htmlProtect( (*ss).title, FALSE ) + "\"" );
+	    if ( (*ss).keywords.isEmpty() && (*ss).subsections == 0 ) {
+		out.puts( "/>\n" );
+	    } else {
+		out.puts( ">\n" );
+		// output the keyword
+		if ( (*ss).subsections != 0 )
+		    generateXmlSubSections( indent, out, *ss );
+		out.puts( indent + "</section>\n" );
+	    }
+	    ++ss;
 	}
-	++ss;
     }
 }
 
