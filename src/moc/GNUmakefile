@@ -2,9 +2,9 @@
 # Qt Makefile - Meta Object Compiler (moc)
 #############################################################################
 
-####### Directories
+####### Extra Inlcude Directories
 
-INCDIR	=	../tools
+INCPATH	= -I../tools
 
 ####### Compiler
 
@@ -48,7 +48,7 @@ TARGET	=	moc
 .SUFFIXES: .cpp
 
 .cpp.o:
-	$(CC) -c $(CFLAGS) -I. -I$(INCDIR) $<
+	$(CC) -c $(CFLAGS) -I. $(INCPATH) $<
 
 ####### Build rules
 
@@ -58,7 +58,7 @@ $(TARGET): $(TOOLOBJ) $(OBJECTS)
 	$(CC) $(OBJECTS) $(TOOLOBJ) -o $(TARGET)
 
 depend:
-	makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
+	makedepend $(INCPATH) $(SOURCES) 2> /dev/null
 
 clean:
 	-rm -f *.o *.bak *~ *% #*
@@ -77,40 +77,40 @@ $(TMPCPP): moc.y $(LEXOUT)
 ####### Compile the .cpp files
 
 mocgen.o: mocgen.cpp
-	$(CC) -c $(CFLAGS) $(YACCCFLAGS) -I$(INCDIR) mocgen.cpp -o mocgen.o
+	$(CC) -c $(CFLAGS) $(YACCCFLAGS) $(INCPATH) mocgen.cpp -o mocgen.o
 
 qbuffer.o: ../tools/qbuffer.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qbuffer.cpp -o qbuffer.o
+	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qbuffer.cpp -o qbuffer.o
 
 qcollect.o: ../tools/qcollect.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qcollect.cpp -o qcollect.o
+	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qcollect.cpp -o qcollect.o
 
 qdatetm.o: ../tools/qdatetm.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qdatetm.cpp -o qdatetm.o
+	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qdatetm.cpp -o qdatetm.o
 
 qdstream.o: ../tools/qdstream.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qdstream.cpp -o qdstream.o
+	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qdstream.cpp -o qdstream.o
 
 qgarray.o: ../tools/qgarray.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qgarray.cpp -o qgarray.o
+	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qgarray.cpp -o qgarray.o
 
 qgdict.o: ../tools/qgdict.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qgdict.cpp -o qgdict.o
+	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qgdict.cpp -o qgdict.o
 
 qglist.o: ../tools/qglist.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qglist.cpp -o qglist.o
+	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qglist.cpp -o qglist.o
 
 qglobal.o: ../tools/qglobal.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qglobal.cpp -o qglobal.o
+	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qglobal.cpp -o qglobal.o
 
 qgvector.o: ../tools/qgvector.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qgvector.cpp -o qgvector.o
+	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qgvector.cpp -o qgvector.o
 
 qiodev.o: ../tools/qiodev.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qiodev.cpp -o qiodev.o
+	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qiodev.cpp -o qiodev.o
 
 qstring.o: ../tools/qstring.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) ../tools/qstring.cpp -o qstring.o
+	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qstring.cpp -o qstring.o
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
