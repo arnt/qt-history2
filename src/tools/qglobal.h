@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#33 $ 
+** $Id: //depot/qt/main/src/tools/qglobal.h#34 $ 
 **
 ** Global type declarations and definitions
 **
@@ -46,7 +46,7 @@
 #define _OS_HPUX_
 #elif defined(ultrix) || defined(__ultrix) || defined(__ultrix__)
 #define _OS_ULTRIX_
-#elif defined(linux)
+#elif defined(linux) || defined(__linux__)
 #define _OS_LINUX_
 #else
 #error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
@@ -99,7 +99,7 @@
 
 
 //
-// Some compilers don't support templates
+// Some compilers do not support templates
 //
 
 #if defined(_CC_MPW_) || (defined(_CC_MSVC_) && _MSC_VER < 900)
