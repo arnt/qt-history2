@@ -825,7 +825,6 @@ bool QMenuBar::macUpdatePopup(MenuRef mr)
     int mid = GetMenuID(mr);
     if (MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups.value(mid)) {
 	if(mpb->qpopup) {
-	    emit mpb->qpopup->aboutToShow();
 	    if (1 || mpb->qpopup->mac_dirty_popup) {
 		mpb->qpopup->mac_dirty_popup = 0;
 		DeleteMenuItems(mr, 1, CountMenuItems(mr));
@@ -859,8 +858,13 @@ bool QMenuBar::macUpdatePopupVisible(MenuRef mr, bool vis)
 
     int mid = GetMenuID(mr);
     if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups.value(mid)) {
-	if(mpb->qpopup)
-	    return true;
+	if(mpb->qpopup) {
+	    if(vis)
+		emit mpb->qpopup->aboutToShow();
+	    else
+		emit mpb->qpopup->aboutToHide();
+	    return true;  
+        }
     }
     return false;
 }
