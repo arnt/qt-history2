@@ -30,6 +30,7 @@ class Q3FileDialogQFileListView;
 #include "qdir.h"
 #include "qdialog.h"
 #include "q3urloperator.h"
+#include "q3valuelist.h"
 #include "qurlinfo.h"
 
 #ifndef QT_NO_FILEDIALOG
@@ -220,7 +221,7 @@ private slots:
     void urlStart(Q3NetworkOperation *op);
     void urlFinished(Q3NetworkOperation *op);
     void dataTransferProgress(int bytesDone, int bytesTotal, Q3NetworkOperation *);
-    void insertEntry(const QList<QUrlInfo> &fi, Q3NetworkOperation *op);
+    void insertEntry(const Q3ValueList<QUrlInfo> &fi, Q3NetworkOperation *op);
     void removeEntry(Q3NetworkOperation *);
     void createdDirectory(const QUrlInfo &info, Q3NetworkOperation *);
     void itemChanged(Q3NetworkOperation *);

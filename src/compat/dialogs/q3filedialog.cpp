@@ -2378,8 +2378,8 @@ void Q3FileDialog::init()
              this, SLOT(urlStart(Q3NetworkOperation*)));
     connect(&d->url, SIGNAL(finished(Q3NetworkOperation*)),
              this, SLOT(urlFinished(Q3NetworkOperation*)));
-    connect(&d->url, SIGNAL(newChildren(QList<QUrlInfo>,Q3NetworkOperation*)),
-             this, SLOT(insertEntry(QList<QUrlInfo>,Q3NetworkOperation*)));
+    connect(&d->url, SIGNAL(newChildren(const Q3ValueList<QUrlInfo> &,Q3NetworkOperation*)),
+             this, SLOT(insertEntry(const Q3ValueList<QUrlInfo> &,Q3NetworkOperation*)));
     connect(&d->url, SIGNAL(removed(Q3NetworkOperation*)),
              this, SLOT(removeEntry(Q3NetworkOperation*)));
     connect(&d->url, SIGNAL(createdDirectory(QUrlInfo,Q3NetworkOperation*)),
@@ -5704,7 +5704,7 @@ void Q3FileDialog::urlFinished(Q3NetworkOperation *op)
                 ui.setFile(false);
                 ui.setSymLink(false);
                 ui.setSize(0);
-                QList<QUrlInfo> lst;
+                Q3ValueList<QUrlInfo> lst;
                 lst << ui;
                 insertEntry(lst, 0);
             }
@@ -5767,12 +5767,12 @@ void Q3FileDialog::dataTransferProgress(int bytesDone, int bytesTotal, Q3Network
     }
 }
 
-void Q3FileDialog::insertEntry(const QList<QUrlInfo> &lst, Q3NetworkOperation *op)
+void Q3FileDialog::insertEntry(const Q3ValueList<QUrlInfo> &lst, Q3NetworkOperation *op)
 {
     if (op && op->operation() == Q3NetworkProtocol::OpListChildren &&
          op != d->currListChildren)
         return;
-    QList<QUrlInfo>::ConstIterator it = lst.begin();
+    Q3ValueList<QUrlInfo>::ConstIterator it = lst.begin();
     for (; it != lst.end(); ++it) {
         const QUrlInfo &inf = *it;
         if (d->mode == DirectoryOnly && !inf.isDir())
