@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#107 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#106 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#107 $")
 
 
 /*----------------------------------------------------------------------------
@@ -724,7 +724,7 @@ const QPixmap *QWidget::backgroundPixmap() const
 
 
 /*----------------------------------------------------------------------------
-  \fn void QWidget::backgroundPixmapChange( const QColor &oldBackgroundPixmap )
+  \fn void QWidget::backgroundPixmapChange( const QPixmap & oldBackgroundPixmap )
 
   This virtual function is called from setBackgroundPixmap().
   \e oldBackgroundPixmap is the previous background pixmap; you can get the
