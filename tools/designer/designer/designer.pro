@@ -105,7 +105,7 @@ win32:LIBS	+= $(QTDIR)/lib/qutil.lib $(QTDIR)/lib/qresource.lib
 DEFINES	+= DESIGNER
 DESTDIR	= $(QTDIR)/bin
 win32-msvc:RC_FILE = designer.rc
-INTERFACES	= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui texteditpreview.ui listviewpreview.ui paletteeditor.ui radiopreview.ui checkboxpreview.ui widgetpreview.ui iconvieweditor.ui preferences.ui helpdialog.ui topicchooser.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui tableeditor.ui finddialog.ui replacedialog.ui gotolinedialog.ui
+INTERFACES	= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui texteditpreview.ui listviewpreview.ui paletteeditor.ui radiopreview.ui checkboxpreview.ui widgetpreview.ui iconvieweditor.ui preferences.ui helpdialog.ui topicchooser.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui tableeditor.ui finddialog.ui replacedialog.ui 
 PROJECTNAME	= Designer
 
 sql {
