@@ -436,8 +436,6 @@ QStringList FunctionNode::parameterNames() const
 PropertyNode::PropertyNode( InnerNode *parent, const QString& name )
     : LeafNode(Property, parent, name), sto(Trool_Default), des(Trool_Default)
 {
-    for (int i = 0; i < (int)NumFunctionRoles; ++i)
-	funcs[i] = 0;
 }
 
 PropertyNode::Trool PropertyNode::toTrool( bool boolean )

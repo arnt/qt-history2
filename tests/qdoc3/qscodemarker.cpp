@@ -109,7 +109,7 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
 	    synopsis = name;
 	    if ( style != SeparateList )
 		synopsis += " : " + property->dataType();
-	    if ( style == Detailed && !property->setter() )
+	    if ( style == Detailed && property->setters().isEmpty() )
 		extras << "[read only]";
 	}
         break;
@@ -232,10 +232,10 @@ QList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe, Synops
 		    } else if ( (*c)->type() == Node::Property ) {
 			const PropertyNode *property =
 				(const PropertyNode *) *c;
-			if ( property->setter() ) {
-			    insert( writableProperties, *c, style );
-			} else {
+			if ( property->setters().isEmpty() ) {
 			    insert( readOnlyProperties, *c, style );
+			} else {
+			    insert( writableProperties, *c, style );
 			}
 		    }
 		}

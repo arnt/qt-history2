@@ -459,12 +459,9 @@ void HtmlGenerator::generateClassNode(const ClassNode *classe, CodeMarker *marke
 		    PropertyNode *property = static_cast<PropertyNode *>(*m);
                     ClassSection section;
 
-                    if (property->getter())
-			section.members.append(const_cast<FunctionNode *>(property->getter()));
-                    if (property->setter())
-			section.members.append(const_cast<FunctionNode *>(property->setter()));
-                    if (property->resetter())
-			section.members.append(const_cast<FunctionNode *>(property->resetter()));
+		    section.members += property->getters();
+		    section.members += property->setters();
+		    section.members += property->resetters();
 
 		    if (!section.members.isEmpty()) {
 			out() << "<p>Accessor functions:</p>\n";

@@ -10,8 +10,6 @@ MISC:
 
   * implement \legalesefile
 
-  * move operators() at the end
-
 LINKS:
   * make types be links in Detailed synopses
   * make \sa and \link work

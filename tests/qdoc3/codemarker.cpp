@@ -154,20 +154,24 @@ QString CodeMarker::linkTag( const Node *node, const QString& body )
 
 QString CodeMarker::sortName( const Node *node )
 {
+    QString nodeName = node->name();
     if ( node->type() == Node::Function ) {
-	FunctionNode *func = (FunctionNode *) node;
+	const FunctionNode *func = static_cast<const FunctionNode *>(node);
 	QString sortNo;
 	if ( func->metaness() == FunctionNode::Ctor ) {
 	    sortNo = "1";
 	} else if ( func->metaness() == FunctionNode::Dtor ) {
 	    sortNo = "2";
 	} else {
-	    sortNo = "3";
+	    if (nodeName.startsWith("operator") && nodeName.length() > 8
+		    && !nodeName[8].isLetterOrNumber())
+		sortNo = "4";
+	    else
+		sortNo = "3";
 	}
-	return sortNo + func->name() + " " +
-	       QString::number( func->overloadNumber(), 36 );
+	return sortNo + nodeName + " " + QString::number(func->overloadNumber(), 36);
     } else {
-	return "3" + node->name();
+	return "0" + nodeName;
     }
 }
 

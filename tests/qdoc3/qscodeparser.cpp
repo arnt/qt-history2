@@ -525,12 +525,12 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 			if ( !propertyBlackList.contains((*c)->name()) ) {
 			    PropertyNode *property = (PropertyNode *) *c;
 			    quickifyProperty( quickClass, qtClass, property );
-			    if (property->getter())
-				funcBlackList.insert( property->getter()->name() );
-			    if (property->setter())
-				funcBlackList.insert( property->setter()->name() );
-			    if (property->resetter())
-				funcBlackList.insert( property->resetter()->name() );
+			    if (!property->getters().isEmpty())
+				funcBlackList.insert(property->getters().first()->name());
+			    if (!property->setters().isEmpty())
+				funcBlackList.insert(property->setters().first()->name());
+			    if (!property->resetters().isEmpty())
+				funcBlackList.insert(property->resetters().first()->name());
 			    propertyBlackList.insert( property->name() );
 			}
 		    }

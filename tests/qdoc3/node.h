@@ -251,7 +251,6 @@ public:
     inline void setParameters( const QList<Parameter>& parameters );
     void borrowParameterNames( const FunctionNode *source );
     void setReimplementedFrom( FunctionNode *from );
-    void setAssociatedProperty( PropertyNode *property );
 
     const QString& returnType() const { return rt; }
     Metaness metaness() const { return met; }
@@ -268,7 +267,10 @@ public:
     const PropertyNode *associatedProperty() const { return ap; }
 
 private:
+    void setAssociatedProperty(PropertyNode *property);
+
     friend class InnerNode;
+    friend class PropertyNode;
 
     QString rt;
     Metaness met : 3;
@@ -285,20 +287,22 @@ private:
 class PropertyNode : public LeafNode
 {
 public:
-    enum FunctionRole { Getter, Setter, Resetter, NumFunctionRoles };
+    enum FunctionRole { Getter, Setter, Resetter };
+    enum { NumFunctionRoles = Resetter + 1 };
 
     PropertyNode( InnerNode *parent, const QString& name );
 
     void setDataType( const QString& dataType ) { dt = dataType; }
-    void setFunction( const FunctionNode *function, FunctionRole role );
+    void addFunction(FunctionNode *function, FunctionRole role);
     void setStored( bool stored ) { sto = toTrool( stored ); }
     void setDesignable( bool designable ) { des = toTrool( designable ); }
 
     const QString& dataType() const { return dt; }
-    const FunctionNode *function(FunctionRole role) const { return funcs[(int)role]; }
-    const FunctionNode *getter() const { return function(Getter); }
-    const FunctionNode *setter() const { return function(Setter); }
-    const FunctionNode *resetter() const { return function(Resetter); }
+    NodeList functions() const;
+    NodeList functions(FunctionRole role) const { return funcs[(int)role]; }
+    NodeList getters() const { return functions(Getter); }
+    NodeList setters() const { return functions(Setter); }
+    NodeList resetters() const { return functions(Resetter); }
     bool isStored() const { return fromTrool( sto, storedDefault() ); }
     bool isDesignable() const { return fromTrool( des, designableDefault() ); }
 
@@ -309,10 +313,10 @@ private:
     static bool fromTrool( Trool troolean, bool defaultValue );
 
     bool storedDefault() const { return true; }
-    bool designableDefault() const { return setter() != 0; }
+    bool designableDefault() const { return !setters().isEmpty(); }
 
     QString dt;
-    const FunctionNode *funcs[(int)NumFunctionRoles];
+    NodeList funcs[NumFunctionRoles];
     Trool sto : 2;
     Trool des : 2;
 };
@@ -322,9 +326,18 @@ inline void FunctionNode::setParameters(const QList<Parameter> &parameters)
     params = parameters;
 }
 
-inline void PropertyNode::setFunction(const FunctionNode *function, FunctionRole role)
+inline void PropertyNode::addFunction(FunctionNode *function, FunctionRole role)
 {
-    funcs[(int)role] = function;
+    funcs[(int)role].append(function);
+    function->setAssociatedProperty(this);
+}
+
+inline NodeList PropertyNode::functions() const
+{
+    NodeList list;
+    for (int i = 0; i < NumFunctionRoles; ++i)
+	list += funcs[i];
+    return list;
 }
 
 #endif

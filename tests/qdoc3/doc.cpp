@@ -1873,51 +1873,6 @@ const QList<Text> &Doc::alsoList() const
     return priv == 0 ? null_QList_Text : priv->alsoList;
 }
 
-#if notyet // ###
-Doc Doc::propertyFunctionDoc( const Doc& propertyDoc, const QString& role,
-			      const QString& param )
-{
-    Doc doc;
-    doc.priv->loc = propertyDoc.location();
-
-    Text brief = propertyDoc.body().subText( Atom::BriefLeft, Atom::BriefRight );
-    doc.priv->text << Atom::ParaLeft;
-    if ( !brief.isEmpty() ) {
-	bool whether = ( brief.firstAtom()->type() == Atom::String &&
-			 brief.firstAtom()->string().lower()
-			      .startsWith("whether") );
-
-	if ( role == "getter" ) {
-	    if ( whether ) {
-		doc.priv->text << "Returns true if"
-			       << brief.firstAtom()->string().mid( 7 )
-			       << brief.subText( brief.firstAtom()->next() )
-			       << "; otherwise returns false.";
-	    } else {
-		doc.priv->text << "Returns " << brief << ".";
-	    }
-	} else if ( role == "setter" ) {
-	    if ( param.isEmpty() ) {
-		doc.priv->text << "Sets " << brief << ".";
-	    } else {
-		doc.priv->text << "Sets " << brief << " to "
-			       << Atom( Atom::FormattingLeft,
-					ATOM_FORMATTING_PARAMETER )
-			       << param
-			       << Atom( Atom::FormattingRight,
-					ATOM_FORMATTING_PARAMETER )
-			       << ".";
-	    }
-	} else if ( role == "resetter" ) {
-	    doc.priv->text << "Resets " << brief << ".";
-	}
-    }
-    doc.priv->text << Atom::ParaRight;
-    // set priv->params
-    return doc;
-}
-#endif
-
 void Doc::initialize( const Config& config )
 {
     DocParser::tabSize = config.getInt( CONFIG_TABSIZE );

@@ -29,8 +29,8 @@ bool CppCodeMarker::recognizeLanguage(const QString &lang)
     return lang == "C" || lang == "Cpp";
 }
 
-QString CppCodeMarker::markedUpCode(const QString& code, const Node *relative,
-				    const QString& dirPath)
+QString CppCodeMarker::markedUpCode(const QString &code, const Node *relative,
+				    const QString &dirPath)
 {
     return addMarkUp(protect(code), relative, dirPath);
 }
@@ -262,15 +262,17 @@ QList<ClassSection> CppCodeMarker::classSections(const ClassNode *classe, Synops
 		        insert( staticPublicMembers, *c, style );
 		    } else if ( (*c)->type() == Node::Property ) {
 			const PropertyNode *property = static_cast<const PropertyNode *>(*c);
-                        if (property->setter()) {
-			    insert( writableProperties, *c, style );
-			} else {
+                        if (property->setters().isEmpty()) {
 			    insert( readOnlyProperties, *c, style );
+			} else {
+			    insert( writableProperties, *c, style );
                         }
 		    } else if ( (*c)->type() == Node::Function ) {
-		        insert( publicFunctions, *c, style );
+		        FunctionNode *function = static_cast<FunctionNode *>(*c);
+                        if (!function->associatedProperty())
+		            insert(publicFunctions, *c, style);
 		    } else {
-		        insert( publicTypes, *c, style );
+		        insert(publicTypes, *c, style);
 		    }
 		    break;
 	        case Node::Protected:

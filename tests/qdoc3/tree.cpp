@@ -125,23 +125,20 @@ void Tree::resolveProperties()
 	QString setterName = (*propEntry)[PropertyNode::Setter];
 	QString resetterName = (*propEntry)[PropertyNode::Resetter];
 
-	FunctionNode *getterFunc = parent->findFunctionNode(getterName);
-        FunctionNode *setterFunc = parent->findFunctionNode(setterName); // ### not good enough
-        FunctionNode *resetterFunc = parent->findFunctionNode(resetterName);
-
-	if (getterFunc) {
-	    property->setFunction(getterFunc, PropertyNode::Getter);
-            getterFunc->setAssociatedProperty(property);
-	}
-	if (setterFunc) {
-	    property->setFunction(setterFunc, PropertyNode::Setter);
-            setterFunc->setAssociatedProperty(property);
-	}
-	if (resetterFunc) {
-	    property->setFunction(resetterFunc, PropertyNode::Resetter);
-            resetterFunc->setAssociatedProperty(property);
-	}
-
+	NodeList::ConstIterator c = parent->childNodes().begin();
+        while (c != parent->childNodes().end()) {
+	    if ((*c)->type() == Node::Function) {
+		FunctionNode *function = static_cast<FunctionNode *>(*c);
+		if (function->name() == getterName) {
+	            property->addFunction(function, PropertyNode::Getter);
+	        } else if (function->name() == setterName) {
+	            property->addFunction(function, PropertyNode::Setter);
+	        } else if (function->name() == resetterName) {
+	            property->addFunction(function, PropertyNode::Resetter);
+                }
+	    }
+	    ++c;
+        }
 	++propEntry;
     }
     priv->unresolvedPropertyMap.clear();
