@@ -411,7 +411,10 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ButtonBevel:
     case PE_ButtonTool:
     case PE_HeaderSection:
+	if (flags & (Style_Down | Style_On | Style_Raised))
 	drawMotifPlusShade( p, r, cg, bool(flags & (Style_Down | Style_On)));
+	else
+	    p->fillRect(r, cg.brush(QColorGroup::Button));
 	break;
 
     case PE_Panel:
