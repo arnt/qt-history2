@@ -455,6 +455,9 @@ static bool block_set_alignment = FALSE;
     Note that only the color, bold, underline and italic attributes of
     a QStyleSheetItem is used in LogText mode.
 
+    Note that you can use setMaxLogLines() to limit the number of
+    lines the widget can hold in LogText mode.
+
     There are a few things that you need to be aware of when the
     widget is in this mode:
     \list
