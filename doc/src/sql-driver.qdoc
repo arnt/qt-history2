@@ -153,7 +153,7 @@
 
     \section3 General Information
 
-    The Qt OCI plugin supports Oracle 8, 9, and 10. After
+    The Qt OCI plugin supports Oracle 8.1, 9i, 10g and higher. After
     connecting to the Oracle server, the plugin will auto-detect the
     database version and enable features accordingly.
 
@@ -161,16 +161,13 @@
 
     If the Oracle server supports Unicode, the OCI plugin will use UTF-8
     encoding to communicate with version 8 servers and UCS2 for version 9
-    and 10.
+    and higher.
 
     \section3 BLOB/LOB Support
 
     Binary Large Objects (BLOBs) can be read and written, but be aware
-    that this process may require a lot of memory.
-
-    Note that Oracle 9 doesn't support scrollable result sets with LOB
-    columns, you must use a forward only query to select LOB fields
-    (see QSqlQuery::setForwardOnly()).
+    that this process may require a lot of memory. You should use a forward 
+    only query to select LOB fields (see QSqlQuery::setForwardOnly()).
 
     Inserting BLOBs should be done using either a prepared query where the
     BLOBs are bound to placeholders or QSqlTableModel, which uses a prepared
@@ -178,9 +175,10 @@
 
     \section3 How to Build the Plugin on Unix and Mac OS X
 
-    All files required to build driver should ship with the standard Oracle
-    Client install.
-
+    For Oracle 10g, all you need is the "Instant Client Package - Basic" and
+    "Instant Client Package - SDK". For Oracle prior to 10g, you require
+    the standard Oracle client and the SDK packages.
+    
     Oracle library files required to build the driver:
 
     \list
@@ -189,8 +187,7 @@
     \endlist
 
     Tell \c qmake where to find the Oracle header files and shared
-    libraries (it is assumed that the variable \c $ORACLE_HOME points to
-    the directory where Oracle is installed) and run make:
+    libraries and run make:
 
     For Oracle 8:
     \code
@@ -206,15 +203,16 @@
         make
     \endcode
 
-    For Oracle version 10:
+    For Oracle version 10, we assume that you installed the RPM packages of the
+    Instant Client Package SDK (you need to adjust the version number accordingly):
     \code
         cd $QTDIR/plugins/src/sqldrivers/oci
-        qmake -o Makefile "INCLUDEPATH+=$ORACLE_HOME/rdbms/public $ORACLE_HOME/rdbms/demo" "LIBS+=-L$ORACLE_HOME/lib -lclntsh" oci.pro
+        qmake -o Makefile "INCLUDEPATH+=/usr/include/oracle/10.1.0.3/client/" "LIBS+=-L/usr/lib/oracle/10.1.0.3/client/lib" oci.pro
         make
     \endcode
 
-    Note that some versions of the OCI client libraries contain a bug
-    that makes programs linked to these libraries segfault on exit. This
+    Note that some versions of the OCI 8 or 9 client libraries contain a bug
+    that makes programs linked to these libraries segfault on application exit. This
     only happens if the QOCI driver is compiled as a plugin. To work
     around this problem, either compile the driver into the Qt libray
     itself, or configure Qt with the option '-DQT_NO_LIBRARY_UNLOAD'.
