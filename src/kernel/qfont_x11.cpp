@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#73 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#72 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#73 $");
 
 
 static const int fontFields = 14;
@@ -46,7 +46,6 @@ enum FontFieldNames {				// X LFD fields
 
 // Internal functions
 
-static QFontInternal *loadXFont( const QString &fontName, bool *newFont );
 static bool	parseXFontName( QString &fontName, char **tokens );
 static QString	bestFitFamily( const QString & );
 static char   **getXFontNames( const char *pattern, int *count );
@@ -92,14 +91,14 @@ public:
     void	 setFontStruct( XFontStruct * );
     void	 reset();
 private:
-    QFontInternal( const char * );
+    QFontInternal( const QString & );
     QString	 n;
     XFontStruct *f;
-    friend QFontInternal *loadXFont( const QString &, bool * );
+    friend void QFont::load(HANDLE) const;
 };
 
-inline QFontInternal::QFontInternal( const char *name )
-    : n(name)
+inline QFontInternal::QFontInternal( const QString &name )
+    : n(name), f(0)
 {
 }
 
@@ -160,6 +159,7 @@ void QFontCache::deleteItem( GCI d )
 
 struct QXFontName
 {
+    QXFontName( const QString &n, bool e ) : name(n), exactMatch(e) {}
     QString name;
     bool    exactMatch;
 };
@@ -224,15 +224,19 @@ XFontStruct *qt_get_xfontstruct( QFontData *d )
 
 /*!
   Internal function that initializes the font system.
+
+  \internal
+  The font cache and font dict do not alloc the keys. The key is a QString
+  which is shared between QFontInternal and QXFontName.
 */
 
 void QFont::initialize()
 {
-    fontCache = new QFontCache( fontCacheSize );// create font cache
+    fontCache = new QFontCache( fontCacheSize, 29, TRUE, FALSE );
     CHECK_PTR( fontCache );
-    fontDict  = new QFontDict( 29 );		// create font dict
+    fontDict  = new QFontDict( 29, TRUE, FALSE );
     CHECK_PTR( fontDict );
-    fontNameDict = new QFontNameDict( 29 );	// create font name dictionary
+    fontNameDict = new QFontNameDict( 29, TRUE, TRUE );
     CHECK_PTR( fontNameDict );
     fontNameDict->setAutoDelete( TRUE );
     if ( !defFont )
@@ -303,7 +307,7 @@ HANDLE QFont::handle( HANDLE ) const
 {
     static Font last = 0;
     if ( DIRTY_FONT ) {
-	loadFont();
+	load();
     } else {
 	if ( d->fin->fontStruct()->fid != last )
 	    fontCache->find( d->fin->name() );
@@ -427,7 +431,7 @@ void QFont::updateFontInfo() const
     if ( !d->act.dirty )
 	return;
     if ( DIRTY_FONT )
-	loadFont();
+	load();
     if ( exactMatch() ) {			// match: copy font description
 	d->act = d->req;
 	return;
@@ -475,46 +479,72 @@ void QFont::updateFontInfo() const
 
 
 /*!
-  Loads the requested font.
+  Loads the font.
 */
 
-void QFont::loadFont( HANDLE ) const
+void QFont::load( HANDLE ) const
 {
     if ( !fontNameDict || !fontCache )		// not initialized
 	return;
 
-    QString instanceID = key();
-    QXFontName *fn = fontNameDict->find( instanceID );
-    if ( !fn ) {
-	fn = new QXFontName;
-	CHECK_PTR( fn );
+    QString k = key();
+    QString n;
+    QXFontName *fn = fontNameDict->find( k );
+
+    if ( fn ) {
+	n = fn->name;
+    } else {
+	bool m;
 	if ( d->req.rawMode ) {
-	    if ( fontExists(family()) ) {
-		fn->name = family();
-		fn->exactMatch = TRUE;
-	    } else {
-		fn->name = lastResortFont();
-		fn->exactMatch = FALSE;
-	    }
-	} else {				// get loadable font
-	    fn->name = PRIV->findFont( &fn->exactMatch );
+	    n = substitute( family() );
+	    m = fontExists( n );
+	    if ( !m )
+		n = lastResortFont();
+	} else {
+	    n = PRIV->findFont( &m );
 	}
-	fontNameDict->insert( instanceID, fn );
+	fn = new QXFontName( n, m );
+	CHECK_PTR( fn );
+	fontNameDict->insert( k, fn );
     }
-    bool newFont;
-    d->exactMatch = fn->exactMatch;
-    d->fin = loadXFont( fn->name, &newFont );
-    if ( !d->fin ) {
-	d->exactMatch = FALSE;
-	d->fin = loadXFont( lastResortFont(), &newFont );
+
+    d->fin = fontCache->find( n );
+    if ( !d->fin ) {				// font not in cache
+	d->fin = fontDict->find( n );
+	if ( !d->fin ) {			// font was never loaded
+	    d->fin = new QFontInternal( n );
+	    CHECK_PTR( d->fin );
+	    fontDict->insert( n, d->fin );
+	}
+    }
+    XFontStruct *f = d->fin->f;
+    if ( !f ) {					// font not loaded
+	f = XLoadQueryFont( QPaintDevice::x__Display(), n );
+	if ( !f ) {
+	    f = XLoadQueryFont( QPaintDevice::x__Display(), lastResortFont());
+	    fn->exactMatch = FALSE;
 #if defined(CHECK_NULL)
-	if ( !d->fin )
-	    fatal( "QFont::loadFont: Internal error" );
+	    if ( !f )
+		fatal( "QFont::load: Internal error" );
 #endif
+	    int size = (f->max_bounds.ascent + f->max_bounds.descent) *
+		       f->max_bounds.width *
+		       (f->max_char_or_byte2 - f->min_char_or_byte2) / 8;
+	    // If we get a cache overflow, we make room for this font only
+	    if ( size > fontCache->maxCost() + reserveCost )
+		fontCache->setMaxCost( size + reserveCost );
+	    if ( !fontCache->insert(n, d->fin, size) ) {
+#if defined(DEBUG)
+		fatal( "QFont::load: Cache overflow error" );
+#endif
+	    }
+	}
+	d->fin->f = f;
     }
-    d->lineW = computeLineWidth( d->fin->name() );
+    d->exactMatch = fn->exactMatch;
     d->req.dirty = FALSE;
     d->act.dirty = TRUE;	// actual font information no longer valid
+    d->lineW = computeLineWidth( d->fin->name() );
 }
 
 
@@ -601,18 +631,15 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QString &buffer,
     }
 
     int pSize;
-
-    if ( *scalable ) {
+    if ( *scalable )
 	pSize = deciPointSize();	// scalable font
-    } else {
+    else
 	pSize = atoi( tokens[PointSize] );
-    } 
-
 
     if ( strcmp(tokens[ResolutionX], "0") == 0 &&
 	   strcmp(tokens[ResolutionY], "0") == 0 ) {
-	                                // smoothly scalable font
-	score |= ResolutionScore;	// know we can ask for any resolution
+	// smoothly scalable font, we can ask for any resolution
+	score |= ResolutionScore;
     } else {
 	int localResx = atoi(tokens[ResolutionX]);
 	int localResy = atoi(tokens[ResolutionY]);
@@ -1092,50 +1119,6 @@ int QFontMetrics::lineWidth() const
 /*****************************************************************************
   Internal X font functions
  *****************************************************************************/
-
-//
-// Loads an X font
-//
-
-static QFontInternal *loadXFont( const QString &fontName, bool *newFont )
-{
-    if ( !fontCache )
-	return 0;
-
-    if ( newFont )
-	*newFont = FALSE;
-    QFontInternal *fin = fontCache->find( fontName );
-    if ( fin )
-	return fin;
-						// font is not cached
-    XFontStruct *f;
-    f = XLoadQueryFont( QPaintDevice::x__Display(), fontName );
-    if ( !f )
-	return 0;				// could not load font
-
-    fin = fontDict->find( fontName );
-    if ( fin ) {
-	if ( newFont )
-	    *newFont = TRUE;
-    } else {					// first time font is loaded?
-	fin = new QFontInternal( fontName );
-	CHECK_PTR( fin );
-	fontDict->insert( fontName, fin );
-    }
-    fin->f = f;
-    int sz = (f->max_bounds.ascent + f->max_bounds.descent)
-	      *f->max_bounds.width
-	      *(f->max_char_or_byte2 - f->min_char_or_byte2) / 8;
-    if ( sz > fontCache->maxCost() + reserveCost )	// make room for this
-	fontCache->setMaxCost( sz + reserveCost );	//   font only
-    if ( !fontCache->insert(fontName, fin, sz) ) {
-#if defined(DEBUG)
-	fatal( "loadXFont: Internal error; cache overflow" );
-#endif
-    }
-    return fin;
-}
-
 
 //
 // Splits an X font name into fields separated by '-'

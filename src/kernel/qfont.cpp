@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#59 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#59 $");
 
 
 /*!
@@ -669,7 +669,7 @@ void QFont::setRawMode( bool enable )
 bool QFont::exactMatch() const
 {
     if ( d->req.dirty )
-	loadFont();
+	load();
     return d->exactMatch;
 }
 
