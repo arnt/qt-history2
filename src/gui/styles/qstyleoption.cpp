@@ -23,31 +23,43 @@
     QStyle functions need to draw a graphical element.
 
     For performance reasons, there are few member functions and the
-    access to the variables is direct. This "low-level" feel makes the
-    structures use straightforward and emphasizes that these are
-    simply parameters used by the style functions. As a downside, it
-    forces developers to be careful to initialize all the variables.
+    access to the member variables is direct (i.e., using the \c . or
+    \c -> operator). This low-level feel makes the structures
+    straightforward to use and emphasizes that these are simply
+    parameters used by the style functions.
 
-    Example:
+    The caller of a QStyle function usually creates QStyleOption
+    objects on the stack. This combined with Qt's extensive use of
+    \l{implicit sharing} for types such as QString, QPalette, and
+    QColor ensures that no memory allocation needlessly takes place.
+
+    The following code snippet shows how to use a specific
+    QStyleOption subclass to paint a push button:
 
     \code
-        void MyStyle::drawPrimitive(PrimitiveElement element,
-                                    const QStyleOption *option,
-                                    QPainter *painter,
-                                    const QWidget *widget)
+        void MyPushButton::paintEvent()
         {
-            QRect rect = option->rect;
-            QPalette palette = option->palette;
+            QStyleOptionButton option;
+            option.init(this);
+            option.state = isDown() ? QStyle::Style_Down : QStyle::Style_Raised;
+            if (isDefault())
+                option.features |= QStyleOptionButton::DefaultButton;
+            option.text = text();
+            option.icon = icon();
 
-            ...
+            QPainter painter(this);
+            style().drawControl(QStyle::CE_PushButton, &option, &painter, this);
         }
     \endcode
 
+    In our example, the control is a QStyle::CE_PushButton, and
+    according to the QStyle::drawControl() documentation the
+    corresponding class is QStyleOptionButton.
+
     When reimplementing QStyle functions that take a QStyleOption
-    parameter, you often need to cast the QStyleOption to a subclass
-    (e.g., QStyleOptionFocusRect). For safety, you can use
-    qt_cast<T>() to ensure that the pointer type is correct. For
-    example:
+    parameter, you often need to cast the QStyleOption to a subclass.
+    For safety, you can use qt_cast<T>() to ensure that the pointer
+    type is correct. For example:
 
     \code
         void MyStyle::drawPrimitive(PrimitiveElement element,
@@ -67,7 +79,10 @@
         }
     \endcode
 
-    \sa QStyle
+    qt_cast<T>() will return 0 if the object to which \c option
+    points isn't of the correct type.
+
+    \sa QStyle, QStylePainter
 */
 
 /*!
