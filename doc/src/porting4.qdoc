@@ -79,9 +79,9 @@
     \o Be sure that your code compiles and runs well on all your target
        platforms with Qt 3.
 
-    \o Add the line \c{QT += compat} to your \c .pro file if you use
+    \o Add the line \c{QT += qt3support} to your \c .pro file if you use
        \c qmake; otherwise, edit your makefile or project file to
-       link against the Qt3Compat library and add \c -DQT_COMPAT to your
+       link against the Qt3Support library and add \c -DQT3_SUPPORT to your
        compiler flags. (You might also need to
        specify other libraries. See
        \l{qt4-intro.html}{What's New in Qt 4} for
@@ -119,11 +119,11 @@
     The compatibility functions are not documented here; instead,
     they are documented for each class.
 
-    If you have the line \c{Qt += compat} in you \c .pro file, \c
-    qmake will automatically define the \c QT_COMPAT symbol, turning
+    If you have the line \c{Qt += qt3support} in you \c .pro file, \c
+    qmake will automatically define the \c QT3_SUPPORT symbol, turning
     on compatibility function support. You can also define the symbol
     manually (e.g., if you don't want to link against the \c
-    Qt3Compat library), or you can define \c QT_COMPAT_WARNINGS
+    Qt3Support library), or you can define \c QT3_SUPPORT_WARNINGS
     instead, telling the compiler to emit a warning when a
     compatibility function is called. (This works only with GCC 3.2+
     and MSVC 7.)
@@ -193,7 +193,7 @@
     \section1 Type Names
 
     The table below lists the classes that have been renamed in Qt 4.
-    If you compile your applications with \c QT_COMPAT defined, the
+    If you compile your applications with \c QT3_SUPPORT defined, the
     old names will be available.
 
     Whenever you see an occurrence of the name on the left, you can
@@ -208,7 +208,7 @@
 
     The table below lists the enums and typedefs that have been
     renamed in Qt 4. If you compile your applications with \c
-    QT_COMPAT defined, the old names will be available.
+    QT3_SUPPORT defined, the old names will be available.
 
     Whenever you see an occurrence of the name on the left, you can
     safely replace it with the Qt 4 equivalent in your program. The
@@ -228,7 +228,7 @@
     \section1 Enum Values
 
     The table below lists the enum values that have been renamed in
-    Qt 4. If you compile your applications with \c QT_COMPAT defined,
+    Qt 4. If you compile your applications with \c QT3_SUPPORT defined,
     the old names will be available.
 
     Whenever you see an occurrence of the name on the left, you can
@@ -328,7 +328,7 @@
     \endtable
 
     Some properties have been removed from Qt 4, but the associated
-    access functions are provided if \c QT_COMPAT is defined to help
+    access functions are provided if \c QT3_SUPPORT is defined to help
     porting to Qt 4. When converting Qt 3 \c .ui files to Qt 4, \c
     uic generates calls to the Qt compatibility functions.
 
@@ -338,7 +338,7 @@
     non-compatibility Qt 4 functions.
 
     \table
-    \header \o Qt 3 property \o Qt 4 read function (\c QT_COMPAT)\o Qt 4 write function (\c QT_COMPAT)
+    \header \o Qt 3 property \o Qt 4 read function (\c QT3_SUPPORT)\o Qt 4 write function (\c QT3_SUPPORT)
     \row \o QMenuBar::separator \o QMenuBar::separator() \o QMenuBar::setSeparator()
     \row \o QPushButton::menuButton \o QPushButton::isMenuButton() \o N/A
     \row \o QTabWidget::margin \o QTabWidget::margin() \o QTabWidget::setMargin()
@@ -892,7 +892,7 @@
     In Qt 3, a QPalette consisted of three QColorGroup objects. In Qt
     4, the (rarely used) QColorGroup abstraction has been eliminated.
     For source compatibility, a QColorGroup class is available when
-    \c QT_COMPAT is defined.
+    \c QT3_SUPPORT is defined.
 
     The new QPalette still works in terms of color groups, specified
     through enum values (QPalette::Active, QPalette::Disabled, and
@@ -1890,7 +1890,7 @@
     \section1 QLayoutIterator
 
     The QLayoutIterator class is obsoleted in Qt 4. It is available
-    only if \c QT_COMPAT is defined. It can be replaced by the
+    only if \c QT3_SUPPORT is defined. It can be replaced by the
     QLayout::itemAt() and QLayout::takeAt() functions, which operate
     on indexes.
 
@@ -3000,7 +3000,7 @@
     \l{http://doc.trolltech.com/qq/qq09-networkthread.html}{Unblocking Networking}),
     you can now use QTcpSocket, QFtp, or QHttp instead, which can now be used from
     non-GUI threads.
-        
+
     \o If you use Q3SocketDevice for UDP, you can now use QUdpSocket instead.
 
     \o If you use Q3SocketDevice for other uses, Qt 4 offers no
@@ -3021,7 +3021,8 @@
 
     \section1 QSplitter
 
-    The function setResizeMode() has been moved into compat. Set the stretch factor
+    The function setResizeMode() has been moved into the \l{Qt 3 compatibility
+    library}. Set the stretch factor
     in the widget's size policy to get equivalent functionality.
 
     The obsolete function drawSplitter() has been removed. Use
@@ -3583,7 +3584,7 @@
 
     \list 1
     \o The \c QCoreVariant::ColorGroup enum value is defined only
-       if \c QT_COMPAT is defined.
+       if \c QT3_SUPPORT is defined.
     \o The \c QCoreVariant::IconSet enum value has been renamed
        \c QCoreVariant::Icon.
     \o The \c QCoreVariant::CString enum value is now a synonym for
