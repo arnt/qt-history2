@@ -474,7 +474,7 @@ void QGLWidget::macWidgetChangedWindow()
 void QGLWidget::setRegionDirty(bool b) //Internally we must put this off until "later"
 {
     QWidget::setRegionDirty(b);
-    QTimer::singleShot(0, this, SLOT(macInternalFixBufferRect()));
+    QTimer::singleShot(1, this, SLOT(macInternalFixBufferRect()));
 }
 
 void QGLWidget::macInternalFixBufferRect()
