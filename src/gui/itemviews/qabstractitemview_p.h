@@ -96,6 +96,7 @@ public:
     int verticalFactor;
 
     bool hasKeyTracking;
+    bool tabKeyNavigation;
     QString keyboardInput;
     QTime keyboardInputTime;
     int inputInterval;

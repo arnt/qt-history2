@@ -54,6 +54,7 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         state(QAbstractItemView::NoState),
         editTriggers(QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed),
         hasKeyTracking(false),
+        tabKeyNavigation(false),
         inputInterval(400),
         autoScroll(true),
         autoScrollTimer(0),
@@ -766,6 +767,21 @@ bool QAbstractItemView::hasKeyTracking() const
 }
 
 /*!
+  \property QAbstractItemView::tabKeyNavigation
+  \brief whether item navigation with tab and backtab is enabled.
+*/
+
+void QAbstractItemView::setTabKeyNavigation(bool enable)
+{
+    d->tabKeyNavigation = enable;
+}
+
+bool QAbstractItemView::tabKeyNavigation() const
+{
+    return d->tabKeyNavigation;
+}
+
+/*!
   \property QAbstractItemView::alternatingRowColors
   \brief whether to draw the background using alternating colors
 
@@ -863,6 +879,8 @@ bool QAbstractItemView::event(QEvent *e)
         d->viewport->update();
         break;
     case QEvent::KeyPress: {
+        if (!d->tabKeyNavigation)
+            break; 
         // This is to avoid loosing focus on Tab and Backtab
         QKeyEvent *ke = static_cast<QKeyEvent*>(e);
         if (ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab) {

@@ -42,6 +42,8 @@ void QTableViewPrivate::init()
     horizontal->setClickable(true);
     horizontal->setHighlightSections(true);
     q->setHorizontalHeader(horizontal);
+
+    tabKeyNavigation = true;
 }
 
 void QTableViewPrivate::updateVerticalScrollbar()
