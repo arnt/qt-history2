@@ -1,28 +1,28 @@
 .TH moc 1 "3 December 1995" "Troll Tech AS" \" -*- nroff -*-
 .\"
-.\" $Id: //depot/qt/main/src/moc/moc.1#2 $
+.\" $Id: //depot/qt/main/src/moc/moc.1#3 $
 .\"
 .\" Copyright 1992-1995 Troll Tech AS.  All rights reserved.
 .\" 
 .\" This file is part of Qt.
-."\ 
+.\"
 .\" Qt is a product of Troll Tech AS and is provided for use on computers
 .\" running the Linux operating system.
-.\" 
+.\"
 .\" Users may copy this beta version of the Qt toolkit provided that the
 .\" entire archive is distributed as a whole, including this notice.
-.\" 
+.\"
 .\" Users may use the Qt toolkit to create programs provided that these
 .\" programs are either for internal/own use or freely distributable.  THIS
 .\" BETA VERSION OF QT MAY NOT BE USED IN COMMERCIAL PROGRAMS.
-.\" 
+.\"
 .\" Troll Tech makes no obligation to support or upgrade Qt, or assist in
 .\" use of Qt.
-.\" 
+.\"
 .\" In no event shall Troll Tech be liable for any lost revenue or profits or
 .\" other special, indirect or consequential damages, even if Troll Tech has
 .\" been advised of the possibility of such damages.
-.\" 
+.\"
 .\" QT IS PROVIDED AS IS WITH NO WARRANTY OF ANY KIND, INCLUDING THE WARRANY
 .\" OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
@@ -40,9 +40,10 @@ class declarations containing
 and
 .B slots
 sections from a C++ header or source file and generates one C++ source
-file containing meta mbject information for the classes.  See
-.B http://www.troll.no/qt/moc.html
-for more information, or your local Qt HTML documentation.
+file containing meta mbject information for the classes.
+.\"  See "
+.\" .B http://www.troll.no/qt/moc.html "
+.\" for more information, or your local Qt HTML documentation. "
 .PP
 In brief, the meta object system is a structure used by Qt (see
 .BR http://www.troll.no/ )
@@ -75,8 +76,8 @@ for
 Do not generate an #include statement in the output.  This may be used
 to run 
 .B moc
-on a C++ file with the class declaration and #include the meta object
-code in the .cpp file (see USAGE below).  If both
+on a C++ file containint one or more class declarations and #include
+the meta object code in the .cpp file (see USAGE below).  If both
 .I -f
 and
 .I -i
@@ -297,7 +298,6 @@ public slots:
 .br
     void QButtonGroup::buttonPressed;
 .br
-[...]
 };
 .in -5
 .PP
@@ -306,7 +306,7 @@ The QButtonGroup::buttonPressed() slot is protected.
 C++ quiz: What happens if you try to upgrade a protected member
 function which is overloaded?
 .IP
-- All the functions are overloaded.
+- All the functions are upgraded.
 .IP
 - That is not legal C++.
 .\" Good idea, but look in the SEE ALSO section... "
@@ -336,8 +336,6 @@ class Whatever : public QObject {
 signals:
 .br
     void someSignal( SIGNEDNESS(a) );
-.br
-[...]
 .br
 };
 .PP
