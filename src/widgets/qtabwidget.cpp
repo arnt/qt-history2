@@ -466,10 +466,12 @@ void QTabWidget::setTabEnabled( QWidget* w, bool enable)
     }
 }
 
-/*
-  Sets widget \a w to be the shown in the specified \a corner of the tab widget.
+/*!
+  Sets widget \a w to be the shown in the specified \a corner of the
+  tab widget.
 
   Only the horizontal element of the \a corner will be used.
+
   \sa cornerWidget(), setTabPosition()
 */
 void QTabWidget::setCornerWidget( QWidget * w, Qt::Corner corner )
@@ -482,10 +484,10 @@ void QTabWidget::setCornerWidget( QWidget * w, Qt::Corner corner )
 	d->leftCornerWidget = w;
 }
 
-/*
-  Get the widget shown in the \a corner of the tab widget.
+/*!
+    Returns the widget shown in the \a corner of the tab widget or 0.
 */
-QWidget * QTabWidget::cornerWidget( QTabWidget::Corner corner )
+QWidget * QTabWidget::cornerWidget( Qt::Corner corner )
 {
     if ( (uint)corner & 1 )
 	return d->rightCornerWidget;
