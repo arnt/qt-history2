@@ -151,13 +151,16 @@ inline void QVector<T>::clear()
 { *this = QVector<T>(); }
 template <typename T>
 inline const T &QVector<T>::at(int i) const
-{ Q_ASSERT(i >= 0 && i < size()); return d->array[i]; }
+{ Q_ASSERT_X(i >= 0 && i < d->size, "QVector<T>::at", "index out of range");
+  return d->array[i]; }
 template <typename T>
 inline const T &QVector<T>::operator[](int i) const
-{ Q_ASSERT(i >= 0 && i < size()); return d->array[i]; }
+{ Q_ASSERT_X(i >= 0 && i < d->size, "QVector<T>::operator[]", "index out of range");
+  return d->array[i]; }
 template <typename T>
 inline T &QVector<T>::operator[](int i)
-{ Q_ASSERT(i >= 0 && i < size()); return data()[i]; }
+{ Q_ASSERT_X(i >= 0 && i < d->size, "QVector<T>::operator[]", "index out of range");
+  return data()[i]; }
 template <typename T>
 QVector<T> &QVector<T>::operator=(const QVector<T> &v)
 {

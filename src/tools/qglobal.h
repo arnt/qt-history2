@@ -887,9 +887,6 @@ Q_EXPORT int qWinVersion();
 #  define qWarning if (false) qt_warning
 #endif
 
-#define qSystemWarning qt_systemWarning
-#define qFatal qt_fatal
-
 Q_EXPORT void qt_debug( const char *, ... )	// print debug message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
@@ -908,13 +905,13 @@ Q_EXPORT void qt_warning( const char *, ... )	// print warning message
 #endif
 ;
 
-Q_EXPORT void qt_systemWarning( const char *, ... )	// print system message
+Q_EXPORT void qSystemWarning( const char *, ... )	// print system message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_EXPORT void qt_fatal( const char *, ... )	// print fatal message and exit
+Q_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
 #if defined(Q_CC_GNU)
     __attribute__ ((format (printf, 1, 2)))
 #endif
@@ -924,19 +921,19 @@ Q_EXPORT void qt_assert(const char *assertion, const char *file, int line);
 
 #if !defined(Q_ASSERT)
 #  ifndef QT_NO_DEBUG
-#    define Q_ASSERT(x)  {if(!(x))qt_assert(#x,__FILE__,__LINE__);}
+#    define Q_ASSERT(cond) {if(!(cond))qt_assert(#cond,__FILE__,__LINE__);}
 #  else
-#    define Q_ASSERT(x)
+#    define Q_ASSERT(cond)
 #  endif
 #endif
 
-Q_EXPORT void qt_msg_assert(const char *message, const char *file, int line);
+Q_EXPORT void qt_assert_x(const char *where, const char *what, const char *file, int line);
 
-#if !defined(Q_MSG_ASSERT)
+#if !defined(Q_ASSERT_X)
 #  ifndef QT_NO_DEBUG
-#    define Q_MSG_ASSERT(x, msg)  {if(!(x))qt_msg_assert(msg,__FILE__,__LINE__);}
+#    define Q_ASSERT_X(cond, where, what) {if(!(cond))qt_assert_x(where, what,__FILE__,__LINE__);}
 #  else
-#    define Q_MSG_ASSERT(x, msg)
+#    define Q_ASSERT_X(cond, where, what)
 #  endif
 #endif
 

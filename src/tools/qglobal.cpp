@@ -207,7 +207,7 @@ int qWinVersion()
 #ifdef Q_OS_TEMP
 	case VER_PLATFORM_WIN32_CE:
 #ifdef Q_OS_TEMP
-     
+
 	    if ( qt_cever >= 400 )
 		winver = Qt::WV_CENET;
 	    else
@@ -304,40 +304,6 @@ Qt::WindowsVersion qt_winver = (Qt::WindowsVersion)qWinVersion();
     to crashes on certain platforms due to the platforms printf implementation.
 
     \sa qDebug(), qFatal(), qSystemWarning(), qInstallMsgHandler(),
-    \link debug.html Debugging\endlink
-*/
-
-/*!
-    \fn void qFatal( const char *msg, ... )
-
-    \relates QApplication
-
-    Prints a fatal error message \a msg and exits, or calls the
-    message handler (if it has been installed).
-
-    This function takes a format string and a list of arguments,
-    similar to the C printf() function.
-
-    Example:
-    \code
-	int divide( int a, int b )
-	{
-	    if ( b == 0 )				// program error
-		qFatal( "divide: cannot divide by zero" );
-	    return a/b;
-	}
-    \endcode
-
-    Under X11, the text is printed to stderr. Under Windows, the text
-    is sent to the debugger.
-
-    \warning The internal buffer is limited to 8196 bytes (including
-    the '\0'-terminator).
-
-    \warning Passing (const char *)0 as argument to qFatal might lead
-    to crashes on certain platforms due to the platforms printf implementation.
-
-    \sa qDebug(), qWarning(), qInstallMsgHandler(),
     \link debug.html Debugging\endlink
 */
 
@@ -466,7 +432,40 @@ void qt_warning( const char *msg, ... )
 }
 
 
-void qt_fatal( const char *msg, ... )
+/*!
+    \fn void qFatal( const char *msg, ... )
+
+    \relates QApplication
+
+    Prints a fatal error message \a msg and exits, or calls the
+    message handler (if it has been installed).
+
+    This function takes a format string and a list of arguments,
+    similar to the C printf() function.
+
+    Example:
+    \code
+	int divide( int a, int b )
+	{
+	    if ( b == 0 )				// program error
+		qFatal( "divide: cannot divide by zero" );
+	    return a/b;
+	}
+    \endcode
+
+    Under X11, the text is printed to stderr. Under Windows, the text
+    is sent to the debugger.
+
+    \warning The internal buffer is limited to 8196 bytes (including
+    the '\0'-terminator).
+
+    \warning Passing (const char *)0 as argument to qFatal might lead
+    to crashes on certain platforms due to the platforms printf implementation.
+
+    \sa qDebug(), qWarning(), qInstallMsgHandler(),
+    \link debug.html Debugging\endlink
+*/
+void qFatal( const char *msg, ... )
 {
     char buf[QT_BUFFER_LENGTH];
     va_list ap;
@@ -531,7 +530,7 @@ void qt_fatal( const char *msg, ... )
   \sa qWarning()
 
 */
-void qt_systemWarning( const char *msg, ... )
+void qSystemWarning( const char *msg, ... )
 {
     QByteArray sys;
 
@@ -637,11 +636,11 @@ void qt_systemWarning( const char *msg, ... )
     ASSERT: "b == 0" in file div.cpp, line 9
     \endcode
 
-    \sa Q_MSG_ASSERT(), qFatal(), \link debug.html Debugging\endlink
+    \sa Q_ASSERT_X(), qFatal(), \link debug.html Debugging\endlink
 */
 
 /*!
-    \fn void Q_MSG_ASSERT( bool test, const char *msg )
+    \fn void Q_ASSERT_X( bool test, const char *msg )
 
     \relates QApplication
 
@@ -650,7 +649,7 @@ void qt_systemWarning( const char *msg, ... )
 
     This is really a macro defined in \c qglobal.h.
 
-    Q_MSG_ASSERT is useful for testing pre- and post-conditions.
+    Q_ASSERT_X is useful for testing pre- and post-conditions.
 
     Example:
     \code
@@ -662,12 +661,12 @@ void qt_systemWarning( const char *msg, ... )
 
 	int divide( int a, int b )
 	{
-	    Q_MSG_ASSERT( b != 0, "division by zero" );			// this is line 9
+	    Q_ASSERT_X( b != 0, "division by zero" );			// this is line 9
 	    return a/b;
 	}
     \endcode
 
-    If \c b is zero, the Q_MSG_ASSERT statement will output the following
+    If \c b is zero, the Q_ASSERT_X statement will output the following
     message using the qFatal() function:
     \code
     ASSERT failure: "division by zero" in file div.cpp, line 9
@@ -718,11 +717,11 @@ void qt_assert(const char *assertion, const char *file, int line)
 }
 
 /*
-  The Q_MSG_ASSERT macro calls this this function when the test fails.
+  The Q_ASSERT_X macro calls this this function when the test fails.
 */
-void qt_msg_assert(const char *message, const char *file, int line)
+void qt_assert_x(const char *where, const char *what, const char *file, int line)
 {
-    qFatal("ASSERT failure: \"%s\" in file %s, line %d", message, file, line);
+    qFatal("ASSERT failure in %s: \"%s\", file %s, line %d", where, what, file, line);
 }
 
 

@@ -265,15 +265,15 @@ inline typename QList<T>::Iterator QList<T>::erase(Iterator it)
  return (Node*) p.erase((void**)it.i); }
 template <typename T>
 inline const T &QList<T>::at(int i) const
-{ Q_MSG_ASSERT(i >= 0 && i < p.size(), "QList<T>::at: index out of range.");
+{ Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::at", "index out of range");
  return ((Node*) p.at(i))->t(); }
 template <typename T>
 inline const T &QList<T>::operator[](int i) const
-{ Q_MSG_ASSERT(i >= 0 && i < p.size(), "QList<T>::operator[]: index out of range.");
+{ Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::operator[]", "index out of range");
  return ((Node*) p.at(i))->t(); }
 template <typename T>
 inline T &QList<T>::operator[](int i)
-{ Q_MSG_ASSERT(i >= 0 && i < p.size(), "QList<T>::operator[]: index out of range.");
+{ Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::operator[]", "index out of range");
   detach(); return ((Node*) p.at(i))->t(); }
 template <typename T>
 inline void QList<T>::removeAt(int i)
@@ -281,7 +281,7 @@ inline void QList<T>::removeAt(int i)
  node_destruct((Node*) p.at(i)); p.remove(i); } }
 template <typename T>
 inline T QList<T>::takeAt(int i)
-{ Q_MSG_ASSERT(i >= 0 && i < p.size(), "QList<T>::takeAt: index out of range.");
+{ Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::takeAt", "index out of range");
  detach(); Node*n = (Node*)p.at(i); T t = n->t(); node_take(n);
  p.remove(i); return t; }
 template <typename T>
@@ -295,12 +295,12 @@ inline void QList<T>::insert(int i, const T &t)
 { detach(); node_construct((Node*)p.insert(i), t); }
 template <typename T>
 inline void QList<T>::replace(int i, const T &t)
-{ Q_MSG_ASSERT(i >= 0 && i < p.size(), "QList<T>::replace: index out of range.");
+{ Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::replace", "index out of range");
  detach(); ((Node*)p.at(i))->t() = t; }
 template <typename T>
 inline void QList<T>::swap(int i, int j)
-{ Q_MSG_ASSERT(i >= 0 && i < p.size() && j >= 0 && j < p.size(),
-	       "QList<T>::swap: index out of range.");
+{ Q_ASSERT_X(i >= 0 && i < p.size() && j >= 0 && j < p.size(),
+	       "QList<T>::swap", "index out of range");
  detach(); T t = ((Node*)p.at(i))->t();
  ((Node*)p.at(i))->t() = ((Node*)p.at(j))->t();
  ((Node*)p.at(j))->t() = t;
@@ -308,8 +308,8 @@ inline void QList<T>::swap(int i, int j)
 
 template <typename T>
 inline void QList<T>::move(int from, int to)
-{ Q_MSG_ASSERT(from >= 0 && from < p.size() && to >= 0 && to < p.size(),
-	       "QList<T>::move: index out of range.");
+{ Q_ASSERT_X(from >= 0 && from < p.size() && to >= 0 && to < p.size(),
+	       "QList<T>::move", "index out of range");
  detach(); p.move(from, to);
 }
 
@@ -320,8 +320,8 @@ inline bool QList<T>::autoDelete() const
 template <typename T>
 inline void QList<T>::setAutoDelete(bool enable)
 {
-    Q_MSG_ASSERT(QTypeInfo<T>::isPointer,
-		 "QList<T>::setAutoDelete: Cannot delete non pointer types.");
+    Q_ASSERT_X(QTypeInfo<T>::isPointer,
+		 "QList<T>::setAutoDelete", "Cannot delete non pointer types");
     detach();
     d->autoDelete = enable ? this : 0;
 }

@@ -228,8 +228,8 @@ inline bool QLinkedList<T>::autoDelete() const
 template <typename T>
 inline void QLinkedList<T>::setAutoDelete(bool enable)
 {
-    Q_MSG_ASSERT(QTypeInfo<T>::isPointer,
-		 "QLinkedList<T>::setAutoDelete: Cannot delete non pointer types.");
+    Q_ASSERT_X(QTypeInfo<T>::isPointer, "QLinkedList<T>::setAutoDelete",
+	       "Cannot delete non pointer types.");
     detach();
     d->autoDelete = enable ? this : 0;
 }
