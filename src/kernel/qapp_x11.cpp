@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#55 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -29,7 +29,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#54 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#55 $";
 #endif
 
 
@@ -1025,7 +1025,12 @@ void qXClosePopup( QWidget *popup )		// remove popup widget
 	delete popupWidgets;
 	popupWidgets = 0;
 	XUngrabKeyboard( popup->display(), CurrentTime );
-	XAllowEvents( popup->display(), ReplayPointer, CurrentTime );
+	if ( mouseButtonState != 0 )		// mouse release event
+	    XAllowEvents( popup->display(), AsyncPointer, CurrentTime );
+	else {					// mouse press event
+	    mouseButtonPressTime -= 10000;	// avoid double click
+	    XAllowEvents( popup->display(), ReplayPointer, CurrentTime );
+	}
     }
 }
 
