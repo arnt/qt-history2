@@ -3083,7 +3083,8 @@ bool QWidget::isActiveWindow() const
 	   tlw->parentWidget() && tlw->parentWidget()->isActiveWindow())
 	   return TRUE;
 	QWidget *w = qApp->activeWindow();
-	if( w && w->testWFlags(WSubWindow) && w->parentWidget()->topLevelWidget() == tlw )
+	if( isDialog() && w && w->testWFlags(WSubWindow) && 
+	    w->parentWidget()->topLevelWidget() == tlw)
 	    return TRUE;
 	while( w && w->isDialog() && !w->testWFlags(WShowModal) && w->parentWidget() ) {
 	    w = w->parentWidget()->topLevelWidget();
