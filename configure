@@ -2287,6 +2287,11 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	    -e "s,@QT_INSTALL_BINS@,\$(INSTALL_ROOT)$QMAKE_BIN_DIR,g" \
 	    -e "s,@QT_INSTALL_DATA@,\$(INSTALL_ROOT)$QMAKE_DATA_DIR,g" \
 	    -e "s,@QMAKE_QTOBJS@,$EXTRA_SOURCES,g" -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
+	 
+	if [ "$Edition" = "troll" ] &&
+	    $WHICH makedepend >/dev/null 2>&1 && grep 'depend:' "$mkfile" >/dev/null 2>&1; then
+	    (cd $outpath/qmake && $MAKE -f $mkfile depend) >/dev/null 2>&1
+	fi
     done
 
     (cd $outpath/qmake; $MAKE || (echo "qmake failed to build. Aborting." && exit 2)) || exit 2
