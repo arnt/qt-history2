@@ -730,40 +730,6 @@ longer needed. A more sophisticated approach might be used to
 provide user-friendly editing features, such as a record of
 previously submitted values.
 
-\omit
-\section1 Customized rendering and event-based editors
-
-\skipto GradientDelegate::paint
-\printuntil }
-
-This delegate only renders the Display role as text, with a gradient color
-background. In more advanced delegates the items can be rendered using several
-different roles, and these roles can have different layouts.
-
-\section2 Size Hint
-
-\skipto GradientDelegate::sizeHint
-\printuntil }
-
-Since the delegate is responsible for rendering the item, it also knows the size
-of the item. In this delegate, the size hint is the size of the Display text.
-
-\section1 Implementing a Non-Widget Editor
-\quotefile delegate02.cpp
-
-\l{QItemDelegate::EditorType}{Events} type, the delegate ex editor type for delegates is the non-widget editor. This means that
-the input events are handled in the item delegate.
-Note that the QAbstractItemDelegate inherits QObject, and can receive events just
-like any other QObject.
-
-\skipto GradientDelegate::event
-\printuntil }
-
-The editor will alternate the string between "On" and "Off", when the item is
-clicked. To do this, it has to handle the mouse press event. All other events are
-ignored.
-
-\endomit
 */
 
 /*!
@@ -1180,17 +1146,5 @@ indices.
     the items can be manipulated. We examine the possibilities made
     available by the standard view classes in the
     \l{model-view-view.html}{introduction to the view classes}.
-
-*/
-
-/*!
-    \page model-view-subclassing-view.html
-
-    \title Creating New Views
-
-    \tableofcontents
-
-    \section1 Introduction
-
 
 */
