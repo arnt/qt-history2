@@ -963,7 +963,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             if(plist_in_file.open(IO_ReadOnly)) {
                 QTextStream plist_in(&plist_in_file);
                 QString plist_in_text = plist_in.read();
-                plist_in_text = plist_in_text.replace("@ICON@", project->isEmpty("RC_FILE") ? "" : project->first("RC_FILE").section(Option::dir_sep, -1));
+                plist_in_text = plist_in_text.replace("@ICON@", project->isEmpty("RC_FILE") ? QString("") : project->first("RC_FILE").section(Option::dir_sep, -1));
                 plist_in_text = plist_in_text.replace("@EXECUTABLE@", project->first("QMAKE_ORIG_TARGET"));
                 QFile plist_out_file("Info.plist");
                 if(plist_out_file.open(IO_WriteOnly | IO_Translate)) {
@@ -1000,7 +1000,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isEmpty("COMPAT_VERSION"))
         t << "\t\t\t\t" << "DYLIB_COMPATIBILITY_VERSION = \"" << project->first("COMPAT_VERSION") << "\";" << "\n";
     if(!project->isEmpty("QMAKE_MACOSX_DEPLOYMENT_TARGET"))
-        t << "\t\t\t\t" << "MACOSX_DEPLOYMENT_TARGET = \"" 
+        t << "\t\t\t\t" << "MACOSX_DEPLOYMENT_TARGET = \""
           << project->first("QMAKE_MACOSX_DEPLOYMENT_TARGET") << "\";" << "\n";
     if(ideType() == MAC_XCODE) {
         if(!project->isEmpty("OBJECTS_DIR"))
