@@ -60,7 +60,9 @@ public:
     static void setDefaultPixmapGeneratorFn(PixmapGeneratorFn func);
     inline static PixmapGeneratorFn defaultPixmapGeneratorFn() { return defaultGeneratorFn; }
 
+#ifndef Q_QDOC
     Q_DUMMY_COMPARISON_OPERATOR(QIconSet)
+#endif
 
 private:
     void normalize(Size& which, const QSize& pixSize);
