@@ -20,6 +20,7 @@
 
 #include "database.h"
 #include "formwindow.h"
+#include "mainwindow.h"
 
 #include <qsqldatabase.h>
 #include <qsqlform.h>
@@ -29,6 +30,20 @@
 QDesignerSqlWidget::QDesignerSqlWidget( QWidget *parent, const char *name )
     : QSqlWidget( parent, name )
 {
+}
+
+bool QDesignerSqlWidget::event( QEvent* e )
+{
+    bool b = QSqlWidget::event( e );
+    if ( MainWindow::self->isPreviewing() ) {
+	if ( e->type() == QEvent::Show ) {
+	    (void)DatabaseSupport::defCursor();
+	    refresh();
+	    firstRecord();
+	    return TRUE;
+	}
+    }
+    return b;
 }
 
 void QDesignerSqlWidget::paintEvent( QPaintEvent *e )
@@ -41,12 +56,23 @@ void QDesignerSqlWidget::paintEvent( QPaintEvent *e )
 #endif
 }
 
-
-
-
 QDesignerSqlDialog::QDesignerSqlDialog( QWidget *parent, const char *name )
     : QSqlDialog( parent, name )
 {
+}
+
+bool QDesignerSqlDialog::event( QEvent* e )
+{
+    bool b = QSqlDialog::event( e );
+    if ( MainWindow::self->isPreviewing() ) {
+	if ( e->type() == QEvent::Show ) {
+	    (void)DatabaseSupport::defCursor();
+	    refresh();
+	    firstRecord();
+	    return TRUE;
+	}
+    }
+    return b;
 }
 
 void QDesignerSqlDialog::paintEvent( QPaintEvent *e )
@@ -89,17 +115,17 @@ QSqlCursor* DatabaseSupport::defCursor()
 {
     if ( !cursor ) {
 	cursor = new QSqlCursor( tbl );
-	cursor->select();
 	autoDeleteCursors.insert( 0, cursor );
-	QSqlRecord* buf = cursor->editBuffer();
-	for ( QMap<QString, QString>::Iterator it = dbControls.begin(); it != dbControls.end(); ++it ) {
-	    QObject *chld = parent->child( it.key(), "QWidget" );
-	    if ( !chld )
-		continue;
-	    form->insert( (QWidget*)chld, buf->field( *it ) );
-	}
-	if ( form )
+	if ( form ) {
+	    QSqlRecord* buf = cursor->editBuffer();
+	    for ( QMap<QString, QString>::Iterator it = dbControls.begin(); it != dbControls.end(); ++it ) {
+		QObject *chld = parent->child( it.key(), "QWidget" );
+		if ( !chld )
+		    continue;
+		form->insert( (QWidget*)chld, buf->field( *it ) );
+	    }
 	    form->readFields();
+	}
     }
     return cursor;
 }

@@ -35,7 +35,7 @@ class DatabaseSupport
 public:
     DatabaseSupport();
 
-    void initPreview( const QString &connection, const QString &table, QObject *o, 
+    void initPreview( const QString &connection, const QString &table, QObject *o,
 		      const QMap<QString, QString> &databaseControls );
 
     QSqlCursor* defCursor();
@@ -63,6 +63,7 @@ public:
     QSqlForm* defaultForm() { return DatabaseSupport::defForm(); }
 
 protected:
+    bool event( QEvent* e );
     void paintEvent( QPaintEvent *e );
 
 };
@@ -78,6 +79,7 @@ public:
     QSqlForm* defaultForm() { return DatabaseSupport::defForm(); }
 
 protected:
+    bool event( QEvent* e );
     void paintEvent( QPaintEvent *e );
 
 };
