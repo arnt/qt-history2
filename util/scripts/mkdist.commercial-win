@@ -3,4 +3,6 @@
 # Creates a new Qt source distribution for Windows
 #
 
-mkdist.generic commercial win /tmp/qtdist
+${QTDIR}/util/scripts
+
+./mkdist.generic commercial win /tmp/qtdist

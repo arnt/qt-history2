@@ -3,4 +3,6 @@
 # Creates a new Qt source distribution for X11
 #
 
-mkdist.generic free x11 /tmp/qtdist
+cd ${QTDIR}/util/scripts
+
+./mkdist.generic free x11 /tmp/qtdist

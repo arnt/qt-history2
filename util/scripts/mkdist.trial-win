@@ -3,4 +3,6 @@
 # Creates a new Qt source distribution for Windows
 #
 
-mkdist.generic trial win /tmp/qtdist
+${QTDIR}/util/scripts
+
+./mkdist.generic trial win /tmp/qtdist
