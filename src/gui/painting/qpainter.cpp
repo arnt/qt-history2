@@ -776,18 +776,6 @@ void QPainterPrivate::updateInvMatrix()
 */
 
 /*!
-    \enum QPainter::TextDirection
-    This enum describes the direction in which text is rendered by
-    the painter.
-
-    \value Auto The default text direction is used.
-    \value RTL  Text is rendered from right to left.
-    \value LTR  Text is rendered from left to right.
-
-    \sa drawText()
-*/
-
-/*!
     Constructs a painter.
 
     Notice that all painter settings (setPen, setBrush etc.) are reset

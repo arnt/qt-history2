@@ -3848,7 +3848,7 @@ void QWidgetPrivate::hide_helper()
     Returns true if the widget is explicity hidden, otherwise returns
     false.
 
-    Widgets are explicitly hidden if they were created as toplevel
+    Widgets are explicitly hidden if they were created as independent
     windows, or if hide() or setVisible(false) was called.
 
     \sa setVisible(), hide()
@@ -4151,24 +4151,6 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
         w = w->parentWidget();
     return !w->isExplicitlyHidden();
 }
-
-
-/*!
-    \property QWidget::explicitlyHidden
-    \brief whether the widget is explicitly hidden
-
-    If true, the widget is hidden and would stay hidden even if if
-    all its ancestors became visible. If false, the widget is visible
-    or would become visible if none of the ancestors were explicitly
-    hidden themselves.
-
-    Windows are explicitly hidden by default. This is why you must
-    call show() on them to make them visible. Child widgets aren't
-    explictly hidden, so you don't need to call show().
-
-    \sa hide(), show(), isVisible(), isVisibleTo()
-*/
-
 
 #ifdef QT3_SUPPORT
 QRect QWidget::visibleRect() const
@@ -5445,6 +5427,7 @@ QRegion QWidget::mask() const
     return d->extra ? d->extra->mask : QRegion();
 }
 
+#ifndef QT_NO_LAYOUT
 /*!
     Returns the layout engine that manages the geometry of this
     widget's children.
@@ -5453,7 +5436,6 @@ QRegion QWidget::mask() const
 
     \sa  sizePolicy()
 */
-#ifndef QT_NO_LAYOUT
 QLayout* QWidget::layout() const
 {
     return d_func()->layout;
@@ -5508,11 +5490,11 @@ void QWidget::setSizePolicy(QSizePolicy policy)
 }
 
 /*!
-    \fn void QWidget::setSizePolicy(QSizePolicy::SizeType horizontal, QSizePolicy::SizeType vertical)
+    \fn void QWidget::setSizePolicy(QSizePolicy::Policy horizontal, QSizePolicy::Policy vertical)
     \overload
 
     Sets the size policy of the widget to \a horizontal and \a
-    vertical, with standard stretch and no heightForWidth.
+    vertical, with standard stretch and no height-for-width.
 
     \sa QSizePolicy::QSizePolicy()
 */
@@ -5542,8 +5524,6 @@ int QWidget::heightForWidth(int w) const
 */
 
 /*!
-    \fn QWidget *QWidget::childAt(const QPoint & p) const
-
     \overload
 
     Returns the visible child widget at point \a p in the widget's own
@@ -6578,12 +6558,6 @@ void QWidget::languageChange() { }  // compat
     Drawing may only take place in a QPaintEvent. Overload
     paintEvent() to do your drawing and call update() to schedule a
     replaint whenever necessary. See also QPainter.
-*/
-
-/*!
-    \fn QWidget *QWidget::childAt(int x, int y, bool includeThis) const
-
-    Use the two coordinate argument overload instead.
 */
 
 /*!

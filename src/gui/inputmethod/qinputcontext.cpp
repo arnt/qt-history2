@@ -355,20 +355,6 @@ bool QInputContext::filterEvent(const QEvent * /*event*/)
 }
 
 /*!
-    \fn void QInputContext::imEventGenerated(QObject *receiver, QInputMethodEvent *e)
-
-    \internal
-    This signal is emitted when the user has sent a QInputMethodEvent through
-    sendIMEvent(). Ordinary input methods should not emit this signal
-    directly.
-
-    \a receiver is a platform dependent destination of the \a e.
-
-    \sa QInputMethodEvent, sendIMEvent(), sendIMEventInternal(),
-*/
-
-
-/*!
   Sends an input method event to the current focus
   widget. Implementations of QInputContext should call this method to
   send the generated input method events and not

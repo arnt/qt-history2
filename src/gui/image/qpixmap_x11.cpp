@@ -243,13 +243,12 @@ static int defaultScreen = -1;
   QPixmap member functions
  *****************************************************************************/
 
+static int qt_pixmap_serial = 0;
+
 /*!
   \internal
   Initializes the pixmap data.
 */
-
-static int qt_pixmap_serial = 0;
-
 void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 {
     if (qApp->type() == QApplication::Tty) {

@@ -311,7 +311,7 @@ QLineEdit::~QLineEdit()
 
     The text is truncated to maxLength() length.
 
-    \sa insert()
+    \sa insert(), clear()
 */
 QString QLineEdit::text() const
 {
@@ -1084,6 +1084,8 @@ void QLineEdit::deselect()
     Deletes any selected text, inserts \a newText, and validates the
     result. If it is valid, it sets it as the new contents of the line
     edit.
+
+    \sa setText(), clear()
 */
 void QLineEdit::insert(const QString &newText)
 {
@@ -1097,6 +1099,8 @@ void QLineEdit::insert(const QString &newText)
 
 /*!
     Clears the contents of the line edit.
+
+    \sa setText(), insert()
 */
 void QLineEdit::clear()
 {

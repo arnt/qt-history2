@@ -157,11 +157,11 @@ void QLayoutItem::setAlignment(Qt::Alignment alignment)
 */
 
 /*!
-    \fn QSpacerItem::QSpacerItem(int w, int h, QSizePolicy::SizeType hData, QSizePolicy::SizeType vData)
+    \fn QSpacerItem::QSpacerItem(int w, int h, QSizePolicy::Policy hPolicy, QSizePolicy::Policy vPolicy)
 
     Constructs a spacer item with preferred width \a w, preferred
-    height \a h, horizontal size policy \a hData and vertical size
-    policy \a vData.
+    height \a h, horizontal size policy \a hPolicy and vertical size
+    policy \a vPolicy.
 
     The default values provide a gap that is able to stretch if
     nothing else wants the space.
@@ -169,18 +169,18 @@ void QLayoutItem::setAlignment(Qt::Alignment alignment)
 
 /*!
     Changes this spacer item to have preferred width \a w, preferred
-    height \a h, horizontal size policy \a hData and vertical size
-    policy \a vData.
+    height \a h, horizontal size policy \a hPolicy and vertical size
+    policy \a vPolicy.
 
     The default values provide a gap that is able to stretch if
     nothing else wants the space.
 */
-void QSpacerItem::changeSize(int w, int h, QSizePolicy::Policy hData,
-                             QSizePolicy::Policy vData)
+void QSpacerItem::changeSize(int w, int h, QSizePolicy::Policy hPolicy,
+                             QSizePolicy::Policy vPolicy)
 {
     width = w;
     height = h;
-    sizeP = QSizePolicy(hData, vData);
+    sizeP = QSizePolicy(hPolicy, vPolicy);
 }
 
 /*!

@@ -670,8 +670,6 @@ void QProcessPrivate::notified()
     notifier->start(NOTIFYTIMEOUT);
 }
 
-/*! \internal
- */
 bool QProcessPrivate::startDetached(const QString &program, const QStringList &arguments)
 {
     QString args = qt_create_commandline(program, arguments);

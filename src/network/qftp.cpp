@@ -1554,7 +1554,7 @@ QFtp::QFtp(QObject *parent, const char *name)
     bytes, since for large files these values might need to be
     "scaled" to avoid overflow.
 
-    \sa get() put() QProgressBar::setProgress()
+    \sa get(), put(), QProgressBar
 */
 
 /*!
@@ -1946,7 +1946,7 @@ qint64 QFtp::bytesAvailable() const
     return d->pi.dtp.bytesAvailable();
 }
 
-/*! \fn Q_LONG QFtp::readBlock(char *data, Q_ULONG maxlen)
+/*! \fn qint64 QFtp::readBlock(char *data, quint64 maxlen)
 
     Use read() instead.
 */

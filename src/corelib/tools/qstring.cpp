@@ -3726,7 +3726,7 @@ QString& QString::fill(QChar ch, int size)
     Returns true if \a s1 is equal to \a s2; otherwise returns false.
     Note that no string is equal to \a s1 being 0.
 
-    Equivalent to s1!=0 && compare(\a s1, \a s2) == 0.
+    Equivalent to \a s1 != 0 && compare(\a s1, \a s2) == 0.
 */
 
 /*!
@@ -3815,8 +3815,6 @@ QString& QString::fill(QChar ch, int size)
 
     Returns a string which is the result of concatenating the string
     \a s1 and the string \a s2.
-
-    Equivalent to \a {s1}.append(\a s2).
 */
 
 /*!
@@ -3828,8 +3826,6 @@ QString& QString::fill(QChar ch, int size)
     Returns a string which is the result of concatenating the string
     \a s1 and the string \a s2. \a s2 is converted to
     Unicode using fromAscii().
-
-    Equivalent to \a {s1}.append(\a s2).
 */
 
 /*!
@@ -3851,8 +3847,6 @@ QString& QString::fill(QChar ch, int size)
 
     Returns a string which is the result of concatenating the string
     \a s and character \a ch.
-
-    Equivalent to \a{s}.append(\a ch).
 */
 
 /*!
@@ -3863,8 +3857,6 @@ QString& QString::fill(QChar ch, int size)
 
     Returns a string which is the result of concatenating the
     character \a ch and string \a s.
-
-    Equivalent to \a {s}.prepend(\a ch).
 */
 
 /*!

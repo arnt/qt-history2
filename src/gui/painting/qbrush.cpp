@@ -835,7 +835,7 @@ QGradient::QGradient()
 */
 
 /*!
-    \fn void QGradient::setSpread(QGradient::Spread spread)
+    \fn void QGradient::setSpread(Spread spread)
 
     Specifies the spread method that should be used for this
     gradient. This function only has effect for linear and

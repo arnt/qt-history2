@@ -1062,10 +1062,11 @@ QGfxRaster<depth,type>::~QGfxRaster()
     when write-combining on the framebuffer is enabled using those registers
     (which effectively causes the CPU to do a similar optimisation in hardware)
 */
-template<const int depth,const int type> // Calculate packing values for 32-bit writes
+template<const int depth,const int type>
 Q_GFX_INLINE void QGfxRaster<depth,type>::calcPacking(void *m, int x1, int x2,
                                                     int &frontadd, int &backadd, int &count)
 {
+    // Calculate packing values for 32-bit writes
     int w = x2-x1+1;
 
 #ifndef QWS_NO_WRITE_PACKING
@@ -1226,6 +1227,7 @@ void QGfxRaster<depth,type>::setSource(unsigned char *c, int w, int h, int l, in
 }
 
 /*!
+    \fn void QGfxRaster::buildSourceClut(const QRgb * cols,int numcols)
     \internal
 
     This is an internal method used to optimise blt's from paletted to paletted
@@ -1291,9 +1293,10 @@ void QGfxRaster<depth,type>::buildSourceClut(const QRgb * cols,int numcols)
     without taking any notice of clipping. It's an internal method called
     by drawPoint(), and vLine().
 */
-template <const int depth, const int type> //screen coordinates
+template <const int depth, const int type> 
 Q_GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped(int x, unsigned char *l)
 {
+    //screen coordinates
     if (depth == 32)
         ((QRgb*)l)[x] = pixel;
     else if (depth == 24)
@@ -2382,6 +2385,9 @@ Q_GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1, int x2, un
 }
 
 /*!
+    \fn void QGfxRaster::hAlphaLineUnclipped(int x1, int x2, unsigned char *l,
+                                             unsigned const char *srcdata,
+                                             unsigned const char *alphas)
     \internal
 
     This is similar to hImageLineUnclipped but handles the more complex

@@ -694,6 +694,18 @@
     \sa hasPrevious(), previous(), peekNext()
 */
 
+/*! \fn T &QMutableListIterator::peekPrevious() const
+    \fn T &QMutableLinkedListIterator::peekPrevious() const
+    \fn T &QMutableVectorIterator::peekPrevious() const
+
+    Returns a reference to the previous item, without moving the iterator.
+
+    Calling this function on an iterator located at the front of the
+    container leads to undefined results.
+
+    \sa hasPrevious(), previous(), peekNext()
+*/
+
 /*! \fn bool QListIterator::findNext(const T &value)
     \fn bool QLinkedListIterator::findNext(const T &value)
     \fn bool QVectorIterator::findNext(const T &value)

@@ -17,14 +17,13 @@
 #include "qwidget.h"
 
 /*!
-    \class QWidgetPlugin qwidgetplugin.h
+    \class QWidgetPlugin
     \brief The QWidgetPlugin class provides an abstract base for custom QWidget plugins.
 
     \ingroup plugins
 
     The widget plugin is a simple plugin interface that makes it easy
-    to create custom widgets that can be included in forms using \link
-    designer-manual.book Qt Designer\endlink and used by applications.
+    to create custom widgets that can be included in other Qt applications.
 
     Writing a widget plugin is achieved by subclassing this base
     class, reimplementing the pure virtual functions keys(), create(),
@@ -32,13 +31,7 @@
     isContainer(), and exporting the class with the \c Q_EXPORT_PLUGIN
     macro.
 
-    See the \link designer-manual.book Qt Designer manual's\endlink,
-    'Creating Custom Widgets' section in the 'Creating Custom Widgets'
-    chapter, for a complete example of a QWidgetPlugin.
-
-    See also the \link plugins-howto.html Plugins
-    documentation\endlink and the \l{QWidgetFactory} class that is
-    supplied with \link designer-manual.book Qt Designer\endlink.
+    \sa {plugins-howto.html}{Plugins Documentation}
 */
 
 /*!

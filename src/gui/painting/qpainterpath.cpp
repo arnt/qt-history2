@@ -1425,13 +1425,13 @@ QPainterPathStroker::QPainterPathStroker()
 QPainterPathStroker::~QPainterPathStroker()
 { delete d_ptr; }
 
-/*!
- * Strokes a subpath side using the \a it as source. Results are put into
- * \a stroke. The function returns true if the subpath side was closed.
- * If \a capFirst is true, we will use capPoints instead of joinPoints to
- * connect the first segment, other segments will be joined using joinPoints.
- * This is to put capping in order...
- */
+/*
+   Strokes a subpath side using the \a it as source. Results are put into
+   \a stroke. The function returns true if the subpath side was closed.
+   If \a capFirst is true, we will use capPoints instead of joinPoints to
+   connect the first segment, other segments will be joined using joinPoints.
+   This is to put capping in order...
+*/
 template <class Iterator> bool qt_stroke_subpath_side(Iterator *it, QPainterPath *stroke,
                                                       const QPainterPathStrokerPrivate *data,
                                                       bool capFirst)

@@ -57,11 +57,6 @@ public:
 */
 
 /*!
-    \property StackedLayout::count
-    \brief the number of widgets contained in the layout
-*/
-
-/*!
     \fn void QStackedLayout::widgetRemoved(int index)
 
     This signal is emitted if a widget is removed from the stack, e.g.
@@ -251,9 +246,9 @@ QWidget *QStackedLayout::widget(int index) const
     return d->list.at(index)->widget();
 }
 
-
 /*!
-    Returns the number of widgets in this stacked layout.
+    \property QStackedLayout::count
+    \brief the number of widgets contained in the layout
 */
 int QStackedLayout::count() const
 {

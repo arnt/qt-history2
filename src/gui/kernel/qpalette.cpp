@@ -1175,13 +1175,13 @@ QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &b
     \compat
 */
 
-/*! \fn bool QColorGroup::operator==(const QColorGroup &other)
+/*! \fn bool QColorGroup::operator==(const QColorGroup &other) const
 
     Returns true if this color group is equal to \a other; otherwise
     returns false.
 */
 
-/*! \fn bool QColorGroup::operator!=(const QColorGroup &other)
+/*! \fn bool QColorGroup::operator!=(const QColorGroup &other) const
 
     Returns true if this color group is not equal to \a other;
     otherwise returns false.

@@ -628,8 +628,6 @@ void QRect::moveCenter(const QPoint &p)
 /*!
     \fn void QRect::addCoords(int xp1, int yp1, int xp2, int yp2)
 
-    \compat
-
     Adds \a xp1, \a yp1, \a xp2 and \a yp2 respectively to the
     existing coordinates of the rectangle.
 
@@ -649,7 +647,7 @@ void QRect::moveCenter(const QPoint &p)
     Adds \a xp1, \a yp1, \a xp2 and \a yp2 respectively to the
     existing coordinates of the rectangle.
 
-    \sa adjusted
+    \sa adjusted()
 */
 
 /*!
@@ -1404,13 +1402,6 @@ QRectF QRectF::normalize() const
     \sa coords() setRect()
 */
 
-
-/*!
-    \fn void QRectF::addCoords(qreal xp1, qreal yp1, qreal xp2, qreal yp2)
-
-    Use adjust(\a xp1, \a yp1, \a xp2, \a yp2) instead.
-*/
-
 /*! \fn QRectF QRectF::adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2) const
 
     Returns a new rectangle with (\a xp1, \a yp1) added to the
@@ -1418,12 +1409,12 @@ QRectF QRectF::normalize() const
     \a yp2) added to the position of its bottom-right corner.
 */
 
-/*! \fn void QRect::adjust(qreal xp1, qreal yp1, qreal xp2, qreal yp2)
+/*! \fn void QRectF::adjust(qreal xp1, qreal yp1, qreal xp2, qreal yp2)
 
     Adds \a xp1, \a yp1, \a xp2 and \a yp2 respectively to the
     existing coordinates of the rectangle.
 
-    \sa adjusted
+    \sa adjusted()
 */
 /*!
     \fn QSizeF QRectF::size() const

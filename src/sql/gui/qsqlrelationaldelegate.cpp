@@ -69,4 +69,3 @@
                                                   const QModelIndex &index) const
     \reimp
 */
-

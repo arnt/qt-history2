@@ -1034,14 +1034,6 @@ QString QIODevice::errorString() const
     \sa qobject_cast<>()
 */
 
-/*! fn void QIODevice::resetStatus()
-
-    For device specific error handling, please refer to the
-    individual device documentation.
-
-    \sa qobject_cast<>()
-*/
-
 /*!
     \fn QIODevice::Offset QIODevice::at() const
 
@@ -1169,6 +1161,12 @@ QIODevice::Status QIODevice::status() const
     return isOpen() ? 0 /* IO_Ok */ : 8 /* IO_UnspecifiedError */;
 }
 
+/*!
+    For device specific error handling, please refer to the
+    individual device documentation.
+
+    \sa qobject_cast()
+*/
 void QIODevice::resetStatus()
 {
 #if !defined(QT_NO_QOBJECT)

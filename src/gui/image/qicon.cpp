@@ -632,7 +632,7 @@ static QSize pixmapSize(QIcon::Size which) {
 }
 
 /*!
-    \enum Size
+    \enum QIcon::Size
     \compat
 
     \value Small  Use QStyle::pixelMetric(QStyle::PM_SmallIconSize) instead.

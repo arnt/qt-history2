@@ -717,12 +717,12 @@ void QTextEditPrivate::extendLinewiseSelection(int suggestedNewPosition)
     and applying changes to selected text.
 
     By default the text edit wraps words at whitespace to fit within
-    the text edit widget. The setWordWrap() function is used to
-    specify the kind of word wrap you want, or \c NoWrap if you don't
-    want any wrapping. Call setWordWrap() to set a fixed pixel width
-    \c FixedPixelWidth, or character column (e.g. 80 column) \c
+    the text edit widget. The setLineWrapMode() function is used to
+    specify the kind of line wrap you want, or \l NoWrap if you don't
+    want any wrapping. Call setLineWrapMode() to set a fixed pixel width
+    \l FixedPixelWidth, or character column (e.g. 80 column) \l
     FixedColumnWidth with the pixels or columns specified with
-    setWrapColumnOrWidth(). If you use word wrap to the widget's width
+    setLineWrapColumnOrWidth(). If you use word wrap to the widget's width
     \c WidgetWidth, you can specify whether to break on whitespace or
     anywhere with setWrapPolicy().
 
@@ -1280,7 +1280,7 @@ void QTextEdit::paste()
 /*!
     Deletes all the text in the text edit.
 
-    \sa cut() removeSelectedText() setPlainText() setHtml()
+    \sa cut() setPlainText() setHtml()
 */
 void QTextEdit::clear()
 {
@@ -2199,8 +2199,8 @@ QRect QTextEdit::cursorRect() const
 
 
 /*!
-    Returns the reference of the anchor at the given \a position, or an empty
-    string if no anchor exists at that point.
+    Returns the reference of the anchor at position \a pos, or an
+    empty string if no anchor exists at that point.
 */
 QString QTextEdit::anchorAt(const QPoint& pos) const
 {
@@ -2565,9 +2565,8 @@ void QTextEdit::setWordWrapMode(QTextOption::WrapMode mode)
 
 /*!
     Finds the next occurrence of the string, \a exp, using the given
-    \a options searching in direction \a direction. Returns true if \a
-    exp was found and changes the cursor to select the match;
-    otherwise returns false;
+    \a options. Returns true if \a exp was found and changes the
+    cursor to select the match; otherwise returns false.
 */
 bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options)
 {

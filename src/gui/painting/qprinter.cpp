@@ -1079,8 +1079,6 @@ QPrinter::PrinterState QPrinter::printerState() const
 
 #ifdef Q_WS_WIN
 /*!
-    \fn HDC QPrinter::getDC() const
-
     \internal
 */
 HDC QPrinter::getDC() const
@@ -1089,8 +1087,6 @@ HDC QPrinter::getDC() const
 }
 
 /*!
-    \fn void QPrinter::releaseDC(HDC dc)
-
     \internal
 */
 void QPrinter::releaseDC(HDC hdc) const

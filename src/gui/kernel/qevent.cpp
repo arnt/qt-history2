@@ -333,28 +333,10 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
 */
 
 /*!
-    \enum QHoverEvent::Reason
-
-    This enum describes the reason why the event was sent.
-
-    \value Enter The mouse cursor entered a hover widget.
-    
-    \value Leave The mouse cursor is leaving a hover widget.
-
-    \value Move The mouse cursor is moving within a hover widget.
-*/
-
-/*!
-    \fn const Reason QHoverEvent::reason() const
-
-    Returns the reason for the hover event.
-*/
-
-/*!
     Constructs a hover event object.
 
-    The \a type parameter must be \c QEvent::HoverEnter,
-    \c QEvent::HoverLeave, or \c QEvent::HoverMove.
+    The \a type parameter must be \l QEvent::HoverEnter,
+    \l QEvent::HoverLeave, or \l QEvent::HoverMove.
 
     The \a pos is the current mouse cursor's position relative to the
     receiving widget, while \a oldPos is the previous mouse cursor's
@@ -764,7 +746,7 @@ Qt::FocusReason QFocusEvent::reason()
 
 #ifdef QT3_SUPPORT
 /*!
-    \enum QFocusEventReason
+    \enum QFocusEvent::Reason
 
     Use Qt::FocusReason instead.
 
@@ -1270,7 +1252,7 @@ Qt::ButtonState QContextMenuEvent::state() const
 
     If the commitString() should replace parts of the of the text in
     the editor, replacementLength() will contain the number of
-    characters to be replaced. replacementFrom() contains the position
+    characters to be replaced. replacementStart() contains the position
     at which characters are to be replaced relative from the start of
     the preedit string.
 
@@ -1293,9 +1275,9 @@ Qt::ButtonState QContextMenuEvent::state() const
     \o If the widget has selected text, the selected text should get
        removed.
 
-    \o Remove the text starting at replacementFrom() with length
+    \o Remove the text starting at replacementStart() with length
        replacementLength() and replace it by the commitString(). If
-       replacementLength() is 0, replacementFrom() gives the insertion
+       replacementLength() is 0, replacementStart() gives the insertion
        position for the commitString().
 
        When doing replacement the area of the preedit
@@ -1358,7 +1340,7 @@ Qt::ButtonState QContextMenuEvent::state() const
 
 /*!
     Constructs an event of type QEvent::InputMethod. The
-    attributes(), preeditString(), commitString(), replacementFrom(),
+    attributes(), preeditString(), commitString(), replacementStart(),
     and replacementLength() are initialized to default values.
 
     \sa setCommitString()
@@ -1373,7 +1355,7 @@ QInputMethodEvent::QInputMethodEvent()
     preedit text is set to \a preeditText, the attributes to
     \a attributes.
 
-    The commitString(), replacementFrom(), and replacementLength()
+    The commitString(), replacementStart(), and replacementLength()
     values can be set using setCommitString().
 
     \sa preeditText(), attributes()
@@ -1403,11 +1385,11 @@ QInputMethodEvent::QInputMethodEvent(const QInputMethodEvent &other)
 
     If the commit string should replace parts of the of the text in
     the editor, \a replaceLength specifies the number of
-    characters to be replaced. \a replacementFrom specifies the position
+    characters to be replaced. \a replaceFrom specifies the position
     at which characters are to be replaced relative from the start of
     the preedit string.
 
-    \sa commitString(), replacementFrom(), replacementLength()
+    \sa commitString(), replacementStart(), replacementLength()
 */
 void QInputMethodEvent::setCommitString(const QString &commitString, int replaceFrom, int replaceLength)
 {
@@ -1444,11 +1426,11 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
     input operations and has to be inserted to the widgets text
     directly before the preedit string.
 
-    \sa setCommitString(), preeditString(), replacementFrom(), replacementLength()
+    \sa setCommitString(), preeditString(), replacementStart(), replacementLength()
 */
 
 /*!
-    \fn int QInputMethodEvent::replacementFrom() const
+    \fn int QInputMethodEvent::replacementStart() const
 
     Returns the position at which characters are to be replaced relative
     from the start of the preedit string.
@@ -1462,7 +1444,7 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
     Returns the number of characters to be replaced in the preedit
     string.
 
-    \sa replacementFrom(), setCommitString()
+    \sa replacementStart(), setCommitString()
 */
 
 /*!

@@ -332,16 +332,16 @@
         list << 3 << 3 << 6 << 6 << 6 << 8;
 
 	int countOf6;
-        qCount(list.begin(), list.end(), countOf6, 6);
+        qCount(list.begin(), list.end(), 6, countOf6);
         // countOf6 == 3
 
 	int countOf7;
-        qCount(list.begin(), list.end(), countOf7, 7);
+        qCount(list.begin(), list.end(), 7, countOf7);
         // countOf7 == 0
     \endcode
 
     This function requires the item type (in the example above,
-    QString) to implement \c operator==().
+    \c int) to implement \c operator==().
 
     \sa {input iterators}
 */

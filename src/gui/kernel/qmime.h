@@ -52,8 +52,8 @@ public:
     virtual QVector<FORMATETC> formatsForMime(const QString &mimeType, const QMimeData *mimeData) const = 0;
 
     // for converting to Qt
-    virtual bool canConvertToMime(const QString &mimeType, struct IDataObject *pDataObj) const = 0;
-    virtual QVariant convertToMime(const QString &mimeType, struct IDataObject *pDataObj, QVariant::Type preferredType) const = 0;
+    virtual bool canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const = 0;
+    virtual QVariant convertToMime(const QString &mimeType, IDataObject *pDataObj, QVariant::Type preferredType) const = 0;
     virtual QString mimeForFormat(const FORMATETC &formatetc) const = 0;
 
     static int registerMimeType(const QString &mime);
@@ -64,8 +64,8 @@ private:
     friend class QDropData;
     friend class QOleDataObject;
 
-    static QWindowsMime *converterToMime(const QString &mimeType, struct IDataObject *pDataObj);
-    static QStringList allMimesForFormats(struct IDataObject *pDataObj);
+    static QWindowsMime *converterToMime(const QString &mimeType, IDataObject *pDataObj);
+    static QStringList allMimesForFormats(IDataObject *pDataObj);
     static QWindowsMime *converterFromMime(const FORMATETC &formatetc, const QMimeData *mimeData);
     static QVector<FORMATETC> allFormatsForMime(const QMimeData *mimeData);
 };
