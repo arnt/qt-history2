@@ -2135,6 +2135,8 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d,
     if(file0.isEmpty())
 	return file0;
     QString key = file0;
+    if(QDir::isRelativePath(file0))
+	key.prepend(QDir::currentDirPath() + "--");
     if(!in_d.isEmpty() || !out_d.isEmpty() || force_fix || !canon)
 	key.prepend(in_d + "--" + out_d + "--" + QString::number((int)force_fix) + "--" +
 		    QString::number((int)canon) + "-");

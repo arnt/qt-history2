@@ -191,17 +191,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 		}
 		if(tmp_proj.read(fn, oldpwd)) {
 		    if(tmp_proj.first("TEMPLATE") == "vcsubdirs") {
-			QStringList tmp_subdirs = fileFixify(tmp_proj.variables()["SUBDIRS"]);
-			int removed = tmp_subdirs.remove( Option::fixPathToLocalOS(QDir::currentDirPath()) ); // Remove duplicates!
-			subdirs += tmp_subdirs;
-			if(removed) { // Hmmm, what's going on here??
-			    qDebug( "\nThis shouldn't happen Sam!?\nremoved (%dX) [%s]\nfrom [%s]", 
-				    removed, 
-				    Option::fixPathToLocalOS(QDir::currentDirPath()).latin1(), 
-				    fileFixify(tmp_proj.variables()["SUBDIRS"]).join(" :: ").latin1() );
-			    subdirs += QDir::currentDirPath() + QDir::separator() + fi.baseName();
-			    qDebug( "Added subdir: [%s]", Option::fixPathToLocalOS(QDir::currentDirPath() + QDir::separator() + fi.baseName()).latin1() );
-			}
+			subdirs += fileFixify(tmp_proj.variables()["SUBDIRS"]);
 		    } else if(tmp_proj.first("TEMPLATE") == "vcapp" || tmp_proj.first("TEMPLATE") == "vclib") {
 			// Initialize a 'fake' project to get the correct variables
 			// and to be able to extract all the dependencies
