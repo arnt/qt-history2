@@ -34,10 +34,14 @@ static inline void draw( QPainter &p, int x, int y, int w, int h, int flags, con
 class MyWidget: public QWidget
 {
 public:
-    MyWidget() : rot( 0 ), x( 0 ), y( 0 ), scale( 1. ), rtl( FALSE ) {}
+    MyWidget() : rot( 0 ), x( 0 ), y( 0 ), scale( 1. ), rtl( FALSE ), opaque( FALSE ) {}
     void paintEvent( QPaintEvent * )
 	{
 	    QPainter p( this );
+	    if ( opaque ) {
+		p.setBackgroundColor( Qt::yellow );
+		p.setBackgroundMode( Qt::OpaqueMode );
+	    }
 	    p.rotate( rot );
 	    p.translate( x,  y );
 	    p.scale( scale, scale );
@@ -123,6 +127,9 @@ public:
 	case Key_End:
 	    scale /= 1.2;
 	    break;
+	case Key_O:
+	    opaque = !opaque;
+	    break;
 	}
 
 	update();
@@ -131,6 +138,7 @@ public:
     int x, y;
     double scale;
     bool rtl;
+    bool opaque;
 };
 
 int main( int argc, char** argv )
