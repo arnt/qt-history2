@@ -439,8 +439,9 @@ int QDockAreaLayout::widthForHeight( int h ) const
   subclass.
 
   QMainWindow contains four QDockAreas which you can use for your
-  QToolbars and QDockWindows. See the QMainWindow documentation for 
-  information on adding your own dock areas to a QMainWindow.
+  QToolbars and QDockWindows. It is possible to add your own QDockAreas
+  to a QMainWindow, though not straightforward. (See the <i>Qt
+  Linguist</i> source code for an example.)
 
   In most situations you do not need to use the QDockArea class
   directly. But if it makes sense for your application to have a
@@ -484,6 +485,10 @@ int QDockAreaLayout::widthForHeight( int h ) const
 /*!
   \enum QDockArea::HandlePosition
 
+    A dock window has two kinds of handles, the dock window handle used
+    for dragging the dock window, and the resize handle use to resize
+    the dock window.
+
   This enum specifies where the dock window resize handles (size grips)
   are placed in the dock area. (These usually appear at the opposite
   side of the dock window handle.)
@@ -508,7 +513,8 @@ QDockArea::QDockArea( Orientation o, HandlePosition h, QWidget *parent, const ch
     installEventFilter( this );
 }
 
-/*!  Destructor. Destroys all the dock windows docked in this dock area.
+/*!  Destructor. Destroys this dock area and all the dock windows docked
+ in this dock area.
 
     Does not affect floating dock windows or dock windows in other dock
     areas, even if they first appeared in this dock area. Floating dock
