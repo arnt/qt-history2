@@ -3800,7 +3800,7 @@ void QListBox::doRubberSelection( const QRect &old, const QRect &rubber )
   Returns whether the user is selecting items using a rubber rectangle.
 */
 
-bool QListBox::isRubberSelection() const
+bool QListBox::isRubberSelecting() const
 {
     return d->rubber != 0;
 }

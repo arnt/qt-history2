@@ -250,7 +250,7 @@ protected:
     virtual void paintCell( QPainter *, int row, int col );
 
     void toggleCurrentItem();
-    bool isRubberSelection() const;
+    bool isRubberSelecting() const;
 
     void doLayout() const;
 
