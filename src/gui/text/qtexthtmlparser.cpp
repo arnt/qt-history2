@@ -309,64 +309,6 @@ static QChar resolveEntity(const QString &entity)
     return e->code;
 }
 
-enum HTMLElements {
-    Html_qt,
-    Html_body,
-
-    Html_a,
-    Html_em,
-    Html_i,
-    Html_big,
-    Html_small,
-    Html_strong,
-    Html_b,
-
-    Html_h1,
-    Html_h2,
-    Html_h3,
-    Html_h4,
-    Html_h5,
-    Html_h6,
-    Html_p,
-    Html_center,
-
-    Html_font,
-
-    Html_ul,
-    Html_ol,
-    Html_li,
-
-    Html_code,
-    Html_tt,
-
-    Html_img,
-    Html_br,
-    Html_hr,
-
-    Html_sub,
-    Html_sup,
-
-    Html_pre,
-    Html_blockquote,
-    Html_head,
-    Html_div,
-    Html_span,
-    Html_dl,
-    Html_dt,
-    Html_dd,
-    Html_u,
-    Html_s,
-    Html_nobr,
-
-    // tables
-    Html_table,
-    Html_tr,
-    Html_td,
-    Html_th,
-    Html_html,
-    Html_NumElements
-};
-
 static const struct QTextHtmlElement { const char *name; Q_UINT16 code; } elements[Html_NumElements+1]= {
     { "a", Html_a },
     { "b", Html_b },
@@ -562,9 +504,6 @@ void QTextHtmlParserNode::setAttributesFromId()
         case Html_tt:
             fontFamily = QString::fromLatin1("Courier New,courier");
             break;
-        case Html_img:
-            isImage = true;
-            break;
         case Html_br:
             text = QChar::LineSeparator;
             break;
@@ -641,7 +580,7 @@ static QTextListFormat::Style convertListStyle(QStyleSheetItem::ListStyle style)
 
 QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
-      isImage(false), fontItalic(false), fontUnderline(false), fontOverline(false),
+      fontItalic(false), fontUnderline(false), fontOverline(false),
       fontStrikeOut(false), fontFixedPitch(false), hasOwnListStyle(false), fontPointSize(DefaultFontSize), fontWeight(QFont::Normal),
       alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
       imageWidth(-1), imageHeight(-1),
@@ -888,7 +827,6 @@ void QTextHtmlParser::parseTag()
     Q_ASSERT(node->style != 0);
     node->id = lookupElement(node->tag);
 
-    node->isImage = (node->tag == QLatin1String("img"));
     node->isListItem = (node->style->displayMode() == QStyleSheetItem::DisplayListItem);
     node->isListStart = (node->tag == QLatin1String("ol") || node->tag == QLatin1String("ul"));
     if (node->isListStart)
@@ -1151,7 +1089,7 @@ void QTextHtmlParser::parseAttributes()
                 node->anchorHref = value;
             else if (key == QLatin1String("name"))
                 node->anchorName = value;
-        } else if (node->tag == QLatin1String("img")) {
+        } else if (node->id == Html_img) {
             bool ok = false;
             if (key == QLatin1String("src") || key == QLatin1String("source")) {
                 node->imageName = value;

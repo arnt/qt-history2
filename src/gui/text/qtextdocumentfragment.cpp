@@ -508,7 +508,7 @@ void QTextHTMLImporter::import()
                 appendBlock(block, node->charFormat());
             }
             hasBlock = true;
-        } else if (node->isImage) {
+        } else if (node->id == Html_img) {
             QTextImageFormat fmt;
             fmt.setName(node->imageName);
 

@@ -26,6 +26,64 @@
 #include "qtextcursor.h"
 #endif // QT_H
 
+enum QTextHTMLElements {
+    Html_qt,
+    Html_body,
+
+    Html_a,
+    Html_em,
+    Html_i,
+    Html_big,
+    Html_small,
+    Html_strong,
+    Html_b,
+
+    Html_h1,
+    Html_h2,
+    Html_h3,
+    Html_h4,
+    Html_h5,
+    Html_h6,
+    Html_p,
+    Html_center,
+
+    Html_font,
+
+    Html_ul,
+    Html_ol,
+    Html_li,
+
+    Html_code,
+    Html_tt,
+
+    Html_img,
+    Html_br,
+    Html_hr,
+
+    Html_sub,
+    Html_sup,
+
+    Html_pre,
+    Html_blockquote,
+    Html_head,
+    Html_div,
+    Html_span,
+    Html_dl,
+    Html_dt,
+    Html_dd,
+    Html_u,
+    Html_s,
+    Html_nobr,
+
+    // tables
+    Html_table,
+    Html_tr,
+    Html_td,
+    Html_th,
+    Html_html,
+
+    Html_NumElements
+};
 
 class QTextHtmlParser;
 struct QTextHtmlParserAttribute {
@@ -61,7 +119,6 @@ struct QTextHtmlParserNode {
     uint isListStart : 1;
     uint isTableCell : 1;
     uint isAnchor : 1;
-    uint isImage : 1;
     uint fontItalic : 1;
     uint fontUnderline : 1;
     uint fontOverline : 1;
