@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#334 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#335 $
 **
 ** Implementation of QListView widget class
 **
@@ -1587,7 +1587,7 @@ void QListViewPrivate::Root::setup()
   name as object name. */
 
 QListView::QListView( QWidget * parent, const char *name )
-    : QScrollView( parent, name, WNorthWestGravity )
+    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase )
 {
     d = new QListViewPrivate;
     d->vci = 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#128 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#129 $
 **
 ** Implementation of QScrollView class
 **
@@ -391,13 +391,14 @@ Constructs a QScrollView.
 
 If you intend to add child widgets, you may see improved refresh
 if you include \c WPaintClever in the widgets flags, \a f.  \c WPaintClever
-as well as \c WNorthWestGravity is propagated to the viewport() widget.
+as well as \c WNorthWestGravity and \c WRepaintNoErase 
+is propagated to the viewport() widget.
 */
 
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
-    QFrame( parent, name, f & ~WNorthWestGravity, FALSE )
+    QFrame( parent, name, f & (~WNorthWestGravity) & (~WRepaintNoErase), FALSE )
 {
-    d = new QScrollViewData(this,WResizeNoErase| (f&WPaintClever) | (f&WNorthWestGravity));
+    d = new QScrollViewData(this,WResizeNoErase| (f&WPaintClever) | (f&WRepaintNoErase) | (f&WNorthWestGravity));
 
     connect( &d->hbar, SIGNAL( valueChanged( int ) ),
 	this, SLOT( hslide( int ) ) );
@@ -568,7 +569,7 @@ void QScrollView::updateScrollBars()
 
     int hsbExt = horizontalScrollBar()->sizeHint().height();
     int vsbExt = verticalScrollBar()->sizeHint().width();
-    
+
     if ( d->policy != AutoOne || d->anyVisibleChildren() ) {
 	// Do we definitely need the scrollbar?
 	needh = w-lmarg-rmarg < contentsWidth();

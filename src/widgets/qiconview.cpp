@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#126 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#127 $
 **
 ** Definition of QIconView widget class
 **
@@ -1748,7 +1748,7 @@ void QIconViewItem::setIconRect( const QRect &r )
 */
 
 QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
-    : QScrollView( parent, name, WNorthWestGravity | f )
+    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase  | f )
 {
     if ( !unknown_icon ) {
 	QPixmap pix = QPixmap( unknown );
