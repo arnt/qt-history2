@@ -36,9 +36,9 @@ public:
     QVector(int size, const T &t);
     inline QVector(const QVector &v) : d(v.d) { ++d->ref; }
     inline ~QVector() { if (!d) return; if (!--d->ref) free(d); }
-    QVector &operator=(const QVector  &a);
-    bool operator== (const QVector &v) const;
-    inline bool operator!= (const QVector &v) const { return !(*this == v); }
+    QVector &operator=(const QVector &v);
+    bool operator==(const QVector &v) const;
+    inline bool operator!=(const QVector &v) const { return !(*this == v); }
 
     inline int size() const { return d->size; }
 
@@ -391,7 +391,7 @@ typename QVector<T>::iterator QVector<T>::erase(iterator begin, iterator end)
 }
 
 template <typename T>
-bool QVector<T>::operator== (const QVector<T> &v) const
+bool QVector<T>::operator==(const QVector<T> &v) const
 {
     if (d->size != v.d->size)
         return false;
@@ -422,16 +422,19 @@ QVector<T> &QVector<T>::fill(const T &t, int size)
 template <typename T>
 QVector<T> &QVector<T>::operator+=(const QVector &l)
 {
-    realloc(d->size, d->size + l.d->size);
-    d->size += l.d->size;
-    T* w = d->array + d->size;
-    T* i = l.d->array + l.d->size;
-    T* b = l.d->array;
-    while (i != b)
+    int newSize = d->size + l.d->size;
+    realloc(d->size, newSize);
+
+    T *w = d->array + newSize;
+    T *i = l.d->array + l.d->size;
+    T *b = l.d->array;
+    while (i != b) {
         if (QTypeInfo<T>::isComplex)
             new (--w) T(*--i);
         else
             *--w = *--i;
+    }
+    d->size = newSize;
     return *this;
 }
 

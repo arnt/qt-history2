@@ -970,9 +970,9 @@ QString& QString::insert(int i, const QChar *unicode, int size)
     const ushort *s = (const ushort *)unicode;
     if (s >= d->data && s < d->data + d->alloc) {
         // Part of me - take a copy
-        ushort *tmp = (ushort *)malloc(size * sizeof(QChar));
+        ushort *tmp = static_cast<ushort *>(malloc(size * sizeof(QChar)));
         memcpy(tmp, s, size * sizeof(QChar));
-        insert(i, (const QChar *)tmp, size);
+        insert(i, reinterpret_cast<const QChar *>(tmp), size);
         ::free(tmp);
         return *this;
     }
@@ -1292,8 +1292,7 @@ QString &QString::remove(QChar ch, CaseSensitivity cs)
     \sa indexOf(), lastIndexOf(), replace()
 */
 
-/*! \fn QString &QString::replace(int pos, int len, const QString &after)
-
+/*!
     Replaces \a len characters from index position \a pos with the
     string \a after, and returns a reference to this string.
 
@@ -1307,6 +1306,13 @@ QString &QString::remove(QChar ch, CaseSensitivity cs)
 
     \sa insert(), remove()
 */
+
+QString &QString::replace(int pos, int len, const QString &after)
+{
+    QString copy = after;
+    remove(pos, len);
+    return insert(pos, copy.constData(), copy.d->size);
+}
 
 /*! \overload
 
@@ -1453,7 +1459,7 @@ QString &QString::replace(const QString &before, const QString &after, CaseSensi
     case sensitive; otherwise the search is case insensitive.
 */
 
-QString& QString::replace(QChar ch, const QString & after, CaseSensitivity cs)
+QString& QString::replace(QChar ch, const QString &after, CaseSensitivity cs)
 {
     return replace(QString(ch), after, cs);
 }
@@ -2036,7 +2042,7 @@ int QString::lastIndexOf(QChar ch, int from, CaseSensitivity cs) const
 
     \sa indexOf(), lastIndexOf(), remove(), QRegExp::cap()
 */
-QString& QString::replace(const QRegExp& rx, const QString& after)
+QString& QString::replace(const QRegExp &rx, const QString &after)
 {
     QRegExp rx2(rx);
 
@@ -2996,7 +3002,7 @@ QByteArray qt_winQString2MB(const QString& s, int uclen)
     return mb;
 }
 
-QString qt_winMB2QString(const char* mb, int mblen)
+QString qt_winMB2QString(const char *mb, int mblen)
 {
     if (!mb || !mblen)
         return QString::null;
@@ -3320,7 +3326,7 @@ QString QString::trimmed() const
         ++shared_empty.ref;
         return QString(&shared_empty);
     }
-    return QString(s+start, l);
+    return QString(s + start, l);
 }
 
 /*! \fn const QChar QString::at(int i) const

@@ -340,8 +340,9 @@ QHash<Key, T>::createNode(uint h, const Key &key, const T &value, Node **nextNod
 template <class Key, class T>
 Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::merge(const QHash<Key, T> &other)
 {
-    const_iterator it = other.end();
-    while (it != other.begin()) {
+    QHash<Key, T> copy(other);
+    const_iterator it = copy.constEnd();
+    while (it != copy.constBegin()) {
         --it;
         insertMulti(it.key(), it.value());
     }

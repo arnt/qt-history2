@@ -426,7 +426,7 @@ Q_OUTOFLINE_TEMPLATE int QList<T>::removeAll(const T &t)
 
 template <typename T>
 Q_OUTOFLINE_TEMPLATE typename QList<T>::iterator QList<T>::erase(typename QList<T>::iterator first,
-                                                                  typename QList<T>::iterator last)
+                                                                 typename QList<T>::iterator last)
 {
     for (Node *n = first.i; n < last.i; ++n)
         node_destruct(n);

@@ -176,8 +176,7 @@ public:
     QString &remove(const QString &s, CaseSensitivity cs = CaseSensitive);
     QString &replace(int i, int len, QChar after);
     QString &replace(int i, int len, const QChar *s, int slen);
-    inline QString &replace(int i, int len, const QString &after)
-        { return replace(i, len, after.constData(), after.length()); }
+    QString &replace(int i, int len, const QString &after);
     QString &replace(QChar before, QChar after, CaseSensitivity cs = CaseSensitive);
     QString &replace(QChar c, const QString &after, CaseSensitivity cs = CaseSensitive);
     QString &replace(const QString &before, const QString &after,

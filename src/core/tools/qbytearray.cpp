@@ -1413,11 +1413,13 @@ QByteArray& QByteArray::append(char ch)
 
 QByteArray &QByteArray::insert(int i, const QByteArray &ba)
 {
-    if (i < 0 || ba.d->size == 0)
+    QByteArray copy(ba);
+
+    if (i < 0 || copy.d->size == 0)
         return *this;
-    expand(qMax(d->size, i) + ba.d->size - 1);
-    ::memmove(d->data + i + ba.d->size, d->data + i, (d->size - i - ba.d->size) * sizeof(char));
-    memcpy(d->data + i, ba.d->data, ba.d->size*sizeof(char));
+    expand(qMax(d->size, i) + copy.d->size - 1);
+    ::memmove(d->data + i + copy.d->size, d->data + i, (d->size - i - copy.d->size) * sizeof(char));
+    memcpy(d->data + i, copy.d->data, copy.d->size * sizeof(char));
     return *this;
 }
 
@@ -1538,8 +1540,9 @@ QByteArray &QByteArray::remove(int pos, int len)
 
 QByteArray &QByteArray::replace(int pos, int len, const QByteArray &after)
 {
+    QByteArray copy(after);
     remove(pos, len);
-    return insert(pos, after);
+    return insert(pos, copy);
 }
 
 /*! \fn QByteArray &QByteArray::replace(int pos, int len, const char *after)

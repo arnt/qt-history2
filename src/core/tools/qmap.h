@@ -438,8 +438,9 @@ Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::find(const Key &
 template <class Key, class T>
 Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::merge(const QMap<Key, T> &other)
 {
-    const_iterator it = other.end();
-    while (it != other.begin()) {
+    QMap<Key, T> copy(other);
+    const_iterator it = copy.constEnd();
+    while (it != copy.constBegin()) {
         --it;
         insertMulti(it.key(), it.value());
     }
