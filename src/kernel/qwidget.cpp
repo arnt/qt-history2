@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#29 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#29 $";
 #endif
 
 
@@ -129,8 +129,8 @@ QWidget::~QWidget()
     }
     destroy();					// platform-dependent cleanup
     delete extra;
-    if ( mapper && mapper->count() == 0 )       // no more widgets left
-	QApplication::quit();
+//    if ( mapper && mapper->count() == 0 )       // no more widgets left
+//	QApplication::quit();
 }
 
 
@@ -145,24 +145,23 @@ void QWidget::destroyMapper()			// destroy widget mapper
     if ( !mapper )				// already gone
 	return;
     register QWidget *w;
-    QWidgetMapper *tmp = mapper;
-    mapper = 0;					// controlled cleanup
-    QWidgetIntDictIt it( *((QWidgetIntDict*)tmp) );
+    QWidgetIntDictIt it( *((QWidgetIntDict*)mapper) );
     w = it.current();
     while ( w ) {				// remove child widgets first
-	if ( w->parentObj ) {			// widget has a parent
-	    tmp->remove( w->id() );		//   then remove from dict
+	if ( !w->parentObj ) {			// widget is a parent
+	    delete w;
 	    w = it.current();			// w will be next widget
 	}
-	else					// skip parentless widgets now
+	else					// skip child widgets now
 	    w = ++it;
     }
     w = it.toFirst();
-    while ( w ) {				// delete parentless widgets
+    while ( w ) {				// delete the rest
 	delete w;
 	w = ++it;
     }
-    delete tmp;
+    delete mapper;
+    mapper = 0;
 }
 
 void QWidget::set_id( WId id )			// set widget identifier
