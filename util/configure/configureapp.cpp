@@ -749,11 +749,13 @@ void Configure::generateConfigfiles()
 void Configure::displayConfig()
 {
     // Give some feedback
-    cout << "License file used..........." << QDir::homeDirPath() << "/.qt-license" << endl;
-    cout << "Licensee...................." << licenseInfo[ "LICENSEE" ] << endl;
-    cout << "License ID.................." << licenseInfo[ "LICENSEID" ] << endl;
-    cout << "Product license............." << licenseInfo[ "PRODUCTS" ] << endl;
-    cout << "Expiry Date................." << licenseInfo[ "EXPIRYDATE" ] << endl << endl;
+    if ( QFile::exists( QDir::homeDirPath() + "/.qt-license" ) ) {
+	cout << "License file used..........." << QDir::homeDirPath() << "/.qt-license" << endl;
+	cout << "Licensee...................." << licenseInfo[ "LICENSEE" ] << endl;
+	cout << "License ID.................." << licenseInfo[ "LICENSEID" ] << endl;
+	cout << "Product license............." << licenseInfo[ "PRODUCTS" ] << endl;
+	cout << "Expiry Date................." << licenseInfo[ "EXPIRYDATE" ] << endl << endl;
+    }
 
     cout << "QMAKESPEC..................." << dictionary[ "QMAKESPEC" ] << endl;
     cout << "Configuration..............." << qmakeConfig.join( " " ) << endl;
