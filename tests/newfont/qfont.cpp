@@ -909,8 +909,7 @@ void QFont::setRawMode( bool enable )
 bool QFont::exactMatch() const
 {
     if (d->request.dirty)
-	d->load(QFontPrivate::defaultScript);
-
+	d->load();
     return d->exactMatch;
 }
 
@@ -1368,7 +1367,9 @@ QDataStream &operator<<( QDataStream &s, const QFont &font )
 	     << (Q_UINT8) font.d->request.styleHint
 
 #ifndef QT_NO_COMPAT
+#ifdef _GNUCC__
 #warning "TODO: re-add CharSet for source compatibility"
+#endif
 	     << (Q_UINT8) 0xbeef // font.d->charset
 #else
 	     << (Q_UINT8) 0
@@ -1414,7 +1415,9 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
     font.d->request.dirty = TRUE;
 
 #ifndef QT_NO_COMPAT
+#ifdef __GNUCC__
 #warning "TODO: re-add CharSet for source compatibility"
+#endif
     // font.d->charset = (QFont::CharSet) charsetcompat;
 #endif
 
@@ -1557,7 +1560,7 @@ QFontMetrics::QFontMetrics( const QFont &font )
     d = font.d;
     d->ref();
 
-    d->load(QFontPrivate::defaultScript);
+    d->load();
 
     /*
       for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
@@ -1595,7 +1598,7 @@ QFontMetrics::QFontMetrics( const QPainter *p )
     d = painter->cfont.d;
     d->ref();
 
-    d->load(QFontPrivate::defaultScript);
+    d->load();
     
     /*
       for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
@@ -1903,7 +1906,7 @@ QFontInfo::QFontInfo( const QFont &font )
     d = font.d;
     d->ref();
 
-    d->load(QFontPrivate::defaultScript);
+    d->load();
     
     /*
       for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
@@ -1943,7 +1946,7 @@ QFontInfo::QFontInfo( const QPainter *p )
     d = painter->cfont.d;
     d->ref();
 
-    d->load(QFontPrivate::defaultScript);
+    d->load();
     
     /*
       for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
@@ -2383,7 +2386,9 @@ QString QFontPrivate::key() const
 	    (int) request.styleHint : (int) QFont::AnyStyle);
 
 #ifndef QT_NO_COMPAT
+#ifdef __GNUCC__
 #warning "TODO: re-add CharSet for source compatibility"
+#endif
     *p = 0xff; // charsetcompat;
 #else
     *p = 0;
