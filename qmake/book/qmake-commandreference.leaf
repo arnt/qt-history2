@@ -1804,6 +1804,28 @@ count( MYVAR, 3 ) {
 }
 \endcode
 
+\section2 CONFIG( config )
+
+This function can be used to test for variables placed into the CONFIG
+variable. This is the same as regular old style (tmake) scopes, but
+has the added advantage a second paramter can be passed to test for
+the active config. As CONFIG's are order dependent (ie the last one
+set will be considered the active config for mutual exclusive sets
+like debug and release) a second paramter can be used to specify a set
+of values to consider for example:
+
+\code
+  CONFIG = debug
+  CONFIG += release
+  CONFIG(release, debug|release):message(Release build!) #will print
+  CONFIG(debug, debug|release):message(Debug build!) #no print
+\endcode
+
+Because release is considered the active setting (for feature parsing)
+it will be the CONFIG used to generate the build file. In the common
+case a second paramter is not needed, but for specific mutual
+exclusive tests it is invaluable.
+
 \section2 infile( filename, var, val )
 
 This function will succeed if the file \e filename (when parsed
@@ -1828,10 +1850,10 @@ For example:
   system(ls /bin):HAS_BIN=FALSE
 \endcode
 
-\section2 message( string )
+\section2 warning( string )
 
 This function will always succeed, and will display the given
-\e string to the user.
+\e string to the user. message() is a synonym for warning().
 
 \section2 error( string )
 

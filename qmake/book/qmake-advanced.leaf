@@ -250,6 +250,47 @@ accordingly.
 MY_VAR2 will contain '-Lone -Ltwo -Lthree -Lfour -Lfive', and MYVAR3 will
 contains 'three two three'.
 
+\section2 basename( file )
+
+This will return the basename of the file specified. For example:
+
+\code
+   FILE = /etc/passd
+   FILENAME = $$basename($$FILE) #passwd
+\endcode
+
+\section2 dirname( file )
+
+This will return the directory name part of the file specified. For
+example:
+
+\code
+   FILE = /etc/X11R6/XF86Config
+   DIRNAME = dirname($$FILE) #/etc/X11R6
+\endcode
+
+\section2 sprintf( string, ... )
+
+This will replace %1-%9 with the arguments passed into the
+... arguments. The resulting string will be returned.
+
+\section2 unique( variablename )
+
+This will return a list of values in variable that are unique (that is
+with repetitive entries removed). For example:
+
+\code
+   ARGS = 1 2 3 2 5 1
+   ARGS = $$unique(ARGS) #1 2 3 5
+\endcode
+
+\section2 quote( string )
+
+This will place a whole value into a single entity, \n \r and \t can
+be used to generate literal carriage returns, line feeds and tabs
+(respectively). The return value will not be quoted (double or single)
+but will be placed into a single entry (for literal expansion).
+
 \section2 system( program_and_args )
 
 This will return the stdout/stderr of the program executed, and parse it as
@@ -375,6 +416,28 @@ The specified command is performed and if it returns an exit code of
 So if the command \e {ls /bin} returns 1 then \e bin/main.cpp is added
 to the list of sources and \e bin/main.h is added to the list of
 headers.
+
+\section2 CONFIG( config )
+
+This function can be used to test for variables placed into the CONFIG
+variable. This is the same as regular old style (tmake) scopes, but
+has the added advantage a second paramter can be passed to test for
+the active config. As CONFIG's are order dependent (ie the last one
+set will be considered the active config for mutual exclusive sets
+like debug and release) a second paramter can be used to specify a set
+of values to consider for example:
+
+\code
+  CONFIG = debug
+  CONFIG += release
+  CONFIG(release, debug|release):message(Release build!) #will print
+  CONFIG(debug, debug|release):message(Debug build!) #no print
+\endcode
+
+Because release is considered the active setting (for feature parsing)
+it will be the CONFIG used to generate the build file. In the common
+case a second paramter is not needed, but for specific mutual
+exclusive tests it is invaluable.
 
 \section2 infile( filename, var, val )
 

@@ -12,9 +12,15 @@
 
    DEPENDS supported to allow hard coded dependencies (when qmake's depend are inadaquate)
 
-   $$printf() added to allow easy expansion of complex strings (using %1..%n)
+   $$sprintf() added to allow easy expansion of complex strings (using %1..%n)
 
    for() iteration has been introduced to do simple looping in a qmake script. 
+
+   CONFIG() test function added.
+
+   $$basename() and $$dirname() added for file manipulation.
+
+   warning() can be used in place of message() now.
 
    improved support for subdirs with .pro's listed
    support for QCONFIG added to add functionality from Qt
