@@ -749,8 +749,10 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
 void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
 			  bool showIt )
 {
-    QWidget::reparent( parent, f, p, showIt );
-    //### TBD
+    QWidget::reparent( parent, f, p, FALSE );
+    setContext( new QGLContext( glcx->requestedFormat(), this ) );
+    if ( showIt )
+	show();
 }
 
 
