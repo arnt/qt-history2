@@ -2393,7 +2393,7 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
 	painter->translate( 0, -parag->rect().y() );
 	QRect cr( cx, cy, cw, ch );
 	cr = cr.intersect( QRect( 0, parag->rect().y(), parag->rect().width(), parag->rect().height() ) );
-	flow()->drawFloatingItems( painter, cr.x(), cr.y(), cr.width(), cr.height(), cg );
+	flow()->drawFloatingItems( painter, cr.x(), cr.y(), cr.width(), cr.height(), cg, FALSE );
 	painter->translate( 0, +parag->rect().y() );
     }
 
@@ -2490,7 +2490,7 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 	    QRect cr( cx, cy, cw, ch );
 	    cr = cr.intersect( QRect( 0, parag->rect().y() + parag->rect().height(), parag->document()->width(),
 				      parag->document()->height() - ( parag->rect().y() + parag->rect().height() ) ) );
-	    flow()->drawFloatingItems( p, cr.x(), cr.y(), cr.width(), cr.height(), cg );
+	    flow()->drawFloatingItems( p, cr.x(), cr.y(), cr.width(), cr.height(), cg, FALSE );
 	}
     }
 
@@ -3572,7 +3572,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		bw = cw;
 	    } else {
 		if ( chr->customItem()->placement() == QTextCustomItem::PlaceInline ) {
-		    chr->customItem()->draw( &painter, chr->x, cy, clipx - r.x(), clipy - r.y(), clipw, cliph, cg );
+		    chr->customItem()->draw( &painter, chr->x, cy, clipx - r.x(), clipy - r.y(), clipw, cliph, cg,
+					     nSels && selectionStarts[ 0 ] <= i && selectionEnds[ 0 ] >= i );
 		    paintStart = i+1;
 		    paintEnd = -1;
 		    lastFormat = chr->format();
@@ -5430,7 +5431,7 @@ void QTextImage::adjustToPainter( QPainter* p )
     height = int( height * scale_factor( metrics.logicalDpiY() ) );
 }
 
-void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg )
+void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool )
 {
     if ( placement() != PlaceInline ) {
 	x = xpos;
@@ -5489,7 +5490,7 @@ QString QTextHorizontalLine::richText() const
     return "<hr>";
 }
 
-void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int , const QColorGroup& cg )
+void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int , const QColorGroup& cg, bool )
 {
     QRect r( x, y, width, height);
     if ( is_printer( p ) || ( p && p->device() && p->device()->devType() == QInternal::Printer ) ) {
@@ -5951,19 +5952,19 @@ void QTextFlow::registerFloatingItem( QTextCustomItem* item, bool right )
     }
 }
 
-void QTextFlow::drawFloatingItems( QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg )
+void QTextFlow::drawFloatingItems( QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected )
 {
     QTextCustomItem *item;
     for ( item = leftItems.first(); item; item = leftItems.next() ) {
 	if ( item->xpos == -1 || item->ypos == -1 )
 	    continue;
-	item->draw( p, item->xpos, item->ypos, cx, cy, cw, ch, cg );
+	item->draw( p, item->xpos, item->ypos, cx, cy, cw, ch, cg, selected );
     }
 
     for ( item = rightItems.first(); item; item = rightItems.next() ) {
 	if ( item->xpos == -1 || item->ypos == -1 )
 	    continue;
-	item->draw( p, item->xpos, item->ypos, cx, cy, cw, ch, cg );
+	item->draw( p, item->xpos, item->ypos, cx, cy, cw, ch, cg, selected );
     }
 }
 
@@ -6113,7 +6114,7 @@ void QTextTable::verticalBreak( int  yt, QTextFlow* flow )
     height += shift;
 }
 
-void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg )
+void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected )
 {
     if ( placement() != PlaceInline ) {
 	x = xpos;
@@ -6130,7 +6131,7 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	     QRect( cx, cy, cw, ch ).intersects( QRect( x + outerborder + cell->geometry().x(),
 							y + outerborder + cell->geometry().y(),
 							cell->geometry().width(), cell->geometry().height() ) ) ) {
-	    cell->draw( x+outerborder, y+outerborder, cx, cy, cw, ch, cg );
+	    cell->draw( x+outerborder, y+outerborder, cx, cy, cw, ch, cg, selected );
 	    if ( border ) {
 		QRect r( x+outerborder+cell->geometry().x() - us_ib,
 			 y+outerborder+cell->geometry().y() - us_ib,
@@ -6595,7 +6596,7 @@ QPainter* QTextTableCell::painter() const
     return parent->painter;
 }
 
-void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg )
+void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool )
 {
     if ( cached_width != geom.width() ) {
 	richtext->doLayout( painter(), geom.width() );

@@ -387,7 +387,7 @@ public:
 	:  xpos(0), ypos(-1), width(-1), height(0), parent( p )
     {}
     virtual ~QTextCustomItem();
-    virtual void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg ) = 0;
+    virtual void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected ) = 0;
 
     virtual void adjustToPainter( QPainter* );
 
@@ -440,7 +440,7 @@ public:
 
     QString richText() const;
 
-    void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg );
+    void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected );
 
 private:
     QRegion* reg;
@@ -458,7 +458,7 @@ public:
     QTextHorizontalLine( QTextDocument *p );
     ~QTextHorizontalLine();
     void adjustToPainter( QPainter* );
-    void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg );
+    void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected );
     QString richText() const;
 
     bool ownLine() const { return TRUE; }
@@ -492,7 +492,7 @@ public:
 
     virtual void registerFloatingItem( QTextCustomItem* item, bool right = FALSE );
     virtual void unregisterFloatingItem( QTextCustomItem* item );
-    virtual void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg );
+    virtual void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected );
     virtual void adjustFlow( int  &yp, int w, int h, QTextParag *parag, bool pages = TRUE );
 
     virtual bool isEmpty();
@@ -552,7 +552,7 @@ public:
     QTextDocument* richText()  const { return richtext; }
     QTextTable* table() const { return parent; }
 
-    void draw( int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg );
+    void draw( int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected );
 
     QBrush *backGround() const { return background; }
     virtual void invalidate();
@@ -594,7 +594,7 @@ public:
     void adjustToPainter( QPainter *p );
     void verticalBreak( int  y, QTextFlow* flow );
     void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
-	       const QColorGroup& cg );
+	       const QColorGroup& cg, bool selected );
 
     bool noErase() const { return TRUE; };
     bool ownLine() const { return TRUE; }
