@@ -1698,6 +1698,7 @@ void QDataTable::columnClicked ( int col )
 	if ( lastSort.count() && lastSort.field( 0 )->name() == sqlCursor()->field( indexOf( col ) )->name() )
 	    asc = lastSort.isDescending( 0 );
 	sortColumn( col, asc );
+	emit currentChanged( sqlCursor() );
     }
 }
 
