@@ -75,6 +75,7 @@ private:
 
     QPicturePrivate *d_ptr;
     friend class QPicturePaintEngine;
+    friend class Q3Picture;
 };
 
 Q_DECLARE_SHARED(QPicture);

@@ -11,33 +11,33 @@
 **
 ****************************************************************************/
 
-#ifndef QPAINTENGINE_SVG_P_H
-#define QPAINTENGINE_SVG_P_H
+#ifndef Q3PAINTENGINE_SVG_P_H
+#define Q3PAINTENGINE_SVG_P_H
 
 #include "qdom.h"
 #include "qpaintengine.h"
 #include "private/qpicture_p.h" // for QPaintCommands
 
-class QSVGPaintEnginePrivate;
+class Q3SVGPaintEnginePrivate;
 
-class QSVGPaintEngine : public QPaintEngine, public QPaintCommands
+class Q3SVGPaintEngine : public QPaintEngine
 {
-    Q_DECLARE_PRIVATE(QSVGPaintEngine)
+    Q_DECLARE_PRIVATE(Q3SVGPaintEngine)
 
 public:
-    QSVGPaintEngine();
-    ~QSVGPaintEngine();
+    Q3SVGPaintEngine();
+    ~Q3SVGPaintEngine();
 
-    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = false);
+    bool begin(QPaintDevice *pdev);
     bool end();
 
-    void updatePen(QPainterState *ps);
-    void updateBrush(QPainterState *ps);
-    void updateFont(QPainterState *ps);
-    void updateRasterOp(QPainterState *ps);
-    void updateBackground(QPainterState *ps);
-    void updateXForm(QPainterState *ps);
-    void updateClipRegion(QPainterState *ps);
+    void updatePen(const QPen &pen);
+    void updateBrush(const QBrush &brush, const QPointF &origin);
+    void updateFont(const QFont &font);
+    void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
+    void updateMatrix(const QMatrix &matrix);
+    void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
+    void updateRenderHints(QPainter::RenderHints hints);
 
     void drawLine(const QPoint &p1, const QPoint &p2);
     void drawRect(const QRect &r);
@@ -56,9 +56,11 @@ public:
     void drawCubicBezier(const QPolygon &, int index = 0);
 #endif
 
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, QPainter::PixmapDrawingMode mode);
-    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
-    void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
+                    Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
+    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
+				 Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
+    void drawTextItem(const QPointF &p, const QTextItem &ti);
 
 #if defined Q_WS_WIN // ### not liking this!!
     HDC handle() const { return 0; }
@@ -78,10 +80,10 @@ public:
     void setBoundingRect(const QRect &r);
 
 protected:
-    QSVGPaintEngine(QSVGPaintEnginePrivate &dptr);
+    Q3SVGPaintEngine(Q3SVGPaintEnginePrivate &dptr);
 
 private:
-    Q_DISABLE_COPY(QSVGPaintEngine);
+    Q_DISABLE_COPY(Q3SVGPaintEngine);
 };
 
 #endif

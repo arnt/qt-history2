@@ -109,15 +109,14 @@ public:
     inline QPicturePrivate() : q_ptr(0) { ref = 1; }
     QAtomic ref;
 
-protected:
     bool checkFormat();
     void resetFormat();
 
     QBuffer pictb;
-    int        trecs;
+    int trecs;
     bool formatOk;
-    int        formatMajor;
-    int        formatMinor;
+    int formatMajor;
+    int formatMinor;
     QRect brect;
     QPaintEngine *paintEngine;
 
