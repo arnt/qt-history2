@@ -1374,7 +1374,7 @@ void SetupWizardImpl::showPageFinish()
 #endif
 	}
     }
-#if defined(EVAL_CD)
+#if defined(EVAL_CD) && !defined(QSA)
     finishMsg += "\n\n"
 		 "The Trolltech technical support service is available to "
 		 "Qt Professional and Enterprise Edition licensees. As an "

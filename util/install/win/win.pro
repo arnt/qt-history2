@@ -39,13 +39,33 @@ INCLUDEPATH	+= $(QTDIR)/src/3rdparty $(QTDIR)/util/install/archive
 
 win32:RC_FILE	= install.rc
 
+# Comment out one of the following lines to build the installer for 
+#  - a Qt/Windows evaluation version (eval),
+#  - a Qt/Windows evaluation version that can be burned on CD and
+#    distributed on tradeshows (eval-cd)
+#  - the QSA pre-release (qsa)
+#
 #CONFIG += eval
 #CONFIG += eval-cd
+#CONFIG += qsa
+
 
 unix:LIBS		+= -L$(QTDIR)/util/install/archive -larq
 win32:LIBS		+= ../archive/arq.lib
 INCLUDEPATH		+= ../keygen
 
+# We have the following dependencies on config:
+#
+#  qsa     -> eval-cd and eval
+#  eval-cd -> eval
+#
+# For the code this means that the following defines are defined:
+#
+# eval   : EVAL
+# eval-cd: EVAL, EVAL_CD
+# qsa    : EVAL, EVAL_CD, QSA
+#
+qsa:CONFIG += eval-cd
 eval-cd:CONFIG += eval
 eval {
     !exists($(QTEVAL)/src) {
@@ -58,4 +78,7 @@ eval {
 }
 eval-cd {
     DEFINES		+= EVAL_CD
+}
+qsa {
+    DEFINES		+= QSA
 }
