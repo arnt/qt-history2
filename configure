@@ -1420,9 +1420,6 @@ Configure options:
  $SHN  -no-stl ............ Do not compile STL support.
  $SHY  -stl ............... Compile STL support.
 
-    -remote ............ Enable remote control support.
- *  -no-remote ......... Disable remote control support.
-
 Image Formats:
 
     -plugin-imgfmt-<format> Enable format (png, jpeg, or mng) to
