@@ -52,7 +52,6 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "LEAN" ]	    = "no";
     dictionary[ "NOPROCESS" ]	    = "no";
     dictionary[ "STL" ]		    = "yes";
-    dictionary[ "QWINEXPORT" ]	    = "no";
     dictionary[ "EXCEPTIONS" ]	    = "no";
     dictionary[ "RTTI" ]	    = "no";
 
@@ -173,7 +172,7 @@ void Configure::buildModulesList()
 	return;
 
 
-    licensedModules = QStringList::split( ' ', "compat styles tools kernel widgets dialogs iconview workspace" );
+    licensedModules = QStringList::split( ' ', "compat styles tools core gui dialogs iconview workspace" );
 
     QString products = licenseInfo[ "PRODUCTS" ];
     if( ( products == "qt-enterprise" || products == "qt-internal" ) && ( dictionary[ "FORCE_PROFESSIONAL" ] != "yes" ) )
@@ -466,11 +465,6 @@ void Configure::parseCmdLine()
 	else if( configCmdLine.at(i) == "-no-stl" )
 	    dictionary[ "STL" ] = "no";
 
-	else if( configCmdLine.at(i) == "-qwinexport" )
-	    dictionary[ "QWINEXPORT" ] = "yes";
-	else if( configCmdLine.at(i) == "-no-qwinexport" )
-	    dictionary[ "QWINEXPORT" ] = "no";
-
 	else if ( configCmdLine.at(i) == "-exceptions" )
 	    dictionary[ "EXCEPTIONS" ] = "yes";
 	else if ( configCmdLine.at(i) == "-no-exceptions" )
@@ -696,9 +690,6 @@ bool Configure::displayHelp()
 
 	cout << "-stl               " << MARK_OPTION(STL,yes)	    << " Enable STL support." << endl;
 	cout << "-no-stl            " << MARK_OPTION(STL,no)	    << " Disable STL support." << endl  << endl;
-
-	cout << "-qwinexport        " << MARK_OPTION(QWINEXPORT,yes)<< " Enable additional and centralized template exports." << endl;
-	cout << "-no-qwinexport     " << MARK_OPTION(QWINEXPORT,no) << " Disable additional template exports." << endl  << endl;
 
 	cout << "-exceptions        " << MARK_OPTION(EXCEPTIONS,yes)<< " Enable C++ exception support." << endl;
 	cout << "-no-exceptions     " << MARK_OPTION(EXCEPTIONS,no) << " Disable C++ exception support." << endl  << endl;
@@ -1147,11 +1138,6 @@ void Configure::generateConfigfiles()
 	    outStream << "#define QT_NO_STYLE_CDE" << endl;
 	    outStream << "#endif" << endl;
 	}
-	if( dictionary[ "QWINEXPORT" ] == "yes" ) {
-	    outStream << "#ifndef QT_QWINEXPORT" << endl;
-	    outStream << "#define QT_QWINEXPORT" << endl;
-	    outStream << "#endif" << endl;
-	}
 	outFile.close();
 	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
 	    if ( !CopyFileA( outName, dictionary[ "QT_INSTALL_HEADERS" ] + "/qconfig.h", FALSE ) )
@@ -1324,7 +1310,6 @@ void Configure::displayConfig()
     cout << "Big Textcodecs.............." << dictionary[ "BIG_CODECS" ] << endl;
     cout << "Tablet support.............." << dictionary[ "TABLET" ] << endl;
     cout << "STL support................." << dictionary[ "STL" ] << endl;
-    cout << "Additional exports.........." << dictionary[ "QWINEXPORT" ] << endl;
     cout << "Exception support..........." << dictionary[ "EXCEPTIONS" ] << endl;
     cout << "RTTI support................" << dictionary[ "RTTI" ] << endl;
     cout << "OpenGL support.............." << dictionary[ "OPENGL" ] << endl << endl;
