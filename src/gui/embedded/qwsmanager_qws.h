@@ -49,8 +49,8 @@ public:
     static QWidget *grabbedMouse();
 
 protected slots:
-    void menuActivated(QAction *item);
-    void styleMenuActivated(QAction *item);
+    void menuTriggered(QAction *item);
+    void styleMenuTriggered(QAction *item);
 
 protected:
     void handleMove();

@@ -507,13 +507,13 @@ void QWSManager::menu(const QPoint &pos)
         d->popup->addAction(d->menuActions[QWSManagerPrivate::MaximizeAction]);
         d->popup->addSeparator();
         d->popup->addAction(d->menuActions[QWSManagerPrivate::CloseAction]);
-        connect(d->popup, SIGNAL(activated(QAction*)), SLOT(menuActivated(QAction*)));
+        connect(d->popup, SIGNAL(triggered(QAction*)), SLOT(menuTriggered(QAction*)));
 
         // Add Style menu
         QMenu *styleMenu = new QMenu("Style");
         for (int i = 0; !WMStyleList[i].WMStyleName.isEmpty(); i++)
             styleMenu->addAction(qApp->translate("QWSDecoration", WMStyleList[i].WMStyleName.latin1()));
-        connect(styleMenu, SIGNAL(activated(QAction*)), this, SLOT(styleMenuActivated(QAction*)));
+        connect(styleMenu, SIGNAL(triggered(QAction*)), this, SLOT(styleMenuTriggered(QAction*)));
         d->popup->addSeparator();
         d->popup->addAction(styleMenu->menuAction());
     }
@@ -533,7 +533,7 @@ void QWSManager::menu(const QPoint &pos)
 #include <qsgistyle.h>
 #include <qwindowsstyle.h>
 
-void QWSManager::styleMenuActivated(QAction *item)
+void QWSManager::styleMenuTriggered(QAction *item)
 {
     for (int i = 0; !WMStyleList[i].WMStyleName.isEmpty(); i++) {
         if (item->text() == qApp->translate("QWSDecoration", WMStyleList[i].WMStyleName.latin1()))
@@ -546,7 +546,7 @@ void QWSManager::styleMenuActivated(QAction *item)
     d->managed->resize(s.width(), s.height());
 }
 
-void QWSManager::menuActivated(QAction *item)
+void QWSManager::menuTriggered(QAction *item)
 {
     if (item == d->menuActions[QWSManagerPrivate::CloseAction]) {
         close();
