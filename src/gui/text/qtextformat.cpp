@@ -2072,7 +2072,7 @@ QTextFormat QTextFormatCollection::objectFormat(int objectIndex) const
 
 void QTextFormatCollection::setObjectFormat(int objectIndex, const QTextFormat &f)
 {
-    int formatIndex = indexForFormat(f);
+    const int formatIndex = indexForFormat(f);
     objFormats[objectIndex] = formatIndex;
 }
 
@@ -2090,14 +2090,14 @@ void QTextFormatCollection::setObjectFormatIndex(int objectIndex, int formatInde
 
 int QTextFormatCollection::createObjectIndex(const QTextFormat &f)
 {
-    int objectIndex = objFormats.size();
+    const int objectIndex = objFormats.size();
     objFormats.append(indexForFormat(f));
     return objectIndex;
 }
 
 QTextFormat QTextFormatCollection::format(int idx) const
 {
-    if (idx == -1 || idx > formats.count())
+    if (idx < 0 || idx >= formats.count())
         return QTextFormat();
 
     return formats.at(idx);
