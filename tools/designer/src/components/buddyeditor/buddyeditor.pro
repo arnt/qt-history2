@@ -24,6 +24,7 @@ HEADERS += \
 SOURCES += \
     buddyeditor.cpp \
     buddyeditor_tool.cpp \
-    buddyeditor_plugin.cpp
+    buddyeditor_plugin.cpp \
+    buddyeditor_instance.cpp
 
 include(../../sharedcomponents.pri)
