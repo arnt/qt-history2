@@ -1927,6 +1927,7 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
     int pcount = 0;
     QString type;
     QStringList ptypes;
+    const QMetaObject *mo = qt.object->metaObject();
 
     switch(index) {
     case DISPID_KEYDOWN:
@@ -1949,7 +1950,7 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 	break;
     default:
 	{
-	    signal = qt.object->metaObject()->signal(index);
+	    signal = mo->signal(index);
 	    type = signal.type();
 	    QString signature(signal.signature());
 	    QString name(signature);
@@ -2013,7 +2014,12 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 
 		    bool out;
 		    QString ptype = paramType(ptypes.at(p), &out);
-		    QVariant variant(QVariant::nameToType(ptype.latin1()), argv[p + 1]);
+                    QVariant variant;
+                    if (mo->indexOfEnumerator(ptype.latin1()) != -1)
+                        variant = QVariant(QVariant::Int);
+                    else
+		        variant = QVariant(QVariant::nameToType(ptype.latin1()), argv[p + 1]);
+
 		    QVariantToVARIANT(variant, *arg, type, out);
 		}
 
