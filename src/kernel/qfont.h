@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#44 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#45 $
 **
 ** Definition of QFont class
 **
@@ -42,7 +42,8 @@ public:
 		     Latin6, ISO_8859_6 = Latin6,
 		     Latin7, ISO_8859_7 = Latin7,
 		     Latin8, ISO_8859_8 = Latin8,
-		     Latin9, ISO_8859_9 = Latin9 };
+		     Latin9, ISO_8859_9 = Latin9,
+		     KOI8R };
 
     QFont();					// default font
     QFont( const char *family, int pointSize = 12,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#302 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#303 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -86,7 +86,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#302 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#303 $");
 
 
 /*****************************************************************************
@@ -363,15 +363,46 @@ static bool try_locale( const char * locale[], const char * lang,
     return FALSE;
 }
 
+
+static struct {
+    const char * name;
+    QFont::CharSet cs;
+} encoding_names[] = {
+    { "ISO8859-1", QFont::Latin1 },
+    { "ISO8859-2", QFont::Latin2 },
+    { "ISO8859-3", QFont::Latin3 },
+    { "ISO8859-4", QFont::Latin4 },
+    { "ISO8859-5", QFont::Latin5 },
+    { "ISO8859-6", QFont::Latin6 },
+    { "ISO8859-7", QFont::Latin7 },
+    { "ISO8859-8", QFont::Latin8 },
+    { "ISO8859-9", QFont::Latin9 },
+    { "KOI8-R", QFont::KOI8R },
+    { 0, /* anything */ QFont::Latin1 }
+};
+
+    
+	
 static void set_local_font()
 {
     char * lang = qstrdup( getenv( "LANG" ) );
     char * p = lang;
-    while( p && * p ) {
-	if ( *p == '.' )
-	    *p = 0; // ### should use the specified encoding.. but not now
-	else
+    while( p && *p ) {
+	if ( *p == '.' ) {
+	    *p++ = 0;
+	    int i=0;
+	    while( encoding_names[i].name &&
+		   strcasecmp( p, encoding_names[i].name ) )
+		i++;
+	    if ( encoding_names[i].name ) {
+		QFont::setDefaultFont( QFont( "Helvetica", 12, QFont::Normal,
+					      FALSE, encoding_names[i].cs ) );
+		return;
+	    }
+	    p--;
+	} else {
 	    p++;
+	}
     }
 
     if ( lang &&
