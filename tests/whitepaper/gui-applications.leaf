@@ -50,7 +50,6 @@ to provide a framework for typical application main windows.
   \img main-window.png An application main window
 
   \index SDI
-  \index Single Document Interface
   \index central area
   \index status bar
   \index toolbars
@@ -60,9 +59,9 @@ menu bar appears at the top of the main window. Toolbars appear below
 the menu bar, but can also be moved around to the left, right or
 bottom of the main window, or floated. A status bar displays
 temporary and permanent information at the bottom. The central area
-is occupied by any widget for Single Document Interface (SDI)
-applications, or by a \Class QWorkspace for Multiple Document
-Interface (MDI) applications. Tool tips and "What's this?" help
+is occupied by any widget for single document interface (SDI)
+applications, or by a \Class QWorkspace for multiple document
+interface (MDI) applications. Tool tips and "What's this?" help
 provide balloon help for the user-interface elements.
 
 \section2 Menus
@@ -266,10 +265,9 @@ QTextEdit as its central widget:
 \section1 Multiple Document Interface
 
   \index MDI
-  \index Multiple Document Interface
   \index workspace
 
-The \Class QWorkspace class provides Multiple Document Interface
+The \Class QWorkspace class provides multiple document interface
 (MDI) in Qt. \Class QWorkspace is typically used as the central
 widget of a \Class QMainWindow, but it can be used like any other Qt
 widget.
@@ -287,8 +285,8 @@ way for child MDI widgets as for ordinary top-level widgets.
   \index tile
 
 \Class QWorkspace provides positioning strategies such as \e cascade
-and \e tile. If the child widgets extend outside the MDI area,
-scrollbars can be set to appear automatically. If a child widget is
+and \e tile. If the child widgets extend outside the MDI area, scroll
+bars can be set to appear automatically. If a child widget is
 maximized, the frame buttons (e.g. \Button Minimize) are shown in the
 menu bar.
 
@@ -455,8 +453,8 @@ stored in text files.
   \index Zooper
 
 A particular setting is stored using a key. For example, the key \c
-{/SoftwareInc/Zooper/RecentFiles} might contain the list of
-recently used files by the application Zooper\TRADEMARK by Software
-Inc. Booleans, numbers, Unicode strings and list of Unicode strings
-can be stored.
+/SoftwareInc/Zooper/RecentFiles might contain the list of recently
+used files by the application Zooper\TRADEMARK by Software Inc.
+Booleans, numbers, Unicode strings and list of Unicode strings can be
+stored.
 

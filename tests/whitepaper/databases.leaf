@@ -41,12 +41,12 @@ can easily force the user to confirm actions, e.g. deletions.
   \index Designer
   \index Qt Designer
 
-The Qt SQL module is fully integrated into \l {Qt Designer}, which
+Qt's SQL module is fully integrated into \l {Qt Designer}, which
 provides templates and wizards to make the creation of database forms
 as quick and easy as possible. The wizards can create forms with
 navigation buttons, and with update, insert and delete buttons.
 
-Using the facilities that the Qt SQL module provides it is
+Using the facilities that the Qt SQL module provides, it is
 straightforward to create database applications that use foreign key
 lookups, present master-detail relationships, and support drill-down.
 

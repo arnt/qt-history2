@@ -103,6 +103,7 @@ using the Windows style.
   \index icon views
   \index list boxes
   \index list views
+  \index spreadsheets
   \index tables
   \index tree views
 
@@ -194,8 +195,7 @@ and layouts.
 Even though Qt's classes are comfortable to hand code, the build
 cycle can be time consuming, especially when designing user
 interfaces. It is easiest to use \l {Qt Designer}, Qt's visual design
-tool, to develop and experiment with different user interface
-designs.
+tool, to develop and experiment with different designs.
 
 Developers can also write custom widgets from scratch. For example,
 to create an analog clock, it would be necessary to draw the clock's
