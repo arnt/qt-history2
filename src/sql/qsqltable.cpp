@@ -43,7 +43,8 @@ public:
 	  insertHeaderLabelLast(),
 	  insertPreRows(-1),
 	  confEdits( TRUE ),
-	  confCancs( TRUE )
+	  confCancs( TRUE ),
+	  cancelMode( FALSE )
     {}
     ~QSqlTablePrivate() { if ( propertyMap ) delete propertyMap; }
 
@@ -68,6 +69,7 @@ public:
     QSqlView editBuffer;
     bool confEdits;
     bool confCancs;
+    bool cancelMode;
 };
 
 /*!
@@ -259,6 +261,9 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
     if ( !o || !e )
 	return QTable::eventFilter( o, e );
     
+    if ( d->cancelMode )
+	return TRUE;
+    
     int r = currentRow();
     int c = currentColumn();
 
@@ -271,13 +276,31 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
     QWidget *editorWidget = cellWidget( r, c );
     switch ( e->type() ) {
     case QEvent::KeyPress: {
+	int conf = Yes;
 	QKeyEvent *ke = (QKeyEvent*)e;
 	if ( ke->key() == Key_Escape && d->mode == QSqlTable::Insert ){
-	    insertCancelled = TRUE;
-	    endInsert();
+	    if ( confirmCancels() && !d->cancelMode ) 
+		conf = confirmCancel( QSqlTable::Insert );
+	    if ( conf == Yes ) {
+		insertCancelled = TRUE;
+		endInsert();
+	    } else {
+		editorWidget->setActiveWindow();
+		editorWidget->setFocus();
+		return TRUE;
+	    }
 	}
-	if ( ke->key() == Key_Escape && d->mode == QSqlTable::Update )
-	    endUpdate();
+	if ( ke->key() == Key_Escape && d->mode == QSqlTable::Update ) {
+ 	    if ( confirmCancels() && !d->cancelMode ) 
+ 		conf = confirmCancel( QSqlTable::Update );
+ 	    if ( conf == Yes ) 
+		endUpdate();		
+	    else {
+		editorWidget->setActiveWindow();
+		editorWidget->setFocus();
+		return TRUE;
+	    }
+	}
 	if ( ke->key() == Key_Insert && d->mode == QSqlTable::None ) {
 	    beginInsert();
 	    return TRUE;
@@ -297,7 +320,7 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 	break;
     }
     case QEvent::FocusOut: {
-	if ( editorWidget && o == editorWidget && (d->mode != QSqlTable::None) ) {
+	if ( !d->cancelMode && editorWidget && o == editorWidget && (d->mode != QSqlTable::None) ) {
 	    setCurrentCell( r, c );
 	    endEdit( r, c, TRUE, FALSE );
 	    return TRUE;
@@ -307,10 +330,10 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
     default:
 	break;
     }
-    bool b = QTable::eventFilter( o, e ); 
+    bool b = QTable::eventFilter( o, e );
     if ( insertCancelled ) {
 	setNumRows( d->insertPreRows );
-	d->insertPreRows = -1;	
+	d->insertPreRows = -1;
     }
     return b;
 }
@@ -323,8 +346,10 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 void QSqlTable::contentsMousePressEvent( QMouseEvent* e )
 {
     //    qDebug("QSqlTable::contentsMousePressEvent( QMouseEvent* e )");
-    if ( d->mode != QSqlTable::None ) 
+    if ( d->mode != QSqlTable::None ) {
+	qDebug("contentsMousePressEvent ending edit");
 	endEdit( d->editRow, d->editCol, TRUE, FALSE );
+    }
     if ( !d->view ) {
 	QTable::contentsMousePressEvent( e );
 	return;
@@ -344,18 +369,18 @@ void QSqlTable::contentsMousePressEvent( QMouseEvent* e )
 	if ( r == id[ IdInsert ] )
 	    beginInsert();
 	else if ( r == id[ IdUpdate ] ) {
-	    if ( beginEdit( currentRow(), currentColumn(), FALSE ) ) 
+	    if ( beginEdit( currentRow(), currentColumn(), FALSE ) )
 		setEditMode( Editing, currentRow(), currentColumn() );
-	    else 
+	    else
 		endUpdate();
 	}
 	else if ( r == id[ IdDelete ] )
 	    deleteCurrent();
 	return;
     }
-    if ( d->mode == QSqlTable::None ) 
+    if ( d->mode == QSqlTable::None )
 	QTable::contentsMousePressEvent( e );
-    
+
 }
 
 /*
@@ -373,9 +398,9 @@ QWidget* QSqlTable::beginEdit ( int row, int col, bool replace )
     //    qDebug("continuousEdit:" + QString::number(d->continuousEdit));
     d->editRow = row;
     d->editCol = col;
-    if ( d->continuousEdit ) 
+    if ( d->continuousEdit )
 	return QTable::beginEdit( row, col, replace );
-    if ( d->mode == QSqlTable::None ) 
+    if ( d->mode == QSqlTable::None )
 	return beginUpdate( row, col, replace );
     //    qDebug("NO EDIT, returning 0");
     return 0;
@@ -390,12 +415,11 @@ void QSqlTable::endEdit( int row, int col, bool accept, bool )
     QWidget *editor = cellWidget( row, col );
     if ( !editor )
 	return;
+    if ( d->cancelMode )
+	return;
     if ( !accept ) {
 	setEditMode( NotEditing, -1, -1 );
 	clearCellWidget( row, col );
-    	updateCell( row, col );
-	//	qDebug("QSqlTable::endEdit: !accept: setting focus to viewport");
-	viewport()->setFocus();
 	updateCell( row, col );
 	return;
     }
@@ -457,9 +481,9 @@ void QSqlTable::endInsert()
 
 void QSqlTable::endUpdate()
 {
-    //qDebug("endUpdate()");
+    //    qDebug("endUpdate()");
     d->mode = QSqlTable::None;
-    d->editBuffer.clear();    
+    d->editBuffer.clear();
     updateRow( d->editRow );
     d->editRow = -1;
     d->editCol = -1;
@@ -467,14 +491,14 @@ void QSqlTable::endUpdate()
 
 bool QSqlTable::beginInsert()
 {
-    qt_debug_buffer("beginInsert: start, VIEW", d->view);    
+    qt_debug_buffer("beginInsert: start, VIEW", d->view);
     QSqlView* vw = d->view;
     if ( !vw || isReadOnly() || ! numCols() )
 	return FALSE;
     int i = 0;
     int row = currentRow();
     d->insertPreRows = numRows();
-    if ( row < 0 || numRows() < 1 ) 
+    if ( row < 0 || numRows() < 1 )
 	row = 0;
     setNumRows( d->insertPreRows + 1 );
     ensureCellVisible( row, 0 );
@@ -561,8 +585,8 @@ void QSqlTable::insertCurrent()
 	return;
     }
     int b = 0;
-    int conf = Yes;    
-    if ( confirmEdits() ) 
+    int conf = Yes;
+    if ( confirmEdits() )
 	conf = confirmEdit( QSqlTable::Insert );
     switch ( conf ) {
     case Yes:
@@ -639,7 +663,7 @@ void QSqlTable::updateCurrent()
     }
     int b = 0;
     int conf = Yes;
-    if ( confirmEdits() ) 
+    if ( confirmEdits() )
 	conf = confirmEdit( QSqlTable::Update );
     switch ( conf ) {
     case Yes:
@@ -710,7 +734,7 @@ void QSqlTable::deleteCurrent()
 	return;
     int b = 0;
     int conf = Yes;
-    if ( confirmEdits() ) 
+    if ( confirmEdits() )
 	conf = confirmEdit( QSqlTable::Delete );
     switch ( conf ) {
     case Yes:
@@ -755,10 +779,10 @@ QSqlTable::Confirm QSqlTable::confirmEdit( QSqlTable::Mode m )
 	cap = "Delete";
 	break;
     }
-    QSqlTable::Confirm conf = (QSqlTable::Confirm)QMessageBox::information ( this, tr( cap ), 
+    QSqlTable::Confirm conf = (QSqlTable::Confirm)QMessageBox::information ( this, tr( cap ),
 					      m == Delete ? tr("Are you sure?") : tr( "Save edits?" ),
-					      tr( "Yes" ), 
-					      tr( "No" ), 
+					      tr( "Yes" ),
+					      tr( "No" ),
 					      m == Delete ? QString::null : tr( "Cancel" ), 0, m == Delete ? 1 : 2 );
     return conf;
 }
@@ -773,10 +797,12 @@ QSqlTable::Confirm QSqlTable::confirmEdit( QSqlTable::Mode m )
 
 QSqlTable::Confirm  QSqlTable::confirmCancel( QSqlTable::Mode )
 {
-     QSqlTable::Confirm conf =  (QSqlTable::Confirm)QMessageBox::information ( this, tr( "Confirm" ), 
-					      tr( "Are you sure?" ),
-					      tr( "Yes" ), 
+    d->cancelMode = TRUE;
+    QSqlTable::Confirm conf =  (QSqlTable::Confirm)QMessageBox::information ( this, tr( "Confirm" ),
+					      tr( "Are you sure you want to cancel?" ),
+					      tr( "Yes" ),
 					      tr( "No" ), QString::null, 0, 1 );
+    d->cancelMode = FALSE;
     return conf;
 }
 
@@ -892,6 +918,7 @@ void QSqlTable::reset()
     d->editCol = -1;
     d->insertRowLast = -1;
     d->insertHeaderLabelLast = QString::null;
+    d->cancelMode = FALSE;
     if ( sorting() )
 	horizontalHeader()->setSortIndicator( -1 );
 }
@@ -1389,7 +1416,7 @@ void QSqlTable::installEditorFactory( QSqlEditorFactory * f )
   that QSqlTable takes ownership of this pointer, and will delete it
   when it is no longer needed or when installPropertMap() is called
   again.
-  
+
   \sa QSqlPropertyMap
 
 */
