@@ -62,10 +62,11 @@ static QMetaObject *tempMetaObj = 0;
 
 #define NotDesignable	0x00001000
 #define NotScriptable	0x00004000
-#define NotStored	0x00008000
+#define NotStored	0x00010000
 
-#define PropBindable	0x00008000
-#define PropRequesting	0x00010000
+#define PropBindable	0x00040000
+#define PropRequesting	0x00080000
+// don't use the upper byte!
 
 #define PredefSignals	3
 #define PredefProps	1
