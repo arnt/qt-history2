@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#54 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -22,7 +22,7 @@
 #include "qapp.h"
 #include "qlined.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#54 $");
 
 
 /*!
@@ -950,9 +950,9 @@ void QEditableComboBox::resizeEvent( QResizeEvent * )
 
 void QEditableComboBox::translateActivate( int index )
 {
-    const char * t = text( index );
-    if ( !text )
-	return; // I don't see why but so what?
+    const char *t = text( index );
+    if ( !t )
+	return;					// shouldn't happen
     ed->setText( t );
     emit activated( t );
 }
@@ -960,13 +960,14 @@ void QEditableComboBox::translateActivate( int index )
 
 void QEditableComboBox::translateHighlight( int index )
 {
-    const char * t = text( index );
-    if ( text )
+    const char *t = text( index );
+    if ( t )
 	emit highlighted( t );
 }
 
 
-void QEditableComboBox::returnPressed() {
+void QEditableComboBox::returnPressed()
+{
     const char * s = ed->text();
     if ( s && qstrcmp( s, text( currentItem() ) ) ) {
 	changeItem( s, currentItem() );
