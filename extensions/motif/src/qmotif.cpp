@@ -284,6 +284,17 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	    }
 	}
     }
+    
+    // make click-to-focus work with QMotifWidget children
+    if ( !xt_grab && event->type == ButtonPress ) {
+	QWidget *qw = 0;
+	Widget xw = XtWindowToWidget( QPaintDevice::x11AppDisplay(),
+				      event->xany.window );
+	while ( xw && !( qw = mapper->find( XtWindow( xw ) ) ) )
+	    xw = XtParent( xw );
+	if ( qw && !qw->hasFocus() && (qw->focusPolicy() & QWidget::ClickFocus) )
+	    qw->setFocus();
+    }
 
     return static_d->dispatchers[event->type](event);
 }
