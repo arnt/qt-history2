@@ -46,10 +46,17 @@ QWidget *QDesktopWidget::screen( int )
     return this;
 }
 
-QRect QDesktopWidget::geometry( int screen ) const
+QRect QDesktopWidget::geometry( int ) const
 {
-    if ( screen < 0 || screen >= d->screenCount )
-	screen = d->appScreen;
+    return frameGeometry();
+}
 
-    return d->rects[ screen ];
+int QDesktopWidget::screenNumber( QWidget * ) const
+{
+    return d->appScreen;
+}
+
+int QDesktopWidget::screenNumber( const QPoint & ) const
+{
+    return d->appScreen;
 }

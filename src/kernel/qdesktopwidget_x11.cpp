@@ -141,3 +141,32 @@ QRect QDesktopWidget::geometry( int screen ) const
 
     return d->rects[ screen ];
 }
+
+int QDesktopWidget::screenNumber( QWidget *widget ) const
+{
+    if ( !widget )
+	return d->appScreen;
+    QRect frame = widget->frameGeometry();
+
+    int maxSize = -1;
+    int maxScreen = d->appScreen;
+
+    for ( int i = 0; i < d->screenCount; ++i ) {
+	QRect sect = d->rects[i].intersect( frame );
+	int size = sect.width() * sect.height();
+	if ( size > maxSize ) {
+	    maxSize = size;
+	    maxScreen = i;
+	}
+    }
+    return maxScreen;
+}
+
+int QDesktopWidget::screenNumber( const QPoint &point ) const
+{
+    for ( int i = 0; i < d->screenCount; ++i ) {
+	if ( d->rects[i].contains( point ) )
+	    return i;
+    }
+    return d->appScreen;
+}

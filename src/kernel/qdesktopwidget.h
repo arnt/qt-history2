@@ -17,7 +17,11 @@ public:
     int numScreens() const;
     int primaryScreen() const;
 
+    int screenNumber( QWidget *widget = 0 ) const;
+    int screenNumber( const QPoint & ) const;
+
     QWidget *screen( int screen = -1 );
+    
     QRect geometry( int screen = - 1 ) const;
 
 private:
