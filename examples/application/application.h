@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/application.h#3 $
+** $Id: //depot/qt/main/examples/application/application.h#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -29,6 +29,7 @@ private slots:
     void load();
     void load( const char *fileName );
     void save();
+    void saveAs();
     void print();
     void closeDoc();
 
@@ -39,6 +40,7 @@ private:
     QPrinter *printer;
     QMultiLineEdit *e;
     QToolBar *fileTools;
+    QString filename;
 };
 
 

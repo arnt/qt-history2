@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/application.cpp#6 $
+** $Id: //depot/qt/main/examples/application/application.cpp#7 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -29,7 +29,6 @@
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qwhatsthis.h>
-#include <qml.h>
 
 #include "filesave.xpm"
 #include "fileopen.xpm"
@@ -74,8 +73,7 @@ ApplicationWindow::ApplicationWindow()
     (void)QWhatsThis::whatsThisButton( fileTools );
 
     QWhatsThis::add( fileOpen, fileOpenText );
-    // defaultProvider is used by fileOpenText, see above
-    QMLProvider::defaultProvider()->setImage( "fileopen", openIcon );
+    QMimeSourceFactory::defaultFactory()->setPixmap( "fileopen", openIcon );
     QWhatsThis::add( fileSave, fileSaveText );
     QWhatsThis::add( filePrint, filePrintText );
 
@@ -90,6 +88,8 @@ ApplicationWindow::ApplicationWindow()
 
     id = file->insertItem( saveIcon, "&Save",
 			   this, SLOT(save()), CTRL+Key_S );
+    file->setWhatsThis( id, fileSaveText );
+    id = file->insertItem( "Save &as...", this, SLOT(saveAs()) );
     file->setWhatsThis( id, fileSaveText );
     file->insertSeparator();
     id = file->insertItem( printIcon, "&Print",
@@ -112,6 +112,7 @@ ApplicationWindow::ApplicationWindow()
     e->setFocus();
     setCentralWidget( e );
     statusBar()->message( "Ready", 2000 );
+    resize( 450, 600 );
 }
 
 
@@ -125,7 +126,6 @@ ApplicationWindow::~ApplicationWindow()
 void ApplicationWindow::newDoc()
 {
     ApplicationWindow *ed = new ApplicationWindow;
-    ed->resize( 400, 400 );
     ed->show();
 }
 
@@ -174,8 +174,11 @@ void ApplicationWindow::save()
 
     QString text = e->text();
     QFile f( filename );
-    if ( !f.open( IO_WriteOnly ) )
+    if ( !f.open( IO_WriteOnly ) ) {
+        statusBar()->message( QString("Could not write to %1").arg(filename),
+			      2000 );
         return;
+    }
 
     QTextStream t( &f );
     t << text;
@@ -184,6 +187,19 @@ void ApplicationWindow::save()
     setCaption( filename );
 
     statusBar()->message( QString( "File %1 saved" ).arg( filename ), 2000 );
+}
+
+
+void ApplicationWindow::saveAs()
+{
+    QString fn = QFileDialog::getSaveFileName( QString::null, QString::null,
+					       this );
+    if ( !fn.isEmpty() ) {
+        filename = fn;
+        save();
+    } else {
+        statusBar()->message( "Saving aborted", 2000 );
+    }
 }
 
 
