@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#36 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#35 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#36 $";
 #endif
 
 
@@ -316,18 +316,6 @@ d->height();			\/ height of display
 d->width();			\/ width of display
 d->setBackgroundColor( red );
 \endcode
-*/
-
-
-/*!
-\fn int QApplication::exec( QWidget *mainWidget )
-
-Enters the main event loop and waits until quit() is called or \e 
-mainWidget is destroyed. Returns the value that was specified to quit().
-
-As a special case, modal widgets like QMessageBox can be used before
-calling exec(), because modal widget have a local event loop.
-All programs must call exec() to activate other types of widgets.
 */
 
 /*!
@@ -737,15 +725,12 @@ Here are the main features of Qt:
 <li>   Date and time classes
 <li>   Template/macro-based collections and iterators:
 <ul>
-<li>	List
-<li>	Dict
+<li>	List and List iterator
+<li>	Dict and Dict iterator
 <li>	Queue
 <li>	Stack
 <li>	Vector
-<li>	Cache
-<li>	List iterator
-<li>	Dict iterator
-<li>	Cache iterator
+<li>	Cache and Cache iterator
 </ul>
 <li>   IO devices:
 <ul>
@@ -768,13 +753,12 @@ Here are the main features of Qt:
 
 /*! \example connect.cpp
 
-  <h1>Connections</h1>
+  <h1>A graphical hello world</h1>
 
-  This example shows how to use signals, slots and connect().  Run the
-  program, click the button, move the mouse, release the button, and
-  watch the lines get drawn.
-
-*/
+  This example shows very simple mouse-based user interaction and
+  painting without any world transform matrix or other advanced
+  features.  Run the program, click the button, move the mouse,
+  release the button, and watch the lines get drawn. */
 
 /*! \example cursor.cpp
 
