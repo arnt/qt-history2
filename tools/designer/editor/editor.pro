@@ -33,3 +33,8 @@ INCLUDEPATH	+= $$QT_SOURCE_TREE/tools/designer/interfaces
 target.path=$$libs.path
 
 INSTALLS += target
+
+hpux-g++: {
+QMAKE_CFLAGS += -fPIC
+QMAKE_CXXFLAGS += -fPIC
+}
