@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#49 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#50 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#49 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#50 $";
 #endif
 
 
@@ -1032,7 +1032,7 @@ QString QString::stripWhiteSpace() const
 
   \code
     QString s = "  lots\t of\nwhite    space ";
-    QString t = s.simplifyWhiteSpace();	// t == "lots of white space"
+    QString t = s.simplifyWhiteSpace();		// t == "lots of white space"
   \endcode
 
   \sa stripWhiteSpace()
@@ -1042,34 +1042,24 @@ QString QString::simplifyWhiteSpace() const
 {
     if ( isEmpty() )				// nothing to do
 	return copy();
-
-    char *from;
-    char *to;
-    bool finalspace;
-
-    QString result( data() );
-    from = to = result.data();
-    finalspace = FALSE;
-
-    while ( *from ) {
-	while (*from && isspace(*from))
+    QString result( size() );
+    char *from  = data();
+    char *to    = result.data();
+    char *first = to;
+    while ( TRUE ) {
+	while ( *from && isspace(*from) )
 	    from++;
-	if ( !*from )
-	    break;
-	while (*from && !isspace(*from))
+	while ( *from && !isspace(*from) )
 	    *to++ = *from++;
-	if ( *from ) {
-	    *to++ = ' ';
-	    finalspace = TRUE;
-	}
+	if ( *from )
+	    *to++ = 0x20;			// ' '
 	else
 	    break;
     }
-    if (finalspace)
+    if ( to > first && *(to-1) == 0x20 )
 	to--;
-
     *to = '\0';
-    result.resize( (int)((long)to + 1 - (long)result.data()) );
+    result.resize( (int)((long)to - (long)result.data()) + 1 );
     return result;
 }
 
