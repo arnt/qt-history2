@@ -21,9 +21,9 @@
 
 struct ClassInfoEntry
 {
-    const char *const klass;
-    const char *const module;
-    const char *const header;
+    const char *klass;
+    const char *module;
+    const char *header;
 };
 
 static ClassInfoEntry qclass_lib_map[] = {
