@@ -62,13 +62,13 @@ static void printHtmlShortMembers( HtmlWriter& out,
 	    metAny = TRUE;
 	}
 
-	out.putsMeta( "<li><div class=fn>" );
+	out.putsMeta( "<li class=fn>" );
 	(*m)->printHtmlShort( out );
 	if ( (*m)->isInternal() && (*m)->access() != Decl::Private )
 	    out.putsMeta( " &nbsp;<em>(internal)</em>" );
 	else if ( (*m)->isObsolete() )
 	    out.putsMeta( " &nbsp;<em>(obsolete)</em>" );
-	out.putsMeta( "</div></li>\n" );
+	out.putsMeta( "</li>\n" );
 	++m;
     }
     if ( metAny )
