@@ -11,6 +11,11 @@
 
 sql {
 
+	!table {
+		message(table must be enabled for sql support):
+		REQUIRES += table
+	}
+
 	HEADERS     += $$SQL_H/qsql.h \
 		    $$SQL_H/qsqlconnection.h \
 		    $$SQL_H/qsqldatabase.h \
