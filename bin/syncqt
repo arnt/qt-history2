@@ -146,13 +146,14 @@ sub classNames {
                         chomp $line;
                         last unless($line =~ /\\$/);
                     }
-                } else {
-                    $line = 0;
                 }
+		$line = 0;
             }
-            $line =~ s,//.*$,,; #remove c++ comments
-	    $line .= ";" if($line =~ m/^Q_[A-Z_]*\(.*\)[\r\n]*$/); #qt macro
-            $parsable .= $line if($line);
+	    if($line) {
+                $line =~ s,//.*$,,; #remove c++ comments
+	        $line .= ";" if($line =~ m/^Q_[A-Z_]*\(.*\)[\r\n]*$/); #qt macro
+                $parsable .= " " . $line;
+	    }
         }
         close(F);
     }
@@ -203,7 +204,7 @@ sub classNames {
 		push @symbols, $1;
             } elsif($definition =~ m/^ *typedef +(.*) +([^ ]*);$/) {
 		push @symbols, $2;
-            } elsif($definition =~ m/^ *(template *<.*> *)?(class|struct) +([^ ]* +)?([^<\s]+) ?(<[^>]*> ?)?((,|:) *(public|private) *.*)? *\{\}$/) {
+            } elsif($definition =~ m/^ *(template *<.*> *)?(class|struct) +([^ ]* +)?([^<\s]+) ?(<[^>]*> ?)? *((,|:) *(public|private) *.*)? *\{\}$/) {
 		push @symbols, $4;
             } elsif($definition =~ m/^Q_DECLARE_ITERATOR\((.*)\);$/) {
 		push @symbols, $1 . "Iterator";
