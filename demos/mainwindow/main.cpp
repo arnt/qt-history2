@@ -19,9 +19,7 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
     app.connect(&app, SIGNAL(lastWindowClosed()), SLOT(quit()));
-
-    MainWindow *mainWin = new MainWindow;
-    mainWin->show();
-
+    MainWindow mainWin;
+    mainWin.show();
     return app.exec();
 }
