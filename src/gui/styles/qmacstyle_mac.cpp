@@ -17,7 +17,6 @@
 #define QMAC_QAQUASTYLE_SIZE_CONSTRAIN
 
 #include <private/qpainter_p.h>
-#include <private/qtitlebar_p.h>
 #include <qapplication.h>
 #include <qbitmap.h>
 #include <qcheckbox.h>
@@ -1312,8 +1311,6 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
 #endif
     else if(QRubberBand *rubber = qt_cast<QRubberBand*>(w)) {
         rubber->setWindowOpacity(0.25);
-    } else if(QTitleBar *tb = qt_cast<QTitleBar *>(w)) {
-        tb->setAutoRaise(true);
     }
     q->QWindowsStyle::polish(w);
 #else
@@ -2932,9 +2929,6 @@ void QMacStylePrivate::AppManPolish(QWidget *w)
         rubber->setWindowOpacity(0.25);
     } else if(QMenu *menu = qt_cast<QMenu*>(w)) {
         menu->setWindowOpacity(0.95);
-    } else if(QTitleBar *tb = qt_cast<QTitleBar *>(w)) {
-//        w->font().setPixelSize(10);
-        tb->setAutoRaise(true);
     }
     q->QWindowsStyle::polish(w);
 }
