@@ -956,7 +956,11 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 	QFont::initialize();
 	QCursor::initialize();
 #ifndef Q_Q3PAINTER
+# ifdef USE_CORE_GRAPHICS
+	QCoreGraphicsGC::initialize();
+# else
 	QQuickDrawGC::initialize();
+# endif
 #else
  	QPainter::initialize();
 #endif

@@ -757,7 +757,8 @@ QQuickDrawGC::initialize()
 {
 }
 
-void QQuickDrawGC::cleanup()
+void 
+QQuickDrawGC::cleanup()
 {
 }
 
@@ -1664,6 +1665,12 @@ QCoreGraphicsGC::drawPolygon(const QPointArray &a, bool winding, int index, int 
     drawPolyInternal(pa, true);
 }
 
+void
+QCoreGraphicsGC::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
+{
+    // Implemented in terms of drawPolygon() [no optimization]
+    drawPolygon(pa,false,index,npoints);
+}
 
 #ifndef QT_NO_BEZIER
 void 
@@ -1694,6 +1701,22 @@ void
 QCoreGraphicsGC::drawTextItem(int x, int y, const QTextItem &ti, int textflags)
 {
     qDebug("Must implement drawTextItem!!");
+}
+
+Qt::HANDLE
+QCoreGraphicsGC::handle() const
+{
+    return d->hd;
+}
+
+void
+QCoreGraphicsGC::initialize()
+{
+}
+
+void 
+QCoreGraphicsGC::cleanup()
+{
 }
 
 void 
