@@ -246,20 +246,6 @@ uint QTextFormatPrivate::recalcHash() const
 */
 
 /*!
-    \enum QTextFormat::PropertyType
-
-    \value Undefined
-    \value Bool
-    \value Color
-    \value Integer
-    \value Float
-    \value String
-    \value FormatObject
-    \value Length
-    \value LengthVector
-*/
-
-/*!
     \enum QTextFormat::Property
 
     \value ObjectIndex
@@ -538,8 +524,7 @@ QTextImageFormat QTextFormat::toImageFormat() const
 
 /*!
     Returns the value of the property specified by \a propertyId. If the
-    property isn't of \c QTextFormat::Bool type, the \a defaultValue is
-    returned instead.
+    property isn't of \c QTextFormat::Bool type, false is returned instead.
 
     \sa setProperty() intProperty() floatProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
@@ -553,8 +538,7 @@ bool QTextFormat::boolProperty(int propertyId) const
 
 /*!
     Returns the value of the property specified by \a propertyId. If the
-    property is not of \c QTextFormat::Integer type, the \a defaultValue is
-    returned instead.
+    property is not of \c QTextFormat::Integer type, 0 is returned instead.
 
     \sa setProperty() boolProperty() floatProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
@@ -568,8 +552,7 @@ int QTextFormat::intProperty(int propertyId) const
 
 /*!
     Returns the value of the property specified by \a propertyId. If the
-    property isn't of \c QTextFormat::Float type, the \a defaultValue is
-    returned instead.
+    property isn't of \c QTextFormat::Float type, 0 is returned instead.
 
     \sa setProperty() boolProperty() intProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
@@ -583,7 +566,7 @@ float QTextFormat::floatProperty(int propertyId) const
 
 /*!
     Returns the value of the property given by \a propertyId; if the
-    property isn't of \c QTextFormat::String type the \a defaultValue is
+    property isn't of \c QTextFormat::String type, a null string is
     returned instead.
 
     \sa setProperty() boolProperty() intProperty() floatProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
@@ -598,7 +581,7 @@ QString QTextFormat::stringProperty(int propertyId) const
 
 /*!
     Returns the value of the property given by \a propertyId; if the
-    property isn't of \c QTextFormat::Color type the \a defaultValue is
+    property isn't of \c QTextFormat::Color type, an invalid color is
     returned instead.
 
     \sa setProperty() boolProperty() intProperty() floatProperty() stringProperty() lengthProperty() lengthVectorProperty() PropertyType
@@ -612,9 +595,7 @@ QColor QTextFormat::colorProperty(int propertyId) const
 }
 
 /*!
-    Returns the value of the property given by \a propertyId; if the
-    property isn't of \c QTextFormat::Length type an variable length is
-    returned instead.
+    Returns the value of the property given by \a propertyId.
 
     \sa setProperty() boolProperty() intProperty() floatProperty() stringProperty() colorProperty() lengthVectorProperty() PropertyType
 */
@@ -624,9 +605,9 @@ QTextLength QTextFormat::lengthProperty(int propertyId) const
 }
 
 /*!
-    Returns the value of the property given by \a propertyId; if the
-    property isn't of \c QTextFormat::LengthVector type an empty length vector is
-    returned instead.
+    Returns the value of the property given by \a propertyId. If the
+    property isn't of \c QTextFormat::LengthVector type, an empty length
+    vector is returned instead.
 
     \sa setProperty() boolProperty() intProperty() floatProperty() stringProperty() colorProperty() lengthProperty() PropertyType
 */
@@ -648,12 +629,17 @@ QVector<QTextLength> QTextFormat::lengthVectorProperty(int propertyId) const
     return vector;
 }
 
-
+/*!
+    Returns the property specified by the given \a propertyId.
+*/
 QVariant QTextFormat::property(int propertyId) const
 {
     return d->properties().value(propertyId);
 }
 
+/*!
+    Sets the property specified by the \a propertyId to the given \a value.
+*/
 void QTextFormat::setProperty(int propertyId, const QVariant &value)
 {
     if (!value.isValid())
@@ -1518,7 +1504,6 @@ QFont QTextCharFormat::font() const
     Constructs a new list format object.
 */
 
-
 /*!
     \fn bool QTextListFormat::isValid() const
 
@@ -1526,6 +1511,13 @@ QFont QTextCharFormat::font() const
     returns false.
 */
 
+/*!
+    \fn void QTextListFormat::setStyle(Style style)
+
+    Sets the list format's \a style. See \c{Style} for the available styles.
+
+    \sa style()
+*/
 
 /*!
     \fn void QTextListFormat::setStyle(int style)
@@ -1534,7 +1526,6 @@ QFont QTextCharFormat::font() const
 
     \sa style()
 */
-
 
 /*!
     \fn QTextListFormat::style() const
@@ -1690,9 +1681,15 @@ QFont QTextCharFormat::font() const
 
 /*!
     \fn QTextFrameFormat::setHeight(int height)
+    \reimp
 
     Sets the frame's \a height.
+*/
 
+/*!
+    \fn QTextFrameFormat::setHeight(const QTextLength &height)
+    
+    Sets the frame's \a height.
 */
 
 /*!

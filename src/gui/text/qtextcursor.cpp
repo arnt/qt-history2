@@ -659,6 +659,15 @@ void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &format, QText
 */
 
 /*!
+    \enum QTextCursor::SelectionType
+
+    \value WordUnderCursor Selects the word under the cursor. If the cursor
+           is not positioned within a string of selectable characters, no
+           text is selected.
+    \value LineUnderCursor Selects the line of text under the cursor.
+*/
+
+/*!
     Constructs a null cursor.
  */
 QTextCursor::QTextCursor()
@@ -929,6 +938,9 @@ void QTextCursor::deletePreviousChar()
     d->setX();
 }
 
+/*!
+    Selects text in the document according to the given \a selection.
+*/
 void QTextCursor::select(SelectionType selection)
 {
     clearSelection();

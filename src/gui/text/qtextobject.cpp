@@ -244,6 +244,7 @@ QTextFrameLayoutData::~QTextFrameLayoutData()
 
     Text frames provide structure for the text in a document. They are used
     as generic containers for other document elements.
+    Frames are usually created by using QTextCursor::insertFrame().
 
     \omit
     Each frame in a document consists of a frame start character,
@@ -265,13 +266,13 @@ QTextFrameLayoutData::~QTextFrameLayoutData()
     frame. The first and last child elements in the frame can be found with
     begin() and end().
 
-    A frame also has a format which can be set with setFormat() and read with
-    format(). Text cursors can be obtained that point to the first and last
-    valid cursor positions within a frame; use the firstCursorPosition() and
+    A frame also has a format (specified using QTextFrameFormat) which can be set
+    with setFormat() and read with format().
+
+    Text cursors can be obtained that point to the first and last valid cursor
+    positions within a frame; use the firstCursorPosition() and
     lastCursorPosition() functions for this. The frame's extent in the
     document can be found with firstPosition() and lastPosition().
-
-    Frames are usually created using QTextCursor::insertFrame().
 
     You can iterate over a frame's contents using the
     QTextFrame::iterator class: this provides read-only access to its
