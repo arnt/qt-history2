@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#30 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#31 $
 **
 ** Definition of QWidget class
 **
@@ -48,8 +48,8 @@ public:
 
   // Widget coordinates (relative to its parent)
 
-    QRect   frameRect()		const	{ return frect; }
-    QRect   clientRect()	const	{ return crect; }
+    QRect   frameGeometry()	const	{ return frect; }
+    QRect   geometry()		const	{ return crect; }
     QSize   size()		const	{ return crect.size(); }
     int	    width()		const	{ return crect.width(); }
     int	    height()		const	{ return crect.height(); }
