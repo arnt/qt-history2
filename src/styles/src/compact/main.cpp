@@ -15,6 +15,7 @@ public:
     QStyle *create( const QString& );
 
     bool init();
+    void cleanup();
     bool canUnload() const;
 
 private:
@@ -75,6 +76,11 @@ QStyle* CompactStyle::create( const QString& s )
 bool CompactStyle::init()
 {
     return TRUE;
+}
+
+void CompactStyle::cleanup() 
+{
+    delete style;
 }
 
 bool CompactStyle::canUnload() const
