@@ -83,6 +83,9 @@ void DomTree::buildTree( bool namespaces, QListViewItem *parentItem, const QDomN
 	} else {
 	    thisItem = new DomTreeItem( namespaces, attribs.item(i), parentItem, thisItem );
 	}
+	// attributes have children
+	buildTree( namespaces, thisItem, attribs.item(i).firstChild(),
+		QDomNamedNodeMap() );
     }
     while ( !node.isNull() ) {
 	if ( parentItem == 0 ) {

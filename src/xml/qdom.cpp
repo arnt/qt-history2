@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#57 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#58 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -125,7 +125,7 @@ public:
 
     QString nodeName() const { return name; }
     QString nodeValue() const { return value; }
-    void setNodeValue( const QString& v ) { value = v; }
+    virtual void setNodeValue( const QString& v ) { value = v; }
 
     QDomDocumentPrivate* ownerDocument();
 
@@ -341,6 +341,7 @@ public:
     bool specified() const;
 
     // Reimplemented from QDomNodePrivate
+    void setNodeValue( const QString& v );
     QDomNodePrivate* cloneNode( bool deep = TRUE );
     bool isAttr() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::AttributeNode; }
@@ -3408,6 +3409,13 @@ QDomAttrPrivate::QDomAttrPrivate( QDomAttrPrivate* n, bool deep )
 
 QDomAttrPrivate::~QDomAttrPrivate()
 {
+}
+
+void QDomAttrPrivate::setNodeValue( const QString& v )
+{
+    value = v;
+    QDomTextPrivate *t = new QDomTextPrivate( 0, this, v );
+    appendChild( t );
 }
 
 QDomNodePrivate* QDomAttrPrivate::cloneNode( bool deep )
