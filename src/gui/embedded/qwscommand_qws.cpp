@@ -324,7 +324,7 @@ bool qws_read_command(QWSSocket *socket, char *&simpleData, int &simpleLen,
                       char *&rawData, int &rawLen, int &bytesRead)
 {
     if (rawLen == -1) {
-        if (socket->size() < sizeof(rawLen))
+        if (socket->bytesAvailable() < sizeof(rawLen))
             return false;
         rawLen = qws_read_uint(socket);
 #ifdef QWSCOMMAND_DEBUG
@@ -334,7 +334,7 @@ bool qws_read_command(QWSSocket *socket, char *&simpleData, int &simpleLen,
 
     if (!bytesRead) {
         if (simpleLen) {
-            if (socket->size() < uint(simpleLen))
+            if (socket->bytesAvailable() < uint(simpleLen))
                 return false;
             bytesRead = socket->read(simpleData, simpleLen);
 #ifdef QWSCOMMAND_DEBUG
@@ -352,7 +352,7 @@ bool qws_read_command(QWSSocket *socket, char *&simpleData, int &simpleLen,
     if (bytesRead) {
         if (!rawLen)
             return true;
-        if (socket->size() < uint(rawLen))
+        if (socket->bytesAvailable() < uint(rawLen))
             return false;
         rawData = new char[rawLen];
         bytesRead += socket->read(rawData, rawLen);
