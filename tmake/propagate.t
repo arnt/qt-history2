@@ -115,7 +115,7 @@ TARGET1 = lib$(TARGET).so.$(VER_MAJ)
 
 HEADERS =	#$ ExpandList("HEADERS");
 SOURCES =	#$ ExpandList("SOURCES");
-OBJECTS =	#$ ExpandList("OBJECTS"); (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_PNG_OBJ) $(QT_ZLIB_OBJ)';
+OBJECTS =	#$ ExpandList("OBJECTS"); (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_PNG_OBJ) $(QT_ZLIB_OBJ)');
 SRCMOC	=	#$ ExpandList("SRCMOC");
 OBJMOC	=	#$ ExpandList("OBJMOC");
 
