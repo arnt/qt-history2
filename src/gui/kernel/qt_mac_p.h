@@ -68,18 +68,14 @@ public:
         context = copy.context;
         CGContextRetain(context);
     }
-    inline ~QMacCGContext() {
-        if(context) 
-            CGContextRelease(context);
-    }
+    inline ~QMacCGContext() { CGContextRelease(context); }
     bool isNull() const { return context; }
     inline operator CGContextRef() { return context; }
-    inline QMacCGContext &operator=(CGContextRef cg) { 
-        if(context) 
-            CGContextRelease(context);
-        context = cg; 
+    inline QMacCGContext &operator=(CGContextRef cg) {
+        CGContextRelease(context);
+        context = cg;
         CGContextRetain(context); //we do not take ownership
-        return *this; 
+        return *this;
     }
 };
 
