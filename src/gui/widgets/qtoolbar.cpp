@@ -257,7 +257,8 @@ void QToolBar::setMovable(bool movable)
 bool QToolBar::isMovable() const
 { return d->movable; }
 
-/*! \property QToolBar::allowedAreas
+/*! 
+    \property QToolBar::allowedAreas
     \brief areas where the toolbar may be placed.
 
     The default is \c Qt::AllToolBarAreas.
@@ -368,9 +369,10 @@ void QToolBar::clear()
     \sa addAction()
 */
 
-/*! \overload
+/*! 
+    \overload
 
-    Creates a new action with text \a text. This action is added to
+    Creates a new action with the given \a text. This action is added to
     the end of the toolbar.
 */
 QAction *QToolBar::addAction(const QString &text)
@@ -380,9 +382,10 @@ QAction *QToolBar::addAction(const QString &text)
     return action;
 }
 
-/*! \overload
+/*!         
+    \overload
 
-    Creates a new action with the icon \a icon and text \a text. This
+    Creates a new action with the given \a icon and \a text. This
     action is added to the end of the toolbar.
 */
 QAction *QToolBar::addAction(const QIcon &icon, const QString &text)
@@ -392,9 +395,10 @@ QAction *QToolBar::addAction(const QIcon &icon, const QString &text)
     return action;
 }
 
-/*! \overload
+/*! 
+    \overload
 
-    Creates a new action with text \a text. This action is added to
+    Creates a new action with the given \a text. This action is added to
     the end of the toolbar. The action's \link QAction::triggered()
     triggered()\endlink signal is connected to \a member in \a
     receiver.
@@ -408,7 +412,8 @@ QAction *QToolBar::addAction(const QString &text,
     return action;
 }
 
-/*! \overload
+/*! 
+    \overload
 
     Creates a new action with the icon \a icon and text \a text. This
     action is added to the end of the toolbar. The action's \link
@@ -432,7 +437,8 @@ QAction *QToolBar::addAction(const QIcon &icon, const QString &text,
     \sa addAction()
 */
 
-/*! \overload
+/*! 
+    \overload
 
     Creates a new action with the given \a text. This action is
     inserted into the toolbar in front of the toolbar item
@@ -445,7 +451,8 @@ QAction *QToolBar::insertAction(QAction *before, const QString &text)
     return action;
 }
 
-/*! \overload
+/*! 
+    \overload
 
     Creates a new action with the given \a icon and \a text. This
     action is inserted into the toolbar in front of the toolbar item
@@ -458,7 +465,8 @@ QAction *QToolBar::insertAction(QAction *before, const QIcon &icon, const QStrin
     return action;
 }
 
-/*! \overload
+/*! 
+    \overload
 
     Creates a new action with the given \a text. This action is inserted
     into the toolbar in front of the toolbar item associated with
@@ -475,7 +483,8 @@ QAction *QToolBar::insertAction(QAction *before, const QString &text,
     return action;
 }
 
-/*! \overload
+/*! 
+    \overload
 
     Creates a new action with the given \a icon and \a text. This
     action is inserted into the toolbar in front of the toolbar item
