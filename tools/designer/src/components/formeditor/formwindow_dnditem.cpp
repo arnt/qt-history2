@@ -15,11 +15,13 @@
 
 #include <ui4.h>
 
+#include <QtGui/QBitmap>
 #include <QtGui/QLabel>
 #include <QtGui/QPixmap>
 
 FormWindowDnDItem::FormWindowDnDItem(QWidget *widget, const QPoint &pos)
 {
+    qDebug("Nope, HERE????????????????????????????");
     m_dom_ui = 0;
     m_widget = widget;
     QLabel *label = new QLabel(0, Qt::ToolTip);
@@ -40,7 +42,11 @@ FormWindowDnDItem::FormWindowDnDItem(DomUI *dom_ui, QWidget *widget, const QPoin
     m_widget = 0;
 
     QLabel *label = new QLabel(0, Qt::ToolTip);
-    label->setPixmap(QPixmap::grabWidget(widget));
+    QPixmap pix;
+    pix = QPixmap::grabWidget(widget);
+    pix.setMask(pix.createHeuristicMask());
+
+    label->setPixmap(pix);
     label->setWindowOpacity(0.8);
     QRect geometry = widget->geometry();
     geometry.moveTopLeft(widget->mapToGlobal(QPoint(0, 0)));

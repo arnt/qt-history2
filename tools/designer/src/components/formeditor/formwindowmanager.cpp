@@ -687,6 +687,7 @@ void FormWindowManager::dragItems(const QList<AbstractDnDItem*> &item_list, Abst
     beginDrag(item_list);
 }
 
+#include <qdebug.h>
 void FormWindowManager::beginDrag(const QList<AbstractDnDItem*> &item_list)
 {
     Q_ASSERT(m_drag_item_list.isEmpty());
@@ -699,9 +700,11 @@ void FormWindowManager::beginDrag(const QList<AbstractDnDItem*> &item_list)
 
     foreach(AbstractDnDItem *item, m_drag_item_list) {
         QWidget *deco = item->decoration();
-        QBitmap bitmap(deco->size());
+        qDebug() << deco;
+        QPixmap pix = QPixmap::grabWidget(deco);
+
+        QBitmap bitmap = pix.createHeuristicMask();
         QPainter p(&bitmap);
-        p.fillRect(bitmap.rect(), Qt::color1);
         p.setPen(Qt::color0);
         p.drawPoint(deco->mapFromGlobal(pos));
         p.end();

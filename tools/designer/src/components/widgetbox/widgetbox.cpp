@@ -822,18 +822,18 @@ WidgetBoxDnDItem::WidgetBoxDnDItem(AbstractFormEditor *core, DomWidget *dom_widg
     m_dom_ui = new DomUI();
     m_dom_ui->setElementWidget(root_dom_widget);
 
-    QLabel *label = new QLabel(0, Qt::ToolTip);
-
     WidgetBoxResource builder(m_core);
-    QWidget *w = builder.createWidget(dom_widget, label);
+    QWidget *w = builder.createWidget(dom_widget, 0);
+    QPalette pal = w->palette();
+    pal.setColor(w->backgroundRole(), Qt::white);
+    w->setPalette(pal);
+    w->setParent(0, Qt::ToolTip);
     QSize size = domWidgetSize(dom_widget);
     if (!size.isValid())
         size = w->sizeHint();
     w->setGeometry(QRect(QPoint(), size));
-    label->resize(size);
 
-    label->setWindowOpacity(0.8);
-    m_decoration = label;
+    m_decoration = w;
 
     QPoint pos = QCursor::pos();
 
