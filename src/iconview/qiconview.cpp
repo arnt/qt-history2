@@ -4369,6 +4369,13 @@ void QIconView::contentsMousePressEventEx( QMouseEvent *e )
 	p.end();
 	delete d->rubber;
 	d->rubber = 0;
+
+	if ( d->scrollTimer ) {
+	    disconnect( d->scrollTimer, SIGNAL( timeout() ), this, SLOT( doAutoScroll() ) );
+	    d->scrollTimer->stop();
+	    delete d->scrollTimer;
+	    d->scrollTimer = 0;
+	}
     }
 
     d->dragStartPos = e->pos();
