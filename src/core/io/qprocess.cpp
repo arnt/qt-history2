@@ -563,13 +563,14 @@ QStringList QProcess::environment() const
 bool QProcess::waitForStarted(int msecs)
 {
     Q_D(QProcess);
-    if (!d->waitForStarted(msecs)) {
-        emit error(d->processError);
-        return false;
+    if (d->processState == QProcess::Starting) {
+        if (!d->waitForStarted(msecs)) {
+            emit error(d->processError);
+            return false;
+        }
+        d->processState = QProcess::Running;
+        emit started();
     }
-
-    d->processState = QProcess::Running;
-    emit started();
     return true;
 }
 
@@ -579,14 +580,15 @@ bool QProcess::waitForReadyRead(int msecs)
 {
     Q_D(QProcess);
 
-    if (d->processState != QProcess::Running) {
+    if (d->processState == QProcess::Starting) {
         QTime stopWatch;
         stopWatch.start();
         bool started = waitForStarted(msecs);
         if (!started)
             return false;
         msecs -= stopWatch.elapsed();
-    }
+    } else if (d->processState != Running)
+        return (bytesAvailable() > 0);
 
     if (!d->waitForReadyRead(msecs)) {
         emit error(d->processError);
