@@ -1294,13 +1294,6 @@ void VcprojGenerator::initOld()
     if (!project->variables()["DEF_FILE"].isEmpty())
         project->variables()["MSVCPROJ_LFLAGS"].append("/DEF:"+project->first("DEF_FILE"));
 
-    // FORMS ---------------------------------------------------------
-    QStringList &list = project->variables()["FORMS"];
-    for(it = list.begin(); it != list.end(); ++it) {
-        if(QFile::exists(*it + ".h"))
-            project->variables()["SOURCES"].append(*it + ".h");
-    }
-
     project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "MSVCPROJ_LFLAGS" << "MSVCPROJ_LIBS";
 
     // Verbose output if "-d -d"...
