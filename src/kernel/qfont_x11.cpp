@@ -2749,7 +2749,7 @@ void QFont::initialize()
     if (codec) {
 	switch (codec->mibEnum()) {
 	case 57: // GB 2312-1980
-	case 2027: // GBK
+	case 2025: // GBK
 	case -2025: // GB18030
 	    script_table[QFont::Han].list = hancn_encodings;
 	    break;
