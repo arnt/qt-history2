@@ -901,7 +901,6 @@ void QMessageBox::buttonClicked()
   This function will not be called if the message box has been explicitly
   resized before showing it.
 */
-
 void QMessageBox::adjustSize()
 {
     if ( !testWState(WState_Polished) )
@@ -909,28 +908,31 @@ void QMessageBox::adjustSize()
     resizeButtons();
     label->adjustSize();
     QSize labelSize( label->size() );
-    QSize smax = mbd->buttonSize;
-    int border = smax.height()/2;
-    if ( border == 0 )
+    int n  = mbd->numButtons;
+    int bw = mbd->buttonSize.width();
+    int bh = mbd->buttonSize.height();
+    int border = bh/2 - style().buttonDefaultIndicatorWidth();
+    if ( border <= 0 )
 	border = 10;
-    else if ( style() == MotifStyle )
-	border += 6;
-    int bw = mbd->numButtons * smax.width() + (mbd->numButtons-1)*border;
-    int w = QMAX( bw, labelSize.width() ) + 2*border;
-    int h = smax.height();
+    int btn_spacing = 7;
+    if ( style() == MotifStyle )
+	btn_spacing = border;
+    int buttons = mbd->numButtons * bw + (n-1) * btn_spacing;
+    int h = bh;
     if ( labelSize.height() )
 	h += labelSize.height() + 3*border;
     else
 	h += 2*border;
+    int lmargin = 0;
     if ( mbd->iconLabel.pixmap() && mbd->iconLabel.pixmap()->width() )  {
 	mbd->iconLabel.adjustSize();
-	int iw = mbd->iconLabel.pixmap()->width() + border;
-	w += iw;
-	bw += iw;
-	if ( h < mbd->iconLabel.pixmap()->height() + 3*border + smax.height() )
-	    h = mbd->iconLabel.pixmap()->height() + 3*border + smax.height();
+	lmargin += mbd->iconLabel.width() + border;
+	if ( h < mbd->iconLabel.height() + 3*border + bh )
+	    h = mbd->iconLabel.height() + 3*border + bh;
     }
+    int w = QMAX( buttons, labelSize.width() + lmargin ) + 2*border;
     resize( w, h );
+    setMinimumSize( size() );
 }
 
 
@@ -944,25 +946,30 @@ void QMessageBox::resizeEvent( QResizeEvent * )
     int n  = mbd->numButtons;
     int bw = mbd->buttonSize.width();
     int bh = mbd->buttonSize.height();
-    int border = bh/2;
-    if ( border == 0 )
+    int border = bh/2 - style().buttonDefaultIndicatorWidth();
+    if ( border <= 0 )
 	border = 10;
-    else if ( style() == MotifStyle )
-	border += 6;
+    int btn_spacing = 7;
+    if ( style() == MotifStyle )
+	btn_spacing = border;
     int lmargin = 0;
     mbd->iconLabel.adjustSize();
     mbd->iconLabel.move( border, border );
     if ( mbd->iconLabel.pixmap() && mbd->iconLabel.pixmap()->width() )
-	lmargin += mbd->iconLabel.pixmap()->width() + border;
+	lmargin += mbd->iconLabel.width() + border;
     label->setGeometry( lmargin+border,
 			border,
 			width() - lmargin -2*border,
 			height() - 3*border - bh );
-    int space = (width() - bw*n)/(n+1);
-    for ( i=0; i<n; i++ ) {
-	mbd->pb[i]->move( space*(i+1)+bw*i,
-			  height() - border - bh );
-    }
+    int extra_space = (width() - bw*n - 2*border - (n-1)*btn_spacing);
+    if ( style() == MotifStyle )
+	for ( i=0; i<n; i++ )
+	    mbd->pb[i]->move( border + i*bw + i*btn_spacing + extra_space*(i+1)/(n+1),
+			      height() - border - bh );
+    else
+	for ( i=0; i<n; i++ )
+	    mbd->pb[i]->move( border + i*bw + extra_space/2 + i*btn_spacing,
+			      height() - border - bh );
 }
 
 
