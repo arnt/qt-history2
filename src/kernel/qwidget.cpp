@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#348 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#349 $
 **
 ** Implementation of QWidget class
 **
@@ -2590,6 +2590,7 @@ void QWidget::move( int x, int y )
 void QWidget::resize( int w, int h )
 {
     internalSetGeometry( x(), y(), w, h, FALSE );
+    setWState( QWS_Resized );
 }
 
 
@@ -2621,6 +2622,7 @@ void QWidget::resize( int w, int h )
 void QWidget::setGeometry( int x, int y, int w, int h )
 {
     internalSetGeometry( x, y, w, h, TRUE );
+    setWState( QWS_Resized );
 }
 
 
@@ -2784,6 +2786,8 @@ void QWidget::show()
 	    resize( w, h );			// deferred resize
 	}
     }
+    if ( isTopLevel() && !testWState( QWS_Resized ) && sizeHint().isValid() )
+	resize( sizeHint() );
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
     if ( parentWidget() )
       QApplication::sendPostedEvents( parentWidget(), QEvent::ChildInserted );
