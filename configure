@@ -3571,6 +3571,7 @@ fi
 # save configuration into .qt.config
 #-------------------------------------------------------------------------------
 
+[ -f "$outpath/mkspecs/.qt.config" ] && rm -f "$outpath/mkspecs/.qt.config"
 QTCONFIG=$outpath/mkspecs/.qt.config
 [ -f $QTCONFIG.tmp ] && rm -f $QTCONFIG.tmp
 QTCONFIG_CONFIG=
@@ -3583,7 +3584,7 @@ if [ "$CFG_STL" = "yes" ]; then
     QTCONFIG_CONFIG="$QTCONFIG_CONFIG stl"
 fi
 cat >>$QTCONFIG.tmp <<EOF
-CONFIG += $QTCONFIG_CONFIG
+CONFIG += $QTCONFIG_CONFIG qt_no_framework 
 QT_PRODUCT = $Products
 QT_CONFIG += $QT_CONFIG
 EOF
@@ -3601,7 +3602,7 @@ fi
 CACHEFILE=$outpath/.qmake.cache
 [ -f $CACHEFILE.tmp ] && rm -f $CACHEFILE.tmp
 cat >>$CACHEFILE.tmp <<EOF
-CONFIG += $QMAKE_CONFIG dylib create_prl link_prl qt_no_framework depend_includepath QTDIR_build
+CONFIG += $QMAKE_CONFIG dylib create_prl link_prl depend_includepath QTDIR_build
 QMAKESPEC = $XPLATFORM
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
