@@ -42,11 +42,9 @@ void debugMessageOutput( QtMsgType type, const char *msg )
 
     if ( type != QtFatalMsg ) {
 	if( debugToStderr )
-	    qDebug( "%s", msg );
 	else if ( debugoutput )
 	    debugoutput->append( s + "\n" );
     } else {
-	qDebug( msg );
 	abort();
     }
 
