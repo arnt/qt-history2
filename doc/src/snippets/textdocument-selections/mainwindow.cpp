@@ -56,7 +56,7 @@ void MainWindow::openFile()
         if (info.completeSuffix() == "html") {
             QFile file(fileName);
             
-            if (file.open(QIODevice::IO_ReadOnly)) {
+            if (file.open(QFile::ReadOnly)) {
                 editor->setHtml(file.readAll());
                 file.close();
                 currentFile = fileName;
@@ -64,7 +64,7 @@ void MainWindow::openFile()
         } else if (info.completeSuffix() == "txt") {
             QFile file(fileName);
             
-            if (file.open(QIODevice::IO_ReadOnly)) {
+            if (file.open(QFile::ReadOnly)) {
                 editor->setPlainText(file.readAll());
                 file.close();
                 currentFile = fileName;

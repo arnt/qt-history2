@@ -89,7 +89,7 @@ bool MainWindow::writeXml(const QString &fileName)
     QDomDocument *domDocument = documentWriter.toXml();
     QFile file(fileName);
 
-    if (file.open(QIODevice::WriteOnly)) {
+    if (file.open(QFile::WriteOnly)) {
         QTextStream textStream(&file);
         textStream.setEncoding(QTextStream::UnicodeUTF8);
         
