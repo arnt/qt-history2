@@ -101,7 +101,6 @@ public:
     int pixelHeight() const { return height; }
     virtual int bitDepth() = 0;
 
-#ifndef QT_NO_QWS_REPEATER
     virtual void setScreen(QScreen * t,QScreenCursor * c,bool swc,int * ot,
 			   int * lo) {
 	gfx_screen=t;
@@ -111,7 +110,6 @@ public:
 	gfx_optype=ot;
 	setClut(gfx_screen->clut(),gfx_screen->numCols());
     }
-#endif
 
     void save();
     void restore();
@@ -282,9 +280,7 @@ public:
 
     virtual void setSource(const QImage *);
     virtual void setSource(const QPaintDevice *);
-#ifndef QT_NO_QWS_REPEATER
     virtual void setSource(unsigned char *,int,int,int,int,QRgb *,int);
-#endif
 
 protected:
 

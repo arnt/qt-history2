@@ -226,6 +226,14 @@ int QScreen::pixmapDepth() const
     return depth();
 }
 
+void QScreen::setSource(unsigned char *,int,int,int,int,QRgb *,int)
+{
+}
+
+void QScreen::setScreen(QScreen *,QScreenCursor *,bool,int *,int *)
+{
+} 
+
 #ifdef QT_LOADABLE_MODULES
 
 // ### needs update after driver init changes

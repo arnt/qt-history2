@@ -41,6 +41,7 @@
 #include "qpoint.h"
 #endif // QT_H
 
+class QScreenCursor;
 
 #if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
 # ifndef QT_QWS_DEPTH16_RGB
@@ -240,10 +241,10 @@ public:
 
 protected:
 
-#ifndef QT_NO_QWS_REPEATER
+    // Only used without QT_NO_QWS_REPEATER, but included so that
+    // it's binary compatible regardless.
     int * screen_optype;
     int * screen_lastop;
-#endif
 
     QRgb screenclut[256];
     int screencols;
@@ -347,9 +348,7 @@ public:
     // Setting up source data - can be solid color or pixmap data
     virtual void setSource(const QPaintDevice *)=0;
     virtual void setSource(const QImage *)=0;
-#ifndef QT_NO_QWS_REPEATER
-    virtual void setSource(unsigned char *,int,int,int,int,QRgb *,int)=0;
-#endif
+    virtual void setSource(unsigned char *,int,int,int,int,QRgb *,int);
     // This one is pen
     virtual void setSourcePen()=0;
 
@@ -386,9 +385,7 @@ public:
     virtual void restore()=0;
 
     virtual void setRop(RasterOp)=0;
-#ifndef QT_NO_QWS_REPEATER
-    virtual void setScreen(QScreen *,QScreenCursor *,bool,int *,int *) {} 
-#endif
+    virtual void setScreen(QScreen *,QScreenCursor *,bool,int *,int *);
 
     bool isScreenGfx() { return is_screen_gfx; } //for cursor..
 
