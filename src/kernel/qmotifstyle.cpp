@@ -22,6 +22,29 @@ QMotifStyle::QMotifStyle() : QStyle(MotifStyle)
 
   \sa QStyle
   */
+void QMotifStyle::initialize( QApplication* app)
+{
+    // force the ugly motif way of highlighting *sigh*
+    QColorGroup normal = app->palette()->normal();
+    QColorGroup disabled = app->palette()->disabled();
+    QColorGroup active = app->palette()->active();
+    normal.setHighlight( Qt::black );
+    normal.setHighlightedText( normal.base() );
+    disabled.setHighlight( Qt::black );
+    disabled.setHighlightedText( disabled.base() );
+    active.setHighlight( Qt::black );
+    active.setHighlightedText( active.base() );
+    app->setPalette(QPalette(normal, disabled, active), TRUE); // TODO
+    // really TRUE? when is this called?Ideally, before the first widget
+    // is constructed.... #####
+}
+
+/*!
+  Reimplementation from QStyle
+
+  \sa QStyle
+  */
+
 void QMotifStyle::drawIndicator( QPainter* p,
 				 int x, int y, int w, int h, const QColorGroup &g,
 				 bool on, bool down, bool /* enabled */ )
@@ -250,9 +273,12 @@ void QMotifStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
   */
 void
 QMotifStyle::drawFocusRect( QPainter* p,
-		const QRect& r, const QColorGroup &g )
+			    const QRect& r, const QColorGroup &/*g */, const QColor* col)
 {
-    p->setPen( black );
+    if (col && *col == Qt::black)
+	p->setPen( Qt::white );
+    else
+	p->setPen( Qt::black);
     p->drawRect( r );
 }
 
@@ -285,7 +311,7 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	a.setPoints( 9,
 		     x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
 		     x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
-	p->setPen( black );
+	p->setPen( g.shadow() );
 	p->drawPolyline( a );
 	x1 += 2;
 	y1 += 2;

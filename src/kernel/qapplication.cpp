@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#171 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#172 $
 **
 ** Implementation of QApplication class
 **
@@ -104,6 +104,8 @@ void qt_init( Display* dpy );
 QApplication *qApp = 0;				// global application object
 QPalette *QApplication::app_pal	       = 0;	// default application palette
 QFont	 *QApplication::app_font       = 0;	// default application font
+QDict<QPalette>* QApplication::app_palettes = 0; // default application palettes
+QDict<QFont>* QApplication::app_fonts = 0;// default application fonts
 QCursor	 *QApplication::app_cursor     = 0;	// default application cursor
 int	  QApplication::app_tracking   = 0;	// global mouse tracking
 bool	  QApplication::is_app_running = FALSE;	// app starting up if FALSE
@@ -260,7 +262,7 @@ QApplication::QApplication( int &argc, char **argv )
     (void)new QKoi8Codec;
     (void)new QUtf8Codec;
     (void)new QUtf16Codec;
-
+    
     qt_init( &argc, argv );
     process_cmdline( &argc, argv );
     initialize( argc, argv );
@@ -306,7 +308,6 @@ void QApplication::init_precmdline()
 
 void QApplication::initialize( int argc, char **argv )
 {
-    app_style->initialize( this );
 
     app_argc = argc;
     app_argv = argv;
@@ -322,9 +323,11 @@ void QApplication::initialize( int argc, char **argv )
 	app_font->setCharSet( QFont::defaultFont().charSet() );
 	CHECK_PTR( app_font );
     }
+    
     QWidget::createMapper();			// create widget mapper
     is_app_running = TRUE;			// no longer starting up
 
+    app_style->initialize( this ); //##### wrong place, still inside the qapplication constructor...grmbl....
     // no longer starting up .....
 
     if ( makeqdevel ) {
@@ -350,6 +353,10 @@ QApplication::~QApplication()
     app_pal = 0;
     delete app_font;
     app_font = 0;
+    delete app_palettes;
+    app_palettes = 0;
+    delete app_fonts;
+    app_fonts = 0;
     delete app_cursor;
     app_cursor = 0;
     qt_cleanup();
@@ -543,10 +550,18 @@ void QApplication::setColorSpec( int spec )
   Returns a pointer to the default application palette.	 There is
   always an application palette, i.e. the returned pointer is
   guaranteed to be non-null.
+  
+  If a widget is passed as argument, the default palette for the
+  widget's class is returned. This may or may not be the application
+  palette, but in most cases there won't be a special palette for
+  certain types of widgets. An exception is the popup menu under
+  Windows, when the user defined a special background color for menus
+  in the display settings.
+  
   \sa setPalette(), QWidget::palette()
 */
 
-QPalette *QApplication::palette()
+QPalette *QApplication::palette(const QWidget* w)
 {
 #if defined(CHECK_STATE)
     if ( !qApp ) {
@@ -554,36 +569,72 @@ QPalette *QApplication::palette()
 		 "called after the QApplication object has been created" );
     }
 #endif
+    if (w && app_palettes) {
+	QDictIterator<QPalette> it(*app_palettes);
+	register const char* name;
+	while ( (name=it.currentKey()) ) {
+	    if ( w->isA(name) ) {
+		return it.current();
+	    }
+	    ++it;
+	}
+	(void) it.toFirst();
+	while ( (name=it.currentKey()) ) {
+	    if ( w->inherits( name ) ) {
+		return it.current();
+	    }
+	    ++it;
+	}
+    }
     return app_pal;
 }
+
 
 /*!
   Changes the default application palette to \e palette.
 
   If \e updateAllWidgets is TRUE, then the palette of all existing
   widgets is set to \e palette.
-
-  Widgets created after this call get \e palette as their \link
-  QWidget::palette() palette\endlink.
+  
+  If a className is passed, then the palette is only set for widgets
+  that inherit this class in the sense of QObject::inherits()
+  
+  Widgets created after this call get \e   palette as their 
+  \link QWidget::palette() palette\endlink when they
+  access it.
 
   \sa QWidget::setPalette(), palette()
 */
 
-void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
+void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, const char* className )
 {
-    delete app_pal;
-    app_pal = new QPalette( palette.copy() );
-    CHECK_PTR( app_pal );
+    if (!className) {
+	delete app_pal;
+	app_pal = new QPalette( palette.copy() );
+	CHECK_PTR( app_pal );
+    }
+    else {
+	if (!app_palettes){
+	    app_palettes = new QDict<QPalette>;
+	    CHECK_PTR( app_palettes );
+	    app_palettes->setAutoDelete( TRUE );
+	}
+	QPalette* pal = new QPalette(palette);
+	CHECK_PTR( pal );
+	app_palettes->insert(className, pal);
+    }
     if ( updateAllWidgets && is_app_running && !is_app_closing ) {
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
-	    if ( !w->testWFlags(WType_Desktop) )// (except desktop)
-		w->setPalette( *app_pal );
+	    if ( !w->testWFlags(WType_Desktop) // (except desktop)
+		 && w->paletteState != 2) // (and except fixed palettes)
+		w->setPalette( *QApplication::palette( w ) );
 	}
     }
 }
+
 
 
 /*!
@@ -593,6 +644,30 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
   \sa setFont(), fontMetrics(), QWidget::font()
 */
 
+QFont *QApplication::font( const QWidget* w)
+{
+    if (w && app_fonts) {
+	QDictIterator<QFont> it(*app_fonts);
+	register const char* name;
+	while ( (name=it.currentKey()) ) {
+	    if ( w->isA(name) ) {
+		return it.current();
+	    }
+	    ++it;
+	}
+	(void) it.toFirst();
+	while ( (name=it.currentKey()) ) {
+	    if ( w->inherits( name ) ) {
+		return it.current();
+	    }
+	    ++it;
+	}
+    }
+    return app_font;
+}
+
+
+
 /*!
   Changes the default application font to \e font.
 
@@ -601,26 +676,41 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
   If \e updateAllWidgets is TRUE, then the font of all existing
   widgets is set to \e font.
 
+  If a className is passed, then the palette is only set for widgets
+  that inherit this class in the sense of QObject::inherits()
+
   Widgets created after this call get \e font as their \link
-  QWidget::font() font\endlink.
+  QWidget::font() font\endlink when they access it.
 
   \sa font(), fontMetrics(), QWidget::setFont()
 */
 
-void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
+void QApplication::setFont( const QFont &font,	bool updateAllWidgets, const char* className )
 {
-    if ( app_font )
+    if (!className) {
 	delete app_font;
-    app_font = new QFont( font );
-    CHECK_PTR( app_font );
-    QFont::setDefaultFont( *app_font );
-    if ( updateAllWidgets && is_app_running && !is_app_closing) {		// set for all widgets now
+	app_font = new QFont( font );
+	CHECK_PTR( app_font );
+	QFont::setDefaultFont( *app_font );
+    }
+    else {
+	if (!app_fonts){
+	    app_fonts = new QDict<QFont>;
+	    CHECK_PTR( app_fonts );
+	    app_fonts->setAutoDelete( TRUE );
+	}
+	QFont* fnt = new QFont(font);
+	CHECK_PTR( fnt );
+	app_fonts->insert(className, fnt);
+    }
+    if ( updateAllWidgets && is_app_running && !is_app_closing ) {
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
-	    if ( !w->testWFlags(WType_Desktop) )// (except desktop)
-		w->setFont( *app_font );
+	    if ( !w->testWFlags(WType_Desktop) // (except desktop)
+		 && w->fontState != 2) // (and except fixed fonts)
+		w->setFont( *QApplication::font( w ) );
 	}
     }
 }
@@ -962,7 +1052,7 @@ void QApplication::syncX()	{}		// do nothing
 
 
 
-/*!
+/*!\obsolete
   Sets the color used to mark selections in windows style for all widgets
   in the application. Will repaint all widgets if the color is changed.
 
@@ -972,37 +1062,23 @@ void QApplication::syncX()	{}		// do nothing
 
 void QApplication::setWinStyleHighlightColor( const QColor &c )
 {
-    if ( !winHighlightColor )
-	winHighlightColor = new QColor( darkBlue );
-
-    if ( *winHighlightColor == c )
-	return;
-
-    *winHighlightColor = c;
-
-    if ( is_app_running && !is_app_closing ) {
-	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
-	register QWidget *w;
-	while ( (w=it.current()) ) {		// for all widgets...
-	    ++it;
-	    if ( w->style() == WindowsStyle &&
-		 !w->testWFlags(WType_Desktop) )// (except desktop)
-		w->repaint( FALSE );
-	}
-    }
+    QColorGroup normal = palette()->normal();
+    QColorGroup disabled = palette()->disabled();
+    QColorGroup active = palette()->active();
+    normal.setHighlight(c);
+    disabled.setHighlight(c);
+    active.setHighlight(c);
+    setPalette(QPalette(normal, disabled, active), TRUE);
 }
 
 
-/*!
+/*!\obsolete
   Returns the color used to mark selections in windows style.
   \sa setWinStyleHighlightColor()
 */
 const QColor& QApplication::winStyleHighlightColor()
 {
-    if ( !winHighlightColor )
-	winHighlightColor = new QColor( darkBlue );
-
-    return *winHighlightColor;
+    return palette()->normal().highlight();
 }
 
 

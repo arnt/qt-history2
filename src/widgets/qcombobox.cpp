@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#160 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#161 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -337,10 +337,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     if ( rw ) {
 	d->ed = new QComboData::ComboEdit( this );
 	d->ed->setFrame( FALSE );
-	if ( style() == WindowsStyle )
-	    d->ed->setGeometry( 2, 2, width() - 2 - 2 - 16, height() - 2 - 2 );
-	else
-	    d->ed->setGeometry( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
+	d->ed->setGeometry(style().comboButtonRect( 0, 0, width(), height() ));
 	d->ed->installEventFilter( this );
 	setFocusProxy( d->ed );
 
@@ -1048,19 +1045,19 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	    p.drawRect( ax - 2, ay - 2, awh+4, sy+sh+4-ay );
 
     } else {					// windows 95 style
-	QColor bg = isEnabled() ? g.base() : g.button();
+// 	QColor bg = isEnabled() ? g.base() : g.button();
 	QString str = d->listBox->text( d->current );
 
 // 	QBrush fill = isEnabled() ? g.fillBase() : g.fillBackground();
 	//	qDrawWinPanel( &p, 0, 0, width(), height(), g, TRUE, &fill );
 	
-	style().drawComboButton(&p, 0, 0, width(), height(), g, d->arrowDown);
+	style().drawComboButton(&p, 0, 0, width(), height(), g, d->arrowDown, d->ed != 0);
 
-	if (d->ed) {
-	    QRect r( d->ed->geometry() );
-	    r.setRect( r.left()-1, r.top()-1, r.width()+2, r.height()+2 );
-	    qDrawShadePanel( &p, r, g, TRUE, d->ed ? 1 : 2, isEnabled()?&g.fillBase():&g.fillButton());
-	}
+//  	if (d->ed) {
+//  	    QRect r( d->ed->geometry() );
+// 	    r.setRect( r.left()-1, r.top()-1, r.width()+2, r.height()+2 );
+// 	    qDrawShadePanel( &p, r, g, TRUE, d->ed ? 1 : 2, isEnabled()?&g.fillBase():&g.fillButton());
+//  	}
 	QRect arrowR = arrowRect();
 // 	qDrawWinPanel(&p, arrowR, g, d->arrowDown );
 // 	qDrawArrow( &p, DownArrow, WindowsStyle, d->arrowDown,
@@ -1072,22 +1069,22 @@ void QComboBox::paintEvent( QPaintEvent *event )
 
 	if ( hasFocus()) {
 	    if (!d->ed) {
-		QBrush fill( QApplication::winStyleHighlightColor() );
 		p.fillRect( textR.x()-1, textR.y(),
-			    textR.width(), textR.height(), fill );
+			    textR.width(), textR.height(), g.fillHighlight() );
 	    }
-	    p.drawWinFocusRect( textR.x()-2, textR.y()-1,
-				textR.width()+2, textR.height()+2, backgroundColor() );
+	    style().drawFocusRect(&p, style().comboButtonFocusRect(0,0,width(),height()), g);
+// 	    p.drawWinFocusRect( textR.x()-2, textR.y()-1,
+// 				textR.width()+2, textR.height()+2, backgroundColor() );
 	}
 
 	p.setClipRect( textR );
 
 	if ( hasFocus() ) {
-	    p.setPen( white );
-	    p.setBackgroundColor( QApplication::winStyleHighlightColor() );
+	    p.setPen( g.highlightedText() );
+	    p.setBackgroundColor( g.highlight() );
 	} else {
 	    p.setPen( g.text() );
-	    p.setBackgroundColor( bg );
+	    p.setBackgroundColor( g.background() );
 	}
 	if ( !str.isNull() ) {
 	    p.drawText( textR, AlignLeft | AlignVCenter | SingleLine, str);

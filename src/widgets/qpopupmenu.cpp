@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#184 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#185 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -172,7 +172,7 @@ static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
 	}
 	if ( dis && !act ) {
 	    uint pnt;
-	    p->setPen( Qt::white );
+	    p->setPen( g.highlightedText() );
 	    QPoint offset(1,1);
 	    for ( pnt = 0; pnt < a.size(); pnt++ )
 		a[pnt] += offset;
@@ -1090,7 +1090,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 		p->drawPixmap( pmr.topLeft(), *pixmap );
 	    }
 	    if ( gs == WindowsStyle ) {
-		QBrush fill = act? QBrush(QApplication::winStyleHighlightColor()) : g.fillButton();
+		QBrush fill = act? g.fillHighlight(): g.fillButton();
 		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh, fill);
 	    }
 	    return;
@@ -1100,7 +1100,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	if ( gs != MotifStyle )
 	    pw = 1;
 	if ( gs == WindowsStyle ) {
-	    QBrush fill = act? QBrush(QApplication::winStyleHighlightColor()) : g.fillButton();
+	    QBrush fill = act? g.fillHighlight() : g.fillButton();
 	    if ( mi->isChecked() )
 		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh, fill);
 	    else
@@ -1124,7 +1124,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
     }
 
     if ( gs == WindowsStyle )
-	p->setPen( act ? white : g.text() );
+	p->setPen( act ? g.highlightedText() : g.text() );
     else
 	p->setPen( g.text() );
 
@@ -1169,7 +1169,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	if ( gs == WindowsStyle && row == actItem ) {
 	    if ( !dis )
 		discol = white;
-	    g = QColorGroup( discol, QApplication::winStyleHighlightColor(),
+	    g = QColorGroup( discol, g.highlight(),
 			     white, white,
 			     dis ? discol : white,
 			     discol, white );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#173 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#174 $
 **
 ** Implementation of QListView widget class
 **
@@ -1031,11 +1031,11 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	 (column==0 || listView()->allColumnsShowFocus()) ) {
 	if ( listView()->style() == WindowsStyle ) {
 	    p->fillRect( r - marg, 0, width - r + marg, height(),
-			 QApplication::winStyleHighlightColor() );
-	    p->setPen( white ); // ###
+			 cg.fillHighlight() );
+	    p->setPen( cg.highlightedText() ); 
 	} else {
 	    p->fillRect( r - marg, 0, width - r + marg,
-			 height(), cg.text() );
+			 height(), cg.fillText() );
 	    p->setPen( cg.base() );
 	}
     } else {

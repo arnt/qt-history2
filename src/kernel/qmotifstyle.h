@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#1 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#2 $
 **
 ** Definition of something or other
 **
@@ -18,6 +18,9 @@ class Q_EXPORT QMotifStyle : public QStyle
 {
 public:
     QMotifStyle();
+
+    void initialize( QApplication*);
+    
     void drawButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
 		     const QBrush *fill = 0 );
@@ -25,7 +28,7 @@ public:
 			  const QColorGroup &g, bool sunken = FALSE,
 			  const QBrush *fill = 0 );
     void drawFocusRect( QPainter*,
-			const QRect&, const QColorGroup & );
+			const QRect&, const QColorGroup &, const QColor* =0 );
     void drawPushButton( QPushButton* btn, QPainter *p);
     void drawPushButtonLabel( QPushButton* btn, QPainter *p);
 

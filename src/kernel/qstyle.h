@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#13 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#14 $
 **
 ** Definition of QStyle class
 **
@@ -108,16 +108,18 @@ public:
     // "combo box"
     virtual void drawComboButton( QPainter *p, int x, int y, int w, int h,
 				  const QColorGroup &g, bool sunken = FALSE,
+				  bool editable = FALSE, 
 				  bool enabled = TRUE,
 				  const QBrush *fill = 0 );
     virtual QRect comboButtonRect( int x, int y, int w, int h);
+    virtual QRect comboButtonFocusRect( int x, int y, int w, int h);
 
     virtual void drawComboButtonMask( QPainter *p, int x, int y, int w, int h);
 
 
     // focus
     virtual void drawFocusRect( QPainter*,
-		    const QRect&, const QColorGroup & ) = 0;
+		    const QRect&, const QColorGroup &, const QColor* bg = 0 ) = 0;
 
 
     // push buttons

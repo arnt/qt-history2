@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#18 $
 **
 ** Implementation of QStyle class
 **
@@ -75,7 +75,7 @@ QStyle::~QStyle()
 /*!
   \fn GUIStyle QStyle::guiStyle() const
 
-  
+
   Returns an indicator to the additional "feel" component of a
   style. Current supported values are Windows and Motif.
 */
@@ -220,11 +220,13 @@ void QStyle::drawButtonMask( QPainter *, int , int , int , int )
 
 void QStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				  const QColorGroup &g, bool sunken,
-				  bool /*enabled */,
-				  const QBrush *fill )
+			      bool editable,
+			      bool /*enabled */,
+			      const QBrush *fill )
 {
     drawButton(p, x, y, w, h, g, sunken, fill);
 }
+
 
 /*!
   Returns the rectangle available for contents in a combo box
@@ -233,6 +235,14 @@ void QStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
   buttons.
 */
 QRect QStyle::comboButtonRect( int x, int y, int w, int h)
+{
+    return buttonRect(x+3, y+3, w-6-21, h-6);
+}
+
+/*!
+  Returns the rectangle used to draw the the focus rectangle in a combo box.
+*/
+QRect QStyle::comboButtonFocusRect( int x, int y, int w, int h)
 {
     return buttonRect(x+3, y+3, w-6-21, h-6);
 }
@@ -393,7 +403,7 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on *
 
 /*!
   \fn void QStyle::drawFocusRect( QPainter* p,
-		const QRect& r, const QColorGroup &g )
+		const QRect& r, const QColorGroup &g , const QColor*)
 
   Draws a mark indicating keyboard focus is on \a r.
 */
@@ -409,14 +419,14 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on *
 
 /*!
 
-  \fn  void QStyle::drawScrollbarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, 
+  \fn  void QStyle::drawScrollbarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls,
   uint activeControl )
-  
+
   Draws the given scrollbar. Used internally by QScrollbar.
-  
+
   The controls are either ADD_LINE, SUB_LINE, ADD_PAGE, SUB_PAGE,
   FIRST, LAST, SLIDER or NONE
-  
+
   Controls is a combination of these, activeControl is the control
   currently pressed down.
  */
@@ -456,10 +466,10 @@ QStyle::drawSliderMask( QPainter *p,
                     bool horizontal )
 
   Draws a slider groove
-  
+
 */
-		    
-		    
+		
+		
 
 /*!
   Draws the mask of a slider groove

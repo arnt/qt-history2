@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#180 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#181 $
 **
 ** Definition of QWidget class
 **
@@ -124,7 +124,9 @@ public:
     enum BackgroundMode { FixedColor, FixedPixmap, NoBackground,
 			  PaletteForeground, PaletteButton, PaletteLight,
 			  PaletteMidlight, PaletteDark, PaletteMid,
-			  PaletteText, PaletteBase, PaletteBackground };
+			  PaletteText, PaletteBrightText, PaletteBase,
+			  PaletteBackground, PaletteShadow, PaletteHighlight,
+			  PaletteHighlightedText };
 
     BackgroundMode backgroundMode() const;
     virtual void	   setBackgroundMode( BackgroundMode );
@@ -139,9 +141,11 @@ public:
     const QColorGroup &colorGroup() const;
     const QPalette    &palette()    const;
     virtual void       setPalette( const QPalette & );
+    void setPalette( const QPalette &, bool fixed );
 
     const QFont &font()		const;
     virtual void setFont( const QFont & );
+    void setFont( const QFont &, bool fixed );
     QFontMetrics fontMetrics()	const;
     QFontInfo	 fontInfo()	const;
 
@@ -383,6 +387,8 @@ private:
     QWExtra	*extra;
     uint automask : 1;
     uint polished : 1;
+    uint paletteState : 2; // 0 uninitialized, 1 initialized, 2 fix
+    uint fontState : 2; // 0 uninitialized, 1 initialized, 2 fix
     uint propagateFont: 2;
     uint propagatePalette: 2;
     uint dnd : 1; // drop enable
@@ -481,12 +487,6 @@ inline void QWidget::setSizeIncrement( const QSize &s )
 
 inline const QColor &QWidget::backgroundColor() const
 { return bg_col; }
-
-inline const QPalette &QWidget::palette() const
-{ return pal; }
-
-inline const QFont &QWidget::font() const
-{ return fnt; }
 
 inline QFontMetrics QWidget::fontMetrics() const
 { return QFontMetrics(this); }

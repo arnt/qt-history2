@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#39 $
 **
 ** Implementation of draw utilities
 **
@@ -410,10 +410,10 @@ void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
 {
     if ( sunken )
 	qDrawWinShades( p, x, y, w, h,
-		       Qt::black, g.light(), g.dark(), g.button(), fill );
+		       g.shadow(), g.light(), g.dark(), g.button(), fill );
     else
 	qDrawWinShades( p, x, y, w, h,
-		       g.light(), Qt::black, g.midlight(), g.dark(), fill );
+		       g.light(), g.shadow(), g.midlight(), g.dark(), fill );
 }
 
 /*!
@@ -444,10 +444,10 @@ void qDrawWinPanel( QPainter *p, int x, int y, int w, int h,
 {
     if ( sunken )
 	qDrawWinShades( p, x, y, w, h,
-		       g.dark(), g.light(), Qt::black, g.midlight(), fill );
+		       g.dark(), g.light(), g.shadow(), g.midlight(), fill );
     else
 	qDrawWinShades( p, x, y, w, h,
-		       g.midlight(), Qt::black, g.light(), g.dark(), fill );
+		       g.midlight(), g.shadow(), g.light(), g.dark(), fill );
 }
 
 

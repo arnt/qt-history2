@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplatinumstyle.h#1 $
+** $Id: //depot/qt/main/src/kernel/qplatinumstyle.h#2 $
 **
 ** Definition of something or other
 **
@@ -42,6 +42,7 @@ public:
 
     void drawComboButton( QPainter *p, int x, int y, int w, int h,
 			  const QColorGroup &g, bool sunken = FALSE,
+			  bool editable = FALSE, 
 			  bool enabled = TRUE,
 			  const QBrush *fill = 0 );
     QRect comboButtonRect( int x, int y, int w, int h);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#373 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#374 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -578,13 +578,31 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	    btn = bg;
 	QColorGroup cg( fg, btn, btn.light(),
 			btn.dark(), btn.dark(150), fg, Qt::white, Qt::white, bg );
+	cg.setHighlightedText(Qt::red);
+	cg.setHighlight(Qt::darkBlue);
 	QColor disabled( (fg.red()+btn.red())/2,
 			 (fg.green()+btn.green())/2,
 			 (fg.blue()+btn.blue())/2);
 	QColorGroup dcg( disabled, btn, btn.light( 125 ), btn.dark(), btn.dark(150),
 			 disabled, Qt::white, Qt::white, bg );
 	QPalette pal( cg, dcg, cg );
-	QApplication::setPalette( pal, TRUE );
+	QApplication::setPalette( pal, TRUE ); 
+	/* ##### TODO Matthias
+	{
+	    QColorGroup cg( fg, Qt::green, btn.light(),
+			    btn.dark(), btn.dark(150), fg, Qt::white, Qt::white, bg );
+	    cg.setHighlightedText(Qt::white);
+	    cg.setHighlight(Qt::black);
+	    QColor disabled( (fg.red()+btn.red())/2,
+			     (fg.green()+btn.green())/2,
+			     (fg.blue()+btn.blue())/2);
+	    QColorGroup dcg( disabled, btn, btn.light( 125 ), btn.dark(), btn.dark(150),
+			     disabled, Qt::white, Qt::white, bg );
+	    QPalette menuPal(cg, dcg, cg);
+	    QApplication::setPalette( menuPal, FALSE, "QMenuBar");
+	    QApplication::setPalette( menuPal, TRUE, "QPopupMenu");
+	}
+	*/
     }
 }
 

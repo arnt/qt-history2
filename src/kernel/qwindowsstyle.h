@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#1 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#2 $
 **
 ** Definition of something or other
 **
@@ -26,10 +26,14 @@ public:
 			  const QBrush *fill = 0 );
 
     void drawFocusRect( QPainter*,
-			const QRect&, const QColorGroup & );
+			const QRect&, const QColorGroup &, const QColor* =0 );
     void drawPushButton( QPushButton* btn, QPainter *p);
     void drawPushButtonLabel( QPushButton* btn, QPainter *p);
 
+    void drawPanel( QPainter *p, int x, int y, int w, int h,
+		    const QColorGroup &, bool sunken=FALSE,
+		    int lineWidth = 1, const QBrush *fill = 0 );
+    
     void drawArrow( QPainter *p, ArrowType type, bool down,
 		    int x, int y, int w, int h,
 		    const QColorGroup &g, bool enabled, const QBrush *fill = 0 );
@@ -45,9 +49,11 @@ public:
 
     void drawComboButton( QPainter *p, int x, int y, int w, int h,
 			  const QColorGroup &g, bool sunken = FALSE,
+			  bool editable = FALSE, 
 			  bool enabled = TRUE,
 			  const QBrush *fill = 0 );
     QRect comboButtonRect( int x, int y, int w, int h);
+    QRect comboButtonFocusRect( int x, int y, int w, int h);
 
     void scrollbarMetrics( const QScrollBar*,  int *, int *, int * );
     void drawScrollbarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );

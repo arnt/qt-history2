@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#173 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#174 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1232,31 +1232,16 @@ void QListBox::paintCell( QPainter *p, int row, int col )
 
     QColorGroup g = colorGroup();
     if ( isSelected( row ) ) {
-	QColor	 fc;				// fill color
-	if ( style() == WindowsStyle )
-	    fc = QApplication::winStyleHighlightColor();
-	else
-	    fc = g.text();
-	p->fillRect( 0, 0, cellWidth(col), cellHeight(row), fc );
-	p->setPen( style() == WindowsStyle ? white : g.base() );
-	p->setBackgroundColor( fc );
+	p->fillRect( 0, 0, cellWidth(col), cellHeight(row), g.fillHighlight() );
+	p->setPen( g.highlightedText() );
+	p->setBackgroundColor( g.highlight() );
     } else {
 	p->setBackgroundColor( g.base() );
 	p->setPen( g.text() );
     }
     lbi->paint( p );
     if ( current == row && hasFocus() ) {
-	if ( style() == WindowsStyle ) {
-	    p->drawWinFocusRect( 1, 1, cellWidth(col)-2 , cellHeight(row)-2,
-				 QApplication::winStyleHighlightColor() );
-	} else {
-	    if ( isSelected( row ) )
-		p->setPen( g.base() );
-	    else
-		p->setPen( g.text() );
-	    p->setBrush( NoBrush );
-	    p->drawRect( 1, 1, cellWidth(col)-2 , cellHeight(row)-2 );
-	}
+	style().drawFocusRect(p, QRect(0,0,cellWidth(col), cellHeight(row)), g, &g.highlight() );
     }
     p->setBackgroundColor( g.base() );
     p->setPen( g.text() );

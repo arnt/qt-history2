@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#34 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#35 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -39,11 +39,11 @@ public:
     QColorGroup( const QColor &foreground, const QColor &button,
 		 const QColor &light, const QColor &dark, const QColor &mid,
 		 const QColor &text, const QColor &base );
-
     QColorGroup( const QBrush &foreground, const QBrush &button,
 		 const QBrush &light, const QBrush &dark, const QBrush &mid,
 		 const QBrush &text,  const QBrush &bright_text, const QBrush &base,
 		 const QBrush &background);
+
    ~QColorGroup();
 
     const QColor &foreground()	const	{ return foreground_brush.color(); }
@@ -56,6 +56,9 @@ public:
     const QColor &brightText()	const	{ return bright_text_brush.color(); }
     const QColor &base()	const	{ return base_brush.color(); }
     const QColor &background()	const	{ return background_brush.color(); }
+    const QColor &shadow()	const	{ return shadow_brush.color(); }
+    const QColor &highlight()	const	{ return highlight_brush.color(); }
+    const QColor &highlightedText()	const	{ return highlighted_text_brush.color(); }
 
     const QBrush &fillForeground() const {return foreground_brush; }
     const QBrush &fillButton() const {return button_brush; }
@@ -67,10 +70,28 @@ public:
     const QBrush &fillBrightText() const {return bright_text_brush; }
     const QBrush &fillBase() const {return base_brush; }
     const QBrush &fillBackground() const {return background_brush; }
+    const QBrush &fillShadow() const {return shadow_brush; }
+    const QBrush &fillHighlight() const {return highlight_brush; }
+    const QBrush &fillHighlightedText() const {return highlighted_text_brush; }
+
+    void setForeground( const QBrush& b) { foreground_brush = b; }
+    void setButton( const QBrush& b) { button_brush = b; }
+    void setLight( const QBrush& b) { light_brush = b; }
+    void setMidlight( const QBrush& b) { midlight_brush = b; }
+    void setDark( const QBrush& b) { dark_brush = b; }
+    void setMid( const QBrush& b) { mid_brush = b; }
+    void setText( const QBrush& b) { text_brush = b; }
+    void setBrightText( const QBrush& b) { bright_text_brush = b; }
+    void setBase( const QBrush& b) { base_brush = b; }
+    void setBackground( const QBrush& b) { background_brush = b; }
+    void setShadow( const QBrush& b) { shadow_brush = b; }
+    void setHighlight( const QBrush& b) { highlight_brush = b; }
+    void setHighlightedText( const QBrush& b) { highlighted_text_brush = b; }
 
     bool	operator==( const QColorGroup &g ) const;
     bool	operator!=( const QColorGroup &g ) const
-					{ return !(operator==(g)); }
+	{ return !(operator==(g)); }
+
 private:
     QBrush foreground_brush;
     QBrush button_brush;
@@ -82,6 +103,9 @@ private:
     QBrush base_brush;
     QBrush background_brush;
     QBrush midlight_brush;
+    QBrush shadow_brush;
+    QBrush highlight_brush;
+    QBrush highlighted_text_brush;
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#28 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -75,28 +75,31 @@ QColorGroup::QColorGroup()
 {						// all colors become black
 }
 
+
 /*!
 Constructs a color group. You can pass either brushes, pixmaps or
 plain colors for each parameter.
 
 \sa QBrush
 */
-QColorGroup::QColorGroup( const QBrush &foreground, const QBrush &button,
-			  const QBrush &light, const QBrush &dark, const QBrush &mid,
-			  const QBrush &text,  const QBrush &bright_text, const QBrush &base,
-			  const QBrush &background)
-{
-    foreground_brush = foreground;
-    button_brush = button;
-    light_brush = light;
-    dark_brush = dark;
-    mid_brush = mid;
-    text_brush = text;
-    bright_text_brush = bright_text;
-    base_brush = base;
-    background_brush = background;
-    midlight_brush = QBrush(button_brush.color().light(115));
-}
+ QColorGroup::QColorGroup( const QBrush &foreground, const QBrush &button,
+ 			  const QBrush &light, const QBrush &dark, const QBrush &mid,
+ 			  const QBrush &text,  const QBrush &bright_text, const QBrush &base,
+ 			  const QBrush &background)
+ {
+     foreground_brush = foreground;
+     button_brush = button;
+     light_brush = light;
+     dark_brush = dark;
+     mid_brush = mid;
+     text_brush = text;
+     bright_text_brush = bright_text;
+     base_brush = base;
+     background_brush = background;
+     midlight_brush = QBrush(button_brush.color().light(115));
+     highlight_brush = Qt::darkBlue;
+     highlighted_text_brush = Qt::white;
+ }
 
 
 /*!\obsolete
@@ -119,6 +122,8 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
     mid_brush = QBrush( mid);
     base_brush = QBrush( base);
     midlight_brush = QBrush(button_brush.color().light(115));
+     highlight_brush = Qt::darkBlue;
+     highlighted_text_brush = Qt::white;
 }
 
 /*!
@@ -251,11 +256,13 @@ QColorGroup::~QColorGroup()
 
 bool QColorGroup::operator==( const QColorGroup &g ) const
 {
-    return foreground_brush    == g.foreground_brush    &&
-	background_brush	== g.background_brush   &&
-	light_brush == g.light_brush && dark_brush == g.dark_brush &&
-	mid_brush   == g.mid_brush   && text_brush == g.text_brush &&
-	bright_text_brush == g.bright_text_brush && base_brush  == g.base_brush;
+    return foreground_brush == g.foreground_brush    &&
+	   background_brush == g.background_brush   &&
+		light_brush == g.light_brush && dark_brush == g.dark_brush &&
+		mid_brush   == g.mid_brush   && text_brush == g.text_brush &&
+	  bright_text_brush == g.bright_text_brush && base_brush  == g.base_brush &&
+	     midlight_brush == g.midlight_brush && shadow_brush == g.shadow_brush &&
+	    highlight_brush == g.highlight_brush && highlighted_text_brush == g.highlighted_text_brush;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#304 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#305 $
 **
 ** Implementation of QWidget class
 **
@@ -625,6 +625,8 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     extra = 0;					// no extra widget info
     automask = 0;
     polished = 0;
+    paletteState = 0;
+    fontState = 0;
     propagateFont = 0;
     propagatePalette = 0;
     lay_out = 0;
@@ -1433,16 +1435,16 @@ void QWidget::setBackgroundFromMode()
       case NoBackground:
 	break;
       case PaletteForeground:
-	setBackgroundColorDirect( colorGroup().foreground() );
+	  if ( colorGroup().fillForeground().pixmap() )
+	      setBackgroundPixmap( *colorGroup().fillForeground().pixmap() );
+	  else
+	      setBackgroundColorDirect( colorGroup().foreground() );
 	break;
       case PaletteButton:
 	  if ( colorGroup().fillButton().pixmap() )
 	      setBackgroundPixmap( *colorGroup().fillButton().pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().button() );
-	break;
-      case PaletteBackground:
-	setBackgroundColorDirect( colorGroup().background() );
 	break;
       case PaletteLight:
 	  if ( colorGroup().fillLight().pixmap() )
@@ -1451,10 +1453,16 @@ void QWidget::setBackgroundFromMode()
 	      setBackgroundColorDirect( colorGroup().light() );
 	break;
       case PaletteMidlight:
-	setBackgroundColorDirect( colorGroup().midlight() );
+	  if ( colorGroup().fillMidlight().pixmap() )
+	      setBackgroundPixmap( *colorGroup().fillMidlight().pixmap() );
+	  else
+	      setBackgroundColorDirect( colorGroup().midlight() );
 	break;
       case PaletteDark:
-	setBackgroundColorDirect( colorGroup().dark() );
+	  if ( colorGroup().fillDark().pixmap() )
+	      setBackgroundPixmap( *colorGroup().fillDark().pixmap() );
+	  else
+	      setBackgroundColorDirect( colorGroup().dark() );
 	break;
       case PaletteMid:
 	  if ( colorGroup().fillMid().pixmap() )
@@ -1463,13 +1471,46 @@ void QWidget::setBackgroundFromMode()
 	      setBackgroundColorDirect( colorGroup().mid() );
 	break;
       case PaletteText:
-	setBackgroundColorDirect( colorGroup().text() );
+	  if ( colorGroup().fillText().pixmap() )
+	      setBackgroundPixmap( *colorGroup().fillText().pixmap() );
+	  else
+	      setBackgroundColorDirect( colorGroup().text() );
+	break;
+      case PaletteBrightText:
+	  if ( colorGroup().fillBrightText().pixmap() )
+	      setBackgroundPixmap( *colorGroup().fillBrightText().pixmap() );
+	  else
+	      setBackgroundColorDirect( colorGroup().brightText() );
 	break;
       case PaletteBase:
 	  if ( colorGroup().fillBase().pixmap() )
 	      setBackgroundPixmap( *colorGroup().fillBase().pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().base() );
+	break;
+      case PaletteBackground:
+	  if ( colorGroup().fillBackground().pixmap() )
+	      setBackgroundPixmap( *colorGroup().fillBackground().pixmap() );
+	  else
+	      setBackgroundColorDirect( colorGroup().background() );
+	break;
+      case PaletteShadow:
+	  if ( colorGroup().fillShadow().pixmap() )
+	      setBackgroundPixmap( *colorGroup().fillShadow().pixmap() );
+	  else
+	      setBackgroundColorDirect( colorGroup().shadow() );
+	break;
+      case PaletteHighlight:
+	  if ( colorGroup().fillHighlight().pixmap() )
+	      setBackgroundPixmap( *colorGroup().fillHighlight().pixmap() );
+	  else
+	      setBackgroundColorDirect( colorGroup().highlight() );
+	break;
+      case PaletteHighlightedText:
+	  if ( colorGroup().fillHighlightedText().pixmap() )
+	      setBackgroundPixmap( *colorGroup().fillHighlightedText().pixmap() );
+	  else
+	      setBackgroundColorDirect( colorGroup().highlightedText() );
 	break;
     }
 }
@@ -1674,6 +1715,9 @@ void QWidget::backgroundPixmapChange( const QPixmap & )
 
 const QColorGroup &QWidget::colorGroup() const
 {
+    if (!paletteState){
+	(void) palette();
+    }
     if ( testWFlags(WState_Disabled) )
 	return pal.disabled();
     else if ( qApp->focus_widget == this && focusPolicy() != NoFocus )
@@ -1685,8 +1729,26 @@ const QColorGroup &QWidget::colorGroup() const
 /*!
   \fn const QPalette &QWidget::palette() const
   Returns the widget palette.
+  
+  As long as no special palette has been set, this is either a special
+  palette for the widget class, the palette of the parent widget or
+  the default application palette.
+  
   \sa setPalette(), colorGroup(), QApplication::palette()
 */
+
+const QPalette &QWidget::palette() const
+{ 
+    if (!paletteState){
+	QWidget* that = (QWidget*)this;
+	that->pal = *QApplication::palette( that );
+	that->paletteState = 1;
+	if (that->pal == *QApplication::palette() && parentWidget() )
+	    that->pal = parentWidget()->palette();
+    }
+    return pal;
+}
+
 
 /*!
   Sets the widget palette to \e p. The widget background color is set to
@@ -1704,7 +1766,7 @@ const QColorGroup &QWidget::colorGroup() const
 
 void QWidget::setPalette( const QPalette &p )
 {
-    QPalette old = pal;
+    QPalette old = palette();
     pal = p;
     setBackgroundFromMode();
     paletteChange( old );
@@ -1720,6 +1782,21 @@ void QWidget::setPalette( const QPalette &p )
 		w->setPalette( pal );
 	}
     }
+}
+
+
+/*!
+  
+  Like setPalette(const QPalette&) but has an additional flag to
+  indicate whether the palette should be fix for the widget. Fixed
+  means that QApplication::setPalette() will not touch the current
+  setting. This Function calls setPalette(const QPalette&).
+  
+*/
+void QWidget::setPalette( const QPalette &p, bool fixed )
+{
+    paletteState = fixed?2:1;
+    setPalette(p);
 }
 
 /*!
@@ -1750,8 +1827,28 @@ void QWidget::paletteChange( const QPalette & )
 
   fontInfo() tells you what font is actually being used.
 
-  \sa setFont(), fontInfo(), fontMetrics()
+  As long as no special font has been set, this is either a special
+  font for the widget class, the font of the parent widget or
+  the default application font.
+  
+  \sa setFont(), fontInfo(), fontMetrics(), QApplication::font()
 */
+
+
+const QFont &QWidget::font() const
+{ 
+    if (!fontState) {
+	QWidget* that = (QWidget*)this;
+	that->fnt = *QApplication::font( that );
+	that->fontState = 1;
+	if (that->fnt == *QApplication::font() && that->parentWidget() )
+	    that->fnt = that->parentWidget()->font();
+    }
+	
+    return fnt; 
+}
+
+
 
 /*!
   Sets the font for the widget.
@@ -1775,7 +1872,7 @@ void QWidget::paletteChange( const QPalette & )
 
 void QWidget::setFont( const QFont &font )
 {
-    QFont old = fnt;
+    QFont old = QWidget::font();
     fnt = font;
     fnt.handle();				// force load font
     fontChange( old );
@@ -1793,6 +1890,19 @@ void QWidget::setFont( const QFont &font )
     }
 }
 
+/*!
+  
+  Like setFont(const QFont&) but has an additional flag to
+  indicate whether the font should be fix for the widget. Fixed
+  means that QApplication::setFont() will not touch the current
+  setting. This Function calls setFont(const QFont&).
+  
+*/
+void QWidget::setFont( const QFont &font, bool fixed )
+{
+    fontState = fixed?2:1;
+    setFont(font);
+}
 
 /*!
   \fn void QWidget::fontChange( const QFont &oldFont )

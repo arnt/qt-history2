@@ -49,7 +49,7 @@ void QWindowsStyle::drawIndicator( QPainter* p,
 	    a.setPoint( 2*i+1, xx, yy+2 );
 	    xx++; yy--;
 	}
-	p->setPen( black );
+	p->setPen( g.shadow() );
 	p->drawLineSegments( a );
     }
 }
@@ -61,9 +61,12 @@ void QWindowsStyle::drawIndicator( QPainter* p,
   */
 void
 QWindowsStyle::drawFocusRect( QPainter* p,
-			      const QRect& r, const QColorGroup &g )
+			      const QRect& r, const QColorGroup &g, const QColor* bg)
 {
-    p->drawWinFocusRect( r, g.background() );
+    if (!bg)
+	p->drawWinFocusRect( r );
+    else
+	p->drawWinFocusRect( r, *bg );
 }
 
 
@@ -123,6 +126,19 @@ void QWindowsStyle::drawWinShades( QPainter *p,
     p->setPen( oldPen );
 }
 
+
+/*!
+  Reimplementation from QStyle
+
+  \sa QStyle
+*/
+void
+QWindowsStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
+		const QColorGroup &g, bool sunken,
+		   int /* lineWidth */, const QBrush* fill)
+{
+    qDrawWinPanel(p, x, y, w, h, g, sunken, fill);
+}
 
 /*!
   Reimplementation from QStyle
@@ -223,7 +239,7 @@ void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
     p->drawPolyline( a );
     a.setPoints( QCOORDARRLEN(pts2), pts2 );
     a.translate( x, y );
-    p->setPen( black );
+    p->setPen( g.shadow() );
     p->drawPolyline( a );
     a.setPoints( QCOORDARRLEN(pts3), pts3 );
     a.translate( x, y );
@@ -270,10 +286,10 @@ void QWindowsStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 {
     if (sunken)
 	drawWinShades( p, x, y, w, h,
-		       black, g.light(), g.dark(), g.button(), fill?fill:&g.fillButton() );
+		       g.shadow(), g.light(), g.dark(), g.button(), fill?fill:&g.fillButton() );
     else
 	drawWinShades( p, x, y, w, h,
-		       g.light(), black, g.midlight(), g.dark(), fill?fill:&g.fillButton() );
+		       g.light(), g.shadow(), g.midlight(), g.dark(), fill?fill:&g.fillButton() );
 
 }
 
@@ -310,7 +326,7 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
     bool clearButton = TRUE;
     if ( btn->isDown() ) {
 	if ( btn->isDefault() ) {
-	    p->setPen( black );
+	    p->setPen( g.shadow() );
 	    p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
 	    p->setPen( g.dark() );
 	    p->drawRect( x1+1, y1+1, x2-x1-1, y2-y1-1 );
@@ -319,7 +335,7 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	}
     } else {
 	if ( btn->isDefault() ) {
-	    p->setPen( black );
+	    p->setPen( g.shadow() );
 	    p->drawRect( x1, y1, w, h );
 	    x1++; y1++;
 	    x2--; y2--;
@@ -392,11 +408,12 @@ void QWindowsStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
   \sa QStyle
   */
 void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
-				  const QColorGroup &g, bool sunken ,
-				  bool enabled,
-				  const QBrush *fill )
+				     const QColorGroup &g, bool sunken ,
+				     bool editable , 
+				     bool enabled,
+				     const QBrush *fill )
 {
-    drawButton(p, x, y, w, h, g, TRUE, fill?fill:(enabled?&g.fillBase():&g.fillBackground()));
+    drawPanel(p, x, y, w, h, g, TRUE, 2, fill?fill:(enabled?&g.fillBase():&g.fillBackground()));
     drawButton(p, w-2-16,2,16,h-4, g, sunken );
     drawArrow( p, QStyle::DownArrow, sunken,
 	       w-2-16+ 2, 2+ 2, 16- 4, h-4- 4, g, enabled, fill );
@@ -409,7 +426,18 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
   \sa QStyle
   */
 QRect QWindowsStyle::comboButtonRect( int x, int y, int w, int h){
-    return QRect(x+3, y+3, w-6-21, h-6);
+    return QRect(x+2, y+2, w-4-16, h-4);
+}
+
+
+/*!
+  Reimplementation from QStyle
+
+  \sa QStyle
+  */
+QRect QWindowsStyle::comboButtonFocusRect( int x, int y, int w, int h)
+{
+    return buttonRect(x+3, y+3, w-2-21, h-6);
 }
 
 
@@ -570,7 +598,7 @@ void QWindowsStyle::drawSlider( QPainter *p,
     // **340**
     // ***0***
 
-    const QColor c0 = g.foreground();
+    const QColor c0 = g.shadow();
     const QColor c1 = g.dark();
     //    const QColor c2 = g.button();
     const QColor c3 = g.midlight();
@@ -686,11 +714,11 @@ void QWindowsStyle::drawSliderGroove( QPainter *p,
 
     if ( horizontal ) {
 	qDrawWinPanel( p, x, y + c - 2,  w, 4, g, TRUE );
-	p->setPen( g.foreground() );
+	p->setPen( g.shadow() );
 	p->drawLine( x+1, y + c - 1, x + w - 3, y + c - 1 );
     } else {
 	qDrawWinPanel( p, x + c - 2, y, 4, h, g, TRUE );
-	p->setPen( g.foreground() );
+	p->setPen( g.shadow() );
 	p->drawLine( x + c - 1, y + 1, x + c - 1, y + h - 3 );
     }
 

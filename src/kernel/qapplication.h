@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#95 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#96 $
 **
 ** Definition of QApplication class
 **
@@ -28,6 +28,8 @@
 #include "qwidget.h"
 #include "qlist.h"
 #include "qmessagefile.h"
+#include "qdict.h"
+#include "qpalette.h"
 #endif // QT_H
 
 class QStyle;
@@ -74,12 +76,26 @@ public:
     static bool	     hasGlobalMouseTracking();
     static void	     setGlobalMouseTracking( bool enable );
 
-    static QPalette *palette();
-    static void	     setPalette( const QPalette &,bool updateAllWidgets=FALSE);
+    static QPalette *palette( const QWidget* = 0 );
+    static void	     setPalette( const QPalette &, bool updateAllWidgets=FALSE, const char* className = 0 );
 
-    static QFont    *font();
-    static void	     setFont( const QFont &, bool updateAllWidgets=FALSE );
+    static QFont    *font( const QWidget* = 0 );
+    static void	     setFont( const QFont &, bool updateAllWidgets=FALSE, const char* className = 0 );
     static QFontMetrics fontMetrics();
+
+
+
+//     enum SystemFont { NormalFont, MenuFont };
+//     void setSystemFont(SystemFont, const QFont&);
+//     QFont systemFont(SystemFont) const;
+
+//     enum SystemColor { ColorForeground, ColorButton, ColorLight,
+// 		       ColorMidlight, ColorDark, ColorMid,
+// 		       ColorText, ColorBrightText, ColorBase,
+// 		       ColorBackground, ColorShadow, ColorSelection,
+// 		       ColorSelectedText, ColorMenu };	
+//     void setSystemColor(SystemColor, const QBrush&);
+
 
     QWidget	    *mainWidget()  const;
     virtual void     setMainWidget( QWidget * );
@@ -176,6 +192,9 @@ private:
     static QWidget  *focus_widget;
     static QWidget  *active_window;
     QList<QMessageFile> * messageFiles;
+    
+    static QDict<QPalette>* app_palettes;
+    static QDict<QFont>* app_fonts;
 
     static QWidgetList *popupWidgets;
     bool inPopupMode() { return popupWidgets != 0; }
@@ -217,11 +236,6 @@ inline QCursor *QApplication::overrideCursor()
 inline bool QApplication::hasGlobalMouseTracking()
 {
     return app_tracking > 0;
-}
-
-inline QFont *QApplication::font()
-{
-    return app_font;
 }
 
 inline QWidget *QApplication::mainWidget() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#198 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#199 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -244,6 +244,79 @@ void qWinMain( HANDLE instance, HANDLE prevInstance, LPSTR cmdParam,
     appCmdShow = cmdShow;
 }
 
+static void outColor(const char* s, const QColor& col) {
+    debug("%s is %d %d %d", s, col.red(), col.green(), col.blue());
+}
+static void qt_set_windows_resources()
+{
+    /*
+    debug("Windows:");
+
+     outColor("scrollbar", GetSysColor(COLOR_SCROLLBAR));
+     outColor("menu", GetSysColor(COLOR_MENU));
+     outColor("window", GetSysColor(COLOR_WINDOW));
+     outColor("windowframe", GetSysColor(COLOR_WINDOWFRAME));
+     outColor("menutext", GetSysColor(COLOR_MENUTEXT));
+     outColor("windowtext", GetSysColor(COLOR_WINDOWTEXT));
+     outColor("appworkspace", GetSysColor(COLOR_APPWORKSPACE));
+     outColor("highlight", GetSysColor(COLOR_HIGHLIGHT));
+     outColor("highlighttext", GetSysColor(COLOR_HIGHLIGHTTEXT));
+     outColor("btnface", GetSysColor(COLOR_BTNFACE));
+     outColor("btnshadow", GetSysColor(COLOR_BTNSHADOW));
+     outColor("graytext", GetSysColor(COLOR_GRAYTEXT));
+     outColor("btnhighlight", GetSysColor(COLOR_BTNHIGHLIGHT));
+     outColor("3ddkshadow", GetSysColor(COLOR_3DDKSHADOW));
+     outColor("3dlight", GetSysColor(COLOR_3DLIGHT));
+     outColor("infotext", GetSysColor(COLOR_INFOTEXT));
+     outColor("infobk", GetSysColor(COLOR_INFOBK));
+
+    */
+
+    QColorGroup cg;
+    cg.setForeground(QColor(GetSysColor(COLOR_WINDOWTEXT)  ));
+    cg.setButton( QColor(GetSysColor(COLOR_BTNFACE)));
+    cg.setLight( QColor(GetSysColor(COLOR_BTNHIGHLIGHT)));
+    cg.setMidlight(QColor(GetSysColor(COLOR_3DLIGHT) ));
+    cg.setDark(QColor(GetSysColor(COLOR_BTNSHADOW) ));
+    cg.setMid(QColor(GetSysColor(COLOR_3DDKSHADOW) ));
+    cg.setText(QColor(GetSysColor(COLOR_WINDOWTEXT) ));
+    cg.setBrightText(QColor(GetSysColor(COLOR_BTNHIGHLIGHT) ));
+    cg.setBase(QColor(GetSysColor(COLOR_WINDOW) ));
+    cg.setBackground( QColor(GetSysColor(COLOR_BTNFACE)));
+    //    cg.setBackground( QColor(GetSysColor(COLOR_APPWORKSPACE)));
+    cg.setShadow(QColor(GetSysColor(COLOR_3DDKSHADOW) ));
+    cg.setHighlight(QColor(GetSysColor(COLOR_HIGHLIGHT) ));
+    cg.setHighlightedText( QColor(GetSysColor(COLOR_HIGHLIGHTTEXT)));
+
+	
+    QColor disabled( (cg.foreground().red()+cg.button().red())/2,
+		     (cg.foreground().green()+cg.button().green())/2,
+		     (cg.foreground().blue()+cg.button().blue())/2);
+    QColorGroup dcg( disabled, cg.button(), cg.light(), cg.dark(), cg.mid(),
+		     disabled, Qt::white, Qt::white, cg.background() );
+	
+    QPalette pal( cg, dcg, cg );
+    QApplication::setPalette( pal, TRUE );
+
+    QColor menu(GetSysColor(COLOR_MENU));
+    QColor menuText(GetSysColor(COLOR_MENUTEXT));
+    if (menu != cg.button() || menuText != cg.text()) {
+	// we need a special color group for the menu.
+	cg.setButton(menu);
+	cg.setText(menuText);
+	cg.setForeground(menuText);
+	QColor disabled( (cg.foreground().red()+cg.button().red())/2,
+			 (cg.foreground().green()+cg.button().green())/2,
+			 (cg.foreground().blue()+cg.button().blue())/2);
+	QColorGroup dcg( disabled, cg.button(), cg.light(), cg.dark(), cg.mid(),
+			 disabled, Qt::white, Qt::white, cg.background() );
+	
+	QPalette pal(cg, dcg, cg);
+	QApplication::setPalette( pal, FALSE, "QPopupMenu");
+	QApplication::setPalette( pal, TRUE, "QMenuBar");
+    }
+
+}
 
 /*****************************************************************************
   qt_init() - initializes Qt for Windows
@@ -326,6 +399,9 @@ void qt_init( int *argcptr, char **argv )
     QCursor::initialize();
     QPainter::initialize();
     qApp->setName( appName );
+
+    qt_set_windows_resources();
+
 #if defined(USE_HEARTBEAT)
     /*
       ########
@@ -1571,11 +1647,14 @@ static bool qt_try_modal( QWidget *widget, MSG *msg )
 	    QWidget *widget	The popup widget to be removed
  *****************************************************************************/
 
+static QWidget *activeBeforePopup = 0;
+
 void QApplication::openPopup( QWidget *popup )
 {
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
 	CHECK_PTR( popupWidgets );
+	activeBeforePopup = active_window;
     }
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 && !qt_nograb() )
@@ -1601,7 +1680,13 @@ void QApplication::closePopup( QWidget *popup )
 	popupWidgets = 0;
 	if ( !qt_nograb() )			// grabbing not disabled
 	    releaseAutoCapture();
-	active_window = 0;
+	active_window = activeBeforePopup; // windows does not have
+	// a reasonable focus handling for ours popups => we have 
+	// to restore the focus manually.
+	if (active_window && active_window->focusWidget())
+	    active_window->focusWidget()->setFocus();
+	else
+	    active_window->setFocus();
     }
      else {
  	// popups are not focus-handled by the window system (the
