@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#10 $
 **
 ** Implementation of QTabBar class
 **
@@ -10,7 +10,7 @@
 #include "qtabbar.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#10 $");
 
 
 QTab::~QTab()
@@ -379,8 +379,10 @@ int QTabBar::keyboardFocusTab() const
 }
 
 
-/*!
+/*!  Handles the tab bar's keyboard interface (if enabled).
 
+  The right and left arrow keys move a selector, the space bar makes
+  the tab with the selector active.  All other keys are ignored.
 */
 
 void QTabBar::keyPressEvent( QKeyEvent * e )
