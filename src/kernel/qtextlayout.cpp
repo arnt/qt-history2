@@ -453,7 +453,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
     found:
 	// no valid break point found
 	if ( breakPosition == -1 )
-	    goto end;
+	    goto nobreak;
 
 //  	qDebug("linebreak at item %d, position %d, glyph %d wu=%d", breakItem, breakPosition, breakGlyph, d->widthUsed );
 	// split the line
@@ -469,6 +469,9 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 	}
     }
 
+    result = Ok;
+
+ nobreak:
     // position the objects in the line
     available -= d->widthUsed;
 
@@ -484,8 +487,6 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 // 	qDebug("    level = %d", d->items[i+d->firstItemInLine].analysis.bidiLevel );
     }
     d->bidiReorder( numRuns, levels, visual );
-
-    result = Ok;
 
  end:
     // ### FIXME
