@@ -96,7 +96,7 @@ void CQtWizardAppWiz::CustomizeProject(IBuildProject* pProject)
 						strTmp = CString( "/I \"" ) + &buffer[ 0 ] + "\\include\"";
 						pConfiguration->AddToolSettings( CString( "cl.exe" ).AllocSysString(), strTmp.AllocSysString(), var );
 						
-						strTmp = CString( "/subsystem:console /libpath:\"" ) + &buffer[ 0 ] + "\\lib\" qt221.lib";
+						strTmp = CString( "/subsystem:console /libpath:\"" ) + &buffer[ 0 ] + "\\lib\" qt300.lib";
 						pConfiguration->AddToolSettings( CString( "link.exe" ).AllocSysString(), strTmp.AllocSysString(), var );
 						
 						pConfiguration->AddToolSettings( CString( "mfc" ).AllocSysString(), CString( "0" ).AllocSysString(), var );
