@@ -19,6 +19,8 @@
 
     ### How to port from Qt 2.3 to Qt 4.
 
+    ### missing sort() functions?
+
     If you haven't yet made the decision about porting, or are unsure
     about whether it is worth it, take a look at the \link
     tech-preview.html key features\endlink offered by Qt 4.
@@ -97,8 +99,8 @@
         * QColorGroup
         * QMenuItem
 
-    QWidget visibleRect property \compat
-    QWidget::BackgroundOrigin \compat
+    QWidget visibleRect property compat
+    QWidget::BackgroundOrigin compat
 
     \section1 Enum Values
 
@@ -169,7 +171,9 @@
        events by reimplementing QWidget::event().
     \endlist
 
-    ### Explain how to deal with multi-item QAccels
+    The QAccel class also supported multiple accelerators using the
+    same object, by calling QAccel::insertItem() multiple times. In
+    Qt 4, the solution is to create multiple QShortcut objects.
 
     \section1 QAction
 
@@ -179,22 +183,41 @@
 
     \section1 QApplication
 
-    The following functions are obsolete. Most will continue to work in
-    COMPAT mode, but we recommend not using them in new code.
+    The QApplication class has been split into two classes:
+    QCoreApplication and QApplication. The new QApplication class
+    inherits QCoreApplication and adds GUI-related functionality. In
+    practice, this has no consequences for existing Qt applications.
 
-    \list
-    \i QApplication::hasGlobalMouseTracking() - use true instead.
-    \i QApplication::setGlobalMouseTracking() - no effect.
-    \i QApplication::setFont() - the \c informAllWidgets boolean parameter is gone.
-    \i QApplication::setPalette() - the \c informAllWidgets boolean parameter is gone.
-    \i QApplication::widgetAt() - the \c child boolean parameter
-       is gone. The function always returns the exact widget at a given position.
-       Use QWidget::topLevelWidget() to obtain this widgets's top level widget (the window).
+    In addition, the following API change was made:
+
+    \list 1
+    \i  QApplication::allWidgets() and QApplication::topLevelWidgets()
+        used to return a pointer to a QWidgetList. Now they return a
+        QWidgetList.
+
+        Also, QWidgetList has changed from being a typedef for
+        QPtrList<QWidget> to being a typedef for QList<QWidget *>.
+        See the \l{qwidgetlist.section}{section on QWidgetList} below
+        for details.
+
+        \oldcode
+            QWidgetList *list = QApplication::topLevelWidgets();
+            QWidgetListIt it(*list);
+            QWidget *widget;
+            while ((widget = it.current())) {
+                if (widget->inherits("MainWindow"))
+                    ((MainWindow *)widget)->updateRecentFileItems();
+                ++it;
+            }
+            delete list;
+        \newcode
+            QWidgetList list = QApplication::topLevelWidgets();
+            for (int i = 0; i < list.size(); ++i) {
+                if (MainWindow *mainWin = qt_cast<MainWindow>(list.at(i)))
+                    mainWin->updateRecentFileItems();
+            }
+        \endcode
     \endlist
-
-    Both allWidgets() and topLevelWidgets() return a QWidgetList (it was a
-    pointer to a QWidgetList in Qt3). This resolves some memory management
-    issues using these methods.
 
     \section1 QAsciiCache<T>
 
@@ -250,10 +273,9 @@
     If you used the QButton class as a base class for your own button
     type and want to port your code to the newer QAbstractButton, you
     need to be aware that QAbstractButton has no equivalent for the
-    QButton::drawButton(QPainter *) and
-    QButton::drawButtonLable(QPainter *) virtual functions. The
-    solution is to reimplement QWidget::paintEvent() in your
-    QAbstractButton subclass as follows:
+    QButton::drawButton(QPainter *) virtual function. The solution is
+    to reimplement QWidget::paintEvent() in your QAbstractButton
+    subclass as follows:
 
     \code
         void MyButton::paintEvent(QPaintEvent *)
@@ -265,9 +287,35 @@
 
     \section1 QButtonGroup
 
-    ### QButtonGroup, QHButtonGroup, QVButtonGroup
+    The QButtonGroup class has been completely redesigned in Qt 4.
+    For compatibility, the old QButtonGroup class has been renamed
+    Q3ButtonGroup and has been moved to the \l{Qt 3 compatibility
+    library}, together with the QHButtonGroup and QVButtonGroup
+    convenience subclasses.
 
-    Q3ButtonGroup
+    Q3ButtonGroup could be used in two ways:
+
+    \list 1
+    \i The button group is the parent widget of a number of buttons,
+        i.e. the button group is the parent argument in the button
+        constructor. The buttons are assigned identifiers 0, 1, 2, etc.,
+        in the order they are created. A Q3ButtonGroup can display a frame
+        and a title because it inherits Q3GroupBox.
+    \i The button group is an invisible widget and the contained
+        buttons have some other parent widget. In this usage, each button
+        must be manually inserted, using Q3ButtonGroup::insert(), into the button group
+        and given an ID number.
+    \endlist
+
+    Unlike Q3ButtonGroup, the new QButtonGroup doesn't inherit
+    QWidget. It is very similar to a "hidden Q3ButtonGroup".
+
+    If you use a Q3ButtonGroup, QHButtonGroup, or QVButtonGroup as a
+    widget and want to port to Qt 4, you can replace it with
+    QGroupBox. In Qt 4, radio buttons with the same parent are
+    automatically part of an exclusive group, so you normally don't
+    need to do anything else. See also the
+    \l{qgroupbox.section}{section on QGroupBox} below.
 
     \target qbytearray.section
     \section1 QByteArray
@@ -437,10 +485,30 @@
 
     \section1 QColorGroup
 
-    QColorGroup has been removed, its API has been merged into
-    QPalette. You should now use a QPalette to implement all things that
-    were used by QColorGroup.  A default QPalette is no longer all-black,
-    but uses the application palette.
+    In Qt 3, a QPalette consisted of three QColorGroup objects. In Qt
+    4, the (rarely used) QColorGroup abstraction has been eliminated.
+    For source compatibility, a QColorGroup class is available when
+    \c QT_COMPAT is defined.
+
+    The new QPalette still works in terms of color groups, specified
+    through enum values (QPalette::Active, QPalette::Disabled, and
+    QPalette::Inactive). It also has the concept of a \e current
+    color group, which you can set using
+    QPalette::setCurrentColorGroup().
+
+    The QPalette object returned by QWidget::palette() returns a
+    QPalette initialized with the correct current color group for the
+    widget. This means that if you had code like
+
+    \badcode
+        painter.setBrush(colorGroup().brush(QColorGroup::Background));
+    \endcode
+
+    you can simply replace colorGroup() with palette():
+
+    \code
+        painter.setBrush(palette().brush(QColorGroup::Background));
+    \endcode
 
     \section1 QCString
 
@@ -774,11 +842,12 @@
     \row \i QDictIterator::currentKey() \i QHashIterator::key()
     \row \i QDictIterator::isEmpty() \i QHash::isEmpty()
     \row \i QDictIterator::toFirst() \i QHashIterator::toFront()
-    \row \i QDictIterator::operator++() \i See remark below
     \row \i QDictIterator::operator()() \i QHashIterator::value()
+    \row \i QDictIterator::operator*() \i QHashIterator::value()
+    \row \i QDictIterator::operator++() \i See remark below
     \endtable
 
-    QHashIterator has a different way of iterating than
+    Be aware that QHashIterator has a different way of iterating than
     QDictIterator. A typical loop with QDictIterator looks like this:
 
     \code
@@ -962,6 +1031,7 @@
 
     ###
 
+    \target qgroubox.section
     \section1 QGroupBox
 
     ###
@@ -1165,8 +1235,9 @@
 
     \section1 QObjectList
 
-    The QObjectList class is a synonym for QPtrList<QObject>. See the
-    \l{#qptrlist.section}{section on QPtrList<T>}.
+    In Qt 3, the QObjectList class was a typedef for
+    QPtrList<QObject>. In Qt 4, it is a typedef for QList<QObject *>.
+    See the \l{#qptrlist.section}{section on QPtrList<T>}.
 
     \section1 QPaintDevice
 
@@ -1244,18 +1315,415 @@
     \target qptrlist.section
     \section1 QPtrList<T>
 
-    ###
+    QPtrList<T>, QPtrListIterator<T>, and QPtrListStdIterator<T> have
+    been moved to the \l{Qt 3 compatibility library}. They have been
+    replaced by the more modern QList and QLinkedList classes and
+    their associated iterator classes.
 
-    QPtrListIterator<T>
-    QPtrListStdIterator<T>
+    When porting to Qt 4, you have the choice of using QList<T> or
+    QLinkedList<T> as alternatives to QValueList<T>. QList<T> has an
+    index-based API and provides very fast random access
+    (QList::operator[]), whereas QLinkedList<T> has an iterator-based
+    API.
+
+    The following table summarizes the API differences between
+    QPtrList<T> and QList<T *>:
+
+    \table
+    \header \i QPtrList function \i QList equivalent
+    \row \i QPtrList::contains(const T *) \i QList::count(T *)
+    \row \i QPtrList::containsRef(const T *) \i QList::count(T *)
+    \row \i QPtrList::find(const T *) \i See remark below
+    \row \i QPtrList::findRef(const T *) \i See remark below
+    \row \i QPtrList::getFirst() \i QList::first()
+    \row \i QPtrList::getLast() \i QList::last()
+    \row \i QPtrList::inSort(const T *) \i N/A
+    \row \i QPtrList::remove(const T *) \i QList::removeAll(T *)
+    \row \i QPtrList::remove(uint) \i QList::removeAt(int)
+    \row \i QPtrList::removeNode(QLNode *) \i N/A
+    \row \i QPtrList::removeRef(const T *) \i QList::removeAll(T *)
+    \row \i QPtrList::sort() \i See remark below
+    \row \i QPtrList::takeNode(QLNode *) \i N/A
+    \row \i QPtrList::toVector(QGVector *) \i See remark below
+    \endtable
+
+    Remarks:
+
+    \list 1
+    \i  QPtrList::toVector(QGVector *) can be replaced by
+        QVector::resize() and qCopy().
+
+        \oldcode
+        QPtrList<QWidget> list;
+        ...
+        QPtrVector<QWidget> vector;
+        list.toVector(&vector);
+        \newcode
+        QList<QWidget *> list;
+        ...
+        QVector<QWidget *> vector;
+        vector.resize(list.size());
+        qCopy(list.begin(), list.end(), vector.begin());
+        \endcode
+
+    \i  QPtrList::sort() relied on the virtual comparedItems() to
+        sort items. In Qt 4, you can use qHeapSort() instead and pass
+        your "compare item" function as an argument.
+
+    \i  QPtrList::find(const T *) returns an iterator, whereas
+        QList::indexOf(T *) returns an index. To convert an index
+        into an iterator, add the index to QList::begin().
+
+    \i  QPtrList::removeFirst() and QPtrList::removeLast() return a \c
+        bool that indicates whether the element was removed or not.
+        The corresponding QList functions return \c void. You can
+        achieve the same result by calling QList::isEmpty() before
+        attempting to remove an item.
+    \endlist
+
+    If you use QPtrList's auto-delete feature (by calling
+    QPtrList::setAutoDelete(true)), you need to do some more work.
+    You have two options: Either you call \c delete yourself whenever
+    you remove an item from the container, or you can use QList<T>
+    instead of QList<T *> (i.e. store values directly instead of
+    pointers to values). Here, we'll see when to call \c delete. (See
+    \l{What's Wrong with Auto-Delete} for an explanation of why the
+    Qt 4 containers don't offer that feature.)
+
+    The following table summarizes the idioms that you need to watch
+    out for if you want to call \c delete yourself.
+
+    \table
+    \header \i QPtrList idiom \i QList idiom
+    \row
+        \i
+        \code
+        list.replace(index, value);
+        \endcode
+        \i
+        \code
+        delete list[index];
+        list[index] = value;
+        \endcode
+    \row
+        \i
+        \code
+        list.removeFirst();
+        \endcode
+        \i
+        \code
+        delete list.takeFirst();
+        \endcode
+    \row
+        \i
+        \code
+        list.removeLast();
+        \endcode
+        \i
+        \code
+        delete list.takeLast();
+        \endcode
+    \row
+        \i
+        \code
+        list.remove(index);
+        \endcode
+        \i
+        \code
+        delete list.take(index);
+        \endcode
+    \row
+        \i
+        \code
+        list.remove(value);
+        \endcode
+        \i
+        \code
+        int i = list.indexOf(value);
+        if (i != -1)
+            delete list.takeAt(i);
+        \endcode
+    \row
+        \i
+        \code
+        list.remove();
+        \endcode
+        (removes the current item)
+
+        \i
+        \code
+        QListMutableIterator<T *> i;
+        ...
+        delete i.value();
+        i.remove();
+        \endcode
+    \row
+        \i
+        \code
+        list.clear();
+        \endcode
+
+        (also called from QPtrList's destructor)
+
+        \i
+        \code
+        while (!list.isEmpty())
+            delete list.takeFirst();
+        \endcode
+
+        In 99% of cases, the following idiom also works:
+
+        \code
+        qDeleteAll(list);
+        list.clear();
+        \endcode
+
+        However, it may lead to crashes if \c list is referenced from
+        the value type's destructor, because \c list contains
+        dangling pointers until clear() is called.
+    \endtable
+
+    Be aware that QPtrList's destructor automatically calls clear().
+    If you have a QPtrList data member in a custom class and use the
+    auto-delete feature, you will need to call \c delete on all the
+    items in the container from your class destructor to avoid a
+    memory leak.
+
+    QPtrList had the concept of a "current item", which could be used
+    for traversing the list without using an iterator. When porting
+    to Qt 4, you can use the Java-style QListIterator<T *> (or
+    QListMutableIterator<T *>) class instead. The following table
+    summarizes the API differences:
+
+    \table
+    \header \i QPtrList function \i QListIterator equivalent
+    \row \i QPtrList::at() \i N/A
+    \row \i QPtrList::current() \i QListIterator::value()
+    \row \i QPtrList::currentNode() \i N/A
+    \row \i QPtrList::findNext(const T *) \i QListIterator::findNext(const T *)
+    \row \i QPtrList::findNextRef(const T *) \i QListIterator::findNext(const T *)
+    \row \i QPtrList::first() \i QPtrList::toFront()
+    \row \i QPtrList::last() \i QPtrList::toBack()
+    \row \i QPtrList::next() \i QPtrList::next()
+    \row \i QPtrList::prev() \i QPtrList::previous()
+    \row \i QPtrList::remove() \i QListMutableIterator::remove()
+    \row \i QPtrList::take() \i QListMutableIterator::remove()
+    \endtable
+
+    Be aware that QListIterator has a different way of iterating than
+    QPtrList. A typical loop with QPtrList looks like this:
+
+    \code
+        QPtrList<QWidget> list;
+        ...
+        while (list.current() != 0) {
+            do_something(list.current());
+            list.next();
+        }
+    \endcode
+
+    Here's the equivalent QListIterator loop:
+
+    \code
+        QList<QWidget *> list;
+        ...
+        QListIterator<QWidget *> i(list);
+        while (i.hasNext())
+            do_something(i.next());
+    \endcode
+
+    Finally, QPtrListIterator<T> must also be ported. There are no
+    fewer than four iterator classes that can be used as a
+    replacement: QList::const_iterator, QList::iterator,
+    QListIterator, and QListMutableIterator. The most straightforward
+    class to use when porting is QListMutableIterator<T *> (if you
+    modify the list through the iterator) or QListIterator<T *> (if
+    you don't). The following table summarizes the API differences:
+
+    \table
+    \header \i QPtrListIterator function \i Qt 4 equivalent
+    \row \i QPtrListIterator::atFirst() \i !QListIterator::hasPrevious() (notice the \c{!})
+    \row \i QPtrListIterator::atLast() \i !QListIterator::hasNext() (notice the \c{!})
+    \row \i QPtrListIterator::count() \i QList::count() or QList::size()
+    \row \i QPtrListIterator::current() \i QListIterator::value()
+    \row \i QPtrListIterator::isEmpty() \i QList::isEmpty()
+    \row \i QPtrListIterator::toFirst() \i QListIterator::toFront()
+    \row \i QPtrListIterator::toLast() \i QListIterator::toBack()
+    \row \i QPtrListIterator::operator() \i QListIterator::value()
+    \row \i QPtrListIterator::operator*() \i QListIterator::value()
+    \endtable
+
+    Again, be aware that QListIterator has a different way of
+    iterating than QPtrList. A typical loop with QPtrList looks like
+    this:
+
+    \code
+        QPtrList<QWidget> list;
+        ...
+        QPtrListIterator<QWidget> i;
+        while (i.current() != 0) {
+            do_something(i.current());
+            i.next();
+        }
+    \endcode
+
+    Here's the equivalent QListIterator loop:
+
+    \code
+        QList<QWidget *> list;
+        ...
+        QListIterator<QWidget *> i(list);
+        while (i.hasNext())
+            do_something(i.next());
+    \endcode
+
+    Finally, QPtrListStdIterator<T> must also be ported. This is
+    easy, because QList also provides STL-style iterators
+    (QList::iterator and QList::const_iterator).
 
     \section1 QPtrQueue<T>
 
-    ###
+    QPtrQueue has been moved to the \l{Qt 3 compatibility library}.
+    It has been replaced by the more modern QQueue class.
+
+    The following table summarizes the differences between
+    QPtrQueue<T> and QQueue<T *>:
+
+    \table
+    \header \i QPtrQueue function \i QQueue equivalent
+    \row \i QPtrQueue::autoDelete() \i See discussion below
+    \row \i QPtrQueue::count() \i QQueue::count() or QQueue::size() (equivalent)
+    \row \i QPtrQueue::current() \i QQueue::head()
+    \row \i QPtrQueue::remove() \i QQueue::dequeue()
+    \row \i QPtrQueue::setAutoDelete() \i See discussion below
+    \endtable
+
+    If you use QPtrQueue's auto-delete feature (by calling
+    QPtrQueue::setAutoDelete(true)), you need to do some more work.
+    You have two options: Either you call \c delete yourself whenever
+    you remove an item from the container, or you can use QQueue<T>
+    instead of QQueue<T *> (i.e. store values directly instead of
+    pointers to values). Here, we will show when to call \c delete.
+    (See \l{What's Wrong with Auto-Delete} for an explanation of why
+    the Qt 4 containers don't offer that feature.)
+
+    \table
+    \header \i QPtrQueue idiom \i QQueue idiom
+    \row
+        \i
+        \code
+        queue.dequeue();
+        \endcode
+        \i
+        \code
+        delete queue.dequeue();
+        \endcode
+    \row
+        \i
+        \code
+        queue.remove();
+        \endcode
+        \i
+        \code
+        delete queue.dequeue();
+        \endcode
+    \row
+        \i
+        \code
+        queue.clear();
+        \endcode
+
+        (also called from QPtrQueue's destructor)
+
+        \i
+        \code
+        while (!queue.isEmpty())
+            delete queue.dequeue();
+        \endcode
+
+        In 99% of cases, the following idiom also works:
+
+        \code
+        qDeleteAll(queue);
+        queue.clear();
+        \endcode
+
+        However, it may lead to crashes if \c queue is referenced
+        from the value type's destructor, because \c queue contains
+        dangling pointers until clear() is called.
+    \endtable
 
     \section1 QPtrStack<T>
 
-    ###
+    QPtrStack has been moved to the \l{Qt 3 compatibility library}.
+    It has been replaced by the more modern QStack class.
+
+    The following table summarizes the differences between
+    QPtrStack<T> and QStack<T *>:
+
+    \table
+    \header \i QPtrStack function \i QStack equivalent
+    \row \i QPtrStack::autoDelete() \i See discussion below
+    \row \i QPtrStack::count() \i QStack::count() or QStack::size() (equivalent)
+    \row \i QPtrStack::current() \i QStack::top()
+    \row \i QPtrStack::remove() \i QStack::pop()
+    \row \i QPtrStack::setAutoDelete() \i See discussion below
+    \endtable
+
+    If you use QPtrStack's auto-delete feature (by calling
+    QPtrStack::setAutoDelete(true)), you need to do some more work.
+    You have two options: Either you call \c delete yourself whenever
+    you remove an item from the container, or you can use QStack<T>
+    instead of QStack<T *> (i.e. store values directly instead of
+    pointers to values). Here, we will show when to call \c delete.
+    (See \l{What's Wrong with Auto-Delete} for an explanation of why
+    the Qt 4 containers don't offer that feature.)
+
+    \table
+    \header \i QPtrStack idiom \i QStack idiom
+    \row
+        \i
+        \code
+        stack.pop();
+        \endcode
+        \i
+        \code
+        delete stack.pop();
+        \endcode
+    \row
+        \i
+        \code
+        stack.remove();
+        \endcode
+        \i
+        \code
+        delete stack.pop();
+        \endcode
+    \row
+        \i
+        \code
+        stack.clear();
+        \endcode
+
+        (also called from QPtrStack's destructor)
+
+        \i
+        \code
+        while (!stack.isEmpty())
+            delete stack.pop();
+        \endcode
+
+        In 99% of cases, the following idiom also works:
+
+        \code
+        qDeleteAll(stack);
+        stack.clear();
+        \endcode
+
+        However, it may lead to crashes if \c stack is referenced
+        from the value type's destructor, because \c stack contains
+        dangling pointers until clear() is called.
+    \endtable
 
     \section1 QPtrVector<T>
 
@@ -1446,11 +1914,9 @@
     converted to a QValueList<QString>. Since QValueList inherits QList a
     cast will work as expected.
 
-    This change implies some API incompatibilities for QStringList:
-
-    \list
-    \i at() returns the string, not an iterator
-    \endlist
+    This change implies some API incompatibilities for QStringList.
+    For example, at() returns the string, not an iterator. See the
+    \l{qvaluelist.section}{section on QValueList} for details.
 
     \section1 QStyleSheet
 
@@ -1473,6 +1939,8 @@
     applications, you can easily obtain the same result by combining
     a QTabWidget with a QDialog and provide \l{QPushButton}s
     yourself.
+
+    \omit Point to the tabdialog example when the example is ready. \endomit
 
     \section1 QTable
 
@@ -1549,6 +2017,7 @@
     In Qt 4 applications, you can use classes like QFtp and QHttp
     directly to perform file-related actions on a remote host.
 
+    \target qvaluelist.section
     \section1 QValueList<T>
 
     The QValueList<T> class has been replaced by QList<T> and
@@ -1590,17 +2059,17 @@
         }
         \endcode
 
-    \i QValueList::append() and QValueList::prepend() return an
-       iterator to the inserted item. QList's and QLinkedList's
-       corresponding functions don't, but it's not a problem because
-       QValueList::prepend() always returns begin() and append()
-       always returns QValueList::end() - 1.
+    \i  QValueList::append() and QValueList::prepend() return an
+        iterator to the inserted item. QList's and QLinkedList's
+        corresponding functions don't, but it's not a problem because
+        QValueList::prepend() always returns begin() and append()
+        always returns QValueList::end() - 1.
 
-    \i QValueList::at() on a non-const list returns a non-const
-       reference. This corresponds to QList::operator[]().
+    \i  QValueList::at(\e i) return an iterator to the item at index
+        \e i. This corresponds to QList::begin() + \e i.
 
-    \i QValueList::contains(const T &) corresponds to
-       QList::count(const T &) and QLinkedList::count(const T &).
+    \i  QValueList::contains(const T &) corresponds to
+        QList::count(const T &) and QLinkedList::count(const T &).
     \endlist
 
     \section1 QValueVector<T>
@@ -1796,12 +2265,17 @@
 
     \section1 QWidgetIntDict
 
-    Has been removed.
+    The QWidgetIntDict class was a synonym for QIntDict<QWidget>. It
+    is no longer available in Qt 4. If you link against the \l{Qt 3
+    compatibility library}, you can use QIntDict<QWidget> instead;
+    otherwise, see the \l{#qdict.section}{section on QDict<T>}.
 
+    \target qwidgetlist.section
     \section1 QWidgetList
 
-    QWidgetList is a typdef to a QList of QWidget pointers (it was a
-    QPtrList in Qt3).
+    In Qt 3, the QWidgetList class was a typedef for
+    QPtrList<QWidget>. In Qt 4, it is a typedef for QList<QWidget *>.
+    See the \l{#qptrlist.section}{section on QPtrList<T>}.
 
     \section1 QWidgetStack
 
@@ -1815,7 +2289,7 @@
     a QStackedBox with a QDialog and provide \l{QPushButton}s
     yourself.
 
-
+    \omit Point to the wizard example when it's ready. \endomit
 */
 
 /*! \page auto-delete.html
