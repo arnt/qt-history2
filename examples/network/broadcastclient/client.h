@@ -1,24 +1,26 @@
-#ifndef DIALOG_H_INCLUDED
-#define DIALOG_H_INCLUDED
+#ifndef CLIENT_H
+#define CLIENT_H
 
-#include <QtGui>
-#include <QtNetwork>
+#include <QDialog>
 
-class Dialog : public QDialog
+class QLabel;
+class QPushButton;
+class QUdpSocket;
+
+class Client : public QDialog
 {
     Q_OBJECT
 
 public:
-    Dialog(QWidget *parent = 0);
+    Client(QWidget *parent = 0);
 
-public slots:
-    void processMessage();
+private slots:
+    void processPendingDatagrams();
 
 private:
     QLabel *statusLabel;
     QPushButton *quitButton;
-
-    QUdpSocket *client;
+    QUdpSocket *udpSocket;
 };
 
 #endif

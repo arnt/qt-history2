@@ -1,29 +1,37 @@
-#include "dialog.h"
+#include <QtGui>
+#include <QtNetwork>
 
-Dialog::Dialog(QWidget *parent) : QDialog(parent)
+#include "client.h"
+
+Client::Client(QWidget *parent)
+    : QDialog(parent)
 {
-    statusLabel = new QLabel(this);
-    statusLabel->setText(tr("Listening for broadcasted messages"));
-
+    statusLabel = new QLabel(tr("Listening for broadcasted messages"), this);
     quitButton = new QPushButton(tr("&Quit"), this);
-    connect(quitButton, SIGNAL(clicked()), SLOT(close()));
+    udpSocket = new QUdpSocket(this);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    connect(udpSocket, SIGNAL(readyRead()),
+            this, SLOT(processPendingDatagrams()));
+    connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
 
-    layout->addWidget(statusLabel);
-    layout->addWidget(quitButton);
+    QHBoxLayout *buttonLayout = new QHBoxLayout;
+    buttonLayout->addStretch(1);
+    buttonLayout->addWidget(quitButton);
 
-    client = new QUdpSocket(this);
-    connect(client, SIGNAL(readyRead()), SLOT(processMessage()));
-    client->bind(45454);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->addWidget(statusLabel);
+    mainLayout->addLayout(buttonLayout);
+
+    setWindowTitle(tr("Broadcast Client"));
+    udpSocket->bind(45454);
 }
 
-void Dialog::processMessage()
+void Client::processPendingDatagrams()
 {
-    while (client->hasPendingDatagrams()) {
+    while (udpSocket->hasPendingDatagrams()) {
         QByteArray datagram;
-        datagram.resize(client->pendingDatagramSize());
-        client->readDatagram(datagram.data(), datagram.size());
+        datagram.resize(udpSocket->pendingDatagramSize());
+        udpSocket->readDatagram(datagram.data(), datagram.size());
         statusLabel->setText(QString(tr("Received datagram: \"%1\"")).arg(datagram.data()));
     }
 }
