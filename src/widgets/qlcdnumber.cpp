@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#26 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#25 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#26 $")
 
 
 /*! \class QLCDNumber qlcdnum.h
@@ -30,7 +30,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#25 $")
   of five argument types.
 
   There are also slots to change the \link setMode() notation mode
-  \endlink and \link decimal point mode. \endlink
+  \endlink and \link setSmallDecimalPoint() decimal point mode. \endlink
 
   QLCDNumber emits the overflow() signal when it is asked to display
   something beyond its range.  The range is set by setNumDigits() (but
@@ -52,6 +52,13 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#25 $")
 
   \sa QLabel QFrame */
 
+
+/*! \fn void overflow()
+
+  This signal is emitted whenever the QLCDNumber is asked to display a
+  too big number or too long string.
+
+  It is never emitted by setNumDigits(). */
 
 static QString long2string( long num, int base, int ndigits, bool *oflow )
 {
@@ -259,7 +266,7 @@ QLCDNumber::~QLCDNumber()
 }
 
 
-/*! \fn QLCDNumber::numDigits()
+/*! \fn int QLCDNumber::numDigits()
 
   Returns the current number of digits.  If smallDecimalPoint() is
   FALSE, the decimal point occupies one digit position.
@@ -318,6 +325,11 @@ void QLCDNumber::setNumDigits( int numDigits )
 	}
 	ndigits = numDigits;
 	update();
+	// ### hack - emit overflow() by hand
+	bool of;
+	QString s = double2string( num, base, ndigits, &of );
+	if ( of )
+	    emit overflow();
     }
 }
 
@@ -481,6 +493,14 @@ void QLCDNumber::setMode( Mode m )
 }
 
 
+/*! \fn bool QLCDNumber::smallDecimalPoint() const
+
+  Returns TRUE if the decimal point is currently drawn between two
+  digit positions, and FALSE if it is drawn in a digit position.
+
+  \sa setSmallDecimalPoint() mode() */
+
+
 /*! If \e b is TRUE, the decimal point is drawn between two digits.
   If \e b is FALSE, the decimal point is drawn in a digit position.
 
@@ -498,7 +518,9 @@ void QLCDNumber::setSmallDecimalPoint( bool b )
 }
 
 
-/*! \internal
+/*! Handles resize Events for the QLCDNumber. 
+
+  \internal
 
   FIXME: Why is this implemented and empty? */
 
