@@ -109,6 +109,9 @@ private slots:
 private:
     QString terminalName;
     int buttonFD;
+    int kbdIdx;
+    int kbdBufferLen;
+    unsigned char *kbdBuffer;
     QSocketNotifier *notifier;
 };
 
@@ -593,6 +596,10 @@ QWSVr41xxButtonsHandler::QWSVr41xxButtonsHandler() : QWSKeyboardHandler()
 	connect( notifier, SIGNAL(activated(int)),this,
 		 SLOT(readKeyboardData()) );
     }
+
+    kbdBufferLen = 80;
+    kbdBuffer = new unsigned char [kbdBufferLen];
+    kbdIdx = 0;
 }
 
 QWSVr41xxButtonsHandler::~QWSVr41xxButtonsHandler()
@@ -603,47 +610,75 @@ QWSVr41xxButtonsHandler::~QWSVr41xxButtonsHandler()
     }
     delete notifier;
     notifier = 0;
+    delete [] kbdBuffer;
 }
 
 void QWSVr41xxButtonsHandler::readKeyboardData()
 {
-    char buf[2];
-    int n=read(buttonFD,buf,2);
-    if(n<0) {
-	qDebug("Keyboard read error %s",strerror(errno));
-    } else {
-	// ### This doesn't work anymore!!!
-//	return;
+    int n = 0;
+    do {
+	n  = read(buttonFD, kbdBuffer+kbdIdx, kbdBufferLen - kbdIdx );
+	if ( n > 0 )
+	    kbdIdx += n;
+    } while ( n > 0 );
 
-
-	int keycode;
-	unsigned int x=buf[1];
-	if(buf[0]==7) {
-	    keycode=Qt::Key_Up;
-	} else if(buf[0]==0x9) {
-	    keycode=Qt::Key_Right;
-	} else if(buf[0]==0x8) {
-	    keycode=Qt::Key_Down;
-	} else if(buf[0]==0xa) {
-	    keycode=Qt::Key_Left;
-	} else if(buf[0]==0x3) {
-	    keycode=Qt::Key_Up;
-	} else if(buf[0]==0x4) {
-	    keycode=Qt::Key_Down;
-	} else if(buf[0]==0x1) {
-	    keycode=Qt::Key_Backspace;
-	} else if(buf[0]==0x2) {
-	    keycode=Qt::Key_Escape;
-	} else if(x==0xffffff80) {
-	    keycode=0;
-	    qApp->quit();
-	} else {
-	    qDebug("Unrecognised key sequence %d %d",buf[0],buf[1]);
-	    keycode=Qt::Key_unknown;
+    int idx = 0;
+    while ( kbdIdx - idx >= 2 ) {
+	unsigned char *next = kbdBuffer + idx;
+	unsigned short *code = (unsigned short *)next;
+	int keycode = Qt::Key_unknown;
+	switch ( (*code) & 0x0fff ) {
+	    case 0x7:
+		keycode = Qt::Key_Up;
+		break;
+	    case 0x9:
+		keycode = Qt::Key_Right;
+		break;
+	    case 0x8:
+		keycode = Qt::Key_Down;
+		break;
+	    case 0xa:
+		keycode = Qt::Key_Left;
+		break;
+	    case 0x3:
+		keycode = Qt::Key_Up;
+		break;
+	    case 0x4:
+		keycode = Qt::Key_Down;
+		break;
+	    case 0x1:
+		keycode = Qt::Key_Backspace;
+		break;
+	    case 0x2:
+		keycode = Qt::Key_Escape;
+		break;
+	    default:
+		qDebug("Unrecognised key sequence %d", (int)code );
 	}
-	server->processKeyEvent( 0, keycode, 0, true, false );
-	server->processKeyEvent( 0, keycode, 0, false, false );
+//	if ( (*code) & 0x8000 )
+	    server->processKeyEvent( 0, keycode, 0, TRUE, FALSE );
+//	else
+	    server->processKeyEvent( 0, keycode, 0, FALSE, FALSE );
+/*
+	unsigned short t = *code;
+	for ( int i = 0; i < 16; i++ ) {
+	    keycode = (t & 0x8000) ? Qt::Key_1 : Qt::Key_0;
+	    int unicode = (t & 0x8000) ? '1' : '0';
+	    server->processKeyEvent( unicode, keycode, 0, TRUE, FALSE );
+	    server->processKeyEvent( unicode, keycode, 0, FALSE, FALSE );
+	    t <<= 1;
+	}
+	keycode = Qt::Key_Space;
+	server->processKeyEvent( ' ', keycode, 0, TRUE, FALSE );
+	server->processKeyEvent( ' ', keycode, 0, FALSE, FALSE );
+*/
+	idx += 2;
     }
+
+    int surplus = kbdIdx - idx;
+    for ( int i = 0; i < surplus; i++ )
+	kbdBuffer[i] = kbdBuffer[idx+i];
+    kbdIdx = surplus;
 }
 
 
