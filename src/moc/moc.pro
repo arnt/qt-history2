@@ -22,6 +22,7 @@ SOURCES		= $$MOCGEN		    \
 		  ../tools/qgvector.cpp	    \
 		  ../tools/qiodevice.cpp    \
 		  ../tools/qregexp.cpp	    \
-		  ../tools/qstring.cpp
+		  ../tools/qstring.cpp	    \
+		  ../tools/qtextcodec.cpp
 
 TARGET		= moc
