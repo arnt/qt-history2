@@ -928,8 +928,9 @@ void QLineEdit::doDrag()
 void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !d->mousePressed ) {
-	if ( !isReadOnly() && d->parag->hasSelection( QTextDocument::Standard ) && dragEnabled() ) {
-	    if ( inSelection( e->pos().x() + d->offset - frameWidth() - margin() - 1, d->parag ) )
+	if ( !isReadOnly() && dragEnabled() ) {
+	    if ( d->parag->hasSelection( QTextDocument::Standard ) &&
+		 inSelection( e->pos().x() + d->offset - frameWidth() - margin() - 1, d->parag ) )
 		setCursor( arrowCursor );
 	    else
 		setCursor( ibeamCursor );

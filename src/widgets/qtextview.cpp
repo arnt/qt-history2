@@ -1061,8 +1061,8 @@ void QTextView::contentsMouseMoveEvent( QMouseEvent *e )
 	oldMousePos = mousePos;
     }
 
-    if ( !isReadOnly() && !mousePressed && doc->hasSelection( QTextDocument::Standard ) ) {
-	if ( doc->inSelection( QTextDocument::Standard, e->pos() ) )
+    if ( !isReadOnly() && !mousePressed ) {
+	if ( doc->hasSelection( QTextDocument::Standard ) && doc->inSelection( QTextDocument::Standard, e->pos() ) )
 	    viewport()->setCursor( arrowCursor );
 	else
 	    viewport()->setCursor( ibeamCursor );
@@ -2159,6 +2159,9 @@ void QTextView::selectAll( bool select )
     repaintChanged();
     emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
     emit selectionChanged();
+#ifndef QT_NO_CURSOR
+    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
 }
 
 void QTextView::UndoRedoInfo::clear()
