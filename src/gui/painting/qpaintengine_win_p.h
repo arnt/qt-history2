@@ -30,6 +30,8 @@ class QtGpPen { };
 class QtGpBrush { };
 class QtGpSolidFill : public QtGpBrush { };
 class QtGpPath { };
+class QtGpImage { };
+class QtGpBitmap : public QtGpImage { };
 
 struct QtGpStartupInput { Q_UINT32 version; void *cb; BOOL b1; BOOL b2; };
 
