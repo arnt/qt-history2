@@ -55,7 +55,7 @@ extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
 static QWidget *qt_sizegrip_topLevelWidget( QWidget* w)
 {
     QWidget *p = w->parentWidget();
-    while ( !w->isTopLevel() ) {
+    while ( !w->isTopLevel() && p && !p->inherits("QWorkspace") ) {
 	w = p;
 	p = p->parentWidget();
     }

@@ -1241,8 +1241,6 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     : QFrame( parent, name,
 	      WStyle_Customize | WStyle_NoBorder  | WDestructiveClose )
 {
-    setWFlags( WType_TopLevel );
-
     widgetResizeHandler = new QWidgetResizeHandler( this, window );
     widgetResizeHandler->setMovingEnabled( FALSE );
     connect( widgetResizeHandler, SIGNAL( activate() ),
