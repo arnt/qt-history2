@@ -1693,7 +1693,11 @@ void QWidget::showNormal()
     }
     if ( extra && extra->topextra )
 	extra->topextra->fullscreen = 0;
-    show();
+    if ( !isVisible() ) {
+	show();
+    } else {
+	showWindow();
+    }
     QEvent e( QEvent::ShowNormal );
     QApplication::sendEvent( this, &e );
     clearWState( WState_Minimized | WState_Maximized );
