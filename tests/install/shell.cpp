@@ -163,20 +163,6 @@ WinShell::WinShell()
 	if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_PROGRAMS, &item ) ) ) {
 	    if( SHGetPathFromIDListA( item, buffer.data() ) ) {
 		localProgramsFolderName = buffer.data();
-		if( int( qWinVersion ) & int( Qt::WV_NT_based ) ) { // On NT we also have a common folder
-		    if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_COMMON_PROGRAMS, &item ) ) ) {
-			if( SHGetPathFromIDListA( item, buffer.data() ) )
-			    commonProgramsFolderName = buffer.data();
-			else
-			    qDebug( "Could not get name of common programs folder" );
-		    }
-		    else
-			qDebug( "Could not get common programs folder location" );
-		    if( GetWindowsDirectoryA( buffer.data(), buffer.size() ) )
-			windowsFolderName = buffer.data();
-		    else
-			qDebug( "Could not get Windows directory" );
-		}
 	    }
 	    else
 		qDebug( "Could not get name of programs folder" );
