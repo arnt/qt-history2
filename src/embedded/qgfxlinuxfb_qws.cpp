@@ -145,7 +145,7 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
     if((qwssize=getenv("QWS_SIZE"))) {
 	sscanf(qwssize,"%dx%d",&w,&h);
 	if ( (uint)w > vinfo.xres ) w = vinfo.xres;
-	if ( (uint)h > vinfo.xres ) h = vinfo.yres;
+	if ( (uint)h > vinfo.yres ) h = vinfo.yres;
 	dw=w;
 	dh=h;
 	xoff += (vinfo.xres - w)/2;
