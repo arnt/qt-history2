@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#22 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1379,13 +1379,15 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	    addEntry( inf );
 	}
 	emit finished( ActListDirectory );
-    } else if ( d->networkProtocol && 
+    } else if ( d->networkProtocol &&
 		d->networkProtocol->supportedOperations() & QNetworkProtocol::OpListEntries ) {
 	emit start( ActListDirectory );
 	setNameFilter( nameFilter );
 	d->networkProtocol->listEntries( nameFilter, filterSpec, sortSpec );
     } else
-	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
+	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported\n"
+						  "or `%2' doesn't support listing directores" ).
+		    arg( d->protocol ).arg( d->protocol ) );
 }
 
 /*!
@@ -1415,7 +1417,9 @@ void QUrl::mkdir( const QString &dirname )
 	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpMkdir ) {
 	d->networkProtocol->mkdir( dirname );
     } else
-	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
+	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported\n"
+						  "or `%2' doesn't support making directores" ).
+		    arg( d->protocol ).arg( d->protocol ) );
 }
 
 /*!
@@ -1439,7 +1443,9 @@ void QUrl::remove( const QString &filename )
 	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpRemove ) {
 	d->networkProtocol->remove( filename );
     } else
-	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
+	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported\n"
+						  "or `%2' doesn't support removing files" ).
+		    arg( d->protocol ).arg( d->protocol ) );
 }
 
 /*!
@@ -1459,7 +1465,9 @@ void QUrl::rename( const QString &oldname, const QString &newname )
 	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpRename ) {
 	d->networkProtocol->rename( oldname, newname );
     } else
-	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
+	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported\n"
+						  "or `%2' doesn't support renaming files" ).
+		    arg( d->protocol ).arg( d->protocol ) );
 }
 
 /*!
@@ -1532,11 +1540,13 @@ void QUrl::copy( const QStringList &files, const QString &dest, bool move )
 	    }
 	}
 	emit finished( move ? ActMoveFiles : ActCopyFiles );
-    } else if ( d->networkProtocol && 
+    } else if ( d->networkProtocol &&
 	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpCopy ) {
 	d->networkProtocol->copy( files, dest, move );
     } else
-	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
+	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported\n"
+						  "or `%2' doesn't support copying files" ).
+		    arg( d->protocol ).arg( d->protocol ) );
 }
 
 /*!
@@ -1554,7 +1564,9 @@ bool QUrl::isDir()
 	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpIsUrlDir ) {
 	d->networkProtocol->isUrlDir();
     } else {
-	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
+	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported\n"
+						  "or `%2' doesn't support checking for directores" ).
+		    arg( d->protocol ).arg( d->protocol ) );
 	return FALSE;
     }
 
@@ -1572,11 +1584,13 @@ bool QUrl::isFile()
 	    emit urlIsFile();
 	else
 	    emit urlIsDir();
-    } else if ( d->networkProtocol && 
+    } else if ( d->networkProtocol &&
 	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpIsUrlFile ) {
 	d->networkProtocol->isUrlFile();
     } else {
-	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
+	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported\n"
+						  "or `%2' doesn't support checking for files" ).
+		    arg( d->protocol ).arg( d->protocol ) );
 	return FALSE;
     }
 
