@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#1 $
+** $Id: //depot/qt/main/src/tools/qlist.h#2 $
 **
 ** Definition of QList template/macro class
 **
@@ -18,7 +18,7 @@
 
 #if defined(USE_MACROCLASS)
 
-#include <generic.h>
+#include "qgeneric.h"
 
 #if !defined(name2)
 #define name2(a,b)    name2_xx(a,b)
