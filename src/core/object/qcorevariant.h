@@ -183,6 +183,7 @@ class Q_CORE_EXPORT QCoreVariant
     void *rawAccess(void *ptr = 0, Type typ = Invalid, bool deepCopy = FALSE);
     void *data();
     const void *constData() const;
+    inline const void *data() const { return constData(); }
  private:
     void detach_helper();
 

@@ -1219,7 +1219,7 @@ void QCoreVariant::detach_helper()
     x->ref = 1;
     x->type = d->type;
     x->is_null = true;
-    handler->construct(x, data());
+    handler->construct(x, constData());
     x->is_null = d->is_null;
     x->str_cache = 0;
     if (d->str_cache)
@@ -1854,7 +1854,7 @@ void *QCoreVariant::rawAccess(void *ptr, Type typ, bool deepCopy)
 	    x->ref = 1;
 	    x->type = d->type;
             x->str_cache = 0;
-	    handler->construct(x, data());
+	    handler->construct(x, constData());
 	    x->is_null = d->is_null;
 	    x = qAtomicSetPtr(&d, x);
 	    if (!--x->ref)
@@ -1865,7 +1865,7 @@ void *QCoreVariant::rawAccess(void *ptr, Type typ, bool deepCopy)
 	return d->value.ptr;
     Private *p = new Private;
     p->type = d->type;
-    handler->construct(p, data());
+    handler->construct(p, constData());
     void *ret = (void*)p->value.ptr;
     p->type = Invalid;
     delete p;
