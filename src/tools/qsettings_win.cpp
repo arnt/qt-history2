@@ -49,18 +49,18 @@ QSettingsPrivate::QSettingsPrivate()
     }
 #if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based ) 
-	res = RegOpenKeyExW( HKEY_CURRENT_USER, NULL, 0, KEY_ALL_ACCESS, &local );
+	res = RegOpenKeyExW( HKEY_CURRENT_USER, NULL, 0, KEY_ALL_ACCESS, &user );
     else
 #endif
-	res = RegOpenKeyExA( HKEY_CURRENT_USER, NULL, 0, KEY_ALL_ACCESS, &local );
+	res = RegOpenKeyExA( HKEY_CURRENT_USER, NULL, 0, KEY_ALL_ACCESS, &user );
 	
     if ( res != ERROR_SUCCESS ) {
 #if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based ) 
-	    res = RegOpenKeyExW( HKEY_CURRENT_USER, NULL, 0, KEY_READ, &local );
+	    res = RegOpenKeyExW( HKEY_CURRENT_USER, NULL, 0, KEY_READ, &user );
 	else
 #endif
-	    res = RegOpenKeyExA( HKEY_CURRENT_USER, NULL, 0, KEY_READ, &local );
+	    res = RegOpenKeyExA( HKEY_CURRENT_USER, NULL, 0, KEY_READ, &user );
 	if ( res != ERROR_SUCCESS ) {
 	    user = NULL;
 	}
