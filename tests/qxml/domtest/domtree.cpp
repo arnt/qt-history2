@@ -29,7 +29,7 @@ DomTree::DomTree( const QString fileName, QWidget *parent, const char *name )
 	return;
     }
     file.close();
-    buildTree( 0, domTree );
+    buildTree( 0, domTree, QDomNamedNodeMap() );
 
     // div. configuration of the list view
     text = new QTextView( this );
@@ -41,19 +41,35 @@ DomTree::~DomTree()
 {
 }
 
-void DomTree::buildTree( QListViewItem *parentItem, const QDomNode &actNode )
+void DomTree::buildTree( QListViewItem *parentItem, const QDomNode &actNode, const QDomNamedNodeMap &attribs )
 {
     static int depth = -1;
     QListViewItem *thisItem = 0;
     QDomNode node = actNode;
     depth++;
+
+    // add attributes to the tree first
+    for ( uint i=0; i< attribs.length(); i++ ) {
+	if ( parentItem == 0 ) {
+	    thisItem = new DomTreeItem( attribs.item(i), tree, thisItem );
+	} else {
+	    thisItem = new DomTreeItem( attribs.item(i), parentItem, thisItem );
+	}
+    }
     while ( !node.isNull() ) {
 	if ( parentItem == 0 ) {
 	    thisItem = new DomTreeItem( node, tree, thisItem );
 	} else {
 	    thisItem = new DomTreeItem( node, parentItem, thisItem );
 	}
-	buildTree( thisItem, node.firstChild() );
+	if ( node.isElement() ) {
+	    // add also attributes to the tree
+	    buildTree( thisItem, node.firstChild(),
+		    node.toElement().attributes() );
+	} else {
+	    buildTree( thisItem, node.firstChild(),
+		    QDomNamedNodeMap() );
+	}
 	if ( depth <= 1 ) {
 	    tree->setOpen( thisItem, TRUE );
 	}
@@ -98,7 +114,7 @@ void DomTreeItem::init()
 	    setText( 0, "Element" );
 	    break;
 	case QDomNode::AttributeNode:
-	    setText( 0, "Attribute" );
+	    setText( 0, "Attribute (no real child)" );
 	    break;
 	case QDomNode::CDATASectionNode:
 	    setText( 0, "CDATA Section" );
@@ -264,6 +280,11 @@ QString DomTreeItem::contentString()
 	    break;
 	case QDomNode::TextNode:
 	    s += _node.toText().data();
+	    break;
+	case QDomNode::AttributeNode:
+	    s += "<b>Value:</b> ";
+	    s += _node.toAttr().value();
+	    s += "'<br/>";
 	    break;
 	default:
 	    break;

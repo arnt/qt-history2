@@ -22,7 +22,7 @@ private:
     QListView *tree;
     QTextView *text;
 
-    void buildTree( QListViewItem *parentItem, const QDomNode &actNode );
+    void buildTree( QListViewItem *parentItem, const QDomNode &actNode, const QDomNamedNodeMap &attribs );
 };
 
 
