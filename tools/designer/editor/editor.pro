@@ -19,7 +19,8 @@ SOURCES		= editor.cpp \
 		  conf.cpp \
 		  browser.cpp \
 		  arghintwidget.cpp \
-		  cindent.cpp
+		  cindent.cpp \
+		  yyindent.cpp
 
 INTERFACES	= preferences.ui
 		
