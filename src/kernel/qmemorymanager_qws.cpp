@@ -899,7 +899,7 @@ bool QMemoryManager::inFont(FontID id, const QChar& ch) const
 {
     QMemoryManagerFont* font = (QMemoryManagerFont*)id;
     if ( font->renderer )
-	return ch.unicode() < font->renderer->maxchar && font->renderer->inFont(ch);
+	return ch.unicode() <= font->renderer->maxchar && font->renderer->inFont(ch);
     else
 	return font->tree->inFont(ch);
 }
