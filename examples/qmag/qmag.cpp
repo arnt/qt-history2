@@ -24,6 +24,7 @@
 #include <qevent.h>
 #include <qwmatrix.h>
 
+using namespace Qt;
 
 class MagWidget : public QWidget
 {
