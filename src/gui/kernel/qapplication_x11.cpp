@@ -2002,9 +2002,9 @@ bool qt_wstate_iconified(WId winid)
     return iconic;
 }
 
-const char *qAppName()                                // get application name
+QString qAppName()                                // get application name
 {
-    return appName;
+    return QString::fromLatin1(appName);
 }
 
 const char *qAppClass()                                // get application class
@@ -5403,7 +5403,7 @@ static void sm_performSaveYourself(QSessionManagerPrivate* smd)
     // generate a restart and discard command that makes sense
     QStringList restart;
     restart  << qApp->argv()[0] << "-session" << smd->sessionId + "_" + smd->sessionKey;
-    if (qstricmp(qAppName(), qAppClass()) != 0)
+    if (qstricmp(appName, qAppClass()) != 0)
         restart << "-name" << qAppName();
     sm->setRestartCommand(restart);
     QStringList discard;
