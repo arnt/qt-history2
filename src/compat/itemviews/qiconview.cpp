@@ -1826,7 +1826,8 @@ void QIconViewItem::removeRenameBox()
     setRect(), setTextRect() and setPixmapRect() are provided mainly
     for reimplementations of this function.
 
-    \a text_ is an internal parameter which defaults to QString::null.
+    \a text_ is an internal parameter which defaults to an empty
+    string.
 */
 
 void QIconViewItem::calcRect(const QString &text_)

@@ -2810,7 +2810,7 @@ QCursor QWidget::cursor() const
     \brief the window title (caption)
 
     This property only makes sense for top-level widgets. If no
-    caption has been set, the title is QString::null.
+    caption has been set, the title is an empty string.
 
     \sa windowIcon windowIconText
 */
@@ -2853,7 +2853,7 @@ void QWidget::setWindowIcon(const QPixmap &pixmap)
     \brief the widget's icon text
 
     This property only makes sense for top-level widgets. If no icon
-    text has been set, this functions returns QString::null.
+    text has been set, this functions returns an empty string.
 
     \sa windowIcon, windowTitle
 */
@@ -2865,7 +2865,7 @@ QString QWidget::windowIconText() const
 }
 
 /*!
-    Returns the window's role, or QString::null.
+    Returns the window's role, or an empty string.
 
     \sa windowIcon, windowTitle
 */

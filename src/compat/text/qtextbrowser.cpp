@@ -131,7 +131,7 @@ QTextBrowser::~QTextBrowser()
     \property QTextBrowser::source
     \brief the name of the displayed document.
 
-    This is a QString::null if no document is displayed or if the
+    This is a an empty string if no document is displayed or if the
     source is unknown.
 
     Setting this property uses the mimeSourceFactory() to lookup the

@@ -687,7 +687,7 @@ bool QUrlOperator::isDir(bool *ok)
 
 /*!
     Tells the network protocol to get data from \a location or, if
-    this is QString::null, to get data from the location to which this
+    this is an empty string, to get data from the location to which this
     URL points (see Q3Url::fileName() and Q3Url::encodedPathAndQuery()).
     What happens then depends on the network protocol. The data()
     signal is emitted when data comes in. Because it's unlikely that
@@ -698,7 +698,7 @@ bool QUrlOperator::isDir(bool *ok)
     network operation object to see whether or not the operation was
     successful.
 
-    If \a location is QString::null, the path of this QUrlOperator
+    If \a location is an empty string, the path of this QUrlOperator
     should point to a file when you use this operation. If \a location
     is not empty, it can be a relative URL (a child of the path to
     which the QUrlOperator points) or an absolute URL.
@@ -757,17 +757,17 @@ const QNetworkOperation *QUrlOperator::get(const QString &location)
 
 /*!
     This function tells the network protocol to put \a data in \a
-    location. If \a location is empty (QString::null), it puts the \a
-    data in the location to which the URL points. What happens depends
-    on the network protocol. Depending on the network protocol, some
-    data might come back after putting data, in which case the data()
-    signal is emitted. The dataTransferProgress() signal is emitted
-    during processing of the operation. At the end, finished() (with
-    success or failure) is emitted, so check the state of the network
-    operation object to see whether or not the operation was
-    successful.
+    location. If \a location is empty (an empty string, QString()), it
+    puts the \a data in the location to which the URL points. What
+    happens depends on the network protocol. Depending on the network
+    protocol, some data might come back after putting data, in which
+    case the data() signal is emitted. The dataTransferProgress()
+    signal is emitted during processing of the operation. At the end,
+    finished() (with success or failure) is emitted, so check the
+    state of the network operation object to see whether or not the
+    operation was successful.
 
-    If \a location is QString::null, the path of this QUrlOperator
+    If \a location is an empty string, the path of this QUrlOperator
     should point to a file when you use this operation. If \a location
     is not empty, it can be a relative (a child of the path to which
     the QUrlOperator points) or an absolute URL.

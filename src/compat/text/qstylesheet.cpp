@@ -526,8 +526,8 @@ int QStyleSheetItem::fontSize() const
 
 
 /*!
-    Returns the font family setting of the style. This is either a
-    valid font family or QString::null if no family has been set.
+    Returns the style's font family setting. This is either a valid
+    font family or an empty string if no family has been set.
 
     \sa setFontFamily(), QFont::family(), QFont::setFamily()
 */

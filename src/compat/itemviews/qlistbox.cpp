@@ -1408,7 +1408,7 @@ void QListBox::clear()
 
 
 /*!
-    Returns the text at position \a index, or QString::null if there
+    Returns the text at position \a index, or an empty string if there
     is no text at that position.
 
     \sa pixmap()

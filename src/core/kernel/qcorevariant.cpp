@@ -1509,7 +1509,7 @@ Q_VARIANT_TO(ByteArray)
 
     Returns the variant as a QString if the variant has type() String,
     ByteArray, Int, Uint, Bool, Double, Date, Time, DateTime,
-    KeySequence, Font or Color; otherwise returns QString::null.
+    KeySequence, Font or Color; otherwise returns an empty string.
 */
 
 

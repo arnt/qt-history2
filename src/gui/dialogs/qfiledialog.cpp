@@ -1133,7 +1133,7 @@ static void qt_get_dir_and_selection(const QString &path, QString *cwd, QString 
   startWith includes a file name, the file will be selected. The filter
   is set to \a filter so that only those files which match the filter
   are shown. The filter selected is set to \a selectedFilter. The parameters
-  \a startWith, \a selectedFilter and \a filter may be QString::null.
+  \a startWith, \a selectedFilter and \a filter may be empty strings.
 
   The dialog's caption is set to \a caption. If \a caption is not
   specified then a default caption will be used.
@@ -1222,7 +1222,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
   startWith includes a file name, the file will be selected. The filter
   is set to \a filter so that only those files which match the filter
   are shown. The filter selected is set to \a selectedFilter. The parameters
-  \a startWith, \a selectedFilter and \a filter may be QString::null.
+  \a startWith, \a selectedFilter and \a filter may be empty strings.
 
   The dialog's caption is set to \a caption. If \a caption is not
   specified then a default caption will be used.
@@ -1303,7 +1303,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
   parent is not 0, the dialog will be shown centered over the parent.
 
   The dialog's working directory is set to \a dir, and the caption is
-  set to \a caption. Either of these may be QString::null in which case
+  set to \a caption. Either of these may be an empty string in which case
   the current directory and a default caption will be used respectively.
 
   If \a dirOnly is true, then only directories will be shown in
@@ -1386,7 +1386,7 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
   dir includes a file name, the file will be selected. The filter
   is set to \a filter so that only those files which match the filter
   are shown. The filter selected is set to \a selectedFilter. The parameters
-  \a dir, \a selectedFilter and \a filter may be QString::null.
+  \a dir, \a selectedFilter and \a filter may be empty strings.
 
   The dialog's caption is set to \a caption. If \a caption is not
   specified then a default caption will be used.

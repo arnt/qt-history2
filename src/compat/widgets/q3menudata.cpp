@@ -919,7 +919,7 @@ QIconSet* Q3MenuData::iconSet(int id) const
 
 /*!
     Returns the text that has been set for menu item \a id, or
-    QString::null if no text has been set.
+    an empty string if no text has been set.
 
     \sa changeItem(), pixmap(), iconSet()
 */
@@ -1412,7 +1412,7 @@ void Q3MenuData::setWhatsThis(int id, const QString& text)
 
 /*!
     Returns the What's This help text for the item with identifier \a
-    id or QString::null if no text has yet been defined.
+    id or an empty string if no text has yet been set.
 
     \sa setWhatsThis()
 */

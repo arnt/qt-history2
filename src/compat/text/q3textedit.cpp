@@ -4749,9 +4749,9 @@ void Q3TextEdit::scrollToAnchor(const QString& name)
 }
 
 /*!
-    If there is an anchor at position \a pos (in contents
-    coordinates), the text for attribute \a attr (Qt::AnchorHref by default) is returned,
-    otherwise QString::null is returned.
+    Returns the text for the attribute \a attr (\c Qt::AnchorHref by
+    default) if there is an anchor at position \a pos (in contents
+    coordinates); otherwise returns an empty string.
 */
 
 QString Q3TextEdit::anchorAt(const QPoint& pos, Qt::AnchorAttribute attr)

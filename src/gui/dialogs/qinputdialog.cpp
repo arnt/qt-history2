@@ -304,7 +304,7 @@ QInputDialog::~QInputDialog()
     bool ok;
     QString text = QInputDialog::getText(
             "MyApp 3000", "Enter your name:", QLineEdit::Normal,
-            QString::null, &ok, this);
+            QString(), &ok, this);
     if (ok && !text.isEmpty()) {
         // user entered something and pressed OK
     } else {

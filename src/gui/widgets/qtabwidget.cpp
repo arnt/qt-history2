@@ -824,7 +824,7 @@ void QTabWidget::setTabToolTip(int index, const QString & tip)
 
 /*!
     Returns the tab tool tip for the page at position \a index or
-    QString::null if no tool tip has been set.
+    an empty string if no tool tip has been set.
 
     \sa setTabToolTip()
 */

@@ -413,7 +413,7 @@ QAbstractButton::QAbstractButton(QAbstractButtonPrivate &dd, QWidget *parent)
 \property QAbstractButton::text
 \brief the text shown on the button
 
-This property will return a QString::null if the button has no text.
+This property will return a an empty string if the button has no text.
 If the text contains an ampersand character (\&), a mnemonic is
 automatically created for it. The character that follows the '\&' will be
 used as the shortcut key. Any previous mnemonic will be overwritten,

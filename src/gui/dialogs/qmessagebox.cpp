@@ -171,7 +171,7 @@ static const char * const qtlogo_xpm[] = {
                 "Do you want to overwrite it?")
                 .arg(filename),
             tr("&Yes"), tr("&No"),
-            QString::null, 0, 1))
+            QString(), 0, 1))
         return false;
     \endcode
 
@@ -678,7 +678,7 @@ void QMessageBox::resizeButtons()
     QMessageBox::textFormat). The default setting is \c Qt::AutoText, i.e.
     the message box will try to auto-detect the format of the text.
 
-    The default value of this property is QString::null.
+    The default value of this property is an empty string.
 
     \sa textFormat
 */
@@ -801,7 +801,7 @@ void QMessageBox::setIconPixmap(const QPixmap &pixmap)
 
 /*!
     Returns the text of the message box button \a button, or
-    QString::null if the message box does not contain the button.
+    an empty string if the message box does not contain the button.
 
     \sa setButtonText()
 */

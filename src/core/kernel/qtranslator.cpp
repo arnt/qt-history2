@@ -348,7 +348,7 @@ QTranslator::~QTranslator()
     \i File name without \a suffix appended.
     \i File name with text after a character in \a search_delimiters
        stripped ("_." is the default for \a search_delimiters if it is
-       QString::null) and \a suffix.
+       an empty string) and \a suffix.
     \i File name stripped without \a suffix appended.
     \i File name stripped further, etc.
     \endlist
@@ -1011,7 +1011,7 @@ QList<QTranslatorMessage> QTranslator::messages() const
 
 /*!
     Constructs a translator message with the extended key (0, 0, 0, 0)
-    and QString::null as translation.
+    and an empty string as translation.
 */
 
 QTranslatorMessage::QTranslatorMessage()

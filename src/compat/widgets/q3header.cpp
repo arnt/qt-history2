@@ -981,7 +981,7 @@ void Q3Header::setLabel(int section, const QString &s, int size)
 bool qt_qheader_label_return_null_strings = false;
 /*!
     Returns the text for section \a section. If the section does not
-    exist, a QString::null is returned.
+    exist, returns an empty string.
 */
 QString Q3Header::label(int section) const
 {

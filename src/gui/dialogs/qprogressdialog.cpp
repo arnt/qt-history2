@@ -340,7 +340,7 @@ void QProgressDialog::setLabel(QLabel *label)
   \property QProgressDialog::labelText
   \brief the label's text
 
-  The default text is QString::null.
+  The default text is an empty string.
 */
 
 QString QProgressDialog::labelText() const

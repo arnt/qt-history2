@@ -697,16 +697,17 @@ bool QDomImplementation::hasFeature(const QString& feature, const QString& versi
     Creates a document type node for the name \a qName.
 
     \a publicId specifies the public identifier of the external
-    subset. If you specify QString::null as the \a publicId, this
-    means that the document type has no public identifier.
+    subset. If you specify an empty string (QString()) as the \a
+    publicId, this means that the document type has no public
+    identifier.
 
     \a systemId specifies the system identifier of the external
-    subset. If you specify QString::null as the \a systemId, this
+    subset. If you specify an empty string as the \a systemId, this
     means that the document type has no system identifier.
 
     Since you cannot have a public identifier without a system
-    identifier, the public identifier is set to QString::null if there
-    is no system identifier.
+    identifier, the public identifier is set to an empty string if
+    there is no system identifier.
 
     DOM level 2 does not support any other document type declaration
     features.
@@ -1706,7 +1707,7 @@ QString QDomNode::nodeName() const
     \endtable
 
     All the other subclasses do not have a node value and will return
-    QString::null.
+    an empty string.
 
     \sa setNodeValue() nodeName()
 */
@@ -1944,7 +1945,7 @@ bool QDomNode::isSupported(const QString& feature, const QString& version) const
 }
 
 /*!
-    Returns the namespace URI of this node or QString::null if the
+    Returns the namespace URI of this node or an empty string if the
     node has no namespace URI.
 
     Only nodes of type \link QDomNode::NodeType ElementNode\endlink or
@@ -1963,7 +1964,7 @@ QString QDomNode::namespaceURI() const
 }
 
 /*!
-    Returns the namespace prefix of the node or QString::null if the
+    Returns the namespace prefix of the node or an empty string if the
     node has no namespace prefix.
 
     Only nodes of type \link QDomNode::NodeType ElementNode\endlink or
@@ -1974,10 +1975,10 @@ QString QDomNode::namespaceURI() const
 
     If you create an element or attribute with
     QDomDocument::createElement() or QDomDocument::createAttribute(),
-    the prefix will be QString::null. If you use
+    the prefix will be an empty string. If you use
     QDomDocument::createElementNS() or
     QDomDocument::createAttributeNS() instead, the prefix will not be
-    QString::null; but it might be an empty string if the name does
+    an empty string; but it might be an empty string if the name does
     not have a prefix.
 
     \sa setPrefix() localName() namespaceURI()
@@ -2013,7 +2014,7 @@ void QDomNode::setPrefix(const QString& pre)
 
 /*!
     If the node uses namespaces, this function returns the local name
-    of the node; otherwise it returns QString::null.
+    of the node; otherwise it returns an empty string.
 
     Only nodes of type \link QDomNode::NodeType ElementNode\endlink or
     \link QDomNode::NodeType AttributeNode\endlink can have
@@ -3100,7 +3101,7 @@ QDomNamedNodeMap QDomDocumentType::notations() const
 
 /*!
     Returns the public identifier of the external DTD subset or
-    QString::null if there is no public identifier.
+    an empty string if there is no public identifier.
 
     \sa systemId() internalSubset() QDomImplementation::createDocumentType()
 */
@@ -3113,7 +3114,7 @@ QString QDomDocumentType::publicId() const
 
 /*!
     Returns the system identifier of the external DTD subset or
-    QString::null if there is no system identifier.
+    an empty string if there is no system identifier.
 
     \sa publicId() internalSubset() QDomImplementation::createDocumentType()
 */
@@ -3125,8 +3126,8 @@ QString QDomDocumentType::systemId() const
 }
 
 /*!
-    Returns the internal subset of the document type or QString::null
-    if there is no internal subset.
+    Returns the internal subset of the document type or an empty
+    string if there is no internal subset.
 
     \sa publicId() systemId()
 */
@@ -3393,7 +3394,7 @@ QDomCharacterData& QDomCharacterData::operator= (const QDomCharacterData& x)
     Returns the string stored in this object.
 
     If the node is a \link isNull() null node\endlink, it will return
-    QString::null.
+    an empty string.
 */
 QString QDomCharacterData::data() const
 {
@@ -3709,7 +3710,7 @@ QDomElement QDomAttr::ownerElement() const
 }
 
 /*!
-    Returns the value of the attribute or QString::null if the
+    Returns the value of the attribute or an empty string if the
     attribute has not been specified.
 
     \sa specified() setValue()
@@ -4436,7 +4437,7 @@ bool QDomElement::hasAttributeNS(const QString& nsURI, const QString& localName)
 }
 
 /*!
-    Returns the element's text or QString::null.
+    Returns the element's text or an empty string.
 
     Example:
     \code
@@ -5145,7 +5146,7 @@ QDomEntity& QDomEntity::operator= (const QDomEntity& x)
 
 /*!
     Returns the public identifier associated with this entity. If the
-    public identifier was not specified QString::null is returned.
+    public identifier was not specified an empty string is returned.
 */
 QString QDomEntity::publicId() const
 {
@@ -5156,7 +5157,7 @@ QString QDomEntity::publicId() const
 
 /*!
     Returns the system identifier associated with this entity. If the
-    system identifier was not specified QString::null is returned.
+    system identifier was not specified an empty string is returned.
 */
 QString QDomEntity::systemId() const
 {
@@ -5168,7 +5169,7 @@ QString QDomEntity::systemId() const
 /*!
     For unparsed entities this function returns the name of the
     notation for the entity. For parsed entities this function returns
-    QString::null.
+    an empty string.
 */
 QString QDomEntity::notationName() const
 {
@@ -5953,7 +5954,7 @@ bool QDomDocument::setContent(const QString& text, bool namespaceProcessing, QSt
 
     If \a namespaceProcessing is false, the functions
     QDomNode::prefix(), QDomNode::localName() and
-    QDomNode::namespaceURI() return QString::null.
+    QDomNode::namespaceURI() return an empty string.
 
     \sa QDomNode::namespaceURI() QDomNode::localName()
     QDomNode::prefix() QString::isNull() QString::isEmpty()

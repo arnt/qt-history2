@@ -613,7 +613,7 @@ QPixmap QTableItem::pixmap() const
 
 
 /*!
-    Returns the text of the table item or QString::null if there is no
+    Returns the text of the table item or an empty string if there is no
     text.
 
     To ensure that the current value of the editor is returned,
@@ -3076,7 +3076,7 @@ void QTable::setPixmap(int row, int col, const QPixmap &pix)
 }
 
 /*!
-    Returns the text in the cell at \a row, \a col, or QString::null
+    Returns the text in the cell at \a row, \a col, or an empty string
     if the relevant item does not exist or has no text.
 
     \sa setText() setPixmap()

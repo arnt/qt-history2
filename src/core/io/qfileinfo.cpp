@@ -452,7 +452,7 @@ QFileInfo::path() const
     On systems that do not have symbolic links this function will
     always return the same string that absoluteFilePath() returns. If the
     canonical path does not exist (normally due to dangling symbolic
-    links) canonicalPath() returns QString::null.
+    links) canonicalPath() returns an empty string.
 
     \sa absoluteFilePath(), QString::isNull()
 */
@@ -796,7 +796,7 @@ QFileInfo::isSymLink() const
 
 /*!
     Returns the name a symlink (or shortcut on Windows) points to, or
-    a QString::null if the object isn't a symbolic link.
+    a an empty string if the object isn't a symbolic link.
 
     This name may not represent an existing file; it is only a string.
     QFileInfo::exists() returns true if the symlink points to an
@@ -815,7 +815,7 @@ QFileInfo::readLink() const
 
 /*!
     Returns the owner of the file. On systems where files
-    do not have owners, or if an error occurs, QString::null is
+    do not have owners, or if an error occurs, an empty string is
     returned.
 
     This function can be time consuming under Unix (in the order of
@@ -851,7 +851,7 @@ QFileInfo::ownerId() const
 
 /*!
     Returns the group of the file. On Windows, on systems where files
-    do not have groups, or if an error occurs, QString::null is
+    do not have groups, or if an error occurs, an empty string is
     returned.
 
     This function can be time consuming under Unix (in the order of

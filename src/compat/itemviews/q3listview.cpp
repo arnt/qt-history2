@@ -1742,7 +1742,7 @@ int Q3ListViewItem::totalHeight() const
 
 
 /*!
-    Returns the text in column \a column, or QString::null if there is
+    Returns the text in column \a column, or an empty string if there is
     no text in that column.
 
     \sa key() paintCell()

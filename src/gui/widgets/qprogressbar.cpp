@@ -256,7 +256,7 @@ void QProgressBar::setProgress(int progress, int totalSteps)
   \property QProgressBar::progressString
   \brief the amount of progress as a string
 
-    This property is QString::null if progress counting has not started.
+    This property is an empty string if progress counting has not started.
 */
 
 static QStyleOptionProgressBar getStyleOption(const QProgressBar *pb)

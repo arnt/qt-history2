@@ -412,8 +412,8 @@ QDir::QDir(const QString &path) : d_ptr(new QDirPrivate(this))
 	printf( "%s\n", d[i] );
     \endcode
 
-    If \a path is "" or QString::null, QDir uses "." (the current
-    directory). If \a nameFilter is "" or QString::null, QDir uses the
+    If \a path is an empty string, QDir uses "." (the current
+    directory). If \a nameFilter is an empty string, QDir uses the
     name filter "*" (all files).
 
     Note that \a path need not exist.

@@ -3308,7 +3308,7 @@ bool qt_use_native_dialogs = true;
   startWith includes a file name, the file will be selected. The filter
   is set to \a filter so that only those files which match the filter
   are shown. The filter selected is set to \a selectedFilter. The parameters
-  \a startWith, \a selectedFilter and \a filter may be QString::null.
+  \a startWith, \a selectedFilter and \a filter may be an empty string.
 
   The dialog's caption is set to \a caption. If \a caption is not
   specified then a default caption will be used.
@@ -3431,7 +3431,7 @@ QString Q3FileDialog::getOpenFileName(const QString & startWith,
   startWith includes a file name, the file will be selected. The filter
   is set to \a filter so that only those files which match the filter
   are shown. The filter selected is set to \a selectedFilter. The parameters
-  \a startWith, \a selectedFilter and \a filter may be QString::null.
+  \a startWith, \a selectedFilter and \a filter may be an empty string.
 
   The dialog's caption is set to \a caption. If \a caption is not
   specified then a default caption will be used.
@@ -4335,7 +4335,7 @@ void Q3FileDialog::createdDirectory(const QUrlInfo &info, QNetworkOperation *)
   centered over the parent.
 
   The dialog's working directory is set to \a dir, and the caption is
-  set to \a caption. Either of these may be QString::null in which case
+  set to \a caption. Either of these may be an empty string in which case
   the current directory and a default caption will be used respectively.
 
   If \a dirOnly is true, then only directories will be shown in
@@ -5452,7 +5452,7 @@ void Q3FileDialog::modeButtonsDestroyed()
   dir includes a file name, the file will be selected. The filter
   is set to \a filter so that only those files which match the filter
   are shown. The filter selected is set to \a selectedFilter. The parameters
-  \a dir, \a selectedFilter and \a filter may be QString::null.
+  \a dir, \a selectedFilter and \a filter may be empty strings.
 
   The dialog's caption is set to \a caption. If \a caption is not
   specified then a default caption will be used.

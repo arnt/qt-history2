@@ -574,7 +574,7 @@ QKeySequence::SequenceMatch QKeySequence::matches(const QKeySequence &seq) const
     The strings, "Ctrl", "Shift", etc. are translated using
     QObject::tr() in the "QShortcut" scope.
 
-    If the key sequence has no keys, QString::null is returned.
+    If the key sequence has no keys, an empty string is returned.
 
     On Mac OS X, the string returned resembles the sequence that is
     shown in the menubar.

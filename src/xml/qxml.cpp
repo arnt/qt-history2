@@ -465,9 +465,9 @@ void QXmlNamespaceSupport::splitName(const QString& qname,
     is true if the name is an attribute name.
 
     This function stores the namespace URI in \a nsuri (which will be
-    set to QString::null if the raw name has an undeclared prefix),
+    set to an empty string if the raw name has an undeclared prefix),
     and stores the local name (without prefix) in \a localname (which
-    will be set to QString::null if no namespace is in use).
+    will be set to an empty string if no namespace is in use).
 
     Note that attribute names are processed differently than element
     names: an unprefixed element name gets the default namespace (if
@@ -705,7 +705,7 @@ int QXmlAttributes::length() const
 /*!
     Looks up an attribute's local name for the attribute at position
     \a index. If no namespace processing is done, the local name is
-    QString::null.
+    an empty string.
 
     See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
@@ -728,7 +728,7 @@ QString QXmlAttributes::qName(int index) const
 /*!
     Looks up an attribute's namespace URI for the attribute at
     position \a index. If no namespace processing is done or if the
-    attribute has no namespace, the namespace URI is QString::null.
+    attribute has no namespace, the namespace URI is an empty string.
 
     See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
@@ -1328,9 +1328,9 @@ QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
     namespace-prefix property of the reader is true.
 
     The argument \a namespaceURI is the namespace URI, or
-    QString::null if the element has no namespace URI or if no
+    an empty string if the element has no namespace URI or if no
     namespace processing is done. \a localName is the local name
-    (without prefix), or QString::null if no namespace processing is
+    (without prefix), or an empty string if no namespace processing is
     done, \a qName is the qualified name (with prefix) and \a atts are
     the attributes attached to the element. If there are no
     attributes, \a atts is an empty attributes object.
@@ -1664,8 +1664,8 @@ events are reported.
     identifier in \a systemId.
 
     If the public identifier is missing, \a publicId is set to
-    QString::null. If the system identifier is missing, \a systemId is
-    set to QString::null. Note that it is not valid XML to have a
+    an empty string. If the system identifier is missing, \a systemId is
+    set to an empty string. Note that it is not valid XML to have a
     public identifier but no system identifier; in such cases a parse
     error will occur.
 
@@ -1810,10 +1810,10 @@ events are reported.
     and the name of the attribute in \a aName. It passes a string that
     represents the attribute type in \a type and a string that
     represents the attribute default in \a valueDefault. This string
-    is one of "#IMPLIED", "#REQUIRED", "#FIXED" or QString::null (if
+    is one of "#IMPLIED", "#REQUIRED", "#FIXED" or an empty string (if
     none of the others applies). The reader passes the attribute's
     default value in \a value. If no default value is specified in the
-    XML file, \a value is QString::null.
+    XML file, \a value is an empty string.
 
     If this function returns false the reader stops parsing and
     reports an error. The reader uses the function errorString() to
@@ -1844,7 +1844,7 @@ events are reported.
     The reader passes the name of the entity in \a name, the public
     identifier in \a publicId and the system identifier in \a
     systemId. If there is no public identifier specified, it passes
-    QString::null in \a publicId.
+    an empty string in \a publicId.
 
     If this function returns false the reader stops parsing and
     reports an error. The reader uses the function errorString() to

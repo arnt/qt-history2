@@ -901,8 +901,8 @@ void QAccel::setWhatsThis(int id, const QString& text)
 }
 
 /*!
-    Returns the What's This help text for the specified item \a id or
-    QString::null if no text has been specified.
+    Returns the What's This help text for the item with the given \a
+    id or an empty string if no text has been specified.
 
     \sa setWhatsThis()
 */

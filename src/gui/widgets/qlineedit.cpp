@@ -738,7 +738,7 @@ bool QLineEdit::hasSelectedText() const
     \brief the selected text
 
     If there is no selected text this property's value is
-    QString::null.
+    an empty string.
 
     \sa hasSelectedText()
 */
@@ -868,7 +868,7 @@ bool QLineEdit::hasAcceptableInput() const
     \property QLineEdit::inputMask
     \brief The validation input mask
 
-    If no mask is set, inputMask() returns QString::null.
+    If no mask is set, inputMask() returns an empty string.
 
     Sets the QLineEdit's validation mask. Validators can be used
     instead of, or in conjunction with masks; see setValidator().
