@@ -249,6 +249,8 @@ QObject::QObject( QObject *parent, const char *name )
 {
     if ( parent )				// add object to parent
 	parent->insertChild( this );
+    QEvent e( QEvent::Create );
+    QApplication::sendEvent( this, &e );
 }
 
 
@@ -267,6 +269,8 @@ QObject::QObject(QObjectPrivate *d, QObject *parent, const char *name)
 {
     if ( parent )				// add object to parent
 	parent->insertChild( this );
+    QEvent e( QEvent::Create );
+    QApplication::sendEvent( this, &e );
 }
 
 /*!
@@ -298,6 +302,9 @@ QObject::~QObject()
 	return;
     }
     wasDeleted = 1;
+
+    QEvent e( QEvent::Destroy );
+    QApplication::sendEvent( this, &e );
 
     blockSig = 0; // unblock signals so we always emit destroyed()
     emit destroyed( this );
