@@ -169,7 +169,7 @@ void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region)
 void qt_clear_paintevent_clipping(QPaintDevice *dev)
 {
     if(paintevents.isEmpty() || !((*paintevents.current()) == dev)) {
-	qDebug("Whoa, now that is messed up!");
+	qDebug("Qt: internal: WH0A, qt_clear_paintevent_clipping mismatch.");
 	return;
     }
     delete paintevents.pop();
@@ -194,7 +194,7 @@ void QPainter::redirect(QPaintDevice *pdev, QPaintDevice *replacement)
     }
 #if defined(QT_CHECK_NULL)
     if(pdev == 0)
-	qWarning("QPainter::redirect: The pdev argument cannot be 0");
+	qWarning("Qt: QPainter::redirect: The pdev argument cannot be 0");
 #endif
     if(replacement) {
 	pdev_dict->insert((long)pdev, replacement);
@@ -668,7 +668,7 @@ void QPainter::setBackgroundColor(const QColor &c)
 {
     if(!isActive()) {
 #if defined(QT_CHECK_STATE)
-	qWarning("QPainter::setBackgroundColor: Call begin() first");
+	qWarning("Qt: QPainter::setBackgroundColor: Call begin() first");
 #endif
 	return;
     }
@@ -690,13 +690,13 @@ void QPainter::setBackgroundMode(BGMode m)
 {
     if(!isActive()) {
 #if defined(CHECK_STATE)
-	qWarning("QPainter::setBackgroundMode: Call begin() first");
+	qWarning("Qt: QPainter::setBackgroundMode: Call begin() first");
 #endif
 	return;
     }
     if(m != TransparentMode && m != OpaqueMode) {
 #if defined(CHECK_RANGE)
-	qWarning("QPainter::setBackgroundMode: Invalid mode");
+	qWarning("Qt: QPainter::setBackgroundMode: Invalid mode");
 #endif
 	return;
     }
@@ -717,13 +717,13 @@ void QPainter::setRasterOp(RasterOp r)
 {
     if(!isActive()) {
 #if defined(CHECK_STATE)
-	qWarning("QPainter::setRasterOp: Call begin() first");
+	qWarning("Qt: QPainter::setRasterOp: Call begin() first");
 #endif
 	return;
     }
     if((uint)r > LastROP) {
 #if defined(CHECK_RANGE)
-	qWarning("QPainter::setRasterOp: Invalid ROP code");
+	qWarning("Qt: QPainter::setRasterOp: Invalid ROP code");
 #endif
 	return;
     }
@@ -748,7 +748,7 @@ void QPainter::setBrushOrigin(int x, int y)
 {
     if(!isActive()) {
 #if defined(CHECK_STATE)
-	qWarning("QPainter::setBrushOrigin: Call begin() first");
+	qWarning("Qt: QPainter::setBrushOrigin: Call begin() first");
 #endif
 	return;
     }
@@ -767,7 +767,7 @@ void QPainter::setClipping(bool b)
 {
     if(!isActive()) {
 #if defined(CHECK_STATE)
-	qWarning("QPainter::setClipping: Call begin() first");
+	qWarning("Qt: QPainter::setClipping: Call begin() first");
 #endif
 	return;
     }
@@ -790,7 +790,7 @@ void QPainter::setClipRegion(const QRegion &rgn, CoordinateMode m)
 {
     if(!isActive()) {
 #if defined(CHECK_STATE)
-	qWarning("QPainter::setClipRegion: Call begin() first");
+	qWarning("Qt: QPainter::setClipRegion: Call begin() first");
 #endif
 	return;
     }
@@ -1596,8 +1596,8 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
 	return;
     if(a.size() - index < 4) {
 #if defined(QT_CHECK_RANGE)
-	qWarning("QPainter::drawCubicBezier: Cubic Bezier needs 4 control "
-		 "points");
+	qWarning("Qt: QPainter::drawCubicBezier: Cubic Bezier "
+		 "needs 4 control points");
 #endif
 	return;
     }

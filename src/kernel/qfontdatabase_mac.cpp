@@ -100,7 +100,7 @@ void QFontDatabase::createDatabase()
 	while(!FMGetNextFontFamily(&it, &fam)) {
 	    static Str255 n;
 	    if(FMGetFontFamilyName(fam, n))
-		qDebug("Whoa! %s %d", __FILE__, __LINE__);
+		qDebug("Qt: internal: WH0A, %s %d", __FILE__, __LINE__);
 	    if(!n[0] || n[1] == '.') //throw out ones starting with a .
 		continue;
 #ifdef QMAC_FONT_ATSUI

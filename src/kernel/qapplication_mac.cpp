@@ -252,7 +252,7 @@ static short qt_mac_find_window(int x, int y, QWidget **w=NULL)
 	if(wp && !unhandled_dialogs.find((void *)wp)) {
 	    *w = QWidget::find((WId)wp);
 	    if(!*w)
-		qWarning("qt_mac_find_window: Couldn't find %d",(int)wp);
+		qWarning("Qt: qt_mac_find_window: Couldn't find %d",(int)wp);
 	} else {
 	    *w = NULL;
 	}
@@ -654,7 +654,7 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 		    else if(s == "offthespot")
 			qt_mac_input_spot = QT_MAC_OFFTHESPOT;
 		    else
-			qDebug("Qt/Mac doesn't understand the input style '%s'", s.data());
+			qDebug("Qt: internal: Misunderstood input style '%s'", s.data());
 		}
 	    } else
 
@@ -939,7 +939,7 @@ static int get_modifiers(int key, bool from_mouse=FALSE)
 #ifndef DEBUG_MOUSE_MAPS
 	    if(!from_mouse)
 #endif
-		qDebug("**Mapping modifier: %d (0x%04x) -- %d", key, key, from_mouse);
+		qDebug("Qt: internal: **Mapping modifier: %d (0x%04x) -- %d", key, key, from_mouse);
 #endif
     int ret = 0;
     for(int i = 0; modifier_syms[i].qt_code; i++) {
@@ -948,7 +948,7 @@ static int get_modifiers(int key, bool from_mouse=FALSE)
 #ifndef DEBUG_MOUSE_MAPS
 	    if(!from_mouse)
 #endif
-		qDebug("%d: got modifier: %s", from_mouse, modifier_syms[i].desc);
+		qDebug("Qt: internal: %d: got modifier: %s", from_mouse, modifier_syms[i].desc);
 #endif
 	    ret |= modifier_syms[i].qt_code;
 	}
@@ -1208,7 +1208,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	widget->showMaximized();
 	break;
     default:
-	qDebug("Unhandled case in mouse_down.. %d", windowPart);
+	qDebug("Qt: internal: Unhandled case in mouse_down.. %d", windowPart);
 	break;
     }
     return FALSE;
@@ -2115,7 +2115,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		hic.attributes = kHICommandFromMenu;
 		if(GetMenuItemCommandID(hic.menu.menuRef, hic.menu.menuItemIndex,
 					&hic.commandID))
-		    qDebug("Shouldn't happen.. %s:%d", __FILE__, __LINE__);
+		    qDebug("Qt: internal: Unexpected condition reached. %s:%d", __FILE__, __LINE__);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 		if(QMenuBar::activateCommand(hic.commandID) ||
 		   QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex, FALSE, TRUE)) {
@@ -2336,7 +2336,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(!handled_event) {
 		EventRecord erec;
 		if(!ConvertEventRefToEventRecord(event, &erec))
-		    qDebug("Whoa, this can't happen! %s:%d", __FILE__, __LINE__);
+		    qDebug("Qt: internal: WH0A, unexpected condition reached. %s:%d", __FILE__, __LINE__);
 		else if(AEProcessAppleEvent(&erec) == noErr)
 		    handled_event = TRUE;
 	    }

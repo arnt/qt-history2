@@ -69,7 +69,7 @@ static bool qt_mac_debug_metrics(const QChar &c) {
     if(debug_metrics_first) {
 	debug_metrics_first = FALSE;
 	if(char *en = getenv("QT_METRICS_DEBUG")) {
-	    qDebug("%s", en);
+	    qDebug("Qt: internal: %s", en);
 	    QStringList l(QStringList::split(',', QString(en)));
 	    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 		(*it) = (*it).stripWhiteSpace().simplifyWhiteSpace();
@@ -87,34 +87,34 @@ static bool qt_mac_debug_metrics(const QChar &c) {
 			//row
 			l = row.toShort(&ok);
 			if(!ok || l > 0xFF) {
-			    qDebug("Invalid row %d: %s", l, (*it).latin1());
+			    qDebug("Qt: internal: Invalid row %d: %s", l, (*it).latin1());
 			    continue;
 			}
 			k = l << 8;
 			//column
 			l = col.toShort(&ok);
 			if(!ok || l > 0xFF) {
-			    qDebug("Invalid colum %d: %s", l, (*it).latin1());
+			    qDebug("Qt: internal: Invalid colum %d: %s", l, (*it).latin1());
 			    continue;
 			}
 			k |= l;
 		    } else {
-			qDebug("%d: Invalid metrics debug: %s", __LINE__, (*it).latin1());
+			qDebug("Qt: internal: %d: Invalid metrics debug: %s", __LINE__, (*it).latin1());
 			continue;
 		    }
 		} else {
 		    bool ok = TRUE;
 		    k = (*it).toShort(&ok);
 		    if(!ok) {
-			qDebug("%d: Invalid metrics debug: %s", __LINE__, (*it).latin1());
+			qDebug("Qt: internal: %d: Invalid metrics debug: %s", __LINE__, (*it).latin1());
 			continue;
 		    }
 		}
-		qDebug("Valid metrics debug: %s", (*it).latin1());
+		qDebug("Qt: internal: Valid metrics debug: %s", (*it).latin1());
 		debug_metrics_list.append(QChar(k));
 	    }
 	} else {
-	    qDebug("Must specify a QT_METRICS_DEBUG to use DEBUG_METRICS");
+	    qDebug("Qt: internal: Must specify a QT_METRICS_DEBUG to use DEBUG_METRICS");
 	}
     }
     if(debug_metrics_all)
@@ -151,7 +151,7 @@ static inline void qstring_to_pstring(QString s, int len, Str255 str, TextEncodi
     mapping.mappingVersion = kUnicodeUseLatestMapping;
 
     if(CreateUnicodeToTextInfo(&mapping, &info) != noErr) {
-	qDebug("That can't happen! %s:%d", __FILE__, __LINE__);
+	qDebug("Qt: internal: Unexpected condition reached %s:%d", __FILE__, __LINE__);
 	return;
     }
     const int unilen = len * 2;
@@ -304,14 +304,14 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
         values[arr] = &boldBool;
         arr++;
 	if(arr > arr_guess) //this won't really happen, just so I will not miss the case
-	    qDebug("%d: Whoa!! you forgot to increase arr_guess! %d", __LINE__, arr);
+	    qDebug("Qt: internal: %d, WH0A %d: arr_guess underflow %d", __LINE__, arr);
 
 	//create style
 	QATSUStyle *st = new QATSUStyle;
 	st->rgb.red = st->rgb.green = st->rgb.blue = 0;
 	ATSUCreateStyle(&st->style);
 	if(OSStatus e = ATSUSetAttributes(st->style, arr, tags, valueSizes, values)) {
-	    qDebug("%ld: This shouldn't happen %s:%d (%s)", e, __FILE__, __LINE__, d->key().latin1());
+	    qDebug("Qt: internal: %ld: unexpected condition reached %s:%d (%s)", e, __FILE__, __LINE__, d->key().latin1());
 	    delete st;
 	    st = NULL;
 	} else {
@@ -325,9 +325,9 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	    feat_values[feats] = kCommonLigaturesOffSelector;
 	    feats++;
 	    if(feats > feat_guess) //this won't really happen, just so I will not miss the case
-		qDebug("%d: Whoa!! you forgot to increase feat_guess! %d", __LINE__, feats);
+		qDebug("Qt: internal: %d: WH0A feat_guess underflow %d", __LINE__, feats);
 	    if(OSStatus e = ATSUSetFontFeatures(st->style, feats, feat_types, feat_values)) 
-		qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+		qDebug("Qt: internal: %ld: unexpected condition reached %s:%d", e, __FILE__, __LINE__);
 	}
 	fi->setATSUStyle(st);
 #endif
@@ -358,8 +358,8 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
 #endif
     if(task & GIMME_EXISTS) {
 	if(task != GIMME_EXISTS)
-	    qWarning("GIMME_EXISTS must appear by itself!");
-	qWarning("need to implement exists()");
+	    qWarning("Qt: GIMME_EXISTS must appear by itself!");
+	qWarning("Qt: need to implement exists()");
 	return 1;
     }
 
@@ -378,7 +378,7 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
 	    ByteCount size = sizeof(fcolor);
 	    ATSUAttributeValuePtr value = &fcolor;
 	    if(OSStatus e = ATSUSetAttributes(st->style, 1, &tag, &size, &value)) {
-		qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+		qDebug("Qt: internal: %ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
 		return 0;
 	    }
 	}
@@ -399,7 +399,7 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
     if(OSStatus e = ATSUCreateTextLayoutWithTextPtr((UniChar *)(s)+pos, 0, 
 						    count, use_len, 1, &count, 
 						    &st->style, &alayout)) {
-	qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+	qDebug("Qt: internal: %ld: Unexpected condition reached %s:%d", e, __FILE__, __LINE__);
 	return 0;
     }
 #endif
@@ -442,7 +442,7 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
     if(rgn && !rgn->isNull() && !rgn->isEmpty()) 
 	rgnh = rgn->handle(TRUE);
     if(QDBeginCGContext(port, &ctx)) {
-	qDebug("Whoa, that is a major problem! %s:%d", __FILE__, __LINE__);
+	qDebug("Qt: internal: WH0A, QDBeginCGContext failed. %s:%d", __FILE__, __LINE__);
 	ATSUDisposeTextLayout(alayout);
 	return 0;
     }
@@ -455,9 +455,9 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
     arr++;
 #endif
     if(arr > arr_guess) //this won't really happen, just so I will not miss the case
-	qDebug("%d: Whoa!! you forgot to increase arr_guess! %d", __LINE__, arr);
+	qDebug("Qt: internal: %d: WH0A, arr_guess underflow %d", __LINE__, arr);
     if(OSStatus e = ATSUSetLayoutControls(alayout, arr, tags, valueSizes, values)) {
-	qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+	qDebug("Qt: internal: %ld: Unexpected condition reached %s:%d", e, __FILE__, __LINE__);
 	ATSUDisposeTextLayout(alayout);
 #if defined( QMAC_FONT_ANTIALIAS )
 	QDEndCGContext(port, &ctx);
@@ -578,7 +578,7 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int len, uchar ta
     short scpt = FontToScript(fi.font());
     err =  CreateUnicodeToTextRunInfoByScriptCode(scpts, &scpt, &runi);
     if(err != noErr) {
-	qDebug("unlikely error %d %s:%d", (int)err, __FILE__, __LINE__);
+	qDebug("Qt: internal: unlikely error %d %s:%d", (int)err, __FILE__, __LINE__);
 	return 0;
     }
     SetFallbackUnicodeToTextRun(runi, make_font_fallbackUPP(), kUnicodeFallbackCustomFirst, NULL);
@@ -602,14 +602,14 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int len, uchar ta
 						&converted, buf, run_len, &run_len, runs);
 	if(err != noErr && err != kTECUsedFallbacksStatus && 
 	   err != kTECArrayFullErr && err != kTECOutputBufferFullStatus)  {
-	    qDebug("unlikely error %d %s:%d", (int)err, __FILE__, __LINE__);
+	    qDebug("Qt: internal: unlikely error %d %s:%d", (int)err, __FILE__, __LINE__);
 	    DisposeUnicodeToTextRunInfo(&runi);
 	    free(buf);
 	    return 0;
 	}
 	if(task & GIMME_EXISTS) {
 	    if(task != GIMME_EXISTS)
-		qWarning("GIMME_EXISTS must appear by itself!");
+		qWarning("Qt: GIMME_EXISTS must appear by itself!");
 	    ret = (err != kTECUsedFallbacksStatus);
 	    break;
 	}
@@ -664,7 +664,7 @@ static inline int do_text_task(const QFontPrivate *d, QString s, int pos, int le
 #else
     if(!len || (pos+len) > (int)s.length()) {
 	if(len)
-	    qDebug("This should never happen %d > %d", pos+len, s.length());
+	    qDebug("Qt: internal: unexpected condition reached %d > %d", pos+len, s.length());
 	return 0;
     }
 #endif
@@ -680,7 +680,7 @@ static inline int do_text_task(const QFontPrivate *d, QString s, int pos, int le
 	QMacSetFontInfo fi(d, NULL);
 	if(task & GIMME_EXISTS) {
 	    if(task != GIMME_EXISTS)
-		qWarning("GIMME_EXISTS must appear by itself!");
+		qWarning("Qt: GIMME_EXISTS must appear by itself!");
 	    return TRUE;
 	}
 	int ret = 0;
@@ -711,7 +711,7 @@ static inline int do_text_task(const QFontPrivate *d, const QChar &c, uchar task
     int ret = 0; //latin1 optimization
     if(task & GIMME_EXISTS) {
 	if(task != GIMME_EXISTS)
-	    qWarning("GIMME_EXISTS must appear by itself!");
+	    qWarning("Qt: GIMME_EXISTS must appear by itself!");
 	return TRUE;
     }
     if(task & GIMME_WIDTH)

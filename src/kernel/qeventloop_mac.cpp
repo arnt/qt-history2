@@ -195,7 +195,7 @@ static void repairTimer(const timeval &time)	// repair broken timer
 	if(t->type == TimerInfo::TIMER_QT)
 	    t->u.qt_timer.timeout = t->u.qt_timer.timeout - diff;
 	else
-	    qDebug("%s:%d This can't happen!", __FILE__, __LINE__);
+	    qDebug("Qt: internal: %s:%d This can't happen!", __FILE__, __LINE__);
 	t = timerList->next();
     }
 }
@@ -223,7 +223,7 @@ static timeval *qt_wait_timer()
 	    if(qt_wait_timer_max && *qt_wait_timer_max < tm)
 		tm = *qt_wait_timer_max;
 	} else {
-	    qDebug("%s:%d This can't happen!", __FILE__, __LINE__);
+	    qDebug("Qt: internal: %s:%d Unexpected condition reached.", __FILE__, __LINE__);
 	}
 	return &tm;
     }
@@ -253,7 +253,7 @@ QMAC_PASCAL static void qt_activate_mac_timer(EventLoopTimerRef, void *data)
     if(tmr->pending)
 	return;
     if(tmr->type != TimerInfo::TIMER_MAC) { //can't really happen, can it?
-	qWarning("%s: %d Whoaaaaa!!!", __FILE__, __LINE__);
+	qDebug("Qt: internal %s: %d WH0A", __FILE__, __LINE__);
 	return;
     }
     if(QMacBlockingFunction::blocking()) { //just send it immediately
@@ -575,7 +575,7 @@ void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
     int type = notifier->type();
     if(sockfd < 0 || type < 0 || type > 2 || notifier == 0) {
 #if defined(QT_CHECK_RANGE)
-	qWarning("QSocketNotifier: Internal error");
+	qWarning("Qt: QSocketNotifier: Internal error");
 #endif
 	return;
     }
@@ -607,7 +607,7 @@ void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
 #if defined(QT_CHECK_STATE)
 	if(p && p->fd == sockfd) {
 	    static const char *t[] = { "read", "write", "exception" };
-	    qWarning("QSocketNotifier: Multiple socket notifiers for "
+	    qWarning("Qt: QSocketNotifier: Multiple socket notifiers for "
 		      "same socket %d and type %s", sockfd, t[type]);
 	}
 #endif
@@ -637,7 +637,7 @@ void QEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
     int type = notifier->type();
     if(sockfd < 0 || type < 0 || type > 2 || notifier == 0) {
 #if defined(QT_CHECK_RANGE)
-	qWarning("QSocketNotifier: Internal error");
+	qWarning("Qt: QSocketNotifier: Internal error");
 #endif
 	return;
     }
@@ -700,7 +700,7 @@ void QEventLoop::setSocketNotifierPending(QSocketNotifier *notifier)
     int type = notifier->type();
     if(sockfd < 0 || type < 0 || type > 2 || notifier == 0) {
 #if defined(QT_CHECK_RANGE)
-	qWarning("QSocketNotifier: Internal error");
+	qWarning("Qt: QSocketNotifier: Internal error");
 #endif
 	return;
     }
@@ -739,7 +739,7 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 #if 0
     //TrackDrag says you may not use the EventManager things..
     if(qt_mac_in_drag) {
-	qWarning("Whoa! Cannot process events whilst dragging!");
+	qWarning("Qt: Cannot process events whilst dragging!");
 	return FALSE;
     }
 #endif

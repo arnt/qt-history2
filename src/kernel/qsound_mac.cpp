@@ -116,12 +116,12 @@ static Movie get_movie(const QString &filename, QPixmap *offscreen)
     QCString utfs = filename.utf8();
     err = FSPathMakeRef((const UInt8 *)utfs.data(), &fref, NULL);
     if(err != noErr) {
-	qDebug("bogus %d", __LINE__);
+	qDebug("Qt: internal: bogus %d", __LINE__);
 	return NULL;
     }
     err = FSGetCatalogInfo(&fref, kFSCatInfoNone, NULL, NULL, &fileSpec, NULL);
     if ( err != noErr ) {
-	qDebug("bogus %d", __LINE__);
+	qDebug("Qt: internal: bogus %d", __LINE__);
 	return NULL;
     }
 

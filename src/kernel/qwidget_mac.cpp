@@ -112,7 +112,7 @@ static inline void debug_wndw_rgn(const char *where, QWidget *w, const QRegion &
 				  bool clean=FALSE, bool translate=FALSE) {
     QPoint mp(posInWindow(w));
     QRect wrect(mp.x(), mp.y(), w->width(), w->height());
-    qDebug("%s %s %s (%s) [ %d %d %d %d ]", where, clean ? "clean" : "dirty",
+    qDebug("Qt: internal: %s %s %s (%s) [ %d %d %d %d ]", where, clean ? "clean" : "dirty",
 	   w->className(), w->name(), wrect.x(), wrect.y(), wrect.width(), wrect.height());
     QMemArray<QRect> rs = r.rects();
     int offx = 0, offy = 0;
@@ -123,13 +123,13 @@ static inline void debug_wndw_rgn(const char *where, QWidget *w, const QRegion &
     for(uint i = 0; i < rs.count(); i++) {
 	QRect srect(rs[i].x()+offx, rs[i].y()+offy, rs[i].width(), rs[i].height());
 	// * == Completely inside the widget, - == intersects, ? == completely unrelated
-	qDebug("%c(%c) %d %d %d %d",
+	qDebug("Qt: internal: %c(%c) %d %d %d %d",
 	       !wrect.intersects(srect) ? '?' : (wrect.contains(srect) ? '*' : '-'),
 	       !w->clippedRegion().contains(srect) ? '?' :
 	       (!QRegion(w->clippedRegion() ^ srect).isEmpty() ? '*' : '-'),
 	       srect.x(), srect.y(), srect.width(), srect.height());
     }
-    qDebug("*****End debug..");
+    qDebug("Qt: internal: *****End debug..");
 }
 static inline void debug_wndw_rgn(const char *where, QWidget *w, const Rect *r, bool clean=FALSE) {
     debug_wndw_rgn(where + QString(" (rect)"), w,
@@ -226,7 +226,7 @@ bool qt_paint_children(QWidget *p, QRegion &r, uchar ops = PC_None)
 		 ((ops & PC_ForceErase) || !p->testWFlags(QWidget::WRepaintNoErase));
     if((ops & PC_NoPaint)) {
 	if(ops & PC_Later)
-	   qDebug("Cannot use PC_NoPaint with PC_Later!");
+	   qDebug("Qt: internal: Cannot use PC_NoPaint with PC_Later!");
 	if(erase) {
 #ifdef DEBUG_WINDOW_RGN
 	    debug_wndw_rgn("**paint_children1", p, r, TRUE, TRUE);
@@ -518,7 +518,7 @@ static QMAC_PASCAL long qt_wdef(short, WindowRef window, short message, long par
 	    result = errWindowRegionCodeInvalid;
 	break; }
     default:
-	qDebug("Shouldn't happen %s:%d %d", __FILE__, __LINE__, message);
+	qDebug("Qt: internal: Shouldn't happen %s:%d %d", __FILE__, __LINE__, message);
 	break;
     }
     return result;
@@ -733,29 +733,29 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    { 0, NULL }
 	};
 #undef ADD_DEBUG_WINDOW_NAME
-	qDebug("************* Creating new window (%s::%s)", className(), name());
+	qDebug("Qt: internal: ************* Creating new window (%s::%s)", className(), name());
 	bool found_class = FALSE;
 	for(int i = 0; known_classes[i].name; i++) {
 	    if(wclass == known_classes[i].tag) {
 		found_class = TRUE;
-		qDebug("** Class: %s", known_classes[i].name);
+		qDebug("Qt: internal: ** Class: %s", known_classes[i].name);
 		break;
 	    }
 	}
 	if(!found_class)
-	    qDebug("!! Class: Unknown! (%d)", (int)wclass);
+	    qDebug("Qt: internal: !! Class: Unknown! (%d)", (int)wclass);
 	if(wattr) {
 	    WindowAttributes tmp_wattr = wattr;
-	    qDebug("** Attributes:");
+	    qDebug("Qt: internal: ** Attributes:");
 	    for(int i = 0; tmp_wattr && known_attribs[i].name; i++) {
 		if((tmp_wattr & known_attribs[i].tag) == known_attribs[i].tag) {
 		    tmp_wattr ^= known_attribs[i].tag;
-		    qDebug("* %s %s", known_attribs[i].name,
+		    qDebug("Qt: internal: * %s %s", known_attribs[i].name,
 			   (GetAvailableWindowAttributes(wclass) & known_attribs[i].tag) ? "" : "(*)");
 		}
 	    }
 	    if(tmp_wattr)
-		qDebug("!! Attributes: Unknown (%d)", (int)tmp_wattr);
+		qDebug("Qt: internal: !! Attributes: Unknown (%d)", (int)tmp_wattr);
 	}
 #endif
 
@@ -777,7 +777,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 #endif
 	{
 	    if(OSStatus ret = CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id))
-		qDebug("%s:%d If you reach this error please contact Trolltech and include the\n"
+		qDebug("Qt: internal: %s:%d If you reach this error please contact Trolltech and include the\n"
 		       "      WidgetFlags used in creating the widget (%ld)", __FILE__, __LINE__, ret);
 	    if(!desktop) { 	//setup an event callback handler on the window
 		InstallWindowEventHandler((WindowRef)id, make_win_eventUPP(),
@@ -814,9 +814,9 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		from = "Created";
 	    else if(grpf == grp)
 		from = "Copied";
-	    qDebug("With window group '%s' [%p] @ %d: %s", cfstring2qstring(cfname).latin1(), grpf, (int)lvl, from);
+	    qDebug("Qt: internal: With window group '%s' [%p] @ %d: %s", cfstring2qstring(cfname).latin1(), grpf, (int)lvl, from);
 	} else {
-	    qDebug("No window group!!!");
+	    qDebug("Qt: internal: No window group!!!");
 	}
 #endif
 #endif
@@ -1737,7 +1737,7 @@ void QWidget::setMinimumSize(int minw, int minh)
 {
 #if defined(QT_CHECK_RANGE)
     if(minw < 0 || minh < 0)
-	qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
+	qWarning("Qt: QWidget::setMinimumSize: The smallest allowed size is (0,0)");
 #endif
     createExtra();
     if(extra->minw == minw && extra->minh == minh)
@@ -1757,7 +1757,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
 {
 #if defined(QT_CHECK_RANGE)
     if(maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX) {
-	qWarning("QWidget::setMaximumSize: (%s/%s) "
+	qWarning("Qt: QWidget::setMaximumSize: (%s/%s) "
 		"The largest allowed size is (%d,%d)",
 		 name("unnamed"), className(), QWIDGETSIZE_MAX,
 		QWIDGETSIZE_MAX);
@@ -1765,7 +1765,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
 	maxh = QMIN(maxh, QWIDGETSIZE_MAX);
     }
     if(maxw < 0 || maxh < 0) {
-	qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
+	qWarning("Qt: QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
 		"are not possible",
 		name("unnamed"), className(), maxw, maxh);
 	maxw = QMAX(maxw, 0);
@@ -1954,7 +1954,7 @@ int QWidget::metric(int m) const
     case QPaintDeviceMetrics::PdmPhysicalDpiY:
 	return 80;
     default: //leave this so the compiler complains when new ones are added
-	qWarning("QWidget::metric unhandled parameter %d",m);
+	qWarning("Qt: QWidget::metric unhandled parameter %d",m);
 	return QPaintDevice::metric(m);// XXX
     }
     return 0;

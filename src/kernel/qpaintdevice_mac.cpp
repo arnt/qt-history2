@@ -57,8 +57,8 @@ QPaintDevice::~QPaintDevice()
 {
 #if defined(QT_CHECK_STATE)
     if(paintingActive())
-	qWarning("QPaintDevice: Cannot destroy paint device that is being "
-		  "painted.  Be sure to QPainter::end() painters!");
+	qWarning("Qt: QPaintDevice: Cannot destroy paint device that is being "
+		 "painted.  Be sure to QPainter::end() painters!");
 #endif
 }
 
@@ -108,7 +108,7 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	return;
 
     if(!dst || !src) {
-	qDebug("Asked to paint to or from a null paintdevice, something is hosed.");
+	qDebug("Qt: internal: Asked to paint to or from a null paintdevice, something is awry.");
 	return;
     }
 
@@ -118,7 +118,7 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	break;
     default:
 #if defined(QT_CHECK_RANGE)
-	qWarning("bitBlt: Cannot bitBlt from device type %x", src->devType());
+	qWarning("Qt: bitBlt: Cannot bitBlt from device type %x", src->devType());
 #endif
 	return;
     }
@@ -132,10 +132,10 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	    GDHandle gdh;
 #if 0
 	    if(GetWindowGreatestAreaDevice((WindowPtr)w->handle(), kWindowStructureRgn, &gdh, NULL) || !gdh)
-		qDebug("Shouldn't happen: %s:%d", __FILE__, __LINE__);
+		qDebug("Qt: internal: Unexpected condition reached: %s:%d", __FILE__, __LINE__);
 #else
 	    if(!(gdh=GetMainDevice()))
-		qDebug("Shouldn't happen: %s:%d", __FILE__, __LINE__);
+		qDebug("Qt: internal: Unexpected condition reached: %s:%d", __FILE__, __LINE__);
 #endif
 	    srcbitmap = (BitMap*)(*(*gdh)->gdPMap);
 	} else {
@@ -180,7 +180,7 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	break;
     default:
 #if defined(QT_CHECK_RANGE)
-	qWarning("bitBlt: Cannot bitBlt to device type %x", dst->devType());
+	qWarning("Qt: bitBlt: Cannot bitBlt to device type %x", dst->devType());
 #endif
 	return;
     }
@@ -194,7 +194,7 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
     if(dst->devType() == QInternal::Widget) {
 	/* special case when you widget->widget blt */
 	if(src != dst && src->devType() == QInternal::Widget) {
-	    qDebug("I don't really know if this will work, I'll need to find a test case FIXME! %s:%d",
+	    qDebug("Qt: internal: Need to find a test case FIXME! %s:%d",
 		   __FILE__, __LINE__);
 	    QPixmap tmppix(dw, dh, 32);
 	    unclippedScaledBitBlt(&tmppix, 0, 0, dw, dh, src, sx, sy, sw, sh, rop, imask, TRUE);
@@ -253,7 +253,7 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	    bitBlt(pm, 0, 0, src, sx, sy, sw, sh);
 	} else {
 #if defined(QT_CHECK_RANGE)
-	    qWarning("bitBlt: Cannot bitBlt from device");
+	    qWarning("Qt: bitBlt: Cannot bitBlt from device");
 #endif
 	    return;
 	}
@@ -274,7 +274,7 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	sh = dh;
 
     if(!dstbitmap || !srcbitmap) {
-	qDebug("bitBlt: Something is very wrong! %d", __LINE__);
+	qDebug("Qt: internal: bitBlt: Unexpected condition reached %d", __LINE__);
 	return;
     }
 

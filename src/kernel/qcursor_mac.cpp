@@ -195,7 +195,7 @@ void qt_mac_set_cursor(const QCursor *c, const Point *p)
 	    QDSetNamedPixMapCursor(c->data->curs.big_cursor_name);
 #endif
 	} else {
-//	    qDebug("whoa! that shouldn't happen!");
+//	    qDebug("Qt: internal: WH0A. Unexpected condition reached!");
 	}
     }
     currentCursor = c->data;
@@ -302,7 +302,7 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask,
 	initialize();
     if(bitmap.depth() != 1 || mask.depth() != 1 || bitmap.size() != mask.size()) {
 #if defined(QT_CHECK_NULL)
-	qWarning("QCursor: Cannot create bitmap cursor; invalid bitmap(s)");
+	qWarning("Qt: QCursor: Cannot create bitmap cursor; invalid bitmap(s)");
 #endif
 	QCursor *c = &cursorTable[arrowCursorIdx];
 	c->data->ref();
@@ -489,7 +489,7 @@ void QCursor::update() const
 						       GetGWorldPixMap((GWorldPtr)data->bmm->handle()), hotspot, 
 						       d->curs.big_cursor_name);
 	    if(ret == noErr) {
-		qDebug("Whoa! Untested cursor case! %s:%d", __FILE__, __LINE__);
+		qDebug("Qt: internal: WH0A. Untested cursor case. %s:%d", __FILE__, __LINE__);
 		d->type = QCursorData::TYPE_BigCursor;		
 	    } else {
 		free(d->curs.big_cursor_name);
@@ -771,7 +771,7 @@ void QCursor::update() const
 #endif
     default:
 #if defined(QT_CHECK_RANGE)
-	qWarning("QCursor::update: Invalid cursor shape %d", d->cshape);
+	qWarning("Qt: QCursor::update: Invalid cursor shape %d", d->cshape);
 #endif
 	return;
     }

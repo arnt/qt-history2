@@ -44,7 +44,7 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
 {
     init(w, h, 1, TRUE, DefaultOptim);
     if(!hd)
-	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
+	qDebug("Qt: internal: No hd! %s %d", __FILE__, __LINE__);
 
 #ifndef QMAC_ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
@@ -169,7 +169,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     }
 
     if(!hd)
-	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
+	qDebug("Qt: internal: No hd! %s %d", __FILE__, __LINE__);
 
 #ifndef QMAC_ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
@@ -223,7 +223,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 	    }
 	    break;
 	default:
-	    qDebug("Oops: Forgot a depth %s:%d", __FILE__, __LINE__);
+	    qDebug("Qt: internal: Oops: Forgot a depth %s:%d", __FILE__, __LINE__);
 	    break;
 	}
     }
@@ -322,7 +322,7 @@ QImage QPixmap::convertToImage() const
     }
 
     if(!hd)
-	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
+	qDebug("Qt: internal: No hd! %s %d", __FILE__, __LINE__);
 
 #ifndef QMAC_ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
@@ -432,7 +432,7 @@ void QPixmap::fill(const QColor &fillColor)
     if(!width() || !height())
 	return;
     if(!hd)
-	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
+	qDebug("Qt: internal: No hd! %s %d", __FILE__, __LINE__);
 
     //at the end of this function this will go out of scope and the destructor will restore the state
     QMacSavedPortInfo saveportstate(this);
@@ -444,7 +444,7 @@ void QPixmap::fill(const QColor &fillColor)
 	ulong *dptr = (ulong *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd));
 	int dbytes = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd))*height();
 	if(!dptr || !dbytes)
-	    qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
+	    qDebug("Qt: internal: No dptr or no dbytes! %s %d", __FILE__, __LINE__);
 	QRgb colr = qRgba(fillColor.red(),fillColor.green(), fillColor.blue(), 0);
 	if(depth() == 1 || !colr) {
 	    memset(dptr, colr ? 0xFF : 0x00, dbytes);
@@ -638,7 +638,7 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
     if(!qt_xForm_helper(mat, 0, QT_XFORM_TYPE_MSBFIRST, bpp,
 			dptr, xbpl, dbpl - xbpl, h, sptr, sbpl, ws, hs)){
 #if defined(QT_CHECK_RANGE)
-	qWarning("QPixmap::xForm: display not supported (bpp=%d)",bpp);
+	qWarning("Qt: QPixmap::xForm: display not supported (bpp=%d)",bpp);
 #endif
 	QPixmap pm;
 	return pm;
@@ -692,7 +692,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 	hd = 0;
 #if defined(QT_CHECK_RANGE)
 	if(!make_null)
-	    qWarning("QPixmap: Invalid pixmap parameters");
+	    qWarning("Qt: QPixmap: Invalid pixmap parameters");
 #endif
 	return;
     }
@@ -719,7 +719,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     if(e != noErr) {
 	data->w = data->h = 0;
 	hd=0; //just to be sure
-	qDebug("QPixmap::init Something went wrong (%d) (%d %d %d %d)", e, rect.left, rect.top, rect.right, rect.bottom);
+	qDebug("Qt: internal: QPixmap::init error (%d) (%d %d %d %d)", e, rect.left, rect.top, rect.right, rect.bottom);
 	Q_ASSERT(0);
     } else {
 #ifdef QMAC_ONE_PIXEL_LOCK

@@ -176,7 +176,7 @@ const char* QClipboardWatcher::format( int n ) const
 
     infos = (ScrapFlavorInfo *)calloc(cnt, sizeof(ScrapFlavorInfo));
     if(!infos || GetScrapFlavorInfoList(scrap, &cnt, infos) != noErr) {
-	qDebug("Failure to collect ScrapFlavorInfoList..");
+	qDebug("Qt: internal: Failure to collect ScrapFlavorInfoList..");
 	goto format_end;
     }
 
@@ -198,7 +198,7 @@ const char* QClipboardWatcher::format( int n ) const
     for(i = n; i < (int)cnt; i++) {
 	if( ( infos[i].flavorType >> 16 ) == ( 'QTxx' >> 16 ) )
 	    break;
-	qDebug( "%s:%d Unknown type %c%c%c%c (%d)", __FILE__, __LINE__,
+	qDebug( "Qt: internal: %s:%d Unknown type %c%c%c%c (%d)", __FILE__, __LINE__,
 		char(infos[i].flavorType >> 24), char((infos[i].flavorType >> 16) & 255),
 		char((infos[i].flavorType >> 8) & 255), char(infos[i].flavorType & 255 ), i );
     }
@@ -206,7 +206,7 @@ const char* QClipboardWatcher::format( int n ) const
 	return 0;
 
     if(GetScrapFlavorSize(scrap, infos[i].flavorType, &flavorsize) != noErr || flavorsize < 4) {
-	qDebug("Failure to get ScrapFlavorSize for %d", (int)infos[i].flavorType);
+	qDebug("Qt: internal: Failure to get ScrapFlavorSize for %d", (int)infos[i].flavorType);
 	goto format_end;
     }
     GetScrapFlavorData(scrap, infos[i].flavorType, &realsize, &typesize);
@@ -257,13 +257,13 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 
     infos = (ScrapFlavorInfo *)calloc(cnt, sizeof(ScrapFlavorInfo));
     if(!infos || GetScrapFlavorInfoList(scrap, &cnt, infos) != noErr) {
-	qDebug("Failure to collect ScrapFlavorInfoList..");
+	qDebug("Qt: internal: Failure to collect ScrapFlavorInfoList..");
 	goto encode_end;
     }
 
     for(UInt32 x = 0; x < cnt; x++) {
 	if( ( infos[x].flavorType >> 16 ) != ( 'QTxx' >> 16 ) ) {
-	    qDebug( "%s:%d Unknown type %c%c%c%c (%d)", __FILE__, __LINE__,
+	    qDebug( "Qt: internal: %s:%d Unknown type %c%c%c%c (%d)", __FILE__, __LINE__,
 		    char(infos[x].flavorType >> 24), char((infos[x].flavorType >> 16) & 255),
 		    char((infos[x].flavorType >> 8) & 255), char(infos[x].flavorType & 255 ), (int) x);
 	    continue;
@@ -409,7 +409,7 @@ bool QClipboard::ownsSelection() const
 
 bool QClipboard::ownsClipboard() const
 {
-    qWarning("QClipboard::ownsClipboard: UNIMPLEMENTED!");
+    qWarning("Qt: QClipboard::ownsClipboard: UNIMPLEMENTED!");
     return FALSE;
 }
 

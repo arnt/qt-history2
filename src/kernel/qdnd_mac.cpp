@@ -129,7 +129,7 @@ void updateDragMode(DragReference drag) {
 	else if(set_drag_mode == QDragObject::DragCopy)
 	    current_drag_action = QDropEvent::Copy;
 	else
-	    qDebug("not sure how to handle..");
+	    qDebug("Qt: internal: not sure how to handle..");
     }
 }
 
@@ -178,7 +178,7 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
     ItemReference ref = NULL;
 
     if(GetDragItemReferenceNumber(current_dropobj, 1, &ref)) {
-	qDebug("OOps.. %s:%d", __FILE__, __LINE__);
+	qDebug("Qt: internal: OOps.. %s:%d", __FILE__, __LINE__);
 	return 0;
     }
     UInt16 cnt = 0;
@@ -188,13 +188,13 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
     if(GetFlavorDataSize(current_dropobj, ref, kDragQtGeneratedMarker, &flavorsize)) { //Mac style
 	for(UInt16 i = 1; i <= cnt; i++) {
 	    if(GetFlavorType(current_dropobj, ref, i, &info)) {
-		qDebug("OOps.. %s:%d", __FILE__, __LINE__);
+		qDebug("Qt: internal: OOps.. %s:%d", __FILE__, __LINE__);
 		return 0;
 	    }
 	    for(int sm = 0; drag_map[sm].qt_type; sm++) {
 		if(info == drag_map[sm].mac_type && !qstrcmp(fmt, drag_map[sm].qt_type)) {
 		    if(GetFlavorDataSize(current_dropobj, ref, info, &flavorsize)) {
-			qDebug("Failure to get GetFlavorDataSize for %d", (int)info);
+			qDebug("Qt: internal: Failure to get GetFlavorDataSize for %d", (int)info);
 			return 0;
 		    }
 		    if(info == kScrapFlavorTypeUnicode || info == kScrapFlavorTypeText) {
@@ -208,16 +208,16 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
 			for(int i = 1, done = 0; i <= cnt_items; i++) {
 			    if(i > 1) {
 				if(GetDragItemReferenceNumber(current_dropobj, i, &ref)) {
-				    qDebug("OOps.. %s:%d", __FILE__, __LINE__);
+				    qDebug("Qt: internal: OOps.. %s:%d", __FILE__, __LINE__);
 				    return 0;
 				}
 				if(GetFlavorDataSize(current_dropobj, ref, info, &flavorsize)) {
-				    qDebug("Failure to get GetFlavorDataSize for %d", (int)info);
+				    qDebug("Qt: internal: Failure to get GetFlavorDataSize for %d", (int)info);
 				    return 0;
 				}
 			    }
 			    if(flavorsize != sizeof(HFSFlavor)) {
-				qDebug("%s:%d Unexpected case in HFS Flavor", __FILE__, __LINE__);
+				qDebug("Qt: internal: %s:%d Unexpected case in HFS Flavor", __FILE__, __LINE__);
 				continue;
 			    }
 			    FSRef fsref;
@@ -245,11 +245,11 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
 			for(int i = 1, done = 0, buffer_size = 0; i <= cnt_items; i++) {
 			    if(i > 1) {
 				if(GetDragItemReferenceNumber(current_dropobj, i, &ref)) {
-				    qDebug("OOps.. %s:%d", __FILE__, __LINE__);
+				    qDebug("Qt: internal: OOps.. %s:%d", __FILE__, __LINE__);
 				    return 0;
 				}
 				if(GetFlavorDataSize(current_dropobj, ref, info, &flavorsize)) {
-				    qDebug("Failure to get GetFlavorDataSize for %d", (int)info);
+				    qDebug("Qt: internal: Failure to get GetFlavorDataSize for %d", (int)info);
 				    return 0;
 				}
 			    }
@@ -280,12 +280,12 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
     } else { //Qt style drags
 	for(UInt16 i = 1; i <= cnt; i++) {
 	    if(GetFlavorType(current_dropobj, ref, i, &info)) {
-		qDebug("OOps.. %s:%d", __FILE__, __LINE__);
+		qDebug("Qt: internal: OOps.. %s:%d", __FILE__, __LINE__);
 		return 0;
 	    }
 	    if((info >> 16) == ('QTxx' >> 16)) {
 		if (GetFlavorDataSize(current_dropobj, ref, info, &flavorsize) || flavorsize < 4) {
-		    qDebug("Failure to get ScrapFlavorSize for %s:%d %d %d", __FILE__, __LINE__, 
+		    qDebug("Qt: internal: Failure to get ScrapFlavorSize for %s:%d %d %d", __FILE__, __LINE__, 
 			    (int)flavorsize, (int)info);
 		    return 0;
 		}
@@ -316,12 +316,12 @@ const char* QDropEvent::format(int i) const
     unsigned short numFlavors;
     
     if(GetDragItemReferenceNumber(current_dropobj, 1, &ref)) {
-	qDebug("OOps.. %s:%d", __FILE__, __LINE__);
+	qDebug("Qt: internal: OOps.. %s:%d", __FILE__, __LINE__);
 	return 0;
     }
 
     if(CountDragItemFlavors(current_dropobj, ref, &numFlavors)) {
-	qDebug("OOps.. %s:%d", __FILE__, __LINE__);
+	qDebug("Qt: internal: OOps.. %s:%d", __FILE__, __LINE__);
 	return 0;
     }
     if (i >= numFlavors)
@@ -330,14 +330,14 @@ const char* QDropEvent::format(int i) const
     if(GetFlavorDataSize(current_dropobj, ref, kDragQtGeneratedMarker, &flavorsize)) { //Mac style
 	for(int x = 1, found = 0; x <= (int)numFlavors; x++) {
 	    if(GetFlavorType(current_dropobj, ref, x, &info)) {
-		qDebug("OOps.. %d %s:%d", i, __FILE__, __LINE__);
+		qDebug("Qt: internal:OOps.. %d %s:%d", i, __FILE__, __LINE__);
 		return 0;
 	    }
 	    for(int sm = 0; drag_map[sm].qt_type; sm++) {
 		if(info == drag_map[sm].mac_type) {
 		    if(found++ != i) {
 #ifdef DEBUG_MAPPINGS
-			qDebug("QDropEvent::format(%d): %s %s", i, drag_map[sm].mac_type_name,
+			qDebug("Qt: internal: QDropEvent::format(%d): %s %s", i, drag_map[sm].mac_type_name,
 			       drag_map[sm].qt_type);
 #endif
 			return drag_map[sm].qt_type;
@@ -348,14 +348,14 @@ const char* QDropEvent::format(int i) const
     } else {
 	for(int x = 1, found = 0; x <= (int)numFlavors; x++) {
 	    if(GetFlavorType(current_dropobj, ref, x, &info)) {
-		qDebug("OOps.. %d %s:%d", i, __FILE__, __LINE__);
+		qDebug("Qt: internal: OOps.. %d %s:%d", i, __FILE__, __LINE__);
 		continue;
 	    }
 	    if((info >> 16) == ('QTxx' >> 16)) {
 		if(found++ != i)
 		    continue;
 		if(GetFlavorDataSize(current_dropobj, ref, info, &flavorsize) || flavorsize < 4) {
-		    qDebug("Failure to get ScrapFlavorSize for %s:%d %d %d", __FILE__, __LINE__, 
+		    qDebug("Qt: internal: Failure to get ScrapFlavorSize for %s:%d %d %d", __FILE__, __LINE__, 
 			    (int)flavorsize, (int)info);
 		    return 0;
 		}
@@ -363,12 +363,12 @@ const char* QDropEvent::format(int i) const
 		buffer = (char *)malloc(typesize + 1);
 		GetFlavorData(current_dropobj, ref, info, buffer, &typesize, sizeof(typesize));
 		if (typesize < 0) {
-		    qDebug("typesize negative %s:%d", __FILE__, __LINE__);
+		    qDebug("Qt: internal: typesize negative %s:%d", __FILE__, __LINE__);
 		    continue;
 		}
 		*(buffer + typesize) = '\0';
 #ifdef DEBUG_MAPPINGS
-		qDebug("QDropEvent::format(%d): %s (%c%c%c%c) [from Qt app]", i, buffer, 
+		qDebug("Qt: internal: QDropEvent::format(%d): %s (%c%c%c%c) [from Qt app]", i, buffer, 
 		       char(info >> 24), char((info >> 16) & 255), char((info >> 8) & 255), char(info & 255));
 #endif
 		break;
@@ -414,7 +414,7 @@ void QDragManager::drop()
 bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
 {
     if(qt_mac_in_drag) {     //just make sure..
-	qWarning("Whoa! This should never happen!");
+	qDebug("Qt: internal: WH0A, unexpected condition reached.");
 	return FALSE;
     }
     if (object == o)
@@ -459,7 +459,7 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
 	for(int sm = 0; drag_map[sm].qt_type; sm++) { //encode it for other Mac applications
 	    if(!qstrcmp(fmt, drag_map[sm].qt_type)) {
 #ifdef DEBUG_MAPPINGS
-		qDebug("QDragManager::drag(%s): %s %s", fmt, drag_map[sm].mac_type_name,
+		qDebug("Qt: internal: QDragManager::drag(%s): %s %s", fmt, drag_map[sm].mac_type_name,
 		   drag_map[sm].qt_type);
 #endif
 		if((drag_map[sm].mac_type == kScrapFlavorTypeUnicode) || 
@@ -502,7 +502,7 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
 	ar = o->encodedData(fmt);
 	mactype = ('Q' << 24) | ('T' << 16) | (i & 0xFFFF);
 #ifdef DEBUG_MAPPINGS
-	qDebug("QDragManager::drag(%s): (%c%c%c%c) [as Qt application]", fmt, 
+	qDebug("Qt: internal: QDragManager::drag(%s): (%c%c%c%c) [as Qt application]", fmt, 
 	       char(mactype >> 24), char((mactype >> 16) & 255), 
 	       char((mactype >> 8) & 255), char(mactype & 255));
 #endif
@@ -631,7 +631,7 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
 			break;
 		    }
 		}
-		qDebug("1) %c%c%c%c -- %s", 
+		qDebug("Qt: internal: 1) %c%c%c%c -- %s", 
 		       char(info >> 24), char((info >> 16) & 255), 
 		       char((info >> 8) & 255), char(info & 255),
 		       match ? match : "----");
@@ -646,7 +646,7 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
 	    if(GetFlavorType(current_dropobj, ref, i, &info) == noErr) {
 		if((info >> 16) == ('QTxx' >> 16)) {
 		    if (GetFlavorDataSize(current_dropobj, ref, info, &flavorsize) || flavorsize < 4) {
-			qDebug("Failure to get ScrapFlavorSize for %s:%d %d %d", __FILE__, __LINE__, 
+			qDebug("Qt: internal: Failure to get ScrapFlavorSize for %s:%d %d %d", __FILE__, __LINE__, 
 			       (int)flavorsize, (int)info);
 			return 0;
 		    }
@@ -660,7 +660,7 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
 		    }
 		    GetFlavorData(current_dropobj, ref, info, buffer, &typesize, sizeof(typesize));
 		    if (typesize < 0) {
-			qDebug("typesize negative %s:%d", __FILE__, __LINE__);
+			qDebug("Qt: internal: typesize negative %s:%d", __FILE__, __LINE__);
 			continue;
 		    }
 		    *(buffer + typesize) = '\0';
@@ -671,7 +671,7 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
 			    break;
 			}
 		    }
-		    qDebug("2) %c%c%c%c -- %s", 
+		    qDebug("Qt: internal: 2) %c%c%c%c -- %s", 
 			   match ? char(match >> 24) : '-', match ? char((match >> 16) & 255) : '-',
 			   match ? char((match >> 8) & 255) : '-', match ? char(match  & 255) : '-',
 			   buffer);
@@ -682,7 +682,7 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
 	    free(buffer);
     }
     }
-    qDebug("-------------------------------------------------------");
+    qDebug("Qt: internal: -------------------------------------------------------");
 #endif
 
     updateDragMode(theDrag);
@@ -710,7 +710,7 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
     de.setAction(current_drag_action);
     QApplication::sendEvent(current_drag_widget, &de);
 #ifdef DEBUG_DRAG_EVENTS
-    qDebug("Sending <DragDrop>(%d::%d::%d) event to %s %s", 
+    qDebug("Qt: internal: Sending <DragDrop>(%d::%d::%d) event to %s %s", 
 	   de.isAccepted(), de.isActionAccepted(), current_drag_action,
 	   current_drag_widget ? current_drag_widget->className() : "Unknown",
 	   current_drag_widget ? current_drag_widget->name() : "Unknown");
@@ -746,7 +746,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler(DragTrackingMessage theMessage,
        theMessage != kDragTrackingInWindow) {
 	return 1;
     } else if(!theDrag) {
-	qDebug("DragReference null %s %d", __FILE__, __LINE__);
+	qDebug("Qt: internal: DragReference null %s %d", __FILE__, __LINE__);
 	return 1;
     } else if(qt_mac_in_drag && drag_received) { //ignore these
 	return 0;

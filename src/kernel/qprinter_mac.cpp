@@ -76,7 +76,7 @@ QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal:
 	    if(PMPrinterGetPrinterResolution(printer, kPMMaximumValue, &pres) == noErr) {
 		found = TRUE;
 		res = (int)pres.vRes; //obviously I need to divide this by SOMETHING, but what at this point? FIXME!
-		qDebug("%d", res);
+		qDebug("Qt: internal: %d", res);
 	    }
 	}
 	if(!found)
@@ -189,7 +189,7 @@ void QPrinter::setPrinterName(const QString &name)
 {
     if (state != 0) {
 #if defined(QT_CHECK_STATE)
-        qWarning("QPrinter::setPrinterName: Cannot do this during printing");
+        qWarning("Qt: QPrinter::setPrinterName: Cannot do this during printing");
 #endif
         return;
     }
@@ -259,7 +259,7 @@ bool QPrinter::cmd(int c, QPainter *, QPDevCmdParam *)
 
     if (c ==  PdcBegin) {                     // begin; start printing
         if(state != PST_IDLE) {
-            qDebug("printer: two PdcBegin(s).");
+            qDebug("Qt: internal: printer: two PdcBegin(s).");
             return FALSE;
         }
 
@@ -367,7 +367,7 @@ int QPrinter::metric(int m) const
     default:
         val = 0;
 #if defined(QT_CHECK_RANGE)
-        qWarning("QPixmap::metric: Invalid metric command");
+        qWarning("Qt: QPixmap::metric: Invalid metric command");
 #endif
     }
     return val;
@@ -389,7 +389,7 @@ void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
 {
     PMRect paperr, pager;
     if(PMGetAdjustedPaperRect(pformat, &paperr) != noErr || PMGetAdjustedPageRect(pformat, &pager) != noErr) {
-	qWarning("That shouldn't happen %s:%d", __FILE__, __LINE__);
+	qWarning("Qt: QPrinter: Unexpected condition reached %s:%d", __FILE__, __LINE__);
 	return;
     }
     if(top)
