@@ -865,17 +865,21 @@ void QPainter::drawRect( int x, int y, int w, int h )
     initPaintDevice();
     Rect rect;
     SetRect( &rect, x+offx, y+offy, x + w+offx, y + h+offy);
-    updateBrush();
-    if( this->brush().style() == SolidPattern ) {
-	PaintRect( &rect );
-    } else { /* FIXME FIXME this needs to be copied all over the place! */
-        QPixmap *pm = cbrush.data->pixmap;
-	if(pm && !pm->isNull()) 
-	    drawTiledPixmap(x, y, w, h, *pm, x - bro.x(), y - bro.y());
-	if(brush_style_pix) {
-	    if(!pm || pm->isNull()) 
-		PaintRect( &rect );
-	    drawTiledPixmap(x, y, w, h, *brush_style_pix, x - bro.x(), y - bro.y());
+    if( this->brush().style() != NoBrush) {
+	updateBrush();
+	if( this->brush().style() == SolidPattern ) {
+	    PaintRect( &rect );
+	} else { /* FIXME FIXME this needs to be copied all over the place! */
+	    QPixmap *pm = cbrush.data->pixmap;
+	    if(pm && !pm->isNull()) 
+		drawTiledPixmap(x, y, w, h, *pm, x - bro.x(), y - bro.y());
+	    if(brush_style_pix) {
+#if 0
+		if(!pm || pm->isNull()) 
+		    PaintRect( &rect );
+#endif
+		drawTiledPixmap(x, y, w, h, *brush_style_pix, x - bro.x(), y - bro.y());
+	    }
 	}
     }
 
@@ -1664,7 +1668,7 @@ void QPainter::initPaintDevice(bool force) {
 	    clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible, this is hacky FIXME!!!
 	else if(!paintevents.isEmpty() && (*paintevents.current()) == pdev) 
 	    clippedreg = paintevents.current()->region();
-        else if ( w->testWFlags(WPaintUnclipped) )
+        else if ( w->testWFlags(WPaintUnclipped) ) 
 	    clippedreg = w->clippedRegion(FALSE);	    //just clip my bounding rect
 	else 
 	    clippedreg = w->clippedRegion();
