@@ -909,6 +909,11 @@ void QGLWidget::resizeEvent( QResizeEvent * )
 }
 
 
+void QGLWidget::moveEvent( QMoveEvent *m ) 
+{
+    QWidget::moveEvent(m);
+}
+
 
 const QGLContext* QGLWidget::overlayContext() const
 {

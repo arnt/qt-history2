@@ -781,7 +781,10 @@ void QGLWidget::resizeEvent( QResizeEvent * )
 	olw->setGeometry( rect() );
 }
 
-
+void QGLWidget::moveEvent( QMoveEvent *m ) 
+{
+    QWidget::moveEvent(m);
+}
 
 const QGLContext* QGLWidget::overlayContext() const
 {
