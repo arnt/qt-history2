@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#38 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#39 $
 **
 ** Definition of QPopupMenu class
 **
@@ -36,6 +36,7 @@ public:
     void	hide();				// reimplemented hide
 
     int		exec();
+    int 	exec( const QPoint & pos, int indexAtPoint = 0 );// modal popup
 
     void	setActiveItem( int );
 

@@ -114,6 +114,7 @@ protected:
     void paintEvent( QPaintEvent * );    
     //    void timerEvent( QTimerEvent * );
 private:
+    QPushButton *pbutn;
     QPopupMenu *pop;
     QPixmap *pix;
     int menuId;
@@ -128,10 +129,10 @@ Urk::Urk()  : QWidget(0,0)
 
     QVBoxLayout *gm = new QVBoxLayout( this, 10 );
 
-    QPushButton *b = new QPushButton("Pop&up!", this);
-    b->setFixedSize( b->sizeHint() );
-    gm->addWidget( b, 0, AlignLeft );
-    connect( b, SIGNAL(clicked()), SLOT(popup()) );
+    pbutn = new QPushButton("Pop&up!", this);
+    pbutn->setFixedSize( pbutn->sizeHint() );
+    gm->addWidget( pbutn, 0, AlignLeft );
+    connect( pbutn, SIGNAL(clicked()), SLOT(popup()) );
 
 
     QButtonGroup *bg = new QButtonGroup;
@@ -189,7 +190,8 @@ void Urk::setMenu( int id ) {
 void Urk::popup()
 {
     debug( "Urk::popup()");
-    int i = pop->exec();
+    //int i = pop->exec(pbutn->mapToGlobal(QPoint(0,0)));
+    int i = pop->exec(QCursor::pos());
 
     debug( "Menu returned %d", i );
 }

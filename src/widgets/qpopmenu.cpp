@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#138 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#139 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#138 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#139 $");
 
 // Motif style parameters
 
@@ -1592,15 +1592,30 @@ void QPopupMenu::updateRow( int row )
 
 /*!  Execute this popup synchronously.
 
+  Opens the popup menu so that the item number \a indexAtPoint will be
+  at the specified \e global position \a pos.  To translate a widget's
+  local coordinates into global coordinates, use QWidget::mapToGlobal().
+
   The return code is the ID of the selected item, or -1 if no item is
   selected (normally because the user presses Escape).
 
   Note that all signals are emitted as usual.  If you connect a menu
   item to a slot and call the menu's exec(), you get the result both
   via the signal-slot connection and in the return value of exec().
+
+  Common usage is to position the popup at the current
+  mouse position:
+  \code
+      exec(QCursor::pos());
+  \endcode
+  or aligned to a widget:
+  \code
+      exec(somewidget.mapToGlobal(QPoint(0,0)));
+  \endcode
+  \sa popup()
 */
 
-int QPopupMenu::exec()
+int QPopupMenu::exec( const QPoint & pos, int indexAtPoint )
 {
     if ( !qApp )
 	return -1;
@@ -1609,13 +1624,35 @@ int QPopupMenu::exec()
     syncMenuId = -1;
     connect( this, SIGNAL(activated(int)),
 	     this, SLOT(modalActivation(int)) );
-    show();
+    popup(pos,indexAtPoint);
     qApp->enter_loop();
     disconnect( this, SIGNAL(activated(int)),
 		this, SLOT(modalActivation(int)) );
     syncMenu = 0;
 
     return syncMenuId;
+}
+
+/*!  Execute this popup synchronously.
+
+  Similar to the above function, but the position of the
+  popup is not set, so you must choose an appropriate position.
+  The function move the popup if it is partially off-screen.
+
+  More common usage is to position the popup at the current
+  mouse position:
+  \code
+      exec(QCursor::pos());
+  \endcode
+  or aligned to a widget:
+  \code
+      exec(somewidget.mapToGlobal(QPoint(0,0)));
+  \endcode
+*/
+
+int QPopupMenu::exec()
+{
+    return exec(mapToGlobal(QPoint(0,0)));
 }
 
 
