@@ -3694,6 +3694,10 @@ QScreen::QScreen()
 				   cmap.green[loopc] >> 8,
 				   cmap.blue[loopc] >> 8);
 	}
+	free(cmap.red);
+	free(cmap.green);
+	free(cmap.blue);
+	free(cmap.transp);
     }
 }
 
@@ -3794,6 +3798,10 @@ bool QScreen::initCard()
 #endif
 	}
 	ioctl(fd,FBIOPUTCMAP,&cmap);
+	free(cmap.red);
+	free(cmap.green);
+	free(cmap.blue);
+	free(cmap.transp);
     }
 
     return true;
