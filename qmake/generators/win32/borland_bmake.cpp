@@ -293,10 +293,10 @@ BorlandMakefileGenerator::init()
 		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
 		if(hver != -1) {
 		    QString ver;
-		    ver.sprintf("qt%d%s.lib", hver, (project->isActiveConfig("thread") ? "-mt" : ""));
-    		    QStringList &libs = project->variables()["QMAKE_LIBS"];
+		    ver.sprintf("qt%s%d.lib", (project->isActiveConfig("thread") ? "-mt" : ""), hver);
+		    QStringList &libs = project->variables()["QMAKE_LIBS"];
 		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
-			(*libit).replace(QRegExp("qt\\.lib"), ver);
+			(*libit).replace(QRegExp("qt(-mt)?\\.lib"), ver);
 		}
 		if ( !project->isActiveConfig("dll") ) {
 		    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_DLL"];
