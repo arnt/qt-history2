@@ -512,6 +512,7 @@ private:
 struct QATSUStyle;
 class QFontEngineMac : public QFontEngine
 {
+    mutable ATSUTextLayout mTextLayout;
     mutable QATSUStyle *internal_fi;
     enum { widthCacheSize = 0x500 };
     mutable unsigned char widthCache[widthCacheSize];

@@ -65,7 +65,7 @@ struct QATSUStyle {
 };
 
 //Mac (ATSUI) engine
-QFontEngineMac::QFontEngineMac() : QFontEngine(), internal_fi(0), fontref(0)
+QFontEngineMac::QFontEngineMac() : QFontEngine(), internal_fi(0), fontref(0), mTextLayout(0)
 {
     memset(widthCache, '\0', widthCacheSize);
 }
@@ -73,6 +73,8 @@ QFontEngineMac::QFontEngineMac() : QFontEngine(), internal_fi(0), fontref(0)
 QFontEngineMac::~QFontEngineMac()
 {
     delete internal_fi;
+    if (mTextLayout)
+        ATSUDisposeTextLayout(mTextLayout);
 }
 
 QFontEngine::Error
@@ -399,18 +401,18 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     }
 
     if((task & WIDTH)) {
- 	bool use_cached_width = TRUE;
- 	for(int i = 0; i < use_len; i++) {
+	bool use_cached_width = TRUE;
+	for(int i = 0; i < use_len; i++) {
 	    int c;
- 	    if(s[i].unicode() >= widthCacheSize || (c = !widthCache[s[i].unicode()])) {
- 		use_cached_width = FALSE;
- 		break;
- 	    }
+	    if(s[i].unicode() >= widthCacheSize || (c = !widthCache[s[i].unicode()])) {
+		use_cached_width = FALSE;
+		break;
+	    }
 	    if(c == -666)
 		c = 0;
- 	    ret += widthCache[s[i].unicode()];
- 	}
- 	if(use_cached_width) {
+	    ret += widthCache[s[i].unicode()];
+	}
+	if(use_cached_width) {
 	    if(task == WIDTH)
 		return ret;
 	} else {
@@ -418,15 +420,26 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 	}
     }
 
-    //create layout
-    ATSUTextLayout alayout;
-    const UniCharCount count = use_len;
     Q_UNUSED(len);
-    if(OSStatus e = ATSUCreateTextLayoutWithTextPtr((UniChar *)(s)+pos, 0,
-						    count, use_len, 1, &count,
-						    &st->style, &alayout)) {
-	qWarning("Qt: internal: %ld: Unexpected condition reached %s:%d", e, __FILE__, __LINE__);
-	return 0;
+
+    OSStatus e;
+    if (!mTextLayout) {
+        e = ATSUCreateTextLayout(&mTextLayout);
+        if (e != noErr) {
+            qDebug("Qt: internal: %ld: Unexpected condition reached %s:%d", e, __FILE__, __LINE__);
+            return 0;
+        }
+    }
+    const UniCharCount count = use_len;
+    e = ATSUSetTextPointerLocation(mTextLayout, (UniChar *)(s) + pos, 0, count, use_len);
+    if (e != noErr) {
+        qDebug("Qt: internal: %ld: Error ATSUSetTextPointerLocation %s: %d", e, __FILE__, __LINE__);
+        return 0;
+    }
+    e = ATSUSetRunStyle(mTextLayout, st->style, 0, count);
+    if (e != noErr) {
+        qDebug("Qt: internal: %ld: Error ATSUSetRunStyle %s: %d", e, __FILE__, __LINE__);
+        return 0;
     }
     const int arr_guess = 5;
     int arr = 0;
@@ -470,7 +483,6 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     }
     if(OSStatus err = QDBeginCGContext(port, &ctx)) {
 	qWarning("Qt: internal: WH0A, QDBeginCGContext(%ld) failed. %s:%d", err, __FILE__, __LINE__);
-	ATSUDisposeTextLayout(alayout);
 	return 0;
     }
 
@@ -499,16 +511,14 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 
     if(arr > arr_guess) //this won't really happen, just so I will not miss the case
 	qWarning("Qt: internal: %d: WH0A, arr_guess underflow %d", __LINE__, arr);
-    if(OSStatus e = ATSUSetLayoutControls(alayout, arr, tags, valueSizes, values)) {
+    if(OSStatus e = ATSUSetLayoutControls(mTextLayout, arr, tags, valueSizes, values)) {
 	qWarning("Qt: internal: %ld: Unexpected condition reached %s:%d", e, __FILE__, __LINE__);
-	ATSUDisposeTextLayout(alayout);
 #ifndef USE_CORE_GRAPHICS
 	QDEndCGContext(port, &ctx);
 #endif
 	return 0;
     }
-    ATSUSetTransientFontMatching(alayout, true);
-
+    ATSUSetTransientFontMatching(mTextLayout, true);
     //do required task now
     if(task & EXISTS) {
 	if(task != EXISTS)
@@ -516,17 +526,17 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 	ATSUFontID fid;
 	UniCharArrayOffset off;
 	UniCharCount off_len;
-	if(ATSUMatchFontsToText(alayout, kATSUFromTextBeginning, kATSUToTextEnd, &fid,
-                                &off, &off_len) != kATSUFontsNotMatched)
+	if (ATSUMatchFontsToText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, &fid, &off,
+				 &off_len) != kATSUFontsNotMatched)
 	    ret = 1;
     } else if((task & WIDTH) && !ret) {
 	ATSUTextMeasurement left=0, right=0, bottom=0, top=0;
-	ATSUGetUnjustifiedBounds(alayout, kATSUFromTextBeginning, kATSUToTextEnd, &left, &right, &bottom, &top);
+	ATSUGetUnjustifiedBounds(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, &left, &right, &bottom, &top);
 	ret = FixRound(right-left);
 	if(!ret)
 	    ret = -666; //marker
- 	if(use_len == 1 && s->unicode() < widthCacheSize)
- 	    widthCache[s->unicode()] = ret;
+	if(use_len == 1 && s->unicode() < widthCacheSize)
+	    widthCache[s->unicode()] = ret;
     }
     if(task & DRAW) {
 	int drawy = y;
@@ -540,10 +550,9 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 	    drawy = height-drawy;
 	}
 #endif
-	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd, FixRatio(x, 1), FixRatio(drawy, 1));
+	ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, FixRatio(x, 1),
+		      FixRatio(drawy, 1));
     }
-    //cleanup
-    ATSUDisposeTextLayout(alayout);
 #ifndef USE_CORE_GRAPHICS
     QDEndCGContext(port, &ctx);
 #endif
