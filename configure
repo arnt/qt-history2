@@ -237,6 +237,7 @@ else
 		Desc=Enterprise
 		Edition=ent
 	    else
+		Products=qt-professional
 		Desc=Professional
 		Edition=pro
 	    fi
