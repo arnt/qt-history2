@@ -990,6 +990,8 @@ void QTextView::drawCursor( bool visible )
     cursor->parag()->document()->nextDoubleBuffered = TRUE;
     if ( !cursor->nestedDepth() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+	p.setClipRect( QRect( r.x() - cursor->totalOffsetX() + cursor->x() - 5 - contentsX(),
+			      r.y() - cursor->totalOffsetY() + cursor->y() - contentsY(), 10, h ) );
 	doc->drawParag( &p, cursor->parag(), r.x() - cursor->totalOffsetX() + cursor->x() - 5,
 			r.y() - cursor->totalOffsetY() + cursor->y(), 10, h, pix, cg, visible, cursor );
     } else {
