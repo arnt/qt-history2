@@ -819,7 +819,8 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         int r = entries.indexOf(entry);
         idx = index(r, column, idx); // will check row and lazily populate
         if (!idx.isValid()) {
-            QString warn = QString("index: the path '%1' could not be found\n").arg(path);
+            QString converted = QDir::convertSeparators(path);
+            QString warn = QString("index: the path '%1' could not be found\n").arg(converted);
             qWarning(warn.toLatin1().constData());
             return QModelIndex();
         }
