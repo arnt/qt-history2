@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#93 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -105,6 +105,7 @@ QPaintDevice::QPaintDevice( uint devflags )
 	return;
     }
     devFlags = devflags;
+    painters = 0;
     hd	= 0;
     x11Data = 0;
 }
