@@ -433,12 +433,15 @@ void Project::parse()
     loadConnections();
 
     QStringList images = parse_multiline_part( contents, "IMAGES" );
+
+    // ### remove that for the final - this is beta-compatibility
     if ( images.isEmpty() && QDir( QFileInfo( filename ).dirPath( TRUE ) + "/images" ).exists() ) {
 	    images = QDir( QFileInfo( filename ).dirPath( TRUE ) + "/images" ).entryList();
 	    for ( int i = 0; i < (int)images.count(); ++i )
 		images[ i ].prepend( "images/" );
 	    modified = TRUE;
     }
+
     for ( QStringList::ConstIterator pit = images.begin(); pit != images.end(); ++pit )
 	pixCollection->load( *pit );
 }
