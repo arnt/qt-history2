@@ -56,8 +56,12 @@ class Q_EXPORT QMenuBar : public QFrame, public QMenuData
     Q_PROPERTY( bool defaultUp READ isDefaultUp WRITE setDefaultUp )
 	
 public:
+#if defined (QT_STRICT_NAMES)
+    QMenuBar( QWidget *parent, const char *name );
+#else
     QMenuBar( QWidget *parent=0, const char *name=0 );
-   ~QMenuBar();
+#endif // QT_STRICT_NAMES
+    ~QMenuBar();
 
     void	updateItem( int id );
 

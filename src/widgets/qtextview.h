@@ -52,9 +52,15 @@ class Q_EXPORT QTextView : public QTextEdit
     Q_OVERRIDE( bool overwriteMode DESIGNABLE false SCRIPTABLE false )
 
 public:
+#if defined (QT_STRICT_NAMES)
+    QTextView( const QString& text, const QString& context,
+	       QWidget *parent, const char *name );
+    QTextView( QWidget *parent, const char *name );
+#else
     QTextView( const QString& text, const QString& context = QString::null,
 	       QWidget *parent=0, const char *name=0);
     QTextView( QWidget *parent = 0, const char *name = 0 );
+#endif // QT_STRICT_NAMES
 
     virtual ~QTextView();
 

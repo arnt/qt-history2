@@ -50,8 +50,13 @@ class Q_EXPORT QRadioButton : public QButton
     Q_PROPERTY( bool checked READ isChecked WRITE setChecked )
 
 public:
+#if defined (QT_STRICT_NAMES)
+    QRadioButton( QWidget *parent, const char *name );
+    QRadioButton( const QString &text, QWidget *parent, const char* name );
+#else
     QRadioButton( QWidget *parent, const char *name=0 );
     QRadioButton( const QString &text, QWidget *parent, const char* name=0 );
+#endif // QT_STRICT_NAMES
 
     bool    isChecked() const;
 

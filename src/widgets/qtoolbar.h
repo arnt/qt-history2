@@ -55,12 +55,21 @@ class Q_EXPORT QToolBar: public QDockWindow
     Q_PROPERTY( QString label READ label WRITE setLabel )
 
 public:
+#if defined (QT_STRICT_NAMES)
+    QToolBar( const QString &label,
+	      QMainWindow *, ToolBarDock,
+	      bool newLine, const char * name );
+    QToolBar( const QString &label, QMainWindow *, QWidget *,
+	      bool newLine, const char * name, WFlags f = 0 );
+    QToolBar( QMainWindow * parent, const char * name );
+#else
     QToolBar( const QString &label,
 	      QMainWindow *, ToolBarDock = Top,
 	      bool newLine = FALSE, const char * name = 0 );
     QToolBar( const QString &label, QMainWindow *, QWidget *,
 	      bool newLine = FALSE, const char * name = 0, WFlags f = 0 );
     QToolBar( QMainWindow * parent = 0, const char * name = 0 );
+#endif // QT_STRICT_NAMES
     ~QToolBar();
 
     void addSeparator();

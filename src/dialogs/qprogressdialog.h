@@ -62,12 +62,20 @@ class Q_EXPORT QProgressDialog : public QDialog
     Q_PROPERTY( QString labelText READ labelText WRITE setLabelText )
 
 public:
+#if defined (QT_STRICT_NAMES)
+    QProgressDialog( QWidget *parent, const char *name, bool modal=FALSE,
+		     WFlags f=0 );
+    QProgressDialog( const QString& labelText, const QString &cancelButtonText,
+		     int totalSteps, QWidget *parent, const char *name,
+		     bool modal=FALSE, WFlags f=0 );
+#else
     QProgressDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 		     WFlags f=0 );
     QProgressDialog( const QString& labelText, const QString &cancelButtonText,
 		     int totalSteps, QWidget *parent=0, const char *name=0,
 		     bool modal=FALSE, WFlags f=0 );
-   ~QProgressDialog();
+#endif // QT_STRICT_NAMES
+    ~QProgressDialog();
 
     void	setLabel( QLabel * );
     void	setCancelButton( QPushButton * );

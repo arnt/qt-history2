@@ -60,9 +60,15 @@ class Q_EXPORT QPushButton : public QButton
     Q_PROPERTY( bool flat READ isFlat WRITE setFlat )
 
 public:
+#if defined (QT_STRICT_NAMES)
+    QPushButton( QWidget *parent, const char *name );
+    QPushButton( const QString &text, QWidget *parent, const char* name );
+    QPushButton( const QIconSet& icon, const QString &text, QWidget *parent, const char* name );
+#else
     QPushButton( QWidget *parent, const char *name=0 );
     QPushButton( const QString &text, QWidget *parent, const char* name=0 );
     QPushButton( const QIconSet& icon, const QString &text, QWidget *parent, const char* name=0 );
+#endif // QT_STRICT_NAMES
     ~QPushButton();
 
     QSize	sizeHint() const;

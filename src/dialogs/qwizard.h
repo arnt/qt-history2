@@ -54,8 +54,13 @@ class Q_EXPORT QWizard : public QDialog
     Q_PROPERTY( QFont titleFont READ titleFont WRITE setTitleFont )
 
 public:
+#if defined (QT_STRICT_NAMES)
+    QWizard( QWidget *parent, const char *name, bool modal=FALSE,
+	     WFlags f=0 );
+#else
     QWizard( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 	     WFlags f=0 );
+#endif // QT_STRICT_NAMES
     ~QWizard();
 
     void show();

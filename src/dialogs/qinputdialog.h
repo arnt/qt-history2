@@ -60,8 +60,13 @@ class Q_EXPORT QInputDialog : public QDialog
 private:
     enum Type { LineEdit, SpinBox, ComboBox, EditableComboBox };
 
+#if defined (QT_STRICT_NAMES)
+    QInputDialog( const QString &label, QWidget* parent, const char* name,
+		 bool modal = TRUE, Type type = LineEdit );
+#else
     QInputDialog( const QString &label, QWidget* parent = 0, const char* name = 0,
 		 bool modal = TRUE, Type type = LineEdit );
+#endif // QT_STRICT_NAMES
     ~QInputDialog();
 
     QLineEdit *lineEdit() const;
@@ -75,7 +80,6 @@ private:
 public:
     static QString getText( const QString &caption, const QString &label, QLineEdit::EchoMode echo = QLineEdit::Normal,
 			    const QString &text = QString::null, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
-
     static int getInteger( const QString &caption, const QString &label, int num = 0, int from = -2147483647,
 			   int to = 2147483647,
 			   int step = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );

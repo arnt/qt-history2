@@ -67,12 +67,21 @@ class Q_EXPORT QToolButton : public QButton
     Q_OVERRIDE( bool on WRITE setOn )
 
 public:
+#if defined (QT_STRICT_NAMES)
+    QToolButton( QWidget * parent, const char *name );
+    QToolButton( const QIconSet& s, const QString &textLabel,
+		 const QString& grouptext,
+		 QObject * receiver, const char* slot,
+		 QToolBar * parent, const char* name );
+    QToolButton( ArrowType type, QWidget *parent, const char *name );
+#else
     QToolButton( QWidget * parent, const char *name = 0 );
     QToolButton( const QIconSet& s, const QString &textLabel,
 		 const QString& grouptext,
 		 QObject * receiver, const char* slot,
 		 QToolBar * parent, const char* name = 0 );
     QToolButton( ArrowType type, QWidget *parent, const char *name = 0 );
+#endif // QT_STRICT_NAMES
     ~QToolButton();
 
     QSize sizeHint() const;

@@ -54,7 +54,11 @@ class Q_EXPORT QStatusBar: public QWidget
     Q_PROPERTY( bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled )
     
 public:
+#if defined (QT_STRICT_NAMES)
+    QStatusBar( QWidget * parent, const char *name );
+#else
     QStatusBar( QWidget * parent = 0, const char *name = 0 );
+#endif // QT_STRICT_NAMES
     ~QStatusBar();
 
     void addWidget( QWidget *, int stretch = 0, bool = FALSE );

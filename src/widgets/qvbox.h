@@ -48,7 +48,12 @@ class Q_EXPORT QVBox : public QHBox
 {
     Q_OBJECT
 public:
+#if defined (QT_STRICT_NAMES)
+    QVBox( QWidget *parent, const char *name, WFlags f=0 );
+#else
     QVBox( QWidget *parent=0, const char *name=0, WFlags f=0 );
+#endif // QT_STRICT_NAMES
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QVBox( const QVBox & );

@@ -131,9 +131,15 @@ public:
 	AlignSubScript
     };
 
+#if defined (QT_STRICT_NAMES)
+    QTextEdit( const QString& text, const QString& context,
+	       QWidget *parent, const char *name );
+    QTextEdit( QWidget *parent, const char *name );
+#else
     QTextEdit( const QString& text, const QString& context = QString::null,
 	       QWidget *parent=0, const char *name=0);
     QTextEdit( QWidget *parent = 0, const char *name = 0 );
+#endif // QT_STRICT_NAMES
     virtual ~QTextEdit();
     void setPalette( const QPalette & );
 

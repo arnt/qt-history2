@@ -68,8 +68,13 @@ class Q_EXPORT QComboBox : public QWidget
     Q_PROPERTY( bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled )
 
 public:
+#if defined (QT_STRICT_NAMES)
+    QComboBox( QWidget *parent, const char *name );
+    QComboBox( bool rw, QWidget *parent, const char *name );
+#else
     QComboBox( QWidget *parent=0, const char *name=0 );
     QComboBox( bool rw, QWidget *parent=0, const char *name=0 );
+#endif // QT_STRICT_NAMES
     ~QComboBox();
 
     int		count() const;

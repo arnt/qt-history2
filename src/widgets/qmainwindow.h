@@ -63,7 +63,11 @@ class Q_EXPORT QMainWindow: public QWidget
     Q_PROPERTY( bool opaqueMoving READ opaqueMoving WRITE setOpaqueMoving )
 
 public:
+#if defined (QT_STRICT_NAMES)
+    QMainWindow( QWidget * parent, const char * name, WFlags f = WType_TopLevel );
+#else
     QMainWindow( QWidget * parent = 0, const char * name = 0, WFlags f = WType_TopLevel );
+#endif // QT_STRICT_NAMES
     ~QMainWindow();
 
 #ifndef QT_NO_MENUBAR

@@ -54,7 +54,12 @@ class Q_EXPORT QWidgetStack: public QFrame
 {
     Q_OBJECT
 public:
+#if defined (QT_STRICT_NAMES)
+    QWidgetStack( QWidget * parent, const char *name );
+#else
     QWidgetStack( QWidget * parent = 0, const char *name = 0 );
+#endif // QT_STRICT_NAMES
+
     ~QWidgetStack();
 
     void addWidget( QWidget *, int );

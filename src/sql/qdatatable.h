@@ -82,8 +82,13 @@ class QM_EXPORT_SQL QDataTable : public QTable
     Q_PROPERTY( int numRows READ numRows )
 
 public:
+#if defined (QT_STRICT_NAMES)
+    QDataTable ( QWidget * parent, const char * name );
+    QDataTable ( QSqlCursor* cursor, bool autoPopulate, QWidget * parent, const char * name );
+#else
     QDataTable ( QWidget * parent = 0, const char * name = 0 );
     QDataTable ( QSqlCursor* cursor, bool autoPopulate = FALSE, QWidget * parent = 0, const char * name = 0 );
+#endif // QT_STRICT_NAMES
     ~QDataTable();
 
     virtual void addColumn( const QString& fieldName,
