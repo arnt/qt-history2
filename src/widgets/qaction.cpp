@@ -161,7 +161,7 @@ QActionPrivate::QActionPrivate(QAction *act)
 #ifndef QT_NO_TOOLTIP
       , tipGroup( 0 )
 #endif
-      d_group( 0 ), action(act)
+      , d_group( 0 ), action(act)
 {
     menuitems.setAutoDelete( TRUE );
     comboitems.setAutoDelete( TRUE );
@@ -191,31 +191,28 @@ QActionPrivate::~QActionPrivate()
 	    menu->removeItem( mi->id );
     }
 
-    QPtrListIterator<QActionPrivate::ComboItem> itci(comboitems);
+    QList<QActionPrivate::ComboItem*>::Iterator itci(comboitems.begin());
     QActionPrivate::ComboItem* ci;
-    while ( ( ci = itci.current() ) ) {
+    while (itci != comboitems.end()) {
+	ci = *itci;
 	++itci;
 	QComboBox* combo = ci->combo;
 	combo->clear();
 	QActionGroup *group = ::qt_cast<QActionGroup*>(action->parent());
-	QObjectList *siblings = group ? group->queryList("QAction") : 0;
-	if (siblings) {
-	    QObjectListIt it(*siblings);
-	    while (it.current()) {
-		QAction *sib = ::qt_cast<QAction*>(it.current());
-		++it;
+	if (group) {
+	    QObjectList siblings = group->queryList("QAction");
+
+	    for (int i = 0; i < siblings.size(); ++i) {
+		QAction *sib = ::qt_cast<QAction*>(siblings.at(i));
 		sib->removeFrom(combo);
 	    }
-	    it = QObjectListIt(*siblings);
-	    while (it.current()) {
-		QAction *sib = ::qt_cast<QAction*>(it.current());
-		++it;
+	    for (int i = 0; i < siblings.size(); ++i) {
+		QAction *sib = ::qt_cast<QAction*>(siblings.at(i));
 		if (sib == action)
 		    continue;
 		sib->addTo(combo);
 	    }
 	}
-	delete siblings;
     }
 
 #ifndef QT_NO_ACCEL
