@@ -3216,7 +3216,7 @@ load these files?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;About...</source>
+        <source>&amp;About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3228,7 +3228,7 @@ load these files?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>About &amp;Qt...</source>
+        <source>About &amp;Qt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -341,7 +341,7 @@
             <string>About</string>
         </property>
         <property name="menuText">
-            <string>&amp;About...</string>
+            <string>&amp;About</string>
         </property>
         <property name="accel">
             <number>0</number>

@@ -656,11 +656,11 @@ and Qt Assistant will automatically find it if it is available.
 invoke the \link assistant.book Qt Assistant\endlink application which
 opens showing this manual.
 
-\i \Menu{Help|About...}\BR Click this menu option to invoke the About
+\i \Menu{Help|About}\BR Click this menu option to invoke the About
 \QD dialog which gives the version number and some licensing
 information.
 
-\i \Menu{Help|About Qt...}\BR Click this menu option to invoke a
+\i \Menu{Help|About Qt}\BR Click this menu option to invoke a
 dialog which provides information about Qt.
 
 \i \Menu{Help|What's This?}\BR Click this menu option to invoke a small

@@ -116,7 +116,7 @@ void MainWindowWizardBase::accept()
     QAction *editFindAction = dfw->createAction( tr( "Find" ), pix, tr( "&Find..." ), CTRL + Key_F, 0, "editFindAction" );
     actions.insert( tr( "Find" ), editFindAction );
 
-    QAction *helpAboutAction = dfw->createAction( tr( "About" ), QIconSet(), tr( "&About..." ), 0, 0, "helpAboutAction" );
+    QAction *helpAboutAction = dfw->createAction( tr( "About" ), QIconSet(), tr( "&About" ), 0, 0, "helpAboutAction" );
     actions.insert( tr( "About" ), helpAboutAction );
     QAction *helpContentsAction = dfw->createAction( tr( "Contents" ), QIconSet(), tr( "&Contents..." ), 0, 0, "helpContentsAction" );
     actions.insert( tr( "Contents" ), helpContentsAction );

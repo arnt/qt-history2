@@ -262,7 +262,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message encoding="UTF-8">
-        <source>About...</source>
+        <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message encoding="UTF-8">

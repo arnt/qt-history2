@@ -280,7 +280,7 @@
                 <handler>on_About_activate</handler>
                 <last_modification_time>Thu, 04 Feb 1999 17:42:25 GMT</last_modification_time>
               </signal>
-              <label>_About...</label>
+              <label>_About</label>
               <right_justify>False</right_justify>
             </widget>
           </widget>

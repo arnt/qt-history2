@@ -10,12 +10,12 @@
         <translation>&amp;Sair</translation>
     </message>
     <message>
-        <source>&amp;About...</source>
-        <translation>&amp;Sobre...</translation>
+        <source>&amp;About</source>
+        <translation>&amp;Sobre</translation>
     </message>
     <message>
-        <source>About &amp;Qt...</source>
-        <translation>Sobre &amp;Qt...</translation>
+        <source>About &amp;Qt</source>
+        <translation>Sobre &amp;Qt</translation>
     </message>
     <message>
         <source>&amp;File</source>

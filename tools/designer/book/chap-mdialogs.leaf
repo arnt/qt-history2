@@ -557,7 +557,7 @@ Click the \Button Close button to leave the dialog.
 \target dialog-qt-designer
 \section2  Qt Designer Dialog
 
-Click \Menu{Help|About...} to invoke the \Dialog{Qt Designer Dialog}.
+Click \Menu{Help|About} to invoke the \Dialog{Qt Designer Dialog}.
 This dialog provides information about \QD such as the version, the
 licensing terms, conditions, and disclaimers.
 
@@ -567,7 +567,7 @@ the dialog.
 \target dialog-qt-designer
 \section2 Qt Designer Dialog
 
-Click \Menu{Help|About Qt...} to invoke the \Dialog{Qt Designer
+Click \Menu{Help|About Qt} to invoke the \Dialog{Qt Designer
 Dialog}. This dialog provides information about Qt.
 
 Click the 'x' located at the title of the dialog to close

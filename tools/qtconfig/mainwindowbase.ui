@@ -1479,7 +1479,7 @@
             <cstring>helpAboutQtAction</cstring>
         </property>
         <property name="text">
-            <string>About Qt...</string>
+            <string>About Qt</string>
         </property>
         <property name="menuText">
             <string>About &amp;Qt</string>
