@@ -16,7 +16,7 @@ QFixedPoint sqrt(QFixedPoint  x)
     Q_ASSERT(QFixedPoint::LowBits/2*2 == QFixedPoint::LowBits);
 
     if (x <= 0)
-        return 0;
+        return QFixedPoint(0);
 
     uint root = 0;
 
@@ -94,11 +94,11 @@ inline double qSinCos(double a, bool calcCos=false)
 
 QFixedPoint sin(QFixedPoint f)
 {
-    return qSin(f.toDouble());
+    return QFixedPoint(qSin(f.toDouble()));
 }
 QFixedPoint cos(QFixedPoint f)
 {
-    return qCos(f.toDouble());
+    return QFixedPoint(qCos(f.toDouble()));
 }
 
 #if defined (__i386__) && !defined (Q_CC_BOR)

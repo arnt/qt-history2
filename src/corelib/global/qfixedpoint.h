@@ -34,10 +34,10 @@ public:
     inline QFixedPoint(int v, fixedpoint_t) { val = v; }
     inline QFixedPoint(int v, fixed26d6_t) { val = v * 4; }
     QFixedPoint() : val(0) {}
-    QFixedPoint(int i) : val(i<<8) {}
-    QFixedPoint(unsigned int i) : val(i*256) {}
-    QFixedPoint(long i) : val(i*256) {}
-    QFixedPoint(double d) { val = (int)(d*256.); }
+    explicit QFixedPoint(int i) : val(i<<8) {}
+    explicit QFixedPoint(unsigned int i) : val(i*256) {}
+    explicit QFixedPoint(long i) : val(i*256) {}
+    explicit QFixedPoint(double d) { val = (int)(d*256.); }
     QFixedPoint(const QFixedPoint &other) : val(other.val) {}
     QFixedPoint & operator=(const QFixedPoint &other) { val = other.val; return *this; }
 
