@@ -1145,7 +1145,7 @@ void QRichTextIterator::goTo( const QtTriple& pos )
     QtTriple rawpos = pos; rawpos.c = 0;
     stack.clear();
     fc.gotoParagraph( 0, &doc );
-    while ( position() < rawpos && right( FALSE ) ) 
+    while ( position() < rawpos && right( FALSE ) )
 	;
     QRichTextFormatter& f = stack.getLast()?stack.getLast()->fc: fc;
     f.currentoffset = pos.c;
@@ -2113,7 +2113,7 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 
     height = QMAX(rh, rasc+rdesc+1);
     base = rasc;
-    
+
     if ( first == last ) { // empty line
 	height = 0;
 	base = 0;
@@ -2265,11 +2265,12 @@ void QTextFlow::drawFloatingItems(QPainter* p,
 				   int ox, int oy, int cx, int cy, int cw, int ch,
 				   QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to )
 {
-    for ( QTextCustomItem* item = leftItems.first(); item; item = leftItems.next() ) {
+    QTextCustomItem *item = 0;
+    for ( item = leftItems.first(); item; item = leftItems.next() ) {
 	item->draw( p, item->x, item->y, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
     }
 
-    for ( QTextCustomItem* item = rightItems.first(); item; item = rightItems.next() ) {
+    for ( item = rightItems.first(); item; item = rightItems.next() ) {
 	item->draw( p, item->x, item->y, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
     }
 }
