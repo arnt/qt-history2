@@ -39,6 +39,7 @@
 HelpWindow::HelpWindow( MainWindow *w, QWidget *parent, const char *name )
     : QTextBrowser( parent, name ), mw( w ), shiftPressed( FALSE ), blockScroll( FALSE )
 {
+    
 }
 
 void HelpWindow::setSource( const QString &name )
@@ -73,7 +74,7 @@ void HelpWindow::setSource( const QString &name )
 		ShellExecuteA( winId(), 0, name.local8Bit(), 0, 0, SW_SHOWNORMAL );
 	    } );
 #else
-	    QMessageBox::information( this, tr( "Help" ), tr( "Currently no Web browser is selected.\nPlease use the settings dialog to specify one!\n" ) );
+	    QMessageBox::information( mw, tr( "Help" ), tr( "Currently no Web browser is selected.\nPlease use the settings dialog to specify one!\n" ) );
 #endif
 	    return;
 	}
@@ -87,7 +88,7 @@ void HelpWindow::setSource( const QString &name )
     if ( name.left( 2 ) != "p:" ) {
 	QUrl u( context(), name );
 	if ( !u.isLocalFile() ) {
-	    QMessageBox::information( this, tr( "Help" ), tr( "Can't load and display non-local file\n"
+	    QMessageBox::information( mw, tr( "Help" ), tr( "Can't load and display non-local file\n"
 							      "%1" ).arg( name ) );
 	    return;
 	}
@@ -97,7 +98,7 @@ void HelpWindow::setSource( const QString &name )
 #if 1
 	QUrl u( context(), name.mid( 2 ) );
 	if ( !u.isLocalFile() ) {
-	    QMessageBox::information( this, tr( "Help" ), tr( "Can't load and display non-local file\n"
+	    QMessageBox::information( mw, tr( "Help" ), tr( "Can't load and display non-local file\n"
 							      "%1" ).arg( name.mid( 2 ) ) );
 	    return;
 	}
