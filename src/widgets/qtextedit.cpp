@@ -93,8 +93,7 @@ public:
 class QTextEditOptimizedPrivate
 {
 public:
-    QTextEditOptimizedPrivate() : len( 0 ), numLines( 0 ), maxLineWidth( 0 ),
-	anchorX( 0 )
+    QTextEditOptimizedPrivate() : len( 0 ), numLines( 0 ), maxLineWidth( 0 )
     {
 	selectionStart.line = selectionStart.index = -1;
 	selectionEnd.line = selectionEnd.index = -1;	
@@ -102,7 +101,6 @@ public:
     int len;
     int numLines;
     int maxLineWidth;
-    int anchorX;
     struct Selection {
 	int line;
 	int index;
@@ -839,8 +837,11 @@ bool QTextEdit::event( QEvent *e )
 	    }
 	}
     }
-
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( !optimizedMode && e->type() == QEvent::Show && d->ensureCursorVisibleInShowEvent ) {
+#else
     if ( e->type() == QEvent::Show && d->ensureCursorVisibleInShowEvent ) {
+#endif
 	sync();
 	ensureCursorVisible();
 	d->ensureCursorVisibleInShowEvent = FALSE;
@@ -2159,7 +2160,11 @@ void QTextEdit::doChangeInterval()
 
 bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( !optimizedMode && (o == this || o == viewport()) ) {
+#else
     if ( o == this || o == viewport() ) {
+#endif
 	if ( e->type() == QEvent::FocusIn ) {
 	    blinkTimer->start( QApplication::cursorFlashTime() / 2 );
 	    drawCursor( TRUE );
@@ -2881,6 +2886,11 @@ void QTextEdit::setFontInternal( const QFont &f_ )
 
 QString QTextEdit::text() const
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( optimizedMode ) {
+	return optimizedText();
+    } else
+#endif
     if ( isReadOnly() )
 	return doc->originalText();
     return doc->text();
@@ -4658,16 +4668,26 @@ bool QTextEdit::checkOptimizedMode()
     if ( oldMode != optimizedMode ) {
 	if ( optimizedMode ) {
 	    od = new QTextEditOptimizedPrivate;
-	    disconnect( scrollTimer, SIGNAL( timeout() ),
-			this, SLOT( doAutoScroll() ) );
 	    connect( scrollTimer, SIGNAL( timeout() ),
 		     this, SLOT( optimizedDoAutoScroll() ) );
- 	    optimizedSetText( text() );
+	    disconnect( doc, SIGNAL( minimumWidthChanged( int ) ),
+			this, SLOT( documentWidthChanged( int ) ) );
+	    disconnect( scrollTimer, SIGNAL( timeout() ),
+			this, SLOT( doAutoScroll() ) );
+	    disconnect( formatTimer, SIGNAL( timeout() ),
+			this, SLOT( formatMore() ) );
+ 	    optimizedSetText( doc->originalText() );
+  	    doc->clear( TRUE );
+//  	    doc->setFormatter( new QTextFormatterBreakWords );
 	} else {
  	    disconnect( scrollTimer, SIGNAL( timeout() ),
  			this, SLOT( optimizedDoAutoScroll() ) );
+	    connect( doc, SIGNAL( minimumWidthChanged( int ) ),
+		     this, SLOT( documentWidthChanged( int ) ) );
 	    connect( scrollTimer, SIGNAL( timeout() ),
 		     this, SLOT( doAutoScroll() ) );
+	    connect( formatTimer, SIGNAL( timeout() ),
+		     this, SLOT( formatMore() ) );
  	    setText( optimizedText() );
  	    delete od;
  	    od = 0;
@@ -4713,6 +4733,7 @@ void QTextEdit::optimizedSetText( const QString &str )
     }
     resizeContents( od->maxLineWidth + 4, od->numLines * fm.lineSpacing() + 
 		    fm.descent() + 1 );
+    repaintContents( FALSE );
     emit textChanged();
 }
 
@@ -4743,7 +4764,7 @@ void QTextEdit::optimizedAppend( const QString &str )
 	    od->maxLineWidth = lWidth;
     }
     resizeContents( od->maxLineWidth + 4, od->numLines * fm.lineSpacing() + 
-		    fm.descent() + 1 );    
+ 		    fm.descent() + 1 );
     emit textChanged();
 }
 
@@ -4778,9 +4799,11 @@ void QTextEdit::optimizedDrawContents( QPainter * p, int clipx, int clipy,
 
     // get the current text color form the current format
     td->selectAll( QTextDocument::Standard );
-    td->setFormat( QTextDocument::Standard, currentFormat, 
-		   QTextFormat::Color | QTextFormat::Family | 
-		   QTextFormat::Size );
+    QTextFormat f;
+    f.setColor( colorGroup().text() );
+    f.setFont( QScrollView::font() );
+    td->setFormat( QTextDocument::Standard, &f, 
+		   QTextFormat::Color | QTextFormat::Font );
     td->removeSelection( QTextDocument::Standard );
 
     // if there is a selection, make sure that the selection in the
@@ -4804,9 +4827,11 @@ void QTextEdit::optimizedDrawContents( QPainter * p, int clipx, int clipy,
 	    int paragS = selStart - startLine;
 	    int paragE = paragS + (selEnd - selStart);
 	    QTextParag * parag = td->paragAt( paragS );
-	    c1.setParag( parag );
-	    if ( td->text( paragS ).length() >= (uint) idxStart )
-		c1.setIndex( idxStart );
+	    if ( parag ) {
+		c1.setParag( parag );
+		if ( td->text( paragS ).length() >= (uint) idxStart )
+		    c1.setIndex( idxStart );
+	    }
 	    parag = td->paragAt( paragE );
 	    if ( parag ) {
 		c2.setParag( parag );
@@ -4873,7 +4898,6 @@ void QTextEdit::optimizedMousePressEvent( QMouseEvent * e )
     od->selectionStart.index = optimizedCharIndex( str );
     od->selectionEnd.line = od->selectionStart.line;
     od->selectionEnd.index = od->selectionStart.index;
-    od->anchorX = e->x();
     oldMousePos = e->pos();
     repaintContents( FALSE );
 }
@@ -4965,10 +4989,14 @@ void QTextEdit::optimizedDoAutoScroll()
     // calc pos and height of rect that needs redrawing
     int h = QABS(mousePos.y() - oldMousePos.y()) + fm.lineSpacing() * 2;
     int y;
-    if ( oldMousePos.y() < mousePos.y() )
+    if ( oldMousePos.y() < mousePos.y() ) {
 	y = oldMousePos.y() - fm.lineSpacing();
-    else
-	y = mousePos.y() - fm.lineSpacing();
+    } else {
+	// expand paint area to work around possible paintbug with
+	// a fully selected line
+	h += fm.lineSpacing();
+	y = mousePos.y() - fm.lineSpacing()*2;
+    }
     if ( y < 0 )
 	y = 0;
     repaintContents( contentsX(), y, width(), h, FALSE );
@@ -4984,24 +5012,23 @@ int QTextEdit::optimizedCharIndex( const QString &str )
     QFontMetrics fm( QScrollView::font() );
     uint i = 0;
     int dd, dist = 10000000;
-    int curpos = str.length();
+    int curpos = 0;
 
     if ( mousePos.x() > fm.width( str ) )
 	return str.length();
     
     while ( i < str.length() ) {
-	dd = fm.width( str.right( i ) ) - mousePos.x();
+	dd = fm.width( str.left( i ) ) - mousePos.x();
 	if ( QABS(dd) < dist || dist == dd ) {
 	    dist = QABS(dd);
-	    if ( mousePos.x() >= fm.width( str.right( i ) ) ) {
-		if ( od->anchorX > mousePos.x() )
-		    curpos = i;
-		else
-		    curpos = i + 1;
-	    }
+	    if ( mousePos.x() >= fm.width( str.left( i ) ) )
+		curpos = i;
 	}
 	i++;
     }
+//     qWarning("x: %d, y: %d, c: %d, tabwidth: %d, strwidth(1): %d",
+// 	     mousePos.x(), mousePos.y(), curpos, fm.width("\t"),
+// 	     fm.width(str.left(1) ) );
     return curpos;    
 }
 
