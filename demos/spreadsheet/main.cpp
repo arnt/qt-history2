@@ -224,7 +224,7 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     fontAction = toolBar->addAction(QPixmap(":/images/font.xpm"), tr("Font..."));
     fontAction->setShortcut(Qt::ALT|Qt::Key_F);
     connect(fontAction, SIGNAL(triggered()), this, SLOT(selectFont()));
-    
+
     colorAction = toolBar->addAction(QPixmap(16, 16), tr("&Color..."));
     colorAction->setShortcut(Qt::ALT|Qt::Key_C);
     connect(colorAction, SIGNAL(triggered()), this, SLOT(selectColor()));
@@ -276,7 +276,7 @@ void SpreadSheet::updateColor(QTableWidgetItem *item)
     if (item)
         col = item->backgroundColor();
     if (!col.isValid())
-        col = palette().base();
+        col = palette().base().color();
     pix.fill(col);
     colorAction->setIcon(pix);
 }
