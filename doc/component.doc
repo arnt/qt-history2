@@ -226,23 +226,28 @@ QRESULT NumberComponent::queryInterface( const QUuid &uuid, QUnknownInterface **
 	*iface = this;
     else if ( uuid == IID_Integer )
 	*iface = this;
+    else
+        return QS_NOINTERFACE;
 
-    if ( *iface )
-        (*iface)->addRef();
+    (*iface)->addRef();
     return QS_OK;
 }
 \endcode
 
-The return type QRESULT can be used to give a more detailed reason why 
-an interface is available or not. Valid return values for \e queryInterface are
-\e QS_OK if the call was successful, or QE_NOINTERFACE if the queried interface
-is not provided by this component.
+Naturally, the queryInterface implementation should return a valid interface pointer
+for all interfaces implemented by the component, e.g. all the interfaces that the component
+inherits from, which includes the whole inheritance tree of those interfaces themselves.
+
+The return type QRESULT is used to give a more detailed reason why an interface 
+is available or not. Common return values for \e queryInterface are \e QS_OK if the 
+call was successful, or QE_NOINTERFACE if the queried interface is not provided by 
+this component.
 
 Since a single component can be used by multiple clients at a time the
 client itself cannot simply delete the interface pointer when it is no
 longer used - it would invalidate all references a different client has
 to the same interface. Only the component itself knows when it is safe to 
-delete itself, but the client has to tell the component when it is no longer 
+delete itself, and the client has to tell the component when it is no longer 
 used. This is done using a reference count. Whenever a pointer to an interface 
 is copied, the reference count is increased using \e addRef:
 
@@ -351,12 +356,12 @@ the component.
 
 \section1 Writing a Component Server
 
-The classes declared and implemented above are supposed to used by or added to a client 
+The classes declared and implemented above are supposed to be used by or added to a client 
 application without having to relink the executable against the component's binary code 
 created by  the compiler.
 
 
-\section2 Exporting the Components
+\section2 Exporting the Component
 
 In order to be able to distribute a component in binary
 form it must be wrapped in a component server. The most common kind of
@@ -369,11 +374,11 @@ interfaces needed. Qt provides a macro
 
 \code Q_EXPORT_INTERFACE \endcode 
 
-that declares an exported function 
+that declares the exported function
 
 \code QUnknownInterface *ucom_instantiate() \endcode
 
-for all platforms. The address to this function can be resolved using 
+for all platforms. The address of this function can be resolved using 
 the standard procedures for dynamically loaded libraries, or using the 
 QLibrary class. An implementation of this function might look like this:
 
@@ -394,9 +399,26 @@ This default implementation is provided by another macro:
 Q_CREATE_INSTANCE( NumberComponent ) 
 \endcode
 
+so that the standard line for exporting the component becomes
+
+\code
+Q_EXPORT_INTERFACE()
+{
+    Q_CREATE_INSTANCE( NumberComponent )
+}
+\endcode
+
 The <tt>ucom_instantiate</tt> function must be declared and implemented exactly once for 
 each component server.
 
+Sidenote: The \e Q_EXPORT_INTERFACE macro expands to a declaration and implementation of a 
+second exported function:
+
+\code int ucm_initialize( QApplication* theApp, bool *mt, bool *debug ) \endcode
+
+This function is called by the QLibrary class to ensure that the plugin does not use any 
+incompatible Qt library versions, e.g. a multi threaded library when the application is 
+running single threaded.
 
 \section2 Setting up a qmake project for a Component Server
 

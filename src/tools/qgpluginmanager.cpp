@@ -136,7 +136,7 @@
 
   Returns a pointer to the QLibrary providing \a feature.
 
-  \sa featureList(), libraryList()
+  \sa featureList()
 */
 
 /*!
