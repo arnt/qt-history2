@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#5 $
 **
 ** Implementation of QML classes
 **
@@ -669,7 +669,7 @@ public:
 	<li> type
 	The type of the document. The default type is "page". It indicates that
 	the document is displayed in a page of its own. Another style is "detail".
-	It can be used to explain certain expressions more detailed in a few 
+	It can be used to explain certain expressions more detailed in a few
 	sentences. The QMLBrowser will then keep the curren page and display the
 	new document in a small popup similar to QWhatsThis. Note that links
 	will not work in documents with &lt;qml type="detail" &gt;...&lt;/qml&gt;
@@ -915,11 +915,6 @@ private:
     QString parsePlainText(const QString& doc, int& pos);
     bool hasPrefix(const QString& doc, int pos, const QChar& c);
     bool valid;
-    QChar* openChar;
-    QChar* closeChar;
-    QChar* slashChar;
-    QChar* quoteChar;
-    QChar* equalChar;
     const QMLStyleSheet* sheet_;
     const QMLProvider* provider_;
     QMLStyle* base;
@@ -2653,21 +2648,12 @@ void QMLDocument::init( const QString& doc, const QWidget* w )
     base->setFontSize( f.pointSize() );
 
     valid = TRUE;
-    openChar = new QChar('<');
-    closeChar = new QChar('>');
-    slashChar = new QChar('/');
-    quoteChar = new QChar('"');
-    equalChar = new QChar('=');
     int pos = 0;
     parse(this, 0, doc, pos);
 }
 
 QMLDocument::~QMLDocument()
 {
-    delete openChar;
-    delete closeChar;
-    delete slashChar;
-    delete quoteChar;
 }
 
 
@@ -2689,8 +2675,8 @@ void QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
     //     eatSpace(doc, pos);
     while ( valid && pos < int(doc.length() )) {
 	bool sep = FALSE;
-	if (hasPrefix(doc, pos, *openChar) ){
-	    if (hasPrefix(doc, pos+1, *slashChar)) {
+	if (hasPrefix(doc, pos, '<') ){
+	    if (hasPrefix(doc, pos+1, '/')) {
 		if (current->isBox){ // todo this inserts a hitable null character
 		    QMLNode* n = new QMLNode;
 		    n->c = QChar::null;
@@ -2737,8 +2723,8 @@ void QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 		
 		    parse(ctag, 0, doc, pos);
 		    sep |= eatSpace(doc, pos);
-		    valid = (hasPrefix(doc, pos, *openChar)
-			     && hasPrefix(doc, pos+1, *slashChar)
+		    valid = (hasPrefix(doc, pos, '<')
+			     && hasPrefix(doc, pos+1, '/')
 			     && eatCloseTag(doc, pos, tagname) );
 		    if (!valid)
 			return;
@@ -2815,18 +2801,18 @@ QString QMLDocument::parseWord(const QString& doc, int& pos, bool lower)
 {
     QString s;
 
-    if (doc[pos] == *quoteChar) {
+    if (doc[pos] == '"') {
 	pos++;
-	while ( pos < int(doc.length()) && doc[pos] != *quoteChar ) {
+	while ( pos < int(doc.length()) && doc[pos] != '"' ) {
 	    s += doc[pos];
 	    pos++;
 	}
-	eat(doc, pos, *quoteChar);
+	eat(doc, pos, '"');
     }
     else {
 	while( pos < int(doc.length()) &&
-	       doc[pos] != *closeChar && doc[pos] != *openChar
-	       && doc[pos] != *equalChar
+	       doc[pos] != '>' && doc[pos] != '<'
+	       && doc[pos] != '='
 	       && !doc[pos].isSpace())  {
 	    s += doc[pos];
 	    pos++;
@@ -2843,7 +2829,7 @@ QString QMLDocument::parsePlainText(const QString& doc, int& pos)
 {
     QString s;
     while( pos < int(doc.length()) &&
-	   doc[pos] != *closeChar && doc[pos] != *openChar ) {
+	   doc[pos] != '>' && doc[pos] != '<' ) {
 	if (doc[pos].isSpace()){
 	    while (pos+1 < int(doc.length() ) && doc[pos+1].isSpace() ){
 		pos++;
@@ -2869,10 +2855,10 @@ QString QMLDocument::parseOpenTag(const QString& doc, int& pos,
     QString tag = parseWord(doc, pos, TRUE);
     eatSpace(doc, pos);
 
-    while (valid && !lookAhead(doc, pos, *closeChar) ) {
+    while (valid && !lookAhead(doc, pos, '>') ) {
 	QString key = parseWord(doc, pos, TRUE);
 	eatSpace(doc, pos);
-	if (eat(doc, pos, *equalChar)) {
+	if (eat(doc, pos, '=') ){
 	    eatSpace(doc, pos);
 	    QString value = parseWord(doc, pos, TRUE);
 	    attr.insert(key, new QString(value) );
@@ -2880,7 +2866,7 @@ QString QMLDocument::parseOpenTag(const QString& doc, int& pos,
 	}
     }
 
-    eat(doc, pos, *closeChar);
+    eat(doc, pos, '>');
     return tag;
 }
 
@@ -2890,7 +2876,7 @@ bool QMLDocument::eatCloseTag(const QString& doc, int& pos, const QString& open)
     pos++;
     QString tag = parseWord(doc, pos, TRUE);
     eatSpace(doc, pos);
-    eat(doc, pos, *closeChar);
+    eat(doc, pos, '>');
     valid &= tag == open;
     return valid;
 }
@@ -3166,7 +3152,7 @@ const QMLStyleSheet& QMLView::styleSheet() const
 void QMLView::setStyleSheet( const QMLStyleSheet* styleSheet )
 {
     d->sheet_ = styleSheet;
-    updateContents( 0, 0, currentDocument().width, currentDocument().height );
+    viewport()->update();
 }
 
 
@@ -3192,7 +3178,7 @@ const QMLProvider& QMLView::provider() const
 void QMLView::setProvider( const QMLProvider* newProvider )
 {
     d->provider_ = newProvider;
-    updateContents( 0, 0, currentDocument().width, currentDocument().height );
+    viewport()->update();
 }
 
 
@@ -3205,7 +3191,7 @@ void QMLView::setPaper( const QBrush& pap)
 {
     d->mypapcolgrp.setBrush( QColorGroup::Base, pap );
     d->papcolgrp.setBrush( QColorGroup::Base, pap );
-    updateContents( 0, 0, currentDocument().width, currentDocument().height );
+    viewport()->update();
 }
 
 /*!
@@ -3215,7 +3201,7 @@ void QMLView::setPaperColorGroup( const QColorGroup& colgrp)
 {
     d->mypapcolgrp = colgrp;
     d->papcolgrp = colgrp;
-    updateContents( 0, 0, currentDocument().width, currentDocument().height );
+    viewport()->update();
 }
 
 /*!
