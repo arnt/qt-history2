@@ -2398,7 +2398,9 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QDateTime::fromString: Parameter out of range" );
 #endif
-	return QDateTime();
+	QDateTime dt;
+	dt.d.jd = 0;
+	return dt;
     }
     if ( f == Qt::ISODate ) {
 	return QDateTime( QDate::fromString( s.mid(0,10), Qt::ISODate ),
@@ -2427,7 +2429,9 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 #if defined(QT_CHECK_RANGE)
 	if ( month < 1 || month > 12 ) {
 	    qWarning( "QDateTime::fromString: Parameter out of range" );
-	    return QDateTime();
+	    QDateTime dt;
+	    dt.d.jd = 0;
+	    return dt;
 	}
 #endif
 	int day = s.mid( 8, 2 ).simplifyWhiteSpace().toInt();
