@@ -83,7 +83,7 @@ void QTextEngine::itemize( int mode )
 	int stop = string.length() - 1;
 	appendItems(items, start, stop, control, QChar::DirL, string.unicode() );
     }
-    if ( mode & WidthOnly == WidthOnly )
+    if ( (mode & WidthOnly) == WidthOnly )
 	widthOnly = TRUE;
 }
 

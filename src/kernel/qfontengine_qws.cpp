@@ -3,6 +3,7 @@
 #include <private/qunicodetables_p.h>
 #include <qpainter.h>
 #include <qgfxraster_qws.h>
+#include <qbitmap.h>
 
 /*QMemoryManager::FontID*/ void *QFontEngine::handle() const
 {
@@ -43,6 +44,103 @@ QFontEngine::Error QFontEngine::stringToCMap( const QChar *str, int len, glyph_t
 
 void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
 {
+#ifndef QT_NO_TRANSFORMATIONS
+    if ( p->txop >= QPainter::TxScale ) {
+	int aw = si->width;
+	int ah = si->ascent + si->descent + 1;
+	int tx = 0;
+	int ty = 0;
+	if ( aw == 0 || ah == 0 )
+	    return;
+	QWMatrix mat1 = p->xmat;
+	QWMatrix mat2 = QPixmap::trueMatrix( mat1, aw, ah );
+	QPixmap *tpm = 0;
+	QBitmap *wx_bm = 0;
+	if ( memorymanager->fontSmooth(handle()) &&
+	     QPaintDevice::qwsDisplay()->supportsDepth(32) )
+	{
+	    QPixmap pm(aw, ah, 32);
+	    QPainter paint(&pm);
+	    paint.fillRect(pm.rect(),Qt::black);
+	    paint.setPen(QPen(Qt::white));
+	    draw( &paint, 0, si->ascent, engine, si, textFlags );
+	    paint.end();
+	    // Now we have an image with r,g,b gray scale set.
+	    // Put this in alpha channel and set pixmap to pen color.
+	    QRgb bg = p->cpen.color().rgb() & 0x00FFFFFF;
+	    for ( int y = 0; y < ah; y++ ) {
+		uint *p = (uint *)pm.scanLine(y);
+		for ( int x = 0; x < aw; x++ ) {
+		    int a = *p & 0xFF;
+		    *p = bg | (a << 24);
+		    p++;
+		}
+	    }
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
+	    tpm = new QPixmap( pm.xForm( mat2 ) );
+#else
+	    tpm = new QPixmap( pm );
+#endif
+	    if ( tpm->isNull() ) {
+		delete tpm;
+		return;
+	    }
+	} else {
+#if 0
+	    bm_key = gen_text_bitmap_key( mat2, dfont, string, len );
+	    wx_bm = get_text_bitmap( bm_key );
+	    create_new_bm = wx_bm == 0;
+	    if ( create_new_bm && !empty )
+#endif
+	    { // no such cached bitmap
+		QBitmap bm( aw, ah, TRUE );	// create bitmap
+		QPainter paint;
+		paint.begin( &bm );		// draw text in bitmap
+		paint.setPen( p->color1 );
+		draw( &paint, 0, si->ascent, engine, si, textFlags );
+		paint.end();
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
+		wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
+#else
+		wx_bm = new QBitmap( bm );
+#endif
+		if ( wx_bm->isNull() ) {
+		    delete wx_bm;		// nothing to draw
+		    return;
+		}
+	    }
+	}
+	double fx=x, fy=y - si->ascent, nfx, nfy;
+	mat1.map( fx,fy, &nfx,&nfy );
+	double tfx=tx, tfy=ty, dx, dy;
+	mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
+	x = qRound(nfx-dx);
+	y = qRound(nfy-dy);
+
+	if ( memorymanager->fontSmooth(handle()) &&
+	     QPaintDevice::qwsDisplay()->supportsDepth(32) ) {
+	    p->gfx->setSource( tpm );
+	    p->gfx->setAlphaType(QGfx::InlineAlpha);
+	    p->gfx->blt(x, y, tpm->width(),tpm->height(), 0, 0);
+	    delete tpm;
+	    return;
+	} else {
+	    p->gfx->setSource(wx_bm);
+	    p->gfx->setAlphaType(QGfx::LittleEndianMask);
+	    p->gfx->setAlphaSource(wx_bm->scanLine(0), wx_bm->bytesPerLine());
+	    p->gfx->blt(x, y, wx_bm->width(),wx_bm->height(), 0, 0);
+
+#if 0
+	    if ( create_new_bm )
+		ins_text_bitmap( bm_key, wx_bm );
+#else
+	    delete wx_bm;
+#endif
+	}
+	return;
+    }
+#endif
+
     if ( p->txop == QPainter::TxTranslate )
 	p->map( x, y, &x, &y );
 
