@@ -309,7 +309,7 @@ public:
     STDMETHOD(EnumDAdvise)(IEnumSTATDATA **ppenumAdvise);
 
 // QObject
-    bool qt_emit( int, QUObject* );
+    int qt_metacall(QMetaObject::Call, int index, void **argv);
 
     bool eventFilter( QObject *o, QEvent *e );
 private:
@@ -1186,8 +1186,7 @@ void QAxServerBase::internalConnect()
 	// connect the generic slot to all signals of qt.object
 	const QMetaObject *mo = qt.object->metaObject();
 	for (int isignal = mo->signalCount()-1; isignal >= 0; --isignal)
-	    ;
-	    // XXX connectInternal( qt.object, isignal, this, 2, isignal );
+	    QMetaObject::connect(qt.object, isignal, this, QSIGNAL_CODE, isignal);
     }
 }
 
@@ -1881,142 +1880,168 @@ static bool checkHRESULT( HRESULT hres )
 	return FALSE;
     }
 }
+
+static inline QString paramType(const QString ptype, bool *out)
+{
+    QString res = ptype;
+    *out = false;
+    if (res.endsWith("&")) {
+	*out = true;
+	res.truncate(res.length() - 1);
+    } else if (res.endsWith("**")) {
+	*out = true;
+	res.truncate(res.length() - 2);
+    }
+
+    return res;
+}
+
 /*!
     Catches all signals emitted by the Qt widget and fires the respective COM event.
 
     \a isignal is the Qt Meta Object index of the received signal, and \a _o the
     signal parameters.
 */
-bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
+int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 {
-#if 0
-    if ( isignal == -1 && sender() && m_spInPlaceSite ) {
-	if ( qt_cast<QStatusBar*>(sender()) != statusBar )
+    if (index == -1 && sender() && m_spInPlaceSite) {
+	if (qt_cast<QStatusBar*>(sender()) != statusBar)
 	    return TRUE;
 
-	if ( statusBar->isHidden() ) {
-	    QString message = static_QUType_QString.get( _o+1 );
-	    m_spInPlaceFrame->SetStatusText( QStringToBSTR(message) );
+	if (statusBar->isHidden()) {
+	    QString message = *(QString*)argv[1];
+	    m_spInPlaceFrame->SetStatusText(QStringToBSTR(message));
 	}
 	return TRUE;
     }
 
-    if ( freezeEvents || inDesignMode )
+    if (freezeEvents || inDesignMode)
 	return TRUE;
 
-    if ( !signallist )
+    if (!signallist)
 	readMetaData();
 
     // get the signal information.
-    bool stockEvent = isignal < 0;
-    const QMetaData *signal = stockEvent ? 0 : qt.object->metaObject()->signal( isignal, TRUE );
-    if ( !signal && !stockEvent )
-	return FALSE;
-    int signalcount = signal ? signal->method->count : 0;
-    bool retValue = signalcount ? ( signal->method->parameters->inOut == QUParameter::Out ) : FALSE;
-    if ( retValue )
-	signalcount--;
-    if ( stockEvent ) {
-	switch( isignal ) {
-	case DISPID_KEYDOWN:
-	case DISPID_KEYUP:
-	    signalcount = 2;
-	    break;
-	case DISPID_KEYPRESS:
-	    signalcount = 1;
-	    break;
-	case DISPID_MOUSEDOWN:
-	case DISPID_MOUSEMOVE:
-	case DISPID_MOUSEUP:
-	    signalcount = 4;
-	    break;
-	default:
-	    signalcount = 0;
-	    break;
-	}
-    }
-    if ( signalcount && !_o ) {
-	qWarning( "Internal Error: missing %d arguments in qt_emit", signalcount );
-	return FALSE;
-    }
+    QMetaMember signal;
+    DISPID eventId = index;
+    int pcount = 0;
+    QString type;
+    QStringList ptypes;
 
-    // Get the Dispatch ID of the method to be called
-    DISPID eventId = stockEvent ? isignal : signallist->operator [](isignal);
-    if ( eventId == -1 )
+    switch(index) {
+    case DISPID_KEYDOWN:
+    case DISPID_KEYUP:
+	pcount = 2;
+	ptypes << "int&" << "int";
+	break;
+    case DISPID_KEYPRESS:
+	pcount = 1;
+	ptypes << "int&";
+	break;
+    case DISPID_MOUSEDOWN:
+    case DISPID_MOUSEMOVE:
+    case DISPID_MOUSEUP:
+	pcount = 4;
+	ptypes << "int" << "int" << "int" << "int";
+	break;
+    case DISPID_CLICK:
+	pcount = 0;
+	break;
+    default:
+	{
+	    signal = qt.object->metaObject()->signal(index);
+	    type = signal.type();
+
+	    // XXX Get the Dispatch ID of the method to be called
+	    pcount = 0;
+	    eventId = 0;
+	}
+	break;
+    }
+    if (pcount && !argv) {
+	qWarning("Internal Error: missing %d arguments in qt_metacall", pcount);
+	return FALSE;
+    }
+    if (eventId == -1)
 	return FALSE;
 
     // For all connected event sinks...
     IConnectionPoint *cpoint = 0;
-    FindConnectionPoint( qAxFactory()->eventsID( class_name ), &cpoint );
-    if ( cpoint ) {
+    GUID IID_QAxEvents = qAxFactory()->eventsID(class_name);
+    FindConnectionPoint(IID_QAxEvents, &cpoint);
+    if (cpoint) {
 	IEnumConnections *clist = 0;
-	cpoint->EnumConnections( &clist );
-	if ( clist ) {
+	cpoint->EnumConnections(&clist);
+	if (clist) {
 	    clist->Reset();
 	    ULONG cc = 1;
 	    CONNECTDATA c[1];
-	    clist->Next( cc, (CONNECTDATA*)&c, &cc );
-	    if ( cc ) {
+	    clist->Next(cc, (CONNECTDATA*)&c, &cc);
+	    if (cc) {
 		// setup parameters
 		unsigned int argErr = 0;
 		DISPPARAMS dispParams;
-		dispParams.cArgs = signalcount;
+		dispParams.cArgs = pcount;
 		dispParams.cNamedArgs = 0;
 		dispParams.rgdispidNamedArgs = 0;
-		// Use malloc/free for eval package compability
-		dispParams.rgvarg = signalcount
-				    ? (VARIANTARG*) malloc( signalcount * sizeof(VARIANTARG) )
-				    : 0;
-		int p;
-		for ( p = 0; p < signalcount; ++p ) {
-		    QUObject *obj = _o + p + 1;
-		    VARIANT *arg = dispParams.rgvarg + (signalcount - p - 1);
+		dispParams.rgvarg = 0;
+
+		if (pcount) // Use malloc/free for eval package compability
+		    dispParams.rgvarg = (VARIANTARG*)malloc(pcount * sizeof(VARIANTARG));
+		int p = 0;
+		for (p = 0; p < pcount; ++p) {
+		    VARIANT *arg = dispParams.rgvarg + (pcount - p - 1);
 		    VariantInit( arg );
 
-		    const QUParameter *param = signal ? signal->method->parameters + p : 0;
-		    QUObjectToVARIANT( obj, *arg, param );
+		    bool out;
+		    QString ptype = paramType(ptypes.at(p), &out);
+		    QVariant variant(QVariant::nameToType(ptype.latin1()), argv[p + 1]);
+		    QVariantToVARIANT(variant, *arg, type, out);
 		}
+
 		VARIANT retval;
-		VariantInit( &retval );
-		VARIANT *pretval = retValue ? &retval : 0;
+		VariantInit(&retval);
+		VARIANT *pretval = 0;
+		if (!type.isEmpty())
+		    pretval = &retval;
+
 		// call listeners (through IDispatch)
-		GUID IID_QAxEvents = qAxFactory()->eventsID( class_name );
-		while ( cc ) {
-		    if ( c->pUnk ) {
+		while (cc) {
+		    if (c->pUnk) {
 			IDispatch *disp = 0;
-			c->pUnk->QueryInterface( IID_QAxEvents, (void**)&disp );
-			if ( disp ) {
-			    disp->Invoke( eventId, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &dispParams, pretval, 0, &argErr );
-			    if ( signal && signal->method ) {
-				for ( p = 0; p < signalcount; ++p ) {
-				    const QUParameter *param = signal->method->parameters + p;
-				    if ( param->inOut & QUParameter::Out ) {
-					QUObject *obj = _o + p + 1;
-					if ( obj->type )
-					    obj->type->clear( obj );
-					VARIANTToQUObject( dispParams.rgvarg[ signalcount - p - 1 ], obj, param );
-				    }
+			c->pUnk->QueryInterface(IID_QAxEvents, (void**)&disp);
+			if (disp) {
+			    disp->Invoke(eventId, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &dispParams, pretval, 0, &argErr);
+
+			    // update out-parameters and return value
+			    if (index > 0) {
+				for (p = 0; p < pcount; ++p) {
+				    bool out;
+				    QString ptype = paramType(ptypes.at(p), &out);
+				    if (out)
+					QVariantToVoidStar(VARIANTToQVariant(dispParams.rgvarg[pcount - p - 1], ptype), argv[p+1]);
 				}
-				if ( pretval )
-				    VARIANTToQUObject( retval, _o, signal->method->parameters );
+				if (pretval)
+				    QVariantToVoidStar(VARIANTToQVariant(retval, type), argv[0]);
 			    }
 			    disp->Release();
 			}
 			c->pUnk->Release(); // AddRef'ed by clist->Next implementation
 		    }
-		    clist->Next( cc, (CONNECTDATA*)&c, &cc );
+		    clist->Next(cc, (CONNECTDATA*)&c, &cc);
 		}
 
 		// clean up
-		for ( p = 0; p < signalcount; ++p )
-		    clearVARIANT( dispParams.rgvarg+p );
-		free( dispParams.rgvarg );
+		for (p = 0; p < pcount; ++p)
+		    clearVARIANT(dispParams.rgvarg+p);
+		free(dispParams.rgvarg);
+
 	    }
 	    clist->Release();
 	}
 	cpoint->Release();
     }
-#endif
+
     return TRUE;
 }
 
@@ -2199,21 +2224,6 @@ HRESULT WINAPI QAxServerBase::GetIDsOfNames(REFIID riid, LPOLESTR* rgszNames, UI
 	return DISP_E_UNKNOWNNAME;
 
     return m_spTypeInfo->GetIDsOfNames( rgszNames, cNames, rgdispid );
-}
-
-static inline QString paramType(const QString ptype, bool *out)
-{
-    QString res = ptype;
-    *out = false;
-    if (res.endsWith("&")) {
-	*out = true;
-	res.truncate(res.length() - 1);
-    } else if (res.endsWith("**")) {
-	*out = true;
-	res.truncate(res.length() - 2);
-    }
-
-    return res;
 }
 
 /*
@@ -3458,7 +3468,7 @@ HRESULT QAxServerBase::internalActivate()
 		    statusBar = qt.widget ? qFindChild<QStatusBar*>(qt.widget) : 0;
 		    if ( statusBar && !statusBar->isVisible() ) {
 			const int index = statusBar->metaObject()->indexOfSignal("messageChanged(const QString&)");
-//XXX			connectInternal( statusBar, index, (QObject*)this, 2, -1 );
+			QMetaObject::connect(statusBar, index, this, QSIGNAL_CODE, -1);
 			statusBar->hide();
 			statusBar->installEventFilter( this );
 		    }
@@ -3838,102 +3848,125 @@ static int mapModifiers( int state )
 */
 bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 {
-    if ( !theObject )
-	return QObject::eventFilter( o, e );
+    if (!theObject)
+	return QObject::eventFilter(o, e);
 
-#if 0
     if ((e->type() == QEvent::Show || e->type() == QEvent::Hide) && (o == statusBar || o == menuBar)) {
-	if ( o == menuBar ){
-	    if ( e->type() == QEvent::Hide ) {
-		createMenu( menuBar );
-	    } else if ( e->type() == QEvent::Show ) {
+	if (o == menuBar) {
+	    if (e->type() == QEvent::Hide) {
+		createMenu(menuBar);
+	    } else if (e->type() == QEvent::Show) {
 		removeMenu();
 	    }
-	} else if ( statusBar ) {
-	    statusBar->setSizeGripEnabled( FALSE );
+	} else if (statusBar) {
+	    statusBar->setSizeGripEnabled(false);
 	}
 	updateGeometry();
-	if ( m_spInPlaceSite ) {
+	if (m_spInPlaceSite) {
 	    RECT rect;
 	    rect.left = rcPos.left;
 	    rect.right = rcPos.left + qt.widget->sizeHint().width();
 	    rect.top = rcPos.top;
 	    rect.bottom = rcPos.top + qt.widget->sizeHint().height();
-	    m_spInPlaceSite->OnPosRectChange( &rect );
+	    m_spInPlaceSite->OnPosRectChange(&rect);
 	}
     }
-
-    switch( e->type() ) {
+    switch (e->type()) {
     case QEvent::ChildAdded:
-	{
+	if (hasStockEvents) {
 	    QChildEvent *ce = (QChildEvent*)e;
-	    ce->child()->installEventFilter( this );
+	    ce->child()->installEventFilter(this);
 	}
 	break;
     case QEvent::ChildRemoved:
-	{
+	if (hasStockEvents) {
 	    QChildEvent *ce = (QChildEvent*)e;
-	    ce->child()->removeEventFilter( this );
+	    ce->child()->removeEventFilter(this);
 	}
 	break;
     case QEvent::KeyPress:
-	if ( o == qt.object && hasStockEvents ) {
+	if (o == qt.object && hasStockEvents) {
 	    QKeyEvent *ke = (QKeyEvent*)e;
-	    QUObject obj[3];
-	    static_QUType_int.set( obj+1, ke->key() );
-	    static_QUType_int.set( obj+2, mapModifiers( ke->state() ) );
-	    qt_emit( DISPID_KEYDOWN, obj );
-	    if ( ke->ascii() )
-		qt_emit( DISPID_KEYPRESS, obj );
+	    int key = ke->key();
+	    int state = ke->state();
+	    void *argv[] = {
+		0,
+		&key,
+		&state
+	    };
+	    qt_metacall(QMetaObject::EmitSignal, DISPID_KEYDOWN, argv);
+	    if (!ke->text().isEmpty())
+		qt_metacall(QMetaObject::EmitSignal, DISPID_KEYPRESS, argv);
 	}
 	break;
     case QEvent::KeyRelease:
-	if ( o == qt.object && hasStockEvents ) {
+	if (o == qt.object && hasStockEvents) {
 	    QKeyEvent *ke = (QKeyEvent*)e;
-	    QUObject obj[3];
-	    static_QUType_int.set( obj+1, ke->key() );
-	    static_QUType_int.set( obj+2, mapModifiers( ke->state() ) );
-	    qt_emit( DISPID_KEYUP, obj );
+	    int key = ke->key();
+	    int state = ke->state();
+	    void *argv[] = {
+		0,
+		&key,
+		&state
+	    };
+	    qt_metacall(QMetaObject::EmitSignal, DISPID_KEYUP, argv);
 	}
 	break;
     case QEvent::MouseMove:
-	if ( o == qt.object && hasStockEvents ) {
+	if (o == qt.object && hasStockEvents) {
 	    QMouseEvent *me = (QMouseEvent*)e;
-	    QUObject obj[5]; // 0 = return value
-	    static_QUType_int.set( obj+1, me->state() & Qt::MouseButtonMask );
-	    static_QUType_int.set( obj+2, mapModifiers( me->state() ) );
-	    static_QUType_int.set( obj+3, me->x() );
-	    static_QUType_int.set( obj+4, me->y() );
-	    qt_emit( DISPID_MOUSEMOVE, obj );
+	    int button = me->state() & Qt::MouseButtonMask;
+	    int state = mapModifiers(me->state());
+	    int x = me->x();
+	    int y = me->y();
+	    void *argv[] = {
+		0,
+		&button,
+		&state,
+		&x,
+		&y
+	    };
+	    qt_metacall(QMetaObject::EmitSignal, DISPID_MOUSEMOVE, argv);
 	}
 	break;
     case QEvent::MouseButtonRelease:
 	if ( o == qt.object && hasStockEvents ) {
 	    QMouseEvent *me = (QMouseEvent*)e;
-	    QUObject obj[5]; // 0 = return value
-	    static_QUType_int.set( obj+1, me->button() );
-	    static_QUType_int.set( obj+2, mapModifiers( me->state() ) );
-	    static_QUType_int.set( obj+3, me->x() );
-	    static_QUType_int.set( obj+4, me->y() );
-	    qt_emit( DISPID_MOUSEUP, obj );
-	    qt_emit( DISPID_CLICK, 0 );
+	    int button = me->state() & Qt::MouseButtonMask;
+	    int state = mapModifiers(me->state());
+	    int x = me->x();
+	    int y = me->y();
+	    void *argv[] = {
+		0,
+		&button,
+		&state,
+		&x,
+		&y
+	    };
+	    qt_metacall(QMetaObject::EmitSignal, DISPID_MOUSEUP, argv);
+	    qt_metacall(QMetaObject::EmitSignal, DISPID_CLICK, 0);
 	}
 	break;
     case QEvent::MouseButtonDblClick:
 	if ( o == qt.object && hasStockEvents ) {
-	    QMouseEvent *me = (QMouseEvent*)e;
-	    qt_emit( DISPID_DBLCLICK, 0 );
+	    qt_metacall(QMetaObject::EmitSignal, DISPID_DBLCLICK, 0);
 	}
 	break;
     case QEvent::MouseButtonPress:
 	if ( o == qt.widget && hasStockEvents ) {
 	    QMouseEvent *me = (QMouseEvent*)e;
-	    QUObject obj[5]; // 0 = return value
-	    static_QUType_int.set( obj+1, me->button() );
-	    static_QUType_int.set( obj+2, mapModifiers( me->state() ) );
-	    static_QUType_int.set( obj+3, me->x() );
-	    static_QUType_int.set( obj+4, me->y() );
-	    qt_emit( DISPID_MOUSEDOWN, obj );
+	    int button = me->state() & Qt::MouseButtonMask;
+	    int state = mapModifiers(me->state());
+	    int x = me->x();
+	    int y = me->y();
+	    void *argv[] = {
+		0,
+		&button,
+		&state,
+		&x,
+		&y
+	    };
+	    qt_metacall(QMetaObject::EmitSignal, DISPID_MOUSEDOWN, argv);
 	}
 	break;
     case QEvent::Show:
@@ -3951,6 +3984,5 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
     default:
 	break;
     }
-#endif
     return QObject::eventFilter( o, e );
 }
