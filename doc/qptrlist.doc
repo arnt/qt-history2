@@ -40,7 +40,8 @@
 
 /*!
   \class QPtrList
-  \brief The QPtrList class is a template class that provides doubly-linked lists.
+  \brief The QPtrList class is a template class that provides
+  doubly-linked lists.
 
   \ingroup collection
   \ingroup tools
@@ -63,23 +64,27 @@
     current(), to an item at a particular index position in the list
     with at() or to the first or last item with getFirst() and
     getLast(). You can also iterate over the list with first(),
-    last(), next() and prev() (which update current()). The list's
-    deletion property is set with setAutoDelete().
+    last(), next() and prev() (which all update current()). The
+    list's deletion property is set with setAutoDelete().
+
+  \target example
 
   Example:
   \code
     class Employee
     {
     public:
-	Employee(): sn(0) {}
+	Employee() : sn( 0 ) { }
 	Employee( const QString& forename, const QString& surname, int salary )
-	    : fn(forename), sn(surname), sal(salary)
-	{}
+	    : fn( forename ), sn( surname ), sal( salary )
+	{ }
+
+	void setSalary( int salary ) { sal = salary; }
 
 	QString forename() const { return fn; }
 	QString surname() const { return sn; }
 	int salary() const { return sal; }
-	void setSalary( int salary ) { sal = salary; }
+
     private:
 	QString fn;
 	QString sn;
@@ -87,31 +92,34 @@
     };
 
     QPtrList<Employee> list;
-    list.setAutoDelete( TRUE ); // We want the list to own the Employees
+    list.setAutoDelete( TRUE ); // the list owns the objects
 
     list.append( new Employee("John", "Doe", 50000) );
     list.append( new Employee("Jane", "Williams", 80000) );
     list.append( new Employee("Tom", "Jones", 60000) );
 
-    Employee *employee; // See QPtrListIterator
+    Employee *employee;
     for ( employee = list.first(); employee; employee = list.next() )
 	cout << employee->surname().latin1() << ", " <<
 		employee->forename().latin1() << " earns " <<
 		employee->salary() << endl;
     cout << endl;
 
+    // very inefficient for big lists
     for ( uint i = 0; i < list.count(); ++i )
-	if ( list.at( i ) )
+	if ( list.at(i) )
 	    cout << list.at( i )->surname().latin1() << endl;
+  \endcode
 
-  // Output:
-  //	Doe, John earns 50000
-  //	Williams, Jane earns 80000
-  //	Jones, Tom earns 60000
-  //
-  //	Doe
-  //	Williams
-  //	Jones
+  The output is
+  \code
+    Doe, John earns 50000
+    Williams, Jane earns 80000
+    Jones, Tom earns 60000
+
+    Doe
+    Williams
+    Jones
   \endcode
 
   QPtrList has several member functions for traversing the list, but
@@ -720,8 +728,9 @@
  *****************************************************************************/
 
 /*!
-  \class QPtrListIterator qptrlist.h
-  \brief The QPtrListIterator class provides an iterator for QPtrList collections.
+  \class QPtrListIterator
+  \brief The QPtrListIterator class provides an iterator for QPtrList
+  collections.
 
   \ingroup collection
   \ingroup tools
@@ -729,41 +738,49 @@
   Define a template instance QPtrListIterator\<X\> to create a list iterator
   that operates on QPtrList\<X\> (list of X*).
 
-  Example:
-  \code
-    //... See QPtrList
+  The following example is similar to the \link qptrlist.html#example
+  example in the QPtrList class documentation \endlink, but it uses
+  QPtrListIterator. The class Employee is defined there.
 
+  \code
     QPtrList<Employee> list;
-    list.setAutoDelete( TRUE ); // We want the list to own the Employees
 
     list.append( new Employee("John", "Doe", 50000) );
     list.append( new Employee("Jane", "Williams", 80000) );
     list.append( new Employee("Tom", "Jones", 60000) );
 
-    Employee *employee; 
-    for ( employee = list.first(); employee; employee = list.next() )
+    QPtrListIterator<Employee> it( list );
+    Employee *employee;
+    while ( (employee = it.current()) != 0 ) {
+	++it;
 	cout << employee->surname().latin1() << ", " <<
 		employee->forename().latin1() << " earns " <<
 		employee->salary() << endl;
+    }
+  \endcode
 
-    // Output:
-    //	Doe, John earns 50000
-    //	Williams, Jane earns 80000
-    //	Jones, Tom earns 60000
-    \endcode
+  The output is
+  \code
+    Doe, John earns 50000
+    Williams, Jane earns 80000
+    Jones, Tom earns 60000
+  \endcode
 
-  Although QPtrList has member functions to traverse the doubly-linked list
-  structure, using a list iterator is a much more robust way of traversing
-  the list because multiple list iterators can operate on the same list,
-  independent of each other and independent of the QPtrList's current item.
-  An iterator has its own current list item and can get the next and
-  previous list items.  It can only traverse the list, never modify it.
+  Using a list iterator is a more robust way of traversing the
+  list than using the QPtrList member functions
+  \link QPtrList::first() first\endlink(),
+  \link QPtrList::next() next\endlink(),
+  \link QPtrList::current() current\endlink(), etc., as many
+  iterators can traverse the same list independently.
 
-  A QPtrList knows about all list iterators that are operating on the list.
-  When an item is removed from the list, the list updates all iterators
-  pointing the removed item to point to the new current list item.
+  An iterator has its own current list item and can get the next
+  and previous list items. It doesn't modifies the list in any way.
 
-  \sa QPtrList, \link collection.html collection classes\endlink
+  When an item is removed from the list, all iterator that points
+  to that item are updated to point to QPtrList::currentItem()
+  instead to avoid dangling references.
+
+  \sa QPtrList
 */
 
 /*!
