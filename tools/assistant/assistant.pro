@@ -55,7 +55,7 @@ win32 {
     RC_FILE = assistant.rc
 }
 
-mac:RC_FILE = assistant.icns
+mac:ICON = assistant.icns
 
 #target.path = $$bins.path
 #INSTALLS += target

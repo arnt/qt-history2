@@ -47,6 +47,9 @@ UnixMakefileGenerator::init()
         return; /* subdirs is done */
     }
 
+    if(project->isEmpty("ICON") && !project->isEmpty("RC_FILE"))
+        project->variables()["ICON"] = project->variables()["RC_FILE"];
+
     if(project->isEmpty("QMAKE_EXTENSION_SHLIB")) {
         if(project->isEmpty("QMAKE_CYGWIN_SHLIB")) {
             project->variables()["QMAKE_EXTENSION_SHLIB"].append("so");
@@ -166,7 +169,7 @@ UnixMakefileGenerator::init()
                 project->variables()["QMAKE_INFO_PLIST_OUT"].append(project->first("DESTDIR") +
                                                                     "../Info.plist");
                 project->variables()["ALL_DEPS"] += project->first("QMAKE_INFO_PLIST_OUT");
-                if(!project->isEmpty("RC_FILE"))
+                if(!project->isEmpty("ICON"))
                     project->variables()["ALL_DEPS"] += project->first("DESTDIR") +
                                                         "../Resources/application.icns";
                 if(!project->isEmpty("QMAKE_BUNDLE_DATA")) {
@@ -174,8 +177,7 @@ UnixMakefileGenerator::init()
                     for(int i = 0; i < bundle_data.count(); i++) {
                         const QStringList &files = project->variables()[bundle_data[i] + ".files"];
                         QString path = Option::fixPathToTargetOS(project->first("DESTDIR") +
-                                                                 "../" + project->variables()[bundle_data[i] + 
-                                                                                              ".path"].first());
+                                                                 "../" + project->first(bundle_data[i] + ".path"));
                         for(int file = 0; file < files.count(); file++) 
                             project->variables()["ALL_DEPS"] += path + Option::dir_sep + 
                                                                 QFileInfo(files[file]).fileName();

@@ -42,7 +42,7 @@ win32:RC_FILE        = linguist.rc
 
 mac {
     staticlib:CONFIG -= global_init_link_order #yuck
-    RC_FILE = linguist.icns
+    ICON = linguist.icns
 }
 
 PROJECTNAME        = Qt Linguist

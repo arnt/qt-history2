@@ -651,20 +651,19 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         t << "@$(DEL_FILE) " << info_plist_out << "\n\t"
           << "@sed -e \"s,@ICON@,application.icns,g\" -e \"s,@EXECUTABLE@," << var("QMAKE_ORIG_TARGET")
           << ",g\" \"" << info_plist << "\" >\"" << info_plist_out << "\"" << endl;
-        if(!project->first("RC_FILE").isEmpty()) {
+        if(!project->first("ICON").isEmpty()) {
             QString dir = destdir + "../Resources/";
-            t << dir << "application.icns: " << var("RC_FILE") << "\n\t"
+            t << dir << "application.icns: " << var("ICON") << "\n\t"
               << "@test -d " << dir << " || mkdir -p " << dir << "\n\t"
               << "@$(DEL_FILE) " << dir << "application.icns" << "\n\t"
-              << "@$(COPY_FILE) " << var("RC_FILE") << " " << dir << "application.icns" << endl;
+              << "@$(COPY_FILE) " << var("ICON") << " " << dir << "application.icns" << endl;
         }
         if(!project->isEmpty("QMAKE_BUNDLE_DATA")) {
             const QStringList &bundle_data = project->variables()["QMAKE_BUNDLE_DATA"];
             for(int i = 0; i < bundle_data.count(); i++) {
                 const QStringList &files = project->variables()[bundle_data[i] + ".files"];
                 QString path = Option::fixPathToTargetOS(project->first("DESTDIR") +
-                                                         "../" + project->variables()[bundle_data[i] + 
-                                                                                      ".path"].first());
+                                                         "../" + project->first(bundle_data[i] + ".path"));
                 for(int file = 0; file < files.count(); file++) {
                     QString dst = path + Option::dir_sep + QFileInfo(files[file]).fileName();
                     t << dst << ": " << files[file] << "\n\t"
