@@ -193,20 +193,15 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     bool mono_src;
     bool mono_dst;
     bool include_inferiors = FALSE;
-    bool graphics_exposure = FALSE;
     QPixmap *src_pm;
-    QBitmap *mask;
 
     if ( ts == QInternal::Pixmap ) {
 	src_pm = (QPixmap*)src;
 	mono_src = src_pm->depth() == 1;
-	mask = ignoreMask ? 0 : src_pm->data->mask;
     } else {
 	src_pm = 0;
 	mono_src = FALSE;
-	mask = 0;
 	include_inferiors = ((QWidget*)src)->testWFlags(Qt::WPaintUnclipped);
-	graphics_exposure = td == QInternal::Widget;
     }
     if ( td == QInternal::Pixmap ) {
 	mono_dst = ((QPixmap*)dst)->depth() == 1;

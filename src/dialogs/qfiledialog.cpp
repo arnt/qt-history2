@@ -1169,7 +1169,7 @@ void QFileListBox::viewportDragMoveEvent( QDragMoveEvent *e )
 	case QDropEvent::Link:
 	    break;
 	default:
-	    ;
+	    break;
 	}
 	if ( oldDragPos != e->pos() )
 	    setCurrentDropItem( e->pos() );
@@ -1203,14 +1203,8 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
     QStrList l;
     QUrlDrag::decode( e, l );
 
-    bool move = FALSE;
-    bool supportAction = TRUE;
-    if ( e->action() == QDropEvent::Move )
-	move = TRUE;
-    else if ( e->action() == QDropEvent::Copy )
-	       ;
-    else
-	supportAction = FALSE;
+    bool move = e->action() == QDropEvent::Move;
+    bool supportAction = move || e->action() == QDropEvent::Copy;
 
     QUrlOperator dest;
     if ( currDropItem )
@@ -1558,7 +1552,7 @@ void QFileListView::viewportDragMoveEvent( QDragMoveEvent *e )
 	case QDropEvent::Link:
 	    break;
 	default:
-	    ;
+	    break;
 	}
     } else {
 	changeDirTimer->stop();
@@ -1590,14 +1584,8 @@ void QFileListView::viewportDropEvent( QDropEvent *e )
     QStringList l;
     QUrlDrag::decodeToUnicodeUris( e, l );
 
-    bool move = FALSE;
-    bool supportAction = TRUE;
-    if ( e->action() == QDropEvent::Move )
-	move = TRUE;
-    else if ( e->action() == QDropEvent::Copy )
-	       ;
-    else
-	supportAction = FALSE;
+    bool move = e->action() == QDropEvent::Move;
+    bool supportAction = move || e->action() == QDropEvent::Copy;
 
     QUrlOperator dest;
     if ( currDropItem )
@@ -4825,8 +4813,9 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	     ecode == QNetworkProtocol::ErrFileNotExisting ) {
 	    d->url = d->oldUrl;
 	    rereadDir();
-	} else
-	    ; // another error happened, no need to go back to last dir
+	} else {
+	    // another error happened, no need to go back to last dir
+	}
     } else if ( op->operation() == QNetworkProtocol::OpListChildren &&
 		op == d->currListChildren ) {
 	if ( !d->hadDotDot && !isRoot( d->url ) ) {

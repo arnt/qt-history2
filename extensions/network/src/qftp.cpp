@@ -430,8 +430,7 @@ void QFtp::readyRead()
 	errorForNow( code, s );
     else if ( s.left( 1 ) == "5" )
 	errorForgetIt( code, s );
-    else
-	;// starnge things happen...
+    // else strange things happen...
 }
 
 /*!

@@ -578,7 +578,7 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 	    while ( tc.gotoNextLine( p ) );
 	}
 	b = b->nextInDocument();
-    };
+    }
 
     to.selstart = QtTriple();
     to.selstart = to.selend;
@@ -763,8 +763,7 @@ void QTextView::selectAll()
 {
     QRichTextIterator it( richText() );
     d->selstart = it.position();
-    while ( it.right( FALSE ) )
-	;
+    while ( it.right( FALSE ) ) { }
     d->selend = it.position();
     viewport()->update();
     d->selection = TRUE;

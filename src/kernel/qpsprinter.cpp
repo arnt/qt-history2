@@ -2403,7 +2403,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    delete [] tmp;
 	}
 	break;
-    case PdcDrawText2Formatted:;
+    case PdcDrawText2Formatted:
 	return FALSE;			// uses QPainter instead
     case PdcDrawPixmap: {
 	if ( p[1].pixmap->isNull() )

@@ -312,7 +312,7 @@ QMouseHandlerPrivate::QMouseHandlerPrivate( MouseProtocol protocol,
 	tcflush(mouseFD,TCIFLUSH);	    // ### doesn't seem to work.
 
 	char buf[2];
-	while (read(mouseFD, buf, 1) > 0);  // eat unwanted replies
+	while (read(mouseFD, buf, 1) > 0) { }  // eat unwanted replies
 
 	mouseIdx = 0;
 
@@ -523,7 +523,7 @@ QVFbMouseHandlerPrivate::QVFbMouseHandlerPrivate( MouseProtocol, QString mouseDe
     } else {
 	// Clear pending input
 	char buf[2];
-	while (read(mouseFD, buf, 1) > 0);
+	while (read(mouseFD, buf, 1) > 0) { }
 
 	mouseIdx = 0;
 

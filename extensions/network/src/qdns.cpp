@@ -265,7 +265,6 @@ QString QDnsAnswer::readString()
 	default:
 	    ok = FALSE;
 	    return QString::null;
-	    break;
 	case 3:
 	    int q = ( (answer[p] & 0x3f) << 8 ) + answer[p+1];
 	    if ( q >= pp || q >= p ) {

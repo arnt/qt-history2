@@ -978,7 +978,7 @@ QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
 	//break;
     default:
 	break;
-    };
+    }
 #if defined(CHECK_RANGE)
     qWarning( "QPalette::directBrush: colorGroup(%i) internal error", gr );
 #endif

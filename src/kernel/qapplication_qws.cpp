@@ -152,7 +152,7 @@ static char    *mwTitle		= 0;		// main widget title
 //static bool	mwIconic	= FALSE;	// main widget iconified
 
 static bool	app_do_modal	= FALSE;	// modal mode
-QWSDisplay*	qt_fbdpy;				// QWS `display'
+QWSDisplay*	qt_fbdpy = 0;			// QWS `display'
 static fd_set	app_readfds;			// fd set for reading
 static fd_set	app_writefds;			// fd set for writing
 static fd_set	app_exceptfds;			// fd set for exceptions
@@ -372,7 +372,7 @@ void QWSDisplayData::init()
 
     qt_probe_bus();
 
-    int offset=qt_screen->screenSize();
+    int screensize=qt_screen->screenSize();
 
     int mouseoffset = 0;
 
@@ -384,8 +384,8 @@ void QWSDisplayData::init()
 
     /* Initialise framebuffer memory manager */
     /* Add 4k for luck and to avoid clobbering hardware cursor */
-    memorymanager=new QMemoryManager(qt_screen->base()+offset+4096,
-	qt_screen->totalSize()-(offset+4096),0);
+    memorymanager=new QMemoryManager(qt_screen->base()+screensize+4096,
+	qt_screen->totalSize()-(screensize+4096),0);
 
     rgnMan = new QWSRegionManager( TRUE );
 
@@ -850,6 +850,8 @@ static void qt_set_qws_resources()
 
 static void init_display()
 {
+    if ( qt_fbdpy ) return; // workaround server==client case
+
     // Connect to FB server
 
     qt_fbdpy = new QWSDisplay;
@@ -1280,7 +1282,7 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
     QWidget *w = QWidget::mouseGrabber();
     if ( !w )
 	w = desktop();
-    desktop()->qwsDisplay()->selectCursor(w, (int)app_cursor->handle());
+    QPaintDevice::qwsDisplay()->selectCursor(w, (int)app_cursor->handle());
 }
 
 void QApplication::restoreOverrideCursor()
@@ -1295,9 +1297,9 @@ void QApplication::restoreOverrideCursor()
     if ( !app_cursor ) {
 	delete cursorStack;
 	cursorStack = 0;
-	desktop()->qwsDisplay()->selectCursor(w, ArrowCursor);
+	QPaintDevice::qwsDisplay()->selectCursor(w, ArrowCursor);
     } else
-	desktop()->qwsDisplay()->selectCursor(w, (int)app_cursor->handle());
+	QPaintDevice::qwsDisplay()->selectCursor(w, (int)app_cursor->handle());
 }
 #endif// QT_NO_CURSOR
 
@@ -1671,7 +1673,7 @@ bool QApplication::processNextEvent( bool canWait )
 	    errno = 0;
 	    return (nevents > 0);
 	} else {
-	    ; // select error
+	    // select error
 	}
     } else if ( nsel > 0 && sn_highest >= 0 ) {
 	nevents += sn_activate();
@@ -1691,8 +1693,8 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	//QWSPropertyNotifyEvent *e = (QWSPropertyNotifyEvent*)event;
     } else if ( event->type == QWSEvent::PropertyReply ) {
 	QWSPropertyReplyEvent *e = (QWSPropertyReplyEvent*)event;
-	desktop()->qwsDisplay()->getPropertyLen = e->simpleData.len;
-	desktop()->qwsDisplay()->getPropertyData = e->data;
+	QPaintDevice::qwsDisplay()->getPropertyLen = e->simpleData.len;
+	QPaintDevice::qwsDisplay()->getPropertyData = e->data;
     }
 #endif //QT_NO_QWS_PROPERTIES
     QETWidget *widget = (QETWidget*)QWidget::find( (WId)event->window() );
@@ -1745,10 +1747,10 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		if (!curs && w->extraData())
 		    curs = w->extraData()->curs;
 		if (curs) {
-		    desktop()->qwsDisplay()->selectCursor(widget, (int)curs->handle());
+		    QPaintDevice::qwsDisplay()->selectCursor(widget, (int)curs->handle());
 		}
 		else {
-		    desktop()->qwsDisplay()->selectCursor(widget, ArrowCursor);
+		    QPaintDevice::qwsDisplay()->selectCursor(widget, ArrowCursor);
 		}
 	    }
 #endif	    

@@ -230,12 +230,13 @@ public:
 		    ch.cell() = *chars++;
 		}
 		if ( !headerdone ) {
-		    if ( ch == QChar::byteOrderSwapped )
+		    if ( ch == QChar::byteOrderSwapped ) {
 			swap = !swap;
-		    else if ( ch == QChar::byteOrderMark )
-			; // Ignore ZWNBSP
-		    else
+		    } else if ( ch == QChar::byteOrderMark ) {
+			// Ignore ZWNBSP
+		    } else {
 			r += ch;
+		    }
 		    headerdone = TRUE;
 		} else
 		    r += ch;

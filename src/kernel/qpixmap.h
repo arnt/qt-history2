@@ -180,7 +180,7 @@ protected:
 	void   *ximage;
 	void   *maskgc;
 #elif defined(_WS_QWS_)
-	int id;
+	int id; // ### should use QPaintDevice::hd, since it is there
 	QRgb * clut;
 	int numcols;
 #endif

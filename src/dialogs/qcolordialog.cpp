@@ -460,7 +460,7 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
 	break;
     case Key_Up:
 	if( curRow > 0 ) {
-	    setCurrent( curRow - 1, curCol);;
+	    setCurrent( curRow - 1, curCol);
 	    int edge = topCell();
 	    if ( curRow < edge )
 		setTopCell( edge - 1 );

@@ -162,7 +162,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     else
 	data->d = d;
     if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
-	hd = 0;
 	data->id = 0;
 	data->w = 0;
 	data->h = 0;
@@ -198,9 +197,6 @@ void QPixmap::deref()
 	if ( data->clut )
 	    delete[] data->clut;
 
-	if ( hd && qApp ) {
-	    hd = 0;
-	}
 	memorymanager->deletePixmap(data->id);
 	delete data;
     }
@@ -326,7 +322,7 @@ QImage QPixmap::convertToImage() const
 	mygfx->setLineStep(image.bytesPerLine());
 	mygfx->blt(0,0,w,h);
     } else {
-        qFatal("No image gfx for convertToImage!");;
+        qFatal("No image gfx for convertToImage!");
     }
     delete mygfx;
 
@@ -356,6 +352,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
 
     detach();					// detach other references
+    deref();
     QImage  image = img;
     int	 w   = image.width();
     int	 h   = image.height();
@@ -364,10 +361,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     bool force_mono = (dd == 1 || isQBitmap() ||
 		       (conversion_flags & ColorMode_Mask)==MonoOnly );
 
-    if ( data->mask ) {				// get rid of the mask
-	delete data->mask;
-	data->mask = 0;
-    }
     if ( force_mono ) {				// must be monochrome
 	if ( d != 1 ) {
 	    image = image.convertDepth( 1, conversion_flags );	// dither
@@ -406,8 +399,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
     if ( force_mono )
 	dd = 1;
-
-    memorymanager->deletePixmap(data->id);
 
     bool manycolors=(qt_screen->depth() > 8);
 
@@ -673,14 +664,14 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 		trigx += m11;                                                 \
 		trigy += m12;
 		// END OF MACRO
-		IWX(1);
-		IWX(2);
-		IWX(4);
-		IWX(8);
-		IWX(16);
-		IWX(32);
-		IWX(64);
-		IWX(128);
+		IWX(1)
+		IWX(2)
+		IWX(4)
+		IWX(8)
+		IWX(16)
+		IWX(32)
+		IWX(64)
+		IWX(128)
 		p++;
 	    }
 	}

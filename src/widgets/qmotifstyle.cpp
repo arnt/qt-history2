@@ -610,7 +610,7 @@ void QMotifStyle::drawTabMask( QPainter* p,  const  QTabBar* tb, QTab* t, bool s
 
 #define HORIZONTAL	(sb->orientation() == QScrollBar::Horizontal)
 #define VERTICAL	!HORIZONTAL
-#define MOTIF_BORDER	defaultFrameWidth();
+#define MOTIF_BORDER	defaultFrameWidth()
 #define SLIDER_MIN	9 // ### motif says 6 but that's too small
 
 

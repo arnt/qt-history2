@@ -313,7 +313,7 @@ typedef struct _ScanLineListBlock {
          pAET->back = pPrevAET; \
    } \
    else { \
-      BRESINCRPGONSTRUCT(pAET->bres); \
+      BRESINCRPGONSTRUCT(pAET->bres) \
       pPrevAET = pAET; \
       pAET = pAET->next; \
    } \
@@ -559,7 +559,7 @@ miCreateETandAET(int count, DDXPointPtr pts, EdgeTable *ET,
              *  initialize integer edge algorithm
              */
             dy = bottom->y - top->y;
-            BRESINITPGONSTRUCT(dy, top->x, bottom->x, pETEs->bres);
+            BRESINITPGONSTRUCT(dy, top->x, bottom->x, pETEs->bres)
 
             if (!miInsertEdgeInET(ET, pETEs, top->y, &pSLLBlock, &iSLLBlock))
 	    {
@@ -782,7 +782,7 @@ void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int n
                     nPts = 0;
                 }
                 EVALUATEEDGEEVENODD(pAET, pPrevAET, y)
-                EVALUATEEDGEEVENODD(pAET, pPrevAET, y);
+                EVALUATEEDGEEVENODD(pAET, pPrevAET, y)
             }
             miInsertionSort(&AET);
         }
@@ -837,11 +837,12 @@ void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int n
                     }
 
                     pWETE = pWETE->nextWETE;
-                    while (pWETE != pAET)
-                        EVALUATEEDGEWINDING(pAET, pPrevAET, y, fixWAET);
+                    while (pWETE != pAET) {
+                        EVALUATEEDGEWINDING(pAET, pPrevAET, y, fixWAET)
+		    }
                     pWETE = pWETE->nextWETE;
                 }
-                EVALUATEEDGEWINDING(pAET, pPrevAET, y, fixWAET);
+                EVALUATEEDGEWINDING(pAET, pPrevAET, y, fixWAET)
             }
 
             /*

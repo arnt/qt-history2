@@ -496,7 +496,7 @@ void QColor::setHsv( int h, int s, int v )
 #endif
     int r=v, g=v, b=v;
     if ( s == 0 || h == -1 ) {			// achromatic case
-	;
+	// Ignore
     } else {					// chromatic case
 	if ( (uint)h >= 360 )
 	    h %= 360;

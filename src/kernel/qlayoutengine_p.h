@@ -81,8 +81,6 @@ static inline void qMaxExpCalc( QCOORD & max, bool &exp,
     if ( exp ) {
 	if ( boxexp )
 	    max = QMAX( max, boxmax );
-	else
-	    ; //nothing
     } else {
 	if ( boxexp )
 	    max = boxmax;

@@ -390,8 +390,6 @@ QRect QSlider::sliderRect() const
 
 void QSlider::paintSlider( QPainter *p, const QColorGroup &g, const QRect &r )
 { //####### should this one be removed? private? non-virtual?
-    QBrush fill = g.brush( QColorGroup::Button );
-
     QPoint bo = p->brushOrigin();
     p->setBrushOrigin(r.topLeft());
 
@@ -525,7 +523,6 @@ void QSlider::updateMask()
 	QPainter p( &bm, this );
 	QRect sliderR = sliderRect();
 	QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
-	QBrush fill (color1);
 	int mid = tickOffset + thickness()/2;
 	if ( ticks & Above )
 	    mid += style().sliderLength() / 8;

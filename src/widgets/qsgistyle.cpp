@@ -669,7 +669,7 @@ QSGIStyle::comboButtonFocusRect( int x, int y, int w, int h)
 
 #define HORIZONTAL	(sb->orientation() == QScrollBar::Horizontal)
 #define VERTICAL	!HORIZONTAL
-#define SGI_BORDER	1;
+#define SGI_BORDER	1
 #define SLIDER_MIN	9 //### motif says 6 but that's too small
 #define ADD_LINE_ACTIVE ( activeControl == AddLine )
 #define SUB_LINE_ACTIVE ( activeControl == SubLine )

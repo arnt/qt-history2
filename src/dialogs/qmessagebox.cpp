@@ -822,7 +822,7 @@ QPixmap QMessageBox::standardIcon( Icon icon, GUIStyle style )
 		image.setColor( 3, 0xff000000 | g.base().rgb() );
 	        break;
 	    default:
-		; // Can't happen
+		break; // Can't happen
 	    }
 	}
 	pm.convertFromImage(image);

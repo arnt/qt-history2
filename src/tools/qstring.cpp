@@ -12169,7 +12169,7 @@ QString::QString( QChar ch )
 QString::QString( const QString &s ) :
     d(s.d)
 {
-    Q2HELPER(stat_fast_copy++);
+    Q2HELPER(stat_fast_copy++)
     d->ref();
 }
 
@@ -12186,13 +12186,13 @@ QString::QString( const QString &s ) :
 QString::QString( int size, bool /*dummy*/ )
 {
     if ( size ) {
-	Q2HELPER(stat_construct_int++);
+	Q2HELPER(stat_construct_int++)
 	int l = size;
-	Q2HELPER(stat_construct_int_size+=l);
+	Q2HELPER(stat_construct_int_size+=l)
 	QChar* uc = QT_ALLOC_QCHAR_VEC( l );
 	d = new QStringData( uc, 0, l );
     } else {
-	Q2HELPER(stat_construct_null++);
+	Q2HELPER(stat_construct_null++)
 	d = shared_null ? shared_null : (shared_null=new QStringData);
 	d->ref();
     }
@@ -12205,7 +12205,7 @@ QString::QString( int size, bool /*dummy*/ )
 
 QString::QString( const QByteArray& ba )
 {
-    Q2HELPER(stat_construct_ba++);
+    Q2HELPER(stat_construct_ba++)
     uint l;
     QChar *uc = internalAsciiToUnicode(ba,&l);
     d = new QStringData(uc,l,l);
@@ -12255,10 +12255,10 @@ QString::QString( const QChar* unicode, uint length )
 
 QString::QString( const char *str )
 {
-    Q2HELPER(stat_construct_charstar++);
+    Q2HELPER(stat_construct_charstar++)
     uint l;
     QChar *uc = internalAsciiToUnicode(str,&l);
-    Q2HELPER(stat_construct_charstar_size+=l);
+    Q2HELPER(stat_construct_charstar_size+=l)
     d = new QStringData(uc,l,l);
 }
 
@@ -12308,7 +12308,7 @@ void QStringData::deleteSelf()
 */
 QString &QString::operator=( const QString &s )
 {
-    Q2HELPER(stat_fast_copy++);
+    Q2HELPER(stat_fast_copy++)
     s.d->ref();
     deref();
     d = s.d;
@@ -12416,8 +12416,8 @@ void QString::setLength( uint newLen )
 {
     if ( d->count != 1 || newLen > d->maxl || 		// detach, grow, or
 	 ( newLen*4 < d->maxl && d->maxl > 4 ) ) {	// shrink
-	Q2HELPER(stat_copy_on_write++);
-	Q2HELPER(stat_copy_on_write_size+=d->len);
+	Q2HELPER(stat_copy_on_write++)
+	Q2HELPER(stat_copy_on_write_size+=d->len)
 	uint newMax = 4;
 	while ( newMax < newLen )
 	    newMax *= 2;
@@ -14233,8 +14233,8 @@ const char* QString::latin1() const
 	else
 	    return d->ascii;
     }
-    Q2HELPER(stat_get_ascii++);
-    Q2HELPER(stat_get_ascii_size+=d->len);
+    Q2HELPER(stat_get_ascii++)
+    Q2HELPER(stat_get_ascii_size+=d->len)
     d->ascii = unicodeToAscii( d->unicode, d->len );
     d->dirtyascii = 0;
     return d->ascii;
@@ -14495,8 +14495,8 @@ QString& QString::setUnicode( const QChar *unicode, uint len )
 	}
     } else if ( d->count != 1 || len > d->maxl ||
 	 ( len*4 < d->maxl && d->maxl > 4 ) ) {	// detach, grown or shrink
-	Q2HELPER(stat_copy_on_write++);
-	Q2HELPER(stat_copy_on_write_size+=d->len);
+	Q2HELPER(stat_copy_on_write++)
+	Q2HELPER(stat_copy_on_write_size+=d->len)
 	uint newMax = 4;
 	while ( newMax < len )
 	    newMax *= 2;

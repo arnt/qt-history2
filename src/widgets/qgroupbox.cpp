@@ -147,7 +147,6 @@ void QGroupBox::setTextSpacer()
     QSpacerItem *sp = (QSpacerItem*)d;
     if ( ! sp )
 	return;
-    QFontMetrics fm = fontMetrics();
     int h = 0;
     int w = 0;
     if ( lenvisible ) {

@@ -694,8 +694,10 @@ bool QGDict::remove_string( const QString &key, QCollection::Item item )
     if ( n ) {
 	deleteItem( n->getData() );
 	delete n;
+	return TRUE;
+    } else {
+	return FALSE;
     }
-    return n != 0;
 }
 
 

@@ -1324,11 +1324,6 @@ int QHeader::sectionPos( int section ) const
 int QHeader::sectionAt( int pos ) const
 {
     return d->sectionAt( pos );
-    for ( int i = 0; i < d->count; i++ ) {
-	if ( pos >= d->positions[i] && pos <= d->positions[i] + d->sizes[d->i2s[i]] )
-	    return d->i2s[i];
-    }
-    return -1;
 }
 
 /*!

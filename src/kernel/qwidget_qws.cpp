@@ -253,8 +253,9 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	setWState( WState_Visible );
     } else if ( topLevel ) {			// set X cursor
 	//QCursor *oc = QApplication::overrideCursor();
-	if ( initializeWindow )
-	    ;//XXX XDefineCursor( dpy, winid, oc ? oc->handle() : cursor().handle() );
+	if ( initializeWindow ) {
+	    //XXX XDefineCursor( dpy, winid, oc ? oc->handle() : cursor().handle() );
+	}
 	setWState( WState_OwnCursor );
     }
 

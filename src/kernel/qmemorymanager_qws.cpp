@@ -349,6 +349,11 @@ public:
     } fm;
 };
 
+// ####### We don't use this info yet
+void* qt_unused_vram; 
+int qt_unused_vramsize; 
+void* qt_unused_fontrom; 
+
 QMemoryManager::QMemoryManager(
     void* vram, int vramsize,
     void* fontrom
@@ -357,6 +362,9 @@ QMemoryManager::QMemoryManager(
     next_pixmap_id(1000),
     next_font_id(1000)
 {
+    qt_unused_vram = vram;
+    qt_unused_vramsize = vramsize;
+    qt_unused_fontrom = fontrom;
 }
 
 // Pixmaps

@@ -182,6 +182,7 @@ void QDialog::setDefault( QPushButton *pushButton )
 {
 #ifndef QT_NO_COMPLEXWIDGETS
     QObjectList *list = queryList( "QPushButton" );
+    ASSERT(list);
     QObjectListIt it( *list );
     QPushButton *pb;
     bool hasMain = FALSE;
@@ -692,7 +693,7 @@ QSize QDialog::minimumSizeHint() const
 bool QDialog::isSizeGripEnabled() const
 {
 #ifndef QT_NO_SIZEGRIP
-    return (bool)d->resizer;
+    return !!d->resizer;
 #else
     return FALSE;
 #endif    

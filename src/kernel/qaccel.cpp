@@ -653,8 +653,8 @@ int QAccel::stringToKey( const QString & s )
 		}
 	    }
 	}
-	done:;
     }
+done:
     if ( p > 0 ) {
 	if ( s.contains("Ctrl+") || s.contains(tr("Ctrl")+"+") )
 	    k |= CTRL;

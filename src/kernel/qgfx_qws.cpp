@@ -144,24 +144,26 @@ QScreen * qt_probe_bus()
 
 #else
 
-char * hardcoded_slot="/proc/bus/pci/01/00.0";
+char * qt_qws_hardcoded_slot="/proc/bus/pci/01/00.0";
 
 QScreen * qt_probe_bus()
 {
-    unsigned char config[256];
+    if ( qt_qws_hardcoded_slot ) {
+	unsigned char config[256];
+	FILE * f=fopen(qt_qws_hardcoded_slot,"r");
+	if(!f) {
+	    qt_qws_hardcoded_slot=0;
+	} else {
+	    int r=fread(config,256,1,f);
+	    if(r<1)
+		qt_qws_hardcoded_slot=0;
+	    else
+		return qt_get_screen(qt_qws_hardcoded_slot,config);
 
-    FILE * f=fopen(hardcoded_slot,"r");
-    if(!f) {
-	hardcoded_slot=0;
-    } else {
-	int r=fread(config,256,1,f);
-	if(r<1)
-	    hardcoded_slot=0;
-
-	fclose(f);
+	    fclose(f);
+	}
     }
-    
-    return qt_get_screen(hardcoded_slot,config);
+    return qt_get_screen(0,0);
 }
 
 #endif

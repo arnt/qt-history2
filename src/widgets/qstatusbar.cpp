@@ -237,7 +237,7 @@ bool QStatusBar::isSizeGripEnabled() const
 #ifdef QT_NO_SIZEGRIP
     return FALSE;
 #else    
-    return (bool)d->resizer;
+    return !!d->resizer;
 #endif
 }
 

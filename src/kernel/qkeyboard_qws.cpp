@@ -507,11 +507,12 @@ void QWSUsbKeyboardHandler::readKeyboardData()
     static int prevkey = 0;
 
     unsigned char buf[81];
-    int n;
 
     qDebug("USB read data");
     
-    n = read(kbdFD, buf, 16 );
+    int n = read(kbdFD, buf, 16 );
+    if ( n != 16 )
+	return;
 
     int ch = buf[10];
     int keyCode = Qt::Key_unknown;
@@ -678,7 +679,7 @@ void QWSVr41xxButtonsHandler::readKeyboardData()
 	qDebug("Keyboard read error %s",strerror(errno));
     } else {
 	int keycode;
-	unsigned int x=buf[2];
+	unsigned int x=buf[1];
 	if(buf[0]==7) {
 	    keycode=Qt::Key_Up;
 	} else if(buf[0]==0x9) {
@@ -732,7 +733,7 @@ QWSVFbKeyboardHandler::QWSVFbKeyboardHandler()
     } else {
 	// Clear pending input
 	char buf[2];
-	while (read(kbdFD, buf, 1) > 0);
+	while (read(kbdFD, buf, 1) > 0) { }
 
 	notifier = new QSocketNotifier( kbdFD, QSocketNotifier::Read, this );
 	connect(notifier, SIGNAL(activated(int)),this, SLOT(readKeyboardData()));

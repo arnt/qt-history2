@@ -639,7 +639,7 @@ void QLCDNumber::drawContents( QPainter *p )
 
 void QLCDNumber::internalDisplay( const QString & )
 {
-    ; // Not used anymore
+    // Not used anymore
 }
 
 void QLCDNumber::internalSetString( const QString& s )

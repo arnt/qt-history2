@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#7 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#8 $
 **
 ** Implementation of Network Extension Library
 **
@@ -1036,7 +1036,7 @@ void QSocketDevice::fetchConnectionParameters()
     }
 #if defined(UNIX)
     struct sockaddr_in sa;
-    memset( &a, 0, sizeof(sa) );
+    memset( &sa, 0, sizeof(sa) );
     SOCKLEN_T sz;
     sz = sizeof( sa );
     if ( !::getsockname( fd, (struct sockaddr *)(&sa), &sz ) ) {

@@ -2629,13 +2629,15 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
                 if (bitOrder() == QImage::LittleEndian) {
                     while (a >= a0) {
                         UINT8 nc = *a << shift;
-                        *a-- = (*a >> (8-shift)) | c;
+                        *a = (*a >> (8-shift)) | c;
+			--a;
                         c = nc;
                     }
                 } else {
                     while (a >= a0) {
                         UINT8 nc = *a >> shift;
-                        *a-- = (*a << (8-shift)) | c;
+                        *a = (*a << (8-shift)) | c;
+			--a;
                         c = nc;
                     }
                 }
@@ -3613,9 +3615,7 @@ bool QImageIO::write()
 	return FALSE;
     }
     QFile file;
-    if ( iodev )
-	;
-    else if ( !fname.isEmpty() ) {
+    if ( !iodev && !fname.isEmpty() ) {
 	file.setName( fname );
 	bool translate = h->text_mode==QImageHandler::TranslateInOut;
 	int fmode = translate ? IO_WriteOnly|IO_Translate : IO_WriteOnly;
@@ -4422,9 +4422,10 @@ static void read_async_image( QImageIO *iio )
 	    // Stopped after first frame
 	    if ( d->isDirectAccess() )
 		d->at( startAt + totLen );
-	    else
-		; // ### We have (probably) read too much from the stream into
-		  // the buffer, and there is no way to put it back!
+	    else {
+		// ### We have (probably) read too much from the stream into
+		// the buffer, and there is no way to put it back!
+	    }
 	    iio->setImage(decoder.image());
 	    iio->setStatus(0);
 	    break;
@@ -4611,8 +4612,7 @@ static bool read_xpm_string( QCString &buf, QIODevice *d,
     buf[0] = '\0';
     int c;
     int i;
-    while ( (c=d->getch()) != EOF && c != '"' )
-	;
+    while ( (c=d->getch()) != EOF && c != '"' ) { }
     if ( c == EOF ) {
 	return FALSE;
     }

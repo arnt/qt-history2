@@ -94,8 +94,7 @@ public:
 	if ( !w )
 	    return 0;
 	int i = pages.size();
-	while( --i >= 0 && pages[i] && pages[i]->w != w )
-	    ;
+	while( --i >= 0 && pages[i] && pages[i]->w != w ) { }
 	return i >= 0 ? pages[i] : 0;
     }
 
@@ -670,8 +669,7 @@ void QWizard::removePage( QWidget * page )
 	return;
 
     int i = d->pages.size();
-    while( --i >= 0 && d->pages[i] && d->pages[i]->w != page )
-	;
+    while( --i >= 0 && d->pages[i] && d->pages[i]->w != page ) { }
     if ( i < 0 )
 	return;
     QWizardPrivate::Page * p = d->pages[i];

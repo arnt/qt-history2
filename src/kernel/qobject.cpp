@@ -1364,8 +1364,8 @@ bool QObject::checkConnectArgs( const char    *signal,
 {
     const char *s1 = signal;
     const char *s2 = member;
-    while ( *s1++ != '(' ) ;			// scan to first '('
-    while ( *s2++ != '(' ) ;
+    while ( *s1++ != '(' ) { }			// scan to first '('
+    while ( *s2++ != '(' ) { }
     if ( *s2 == ')' || strcmp(s1,s2) == 0 )	// member has no args or
 	return TRUE;				//   exact match
     int s1len = strlen(s1);

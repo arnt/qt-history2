@@ -456,13 +456,13 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 
 
 Q_EXPORT void qDebug( const char *, ... )	// print debug message
-#if defined(_CC_GNU_)
+#if defined(_CC_GNU_) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
 Q_EXPORT void qWarning( const char *, ... )	// print warning message
-#if defined(_CC_GNU_)
+#if defined(_CC_GNU_) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
@@ -480,19 +480,19 @@ Q_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
 // in that case, also define the old ones...
 
 Q_EXPORT void debug( const char *, ... )	// print debug message
-#if defined(_CC_GNU_)
+#if defined(_CC_GNU_) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
 Q_EXPORT void warning( const char *, ... )	// print warning message
-#if defined(_CC_GNU_)
+#if defined(_CC_GNU_) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
 Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
-#if defined(_CC_GNU_)
+#if defined(_CC_GNU_) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;

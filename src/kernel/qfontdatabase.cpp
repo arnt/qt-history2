@@ -711,7 +711,7 @@ bool QtFontFamily::supportsCharSet( QFont::CharSet chSet ) const
     QtFontCharSet *tmp;
     for( ; (tmp = iter.current()) ; ++iter ) {
 	if ( tmp->charSet() == chSet )
-	    return TRUE;;
+	    return TRUE;
     }
     return FALSE;
 }
@@ -845,11 +845,9 @@ const QtFontFamily *QFontDatabasePrivate::family( const QString &name ) const
 		}
 	    }
 	}
-	QList<QtFontFamily> list;
 	QDictIterator<QtFontFoundry> iter( foundryDict );
 	const QtFontFamily *nonScalable    = 0;
 	const QtFontFamily *bitmapScalable = 0;
-	QString s;
 	for( ; (fndry = iter.current()) ; ++iter ) {
 	    fam = fndry->family( name );
 	    if ( fam ) {
@@ -1707,7 +1705,7 @@ bool  QFontDatabase::isBitmapScalable( const QString &family,
 	return FALSE;
     if ( style.isEmpty() )
 	return fam->isBitmapScalable();
-    const QtFontCharSet * chSet = fam->charSet( charSet );;
+    const QtFontCharSet * chSet = fam->charSet( charSet );
     if ( !chSet )
 	return FALSE;
     if ( style.isEmpty() )
@@ -1733,7 +1731,7 @@ bool  QFontDatabase::isSmoothlyScalable( const QString &family,
 	return FALSE;
     if ( style.isEmpty() )
 	return fam->isSmoothlyScalable();
-    const QtFontCharSet * chSet = fam->charSet( charSet );;
+    const QtFontCharSet * chSet = fam->charSet( charSet );
     if ( !chSet )
 	return FALSE;
     if ( style.isEmpty() )

@@ -961,10 +961,11 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 	    offscr.resize( QMAX( offscr.width(), 1), QMAX( offscr.height(), 1 ) );
 	painter.begin(&offscr);
 	painter.translate(-area.x(),-area.y());
-	if ( p )
+	if ( p ) {
 	    painter.setClipRect(QRect(0,0,area.width(),area.height()));
-	else
-	    ;//painter.setClipRegion(rgn);
+	} else {
+	    //painter.setClipRegion(rgn);
+	}
 	drawBackground(painter,area);
 	allvisible.drawUnique(painter);
 	drawForeground(painter,area);

@@ -691,7 +691,7 @@ bool QPixmap::load( const QString &fileName, const char *format,
 	conversion_flags |= MonoOnly;
 	break;
       default:
-	;// Nothing.
+	break;// Nothing.
     }
     return load( fileName, format, conversion_flags );
 }
@@ -712,7 +712,7 @@ bool QPixmap::convertFromImage( const QImage &image, ColorMode mode )
 	conversion_flags |= MonoOnly;
 	break;
       default:
-	;// Nothing.
+	break;// Nothing.
     }
     return convertFromImage( image, conversion_flags );
 }
@@ -769,7 +769,7 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
 	conversion_flags |= MonoOnly;
 	break;
       default:
-	;// Nothing.
+	break;// Nothing.
     }
     return loadFromData( buf, len, format, conversion_flags );
 }

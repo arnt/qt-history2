@@ -1192,8 +1192,7 @@ void QRichTextIterator::goTo( const QtTriple& pos )
     QtTriple rawpos = pos; rawpos.c = 0;
     stack.clear();
     fc.gotoParagraph( 0, &doc );
-    while ( position() < rawpos && right( FALSE ) )
-	;
+    while ( position() < rawpos && right( FALSE ) ) { }
     QRichTextFormatter& f = stack.getLast()?stack.getLast()->fc: fc;
     f.currentoffset = pos.c;
 }
@@ -1618,8 +1617,7 @@ void QRichTextFormatter::update( QPainter* p )
     gotoParagraph( p, paragraph );
     makeLineLayout( p );
     gotoLineStart( p );
-    while ( current < i  && rightOneItem( p ) )
-	;
+    while ( current < i  && rightOneItem( p ) ) { }
     while ( currentoffset < io )
 	right( p );
 }

@@ -404,8 +404,9 @@ public:
 		}
 	    }
 	    for (bucket = active.first(); bucket; bucket = active.next()) {
-		if ( !bucket->refill() )
-		    ; //active.remove(bucket);
+		if ( !bucket->refill() ) {
+		    //active.remove(bucket);
+		}
 	    }
 	} else {
 	    closeDevice();

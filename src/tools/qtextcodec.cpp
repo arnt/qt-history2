@@ -461,7 +461,7 @@ static bool try_locale_list( const char * const locale[], const char * lang )
 {
     int i;
     for( i=0; locale[i] && strcmp(locale[i], lang); i++ )
-	;
+    { }
     return locale[i] != 0;
 }
 

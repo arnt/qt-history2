@@ -1496,7 +1496,7 @@ void QMultiLineEdit::insertLine( const QString &txt, int line )
 
 void QMultiLineEdit::removeLine( int line )
 {
-    CLEAR_UNDO;
+    CLEAR_UNDO
     if ( line >= numLines()  )
 	return;
     if ( cursorY >= line && cursorY > 0 )
@@ -3357,15 +3357,15 @@ void QMultiLineEdit::wrapLine( int line, int removed )
 	     lastSpace >= a && s[i] != '\n' ) {
 	    if ( DYNAMIC_WRAP ) {
 		if  (linew >= contentsRect().width() -  2*d->lr_marg - d->marg_extra) {
-		    DO_BREAK;
+		    DO_BREAK
 		}
 	    } else if ( FIXED_COLUMN_WRAP ) {
 		if ( d->wrapcol >= 0 && i-a >= d->wrapcol ) {
-		    DO_BREAK;
+		    DO_BREAK
 		}
 	    } else if ( FIXED_WIDTH_WRAP ) {
 		if ( d->wrapcol >= 0 && linew > d->wrapcol - d->marg_extra ) {
-		    DO_BREAK;
+		    DO_BREAK
 		}
 	    }
 	}
@@ -3894,8 +3894,7 @@ void QMultiLineEdit::del()
 		    deleteNextChar( offset, crsorY, crsorX );
 		else if (r->newline)
 		    deleteNextChar( offset, crsorY, crsorX );
-		else
-		    ; // noop
+		// else noop
 	    }
 	}
 	setAutoUpdate( oldAuto );
@@ -3917,7 +3916,7 @@ void QMultiLineEdit::setUndoEnabled( bool enable )
 	return;
     d->undo = enable;
     if ( !enable ) {
-	CLEAR_UNDO;
+	CLEAR_UNDO
     }
 }
 

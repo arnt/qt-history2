@@ -916,7 +916,6 @@ QSize QComboBox::sizeHint() const
     
     constPolish();
     int i, w, h;
-    QString tmp;
     QFontMetrics fm = fontMetrics();
 
     int maxW = count() ? 18 : 7 * fm.width(QChar('x')) + 18;
@@ -1130,7 +1129,6 @@ void QComboBox::paintEvent( QPaintEvent * )
 	}
 	if ( !d->ed ) {
 	    QRect clip = style().comboButtonRect( 0, 0, width(), height() );
-	    QString str = d->listBox()->text( d->current );
 	    p.setPen( g.foreground() );
 	    p.setClipRect( clip );
 	    p.setPen( g.foreground() );

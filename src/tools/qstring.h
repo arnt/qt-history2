@@ -308,7 +308,7 @@ public:
     QString arg(double a, int fieldwidth=0, char fmt='g', int prec=-1) const;
 
     QString    &sprintf( const char* format, ... )
-#if defined(_CC_GNU_)
+#if defined(_CC_GNU_) && !defined(__INSURE__)
 	__attribute__ ((format (printf, 2, 3)))
 #endif
 	;

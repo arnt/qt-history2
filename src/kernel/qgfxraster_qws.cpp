@@ -493,7 +493,8 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     dashes = 0;
     numDashes = 0;
     widgetrgn=QRegion(0,0,w,h);
-    cliprect=0;
+    cliprect = new QRect[1]; // Will be freed in update_clip()
+    ncliprect = 0;
     alphatype=IgnoreAlpha;
     alphabuf = 0;
     ismasking=false;

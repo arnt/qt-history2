@@ -604,7 +604,7 @@ miIntersectO (register Region pReg, register QRect *r1, QRect *r1End,
 	{
 	    ASSERT(y1<=y2);
 
-	    MEMCHECK(pReg, pNextRect, pReg->rects);
+	    MEMCHECK(pReg, pNextRect, pReg->rects)
 	    pNextRect->setCoords( x1, y1, x2, y2 );
 	    pReg->numRects++;
 	    pNextRect++;
@@ -766,7 +766,7 @@ TopRects(register Region newReg, register QRect *rects,
         tempRects = reg1->rects.data();
         while(tempRects->top() < reg2->extents.top())
 	{
-	    MEMCHECK(newReg, tempRects, newReg->rects);
+	    MEMCHECK(newReg, tempRects, newReg->rects)
             ADDRECTNOX(newReg,rects, tempRects->left(), tempRects->top(),
 		       tempRects->right(), MIN(tempRects->bottom(), reg2->extents.top()));
             tempRects++;
@@ -778,7 +778,7 @@ TopRects(register Region newReg, register QRect *rects,
         tempRects = reg2->rects;
         while (tempRects->top() < reg1->extents.top())
         {
-            MEMCHECK(newReg, rects, FirstRect);
+            MEMCHECK(newReg, rects, FirstRect)
             ADDRECTNOX(newReg, rects, tempRects->left(),tempRects->top(),
 		       tempRects->right(), MIN(tempRects->bottom(), reg1->extents.top()));
             tempRects++;
@@ -1256,7 +1256,7 @@ miUnionNonO (register Region pReg, register QRect * r,
     while (r != rEnd)
     {
 	ASSERT(r->left() <= r->right());
-	MEMCHECK(pReg, pNextRect, pReg->rects);
+	MEMCHECK(pReg, pNextRect, pReg->rects)
 	pNextRect->setCoords( r->left(), y1, r->right(), y2 );
 	pReg->numRects++;
 	pNextRect++;
@@ -1307,7 +1307,7 @@ miUnionO (register Region pReg, register QRect *r1, QRect *r1End,
     }  \
     else  \
     {  \
-	MEMCHECK(pReg, pNextRect, pReg->rects);  \
+	MEMCHECK(pReg, pNextRect, pReg->rects)  \
 	pNextRect->setCoords( r->left(), y1, r->right(), y2 ); \
 	pReg->numRects++;  \
         pNextRect++;  \
@@ -1319,11 +1319,11 @@ miUnionO (register Region pReg, register QRect *r1, QRect *r1End,
     {
 	if (r1->left() < r2->left())
 	{
-	    MERGERECT(r1);
+	    MERGERECT(r1)
 	}
 	else
 	{
-	    MERGERECT(r2);
+	    MERGERECT(r2)
 	}
     }
 
@@ -1331,12 +1331,12 @@ miUnionO (register Region pReg, register QRect *r1, QRect *r1End,
     {
 	do
 	{
-	    MERGERECT(r1);
+	    MERGERECT(r1)
 	} while (r1 != r1End);
     }
     else while (r2 != r2End)
     {
-	MERGERECT(r2);
+	MERGERECT(r2)
     }
     return 0;	/* lint */
 }
@@ -1440,7 +1440,7 @@ miSubtractNonO1 (register Region pReg, register QRect *r,
     while (r != rEnd)
     {
 	ASSERT(r->left()<=r->right());
-	MEMCHECK(pReg, pNextRect, pReg->rects);
+	MEMCHECK(pReg, pNextRect, pReg->rects)
 	pNextRect->setCoords( r->left(), y1, r->right(), y2 );
 	pReg->numRects++;
 	pNextRect++;
@@ -1519,7 +1519,7 @@ miSubtractO (register Region pReg, register QRect *r1, QRect *r1End,
 	     * part of minuend to region and skip to next subtrahend.
 	     */
 	    ASSERT(x1<r2->left());
-	    MEMCHECK(pReg, pNextRect, pReg->rects);
+	    MEMCHECK(pReg, pNextRect, pReg->rects)
 	    pNextRect->setCoords( x1, y1, r2->left() - 1, y2 );
 	    pReg->numRects++;
 	    pNextRect++;
@@ -1549,7 +1549,7 @@ miSubtractO (register Region pReg, register QRect *r1, QRect *r1End,
 	     */
 	    if (r1->right() >= x1)
 	    {
-		MEMCHECK(pReg, pNextRect, pReg->rects);
+		MEMCHECK(pReg, pNextRect, pReg->rects)
 		pNextRect->setCoords( x1, y1, r1->right(), y2 );
 		pReg->numRects++;
 		pNextRect++;
@@ -1565,7 +1565,7 @@ miSubtractO (register Region pReg, register QRect *r1, QRect *r1End,
     while (r1 != r1End)
     {
 	ASSERT(x1<=r1->right());
-	MEMCHECK(pReg, pNextRect, pReg->rects);
+	MEMCHECK(pReg, pNextRect, pReg->rects)
 	pNextRect->setCoords( x1, y1, r1->right(), y2 );
 	pReg->numRects++;
 	pNextRect++;
@@ -2038,7 +2038,7 @@ typedef struct _ScanLineListBlock {
          pAET->back = pPrevAET; \
    } \
    else { \
-      BRESINCRPGONSTRUCT(pAET->bres); \
+      BRESINCRPGONSTRUCT(pAET->bres) \
       pPrevAET = pAET; \
       pAET = pAET->next; \
    } \
@@ -2060,7 +2060,7 @@ typedef struct _ScanLineListBlock {
          pAET->back = pPrevAET; \
    } \
    else { \
-      BRESINCRPGONSTRUCT(pAET->bres); \
+      BRESINCRPGONSTRUCT(pAET->bres) \
       pPrevAET = pAET; \
       pAET = pAET->next; \
    } \
@@ -2277,7 +2277,7 @@ CreateETandAET(register int count, register XPoint *pts,
              *  initialize integer edge algorithm
              */
             dy = bottom->y - top->y;
-            BRESINITPGONSTRUCT(dy, top->x, bottom->x, pETEs->bres);
+            BRESINITPGONSTRUCT(dy, top->x, bottom->x, pETEs->bres)
 
             InsertEdgeInET(ET, pETEs, top->y, &pSLLBlock, &iSLLBlock);
 
@@ -2602,7 +2602,7 @@ XPolygonRegion(XPoint *Pts, int Count, int rule)
                     numFullPtBlocks++;
                     iPts = 0;
                 }
-                EVALUATEEDGEEVENODD(pAET, pPrevAET, y);
+                EVALUATEEDGEEVENODD(pAET, pPrevAET, y)
             }
             (void) InsertionSort(&AET);
         }
@@ -2649,7 +2649,7 @@ XPolygonRegion(XPoint *Pts, int Count, int rule)
                     }
                     pWETE = pWETE->nextWETE;
                 }
-                EVALUATEEDGEWINDING(pAET, pPrevAET, y, fixWAET);
+                EVALUATEEDGEWINDING(pAET, pPrevAET, y, fixWAET)
             }
 
             /*
@@ -2771,7 +2771,7 @@ Region qt_fb_bitmapToRegion(const QBitmap& bitmap)
 			} else {
 			    // A change.
 			    if ( all!=zero ) {
-				AddSpan;
+				AddSpan
 				all = zero;
 			    } else {
 				prev1 = x;
@@ -2788,7 +2788,7 @@ Region qt_fb_bitmapToRegion(const QBitmap& bitmap)
 			} else {
 			    // A change.
 			    if ( all!=zero ) {
-				AddSpan;
+				AddSpan
 				all = zero;
 			    } else {
 				prev1 = x;
@@ -2804,7 +2804,7 @@ Region qt_fb_bitmapToRegion(const QBitmap& bitmap)
 	    }
 	}
 	if ( all != zero ) {
-	    AddSpan;
+	    AddSpan
 	}
     }
 

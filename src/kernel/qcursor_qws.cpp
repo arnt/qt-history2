@@ -172,8 +172,8 @@ void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
     data->hx = hotX >= 0 ? hotX : bitmap.width()/2;
     data->hy = hotY >= 0 ? hotY : bitmap.height()/2;
 
-    qApp->desktop()->qwsDisplay()->defineCursor(data->id, *data->bm,
-						*data->bmm, data->hx, data->hy);
+    QPaintDevice::qwsDisplay()->defineCursor(data->id, *data->bm,
+					    *data->bmm, data->hx, data->hy);
 }
 
 QCursor::QCursor( const QCursor &c )

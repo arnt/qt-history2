@@ -497,7 +497,7 @@ QSizePolicy::ExpandData QWidgetItem::expanding() const
 QSize QSpacerItem::minimumSize() const
 {
     return QSize( sizeP.mayShrinkHorizontally() ? 0 : width,
-		  sizeP.mayShrinkVertically() ? 0 : height );;
+		  sizeP.mayShrinkVertically() ? 0 : height );
 }
 
 /*!

@@ -146,7 +146,9 @@ QValidator::~QValidator()
 
 
 /*!
-  Attempts to change \a to be valid according to this validator's
+  \fn void QValidator::fixup( QString & input ) const
+
+  Attempts to change \a input to be valid according to this validator's
   rules.  Need not result in a valid string - callers of this function
   must re-test afterwards.  The default does nothing.
 
@@ -158,14 +160,8 @@ QValidator::~QValidator()
   resulting string is not in the list of known last names.
 */
 
-void QValidator::fixup( QString & input ) const
+void QValidator::fixup( QString & ) const
 {
-    // just be a little clever to the compiler won't complain
-    if ( input.length() )
-	;
-    else
-	;
-    // hopefully the compiler will think "oh, #ifdeffed out".
 }
 
 
