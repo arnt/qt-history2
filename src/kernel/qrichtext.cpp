@@ -5401,7 +5401,7 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 
     int toAdd = 0;
     int xorig = x;
-    QTextStringChar *lastChar = startChar + visual[0];
+    QTextStringChar *lc = startChar + visual[0];
     for ( int i = 0; i < length; i++ ) {
 	QTextStringChar *ch = startChar + visual[i];
 	if (numSpaces && ch->whiteSpace) {
@@ -5411,9 +5411,9 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 	    numSpaces--;
 	}
 
-	if (lastChar->format() != ch->format() && !ch->c.isSpace()
-	    && lastChar->format()->font().italic() && !ch->format()->font().italic()) {
-	    int rb = lastChar->format()->fontMetrics().rightBearing(lastChr);
+	if (lc->format() != ch->format() && !ch->c.isSpace()
+	    && lc->format()->font().italic() && !ch->format()->font().italic()) {
+	    int rb = lc->format()->fontMetrics().rightBearing(lc->c);
 	    if (rb < 0)
 		x -= rb;
 	}
@@ -5427,7 +5427,7 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 	    ww = ch->format()->width( ' ' );
 	}
 	x += ww;
-	lastChar = ch;
+	lc = ch;
     }
     x += toAdd;
 
