@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#11 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#12 $
 **
 ** Definition of QIconView widget class
 **
@@ -127,12 +127,12 @@ class QIconViewItem : public QObject
 
     virtual void rename();
 
-    public slots:
-	virtual void setText( const QString &text );
+public slots:
+    virtual void setText( const QString &text );
     virtual void setIcon( const QIconSet &icon );
 
-    protected slots:
-	virtual void renameItem();
+protected slots:
+    virtual void renameItem();
     virtual void cancelRenameItem();
 
 protected:
@@ -249,8 +249,8 @@ signals:
     void currentChanged();
     void currentChanged( QIconViewItem *item );
 
-    protected slots:
-	virtual void doAutoScroll();
+protected slots:
+    virtual void doAutoScroll();
 
 protected:
     virtual void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
@@ -270,7 +270,7 @@ protected:
     virtual void selectByRubber( QRect oldRubber );
     virtual void drawRubber( QPainter *p );
     virtual QDragObject *dragObject();
-    virtual void startDrag( bool move = FALSE );
+    virtual void startDrag();
     virtual void insertInGrid( QIconViewItem *item );
     virtual void drawDragShape( const QPoint &pnt );
     virtual int dragItems( QDropEvent *e );
@@ -279,6 +279,7 @@ protected:
     void emitSelectionChanged();
     void emitNewSelectionNumber();
 
+private:
     QIconViewPrivate *d;
 
 };

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#19 $
 **
 ** Definition of QIconView widget class
 **
@@ -191,35 +191,35 @@ void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
 /*!
   \class QIconViewItem qiconview.h
   \brief The QIconViewItem class implements a iconview item.
-  
+
   An iconview item is a object containing an icon and a text, which can display
   itself in an iconview.
-  
+
   The most simple way to create an iconview item and insert it into an iconview is,
   to construct it with a pointer to the iconview, a string and an icon:
-  
+
   \code
-    \/ parent is a pointer to our iconview, pixmap a QPixmap, which we want to use as icon 
+    \/ parent is a pointer to our iconview, pixmap a QPixmap, which we want to use as icon
     (void) new QIconViewItem( parent, "This is the text of the item", QIocnSet( pixmap ) );
   \endcode
-  
+
   When the iconview is deleted, all items of it are deleted automatically, so the programmer
-  must not delete the iconview items itself. 
-  
+  must not delete the iconview items itself.
+
   To iterate over all items of an iconview do something like
-  
+
   \code
     for ( QIconViewItem *item = iconview->firstItem(); item; item = item->nextItem() )
       do_something_with( item );
   \endcode
-  
+
   As the iconview is designed to use DnD, the iconview has methodes for DnD too.
-  
+
   Subclassing QIconViewItem will provide a big flexibility.
 */
 
 /*!
- Constructs an iconview item with no text and a default icon, and inserts it into 
+ Constructs an iconview item with no text and a default icon, and inserts it into
  the iconview \a parent.
 */
 
@@ -232,7 +232,7 @@ QIconViewItem::QIconViewItem( QIconView *parent )
 }
 
 /*!
- Constructs an iconview item with no text and a default icon, and inserts it into 
+ Constructs an iconview item with no text and a default icon, and inserts it into
  the iconview \a parent after the iconview item \a after.
 */
 
@@ -245,7 +245,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after )
 }
 
 /*!
- Constructs an iconview item using \a text as text and a default icon, and inserts it into 
+ Constructs an iconview item using \a text as text and a default icon, and inserts it into
  the iconview \a parent.
 */
 
@@ -258,7 +258,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, const QString &text )
 }
 
 /*!
- Constructs an iconview item using \a text as text and a default icon, and inserts it into 
+ Constructs an iconview item using \a text as text and a default icon, and inserts it into
  the iconview \a parent after the iconview item \a after.
 */
 
@@ -271,7 +271,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after, const QSt
 }
 
 /*!
- Constructs an iconview item using \a text as text and a \icon as icon, and inserts it into 
+ Constructs an iconview item using \a text as text and a \icon as icon, and inserts it into
  the iconview \a parent.
 */
 
@@ -284,7 +284,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, const QString &text, const QIco
 }
 
 /*!
- Constructs an iconview item using \a text as text and a \icon as icon, and inserts it into 
+ Constructs an iconview item using \a text as text and a \icon as icon, and inserts it into
  the iconview \a parent after the iconview item \a after.
 */
 
@@ -469,12 +469,12 @@ int QIconViewItem::index()
 /*!
   Selects / Unselects the item depending on the selectionMode of the iconview. If
   \a s is FALSE, the item gets unselected. If \a s is TRUE
-  <li> and QIconView::selectionMode is Single, the item gets selected and the 
+  <li> and QIconView::selectionMode is Single, the item gets selected and the
   item which was selected, gets unselected
-  <li> and QIconView::selectionMode is StrictMulti and \a cb is TRUE, the 
+  <li> and QIconView::selectionMode is StrictMulti and \a cb is TRUE, the
   item gets selected
   <li> and QIconView::selectionMode is Multi the item gets selected.
-  
+
   The item redraws itself if the selection changed.
 */
 
@@ -554,7 +554,7 @@ void QIconViewItem::moveBy( int dx, int dy )
 }
 
 /*!
-  \overload void QIconViewItem::move( int x, int y )
+  \overload void QIconViewItem::move( const QPoint &pnt  )
 */
 
 void QIconViewItem::move( const QPoint &pnt )
@@ -563,7 +563,7 @@ void QIconViewItem::move( const QPoint &pnt )
 }
 
 /*!
- \overload void QIconViewItem::moveBy( int dx, int dy )
+ \overload void QIconViewItem::moveBy( const QPoint &pnt )
 */
 
 void QIconViewItem::moveBy( const QPoint &pnt )
@@ -683,7 +683,7 @@ bool QIconViewItem::intersects( QRect r )
 }
 
 /*!
-  Changes the \font as the font of this item. This shouldn't be manually, as the font of the iconview 
+  Changes the \font as the font of this item. This shouldn't be manually, as the font of the iconview
   is and should be used.
 */
 
@@ -710,7 +710,9 @@ QFont QIconViewItem::font()
 
 /*!
   Sets the viewmode of the item. This can be QIconSet::Automatic, QIconSet::Small, QIconSet::Large.
-  QIconSet::Automatic is default. Use QIconView::setViewMode instead to set the viewmode of all items.
+  QIconSet::Automatic is default. Use QIconView::setViewMode() instead to set the viewmode of all items.
+  
+  \sa QIconView::setViewMode()
 */
 
 void QIconViewItem::setViewMode( QIconSet::Size mode )
@@ -720,11 +722,13 @@ void QIconViewItem::setViewMode( QIconSet::Size mode )
 }
 
 /*!
-  Returns TRUE, of the item accepts the QMimeSource \a mime (so it could be dropped 
+  Returns TRUE, of the item accepts the QMimeSource \a mime (so it could be dropped
   on the item), else FALSE is returned.
-  
+
   The default implementation does nothing and returns always TRUE. A subclass should
   reimplement this to allow dropping something on an item.
+  
+  \sa QFileIconViewItem::acceptDrop()
 */
 
 bool QIconViewItem::acceptDrop( QMimeSource *mime )
@@ -735,8 +739,11 @@ bool QIconViewItem::acceptDrop( QMimeSource *mime )
 }
 
 /*!
-  Returns the QDragObject of this item, which should be use for dragging. The default implementation
-  returns NULL. Subclasses should implement this.
+  Returns the QDragObject of this item, which should be use for dragging. 
+  
+  The default implementation returns NULL. Subclasses should implement this.
+
+  \sa QFileIconViewItem::dragObject()
 */
 
 QDragObject *QIconViewItem::dragObject()
@@ -904,22 +911,24 @@ void QIconViewItem::paintItem( QPainter *p )
 
 void QIconViewItem::paintFocus( QPainter *p )
 {
-    view->style().drawFocusRect( p, QRect( textRect( FALSE ).x(), textRect( FALSE ).y(), 
+    view->style().drawFocusRect( p, QRect( textRect( FALSE ).x(), textRect( FALSE ).y(),
 					   textRect( FALSE ).width(), textRect( FALSE ).height() ),
-				 view->colorGroup(), isSelected() ? &view->colorGroup().highlight() : 
+				 view->colorGroup(), isSelected() ? &view->colorGroup().highlight() :
 				 &view->colorGroup().base(), isSelected() );
-    view->style().drawFocusRect( p, QRect( iconRect( FALSE ).x(), iconRect( FALSE ).y(), iconRect( FALSE ).width(), 
+    view->style().drawFocusRect( p, QRect( iconRect( FALSE ).x(), iconRect( FALSE ).y(), iconRect( FALSE ).width(),
 					   iconRect( FALSE ).height() ),
-				 view->colorGroup(), isSelected() ? &view->colorGroup().highlight() : 
+				 view->colorGroup(), isSelected() ? &view->colorGroup().highlight() :
 				 &view->colorGroup().base(), isSelected() );
 }
 
 /*!
   This methode is called, when something was dropped on the item. \a e
   gives you all information about the drop.
-  
+
   The default implementation does nothing, subclasses should reimplement this
   methode.
+
+  \sa QFileIconViewItem::dropped()
 */
 
 void QIconViewItem::dropped( QDropEvent *e )
@@ -947,7 +956,7 @@ void QIconViewItem::breakLines( const QString text, QStringList &lst, int width 
     QStringList words;
     QString line = text;
 
-    if ( line.simplifyWhiteSpace().find( QChar( ' ') ) == -1 ) {
+    if ( line.simplifyWhiteSpace().find( QChar( ' ' ) ) == -1 ) {
 	// we have only one word - do some ugly line breaking
 
 	QString txt;
@@ -1005,9 +1014,9 @@ void QIconViewItem::breakLines( const QString text, QStringList &lst, int width 
 }
 
 /*!
-  This methode is called, when a drag enterd the item's bounding rect. 
-  
-  The default implementation does nothing, subcasses should reimplement 
+  This methode is called, when a drag enterd the item's bounding rect.
+
+  The default implementation does nothing, subcasses should reimplement
   this methode.
 */
 
@@ -1016,9 +1025,9 @@ void QIconViewItem::dragEntered()
 }
 
 /*!
-  This methode is called, when a drag left the item's bounding rect. 
-  
-  The default implementation does nothing, subcasses should reimplement 
+  This methode is called, when a drag left the item's bounding rect.
+
+  The default implementation does nothing, subcasses should reimplement
   this methode.
 */
 
@@ -1031,6 +1040,28 @@ void QIconViewItem::dragLeft()
  * Class QIconView
  *
  *****************************************************************************/
+
+/*!
+  \class QIconView qiconview.h
+  \brief The QIconView class 
+  
+  The QIconView provides a widget which can contain lots of iconview items which can
+  be selected, dragged and so on.
+  
+  Items can be inserted in a grid and can flow from top to bottom (South) or from
+  left to right (East).
+  
+  The QIconView is designed for Drag'n'Drop, as the icons are also moved inside
+  the iconview itself using DnD. So the QIconView provides some methodes for DnD
+  too. 
+  
+  There can be specified different selection modes, which describe if more that one item
+  can be selected and under which conditions.
+  
+  Items can of course be selected. When multiple items may be selected, the iconview
+  provides a rubberband too. 
+  
+*/
 
 QIconView::QIconView( QWidget *parent, const char *name )
     : QScrollView( parent, name, WNorthWestGravity )
@@ -1067,10 +1098,34 @@ QIconView::QIconView( QWidget *parent, const char *name )
     viewport()->setFocusPolicy( QWidget::WheelFocus );
 }
 
+/*!
+  Destructs the iconview and deletes all items.
+*/
+
 QIconView::~QIconView()
 {
+    QIconViewItem *tmp, *item = d->firstItem;
+    while ( item ) {
+	tmp = item->next;
+	delete item;
+	item = tmp;
+    }
+    
     delete d;
 }
+
+/*!
+  Inserts the iconview item \a item after \a after. If \a after is NULL,
+  \a item is appended. 
+  
+  You should never need to call this methode yourself, you should rather do
+  
+  \code
+    (void) new QIconViewItem( iconview, "This is the text of the item", QIocnSet( pixmap ) );
+  \endcode
+
+  This does everything required for inserting an item.
+*/
 
 void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 {
@@ -1115,6 +1170,13 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
     d->count++;
 }
 
+/*!
+  Removes the iconview item \a item from the iconview. You should never
+  need to call this methode yourself, just delete an item to get rid of it. The 
+  destructor of QIconViewItem does everything, which is required for removing
+  and item.
+*/
+
 void QIconView::removeItem( QIconViewItem *item )
 {
     if ( !item )
@@ -1138,6 +1200,10 @@ void QIconView::removeItem( QIconViewItem *item )
     d->count--;
 }
 
+/*!
+  Returns the index of \a item or -1 if there is something wrong.
+*/
+
 int QIconView::index( QIconViewItem *item )
 {
     if ( !item )
@@ -1159,21 +1225,40 @@ int QIconView::index( QIconViewItem *item )
     }
 }
 
+/*!
+  Returns a pointer to the first item fo the iconview, or NULL, if there
+  are no items in the iconview.
+*/
+
 QIconViewItem *QIconView::firstItem() const
 {
     return d->firstItem;
 }
+
+/*!
+  Returns a pointer to the last item fo the iconview, or NULL, if there
+  are no items in the iconview.
+*/
 
 QIconViewItem *QIconView::lastItem() const
 {
     return d->lastItem;
 }
 
+/*!
+  Returns a pointer to the current item fo the iconview, or NULL, if no
+  item is current.
+*/
+
 QIconViewItem *QIconView::currentItem() const
 {
     return d->currentItem;
 }
 
+/*!
+  Makes \a item the new current item of the iconview.
+*/
+  
 void QIconView::setCurrentItem( QIconViewItem *item )
 {
     d->currentItem = item;
@@ -1182,10 +1267,19 @@ void QIconView::setCurrentItem( QIconViewItem *item )
     emitNewSelectionNumber();
 }
 
+/*!
+  Returns the number of inserted items.
+*/
+
 unsigned int QIconView::count()
 {
     return d->count;
 }
+
+/*!
+  Sets all icons of the iconview to the viewmode \a mode. This can be QIconSet::Automatic, QIconSet::Small, QIconSet::Large.
+  QIconSet::Automatic is default.
+*/
 
 void QIconView::setViewMode( QIconSet::Size mode )
 {
@@ -1201,10 +1295,18 @@ void QIconView::setViewMode( QIconSet::Size mode )
     repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight() );
 }
 
+/*!
+  Returns the viewmode of the iconview.
+*/
+
 QIconSet::Size QIconView::viewMode()
 {
     return d->mode;
 }
+
+/*!
+  Does autoscrolling when selecting multiple icons with the rubber band.
+*/
 
 void QIconView::doAutoScroll()
 {
@@ -1262,6 +1364,10 @@ void QIconView::doAutoScroll()
 
 }
 
+/*!
+  \reimp
+*/
+
 void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
     p->save();
@@ -1284,6 +1390,10 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	d->currentItem->paintFocus( p );
 }
 
+/*!
+  Aligns all items in the grid.
+*/
+
 void QIconView::orderItemsInGrid()
 {
     int w = 0, h = 0;
@@ -1299,6 +1409,10 @@ void QIconView::orderItemsInGrid()
     resizeContents( w, h );
 }
 
+/*!
+  \reimp
+*/
+
 void QIconView::show()
 {
     QScrollView::show();
@@ -1306,15 +1420,31 @@ void QIconView::show()
     orderItemsInGrid();
 }
 
+/*!
+  Sets the selection mode of the iconview to \a m. This can be 
+  <li>Single (only one item can be selected)
+  <li>Multi (multiple items can be selected)
+  <li>StrictMulti (multiple items can be selected, but only if the user pressed CTRL while selecting them)
+*/
+
 void QIconView::setSelectionMode( SelectionMode m )
 {
     d->selectionMode = m;
 }
 
+/*!
+  Returns the selection mode of the iconview.
+*/
+
 QIconView::SelectionMode QIconView::selectionMode()
 {
     return d->selectionMode;
 }
+
+/*!
+  Returns a pointer to the item which contains \a pos, which is given
+  on contents coordinates.
+*/
 
 QIconViewItem *QIconView::findItem( const QPoint &pos )
 {
@@ -1329,12 +1459,20 @@ QIconViewItem *QIconView::findItem( const QPoint &pos )
     return 0;
 }
 
+/*!
+  If \a select is TRUE, all items are selected, else all are unselected.
+*/
+
 void QIconView::selectAll( bool select )
 {
     QIconViewItem *item = d->firstItem;
     for ( ; item; item = item->next )
 	item->setSelected( select );
 }
+
+/*!
+  Repaints the \a item.
+*/
 
 void QIconView::repaintItem( QIconViewItem *item )
 {
@@ -1346,6 +1484,10 @@ void QIconView::repaintItem( QIconViewItem *item )
 	repaintContents( item->x() - 1, item->y() - 1, item->width() + 2, item->height() + 2 );
 }
 
+/*!
+  Makes sure, that \a item is visible, and scrolls the view if required.
+*/
+
 void QIconView::ensureItemVisible( QIconViewItem *item )
 {
     if ( !item )
@@ -1354,6 +1496,10 @@ void QIconView::ensureItemVisible( QIconViewItem *item )
     ensureVisible( item->x(), item->y(),
 		   item->width(), item->height() );
 }
+
+/*!
+  Cleares the iconview.
+*/
 
 void QIconView::clear()
 {
@@ -1382,35 +1528,67 @@ void QIconView::clear()
     d->cleared = TRUE;
 }
 
+/*!
+  Sets the horizontal raster to \a rx.  If \a rx is -1, there is no 
+  horizontal raster used for laigning items.
+*/
+
 void QIconView::setRastX( int rx )
 {
     d->rastX = rx;
 }
+
+/*!
+  Sets the vertical raster to \a ry.  If \a ry is -1, there is no 
+  vertical raster used for laigning items.
+*/
 
 void QIconView::setRastY( int ry )
 {
     d->rastY = ry;
 }
 
+/*!
+  Returns the horizonal raster.
+*/
+
 int QIconView::rastX()
 {
     return d->rastX;
 }
+
+/*!
+  Returns the vertical raster.
+*/
 
 int QIconView::rastY()
 {
     return d->rastY;
 }
 
+/*!
+  Sets the space between iconview items to \a sp.
+*/
+
 void QIconView::setSpacing( int sp )
 {
     d->spacing = sp;
 }
 
+/*! 
+  Returns the spacing between iconview items.
+*/
+
 int QIconView::spacing()
 {
     return d->spacing;
 }
+
+/*!
+  Sets the alignment mode of the iconview to \a am. This can be 
+  <li> East (Items, which don't fit onto the view, go further down (you get a vertical scrollbar)
+  <li> South (Items, which don't fit onto the view, go further right (you get a horizontal scrollbar)
+*/
 
 void QIconView::setAlignMode( AlignMode am )
 {
@@ -1422,10 +1600,21 @@ void QIconView::setAlignMode( AlignMode am )
     orderItemsInGrid();
 }
 
+/*!
+  Returns the alignment mode of the iconview.
+*/
+
 QIconView::AlignMode QIconView::alignMode() const
 {
     return d->alignMode;
 }
+
+/*!
+  Sets the resize mode of the iconview. This can be
+  <li> Fixed (when resizing the view, the items stay as they are.
+  <li> Adjust (when resizing the view, the items are reordered to
+  fit as good as possible into the view.
+*/
 
 void QIconView::setResizeMode( ResizeMode rm )
 {
@@ -1435,10 +1624,18 @@ void QIconView::setResizeMode( ResizeMode rm )
     d->resizeMode = rm;
 }
 
+/*!
+  Returns the resizemode of the iconview.
+*/
+
 QIconView::ResizeMode QIconView::resizeMode() const
 {
     return d->resizeMode;
 }
+
+/*!
+  \reimp
+*/
 
 void QIconView::contentsMousePressEvent( QMouseEvent *e )
 {
@@ -1497,6 +1694,10 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
     }
 }
 
+/*!
+  \reimp
+*/
+
 void QIconView::contentsMouseReleaseEvent( QMouseEvent * )
 {
     d->mousePressed = FALSE;
@@ -1525,7 +1726,11 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent * )
     }
 }
 
-void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
+/*!
+  \reimp
+*/
+
+void QIconView::contentsMouseMoveEvent( QMouseEvent * )
 {
     if ( d->mousePressed && d->currentItem && d->currentItem->allowDrag() ) {
 	if ( !d->startDrag ) {
@@ -1535,13 +1740,17 @@ void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 	else {
 	    d->mousePressed = FALSE;
 	    d->cleared = FALSE;
-	    startDrag( e->state() & ControlButton );
+	    startDrag();
 	    if ( d->tmpCurrentItem )
 		repaintItem( d->tmpCurrentItem );
 	}
     } else if ( d->mousePressed && !d->currentItem && d->rubber )
 	doAutoScroll();
 }
+
+/*!
+  \reimp
+*/
 
 void QIconView::contentsMouseDoubleClickEvent( QMouseEvent *e )
 {
@@ -1553,6 +1762,10 @@ void QIconView::contentsMouseDoubleClickEvent( QMouseEvent *e )
     }
 }
 
+/*!
+  \reimp
+*/
+
 void QIconView::contentsDragEnterEvent( QDragEnterEvent *e )
 {
     d->tmpCurrentItem = 0;
@@ -1561,6 +1774,10 @@ void QIconView::contentsDragEnterEvent( QDragEnterEvent *e )
     drawDragShape( e->pos() );
     d->dropped = FALSE;
 }
+
+/*!
+  \reimp
+*/
 
 void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
 {
@@ -1602,6 +1819,10 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
     drawDragShape( e->pos() );
 }
 
+/*!
+  \reimp
+*/
+
 void QIconView::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
     if ( !d->dropped )
@@ -1614,6 +1835,10 @@ void QIconView::contentsDragLeaveEvent( QDragLeaveEvent * )
 
     d->tmpCurrentItem = 0;
 }
+
+/*!
+  \reimp
+*/
 
 void QIconView::contentsDropEvent( QDropEvent *e )
 {
@@ -1677,6 +1902,10 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 	i->dropped( e );
 }
 
+/*!
+  \reimp
+*/
+
 void QIconView::resizeEvent( QResizeEvent* e )
 {
     QScrollView::resizeEvent( e );
@@ -1693,6 +1922,10 @@ void QIconView::resizeEvent( QResizeEvent* e )
 	}
     }
 }
+
+/*!
+  \reimp
+*/
 
 void QIconView::keyPressEvent( QKeyEvent *e )
 {
@@ -1887,17 +2120,29 @@ void QIconView::keyPressEvent( QKeyEvent *e )
     ensureItemVisible( d->currentItem );
 }
 
+/*!
+  \reimp
+*/
+
 void QIconView::focusInEvent( QFocusEvent * )
 {
     if ( d->currentItem )
 	repaintItem( d->currentItem );
 }
 
+/*!
+  \reimp
+*/
+
 void QIconView::focusOutEvent( QFocusEvent * )
 {
     if ( d->currentItem )
 	repaintItem( d->currentItem );
 }
+
+/*!
+  Selects items by the rubber band.
+*/
 
 void QIconView::selectByRubber( QRect oldRubber )
 {
@@ -1927,6 +2172,10 @@ void QIconView::selectByRubber( QRect oldRubber )
     emit selectionChanged( selected );
 }
 
+/*!
+  Draws the rubber band using the painter \a p.
+*/
+
 void QIconView::drawRubber( QPainter *p )
 {
     if ( !p || !d->rubber )
@@ -1936,6 +2185,16 @@ void QIconView::drawRubber( QPainter *p )
     pnt = contentsToViewport( pnt );
     p->drawRect( QRect( pnt.x(), pnt.y(), d->rubber->width(), d->rubber->height() ) );
 }
+
+/*!
+  Returns the QDragObject which should be used for DnD. In fact, this calls
+  QIconViewItem::dragObject() of the current item, or returns NULL, of the 
+  is no current item.
+  
+  Subclasses should reimplement this.
+
+  \sa QIconViewItem::dragObject()
+*/
 
 QDragObject *QIconView::dragObject()
 {
@@ -1949,19 +2208,25 @@ QDragObject *QIconView::dragObject()
     return drag;
 }
 
-void QIconView::startDrag( bool move )
+/*!
+  Starts a drag.
+*/
+
+void QIconView::startDrag()
 {
     QDragObject *drag = dragObject();
     if ( !drag )
 	return;
 
-    if ( move ) {
-	if ( drag->dragMove() )
-	    if ( drag->target() != viewport() )
-		emit moved();
-    } else
-	drag->dragCopy();
+    if ( drag->drag() )
+	if ( drag->target() != viewport() )
+	    emit moved();
 }
+
+/*!
+  Inserts an item in the grid of the iconview. You should never need
+  to call this manually.
+*/
 
 void QIconView::insertInGrid( QIconViewItem *item )
 {
@@ -2096,11 +2361,19 @@ void QIconView::insertInGrid( QIconViewItem *item )
     item->move( xpos, ypos );
 }
 
+/*!
+  Emits signals, that indciate selection changes.
+*/
+
 void QIconView::emitSelectionChanged()
 {
     emit selectionChanged();
     emitNewSelectionNumber();
 }
+
+/*!
+  Emits signals, that indciate the number of selected items
+*/
 
 void QIconView::emitNewSelectionNumber()
 {
@@ -2113,6 +2386,11 @@ void QIconView::emitNewSelectionNumber()
     emit selectionChanged( num );
     d->numSelectedItems = num;
 }
+
+/*!
+  If a drag enters the iconview, shades of the objects, which the drag
+  contains are drawn, usnig \a pos as origin.
+*/
 
 void QIconView::drawDragShape( const QPoint &pos )
 {
@@ -2146,6 +2424,13 @@ void QIconView::drawDragShape( const QPoint &pos )
     }
 }
 
+/*!
+  Returns the number of the items, which the drag of \a e contains. This should
+  be reimplemented in subclasses, so that it works for all accepted drags. 
+
+  \sa QFileIconView::dragItems()
+*/
+
 int QIconView::dragItems( QDropEvent *e )
 {
     if ( e->source() == viewport() )
@@ -2153,10 +2438,25 @@ int QIconView::dragItems( QDropEvent *e )
     return -1;
 }
 
+/*!
+  This methode is called to draw the rectangle \a r of the background using
+  the painter \a p. xOffset and yOffset are known using the methodes
+  contentsX() and contentsY().
+  
+  The default implementation only fills \a r with colorGroup().base(). Subclasses
+  may reimplement this to draw fency backgrounds.
+  
+  \sa QFileIconView::drawBackground()
+*/
+
 void QIconView::drawBackground( QPainter *p, const QRect &r )
 {
     p->fillRect( r, QBrush( colorGroup().base() ) );
 }
+
+/*!
+  \reimp
+*/
 
 bool QIconView::eventFilter( QObject * o, QEvent * e )
 {
