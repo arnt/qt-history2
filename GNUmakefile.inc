@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#6 $
+# $Id: //depot/qt/main/GNUmakefile.inc#7 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -30,14 +30,6 @@ project: $(PROJECT).pro
 $(PROJECT).pro:
 	progen -o "$(PROJECT).pro" -n "$(PROJECT)"
 
-static: GNUmakefile.static $(MORETARGETS)
-	$(MAKE) -f GNUmakefile.static
-
-gcc-debug: GNUmakefile.gcc-debug $(MORETARGETS)
-	$(MAKE) -f GNUmakefile.gcc-debug
-
-gcc-static: GNUmakefile.gcc-static $(MORETARGETS)
-	$(MAKE) -f GNUmakefile.gcc-static
 
 debug: GNUmakefile.debug $(MORETARGETS)
 	$(MAKE) -f GNUmakefile.debug
@@ -45,29 +37,28 @@ debug: GNUmakefile.debug $(MORETARGETS)
 release: GNUmakefile.release $(MORETARGETS)
 	$(MAKE) -f GNUmakefile.release
 
-GNUmakefile.gcc-static: $(PROJECT).pro GNUmakefile
-ifeq ($(LIBTARGET),1)
-	syncqt
-endif
-	@mkdir -p .obj/gcc-static
-	tmake $(PROJECT).pro -o GNUmakefile.gcc-static \
-	    "CONFIG+=staticlib" "TMAKE_CC=gcc" "OBJECTS_DIR=.obj/gcc-static"
+static: static-debug
 
-GNUmakefile.gcc-debug: $(PROJECT).pro GNUmakefile
-ifeq ($(LIBTARGET),1)
-	syncqt
-endif
-	@mkdir -p .obj/gcc-debug
-	tmake $(PROJECT).pro -o GNUmakefile.gcc-debug \
-	    "TMAKE_CC=gcc" "OBJECTS_DIR=.obj/gcc-debug"
+static-debug: GNUmakefile.static-debug $(MORETARGETS)
+	$(MAKE) -f GNUmakefile.static-debug
 
-GNUmakefile.static: $(PROJECT).pro GNUmakefile
-ifeq ($(LIBTARGET),1)
-	syncqt
-endif
-	@mkdir -p .obj/static
-	tmake $(PROJECT).pro -o GNUmakefile.static \
-	    "CONFIG+=staticlib" "OBJECTS_DIR=.obj/static"
+static-release: GNUmakefile.static-release $(MORETARGETS)
+	$(MAKE) -f GNUmakefile.static-release
+
+gcc: gcc-debug
+
+gcc-debug: GNUmakefile.gcc-debug $(MORETARGETS)
+	$(MAKE) -f GNUmakefile.gcc-debug
+
+gcc-release: GNUmakefile.gcc-release $(MORETARGETS)
+	$(MAKE) -f GNUmakefile.gcc-release
+
+gcc-static-debug: GNUmakefile.gcc-static-debug $(MORETARGETS)
+	$(MAKE) -f GNUmakefile.gcc-static-debug
+
+gcc-static-release: GNUmakefile.gcc-static-release $(MORETARGETS)
+	$(MAKE) -f GNUmakefile.gcc-static-release
+
 
 GNUmakefile.debug: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
@@ -84,6 +75,54 @@ endif
 	@mkdir -p .obj/release
 	tmake $(PROJECT).pro -o GNUmakefile.release \
 	    "CONFIG+=release" "OBJECTS_DIR=.obj/release"
+
+GNUmakefile.static-debug: $(PROJECT).pro GNUmakefile
+ifeq ($(LIBTARGET),1)
+	syncqt
+endif
+	@mkdir -p .obj/static-debug
+	tmake $(PROJECT).pro -o GNUmakefile.static-debug \
+	    "CONFIG+=staticlib debug" "OBJECTS_DIR=.obj/static-debug"
+
+GNUmakefile.static-release: $(PROJECT).pro GNUmakefile
+ifeq ($(LIBTARGET),1)
+	syncqt
+endif
+	@mkdir -p .obj/static-release
+	tmake $(PROJECT).pro -o GNUmakefile.static-release \
+	    "CONFIG+=staticlib release" "OBJECTS_DIR=.obj/static-release"
+
+GNUmakefile.gcc-debug: $(PROJECT).pro GNUmakefile
+ifeq ($(LIBTARGET),1)
+	syncqt
+endif
+	@mkdir -p .obj/gcc-debug
+	tmake $(PROJECT).pro -o GNUmakefile.gcc-debug \
+	    "CONFIG+=debug" "TMAKE_CXX=gcc" "OBJECTS_DIR=.obj/gcc-debug"
+
+GNUmakefile.gcc-release: $(PROJECT).pro GNUmakefile
+ifeq ($(LIBTARGET),1)
+	syncqt
+endif
+	@mkdir -p .obj/gcc-release
+	tmake $(PROJECT).pro -o GNUmakefile.gcc-release \
+	    "CONFIG+=release" "TMAKE_CXX=gcc" "OBJECTS_DIR=.obj/gcc-release"
+
+GNUmakefile.gcc-static-debug: $(PROJECT).pro GNUmakefile
+ifeq ($(LIBTARGET),1)
+	syncqt
+endif
+	@mkdir -p .obj/gcc-static-debug
+	tmake $(PROJECT).pro -o GNUmakefile.gcc-static-debug \
+	    "CONFIG+=staticlib debug" "TMAKE_CXX=gcc" "OBJECTS_DIR=.obj/gcc-static-debug"
+
+GNUmakefile.gcc-static-release: $(PROJECT).pro GNUmakefile
+ifeq ($(LIBTARGET),1)
+	syncqt
+endif
+	@mkdir -p .obj/gcc-static-release
+	tmake $(PROJECT).pro -o GNUmakefile.gcc-static-release \
+	    "CONFIG+=staticlib release" "TMAKE_CXX=gcc" "OBJECTS_DIR=.obj/gcc-static-release"
 
 
 showfiles:
@@ -111,11 +150,11 @@ updateqt:
 	$(MAKE) -C $(QTDIR)/src update
 
 depend:
-	-rm -f GNUmakefile.debug GNUmakefile.release $(MOREDEP)
+	-rm -f GNUmakefile.*debug GNUmakefile.*release $(MOREDEP)
 
 clean: GNUmakefile.debug
 	$(MAKE) -f GNUmakefile.debug clean
-	-rm -f GNUmakefile.debug GNUmakefile.release GNUmakefile.static $(MOREDEP) $(MORECLEAN)
+	-rm -f GNUmakefile.*debug GNUmakefile.*release $(MOREDEP) $(MORECLEAN)
 	-rm -f core *~
 	-rm -r -f .obj
 

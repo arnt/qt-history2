@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/Makefile.inc#7 $
+# $Id: //depot/qt/main/Makefile.inc#8 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -30,10 +30,12 @@ project: $(PROJECT).pro
 $(PROJECT).pro:
 	progen -o "$(PROJECT).pro" -n "$(PROJECT)"
 
+
 dsp: $(PROJECT).dsp
 
 $(PROJECT).dsp: FORCE
 	tmake $(PROJECT).pro -t $(VCTEMPLATE) -o $(PROJECT).dsp
+
 
 debug: NMakefile.debug $(MORETARGETS) $(MORETARGETS_DEBUG)
 	$(MAKE) -nologo -f NMakefile.debug
