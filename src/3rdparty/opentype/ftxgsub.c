@@ -1209,21 +1209,19 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 
       for ( i = 1, j = 1; i < lig->ComponentCount; i++, j++ )
       {
-        while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
+        while ( in->pos + j < in->length
+		&& CHECK_Property( gdef, s_in[j], flags, &property ) )
         {
           if ( error && error != TTO_Err_Not_Covered )
             return error;
 
-          if ( in->pos + j < in->length )
-            j++;
-          else
-            break;
+	  j++;
         }
 
         if ( !( property == TTO_MARK || property & IGNORE_SPECIAL_MARKS ) )
           is_mark = FALSE;
 
-        if ( s_in[j] != c[i - 1] )
+        if ( in->pos + j >= in->length || s_in[j] != c[i - 1] )
           break;
       }
 

@@ -262,7 +262,7 @@
 
   Fail3:
     Free_LigCaretList( &gdef->LigCaretList, memory );
-    
+
   Fail2:
     Free_AttachList( &gdef->AttachList, memory );
 
@@ -1143,7 +1143,7 @@
     {
       FT_UShort basic_glyph_class;
       FT_UShort desired_attachment_class;
-	    
+
       error = TT_GDEF_Get_Glyph_Property( gdef, index, property );
       if ( error )
         return error;
@@ -1163,7 +1163,7 @@
        */
       if ( flags & basic_glyph_class )
 	return TTO_Err_Not_Covered;
-      
+
       /* The high byte of LookupFlags has the meaning
        * "ignore marks of attachment type different than
        * the attachment type specified."
@@ -1175,6 +1175,8 @@
 	     *property != desired_attachment_class )
 	  return TTO_Err_Not_Covered;
       }
+    } else {
+	*property = 0;
     }
 
     return TT_Err_Ok;
