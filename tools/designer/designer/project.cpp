@@ -68,6 +68,16 @@ bool DatabaseConnection::refreshCatalog()
 #endif
 }
 
+#ifndef QT_NO_SQL
+void DatabaseConnection::remove()
+{
+    if ( nm == "(default)" )
+	QSqlDatabase::removeDatabase( QSqlDatabase::defaultConnection );
+    else
+	QSqlDatabase::removeDatabase( nm );
+}
+#endif
+
 bool DatabaseConnection::open()
 {
 #ifndef QT_NO_SQL
@@ -556,6 +566,20 @@ void Project::addDatabaseConnection( DatabaseConnection *conn )
 #endif
 
 #ifndef QT_NO_SQL
+void Project::removeDatabaseConnection( const QString &c )
+{
+    for ( DatabaseConnection *conn = dbConnections.first(); conn; conn = dbConnections.next() ) {
+	if ( conn->name() == c ) {
+	    conn->remove();
+	    dbConnections.removeRef( conn );
+	    delete conn;
+	    return;
+	}
+    }
+}
+#endif
+
+#ifndef QT_NO_SQL
 QStringList Project::databaseConnectionList()
 {
     QStringList lst;
@@ -629,10 +653,7 @@ void Project::saveConnections()
 
 	/* db connections */
 	int indent = 0;
-	for ( DatabaseConnection *conn = dbConnections.first();
-	      conn;
-	      conn = dbConnections.next() ) {
-
+	for ( DatabaseConnection *conn = dbConnections.first(); conn; conn = dbConnections.next() ) {
 	    ts << makeIndent( indent ) << "<connection>" << endl;
 	    ++indent;
 	    saveSingleProperty( ts, "name", conn->name(), indent );
@@ -652,7 +673,7 @@ void Project::saveConnections()
 		/* tables fields */
 		QStringList fields = conn->fields( *it );
 		for ( QStringList::Iterator it2 = fields.begin();
-		  it2 != fields.end(); ++it2 ) {
+		      it2 != fields.end(); ++it2 ) {
 		    ts << makeIndent( indent ) << "<field>" << endl;
 		    ++indent;
 		    saveSingleProperty( ts, "name", (*it2), indent );

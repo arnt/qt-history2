@@ -78,6 +78,7 @@ public:
     QMap<QString, QStringList> fields() { return flds; }
 #ifndef QT_NO_SQL
     QSqlDatabase* connection() const { return conn; }
+    void remove();
 #endif
 
 private:
@@ -137,6 +138,7 @@ public:
     QList<DatabaseConnection> databaseConnections() const;
     void setDatabaseConnections( const QList<DatabaseConnection> &lst );
     void addDatabaseConnection( DatabaseConnection *conn );
+    void removeDatabaseConnection( const QString &conn );
     DatabaseConnection *databaseConnection( const QString &name );
     QStringList databaseConnectionList();
     QStringList databaseTableList( const QString &connection );

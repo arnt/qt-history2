@@ -27,6 +27,8 @@
 #include <qpushbutton.h>
 #include <qsqldatabase.h>
 
+static bool blockChanges = FALSE;
+
 /*
  *  Constructs a DatabaseConnectionEditor which is a child of 'parent', with the
  *  name 'name' and widget flags set to 'f'
@@ -52,20 +54,41 @@ DatabaseConnectionEditor::~DatabaseConnectionEditor()
 
 void DatabaseConnectionEditor::deleteConnection()
 {
+    if ( listConnections->currentItem() == -1 )
+	return;
+    project->removeDatabaseConnection( listConnections->currentText() );
+    delete listConnections->item( listConnections->currentItem() );
+    if ( listConnections->count() ) {
+	listConnections->setCurrentItem( 0 );
+	currentConnectionChanged( listConnections->currentText() );
+    } else {
+	enableAll( FALSE );
+    }
+    project->saveConnections();
 }
 
 void DatabaseConnectionEditor::newConnection()
 {
-    enableAll( TRUE );
+    blockChanges = TRUE;
     listConnections->clearSelection();
-    listConnections->setCurrentItem( FALSE );
-    editName->setText( "(default)" ); // #### only if we don't have already a default connection
+    enableAll( TRUE );
+    QString n( "(default)" );
+    if ( project->databaseConnection( n ) ) {
+	n = "connection";
+	int i = 2;
+	while ( project->databaseConnection( n + QString::number( i ) ) )
+	    ++i;
+	n = n + QString::number( i );
+    }
+    editName->setText( n );
+    blockChanges = FALSE;
 }
 
 void DatabaseConnectionEditor::doConnect()
 {
 #ifndef QT_NO_SQL
-    if ( listConnections->currentItem() == -1 ) { // new connection
+    if ( listConnections->currentItem() == -1 ||
+	 !listConnections->item( listConnections->currentItem() )->selected() ) { // new connection
 	// ### do error checking for duplicated connection names
 	DatabaseConnection *conn = new DatabaseConnection( project );
 	conn->setName( editName->text() );
@@ -96,8 +119,6 @@ void DatabaseConnectionEditor::doConnect()
     }
 #endif
 }
-
-static bool blockChanges = FALSE;
 
 void DatabaseConnectionEditor::currentConnectionChanged( const QString &s )
 {
