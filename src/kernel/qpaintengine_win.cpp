@@ -268,9 +268,9 @@ static inline bool obtain_brush(void **ref, HBRUSH *brush, uint pix)
 QWin32PaintEngine::QWin32PaintEngine(const QPaintDevice *target)
     :
 #ifndef NO_NATIVE_XFORM
-      QPaintEngine(GCCaps(UsesFontEngine)),
-#else
       QPaintEngine(GCCaps(CoordTransform | PenWidthTransform | PixmapTransform | UsesFontEngine)),
+#else
+      QPaintEngine(GCCaps(UsesFontEngine)),
 #endif
       d(new QWin32PaintEnginePrivate)
 {
