@@ -47,10 +47,12 @@
     constructor:
     \list 1
     \i Create a QTabWidget.
-    \i Create a QWidget for each of the pages in the tab dialog,
-    insert children into it, set up geometry management for it and use
-    addTab() (or insertTab()) to set up a tab and keyboard shortcut
-    for it.
+    \i Create a QWidget for each of the pages in the tab dialog, but
+       do not specify a parent widget - the tab widget will reparent
+       the page widget later.
+    \i Insert children into the page widget, set up geometry management
+    for it and use addTab() (or insertTab()) to set up a tab with an
+    optional keyboard shortcut.
     \i Connect to the signals and slots.
     \endlist
 
@@ -85,8 +87,8 @@
     (at the top, providing the tabs) and a QStackedWidget (most of the
     area, organizing the individual pages).
 
-    \inlineimage qtabwidget-m.png Screenshot in Motif style
-    \inlineimage qtabwidget-w.png Screenshot in Windows style
+    \inlineimage windows-tabwidget.png Screenshot in Windows style
+    \inlineimage macintosh-tabwidget.png Screenshot in macintosh style
 
     \sa QTabBar QStackedWidget QToolBox
 */

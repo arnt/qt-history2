@@ -177,20 +177,7 @@
 */
 
 /*!
-    \fn QPoint &QPoint::operator*=(int c)
-
-    Multiplies this point's x and y by \a c, and returns a reference
-    to this point.
-
-    Example:
-    \code
-        QPoint p(-1, 4);
-        p *= 2;            // p becomes (-2,8)
-    \endcode
-*/
-
-/*!
-    \fn QPoint &QPoint::operator*=(double c)
+    \fn QPoint &QPoint::operator*=(qReal c)
     \overload
 
     Multiplies this point's x and y by \a c, and returns a reference
@@ -241,26 +228,7 @@
 */
 
 /*!
-    \fn const QPoint operator*(const QPoint &p, int c)
-
-    \relates QPoint
-
-    Returns the QPoint formed by multiplying both components of \a p
-    by \a c.
-*/
-
-/*!
-    \fn const QPoint operator*(int c, const QPoint &p)
-    \overload
-
-    \relates QPoint
-
-    Returns the QPoint formed by multiplying both components of \a p
-    by \a c.
-*/
-
-/*!
-    \fn const QPoint operator*(const QPoint &p, double c)
+    \fn const QPoint operator*(const QPoint &p, qReal c)
     \overload
 
     \relates QPoint
@@ -273,7 +241,7 @@
 */
 
 /*!
-    \fn const QPoint operator*(double c, const QPoint &p)
+    \fn const QPoint operator*(qReal c, const QPoint &p)
     \overload
 
     \relates QPoint
@@ -296,20 +264,7 @@
 */
 
 /*!
-    \fn QPoint &QPoint::operator/=(int c)
-
-    Divides both x and y by \a c, and returns a reference to this
-    point.
-
-    Example:
-    \code
-        QPoint p(-2, 8);
-        p /= 2;            // p becomes (-1,4)
-    \endcode
-*/
-
-/*!
-    \fn QPoint &QPoint::operator/=(double c)
+    \fn QPoint &QPoint::operator/=(qReal c)
     \overload
 
     Divides both x and y by \a c, and returns a reference to this
@@ -326,16 +281,7 @@
 */
 
 /*!
-    \fn const QPoint operator/(const QPoint &p, int c)
-
-    \relates QPoint
-
-    Returns the QPoint formed by dividing both components of \a p by
-    \a c.
-*/
-
-/*!
-    \fn const QPoint operator/(const QPoint &p, double c)
+    \fn const QPoint operator/(const QPoint &p, qReal c)
     \overload
 
     \relates QPoint

@@ -2087,6 +2087,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     \value NauruLanguage
     \value Nepali
     \value Norwegian
+    \value Nynorsk
     \value Occitan
     \value Oriya
     \value Pashto
@@ -2395,6 +2396,20 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 */
 
 /*!
+    \fn bool QLocale::operator==(const QLocale &other) const
+
+    Returns true if the QLocale object is the same as the \a other
+    locale specified; otherwise returns false.
+*/
+
+/*!
+    \fn bool QLocale::operator!=(const QLocale &other) const
+
+    Returns true if the QLocale object is not the same as the \a other
+    locale specified; otherwise returns false.
+*/
+
+/*!
     Constructs a QLocale object with the specified \a name,
     which has the format
     "language[_country][.codeset][@modifier]" or "C", where:
@@ -2623,7 +2638,7 @@ QString QLocale::countryToString(Country country)
 
     If the conversion fails the function returns 0.
 
-    If \a *ok is not 0, reports failure by setting *ok to false and
+    If \a ok is not 0, failure is reported by setting *ok to false, and
     success by setting *ok to true.
 
     This function ignores leading and trailing whitespace.
@@ -2651,7 +2666,7 @@ short QLocale::toShort(const QString &s, bool *ok, int base) const
 
     If the conversion fails the function returns 0.
 
-    If \a *ok is not 0, reports failure by setting *ok to false and
+    If \a ok is not 0, failure is reported by setting *ok to false, and
     success by setting *ok to true.
 
     This function ignores leading and trailing whitespace.
@@ -2679,7 +2694,7 @@ ushort QLocale::toUShort(const QString &s, bool *ok, int base) const
 
     If the conversion fails the function returns 0.
 
-    If \a *ok is not 0, reports failure by setting *ok to false and
+    If \a ok is not 0, failure is reported by setting *ok to false, and
     success by setting *ok to true.
 
     This function ignores leading and trailing whitespace.
@@ -2707,7 +2722,7 @@ int QLocale::toInt(const QString &s, bool *ok, int base) const
 
     If the conversion fails the function returns 0.
 
-    If \a *ok is not 0, reports failure by setting *ok to false and
+    If \a ok is not 0, failure is reported by setting *ok to false, and
     success by setting *ok to true.
 
     This function ignores leading and trailing whitespace.
@@ -2735,7 +2750,7 @@ uint QLocale::toUInt(const QString &s, bool *ok, int base) const
 
     If the conversion fails the function returns 0.
 
-    If \a *ok is not 0, reports failure by setting *ok to false and
+    If \a ok is not 0, failure is reported by setting *ok to false, and
     success by setting *ok to true.
 
     This function ignores leading and trailing whitespace.
@@ -2763,7 +2778,7 @@ Q_LONG QLocale::toLong(const QString &s, bool *ok, int base) const
 
     If the conversion fails the function returns 0.
 
-    If \a *ok is not 0, reports failure by setting *ok to false and
+    If \a ok is not 0, failure is reported by setting *ok to false, and
     success by setting *ok to true.
 
     This function ignores leading and trailing whitespace.
@@ -2791,7 +2806,7 @@ Q_ULONG QLocale::toULong(const QString &s, bool *ok, int base) const
 
     If the conversion fails the function returns 0.
 
-    If \a *ok is not 0, reports failure by setting *ok to false and
+    If \a ok is not 0, failure is reported by setting *ok to false, and
     success by setting *ok to true.
 
     This function ignores leading and trailing whitespace.
@@ -2815,7 +2830,7 @@ Q_LONGLONG QLocale::toLongLong(const QString &s, bool *ok, int base) const
 
     If the conversion fails the function returns 0.
 
-    If \a *ok is not 0, reports failure by setting *ok to false and
+    If \a ok is not 0, failure is reported by setting *ok to false, and
     success by setting *ok to true.
 
     This function ignores leading and trailing whitespace.
