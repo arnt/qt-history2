@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#60 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#59 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#60 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -415,8 +415,14 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     QImage image = img;
     int	   d     = image.depth();
     int    dd    = defaultDepth();
-    bool   force_mono = (isQBitmap()
-		         || (conversion_flags & ColorMode_Mask) == MonoOnly);
+    bool force_mono = (dd == 1 || isQBitmap() ||
+		       (conversion_flags & ColorMode_Mask)==MonoOnly );
+
+    if ( data->mask ) {				// get rid of the mask
+	delete data->mask;
+	data->mask = 0;
+    }
+
     if ( force_mono ) {				// must be monochrome
 	if ( d != 1 ) {
 	    image = image.convertDepth( 1, conversion_flags );	// dither

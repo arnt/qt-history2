@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#116 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#115 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#116 $");
 
 
 /*****************************************************************************
@@ -790,7 +790,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     int	 h   = image.height();
     int	 d   = image.depth();
     int	 dd  = defaultDepth();
-    bool force_mono = (dd == 1 || isQBitmap() || (conversion_flags & ColorMode_Mask)==MonoOnly );
+    bool force_mono = (dd == 1 || isQBitmap() ||
+		       (conversion_flags & ColorMode_Mask)==MonoOnly );
 
     if ( data->mask ) {				// get rid of the mask
 	delete data->mask;
