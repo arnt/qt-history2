@@ -33,6 +33,13 @@ Add splitter support (Reggie)
     (widgetOfContainer/containerOfWidget/passiveInteractor). Will be
     easy to do.
 
+Provide application interfaces for plugins (Reggie, Volker)
+    Use property system to enable access to the designer components. This will
+    be pretty much an action interface like in the test example.
+    - data interface for file handling and global stuff
+    - interfaces for propertyeditor, objecthierarchy and formlist
+    - interface for formwindow
+
 Extending existing functionality
 --------------------------------
 
