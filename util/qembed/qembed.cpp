@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qembed/qembed.cpp#9 $
+** $Id: //depot/qt/main/util/qembed/qembed.cpp#10 $
 **
 ** Utility program for embedding binary data into a C/C++ source code.
 ** It reads a binary file and generates a C array with the binary data.
@@ -123,25 +123,21 @@ QString convertFileNameToCIdentifier( const char *s )
 void embedData( const QByteArray &input, QFile *output )
 {
     static char hexdigits[] = "0123456789abcdef";
-    QString s( 100 );
+    QString s;
     int nbytes = input.size();
-    char *p = s.data();
     for ( int i=0; i<nbytes; i++ ) {
 	if ( (i%14) == 0 ) {
-	    strcpy( p, "\n    " );
-	    output->writeBlock( s.data(), s.length() );
-	    p = s.data();
+	    s += "\n    ";
+	    output->writeBlock( (const char*)s, s.length() );
+	    s.truncate( 0 );
 	}
 	int v = (int)((uchar)input[i]);
-	*p++ = '0';
-	*p++ = 'x';
-	*p++ = hexdigits[(v >> 4) & 15];
-	*p++ = hexdigits[v & 15];
+	s += "0x";
+	s += hexdigits[(v >> 4) & 15];
+	s += hexdigits[v & 15];
 	if ( i < nbytes-1 )
-	    *p++ = ',';
+	    s += ',';
     }
-    if ( p > s.data() ) {
-	*p = '\0';
-	output->writeBlock( s.data(), s.length() );
-    }
+    if ( s.length() )
+	output->writeBlock( (const char*)s, s.length() );
 }
