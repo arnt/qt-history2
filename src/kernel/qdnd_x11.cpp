@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#95 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -324,6 +324,9 @@ bool qt_xdnd_enable( QWidget* w, bool on )
 const char* qt_xdnd_atom_to_str( Atom a )
 {
     if ( !a ) return 0;
+
+    if ( a == XA_STRING )
+	return "text/plain"; // some Xdnd clients are dumb
 
     if ( !qt_xdnd_drag_types ) {
 	qt_xdnd_drag_types = new QIntDict<QCString>( 17 );
