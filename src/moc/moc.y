@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#46 $
+** $Id: //depot/qt/main/src/moc/moc.y#47 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -40,7 +40,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#46 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#47 $";
 #endif
 
 
@@ -825,7 +825,7 @@ int main( int argc, char **argv )		// program starts here
     if ( !ofileName.isNull() ) {		// output file specified
 	out = fopen( ofileName, "w" );		// create output file
 	if ( !out ) {
-	    fprintf( stderr, "moc: Cannot create %s", (char*)ofileName );
+	    fprintf( stderr, "moc: Cannot create %s\n", (char*)ofileName );
 	    return 1;
 	}
     }
