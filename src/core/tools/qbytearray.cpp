@@ -421,11 +421,6 @@ static inline bool qIsUpper(char c)
     return c >= 'A' && c <= 'Z';
 }
 
-static inline bool qIsDigit(char c)
-{
-    return c >= '0' && c <= '9';
-}
-
 static inline char qToLower(char c)
 {
     if (c >= 'A' && c <= 'Z')
