@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>576</width>
-            <height>305</height>
+            <width>572</width>
+            <height>303</height>
         </rect>
     </property>
     <property name="caption">
@@ -276,8 +276,15 @@
         <receiver>BookDataBrowser</receiver>
         <slot>del()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
+    <connection>
+        <sender>BookDataBrowser</sender>
+        <signal>primeInsert(QSqlRecord*)</signal>
+        <receiver>EditBookForm</receiver>
+        <slot>primeInsertBook(QSqlRecord*)</slot>
+    </connection>
     <slot access="protected" language="C++">destroy()</slot>
+    <slot access="protected" language="C++">init()</slot>
+    <slot access="public" language="C++">primeInsertBook( QSqlRecord *buffer )</slot>
 </connections>
 <functions>
     <function name="destroy()" >{
@@ -285,6 +292,11 @@
 }</function>
     <function name="init()" >{
 	 
+}</function>
+    <function name="primeInsertBook(QSqlRecord*)" >{
+    QSqlQuery query( "SELECT nextval('book_seq');" ); 
+    if ( query.next() ) 
+	buffer-&gt;setValue( "id", query.value( 0 ) );    
 }</function>
 </functions>
 </UI>

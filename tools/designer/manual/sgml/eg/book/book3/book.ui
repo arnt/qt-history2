@@ -1,7 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>BookForm</class>
-<include location="local" impldecl="in declaration">qdatabrowser.h</include>
-<include location="local" impldecl="in declaration">editbook.h</include>
 <widget class="QDialog">
     <property name="name">
         <cstring>BookForm</cstring>
@@ -10,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>538</width>
-            <height>528</height>
+            <width>574</width>
+            <height>468</height>
         </rect>
     </property>
     <property name="caption">
@@ -120,52 +118,14 @@
                 </property>
             </widget>
         </widget>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>Layout5</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>0</number>
-                </property>
-                <property name="spacing">
-                    <number>6</number>
-                </property>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>EditPushButton</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Edit Books</string>
-                    </property>
-                </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>QuitPushButton</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Quit</string>
-                    </property>
-                </widget>
-            </hbox>
-        </widget>
     </vbox>
 </widget>
 <connections>
     <connection>
-        <sender>QuitPushButton</sender>
-        <signal>clicked()</signal>
+        <sender>AuthorDataTable</sender>
+        <signal>currentChanged(QSqlRecord*)</signal>
         <receiver>BookForm</receiver>
-        <slot>accept()</slot>
-    </connection>
-    <connection>
-        <sender>EditPushButton</sender>
-        <signal>clicked()</signal>
-        <receiver>BookForm</receiver>
-        <slot>editClicked()</slot>
+        <slot>newCurrentAuthor(QSqlRecord*)</slot>
     </connection>
     <connection>
         <sender>AuthorDataTable</sender>
@@ -173,27 +133,14 @@
         <receiver>BookForm</receiver>
         <slot>primeInsertAuthor(QSqlRecord*)</slot>
     </connection>
-    <connection>
-        <sender>AuthorDataTable</sender>
-        <signal>currentChanged(QSqlRecord*)</signal>
-        <receiver>BookForm</receiver>
-        <slot>newCurrentAuthor(QSqlRecord*)</slot>
-    </connection>
     <slot access="protected" language="C++">init()</slot>
     <slot access="protected" language="C++">destroy()</slot>
-    <slot access="public" language="C++">editClicked()</slot>
     <slot access="public" language="C++">newCurrentAuthor( QSqlRecord *author )</slot>
     <slot access="public" language="C++">primeInsertAuthor( QSqlRecord *buffer )</slot>
 </connections>
 <functions>
     <function name="destroy()" >{
     
-}</function>
-    <function name="editClicked()" >{
-    EditBookForm *dialog = new EditBookForm( this, "Edit Book Form", TRUE );
-    dialog-&gt;BookDataBrowser-&gt;setCursor( BookDataTable-&gt;sqlCursor() );
-    dialog-&gt;exec();
-    delete dialog;
 }</function>
     <function name="init()" >{
     
