@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#234 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#235 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#234 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#235 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -369,12 +369,12 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    fg = QColor(appFGCol);
 	else
 	    fg = black;
-	QColorGroup cg( fg, bg, bg.light(), bg.dark(), bg.dark(150),
-			fg, white );
+	QColorGroup cg( fg, bg, bg.light( 115 ).light( 109 ),
+			bg.dark(), bg.dark(150), fg, white );
 	QColor disabled( (fg.red()+bg.red())/2,
 			 (fg.green()+bg.green())/2,
 			 (fg.blue()+bg.blue())/2 );
-	QColorGroup dcg( disabled, bg, bg.light(), bg.dark(), bg.dark(150),
+	QColorGroup dcg( disabled, bg, bg.light( 125 ), bg.dark(), bg.dark(150),
 			 disabled, white );
 	QPalette pal( cg, dcg, cg );
 	QApplication::setPalette( pal );

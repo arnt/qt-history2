@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#6 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -12,7 +12,7 @@
 #include "qpalette.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#6 $");
 
 
 /*****************************************************************************
@@ -213,7 +213,7 @@ QPalette::QPalette( const QColor &background )
 	fg   = white;
 	base = black;
     }
-    data->normal   = QColorGroup( fg, bg, bg.light(), bg.dark(),
+    data->normal   = QColorGroup( fg, bg, bg.light(150), bg.dark(),
 				  bg.dark(150), fg, base );
     data->active   = data->normal;
     data->disabled = data->normal;

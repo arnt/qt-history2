@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#36 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#37 $
 **
 ** Definition of QColor class
 **
@@ -70,7 +70,7 @@ public:
     void   hsv( int *h, int *s, int *v ) const;
     void   setHsv( int h, int s, int v );
 
-    QColor light( int f = 112 ) const;
+    QColor light( int f = 150 ) const;
     QColor dark( int f = 200 )	const;
 
     bool   operator==( const QColor &c ) const;

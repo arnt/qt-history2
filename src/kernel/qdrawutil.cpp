@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#18 $
 **
 ** Implementation of draw utilities
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#18 $");
 
 
 /*!
@@ -405,7 +405,7 @@ void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
 		       black, g.light(), g.dark(), g.background(), fill );
     else
 	qDrawWinShades( p, x, y, w, h,
-		       g.highlight(), black, g.light(), g.dark(), fill );
+		       g.light(), black, g.midlight(), g.dark(), fill );
 }
 
 /*!
@@ -436,10 +436,10 @@ void qDrawWinPanel( QPainter *p, int x, int y, int w, int h,
 {
     if ( sunken )
 	qDrawWinShades( p, x, y, w, h,
-		       g.dark(), g.highlight(), black, g.light(), fill );
+		       g.dark(), g.light(), black, g.midlight(), fill );
     else
 	qDrawWinShades( p, x, y, w, h,
-		       g.light(), black, g.highlight(), g.dark(), fill );
+		       g.midlight(), black, g.light(), g.dark(), fill );
 }
 
 
@@ -569,7 +569,7 @@ void qDrawItem( QPainter *p, GUIStyle gs,
 		}
 	    }
 	    if ( gs == WindowsStyle ) {
-		p->setPen( g.highlight() );
+		p->setPen( g.light() );
 		p->drawPixmap( x+1, y+1, pm );
 		p->setPen( g.text() );
 	    }
@@ -579,7 +579,7 @@ void qDrawItem( QPainter *p, GUIStyle gs,
 	    p->setClipping( FALSE );
     } else if ( text ) {
 	if ( gs == WindowsStyle && !enabled ) {
-	    p->setPen( g.highlight() );
+	    p->setPen( g.light() );
 	    p->drawText( x+1, y+1, w, h, flags, text, len );
 	    p->setPen( g.text() );
 	}
@@ -699,7 +699,7 @@ static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
 	p->drawPoint( a[6] );
     } else {
 	a.translate( x+w/2+1, y+h/2+1 );
-	p->setPen( g.highlight() );
+	p->setPen( g.light() );
 	p->drawLineSegments( a, 0, 3 );		// draw arrow
 	p->drawPoint( a[6] );
 	a.translate( -1, -1 );
