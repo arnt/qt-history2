@@ -17,8 +17,8 @@ public:
 public slots:
     void setFillRule(Qt::FillRule rule);
     void setFillGradient(const QColor &color1, const QColor &color2);
-    void setStrokeWidth(int width);
-    void setStrokeGradient(const QColor &color1, const QColor &color2);
+    void setPenWidth(int width);
+    void setPenColor(const QColor &color);
     void setRotationAngle(int degrees);
 
 protected:
@@ -28,9 +28,8 @@ private:
     QPainterPath path;
     QColor fillColor1;
     QColor fillColor2;
-    int strokeWidth;
-    QColor strokeColor1;
-    QColor strokeColor2;
+    int penWidth;
+    QColor penColor;
     int rotationAngle;
 };
 

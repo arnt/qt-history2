@@ -5,7 +5,7 @@
 RenderArea::RenderArea(const QPainterPath &path, QWidget *parent)
     : QWidget(parent), path(path)
 {
-    strokeWidth = 1;
+    penWidth = 1;
     rotationAngle = 0;
     setBackgroundRole(QPalette::Base);
 }
@@ -33,16 +33,15 @@ void RenderArea::setFillGradient(const QColor &color1, const QColor &color2)
     update();
 }
 
-void RenderArea::setStrokeWidth(int width)
+void RenderArea::setPenWidth(int width)
 {
-    strokeWidth = width;
+    penWidth = width;
     update();
 }
 
-void RenderArea::setStrokeGradient(const QColor &color1, const QColor &color2)
+void RenderArea::setPenColor(const QColor &color)
 {
-    strokeColor1 = color1;
-    strokeColor2 = color2;
+    penColor = color;
     update();
 }
 
@@ -54,24 +53,16 @@ void RenderArea::setRotationAngle(int degrees)
 
 void RenderArea::paintEvent(QPaintEvent *)
 {
-    QPainterPathStroker stroker;
-    stroker.setWidth(strokeWidth);
-    stroker.setCapStyle(Qt::RoundCap);
-    stroker.setJoinStyle(Qt::RoundJoin);
-    QPainterPath stroke = stroker.createStroke(path);
-
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.scale(width() / 100.0, height() / 100.0);
     painter.translate(50.0, 50.0);
-    painter.rotate((double)-rotationAngle);
+    painter.rotate(-rotationAngle);
     painter.translate(-50.0, -50.0);
 
-    QBrush pathBrush(rect().topLeft(), fillColor1,
-                     rect().bottomLeft(), fillColor2);
-    QBrush strokeBrush(rect().topLeft(), strokeColor1,
-                       rect().bottomLeft(), strokeColor2);
-
-    painter.fillPath(path, pathBrush);
-    painter.fillPath(stroke, strokeBrush);
+    painter.setPen(QPen(penColor, penWidth, Qt::SolidLine, Qt::RoundCap,
+                        Qt::RoundJoin));
+    painter.setBrush(QBrush(QPoint(0, 0), fillColor1,
+                            QPoint(0, 100), fillColor2));
+    painter.drawPath(path);
 }

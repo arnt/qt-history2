@@ -18,7 +18,7 @@ public:
 private slots:
     void fillRuleChanged();
     void fillGradientChanged();
-    void strokeGradientChanged();
+    void penColorChanged();
 
 private:
     void addItem(QComboBox *comboBox, const QString &text, int id);
@@ -32,16 +32,14 @@ private:
     QLabel *fillRuleLabel;
     QLabel *fillGradientLabel;
     QLabel *fillToLabel;
-    QLabel *strokeWidthLabel;
-    QLabel *strokeGradientLabel;
-    QLabel *strokeToLabel;
+    QLabel *penWidthLabel;
+    QLabel *penColorLabel;
     QLabel *rotationAngleLabel;
     QComboBox *fillRuleComboBox;
     QComboBox *fillColor1ComboBox;
     QComboBox *fillColor2ComboBox;
-    QSpinBox *strokeWidthSpinBox;
-    QComboBox *strokeColor1ComboBox;
-    QComboBox *strokeColor2ComboBox;
+    QSpinBox *penWidthSpinBox;
+    QComboBox *penColorComboBox;
     QSpinBox *rotationAngleSpinBox;
 };
 

@@ -1,10 +1,13 @@
 #include <QtGui>
 
+#include <math.h>
+
 #include "renderarea.h"
 #include "window.h"
 
 const int IdRole = QAbstractItemModel::UserRole;
 const int ColorRole = QAbstractItemModel::UserRole + 1;
+const float Pi = 3.14159;
 
 Window::Window()
 {
@@ -32,18 +35,25 @@ Window::Window()
 
     QPainterPath piePath;
     piePath.moveTo(50.0, 50.0);
-    piePath.lineTo(65.0, 32.679492950439453);
+    piePath.lineTo(65.0, 32.6795);
     piePath.arcTo(20.0, 30.0, 60.0, 40.0, 60.0, 240.0);
     piePath.closeSubpath();
 
-    QPainterPath polylinePath;
-    polylinePath.moveTo(10.0, 80.0);
-    polylinePath.lineTo(20.0, 10.0);
-    polylinePath.lineTo(80.0, 30.0);
-    polylinePath.lineTo(90.0, 70.0);
-
-    QPainterPath polygonPath = polylinePath;
+    QPainterPath polygonPath;
+    polygonPath.moveTo(10.0, 80.0);
+    polygonPath.lineTo(20.0, 10.0);
+    polygonPath.lineTo(80.0, 30.0);
+    polygonPath.lineTo(90.0, 70.0);
     polygonPath.closeSubpath();
+
+    QPainterPath groupPath;
+    groupPath.moveTo(60.0, 40.0);
+    groupPath.arcTo(20.0, 20.0, 40.0, 40.0, 0.0, 360.0);
+    groupPath.moveTo(40.0, 40.0);
+    groupPath.lineTo(40.0, 80.0);
+    groupPath.lineTo(80.0, 80.0);
+    groupPath.lineTo(80.0, 40.0);
+    groupPath.closeSubpath();
 
     QPainterPath textPath;
     QFont timesFont("Times", 60);
@@ -54,17 +64,23 @@ Window::Window()
     bezierPath.moveTo(20, 30);
     bezierPath.curveTo(80, 0, 50, 50, 80, 80);
 
-    QPainterPath compositionPath;
+    QPainterPath starPath;
+    starPath.moveTo(90, 50);
+    for (int i = 1; i < 5; ++i) {
+        starPath.lineTo(50 + 40 * cos(0.8 * i * Pi),
+                        50 + 40 * sin(0.8 * i * Pi));
+    }
+    starPath.closeSubpath();
 
     renderAreas[0] = new RenderArea(rectPath, this);
     renderAreas[1] = new RenderArea(roundRectPath, this);
     renderAreas[2] = new RenderArea(ellipsePath, this);
     renderAreas[3] = new RenderArea(piePath, this);
-    renderAreas[4] = new RenderArea(polylinePath, this);
-    renderAreas[5] = new RenderArea(polygonPath, this);
+    renderAreas[4] = new RenderArea(polygonPath, this);
+    renderAreas[5] = new RenderArea(groupPath, this);
     renderAreas[6] = new RenderArea(textPath, this);
     renderAreas[7] = new RenderArea(bezierPath, this);
-    renderAreas[8] = new RenderArea(compositionPath, this);
+    renderAreas[8] = new RenderArea(starPath, this);
     Q_ASSERT(NumRenderAreas == 9);
 
     fillRuleComboBox = new QComboBox(this);
@@ -76,9 +92,13 @@ Window::Window()
 
     fillColor1ComboBox = new QComboBox(this);
     populateWithColors(fillColor1ComboBox);
+    fillColor1ComboBox->setCurrentItem(
+            fillColor1ComboBox->findItem("mediumslateblue"));
 
     fillColor2ComboBox = new QComboBox(this);
     populateWithColors(fillColor2ComboBox);
+    fillColor2ComboBox->setCurrentItem(
+            fillColor2ComboBox->findItem("cornsilk"));
 
     fillGradientLabel = new QLabel(tr("&Fill Gradient:"), this);
     fillGradientLabel->setBuddy(fillColor1ComboBox);
@@ -86,28 +106,24 @@ Window::Window()
     fillToLabel = new QLabel(tr("to"), this);
     fillToLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    strokeWidthSpinBox = new QSpinBox(this);
-    strokeWidthSpinBox->setRange(0, 20);
+    penWidthSpinBox = new QSpinBox(this);
+    penWidthSpinBox->setRange(0, 20);
 
-    strokeWidthLabel = new QLabel(tr("&Stroke Width:"), this);
-    strokeWidthLabel->setBuddy(strokeWidthSpinBox);
+    penWidthLabel = new QLabel(tr("&Pen Width:"), this);
+    penWidthLabel->setBuddy(penWidthSpinBox);
 
-    strokeColor1ComboBox = new QComboBox(this);
-    populateWithColors(strokeColor1ComboBox);
+    penColorComboBox = new QComboBox(this);
+    populateWithColors(penColorComboBox);
+    penColorComboBox->setCurrentItem(
+            penColorComboBox->findItem("darkslateblue"));
 
-    strokeColor2ComboBox = new QComboBox(this);
-    populateWithColors(strokeColor2ComboBox);
-
-    strokeGradientLabel = new QLabel(tr("Stroke &Gradient:"), this);
-    strokeGradientLabel->setBuddy(strokeColor1ComboBox);
-
-    strokeToLabel = new QLabel(tr("to"), this);
-    strokeToLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    penColorLabel = new QLabel(tr("Pen &Color:"), this);
+    penColorLabel->setBuddy(penColorComboBox);
 
     rotationAngleSpinBox = new QSpinBox(this);
     rotationAngleSpinBox->setRange(0, 359);
     rotationAngleSpinBox->setWrapping(true);
-    rotationAngleSpinBox->setSuffix("\xB0");   // degree sign
+    rotationAngleSpinBox->setSuffix("\xB0");
 
     rotationAngleLabel = new QLabel(tr("&Rotation Angle:"), this);
     rotationAngleLabel->setBuddy(rotationAngleSpinBox);
@@ -118,14 +134,12 @@ Window::Window()
             this, SLOT(fillGradientChanged()));
     connect(fillColor2ComboBox, SIGNAL(activated(int)),
             this, SLOT(fillGradientChanged()));
-    connect(strokeColor1ComboBox, SIGNAL(activated(int)),
-            this, SLOT(strokeGradientChanged()));
-    connect(strokeColor2ComboBox, SIGNAL(activated(int)),
-            this, SLOT(strokeGradientChanged()));
+    connect(penColorComboBox, SIGNAL(activated(int)),
+            this, SLOT(penColorChanged()));
 
     for (int i = 0; i < NumRenderAreas; ++i) {
-        connect(strokeWidthSpinBox, SIGNAL(valueChanged(int)),
-                renderAreas[i], SLOT(setStrokeWidth(int)));
+        connect(penWidthSpinBox, SIGNAL(valueChanged(int)),
+                renderAreas[i], SLOT(setPenWidth(int)));
         connect(rotationAngleSpinBox, SIGNAL(valueChanged(int)),
                 renderAreas[i], SLOT(setRotationAngle(int)));
     }
@@ -142,19 +156,17 @@ Window::Window()
     mainLayout->addWidget(fillColor1ComboBox, 2, 1);
     mainLayout->addWidget(fillToLabel, 2, 2);
     mainLayout->addWidget(fillColor2ComboBox, 2, 3);
-    mainLayout->addWidget(strokeWidthLabel, 3, 0);
-    mainLayout->addWidget(strokeWidthSpinBox, 3, 1, 1, 3);
-    mainLayout->addWidget(strokeGradientLabel, 4, 0);
-    mainLayout->addWidget(strokeColor1ComboBox, 4, 1);
-    mainLayout->addWidget(strokeToLabel, 4, 2);
-    mainLayout->addWidget(strokeColor2ComboBox, 4, 3);
+    mainLayout->addWidget(penWidthLabel, 3, 0);
+    mainLayout->addWidget(penWidthSpinBox, 3, 1, 1, 3);
+    mainLayout->addWidget(penColorLabel, 4, 0);
+    mainLayout->addWidget(penColorComboBox, 4, 1, 1, 3);
     mainLayout->addWidget(rotationAngleLabel, 5, 0);
     mainLayout->addWidget(rotationAngleSpinBox, 5, 1, 1, 3);
 
     fillRuleChanged();
     fillGradientChanged();
-    strokeGradientChanged();
-    strokeWidthSpinBox->setValue(2);
+    penColorChanged();
+    penWidthSpinBox->setValue(2);
 
     setWindowTitle(tr("Painter Paths"));
 }
@@ -179,15 +191,13 @@ void Window::fillGradientChanged()
         renderAreas[i]->setFillGradient(color1, color2);
 }
 
-void Window::strokeGradientChanged()
+void Window::penColorChanged()
 {
-    QColor color1 = strokeColor1ComboBox->data(ColorRole,
-            strokeColor1ComboBox->currentItem()).toColor();
-    QColor color2 = strokeColor2ComboBox->data(ColorRole,
-            strokeColor2ComboBox->currentItem()).toColor();
+    QColor color = penColorComboBox->data(ColorRole,
+            penColorComboBox->currentItem()).toColor();
 
     for (int i = 0; i < NumRenderAreas; ++i)
-        renderAreas[i]->setStrokeGradient(color1, color2);
+        renderAreas[i]->setPenColor(color);
 }
 
 void Window::addItem(QComboBox *comboBox, const QString &text, int id)
@@ -207,7 +217,7 @@ void Window::addColor(QComboBox *comboBox, const QString &text,
 
 void Window::populateWithColors(QComboBox *comboBox)
 {
-    addColor(comboBox, tr("Red"), Qt::red);
-    addColor(comboBox, tr("Green"), Qt::green);
-    addColor(comboBox, tr("Blue"), Qt::blue);
+    QStringList colorNames = QColor::colorNames();
+    foreach (QString name, colorNames)
+        addColor(comboBox, name, QColor(name));
 }
