@@ -63,8 +63,6 @@ public:
     TranslationUnit analyze
             (const TokenEngine::TokenSectionSequence &translationUnitTokens);
 private:
-    void assignSemantic(TokenEngine::TokenSectionSequence tokens,
-                        QMap<int, CodeModel::NameUse *> nameUses);
     CppLexer lexer;
     Parser parser;
     Semantic semantic;

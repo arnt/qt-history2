@@ -82,26 +82,10 @@ TranslationUnit TranslationUnitAnalyzer::analyze
     translationUnit.setSyntaxTree(node);
 
     // run semantic analysis
-    CodeModel::SemanticInfo semanticInfo =  semantic.parseTranslationUnit
+    CodeModel::NamespaceScope *codeModel = semantic.parseTranslationUnit
                     (node, tokenStream, translationUnit.codeModelMemoryPool());
 
-    translationUnit.setCodeModel(semanticInfo.codeModel);
-
-    //Assign per-token semantic info to each token.
-    assignSemantic(translationUnit.tokens(), semanticInfo.nameUses);
+    translationUnit.setCodeModel(codeModel);
 
     return translationUnit;
-}
-
-void TranslationUnitAnalyzer::assignSemantic(TokenSectionSequence tokens,
-                            QMap<int, CodeModel::NameUse *> nameUses)
-{
-    for(int t=0; t < tokens.count(); ++t) {
-        if(!nameUses.contains(t))
-            continue;
-        TokenContainer container = tokens.tokenContainer(t);
-        const int containerIndex = tokens.containerIndex(t);
-        TokenAttributes *attributes = container.tokenAttributes();
-        attributes->addAttribute("Name Use", containerIndex, nameUses.value(t));
-    }
 }
