@@ -302,7 +302,7 @@ void QStatusBar::reformat()
     l->addStrut( maxH );
     d->box->addSpacing( 2 );
     d->box->activate();
-    update();
+    repaint();
 }
 
 
@@ -383,7 +383,7 @@ void QStatusBar::hideOrShow()
 	item = d->items.next();
     }
 
-    update();
+    repaint();
 }
 
 
