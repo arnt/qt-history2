@@ -279,10 +279,15 @@ const QPixmap *QWindowsXPStylePrivate::tabBody( QWidget *widget )
 	SIZE sz;
 	pGetThemePartSize( theme.handle(), painter.handle(), TABP_BODY, 0, 0, TS_TRUE, &sz );
 	painter.end();
-	tabbody->resize( sz.cx, sz.cy );
+	tabbody->resize( sz.cx, QApplication::desktop()->screenGeometry().height() );
 	painter.begin( tabbody );
 	theme.rec = QRect( 0, 0, sz.cx, sz.cy );
 	theme.drawBackground();
+	// We fill with the last line of the themedata, that
+	// way we don't get a tiled pixmap inside big tabs
+	QPixmap temp( sz.cx, 1 );
+	bitBlt( &temp, 0,0, tabbody, 0, sz.cy-1 );
+	painter.drawTiledPixmap( 0, sz.cy, sz.cx, tabbody->height()-sz.cy, temp );
 	painter.end();
     }
     return tabbody;
@@ -330,6 +335,8 @@ void QWindowsXPStyle::polish( QWidget *widget )
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
 	connect( widget, SIGNAL(selected(int)), this, SLOT(activeTabChanged()) );
+    } else if ( widget->inherits( "QTabWidget" ) ) {
+	widget->setAutoMask( TRUE );
     } else if ( widget->inherits( "QHeader" ) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
@@ -372,6 +379,9 @@ void QWindowsXPStyle::polish( QWidget *widget )
 	widget->setPalette( pal );
     }
 
+    if ( !widget->ownPalette() )
+	 widget->setBackgroundOrigin( QWidget::WindowOrigin );
+
     updateRegion( widget );
 }
 
@@ -389,9 +399,14 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
 		widget->parentWidget() &&
 		widget->parentWidget()->inherits( "QTabWidget" ) ) {
 	widget->setPaletteBackgroundPixmap( QPixmap() );
+
     } else if ( widget->inherits( "QTabBar" ) ) {
 	disconnect( widget, SIGNAL(selected(int)), this, SLOT(activeTabChanged()) );
     }
+
+    if ( !widget->ownPalette() )
+	 widget->setBackgroundOrigin( QWidget::WidgetOrigin );
+
     QWindowsStyle::unPolish( widget );
 }
 
@@ -586,7 +601,6 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	name = "STATUS";
 	partId = SP_PANE;
 	break;
-
     case PE_PanelGroupBox:
 	name = "BUTTON";
 	partId = BP_GROUPBOX;
@@ -1749,13 +1763,13 @@ QRect QWindowsXPStyle::querySubControlMetrics( ComplexControl control,
 	    return ir; }
 
 	case SC_TitleBarCloseButton:
-	    return QRect(titlebar->width()-( controlHeight + 1 )-controlTop, 
+	    return QRect(titlebar->width()-( controlHeight + 1 )-controlTop,
 			 controlTop, controlHeight, controlHeight);
 
 	case SC_TitleBarMaxButton:
 	case SC_TitleBarShadeButton:
 	case SC_TitleBarUnshadeButton:
-	    return QRect(titlebar->width()-((controlHeight + 1 ) * 2)-controlTop, 
+	    return QRect(titlebar->width()-((controlHeight + 1 ) * 2)-controlTop,
 			 controlTop, controlHeight, controlHeight);
 	    break;
 
@@ -1766,7 +1780,7 @@ QRect QWindowsXPStyle::querySubControlMetrics( ComplexControl control,
 		offset *= 2;
 	    else
 		offset *= 3;
-	    return QRect(titlebar->width() - offset-controlTop, 
+	    return QRect(titlebar->width() - offset-controlTop,
 			 controlTop, controlHeight, controlHeight); }
 
 	case SC_TitleBarSysMenu:
