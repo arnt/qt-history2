@@ -42,38 +42,38 @@
 #define QT_VERSION_STR   "3.0.0-beta3"
 
 
-//
-// The operating system, must be one of: (Q_OS_x)
-//
-//   MACX	- Mac OS X
-//   MAC9	- Mac OS 9
-//   MSDOS	- MS-DOS and Windows
-//   OS2	- OS/2
-//   OS2EMX	- XFree86 on OS/2 (not PM)
-//   WIN32	- Win32 (Windows 95/98/ME and Windows NT/2000)
-//   SUN	- SunOS
-//   SOLARIS	- Sun Solaris
-//   HPUX	- HP-UX
-//   ULTRIX	- DEC Ultrix
-//   LINUX	- Linux
-//   FREEBSD	- FreeBSD
-//   NETBSD	- NetBSD
-//   OPENBSD    - OpenBSD
-//   BSDI	- BSD/OS
-//   IRIX	- SGI Irix
-//   OSF	- Compaq Tru64
-//   UNIXWARE	- SCO UnixWare
-//   SCO	- SCO OpenServer
-//   AIX	- AIX
-//   HURD	- GNU Hurd
-//   DGUX	- DG/UX
-//   DYNIX	- DYNIX/ptx
-//   RELIANT	- Reliant UNIX
-//   QNX	- QNX
-//   LYNX	- LynxOS
-//   BSD4	- Any BSD 4.4 system
-//   UNIX	- Any UNIX BSD/SYSV system
-//
+/*
+   The operating system, must be one of: (Q_OS_x)
+  
+     MACX	- Mac OS X
+     MAC9	- Mac OS 9
+     MSDOS	- MS-DOS and Windows
+     OS2	- OS/2
+     OS2EMX	- XFree86 on OS/2 (not PM)
+     WIN32	- Win32 (Windows 95/98/ME and Windows NT/2000)
+     SUN	- SunOS
+     SOLARIS	- Sun Solaris
+     HPUX	- HP-UX
+     ULTRIX	- DEC Ultrix
+     LINUX	- Linux
+     FREEBSD	- FreeBSD
+     NETBSD	- NetBSD
+     OPENBSD    - OpenBSD
+     BSDI	- BSD/OS
+     IRIX	- SGI Irix
+     OSF	- Compaq Tru64
+     UNIXWARE	- SCO UnixWare
+     SCO	- SCO OpenServer
+     AIX	- AIX
+     HURD	- GNU Hurd
+     DGUX	- DG/UX
+     DYNIX	- DYNIX/ptx
+     RELIANT	- Reliant UNIX
+     QNX	- QNX
+     LYNX	- LynxOS
+     BSD4	- Any BSD 4.4 system
+     UNIX	- Any UNIX BSD/SYSV system
+*/
 
 #if defined(__APPLE__) && defined(__GNUC__)
 #  define Q_OS_MACX
@@ -146,7 +146,7 @@
 #elif defined(_SEQUENT_)
 #  define Q_OS_DYNIX
 #elif defined(__svr4__)
-// generic fallback for the rest of svr4 systems, e.g. g++ on UnixWare7.
+/*   generic fallback for the rest of svr4 systems, e.g. g++ on UnixWare7.*/
 #  define Q_OS_SVR4
 #else
 #  error "Qt has not been ported to this OS - talk to qt-bugs@trolltech.com"
@@ -163,31 +163,31 @@
 #endif
 
 
-//
-// The compiler, must be one of: (Q_CC_x)
-//
-//   SYM	- Symantec C++ for both PC and Macintosh
-//   MPW	- MPW C++
-//   MWERKS	- Metrowerks CodeWarrior
-//   MSVC	- Microsoft Visual C/C++
-//   BOR	- Borland/Turbo C++
-//   WAT	- Watcom C++
-//   GNU	- GNU C++
-//   COMEAU	- Comeau C++
-//   EDG	- Edison Design Group C++
-//   OC		- CenterLine C++
-//   SUN	- Sun C++
-//   DEC	- DEC C++
-//   HP		- HPUX C++
-//   HPACC	- HPUX ANSI C++
-//   USLC	- SCO UnixWare C++
-//   CDS	- Reliant C++
-//   KAI	- KAI C++
-//   HIGHC	- MetaWare High C/C++
-//   INTEL	- Intel C++
-//
-
-// Should be sorted most-authoritative to least-authoritative
+/* 
+   The compiler, must be one of: (Q_CC_x)
+  
+     SYM	- Symantec C++ for both PC and Macintosh
+     MPW	- MPW C++
+     MWERKS	- Metrowerks CodeWarrior
+     MSVC	- Microsoft Visual C/C++
+     BOR	- Borland/Turbo C++
+     WAT	- Watcom C++
+     GNU	- GNU C++
+     COMEAU	- Comeau C++
+     EDG	- Edison Design Group C++
+     OC		- CenterLine C++
+     SUN	- Sun C++
+     DEC	- DEC C++
+     HP		- HPUX C++
+     HPACC	- HPUX ANSI C++
+     USLC	- SCO UnixWare C++
+     CDS	- Reliant C++
+     KAI	- KAI C++
+     HIGHC	- MetaWare High C/C++
+     INTEL	- Intel C++
+  
+   Should be sorted most-authoritative to least-authoritative
+*/
 
 #if defined(__SC__)
 #  define Q_CC_SYM
@@ -198,7 +198,7 @@
 #  define Q_CC_MWERKS
 #elif defined(_MSC_VER)
 #  define Q_CC_MSVC
-// proper support of bool for _MSC_VER >= 1100
+/* proper support of bool for _MSC_VER >= 1100 */
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
 #  define Q_CC_BOR
 #  if __BORLANDC__ < 0x500
@@ -223,29 +223,29 @@
 #    define Q_NO_BOOL_TYPE
 #  endif
 #elif defined(__EDG) || defined(__EDG__) || defined(Q_CC_EDG)
-// __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b
-// __EDG__ documented in EDG online docs, observed on Compaq C++ V6.3-002
+/* __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b */
+/* __EDG__ documented in EDG online docs, observed on Compaq C++ V6.3-002 */
 #  define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #  if !defined(Q_CC_EDG)
 #    define Q_CC_EDG
 #  endif
-// the EDG documentation says that _BOOL is defined when the compiler has bool
-// but Compaq seem to have disabled this, as observed on Compaq C++ V6.3-002.
+   the EDG documentation says that _BOOL is defined when the compiler has bool
+   but Compaq seem to have disabled this, as observed on Compaq C++ V6.3-002.
 #  if defined(__DECCXX)
 #    define Q_CC_DEC
 #    if defined(_BOOL_EXISTS)
-// This is documented for Compaq C++ V6.3, not for Compaq C++ V5.7.
+   This is documented for Compaq C++ V6.3, not for Compaq C++ V5.7.
 #    elif __DECCXX_VER < 60060005
-// Versions prior to Compaq C++ V6.0-005.
+   Versions prior to Compaq C++ V6.0-005.
 #      define Q_NO_BOOL_TYPE
 #    endif
 #  else
-// From the EDG documentation:
-// _BOOL
-// 	Defined in C++ mode when bool is a keyword. The name of this predefined
-// 	macro is specified by a configuration flag. _BOOL is the default.
-// __BOOL_DEFINED
-// 	Defined in Microsoft C++ mode when bool is a keyword.
+/* From the EDG documentation:
+   _BOOL
+   	Defined in C++ mode when bool is a keyword. The name of this predefined
+   	macro is specified by a configuration flag. _BOOL is the default.
+   __BOOL_DEFINED
+   	Defined in Microsoft C++ mode when bool is a keyword. */
 #    if !defined(_BOOL) && !defined(__BOOL_DEFINED)
 #      define Q_NO_BOOL_TYPE
 #    endif
@@ -257,41 +257,41 @@
 #    elif defined(__INTEL_COMPILER)
 #      define Q_CC_INTEL
 #    elif defined(CENTERLINE_CLPP) || defined(OBJECTCENTER)
-// mmmh... don't know whether it defines __EDG__ or __EDG for sure!
+/* mmmh... don't know whether it defines __EDG__ or __EDG for sure! */
 #      define Q_CC_OC
-// the new UnixWare 7 compiler is based on EDG and does define __EDG__
+/* the new UnixWare 7 compiler is based on EDG and does define __EDG__ */
 #    elif defined(__USLC__)
 #      define Q_CC_USLC
 #    endif
 #  endif
 #elif defined(__USLC__)
-// the older UnixWare compiler is not based on EDG
+/* the older UnixWare compiler is not based on EDG */
 #  define Q_CC_USLC
 #  define Q_NO_BOOL_TYPE
 #elif defined(__SUNPRO_CC)
 #  define Q_CC_SUN
 #  if __SUNPRO_CC >= 0x500
-     // 'bool' is enabled by default but can be disabled using -features=nobool
-     // in which case _BOOL is not defined
-     // this is the default in 4.2 compatibility mode triggered by -compat=4
+/*      'bool' is enabled by default but can be disabled using -features=nobool
+        in which case _BOOL is not defined
+        this is the default in 4.2 compatibility mode triggered by -compat=4 */
 #    if !defined(_BOOL)
 #      define Q_NO_BOOL_TYPE
 #    endif
 #    define Q_C_CALLBACKS
 #  else
-     // 4.2 compiler or older
+        4.2 compiler or older
 #    define Q_NO_BOOL_TYPE
 #  endif
 #elif defined(Q_OS_RELIANT)
-// CDS++ does not seem to define __EDG__ or __EDG according to Reliant
-// documentation but nevertheless uses EDG conventions like _BOOL
+/* CDS++ does not seem to define __EDG__ or __EDG according to Reliant
+   documentation but nevertheless uses EDG conventions like _BOOL */
 #  define Q_CC_EDG
 #  define Q_CC_CDS
 #  if !defined(_BOOL)
 #    define Q_NO_BOOL_TYPE
 #  endif
 #elif defined(Q_OS_HPUX)
-// __HP_aCC was not defined in first aCC releases
+/* __HP_aCC was not defined in first aCC releases */
 #  if defined(__HP_aCC) || __cplusplus >= 199707L
 #    define Q_CC_HPACC
 #  else
@@ -308,17 +308,17 @@
 #endif
 
 
-//
-// The window system, must be one of: (Q_WS_x)
-//
-//   MACX	- Mac OS X
-//   MAC9	- Mac OS 9
-//   QWS	- Qt/Embedded
-//   WIN32	- Windows
-//   X11	- X Window System
-//   PM		- unsupported
-//   WIN16	- unsupported
-//
+/*
+   The window system, must be one of: (Q_WS_x)
+  
+     MACX	- Mac OS X
+     MAC9	- Mac OS 9
+     QWS	- Qt/Embedded
+     WIN32	- Windows
+     X11	- X Window System
+     PM		- unsupported
+     WIN16	- unsupported
+*/
 
 #if defined( Q_OS_MACX )
 #  define Q_WS_MACX
@@ -356,12 +356,12 @@
 #endif
 
 
-//
-// Some classes do not permit copies to be made of an object.
-// These classes contains a private copy constructor and operator=
-// to disable copying (the compiler gives an error message).
-// Undefine Q_DISABLE_COPY to turn off this checking.
-//
+/*
+   Some classes do not permit copies to be made of an object.
+   These classes contains a private copy constructor and operator=
+   to disable copying (the compiler gives an error message).
+   Undefine Q_DISABLE_COPY to turn off this checking.
+*/
 
 #define Q_DISABLE_COPY
 
