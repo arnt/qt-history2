@@ -567,12 +567,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		    QString destdir = project->first("DESTDIR");
 		    t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
 		}
-		t << "-rm -f $(TARGET)" << "\n\t"
+		t << "-rm -f " << (*libit) << "\n\t"
 		  << ar << "\n";
 		if(!project->isEmpty("QMAKE_POST_LINK"))
 		    t << "\t" << var("QMAKE_POST_LINK") << "\n";
 		if(!project->isEmpty("QMAKE_RANLIB"))
-		    t << "\t" << "$(RANLIB) $(TARGET)" << "\n";
+		    t << "\t" << "$(RANLIB) " << (*libit) << "\n";
 	    }
 	}
 	t << endl << endl;
