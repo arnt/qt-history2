@@ -612,10 +612,15 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringL
 	} else {
 	    test = isActiveConfig(chk);
 	}
-	if(invert_test)
+	if(invert_test) {
+	    chk.prepend("!");
 	    test = !test;
-	if(!test)
+	}
+	if(!test) {
+	    debug_msg(1, "Project Parser: %s:%d Failed test: REQUIRES = %s", 
+		      projectFile().latin1(), line_count, chk.latin1());
 	    place["QMAKE_FAILED_REQUIREMENTS"].append(chk);
+	}
     }
 }
 
