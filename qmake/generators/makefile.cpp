@@ -698,7 +698,7 @@ MakefileGenerator::init()
         QStringList &l = v[fixpaths[path]];
         for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
             if(!(*val_it).isEmpty())
-                (*val_it) = Option::fixPathToTargetOS((*val_it), false);
+                (*val_it) = Option::fixPathToTargetOS((*val_it), false, false);
         }
     }
 
