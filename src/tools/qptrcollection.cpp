@@ -129,7 +129,7 @@
 */
 
 /*!
-    \fn void     QPtrCollection::deleteItem( Item )
+    \fn void     QPtrCollection::deleteItem( Item d )
     Reimplement this function if you want to be able to delete items.
 
   Deletes an item that is about to be removed from
