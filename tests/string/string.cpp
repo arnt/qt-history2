@@ -147,6 +147,11 @@ main(int argc, char** argv)
     a.sprintf("%%%d",1);
     TEST(a,"%1")
     TEST(a.sprintf("X%dY",2),"X2Y")
+    TEST(a.sprintf("X%sY","hello"),"XhelloY");
+    TEST(a.sprintf("X%-10sY","hello"),"X     helloY");
+    //QString fmt("X%-10SY");
+    //QString txt("hello");
+    //TEST(a.sprintf(fmt,&txt),"X     helloY");
 
     a="";
     #ifdef SAFE_INDEXING
@@ -461,7 +466,7 @@ main(int argc, char** argv)
     }
     {
 	a="";
-	QTextOStream ts(a,QTextStream::Unicode);
+	QTextOStream ts(a);
 	ts << "pi = " << 3.125;
 	TEST(a,"pi = 3.125");
     }
@@ -485,13 +490,15 @@ main(int argc, char** argv)
     QApplication app(argc,argv);
 
     QString s;
-    for (int lo=33; lo<127; lo+=1) {
-	for (int hi=33; hi<127; hi+=1)
+    for (int hi=0; hi<0xff; hi+=1) {
+	for (int lo=0; lo<=0xff; lo+=1) {
 	    s += QChar(lo,hi);
+	}
 	s += "\n";
     }
 
     QMultiLineEdit m;
+    //QLabel m;
     m.setText(s);
     app.setMainWidget(&m);
     m.show();
