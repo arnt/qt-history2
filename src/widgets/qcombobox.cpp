@@ -731,6 +731,7 @@ void QComboBox::removeItem( int index )
 	d->popupMenu()->removeItemAt( index );
     }
     reindex( index );
+    int cnt;
     if ( index == d->current ) {
 	if ( d->ed ) {
 	    QString s = QString::fromLatin1( "" );
