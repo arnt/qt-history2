@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#17 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -395,7 +395,11 @@ void QGIFDecoder::disposePrevious( QImage& img, QImageConsumer* consumer )
 	    uchar** line = img.jumpTable();
 	    fillRect(img, left, top, right-left+1, bottom-top+1, line[0][0]);
 	}
-	if (consumer) digress |= !consumer->changed(QRect(left, top, right-left+1, bottom-top+1));
+	if (consumer) {
+	    bool d = !consumer->changed(QRect(left, top,
+					      right-left+1, bottom-top+1));
+	    digress = digress || d;
+	}
 	break;
       case RestoreImage: {
 	uchar** line = img.jumpTable();
@@ -405,7 +409,11 @@ void QGIFDecoder::disposePrevious( QImage& img, QImageConsumer* consumer )
 		backingstore.scanLine(ln-top),
 		right-left+1);
 	}
-	if (consumer) digress |= !consumer->changed(QRect(left, top, right-left+1, bottom-top+1));
+	if (consumer) {
+	    bool d = !consumer->changed(QRect(left, top,
+					      right-left+1, bottom-top+1));
+	    digress = digress || d;
+	}
       }
     }
     disposal = NoDisposal; // Until an extension says otherwise.
