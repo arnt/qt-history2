@@ -265,6 +265,8 @@ static inline float pixelSize( const QFontDef &request, QPaintDevice *paintdevic
 	if ( paintdevice )
 	    pSize = request.pointSize *
 		    QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 720.;
+	else if (QPaintDevice::x11AppDpiY() == 75)
+	    pSize = request.pointSize / 10.;
 	else
 	    pSize = request.pointSize * QPaintDevice::x11AppDpiY() / 720.;
     } else {
@@ -281,6 +283,8 @@ static inline float pointSize( const QFontDef &fd, QPaintDevice *paintdevice )
 	if ( paintdevice )
 	    pSize = fd.pixelSize * 10 *
 		    QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 72.;
+	else if (QPaintDevice::x11AppDpiY() == 75)
+	    pSize = fd.pixelSize * 10;
 	else
 	    pSize = fd.pixelSize * 10 * QPaintDevice::x11AppDpiY() / 72.;
     } else {
@@ -1939,7 +1943,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	    // scaled bitmap fonts look just ugly. Never give them a size score if not
 	    // PreferMatch
 	    exactmatch = FALSE;
-	    if ( request.styleStrategy & QFont::PreferMatch )
+	    if ( ! (request.styleStrategy & QFont::PreferQuality) )
 		score |= SizeScore;
 	}
     } else {
@@ -2251,7 +2255,7 @@ bool QFontPrivate::loadUnicode(QFont::Script script, const QChar &sample)
 		       xfs->min_char_or_byte2,
 		       xfs->max_char_or_byte2);
 
-		if (xcs) {
+		if (xcs && xcs != (XCharStruct *) -1) {
 		    qDebug("QFontLoader: bounding box for undefined char: "
 			   "%d %d %d",
 			   xcs->width, xcs->ascent, xcs->descent);
