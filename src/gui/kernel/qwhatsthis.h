@@ -22,7 +22,10 @@
 
 #ifndef QT_NO_WHATSTHIS
 
+#ifdef QT_COMPAT
 class QToolButton;
+#endif
+class QAction;
 class Q_GUI_EXPORT QWhatsThis: public Qt
 {
     QWhatsThis();
@@ -34,9 +37,14 @@ public:
     static void showText(const QPoint &pos, const QString& text, QWidget* w = 0);
     static void hideText();
 
+    static QAction *action();
+
     static void add(QWidget *w, const QString &s); // obsolete
     static void remove(QWidget *); // obsolete
-    static QToolButton * whatsThisButton(QWidget * parent); // obsolete, we really want to have a QWhatsThisAction.
+
+#ifdef QT_COMPAT
+    static QT_COMPAT QToolButton * whatsThisButton(QWidget * parent);
+#endif
 };
 
 #endif // QT_NO_WHATSTHIS

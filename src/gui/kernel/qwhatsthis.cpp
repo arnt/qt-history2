@@ -23,7 +23,10 @@
 #include "qpainter.h"
 #include "qtimer.h"
 #include "qhash.h"
+#ifdef QT_COMPAT
 #include "qtoolbutton.h"
+#endif
+#include "qaction.h"
 #include "qcursor.h"
 #include "qbitmap.h"
 #include "qtooltip.h"
@@ -154,6 +157,7 @@ QWhatsThat *QWhatsThat::instance = 0;
 static int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
 static const int vMargin = 8;
 static const int hMargin = 12;
+static QPointer<QAction> whatsThisAction;
 
 QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor)
     : QWidget(parent, WType_Popup | WDestructiveClose), widget(showTextFor),pressed(false), text(txt)
@@ -347,7 +351,7 @@ class QWhatsThisPrivate : public QObject
     ~QWhatsThisPrivate();
     static QWhatsThisPrivate *instance;
     bool eventFilter(QObject *, QEvent *);
-    QPointer<QToolButton> button;
+    QPointer<QAction> action;
     static void say(QWidget *, const QString &, int x = 0, int y = 0);
 };
 
@@ -365,8 +369,8 @@ QWhatsThisPrivate::QWhatsThisPrivate()
 
 QWhatsThisPrivate::~QWhatsThisPrivate()
 {
-    if (button)
-        button->setOn(false);
+    if (action)
+        action->setChecked(false);
     QApplication::restoreOverrideCursor();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility(this, 0, QAccessible::ContextHelpEnd);
@@ -422,34 +426,30 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
     return true;
 }
 
-class QWhatsThisButton: public QToolButton
+class QWhatsThisAction: public QAction
 {
     Q_OBJECT
 
 public:
-    QWhatsThisButton(QWidget * parent, const char * name);
+    QWhatsThisAction();
 
 public slots:
-    void buttonToggled(bool);
+    void actionTriggered();
 };
 
-QWhatsThisButton::QWhatsThisButton(QWidget * parent, const char * name)
-    : QToolButton(parent, name)
+QWhatsThisAction::QWhatsThisAction() : QAction(tr("What's this?"))
 {
     QPixmap p((const char**)button_image);
     setIcon(p);
-    setToggleButton(true);
-    setAutoRaise(true);
-    setFocusPolicy(NoFocus);
-    setTextLabel(tr("What's this?"));
-    connect(this, SIGNAL(toggled(bool)), this, SLOT(buttonToggled(bool)));
+    setCheckable(true);
+    connect(this, SIGNAL(triggered()), this, SLOT(actionTriggered()));
 }
 
-void QWhatsThisButton::buttonToggled(bool on)
+void QWhatsThisAction::actionTriggered()
 {
-    if (on) {
+    if (isChecked()) {
         QWhatsThis::enterWhatsThisMode();
-        QWhatsThisPrivate::instance->button = this;
+        QWhatsThisPrivate::instance->action = this;
     }
 }
 
@@ -476,16 +476,31 @@ void QWhatsThis::remove(QWidget *w)
     w->setWhatsThis(QString::null);
 }
 
-/*! \obsolete
 
-    This function returns a "What's this?" QToolButton with parent \a
-    parent. When the user clicks this tool button the user interface
-    goes into "What's this?" mode".
-*/
+static void cleanup_whatsthis_action()
+{
+    delete whatsThisAction;
+}
+
+QAction *QWhatsThis::action()
+{
+    if(!whatsThisAction) {
+        whatsThisAction = new QAction;
+        qAddPostRoutine(cleanup_whatsthis_action);
+    }
+    return whatsThisAction;
+}
+
+#ifdef QT_COMPAT
 QToolButton * QWhatsThis::whatsThisButton(QWidget * parent)
 {
-    return new QWhatsThisButton(parent, "automatic what's this? button");
+    QToolButton *ret = new QToolButton(parent, "automatic what's this? button");
+    ret->addAction(QWhatsThis::action());
+    ret->setAutoRaise(true);
+    ret->setFocusPolicy(NoFocus);
+    return ret;
 }
+#endif
 
 /*!
     This function switches the user interface into "What's this?"
