@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#72 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -40,11 +40,15 @@
 #include <ctype.h>
 
 // Note: this is comment-stripped and word-wrapped later.
+// Note: stripHeader() constrains the postscript used in this prolog.
+// only function/variable declarations are currently allowed, and
+// stripHeader knows a bit about the names of some functions.
 static const char *ps_header[] = {
-"/D  {bind def} bind def", // first word MUST be shorter than 78 characters
+"/D  {bind def} bind def",
 "/ED {exch def} D",
 "/LT {lineto} D",
 "/MT {moveto} D",
+"/ND /.notdef def",
 "/S  {stroke} D",
 "/F  {setfont} D",
 "/SW {setlinewidth} D",
@@ -472,15 +476,13 @@ static const char *ps_header[] = {
 "    { [] } ifelse",				// out of range => solid line
 "} D",
 "",
-"",
-"/colorimage where {",
-"  pop",
-"  /QCI {", // as colorimage but without the last three arguments
+"", // slower implementation than the old one, but strippable by stripHeader
+"/QCIDict 25 dict def",
+"/QCI {", // as colorimage but without the last three arguments
+"  /colorimage where {",
+"    pop",
 "    {currentfile sl readhexstring pop} false 3 colorimage",
-"  } D",
-"} {", // the hard way.  based on PD code by John Walker <kelvin@autodesk.com>
-"  /QCIDict 25 dict def",
-"  /QCI {",
+"  } {", // the hard way, based on PD code by John Walker <kelvin@autodesk.com>
 "    QCIDict begin",
 "      /Matrix ED",
 "      /Bcomp ED",
@@ -505,9 +507,8 @@ static const char *ps_header[] = {
 "      }",
 "      image",
 "    end",
-"  } D",
-"} ifelse",
-"/setstrokeadjust where { pop true setstrokeadjust } if",
+"  } ifelse",
+"} D",
 0};
 
 
@@ -1786,53 +1787,63 @@ static void cleanup()
 }
 
 
-static void wordwrap( QString & s )
+static QString wordwrap( QString s )
 {
-    uint ip = 0, ilp = 0, op = 0, olp = 0, oline = 0;
-    bool needws = FALSE, insertws = FALSE;
+    QString result;
+    
+    int ip; // input pointer
+    int oll; // output line length
+    int cils, cols; // canidate input line start, -o-
+    bool needws; // need to insert ws before next character
+    bool havews; // have just inserted something like ws
 
-    while( ip < s.length() ) {
-	if ( ilp && op - oline > 79 ) {
-	    // we have a possible line start position and a long line - let's
-	    // use it.
-	    ip = ilp;
-	    s[olp] = '\n';
-	    op = olp;
-	    op++;
-	    oline = op;
-	    needws = FALSE;
+    ip = 0;
+    oll = 0;
+    cils = cols = 0;
+    havews = FALSE;
+    needws = FALSE;
+    while( ip < (int)s.length() ) {
+	if ( oll > 79 && cils > 0 ) {
+	    result.truncate( cols );
+	    ip = cils;
+	    result += '\n';
+	    oll = 0;
+	    cils = 0;
+	    havews = TRUE;
 	}
-
+	if ( havews && oll > 0 ) {
+	    cils = ip;
+	    cols = result.length();
+	}
 	if ( isspace( s[ip] ) ) {
-	    if ( needws )
-		insertws = TRUE;
-	    olp = op;
-	    ilp = ip++;
-	    needws = FALSE;
-	} else if ( s[ip] == '/' || s[ip] == '{' || s[ip] == '}' ||
+	    if ( !havews )
+		needws = TRUE;
+	    cils = ip+1;
+	    cols = result.length();
+	} else if ( s[ip] == '/'  || s[ip] == '{' || s[ip] == '}' ||
 		    s[ip] == '[' || s[ip] == ']' ) {
-	    if ( insertws ) {
-		// if there was whitespace, we can start a new line here
-		ilp = ip;
-		olp = op;
-		// but we don't need whitespace before it
-		insertws = FALSE;
-	    }
-	    // don't need ws after it either
 	    needws = FALSE;
-	    s[op++] = s[ip++];
+	    cils = ip;
+	    cols = result.length();
+	    result += s[ip];
+	    oll++;
+	    if ( s[ip] != '/' )
+		havews = TRUE;
 	} else {
-	    if ( insertws ) {
-		ilp = ip;
-		olp = op;
-		s[op++] = ' ';
-		insertws = FALSE;
+	    if ( needws ) {
+		cols = result.length();
+		cils = ip;
+		result += ' ';
+		oll++;
+		needws = FALSE;
 	    }
-	    needws = TRUE;
-	    s[op++] = s[ip++];
+	    result += s[ip];
+	    oll++;
+	    havews = FALSE;
 	}
+	ip++;
     }
-    s.truncate( op );
+    return result;
 }
 
 
@@ -1849,9 +1860,9 @@ static void makeFixedStrings()
 	    psh += *l++;
 	    psh += '\n';
 	}
-	fixed_ps_header = new QString(psh);
+	fixed_ps_header = new QString(psh.ascii());
     }
-    wordwrap( *fixed_ps_header );
+    *fixed_ps_header = wordwrap( *fixed_ps_header );
 
     // fonts.
     font_vectors = new QIntDict<QString>( 17 );
@@ -1872,13 +1883,13 @@ static void makeFixedStrings()
 	    if ( unicodetoglyph[l].u == k )
 		glyphname = unicodetoglyph[l].g;
 	    else
-		glyphname = ".notdef";
+		glyphname = "ND";
 	    vector += " /";
 	    vector += glyphname;
 	}
 	for( k=0; k<128; k++ ) {
 	    if ( unicodevalues[i].values[k] == 0xFFFD ) {
-		glyphname = ".notdef";
+		glyphname = "ND";
 	    } else {
 		if ( l && unicodetoglyph[l].u > unicodevalues[i].values[k] )
 		    l = 0;
@@ -1887,13 +1898,13 @@ static void makeFixedStrings()
 		if ( unicodetoglyph[l].u == unicodevalues[i].values[k] )
 		    glyphname = unicodetoglyph[l].g;
 		else
-		    glyphname = ".notdef";
+		    glyphname = "ND";
 	    }
 	    vector += " /";
 	    vector += glyphname;
 	}
 	vector += " ] def";
-	wordwrap( vector );
+	vector = wordwrap( vector );
 	font_vectors->insert( (int)(unicodevalues[i].cs),
 			      new QString( vector ) );
     } while ( unicodevalues[i++].cs != QFont::Latin9 );
@@ -2057,7 +2068,7 @@ void QPSPrinter::setFont( const QFont & f )
 	    ps.append( "-Roman" );
     }
 
-    Q1String key;
+    QString key;
     int cs = (int)f.charSet();
     if ( cs == QFont::AnyCharSet ) {
 	QIntDictIterator<void> it( d->headerEncodings );
@@ -2559,12 +2570,185 @@ void QPSPrinter::matrixSetup( QPainter *paint )
 
 void QPSPrinter::orientationSetup()
 {
-    if ( printer->orientation() == QPrinter::Landscape ) {
-	stream << "PageW 0 TR 90 rotate\n";
-	stream << "/defM matrix CM def\n";
-	stream << "PageW PageH /PageW def /PageH def\n";
+    if ( printer->orientation() == QPrinter::Landscape )
+	stream << "PageW 0 TR 90 rotate\n"
+	    "/defM matrix CM def\n"
+	    "PageW PageH /PageW def /PageH def\n";
+}
+
+
+
+static QString stripHeader( QString header, const char * data, int len,
+			    bool useFonts )
+{
+    // first pass: find and mark all identifiers
+    QDict<void> ids( 257 );
+    ids.setAutoDelete( FALSE );
+
+    int i=0;
+    int size = header.length();
+    int * used = new int[size];
+    for( i=0; i<size; i++ )
+	used[i] = 0;
+    i=0;
+    used[0] = 0x10000000;
+    while( i < size ) {
+	while( i < size && header[i] != '/' )
+	    i++;
+	if ( header[i] == '/' && isalpha( header[i+1] ) ) {
+	    i++;
+	    int j=i;
+	    while( j < size && isalnum( header[j] ) )
+		j++;
+	    char id[10];
+	    strncpy( id, header.ascii() + i, j-i );
+	    id[j-i] = '\0';
+	    while( j < size && isspace( header[j] ) )
+		j++;
+	    if ( header[j] == '{' ) {
+		j++;
+		int k, l;
+		l = 1;
+		while( l && j < size ) {
+		    while( j < size && !isalpha( header[j] ) ) {
+			if ( header[j] == '{' )
+			    l++;
+			else if ( header[j] == '}' )
+			    l--;
+			j++;
+		    }
+		    if ( l ) {
+			k = j;
+			while( j < size && isalnum( header[j] ) )
+			    j++;
+			if( j - k < 10 ) {
+			    char id2[10];
+			    strncpy( id2, header.ascii() + k, j-k );
+			    id2[j-k] = '\0';
+			    int offs = (int)ids.find( id2 );
+			    if ( offs )
+				used[k] = offs;
+			}
+		    }
+		}
+	    } else if ( header[j] == '[' ) {
+		// handle array defintions
+		int l=0;
+		do {
+		    if ( header[j] == '[' )
+			l++;
+		    else if ( header[j] == ']' )
+			l--;
+		    j++;
+		} while( j < size && l );
+	    } else {
+		// handle other variables.
+		while( j < size && !isspace( header[j] ) )
+		    j++;
+		while( j < size && isspace( header[j] ) )
+		    j++;
+		// hack: then skip dict
+		if ( !qstrncmp( header.ascii()+j, "dict", 4 ) &&
+		     !isalnum( header[j+4] ) )
+		    j += 4;
+	    }
+	    while( j < size && isspace( header[j] ) )
+		j++;
+	    if ( header[j] == 'D' && !isalnum( header[j+1] ) ) {
+		ids.insert( id, (void*)(i-1) );
+		used[i-1] = 0x20000000;
+		i = j+1;
+	    } else if ( !qstrncmp( header.ascii()+j, "def", 3 ) &&
+			!isalnum( header[j+3] ) ) {
+		ids.insert( id, (void*)(i-1) );
+		used[i-1] = 0x20000000;
+		i = j+3;
+	    } else {
+		i = j;
+	    }
+	} else {
+	    i++;
+	}
+    }
+    
+    // second pass: mark the identifiers used in the document
+    
+    // we know GR and QP are used
+    used[(int)ids.take("GR")] = 0x10000000;
+    used[(int)ids.take("QP")] = 0x10000000;
+
+    // we speed this up a little by hand-hacking DF/MF/ND support
+    if ( useFonts ) {
+	used[(int)ids.take("DF")] = 0x10000000;
+	used[(int)ids.take("MF")] = 0x10000000;
+	used[(int)ids.take("ND")] = 0x10000000;
     }
 
+    char id[10];
+    i = 0;
+    while( i < len ) {
+	while( i < len && !isalpha( data[i] ) ) {
+	    if ( data[i] == '(' ) { // it's a string, skip it
+		do {
+		    if ( data[i] == '\\' ) // we quote all () so this is okay
+			i++;
+		    i++;
+		} while( i < len && data[i] != ')' );
+	    }
+	    i++;
+	}
+	if ( i < len && isalpha( data[i] ) ) {
+	    int j=0;
+	    while( isalnum( data[i+j] ) )
+		j++;
+	    if( j < 9 ) {
+		// all identifiers we care about are <9 chars long
+		strncpy( id, data + i, j );
+		id[j] = '\0';
+		int offs = (int)ids.take( id );
+		if ( offs )
+		    used[offs] = 0x10000000;
+	    }
+	    i += j;
+	}
+    }
+
+    // third pass: mark the identifiers used in the used parts of the header
+
+    i = size-1;
+    while( i > 0 ) {
+	// find beginning of function
+	int j = i;
+	while( j && used[j] < 0x10000000 )
+	    j--;
+	if ( used[j] == 0x10000000 ) {
+	    // this function is used.
+	    while( i > j ) {
+		if ( used[i] )
+		    used[used[i]] = 0x10000000;
+		i--;
+	    }
+	}
+	i = j-1;
+    }
+
+    // fourth pass: make the new header
+
+    i=0;
+    QString result;
+    while( i < size ) {
+	bool c = used[i] == 0x10000000;
+	if ( c && result.length() )
+	    result += '\n';
+	do {
+	    if ( c )
+		result += isspace( header[i] ) ? QChar(' ') : header[i];
+	    i++;
+	} while ( i < size && used[i] < 0x10000000 );
+    }
+    delete[] used;
+    result = wordwrap( result );
+    return result;
 }
 
 
@@ -2572,8 +2756,6 @@ void QPSPrinter::emitHeader( bool finished )
 {
     QString title   = printer->docName();
     QString creator = printer->creator();
-    if ( !title )				// default document names
-	title = "Unknown";
     if ( !creator )				// default creator
 	creator = "Qt " QT_VERSION_STR;
     d->realDevice = new QFile();
@@ -2590,9 +2772,10 @@ void QPSPrinter::emitHeader( bool finished )
 	       << d->boundingBox.right() + 1 << " "
 	       << m.height() - d->boundingBox.top();
     }
-    stream << "\n%%Creator: " << creator
-	   << "\n%%Title: " << title
-	   << "\n%%CreationDate: " << QDateTime::currentDateTime().toString();
+    stream << "\n%%Creator: " << creator;
+    if ( title )
+	stream << "\n%%Title: " << title;
+    stream << "\n%%CreationDate: " << QDateTime::currentDateTime().toString();
     if ( finished )
 	stream << "\n%%Pages: " << pageCount << "\n%%DocumentFonts: "
 	       << fontsUsed.simplifyWhiteSpace();
@@ -2607,18 +2790,27 @@ void QPSPrinter::emitHeader( bool finished )
     if ( !fixed_ps_header )
 	makeFixedStrings();
 
-    stream << "% Standard Qt prolog\n" << *fixed_ps_header << "\n";
+    if ( finished ) {
+	QString r( stripHeader( *fixed_ps_header, 
+				d->buffer->buffer().data(),
+				d->buffer->buffer().size(),
+				d->fontBuffer->buffer().size() > 0 ) );
+	stream << "% Optimized Qt prolog\n" << r << "\n";
+    } else {
+	stream << "% Standard Qt prolog\n" << *fixed_ps_header << "\n";
+    }
+
     if ( d->fontBuffer->buffer().size() ) {
-	if ( pageCount == 1 )
+	if ( pageCount == 1 || finished )
 	    stream << "% Fonts and encodings used\n";
 	else
 	    stream << "% Fonts and encodings used on pages 1-"
 		   << pageCount << "\n";
-	stream.writeRawBytes( (QString )(d->fontBuffer->buffer().data()),
+	stream.writeRawBytes( d->fontBuffer->buffer().data(),
 			      d->fontBuffer->buffer().size() );
     }
     stream << "%%EndProlog\n";
-    stream.writeRawBytes( (QString )(d->buffer->buffer().data()),
+    stream.writeRawBytes( d->buffer->buffer().data(),
 			  d->buffer->buffer().size() );
 
     delete d->buffer;
