@@ -568,8 +568,10 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	   src_targ + "\" \"" + dst_targ + "\"";
     if(!project->isActiveConfig("debug") && !project->isEmpty("QMAKE_STRIP")) {
 	ret += "\n\t-" + var("QMAKE_STRIP");
-	if(!project->isEmpty("QMAKE_STRIPFLAGS_LIB") && project->first("TEMPLATE") == "lib")
+	if(project->first("TEMPLATE") == "lib" && !project->isEmpty("QMAKE_STRIPFLAGS_LIB"))
 	    ret += " " + var("QMAKE_STRIPFLAGS_LIB");
+	else if(project->first("TEMPLATE") == "app" && !project->isEmpty("QMAKE_STRIPFLAGS_APP"))
+	    ret += " " + var("QMAKE_STRIPFLAGS_APP");
 	if(resource)
 	    ret = " \"" + dst_targ + "/Contents/MacOS/$(QMAKE_TARGET)\"";
 	else

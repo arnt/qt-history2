@@ -1735,7 +1735,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 			QString("-$(DEL_FILE) -r")
 #endif
 			+ " \"" + root + fileFixify(dst + file) + "\"");
-		    QFileInfo fi(file);
+		    QFileInfo fi(Option::fixPathToTargetOS(fileFixify(dirstr + file), TRUE));
 		    if(!target.isEmpty())
 			target += "\t";
 		    target += QString(fi.isDir() ? "-$(COPY_DIR)" : "-$(COPY_FILE)") + " \"" + 
