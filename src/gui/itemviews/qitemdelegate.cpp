@@ -160,9 +160,6 @@ void QItemDelegate::paint(QPainter *painter,
 QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                               const QModelIndex &index) const
 {
-    static QPoint pt(0, 0);
-    static QSize sz(border * 2, border * 2);
-
     const QAbstractItemModel *model = index.model();
 
     QVariant value = model->data(index, QAbstractItemModel::FontRole);
@@ -173,7 +170,7 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
 
     QRect pixmapRect = pixmap.rect();
-    QRect textRect(pt, QFontMetrics(fnt).size(0, text) + sz);
+    QRect textRect(QPoint(0, 0), QFontMetrics(fnt).size(0, text) + QSize(border * 2, border * 2));
     doLayout(option, &pixmapRect, &textRect, true);
 
     return pixmapRect.unite(textRect).size();
