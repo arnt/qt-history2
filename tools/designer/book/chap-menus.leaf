@@ -2,35 +2,42 @@
 
 \section1 Introduction
 
-\QD provides menu options that invoke actions that are used to
-help create applications. Many menu options lead to dialog boxes that
-provide specific functionality. The most common menu options also have
-corresponding toolbar buttons. This chapter explains each menu option
-and its use. For menu options that invoke a dialog box or which have
-a corresponding toolbar button, there is a cross-reference to the
-detailed explanation that appears in the relevant chapter.
+\QD provides menu options that invoke the actions necessary to create
+applications. Many menu options lead to dialog boxes that provide
+additional options and functionality. The most commonly used menu
+options also have corresponding toolbar buttons. This chapter explains
+each menu option and its use. For menu options that invoke a dialog
+box or which have a corresponding toolbar button, there is a
+cross-reference to the detailed explanation that appears in the
+relevant chapter.
 
 \img qd-filemenu1.png
 \caption The File Menu
 
 \section1 The File Menu
 
+    \index Files
 This menu is invoked with \Key Alt+F, and provides the following
 options:
 \list
 
+    \index Adding!Files to Projects
+    \index Files!Adding to Projects
 \i \Menu File|New\BR Click this menu option (or press \Key Ctrl+N) to
 create a new project, form or file. This option invokes the
 \l{New File Dialog}. 
 
+    \index Files!Opening
 \i \Menu File|Open\BR Click this menu option (or press \Key Ctrl+O) to
 open existing projects, forms or files. The \l{File Open Dialog} is
 invoked through which a file name can be selected.
 
+    \index Files!Closing
 \i \Menu File|Close\BR Click this menu option to close the currently
 open project. If the project has unsaved changes, the \l{Save Form
 Dialog} appears. 
 
+    \index Files!Saving
 \i \Menu File|Save\BR Click this menu option (or press \Key Ctrl+S) to
 save the project along with its forms and files. For a project that
 has forms or files, click 'Save' to save the project before exiting.
@@ -38,12 +45,15 @@ For new forms, click 'Save' and the \l{Save Form As Dialog} appears.
 For forms that have been saved previously click 'Save'. For new files
 or for files that have been changed, click 'Save'. 
 
+    \index Files!Saving
 \i \Menu {File|Save As}\BR Click this menu option to save and name the
 current form or file. This option invokes the \l{Save Form As Dialog}.
 
+    \index Files!Saving
 \i \Menu {File|Save All}\BR Click this menu option to save every open
 file and form in every open project.
 
+    \index Files!Templates
 \i \Menu {File|Create Template}\BR Click this menu option to create a
 form template. This option invokes the \l{Create Template Dialog}
 dialog.
@@ -79,10 +89,12 @@ This menu is invoked with \Key Alt+E, and provides the following
 options:
 \list
 
+    \index Undo and Redo
 \i \Menu Edit|Undo\BR Click this menu option (or press \Key Ctrl+Z) to
 undo an action. The name of the last action that was performed appears
 after the word 'Undo'.  
 
+    \index Undo and Redo
 \i \Menu Edit|Redo\BR Click this menu option (or press \Key Ctrl+Y) to
 redo an action. The name of the last action that was performed appears
 after the word 'Redo'. 
@@ -104,6 +116,7 @@ delete the selected item from the current form or file.
 Ctrl+A) to highlight all the widgets on the current form or all the
 text in the current file. 
 
+    \index Accelerators, Checking
 \i \Menu {Edit|Check Accelerators}\BR Click this menu option (or press
 \Key Alt+R) to verify that all the accelerators are used only
 once. If an accelerator is used more than once, a message box
@@ -112,15 +125,21 @@ Click \Button Select to highlight the widgets with the same
 accelerator, or click \CANCEL to exit the message box without taking
 any action. 
 
+    \index Signals and Slots!Edit Slots Dialog
+    \index Edit Slots Dialog
 \i \Menu Edit|Slots\BR Click this menu option to edit and create
 slots. This option invokes the \l{Edit Slots Dialog}.
 
+    \index Signals and Slots!View Connections Dialog
+    \index View Connections Dialog
 \i \Menu Edit|Connections\BR Click this menu option to invoke the \l{View
 Connections Dialog}. 
 
+    \index Form Settings Dialog
 \i \Menu {Edit|Form Settings}\BR Click this menu option to invoke the \l{Form
 Settings Dialog}.
 
+    \index Preferences Dialog
 \i \Menu Edit|Preferences\BR Click this menu option to invoke the
 \l{Preferences Dialog}.
 
@@ -137,20 +156,26 @@ This menu is invoked with \Key Alt+O, and provides the following
 options:
 \list 
 
+    \index Projects!Active Project
 \i \Menu {Project|Active Project}\BR Click this menu
 option to toggle between projects if there is more than one project
 open. You can also toggle between projects using the Active Project
 drop-down combobox in the \l{The File Toolbar Buttons}.
 
+    \index Projects!Adding Files
 \i \Menu{Project|Add File}\BR Click this menu option 
 to invoke the \l{Add Dialog}
  
+    \index Projects!Project Settings
 \i \Menu {Project|Project Settings}\BR Click this menu option to invoke
 the \l{Project Settings Dialog}.
 
+    \index Projects!Image Collection Dialog
+    \index Image Collection Dialog
 \i \Menu {Project|Image Collection}\BR Click this menu option to invoke
 the \l{Image Collection Dialog}.
 
+    \index Database Connections Dialog
 \i \Menu {Project|Database Connections}\BR Click this menu option to
 invoke the \l{Edit Database Connections Dialog}.
 
@@ -167,9 +192,12 @@ This menu is invoked with \Key Alt+S, and provides the following
 options:
 \list
 
+    \index Find Text Dialog
 \i \Menu Search|Find\BR Click this menu option (or press \Key Ctrl+F) to
 invoke the \l{Find Text Dialog}. 
 
+    \index Incremental Search
+    \index Search, Incremental 
 \i \Menu {Search|Find Incremental}\BR Click this menu option (or press
 \Key Alt+I) to place the cursor in the text box located next to the
 \Toolbutton Find toolbar button. Type characters into the text box; as
@@ -178,10 +206,12 @@ finds in the file. Press the \Key Enter key to go to the next
 occurrence of the text. Press the \Key Esc key once you have found the
 word you are looking for to place the cursor in the editor.
 
+    \index Replace Text Dialog
 \i \Menu Search|Replace\BR Click this menu option (or press \Key Ctrl+R)
 to invoke the \l{Replace Text Dialog} to replace specific words or
 characters.
 
+    \index Goto Line Dialog
 \i \Menu{Search|Goto line}\BR Click this menu option (or press \Key
 Alt+G) to invoke the \l{Goto Line Dialog} to go to a specific line
 in the file.
@@ -199,18 +229,21 @@ This menu is invoked with \Key Alt+T, and provides the following
 options:
 \list 
 
+    \index Tools!Pointer
 \i \Menu Tools|Pointer\BR Click this menu option (or press \Key F2) to
 de-select any selected widget toolbar button. The pointer is also used
 to stop inserting new widgets on the form if you double clicked a
 widget toolbar button. Press the \Key Esc key to return to the
 pointer at any time.
 
+    \index Edit Connections Dialog
 \i \Menu{Tools|Connect Signals and Slots}\BR Click this menu option
 (or press \Key F3) to connect signals and slots. Click on a widget and
 drag the connection line to the widget (or form) that you want to
 connect to. Release the mouse button and the \l{Edit Connections
 Dialog} will appear. 
 
+    \index Tab Order
 \i \Menu {Tools|Tab Order}\BR Click this menu option (or press \Key
 F4) to set the tab order for all the widgets on the form that can
 accept keyboard focus. Choose this option and blue circles with
@@ -221,104 +254,136 @@ tab order numbers you want. If you make a mistake, double click the
 first widget and start again. Press \Key Esc to leave tab order mode.
 If you want to revert your changes, leave tab order mode, then undo.
 
+    \index Tools!Buttons!PushButton
 \i \Menu {Tools|Buttons|PushButton}\BR Click this menu option and then
 click the form to place a PushButton on the form. 
 
+    \index Tools!Buttons!ToolButton
 \i \Menu {Tools|Buttons|ToolButton}\BR Click this menu option and then
 click the form to place a ToolButton on the form.
 
+    \index Tools!Buttons!RadioButton
 \i \Menu {Tools|Buttons|RadioButton}\BR Click this menu option and
 then click the form to place a RadioButton on the form. It is
 recommended that you place RadioButtons inside ButtonGroups so that Qt
 will automatically ensure that only one RadioButton in the group is
 active at any one time.
 
+    \index Tools!Buttons!CheckBox
 \i \Menu {Tools|Buttons|CheckBox}\BR Click this menu option and then
 click the form to place a CheckBox on the form.
 
+    \index Tools!Containers!GroupBox
 \i \Menu {Tools|Containers|GroupBox}\BR Click this menu option and
 then click the form to place a GroupBox on the form.
 
+    \index Tools!Containers!ButtonGroup
 \i \Menu {Tools|Containers|ButtonGroup}\BR Click this menu option and
 then click the form to place a ButtonGroup on the form.
 
+    \index Tools!Containers!Frame
 \i \Menu {Tools|Containers|Frame}\BR Click this menu option and then
 click the form to place a Frame on the form.
 
+    \index Tools!Containers!TabWidget
 \i \Menu {Tools|Containers|TabWidget}\BR Click this menu option and
 then click the form to place a TabWidget on the form. To add or remove
 tabs, right click the tab widget and choose 'Add Page' or 'Remove
 Page'. 
 
+    \index Tools!Views!ListBox
 \i \Menu {Tools|Views|ListBox}\BR Click this menu option and then
 click the form to place a ListBox on the form.
 
+    \index Tools!Views!ListView
 \i \Menu {Tools|Views|ListView}\BR Click this menu option and then
 click the form to place a ListView on the form.
 
+    \index Tools!Views!Icon View
 \i \Menu {Tools|Views|Icon View}\BR Click this menu option and then
 click the form to place an IconView on the form.
 
+    \index Tools!Views!Table
 \i \Menu {Tools|Views|Table}\BR Click this menu option and then click
 the form to place a Table on the form.
 
+    \index Tools!Views!Table
 \i \Menu {Tools|Database|DataTable}\BR Click this menu option and then
 click the form to place a DataTable on the form.
 
+    \index Tools!Database!DataBrowser
 \i \Menu {Tools|Database|DataBrowser}\BR Click this menu option and
 then click the form to place a DataBrowser on the form.
 
+    \index Tools!Database!DataView
 \i \Menu {Tools|Database|DataView}\BR Click this menu option and then
 click the form to place a DataView on the form.
 
+    \index Tools!Input!LineEdit
 \i \Menu {Tools|Input|LineEdit}\BR Click this menu option and then
 click the form to place a LineEdit on the form.
 
+    \index Tools!Input!SpinBox
 \i \Menu {Tools|Input|SpinBox}\BR Click this menu option and then
 click the form to place a SpinBox on the form.
 
+    \index Tools!Input!DateEdit
 \i \Menu {Tools|Input|DateEdit}\BR Click this menu option and then 
 click the form to place a DateEdit on the form.
 
+    \index Tools!Input!TimeEdit
 \i \Menu {Tools|Input|TimeEdit}\BR Click this menu option and then
 click the form to place a TimeEdit on the form.
 
+    \index Tools!Input!DateTimeEdit
 \i \Menu {Tools|Input|DateTimeEdit}\BR Click this menu option and then
 click the form to place a DateTimeEdit on the form.
 
+    \index Tools!Input!TextEdit
 \i \Menu {Tools|Input|TextEdit}\BR Click this menu option and then
 click the form to place a TextEdit on the form.
 
+    \index Tools!Input!ComboBox
 \i \Menu {Tools|Input|ComboBox}\BR Click this menu option and then
 click the form to place a ComboBox on the form.
 
+    \index Tools!Input!Slider
 \i \Menu {Tools|Input|Slider}\BR Click this menu option and then click
 the form to place a Slider on the form.
 
+    \index Tools!Input!ScrollBar
 \i \Menu {Tools|Input|ScrollBar}\BR Click this menu option and then
 click the form to place a Scrollbar on the form.
 
+    \index Tools!Input!Dial
 \i \Menu {Tools|Input|Dial}\BR Click this menu option and then click
 the form to place a Dial on the form.
 
+    \index Tools!Display!TextLabel
 \i \Menu {Tools|Display|TextLabel}\BR Click this menu option  and then
 click the form to place a TextLabel on the form.
 
+    \index Tools!Display!PixmapLabel
 \i \Menu {Tools|Display|PixmapLabel}\BR Click this menu option and
 then click the form to place a PixmapLabel on the form.
 
+    \index Tools!Display!LCDNumber
 \i \Menu {Tools|Display|LCDNumber}\BR Click this menu option and then
 click the form to place a LCDNumber on the form.
 
+    \index Tools!Display!Line
 \i \Menu {Tools|Display|Line}\BR Click this menu option and then 
 click the form to place a Line on the form.
 
+    \index Tools!Display!ProgressBar
 \i \Menu {Tools|Display|ProgressBar}\BR Click this menu option and
 then click the form to place a ProgressBar on the form.
 
+    \index Tools!Display!TextBrowser
 \i \Menu {Tools|Display|TextBrowser}\BR Click this menu option and
 then click the form to place a TextBrowser on the form.
 
+    \index Edit Custom Widgets Dialog
 \i \Menu {Tools|Custom|Edit Custom Widgets}\BR Click this menu option
 to invoke the \l{Edit Custom Widgets Dialog}. 
 
@@ -336,13 +401,16 @@ See also \l{The Tools Toolbar Buttons}.
 
 \section1 The Layout Menu 
 
+    \index Layouts
 This menu is invoked with \Key Alt+L, and provides the following
 options:
 \list 
 
+    \index Layouts!Adjust Size
 \i \Menu {Layout|Adjust Size}\BR Click this menu option (or press \Key
 Ctrl+J) to adjust the size of the widget to it's recommended size. 
 
+    \index Layouts!Horizontal
 \i \Menu {Layout|Lay Out Horizontally}\BR Click this menu option (or
 press \Key Ctrl+H) to lay out the selected widgets or layouts side by
 side. Use \Key Shift+Click to select each widget or layout, and then
@@ -352,6 +420,7 @@ by clicking them in the Widgets tab of the \l{Object Explorer Window}.
 If only one widget is selected, its child widgets will be laid out
 horizontally.
 
+    \index Layouts!Vertical
 \i \Menu {Layout|Lay Out Vertically}\BR Click this menu option (or press
 \Key Ctrl+L) to lay out the selected widgets one above the other. Use
 \Key Shift+Click to select each widget or layout, and then choose this
@@ -360,10 +429,13 @@ is sometimes easiest to select widgets and layouts by clicking them in
 the Widgets tab of the \l{Object Explorer Window}. If only one widget
 is selected, its child widgets will be laid out vertically.
 
+    \index Layouts!Grid
 \i \Menu {Layout|Lay Out in a Grid}\BR Click this menu option (or press
 \Key Ctrl+G) to lay out the selected widgets in a grid. If only one
 widget is selected, its child widgets will be laid out in a grid.
 
+    \index Layouts!Horizontal
+    \index Layouts!Splitters
 \i \Menu {Layout|Lay Out Horizontally (in Splitter)}\BR Click this menu
 option to lay out the selected widgets or layouts side by side with a
 splitter between each. Use \Key Shift+Click to select each
@@ -372,6 +444,8 @@ horizontally. Note that for complex widgets it is sometimes easiest to
 select widgets and layouts by clicking them in the Widgets tab of the
 \l{Object Explorer Window}.
 
+    \index Layouts!Vertical
+    \index Layouts!Splitters
 \i \Menu {Layout|Lay Out Vertically (in Splitter)}\BR Click this menu
 option to lay out the selected widgets or layouts one above the other
 with a splitter between each. Use \Key{Shift+Click} to select each
@@ -380,10 +454,12 @@ vertically. Note that for complex widgets it is sometimes easiest to
 select widgets and layouts by clicking them in the Widgets tab of the
 \l{Object Explorer Window}.
 
+    \index Layouts!Break layout
 \i \Menu {Layout|Break Layout}\BR Click this menu option (or press \Key
 Ctrl+B) to break a layout. Click on the layout, then select this option;
 the layout is deleted. 
 
+    \index Layouts!Spacers
 \i \Menu {Layout|Add Spacer}\BR Click this menu option to add a vertical
 or horizontal spacer to widgets that take up too much space on the
 form. The spacer consumes extra space in the layout.
@@ -397,6 +473,7 @@ See also \l{The Layout Toolbar Buttons}.
 
 \section1 The Preview Menu 
 
+    \index Previewing
 This menu is invoked with \Key Alt+P, and provides the following
 options: 
 \list 
@@ -455,23 +532,27 @@ open file and forms, one on top of the other, but with an overlap so
 that each window's title bar is visible. 
 
 \omit
-
 \i \Menu{Window|Views|Output Window}\BR Click this menu option to invoke
 the \l{Output Window}, which displays debugging messages. 
-
 \endomit
 
+    \index File Overview Window
+    \index Windows!File Overview 
 \i \Menu{Window|Views|File Overview}\BR Click this menu option to make
 the \l{File Overview Window} visible, or to hide it if it is already
 visible. If the window is currently visible, a check mark will appear
 next to the name in the menu.
 
+    \index Property Editor/Signal Handlers
+    \index Windows!Property Editor/Signal Handlers
 \i \Menu{Window|Views|Property Editor/Signal Handlers}\BR Click this
 menu option to make the \l{Property Editor/Signal Handlers Window}
 visible, or to hide it if it is already visible. If the window is
 currently visible, a check mark will appear next to the name in the
 menu.
 
+    \index Object Explorer
+    \index Windows!Object Explorer
 \i \Menu{Window|Views|Object Explorer}\BR Click this menu option to make
 the \l{Object Explorer Window} visible, or to hide it if it is already
 visible. If the window is currently visible, a check mark
