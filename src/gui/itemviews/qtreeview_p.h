@@ -11,14 +11,14 @@
 **
 ****************************************************************************/
 
-#ifndef QGENERICTREEVIEW_P_H
-#define QGENERICTREEVIEW_P_H
+#ifndef QTREEVIEW_P_H
+#define QTREEVIEW_P_H
 
 #include <private/qabstractitemview_p.h>
 
-struct QGenericTreeViewItem
+struct QTreeViewItem
 {
-    QGenericTreeViewItem() : open(false), hidden(false), total(0), level(0) {}
+    QTreeViewItem() : open(false), hidden(false), total(0), level(0) {}
     QModelIndex index;
     uint open : 1;
     uint hidden : 1;
@@ -26,15 +26,15 @@ struct QGenericTreeViewItem
     uint level : 16; // indentation
 };
 
-class QGenericTreeViewPrivate: public QAbstractItemViewPrivate
+class QTreeViewPrivate: public QAbstractItemViewPrivate
 {
-    Q_DECLARE_PUBLIC(QGenericTreeView)
+    Q_DECLARE_PUBLIC(QTreeView)
 public:
 
-    QGenericTreeViewPrivate()
+    QTreeViewPrivate()
         : QAbstractItemViewPrivate(), header(0), indent(20), itemHeight(-1) { }
 
-    ~QGenericTreeViewPrivate() {}
+    ~QTreeViewPrivate() {}
 
     void open(int item, bool update);
     void close(int item, bool update);
@@ -63,7 +63,7 @@ public:
     QGenericHeader *header;
     int indent;
 
-    QVector<QGenericTreeViewItem> items;
+    QVector<QTreeViewItem> items;
     int itemHeight; // this is just a number; contentsHeight() / numItems
     bool rootDecoration;
 

@@ -40,7 +40,7 @@
 #include "qsignalmapper.h"
 #include "qmap.h"
 #include "qabstractitemmodel.h"
-#include "qgenerictreeview.h"
+#include "qtreeview.h"
 #include "qgenericheader.h"
 
 #if !defined(QT_NO_CUPS) || !defined(QT_NO_NIS)
@@ -194,7 +194,7 @@ public:
     bool outputToFile;
     QList<QPrinterDescription> printers;
     QPrinterModel *model;
-    QGenericTreeView *view;
+    QTreeView *view;
 
     QLineEdit *fileName;
     QPushButton *browse, *ok;
@@ -1035,7 +1035,7 @@ QGroupBox *QPrintDialogUnix::setupDestination()
 
 
     d->model = new QPrinterModel(d->printers, this);
-    d->view = new QGenericTreeView(g);
+    d->view = new QTreeView(g);
     d->view->setModel(d->model);
     d->view->setRootIsDecorated(false);
     d->view->header()->setResizeMode(QGenericHeader::Stretch, 2);

@@ -17,7 +17,7 @@
 #include <qframe.h>
 #include <qgenericheader.h>
 #include <qlistview.h>
-#include <qgenerictreeview.h>
+#include <qtreeview.h>
 #include <qitemselectionmodel.h>
 #include <qlabel.h>
 #include <qlayout.h>
@@ -318,7 +318,7 @@ public:
     QDirModel *model;
     QItemSelectionModel *selections;
     QListView *lview;
-    QGenericTreeView *tview;
+    QTreeView *tview;
     QFileDialog::ViewMode viewMode;
     QFileDialog::FileMode fileMode;
     QFileDialog::AcceptMode acceptMode;
@@ -1371,7 +1371,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     lview->setBeginEditActions(QAbstractItemDelegate::EditKeyPressed);
     grid->addWidget(lview, 1, 0, 1, 6);
 
-    tview = new QGenericTreeView(q);
+    tview = new QTreeView(q);
 
     tview->setModel(model);
     tview->setSelectionModel(selections);

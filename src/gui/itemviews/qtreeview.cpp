@@ -10,8 +10,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include "qgenerictreeview.h"
-#include "qgenericheader.h"
+#include "qtreeview.h"
+#include <qgenericheader.h>
 #include <qitemdelegate.h>
 #include <qapplication.h>
 #include <qscrollbar.h>
@@ -22,22 +22,22 @@
 #include <qevent.h>
 #include <qpen.h>
 
-#include <private/qgenerictreeview_p.h>
+#include <private/qtreeview_p.h>
 #define d d_func()
 #define q q_func()
 
 /*!
-    \class QGenericTreeView qgenerictreeview.h
-    \brief The QGenericTreeView class provides a default model/view implementation of a tree view.
+    \class QTreeView qtreeview.h
+    \brief The QTreeView class provides a default model/view implementation of a tree view.
 
     \ingroup model-view
 
-    A QGenericTreeView implements a tree representation of items from a
+    A QTreeView implements a tree representation of items from a
     model. This class is used to provide standard hierarchical lists that
     were previously provided by the \c QListView class, but using the more
     flexible approach provided by Qt's model/view architecture.
 
-    QGenericTreeView implements the interfaces defined by the
+    QTreeView implements the interfaces defined by the
     QAbstractItemView class to allow it to display data provided by
     models derived from the QAbstractItemModel class.
 
@@ -47,7 +47,7 @@
 
     \code
         QDirModel *model = new QDirModel(QDir(), parent);
-        QGenericTreeView *tree = new QGenericTreeView(parent);
+        QTreeView *tree = new QTreeView(parent);
         tree->setModel(model);
     \endcode
 
@@ -72,14 +72,14 @@
 
 
 /*!
-  \fn void QGenericTreeView::expanded(const QModelIndex &index)
+  \fn void QTreeView::expanded(const QModelIndex &index)
 
   This signal is emitted when the item specified by \a index is expanded.
 */
 
 
 /*!
-  \fn void QGenericTreeView::collapsed(const QModelIndex &index)
+  \fn void QTreeView::collapsed(const QModelIndex &index)
 
   This signal is emitted when the item specified by \a index is collapsed.
 */
@@ -91,8 +91,8 @@
     \sa QAbstractItemModel
 */
 
-QGenericTreeView::QGenericTreeView(QWidget *parent)
-    : QAbstractItemView(*new QGenericTreeViewPrivate, parent)
+QTreeView::QTreeView(QWidget *parent)
+    : QAbstractItemView(*new QTreeViewPrivate, parent)
 {
     setHeader(new QGenericHeader(Qt::Horizontal, this));
     d->header->setModel(model());
@@ -106,7 +106,7 @@ QGenericTreeView::QGenericTreeView(QWidget *parent)
   \internal
 */
 
-QGenericTreeView::QGenericTreeView(QGenericTreeViewPrivate &dd, QWidget *parent)
+QTreeView::QTreeView(QTreeViewPrivate &dd, QWidget *parent)
     : QAbstractItemView(dd, parent)
 {
     d->rootDecoration = true;
@@ -123,14 +123,14 @@ QGenericTreeView::QGenericTreeView(QGenericTreeViewPrivate &dd, QWidget *parent)
   Destroys the tree view.
 */
 
-QGenericTreeView::~QGenericTreeView()
+QTreeView::~QTreeView()
 {
 }
 
 /*!
   \reimp
 */
-void QGenericTreeView::setModel(QAbstractItemModel *model)
+void QTreeView::setModel(QAbstractItemModel *model)
 {
     reset();
     d->header->setModel(model);
@@ -140,7 +140,7 @@ void QGenericTreeView::setModel(QAbstractItemModel *model)
 /*!
   \reimp
 */
-void QGenericTreeView::setSelectionModel(QItemSelectionModel *selectionModel)
+void QTreeView::setSelectionModel(QItemSelectionModel *selectionModel)
 {
     d->header->setSelectionModel(selectionModel);
     QAbstractItemView::setSelectionModel(selectionModel);
@@ -150,7 +150,7 @@ void QGenericTreeView::setSelectionModel(QItemSelectionModel *selectionModel)
   Returns the header for the tree view.
 */
 
-QGenericHeader *QGenericTreeView::header() const
+QGenericHeader *QTreeView::header() const
 {
     return d->header;
 }
@@ -159,7 +159,7 @@ QGenericHeader *QGenericTreeView::header() const
   Sets the \a header for the tree view.
 */
 
-void QGenericTreeView::setHeader(QGenericHeader *header)
+void QTreeView::setHeader(QGenericHeader *header)
 {
     if (d->header) {
         QObject::disconnect(d->header, SIGNAL(sectionSizeChanged(int,int,int)),
@@ -190,37 +190,37 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
 }
 
 /*!
-  \property QGenericTreeView::indentation
+  \property QTreeView::indentation
   \brief indentation of the items in the tree view.
 
   This property holds the indentation of the items for each level in the tree view.
   \sa setIndentation()
 */
 
-int QGenericTreeView::indentation() const
+int QTreeView::indentation() const
 {
     return d->indent;
 }
 
-void QGenericTreeView::setIndentation(int i)
+void QTreeView::setIndentation(int i)
 {
     d->indent = i;
 }
 
 /*!
-  \property QGenericTreeView::rootIsDecorated
+  \property QTreeView::rootIsDecorated
   \brief whether to show controls for opening and closing items
 
   This property holds whether root items are displayed with controls for opening and
   closing them.
 */
 
-bool QGenericTreeView::rootIsDecorated() const
+bool QTreeView::rootIsDecorated() const
 {
     return d->rootDecoration;
 }
 
-void QGenericTreeView::setRootIsDecorated(bool show)
+void QTreeView::setRootIsDecorated(bool show)
 {
 
     d->rootDecoration = show;
@@ -231,7 +231,7 @@ void QGenericTreeView::setRootIsDecorated(bool show)
   Returns the horizontal position of the \a column in the viewport.
 */
 
-int QGenericTreeView::columnViewportPosition(int column) const
+int QTreeView::columnViewportPosition(int column) const
 {
     int colp = d->header->sectionPosition(column) - d->header->offset();
     if (!QApplication::reverseLayout())
@@ -243,7 +243,7 @@ int QGenericTreeView::columnViewportPosition(int column) const
   Returns the width of the \a column.
 */
 
-int QGenericTreeView::columnWidth(int column) const
+int QTreeView::columnWidth(int column) const
 {
     return d->header->sectionSize(column);
 }
@@ -253,7 +253,7 @@ int QGenericTreeView::columnWidth(int column) const
   coordinate given.
 */
 
-int QGenericTreeView::columnAt(int x) const
+int QTreeView::columnAt(int x) const
 {
     int p = x + d->header->offset();
     if (!QApplication::reverseLayout())
@@ -267,7 +267,7 @@ int QGenericTreeView::columnAt(int x) const
     \sa hideColumn()
 */
 
-bool QGenericTreeView::isColumnHidden(int column) const
+bool QTreeView::isColumnHidden(int column) const
 {
     return d->header->isSectionHidden(column);
 }
@@ -277,7 +277,7 @@ bool QGenericTreeView::isColumnHidden(int column) const
 
   \sa showColumn() */
 
-void QGenericTreeView::hideColumn(int column)
+void QTreeView::hideColumn(int column)
 {
     d->header->hideSection(column);
 }
@@ -287,18 +287,18 @@ void QGenericTreeView::hideColumn(int column)
 
   \sa hideColumn() */
 
-void QGenericTreeView::showColumn(int column)
+void QTreeView::showColumn(int column)
 {
     d->header->showSection(column);
 }
 
 /*!
-  \fn void QGenericTreeView::open(const QModelIndex &index)
+  \fn void QTreeView::open(const QModelIndex &index)
 
   Opens the model item specified by the \a index.
 */
 
-void QGenericTreeView::open(const QModelIndex &item)
+void QTreeView::open(const QModelIndex &item)
 {
     if (!item.isValid())
         return;
@@ -310,12 +310,12 @@ void QGenericTreeView::open(const QModelIndex &item)
 }
 
 /*!
-  \fn void QGenericTreeView::close(const QModelIndex &index)
+  \fn void QTreeView::close(const QModelIndex &index)
 
   Closes the model item specified by the \a index.
 */
 
-void QGenericTreeView::close(const QModelIndex &index)
+void QTreeView::close(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
@@ -330,13 +330,13 @@ void QGenericTreeView::close(const QModelIndex &index)
 }
 
 /*!
-  \fn bool QGenericTreeView::isOpen(const QModelIndex &index) const
+  \fn bool QTreeView::isOpen(const QModelIndex &index) const
 
   Returns true if the model item \a index is open; otherwise returns
   false.
 */
 
-bool QGenericTreeView::isOpen(const QModelIndex &index) const
+bool QTreeView::isOpen(const QModelIndex &index) const
 {
     return d->opened.contains(index);
 }
@@ -345,7 +345,7 @@ bool QGenericTreeView::isOpen(const QModelIndex &index) const
   Returns the rectangle on the viewport occupied by the item at \a
   index.*/
 
-QRect QGenericTreeView::itemViewportRect(const QModelIndex &index) const
+QRect QTreeView::itemViewportRect(const QModelIndex &index) const
 {
     if (!index.isValid())
         return QRect();
@@ -371,7 +371,7 @@ QRect QGenericTreeView::itemViewportRect(const QModelIndex &index) const
   is visible.
 */
 
-void QGenericTreeView::ensureItemVisible(const QModelIndex &index)
+void QTreeView::ensureItemVisible(const QModelIndex &index)
 {
     QRect area = d->viewport->rect();
     QRect rect = itemViewportRect(index);
@@ -421,7 +421,7 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &index)
   \reimp
 */
 
-void QGenericTreeView::paintEvent(QPaintEvent *e)
+void QTreeView::paintEvent(QPaintEvent *e)
 {
     QStyleOptionViewItem option = viewOptions();
     QBrush base = option.palette.base();
@@ -448,7 +448,7 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
         d->right = tmp;
     }
 
-    const QGenericTreeViewItem *items = d->items.constData();
+    const QTreeViewItem *items = d->items.constData();
 
     QFontMetrics fontMetrics(this->fontMetrics());
     QAbstractItemDelegate *delegate = itemDelegate();
@@ -495,7 +495,7 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
   \sa QStyleOptionViewItem
 */
 
-void QGenericTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
+void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
                                const QModelIndex &index) const
 {
     QStyleOptionViewItem opt = option;
@@ -546,7 +546,7 @@ void QGenericTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &op
 
 */
 
-void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect,
+void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
                                     const QModelIndex &index) const
 {
     QModelIndex parent = d->model->parent(index);
@@ -587,7 +587,7 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect,
   \reimp
 */
 
-void QGenericTreeView::mousePressEvent(QMouseEvent *e)
+void QTreeView::mousePressEvent(QMouseEvent *e)
 {
     bool reverse = QApplication::reverseLayout();
     int scrollbar = reverse && verticalScrollBar()->isVisible() ? verticalScrollBar()->width() : 0;
@@ -614,12 +614,12 @@ void QGenericTreeView::mousePressEvent(QMouseEvent *e)
 }
 
 /*!
-  \fn QModelIndex QGenericTreeView::itemAt(int x, int y) const
+  \fn QModelIndex QTreeView::itemAt(int x, int y) const
 
   Returns the model index of the item at point (\a x, \a y).
 */
 
-QModelIndex QGenericTreeView::itemAt(int x, int y) const
+QModelIndex QTreeView::itemAt(int x, int y) const
 {
     QModelIndex mi = d->modelIndex(d->item(y));
     int c = d->columnAt(x);
@@ -632,7 +632,7 @@ QModelIndex QGenericTreeView::itemAt(int x, int y) const
   Returns the model index of the item above \a index.
 */
 
-QModelIndex QGenericTreeView::itemAbove(const QModelIndex &index) const
+QModelIndex QTreeView::itemAbove(const QModelIndex &index) const
 {
     int vi = d->viewIndex(index);
     return d->modelIndex(d->above(vi));
@@ -642,7 +642,7 @@ QModelIndex QGenericTreeView::itemAbove(const QModelIndex &index) const
   Returns the model index of the item below \a index.
 */
 
-QModelIndex QGenericTreeView::itemBelow(const QModelIndex &index) const
+QModelIndex QTreeView::itemBelow(const QModelIndex &index) const
 {
     int vi = d->viewIndex(index);
     return d->modelIndex(d->below(vi));
@@ -652,7 +652,7 @@ QModelIndex QGenericTreeView::itemBelow(const QModelIndex &index) const
   Lays out the items in the tree view.
 */
 
-void QGenericTreeView::doItemsLayout()
+void QTreeView::doItemsLayout()
 {
     QStyleOptionViewItem option = viewOptions();
     QModelIndex index = model()->index(0, 0, root());
@@ -666,7 +666,7 @@ void QGenericTreeView::doItemsLayout()
   Returns the horizontal offset.
 */
 
-int QGenericTreeView::horizontalOffset() const
+int QTreeView::horizontalOffset() const
 {
     return d->header->offset();
 }
@@ -675,7 +675,7 @@ int QGenericTreeView::horizontalOffset() const
   Returns the vertical offset of the items in the tree view.
 */
 
-int QGenericTreeView::verticalOffset() const
+int QTreeView::verticalOffset() const
 {
     // gives an estimate
     QStyleOptionViewItem option = viewOptions();
@@ -686,14 +686,14 @@ int QGenericTreeView::verticalOffset() const
 }
 
 /*!
-  \fn QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state)
+  \fn QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state)
 
   Move the cursor in the way described by \a cursorAction, using the
   information provided by the button \a state.
 
   \sa QAbstractItemView::CursorAction                                                                                                                                                        */
 
-QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState)
+QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState)
 {
     QModelIndex current = currentItem();
     int vi = d->viewIndex(current);
@@ -730,7 +730,7 @@ QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorA
   \sa selectionCommand()
 */
 
-void QGenericTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
+void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
     int start = d->viewIndex(itemAt(rect.left(), rect.top()));
     int stop = d->viewIndex(itemAt(rect.right(), rect.bottom()));
@@ -788,7 +788,7 @@ void QGenericTreeView::setSelection(const QRect &rect, QItemSelectionModel::Sele
   \a selection.
 */
 
-QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) const
+QRect QTreeView::selectionViewportRect(const QItemSelection &selection) const
 {
     if (selection.count() <= 0 || d->items.count() <= 0)
         return QRect();
@@ -817,7 +817,7 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
   \internal
 */
 
-void QGenericTreeView::reset()
+void QTreeView::reset()
 {
     d->opened.clear();
     d->items.clear();
@@ -827,7 +827,7 @@ void QGenericTreeView::reset()
   Scrolls the contents of the tree view by (\a dx, \a dy).
 */
 
-void QGenericTreeView::scrollContentsBy(int dx, int dy)
+void QTreeView::scrollContentsBy(int dx, int dy)
 {
     int items = qMin(d->items.count(), d->viewport->height() / fontMetrics().height());
     int max_dy = verticalFactor() * items;
@@ -863,7 +863,7 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
         QStyleOptionViewItem option = viewOptions();
         QFontMetrics fontMetrics(this->fontMetrics());
         QAbstractItemDelegate *delegate = itemDelegate();
-        const QGenericTreeViewItem *items = d->items.constData();
+        const QTreeViewItem *items = d->items.constData();
         QModelIndex current_index = items[current_item].index;
         QModelIndex previous_index = items[previous_item].index;
 
@@ -891,29 +891,29 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
 
 */
 
-void QGenericTreeView::dataChanged()
+void QTreeView::dataChanged()
 {
     QAbstractItemView::dataChanged(QModelIndex(), QModelIndex());
 }
 
 /*!
-  \fn void QGenericTreeView::rowsInserted(const QModelIndex &parent, int first, int last)
+  \fn void QTreeView::rowsInserted(const QModelIndex &parent, int first, int last)
 
   Informs the view that the rows from the \a first to the \a last
   inclusive have been inserted into the \a parent model item.
 */
 
-void QGenericTreeView::rowsInserted(const QModelIndex &parent, int, int)
+void QTreeView::rowsInserted(const QModelIndex &parent, int, int)
 {
     d->relayout(parent);
 }
 
 /*!
-  \fn void QGenericTreeView::rowsRemoved(const QModelIndex &parent, int first, int last)
+  \fn void QTreeView::rowsRemoved(const QModelIndex &parent, int first, int last)
 
   Informs the view that the rows from the \a first to the \a last
   inclusive have been removed from the given \a parent model item.*/
-void QGenericTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
+void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
 {
     if (d->items.isEmpty())
         return;
@@ -923,19 +923,19 @@ void QGenericTreeView::rowsRemoved(const QModelIndex &parent, int start, int end
         close(model()->index(i, 0, parent));
     }
     int offset = parent.isValid() ? d->viewIndex(parent) : 0;
-    qCollapse<QGenericTreeViewItem>(d->items, offset + start, end - start + 1);
+    qCollapse<QTreeViewItem>(d->items, offset + start, end - start + 1);
 
     d->opened.clear(); // ### FIXME: do not collapse everything
 }
 
 /*!
-  \fn void QGenericTreeView::columnCountChanged(int first, int last)
+  \fn void QTreeView::columnCountChanged(int first, int last)
 
   Informs the tree view that the columns from the \a first to the
   \a last inclusive as changed.
 */
 
-void QGenericTreeView::columnCountChanged(int, int)
+void QTreeView::columnCountChanged(int, int)
 {
     if (isVisible())
         updateGeometries();
@@ -947,7 +947,7 @@ void QGenericTreeView::columnCountChanged(int, int)
   taken into consideration.
 */
 
-void QGenericTreeView::resizeColumnToContents(int column, bool checkHeader)
+void QTreeView::resizeColumnToContents(int column, bool checkHeader)
 {
     int contents = columnSizeHint(column);
     int header = checkHeader ? d->header->sectionSizeHint(column) : 0;
@@ -955,13 +955,13 @@ void QGenericTreeView::resizeColumnToContents(int column, bool checkHeader)
 }
 
 /*!
-    \fn void QGenericTreeView::columnWidthChanged(int column, int oldSize, int newSize)
+    \fn void QTreeView::columnWidthChanged(int column, int oldSize, int newSize)
 
   Changes the \a column's width from the size specified by \a oldSize to
   the size specified by \a newSize.
 */
 
-void QGenericTreeView::columnWidthChanged(int column, int, int)
+void QTreeView::columnWidthChanged(int column, int, int)
 {
     bool reverse = QApplication::reverseLayout();
     int x = d->header->sectionPosition(column) - d->header->offset()
@@ -977,7 +977,7 @@ void QGenericTreeView::columnWidthChanged(int column, int, int)
   \internal
 */
 
-void QGenericTreeView::updateGeometries()
+void QTreeView::updateGeometries()
 {
     QSize hint = d->header->sizeHint();
     setViewportMargins(0, hint.height(), 0, 0);
@@ -1031,7 +1031,7 @@ void QGenericTreeView::updateGeometries()
 
 */
 
-void QGenericTreeView::verticalScrollbarAction(int action)
+void QTreeView::verticalScrollbarAction(int action)
 {
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
@@ -1078,7 +1078,7 @@ Moves the horizontal scroll bar in the way described by the \a action.
 \sa QScrollBar::SliderAction
 */
 
-void QGenericTreeView::horizontalScrollbarAction(int action)
+void QTreeView::horizontalScrollbarAction(int action)
 {
     // horizontal
     int factor = d->horizontalFactor;
@@ -1119,7 +1119,7 @@ void QGenericTreeView::horizontalScrollbarAction(int action)
   \sa QWidget::sizeHint
 */
 
-int QGenericTreeView::columnSizeHint(int column) const
+int QTreeView::columnSizeHint(int column) const
 {
     if (d->items.count() <= 0)
         return 0;
@@ -1129,7 +1129,7 @@ int QGenericTreeView::columnSizeHint(int column) const
     QAbstractItemDelegate *delegate = itemDelegate();
     QModelIndex index;
 
-    const QGenericTreeViewItem *items = d->items.constData();
+    const QTreeViewItem *items = d->items.constData();
     int v = verticalScrollBar()->value();
     int h = d->viewport->height();
     int c = d->items.count();
@@ -1155,7 +1155,7 @@ int QGenericTreeView::columnSizeHint(int column) const
   private implementation
 */
 
-void QGenericTreeViewPrivate::open(int i, bool update)
+void QTreeViewPrivate::open(int i, bool update)
 {
     QModelIndex index = items.at(i).index;
 
@@ -1188,7 +1188,7 @@ void QGenericTreeViewPrivate::open(int i, bool update)
         emit q->expanded(index);
 }
 
-void QGenericTreeViewPrivate::close(int i, bool update)
+void QTreeViewPrivate::close(int i, bool update)
 {
     int total = items.at(i).total;
     QModelIndex index = items.at(i).index;
@@ -1204,7 +1204,7 @@ void QGenericTreeViewPrivate::close(int i, bool update)
         tmp = model->parent(tmp);
         idx = viewIndex(tmp);
     }
-    qCollapse<QGenericTreeViewItem>(items, i, total);
+    qCollapse<QTreeViewItem>(items, i, total);
 
     if (update) {
         q->updateGeometries();
@@ -1213,7 +1213,7 @@ void QGenericTreeViewPrivate::close(int i, bool update)
     }
 }
 
-void QGenericTreeViewPrivate::layout(int i)
+void QTreeViewPrivate::layout(int i)
 {
     QModelIndex current;
     QModelIndex parent = modelIndex(i);
@@ -1222,7 +1222,7 @@ void QGenericTreeViewPrivate::layout(int i)
     if (i == -1)
         items.resize(count);
     else
-        qExpand<QGenericTreeViewItem>(items, i, count);
+        qExpand<QTreeViewItem>(items, i, count);
 
     int level = i >= 0 ? items.at(i).level + 1 : 0;
     int first = i + 1;
@@ -1241,47 +1241,47 @@ void QGenericTreeViewPrivate::layout(int i)
     }
 }
 
-int QGenericTreeViewPrivate::pageUp(int i) const
+int QTreeViewPrivate::pageUp(int i) const
 {
     int idx = item(coordinate(i) - viewport->height());
     return idx == -1 ? first() : idx;
 }
 
-int QGenericTreeViewPrivate::pageDown(int i) const
+int QTreeViewPrivate::pageDown(int i) const
 {
     int idx = item(coordinate(i) + viewport->height());
     return idx == -1 ? last() : idx;
 }
 
-int QGenericTreeViewPrivate::above(int i) const
+int QTreeViewPrivate::above(int i) const
 {
     int idx = i;
     while (--idx >= 0 && items.at(idx).hidden);
     return idx >= 0 ? idx : i;
 }
 
-int QGenericTreeViewPrivate::below(int i) const
+int QTreeViewPrivate::below(int i) const
 {
     int idx = i;
     while (++idx < items.count() && items.at(idx).hidden);
     return idx < items.count() ? idx : i;
 }
 
-int QGenericTreeViewPrivate::first() const
+int QTreeViewPrivate::first() const
 {
     int i = -1;
     while (++i < items.count() && items.at(i).hidden);
     return i < items.count() ? i : -1;
 }
 
-int QGenericTreeViewPrivate::last() const
+int QTreeViewPrivate::last() const
 {
     int i = items.count();
     while (--i >= 0 && items.at(i).hidden);
     return i >= 0 ? i : -1;
 }
 
-int QGenericTreeViewPrivate::indentation(int i) const
+int QTreeViewPrivate::indentation(int i) const
 {
     if (i < 0 || i >= items.count())
         return 0;
@@ -1291,7 +1291,7 @@ int QGenericTreeViewPrivate::indentation(int i) const
     return level * indent;
 }
 
-int QGenericTreeViewPrivate::coordinate(int item) const
+int QTreeViewPrivate::coordinate(int item) const
 {
     QStyleOptionViewItem option = q->viewOptions();
     QFontMetrics fontMetrics(q->fontMetrics());
@@ -1314,7 +1314,7 @@ int QGenericTreeViewPrivate::coordinate(int item) const
     return y - (itemHeight * (i - item));
 }
 
-int QGenericTreeViewPrivate::item(int coordinate) const
+int QTreeViewPrivate::item(int coordinate) const
 {
     QStyleOptionViewItem option = q->viewOptions();
     QFontMetrics fontMetrics(q->fontMetrics());
@@ -1342,7 +1342,7 @@ int QGenericTreeViewPrivate::item(int coordinate) const
     return idx < 0 || idx >= items.count() ? -1 : idx;
 }
 
-int QGenericTreeViewPrivate::viewIndex(const QModelIndex &index) const
+int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
 {
     // NOTE: this function is slow if the item is outside the visible area
     // search in visible items first, then below
@@ -1360,26 +1360,26 @@ int QGenericTreeViewPrivate::viewIndex(const QModelIndex &index) const
     return -1;
 }
 
-QModelIndex QGenericTreeViewPrivate::modelIndex(int i) const
+QModelIndex QTreeViewPrivate::modelIndex(int i) const
 {
     if (i < 0 || i >= items.count())
         return q->root();
     return items.at(i).index;
 }
 
-int QGenericTreeViewPrivate::itemAt(int value) const
+int QTreeViewPrivate::itemAt(int value) const
 {
     return value / q->verticalFactor();
 }
 
-int QGenericTreeViewPrivate::coordinateAt(int value, int iheight) const
+int QTreeViewPrivate::coordinateAt(int value, int iheight) const
 {
     int factor = q->verticalFactor();
     int above = (value % factor) * iheight; // what's left; in "item units"
     return -(above / factor); // above the page
 }
 
-int QGenericTreeViewPrivate::columnAt(int x) const
+int QTreeViewPrivate::columnAt(int x) const
 {
     int hx = x + header->offset() - header->x();
     if (QApplication::reverseLayout() && q->verticalScrollBar()->isVisible())
@@ -1387,7 +1387,7 @@ int QGenericTreeViewPrivate::columnAt(int x) const
     return header->sectionAt(hx);
 }
 
-void QGenericTreeViewPrivate::relayout(const QModelIndex &parent)
+void QTreeViewPrivate::relayout(const QModelIndex &parent)
 {
     if (!q->isVisible()) {
         items.clear();

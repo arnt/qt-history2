@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qtreewidget.h"
-#include <private/qgenerictreeview_p.h>
+#include <private/qtreeview_p.h>
 
 class QTreeModel : public QAbstractItemModel
 {
@@ -511,11 +511,11 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
     values[column].append(Data(role, value));
 }
 
-class QTreeWidgetPrivate : public QGenericTreeViewPrivate
+class QTreeWidgetPrivate : public QTreeViewPrivate
 {
     Q_DECLARE_PUBLIC(QTreeWidget)
 public:
-    QTreeWidgetPrivate() : QGenericTreeViewPrivate() {}
+    QTreeWidgetPrivate() : QTreeViewPrivate() {}
     inline QTreeModel *model() const { return ::qt_cast<QTreeModel*>(q_func()->model()); }
 };
 
@@ -557,7 +557,7 @@ public:
   model.*/
 
 QTreeWidget::QTreeWidget(QWidget *parent)
-    : QGenericTreeView(*new QGenericTreeViewPrivate(), parent)
+    : QTreeView(*new QTreeViewPrivate(), parent)
 {
     setModel(new QTreeModel(0, this));
 }

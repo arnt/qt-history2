@@ -11,26 +11,26 @@
 **
 ****************************************************************************/
 
-#ifndef QGENERICTREEVIEW_H
-#define QGENERICTREEVIEW_H
+#ifndef QTREEVIEW_H
+#define QTREEVIEW_H
 
 #ifndef QT_H
 #include <qabstractitemview.h>
 #endif
 
-class QGenericTreeViewPrivate;
+class QTreeViewPrivate;
 class QGenericHeader;
 
-class Q_GUI_EXPORT QGenericTreeView : public QAbstractItemView
+class Q_GUI_EXPORT QTreeView : public QAbstractItemView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QGenericTreeView)
+    Q_DECLARE_PRIVATE(QTreeView)
     Q_PROPERTY(bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated)
     Q_PROPERTY(int indentation READ indentation WRITE setIndentation)
 
 public:
-    QGenericTreeView(QWidget *parent = 0);
-    ~QGenericTreeView();
+    QTreeView(QWidget *parent = 0);
+    ~QTreeView();
 
     void setModel(QAbstractItemModel *model);
     void setSelectionModel(QItemSelectionModel *selectionModel);
@@ -76,7 +76,7 @@ protected slots:
     void dataChanged();
 
 protected:
-    QGenericTreeView(QGenericTreeViewPrivate &dd, QWidget *parent = 0);
+    QTreeView(QTreeViewPrivate &dd, QWidget *parent = 0);
     void reset();
     void scrollContentsBy(int dx, int dy);
     void rowsInserted(const QModelIndex &parent, int start, int end);

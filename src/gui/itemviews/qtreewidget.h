@@ -15,7 +15,7 @@
 #define QTREEWIDGET_H
 
 #ifndef QT_H
-#include <qgenerictreeview.h>
+#include <qtreeview.h>
 #include <qlist.h>
 #include <qvector.h>
 #include <qiconset.h>
@@ -88,7 +88,7 @@ private:
 
 class QTreeWidgetPrivate;
 
-class Q_GUI_EXPORT QTreeWidget : public QGenericTreeView
+class Q_GUI_EXPORT QTreeWidget : public QTreeView
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTreeWidget)

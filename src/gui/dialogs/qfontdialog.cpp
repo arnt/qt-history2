@@ -31,7 +31,7 @@
 #include <private/qfontdata_p.h>
 #include <qvalidator.h>
 #include <qabstractitemmodel.h>
-#include <qgenerictreeview.h>
+#include <qtreeview.h>
 #include <qgenericheader.h>
 
 class QFontListModel : public QAbstractListModel
@@ -62,23 +62,23 @@ QVariant QFontListModel::data(const QModelIndex &index, int) const
     return QVariant();
 }
 
-class QFontListView : public QGenericTreeView
+class QFontListView : public QTreeView
 {
     Q_OBJECT
 public:
     QFontListView(QWidget *parent);
-    inline QFontListModel *model() const { return static_cast<QFontListModel *>(QGenericTreeView::model()); }
+    inline QFontListModel *model() const { return static_cast<QFontListModel *>(QTreeView::model()); }
     inline void setCurrentItem(int item) {
-        QGenericTreeView::setCurrentItem(static_cast<QAbstractItemModel*>(model())->index(item, 0));
+        QTreeView::setCurrentItem(static_cast<QAbstractItemModel*>(model())->index(item, 0));
     }
     inline int currentItem() const {
-        return QGenericTreeView::currentItem().row();
+        return QTreeView::currentItem().row();
     }
     inline int count() const {
         return model()->rowCount();
     }
     inline QString currentText() const {
-        int row = QGenericTreeView::currentItem().row();
+        int row = QTreeView::currentItem().row();
         return row < 0 ? QString() : model()->lst.at(row);
     }
     void currentChanged(const QModelIndex &, const QModelIndex &current) {
@@ -92,7 +92,7 @@ signals:
 };
 
 QFontListView::QFontListView(QWidget *parent)
-    : QGenericTreeView(parent)
+    : QTreeView(parent)
 {
     setModel(new QFontListModel(parent));
     setRootIsDecorated(false);
