@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#166 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#167 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1864,12 +1864,12 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	}
 
 	if ( popupButtonFocus ) {
-	    QMouseEvent e( type, popupButtonFocus->mapFromGlobal( popup->mapToGlobal( pos ) ), button, state );
+	    QMouseEvent e( type, popupButtonFocus->mapFromGlobal(gpos) ), gpos, button, state );
 	    QApplication::sendEvent( popupButtonFocus, &e );
 	    if ( releaseAfter )
 		popupButtonFocus = 0;
 	} else {
-	    QMouseEvent e( type, pos, button, state );
+	    QMouseEvent e( type, pos, gpos, button, state );
 	    QApplication::sendEvent( popup, &e );
 	}
     } else {					// not popup mode
@@ -1882,7 +1882,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    if ( QWidget::mouseGrabber() == 0 )
 		releaseAutoCapture();
 	}
-	QMouseEvent e( type, pos, button, state );
+	QMouseEvent e( type, pos, qpos, button, state );
 	QApplication::sendEvent( this, &e );	// send event
 	if ( type != Event_MouseMove )
 	    pos.rx() = pos.ry() = -9999;	// init for move compression

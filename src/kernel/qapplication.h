@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#83 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#84 $
 **
 ** Definition of QApplication class
 **
@@ -79,6 +79,7 @@ public:
 
     QWidget	    *mainWidget()  const;
     virtual void	     setMainWidget( QWidget * );
+    virtual void	     polishWidget( QWidget * );
 
     static QWidgetList *allWidgets();
     static QWidgetList *topLevelWidgets();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#60 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#61 $
 **
 ** Definition of event classes
 **
@@ -109,10 +109,10 @@ enum ButtonState {				// mouse/keyboard state values
 class QMouseEvent : public QEvent		// mouse event
 {
 public:
-    QMouseEvent( int type, const QPoint &pos, int button, int state )
-	: QEvent(type), p(pos), b(button),s((ushort)state) {}
+    QMouseEvent( int type, const QPoint &pos, int button, int state );
+
     QMouseEvent( int type, const QPoint &pos, const QPoint&globalPos, int button, int state )
-	: QEvent(type), p(pos), b(button),s((ushort)state) {g = globalPos;}
+	: QEvent(type), p(pos), g(globalPos), b(button),s((ushort)state) {};
 
     const QPoint &pos() const	{ return p; }
     const QPoint &globalPos() { return g; }
@@ -124,7 +124,7 @@ public:
     int	   state()	const	{ return s; }
 protected:
     QPoint p;
-    QPoint g; // ### Qt 1.x: make this static
+    QPoint g; 
     int	   b;
     ushort s;
 };

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#270 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#271 $
 **
 ** Implementation of QWidget class
 **
@@ -2442,8 +2442,13 @@ bool qt_modal_state();				// --- "" ---
 
   If its size or position has changed, Qt guarantees that a widget gets
   move and resize events just before the widget is shown.
+  
+  You almost never have to reimplement this function. If you need to
+  change some settings before a widget is shown, use \link showEvent()
+  instead. If you need to do some delayed initialization use \link
+  polish().
 
-  \sa hide(), iconify(), isVisible()
+  \sa showEvent, hide(), iconify(), isVisible(), polish()
 */
 
 void QWidget::show()
@@ -2497,7 +2502,11 @@ void QWidget::show()
   The QApplication::lastWindowClosed() signal is emitted when the last
   visible top level widget is hidden,
 
-  \sa show(), iconify(), isVisible()
+  You almost never have to reimplement this function. If you need to
+  do something after a widget is hidden, use \link hideEvent()
+  instead. 
+
+  \sa \hideEvent(), show(), iconify(), isVisible()
 */
 
 void QWidget::hide()
@@ -2531,6 +2540,28 @@ void QWidget::hide()
 
     QHideEvent e(FALSE);
     QApplication::sendEvent( this, &e );
+}
+
+
+/*!
+  Delayed initialization of a widget.
+
+  This function will be called \e after a widget has been fully created
+  just \e before it is shown the very first time.
+
+  Polishing is useful for final initialization depending on an
+  instantiated widget. This is something a constructor cannot
+  guarantee since the initialization of the subclasses might not be
+  finished.
+  
+  The default implementation calls \link QApplication::polishWidget()
+  
+  \sa QApplication::polishWidget()
+*/
+
+void QWidget::polish()
+{
+    qApp->polishWidget( this );
 }
 
 

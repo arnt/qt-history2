@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#145 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#146 $
 **
 ** Implementation of QApplication class
 **
@@ -259,8 +259,8 @@ void QApplication::initialize( int argc, char **argv )
 
 /*!
   Cleans up any window system resources that were allocated by this
-  application.  Sets the global variable \c qApp to null. In opposite
-  to former versions of Qt the destructor does \e not delete all
+  application.  Sets the global variable \c qApp to null. Unlike
+  former versions of Qt the destructor does \e not delete all
   remaining widgets.
 */
 
@@ -545,6 +545,27 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
 	}
     }
 }
+
+/*!
+  Polishing of widgets.
+
+  Usually widgets call this automatically when they are polished.  It
+  may be used to do some style-based central customization of widgets.
+
+  Note that you are not limited to public functions of \llink QWidget.
+  Instead, based on meta informations like \link QObject::className()
+  you are able to customize any kind of widgets.
+
+  The default implemention calls QStyle::polishWidget().
+  
+  \sa QStyle::polishWidget(), QWidget::polish()
+*/
+
+void QApplication::polishWidget(QWidget* w)
+{
+//#warning not yet implemented. Should call qstyle::polish widget
+}
+
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#338 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#339 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -244,25 +244,25 @@ public:
 extern "C" {
 #endif
 
-static bool x11_ignore_badwindow;    
+static bool x11_ignore_badwindow;
 static bool x11_badwindow;
-    
-    
+
+
     // starts to ignore bad window errors from X
 static void qt_ignore_badwindow()
 {
     x11_ignore_badwindow = TRUE;
     x11_badwindow = FALSE;
-}    
-    
+}
+
     // ends ignoring bad window errors and returns whether an error
     // had happen.
 static bool qt_badwindow()
 {
     x11_ignore_badwindow = FALSE;
-    return x11_badwindow; 
+    return x11_badwindow;
 }
-    
+
 static int qt_x_errhandler( Display *dpy, XErrorEvent *err ) {
     if ( err->error_code == BadWindow ) {
 	x11_badwindow = TRUE;
@@ -2949,7 +2949,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
   	    if ( testWFlags(WType_Popup) && rect().contains(pos) )
   		popup = this;
   	    else				// send to last popup
- 		pos = popup->mapFromGlobal( mapToGlobal(pos) );
+ 		pos = popup->mapFromGlobal( mapToGlobal(globalPos) );
   	}
 	bool releaseAfter = FALSE;
 	QWidget *popupChild  = findChildWidget( popup, pos );

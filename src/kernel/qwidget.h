@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#161 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#162 $
 **
 ** Definition of QWidget class
 **
@@ -202,6 +202,7 @@ public slots:
 
     virtual void show();
     virtual void hide();
+    virtual void polish();
     void iconify();
     bool close();
 
@@ -490,7 +491,7 @@ inline void QWidget::erase()
 inline void QWidget::erase( const QRect &r )
 { erase( r.x(), r.y(), r.width(), r.height() ); }
 
-inline bool QWidget::close() 
+inline bool QWidget::close()
 { return close( FALSE ); }
 
 inline bool QWidget::isVisible() const
