@@ -773,7 +773,8 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     In the X11 version of Qt, if \a text is TRUE, this method sets the
     XIM "spot" point for complex language input handling.
 
-    The font parameter, \a f, is currently unused.
+    The font \a f is a rendering hint to the currently active input method.
+    If \a f is 0 the widget's font is used.
 
     \sa microFocusHint()
 */
@@ -793,7 +794,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height,
 	    QPoint p( x, y );
 	    QPoint p2 = mapTo( topLevelWidget(), QPoint( 0, 0 ) );
 	    p = mapTo( topLevelWidget(), p);
-	    qic->setXFontSet(f);
+	    qic->setXFontSet( f ? *f : fnt );
 	    qic->setComposePosition(p.x(), p.y() + height);
 	    qic->setComposeArea(p2.x(), p2.y(), this->width(), this->height());
 	}

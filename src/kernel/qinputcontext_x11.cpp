@@ -54,6 +54,43 @@ int qt_compose_keycode = 0;
 extern XIM	qt_xim;
 extern XIMStyle	qt_xim_style;
 
+/* The cache here is needed, as X11 leaks a few kb for every
+   XFreeFontSet call, so we avoid creating and deletion of fontsets as
+   much as possible
+*/
+static XFontSet fontsetCache[4] = { 0,  0,  0,  0 };
+static int fontsetRefCount = 0;
+
+static const char * const fontsetnames[] = {
+    "-*-fixed-medim-r-*-*-14-*",
+    "-*-fixed-medim-i-*-*-14-*",
+    "-*-fixed-bold-r-*-*-14-*",
+    "-*-fixed-bold-i-*-*-14-*"
+};
+
+static XFontSet getFontSet( const QFont &f )
+{
+    int i = 0;
+    if (f.italic())
+	i |= 1;
+    if (f.bold())
+	i |= 2;
+    if ( !fontsetCache[i] ) {
+	Display* dpy = QPaintDevice::x11AppDisplay();
+	int missCount;
+	char** missList;
+	fontsetCache[i] = XCreateFontSet(dpy, fontsetnames[i], &missList, &missCount, 0);
+	if(missCount > 0)
+	    XFreeStringList(missList);
+	if ( !fontsetCache[i] ) {
+	    fontsetCache[i] = XCreateFontSet(dpy,  "-*-fixed-*-*-*-*-14-*", &missList, &missCount, 0);
+	    if(missCount > 0)
+		XFreeStringList(missList);
+	}
+    }
+    return fontsetCache[i];
+}
+
 
 #ifdef Q_C_CALLBACKS
 extern "C" {
@@ -238,6 +275,7 @@ QInputContext::QInputContext(QWidget *widget)
     : ic(0), focusWidget(0), composing(FALSE), fontset(0)
 {
 #if !defined(QT_NO_XIM)
+    fontsetRefCount++;
     if (! qt_xim) {
 	qWarning("QInputContext: no input method context available");
 	return;
@@ -253,14 +291,8 @@ QInputContext::QInputContext(QWidget *widget)
     XVaNestedList preedit_attr = 0;
     XIMCallback startcallback, drawcallback, donecallback;
 
-    int missCount;
-    char** missList;
-    char* defStr;
-    fontset = XCreateFontSet(QPaintDevice::x11AppDisplay(), "-*-fixed-*--14-*",
-			     &missList, &missCount, &defStr);
-    if(missCount > 0)
-	XFreeStringList(missList);
-    font = QApplication::font();
+    font = widget->font();
+    fontset = getFontSet( font );
 
     if (qt_xim_style & XIMPreeditArea) {
 	rect.x = 0;
@@ -324,8 +356,16 @@ QInputContext::~QInputContext()
     if (ic)
 	XDestroyIC((XIC) ic);
 
-    if ( (qt_xim_style & XIMPreeditPosition) && fontset )
-	XFreeFontSet( QPaintDevice::x11AppDisplay(), fontset );
+    if ( --fontsetRefCount == 0 ) {
+	Display *dpy = QPaintDevice::x11AppDisplay();
+	for ( int i = 0; i < 4; i++ ) {
+	    if ( fontsetCache[i] ) {
+		XFreeFontSet(dpy, fontsetCache[i]);
+		fontsetCache[i] = 0;
+	    }
+	}
+    }
+
 #endif // !QT_NO_XIM
 
     ic = 0;
@@ -427,55 +467,14 @@ void QInputContext::setFocus()
 #endif // !QT_NO_XIM
 }
 
-void QInputContext::setXFontSet(QFont *f)
+void QInputContext::setXFontSet(const QFont &f)
 {
 #if !defined(QT_NO_XIM)
-    Display* dpy = QPaintDevice::x11AppDisplay();
-    int missCount;
-    char** missList;
-    char* defStr;
-
-    if ( ( f && font == *f) || ( font == QApplication::font() ) ) // nothing to do
+    if ( font == f ) // nothing to do
 	return;
 
-    if (!f && fontset) // save the server roundtrip
-        return;
-
-    if (fontset) {
-	XFreeFontSet(QPaintDevice::x11AppDisplay(),
-		     fontset);
-    }
-
-    if (f) {
-#if defined(QT_NO_XFTFREETYPE)
-	fontset = XCreateFontSet(dpy, f->rawName().latin1(),
-				 &missList, &missCount, &defStr);
-#else // !QT_NO_XFTFREETYPE
-	QString wght, slant;
-
-	if (f->bold())
-	    wght = QString::fromLatin1("bold");
-	else
-	    wght = QString::fromLatin1("medium");
-
-	if (f->italic())
-	    slant = QString::fromLatin1("i");
-	else
-	    slant = QString::fromLatin1("r");
-
-	QString rawName = QString("-*-fixed-%1-%2-*-*-14-*").arg(wght).arg(slant);
-	fontset = XCreateFontSet(dpy, rawName.latin1(),
-				 &missList, &missCount, &defStr);
-#endif // !QT_NO_XFTFREETYPE
-
-	font = *f;
-    } else {
-	fontset = XCreateFontSet(dpy, "-*-fixed-medim-r-*-*-14-*",
-				 &missList, &missCount, &defStr);
-	font = QApplication::font();
-    }
-
-    if(missCount > 0)
-	XFreeStringList(missList);
-#endif // !QT_NO_XIM
+    fontset = getFontSet( f );
+#else
+    Q_UNUSED( f );
+#endif
 }

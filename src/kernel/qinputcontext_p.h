@@ -84,7 +84,7 @@ public:
     void reset();
 
     int lookupString(XKeyEvent *, QCString &, KeySym *, Status *) const;
-    void setXFontSet(QFont *);
+    void setXFontSet(const QFont &);
 
     void *ic;
     QString text, lastcompose;
@@ -98,7 +98,7 @@ public:
 #ifdef Q_WS_QWS
     static void translateIMEvent( QWSIMEvent *, QWidget * );
     static void reset();
-private:    
+private:
     static QWidget* focusWidget;
     static QString* composition;
 #endif //Q_WS_QWS
