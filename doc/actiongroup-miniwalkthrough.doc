@@ -79,10 +79,16 @@ that is on.
 Then we create our first action, the one that sets the font color back
 to default black. It is called \e setBlackFont and is equipped with a descriptive 
 QAction::text() reading \e black, a QAction::menuText() reading 
-<em>Font color: black</em>, an QAction::iconSet()
+<em>Font color: black</em>, a QAction::iconSet()
 derived from the file \e black.xpm and \e ALT+B as keyboard accelerator.
-Its last argument, \e TRUE, is responsible for making \e setBlackFont  
-a toggle action
+(Note that with this QPixmap constructor \e black.xpm must be found in the 
+working directory when the tiny_editor binary is called. If you wish to compile the pixmap
+into the binary the 
+<A HREF="simple-application.html#ApplicationWindow">Simple Application Walkthrough</A>
+shows how to do this.)
+
+The last argument of the action constructor, \e TRUE, is responsible 
+for making \e setBlackFont  a toggle action
 that can be switched on or off. Most importantly \e setBlackFont becomes a member
 of the \e colors action group at creation time: \e colors is defined to
 be its parent.

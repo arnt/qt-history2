@@ -98,15 +98,25 @@ that QApplication returns when it leaves the event loop.
 
 \printline }
 
+<a name="ApplicationWindow"></a>
 <h2>The Implementation of ApplicationWindow</h2>
 
 \dontinclude application/application.cpp
 
-Since the implementation is much larger (almost 300 lines) we won't
-include it all at once but comment on bits and pieces instead.  We skip
-the preliminary \e #include, and start with the constructor.
+Since the implementation is quite large (almost 300 lines) we 
+won't bore you with the preliminary headerfile \e #includes. Before we 
+start with the constructor there are however three \e #include lines
+worth mentioning:
 
-<a name="ApplicationWindow"></a>
+\skipto "filesave.xpm"
+\printuntil "fileprint.xpm"
+
+The tool buttons in our application wouldn't be real without icons.
+These icons can be found in the above xpm files. If you ever moved
+a program to a different location and wondered why icons were missing
+afterwards you will probably agree that it is a good idea to compile
+them into the binary. This is what we are doing here.
+
 \skipto ApplicationWindow::ApplicationWindow
 \printline ApplicationWindow::ApplicationWindow
 \printuntil {
@@ -139,15 +149,15 @@ toolbar-window will show "File Operations" as caption.
 \printline fileopen
 \printuntil SLOT(choose())
 
-Now we create the first tool-button for the \e fileTools toolbar
+Now we create the first tool button for the \e fileTools toolbar
 with the appropriate icon and the tool-tip text "Open File".
-One of the includes we skipped at the beginning included a
-xpm-file containing the definition of a xpm named \e fileopen.
-This we use as the icon to illustrate our first tool-button.  
+The \e fileopen.xpm we included at the beginning 
+contains the definition of a pixmap named \e fileopen.
+This we use as the icon to illustrate our first tool button.  
 
 \printuntil SLOT(print())
 
-Likewise we create two more tool-buttons in this toolbar, each with 
+Likewise we create two more tool buttons in this toolbar, each with 
 appropriate icons and tool-tip text.  All three buttons are connected
 to appropriate slots in this object; for example, the "Print File" button 
 to <A HREF="#printer">\e ApplicationWindow::print()</A>.
@@ -291,7 +301,7 @@ new \e ApplicationWindow and shows it.
 \printuntil }
 
 The \e choose() slot is connected to the \e Open menu item and
-tool-button.  With a little help from \l FileDialog::getOpenFileName(), it
+tool button.  With a little help from \l FileDialog::getOpenFileName(), it
 asks the user for a file name and then either loads that file or gives an
 error message in the statusbar.
 
