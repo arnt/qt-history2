@@ -144,7 +144,7 @@ void* QLibraryPrivate::resolveSymbol( const char* f )
 	return 0;
 
 #ifdef Q_OS_TEMP
-    void* address = (void*)GetProcAddress( pHnd, f.ucs2() );
+    void* address = (void*)GetProcAddress( pHnd, (const wchar_t*)QString(f).ucs2() );
 #else
     void* address = (void*)GetProcAddress( pHnd, f );
 #endif

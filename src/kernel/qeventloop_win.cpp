@@ -675,7 +675,11 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 void QEventLoop::wakeUp()
 {
     if ( GetCurrentThreadId() != qt_gui_thread )
-	PostThreadMessageA( qt_gui_thread, WM_NULL, 0, 0 );
+	QT_WA( {
+	    PostThreadMessageW( qt_gui_thread, WM_NULL, 0, 0 );
+	} , {
+	    PostThreadMessageA( qt_gui_thread, WM_NULL, 0, 0 );
+	} );
 }
 
 int QEventLoop::timeToWait() const

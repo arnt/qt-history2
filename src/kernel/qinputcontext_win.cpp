@@ -229,11 +229,14 @@ static LONG getCompositionString( HIMC himc, DWORD dwIndex, LPVOID lpbuf, DWORD 
     {
 	if( qt_winver != Qt::WV_95 ) {
 	    len = ImmGetCompositionStringW( himc, dwIndex, lpbuf, dBufLen );
-	} else {
+	}
+#ifndef Q_OS_TEMP
+	else {
 	    len = ImmGetCompositionStringA( himc, dwIndex, lpbuf, dBufLen );
 	    if ( unicode ) 
 		*unicode = FALSE;
 	}
+#endif
     }
     return len;
 }
@@ -284,7 +287,7 @@ static QString getString( HIMC himc, DWORD dwindex, int *selStart = 0, int *selL
     if ( unicode ) {
 	return QString( (QChar *)buffer, len/sizeof(QChar) );
     } 
-#ifndef Q_OS_TEMP
+//#ifdef Q_OS_TEMP
     else {
 	buffer[len] = 0;
 	WCHAR *wc = new WCHAR[len+1];
@@ -294,7 +297,7 @@ static QString getString( HIMC himc, DWORD dwindex, int *selStart = 0, int *selL
 	delete [] wc;
 	return res;
     }
-#endif
+//#endif
 }
 
 void QInputContext::TranslateMessage( const MSG *msg)

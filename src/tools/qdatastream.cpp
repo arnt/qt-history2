@@ -485,8 +485,10 @@ static Q_INT64 read_int_ascii( QDataStream *s )
     }
     buf[n] = '\0';
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && !defined(Q_OS_TEMP)
     return _atoi64( buf );
+#elif defined(Q_OS_TEMP)
+    return strtol( buf, (char**)0, 10 );
 #elif defined(Q_OS_HPUX)
     return __strtoll( buf, (char**)0, 10 );
 #elif defined(MACOSX_101)

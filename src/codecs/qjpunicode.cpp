@@ -83,7 +83,7 @@
 #ifndef QT_NO_BIG_CODECS
 #include "qcstring.h"
 #ifdef Q_OS_TEMP
-#include "qwinfunctions.h"
+#include "qwinfunctions_wce.h"
 #endif
 #include <stdlib.h>
 

@@ -41,7 +41,9 @@
 #include <qfileinfo.h>
 #include <qdatetime.h>
 #include <qcleanuphandler.h>
+#ifndef NO_ERRNO_H
 #include <errno.h>
+#endif // NO_ERROR_H
 
 #ifdef QT_THREAD_SUPPORT
 #  include "qmutexpool_p.h"

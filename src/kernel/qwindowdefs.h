@@ -133,7 +133,7 @@ typedef int WId;
 
 
 #if defined(Q_OS_TEMP)
-#include "qwinfunctions.h"
+#include "qwinfunctions_wce.h"
 #endif // Q_OS_TEMP
 
 #if defined(Q_WS_X11)

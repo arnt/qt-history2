@@ -79,7 +79,7 @@ static TRUSTEE_W currentUserTrusteeW;
 
 static void resolveLibs()
 {
-#ifndef QT_NO_COMPONENT
+#if !defined(QT_NO_COMPONENT) && !defined(Q_OS_TEMP)
     static bool triedResolve = FALSE;
     if ( !triedResolve ) {
 	// need to resolve the security info functions
@@ -122,7 +122,7 @@ static void resolveLibs()
 	    }
 	}
     }
-#endif
+#endif // QT_NO_COMPONENT, Q_OS_TEMP
 }
 
 
@@ -194,7 +194,7 @@ bool QFileInfo::isSymLink() const
 
 QString QFileInfo::readLink() const
 {
-#ifndef QT_NO_COMPONENT
+#if !defined(QT_NO_COMPONENT) && !defined(Q_OS_TEMP)
     QString fileLinked;
 
     QT_WA( {
@@ -263,7 +263,7 @@ QString QFileInfo::readLink() const
     return fileLinked;
 #else
     return QString();
-#endif
+#endif // QT_NO_COMPONENT, Q_OS_TEMP
 }
 
 Q_EXPORT int qt_ntfs_permission_lookup = 1;

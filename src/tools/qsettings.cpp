@@ -39,7 +39,7 @@
 
 // POSIX Large File Support redefines open -> open64
 static inline int qt_open( const char *pathname, int flags, mode_t mode )
-{ return ::open( pathname, flags, mode ); }
+{ return QT_OPEN( pathname, flags, mode ); }
 #if defined(open)
 # undef open
 #endif
@@ -60,7 +60,9 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
 #include "qtextstream.h"
 #include "qregexp.h"
 #include <private/qsettings_p.h>
+#ifndef NO_ERRNO_H
 #include <errno.h>
+#endif
 
 /*!
     \class QSettings
@@ -329,7 +331,10 @@ static HANDLE openlock( const QString &name, int /*type*/ )
 	fd = CreateFileA( name.local8Bit(), GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
     } );
 
-    if ( !LockFile( fd, 0, 0, (DWORD)-1, (DWORD)-1 ) ) { // ### (DWORD)-1 ???
+#ifndef Q_OS_TEMP
+    if ( !LockFile( fd, 0, 0, (DWORD)-1, (DWORD)-1 ) )
+#endif
+    { // ### (DWORD)-1 ???
 #ifdef QT_CHECK_STATE
 	qWarning( "QSettings: openlock failed!" );
 #endif
@@ -342,7 +347,10 @@ static void closelock( HANDLE fd )
     if ( !fd )
 	return;
 
-    if ( !UnlockFile( fd, 0, 0, (DWORD)-1, (DWORD)-1 ) ) { // ### (DWORD)-1 ???
+#ifndef Q_OS_TEMP
+    if ( !UnlockFile( fd, 0, 0, (DWORD)-1, (DWORD)-1 ) )
+#endif
+    { // ### (DWORD)-1 ???
 #ifdef QT_CHECK_STATE
 	qWarning( "QSettings: closelock failed!");
 #endif

@@ -63,6 +63,14 @@ typedef struct {
   DWORD   fRejectInvalid      :1;
 } SCRIPT_PROPERTIES;
 
+#ifndef ABC
+typedef struct { 
+  int     abcA; 
+  UINT    abcB; 
+  int     abcC; 
+} ABC;
+#endif
+
 typedef HRESULT (WINAPI *fScriptFreeCache)( SCRIPT_CACHE *);
 typedef HRESULT (WINAPI *fScriptItemize)( const WCHAR *, int, int, const SCRIPT_CONTROL *,
 					  const SCRIPT_STATE *, SCRIPT_ITEM *, int *);
@@ -616,7 +624,7 @@ const QCharAttributes *QTextEngine::attributes()
 	int from = si.position;
 	int len = length( i );
 	int script = si.analysis.script;
-	assert( script < QFont::NScripts );
+	Q_ASSERT( script < QFont::NScripts );
 	scriptEngines[si.analysis.script].charAttributes( script, string, from, len, charAttributes );
     }
     return charAttributes;
@@ -706,7 +714,7 @@ QShapedItem *QTextEngine::shape( int item ) const
 	si.descent = si.fontEngine->descent();
 	si.width = abc.abcA + abc.abcB + abc.abcC;
     } else {
-	assert( script < QFont::NScripts );
+	Q_ASSERT( script < QFont::NScripts );
 	scriptEngines[script].shape( script, string, from, len, &si );
     }
     return si.shaped;

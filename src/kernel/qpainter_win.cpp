@@ -1362,6 +1362,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 	}
     }
     bool path = FALSE;
+#ifndef Q_OS_TEMP
     if ( (qt_winver & WV_DOS_based) && cpen.width() > 1 ) {
 	// on DOS based systems caps and joins are only supported on paths, so let's use them.
 	BeginPath( hdc );
@@ -1375,12 +1376,15 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 	MoveToEx( hdc, x2, y2, 0 );
     }
     if ( plot_pixel )
-#ifndef Q_OS_TEMP
 	SetPixelV( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
 #else
+    if ( plot_pixel ) {
+        POINT pts[2];
+	pts[0].x = x1;  pts[0].y = y1;
+	pts[1].x = x2;  pts[1].y = y2;
+	Polyline( hdc, pts, 2 );
 	SetPixel( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
-#endif
-#ifdef Q_OS_TEMP
+    }
     internalCurrentPos = QPoint( x2, y2 );
 #endif
 }
@@ -2512,31 +2516,37 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	QScriptItem &si = engine->items[i];
 
 	QFontEngine *fe = si.fontEngine;
-	assert( fe );
+	Q_ASSERT( fe );
 	QShapedItem *shaped = si.shaped;
-	assert( shaped );
+	Q_ASSERT( shaped );
 
 	int xpos = x + si.x;
 	int ypos = y + si.y - ascent;
 
 	bool rightToLeft = si.analysis.bidiLevel % 2;
 
+#ifndef Q_OS_TEMP
 	if ( rop != CopyROP ) {
 	    // Doesn't work for non-TrueType fonts, but we dealt with those
 	    // with the bitmap above.
 	    BeginPath(hdc);
 	}
+#endif
 	HDC oldDC = fe->hdc;
 	fe->hdc = hdc;
 	fe->draw( this, xpos,  ypos, shaped->glyphs, shaped->advances,
 		  shaped->offsets, shaped->num_glyphs, rightToLeft );
 	fe->hdc = oldDC;
 	if ( rop != CopyROP ) {
+#ifndef Q_OS_TEMP
 	    EndPath(hdc);
+#endif
 	    uint pix = COLOR_VALUE(cpen.data->color);
 	    HBRUSH tbrush = CreateSolidBrush( pix );
 	    SelectObject( hdc, tbrush );
+#ifndef Q_OS_TEMP
 	    FillPath(hdc);
+#endif
 	    SelectObject( hdc, hbrush );
 	    DeleteObject( tbrush );
 	}
@@ -2563,7 +2573,7 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti )
 
     QShapedItem *shaped = ti.engine->shape( ti.item );
     QFontEngine *fe = si.fontEngine;
-    assert( fe );
+    Q_ASSERT( fe );
 
     x += ti.x();
     y += ti.y();

@@ -399,7 +399,7 @@ static void set_winapp_name()
 #ifndef Q_OS_TEMP
 	GetModuleFileNameA( 0, appFileName, sizeof(appFileName) );
 #else
-	GetModuleFileName( 0, appFilename.ucs2(), sizeof(appFileName) );
+	GetModuleFileName( 0, (unsigned short*)QString(appFileName).ucs2(), sizeof(appFileName) );
 #endif
 	const char *p = strrchr( appFileName, '\\' );	// skip path
 	if ( p )
@@ -554,6 +554,7 @@ static void qt_set_windows_resources()
     QFont titleFont;
     QFont smallTitleFont;
 
+#ifndef Q_OS_TEMP
     QT_WA( {
 	NONCLIENTMETRICS ncm;
 	ncm.cbSize = sizeof( ncm );
@@ -582,6 +583,7 @@ static void qt_set_windows_resources()
     QApplication::setFont( statusFont, TRUE, "QStatusBar" );
     QApplication::setFont( titleFont, TRUE, "QTitleBar" );
     QApplication::setFont( smallTitleFont, TRUE, "QDockWindowTitleBar" );
+#endif // Q_OS_TEMP
 
     if ( qt_std_pal && *qt_std_pal != QApplication::palette() )
 	return;
@@ -916,7 +918,7 @@ void qt_cleanup()
   Platform specific global and internal functions
  *****************************************************************************/
 
-#if defined(Q_CC_MSVC)
+#if defined(Q_CC_MSVC) && !defined(Q_OS_TEMP)
 #include <crtdbg.h>
 #endif
 
@@ -1041,6 +1043,7 @@ const QString qt_reg_winclass( int flags )	// register window class
     if ( winclassNames->find(cname.latin1()) )		// already registered
 	return cname;
 
+#ifndef Q_OS_TEMP
     QT_WA( {
 	WNDCLASS wc;
 	wc.style	= style;
@@ -1050,10 +1053,8 @@ const QString qt_reg_winclass( int flags )	// register window class
 	wc.hInstance	= (HINSTANCE)qWinAppInst();
 	if ( icon ) {
 	    wc.hIcon = LoadIcon( appInst, L"IDI_ICON1" );
-//#ifndef Q_OS_TEMP
 	    if ( !wc.hIcon )
 		wc.hIcon = LoadIcon( 0, IDI_APPLICATION );
-//#endif
 	}
 	else
 	{
@@ -1085,6 +1086,29 @@ const QString qt_reg_winclass( int flags )	// register window class
 	wc.lpszClassName= cname.latin1();
 	RegisterClassA( &wc );
     } );
+#else
+	WNDCLASS wc;
+	wc.style	= style;
+	wc.lpfnWndProc	= (WNDPROC)QtWndProc;
+	wc.cbClsExtra	= 0;
+	wc.cbWndExtra	= 0;
+	wc.hInstance	= (HINSTANCE)qWinAppInst();
+	if ( icon ) {
+	    wc.hIcon = LoadIcon( appInst, L"IDI_ICON1" );
+//	    if ( !wc.hIcon )
+//		wc.hIcon = LoadIcon( 0, IDI_APPLICATION );
+	}
+	else
+	{
+	    wc.hIcon = 0;
+	}
+	wc.hCursor	= 0;
+	wc.hbrBackground= 0;
+	wc.lpszMenuName	= 0;
+	wc.lpszClassName= (TCHAR*)cname.ucs2();
+	RegisterClass( &wc );
+
+#endif
 
     winclassNames->insert( cname.latin1(), (int*)1 );
     return cname;
@@ -1953,10 +1977,12 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		break;
 #endif
 	    case WM_SHOWWINDOW:
+#ifndef Q_OS_TEMP
 		if ( lParam == SW_PARENTOPENING ) {
 		    if ( widget->testWState(Qt::WState_ForceHide) )
 			RETURN(0);
 		}
+#endif
 		result = FALSE;
 		break;
 
@@ -2139,6 +2165,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		widget->update();
 	    break;
 
+#ifndef Q_OS_TEMP
 	case WM_INPUTLANGCHANGE: {
 	    char info[7];
 	    if ( !GetLocaleInfoA( MAKELCID(lParam, SORT_DEFAULT), LOCALE_IDEFAULTANSICODEPAGE, info, 6 ) ) {
@@ -2148,6 +2175,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    }
             break;
         }
+#endif
 
 	case WM_MOUSELEAVE:
 	    // We receive a mouse leave for curWin, meaning

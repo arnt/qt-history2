@@ -44,7 +44,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-#if defined(Q_CC_MSVC)
+#if defined(Q_CC_MSVC) && !defined(Q_OS_TEMP)
 #include <crtdbg.h>
 #endif
 
@@ -541,8 +541,12 @@ void qFatal( const char *msg, ... )
 #endif
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 	abort();				// trap; generates core dump
-#elif defined(Q_CC_MSVC) && defined(_DEBUG)
+#elif defined(Q_CC_MSVC) && defined(_DEBUG) && !defined(Q_OS_TEMP)
 	_CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
+#elif defined(Q_OS_TEMP) && defined(_DEBUG) 
+	QString fstr;
+	fstr.sprintf( "%s:%s %s %s", __FILE__, __LINE__, QT_VERSION_STR, buf );
+	OutputDebugString( fstr.ucs2() );
 #else
 	exit( 1 );				// goodbye cruel world
 #endif
@@ -575,8 +579,12 @@ void fatal( const char *msg, ... )
 #endif
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 	abort();				// trap; generates core dump
-#elif defined(Q_CC_MSVC) && defined(_DEBUG)
+#elif defined(Q_CC_MSVC) && defined(_DEBUG) && !defined(Q_OS_TEMP)
 	_CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
+#elif defined(Q_OS_TEMP) && defined(_DEBUG)
+	QString fstr;
+	fstr.sprintf( "%s:%s %s %s", __FILE__, __LINE__, QT_VERSION_STR, buf );
+	OutputDebugString( fstr.ucs2() );
 #else
 	exit( 1 );				// goodbye cruel world
 #endif

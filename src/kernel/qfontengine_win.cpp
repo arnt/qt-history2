@@ -177,9 +177,14 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
     Q_UNUSED( p );
     HDC hdc = dc();
     SelectObject( hdc, hfont );
-    unsigned int options = ETO_NUMERICSLATIN;
+    unsigned int options = 
+#ifdef Q_OS_TEMP
+	0;
+#else
+	ETO_NUMERICSLATIN;
     if ( ttf )
 	options |= ETO_GLYPH_INDEX;
+#endif
 
     if ( !reverse ) {
 	// hack to get symbol fonts working on Win95. See also QFontPrivate::load()
@@ -189,7 +194,11 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
     		QChar chr = *glyphs;
 		QConstString str( &chr, 1 );
 		QCString cstr = str.string().local8Bit();
+#ifndef Q_OS_TEMP
 		TextOutA( hdc, x + offsets->x, y + offsets->y, cstr.data(), cstr.length() );
+#else
+		TextOut( hdc, x + offsets->x, y + offsets->y, QString(cstr).ucs2(), cstr.length() );
+#endif
 		x += *advances;
 		glyphs++;
 		offsets++;
@@ -243,6 +252,7 @@ glyph_metrics_t QFontEngineWin::boundingBox( const glyph_t *glyphs,
 
 glyph_metrics_t QFontEngineWin::boundingBox( glyph_t glyph )
 {
+#ifndef Q_OS_TEMP
     GLYPHMETRICS gm;
 
     if( !ttf ) {
@@ -267,6 +277,7 @@ glyph_metrics_t QFontEngineWin::boundingBox( glyph_t glyph )
 	    return glyph_metrics_t( gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y-gm.gmBlackBoxY, 
 				  gm.gmBlackBoxX, gm.gmBlackBoxY, gm.gmCellIncX, gm.gmCellIncY );
     }
+#endif
     return glyph_metrics_t();
 }
 
@@ -464,7 +475,9 @@ QFontEngineBox::QFontEngineBox( int size )
 {
     cache_cost = 1;
     hdc = (qt_winver & Qt::WV_NT_based) ? GetDC( 0 ) : shared_dc;
+#ifndef Q_OS_TEMP
     hfont = (HFONT)GetStockObject( ANSI_VAR_FONT );
+#endif
     stockFont = TRUE;
     paintDevice = FALSE;
     ttf = FALSE;
@@ -661,7 +674,12 @@ static unsigned char *getCMap( HDC hdc )
     unsigned char header[4];
 
     // get the CMAP header and the number of encoding tables
-    DWORD bytes = GetFontData( hdc, CMAP, 0, &header, 4 );
+    DWORD bytes = 
+#ifndef Q_OS_TEMP
+	GetFontData( hdc, CMAP, 0, &header, 4 );
+#else
+	0;
+#endif
     if ( bytes == GDI_ERROR )
 	return 0;
     unsigned short version = getUShort( header );
@@ -672,7 +690,9 @@ static unsigned char *getCMap( HDC hdc )
     unsigned char *maps = new unsigned char[8*numTables];
 
     // get the encoding table and look for Unicode
+#ifndef Q_OS_TEMP
     bytes = GetFontData( hdc, CMAP, 4, maps, 8*numTables );
+#endif
     if ( bytes == GDI_ERROR )
 	return 0;
 
@@ -695,7 +715,9 @@ static unsigned char *getCMap( HDC hdc )
     delete [] maps;
 
     // get the header of the unicode table
+#ifndef Q_OS_TEMP
     bytes = GetFontData( hdc, CMAP, unicode_table, &header, 4 );
+#endif
     if ( bytes == GDI_ERROR )
 	return 0;
 
@@ -703,7 +725,9 @@ static unsigned char *getCMap( HDC hdc )
     unsigned char *unicode_data = new unsigned char[length];
 
     // get the cmap table itself
+#ifndef Q_OS_TEMP
     bytes = GetFontData( hdc, CMAP, unicode_table, unicode_data, length );
+#endif
     if ( bytes == GDI_ERROR ) {
 	delete [] unicode_data;
 	return 0;

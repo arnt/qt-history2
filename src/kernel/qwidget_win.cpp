@@ -283,7 +283,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	cx = si.rcVisibleDesktop.right - si.rcVisibleDesktop.left;
 	cy = si.rcVisibleDesktop.bottom - si.rcVisibleDesktop.top - iDelta;
 
-	TCHAR *cname = windowClassName.wchar();
+	const TCHAR *cname = windowClassName.ucs2();
 	if ( exsty )
 	    id = CreateWindowEx( exsty, cname, ttitle, style, x, y, cx, cy, parentw, 0, appinst, 0 );
 	else

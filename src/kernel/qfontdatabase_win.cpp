@@ -166,7 +166,11 @@ static int requiredUnicodeBits[QFont::NScripts][2] = {
 
 static
 int CALLBACK
+#ifndef Q_OS_TEMP
 storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRICEX *textmetric, int type, LPARAM /*p*/ )
+#else
+storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
+#endif
 {
     const int script = QFont::Unicode;
     const QString foundryName;
@@ -244,11 +248,19 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRICEX *textmetric, int type, LPARAM /*p*/
 	bool hasScript = false;
 	if ( type & TRUETYPE_FONTTYPE ) {
 	    FONTSIGNATURE signature;
+#ifndef Q_OS_TEMP
 	    QT_WA( {
 		signature = textmetric->ntmFontSig;
 	    }, {
 		signature = ((NEWTEXTMETRICEXA *)textmetric)->ntmFontSig;
 	    } );
+#else
+	    CHARSETINFO csi;
+	    DWORD charset = textmetric->tmCharSet;
+	    TranslateCharsetInfo( &charset, &csi, TCI_SRCCHARSET);
+	    signature = csi.fs;
+#endif
+
 	    int i;
 	    //qDebug("family %s:", familyName.latin1() );
 	    for( i = 0; i < QFont::Unicode; i++ ) {
@@ -293,6 +305,7 @@ void populate_database(const QString& fam)
 {
     HDC dummy = GetDC(0);
 
+#ifndef Q_OS_TEMP
     QT_WA( {
         LOGFONT lf;
         lf.lfCharSet = DEFAULT_CHARSET;
@@ -320,6 +333,20 @@ void populate_database(const QString& fam)
 	EnumFontFamiliesExA( dummy, &lf,
             (FONTENUMPROCA)storeFont, (LPARAM)db, 0 );
     } );
+#else
+        LOGFONT lf;
+        lf.lfCharSet = DEFAULT_CHARSET;
+        if ( fam.isNull() ) {
+            lf.lfFaceName[0] = 0;
+        } else {
+            memcpy( lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
+        }
+        lf.lfPitchAndFamily = 0;
+
+        EnumFontFamilies( dummy, lf.lfFaceName,
+            (FONTENUMPROC)storeFont, (LPARAM)db );
+#endif
+
 
     ReleaseDC(0, dummy);
 }

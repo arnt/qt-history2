@@ -14,7 +14,7 @@
 #define PNG_INTERNAL
 #include "png.h"
 
-#if defined(_WIN32_WCE)
+#if 0 && defined(_WIN32_WCE)
 /* strtod() function is not supported on WindowsCE */
 #  ifdef PNG_FLOATING_POINT_SUPPORTED
 __inline double strtod(const char *nptr, char **endptr)

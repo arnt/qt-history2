@@ -596,12 +596,12 @@ bool QSettingsPrivate::sysRemoveEntry( const QString &key )
 #endif
 	return FALSE;
     }
-    char vname[1];
+    char vname[2];
     DWORD vnamesz = 1;
     FILETIME lastWrite;
 #ifdef Q_OS_TEMP
-    LONG res2 = RegEnumValue( handle, 0, vname.ucs2(), &vnamesz, NULL, NULL, NULL, NULL );
-    LONG res3 = RegEnumKeyEx( handle, 0, vname.ucs2(), &vnamesz, NULL, NULL, NULL, &lastWrite );
+    LONG res2 = RegEnumValue( handle, 0, (LPWSTR)vname, &vnamesz, NULL, NULL, NULL, NULL );
+    LONG res3 = RegEnumKeyEx( handle, 0, (LPWSTR)vname, &vnamesz, NULL, NULL, NULL, &lastWrite );
 #else
     LONG res2 = RegEnumValueA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, NULL );
     LONG res3 = RegEnumKeyExA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, &lastWrite );

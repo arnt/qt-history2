@@ -328,7 +328,11 @@ bool QProcess::start( QStringList *env )
     } else
 #endif
     {
+#ifndef Q_OS_TEMP
 	STARTUPINFOA startupInfo = { sizeof( STARTUPINFOA ), 0, 0, 0,
+#else
+	STARTUPINFOW startupInfo = { sizeof( STARTUPINFOW ), 0, 0, 0,
+#endif
 	    (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
 	    0, 0, 0,
 	    STARTF_USESTDHANDLES,
@@ -365,12 +369,20 @@ bool QProcess::start( QStringList *env )
 	    applicationName = 0;
 	else
 	    applicationName = appName.local8Bit().data();
+#ifndef Q_OS_TEMP
 	success = CreateProcessA( applicationName, args.local8Bit().data(),
 		0, 0, TRUE, DETACHED_PROCESS,
 		env==0 ? 0 : envlist.data(),
 		(const char*)workingDir.absPath().local8Bit(),
 		&startupInfo, d->pid );
-    }
+#else
+	success = CreateProcessW( appName.ucs2(), args.ucs2(),
+		0, 0, TRUE, DETACHED_PROCESS, 0,
+		(unsigned short*)workingDir.absPath().ucs2(),
+		&startupInfo, d->pid );
+#endif 
+	
+	}
 #endif
     if  ( !success ) {
 	d->deletePid();

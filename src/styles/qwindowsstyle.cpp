@@ -922,11 +922,13 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 
     case PM_ScrollBarExtent:
 	{
+#ifndef Q_OS_TEMP
 	    NONCLIENTMETRICS ncm;
 	    ncm.cbSize = sizeof(NONCLIENTMETRICS);
 	    if ( SystemParametersInfo( SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0 ) )
 		ret = QMAX( ncm.iScrollHeight, ncm.iScrollWidth );
 	    else
+#endif
 		ret = QCommonStyle::pixelMetric( metric, widget );
 	}
 	break;

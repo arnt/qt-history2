@@ -7,8 +7,9 @@
 #include <private/qfontdata_p.h>
 
 #include <stdlib.h>
+#ifndef Q_OS_TEMP
 #include <assert.h>
-
+#endif // Q_OS_TEMP
 
 class QFontPrivate;
 class QString;
