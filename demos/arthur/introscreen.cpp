@@ -73,7 +73,6 @@ void IntroScreen::paintEvent(QPaintEvent *)
     }
 
     QColor grey = palette().color(QPalette::Background);
-    p.resetMatrix();
 }
 
 void IntroScreen::mousePressEvent(QMouseEvent *e)

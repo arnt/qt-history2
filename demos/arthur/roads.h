@@ -28,7 +28,7 @@ public:
     void mousePressEvent(QMouseEvent *) { stopAnimation(); }
     void mouseReleaseEvent(QMouseEvent *) { startAnimation(); }
 
-    void hideEvent(QHideEvent *e) { resetState(); }
+    void hideEvent(QHideEvent *) { resetState(); }
 
     void resetState() { backBuffer = QPixmap(); }
 
