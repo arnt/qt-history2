@@ -330,6 +330,8 @@ QAbstractItemView::QAbstractItemView(QWidget *parent)
     : QViewport(*(new QAbstractItemViewPrivate), parent)
 {
     d->init();
+    int slot = metaObject()->indexOfSlot("doItemsLayout()");
+    QApplication::postEvent(this, new QMetaCallEvent(QEvent::InvokeSlot, slot, this));
 }
 
 /*!
@@ -339,6 +341,8 @@ QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QWidget *pare
     : QViewport(dd, parent)
 {
     d->init();
+    int slot = metaObject()->indexOfSlot("doItemsLayout()");
+    QApplication::postEvent(this, new QMetaCallEvent(QEvent::InvokeSlot, slot, this));
 }
 
 /*!
@@ -1000,17 +1004,6 @@ void QAbstractItemView::resizeEvent(QResizeEvent *e)
 {
     QViewport::resizeEvent(e);
     updateGeometries();
-}
-
-/*!
-    This function is called when a show event \a e occurs.
-*/
-void QAbstractItemView::showEvent(QShowEvent *e)
-{
-    QViewport::showEvent(e);
-    updateGeometries();
-    int slot = metaObject()->indexOfSlot("doItemsLayout()");
-    QApplication::postEvent(this, new QMetaCallEvent(QEvent::InvokeSlot, slot, this));
 }
 
 /*!

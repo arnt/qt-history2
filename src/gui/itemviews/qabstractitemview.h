@@ -181,7 +181,6 @@ protected:
     void focusOutEvent(QFocusEvent *e);
     void keyPressEvent(QKeyEvent *e);
     void resizeEvent(QResizeEvent *e);
-    void showEvent(QShowEvent *e);
     void timerEvent(QTimerEvent *e);
 };
 
