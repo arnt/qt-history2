@@ -28,10 +28,6 @@ void Main::keyReleaseEvent(QKeyEvent*)
 
 void Main::timerEvent(QTimerEvent*)
 {
-    static const int nfamily=3;
-    static const char* family[nfamily]={ "courier", "times", "helvetica" };
-    QFont f(family[rand()%nfamily],rand()%100);
-    setFont(f);
     repaint();
 }
 
@@ -39,7 +35,23 @@ void Main::paintEvent(QPaintEvent* e)
 {
     QPainter p(this);
     p.setClipRect(e->rect());
-    p.drawText(rect(),0,"The quick brown fox jumps over the lazy dog.");
+    char str[]=" - The quick brown fox jumps over the lazy dog.";
+    static const int nfamily=1;
+    static char* family[nfamily]={ "helvetica" };
+    str[0]=rand();
+    char* fam = family[rand()%nfamily];
+    int pt = 20+rand()%300;
+    QString msg;
+    msg.sprintf("Trying char %d in %s at %dpt",str[0],fam,pt);
+    p.drawText(rect(),0,msg);
+    QFont f(fam,pt);
+
+    p.setFont(f);
+    p.drawText(rect(),0,str);
+    msg.sprintf("Trying %s at %dpt - DONE",fam,pt);
+    p.drawText(rect(),0,msg);
+
+    //f.handle();
 }
 
 main(int argc, char** argv)
