@@ -349,8 +349,9 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const void *data, ShapeType s
 
     q->save();
     q->resetMatrix();
-    q->setPen(Qt::NoPen);
+    // need to set brush with current pen bf changing pen
     q->setBrush(state->pen.color());
+    q->setPen(Qt::NoPen);
     engine->syncState();
     if (engine->hasFeature(QPaintEngine::PainterPaths)) {
         engine->drawPath(stroke);
@@ -2020,9 +2021,18 @@ void QPainter::drawPath(const QPainterPath &path)
             d->draw_helper(&path, path.fillRule(), QPainterPrivate::PathShape,
                            QPainterPrivate::StrokeDraw, d->engine->emulationSpecifier);
         } else {
-            QList<QPolygonF> polygons = path.toSubpathPolygons(convertMatrix);
-            for (int i=0; i<polygons.size(); ++i) {
-                d->engine->drawPolygon(polygons.at(i).data(), polygons.at(i).size(),
+            QList<QPolygonF> polys;
+            if (d->state->txop > QPainterPrivate::TxTranslate) {
+                polys = path.toSubpathPolygons(d->state->matrix);
+                d->updateInvMatrix();
+                for (int i=0; i<polys.size(); ++i) {
+                    polys[i] = polys.at(i) * d->invMatrix;
+                }
+            } else {
+                polys = path.toSubpathPolygons(convertMatrix);
+            }
+            for (int i=0; i<polys.size(); ++i) {
+                d->engine->drawPolygon(polys.at(i).data(), polys.at(i).size(),
                                        QPaintEngine::PolylineMode);
             }
 	}
@@ -2179,7 +2189,7 @@ void QPainter::drawRects(const QRectF *rects, int rectCount)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawRects(), count=%d\n", rects.size());
+        printf("QPainter::drawRects(), count=%d\n", rectCount);
 #endif
     if (!isActive() || rectCount <= 0)
         return;
@@ -2282,7 +2292,7 @@ void QPainter::drawPoints(const QPointF *points, int pointCount)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawPoints(), count=%d\n", pa.size());
+        printf("QPainter::drawPoints(), count=%d\n", pointCount);
 #endif
     if (!isActive() || pointCount <= 0)
         return;
@@ -2443,7 +2453,7 @@ void QPainter::setPen(Qt::PenStyle style)
         && d->state->pen.color() == Qt::black
         && d->state->pen.width() == 0)
         return;
-    d->state->pen.setStyle(style);
+    d->state->pen = QPen(Qt::black, 0, style);
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyPen);
 }
@@ -2586,7 +2596,7 @@ void QPainter::setFont(const QFont &font)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::setFont(), family=%s, pointSize=%d\n", font.family().latin1(), font.pointSize());
+        printf("QPainter::setFont(), family=%s, pointSize=%d\n", font.family().toLatin1().constData(), font.pointSize());
 #endif
 
     Q_D(QPainter);
@@ -3094,10 +3104,8 @@ void QPainter::drawLines(const QPoint *pointPairs, int lineCount)
 void QPainter::drawPolyline(const QPointF *points, int pointCount)
 {
 #ifdef QT_DEBUG_DRAW
-    QRectF rect = a.boundingRect();
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawPolyline(), count=%d, [%.2f,%.2f,%.2f,%.2f]\n",
-           a.size(), rect.x(), rect.y(), rect.width(), rect.height());
+        printf("QPainter::drawPolyline(), count=%d\n", pointCount);
 #endif
 
     if (!isActive() || pointCount <= 0)
@@ -3187,10 +3195,8 @@ void QPainter::drawPolyline(const QPoint *points, int pointCount)
 void QPainter::drawPolygon(const QPointF *points, int pointCount, Qt::FillRule fillRule)
 {
 #ifdef QT_DEBUG_DRAW
-    QRect rect = polygon.boundingRect().toRect();
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawPolygon(), count=%d, [%d,%d,%d,%d]\n",
-           polygon.size(), rect.x(), rect.y(), rect.width(), rect.height());
+        printf("QPainter::drawPolygon(), count=%d\n", pointCount);
 #endif
 
     if (!isActive() || pointCount <= 0)
@@ -3660,7 +3666,7 @@ void QPainter::drawText(const QPointF &p, const QString &str, TextDirection dir)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawText(), pos=[%.2f,%.2f], str='%s'\n", p.x(), p.y(), str.latin1());
+        printf("QPainter::drawText(), pos=[%.2f,%.2f], str='%s'\n", p.x(), p.y(), str.toLatin1().constData());
 #endif
 
     if (!isActive() || str.isEmpty())
@@ -3702,7 +3708,7 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, QRect *br
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
         printf("QPainter::drawText(), r=[%d,%d,%d,%d], flags=%d, str='%s'\n",
-           r.x(), r.y(), r.width(), r.height(), flags, str.latin1());
+           r.x(), r.y(), r.width(), r.height(), flags, str.toLatin1().constData());
 #endif
 
     if (!isActive() || str.length() == 0)
@@ -3738,7 +3744,7 @@ void QPainter::drawText(const QRectF &r, int flags, const QString &str, QRectF *
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
         printf("QPainter::drawText(), r=[%.2f,%.2f,%.2f,%.2f], flags=%d, str='%s'\n",
-           r.x(), r.y(), r.width(), r.height(), flags, str.latin1());
+           r.x(), r.y(), r.width(), r.height(), flags, str.toLatin1().constData());
 #endif
 
     if (!isActive() || str.length() == 0)
@@ -3755,8 +3761,8 @@ void QPainter::drawText(const QRectF &r, const QString &text, const QTextOption 
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawText(), r=[%.2f,%.2f,%.2f,%.2f], flags=%d, str='%s'\n",
-           r.x(), r.y(), r.width(), r.height(), flags, str.latin1());
+        printf("QPainter::drawText(), r=[%.2f,%.2f,%.2f,%.2f], str='%s'\n",
+           r.x(), r.y(), r.width(), r.height(),  text.toLatin1().constData());
 #endif
 
     if (!isActive() || text.length() == 0)
@@ -3813,7 +3819,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti)
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
         printf("QPainter::drawTextItem(), pos=[%.f,%.f], str='%s'\n",
-           p.x(), p.y(), QString(ti.chars, ti.num_chars).latin1());
+           p.x(), p.y(), QString(ti.chars, ti.num_chars).toLatin1().constData());
 #endif
     if (!isActive())
         return;
