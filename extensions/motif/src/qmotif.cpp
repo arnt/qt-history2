@@ -366,6 +366,7 @@ QMotif::QMotif( const char *applicationClass, XtAppContext context,
 QMotif::~QMotif()
 {
     delete d;
+    static_d = 0;
 }
 
 /*!
