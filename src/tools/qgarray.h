@@ -47,7 +47,8 @@ class Q_EXPORT QGArray					// generic array
 {
 friend class QBuffer;
 public:
-    //### DO NOT USE THIS.  IT IS PUBLIC BUT DO NOT USE IT IN NEW CODE.
+    // do not use this, even though this is public
+    // ### make protected or private in Qt 4.0 beta?
     struct array_data : public QShared {	// shared array
 	array_data():data(0),len(0)
 #ifdef QT_QGARRAY_SPEED_OPTIM
