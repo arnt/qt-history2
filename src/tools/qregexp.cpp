@@ -265,7 +265,7 @@
     <li><b>^</b> The caret negates the character set if it occurs as the
     first character, i.e. immediately after the opening square bracket.
     For example, <b>[abc]</b> matches 'a' or 'b' or 'c', but
-    <b>[^abc]</b> matches anything \e except 'a' or 'b' or 'c'.
+    <b>[^abc]</b> matches anything \e except 'a', 'b' and 'c'.
 
     <li><b>-</b> The dash is used to indicate a range of characters, for
     example <b>[W-Z]</b> matches 'W' or 'X' or 'Y' or 'Z'.
