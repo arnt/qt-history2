@@ -58,7 +58,7 @@ class QAquaFocusWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QAquaFocusWidget( );
+    QAquaFocusWidget(bool noerase=TRUE );
     ~QAquaFocusWidget() {}
     void setFocusWidget( QWidget * widget );
     QWidget* widget() { return d; }
@@ -195,7 +195,7 @@ static inline void qt_mac_polish_font( QWidget *w )
 	else if(w->inherits("QMenuBar"))
 	    key = kThemeMenuTitleFont;
 	else if(w->inherits("QTipLabel"))
-	    key = kThemeEmphasizedSystemFont;
+	    key = kThemeSystemFont;
 	else if(w->inherits("QPopupMenu"))
 	    key = kThemeMenuItemFont;
 	else if(w->inherits("QLabel"))

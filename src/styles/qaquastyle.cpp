@@ -92,8 +92,8 @@ static bool qt_mac_scrollbar_arrows_together = FALSE; //whether scroll arrows go
 QCString p2qstring(const unsigned char *c); //qglobal.cpp
 
 //Perhaps this QAquaFocusWidget should be defined elsewhere??
-QAquaFocusWidget::QAquaFocusWidget( )
-    : QWidget( NULL, "magicFocusWidget", WResizeNoErase | WRepaintNoErase ), d( NULL )
+QAquaFocusWidget::QAquaFocusWidget(bool noerase)
+    : QWidget( NULL, "magicFocusWidget", WResizeNoErase | (noerase ? WRepaintNoErase : 0) ), d( NULL )
 {
 //    setBackgroundMode(NoBackground);
 }
