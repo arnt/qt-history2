@@ -5226,7 +5226,10 @@ void QWidget::resizeEvent(QResizeEvent *)
 }
 
 /*!
-    \internal
+    This event handler, for event \a e, will be sent whenever the action
+    list has changed for the widget.
+
+    \sa addAction(), insertAction(), removeAction, actionList, QActionEvent
 */
 void QWidget::actionEvent(QActionEvent *)
 {
