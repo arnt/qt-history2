@@ -691,9 +691,14 @@ void QApplication::initialize( int argc, char **argv )
 	app_style = QStyleFactory::create( style );
 	if ( !app_style &&		// platform default style not available, try alternatives
 	     !(app_style = QStyleFactory::create( "Windows" ) ) &&
+	     !(app_style = QStyleFactory::create( "Platinum" ) ) && 
+	     !(app_style = QStyleFactory::create( "MotifPlus" ) ) &&
 	     !(app_style = QStyleFactory::create( "Motif" ) ) &&
-	     !(app_style = QStyleFactory::create( "Platinum" ) ) )
-	    qFatal( "Requested style %s not defined!", style.latin1() );
+	     !(app_style = QStyleFactory::create( "CDE" ) ) &&
+	     !(app_style = QStyleFactory::create( "Aqua" ) ) &&
+	     !(app_style = QStyleFactory::create( "SGI" ) ) &&
+	     !(app_style = QStyleFactory::create( "Compact" ) ) )
+	    qFatal( "No style available!", style.latin1() );
     }
 #endif
 
