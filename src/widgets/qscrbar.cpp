@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#7 $
 **
 ** Implementation of QScrollBar class
 **
@@ -16,7 +16,7 @@
 #include "qwxfmat.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#7 $";
 #endif
 
 
@@ -37,8 +37,8 @@ public:
 
     ScrollControl pointOver( const QPoint &p ) const;
 
-    int		  rangeValueToSliderPos( int val ) const;
-    int		  sliderPosToRangeValue( int val ) const;
+    int		  rangeValueToSliderPos( long val ) const;
+    long	  sliderPosToRangeValue( int  val ) const;
 
     void	  action( ScrollControl control );
 
@@ -74,8 +74,8 @@ QScrollBar::QScrollBar( Orientation o, QWidget *parent, const char *name )
     init();
 }
 
-QScrollBar::QScrollBar( int minVal, int maxVal, int lineStep, int pageStep,
-			int value,  Orientation o,
+QScrollBar::QScrollBar( long minVal, long maxVal, long lineStep, long pageStep,
+			long value,  Orientation o,
 			QWidget *parent, const char *name )
 	: QWidget( parent, name ),
 	  QRangeControl( minVal, maxVal, lineStep, pageStep, value )
@@ -220,7 +220,7 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	else if ( newSliderPos > sliderMax )
 	    newSliderPos = sliderMax;
 	if ( newSliderPos != sliderPos ) {
-	    int newVal = PRIV->sliderPosToRangeValue(newSliderPos);
+	    long newVal = PRIV->sliderPosToRangeValue(newSliderPos);
 	    if ( track && newVal != value() ) {
 		directSetValue( newVal ); // Set directly, painting done below
 		emit newValue( value() );
@@ -231,13 +231,25 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
     }
 }
 
+QRect QScrollBar::sliderRect() const
+{
+    int sliderMin, sliderMax, sliderLength;
+    PRIV->metrics( &sliderMin, &sliderMax, &sliderLength );
+
+    if ( HORIZONTAL )
+        return QRect( sliderStart(), BORDER, 
+                      sliderLength, clientHeight() - BORDER*2 );
+    else
+        return QRect( BORDER, sliderStart(),
+                      clientWidth() - BORDER*2, sliderLength );
+}
 
 void QScrollBar::positionSliderFromValue()
 {
     sliderPos = PRIV->rangeValueToSliderPos( value() );
 }
 
-int QScrollBar::calculateValueFromSlider() const
+long QScrollBar::calculateValueFromSlider() const
 {
     return PRIV->sliderPosToRangeValue( sliderPos );
 }
@@ -305,7 +317,7 @@ ScrollControl QScrollBar_Private::pointOver(const QPoint &p) const
 }
 
 
-int QScrollBar_Private::rangeValueToSliderPos( int val ) const
+int QScrollBar_Private::rangeValueToSliderPos( long val ) const
 {
     int sliderMin, sliderMax;
     sliderMinMax( &sliderMin, &sliderMax );
@@ -320,7 +332,7 @@ int QScrollBar_Private::rangeValueToSliderPos( int val ) const
 		( 2*( maxValue() - minValue() ) ) + sliderMin;
 }
 
-int QScrollBar_Private::sliderPosToRangeValue( int pos ) const
+long QScrollBar_Private::sliderPosToRangeValue( int pos ) const
 {
     int sliderMin, sliderMax;
     sliderMinMax( &sliderMin, &sliderMax );
@@ -350,7 +362,7 @@ void QScrollBar_Private::action( ScrollControl control )
 	    break;
 	default:
 #if defined(CHECK_RANGE)
-	    warning( "QScrollBar: Internal action error" );
+	    warning( "QScrollBar_Private::action internal error" );
 #endif
     }
 }
@@ -564,11 +576,11 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 
 	    if ( controls & ADD_LINE ) {
 		QWXFMatrix m;
-		if ( VERTICAL ) {
-		    m.rotate( 90 );
-		    m.translate( addB.width()-1, 0 );
-		}
 		m.translate( addB.x(), addB.y() );
+		if ( VERTICAL ) {
+		    m.translate( addB.width()-1, 0 );
+		    m.rotate( 90 );
+		}
 		p.setWxfMatrix( m );
 		p.setWorldXForm( TRUE );
 
@@ -619,11 +631,10 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 	    if ( controls & ADD_PAGE )
 		p.fillRect( addPageR, backgroundColor() );
 	    if ( controls & SLIDER ) {
-		QColor tmp = p.backgroundColor();
-		p.setBackgroundColor( foregroundColor() );
+                QBrush brush( backgroundColor() );
+                p.setBrush( brush );
 		p.drawShadePanel( sliderR, foregroundColor().light(),
 				       foregroundColor().dark(), 2, 2, TRUE );
-		p.setBackgroundColor( tmp );
 	    }
 	    break;
 	}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.h#4 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.h#5 $
 **
 ** Definition of QScrollBar class
 **
@@ -25,8 +25,8 @@ public:
 
     QScrollBar( QWidget *parent=0, const char *name=0 );
     QScrollBar( Orientation, QWidget *parent=0, const char *name=0 );
-    QScrollBar( int minValue, int maxValue, int LineStep, int PageStep,
-		int value, Orientation,
+    QScrollBar( long minValue, long maxValue, long LineStep, long PageStep,
+		long value, Orientation,
 		QWidget *parent=0, const char *name=0 );
 
     void	setOrientation( Orientation );
@@ -35,28 +35,29 @@ public:
     bool	tracking() const;
 
 signals:
-    void    	newValue( int value );
+    void	newValue( long value );
 
 protected:
-    void     	timerEvent( QTimerEvent *e );
-    bool     	keyPressEvent( QKeyEvent *e );
-    void     	resizeEvent( QResizeEvent *e );
-    void     	paintEvent( QPaintEvent *e );
+    void	timerEvent( QTimerEvent *e );
+    bool	keyPressEvent( QKeyEvent *e );
+    void	resizeEvent( QResizeEvent *e );
+    void	paintEvent( QPaintEvent *e );
 
-    void     	mousePressEvent( QMouseEvent *e );
-    void     	mouseReleaseEvent( QMouseEvent *e );
-    void     	mouseMoveEvent( QMouseEvent *e );
+    void	mousePressEvent( QMouseEvent *e );
+    void	mouseReleaseEvent( QMouseEvent *e );
+    void	mouseMoveEvent( QMouseEvent *e );
 
-    void     	valueChange();	       // virtual functions from QRangeControl
-    void     	stepChange();
-    void     	rangeChange();
+    void	valueChange();	       // virtual functions from QRangeControl
+    void	stepChange();
+    void	rangeChange();
 
-    int	     	sliderStart() const;
+    int		sliderStart() const;
+    QRect       sliderRect() const;
 
 private:
-    void     	init();
-    void     	positionSliderFromValue();
-    int	     	calculateValueFromSlider() const;
+    void	init();
+    void	positionSliderFromValue();
+    long	calculateValueFromSlider() const;
 
     uint     	pressedControl   : 8;
     uint     	track	         : 1;
