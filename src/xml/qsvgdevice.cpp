@@ -1018,7 +1018,7 @@ void QSvgDevice::drawPath( const QString &data )
     int pcount = 0;			// current point array index
     uint idx = 0;			// current data position
     int mode = 0, lastMode = 0;		// parser state
-    bool relative = false;		// e.g. 'h' vs. 'H'
+    bool relative = FALSE;		// e.g. 'h' vs. 'H'
     QString commands( "MZLHVCSQTA" );	// recognized commands
     int cmdArgs[] = { 2, 0, 2, 1, 1, 6, 4, 4, 2, 7 };	// no of arguments
     QRegExp reg( "\\s*,?\\s*([+-]?\\d*\\.?\\d*)" );	// floating point
