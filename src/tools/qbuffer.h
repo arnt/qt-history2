@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.h#11 $
+** $Id: //depot/qt/main/src/tools/qbuffer.h#12 $
 **
 ** Definition of QBuffer class
 **
@@ -23,7 +23,7 @@ public:
     QBuffer( QByteArray );
    ~QBuffer();
 
-    QByteArray buffer() const { return a; }
+    QByteArray buffer() const;
     bool  setBuffer( QByteArray );
 
     bool  open( int );
@@ -54,6 +54,9 @@ private:	// Disabled copy constructor and operator=
     QBuffer &operator=( const QBuffer & ) { return *this; }
 };
 
+
+inline QByteArray QBuffer::buffer() const
+{ return a; }
 
 inline uint QBuffer::size() const
 { return a.size(); }
