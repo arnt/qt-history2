@@ -35,12 +35,6 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 
-// DNS header files are not fully covered by X/Open specifications.
-// In particular nothing is said about res_* :/
-#include <resolv.h>
-// Undeclared - at least on HP-UX 10.20.
-extern "C" int res_init();
-
 
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat

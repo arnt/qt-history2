@@ -14,6 +14,45 @@
 #include "qplatformdefs.h"
 #include <qapplication.h>
 
+#if defined(Q_OS_OSF) || defined(Q_OS_RELIANT)
+#include <resolv.h>
+#elif defined (Q_OS_HPUX)
+// #ifdef __cplusplus
+// extern "C" {
+// #endif
+// getres() is mangled because of missing extern "C" on
+// HP-UX 11.x systems missing PHCO_23963
+#include <resolv.h>
+// #ifdef __cplusplus
+// }
+// #endif
+extern "C" int res_init(); // undeclared - at least on HP-UX 10.20
+#elif defined (Q_OS_CYGWIN)
+// Resolver functions are not implemented in Cygwin, headers
+// <arpa/nameser.h> and <resolv.h> are missing:
+//    http://cygwin.com//cgi-bin/cygwin-todo.cgi?20000426.105252
+// Third party code may provide this functionality, but not
+// necessarily under the Cygwin license:
+//    http://www.php.net/extra/bindlib_w32.zip
+//    http://cr.yp.to/djbdns.html
+#include <netinet/in.h>
+#elif defined(Q_OS_LYNX)
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <arpa/nameser.h>
+#include <resolv.h>
+#elif defined(Q_OS_FREEBSD) || defined(Q_OS_AIX) || defined(Q_OS_SCO) && defined(Q_CC_GNU)
+#include <netinet/in.h>
+#define class c_class // FreeBSD 3.*, AIX 4.3.1.0, SCO OpenServer 5.0.6
+#include <arpa/nameser.h>
+#undef class
+#include <resolv.h>
+#else
+#include <netinet/in.h>
+#include <arpa/nameser.h>
+#include <resolv.h>
+#endif
+
 // POSIX Large File Support redefines open -> open64
 #if defined(open)
 # undef open

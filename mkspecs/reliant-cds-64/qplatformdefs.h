@@ -34,10 +34,6 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 
-// DNS header files are not fully covered by X/Open specifications.
-// In particular nothing is said about res_* :/
-#include <resolv.h>
-
 
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat

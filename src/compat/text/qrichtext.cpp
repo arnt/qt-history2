@@ -6663,7 +6663,7 @@ QString QTextImage::richText() const
     for (; it != attributes.end(); ++it) {
         s += it.key() + "=";
         if ((*it).contains(' '))
-            s += "\"" + *it + "\"" + " ";
+            s += "\"" + *it + "\" ";
         else
             s += *it + " ";
     }

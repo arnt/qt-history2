@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#define QT_NO_LIBRARY_UNLOAD
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -39,16 +40,6 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
-#define QT_NO_LIBRARY_UNLOAD
-
-// DNS header files are not fully covered by X/Open specifications.
-// In particular nothing is said about res_* :/
-// On BSDs header files <netinet/in.h> and <arpa/nameser.h> are not
-// included by <resolv.h>. Note that <arpa/nameser.h> must be included
-// before <resolv.h>.
-#include <netinet/in.h>
-#include <arpa/nameser.h>
-#include <resolv.h>
 
 
 #define QT_STATBUF		struct stat

@@ -51,16 +51,6 @@
 #include <sys/wait.h>
 #include <windows.h>
 
-// Resolver functions are not implemented in Cygwin, headers
-// <arpa/nameser.h> and <resolv.h> are missing:
-// 	http://cygwin.com//cgi-bin/cygwin-todo.cgi?20000426.105252
-// Maybe bindlib_w32
-// 	http://www.php.net/extra/bindlib_w32.zip
-// or Don Berstein's djbdns:
-// 	http://cr.yp.to/djbdns.html
-// provide this functionality, but not necessarily under the Cygwin license...
-#include <netinet/in.h>
-
 
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat
