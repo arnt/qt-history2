@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#146 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#147 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#146 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#147 $");
 
 // Motif style parameters
 
@@ -1579,7 +1579,14 @@ void QPopupMenu::subMenuTimer() {
     if ( style() == WindowsStyle ) {
 	if ( popup->badSize )
 	    popup->updateSize();
-	if ( p.x() + popup->width() > QApplication::desktop()->width() )
+	bool left = FALSE;
+	if ( ( parentMenu && parentMenu->isPopupMenu &&
+	       ((QPopupMenu*)parentMenu)->geometry().x() > geometry().x() ) ||
+	     p.x() + popup->width() > QApplication::desktop()->width() )
+	    left = TRUE;
+	if ( left && popup->width() > mapToGlobal( QPoint(0,0) ).x() )
+	    left = FALSE;
+	if ( left )
 	    p.setX( mapToGlobal( QPoint(0,0) ).x() -
 		    popup->width() + frameWidth() );
     }
