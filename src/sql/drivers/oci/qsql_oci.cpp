@@ -913,44 +913,62 @@ static int qInitialLobSize(QOCIPrivate *d, OCILobLocator *lob)
     return i;
 }
 
+template<class T>
+int qReadLob(T &buf, QOCIPrivate *d, OCILobLocator *lob, const int sz)
+{
+    ub4 read = 0;
+    int r;
+
+    buf.resize(qInitialLobSize(d, lob));
+
+    while (true) {
+        ub4 amount = ub4(-1); // read maximum amount of data
+        r = OCILobRead(d->svc, d->err, lob, &amount, read + 1, (char*)(buf.constData()) + read * sz,
+                (buf.size() - read) * sz, 0, 0, QOCIEncoding, 0);
+        /* Hack, because Oracle suddently returns the amount in bytes when not reading from 0
+           offset. */
+        if (read && amount)
+            amount /= sz;
+
+        read += amount;
+        if (r == OCI_NEED_DATA)
+            buf.resize(buf.size() * 3);
+        else
+            break;
+    }
+    if (r == OCI_SUCCESS) {
+        buf.resize(read);
+    } else {
+        qOraWarning("OCIResultPrivate::readLOBs: Cannot read LOB: ", d);
+    }
+    return r;
+}
+
 int QOCIResultPrivate::readLOBs(QVector<QVariant> &values, int index)
 {
-    int r = OCI_SUCCESS;
     OCILobLocator *lob;
+    int r;
 
     for (int i = 0; i < size(); ++i) {
         if (isNull(i) || !(lob = fieldInf.at(i).lob))
             continue;
 
         bool isClob = fieldInf.at(i).oraType == SQLT_CLOB;
-        QByteArray buf;
-        buf.resize(qInitialLobSize(d, lob));
-        ub4 read = 0;
+        QVariant var;
 
-        while (true) {
-            ub4 amount = ub4(-1); // read maximum amount of data
-            r = OCILobRead(d->svc, d->err, lob, &amount, read + 1, buf.data() + read,
-                           ub4(buf.size() - read), 0, 0, QOCIEncoding, 0);
-            qDebug(" read: %d", amount);
-            read += amount;
-            if (r == OCI_NEED_DATA)
-                buf.resize(buf.size() * 3);
-            else
-                break;
-        }
-
-        if (r == OCI_SUCCESS) {
-            qDebug("amount: %d", read);
-            if (isClob) {
-                values[i + index] = QString::fromUtf16(
-                        reinterpret_cast<const ushort *>(buf.constData()), read);
-            } else {
-                buf.resize(read);
-                values[i + index] = buf;
-            }
+        if (isClob) {
+            QString str;
+            r = qReadLob(str, d, lob, sizeof(QChar));
+            var = str;
         } else {
-            qOraWarning("OCIResultPrivate::readLOBs: Cannot read LOB: ", d);
+            QByteArray buf;
+            r = qReadLob(buf, d, lob, sizeof(char));
+            var = buf;
         }
+        if (r == OCI_SUCCESS)
+            values[index + i] = var;
+        else
+            break;
     }
     return r;
 }
