@@ -99,7 +99,17 @@ static void init();				// initialize
 static void initClass();			// prepare for new class
 static void generateClass();			// generate C++ code for class
 static void initExpression();			// prepare for new expression
-
+static void enterNameSpace( const char *name = 0 );
+static void leaveNameSpace();
+static void selectOutsideClassState();
+static void registerClassInNamespace();
+static bool suppress_func_warn = FALSE;
+static void func_warn( const char *msg );
+static void moc_warn( const char *msg );
+static void moc_err( const char *s );
+static void moc_err( const char *s1, const char *s2 );
+static void operatorError();
+static void checkPropertyName( const char* ident );
 
 static const char* const utype_map[] =
 {
@@ -528,6 +538,51 @@ class ClassInfoList : public QPtrList<ClassInfo> {	// list of class infos
 public:
     ClassInfoList() { setAutoDelete( TRUE ); }
 };
+
+class parser_reg {
+ public:
+    parser_reg();
+    ~parser_reg();
+
+    // some temporary values
+    QCString   tmpExpression;			// Used to store the characters the lexer
+						// is currently skipping (see addExpressionChar and friends)
+    QCString  fileName;				// file name
+    QCString  outputFile;				// output file name
+    QStrList  includeFiles;			// name of #include files
+    QCString  includePath;				// #include file path
+    QCString  qtPath;				// #include qt file path
+    int           gen_count; //number of classes generated
+    bool	  noInclude;		// no #include <filename>
+    bool	  generatedCode;		// no code generated
+    bool	  mocError;			// moc parsing error occurred
+    bool       hasVariantIncluded;	//whether or not qvariant.h was included yet
+    QCString  className;				// name of parsed class
+    QCString  superClassName;			// name of first super class
+    QStrList  multipleSuperClasses;			// other superclasses
+    FuncList  signals;				// signal interface
+    FuncList  slots;				// slots interface
+    FuncList  propfuncs;				// all possible property access functions
+    FuncList  funcs;			// all parsed functions, including signals
+    EnumList  enums;				// enums used in properties
+    PropList  props;				// list of all properties
+    ClassInfoList	infos;				// list of all class infos
+
+// Used to store the values in the Q_PROPERTY macro
+    QCString propWrite;				// set function
+    QCString propRead;				// get function
+    QCString propReset;				// reset function
+    QCString propStored;				//
+    QCString propDesignable;				// "true", "false" or function or empty if not specified
+    QCString propScriptable;				// "true", "false" or function or empty if not specified
+    bool propOverride;				// Wether OVERRIDE was detected
+
+    QStrList qtEnums;				// Used to store the contents of Q_ENUMS
+    QStrList qtSets;				// Used to store the contents of Q_SETS
+
+};
+
+static parser_reg *g = 0;
 
 ArgList *addArg( Argument * );			// add arg to tmpArgList
 
@@ -1538,50 +1593,7 @@ extern "C" int hack_isatty( int )
 void      cleanup();
 QCString  combinePath( const char *, const char * );
 
-class parser_reg {
- public:
-    parser_reg();
-    ~parser_reg();
-
-    // some temporary values
-    QCString   tmpExpression;			// Used to store the characters the lexer
-						// is currently skipping (see addExpressionChar and friends)
-    QCString  fileName;				// file name
-    QCString  outputFile;				// output file name
-    QStrList  includeFiles;			// name of #include files
-    QCString  includePath;				// #include file path
-    QCString  qtPath;				// #include qt file path
-    int           gen_count; //number of classes generated
-    bool	  noInclude;		// no #include <filename>
-    bool	  generatedCode;		// no code generated
-    bool	  mocError;			// moc parsing error occurred
-    bool       hasVariantIncluded;	//whether or not qvariant.h was included yet
-    QCString  className;				// name of parsed class
-    QCString  superClassName;			// name of first super class
-    QStrList  multipleSuperClasses;			// other superclasses
-    FuncList  signals;				// signal interface
-    FuncList  slots;				// slots interface
-    FuncList  propfuncs;				// all possible property access functions
-    FuncList  funcs;			// all parsed functions, including signals
-    EnumList  enums;				// enums used in properties
-    PropList  props;				// list of all properties
-    ClassInfoList	infos;				// list of all class infos
-
-// Used to store the values in the Q_PROPERTY macro
-    QCString propWrite;				// set function
-    QCString propRead;				// get function
-    QCString propReset;				// reset function
-    QCString propStored;				//
-    QCString propDesignable;				// "true", "false" or function or empty if not specified
-    QCString propScriptable;				// "true", "false" or function or empty if not specified
-    bool propOverride;				// Wether OVERRIDE was detected
-
-    QStrList qtEnums;				// Used to store the contents of Q_ENUMS
-    QStrList qtSets;				// Used to store the contents of Q_SETS
-
-};
 FILE  *out;					// output file
-static parser_reg *g = NULL;
 
 parser_reg::parser_reg() : funcs(TRUE)
 {
@@ -1993,7 +2005,7 @@ struct NamespaceInfo
 
 QPtrList<NamespaceInfo> namespaces;
 
-void enterNameSpace( const char *name = 0 )	 // prepare for new class
+void enterNameSpace( const char *name )	 // prepare for new class
 {
     static bool first = TRUE;
     if ( first ) {
@@ -2187,7 +2199,6 @@ void moc_warn( char *s1, char *s2 )
 	fprintf( stderr, ErrorFormatString" Warning: %s\n", g->fileName.data(), lineNo, tmp);
 }
 
-static bool suppress_func_warn = FALSE;
 void func_warn( const char *msg )
 {
     if ( !suppress_func_warn )
