@@ -70,11 +70,10 @@ public:
 	QRect iconRect, textRect;
 	d->subRects(iconRect, textRect);
 
-	p->drawPixmap((iconRect.width() - icon.width()) / 2,
-		      (iconRect.height() - icon.height()) / 2,
-		      icon);
-        p->setPen(q->palette().foreground());
-	p->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text);
+        q->style().drawItem(p, iconRect, Qt::AlignCenter, q->palette(), q->isEnabled(), icon);
+        q->style().drawItem(p, textRect, Qt::AlignLeft | Qt::AlignVCenter,
+                            q->palette(), q->isEnabled(), text);
+
         if (d->menu) {
             q->style().drawPrimitive(QStyle::PE_ArrowDown, p, menuRect,
                                      q->palette(), QStyle::Style_Enabled);
@@ -85,7 +84,10 @@ public:
 
 QToolBarButton::QToolBarButton(QWidget *parent)
     : QAbstractButton(*new QToolBarButtonPrivate, parent)
-{ setFocusPolicy(Qt::NoFocus); }
+{
+    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    setFocusPolicy(Qt::NoFocus);
+}
 
 QToolBarButton::~QToolBarButton()
 { }
