@@ -40,11 +40,11 @@
 
 #include "qglobal.h"
 
-class Q_EXPORT QThreadStoragePrivate
+class Q_EXPORT QThreadStorageData
 {
 public:
-    QThreadStoragePrivate( void (*func)(void *) );
-    ~QThreadStoragePrivate();
+    QThreadStorageData( void (*func)(void *) );
+    ~QThreadStorageData();
 
     void** get() const;
     void** set( void* p );
@@ -58,7 +58,7 @@ template <class T>
 class QThreadStorage
 {
 private:
-    QThreadStoragePrivate d;
+    QThreadStorageData d;
 
 #if defined(Q_DISABLE_COPY)
     // disable copy constructor and operator=

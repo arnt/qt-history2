@@ -57,7 +57,7 @@ static struct {
 } thread_storage_usage[MAX_THREAD_STORAGE];
 
 
-QThreadStoragePrivate::QThreadStoragePrivate( void (*func)( void * ) )
+QThreadStorageData::QThreadStorageData( void (*func)( void * ) )
     : id( 0 )
 {
     pthread_mutex_lock( &thread_storage_mutex );
@@ -77,39 +77,39 @@ QThreadStoragePrivate::QThreadStoragePrivate( void (*func)( void * ) )
     thread_storage_usage[id].func = func;
 
 #ifdef QTHREADSTORAGE_DEBUG
-    qDebug( "QThreadStoragePrivate: allocated id %d", id );
+    qDebug( "QThreadStorageData: allocated id %d", id );
 #endif // QTHREADSTORAGE_DEBUG
 
     pthread_mutex_unlock( &thread_storage_mutex );
 }
 
-QThreadStoragePrivate::~QThreadStoragePrivate()
+QThreadStorageData::~QThreadStorageData()
 {
     pthread_mutex_lock( &thread_storage_mutex );
     thread_storage_usage[id].used = FALSE;
     thread_storage_usage[id].func = 0;
 
 #ifdef QTHREADSTORAGE_DEBUG
-    qDebug( "QThreadStoragePrivate: released id %d", id );
+    qDebug( "QThreadStorageData: released id %d", id );
 #endif // QTHREADSTORAGE_DEBUG
 
     pthread_mutex_unlock( &thread_storage_mutex );
 }
 
-void **QThreadStoragePrivate::get() const
+void **QThreadStorageData::get() const
 {
     QThreadInstance *d = QThreadInstance::current();
     QMutexLocker locker( d->mutex() );
     return d->thread_storage && d->thread_storage[id] ? &d->thread_storage[id] : 0;
 }
 
-void **QThreadStoragePrivate::set( void *p )
+void **QThreadStorageData::set( void *p )
 {
     QThreadInstance *d = QThreadInstance::current();
     QMutexLocker locker( d->mutex() );
     if ( !d->thread_storage ) {
 #ifdef QTHREADSTORAGE_DEBUG
-	qDebug( "QThreadStoragePrivate: allocating storage for thread %lx",
+	qDebug( "QThreadStorageData: allocating storage for thread %lx",
 		(unsigned long) pthread_self() );
 #endif // QTHREADSTORAGE_DEBUG
 
@@ -126,12 +126,12 @@ void **QThreadStoragePrivate::set( void *p )
     return &d->thread_storage[id];
 }
 
-void QThreadStoragePrivate::finish( void **thread_storage )
+void QThreadStorageData::finish( void **thread_storage )
 {
     if ( ! thread_storage ) return; // nothing to do
 
 #ifdef QTHREADSTORAGE_DEBUG
-    qDebug( "QThreadStoragePrivate: destroying storage for thread %lx",
+    qDebug( "QThreadStorageData: destroying storage for thread %lx",
 	    (unsigned long) pthread_self() );
 #endif // QTHREADSTORAGE_DEBUG
 
