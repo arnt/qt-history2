@@ -1768,7 +1768,7 @@ void QLineEdit::clear()
 /*!  Sets the selected area of this line edit to start at position \a
  start and be \a length characters long.
 
-  \sa deselect() selectAll()
+  \sa deselect() selectAll() getSelection()
 */
 
 void QLineEdit::setSelection( int start, int length )
