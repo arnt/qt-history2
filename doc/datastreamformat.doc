@@ -36,10 +36,11 @@
 /*!
 \page datastreamformat.html
 
-\title Format of the QDataStream operators
+\title Format of the QDataStream Operators
 
 The \l QDataStream allows you to serialize some of the Qt data types.
-The table below lists the data types that QDataStream can serialize.
+The table below lists the data types that QDataStream can serialize
+and how they are represented.
 
 \list
 \i Q_INT8
@@ -77,35 +78,33 @@ The table below lists the data types that QDataStream can serialize.
 \i char *
 	\list
 	\i The size of the string including the terminating 0 (Q_UINT32)
-	\i The string including the terminating 0, i.e. length bytes
+	\i The string bytes including the terminating 0
+	\endlist
+	The null string is represented as \c {(Q_UINT32) 0}.
+\i QBitArray
+	\list
+	\i The array size (Q_UINT32)
+	\i The array bits, i.e. (size + 7)/8 bytes
 	\endlist
 \i QBrush
 	\list
 	\i The brush style (Q_UINT8)
 	\i The brush color (QColor)
-	\i If style == CustomPattern, the brush pixmap (QPixmap)
+	\i If style is CustomPattern, the brush pixmap (QPixmap)
 	\endlist
-\i QColor
+\i QByteArray
+	\list
+	\i The array size (Q_UINT32)
+	\i The array bytes, i.e. size bytes
+	\endlist
+\i QCString
+	\list
+	\i The size of the string including the terminating 0 (Q_UINT32)
+	\i The string bytes including the terminating 0
+	\endlist
+	The null string is represented as \c {(Q_UINT32) 0}.
+\i \l QColor
 	\list \i RGB value serialized as a Q_UINT32 \endlist
-\i QCursor
-	\list
-	\i Shape id (Q_INT16)
-	\i If shape == \c BitmapCursor, bitmap (QPixmap)
-	\i If shape == \c BitmapCursor, mask (QPixmap)
-  	\i If shape == \c BitmapCursor, hot spot (QPoint)
-	\endlist
-\i QFont
-	\list
-	\i The point size (Q_INT16)
-	\i The style hint (Q_UINT8)
-	\i The char set (Q_UINT8)
-	\i The weight (Q_UINT8)
-	\i The font bits (Q_UINT8)
-	\endlist
-\i QImage
-	\list
-	\i Save it as a PNG image.
-	\endlist
 \i QColorGroup
 	\list
 	\i foreground (QBrush)
@@ -122,6 +121,37 @@ The table below lists the data types that QDataStream can serialize.
 	\i shadow (QBrush)
 	\i highlight (QBrush)
 	\i highlightedText (QBrush)
+	\endlist
+\i QCursor
+	\list
+	\i Shape id (Q_INT16)
+	\i If shape is BitmapCursor: The bitmap (QPixmap), mask (QPixmap) and hot spot (QPoint)
+	\endlist
+\i QDate
+	\list
+	\i Julian day (Q_UINT32)
+	\endlist
+\i QDateTime
+	\list
+	\i Date (QDate)
+	\i Time (QTime)
+	\endlist
+\i QFont
+	\list
+	\i The point size (Q_INT16)
+	\i The style hint (Q_UINT8)
+	\i The char set (Q_UINT8)
+	\i The weight (Q_UINT8)
+	\i The font bits (Q_UINT8)
+	\endlist
+\i QImage
+	\list
+	\i Save it as a PNG image.
+	\endlist
+\i QMap
+	\list
+	\i The number of items (Q_UINT32)
+	\i For all items, the key and value
 	\endlist
 \i QPalette
 	\list
@@ -172,6 +202,21 @@ The table below lists the data types that QDataStream can serialize.
 	\i width (Q_INT32)
 	\i height (Q_INT32)
 	\endlist
+\i QString
+	\list
+	\i If the string is null: 0xffffffff (Q_UINT32)
+	\i Otherwise: The string length (Q_UINT32) followed by the
+	   data in UTF-16
+	\endlist
+\i QTime
+	\list
+	\i Milliseconds since midnight (Q_UINT32)
+	\endlist
+\i QValueList
+  	\list
+	\i The number of list elements (Q_UINT32)
+	\i All the elements in sequential order
+	\endlist
 \i QVariant
 	\list
 	\i The type of the data (Q_UINT32)
@@ -185,50 +230,6 @@ The table below lists the data types that QDataStream can serialize.
 	\i m22 (double)
 	\i dx (double)
 	\i dy (double)
-	\endlist
-\i QBitArray
-	\list
-	\i The array size (Q_UINT32)
-	\i The array bits, i.e. (size + 7)/8 bytes
-	\endlist
-\i QByteArray
-	\list
-	\i The array size (Q_UINT32)
-	\i The array bytes, i.e. size bytes
-	\endlist
-\i QCString
-	\list
-	\i The length (Q_UINT32)
-	\i The data, i.e. length bytes
-	\endlist
-\i QDate
-	\list
-	\i Julian day (Q_UINT32)
-	\endlist
-\i QTime
-	\list
-	\i Milliseconds since midnight (Q_UINT32)
-	\endlist
-\i QDateTime
-	\list
-	\i Date (QDate)
-	\i Time (QTime)
-	\endlist
-\i QMap
-	\list
-	\i The number of items (Q_UINT32)
-	\i For all items, the key and value
-	\endlist
-\i QString
-	\list
-	\i If the string is null: 0xffffffff (Q_UINT32)
-	\i Otherwise: The string length (Q_UINT32) followed by the
-	   data in UTF-16
-	\endlist
-\i QValueList
-  	\list
-	\i The number of list elements (Q_UINT32)
-	\i All the elements in sequential order
 	\endlist
 \endlist
 
