@@ -395,6 +395,7 @@ XKB=auto
 STL=auto
 FT=yes
 NAS_SOUND=no
+REMOTE=no
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -640,6 +641,9 @@ do
 	;;
    -xkb)
 	XKB=yes
+	;;
+   -remote)
+        REMOTE=yes
 	;;
    -enable-*)
 	MODULE=`echo $1 | sed "s/-enable-//"`
@@ -1638,6 +1642,10 @@ fi
 [ "x$NAS_SOUND" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG nas"
 [ "x$BIG_CODECS" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG bigcodecs"
 
+if [ "x$REMOTE" = "xyes" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG remote"
+    QMAKE_VARS="$QMAKE_VARS \"DEFINES+=QT_REMOTE_CONTROL\""
+fi
 
 [ "x$FT" = "xyes" -a "x$EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
 if [ "$X11_PLATFORM" = "yes" ]
@@ -1854,6 +1862,7 @@ fi
 [ "x$CONCURRENT" != "x0" ] && echo "Concurrent........... $CONCURRENT"
 [ "x$DO_INCREMENT" = "xyes" ] && [ ! -z "$INCREMENTAL" ] && echo "Incremental.......... $INCREMENTAL"
 echo "Configuration........ $QMAKE_CONFIG"
+[ "x$REMOTE" = "xyes" ] && echo "Remote support....... $REMOTE"
 echo "STL support.......... $STL"
 echo "Thread support....... $THREAD"
 echo "GIF support.......... $GIF"
