@@ -627,6 +627,7 @@ void QDockWindow::setFeatures(QDockWindow::DockWindowFeatures features)
     d->features = features;
     d->title->updateButtons();
     d->title->update();
+    emit featuresChanged(d->features);
 }
 
 /*!
@@ -663,21 +664,23 @@ bool QDockWindow::hasFeature(DockWindowFeature feature) const
 /*!
     \internal
 
-    Sets the doc window to be top level. If \a floated is true it has
-    no parent and floats free at position \a pos; if \a floated is
+    Sets the doc window to be top level. If \a topLevel is true it has
+    no parent and floats free at position \a pos; if \a topLevel is
     false it is reparented to the main window.
 */
-void QDockWindow::setTopLevel(bool floated, const QPoint &pos)
+void QDockWindow::setTopLevel(bool topLevel, const QPoint &pos)
 {
     Q_D(QDockWindow);
+    if (topLevel == isTopLevel())
+        return;
 
     const bool visible = isVisible();
 
-    setParent(parentWidget(), (floated
+    setParent(parentWidget(), (topLevel
                                ? (getWFlags() | Qt::WType_TopLevel)
                                : (getWFlags() & ~Qt::WType_TopLevel)));
 
-    if (floated) {
+    if (topLevel) {
         if (!pos.isNull())
             move(pos);
         QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(parentWidget()->layout());
@@ -685,10 +688,12 @@ void QDockWindow::setTopLevel(bool floated, const QPoint &pos)
             layout->invalidate();
     }
 
-    d->resizer->setActive(floated);
+    d->resizer->setActive(topLevel);
 
     if (visible)
         show();
+
+    emit topLevelChanged(isTopLevel());
 }
 
 /*!
@@ -704,6 +709,7 @@ void QDockWindow::setAllowedAreas(Qt::DockWindowAreas areas)
 {
     Q_D(QDockWindow);
     d->allowedAreas = (areas & Qt::DockWindowArea_Mask);
+    emit allowedAreasChanged(d->allowedAreas);
 }
 
 Qt::DockWindowAreas QDockWindow::allowedAreas() const

@@ -61,6 +61,11 @@ public:
 
     QAction *toggleViewAction() const;
 
+signals:
+    void featuresChanged(DockWindowFeatures features);
+    void topLevelChanged(bool topLevel);
+    void allowedAreasChanged(Qt::DockWindowAreas allowedAreas);
+
 protected:
     void changeEvent(QEvent *event);
     void closeEvent(QCloseEvent *event);

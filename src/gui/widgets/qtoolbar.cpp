@@ -252,6 +252,7 @@ void QToolBar::setMovable(bool movable)
 {
     d->movable = movable && (qt_cast<QMainWindow *>(parentWidget()) != 0);
     d->handle->setShown(d->movable);
+    emit movableChanged(d->movable);
 }
 
 bool QToolBar::isMovable() const
@@ -265,7 +266,10 @@ bool QToolBar::isMovable() const
 */
 
 void QToolBar::setAllowedAreas(Qt::ToolBarAreas areas)
-{ d->allowedAreas = (areas & Qt::ToolBarArea_Mask); }
+{
+    d->allowedAreas = (areas & Qt::ToolBarArea_Mask);
+    emit allowedAreasChanged(d->allowedAreas);
+}
 
 Qt::ToolBarAreas QToolBar::allowedAreas() const
 { return d->allowedAreas; }
@@ -311,6 +315,8 @@ void QToolBar::setOrientation(Qt::Orientation orientation)
 	if (sep)
             sep->setOrientation(d->orientation);
     }
+
+    emit orientationChanged(d->orientation);
 }
 
 Qt::Orientation QToolBar::orientation() const

@@ -92,6 +92,9 @@ public slots:
 
 signals:
     void actionTriggered(QAction *action);
+    void movableChanged(bool movable);
+    void allowedAreasChanged(Qt::ToolBarAreas allowedAreas);
+    void orientationChanged(Qt::Orientation orientation);
     void iconSizeChanged(Qt::IconSize iconSize);
     void toolButtonStyleChanged(Qt::ToolButtonStyle toolButtonStyle);
 
