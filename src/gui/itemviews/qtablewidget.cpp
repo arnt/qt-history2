@@ -135,7 +135,9 @@ bool QTableModel::removeColumns(int column, const QModelIndex &, int count)
 void QTableModel::setItem(int row, int column, QTableWidgetItem *item)
 {
     item->model = this;
-    table[tableIndex(row, column)] = item;
+    int i = tableIndex(row, column);
+    if (i >= 0 && i < table.count())
+        table[i] = item;
 }
 
 void QTableModel::setItem(const QModelIndex &index, QTableWidgetItem *item)
@@ -151,15 +153,17 @@ void QTableModel::setItem(const QModelIndex &index, QTableWidgetItem *item)
 QTableWidgetItem *QTableModel::takeItem(int row, int column)
 {
     long i = tableIndex(row, column);
-    QTableWidgetItem *itm = table.at(i);
-    itm->model = 0;
-    table[i] = 0;
-    return itm;
+    QTableWidgetItem *itm = table.value(i);
+    if (itm) {
+        itm->model = 0;
+        table[i] = 0;
+        return itm;
+    }
 }
 
 QTableWidgetItem *QTableModel::item(int row, int column) const
 {
-    return table.at(tableIndex(row, column));
+    return table.value(tableIndex(row, column));
 }
 
 QTableWidgetItem *QTableModel::item(const QModelIndex &index) const
@@ -207,12 +211,12 @@ void QTableModel::setVerticalHeaderItem(int section, QTableWidgetItem *item)
 
 QTableWidgetItem *QTableModel::horizontalHeaderItem(int section)
 {
-    return horizontal.at(section);
+    return horizontal.value(section);
 }
 
 QTableWidgetItem *QTableModel::verticalHeaderItem(int section)
 {
-    return vertical.at(section);
+    return vertical.value(section);
 }
 
 QModelIndex QTableModel::index(const QTableWidgetItem *item) const
