@@ -1262,7 +1262,8 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 			e->ignore();
 			break;
 		    }
-		    if ( textFormat() == Qt::RichText && cursor->paragraph()->isListItem() ) {
+		    if ( textFormat() == Qt::RichText &&
+			 ( cursor->paragraph()->isListItem() || cursor->paragraph()->listDepth() ) ) {
 			clearUndoRedo();
 			undoRedoInfo.type = UndoRedoInfo::Style;
 			undoRedoInfo.id = cursor->paragraph()->paragId();
@@ -1520,7 +1521,9 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	}
 	break;
     case ActionBackspace:
-	if ( textFormat() == Qt::RichText && cursor->paragraph()->isListItem() && cursor->index() == 0 ) {
+	if ( textFormat() == Qt::RichText
+	     && (cursor->paragraph()->isListItem() || cursor->paragraph()->listDepth() )
+	     && cursor->index() == 0 ) {
 	    if ( undoEnabled ) {
 		clearUndoRedo();
 		undoRedoInfo.type = UndoRedoInfo::Style;
@@ -1529,10 +1532,14 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 		undoRedoInfo.styleInformation = QTextStyleCommand::readStyleInformation( doc, undoRedoInfo.id, undoRedoInfo.eid );
 	    }
 	    int ldepth = cursor->paragraph()->listDepth();
-	    ldepth = QMAX( ldepth-1, 0 );
-	    cursor->paragraph()->setListDepth( ldepth );
-	    if ( ldepth == 0 )
+	    if ( cursor->paragraph()->isListItem() && ldepth == 1 ) {
 		cursor->paragraph()->setListItem( FALSE );
+	    } else if ( QMAX( ldepth, 1 ) == 1 ) {
+		cursor->paragraph()->setListItem( FALSE );
+		cursor->paragraph()->setListDepth( 0 );
+	    } else {
+		cursor->paragraph()->setListDepth( ldepth - 1 );
+	    }
 	    clearUndoRedo();
 	    lastFormatted = cursor->paragraph();
 	    repaintChanged();

@@ -2002,9 +2002,11 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	    stylesPar->utm = 0;
 	} else {
 	    m = QMAX(0, item->margin( QStyleSheetItem::MarginTop ) );
-	    if ( item->displayMode() == QStyleSheetItem::DisplayListItem
-		 && stylesPar->ldepth )
-	      m /= stylesPar->ldepth * stylesPar->ldepth;
+	    if ( stylesPar->ldepth )
+		if ( item->displayMode() == QStyleSheetItem::DisplayListItem )
+		    m /= stylesPar->ldepth * stylesPar->ldepth;
+		else
+		    m = 0;
 	}
 	for ( i = (int)curStyle->size() - 2 ; i >= 0; --i ) {
 	    item = (*curStyle)[ i ];
@@ -2028,9 +2030,11 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	    stylesPar->ubm = 0;
 	} else {
 	    m = QMAX(0, item->margin( QStyleSheetItem::MarginBottom ) );
-	    if ( item->displayMode() == QStyleSheetItem::DisplayListItem
-		 && stylesPar->ldepth )
-	      m /= stylesPar->ldepth * stylesPar->ldepth;
+	    if ( stylesPar->ldepth )
+		if ( item->displayMode() == QStyleSheetItem::DisplayListItem )
+		    m /= stylesPar->ldepth * stylesPar->ldepth;
+		else
+		    m = 0;
 	}
 	for ( i = (int)curStyle->size() - 2 ; i >= 0; --i ) {
 	    item = (*curStyle)[ i ];
@@ -2235,11 +2239,12 @@ QString QTextDocument::richText() const
     QTextParagraph* p = fParag;
 
     QStyleSheetItem* item_p = styleSheet()->item("p");
+    QStyleSheetItem* item_div = styleSheet()->item("div");
     QStyleSheetItem* item_ul = styleSheet()->item("ul");
     QStyleSheetItem* item_ol = styleSheet()->item("ol");
     QStyleSheetItem* item_li = styleSheet()->item("li");
-    if ( !item_p || !item_ul || !item_ol || !item_li ) {
-	qWarning( "QTextEdit: cannot export HTML due to insufficient stylesheet (lack of p, ul, ol, or li)" );
+    if ( !item_p || !item_div || !item_ul || !item_ol || !item_li ) {
+	qWarning( "QTextEdit: cannot export HTML due to insufficient stylesheet (lack of p, div, ul, ol, or li)" );
 	return QString::null;
     }
     int pastListDepth = 0;
@@ -2290,6 +2295,14 @@ QString QTextDocument::richText() const
 	    s +=">";
 	    s += ps;
 	    s += "</li>";
+	} else if ( p->listDepth() ) {
+	    s += "<div";
+	    s += align_to_string( p->alignment() );
+	    s += margin_to_string( item_div, p->utm, p->ubm, p->ulm, p->urm, p->uflm );
+	    s +=direction_to_string( p->direction() );
+	    s += ">";
+	    s += ps;
+	    s += "</div>";
 	} else {
 	    // normal paragraph item
 	    s += "<p";
@@ -4788,6 +4801,19 @@ void QTextParagraph::writeStyleInformation( QDataStream& stream ) const
 #endif
 
 
+void QTextParagraph::setListItem( bool li )
+{
+    if ( litem == li )
+	return;
+    litem = li;
+    changed = TRUE;
+    QTextParagraph* s = prev() ? prev() : this;
+    while ( s ) {
+	s->invalidate( 0 );
+	s = s->next();
+    }
+}
+
 void QTextParagraph::setListDepth( int depth ) {
     if ( !hasdoc || depth == ldepth )
 	return;
@@ -4938,7 +4964,8 @@ int QTextParagraph::topMargin() const
 {
     int m = 0;
     if ( rtext ) {
-	m = isListItem() ? (document()->li_tm/QMAX(1,listDepth()*listDepth())) : document()->par_tm;
+	m = isListItem() ? (document()->li_tm/QMAX(1,listDepth()*listDepth())) :
+	    ( listDepth() ? 0 : document()->par_tm );
 	if ( listDepth() == 1 &&(  !prev() || prev()->listDepth() < listDepth() ) )
 	    m = QMAX( m, document()->list_tm );
     }
@@ -4950,7 +4977,8 @@ int QTextParagraph::bottomMargin() const
 {
     int m = 0;
     if ( rtext ) {
-	m = isListItem() ? (document()->li_bm/QMAX(1,listDepth()*listDepth())) : document()->par_bm;
+	m = isListItem() ? (document()->li_bm/QMAX(1,listDepth()*listDepth())) :
+	    ( listDepth() ? 0 : document()->par_bm );
 	if ( listDepth() == 1 &&(  !next() || next()->listDepth() < listDepth() ) )
 	    m = QMAX( m, document()->list_bm );
     }

@@ -1163,7 +1163,7 @@ public:
 
     void setListStyle( QStyleSheetItem::ListStyle ls ) { lstyle = ls; changed = TRUE; }
     QStyleSheetItem::ListStyle listStyle() const { return lstyle; }
-    void setListItem( bool li ) { litem = li; changed = TRUE; }
+    void setListItem( bool li );
     bool isListItem() const { return litem; }
     void setListValue( int v ) { list_val = v; }
     int listValue() const { return list_val > 0 ? list_val : -1; }
