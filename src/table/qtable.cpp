@@ -5126,7 +5126,7 @@ void QTable::takeItem( QTableItem *i )
 	right = numCols();
     for ( int r = i->row(); r < bottom; ++r ) {
 	for ( int c = i->col(); c < right; ++c )
-	    clearCell( r, c );
+	    contents.remove( indexOf( r, c ) );
     }
     contents.setAutoDelete( TRUE );
     repaintContents( rect, FALSE );
