@@ -1,14 +1,44 @@
 /*
-$Id: //depot/qt/main/examples/ftpclient/ftpclient.doc#1 $
+$Id: //depot/qt/main/examples/ftpclient/ftpclient.doc#2 $
 */
      
 /*! \page ftpclient-example.html
 
   \ingroup network-examples
 
-  \title A FTP client
+  \title An FTP client
  
   This is a more advanced example that implements a FTP client. It uses the
   QFtp class of Qt indirectly through the QUrlOperator class to do all FTP
   commands.
+
+  <hr>
+ 
+  The API of the FtpMainWindow class (ftpmainwindow.h):
+ 
+  \include ftpclient/ftpmainwindow.h
+ 
+  <hr>
+ 
+  The Implementation of the FtpMainWindow class (ftpmainwindow.cpp):
+ 
+  \include ftpclient/ftpmainwindow.cpp
+ 
+  <hr>
+ 
+  The API of the FtpViewItem and FtpView classes (ftpview.h):
+ 
+  \include ftpclient/ftpview.h
+ 
+  <hr>
+ 
+  Their Implementation (ftpview.cpp):
+ 
+  \include ftpclient/ftpview.cpp
+ 
+  <hr>
+ 
+  Main (main.cpp):
+ 
+  \include ftpclient/main.cpp
 */

@@ -1,5 +1,5 @@
 /*
-$Id: //depot/qt/main/examples/clientserver/clientserver.doc#1 $
+$Id: //depot/qt/main/examples/clientserver/clientserver.doc#2 $
 */
      
 /*! \page clientserver-example.html
@@ -8,7 +8,7 @@ $Id: //depot/qt/main/examples/clientserver/clientserver.doc#1 $
 
   \title A small client-server example
  
-  This example shows you how two programs can communicate using sockets. It
+  This example shows how two programs can communicate using sockets. It
   consists out of two different programs: a server and a client.
   
   The server listens on port number 4242 and accepts incoming connections.
@@ -16,18 +16,18 @@ $Id: //depot/qt/main/examples/clientserver/clientserver.doc#1 $
   prepended with the line number.
 
   The client tries to connect to the server on the host specified on the
-  command line or to the localhost, if no command line arguments are
+  command line or to localhost if no command line arguments are
   specified. You can send single lines to the server.
 
   <hr>
 
-  Implementation server:
+  Implementation server (server.cpp):
  
   \include clientserver/server/server.cpp
 
   <hr>
 
-  Implementation client:
+  Implementation client (client.cpp):
  
   \include clientserver/client/client.cpp
 */

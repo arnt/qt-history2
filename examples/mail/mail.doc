@@ -1,5 +1,5 @@
 /*
-$Id: //depot/qt/main/examples/mail/mail.doc#1 $
+$Id: //depot/qt/main/examples/mail/mail.doc#2 $
 */
      
 /*! \page mail-example.html
@@ -14,13 +14,13 @@ $Id: //depot/qt/main/examples/mail/mail.doc#1 $
 
   <hr>
 
-  Header file:
+  Header file (smtp.h):
  
   \include mail/smtp.h
 
   <hr>
 
-  Implementation:
+  Implementation (smtp.cpp):
  
   \include mail/smtp.cpp
 */

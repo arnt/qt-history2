@@ -1,5 +1,5 @@
 /*
-$Id: //depot/qt/main/examples/httpd/httpd.doc#1 $
+$Id: //depot/qt/main/examples/httpd/httpd.doc#2 $
 */
      
 /*! \page httpd-example.html
@@ -10,12 +10,12 @@ $Id: //depot/qt/main/examples/httpd/httpd.doc#1 $
  
   This example shows how to use the QServerSocket class. It is a very
   simple implementation of a HTTP daemon that listens on port 8080 and
-  sends back a simple HTML page back for every GET request he gets. After
+  sends back a simple HTML page back for every GET request it gets. After
   it sent the page, it closes the connection.
 
   <hr>
 
-  Implementation:
+  Implementation (httpd.cpp):
  
   \include httpd/httpd.cpp
 */

@@ -1,5 +1,5 @@
 /*
-$Id: //depot/qt/main/examples/networkprotocol/networkprotocol.doc#1 $
+$Id: //depot/qt/main/examples/networkprotocol/networkprotocol.doc#2 $
 */
      
 /*! \page networkprotocol-example.html
@@ -15,13 +15,13 @@ $Id: //depot/qt/main/examples/networkprotocol/networkprotocol.doc#1 $
 
   <hr>
 
-  Header file:
+  Header file (nntp.h):
  
   \include networkprotocol/nntp.h
 
   <hr>
 
-  Implementation:
+  Implementation (nntp.cpp):
  
   \include networkprotocol/nntp.cpp
 */
