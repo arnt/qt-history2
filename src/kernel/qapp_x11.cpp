@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#256 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#257 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -59,7 +59,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#256 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#257 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -189,6 +189,7 @@ static int qt_xio_errhandler( Display * )
 #endif
 
 
+static XIC xic;
 
 /*****************************************************************************
   qt_init() - initializes Qt for X11
@@ -386,7 +387,15 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	QPalette pal( cg, dcg, cg );
 	QApplication::setPalette( pal );
     }
-    setlocale( LC_ALL, "ISO-8859-1" );		// use correct char set mapping
+    setlocale( LC_ALL, "" );		// use correct char set mapping
+    XIM xim = 0;
+    if ( XSupportsLocale() &&
+	 ( qstrlen(XSetLocaleModifiers( "@im=none" )) ||
+	   qstrlen(XSetLocaleModifiers( "" ) ) ) &&
+	 (xim=XOpenIM (appDpy, 0, 0, 0)) )
+	xic = XCreateIC( xim,
+			 XNInputStyle, XIMPreeditNone + XIMStatusNone,
+			 0 );
 }
 
 void qt_init( int *argcptr, char **argv )
@@ -2554,12 +2563,16 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     int	   count;
     int	   state;
     KeySym key;
-    static XComposeStatus composeStatus; // starts as all zeros
+    //    static XComposeStatus composeStatus; // starts as all zeros
+    Status status;
 
     type = (event->type == KeyPress) ? Event_KeyPress : Event_KeyRelease;
 
-    count = XLookupString( &((XEvent*)event)->xkey, ascii, 16, &key, 
-			   &composeStatus );
+    count = XmbLookupString( xic, &((XEvent*)event)->xkey, ascii, 16, &key,
+			     &status );
+
+    debug( "promp: %08x, %d, %08x", (int)key, status, (int)xic );
+
     state = translateButtonState( event->xkey.state );
 
     // commentary in X11/keysymdef says that X codes match ASCII, so it
