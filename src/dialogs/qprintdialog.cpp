@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#14 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#15 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -18,7 +18,7 @@
 #include "qpushbt.h"
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#15 $");
 
 
 //
@@ -202,13 +202,12 @@ void QPrintDialog::printerOrFileSelected( int index )
 
 void QPrintDialog::browseClicked()
 {
-    QFileDialog filedlg( this, 0, TRUE );
-    QString dir = filedlg.dirPath();
-    if ( filedlg.exec() == QDialog::Accepted ) {
-	QString fileName = filedlg.selectedFile();
-	if ( fileName.find(dir) == 0 )		// get relative file name
-	    fileName.remove( 0, dir.length()+1 );
-	WIDGET(this,QLineEdit,"printFile")->setText( fileName );
+    QString dir  = QDir::currentDirPath();
+    QString file = QFileDialog::getOpenFileName( 0, 0, this );
+    if ( !file.isEmpty() ) {
+	if ( file.find(dir) == 0 )		// get relative file name
+	    file.remove( 0, dir.length()+1 );
+	WIDGET(this,QLineEdit,"printFile")->setText( file );
     }
 }
 
