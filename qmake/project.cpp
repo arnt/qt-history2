@@ -175,8 +175,10 @@ bool IteratorBlock::exec(QMakeProject *p, QMap<QString, QStringList> &place)
     //do the loop
     while(loop_forever || it != list.end()) {
         cause_next = cause_break = false;
-        if(!loop_forever && (*it).isEmpty()) //ignore empty items
+        if(!loop_forever && (*it).isEmpty()) { //ignore empty items
+            ++it;
             continue;
+        }
 
         //set up the loop variable
         QStringList va;
