@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#179 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#180 $
 **
 ** Implementation of QListView widget class
 **
@@ -310,7 +310,7 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after )
   \code
      (void)new QListViewItem( lv, "/", "Root directory" );
   \endcode
-  
+
   \sa setText()
 */
 
@@ -345,7 +345,7 @@ QListViewItem::QListViewItem( QListView * parent,
   \code
      (void)new QListViewItem( parentMessage, author, subject );
   \endcode
-  
+
   \sa setText()
 */
 
@@ -378,7 +378,7 @@ QListViewItem::QListViewItem( QListViewItem * parent,
   Note that the order is changed according to QListViewItem::key()
   unless the list view's sorting is disabled using
   QListView::setSorting( -1 ).
-  
+
   \sa setText()
 */
 
@@ -493,6 +493,10 @@ QListViewItem::~QListViewItem()
 
 void QListViewItem::insertItem( QListViewItem * newChild )
 {
+    if ( !newChild || newChild->parentItem == this )
+	return;
+    if ( newChild->parentItem )
+	newChild->parentItem->removeChild( newChild );
     invalidateHeight();
     newChild->siblingItem = childItem;
     childItem = newChild;
@@ -511,7 +515,7 @@ void QListViewItem::insertItem( QListViewItem * newChild )
   \warning This function leaves \a tbg and its children in a state
   where most member functions are unsafe.  Only the few functions that
   are explicitly documented to work in this state may be used then.
-  
+
   \sa QListViewItem::insertItem()
 */
 
@@ -3927,4 +3931,32 @@ int QListViewItem::itemPos() const
 	p = i;
     }
     return a;
+}
+
+
+/*!  Inserts \a i into the list view as a top-level item.  You do not
+  need to call this unless you've called removeItem( \a i ) or
+  QListViewItem::removeItem( i ) and need to reinsert \a i elsewhere.
+
+  \sa QListViewItem::removeItem() (important) removeItem()
+*/
+
+void QListView::insertItem( QListViewItem * i )
+{
+    d->r->insertItem( i );
+}
+
+
+/*!  Removes \a i from the list view; \a i must be a top-level item.
+  The warnings regarding QListViewItem::removeItem( i ) apply to this
+  function too.
+
+  \sa QListViewItem::removeItem() (important) insertItem()
+/*!
+
+*/
+
+void QListView::removeItem( QListViewItem * i )
+{
+    d->r->removeItem( i );
 }
