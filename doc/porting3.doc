@@ -240,6 +240,16 @@ code to get things working again. There are a few other functions
 that  took a QFont::CharSet as parameter. Just remove the charset
 from the parameterlist.
 
+\section1 QInputDialog
+
+The two static getText(...) methods in QInputDialog have been merged. 
+The \c echo parameter is the third parameter and defaults to 
+QLineEdit::Normal. 
+
+If you used calls to QInputDialog::getText(...) that provided more 
+than the first two required parameters you will have to add a value 
+for the \c echo parameter.
+
 \section1 QLayout and Related Abstract Layout Classes
 
 The definition of \l QGLayoutIterator, \l QLayout, \l QLayoutItem, \l
