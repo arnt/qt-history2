@@ -2401,7 +2401,7 @@ echo "STL support ......... $CFG_STL"
 echo "Thread support ...... $CFG_THREAD"
 echo "NIS support ......... $CFG_NIS"
 echo "CUPS support ........ $CFG_CUPS"
-if [ "$CFG_LARGEFILE" = "yes" && "$CFG_NEWABI" = "no" ]; then
+if [ "$CFG_LARGEFILE" = "yes" ]  && [ "$CFG_NEWABI" = "no" ]; then
     echo "Large File support .. partial"
 else
     echo "Large File support .. $CFG_LARGEFILE"
