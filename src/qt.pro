@@ -90,7 +90,7 @@ unix {
 	WORKSPACE_H	= $$WORKSPACE_CPP
 	XML_H		= $$XML_CPP
 	STYLES_H	= $$STYLES_CPP
-	!mac:CONFIG	   += x11 x11inc
+	!embedded:!mac:CONFIG	   += x11 x11inc
 }
 
 embedded {
