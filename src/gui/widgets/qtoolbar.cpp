@@ -730,6 +730,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
     bool use_extension = (pick(orientation, size()) < pick(orientation, d->old_size))
 			 || (pick(orientation, size()) < pick(orientation, real_sh));
     int hidden_count = 0;
+    int max_item_extent = 0;
     while (layout()->itemAt(i)) {
 	QWidget *w = layout()->itemAt(i)->widget();
 	if (pick(orientation, w->pos()) + pick(orientation, w->size())
@@ -742,19 +743,23 @@ void QToolBar::resizeEvent(QResizeEvent *event)
             w->setShown(d->items[i - 1].action->isVisible());
             d->items[i - 1].hidden = false;
 	}
+        if (orientation == Qt::Horizontal)
+            max_item_extent = qMax(max_item_extent, w->height());
+        else
+            max_item_extent = qMax(max_item_extent, w->width());
 	++i;
     }
-
+    setMinimumSize(max_item_extent + margin*2, max_item_extent + margin*2);
     if (hidden_count > 0) {
 	if (orientation == Qt::Horizontal) {
 	    d->extension->setGeometry(width() - d->extension->sizeHint().width() - margin,
 				      margin,
 				      d->extension->sizeHint().width(),
-				      height() - margin*2);
+				      max_item_extent);
         } else {
 	    d->extension->setGeometry(margin,
 				      height() - d->extension->sizeHint().height() - margin*2,
-				      width(),
+				      max_item_extent,
 				      d->extension->sizeHint().height());
         }
 
