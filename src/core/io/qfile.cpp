@@ -830,7 +830,7 @@ QFile::readLine(char *data, Q_LONGLONG maxSize)
     Reads a line of text.
 
     Reads bytes from the file into the \a string until end-of-line or
-    the \a maximum number bytes have been read, whichever occurs first.
+    \a maxSize bytes have been read, whichever occurs first.
     Returns the number of bytes read, or -1 if there was an error
     (e.g. end of file). Any terminating newline is not stripped.
 

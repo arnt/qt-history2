@@ -563,7 +563,7 @@ int QRingBuffer::indexOf(char c) const
     Reads one line of data (all data up to and including the '\n'
     character), no longer than \a maxSize - 1 bytes, and stores it in \a
     data. If the line is too long, maxSize bytes of the line are read.
-    \a data is always 0-terminated.
+    \a data is always terminated by a '\0' byte.
 */
 int QRingBuffer::readLine(char *data, int maxSize)
 {
