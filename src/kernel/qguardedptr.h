@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qguardedptr.h#2 $
+** $Id: //depot/qt/main/src/kernel/qguardedptr.h#3 $
 **
 ** Definition of QGuardedPtr class
 **
@@ -126,6 +126,11 @@ public:
 	return (const T*) priv->object();
     }
 
+    operator bool()
+    {
+	return !isNull();
+    }
+    
     operator bool() const
     {
 	return !isNull();
