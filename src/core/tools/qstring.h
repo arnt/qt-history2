@@ -54,12 +54,12 @@ public:
 
     inline int size() const { return d->size; }
     inline int count() const { return d->size; }
-    int length() const;
-    bool isEmpty() const;
+    inline int length() const;
+    inline bool isEmpty() const;
     void resize(int size);
 
-    bool operator!() const;
-    operator bool() const;
+    inline bool operator!() const;
+    inline operator bool() const;
 
     QString &fill(QChar c, int size = -1);
     void truncate(int maxSize);

@@ -97,7 +97,7 @@ public:
     operator const void *() const;
     char *data();
     const char *data() const;
-    const char *constData() const;
+    inline const char *constData() const;
     inline void detach();
     bool isDetached() const;
     void clear();
