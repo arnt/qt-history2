@@ -394,7 +394,7 @@ QStringList QSqlTable::sort() const
 {
     if ( cursor() )
 	return cursor()->sort().toStringList( QString::null, TRUE );
-    return QStringList();
+    return d->srt;
 }
 
 /*! If \a confirm is TRUE, all edits will be confirmed with the user
