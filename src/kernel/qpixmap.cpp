@@ -655,6 +655,17 @@ void QPixmap::resize( int w, int h )
   and pixel value 0 means transparent. The mask must have the same size as
   this pixmap.
 
+  \e NOTE: Setting the mask on a pixmap will cause any alpha channel data
+  to be cleared.  For example:
+
+  \code
+      QPixmap alpha( "image-with-alpha.png" );
+      QPixmap alphacopy = alpha;
+      alphacopy.setMask( alphacopy.mask() );
+  \endcode
+
+  Now, alpha and alphacopy are visually different.
+
   Setting a \link isNull() null\endlink mask resets the mask.
 
   \sa mask(), createHeuristicMask(), QBitmap
@@ -680,10 +691,16 @@ void QPixmap::setMask( const QBitmap &newmask )
     if ( newmask.width() != width() || newmask.height() != height() ) {
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QPixmap::setMask: The pixmap and the mask must have "
-		 "the same size" );
+		  "the same size" );
 #endif
 	return;
     }
+#if defined(Q_WS_X11) && !defined(QT_NO_XRENDER)
+    // when setting the mask, we get rid of the alpha channel completely
+    delete data->alphapm;
+    data->alphapm = 0;
+#endif // Q_WS_X11 && !QT_NO_XRENDER
+
     delete data->mask;
     QBitmap* newmaskcopy;
     if ( newmask.mask() )
@@ -1098,7 +1115,7 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
     double yy = (double)h;
 
     QWMatrix mat( matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0. );
-    
+
     mat.map( dt, dt, &x1, &y1 );
     mat.map( xx, dt, &x2, &y2 );
     mat.map( xx, yy, &x3, &y3 );
@@ -1112,7 +1129,7 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
     if ( x2 < xmin ) xmin = x2;
     if ( x3 < xmin ) xmin = x3;
     if ( x4 < xmin ) xmin = x4;
-    
+
     double ymax = y1;				// lowest y value
     if ( y2 > ymax ) ymax = y2;
     if ( y3 > ymax ) ymax = y3;
@@ -1121,7 +1138,7 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
     if ( x2 > xmax ) xmax = x2;
     if ( x3 > xmax ) xmax = x3;
     if ( x4 > xmax ) xmax = x4;
-    
+
     xmin -= xmin/(xmax-xmin);
     ymin -= ymin/(ymax-ymin);
 

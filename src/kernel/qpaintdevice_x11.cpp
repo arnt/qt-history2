@@ -873,17 +873,17 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    ( ignoreMask || alpha->x11RenderHandle() ) &&
 	    dst->x11RenderHandle()) {
 	    XRenderPictureAttributes pattr;
-	    ulong mask = 0;
+	    ulong picmask = 0;
 	    if (include_inferiors) {
 		pattr.subwindow_mode = IncludeInferiors;
-		mask |= CPSubwindowMode;
+		picmask |= CPSubwindowMode;
 	    }
 	    if (graphics_exposure) {
 		pattr.graphics_exposures = TRUE;
-		mask |= CPGraphicsExposure;
+		picmask |= CPGraphicsExposure;
 	    }
-	    if (mask)
-		XRenderChangePicture(dpy, dst->x11RenderHandle(), mask, &pattr);
+	    if (picmask)
+		XRenderChangePicture(dpy, dst->x11RenderHandle(), picmask, &pattr);
 	    XRenderComposite(dpy, ignoreMask ? PictOpSrc : PictOpOver,
 			     src->x11RenderHandle(),
 			     ignoreMask ? None : alpha->x11RenderHandle(),
@@ -892,8 +892,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    // restore attributes
 	    pattr.subwindow_mode = ClipByChildren;
 	    pattr.graphics_exposures = FALSE;
-	    if (mask)
-		XRenderChangePicture(dpy, dst->x11RenderHandle(), mask, &pattr);
+	    if (picmask)
+		XRenderChangePicture(dpy, dst->x11RenderHandle(), picmask, &pattr);
 	    return;
 	}
     }

@@ -2618,17 +2618,6 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
         map( x, y, &x, &y );
     }
 
-#ifndef QT_NO_XRENDER
-    QPixmap *alpha = pixmap.data->alphapm;
-
-    if (rendhd && pixmap.x11RenderHandle() && alpha && alpha->x11RenderHandle()) {
-	XRenderComposite(dpy, PictOpOver, pixmap.x11RenderHandle(),
-			 alpha->x11RenderHandle(), rendhd,
-			 sx, sy, sx, sy, x, y, sw, sh);
-	return;
-    }
-#endif // QT_NO_XRENDER
-
     QBitmap *mask = (QBitmap *)pixmap.mask();
     bool mono = pixmap.depth() == 1;
 
@@ -2707,7 +2696,18 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
         XSetTSOrigin( dpy, gc, 0, 0 );
         XSetFillStyle( dpy, gc, FillSolid );
     } else {
-	XCopyArea( dpy, pixmap.handle(), hd, gc, sx, sy, sw, sh, x, y );
+#ifndef QT_NO_XRENDER
+	QPixmap *alpha = pixmap.data->alphapm;
+
+	if ( rendhd && pixmap.x11RenderHandle() &&
+	     alpha && alpha->x11RenderHandle()) {
+	    XRenderComposite(dpy, PictOpOver, pixmap.x11RenderHandle(),
+			     alpha->x11RenderHandle(), rendhd,
+			     sx, sy, sx, sy, x, y, sw, sh);
+	} else {
+	    XCopyArea( dpy, pixmap.handle(), hd, gc, sx, sy, sw, sh, x, y );
+	}
+#endif // QT_NO_XRENDER
     }
 
     if ( mask ) {                               // restore clipping
@@ -2993,7 +2993,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
             QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
             QFont dfont( cfont );
 	    float pixSize = cfont.pixelSize();
-	    if ( pixSize == -1 ) 
+	    if ( pixSize == -1 )
 		pixSize = cfont.deciPointSize() * QPaintDeviceMetrics( pdev ).logicalDpiY() / 720;
 	    int newSize = (int) (sqrt( QABS(m11()*m22() - m12()*m21()) ) * pixSize);
 	    newSize = QMAX( 6, QMIN( newSize, 72 ) ); // empirical values

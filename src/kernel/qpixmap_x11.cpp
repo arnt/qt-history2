@@ -1315,10 +1315,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     if ( d == 8 && !trucol ) {			// 8 bit pixmap
 	int  i, j;
 	int  pop[256];				// pixel popularity
-	
+
 	if ( image.numColors() == 0 )
 	    image.setNumColors( 1 );
-	
+
 	memset( pop, 0, sizeof(int)*256 );	// reset popularity array
 	for ( i=0; i<h; i++ ) {			// for each scanline...
 	    p = image.scanLine( i );
@@ -1353,11 +1353,11 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	for ( i=image.numColors(); i<256; i++ ) // ignore out-of-range pixels
 	    pop[i] = 0;
 
-	// works since we make sure above to have at least 
+	// works since we make sure above to have at least
 	// one color in the image
 	if ( ncols == 0 )
-	    ncols = 1; 
-	
+	    ncols = 1;
+
 	PIX pixarr[256];			// pixel array
 	PIX pixarr_sorted[256];			// pixel array (sorted)
 	memset( pixarr, 0, ncols*sizeof(PIX) );
@@ -1527,6 +1527,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     data->d = dd;
 
     if ( img.hasAlphaBuffer() ) {
+	QBitmap m;
+	m = img.createAlphaMask( conversion_flags );
+	setMask( m );
+
 #ifndef QT_NO_XRENDER
 	// ### only support 32bit images at the moment
 	if (qt_use_xrender && img.depth() == 32) {
@@ -1574,10 +1578,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    }
 	}
 #endif // QT_NO_XRENDER
-
-	QBitmap m;
-	m = img.createAlphaMask( conversion_flags );
-	setMask( m );
     }
 
     return TRUE;
@@ -1667,7 +1667,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     hs = height();
 
     QWMatrix mat( matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0. );
-    
+
     if ( matrix.m12() == 0.0F && matrix.m21() == 0.0F ) {
 	if ( matrix.m11() == 1.0F && matrix.m22() == 1.0F )
 	    return *this;			// identity matrix
@@ -1685,7 +1685,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
     mat = trueMatrix( mat, ws, hs ); // true matrix
 
-    
+
     bool invertible;
     mat = mat.invert( &invertible );		// invert matrix
 
