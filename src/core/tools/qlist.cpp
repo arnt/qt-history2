@@ -26,22 +26,24 @@
     the number of elements in the list.
 */
 
-QListData::Data QListData::shared_null = { Q_ATOMIC_INIT(1), 0, 0, 0, { 0 } };
+QListData::Data QListData::shared_null = { Q_ATOMIC_INIT(1), 0, 0, 0, true, { 0 } };
 
 static int grow(int size)
 {
     // dear compiler: don't optimize me out.
-    volatile int x = qAllocMore(size * sizeof(void *), sizeof(QListData::DataHeader)) / sizeof(void *);
+    volatile int x = qAllocMore(size * sizeof(void *), sizeof(QListData::DataHeader))
+                     / sizeof(void *);
     return x;
 }
 
 QListData::Data *QListData::detach()
 {
     Q_ASSERT(d->ref != 1);
-    Data *x = static_cast<Data*>(qMalloc(sizeof(DataHeader)+d->alloc*sizeof(void*)));
-    ::memcpy(x, d, sizeof(DataHeader) + d->alloc*sizeof(void*));
+    Data *x = static_cast<Data *>(qMalloc(sizeof(DataHeader) + d->alloc * sizeof(void *)));
+    ::memcpy(x, d, sizeof(DataHeader) + d->alloc * sizeof(void *));
     x->alloc = d->alloc;
     x->ref = 1;
+    x->sharable = true;
     if (!x->alloc)
         x->begin = x->end = 0;
 

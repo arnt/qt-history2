@@ -28,7 +28,7 @@ class C##Iterator \
     const_iterator i; \
 public: \
     inline C##Iterator(const C<T> &container) \
-    : c(container), i(c.constBegin()) {} \
+        : c(container), i(c.constBegin()) {} \
     inline void operator=(const C<T> &container) \
     { c = container.c; i = c.constBegin(); } \
     inline void toFront() { i = c.constBegin(); } \
@@ -55,9 +55,13 @@ class C##MutableIterator \
     inline bool item_exists() const { return n != c->constEnd(); } \
 public: \
     inline C##MutableIterator(C<T> &container) \
-    : c(&container), i(c->begin()), n(c->end()) {} \
+        : c(&container) \
+    { c->setSharable(false); i = c->begin(); n = c->end(); } \
+    inline ~C##MutableIterator() \
+    { c->setSharable(true); } \
     inline void operator=(C<T> &container) \
-    { c = &container; i = c->begin(); n = c->end(); } \
+    { c->setSharable(true); c = &container; c->setSharable(false); \
+      i = c->begin(); n = c->end(); } \
     inline void toFront() { i = c->begin(); n = c->end(); } \
     inline void toBack() { i = c->end(); n = i; } \
     inline bool hasNext() const { return c->constEnd() != i; } \
@@ -90,7 +94,7 @@ class C##Iterator \
     inline bool item_exists() const { return n != c.constEnd(); } \
 public: \
     inline C##Iterator(const C<Key,T> &container) \
-    : c(container), i(c.constBegin()), n(c.constEnd()) {} \
+        : c(container), i(c.constBegin()), n(c.constEnd()) {} \
     inline void operator=(const C<Key,T> &container) \
     { c = container; i = c.constBegin(); n = c.constEnd(); } \
     inline void toFront() { i = c.constBegin(); n = c.constEnd(); } \
@@ -157,10 +161,13 @@ class C##MutableIterator \
     iterator i, n; \
     inline bool item_exists() const { return n != c->constEnd(); } \
 public: \
-    inline C##MutableIterator(C<Key,T> &container)\
-    : c(&container), i(c->begin()), n(c->end()) {} \
+    inline C##MutableIterator(C<Key,T> &container) \
+        : c(&container) \
+    { c->setSharable(false); i = c->begin(); n = c->end(); } \
+    inline ~C##MutableIterator() \
+    { c->setSharable(true); } \
     inline void operator=(C<Key,T> &container) \
-    { c = &container; i = c->begin(); n = c->end(); } \
+    { c->setSharable(true); c = &container; c->setSharable(false); i = c->begin(); n = c->end(); } \
     inline void toFront() { i = c->begin(); n = c->end(); } \
     inline void toBack() { i = c->end(); n = c->end(); } \
     inline bool hasNext() const { return i != c->constEnd(); } \

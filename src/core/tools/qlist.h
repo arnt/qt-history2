@@ -22,10 +22,12 @@ struct Q_CORE_EXPORT QListData {
     struct DataHeader {
         QAtomic ref;
         int alloc, begin, end;
+        uint sharable : 1;
     };
     struct Data {
         QAtomic ref;
         int alloc, begin, end;
+        uint sharable : 1;
         void *array[1];
     };
     Data *detach();
@@ -64,7 +66,7 @@ class QList
 
 public:
     inline QList() : d(&QListData::shared_null) { ++d->ref; }
-    inline QList(const QList &l) : d(l.d) { ++d->ref; }
+    inline QList(const QList &l) : d(l.d) { ++d->ref; if (!d->sharable) detach_helper(); }
     QList(const QVector<T> &vector);
     ~QList();
     QList &operator=(const QList &l);
@@ -75,6 +77,7 @@ public:
 
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
+    inline void setSharable(bool sharable) { if (!sharable) detach(); d->sharable = sharable; }
 
     inline bool isEmpty() const { return p.isEmpty(); }
 
@@ -288,6 +291,8 @@ Q_INLINE_TEMPLATE QList<T> &QList<T>::operator=(const QList<T> &l)
         x = qAtomicSetPtr(&d, x);
         if (!--x->ref)
             free(x);
+        if (!d->sharable)
+            detach_helper();
     }
     return *this;
 }

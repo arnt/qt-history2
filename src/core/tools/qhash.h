@@ -76,6 +76,7 @@ struct Q_CORE_EXPORT QHashData
     short userNumBits;
     short numBits;
     int numBuckets;
+    uint sharable : 1;
 
     QHashData *detach_helper(Node *(*node_duplicate)(Node *));
     void mightGrow();
@@ -163,7 +164,7 @@ class QHash
 
 public:
     inline QHash() : d(&QHashData::shared_null) { ++d->ref; }
-    inline QHash(const QHash<Key, T> &other) : d(other.d) { ++d->ref; }
+    inline QHash(const QHash<Key, T> &other) : d(other.d) { ++d->ref; if (!d->sharable) detach(); }
     inline ~QHash() { if (!--d->ref) freeData(d); }
 
     QHash<Key, T> &operator=(const QHash<Key, T> &other);
@@ -181,6 +182,8 @@ public:
 
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
+    inline void setSharable(bool sharable) { if (!sharable) detach(); d->sharable = sharable; }
+
     static inline bool sameKey(const Key &key1, const Key &key2)
         { return key1 == key2; }
 
@@ -401,6 +404,8 @@ Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::operator=(const QHash<Key, T> &o
         x = qAtomicSetPtr(&d, x);
         if (!--x->ref)
             freeData(x);
+        if (!d->sharable)
+            detach_helper();
     }
     return *this;
 }

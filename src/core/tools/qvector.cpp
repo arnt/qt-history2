@@ -15,7 +15,7 @@
 #include "qtools_p.h"
 #include <string.h>
 
-QVectorData QVectorData::shared_null = { Q_ATOMIC_INIT(1), 0, 0 };
+QVectorData QVectorData::shared_null = { Q_ATOMIC_INIT(1), 0, 0, true };
 
 QVectorData* QVectorData::malloc(int sizeofTypedData, int size, int sizeofT, QVectorData* init)
 {

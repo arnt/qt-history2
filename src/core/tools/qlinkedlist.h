@@ -22,6 +22,7 @@ struct Q_CORE_EXPORT QLinkedListData
     QLinkedListData *n, *p;
     QAtomic ref;
     int size;
+    uint sharable : 1;
 
     static QLinkedListData shared_null;
 };
@@ -41,8 +42,8 @@ class QLinkedList
     union { QLinkedListData *d; QLinkedListNode<T> *e; };
 
 public:
-    inline QLinkedList() : d(&QLinkedListData::shared_null) { ++d->ref; };
-    inline QLinkedList(const QLinkedList &l):d(l.d) { ++d->ref; }
+    inline QLinkedList() : d(&QLinkedListData::shared_null) { ++d->ref; }
+    inline QLinkedList(const QLinkedList &l) : d(l.d) { ++d->ref; if (!d->sharable) detach(); }
     ~QLinkedList();
     QLinkedList<T> &operator=(const QLinkedList &);
     bool operator==(const QLinkedList &l) const;
@@ -52,6 +53,7 @@ public:
     inline void detach()
     { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
+    inline void setSharable(bool sharable) { if (!sharable) detach(); d->sharable = sharable; }
 
     inline bool isEmpty() const { return d->size == 0; }
 
@@ -192,11 +194,13 @@ inline QLinkedList<T>::~QLinkedList()
 }
 
 template <typename T>
-void QLinkedList<T>::detach_helper() {
+void QLinkedList<T>::detach_helper()
+{
     union { QLinkedListData *d; Node *e; } x;
     x.d = new QLinkedListData;
     x.d->ref = 1;
     x.d->size = d->size;
+    x.d->sharable = true;
     Node *i = e->n, *j = x.e;
     while (i != e) {
         j->n = new Node(i->t);
@@ -241,6 +245,8 @@ QLinkedList<T> &QLinkedList<T>::operator=(const QLinkedList<T> &l)
         x = qAtomicSetPtr(&d, x);
         if (!--x->ref)
             free(x);
+        if (!d->sharable)
+            detach_helper();
     }
     return *this;
 }

@@ -21,7 +21,10 @@
 struct Q_CORE_EXPORT QVectorData
 {
     QAtomic ref;
-    int alloc, size;
+    int alloc;
+    int size;
+    uint sharable : 1;
+
     static QVectorData shared_null;
     static QVectorData *malloc(int sizeofTypedData, int size, int sizeofT, QVectorData *init);
     static int grow(int sizeofTypedData, int size, int sizeofT, bool excessive);
@@ -31,7 +34,9 @@ template <typename T>
 struct QVectorTypedData
 {
     QAtomic ref;
-    int alloc, size;
+    int alloc;
+    int size;
+    uint sharable : 1;
     T array[1];
 };
 
@@ -45,7 +50,7 @@ public:
     inline QVector() : p(&QVectorData::shared_null) { ++d->ref; }
     explicit QVector(int size);
     QVector(int size, const T &t);
-    inline QVector(const QVector &v) : d(v.d) { ++d->ref; }
+    inline QVector(const QVector &v) : d(v.d) { ++d->ref; if (!d->sharable) detach_helper(); }
     inline ~QVector() { if (!d) return; if (!--d->ref) free(d); }
     QVector &operator=(const QVector &v);
     bool operator==(const QVector &v) const;
@@ -63,10 +68,11 @@ public:
 
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
+    inline void setSharable(bool sharable) { if (!sharable) detach(); d->sharable = sharable; }
 
-    inline T* data() { detach(); return d->array; }
-    inline const T* data() const { return d->array; }
-    inline const T* constData() const { return d->array; }
+    inline T *data() { detach(); return d->array; }
+    inline const T *data() const { return d->array; }
+    inline const T *constData() const { return d->array; }
     void clear();
 
     const T &at(int i) const;
@@ -162,8 +168,8 @@ void QVector<T>::reserve(int size)
 template <typename T>
 void QVector<T>::resize(int size)
 { realloc(size, (size>d->alloc||(size<d->size && size < (d->alloc >> 1))) ?
-           QVectorData::grow(sizeof(Data), size, sizeof(T), QTypeInfo<T>::isStatic)
-           : d->alloc); }
+          QVectorData::grow(sizeof(Data), size, sizeof(T), QTypeInfo<T>::isStatic)
+          : d->alloc); }
 template <typename T>
 inline void QVector<T>::clear()
 { *this = QVector<T>(); }
@@ -210,6 +216,8 @@ QVector<T> &QVector<T>::operator=(const QVector<T> &v)
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
         free(x);
+    if (!d->sharable)
+        detach_helper();
     return *this;
 }
 
@@ -225,6 +233,7 @@ QVector<T>::QVector(int size)
     p = malloc(size);
     d->ref = 1;
     d->alloc = d->size = size;
+    d->sharable = true;
     if (QTypeInfo<T>::isComplex) {
         T* b = d->array;
         T* i = d->array + d->size;
@@ -241,6 +250,7 @@ QVector<T>::QVector(int size, const T &t)
     p = malloc(size);
     d->ref = 1;
     d->alloc = d->size = size;
+    d->sharable = true;
     T* i = d->array + d->size;
     while (i != d->array)
         new (--i) T(t);
@@ -302,6 +312,7 @@ void QVector<T>::realloc(int size, int alloc)
                   static_cast<QVectorData *>(qRealloc(p, sizeof(Data) + (alloc - 1) * sizeof(T)));
         }
         x.d->ref = 1;
+        x.d->sharable = true;
     }
     if (QTypeInfo<T>::isComplex) {
         if (size < d->size) {
@@ -337,7 +348,7 @@ void QVector<T>::realloc(int size, int alloc)
 template<typename T>
 Q_OUTOFLINE_TEMPLATE T QVector<T>::value(int i) const
 {
-    if(i < 0 || i >= p->size) {
+    if (i < 0 || i >= p->size) {
         T t;
         qInit(t);
         return t;
@@ -345,7 +356,7 @@ Q_OUTOFLINE_TEMPLATE T QVector<T>::value(int i) const
     return d->array[i];
 }
 template<typename T>
-Q_OUTOFLINE_TEMPLATE T QVector<T>::value(int i, const T& defaultValue) const
+Q_OUTOFLINE_TEMPLATE T QVector<T>::value(int i, const T &defaultValue) const
 {
     return ((i < 0 || i >= p->size) ? defaultValue : d->array[i]);
 }
@@ -353,7 +364,7 @@ Q_OUTOFLINE_TEMPLATE T QVector<T>::value(int i, const T& defaultValue) const
 template <typename T>
 void QVector<T>::append(const T &t)
 {
-    if (d->ref != 1 || d->size +1 > d->alloc)
+    if (d->ref != 1 || d->size + 1 > d->alloc)
         realloc(d->size, QVectorData::grow(sizeof(Data), d->size + 1, sizeof(T),
                                            QTypeInfo<T>::isStatic));
     if (QTypeInfo<T>::isComplex)
