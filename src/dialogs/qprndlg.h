@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprndlg.h#1 $
+** $Id: //depot/qt/main/src/dialogs/qprndlg.h#2 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -28,6 +28,7 @@ public:
 
 private slots:
     void	printerOrFileSelected( int );
+    void	browseClicked();
     void	okClicked();
 
 private:

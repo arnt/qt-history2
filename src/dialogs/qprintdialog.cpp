@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#1 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#2 $
 **
 ** Implementation of QPrintDialog class for X-Windows
 **
@@ -11,6 +11,7 @@
 *****************************************************************************/
 
 #include "qprndlg.h"
+#include "qfilesel.h"
 #include "qcombo.h"
 #include "qframe.h"
 #include "qlabel.h"
@@ -19,7 +20,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#2 $";
 #endif
 
 
@@ -117,6 +118,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     button = new QPushButton( this, "browseButton" );
     button->setText( "Browse..." );
     button->setGeometry( 300,140, 80,30 );
+    connect( button, SIGNAL(clicked()), SLOT(browseClicked()) );
 
     frame = new QFrame( this );
     frame->setFrameStyle( QFrame::HLine | QFrame::Sunken );
@@ -202,6 +204,21 @@ void QPrintDialog::printerOrFileSelected( int index )
 	printFileL->enable();
 	printFile->enable();
 	browseButton->enable();
+    }
+}
+
+void QPrintDialog::browseClicked()
+{
+#if 0
+    QString fname = QFileSelect::getLoadFile();
+    if ( !fname.isNull() ) {
+	WIDGET(this,QLineEdit,"printFile")->setText( fname );
+    }
+#endif
+    QFileSelect fsel( "/", "*", this, 0, TRUE );
+    debug( "before exec" );
+    if ( fsel.exec() == QDialog::Accepted ) {
+	WIDGET(this,QLineEdit,"printFile")->setText( fsel.selectedFile() );
     }
 }
 
