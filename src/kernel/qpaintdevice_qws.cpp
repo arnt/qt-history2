@@ -43,12 +43,6 @@ QPaintDevice::~QPaintDevice()
 }
 
 
-bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
-{
-    qWarning( "QPaintDevice::cmd: Not a paintable device" );
-    return FALSE;
-}
-
 int QPaintDevice::metric( int m ) const
 {
     qWarning( "QPaintDevice::metrics: Device has no metric information" );
@@ -117,6 +111,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    return;
     }
 
+#if 0 // ### port
     if ( dst->paintingActive() && dst->isExtDev() ) {
 	QPixmap *pm;				// output to picture/printer
 	bool	 tmp_pm = TRUE;
@@ -152,6 +147,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    delete pm;
 	return;
     }
+#endif // 0
 
     switch ( ts ) {
 	case QInternal::Widget:

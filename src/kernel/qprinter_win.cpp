@@ -1320,6 +1320,8 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
 }
 
 
+// ### port
+#if 0
 bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 {
     if ( c ==  PdcBegin ) {                     // begin; start printing
@@ -1580,7 +1582,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
     }
     return TRUE;
 }
-
+#endif // 0
 
 int QPrinter::metric( int m ) const
 {

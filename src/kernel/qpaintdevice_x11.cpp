@@ -697,20 +697,6 @@ int QPaintDevice::x11AppDpiY()
 */
 
 /*!
-    Internal virtual function that interprets drawing commands from
-    the painter.
-
-    Implemented by subclasses that have no direct support for drawing
-    graphics (external paint devices, for example, QPicture).
-*/
-
-bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
-{
-    qWarning( "QPaintDevice::cmd: Device has no command interface" );
-    return FALSE;
-}
-
-/*!
     \internal
 
     Internal virtual function that returns paint device metrics.
@@ -865,6 +851,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    return;
     }
 
+#if 0 // ### port
     if ( dst->paintingActive() && dst->isExtDev() ) {
 	QPixmap *pm;				// output to picture/printer
 	bool	 tmp_pm = TRUE;
@@ -900,6 +887,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    delete pm;
 	return;
     }
+#endif
 
     switch ( ts ) {
     case QInternal::Widget:

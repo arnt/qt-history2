@@ -139,9 +139,6 @@ public:
 #endif
 
 protected:
-#ifndef Q_WS_MAC
-    bool        cmd( int, QPainter *, QPDevCmdParam * );
-#endif
     int         metric( int ) const;
 
 #if defined(Q_WS_WIN)

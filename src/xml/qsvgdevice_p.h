@@ -65,7 +65,6 @@ public:
     void setBoundingRect( const QRect &r );
 
 protected:
-    virtual bool cmd ( int, QPainter*, QPDevCmdParam* );
     virtual int	 metric( int ) const;
 
 private:

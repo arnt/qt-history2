@@ -62,7 +62,6 @@ public:
 #endif
 
 protected:
-    bool	cmd( int, QPainter *, QPDevCmdParam * );
     int		metric( int ) const;
     void	detach();
     QPicture	copy() const;
@@ -71,7 +70,9 @@ private:
     bool	exec( QPainter *, QDataStream &, int );
 
     struct QPicturePrivate : public QShared {
+#if 0 // ### port
 	bool	cmd( int, QPainter *, QPDevCmdParam * );
+#endif
 	bool	checkFormat();
 	void	resetFormat();
 

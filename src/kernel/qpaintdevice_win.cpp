@@ -47,12 +47,6 @@ HDC QPaintDevice::handle() const
     return hdc;
 }
 
-bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
-{
-    qWarning( "QPaintDevice::cmd: Device has no command interface" );
-    return FALSE;
-}
-
 int QPaintDevice::metric( int ) const
 {
     qWarning( "QPaintDevice::metrics: Device has no metric information" );
@@ -233,6 +227,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    return;
     }
 
+#if 0 // ### port
     if ( dst->paintingActive() && dst->isExtDev() ) {
 	QPixmap *pm;				// output to picture/printer
 	bool	 tmp_pm = TRUE;
@@ -262,6 +257,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    delete pm;
 	return;
     }
+#endif
 
     switch ( ts ) {
 	case QInternal::Widget:

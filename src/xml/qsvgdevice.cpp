@@ -398,6 +398,7 @@ int QSvgDevice::metric( int m ) const
     Records painter commands and stores them in the QDomDocument doc.
 */
 
+#if 0 // ### port
 bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 {
     pt = painter;
@@ -689,6 +690,7 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 
     return TRUE;
 }
+#endif // 0
 
 /*!
     \internal
@@ -699,6 +701,7 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 
 void QSvgDevice::appendChild( QDomElement &e, int c )
 {
+#if 0 // ### port
     if ( !e.isNull() ) {
 	current.appendChild( e );
 	if ( c == PdcSave )
@@ -721,6 +724,7 @@ void QSvgDevice::appendChild( QDomElement &e, int c )
 	    }
 	}
     }
+#endif
 }
 
 
@@ -1452,6 +1456,7 @@ void QSvgDevice::drawPath( const QString &data )
 
 void QSvgDevice::applyStyle( QDomElement *e, int c ) const
 {
+#if 0 // ### port
     // ### do not write every attribute each time
     QColor pcol = pt->pen().color();
     QColor bcol = pt->brush().color();
@@ -1508,6 +1513,7 @@ void QSvgDevice::applyStyle( QDomElement *e, int c ) const
 		 .arg( bcol.red() ).arg( bcol.green() ).arg( bcol.blue() );
     }
     e->setAttribute( "style", s );
+#endif // 0
 }
 
 void QSvgDevice::applyTransform( QDomElement *e ) const

@@ -354,6 +354,7 @@ void QPicture::setBoundingRect( const QRect &r )
 
 bool QPicture::play( QPainter *painter )
 {
+#if 0 // ### port
     if ( d->pictb.size() == 0 )			// nothing recorded
 	return TRUE;
 
@@ -382,6 +383,7 @@ bool QPicture::play( QPainter *painter )
 	return FALSE;
     }
     d->pictb.close();
+#endif // 0
     return TRUE;				// no end-command
 }
 
@@ -394,6 +396,7 @@ bool QPicture::play( QPainter *painter )
 
 bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 {
+#if 0 // ### port
 #if defined(QT_DEBUG)
     int		strm_pos;
 #endif
@@ -639,6 +642,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 	Q_ASSERT( Q_INT32(s.device()->at() - strm_pos) == len );
 #endif
     }
+#endif // 0
     return FALSE;
 }
 
@@ -648,17 +652,21 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
   Records painter commands and stores them in the pictb buffer.
 */
 
+
+#if 0 // ### port
 bool QPicture::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 {
     detach();
     return d->cmd( c, pt, p );
 }
+#endif // 0
 
 /*!
   \internal
   Implementation of the function forwarded above to the internal data struct.
 */
 
+#if 0 // ### port
 bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 {
     QDataStream s;
@@ -887,7 +895,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 
     return TRUE;
 }
-
+#endif // 0
 
 /*!
     Internal implementation of the virtual QPaintDevice::metric()
@@ -1056,6 +1064,7 @@ void QPicture::QPicturePrivate::resetFormat()
 
 bool QPicture::QPicturePrivate::checkFormat()
 {
+#if 0 // ### port
     resetFormat();
 
     // can't check anything in an empty buffer
@@ -1115,6 +1124,7 @@ bool QPicture::QPicturePrivate::checkFormat()
     formatOk = TRUE;			// picture seems to be ok
     formatMajor = major;
     formatMinor = minor;
+#endif // 0
     return TRUE;
 }
 

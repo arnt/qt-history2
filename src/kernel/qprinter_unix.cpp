@@ -287,6 +287,8 @@ static void closeAllOpenFds()
   Handles painter commands to the printer.
 */
 
+// ### port
+#if 0
 bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 {
     if ( c ==  PdcBegin ) {
@@ -438,7 +440,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
     }
     return TRUE;
 }
-
+#endif // 0
 
 #define MM(n) int((n * 720 + 127) / 254)
 #define IN(n) int(n * 72)

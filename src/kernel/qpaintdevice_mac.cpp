@@ -49,11 +49,6 @@ QPaintDevice::~QPaintDevice()
 		 "painted.  Be sure to QPainter::end() painters!");
 }
 
-bool QPaintDevice::cmd(int, QPainter *, QPDevCmdParam *)
-{
-    return FALSE;
-}
-
 int QPaintDevice::metric(int) const
 {
     return 0;
@@ -212,6 +207,8 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	dstbitmap = GetPortBitMapForCopyBits((GWorldPtr)dst->handle());
     }
 
+
+#if 0 // ### port
     if(dst->paintingActive() && dst->isExtDev()) {
 	QPixmap *pm;				// output to picture/printer
 	bool	 tmp_pm = FALSE;;
@@ -247,6 +244,8 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	if(!ret || !dstbitmap)
 	    return;
     }
+#endif
+
     //if we are not scaling and we've fixed number we should fix the source
     if(!scalew && sw != dw)
 	sw = dw;
