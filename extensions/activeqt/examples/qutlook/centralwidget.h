@@ -58,16 +58,14 @@ protected slots:
     void toggleEMail();
     void findEntries();
 
-    void entryAdded( IDispatch* );
-    void entryChanged();    
-    void entryRemoved();
+    void updateOutlook();
 
 protected:
     void setupTabWidget();
     void setupListView();
     void setupOutlook();
 
-    QAxObject *outlook, *outlookSession;
+    QAxObject *outlook, *outlookSession, *contactItems;
 
     QGridLayout *mainGrid;
     QTabWidget *tabWidget;

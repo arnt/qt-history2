@@ -489,17 +489,27 @@ bool QAxServerBase::internalCreate()
 }
 
 /*!
-    Message handler.
+    Message handler. \a hWnd is always the ActiveX widget hosting the Qt widget. 
+    \a uMsg is handled as follows
+    \list
+    \i WM_CREATE The QWidget is created
+    \i WM_DESTROY The QWidget is destroyed
+    \i WM_SHOWWINDOW The QWidget is parented into the ActiveX window
+    \i WM_PAINT The QWidget is updated
+    \i WM_SIZE The QWidget is resized to the new size
+    \i WM_SETFOCUS and
+    \i WM_KILLFOCUS The client site is notified about the focus transfer
+    \i WM_MOUSEACTIVATE The ActiveX is activated
+    \endlist
+
+    The semantics of \a wParam and \a lParam depend on the value of \a uMsg. 
+    \a lResult is always set to 0. \a dwMsgMapID specifies the message map and
+    must always be zero.
 */
 BOOL QAxServerBase::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID )
 {
     BOOL bHandled = TRUE;
-    hWnd;
-    uMsg;
-    wParam;
-    lParam;
-    lResult;
-    bHandled;
+    lResult = 0;
     switch(dwMsgMapID)
     {
     case 0:
@@ -709,6 +719,9 @@ void QAxServerBase::updateGeometry()
 
 /*!
     Catches all signals emitted by the Qt widget and fires the respective COM event.
+
+    \a isignal is the Qt Meta Object index of the received signal, and \a _o the 
+    signal parameters.
 */
 bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 {
@@ -806,6 +819,7 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 
 /*!
     Call IPropertyNotifySink of connected clients.
+    \a dispId specifies the ID of the property that changed.
 */
 bool QAxServerBase::emitRequestPropertyChange( DISPID dispId )
 {
@@ -840,7 +854,8 @@ bool QAxServerBase::emitRequestPropertyChange( DISPID dispId )
 }
 
 /*!
-    Call IPropertyNotifySink of connected clients.
+    Call IPropertyNotifySink of connected clients. 
+    \a dispId specifies the ID of the property that changed.
 */
 void QAxServerBase::emitPropertyChanged( DISPID dispId )
 {

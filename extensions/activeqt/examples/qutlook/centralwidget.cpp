@@ -45,7 +45,7 @@ QAxObject *ABListViewItem::contactItem() const
 
 
 ABCentralWidget::ABCentralWidget( QWidget *parent, const char *name )
-    : QWidget( parent, name ), outlook( 0 ), outlookSession( 0 )
+    : QWidget( parent, name ), outlook( 0 ), outlookSession( 0 ), contactItems( 0 )
 {
     mainGrid = new QGridLayout( this, 2, 1, 5, 5 );
 
@@ -241,70 +241,38 @@ void ABCentralWidget::setupOutlook()
 	    return;
 	// Login; doesn't hurt if you are already running and logged on...
 	outlookSession->dynamicCall( "Logon()" );
+
+	// Get the default folder for contacts
+	QAxObject *defFolder = outlookSession->querySubObject( "GetDefaultFolder(OlDefaultFolders)", "olFolderContacts" );
+	if ( !defFolder )
+	    return;
+
+	// Get all items
+	contactItems = defFolder->querySubObject( "Items" );
+	connect( contactItems, SIGNAL(ItemAdd(IDispatch*)), this, SLOT(updateOutloo()) );
+	connect( contactItems, SIGNAL(ItemChange(IDispatch*)), this, SLOT(updateOutloo()) );
+	connect( contactItems, SIGNAL(ItemRemove()), this, SLOT(updateOutloo()) );    
     }
 
-    // Get the default folder for contacts
-    QAxObject *defFolder = outlookSession->querySubObject( "GetDefaultFolder(OlDefaultFolders)", "olFolderContacts" );
-    if ( !defFolder )
-	return;
-
-    // Get all items
-    QAxObject *items = defFolder->querySubObject( "Items" );
-    if ( items ) {
-	connect( items, SIGNAL(ItemAdd(IDispatch*)), this, SLOT(entryAdded(IDispatch*)) );
-	connect( items, SIGNAL(ItemChange(IDispatch*)), this, SLOT(entryChanged()) );
-	connect( items, SIGNAL(ItemRemove()), this, SLOT(entryRemoved()) );
-
-	QAxObject *item = items->querySubObject( "GetFirst" );
-	while ( item ) {
-	    QString firstName = item->property( "FirstName" ).toString();
-	    QString lastName = item->property( "LastName" ).toString();
-	    QString address = item->property( "HomeAddress" ).toString();
-	    QString email = item->property( "Email1Address" ).toString();
-
-	    (void)new ABListViewItem( listView, firstName, lastName, address, email, item );
-	    // the listviewitem takes ownership
-	    item->parent()->removeChild( item );
-
-	    item = items->querySubObject( "GetNext" );
-	}
-    }
+    updateOutlook();
 }
 
-void ABCentralWidget::entryAdded( IDispatch *disp )
-{
-    QAxObject *item = new QAxObject( (IUnknown*)disp );
-    QString firstName = item->property( "FirstName" ).toString();
-    QString lastName = item->property( "LastName" ).toString();
-    QString address = item->property( "HomeAddress" ).toString();
-    QString email = item->property( "Email1Address" ).toString();
-
-    (void)new ABListViewItem( listView, firstName, lastName, address, email, item );
-}
-
-void ABCentralWidget::entryChanged()
-{
-    QListViewItemIterator it( listView );
-    while ( it.current() ) {
-	ABListViewItem *lvitem = (ABListViewItem*)it.current();
-	++it;
-	QAxObject *contactItem = lvitem->contactItem();
-	QString firstName = contactItem->property( "FirstName" ).toString();
-	QString lastName = contactItem->property( "LastName" ).toString();
-	QString address = contactItem->property( "HomeAddress" ).toString();
-	QString email = contactItem->property( "Email1Address" ).toString();
-	
-	lvitem->setText( 0, firstName );
-	lvitem->setText( 1, lastName );
-	lvitem->setText( 2, address );
-	lvitem->setText( 3, email );
-    }
-}
-
-void ABCentralWidget::entryRemoved()
+void ABCentralWidget::updateOutlook()
 {
     listView->clear();
-    setupOutlook();
+    QAxObject *item = contactItems->querySubObject( "GetFirst" );
+    while ( item ) {
+	QString firstName = item->property( "FirstName" ).toString();
+	QString lastName = item->property( "LastName" ).toString();
+	QString address = item->property( "HomeAddress" ).toString();
+	QString email = item->property( "Email1Address" ).toString();
+
+	(void)new ABListViewItem( listView, firstName, lastName, address, email, item );
+	// the listviewitem takes ownership
+	item->parent()->removeChild( item );
+
+	item = contactItems->querySubObject( "GetNext" );
+    }
 }
 
 void ABCentralWidget::addEntry()
