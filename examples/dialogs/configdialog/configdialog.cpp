@@ -6,10 +6,12 @@
 
 ConfigDialog::ConfigDialog()
 {
-    contentsWidget = new QWidget;
-    QScrollArea *view = new QScrollArea(this);
-    view->setBackgroundRole(QPalette::Light);
-    view->setWidget(contentsWidget);
+    contentsWidget = new QListWidget(this);
+    contentsWidget->setViewMode(QListView::IconMode);
+    contentsWidget->setGridSize(QSize(128, 108));
+    contentsWidget->setIconSize(QSize(96, 84));
+    contentsWidget->setMovement(QListView::Static);
+    contentsWidget->setMaximumWidth(128);
 
     pagesWidget = new QStackedWidget(this);
     pagesWidget->addWidget(new ConfigurationPage);
@@ -19,11 +21,12 @@ ConfigDialog::ConfigDialog()
     QPushButton *closeButton = new QPushButton(tr("Close"), this);
 
     createIcons();
+    contentsWidget->setCurrentRow(0);
 
     connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
     QHBoxLayout *horizontalLayout = new QHBoxLayout;
-    horizontalLayout->addWidget(view);
+    horizontalLayout->addWidget(contentsWidget);
     horizontalLayout->addWidget(pagesWidget, 1);
 
     QHBoxLayout *buttonsLayout = new QHBoxLayout;
@@ -41,36 +44,33 @@ ConfigDialog::ConfigDialog()
 
 void ConfigDialog::createIcons()
 {
-    OptionButton *configButton = new OptionButton(104, 104, 0, contentsWidget);
+    QListWidgetItem *configButton = new QListWidgetItem(contentsWidget);
     configButton->setIcon(QIcon(":/images/config.png"));
     configButton->setText(tr("Configuration"));
-    configButton->setCheckable(true);
-    configButton->setAutoExclusive(true);
-    configButton->setChecked(true);
-    configButton->move(0, 0);
+    configButton->setFlags(QAbstractItemModel::ItemIsSelectable
+                           | QAbstractItemModel::ItemIsEnabled);
 
-    OptionButton *updateButton = new OptionButton(104, 104, 1, contentsWidget);
+    QListWidgetItem *updateButton = new QListWidgetItem(contentsWidget);
     updateButton->setIcon(QIcon(":/images/update.png"));
     updateButton->setText(tr("Update"));
-    updateButton->setCheckable(true);
-    updateButton->setAutoExclusive(true);
-    updateButton->move(0, 104);
+    updateButton->setFlags(QAbstractItemModel::ItemIsSelectable
+                           | QAbstractItemModel::ItemIsEnabled);
 
-    OptionButton *queryButton = new OptionButton(104, 104, 2, contentsWidget);
+    QListWidgetItem *queryButton = new QListWidgetItem(contentsWidget);
     queryButton->setIcon(QIcon(":/images/query.png"));
     queryButton->setText(tr("Query"));
-    queryButton->setCheckable(true);
-    queryButton->setAutoExclusive(true);
-    queryButton->move(0, 208);
+    queryButton->setFlags(QAbstractItemModel::ItemIsSelectable
+                          | QAbstractItemModel::ItemIsEnabled);
 
-    connect(configButton, SIGNAL(toggled(bool)), this, SLOT(changePage()));
-    connect(updateButton, SIGNAL(toggled(bool)), this, SLOT(changePage()));
-    connect(queryButton, SIGNAL(toggled(bool)), this, SLOT(changePage()));
-
-    contentsWidget->resize(104, 312);
+    connect(contentsWidget,
+            SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)),
+            this, SLOT(changePage(QListWidgetItem *, QListWidgetItem*)));
 }
 
-void ConfigDialog::changePage()
+void ConfigDialog::changePage(QListWidgetItem *current, QListWidgetItem *previous)
 {
-    pagesWidget->setCurrentIndex(static_cast<OptionButton *>(sender())->page());
+    if (!current)
+        current = previous;
+
+    pagesWidget->setCurrentIndex(contentsWidget->row(current));
 }

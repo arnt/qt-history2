@@ -3,8 +3,9 @@
 
 #include <QDialog>
 
+class QListWidget;
+class QListWidgetItem;
 class QStackedWidget;
-class QScrollArea;
 
 class ConfigDialog : public QDialog
 {
@@ -14,13 +15,13 @@ public:
     ConfigDialog();
 
 public slots:
-    void changePage();
+    void changePage(QListWidgetItem *current, QListWidgetItem *previous);
 
 private:
     void createIcons();
 
+    QListWidget *contentsWidget;
     QStackedWidget *pagesWidget;
-    QWidget *contentsWidget;
 };
 
 #endif
