@@ -403,6 +403,9 @@ void Uic::createFormDecl( const QDomElement &e )
 	    forwardDecl += s;
 	    if ( s.mid( 1 ) == "ListBox" || s.mid( 1 ) == "ListView" || s.mid( 1 ) == "IconView" )
 		forwardDecl += "Q" + s.mid( 1 ) + "Item";
+	    if ( s == "QSqlTable" ) { // other convenience classes which are used in QSqlTable signals, and thus should be forward-declared by uic for us
+		forwardDecl += "QSqlRecord";
+	    }
 	}
     }
 
