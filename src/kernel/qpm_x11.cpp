@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#74 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#73 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#74 $")
 
 
 /*****************************************************************************
@@ -292,7 +292,7 @@ QPixmap::~QPixmap()
 	    delete data->mask;
 	if ( data->ximage )
 	    XDestroyImage( (XImage*)data->ximage );
-	if ( hd )
+	if ( hd && qApp )
 	    XFreePixmap( dpy, hd );
 	delete data;
     }
