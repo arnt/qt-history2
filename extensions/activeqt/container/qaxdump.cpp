@@ -41,7 +41,7 @@ QString qax_docuFromName(ITypeInfo *typeInfo, const QString &name)
             if (!docString.isEmpty())
                 docu += docString + "\n";
             if (!helpFile.isEmpty())
-                docu += QString("For more information, see help context %1 in %2.\n").arg((uint)helpContext).arg(helpFile);
+                docu += QString("For more information, see help context %1 in %2.").arg((uint)helpContext).arg(helpFile);
         }
     }
 
@@ -50,7 +50,7 @@ QString qax_docuFromName(ITypeInfo *typeInfo, const QString &name)
 
 static inline QString docuFromName(ITypeInfo *typeInfo, const QString &name)
 {
-    return QString("<p>") + qax_docuFromName(typeInfo, name);
+    return QString("<p>") + qax_docuFromName(typeInfo, name) + "\n";
 }
 
 static QByteArray namedPrototype(const QList<QByteArray> &parameterTypes, const QList<QByteArray> &parameterNames, int numDefArgs = 0)
