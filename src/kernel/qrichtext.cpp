@@ -1893,7 +1893,7 @@ static QString direction_to_string( const QString &tag, int d )
 	 ( tag == "p" || tag == "div" || tag == "li" || tag[ 0 ] == 'h' ) )
 	return " dir=\"rtl\"";
     return "";
-};
+}
 
 QString QTextDocument::richText( QTextParag *p ) const
 {
