@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#27 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -283,6 +283,24 @@ void QProcess::init()
 }
 
 /*!
+  Reset the process variables, etc. so that it can be used for another process
+  to start.
+*/
+void QProcess::reset()
+{
+    d->exitValuesCalculated = FALSE;
+    while ( !d->stdinBuf.isEmpty() ) {
+	delete d->stdinBuf.dequeue();
+    }
+    d->stdinBufRead = 0;
+    exitStat = 0;
+    exitNormal = FALSE;
+    bufStdout.resize( 0 );
+    bufStderr.resize( 0 );
+}
+
+
+/*!
   Destructor; if the process is running, it is NOT terminated! Stdin, stdout
   and stderr of the process are closed.
 */
@@ -305,9 +323,7 @@ bool QProcess::start()
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcess::start()" );
 #endif
-    d->exitValuesCalculated = FALSE;
-    exitStat = 0;
-    exitNormal = FALSE;
+    reset();
 
     // cleanup the notifiers
     if ( d->notifierStdin ) {

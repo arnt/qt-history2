@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#18 $
 **
 ** Implementation of QProcess class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#20 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -115,6 +115,20 @@ void QProcess::init()
     exitNormal = FALSE;
 }
 
+void QProcess::reset()
+{
+    d->exitValuesCalculated = FALSE;
+    while ( !d->stdinBuf.isEmpty() ) {
+	delete d->stdinBuf.dequeue();
+    }
+    d->stdinBufRead = 0;
+    exitStat = 0;
+    exitNormal = FALSE;
+    bufStdout.resize( 0 );
+    bufStderr.resize( 0 );
+}
+
+
 QProcess::~QProcess()
 {
     delete d;
@@ -122,6 +136,11 @@ QProcess::~QProcess()
 
 bool QProcess::start()
 {
+#if defined(QT_QPROCESS_DEBUG)
+    qDebug( "QProcess::start()" );
+#endif
+    reset();
+
     // Open the pipes.  Make non-inheritable copies of input write and output
     // read handles to avoid non-closable handles.
     SECURITY_ATTRIBUTES secAtt = { sizeof( SECURITY_ATTRIBUTES ), NULL, TRUE };

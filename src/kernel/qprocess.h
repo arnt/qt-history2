@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.h#18 $
+** $Id: //depot/qt/main/src/kernel/qprocess.h#19 $
 **
 ** Implementation of QProcess class
 **
@@ -107,14 +107,15 @@ private:
 
     QByteArray bufStdout;
     QByteArray bufStderr;
-    int  exitStat;	// exit status
-    bool exitNormal;	// normal exit?
-    bool ioRedirection;
-    bool notifyOnExit;
-    bool wroteStdinConnected;
+    int  exitStat; // exit status
+    bool exitNormal; // normal exit?
+    bool ioRedirection; // automatically set be (dis)connectNotify
+    bool notifyOnExit; // automatically set be (dis)connectNotify
+    bool wroteStdinConnected; // automatically set be (dis)connectNotify
 
 private:
     void init();
+    void reset();
 #if defined(Q_WS_WIN)
     uint readStddev( HANDLE dev, char *buf, uint bytes );
 #endif
