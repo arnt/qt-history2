@@ -174,7 +174,7 @@ QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
     }
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
-	qt_mac_port_mutex->unLock();
+	qt_mac_port_mutex->unlock();
 #endif
     return ret;
 }
@@ -218,7 +218,7 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
 	delete fi;
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
-	qt_mac_port_mutex->unLock();
+	qt_mac_port_mutex->unlock();
 #endif
 }
 
