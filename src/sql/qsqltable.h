@@ -147,6 +147,7 @@ protected:
     void         reset();
     void         setSize( const QSqlCursor* sql );
     void         setNumRows ( int r );
+    void         repaintCell( int row, int col );
     void         paintCell ( QPainter * p, int row, int col, const QRect & cr,
 			     bool selected );
     void         paintField( QPainter * p, const QSqlField* field, const QRect & cr,

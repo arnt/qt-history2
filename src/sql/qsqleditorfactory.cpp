@@ -99,11 +99,29 @@ QSqlEditorFactory * QSqlEditorFactory::defaultFactory()
     return defaultfactory;
 }
 
+/*! 
+  
+  Replaces the default editor factory with \a factory. <em>QSqlEditorFactory
+  takes ownership of \a factory, and destroys it when it is no longer
+  needed.<\em>
+*/
+
+void QSqlEditorFactory::installDefaultFactory( QSqlEditorFactory * factory )
+{
+    if( factory == 0 ) return;
+
+    if( defaultfactory != 0 ){
+	q_cleanup_editor_factory.remove( defaultfactory );
+	delete defaultfactory;
+    }
+    defaultfactory = factory;
+    q_cleanup_editor_factory.add( defaultfactory );
+}
+
 /*!
 
   Creates and returns the appropriate editor for the QVariant \a v.
   If the QVariant is invalid, 0 is returned.
-
 */
 
 QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v )

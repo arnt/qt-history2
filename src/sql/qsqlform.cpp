@@ -51,26 +51,29 @@
 /*!
   \class QSqlPropertyMap qsqlform.h
   \module sql
-  \brief A class used for mapping editor values to database fields in
-  QSqlForm and QSqlTable
+  \brief A class used for mapping SQL editor class names to SQL editor 
+  properties
 
+  The SQL module uses Qt <a href="properties.html">object properties</a>
+  to insert and extract values from editor widgets.
+  
   This class is used to map SQL editor class names to the properties
   used to insert and extract values into and from the editor.
 
   For instance, a QLineEdit is used to edit text strings and other
   data types in QSqlTable and QSqlForm. QLineEdit defines several
   properties, but it is only the "text" property that is used to
-  insert and extract text into and from the QLineEdit. When QSqlTable
-  wants to edit a field which uses a QLineEdit as its editor, a
-  quick look in this map tells the table to use the "text" property to
-  set/get values from the editor.
+  insert and extract text into and from the QLineEdit. Both QSqlTable
+  and QSqlForm uses a QSqlPropertyMap for inserting and extracting 
+  values to and from an editor widget.
 
   If you want to use custom editors with your QSqlTable or QSqlForm,
-  you have to install your own QSqlPropertyMap for that table/form.
+  you have to install your own QSqlPropertyMap for that table or form.
   Example:
 
   \code
-  MyEditorFactory myFactory;
+  MyEditorFactory myFactory;       // sub-classed editor factory that knows
+                                   // how to create a MySuperEditor editor
   QSqlCursor cursor( "mytable" );
   QSqlForm form;
   QSqlPropertyMap myMap;
@@ -79,7 +82,9 @@
   form.installPropertyMap( &map );
   form.installEditorFactory( &myFactory );
 
-  // Generate form, which uses MySuperEditor for special fields
+  // Generate a form that uses MySuperEditor for certain fields - 
+  // the actual editors in the form are created by the installed
+  // editor factory.
   form.populate( myWidget, cursor, cursor->updateBuffer() );
   \endcode
 
@@ -442,7 +447,7 @@ void QSqlForm::associate( QWidget * widget, QSqlField * field )
   Installs a custom QSqlEditorFactory. This is used in the populate()
   function to automatically create the widgets in the form.
 
-  \sa installPropertyMap(QSqlPropertyMap *), QSqlEditorFactory
+  \sa installPropertyMap(), QSqlEditorFactory
  */
 void QSqlForm::installEditorFactory( QSqlEditorFactory * f )
 {
@@ -511,7 +516,7 @@ void QSqlForm::writeRecord()
 
 /*!
 
-  Clears the form, i.e. all fields are set to be empty.
+  Clears the form, i.e. all field values  are set to their empty state.
 */
 void QSqlForm::clear()
 {
@@ -528,7 +533,7 @@ void QSqlForm::clear()
   of columns. \a widget will become the parent of the generated widgets.
  */
 
-void QSqlForm::populate( QWidget * widget, QSqlRecord* fields, uint columns )
+void QSqlForm::populate( QWidget * widget, QSqlRecord * fields, uint columns )
 {
     // ### Remove the children before populating?
 

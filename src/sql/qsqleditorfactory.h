@@ -54,6 +54,7 @@ public:
     virtual QWidget * createEditor( QWidget * parent, const QSqlField* f );
 
     static QSqlEditorFactory * defaultFactory();
+    static void installDefaultFactory( QSqlEditorFactory * factory);
 };
 
 #endif // QT_NO_SQL

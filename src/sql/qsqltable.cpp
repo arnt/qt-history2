@@ -138,6 +138,9 @@ public:
 QSqlTable::QSqlTable ( QWidget * parent, const char * name )
     : QTable( parent, name )
 {
+    setFocusProxy( viewport() );
+    viewport()->setFocusPolicy( StrongFocus );
+    
     d = new QSqlTablePrivate();
     setSelectionMode( NoSelection );
     d->trueTxt = tr( "True" );
@@ -376,7 +379,7 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 		conf = confirmCancel( QSqlTable::Insert );
 	    if ( conf == Yes ) {
 		insertCancelled = TRUE;
-		endInsert();
+		endInsert(); // ### What happens to the keyboard focus??
 	    } else {
 		editorWidget->setActiveWindow();
 		editorWidget->setFocus();
@@ -386,9 +389,9 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 	if ( ke->key() == Key_Escape && d->mode == QSqlTable::Update ) {
  	    if ( confirmCancels() && !d->cancelMode )
  		conf = confirmCancel( QSqlTable::Update );
- 	    if ( conf == Yes )
+ 	    if ( conf == Yes ){
 		endUpdate();
-	    else {
+	    } else {
 		editorWidget->setActiveWindow();
 		editorWidget->setFocus();
 		return TRUE;
@@ -413,14 +416,17 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     }
-    case QEvent::FocusOut: {
+    case QEvent::FocusOut:
+	repaintCell( currentRow(), currentColumn() );
 	if ( !d->cancelMode && editorWidget && o == editorWidget && (d->mode == QSqlTable::Insert) && !d->continuousEdit) {
  	    setCurrentCell( r, c );
  	    endEdit( r, c, TRUE, FALSE );
  	    return TRUE;
 	}
 	break;
-    }
+    case QEvent::FocusIn:
+	repaintCell( currentRow(), currentColumn() );
+	break;
     default:
 	break;
     }
@@ -1273,6 +1279,25 @@ void QSqlTable::columnClicked ( int col )
 }
 
 /*!
+  \reimpl
+ */
+// void QSqlTable::paintFocus( QPainter * p, const QRect & cr )
+// {
+// //    QSqlTable::paintFocus( p, cr );
+// }
+
+/*!
+  \reimpl
+ */
+void QSqlTable::repaintCell( int row, int col )
+{
+    QRect cg = cellGeometry( row, col );
+    QRect re( QPoint( cg.x() - 2, cg.y() - 2 ),
+	      QSize( cg.width() + 4, cg.height() + 4 ) );
+    repaintContents( re, FALSE );
+}
+
+/*!
 
   \reimpl
 
@@ -1287,12 +1312,13 @@ void QSqlTable::columnClicked ( int col )
 void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 			  bool selected )
 {
-    QTable::paintCell(p,row,col,cr,selected);  // empty cell
+    QTable::paintCell(p,row,col,cr, false);  // empty cell
 
-    if( (row == currentRow()) && (col == currentColumn()) ){
+    if( hasFocus() && (row == currentRow()) && (col == currentColumn()) ){
  	p->fillRect( 1, 1, cr.width() - 3, cr.height() - 3,
 		     colorGroup().brush( QColorGroup::Highlight ) );
  	p->setPen( colorGroup().highlightedText() );
+	p->drawRect( 1,1, cr.width()-3,cr.height()-3 );
     } else {
 	p->setPen( colorGroup().text() );
     }
