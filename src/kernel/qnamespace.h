@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#15 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#16 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -186,6 +186,7 @@ public:
 	Key_Hyper_L = 0x1056,
 	Key_Hyper_R = 0x1057,
 	Key_Space = 0x20,		// 7 bit printable ASCII
+	Key_Any = Key_Space,
 	Key_Exclam = 0x21,
 	Key_QuoteDbl = 0x22,
 	Key_NumberSign = 0x23,
