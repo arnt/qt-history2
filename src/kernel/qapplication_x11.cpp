@@ -5200,7 +5200,10 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 					   char& ascii, int& code, QEvent::Type &type )
 {
     QTextCodec *mapper = input_mapper;
-    QCString chars(64);
+    // some XmbLookupString implementations don't return buffer overflow correctly,
+    // so we increase the input buffer to allow for long strings...
+    // 256 chars * 2 bytes + 1 null-term == 513 bytes
+    QCString chars(513);
     QChar converted;
     KeySym key = 0;
 

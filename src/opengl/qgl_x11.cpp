@@ -107,7 +107,7 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 	qAddPostRoutine( cleanup_cmaps );
     }
 
-    CMapEntry *x = cmap_dict->find( (long)vi->visualid );
+    CMapEntry *x = cmap_dict->find( (long) vi->visualid + ( vi->screen * 256 ) );
     if ( x )					// found colormap for visual
 	return x->cmap;
 
@@ -170,13 +170,15 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 	// qDebug( "Allocating cmap" );
     }
 
-    cmap_dict->insert( (long)vi->visualid, x ); // associate cmap with visualid
+    // associate cmap with visualid
+    cmap_dict->insert( (long) vi->visualid + ( vi->screen * 256 ), x );
     return x->cmap;
 }
 
 struct TransColor
 {
     VisualID	vis;
+    int		screen;
     long	color;
 };
 
@@ -196,41 +198,48 @@ static void find_trans_colors()
     trans_colors_init = TRUE;
 
     Display* appDisplay = QPaintDevice::x11AppDisplay();
-    QWidget* rootWin = QApplication::desktop();
-    if ( !rootWin )
-	return;					// Should not happen
-    Atom overlayVisualsAtom = XInternAtom( appDisplay,
-					   "SERVER_OVERLAY_VISUALS", True );
-    if ( overlayVisualsAtom == None )
-	return;					// Server has no overlays
 
-    Atom actualType;
-    int actualFormat;
-    ulong nItems;
-    ulong bytesAfter;
-    OverlayProp* overlayProps = 0;
-    int res = XGetWindowProperty( appDisplay, rootWin->winId(),
-				  overlayVisualsAtom, 0, 10000, False,
-				  overlayVisualsAtom, &actualType,
-				  &actualFormat, &nItems, &bytesAfter,
-				  (uchar**)&overlayProps );
+    int scr;
+    int lastsize = 0;
+    for ( scr = 0; scr < ScreenCount( appDisplay ); scr++ ) {
+	QWidget* rootWin = QApplication::desktop()->screen( scr );
+	if ( !rootWin )
+	    return;					// Should not happen
+	Atom overlayVisualsAtom = XInternAtom( appDisplay,
+					       "SERVER_OVERLAY_VISUALS", True );
+	if ( overlayVisualsAtom == None )
+	    return;					// Server has no overlays
 
-    if ( res != Success || actualType != overlayVisualsAtom
-	 || actualFormat != 32 || nItems < 4 || !overlayProps )
-	return;					// Error reading property
+	Atom actualType;
+	int actualFormat;
+	ulong nItems;
+	ulong bytesAfter;
+	OverlayProp* overlayProps = 0;
+	int res = XGetWindowProperty( appDisplay, rootWin->winId(),
+				      overlayVisualsAtom, 0, 10000, False,
+				      overlayVisualsAtom, &actualType,
+				      &actualFormat, &nItems, &bytesAfter,
+				      (uchar**)&overlayProps );
 
-    int numProps = nItems / 4;
-    trans_colors.resize( numProps );
-    int j = 0;
-    for ( int i = 0; i < numProps; i++ ) {
-	if ( overlayProps[i].type == 1 ) {
-	    trans_colors[j].vis = (VisualID)overlayProps[i].visual;
-	    trans_colors[j].color = (int)overlayProps[i].value;
-	    j++;
+	if ( res != Success || actualType != overlayVisualsAtom
+	     || actualFormat != 32 || nItems < 4 || !overlayProps )
+	    return;					// Error reading property
+
+	int numProps = nItems / 4;
+	trans_colors.resize( lastsize + numProps );
+	int j = lastsize;
+	for ( int i = 0; i < numProps; i++ ) {
+	    if ( overlayProps[i].type == 1 ) {
+		trans_colors[j].vis = (VisualID)overlayProps[i].visual;
+		trans_colors[j].screen = scr;
+		trans_colors[j].color = (int)overlayProps[i].value;
+		j++;
+	    }
 	}
+	XFree( overlayProps );
+	lastsize = j;
+	trans_colors.truncate( lastsize );
     }
-    XFree( overlayProps );
-    trans_colors.truncate( j );
 }
 
 
@@ -588,8 +597,10 @@ QColor QGLContext::overlayTransparentColor() const
 	    find_trans_colors();
 
 	VisualID myVisualId = ((XVisualInfo*)vi)->visualid;
+	int myScreen = ((XVisualInfo*)vi)->screen;
 	for ( int i = 0; i < (int)trans_colors.size(); i++ ) {
-	    if ( trans_colors[i].vis == myVisualId )
+	    if ( trans_colors[i].vis == myVisualId &&
+		 trans_colors[i].screen == myScreen )
 		return QColor( qRgb( 1, 2, 3 ), trans_colors[i].color );
 	}
     }
@@ -608,8 +619,9 @@ uint QGLContext::colorIndex( const QColor& c ) const
 	     XVisualIDFromVisual( (Visual*)QPaintDevice::x11AppVisual( screen ) ) )
 	    return c.pixel( screen );		// We're using QColor's cmap
 
-	CMapEntry *x = cmap_dict->find( (long)((XVisualInfo*)vi)->visualid );
-	if ( x && !x->alloc) {			// It's a standard colormap
+	XVisualInfo *info = (XVisualInfo *) vi;
+	CMapEntry *x = cmap_dict->find( (long) info->visualid + ( info->screen * 256 ) );
+	if ( x && !x->alloc) {		// It's a standard colormap
 	    int rf = (int)(((float)c.red() * (x->scmap.red_max+1))/256.0);
 	    int gf = (int)(((float)c.green() * (x->scmap.green_max+1))/256.0);
 	    int bf = (int)(((float)c.blue() * (x->scmap.blue_max+1))/256.0);

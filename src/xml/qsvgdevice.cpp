@@ -188,6 +188,10 @@ bool QSvgDevice::play( QPainter *painter )
 	return FALSE;
     }
 
+    // force transform to be activated in case our sequences
+    // are replayed later with a transformed painter
+    painter->setWorldXForm( TRUE );
+
     QDomNamedNodeMap attr = svg.attributes();
     QString wstr = attr.contains( "width" )
 		   ? attr.namedItem( "width" ).nodeValue() : QString( "100%" );
