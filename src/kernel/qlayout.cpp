@@ -470,7 +470,7 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain, int spacing,
 
     if ( max < minSize ) { //implies w<minSize
 	//we must increase the maximum size of at least one of the
-	//items. qGeomCalc() will put the extra space in between 
+	//items. qGeomCalc() will put the extra space in between
 	//the items. We must recover that extra space and put it somewhere.
 	//It does not really matter where, since the user can always
 	//specify stretch factors and avoid this code.
@@ -1248,6 +1248,30 @@ void QGridLayout::addLayout( QLayout *layout, int row, int col)
     addChildLayout( layout );
     add( layout, row, col );
 }
+
+
+/*!
+  Adds the layout \a w to the cell grid, spanning multiple rows/columns.
+
+  Alignment is specified by \a alignment which is a bitwise OR of
+  Qt::AlignmentFlags values.
+  The default alignment is 0, which means
+  that the widget fills the entire cell.
+
+  A non-zero alignment indicates that the layout should not grow to
+  fill the available space, but should be sized according to
+  sizeHint().
+
+*/
+
+void QGridLayout::addMultiCellLayout( QLayout *layout, int fromRow, int toRow,
+				      int fromCol, int toCol, int alignment )
+{
+    QLayoutBox *b = new QLayoutBox( layout );
+    b->setAlignment( alignment );
+    array->add( b, fromRow, toRow, fromCol, toCol );
+}
+
 
 
 /*!

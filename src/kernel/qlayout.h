@@ -77,8 +77,10 @@ public:
 
     void addWidget( QWidget *, int row, int col, int align = 0 );
     void addMultiCellWidget( QWidget *, int fromRow, int toRow,
-			       int fromCol, int toCol, int align = 0 );
+			     int fromCol, int toCol, int align = 0 );
     void addLayout( QLayout *layout, int row, int col);
+    void addMultiCellLayout( QLayout *layout, int fromRow, int toRow,
+			     int fromCol, int toCol, int align = 0 );
     void addRowSpacing( int row, int minsize );
     void addColSpacing( int col, int minsize );
     void expand( int rows, int cols );
