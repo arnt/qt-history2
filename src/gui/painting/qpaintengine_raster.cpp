@@ -842,7 +842,7 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
                                    Qt::ImageConversionFlags)
 {
 #ifdef QT_DEBUG_DRAW
-    qDebug() << " - QRasterPaintEngine::drawImage(), r=" << r << " sr=" << sr << " image=" << image.size() << "depth=" << image.depth();
+    qDebug() << " - QRasterPaintEngine::drawImage(), r=" << r << " sr=" << sr << " image=" << img.size() << "depth=" << img.depth();
 #endif
 
     const QImage image = img.depth() == 32 ? img : img.convertDepth(32);
@@ -1172,7 +1172,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
     static QDataBuffer<QT_FT_Span> spans;
     for (int y=ymin; y<ymax; ++y) {
-        void *scanline = d->fontRasterBuffer->scanLine(y - devRect.y()) - devRect.x();
+        QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y()) - devRect.x();
         // Generate spans for this y coord
         spans.reset();
         for (int x = xmin; x<xmax; ) {
@@ -1180,7 +1180,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             while (x < xmax && qGray(scanline[x]) == 255) ++x;
             if (x >= xmax) break;
 
-            int prev = qGray(scanline[x].toRgba());
+            int prev = qGray(scanline[x]);
 	    QT_FT_Span span = { x, 0, 255 - prev };
 
             // extend span until we find a different one.
@@ -1828,7 +1828,7 @@ void QRasterBuffer::prepareBuffer(int width, int height)
     bmi.bmiHeader.biPlanes      = 1;
     bmi.bmiHeader.biBitCount    = 32;
     bmi.bmiHeader.biCompression = BI_RGB;
-    bmi.bmiHeader.biSizeImage   = width * height * sizeof(ARGB);
+    bmi.bmiHeader.biSizeImage   = width * height * sizeof(QRgb);
 
     HDC displayDC = GetDC(0);
 
