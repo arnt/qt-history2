@@ -17,20 +17,23 @@ CC		= gcc
 #######	Files
 
 HEADERS		= qbutton.h	qchkbox.h	qlcdnum.h	qlined.h      \
-		  qlistbox.h	qpopmenu.h	qpushbt.h	qradiobt.h    \
-		  qrangect.h	qscrbar.h	qtablew.h	qmenudta.h
+		  qlistbox.h	qmenubar.h	qmenudta.h	qpopmenu.h    \
+		  qpushbt.h	qradiobt.h	qrangect.h	qscrbar.h     \
+		  qtablew.h
 SOURCES		= qbutton.cpp	qchkbox.cpp	qlcdnum.cpp	qlined.cpp    \
-		  qlistbox.cpp	qpopmenu.cpp	qpushbt.cpp	qradiobt.cpp  \
-		  qrangect.cpp	qscrbar.cpp	qtablew.cpp	qmenudta.cpp
+		  qlistbox.cpp	qmenubar.cpp	qmenudta.cpp	qpopmenu.cpp  \
+		  qpushbt.cpp	qradiobt.cpp	qrangect.cpp	qscrbar.cpp   \
+		  qtablew.cpp
 OBJECTS		= qbutton.o	qchkbox.o	qlcdnum.o	qlined.o      \
-		  qlistbox.o	qpopmenu.o	qpushbt.o	qradiobt.o    \
-		  qrangect.o	qscrbar.o	qtablew.o	qmenudta.o
+		  qlistbox.o	qmenubar.o	qmenudta.o	qpopmenu.o    \
+		  qpushbt.o	qradiobt.o	qrangect.o	qscrbar.o     \
+		  qtablew.o
 SRCMETA		= mbutton.cpp	mchkbox.cpp	mlcdnum.cpp	mlined.cpp    \
-		  mlistbox.cpp	mpopmenu.cpp	mpushbt.cpp	mradiobt.cpp  \
-		  mscrbar.cpp	mtablew.cpp
+		  mlistbox.cpp	mmenubar.cpp	mpopmenu.cpp	mpushbt.cpp   \
+		  mradiobt.cpp	mscrbar.cpp	mtablew.cpp
 OBJMETA		= mbutton.o	mchkbox.o	mlcdnum.o	mlined.o      \
-		  mlistbox.o	mpopmenu.o	mpushbt.o	mradiobt.o    \
-		  mscrbar.o	mtablew.o
+		  mlistbox.o	mmenubar.o	mpopmenu.o	mpushbt.o     \
+		  mradiobt.o	mscrbar.o	mtablew.o
 TARGET		= $(LIBDIR)/libqwidgets.a
 
 #######	Implicit rules
@@ -84,6 +87,9 @@ mlined.cpp: qlined.h
 
 mlistbox.cpp: qlistbox.h
 	$(QTDIR)/bin/moc qlistbox.h -o mlistbox.cpp
+
+mmenubar.cpp: qmenubar.h
+	$(QTDIR)/bin/moc qmenubar.h -o mmenubar.cpp
 
 mpopmenu.cpp: qpopmenu.h
 	$(QTDIR)/bin/moc qpopmenu.h -o mpopmenu.cpp
