@@ -2730,13 +2730,14 @@ void QApplication::setActiveWindow( QWidget* act )
 	return;
 
     // first the activation / deactivation events
-    if(active_window) {
+    if ( active_window ) {
 	QWidgetList deacts;
 #ifndef QT_NO_STYLE
-	if(style().styleHint(QStyle::SH_Widget_ShareActivation, active_window, NULL)) {
-	    if(QWidgetList *list = topLevelWidgets()) {
-		for(QWidget *w = list->first(); w; w = list->next() ) {
-		    if(w->isVisible() && w->isActiveWindow())
+	if ( style().styleHint(QStyle::SH_Widget_ShareActivation, active_window, NULL) ) {
+	    QWidgetList *list = topLevelWidgets();
+	    if ( list ) {
+		for ( QWidget *w = list->first(); w; w = list->next() ) {
+		    if ( w->isVisible() && w->isActiveWindow() )
 			deacts.append(w);
 		}
 		delete list;
