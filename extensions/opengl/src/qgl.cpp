@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#4 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#5 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -19,7 +19,7 @@
 #undef  INT32
 #endif
 
-RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#5 $");
 
 
 #if defined(_CC_MSVC_)
@@ -737,7 +737,7 @@ void QGLContext::swapBuffers()
 
 
 /*****************************************************************************
-  QGLContext Unix/GLX-specific code
+  QGLContext UNIX/GLX-specific code
  *****************************************************************************/
 
 #if defined(Q_GLX)
