@@ -2076,6 +2076,9 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, const QStyleOption &op
 {
     int ret = 0;
     switch(sh) {
+    case SH_ScrollView_FrameOnlyAroundContents:
+	ret = TRUE;
+	break;
     case SH_TabBar_SelectMouseType:
         ret = QEvent::MouseButtonRelease;
         break;

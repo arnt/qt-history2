@@ -1424,6 +1424,9 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
 {
     SInt32 ret = 0;
     switch(sh) {
+    case SH_ScrollView_FrameOnlyAroundContents:
+	ret = TRUE;
+	break;
     case SH_RichText_FullWidthSelection:
 	ret = TRUE;
 	break;
