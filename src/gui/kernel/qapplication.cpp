@@ -484,7 +484,7 @@ void qt_create_std_palette()
     if (qt_std_pal)
         delete qt_std_pal;
 
-    QColor standardLightGray(192, 192, 192);
+    QColor standardLightGray(0xd4, 0xd0, 0xc8); // win 2000 grey
     QColor light(standardLightGray.light());
     QColor dark(standardLightGray.dark());
     qt_std_pal =
