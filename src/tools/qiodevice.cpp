@@ -527,24 +527,38 @@ bool QIODevice::atEnd() const
 
 /*!
   This convenience function returns all of the remaining data in the
-  device.  Note that this only works for direct access devices, such
-  as QFile.
-  
-  \sa isDirectAccess() 
+  device.
 */
 QByteArray QIODevice::readAll()
 {
-    int n = size()-at();
-    QByteArray ba(size()-at());
-    char* c = ba.data();
-    while ( n ) {
-	int r = readBlock( c, n );
-	if ( r < 0 )
-	    return QByteArray();
-	n -= r;
-	c += r;
+    if ( isDirectAccess() ) {
+	// we now the size
+	int n = size()-at();
+	QByteArray ba(size()-at());
+	char* c = ba.data();
+	while ( n ) {
+	    int r = readBlock( c, n );
+	    if ( r < 0 )
+		return QByteArray();
+	    n -= r;
+	    c += r;
+	}
+	return ba;
+    } else {
+	// read until we reach the end
+	const int blocksize = 512;
+	int nread = 0;
+	QByteArray ba;
+	while ( !atEnd() ) {
+	    ba.resize( nread + blocksize );
+	    int r = readBlock( ba.data()+nread, blocksize );
+	    if ( r < 0 )
+		return QByteArray();
+	    nread += r;
+	}
+	ba.resize( nread );
+	return ba;
     }
-    return ba;
 }
 
 /*!
