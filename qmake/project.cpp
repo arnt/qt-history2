@@ -446,15 +446,15 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
        if(x != (int)vals.length()-1 && curr == QLatin1Char('\\') &&
           (vals.at(x+1) == QLatin1Char('\'') || vals.at(x+1) == QLatin1Char('"'))) {
            build += curr; //get that 'escape'
-           x++;
+           curr = vals.at(++x);
        } else if(!quote.isEmpty() && curr == quote.top()) {
-            quote.pop();
+           quote.pop();
        } else if(curr == QLatin1Char('\'') || curr == QLatin1Char('"')) {
-            quote.push(curr);
+           quote.push(curr);
        } else if(curr == QLatin1Char(')')) {
-            parens--;
+           --parens;
        } else if(curr == QLatin1Char('(')) {
-           parens++;
+           ++parens;
        }
 
        if(!parens && quote.isEmpty() && ((do_semicolon && curr == QLatin1Char(';')) ||
