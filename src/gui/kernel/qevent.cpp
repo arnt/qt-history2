@@ -1977,9 +1977,22 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
 #endif
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
+    case QEvent::ShortcutOverride:
         {
             const QKeyEvent *ke = static_cast<const QKeyEvent*>(e);
-            dbg.nospace() << "QKeyEvent("  << QString(ke->type()==QEvent::KeyPress ? "KeyPress" : "KeyRelease")
+            switch(ke->type()) {
+            case QEvent::ShortcutOverride:
+                n = "ShortcutOverride";
+                break;
+            case QEvent::KeyRelease:
+                n = "KeyRelease";
+                break;
+            case QEvent::KeyPress:
+            default:
+                n = "KeyPress";
+                break;
+            }
+            dbg.nospace() << "QKeyEvent("  << n
                         << ", " << ke->key()
                         << ", " << ke->ascii()
                         << ", " << hex << ke->state()
