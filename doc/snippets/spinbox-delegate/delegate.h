@@ -26,7 +26,8 @@ class SpinBoxDelegate : public QItemDelegate
 public:
     SpinBoxDelegate(QObject *parent = 0);
 
-    QItemDelegate::EditorType editorType(const QAbstractItemModel *model, const QModelIndex &index) const;
+    QItemDelegate::EditorType editorType(const QAbstractItemModel *model,
+        const QModelIndex &index) const;
 
     QWidget *editor(BeginEditAction action, QWidget *parent,
         const QStyleOptionViewItem &option, const QAbstractItemModel *model,
