@@ -153,7 +153,7 @@ public:
     T value(const Key &key, const T &defaultValue) const;
     QList<T> values(const Key &key) const;
     T &operator[](const Key &key);
-    const T operator[](const Key &key) const;
+    T operator[](const Key &key) const;
     void insert(const Key &key, const T &value);
     void insertMulti(const Key &key, const T &value);
     bool remove(const Key &key);
@@ -367,7 +367,7 @@ QList<T> QHash<Key, T>::values(const Key &key) const
 }
 
 template <class Key, class T>
-inline const T QHash<Key, T>::operator[](const Key &key) const
+inline T QHash<Key, T>::operator[](const Key &key) const
 {
     return value(key);
 }

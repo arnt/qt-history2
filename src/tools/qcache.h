@@ -57,7 +57,7 @@ class QCache
     bool find(const Key &key, T &data) const;
 
     inline bool contains(const Key &key) const { return map.contains(key); }
-    const T operator[] (const Key &key) const;
+    T operator[] (const Key &key) const;
 
     bool remove(const Key &key);
     T take(const Key &key);
@@ -82,7 +82,7 @@ inline bool QCache<Key,T>::find(const Key &key, T &data) const
  data = ((QCache<Key,T>*)this)->relink(key); return true; }
 
 template <class Key, class T>
-inline const T QCache<Key,T>::operator[](const Key &key) const
+inline T QCache<Key,T>::operator[](const Key &key) const
 { if (map.contains(key)) return  ((QCache<Key,T>*)this)->relink(key);
   T t; qInit(t); return t; }
 
