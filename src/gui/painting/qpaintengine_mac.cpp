@@ -440,7 +440,7 @@ QQuickDrawPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 }
 
 void
-QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close, bool inset)
+QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close)
 {
     Q_ASSERT(isActive());
 
@@ -615,16 +615,23 @@ QQuickDrawPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoint
     setupQDPort();
     if(d->clip.paintable.isEmpty())
 	return;
-    //make a region of it
-    PolyHandle poly = OpenPoly();
-    MoveTo(pa[index].x()+d->offx, pa[index].y()+d->offy);
-    for(int x = index+1; x < npoints; x++)
-	LineTo(pa[x].x()+d->offx, pa[x].y()+d->offy);
-    ClosePoly();
-    //now draw it
+
     setupQDPen();
-    FramePoly(poly);
-    KillPoly(poly);
+    /* We draw 5000 chunks at a time because of limitations in QD */
+    for(int chunk = 0; chunk < pa.size(); ) {
+	//make a region of it
+	PolyHandle poly = OpenPoly();
+	MoveTo(pa[chunk].x()+d->offx, pa[chunk].y()+d->offy);
+	for(int last_chunk=chunk+5000; chunk < last_chunk; chunk++) {
+	    if(chunk == pa.size())
+		break;
+	    LineTo(pa[chunk].x()+d->offx, pa[chunk].y()+d->offy);
+	}
+	ClosePoly();
+	//now draw it
+	FramePoly(poly);
+	KillPoly(poly);
+    }
 }
 
 void
@@ -693,7 +700,7 @@ QQuickDrawPaintEngine::drawPie(const QRect &r, int a, int alen)
     pa.resize(n+2);
     pa.setPoint(n, r.right()/2, r.bottom()/2);	// add legs
     pa.setPoint(n+1, pa.at(0));
-    drawPolyInternal(pa, true, false);
+    drawPolyInternal(pa, true);
 }
 
 void

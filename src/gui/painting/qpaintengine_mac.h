@@ -74,7 +74,7 @@ public:
 
 protected:
     QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *);
-    void drawPolyInternal(const QPointArray &a, bool close=true, bool inset=true);
+    void drawPolyInternal(const QPointArray &a, bool close=true);
     void setClippedRegionInternal(QRegion *);
 
     void setupQDFont();
