@@ -140,6 +140,7 @@ QTextDocumentPrivate::QTextDocumentPrivate()
     lout = 0;
 
     modified = false;
+    lastUnmodifiedUndoStackPos = -1;
 }
 
 void QTextDocumentPrivate::init()
@@ -490,7 +491,6 @@ void QTextDocumentPrivate::setCharFormat(int pos, int length, const QTextCharFor
         QTextDocumentPrivate::block(blockIt)->invalidate();
 
     documentChange(startPos, length);
-    contentsChanged();
 
     endEditBlock();
 }
@@ -540,7 +540,6 @@ void QTextDocumentPrivate::setBlockFormat(const QTextBlock &from, const QTextBlo
     }
 
     documentChange(from.position(), to.position() + to.length() - from.position());
-    contentsChanged();
 
     endEditBlock();
 }
@@ -758,6 +757,9 @@ void QTextDocumentPrivate::enableUndoRedo(bool enable)
     if (!enable) {
         undoPosition = 0;
         truncateUndoStack();
+
+        modified = false;
+        lastUnmodifiedUndoStackPos = -1;
     }
     undoEnabled = enable;
 }
@@ -775,7 +777,9 @@ void QTextDocumentPrivate::endEditBlock()
 
     if (lout && docChangeFrom >= 0)
         lout->documentChange(docChangeFrom, docChangeOldLength, docChangeLength);
+
     docChangeFrom = -1;
+    contentsChanged();
 }
 
 void QTextDocumentPrivate::documentChange(int from, int length)
@@ -907,7 +911,6 @@ void QTextDocumentPrivate::changeObjectFormat(QTextObject *obj, int format)
     c.object = obj;
     appendUndoItem(c);
 
-    contentsChanged();
     endEditBlock();
 }
 
@@ -1112,15 +1115,32 @@ QTextObject *QTextDocumentPrivate::createObject(const QTextFormat &f, int object
 
 void QTextDocumentPrivate::contentsChanged()
 {
-    q->contentsChanged();
-    setModified(true);
+    if (editBlock)
+        return;
+
+    emit q->contentsChanged();
+
+    if (lastUnmodifiedUndoStackPos != -1
+        && lastUnmodifiedUndoStackPos == undoPosition)
+        setModified(false);
+    else
+        setModified(true);
 }
 
 void QTextDocumentPrivate::setModified(bool m)
 {
     if (m == modified)
         return;
+
     modified = m;
-    emit q->modificationChanged(m);
+
+    if (!modified) {
+        if (undoEnabled)
+            lastUnmodifiedUndoStackPos = undoPosition;
+        else
+            lastUnmodifiedUndoStackPos = -1;
+    }
+
+    emit q->modificationChanged(modified);
 }
 

@@ -245,6 +245,8 @@ private:
     QTextDocumentConfig docConfig;
 
     bool modified;
+    // position in undo stack of the last setModified(false) call
+    int lastUnmodifiedUndoStackPos;
 };
 
 #endif // QTEXTDOCUMENT_P_H
