@@ -34,7 +34,7 @@
     to seven, consists of tutorials which introduce you to \qd by
     leading you through the development of example applications. The
     second part, chapters eight to ten, provide a comprehensive
-    reference. The tutorial chapters are written to be as self-contained
+    reference to \qd. The tutorial chapters are written to be as self-contained
     as possible, but all of them assume that you are familiar with the
     material in chapter one which covers the basics of building a Qt
     application with Designer. Here's a brief overview of the chapters:
@@ -123,10 +123,11 @@
 
     \p
     The manual assumes that you have some basic knowledge of C++ and the Qt
-    application development framework. If you need to learn more about C++ or Qt there are a vast number
-    of C++ books on the market, and a small but increasing number of Qt books.
-    Qt comes with extensive online documentation and many example
-    applications that you can try. For <xref
+    application development framework. If you need to learn more about
+    C++ or Qt there are a vast number of C++ books available, and a
+    small but increasing number of Qt books. Qt comes with extensive
+    online documentation and many example applications that you can try.
+    For <xref
     linkend="creating-database-applications"> "Creating Database
     Applications" some knowledge of SQL and relational databases is
     required as specified at the beginning of that chapter.
@@ -136,7 +137,7 @@
 
 
 <sect1 id="whatsnewindesigner">
-<title>What's new in Designer?</title>
+<title>What's New in Designer?</title>
 <para> 
 This version of \qd has a great deal more functionality than its
 predecessor. The code for custom slots can be edited directly in
@@ -163,14 +164,10 @@ application.
     Bug reports on Qt or \qd should be sent to
     \c[qt-bugs@trolltech.com]. You might also like to join the
     \i[qt-interest] mailing list, which Designer's developers read and
-    contribute to; see the website for further details.
+    contribute to; see the <ulink
+    url="http://www.trolltech.com">website</>for further details.
     \P
     
-    \p
-    Commercial Qt licensees can report bugs or request support through the
-    channels assigned to you when you bought your licence. 
-    \P
-
 </sect1>
 
 </preface>

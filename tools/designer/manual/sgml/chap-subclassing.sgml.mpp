@@ -1,9 +1,21 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
 <chapter>
 <title id="subclassingdynamicdialogs">
-Alternatives: Subclassing; Dynamic Dialogs</title>
+Subclassing and Dynamic Dialogs</title>
+<para>
+This chapter describes two different approaches that you can take to
+creating forms with \qd. Subclassing is used to extend the functionality
+of a form by creating your own class based upon a form you create in
+\qd. Dynamic dialogs are <filename>.ui</filename> files which can be
+executed by a Qt application; this keeps the GUI design and the code
+quite distinct and is useful in environments where the GUI may have to
+change more often than the underlying application.
+</para>
 
-<sect1 id="turningdesignersuifilesintosourcecode">
+<sect1 id="subclassing">
+<title>Subclassing</title>
+
+<sect2 id="turningdesignersuifilesintosourcecode">
 <title>Turning Designer's .ui files into Source Code </title>
 <para>
 \qd reads and writes \cmd[qmake] <filename>.pro</filename> files
@@ -23,12 +35,12 @@ compiler into a working application.
 If you create applications wholly within \qd you need only create a
 <filename>main.cpp</filename> and add 
 <programlisting>
-SOURCES = main.cpp
+SOURCES += main.cpp
 </programlisting>
-to your project's <filename>.pro</filename> file. You can then use
-\cmd[qmake] to generate the Makefile. Running \cmd[make] or \cmd[nmake]
-will then call \cmd[uic], \cmd[moc] and your compiler as necessary to
-build your application.
+at the end of your project's <filename>.pro</filename> file. You can
+then use \cmd[qmake] to generate the Makefile. Running \cmd[make] or
+\cmd[nmake] will then call \cmd[uic], \cmd[moc] and your compiler as
+necessary to build your application.
 </para>
 
 <para>
@@ -45,11 +57,12 @@ is worth checking that you've added the names of all your header and
 implementation files to the <filename>.pro</filename> file.
 </para>
 
-</sect1>
+</sect2>
 
 
-<sect1 id="subclassing">
-<title>Subclassing</title>
+<sect2 id="subclassingaform">
+<title>Subclassing a Form </title>
+
 <para>
 Adding slots directly in \qd is a useful technique suitable for most
 situations. But in some cases we want to use our own constructor or
@@ -61,8 +74,6 @@ appears in the generated code rather where they appear in \qd's code
 editor.
 </para>
 
-<sect2 id="creatingaformsubclass">
-<title>Creating a Form Subclass </title>
 <para>
 If we're going to subclass a form it may be helpful to use a naming
 convention for the form to help us see which files are generated from
@@ -85,10 +96,24 @@ calling your subclass 'SettingsDialog'.
 Any subclass of a form should include the <literal>Q_OBJECT</literal>
 macro. Once you've created your subclass be sure to add the
 <filename>.h</filename> and the <filename>.cpp</filename> files to the
-<filename>.pro</filename> project file.
+<filename>.pro</filename> project file. For example we would add the
+following lines for our subclassed 'SettingsDialog' at the end of the
+<filename>.pro</filename> file:
+<programlisting>
+HEADERS += settingsdialog.h
+SOURCES += settingsdialog.cpp
+</programlisting>
+\qd will have added
+<programlisting>
+INTERFACES = settingsdialogbase.ui
+</programlisting>
+to the project file. The <filename>settingsdialog.h</filename> and
+<filename>settingsdialog.cpp</filename> files will be generated from the
+<filename>.ui</filename> file.
 </para>
 </sect2>
 
+</sect1>
 
 <sect1 id="creatingdynamicdialogsfromuifiles">
 <title>Creating Dynamic Dialogs from .ui Files </title>
