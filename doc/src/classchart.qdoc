@@ -14,317 +14,317 @@
 \page classchart.html
 
 \raw HTML
-<img src="qt31-class-chart.png" usemap="#classmap">
+<img src="qt31-class-chart.png" usemap="#classmap" />
 
 <map name="classmap">
-<area shape="rect" coords="477,40,679,62" href="aboutqt.html">
-<area shape="rect" coords="391,73,441,667" href="signalsandslots.html">
-<area shape="rect" coords="2,705,272,788" href="troll.html">
-<area shape="rect" coords="328,741,563,785" href="http://www.trolltech.com/index.html">
-<area shape="rect" coords="559,746,781,787" href="index.html">
-<area shape="rect" coords="788,735,1132,789" href="pictures.html">
-<area shape="rect" coords="664,384,800,515" href="how-to-learn-qt.html">
-<area shape="rect" coords="877,46,915,318" href="i18n.html">
-<area shape="rect" coords="144,59,175,251" href="buyhowto.html">
-<area shape="rect" coords="4,36,48,81" href="qt.html">
-<area shape="rect" coords="44,59,119,84" href="qbrush.html">
-<area shape="rect" coords="39,84,119,101" href="qcursor.html">
-<area shape="rect" coords="39,101,145,121" href="qkeysequence.html">
-<area shape="rect" coords="34,121,145,139" href="qpainter.html">
-<area shape="rect" coords="34,139,127,158" href="qpen.html">
-<area shape="rect" coords="35,158,147,177" href="qsyntaxhighlighter.html">
-<area shape="rect" coords="35,177,121,196" href="qtab.html">
-<area shape="rect" coords="36,196,121,214" href="qthread.html">
-<area shape="rect" coords="36,214,114,234" href="qtooltip.html">
-<area shape="rect" coords="36,234,114,251" href="qwhatsthis.html">
-<area shape="rect" coords="36,251,127,270" href="qcanvasitem.html">
-<area shape="rect" coords="34,270,127,289" href="qcanvastext.html">
-<area shape="rect" coords="34,289,150,309" href="qcanvassprite.html">
-<area shape="rect" coords="41,309,163,327" href="qcanvaspolygonalitem.html">
-<area shape="rect" coords="41,327,146,346" href="qcanvasellipse.html">
-<area shape="rect" coords="40,346,146,363" href="qcanvasline.html">
-<area shape="rect" coords="40,363,157,384" href="qcanvaspolygon.html">
-<area shape="rect" coords="40,384,157,401" href="qcanvasspline.html">
-<area shape="rect" coords="40,401,154,426" href="qcanvasrectangle.html">
-<area shape="rect" coords="44,435,144,459" href="qwindowsstyle.html">
-<area shape="rect" coords="35,459,144,477" href="qaquastyle.html">
-<area shape="rect" coords="35,477,137,497" href="qmacstyle.html">
-<area shape="rect" coords="40,497,137,515" href="qplatinumstyle.html">
-<area shape="rect" coords="40,515,138,533" href="qsgistyle.html">
-<area shape="rect" coords="46,533,138,551" href="qcdestyle.html">
-<area shape="rect" coords="46,551,144,571" href="qmotifplusstyle.html">
-<area shape="rect" coords="36,571,144,595" href="qstyleplugin.html">
-<area shape="rect" coords="45,606,152,627" href="qsqleditorfactory.html">
-<area shape="rect" coords="44,627,152,645" href="qsql.html">
-<area shape="rect" coords="44,645,146,664" href="qsqlresult.html">
-<area shape="rect" coords="44,664,146,683" href="qsqlpropertymap.html">
-<area shape="rect" coords="44,683,151,707" href="qsqldriverplugin.html">
-<area shape="rect" coords="173,62,246,83" href="qevent.html">
-<area shape="rect" coords="172,83,246,101" href="qimevent.html">
-<area shape="rect" coords="172,101,268,121" href="qkeyevent.html">
-<area shape="rect" coords="173,121,268,138" href="qhideevent.html">
-<area shape="rect" coords="173,138,268,159" href="qdropevent.html">
-<area shape="rect" coords="174,159,268,176" href="qpaintevent.html">
-<area shape="rect" coords="174,176,267,196" href="qchildevent.html">
-<area shape="rect" coords="174,196,267,214" href="qmoveevent.html">
-<area shape="rect" coords="174,214,276,233" href="qshowevent.html">
-<area shape="rect" coords="175,233,276,251" href="qcloseevent.html">
-<area shape="rect" coords="173,250,274,270" href="qtimerevent.html">
-<area shape="rect" coords="174,270,274,289" href="qfocusevent.html">
-<area shape="rect" coords="174,289,273,308" href="qwheelevent.html">
-<area shape="rect" coords="172,308,273,326" href="qmouseevent.html">
-<area shape="rect" coords="172,326,275,345" href="qresizeevent.html">
-<area shape="rect" coords="170,345,275,364" href="qcustomevent.html">
-<area shape="rect" coords="170,364,280,393" href="qcontextmenuevent.html">
-<area shape="rect" coords="173,418,262,447" href="qcommonstyle.html">
-<area shape="rect" coords="172,453,248,485" href="qmotifstyle.html">
-<area shape="rect" coords="171,492,246,515" href="qftp.html">
-<area shape="rect" coords="170,515,246,533" href="qhttp.html">
-<area shape="rect" coords="170,533,245,555" href="qlocalfs.html">
-<area shape="rect" coords="172,567,267,590" href="qsqlfield.html">
-<area shape="rect" coords="170,590,267,608" href="qsqlfieldinfo.html">
-<area shape="rect" coords="170,608,271,627" href="qsqlrecord.html">
-<area shape="rect" coords="171,627,271,646" href="qsqlrecordinfo.html">
-<area shape="rect" coords="171,646,273,664" href="qsqlcursor.html">
-<area shape="rect" coords="170,664,273,683" href="qsqlindex.html">
-<area shape="rect" coords="170,683,257,706" href="qsqlquery.html">
-<area shape="rect" coords="287,39,367,65" href="qobject.html">
-<area shape="rect" coords="286,65,367,82" href="qaccel.html">
-<area shape="rect" coords="286,82,385,101" href="qaction.html">
-<area shape="rect" coords="285,101,385,121" href="qapplication.html">
-<area shape="rect" coords="285,121,384,139" href="qcanvas.html">
-<area shape="rect" coords="286,139,384,159" href="qclipboard.html">
-<area shape="rect" coords="286,159,386,176" href="qnds.html">
-<area shape="rect" coords="286,176,386,197" href="qdragobject.html">
-<area shape="rect" coords="286,197,383,215" href="qeventloop.html">
-<area shape="rect" coords="286,215,383,233" href="qprocess.html">
-<area shape="rect" coords="286,233,385,252" href="qserversocket.html">
-<area shape="rect" coords="286,252,385,271" href="qsessionmanager.html">
-<area shape="rect" coords="286,271,385,290" href="qsignal.html">
-<area shape="rect" coords="286,290,385,309" href="qsignalmapper.html">
-<area shape="rect" coords="286,309,386,326" href="qsocket.html">
-<area shape="rect" coords="286,326,386,345" href="qsound.html">
-<area shape="rect" coords="286,345,385,364" href="qtimer.html">
-<area shape="rect" coords="285,364,385,383" href="qtranslator.html">
-<area shape="rect" coords="285,383,383,402" href="qstylesheet.html">
-<area shape="rect" coords="285,402,383,421" href="qstyle.html">
-<area shape="rect" coords="285,421,386,440" href="qurloperator.html">
-<area shape="rect" coords="285,440,386,459" href="qnetworkoperator.html">
-<area shape="rect" coords="285,459,385,477" href="qnetworkprotocol.html">
-<area shape="rect" coords="285,477,385,495" href="qvalidator.html">
-<area shape="rect" coords="285,495,384,514" href="qdoublevalidator.html">
-<area shape="rect" coords="281,514,384,532" href="qintvalidator.html">
-<area shape="rect" coords="281,532,383,552" href="qregexpvalidator.html">
-<area shape="rect" coords="283,552,383,571" href="qeditorfactory.html">
-<area shape="rect" coords="283,571,384,593" href="qlayout.html">
-<area shape="rect" coords="283,604,386,627" href="qsqldatabase.html">
-<area shape="rect" coords="282,627,386,646" href="qsqldriver.html">
-<area shape="rect" coords="282,646,382,664" href="qsqlform.html">
-<area shape="rect" coords="284,664,382,682" href="qdatabrowser.html">
-<area shape="rect" coords="284,682,365,708" href="qdataview.html">
-<area shape="rect" coords="411,36,476,70" href="qwidget.html">
-<area shape="rect" coords="456,65,553,83" href="qbutton.html">
-<area shape="rect" coords="451,83,551,102" href="qcombobox.html">
-<area shape="rect" coords="451,102,556,120" href="qdateedit.html">
-<area shape="rect" coords="451,120,556,139" href="qdatetimeedit.html">
-<area shape="rect" coords="451,139,572,159" href="qdesktopwidget.html">
-<area shape="rect" coords="449,159,572,178" href="qdialog.html">
-<area shape="rect" coords="449,178,554,195" href="qdial.html">
-<area shape="rect" coords="453,195,554,214" href="qdockarea.html">
-<area shape="rect" coords="453,214,554,234" href="qworkspace.html">
-<area shape="rect" coords="450,234,554,252" href="qglwidget.html">
-<area shape="rect" coords="450,252,554,270" href="qheader.html">
-<area shape="rect" coords="451,270,554,290" href="qmainwindow.html">
-<area shape="rect" coords="451,290,555,308" href="qscrollbar.html">
-<area shape="rect" coords="452,308,555,326" href="qslider.html">
-<area shape="rect" coords="452,326,552,345" href="qframe.html">
-<area shape="rect" coords="452,345,552,365" href="qsizegrip.html">
-<area shape="rect" coords="452,365,554,383" href="qspinbox.html">
-<area shape="rect" coords="450,383,554,401" href="qstatusbar.html">
-<area shape="rect" coords="450,401,555,420" href="qtabbar.html">
-<area shape="rect" coords="451,420,555,440" href="qtabwidget.html">
-<area shape="rect" coords="451,440,553,458" href="qtimeedit.html">
-<area shape="rect" coords="453,458,553,477" href="qscrollview.html">
-<area shape="rect" coords="453,477,561,495" href="qcanvasview.html">
-<area shape="rect" coords="452,495,561,513" href="qgridview.html">
-<area shape="rect" coords="452,513,559,532" href="qiconview.html">
-<area shape="rect" coords="452,532,559,552" href="qlistview.html">
-<area shape="rect" coords="452,552,560,570" href="qlistbox.html">
-<area shape="rect" coords="451,570,560,589" href="qtextedit.html">
-<area shape="rect" coords="451,589,561,608" href="qtextbrowser.html">
-<area shape="rect" coords="452,608,561,626" href="qtable.html">
-<area shape="rect" coords="452,626,562,645" href="qdatatable.html">
-<area shape="rect" coords="453,643,558,664" href="qgridlayout.html">
-<area shape="rect" coords="453,664,554,683" href="qboxlayout.html">
-<area shape="rect" coords="453,683,554,702" href="qhboxlayout.html">
-<area shape="rect" coords="453,702,553,725" href="qvboxlayout.html">
-<area shape="rect" coords="562,59,662,83" href="qcheckbox.html">
-<area shape="rect" coords="562,83,662,101" href="qtoolbutton.html">
-<area shape="rect" coords="562,101,671,121" href="qpushbutton.html">
-<area shape="rect" coords="563,121,671,141" href="qradiobutton.html">
-<area shape="rect" coords="563,155,667,176" href="qwizard.html">
-<area shape="rect" coords="562,176,667,196" href="qtabdialog.html">
-<area shape="rect" coords="562,196,664,215" href="qfiledialog.html">
-<area shape="rect" coords="562,215,664,233" href="qfontdialog.html">
-<area shape="rect" coords="562,233,673,252" href="qinputdialog.html">
-<area shape="rect" coords="562,252,673,271" href="qcolordialog.html">
-<area shape="rect" coords="562,271,676,290" href="qmessagebox.html">
-<area shape="rect" coords="561,290,676,308" href="qerrormessage.html">
-<area shape="rect" coords="561,308,671,335" href="qprogressdialog.html">
-<area shape="rect" coords="568,342,658,364" href="qgrid.html">
-<area shape="rect" coords="561,364,658,383" href="qlabel.html">
-<area shape="rect" coords="561,383,657,402" href="qhbox.html">
-<area shape="rect" coords="563,402,657,420" href="qvbox.html">
-<area shape="rect" coords="563,420,657,439" href="qsplitter.html">
-<area shape="rect" coords="562,439,657,458" href="qlineedit.html">
-<area shape="rect" coords="562,458,659,476" href="qmenubar.html">
-<area shape="rect" coords="568,476,659,496" href="qgroupbox.html">
-<area shape="rect" coords="568,496,658,515" href="qpopupmenu.html">
-<area shape="rect" coords="568,515,658,534" href="qprogressbar.html">
-<area shape="rect" coords="568,534,659,551" href="qlcdnumber.html">
-<area shape="rect" coords="568,551,659,571" href="qwidgetstack.html">
-<area shape="rect" coords="568,571,657,589" href="qdockwindow.html">
-<area shape="rect" coords="568,589,657,607" href="qtoolbar.html">
-<area shape="rect" coords="568,607,672,626" href="qiconviewitem.html">
-<area shape="rect" coords="567,626,672,645" href="qlistviewitem.html">
-<area shape="rect" coords="567,645,675,663" href="qchecklistitem.html">
-<area shape="rect" coords="567,663,675,682" href="qtableitem.html">
-<area shape="rect" coords="567,682,677,701" href="qchecktableitem.html">
-<area shape="rect" coords="569,701,677,721" href="qcombotableitem.html">
-<area shape="rect" coords="670,38,794,65" href="qwidgetfactory.html">
-<area shape="rect" coords="667,65,794,84" href="qwidgetplugin.html">
-<area shape="rect" coords="667,84,793,101" href="qxmlattributes.html">
-<area shape="rect" coords="666,101,793,120" href="qxmlcontenthandler.html">
-<area shape="rect" coords="666,120,791,140" href="qxmldeclhandler.html">
-<area shape="rect" coords="664,140,791,158" href="qxmldtdhandler.html">
-<area shape="rect" coords="664,158,793,177" href="qxmlentityresolver.html">
-<area shape="rect" coords="668,177,793,195" href="qxmllexicalhandler.html">
-<area shape="rect" coords="668,195,787,214" href="qxmllocator.html">
-<area shape="rect" coords="670,214,793,234" href="qxmlnamespacesupport.html">
-<area shape="rect" coords="664,234,793,251" href="qxmlreader.html">
-<area shape="rect" coords="664,251,786,270" href="qdomattr.html">
-<area shape="rect" coords="671,270,786,290" href="qdomentity.html">
-<area shape="rect" coords="671,290,783,307" href="qdomelement.html">
-<area shape="rect" coords="669,307,783,327" href="qdomdocument.html">
-<area shape="rect" coords="669,327,793,345" href="qdomcharacterdata.html">
-<area shape="rect" coords="669,345,793,365" href="qglformat.html">
-<area shape="rect" coords="669,365,784,383" href="qglcontext.html">
-<area shape="rect" coords="669,514,777,532" href="qfile.html">
-<area shape="rect" coords="668,532,777,551" href="qbuffer.html">
-<area shape="rect" coords="668,551,781,570" href="qsocketdevice.html">
-<area shape="rect" coords="669,570,781,590" href="qstylesheetitem.html">
-<area shape="rect" coords="669,590,793,608" href="qcustommenuitem.html">
-<area shape="rect" coords="670,608,793,626" href="qlistboxitem.html">
-<area shape="rect" coords="670,626,784,645" href="qlistboxtext.html">
-<area shape="rect" coords="671,645,784,664" href="qlistboxpixmap.html">
-<area shape="rect" coords="671,664,788,683" href="qlayoutitem.html">
-<area shape="rect" coords="676,683,788,702" href="qspaceritem.html">
-<area shape="rect" coords="676,702,778,726" href="qwidgetitem.html">
-<area shape="rect" coords="786,35,879,64" href="qaccessible.html">
-<area shape="rect" coords="784,64,879,83" href="qasciicache.html">
-<area shape="rect" coords="784,83,880,102" href="qasyncio.html">
-<area shape="rect" coords="789,102,880,120" href="qchar.html">
-<area shape="rect" coords="789,120,872,139" href="qcolor.html">
-<area shape="rect" coords="788,139,872,159" href="qcolorgroup.html">
-<area shape="rect" coords="788,159,878,177" href="qdatastream.html">
-<area shape="rect" coords="790,177,878,195" href="qdate.html">
-<area shape="rect" coords="790,195,879,214" href="qdatetime.html">
-<area shape="rect" coords="782,214,879,234" href="qdeepcopy.html">
-<area shape="rect" coords="782,234,874,251" href="qdir.html">
-<area shape="rect" coords="789,251,874,271" href="qdomnode.html">
-<area shape="rect" coords="789,271,877,290" href="qfileinfo.html">
-<area shape="rect" coords="791,290,877,308" href="qfont.html">
-<area shape="rect" coords="791,308,899,326" href="qfontdatabase.html">
-<area shape="rect" coords="790,326,899,345" href="qfontinfo.html">
-<area shape="rect" coords="790,345,899,365" href="qfontmanager.html">
-<area shape="rect" coords="789,365,899,383" href="qfontmetrics.html">
-<area shape="rect" coords="789,383,891,401" href="qgl.html">
-<area shape="rect" coords="790,401,891,421" href="qglcolormap.html">
-<area shape="rect" coords="790,421,909,439" href="qguardedptr.html">
-<area shape="rect" coords="789,439,909,458" href="qhostaddress.html">
-<area shape="rect" coords="789,458,906,477" href="qiconset.html">
-<area shape="rect" coords="790,477,906,496" href="qimage.html">
-<area shape="rect" coords="790,496,910,515" href="qimageformatplugin.html">
-<area shape="rect" coords="788,514,909,533" href="qimageio.html">
-<area shape="rect" coords="785,533,909,551" href="qintcache.html">
-<area shape="rect" coords="785,551,910,570" href="qiodevice.html">
-<area shape="rect" coords="787,570,910,590" href="qlibrary.html">
-<area shape="rect" coords="787,590,905,607" href="qlock.html">
-<area shape="rect" coords="788,607,905,627" href="qmap.html">
-<area shape="rect" coords="788,627,911,645" href="qasciicacheiterator.html">
-<area shape="rect" coords="781,645,911,664" href="qcacheiterator.html">
-<area shape="rect" coords="781,664,910,682" href="qintcacheiterator.html">
-<area shape="rect" coords="787,682,910,701" href="qasciidictiterator.html">
-<area shape="rect" coords="787,701,886,725" href="qdictiterator.html">
-<area shape="rect" coords="907,40,1008,65" href="qmemarray.html">
-<area shape="rect" coords="909,65,1008,83" href="qmenudata.html">
-<area shape="rect" coords="909,83,1012,102" href="qmetaobject.html">
-<area shape="rect" coords="907,102,1012,121" href="qmetaproperty.html">
-<area shape="rect" coords="907,121,1015,139" href="qmovie.html">
-<area shape="rect" coords="905,139,1015,158" href="qmimesource.html">
-<area shape="rect" coords="905,158,1022,176" href="qmutex.html">
-<area shape="rect" coords="909,176,1022,196" href="qpaintdevice.html">
-<area shape="rect" coords="909,196,1025,214" href="qpaintdevicemetrics.html">
-<area shape="rect" coords="911,214,1025,233" href="qpair.html">
-<area shape="rect" coords="911,233,1010,251" href="qpalette.html">
-<area shape="rect" coords="907,251,1010,271" href="qpixmapcache.html">
-<area shape="rect" coords="907,271,1022,289" href="qpoint.html">
-<area shape="rect" coords="908,289,1022,307" href="qptrcollection.html">
-<area shape="rect" coords="908,307,1023,326" href="qptrqueue.html">
-<area shape="rect" coords="904,326,1023,345" href="qptrstack.html">
-<area shape="rect" coords="904,345,1008,365" href="qrangecontrol.html">
-<area shape="rect" coords="908,365,1008,382" href="qrect.html">
-<area shape="rect" coords="908,382,1009,402" href="qregexp.html">
-<area shape="rect" coords="901,402,1009,421" href="qregion.html">
-<area shape="rect" coords="901,421,1010,440" href="qsemaphore.html">
-<area shape="rect" coords="908,440,1010,458" href="qsettings.html">
-<area shape="rect" coords="908,458,1013,477" href="qsimplerichtext.html">
-<area shape="rect" coords="904,477,1016,496" href="qsize.html">
-<area shape="rect" coords="905,496,1016,515" href="qsizepolicy.html">
-<area shape="rect" coords="905,515,1020,533" href="qstring.html">
-<area shape="rect" coords="898,533,1020,553" href="qconststring.html">
-<area shape="rect" coords="898,553,1018,570" href="qtextcodec.html">
-<area shape="rect" coords="892,570,1018,590" href="qtextcodecplugin.html">
-<area shape="rect" coords="892,590,1023,608" href="qtextstream.html">
-<area shape="rect" coords="903,608,1023,626" href="qtime.html">
-<area shape="rect" coords="903,626,1012,645" href="qptrdictiterator.html">
-<area shape="rect" coords="905,645,1012,664" href="qmapiterator.html">
-<area shape="rect" coords="905,664,1016,682" href="qvaluelistiterator.html">
-<area shape="rect" coords="904,682,1016,701" href="qptrlistiterator.html">
-<area shape="rect" coords="904,701,1001,720" href="qintdictiterator.html">
-<area shape="rect" coords="892,718,1116,734" href="http://www.trolltech.com/trademarks.html">
-<area shape="rect" coords="1022,60,1125,84" href="qbytearray.html">
-<area shape="rect" coords="1019,84,1125,102" href="qpointarray.html">
-<area shape="rect" coords="1019,102,1121,121" href="qbitarray.html">
-<area shape="rect" coords="1020,121,1121,140" href="qcstring.html">
-<area shape="rect" coords="1020,140,1133,159" href="qmimesourcefactory.html">
-<area shape="rect" coords="1017,159,1133,178" href="qmutexlocker.html">
-<area shape="rect" coords="1024,190,1099,214" href="qprinter.html">
-<area shape="rect" coords="1012,214,1099,233" href="qpicture.html">
-<area shape="rect" coords="1012,233,1111,252" href="qpixmap.html">
-<area shape="rect" coords="1016,252,1111,281" href="qbitmap.html">
-<area shape="rect" coords="1014,303,1100,326" href="qdict.html">
-<area shape="rect" coords="1016,326,1100,345" href="qcache.html">
-<area shape="rect" coords="1016,345,1109,365" href="qptrlist.html">
-<area shape="rect" coords="1013,365,1109,382" href="qintdict.html">
-<area shape="rect" coords="1013,382,1108,401" href="qptrdict.html">
-<area shape="rect" coords="1014,401,1108,421" href="qasciidict.html">
-<area shape="rect" coords="1014,421,1123,439" href="qptrvector.html">
-<area shape="rect" coords="1010,439,1123,458" href="qobjectlist.html">
-<area shape="rect" coords="1010,458,1117,477" href="qsortedlist.html">
-<area shape="rect" coords="1019,477,1117,495" href="qvaluelist.html">
-<area shape="rect" coords="1019,495,1120,515" href="qstringlist.html">
-<area shape="rect" coords="1015,515,1120,533" href="qvaluestack.html">
-<area shape="rect" coords="1015,533,1119,552" href="qvaluevector.html">
-<area shape="rect" coords="1006,552,1119,570" href="qurl.html">
-<area shape="rect" coords="1006,570,1106,589" href="qurlinfo.html">
-<area shape="rect" coords="1011,589,1106,607" href="qvariant.html">
-<area shape="rect" coords="1011,607,1123,626" href="qwmatrix.html">
-<area shape="rect" coords="1018,626,1123,646" href="qhbuttongroup.html">
-<area shape="rect" coords="1018,646,1129,664" href="qvbuttongroup.html">
-<area shape="rect" coords="1019,664,1129,683" href="qbuttongroup.html">
-<area shape="rect" coords="1019,683,1128,702" href="qhgroupbox.html">
-<area shape="rect" coords="1026,702,1128,721" href="qvgroupbox.html">
+<area shape="rect" coords="477,40,679,62" href="aboutqt.html" />
+<area shape="rect" coords="391,73,441,667" href="signalsandslots.html" />
+<area shape="rect" coords="2,705,272,788" href="troll.html" />
+<area shape="rect" coords="328,741,563,785" href="http://www.trolltech.com/index.html" />
+<area shape="rect" coords="559,746,781,787" href="index.html" />
+<area shape="rect" coords="788,735,1132,789" href="pictures.html" />
+<area shape="rect" coords="664,384,800,515" href="how-to-learn-qt.html" />
+<area shape="rect" coords="877,46,915,318" href="i18n.html" />
+<area shape="rect" coords="144,59,175,251" href="buyhowto.html" />
+<area shape="rect" coords="4,36,48,81" href="qt.html" />
+<area shape="rect" coords="44,59,119,84" href="qbrush.html" />
+<area shape="rect" coords="39,84,119,101" href="qcursor.html" />
+<area shape="rect" coords="39,101,145,121" href="qkeysequence.html" />
+<area shape="rect" coords="34,121,145,139" href="qpainter.html" />
+<area shape="rect" coords="34,139,127,158" href="qpen.html" />
+<area shape="rect" coords="35,158,147,177" href="qsyntaxhighlighter.html" />
+<area shape="rect" coords="35,177,121,196" href="qtab.html" />
+<area shape="rect" coords="36,196,121,214" href="qthread.html" />
+<area shape="rect" coords="36,214,114,234" href="qtooltip.html" />
+<area shape="rect" coords="36,234,114,251" href="qwhatsthis.html" />
+<area shape="rect" coords="36,251,127,270" href="qcanvasitem.html" />
+<area shape="rect" coords="34,270,127,289" href="qcanvastext.html" />
+<area shape="rect" coords="34,289,150,309" href="qcanvassprite.html" />
+<area shape="rect" coords="41,309,163,327" href="qcanvaspolygonalitem.html" />
+<area shape="rect" coords="41,327,146,346" href="qcanvasellipse.html" />
+<area shape="rect" coords="40,346,146,363" href="qcanvasline.html" />
+<area shape="rect" coords="40,363,157,384" href="qcanvaspolygon.html" />
+<area shape="rect" coords="40,384,157,401" href="qcanvasspline.html" />
+<area shape="rect" coords="40,401,154,426" href="qcanvasrectangle.html" />
+<area shape="rect" coords="44,435,144,459" href="qwindowsstyle.html" />
+<area shape="rect" coords="35,459,144,477" href="qaquastyle.html" />
+<area shape="rect" coords="35,477,137,497" href="qmacstyle.html" />
+<area shape="rect" coords="40,497,137,515" href="qplatinumstyle.html" />
+<area shape="rect" coords="40,515,138,533" href="qsgistyle.html" />
+<area shape="rect" coords="46,533,138,551" href="qcdestyle.html" />
+<area shape="rect" coords="46,551,144,571" href="qmotifplusstyle.html" />
+<area shape="rect" coords="36,571,144,595" href="qstyleplugin.html" />
+<area shape="rect" coords="45,606,152,627" href="qsqleditorfactory.html" />
+<area shape="rect" coords="44,627,152,645" href="qsql.html" />
+<area shape="rect" coords="44,645,146,664" href="qsqlresult.html" />
+<area shape="rect" coords="44,664,146,683" href="qsqlpropertymap.html" />
+<area shape="rect" coords="44,683,151,707" href="qsqldriverplugin.html" />
+<area shape="rect" coords="173,62,246,83" href="qevent.html" />
+<area shape="rect" coords="172,83,246,101" href="qimevent.html" />
+<area shape="rect" coords="172,101,268,121" href="qkeyevent.html" />
+<area shape="rect" coords="173,121,268,138" href="qhideevent.html" />
+<area shape="rect" coords="173,138,268,159" href="qdropevent.html" />
+<area shape="rect" coords="174,159,268,176" href="qpaintevent.html" />
+<area shape="rect" coords="174,176,267,196" href="qchildevent.html" />
+<area shape="rect" coords="174,196,267,214" href="qmoveevent.html" />
+<area shape="rect" coords="174,214,276,233" href="qshowevent.html" />
+<area shape="rect" coords="175,233,276,251" href="qcloseevent.html" />
+<area shape="rect" coords="173,250,274,270" href="qtimerevent.html" />
+<area shape="rect" coords="174,270,274,289" href="qfocusevent.html" />
+<area shape="rect" coords="174,289,273,308" href="qwheelevent.html" />
+<area shape="rect" coords="172,308,273,326" href="qmouseevent.html" />
+<area shape="rect" coords="172,326,275,345" href="qresizeevent.html" />
+<area shape="rect" coords="170,345,275,364" href="qcustomevent.html" />
+<area shape="rect" coords="170,364,280,393" href="qcontextmenuevent.html" />
+<area shape="rect" coords="173,418,262,447" href="qcommonstyle.html" />
+<area shape="rect" coords="172,453,248,485" href="qmotifstyle.html" />
+<area shape="rect" coords="171,492,246,515" href="qftp.html" />
+<area shape="rect" coords="170,515,246,533" href="qhttp.html" />
+<area shape="rect" coords="170,533,245,555" href="qlocalfs.html" />
+<area shape="rect" coords="172,567,267,590" href="qsqlfield.html" />
+<area shape="rect" coords="170,590,267,608" href="qsqlfieldinfo.html" />
+<area shape="rect" coords="170,608,271,627" href="qsqlrecord.html" />
+<area shape="rect" coords="171,627,271,646" href="qsqlrecordinfo.html" />
+<area shape="rect" coords="171,646,273,664" href="qsqlcursor.html" />
+<area shape="rect" coords="170,664,273,683" href="qsqlindex.html" />
+<area shape="rect" coords="170,683,257,706" href="qsqlquery.html" />
+<area shape="rect" coords="287,39,367,65" href="qobject.html" />
+<area shape="rect" coords="286,65,367,82" href="qaccel.html" />
+<area shape="rect" coords="286,82,385,101" href="qaction.html" />
+<area shape="rect" coords="285,101,385,121" href="qapplication.html" />
+<area shape="rect" coords="285,121,384,139" href="qcanvas.html" />
+<area shape="rect" coords="286,139,384,159" href="qclipboard.html" />
+<area shape="rect" coords="286,159,386,176" href="qnds.html" />
+<area shape="rect" coords="286,176,386,197" href="qdragobject.html" />
+<area shape="rect" coords="286,197,383,215" href="qeventloop.html" />
+<area shape="rect" coords="286,215,383,233" href="qprocess.html" />
+<area shape="rect" coords="286,233,385,252" href="qserversocket.html" />
+<area shape="rect" coords="286,252,385,271" href="qsessionmanager.html" />
+<area shape="rect" coords="286,271,385,290" href="qsignal.html" />
+<area shape="rect" coords="286,290,385,309" href="qsignalmapper.html" />
+<area shape="rect" coords="286,309,386,326" href="qsocket.html" />
+<area shape="rect" coords="286,326,386,345" href="qsound.html" />
+<area shape="rect" coords="286,345,385,364" href="qtimer.html" />
+<area shape="rect" coords="285,364,385,383" href="qtranslator.html" />
+<area shape="rect" coords="285,383,383,402" href="qstylesheet.html" />
+<area shape="rect" coords="285,402,383,421" href="qstyle.html" />
+<area shape="rect" coords="285,421,386,440" href="qurloperator.html" />
+<area shape="rect" coords="285,440,386,459" href="qnetworkoperator.html" />
+<area shape="rect" coords="285,459,385,477" href="qnetworkprotocol.html" />
+<area shape="rect" coords="285,477,385,495" href="qvalidator.html" />
+<area shape="rect" coords="285,495,384,514" href="qdoublevalidator.html" />
+<area shape="rect" coords="281,514,384,532" href="qintvalidator.html" />
+<area shape="rect" coords="281,532,383,552" href="qregexpvalidator.html" />
+<area shape="rect" coords="283,552,383,571" href="qeditorfactory.html" />
+<area shape="rect" coords="283,571,384,593" href="qlayout.html" />
+<area shape="rect" coords="283,604,386,627" href="qsqldatabase.html" />
+<area shape="rect" coords="282,627,386,646" href="qsqldriver.html" />
+<area shape="rect" coords="282,646,382,664" href="qsqlform.html" />
+<area shape="rect" coords="284,664,382,682" href="qdatabrowser.html" />
+<area shape="rect" coords="284,682,365,708" href="qdataview.html" />
+<area shape="rect" coords="411,36,476,70" href="qwidget.html" />
+<area shape="rect" coords="456,65,553,83" href="qbutton.html" />
+<area shape="rect" coords="451,83,551,102" href="qcombobox.html" />
+<area shape="rect" coords="451,102,556,120" href="qdateedit.html" />
+<area shape="rect" coords="451,120,556,139" href="qdatetimeedit.html" />
+<area shape="rect" coords="451,139,572,159" href="qdesktopwidget.html" />
+<area shape="rect" coords="449,159,572,178" href="qdialog.html" />
+<area shape="rect" coords="449,178,554,195" href="qdial.html" />
+<area shape="rect" coords="453,195,554,214" href="qdockarea.html" />
+<area shape="rect" coords="453,214,554,234" href="qworkspace.html" />
+<area shape="rect" coords="450,234,554,252" href="qglwidget.html" />
+<area shape="rect" coords="450,252,554,270" href="qheader.html" />
+<area shape="rect" coords="451,270,554,290" href="qmainwindow.html" />
+<area shape="rect" coords="451,290,555,308" href="qscrollbar.html" />
+<area shape="rect" coords="452,308,555,326" href="qslider.html" />
+<area shape="rect" coords="452,326,552,345" href="qframe.html" />
+<area shape="rect" coords="452,345,552,365" href="qsizegrip.html" />
+<area shape="rect" coords="452,365,554,383" href="qspinbox.html" />
+<area shape="rect" coords="450,383,554,401" href="qstatusbar.html" />
+<area shape="rect" coords="450,401,555,420" href="qtabbar.html" />
+<area shape="rect" coords="451,420,555,440" href="qtabwidget.html" />
+<area shape="rect" coords="451,440,553,458" href="qtimeedit.html" />
+<area shape="rect" coords="453,458,553,477" href="qscrollview.html" />
+<area shape="rect" coords="453,477,561,495" href="qcanvasview.html" />
+<area shape="rect" coords="452,495,561,513" href="qgridview.html" />
+<area shape="rect" coords="452,513,559,532" href="qiconview.html" />
+<area shape="rect" coords="452,532,559,552" href="qlistview.html" />
+<area shape="rect" coords="452,552,560,570" href="qlistbox.html" />
+<area shape="rect" coords="451,570,560,589" href="qtextedit.html" />
+<area shape="rect" coords="451,589,561,608" href="qtextbrowser.html" />
+<area shape="rect" coords="452,608,561,626" href="qtable.html" />
+<area shape="rect" coords="452,626,562,645" href="qdatatable.html" />
+<area shape="rect" coords="453,643,558,664" href="qgridlayout.html" />
+<area shape="rect" coords="453,664,554,683" href="qboxlayout.html" />
+<area shape="rect" coords="453,683,554,702" href="qhboxlayout.html" />
+<area shape="rect" coords="453,702,553,725" href="qvboxlayout.html" />
+<area shape="rect" coords="562,59,662,83" href="qcheckbox.html" />
+<area shape="rect" coords="562,83,662,101" href="qtoolbutton.html" />
+<area shape="rect" coords="562,101,671,121" href="qpushbutton.html" />
+<area shape="rect" coords="563,121,671,141" href="qradiobutton.html" />
+<area shape="rect" coords="563,155,667,176" href="qwizard.html" />
+<area shape="rect" coords="562,176,667,196" href="qtabdialog.html" />
+<area shape="rect" coords="562,196,664,215" href="qfiledialog.html" />
+<area shape="rect" coords="562,215,664,233" href="qfontdialog.html" />
+<area shape="rect" coords="562,233,673,252" href="qinputdialog.html" />
+<area shape="rect" coords="562,252,673,271" href="qcolordialog.html" />
+<area shape="rect" coords="562,271,676,290" href="qmessagebox.html" />
+<area shape="rect" coords="561,290,676,308" href="qerrormessage.html" />
+<area shape="rect" coords="561,308,671,335" href="qprogressdialog.html" />
+<area shape="rect" coords="568,342,658,364" href="qgrid.html" />
+<area shape="rect" coords="561,364,658,383" href="qlabel.html" />
+<area shape="rect" coords="561,383,657,402" href="qhbox.html" />
+<area shape="rect" coords="563,402,657,420" href="qvbox.html" />
+<area shape="rect" coords="563,420,657,439" href="qsplitter.html" />
+<area shape="rect" coords="562,439,657,458" href="qlineedit.html" />
+<area shape="rect" coords="562,458,659,476" href="qmenubar.html" />
+<area shape="rect" coords="568,476,659,496" href="qgroupbox.html" />
+<area shape="rect" coords="568,496,658,515" href="qpopupmenu.html" />
+<area shape="rect" coords="568,515,658,534" href="qprogressbar.html" />
+<area shape="rect" coords="568,534,659,551" href="qlcdnumber.html" />
+<area shape="rect" coords="568,551,659,571" href="qwidgetstack.html" />
+<area shape="rect" coords="568,571,657,589" href="qdockwindow.html" />
+<area shape="rect" coords="568,589,657,607" href="qtoolbar.html" />
+<area shape="rect" coords="568,607,672,626" href="qiconviewitem.html" />
+<area shape="rect" coords="567,626,672,645" href="qlistviewitem.html" />
+<area shape="rect" coords="567,645,675,663" href="qchecklistitem.html" />
+<area shape="rect" coords="567,663,675,682" href="qtableitem.html" />
+<area shape="rect" coords="567,682,677,701" href="qchecktableitem.html" />
+<area shape="rect" coords="569,701,677,721" href="qcombotableitem.html" />
+<area shape="rect" coords="670,38,794,65" href="qwidgetfactory.html" />
+<area shape="rect" coords="667,65,794,84" href="qwidgetplugin.html" />
+<area shape="rect" coords="667,84,793,101" href="qxmlattributes.html" />
+<area shape="rect" coords="666,101,793,120" href="qxmlcontenthandler.html" />
+<area shape="rect" coords="666,120,791,140" href="qxmldeclhandler.html" />
+<area shape="rect" coords="664,140,791,158" href="qxmldtdhandler.html" />
+<area shape="rect" coords="664,158,793,177" href="qxmlentityresolver.html" />
+<area shape="rect" coords="668,177,793,195" href="qxmllexicalhandler.html" />
+<area shape="rect" coords="668,195,787,214" href="qxmllocator.html" />
+<area shape="rect" coords="670,214,793,234" href="qxmlnamespacesupport.html" />
+<area shape="rect" coords="664,234,793,251" href="qxmlreader.html" />
+<area shape="rect" coords="664,251,786,270" href="qdomattr.html" />
+<area shape="rect" coords="671,270,786,290" href="qdomentity.html" />
+<area shape="rect" coords="671,290,783,307" href="qdomelement.html" />
+<area shape="rect" coords="669,307,783,327" href="qdomdocument.html" />
+<area shape="rect" coords="669,327,793,345" href="qdomcharacterdata.html" />
+<area shape="rect" coords="669,345,793,365" href="qglformat.html" />
+<area shape="rect" coords="669,365,784,383" href="qglcontext.html" />
+<area shape="rect" coords="669,514,777,532" href="qfile.html" />
+<area shape="rect" coords="668,532,777,551" href="qbuffer.html" />
+<area shape="rect" coords="668,551,781,570" href="qsocketdevice.html" />
+<area shape="rect" coords="669,570,781,590" href="qstylesheetitem.html" />
+<area shape="rect" coords="669,590,793,608" href="qcustommenuitem.html" />
+<area shape="rect" coords="670,608,793,626" href="qlistboxitem.html" />
+<area shape="rect" coords="670,626,784,645" href="qlistboxtext.html" />
+<area shape="rect" coords="671,645,784,664" href="qlistboxpixmap.html" />
+<area shape="rect" coords="671,664,788,683" href="qlayoutitem.html" />
+<area shape="rect" coords="676,683,788,702" href="qspaceritem.html" />
+<area shape="rect" coords="676,702,778,726" href="qwidgetitem.html" />
+<area shape="rect" coords="786,35,879,64" href="qaccessible.html" />
+<area shape="rect" coords="784,64,879,83" href="qasciicache.html" />
+<area shape="rect" coords="784,83,880,102" href="qasyncio.html" />
+<area shape="rect" coords="789,102,880,120" href="qchar.html" />
+<area shape="rect" coords="789,120,872,139" href="qcolor.html" />
+<area shape="rect" coords="788,139,872,159" href="qcolorgroup.html" />
+<area shape="rect" coords="788,159,878,177" href="qdatastream.html" />
+<area shape="rect" coords="790,177,878,195" href="qdate.html" />
+<area shape="rect" coords="790,195,879,214" href="qdatetime.html" />
+<area shape="rect" coords="782,214,879,234" href="qdeepcopy.html" />
+<area shape="rect" coords="782,234,874,251" href="qdir.html" />
+<area shape="rect" coords="789,251,874,271" href="qdomnode.html" />
+<area shape="rect" coords="789,271,877,290" href="qfileinfo.html" />
+<area shape="rect" coords="791,290,877,308" href="qfont.html" />
+<area shape="rect" coords="791,308,899,326" href="qfontdatabase.html" />
+<area shape="rect" coords="790,326,899,345" href="qfontinfo.html" />
+<area shape="rect" coords="790,345,899,365" href="qfontmanager.html" />
+<area shape="rect" coords="789,365,899,383" href="qfontmetrics.html" />
+<area shape="rect" coords="789,383,891,401" href="qgl.html" />
+<area shape="rect" coords="790,401,891,421" href="qglcolormap.html" />
+<area shape="rect" coords="790,421,909,439" href="qguardedptr.html" />
+<area shape="rect" coords="789,439,909,458" href="qhostaddress.html" />
+<area shape="rect" coords="789,458,906,477" href="qiconset.html" />
+<area shape="rect" coords="790,477,906,496" href="qimage.html" />
+<area shape="rect" coords="790,496,910,515" href="qimageformatplugin.html" />
+<area shape="rect" coords="788,514,909,533" href="qimageio.html" />
+<area shape="rect" coords="785,533,909,551" href="qintcache.html" />
+<area shape="rect" coords="785,551,910,570" href="qiodevice.html" />
+<area shape="rect" coords="787,570,910,590" href="qlibrary.html" />
+<area shape="rect" coords="787,590,905,607" href="qlock.html" />
+<area shape="rect" coords="788,607,905,627" href="qmap.html" />
+<area shape="rect" coords="788,627,911,645" href="qasciicacheiterator.html" />
+<area shape="rect" coords="781,645,911,664" href="qcacheiterator.html" />
+<area shape="rect" coords="781,664,910,682" href="qintcacheiterator.html" />
+<area shape="rect" coords="787,682,910,701" href="qasciidictiterator.html" />
+<area shape="rect" coords="787,701,886,725" href="qdictiterator.html" />
+<area shape="rect" coords="907,40,1008,65" href="qmemarray.html" />
+<area shape="rect" coords="909,65,1008,83" href="qmenudata.html" />
+<area shape="rect" coords="909,83,1012,102" href="qmetaobject.html" />
+<area shape="rect" coords="907,102,1012,121" href="qmetaproperty.html" />
+<area shape="rect" coords="907,121,1015,139" href="qmovie.html" />
+<area shape="rect" coords="905,139,1015,158" href="qmimesource.html" />
+<area shape="rect" coords="905,158,1022,176" href="qmutex.html" />
+<area shape="rect" coords="909,176,1022,196" href="qpaintdevice.html" />
+<area shape="rect" coords="909,196,1025,214" href="qpaintdevicemetrics.html" />
+<area shape="rect" coords="911,214,1025,233" href="qpair.html" />
+<area shape="rect" coords="911,233,1010,251" href="qpalette.html" />
+<area shape="rect" coords="907,251,1010,271" href="qpixmapcache.html" />
+<area shape="rect" coords="907,271,1022,289" href="qpoint.html" />
+<area shape="rect" coords="908,289,1022,307" href="qptrcollection.html" />
+<area shape="rect" coords="908,307,1023,326" href="qptrqueue.html" />
+<area shape="rect" coords="904,326,1023,345" href="qptrstack.html" />
+<area shape="rect" coords="904,345,1008,365" href="qrangecontrol.html" />
+<area shape="rect" coords="908,365,1008,382" href="qrect.html" />
+<area shape="rect" coords="908,382,1009,402" href="qregexp.html" />
+<area shape="rect" coords="901,402,1009,421" href="qregion.html" />
+<area shape="rect" coords="901,421,1010,440" href="qsemaphore.html" />
+<area shape="rect" coords="908,440,1010,458" href="qsettings.html" />
+<area shape="rect" coords="908,458,1013,477" href="qsimplerichtext.html" />
+<area shape="rect" coords="904,477,1016,496" href="qsize.html" />
+<area shape="rect" coords="905,496,1016,515" href="qsizepolicy.html" />
+<area shape="rect" coords="905,515,1020,533" href="qstring.html" />
+<area shape="rect" coords="898,533,1020,553" href="qconststring.html" />
+<area shape="rect" coords="898,553,1018,570" href="qtextcodec.html" />
+<area shape="rect" coords="892,570,1018,590" href="qtextcodecplugin.html" />
+<area shape="rect" coords="892,590,1023,608" href="qtextstream.html" />
+<area shape="rect" coords="903,608,1023,626" href="qtime.html" />
+<area shape="rect" coords="903,626,1012,645" href="qptrdictiterator.html" />
+<area shape="rect" coords="905,645,1012,664" href="qmapiterator.html" />
+<area shape="rect" coords="905,664,1016,682" href="qvaluelistiterator.html" />
+<area shape="rect" coords="904,682,1016,701" href="qptrlistiterator.html" />
+<area shape="rect" coords="904,701,1001,720" href="qintdictiterator.html" />
+<area shape="rect" coords="892,718,1116,734" href="http://www.trolltech.com/trademarks.html" />
+<area shape="rect" coords="1022,60,1125,84" href="qbytearray.html" />
+<area shape="rect" coords="1019,84,1125,102" href="qpointarray.html" />
+<area shape="rect" coords="1019,102,1121,121" href="qbitarray.html" />
+<area shape="rect" coords="1020,121,1121,140" href="qcstring.html" />
+<area shape="rect" coords="1020,140,1133,159" href="qmimesourcefactory.html" />
+<area shape="rect" coords="1017,159,1133,178" href="qmutexlocker.html" />
+<area shape="rect" coords="1024,190,1099,214" href="qprinter.html" />
+<area shape="rect" coords="1012,214,1099,233" href="qpicture.html" />
+<area shape="rect" coords="1012,233,1111,252" href="qpixmap.html" />
+<area shape="rect" coords="1016,252,1111,281" href="qbitmap.html" />
+<area shape="rect" coords="1014,303,1100,326" href="qdict.html" />
+<area shape="rect" coords="1016,326,1100,345" href="qcache.html" />
+<area shape="rect" coords="1016,345,1109,365" href="qptrlist.html" />
+<area shape="rect" coords="1013,365,1109,382" href="qintdict.html" />
+<area shape="rect" coords="1013,382,1108,401" href="qptrdict.html" />
+<area shape="rect" coords="1014,401,1108,421" href="qasciidict.html" />
+<area shape="rect" coords="1014,421,1123,439" href="qptrvector.html" />
+<area shape="rect" coords="1010,439,1123,458" href="qobjectlist.html" />
+<area shape="rect" coords="1010,458,1117,477" href="qsortedlist.html" />
+<area shape="rect" coords="1019,477,1117,495" href="qvaluelist.html" />
+<area shape="rect" coords="1019,495,1120,515" href="qstringlist.html" />
+<area shape="rect" coords="1015,515,1120,533" href="qvaluestack.html" />
+<area shape="rect" coords="1015,533,1119,552" href="qvaluevector.html" />
+<area shape="rect" coords="1006,552,1119,570" href="qurl.html" />
+<area shape="rect" coords="1006,570,1106,589" href="qurlinfo.html" />
+<area shape="rect" coords="1011,589,1106,607" href="qvariant.html" />
+<area shape="rect" coords="1011,607,1123,626" href="qwmatrix.html" />
+<area shape="rect" coords="1018,626,1123,646" href="qhbuttongroup.html" />
+<area shape="rect" coords="1018,646,1129,664" href="qvbuttongroup.html" />
+<area shape="rect" coords="1019,664,1129,683" href="qbuttongroup.html" />
+<area shape="rect" coords="1019,683,1128,702" href="qhgroupbox.html" />
+<area shape="rect" coords="1026,702,1128,721" href="qvgroupbox.html" />
 </map>
 \endraw
 

@@ -37,77 +37,77 @@ available as Professional and Enterprise Editions.
     <td width="100" align="center" bgcolor="#a1c410"><b>Enterprise</b></td>
   </tr>
   <tr>
-    <td><b><a href=index.html>Qt Base Modules (Tools, Kernel,
-    Widgets, Dialogs)</a></b><br>
+    <td><b><a href="index.html">Qt Base Modules (Tools, Kernel,
+    Widgets, Dialogs)</a></b><br />
       The platform-independent Qt GUI toolkit and utility classes.</td>
     <td width="100" align="center"><b>X</b></td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
-    <td><a href="designer-manual.html"><b>Qt Designer</b></a><br>
+    <td><a href="designer-manual.html"><b>Qt Designer</b></a><br />
       Visual GUI builder.</td>
     <td width="100" align="center"><b>X</b></td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
-    <td><a href="iconview.html"><b>Iconview module</b></a><br>
+    <td><a href="iconview.html"><b>Iconview module</b></a><br />
       Visualization of sets of pixmaps with user interaction.</td>
     <td width="100" align="center"><b>X</b></td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
-    <td><a href="workspace.html"><b>Workspace module</b></a><b><br>
+    <td><a href="workspace.html"><b>Workspace module</b></a><b><br />
       </b>Multiple Document Interface (MDI) support.</td>
     <td width="100" align="center"><b>X</b></td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
-    <td><a href="opengl.html"><b>OpenGL 3D Graphics module</b></a><b><br>
+    <td><a href="opengl.html"><b>OpenGL 3D Graphics module</b></a><b><br />
       </b>Integration of Qt with OpenGL.</td>
-    <td width="100" align="center"><br>
+    <td width="100" align="center"><br />
     </td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
-    <td><a href="network.html"><b>Network module</b></a><b><br>
+    <td><a href="network.html"><b>Network module</b></a><b><br />
       </b>Platform-independent classes for sockets, TCP, UDP, FTP,
       HTTP, and asynchronous DNS lookup.</td>
-    <td width="100" align="center"><br>
+    <td width="100" align="center"><br />
     </td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
-    <td><a href="canvas.html"><b>Canvas module</b></a><br>
+    <td><a href="canvas.html"><b>Canvas module</b></a><br />
       Optimized 2D graphics area for visualization, diagrams, etc.</td>
-    <td width="100" align="center"><br>
+    <td width="100" align="center"><br />
     </td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
-    <td><a href="table.html"><b>Table module</b></a><br>
+    <td><a href="table.html"><b>Table module</b></a><br />
       Flexible and editable table/spreadsheet.</td>
-    <td width="100" align="center"><br>
+    <td width="100" align="center"><br />
     </td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
-    <td><a href="xml.html"><b>XML module</b></a><br>
+    <td><a href="xml.html"><b>XML module</b></a><br />
       Well-formed XML parsers: SAX2 and DOM Level 1.</td>
-    <td width="100" align="center"><br>
+    <td width="100" align="center"><br />
     </td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
-    <td><a href="activeqt.html"><b>ActiveQt extension</b></a><br>
+    <td><a href="activeqt.html"><b>ActiveQt extension</b></a><br />
       Support for building and hosting ActiveX controls on Windows.</td>
-    <td width="100" align="center"><br>
+    <td width="100" align="center"><br />
     </td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
-    <td><a href="motif-extension.html"><b>QMotif extension</b></a><br>
+    <td><a href="motif-extension.html"><b>QMotif extension</b></a><br />
       Motif co-existence and migration support.</td>
-    <td width="100" align="center"><br>
+    <td width="100" align="center"><br />
     </td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
