@@ -88,7 +88,7 @@ void QDesignerResource::save(QIODevice *dev, QWidget *widget)
 {
     m_topLevelSpacerCount = 0;
 
-    Resource::save(dev, widget);
+    AbstractFormBuilder::save(dev, widget);
 
     if (m_topLevelSpacerCount != 0) {
         QMessageBox::warning(widget->window(), QObject::tr("Qt Designer"),
@@ -101,7 +101,7 @@ void QDesignerResource::save(QIODevice *dev, QWidget *widget)
 
 void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
 {
-    Resource::saveDom(ui, widget);
+    AbstractFormBuilder::saveDom(ui, widget);
 
     if (m_formWindow) {
         for (int index = 0; index < m_formWindow->toolCount(); ++index) {
@@ -130,7 +130,7 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
     }
 
     m_isMainWidget = true;
-    QWidget *mainWidget = Resource::create(ui, parentWidget);
+    QWidget *mainWidget = AbstractFormBuilder::create(ui, parentWidget);
     if (mainWidget == 0)
         return 0;
 
@@ -224,7 +224,7 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
         ui_widget->setAttributeClass("QLayoutWidget");
     }
 
-    QWidget *w = Resource::create(ui_widget, parentWidget);
+    QWidget *w = AbstractFormBuilder::create(ui_widget, parentWidget);
     if (!w)
         return 0;
 
@@ -252,7 +252,7 @@ QLayout *QDesignerResource::create(DomLayout *ui_layout, QLayout *layout, QWidge
     if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
         parentWidget = promoted->child();
 
-    QLayout *l = Resource::create(ui_layout, layout, parentWidget);
+    QLayout *l = AbstractFormBuilder::create(ui_layout, layout, parentWidget);
 
     if (QGridLayout *gridLayout = qobject_cast<QGridLayout*>(l))
         QLayoutSupport::createEmptyCells(gridLayout);
@@ -297,7 +297,7 @@ QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *la
         (void) create(ui_layout, 0, layoutWidget);
         return new QWidgetItem(layoutWidget);
     }
-    return Resource::create(ui_layoutItem, layout, parentWidget);
+    return AbstractFormBuilder::create(ui_layoutItem, layout, parentWidget);
 }
 
 void QDesignerResource::changeObjectName(QObject *o, QString objName)
@@ -432,9 +432,9 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     else if (IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), widget))
         w = saveWidget(widget, container, ui_parentWidget);
     else if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget))
-        w = Resource::createDom(promoted->child(), ui_parentWidget, recursive);
+        w = AbstractFormBuilder::createDom(promoted->child(), ui_parentWidget, recursive);
     else
-        w = Resource::createDom(widget, ui_parentWidget, recursive);
+        w = AbstractFormBuilder::createDom(widget, ui_parentWidget, recursive);
 
     Q_ASSERT( w != 0 );
 
@@ -498,7 +498,7 @@ DomLayout *QDesignerResource::createDom(QLayout *layout, DomLayout *ui_layout, D
 
     m_chain.push(layout);
 
-    DomLayout *l = Resource::createDom(layout, ui_layout, ui_parentWidget);
+    DomLayout *l = AbstractFormBuilder::createDom(layout, ui_layout, ui_parentWidget);
 
     QString className = l->attributeClass();
     if (m_internal_to_qlayout.contains(className))
@@ -535,7 +535,7 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
         ui_item->setElementLayout(l);
         m_laidout.insert(item->widget(), true);
     } else if (!item->spacerItem()) { // we use spacer as fake item in the Designer
-        ui_item = Resource::createDom(item, ui_layout, ui_parentWidget);
+        ui_item = AbstractFormBuilder::createDom(item, ui_layout, ui_parentWidget);
     }
 
     if (m_chain.size() && item->widget()) {
@@ -638,7 +638,7 @@ void QDesignerResource::applyTabStops(QWidget *widget, DomTabStops *tabStops)
 
 DomWidget *QDesignerResource::saveWidget(QWidget *widget, IContainer *container, DomWidget *ui_parentWidget)
 {
-    DomWidget *ui_widget = Resource::createDom(widget, ui_parentWidget, false);
+    DomWidget *ui_widget = AbstractFormBuilder::createDom(widget, ui_parentWidget, false);
     QList<DomWidget*> ui_widget_list;
 
     for (int i=0; i<container->count(); ++i) {
@@ -658,7 +658,7 @@ DomWidget *QDesignerResource::saveWidget(QWidget *widget, IContainer *container,
 
 DomWidget *QDesignerResource::saveWidget(QDesignerStackedWidget *widget, DomWidget *ui_parentWidget)
 {
-    DomWidget *ui_widget = Resource::createDom(widget, ui_parentWidget, false);
+    DomWidget *ui_widget = AbstractFormBuilder::createDom(widget, ui_parentWidget, false);
     QList<DomWidget*> ui_widget_list;
     if (IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), widget)) {
         for (int i=0; i<container->count(); ++i) {
@@ -679,7 +679,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerStackedWidget *widget, DomWidg
 
 DomWidget *QDesignerResource::saveWidget(QDesignerTabWidget *widget, DomWidget *ui_parentWidget)
 {
-    DomWidget *ui_widget = Resource::createDom(widget, ui_parentWidget, false);
+    DomWidget *ui_widget = AbstractFormBuilder::createDom(widget, ui_parentWidget, false);
     QList<DomWidget*> ui_widget_list;
 
     if (IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), widget)) {
@@ -713,7 +713,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerTabWidget *widget, DomWidget *
 
 DomWidget *QDesignerResource::saveWidget(QDesignerToolBox *widget, DomWidget *ui_parentWidget)
 {
-    DomWidget *ui_widget = Resource::createDom(widget, ui_parentWidget, false);
+    DomWidget *ui_widget = AbstractFormBuilder::createDom(widget, ui_parentWidget, false);
     QList<DomWidget*> ui_widget_list;
 
     if (IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), widget)) {
@@ -806,12 +806,12 @@ bool QDesignerResource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayo
         return true;
     }
 
-    return Resource::addItem(ui_item, item, layout);
+    return AbstractFormBuilder::addItem(ui_item, item, layout);
 }
 
 bool QDesignerResource::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
-    if (Resource::addItem(ui_widget, widget, parentWidget)) {
+    if (AbstractFormBuilder::addItem(ui_widget, widget, parentWidget)) {
         return true;
     }
 
@@ -905,7 +905,7 @@ QList<QWidget*> QDesignerResource::paste(QIODevice *dev, QWidget *parentWidget)
 
 void QDesignerResource::layoutInfo(DomWidget *widget, QObject *parent, int *margin, int *spacing)
 {
-    Resource::layoutInfo(widget, parent, margin, spacing);
+    AbstractFormBuilder::layoutInfo(widget, parent, margin, spacing);
 
     if (margin && qobject_cast<QLayoutWidget*>(parent))
         *margin = 0;
@@ -1019,7 +1019,7 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         return p;
     }
 
-    return Resource::createProperty(object, propertyName, value);
+    return AbstractFormBuilder::createProperty(object, propertyName, value);
 }
 
 void QDesignerResource::createResources(DomResources *resources)

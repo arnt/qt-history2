@@ -16,7 +16,7 @@
 
 #include "formeditor_global.h"
 
-#include <resource.h>
+#include <abstractformbuilder.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QStack>
@@ -34,7 +34,7 @@ class QLayoutWidget;
 class IContainer;
 class AbstractWidgetDataBaseItem;
 
-class QT_FORMEDITOR_EXPORT QDesignerResource : public Resource
+class QT_FORMEDITOR_EXPORT QDesignerResource : public AbstractFormBuilder
 {
 public:
     QDesignerResource(FormWindow *fw);
@@ -51,9 +51,9 @@ public:
     { return m_core; }
 
 protected:
-    using Resource::create;
-    using Resource::createDom;
-    using Resource::layoutInfo;
+    using AbstractFormBuilder::create;
+    using AbstractFormBuilder::createDom;
+    using AbstractFormBuilder::layoutInfo;
 
     virtual void saveDom(DomUI *ui, QWidget *widget);
     virtual QWidget *create(DomUI *ui, QWidget *parentWidget);

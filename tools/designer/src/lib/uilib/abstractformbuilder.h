@@ -50,11 +50,11 @@ class DomActionGroup;
 class DomActionRef;
 class DomResources;
 
-class QT_UILIB_EXPORT Resource
+class QT_UILIB_EXPORT AbstractFormBuilder
 {
 public:
-    Resource();
-    virtual ~Resource();
+    AbstractFormBuilder();
+    virtual ~AbstractFormBuilder();
 
     QString workingDirectory() const;
     void setWorkingDirectory(const QString &directory);
@@ -155,8 +155,8 @@ private:
     QString m_workingDirectory;
 
 private:
-    Resource(const Resource &other);
-    void operator = (const Resource &other);
+    AbstractFormBuilder(const AbstractFormBuilder &other);
+    void operator = (const AbstractFormBuilder &other);
 };
 
 #endif // RESOURCE_H

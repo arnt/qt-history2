@@ -29,7 +29,7 @@ QWidget *FormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
         m_actions.insert(actions.at(i)->attributeName(), action);
     }
 
-    if (QWidget *w = Resource::create(ui_widget, parentWidget)) {
+    if (QWidget *w = AbstractFormBuilder::create(ui_widget, parentWidget)) {
         //if (QMenu *menu = qobject_cast<QMenu*>(w)) {
             QList<DomActionRef*> refs = ui_widget->elementAddAction();
             for (int i=0; i<refs.size(); ++i) {
@@ -116,12 +116,12 @@ QLayout *FormBuilder::createLayout(const QString &layoutName, QObject *parent, c
 
 bool FormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
 {
-    return Resource::addItem(ui_item, item, layout);
+    return AbstractFormBuilder::addItem(ui_item, item, layout);
 }
 
 bool FormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
-    return Resource::addItem(ui_widget, widget, parentWidget);
+    return AbstractFormBuilder::addItem(ui_widget, widget, parentWidget);
 }
 
 QWidget *FormBuilder::widgetByName(QWidget *topLevel, const QString &name)
@@ -158,26 +158,26 @@ void FormBuilder::createConnections(DomConnections *ui_connections, QWidget *wid
 
 QWidget *FormBuilder::create(DomUI *ui, QWidget *parentWidget)
 {
-    return Resource::create(ui, parentWidget);
+    return AbstractFormBuilder::create(ui, parentWidget);
 }
 
 QLayout *FormBuilder::create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget)
 {
-    return Resource::create(ui_layout, layout, parentWidget);
+    return AbstractFormBuilder::create(ui_layout, layout, parentWidget);
 }
 
 QLayoutItem *FormBuilder::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget)
 {
-    return Resource::create(ui_layoutItem, layout, parentWidget);
+    return AbstractFormBuilder::create(ui_layoutItem, layout, parentWidget);
 }
 
 QAction *FormBuilder::create(DomAction *ui_action, QObject *parent)
 {
-    return Resource::create(ui_action, parent);
+    return AbstractFormBuilder::create(ui_action, parent);
 }
 
 QActionGroup *FormBuilder::create(DomActionGroup *ui_action_group, QObject *parent)
 {
-    return Resource::create(ui_action_group, parent);
+    return AbstractFormBuilder::create(ui_action_group, parent);
 }
 

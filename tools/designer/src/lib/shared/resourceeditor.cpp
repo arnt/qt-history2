@@ -63,7 +63,7 @@ void QrcItemDelegate::setModelData(QWidget *_editor,
     ResourceModel *model = qobject_cast<ResourceModel*>(_model);
     if (model == 0)
         return;
-                
+
     QString new_prefix = ResourceFile::fixPrefix(editor->text());
     QString old_prefix, file;
     model->getItem(index, old_prefix, file);
@@ -73,7 +73,7 @@ void QrcItemDelegate::setModelData(QWidget *_editor,
 
     if (old_prefix == new_prefix)
         return;
-        
+
     model->changePrefix(index, new_prefix);
     model->save();
 }
@@ -87,7 +87,7 @@ void QrcItemDelegate::setEditorData(QWidget *_editor, const QModelIndex &index) 
     QLineEdit *editor = qobject_cast<QLineEdit*>(_editor);
     if (editor == 0)
         return;
-        
+
     QString prefix, file;
     model->getItem(index, prefix, file);
     editor->setText(prefix);
@@ -135,13 +135,13 @@ QStringList QrcView::mimeFileList(const QMimeData *mime)
 
     m_last_mime_data = mime;
     m_last_file_list.clear();
-            
+
     if (!mime->hasFormat(QLatin1String("text/uri-list")))
         return m_last_file_list;
 
     QByteArray data_list_str = mime->data(QLatin1String("text/uri-list"));
     QList<QByteArray> data_list = data_list_str.split('\n');
-    
+
     foreach (QByteArray data, data_list) {
         QString uri = QFile::decodeName(data.trimmed());
         if (uri.startsWith(QLatin1String("file:")))
@@ -162,7 +162,7 @@ bool QrcView::acceptDrop(QDropEvent *e)
         e->ignore();
         return false;
     }
-    
+
     e->acceptProposedAction();
 
     return true;
@@ -208,10 +208,10 @@ void QrcView::dropEvent(QDropEvent *e)
         e->ignore();
         return;
     }
-    
+
     ResourceModel *model = qobject_cast<ResourceModel*>(this->model());
     Q_ASSERT(model != 0);
-    
+
     QModelIndex prefix_index = model->prefixIndex(index);
     QModelIndex last_added_idx = model->addFiles(prefix_index, file_list);
     setExpanded(prefix_index, true);
@@ -246,10 +246,10 @@ EditableResourceModel::EditableResourceModel(const ResourceFile &resource_file,
 Qt::ItemFlags EditableResourceModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags result = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-    
+
     QString prefix, file;
     getItem(index, prefix, file);
-    
+
     if (file.isEmpty())
         result |= Qt::ItemIsEditable;
 
@@ -270,7 +270,7 @@ QModelIndex EditableResourceModel::addFiles(const QModelIndex &idx,
     if (good_file_list.size() == file_list.size()) {
         result = ResourceModel::addFiles(idx, good_file_list);
     } else if (good_file_list.size() > 0) {
-        int answer = 
+        int answer =
             QMessageBox::warning(0, tr("Invalid files"),
                                     tr("Files referenced in a qrc must be in the qrc's "
                                         "directory or one of its subdirectories:<p><b>%1</b><p>"
@@ -278,8 +278,8 @@ QModelIndex EditableResourceModel::addFiles(const QModelIndex &idx,
                                             .arg(absolutePath(QString())),
                                     tr("Cancel"), tr("Only insert files which comply"),
                                     QString(), 1);
-                                
-        if (answer != 0) 
+
+        if (answer != 0)
             result = ResourceModel::addFiles(idx, good_file_list);
     } else {
         QMessageBox::warning(0, tr("Invalid files"),
@@ -588,7 +588,7 @@ void ResourceEditor::setCurrentIndex(int i)
         m_qrc_combo->blockSignals(blocked);
         m_qrc_stack->setCurrentIndex(i);
     }
-        
+
     updateUi();
 }
 
@@ -600,7 +600,7 @@ void ResourceEditor::updateQrcStack()
         m_qrc_stack->removeWidget(w);
         delete w;
     }
-    
+
     QStringList qrc_file_list = m_form->resourceFiles();
     foreach (QString qrc_file, qrc_file_list)
         addView(qrc_file);
@@ -609,7 +609,7 @@ void ResourceEditor::updateQrcStack()
     m_qrc_combo->addItem(QIcon(), tr("Open..."), QVariant(COMBO_OPEN_DATA));
     if (qrc_file_list.isEmpty())
         insertEmptyComboItem();
-            
+
     updateUi();
 }
 
@@ -639,7 +639,7 @@ void ResourceEditor::addView(const QString &qrc_file)
     if (model == 0)
         return;
     removeEmptyComboItem();
-        
+
     view->setModel(model);
     m_qrc_combo->insertItem(idx, qrcName(qrc_file));
     m_qrc_stack->addWidget(view);
@@ -748,7 +748,7 @@ void ResourceEditor::newView()
 
     ResourceFile rf(file_name);
     rf.save();
-                
+
     addView(file_name);
 }
 

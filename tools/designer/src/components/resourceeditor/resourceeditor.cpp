@@ -118,7 +118,7 @@ QrcView::QrcView(QWidget *parent)
 ** EditableResourceModel
 */
 
-class EditableResourceModel : public ResourceModel
+class EditableResourceModel : public AbstractFormBuilderModel
 {
 public:
     EditableResourceModel(const ResourceFile &resource_file, QObject *parent = 0);

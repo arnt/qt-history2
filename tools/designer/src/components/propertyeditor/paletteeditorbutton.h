@@ -16,8 +16,8 @@
 
 #include "propertyeditor_global.h"
 
-#include <QPalette>
-#include <QPushButton>
+#include <QtGui/QPalette>
+#include <QtGui/QPushButton>
 
 class QT_PROPERTYEDITOR_EXPORT PaletteEditorButton: public QPushButton
 {
@@ -26,7 +26,7 @@ public:
     PaletteEditorButton(const QPalette &palette, QWidget *parent = 0);
     virtual ~PaletteEditorButton();
 
-    QPalette palette() const
+    inline QPalette palette() const
     { return m_palette; }
 
 signals:

@@ -16,14 +16,14 @@
 
 #include "uilib_global.h"
 
-#include <resource.h>
+#include <abstractformbuilder.h>
 #include <QtCore/QMap>
 
 class QAction;
 class QListWidget;
 class QComboBox;
 
-class QT_UILIB_EXPORT FormBuilder: public Resource
+class QT_UILIB_EXPORT FormBuilder: public AbstractFormBuilder
 {
 public:
     FormBuilder();

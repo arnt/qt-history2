@@ -19,7 +19,7 @@
 #include <QtGui/QIcon>
 
 #include "resourcefile.h"
-#include <resource.h>
+#include <abstractformbuilder.h>
 
 /******************************************************************************
 ** ResourceFile
@@ -276,7 +276,7 @@ QString ResourceFile::relativePath(const QString &abs_path) const
     if (m_file_name.isEmpty() || QFileInfo(abs_path).isRelative())
         return abs_path;
 
-    return Resource::relativeToDir(QFileInfo(m_file_name).path(), abs_path);
+    return AbstractFormBuilder::relativeToDir(QFileInfo(m_file_name).path(), abs_path);
 }
 
 QString ResourceFile::absolutePath(const QString &rel_path) const
