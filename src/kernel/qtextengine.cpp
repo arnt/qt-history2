@@ -741,7 +741,7 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
 	    // ### handle complex case
 	    ncls = QUnicodeTables::LineBreak_ID;
 	}
-	int brk = charAttributes[i].charStop ? breakTable[cls][ncls] : Pbk;
+	int brk = charAttributes[i].charStop ? breakTable[cls][ncls] : (int)Pbk;
 	if (brk == Ibk)
 	    charAttributes[i].softBreak = (lineBreakClass(uc[i-1]) == QUnicodeTables::LineBreak_SP);
 	else

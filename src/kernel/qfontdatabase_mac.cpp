@@ -101,6 +101,6 @@ void QFontDatabase::createDatabase()
     }
 }
 
-static inline void load(const QString &family = QString::null,  int = -1 )
+static inline void load(const QString & = QString::null,  int = -1 )
 {
 }
