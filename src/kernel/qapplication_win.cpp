@@ -3174,7 +3174,6 @@ bool QETWidget::translatePaintEvent( const MSG & )
 #undef d
     // Destructor will delete rgn
     rgn.d->rgn = possible_region;
-    ++rgn.d->ref;
 #define d d_func()
 //  Speed optimization from Qt 3.3, can this be used in main?
 //  We probably want to use 'res' to trigger a repaint of a
