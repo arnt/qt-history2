@@ -543,6 +543,7 @@ ALLHEADERS        += $$KERNEL_H/qfontmanager_qws.h \
 		  $$KERNEL_H/qwsmanager_qws.h \
 		  $$KERNEL_H/qgfx_qws.h \
 		  $$KERNEL_H/qgfxraster_qws.h \
+		  $$KERNEL_H/qgfxvnc_qws.h \
 		  $$KERNEL_H/qwindowsystem_qws.h \
 		  $$KERNEL_H/qwscursor_qws.h \
 		  $$KERNEL_H/qlock_qws.h \
@@ -569,5 +570,5 @@ unix:SOURCES   += $$QNETWORK/qsocketdevice_unix.cpp
 
 SOURCES += tmp/qt.cpp
 
-
 INCLUDEPATH += 3rdparty/freetype2/include
+#INCLUDEPATH += 3rdparty/freetype2/include 3rdparty/libpng 3rdparty/zlib

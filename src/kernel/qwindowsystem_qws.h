@@ -160,7 +160,7 @@ public:
     
     static void setKeyboardFilter( KeyboardFilter *f );
     
-    void sendMouseEvent(const QPoint& pos, int state);
+    static void sendMouseEvent(const QPoint& pos, int state);
     void sendPropertyNotifyEvent( int property, int state );
 #ifndef QT_NO_QWS_PROPERTIES
     QWSPropertyManager *manager() {

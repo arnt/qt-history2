@@ -75,10 +75,8 @@ QVFbScreenCursor::QVFbScreenCursor() : QScreenCursor()
 void QVFbScreenCursor::set( const QImage &image, int hotx, int hoty )
 {
     QWSDisplay::grab( TRUE );
-    qvfb_screen->setDirty( QRect( data->x - QMAX( data->hotx, hotx ),
-				  data->y - QMAX( data->hoty, hoty ),
-				  QMAX( image.width(), data->width ),
-				  QMAX( image.height(), data->height ) ) );
+    QRect r( data->x - hotx, data->y - hoty, image.width(), image.height() );
+    qvfb_screen->setDirty( data->bound | r );
     QScreenCursor::set( image, hotx, hoty );
     QWSDisplay::ungrab();
 }
@@ -86,10 +84,8 @@ void QVFbScreenCursor::set( const QImage &image, int hotx, int hoty )
 void QVFbScreenCursor::move( int x, int y )
 {
     QWSDisplay::grab( TRUE );
-    QRect r( data->x - data->hotx, data->y - data->hoty,
-	     data->width, data->height );
-    r |= QRect( x - data->hotx, y - data->hoty, data->width, data->height );
-    qvfb_screen->setDirty( r );
+    QRect r( x - data->hotx, y - data->hoty, data->width, data->height );
+    qvfb_screen->setDirty( r | data->bound );
     QScreenCursor::move( x, y );
     QWSDisplay::ungrab();
 }

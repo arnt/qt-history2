@@ -218,9 +218,18 @@
 */
 //#define QT_NO_QWS_VFB
 /*!
+    Remote frame buffer (VNC)
+*/
+#define QT_NO_QWS_VNC
+/*!
     1-bit monochrome
 */
 //#define QT_NO_QWS_DEPTH_1
+/*!
+    4-bit VGA
+    Not yet implemented
+*/
+#define QT_NO_QWS_VGA_16
 /*!
     8-bit grayscale
 */

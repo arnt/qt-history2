@@ -860,45 +860,47 @@ void QWSServer::refresh()
 
 void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 {
-    showCursor();
+    qwsServer->showCursor();
 
     QWSMouseEvent event;
 
     //If grabbing window disappears, grab is still active until
     //after mouse release.
-    QWSWindow *win = mouseGrabber ? mouseGrabber : windowAt( pos );
+    QWSWindow *win = qwsServer->mouseGrabber ? qwsServer->mouseGrabber : qwsServer->windowAt( pos );
     event.simpleData.window = win ? win->id : 0;
 
 #ifndef QT_NO_QWS_CURSOR
+    qt_screencursor->move(pos.x(),pos.y());
+
     // Arrow cursor over desktop
     if (!win) {
-	if ( !mouseGrabber )
-	    setCursor(QWSCursor::systemCursor(ArrowCursor));
+	if ( !qwsServer->mouseGrabber )
+	    qwsServer->setCursor(QWSCursor::systemCursor(ArrowCursor));
 	else
-	    nextCursor = QWSCursor::systemCursor(ArrowCursor);
+	    qwsServer->nextCursor = QWSCursor::systemCursor(ArrowCursor);
     }
 #endif
 
-    if ( state && !mouseGrabbing ) {
-	mouseGrabber = win;
+    if ( state && !qwsServer->mouseGrabbing ) {
+	qwsServer->mouseGrabber = win;
     }
 
     event.simpleData.x_root=pos.x();
     event.simpleData.y_root=pos.y();
     event.simpleData.state=state;
-    event.simpleData.time=timer.elapsed();
+    event.simpleData.time=qwsServer->timer.elapsed();
 
-    for (ClientIterator it = client.begin(); it != client.end(); ++it )
+    for (ClientIterator it = qwsServer->client.begin(); it != qwsServer->client.end(); ++it )
 	(*it)->sendEvent( &event );
 
-    if ( !state && !mouseGrabbing ) {
+    if ( !state && !qwsServer->mouseGrabbing ) {
 #ifndef QT_NO_CURSOR
-	if (mouseGrabber && nextCursor) {
-	    setCursor(nextCursor);
-	    nextCursor = 0;
+	if (qwsServer->mouseGrabber && qwsServer->nextCursor) {
+	    qwsServer->setCursor(qwsServer->nextCursor);
+	    qwsServer->nextCursor = 0;
 	}
 #endif
-	mouseGrabber = 0;
+	qwsServer->mouseGrabber = 0;
     }
 }
 

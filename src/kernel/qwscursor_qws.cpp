@@ -257,7 +257,7 @@ void QWSServer::setCursor(QWSCursor *curs)
 void QWSServer::setMouse(const QPoint& p,int bstate)
 {
 #ifndef QT_NO_QWS_CURSOR
-    qt_screencursor->move(p.x(),p.y());
+//    qt_screencursor->move(p.x(),p.y());
 #endif
     sendMouseEvent( p, bstate );
 }

@@ -76,6 +76,7 @@ typedef long long QuadByte;
 #endif
 
 #define QGfxRaster_Generic 0
+#define QGfxRaster_VGA16   1
 
 #ifndef QT_NO_QWS_CURSOR
 
@@ -1487,6 +1488,15 @@ template <const int depth, const int type>
 QGfxRaster<depth,type>::QGfxRaster(unsigned char * b,int w,int h)
     : QGfxRasterBase(b,w,h)
 {
+#ifndef QT_NO_QWS_VGA_16
+    if ( type == QGfxRaster_VGA16 ) {
+	if (-1 == ioperm (0x3c0, 0x20, 1))
+	    qDebug("Can't IO permissions");
+	qgfx_vga16_set_enable_sr(0xf);
+	qgfx_vga16_set_op(0);
+	qgfx_vga16_set_mode(0);
+    }
+#endif
     setLineStep((depth*width+7)/8);
     if ( depth == 1 ) {
 	setPen( color1 );
@@ -1718,6 +1728,13 @@ GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char
 	((ushort*)l)[x] = pixel;
     else if ( depth == 8 )
 	l[x] = pixel;
+#ifndef QT_NO_QWS_VGA_16
+    else if ( depth == 4 && type == QGfxRaster_VGA16 ) {
+	qgfx_vga16_set_color(pixel);
+	qgfx_vga16_set_mask(1 << (x%8));
+	l[x/8] |= 1;
+    }
+#endif
     else if ( depth == 1 )
 	if ( pixel )
 	    l[x/8] |= 1 << (x%8);
@@ -3856,6 +3873,10 @@ QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
     } else if(d==1) {
 	ret = new QGfxRaster<1,0>(bytes,w,h);
 #endif
+#ifndef QT_NO_QWS_VGA_16
+    } else if(d==4) {
+	ret = new QGfxRaster<4,QGfxRaster_VGA16>(bytes,w,h);
+#endif
 #ifndef QT_NO_QWS_DEPTH_16
     } else if(d==16) {
 	ret = new QGfxRaster<16,0>(bytes,w,h);
@@ -3922,6 +3943,10 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 #elif !defined(QT_NO_QWS_VFB)
 
 #include "qgfxvfb_qws.cpp"
+
+#elif !defined(QT_NO_QWS_VNC)
+
+#include "qgfxvnc_qws.cpp"
 
 #else
 
