@@ -60,7 +60,6 @@ public:
 	help->insertItem( "About plugin...", this, SIGNAL(aboutPlugin()) );
 	help->insertItem( "About data...", this, SIGNAL(aboutData()) );
 	menubar->insertItem("Help", help);
-	menubar->show();
     }
 
     ~Graph()
@@ -101,14 +100,12 @@ public:
 
     void enterInstance()
     {
-	//debug("Enter %p",menubar);
-	if (menubar) menubar->show();
+	menubar->show();
     }
 
     void leaveInstance()
     {
-	//debug("Leave %p",menubar);
-	if (menubar) menubar->hide();
+	menubar->hide();
     }
 
     void paintError(const char* e)
