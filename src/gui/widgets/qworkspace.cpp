@@ -1647,14 +1647,20 @@ void QWorkspace::tile()
             c->showNormal();
             qApp->sendPostedEvents(0, QEvent::ShowNormal);
             used[row*cols+col] = true;
-            QSize sz(w, h + add ? h : 0);
+            QSize sz(w, h);
             QSize bsize(c->baseSize());
-            sz = sz.expandedTo(c->windowWidget()->minimumSize()).boundedTo(c->windowWidget()->maximumSize()) + bsize;
+            sz = sz.expandedTo(c->windowWidget()->minimumSize()).boundedTo(c->windowWidget()->maximumSize());
+            sz += bsize;
+
+	    if ( add ) {
+                if (sz.height() == h + bsize.height()) // no relevant constrains
+                    sz.rheight() *= 2;
+		used[(row+1)*cols+col] = true;
+		add--;
+	    }
+
             c->setGeometry(col*w + col*bsize.width(), row*h + row*bsize.height(), sz.width(), sz.height());
-            if (add) {
-                used[(row+1)*cols+col] = true;
-                add--;
-            }
+
             while(row < rows && col < cols && used[row*cols+col]) {
                 col++;
                 if (col == cols) {
