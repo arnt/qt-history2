@@ -3,7 +3,7 @@
    NOTICE */
 
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayoutengine.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qlayoutengine.cpp#12 $
 **
 ** Implementation of QLayout functionality
 **
@@ -64,22 +64,15 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int start, int count, int pos,
     //    bool canShrink = FALSE; // anyone who could be persuaded to shrink?
 
     int i; //some hateful compilers do not handle for loops correctly
-
-    int n = count;
     for ( i = start; i < start+count; i++ ) {
-	if ( chain[i].empty ) {
-	    chain[i].size = 0;
-	    chain[i].done = TRUE;
-	    n--;
-	} else {
-	    chain[i].done = FALSE;
-	    cHint += chain[i].sizeHint;
-	    cMin += chain[i].minimumSize;
-	    cMax += chain[i].maximumSize;
-	    sumStretch += chain[i].stretch;
+	chain[i].done = FALSE;
+	cHint += chain[i].sizeHint;
+	cMin += chain[i].minimumSize;
+	cMax += chain[i].maximumSize;
+	sumStretch += chain[i].stretch;
+	if ( !chain[i].empty )
 	    spacerCount++;
-	    wannaGrow = wannaGrow ||  chain[i].expansive;
-	}
+	wannaGrow = wannaGrow ||  chain[i].expansive;
     }
 
     int extraspace = 0;
@@ -92,6 +85,7 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int start, int count, int pos,
 	    chain[i].done = TRUE;
 	}
     } else if ( space < cHint + spacerCount*spacer ) {
+	int n = count;
 	int space_left = space - spacerCount*spacer;
 	int overdraft = cHint - space_left;
 	//first give to the fixed ones:
@@ -132,6 +126,7 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int start, int count, int pos,
 	    }
 	}
     } else { //extra space
+	int n = count;
 	int space_left = space - spacerCount*spacer;
 	//first give to the fixed ones, and handle non-expansiveness
 	for ( i = start; i < start+count; i++ ) {

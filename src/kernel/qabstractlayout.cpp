@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#68 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -453,6 +453,8 @@ bool QWidgetItem::hasHeightForWidth() const
 
 int QWidgetItem::heightForWidth( int w ) const
 {
+    if ( isEmpty() )
+	return 0;
     if ( wid->layout() )
 	return wid->layout()->totalHeightForWidth( w );
     return wid->heightForWidth( w );
@@ -519,7 +521,9 @@ QSize QSpacerItem::maximumSize() const
 */
 QSize QWidgetItem::maximumSize() const
 {
-	return smartMaxSize( wid, align );
+    if ( isEmpty() )
+	return QSize(0,0);
+    return smartMaxSize( wid, align );
 }
 
 /*!
@@ -527,7 +531,7 @@ QSize QWidgetItem::maximumSize() const
 */
 QSize QSpacerItem::sizeHint() const
 {
-	return QSize( width, height );
+    return QSize( width, height );
 }
 
 ///*!
@@ -550,7 +554,7 @@ QSize QWidgetItem::sizeHint() const
 	s =  QSize(0,0);
     else
 	s = wid->sizeHint().expandedTo( wid->minimumSize() );
-    
+
     //((QWidgetItem*)this)->cachedSizeHint = s; //mutable hack
     return s;
 }
