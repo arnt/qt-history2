@@ -52,7 +52,7 @@ public:
     void setCorner(Qt::Corner corner, Qt::DockWidgetArea area);
     Qt::DockWidgetArea corner(Qt::Corner corner) const;
 
-    void addToolBarBreak(Qt::ToolBarArea area);
+    void addToolBarBreak(Qt::ToolBarArea area = Qt::TopToolBarArea);
     void insertToolBarBreak(QToolBar *before);
 
     void addToolBar(Qt::ToolBarArea area, QToolBar *toolbar);
