@@ -1450,7 +1450,7 @@ void MainWindow::fileCloseProject()
 }
 
 
-void MainWindow::fileOpen()
+void MainWindow::fileOpen( bool onlyForms )
 {
     statusBar()->message( tr( "Select a file...") );
 
@@ -1458,12 +1458,16 @@ void MainWindow::fileOpen()
     {
 	QString filename;
 	QStringList filterlist;
-	filterlist << tr( "Designer Files (*.ui *.pro)" );
+	if ( !onlyForms )
+	    filterlist << tr( "Designer Files (*.ui *.pro)" );
 	filterlist << tr( "Qt User-Interface Files (*.ui)" );
-	filterlist << tr( "QMAKE Project Files (*.pro)" );
+	if ( !onlyForms )
+	    filterlist << tr( "QMAKE Project Files (*.pro)" );
 	QStringList list = manager.featureList();
-	for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
-	    filterlist << *it;
+	if ( !onlyForms ) {
+	    for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
+		filterlist << *it;
+	}
 	filterlist << tr( "All Files (*)" );
 
 	QString filters = filterlist.join( ";;" );
@@ -1473,12 +1477,16 @@ void MainWindow::fileOpen()
 	    QFileInfo fi( filename );
 
 	    if ( fi.extension() == "pro" ) {
+		if ( onlyForms )
+		    return;
 		addRecentlyOpened( filename, recentlyProjects );
 		openProject( filename );
 	    } else if ( fi.extension() == "ui" ) {
 		openFile( filename );
 		addRecentlyOpened( filename, recentlyFiles );
 	    } else {
+		if ( onlyForms )
+		    return;
 		QString filter;
 		for ( QStringList::Iterator it2 = filterlist.begin(); it2 != filterlist.end(); ++it2 ) {
 		    if ( (*it2).contains( fi.extension(), FALSE ) ) {
@@ -3853,7 +3861,7 @@ void MainWindow::closeEvent( QCloseEvent *e )
 	}
     }
     writeConfig();
-    hide();    
+    hide();
     e->accept();
 
     if ( client ) {

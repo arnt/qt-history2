@@ -2386,12 +2386,14 @@ void FormWindow::setActiveObject( QObject *o )
 void FormWindow::setProject( Project *pro )
 {
     proj = pro;
-    LanguageInterface *iface = MetaDataBase::languageInterface( project()->language() );
-    if ( iface && !MetaDataBase::hasEventFunctions( mainContainer() ) ) {
-	QMap<QString, QString> eventFuncs;
-	iface->initEventFunctions( eventFuncs );
-	for ( QMap<QString, QString>::Iterator it = eventFuncs.begin(); it != eventFuncs.end(); ++it )
-	    MetaDataBase::setEventFunctions( mainContainer(), this, project()->language(), it.key(), QStringList( *it ) );
+    if ( pro ) {
+	LanguageInterface *iface = MetaDataBase::languageInterface( project()->language() );
+	if ( iface && !MetaDataBase::hasEventFunctions( mainContainer() ) ) {
+	    QMap<QString, QString> eventFuncs;
+	    iface->initEventFunctions( eventFuncs );
+	    for ( QMap<QString, QString>::Iterator it = eventFuncs.begin(); it != eventFuncs.end(); ++it )
+		MetaDataBase::setEventFunctions( mainContainer(), this, project()->language(), it.key(), QStringList( *it ) );
+	}
     }
 }
 

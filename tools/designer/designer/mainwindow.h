@@ -174,7 +174,8 @@ public slots:
     void fileNew();
     void fileNewProject();
     void fileCloseProject();
-    void fileOpen();
+    void fileOpen() { fileOpen( FALSE ); }
+    void fileOpen( bool onlyForms );
     bool fileSave();
     bool fileSaveAs();
     void fileSaveAll();

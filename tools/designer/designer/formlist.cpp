@@ -369,23 +369,48 @@ void FormList::contentsDragMoveEvent( QDragMoveEvent *e )
 
 void FormList::rmbClicked( QListViewItem *i )
 {
-    if ( !i || i->rtti() != FormListItem::Form )
-	return;
-    QPopupMenu menu( this );
-
-    int REMOVE_FORM = menu.insertItem( "&Remove form from project" );
-    int id = menu.exec( QCursor::pos() );
-
-    if ( id == -1 )
+    if ( !i )
 	return;
 
-    if ( id == REMOVE_FORM ) {
-	project->removeUiFile( ( (FormListItem*)i )->text( 1 ), ( (FormListItem*)i )->formWindow() );
-	if ( ( (FormListItem*)i )->formWindow() ) {
-	    ( (FormListItem*)i )->formWindow()->setProject( 0 );
-	    ( (FormListItem*)i )->formWindow()->commandHistory()->setModified( FALSE );
-	    ( (FormListItem*)i )->formWindow()->close();
+    if ( i->rtti() == FormListItem::Form || i->text( 0 ) == tr( "Forms" ) ) {
+	QPopupMenu menu( this );
+
+	const int ADD_EXISTING_FORM = menu.insertItem( tr( "Add &existing form to project..." ) );
+	const int ADD_NEW_FORM = menu.insertItem( tr( "Add &new form to project..." ) );
+	int REMOVE_FORM = -2;
+	if ( i->rtti() == FormListItem::Form ) {
+	    menu.insertSeparator();
+	    REMOVE_FORM = menu.insertItem( tr( "&Remove form from project" ) );
 	}
-	delete i;
+	int id = menu.exec( QCursor::pos() );
+
+	if ( id == -1 )
+	    return;
+
+	if ( id == REMOVE_FORM ) {
+	    project->removeUiFile( ( (FormListItem*)i )->text( 1 ), ( (FormListItem*)i )->formWindow() );
+	    if ( ( (FormListItem*)i )->formWindow() ) {
+		( (FormListItem*)i )->formWindow()->setProject( 0 );
+		( (FormListItem*)i )->formWindow()->commandHistory()->setModified( FALSE );
+		( (FormListItem*)i )->formWindow()->close();
+	    }
+	    delete i;
+	} else if ( id == ADD_EXISTING_FORM ) {
+	    mainWindow->fileOpen( TRUE );
+	} else if ( id == ADD_NEW_FORM ) {
+	    mainWindow->fileNew();
+	}
+    } else if ( i->rtti() == FormListItem::Image || i->text( 0 ) == "Images" && mainWindow->currProject() != mainWindow->emptyProject() ) {
+	QPopupMenu menu( this );
+
+	const int EDIT_IMAGES = menu.insertItem( tr( "&Edit pixmap collection..." ) );
+	int id = menu.exec( QCursor::pos() );
+
+	if ( id == -1 )
+	    return;
+
+	if ( id == EDIT_IMAGES ) {
+	    mainWindow->editPixmapCollection();
+	}
     }
 }
