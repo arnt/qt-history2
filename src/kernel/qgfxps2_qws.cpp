@@ -279,6 +279,7 @@ QGfxPS2::drawPoint( int x ,int y)
     QRgb rgb = cpen.color().rgb();
 
     GFX_START(QRect(x,y,2,2));
+    QWSDisplay::grab(TRUE);
     for(int clp = 0; clp < ncliprect; clp++) {
 
 	gsosMakeGiftag( 4, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE,
@@ -296,7 +297,8 @@ QGfxPS2::drawPoint( int x ,int y)
 	gsosSetPacket4( GSOS_SUBPIX_OFST(x+xoffs), GSOS_SUBPIX_OFST(y+yoffs), 0, 0 );
 
     }
-    gsosExec() ;
+    gsosExec();
+    QWSDisplay::ungrab();
     GFX_END;
 }
 
@@ -314,6 +316,7 @@ QGfxPS2::drawPoints( const QPointArray &pa,int index,int npoints)
     QRgb rgb = cpen.color().rgb();
 
     GFX_START(clipbounds);
+    QWSDisplay::grab(TRUE);
 
     for(int clp = 0; clp < ncliprect; clp++) {
 	
@@ -337,6 +340,7 @@ QGfxPS2::drawPoints( const QPointArray &pa,int index,int npoints)
 
     }
     gsosExec();
+    QWSDisplay::ungrab();
     GFX_END;
 }
 
@@ -397,6 +401,7 @@ QGfxPS2::drawLine( int x1,int y1, int x2, int y2)
 	y2 += (y2 > y1) ? 1 : -1;
 
     GFX_START(QRect(x1, y1 < y2 ? y1 : y2, (x2-x1)+1, QABS((y2-y1))+1));
+    QWSDisplay::grab(TRUE);
     usePen();
     QRgb rgb = cpen.color().rgb();
 
@@ -420,6 +425,7 @@ QGfxPS2::drawLine( int x1,int y1, int x2, int y2)
 
     }
     gsosExec();
+    QWSDisplay::ungrab();
     GFX_END;    
 }
 
@@ -469,6 +475,7 @@ QGfxPS2::fillRect(int x,int y, int w, int h)
     y += yoffs;
 
     GFX_START(QRect(x, y, w+1, h+1));
+    QWSDisplay::grab(TRUE);
     useBrush();
     QRgb rgb = cbrush.color().rgb();
 
@@ -493,7 +500,8 @@ QGfxPS2::fillRect(int x,int y, int w, int h)
 	gsosSetPacket4(GSOS_SUBPIX_OFST((x+w)), GSOS_SUBPIX_OFST((y+h)),0,0);
 
     }
-    gsosExec() ;
+    gsosExec();
+    QWSDisplay::ungrab();
     GFX_END;    
 }
 
@@ -508,6 +516,7 @@ QGfxPS2::drawPolyline( const QPointArray &pa, int index, int npoints)
 	return;
 
     GFX_START(clipbounds);
+    QWSDisplay::grab(TRUE);
 
     usePen();
     QRgb rgb = cpen.color().rgb();
@@ -533,6 +542,7 @@ QGfxPS2::drawPolyline( const QPointArray &pa, int index, int npoints)
 
     }
     gsosExec();
+    QWSDisplay::ungrab();
     GFX_END;    
 }
 
@@ -563,7 +573,11 @@ void QGfxPS2::processSpans( int n, QPoint* point, int* width )
     int usable = 0;
     for(int x = 0; x < n; x++)
 	if(*(width+x)) usable++;
+
+
+
     if(usable) {
+	QWSDisplay::grab(TRUE);
 	useBrush();
 	QRgb rgb = cbrush.color().rgb();
 	int r(qRed(rgb)), g(qGreen(rgb)), b(qBlue(rgb)), a(qAlpha(rgb));
@@ -597,6 +611,7 @@ void QGfxPS2::processSpans( int n, QPoint* point, int* width )
 
 	}
 	gsosExec() ;
+	QWSDisplay::ungrab();
     }
 }
 
@@ -1047,7 +1062,11 @@ void QPS2Cursor::init(SWCursorData *, bool)
     mydata->d.bound = QRect(); //null at first!
     mydata->d.x = gfx->pixelWidth()/2;
     mydata->d.y = gfx->pixelHeight()/2;
+
+    QWSDisplay::grab(TRUE);
     gsosReadImage(mydata->d.x-5, mydata->d.x-5, 64, 64, 0x00, (qt_screen->width()+63)/64, 0, mydata->grabdata);
+    QWSDisplay::ungrab();
+
     mydata->d.enable = TRUE;
 }
 
@@ -1091,8 +1110,8 @@ bool QPS2Cursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
     if ( g && !g->isScreenGfx() )
 	return FALSE;
 
+    QWSDisplay::grab(TRUE);
     if (!save_under) {
-	QWSDisplay::grab(TRUE);
 	QGfxPS2::flushRegisters(TRUE);
 
 	gsosWriteImage( 0, 0, 64, 64, 0x3000, 1, 0, (uchar *)mydata->grabdata );
@@ -1123,24 +1142,27 @@ bool QPS2Cursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 
 	gsosExec() ;
 	save_under = TRUE;
+	QWSDisplay::ungrab();
 	return TRUE;
     }
+    QWSDisplay::ungrab();
     return FALSE;
 }
 
 void QPS2Cursor::saveUnder()
 {
+    //screen should be grabbed by now..
     QGfxPS2::flushRegisters();
     gsosReadImage((mydata->d.x - mydata->d.hotx)-5, (mydata->d.y - mydata->d.hoty)-5, 
 		  64, 64, 0x00, (qt_screen->width()+63)/64, 0, mydata->grabdata);
     drawCursor();
     save_under = FALSE;
     qt_sw_cursor = TRUE;
-    QWSDisplay::ungrab();
 }
 
 void QPS2Cursor::drawCursor()
 {
+    //screen should be grabbed by now..
     QGfxPS2::flushRegisters(TRUE);
     gsosWriteImage( 0, 0, 64, 64, 0x3000, 1, 0, (uchar *)mydata->cursordata );
 
