@@ -161,7 +161,7 @@ class TokenContainer
 {
 public:
     TokenContainer();
-    TokenContainer(QByteArray text, QList<Token> tokens, TypeInfo *typeInfo = new TypeInfo());
+    TokenContainer(QByteArray text, QList<Token> tokens, TypeInfo *typeInfo = 0);
     int count() const;
     QByteArray text(const int index) const;
     QByteArray fullText() const;

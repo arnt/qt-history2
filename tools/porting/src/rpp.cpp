@@ -31,7 +31,7 @@ Source *Preprocessor::parse(TokenEngine::TokenContainer tokenContainer,
                             QList<Type> tokenTypeList, TypedPool<Item> *memoryPool)
 {
     m_memoryPool = memoryPool;
-    Source *m_source = createNode<Source>(); //node whith no parent
+    Source *m_source = createNode<Source>(m_memoryPool); //node whith no parent
     m_tokenContainer = tokenContainer;
     m_tokenTypeList = tokenTypeList;
     lexerTokenIndex = 0;
@@ -118,7 +118,7 @@ bool Preprocessor::parseIfSection(Item *group)
 {
    // cout << "parse if section" << endl ;
     Q_ASSERT(group->toItemComposite());
-    IfSection *ifSection = createNode<IfSection>(group);
+    IfSection *ifSection = createNode<IfSection>(m_memoryPool, group);
     group->toItemComposite()->add(ifSection);
 
     if (!parseIfGroup(ifSection))
@@ -145,7 +145,7 @@ bool Preprocessor::parseNonDirective(Item *group)
     if(tokenSection.count() == 0)
         return false;
 
-    NonDirective *nonDirective = createNode<NonDirective>(group);
+    NonDirective *nonDirective = createNode<NonDirective>(m_memoryPool, group);
     group->toItemComposite()->add(nonDirective);
     nonDirective->setTokenSection(tokenSection);
     return true;
@@ -161,7 +161,7 @@ bool Preprocessor::parseTextLine(Item *group)
     if(tokenSection.count() == 0)
         return false;
 
-    Text *text = createNode<Text>(group);
+    Text *text = createNode<Text>(m_memoryPool, group);
     group->toItemComposite()->add(text);
     text->setTokenSection(tokenSection);
 
@@ -181,19 +181,19 @@ bool Preprocessor::parseTextLine(Item *group)
             case Token_directive_ifndef:
             case Token_directive_define:
             case Token_directive_include:
-                node = createNode<IdToken>(text);
+                node = createNode<IdToken>(m_memoryPool, text);
             break;
             case Token_line_comment:
-                node = createNode<LineComment>(text);
+                node = createNode<LineComment>(m_memoryPool, text);
             break;
             case Token_multiline_comment:
-                node = createNode<MultiLineComment>(text);
+                node = createNode<MultiLineComment>(m_memoryPool, text);
             break;
             case Token_whitespaces:
             case Token_char_literal:
             case Token_string_literal:
             default:
-                node = createNode<NonIdToken>(text);
+                node = createNode<NonIdToken>(m_memoryPool, text);
             break;
         }
         Q_ASSERT(node);
@@ -214,15 +214,15 @@ bool Preprocessor::parseIfGroup(IfSection *ifSection)
     bool result;
     const Type type = lookAheadSkipHash();
     if (type == Token_directive_ifdef) {
-        IfdefDirective *d = createNode<IfdefDirective>(ifSection);
+        IfdefDirective *d = createNode<IfdefDirective>(m_memoryPool, ifSection);
         result = parseIfdefLikeDirective(d);
         ifSection->setIfGroup(d);
     } else if (type == Token_directive_ifndef) {
-        IfndefDirective *d = createNode<IfndefDirective>(ifSection);
+        IfndefDirective *d = createNode<IfndefDirective>(m_memoryPool, ifSection);
         result = parseIfdefLikeDirective(d);
         ifSection->setIfGroup(d);
     } else  if (type == Token_directive_if) {
-        IfDirective *d = createNode<IfDirective>(ifSection);
+        IfDirective *d = createNode<IfDirective>(m_memoryPool, ifSection);
         result = parseIfLikeDirective(d);
         ifSection->setIfGroup(d);
     } else {
@@ -246,7 +246,7 @@ bool Preprocessor::parseElifGroups(IfSection *ifSection)
 bool Preprocessor::parseElifGroup(IfSection *ifSection)
 {
     //cout << "parse ElifGroup" << endl;
-    ElifDirective *elifDirective = createNode<ElifDirective>(ifSection);
+    ElifDirective *elifDirective = createNode<ElifDirective>(m_memoryPool, ifSection);
     ifSection->addElifGroup(elifDirective);
     return parseIfLikeDirective(elifDirective);
 }
@@ -258,7 +258,7 @@ bool Preprocessor::parseElseGroup(IfSection *ifSection)
     if(tokenSection.count() == 0)
         return false;
 
-    ElseDirective *elseDirective = createNode<ElseDirective>(ifSection);
+    ElseDirective *elseDirective = createNode<ElseDirective>(m_memoryPool, ifSection);
     ifSection->setElseGroup(elseDirective);
     elseDirective->setTokenSection(tokenSection);
     parseGroup(elseDirective);
@@ -273,7 +273,7 @@ bool Preprocessor::parseEndifLine(IfSection *ifSection)
     if(tokenSection.count() == 0)
         return false;
 
-    EndifDirective *endifDirective = createNode<EndifDirective>(ifSection);
+    EndifDirective *endifDirective = createNode<EndifDirective>(m_memoryPool, ifSection);
     ifSection->setEndifLine(endifDirective);
     endifDirective->setTokenSection(tokenSection);
 
@@ -341,7 +341,7 @@ bool Preprocessor::parseDefineDirective(Item *group)
 
     // check if this is a macro function
     MacroDefinition *macro;
-    macro =  createNode<MacroDefinition>(group);
+    macro =  createNode<MacroDefinition>(m_memoryPool, group);
     int replacementListStart;
     if(m_tokenContainer.text(cleanedLine.at(3)) == "("
         && !isWhiteSpace(cleanedLine.at(3) - 1)) {
@@ -375,7 +375,7 @@ bool Preprocessor::parseUndefDirective(Item *group)
     if(cleanedLine.count() < 3)
         return false;
 
-    UndefDirective *undefDirective = createNode<UndefDirective>(group);
+    UndefDirective *undefDirective = createNode<UndefDirective>(m_memoryPool, group);
     group->toItemComposite()->add(undefDirective);
     undefDirective->setIdentifier(TokenList(m_tokenContainer, QList<int>() << cleanedLine.at(2)));
     undefDirective->setTokenSection(tokenSection);
@@ -391,7 +391,7 @@ bool Preprocessor::parseIncludeDirective(Item *group)
     if(tokenSection.count() == 0)
         return false;
 
-    IncludeDirective *includeDirective =  createNode<IncludeDirective>(group);
+    IncludeDirective *includeDirective =  createNode<IncludeDirective>(m_memoryPool, group);
     group->toItemComposite()->add(includeDirective);
     includeDirective->setTokenSection(tokenSection);
 
@@ -440,7 +440,7 @@ bool Preprocessor::parseErrorDirective(Item *group)
     if(tokenSection.count() == 0)
         return false;
 
-    ErrorDirective *errorDirective = createNode<ErrorDirective>(group);
+    ErrorDirective *errorDirective = createNode<ErrorDirective>(m_memoryPool, group);
     group->toItemComposite()->add(errorDirective);
     errorDirective->setTokenSection(tokenSection);
     return true;
@@ -454,7 +454,7 @@ bool Preprocessor::parsePragmaDirective(Item *group)
     if(tokenSection.count() == 0)
         return false;
 
-    PragmaDirective *pragmaDirective = createNode<PragmaDirective>(group);
+    PragmaDirective *pragmaDirective = createNode<PragmaDirective>(m_memoryPool, group);
     group->toItemComposite()->add(pragmaDirective);
     pragmaDirective->setTokenSection(tokenSection);
     return true;
@@ -576,18 +576,18 @@ QList<int> Preprocessor::cleanTokenRange(const TokenSection &tokenSection) const
     the ItemComposite interface
 */
 template <typename T>
-T *Preprocessor::createNode(Item *parent)
+T createNode(TypedPool<Item> *memPool, Item *parent)
 {
     Q_ASSERT(parent);
-    T* node = new (m_memoryPool->allocate(sizeof(T))) T(parent);
+    T* node = new (memPool->allocate(sizeof(T))) T(parent);
     Q_ASSERT(node);
     return node;
 }
 
 template <typename T>
-T *Preprocessor::createNode()
+T createNode(TypedPool<Item> *memPool)
 {
-    T* node = new (m_memoryPool->allocate(sizeof(T))) T(0);
+    T* node = new (memPool->allocate(sizeof(T))) T(0);
     Q_ASSERT(node);
     return node;
 }

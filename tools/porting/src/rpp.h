@@ -211,7 +211,7 @@ struct Token: public Item
     virtual IdToken *toIdToken() const
     { return 0; }
 
-    virtual Token *toNonIdToken() const
+    virtual NonIdToken *toNonIdToken() const
     { return 0; }
 
     virtual LineComment *toLineComment() const
@@ -888,13 +888,13 @@ struct MacroParameters: public Item, public ItemComposite
     ItemComposite *toItemComposite() const
     { return const_cast<MacroParameters *>(this); }
 
-    virtual MacroFunctionDefinition *parent() const
+    virtual Item *parent() const
     { return m_parent; }
 
     virtual int count() const
     { return m_items.count(); }
 
-    virtual MacroParameter *item(int index) const
+    virtual Item *item(int index) const
     { return m_items.at(index); }
 
     void addParameter(MacroParameter *param)
@@ -1002,11 +1002,6 @@ private:
     inline int skipWhiteSpaceCommentsHash() const;
     QList<int> cleanTokenRange(const TokenEngine::TokenSection &tokenSection) const;
 
-    template <typename T>
-    T *createNode(Item *parent);
-    template <typename T>
-    T *createNode();
-
     Source *m_source;
     TokenEngine::TokenContainer m_tokenContainer;
     QList<Type> m_tokenTypeList;
@@ -1015,6 +1010,12 @@ private:
     int numTokens;
 
 };
+
+template <typename T>
+T *createNode(TypedPool<Item> *memPool, Item *parent);
+template <typename T>
+T *createNode(TypedPool<Item> *memPool);
+
 
 QByteArray visitGetText(Item *item);
 

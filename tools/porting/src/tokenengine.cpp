@@ -31,7 +31,10 @@ TokenContainer::TokenContainer(QByteArray text, QList<Token> tokens, TypeInfo *t
     d = new TokenContainerData();
     d->text = text;
     d->tokens = tokens;
-    d->typeInfo = typeInfo;
+    if(d->typeInfo == 0)
+		d->typeInfo = new TypeInfo();
+	else 
+		d->typeInfo = typeInfo;
 }
 
 int TokenContainer::count() const

@@ -22,7 +22,7 @@ void *SmallObject::operator new(size_t size)
     return mem_pool.allocate(size);
 }
 
-void SmallObject::operator delete(void */*p*/)
+void SmallObject::operator delete(void * /*p*/ )
 {
 }
 
