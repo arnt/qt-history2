@@ -271,6 +271,7 @@ CFG_NIS=auto
 CFG_CUPS=auto
 CFG_LARGEFILE=auto
 CFG_STL=auto
+CFG_IPV6=auto
 CFG_NAS=no
 CFG_QWS_DEPTHS=prompted
 CFG_USER_BUILD_KEY=
@@ -356,7 +357,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-xshape|-tablet|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-exceptions|-singleqtlib)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-xshape|-tablet|-stl|-ipv6|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -712,6 +713,13 @@ while [ "$#" -gt 0 ]; do
     stl)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    CFG_STL="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    ipv6)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_IPV6="$VAL"
 	else
 	    UNKNOWN_OPT=yes
 	fi
@@ -1949,6 +1957,13 @@ if [ "$OPT_HELP" = "yes" ]; then
 	SHY=" "
 	SHN="*"
     fi
+    if [ "$CFG_IPV6" = "auto" ]; then
+	I6Y="*"
+	I6N=" "
+    else
+	I6Y=" "
+	I6N="*"
+    fi
 
     cat <<EOF
 Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir] [-headerdir dir]
@@ -1958,9 +1973,9 @@ Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir] [-headerdir dir]
 	[-qt-libjpeg] [-system-libjpeg] [-qt-libpng] [-system-libpng]
 	[-qt-libmng] [-system-libmng] [-no-thread] [-thread] [-no-nis] [-nis]
 	[-no-cups] [-cups] [-no-largefile] [-largefile] [-version-script]
-	[-no-stl] [-stl] [-Istring] [-lstring] [-Lstring] [-Rstring]
-	[-disable-<module>] [-with-<module setting>] [-without-<module setting>]
-	[-fast] [-no-fast]
+	[-no-stl] [-stl] [-no-ipv6 ] [-ipv6] [-Istring] [-lstring]
+	[-Lstring] [-Rstring] [-disable-<module>] [-with-<module setting>]
+	[-without-<module setting>] [-fast] [-no-fast]
 
 Installation options:
 
@@ -2090,6 +2105,9 @@ fi
 
  $SHN  -no-stl ............... Do not compile STL support.
  $SHY  -stl .................. Compile STL support.
+
+ $I6N  -no-ipv6 .............. Do not compile IPv6 support.
+ $I6Y  -ipv6 ................. Compile IPv6 support.
 
     -verbose .............. Print verbose information about each step of the
     -v .................... configure process.
@@ -2617,6 +2635,23 @@ if [ "$CFG_STL" = "auto" ]; then
     fi
 fi
 
+# find if the platform supports IPv6
+if [ "$CFG_IPV6" = "auto" ]; then
+    if $unixtests/ipv6.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
+	if [ "$CFG_IPV6" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+	    echo "IPv6 support cannot be enabled due to functionality tests!"
+	    echo " Turn on verbose messaging (-v) to $0 to see the final report."
+	    echo " If you believe this message is in error you may use the continue"
+	    echo " switch (-continue) to $0 to continue."
+	    exit 101
+	else
+	    CFG_IPV6=no
+	fi
+    else
+	CFG_IPV6=yes
+    fi
+fi
+
 # find if the platform supports X/Open Large File compilation environment
 if [ "$CFG_LARGEFILE" = "auto" ]; then
     if $unixtests/largefile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
@@ -2773,6 +2808,11 @@ if [ "$CFG_STL" = "no" ]; then
     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STL"
 else
     QMAKE_CONFIG="$QMAKE_CONFIG stl"
+fi
+if [ "$CFG_IPV6" = "no" ]; then
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IPV6"
+else
+    QMAKE_CONFIG="$QMAKE_CONFIG ipv6"
 fi
 # don't add the link line if we build the image formats as a plugin
 if [ "$CFG_LIBMNG" = "system" ]; then
@@ -3003,7 +3043,7 @@ esac
 #     network canvas table xml opengl sql
 #
 #   Options:
-#     stl
+#     stl ipv6
 #
 # Things that do not affect the Qt API/ABI:
 #     system-jpeg no-jpeg jpeg
@@ -3028,7 +3068,7 @@ esac
 #     X11     : xftnameunparse x11sm xinerama xcursor xrandr xrender xftfreetype xkb
 #     Embedded: embedded ft
 #
-ALL_OPTIONS="styles tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql stl"
+ALL_OPTIONS="styles tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql stl ipv6"
 BUILD_CONFIG=
 BUILD_OPTIONS=
 
@@ -3042,7 +3082,7 @@ for config_option in $QMAKE_CONFIG; do
 	BUILD_CONFIG="$config_option"
 	;;
 
-    styles|tools|kernel|widgets|dialogs|iconview|workspace|network|canvas|table|xml|opengl|sql|stl)
+    styles|tools|kernel|widgets|dialogs|iconview|workspace|network|canvas|table|xml|opengl|sql|stl|ipv6)
 	# these config options affect the Qt API/ABI. they should influence
 	# the generation of the buildkey, so we don't skip them
    	SKIP="no"
@@ -3327,6 +3367,7 @@ fi
 echo "Configuration ....... $QMAKE_CONFIG"
 [ "$CFG_SINGLEQTLIB" = "yes" ] && echo "Single-Lib support... $CFG_SINGLEQTLIB"
 echo "STL support ......... $CFG_STL"
+echo "IPv6 support ........ $CFG_IPV6"
 echo "Thread support ...... $CFG_THREAD"
 echo "NIS support ......... $CFG_NIS"
 echo "CUPS support ........ $CFG_CUPS"
