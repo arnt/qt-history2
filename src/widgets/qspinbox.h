@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#11 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#12 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -49,7 +49,6 @@ signals:
 protected:
     bool eventFilter( QObject *, QEvent * );
     void resizeEvent( QResizeEvent * );
-    void focusInEvent( QFocusEvent * );
 
     void setValidator( QValidator * );
     QPushButton * upButton();
