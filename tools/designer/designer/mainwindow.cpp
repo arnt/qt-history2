@@ -4805,11 +4805,11 @@ void MainWindow::breakPointsChanged()
 	}
     }
 
-    for ( e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->project() == currentProject && e->object()->inherits( "SourceFile" ) ) {
-	    QValueList<int> bps = MetaDataBase::breakPoints( e->object() );
+    for ( e2 = sourceEditors.first(); e2; e2 = sourceEditors.next() ) {
+	if ( e2->project() == currentProject && e2->object()->inherits( "SourceFile" ) ) {
+	    QValueList<int> bps = MetaDataBase::breakPoints( e2->object() );
 	    if ( !bps.isEmpty() )
-		iiface->setBreakPoints( e->object(), bps );
+		iiface->setBreakPoints( e2->object(), bps );
 	}
     }
 
