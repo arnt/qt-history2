@@ -1,0 +1,25 @@
+Changes (minor) made to the XBase library:
+
+xdb/index.cpp
+	Line 103: fixed unused parameter warning
+
+xdb/dbf.cpp
+	Line 2398: fixed unused variable warning
+	Line 2447: fixed unused variable warning
+
+xdb/exp.h
+	Line 55: fixed missing member initializer warning by removing unused member variable
+
+xdb/exp.cpp
+	Line 97: removed extra comma
+
+xdb/expfunc.cpp
+	Line 704: fixed unused variable warning
+	Line 725: fixed unused variable warning
+	Line 751: fixed unused variable warning
+
+	
+
+
+
+

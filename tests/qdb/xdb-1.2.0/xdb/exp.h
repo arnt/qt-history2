@@ -1,11 +1,11 @@
 /*  $Id: exp.h,v 1.7 1999/03/19 10:56:33 willy Exp $
 
-    Xbase project source code 
+    Xbase project source code
 
     This file contains a header file for the EXP object, which is
     used for expression processing.
 
-    Copyright (C) 1997  Startech, Gary A. Kunkel   
+    Copyright (C) 1997  Startech, Gary A. Kunkel
     email - xbase@startech.keller.tx.us
     www   - http://www.startech.keller.tx.us/xbase.html
 
@@ -52,7 +52,7 @@ struct xbFuncDtl {
    char * FuncName;                 /* function name               */
    xbShort  ParmCnt;                  /* no of parms it needs        */
    char   ReturnType;               /* return type of function     */
-   void   (*ExpFuncPtr)();          /* pointer to function routine */
+    /* void   (*ExpFuncPtr)();*/          /* pointer to function routine */
 };
 
 struct xbExpNode {
@@ -151,7 +151,7 @@ public:
    xbLong   GetIntResult( void );
    xbShort  ProcessExpression( xbExpNode * );
    xbShort  BuildExpressionTree( const char * Expression, xbShort MaxTokenLen,
-            xbDbf *d );
+	    xbDbf *d );
 
 
 #ifdef XBASE_DEBUG
@@ -167,14 +167,14 @@ private:
    xbShort LogicalType;         /* set to 1 for logical type nodes       */
 
    char TokenType;            /* E - Expression, not in simplest form  */
-                              /* C - Constant                          */
-                              /* N - Numeric Constant                  */
-                              /* O - Operator                          */
-                              /* F - Function                          */
-                              /* D - Database Field                    */
-                              /* s - character string result           */
-                              /* l - logical or short int result       */
-                              /* d - double result                     */
+			      /* C - Constant                          */
+			      /* N - Numeric Constant                  */
+			      /* O - Operator                          */
+			      /* F - Function                          */
+			      /* D - Database Field                    */
+			      /* s - character string result           */
+			      /* l - logical or short int result       */
+			      /* d - double result                     */
 
    char  PreviousType;         /* used to see if "-" follows operator     */
    char  *  Op1;               /* pointer to operand 1                    */
@@ -198,10 +198,10 @@ private:
    xbShort  IsWhiteSpace( char );
    char   IsSeparator( char );
    xbExpNode * LoadExpNode( const char * ENodeText, const char EType,
-           const xbShort ELen, const xbShort BufLen );
+	   const xbShort ELen, const xbShort BufLen );
    xbShort  OperatorWeight( const char *Oper, xbShort len );
    xbShort  ReduceComplexExpression( const char * NextToken, xbShort Len,
-            xbExpNode * cn, xbDbf *d );
+	    xbExpNode * cn, xbDbf *d );
    xbShort  GetFunctionTokenLen( const char *s );
    xbShort  ReduceFunction( const char *NextToken, xbExpNode *cn, xbDbf *d );
    xbExpNode * GetNextTreeNode( xbExpNode * );

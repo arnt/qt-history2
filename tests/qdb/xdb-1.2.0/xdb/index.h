@@ -100,7 +100,7 @@ public:
 
     virtual xbShort TouchIndex( void ) { return XB_NO_ERROR; }
 
-    virtual void    SetNodeSize(xbShort size) {}
+    virtual void    SetNodeSize(xbShort /*size*/) {}
     virtual xbShort GetNodeSize(void) { return NodeSize; }
 
     virtual void    GetExpression(char *buf, int len) = 0;

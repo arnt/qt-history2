@@ -1,11 +1,11 @@
 /*  $Id: dbf.cpp,v 1.25 1999/03/19 10:56:33 willy Exp $
 
     Xbase project source code
-   
+
     This file contains the basic Xbase routines for reading and writing
     Xbase .DBF files.
 
-    Copyright (C) 1997  StarTech, Gary A. Kunkel   
+    Copyright (C) 1997  StarTech, Gary A. Kunkel
     email - xbase@startech.keller.tx.us
     www   - http://www.startech.keller.tx.us/xbase.html
 
@@ -34,7 +34,7 @@
 #include <xdb/xbase.h>
 
 #ifdef HAVE_IO_H
-#include <io.h> 
+#include <io.h>
 #endif
 #include <errno.h>
 
@@ -88,9 +88,9 @@ void xbDbf::InitVars( void )
 
 #ifdef XB_LOCKING_ON
    AutoLock        = 1;
-  
+
    CurLockType = -1;
-   CurLockCount = 0; 
+   CurLockCount = 0;
    CurLockedRecNo = 0L;
    CurRecLockType = -1;
    CurRecLockCount = 0;
@@ -174,7 +174,7 @@ xbShort xbDbf::WriteHeader( const xbShort PositionOption )
 {
 #if 0
    char buf[4];
-   
+
    if (PositionOption)
       rewind( fp );
    if(fwrite(&Version, 4, 1, fp) != 1)
@@ -192,12 +192,12 @@ xbShort xbDbf::WriteHeader( const xbShort PositionOption )
    xbase->PutShort( buf, HeaderLen );
    if (fwrite(buf, 2, 1, fp) != 1)
      xb_error(XB_WRITE_ERROR);
-   
+
    memset( buf, 0x00, 4 );
    xbase->PutShort( buf, RecordLen );
    if (fwrite(buf, 2, 1, fp) != 1)
      xb_error(XB_WRITE_ERROR);
-   
+
 #ifdef XB_REAL_DELETE
    if(RealDelete)
    {
@@ -205,7 +205,7 @@ xbShort xbDbf::WriteHeader( const xbShort PositionOption )
      xbase->PutULong(buf, FirstFreeRec);
      if (fwrite(buf, 4, 1, fp) != 1)
        xb_error(XB_WRITE_ERROR);
-       
+
      memset(buf, 0x00, 4);
      xbase->PutULong(buf, RealNumRecs);
      if (fwrite(buf, 4, 1, fp) != 1)
@@ -214,17 +214,17 @@ xbShort xbDbf::WriteHeader( const xbShort PositionOption )
 #endif
 #else
    char buf[32];
-   
+
    memset(buf, 0, 32);
-   
+
    if(PositionOption)
      rewind(fp);
-     
-   memcpy(&buf[0], &Version, 4); 
+
+   memcpy(&buf[0], &Version, 4);
    xbase->PutLong(&buf[4], NoOfRecs);
    xbase->PutShort(&buf[8], HeaderLen );
    xbase->PutShort(&buf[10], RecordLen );
-   
+
 #ifdef XB_REAL_DELETE
    if(RealDelete)
    {
@@ -232,10 +232,10 @@ xbShort xbDbf::WriteHeader( const xbShort PositionOption )
      xbase->PutULong(&buf[16], RealNumRecs);
    }
 #endif
-#endif   
+#endif
    if(fwrite(buf, 32, 1, fp) != 1)
      xb_error(XB_WRITE_ERROR);
-     
+
    return XB_NO_ERROR;
 }
 /************************************************************************/
@@ -264,14 +264,14 @@ xbShort xbDbf::ReadHeader( xbShort PositionOption )
      xb_error(XB_READ_ERROR);
 
    RecordLen = xbase->GetShort(buf);
-   
+
 #ifdef XB_REAL_DELETE
    if(RealDelete)
    {
      if (fread(buf, 4, 1, fp ) != 1)
        xb_error(XB_READ_ERROR);
      FirstFreeRec = xbase->GetULong( buf );
-     
+
      if (fread(buf, 4, 1, fp ) != 1)
        xb_error(XB_READ_ERROR);
      RealNumRecs = xbase->GetULong( buf );
@@ -279,18 +279,18 @@ xbShort xbDbf::ReadHeader( xbShort PositionOption )
 #endif
 #else
    char buf[32];
-   
+
    if(PositionOption)
      rewind(fp);
-     
+
    if(fread(buf, 32, 1, fp) != 1)
      xb_error(XB_READ_ERROR);
-  
+
    memcpy(&Version, buf, 4);
    NoOfRecs = xbase->GetLong(&buf[4]);
    HeaderLen = xbase->GetShort(&buf[8]);
    RecordLen = xbase->GetShort(&buf[10]);
-   
+
 #ifdef XB_REAL_DELETE
    if(RealDelete)
    {
@@ -314,12 +314,12 @@ xbShort xbDbf::NameSuffixMissing( xbShort type, const char * name )
       type 4 is NTX check
 
       Returns 0 if suffix found
-              1 if suffix not found, lower case
-              2 is suffix not found, upper, case
+	      1 if suffix not found, lower case
+	      2 is suffix not found, upper, case
 */
 
 xbShort len;
-  
+
    len = strlen( name );
    if( len <= 4 )
      if( name[len-1] >= 'A' && name[len-1] <= 'Z' )
@@ -328,22 +328,22 @@ xbShort len;
        return 1;
 
    if(  type == 1          && name[len-4] == '.' &&
-      ( name[len-3] == 'd' || name[len-3] == 'D' ) && 
-      ( name[len-2] == 'b' || name[len-2] == 'B' ) && 
+      ( name[len-3] == 'd' || name[len-3] == 'D' ) &&
+      ( name[len-2] == 'b' || name[len-2] == 'B' ) &&
       ( name[len-1] == 'f' || name[len-1] == 'F' )
      )
       return 0;
 
    if(  type == 2          && name[len-4] == '.' &&
-      ( name[len-3] == 'n' || name[len-3] == 'N' ) && 
-      ( name[len-2] == 'd' || name[len-2] == 'D' ) && 
+      ( name[len-3] == 'n' || name[len-3] == 'N' ) &&
+      ( name[len-2] == 'd' || name[len-2] == 'D' ) &&
       ( name[len-1] == 'x' || name[len-1] == 'X' )
      )
-      return 0; 
+      return 0;
 
    if(  type == 4          && name[len-4] == '.' &&
-      ( name[len-3] == 'n' || name[len-3] == 'N' ) && 
-      ( name[len-2] == 't' || name[len-2] == 'T' ) && 
+      ( name[len-3] == 'n' || name[len-3] == 'N' ) &&
+      ( name[len-2] == 't' || name[len-2] == 'T' ) &&
       ( name[len-1] == 'x' || name[len-1] == 'X' )
      )
       return 0;
@@ -361,49 +361,49 @@ xbShort len;
   name (TableName) and schema (s).  The OverLay switch is used to determine
   if an existing file should be overwritten or an error flagged.  The
   record buffer is blanked (set to spaces).
-  
+
   \param TableName name of the table
   \param s Schema
   \param Overlay One of the following:
     \htmlonly
       <p>
       <table border=2><tr><th>OverLay</th><th>Description</th></tr>
-        <tr><td>XB_OVERLAY</td><td>Overwrite existing file if it exists</td></tr>
-        <tr><td>XB_DONTOVERLAY</td><td>Report an error if file exists</td></tr>
+	<tr><td>XB_OVERLAY</td><td>Overwrite existing file if it exists</td></tr>
+	<tr><td>XB_DONTOVERLAY</td><td>Report an error if file exists</td></tr>
       </table>
     \endhtmlonly
     \latexonly
       \\
       \\
       \begin{tabular}{|l|l|} \hline
-        \textbf{OverLay} & \textbf{Description} \\ \hline \hline
-        XB\_OVERLAY      & Overwrite existing file if it exists \\ \hline
-        XB\_DONTOVERLAY  & Report an error if file exists \\ \hline
+	\textbf{OverLay} & \textbf{Description} \\ \hline \hline
+	XB\_OVERLAY      & Overwrite existing file if it exists \\ \hline
+	XB\_DONTOVERLAY  & Report an error if file exists \\ \hline
       \end{tabular}
     \endlatexonly
   \returns One of the following return codes:
     \htmlonly
       <p>
       <table border=2><tr><th>Return Code</th><th>Description</th></tr>
-        <tr><td>XB_NO_ERROR</td><td>No error</td></tr>
-        <tr><td>XB_FILE_EXISTS</td><td>If the file exists and OverLay is XB_DONTOVERLAY</td></tr>
-        <tr><td>XB_OPEN_ERROR</td><td>Couldn't open the file</td></tr>            <tr><td>XB_NO_MEMORY</td><td>Memory allocation error</td></tr>
-        <tr><td>XB_WRITE_ERROR</td><td>Couldn't write to disk</td><tr>
+	<tr><td>XB_NO_ERROR</td><td>No error</td></tr>
+	<tr><td>XB_FILE_EXISTS</td><td>If the file exists and OverLay is XB_DONTOVERLAY</td></tr>
+	<tr><td>XB_OPEN_ERROR</td><td>Couldn't open the file</td></tr>            <tr><td>XB_NO_MEMORY</td><td>Memory allocation error</td></tr>
+	<tr><td>XB_WRITE_ERROR</td><td>Couldn't write to disk</td><tr>
       </table>
     \endhtmlonly
     \latexonly
       \\
       \\
       \begin{tabular}{|l|l|} \hline
-        \textbf{Return Code} & \textbf{Description} \\ \hline \hline
-        XB\_NO\_ERROR & No Error \\ \hline
-        XB\_FILE\_EXISTS & If the file exists and OverLay is XB\_DONTOVERAY \\ \hline
-        XB\_OPEN\_ERROR & Couldn't open the file \\ \hline
-        XB\_WRITE\_ERROR & Couldn't write to disk \\ \hline
+	\textbf{Return Code} & \textbf{Description} \\ \hline \hline
+	XB\_NO\_ERROR & No Error \\ \hline
+	XB\_FILE\_EXISTS & If the file exists and OverLay is XB\_DONTOVERAY \\ \hline
+	XB\_OPEN\_ERROR & Couldn't open the file \\ \hline
+	XB\_WRITE\_ERROR & Couldn't write to disk \\ \hline
       \end{tabular}
     \endlatexonly
 */
-xbShort xbDbf::CreateDatabase( const char * TableName, xbSchema * s, 
+xbShort xbDbf::CreateDatabase( const char * TableName, xbSchema * s,
     const xbShort Overlay )
 {
 /* future release - add logic to check number of fields and record length */
@@ -415,7 +415,7 @@ xbShort xbDbf::CreateDatabase( const char * TableName, xbSchema * s,
 #endif
 
    i = j = 0;
-   DbfStatus = XB_CLOSED;                 
+   DbfStatus = XB_CLOSED;
 
    /* Get the datafile name and store it in the class */
    NameLen = strlen(TableName) + 1;
@@ -441,14 +441,14 @@ xbShort xbDbf::CreateDatabase( const char * TableName, xbSchema * s,
    {
 		 xb_open_error(DatabaseName);
    }
-   
-#ifdef XB_LOCKING_ON   
+
+#ifdef XB_LOCKING_ON
    /*
    **  Must turn off buffering when multiple programs may be accessing
    **  data files.
    */
    setvbuf(fp, NULL, _IONBF, 0);
-#endif   
+#endif
 
    /* count the number of fields and check paramaters */
    i = 0;
@@ -456,24 +456,24 @@ xbShort xbDbf::CreateDatabase( const char * TableName, xbSchema * s,
    {
       NoOfFields++;
       RecordLen += s[i].FieldLen;
-      if( s[i].Type != 'C' && 
-          s[i].Type != 'N' &&
-          s[i].Type != 'F' &&
-          s[i].Type != 'D' &&
+      if( s[i].Type != 'C' &&
+	  s[i].Type != 'N' &&
+	  s[i].Type != 'F' &&
+	  s[i].Type != 'D' &&
 #ifdef XB_MEMO_FIELDS
-          s[i].Type != 'M' &&
+	  s[i].Type != 'M' &&
 #endif /* XB_MEMO_FIELDS */
-          s[i].Type != 'L' )
-        xb_error(XB_UNKNOWN_FIELD_TYPE);
+	  s[i].Type != 'L' )
+	xb_error(XB_UNKNOWN_FIELD_TYPE);
 
 #ifdef XB_MEMO_FIELDS
       if( !MemoSw && ( s[i].Type=='M' || s[i].Type=='B' || s[i].Type=='O'))
-         MemoSw++;
+	 MemoSw++;
 #endif
 
 // check for numeric fields which are too long
       if((s[i].Type == 'N' || s[i].Type == 'F') && s[i].FieldLen > 19 )
-        xb_error(XB_INVALID_FIELD_LEN);
+	xb_error(XB_INVALID_FIELD_LEN);
 
       i++;
    }
@@ -484,7 +484,7 @@ xbShort xbDbf::CreateDatabase( const char * TableName, xbSchema * s,
    }
 
    if(( RecBuf2 = (char *) malloc( RecordLen )) == NULL )
-   { 
+   {
       free( RecBuf );
       xb_memory_error;
    }
@@ -498,23 +498,23 @@ xbShort xbDbf::CreateDatabase( const char * TableName, xbSchema * s,
 #ifdef XB_MEMO_FIELDS
    if (MemoSw) {
       if(XFV == 3)
-         Version = '\x83';
+	 Version = '\x83';
       else
-         Version = '\x8B';
+	 Version = '\x8B';
    }
    else
    {
 #endif
       if( XFV == 3 )
-         Version = 3;
+	 Version = 3;
       else
-         Version = 4;
+	 Version = 4;
 #ifdef XB_MEMO_FIELDS
    }
 #endif
 
 /*
-   if( MemoSw ) 
+   if( MemoSw )
       Version = 0x83;
    else
       Version = 3;
@@ -529,13 +529,13 @@ xbShort xbDbf::CreateDatabase( const char * TableName, xbSchema * s,
 
    /* write the header prolog */
    if(( rc = WriteHeader( 0 )) != XB_NO_ERROR )
-   {  
+   {
       free( RecBuf );
       free( RecBuf2 );
       fclose( fp );
       xb_error(XB_WRITE_ERROR);
    }
-   
+
    count = 20;
 #ifdef XB_REAL_DELETE
    if(RealDelete)
@@ -546,17 +546,17 @@ xbShort xbDbf::CreateDatabase( const char * TableName, xbSchema * s,
    {
       if(( fwrite( "\x00", 1, 1, fp )) != 1 )
       {
-         free( RecBuf );
-         free( RecBuf2 );
-         fclose( fp );
-         xb_error(XB_WRITE_ERROR);
+	 free( RecBuf );
+	 free( RecBuf2 );
+	 fclose( fp );
+	 xb_error(XB_WRITE_ERROR);
       }
    }
 #endif
 
-   if((SchemaPtr = (xbSchemaRec *) malloc( NoOfFields * sizeof(xbSchemaRec))) == NULL ) 
+   if((SchemaPtr = (xbSchemaRec *) malloc( NoOfFields * sizeof(xbSchemaRec))) == NULL )
    {
-      free( RecBuf ); 
+      free( RecBuf );
       free( RecBuf2 );
       fclose( fp );
       xb_memory_error;
@@ -571,22 +571,22 @@ xbShort xbDbf::CreateDatabase( const char * TableName, xbSchema * s,
 
       if( s[i].Type == 'M' || s[i].Type == 'B' || s[i].Type == 'O' )
       {  /* memo fields are always 10 bytes */
-        SchemaPtr[i].FieldLen = 10;
-        SchemaPtr[i].NoOfDecs = 0;
+	SchemaPtr[i].FieldLen = 10;
+	SchemaPtr[i].NoOfDecs = 0;
       }
       else
       {
-        SchemaPtr[i].FieldLen = s[i].FieldLen;
-        SchemaPtr[i].NoOfDecs = s[i].NoOfDecs;
+	SchemaPtr[i].FieldLen = s[i].FieldLen;
+	SchemaPtr[i].NoOfDecs = s[i].NoOfDecs;
       }
 
       if( SchemaPtr[i].NoOfDecs > SchemaPtr[i].FieldLen )
       {
-         fclose( fp );
-         free( SchemaPtr );
-         free( RecBuf );
-         free( RecBuf2 );
-         xb_error(XB_INVALID_SCHEMA);
+	 fclose( fp );
+	 free( SchemaPtr );
+	 free( RecBuf );
+	 free( RecBuf2 );
+	 xb_error(XB_INVALID_SCHEMA);
       }
 
       k2 = k;
@@ -594,23 +594,23 @@ xbShort xbDbf::CreateDatabase( const char * TableName, xbSchema * s,
 
       if(( fwrite( &SchemaPtr[i], 1, 18, fp )) != 18 )
       {
-         fclose( fp );
-         free( SchemaPtr );
-         free( RecBuf );
-         free( RecBuf2 );
-         xb_error(XB_WRITE_ERROR);
+	 fclose( fp );
+	 free( SchemaPtr );
+	 free( RecBuf );
+	 free( RecBuf2 );
+	 xb_error(XB_WRITE_ERROR);
       }
 
       for( j = 0; j < 14; j++ )
       {
-         if(( fwrite( "\x00", 1, 1, fp )) != 1 )
-         {
-            free( SchemaPtr );
-            free( RecBuf );
-            free( RecBuf2 );
-            fclose( fp );
-            xb_error(XB_WRITE_ERROR);
-         }
+	 if(( fwrite( "\x00", 1, 1, fp )) != 1 )
+	 {
+	    free( SchemaPtr );
+	    free( RecBuf );
+	    free( RecBuf2 );
+	    fclose( fp );
+	    xb_error(XB_WRITE_ERROR);
+	 }
       }
       SchemaPtr[i].Address  = RecBuf  + k2;
       SchemaPtr[i].Address2 = RecBuf2 + k2;
@@ -640,15 +640,15 @@ xbShort xbDbf::CreateDatabase( const char * TableName, xbSchema * s,
   opened with either CreateDatabase() or OpenDatabase().  Deletes any
   memory allocated.  Automatically closes any open indexes associated
   with this data file.
-  
-  \param deleteIndexes if TRUE, the indexes (xbIndex instances) will also 
+
+  \param deleteIndexes if TRUE, the indexes (xbIndex instances) will also
     be deleted (index files will not be deleted)
   \returns One of the following:
     \htmlonly
       <p>
       <table border=2><tr><th>Return Code</th><th>Description</th></tr>
-        <tr><td>XB_NO_ERROR</td><td>No error</td></tr>
-        <tr><td>XB_NOT_OPEN</td><td>File was not open</td></tr>
+	<tr><td>XB_NO_ERROR</td><td>No error</td></tr>
+	<tr><td>XB_NOT_OPEN</td><td>File was not open</td></tr>
       </table>
     \endhtmlonly
 */
@@ -668,7 +668,7 @@ xbShort xbDbf::CloseDatabase(bool deleteIndexes)
 
       /* update the header */
       WriteHeader( 1 );
-      
+
       /* write eof marker */
       fseek( fp, 0L, 2 );
       fwrite( EofChar, 1, 1, fp );
@@ -677,7 +677,7 @@ xbShort xbDbf::CloseDatabase(bool deleteIndexes)
 
 #if defined(XB_INDEX_ANY)
    i = NdxList;
-   while (i) 
+   while (i)
    {
      i->index->CloseIndex();
      if(deleteIndexes)
@@ -699,9 +699,9 @@ xbShort xbDbf::CloseDatabase(bool deleteIndexes)
      free( SchemaPtr );
    }
    if (RecBuf)
-     free( RecBuf ); 
+     free( RecBuf );
    if (RecBuf2)
-     free( RecBuf2 ); 
+     free( RecBuf2 );
 
 #ifdef XB_MEMO_FIELDS
    if (mbb)
@@ -712,13 +712,13 @@ xbShort xbDbf::CloseDatabase(bool deleteIndexes)
 
    xbase->RemoveDbfFromDbfList( this );
    fclose( fp );
-   InitVars(); 
+   InitVars();
    return XB_NO_ERROR;
 }
 /************************************************************************/
 /* options  1 = Print header only
-            2 = Field data only
-            3 = Header and Field data */
+	    2 = Field data only
+	    3 = Header and Field data */
 
 //! Dump header information.
 /*!
@@ -726,9 +726,9 @@ xbShort xbDbf::CloseDatabase(bool deleteIndexes)
      \htmlonly
        <p>
        <table border=2><tr><th>Option</th><th>Description</th></tr>
-         <tr><td>1</td><td>Print header only</td></tr>
-         <tr><td>2</td><td>Field data only</td></tr>
-         <tr><td>3</td><td>Header and field data</td></tr>
+	 <tr><td>1</td><td>Print header only</td></tr>
+	 <tr><td>2</td><td>Field data only</td></tr>
+	 <tr><td>3</td><td>Header and field data</td></tr>
        </table>
      \endhtmlonly
 */
@@ -749,19 +749,19 @@ xbShort xbDbf::DumpHeader( xbShort Option )
    {
       cout << "File header data:" << endl;
       if( Version == 3 )
-         cout << "Dbase III file" << endl;
+	 cout << "Dbase III file" << endl;
       else if ( Version == 83 )
-         cout << "Dbase III file with memo fields" << endl << endl;
-   
-      cout << "Last update date = " 
-          << (int) UpdateMM << "/" << (int) UpdateDD << "/" << (int) UpdateYY << endl;  
+	 cout << "Dbase III file with memo fields" << endl << endl;
+
+      cout << "Last update date = "
+	  << (int) UpdateMM << "/" << (int) UpdateDD << "/" << (int) UpdateYY << endl;
 
       cout << "Header length    = " << HeaderLen << endl;
       cout << "Record length    = " << RecordLen << endl;
       cout << "Records in file  = " << NoOfRecs << endl << endl;
 #ifdef XB_REAL_DELETE
       cout << "First Free Rec   = " << FirstFreeRec << endl << endl;
-#endif      
+#endif
    }
    if( Option != 1 )
    {
@@ -770,12 +770,12 @@ xbShort xbDbf::DumpHeader( xbShort Option )
       cout << "----------   ----  ------  --------" << endl;
       for( i = 0; i <NoOfFields; i++ )
       {
-         if( SchemaPtr[i].Type == 'C' && SchemaPtr[i].NoOfDecs > 0 )
-           printf( "%10s    %1c     %4d    %4d\n", SchemaPtr[i].FieldName,
-                  SchemaPtr[i].Type, SchemaPtr[i].FieldLen, 0 );
-	 else	   
-           printf( "%10s    %1c     %4d    %4d\n", SchemaPtr[i].FieldName,
-                  SchemaPtr[i].Type, SchemaPtr[i].FieldLen, SchemaPtr[i].NoOfDecs );
+	 if( SchemaPtr[i].Type == 'C' && SchemaPtr[i].NoOfDecs > 0 )
+	   printf( "%10s    %1c     %4d    %4d\n", SchemaPtr[i].FieldName,
+		  SchemaPtr[i].Type, SchemaPtr[i].FieldLen, 0 );
+	 else
+	   printf( "%10s    %1c     %4d    %4d\n", SchemaPtr[i].FieldName,
+		  SchemaPtr[i].Type, SchemaPtr[i].FieldLen, SchemaPtr[i].NoOfDecs );
       }
    }
    cout << endl;
@@ -790,14 +790,14 @@ xbShort xbDbf::DumpHeader( xbShort Option )
   record in the file.  The record buffer is blanked (set to spaces).
 
   \param TableName Name of table to open
-  \returns One of the following:  
+  \returns One of the following:
     \htmlonly
       <p>
       <table border=2><tr><th>Return Code</th><th>Description</th></tr>
-        <tr><td>XB_NO_ERROR</td><td>No error</td></tr>
-        <tr><td>XB_OPEN_ERROR</td><td>Couldn't open file</td></tr>
-        <tr><td>XB_NO_MEMORY</td><td>Memory allocation error</td></tr>
-        <tr><td>XB_NOT_XBASE</td><td>Not an XDB DBF file</td></tr>
+	<tr><td>XB_NO_ERROR</td><td>No error</td></tr>
+	<tr><td>XB_OPEN_ERROR</td><td>Couldn't open file</td></tr>
+	<tr><td>XB_NO_MEMORY</td><td>Memory allocation error</td></tr>
+	<tr><td>XB_NOT_XBASE</td><td>Not an XDB DBF file</td></tr>
       </table>
     \endhtmlonly
 */
@@ -827,23 +827,23 @@ xbShort xbDbf::OpenDatabase( const char * TableName )
       DatabaseName += ".dbf";
    else if( rc == 2 )
       DatabaseName += ".DBF";
-   
+
    /* open the file */
    if(( fp = fopen(DatabaseName, "r+b")) == NULL )
       xb_open_error(DatabaseName);
-      
+
 #ifdef XB_LOCKING_ON
    /*
    **  Must turn off buffering when multiple programs may be accessing
    **  data files.
    */
    setvbuf(fp, NULL, _IONBF, 0);
-#endif   
+#endif
 
 #ifdef XB_LOCKING_ON
    if( AutoLock )
-      if(( rc = LockDatabase( F_SETLKW, F_RDLCK, 0L )) != XB_NO_ERROR) 
-         return rc;
+      if(( rc = LockDatabase( F_SETLKW, F_RDLCK, 0L )) != XB_NO_ERROR)
+	 return rc;
 #endif
 
    /* copy the header into memory */
@@ -851,7 +851,7 @@ xbShort xbDbf::OpenDatabase( const char * TableName )
       return rc;
 
    /* check the version */
-   if( Version == 3 || Version == (char)0x83 )   	/* dBASE III+ */
+   if( Version == 3 || Version == (char)0x83 )	/* dBASE III+ */
    {
       XFV = 3;
 #ifdef XB_MEMO_FIELDS
@@ -867,7 +867,7 @@ xbShort xbDbf::OpenDatabase( const char * TableName )
    }
    else
      xb_error(XB_NOT_XBASE);
-      
+
    if (UpdateYY == 0 || UpdateMM == 0 || UpdateDD == 0 )
      xb_error(XB_NOT_XBASE);
 
@@ -898,7 +898,7 @@ xbShort xbDbf::OpenDatabase( const char * TableName )
    for( i = 0, j = 1; i < NoOfFields; i++ )
    {
       fseek( fp, i*32+32, 0 );
-      
+
 //      fread( &SchemaPtr[i].FieldName, 1, 18, fp );
       fread( &buf, 1, 32, fp );
       p = buf;
@@ -908,23 +908,23 @@ xbShort xbDbf::OpenDatabase( const char * TableName )
 
       SchemaPtr[i].Address  = RecBuf + j;
       SchemaPtr[i].Address2 = RecBuf2 + j;
-      
+
       SchemaPtr[i].FieldLen = *( p + 4 );
       SchemaPtr[i].NoOfDecs = *( p + 5 );
-      
+
       if( SchemaPtr[i].Type == 'C' && SchemaPtr[i].NoOfDecs > 0 )
       {
-        SchemaPtr[i].LongFieldLen = xbase->GetShort( p + 4 );
+	SchemaPtr[i].LongFieldLen = xbase->GetShort( p + 4 );
 	j += SchemaPtr[i].LongFieldLen;
       }
       else
-        j += SchemaPtr[i].FieldLen;
+	j += SchemaPtr[i].FieldLen;
 #ifdef XB_MEMO_FIELDS
-      if( !MemoSw && (SchemaPtr[i].Type == 'M' || 
-          SchemaPtr[i].Type == 'B' || SchemaPtr[i].Type == 'O' ))
-         MemoSw++;
+      if( !MemoSw && (SchemaPtr[i].Type == 'M' ||
+	  SchemaPtr[i].Type == 'B' || SchemaPtr[i].Type == 'O' ))
+	 MemoSw++;
 #endif
-   } 
+   }
    CurRec = 0L;
    DbfStatus = XB_OPEN;
    BlankRecord();
@@ -933,11 +933,11 @@ xbShort xbDbf::OpenDatabase( const char * TableName )
    if( MemoSw )   /* does this table have memo fields ? */
       if(( rc = OpenMemoFile()) != XB_NO_ERROR )
       {
-         free( RecBuf );
-         free( RecBuf2 );
-         free( SchemaPtr );
-         fclose( fp );
-         return rc;
+	 free( RecBuf );
+	 free( RecBuf2 );
+	 free( SchemaPtr );
+	 fclose( fp );
+	 return rc;
       }
 #endif
 
@@ -955,7 +955,7 @@ xbShort xbDbf::OpenDatabase( const char * TableName )
 */
 xbShort xbDbf::BlankRecord( void )
 {
-   if( DbfStatus == XB_CLOSED ) 
+   if( DbfStatus == XB_CLOSED )
      xb_error(XB_NOT_OPEN);
 
    memset( RecBuf, 0x20, RecordLen );
@@ -968,22 +968,22 @@ xbShort xbDbf::BlankRecord( void )
   to the end of the XDB DBF file and updates the file date and number of
   records in the file.  Also updates any open indexes associated with
   this data file.
-  
+
   \returns One of the following:
     \htmlonly
       <p>
       <table border=2><tr><th>Return Code</th><th>Description</th></tr>
-        <tr><td>XB_NO_ERROR</td><td>No error</td></tr>
-        <tr><td>XB_LOCK_FAILED</td><td>Couldn't lock file</td></tr>
-        <tr><td>XB_WRITE_ERROR</td><td>Error writing to file</td></tr>
+	<tr><td>XB_NO_ERROR</td><td>No error</td></tr>
+	<tr><td>XB_LOCK_FAILED</td><td>Couldn't lock file</td></tr>
+	<tr><td>XB_WRITE_ERROR</td><td>Error writing to file</td></tr>
       </table>
     \endhtmlonly
 */
 xbShort xbDbf::AppendRecord( void )
 {
-   xbShort 
+   xbShort
       rc = 0;
-      
+
    xbULong
      nextRecNo;
 
@@ -994,13 +994,13 @@ xbShort xbDbf::AppendRecord( void )
 /* lock the database */
 #ifdef XB_LOCKING_ON
    if( AutoLock )
-      if(( rc = LockDatabase( F_SETLKW, F_WRLCK, 0L )) != XB_NO_ERROR) 
-         return rc;
-      
+      if(( rc = LockDatabase( F_SETLKW, F_WRLCK, 0L )) != XB_NO_ERROR)
+	 return rc;
+
    if((rc = ReadHeader(1)) != XB_NO_ERROR)
    {
       if(AutoLock)
-         LockDatabase( F_SETLK, F_UNLCK, 0L );
+	 LockDatabase( F_SETLK, F_UNLCK, 0L );
       return rc;
    }
 #endif
@@ -1011,8 +1011,8 @@ xbShort xbDbf::AppendRecord( void )
    i = NdxList;
    while( i && AutoLock )
    {
-      if(( rc = i->index->LockIndex( F_SETLKW, F_WRLCK )) != XB_NO_ERROR ) 
-         return rc;
+      if(( rc = i->index->LockIndex( F_SETLKW, F_WRLCK )) != XB_NO_ERROR )
+	 return rc;
       i = i->NextIx;
    }
 #endif               /* XB_LOCKING_ON */
@@ -1028,9 +1028,9 @@ xbShort xbDbf::AppendRecord( void )
    {
       if( i->index->UniqueIndex() )
       {
-         i->index->CreateKey( 0, 0 );
-         if( i->index->FindKey() == XB_FOUND )
-           xb_error(XB_KEY_NOT_UNIQUE);
+	 i->index->CreateKey( 0, 0 );
+	 if( i->index->FindKey() == XB_FOUND )
+	   xb_error(XB_KEY_NOT_UNIQUE);
       }
       i = i->NextIx;
    }
@@ -1053,8 +1053,8 @@ xbShort xbDbf::AppendRecord( void )
    while( i )
    {
       if( !i->index->UniqueIndex() )          /* if we didn't prepare the key */
-         if(( rc = i->index->CreateKey( 0, 0 )) != XB_NO_ERROR ) /* then do it before the add    */
-            return rc;
+	 if(( rc = i->index->CreateKey( 0, 0 )) != XB_NO_ERROR ) /* then do it before the add    */
+	    return rc;
       if(( rc =  i->index->AddKey(nextRecNo)) != XB_NO_ERROR )
 	return rc;
       i->index->TouchIndex();
@@ -1065,7 +1065,7 @@ xbShort xbDbf::AppendRecord( void )
 #ifdef XB_REAL_DELETE
    char
      buf[4];
-     
+
    if(RealDelete && FirstFreeRec)
    {
      /*
@@ -1073,19 +1073,19 @@ xbShort xbDbf::AppendRecord( void )
      */
      if(fseek(fp, ((long) HeaderLen + ((FirstFreeRec - 1) * RecordLen) + 1), 0) != 0)
        xb_error(XB_SEEK_ERROR);
-       
+
      if(fread(buf, 4, 1, fp) != 1)
        xb_error(XB_READ_ERROR);
-       
+
      FirstFreeRec = xbase->GetULong(buf);
    }
-   
+
    /*
    **  Okay, seek and write the record out
    */
    if(fseek(fp, ((long) HeaderLen + ((nextRecNo - 1) * RecordLen)), 0) != 0)
      xb_error(XB_SEEK_ERROR);
-     
+
    if(fwrite( RecBuf, RecordLen, 1, fp) != 1)
      xb_error(XB_WRITE_ERROR);
 
@@ -1111,7 +1111,7 @@ xbShort xbDbf::AppendRecord( void )
      xb_error(XB_WRITE_ERROR);
 #endif
 
-   /* calculate the latest header information */ 
+   /* calculate the latest header information */
    UpdateYY = xbase->YearOf( xbase->Sysdate()) - 1900;
    UpdateMM = xbase->MonthOf( xbase->Sysdate());
    UpdateDD = xbase->DayOf( XB_FMT_MONTH, xbase->Sysdate());
@@ -1156,18 +1156,18 @@ xbShort xbDbf::AppendRecord( void )
 //! Get a record from the data file
 /*!
   This method attempts to retrieve the record specified by RecNo from the
-  data file into the record buffer.  
-  
+  data file into the record buffer.
+
   \param RecNo Record number to retrieve
   \returns One of the following:
     \htmlonly
       <p>
       <table border=2><tr><th>Return Code</th><th>Description</th></tr>
-        <tr><td>XB_NO_ERROR</td><td>No error</td></tr>
-        <tr><td>XB_LOCK_FAILED</td><td>Couldn't lock file</td></tr>
-        <tr><td>XB_NOT_OPEN</td><td>File is not open</td></tr>
-        <tr><td>XB_INVALID_RECORD</td><td>Invalid record number</td></tr>
-        <tr><td>XB_WRITE_ERROR</td><td>Error writing to file</td></tr>
+	<tr><td>XB_NO_ERROR</td><td>No error</td></tr>
+	<tr><td>XB_LOCK_FAILED</td><td>Couldn't lock file</td></tr>
+	<tr><td>XB_NOT_OPEN</td><td>File is not open</td></tr>
+	<tr><td>XB_INVALID_RECORD</td><td>Invalid record number</td></tr>
+	<tr><td>XB_WRITE_ERROR</td><td>Error writing to file</td></tr>
       </table>
     \endhtmlonly
 */
@@ -1177,21 +1177,21 @@ xbShort xbDbf::GetRecord( xbULong RecNo )
 
    if( DbfStatus == XB_CLOSED )
     xb_error(XB_NOT_OPEN);
- 
+
 #ifndef XB_LOCKING_ON
    if( DbfStatus == XB_UPDATED /*&& AutoUpdate*/ )   /* update previous rec if necessary */
       if(( rc = PutRecord( CurRec )) != 0 )
-         return rc;
-#endif         
+	 return rc;
+#endif
 
 #ifdef XB_LOCKING_ON
    if( AutoLock )
       if(( rc = LockDatabase( F_SETLKW, F_RDLCK, RecNo )) != 0 ) return rc;
-      
+
    if((rc = ReadHeader(1)) != XB_NO_ERROR)
    {
       if(AutoLock)
-         LockDatabase( F_SETLK, F_UNLCK, RecNo );
+	 LockDatabase( F_SETLK, F_UNLCK, RecNo );
       return rc;
    }
 #endif
@@ -1206,9 +1206,9 @@ xbShort xbDbf::GetRecord( xbULong RecNo )
       if( fseek( fp, (long) HeaderLen+((RecNo-1L)*RecordLen), SEEK_SET ))
       {
 #ifdef XB_LOCKING_ON
-         LockDatabase( F_SETLK, F_UNLCK, RecNo );
+	 LockDatabase( F_SETLK, F_UNLCK, RecNo );
 #endif
-         xb_error(XB_SEEK_ERROR);
+	 xb_error(XB_SEEK_ERROR);
       }
 //   }
 
@@ -1232,17 +1232,17 @@ xbShort xbDbf::GetRecord( xbULong RecNo )
 /*!
   Attempts to retrieve the first physical record from the data file into
   the record buffer.
-  
+
   \returns One of the following:
     \htmlonly
       <p>
       <table border=2><tr><th>Return Code</th><th>Description</th></tr>
-        <tr><td>XB_NO_ERROR</td><td>No error</td></tr>
-        <tr><td>XB_LOCK_FAILED</td><td>Couldn't lock file</td></tr>
-        <tr><td>XB_NOT_OPEN</td><td>File is not open</td></tr>
-        <tr><td>XB_INVALID_RECORD</td><td>Invalid record number</td></tr>
-        <tr><td>XB_SEEK_ERROR</td><td>Error seeking file</td></tr>
-        <tr><td>XB_WRITE_ERROR</td><td>Error writing to file</td></tr>
+	<tr><td>XB_NO_ERROR</td><td>No error</td></tr>
+	<tr><td>XB_LOCK_FAILED</td><td>Couldn't lock file</td></tr>
+	<tr><td>XB_NOT_OPEN</td><td>File is not open</td></tr>
+	<tr><td>XB_INVALID_RECORD</td><td>Invalid record number</td></tr>
+	<tr><td>XB_SEEK_ERROR</td><td>Error seeking file</td></tr>
+	<tr><td>XB_WRITE_ERROR</td><td>Error writing to file</td></tr>
       </table>
     \endhtmlonly
 */
@@ -1255,8 +1255,8 @@ xbShort xbDbf::GetFirstRecord( void )
 #ifndef XB_LOCKING_ON
    if( DbfStatus == XB_UPDATED /*&& AutoUpdate*/ )  /* update previous rec if necessary */
       if(( rc = PutRecord( CurRec )) != 0 )
-         return rc;
-#endif         
+	 return rc;
+#endif
 
    rc = GetRecord( 1L );
 #ifdef XB_REAL_DELETE
@@ -1271,18 +1271,18 @@ xbShort xbDbf::GetFirstRecord( void )
 /*!
   Attempts to retrieve the last physical record from the data file into
   the record buffer.
-  
+
   \returns One of the following:
     \htmlonly
       <p>
       <table border=2><tr><th>Return Code</th><th>Description</th></tr>
-        <tr><td>XB_NO_ERROR</td><td>No error</td></tr>
-        <tr><td>XB_LOCK_FAILED</td><td>Couldn't lock file</td></tr>
-        <tr><td>XB_EOF</td><td>At end of file</td></tr>
-        <tr><td>XB_NOT_OPEN</td><td>File is not open</td></tr>
-        <tr><td>XB_INVALID_RECORD</td><td>Invalid record number</td></tr>
-        <tr><td>XB_SEEK_ERROR</td><td>Error seeking file</td></tr>
-        <tr><td>XB_WRITE_ERROR</td><td>Error writing to file</td></tr>
+	<tr><td>XB_NO_ERROR</td><td>No error</td></tr>
+	<tr><td>XB_LOCK_FAILED</td><td>Couldn't lock file</td></tr>
+	<tr><td>XB_EOF</td><td>At end of file</td></tr>
+	<tr><td>XB_NOT_OPEN</td><td>File is not open</td></tr>
+	<tr><td>XB_INVALID_RECORD</td><td>Invalid record number</td></tr>
+	<tr><td>XB_SEEK_ERROR</td><td>Error seeking file</td></tr>
+	<tr><td>XB_WRITE_ERROR</td><td>Error writing to file</td></tr>
       </table>
     \endhtmlonly
 */
@@ -1295,15 +1295,15 @@ xbShort xbDbf::GetLastRecord( void )
 #ifndef XB_LOCKING_ON
    if( DbfStatus == XB_UPDATED /*&& AutoUpdate*/ )  /* update previous rec if necessary */
       if(( rc = PutRecord( CurRec )) != 0 )
-         return rc;
-#endif         
+	 return rc;
+#endif
 
    rc = GetRecord( NoOfRecs );
 #ifdef XB_REAL_DELETE
    if(!rc && RealDelete && RecordDeleted())
      rc = GetPrevRecord();
 #endif
-     
+
    return rc;
 }
 /************************************************************************/
@@ -1311,18 +1311,18 @@ xbShort xbDbf::GetLastRecord( void )
 /*!
   Attempts to retrieve the next physical record from the data file into
   the record buffer.
-  
+
   \returns One of the following:
     \htmlonly
       <p>
       <table border=2><tr><th>Return Code</th><th>Description</th></tr>
-        <tr><td>XB_NO_ERROR</td><td>No error</td></tr>
-        <tr><td>XB_LOCK_FAILED</td><td>Couldn't lock file</td></tr>
-        <tr><td>XB_EOF</td><td>At end of file</td></tr>
-        <tr><td>XB_NOT_OPEN</td><td>File is not open</td></tr>
-        <tr><td>XB_INVALID_RECORD</td><td>Invalid record number</td></tr>
-        <tr><td>XB_SEEK_ERROR</td><td>Error seeking file</td></tr>
-        <tr><td>XB_WRITE_ERROR</td><td>Error writing to file</td></tr>
+	<tr><td>XB_NO_ERROR</td><td>No error</td></tr>
+	<tr><td>XB_LOCK_FAILED</td><td>Couldn't lock file</td></tr>
+	<tr><td>XB_EOF</td><td>At end of file</td></tr>
+	<tr><td>XB_NOT_OPEN</td><td>File is not open</td></tr>
+	<tr><td>XB_INVALID_RECORD</td><td>Invalid record number</td></tr>
+	<tr><td>XB_SEEK_ERROR</td><td>Error seeking file</td></tr>
+	<tr><td>XB_WRITE_ERROR</td><td>Error writing to file</td></tr>
       </table>
     \endhtmlonly
 */
@@ -1338,15 +1338,15 @@ xbShort xbDbf::GetNextRecord( void )
 #ifndef XB_LOCKING_ON
    if( DbfStatus == XB_UPDATED /*&& AutoUpdate*/ )  /* update previous rec if necessary */
       if(( rc = PutRecord( CurRec )) != 0 )
-         return rc;
-#endif         
+	 return rc;
+#endif
 
    rc = GetRecord( ++CurRec );
 #ifdef XB_REAL_DELETE
    while(!rc && RealDelete && RecordDeleted())
      rc = GetRecord(++CurRec);
 #endif
-  
+
    return rc;
 }
 /************************************************************************/
@@ -1354,18 +1354,18 @@ xbShort xbDbf::GetNextRecord( void )
 /*!
   Attempts to retrieve the previous physical record from the data file into
   the record buffer.
-  
+
   \returns One of the following:
     \htmlonly
       <p>
       <table border=2><tr><th>Return Code</th><th>Description</th></tr>
-        <tr><td>XB_NO_ERROR</td><td>No error</td></tr>
-        <tr><td>XB_LOCK_FAILED</td><td>Couldn't lock file</td></tr>
-        <tr><td>XB_BOF</td><td>At beginning of file</td></tr>
-        <tr><td>XB_NOT_OPEN</td><td>File is not open</td></tr>
-        <tr><td>XB_INVALID_RECORD</td><td>Invalid record number</td></tr>
-        <tr><td>XB_SEEK_ERROR</td><td>Error seeking file</td></tr>
-        <tr><td>XB_WRITE_ERROR</td><td>Error writing to file</td></tr>
+	<tr><td>XB_NO_ERROR</td><td>No error</td></tr>
+	<tr><td>XB_LOCK_FAILED</td><td>Couldn't lock file</td></tr>
+	<tr><td>XB_BOF</td><td>At beginning of file</td></tr>
+	<tr><td>XB_NOT_OPEN</td><td>File is not open</td></tr>
+	<tr><td>XB_INVALID_RECORD</td><td>Invalid record number</td></tr>
+	<tr><td>XB_SEEK_ERROR</td><td>Error seeking file</td></tr>
+	<tr><td>XB_WRITE_ERROR</td><td>Error writing to file</td></tr>
       </table>
     \endhtmlonly
 */
@@ -1381,8 +1381,8 @@ xbShort xbDbf::GetPrevRecord( void )
 #if XB_LOCKING_ON
    if( DbfStatus == XB_UPDATED /*&& AutoUpdate*/ )  /* update previous rec if necessary */
       if(( rc = PutRecord( CurRec )) != 0 )
-         return rc;
-#endif         
+	 return rc;
+#endif
 
    rc = GetRecord( --CurRec );
 #ifdef XB_REAL_DELETE
@@ -1396,7 +1396,7 @@ xbShort xbDbf::GetPrevRecord( void )
 //! Dump record
 /*!
   Dump the contents of the specified record to stdout.
-  
+
   \param RecNo Record number of record to be dumped.
   \returns An error code (same as GetRecord()).
 */
@@ -1404,7 +1404,7 @@ xbShort xbDbf::DumpRecord( xbULong RecNo )
 {
    int i;
    char buf[1024];
- 
+
    if( RecNo == 0 || RecNo > NoOfRecs )
      xb_error(XB_INVALID_RECORD);
 
@@ -1414,7 +1414,7 @@ xbShort xbDbf::DumpRecord( xbULong RecNo )
 
    cout << "\nREC NUMBER " << RecNo << "\n";
 
-   if( RecordDeleted() ) 
+   if( RecordDeleted() )
       cout << "\nRecord deleted...\n";
 
    for( i = 0; i < NoOfFields; i++ )
@@ -1430,18 +1430,18 @@ xbShort xbDbf::DumpRecord( xbULong RecNo )
 /*!
   Attempts to write the contents of the record buffer to the current
   record in the data file.  Updates any open indexes.
-  
+
   \sa PutRecord(xbULong RecNo)
   \returns One of the following:
     \htmlonly
       <p>
       <table border=2><tr><th>Return Code</th><th>Description</th></tr>
-        <tr><td>XB_NO_ERROR</td><td>No error</td></tr>
-        <tr><td>XB_LOCK_FAILED</td><td>Couldn't lock file</td></tr>
-        <tr><td>XB_NOT_OPEN</td><td>File is not open</td></tr>
-        <tr><td>XB_INVALID_RECORD</td><td>Invalid record number</td></tr>
-        <tr><td>XB_SEEK_ERROR</td><td>Error seeking file</td></tr>
-        <tr><td>XB_WRITE_ERROR</td><td>Error writing to file</td></tr>
+	<tr><td>XB_NO_ERROR</td><td>No error</td></tr>
+	<tr><td>XB_LOCK_FAILED</td><td>Couldn't lock file</td></tr>
+	<tr><td>XB_NOT_OPEN</td><td>File is not open</td></tr>
+	<tr><td>XB_INVALID_RECORD</td><td>Invalid record number</td></tr>
+	<tr><td>XB_SEEK_ERROR</td><td>Error seeking file</td></tr>
+	<tr><td>XB_WRITE_ERROR</td><td>Error writing to file</td></tr>
       </table>
     \endhtmlonly
 */
@@ -1453,24 +1453,24 @@ xbShort xbDbf::PutRecord(void) {
 /*!
   Attempts to write the contents of the record buffer to the record specified
   by RecNo.  Updates any open indexes.
-  
+
   \param RecNo Record number to which data should be written
   \returns One of the following:
     \htmlonly
       <p>
       <table border=2><tr><th>Return Code</th><th>Description</th></tr>
-        <tr><td>XB_NO_ERROR</td><td>No error</td></tr>
-        <tr><td>XB_LOCK_FAILED</td><td>Couldn't lock file</td></tr>
-        <tr><td>XB_NOT_OPEN</td><td>File is not open</td></tr>
-        <tr><td>XB_INVALID_RECORD</td><td>Invalid record number</td></tr>
-        <tr><td>XB_SEEK_ERROR</td><td>Error seeking file</td></tr>
-        <tr><td>XB_WRITE_ERROR</td><td>Error writing to file</td></tr>
+	<tr><td>XB_NO_ERROR</td><td>No error</td></tr>
+	<tr><td>XB_LOCK_FAILED</td><td>Couldn't lock file</td></tr>
+	<tr><td>XB_NOT_OPEN</td><td>File is not open</td></tr>
+	<tr><td>XB_INVALID_RECORD</td><td>Invalid record number</td></tr>
+	<tr><td>XB_SEEK_ERROR</td><td>Error seeking file</td></tr>
+	<tr><td>XB_WRITE_ERROR</td><td>Error writing to file</td></tr>
       </table>
     \endhtmlonly
 */
-xbShort xbDbf::PutRecord(xbULong RecNo) 
+xbShort xbDbf::PutRecord(xbULong RecNo)
 {
-   xbShort  
+   xbShort
       rc;
 
 //fprintf(stderr, "PutRecord Start\n");
@@ -1485,28 +1485,28 @@ xbShort xbDbf::PutRecord(xbULong RecNo)
 #ifdef XB_LOCKING_ON
    if( AutoLock )
    {
-      if(( rc = LockDatabase( F_SETLKW, F_WRLCK, RecNo )) != XB_NO_ERROR ) 
+      if(( rc = LockDatabase( F_SETLKW, F_WRLCK, RecNo )) != XB_NO_ERROR )
       {
 fprintf(stderr, "%s", DatabaseName.getData());
 perror("failed record lock");
-        return rc;
+	return rc;
       }
       if(( rc = LockDatabase( F_SETLKW, F_WRLCK, 0L )) != XB_NO_ERROR )
       {
 fprintf(stderr, "%s", DatabaseName.getData());
-perror("failed file lock");       
-         LockDatabase( F_SETLK, F_UNLCK, RecNo );
-         return rc;
+perror("failed file lock");
+	 LockDatabase( F_SETLK, F_UNLCK, RecNo );
+	 return rc;
       }
-      
+
       if((rc = ReadHeader(1)) != XB_NO_ERROR)
       {
-         if(AutoLock)
-         {
-            LockDatabase( F_SETLK, F_UNLCK, RecNo );
-            LockDatabase( F_SETLK, F_UNLCK, 0L );
-         }
-         return rc;
+	 if(AutoLock)
+	 {
+	    LockDatabase( F_SETLK, F_UNLCK, RecNo );
+	    LockDatabase( F_SETLK, F_UNLCK, 0L );
+	 }
+	 return rc;
       }
    }
 #endif
@@ -1520,11 +1520,11 @@ perror("failed file lock");
    i = NdxList;
    while( i && AutoLock )
    {
-      if(( rc = i->index->LockIndex( F_SETLKW, F_WRLCK )) != XB_NO_ERROR ) 
+      if(( rc = i->index->LockIndex( F_SETLKW, F_WRLCK )) != XB_NO_ERROR )
       {
 fprintf(stderr, "%s", DatabaseName.getData());
 perror("failed index lock");
-        return rc;
+	return rc;
       }
       i = i->NextIx;
    }
@@ -1538,10 +1538,10 @@ perror("failed index lock");
    {
       if( i->index->UniqueIndex() )
       {
-        if(( i->KeyUpdated = i->index->KeyWasChanged()) == 1 )
-          if( i->index->FindKey() == XB_FOUND )
-            xb_error(XB_KEY_NOT_UNIQUE);      
-      } 
+	if(( i->KeyUpdated = i->index->KeyWasChanged()) == 1 )
+	  if( i->index->FindKey() == XB_FOUND )
+	    xb_error(XB_KEY_NOT_UNIQUE);
+      }
       i = i->NextIx;
    }
 #endif
@@ -1552,13 +1552,13 @@ perror("failed index lock");
    while( i )
    {
       if( !i->index->UniqueIndex() )
-         i->KeyUpdated = i->index->KeyWasChanged();
+	 i->KeyUpdated = i->index->KeyWasChanged();
       if( i->KeyUpdated )
       {
-         i->index->CreateKey( 1, 0 );      /* load key buf w/ old values */
-         i->index->DeleteKey( CurRec );
+	 i->index->CreateKey( 1, 0 );      /* load key buf w/ old values */
+	 i->index->DeleteKey( CurRec );
 
-         i->index->CreateKey( 0, 0 );
+	 i->index->CreateKey( 0, 0 );
 	 if(( rc = i->index->AddKey(CurRec)) != XB_NO_ERROR ) return rc;
 	 i->index->TouchIndex();
       }
@@ -1580,13 +1580,13 @@ perror("failed index lock");
       {
 fprintf(stderr, "%s", DatabaseName.getData());
 perror("failed record unlock");
-      }       
+      }
       rc = LockDatabase( F_SETLK, F_UNLCK, 0L );
       if(rc)
       {
 fprintf(stderr, "%s", DatabaseName.getData());
 perror("failed file unlock");
-      }       
+      }
    }
 
 #if defined(XB_INDEX_ANY)
@@ -1618,34 +1618,34 @@ xbShort xbDbf::DeleteRecord( void )
    xbIxList *i;
 #endif
 
-   if(!RecBuf)   
+   if(!RecBuf)
      xb_error(XB_INVALID_RECORD);
-     
+
    if(CurRec < 1 || CurRec > NoOfRecs)
      xb_error(XB_INVALID_RECORD);
-          
+
 /* lock the database */
 #ifdef XB_LOCKING_ON
    if( AutoLock )
    {
-      if(( rc = LockDatabase( F_SETLKW, F_WRLCK, CurRec )) != XB_NO_ERROR ) 
+      if(( rc = LockDatabase( F_SETLKW, F_WRLCK, CurRec )) != XB_NO_ERROR )
       {
-        return rc;
+	return rc;
       }
       if(( rc = LockDatabase( F_SETLKW, F_WRLCK, 0L )) != XB_NO_ERROR )
       {
-         LockDatabase( F_SETLK, F_UNLCK, CurRec );
-         return rc;
+	 LockDatabase( F_SETLK, F_UNLCK, CurRec );
+	 return rc;
       }
-      
+
       if((rc = ReadHeader(1)) != XB_NO_ERROR)
       {
-         if(AutoLock)
-         {
-            LockDatabase( F_SETLK, F_UNLCK, CurRec );
-            LockDatabase( F_SETLK, F_UNLCK, 0L );
-         }
-         return rc;
+	 if(AutoLock)
+	 {
+	    LockDatabase( F_SETLK, F_UNLCK, CurRec );
+	    LockDatabase( F_SETLK, F_UNLCK, 0L );
+	 }
+	 return rc;
       }
    }
 #endif
@@ -1655,8 +1655,8 @@ xbShort xbDbf::DeleteRecord( void )
    i = NdxList;
    while( i && AutoLock )
    {
-      if(( rc = i->index->LockIndex( F_SETLKW, F_WRLCK )) != XB_NO_ERROR ) 
-        return rc;
+      if(( rc = i->index->LockIndex( F_SETLKW, F_WRLCK )) != XB_NO_ERROR )
+	return rc;
       i = i->NextIx;
    }
 #endif
@@ -1668,22 +1668,22 @@ xbShort xbDbf::DeleteRecord( void )
      i = NdxList;
      while(i)
      {
-        i->index->CreateKey(0, 0);      /* load key buf */
-        if(i->index->GetCurDbfRec() == (xbLong)CurRec)
-        {
-          i->index->DeleteKey(CurRec);
-          newCurRec = i->index->GetCurDbfRec();
-        }
-        else
-          i->index->DeleteKey(CurRec);
-        i->index->TouchIndex();
-        i = i->NextIx;
+	i->index->CreateKey(0, 0);      /* load key buf */
+	if(i->index->GetCurDbfRec() == (xbLong)CurRec)
+	{
+	  i->index->DeleteKey(CurRec);
+	  newCurRec = i->index->GetCurDbfRec();
+	}
+	else
+	  i->index->DeleteKey(CurRec);
+	i->index->TouchIndex();
+	i = i->NextIx;
      }
    }
 #endif
 
    RecBuf[0] = 0x2a;
-   
+
 #ifdef XB_REAL_DELETE
 //fprintf(stderr, "DeleteRecord() -> RealDelete = %d\n", RealDelete);
    if(RealDelete)
@@ -1694,36 +1694,36 @@ xbShort xbDbf::DeleteRecord( void )
       WriteHeader(1);
    }
 #endif
-      
+
    if(!RealDelete)
    {
       if( DbfStatus != XB_UPDATED )
       {
-         DbfStatus = XB_UPDATED;
-         memcpy( RecBuf2, RecBuf, RecordLen );
+	 DbfStatus = XB_UPDATED;
+	 memcpy( RecBuf2, RecBuf, RecordLen );
       }
-  
+
       rc = PutRecord( CurRec );
    }
    else
    {
       if(fseek( fp, (long) HeaderLen + ((CurRec - 1L) * RecordLen), 0))
-         xb_error(XB_SEEK_ERROR);
+	 xb_error(XB_SEEK_ERROR);
 
       if(fwrite( RecBuf, RecordLen, 1, fp ) != 1 )
-         xb_error(XB_WRITE_ERROR);
-     
+	 xb_error(XB_WRITE_ERROR);
+
       //
       //  Attempt to read in the record for the current location
       //  in the active index.
       //
       CurRec = newCurRec;
       if(CurRec)
-         rc = GetRecord(CurRec);
+	 rc = GetRecord(CurRec);
       else
-         BlankRecord();
+	 BlankRecord();
    }
-      
+
 #ifdef XB_LOCKING_ON
    if(AutoLock)
    {
@@ -1750,22 +1750,22 @@ xbShort xbDbf::DeleteRecord( void )
 xbShort xbDbf::UndeleteRecord( void )
 {
    xbShort rc;
-   
+
 #ifdef XB_REAL_DELETE
    if(RealDelete)
      xb_error(XB_INVALID_RECORD);
 #endif
-   if( RecBuf ) 
+   if( RecBuf )
    {
       if( DbfStatus != XB_UPDATED )
       {
-         DbfStatus = XB_UPDATED;
-         memcpy( RecBuf2, RecBuf, RecordLen );
+	 DbfStatus = XB_UPDATED;
+	 memcpy( RecBuf2, RecBuf, RecordLen );
       }
-  
+
       RecBuf[0] = 0x20;
       if(( rc = PutRecord( CurRec )) != 0 )
-         return rc;
+	 return rc;
       return XB_NO_ERROR;
    }
    else
@@ -1781,7 +1781,7 @@ xbShort xbDbf::RecordDeleted( void )
       return 1;
    else
       return 0;
-} 
+}
 /************************************************************************/
 //! Pack data file
 /*!
@@ -1823,7 +1823,7 @@ xbShort xbDbf::PackDatafiles(void (*statusFunc)(xbLong itemNum, xbLong numItems)
    /* copy file header */
    if(( rc = fseek( fp, 0, SEEK_SET )) != 0 )
       xb_io_error(XB_SEEK_ERROR, TempDbfName);
-  
+
    for( i = 0; i < HeaderLen; i++ )
       fputc( fgetc( fp ), t );
    fputc( 0x1a, t );
@@ -1845,28 +1845,28 @@ xbShort xbDbf::PackDatafiles(void (*statusFunc)(xbLong itemNum, xbLong numItems)
       l = 1L;
       memset( tbuf, 0x00, 4 );
       xbase->PutLong( tbuf, l );
-      
+
       if ((fwrite(&tbuf, 4, 1, t)) != 1)
-         xb_io_error(XB_WRITE_ERROR, TempDbfName);
+	 xb_io_error(XB_WRITE_ERROR, TempDbfName);
 
       if( MemoHeader.Version == 0x03 )
       {
-         for( i = 0; i < 12; i++ ) fputc( 0x00, t );
-         fputc( 0x03, t );
-         for( i = 0; i < 495; i++ ) fputc( 0x00, t );
+	 for( i = 0; i < 12; i++ ) fputc( 0x00, t );
+	 fputc( 0x03, t );
+	 for( i = 0; i < 495; i++ ) fputc( 0x00, t );
       } else {
-         for( i = 0; i < 4; i++ ) fputc( 0x00, t );
-         if ((fwrite(&MemoHeader.FileName, 8, 1, t)) != 1)
+	 for( i = 0; i < 4; i++ ) fputc( 0x00, t );
+	 if ((fwrite(&MemoHeader.FileName, 8, 1, t)) != 1)
 	   xb_io_error(XB_WRITE_ERROR, TempDbfName);
-         for( i = 0; i < 4; i++ ) fputc( 0x00, t );
-         memset( tbuf, 0x00, 2 );
-         xbase->PutShort( tbuf, MemoHeader.BlockSize );
-         if ((fwrite(&tbuf, 2, 1, t)) != 1)
+	 for( i = 0; i < 4; i++ ) fputc( 0x00, t );
+	 memset( tbuf, 0x00, 2 );
+	 xbase->PutShort( tbuf, MemoHeader.BlockSize );
+	 if ((fwrite(&tbuf, 2, 1, t)) != 1)
 	    xb_io_error(XB_WRITE_ERROR, TempDbfName);
 
-         for( i = 22; i < MemoHeader.BlockSize; i++ ) fputc( 0x00, t );
+	 for( i = 22; i < MemoHeader.BlockSize; i++ ) fputc( 0x00, t );
       }
- 
+
       if( fclose( t ) != 0 )
 				xb_io_error(XB_CLOSE_ERROR, TempDbfName);
    }
@@ -1884,47 +1884,47 @@ xbShort xbDbf::PackDatafiles(void (*statusFunc)(xbLong itemNum, xbLong numItems)
    for( l = 1; l <= NoOfRecords(); l++ )
    {
       if(statusFunc && (l == 1 || !(l % 100) || l == PhysicalNoOfRecords()))
-         statusFunc(l, PhysicalNoOfRecords());
-         
+	 statusFunc(l, PhysicalNoOfRecords());
+
       if(( rc = GetRecord( l )) != XB_NO_ERROR )
-        return rc;
+	return rc;
 
       if( !RecordDeleted())
       {
-         strncpy( target, source, GetRecordLen());
+	 strncpy( target, source, GetRecordLen());
 
 #ifdef XB_MEMO_FIELDS
-         len = BufSize = 0L;
-         Buf = NULL;
-         for( i = 0; i < NoOfFields; i++ )
-         {
-            if( GetFieldType( i ) == 'M' && MemoFieldExists( i ))
-            {
-               len = GetMemoFieldLen( i );
-               if( len > BufSize )
-               {
-                  if( BufSize ) 
-                     free( Buf );
-                  if ((Buf = (char *)malloc(len)) == NULL)
+	 len = BufSize = 0L;
+	 Buf = NULL;
+	 for( i = 0; i < NoOfFields; i++ )
+	 {
+	    if( GetFieldType( i ) == 'M' && MemoFieldExists( i ))
+	    {
+	       len = GetMemoFieldLen( i );
+	       if( len > BufSize )
+	       {
+		  if( BufSize )
+		     free( Buf );
+		  if ((Buf = (char *)malloc(len)) == NULL)
 										xb_memory_error;
-                  BufSize = len;
-               }
-               GetMemoField( i, len, Buf, -1 );
-               Temp.UpdateMemoData( i, len, Buf, -1 );
-            }
-         }
+		  BufSize = len;
+	       }
+	       GetMemoField( i, len, Buf, -1 );
+	       Temp.UpdateMemoData( i, len, Buf, -1 );
+	    }
+	 }
 #endif
 
-         if(( rc = Temp.AppendRecord()) != XB_NO_ERROR )
+	 if(( rc = Temp.AppendRecord()) != XB_NO_ERROR )
 	 {
 	    if(Buf) free(Buf);
 	    return rc;
-         }
+	 }
       }
    }
    if( Buf ) free( Buf );
    Temp.CloseDatabase();
- 
+
    if (fclose(fp) != 0)
 			xb_io_error(XB_CLOSE_ERROR, DatabaseName);
 
@@ -1941,27 +1941,27 @@ xbShort xbDbf::PackDatafiles(void (*statusFunc)(xbLong itemNum, xbLong numItems)
  //     len = DatabaseName.len();
  //     len--;
  //     lb = DatabaseName[len];
-      
+
       int len = DatabaseName.len() - 1;
       char lb = DatabaseName[len];
 
       if( lb == 'F' )
-         DatabaseName.put_at(len, 'T');
+	 DatabaseName.put_at(len, 'T');
       else
-         DatabaseName.put_at(len, 't');
-   
+	 DatabaseName.put_at(len, 't');
+
       if(fclose(mfp) != 0)       /* thanks Jourquin */
-         xb_io_error(XB_CLOSE_ERROR, TempDbtName);
-   
+	 xb_io_error(XB_CLOSE_ERROR, TempDbtName);
+
       if (remove(DatabaseName) != 0)
       {
-         DatabaseName.put_at(len, lb);
-         xb_io_error(XB_WRITE_ERROR, DatabaseName);
+	 DatabaseName.put_at(len, lb);
+	 xb_io_error(XB_WRITE_ERROR, DatabaseName);
       }
       if( rename( TempDbtName, DatabaseName ) != 0 )
       {
-         DatabaseName.put_at(len, lb);
-         xb_io_error(XB_WRITE_ERROR, DatabaseName);
+	 DatabaseName.put_at(len, lb);
+	 xb_io_error(XB_WRITE_ERROR, DatabaseName);
       }
 
       if(( mfp = fopen( DatabaseName, "r+b" )) == NULL )
@@ -1982,8 +1982,8 @@ xbShort xbDbf::PackDatafiles(void (*statusFunc)(xbLong itemNum, xbLong numItems)
 /*!
 */
 xbShort xbDbf::PackDatabase(xbShort LockWaitOption,
-                            void (*packStatusFunc)(xbLong itemNum, xbLong numItems),
-                            void (*indexStatusFunc)(xbLong itemNum, xbLong numItems))
+			    void (*packStatusFunc)(xbLong itemNum, xbLong numItems),
+			    void (*indexStatusFunc)(xbLong itemNum, xbLong numItems))
 {
    xbShort rc = 0;
 
@@ -2000,7 +2000,7 @@ xbShort xbDbf::PackDatabase(xbShort LockWaitOption,
    if(( rc = ReadHeader(1)) != XB_NO_ERROR )
       return rc;
 
-   if(( rc = RebuildAllIndices(indexStatusFunc)) != XB_NO_ERROR ) 
+   if(( rc = RebuildAllIndices(indexStatusFunc)) != XB_NO_ERROR )
       return rc;
 
    ExclusiveUnlock();
@@ -2085,51 +2085,51 @@ xbShort xbDbf::CopyDbfStructure(const char *NewFileName, xbShort Overlay) {
       NameLen = MemoName.len();
       NameLen--;
       if( MemoName.get_character( NameLen ) == 'F' )
-         MemoName.put_at(NameLen, 'T');
+	 MemoName.put_at(NameLen, 'T');
       else
-         MemoName.put_at(NameLen, 't');
+	 MemoName.put_at(NameLen, 't');
 
       if(( t = fopen( MemoName, "w+b" )) == NULL )
-        xb_open_error(MemoName);
+	xb_open_error(MemoName);
 
       memset( buf, 0x00, 4 );
       xbase->PutLong( buf, 1L );
-      if(( fwrite( &buf, 4, 1, t )) != 1 ) 
+      if(( fwrite( &buf, 4, 1, t )) != 1 )
       {
-         fclose( t );
-         xb_io_error(XB_WRITE_ERROR, ndfn);
+	 fclose( t );
+	 xb_io_error(XB_WRITE_ERROR, ndfn);
       }
       if( MemoHeader.Version == 0x03 )
       {
-         for( i = 0; i < 12; i++ ) fputc( 0x00, t );
-         fputc( 0x03, t );
-         for( i = 0; i < 495; i++ ) fputc( 0x00, t );
+	 for( i = 0; i < 12; i++ ) fputc( 0x00, t );
+	 fputc( 0x03, t );
+	 for( i = 0; i < 495; i++ ) fputc( 0x00, t );
       }
       else
       {
-         for( i = 0; i < 4; i++ ) fputc( 0x00, t );  // put 4 bytes 0x00
-         memset( buf, 0x00, 9 );
-         NameLen = ndfn.len();
-         for( i = 0, ct = 0; i < NameLen; i++ )
-           if( ndfn.get_character( i ) == PATH_SEPARATOR )
-           {
-             ct = i;
-             ct++;
-           }
+	 for( i = 0; i < 4; i++ ) fputc( 0x00, t );  // put 4 bytes 0x00
+	 memset( buf, 0x00, 9 );
+	 NameLen = ndfn.len();
+	 for( i = 0, ct = 0; i < NameLen; i++ )
+	   if( ndfn.get_character( i ) == PATH_SEPARATOR )
+	   {
+	     ct = i;
+	     ct++;
+	   }
 
-         for( i = 0; i < 8 && ndfn[i+ct] != '.'; i++ )
-            buf[i] = ndfn[i+ct];
+	 for( i = 0; i < 8 && ndfn[i+ct] != '.'; i++ )
+	    buf[i] = ndfn[i+ct];
 
-         fwrite( &buf, 8, 1, t );
-         for( i = 0; i < 4; i++ ) fputc( 0x00, t );
-         memset( buf, 0x00, 2 );
-         xbase->PutShort( buf, MemoHeader.BlockSize );
-         if(( fwrite( &buf, 2, 1, t )) != 1 )
-         {
-            fclose(t);
-            xb_io_error(XB_WRITE_ERROR, ndfn);
-         }
-         for( i = 22; i < MemoHeader.BlockSize; i++ ) fputc( 0x00, t );
+	 fwrite( &buf, 8, 1, t );
+	 for( i = 0; i < 4; i++ ) fputc( 0x00, t );
+	 memset( buf, 0x00, 2 );
+	 xbase->PutShort( buf, MemoHeader.BlockSize );
+	 if(( fwrite( &buf, 2, 1, t )) != 1 )
+	 {
+	    fclose(t);
+	    xb_io_error(XB_WRITE_ERROR, ndfn);
+	 }
+	 for( i = 22; i < MemoHeader.BlockSize; i++ ) fputc( 0x00, t );
       }
    }
    fclose( t );
@@ -2139,9 +2139,9 @@ xbShort xbDbf::CopyDbfStructure(const char *NewFileName, xbShort Overlay) {
 /************************************************************************/
 //! Add index to list
 /*!
-  Adds the specified index to the list of indexes maintained by the 
+  Adds the specified index to the list of indexes maintained by the
   dbf.
-  
+
   \param n index to add
   \param IndexName name of index
 */
@@ -2152,7 +2152,7 @@ xbShort xbDbf::AddIndexToIxList(xbIndex * n, const char *IndexName)
 
    if( !FreeIxList )
    {
-        if((i = (xbIxList *) malloc(sizeof(xbIxList))) == NULL) {
+	if((i = (xbIxList *) malloc(sizeof(xbIxList))) == NULL) {
 		xb_memory_error;
 	}
    }
@@ -2196,13 +2196,13 @@ xbShort xbDbf::RebuildAllIndices(void (*statusFunc)(xbLong itemNum, xbLong numIt
    {
       if(( rc = n->index->ReIndex(statusFunc)) != XB_NO_ERROR )
       {
-         ExclusiveUnlock();
-         return rc;
+	 ExclusiveUnlock();
+	 return rc;
       }
       n = n->NextIx;
    }
 #endif
-         
+
    return XB_NO_ERROR;
 }
 /************************************************************************/
@@ -2213,7 +2213,7 @@ xbShort xbDbf::DeleteAll( xbShort Option )
 {
    xbShort rc = 0;
 
-   if(( NoOfRecords()) == 0 ) 
+   if(( NoOfRecords()) == 0 )
       return XB_NO_ERROR;
    if(( rc = GetFirstRecord()) != XB_NO_ERROR )
       return rc;
@@ -2222,29 +2222,29 @@ xbShort xbDbf::DeleteAll( xbShort Option )
    {
       while( 1 )
       {
-         if( !RecordDeleted())
-            if(( rc = DeleteRecord()) != XB_NO_ERROR )
-               return rc;
-         if(( rc = GetNextRecord()) != XB_NO_ERROR )
-            break;
+	 if( !RecordDeleted())
+	    if(( rc = DeleteRecord()) != XB_NO_ERROR )
+	       return rc;
+	 if(( rc = GetNextRecord()) != XB_NO_ERROR )
+	    break;
       }
    }
    else   /* undelete all option */
    {
       while( 1 )
       {
-         if( RecordDeleted())
-            if(( rc = UndeleteRecord()) != XB_NO_ERROR )
-               return rc;
+	 if( RecordDeleted())
+	    if(( rc = UndeleteRecord()) != XB_NO_ERROR )
+	       return rc;
 #ifdef HAVE_EXCEPTIONS
-         try {
+	 try {
 #endif
-         if(( rc = GetNextRecord()) != XB_NO_ERROR )
-            break;
+	 if(( rc = GetNextRecord()) != XB_NO_ERROR )
+	    break;
 #ifdef HAVE_EXCEPTIONS
-          } catch (xbEoFException &) {
-            return XB_NO_ERROR;
-          }
+	  } catch (xbEoFException &) {
+	    return XB_NO_ERROR;
+	  }
 #endif
       }
    }
@@ -2303,7 +2303,7 @@ xbShort xbDbf::Zap( xbShort WaitOption )
 		 ExclusiveUnlock();
 		 xb_open_error(DatabaseName);
    }
-   
+
    ReadHeader( 1 );
 
 #ifdef XB_MEMO_FIELDS
@@ -2315,10 +2315,10 @@ xbShort xbDbf::Zap( xbShort WaitOption )
       int dbnlen = DatabaseName.len() - 1;
       char lb = DatabaseName[dbnlen];
       if( lb == 'F' ) {
-         DatabaseName.put_at(dbnlen, 'T');
+	 DatabaseName.put_at(dbnlen, 'T');
 				 TempDbfName.put_at(dbnlen, 'T');
 			} else {
-         DatabaseName.put_at(dbnlen, 't');
+	 DatabaseName.put_at(dbnlen, 't');
 				 TempDbfName.put_at(dbnlen, 't');
 			}
 
@@ -2339,7 +2339,7 @@ xbShort xbDbf::Zap( xbShort WaitOption )
       }
       GetDbtHeader(1);
 			DatabaseName.put_at(dbnlen, lb);
-   }      
+   }
 #endif   // XB_MEMO_FIELDS
 
    if(( rc = RebuildAllIndices()) != XB_NO_ERROR )
@@ -2364,58 +2364,58 @@ xbShort xbDbf::RemoveIndexFromIxList(xbIndex * n) {
    {
       if( i->index == n )
       {
-         /* remove it from current chain */
-         if( s )
-           s->NextIx = i->NextIx;
-         else
-           NdxList = i->NextIx;
+	 /* remove it from current chain */
+	 if( s )
+	   s->NextIx = i->NextIx;
+	 else
+	   NdxList = i->NextIx;
 
-         /* add i to the current free chain */
-         i->NextIx = FreeIxList;
-         FreeIxList = i;
-         FreeIxList->IxName = (const char *)NULL;
-         FreeIxList->index = NULL;
-         break;
+	 /* add i to the current free chain */
+	 i->NextIx = FreeIxList;
+	 FreeIxList = i;
+	 FreeIxList->IxName = (const char *)NULL;
+	 FreeIxList->index = NULL;
+	 break;
       }
       else
       {
-         s = i;
-         i = i->NextIx;
+	 s = i;
+	 i = i->NextIx;
       }
    }
    return XB_NO_ERROR;
-} 
+}
 #endif
 
 /************************************************************************/
 //! Gets the number of records in the data file
 /*!
 */
-xbLong    
+xbLong
 xbDbf::NoOfRecords(void)
 {
-  xbShort
-    rc;
-    
+    /*  xbShort
+	rc;*/
+
   xbLong
     numRecs = 0;
-    
+
 /* lock the database */
 #ifdef XB_LOCKING_ON
    if( AutoLock )
    {
       if(( rc = LockDatabase( F_SETLKW, F_RDLCK, 0L )) != XB_NO_ERROR )
       {
-         return 0;
+	 return 0;
       }
-      
+
       if((rc = ReadHeader(1)) != XB_NO_ERROR)
       {
-         if(AutoLock)
-         {
-            LockDatabase( F_SETLK, F_UNLCK, 0L );
-         }
-         return 0;
+	 if(AutoLock)
+	 {
+	    LockDatabase( F_SETLK, F_UNLCK, 0L );
+	 }
+	 return 0;
       }
    }
 #endif
@@ -2440,31 +2440,31 @@ xbDbf::NoOfRecords(void)
 //! Get the physical number of records in the data file
 /*!
 */
-xbLong    
+xbLong
 xbDbf::PhysicalNoOfRecords(void)
 {
-  xbShort
-    rc;
-    
+    /*  xbShort
+	rc;*/
+
   xbLong
     numRecs = 0;
-    
+
 /* lock the database */
 #ifdef XB_LOCKING_ON
    if( AutoLock )
    {
       if(( rc = LockDatabase( F_SETLKW, F_RDLCK, 0L )) != XB_NO_ERROR )
       {
-         return 0;
+	 return 0;
       }
-      
+
       if((rc = ReadHeader(1)) != XB_NO_ERROR)
       {
-         if(AutoLock)
-         {
-            LockDatabase( F_SETLK, F_UNLCK, 0L );
-         }
-         return 0;
+	 if(AutoLock)
+	 {
+	    LockDatabase( F_SETLK, F_UNLCK, 0L );
+	 }
+	 return 0;
       }
    }
 #endif
@@ -2485,19 +2485,19 @@ xbDbf::PhysicalNoOfRecords(void)
 //! Get the number of currently open indexes for data file
 /*!
 */
-xbShort   
+xbShort
 xbDbf::IndexCount(void)
 {
   xbShort
     count;
-    
+
   xbIxList
     *i;
-    
+
   for(count = 0, i = NdxList; i; i = i->NextIx, count++)
     ;
-    
-  return count; 
+
+  return count;
 }
 
 //! Get a specific index
@@ -2508,17 +2508,17 @@ xbDbf::GetIndex(xbShort indexNum)
 {
   xbIxList
     *i;
-    
+
   i = NdxList;
   while(indexNum && i)
   {
     indexNum--;
     i = i->NextIx;
   }
-    
+
   if(i)
     return i->index;
-    
+
   return 0;
 }
 #endif // XB_INDEX_ANY

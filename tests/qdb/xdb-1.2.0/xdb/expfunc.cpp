@@ -4,7 +4,7 @@
 
     This file contains logic for handling Xbase expressions.
 
-    Copyright (C) 1997  Startech, Gary A. Kunkel   
+    Copyright (C) 1997  Startech, Gary A. Kunkel
     email - xbase@startech.keller.tx.us
     www   - http://www.startech.keller.tx.us/xbase.html
 
@@ -46,7 +46,7 @@
 xbShort xbExpn::ProcessFunction( char * Func )
 {
 /* 1 - pop function from stack
-   2 - verify function name and get no of parms needed 
+   2 - verify function name and get no of parms needed
    3 - verify no of parms >= remainder of stack
    4 - pop parms off stack
    5 - execute function
@@ -64,11 +64,11 @@ xbShort xbExpn::ProcessFunction( char * Func )
 
    ParmsNeeded = GetFuncInfo( Func, 1 );
 
-   if( ParmsNeeded == -1 ) 
+   if( ParmsNeeded == -1 )
    {
      xb_error(XB_INVALID_FUNCTION);
    }
-   else 
+   else
    {
      ParmsNeeded = 0;
      if( FuncNode->Sibling1 ) ParmsNeeded++;
@@ -80,136 +80,136 @@ xbShort xbExpn::ProcessFunction( char * Func )
      xb_error(XB_INSUFFICIENT_PARMS);
 
    p1 = p2 = p3 = NULL;
-   if( ParmsNeeded > 2 ) p3 = (xbExpNode *) Pop(); 
-   if( ParmsNeeded > 1 ) p2 = (xbExpNode *) Pop(); 
-   if( ParmsNeeded > 0 ) p1 = (xbExpNode *) Pop(); 
+   if( ParmsNeeded > 2 ) p3 = (xbExpNode *) Pop();
+   if( ParmsNeeded > 1 ) p2 = (xbExpNode *) Pop();
+   if( ParmsNeeded > 0 ) p1 = (xbExpNode *) Pop();
    memset( WorkBuf, 0x00, WorkBufMaxLen+1);
 
    if( strncmp( Func, "ABS", 3 ) == 0 )
-   {  
+   {
       ptype = 'd';
       DoubResult = ABS( GetDoub( p1 ));
    }
    else if( strncmp( Func, "ASC", 3 ) == 0 )
-   {  
+   {
       ptype = 'd';
       DoubResult = ASC( p1->Result );
    }
    else if( strncmp( Func, "AT", 2 ) == 0 )
-   {  
+   {
       ptype = 'd';
       DoubResult = AT( p1->Result, p2->Result );
    }
    else if( strncmp( Func, "CDOW", 4 ) == 0 )
-   {  
+   {
       ptype = 's';
       buf = CDOW( p1->Result );
    }
    else if( strncmp( Func, "CHR", 3 ) == 0 )
-   {  
+   {
       ptype = 's';
       buf = CHR( GetInt( p1 ));
    }
    else if( strncmp( Func, "CMONTH", 6 ) == 0 )
-   {  
+   {
       ptype = 's';
       buf = CMONTH( p1->Result );
    }
    else if( strncmp( Func, "DATE", 4 ) == 0 )
-   {  
+   {
       ptype = 's';
       buf = DATE();
    }
    else if( strncmp( Func, "DAY", 3 ) == 0 )
-   {  
+   {
       ptype = 'd';
       DoubResult = DAY( p1->Result );
    }
    else if( strncmp( Func, "DESCEND", 7 ) == 0 )
-   {  
+   {
       ptype = 'd';
       DoubResult = DESCEND( p1->Result );
    }
    else if( strncmp( Func, "DOW", 3 ) == 0 )
-   {  
+   {
       ptype = 'd';
       DoubResult = DOW( p1->Result );
    }
    else if( strncmp( Func, "DTOC", 4 ) == 0 )
-   {  
+   {
       ptype = 's';
       buf = DTOC( p1->Result );
    }
    else if( strncmp( Func, "DTOS", 4 ) == 0 )
-   {  
+   {
       ptype = 's';
       buf = DTOS( p1->Result );
    }
    else if( strncmp( Func, "EXP", 3 ) == 0 )
-   {  
+   {
       ptype = 'd';
       DoubResult = EXP( GetDoub( p1 ));
    }
    else if( strncmp( Func, "INT", 3 ) == 0 )
-   {  
+   {
       ptype = 'd';
       DoubResult = INT( GetDoub( p1 ));
    }
    else if( strncmp( Func, "ISALPHA", 7 ) == 0 )
-   {  
+   {
       ptype = 'l';
       IntResult = ISALPHA( p1->Result );
    }
    else if( strncmp( Func, "ISLOWER", 7 ) == 0 )
-   {  
+   {
       ptype = 'l';
       IntResult = ISLOWER( p1->Result );
    }
    else if( strncmp( Func, "ISUPPER", 7 ) == 0 )
-   {  
+   {
       ptype = 'l';
       IntResult = ISUPPER( p1->Result );
    }
    else if( strncmp( Func, "LEN", 3 ) == 0 )
-   {  
+   {
       ptype = 'd';
       DoubResult = LEN( p1->Result );
    }
    else if( strncmp( Func, "LEFT", 4 ) == 0 )
-   {  
+   {
       ptype = 's';
-      buf = LEFT( p1->Result, INT( p2->DoubResult ));   
+      buf = LEFT( p1->Result, INT( p2->DoubResult ));
    }
    else if( strncmp( Func, "LTRIM", 5 ) == 0 )
-   {  
+   {
       ptype = 's';
       buf = LTRIM( p1->Result );
-   }  
+   }
    else if( strncmp( Func, "LOG", 3 ) == 0 )
-   {  
+   {
       ptype = 'd';
       DoubResult = LOG( GetDoub( p1 ));
-   }  
+   }
    else if( strncmp( Func, "LOWER", 5 ) == 0 )
-   {  
+   {
       ptype = 's';
       buf = LOWER( p1->Result );
-   }  
+   }
    else if( strncmp( Func, "MAX", 3 ) == 0 )
-   {  
+   {
       ptype = 'd';
       DoubResult = MAX( GetDoub( p1 ), GetDoub( p2 ));
-   }  
+   }
    else if( strncmp( Func, "MIN", 3 ) == 0 )
-   {  
+   {
       ptype = 'd';
       DoubResult = MIN( GetDoub( p1 ), GetDoub( p2 ));
-   }  
+   }
    else if( strncmp( Func, "MONTH", 5 ) == 0 )
-   {  
+   {
       ptype = 'd';
       DoubResult = MONTH( p1->Result );
-   } 
+   }
    else if( strncmp( Func, "RECNO", 5 ) == 0 )
    {
       ptype = 'l';
@@ -233,82 +233,82 @@ xbShort xbExpn::ProcessFunction( char * Func )
       buf = RIGHT( p1->Result, GetInt( p2 ));
    }
    else if( strncmp( Func, "RTRIM", 5 ) == 0 )
-   {  
+   {
       ptype = 's';
       buf = RTRIM( p1->Result );
-   }  
+   }
    else if( strncmp( Func, "SPACE", 5 ) == 0 )
-   {  
+   {
       ptype = 's';
       buf = SPACE( INT( GetDoub( p1 )));
    }
    else if( strncmp( Func, "SQRT", 4 ) == 0 )
-   {  
+   {
       ptype = 'd';
       DoubResult = SQRT( GetDoub( p1 ));
    }
-   
+
    else if( strncmp( Func, "STRZERO", 7 ) == 0 && ParmsNeeded == 1 )
    {
       ptype = 's';
       buf = STRZERO( p1->Result );
-   }   
+   }
    else if( strncmp( Func, "STRZERO", 7 ) == 0 && ParmsNeeded == 2 )
    {
       ptype = 's';
       buf = STRZERO( p1->Result, GetInt( p2 ));
-   }   
+   }
    else if( strncmp( Func, "STRZERO", 7 ) == 0 && ParmsNeeded == 3 )
    {
       ptype = 's';
       buf = STRZERO( p1->Result, GetInt( p2 ), GetInt( p3 ));
-   }   
-   
+   }
+
    else if( strncmp( Func, "STR", 3 ) == 0 && ParmsNeeded == 1)
    {
       ptype = 's';
       buf = STR( p1->Result );
-   }   
+   }
    else if( strncmp( Func, "STR", 3 ) == 0 && ParmsNeeded == 2)
    {
       ptype = 's';
       buf = STR( p1->Result, GetInt( p2 ));
-   }   
-   
+   }
+
    else if( strncmp( Func, "STR", 3 ) == 0 && ParmsNeeded == 3)
    {
       ptype = 's';
       if(p1->ExpressionType == 'N')
-        buf = STR( p1->DoubResult, GetInt( p2 ), GetInt( p3 ));
+	buf = STR( p1->DoubResult, GetInt( p2 ), GetInt( p3 ));
       else
-        buf = STR( p1->Result, GetInt( p2 ), GetInt( p3 ));
-   }   
-   
+	buf = STR( p1->Result, GetInt( p2 ), GetInt( p3 ));
+   }
+
    else if( strncmp( Func, "SUBSTR", 6 ) == 0 )
    {
       ptype = 's';
-      buf = SUBSTR( p1->Result, GetInt( p2 ), GetInt( p3 )); 
+      buf = SUBSTR( p1->Result, GetInt( p2 ), GetInt( p3 ));
    }
    else if( strncmp( Func, "TRIM", 4 ) == 0 )
-   {  
+   {
       ptype = 's';
       buf = TRIM( p1->Result );
-   }  
+   }
    else if( strncmp( Func, "UPPER", 5 ) == 0 )
-   {  
+   {
       ptype = 's';
       buf = UPPER( p1->Result );
-   }  
+   }
    else if( strncmp( Func, "VAL", 3 ) == 0 )
-   {  
+   {
       ptype = 'd';
       DoubResult = VAL( p1->Result );
-   }  
+   }
    else if( strncmp( Func, "YEAR", 4 ) == 0 )
-   {  
+   {
       ptype = 'd';
       DoubResult = YEAR( p1->Result );
-   }  
+   }
 
    if( p1 && !p1->InTree ) FreeExpNode( p1 );
    if( p2 && !p2->InTree ) FreeExpNode( p2 );
@@ -440,7 +440,7 @@ char * xbExpn::CDOW( char * Date8 )
 {
    static char buf[10];
    xbShort len,i;
-   strcpy( buf, FormatDate( "DDDD", Date8 )); 
+   strcpy( buf, FormatDate( "DDDD", Date8 ));
    len = strlen( buf );
    for( i = len; i < 9; i++ ) buf[i] = 0x20;
    buf[9] = 0x00;
@@ -483,10 +483,10 @@ xbLong xbExpn::DESCEND( char * Date8 )
   xbLong l;
   l = x.JulianDays( "29991231" ) - x.JulianDays( Date8 );
   return 2415021 + l;
- 
+
 // This is for a string - but it doesn't work yet
 // int i,j;
-// for(i = 7, j = 0; j < 8; i--, j++ ) 
+// for(i = 7, j = 0; j < 8; i--, j++ )
 //   WorkBuf[j] = Date8[i];
 // WorkBuf[8] = 0x00;
 //   return DayOf( XB_FMT_MONTH, Date8 );
@@ -581,7 +581,7 @@ xbDouble xbExpn::LOG( xbDouble d )
    return log( d );
 }
 /*************************************************************************/
-char *xbExpn::LOWER(char *String) 
+char *xbExpn::LOWER(char *String)
 {
   WorkBuf[0] = 0x00;
 
@@ -603,7 +603,7 @@ char *xbExpn::LOWER(char *String)
 /*************************************************************************/
 xbDouble xbExpn::MAX( xbDouble d1, xbDouble d2 )
 {
-   if( d1 > d2 ) 
+   if( d1 > d2 )
       return d1;
    else
       return d2;
@@ -611,7 +611,7 @@ xbDouble xbExpn::MAX( xbDouble d1, xbDouble d2 )
 /*************************************************************************/
 xbDouble xbExpn::MIN( xbDouble d1, xbDouble d2 )
 {
-   if( d1 < d2 ) 
+   if( d1 < d2 )
       return d1;
    else
       return d2;
@@ -660,12 +660,12 @@ char * xbExpn::RTRIM( char * String )
 }
 /*************************************************************************/
 char * xbExpn::SPACE( xbShort Cnt )
-{ 
+{
    if( Cnt > 100 ) return NULL;
    memset( WorkBuf, 0x20, Cnt );
    WorkBuf[Cnt] = 0x00;
    return WorkBuf;
-} 
+}
 /*************************************************************************/
 xbDouble xbExpn::SQRT( xbDouble d )
 {
@@ -674,7 +674,7 @@ xbDouble xbExpn::SQRT( xbDouble d )
 /*************************************************************************/
 char * xbExpn::STR(xbDouble d, xbUShort length, xbShort numDecimals) {
   // sanity check for length arg
-  if (length > WorkBufMaxLen) 
+  if (length > WorkBufMaxLen)
   {
   // maybe should generate an error here instead ?
     length = WorkBufMaxLen;
@@ -701,7 +701,7 @@ char * xbExpn::STR( xbDouble d )
   return STR( d, 10, 0 );
 }
 /*************************************************************************/
-char * xbExpn::STR( char * String, xbShort length, xbShort decimal )
+char * xbExpn::STR( char * String, xbShort length, xbShort /*decimal*/ )
 {
   xbShort len, i;
   len = strlen( String );
@@ -722,7 +722,7 @@ char * xbExpn::STR( char * String )
   return STR( String, 10, 0 );
 }
 /*************************************************************************/
-char * xbExpn::STRZERO( xbDouble d, xbShort length, xbShort decimal )
+char * xbExpn::STRZERO( xbDouble d, xbShort length, xbShort /*decimal*/ )
 {
   xbShort len,i;
   gcvt( d, length, WorkBuf );
@@ -748,7 +748,7 @@ char * xbExpn::STRZERO( xbDouble d )
   return STRZERO( d, 10, 0 );
 }
 /*************************************************************************/
-char * xbExpn::STRZERO( char * String, xbShort length, xbShort decimal )
+char * xbExpn::STRZERO( char * String, xbShort length, xbShort /*decimal*/ )
 {
   xbShort i, len ;
   char *p = String;
@@ -792,7 +792,7 @@ char * xbExpn::DATE()
 char * xbExpn::TRIM( char * String )
 {
    WorkBuf[0] = 0x00;
-   if( !String ) 
+   if( !String )
      return WorkBuf;
 
    char *sp;
@@ -832,7 +832,7 @@ char *xbExpn::UPPER(char *String)
     WorkBuf[i++] = toupper(*sp);
     sp++;
   }
-  WorkBuf[i] = 0x00;	
+  WorkBuf[i] = 0x00;
   return WorkBuf;
 }
 /*************************************************************************/
