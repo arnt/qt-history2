@@ -703,6 +703,13 @@
         }
     \endcode
 
+    If you're worried about namespace pollution, you can disable
+    these macros by adding the following line to your .pro file:
+
+    \code
+        CONFIG += no_keywords
+    \endcode
+
     \section1 Other Container-Like Classes
 
     Qt includes three template classes that resemble containers in
