@@ -61,14 +61,13 @@ void QDir::slashify( QString& n )
 
 QString QDir::homeDirPath()
 {
-    typedef HRESULT (WINAPI *PtrSHGetSpecialFolderLocation)(HWND,int,LPITEMIDLIST*); 
-    typedef BOOL    (WINAPI *PtrSHGetPathFromIDList)(LPCITEMIDLIST,LPSTR); 
-    typedef HRESULT (WINAPI *PtrSHGetMalloc)(LPMALLOC*); 
+    typedef HRESULT (WINAPI *PtrSHGetSpecialFolderLocation)(HWND,int,LPITEMIDLIST*);
+    typedef BOOL    (WINAPI *PtrSHGetPathFromIDList)(LPCITEMIDLIST,LPSTR);
+    typedef HRESULT (WINAPI *PtrSHGetMalloc)(LPMALLOC*);
 
     static PtrSHGetSpecialFolderLocation ptrSHGetSpecialFolderLocation= 0;
     static PtrSHGetPathFromIDList ptrSHGetPathFromIDList = 0;
     static PtrSHGetMalloc ptrSHGetMalloc = 0;
-
 
     static bool shGSFLLookup = FALSE;
     if ( !shGSFLLookup ) {
@@ -84,10 +83,10 @@ QString QDir::homeDirPath()
 	Q_ASSERT( pIMalloc );
 
 	LPITEMIDLIST il;
-	if ( NOERROR != ptrSHGetSpecialFolderLocation( 0, CSIDL_PERSONAL, &il ) ) 
+	if ( NOERROR != ptrSHGetSpecialFolderLocation( 0, CSIDL_PERSONAL, &il ) )
 	    return QString::null;
 	char Path[ MAX_PATH ];
-	ptrSHGetPathFromIDList( il, Path ); 
+	ptrSHGetPathFromIDList( il, Path );
 	QString d = QString::fromLocal8Bit( Path );
 	pIMalloc->Free( il );
 	slashify( d );
