@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#139 $
+** $Id: //depot/qt/main/src/tools/qstring.h#140 $
 **
 ** Definition of the QString class, and related Unicode
 ** functions.
@@ -143,6 +143,7 @@ public:
     char latin1() const { return rw ? 0 : cl; }
     ushort unicode() const { return (rw << 8) | cl; }
 #ifndef QT_NO_CAST_ASCII
+    // like all ifdef'd code this is undocumented
     operator char() const { return latin1(); }
 #endif
 
@@ -267,7 +268,7 @@ public:
 #ifndef QT_NO_CAST_ASCII
     QString( const char *str );			// deep copy
 #endif
-    inline ~QString();
+    ~QString();
 
     QString    &operator=( const QString & );	// impl-shared copy
 #ifndef QT_NO_CAST_ASCII
@@ -462,6 +463,8 @@ class Q_EXPORT QCharRef {
 public:
     // Most QChar operations repeated here...
 
+    // all this is not documented: We just say "like QChar" and let it be.
+#if 1
     // An operator= for each QChar cast constructor...
     QCharRef operator=(char c ) { s.ref(p)=c; return *this; }
     QCharRef operator=(uchar c ) { s.ref(p)=c; return *this; }
@@ -501,6 +504,7 @@ public:
     // Not the non-const ones of these.
     uchar cell() const { return s.constref(p).cell(); }
     uchar row() const { return s.constref(p).row(); }
+#endif
 };
 
 inline QCharRef QString::at( uint i ) { return QCharRef(this,i); }
@@ -549,12 +553,6 @@ inline QString &QString::operator=( QChar c )
 
 inline QString &QString::operator=( char c )
 { return *this = QString(QChar(c)); }
-
-//inline QString &QString::operator=( const QString &s )
-//{ return (const QString &)assign( s ); }
-
-//inline QString &QString::operator=( const char *str )
-//{ return (const QString &)duplicate( str, strlen(str)+1 ); }
 
 inline bool QString::isNull() const
 { return unicode() == 0; }
