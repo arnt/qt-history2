@@ -35,16 +35,6 @@
 **
 **********************************************************************/
 
-// ####################
-/*
-   -- Not working yet: --
-   - opaque moving
-
-*/
-// ####################
-
-
-
 #include "qmainwindow.h"
 #ifndef QT_NO_COMPLEXWIDGETS
 
@@ -510,25 +500,25 @@ public:
   with some extra functionality. So everything which applies to dock
   windows also applies to toolbars. See the documentation of
   QDockWindow and QToolBar for further information.
-  
+
   Several functions let you change the appearance of a QMainWindow
   globally: <ul>
-  
+
   <li> setRightJustification() determines whether QMainWindow should
   ensure that the toolbars/dock windows fill the available space. This
   is nearly never usful, rather use
   QDockWindow::setHorizontalStretchable() and
   QDockWindow::setVerticalStretchable()) to make specific dock
   windows/toolbars stretchable.
-  
+
   <li> setUsesBigPixmaps() determines whether QToolButton (and other
   classes) should draw small or large pixmaps (see QIconSet for more
   about that),
-  
+
   <li> setUsesTextLabel() determines whether the toolbar buttons (and
   other classes), should display a textlabel in addition to pixmaps
   (see QToolButton for more about that).
-  
+
   </ul>
 
   Dock windows can be dragged by the user into each enabled docking
@@ -545,7 +535,7 @@ public:
   window/toolbar. With a double click on a dock window handle, the
   dockwindow gets undocked. With a double click on a floating dock
   window's titlebar the dock window gets docked again.
-  
+
   All this management of dock windows and toolbars is infact done by
   QDockArea, but this is done transparently through the QMainWindow API.
 
@@ -558,7 +548,7 @@ public:
   want a movable menubar, create a QMenuBar as stretchable widget
   inside its own movable dock window or toolbar and restrict this
   dock window to only live within the Top or Bottom dock:
-  
+
   \code
   QToolBar *tb = new QToolBar( this );
   addToolBar( tb, tr( "Menubar" ), Top, FALSE );
@@ -1536,6 +1526,12 @@ bool QMainWindow::dockWindowsMovable() const
 void QMainWindow::setOpaqueMoving( bool b )
 {
     d->opaque = b;
+    QObjectList *l = queryList( "QDockWindow" );
+    if ( l ) {
+	for ( QObject *o = l->first(); o; o = l->next() )
+	    ( (QDockWindow*)o )->setOpaqueMoving( b );
+    }
+    delete l;
 }
 
 /*!  Returns whether the dock windows of the mainwindow can be moved
@@ -1595,7 +1591,7 @@ void QMainWindow::setDockMenuEnabled( bool b )
 /*! Shows the dock menu at the position \a globalPos which allows
   lining up dock windows, hiding/showing dock windows and customizing
   them.
-  
+
   If you need a specialized popup menu here, you can reimplement that
   function.
 */

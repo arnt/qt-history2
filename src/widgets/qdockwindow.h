@@ -64,6 +64,7 @@ class Q_EXPORT QDockWindow : public QFrame
     Q_PROPERTY( bool verticalStretchable READ isVerticalStretchable  WRITE setVerticalStretchable )
     Q_PROPERTY( bool stretchable READ isStretchable )
     Q_PROPERTY( bool newLine READ newLine  WRITE setNewLine )
+    Q_PROPERTY( bool opaqueMoving READ opaqueMoving  WRITE setOpaqueMoving )
     Q_PROPERTY( int offset READ offset  WRITE setOffset )
 
     friend class QDockWindowHandle;
@@ -118,6 +119,9 @@ public:
 
     QBoxLayout *boxLayout();
 
+    virtual void setOpaqueMoving( bool b );
+    bool opaqueMoving() const;
+    
 signals:
     void orientationChanged( Orientation o );
     void placeChanged( QDockWindow::Place p );
@@ -135,11 +139,11 @@ protected:
     void hideEvent( QHideEvent *e );
 
 private:
-    void handleMove( const QPoint &pos, const QPoint &gp );
+    void handleMove( const QPoint &pos, const QPoint &gp, bool drawRect );
     void updateGui();
 
-    void startRectDraw( const QPoint &so );
-    void endRectDraw();
+    void startRectDraw( const QPoint &so, bool drawRect );
+    void endRectDraw( bool drawRect );
     void updatePosition( const QPoint &globalPos  );
     QWidget *areaAt( const QPoint &gp );
     void removeFromDock();
@@ -169,7 +173,8 @@ private:
     void *dockWindowData;
     QPoint lastPos;
     QWidgetResizeHandler *widgetResizeHandler;
-
+    bool opaque;
+    
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QDockWindow( const QDockWindow & );

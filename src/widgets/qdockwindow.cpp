@@ -86,7 +86,7 @@ private:
     QPainter *unclippedPainter;
     QPoint lastPos, firstPos;
     QDockWindow *dockWindow;
-
+    
 };
 
 QDockWindowResizeHandle::QDockWindowResizeHandle( Qt::Orientation o, QWidget *parent,
@@ -125,25 +125,36 @@ void QDockWindowResizeHandle::mousePressEvent( QMouseEvent *e )
 	return;
     e->accept();
     mousePressed = TRUE;
-    startLineDraw();
+    if ( !dockWindow->opaqueMoving() )
+	startLineDraw();
     lastPos = firstPos = e->globalPos();
-    drawLine( e->globalPos() );
+    if ( !dockWindow->opaqueMoving() )
+	drawLine( e->globalPos() );
 }
 
 void QDockWindowResizeHandle::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !mousePressed )
 	return;
-    drawLine( lastPos );
+    if ( !dockWindow->opaqueMoving() )
+	drawLine( lastPos );
     lastPos = e->globalPos();
-    drawLine( e->globalPos() );
+    if ( dockWindow->opaqueMoving() ) {
+	mouseReleaseEvent( e );
+	mousePressed = TRUE;
+	firstPos = e->globalPos();
+    }
+    if ( !dockWindow->opaqueMoving() )
+	drawLine( e->globalPos() );
 }
 
 void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( mousePressed ) {
-	drawLine( lastPos );
-	endLineDraw();
+	if ( !dockWindow->opaqueMoving() ) {
+	    drawLine( lastPos );
+	    endLineDraw();
+	}
 	if ( orientation() == Horizontal ) {
 	    int dy;
 	    if ( dockWindow->area()->gravity() == QDockArea::Normal )
@@ -240,7 +251,8 @@ public:
     QSize minimumSize() const { return minimumSizeHint(); }
     QSize sizeHint() const { return minimumSize(); }
     QSizePolicy sizePolicy() const;
-
+    void setOpaqueMoving( bool b ) { opaque = b; }
+    
 signals:
     void doubleClicked();
 
@@ -262,11 +274,13 @@ private:
     QToolButton *closeButton;
     bool hadDblClick;
     QTimer *timer;
-
+    bool opaque;
+    
 };
 
 QDockWindowHandle::QDockWindowHandle( QDockWindow *dw )
-    : QWidget( dw, "qt_dockwidget_internal" ), dockWindow( dw ), mousePressed( FALSE ), closeButton( 0 )
+    : QWidget( dw, "qt_dockwidget_internal" ), dockWindow( dw ), 
+      mousePressed( FALSE ), closeButton( 0 ), opaque( FALSE )
 {
     timer = new QTimer( this );
     connect( timer, SIGNAL( timeout() ), this, SLOT( minimize() ) );
@@ -301,21 +315,23 @@ void QDockWindowHandle::mousePressEvent( QMouseEvent *e )
     hadDblClick = FALSE;
     mousePressed = TRUE;
     offset = e->pos();
-    dockWindow->startRectDraw( e->pos() );
+    dockWindow->startRectDraw( e->pos(), !opaque );
 }
 
 void QDockWindowHandle::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !mousePressed || e->pos() == offset )
 	return;
-    dockWindow->handleMove( e->globalPos() - offset, e->globalPos() );
+    dockWindow->handleMove( e->globalPos() - offset, e->globalPos(), !opaque );
+    if ( opaque )
+	dockWindow->updatePosition( e->globalPos() );
 }
 
 void QDockWindowHandle::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( !mousePressed )
 	return;
-    dockWindow->endRectDraw();
+    dockWindow->endRectDraw( !opaque );
     mousePressed = FALSE;
     if ( !hadDblClick && offset == e->pos() ) {
 	timer->start( QApplication::doubleClickInterval(), TRUE );
@@ -395,6 +411,7 @@ class QDockWindowTitleBar : public QWidget
 public:
     QDockWindowTitleBar( QDockWindow *dw );
     void updateGui();
+    void setOpaqueMoving( bool b ) { opaque = b; }
 
 protected:
     void paintEvent( QPaintEvent *e );
@@ -413,12 +430,13 @@ private:
     bool mousePressed;
     QToolButton *closeButton;
     bool hadDblClick;
-
+    bool opaque;
+    
 };
 
 QDockWindowTitleBar::QDockWindowTitleBar( QDockWindow *dw )
     : QWidget( dw, "qt_dockwidget_internal" ), dockWindow( dw ), mousePressed( FALSE ),
-      closeButton( 0 )
+      closeButton( 0 ), opaque( FALSE )
 {
     setMouseTracking( TRUE );
     setMinimumHeight( 13 );
@@ -433,19 +451,21 @@ void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
     mousePressed = TRUE;
     hadDblClick = FALSE;
     offset = e->pos();
-    dockWindow->startRectDraw( e->pos() );
+    dockWindow->startRectDraw( e->pos(), !opaque );
 }
 
 void QDockWindowTitleBar::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !mousePressed )
 	return;
-    dockWindow->handleMove( e->globalPos() - offset, e->globalPos() );
+    dockWindow->handleMove( e->globalPos() - offset, e->globalPos(), !opaque );
+    if ( opaque )
+	dockWindow->updatePosition( e->globalPos() );
 }
 
 void QDockWindowTitleBar::mouseReleaseEvent( QMouseEvent *e )
 {
-    dockWindow->endRectDraw();
+    dockWindow->endRectDraw( !opaque );
     mousePressed = FALSE;
     if ( !hadDblClick )
 	dockWindow->updatePosition( e->globalPos() );
@@ -599,7 +619,7 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f | ( p == OutsideDock ? WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog : 0 ) ),
       curPlace( p ), wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), resizeEnabled( FALSE ),
       moveEnabled( TRUE ), cMode( Never ), offs( 0 ), fExtent( -1, -1 ), nl( FALSE ), dockWindowData( 0 ),
-      lastPos( -1, -1 )
+      lastPos( -1, -1 ), opaque( FALSE )
 {
     widgetResizeHandler = new QWidgetResizeHandler( this );
     widgetResizeHandler->setMovingEnabled( FALSE );
@@ -705,12 +725,13 @@ QWidget *QDockWindow::areaAt( const QPoint &gp )
     return a;
 }
 
-void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp )
+void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect )
 {
     if ( !unclippedPainter )
 	return;
 
-    unclippedPainter->drawRect( currRect );
+    if ( drawRect )
+	unclippedPainter->drawRect( currRect );
     currRect = QRect( realWidgetPos( this ), size() );
     QWidget *w = areaAt( gp );
     QPoint offset( mapFromGlobal( pos ) );
@@ -718,8 +739,10 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp )
     if ( !w || !w->inherits( "QDockArea" ) ) {
 	if ( startOrientation != Horizontal )
 	    swapRect( currRect, Horizontal, startOffset );
-	unclippedPainter->setPen( QPen( gray, 3 ) );
-	unclippedPainter->drawRect( currRect );
+	if ( drawRect ) {
+	    unclippedPainter->setPen( QPen( gray, 3 ) );
+	    unclippedPainter->drawRect( currRect );
+	}
 	state = OutsideDock;
 	return;
     }
@@ -728,8 +751,10 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp )
     QDockArea *area = (QDockArea*)w;
     if ( startOrientation != ( area ? area->orientation() : Horizontal ) )
 	    swapRect( currRect, orientation(), startOffset );
-    unclippedPainter->setPen( QPen( gray, 1 ) );
-    unclippedPainter->drawRect( currRect );
+    if ( drawRect ) {
+	unclippedPainter->setPen( QPen( gray, 1 ) );
+	unclippedPainter->drawRect( currRect );
+    }
     tmpDockArea = area;
 }
 
@@ -864,11 +889,11 @@ QWidget *QDockWindow::widget() const
     return wid;
 }
 
-void QDockWindow::startRectDraw( const QPoint &so )
+void QDockWindow::startRectDraw( const QPoint &so, bool drawRect )
 {
     state = place();
     if ( unclippedPainter )
-	endRectDraw();
+	endRectDraw( !opaque );
     bool unclipped = QApplication::desktop()->testWFlags( WPaintUnclipped );
     ( (QDockWindow*)QApplication::desktop() )->setWFlags( WPaintUnclipped );
     unclippedPainter = new QPainter;
@@ -879,17 +904,19 @@ void QDockWindow::startRectDraw( const QPoint &so )
     unclippedPainter->setRasterOp( XorROP );
 
     currRect = QRect( realWidgetPos( this ), size() );
-    unclippedPainter->drawRect( currRect );
+    if ( drawRect )
+	unclippedPainter->drawRect( currRect );
     startRect = currRect;
     startOrientation = orientation();
     startOffset = so;
 }
 
-void QDockWindow::endRectDraw()
+void QDockWindow::endRectDraw( bool drawRect )
 {
     if ( !unclippedPainter )
 	return;
-    unclippedPainter->drawRect( currRect );
+    if ( drawRect )
+	unclippedPainter->drawRect( currRect );
     delete unclippedPainter;
     unclippedPainter = 0;
 }
@@ -1219,6 +1246,29 @@ void QDockWindow::showEvent( QShowEvent *e )
 {
     QFrame::showEvent( e );
     emit visibilityChanged( TRUE );
+}
+
+/*! If \a b is TRUE, the docking window will be used opaque, else
+  transparently.
+*/
+
+void QDockWindow::setOpaqueMoving( bool b )
+{
+    opaque = b;
+    horHandle->setOpaqueMoving( b );
+    verHandle->setOpaqueMoving( b );
+    titleBar->setOpaqueMoving( b );
+}
+
+/*! Returns whether the docking window will be moved opaque or
+  transparently.
+  
+  \sa setOpaqueMoving()
+*/
+
+bool QDockWindow::opaqueMoving() const
+{
+    return opaque;
 }
 
 #include "qdockwindow.moc"
