@@ -814,7 +814,7 @@ protected:
 	    if ( e->y() >= 0 && e->y() <= height() ) {
 		QMainWindowPrivate::ToolBar *tb = d->hidden->at( pressedHandle );
 		tb->t->show();
-		win->moveToolBar( tb->t, tb->oldDock, tb->nl, tb->oldIndex );
+		win->moveToolBar( tb->t, tb->oldDock, tb->nl, tb->oldIndex, tb->extraOffset );
 	    }
 	}
 	pressedHandle = -1;
