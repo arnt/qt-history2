@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#70 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#71 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -799,9 +799,8 @@ QCollection::Item QGDict::look( QString key, Item g, int op )
 	return look( kutf8.data(), g, op );
     } else {
 	if ( !copyk ) {
-	    warning("QGDict: attempted to insert QString without copying key"
-			   " - MEMORY LEAK");
-	    return look( kutf8.data(), g, op );
+	    fatal("QGDict: attempted to insert QString without copying key");
+	    return 0;
 	} else {
 	    return look( kutf8.data(), g, op );
 	}
