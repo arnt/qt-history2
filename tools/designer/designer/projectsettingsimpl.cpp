@@ -20,11 +20,13 @@
 
 #include "projectsettingsimpl.h"
 #include "project.h"
+#include "metadatabase.h"
 
 #include <qlineedit.h>
 #include <qtextedit.h>
 #include <qlistbox.h>
 #include <qfiledialog.h>
+#include <qcombobox.h>
 
 /*
  *  Constructs a ProjectSettings which is a child of 'parent', with the
@@ -43,6 +45,14 @@ ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* na
     listInterfaces->clear();
     listInterfaces->insertStringList( pro->uiFiles() );
     editDatabaseFile->setText( pro->databaseDescription() );
+
+    comboLanguage->insertStringList( MetaDataBase::languages() );
+    for ( int j = 0; j < (int)comboLanguage->count(); ++j ) {
+	if ( project->language() == comboLanguage->text( j ) ) {
+	    comboLanguage->setCurrentItem( j );
+	    break;
+	}
+    }
 }
 
 /*
@@ -85,6 +95,7 @@ void ProjectSettings::okClicked()
 	lst << listInterfaces->text( i );
     project->setUiFiles( lst );
     project->setDatabaseDescription( editDatabaseFile->text() );
+    project->setLanguage( comboLanguage->text( comboLanguage->currentItem() ) );
     accept();
 }
 

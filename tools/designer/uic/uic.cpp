@@ -1289,7 +1289,8 @@ void Uic::createFormImpl( const QDomElement &e )
 	    }
 	    if ( createWarning ) {
 		out << "{" << endl;
-		out << "    qWarning( \"" << nameOfClass << "::" << (*it) << ": Not implemented yet!\" );" << endl;
+		if ( *it != "init()" )
+		    out << "    qWarning( \"" << nameOfClass << "::" << (*it) << ": Not implemented yet!\" );" << endl;
 		out << "}" << endl;
 	    }
 	    out << endl;

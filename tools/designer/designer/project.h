@@ -76,6 +76,9 @@ public:
     void setDescription( const QString &s );
     QString description() const;
 
+    void setLanguage( const QString &l );
+    QString language() const;
+
     QStringList uiFiles() const;
     void addUiFile( const QString &f, FormWindow *fw );
     void removeUiFile( const QString &f, FormWindow *fw );
@@ -124,6 +127,7 @@ private:
     QMap<FormWindow*, QString> formWindows;
     QString dbFile;
     QList<DatabaseConnection> dbConnections;
+    QString lang;
 
 };
 

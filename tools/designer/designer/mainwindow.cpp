@@ -1866,8 +1866,7 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 
     oWindow->parentWidget()->show();
     if ( programPluginManager ) {
-	// ###### hack: uses first language. There should be a default language setting used here
-	QString lang = MetaDataBase::languages()[ 0 ];
+	QString lang = currentProject->language();
 	ProgramInterface *piface = (ProgramInterface*)programPluginManager->queryInterface( lang );
 	if ( piface ) {
 	    QStringList error;

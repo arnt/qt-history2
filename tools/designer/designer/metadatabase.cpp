@@ -1001,7 +1001,7 @@ QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o )
 
     if ( !eventInterfaceManager || langList.count() == 1 )
 	return QValueList<MetaDataBase::EventDescription>();
-    // ###### hack: uses first language. There should be a default language setting used here
+    // ###### hack: uses first language. We should show events of all languages
     EventInterface *iface = (EventInterface*)eventInterfaceManager->queryInterface( langList[ 0 ] );
     QValueList<MetaDataBase::EventDescription> list;
     if ( !iface )
@@ -1070,7 +1070,7 @@ bool MetaDataBase::setEventFunction( QObject *o, QObject *form, const QString &e
 	}
     }
 
-    if ( !slotExists && addIfNotExisting ) // ##### use default language here
+    if ( !slotExists && addIfNotExisting ) // ##### find the language of the event, and use that language here
 	addSlot( form, fName.latin1(), "public",  langList[ 0 ] );
 
     r->eventFunctions.insert( event, function );

@@ -37,6 +37,7 @@
 Project::Project( const QString &fn, const QString &pName )
     : proName( pName )
 {
+    lang = "C++";
     setFileName( fn );
     if ( !pName.isEmpty() )
 	proName = pName;
@@ -76,6 +77,28 @@ void Project::setProjectName( const QString &n )
 QString Project::projectName() const
 {
     return proName;
+}
+
+static QString parse_part( const QString &part )
+{
+    QString res;
+    bool inName = FALSE;
+    QString currName;
+    for ( int i = 0; i < (int)part.length(); ++i ) {
+	QChar c = part[ i ];
+	if ( !inName ) {
+	    if ( c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\' )
+		inName = TRUE;
+	    else
+		continue;
+	}
+	if ( inName ) {
+	    if ( c == '\n' )
+		break;
+	    res += c;
+	}
+    }
+    return res;
 }
 
 void Project::parse()
@@ -118,45 +141,23 @@ void Project::parse()
 
     i = contents.find( "DBFILE" );
     if ( i != -1 ) {
+	dbFile = "";
 	QString part = contents.mid( i + QString( "DBFILE" ).length() );
-	bool inName = FALSE;
-	QString currName;
-	for ( i = 0; i < (int)part.length(); ++i ) {
-	    QChar c = part[ i ];
-	    if ( !inName ) {
-		if ( c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\' )
-		    inName = TRUE;
-		else
-		    continue;
-	    }
-	    if ( inName ) {
-		if ( c == '\n' )
-		    break;
-		dbFile += c;
-	    }
-	}
+	dbFile = parse_part( part );
     }
 
     i = contents.find( "PROJECTNAME" );
     if ( i != -1 ) {
 	proName = "";
 	QString part = contents.mid( i + QString( "PROJECTNAME" ).length() );
-	bool inName = FALSE;
-	QString currName;
-	for ( i = 0; i < (int)part.length(); ++i ) {
-	    QChar c = part[ i ];
-	    if ( !inName ) {
-		if ( c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\' )
-		    inName = TRUE;
-		else
-		    continue;
-	    }
-	    if ( inName ) {
-		if ( c == '\n' )
-		    break;
-		proName += c;
-	    }
-	}
+	proName = parse_part( part );
+    }
+
+    i = contents.find( "LANGUAGE" );
+    if ( i != -1 ) {
+	lang = "";
+	QString part = contents.mid( i + QString( "LANGUAGE" ).length() );
+	lang = parse_part( part );
     }
 
     loadConnections();
@@ -254,6 +255,18 @@ QString Project::makeRelative( const QString &f )
     return f2;
 }
 
+static void remove_contents( QString &contents, const QString &s )
+{
+    int i = contents.find( s );
+    if ( i != -1 ) {
+	int start = i;
+	int end = contents.find( '\n', i );
+	if ( end == -1 )
+	    end = contents.length() - 1;
+	contents.remove( start, end - start + 1 );
+    }
+}
+
 void Project::save()
 {
     if ( proName == "<No Project>" || filename.isEmpty() )
@@ -302,27 +315,16 @@ void Project::save()
 	contents += "\n";
     }
 
-    i = contents.find( "DBFILE" );
-    if ( i != -1 ) {
-	int start = i;
-	int end = contents.find( '\n', i );
-	if ( end == -1 )
-	    end = contents.length() - 1;
-	contents.remove( start, end - start + 1 );
-    }
+    remove_contents( contents, "DBFILE" );
+    remove_contents( contents, "PROJECTNAME" );
+    remove_contents( contents, "LANGUAGE" );
     if ( !dbFile.isEmpty() )
 	contents += "DBFILE\t= " + dbFile + "\n";
 
-    i = contents.find( "PROJECTNAME" );
-    if ( i != -1 ) {
-	int start = i;
-	int end = contents.find( '\n', i );
-	if ( end == -1 )
-	    end = contents.length() - 1;
-	contents.remove( start, end - start + 1 );
-    }
     if ( !proName.isEmpty() )
 	contents += "PROJECTNAME\t= " + proName + "\n";
+
+    contents += "LANGUAGE\t= " + lang + "\n";
 
     if ( !f.open( IO_WriteOnly ) ) {
 	//## more of a warning here? mbox?
@@ -549,4 +551,15 @@ QObjectList *Project::formList() const
 DesignerProject *Project::iFace()
 {
     return new DesignerProjectImpl( this );
+}
+
+void Project::setLanguage( const QString &l )
+{
+    lang = l;
+    save();
+}
+
+QString Project::language() const
+{
+    return lang;
 }

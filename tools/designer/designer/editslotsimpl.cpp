@@ -24,6 +24,7 @@
 #include "asciivalidator.h"
 #include "mainwindow.h"
 #include "hierarchyview.h"
+#include "project.h"
 
 #include <qlistview.h>
 #include <qpushbutton.h>
@@ -152,7 +153,7 @@ void EditSlots::slotAdd()
 	i->setText( 2, tr( "Yes" ) );
     else
 	i->setText( 2, tr( "No" ) );
-    i->setText( 3, "C++" );
+    i->setText( 3, formWindow->project()->language() );
     slotListView->setCurrentItem( i );
     slotListView->setSelected( i, TRUE );
 }
