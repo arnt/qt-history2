@@ -26,6 +26,6 @@ $(SUBDIRS): FORCE
 	cd $@; $(MAKE)
 
 clean:
-	for i in $(SUBDIRS); do ( cd $$i ; $(MAKE) clean ) ; done
+	for i in $(SUBDIRS); do ( cd $$i ; $(MAKE) clean; ) ; done
 
 FORCE:
