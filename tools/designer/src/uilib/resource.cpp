@@ -77,7 +77,7 @@ QWidget *Resource::load(QIODevice *dev, QWidget *parentWidget)
     DomConnections *connections = ui.elementConnections();
     if (connections != 0)
         createConnections(connections, w);
-    
+
     return w;
 }
 
@@ -99,7 +99,7 @@ QWidget *Resource::create(DomUI *ui, QWidget *parentWidget)
 
 QWidget *Resource::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
-    QWidget *w = createWidget(ui_widget->attributeClass(), parentWidget, 0);
+    QWidget *w = createWidget(ui_widget->attributeClass(), parentWidget, ui_widget->attributeName());
     if (!w)
         return 0;
 
@@ -124,7 +124,7 @@ QWidget *Resource::create(DomWidget *ui_widget, QWidget *parentWidget)
         QAction *child_action = create(ui_action, w);
         Q_UNUSED( child_action );
     }
-    
+
     foreach (DomActionGroup *ui_action_group, ui_widget->elementActionGroup()) {
         QActionGroup *child_action_group = create(ui_action_group, w);
         Q_UNUSED( child_action_group );
@@ -139,7 +139,7 @@ QWidget *Resource::create(DomWidget *ui_widget, QWidget *parentWidget)
         QLayout *child_lay = create(ui_lay, 0, w);
         Q_UNUSED( child_lay );
     }
-        
+
     foreach (DomActionRef *ui_action_ref, ui_widget->elementAddAction()) {
         QString name = ui_action_ref->attributeName();
         if (name == QLatin1String("separator")) {
@@ -165,7 +165,7 @@ QAction *Resource::create(DomAction *ui_action, QObject *parent)
     QAction *a = createAction(parent, ui_action->attributeName());
     if (!a)
         return 0;
-        
+
     applyProperties(a, ui_action->elementProperty());
     return a;
 }
@@ -175,14 +175,14 @@ QActionGroup *Resource::create(DomActionGroup *ui_action_group, QObject *parent)
     QActionGroup *a = createActionGroup(parent, ui_action_group->attributeName());
     if (!a)
         return 0;
-        
+
     applyProperties(a, ui_action_group->elementProperty());
-    
+
     foreach (DomAction *ui_action, ui_action_group->elementAction()) {
         QAction *child_action = create(ui_action, a);
         Q_UNUSED( child_action );
     }
-    
+
     foreach (DomActionGroup *g, ui_action_group->elementActionGroup()) {
         QActionGroup *child_action_group = create(g, a);
         Q_UNUSED( child_action_group );
@@ -223,8 +223,8 @@ bool Resource::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWid
         }
     } else {
         return false;
-    } 
-    
+    }
+
     return true;
 }
 
@@ -326,7 +326,7 @@ bool Resource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layou
     } else {
         layout->addItem(item);
     }
-    
+
     return true;
 }
 
@@ -611,7 +611,7 @@ void Resource::save(QIODevice *dev, QWidget *widget)
     ui->setElementConnections(saveConnections());
     ui->setElementCustomWidgets(saveCustomWidgets());
     ui->setElementTabStops(saveTabStops());
-    
+
     QDomDocument doc;
     doc.appendChild(ui->write(doc));
     QByteArray bytes = doc.toString().toUtf8();
@@ -871,17 +871,17 @@ DomProperty *Resource::createProperty(QObject *obj, const QString &pname, const 
 
             dom_prop->setElementPalette(dom);
         } break;
-        
+
         case QVariant::SizePolicy: {
             DomSizePolicy *dom = new DomSizePolicy();
             QSizePolicy sizePolicy = v.toSizePolicy();
-            
+
             dom->setElementHorStretch(sizePolicy.horizontalStretch());
             dom->setElementVerStretch(sizePolicy.verticalStretch());
-            
+
             dom->setElementHSizeType(sizePolicy.horizontalData());
             dom->setElementVSizeType(sizePolicy.verticalData());
-            
+
             dom_prop->setElementSizePolicy(dom);
         } break;
 
@@ -922,11 +922,11 @@ QList<DomProperty*> Resource::computeProperties(QObject *obj)
             continue;
 
         QVariant v = prop.read(obj);
-        
+
         DomProperty *dom_prop = 0;
         if (v.type() == QVariant::Int) {
             dom_prop = new DomProperty();
-            
+
             if (prop.isFlagType())
                 qWarning("flags property not supported yet!!");
 
@@ -943,7 +943,7 @@ QList<DomProperty*> Resource::computeProperties(QObject *obj)
         } else {
             dom_prop = createProperty(obj, pname, v);
         }
-        
+
         if (!dom_prop || dom_prop->kind() == DomProperty::Unknown)
             delete dom_prop;
         else

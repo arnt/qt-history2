@@ -288,6 +288,8 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     } else if (m_internal_to_qt.contains(className))
         w->setAttributeClass(m_internal_to_qt.value(className));
 
+    w->setAttributeName(widget->objectName());
+
     return w;
 }
 
