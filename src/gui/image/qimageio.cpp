@@ -336,7 +336,7 @@ static QImageHandler *get_image_handler(const char *format)
 
 
 /*!
-    \fn QImageIO::defineIOHandler(const char *format, const char *header, const char *flags, image_io_handler read_image, image_io_handler write_image);
+    \fn QImageIO::defineIOHandler(const char *format, const char *header, const char *flags, image_io_handler readImage, image_io_handler writeImage);
     \overload
 
     This overload provides source compatibility by providing an
@@ -363,8 +363,10 @@ static QImageHandler *get_image_handler(const char *format)
     \a format is used to select a handler to write a QImage; \a header
     is used to select a handler to read an image file.
 
-    When a file is attempted to be loaded but is not found \a
-    extension is used as a suffix to try loading again.
+    When an attempt is made to load a file, but it is not found,
+    the handler tries each extension in turn from the \a extensions
+    list until a file is found or there are no more extensions left
+    to try.
 
     If \a readImage is a null pointer, the QImageIO will not be able
     to read images in \a format. If \a writeImage is a null pointer,

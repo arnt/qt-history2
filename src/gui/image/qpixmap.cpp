@@ -1272,14 +1272,6 @@ void QPixmap::deref()
 */
 
 /*!
-    \fn bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
-    \compat
-
-    Creates a pixmap from the given \a image with the color mode specified
-    by \a mode.
-*/
-
-/*!
     \fn bool QPixmap::convertFromImage(const QImage &image, Qt::ImageConversionFlags flags)
     \compat
 
