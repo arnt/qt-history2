@@ -623,9 +623,6 @@ void qt_init(QApplicationPrivate *priv, int)
     QFont::initialize();
     QCursor::initialize();
     QWin32PaintEngine::initialize();
-#if defined (QT_GDIPLUS_SUPPORT)
-    QGdiplusPaintEngine::initialize();
-#endif
     qApp->setObjectName(appName);
 
     // default font
@@ -2395,7 +2392,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
                 LPARAM lParam = MAKELPARAM(widgetpt.x, widgetpt.y);
                 winPostMessage(w->winId(), msg.message, msg.wParam, lParam);
             }
-         } else if (type == QEvent::MouseButtonRelease && button == RightButton 
+         } else if (type == QEvent::MouseButtonRelease && button == RightButton
                    && qApp->activePopupWidget() == activePopupWidget) {
             // popup still alive and received right-button-release
 	    QContextMenuEvent e2( QContextMenuEvent::Mouse, pos, globalPos, state );

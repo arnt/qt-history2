@@ -17,16 +17,27 @@
 
 #include <windows.h>
 
-#if defined QT_GDIPLUS_SUPPORT
-#include <gdiplus.h>
-#endif
-
 #include "qnamespace.h"
 #include "qpaintengine_p.h"
 
 #define COLOR_VALUE(c) ((d->flags & RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
 
-#if defined QT_GDIPLUS_SUPPORT
+// Typedefs for GDI+
+class QtGpGraphics { };
+class QtGpMatrix { };
+class QtGpRegion { };
+class QtGpPen { };
+class QtGpBrush { };
+class QtGpSolidFill : public QtGpBrush { };
+
+struct QtGpStartupInput { Q_UINT32 version; void *cb; BOOL b1; BOOL b2; };
+
+struct QtGpRect
+{
+    QtGpRect(const QRect &r) : x(r.x()), y(r.y()), w(r.width()), h(r.height()) { }
+    int x, y, w, h;
+};
+
 class QGdiplusPaintEnginePrivate : public QPaintEnginePrivate
 {
     Q_DECLARE_PUBLIC(QGdiplusPaintEngine)
@@ -49,19 +60,18 @@ public:
     HWND hwnd;
     HDC hdc;
 
-    Gdiplus::Graphics *graphics;
-    Gdiplus::Pen *pen;
-    Gdiplus::Pen *focusRectPen;
-    Gdiplus::Brush *brush;
+    QtGpGraphics *graphics;
+    QtGpPen *pen;
+    QtGpPen *focusRectPen;
+    QtGpBrush *brush;
 
-    Gdiplus::SolidBrush *cachedSolidBrush;
+    QtGpSolidFill *cachedSolidBrush;
 
     uint usesTempDC : 1;
     uint usePen : 1;
     uint temporaryBrush : 1;
     uint antiAliasEnabled : 1;
 };
-#endif // QT_GDIPLUS_SUPPORT
 
 class Q_GUI_EXPORT QWin32PaintEnginePrivate : public QPaintEnginePrivate
 {
@@ -121,13 +131,5 @@ public:
     uint gdiplusInUse : 1;
     QGdiplusPaintEngine *gdiplusEngine;
 };
-
-// True if the system supports gdi plus... Hardcode with define for now.
-bool qt_gdiplus_support =
-#if defined QT_GDIPLUS_SUPPORT
-    true;
-#else
-    false;
-#endif
 
 #endif

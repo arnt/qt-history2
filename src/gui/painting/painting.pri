@@ -51,11 +51,6 @@ win32 {
 		painting/qpaintengine_win.cpp \
 		painting/qprinter_win.cpp \
 		painting/qregion_win.cpp
-	gdiplus {
-		LIBS += gdiplus.lib
-		DEFINES += QT_GDIPLUS_SUPPORT
-	}
-	
 }
 
 wince-* {

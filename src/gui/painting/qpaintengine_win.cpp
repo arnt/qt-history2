@@ -25,6 +25,7 @@
 #include "qt_windows.h"
 #include "qtextlayout.h"
 #include "qwidget.h"
+#include "qlibrary.h"
 
 #include <private/qfontengine_p.h>
 #include <private/qtextengine_p.h>
@@ -36,6 +37,12 @@
 // #define NO_NATIVE_XFORM
 #define d d_func()
 #define q q_func()
+
+// True if GDI+ and its function could be resolved...
+static bool qt_gdiplus_support = false;
+static bool qt_resolved_gdiplus = false;
+
+static void qt_resolve_gdiplus();
 
 static const short qt_rop_codes_pen[] = {
     R2_COPYPEN,        // CopyROP
@@ -1026,6 +1033,9 @@ void QWin32PaintEngine::initialize()
 void QWin32PaintEngine::cleanup()
 {
     cleanup_cache();
+    if (qt_gdiplus_support) {
+        QGdiplusPaintEngine::cleanup();
+    }
 }
 
 
@@ -1568,7 +1578,9 @@ QPainter::RenderHints QWin32PaintEngine::supportedRenderHints() const
 
 void QWin32PaintEnginePrivate::beginGdiplus()
 {
-#if defined QT_GDIPLUS_SUPPORT
+    if (!qt_resolved_gdiplus)
+        qt_resolve_gdiplus();
+
     if (!qt_gdiplus_support)
         return;
 
@@ -1581,59 +1593,192 @@ void QWin32PaintEnginePrivate::beginGdiplus()
     d->gdiplusEngine->begin(pdev, q->state);
     d->gdiplusInUse = true;
     q->setDirty(QPaintEngine::AllDirty);
-#endif
 }
 
 void QWin32PaintEnginePrivate::endGdiplus()
 {
-#if defined QT_GDIPLUS_SUPPORT
     Q_ASSERT(gdiplusEngine);
     gdiplusEngine->end();
     gdiplusInUse = false;
 
     q->setDirty(QPaintEngine::AllDirty);
-#endif
 }
 
 
-#if defined (QT_GDIPLUS_SUPPORT)
 /*******************************************************************************
  *
  * And thus begindeth the GDI+ paint engine
  *
  ******************************************************************************/
-using namespace Gdiplus;
 
-static const DashStyle qt_penstyle_map[] = {
-    { (DashStyle)-1 },                // Qt::NoPen
-    { DashStyleSolid },                // Qt::SolidLine
-    { DashStyleDash },                // Qt::DashLine
-    { DashStyleDot },                // Qt::DotLine
-    { DashStyleDashDot },        // Qt::DashDotLine
-    { DashStyleDashDotDot }        // Qt::DashDotDotLine
+extern "C" {
+    typedef int (WINAPI *PtrGdiplusStartup)(ULONG_PTR *, const QtGpStartupInput *, void *);
+    typedef void (WINAPI *PtrGdiplusShutdown)(ULONG_PTR);
+
+    typedef int (__stdcall *PtrCreateFromHDC) (HDC hdc, QtGpGraphics **);
+    typedef int (__stdcall *PtrDeleteGraphics) (QtGpGraphics *);
+    typedef int (__stdcall *PtrSetTransform) (QtGpGraphics *, QtGpMatrix *);
+    typedef int (__stdcall *PtrSetClipRegion) (QtGpGraphics *, QtGpRegion *, int);
+    typedef int (__stdcall *PtrResetClip) (QtGpGraphics *);
+    typedef int (__stdcall *PtrSetSmoothingMode)(QtGpGraphics *, int);
+    typedef int (__stdcall *PtrFillRectangle) (QtGpGraphics *, QtGpBrush *, int x, int y, int w, int h);
+    typedef int (__stdcall *PtrDrawRectangle) (QtGpGraphics *, QtGpPen *, int x, int y, int w, int h);
+    typedef int (__stdcall *PtrDrawLine) (QtGpGraphics *, QtGpPen *, int x1, int y1, int x2, int y2);
+
+    typedef int (__stdcall *PtrCreateMatrix) (float, float, float, float, float, float, QtGpMatrix **);
+    typedef int (__stdcall *PtrDeleteMatrix) (QtGpMatrix *);
+
+    typedef int (__stdcall *PtrCreateRegionHrgn) (HRGN hRgn, QtGpRegion **);
+    typedef int (__stdcall *PtrDeleteRegion) (QtGpRegion *);
+
+    typedef int (__stdcall *PtrDeleteBrush) (QtGpBrush *);
+
+    typedef int (__stdcall *PtrCreateSolidFill) (Q_UINT32 argb, QtGpBrush **);
+    typedef int (__stdcall *PtrSetSolidFillColor) (QtGpSolidFill *, Q_UINT32 argb);
+
+    typedef int (__stdcall *PtrCreatePen1) (Q_UINT32 argb, float width, int unit, QtGpPen **);
+    typedef int (__stdcall *PtrDeletePen) (QtGpPen *);
+    typedef int (__stdcall *PtrSetPenWidth) (QtGpPen *, float width);
+    typedef int (__stdcall *PtrSetPenColor) (QtGpPen *, Q_UINT32 argb);
+    typedef int (__stdcall *PtrSetPenDashStyle) (QtGpPen *, int dashStyle);
+#ifdef __cplusplus
+}
+#endif
+
+static PtrGdiplusStartup ptrGdiplusStartup = 0;         // GdiplusStartup
+static PtrGdiplusShutdown ptrGdiplusShutdown = 0;       // GdiplusStartup
+
+static PtrCreateFromHDC ptrCreateFromHDC = 0;           // Graphics::Graphics(hdc)
+static PtrDeleteGraphics ptrDeleteGraphics = 0;         // Graphics::~Graphics()
+static PtrSetTransform ptrSetTransform = 0;             // Graphics::SetTransform(matrix)
+static PtrSetClipRegion ptrSetClipRegion = 0;           // Graphics::SetClipRegion(region)
+static PtrResetClip ptrResetClip = 0;                   // Graphics::ResetClip()
+static PtrSetSmoothingMode ptrSetSmoothingMode = 0;     // Graphics::SetSmoothingMode(mode)
+static PtrFillRectangle ptrFillRectangle = 0;           // Graphics::FillRectangle(brush, x, y, w, h)
+static PtrDrawRectangle ptrDrawRectangle = 0;           // Graphics::DrawRectangle(brush, x, y, w, h)
+static PtrDrawLine ptrDrawLine = 0;                     // Graphics::DrawLine(pen, x1, y1, x2, y2)
+
+static PtrCreateMatrix ptrCreateMatrix = 0;             // Matrix::Matrix(a, b, c, d, dx, dy)
+static PtrDeleteMatrix ptrDeleteMatrix = 0;             // Matrix::~Matrix()
+
+static PtrCreateRegionHrgn ptrCreateRegionHrgn = 0;     // Region::Region(hRgn)
+static PtrDeleteRegion ptrDeleteRegion = 0;             // Region::~Region()
+
+static PtrDeleteBrush ptrDeleteBrush = 0;               // Brush::~Brush()
+
+static PtrCreateSolidFill ptrCreateSolidFill = 0;       // SolidBrush::SolidBrush(argb)
+static PtrSetSolidFillColor ptrSetSolidFillColor = 0;   // SolidBrush::SetColor(argb)
+
+static PtrCreatePen1 ptrCreatePen1 = 0;                 // Pen::Pen(color, width)
+static PtrDeletePen ptrDeletePen = 0;                   // Pen::~Pen()
+static PtrSetPenWidth ptrSetPenWidth = 0;              // Pen::SetWidth(width)
+static PtrSetPenColor ptrSetPenColor = 0;               // Pen::SetColor(argb)
+static PtrSetPenDashStyle ptrSetPenDashStyle = 0;       // Pen::SetDashStyle(style)
+
+static void qt_resolve_gdiplus()
+{
+    if (qt_resolved_gdiplus)
+        return;
+
+    QLibrary lib("gdiplus");
+    lib.setAutoUnload(false);
+
+    // Global functions
+    ptrGdiplusStartup           = (PtrGdiplusStartup)     lib.resolve("GdiplusStartup");
+    ptrGdiplusShutdown          = (PtrGdiplusShutdown)    lib.resolve("GdiplusShutdown");
+
+    // Graphics functions
+    ptrCreateFromHDC            = (PtrCreateFromHDC)      lib.resolve("GdipCreateFromHDC");
+    ptrDeleteGraphics           = (PtrDeleteGraphics)     lib.resolve("GdipDeleteGraphics");
+    ptrSetTransform             = (PtrSetTransform)       lib.resolve("GdipSetWorldTransform");
+    ptrSetClipRegion            = (PtrSetClipRegion)      lib.resolve("GdipSetClipRegion");
+    ptrResetClip                = (PtrResetClip)          lib.resolve("GdipResetClip");
+    ptrSetSmoothingMode         = (PtrSetSmoothingMode)   lib.resolve("GdipSetSmoothingMode");
+    ptrFillRectangle            = (PtrFillRectangle)      lib.resolve("GdipFillRectangleI");
+    ptrDrawRectangle            = (PtrDrawRectangle)      lib.resolve("GdipDrawRectangleI");
+    ptrDrawLine                 = (PtrDrawLine)           lib.resolve("GdipDrawLineI");
+
+    // Matrix functions
+    ptrCreateMatrix             = (PtrCreateMatrix)       lib.resolve("GdipCreateMatrix2");
+    ptrDeleteMatrix             = (PtrDeleteMatrix)       lib.resolve("GdipDeleteMatrix");
+
+    // Region functions
+    ptrCreateRegionHrgn         = (PtrCreateRegionHrgn)   lib.resolve("GdipCreateRegionHrgn");
+    ptrDeleteRegion             = (PtrDeleteRegion)       lib.resolve("GdipDeleteRegion");
+
+    // Brush functions
+    ptrDeleteBrush              = (PtrDeleteBrush)        lib.resolve("GdipDeleteBrush");
+    ptrCreateSolidFill          = (PtrCreateSolidFill)    lib.resolve("GdipCreateSolidFill");
+    ptrSetSolidFillColor        = (PtrSetSolidFillColor)  lib.resolve("GdipSetSolidFillColor");
+
+    // Pen functions
+    ptrCreatePen1               = (PtrCreatePen1)         lib.resolve("GdipCreatePen1");
+    ptrDeletePen                = (PtrDeletePen)          lib.resolve("GdipDeletePen");
+    ptrSetPenWidth              = (PtrSetPenWidth)        lib.resolve("GdipSetPenWidth");
+    ptrSetPenColor              = (PtrSetPenColor)        lib.resolve("GdipSetPenColor");
+    ptrSetPenDashStyle          = (PtrSetPenDashStyle)    lib.resolve("GdipSetPenDashStyle");
+
+    if (ptrGdiplusStartup
+        || ptrGdiplusShutdown
+        || ptrCreateFromHDC
+        || ptrDeleteGraphics
+        || ptrSetTransform
+        || ptrSetClipRegion
+        || ptrResetClip
+        || ptrSetSmoothingMode
+        || ptrFillRectangle
+        || ptrDrawRectangle
+        || ptrDrawLine
+        || ptrCreateMatrix
+        || ptrDeleteMatrix
+        || ptrCreateRegionHrgn
+        || ptrDeleteRegion
+        || ptrDeleteBrush
+        || ptrCreateSolidFill
+        || ptrSetSolidFillColor
+        || ptrCreatePen1
+        || ptrDeletePen
+        || ptrSetPenWidth
+        || ptrSetPenColor
+        || ptrSetPenDashStyle
+        ) {
+        qt_gdiplus_support = true;
+        QGdiplusPaintEngine::initialize();
+    }
+
+    qt_resolved_gdiplus = true;
+
+    qDebug() << "qt_resolve_gdiplus, can use GDI+:" << qt_gdiplus_support;
+}
+
+
+// Based on enums in GdiPlusEnums.h
+static const int qt_penstyle_map[] = {
+    { -1 },     // Qt::NoPen
+    { 0 },      // Qt::SolidLine
+    { 1 },      // Qt::DashLine
+    { 2 },      // Qt::DotLine
+    { 3 },      // Qt::DashDotLine
+    { 4 }       // Qt::DashDotDotLine
 };
 
-static const HatchStyle qt_hatchstyle_map[] = {
-    { (HatchStyle) -1 },                 // Qt::NoBrush
-    { (HatchStyle) -1 },                     // Qt::SolidPattern
-    { HatchStyle90Percent },            // Qt::Dense1Pattern
-    { HatchStyle75Percent },            // Qt::Dense2Pattern
-    { HatchStyle60Percent },            // Qt::Dense3Pattern
-    { HatchStyle50Percent },            // Qt::Dense4Pattern
-    { HatchStyle30Percent },            // Qt::Dense5Pattern
-    { HatchStyle20Percent },            // Qt::Dense6Pattern
-    { HatchStyle05Percent },                   // Qt::Dense7Pattern
-    { HatchStyleHorizontal },           // Qt::HorPattern
-    { HatchStyleVertical },                // Qt::VerPattern
-    { HatchStyleCross },                   // Qt::CrossPattern
-    { HatchStyleBackwardDiagonal },           // Qt::BDiagPattern
-    { HatchStyleForwardDiagonal },           // Qt::FDiagPattern
-    { HatchStyleDiagonalCross }           // Qt::DiagCrossPattern
+static const int qt_hatchstyle_map[] = {
+    { -1 },     // Qt::NoBrush
+    { -1 },     // Qt::SolidPattern
+    { 17 },     // Qt::Dense1Pattern, hatch 90
+    { 15 },     // Qt::Dense2Pattern, hatch 75
+    { 13 },     // Qt::Dense3Pattern, hatch 60
+    { 12 },     // Qt::Dense4Pattern, hatch 50
+    { 10 },     // Qt::Dense5Pattern, hatch 30
+    { 8 },      // Qt::Dense6Pattern, hatch 20
+    { 6 },      // Qt::Dense7Pattern, hatch 05
+    { 0 },      // Qt::HorPattern
+    { 1 },      // Qt::VerPattern
+    { 4 },      // Qt::CrossPattern
+    { 3 },      // Qt::BDiagPattern
+    { 2 },      // Qt::FDiagPattern
+    { 5 }       // Qt::DiagCrossPattern
 };
-
-static inline Color conv(const QColor &c) { return Color(c.red(), c.green(), c.blue()); }
-static inline Point conv(const QPoint &p) { return Point(p.x(), p.y()); }
-static inline Rect conv(const QRect &r) { return Rect(r.x(), r.y(), r.width(), r.height()); }
 
 QGdiplusPaintEngine::QGdiplusPaintEngine(QPaintDevice *dev)
     : QPaintEngine(*(new QGdiplusPaintEnginePrivate),
@@ -1666,10 +1811,13 @@ bool QGdiplusPaintEngine::begin(QPaintDevice *pdev, QPainterState *, bool)
         }
     }
 
-    d->graphics = new Graphics(d->hdc);
+//     d->graphics = new Graphis(hdc);
+    (*ptrCreateFromHDC)(d->hdc, &d->graphics);
     Q_ASSERT(d->graphics);
 
-    d->pen = new Pen(Color(0, 0, 0), 0);
+//     d->pen = new Pen(Color(0, 0, 0), 0);
+    (*ptrCreatePen1)(0xff000000, 0, 0, &d->pen);
+    Q_ASSERT(d->pen);
 
     setActive(true);
 
@@ -1678,11 +1826,16 @@ bool QGdiplusPaintEngine::begin(QPaintDevice *pdev, QPainterState *, bool)
 
 bool QGdiplusPaintEngine::end()
 {
-    delete d->graphics;
-    delete d->pen;
-    delete d->brush;
+//     delete d->graphics;
+//     delete d->pen;
+//     delete d->brush;
+    (*ptrDeleteGraphics)(d->graphics);
+    (*ptrDeletePen)(d->pen);
+    (*ptrDeleteBrush)(d->brush);
+
     if (d->cachedSolidBrush != d->brush) {
-        delete d->cachedSolidBrush;
+//         delete d->cachedSolidBrush;
+        (*ptrDeleteBrush)(d->cachedSolidBrush);
     }
 
     d->graphics = 0;
@@ -1703,8 +1856,10 @@ bool QGdiplusPaintEngine::end()
 
 void QGdiplusPaintEngine::updatePen(QPainterState *ps)
 {
-    d->pen->SetWidth(ps->pen.width());
-    d->pen->SetColor(conv(ps->pen.color()));
+//     d->pen->SetWidth(ps->pen.width());
+//     d->pen->SetColor(conv(ps->pen.color()));
+    (*ptrSetPenWidth)(d->pen, ps->pen.width());
+    (*ptrSetPenColor)(d->pen, ps->pen.color().rgb());
 
     Qt::PenStyle style = ps->pen.style();
     if (style == Qt::NoPen) {
@@ -1712,7 +1867,8 @@ void QGdiplusPaintEngine::updatePen(QPainterState *ps)
     } else {
         Q_ASSERT(style >= 0 && style < 5);
         d->usePen = true;
-        d->pen->SetDashStyle(qt_penstyle_map[style]);
+//         d->pen->SetDashStyle(qt_penstyle_map[style]);
+        (*ptrSetPenDashStyle)(d->pen, qt_penstyle_map[style]);
     }
 }
 
@@ -1721,7 +1877,8 @@ void QGdiplusPaintEngine::updateBrush(QPainterState *ps)
     QColor c = ps->brush.color();
     if (d->temporaryBrush) {
         d->temporaryBrush = false;
-        delete d->brush;
+//         delete d->brush;
+        (*ptrDeleteBrush)(d->brush);
     }
 
     switch (ps->brush.style()) {
@@ -1730,36 +1887,40 @@ void QGdiplusPaintEngine::updateBrush(QPainterState *ps)
         break;
     case Qt::SolidPattern:
         if (!d->cachedSolidBrush) {
-            d->cachedSolidBrush = new SolidBrush(conv(ps->brush.color()));
+//             d->cachedSolidBrush = new SolidBrush(conv(ps->brush.color()));
+            (*ptrCreateSolidFill)(ps->brush.color().rgb(),
+                                  (QtGpBrush**)(&d->cachedSolidBrush));
             d->brush = d->cachedSolidBrush;
         } else {
-            d->cachedSolidBrush->SetColor(conv(ps->brush.color()));
+//             d->cachedSolidBrush->SetColor(conv(ps->brush.color()));
+            (*ptrSetSolidFillColor)(d->cachedSolidBrush, ps->brush.color().rgb());
             d->brush = d->cachedSolidBrush;
         }
         break;
     case Qt::LinearGradientPattern: {
-        QBrush &b = ps->brush;
-        d->brush = new LinearGradientBrush(conv(b.gradientStart()), conv(b.gradientStop()),
-                                           conv(b.color()), conv(b.gradientColor()));
-        d->temporaryBrush = true;
+//         QBrush &b = ps->brush;
+//         d->brush = new LinearGradientBrush(conv(b.gradientStart()), conv(b.gradientStop()),
+//                                            conv(b.color()), conv(b.gradientColor()));
+//         d->temporaryBrush = true;
+        qDebug() << "QGdiplusPaintEngine::updateBrush(), style is gradient...";
         break;
     }
     case Qt::CustomPattern: {
-        QPixmap *pm = ps->brush.pixmap();
-        if (pm) {
-            Bitmap *bm = new Bitmap(pm->hbm(), (HPALETTE)0);
-            d->brush = new TextureBrush(bm, WrapModeTile);
-            d->temporaryBrush = true;
-        }
+//         QPixmap *pm = ps->brush.pixmap();
+//         if (pm) {
+//             Bitmap *bm = new Bitmap(pm->hbm(), (HPALETTE)0);
+//             d->brush = new TextureBrush(bm, WrapModeTile);
+//             d->temporaryBrush = true;
+//         }
         break;
     }
     default: // HatchBrush
         Q_ASSERT(ps->brush.style() > Qt::SolidPattern && ps->brush.style() < Qt::CustomPattern);
-        d->brush = new HatchBrush(qt_hatchstyle_map[ps->brush.style()],
-                                  conv(ps->brush.color()),
-                                  conv(ps->bgBrush.color()));
-        d->graphics->SetRenderingOrigin(ps->bgOrigin.x(), ps->bgOrigin.y());
-        d->temporaryBrush = true;
+//         d->brush = new HatchBrush(qt_hatchstyle_map[ps->brush.style()],
+//                                   conv(ps->brush.color()),
+//                                   conv(ps->bgBrush.color()));
+//         d->graphics->SetRenderingOrigin(ps->bgOrigin.x(), ps->bgOrigin.y());
+//         d->temporaryBrush = true;
     }
 }
 
@@ -1779,17 +1940,26 @@ void QGdiplusPaintEngine::updateBackground(QPainterState *)
 void QGdiplusPaintEngine::updateXForm(QPainterState *ps)
 {
     QWMatrix &qm = ps->matrix;
-    Matrix m(qm.m11(), qm.m12(), qm.m21(), qm.m22(), qm.dx(), qm.dy());
-    d->graphics->SetTransform(&m);
+//     Matrix m(qm.m11(), qm.m12(), qm.m21(), qm.m22(), qm.dx(), qm.dy());
+//     d->graphics->SetTransform(&m);
+    QtGpMatrix *m = 0;
+    (*ptrCreateMatrix)(qm.m11(), qm.m12(), qm.m21(), qm.m22(), qm.dx(), qm.dy(), &m);
+    (*ptrSetTransform)(d->graphics, m);
+    (*ptrDeleteMatrix)(m);
 }
 
 void QGdiplusPaintEngine::updateClipRegion(QPainterState *ps)
 {
     if (ps->clipEnabled) {
-        Region r(ps->clipRegion.handle());
-        d->graphics->SetClip(&r, CombineModeReplace);
+//         Region r(ps->clipRegion.handle());
+//         d->graphics->SetClip(&r, CombineModeReplace);
+        QtGpRegion *region = 0;
+        (*ptrCreateRegionHrgn)(ps->clipRegion.handle(), &region);
+        (*ptrSetClipRegion)(d->graphics, region, 0);
+        (*ptrDeleteRegion)(region);
     } else {
-        d->graphics->ResetClip();
+//         d->graphics->ResetClip();
+        (*ptrResetClip)(d->graphics);
     }
 }
 
@@ -1801,7 +1971,8 @@ HDC QGdiplusPaintEngine::handle() const
 void QGdiplusPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 {
     if (d->usePen) {
-        d->graphics->DrawLine(d->pen, p1.x(), p1.y(), p2.x(), p2.y());
+//         d->graphics->DrawLine(d->pen, p1.x(), p1.y(), p2.x(), p2.y());
+        (*ptrDrawLine)(d->graphics, d->pen, p1.x(), p1.y(), p2.x(), p2.y());
     }
 }
 
@@ -1809,185 +1980,189 @@ void QGdiplusPaintEngine::drawRect(const QRect &r)
 {
     int subtract = d->usePen ? 1 : 0;
     if (d->brush) {
-        d->graphics->FillRectangle(d->brush, r.x(), r.y(),
-                                   r.width()-subtract, r.height()-subtract);
+//         d->graphics->FillRectangle(d->brush, r.x(), r.y(),
+//                                    r.width()-subtract, r.height()-subtract);
+        (*ptrFillRectangle)(d->graphics, d->brush, r.x(), r.y(),
+                            r.width()-subtract, r.height()-subtract);
     }
     if (d->usePen) {
-        d->graphics->DrawRectangle(d->pen, r.x(), r.y(),
-                                   r.width()-subtract, r.height()-subtract);
+//         d->graphics->DrawRectangle(d->pen, r.x(), r.y(),
+//                                    r.width()-subtract, r.height()-subtract);
+        (*ptrDrawRectangle)(d->graphics, d->pen, r.x(), r.y(),
+                            r.width()-subtract, r.height()-subtract);
     }
 }
 
 void QGdiplusPaintEngine::drawPoint(const QPoint &p)
 {
     if (d->usePen)
-        d->graphics->DrawRectangle(d->pen, p.x(), p.y(), 0, 0);
+        (*ptrDrawRectangle)(d->graphics, d->pen, p.x(), p.y(), 0, 0);
 }
 
 void QGdiplusPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
 {
     if (d->usePen)
         for (int i=0; i<npoints; ++i)
-            d->graphics->DrawRectangle(d->pen, pa[index+i].x(), pa[index+i].y(), 0, 0);
+            (*ptrDrawRectangle)(d->graphics, d->pen, pa[index+i].x(), pa[index+i].y(), 0, 0);
 }
 
 void QGdiplusPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
-    GraphicsPath path(FillModeAlternate);
+//     GraphicsPath path(FillModeAlternate);
 
-    int subtract = d->usePen ? 1 : 0;
+//     int subtract = d->usePen ? 1 : 0;
 
-    int top = r.y();
-    int bottom = r.y() + r.height() - subtract;
-    int left = r.x();
-    int right = r.x() + r.width() - subtract;
+//     int top = r.y();
+//     int bottom = r.y() + r.height() - subtract;
+//     int left = r.x();
+//     int right = r.x() + r.width() - subtract;
 
-    int horLength = (99 - xRnd) / 99.0 * r.width() / 1;
-    int horStart  = r.x() + r.width() / 2 - horLength / 2;
-    int horEnd = horStart + horLength;
-    int arcWidth = r.width() - horLength;
+//     int horLength = (99 - xRnd) / 99.0 * r.width() / 1;
+//     int horStart  = r.x() + r.width() / 2 - horLength / 2;
+//     int horEnd = horStart + horLength;
+//     int arcWidth = r.width() - horLength;
 
-    int verLength = (99 - yRnd) / 99.0 * r.height() / 1;
-    int verStart  = r.y() + r.height() / 2 - verLength / 2;
-    int verEnd = verStart + verLength;
-    int arcHeight = r.width() - horLength;
+//     int verLength = (99 - yRnd) / 99.0 * r.height() / 1;
+//     int verStart  = r.y() + r.height() / 2 - verLength / 2;
+//     int verEnd = verStart + verLength;
+//     int arcHeight = r.width() - horLength;
 
-    path.AddLine(horStart, r.y(), horEnd, r.y());
-    path.AddArc(right - arcWidth, top, arcWidth, arcHeight, 270, 90);
-    path.AddLine(right, verStart, right, verEnd);
-    path.AddArc(right - arcWidth, bottom - arcHeight, arcWidth, arcHeight, 0, 90);
-    path.AddLine(horEnd, bottom, horStart, bottom);
-    path.AddArc(left, bottom - arcHeight, arcWidth, arcHeight, 90, 90);
-    path.AddLine(left, verEnd, left, verStart);
-    path.AddArc(left, top, arcWidth, arcHeight, 180, 90);
-    path.CloseFigure();
-    if (d->brush)
-        d->graphics->FillPath(d->brush, &path);
-    if (d->usePen)
-        d->graphics->DrawPath(d->pen, &path);
+//     path.AddLine(horStart, r.y(), horEnd, r.y());
+//     path.AddArc(right - arcWidth, top, arcWidth, arcHeight, 270, 90);
+//     path.AddLine(right, verStart, right, verEnd);
+//     path.AddArc(right - arcWidth, bottom - arcHeight, arcWidth, arcHeight, 0, 90);
+//     path.AddLine(horEnd, bottom, horStart, bottom);
+//     path.AddArc(left, bottom - arcHeight, arcWidth, arcHeight, 90, 90);
+//     path.AddLine(left, verEnd, left, verStart);
+//     path.AddArc(left, top, arcWidth, arcHeight, 180, 90);
+//     path.CloseFigure();
+//     if (d->brush)
+//         d->graphics->FillPath(d->brush, &path);
+//     if (d->usePen)
+//         d->graphics->DrawPath(d->pen, &path);
 }
 
 void QGdiplusPaintEngine::drawEllipse(const QRect &r)
 {
-    int subtract = d->usePen ? 1 : 0;
-    if (d->brush)
-        d->graphics->FillEllipse(d->brush, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
-    if (d->usePen)
-        d->graphics->DrawEllipse(d->pen, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
+//     int subtract = d->usePen ? 1 : 0;
+//     if (d->brush)
+//         d->graphics->FillEllipse(d->brush, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
+//     if (d->usePen)
+//         d->graphics->DrawEllipse(d->pen, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
 }
 
 void QGdiplusPaintEngine::drawArc(const QRect &r, int a, int alen)
 {
-    int subtract = d->usePen ? 1 : 0;
-    if (d->usePen) {
-        d->graphics->DrawArc(d->pen, r.x(), r.y(),
-                             r.width()-subtract, r.height()-subtract,
-                             -a/16.0, -alen/16.0);
-    }
+//     int subtract = d->usePen ? 1 : 0;
+//     if (d->usePen) {
+//         d->graphics->DrawArc(d->pen, r.x(), r.y(),
+//                              r.width()-subtract, r.height()-subtract,
+//                              -a/16.0, -alen/16.0);
+//     }
 }
 
 void QGdiplusPaintEngine::drawPie(const QRect &r, int a, int alen)
 {
-    int subtract = d->usePen ? 1 : 0;
-    if (d->brush) {
-        d->graphics->FillPie(d->brush, r.x(), r.y(),
-                             r.width()-subtract, r.height()-subtract,
-                             -a/16.0, -alen/16.0);
-    }
-    if (d->usePen) {
-        d->graphics->DrawPie(d->pen, r.x(), r.y(),
-                             r.width()-subtract, r.height()-subtract,
-                             -a/16.0, -alen/16.0);
-    }
+//     int subtract = d->usePen ? 1 : 0;
+//     if (d->brush) {
+//         d->graphics->FillPie(d->brush, r.x(), r.y(),
+//                              r.width()-subtract, r.height()-subtract,
+//                              -a/16.0, -alen/16.0);
+//     }
+//     if (d->usePen) {
+//         d->graphics->DrawPie(d->pen, r.x(), r.y(),
+//                              r.width()-subtract, r.height()-subtract,
+//                              -a/16.0, -alen/16.0);
+//     }
 }
 
 void QGdiplusPaintEngine::drawChord(const QRect &r, int a, int alen)
 {
-    GraphicsPath path(FillModeAlternate);
-    int subtract = d->usePen ? 1 : 0;
-    path.AddArc(r.x(), r.y(), r.width()-subtract, r.height()-subtract, -a/16.0, -alen/16.0);
-    path.CloseFigure();
-    if (d->brush)
-        d->graphics->FillPath(d->brush, &path);
-    if (d->usePen)
-        d->graphics->DrawPath(d->pen, &path);
+//     GraphicsPath path(FillModeAlternate);
+//     int subtract = d->usePen ? 1 : 0;
+//     path.AddArc(r.x(), r.y(), r.width()-subtract, r.height()-subtract, -a/16.0, -alen/16.0);
+//     path.CloseFigure();
+//     if (d->brush)
+//         d->graphics->FillPath(d->brush, &path);
+//     if (d->usePen)
+//         d->graphics->DrawPath(d->pen, &path);
 }
 
 void QGdiplusPaintEngine::drawLineSegments(const QPointArray &pa, int index, int nlines)
 {
-    if (d->usePen) {
-        GraphicsPath path;
-        for (int i=0; i<nlines*2; i+=2) {
-            path.AddLine(pa[index+i].x(), pa[index+i].y(), pa[index+i+1].x(), pa[index+i+1].y());
-            path.CloseFigure();
-        }
-        d->graphics->DrawPath(d->pen, &path);
-    }
+//     if (d->usePen) {
+//         GraphicsPath path;
+//         for (int i=0; i<nlines*2; i+=2) {
+//             path.AddLine(pa[index+i].x(), pa[index+i].y(), pa[index+i+1].x(), pa[index+i+1].y());
+//             path.CloseFigure();
+//         }
+//         d->graphics->DrawPath(d->pen, &path);
+//     }
 }
 
 void QGdiplusPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
 {
-    if (d->usePen) {
-        GraphicsPath path;
-        for (int i=1; i<npoints; ++i)
-            path.AddLine(pa.at(index+i-1).x(), pa.at(index+i-1).y(),
-                         pa.at(index+i).x(), pa.at(index+i).y());
-        d->graphics->DrawPath(d->pen, &path);
-    }
+//     if (d->usePen) {
+//         GraphicsPath path;
+//         for (int i=1; i<npoints; ++i)
+//             path.AddLine(pa.at(index+i-1).x(), pa.at(index+i-1).y(),
+//                          pa.at(index+i).x(), pa.at(index+i).y());
+//         d->graphics->DrawPath(d->pen, &path);
+//     }
 }
 
 void QGdiplusPaintEngine::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
 {
-    if (d->usePen || d->brush) {
-        Point *p = new Point[npoints];
-        for (int i=0; i<npoints; ++i)
-            p[i] = Point(pa[index+i].x(), pa[index+i].y());
-        if (d->usePen)
-            d->graphics->DrawPolygon(d->pen, p, npoints);
-        if (d->brush)
-            d->graphics->FillPolygon(d->brush, p, npoints,
-                                     winding ? FillModeWinding : FillModeAlternate);
-        delete [] p;
-    }
+//     if (d->usePen || d->brush) {
+//         Point *p = new Point[npoints];
+//         for (int i=0; i<npoints; ++i)
+//             p[i] = Point(pa[index+i].x(), pa[index+i].y());
+//         if (d->usePen)
+//             d->graphics->DrawPolygon(d->pen, p, npoints);
+//         if (d->brush)
+//             d->graphics->FillPolygon(d->brush, p, npoints,
+//                                      winding ? FillModeWinding : FillModeAlternate);
+//         delete [] p;
+//     }
 }
 
 void QGdiplusPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
 {
-    drawPolygon(pa, index, npoints);
+//     drawPolygon(pa, index, npoints);
 }
 
 
 
 void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask)
 {
-    if (!pm.hasAlpha()) {
-        Bitmap bitmap(pm.hbm(), HPALETTE(0));
-        d->graphics->DrawImage(&bitmap,
-                               Rect(r.x(), r.y(), r.width(), r.height()),
-                               sr.x(), sr.y(), sr.width(), sr.height(), UnitPixel);
-    } else { // 1 bit masks or 8 bit alpha...
-        QImage image = pm.convertToImage();
-        PixelFormat pf;
-        int depth = image.depth();
+//     if (!pm.hasAlpha()) {
+//         Bitmap bitmap(pm.hbm(), HPALETTE(0));
+//         d->graphics->DrawImage(&bitmap,
+//                                Rect(r.x(), r.y(), r.width(), r.height()),
+//                                sr.x(), sr.y(), sr.width(), sr.height(), UnitPixel);
+//     } else { // 1 bit masks or 8 bit alpha...
+//         QImage image = pm.convertToImage();
+//         PixelFormat pf;
+//         int depth = image.depth();
 
-        if (depth == 32) {
-            pf = PixelFormat32bppARGB;
-        } else if (depth = 16) {
-            pf = PixelFormat16bppARGB1555;
-        } else if (depth = 8) {
-            image = image.convertDepth(16);
-            pf = PixelFormat16bppARGB1555;
-            return;
-        } else {
-            qDebug() << "QGdiplusPaintEngine::drawPixmap(), unsupported depth:" << image.depth();
-            return;
-        }
+//         if (depth == 32) {
+//             pf = PixelFormat32bppARGB;
+//         } else if (depth = 16) {
+//             pf = PixelFormat16bppARGB1555;
+//         } else if (depth = 8) {
+//             image = image.convertDepth(16);
+//             pf = PixelFormat16bppARGB1555;
+//             return;
+//         } else {
+//             qDebug() << "QGdiplusPaintEngine::drawPixmap(), unsupported depth:" << image.depth();
+//             return;
+//         }
 
-        Bitmap bitmap(pm.width(), pm.height(), image.bytesPerLine(), pf, image.bits());
-        d->graphics->DrawImage(&bitmap,
-                               Rect(r.x(), r.y(), r.width(), r.height()),
-                               sr.x(), sr.y(), sr.width(), sr.height(), UnitPixel);
-    }
+//         Bitmap bitmap(pm.width(), pm.height(), image.bytesPerLine(), pf, image.bits());
+//         d->graphics->DrawImage(&bitmap,
+//                                Rect(r.x(), r.y(), r.width(), r.height()),
+//                                sr.x(), sr.y(), sr.width(), sr.height(), UnitPixel);
+//     }
 }
 
 void QGdiplusPaintEngine::drawTextItem(const QPoint &, const QTextItem &, int)
@@ -1997,28 +2172,28 @@ void QGdiplusPaintEngine::drawTextItem(const QPoint &, const QTextItem &, int)
 void QGdiplusPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm,
                                           const QPoint &, bool)
 {
-    QImage image = pm.convertToImage();
-    Q_ASSERT(image.depth() == 32);
-    Bitmap bitmap(pm.width(), pm.height(), image.bytesPerLine(), PixelFormat32bppARGB,
-                  image.bits());
-    TextureBrush texture(&bitmap, WrapModeTile);
-    texture.TranslateTransform(r.x(), r.y());
-    int subtract = d->usePen ? 1 : 0;
-    d->graphics->FillRectangle(&texture, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
+//     QImage image = pm.convertToImage();
+//     Q_ASSERT(image.depth() == 32);
+//     Bitmap bitmap(pm.width(), pm.height(), image.bytesPerLine(), PixelFormat32bppARGB,
+//                   image.bits());
+//     TextureBrush texture(&bitmap, WrapModeTile);
+//     texture.TranslateTransform(r.x(), r.y());
+//     int subtract = d->usePen ? 1 : 0;
+//     d->graphics->FillRectangle(&texture, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
 }
 
 #ifndef QT_NO_BEZIER
 void QGdiplusPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 {
-    if (d->usePen) {
-        Point *p = new Point[pa.size()];
-        for (int i=0; i<pa.size() - index; ++i) {
-            p[i] = Point(pa[i+index].x(), pa[i+index].y());
-        }
-        if (d->usePen)
-            d->graphics->DrawCurve(d->pen, p, pa.size());
-        delete [] p;
-    }
+//     if (d->usePen) {
+//         Point *p = new Point[pa.size()];
+//         for (int i=0; i<pa.size() - index; ++i) {
+//             p[i] = Point(pa[i+index].x(), pa[i+index].y());
+//         }
+//         if (d->usePen)
+//             d->graphics->DrawCurve(d->pen, p, pa.size());
+//         delete [] p;
+//     }
 }
 #endif
 
@@ -2038,7 +2213,9 @@ QPainter::RenderHints QGdiplusPaintEngine::renderHints() const
 void QGdiplusPaintEngine::setRenderHint(QPainter::RenderHint hint, bool enable)
 {
     if (hint == QPainter::LineAntialiasing) {
-        d->graphics->SetSmoothingMode(enable ? SmoothingModeHighQuality : SmoothingModeHighSpeed);
+        (*ptrSetSmoothingMode)(d->graphics, enable
+                               ? 2 /* QualityModeHigh */
+                               : 1 /* QualityModeLow */ );
 //         d->graphics->SetPixelOffsetMode(enable ? PixelOffsetModeHalf : PixelOffsetModeNone);
         d->antiAliasEnabled = enable;
     }
@@ -2049,19 +2226,14 @@ void QGdiplusPaintEngine::setRenderHint(QPainter::RenderHint hint, bool enable)
    doing anything GDI+ related. Called by qt_init() in
    qapplication_win.cpp
 */
-static GdiplusStartupInput *gdiplusStartupInput = 0;
 static ULONG_PTR gdiplusToken = 0;
 void QGdiplusPaintEngine::initialize()
 {
-    Q_ASSERT(!gdiplusStartupInput);
-
-    gdiplusStartupInput = new GdiplusStartupInput;
-    GdiplusStartup(&gdiplusToken, gdiplusStartupInput, NULL);
+    QtGpStartupInput input = { 1, 0, false, false };
+    (*ptrGdiplusStartup)(&gdiplusToken, &input, 0);
 }
 
 void QGdiplusPaintEngine::cleanup()
 {
-    GdiplusShutdown(gdiplusToken);
+    (*ptrGdiplusShutdown)(gdiplusToken);
 }
-
-#endif // QT_GDIPLUS_SUPPORT
