@@ -9,7 +9,8 @@ class QTextListFormat;
 
 class QTextDocumentLayoutPrivate;
 
-class QTextDocumentLayout : public QAbstractTextDocumentLayout
+// ### remove the export again, for the non-public class
+class Q_GUI_EXPORT QTextDocumentLayout : public QAbstractTextDocumentLayout
 {
     Q_DECLARE_PRIVATE(QTextDocumentLayout)
 public:

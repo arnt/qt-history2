@@ -440,7 +440,7 @@ public:
 
 class QTextGroupPrivate;
 
-class QTextGroup : public QObject
+class Q_GUI_EXPORT QTextGroup : public QObject
 {
     Q_DECLARE_PRIVATE(QTextGroup)
     Q_OBJECT
