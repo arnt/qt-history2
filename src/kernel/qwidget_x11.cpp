@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#248 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#249 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -82,6 +82,14 @@ const uint stdWidgetEventMask =			// X event mask
 	    FocusChangeMask |
 	    ExposureMask |
 	    StructureNotifyMask | SubstructureRedirectMask
+	);
+
+const uint stdDesktopEventMask =			// X event mask
+	(uint)(
+	    KeyPressMask | KeyReleaseMask |
+	    KeymapStateMask |
+	    EnterWindowMask | LeaveWindowMask |
+	    FocusChangeMask
 	);
 
 
@@ -234,12 +242,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu |
 		       WStyle_MinMax );
 	}
-	//
-	extern Atom qt_xdnd_aware;
-	Atom qt_xdnd_version = (Atom)2;
-	XChangeProperty ( dpy, id, qt_xdnd_aware,
-			  XA_ATOM, 32, PropModeReplace,
-			  (unsigned char *)&qt_xdnd_version, 1 );
     }
 
     if ( !initializeWindow ) {
@@ -767,7 +769,9 @@ void QWidget::setMouseTracking( bool enable )
 	clearWFlags( WState_TrackMouse );
     if ( testWFlags(WType_Desktop) ) {		// desktop widget?
 	if ( testWFlags(WPaintDesktop) )	// get desktop paint events
-	    XSelectInput( dpy, winid, ExposureMask );
+	    XSelectInput( dpy, winid, stdDesktopEventMask|ExposureMask );
+	else
+	    XSelectInput( dpy, winid, stdDesktopEventMask );
     } else {
 	XSelectInput( dpy, winid,		// specify events
 		      m | stdWidgetEventMask );
@@ -1703,7 +1707,21 @@ void QWidget::deleteSysExtra()
 void QWidget::setAcceptDrops( bool on )
 {
     createExtra();
-    extra->dnd = on;
+
+    if ( extra->dnd != on ) {
+	extra->dnd = on;
+
+	if ( on ) {
+	    QWidget * tlw = topLevelWidget();
+	    QWExtra * ed = tlw->extraData();
+
+	    extern Atom qt_xdnd_aware;
+	    Atom qt_xdnd_version = (Atom)2;
+	    XChangeProperty ( dpy, tlw->winId(), qt_xdnd_aware,
+			      XA_ATOM, 32, PropModeReplace,
+			      (unsigned char *)&qt_xdnd_version, 1 );
+	}
+    }
 }
 
 /*!
