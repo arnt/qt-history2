@@ -1184,11 +1184,7 @@ void QPopupMenu::hide()
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::PopupMenuEnd );
 #endif
-    if ( parentMenu ) {
-	disconnect( SIGNAL(activatedRedirect(int)) );
-	disconnect( SIGNAL(highlightedRedirect(int)) );
- 	parentMenu = 0;
-    }
+    parentMenu = 0;
     hidePopups();
     QWidget::hide();
 }
@@ -1822,6 +1818,8 @@ void QPopupMenu::subMenuTimer() {
 
     Q_ASSERT( popup->parentMenu == 0 );
     popup->parentMenu = this;			// set parent menu
+    popup->disconnect( SIGNAL(activatedRedirect(int)) );
+    popup->disconnect( SIGNAL(highlightedRedirect(int)) );
     connect( popup, SIGNAL(activatedRedirect(int)),
 	     SLOT(subActivated(int)) );
     connect( popup, SIGNAL(highlightedRedirect(int)),

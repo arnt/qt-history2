@@ -717,6 +717,8 @@ void QMenuBar::openActPopup()
 
     Q_ASSERT( popup->parentMenu == 0 );
     popup->parentMenu = this;			// set parent menu
+    popup->disconnect( SIGNAL(activatedRedirect(int)) );
+    popup->disconnect( SIGNAL(highlightedRedirect(int)) );
     connect( popup, SIGNAL(activatedRedirect(int)),
 	     SLOT(subActivated(int)) );
     connect( popup, SIGNAL(highlightedRedirect(int)),
