@@ -557,49 +557,13 @@ void QTextParagraph::lineInfo( int l, int &y, int &h, int &bl ) const
     bl = ( *it )->baseLine;
 }
 
-int QTextParagraph::alignment() const
-{
-    if ( align != -1 )
-	return align;
-    QStyleSheetItem *item = style();
-    if ( !item )
-	return Qt::AlignAuto;
-    if ( mStyleSheetItemsVec ) {
-	for ( int i = 0; i < (int)mStyleSheetItemsVec->size(); ++i ) {
-	    item = (*mStyleSheetItemsVec)[ i ];
-	    if ( item->alignment() != QStyleSheetItem::Undefined )
-		return item->alignment();
-	}
-    }
-    return Qt::AlignAuto;
-}
 
-QPtrVector<QStyleSheetItem> QTextParagraph::styleSheetItems() const
+void QTextParagraph::setAlignment( int a )
 {
-    QPtrVector<QStyleSheetItem> vec;
-    if ( mStyleSheetItemsVec ) {
-	vec.resize( mStyleSheetItemsVec->size() );
-	for ( int i = 0; i < (int)vec.size(); ++i )
-	    vec.insert( i, (*mStyleSheetItemsVec)[ i ] );
-    }
-    return vec;
-}
-
-QStyleSheetItem *QTextParagraph::style() const
-{
-    if ( !mStyleSheetItemsVec || mStyleSheetItemsVec->size() == 0 )
-	return 0;
-    return (*mStyleSheetItemsVec)[ mStyleSheetItemsVec->size() - 1 ];
-}
-
-void QTextParagraph::setFormat( QTextFormat *fm )
-{
-    bool doUpdate = FALSE;
-    if (defFormat && (defFormat != formatCollection()->defaultFormat()))
-       doUpdate = TRUE;
-    defFormat = formatCollection()->format( fm );
-    if ( !doUpdate )
+    if ( a == (int)align )
 	return;
+    align = a;
+    invalidate( 0 );
 }
 
 QTextFormatter *QTextParagraph::formatter() const
@@ -632,12 +596,6 @@ QMap<int, QTextParagraphSelection> &QTextParagraph::selections() const
     return *mSelections;
 }
 
-QPtrVector<QStyleSheetItem> &QTextParagraph::styleSheetItemsVec() const
-{
-    if ( !mStyleSheetItemsVec )
-	((QTextParagraph *)this)->mStyleSheetItemsVec = new QPtrVector<QStyleSheetItem>;
-    return *mStyleSheetItemsVec;
-}
 
 QPtrList<QTextCustomItem> &QTextParagraph::floatingItems() const
 {

@@ -126,7 +126,6 @@ public:
 #ifndef QT_NO_TEXTCUSTOMITEM
     void setCustomItem( QTextCustomItem *i );
 #endif
-    QTextStringChar *clone() const;
     struct CustomData
     {
 	QTextFormat *format;
@@ -184,7 +183,7 @@ public:
 
     void insert( int index, const QString &s, QTextFormat *f );
     void insert( int index, const QChar *unicode, int len, QTextFormat *f );
-    void insert( int index, QTextStringChar *c );
+    void insert( int index, QTextStringChar *c, bool doAddRefFormat = FALSE );
     void truncate( int index );
     void remove( int index, int len );
     void clear();
@@ -201,7 +200,7 @@ public:
     QMemArray<QTextStringChar> rawData() const { return data; }
 
     void operator=( const QString &s ) { clear(); insert( 0, s, 0 ); }
-    void operator+=( const QString &s );
+    void operator+=( const QString &s ) {insert( length(), s, 0 ); }
     void prepend( const QString &s ) { insert( 0, s, 0 ); }
 
 private:
@@ -281,7 +280,6 @@ public:
     void insert( const QString &s, bool checkNewLine, QMemArray<QTextStringChar> *formatting = 0 );
     void splitAndInsertEmptyParagraph( bool ind = TRUE, bool updateIds = TRUE );
     bool remove();
-    void killLine();
     void indent();
 
     bool atParagStart();
@@ -334,7 +332,7 @@ private:
 class Q_EXPORT QTextCommand
 {
 public:
-    enum Commands { Invalid, Insert, Delete, Format, Alignment, ParagType };
+    enum Commands { Invalid, Insert, Delete, Format, Style };
 
     QTextCommand( QTextDocument *d ) : doc( d ), cursor( d ) {}
     virtual ~QTextCommand();
@@ -778,8 +776,6 @@ public:
     QTextCursor selectionEndCursor( int id );
     void selectionEnd( int id, int &paragId, int &index );
     void setFormat( int id, QTextFormat *f, int flags );
-    QTextParagraph *selectionStart( int id );
-    QTextParagraph *selectionEnd( int id );
     int numSelections() const { return nSelections; }
     void addSelection( int id );
 
@@ -967,9 +963,7 @@ class Q_EXPORT QTextDeleteCommand : public QTextCommand
 {
 public:
     QTextDeleteCommand( QTextDocument *d, int i, int idx, const QMemArray<QTextStringChar> &str,
-			const QValueList< QPtrVector<QStyleSheetItem> > &os,
-			const QValueList<QStyleSheetItem::ListStyle> &ols,
-			const QMemArray<int> &oas );
+			const QByteArray& oldStyle );
     QTextDeleteCommand( QTextParagraph *p, int idx, const QMemArray<QTextStringChar> &str );
     virtual ~QTextDeleteCommand();
 
@@ -981,9 +975,7 @@ protected:
     int id, index;
     QTextParagraph *parag;
     QMemArray<QTextStringChar> text;
-    QValueList< QPtrVector<QStyleSheetItem> > oldStyles;
-    QValueList<QStyleSheetItem::ListStyle> oldListStyles;
-    QMemArray<int> oldAligns;
+    QByteArray styleInformation;
 
 };
 
@@ -991,10 +983,8 @@ class Q_EXPORT QTextInsertCommand : public QTextDeleteCommand
 {
 public:
     QTextInsertCommand( QTextDocument *d, int i, int idx, const QMemArray<QTextStringChar> &str,
-			const QValueList< QPtrVector<QStyleSheetItem> > &os,
-			const QValueList<QStyleSheetItem::ListStyle> &ols,
-			const QMemArray<int> &oas )
-	: QTextDeleteCommand( d, i, idx, str, os, ols, oas ) {}
+			const QByteArray& oldStyleInfo )
+	: QTextDeleteCommand( d, i, idx, str, oldStyleInfo ) {}
     QTextInsertCommand( QTextParagraph *p, int idx, const QMemArray<QTextStringChar> &str )
 	: QTextDeleteCommand( p, idx, str ) {}
     virtual ~QTextInsertCommand() {}
@@ -1023,42 +1013,23 @@ protected:
 
 };
 
-class Q_EXPORT QTextAlignmentCommand : public QTextCommand
+class Q_EXPORT QTextStyleCommand : public QTextCommand
 {
 public:
-    QTextAlignmentCommand( QTextDocument *d, int fParag, int lParag, int na, const QMemArray<int> &oa );
-    virtual ~QTextAlignmentCommand() {}
+    QTextStyleCommand( QTextDocument *d, int fParag, int lParag, const QByteArray& beforeChange  );
+    virtual ~QTextStyleCommand() {}
 
-    Commands type() const { return Alignment; }
+    Commands type() const { return Style; }
     QTextCursor *execute( QTextCursor *c );
     QTextCursor *unexecute( QTextCursor *c );
 
-private:
-    int firstParag, lastParag;
-    int newAlign;
-    QMemArray<int> oldAligns;
-
-};
-
-class Q_EXPORT QTextParagraphTypeCommand : public QTextCommand
-{
-public:
-    QTextParagraphTypeCommand( QTextDocument *d, int fParag, int lParag, bool l,
-			   QStyleSheetItem::ListStyle s, const QValueList< QPtrVector<QStyleSheetItem> > &os,
-			   const QValueList<QStyleSheetItem::ListStyle> &ols );
-    virtual ~QTextParagraphTypeCommand() {}
-
-    Commands type() const { return ParagType; }
-    QTextCursor *execute( QTextCursor *c );
-    QTextCursor *unexecute( QTextCursor *c );
+    static QByteArray readStyleInformation(  QTextDocument* d, int fParag, int lParag );
+    static void writeStyleInformation(  QTextDocument* d, int fParag, const QByteArray& style );
 
 private:
     int firstParag, lastParag;
-    bool list;
-    QStyleSheetItem::ListStyle listStyle;
-    QValueList< QPtrVector<QStyleSheetItem> > oldStyles;
-    QValueList<QStyleSheetItem::ListStyle> oldListStyles;
-
+    QByteArray before;
+    QByteArray after;
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1172,8 +1143,8 @@ public:
     void setListDepth( int depth );
     int listDepth() const { return ldepth; }
 
-    void setFormat( QTextFormat *fm );
-    QTextFormat *paragFormat() const;
+//     void setFormat( QTextFormat *fm );
+//     QTextFormat *paragFormat() const;
 
     QTextDocument *document() const;
     QTextParagraphPseudoDocument *pseudoDocument() const;
@@ -1246,10 +1217,6 @@ public:
     virtual void paint( QPainter &painter, const QColorGroup &cg, QTextCursor *cursor = 0, bool drawSelections = FALSE,
 			int clipx = -1, int clipy = -1, int clipw = -1, int cliph = -1 );
 
-    void setStyleSheetItems( const QPtrVector<QStyleSheetItem> &vec );
-    QPtrVector<QStyleSheetItem> styleSheetItems() const;
-    QStyleSheetItem *style() const;
-
     virtual int topMargin() const;
     virtual int bottomMargin() const;
     virtual int leftMargin() const;
@@ -1310,6 +1277,9 @@ public:
     QChar::Direction direction() const;
     void setPaintDevice( QPaintDevice *pd ) { paintdevice = pd; }
 
+    void readStyleInformation( QDataStream& stream );
+    void writeStyleInformation( QDataStream& stream ) const;
+
 protected:
     virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
     virtual void drawString( QPainter &painter, const QString &str, int start, int len, int xstart,
@@ -1319,7 +1289,6 @@ protected:
 
 private:
     QMap<int, QTextParagraphSelection> &selections() const;
-    QPtrVector<QStyleSheetItem> &styleSheetItemsVec() const;
     QPtrList<QTextCustomItem> &floatingItems() const;
     QBrush backgroundBrush( const QColorGroup&cg ) { if ( bgcol ) return *bgcol; return cg.brush( QColorGroup::Base ); }
     void invalidateStyleCache();
@@ -1346,11 +1315,9 @@ private:
     int state, id;
     QTextString *str;
     QMap<int, QTextParagraphSelection> *mSelections;
-    QPtrVector<QStyleSheetItem> *mStyleSheetItemsVec;
     QPtrList<QTextCustomItem> *mFloatingItems;
     QStyleSheetItem::ListStyle lstyle;
     short utm, ubm, ulm, urm, uflm, ulineextra;
-    QTextFormat *defFormat;
     int *tArray;
     short tabStopWidth;
     QTextParagraphData *eData;
@@ -1611,11 +1578,6 @@ private:
 inline int QTextString::length() const
 {
     return data.size();
-}
-
-inline void QTextString::operator+=( const QString &s )
-{
-    insert( length(), s, 0 );
 }
 
 inline int QTextParagraph::length() const
@@ -2011,17 +1973,9 @@ inline QTextCommandHistory *QTextParagraph::commands() const
 }
 
 
-inline void QTextParagraph::setAlignment( int a )
+inline int QTextParagraph::alignment() const
 {
-    if ( a == (int)align )
-	return;
-    align = a;
-    invalidate( 0 );
-}
-
-inline QTextFormat *QTextParagraph::paragFormat() const
-{
-    return defFormat;
+    return align;
 }
 
 inline void QTextParagraph::registerFloatingItem( QTextCustomItem *i )

@@ -441,7 +441,7 @@ private slots:
 
 private:
     struct Q_EXPORT UndoRedoInfo {
-	enum Type { Invalid, Insert, Delete, Backspace, Return, RemoveSelected, Format, Alignment, ParagType };
+	enum Type { Invalid, Insert, Delete, Backspace, Return, RemoveSelected, Format, Style };
 
 	UndoRedoInfo( QTextDocument *dc );
 	~UndoRedoInfo();
@@ -457,12 +457,7 @@ private:
 	int flags;
 	Type type;
 	QTextDocument *doc;
-	QMemArray<int> oldAligns;
-	int newAlign;
-	bool list;
-	QStyleSheetItem::ListStyle listStyle;
-	QValueList< QPtrVector<QStyleSheetItem> > oldStyles;
-	QValueList<QStyleSheetItem::ListStyle> oldListStyles;
+	QByteArray styleInformation;
     };
 
 private:
@@ -486,7 +481,7 @@ private:
     virtual void emitHighlighted( const QString & ) {}
     virtual void emitLinkClicked( const QString & ) {}
 
-    void readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QTextString &text, bool fillStyles = FALSE );
+    void readFormats( QTextCursor &c1, QTextCursor &c2, QTextString &text, bool fillStyles = FALSE );
     void clearUndoRedo();
     void paintDocument( bool drawAll, QPainter *p, int cx = -1, int cy = -1, int cw = -1, int ch = -1 );
     void moveCursor( CursorAction action );

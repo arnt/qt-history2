@@ -171,10 +171,8 @@ bool QTextCommandHistory::isRedoAvailable()
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextDeleteCommand::QTextDeleteCommand( QTextDocument *d, int i, int idx, const QMemArray<QTextStringChar> &str,
-					const QValueList< QPtrVector<QStyleSheetItem> > &os,
-					const QValueList<QStyleSheetItem::ListStyle> &ols,
-					const QMemArray<int> &oas)
-    : QTextCommand( d ), id( i ), index( idx ), parag( 0 ), text( str ), oldStyles( os ), oldListStyles( ols ), oldAligns( oas )
+					const QByteArray& oldStyleInfo )
+    : QTextCommand( d ), id( i ), index( idx ), parag( 0 ), text( str ), styleInformation( oldStyleInfo )
 {
     for ( int j = 0; j < (int)text.size(); ++j ) {
 	if ( text[ j ].format() )
@@ -249,32 +247,16 @@ QTextCursor *QTextDeleteCommand::unexecute( QTextCursor *c )
 	    c->gotoNextLetter();
     }
 
-    QValueList< QPtrVector<QStyleSheetItem> >::Iterator it = oldStyles.begin();
-    QValueList<QStyleSheetItem::ListStyle>::Iterator lit = oldListStyles.begin();
-    int i = 0;
-    QTextParagraph *p = s;
-    bool end = FALSE;
-    while ( p ) {
-	if ( it != oldStyles.end() )
-	    p->setStyleSheetItems( *it );
-	else
-	    end = TRUE;
-	if ( lit != oldListStyles.end() )
-	    p->setListStyle( *lit );
-	else
-	    end = TRUE;
-	if ( i < (int)oldAligns.size() )
-	    p->setAlignment( oldAligns.at( i ) );
-	else
-	    end = TRUE;
-	if ( end )
-	    break;
-	p = p->next();
-	++it;
-	++lit;
-	++i;
+    if ( !styleInformation.isEmpty() ) {
+	QDataStream styleStream( styleInformation, IO_ReadOnly );
+	int num;
+	styleStream >> num;
+	QTextParagraph *p = s;
+	while ( num-- && p ) {
+	    p->readStyleInformation( styleStream );
+	    p = p->next();
+	}
     }
-
     s = cursor.paragraph();
     while ( s ) {
 	s->format();
@@ -375,82 +357,52 @@ QTextCursor *QTextFormatCommand::unexecute( QTextCursor *c )
     return c;
 }
 
-QTextAlignmentCommand::QTextAlignmentCommand( QTextDocument *d, int fParag, int lParag, int na, const QMemArray<int> &oa )
-    : QTextCommand( d ), firstParag( fParag ), lastParag( lParag ), newAlign( na ), oldAligns( oa )
+QTextStyleCommand::QTextStyleCommand( QTextDocument *d, int fParag, int lParag, const QByteArray& beforeChange )
+    : QTextCommand( d ), firstParag( fParag ), lastParag( lParag ), before( beforeChange )
 {
+    after = readStyleInformation(  d, fParag, lParag );
 }
 
-QTextCursor *QTextAlignmentCommand::execute( QTextCursor *c )
+
+QByteArray QTextStyleCommand::readStyleInformation(  QTextDocument* doc, int fParag, int lParag )
 {
-    QTextParagraph *p = doc->paragAt( firstParag );
+    QByteArray style;
+    QTextParagraph *p = doc->paragAt( fParag );
     if ( !p )
-	return c;
-    while ( p ) {
-	p->setAlignment( newAlign );
-	if ( p->paragId() == lastParag )
-	    break;
+	return style;
+    QDataStream styleStream( style, IO_WriteOnly );
+    int num = lParag - fParag + 1;
+    styleStream << num;
+    while ( num -- && p ) {
+	p->writeStyleInformation( styleStream );
 	p = p->next();
     }
+    return style;
+}
+
+void QTextStyleCommand::writeStyleInformation(  QTextDocument* doc, int fParag, const QByteArray& style )
+{
+    QTextParagraph *p = doc->paragAt( fParag );
+    if ( !p )
+	return;
+    QDataStream styleStream( style, IO_ReadOnly );
+    int num;
+    styleStream >> num;
+    while ( num-- && p ) {
+	p->readStyleInformation( styleStream );
+	p = p->next();
+    }
+}
+
+QTextCursor *QTextStyleCommand::execute( QTextCursor *c )
+{
+    writeStyleInformation( doc, firstParag, after );
     return c;
 }
 
-QTextCursor *QTextAlignmentCommand::unexecute( QTextCursor *c )
+QTextCursor *QTextStyleCommand::unexecute( QTextCursor *c )
 {
-    QTextParagraph *p = doc->paragAt( firstParag );
-    if ( !p )
-	return c;
-    int i = 0;
-    while ( p ) {
-	if ( i < (int)oldAligns.size() )
-	    p->setAlignment( oldAligns.at( i ) );
-	if ( p->paragId() == lastParag )
-	    break;
-	p = p->next();
-	++i;
-    }
-    return c;
-}
-
-QTextParagraphTypeCommand::QTextParagraphTypeCommand( QTextDocument *d, int fParag, int lParag, bool l,
-					      QStyleSheetItem::ListStyle s, const QValueList< QPtrVector<QStyleSheetItem> > &os,
-					      const QValueList<QStyleSheetItem::ListStyle> &ols )
-    : QTextCommand( d ), firstParag( fParag ), lastParag( lParag ), list( l ), listStyle( s ), oldStyles( os ), oldListStyles( ols )
-{
-}
-
-QTextCursor *QTextParagraphTypeCommand::execute( QTextCursor *c )
-{
-    QTextParagraph *p = doc->paragAt( firstParag );
-    if ( !p )
-	return c;
-    while ( p ) {
-	p->setListStyle( listStyle );
-	p->setListItem( list );
-	if ( p->paragId() == lastParag )
-	    break;
-	p = p->next();
-    }
-    return c;
-}
-
-QTextCursor *QTextParagraphTypeCommand::unexecute( QTextCursor *c )
-{
-    QTextParagraph *p = doc->paragAt( firstParag );
-    if ( !p )
-	return c;
-    QValueList< QPtrVector<QStyleSheetItem> >::Iterator it = oldStyles.begin();
-    QValueList<QStyleSheetItem::ListStyle>::Iterator lit = oldListStyles.begin();
-    while ( p ) {
-	if ( it != oldStyles.end() )
-	    p->setStyleSheetItems( *it );
-	if ( lit != oldListStyles.end() )
-	    p->setListStyle( *lit );
-	if ( p->paragId() == lastParag )
-	    break;
-	p = p->next();
-	++it;
-	++lit;
-    }
+    writeStyleInformation( doc, firstParag, before );
     return c;
 }
 
@@ -580,7 +532,6 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
 	int end;
 	int y = para->rect().y() + para->rect().height();
 	int lastIndex = 0;
-	QTextFormat *lastFormat = 0;
 	do {
 	    end = s.find( '\n', start + 1 ); // find line break
 	    if ( end == -1 ) // didn't find one, so end of line is end of string
@@ -590,7 +541,6 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
 		para->insert( idx, s.unicode() + start + 1, len );
 	    else
 		para->invalidate( 0 );
-	    lastFormat = 0;
 	    if ( formatting ) { // set formats to the chars of the line
 		for ( int i = 0; i < len; ++i ) {
 		    if ( formatting->at( i + lastIndex ).format() ) {
@@ -598,8 +548,6 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
 			para->string()->setFormat( i + idx, formatting->at( i + lastIndex ).format(), TRUE );
 		    }
 		}
-		if ( end > (int)s.length() - 1 )
-		    lastFormat = formatting->at( len + lastIndex ).format();
 		lastIndex += len;
 	    }
 	    start = end; // next start is at the end of this line
@@ -608,10 +556,7 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
 		splitAndInsertEmptyParagraph( FALSE, TRUE );
 		para->setEndState( -1 );
 		para->prev()->format( -1, FALSE );
-		if ( lastFormat && formatting && para->prev() ) {
-		    lastFormat->addRef();
-		    para->prev()->string()->setFormat( para->prev()->length() - 1, lastFormat, TRUE );
-		}
+		lastIndex++;
 	    }
 
 	} while ( end < (int)s.length() );
@@ -1214,43 +1159,11 @@ bool QTextCursor::remove()
 	    para->document()->nextDoubleBuffered = TRUE;
 	return FALSE;
     } else if ( para->next() ) {
-	if ( para->length() == 1 ) {
-	    para->next()->setPrev( para->prev() );
-	    if ( para->prev() )
-		para->prev()->setNext( para->next() );
-	    QTextParagraph *p = para->next();
-	    delete para;
-	    para = p;
-	    para->invalidate( 0 );
-	    QTextParagraph *s = para;
-	    while ( s ) {
-		s->id = s->p ? s->p->id + 1 : 0;
-		s->state = -1;
-		s->needPreProcess = TRUE;
-		s->changed = TRUE;
-		s = s->n;
-	    }
-	    para->format();
-	} else {
-	    para->join( para->next() );
-	}
+	para->join( para->next() );
 	invalidateNested();
 	return TRUE;
     }
     return FALSE;
-}
-
-void QTextCursor::killLine()
-{
-    if ( atParagEnd() )
-	return;
-    para->remove( idx, para->length() - idx - 1 );
-    int h = para->rect().height();
-    para->format( -1, TRUE );
-    if ( h != para->rect().height() )
-	invalidateNested();
-    else if ( para->document() && para->document()->parent() )
-	para->document()->nextDoubleBuffered = TRUE;
 }
 
 void QTextCursor::indent()
@@ -1828,7 +1741,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			}
 
 			NEWPAR;
-			curpar->setFormat( &curtag.format );
 			
 			if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
 			    if ( attr.contains( "value " ) )
@@ -2380,28 +2292,6 @@ void QTextDocument::selectionEnd( int id, int &paragId, int &index )
     QTextDocumentSelection &sel = *it;
     paragId = sel.swapped ? sel.startCursor.paragraph()->paragId() : sel.endCursor.paragraph()->paragId();
     index = sel.swapped ? sel.startCursor.index() : sel.endCursor.index();
-}
-
-QTextParagraph *QTextDocument::selectionStart( int id )
-{
-    QMap<int, QTextDocumentSelection>::Iterator it = selections.find( id );
-    if ( it == selections.end() )
-	return 0;
-    QTextDocumentSelection &sel = *it;
-    if ( sel.startCursor.paragraph()->paragId() <  sel.endCursor.paragraph()->paragId() )
-	return sel.startCursor.paragraph();
-    return sel.endCursor.paragraph();
-}
-
-QTextParagraph *QTextDocument::selectionEnd( int id )
-{
-    QMap<int, QTextDocumentSelection>::Iterator it = selections.find( id );
-    if ( it == selections.end() )
-	return 0;
-    QTextDocumentSelection &sel = *it;
-    if ( sel.startCursor.paragraph()->paragId() >  sel.endCursor.paragraph()->paragId() )
-	return sel.startCursor.paragraph();
-    return sel.endCursor.paragraph();
 }
 
 void QTextDocument::addSelection( int id )
@@ -3527,7 +3417,7 @@ QTextString::~QTextString()
     clear();
 }
 
-void QTextString::insert( int index, QTextStringChar *c )
+void QTextString::insert( int index, QTextStringChar *c, bool doAddRefFormat  )
 {
     int os = data.size();
     data.resize( data.size() + 1 );
@@ -3541,6 +3431,8 @@ void QTextString::insert( int index, QTextStringChar *c )
     data[ (int)index ].rightToLeft = 0;
     data[ (int)index ].d.format = 0;
     data[ (int)index ].type = QTextStringChar::Regular;
+    if ( doAddRefFormat && c->format() )
+	c->format()->addRef();
     data[ (int)index ].setFormat( c->format() );
     bidiDirty = TRUE;
 }
@@ -3700,15 +3592,13 @@ void QTextDocument::setUnderlineLinks( bool b ) {
 void QTextStringChar::setFormat( QTextFormat *f )
 {
     if ( type == Regular ) {
-	d.format = f;
+ 	d.format = f;
     } else {
-	if ( !d.custom ) {
-	    d.custom = new CustomData;
-#ifndef QT_NO_TEXTCUSTOMITEM
-	    d.custom->custom = 0;
-#endif
-	}
-	d.custom->format = f;
+ 	if ( !d.custom ) {
+ 	    d.custom = new CustomData;
+ 	    d.custom->custom = 0;
+ 	}
+ 	d.custom->format = f;
     }
 }
 
@@ -3829,21 +3719,6 @@ QMemArray<QTextStringChar> QTextString::subString( int start, int len ) const
     return a;
 }
 
-QTextStringChar *QTextStringChar::clone() const
-{
-    QTextStringChar *chr = new QTextStringChar;
-    chr->c = c;
-    chr->x = 0;
-    chr->lineStart = 0;
-    chr->rightToLeft = 0;
-    chr->d.format = 0;
-    chr->type = QTextStringChar::Regular;
-    chr->setFormat( format() );
-    if ( chr->format() )
-	chr->format()->addRef();
-    return chr;
-}
-
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextParagraph::QTextParagraph( QTextDocument *d, QTextParagraph *pr, QTextParagraph *nx, bool updateIds )
@@ -3852,7 +3727,7 @@ QTextParagraph::QTextParagraph( QTextDocument *d, QTextParagraph *pr, QTextParag
       lastInFrame(FALSE), visible(TRUE), breakable(TRUE), movedDown(FALSE),
       mightHaveCustomItems(FALSE), hasdoc( d != 0 ), litem(FALSE), rtext(FALSE),
       align( 0 ),mSelections( 0 ),
-      mStyleSheetItemsVec( 0 ), mFloatingItems( 0 ), lstyle( QStyleSheetItem::ListDisc ),
+      mFloatingItems( 0 ), lstyle( QStyleSheetItem::ListDisc ),
       utm( 0 ), ubm( 0 ), ulm( 0 ), urm( 0 ), uflm( 0 ), ulineextra( 0 ),
       tArray(0), tabStopWidth(0), eData( 0 ), ldepth( 0 )
 {
@@ -3921,8 +3796,6 @@ QTextParagraph::~QTextParagraph()
 	delete mSelections;
     if ( mFloatingItems )
 	delete mFloatingItems;
-    if ( mStyleSheetItemsVec )
-	delete mStyleSheetItemsVec;
     if ( p )
 	p->setNext( n );
     if ( n )
@@ -4360,7 +4233,7 @@ void QTextParagraph::setFormat( int index, int len, QTextFormat *f, bool useColl
 
 void QTextParagraph::indent( int *oldIndent, int *newIndent )
 {
-    if ( !hasdoc || !document()->indent() || style() && style()->displayMode() != QStyleSheetItem::DisplayBlock ) {
+    if ( !hasdoc || !document()->indent() || isListItem() ) {
 	if ( oldIndent )
 	    *oldIndent = 0;
 	if ( newIndent )
@@ -4636,19 +4509,11 @@ void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int bas
     QStyleSheetItem::ListStyle s = listStyle();
 
     p->save();
-    p->setPen( defFormat->color() );
-
-    QFont font2( defFormat->font() );
-    if ( length() > 0 ) {
-	QTextFormat *format = at( 0 )->format();
-	if ( format ) {
-	    if ( format->fontSizesInPixels() )
-		font2.setPixelSize( at( 0 )->format()->font().pixelSize() );
-	    else
-		font2.setPointSize( at( 0 )->format()->font().pointSize() );
-	}
+    QTextFormat *format = at( 0 )->format();
+    if ( format ) {
+	p->setPen( format->color() );
+	p->setFont( format->font() );
     }
-    p->setFont( font2 );
     QFontMetrics fm( p->fontMetrics() );
     int size = fm.lineSpacing() / 3;
 
@@ -4720,11 +4585,24 @@ void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int bas
     p->restore();
 }
 
-void QTextParagraph::setStyleSheetItems( const QPtrVector<QStyleSheetItem> &vec )
+void QTextParagraph::readStyleInformation( QDataStream& stream )
 {
-    styleSheetItemsVec() = vec;
-    invalidate( 0 );
+    int int_align, int_lstyle, int_litem, int_rtext;
+    stream >> int_align >> int_lstyle >> utm >> ubm >> ulm >> urm >> uflm >> ulineextra >> ldepth >> int_litem >> int_rtext;
+    align = int_align; lstyle = (QStyleSheetItem::ListStyle) int_lstyle; litem = int_litem; rtext = int_rtext;
+    QTextParagraph* s = prev() ? prev() : this;
+    while ( s ) {
+	s->invalidate( 0 );
+	s = s->next();
+    }
 }
+
+void QTextParagraph::writeStyleInformation( QDataStream& stream ) const
+{
+    stream << (int) align << (int) lstyle << utm << ubm << ulm << urm << uflm << ulineextra << ldepth << (int)litem << (int)rtext;
+}
+
+
 
 void QTextParagraph::setListDepth( int depth ) {
     if ( !hasdoc || depth == ldepth )
@@ -4916,7 +4794,6 @@ int QTextParagraph::lineExtra() const
 
 void QTextParagraph::copyParagData( QTextParagraph *parag )
 {
-    setStyleSheetItems( parag->styleSheetItems() );
     rtext = parag->rtext;
     lstyle = parag->lstyle;
     ldepth = parag->ldepth;
