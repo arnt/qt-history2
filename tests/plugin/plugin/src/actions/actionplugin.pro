@@ -1,7 +1,7 @@
 TEMPLATE	= lib
 CONFIG		= qt warn_on release
 WIN32:CONFIG   += dll
-HEADERS		= ../../../qdualinterface.h
+HEADERS		=
 SOURCES		= main.cpp
 
 INTERFACES	= sounddialog.ui
