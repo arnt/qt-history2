@@ -21,6 +21,8 @@
 #include "qdatetime.h"
 #include "qdragobject.h"
 #include "qbuffer.h"
+#include "qwidget.h"
+#include "qevent.h"
 
 #include <qwsdisplay_qws.h>
 #include <qwsproperty_qws.h>

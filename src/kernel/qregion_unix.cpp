@@ -2153,8 +2153,12 @@ QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
     return region;
 }
 
+#ifndef Q_WS_QWS
 QRegion::QRegionData QRegion::shared_empty = {Q_ATOMIC_INIT(1), 0, 0, 0};
-
+#else
+static QRegionPrivate qrp; //### make it work now without checking for null pointers all the time
+QRegion::QRegionData QRegion::shared_empty = {Q_ATOMIC_INIT(1), &qrp};
+#endif
 /*!
     Constructs a null region.
 
@@ -2400,10 +2404,12 @@ void QRegion::translate(int dx, int dy)
 {
     detach();
     OffsetRegion(*d->region, dx, dy);
+#ifndef Q_WS_QWS
     if (d->xrectangles) {
 	free(d->xrectangles);
 	d->xrectangles = 0;
     }
+#endif
 }
 
 
@@ -2552,8 +2558,8 @@ void QRegion::setRects(const QRect *rects, int num)
 
 bool QRegion::operator==(const QRegion &r) const
 {
-    if (!d->region)
-	return !r.d->region;
+    if (!d->region || !r.d->region)
+	return r.d->region == d->region; //###yuck
 
     if (d == r.d) {
 	return true;

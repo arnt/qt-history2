@@ -22,7 +22,6 @@
 #include "qapplication.h"
 #include "private/qapplication_p.h"
 #include "qwidget.h"
-#include "qwidgetlist.h"
 #include "qbitarray.h"
 #include "qpainter.h"
 #include "qpixmapcache.h"
@@ -56,6 +55,7 @@
 #include "qinputcontext_p.h"
 #include "qfile.h"
 #include "qhash.h"
+#include "qdesktopwidget.h"
 
 #if defined(QT_THREAD_SUPPORT)
 #include "qthread.h"
@@ -267,7 +267,7 @@ public:
 	// With limited windowmanagement/taskbar/etc., raising big windows
 	// (eg. spreadsheet) over the top of everything else (eg. calculator)
 	// is just annoying.
-	return !isMaximized() && !topData()->fullscreen;
+	return !isMaximized() && !d->topData()->fullscreen;
     }
 };
 
@@ -786,12 +786,12 @@ void QWSDisplay::Data::waitForQCopResponse()
 
 QWSDisplay::QWSDisplay()
 {
-    d = new Data( 0, qws_single_process );
+    dd = new Data( 0, qws_single_process );
 }
 
 QWSDisplay::~QWSDisplay()
 {
-    delete d;
+    delete dd;
     delete lock;
 }
 
@@ -802,16 +802,16 @@ QGfx * QWSDisplay::screenGfx()
 
 QWSRegionManager *QWSDisplay::regionManager() const
 {
-    return d->rgnMan;
+    return dd->rgnMan;
 }
 
 bool QWSDisplay::eventPending() const
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
-    d->flush();
+    dd->flush();
 #endif
-    d->fillQueue();
-    return d->queueNotEmpty();
+    dd->fillQueue();
+    return dd->queueNotEmpty();
 }
 
 
@@ -821,7 +821,7 @@ bool QWSDisplay::eventPending() const
 QWSEvent*  QWSDisplay::getEvent()
 {
     d->fillQueue();
-    Q_ASSERT(d->queueNotEmpty());
+    Q_ASSERT(dd->queueNotEmpty());
     QWSEvent* e = d->dequeue();
 
     return e;
@@ -832,7 +832,7 @@ int QWSDisplay::width() const { return qt_screen->width(); }
 int QWSDisplay::height() const { return qt_screen->height(); }
 int QWSDisplay::depth() const { return qt_screen->depth(); }
 int QWSDisplay::pixmapDepth() const { return qt_screen->pixmapDepth(); }
-bool QWSDisplay::supportsDepth(int d) const { return qt_screen->supportsDepth(d); }
+bool QWSDisplay::supportsDepth(int depth) const { return qt_screen->supportsDepth(depth); }
 uchar *QWSDisplay::sharedRam() const { return d->sharedRam; }
 int QWSDisplay::sharedRamSize() const { return d->sharedRamSize; }
 
@@ -955,7 +955,7 @@ void QWSDisplay::requestRegion(int winId, QRegion r)
     } else {
 	//by sending the event, I promise not to paint outside the region
 
-	QMemArray<QRect> ra = r.rects();
+	QVector<QRect> ra = r.rects();
 
 	/*
 	  for ( int i = 0; i < ra.size(); i++ ) {
@@ -1885,34 +1885,23 @@ QWidget *QApplication::findChildWidget( const QWidget *p, const QPoint &pos )
 QWidget *QApplication::widgetAt( int x, int y, bool child )
 {
     // XXX not a fast function...
-    QWidgetList *list = topLevelWidgets();
+    QWidgetList list = topLevelWidgets();
 
     QPoint pos(x,y);
 
-    if ( list ) {
-	QWidget *w;
-	QWidgetListIt it( *list );
-	it.toLast();
-	while ( it.current() ) {
-	    w = (QWidget*)it.current();
-	    if ( w == QApplication::desktop() ) {
-		--it;
-		continue;
-	    }
-	    if ( w->isVisible() && w->geometry().contains(pos)
-		 && w->allocatedRegion().contains( qt_screen->mapToDevice( w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height()) ) ) ) {
-		if ( !child )
-		    return w;
-		QWidget *c = findChildWidget( w, w->mapFromParent(pos) );
-		return c ? c  : w;
-	    }
-	    --it;
+    for ( int i = list.size()-1; i >= 0; --i ) {
+	QWidget *w = (QWidget*)list[i];
+	if ( w != QApplication::desktop() &&
+	     w->isVisible() && w->geometry().contains(pos)
+	     && w->allocatedRegion().contains( qt_screen->mapToDevice( w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height()) ) ) ) {
+	    if ( !child )
+		return w;
+	    QWidget *c = findChildWidget( w, w->mapFromParent(pos) );
+	    return c ? c  : w;
 	}
-	delete list;
-	return 0;
-    } else {
-	return 0;
+	
     }
+    return 0;
 }
 
 void QApplication::beep()
@@ -1988,7 +1977,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 #ifndef QT_NO_QWS_MANAGER
 	if ( !w )
 	    w = (QETWidget*)QWSManager::grabbedMouse();
-	QWSManager *wm = widget->topData()->qwsManager;
+	QWSManager *wm = widget->d->topData()->qwsManager;
 #endif
 	if (w) {
 	    widget = w;
@@ -2018,8 +2007,8 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 #ifndef QT_NO_CURSOR
 	    if ( !gw || gw == w ) {
 		QCursor *curs = app_cursor;
-		if (!curs && w->extraData()) {
-		    curs = w->extraData()->curs;
+		if (!curs && w->d->extraData()) {
+		    curs = w->d->extraData()->curs;
 		}
 		QWidget *pw = w;
 		// If this widget has no cursor set, try parent.
@@ -2027,8 +2016,8 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		    pw = pw->parentWidget();
 		    if (!pw)
 			break;
-		    if (pw->extraData())
-			curs = pw->extraData()->curs;
+		    if (pw->d->extraData())
+			curs = pw->d->extraData()->curs;
 		}
 		if ( !qws_overrideCursor ) {	// is override cursor active?
 		    if (curs)
@@ -2249,16 +2238,14 @@ QWSDecoration &QApplication::qwsDecoration()
 
     \sa QWSDecoration
 */
-void QApplication::qwsSetDecoration( QWSDecoration *d )
+void QApplication::qwsSetDecoration( QWSDecoration *dec )
 {
-    if ( d ) {
+    if ( dec ) {
 	delete qws_decoration;
-	qws_decoration = d;
-	QWidgetList *widgets = topLevelWidgets();
-	QWidgetListIt it( *widgets );
-	QWidget *w;
-	while ( (w=it.current()) != 0 ) {
-	    ++it;
+	qws_decoration = dec;
+	QWidgetList widgets = topLevelWidgets();
+	for (int i = 0; i < widgets.size(); ++i) {
+	    QWidget *w = widgets[i];
 	    if ( w->isVisible() && w != desktop() ) {
 		((QETWidget *)w)->updateRegion();
 		((QETWidget *)w)->repaintDecoration(desktop()->rect(), FALSE);
@@ -2266,7 +2253,6 @@ void QApplication::qwsSetDecoration( QWSDecoration *d )
 		    w->showMaximized();
 	    }
 	}
-	delete widgets;
     }
 }
 #endif
@@ -2289,7 +2275,7 @@ void qt_enter_modal( QWidget *widget )
 
 void qt_leave_modal( QWidget *widget )
 {
-    if ( qt_modal_stack && qt_modal_stack->removeRef(widget) ) {
+    if ( qt_modal_stack && qt_modal_stack->remove(widget) ) {
 	if ( qt_modal_stack->isEmpty() ) {
 	    delete qt_modal_stack;
 	    qt_modal_stack = 0;
@@ -2365,7 +2351,7 @@ void QApplication::closePopup( QWidget *popup )
     if ( !popupWidgets )
 	return;
 
-    popupWidgets->removeRef( popup );
+    popupWidgets->remove( popup );
     if (popup == popupOfPopupButtonFocus) {
 	popupButtonFocus = 0;
 	popupOfPopupButtonFocus = 0;
@@ -2393,13 +2379,13 @@ void QApplication::closePopup( QWidget *popup )
 		active_window->setFocus();
 	    QFocusEvent::resetReason();
 	}
-    }else {
+    } else {
 	// popups are not focus-handled by the window system (the
 	// first popup grabbed the keyboard), so we have to do that
 	// manually: A popup was closed, so the previous popup gets
 	// the focus.
 	 QFocusEvent::setReason( QFocusEvent::Popup );
-	 active_window = popupWidgets->getLast();
+	 active_window = popupWidgets->last();
 	 if (active_window->focusWidget())
 	     active_window->focusWidget()->setFocus();
 	 else
@@ -2624,15 +2610,15 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 
 	    QMouseEvent e( type, pos, globalPos, button, mouseButtonState );
 #ifndef QT_NO_QWS_MANAGER
-	    if (widget->isTopLevel() && widget->topData()->qwsManager
-		&& (widget->topData()->qwsManager->region().contains(globalPos)
+	    if (widget->isTopLevel() && widget->d->topData()->qwsManager
+		&& (widget->d->topData()->qwsManager->region().contains(globalPos)
 		    || (QWSManager::grabbedMouse() && QWidget::mouseGrabber())) ) {
 		if ( (*mouseInWidget) ) {
 		    QEvent leave( QEvent::Leave );
 		    QApplication::sendSpontaneousEvent( *mouseInWidget, &leave );
 		    (*mouseInWidget) = 0;
 		}
-		QApplication::sendSpontaneousEvent( widget->topData()->qwsManager, &e );
+		QApplication::sendSpontaneousEvent( widget->d->topData()->qwsManager, &e );
 	    } else
 #endif
 	    {
@@ -2731,17 +2717,17 @@ void QETWidget::repaintHierarchy(QRegion r, bool post)
 void QETWidget::repaintDecoration(QRegion r, bool post)
 {
 #ifndef QT_NO_QWS_MANAGER
-    if ( testWFlags(WType_TopLevel) && topData()->qwsManager) {
-	r &= topData()->qwsManager->region();
+    if ( testWFlags(WType_TopLevel) && d->topData()->qwsManager) {
+	r &= d->topData()->qwsManager->region();
 	r.translate(-crect.x(),-crect.y());
 	if ( post ) {
-	    QApplication::postEvent(topData()->qwsManager,
+	    QApplication::postEvent(d->topData()->qwsManager,
 		    new QPaintEvent( clipRegion(), TRUE ) );
 	} else {
 	    QPaintEvent e(r, FALSE);
 	    setWState( WState_InPaintEvent );
 	    qt_set_paintevent_clipping( this, r );
-	    QApplication::sendEvent(topData()->qwsManager, &e );
+	    QApplication::sendEvent(d->topData()->qwsManager, &e );
 	    qt_clear_paintevent_clipping();
 	    clearWState( WState_InPaintEvent );
 	}
@@ -2753,8 +2739,8 @@ void QETWidget::updateRegion()
 {
     if ( testWFlags(WType_Desktop) )
        return;
-    if ( extra && !extra->mask.isNull() ) {
-       req_region = extra->mask;
+    if ( d->extra && !d->extra->mask.isNull() ) {
+       req_region = d->extra->mask;
        req_region.translate(crect.x(),crect.y());
        req_region &= crect;
     } else {
@@ -2765,8 +2751,8 @@ void QETWidget::updateRegion()
     QRegion r( req_region );
 #ifndef QT_NO_QWS_MANAGER
     QRegion wmr;
-    if ( extra && extra->topextra && extra->topextra->qwsManager ) {
-	wmr = extra->topextra->qwsManager->region();
+    if ( d->extra && d->extra->topextra && d->extra->topextra->qwsManager ) {
+	wmr = d->extra->topextra->qwsManager->region();
 	wmr = qt_screen->mapToDevice( wmr, QSize(qt_screen->width(), qt_screen->height()) );
 	r += wmr;
     }
@@ -2802,17 +2788,17 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	QRegion newRegion = rgnMan->region( alloc_region_index );
 	QWSDisplay::ungrab();
 #ifndef QT_NO_QWS_MANAGER
-	if ( testWFlags(WType_TopLevel) && topData()->qwsManager ) {
+	if ( testWFlags(WType_TopLevel) && d->topData()->qwsManager ) {
 	    if ( event->simpleData.nrectangles && qws_regionRequest ) {
-		extraExposed = topData()->decor_allocated_region;
+		extraExposed = d->topData()->decor_allocated_region;
 		QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
 		extraExposed = qt_screen->mapFromDevice( extraExposed, s );
 		extraExposed &= geometry();
 	    }
 
-	    QRegion mr(topData()->qwsManager->region());
+	    QRegion mr(d->topData()->qwsManager->region());
 	    mr = qt_screen->mapToDevice( mr, QSize(qt_screen->width(), qt_screen->height()) );
-	    topData()->decor_allocated_region = newRegion & mr;
+	    d->topData()->decor_allocated_region = newRegion & mr;
 	    newRegion -= mr;
 	}
 #endif

@@ -4470,9 +4470,9 @@ bool QWidget::event( QEvent *e )
 	    if ( !own_palette && !isDesktop() )
 		unsetPalette();
 # if defined(Q_WS_QWS) && !defined (QT_NO_QWS_MANAGER)
-	    if ( isTopLevel() && topData()->qwsManager ) {
-		QRegion r( topData()->qwsManager->region() );
-		QApplication::postEvent(topData()->qwsManager, new QPaintEvent(r, FALSE) );
+	    if ( isTopLevel() && d->topData()->qwsManager ) {
+		QRegion r( d->topData()->qwsManager->region() );
+		QApplication::postEvent(d->topData()->qwsManager, new QPaintEvent(r, FALSE) );
 	    }
 # endif
 	    break;

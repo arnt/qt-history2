@@ -21,6 +21,7 @@
 #include "qdragobject.h"
 #include "qbitmap.h"
 #include "qcursor.h"
+#include "qevent.h"
 
 static QPixmap *defaultPm = 0;
 static const int default_pm_hotx = -2;

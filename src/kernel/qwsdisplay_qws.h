@@ -117,7 +117,10 @@ private:
     friend class QApplication;
     friend class QCopChannel;
     class Data;
-    Data *d;
+    Data *dd;
+
+    inline Data *d_func() { return dd; } // work around #define 
+    inline const Data *d_func() const { return dd; } // work around #define 
 
     int getPropertyLen;
     char *getPropertyData;

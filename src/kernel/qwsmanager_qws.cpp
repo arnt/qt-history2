@@ -31,6 +31,9 @@
 #include "qwsregionmanager_qws.h"
 #include "qwsdefaultdecoration_qws.h"
 #include "qevent.h"
+#include "qdesktopwidget.h"
+
+#include "qwidget_p.h"
 
 enum WMStyle {
     Default_WMStyle = 1, /* Starting at zero stuffs up menus */
@@ -395,7 +398,7 @@ void QWSManager::paintEvent(QPaintEvent *)
 
     // Adjust our widget region to contain the window
     // manager decoration instead of the widget itself.
-    QRegion r = managed->topData()->decor_allocated_region;
+    QRegion r = managed->d->topData()->decor_allocated_region;
     int rgnIdx = managed->alloc_region_index;
     if ( rgnIdx >= 0 ) {
 	QRegion newRegion;

@@ -19,7 +19,6 @@
 #include "qpainter.h"
 #include "qbitmap.h"
 #include "qimage.h"
-#include "qwidgetlist.h"
 #include "qhash.h"
 #include "qaccel.h"
 #include "qdragobject.h"
@@ -258,7 +257,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	    qwsDisplay()->nameRegion( winId(), name(), caption() );
 	else
 	    qwsDisplay()->nameRegion( winId(), "", caption() );
-	createTLExtra();
+	d->createTLExtra();
 #else
 	qwsDisplay()->nameRegion( winId(), name(), QString::null );
 #endif
@@ -270,11 +269,11 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	    QRegion r = QApplication::qwsDecoration().region(this, crect);
 	    QRect br( r.boundingRect() );
 	    crect.moveBy( crect.x()-br.x(), crect.y()-br.y() );
-	    extra->topextra->fleft = crect.x()-br.x();
-	    extra->topextra->ftop = crect.y()-br.y();
-	    extra->topextra->fright = br.right()-crect.right();
-	    extra->topextra->fbottom = br.bottom()-crect.bottom();
-	    topData()->qwsManager = new QWSManager(this);
+	    d->extra->topextra->fleft = crect.x()-br.x();
+	    d->extra->topextra->ftop = crect.y()-br.y();
+	    d->extra->topextra->fright = br.right()-crect.right();
+	    d->extra->topextra->fbottom = br.bottom()-crect.bottom();
+	    d->topData()->qwsManager = new QWSManager(this);
 	}
 #endif
 	// declare the widget's object name as window role
@@ -283,8 +282,8 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	qt_fbdpy->setProperty(id,QT_QWS_PROPERTY_WINDOWNAME,0,name());
 
 	// If we are session managed, inform the window manager about it
-	if ( extra && !extra->mask.isNull() ) {
-	    req_region = extra->mask;
+	if ( d->extra && !d->extra->mask.isNull() ) {
+	    req_region = d->extra->mask;
 	    req_region.translate(crect.x(),crect.y());
 	    req_region &= crect; //??? this is optional
 	} else {
@@ -292,11 +291,11 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	}
 	req_region = qt_screen->mapToDevice( req_region, QSize(qt_screen->width(), qt_screen->height()) );
     } else {
-	if ( extra && extra->topextra )	{ // already allocated due to reparent?
-	    extra->topextra->fleft = 0;
-	    extra->topextra->ftop = 0;
-	    extra->topextra->fright = 0;
-	    extra->topextra->fbottom = 0;
+	if ( d->extra && d->extra->topextra )	{ // already allocated due to reparent?
+	    d->extra->topextra->fleft = 0;
+	    d->extra->topextra->ftop = 0;
+	    d->extra->topextra->fright = 0;
+	    d->extra->topextra->fbottom = 0;
 	}
 	updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
     }
@@ -394,7 +393,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
     setFocusPolicy( fp );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !capt.isNull() ) {
-	extra->topextra->caption = QString::null;
+	d->extra->topextra->caption = QString::null;
 	setCaption( capt );
     }
 #endif
@@ -439,7 +438,7 @@ void QWidget::setMicroFocusHint( int x, int y, int width, int height,
 				 bool text, QFont *)
 {
     if ( QRect( x, y, width, height ) != microFocusHint() )
-	extraData()->micro_focus_hint.setRect( x, y, width, height );
+	d->extraData()->micro_focus_hint.setRect( x, y, width, height );
 #ifndef QT_NO_QWS_IM
     if ( text ) {
 	QPoint p( x, y + height );
@@ -458,9 +457,9 @@ void QWidget::setFontSys( QFont * )
 void QWidget::setBackgroundColorDirect( const QColor &color )
 {
     bg_col = color;
-    if ( extra && extra->bg_pix ) {		// kill the background pixmap
-	delete extra->bg_pix;
-	extra->bg_pix = 0;
+    if ( d->extra && d->extra->bg_pix ) {		// kill the background pixmap
+	delete d->extra->bg_pix;
+	d->extra->bg_pix = 0;
     }
     // XXX XSetWindowBackground( x11Display(), winId(), bg_col.pixel() );
 }
@@ -471,13 +470,13 @@ static int allow_null_pixmaps = 0;
 void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 {
     QPixmap old;
-    if ( extra && extra->bg_pix )
-	old = *extra->bg_pix;
+    if ( d->extra && d->extra->bg_pix )
+	old = *d->extra->bg_pix;
     if ( !allow_null_pixmaps && pixmap.isNull() ) {
 	// XXX XSetWindowBackground( x11Display(), winId(), bg_col.pixel() );
-	if ( extra && extra->bg_pix ) {
-	    delete extra->bg_pix;
-	    extra->bg_pix = 0;
+	if ( d->extra && d->extra->bg_pix ) {
+	    delete d->extra->bg_pix;
+	    d->extra->bg_pix = 0;
 	}
     } else {
 	QPixmap pm = pixmap;
@@ -487,11 +486,11 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 		bitBlt( &pm, 0, 0, &pixmap, 0, 0, pm.width(), pm.height() );
 	    }
 	}
-	if ( extra && extra->bg_pix )
-	    delete extra->bg_pix;
+	if ( d->extra && d->extra->bg_pix )
+	    delete d->extra->bg_pix;
 	else
-	    createExtra();
-	extra->bg_pix = new QPixmap( pm );
+	    d->createExtra();
+	d->extra->bg_pix = new QPixmap( pm );
 	// XXX XSetWindowBackgroundPixmap( x11Display(), winId(), pm.handle() );
     }
 }
@@ -508,9 +507,9 @@ void QWidget::setBackgroundEmpty()
 
 void QWidget::setCursor( const QCursor &cursor )
 {
-    createExtra();
-    delete extra->curs;
-    extra->curs = new QCursor(cursor);
+    d->createExtra();
+    delete d->extra->curs;
+    d->extra->curs = new QCursor(cursor);
     setWState( WState_OwnCursor );
     if ( isVisible() )
 	updateCursor( paintableRegion() );
@@ -518,9 +517,9 @@ void QWidget::setCursor( const QCursor &cursor )
 
 void QWidget::unsetCursor()
 {
-    if ( extra ) {
-	delete extra->curs;
-	extra->curs = 0;
+    if ( d->extra ) {
+	delete d->extra->curs;
+	d->extra->curs = 0;
     }
     clearWState( WState_OwnCursor );
     if ( isVisible() )
@@ -531,10 +530,10 @@ void QWidget::unsetCursor()
 #ifndef QT_NO_WIDGET_TOPEXTRA
 void QWidget::setCaption( const QString &caption )
 {
-    if ( extra && extra->topextra && extra->topextra->caption == caption )
+    if ( d->extra && d->extra->topextra && d->extra->topextra->caption == caption )
 	return; // for less flicker
-    createTLExtra();
-    extra->topextra->caption = caption;
+    d->createTLExtra();
+    d->extra->topextra->caption = caption;
     qwsDisplay()->setCaption(this, caption);
     QEvent e( QEvent::CaptionChange );
     QApplication::sendEvent( this, &e );
@@ -542,11 +541,11 @@ void QWidget::setCaption( const QString &caption )
 
 void QWidget::setIcon( const QPixmap &unscaledPixmap )
 {
-    if ( extra && extra->topextra ) {
-	delete extra->topextra->icon;
-	extra->topextra->icon = 0;
+    if ( d->extra && d->extra->topextra ) {
+	delete d->extra->topextra->icon;
+	d->extra->topextra->icon = 0;
     } else {
-	createTLExtra();
+	d->createTLExtra();
     }
     QBitmap mask;
     if ( unscaledPixmap.isNull() ) {
@@ -558,7 +557,7 @@ void QWidget::setIcon( const QPixmap &unscaledPixmap )
 #else
 	pixmap.convertFromImage( unscaledIcon );
 #endif
-	extra->topextra->icon = new QPixmap( pixmap );
+	d->extra->topextra->icon = new QPixmap( pixmap );
 	mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
     }
     // XXX
@@ -567,8 +566,8 @@ void QWidget::setIcon( const QPixmap &unscaledPixmap )
 
 void QWidget::setIconText( const QString &iconText )
 {
-    createTLExtra();
-    extra->topextra->iconText = iconText;
+    d->createTLExtra();
+    d->extra->topextra->iconText = iconText;
     // XXX XSetIconName( x11Display(), winId(), iconText.utf8() );
     // XXX XSetWMIconName( x11Display(), winId(), qstring_to_xtp(iconText) );
 }
@@ -702,8 +701,8 @@ void QWidget::showWindow()
 	updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
 	QRegion r( req_region );
 #ifndef QT_NO_QWS_MANAGER
-	if ( extra && extra->topextra && extra->topextra->qwsManager ) {
-	    QRegion wmr = extra->topextra->qwsManager->region();
+	if ( d->extra && d->extra->topextra && d->extra->topextra->qwsManager ) {
+	    QRegion wmr = d->extra->topextra->qwsManager->region();
 	    wmr = qt_screen->mapToDevice( wmr, QSize(qt_screen->width(), qt_screen->height()) );
 	    r += wmr;
 	}
@@ -777,12 +776,12 @@ void QWidget::showMaximized()
     clearWState( WState_Minimized );
     setWState(WState_Maximized);
     if ( testWFlags(WType_TopLevel) ) {
-	createTLExtra();
-	if ( topData()->normalGeometry.width() < 0 )
-	    topData()->normalGeometry = geometry();
+	d->createTLExtra();
+	if ( d->topData()->normalGeometry.width() < 0 )
+	    d->topData()->normalGeometry = geometry();
 #ifndef QT_NO_QWS_MANAGER
-	if ( extra && extra->topextra && extra->topextra->qwsManager )
-	    extra->topextra->qwsManager->maximize();
+	if ( d->extra && d->extra->topextra && d->extra->topextra->qwsManager )
+	    d->extra->topextra->qwsManager->maximize();
 	else
 #endif
 	    setGeometry( qt_maxWindowRect );
@@ -796,16 +795,16 @@ void QWidget::showMaximized()
 void QWidget::showNormal()
 {
     if ( isTopLevel() ) {
-	if ( topData()->fullscreen )
+	if ( d->topData()->fullscreen )
 	    reparent( 0, WType_TopLevel, QPoint(0,0) );
-	QRect r = topData()->normalGeometry;
+	QRect r = d->topData()->normalGeometry;
 	if ( r.width() >= 0 ) {
-	    topData()->normalGeometry = QRect(0,0,-1,-1);
+	    d->topData()->normalGeometry = QRect(0,0,-1,-1);
 	    setGeometry( r );
 	}
     }
-    if ( extra && extra->topextra )
-	extra->topextra->fullscreen = 0;
+    if ( d->extra && d->extra->topextra )
+	d->extra->topextra->fullscreen = 0;
     show();
     clearWState( WState_Minimized | WState_Maximized );
 }
@@ -885,11 +884,11 @@ void qt_clearRegion( QWidget *w, const QRegion &r, const QColor &c, bool dev )
 
 void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 {
-    if ( extra ) {				// any size restrictions?
-	w = QMIN(w,extra->maxw);
-	h = QMIN(h,extra->maxh);
-	w = QMAX(w,extra->minw);
-	h = QMAX(h,extra->minh);
+    if ( d->extra ) {				// any size restrictions?
+	w = QMIN(w,d->extra->maxw);
+	h = QMIN(h,d->extra->maxh);
+	w = QMAX(w,d->extra->minw);
+	h = QMAX(h,d->extra->minh);
     }
     if ( w < 1 )				// invalid size
 	w = 1;
@@ -932,8 +931,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    QPoint dd = QPoint( td2.x()-td1.x(), td2.y()-td1.y() );
 	    req_region.translate( dd.x(), dd.y() );
 	} else {
-	    if ( extra && !extra->mask.isNull() ) {
-		req_region = extra->mask;
+	    if ( d->extra && !d->extra->mask.isNull() ) {
+		req_region = d->extra->mask;
 		req_region.translate(crect.x(),crect.y());
 		req_region &= crect; //??? this is optional
 	    } else {
@@ -948,20 +947,20 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    } else {
 		QRegion rgn( req_region );
 #ifndef QT_NO_QWS_MANAGER
-		if ( extra && extra->topextra && extra->topextra->qwsManager ) {
-		    QRegion wmr = extra->topextra->qwsManager->region();
+		if ( d->extra && d->extra->topextra && d->extra->topextra->qwsManager ) {
+		    QRegion wmr = d->extra->topextra->qwsManager->region();
 		    wmr = qt_screen->mapToDevice( wmr, QSize(qt_screen->width(), qt_screen->height()) );
 		    rgn += wmr;
 		}
 #endif
 		qwsDisplay()->requestRegion(winId(), rgn);
-		if ( extra && extra->topextra ) {
+		if ( d->extra && d->extra->topextra ) {
 		    QRect br( rgn.boundingRect() );
 		    br = qt_screen->mapFromDevice( br, QSize(qt_screen->deviceWidth(), qt_screen->deviceHeight()) );
-		    extra->topextra->fleft = crect.x()-br.x();
-		    extra->topextra->ftop = crect.y()-br.y();
-		    extra->topextra->fright = br.right()-crect.right();
-		    extra->topextra->fbottom = br.bottom()-crect.bottom();
+		    d->extra->topextra->fleft = crect.x()-br.x();
+		    d->extra->topextra->ftop = crect.y()-br.y();
+		    d->extra->topextra->fright = br.right()-crect.right();
+		    d->extra->topextra->fbottom = br.bottom()-crect.bottom();
 		}
 	    }
 	}
@@ -973,17 +972,17 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    QMoveEvent e( pos(), oldPos );
 	    QApplication::sendEvent( this, &e );
 #ifndef QT_NO_QWS_MANAGER
-	    if (extra && extra->topextra && extra->topextra->qwsManager)
-		QApplication::sendEvent( extra->topextra->qwsManager, &e );
+	    if (d->extra && d->extra->topextra && d->extra->topextra->qwsManager)
+		QApplication::sendEvent( d->extra->topextra->qwsManager, &e );
 #endif
 	}
 	if ( isResize ) {
 	    QResizeEvent e( r.size(), olds );
 	    QApplication::sendEvent( this, &e );
 #ifndef QT_NO_QWS_MANAGER
-	    if (extra && extra->topextra && extra->topextra->qwsManager) {
+	    if (d->extra && d->extra->topextra && d->extra->topextra->qwsManager) {
 		QResizeEvent e( r.size(), olds );
-		QApplication::sendEvent(topData()->qwsManager, &e);
+		QApplication::sendEvent(d->topData()->qwsManager, &e);
 	    }
 #endif
 /*
@@ -1066,8 +1065,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    updateActivePainter();
 	}
 #ifndef QT_NO_QWS_MANAGER
-	if (isResize && extra && extra->topextra && extra->topextra->qwsManager) {
-	    QApplication::postEvent(topData()->qwsManager,
+	if (isResize && d->extra && d->extra->topextra && d->extra->topextra->qwsManager) {
+	    QApplication::postEvent(d->topData()->qwsManager,
 				    new QPaintEvent( clipRegion(), TRUE ) );
 	}
 #endif
@@ -1099,11 +1098,11 @@ void QWidget::setMinimumSize( int minw, int minh )
     if ( minw < 0 || minh < 0 )
 	qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
 #endif
-    createExtra();
-    if ( extra->minw == minw && extra->minh == minh )
+    d->createExtra();
+    if ( d->extra->minw == minw && d->extra->minh == minh )
 	return;
-    extra->minw = minw;
-    extra->minh = minh;
+    d->extra->minw = minw;
+    d->extra->minh = minh;
     if ( minw > width() || minh > height() )
 	resize( QMAX(minw,width()), QMAX(minh,height()) );
     if ( testWFlags(WType_TopLevel) ) {
@@ -1131,11 +1130,11 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 	maxh = QMAX( maxh, 0 );
     }
 #endif
-    createExtra();
-    if ( extra->maxw == maxw && extra->maxh == maxh )
+    d->createExtra();
+    if ( d->extra->maxw == maxw && d->extra->maxh == maxh )
 	return;
-    extra->maxw = maxw;
-    extra->maxh = maxh;
+    d->extra->maxw = maxw;
+    d->extra->maxh = maxh;
     if ( maxw < width() || maxh < height() )
 	resize( QMIN(maxw,width()), QMIN(maxh,height()) );
     if ( testWFlags(WType_TopLevel) ) {
@@ -1146,8 +1145,8 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 
 void QWidget::setSizeIncrement( int w, int h )
 {
-    createTLExtra();
-    QTLWExtra* x = extra->topextra;
+    d->createTLExtra();
+    QTLWExtra* x = d->extra->topextra;
     if ( x->incw == w && x->inch == h )
 	return;
     x->incw = w;
@@ -1159,8 +1158,8 @@ void QWidget::setSizeIncrement( int w, int h )
 
 void QWidget::setBaseSize( int basew, int baseh )
 {
-    createTLExtra();
-    QTLWExtra* x = extra->topextra;
+    d->createTLExtra();
+    QTLWExtra* x = d->extra->topextra;
     if ( x->basew == basew && x->baseh == baseh )
 	return;
     x->basew = basew;
@@ -1189,15 +1188,15 @@ void QWidget::erase( const QRegion& reg )
     clearWFlags( WPaintUnclipped );
     QPainter p(this);
     p.setClipRegion( reg );
-    if ( extra && extra->bg_pix ) {
-	if ( !extra->bg_pix->isNull() ) {
+    if ( d->extra && d->extra->bg_pix ) {
+	if ( !d->extra->bg_pix->isNull() ) {
 	    QPoint offset = backgroundOffset();
 	    int xoff = offset.x();
 	    int yoff = offset.y();
 
-	    p.drawTiledPixmap(rect(),*extra->bg_pix,
-			      QPoint(xoff%extra->bg_pix->width(),
-				     yoff%extra->bg_pix->height()));
+	    p.drawTiledPixmap(rect(),*d->extra->bg_pix,
+			      QPoint(xoff%d->extra->bg_pix->width(),
+				     yoff%d->extra->bg_pix->height()));
 	}
     } else {
 	p.fillRect(rect(),bg_col);
@@ -1323,22 +1322,21 @@ int QWidget::metric( int m ) const
     return val;
 }
 
-void QWidget::createSysExtra()
+void QWidgetPrivate::createSysExtra()
 {
 }
 
-void QWidget::deleteSysExtra()
+void QWidgetPrivate::deleteSysExtra()
 {
 }
 
-void QWidget::createTLSysExtra()
+void QWidgetPrivate::createTLSysExtra()
 {
 }
 
-void QWidget::deleteTLSysExtra()
+void QWidgetPrivate::deleteTLSysExtra()
 {
 }
-
 
 bool QWidget::acceptDrops() const
 {
@@ -1390,8 +1388,8 @@ void QWidget::updateRequestedRegion( const QPoint &gpos )
 	    req_region = QRegion();
 	} else {
 	    req_region = QRect(gpos,crect.size());
-	    if ( extra && !extra->mask.isNull() ) {
-		QRegion maskr = extra->mask;
+	    if ( d->extra && !d->extra->mask.isNull() ) {
+		QRegion maskr = d->extra->mask;
 		maskr.translate( gpos.x(), gpos.y() );
 		req_region &= maskr;
 	    }
@@ -1536,8 +1534,8 @@ QRegion QWidget::paintableRegion() const
 	else {
 	    QRegion r( paintable_region );
 #ifndef QT_NO_QWS_MANAGER
-	    if (extra && extra->topextra)
-		r += extra->topextra->decor_allocated_region;
+	    if (d->extra && d->extra->topextra)
+		r += d->extra->topextra->decor_allocated_region;
 #endif
 	    return r;
 	}
@@ -1594,16 +1592,16 @@ void QWidget::setMask( const QRegion& region )
 {
     alloc_region_dirty = TRUE;
 
-    createExtra();
+    d->createExtra();
 
-    if ( region.isNull() && extra->mask.isNull() )
+    if ( region.isNull() && d->extra->mask.isNull() )
 	return;
 
-    extra->mask = region;
+    d->extra->mask = region;
 
     if ( isTopLevel() ) {
 	if ( !region.isNull() ) {
-	    req_region = extra->mask;
+	    req_region = d->extra->mask;
 	    req_region.translate(crect.x(),crect.y()); //###expensive?
 	    req_region &= crect; //??? this is optional
 	} else
@@ -1614,8 +1612,8 @@ void QWidget::setMask( const QRegion& region )
 	if ( isTopLevel() ) {
 	    QRegion rgn( req_region );
 #ifndef QT_NO_QWS_MANAGER
-	    if ( extra && extra->topextra && extra->topextra->qwsManager ) {
-		QRegion wmr = extra->topextra->qwsManager->region();
+	    if ( d->extra && d->extra->topextra && d->extra->topextra->qwsManager ) {
+		QRegion wmr = d->extra->topextra->qwsManager->region();
 		wmr = qt_screen->mapToDevice( wmr, QSize(qt_screen->width(), qt_screen->height()) );
 		rgn += wmr;
 	    }
@@ -1693,7 +1691,7 @@ void QWidget::updateGraphicsContext( QGfx *qgfx_qws, bool clip_children ) const
     // It is possible for these windows to draw on the wm decoration if
     // they change the clip region.  Bug or feature?
 #ifndef QT_NO_QWS_MANAGER
-    if ( extra && extra->topextra && extra->topextra->qwsManager )
+    if ( d->extra && d->extra->topextra && d->extra->topextra->qwsManager )
 	qgfx_qws->setClipRegion(rect());
 #endif
 }

@@ -1100,7 +1100,7 @@ void QGfxRasterBase::fixClip()
 
 struct _XRegion {
     int numRects;
-    QMemArray<QRect> rects;
+    QVector<QRect> rects;
     // ... etc.
 };
 
@@ -1162,7 +1162,7 @@ void QGfxRasterBase::update_clip()
 
 	// Convert to simple array for speed
 	_XRegion* cr = (_XRegion*) setrgn.handle();
-	const QArray<QRect> &a = cr->rects;
+	const QVector<QRect> &a = cr->rects;
 	delete [] cliprect;
 	cliprect = new QRect[cr->numRects];
 	memcpy( cliprect, a.data(), cr->numRects*sizeof(QRect) );

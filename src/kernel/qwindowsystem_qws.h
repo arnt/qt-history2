@@ -26,6 +26,7 @@
 #include "qwsproperty_qws.h"
 #include "qwscommand_qws.h"
 #include "qwsevent_qws.h"
+#include "qregion.h"
 #endif // QT_H
 
 #include "qkbd_qws.h"

@@ -34,6 +34,8 @@
 #include "qfile.h"
 #include "qtimer.h"
 #include "qpen.h"
+#include "qdesktopwidget.h"
+#include "qevent.h"
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -2463,7 +2465,7 @@ void QWSServer::clearRegion( const QRegion &r, const QColor &c )
 	Q_ASSERT ( qt_fbdpy );
 	gfx->setBrush( QBrush(c) );
 	QSize s( swidth, sheight );
-	QArray<QRect> a = r.rects(); //#### use QList/QVector instead???
+	QVector<QRect> a = r.rects(); 
 	for ( int i = 0; i < (int)a.count(); i++ ) {
 	    QRect r = qt_screen->mapFromDevice( a[i], s );
 	    gfx->fillRect( r.x(), r.y(), r.width(), r.height() );
