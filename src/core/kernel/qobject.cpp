@@ -1925,10 +1925,9 @@ bool QObject::connect(const QObject *sender, const char *signal,
         }
         if(smember.attributes() & QMetaMember::Compatability)
             qWarning("Object::connect: Connecting from COMPAT signal (%s::%s).", smeta->className(), signal);
-        if(rmember.attributes() & QMetaMember::Compatability)
-            qWarning("Object::connect: Connecting from %s::%s to COMPAT %s (%s::%s).",
-                     smeta->className(), signal,
-                     (membcode == QSLOT_CODE) ? "slot" : "signal", rmeta->className(), member);
+        if(rmember.attributes() & QMetaMember::Compatability && membcode != QSIGNAL_CODE)
+            qWarning("Object::connect: Connecting from %s::%s to COMPAT slot (%s::%s).",
+                     smeta->className(), signal, rmeta->className(), member);
         switch(rmember.access()) {
         case QMetaMember::Private:
             break;
