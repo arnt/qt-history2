@@ -39,6 +39,9 @@ public:
     MainWindow();
     virtual ~MainWindow();
 
+    virtual QSize sizeHint() const
+    { return QMainWindow::sizeHint() + QSize(100, 0); }
+
     bool readInForm(const QString &fileName);
     bool writeOutForm(AbstractFormWindow *fw, const QString &saveFile);
 

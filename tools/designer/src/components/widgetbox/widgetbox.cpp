@@ -669,7 +669,12 @@ WidgetBoxListViewChild::WidgetBoxListViewChild(WidgetCollectionModel *model, QWi
     QSettings settings;
     settings.beginGroup("widgetbox");
 
-    QStringList open_cat = settings.value("open categories").toStringList();
+    QStringList open_cat;
+    open_cat.append("Spacers");
+    open_cat.append("Buttons");
+    open_cat.append("Item Widgets (Item-Based)");
+
+    open_cat = settings.value("open categories", open_cat).toStringList();
     for (int i = 0; i < open_cat.size(); ++i) {
         int cat_idx = model->categoryIdx(open_cat[i]);
         if (cat_idx == -1)

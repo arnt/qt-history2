@@ -164,7 +164,8 @@ void MainWindow::handleClose(AbstractFormWindow *fw, bool *accept)
         m_closeForm = *accept;
     }
 
-    if (m_formWindowManager->formWindowCount() == 1 && m_closeForm)
+    if (m_formWindowManager->formWindowCount() == 1 && m_closeForm
+            && QSettings().value("newFormDialog/ShowOnStartup", true).toBool())
         QTimer::singleShot(200, this, SLOT(newForm()));  // Use timer in case we are quitting.
 }
 
@@ -827,14 +828,14 @@ static void readSizeSettings(const QSettings &settings, const QString &key, QWid
 }
 
 static void readColumnSizeSettings(const QSettings &settings, const QString &key,
-                                   QTreeView *treeView)
+                                   QTreeView *treeView, QList<QCoreVariant> list)
 {
-    QList<QCoreVariant> list;
     QHeaderView *header = treeView->header();
     if (!header)
         return;
+
     for (int i = 0; i < header->count(); ++i)
-        list.append(header->sectionSizeHint(i));
+        list[i] = qMax(header->sectionSizeHint(i), list.at(i).toInt());
 
     list = settings.value(key + "/columnSizes", list).toList();
     int j = 0;
@@ -845,6 +846,7 @@ static void readColumnSizeSettings(const QSettings &settings, const QString &key
 void MainWindow::readSettings()
 {
     QSettings settings;
+    QList<QCoreVariant> columnSizes;
 
     QDesktopWidget *dw = QApplication::desktop();
     QRect availG = dw->availableGeometry(dw->primaryScreen());
@@ -856,29 +858,39 @@ void MainWindow::readSettings()
     QSize sz = w->sizeHint();
     QFontMetrics fm = w->fontMetrics();
     sz.setHeight(qMin(sz.height() + fm.height() * 20, availG.height()));
-    sz.setWidth(qMin(sz.width() + 20, availG.width()));
-    QRect defaultRect(availG.topLeft(), sz);
+    sz.setWidth(qMin(sz.width(), availG.width()));
+    QRect defaultRect(availG.topLeft() + QPoint(10, 10), sz);
     readSizeSettings(settings, settingsString, w, defaultRect);
 
     settingsString = QString::fromUtf8("objectinspector");
     w = core->objectInspector()->topLevelWidget();
-    defaultRect.translate(availG.topRight().x() - (w->sizeHint().width() + 75), 0);
+    defaultRect.translate(availG.topRight().x() - (w->sizeHint().width() + 80), 0);
     defaultRect.setSize(w->sizeHint());
     readSizeSettings(settings, settingsString, w, defaultRect);
     QList<QTreeView *> treeList = qFindChildren<QTreeView *>(core->objectInspector());
+
+    columnSizes.clear();
+    columnSizes.append(160);
+    columnSizes.append(180);
+
     if (!treeList.isEmpty())
-        readColumnSizeSettings(settings, settingsString, treeList.front());
+        readColumnSizeSettings(settings, settingsString, treeList.front(), columnSizes);
 
     settingsString = QString::fromUtf8("propertyeditor");
-    defaultRect.translate(0,  w->sizeHint().height() + 20);
+    defaultRect.translate(0,  w->sizeHint().height() + 50);
     w = core->propertyEditor()->topLevelWidget();
     fm = w->fontMetrics();
     defaultRect.setWidth(w->sizeHint().width());
     defaultRect.setHeight(w->sizeHint().height() + fm.height() * 16);
     readSizeSettings(settings, settingsString, w, defaultRect);
     treeList = qFindChildren<QTreeView *>(core->propertyEditor());
+
+    columnSizes.clear();
+    columnSizes.append(160);
+    columnSizes.append(180);
+
     if (!treeList.isEmpty())
-        readColumnSizeSettings(settings, settingsString, treeList.front());
+        readColumnSizeSettings(settings, settingsString, treeList.front(), columnSizes);
 }
 
 void MainWindow::saveSettings()

@@ -25,6 +25,9 @@ public:
     ObjectInspectorView(AbstractFormEditor *core, QWidget *parent = 0);
     virtual ~ObjectInspectorView();
 
+    virtual QSize sizeHint() const
+    { return QMainWindow::sizeHint() + QSize(150, 0); }
+
 signals:
     void visibilityChanged(bool isVisible);
 

@@ -25,6 +25,9 @@ public:
     PropertyEditorView(AbstractFormEditor *core, QWidget *parent = 0);
     virtual ~PropertyEditorView();
 
+    virtual QSize sizeHint() const
+    { return QMainWindow::sizeHint() + QSize(150, 0); }
+
 protected:
     void showEvent(QShowEvent *ev);
     void hideEvent(QHideEvent *ev);
