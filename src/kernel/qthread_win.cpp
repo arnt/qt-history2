@@ -26,6 +26,8 @@
 
 #include "qthread.h"
 #include "qt_windows.h"
+#include "qapplication.h"
+#include "qobject.h"
 
 class QMutexPrivate {
 };
@@ -134,7 +136,7 @@ void QThread::start()
 {
   // Error checking would be good
   //_beginthread(start_thread,0,(void *)this);
-  long threadid;
+  unsigned long threadid;
   if( CreateThread(0,0, (LPTHREAD_START_ROUTINE) start_thread, (void *) this,
 		   0,&threadid) = 0 ) {
     qFatal("Eek! Couldn't make thread!");
