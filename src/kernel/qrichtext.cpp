@@ -618,6 +618,8 @@ void QTextCursor::gotoLeft()
 	idx--;
     } else if ( string->prev() ) {
 	string = string->prev();
+	while ( !string->isVisible() )
+	    string = string->prev();
 	idx = string->length() - 1;
     } else {
 	if ( nested ) {
@@ -792,6 +794,8 @@ void QTextCursor::gotoRight()
 	idx++;
     } else if ( string->next() ) {
 	string = string->next();
+	while ( !string->isVisible() )
+	    string = string->next();
 	idx = 0;
     } else {
 	if ( nested ) {
@@ -836,6 +840,8 @@ void QTextCursor::gotoUp()
 	    }
 	}
 	string = string->prev();
+	while ( !string->isVisible() )
+	    string = string->prev();
 	int lastLine = string->lines() - 1;
 	if ( !string->lineStartOfLine( lastLine, &indexOfLineStart ) )
 	    return;
@@ -881,6 +887,8 @@ void QTextCursor::gotoDown()
 	    }
 	}
 	string = string->next();
+	while ( !string->isVisible() )
+	    string = string->next();
 	if ( !string->lineStartOfLine( 0, &indexOfLineStart ) )
 	    return;
 	int end;
@@ -1017,6 +1025,8 @@ void QTextCursor::gotoWordLeft()
 
     if ( string->prev() ) {
 	string = string->prev();
+	while ( !string->isVisible() )
+	    string = string->prev();
 	idx = string->length() - 1;
     } else {
 	gotoLineStart();
@@ -1041,6 +1051,8 @@ void QTextCursor::gotoWordRight()
 
     if ( string->next() ) {
 	string = string->next();
+	while ( !string->isVisible() )
+	    string = string->next();
 	idx = 0;
     } else {
 	gotoLineEnd();
@@ -2926,6 +2938,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
       numCustomItems( 0 ), pFormatter( 0 ),
       tabArray( 0 ), tabStopWidth( 0 ), eData( 0 ), pntr( 0 )
 {
+    visible = TRUE;
     newLinesAllowed = FALSE;
     splittedInside = FALSE;
     lastInFrame = FALSE;
@@ -3128,7 +3141,7 @@ void QTextParag::move( int &dy )
 	    int oh = r.height();
 	    r.setY( y );
 	    r.setHeight( oh );
-	    dy = y - oy;
+	    dy += y - oy;
 	}
     }
 }
@@ -3184,6 +3197,9 @@ void QTextParag::format( int start, bool doMove )
 
     if ( y != r.height() )
 	r.setHeight( y );
+
+    if ( !visible )
+	r.setHeight( 0 );
 
     splittedInside = FALSE;
     if ( p )
@@ -3354,6 +3370,8 @@ void QTextParag::indent( int *oldIndent, int *newIndent )
 void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *cursor, bool drawSelections,
 			int clipx, int clipy, int clipw, int cliph )
 {
+    if ( !visible )
+	return;
     QTextStringChar *chr = at( 0 );
     int i = 0;
     int h = 0;
@@ -4098,6 +4116,20 @@ void QTextParag::copyParagData( QTextParag *parag )
     setStyleSheetItems( parag->styleSheetItems() );
     setListStyle( parag->listStyle() );
     setAlignment( parag->alignment() );
+}
+
+void QTextParag::show()
+{
+    if ( visible || !doc )
+	return;
+    visible = TRUE;
+}
+
+void QTextParag::hide()
+{
+    if ( !visible || !doc )
+	return;
+    visible = FALSE;
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

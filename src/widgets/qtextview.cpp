@@ -504,7 +504,7 @@ void QTextView::keyPressEvent( QKeyEvent *e )
         moveCursor( MovePgDown, e->state() & ShiftButton, e->state() & ControlButton );
         break;
     case Key_Return: case Key_Enter:
-        if ( doc->hasSelection( QTextDocument::Standard, TRUE ) )
+        if ( doc->hasSelection( QTextDocument::Standard, FALSE ) )
 	    removeSelectedText();
 #ifndef QT_NO_CURSOR
         viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
