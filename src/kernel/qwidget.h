@@ -413,8 +413,8 @@ public:
     virtual bool customWhatsThis() const;
 
     QWidget *		parentWidget( bool sameWindow = FALSE ) const;
-    bool		testWState( uint n ) const;
-    bool		testWFlags( WFlags f ) const;
+    WState		testWState( WState s ) const;
+    WFlags		testWFlags( WFlags f ) const;
     static QWidget *	find( WId );
     static QWidgetMapper *wmapper();
 
@@ -655,11 +655,11 @@ public: // obsolete functions to dissappear or to become inline in 3.0
 };
 
 
-inline bool QWidget::testWState( uint f ) const
-{ return (widget_state & f) != 0; }
+inline Qt::WState QWidget::testWState( WState s ) const
+{ return (widget_state & s); }
 
-inline bool QWidget::testWFlags( WFlags f ) const
-{ return (widget_flags & f) != 0; }
+inline Qt::WFlags QWidget::testWFlags( WFlags f ) const
+{ return (widget_flags & f); }
 
 
 inline WId QWidget::winId() const

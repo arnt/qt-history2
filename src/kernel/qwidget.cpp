@@ -3049,7 +3049,7 @@ bool QWidget::isActiveWindow() const
 */
 void QWidget::setTabOrder( QWidget* first, QWidget *second )
 {
-    if ( !first || !second || 
+    if ( !first || !second ||
 	first->focusPolicy() == NoFocus || second->focusPolicy() == NoFocus )
 	return;
 
@@ -4000,9 +4000,9 @@ QSize QWidget::minimumSizeHint() const
 */
 
 /*!
-  \fn bool QWidget::testWFlags( WFlags f ) const
+  \fn WFlags QWidget::testWFlags( WFlags f ) const
 
-  Returns TRUE if any of the widget flags in \a f are set.
+  Returns the logical AND of the widget flags and \a f.
 
   Widget flags are a combination of Qt::WidgetFlags.
 
@@ -4010,10 +4010,11 @@ QSize QWidget::minimumSizeHint() const
 */
 
 /*!
-  \fn bool QWidget::testWState( uint n ) const
+  \fn WState QWidget::testWState( WState s ) const
   \internal
-  Tests the widget states \a n, returning TRUE if any are set.
+  Returns the logical AND of the widget states and \a s.
 */
+
 /*!
   \fn uint QWidget::getWState() const
   \internal
