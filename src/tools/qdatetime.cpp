@@ -347,6 +347,8 @@ QString QDate::toString() const
 
 bool QDate::setYMD( int y, int m, int d )
 {
+    if ( year() == y && month() == m && day() == d )
+	return isValid();
     if ( !isValid(y,m,d) ) {
 #if defined(CHECK_RANGE)
 	 qWarning( "QDate::setYMD: Invalid date %04d/%02d/%02d", y, m, d );
@@ -354,9 +356,6 @@ bool QDate::setYMD( int y, int m, int d )
 	 return FALSE;
     }
     jd = greg2jul( y, m, d );
-#if defined(DEBUG)
-    ASSERT( year() == y && month() == m && day() == d );
-#endif
     return TRUE;
 }
 
