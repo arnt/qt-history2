@@ -5,7 +5,7 @@
 # Copyright 1996 Troll Tech AS.  All rights reserved.
 #
 
-freecomm=$1
+disttype=$1
 platform=$2
 DISTDIR=$3
 
@@ -17,7 +17,7 @@ unset goodparam2
 
 curdir=`/bin/pwd`
 
-if [ "${freecomm}" = "free" -o "${freecomm}" = "commercial" ]; then
+if [ "${disttype}" = "free" -o "${disttype}" = "commercial" -o "${disttype}" = "trial" ]; then
   goodparam1=yes
 fi
 
@@ -26,11 +26,11 @@ if [ "${platform}" = "x11" -o "${platform}" = "win" ]; then
 fi
 
 if [ "${goodparam1}" = "" -o "${goodparam2}" = "" -o "${DISTDIR}" = "" ]; then
-  echo 'Usage: mkdist.generic commercial|free x11|win dist-dir' >&2
+  echo 'Usage: mkdist.generic commercial|free|trial x11|win dist-dir' >&2
   exit
 fi
 
-if [ "${freecomm}" = "free" -a "${platform}" != "x11" ]; then
+if [ "${disttype}" = "free" -a "${platform}" != "x11" ]; then
   echo 'Impossible. Only X11 versions have a free license' >&2
 fi
 
@@ -60,7 +60,7 @@ cd ${DISTDIR}/qt/src/kernel
 find . -name '*_x11.cpp' -o -name '*_win.cpp' -o -name '*_os2.cpp' \
 	| grep -v "_${platform}" | xargs rm -f
 
-if [ "${freecomm}" = "free" ]; then
+if [ "${disttype}" = "free" ]; then
   echo "Adding non-commercial banner in .h and .cpp files" >&2
   cd ${DISTDIR}/qt/src
   ${curdir}/fixcopyright tools/*.h tools/*.cpp kernel/*.h kernel/*.cpp widgets/*.h widgets/*.cpp dialogs/*.h dialogs/*.cpp
@@ -117,7 +117,7 @@ fi
 echo "Copy the README, LICENSE etc. files" >&2
 cd ${DISTDIR}/qt/dist
 cp [A-Z]* .. 2> /dev/null
-cd ${DISTDIR}/qt/dist/${freecomm}
+cd ${DISTDIR}/qt/dist/${disttype}
 tar cf - * | (cd ${DISTDIR}/qt ; tar xf -)
 cd ${DISTDIR}/qt/dist/${platform}
 tar cf - * | (cd ${DISTDIR}/qt ; tar xf -)
