@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#110 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#111 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qwidget.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#110 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#111 $");
 
 
 /*!
@@ -1943,24 +1943,24 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	painter->setClipRegion( new_rgn );
     }
 
-    QPixmap  *pm;
+    QBitmap  *mask;
     QPainter *pp;
+    QPixmap *pm;
 
     if ( (tf & GrayText) == GrayText ) {	// prepare to draw gray text
+	mask = new QBitmap( w, fheight );
+	CHECK_PTR( mask );
+	pp = new QPainter( mask );
+	pp->setBrush( Dense4Pattern );
+	pp->setBackgroundMode( TransparentMode );
+	pp->setPen( color1 );
+	CHECK_PTR( pp );
 	pm = new QPixmap( w, fheight );
 	CHECK_PTR( pm );
-	pp = new QPainter;
-	CHECK_PTR( pp );
-	pp->begin( pm );
-	pp->setBackgroundColor( painter->bg_col );
-	pp->setFont( painter->cfont );
-	pp->setPen( painter->cpen.color() );
-	pp->updatePen();
-	pp->setBrush( QBrush(painter->bg_col, Dense4Pattern) );
-	pp->updateBrush();
     } else {
-	pm = 0;
+	mask = 0;
 	pp = 0;
+	pm = 0;
     }
 
     yp += fascent;
@@ -1991,7 +1991,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	}
 
 	if ( pp )				// erase pixmap if gray text
-	    pp->eraseRect( 0, 0, w, fheight );
+	    pp->fillRect( 0, 0, w, fheight, color0 );
 
 	int bxp = xp;				// base x position
 	int bxc = xc;				// base x position (chars)
@@ -2003,7 +2003,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 		    if ( pp )			// gray text
 			pp->fillRect( xp+xcpos, fascent+fm.underlinePos(),
 				      CWIDTH( *cp&0xff ), fm.lineWidth(),
-				      painter->cpen.color() );
+				      color1 );
 		    else
 			painter->fillRect( x+xp+xcpos, y+yp+fm.underlinePos(),
 				  CWIDTH( *cp&0xff ), fm.lineWidth(),
@@ -2023,9 +2023,14 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	    }
 	}
 	if ( pp ) {				// gray text
-	    pp->cpen.setStyle( NoPen );
-	    pp->drawRect( bxp, 0, tw, fheight );
+	    pp->setPen(color0);
+	    pp->drawRect( mask->rect() );
+	    pp->setPen(color1);
+	    pm->fill( painter->cpen.color() );
+	    pp->end();
+	    pm->setMask( *mask );
 	    painter->drawPixmap( x, y+yp-fascent, *pm );
+	    pp->begin( mask );
 	}
 
 	yp += fheight;
