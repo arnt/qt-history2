@@ -720,7 +720,8 @@ public:
     enum TextFormat {
 	PlainText,
 	RichText,
-	AutoText
+	AutoText,
+	LogText
     };
 
     // Documented in qtextedit.cpp

@@ -345,6 +345,47 @@ static bool block_set_alignment = FALSE;
     text support in Qt is designed to provide a fast, portable and
     efficient way to add reasonable online help facilities to
     applications, and to provide a basis for rich text editors.
+
+    Setting the text fromat in a QTextEdit to \c LogText, it puts the
+    widget in a special mode which is optimized for very large
+    texts. In this mode editing (the widget is explicitly set to
+    read-only mode) and rich text support is disabled, which allows
+    the text to be stored in a different, more memory efficient
+    manner. However, a certain degree of text formatting is supported
+    through the use of formatting tags. A tag is delimited by \c < and
+    \c {>}. The characters \c < and \c > are escaped by using \c <<
+    and \c {>>}. A tag pair consists of a left and a right tag (or
+    open/close tags). Left-tags mark the starting point for
+    formatting, while right-tags mark the ending point. A right-tag is
+    the same as a left-tag, but with a \c / appearing before the tag
+    keyword. For example \c <red> and \c </red> are a tag pair. Tags
+    can be nested, but they have to be closed in the same order as
+    they are opened. For example, \c <red><blue></blue></red> is
+    valid, while \c <red><blue></red></blue> will output an error
+    message.
+    
+    By using tags it is possible to change the color, bold, italic and
+    underline settings for a piece of text. A color can be specified
+    either as a color name (from the X11 color database), or as a RGB
+    hex value (e.g \c {#00ff00}).  Example of valid color tags: \c
+    {<red>}, \c { <blue>}, \c {<#223344>}. Bold, italic and underline
+    settings can be specified by the tags \c <bold> or \c {<b>}, \c
+    <italic> or \c <i> and \c <underline> or \c {<u>}. Note that a tag
+    does not necessarily have to be closed. A valid example:
+    \code
+    This is <red>red</red> while <b>this</b> is <blue>blue</blue>.
+    <green><yellow>Yellow,</yellow> and <u>green</u>.
+    \endcode
+    
+    There are a few things that you need to be aware of when the
+    widget is in this mode:
+    \list
+    \i Functions that deal with rich text formatting will not work or
+    return anything valid when QTextEdit is in this mode.
+    \i Lines are equivalent to paragraphs in this mode.    
+    \i Inserting lines is not supported. It is only possible to append
+    lines to the widget in this mode.
+    \endlist
 */
 
 /*! \enum QTextEdit::KeyboardAction
@@ -3490,7 +3531,7 @@ void QTextEdit::getSelection( int *paraFrom, int *indexFrom,
 
 /*!
   \property QTextEdit::textFormat
-  \brief the text format: rich text, plain text or auto text
+  \brief the text format: rich text, plain text, auto text or log text
 
   The text format is one of the following:
   \list
@@ -3502,6 +3543,8 @@ void QTextEdit::getSelection( int *paraFrom, int *indexFrom,
   \i AutoText - this is the default. The text edit autodetects
   which rendering style is best, \c PlainText or \c RichText. This is
   done by using the QStyleSheet::mightBeRichText() function.
+  \i LogText - special, limited text format which is used in an optimized 
+  mode for very large texts.
   \endlist
 */
 
@@ -3515,11 +3558,6 @@ void QTextEdit::setTextFormat( TextFormat format )
 
 Qt::TextFormat QTextEdit::textFormat() const
 {
-#ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( d->optimMode ) {
-	return Qt::PlainText;
-    }
-#endif
     return doc->textFormat();
 }
 
@@ -3549,7 +3587,7 @@ int QTextEdit::linesOfParagraph( int para ) const
 	if ( d->od->numLines >= para )
 	    return 1;
 	else
-	    return 0;
+	    return -1;
     }
 #endif
     QTextParag *p = doc->paragAt( para );
@@ -3566,11 +3604,14 @@ int QTextEdit::linesOfParagraph( int para ) const
 int QTextEdit::paragraphLength( int para ) const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( d->optimMode && (d->od->numLines >= para) ) {
-	if ( d->od->lines[ para ].isEmpty() )
-	    return 1;
-	else
-	    return d->od->lines[ para ].length();
+    if ( d->optimMode ) { 
+	if ( d->od->numLines >= para ) {
+	    if ( d->od->lines[ para ].isEmpty() ) // CR
+		return 1;
+	    else
+		return d->od->lines[ para ].length();
+	}
+	return -1;
     }
 #endif
     QTextParag *p = doc->paragAt( para );
@@ -5165,10 +5206,12 @@ bool QTextEdit::allowTabs() const
 bool QTextEdit::checkOptimMode()
 {
     bool oldMode = d->optimMode;
-    if ( isReadOnly() && textFormat() == PlainText && wordWrap() == NoWrap )
+    if ( textFormat() == LogText ) {
+	setReadOnly( TRUE );
 	d->optimMode = TRUE;
-    else
+    } else {
 	d->optimMode = FALSE;
+    }
 	
     // when changing mode - try to keep selections and text
     if ( oldMode != d->optimMode ) {
@@ -5231,6 +5274,7 @@ void QTextEdit::optimSetText( const QString &str )
     d->od->numLines = 0;
     d->od->lines.clear();
     d->od->maxLineWidth = 0;
+    d->od->len = 0;
     d->od->clearTags();
     QFontMetrics fm( QScrollView::font() );
     if ( !(str.isEmpty() || str.isNull()) ) {

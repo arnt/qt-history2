@@ -1412,6 +1412,9 @@ QString QStyleSheet::escape( const QString& plain)
     \value AutoText The text string is interpreted as for \c RichText
 	if QStyleSheet::mightBeRichText() returns TRUE, otherwise as
 	\c PlainText.
+	
+    \value LogText A special, limited text format which is only used
+    by QTextEdit.
 */
 
 /*!

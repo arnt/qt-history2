@@ -49,7 +49,7 @@
 #ifndef QT_NO_TEXTEDIT
 // uncomment below to enable optimization mode - also uncomment the
 // optimDoAutoScroll() private slot since moc ignores #ifdefs..
-//#define QT_TEXTEDIT_OPTIMIZATION
+#define QT_TEXTEDIT_OPTIMIZATION
 
 class QPainter;
 class QTextDocument;
@@ -123,8 +123,8 @@ public:
     };
     Selection selStart, selEnd, search;
     Tag * tags, * lastTag;
-    QMap<int, QString> lines; // qptrvector?
-    QMap<int, Tag *> tagIndex; // qptrvector?
+    QMap<int, QString> lines;
+    QMap<int, Tag *> tagIndex;
 };
 #endif
 
@@ -514,8 +514,8 @@ private:
 			     int, int, QTextEditOptimPrivate::Tag * t );
     QTextEditOptimPrivate::Tag * optimAppendTag( int index, const QString & tag );
 
-// private slots:
-//     void optimDoAutoScroll();
+private slots:
+    void optimDoAutoScroll();
 #endif
 
 private:
