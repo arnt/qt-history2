@@ -10,8 +10,10 @@
 
 #include "qlocale.h"
 #include "qlocale_p.h"
+#include "qcleanuphandler.h"
+#include "qmutex.h"
 
-class StaticData
+class QLocaleStaticData
 {
 public:
     static const double &inf() { init(); return d->m_inf; }
@@ -21,22 +23,38 @@ public:
     static const QString &infStr() { init(); return d->m_inf_str; }
     static const void init() {
     	if (d == 0)
-	    d = new StaticData;
+	    initStaticData();
     }
 
-    StaticData();
-
 private:
+    QLocaleStaticData();
+    static void initStaticData();
+
     double m_inf, m_nan;
     bool m_big_endian;
     QString m_nan_str, m_inf_str;
     
-    static const StaticData *d;
+    static QLocaleStaticData *d;
 };
 
-const StaticData *StaticData::d = 0;
+QLocaleStaticData *QLocaleStaticData::d = 0;
 
-StaticData::StaticData() 
+static QCleanupHandler<QLocaleStaticData> g_static_data_cleanup_handler;
+
+void QLocaleStaticData::initStaticData()
+{
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker locker( qt_global_mutexpool ?
+                         qt_global_mutexpool->get(&d) : 0 );
+    if (d != 0)
+    	return;
+#endif // QT_THREAD_SUPPORT
+
+    d = new QLocaleStaticData;
+    g_static_data_cleanup_handler.add(&d);
+}
+
+QLocaleStaticData::QLocaleStaticData() 
 {
     int word_size;
     qSysInfo(&word_size, &m_big_endian);
@@ -67,11 +85,11 @@ StaticData::StaticData()
 #endif
 
 #if !defined(INFINITY)
-#   define INFINITY (StaticData::inf())
+#   define INFINITY (QLocaleStaticData::inf())
 #endif
 
 #if !defined(NAN)
-#   define NAN (StaticData::nan())
+#   define NAN (QLocaleStaticData::nan())
 #endif
 
 
@@ -371,12 +389,12 @@ const QLocalePrivate *QLocale::default_d = 0;
 
 const QString &QLocalePrivate::infinity() const
 {
-    return StaticData::infStr();
+    return QLocaleStaticData::infStr();
 }
 
 const QString &QLocalePrivate::nan() const
 {
-    return StaticData::nanStr();
+    return QLocaleStaticData::nanStr();
 }
 
 static QLocalePrivate *findLocale(QLocale::Language language,
@@ -2579,14 +2597,14 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 
 inline ULong &word0(double &x)
 {
-    if (StaticData::bigEndian())
+    if (QLocaleStaticData::bigEndian())
     	return ((ULong *)&x)[0];
     return ((ULong *)&x)[1];
 }
 
 inline ULong &word1(double &x)
 {
-    if (StaticData::bigEndian())
+    if (QLocaleStaticData::bigEndian())
     	return ((ULong *)&x)[1];
     return ((ULong *)&x)[0];
 }
@@ -2621,7 +2639,7 @@ inline void Storeinc(ULong *&a, const ULong &b, const ULong &c)
 #   	define USE_IEEE 0
 #   endif
 
-    if (!StaticData::bigEndian() && USE_IEEE || USE_LITTLE_ENDIAN) {
+    if (!QLocaleStaticData::bigEndian() && USE_IEEE || USE_LITTLE_ENDIAN) {
 	((unsigned short *)a)[1] = (unsigned short)b;
 	((unsigned short *)a)[0] = (unsigned short)c;
     } else {
