@@ -134,22 +134,22 @@ QInputDialog::QInputDialog( const QString &label, QWidget* parent, const char* n
 
     QVBoxLayout *vbox = new QVBoxLayout( this, 6, 6 );
 
-    QLabel* l = new QLabel( label, this );
+    QLabel* l = new QLabel( label, this, "qt_inputdlg_lbl" );
     vbox->addWidget( l );
 
-    d->stack = new QWidgetStack( this );
+    d->stack = new QWidgetStack( this, "qt_inputdlg_ws" );
     vbox->addWidget( d->stack );
-    d->lineEdit = new QLineEdit( d->stack );
-    d->spinBox = new QSpinBox( d->stack );
-    d->comboBox = new QComboBox( FALSE, d->stack );
-    d->editComboBox = new QComboBox( TRUE, d->stack );
+    d->lineEdit = new QLineEdit( d->stack, "qt_inputdlg_le" );
+    d->spinBox = new QSpinBox( d->stack, "qt_inputdlg_sb" );
+    d->comboBox = new QComboBox( FALSE, d->stack, "qt_inputdlg_cb" );
+    d->editComboBox = new QComboBox( TRUE, d->stack, "qt_inputdlg_editcb" );
 
     QHBoxLayout *hbox = new QHBoxLayout( 6 );
     vbox->addLayout( hbox, AlignRight );
 
-    d->ok = new QPushButton( tr( "OK" ), this );
+    d->ok = new QPushButton( tr( "OK" ), this, "qt_ok_btn" );
     d->ok->setDefault( TRUE );
-    QPushButton *cancel = new QPushButton( tr( "Cancel" ), this );
+    QPushButton *cancel = new QPushButton( tr( "Cancel" ), this, "qt_cancel_btn" );
 
     QSize bs( d->ok->sizeHint() );
     if ( cancel->sizeHint().width() > bs.width() )
@@ -158,7 +158,7 @@ QInputDialog::QInputDialog( const QString &label, QWidget* parent, const char* n
     d->ok->setFixedSize( bs );
     cancel->setFixedSize( bs );
 
-    hbox->addWidget( new QWidget( this ) );
+    hbox->addWidget( new QWidget( this, "qt_hbox" ) );
     hbox->addWidget( d->ok );
     hbox->addWidget( cancel );
 
@@ -291,7 +291,8 @@ QInputDialog::~QInputDialog()
 QString QInputDialog::getText( const QString &caption, const QString &label, QLineEdit::EchoMode mode,
 			      const QString &text, bool *ok, QWidget *parent, const char *name )
 {
-    QInputDialog *dlg = new QInputDialog( label, parent, name, TRUE, LineEdit );
+    QInputDialog *dlg = new QInputDialog( label, parent, name ? name : "qt_inputdlg_gettext", TRUE, LineEdit );
+
     dlg->setCaption( caption );
     dlg->lineEdit()->setText( text );
     dlg->lineEdit()->setEchoMode( mode );
@@ -344,7 +345,7 @@ QString QInputDialog::getText( const QString &caption, const QString &label, QLi
 int QInputDialog::getInteger( const QString &caption, const QString &label, int num, int from, int to, int step,
 			    bool *ok, QWidget *parent, const char *name )
 {
-    QInputDialog *dlg = new QInputDialog( label, parent, name, TRUE, SpinBox );
+    QInputDialog *dlg = new QInputDialog( label, parent, name ? name : "qt_inputdlg_getint", TRUE, SpinBox );
     dlg->setCaption( caption );
     dlg->spinBox()->setRange( from, to );
     dlg->spinBox()->setSteps( step, 0 );
@@ -398,7 +399,7 @@ double QInputDialog::getDouble( const QString &caption, const QString &label, do
 				double from, double to, int decimals,
 				bool *ok, QWidget *parent, const char *name )
 {
-    QInputDialog *dlg = new QInputDialog( label, parent, name, TRUE, LineEdit );
+    QInputDialog *dlg = new QInputDialog( label, parent, name ? name : "qt_inputdlg_getdbl", TRUE, LineEdit );
     dlg->setCaption( caption );
     dlg->lineEdit()->setValidator( new QDoubleValidator( from, to, decimals, dlg->lineEdit() ) );
     dlg->lineEdit()->setText( QString::number( num ) );
@@ -466,7 +467,7 @@ QString QInputDialog::getItem( const QString &caption, const QString &label, con
 			       int current, bool editable,
 			       bool *ok, QWidget *parent, const char *name )
 {
-    QInputDialog *dlg = new QInputDialog( label, parent, name, TRUE, editable ? EditableComboBox : ComboBox );
+    QInputDialog *dlg = new QInputDialog( label, parent, name ? name : "qt_inputdlg_getitem", TRUE, editable ? EditableComboBox : ComboBox );
     dlg->setCaption( caption );
     if ( editable ) {
 	dlg->editableComboBox()->insertStringList( list );

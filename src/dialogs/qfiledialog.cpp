@@ -543,7 +543,7 @@ class QRenameEdit : public QLineEdit
 
 public:
     QRenameEdit( QWidget *parent )
-	: QLineEdit( parent )
+	: QLineEdit( parent, "qt_rename_edit" )
     {}
 
 protected:
@@ -689,7 +689,7 @@ private:
 };
 
 QFDProgressAnimation::QFDProgressAnimation( QWidget *parent )
-    : QWidget( parent )
+    : QWidget( parent, "qt_progressanimation" )
 {
     setFixedSize( 300, 50 );
     step = -1;
@@ -775,19 +775,19 @@ QFDProgressDialog::QFDProgressDialog( QWidget *parent, const QString &fn, int st
     animation = new QFDProgressAnimation( this );
     layout->addWidget( animation );
 
-    layout->addWidget( new QLabel( tr( "Read: %1" ).arg( fn ), this ) );
-    readBar = new QProgressBar( steps, this );
+    layout->addWidget( new QLabel( tr( "Read: %1" ).arg( fn ), this, "qt_read_lbl" ) );
+    readBar = new QProgressBar( steps, this, "qt_readbar" );
     readBar->reset();
     readBar->setProgress( 0 );
     layout->addWidget( readBar );
-    writeLabel = new QLabel( tr( "Write: %1" ).arg( QString::null ), this );
+    writeLabel = new QLabel( tr( "Write: %1" ).arg( QString::null ), this, "qt_write_lbl" );
     layout->addWidget( writeLabel );
-    writeBar = new QProgressBar( steps, this );
+    writeBar = new QProgressBar( steps, this, "qt_writebar" );
     writeBar->reset();
     writeBar->setProgress( 0 );
     layout->addWidget( writeBar );
 
-    QPushButton *b = new QPushButton( tr( "Cancel" ), this );
+    QPushButton *b = new QPushButton( tr( "Cancel" ), this, "qt_cancel_btn" );
     b->setFixedSize( b->sizeHint() );
     layout->addWidget( b );
     connect( b, SIGNAL( clicked() ),
@@ -1035,7 +1035,7 @@ QFileListBox::QFileListBox( QWidget *parent, QFileDialog *dlg )
       firstMousePressEvent( TRUE )
 {
     changeDirTimer = new QTimer( this );
-    QVBox *box = new QVBox( viewport() );
+    QVBox *box = new QVBox( viewport(), "qt_vbox" );
     box->setFrameStyle( QFrame::Box | QFrame::Plain );
     lined = new QRenameEdit( box );
     lined->setFixedHeight( lined->sizeHint().height() );
@@ -1411,12 +1411,12 @@ void QFileListBox::contentsMoved( int, int )
  ************************************************************************/
 
 QFileDialogQFileListView::QFileDialogQFileListView( QWidget *parent, QFileDialog *dlg )
-    : QListView( parent ), renaming( FALSE ), renameItem( 0 ),
+    : QListView( parent, "qt_filedlg_listview" ), renaming( FALSE ), renameItem( 0 ),
     filedialog( dlg ), mousePressed( FALSE ),
     firstMousePressEvent( TRUE )
 {
     changeDirTimer = new QTimer( this );
-    QVBox *box = new QVBox( viewport() );
+    QVBox *box = new QVBox( viewport(), "qt_vbox" );
     box->setFrameStyle( QFrame::Box | QFrame::Plain );
     lined = new QRenameEdit( box );
     lined->setFixedHeight( lined->sizeHint().height() );
@@ -2291,7 +2291,7 @@ void QFileDialog::init()
 	     this,  SLOT(fileNameEditDone()) );
     nameEdit->installEventFilter( this );
 
-    d->splitter = new QSplitter( this );
+    d->splitter = new QSplitter( this, "qt_splitter" );
 
     d->stack = new QWidgetStack( d->splitter, "files and more files" );
 
@@ -2382,9 +2382,9 @@ void QFileDialog::init()
     connect( d->types, SIGNAL(activated(const QString&)),
 	     this, SIGNAL(filterSelected(const QString&)) );
 
-    d->pathL = new QLabel( d->paths, tr("Look &in:"), this );
-    d->fileL = new QLabel( nameEdit, tr("File &name:"), this );
-    d->typeL = new QLabel( d->types, tr("File &type:"), this );
+    d->pathL = new QLabel( d->paths, tr("Look &in:"), this, "qt_looin_lbl" );
+    d->fileL = new QLabel( nameEdit, tr("File &name:"), this, "qt_filename_lbl" );
+    d->typeL = new QLabel( d->types, tr("File &type:"), this, "qt_filetype_lbl" );
 
 #if defined(Q_WS_WIN)
     if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
@@ -2502,10 +2502,10 @@ void QFileDialog::init()
 
     QHBoxLayout * h;
 
-    d->preview = new QWidgetStack( d->splitter );
+    d->preview = new QWidgetStack( d->splitter, "qt_preview" );
 
-    d->infoPreviewWidget = new QWidget( d->preview );
-    d->contentsPreviewWidget = new QWidget( d->preview );
+    d->infoPreviewWidget = new QWidget( d->preview, "qt_preview_info" );
+    d->contentsPreviewWidget = new QWidget( d->preview, "qt_preview_contents" );
     d->infoPreviewer = d->contentsPreviewer = 0;
 
     h = new QHBoxLayout( 0 );
@@ -3200,8 +3200,8 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 				   parent, name, caption );
 #endif
 
-    QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null,
-					parent, name, TRUE );
+    QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gofn", TRUE );
+
     if ( parent && parent->icon() && !parent->icon()->isNull() )
 	dlg->setIcon( *parent->icon() );
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
@@ -3315,7 +3315,8 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 				   parent, name, caption );
 #endif
 
-    QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name, TRUE );
+    QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gsfn", TRUE );
+
     Q_CHECK_PTR( dlg );
     if ( parent && parent->icon() && !parent->icon()->isNull() )
 	dlg->setIcon( *parent->icon() );
@@ -4174,10 +4175,10 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     } else
 	initialDir = QString::null;
     if ( qApp->style() == WindowsStyle )
-	return winGetExistingDirectory( initialDir, parent, name );
+        return winGetExistingDirectory( initialDir, parent, name );
 #endif
 
-    QFileDialog *dialog = new QFileDialog( parent, name, TRUE );
+    QFileDialog *dialog = new QFileDialog( parent, name ? name : "qt_filedlg_ged", TRUE );
     if ( !caption.isNull() )
 	dialog->setCaption( caption );
     else
@@ -4417,12 +4418,12 @@ void QFileDialog::addWidgets( QLabel * l, QWidget * w, QPushButton * b )
     d->topLevelLayout->addLayout( lay );
 
     if ( !l )
-	l = new QLabel( this );
+	l = new QLabel( this, "qt_intern_lbl" );
     d->extraLabels.append( l );
     lay->addWidget( l );
 
     if ( !w )
-	w = new QWidget( this );
+	w = new QWidget( this, "qt_intern_widget" );
     d->extraWidgets.append( w );
     lay->addWidget( w );
     lay->addSpacing( 15 );
@@ -4431,7 +4432,7 @@ void QFileDialog::addWidgets( QLabel * l, QWidget * w, QPushButton * b )
 	d->extraButtons.append( b );
 	lay->addWidget( b );
     } else {
-	QWidget *wid = new QWidget( this );
+	QWidget *wid = new QWidget( this, "qt_extrabuttons_widget" );
 	d->extraButtons.append( wid );
 	lay->addWidget( wid );
     }
@@ -5226,8 +5227,8 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 	return macGetOpenFileNames(filter, workingDirectory, parent, name, caption );
 #endif
 
-    QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null,
-					parent, name, TRUE );
+    QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gofns", TRUE );
+
     Q_CHECK_PTR( dlg );
     if ( parent && parent->icon() && !parent->icon()->isNull() )
 	dlg->setIcon( *parent->icon() );
