@@ -65,7 +65,8 @@ public:
     window only partially opaque.
 */
 QRubberBand::QRubberBand(QRubberBand::Shape s, QWidget *p) : 
-    QWidget(*new QRubberBandPrivate, p, WType_TopLevel | WStyle_Tool | WStyle_Customize | WStyle_NoBorder)
+    QWidget(*new QRubberBandPrivate, p, 
+	    WType_TopLevel | WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM)
 {
     d->shape = s;
     setAutoMask(true);
@@ -163,6 +164,8 @@ QRubberBand::changeEvent(QEvent *ev)
 /*!
     \fn void QRubberBand::move(const QPoint &p);
 
+    \overload
+
     Moves the rubberband to point \a p.
 */
 
@@ -176,6 +179,8 @@ QRubberBand::changeEvent(QEvent *ev)
 
 /*!
     \fn void QRubberBand::resize(const QSize &size);
+
+    \overload
 
     Resizes the rubberband so that its new size is \a size.
 */
@@ -191,6 +196,8 @@ QRubberBand::changeEvent(QEvent *ev)
 
 /*!
     \fn void QRubberBand::setGeometry(const QRect &rect);
+
+    \overload
 
     Changes the rubberband's geometry to the geometry of the rectangle
     \a rect.
