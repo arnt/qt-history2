@@ -17,6 +17,7 @@
 #include <qpainter.h>
 #include <qstack.h>
 #include <qstyle.h>
+#include <qstyleoption.h>
 #include <qevent.h>
 #include <qpen.h>
 
@@ -362,22 +363,26 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const 
     int outer = d->rootDecoration ? 0 : 1;
     QRect primitive(reverse ? rect.left() : rect.right(), rect.top(), indent, rect.height());
 
+    Q4StyleOption opt(0, Q4StyleOption::Default);
+    opt.palette = palette();
     if (level >= outer) {
         // start with the innermost branch
         primitive.moveLeft(reverse ? primitive.left() : primitive.left() - indent);
-        QStyle::SFlags flags = QStyle::Style_Item
+        opt.rect = primitive;
+        opt.flags = QStyle::Style_Item
                                | (model()->rowCount(parent) - 1 > index.row()
                                   ? QStyle::Style_Sibling : 0)
                                | (model()->hasChildren(index) ? QStyle::Style_Children : 0)
                                | (d->items.at(d->current).open ? QStyle::Style_Open : 0);
-        style().drawPrimitive(QStyle::PE_TreeBranch, painter, primitive, palette(), flags);
+        style().drawPrimitive(QStyle::PE_TreeBranch, &opt, painter, this);
     }
     // then go out level by level
     for (--level; level >= outer; --level) { // we have already drawn the innermost branch
         primitive.moveLeft(reverse ? primitive.left() + indent : primitive.left() - indent);
-        style().drawPrimitive(QStyle::PE_TreeBranch, painter, primitive, palette(),
-                              model()->rowCount(ancestor) - 1 > current.row()
-                              ? QStyle::Style_Sibling : 0);
+        opt.rect = primitive;
+        opt.state = model()->rowCount(ancestor) - 1 > current.row() ? QStyle::Style_Sibling
+                                                                    : QStyle::Style_Default;
+        style().drawPrimitive(QStyle::PE_TreeBranch, &opt, painter, primitive, this);
         current = ancestor;
         ancestor = model()->parent(current);
     }
