@@ -36,10 +36,6 @@ class QX11PaintEngine;
 #endif
 
 
-Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
-                          const QPixmap *src, int sx = 0, int sy = 0,
-                          int sw = -1, int sh = -1);
-
 class Q_GUI_EXPORT QPixmap : public QPaintDevice, public Qt
 {
 public:
@@ -254,12 +250,12 @@ private:
 				  int sx, int sy, int sw, int sh, bool useDstAlpha);
 #endif
     static Optimization defOptim;
-    friend void bitBlt(QPaintDevice *, int, int, const QPaintDevice *,
-		       int, int, int, int, bool);
-    friend void bitBlt(QPaintDevice *, int, int, const QImage* src,
-		       int, int, int, int, int conversion_flags);
-    friend void copyBlt(QPixmap *dst, int dx, int dy, const QPixmap *src, int sx, int sy,
-			int sw, int sh);
+    friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int, const QPaintDevice *,
+                                    int, int, int, int, bool);
+    friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int, const QImage* src,
+                                    int, int, int, int, int conversion_flags);
+    friend Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy, const QPixmap *src, int sx, int sy,
+                                     int sw, int sh);
     friend class QBitmap;
     friend class QPaintDevice;
     friend class QPainter;
@@ -346,5 +342,9 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPixmap &);
 /*****************************************************************************
   QPixmap (and QImage) helper functions
  *****************************************************************************/
+Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
+                          const QPixmap *src, int sx = 0, int sy = 0,
+                          int sw = -1, int sh = -1);
+
 
 #endif // QPIXMAP_H

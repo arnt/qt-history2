@@ -30,18 +30,6 @@ class QX11Info;
 #endif
 
 class QPaintEngine;
-class QPaintDevice;
-
-Q_GUI_EXPORT
-void bitBlt(QPaintDevice *dst, int dx, int dy,
-             const QPaintDevice *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
-             bool ignoreMask=false);
-
-Q_GUI_EXPORT
-void bitBlt(QPaintDevice *dst, int dx, int dy,
-             const QImage *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
-             int conversion_flags=0);
-
 
 class Q_GUI_EXPORT QPaintDevice                                // device for QPainter
 {
@@ -113,9 +101,18 @@ public:
     friend class QPaintDeviceMetrics;
     friend class QQuickDrawPaintEngine;
     friend class QFontEngineMac;
-    friend void bitBlt(QPaintDevice *, int, int, const QPaintDevice *, int, int, int, int, bool);
+    friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int, const QPaintDevice *, int, int, int, int, bool);
 };
 
+Q_GUI_EXPORT
+void bitBlt(QPaintDevice *dst, int dx, int dy,
+             const QPaintDevice *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
+             bool ignoreMask=false);
+
+Q_GUI_EXPORT
+void bitBlt(QPaintDevice *dst, int dx, int dy,
+             const QImage *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
+             int conversion_flags=0);
 
 /*****************************************************************************
   Inline functions
