@@ -18,6 +18,8 @@
 #include <QPainterPath>
 #include <QMatrix>
 
+#include <stdlib.h>
+
 #include "items.h"
 
 class Item
