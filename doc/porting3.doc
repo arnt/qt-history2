@@ -114,9 +114,10 @@ the top of the file giving the error.
 
 <h3><a name="Namespace">Namespace</a></h3>
 
-<p> Qt 3.x is namespace-clean.  A few global identifiers that have been
-left in Qt 2.x have been discarded.  Enumeration <code>QCursorShape</code>
-and it values are now part of the
+<p> Qt 3.x is namespace-clean.  A few global identifiers that had been
+left in Qt 2.x have been discarded.
+
+<p> Enumeration <code>QCursorShape</code> and it values are now part of the
 special <code>Qt</code> class defined in qnamespace.h. If you get compilation
 errors about these being missing (unlikely, since most of your code will
 be in classes that inherit from the Qt namespace class), then change:
