@@ -581,11 +581,11 @@ LIBS += filechooser.lib
 
 	When you want to distribute your application, include the
 	compiled plugin with the executable. Install the plugin in
-	\c{$QTDIR/plugins/widgets}. If you don't want to use the
-	standard plugin path, have your installation process determine
-	the path you want to use for the plugin, and save the path,
-	e.g. using QSettings, for the application to read when it
-	runs. The application can then call
+	\c{plugins/widgets} subdirectory of the Qt installation directory.
+	If you don't want to use the standard plugin path, have your
+	installation process determine the path you want to use for the
+	plugin, and save the path, e.g. using QSettings, for the application
+	to read when it runs. The application can then call
 	QApplication::addLibraryPath() with this path and your plugins
 	will be available to the application. Note that the final part
 	of the path, i.e. \c styles, \c widgets, etc. cannot be
