@@ -241,7 +241,7 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     lastPressWidget = 0;
     qApp->installEventFilter( this );
 
-    QSize as;//( qApp->desktop()->size() );// FIXME: invalid use of undefined type `class QDesktopWidget'
+    QSize as( qApp->desktop()->size() );
     as -= QSize( 30, 30 );
     resize( QSize( 1200, 1000 ).boundedTo( as ) );
 
