@@ -4,6 +4,7 @@
 #include "attributes.h"
 
 #include <qwidget.h>
+#include <qbasictimer.h>
 
 class DemoWidget : public QWidget
 {
@@ -32,7 +33,7 @@ protected:
     double a, b, c, d;
 
 private:
-    int timerId;
+    QBasicTimer animationTimer;
 };
 
 #endif // DEMOWIDGET_H

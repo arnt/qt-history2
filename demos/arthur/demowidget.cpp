@@ -1,6 +1,8 @@
 #include "demowidget.h"
 
 #include <qpainter.h>
+#include <qevent.h>
+#include <qapplication.h>
 
 #include <math.h>
 #include <stdlib.h>
@@ -41,18 +43,22 @@ DemoWidget::DemoWidget(QWidget *parent)
 
 void DemoWidget::startAnimation()
 {
-    timerId = startTimer(timeoutRate);
+    animationTimer.start(timeoutRate, this);
 }
 
 void DemoWidget::stopAnimation()
 {
-    killTimer(timerId);
+    animationTimer.stop();
 }
 
-void DemoWidget::timerEvent(QTimerEvent *)
+void DemoWidget::timerEvent(QTimerEvent * e)
 {
-    ++animationStep;
-    update();
+    if (e->timerId() == animationTimer.timerId()) {
+        ++animationStep;
+        update();
+        if ((animationStep % 10) == 0 )
+            QApplication::syncX();
+    }
 }
 
 QSize DemoWidget::sizeHint() const
