@@ -562,13 +562,13 @@
 #error "Compiler doesn't support the 'bool' type!"
 #endif
 
-typedef unsigned char   uchar;
-typedef unsigned short  ushort;
-typedef unsigned	uint;
-typedef unsigned long   ulong;
-typedef char	       *pchar;
-typedef uchar	       *puchar;
-typedef const char     *pcchar;
+typedef unsigned char uchar;
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned long ulong;
+typedef char *pchar;
+typedef uchar *puchar;
+typedef const char *pcchar;
 
 //
 // Constant bool values
@@ -1302,7 +1302,6 @@ enum { // TYPEINFO flags
 };
 
 #define Q_DECLARE_TYPEINFO(TYPE, FLAGS)					       		\
-template <> inline void qInit<TYPE>(TYPE &) { }				       		\
 template <> inline void qDelete<TYPE>(TYPE &) { }				       	\
 template <>								       		\
 class QTypeInfo<TYPE>									\
@@ -1327,22 +1326,42 @@ public:											\
   to work.
 */
 #define Q_DECLARE_SHARED(TYPE) \
-template <> inline bool qIsDetached<TYPE>(TYPE &t) {  return t.isDetached(); }
+template <> inline bool qIsDetached<TYPE>(TYPE &t) { return t.isDetached(); }
 
 /*
   QTypeInfo primitive specializations
 */
-Q_DECLARE_TYPEINFO(long, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(int, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(short, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(char, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(ulong, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(uint, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(ushort, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(uchar, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(bool, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(char, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(signed char, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(uchar, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(short, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(ushort, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(int, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(uint, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(long, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(ulong, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(Q_LLONG, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(Q_ULLONG, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(float, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(double, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(long double, Q_PRIMITIVE_TYPE); // remove this line if you get compiler problems
+
+template <> inline void qInit<bool>(bool &t) { t = false; }
+template <> inline void qInit<char>(char &t) { t = 0; }
+template <> inline void qInit<signed char>(signed char &t) { t = 0; }
+template <> inline void qInit<uchar>(uchar &t) { t = 0; }
+template <> inline void qInit<short>(short &t) { t = 0; }
+template <> inline void qInit<ushort>(ushort &t) { t = 0; }
+template <> inline void qInit<int>(int &t) { t = 0; }
+template <> inline void qInit<uint>(uint &t) { t = 0; }
+template <> inline void qInit<long>(long &t) { t = 0; }
+template <> inline void qInit<ulong>(ulong &t) { t = 0; }
+template <> inline void qInit<Q_LLONG>(Q_LLONG &t) { t = 0; }
+template <> inline void qInit<Q_ULLONG>(Q_ULLONG &t) { t = 0; }
+template <> inline void qInit<float>(float &t) { t = 0.0f; }
+template <> inline void qInit<double>(double &t) { t = 0.0; }
+template <> inline void qInit<long double>(long double &t) { t = 0.0; } // ditto
 
 /*
   void*, const void* and function pointers are special, since deleting
