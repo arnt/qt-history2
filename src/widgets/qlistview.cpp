@@ -5268,7 +5268,7 @@ QListViewItem * QListView::selectedItem() const
 
 void QListView::setCurrentItem( QListViewItem * i )
 {
-    if ( !i || d->focusItem == i || !i->isEnabled() )
+    if ( d->focusItem == i || !i->isEnabled() )
 	return;
 
     if ( currentItem() && currentItem()->renameBox ) {
@@ -5289,7 +5289,7 @@ void QListView::setCurrentItem( QListViewItem * i )
 	    setMicroFocusHint( mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), FALSE );
     }
 
-    if ( i != prev) {
+    if ( i != prev ) {
 	if ( i && d->selectionMode == Single ) {
 	    bool changed = FALSE;
 	    if ( prev && prev->selected ) {
