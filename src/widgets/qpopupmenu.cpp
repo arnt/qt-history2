@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#263 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#264 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -910,12 +910,6 @@ void QPopupMenu::closeEvent( QCloseEvent * e) {
 
 void QPopupMenu::mousePressEvent( QMouseEvent *e )
 {
-    QWidget* w;
-    while ( (w = qApp->activePopupWidget() ) && w != this ){
-	    w->close();
-	    if (qApp->activePopupWidget() == w) // widget does not want to dissappear
-		w->hide(); // hide at least
-    }
     mouseBtDn = TRUE;				// mouse button down
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
