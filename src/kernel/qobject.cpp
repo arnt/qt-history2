@@ -51,6 +51,7 @@
 #include "qbitmap.h"
 #include "qpointarray.h"
 #include "qcursor.h"
+#include "qdatetime.h"
 
 // NOT REVISED
 /*! \class Qt qnamespace.h
@@ -1267,7 +1268,7 @@ static void err_info_about_candidates( int code,
 	}
 	QMetaData *rm = 0;
 	switch ( code ) {
-	case SLOT_CODE:	
+	case SLOT_CODE:
 	    rm = mo->slot( mo->findSlot( newname, TRUE ), TRUE );
 	    break;
 	case SIGNAL_CODE:
@@ -1510,7 +1511,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
     QMetaData   *rm = 0;
 
     switch ( membcode ) {			// get receiver member
-	case SLOT_CODE:	
+	case SLOT_CODE:
 	    rm = rmeta->slot( rmeta->findSlot( member, TRUE ), TRUE );
 	    break;
 	case SIGNAL_CODE:
@@ -1659,10 +1660,10 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 #endif
 	member++;
 	QMetaObject *rmeta = r->metaObject();
-	
+
 	switch ( membcode ) {			// get receiver member
 	    case SLOT_CODE:
-		rm = rmeta->slot( rmeta->findSlot( member, TRUE ), TRUE );	
+		rm = rmeta->slot( rmeta->findSlot( member, TRUE ), TRUE );
 		break;
 	    case SIGNAL_CODE:
 		rm = rmeta->signal( rmeta->findSignal( member, TRUE ), TRUE );
@@ -1712,7 +1713,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	    return FALSE;
 #endif
 	signal++;
- 	
+
  	QMetaObject *smeta = s->metaObject();
  	if ( !smeta )			// no meta object
  	    return FALSE;
@@ -1727,7 +1728,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
  	clist = s->connections->at( signal_index );
  	if ( !clist )
   	    return FALSE;
- 	
+
 	c = clist->first();
 	while ( c ) {				// for all receivers...
 	    if ( r == 0 ) {			// remove all receivers
@@ -2111,7 +2112,7 @@ void QObject::dumpObjectInfo()
     }
     if ( n == 0 )
 	qDebug( "\t<None>" );
-    
+
     qDebug( "  SIGNALS IN" );
     n = 0;
     if ( senderObjects ) {
@@ -2221,6 +2222,12 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 
     typedef void (QObject::*ProtoSizePolicy)( QSizePolicy );
     typedef void (QObject::*RProtoSizePolicy)( const QSizePolicy& );
+    
+    typedef void (QObject::*ProtoDate)( QDate );
+    typedef void (QObject::*RProtoDate)( const QDate&);
+
+    typedef void (QObject::*ProtoTime)( QTime );
+    typedef void (QObject::*RProtoTime)( const QTime&);
 
     QMetaObject* meta = metaObject();
 
@@ -2769,6 +2776,49 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    return TRUE;
 	}
 	break;
+
+    case QVariant::Date:
+	if ( p->sspec == QMetaProperty::Class ) {
+#ifdef Q_FP_CCAST_BROKEN
+	    ProtoDate m = reinterpret_cast<ProtoDate>(p->set);
+#else
+	    ProtoDate m = (ProtoDate)p->set;
+#endif
+	    (this->*m)( (QDate)(value.toDate()) );
+	    return TRUE;
+	} else if ( p->sspec == QMetaProperty::Reference ) {
+#ifdef Q_FP_CCAST_BROKEN
+	    RProtoDate m = reinterpret_cast<RProtoDate>(p->set);
+#else
+	    RProtoDate m = (RProtoDate)p->set;
+#endif
+	    (this->*m)( value.toDate() );
+	    return TRUE;
+	}
+	break;
+	
+    case QVariant::Time:
+	if ( p->sspec == QMetaProperty::Class ) {
+#ifdef Q_FP_CCAST_BROKEN
+	    ProtoTime m = reinterpret_cast<ProtoTime>(p->set);
+#else
+	    ProtoTime m = (ProtoTime)p->set;
+#endif
+	    (this->*m)( (QTime)(value.toTime()) );
+	    return TRUE;
+	} else if ( p->sspec == QMetaProperty::Reference ) {
+#ifdef Q_FP_CCAST_BROKEN
+	    RProtoTime m = reinterpret_cast<RProtoTime>(p->set);
+#else
+	    RProtoTime m = (RProtoTime)p->set;
+#endif
+	    (this->*m)( value.toTime() );
+	    return TRUE;
+	}
+	break;
+	
+	
+	
     default:
 	break;
     }
