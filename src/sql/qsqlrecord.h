@@ -48,13 +48,6 @@
 #include "qsqlfield.h"
 #endif // QT_H
 
-// #if defined(Q_TEMPLATEDLL)
-// // MOC_SKIP_BEGIN
-// template class Q_EXPORT QValueList< QSqlField >;
-// template class Q_EXPORT QMap< QString, int >;
-// // MOC_SKIP_END
-// #endif
-
 class QSqlRecordPrivate;
 
 class QSqlRecordShared : public QShared
