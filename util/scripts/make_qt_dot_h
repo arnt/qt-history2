@@ -94,7 +94,7 @@ map {
 		push @WCE_HEADERS, "$p";
 	    } elsif ( /_mac\./ || /qaquastyle/ ) {
 		push @MAC_HEADERS, "$p";
-	    } elsif ( /_win\./ ) {
+	    } elsif ( /_win\./ || /qwindowsxpstyle/ ) {
 		push @WIN_HEADERS, "$p";
 	    } elsif ( /_p\./ ) {
 		push @QT_HEADERS_P, "$p";
@@ -267,7 +267,6 @@ print QT_H "#endif // Q_WS_WIN\n\n";
 print QT_H "\n#ifdef Q_WS_MAC\n";
 do_headers @MAC_HEADERS;
 print QT_H "#endif // Q_WS_MAC\n\n";
-
 
 print QT_H "\n#ifdef Q_WS_QWS\n";
 do_headers @QWS_HEADERS;
