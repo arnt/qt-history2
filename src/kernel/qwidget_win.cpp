@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#210 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#211 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -504,6 +504,7 @@ void QWidget::setCursor( const QCursor &cursor )
     if ( cursor.handle() != arrowCursor.handle()
 	 || (extra && extra->curs) ) {
 	createExtra();
+	delete extra->curs;
 	extra->curs = new QCursor(cursor);
     }
     setWState( WState_OwnCursor );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#86 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -28,6 +28,7 @@
 #include "qdrawutil.h"
 #include "qbitmap.h"
 #include "qbitarray.h"
+#include "qvector.h"
 
 static const int GRIPMARGIN  = 4;		//half the size of the resize area
 static const int MARKSIZE = 32;
@@ -38,8 +39,8 @@ struct QHeaderData
 {
     QArray<QCOORD>	sizes;
     QArray<QCOORD>	heights;
-    QArray<QString*>	labels;
-    QArray<QIconSet*>	iconsets;
+    QVector<QString>	labels;
+    QVector<QIconSet>	iconsets;
     QArray<int>	        a2l;
     QArray<int>	        l2a;
 
@@ -103,6 +104,7 @@ QHeader::QHeader( int n,  QWidget *parent, const char *name )
 QHeader::~QHeader()
 {
     delete data;
+    data = 0;
 }
 
 /*!
@@ -173,7 +175,7 @@ int QHeader::cellPos( int i ) const
 
 int QHeader::count() const
 {
-    return data->labels.size() - 1;
+    return data->labels.size() - 1;	// Ignore dummy last item
 }
 
 
@@ -216,6 +218,8 @@ void QHeader::init( int n )
     cachedPos = 0;
     data = new QHeaderData;
 
+    data->labels.setAutoDelete( TRUE );
+    data->iconsets.setAutoDelete( TRUE );
     data->sizes.resize(n+1);
     data->heights.resize(n+1);
     data->labels.resize(n+1);
@@ -229,8 +233,6 @@ void QHeader::init( int n )
 	data->heights[i] = fontMetrics().lineSpacing()+6;
 	data->a2l[i] = i;
 	data->l2a[i] = i;
-	data->labels[i] = 0;
-	data->iconsets[i] = 0;
     }
     data->clicks.fill( TRUE );
     data->resize.fill( TRUE );
@@ -609,11 +611,7 @@ void QHeader::setLabel( int i, const QIconSet& iconset, const QString &s, int si
 {
     if ( i < 0 || i >= count() )
 	return;
-    if ( i >= 0 && i < count() ) {
-	if ( data->iconsets[i] )
-	    delete data->iconsets[i];
-	data->iconsets[i] = new QIconSet( iconset );
-    }
+    data->iconsets.insert( i, new QIconSet( iconset ) );
     setLabel( i, s, size );
 }
 
@@ -630,14 +628,9 @@ void QHeader::setLabel( int i, const QString &s, int size )
 {
     if ( i < 0 || i >= count() )
 	return;
-    if ( i >= 0 && i < count() ) {
-	if ( data->labels[i] )
-	    delete data->labels[i];
-	data->labels[i] = new QString( s );
-	if ( size >= 0 ) {
-	    setCellSize( i, size );
-	}
-    }
+    data->labels.insert( i, new QString( s ) );
+    if ( size >= 0 )
+	setCellSize( i, size );
     update();
 }
 
@@ -658,7 +651,7 @@ QString QHeader::label( int i ) const
 /*!
   Returns the icon set set on logical section \a i.
 */
-QIconSet	*QHeader::iconSet( int i) const
+QIconSet *QHeader::iconSet( int i) const
 {
     if ( i < 0 || i >= count() )
 	return 0;
@@ -676,7 +669,7 @@ int QHeader::addLabel( const QIconSet& iconset, const QString &s, int size )
 {
     int n = count() + 1; //########### Paul? Why hashes?
     data->iconsets.resize( n + 1 );
-    data->iconsets[n-1] = new QIconSet( iconset );
+    data->iconsets.insert( n - 1, new QIconSet( iconset ) );
     return addLabel( s, size );
 }
 
@@ -688,13 +681,11 @@ int QHeader::addLabel( const QIconSet& iconset, const QString &s, int size )
 
 int QHeader::addLabel( const QString &s, int size )
 {
-    int n = count() + 1; //########### Paul? Why hashes?
-    data->labels.resize( n + 1 );
-    data->labels[n-1] = new QString( s );
-    if ( int( data->iconsets.size() ) < n + 1  ) {
+    int n = count() + 1; 		// n is old list size, including dummy
+    data->labels.resize( n + 1 );	// new size including dummy is n+1
+    data->labels.insert( n - 1, new QString( s ) );  // n-1 is last real idx
+    if ( int( data->iconsets.size() ) < n + 1  )
 	data->iconsets.resize( n + 1 );
-	data->iconsets[n-1] = 0;
-    }
     data->sizes.resize( n + 1 );
     data->heights.resize( n + 1 );
     int iw = 0;

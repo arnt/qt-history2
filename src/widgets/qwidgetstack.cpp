@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#44 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -105,8 +105,12 @@ QWidgetStack::QWidgetStack( QWidget * parent, const char *name )
 
 QWidgetStack::~QWidgetStack()
 {
+    delete focusWidgets;
+    focusWidgets = 0;
     delete d;
+    d = 0;
     delete dict;
+    dict = 0;
 }
 
 

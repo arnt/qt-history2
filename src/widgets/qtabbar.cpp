@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#73 $
 **
 ** Implementation of QTabBar class
 **
@@ -138,7 +138,11 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
 QTabBar::~QTabBar()
 {
     delete d;
+    d = 0;
     delete l;
+    l = 0;
+    delete lstatic;
+    lstatic = 0;
 }
 
 
