@@ -23,6 +23,7 @@
 
 */
 
+#include <qpoint.h>
 #include <qstring.h>
 
 #include <ctype.h>
@@ -119,6 +120,8 @@ enum { Node_Abs, Node_Add, Node_And, Node_Avg, Node_Ceil, Node_Count,
        Node_Soundex, Node_Substring, Node_Subtract, Node_Sum,
        Node_Translate, Node_UnresolvedField, Node_UnresolvedStar,
        Node_Upper };
+
+static QPoint NullRep( 0, 0 ); // yes, that's 'null'
 
 static QVariant resolvedField( int tableId, const QString& fieldName )
 {
@@ -1407,6 +1410,9 @@ QVariant Parser::matchPrimaryExpr()
 	right = yyStr;
 	yyTok = getToken();
 	break;
+    case Tok_null:
+	right = NullRep;
+	break;
     default:
 	switch ( yyTok ) {
 	case Tok_avg:
@@ -1676,15 +1682,16 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 	pred = matchIn( left ).toList();
 	break;
     case Tok_is:
-	if ( !leftIsColumnRef )
-	    error( "Expected column reference before 'is'" );
-
 	yyTok = getToken();
 	if ( yyTok == Tok_not ) {
 	    yyTok = getToken();
 	    unot = TRUE;
 	}
 	matchOrSkip( Tok_null, "'null'" );
+
+	pred.append( (int) Node_Eq );
+	pred.append( left );
+	pred.append( NullRep );
 	break;
     case Tok_like:
 	pred = matchLike( left ).toList();
