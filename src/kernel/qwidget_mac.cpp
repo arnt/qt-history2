@@ -518,7 +518,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	id = (WId)hd;
 	own_id = 0;
 	setWinId( id );
-    } else if( !parentWidget() || (popup || dialog || topLevel) ) {
+    } else if( popup || dialog || topLevel ) {
 	own_id = 1; //I created it, I own it
 
 	Rect r;
@@ -545,10 +545,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 		    wattr |= kWindowStandardDocumentAttributes;
 	    } else {
 		grp = GetWindowGroupOfClass(wclass);
-		if(wclass == kDocumentWindowClass) 
-		    wclass = kSheetWindowClass;
-		else if(wclass == kFloatingWindowClass) 
-		    wclass = kToolbarWindowClass;
+		if( testWFlags( WStyle_NoBorder) ) {
+		    if(wclass == kDocumentWindowClass)
+			wclass = kSheetWindowClass;
+		    else if(wclass == kFloatingWindowClass) 
+			wclass = kToolbarWindowClass;
+		}
 		if( testWFlags( WStyle_Maximize ) ) 
 		    wattr |= kWindowFullZoomAttribute;
 		if( testWFlags( WStyle_Minimize ) ) 

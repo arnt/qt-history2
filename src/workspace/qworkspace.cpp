@@ -1567,8 +1567,7 @@ void QWorkspace::tile()
 QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 				  const char *name )
     : QFrame( parent, name,
-	      (toplevel == Yes ? WType_TopLevel : 0 ) | 
-	      WStyle_Customize | WDestructiveClose | WNoMousePropagation | WSubWindow )
+	      (toplevel == Yes ? WType_TopLevel : 0 ) | WDestructiveClose | WNoMousePropagation | WSubWindow )
 {
     statusbar = 0;
     setMouseTracking( TRUE );
