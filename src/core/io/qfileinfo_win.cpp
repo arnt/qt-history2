@@ -220,6 +220,7 @@ QString QFileInfo::readLink() const
     QString fileLinked;
 
     QT_WA( {
+	bool neededCoInit = false;
 	IShellLink *psl;                            // pointer to IShellLink i/f
 	HRESULT hres;
 	WIN32_FIND_DATA wfd;
@@ -229,6 +230,12 @@ QString QFileInfo::readLink() const
 	hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
 				    IID_IShellLink, (LPVOID *)&psl);
 
+	if (hres == CO_E_NOTINITIALIZED) { // COM was not initalized
+	    neededCoInit = true;
+	    CoInitialize(NULL); 
+	    hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+					IID_IShellLink, (LPVOID *)&psl);
+	}
 	if (SUCCEEDED(hres)) {    // Get pointer to the IPersistFile interface.
 	    IPersistFile *ppf;
 	    hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
@@ -248,7 +255,10 @@ QString QFileInfo::readLink() const
 	    }
 	    psl->Release();
 	}
+	if (neededCoInit)
+	    CoUninitialize();
     } , {
+	bool neededCoInit = false;
 	IShellLinkA *psl;                            // pointer to IShellLink i/f
 	HRESULT hres;
 	WIN32_FIND_DATAA wfd;
@@ -259,6 +269,12 @@ QString QFileInfo::readLink() const
 	hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
 				    IID_IShellLinkA, (LPVOID *)&psl);
 
+	if (hres == CO_E_NOTINITIALIZED) { // COM was not initalized
+	    neededCoInit = true;
+	    CoInitialize(NULL);
+	    hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+					IID_IShellLinkA, (LPVOID *)&psl);
+	}
 	if (SUCCEEDED(hres)) {    // Get pointer to the IPersistFile interface.
 	    IPersistFile *ppf;
 	    hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
@@ -280,6 +296,8 @@ QString QFileInfo::readLink() const
 	    }
 	    psl->Release();
 	}
+	if (neededCoInit)
+	    CoUninitialize();
     } );
 
     return fileLinked;
