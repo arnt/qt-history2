@@ -21,92 +21,185 @@
 /*!
   \class QRegExp qregexp.h
 
-  \brief The QRegExp class provides pattern matching using regular-expression
-  and wildcard patterns.
+  \brief The QRegExp class provides pattern matching using regular expressions.
 
   \ingroup tools
   \ingroup misc
   \ingroup shared
 
-  In normal regular expression mode, you can use any of these atoms to match a
-  single character:
+  Regular expressions are found in such tools as grep, lex, awk and perl.  They
+  help users and programmers accomplish simple tasks such as the following:
 
   <ul plain>
-  <li><b><em>c</em></b> matches the normal character <tt><em>c</em></tt>
-  <li><b>\\e c </b> matches the special character <tt><em>c</em></tt>, one
-      of<tt> $ ( ) * + - . ? [ \ ] ^ { | }</tt>
-  <li><b>\a</b> matches the ASCII bell character (BEL, 0x07)
-  <li><b>\f</b> matches the ASCII form feed character (FF, 0x0C)
-  <li><b>\n</b> matches the ASCII line feed character (LF, 0x0A), also known as
-      newline
-  <li><b>\r</b> matches the ASCII carriage return character (CR, 0x0D)
-  <li><b>\t</b> matches the ASCII horizontal tabulation character (HT, 0x09)
-  <li><b>\v</b> matches the ASCII vertical tabulation character (VT, 0x0B)
-  <li><b>\x\e hhhh </b> matches the Unicode character corresponding to the
-      hexadecimal number \e hhhh (between 0x0000 and 0xFFFF)
-  <li><b>\0\e ooo </b> (i.e., <b>\ zero <em>ooo</em></b>) matches the
-      ASCII/Latin-1 character corresponding to the octal number \e ooo (between
-      0 and 0377)
-  <li><b>[</b>...<b>]</b> matches one of the characters in the specified set
-      (see below)
-  <li><b>.</b> matches any character (including newline)
-  <li><b>\d</b> matches a digit (any character for which QChar::isDigit() is
-      true)
-  <li><b>\D</b> matches a non-digit
-  <li><b>\s</b> matches a space (any character for which QChar::isSpace() is
-      true)
-  <li><b>\S</b> matches a non-space
-  <li><b>\w</b> matches a word character (any character for which
-      QChar::isLetterOrNumber() is true)
-  <li><b>\W</b> matches a non-word character.
+  <li> Validate input:  Check whether or not the user entered a valid email
+       address, a valid number, etc.
+  <li> Search text:  Look for all Bills and Williams in a Unix password file.
+  <li> Search-and-replace text:  Replace all occurrences of <tt>\<</tt> by
+       <tt>\&amp;</tt>.
   </ul>
 
-  The following atoms make an assertion without consuming any input:
+  Regular expressions are a generalization of character strings (\l QString).
+  Indeed, the most basic regular expressions are just plain strings (that avoid
+  certain special characters).  Thus, the regular expressions <b>begin</b> means
+  precisely <tt>begin</tt>.
+
+  But regular expressions can be much more general:  They specify a whole
+  family of strings.  For example, <b>Bill|William</b> (read "Bill OR William")
+  denotes the family consisting of <tt>Bill</tt> and <tt>William</tt>, and
+  <b>\w+tion</b> denotes the family of all the words ending in <tt>tion</tt>
+  (such as <tt>information</tt> and <tt>xyzzyzwtion</tt>).  Idiomatically, we
+  can say that <b>Bill|William</b> \e matches <tt>Bill</tt>.  It also matches
+  <tt>William</tt>, but it doesn't match <tt>Frank</tt>.
+
+  QRegExp's regular expression flavor combines Perl's power and Unicode support.
+  QRegExp also supports the weaker \e wildcard notation (as in <b>*.cpp</b> and
+  chapter[1-5].tex) found in most command interpreters.  More on this later.
+
+  Now to the nitty-gritty of regular expression syntax:  You can use any of
+  these \e atoms to match a single character:
 
   <ul plain>
-  <li><b>\b</b> matches at a word boundary
-  <li><b>\B</b> matches wherever <b>\b</b> doesn't match
-  <li><b>^</b> matches at the beginning of input
-  <li><b>$</b> matches at the end of input
-  <li><b>(?=<em>E</em>)</b> matches if the next characters of input match the
-      regular expression <b><em>E</em></b> (positive lookahead)
-  <li><b>(?!<em>E</em>)</b> matches if the next characters of input do not
-      match the regular expression <b><em>E</em></b> (negative lookahead).
+  <li> <b><em>c</em></b> matches the normal character <tt><em>c</em></tt>
+  <li> <b>\\e c </b> matches the special character <tt><em>c</em></tt>, one
+       of<tt> $ ( ) * + - . ? [ \ ] ^ { | }</tt>
+  <li> <b>\a</b> matches the ASCII bell character (BEL, 0x07)
+  <li> <b>\f</b> matches the ASCII form feed character (FF, 0x0C)
+  <li> <b>\n</b> matches the ASCII line feed character (LF, 0x0A), also known as
+       Unix newline
+  <li> <b>\r</b> matches the ASCII carriage return character (CR, 0x0D)
+  <li> <b>\t</b> matches the ASCII horizontal tabulation character (HT, 0x09)
+  <li> <b>\v</b> matches the ASCII vertical tabulation character (VT, 0x0B)
+  <li> <b>\x\e hhhh </b> matches the Unicode character corresponding to the
+       hexadecimal number \e hhhh (between 0x0000 and 0xFFFF)
+  <li> <b>\0\e ooo </b> (i.e., <b>\ zero <em>ooo</em></b>) matches the
+       ASCII/Latin-1 character corresponding to the octal number \e ooo (between
+       0 and 0377)
+  <li> <b>.</b> matches any character (including newline)
+  <li> <b>\d</b> matches a digit (see QChar::isDigit())
+  <li> <b>\D</b> matches a non-digit
+  <li> <b>\s</b> matches a whitespace (see QChar::isSpace())
+  <li> <b>\S</b> matches a non-whitespace
+  <li> <b>\w</b> matches a word character (see QChar::isLetterOrNumber())
+  <li> <b>\W</b> matches a non-word character.
   </ul>
 
-  You may use one of the following quantifiers to match a certain number of
-  occurrences of an atom <b><em>A</em></b> (at most 999):
+  There is also <b>[</b>...<b>]</b> that can match one of the characters within
+  brackets.  For instance, <b>[BSD]</b> matches any of <tt>B</tt>, <tt>D</tt>
+  and <tt>S</tt>.  Within a character set, most special characters lose their
+  usual meaning.  The following characters are treated specially:
 
   <ul plain>
-  <li><b><em>A</em>*</b> matches 0 or more occurrences of <b><em>A</em></b>
-  <li><b><em>A</em>?</b> matches 0 or 1 occurrences of <b><em>A</em></b>
-  <li><b><em>A</em>+</b> matches 1 or more occurrences of <b><em>A</em></b>
-  <li><b><em>A</em>{<em>m</em>}</b> matches exactly \e m occurrences of
+  <li> <b>&#92</b> behaves the same way as elsewhere
+  <li> <b>^</b> negates the character set so that it matches any character
+       \e not in the set, when it is placed first in the list
+  <li> <b>-</b> defines a range of characters
+  <li> <b>]</b> ends the character set.
+  </ul>
+
+  Thus, <b>[a-zA-Z0-9.\-]</b> matches upper- and lower-case ASCII letters,
+  digits, dot and hyphen (but not backslash); whereas <b>[^\s]</b> matches
+  anything except white-space (same as <b>\S</b>).
+
+  Let's see some more complex examples.  To match an integer between 100 and
+  999, you can use the regular expression <b>[1-9][0-9][0-9]</b>, like this:
+
+  \code
+    QRegExp rx( "[1-9][0-9][0-9]" );    // match "100", "101", ..., "999"
+    rx.match( "476" );                  // returns TRUE
+    rx.match( "1492" );                 // returns FALSE
+  \endcode
+
+  If you are searching for such a number in a text, find() or findRev() are the
+  the appropriate choices:
+
+  \code
+    QRegExp rx( "[1-9][0-9][0-9]" );    // match "100", "101", ..., "999"
+    rx.find( "503, 1511" );             // returns 0 (the position of "503")
+    rx.findRev( "503, 1511" );          // returns 6 (the position of "511")
+  \endcode
+
+  Notice that <tt>511</tt> is matched, even though it's part of a larger number
+  (<tt>1511</tt>).  We'll soon see ways to avoid that.
+
+  Another example:  You want to find all trailing spaces in your text files
+  (possibly to remove them).  Solution:  Use <b>\s\n</b>.
+
+  The following atoms are called \e anchors.  They make an assertion without
+  consuming any input:
+
+  <ul plain>
+  <li> <b>\b</b> matches at a word boundary
+  <li> <b>\B</b> matches wherever <b>\b</b> doesn't match
+  <li> <b>^</b> matches at the beginning of input
+  <li> <b>$</b> matches at the end of input
+  <li> <b>(?=<em>E</em>)</b> matches if the next characters of input match the
+       regular expression <b><em>E</em></b> (positive lookahead)
+  <li> <b>(?!<em>E</em>)</b> matches if the next characters of input do not
+       match the regular expression <b><em>E</em></b> (negative lookahead).
+  </ul>
+
+  Anchors are useful to provide some context for the regular expression.  For
+  example, if you want to replace all occurrences of <tt>which</tt> by
+  <tt>that</tt>, the regular expression <b>\bwhich\b</b> is a better choice than
+  <b>which</b>, because it leaves <tt>whichever</tt> alone.
+
+  Lookaheads push the idea of anchors further.  If you want to changes all
+  occurrences of <tt>Donald</tt> to <tt>Don</tt>, except for <tt>Donald
+  Duck</tt>, you might write
+
+  \code
+    QRegExp rx( "Donald(?!\sDuck)" );
+    QString text = "Donald Knuth, Donald Duck and Ronald McDonald's";
+    text.replace( rx, "Don" );
+    // text = "Don Knuth, Donald Duck and Ronald McDon's"
+  \endcode
+
+  Oops!  It changed <tt>McDonald's</tt> into <tt>McDon's</tt>!  We can fix that
+  by adding a few word-boundary anchors: <b>\bDonald\b(?! Duck)</b>.
+
+  Sometimes, you might have to match many occurrences of an atom
+  <b><em>A</em></b>.  The following \e quantifiers do just that:
+
+  <ul plain>
+  <li> <b><em>A</em>*</b> matches 0 or more occurrences of <b><em>A</em></b>
+  <li> <b><em>A</em>?</b> matches 0 or 1 occurrences of <b><em>A</em></b>
+  <li> <b><em>A</em>+</b> matches 1 or more occurrences of <b><em>A</em></b>
+  <li> <b><em>A</em>{<em>m</em>}</b> matches exactly \e m occurrences of
      <b><em>A</em></b>
-  <li><b><em>A</em>{<em>m</em>,<em>n</em>}</b> matches between \e m and \e n
+  <li> <b><em>A</em>{<em>m</em>,<em>n</em>}</b> matches between \e m and \e n
       occurrences of <b><em>A</em></b>
-  <li><b><em>A</em>{<em>m</em>,}</b> matches at least \e m occurrences of
+  <li> <b><em>A</em>{<em>m</em>,}</b> matches at least \e m occurrences of
       <b><em>A</em></b>
-  <li><b><em>A</em>{,<em>n</em>}</b> matches at most \e n occurrences of
+  <li> <b><em>A</em>{,<em>n</em>}</b> matches at most \e n occurrences of
       <b><em>A</em></b>.
   </ul>
 
-  You can always build an atom by enclosing a regular expression
-  <b><em>E</em></b> in parentheses:
+  The Donald Duck example above fails miserably if <tt>Donald</tt> and
+  <tt>Duck</tt> are separated by more than one space.  With quantifiers, we can
+  now write <b>\bDonald\b(?!\s+Duck)</b>, where <b>\s+</b> means 1 or more
+  white-space characters.
+
+  One problem we have so far is that there's no way to apply a quantifier to,
+  say, <b>ha</b>.  If we write <b>ha+</b>, only the <b>a</b> is covered by the
+  <b>+</b>.  This can be solved by enclosing a regular expression with
+  parentheses:
 
   <ul plain>
-  <li><b>(<em>E</em>)</b> matches the sub-expression <b><em>E</em></b> and
-      captures the matched text, making it available through back-references and
+  <li> <b>(<em>E</em>)</b> matches the subexpression <b><em>E</em></b> and
+      captures the matched text, making it available via back-references and
       capturedText()
-  <li><b>(?:<em>E</em>)</b> matches the sub-expression <b><em>E</em></b>
+  <li> <b>(?:<em>E</em>)</b> matches the subexpression <b><em>E</em></b>
       without capturing anything.
   </ul>
 
+  To match between 3 and 5 occurrences of <tt>ha</tt>, you can write
+  <b>(ha){3,5}</b> or <b>(?:ha){3,5}</b>.  The former is slower, because it
+  forces QRegExp to do some book-keeping.
+
   Back-references are expressions of the form <b>&#92;<em>N</em></b> that stand
   for the <em>N</em>th substring matched by the <em>N</em>th parenthesized
-  sub-expression.  For example, <b>(.)(.)\2\1</b> matches all palindromes of
-  length 4 (e.g., <tt>anna</tt>), and <b>(a\1*)</b> a power of 2 of
-  <tt>a</tt>'s (e.g., <tt>aaaa</tt>).
+  subexpression.  Use <b>(.)(.)\2\1</b> to match all palindromes of length 4
+  (e.g., <tt>anna</tt>).
 
   If <b><em>E</em></b> and <b><em>F</em></b> are two regular expressions, you
   can also write <b><em>E</em>|<em>F</em></b> to match either <b><em>E</em></b>
@@ -114,37 +207,39 @@
   <b>(min|max|opt)imum</b> to match <tt>minimum</tt>, <tt>maximum</tt> or
   <tt>optimum</tt>.
 
-  In wildcard mode, there are only four primitives:
-  <ul plain>
-  <li><b><em>c</em></b> matches the character <tt><em>c</em></tt>
-  <li><b>?</b> matches any character
-  <li><b>*</b> matches any sequence of characters
-  <li><b>[<em>...</em>]</b> matches a defined set of characters (see below)
-  </ul>
-
-  QRegExp supports Unicode both in the pattern strings and in the strings to be
-  matched.
-
   When writing regular expressions in C++ code, remember that C++ processes
   <tt>&#92;</tt> characters.  To match a <tt>$</tt> character, you should write
   <tt>"\\$"</tt> in C++ source, not <tt>"\$"</tt>.
 
-  A character set matches a defined set of characters.  For example,
-  <b>[BSD]</b> matches any of <tt>B</tt>, <tt>D</tt> and <tt>S</tt>.  Within a
-  character set, most special characters lose their usual meaning.  The
-  following characters are treated specially:
+  If you want to know more abour regular expressions, read Jeffrey Friedl's
+  \e Mastering \e Regular \e Expressions (O'Reilly).
+
+  That's all, folks!  Well, almost.  We haven't seen wildcard mode yet.  In
+  wildcard mode, there are only four primitives:
 
   <ul plain>
-  <li><b>&#92</b> behaves the same way as outside character sets
-  <li><b>^</b> negates the caracter set so that it matches any character not in
-      the set, when it is placed first in the list
-  <li><b>-</b> defines a range of characters
-  <li><b>]</b> ends the character set definition.
+  <li> <b><em>c</em></b> matches the character <tt><em>c</em></tt>
+  <li> <b>?</b> matches any character
+  <li> <b>*</b> matches any sequence of characters
+  <li> <b>[<em>...</em>]</b> matches a defined set of characters.
   </ul>
 
-  Thus, <b>[a-zA-Z0-9.\-]</b> matches upper and lower case ASCII letters,
-  digits, dot and hyphen, whereas <b>[^\s]</b> matches everything except white
-  space (same as <b>\S</b>).
+  Here's an example of wildcard syntax:
+
+  \code
+    QRegExp rx( "chapter??.*" );
+    rx.setWildcard( TRUE );
+    rx.match( "chapter01.tex" );        // returns TRUE
+    rx.match( "chapter123.doc" );       // returns FALSE
+  \endcode
+
+  Here's the same example with regular expression syntax:
+
+  \code
+    QRegExp rx( "chapter..\\..*" );
+    rx.match( "chapter01.tex" );        // returns TRUE
+    rx.match( "chapter123.doc" );       // returns FALSE
+  \endcode
 
   \sa QRegExpValidator
 */
@@ -2914,22 +3009,12 @@ int QRegExp::matchedLength() const
 }
 
 #ifndef QT_NO_REGEXP_CAPTURE
-/*!  Returns the text captured by the \a nth parenthesized sub-expression in the
+/*!  Returns the text captured by the \a nth parenthesized subexpression in the
   regular expression.  Sub-expressions are numered in the order of occurrence of
   their left parenthesis, starting at 1.  The whole regular expression is given
   number 0, making it possible to retrieve the full matched text easily.
 
   Example 1:
-  \code
-    QRegExp rx( "a*((b*)y*)(z*)" );     // match a...ab...by...yz...z
-    int pos = rx.match( "abbyyyz" );    // pos = 0
-    QString t0 = rx.capturedText( 0 );  // abbyyyz
-    QString t1 = rx.capturedText( 1 );  // bbyyy
-    QString t2 = rx.capturedText( 2 );  // bb
-    QString t3 = rx.capturedText( 3 );  // z
-  \endcode
-
-  Example 2:
   \code
     QRegExp rx( "([a-z])+" );           // match a lower-case word
     int pos = rx.match( "3 pizza 2" );  // pos = 4
@@ -2937,7 +3022,17 @@ int QRegExp::matchedLength() const
     QString t1 = rx.capturedText( 1 );  // a
   \endcode
 
-  Notice the behavior of sub-expressions governed by a quantifier (<b>+</b>).
+  Example 2:
+  \code
+    QRegExp rx( "1*((2*)3*)(4*)" );
+    int pos = rx.match( "1223334" );    // pos = 0
+    QString t0 = rx.capturedText( 0 );  // 1223334
+    QString t1 = rx.capturedText( 1 );  // 22333
+    QString t2 = rx.capturedText( 2 );  // 22
+    QString t3 = rx.capturedText( 3 );  // 4
+  \endcode
+
+  Notice the behavior of subexpressions governed by a quantifier (<b>+</b>).
 
   \sa capturedTexts() setMinimal()
 */
