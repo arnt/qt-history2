@@ -80,8 +80,11 @@ void FindDialog::doFind(bool forward)
         browser->setTextCursor(c);
     }
 
-    QTextCursor found = browser->document()->find(findExpr, c, flags,
-        forward ? QTextDocument::FindForward : QTextDocument::FindBackward);
+    QTextDocument::FindFlags options;
+    if (forward == false)
+        flags |= QTextDocument::FindBackward;
+
+    QTextCursor found = browser->document()->find(findExpr, c, flags);
     if (found.isNull()) {
         if (onceFound) {
             if (forward)
