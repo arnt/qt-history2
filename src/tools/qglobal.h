@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#58 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#59 $
 **
 ** Global type declarations and definitions
 **
@@ -102,6 +102,8 @@
 #define _CC_HP_
 #elif defined(__DECCXX)
 #define _CC_DEC_
+#elif defined(__EDG)
+#define _CC_EDG_
 #else
 #error "Qt has not been tested with this compiler - talk to qt-bugs@troll.no"
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#56 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#57 $
 **
 ** Definition of QPixmap class
 **
@@ -90,7 +90,7 @@ protected:
     void	freeMemDC();
 #endif
 
-    struct QPixmapData : QShared {		// internal pixmap data
+    struct QPixmapData : public QShared {	// internal pixmap data
 	QCOORD	w, h;
 	short	d;
 	uint	dirty  : 1;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#26 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#27 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -68,7 +68,7 @@ private:
     void	init();
     void	freeBits();
 
-    struct QImageData : QShared {		// internal image data
+    struct QImageData : public QShared {	// internal image data
 	int	w;				// image width
 	int	h;				// image height
 	int	d;				// image depth
