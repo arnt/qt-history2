@@ -23,7 +23,8 @@ QWS_QVFB=prompted
 QWS_DEPTHS=prompted
 HELP=
 
-if [ "$relpath" != `pwd` ]; then
+if [ "$relpath" != `pwd` ]
+then
     #setup the magic variable
     outpath=`pwd`
 
@@ -45,10 +46,12 @@ if [ "$relpath" != `pwd` ]; then
     fi
 
     #qmake must be symlinked
-    for a in `find $relpath/qmake`; do
+    for a in `find $relpath/qmake`
+    do
        my_a=`echo $a | sed "s,^${relpath}/,${outpath}/,"`
        [ -f $my_a ] && continue
-       if [ -d $a ]; then
+       if [ -d $a ]
+       then
 	    mkdir -p $my_a
        else
 	   a_dir=`dirname $my_a`
@@ -84,7 +87,7 @@ else
     cp $relpath/GNUmakefile $outpath/Makefile
 
     touch .test.qt.
-    if [ '!' -f ${QTDIR}/.test.qt. ];
+    if [ '!' -f ${QTDIR}/.test.qt. ]
     then
 	rm .test.qt.
 	echo
@@ -317,7 +320,8 @@ QT_INSTALL_LIBS=
 QT_INSTALL_BINS=
 
 # Parse the arguments, setting things to "yes" or "no".
-while [ -n "$1" ]; do
+while [ -n "$1" ]
+do
    case $1 in
    -prefix)
 	shift
@@ -721,7 +725,8 @@ then
 	PLATFORM=sco-g++
 	;;
      *)
-	if [ "$HELP" != "yes" ]; then
+	if [ "$HELP" != "yes" ]
+	then
 	    echo
 	    for p in $PLATFORMS
 	    do
@@ -806,31 +811,37 @@ fi
 # Tests
 
 #x11
-if [ ! -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]; then
+if [ ! -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]
+then
     x11tests=$relpath/config.tests/x11
 
    #opengl
-   if echo $MODULES | grep opengl >/dev/null; then
+   if echo $MODULES | grep opengl >/dev/null
+   then
        $x11tests/opengl.test $XQMAKESPEC $THREAD $VERBOSE && MODULES=`echo $MODULES | sed -e 's/opengl//'`
    fi
    # XRender support
-   if [ $XRENDER = auto ]; then
+   if [ $XRENDER = auto ]
+   then
        XRENDER=yes
        $x11tests/xrender.test $XQMAKESPEC && XRENDER=no && XFTFREETYPE=no
    fi
    # Auto-detect XftFreeType support
-   if [ $XRENDER = yes ] && [ $XFTFREETYPE = auto ]; then
+   if [ $XRENDER = yes ] && [ $XFTFREETYPE = auto ]
+   then
        XFTFREETYPE=yes
        $x11tests/xfreetype.test $XQMAKESPEC && XFTFREETYPE=no
    fi
    # Auto-detect session management support
-   if [ $SM = auto ]; then
+   if [ $SM = auto ]
+   then
        SM=yes
        $x11tests/sm.test $XQMAKESPEC && SM=no
    fi
 
    # Auto-detect Xinerama support
-   if [ $XINERAMA = auto ]; then
+   if [ $XINERAMA = auto ]
+   then
        XINERAMA=yes
        $x11tests/xinerama.test $XQMAKESPEC && XINERAMA=no
    fi
@@ -839,13 +850,15 @@ fi
 #unix
 unixtests=$relpath/config.tests/unix
 #stl
-if [ $STL = auto ]; then
+if [ $STL = auto ]
+then
     STL=yes
     $unixtests/stl.test $XQMAKESPEC && STL=no
 fi
 
 # Next, emit a usage message if something failed.
-if [ "$HELP" = "yes" ]; then
+if [ "$HELP" = "yes" ]
+then
    [ "x$ERROR" = "xyes" ] && echo
     if [ "x$THREAD" = "xyes" ]
     then
@@ -1055,7 +1068,7 @@ EOF
 
 
    [ "x$ERROR" = "xyes" ] && exit 1
-   exit 0;
+   exit 0
 fi
 
 
@@ -1167,7 +1180,8 @@ case "$QCONFIG" in
     for c in minimal small medium large full
     do
 	QMAKE_CONFIG="$QMAKE_CONFIG $c-config"
-	if [ "$QCONFIG" = $c ]; then
+	if [ "$QCONFIG" = $c ]
+	then
 	    break;
 	fi
     done
@@ -1422,7 +1436,8 @@ then
 
     echo Creating qmake...
     #fix makefiles
-    for mkfile in GNUmakefile Makefile; do
+    for mkfile in GNUmakefile Makefile
+    do
 	in_mkfile=${mkfile}.in
 	[ "$mkfile" = "Makefile" ] && in_mkfile="${mkfile}.unix"
 	in_mkfile=$relpath/qmake/$in_mkfile
@@ -1463,7 +1478,8 @@ sort .sorted.projects  > .sorted.projects.new
 mv -f .sorted.projects.new .sorted.projects
 uniq .sorted.projects > .sorted.projects.new
 mv -f .sorted.projects.new .sorted.projects
-for a in `cat .sorted.projects`; do
+for a in `cat .sorted.projects`
+do
     case $a in
     *-kde.pro|*qtmain.pro) continue ;;
     *-pro.pro)
@@ -1496,7 +1512,8 @@ for a in `cat .sorted.projects`; do
     fi
 
     echo -n "  for $a"
-    if [ "$VERBOSE" = "yes" ]; then
+    if [ "$VERBOSE" = "yes" ]
+    then
 	echo " (`basename $CONF`)"
 	echo -n $EXEC
     fi
