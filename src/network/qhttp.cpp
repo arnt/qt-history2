@@ -176,13 +176,13 @@ QTextStream& QHttpHeader::read( QTextStream& stream )
     int number = 0;
     while( 1 ) {
 	QString str = stream.readLine();
-	
+
 	// Unexpected end of input ?
 	if ( str.isNull() ) {
 	    m_bValid = FALSE;
 	    return stream;
 	}
-	
+
 	// End of header ?
 	if ( str.isEmpty() ) {
 	    return stream;
@@ -473,7 +473,7 @@ bool QHttpReplyHeader::parseLine( const QString& line, int number )
     if ( l.left( 5 ) == "HTTP/" && l[5].isDigit() && l[6] == '.' &&
 	    l[7].isDigit() && l[8] == ' ' && l[9].isDigit() ) {
 	m_version = 10 * ( l[5].latin1() - '0' ) + ( l[7].latin1() - '0' );
-	
+
 	int pos = l.find( ' ', 9 );
 	if ( pos != -1 ) {
 	    m_text = l.mid( pos + 1 );
@@ -738,7 +738,7 @@ QHttpClient::QHttpClient( QObject* parent, const char* name )
 {
     d = 0;
     m_socket = new QSocket( this );
-	
+
     connect( m_socket, SIGNAL( connected() ), this, SLOT( connected() ) );
     connect( m_socket, SIGNAL( connectionClosed() ), this, SLOT( closed() ) );
     connect( m_socket, SIGNAL( delayedCloseFinished() ), this, SLOT( closed() ) );
@@ -777,7 +777,7 @@ void QHttpClient::close()
     } else {
 	// Close now.
 	m_socket->close();
-	
+
 	// Did close succeed immediately ?
 	if ( m_socket->state() == QSocket::Idle ) {
 	    // Prepare to emit the finished() signal.
@@ -901,7 +901,7 @@ void QHttpClient::closed()
 	    readyRead();
 	    qDebug("<<<<<<<<<<<<<<<<");
 	}
-	
+
 	// If we got no Content-Length then we know
 	// now that the request has completed.
 	if ( m_reply.hasAutoContentLength() ) {
@@ -909,7 +909,7 @@ void QHttpClient::closed()
 		emit reply( m_reply, m_device );
 	    else
 		emit reply( m_reply, m_buffer );
-	
+
 	    // Save memory
 	    m_buffer = QByteArray();
 	} else {
@@ -980,8 +980,6 @@ void QHttpClient::bytesWritten( int )
 
 void QHttpClient::readyRead()
 {
-    uint bytesReadOld = m_bytesRead;
-
     if ( m_state != Reading ) {
 	m_state = Reading;
 	m_buffer = QByteArray();
@@ -992,11 +990,11 @@ void QHttpClient::readyRead()
 	int n = m_socket->bytesAvailable();
 	if ( n == 0 )
 	    return;
-	
+
 	int s = m_buffer.size();
 	m_buffer.resize( s + n );
 	n = m_socket->readBlock( m_buffer.data() + s, n );
-	
+
 	// Search for \r\n\r\n
 	const char* d = m_buffer.data();
 	int i;
@@ -1005,13 +1003,13 @@ void QHttpClient::readyRead()
 	    if ( d[i] == '\r' && d[i+1] == '\n' && d[i+2] == '\r' && d[i+3] == '\n' )
 		end = TRUE;
 	}
-	
+
 	if ( end ) {
 	    --i;
 	    m_readHeader = FALSE;
 	    m_buffer[i] = 0;
 	    m_reply = QHttpReplyHeader( QString( m_buffer ) );
-	
+
 	    // Check header
 	    if ( !m_reply.isValid() ) {
 		emit requestFailed();
@@ -1019,15 +1017,19 @@ void QHttpClient::readyRead()
 		return;
 	    }
 	    emit replyHeader( m_reply );
-	
+
 	    // Handle data that was already read
 	    m_bytesRead = m_buffer.size() - i - 4;
 	    if ( !m_reply.hasAutoContentLength() )
 		m_bytesRead = QMIN( m_reply.contentLength(), m_bytesRead );
-	
+
 	    if ( m_device ) {
 		// Write the data to file
 		m_device->writeBlock( m_buffer.data() + i + 4, m_bytesRead );
+
+		QByteArray tmp( m_bytesRead );
+		memcpy( tmp.data(), m_buffer.data() + i + 4, m_bytesRead );
+		emit replyChunk( m_reply, tmp );
 	    } else {
 		// Copy the data to the beginning of a new buffer.
 		QByteArray tmp;
@@ -1038,6 +1040,10 @@ void QHttpClient::readyRead()
 		    tmp.resize( m_reply.contentLength() );
 		memcpy( tmp.data(), m_buffer.data() + i + 4, m_bytesRead );
 		m_buffer = tmp;
+
+		QByteArray tmp2( m_bytesRead );
+		memcpy( tmp2.data(), m_buffer.data(), m_bytesRead );
+		emit replyChunk( m_reply, tmp2 );
 	    }
 	}
     }
@@ -1047,25 +1053,26 @@ void QHttpClient::readyRead()
 	if ( n > 0 ) {
 	    if ( !m_reply.hasAutoContentLength() )
 		n = QMIN( m_reply.contentLength() - m_bytesRead, n );
-	
+
 	    if ( m_device ) {
 		QByteArray arr( n );
 		n = m_socket->readBlock( arr.data(), n );
 		m_device->writeBlock( arr.data(), n );
+
+		arr.resize( n );
+		emit replyChunk( m_reply, arr );
 	    } else {
 		if ( m_reply.hasAutoContentLength() )
 		    m_buffer.resize( m_buffer.size() + n );
 		n = m_socket->readBlock( m_buffer.data() + m_bytesRead, n );
+
+		QByteArray tmp( n );
+		memcpy( tmp.data(), m_buffer.data()+m_bytesRead, n );
+		emit replyChunk( m_reply, tmp );
 	    }
 	    m_bytesRead += n;
 	}
-	if ( m_bytesRead > bytesReadOld ) {
-	    QByteArray tmp( m_bytesRead - bytesReadOld );
-	    memcpy( tmp.data(), m_buffer.data()+bytesReadOld,
-		    m_bytesRead-bytesReadOld );
-	    emit replyChunk( m_reply, tmp );
-	}
-	
+
 	// Read everything ?
 	// We can only know that is the content length was given in advance.
 	// Otherwise we emit the signal in closed().
@@ -1074,7 +1081,7 @@ void QHttpClient::readyRead()
 		emit reply( m_reply, m_device );
 	    else
 		emit reply( m_reply, m_buffer );
-	
+
 	    // Save memory
 	    m_buffer = QByteArray();
 
@@ -1128,7 +1135,7 @@ void QHttpClient::timerEvent( QTimerEvent *e )
     if ( e->timerId() == m_idleTimer ) {
 	killTimer( m_idleTimer );
 	m_idleTimer = 0;
-	
+
 	if ( m_state == Alive ) {
 	    emit finished();
 	} else if ( m_state != Idle ) {
@@ -1307,16 +1314,16 @@ void QHttpConnection::reply( const QHttpReplyHeader& repl, const char* data, uin
 {
     if ( m_state != Waiting ) {
 	qWarning("QHttpConnection did not expect a call to QHttpConnection::reply." );
-	
+
 	emit replyFailed();
-	
+
 	return;
     }
 
     m_state = Writing;
 
     QHttpReplyHeader r = repl;
-	
+
     // Fix the header if needed
     if ( size != repl.contentLength() )
 	r.setContentLength( size );
@@ -1331,7 +1338,7 @@ void QHttpConnection::reply( const QHttpReplyHeader& repl, const char* data, uin
     }
 
     QString str = r.toString();
-	
+
     // Remember how many bytes we send on the wire
     m_bytesToWrite = r.contentLength() + str.length();
 
@@ -1364,7 +1371,7 @@ void QHttpConnection::readyRead()
 	int s = m_buffer.size();
 	m_buffer.resize( s + n );
 	n = m_socket->readBlock( m_buffer.data() + s, n );
-	
+
 	// Search for \r\n\r\n
 	const char* d = m_buffer.data();
 	int i;
@@ -1373,7 +1380,7 @@ void QHttpConnection::readyRead()
 	    if ( d[i] == '\r' && d[i+1] == '\n' && d[i+2] == '\r' && d[i+3] == '\n' )
 		end = TRUE;
 	}
-	
+
 	// Found the end of the header ?
 	if ( end ) {
 	    // Set a trailing zero
@@ -1383,7 +1390,7 @@ void QHttpConnection::readyRead()
 	    // Parse the header
 	    m_header = QHttpRequestHeader( QString( m_buffer ) );
 	    m_bytesToRead = m_header.contentLength();
-	
+
 	    // Now he have to read the data.
 	    m_readHeader = FALSE;
 		
@@ -1395,7 +1402,7 @@ void QHttpConnection::readyRead()
 	    }
 
 	    // ### Check for a maximum content length
-	
+
 	    // Copy data that was already read to the beginning of the buffer.
 	    // And resize the buffer so that it can hold the entire data.
 	    QByteArray tmp;
@@ -1407,7 +1414,7 @@ void QHttpConnection::readyRead()
 	    int n = QMIN( tmp.size(), m_buffer.size() - i - 4 );
 	    memcpy( tmp.data(), m_buffer.data() + i + 4, n );
 	    m_buffer = tmp;
-	
+
 	    m_bytesToRead -= n;
 	}
     }
@@ -1427,15 +1434,15 @@ void QHttpConnection::readyRead()
 		m_bytesToRead -= n;
 	    }
 	}
-	
+
 	// Did we read the entire request ?
 	if ( m_bytesToRead <= 0 ) {
 	    // We are waiting for the reply.
 	    m_state = Waiting;
-	
+
 	    // Tell the world about the request.
 	    request( m_header, m_buffer );
-	
+
 	    // Dont waste memory
 	    m_buffer = QByteArray();
 	}
@@ -1451,7 +1458,7 @@ void QHttpConnection::bytesWritten( int n )
 	if ( m_allowKeepAlive && m_header.connection() == QHttpHeader::KeepAlive )
         {
 	    m_state = Alive;
-	
+
 	    emit replyFinished();
 		
 	    if ( m_keepAliveTimeout )
@@ -1476,7 +1483,7 @@ void QHttpConnection::close()
 	return;
 
     m_state = Closed;
-	
+
     if ( !m_socket->isOpen() )
     {
 	m_killTimer = startTimer( 0 );
@@ -1484,7 +1491,7 @@ void QHttpConnection::close()
     else
     {
 	m_socket->close();
-	
+
 	// Did close succeed immediately ?
 	if ( m_socket->state() == QSocket::Idle )
         {
@@ -1497,7 +1504,7 @@ void QHttpConnection::close()
 void QHttpConnection::closed()
 {
     m_state = Closed;
-	
+
     // Closed before all bytes were written ?
     if ( m_bytesToWrite > 0 )
 	emit replyFailed();
@@ -1510,7 +1517,7 @@ void QHttpConnection::socketError( int e )
     error( e );
 
     emit replyFailed();
-	
+
     close();
 }
 
@@ -1603,8 +1610,7 @@ QHttp::QHttp()
     operation = NoOp;
     bytesRead = 0;
     client = new QHttpClient( this );
-//    connect( client, SIGNAL(replyChunk(const QHttpReplyHeader&, const QByteArray&)),
-    connect( client, SIGNAL(reply(const QHttpReplyHeader&, const QByteArray&)),
+    connect( client, SIGNAL(replyChunk(const QHttpReplyHeader&, const QByteArray&)),
 	    this, SLOT(reply(const QHttpReplyHeader&, const QByteArray&)) );
     connect( client, SIGNAL(finished()),
 	    this, SLOT(requestFinished()) );
