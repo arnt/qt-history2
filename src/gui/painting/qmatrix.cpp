@@ -139,6 +139,14 @@
     ny = _m12*fx + _m22*fy + _dy; \
 }
 
+#define MAPFLOAT(x, y, nx, ny) \
+{ \
+    float fx = x; \
+    float fy = y;                \
+    nx = _m11*fx + _m21*fy + _dx; \
+    ny = _m12*fx + _m22*fy + _dy; \
+}
+
 #define MAPINT(x, y, nx, ny) \
 { \
     double fx = x; \
@@ -250,6 +258,24 @@ void QMatrix::map(double x, double y, double *tx, double *ty) const
 {
     MAPDOUBLE(x, y, *tx, *ty);
 }
+
+/*!
+    \overload
+
+    Transforms (\a{x}, \a{y}) to (\c{*}\a{tx}, \c{*}\a{ty}) using the
+    following formulae:
+
+    \code
+        *tx = m11*x + m21*y + dx
+        *ty = m22*y + m12*x + dy
+    \endcode
+*/
+
+void QMatrix::map(float x, float y, float *tx, float *ty) const
+{
+    MAPFLOAT(x, y, *tx, *ty);
+}
+
 
 /*!
     Transforms (\a{x}, \a{y}) to (\c{*}\a{tx}, \c{*}\a{ty}) using the formulae:

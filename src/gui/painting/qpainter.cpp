@@ -2268,19 +2268,19 @@ void QPainter::drawRoundRect(const QRectF &r, int xRnd, int yRnd)
 
     QPainterPath path;
 
-    int x = rect.x();
-    int y = rect.y();
-    int w = rect.width();
-    int h = rect.height();
-    int rxx = w*xRnd/200;
-    int ryy = h*yRnd/200;
+    float x = rect.x();
+    float y = rect.y();
+    float w = rect.width();
+    float h = rect.height();
+    float rxx = w*xRnd/200;
+    float ryy = h*yRnd/200;
     // were there overflows?
     if (rxx < 0)
         rxx = w/200*xRnd;
     if (ryy < 0)
         ryy = h/200*yRnd;
-    int rxx2 = 2*rxx;
-    int ryy2 = 2*ryy;
+    float rxx2 = 2*rxx;
+    float ryy2 = 2*ryy;
 
     QPointF startPoint;
     qt_find_ellipse_coords(QRectF(x, y, rxx2, ryy2), 90, 90, &startPoint, 0);
@@ -2803,14 +2803,14 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
         return;
     d->engine->updateState(d->state);
 
-    int x = r.x();
-    int y = r.y();
-    int w = r.width();
-    int h = r.height();
-    int sx = sr.x();
-    int sy = sr.y();
-    int sw = sr.width();
-    int sh = sr.height();
+    float x = r.x();
+    float y = r.y();
+    float w = r.width();
+    float h = r.height();
+    float sx = sr.x();
+    float sy = sr.y();
+    float sw = sr.width();
+    float sh = sr.height();
 
     // Sanity-check clipping
     if (sw <= 0 || sw + sx > pm.width())
@@ -2844,9 +2844,9 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
         ((w != sw || h != sh) && !d->engine->hasFeature(QPaintEngine::PixmapScale))) {
         QPixmap source;
         if(sx || sy || sw != pm.width() || sh != pm.height()) {
-            source = QPixmap(sw, sh, pm.depth());
+            source = QPixmap(qRound(sw), qRound(sh), pm.depth());
             QPainter p(&source);
-            p.drawPixmap(QRect(0, 0, sw, sh), pm, QRect(sx, sy, sw, sh), Qt::CopyPixmap);
+            p.drawPixmap(QRectF(0, 0, sw, sh), pm, QRectF(sx, sy, sw, sh), Qt::CopyPixmap);
             p.end();
         } else {
             source = pm;
@@ -2856,7 +2856,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
         double scalex = w / (double)sw;
         double scaley = h / (double)sh;
         mat = QMatrix(scalex, 0, 0, scaley, 0, 0) * mat;
-        mat = QPixmap::trueMatrix(mat, sw, sh);
+        mat = QPixmap::trueMatrix(mat, qRound(sw), qRound(sh));
         QPixmap pmx = source.transform(mat);
         if (pmx.isNull())                        // xformed into nothing
             return;
@@ -2864,21 +2864,21 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
             pmx.setMask(*(static_cast<QBitmap *>(&pmx)));
 
         if (!pmx.mask() && d->state->txop == QPainterPrivate::TxRotShear) {
-            QBitmap bm_clip(sw, sh, 1);        // make full mask, xform it
+            QBitmap bm_clip(qRound(sw), qRound(sh), 1);        // make full mask, xform it
             bm_clip.fill(Qt::color1);
             pmx.setMask(bm_clip.transform(mat));
         }
         d->state->matrix.map(x, y, &x, &y);        // compute position of pixmap
-        int dx, dy;
+        float dx, dy;
         mat.map(0, 0, &dx, &dy);
-        d->engine->drawPixmap(QRect(x-dx, y-dy, pmx.width(), pmx.height()), pmx,
-                              QRect(0, 0, pmx.width(), pmx.height()), mode);
+        d->engine->drawPixmap(QRectF(x-dx, y-dy, pmx.width(), pmx.height()), pmx,
+                              QRectF(0, 0, pmx.width(), pmx.height()), mode);
     } else {
         if (!d->engine->hasFeature(QPaintEngine::CoordTransform)) {
             x += qRound(d->state->matrix.dx());
             y += qRound(d->state->matrix.dy());
         }
-        d->engine->drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh), mode);
+        d->engine->drawPixmap(QRectF(x, y, w, h), pm, QRectF(sx, sy, sw, sh), mode);
     }
 
     // If we have CopyPixmap we copy the mask from the source to the target device if it
@@ -3030,7 +3030,7 @@ void QPainter::drawText(const QPointF &p, const QString &str, TextDirection dir)
     QTextLine line = layout.createLine();
     line.layout(0x01000000);
     const QScriptLine &sl = engine->lines[0];
-    line.draw(this, p.x(), qRound(p.y() - sl.ascent));
+    line.draw(this, qRound(p.x()), qRound(p.y() - sl.ascent));
 }
 
 /*!
@@ -3233,20 +3233,20 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
         return;
     d->engine->updateState(d->state);
 
-    int sw = pixmap.width();
-    int sh = pixmap.height();
+    float sw = pixmap.width();
+    float sh = pixmap.height();
     if (!sw || !sh)
         return;
-    int sx = sp.x();
-    int sy = sp.y();
+    float sx = sp.x();
+    float sy = sp.y();
     if (sx < 0)
-        sx = sw - -sx % sw;
+        sx = qRound(sw) - qRound(-sx) % qRound(sw);
     else
-        sx = sx % sw;
+        sx = qRound(sx) % qRound(sw);
     if (sy < 0)
-        sy = sh - -sy % sh;
+        sy = qRound(sh) - -qRound(sy) % qRound(sh);
     else
-        sy = sy % sh;
+        sy = qRound(sy) % qRound(sh);
 
     if (d->state->txop > QPainterPrivate::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
@@ -3254,12 +3254,12 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
         if (pixmap.hasAlphaChannel()) {
             // Needed to preserve the alpha channel in the pixmap
             // While setPixel() is needed to switch on alpha buffer on Embedded
-            QImage img(r.width(), r.height(), 32);
+            QImage img(qRound(r.width()), qRound(r.height()), 32);
             img.setPixel(0, 0, QColor(255, 0, 0, 127).rgb());
             img.setAlphaBuffer(true);
             pm = img;
         } else {
-            pm = QPixmap(r.width(), r.height());
+            pm = QPixmap(qRound(r.width()), qRound(r.height()));
         }
         QPainter p(&pm);
         // Recursive call ok, since the pixmap is not transformed...
@@ -3275,19 +3275,19 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
             p.end();
             pm.setMask(mask);
         }
-        drawPixmap(r.x(), r.y(), pm);
+        drawPixmap(qRound(r.x()), qRound(r.y()), pm);
         return;
     }
 
-    int x = r.x();
-    int y = r.y();
+    float x = r.x();
+    float y = r.y();
     if (d->state->txop == QPainterPrivate::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
         x += qRound(d->state->matrix.dx());
         y += qRound(d->state->matrix.dy());
     }
 
-    d->engine->drawTiledPixmap(QRect(x, y, r.width(), r.height()), pixmap, QPoint(sx, sy), mode);
+    d->engine->drawTiledPixmap(QRectF(x, y, r.width(), r.height()), pixmap, QPointF(sx, sy), mode);
 }
 
 
@@ -4107,7 +4107,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         width = 0;
         tf |= Qt::TextDontPrint;
     } else {
-        int lineWidth = wordwrap ? qMax(0, r.width()) : 0x01000000;
+        float lineWidth = wordwrap ? qMax(0, r.width()) : 0x01000000;
         if(!wordwrap)
             tf |= Qt::TextIncludeTrailingSpaces;
         textLayout.beginLayout((tf & Qt::TextDontPrint) ? QTextLayout::NoBidi : QTextLayout::MultiLine);
@@ -4121,7 +4121,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
             if (!l.isValid())
                 break;
 
-            l.layout(lineWidth);
+            l.layout(qRound(lineWidth));
             height += leading;
             l.setPosition(QPoint(0, height));
             height += l.ascent() + l.descent();
@@ -4129,8 +4129,8 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         }
     }
 
-    int yoff = 0;
-    int xoff = 0;
+    float yoff = 0;
+    float xoff = 0;
     if (tf & Qt::AlignBottom)
         yoff = r.height() - height;
     else if (tf & Qt::AlignVCenter)
@@ -4140,7 +4140,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
     else if (tf & Qt::AlignHCenter)
         xoff = (r.width() - width)/2;
     if (brect)
-        *brect = QRect(r.x() + xoff, r.y() + yoff, width, height);
+        *brect = QRectF(r.x() + xoff, r.y() + yoff, width, height);
 
     if (!(tf & Qt::TextDontPrint)) {
         bool restore = false;
@@ -4158,7 +4158,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         for (int i = 0; i < textLayout.numLines(); i++) {
             QTextLine line = textLayout.lineAt(i);
 
-            line.draw(painter, r.x() + xoff + line.x(), r.y() + yoff);
+            line.draw(painter, qRound(r.x() + xoff + line.x()), qRound(r.y() + yoff));
         }
 
         if (restore) {

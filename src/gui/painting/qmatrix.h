@@ -44,6 +44,7 @@ public:
 
     void map(int x, int y, int *tx, int *ty) const;
     void map(double x, double y, double *tx, double *ty) const;
+    void map(float x, float y, float *tx, float *ty) const;
     QRect mapRect(const QRect &) const;
     QRectF mapRect(const QRectF &) const;
 
