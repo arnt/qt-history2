@@ -96,7 +96,7 @@ void QBinTree<T>::climbTree(const QRect &area, callback *function, QBinTree::Dat
 }
 
 template <class T>
-void QBinTree<T>::init(const QRect &area, int depth, typename QBinTree::Node::Type type, int index)
+void QBinTree<T>::init(const QRect &area, int depth, NodeType type, int index)
 {
     typename Node::Type t = Node::None; // t should never have this value
     if (type == Node::Both) // if both planes are specified, use 2d bsp

@@ -28,6 +28,7 @@ public:
         uint pos : 30;
         uint type : 2;
     };
+    typedef typename Node::Type NodeType;
 
     struct Data
     {
@@ -50,7 +51,7 @@ public:
 
     inline void climbTree(const QRect &rect, callback *function, QBinTree::Data data);
 
-    inline void init(const QRect &area, typename QBinTree::Node::Type type);
+    inline void init(const QRect &area, NodeType type);
     inline void reserve(int size);
 
     inline int itemCount() const;
@@ -77,8 +78,8 @@ public:
     inline int firstChildIndex(int idx) const;
 
 private:
-    void climbTree(const QRect &rect, callback *function, QBinTree::Data data, int index);
-    void init(const QRect &area, int depth, typename QBinTree::Node::Type type, int index);
+    void climbTree(const QRect &rect, callback *function, QBinTree<T>::Data data, int index);
+    void init(const QRect &area, int depth, NodeType type, int index);
 
     uint depth_ : 8;
     mutable uint visited : 16;
@@ -88,14 +89,14 @@ private:
 };
 
 template <class T>
-void QBinTree<T>::climbTree(const QRect &rect, callback *function, QBinTree::Data data)
+void QBinTree<T>::climbTree(const QRect &rect, callback *function, QBinTree<T>::Data data)
 {
     ++visited;
     climbTree(rect, function, data, 0);
 }
 
 template <class T>
-void QBinTree<T>::init(const QRect &area, typename QBinTree::Node::Type type)
+void QBinTree<T>::init(const QRect &area, NodeType type)
 {
     init(area, depth_, type, 0);
 }
