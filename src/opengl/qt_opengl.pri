@@ -3,7 +3,7 @@
 opengl {
 	HEADERS += $$OPENGL_H/qgl.h
 	SOURCES	+= $$OPENGL_CPP/qgl.cpp
-	mac {
+	0:mac {
 	   INCLUDEPATH += /System/Library/Frameworks/OpenGL.framework/Headers/
 	   LIBS += -framework OpenGL
 	   SOURCES += $$OPENGL_CPP/qgl_mac.cpp
