@@ -66,8 +66,8 @@ public:
     bool markAll();
     bool createIndex( const List& data, bool unique, bool notnull );
     bool drop();
-    bool fieldTypeInfo( const QString& name, QVariant& v );
-    bool fieldTypeInfo( int i, QVariant& v );
+    bool fieldType( const QString& name, QVariant& v );
+    bool fieldType( int i, QVariant& v );
     bool clearMarked();
     uint count() const;
     uint size() const;
