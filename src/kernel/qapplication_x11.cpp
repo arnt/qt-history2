@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#71 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -18,6 +18,8 @@
 #include "qpmcache.h"
 #include <stdlib.h>
 #include <signal.h>
+#include <ctype.h> // for QETWidget::translateKeyEvent()
+#include <locale.h>
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -30,7 +32,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#70 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#71 $";
 #endif
 
 
@@ -255,6 +257,11 @@ void qt_init( int *argcptr, char **argv )
 			white );
 	QPalette pal( cg, cg, cg );
 	QApplication::setPalette( pal );
+    }
+    if (!setlocale(LC_ALL, "ISO-8859-1")) { 	// ### move to qapp.cpp?
+#if defined(DEBUG)
+	debug( "qt_init(X11): Unable to set locale to ISO-8859-1" );
+#endif
     }
 }
 
@@ -1521,7 +1528,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 {
     int	   type;
     int	   code = 0;
-    char   ascii[16];
+    char   ascii[16]; // 16 for no real reason :)
     int	   count;
     int	   state;
     KeySym key;
@@ -1531,10 +1538,10 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
     count = XLookupString( &((XEvent*)event)->xkey, ascii, 16, &key, NULL );
     state = translateButtonState( event->xkey.state );
 
-    if ( key >= XK_space && key <= XK_asciitilde ) { // 7 bit ASCII Latin-1
-	code = Key_Space + ((int)key - XK_space);
-	if ( key >= XK_a && key <= XK_z )	// virtual code is uppercase
-	    code -= (XK_a - XK_A);
+    // commentary in X11/keysymdef says that X codes match ASCII, so it
+    // is safe to use the locale functions to process X codes
+    if ( key < 256 && isprint(key)) {
+	code = toupper(key);
     }
     else
     if ( key >= XK_F1 && key <= XK_F24 )	// function keys
@@ -1560,6 +1567,14 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 	debug( "translateKey: No translation for X keysym %s (0x%x)",
 	       XKeysymToString(XLookupKeysym(&((XEvent*)event)->xkey,0)),
 	       key );
+	return FALSE;
+    }
+#endif
+#if defined(DEBUG)
+    if ( count > 1 ) {
+	ascii[15] = '\0'; // ### need to support and test this
+	debug( "translateKey: Multibyte translation disabled (%d, %s)",
+	       count, ascii );
 	return FALSE;
     }
 #endif
