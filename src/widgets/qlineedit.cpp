@@ -1794,19 +1794,22 @@ void QLineEdit::drawContents( QPainter *p )
     }
 
     // horizontal scrolling
-    int widthUsed = d->textLayout.widthUsed() + 1; //+1 for cursor
-    if ( widthUsed <=  lineRect.width() ) {
+    int minLB = QMAX( 0, -fm.minLeftBearing() );
+    int minRB = QMAX( 0, -fm.minRightBearing() );
+    int widthUsed = d->textLayout.widthUsed() + 1 + minRB;
+    if ( (minLB + widthUsed) <=  lineRect.width() ) {
 	switch ( d->visualAlignment() ) {
 	case AlignRight:
 	    d->hscroll = widthUsed - lineRect.width();
 	    break;
 	case AlignHCenter:
-	    d->hscroll = (widthUsed - lineRect.width() )/ 2;
+	    d->hscroll = ( widthUsed - lineRect.width() ) / 2;
 	    break;
 	default:
 	    d->hscroll = 0;
 	    break;
 	}
+	d->hscroll -= minLB;
     } else if ( cix - d->hscroll >= lineRect.width() ) {
 	d->hscroll = cix - lineRect.width() + 1;
     } else if ( cix - d->hscroll < 0 ) {
