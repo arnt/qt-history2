@@ -300,8 +300,8 @@ void QAssistantClient::readStdError()
 }
 
 /*!
-  This function is used to set extra command line arguments used
-  to configure how Qt Assistant is started.
+    Sets the command line arguments used when Qt Assistant is
+    started to \a args.
 */
 void QAssistantClient::setArguments( const QStringList &args )
 {
