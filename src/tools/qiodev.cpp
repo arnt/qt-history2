@@ -1,19 +1,19 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qiodev.cpp#3 $
 **
 ** Implementation of QIODevice class
 **
 ** Author  : Haavard Nord
 ** Created : 940913
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qiodev.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qiodev.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qiodev.cpp#3 $";
 #endif
 
 
@@ -89,4 +89,19 @@ bool QIODevice::at( long n )			// set data index
 bool QIODevice::atEnd() const			// at end of data
 {
     return at() == size();
+}
+
+
+int QIODevice::readLine( char *data, uint maxlen )
+{
+    long pos = at();				// get current position
+    long sz  = size();				// size of IO device
+    char *p = data;
+    while ( pos++ < sz && --maxlen ) {		// read one byte at a time
+	readBlock( p, 1 );
+	if ( *p++ == '\n' )			// end of line
+	    break;
+    }
+    *p++ = '\0';
+    return (int)p - (int)data;
 }
