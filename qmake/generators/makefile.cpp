@@ -1780,8 +1780,7 @@ void
 MakefileGenerator::writeMakeQmake(QTextStream &t)
 {
     QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.fileName()));
-    if(project->isEmpty("QMAKE_FAILED_REQUIREMENTS") && !project->isActiveConfig("no_autoqmake") &&
-       !project->isEmpty("QMAKE_INTERNAL_PRL_FILE")) {
+    if(project->isEmpty("QMAKE_FAILED_REQUIREMENTS") && !project->isEmpty("QMAKE_INTERNAL_PRL_FILE")) {
         QStringList files = fileFixify(Option::mkfile::project_files);
         t << project->first("QMAKE_INTERNAL_PRL_FILE") << ": " << "\n\t"
           << "@$(QMAKE) -prl " << buildArgs() << " " << files.join(" ") << endl;
