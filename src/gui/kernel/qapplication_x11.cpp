@@ -47,7 +47,7 @@
 #include <private/qunicodetables_p.h>
 #include <private/qcrashhandler_p.h>
 
-#include "qeventdispatcher_x11.h"
+#include "qeventdispatcher_x11_p.h"
 #include <private/qpaintengine_x11_p.h>
 
 // Input method stuff - UNFINISHED
@@ -384,16 +384,16 @@ public:
     void setWFlags(Qt::WFlags f)                { QWidget::setWFlags(f); }
     void clearWFlags(Qt::WFlags f)        { QWidget::clearWFlags(f); }
     bool translateMouseEvent(const XEvent *);
-    bool translateKeyEventInternal(const XEvent *, int& count, QString& text, 
+    bool translateKeyEventInternal(const XEvent *, int& count, QString& text,
                                    Qt::KeyboardModifiers& modifiers, int &code,
-                                   QEvent::Type &type, bool /*willRepeat*/=false, 
+                                   QEvent::Type &type, bool /*willRepeat*/=false,
                                    bool statefulTranslation=true);
     bool translateKeyEvent(const XEvent *, bool grab);
     bool translatePaintEvent(const XEvent *);
     bool translateConfigEvent(const XEvent *);
     bool translateCloseEvent(const XEvent *);
     bool translateScrollDoneEvent(const XEvent *);
-    bool translateWheelEvent(int global_x, int global_y, int delta, Qt::MouseButtons buttons, 
+    bool translateWheelEvent(int global_x, int global_y, int delta, Qt::MouseButtons buttons,
                              Qt::KeyboardModifiers modifiers, Qt::Orientation orient);
 #if !defined (QT_NO_TABLET_SUPPORT)
     bool translateXinputEvent(const XEvent*, const TabletDeviceData *tablet);
@@ -3384,7 +3384,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                 delta *= 120 * ((btn == Button4 || btn == 6) ? 1 : -1);
                 bool hor = ((btn == Button4 || btn == Button5) && (modifiers & Qt::AltModifier) ||
                             (btn == 6 || btn == 7));
-                translateWheelEvent(globalPos.x(), globalPos.y(), delta, buttons, 
+                translateWheelEvent(globalPos.x(), globalPos.y(), delta, buttons,
                                     modifiers, (hor) ? Qt::Horizontal: Qt::Vertical);
             }
             return true;
@@ -3503,7 +3503,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             && popupReplayMouse) {
             // the active popup was closed, replay the mouse event
             if (!isPopup()) {
-                QMouseEvent e(type, mapFromGlobal(globalPos), globalPos, button, 
+                QMouseEvent e(type, mapFromGlobal(globalPos), globalPos, button,
                               buttons, modifiers);
                 QApplication::sendSpontaneousEvent(this, &e);
             }
@@ -3572,7 +3572,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
 //
 // Wheel event translation
 //
-bool QETWidget::translateWheelEvent(int global_x, int global_y, int delta, 
+bool QETWidget::translateWheelEvent(int global_x, int global_y, int delta,
                                     Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers,
                                     Qt::Orientation orient)
 {
@@ -4303,8 +4303,8 @@ static QChar keysymToUnicode(unsigned char byte3, unsigned char byte4)
 }
 #endif
 
-bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QString& text, 
-                                          Qt::KeyboardModifiers &modifiers, int& code, QEvent::Type &type, 
+bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QString& text,
+                                          Qt::KeyboardModifiers &modifiers, int& code, QEvent::Type &type,
                                           bool /*willRepeat*/, bool statefulTranslation)
 {
     QTextCodec *mapper = qt_input_mapper;

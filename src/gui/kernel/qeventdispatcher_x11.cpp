@@ -1,4 +1,4 @@
-#include "qeventdispatcher_x11.h"
+#include "qeventdispatcher_x11_p.h"
 
 #include "qapplication.h"
 #include "qx11info_x11.h"

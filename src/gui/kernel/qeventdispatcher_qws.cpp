@@ -1,4 +1,4 @@
-#include "qeventdispatcher_qws.h"
+#include "qeventdispatcher_qws_p.h"
 
 #include "qplatformdefs.h"
 #include "qapplication.h"

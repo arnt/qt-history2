@@ -76,7 +76,7 @@ win32 {
 
 unix:x11 {
 	HEADERS += \
-		kernel/qeventdispatcher_x11.h \
+		kernel/qeventdispatcher_x11_p.h \
 		kernel/qx11info_x11.h \
 		kernel/qinputcontext.h
 
@@ -99,7 +99,7 @@ unix:x11 {
 
 embedded {
 	HEADERS += \
-		kernel/qeventdispatcher_qws.h
+		kernel/qeventdispatcher_qws_p.h
 
 	SOURCES += \
 		kernel/qapplication_qws.cpp \
@@ -130,7 +130,7 @@ embedded {
 		kernel/qdesktopwidget_mac.cpp \
 		kernel/qwidget_mac.cpp
         HEADERS += \
-                kernel/qeventdispatcher_mac.h
+                kernel/qeventdispatcher_mac_p.h
 }
 
 wince-* {
