@@ -41,10 +41,10 @@ class QMenuDataData {
     // attention: also defined in qmenubar.cpp and qpopupmenu.cpp
 public:
     QMenuDataData();
-    QGuardedPtr<QWidget> aWidget; 
+    QGuardedPtr<QWidget> aWidget;
     int aInt;
 };
-QMenuDataData::QMenuDataData() 
+QMenuDataData::QMenuDataData()
     : aInt(-1)
 {}
 
@@ -231,6 +231,7 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
 	mi->is_separator = !widget->isFocusEnabled();
     } else if ( custom != 0 ) {
 	mi->custom_item = custom;
+	mi->is_separator = custom->isSeparator();
     } else if ( text == 0 && pixmap == 0 && popup == 0 ) {
 	mi->is_separator = TRUE;		// separator
 	mi->ident	 = -1;
@@ -588,7 +589,7 @@ int QMenuData::insertItem( const QIconSet& icon,
   If a widget is not focus enabled ( see QWidget::isFocusEnabled() ),
   the menu treats it as a separator. This means, the item is not
   selectable and will never get focus. This way you can for example
-  simply insert a QLabel if you need a popup menu with a title. 
+  simply insert a QLabel if you need a popup menu with a title.
 
   If the widget is focus enabled, it will get focus when the user
   traverses the popup menu with the arrow keys. If the widget does not
@@ -1246,11 +1247,14 @@ QString QMenuData::whatsThis( int id ) const
 
   A custom item is inserted into a popup menu with
   QPopupMenu::insertItem().
-  
+
   Per default, a custom item can also have an icon set and/or an
   accelerator key. You can, however, reimplement fullSpan() to return
   TRUE if you want the item to span the entire popup menu width. This
   is in particular useful for labels.
+  
+  If you want the custom item to be treated as a separator only,
+  reimplement isSeparator() to return TRUE.
 
   Note that you can also insert pixmaps or bitmaps as items into a
   popup menu. A custom menu item, however, offers even more
@@ -1307,6 +1311,13 @@ bool QCustomMenuItem::fullSpan() const
     return FALSE;
 }
 
+/*!
+  Returns whether this item is just a separator.
+ */
+bool QCustomMenuItem::isSeparator() const
+{
+    return FALSE;
+}
 
 
 /*! \fn void QCustomMenuItem::paint( QPainter* p, const QColorGroup& cg, bool act,  bool enabled, int x, int y, int w, int h );

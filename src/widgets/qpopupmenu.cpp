@@ -140,7 +140,7 @@ static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
 
   For ultimate flexibility, you can also add entire widgets as items
   into a popup menu, for example a color selector.
-  
+
   A QPopupMenu can also provide a tear-off menu. A tear-off menu is a
   "torn off" copy of a menu that lives in a separate window. This
   makes it possible for the user to "tear off" frequently used menus
@@ -149,7 +149,7 @@ static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
   insertTearOffHandle(). When using tear-off menus, keep in mind that
   the concept isn't typically used on MS-Windows, so users may not be
   familiar with it. Consider using a QToolBar instead.
-  
+
   menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
 
   \important insertItem removeItem removeItemAt clear text pixmap iconSet  insertSeparator
@@ -184,7 +184,7 @@ class QMenuDataData {
     // attention: also defined in qmenudata.cpp
 public:
     QMenuDataData();
-    QGuardedPtr<QWidget> aWidget; 
+    QGuardedPtr<QWidget> aWidget;
     int aInt;
 };
 
@@ -233,9 +233,9 @@ QPopupMenu::~QPopupMenu()
 	qApp->exit_loop();
 	syncMenu = 0;
     }
-    
+
     //delete (QWidget*) QMenuData::d->aWidget;  // tear-off menu
-    
+
     if ( parentMenu )
 	parentMenu->removePopup( this );	// remove from parent menu
 }
@@ -348,7 +348,7 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 {
     if ( !isPopup() && isVisible() )
 	hide();
-    
+
     //avoid circularity
     if ( isVisible() || !isEnabled() )
 	return;
@@ -512,8 +512,8 @@ void QPopupMenu::hideAllPopups()
     register QMenuData *top = this;		// find top level popup
     if ( !isPopup() )
 	return; // nothing to do
-    
-    while ( top->parentMenu && top->parentMenu->isPopupMenu 
+
+    while ( top->parentMenu && top->parentMenu->isPopupMenu
 	    && ((QPopupMenu*)top->parentMenu)->isPopup() )
 	top = top->parentMenu;
     ((QPopupMenu*)top)->hide();			// cascade from top level
@@ -548,7 +548,7 @@ bool QPopupMenu::tryMenuBar( QMouseEvent *e )
     while ( top->parentMenu )
 	top = top->parentMenu;
     return top->isMenuBar ?
-	((QMenuBar *)top)->tryMouseEvent( this, e ) : 
+	((QMenuBar *)top)->tryMouseEvent( this, e ) :
 			      ((QPopupMenu*)top)->tryMouseEvent(this, e );
 }
 
@@ -917,7 +917,7 @@ void QPopupMenu::show()
 {
     if ( !isPopup() && isVisible() )
 	hide();
-    
+
     if ( isVisible() ) {
 	supressAboutToShow = FALSE;
 	return;
@@ -949,7 +949,7 @@ void QPopupMenu::hide()
 	qApp->exit_loop();
 	syncMenu = 0;
     }
-    
+
 }
 
 
@@ -1138,7 +1138,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 {
     motion++;
-    
+
     /* cannot remember why we had that workaround, but it breaks tear-off menus. Matthias */
 //     if ( parentMenu && parentMenu->isPopupMenu &&
 // 	 (parentMenu->actItem != ((QPopupMenu *)parentMenu)->popupActive ) ) {
@@ -1744,19 +1744,19 @@ public:
     ~QTearOffMenuItem()
     {
     }
-    void paint( QPainter* p, const QColorGroup& cg, bool /* act*/, 
-		bool /*enabled*/, int x, int y, int w, int h ) 
+    void paint( QPainter* p, const QColorGroup& cg, bool /* act*/,
+		bool /*enabled*/, int x, int y, int w, int h )
     {
 	p->setPen( QPen( cg.dark(), 1, DashLine ) );
 	p->drawLine( x+2, y+h/2-1, x+w-4, y+h/2-1 );
 	p->setPen( QPen( cg.light(), 1, DashLine ) );
 	p->drawLine( x+2, y+h/2, x+w-4, y+h/2 );
     }
-    bool fullSpan() const 
+    bool fullSpan() const
     {
 	return TRUE;
     }
-    
+
     QSize sizeHint()
     {
 	return QSize( 20, 6 );
@@ -1771,10 +1771,10 @@ public:
   menu. This "torn off" copy lives in a separate window. It contains
   the same choices as the original menu, with the exception of the
   tear-off handle.
-  
+
   You may also want to set a proper window title for the tear-off menu
   with setCaption().
-  
+
   The handle item is assigned the identifier \a id or an automatically
   generated identifier if \a id is < 0. The generated identifiers
   (negative integers) are guaranteed to be unique within the entire
@@ -1807,9 +1807,10 @@ void QPopupMenu::toggleTearOff()
 	QPopupMenu* p = new QPopupMenu( 0, "tear off menu" );
 	p->setCaption( caption() );
 	p->setCheckable( isCheckable() );
-	p->reparent( parentWidget(), WType_TopLevel | WStyle_Tool | 
+	p->reparent( parentWidget(), WType_TopLevel | WStyle_Tool |
 		     WRepaintNoErase | WDestructiveClose,
 		     geometry().topLeft(), FALSE );
+	style().polishPopupMenu( p );
 	p->mitems->setAutoDelete( FALSE );
 	p->tearedOff = TRUE;
 	for ( QMenuItemListIt it( *mitems ); it.current(); ++it ) {

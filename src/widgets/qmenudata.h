@@ -118,6 +118,7 @@ public:
     QCustomMenuItem();
     virtual ~QCustomMenuItem();
     virtual bool fullSpan() const;
+    virtual bool isSeparator() const;
     virtual void setFont( const QFont& font );
     virtual void paint( QPainter* p, const QColorGroup& cg, bool act,
 			bool enabled, int x, int y, int w, int h ) = 0;
