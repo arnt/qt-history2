@@ -27,9 +27,9 @@ to make available as a plugin. The required code is straightforward:
     {
     public:
 	MyStylePlugin() {}
-	~MyStylePlugin();
+	~MyStylePlugin() {}
 
-	QStringList keys() { 
+	QStringList keys() const { 
 	    return QStringList() << "MyStyle"; 
 	}
 
