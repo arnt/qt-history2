@@ -526,7 +526,7 @@ bool QSocket::consumeReadBuf( Q_ULONG nbytes, char *sink )
     if ( nbytes <= 0 || nbytes > d->rsize )
 	return FALSE;
 #if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s): consumeReadBuf %d bytes", name(), nbytes );
+    qDebug( "QSocket (%s): consumeReadBuf %d bytes", name(), (int)nbytes );
 #endif
     d->rsize -= nbytes;
     for ( ;; ) {
@@ -567,7 +567,7 @@ bool QSocket::consumeWriteBuf( Q_ULONG nbytes )
     if ( nbytes <= 0 || nbytes > d->wsize )
 	return FALSE;
 #if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s): skipWriteBuf %d bytes", name(), nbytes );
+    qDebug( "QSocket (%s): skipWriteBuf %d bytes", name(), (int)nbytes );
 #endif
     d->wsize -= nbytes;
     for ( ;; ) {
@@ -709,7 +709,7 @@ void QSocket::flush()
     if ( consumed > 0 ) {
 #if defined(QSOCKET_DEBUG)
 	qDebug( "QSocket (%s): flush: wrote %d bytes, %d left",
-		name(), consumed, d->wsize );
+		name(), consumed, (int)d->wsize );
 #endif
 	emit bytesWritten( consumed );
     }
@@ -858,7 +858,7 @@ Q_LONG QSocket::readBlock( char *data, Q_ULONG maxlen )
     if ( maxlen >= d->rsize )
 	maxlen = d->rsize;
 #if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s): readBlock %d bytes", name(), maxlen );
+    qDebug( "QSocket (%s): readBlock %d bytes", name(), (int)maxlen );
 #endif
     consumeReadBuf( maxlen, data );
     return maxlen;
@@ -916,7 +916,7 @@ Q_LONG QSocket::writeBlock( const char *data, Q_ULONG len )
     else if ( d->wsn )
 	d->wsn->setEnabled( TRUE );
 #if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s): writeBlock %d bytes", name(), len );
+    qDebug( "QSocket (%s): writeBlock %d bytes", name(), (int)len );
 #endif
     return len;
 }
