@@ -57,6 +57,7 @@ public:
     OCIStmt          *sql;
     bool             transaction;
     int		     serverVersion;
+    QString          user;
 };
 
 struct OraFieldInfo
@@ -1403,6 +1404,7 @@ bool QOCIDriver::open( const QString & db,
     if ( d->serverVersion == 0 )
 	d->serverVersion = -1;
     setOpen( TRUE );
+    d->user = user.upper();
     return TRUE;
 }
 
@@ -1503,11 +1505,31 @@ QStringList QOCIDriver::tables( const QString& ) const
 	return tl;
     QSqlQuery t = createQuery();
     t.setForwardOnly( TRUE );
-    t.exec( "select table_name from user_tables;" );
+    t.exec( "select owner, table_name from all_tables "
+	    "where owner != 'MDSYS' "
+	    "and owner != 'LBACSYS' "
+	    "and owner != 'SYS' "
+	    "and owner != 'SYSTEM' "
+	    "and owner != 'WKSYS'" );
     while ( t.next() ) {
-	tl.append( t.value(0).toString() );
+	if ( t.value(0).toString() != d->user )
+	    tl.append( t.value(0).toString() + "." + t.value(1).toString() );
+	else
+	    tl.append( t.value(1).toString() );
     }
     return tl;
+}
+
+void qSplitTableAndOwner( const QString & tname, QString * tbl,
+			  QString * owner )
+{
+    int i = tname.find('.'); // prefixed with owner?
+    if ( i != -1 ) {
+	*tbl = tname.right( tname.length() - i - 1 ).upper();
+	*owner = tname.left( i ).upper();
+    } else {
+	*tbl = tname.upper();
+    }
 }
 
 QSqlRecord QOCIDriver::record( const QString& tablename ) const
@@ -1516,16 +1538,40 @@ QSqlRecord QOCIDriver::record( const QString& tablename ) const
     if ( !isOpen() )
 	return fil;
     QSqlQuery t = createQuery();
+    // using two separate queries for this is A LOT faster than using
+    // eg. a sub-query on the sys.synonyms table
+    QString stmt( "select column_name, data_type, data_length, "
+		  "data_precision, data_scale from all_tab_columns "
+		  "where table_name=%1" );
+    bool buildRecord = FALSE;
+    QString table, owner, tmpStmt;
+    qSplitTableAndOwner( tablename, &table, &owner );
+    tmpStmt = stmt.arg( "'" + table + "'" );
+    if ( !owner.isEmpty() ) {
+	tmpStmt += " and owner='" + owner + "'";
+    } else {
+	tmpStmt += " and owner='" + d->user + "'";
+    }
     t.setForwardOnly( TRUE );
-    QString stmt ("select column_name, data_type, data_length, data_precision, data_scale "
-		  "from user_tab_columns "
-		  "where table_name='%1'" );
-    t.exec( stmt.arg( tablename.upper() ) );
-    while ( t.next() ) {
-	QVariant::Type ty = qDecodeOCIType( t.value(1).toString(), t.value(2).toInt(),
-			t.value(3).toInt(), t.value(4).toInt() );
-	QSqlField f( t.value(0).toString(), ty );
-	fil.append( f );
+    t.exec( tmpStmt );
+    if ( !t.next() ) { // check to see if this is a synonym instead
+	stmt = stmt.arg( "(select tname from sys.synonyms where sname='"
+			 + table +"' and creator=owner)" );
+	t.setForwardOnly( TRUE );
+	t.exec( stmt );
+	if ( t.next() )
+	    buildRecord = TRUE;
+    } else {
+	buildRecord = TRUE;
+    }
+    
+    if ( buildRecord ) {
+	do {
+	    QVariant::Type ty = qDecodeOCIType( t.value(1).toString(), t.value(2).toInt(),
+						t.value(3).toInt(), t.value(4).toInt() );
+	    QSqlField f( t.value(0).toString(), ty );
+	    fil.append( f );
+	} while ( t.next() );
     }
     return fil;
 }
@@ -1557,32 +1603,54 @@ QSqlRecordInfo QOCIDriver::recordInfo( const QString& tablename ) const
     if ( !isOpen() )
 	return fil;
     QSqlQuery t = createQuery();
-    QString stmt;
+    // using two separate queries for this is A LOT faster than using
+    // eg. a sub-query on the sys.synonyms table
+    QString stmt( "select column_name, data_type, data_length, "
+		  "data_precision, data_scale, nullable, data_default%1"
+		  "from all_tab_columns "
+		  "where table_name=%2" );
     if ( d->serverVersion >= 9 ) {
-	stmt  = "select column_name, data_type, data_length, data_precision, data_scale, nullable, data_default, char_length "
-		  "from user_tab_columns "
-		  "where table_name='%1'";
+	stmt = stmt.arg( ", char_length " );
     } else {
-	stmt  = "select column_name, data_type, data_length, data_precision, data_scale, nullable, data_default "
-		  "from user_tab_columns "
-		  "where table_name='%1'";
+	stmt = stmt.arg( " " );
+    }
+    bool buildRecordInfo = FALSE;
+    QString table, owner, tmpStmt;
+    qSplitTableAndOwner( tablename, &table, &owner );
+    tmpStmt = stmt.arg( "'" + table + "'" );
+    if ( !owner.isEmpty() ) {
+	tmpStmt += " and owner='" + owner + "'";
+    } else {
+	tmpStmt += " and owner='" + d->user + "'";
     }
     t.setForwardOnly( TRUE );
-    t.exec( stmt.arg( tablename.upper() ) );
-    while ( t.next() ) {
-	QVariant::Type ty = qDecodeOCIType( t.value(1).toString(), t.value(2).toInt(), t.value(3).toInt(), t.value(4).toInt() );
-	bool required = t.value( 5 ).toString() == "N";
-	int prec = -1;
-	if ( !t.isNull( 3 ) ) {
-	    prec = t.value( 3 ).toInt();
-	}
-	int size = t.value( 2 ).toInt();
-	if ( d->serverVersion >= 9 && ( ty == QVariant::String || ty == QVariant::CString ) ) {
-	    // Oracle9: data_length == size in bytes, char_length == amount of characters
-	    size = t.value( 7 ).toInt();
-	}
-	QSqlFieldInfo f( t.value(0).toString(), ty, required, size, prec, t.value( 6 ) );
-	fil.append( f );
+    t.exec( tmpStmt );
+    if ( !t.next() ) { // try and see if the tablename is a synonym
+	stmt= stmt.arg( "(select tname from sys.synonyms where sname='"
+			+ table + "' and creator=owner)" );
+	t.setForwardOnly( TRUE );
+	t.exec( stmt );
+	if ( t.next() )
+	    buildRecordInfo = TRUE;
+    } else {
+	buildRecordInfo = TRUE;
+    }
+    if ( buildRecordInfo ) {
+	do {
+	    QVariant::Type ty = qDecodeOCIType( t.value(1).toString(), t.value(2).toInt(), t.value(3).toInt(), t.value(4).toInt() );
+	    bool required = t.value( 5 ).toString() == "N";
+	    int prec = -1;
+	    if ( !t.isNull( 3 ) ) {
+		prec = t.value( 3 ).toInt();
+	    }
+	    int size = t.value( 2 ).toInt();
+	    if ( d->serverVersion >= 9 && ( ty == QVariant::String || ty == QVariant::CString ) ) {
+		// Oracle9: data_length == size in bytes, char_length == amount of characters
+		size = t.value( 7 ).toInt();
+	    }
+	    QSqlFieldInfo f( t.value(0).toString(), ty, required, size, prec, t.value( 6 ) );
+	    fil.append( f );
+	} while (t.next() );
     }
     return fil;
 }
@@ -1610,22 +1678,47 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
     if ( !isOpen() )
 	return idx;
     QSqlQuery t = createQuery();
-    t.setForwardOnly( TRUE );
-    QString stmt ("select b.column_name, b.data_type, c.index_name "
-		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
+    // do not change this query unless you know EXACTLY what you're doing
+    QString stmt( "select b.column_name, b.data_type, c.index_name "
+		  "from all_constraints a, all_tab_columns b, all_ind_columns c "
 		  "where a.constraint_type='P' "
-		  "and a.table_name = '%1' "
 		  "and c.index_name = a.constraint_name "
 		  "and b.column_name = c.column_name "
-		  "and b.table_name = a.table_name;" );
-    t.exec( stmt.arg( tablename.upper() ) );
-    if ( t.next() ) {
-	// ### This seems a bit fishy - may need the ocilen, ociprec and ociscale params
-	QSqlField f( t.value(0).toString(), qDecodeOCIType(t.value(1).toString(), 0, 0, 0) );
-	idx.append( f );
-	idx.setName( t.value(2).toString() );
+		  "and b.table_name = a.table_name "
+                  "and b.owner = a.owner and c.index_owner = a.owner" );
+
+    bool buildIndex = FALSE;
+    QString table, owner, tmpStmt;
+    qSplitTableAndOwner( tablename, &table, &owner );
+    tmpStmt = stmt + " and a.table_name='" + table + "'";
+    if ( !owner.isEmpty() ) {
+	tmpStmt += " and a.owner='" + owner + "'";
+    } else {
+	tmpStmt += " and a.owner='" + d->user +"'";
     }
-    return idx;
+    t.setForwardOnly( TRUE );
+    t.exec( tmpStmt );
+    
+    if ( !t.next() ) {
+	stmt += " and a.table_name=(select tname from sys.synonyms "
+                "where sname='" + table + "' and creator=a.owner)";
+        t.setForwardOnly( TRUE );
+	t.exec( stmt );
+	if ( t.next() )
+	    buildIndex = TRUE;
+    } else {
+	buildIndex = TRUE;
+    }
+    
+    if ( buildIndex ) {
+	idx.setName( t.value(2).toString() );
+	do {
+	    QSqlField f( t.value(0).toString(), 
+			 qDecodeOCIType( t.value(1).toString(), 0, 0, 0 ) );
+	    idx.append(f);
+	} while ( t.next() );
+	return idx;
+    }
     return QSqlIndex();
 }
 
