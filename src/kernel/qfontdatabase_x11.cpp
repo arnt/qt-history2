@@ -195,8 +195,10 @@ void QFontDatabase::createDatabase()
 					  "-*-*-*-*-*-*-*-*-*-*-*-*-*-*",
 					  32767, &fontCount );
 
-	    if ( fontCount >= 32767 )
-		qWarning( "More than 32k fonts, please notify qt-bugs@trolltech.com" );
+	    if ( fontCount >= 32767 ) {
+		XFreeFontNames( fontList );
+		fontList = XListFonts( qt_xdisplay(), "-*-*-*-*-*-*-*-*-*-*-*-*-*-*", fontCount+1, &fontCount );
+	    }	
 
 	    char *tokens[QFontPrivate::NFontFields];
 
