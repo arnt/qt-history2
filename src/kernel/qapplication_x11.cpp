@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#203 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#204 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -61,7 +61,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 #undef bzero
 extern "C" void bzero(void *, size_t len);
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#203 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#204 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -1022,6 +1022,7 @@ QETWidget *qPRFindWidget( Window oldwin )
 struct QSockNot {
     QObject *obj;
     int	     fd;
+    fd_set  *queue;
 };
 
 typedef Q_DECLARE(QListM,QSockNot)	   QSNList;
@@ -1035,15 +1036,19 @@ static QSNList *sn_except = 0;
 static fd_set	sn_readfds;			// fd set for reading
 static fd_set	sn_writefds;			// fd set for writing
 static fd_set	sn_exceptfds;			// fd set for exceptions
+static fd_set	sn_queued_read;
+static fd_set	sn_queued_write;
+static fd_set	sn_queued_except;
 
 static struct SN_Type {
     QSNList **list;
     fd_set   *fdspec;
     fd_set   *fdres;
+    fd_set   *queue;
 } sn_vec[3] = {
-    { &sn_read,	  &sn_readfds,	 &app_readfds },
-    { &sn_write,  &sn_writefds,	 &app_writefds },
-    { &sn_except, &sn_exceptfds, &app_exceptfds } };
+    { &sn_read,	  &sn_readfds,	 &app_readfds,   &sn_queued_read },
+    { &sn_write,  &sn_writefds,	 &app_writefds,  &sn_queued_write },
+    { &sn_except, &sn_exceptfds, &app_exceptfds, &sn_queued_except } };
 
 
 bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
@@ -1066,11 +1071,13 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	    list->setAutoDelete( TRUE );
 	    *sn_vec[type].list = list;
 	    FD_ZERO( fds );
+	    FD_ZERO( sn_vec[type].queue );
 	}
 	sn = new QSockNot;
 	CHECK_PTR( sn );
 	sn->obj = obj;
 	sn->fd	= sockfd;
+	sn->queue = sn_vec[type].queue;
 	if ( list->isEmpty() ) {
 	    list->insert( 0, sn );
 	} else {				// sort list by fd, decreasing
@@ -1115,8 +1122,8 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 }
 
 
-typedef Q_DECLARE(QIntDictM,QObject)	     QObjRndDict;
-typedef Q_DECLARE(QIntDictIteratorM,QObject) QObjRndDictIt;
+typedef Q_DECLARE(QIntDictM,QSockNot)	     QObjRndDict;
+typedef Q_DECLARE(QIntDictIteratorM,QSockNot) QObjRndDictIt;
 
 static QObjRndDict *sn_rnd_dict = 0;
 
@@ -1148,22 +1155,29 @@ static int sn_activate()
 	    fd_set   *fds  = sn_vec[i].fdres;
 	    QSockNot *sn   = list->first();
 	    while ( sn ) {
-		if ( FD_ISSET(sn->fd,fds) )	// store away for activation
-		    sn_rnd_dict->insert( rand(), sn->obj );
+		if ( FD_ISSET( sn->fd, fds ) &&	// store away for activation
+		     !FD_ISSET( sn->fd, sn->queue ) ) {
+		    sn_rnd_dict->insert( rand(), sn );
+		    FD_SET( sn->fd, sn->queue );
+		}
 		sn = list->next();
 	    }
 	}
     }
-    if ( sn_rnd_dict->count() > 0 ) {		// activate entries
+    if ( sn_rnd_dict->count() > 0 ) {           // activate entries
 	QEvent event( Event_SockAct );
 	QObjRndDictIt it( *sn_rnd_dict );
-	QObject *obj;
-	while ( (obj=it.current()) ) {
+	QSockNot *sn;
+	while ( (sn=it.current()) ) {
+	    long key = it.currentKey();
 	    ++it;
-	    QApplication::sendEvent( obj, &event );
-	    n_act++;
-	}
-	sn_rnd_dict->clear();
+	    sn_rnd_dict->remove( key );
+	    if ( FD_ISSET( sn->fd, sn->queue ) ) {
+		FD_CLR( sn->fd, sn->queue );
+		QApplication::sendEvent( sn->obj, &event );
+		n_act++;
+	    }
+        }
     }
     return n_act;
 }
