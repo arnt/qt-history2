@@ -168,6 +168,7 @@ public:
     int hitTest(QTextBlock bl, const QPoint &point, QText::HitTestAccuracy accuracy) const;
 
     void relayoutDocument();
+    void setTableWidths(QTextTable *table);
     void layoutTable(QTextTable *t, int layoutFrom, int layoutTo);
     void layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo);
     void layoutBlock(const QTextBlock block, LayoutStruct *layoutStruct);
@@ -517,18 +518,15 @@ void QTextDocumentLayoutPrivate::relayoutDocument()
     q->documentChange(0, 0, doc->docHandle()->length());
 }
 
-void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom*/, int /*layoutTo*/)
+void QTextDocumentLayoutPrivate::setTableWidths(QTextTable *table)
 {
     // layout frame has already set contents width and relayouted child frames
 
-    int rows = table->rows();
     int columns = table->columns();
     QTextTableData *td = static_cast<QTextTableData *>(data(table));
 
     // ### fix padding
     int margin = td->margin + td->border;
-    LayoutStruct layoutStruct;
-    layoutStruct.frame = table;
 
     // #### calculate real width
     int w = td->contentsWidth - (columns-1)*td->border;
@@ -543,6 +541,16 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     td->columnPositions[0] = margin;
     for (int i = 1; i < columns; ++i)
         td->columnPositions[i] = td->columnPositions.at(i-1) + td->widths.at(i-1) + td->border;
+}
+
+void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom*/, int /*layoutTo*/)
+{
+    int rows = table->rows();
+    int columns = table->columns();
+    QTextTableData *td = static_cast<QTextTableData *>(data(table));
+    int margin = td->margin + td->border;
+    LayoutStruct layoutStruct;
+    layoutStruct.frame = table;
 
     td->heights.resize(rows);
     for (int r = 0; r < rows; ++r)
@@ -646,6 +654,10 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
 
     bool fullLayout = false;
 
+    QTextTable *table = qt_cast<QTextTable *>(f);
+    if (table)
+        setTableWidths(table);
+
     // layout child frames
     QList<QTextFrame *> children = f->childFrames();
     for (int i = 0; i < children.size(); ++i) {
@@ -666,12 +678,9 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
     // #### for now
     fullLayout = true;
 
-    {
-        QTextTable *table = qt_cast<QTextTable *>(f);
-        if (table) {
-            layoutTable(table, layoutFrom, layoutTo);
-            return;
-        }
+    if (table) {
+        layoutTable(table, layoutFrom, layoutTo);
+        return;
     }
 
     int margin = fd->margin + fd->border;
@@ -755,7 +764,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
     currentBlock = bl;
 
     tl->setTextFlags(blockFormat.alignment()|d->blockTextFlags);
-    tl->useDesignMetrics(true);
+//    tl->useDesignMetrics(true);
 //     tl->enableKerning(true);
     tl->clearLines();
 
