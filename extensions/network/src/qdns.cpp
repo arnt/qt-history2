@@ -21,6 +21,7 @@
 **
 *****************************************************************************/
 
+#include "qdns.h"
 
 #include "qdatetime.h"
 #include "qdict.h"
@@ -32,22 +33,6 @@
 #include "qstrlist.h"
 #include <qptrdict.h>
 
-// really, really nasty hack.  we want to emit a signal from a class
-// that isn't visibe in the header file.
-
-// so we include everything the header file includes
-
-#include "qobject.h"
-#include "qvaluelist.h"
-#include "qsocket.h"
-
-// and then we make the signal available.  YUCK!
-
-#undef signals
-#define signals public
-#include "qdns.h"
-
-// haavard made me do it!
 
 static QList<QHostAddress> * ns = 0;
 static QStrList * domains = 0;
@@ -125,7 +110,7 @@ public:
 	void cleanCache();
 	void retransmit();
 	void answer();
- 
+
     public:
 	QVector<QDnsPrivate::Query> queries;
 	QDict<QDnsPrivate::Domain> cache;
@@ -184,6 +169,11 @@ public:
 
     };
 
+    class UgleHack: public QDns {
+    public:
+	void ugle() { emit statusChanged(); }
+    };
+
 public:
     QDnsPrivate() {}
 };
@@ -213,7 +203,7 @@ QDnsPrivate::Manager::Manager()
     sweepTimer->start( 1000 * 60 * 5 );
     connect( sweepTimer, SIGNAL(timeout()),
 	     this, SLOT(cleanCache()) );
-    
+
     QSocketNotifier * rn = new QSocketNotifier( socket->socket(),
 						QSocketNotifier::Read,
 						this, "dns socket watcher" );
@@ -323,7 +313,7 @@ void QDnsPrivate::Answer::parseA()
     qDebug( "QDns: saw %s IN A %s (ttl %d)", label.ascii(),
 	    rr->address.ip4AddrString().ascii(), ttl );
 #endif
-    
+
 }
 
 
@@ -336,7 +326,7 @@ void QDnsPrivate::Answer::parseAaaa()
 
 void QDnsPrivate::Answer::parseMx()
 {
-    
+
 }
 
 
@@ -541,7 +531,7 @@ void QDnsPrivate::Answer::parse()
 	next = size;
 	rrno++;
     }
-    
+
 #if defined(DEBUG_QDNS)
     qDebug( "DNS Manager: ()" );
 #endif
@@ -578,13 +568,12 @@ void QDnsPrivate::Answer::notify()
 		    qDebug( "DNS Manager: status change for %s (type %d)",
 			    dns->label().ascii(), dns->recordType() );
 #endif
-		    emit dns->statusChanged();
+		    ((QDnsPrivate::UgleHack*)dns)->ugle();
 		}
 	    }
 	}
     }
 }
-
 
 
 void QDnsPrivate::Manager::answer()
@@ -643,7 +632,7 @@ void QDnsPrivate::Manager::transmitQuery( int i )
     QByteArray p( 12 + q->l.length() + 2 + 4 );
     if ( p.size() > 500 )
 	return; // way over the limit, so don't even try
-    
+
     // header
     // id
     p[0] = q->id >> 8;
@@ -1086,7 +1075,7 @@ void QDns::sendQuery() const
     q->t = t;
     q->l = l;
     q->started = now();
-    
+
     QDnsPrivate::Manager::manager()->transmitQuery( q );
 }
 
@@ -1147,7 +1136,7 @@ QValueList<QHostAddress> QDns::addresses() const
 	    result.append( QHostAddress( 0x7f000001 ) );
 	    return result;
 	}
-	    
+
 	int maybeIP4 = 0;
 	int bytes = 0;
 	int byte = 0;
@@ -1217,7 +1206,7 @@ static void doResInit( void )
     ns->setAutoDelete( TRUE );
     domains = new QStrList( TRUE );
     domains->setAutoDelete( TRUE );
-	 
+
     res_init();
     int i;
     // find the name servers to use
