@@ -90,6 +90,8 @@ protected:
     };
 
     QVector<Data> values;
+
+private:
     QAbstractItemModel::ItemFlags itemFlags;
     QTableModel *model;
 };

@@ -77,7 +77,7 @@ public:
     virtual QVariant data(int role) const;
     virtual void setData(int role, const QVariant &value);
     virtual bool operator<(const QListWidgetItem &other) const;
-    
+
     void openPersistentEditor();
     void closePersistentEditor();
 
@@ -92,6 +92,8 @@ protected:
     };
 
     QVector<Data> values;
+
+private:
     QAbstractItemModel::ItemFlags itemFlags;
     QListModel *model;
 };

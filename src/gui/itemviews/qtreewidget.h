@@ -99,12 +99,14 @@ private:
         QVariant value;
     };
 
+    // One item has a vector of column entries. Each column has a vector of (role, value) pairs.
+    QVector< QVector<Data> > values;
+
+private:
     QTreeWidget *view;
     QTreeWidgetItem *par;
     QList<QTreeWidgetItem*> children;
-    QVector< QVector<Data> > values;
     QAbstractItemModel::ItemFlags itemFlags;
-    // One item has a vector of column entries. Each column has a vector of (role, value) pairs.
 };
 
 class QTreeWidgetPrivate;
