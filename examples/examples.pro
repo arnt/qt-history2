@@ -82,7 +82,8 @@ network:SUBDIRS +=  network/clientserver/client \
 		    network/ftpclient \
 		    network/httpd \
 		    network/mail \
-		    network/networkprotocol
+		    network/networkprotocol \
+		    network/remotecontrol
 
 workspace:SUBDIRS+= mdi
 
