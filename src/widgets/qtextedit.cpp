@@ -4038,7 +4038,7 @@ QBrush QTextEdit::paper() const
 {
     if ( doc->paper() )
 	return *doc->paper();
-    return QBrush();
+    return QBrush( colorGroup().base() );
 }
 
 /*!
