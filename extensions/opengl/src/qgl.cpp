@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#11 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#12 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -26,7 +26,7 @@
 #include <X11/Xmu/StdCmap.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#12 $");
 
 
 #if defined(_CC_MSVC_)
@@ -1066,7 +1066,7 @@ void QGLWidget::setFormat( const QGLFormat &format )
 /*
   The create_cmap function is internal and used by QGLWidget::setContext()
   and GLX (not Windows).  If the application can't find any sharable
-  colormaps, it must at least create as few colormaps than necessary.  The
+  colormaps, it must at least create as few colormaps as possible.  The
   dictionary solution below ensures only one colormap is created per visual.
   Colormaps are also deleted when the application terminates.
 */
@@ -1270,10 +1270,10 @@ void QGLWidget::resizeGL( int, int )
 
 void QGLWidget::paintEvent( QPaintEvent * )
 {
-    glcx->makeCurrent();
+    makeCurrent();
     paintGL();
-    if ( glcx->format().doubleBuffer() )
-	glcx->swapBuffers();
+    if ( doubleBuffer() )
+	swapBuffers();
     else
 	glFlush();
 }
@@ -1285,9 +1285,11 @@ void QGLWidget::paintEvent( QPaintEvent * )
 
 void QGLWidget::resizeEvent( QResizeEvent * )
 {
-    glcx->makeCurrent();
+    makeCurrent();
+#if defined(Q_GLX)
+    glXWaitX();
+#endif
     resizeGL( width(), height() );
-    glcx->doneCurrent();
 }
 
 
