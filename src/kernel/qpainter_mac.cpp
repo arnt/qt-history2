@@ -683,7 +683,6 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
     DisposeRgn( polyRegion );
 }
 
-
 void QPainter::drawPoint( int x, int y )
 {
     if ( !isActive() )
@@ -693,16 +692,22 @@ void QPainter::drawPoint( int x, int y )
             QPDevCmdParam param[1];
             QPoint p( x, y );
             param[0].point = &p;
-            if ( !pdev->cmd( QPaintDevice::PdcDrawPoint, this, param ) /*|| !hdc*/ )
+            if ( !pdev->cmd( QPaintDevice::PdcDrawPoint, this, param ) )
                 return;
         }
         map( x, y, &x, &y );
     }
 
-    initPaintDevice();
-    updatePen();
-    ::RGBColor r = { 0, 0, 0 };
-    SetCPixel(x+offx,y+offy,&r);
+
+    if ( cpen.style() != NoPen ) {
+	initPaintDevice();
+	updatePen();
+	::RGBColor f;
+	f.red = cpen.color().red()*256;
+	f.green = cpen.color().green()*256;
+	f.blue = cpen.color().blue()*256;
+	SetCPixel(x+offx,y+offy,&f);
+    }
 }
 
 
@@ -733,10 +738,17 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 	    }
 	}
     }
+
     if ( cpen.style() != NoPen ) {
-	::RGBColor r = { 0, 0, 0 };
+	initPaintDevice();
+	updatePen();
+
+	::RGBColor f;
+	f.red = cpen.color().red()*256;
+	f.green = cpen.color().green()*256;
+	f.blue = cpen.color().blue()*256;
 	for (int i=0; i<npoints; i++) 
-	    SetCPixel(pa[index+i].x()+offx,pa[index+i].y()+offy,&r);
+	    SetCPixel(pa[index+i].x()+offx,pa[index+i].y()+offy,&f);
     }
 }
 
