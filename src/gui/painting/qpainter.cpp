@@ -3034,8 +3034,6 @@ QPaintDevice *QPainter::redirected(const QPaintDevice *device, QPoint *offset)
 }
 
 
-#define QChar_linesep QChar(0x2028U)
-
 void qt_format_text(const QFont& font, const QRect &_r,
                      int tf, const QString& str, int len, QRect *brect,
                      int tabstops, int *, int tabarraylen,
@@ -3084,7 +3082,7 @@ void qt_format_text(const QFont& font, const QRect &_r,
         if (*chr == '\r' || (singleline && *chr == '\n')) {
             *chr = ' ';
         } else if (*chr == '\n') {
-            *chr = QChar_linesep;
+            *chr = QChar::LineSeparator;
             haveLineSep = true;
         } else if (*chr == '&') {
             ++maxUnderlines;

@@ -305,11 +305,14 @@
 /*!
     \enum QChar::SpecialChar
 
-    \value null Character 0x0000. A QChar with this value isNull().
-    \value replacement
-    \value byteOrderMark
-    \value byteOrderSwapped
-    \value nbsp Non-breaking space.
+    \value Null Character 0x0000. A QChar with this value isNull().
+    \value ReplacementCharacter
+    \value ObjectReplacementCharacter
+    \value ByteOrderMark
+    \value ByteOrderSwapped
+    \value Nbsp Non-breaking space
+    \value ParagraphSeparator
+    \value LineSeparator.
 */
 
 /*!

@@ -200,7 +200,7 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
                 s = script;
 
             QChar::Category category = ::category(uc);
-            if (uc == 0xfffcU || uc == 0x2028U) {
+            if (uc == QChar::ObjectReplacementCharacter || uc == QChar::LineSeparator) {
                 item.analysis.bidiLevel = level % 2 ? level-1 : level;
                 item.analysis.script = QFont::Latin;
                 item.isObject = true;

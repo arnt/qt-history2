@@ -1256,7 +1256,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
             removeSelectedText();
         if (textFormat() == Qt::RichText && (e->state() & ControlButton)) {
             // Ctrl-Enter inserts a line break in rich text mode
-            insert(QString(QChar(0x2028)), true, false);
+            insert(QString(QChar::LineSeparator), true, false);
         } else {
 #ifndef QT_NO_CURSOR
             viewport()->setCursor(isReadOnly() ? ArrowCursor : IbeamCursor);
@@ -5027,7 +5027,7 @@ QByteArray QTextEdit::pickSpecial(QMimeSource* ms, bool always_ask, const QPoint
             }
         }
         if (n) {
-            QAction *action = (n == 1 && !always_ask) 
+            QAction *action = (n == 1 && !always_ask)
                 ? popup.actions().at(0)
                 : popup.exec(pt);
             if (action)

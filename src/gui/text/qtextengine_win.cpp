@@ -524,7 +524,7 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
 
                 unsigned short uc = text[j+start].unicode();
                 QChar::Category category = ::category(uc);
-                if (uc == 0xfffcU || uc == 0x2028U) {
+                if (uc == QChar::ObjectReplacementCharacter || uc == QChar::LineSeparator) {
                     item.analysis.script = usp_latin_script;
                     item.isObject = true;
                     b = true;

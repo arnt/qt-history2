@@ -54,8 +54,6 @@ const int border_tolerance = 2;
 #include "qt_windows.h"
 #endif
 
-#define QChar_linesep QChar(0x2028U)
-
 static inline bool is_printer(QPainter *p)
 {
     if (!p || !p->device())
@@ -1539,7 +1537,7 @@ struct Q3TextDocumentTag {
     do{ \
         if (!hasNewPar) { \
             if (!textEditMode && curpar && curpar->length()>1 \
-                 && curpar->at(curpar->length()-2)->c == QChar_linesep) \
+                 && curpar->at(curpar->length()-2)->c == QChar::LineSeparator) \
                 curpar->remove(curpar->length()-2, 1); \
             curpar = createParagraph(this, curpar, curpar->next()); \
             styles.append(vec); \
@@ -1687,7 +1685,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                         emptyTag = space = true;
                         int index = qMax(curpar->length(),1) - 1;
                         Q3TextFormat format = curtag.format.makeTextFormat(nstyle, attr, scaleFontsFactor);
-                        curpar->append(QString(QChar_linesep));
+                        curpar->append(QString(QChar::LineSeparator));
                         curpar->setFormat(index, 1, &format);
                     }  else if (tagname == "hr") {
                         emptyTag = space = true;
@@ -1977,7 +1975,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                 if (textEditMode) {
                     // text edit mode: we handle all white space but ignore newlines
                     c = parseChar(doc, length, pos, QStyleSheetItem::WhiteSpacePre);
-                    if (c == QChar_linesep)
+                    if (c == QChar::LineSeparator)
                         break;
                 } else {
                     int l = pos;
@@ -1991,13 +1989,13 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                             while((++tabExpansionColumn)%8)
                                 s += c;
                         }
-                        if (c == QChar_linesep)
+                        if (c == QChar::LineSeparator)
                             tabExpansionColumn = 0;
                         else
                             tabExpansionColumn++;
 
                     }
-                    if (c == ' ' || c == QChar_linesep) {
+                    if (c == ' ' || c == QChar::LineSeparator) {
                         /* avoid overlong paragraphs by forcing a new
                                paragraph after 4096 characters. This case can
                                occur when loading undiscovered plain text
@@ -2017,7 +2015,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                 }
 
                 if (c == '\n')
-                    break;  // break on  newlines, pre delievers a QChar_linesep
+                    break;  // break on  newlines, pre delievers a QChar::LineSeparator
 
                 bool c_isSpace = c.isSpace() && c.unicode() != 0x00a0U && !textEditMode;
 
@@ -2879,7 +2877,7 @@ QString Q3TextDocument::selectedText(int id, bool asRichText) const
     // from within Assistent possible
     QChar* uc = (QChar*) s.unicode();
     for (int ii = 0; ii < s.length(); ii++)
-        if (uc[(int)ii] == QChar_linesep)
+        if (uc[(int)ii] == QChar::LineSeparator)
             uc[(int)ii] = QChar('\n');
     return s;
 }
@@ -4755,7 +4753,7 @@ void Q3TextParagraph::drawString(QPainter &painter, const QString &str, int star
     int real_length = len;
     if (len && dir != QPainter::RTL && start + len == length()) // don't draw the last character (trailing space)
         len--;
-    if (len && str.unicode()[start+len-1] == QChar_linesep)
+    if (len && str.unicode()[start+len-1] == QChar::LineSeparator)
         len--;
 
 
@@ -5127,7 +5125,7 @@ QString Q3TextParagraph::richText() const
         else if (c->isCustom())
             s += c->customItem()->richText();
 #endif
-        else if (c->c == '\n' || c->c == QChar_linesep)
+        else if (c->c == '\n' || c->c == QChar::LineSeparator)
             s += "<br />"; // space on purpose for compatibility with Netscape, Lynx & Co.
         else
             s += c->c;
@@ -5756,7 +5754,7 @@ int Q3TextFormatterBreakWords::format(Q3TextDocument *doc, Q3TextParagraph *para
         }
         bool lastWasOwnLineCustomItem = lastBreak == -2;
         bool hadBreakableChar = lastBreak != -1;
-        bool lastWasHardBreak = lastChr == QChar_linesep;
+        bool lastWasHardBreak = lastChr == QChar::LineSeparator;
 
         // ### next line should not be needed
         if (painter)
@@ -5851,7 +5849,7 @@ int Q3TextFormatterBreakWords::format(Q3TextDocument *doc, Q3TextParagraph *para
         }
 #endif
         // we break if
-        // 1. the last character was a hard break (QChar_linesep) or
+        // 1. the last character was a hard break (QChar::LineSeparator) or
         // 2. the last character was a own-line custom item (eg. table or ruler) or
         // 3. wrapping was enabled, it was not a space and following
         // condition is true: We either had a breakable character
@@ -7308,7 +7306,7 @@ QChar Q3TextDocument::parseChar(const QChar* doc, int length, int& pos, QStyleSh
     if (c.isSpace() && c != QChar(QChar::nbsp)) {
         if (wsm == QStyleSheetItem::WhiteSpacePre) {
             if (c == '\n')
-                return QChar_linesep;
+                return QChar::LineSeparator;
             else
                 return c;
         } else { // non-pre mode: collapse whitespace except nbsp
