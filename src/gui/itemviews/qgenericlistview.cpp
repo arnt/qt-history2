@@ -365,6 +365,12 @@ void QGenericListView::resizeContents(int w, int h)
     verticalScrollBar()->setRange(0, h - viewport()->height());
 }
 
+void QGenericListView::scrollContentsBy(int dx, int dy)
+{
+    d->viewport->scroll(dx, dy);
+//    d->viewport->update();
+}
+
 void QGenericListView::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     // FIXME: do something here
@@ -469,10 +475,11 @@ void QGenericListView::getViewOptions(QItemOptions *options) const
     options->textAlignment = (d->wrap ? QFlag(Qt::AlignCenter) : Qt::AlignLeft | Qt::AlignVCenter);
 }
 
-void QGenericListView::paintEvent(QPaintEvent *)
+void QGenericListView::paintEvent(QPaintEvent *e)
 {
     QPainter painter(viewport());
-    QRect area = visibleRect();
+    QRect area = e->rect();
+    area.moveBy(contentsX(), contentsY());
 
     // fill the intersectVector
     if (d->movement == Static)

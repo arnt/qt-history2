@@ -197,13 +197,10 @@ bool QGenericTreeView::isOpen(const QModelIndex &item) const
 
 void QGenericTreeView::paintEvent(QPaintEvent *e)
 {
-//     static int fr = 0;
-//     qDebug("paint %d", fr++);
-    
-//    QRect area = e->rect();
     QPainter painter(viewport());
+    QRect area = e->rect();
 
-    d->left = 0;//qMax(d->header->sectionAt(contentsX()), 0);
+    d->left = qMax(d->header->sectionAt(contentsX()), 0);
     d->right = -1;//d->header->sectionAt(contentsX() + visibleWidth());
     if (d->right < 0)
 	d->right = d->header->count() - 1;
@@ -471,13 +468,39 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
 
 void QGenericTreeView::scrollContentsBy(int dx, int dy)
 {
+    int hscroll = 0;
+    int vscroll = 0;
     if (dx) {
 	int value = horizontalScrollBar()->value();
-        int column = value / horizontalFactor();
-	int left = (value % horizontalFactor()) * columnWidth(column);
-	d->header->setOffset((left / horizontalFactor()) + d->header->sectionPosition(column));
+        int column = value / d->horizontalFactor;
+	int left = (value % d->horizontalFactor) * columnWidth(column);
+	int offset = (left / d->horizontalFactor) + d->header->sectionPosition(column);
+	hscroll = d->header->offset() - offset;
+	d->header->setOffset(offset);
     }
-    QViewport::scrollContentsBy(dx, dy);
+    if (dy) {
+	/*
+	int factor = d->verticalFactor;
+	int value = verticalScrollBar()->value();
+	int nw = value / factor;
+	int old = (value + dy) / factor;
+	QItemOptions options;
+	getViewOptions(&options);
+	int i = nw;
+	if (i > old)
+	    while (i > old)
+		vscroll += d->delegate->sizeHint(fontMetrics(), options, d->modelIndex(i--)).height();
+	else
+	    while (i < old)
+		vscroll -= d->delegate->sizeHint(fontMetrics(), options, d->modelIndex(i++)).height();
+	int da = ((value % factor) * d->delegate->sizeHint(fontMetrics(), options, d->modelIndex(nw)).height())
+		 -((value % factor) * d->delegate->sizeHint(fontMetrics(), options, d->modelIndex(old)).height());
+	vscroll -= (da / factor);
+	*/
+	d->viewport->update();
+	return;
+    }
+    d->viewport->scroll(hscroll, vscroll);
 }
 
 void QGenericTreeView::contentsChanged()
@@ -528,7 +551,6 @@ void QGenericTreeView::contentsRemoved(const QModelIndex &parent,
 	    d->open(pi);
 	}
     } else {
-	qDebug("contentsRemoved");
 	int count = bottomRight.row() - topLeft.row();
 	//resizeContents(contentsHeight() - d->itemHeight * count, contentsWidth());
 	updateGeometries();
@@ -560,7 +582,6 @@ bool QGenericTreeView::doItemsLayout(int num)
 
     int count = qMin(num, d->layout_count - (d->layout_from_index - d->layout_parent_index));
 
-    // FIXME: problem here!!
     if (d->layout_from_index == -1)
 	d->items.resize(count);
     else
@@ -647,8 +668,7 @@ void QGenericTreeView::verticalScrollbarAction(int action)
     int factor = d->verticalFactor;
     int value = verticalScrollBar()->value();
     int item = value / factor;
-    int above = (value % factor) * d->delegate->sizeHint(fontMetrics(),
-							 options,
+    int above = (value % factor) * d->delegate->sizeHint(fontMetrics(), options,
 							 d->modelIndex(item)).height();
     int y = -(above / factor); // above the page
 	
@@ -660,8 +680,7 @@ void QGenericTreeView::verticalScrollbarAction(int action)
 	    y += d->delegate->sizeHint(fontMetrics(), options, d->modelIndex(item++)).height();
 	value = item * factor; // i is now the last item on the page
 	if (y > h && item)
-	    value -= factor * (y - h) / d->delegate->sizeHint(fontMetrics(),
-							      options,
+	    value -= factor * (y - h) / d->delegate->sizeHint(fontMetrics(), options,
 							      d->modelIndex(item - 1)).height();
 	verticalScrollBar()->setSliderPosition(value);
 	    
@@ -690,7 +709,7 @@ void QGenericTreeView::horizontalScrollbarAction(int action)
     int value = horizontalScrollBar()->value();
     int column = value / factor;
     int above = (value % factor) * d->header->sectionSize(column); // what's left; in "item units"
-    int x = -(above / factor); // above the page
+    int x = -(above / factor); // left of the page
 	
     if (action == QScrollBar::SliderPageStepAdd) {
 	    

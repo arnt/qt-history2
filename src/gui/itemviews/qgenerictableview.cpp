@@ -116,19 +116,25 @@ void QGenericTableView::setLeftHeader(QGenericHeader *header)
 
 void QGenericTableView::scrollContentsBy(int dx, int dy)
 {
+    int hscroll = 0;
+    int vscroll = 0;
     if (dx) { // horizontal
 	int value = horizontalScrollBar()->value();
 	int column = value / horizontalFactor();
 	int left = (value % horizontalFactor()) * columnWidth(column);
-	d->topHeader->setOffset((left / horizontalFactor()) + d->topHeader->sectionPosition(column));
+	int offset = (left / horizontalFactor()) + d->topHeader->sectionPosition(column);
+	hscroll = d->topHeader->offset() - offset;
+	d->topHeader->setOffset(offset);
     }
     if (dy) { // vetical
 	int value = verticalScrollBar()->value();
 	int row = value / verticalFactor();
 	int above = (value % verticalFactor()) * rowHeight(row);
-	d->leftHeader->setOffset((above / verticalFactor()) + d->leftHeader->sectionPosition(row));
+	int offset = (above / verticalFactor()) + d->leftHeader->sectionPosition(row);
+	vscroll = d->leftHeader->offset() - offset;
+	d->leftHeader->setOffset(offset);
     }
-    d->viewport->update();
+    d->viewport->scroll(hscroll, vscroll);
 }
 
 void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
@@ -145,17 +151,10 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
     QPainter painter(d->viewport);
     QRect area = e->rect();
 
-#if 0
-    int colfirst = columnAt(0);
-    int collast = columnAt(viewport()->width());
-    int rowfirst = rowAt(0);
-    int rowlast = rowAt(viewport()->height());
-#else
-    int colfirst = columnAt(0);
-    int collast = columnAt(d->viewport->width());
-    int rowfirst = rowAt(0);
-    int rowlast = rowAt(d->viewport->height());
-#endif
+    int colfirst = columnAt(area.left());
+    int collast = columnAt(area.right());
+    int rowfirst = rowAt(area.top());
+    int rowlast = rowAt(area.bottom());
     bool showGrid = d->showGrid;
 
     QModelIndex bottomRight = model()->bottomRight(root());
