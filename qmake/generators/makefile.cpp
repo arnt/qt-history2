@@ -942,16 +942,6 @@ void
 MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
 {
     QStringList &l = project->variables()[src];
-    bool preprocess = project->values("PREPROCMOC").contains(src);
-
-    QString preprocfile;
-    if(preprocess) {
-	preprocfile = project->first("MOC_DIR") + "moc_macrodefs.h";
-	QString ph =  project->first("PREPROCH");
-	t << preprocfile << ": " << ph << "\n\t"
-	  << "$(CXX) -x c++ -E -dM -DQT_NO_STL $(DEFINES) $(INCPATH) -UQT_COMPAT_WARNINGS -DQT_COMPAT " << ph
-	  << " -o " << preprocfile << endl << endl;
-    }
 
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QString m = QMakeSourceFileInfo::mocFile(*it);
@@ -960,19 +950,9 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
 	    if(!project->isActiveConfig("no_mocdepend"))
 		deps += "$(MOC) ";
 	    deps += (*it);
-	    if(preprocess) {
-		deps += " " + preprocfile;
-		QString outdir = project->first("MOC_DIR");
-		QString tmpfile = m + ".t";
-		t << m << ": " << deps << "\n\t"
-		  << "$(CXX) -E -DQT_H -DQT_MOC_CPP -DQT_NO_STL  $(DEFINES) $(INCPATH) -include "
-		  << preprocfile << " " << (*it) << " -o " << tmpfile << "\n\t"
-		  << "$(MOC) " <<  " -f" << (*it) << " " << tmpfile <<" -o " << m << endl << endl;
-	    } else {
 		t << m << ": " << deps << "\n\t"
 		  << "$(MOC)" << " $(DEFINES) $(INCPATH) " << varGlue("QMAKE_COMPILER_DEFINES","-D"," -D"," ") 
 		  << (*it) << " -o " << m << endl << endl;
-	    }
 	}
     }
 }
