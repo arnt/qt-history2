@@ -205,7 +205,6 @@ QColor CEItem::colorForStatus()
 void CEItem::update() const
 {
     edit()->update(rect());
-//    edit()->update();
 }
 
 CEItem::Status CEItem::status() const
@@ -899,8 +898,6 @@ void CEEdgeItem::setExitPos(const QPoint &pos)
         return;
     m_exit_pos = pos;
     
-    qDebug() << "CEEdgeItem::setExitPos():" << this << pos;
-    
     update();
 }
 
@@ -912,8 +909,6 @@ void CEEdgeItem::setEnterPos(const QPoint &pos)
     m_enter_pos = pos;
     m_arrow_head.clear();
 
-    qDebug() << "CEEdgeItem::setEnterPos():" << this << pos;
-    
     if (m_enter_pos != QPoint(-1, -1)) {
         double alpha = angle(m_pos1, m_pos2);
 
@@ -943,7 +938,6 @@ bool CEEdgeItem::visibleAt(const QPoint &pos) const
         
     QRect r(p3, p4);
     r = expand(r, ENDPOINT_RADIUS);
-    qDebug() << "CEEdgeItem::visibleAt():" << m_exit_pos << m_enter_pos << r;
     return r.contains(pos);
 }
 
@@ -1053,6 +1047,8 @@ void ConnectionEdit::paintEvent(QPaintEvent *e)
         updateBackground();
 
     QPainter p(this);
+    p.setClipRegion(e->region());
+    
     p.drawPixmap(m_bg_pixmap.rect(), m_bg_pixmap);
 
     foreach (CEItem *item, m_item_list) {
@@ -1330,9 +1326,9 @@ void ConnectionEdit::updateUnderMouse(const QPoint &pos)
         insertItem(item);
         item->update();
     }
-
+/*
     foreach (CEItem *item, m_items_under_mouse)
-        item->update();
+        item->update(); */
 
     m_items_under_mouse.clear();
 
@@ -1355,9 +1351,9 @@ void ConnectionEdit::updateUnderMouse(const QPoint &pos)
 
         ++i;
     }
-
+/*
     foreach (CEItem *item, m_items_under_mouse)
-        item->update();
+        item->update(); */
 }
 
 void ConnectionEdit::mousePressEvent(QMouseEvent *e)
