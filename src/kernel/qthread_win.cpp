@@ -484,6 +484,19 @@ bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
     #endif
         }
     }
+    switch ( result ) {
+    case WAIT_TIMEOUT:
+	return FALSE;
+    case WAIT_ABANDONED:
+    case WAIT_ABANDONED+1:
+    case WAIT_FAILED:
+#ifdef QT_CHECK_RANGE
+    qSystemWarning( "Condition wait failure" );
+#endif
+	break;
+    default:
+	break;
+    }
     return TRUE;
 }
 
