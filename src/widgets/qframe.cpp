@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#12 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#12 $";
 #endif
 
 
@@ -205,6 +205,7 @@ void QFrame::updateFrameWidth()
 	    }
 	    break;
     }
+
     if ( fwidth == -1 ) {			// invalid style?
 	fwidth = 0;
 #if defined(CHECK_RANGE)
@@ -321,8 +322,12 @@ void QFrame::drawFrame( QPainter *p )
 		p2 = QPoint( p1.x(), r.height() );
 	    }
 	    switch ( style ) {
-		case Plain:
-		    paint->drawShadeLine( p1, p2, fg, fg, lwidth, fg, mwidth );
+		case Plain: {
+		    QPen oldPen = paint->pen();
+		    paint->setPen( QPen(fg,lwidth) );
+		    paint->drawLine( p1, p2 );
+		    paint->setPen( oldPen );
+		    }
 		    break;
 		case Raised:
 		    paint->drawShadeLine( p1, p2, light, dark,
