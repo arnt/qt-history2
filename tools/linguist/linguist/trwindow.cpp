@@ -373,7 +373,7 @@ void TrWindow::openFile( const QString& name )
 							  (*it).utf8()) );
 		    contexts.insert( QString((*it).context()), c );
 		}
-		if ( (*it).sourceText()[0] == '\0' ) {
+		if ( QCString((*it).sourceText()) == ContextComment ) {
 		    c->appendToComment( tor.toUnicode((*it).comment(),
 						      (*it).utf8()) );
 		} else {

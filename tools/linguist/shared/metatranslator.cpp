@@ -138,11 +138,13 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
 	    comment = accum;
 	} else {
 	    if ( contextIsUtf8 )
-		tor->insert( MetaTranslatorMessage(context.utf8(), "",
+		tor->insert( MetaTranslatorMessage(context.utf8(),
+			     ContextComment,
 			     accum.utf8(), QString::null, TRUE,
 			     MetaTranslatorMessage::Unfinished) );
 	    else
-		tor->insert( MetaTranslatorMessage(context.ascii(), "",
+		tor->insert( MetaTranslatorMessage(context.ascii(),
+			     ContextComment,
 			     accum.ascii(), QString::null, FALSE,
 			     MetaTranslatorMessage::Unfinished) );
 	}
@@ -385,7 +387,7 @@ bool MetaTranslator::save( const QString& filename ) const
 	QCString comment = "";
 
 	do {
-	    if ( QCString(m.key().sourceText()).isEmpty() ) {
+	    if ( QCString(m.key().sourceText()) == ContextComment ) {
 		if ( m.key().type() != MetaTranslatorMessage::Obsolete ) {
 		    contextIsUtf8 = m.key().utf8();
 		    comment = QCString( m.key().comment() );
@@ -525,7 +527,7 @@ void MetaTranslator::stripEmptyContexts()
 
     TMM::Iterator m = mm.begin();
     while ( m != mm.end() ) {
-	if ( QCString(m.key().sourceText()).isEmpty() ) {
+	if ( QCString(m.key().sourceText()) == ContextComment ) {
 	    TMM::Iterator n = m;
 	    ++n;
 	    // the context comment is followed by other messages

@@ -98,4 +98,10 @@ private:
     QTextCodec *codec;
 };
 
+/*
+  This is a quick hack. The proper way to handle this would be
+  to extend MetaTranslator's interface.
+*/
+#define ContextComment "QT_LINGUIST_INTERNAL_CONTEXT_COMMENT"
+
 #endif
