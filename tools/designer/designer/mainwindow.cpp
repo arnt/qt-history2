@@ -2943,6 +2943,8 @@ void MainWindow::readConfig()
 	}
 	delete l;
     }
+
+    rebuildCustomWidgetGUI();
 }
 
 HierarchyView *MainWindow::objectHierarchy() const
