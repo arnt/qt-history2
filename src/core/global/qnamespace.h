@@ -76,7 +76,9 @@ public:
         LeftButton       = 0x00000001,
         RightButton      = 0x00000002,
         MidButton        = 0x00000004,
-        MouseButtonMask  = 0x0000000f
+        XButton1         = 0x00000008,
+        XButton2         = 0x0000000f,
+        MouseButtonMask  = 0x000000ff
     };
     Q_DECLARE_FLAGS(MouseButtons, MouseButton);
 

@@ -62,6 +62,8 @@
     left-handed mice.)
     \value RightButton     The right button.
     \value MidButton       The middle button.
+    \value XButton1        The first X button.
+    \Value XButton2        The second X button.
     \value ShiftButton     A Shift key on the keyboard is pressed.
     \value ControlButton   A Ctrl key on the keyboard is pressed.
     \value AltButton       An Alt key on the keyboard is pressed.

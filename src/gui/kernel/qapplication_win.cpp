@@ -2146,18 +2146,19 @@ static void releaseAutoCapture()
 
 static ushort mouseTbl[] = {
     WM_MOUSEMOVE,        QEvent::MouseMove,                0,
-    WM_LBUTTONDOWN,        QEvent::MouseButtonPress,        Qt::LeftButton,
-    WM_LBUTTONUP,        QEvent::MouseButtonRelease,        Qt::LeftButton,
-    WM_LBUTTONDBLCLK,        QEvent::MouseButtonDblClick,        Qt::LeftButton,
-    WM_RBUTTONDOWN,        QEvent::MouseButtonPress,        Qt::RightButton,
-    WM_RBUTTONUP,        QEvent::MouseButtonRelease,        Qt::RightButton,
-    WM_RBUTTONDBLCLK,        QEvent::MouseButtonDblClick,        Qt::RightButton,
-    WM_MBUTTONDOWN,        QEvent::MouseButtonPress,        Qt::MidButton,
-    WM_MBUTTONUP,        QEvent::MouseButtonRelease,        Qt::MidButton,
-    WM_MBUTTONDBLCLK,        QEvent::MouseButtonDblClick,        Qt::MidButton,
-    WM_XBUTTONDOWN,        QEvent::MouseButtonPress,        Qt::MidButton*2, //### Qt::XButton1/2
-    WM_XBUTTONUP,        QEvent::MouseButtonRelease,        Qt::MidButton*2,
-    WM_XBUTTONDBLCLK,        QEvent::MouseButtonDblClick,        Qt::MidButton*2,
+    WM_LBUTTONDOWN,      QEvent::MouseButtonPress,        Qt::LeftButton,
+    WM_LBUTTONUP,        QEvent::MouseButtonRelease,      Qt::LeftButton,
+    WM_LBUTTONDBLCLK,    QEvent::MouseButtonDblClick,     Qt::LeftButton,
+    WM_RBUTTONDOWN,      QEvent::MouseButtonPress,        Qt::RightButton,
+    WM_RBUTTONUP,        QEvent::MouseButtonRelease,      Qt::RightButton,
+    WM_RBUTTONDBLCLK,    QEvent::MouseButtonDblClick,     Qt::RightButton,
+    WM_MBUTTONDOWN,      QEvent::MouseButtonPress,        Qt::MidButton,
+    WM_MBUTTONUP,        QEvent::MouseButtonRelease,      Qt::MidButton,
+    WM_MBUTTONDBLCLK,    QEvent::MouseButtonDblClick,     Qt::MidButton,
+    // use XButton1 for now, the real X button is decided later
+    WM_XBUTTONDOWN,      QEvent::MouseButtonPress,        Qt::XButton1,
+    WM_XBUTTONUP,        QEvent::MouseButtonRelease,      Qt::XButton1,
+    WM_XBUTTONDBLCLK,    QEvent::MouseButtonDblClick,     Qt::XButton1,
     0,                        0,                                0
 };
 
@@ -2176,9 +2177,9 @@ static int translateButtonState(int s, int type, int button)
         bst |= Qt::ControlButton;
 
     if (s & MK_XBUTTON1)
-        bst |= Qt::MidButton*2;//### Qt::XButton1;
+        bst |= Qt::XButton1;
     if (s & MK_XBUTTON2)
-        bst |= Qt::MidButton*4;//### Qt::XButton2;
+        bst |= Qt::XButton2;
 
     if (GetKeyState(VK_MENU) < 0)
         bst |= Qt::AltButton;
@@ -2304,13 +2305,13 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         return false;
     type   = (QEvent::Type)mouseTbl[++i];        // event type
     button = mouseTbl[++i];                        // which button
-    if (button > Qt::MidButton) {
+    if (button == Qt::XButton1) {
         switch(GET_XBUTTON_WPARAM(msg.wParam)) {
         case XBUTTON1:
-            button = Qt::MidButton*2; //### XButton1;
+            button = Qt::XButton1; 
             break;
         case XBUTTON2:
-            button = Qt::MidButton*4; //### XButton2;
+            button = Qt::XButton2; 
             break;
         }
     }
