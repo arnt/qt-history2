@@ -1,6 +1,6 @@
 #include <qtextcodecplugin.h>
 #include <qtextcodec.h>
-#include <qptrlist.h>
+#include <qstringlist.h>
 
 #include <qeuckrcodec.h>
 #include <private/qfontcodecs_p.h>
@@ -12,7 +12,7 @@ public:
     KRTextCodecs() {}
 
     QStringList names() const { return QStringList() << "eucKR" << "ksc5601.1987-0"; }
-    QValueList<int> mibEnums() const { return QValueList<int>() << 38 << 36; }
+    QList<int> mibEnums() const { return QList<int>() << 38 << 36; }
     QTextCodec *createForMib( int );
     QTextCodec *createForName( const QString & );
 };

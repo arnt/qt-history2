@@ -1,6 +1,6 @@
 #include <qtextcodecplugin.h>
 #include <qtextcodec.h>
-#include <qptrlist.h>
+#include <qstringlist.h>
 
 #include <qbig5codec.h>
 #include <private/qfontcodecs_p.h>
@@ -12,7 +12,7 @@ public:
     TWTextCodecs() {}
     
     QStringList names() const { return QStringList() << "Big5" << "big5*-0"; }
-    QValueList<int> mibEnums() const { return QValueList<int>() << 2026 << -2026; }
+    QList<int> mibEnums() const { return QList<int>() << 2026 << -2026; }
     QTextCodec *createForMib( int );
     QTextCodec *createForName( const QString & );
 };

@@ -1,7 +1,6 @@
 #include <qtextcodecplugin.h>
 #include <qtextcodec.h>
-#include <qptrlist.h>
-#include <qapplication.h>
+#include <qstringlist.h>
 
 #include <qgb18030codec.h>
 #include <private/qfontcodecs_p.h>
@@ -13,7 +12,7 @@ public:
     CNTextCodecs() {}
 
     QStringList names() const { return QStringList() << "GB18030" << "GBK" << "gb2312.1980-0" << "gbk-0"; }
-    QValueList<int> mibEnums() const { return QValueList<int>() << -2025 << 57 << 2025; }
+    QList<int> mibEnums() const { return QList<int>() << -2025 << 57 << 2025; }
 
     QTextCodec *createForMib( int );
     QTextCodec *createForName( const QString & );

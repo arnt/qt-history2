@@ -1,6 +1,6 @@
 #include <qtextcodecplugin.h>
 #include <qtextcodec.h>
-#include <qptrlist.h>
+#include <qstringlist.h>
 
 #include <qeucjpcodec.h>
 #include <qjiscodec.h>
@@ -14,7 +14,7 @@ public:
     JPTextCodecs() {}
 
     QStringList names() const { return QStringList() << "eucJP" << "JIS7" << "SJIS" << "jisx0208.1983-0"; }
-    QValueList<int> mibEnums() const { return QValueList<int>() << 16 << 17 << 18 << 63; }
+    QList<int> mibEnums() const { return QList<int>() << 16 << 17 << 18 << 63; }
     QTextCodec *createForMib( int );
     QTextCodec *createForName( const QString & );
 };
