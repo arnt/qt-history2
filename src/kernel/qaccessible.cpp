@@ -302,8 +302,6 @@ QAccessibleWidget::QAccessibleWidget( QWidget *w, Role role, QString name,
       description_(description),value_(value),help_(help), 
       defAction_(defAction), accelerator_(accelerator)
 {
-     if ( widget_->inherits( "QPopupMenu" ) )
-	 role_ = MenuPopup;
 }
 
 /*!
