@@ -93,7 +93,7 @@ public:
    It is sometimes useful to update the splash screen with messages,
    for example, announcing connections established or modules loaded
    as the application starts up. QSplashScreen supports this with the
-   setStatus() function. If you wish to do your own drawing you can
+   message() function. If you wish to do your own drawing you can
    get a pointer to the pixmap used in the splash screen with pixmap().
    Alternatively, you can subclass QSplashScreen and reimplement
    drawContents().
@@ -107,10 +107,10 @@ public:
    QSplashScreen *splash = new QSplashScreen( "splash.png" );
    splash->show();
    ... // Loading some items
-   splash->setStatus( "Loaded modules" );
+   splash->message( "Loaded modules" );
    qApp->processEvents();
    ... // Establishing connections
-   splash->setStatus( "Established connections" );
+   splash->message( "Established connections" );
    qApp->processEvents();
    \endcode
 
@@ -160,17 +160,42 @@ void QSplashScreen::repaint()
 }
 
 /*!
+    \fn QSplashScreen::messageChanged( const QString &message )
+
+    This signal is emitted when the message on the splash screen
+    changes.  \a message is the new message and is a null-string
+    when the message has been removed.
+
+    \sa message(), clear()
+*/
+
+
+
+/*!
     Draws the \a message text onto the splash screen with color \a
     color and aligns the text according to the flags in \a alignment.
 
-    \sa Qt::AlignmentFlags
+    \sa Qt::AlignmentFlags clear()
 */
-void QSplashScreen::setStatus( const QString &message, int alignment,
-			       const QColor &color )
+void QSplashScreen::message( const QString &message, int alignment,
+			     const QColor &color )
 {
     d->currStatus = message;
     d->currAlign = alignment;
     d->currColor = color;
+    emit messageChanged( d->currStatus );
+    repaint();
+}
+
+/*!
+    Removes the message being displayed on the splash screen
+
+    \sa message()
+ */
+void QSplashScreen::clear()
+{
+    d->currStatus = QString::null;
+    emit messageChanged( d->currStatus );
     repaint();
 }
 
@@ -203,7 +228,7 @@ void QSplashScreen::setPixmap( const QPixmap &pixmap )
 
 /*!
   Returns the pixmap that is used in the splash screen, minus any text possibly
-  set with setStatus().
+  set with message().
 */
 QPixmap* QSplashScreen::pixmap() const
 {
@@ -223,7 +248,7 @@ void QSplashScreen::drawContents()
 
 /*!
   Draw the contents of the splash screen using painter \a painter.  The default
-  implementation draws the message passed by setStatus().  Reimplement this
+  implementation draws the message passed by message().  Reimplement this
   function if you want to do your own drawing on the splash screen.
 */
 void QSplashScreen::drawContents( QPainter *painter )

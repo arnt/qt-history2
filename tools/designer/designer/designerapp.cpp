@@ -42,7 +42,7 @@ void set_splash_status( const QString &txt )
     QString splashText = "Licensed to "
 			 + QString::fromLatin1( QT_PRODUCT_LICENSEE ) + "\n"
 			 + txt;
-    splash->setStatus( splashText, Qt::AlignRight|Qt::AlignTop );
+    splash->message( splashText, Qt::AlignRight|Qt::AlignTop );
 }
 
 DesignerApplication::DesignerApplication( int &argc, char **argv )

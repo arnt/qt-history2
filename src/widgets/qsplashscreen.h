@@ -58,6 +58,14 @@ public:
     void finish( QWidget *w );
     void repaint();
 
+public slots:
+    void message( const QString &str, int flags = AlignLeft,
+		  const QColor &color = black );
+    void clear();
+
+signals:
+    void messageChanged( const QString &str );
+
 protected:
     virtual void drawContents( QPainter *painter );
     void mousePressEvent( QMouseEvent * );
