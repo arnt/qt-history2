@@ -367,6 +367,10 @@ void QMenuData::removePopup( QPopupMenu *popup )
     little menu item icon. Note that you can always pass a QPixmap
     object instead.
 
+    The \a id specifies the identification number associated with the
+    menu item. Note that only positive values are valid, as a negative
+    value will make Qt select a unique id for the item.
+
     The \a index specifies the position in the menu. The menu item is
     appended at the end of the list if \a index is negative.
 
