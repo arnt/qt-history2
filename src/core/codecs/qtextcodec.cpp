@@ -713,14 +713,40 @@ QTextCodec* QTextCodec::codecForMib(int mib)
 
 QList<QByteArray> QTextCodec::availableCodecs()
 {
-    // ############
-    return QList<QByteArray>();
+    QList<QByteArray> codecs;
+    for (int i = 0; i < all->size(); ++i) {
+        codecs += all->at(i)->name();
+        codecs += all->at(i)->aliases();
+    }
+    QFactoryLoader *l = loader();
+    QStringList keys = l->keys();
+    for (int i = 0; i < keys.size(); ++i) {
+        if (!keys.at(i).startsWith("MIB: ")) {
+            QByteArray name = keys.at(i).toLatin1();
+            if (!codecs.contains(name))
+                codecs += keys.at(i).toLatin1();
+        }
+    }
+
+    return codecs;
 }
 
 QList<int> QTextCodec::availableMibs()
 {
-    // #############
-    return QList<int>();
+    QList<int> codecs;
+    for (int i = 0; i < all->size(); ++i)
+        codecs += all->at(i)->mibEnum();
+    QFactoryLoader *l = loader();
+    QStringList keys = l->keys();
+    for (int i = 0; i < keys.size(); ++i) {
+        if (keys.at(i).startsWith("MIB: ")) {
+            int mib = keys.at(i).right(5).toInt();
+            if (!codecs.contains(mib))
+                codecs += mib;
+        }
+    }
+
+    return codecs;
 }
 
 /*!
