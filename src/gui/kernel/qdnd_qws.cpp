@@ -203,7 +203,7 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
             }
             if (object && object->target()) {
                 QMouseEvent *me = (QMouseEvent *)e;
-                QDropEvent de(me->pos(), QDrag::CopyAction /*####*/, QDragManager::self()->dropData);
+                QDropEvent de(object->target()->mapFromGlobal(me->globalPos()), QDrag::CopyAction /*####*/, QDragManager::self()->dropData);
                 QApplication::sendEvent(object->target(), &de);
                 object->d_func()->target = 0;
             }
