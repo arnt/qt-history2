@@ -61,6 +61,18 @@ int QPrintDialogMac::exec()
         // in that case to follow the behavior of the other print dialogs.
         if (d->maxPage < d->toPage)
             d->toPage = d->maxPage;
+        // Keep us in sync with file output
+        PMDestinationType dest;
+        PMSessionGetDestinationType(d->ep->session, d->ep->settings, &dest);
+        d->ep->outputToFile = dest == kPMDestinationFile;
+        if (d->ep->outputToFile) {
+            QCFType<CFURLRef> file;
+            PMSessionCopyDestinationLocation(d->ep->session, d->ep->settings, &file);
+            UInt8 localFile[255];  // Assuming there's a POSIX file system here.
+            CFURLGetFileSystemRepresentation(file, true, localFile, sizeof(localFile));
+            d->ep->outputFilename
+                = QString::fromLocal8Bit(reinterpret_cast<const char *>(localFile));
+        }
     }
     return result;
 }
