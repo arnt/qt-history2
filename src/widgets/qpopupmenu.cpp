@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#209 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#210 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -71,8 +71,8 @@ static const int motifCheckMarkHMargin	= 2;	// horiz. margins of check mark
 
 // used for internal communication - to be replaced with a class
 // members in 2.0
-static QPopupMenu * syncMenu;
-static int syncMenuId;
+static QPopupMenu * syncMenu = 0;
+static int syncMenuId = 0;
 
 // Used to detect motion prior to mouse-release
 static int motion;
@@ -982,8 +982,10 @@ void QPopupMenu::hide()
     hidePopups();
     killTimers();
     QWidget::hide();
-    if ( syncMenu == this && qApp )
+    if ( syncMenu == this && qApp ) {
 	qApp->exit_loop();
+	syncMenu = 0;
+    }
 }
 
 #if 0
