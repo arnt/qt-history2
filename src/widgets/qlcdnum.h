@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.h#23 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.h#24 $
 **
 ** Definition of QLCDNumber class
 **
@@ -30,6 +30,9 @@ public:
 
     int	    numDigits() const;
     void    setNumDigits( int nDigits );
+
+    bool    isFilledStyle() const;
+    int	    setFilledStyle( bool );
 
     bool    checkOverflow( double num ) const;
     bool    checkOverflow( int	  num ) const;
@@ -69,6 +72,7 @@ private:
     double  val;
     uint    base	: 2;
     uint    smallPoint	: 1;
+    uint    filled      : 1;
     QString digitStr;
     QBitArray points;
 
@@ -82,6 +86,9 @@ inline bool QLCDNumber::smallDecimalPoint() const
 
 inline int QLCDNumber::numDigits() const
 { return ndigits; }
+
+inline bool QLCDNumber::isFilledStyle() const
+{ return filled; }
 
 
 #endif // QLCDNUM_H
