@@ -238,6 +238,9 @@ QDialog:
 
 QListView
   Have a function which will return the column which is sorted and the sort order 
+  Have a property which will cause all the children of an item to be deleted if the parent is closed.
+  If the user shift-clicks on an item, it opens all the branches in the listview from that item.
+  (see qt-bugs/arc-12/25570 for the above two).
 
 QString::vsprintf()
   An user requested we add a function that takes a format string and va list.
