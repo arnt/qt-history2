@@ -257,7 +257,7 @@ QImage QMimeData::image() const
 /*!
     Sets the data in the object to the given \a image.
 */
-void QMimeData::setImage(const QImage &image)
+void QMimeData::setImage(const QImage &)
 {
     //Q_D(QMimeData);
     //d->setData("image/ppm", image);
