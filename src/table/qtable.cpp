@@ -118,7 +118,7 @@ private:
     void updateSelections();
     void saveStates();
     void setCaching( bool b );
-    void swapSections( int oldIdx, int newIdx );
+    void swapSections( int oldIdx, int newIdx, bool swapTable = TRUE );
     bool doSelection( QMouseEvent *e );
     void sectionLabelChanged( int section );
     void resizeArrays( int n );
@@ -2329,10 +2329,8 @@ void QTable::resizeData( int len )
 
 void QTable::swapRows( int row1, int row2, bool swapHeader )
 {
-    if ( swapHeader ) {
-	leftHeader->swapSections( row1, row2 );
-	return;
-    }
+    if ( swapHeader )
+	leftHeader->swapSections( row1, row2, FALSE );
 
     QPtrVector<QTableItem> tmpContents;
     tmpContents.resize( numCols() );
@@ -2440,10 +2438,8 @@ void QTable::setTopMargin( int m )
 
 void QTable::swapColumns( int col1, int col2, bool swapHeader )
 {
-    if ( swapHeader ) {
-	topHeader->swapSections( col1, col2 );
-	return;
-    }
+    if ( swapHeader )
+	topHeader->swapSections( col1, col2, FALSE );
 
     QPtrVector<QTableItem> tmpContents;
     tmpContents.resize( numRows() );
@@ -6744,7 +6740,7 @@ bool QTableHeader::isSectionStretchable( int s ) const
     return stretchable[ s ];
 }
 
-void QTableHeader::swapSections( int oldIdx, int newIdx )
+void QTableHeader::swapSections( int oldIdx, int newIdx, bool swapTable )
 {
     extern bool qt_qheader_label_return_null_strings; // qheader.cpp
     qt_qheader_label_return_null_strings = TRUE;
@@ -6773,10 +6769,12 @@ void QTableHeader::swapSections( int oldIdx, int newIdx )
 	 resizeSection( newIdx, w1 );
      }
 
-    if ( orientation() == Horizontal )
-	table->swapColumns( oldIdx, newIdx );
-    else
-	table->swapRows( oldIdx, newIdx );
+     if ( !swapTable )
+	 return;
+     if ( orientation() == Horizontal )
+	 table->swapColumns( oldIdx, newIdx );
+     else
+	 table->swapRows( oldIdx, newIdx );
 }
 
 void QTableHeader::indexChanged( int sec, int oldIdx, int newIdx )
