@@ -829,8 +829,7 @@ void *QGLContext::getProcAddress(const QString &proc) const
     static qt_glXGetProcAddressARB glXGetProcAddressARB = 0;
 
     if (!glXGetProcAddressARB) {
-	const QX11Info *xinfo = qt_x11Info(d->paintDevice);
-	QString glxExt(glXGetClientString(xinfo->display(), GLX_EXTENSIONS));
+	QString glxExt(glXGetClientString(QX11Info::display(), GLX_EXTENSIONS));
 	if (glxExt.contains("GLX_ARB_get_proc_address")) {
 	    QLibrary lib("GL");
 	    glXGetProcAddressARB = (qt_glXGetProcAddressARB) lib.resolve("glXGetProcAddressARB");
@@ -1268,6 +1267,12 @@ void QGLWidget::setColormap(const QGLColormap & c)
 
 void QGLExtensions::init()
 {
+    static bool init_done = false;
+
+    if (init_done)
+	return;
+    init_done = true;
+
     Window win;
     int attribs[] = { GLX_RGBA, XNone };
     int attribs_dbl[] = { GLX_RGBA, GLX_DOUBLEBUFFER, XNone };

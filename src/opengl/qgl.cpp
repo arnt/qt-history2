@@ -26,7 +26,11 @@
 
 static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
+
 QGLExtensions::Extensions QGLExtensions::glExtensions = 0;
+typedef void (APIENTRY *qt_glCompressedTexImage2DARB) (GLenum, GLint, GLenum, GLsizei,
+                                                       GLsizei, GLint, GLsizei, const GLvoid *);
+static qt_glCompressedTexImage2DARB glCompressedTexImage2DARB = 0;
 
 #if defined(Q_WS_X11)
 #include "private/qt_x11_p.h"
@@ -1101,28 +1105,11 @@ static int scramble(const QString &str)
 */
 GLuint QGLContext::bindTexture(const QString &fileName)
 {
-    typedef void (APIENTRY *qt_glCompressedTexImage2DARB) (GLenum, GLint, GLenum, GLsizei,
-							   GLsizei, GLint, GLsizei, const GLvoid *);
-    static qt_glCompressedTexImage2DARB glCompressedTexImage2DARB = 0;
-    static bool init_compression = true;
-
-    if (init_compression) {
-	// ### all this will be moved into QGLExtensions::init()
-	if (QGLExtensions::glExtensions & QGLExtensions::TextureCompression)
-	{
-	    glCompressedTexImage2DARB = (qt_glCompressedTexImage2DARB) getProcAddress("glCompressedTexImage2DARB");
-	    if (!glCompressedTexImage2DARB)
-		qWarning("QGLContext::bindTexture(): Couldn't resolve glCompressedTexImage2DARB(). "
-			 "No texture compression support available.");
-	} else {
-	    qWarning("QGLContext::bindTexture(): The GL implementation does not support texture"
-		     "compression extensions.");
-	}
-	init_compression = false;
-    }
-
-    if (!glCompressedTexImage2DARB)
+    if (!glCompressedTexImage2DARB) {
+        qWarning("QGLContext::bindTexture(): The GL implementation does not support texture"
+                 "compression extensions.");
 	return 0;
+    }
 
     if (!qt_tex_cache)
 	qt_tex_cache = new QGLTextureCache(qt_tex_cache_limit);
@@ -3008,4 +2995,10 @@ void QGLExtensions::init_extensions()
 	glExtensions |= GenerateMipmap;
     if (extensions.contains("texture_compression_s3tc"))
 	glExtensions |= TextureCompression;
+
+    QGLContext cx(QGLFormat::defaultFormat());
+    if (glExtensions & TextureCompression) {
+        glCompressedTexImage2DARB =
+            (qt_glCompressedTexImage2DARB) cx.getProcAddress("glCompressedTexImage2DARB");
+    }
 }

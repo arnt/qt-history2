@@ -1315,7 +1315,7 @@ void QGLWidget::setColormap(const QGLColormap & c)
 
 void QGLExtensions::init()
 {
-    static init_done = false;
+    static bool init_done = false;
 
     if (init_done)
 	return;
