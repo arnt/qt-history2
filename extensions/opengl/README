@@ -24,8 +24,12 @@ The default configuration specifies using the Mesa libraries on
 platforms that typically do not have native OpenGL libraries
 (e.g. Linux). If you are using one of these systems, but you have
 native OpenGL libraries, you will typically want to use these instead
-of Mesa. To do this, change the SYSCONF_LIBS_OPENGL line in
-qt/extensions/opengl/src/Makefile to link with the native libraries.
+of Mesa. To do this, edit the SYSCONF_LIBS_OPENGL line in the config
+file you are using (qt/configs/*), changing "-lMesaGL -lMesaGLU" to
+"-lGL -lGLU"; then run "configure" again. Note: Mesa version 3.1
+(released 1999/12/14) and newer has changed the naming scheme of the
+libraries, so if you are using this version, you will also need to do
+this change.
 
 
 		    Using the Qt OpenGL Extension
