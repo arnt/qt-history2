@@ -58,7 +58,6 @@ private:
     QStringList qmakeLibs;
     QStringList::Iterator makeListIterator;
 
-    QString installDir;
     QMap<QString,QString> licenseInfo;
     QString outputLine;
 
