@@ -4,3 +4,11 @@ propagate variables
 unsorted
 patches
 configs
+*.pdb
+*.ilk
+*.plg
+*.dsw
+*.ncb
+*.opt
+*_pure.ini
+*.pft
