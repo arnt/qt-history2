@@ -8,155 +8,57 @@
 **
 *****************************************************************************/
 
+/****************************************************************************
+**
+** This is the info widget for windows.
+**
+** Some of the code was borrowed from Nate Robins wglinfo.c
+**
+****************************************************************************/
+
 #if defined(Q_CC_MSVC)
 #pragma warning(disable:4305) // init: truncation from const double to float
 #endif
 
 #include "glinfo.h"
 
-#include "qstring.h"
+#include <qstring.h>
 
 #include <windows.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <stdio.h>
 
-LONG WINAPI
-WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    static PAINTSTRUCT ps;
-	
-	switch(uMsg) {
-	case WM_PAINT:
-		BeginPaint(hWnd, &ps);
-		EndPaint(hWnd, &ps);
-		return 0;
-	
-	case WM_SIZE:
-		glViewport(0, 0, LOWORD(lParam), HIWORD(lParam));
-		PostMessage(hWnd, WM_PAINT, 0, 0);
-		return 0;
-	
-	case WM_CHAR:
-		switch (wParam) {
-		case 27:/* ESC key */
-			PostQuitMessage(0);
-			break;
-		}
-		return 0;
-		
-		case WM_CLOSE:
-			PostQuitMessage(0);
-			return 0;
-		}
-	
-	return DefWindowProc(hWnd, uMsg, wParam, lParam);
-}
-
-HWND CreateOpenGLWindow(char* title, int x, int y, int width, int height,
-						BYTE type, DWORD flags)
-{
-    int         pf;
-    HDC         hDC;
-    HWND        hWnd;
-    WNDCLASS    wc;
-    PIXELFORMATDESCRIPTOR pfd;
-    static HINSTANCE hInstance = 0;
-	
-	/* only register the window class once - use hInstance as a flag. */
-    if (!hInstance) {
-		hInstance = GetModuleHandle(NULL);
-		wc.style         = CS_OWNDC;
-		wc.lpfnWndProc   = (WNDPROC)WindowProc;
-		wc.cbClsExtra    = 0;
-		wc.cbWndExtra    = 0;
-		wc.hInstance     = hInstance;
-		wc.hIcon         = LoadIcon(NULL, IDI_WINLOGO);
-		wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground = NULL;
-		wc.lpszMenuName  = NULL;
-		wc.lpszClassName = LPCTSTR("OpenGL");
-		
-		if (!RegisterClass(&wc)) {
-			MessageBox(NULL, LPCTSTR("RegisterClass() failed:  Cannot register window class."), LPCTSTR("Error"), MB_OK);
-			return NULL;
-		}
-    }     
-
-	hWnd = CreateWindow(LPCTSTR("OpenGL"), LPCTSTR(title), WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-						x, y, width, height, NULL, NULL, hInstance, NULL);
-	
-	if (hWnd == NULL) {
-		MessageBox(NULL, LPCTSTR("CreateWindow() failed:  Cannot create a window."),
-					LPCTSTR("Error"), MB_OK);
-		return NULL;
-    }
-
-	hDC = GetDC(hWnd);
-	
-	/* there is no guarantee that the contents of the stack that become
-		the pfd are zeroed, therefore _make sure_ to clear these bits. */
-    memset(&pfd, 0, sizeof(pfd));
-    pfd.nSize        = sizeof(pfd);
-    pfd.nVersion     = 1;
-    pfd.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | flags;
-    pfd.iPixelType   = type;
-    pfd.cColorBits   = 32;
-	
-	pf = ChoosePixelFormat(hDC, &pfd);
-    if (pf == 0) {
-		MessageBox(NULL, LPCTSTR("ChoosePixelFormat() failed:  Cannot find a suitable pixel format."), 
-					LPCTSTR("Error"), MB_OK);
-		return 0;
-    }
-
-	if (SetPixelFormat(hDC, pf, &pfd) == FALSE) {
-		MessageBox(NULL, LPCTSTR("SetPixelFormat() failed:  Cannot set format specified."), 
-			LPCTSTR("Error"), MB_OK);
-		return 0;
-    }
-
-	DescribePixelFormat(hDC, pf, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
-	
-	ReleaseDC(hWnd, hDC);
-	return hWnd;
-}
 
 GLInfo::GLInfo(QWidget* parent, const char* name)
     : QGLWidget(parent, name)
 {
     infotext = new QString("GLTest:\n");
     viewlist = new QStringList();
+};
+
+QString GLInfo::getText()
+{
 	int   i;
     char* s;
     char  t[80];
     char* p;
-	HDC hDC;/* device context */
-    HGLRC hRC;/* opengl context */
-    HWND  hWnd;/* window */
-    MSG   msg;/* message */
+	HDC dc;
 
-	hWnd = CreateOpenGLWindow("wglinfo", 0, 0, 100, 100, PFD_TYPE_RGBA, 0);
-    if (hWnd == NULL)
-		exit(1);
-	
-	hDC = GetDC(hWnd);
-    hRC = wglCreateContext(hDC);
-    wglMakeCurrent(hDC, hRC);
-	
-	ShowWindow(hWnd, SW_HIDE);
+    makeCurrent();
 
-	infotext->sprintf("%sdisplay: N/A\n", (const char*)*infotext);
-    infotext->sprintf("%sserver wgl vendor string: N/A\n", (const char*)*infotext);
-    infotext->sprintf("%sserver wgl version string: N/A\n", (const char*)*infotext);
-    infotext->sprintf("%sserver wgl extensions (WGL_): N/A\n", (const char*)*infotext);
-    infotext->sprintf("%sclient wgl version: N/A\n", (const char*)*infotext);
-    infotext->sprintf("%sclient wgl extensions (WGL_): none\n", (const char*)*infotext);
-    infotext->sprintf("%sOpenGL vendor string: %s\n", (const char*)*infotext, ((const char*)glGetString(GL_VENDOR)));
+	infotext->sprintf("%sdisplay: N/A\n"
+					  "server wgl vendor string: N/A\n"
+					  "server wgl version string: N/A\n"
+					  "server wgl extensions (WGL_): N/A\n"
+					  "client wgl version: N/A\n"
+					  "client wgl extensions (WGL_): none\n"
+					  "OpenGL vendor string: %s\n", (const char*)*infotext, ((const char*)glGetString(GL_VENDOR)));
 	qDebug("%s", glGetString(GL_VENDOR));
     infotext->sprintf("%sOpenGL renderer string: %s\n", (const char*)*infotext, glGetString(GL_RENDERER));
     infotext->sprintf("%sOpenGL version string: %s\n", (const char*)*infotext, glGetString(GL_VERSION));
     infotext->sprintf("%sOpenGL extensions (GL_): \n", (const char*)*infotext);
+
 
 	/* do the magic to separate all extensions with comma's, except
        for the last one that _may_ terminate in a space. */
@@ -186,22 +88,10 @@ GLInfo::GLInfo(QWidget* parent, const char* name)
     t[i] = '\0';
     infotext->sprintf("%s    %s.", (const char*)*infotext, t);
 
-	VisualInfo(hDC);	
+	dc = GetDC( winId() );
+	VisualInfo( dc );	
+	ReleaseDC( winId(), dc );
 
-	PostQuitMessage(0);
-    while(GetMessage(&msg, hWnd, 0, 0)) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-    }
-	
-	wglMakeCurrent(NULL, NULL);
-    ReleaseDC(hWnd, hDC);
-    wglDeleteContext(hRC);
-    DestroyWindow(hWnd);
-};
-
-QString GLInfo::getText()
-{
   return *infotext;
 }
 
