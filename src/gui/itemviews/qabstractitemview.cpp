@@ -1496,7 +1496,7 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
             edit(index);
         } break; }
     case QAbstractItemDelegate::EditPreviousItem: {
-        QModelIndex index = moveCursor(MoveNext, Qt::NoModifier);
+        QModelIndex index = moveCursor(MovePrevious, Qt::NoModifier);
         if (index.isValid()) {
             selectionModel()->setCurrentIndex(index, flags);
             edit(index);
