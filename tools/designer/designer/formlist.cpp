@@ -33,10 +33,9 @@
 #include <qpen.h>
 
 FormListItem::FormListItem( QListView *parent, const QString &form, const QString &file, FormWindow *fw )
-    : QListViewItem( parent, form, file ), formwindow( fw )
+    : QListViewItem( parent, form, "", file ), formwindow( fw )
 {
     setPixmap( 0, PixmapChooser::loadPixmap( "form.xpm", PixmapChooser::Mini ) );
-    setText( 1, "" );
 }
 
 void FormListItem::paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align )
