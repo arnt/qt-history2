@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#39 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#38 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#39 $")
 
 
 /*****************************************************************************
@@ -218,6 +218,7 @@ void qt_init( int *argcptr, char **argv )
   // Misc. initialization
 
     QColor::initialize();
+    QPixmap::initialize();
     QFont::initialize();
     QCursor::initialize();
     QPainter::initialize();
@@ -244,12 +245,13 @@ void qt_cleanup()
 	}
 	delete postRList;
     }
+    cleanupTimers();
     QPixmapCache::clear();
+    QPainter::cleanup();
     QCursor::cleanup();
     QFont::cleanup();
+    QPixmap::cleanup();
     QColor::cleanup();
-    cleanupTimers();
-    QPainter::cleanup();
     if ( displayDC )
 	ReleaseDC( 0, displayDC );
 #if defined(USE_HEARTBEAT)
@@ -704,7 +706,8 @@ void QApplication::winFocus( QWidget *w, bool gotFocus )
 //
 
 extern "C"
-LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam )
+LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
+			  LPARAM lParam )
 {
     if ( !qApp )				// unstable app state
 	return DefWindowProc(hwnd,message,wParam,lParam);
@@ -1000,8 +1003,6 @@ void qt_close_popup( QWidget *popup )
 /*****************************************************************************
   Timer handling; Our routines depend on Windows timer functions, but we
   need some extra handling to activate objects at timeout.
-  We also keep an internal countdown variable to have longer timeouts.
-  Max timeout is around 25 days.  Windows is limited to max 65 seconds.
 
   Implementation note: There are two types of timer identifiers. Windows
   timer ids (internal use) are stored in TimerInfo.  Qt timer ids are
@@ -1046,8 +1047,6 @@ struct TimerInfo {				// internal timer info
     uint     ind;				// - Qt timer identifier - 1
     uint     id;				// - Windows timer identifier
     bool     zero;				// - zero timing
-    uint     maxcount;				// - max count for countdown
-    uint     countdown;				// - countdown variable
     QObject *obj;				// - object to receive events
 };
 typedef declare(QVectorM,TimerInfo)  TimerVec;	// vector of TimerInfo structs
@@ -1069,13 +1068,8 @@ static bool activateTimer( uint id )		// activate timer
     register TimerInfo *t = timerDict->find( id );
     if ( !t )					// no such timer id
 	return FALSE;
-    if ( t->countdown )				// we're not ready yet
-	t->countdown--;
-    else {
-	t->countdown = t->maxcount;		// start counting again
-	QTimerEvent e( t->ind + 1 );
-	QApplication::sendEvent( t->obj, &e );	// send event
-    }
+    TimerEvent e( t->ind + 1 );
+    QApplication::sendEvent( t->obj, &e );	// send event
     return TRUE;				// timer event was processed
 }
 
@@ -1144,21 +1138,13 @@ int qStartTimer( int interval, QObject *obj )	// start timer
 	return 0;
     t = new TimerInfo;				// create timer entry
     CHECK_PTR( t );
-    t->ind = ind;
-    if ( interval > 65535 ) {			// use long intervals
-	t->maxcount = (uint)(interval >> 16);
-	interval /= t->maxcount + 1;
-    }
-    else
-	t->maxcount = 0;
-    t->countdown = t->maxcount;
-    t->obj = obj;
+    t->ind  = ind;
+    t->obj  = obj;
     t->zero = interval == 0;
     if ( t->zero ) {				// add zero timer
 	t->id = (uint)50000 + ind;		// unique, high id
 	numZeroTimers++;
-    }
-    else {
+    } else {
 	t->id = SetTimer( 0, 0, (uint)interval, 0 );
 	if ( t->id == 0 ) {
 #if defined(DEBUG)
