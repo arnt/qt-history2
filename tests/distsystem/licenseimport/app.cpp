@@ -18,11 +18,13 @@ void ImportApp::doImport()
     if( axaptaDB->open() ) {
 	QSqlCursor licenseCursor( "LICENSE" );
 	QSqlCursor custCursor( "CUSTTABLE" );
+	QSqlCursor contactCursor( "CONTACTPERSON" );
 
-	licenseCursor.select( "DATAAREAID = 'ts3' AND LENGTH( CUSTACCOUNT ) < 2" );
+	licenseCursor.select( "DATAAREAID = 'ts3'" );
 	licenseCursor.first();
 	while( licenseCursor.isValid() ) {
-	    QString tmp = "DATAAREAID = 'ts3' AND INTERNID = '" + licenseCursor.value( "INTERNCUSTOMER" ).toString() + "'";
+	    QString tmp( "DATAAREAID = 'ts3' AND INTERNID = '%1'" );
+	    tmp = tmp.arg( licenseCursor.value( "INTERNCUSTOMER" ).toString() );
 	    custCursor.select( tmp );
 	    custCursor.first();
 	    if( custCursor.isValid() ) {
@@ -30,12 +32,15 @@ void ImportApp::doImport()
 		QString buffer( "UPDATE LICENSE SET CUSTACCOUNT = %1 WHERE DATAAREAID = 'ts3' AND LICENSEID = %2" );
 		buffer = buffer.arg( custCursor.value( "ACCOUNTNUM" ).toInt() ).arg( licenseCursor.value( "LICENSEID" ).toInt() );
 		query.exec( buffer );
-/*
-		QSqlRecord* buffer = licenseCursor.primeUpdate();
-		QString account = custCursor.value( "ACCOUNTNUM" ).toString();
-		buffer->setValue( "CUSTACCOUNT", account );
-		licenseCursor.update( false );
-*/
+	    }
+	    tmp = QString( "DATAAREAID = 'ts3' AND UPPER( NAME ) = UPPER( '%1' ) AND UPPER( EMAIL ) = UPPER( '%2' )" ).arg( licenseCursor.value( "CONTACTPERSONNAME" ).toString() ).arg( licenseCursor.value( "CONTACTPERSONEMAIL" ).toString() );
+	    contactCursor.select( tmp );
+	    contactCursor.first();
+	    if( contactCursor.isValid() ) {
+		QSqlQuery query;
+		QString buffer( "UPDATE LICENSE SET LICENSEE = %1 WHERE DATAAREAID = 'ts3' AND LICENSEID = %2" );
+		buffer = buffer.arg( contactCursor.value( "CONTACTPERSONID" ).toInt() ).arg( licenseCursor.value( "LICENSEID" ).toInt() );
+		query.exec( buffer );
 	    }
 	    licenseCursor.next();
 	}
