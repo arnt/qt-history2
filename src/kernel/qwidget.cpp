@@ -4524,7 +4524,7 @@ void QWidget::customEvent( QCustomEvent * )
 }
 
 
-#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
+#if defined(Q_WS_MAC)
 
 /*!
   This special event handler can be reimplemented in a subclass to receive

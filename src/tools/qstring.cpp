@@ -14679,7 +14679,7 @@ QCString QString::local8Bit() const
             ? codec->fromUnicode(*this)
             : QCString(latin1());
 #endif
-#if defined( Q_WS_MACX ) || defined( Q_WS_MAC9 )
+#if defined( Q_WS_MAC )
     static QTextCodec* codec = QTextCodec::codecForLocale();
     return codec
             ? codec->fromUnicode(*this)
@@ -14719,7 +14719,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
             ? codec->toUnicode( local8Bit, len )
             : fromLatin1( local8Bit, len );
 #endif
-#if defined( Q_WS_MACX ) || defined( Q_WS_MAC9 )
+#if defined( Q_WS_MAC )
     static QTextCodec* codec = QTextCodec::codecForLocale();
     if ( len < 0 ) len = qstrlen(local8Bit);
     return codec

@@ -304,6 +304,9 @@
 #  define Q_WS_WIN
 #endif
 
+#if defined(Q_WS_MAC9) || defined(Q_WS_MACX)
+#  define Q_WS_MAC
+#endif
 
 //
 // Some classes do not permit copies to be made of an object.
