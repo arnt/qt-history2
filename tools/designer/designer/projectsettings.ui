@@ -69,7 +69,7 @@
                             <cstring>TextLabel1_2</cstring>
                         </property>
                         <property name="text">
-                            <string>Project &amp;File:</string>
+                            <string>&amp;Project File:</string>
                         </property>
                         <property name="buddy" stdset="0">
                             <cstring>editProjectFile</cstring>
@@ -180,7 +180,7 @@
                             <cstring>TextLabel3</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Forms and Sources:</string>
+                            <string>For&amp;ms and Sources:</string>
                         </property>
                         <property name="buddy" stdset="0">
                             <cstring>listInterfaces</cstring>
