@@ -420,20 +420,17 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 		    fqn = depHeuristics[inc];
 		} else if(Option::mkfile::do_dep_heuristics) { //some heuristics..
 		    //is it a file from a .ui?
-		    int extn = inc.findRev('.');
-		    if(extn != -1 && inc.findRev(Option::dir_sep) < extn) {
-			QString uip = inc.left(extn) + Option::ui_ext + "$";
+		    QString inc_file = inc.section(Option::dir_sep, -1);
+		    int extn = inc_file.findRev('.');
+		    if(extn != -1 && 
+		       (inc_file.right(inc_file.length()-extn) == Option::cpp_ext.first() || 
+			inc_file.right(inc_file.length()-extn) == Option::h_ext.first())) {
+			QString uip = inc_file.left(extn) + Option::ui_ext;
 			QStringList uil = project->variables()["FORMS"];
 			for(QStringList::Iterator it = uil.begin(); it != uil.end(); ++it) {
-			    QString s = (*it);
-				int d = s.findRev(Option::dir_sep) + 1;
-			    if(!project->isEmpty("UI_DIR"))
-				s = project->first("UI_DIR") + s.right(s.length()-d);
-			    else if(!project->isEmpty("UI_HEADERS_DIR"))
-				s = project->first("UI_HEADERS_DIR") + s.right(s.length()-d);
-
-			    if(s.find(QRegExp(uip)) != -1) {
-				fqn = s.left(s.length()-3) + inc.right(inc.length()-extn);
+			    QString s = (*it).section(Option::dir_sep, -1);
+			    if(s == uip) {
+				fqn = s.left(s.length()-3) + inc_file.right(inc_file.length()-extn);
 				break;
 			    }
 			}
