@@ -161,7 +161,7 @@ public slots:
     virtual void setTextFormat( TextFormat f );
 
     virtual void selectAll( bool select = TRUE );
-    virtual void setTabStops( int ts );
+    virtual void setTabStopWidth( int ts );
     virtual void zoomIn( int range );
     virtual void zoomIn() { zoomIn( 1 ); }
     virtual void zoomOut( int range );

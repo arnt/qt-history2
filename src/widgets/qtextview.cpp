@@ -131,7 +131,7 @@ static bool block_set_alignment = FALSE;
     setPaper(). You specify a brush style which could be a plain color
     or a complex pixmap. Hypertext links are automatically
     underlined; this can be changed with setLinkUnderline(). The tab
-    stop width is set with setTabStops(). The zoomIn() and zoomOut()
+    stop width is set with setTabStopWidth(). The zoomIn() and zoomOut()
     functions can be used to resize the text by increasing (decreasing
     for zoomOut()) the point size by one point per call. Images are not
     affected.
@@ -2894,7 +2894,7 @@ QTextView::WordWrap QTextView::wordWrap() const
 
 /*!
   \property QTextView::wrapColumnOrWidth
-  \brief the position (in pixels or columns depending on the wrap mode) where text will be wrapped 
+  \brief the position (in pixels or columns depending on the wrap mode) where text will be wrapped
 
   If the wrap mode is \c FixedPixelWidth, the \a value is the number
   of pixels from the left edge of the text view at which text should
@@ -3007,7 +3007,7 @@ int QTextView::length() const
 
 /*! Returns the tab width used by the text view.
 
-    \sa setTabStops()
+    \sa setTabStopWidth()
  */
 
 int QTextView::tabStopWidth() const
@@ -3025,7 +3025,7 @@ void QTextView::setUndoDepth( int d )
     \sa tabStopWidth()
  */
 
-void QTextView::setTabStops( int ts )
+void QTextView::setTabStopWidth( int ts )
 {
     document()->setTabStops( ts );
 }
