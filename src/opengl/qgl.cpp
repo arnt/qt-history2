@@ -884,16 +884,13 @@ bool operator!=(const QGLFormat& a, const QGLFormat& b)
     return !(a == b);
 }
 
-
-#define d d_func()
-#define q q_func()
-
 /*****************************************************************************
   QGLContext implementation
  *****************************************************************************/
 
 void QGLContextPrivate::init(QPaintDevice *dev, const QGLFormat &format)
 {
+    Q_Q(QGLContext);
     glFormat = reqFormat = format;
     valid = false;
     q->setDevice(dev);
@@ -1037,6 +1034,7 @@ struct DDSFormat {
 
 QGLContext::QGLContext(const QGLFormat &format, QPaintDevice *device)
 {
+    Q_D(QGLContext);
     d_ptr = new QGLContextPrivate(this);
     d->init(device, format);
 }
@@ -1047,6 +1045,7 @@ QGLContext::QGLContext(const QGLFormat &format, QPaintDevice *device)
 */
 QGLContext::QGLContext(const QGLFormat &format)
 {
+    Q_D(QGLContext);
     d_ptr = new QGLContextPrivate(this);
     d->init(0, format);
 }
@@ -1057,6 +1056,7 @@ QGLContext::QGLContext(const QGLFormat &format)
 
 QGLContext::~QGLContext()
 {
+    Q_D(QGLContext);
     // remove any textures cached in this context
     if (qt_tex_cache) {
 	QList<int> keys = qt_tex_cache->keys();
@@ -1219,6 +1219,7 @@ GLuint QGLContext::bindTexture(const QString &fileName)
 
 GLuint QGLContextPrivate::bindTexture(const QImage &image, GLint format, int key)
 {
+    Q_Q(QGLContext);
     static bool init_extensions = true;
     static bool generate_mipmaps = false;
 
@@ -1282,6 +1283,7 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLint format, int key
 */
 GLuint QGLContext::bindTexture(const QImage &image, GLint format)
 {
+    Q_D(QGLContext);
     if (qt_tex_cache) {
         QGLTexture *texture = qt_tex_cache->object(image.serialNumber());
         if (texture && texture->context == this) {
@@ -1298,6 +1300,7 @@ GLuint QGLContext::bindTexture(const QImage &image, GLint format)
 */
 GLuint QGLContext::bindTexture(const QPixmap &pixmap, GLint format)
 {
+    Q_D(QGLContext);
     if (qt_tex_cache) {
         QGLTexture *texture = qt_tex_cache->object(pixmap.serialNumber());
         if (texture && texture->context == this) {
@@ -1398,6 +1401,7 @@ int QGLContext::textureCacheLimit()
 
 void QGLContext::setFormat(const QGLFormat &format)
 {
+    Q_D(QGLContext);
     reset();
     d->glFormat = d->reqFormat = format;
 }
@@ -1407,6 +1411,7 @@ void QGLContext::setFormat(const QGLFormat &format)
 */
 void QGLContext::setDevice(QPaintDevice *pDev)
 {
+    Q_D(QGLContext);
     if (isValid())
         reset();
     d->paintDevice = pDev;
@@ -1553,6 +1558,7 @@ void QGLContext::setDevice(QPaintDevice *pDev)
 
 bool QGLContext::create(const QGLContext* shareContext)
 {
+    Q_D(QGLContext);
     reset();
     d->valid = chooseContext(shareContext);
     return d->valid;
@@ -1560,58 +1566,69 @@ bool QGLContext::create(const QGLContext* shareContext)
 
 bool QGLContext::isValid() const
 {
+    Q_D(const QGLContext);
     return d->valid;
 }
 
 void QGLContext::setValid(bool valid)
 {
+    Q_D(QGLContext);
     d->valid = valid;
 }
 
 bool QGLContext::isSharing() const
 {
+    Q_D(const QGLContext);
     return d->sharing;
 }
 
 QGLFormat QGLContext::format() const
 {
+    Q_D(const QGLContext);
     return d->glFormat;
 }
 
 QGLFormat QGLContext::requestedFormat() const
 {
+    Q_D(const QGLContext);
     return d->reqFormat;
 }
 
  QPaintDevice* QGLContext::device() const
 {
+    Q_D(const QGLContext);
     return d->paintDevice;
 }
 
 bool QGLContext::deviceIsPixmap() const
 {
+    Q_D(const QGLContext);
     return d->paintDevice->devType() == QInternal::Pixmap;
 }
 
 
 bool QGLContext::windowCreated() const
 {
+    Q_D(const QGLContext);
     return d->crWin;
 }
 
 
 void QGLContext::setWindowCreated(bool on)
 {
+    Q_D(QGLContext);
     d->crWin = on;
 }
 
 bool QGLContext::initialized() const
 {
+    Q_D(const QGLContext);
     return d->initDone;
 }
 
 void QGLContext::setInitialized(bool on)
 {
+    Q_D(QGLContext);
     d->initDone = on;
 }
 
@@ -1848,6 +1865,7 @@ const QGLContext* QGLContext::currentContext()
 QGLWidget::QGLWidget(QWidget *parent, const QGLWidget* shareWidget, Qt::WFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f)
 {
+    Q_D(QGLWidget);
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
     d->init(new QGLContext(QGLFormat::defaultFormat(), this), shareWidget);
@@ -1886,6 +1904,7 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent, const QGLWidget* 
                      Qt::WFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f)
 {
+    Q_D(QGLWidget);
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
     d->init(new QGLContext(format, this), shareWidget);
@@ -1920,6 +1939,7 @@ QGLWidget::QGLWidget(QGLContext *context, QWidget *parent, const QGLWidget *shar
                      Qt::WFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f)
 {
+    Q_D(QGLWidget);
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
     d->init(context, shareWidget);
@@ -1931,6 +1951,7 @@ QGLWidget::QGLWidget(QGLContext *context, QWidget *parent, const QGLWidget *shar
 
 QGLWidget::~QGLWidget()
 {
+    Q_D(QGLWidget);
 #if defined(GLX_MESA_release_buffers) && defined(QGL_USE_MESA_EXT)
     bool doRelease = (glcx && glcx->windowCreated());
 #endif
@@ -1998,6 +2019,7 @@ QGLWidget::~QGLWidget()
 
 bool QGLWidget::isValid() const
 {
+    Q_D(const QGLWidget);
     return d->glcx->isValid();
 }
 
@@ -2014,6 +2036,7 @@ bool QGLWidget::isValid() const
 
 bool QGLWidget::isSharing() const
 {
+    Q_D(const QGLWidget);
     return d->glcx->isSharing();
 }
 
@@ -2027,6 +2050,7 @@ bool QGLWidget::isSharing() const
 
 void QGLWidget::makeCurrent()
 {
+    Q_D(QGLWidget);
     d->glcx->makeCurrent();
 }
 
@@ -2040,6 +2064,7 @@ void QGLWidget::makeCurrent()
 
 void QGLWidget::doneCurrent()
 {
+    Q_D(QGLWidget);
     d->glcx->doneCurrent();
 }
 
@@ -2058,6 +2083,7 @@ void QGLWidget::doneCurrent()
 
 void QGLWidget::swapBuffers()
 {
+    Q_D(QGLWidget);
     d->glcx->swapBuffers();
 }
 
@@ -2344,6 +2370,7 @@ void QGLWidget::paintEvent(QPaintEvent *)
 
 QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
 {
+    Q_D(QGLWidget);
     QSize sz = size();
     if ((w > 0) && (h > 0))
         sz = QSize(w, h);
@@ -2527,6 +2554,7 @@ QImage QGLWidget::grabFrameBuffer(bool withAlpha)
 
 void QGLWidget::glInit()
 {
+    Q_D(QGLWidget);
     if (!isValid())
         return;
     makeCurrent();
@@ -2544,6 +2572,7 @@ void QGLWidget::glInit()
 
 void QGLWidget::glDraw()
 {
+    Q_D(QGLWidget);
     if (!isValid())
         return;
     makeCurrent();
@@ -2573,6 +2602,7 @@ void QGLWidget::glDraw()
 
 void QGLWidget::qglColor(const QColor& c) const
 {
+    Q_D(const QGLWidget);
     const QGLContext* ctx = QGLContext::currentContext();
     if (ctx) {
         if (ctx->format().rgba())
@@ -2597,6 +2627,7 @@ void QGLWidget::qglColor(const QColor& c) const
 
 void QGLWidget::qglClearColor(const QColor& c) const
 {
+    Q_D(const QGLWidget);
     const QGLContext* ctx = QGLContext::currentContext();
     if (ctx) {
         if (ctx->format().rgba())
@@ -2710,6 +2741,7 @@ QImage QGLWidget::convertToGLFormat(const QImage& img)
 */
 int QGLWidget::fontDisplayListBase(const QFont & fnt, int listBase)
 {
+    Q_D(QGLWidget);
     int base;
 
     if (!d->glcx) { // this can't happen unless we run out of mem
@@ -2821,26 +2853,31 @@ void QGLWidget::renderText(double x, double y, double z, const QString & str, co
 
 QGLFormat QGLWidget::format() const
 {
+    Q_D(const QGLWidget);
     return d->glcx->format();
 }
 
 const QGLContext *QGLWidget::context() const
 {
+    Q_D(const QGLWidget);
     return d->glcx;
 }
 
 bool QGLWidget::doubleBuffer() const
 {
+    Q_D(const QGLWidget);
     return d->glcx->format().doubleBuffer();
 }
 
 void QGLWidget::setAutoBufferSwap(bool on)
 {
+    Q_D(QGLWidget);
     d->autoSwap = on;
 }
 
 bool QGLWidget::autoBufferSwap() const
 {
+    Q_D(const QGLWidget);
     return d->autoSwap;
 }
 
@@ -2852,6 +2889,7 @@ bool QGLWidget::autoBufferSwap() const
 */
 GLuint QGLWidget::bindTexture(const QImage &image, GLint format)
 {
+    Q_D(QGLWidget);
     return d->glcx->bindTexture(image, format);
 }
 
@@ -2863,6 +2901,7 @@ GLuint QGLWidget::bindTexture(const QImage &image, GLint format)
 */
 GLuint QGLWidget::bindTexture(const QPixmap &pixmap, GLint format)
 {
+    Q_D(QGLWidget);
     return d->glcx->bindTexture(pixmap, format);
 }
 
@@ -2874,6 +2913,7 @@ GLuint QGLWidget::bindTexture(const QPixmap &pixmap, GLint format)
 */
 GLuint QGLWidget::bindTexture(const QString &fileName)
 {
+    Q_D(QGLWidget);
     return d->glcx->bindTexture(fileName);
 }
 
@@ -2885,6 +2925,7 @@ GLuint QGLWidget::bindTexture(const QString &fileName)
 */
 void QGLWidget::deleteTexture(GLuint id)
 {
+    Q_D(QGLWidget);
     d->glcx->deleteTexture(id);
 }
 
@@ -2915,6 +2956,7 @@ QGLWidget::QGLWidget(QWidget *parent, const char *name,
                       const QGLWidget* shareWidget, Qt::WFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f)
 {
+    Q_D(QGLWidget);
     if (name)
         setObjectName(name);
     setAttribute(Qt::WA_PaintOnScreen);
@@ -2931,6 +2973,7 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
                       Qt::WFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f)
 {
+    Q_D(QGLWidget);
     if (name)
         setObjectName(name);
     setAttribute(Qt::WA_PaintOnScreen);
@@ -2946,6 +2989,7 @@ QGLWidget::QGLWidget(QGLContext *context, QWidget *parent,
                       const char *name, const QGLWidget *shareWidget, Qt::WFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f)
 {
+    Q_D(QGLWidget);
     if (name)
         setObjectName(name);
     setAttribute(Qt::WA_PaintOnScreen);
