@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#4 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#5 $
 **
 ** Definition of QComboBox class
 **
 ** Author  : Eirik Eng
 ** Created : 950426
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 ***********************************************************************/
 
@@ -19,6 +19,7 @@
 class QComboData;
 class QStrList;
 
+
 class QComboBox : public QWidget
 {
     Q_OBJECT
@@ -26,62 +27,62 @@ public:
     QComboBox( QWidget *parent=0, const char *name=0 );
    ~QComboBox();
 
-    void	 setStrList( const QStrList * );
-    void	 setStrList( const char **, int numStrings );
+    int		count() const;
 
-    void	 insertStrList( const QStrList *, int index=-1 );
-    void	 insertStrList( const char**, int numStrings, int index=-1 );
+    void	setStrList( const QStrList * );
+    void	setStrList( const char **, int numStrings=-1 );
 
-    void	 insertItem( const char *text, int index=-1 );
-    void	 insertItem( const QPixmap &pixmap, int index=-1 );
-//###    void	 inSort( const char *text );
-    void	 removeItem( int index );
+    void	insertStrList( const QStrList *, int index=-1 );
+    void	insertStrList( const char**, int numStrings=-1, int index=-1);
 
-    const char	*text( int index ) const;	 // get text at index
-    QPixmap     *pixmap( int index ) const;	 // get pixmap at index
+    void	insertItem( const char *text, int index=-1 );
+    void	insertItem( const QPixmap &pixmap, int index=-1 );
 
-    void	 changeItem( const char *text, int index );
-    void	 changeItem( const QPixmap &pixmap, int index );
-    void	 clear();
+    void	removeItem( int index );
+    void	clear();
 
-    int		 count() const;
+    const char *text( int index )	const;
+    QPixmap    *pixmap( int index )	const;
 
-    void	 setCurrentItem( int index );
-    int		 currentItem() const;
+    void	changeItem( const char *text, int index );
+    void	changeItem( const QPixmap &pixmap, int index );
 
-    void         setAutoResizing( bool );
-    bool         autoResizing() const;
-    void         adjustSize();
+    void	setCurrentItem( int index );
+    int		currentItem()		const;
 
-    void         setBackgroundColor( const QColor & );
+    void	setAutoResizing( bool );
+    bool	autoResizing()		const;
+    void	adjustSize();
+
+    void	setBackgroundColor( const QColor & );
+    void	setPalette( const QPalette & );
+    void	setFont( const QFont & );
 
 signals:
-    void	 highlighted( int index );
-    void	 activated( int index );
+    void	activated( int index );
+    void	highlighted( int index );
 
 private slots:
-    void         internalActivate( int );
-    void         internalHighlight( int );
+    void	internalActivate( int );
+    void	internalHighlight( int );
 
 protected:    
-    void         setPalette( const QPalette & );
-    void         setFont( const QFont & );
+    void	paintEvent( QPaintEvent * );
+    void	mousePressEvent( QMouseEvent * );
+    void	mouseMoveEvent( QMouseEvent * );
+    void	mouseReleaseEvent( QMouseEvent * );
+    void	mouseDoubleClickEvent( QMouseEvent * );
+    void	keyPressEvent( QKeyEvent *e );
 
-    void	 paintEvent( QPaintEvent * );
-    void	 mousePressEvent( QMouseEvent * );
-    void	 mouseMoveEvent( QMouseEvent * );
-    void	 mouseReleaseEvent( QMouseEvent * );
-    void	 mouseDoubleClickEvent( QMouseEvent * );
-    void	 keyPressEvent( QKeyEvent *e );
-
-    void         popup();
-    void         reIndex();
+    void	popup();
 
 private:
-    void	 init();
-    void	 currentChanged();
+    void	init();
+    void	reIndex();
+    void	currentChanged();
 
-    QComboData  *d;
+    QComboData	*d;
 };
+
 
 #endif // QCOMBOBOX_H
