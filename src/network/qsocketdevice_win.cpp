@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#16 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#17 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -509,7 +509,7 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
     }
 #endif
     bool done = FALSE;
-    Q_ULONG r = 0;
+    Q_LONG r = 0;
     while ( done == FALSE ) {
 	if ( t == Datagram ) {
 	    struct sockaddr_in a;
@@ -606,7 +606,7 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
 	return -1;
     }
     bool done = FALSE;
-    Q_ULONG r = 0;
+    Q_LONG r = 0;
     while ( !done ) {
 	// Don't write more than 64K (see Knowledge Base Q201213).
 	r = ::send( fd, data, ( len>64*1024 ? 64*1024 : len ), 0 );
@@ -708,7 +708,7 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
     // we'd use MSG_DONTWAIT + MSG_NOSIGNAL if Stevens were right.
     // but apparently Stevens and most implementors disagree
     bool done = FALSE;
-    Q_ULONG r = 0;
+    Q_LONG r = 0;
     while ( !done ) {
 	r = ::sendto( fd, data, len, 0,
 		      (struct sockaddr *)(&a), sizeof(sockaddr_in) );
