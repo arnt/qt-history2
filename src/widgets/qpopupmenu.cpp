@@ -480,8 +480,21 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	return;
 #endif
 
+#if (QT_VERSION-0 >= 0x040000)
+#error "Fix this now"
     // #### should move to QWidget - anything might need this functionality,
     // #### since anything can have WType_Popup window flag.
+    // #### This includes stuff in QPushButton and some stuff for setting
+    // #### the geometry of QDialog.
+    // QPopupMenu
+    // ::exec()
+    // ::popup()
+    // QPushButton (shouldn't require QMenuPopup)
+    // ::popupPressed
+    // Some stuff in qwidget.cpp for dialogs... can't remember exactly.
+    // Also the code here indicatets the parameter should be a rect, not a
+    // point.
+#endif
 
     if(d->scroll.scrollable) {
 	d->scroll.scrollable = QPopupMenuPrivate::Scroll::ScrollNone;
