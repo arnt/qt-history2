@@ -10,20 +10,13 @@
 #####################################################################
 
 CONFIG += ordered
-CONFIG -= qt
 TEMPLATE = subdirs
-isEmpty(QT_PROJECTS) {
-   QT_PROJECTS = qmake qt tools examples tutorials
-   qt:SUBDIRS = src
-   tools:SUBDIRS += tools
-   examples:SUBDIRS += examples
-   tutorials:SUBDIRS += tutorial
-} else {
-   SUBDIRS += $$QT_PROJECTS
-}
+isEmpty(QT_PROJECTS):QT_PROJECTS = qmake src tools examples tutorials
+SUBDIRS += $$QT_PROJECTS
 
 unix {
   confclean.depends += clean
   confclean.commands += $(DEL_FILE) .qmake.cache
   QMAKE_EXTRA_UNIX_TARGETS += confclean
 }
+CONFIG -= qt #don't need the qt.prf, but do it last
