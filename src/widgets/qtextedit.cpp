@@ -866,6 +866,7 @@ void QTextEdit::init()
     currentFormat = doc->formatCollection()->defaultFormat();
     currentAlignment = Qt::AlignAuto;
 
+    setBackgroundMode( PaletteBase );
     viewport()->setBackgroundMode( PaletteBase );
     viewport()->setAcceptDrops( TRUE );
     resizeContents( 0, doc->lastParagraph() ?
@@ -922,16 +923,17 @@ void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw
 	isReadOnly() || !cursorVisible )
 	drawCur = FALSE;
     QColorGroup g = colorGroup();
+    const QColorGroup::ColorRole backRole = QPalette::backgroundRoleFromMode(backgroundMode());
     if ( doc->paper() )
-	g.setBrush( QColorGroup::Base, *doc->paper() );
+	g.setBrush( backRole, *doc->paper() );
 
     if ( contentsY() < doc->y() ) {
 	p->fillRect( contentsX(), contentsY(), visibleWidth(), doc->y(),
-		     g.brush( QColorGroup::Base ) );
+		     g.brush( backRole ) );
     }
     if ( drawAll && doc->width() - contentsX() < cx + cw ) {
 	p->fillRect( doc->width() - contentsX(), cy, cx + cw - doc->width() + contentsX(), ch,
-		     g.brush( QColorGroup::Base ) );
+		     g.brush( backRole ) );
     }
 
     p->setBrushOrigin( -contentsX(), -contentsY() );
@@ -943,7 +945,7 @@ void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw
 
     if ( contentsHeight() < visibleHeight() && ( !doc->lastParagraph() || doc->lastParagraph()->isValid() ) && drawAll )
 	p->fillRect( 0, contentsHeight(), visibleWidth(),
-		     visibleHeight() - contentsHeight(), g.brush( QColorGroup::Base ) );
+		     visibleHeight() - contentsHeight(), g.brush( backRole ) );
 }
 
 /*! \reimp */
@@ -1836,10 +1838,11 @@ void QTextEdit::drawCursor( bool visible )
     p.translate( -contentsX() + cursor->totalOffsetX(), -contentsY() + cursor->totalOffsetY() );
     QPixmap *pix = 0;
     QColorGroup cg( colorGroup() );
+    const QColorGroup::ColorRole backRole = QPalette::backgroundRoleFromMode(backgroundMode());
     if ( cursor->paragraph()->background() )
-	cg.setBrush( QColorGroup::Base, *cursor->paragraph()->background() );
+	cg.setBrush( backRole, *cursor->paragraph()->background() );
     else if ( doc->paper() )
-	cg.setBrush( QColorGroup::Base, *doc->paper() );
+	cg.setBrush( backRole, *doc->paper() );
     p.setBrushOrigin( -contentsX(), -contentsY() );
     cursor->paragraph()->document()->nextDoubleBuffered = TRUE;
     if ( !cursor->nestedDepth() ) {
@@ -4052,6 +4055,7 @@ void QTextEdit::setStyleSheet( QStyleSheet* styleSheet )
 void QTextEdit::setPaper( const QBrush& pap )
 {
     doc->setPaper( new QBrush( pap ) );
+    setBackgroundColor( pap.color() );
     viewport()->setBackgroundColor( pap.color() );
     updateContents();
 }
