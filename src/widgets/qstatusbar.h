@@ -52,13 +52,13 @@ class Q_EXPORT QStatusBar: public QWidget
 {
     Q_OBJECT
     Q_PROPERTY( bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled )
-    
+
 public:
     QStatusBar( QWidget* Q_PARENT, const char* Q_NAME );
-    ~QStatusBar();
+    virtual ~QStatusBar();
 
-    void addWidget( QWidget *, int stretch = 0, bool = FALSE );
-    void removeWidget( QWidget * );
+    virtual void addWidget( QWidget *, int stretch = 0, bool = FALSE );
+    virtual void removeWidget( QWidget * );
 
     void setSizeGripEnabled(bool);
     bool isSizeGripEnabled() const;
