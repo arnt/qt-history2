@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#5 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#6 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -50,7 +50,7 @@ public:
 
     virtual void	setFont( const QFont &font );
     virtual void insertLine( const QString &s, int line = -1 );
-    virtual void insertAt( const QString &s, int line, int col );
+    virtual void insertAt( const QString &s, int line, int col, bool mark = FALSE );
     virtual void removeLine( int line );
 
     void 	cursorPosition( int *line, int *col ) const;
@@ -103,6 +103,10 @@ protected:
     void	leaveEvent( QEvent * );
     void	resizeEvent( QResizeEvent * );
 
+    void	dragMoveEvent( QDragMoveEvent* );
+    void	dropEvent( QDropEvent* );
+    void	dragLeaveEvent( QDragLeaveEvent* );
+
     bool	hasMarkedText() const;
     QString	markedText() const;
     int		textWidth( int );
@@ -111,7 +115,7 @@ protected:
     QPoint	cursorPoint() const;
 
 protected:
-    virtual void insert( const QString& );
+    virtual void insert( const QString&, bool mark=FALSE );
     virtual void newLine();
     virtual void killLine();
     virtual void pageUp( bool mark=FALSE );
@@ -163,6 +167,9 @@ private:
     int		mapFromView( int xPos, int row );
     int		mapToView( int xIndex, int row );
 
+    void	pixelPosToCursorPos(QPoint p, int* x, int* y) const;
+    void	setCursorPixelPosition(QPoint p, bool clear_mark=TRUE);
+
     void	setWidth( int );
     void	updateCellWidth();
     bool 	partiallyInvisible( int row );
@@ -173,7 +180,20 @@ private:
     void 	markWord( int posx, int posy );
     int 	charClass( char );
     void	turnMarkOff();
-    void    repaintDelayed( bool erase = TRUE );
+    bool	inMark( int posx, int posy ) const;
+    bool	beforeMark( int posx, int posy ) const;
+    bool	afterMark( int posx, int posy ) const;
+
+    void	repaintDelayed( bool erase = TRUE );
+
+    void	doDrag();
+    void	startAutoScroll();
+    void	stopAutoScroll();
+
+    void	cursorLeft( bool mark, bool clear_mark, bool wrap );
+    void	cursorRight( bool mark, bool clear_mark, bool wrap );
+    void	cursorUp( bool mark, bool clear_mark );
+    void	cursorDown( bool mark, bool clear_mark );
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
