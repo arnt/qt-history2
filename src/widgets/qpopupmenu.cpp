@@ -686,7 +686,8 @@ void QPopupMenu::actSig( int id, bool inwhatsthis )
     } else {
 #ifndef QT_NO_WHATSTHIS
 	QRect r( itemGeometry( indexOf( id ) ) );
-	QWhatsThis::leaveWhatsThisMode( findItem( id )->whatsThis(), mapToGlobal( r.bottomLeft() ) );
+	QWhatsThis::leaveWhatsThisMode( findItem( id )->whatsThis(),
+					mapToGlobal( QPoint( r.center().x(), r.bottom() ) ) );
 #endif
     }
 
