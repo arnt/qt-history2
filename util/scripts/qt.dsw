@@ -1,0 +1,184 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNUNG: DIESE ARBEITSBEREICHSDATEI DARF NICHT BEARBEITET ODER GELÖSCHT WERDEN!
+
+###############################################################################
+
+Project: "cppeditor"=.\tools\designer\plugins\cppeditor\cppeditor.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    vohi-hokkaido-nt
+    .\tools\designer\plugins\cppeditor
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name editor
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qt
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "designer"=.\tools\designer\designer\designer.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    vohi-hokkaido-nt
+    .\tools\designer\designer
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name cppeditor
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qt
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qtmain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uic
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uilib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name wizards
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "editor"=.\tools\designer\editor\editor.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    vohi-hokkaido-nt
+    .\tools\designer\editor
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qt
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uic
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "qt"=.\src\qt.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    vohi-hokkaido-nt
+    .\src
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "qtmain"=.\src\qtmain.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    vohi-hokkaido-nt
+    .\src
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "uic"=.\tools\designer\uic\uic.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    vohi-hokkaido-nt
+    .\tools\designer
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qt
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uilib
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "uilib"=.\tools\designer\uilib\uilib.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    vohi-hokkaido-nt
+    .\tools\designer
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "wizards"=.\tools\designer\plugins\wizards\wizards.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    vohi-hokkaido-nt
+    .\tools\designer\plugins\wizards
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qt
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+
