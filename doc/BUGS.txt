@@ -53,6 +53,10 @@ QUrl
     Directories that contain the '\' character cannot be read properly by QUrl (it
     hoses the name in slashify()) (qt-bugs/arc-07/15583)
 
+Drag'n'Drop (Win32)
+    QListView-folders don't open
+
+
 Cosmetic
 --------
 
