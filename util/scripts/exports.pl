@@ -2,10 +2,11 @@
 
 use strict;
 
-my $EXPORT_OUT = "-";
-my @EXPORT_DIRECTORIES;
-my $EXPORT_NAME = "Qt";
-my $EXPORT_SYMBOL = "Q[^ ]*(?:_[^ ]*)?_EXPORT(?:_[^ ]*)?";
+my $EXPORT_OUT = "-"; #output
+my @EXPORT_INPUTS; #files to read (or directories)
+my $EXPORT_NAME = "Qt"; #name in the linker script
+my $EXPORT_SYMBOL = 0; #symbol to look for in files
+my $EXPORT_CPP_ARGS = ""; #-D/-I to use in processing files
 while($#ARGV >= 0) {
     if($ARGV[0] eq "-o") {
 	shift;
@@ -16,12 +17,20 @@ while($#ARGV >= 0) {
     } elsif($ARGV[0] eq "-name") {
 	shift;
 	$EXPORT_NAME = $ARGV[0];
+    } elsif($ARGV[0] =~ /^-D/ || $ARGV[0] =~ /^-I/) {
+	$EXPORT_CPP_ARGS .= "$ARGV[0] ";
     } else {
-	push @EXPORT_DIRECTORIES, $ARGV[0];
+	push @EXPORT_INPUTS, $ARGV[0];
     }
     shift;
 }
-($#EXPORT_DIRECTORIES == -1) && die "$0 [options] directory\n";
+($#EXPORT_INPUTS == -1) && die "$0 [options] inputs\n";
+my $EXPORT_PREPROCESS = 1;
+if(!$EXPORT_SYMBOL) {
+   $EXPORT_PREPROCESS = 0;
+   $EXPORT_SYMBOL = "Q[^ ]*(?:_[^ ]*)?_EXPORT(?:_[^ ]*)?";
+   print "ARGUMENTS TO PREPROCESSOR IGNORED WITHOUT SYMBOL (-symbol)!\n" if(length($EXPORT_CPP_ARGS));
+}
 
 #symbol lookup
 my %CLASSES=();
@@ -31,25 +40,34 @@ sub find_classnames {
     my ($file) = @_;
 
     my $parsable = "";
-    if(open(F, "<$file")) {
-	while(<F>) {
-	    my $line = $_;
-	    chomp $line;
-	    if($line =~ /^\#/) {
-		if($line =~ /\\$/) {
-		    while($line = <F>) {
-			chomp $line;
-			last unless($line =~ /\\$/);
-		    }
-		} else {
-		    $line = 0;
-		}
-	    }
-	    $line =~ s,//.*$,,; #remove c++ comments
-	    $parsable .= $line if($line);
-	}
-	close(F);
+    if($EXPORT_PREPROCESS) {
+        if(!open(F, "c++ -E -D${EXPORT_SYMBOL}=${EXPORT_SYMBOL} $EXPORT_CPP_ARGS $file |")) {
+	    print "Could not open $file in the preprocessor!\n";
+	    return 0;
+        }
+    } else {
+        if(!open(F, "<$file")) {
+	    print "Could not open $file!\n";
+	    return 0;
+        }
     }
+    while(<F>) {
+	my $line = $_;
+	chomp $line;
+	if($line =~ /^\#/) {
+	    if($line =~ /\\$/) {
+		while($line = <F>) {
+		    chomp $line;
+		    last unless($line =~ /\\$/);
+		}
+	    } else {
+		$line = 0;
+	    }
+	}
+	$line =~ s,//.*$,,; #remove c++ comments
+	$parsable .= $line if($line);
+    }
+    close(F);
 
     my $last_definition = 0;
     for(my $i = 0; $i < length($parsable); $i++) {
@@ -134,8 +152,12 @@ sub find_files {
 	closedir(D);
     }
 }
-foreach (@EXPORT_DIRECTORIES) {
-    find_files("$_");
+foreach (@EXPORT_INPUTS) {
+    if(-d "$_") {
+	find_files("$_");
+    } else {
+	find_classnames("$_");
+    }
 }
 
 #generate output
