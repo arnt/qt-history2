@@ -213,7 +213,7 @@ public:
 
 #ifndef Q_CREATE_INSTANCE
 #    define Q_CREATE_INSTANCE( IMPLEMENTATION )		\
-	IMPLEMENTATION *i = new IMPLEMENTATION;	\
+	IMPLEMENTATION *i = new IMPLEMENTATION;		\
 	QUnknownInterface* iface = 0; 			\
 	i->queryInterface( IID_QUnknown, &iface );	\
 	return iface;
@@ -290,6 +290,7 @@ public:
 	    } \
 	    Q_EXTERN_C QUnknownInterface* ucm_instantiate()
 #    endif
+#    define Q_EXPORT_COMPONENT() Q_EXPORT_INTERFACE()
 #endif
 
 #endif //QT_NO_COMPONENT
