@@ -81,13 +81,14 @@ static PtrFreeSid ptrFreeSid = 0;
 
 static void resolveLibs()
 {
+#ifndef QT_NO_COMPONENT
     static bool triedResolve = FALSE;
     if ( !triedResolve ) {
 	// need to resolve the security info functions
 
 #ifdef QT_THREAD_SUPPORT
 	// protect initialization
-	QMutexLocker locker( qt_global_mutexpool->get( (int)&triedResolve ) );
+	QMutexLocker locker( qt_global_mutexpool->get( &triedResolve ) );
 	// check triedResolve again, since another thread may have already
 	// done the initialization
 	if ( triedResolve ) {
@@ -114,6 +115,7 @@ static void resolveLibs()
 	    ptrFreeSid = (PtrFreeSid) lib.resolve( "FreeSid" );
 	}
     }
+#endif
 }
 
 
@@ -185,6 +187,7 @@ bool QFileInfo::isSymLink() const
 
 QString QFileInfo::readLink() const
 {
+#ifndef QT_NO_COMPONENT
 #ifndef Q_OS_TEMP // ### What's this about, does this need supporting on CE?
     IShellLink *psl;                            // pointer to IShellLink i/f
     HRESULT hres;
@@ -222,6 +225,7 @@ QString QFileInfo::readLink() const
     }
 
     return fileLinked;
+#endif
 #else
     // ### Does this need supporting on CE?
     return QString();

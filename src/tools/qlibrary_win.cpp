@@ -62,7 +62,7 @@ bool QLibraryPrivate::loadLibrary()
 
 #ifdef QT_THREAD_SUPPORT
     // protect map creation/access
-    QMutexLocker locker( qt_global_mutexpool->get( (int)&map ) );
+    QMutexLocker locker( qt_global_mutexpool->get( &map ) );
 #endif // QT_THREAD_SUPPORT
 
     if ( !map )
@@ -106,7 +106,7 @@ bool QLibraryPrivate::freeLibrary()
 
 #ifdef QT_THREAD_SUPPORT
     // protect map access
-    QMutexLocker locker( qt_global_mutexpool->get( (int)&map ) );
+    QMutexLocker locker( qt_global_mutexpool->get( &map ) );
 #endif // QT_THREAD_SUPPORT
 
     bool ok = FALSE;
