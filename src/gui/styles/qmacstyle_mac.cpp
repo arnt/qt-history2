@@ -1242,7 +1242,6 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
 {
     addWidget(w);
     QPixmap px(0, 0, 32);
-    qDebug("checking for window %s %d", w->metaObject()->className(), qt_mac_is_metal(w));
     if (qt_mac_is_metal(w)) {
         px.resize(200, 200);
         HIThemeBackgroundDrawInfo bginfo;
