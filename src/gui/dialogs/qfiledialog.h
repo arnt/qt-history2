@@ -64,14 +64,14 @@ public:
                                    const QString &caption = QString(),
                                    const QString &dir = QString(),
                                    const QString &filter = QString(),
-                                   QString &selectedFilter = QString(),
+                                   QString *selectedFilter = 0,
                                    Options options = 0);
 
     static QString getSaveFileName(QWidget *parent = 0,
                                    const QString &caption = QString(),
                                    const QString &dir = QString(),
                                    const QString &filter = QString(),
-                                   QString &selectedFilter = QString(),
+                                   QString *selectedFilter = 0,
                                    Options options = 0);
 
     static QString getExistingDirectory(QWidget *parent = 0,
@@ -83,7 +83,7 @@ public:
                                         const QString &caption = QString(),
                                         const QString &dir = QString(),
                                         const QString &filter = QString(),
-                                        QString &selectedFilter = QString(),
+                                        QString *selectedFilter = 0,
                                         Options options = 0);
 
 #ifdef QT_COMPAT
@@ -94,7 +94,7 @@ public:
                                                     const QString &caption = QString::null,
                                                     QString *selectedFilter = 0,
                                                     bool resolveSymlinks = true)
-        { return getOpenFileName(parent, caption, dir, filter, *selectedFilter,
+        { return getOpenFileName(parent, caption, dir, filter, selectedFilter,
                                  resolveSymlinks ? Option(0) : DontResolveSymlinks); }
 
     inline static QString QT_COMPAT getSaveFileName(const QString &dir,
@@ -103,7 +103,7 @@ public:
                                                     const QString &caption = QString::null,
                                                     QString *selectedFilter = 0,
                                                     bool resolveSymlinks = true)
-        { return getSaveFileName(parent, caption, dir, filter, *selectedFilter,
+        { return getSaveFileName(parent, caption, dir, filter, selectedFilter,
                                  resolveSymlinks ? Option(0) : DontResolveSymlinks); }
     
     inline static QString QT_COMPAT getExistingDirectory(const QString &dir,
@@ -123,7 +123,7 @@ public:
                                                          const QString &caption = QString::null,
                                                          QString *selectedFilter = 0,
                                                          bool resolveSymlinks = true)
-        { return getOpenFileNames(parent, caption, dir, filter, *selectedFilter,
+        { return getOpenFileNames(parent, caption, dir, filter, selectedFilter,
                                   resolveSymlinks ? Option(0) : DontResolveSymlinks); }
 
 #endif // QT_COMPAT

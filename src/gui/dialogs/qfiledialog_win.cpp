@@ -277,7 +277,7 @@ QString qt_win_get_open_file_name(const QString &initialSelection,
                                   QString *initialDirectory,
                                   QWidget *parent,
                                   const QString &caption,
-                                  QString &selectedFilter)
+                                  QString *selectedFilter)
 {
     QString result;
 
@@ -303,9 +303,9 @@ QString qt_win_get_open_file_name(const QString &initialSelection,
     DWORD selFilIdx;
 
     int idx = 0;
-    if (!selectedFilter.isEmpty()) {
+    if (selectedFilter) {
         QStringList filterLst = qt_win_make_filters_list(filter);
-        idx = filterLst.indexOf(selectedFilter);
+        idx = filterLst.indexOf(*selectedFilter);
     }
 
     if (parent) {
@@ -352,7 +352,7 @@ QString qt_win_get_open_file_name(const QString &initialSelection,
     else {
         QFileInfo fi(result);
         *initialDirectory = fi.dirPath();
-        selectedFilter = qt_win_selected_filter(filter, selFilIdx);
+        *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
         return fi.absFilePath();
     }
 }
@@ -362,7 +362,7 @@ QString qt_win_get_save_file_name(const QString &initialSelection,
                                   QString *initialDirectory,
                                   QWidget *parent,
                                   const QString &caption,
-                                  QString &selectedFilter)
+                                  QString *selectedFilter)
 {
     QString result;
 
@@ -387,9 +387,9 @@ QString qt_win_get_save_file_name(const QString &initialSelection,
     DWORD selFilIdx;
 
     int idx = 0;
-    if (!selectedFilter.isEmpty()) {
+    if (selectedFilter) {
         QStringList filterLst = qt_win_make_filters_list(filter);
-        idx = filterLst.indexOf(selectedFilter);
+        idx = filterLst.indexOf(*selectedFilter);
     }
 
     if (parent) {
@@ -436,7 +436,7 @@ QString qt_win_get_save_file_name(const QString &initialSelection,
     else {
         QFileInfo fi(result);
         *initialDirectory = fi.dirPath();
-        selectedFilter = qt_win_selected_filter(filter, selFilIdx);
+        *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
         return fi.absFilePath();
     }
 }
@@ -445,7 +445,7 @@ QStringList qt_win_get_open_file_names(const QString &filter,
                                        QString *initialDirectory,
                                        QWidget *parent,
                                        const QString &caption,
-                                       QString &selectedFilter)
+                                       QString *selectedFilter)
 {
     QStringList result;
     QFileInfo fi;
@@ -471,9 +471,9 @@ QStringList qt_win_get_open_file_names(const QString &filter,
     DWORD selFilIdx;
 
     int idx = 0;
-    if (!selectedFilter.isEmpty()) {
+    if (selectedFilter) {
         QStringList filterLst = qt_win_make_filters_list(filter);
-        idx = filterLst.indexOf(selectedFilter);
+        idx = filterLst.indexOf(*selectedFilter);
     }
 
     if (parent) {
@@ -554,7 +554,7 @@ QStringList qt_win_get_open_file_names(const QString &filter,
 
     if (!result.isEmpty()) {
         *initialDirectory = fi.dirPath();    // only save the path if there is a result
-        selectedFilter = qt_win_selected_filter(filter, selFilIdx);
+        *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
     }
     return result;
 }
