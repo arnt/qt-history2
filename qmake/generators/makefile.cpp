@@ -475,7 +475,7 @@ MakefileGenerator::init()
 	QStringList incDirs;
 	if(Option::do_deps) {
 	    QString dirs[] = { QString("QMAKE_ABSOLUTE_SOURCE_PATH"),
-				   QString("DEPENDPATH"), QString("INCLUDEPATH"), QString::null };
+				   QString("INCLUDEPATH"), QString("DEPENDPATH"), QString::null };
 	    for(int y = 0; dirs[y] != QString::null; y++) {
 		QStringList &l = v[dirs[y]];
 		for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it)
@@ -716,18 +716,18 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 
 	t << impl << ": " << (*it) << " \\\n\t\t"
 	  << depends[(*it)].join(" \\\n\t\t") << "\n\t"
-	  << "$(YACC) $(YACCFLAGS) " << (*it) << "\n\t"
-#ifdef Q_OS_WIN32
-	  << "-del " << impl << " " << decl << "\n\t"
-	  << "-move y.tab.h " << decl << "\n\t"
-	  << "-move y.tab.c " << impl << endl << endl;
-#else
-	  << "-rm -f " << impl << " " << decl << "\n\t"
-	  << "-mv y.tab.h " << decl << "\n\t"
-	  << "-mv y.tab.c " << impl << endl << endl;
-#endif
+	  << "$(YACC) $(YACCFLAGS) " << (*it) << "\n\t";
+	if(Option::mode == Option::WIN_MODE) {
+	    t << "-del " << impl << " " << decl << "\n\t"
+	      << "-move y.tab.h " << decl << "\n\t"
+	      << "-move y.tab.c " << impl;
+	} else if (Option::mode == Option::UNIX_MODE) {
+	    t << "-rm -f " << impl << " " << decl << "\n\t"
+	      << "-mv y.tab.h " << decl << "\n\t"
+	      << "-mv y.tab.c " << impl;
+	}
+	t << endl << endl;
 	t << decl << ": " << impl << endl << endl;
-
     }
 }
 
@@ -741,15 +741,16 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 
 	t << impl << ": " << (*it) << " \\\n\t\t"
 	  << depends[(*it)].join(" \\\n\t\t") << "\n\t"
-	  << "$(LEX) $(LEXFLAGS) " << (*it) << "\n\t"
-#ifdef Q_OS_WIN32
-	  << "-del " << impl << " " << "\n\t"
-	  << "-move lex.yy.c " << impl << endl << endl;
-#else
-	  << "-rm -f " << impl << " " << "\n\t"
-	  << "-mv lex.yy.c " << impl << endl << endl;
-#endif
+	  << "$(LEX) $(LEXFLAGS) " << (*it) << "\n\t";
+	if(Option::mode == Option::WIN_MODE) {
+	    t << "-del " << impl << " " << "\n\t"
+	      << "-move lex.yy.c " << impl;
+	} else if (Option::mode == Option::UNIX_MODE) {
+	    t << "-rm -f " << impl << " " << "\n\t"
+	      << "-mv lex.yy.c " << impl;
 	}
+	t << endl << endl;
+    }
 }
 
 QString
