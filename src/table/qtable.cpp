@@ -3592,18 +3592,8 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 		currentSel->expandTo( tmpRow, numCols() - 1 );
 	    repaintSelections( &oldSelection, currentSel );
 	    emit selectionChanged();
-	} else if ( selMode == SingleRow ) {
-	    bool currentInSelection = tmpRow == curRow && isSelected( tmpRow, tmpCol );
-	    if ( !currentInSelection ) {
-		clearSelection();
-		currentSel = new QTableSelection();
-		selections.append( currentSel );
-		currentSel->init( tmpRow, 0 );
-		currentSel->expandTo( tmpRow, numCols() - 1 );
-		repaintSelections( 0, currentSel );
-	    }
 	}
-	setCurrentCell( tmpRow, tmpCol, FALSE );
+	setCurrentCell( tmpRow, tmpCol, selMode == SingleRow );
     } else if ( ( e->state() & ControlButton ) == ControlButton ) {
 	if ( selMode != NoSelection ) {
 	    if ( selMode == Single || selMode == SingleRow && !isSelected( tmpRow, tmpCol, FALSE ) )
