@@ -7,7 +7,7 @@ class AquaStyle : public QStyleInterface, public QLibraryInterface
 public:
     AquaStyle();
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
     unsigned long addRef();
     unsigned long release();
 
@@ -29,21 +29,21 @@ AquaStyle::AquaStyle()
 {
 }
 
-QUnknownInterface *AquaStyle::queryInterface( const QUuid &uuid )
+QRESULT AquaStyle::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
-    QUnknownInterface *iface = 0;
-    if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)(QStyleInterface*)this;
-    else if ( uuid == IID_QFeatureListInterface )
-	iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_QStyleInterface )
-	iface = (QStyleInterface*)this;
-    else if ( uuid == IID_QLibraryInterface )
-	iface = (QLibraryInterface*)this;
+    *iface = 0;
 
-    if ( iface )
-	iface->addRef();
-    return iface;
+    if ( uuid == IID_QUnknownInterface )
+	*iface = (QUnknownInterface*)(QStyleInterface*)this;
+    else if ( uuid == IID_QFeatureListInterface )
+	*iface = (QFeatureListInterface*)this;
+    else if ( uuid == IID_QStyleInterface )
+	*iface = (QStyleInterface*)this;
+    else if ( uuid == IID_QLibraryInterface )
+	*iface = (QLibraryInterface*)this;
+
+    if ( *iface )
+	(*iface)->addRef();
 }
 
 unsigned long AquaStyle::addRef()
