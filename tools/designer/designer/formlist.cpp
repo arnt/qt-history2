@@ -32,6 +32,8 @@
 #include <qapplication.h>
 #include <qpainter.h>
 #include <qpen.h>
+#include <qobjectlist.h>
+#include <qworkspace.h>
 
 static bool blockNewForms = FALSE;
 
@@ -121,11 +123,26 @@ void FormList::setProject( Project *pro )
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	(void)new FormListItem( this, tr( "<unknown>" ), *it, 0 );
     }
+    
+    QObjectList *l = mainWindow->workSpace()->queryList( "FormWindow", 0, FALSE, TRUE );
+    for ( QObject *o = l->first(); o; o = l->next() ) {
+	if ( ( (FormWindow*)o )->project() != pro )
+	    continue;
+	QListViewItemIterator it( this );
+	while ( it.current() ) {
+	    if ( project->makeAbsolute( ( (FormListItem*)it.current() )->text( 2 ) ) == 
+		 project->makeAbsolute( ( (FormWindow*)o )->fileName() ) )
+		( (FormListItem*)it.current() )->setFormWindow( ( (FormWindow*)o ) );
+	    ++it;
+	}
+    }
+    
     updateHeader();
 }
 
 void FormList::addForm( FormWindow *fw )
 {
+    fw->setProject( project );
     if ( blockNewForms ) {
 	if ( currentItem() ) {
 	    ( (FormListItem*)currentItem() )->setFormWindow( fw );

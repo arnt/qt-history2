@@ -121,6 +121,7 @@ FormWindow::FormWindow( QWidget *parent, const char *name )
 
 void FormWindow::init()
 {
+    proj = 0;
     propertyWidget = 0;
     toolFixed = FALSE;
     checkedSelectionsForMove = FALSE;
@@ -2208,4 +2209,14 @@ void FormWindow::setActiveObject( QObject *o )
 {
     emitShowProperties( o );
     propertyWidget = o;
+}
+
+void FormWindow::setProject( Project *pro )
+{
+    proj = pro;
+}
+
+Project *FormWindow::project() const
+{
+    return proj;
 }

@@ -47,6 +47,7 @@ class QResizeEvent;
 class BreakLayoutCommand;
 class QPixmap;
 class QSizeGrip;
+class Project;
 
 #if defined(Q_CC_MSVC) || defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include "orderindicator.h"
@@ -165,6 +166,9 @@ public:
     void setActiveObject( QObject *o );
 
     QList<QAction> &actionList() { return actions; }
+
+    void setProject( Project *pro );
+    Project *project() const;
     
 public slots:
     virtual void widgetChanged( QObject *w );
@@ -262,6 +266,7 @@ private:
     QString pixLoader;
     bool toolFixed;
     QList<QAction> actions;
+    Project *proj;
     
 };
 
