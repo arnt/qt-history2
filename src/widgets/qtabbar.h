@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#2 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#3 $
 **
 ** Definition of QTabBar class
 **
@@ -45,6 +45,8 @@ public:
     bool  isTabEnabled( int ) const;
 
     QSize sizeHint() const;
+
+    int currentTab() const;
 
 signals:
     void  selected( int );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#26 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#27 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#27 $");
 
 
 /*!
@@ -204,8 +204,7 @@ void QTabDialog::setFont( const QFont & font )
     QFont f( font );
     f.setWeight( QFont::Light );
     QDialog::setFont( f );
-    if ( isVisible() )
-	setSizes();
+    setSizes();
 }
 
 
@@ -315,14 +314,16 @@ bool QTabDialog::hasApplyButton() const
 
 void QTabDialog::show()
 {
-    if ( isVisible() )
-	return;
-
     emit aboutToShow();
     setSizes();
 
+    // force one page to be shown now and the rest to be show only on demand
+    int c = d->tabs->currentTab();
     for( int i=0; i < (int)d->children.size(); i++ )
-	d->children[i]->hide();
+	if ( c != i )
+	    d->children[i]->hide();
+    if ( c >= 0 )
+	showTab( c );
 
     // fake a resize event to trigger child widget moves
     QResizeEvent r( size(), size() );
@@ -339,12 +340,11 @@ void QTabDialog::show()
 void QTabDialog::showTab( int i )
 {
     if ( d && (uint)i < d->children.size() ) {
-	if ( d->children[i]->isVisible() ) {
-	    d->children[i]->raise();
-	} else {
-	    d->children[i]->setGeometry( childRect() );
-	    d->children[i]->show();
-	}
+	d->children[i]->setGeometry( childRect() );
+	d->children[i]->show();
+	d->children[i]->raise();
+    } else {
+	debug ( "showtab" );
     }
 }
 
@@ -449,10 +449,8 @@ void QTabDialog::setApplyButton( const char * text )
 		 this, SIGNAL(applyButtonPressed()) );
     }
     d->ab->setText( text );
-    if ( isVisible() ) {
-	setSizes();
-	d->ab->show();
-    }
+    setSizes();
+    d->ab->show();
 }
 
 
@@ -476,10 +474,8 @@ void QTabDialog::setDefaultButton( const char * text )
 		 this, SIGNAL(defaultButtonPressed()) );
     }
     d->db->setText( text );
-    if ( isVisible() ) {
-	setSizes();
-	d->db->show();
-    }
+    setSizes();
+    d->db->show();
 }
 
 
@@ -507,16 +503,13 @@ void QTabDialog::setCancelButton( const char * text )
 		 this, SLOT(reject()) );
     }
     d->cb->setText( text );
-    if ( isVisible() ) {
-	setSizes();
-	d->cb->show();
-    }
+    setSizes();
+    d->cb->show();
 }
 
 
 /*!
-  Set the appropriate size for each of the fixed children, and if
-  the widget is visible, their positions too.
+  Set the appropriate size and position for each of the fixed children.
 
   Finally set the minimum and maximum sizes for the dialog.
 
@@ -594,13 +587,6 @@ void QTabDialog::setSizes()
     if ( max.height() < min.height() )
 	max.setHeight( min.height() );
 
-    // bang in the pages' minimum and maximum sizes, to avoid ugly
-    // size mismatches
-    for( i=0; i<(int)d->children.size(); i++ ) {
-	d->children[i]->setMinimumSize( min );
-	d->children[i]->setMaximumSize( max );
-    }
-
     // allow for own borders, buttons and tabs, and set own sizes
     min.setWidth( QMIN( min.width() + 13, 32767 ) );
     min.setHeight( QMIN( min.height() + d->bh + th + 18, 32767 ) );
@@ -609,11 +595,9 @@ void QTabDialog::setSizes()
     setMinimumSize( min );
     setMaximumSize( max );
 
-    if ( isVisible() ) {
-	// fake a resize event to trigger child widget moves
-	QResizeEvent r( size(), size() );
-	resizeEvent( &r );
-    }
+    // fake a resize event to trigger child widget moves
+    QResizeEvent r( size(), size() );
+    resizeEvent( &r );
 }
 
 
@@ -652,8 +636,7 @@ void QTabDialog::resizeEvent( QResizeEvent * )
 
 	int i;
 	for ( i=0; i<(int)d->children.size(); i++ )
-	    if ( d->children[i]->isVisible() )
-		d->children[i]->setGeometry( childRect() );
+	    d->children[i]->setGeometry( childRect() );
     }
 }
 

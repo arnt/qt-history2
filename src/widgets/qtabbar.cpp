@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#8 $
 **
 ** Implementation of QTabBar class
 **
@@ -9,7 +9,7 @@
 
 #include "qtabbar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#8 $");
 
 
 QTab::~QTab()
@@ -311,19 +311,37 @@ void QTabBar::mouseReleaseEvent( QMouseEvent * e )
 }
 
 
-/*!
-  Shows the widget, and ensures that one tab is selected.
+/*!  Shows the widget, and ensures that one tab is selected.
 */
 
 void QTabBar::show()
 {
-    if ( isVisible() )
-	return;
-
-    QTab * t = l->first();
-    if ( t ) {
+    QTab * t = l->last();
+    if ( !isVisible() && (t = l->first()) != 0 )
 	l->append( l->take() );
-	emit selected( t->id );
-    }
     QWidget::show();
+    if ( t )
+	emit selected( t->id );
 }
+
+
+/*!  If a page is currently visible, returns its ID.  If no page is
+  currently visible, returns either -1 or the ID of one of the pages.
+
+  Even if the return value is not -1, you cannot assume either that
+  the user can see the relevant page, or that the tab \link
+  isTabEnabled() is enabled.\endlink
+
+  When when you need to display something, the return value from this
+  function represents the best page to display.  That's all.
+
+  \sa selected()
+*/
+
+int QTabBar::currentTab() const
+{
+    QTab * t = l->last();
+
+    return t ? t->id : -1;
+}
+
