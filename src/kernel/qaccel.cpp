@@ -57,11 +57,13 @@
   activity for all children of one top-level widget, so it is not
   affected by the keyboard focus.
 
-  In most cases, you will not need to use this class directly. Use
-  QMenuData::insertItem() or QMenuData::setAccel() to make
-  accelerators for operations that are also available on menus.  Many
-  widgets automatically generate accelerators, such as QButton,
-  QGroupBox, QLabel (with QLabel::setBuddy()), QMenuBar and QTabBar.
+  In most cases, you will not need to use this class directly. Use the
+  QAction class to create actions with accelerators that can be used in
+  both menus and toolbars. If you're only interested in menus use
+  QMenuData::insertItem() or QMenuData::setAccel() to make accelerators
+  for operations that are also available on menus.  Many widgets
+  automatically generate accelerators, such as QButton, QGroupBox,
+  QLabel (with QLabel::setBuddy()), QMenuBar and QTabBar.
   Example:
   \code
      QPushButton p( "&Exit", parent ); //automatic shortcut ALT+Key_E
@@ -297,15 +299,15 @@ static int get_seq_id()
   \a id is the accelerator item id.
 
   If \a id is negative, then the item will be assigned a unique
-  negative identifier.
+  negative identifier less than -1.
 
   \code
     QAccel *a = new QAccel( myWindow );		// create accels for myWindow
     a->insertItem( Key_P + CTRL, 200 );		// Ctrl+P to print document
     a->insertItem( Key_X + ALT , 201 );		// Alt+X  to quit
     a->insertItem( UNICODE_ACCEL + 'q', 202 );	// Unicode 'q' to quit
-    a->insertItem( Key_D );			// gets a unique negative id
-    a->insertItem( Key_P + CTRL + SHIFT );	// gets a unique negative id
+    a->insertItem( Key_D );			// gets a unique negative id < -1
+    a->insertItem( Key_P + CTRL + SHIFT );	// gets a unique negative id < -1
   \endcode
 */
 
@@ -508,7 +510,7 @@ bool QAccel::eventFilter( QObject *o, QEvent *e )
 
 
 /*!
-  Returns the shortcut key for \a string, or 0 if \a string has no
+  Returns the shortcut key for \a str, or 0 if \a str has no
   shortcut sequence.
 
   For example, shortcutKey("E&amp;xit") returns ALT+Key_X,
@@ -518,8 +520,8 @@ bool QAccel::eventFilter( QObject *o, QEvent *e )
 
   We provide a \link accelerators.html list of common accelerators
   \endlink in English.  At the time of this writing, Microsoft and The
-  Open Group appear to not have issued such recommendations for other
-  languages.
+  Open Group do not appear to have issued equivalent recommendations for
+  other languages.
 */
 
 int QAccel::shortcutKey( const QString &str )
