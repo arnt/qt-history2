@@ -7,8 +7,9 @@
 <include location="global" impldecl="in implementation">qimage.h</include>
 <include location="global" impldecl="in declaration">qpixmap.h</include>
 <forward>class Project;</forward>
-<variable>bool chooser;</variable>
+<variable>bool changed;</variable>
 <variable>Project *project;</variable>
+<variable>bool chooser;</variable>
 <widget class="QDialog">
     <property name="name">
         <cstring>PixmapCollectionEditor</cstring>
@@ -17,8 +18,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>358</width>
-            <height>271</height>
+            <width>354</width>
+            <height>269</height>
         </rect>
     </property>
     <property name="caption">
@@ -144,55 +145,55 @@
     </grid>
 </widget>
 <connections>
-    <connection>
+    <connection language="C++">
         <sender>PushButton2</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
         <slot>addPixmap()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton3</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
         <slot>removePixmap()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>viewPixmaps</sender>
         <signal>currentChanged(QIconViewItem*)</signal>
         <receiver>PixmapCollectionEditor</receiver>
         <slot>currentChanged(QIconViewItem*)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonOk</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
         <slot>save()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonOk</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
         <slot>accept()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonCancel</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
         <slot>save()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonCancel</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
         <slot>reject()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonClose</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
         <slot>save()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonClose</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
@@ -214,11 +215,13 @@
     <function name="init()" >{
     project = 0;
     setChooserMode( FALSE );
+    changed = FALSE;
 }</function>
     <function name="destroy()" >{
 }</function>
     <function name="save()" >{
-    project-&gt;pixmapCollection()-&gt;createCppFile();     
+    if ( changed )
+	project-&gt;pixmapCollection()-&gt;createCppFile();     
 }</function>
     <function name="addPixmap()" >{
     if ( !project )
@@ -233,6 +236,7 @@
     pixmap.name = QFileInfo( f ).baseName();
     project-&gt;pixmapCollection()-&gt;addPixmap( pixmap );
     updateView();
+    changed = TRUE;
     QIconViewItem *item = viewPixmaps-&gt;findItem( pixmap.name );
     if ( item ) {
 	viewPixmaps-&gt;setCurrentItem( item );
@@ -244,6 +248,7 @@
 	return;
     project-&gt;pixmapCollection()-&gt;removePixmap( viewPixmaps-&gt;currentItem()-&gt;text() );
     updateView();
+    changed = TRUE;
 }</function>
     <function name="updateView()" >{
     if ( !project )
