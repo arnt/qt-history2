@@ -1337,7 +1337,7 @@ void QObjectPrivate::setParent_helper(QObject *parent)
 }
 
 /*!
-    \fn void QObject::installEventFilter(const QObject *filterObj)
+    \fn void QObject::installEventFilter(QObject *filterObj)
 
     Installs an event filter \a filterObj on this object. For example:
     \code
@@ -1398,15 +1398,14 @@ void QObjectPrivate::setParent_helper(QObject *parent)
     \sa removeEventFilter(), eventFilter(), event()
 */
 
-void QObject::installEventFilter(const QObject *obj)
+void QObject::installEventFilter(QObject *obj)
 {
     if (!obj)
         return;
-    QObject *o = const_cast<QObject *>(obj);
     // clean up unused items in the list
     d->eventFilters.removeAll((QObject*)0);
-    d->eventFilters.removeAll(o);
-    d->eventFilters.prepend(o);
+    d->eventFilters.removeAll(obj);
+    d->eventFilters.prepend(obj);
 }
 
 /*!
@@ -1422,10 +1421,9 @@ void QObject::installEventFilter(const QObject *obj)
     \sa installEventFilter(), eventFilter(), event()
 */
 
-void QObject::removeEventFilter(const QObject *obj)
+void QObject::removeEventFilter(QObject *obj)
 {
-    QObject *o = const_cast<QObject *>(obj);
-    d->eventFilters.removeAll(o);
+    d->eventFilters.removeAll(obj);
 }
 
 

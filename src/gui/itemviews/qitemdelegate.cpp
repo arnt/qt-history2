@@ -208,7 +208,7 @@ QWidget *QItemDelegate::editor(QWidget *parent,
 {
     QVariant::Type t = index.model()->data(index, QAbstractItemModel::EditRole).type();
     QWidget *w = QItemEditorFactory::defaultFactory()->createEditor(t, parent);
-    if (w) w->installEventFilter(this);
+    if (w) w->installEventFilter(const_cast<QItemDelegate *>(this));
     return w;
 }
 

@@ -802,7 +802,7 @@ QMenuBar * Q3MainWindow::menuBar() const
         b->show();
     }
     d->mb = b;
-    d->mb->installEventFilter(this);
+    d->mb->installEventFilter(const_cast<Q3MainWindow *>(this));
     ((Q3MainWindow *)this)->triggerLayout();
     return b;
 }

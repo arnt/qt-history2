@@ -124,8 +124,8 @@ public:
     const QObjectList &children() const { return d_ptr->children; }
 
     void setParent(QObject *);
-    void installEventFilter(const QObject *);
-    void removeEventFilter(const QObject *);
+    void installEventFilter(QObject *);
+    void removeEventFilter(QObject *);
 
 
     static bool connect(const QObject *sender, const char *signal,
