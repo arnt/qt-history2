@@ -84,9 +84,11 @@ void QWSProtocolItem::write( QSocket *s ) {
 
 bool QWSProtocolItem::read( QSocket *s ) {
     bool b = qws_read_command( s, simpleDataPtr, simpleLen,
-			     rawDataPtr, rawLen, bytesRead );
-    setData(rawDataPtr, rawLen, FALSE);
-    deleteRaw = TRUE;
+			       rawDataPtr, rawLen, bytesRead );
+    if ( b ) {
+	setData(rawDataPtr, rawLen, FALSE);
+	deleteRaw = TRUE;
+    }
     return b;
 }
     
