@@ -156,5 +156,103 @@
 
     \section2 Starting a Project
 
-    Start Visual Studio.NET, and start a new project ###
+    Start Visual Studio.NET, and create a new C# project for writing a 
+    Windows application. This will present you with an empty form in 
+    Visual Studio's dialog editor. You should also see the toolbox,
+    which presents you with a number of available controls and objects
+    in different categories. If you right-click on the toolbox it allows
+    you to add new tabs. We add a tab "Qt".
+
+    \section2 Importing Qt Widgets
+
+    The category only has a pointer tool by default, and we have to add 
+    the Qt objects we want to use in our form. Right-click on the empty 
+    space, and select "Customize". This opens a dialog that has two
+    tabs, "COM Components" and ".NET Framework Components". We used
+    ActiveQt to wrap QWidgets into COM objects, so we stay at the "COM
+    Components" page, and search for the classes we want to use, e.g.
+    "QPushButton" and "QAxWidget2". Those two widgets will now be
+    available from the toolbox as grey squares with their name next to
+    it (icons could be added by modifying the way the controls register
+    themselves).
+
+    \section2 Using Qt Widgets
+
+    We can now add an instance of QAxWidget2 and a QPushButton to the
+    form, and Visual Studio will automatically generate the RCW for the
+    object servers. The QAxWidget2 instance takes most of the upper
+    part of the form, with the QPushButton in the lower right corner.
+
+    In the property editor of Visual Studio we can modify the properties 
+    of our controls - QPushButton exposes the QWidget API and has many 
+    properties, while QAxWidget2 has only the Visual Studio standard 
+    properties in addition to its own property "lineWidth" in the 
+    "Miscellaneous" category. The objects are named "QPushButton1" and 
+    "QAxWidget21", and since esp. the last name is a bit confusing we 
+    rename the objects to "resetButton" and "circleWidget".
+
+    We can also change the Qt properties, e.g. set the "text" property 
+    of the resetButton to "Reset", and the "lineWidth" property of the 
+    circleWidget to 5. We can also put those objects into the layout 
+    system that Visual Studio's dialog editor provides, e.g. by setting
+    the anchors of the circleWidget to "Left, Top, Right", and the
+    anchors of the resetButton to "Left, Bottom, Right". 
+
+    Now we can compile the project, which will give us a user interface
+    with our two Qt widgets, and we can resize the dialog and the 
+    widgets follow this resizing.
+
+    \section2 Handling Qt Signals
+
+    We will now implement event handlers for the widgets. Select the
+    resetButton, and change to the "Events" page in the property editor.
+    Add an event handler "resetLineWidth" to the "clicked" event, and
+    implement the function:
+
+    \code
+    private void resetLineWidth(object sender, System.EventArgs e)
+    {
+        this.circleWidget.lineWidth = 1;
+    }
+    \endcode
+
+    In general we can implement a default event handler by double 
+    clicking on the widget in the form, but the default event for our
+    widgets is right now not defined, and since "pressed" is the first
+    signal of QPushButton we would implement an event handler for that
+    signal, which we don't want.
+
+    We now implement an event handler for the "ClickEvent" of the
+    circleEvent. This event is available because the QAxWidget2 has the
+    "StockEvents" attribute set in its class definition. We implement
+    that event handler "circleClicked" to increase the line width by one 
+    with every click:
+
+    \code
+    private void circleClicked(object sender, System.EventArgs e)
+    {
+        this.circleWidget.lineWidth++;
+    }
+    \endcode
+
+    If we now compile and run the project we can click on the circle
+    widget to increase its line width, and press the reset button to
+    set the line width back to 1.
+
+    \section2 Limitations
+
+    Using ActiveQt as a universal interop bridge between the .NET world
+    and the unmanaged, but cross-platform world of Qt is very easy and
+    makes it unnecessary to add a lot of handwritten code. Instead a
+    very thin layer provided by the QAxFactory implementation in the COM
+    server project takes care to provide COM - and .NET - with the 
+    information necessary to generate the RCW. But of course all the
+    limitations when using ActiveQt are implied when using this technique
+    to interoperate with .NET, e.g. the datatypes we can use in the APIs
+    can only be those supported by ActiveQt. Since this however includes 
+    subclasses of QObject and QWidget we can wrap any of our datatypes
+    into a QObject subclass to make its API available to .NET, which has
+    the positive side effect that the API is automatically avialable in
+    QSA, the cross platform scripting solution for Qt applications, and
+    to COM clients in general.
 */
