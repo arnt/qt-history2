@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#31 $
 **
 ** Implementation of QToolBar class
 **
@@ -32,6 +32,8 @@
 #include "qobjectdict.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
+#include "qapplication.h"
+
 
 /*! \class QToolBar qtoolbar.h
 
@@ -196,38 +198,42 @@ void QToolBar::setUpGM()
 	++it;
 	if ( obj->isWidgetType() ) {
 	    QWidget * w = (QWidget *)obj;
-	    if ( !qstrcmp( "tool bar separator", obj->name() ) &&
-		 !qstrcmp( "QFrame", obj->className() ) ) {
-		QFrame * f = (QFrame *)obj;
-		if ( orientation() == Vertical ) {
-		    f->setMinimumSize( 0, 6 );
-		    f->setMaximumSize( 32767, 6 );
-		    if ( style() == WindowsStyle )
-			f->setFrameStyle( QFrame::HLine + QFrame::Sunken );
-		    else
-			f->setFrameStyle( QFrame::NoFrame );
-		} else {
-		    f->setMinimumSize( 6, 0 );
-		    f->setMaximumSize( 6, 32767 );
-		    if ( style() == WindowsStyle )
-			f->setFrameStyle( QFrame::VLine + QFrame::Sunken );
-		    else
-			f->setFrameStyle( QFrame::NoFrame );
+	    if ( !isVisible() || w->isVisible() ) {
+		if ( !qstrcmp( "tool bar separator", obj->name() ) &&
+		     !qstrcmp( "QFrame", obj->className() ) ) {
+		    QFrame * f = (QFrame *)obj;
+		    if ( orientation() == Vertical ) {
+			f->setMinimumSize( 0, 6 );
+			f->setMaximumSize( 32767, 6 );
+			if ( style() == WindowsStyle )
+			    f->setFrameStyle( QFrame::HLine + QFrame::Sunken );
+			else
+			    f->setFrameStyle( QFrame::NoFrame );
+		    } else {
+			f->setMinimumSize( 6, 0 );
+			f->setMaximumSize( 6, 32767 );
+			if ( style() == WindowsStyle )
+			    f->setFrameStyle( QFrame::VLine + QFrame::Sunken );
+			else
+			    f->setFrameStyle( QFrame::NoFrame );
+		    }
+		} else if ( w->maximumSize() == QSize(32767,32767)
+			    && w->minimumSize() == QSize(0,0) ) {
+		    QSize s( w->sizeHint() );
+		    if ( s.width() > 0 && s.height() > 0 )
+			w->setMinimumSize( s );
+		    else if ( s.width() > 0 )
+			w->setMinimumWidth( s.width() );
+		    else if ( s.height() > 0 )
+			w->setMinimumHeight( s.width() );
 		}
-	    } else if ( w->maximumSize() == QSize(32767,32767)
-			&& w->minimumSize() == QSize(0,0) ) {
-		QSize s( w->sizeHint() );
-		if ( s.width() > 0 && s.height() > 0 )
-		    w->setMinimumSize( s );
-		else if ( s.width() > 0 )
-		    w->setMinimumWidth( s.width() );
-		else if ( s.height() > 0 )
-		    w->setMinimumHeight( s.width() );
+		b->addWidget( w, w == sw ? 42 : 0 );
 	    }
-	    b->addWidget( w, w == sw ? 42 : 0 );
 	}
     }
     b->activate();
+    QEvent * layoutHint = new QEvent( QEvent::LayoutHint );
+    QApplication::postEvent( mainWindow(), layoutHint );
 }
 
 
@@ -318,7 +324,27 @@ void QToolBar::setStretchableWidget( QWidget * w )
 
 bool QToolBar::event( QEvent * e )
 {
-    if ( e->type() == QEvent::LayoutHint )
+    if ( e->type() == QEvent::LayoutHint ) {
 	setUpGM();
+    } else if ( e->type() == QEvent::ChildInserted ) {
+	QObject * child = ((QChildEvent*)e)->child();
+	if ( child && child->isWidgetType() )
+	    child->installEventFilter( this );
+    }
     return QWidget::event( e );
+}
+
+
+/*! \reimp */
+
+bool QToolBar::eventFilter( QObject * o, QEvent * e )
+{
+    if ( o && e && o->isWidgetType() &&
+	 ((QWidget *)o)->parentWidget() == this &&
+	 ( e->type() == QEvent::Show ||
+	   e->type() == QEvent::Hide ) ) {
+	QEvent * layoutHint = new QEvent( QEvent::LayoutHint );
+	QApplication::postEvent( this, layoutHint );
+    }
+    return QWidget::eventFilter( o, e );
 }
