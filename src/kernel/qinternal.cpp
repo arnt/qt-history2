@@ -46,9 +46,9 @@ static QSharedDoubleBuffer* qdb_owner = 0;
 static QCleanupHandler<QPixmap> qdb_cleanup_pixmap;
 
 #ifdef Q_WS_MACX
-bool QSharedDoubleBuffer::dblbufr = TRUE;
-#else
 bool QSharedDoubleBuffer::dblbufr = FALSE;
+#else
+bool QSharedDoubleBuffer::dblbufr = TRUE;
 #endif
 
 
@@ -56,9 +56,9 @@ bool QSharedDoubleBuffer::dblbufr = FALSE;
   hardLimitWidth/Height: if >= 0, the maximum number of pixels that get double buffered.
 
   sharedLimitWidth/Height: if >= 0, the maximum number of pixels the shared double buffer can keep.
-  
+
   For x with sharedLimitSize < x <= hardLimitSize, temporary buffers are constructed.
-  
+
  */
 static const int hardLimitWidth = -1;
 static const int hardLimitHeight = -1;
@@ -130,7 +130,7 @@ bool QSharedDoubleBuffer::begin( QPainter* painter, int x, int y, int w, int h )
 	     ( hardLimitWidth < 0 ||  w <= hardLimitWidth ) &&
 	     ( hardLimitHeight < 0 ||  h <= hardLimitHeight ) &&
 	     ( !mustsh || ( w <= sharedLimitWidth && h <= sharedLimitHeight )
-	       || ( xpix && w <= xpix->width() && h <= xpix->height() ) ) ) 
+	       || ( xpix && w <= xpix->width() && h <= xpix->height() ) ) )
 	    return begin( (QWidget*) xp->device(), x, y, w, h );
 	if ( initbg )
 	    ( (QWidget*) xp->device() )->erase( x, y, w, h );
@@ -147,7 +147,7 @@ QPixmap* QSharedDoubleBuffer::getRawPixmap( int w, int h )
 {
     if ( w > sharedLimitWidth || h > sharedLimitHeight )
 	return 0;
-    
+
     if ( qdb_owner ) {
 	qdb_cleanup_pixmap.remove( qdb_shared_pixmap );
 	qdb_shared_pixmap = new QPixmap( w, h );
@@ -185,12 +185,12 @@ bool QSharedDoubleBuffer::begin( QWidget* widget, int x, int y, int w, int h )
     ry = y;
     rw = w;
     rh = h;
-    
-    if ( !dblbufr || 
-	 ( hardLimitWidth >= 0 && w > hardLimitWidth ) || 
-	 ( hardLimitHeight >= 0 && h > hardLimitHeight ) || 
+
+    if ( !dblbufr ||
+	 ( hardLimitWidth >= 0 && w > hardLimitWidth ) ||
+	 ( hardLimitHeight >= 0 && h > hardLimitHeight ) ||
 	 ( mustsh  && ( w > sharedLimitWidth || h > sharedLimitWidth )
-	   && ! (xpix && w <= xpix->width() && h <= xpix->height() ) )  || 
+	   && ! (xpix && w <= xpix->width() && h <= xpix->height() ) )  ||
 	 wid->backgroundMode() == Qt::X11ParentRelative ) {
 	if ( initbg )
 	    wid->erase( x, y, w, h );
