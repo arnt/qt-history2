@@ -25,12 +25,13 @@
 // We mean it.
 //
 
-#include <windows.h>
+#include <qt_windows.h>
 
 #include "qnamespace.h"
-#include "qpaintengine_p.h"
+
+#include <private/qpaintengine_p.h>
 #include <private/qpainter_p.h>
-#include "qpaintengine.h"
+#include <private/qpolygonclipper_p.h>
 
 class QWin32PaintEngine : public QPaintEngine
 {
@@ -182,7 +183,14 @@ public:
     uint temporaryBrush : 1;
 };
 
-class Q_GUI_EXPORT QWin32PaintEnginePrivate : public QPaintEnginePrivate
+
+struct qt_float_point
+{
+    float x, y;
+    operator POINT () const { POINT pt = { qRound(x), qRound(y) }; return pt; }
+};
+
+class QWin32PaintEnginePrivate : public QPaintEnginePrivate
 {
     Q_DECLARE_PUBLIC(QWin32PaintEngine)
 public:
@@ -245,6 +253,8 @@ public:
     QPainterPrivate::TransformationCodes txop;
 
     QPaintEngine::PaintEngineFeatures oldFeatureSet;
+
+    QPolygonClipper<qt_float_point, POINT> polygonClipper;
 
     /*!
      Switches the paint engine into GDI+ mode

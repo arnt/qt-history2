@@ -16,6 +16,7 @@ HEADERS += \
 	painting/qpainterpath_p.h \
 	painting/qpen.h \
 	painting/qpolygon.h \
+	painting/qpolygonclipper_p.h \
 	painting/qprinter.h \
 	painting/qprinter_p.h \
 	painting/qregion.h \

@@ -200,6 +200,8 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
     d->ellipseHack = false;
     d->advancedMode = false;
 
+    d->polygonClipper.setBoundingRect(QRect(0, 0, pdev->width(), pdev->height()));
+
     setActive(true);
 
     Q_ASSERT(pdev);
@@ -558,23 +560,21 @@ void QWin32PaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
             }
         }
 
-        QVarLengthArray<POINT, 512> nativePoints(p.size());
-        for (int i=0; i<p.size(); ++i) {
-            nativePoints[i].x = qRound(p.at(i).x());
-            nativePoints[i].y = qRound(p.at(i).y());
-        }
+        POINT *points;
+        int pointCount;
+        d->polygonClipper.clipPolygon((qt_float_point*)p.data(), p.size(), &points, &pointCount);
 
         if (plot_pixel) {
-            Polyline(d->hdc, nativePoints.data(), npoints);
+            Polyline(d->hdc, points, pointCount);
 #ifndef Q_OS_TEMP
             SetPixelV(d->hdc, x2, y2, d->pColor);
 #else
             SetPixel(d->hdc, x2, y2, d->pColor);
 #endif
         } else {
-            nativePoints[npoints-1].x = x2;
-            nativePoints[npoints-1].y = y2;
-            Polyline(d->hdc, nativePoints.data(), npoints);
+            points[pointCount-1].x = x2;
+            points[pointCount-1].y = y2;
+            Polyline(d->hdc, points, pointCount);
         }
         return;
     }
@@ -597,13 +597,11 @@ void QWin32PaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->bColor);
 
-    QVarLengthArray<POINT, 512> nativePoints(p.size());
-    for (int i=0; i<p.size(); ++i) {
-        nativePoints[i].x = qRound(p.at(i).x());
-        nativePoints[i].y = qRound(p.at(i).y());
-    }
+    POINT *points;
+    int pointCount;
+    d->polygonClipper.clipPolygon((qt_float_point*)p.data(), p.size(), &points, &pointCount);
 
-    Polygon(d->hdc, nativePoints.data(), p.size());
+    Polygon(d->hdc, points, pointCount);
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->pColor);
 #ifndef Q_OS_TEMP
