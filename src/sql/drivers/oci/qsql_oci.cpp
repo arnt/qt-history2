@@ -1071,7 +1071,7 @@ bool QOCIResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
         for (int i = 0; i < cols->size(); ++i) {
             if (cols->isNull(i))
                 values[i + index] = QCoreVariant(cols->type(i));
-            else if (values.at(i + index) == QCoreVariant::Invalid)
+            else
                 values[i + index] = cols->value(i);
         }
     } else {
