@@ -311,7 +311,9 @@ void QIconSet::reset( const QPixmap & pm, Size s )
   It may also use \a pm for deriving some other varieties if those
   are not set.
 
-  The \a size must be Large or Small; it cannot be Automatic.
+  The \a size can be one of Automatic, Large or Small.  If Automatic is used,
+  QIconSet will determine if the pixmap is Small or Large from its pixel size.
+  Pixmaps less than 23 pixels wide are considered to be Small.
 
   \sa reset()
 */
@@ -368,7 +370,9 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode )
   It may also use the pixmap for deriving some other varieties if those
   are not set.
 
-  The \a size must be Large or Small; it cannot be Automatic.
+  The \a size can be one of Automatic, Large or Small.  If Automatic is used,
+  QIconSet will determine if the pixmap is Small or Large from its pixel size.
+  Pixmaps less than 23 pixels wide are considered to be Small.
 */
 void QIconSet::setPixmap( const QString &fileName, Size s, Mode m )
 {
