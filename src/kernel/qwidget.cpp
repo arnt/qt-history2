@@ -3284,16 +3284,16 @@ void QWidget::setContentsMargins(int left, int top, int right, int bottom)
     d->rightmargin = right;
     d->bottommargin = bottom;
 
-    if (QLayout *l=d->layout) {
-	l->update();
-    } else {
-	//trigger resize event, should we post instead???
-	QResizeEvent e(crect.size(), crect.size());
-	QApplication::sendEvent(this, &e);
-	if (testAttribute(WA_PendingResizeEvent))
-	    setAttribute(WA_PendingResizeEvent, false);
+    if (QLayout *l=d->layout)
+	l->update(); //force activate; will do updateGeometry
+    else
 	updateGeometry();
-    }
+
+    //trigger resize event
+    QResizeEvent e(crect.size(), crect.size());
+    QApplication::sendEvent(this, &e);
+    if (testAttribute(WA_PendingResizeEvent))
+	setAttribute(WA_PendingResizeEvent, false);
 }
 
 /*
