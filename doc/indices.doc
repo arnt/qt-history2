@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.15 1998/04/01 05:53:02 aavit Exp $
+** $Id: indices.doc,v 2.16 1998/05/07 08:44:15 aavit Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.15 1998/04/01 05:53:02 aavit Exp $";
+static char ident[] = "$Id: indices.doc,v 2.16 1998/05/07 08:44:15 aavit Exp $";
 #endif
 
 /*! \page index.html
@@ -79,9 +79,9 @@ href="http://www.troll.no/pricing.html">Pricing and Availability</a>
 page, or contact <a href="mailto:sales@troll.no">sales@troll.no</a>.
 
 <strong>Qt Free Edition</strong> is the Unix/X11 version of Qt
-available for development of <em>free software</em>. It is provided
-free of charge under the <a href="license.html">Qt Free Edition
-License</a>. The latest version is available for <a
+available for development of <em>free software</em> only. It is
+provided free of charge under the <a href="license.html">Qt Free
+Edition License</a>. The latest version is available for <a
 href="http://www.troll.no/dl/">download</a>.
 
 */
