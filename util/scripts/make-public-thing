@@ -1,10 +1,11 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#15 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#16 $
 
 $base = "/tmp/striptree-$$";
-#$quiet=1;
-$skipdoc=1;
+$days_stored = 60;
+$quiet=1;
+#$skipdoc=1;
 
 use File::Find;
 
@@ -82,7 +83,7 @@ die '$TMAKEDIR not set - need $TMAKEDIR/lib/linux-g++/tmake.conf'
     if ! -f "$ENV{TMAKEDIR}/lib/linux-g++/tmake.conf";
 
 ($junk, $junk, $junk, $d, $m, $y, $junk, $junk, $junk) =
-  localtime( time() - 90 * 86400 );
+  localtime( time() - $days_stored * 86400 );
 $date = sprintf( "%4d%02d%02d", $y, 1+$m, $d ); ##### Y2K - what does CVS do?
 
 mkdir( $base, 0755 );
@@ -98,10 +99,6 @@ print SH "cd $base/cvs/qt
 
 # Move-around CVS files to be like regular release
 mv dist/free/LICENSE,v .
-
-# WWA: LICENSE ME!!!
-#co -u LICENSE
-#rm -f LICENSE,v
 
 # Remove GMAKE and NMAKE makefiles
 find . -name GNUmakefile,v | xargs rm
