@@ -2008,7 +2008,9 @@ QStringList QOCIDriver::tables( const QString& ) const
 	    "and owner != 'LBACSYS' "
 	    "and owner != 'SYS' "
 	    "and owner != 'SYSTEM' "
-	    "and owner != 'WKSYS'" );
+	    "and owner != 'WKSYS'"
+	    "and owner != 'CTXSYS'"
+	    "and owner != 'WMSYS'" );
     while ( t.next() ) {
 	if ( t.value(0).toString() != d->user )
 	    tl.append( t.value(0).toString() + "." + t.value(1).toString() );
