@@ -107,16 +107,15 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     QString srcs[] = { "HEADERS", "SOURCES", "SRCMOC", "UICIMPLS", "QMAKE_IMAGE_COLLECTION", "FORMS", QString::null };
     for(i = 0; !srcs[i].isNull(); i++) {
 	tmp = project->variables()[srcs[i]];
-	bool buildable = TRUE;
-	if(srcs[i] == "FORMS")
-	    buildable = FALSE;
 	QStringList &src_list = project->variables()["QMAKE_PBX_" + srcs[i]];
 	for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it) {
 	    QString file = (*it);
+	    bool buildable = TRUE;
 	    if(srcs[i] == "FORMS") {
 		file += Option::h_ext.first();
 		if(!QFile::exists(file))
 		    continue;
+		buildable = FALSE;
 	    }
 
 	    file = fileFixify(file);
