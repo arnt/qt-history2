@@ -633,7 +633,8 @@ void FormWindow::handleMouseDblClick( QMouseEvent *, QWidget *w )
 	    updateOrderIndicators();
 	}
     default:
-	if ( isMainContainer( w ) || w == this )
+	if ( !WidgetFactory::isPassiveInteractor( w ) &&
+	     ( isMainContainer( w ) || w == this ) )
 	    mainWindow()->editSource();
 	break;
     }
@@ -1216,7 +1217,7 @@ void FormWindow::selectWidgets()
 	    }
 	}
 	delete l;
-    }    
+    }
     emitSelectionChanged();
 }
 
@@ -1759,7 +1760,7 @@ void FormWindow::checkAccels()
 	    }
 	}
 	delete l;
-    }    
+    }
 
     bool ok = TRUE;
     QWidget *wid;
@@ -1823,7 +1824,7 @@ void FormWindow::selectAll()
 	}
 	delete l;
     }
-    
+
     blockSignals( FALSE );
     emitSelectionChanged();
     if ( propertyWidget )
@@ -2028,7 +2029,7 @@ bool FormWindow::hasInsertedChildren( QWidget *w ) const
 	    return TRUE;
 	}
     }
-    
+
     delete l;
     return FALSE;
 }

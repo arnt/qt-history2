@@ -968,7 +968,9 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    ( (FormWindow*)w )->handleMouseDblClick( (QMouseEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
 	    return TRUE;
 	}
-	return openEditor( ( (FormWindow*)w )->designerWidget( o ), (FormWindow*)w );
+	if ( !WidgetFactory::isPassiveInteractor( o ) )
+	    return openEditor( ( (FormWindow*)w )->designerWidget( o ), (FormWindow*)w );
+	return TRUE;
     case QEvent::KeyRelease:
 	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
 	    break;
@@ -2204,7 +2206,8 @@ bool MainWindow::openEditor( QWidget *w, FormWindow * )
 	return TRUE;
     }
 
-    editSource();
+    if ( !WidgetFactory::isPassiveInteractor( w ) )
+	editSource();
 
     return TRUE;
 }
