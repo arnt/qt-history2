@@ -304,6 +304,15 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	qDrawShadeLine( p, p1, p2, cg, 1, 1, 0 );
 	break; }
 
+    case PO_Panel:
+    case PO_PanelPopup: {
+	int lw = pixelMetric(PM_DefaultFrameWidth);
+	if (data)
+	    lw = *((int *) data[0]);
+
+	qDrawShadeRect(p, r, cg, (flags & PStyle_Sunken), lw);
+	break; }
+
     case PO_PanelDockWindow: {
 	int lw = pixelMetric(PM_DockWindowFrameWidth);
 	if (data)

@@ -258,17 +258,6 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	QCommonStyle::drawPrimitive( op, p, r, cg, flags, data );
 	break; }
 
-    case PO_Panel:
-    case PO_PanelPopup: {
-	// not sure if this is correct...
-	int lw = pixelMetric(PM_DefaultFrameWidth);
-	if ( data )
-	    lw = *((int *) data[0]);
-
-	qDrawShadePanel( p, r, cg, bool(flags & PStyle_Sunken), lw,
-			 &cg.brush(QColorGroup::Button) );
-	break; }
-
     case PO_ArrowUp:
     case PO_ArrowDown:
     case PO_ArrowRight:
