@@ -546,6 +546,7 @@ public:
     bool endElement( const QString& nsURI, const QString& localName, const QString& qName );
     bool characters( const QString& ch );
     bool processingInstruction( const QString& target, const QString& data );
+    bool skippedEntity( const QString& name );
 
     // error handler
     bool fatalError( const QXmlParseException& exception );
@@ -6855,6 +6856,12 @@ bool QDomHandler::characters( const QString&  ch )
 bool QDomHandler::processingInstruction( const QString& target, const QString& data )
 {
     node->appendChild( doc->createProcessingInstruction( target, data ) );
+    return TRUE;
+}
+
+bool QDomHandler::skippedEntity( const QString& name )
+{
+    node->appendChild( doc->createEntityReference( name ) );
     return TRUE;
 }
 
