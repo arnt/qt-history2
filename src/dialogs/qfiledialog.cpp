@@ -28,6 +28,7 @@
 #include "qcombobox.h"
 #include "qlabel.h"
 #include "qpushbutton.h"
+#include "qtoolbutton.h"
 #include "qmessagebox.h"
 #include "qapplication.h"
 #include "qlayout.h"
@@ -422,7 +423,7 @@ struct QFileDialogPrivate {
 
     QWidgetStack * stack;
 
-    QPushButton * cdToParent, *newFolder, * detailView, * mcView,
+    QToolButton * cdToParent, *newFolder, * detailView, * mcView,
 	*previewInfo, *previewContents;
     QButtonGroup * modeButtons;
 
@@ -1682,8 +1683,8 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
 	setSelection( dirName );
     else if ( workingDirectory )
 	setDir( *workingDirectory );
-       
-    
+
+
     if ( !filter.isEmpty() ) {
 	setFilters( filter );
     } else {
@@ -1787,12 +1788,10 @@ void QFileDialog::init()
     d->moreFiles->viewport()->installEventFilter( this );
 
     okB = new QPushButton( tr("OK"), this, "OK" ); //### Or "Save (see other "OK")
-    okB->setAutoDefault( TRUE );
     okB->setDefault( TRUE );
     okB->setEnabled( FALSE );
     connect( okB, SIGNAL(clicked()), this, SLOT(okClicked()) );
     cancelB = new QPushButton( tr("Cancel") , this, "Cancel" );
-    cancelB->setAutoDefault( TRUE );
     connect( cancelB, SIGNAL(clicked()), this, SLOT(cancelClicked()) );
 
     d->paths = new QComboBox( TRUE, this, "directory history/editor" );
@@ -1825,15 +1824,19 @@ void QFileDialog::init()
     d->fileL = new QLabel( nameEdit, tr("File &name:"), this );
     d->typeL = new QLabel( d->types, tr("File &type:"), this );
 
-    d->cdToParent = new QPushButton( this, "cd to parent" );
+    d->cdToParent = new QToolButton( this, "cd to parent" );
+    d->cdToParent->setAutoRaise( FALSE );
+    d->cdToParent->setFocusPolicy( TabFocus );
     QToolTip::add( d->cdToParent, tr( "One directory up" ) );
-    d->cdToParent->setPixmap( *cdToParentIcon );
+    d->cdToParent->setIconSet( *cdToParentIcon );
     connect( d->cdToParent, SIGNAL(clicked()),
 	     this, SLOT(cdUpClicked()) );
 
-    d->newFolder = new QPushButton( this, "new folder" );
+    d->newFolder = new QToolButton( this, "new folder" );
+    d->newFolder->setAutoRaise( FALSE );
+    d->newFolder->setFocusPolicy( TabFocus );
     QToolTip::add( d->newFolder, tr( "Create New Folder" ) );
-    d->newFolder->setPixmap( *newFolderIcon );
+    d->newFolder->setIconSet( *newFolderIcon );
     connect( d->newFolder, SIGNAL(clicked()),
 	     this, SLOT(newFolderClicked()) );
 
@@ -1846,26 +1849,34 @@ void QFileDialog::init()
     connect( d->modeButtons, SIGNAL(clicked(int)),
 	     this, SLOT(changeMode(int)) );
 
-    d->mcView = new QPushButton( this, "mclistbox view" );
+    d->mcView = new QToolButton( this, "mclistbox view" );
+    d->mcView->setAutoRaise( FALSE );
+    d->mcView->setFocusPolicy( TabFocus );
     QToolTip::add( d->mcView, tr( "List View" ) );
-    d->mcView->setPixmap( *multiColumnListViewIcon );
+    d->mcView->setIconSet( *multiColumnListViewIcon );
     d->mcView->setToggleButton( TRUE );
     d->stack->addWidget( d->moreFiles, d->modeButtons->insert( d->mcView ) );
-    d->detailView = new QPushButton( this, "list view" );
+    d->detailView = new QToolButton( this, "list view" );
+    d->detailView->setAutoRaise( FALSE );
+    d->detailView->setFocusPolicy( TabFocus );
     QToolTip::add( d->detailView, tr( "Detail View" ) );
-    d->detailView->setPixmap( *detailViewIcon );
+    d->detailView->setIconSet( *detailViewIcon );
     d->detailView->setToggleButton( TRUE );
     d->stack->addWidget( files, d->modeButtons->insert( d->detailView ) );
 
-    d->previewInfo = new QPushButton( this, "preview info view" );
+    d->previewInfo = new QToolButton( this, "preview info view" );
+    d->previewInfo->setAutoRaise( FALSE );
+    d->previewInfo->setFocusPolicy( TabFocus );
     QToolTip::add( d->previewInfo, tr( "Preview File Info" ) );
-    d->previewInfo->setPixmap( *previewInfoViewIcon );
+    d->previewInfo->setIconSet( *previewInfoViewIcon );
     d->previewInfo->setToggleButton( TRUE );
     d->modeButtons->insert( d->previewInfo );
 
-    d->previewContents = new QPushButton( this, "preview info view" );
+    d->previewContents = new QToolButton( this, "preview info view" );
+    d->previewContents->setAutoRaise( FALSE );
+    d->previewContents->setFocusPolicy( TabFocus );
     QToolTip::add( d->previewContents, tr( "Preview File Contents" ) );
-    d->previewContents->setPixmap( *previewContentsViewIcon );
+    d->previewContents->setIconSet( *previewContentsViewIcon );
     d->previewContents->setToggleButton( TRUE );
     d->modeButtons->insert( d->previewContents );
 
@@ -2034,21 +2045,21 @@ void QFileDialog::changeMode( int id )
     if ( !d->infoPreview && !d->contentsPreview )
 	return;
 
-    QPushButton *pb = (QPushButton*)d->modeButtons->find( id );
-    if ( !pb )
+    QButton *btn = (QButton*)d->modeButtons->find( id );
+    if ( !btn )
 	return;
 
-    if ( pb == d->previewContents && !d->contentsPreview )
+    if ( btn == d->previewContents && !d->contentsPreview )
 	return;
-    if ( pb == d->previewInfo && !d->infoPreview )
+    if ( btn == d->previewInfo && !d->infoPreview )
 	return;
 
-    if ( pb != d->previewContents && pb != d->previewInfo ) {
+    if ( btn != d->previewContents && btn != d->previewInfo ) {
 	d->preview->hide();
     } else {
 	if ( files->currentItem() )
 	    emit showPreview( QUrlOperator( d->url, files->currentItem()->text( 0 ) ) );
-	if ( pb == d->previewInfo )
+	if ( btn == d->previewInfo )
 	    d->preview->raiseWidget( d->infoPreviewWidget );
 	else
 	    d->preview->raiseWidget( d->contentsPreviewWidget );
