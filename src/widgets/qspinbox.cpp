@@ -174,7 +174,7 @@ QSpinBox::QSpinBox( int minValue, int maxValue, int step, QWidget* parent,
 void QSpinBox::initSpinBox()
 {
     d = new QSpinBoxPrivate;
-    
+
     wrap = FALSE;
     edited = FALSE;
     buttonDown = 0;
@@ -535,7 +535,7 @@ void QSpinBox::stepDown()
   to \a value. This is for example caused by setValue(), a keyboard accelerator,
   mouse clicks, etc.
 
-  Note that the valueChanged() signal is emitted \e every time, 
+  Note that the valueChanged() signal is emitted \e every time,
   not just for the "final" step; i.e.
   if the user clicks "up" three times, this signal is emitted three
   times.
@@ -622,9 +622,9 @@ void QSpinBox::mousePressEvent( QMouseEvent *e )
 
     uint oldButtonDown = buttonDown;
 
-    if ( down.contains( e->pos() ) )
+    if ( down.contains( e->pos() ) && ( enabled & 1 ) == 1 )
 	buttonDown = 1;
-    else if ( up.contains( e->pos() ) )
+    else if ( up.contains( e->pos() ) && ( enabled & 2 ) == 2 )
 	buttonDown = 2;
     else
 	buttonDown = 0;
@@ -730,14 +730,14 @@ void QSpinBox::wheelEvent( QWheelEvent * e )
 */
 void QSpinBox::drawContents( QPainter *p )
 {
-    style().drawSpinBoxButton( p, down, enabled & 1 ? colorGroup() : palette().disabled(), 
+    style().drawSpinBoxButton( p, down, enabled & 1 ? colorGroup() : palette().disabled(),
 	this, TRUE, enabled & 1, theButton & 1 );
-    style().drawSpinBoxSymbol( p, down, enabled & 1 ? colorGroup() : palette().disabled(), 
+    style().drawSpinBoxSymbol( p, down, enabled & 1 ? colorGroup() : palette().disabled(),
 	this, TRUE, enabled & 1, theButton & 1 );
 
-    style().drawSpinBoxButton( p, up, enabled & 2 ? colorGroup() : palette().disabled(), 
+    style().drawSpinBoxButton( p, up, enabled & 2 ? colorGroup() : palette().disabled(),
 	this, FALSE, enabled & 2, theButton & 2 );
-    style().drawSpinBoxSymbol( p, up, enabled & 2 ? colorGroup() : palette().disabled(), 
+    style().drawSpinBoxSymbol( p, up, enabled & 2 ? colorGroup() : palette().disabled(),
 	this, FALSE, enabled & 2, theButton & 2 );
 }
 
@@ -813,7 +813,7 @@ void QSpinBox::updateDisplay()
     enabled = 0;
 
     enabled |= isEnabled() && (wrapping() || value() > minValue());
-    enabled |= ( isEnabled() && (wrapping() || value() < maxValue()) ) * 2; 
+    enabled |= ( isEnabled() && (wrapping() || value() < maxValue()) ) * 2;
 
     update();
 }
