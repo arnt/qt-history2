@@ -1856,7 +1856,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		else // Key_BackTab
 		    setCurrentCell( currentRow(), QMAX( 0, currentColumn() - 1 ) );
 		itm = item( curRow, curCol );
-		if ( beginEdit( curRow, curCol, FALSE ) ) 
+		if ( beginEdit( curRow, curCol, FALSE ) )
 		    setEditMode( Editing, curRow, curCol );
 		return TRUE;
 	    }
@@ -1867,8 +1867,9 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		   ke->key() == Key_Home || ke->key() == Key_Down ||
 		   ke->key() == Key_Next || ke->key() == Key_End ||
 		   ke->key() == Key_Left || ke->key() == Key_Right ) ) {
-		if ( !itm || itm->editType() == QTableItem::OnTyping )
+		if ( !itm || itm->editType() == QTableItem::OnTyping ) {
 		    endEdit( editRow, editCol, TRUE, edMode != Editing );
+		}
 		keyPressEvent( ke );
 		return TRUE;
 	    }
@@ -2575,6 +2576,7 @@ QWidget *QTable::beginEdit( int row, int col, bool replace )
     if ( !e )
 	return 0;
     setCellWidget( row, col, e );
+    e->setActiveWindow();
     e->setFocus();
     updateCell( row, col );
     return e;
