@@ -1517,6 +1517,10 @@ void QHashData::free()
         // hash3.size() == 3
     \endcode
 
+    Unlike QHash, QMultiHash provides no operator[]. Use value() or
+    replace() if you want to access the most recently inserted item
+    with a certain key.
+
     If you want to retrieve all the values for a single key, you can
     use values(const Key &key), which returns a QList<T>:
 

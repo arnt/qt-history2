@@ -668,6 +668,10 @@ public:
     { merge(other); return *this; }
     inline QMultiHash operator+(const QMultiHash &other) const
     { QMultiHash result = *this; result += other; return result; }
+
+private:
+    T &operator[](const Key &key);
+    const T operator[](const Key &key) const;
 };
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(QHash)

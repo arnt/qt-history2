@@ -702,6 +702,10 @@ public:
     { merge(other); return *this; }
     inline QMultiMap operator+(const QMultiMap &other) const
     { QMultiMap result = *this; result += other; return result; }
+
+private:
+    T &operator[](const Key &key);
+    const T operator[](const Key &key) const;
 };
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(QMap)

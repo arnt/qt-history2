@@ -552,9 +552,9 @@ void QMapData::dump()
 
 /*! \fn QList<Key> QMap::keys() const
 
-    Returns a list containing all the keys in the map, in an
-    arbitrary order. Keys that occur multiple times in the map also
-    occur multiple times in the list.
+    Returns a list containing all the keys in the map, in ascending
+    order. Keys that occur multiple times in the map also occur
+    multiple times in the list.
 
     The order is guaranteed to be the same as that used by values().
 
@@ -566,7 +566,7 @@ void QMapData::dump()
     \overload
 
     Returns a list containing all the keys associated with value \a
-    value.
+    value, in ascending order.
 
     This function can be slow (\l{linear time}), because QMap's
     internal data structure is optimized for fast lookup by key, not
@@ -575,12 +575,10 @@ void QMapData::dump()
 
 /*! \fn QList<T> QMap::values() const
 
-    Returns a list containing all the values in the map, in an
-    arbitrary order. If a key is associated multiple values, all of
-    its values will be in the list, and not just the most recently
+    Returns a list containing all the values in the map, in ascending
+    order of their keys. If a key is associated multiple values, all
+    of its values will be in the list, and not just the most recently
     inserted one.
-
-    The order is guaranteed to be the same as that used by keys().
 
     \sa keys()
 */
@@ -1317,6 +1315,10 @@ void QMapData::dump()
         map3 = map1 + map2;
         // map3.size() == 3
     \endcode
+
+    Unlike QMap, QMultiMap provides no operator[]. Use value() or
+    replace() if you want to access the most recently inserted item
+    with a certain key.
 
     If you want to retrieve all the values for a single key, you can
     use values(const Key &key), which returns a QList<T>:
