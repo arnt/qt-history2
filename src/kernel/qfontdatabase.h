@@ -55,10 +55,6 @@ public:
     QStringList charSets( const QString &familyName,
 			  bool onlyForLocale = TRUE ) const;
 
-private:
-    // -------------------------------
-    // ### This stuff wil become public somewhen
-    //--------------------------------
     QFont font( const QString familyName, const QString &style,
 		int pointSize, const QString charSetName = QString::null );
 
@@ -109,9 +105,6 @@ private:
 
     QFontDatabasePrivate *d;
 
-    friend class QFontAction;
-    friend class QFontDialog;
-    friend class QFontDialogPrivate;
 };
 
 #endif // QFONTDATABASE_H
