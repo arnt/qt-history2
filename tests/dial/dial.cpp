@@ -14,8 +14,9 @@ main(int argc, char** argv)
     QDial dial( &box );
     dial.setFocusPolicy(QWidget::StrongFocus);
     dial.setFocus();
+    dial.setShowNotches( TRUE );
     box.show();
- 
+
     QObject::connect(&dial, SIGNAL(valueChanged(int)), &lcd, SLOT(display(int)));
     QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
 

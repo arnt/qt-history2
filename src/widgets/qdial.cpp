@@ -257,7 +257,7 @@ void QDial::repaintScreen( const QRect *cr )
 	p.setBackgroundMode( OpaqueMode );
     }
     p.drawEllipse( br );
-    
+
     p.save();
     QRegion remaining( 0, 0, width(), height() );
     remaining = remaining.subtract( QRegion( br, QRegion::Ellipse ) );
@@ -265,7 +265,7 @@ void QDial::repaintScreen( const QRect *cr )
     p.setClipRegion( remaining );
     p.fillRect( remaining.boundingRect(), colorGroup().brush( QColorGroup::Background ) );
     p.restore();
-    
+
     if ( resetClipping ) {
 	if ( cr )
 	    p.setClipRect( *cr );
@@ -274,6 +274,7 @@ void QDial::repaintScreen( const QRect *cr )
     }
 
     if ( d->showNotches ) {
+	calcLines();
 	p.setPen( colorGroup().foreground() );
 	p.drawLineSegments( d->lines );
     }
@@ -325,6 +326,12 @@ void QDial::repaintScreen( const QRect *cr )
 
     if ( hasFocus() ) {
 	p.setClipping( FALSE );
+	if ( d->showNotches ) {
+	    int r = QMIN( width(), height() ) / 2;
+	    br.moveBy( -r / 6, - r / 6 );
+	    br.setWidth( br.width() + r / 3 );
+	    br.setHeight( br.height() + r / 3 );
+	}
 	style().drawFocusRect( &p, br, colorGroup(), &backgroundColor() );
     }
 }
@@ -665,7 +672,7 @@ void QDial::subtractPage()
 void QDial::setShowNotches( bool b )
 {
     d->showNotches = b;
-    update();
+    repaintScreen();
 }
 
 /*!
@@ -705,10 +712,10 @@ QPointArray QDial::calcArrow( double &a ) const
     int xc = width() / 2;
     int yc = height() / 2;
 
-    int len = r - calcBigLineSize() - 1;
+    int len = r - calcBigLineSize() - 5;
     if ( len < 5 )
 	len = 5;
-    int back = len/4;
+    int back = len / 4;
     if ( back < 1 )
 	back = 1;
 
@@ -774,4 +781,4 @@ void QDial::calcLines()
 	    }
 	}
     }
-}    
+}
