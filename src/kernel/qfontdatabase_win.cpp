@@ -159,7 +159,7 @@ static int requiredUnicodeBits[QFont::NScripts][2] = {
 #define SimplifiedChineseCsbBit 18
 #define TraditionalChineseCsbBit 20
 #define JapaneseCsbBit 17
-
+#define KoreanCsbBit 21
 
 static
 int CALLBACK
@@ -296,24 +296,30 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 	    // ### Han (like X11)
 	    if( signature.fsCsb[0] & (1 << SimplifiedChineseCsbBit) ) {
 		family->scripts[QFont::Han_SimplifiedChinese] = TRUE;
-		// ###
 		family->scripts[QFont::Han] = TRUE;
 		hasScript = TRUE;
 		//qDebug("font %s supports Simplified Chinese", familyName.latin1() );
 	    }
 	    if( signature.fsCsb[0] & (1 << TraditionalChineseCsbBit) ) {
 		family->scripts[QFont::Han_TraditionalChinese] = TRUE;
-		// ###
 		family->scripts[QFont::Han] = TRUE;
 		hasScript = TRUE;
 		//qDebug("font %s supports Traditional Chinese", familyName.latin1() );
 	    }
 	    if( signature.fsCsb[0] & (1 << JapaneseCsbBit) ) {
 		family->scripts[QFont::Han_Japanese] = TRUE;
-		// ###
+		family->scripts[QFont::Hiragana] = TRUE;
+		family->scripts[QFont::Katakana] = TRUE;
 		family->scripts[QFont::Han] = TRUE;
 		hasScript = TRUE;
 		//qDebug("font %s supports Japanese", familyName.latin1() );
+	    }
+	    if( signature.fsCsb[0] & (1 << KoreanCsbBit) ) {
+		family->scripts[QFont::Han_Korean] = TRUE;
+		family->scripts[QFont::Hangul] = TRUE;
+		family->scripts[QFont::Han] = TRUE;
+		hasScript = TRUE;
+		//qDebug("font %s supports Korean", familyName.latin1() );
 	    }
 
 #ifdef Q_OS_TEMP

@@ -893,7 +893,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	    if ( ! ( family->scripts[script] & QtFontFamily::Supported )
 #ifdef Q_WS_WIN
-		 && !( family->scripts[QFont::Unicode] & QtFontFamily::Supported )
+		 && ( family_name.isEmpty() || !(family->scripts[QFont::Unicode] & QtFontFamily::Supported) )
 #endif
 		 )
 		continue;
