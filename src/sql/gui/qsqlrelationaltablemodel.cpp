@@ -23,6 +23,56 @@
 
 #include "qsqltablemodel_p.h"
 
+/*!
+    \class QSqlRelation
+    \brief The QSqlRelation stores information about an SQL foreign key.
+
+    QSqlRelation is a helper class for QSqlRelationalTableModel. See
+    QSqlRelationalTableModel::setRelation() and
+    QSqlRelationalTableModel::relation() for details.
+
+    \sa QSqlRelationalTableModel, QSqlRelationalDelegate
+*/
+
+/*!
+    \fn QSqlRelation::QSqlRelation(const QString &tableName, const QString &indexColumn,
+                                   const QString &displayColumn)
+
+    Constructs a QSqlRelation object, where \a tableName is the SQL
+    table name to which a foreign key refers, \a indexColumn is the
+    foreign key, and \a displayColumn is the field that should be
+    presented to the user.
+
+    \sa tableName(), indexColumn(), displayColumn()
+*/
+
+/*!
+    \fn QString QSqlRelation::tableName() const
+
+    Returns the name of the table to which a foreign key refers.
+*/
+
+/*!
+    \fn QString QSqlRelation::indexColumn() const
+
+    Returns the index column from table tableName() to which a
+    foreign key refers.
+*/
+
+/*!
+    \fn QString QSqlRelation::displayColumn() const
+
+    Returns the column from table tableName() that should be
+    presented to the user instead of a foreign key.
+*/
+
+/*!
+    \fn bool QSqlRelation::isValid() const
+
+    Returns true if the QSqlRelation object is valid; otherwise
+    returns false.
+*/
+
 struct Relation
 {
     Relation(): model(0) {}
