@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#24 $
+** $Id: //depot/qt/main/src/tools/qdict.h#25 $
 **
 ** Definition of QDict template/macro class
 **
@@ -42,18 +42,31 @@ public:
     uint  count()   const		{ return QGDict::count(); }
     uint  size()    const		{ return QGDict::size(); }
     bool  isEmpty() const		{ return QGDict::count() == 0; }
+
     void  insert( const char *k, const type *d )
 					{ QGDict::look(k,(GCI)d,1); }
     void  replace( const char *k, const type *d )
 					{ QGDict::look(k,(GCI)d,2); }
     bool  remove( const char *k )	{ return QGDict::remove(k); }
     type *take( const char *k )		{ return (type *)QGDict::take(k); }
-    void  clear()			{ QGDict::clear(); }
-    void  resize( uint n )		{ QGDict::resize(n); }
     type *find( const char *k ) const
 		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
     type *operator[]( const char *k ) const
 		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
+
+    void  insert( QString k, const type *d )
+					{ QGDict::look(k,(GCI)d,1); }
+    void  replace( QString k, const type *d )
+					{ QGDict::look(k,(GCI)d,2); }
+    bool  remove( QString k )	{ return QGDict::remove(k); }
+    type *take( QString k )		{ return (type *)QGDict::take(k); }
+    type *find( QString k ) const
+		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
+    type *operator[]( QString k ) const
+		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
+
+    void  clear()			{ QGDict::clear(); }
+    void  resize( uint n )		{ QGDict::resize(n); }
     void  statistics() const		{ QGDict::statistics(); }
 private:
     void  deleteItem( GCI d )	{ if ( del_item ) delete (type *)d; }
@@ -70,7 +83,9 @@ public:
     type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }
     operator type *() const   { return (type *)QGDictIterator::get(); }
     type *current()   const   { return (type *)QGDictIterator::get(); }
-    const char *currentKey() const
+    long currentKeyLong() const
+			      { return QGDictIterator::getKeyLong(); }
+    QString currentKey() const
 			      { return QGDictIterator::getKey(); }
     type *operator()()	      { return (type *)QGDictIterator::operator()(); }
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }

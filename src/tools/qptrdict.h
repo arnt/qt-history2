@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrdict.h#8 $
+** $Id: //depot/qt/main/src/tools/qptrdict.h#9 $
 **
 ** Definition of QPtrDict template/macro class
 **
@@ -70,7 +70,7 @@ public:
     type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }
     operator type *()  const  { return (type *)QGDictIterator::get(); }
     type *current()    const  { return (type *)QGDictIterator::get(); }
-    void *currentKey() const  { return (void *)QGDictIterator::getKey(); }
+    void *currentKey() const  { return (void *)QGDictIterator::getKeyLong(); }
     type *operator()()	      { return (type *)QGDictIterator::operator()(); }
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}

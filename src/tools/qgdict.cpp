@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#64 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#65 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -755,4 +755,44 @@ GCI QGDictIterator::operator+=( uint jumps )
     while ( curNode && jumps-- )
 	operator++();
     return curNode ? curNode->getData() : 0;
+}
+
+
+bool QGDict::remove( QString key )
+{
+    return remove( (const char*)key.utf8() );
+}
+
+bool QGDict::removeItem( QString key, GCI item )
+{
+    return removeItem( (const char*)key.utf8(), item );
+}
+
+GCI QGDict::take( QString key )
+{
+    return take( (const char*)key.utf8() );
+}
+
+GCI QGDict::look( QString key, GCI g, int op )
+{
+    if ( op == op_find ) {
+	return look( (const char*)key.utf8(), g, op );
+    } else {
+	if ( !copyk ) {
+	    warning("QGDict: attempted to insert QString without copying key"
+			   " - MEMORY LEAK");
+	    return look( strdup(key.utf8()), g, op );
+	} else {
+	    return look( (const char*)key.utf8(), g, op );
+	}
+    }
+}
+
+QString QGDictIterator::getKey() const
+{
+    if ( curNode ) {
+	return QString::fromUtf8(curNode->getKey());
+    } else {
+	return QString::null;
+    }
 }

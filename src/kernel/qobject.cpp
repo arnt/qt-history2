@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#183 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#184 $
 **
 ** Implementation of QObject class
 **
@@ -905,7 +905,7 @@ QConnectionList *QObject::receivers( const char *signal ) const
     if ( connections && signal ) {
 	if ( *signal == '2' ) {			// tag == 2, i.e. signal
 	    QCString s = rmWS( signal+1 );
-	    return connections->find( s );
+	    return connections->find( (const char*)s );
 	} else {
 	    return connections->find( signal );
 	}
@@ -1831,7 +1831,7 @@ void QObject::dumpObjectInfo()
 	QSignalDictIt it(*connections);
 	QConnectionList *clist;
 	while ( (clist=it.current()) ) {
-	    debug( "\t%s", it.currentKey() );
+	    debug( "\t%s", it.currentKey().ascii() );
 	    n++;
 	    ++it;
 	    register QConnection *c;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#29 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#30 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -28,6 +28,7 @@
 
 #ifndef QT_H
 #include "qlist.h"
+#include "qstring.h"
 #endif // QT_H
 
 class QGDictIterator;
@@ -57,6 +58,7 @@ public:
     uint	count() const	{ return numItems; }
     uint	size()	const	{ return vlen; }
     GCI		look( const char *key, GCI, int );
+    GCI		look( QString key, GCI, int );
 
     QDataStream &read( QDataStream & );
     QDataStream &write( QDataStream & ) const;
@@ -71,6 +73,10 @@ protected:
     bool	remove( const char *key );
     bool	removeItem( const char *key, GCI item );
     GCI		take( const char *key );
+    bool	remove( QString key );
+    bool	removeItem( QString key, GCI item );
+    GCI		take( QString key );
+
     void	clear();
     void	resize( uint );
 
@@ -106,7 +112,9 @@ public:
     GCI		toFirst();
 
     GCI		get()	 const { return curNode ? curNode->getData() : 0; }
-    const char *getKey() const { return curNode ? curNode->getKey() : 0; }
+    long        getKeyLong() const
+			       { return curNode ? (long)curNode->getKey() : 0; }
+    QString     getKey() const;
 
     GCI		operator()();
     GCI		operator++();

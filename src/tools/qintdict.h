@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintdict.h#19 $
+** $Id: //depot/qt/main/src/tools/qintdict.h#20 $
 **
 ** Definition of QIntDict template/macro class
 **
@@ -69,7 +69,7 @@ public:
     type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }
     operator type *()  const  { return (type *)QGDictIterator::get(); }
     type *current()    const  { return (type *)QGDictIterator::get(); }
-    long  currentKey() const  { return (long)QGDictIterator::getKey(); }
+    long  currentKey() const  { return QGDictIterator::getKeyLong(); }
     type *operator()()	      { return (type *)QGDictIterator::operator()(); }
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}

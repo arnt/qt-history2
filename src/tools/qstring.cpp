@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#162 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#163 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -26,6 +26,7 @@
 #include "qstring.h"
 #include "qregexp.h"
 #include "qdatastream.h"
+#include "qtextcodec.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -2112,6 +2113,31 @@ const char* QString::ascii() const
     // Q2HELPER(ASSERT( strlen(d->ascii) == d->len ));
     d->dirtyascii = 0;
     return d->ascii;
+}
+
+/*!
+  Returns the string encoded in UTF8 format.
+
+  See QTextCodec for more diverse coding/decoding of Unicode strings.
+*/
+QCString QString::utf8() const
+{
+    static QTextCodec* codec = QTextCodec::codecForMib(106);
+    return codec->fromUnicode(*this);
+}
+
+/*!
+  Returns the unicode string decoded from the
+  first \a len bytes of \a utf8.  If \a len is -1 (the default), the
+  length of \a utf8 is used.  If trailing partial characters are in
+  \a utf8, they are ignored.
+
+  See QTextCodec for more diverse coding/decoding of Unicode strings.
+*/
+QString QString::fromUtf8(const char* utf8, int len)
+{
+    static QTextCodec* codec = QTextCodec::codecForMib(106);
+    return codec->toUnicode(utf8, len < 0 ? strlen(utf8) : len);
 }
 
 /*!
