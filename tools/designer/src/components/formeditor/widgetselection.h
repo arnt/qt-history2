@@ -19,8 +19,10 @@
 #include <QWidget>
 #include <QHash>
 
+struct ITaskMenu;
 class QMouseEvent;
 class FormWindow;
+class AbstractFormEditor;
 class WidgetSelection;
 class QPaintEvent;
 
@@ -50,6 +52,8 @@ public:
     void updateCursor();
 
     void setEnabled(bool) {}
+
+    AbstractFormEditor *core() const;
 
 protected:
     void paintEvent(QPaintEvent *e);
@@ -87,12 +91,17 @@ public:
 
     QWidget *widget() const;
 
+    bool hasTaskMenu() const
+    { return taskMenu != 0; }
+
+    AbstractFormEditor *core() const;
+
 protected:
     QHash<int, WidgetHandle*> handles;
     QWidget *wid;
     FormWindow *formWindow;
     QHash<QWidget *, WidgetSelection *> *selectionDict;
-
+    ITaskMenu *taskMenu;
 };
 
 #endif // WIDGETHANDLE_H

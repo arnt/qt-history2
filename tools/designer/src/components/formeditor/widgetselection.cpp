@@ -16,7 +16,9 @@
 #include "formwindowmanager.h"
 #include "layoutinfo.h"
 #include "command.h"
+#include "taskmenu.h"
 
+#include <qextensionmanager.h>
 #include <abstractwidgetfactory.h>
 
 #include <QMenu>
@@ -90,6 +92,14 @@ void WidgetHandle::updateCursor()
     }
 }
 
+AbstractFormEditor *WidgetHandle::core() const
+{
+    if (AbstractFormWindow *fw = formWindow)
+        return fw->core();
+
+    return 0;
+}
+
 void WidgetHandle::setActive(bool a)
 {
     active = a;
@@ -106,7 +116,7 @@ void WidgetHandle::setWidget(QWidget *w)
 
 void WidgetHandle::paintEvent(QPaintEvent *)
 {
-    FormWindow *fw = static_cast<FormWindow*>(parentWidget());
+    FormWindow *fw = formWindow;
     if (fw->currentWidget() != widget)
         return;
 
@@ -385,6 +395,7 @@ void WidgetHandle::tryResize(QWidget *w, int width, int height)
 WidgetSelection::WidgetSelection(FormWindow *parent, QHash<QWidget *, WidgetSelection *> *selDict)
     : selectionDict(selDict)
 {
+    taskMenu = 0;
     formWindow = parent;
     for (int i = WidgetHandle::LeftTop; i < WidgetHandle::TypeCount; ++i) {
         handles.insert(i, new WidgetHandle(formWindow, (WidgetHandle::Type)i, this));
@@ -394,6 +405,8 @@ WidgetSelection::WidgetSelection(FormWindow *parent, QHash<QWidget *, WidgetSele
 
 void WidgetSelection::setWidget(QWidget *w, bool updateDict)
 {
+    taskMenu = qt_extension<ITaskMenu*>(core()->extensionManager(), w);
+
     if (!w) {
         hide();
         if (updateDict)
@@ -411,8 +424,10 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
             h->setActive(active);
         }
     }
+
     updateGeometry();
     show();
+
     if (updateDict)
         selectionDict->insert(w, this);
 }
@@ -486,8 +501,13 @@ void WidgetSelection::show()
     for (int i = WidgetHandle::LeftTop; i < WidgetHandle::TypeCount; ++i) {
         WidgetHandle *h = handles[ i ];
         if (h) {
-            h->show();
-            h->raise();
+            if (i == WidgetHandle::TaskMenu) {
+                h->setShown(hasTaskMenu());
+                h->raise();
+            } else {
+                h->show();
+                h->raise();
+            }
         }
     }
 }
@@ -504,4 +524,12 @@ void WidgetSelection::update()
 QWidget *WidgetSelection::widget() const
 {
     return wid;
+}
+
+AbstractFormEditor *WidgetSelection::core() const
+{
+    if (formWindow)
+        return formWindow->core();
+
+    return 0;
 }
