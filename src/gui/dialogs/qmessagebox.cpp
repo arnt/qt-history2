@@ -524,10 +524,14 @@ QMessageBox::QMessageBox(const QString& caption,
 {
     Q_D(QMessageBox);
     d->init(button0, button1, button2);
+#ifdef Q_WS_MAC
+    setText("<p><b>" + caption + "</b></p><p>" + text + "</p>");
+#else
 #ifndef QT_NO_WIDGET_TOPEXTRA
     setWindowTitle(caption);
 #endif
     setText(text);
+#endif
     setIcon(icon);
 }
 
@@ -739,10 +743,14 @@ QMessageBox::QMessageBox(const QString& caption,
     setObjectName(name);
     setModal(modal);
     d->init(button0, button1, button2);
+#ifdef Q_WS_MAC
+    setText("<p><b>" + caption + "</b></p><p>" + text + "</p>");
+#else
 #ifndef QT_NO_WIDGET_TOPEXTRA
     setWindowTitle(caption);
 #endif
     setText(text);
+#endif
     setIcon(icon);
 }
 
@@ -1120,6 +1128,9 @@ int QMessageBox::information(QWidget *parent, const QString& caption, const QStr
                              int button0, int button1, int button2)
 {
     QMessageBox mb(caption, text, Information, button0, button1, button2, parent);
+#ifdef Q_WS_MAC
+    mb.setFixedSize(mb.sizeHint());
+#endif
     return mb.exec();
 }
 
@@ -1163,6 +1174,9 @@ int QMessageBox::question(QWidget *parent,
                            int button0, int button1, int button2)
 {
     QMessageBox mb(caption, text, Question, button0, button1, button2, parent);
+#ifdef Q_WS_MAC
+    mb.setFixedSize(mb.sizeHint());
+#endif
     return mb.exec();
 }
 
@@ -1207,6 +1221,9 @@ int QMessageBox::warning(QWidget *parent,
                           int button0, int button1, int button2)
 {
     QMessageBox mb(caption, text, Warning, button0, button1, button2, parent);
+#ifdef Q_WS_MAC
+    mb.setFixedSize(mb.sizeHint());
+#endif
     return mb.exec();
 }
 
@@ -1251,6 +1268,9 @@ int QMessageBox::critical(QWidget *parent,
                            int button0, int button1, int button2)
 {
     QMessageBox mb(caption, text, Critical, button0, button1, button2, parent);
+#ifdef Q_WS_MAC
+    mb.setFixedSize(mb.sizeHint());
+#endif
     return mb.exec();
 }
 
@@ -1335,6 +1355,9 @@ static int textBox(QWidget *parent, QMessageBox::Icon severity,
 
 #ifndef QT_NO_CURSOR
     mb.setCursor(Qt::ArrowCursor);
+#endif
+#ifdef Q_WS_MAC
+    mb.setFixedSize(mb.sizeHint());
 #endif
     return mb.exec() - 1;
 }

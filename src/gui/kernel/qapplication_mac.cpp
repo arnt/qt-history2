@@ -384,7 +384,6 @@ void qt_mac_update_os_settings()
             { "QHeaderView", kThemeSmallSystemFont },
             { "Q3Header", kThemeSmallSystemFont },
             { "QTipLabel", kThemeSmallSystemFont },
-            { "QMessageBoxLabel", kThemeEmphasizedSystemFont },
             { "QLabel", kThemeSystemFont },
             { "QToolButton", kThemeSmallSystemFont },
             { "QMenuItem", kThemeMenuItemCmdKeyFont },  // It doesn't exist, but its unique.
