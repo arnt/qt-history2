@@ -1359,6 +1359,12 @@ EXEC=""
 for a in `echo $QMAKE_PROJECTS | sort | uniq`; do
     case $a in
     *-kde.pro|*qtmain.pro) continue ;;
+    *-pro.pro)
+	if [ "x$Edition" != "xpro" ]
+	then
+	    continue
+	fi
+	;;
     *moc*) CONF=$MKSPEC ;;
     *) CONF=$XMKSPEC
     esac
@@ -1389,7 +1395,7 @@ for a in `echo $QMAKE_PROJECTS | sort | uniq`; do
     fi
     echo
 
-    [ -f $N ] && chmod +w $N
+    [ -f "$N" ] && chmod +w $N
     if [ "x$PROCS" = "x1" ]
     then
 	/bin/sh -c "$EXEC"
@@ -1399,7 +1405,7 @@ done
 #this is just incase the concurrant task is not a multiple of the number of tasks
 [ '!' -z "$EXEC" ] && /bin/sh -c "$EXEC wait"
 
-if echo $LD_LIBRARY_PATH | grep >/dev/null $outpath/lib
+if echo "$LD_LIBRARY_PATH" | grep >/dev/null $outpath/lib
 then
     if grep >/dev/null QMAKE_RPATH $XMKSPEC
     then
