@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#10 $
 **
 ** Implementation of QML classes
 **
@@ -880,7 +880,7 @@ QMLNode* QMLStyleSheet::tag( const QString& name,
     if (style->name() == "img")
 	return new QMLImage(attr, provider);
     else if (style->name() == "br") {
-	QMLNode* result = new QMLNode; 
+	QMLNode* result = new QMLNode;
 	result->c = '\n';
 	return result;
     }
@@ -3949,44 +3949,54 @@ const QMLContainer* QMLBrowser::anchor( const QPoint& pos)
 }
 
 
-class QMLDetailPopup : public QFrame
+class QMLDetailPopup : public QWidget
 {
 public:
-    QMLDetailPopup( const QString& txt)
-	: QFrame ( 0, 0, WType_Popup | WDestructiveClose )
+    QMLDetailPopup()
+	: QWidget ( 0, "automatic QML detail widget", WType_Popup | WDestructiveClose )
 	{
-	    setFrameStyle( QFrame::Box | QFrame::Plain );
-	    QMLView* view = new QMLView( this );
-	    view->setVScrollBarMode( QScrollView::Auto );
-	    view->setContents( txt );
-
-	    int h = view->heightForWidth( 400 );
-
-	    if ( h < height () ) {
-		resize( 400 + 2 * frameWidth(), h + 2 * frameWidth() );
-	    }
-	    view->setGeometry( contentsRect() );
-	    view->viewport()->installEventFilter( this );
-
 	}
 
 protected:
 
-    bool eventFilter( QObject* ,QEvent* e)
+    void mousePressEvent( QMouseEvent*)
 	{
-	    if (e->type() == QEvent::MouseButtonPress ){
-		hide();
-		return TRUE;
-	    }
-	    return FALSE;
+	close();
 	}
 };
 
 
 void QMLBrowser::popupDetail( const QString& contents, const QPoint& pos )
 {
-    QMLDetailPopup* popup = new QMLDetailPopup( contents );
+    
+    const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
+    const int normalMargin = 12; // *2
+    const int leftMargin = 18;   // *3
 
+    QWidget* popup = new QMLDetailPopup;
+    popup->setBackgroundMode( QWidget::NoBackground );
+
+    QWidget * desktop = QApplication::desktop();
+
+    int w = desktop->width() / 3;
+    if ( w < 200 )
+	w = 200;
+    else if ( w > 300 )
+	w = 300;
+
+
+    QPainter p( popup );
+    
+    QMLSimpleDocument* qmlDoc = new QMLSimpleDocument( contents, popup );
+    qmlDoc->setWidth( &p, w );
+    QRect r( 0, 0, qmlDoc->width(), qmlDoc->height() );
+
+    int h = r.height() + normalMargin + normalMargin;
+    w = w + leftMargin + normalMargin;
+
+    popup->resize( w + shadowWidth, h + shadowWidth );
+    
+    // okay, now to find a suitable location
     //###### we need a global fancy popup positioning somewhere
     popup->move(pos - popup->rect().center());
     if (popup->geometry().right() > QApplication::desktop()->width())
@@ -4000,7 +4010,39 @@ void QMLBrowser::popupDetail( const QString& contents, const QPoint& pos )
     if ( popup->y() < 0 )
 	popup->move( popup->x(), 0 );
 
+
     popup->show();
+    
+    // now for super-clever shadow stuff.  super-clever mostly in
+    // how many window system problems it skirts around.
+
+    p.setPen( QApplication::palette()->normal().foreground() );
+    p.drawRect( 0, 0, w, h );
+    p.setPen( QApplication::palette()->normal().mid() );
+    p.setBrush( QColor( 255, 255, 240 ) );
+    p.drawRect( 1, 1, w-2, h-2 );
+    p.setPen( black );
+    
+    qmlDoc->draw( &p, leftMargin, normalMargin, r, popup->colorGroup(), 0 );
+    delete qmlDoc;
+    
+    p.drawPoint( w + 5, 6 );
+    p.drawLine( w + 3, 6,
+		w + 5, 8 );
+    p.drawLine( w + 1, 6,
+		w + 5, 10 );
+    int i;
+    for( i=7; i < h; i += 2 )
+	p.drawLine( w, i,
+		    w + 5, i + 5 );
+    for( i = w - i + h; i > 6; i -= 2 )
+	p.drawLine( i, h,
+		    i + 5, h + 5 );
+    for( ; i > 0 ; i -= 2 )
+	p.drawLine( 6, h + 6 - i,
+		    i + 5, h + 5 );
+    p.end();
+
 }
 
 
