@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#219 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#220 $
 **
 ** Implementation of QApplication class
 **
@@ -1699,26 +1699,3 @@ bool QApplication::desktopSettingsAware()
     return obey_desktop_settings;
 }
 
-
-/*!
-  Sets the text cursor's flash time to \a msecs milliseconds. The flash time is the 
-  time requried to display, invert and restore the caret display.
-  
-  \sa cursorFlashTime()
- */
-void  QApplication::setCusorFlashTime( int msecs )
-{
-    cursor_flash_time = msecs;
-}
-
-
-/*!
-  Returnss the text cursor's flash time in milliseconds. The flash time is the 
-  time requried to display, invert and restore the caret display.
-
-  \sa setCursorFlashTime()
- */
-int QApplication::cursorFlashTime()
-{
-    return cursor_flash_time;
-}

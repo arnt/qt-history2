@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#459 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#460 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3824,3 +3824,30 @@ bool QETWidget::translateCloseEvent( const XEvent * )
     return close(FALSE);
 }
 
+
+
+/*!
+  Sets the text cursor's flash time to \a msecs milliseconds. The flash time is the
+  time requried to display, invert and restore the caret display.
+
+  \sa cursorFlashTime()
+ */
+void  QApplication::setCusorFlashTime( int msecs )
+{
+    cursor_flash_time = msecs;
+}
+
+
+/*!
+  Returns the text cursor's flash time in milliseconds. The flash time is the
+  time requried to display, invert and restore the caret display.
+  
+  Widgets should not cache this value since it may vary any time the
+  user changes the global desktop settings.
+
+  \sa setCursorFlashTime()
+ */
+int QApplication::cursorFlashTime()
+{
+    return cursor_flash_time;
+}

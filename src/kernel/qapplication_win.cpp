@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#271 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#272 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2556,4 +2556,19 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 bool QETWidget::translateCloseEvent( const MSG & )
 {
     return close(FALSE);
+}
+
+void  QApplication::setCusorFlashTime( int msecs )
+{
+    SetCaretBlinkTime( msecs / 2 );
+    cursor_flash_time = msecs;
+}
+
+
+int QApplication::cursorFlashTime()
+{
+    int blink = GetCaretBlinkTime();
+    if ( blink != 0 )
+	return 2*blink;
+    return cursor_flash_time;
 }
