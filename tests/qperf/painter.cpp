@@ -74,23 +74,21 @@ static int painter_drawpoly()
     return i;
 }
 
-static int painter_drawtext()
+static int painter_drawstring(const QString &s)
 {
     int i;
     QPainter *p = qperf_painter();
-    QString s = "Trolltech";
     for ( i=0; i<10000; i++ ) {
 	p->drawText(qrnd(640),qrnd(480),s);
     }
     return i;
 }
 
-static int painter_drawtext_left()
+static int painter_drawstring_left(const QString &s)
 {
     int i;
     QPainter *p = qperf_painter();
     int x, y;
-    QString s = "Trolltech";
     for ( i=0; i<10000; i++ ) {
 	x = qrnd(600);
 	y = qrnd(480);
@@ -99,12 +97,11 @@ static int painter_drawtext_left()
     return i;
 }
 
-static int painter_drawtext_right()
+static int painter_drawstring_right(const QString &s)
 {
     int i;
     QPainter *p = qperf_painter();
     int x, y;
-    QString s = "Trolltech";
     for ( i=0; i<10000; i++ ) {
 	x = qrnd(600);
 	y = qrnd(480);
@@ -113,12 +110,11 @@ static int painter_drawtext_right()
     return i;
 }
 
-static int painter_drawtext_center()
+static int painter_drawstring_center(const QString &s)
 {
     int i;
     QPainter *p = qperf_painter();
     int x, y;
-    QString s = "Trolltech";
     for ( i=0; i<10000; i++ ) {
 	x = qrnd(600);
 	y = qrnd(480);
@@ -127,6 +123,27 @@ static int painter_drawtext_center()
     return i;
 }
 
+static inline QString text_string() { return "Trolltech"; }
+static inline int painter_drawtext() { return painter_drawstring(text_string()); }
+static inline int painter_drawtext_left() { return painter_drawstring_left(text_string()); }
+static inline int painter_drawtext_right() { return painter_drawstring_right(text_string()); }
+static inline int painter_drawtext_center() { return painter_drawstring_center(text_string()); }
+
+static inline const QString &unicode_string() 
+{ 
+    static QString ret;
+    if(ret.isNull()) {
+	ret += QChar(0x00C3); //latin1
+	ret += QChar(0x03B1); //greek
+	ret += QChar(0x820a); //han
+	ret += QChar(0x0628); //unicode
+    }
+    return ret; 
+}
+static inline int painter_drawunicode() { return painter_drawstring(unicode_string()); }
+static inline int painter_drawunicode_left() { return painter_drawstring_left(unicode_string()); }
+static inline int painter_drawunicode_right() { return painter_drawstring_right(unicode_string()); }
+static inline int painter_drawunicode_center() { return painter_drawstring_center(unicode_string()); }
 
 static int painter_save()
 {
@@ -164,6 +181,10 @@ QPERF_BEGIN(painter,"QPainter tests")
     QPERF(painter_drawtext_left,"Draw text, left aligned")
     QPERF(painter_drawtext_right,"Draw text, right aligned")
     QPERF(painter_drawtext_center,"Draw text, centered")
+    QPERF(painter_drawunicode,"Draw unicode-text without formatting")
+    QPERF(painter_drawunicode_left,"Draw unicode-text, left aligned")
+    QPERF(painter_drawunicode_right,"Draw unicode-text, right aligned")
+    QPERF(painter_drawunicode_center,"Draw unicode-text, centered")
     QPERF(painter_save,"Save and restore")
     QPERF(painter_save_wx,"Save and restore world matrix")
 QPERF_END(painter)
