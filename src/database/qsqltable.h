@@ -29,6 +29,7 @@ public:
     void         addColumn( const QSqlField& field );
     void         removeColumn( uint col );
     void         setColumn( uint col, const QSqlField& field );
+    void         addColumns( const QSqlFieldList& fieldList );
 
     void         setQuery( const QString& query, const QString& databaseName = QSqlConnection::defaultDatabase, bool autoPopulate = TRUE );
     void         setQuery( const QSql& query, bool autoPopulate = TRUE );
@@ -39,24 +40,25 @@ public:
     void         sortColumn ( int col, bool ascending = TRUE,
 			      bool wholeRows = FALSE );
     QString      text ( int row, int col ) const;
-    QVariant     value ( int row, int col ) const;    
-    
+    QVariant     value ( int row, int col ) const;
+
 protected:
     QWidget *    createEditor( int row, int col, bool initFromCell ) const;
     int          indexOf( uint i );
-    virtual void reset();
+    void         reset();
+    void         setSize( const QSql* sql );
     void         setNumRows ( int r );
     void         paintCell ( QPainter * p, int row, int col, const QRect & cr,
 			     bool selected );
     void         columnClicked ( int col );
     void         resizeData ( int len );
-    
+
     QTableItem * item ( int row, int col ) const;
     void         setItem ( int row, int col, QTableItem * item );
     void         clearCell ( int row, int col ) ;
     void         setPixmap ( int row, int col, const QPixmap & pix );
     void         takeItem ( QTableItem * i );
-	
+
 private slots:
     void         loadNextPage();
     void         loadLine( int l );

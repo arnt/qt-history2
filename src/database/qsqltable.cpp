@@ -1,5 +1,5 @@
 #include "qsqltable.h"
-
+#include "qsqldriver.h"
 #ifndef QT_NO_SQL
 
 class QSqlTablePrivate
@@ -83,8 +83,9 @@ private:
   since it is not always possible to sort on the fields within QSql,
   or the QSql query may already contain an ORDER BY.
 
-  When displaying QSqlView, cell editing can be enabled with setCellEditing().
-  QSqlTable creates editors.... ###  The user can create their own special editors by ... ###
+  When displaying QSqlView, cell editing can be enabled with
+  setCellEditing().  QSqlTable creates editors.... ### The user can
+  create their own special editors by ... ###
 
 */
 
@@ -99,9 +100,6 @@ QSqlTable::QSqlTable ( QWidget * parent = 0, const char * name = 0 )
 {
     d = new QSqlTablePrivate();
     setSelectionMode( NoSelection );
-    setVScrollBarMode( AlwaysOn );
-    connect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
-	     this, SLOT( loadLine(int) ) );
 }
 
 /*!
@@ -421,6 +419,39 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
     }
 }
 
+/*!  Adds the fields in \a fieldList to the column header.
+*/
+
+void QSqlTable::addColumns( const QSqlFieldList& fieldList )
+{
+    for ( uint j = 0; j < fieldList.count(); ++j )
+	addColumn( fieldList.field(j) );
+}
+
+
+/*!  
+  
+  If the \a sql driver supports query sizes, the number of rows in the
+  table is set to the size of the query.  Otherwise, the table
+  dynamically resizes itself as it is scrolled.
+  
+*/
+
+void QSqlTable::setSize( const QSql* sql )
+{
+    if ( sql->driver()->hasQuerySizeSupport() ) {
+	setVScrollBarMode( Auto );	
+	disconnect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
+		 this, SLOT( loadLine(int) ) );
+	setNumCols( sql->size() );
+    } else {
+	setVScrollBarMode( AlwaysOn );
+	connect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
+		 this, SLOT( loadLine(int) ) );
+	loadNextPage();	
+    }
+}
+
 /*!
 
   Displays the SQL \a query in the table.  By default, SQL queries
@@ -451,12 +482,9 @@ void QSqlTable::setQuery( const QSql& query, bool autoPopulate )
     d->resetMode( QSqlTablePrivate::Sql );
     QSql* sql = d->sql();
     (*sql) = query;
-    if ( autoPopulate ) {
-	QSqlFieldList fl = sql->fields();
-	for ( uint j = 0; j < fl.count(); ++j )
-	    addColumn( fl.field(j) );
-    }
-    loadNextPage();
+    if ( autoPopulate ) 
+	addColumns( sql->fields() );
+    setSize( sql );
     setUpdatesEnabled( TRUE );
 }
 /*!
@@ -489,11 +517,9 @@ void QSqlTable::setRowset( const QSqlRowset& rowset, bool autoPopulate )
     QSqlRowset* rset = d->rowset();
     (*rset) = rowset;
     rset->select( rowset.sort() );
-    if ( autoPopulate ) {
-	for ( uint j = 0; j < rset->count(); ++j )
-	    addColumn( rset->field(j) );
-    }
-    loadNextPage();
+    if ( autoPopulate ) 
+	addColumns( (*rset) );
+    setSize( rset );
     setUpdatesEnabled( TRUE );
 }
 
@@ -521,11 +547,9 @@ void QSqlTable::setView( const QSqlView& view, bool autoPopulate )
     QSqlView* vw = d->view();
     (*vw) = view;
     vw->select( view.sort() );
-    if ( autoPopulate ) {
-	for ( uint j = 0; j < vw->count(); ++j )
-	    addColumn( vw->field(j) );
-    }
-    loadNextPage();
+    if ( autoPopulate ) 
+	addColumns( (*vw) );
+    setSize( vw );
     setUpdatesEnabled( TRUE );
 }
 
@@ -596,3 +620,5 @@ void QSqlTable::takeItem ( QTableItem * )
 }
 
 #endif
+
+

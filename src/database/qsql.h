@@ -51,7 +51,6 @@ public:
     int             affectedRows() const;
     QSqlError	    lastError() const;
     bool            isSelect() const;
-protected:
     const QSqlDriver*   driver() const;
 private:
     void            deref();
