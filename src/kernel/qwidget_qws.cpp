@@ -1123,14 +1123,16 @@ void QWidget::drawText( int x, int y, const QString &str )
 int QWidget::metric( int m ) const
 {
     int val;
-    if ( m == QPaintDeviceMetrics::PdmWidth ) {
+    if ( m == QPaintDeviceMetrics::PdmWidth ||
+	 m == QPaintDeviceMetrics::PdmWidthMM ) {
 	val = crect.width();
-    } else if ( m == QPaintDeviceMetrics::PdmHeight ) {
+    } else if ( m == QPaintDeviceMetrics::PdmHeight ||
+		m == QPaintDeviceMetrics::PdmHeightMM ) {
 	val = crect.height();
     } else if ( m == QPaintDeviceMetrics::PdmDepth ) {
 	return qwsDisplay()->depth();
     } else {
-	val = 0;// XXX
+	val = QPaintDevice::metric(m);// XXX
     }
     return val;
 }

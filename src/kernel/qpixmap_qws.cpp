@@ -277,19 +277,17 @@ void QPixmap::fill( const QColor &fillColor )
 int QPixmap::metric( int m ) const
 {
     int val;
-    if ( m == QPaintDeviceMetrics::PdmWidth ) {
+    if ( m == QPaintDeviceMetrics::PdmWidth ||
+	 m == QPaintDeviceMetrics::PdmWidthMM ) {
 	val = width();
-    } else if ( m == QPaintDeviceMetrics::PdmHeight ) {
+    } else if ( m == QPaintDeviceMetrics::PdmHeight ||
+		m == QPaintDeviceMetrics::PdmHeightMM ) {
 	val = height();
     } else if( m ==  QPaintDeviceMetrics::PdmDepth ) {
 	val=depth();
-    } else if ( m == QPaintDeviceMetrics::PdmDpiX ) {
-	return 72;
-    } else if ( m == QPaintDeviceMetrics::PdmDpiY ) {
-	return 72;
     } else {
 	// XXX
-	val = 0;
+	val = QPaintDevice::metric(m);
     }
     return val;
 }

@@ -68,7 +68,11 @@ int QPaintDevice::metric( int m ) const
 	return 72;
     } else if ( m == QPaintDeviceMetrics::PdmDpiY ) {
 	return 72;
+    } else if ( m == QPaintDeviceMetrics::PdmNumColors ) {
+	// FIXME: does this need to be a real value?
+	return 256;
     } else {
+	qDebug("Unrecognised metric %d!",m);
 	return 0;
     }
 }
