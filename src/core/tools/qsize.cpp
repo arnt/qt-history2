@@ -665,7 +665,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn QSizeF &QSizeF::operator*=(qreal coef)
+    \fn QSizeF &QSizeF::operator*=(qreal coeff)
 
     \overload
 

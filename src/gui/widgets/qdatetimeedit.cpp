@@ -976,8 +976,8 @@ QDateEdit::QDateEdit(QWidget *parent)
     to \a date.
 */
 
-QDateEdit::QDateEdit(const QDate &dt, QWidget *parent)
-    : QDateTimeEdit(dt, parent)
+QDateEdit::QDateEdit(const QDate &date, QWidget *parent)
+    : QDateTimeEdit(date, parent)
 {
 }
 

@@ -1754,7 +1754,7 @@ QString QDir::nameFilter() const
 /*!
     Use setNameFilters() instead.
 
-    The \a nameFilters is a wildcard (globbing) filter that understands
+    The \a nameFilter is a wildcard (globbing) filter that understands
     "*" and "?" wildcards. (See \link qregexp.html#wildcard-matching
     QRegExp wildcard matching\endlink.) You may specify several filter
     entries, each separated by spaces " ", or by semicolons ";".

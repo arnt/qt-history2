@@ -2285,7 +2285,7 @@ inline char toHex(char c)
     to UTF-8, and all ASCII-characters that are not in the unreserved group
     are percent encoded. To prevent characters from being percent encoded
     pass them to \a exclude. To force characters to be percent encoded pass
-    them to \a inlcude.
+    them to \a include.
 
     Unreserved is defined as:
        ALPHA / DIGIT / "-" / "." / "_" / "~"

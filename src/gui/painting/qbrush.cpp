@@ -1070,9 +1070,8 @@ QPointF QLinearGradient::finalStop() const
 
 
 /*!
-    \class QRadialGradient qbrush.h
-
-    \breif The QRadialGradient class is used in combination with QBrush to
+    \class QRadialGradient
+    \brief The QRadialGradient class is used in combination with QBrush to
     specify a radial gradient brush.
 
     \sa QBrush

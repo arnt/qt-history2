@@ -420,9 +420,9 @@ bool QTreeView::isExpanded(const QModelIndex &index) const
 
   \sa expanded, collapsed
 */
-void QTreeView::setExpanded(const QModelIndex &index, bool expand)
+void QTreeView::setExpanded(const QModelIndex &index, bool expanded)
 {
-    if (expand)
+    if (expanded)
         this->expand(index);
     else
         this->collapse(index);
