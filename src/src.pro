@@ -6,7 +6,7 @@ win32:SUBDIRS += winmain
 SUBDIRS += moc core gui sql
 contains(QT_CONFIG, opengl): SUBDIRS +=  opengl
 SUBDIRS += xml network
-contains(QT_CONFIG, compat): SUBDIRS += compat
+contains(QT_CONFIG, qt3support): SUBDIRS += compat
 
 SUBDIRS += plugins
 
