@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.h#9 $
+** $Id: //depot/qt/main/src/tools/qbitarry.h#10 $
 **
 ** Definition of QBitArray class
 **
@@ -79,7 +79,7 @@ protected:
 	uint   nbits;
     };
     array_data *newData()		    { return new bitarr_data; }
-    void	deleteData( array_data *p ) { delete (bitarr_data*)p; }
+    void	deleteData( array_data *d ) { delete (bitarr_data*)d; }
 private:
     void    pad0();
 };
