@@ -314,6 +314,7 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
             setRepeatAction(action);
         }
     } else if (d->pressedControl == QStyle::SC_SliderHandle) {
+        setRepeatAction(SliderNoAction);
         QRect sr = style()->querySubControlMetrics(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle,
                                                   this);
         d->clickOffset = d->pick(ev->pos() - sr.topLeft());
@@ -350,7 +351,7 @@ void QSlider::mouseMoveEvent(QMouseEvent *ev)
 */
 void QSlider::mouseReleaseEvent(QMouseEvent *ev)
 {
-    if (d->pressedControl == QStyle::SC_None || ev->buttons() ^ ev->button()) {
+    if (d->pressedControl == QStyle::SC_None || ev->buttons()) {
         ev->ignore();
         return;
     }
