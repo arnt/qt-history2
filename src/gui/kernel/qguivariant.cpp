@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <qvariant.h>
+#include "qvariant.h"
 
 #include "qbitmap.h"
 #include "qbrush.h"
@@ -31,14 +31,15 @@
 #include "qsizepolicy.h"
 #include "qtextformat.h"
 
-#include "private/qcorevariant_p.h"
+#include "private/qvariant_p.h"
 
 extern QDataStream &qt_stream_out_qcolorgroup(QDataStream &s, const QColorGroup &g);
 extern QDataStream &qt_stream_in_qcolorgroup(QDataStream &s, QColorGroup &g);
 
 Q_CORE_EXPORT const QVariant::Handler *qcoreVariantHandler();
+Q_GUI_EXPORT bool qRegisterGuiVariant();
 
-static void construct(QCoreVariant::Private *x, const void *copy)
+static void construct(QVariant::Private *x, const void *copy)
 {
     if (copy) {
         switch(x->type) {
@@ -174,7 +175,7 @@ static void construct(QCoreVariant::Private *x, const void *copy)
     }
 }
 
-static void clear(QCoreVariant::Private *d)
+static void clear(QVariant::Private *d)
 {
     switch (d->type) {
     case QVariant::Bitmap:
@@ -517,7 +518,7 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 
 
 
-static bool cast(const QCoreVariant::Private *d, QVariant::Type t,
+static bool cast(const QVariant::Private *d, QVariant::Type t,
                  void *result, bool *ok)
 {
     switch (t) {
@@ -670,262 +671,6 @@ const QVariant::Handler qt_gui_variant_handler = {
 };
 
 
-/*!
-    \class QVariant
-    \brief The QVariant class is a safe generic container for the most common Qt data types.
-
-    \ingroup objectmodel
-    \ingroup misc
-    \mainclass
-
-    This class is derived from QCoreVariant. It includes all the types
-    from QCoreVariant and additional types which make sense for GUI
-    applications.
-*/
-
-/*!
-    \fn QVariant::QVariant()
-
-    Constructs an invalid variant.
-*/
-
-/*!
-    \fn QVariant::QVariant(int typeOrUserType, const void *v);
-
-    \internal
-
-    Constructs a variant of type \a typeOrUserType, and initializes
-    with \a v if \a v is not 0.
-*/
-
-/*!
-    \fn QVariant::QVariant(Type type)
-
-    \internal
-
-    Constructs a variant of type \a type with no value.
-*/
-
-/*!
-    \fn QVariant::QVariant(const QVariant &other)
-
-    Constructs a variant with the value of \a other.
-*/
-
-/*!
-    \fn QVariant::QVariant(const QCoreVariant &other)
-
-    Constructs a variant with the value of \a other.
-*/
-
-/*!
-  \fn QVariant::QVariant(const QFont &val)
-
-    Constructs a new variant with a font value of \a val.
-*/
-
-/*!
-  \fn QVariant::QVariant(const QPixmap &val)
-
-    Constructs a new variant with a pixmap value of \a val.
-*/
-
-/*!
-  \fn QVariant::QVariant(const QImage &val)
-
-    Constructs a new variant with an image value of \a val.
-
-    Because QImage is explicitly shared, you may need to pass a deep
-    copy to the variant using QImage::copy(), e.g. if you intend
-    changing the image you've passed later on.
-*/
-
-/*!
-  \fn QVariant::QVariant(const QBrush &val)
-
-    Constructs a new variant with a brush value of \a val.
-*/
-
-/*!
-  \fn QVariant::QVariant(const QSizePolicy &val)
-
-    Constructs a new variant with a size policy value of \a val.
-*/
-
-/*!
-  \fn QVariant::QVariant(const QColor &val)
-
-    Constructs a new variant with a color value of \a val.
-*/
-
-/*!
-  \fn QVariant::QVariant(const QPalette &val)
-
-    Constructs a new variant with a color palette value of \a val.
-*/
-
-/*!
-  \fn QVariant::QVariant(const QIcon &val)
-
-    Constructs a new variant with an icon set value of \a val.
-*/
-/*!
-  \fn QVariant::QVariant(const QRegion &val)
-
-    Constructs a new variant with a region value of \a val.
-*/
-
-/*!
-  \fn QVariant::QVariant(const QBitmap& val)
-
-    Constructs a new variant with a bitmap value of \a val.
-*/
-
-/*!
-  \fn QVariant::QVariant(const QCursor &val)
-
-    Constructs a new variant with a cursor value of \a val.
-*/
-
-/*!
-  \fn QVariant::QVariant(const QPolygon &val)
-
-    Constructs a new variant with a point array value of \a val.
-
-    Because QPolygon is explicitly shared, you may need to pass a
-    deep copy to the variant using QPolygon::copy(), e.g. if you
-    intend changing the point array you've passed later on.
-*/
-
-/*!
-  \fn QVariant::QVariant(const QKeySequence &val)
-
-    Constructs a new variant with a key sequence value of \a val.
-*/
-
-/*!
-  \fn QVariant::QVariant(const QPen &val)
-
-    Constructs a new variant with a pen value of \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(int val)
-
-    Constructs a new variant with an integer value of \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(uint val)
-
-    Constructs a new variant with an unsigned integer value of \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(qint64 val)
-
-    Constructs a new variant with a long integer value of \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(quint64 val)
-
-    Constructs a new variant with an unsigned long integer value of \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(double val)
-
-    Constructs a new variant with a double value of \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(bool val)
-
-    Constructs a new variant with a boolean value of \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(const char *val)
-
-    Constructs a new variant with a byte array value of \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(const QByteArray &val)
-
-    Constructs a new variant with a byte array value of \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(const QBitArray &val)
-
-    Constructs a new variant with a bit array value of \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(const QString &val)
-
-    Constructs a new variant with a string value of \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(const QLatin1String &val)
-
-    Constructs a new variant with a string value of \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(const QStringList &val)
-
-    Constructs a new variant with a string list value of \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(const QDate &val)
-
-    Constructs a new variant with a date value of \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(const QTime &val)
-
-    Constructs a new variant with a time value of \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(const QDateTime &val)
-
-    Constructs a new variant with a date/time value of \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(const QList<QVariant> &val)
-
-    Constructs a new variant that holds the list of variants given in
-    \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(const QList<QCoreVariant> &val)
-
-    Constructs a new variant that holds the list of variants given in
-    \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(const QMap<QString, QVariant> &val)
-
-    Constructs a new variant that holds a map whose keys are strings
-    and whose values are variants, as given in \a val.
-*/
-
-/*!
-    \fn QVariant::QVariant(const QMap<QString, QCoreVariant> &val)
-
-    Constructs a new variant that holds a map whose keys are strings
-    and whose values are variants, as given in \a val.
-*/
 
 /*! \internal
  */
@@ -935,309 +680,16 @@ static const QVariant::Handler *qRegisterGuiVariantHandler(const QVariant::Handl
     return handler;
 }
 
-void QVariant::create(int type, const void *copy)
+bool qRegisterGuiVariant()
 {
-    static const Handler *h = qRegisterGuiVariantHandler(handler);
+    static const QVariant::Handler *h = qRegisterGuiVariantHandler(QVariant::handler);
     Q_UNUSED(h);
-    QCoreVariant::create(type, copy);
+    return true;
 }
 
+#if 0
 
-QVariant::QVariant(int typeOrUserType, const void *v)
-{ create(typeOrUserType, v); d.is_null = false; }
-QVariant::QVariant(const QFont &val) { create(Font, &val); }
-QVariant::QVariant(const QPixmap &val) { create(Pixmap, &val); }
-
-QVariant::QVariant(const QImage &val) { create(Image, &val); }
-QVariant::QVariant(const QBrush &val) { create(Brush, &val); }
-QVariant::QVariant(const QColor &val) { create(Color, &val); }
-#ifndef QT_NO_PALETTE
-QVariant::QVariant(const QPalette &val) { create(Palette, &val); }
-#ifdef QT3_SUPPORT
-/*!
-    QVariant's don't store color groups directly; store and retrieve a
-    QPalette instead.
-*/
-QVariant::QVariant(const QColorGroup &val) { create(ColorGroup, &val); }
-#endif
-#endif //QT_NO_PALETTE
-#ifndef QT_NO_ICON
-QVariant::QVariant(const QIcon &val) { create(Icon, &val); }
-#endif //QT_NO_ICON
-QVariant::QVariant(const QTextFormat &val) { create(TextFormat, &val); }
-QVariant::QVariant(const QTextLength &val) { create(TextLength, &val); }
-QVariant::QVariant(const QPolygon &val) { create(Polygon, &val); }
-QVariant::QVariant(const QRegion &val) { create(Region, &val); }
-QVariant::QVariant(const QBitmap& val) { create(Bitmap, &val); }
-#ifndef QT_NO_CURSOR
-QVariant::QVariant(const QCursor &val) { create(Cursor, &val); }
-#endif
-#ifndef QT_NO_ACCEL
-QVariant::QVariant(const QKeySequence &val) { create(KeySequence, &val); }
-#endif
-QVariant::QVariant(const QPen &val) { create(Pen, &val); }
-QVariant::QVariant(const QSizePolicy &val) { create(SizePolicy, &val); }
-
-
-
-
-/*!
-  \fn QFont QVariant::toFont() const
-
-    Returns the variant as a QFont if the variant has type() Font;
-    otherwise returns the application's default font.
-*/
-
-/*!
-    \fn QPixmap QVariant::toPixmap() const
-
-    Returns the variant as a QPixmap if the variant has type() Pixmap;
-    otherwise returns a null pixmap.
-*/
-
-/*!
-    \fn const QImage QVariant::toImage() const
-
-    Returns the variant as a QImage if the variant has type() Image;
-    otherwise returns a null image.
-*/
-
-/*!
-    \fn QBrush QVariant::toBrush() const
-
-    Returns the variant as a QBrush if the variant has type() Brush;
-    otherwise returns a default brush (with all black colors).
-*/
-
-/*!
-    \fn QColor QVariant::toColor() const
-
-    Returns the variant as a QColor if the variant has type() Color;
-    otherwise returns an invalid color.
-*/
-
-/*!
-    \fn QPalette QVariant::toPalette() const
-
-    Returns the variant as a QPalette if the variant has type()
-    Palette; otherwise returns a copy of the application's default
-    palette.
-*/
-
-/*!
-    \fn QIcon QVariant::toIcon() const
-
-    Returns the variant as a QIcon if the variant has type()
-    Icon; otherwise returns a null QIcon.
-*/
-
-/*!
-    \fn QPolygon QVariant::toPolygon() const
-
-    Returns the variant as a QPolygon if the variant has type()
-    Polygon; otherwise returns a null QPolygon.
-*/
-
-/*!
-    \fn QBitmap QVariant::toBitmap() const
-
-    Returns the variant as a QBitmap if the variant has type()
-    Bitmap; otherwise returns a null QBitmap.
-*/
-
-/*!
-    \fn QRegion QVariant::toRegion() const
-
-    Returns the variant as a QRegion if the variant has type()
-    Region; otherwise returns an empty QRegion.
-*/
-
-/*!
-    \fn QCursor QVariant::toCursor() const
-
-    Returns the variant as a QCursor if the variant has type()
-    Cursor; otherwise returns the default arrow cursor.
-*/
-
-/*!
-    \fn QPen QVariant::toPen() const
-
-    Returns the variant as a QPen if the variant has type()
-    Pen; otherwise returns a default pen that will draw 1-pixel wide
-    solid black lines.
-*/
-
-/*!
-    \fn QSizePolicy QVariant::toSizePolicy() const
-
-    Returns the variant as a QSizePolicy if the variant has type()
-    SizePolicy; otherwise returns a minimally initialized QSizePolicy.
-*/
-
-#ifndef QT_NO_ACCEL
-
-/*!
-  \fn QKeySequence QVariant::toKeySequence() const
-
-    Returns the variant as a QKeySequence if the variant has type()
-    KeySequence, Int or String; otherwise returns an empty key
-    sequence.
-
-    Note that not all Ints and Strings are valid key sequences and in
-    such cases an empty key sequence will be returned.
-*/
-
-#endif // QT_NO_ACCEL
-
-const QImage QVariant::toImage() const
-{
-    if (d.type != Image)
-        return QImage();
-
-    return *v_cast<QImage>(&d);
-}
-
-QBrush QVariant::toBrush() const
-{
-    if (d.type != Brush)
-        return QBrush();
-
-    return *v_cast<QBrush>(&d);
-}
-
-
-#ifndef QT_NO_PALETTE
-QPalette QVariant::toPalette() const
-{
-    if (d.type != Palette)
-        return QPalette();
-
-    return *v_cast<QPalette>(&d);
-}
-
-#ifdef QT3_SUPPORT
-/*!
-    QVariant's don't store color groups directly; store and retrieve a
-    QPalette instead. See toPalette().
-*/
-QColorGroup QVariant::toColorGroup() const
-{
-    if (d.type != ColorGroup)
-        return QColorGroup();
-
-    return *v_cast<QColorGroup>(&d);
-}
-#endif
-#endif //QT_NO_PALETTE
-
-QPen QVariant::toPen() const
-{
-    if (d.type != Pen)
-        return QPen();
-
-    return *v_cast<QPen>(&d);
-}
-
-QSizePolicy QVariant::toSizePolicy() const
-{
-    if (d.type != SizePolicy)
-        return QSizePolicy();
-
-    return *v_cast<QSizePolicy>(&d);
-}
-
-#ifndef QT_NO_CURSOR
-QCursor QVariant::toCursor() const
-{
-    if (d.type != Cursor)
-        return QCursor();
-
-    return *v_cast<QCursor>(&d);
-}
-#endif
-
-QRegion QVariant::toRegion() const
-{
-    if (d.type != Region)
-        return QRegion();
-
-    return *v_cast<QRegion>(&d);
-}
-
-QBitmap QVariant::toBitmap() const
-{
-    if (d.type != Bitmap)
-        return QBitmap();
-
-    return *v_cast<QBitmap>(&d);
-
-}
-
-const QPolygon QVariant::toPolygon() const
-{
-    if (d.type != Polygon)
-        return QPolygon();
-
-    return *v_cast<QPolygon>(&d);
-}
-
-#ifndef QT_NO_ICON
-QIcon QVariant::toIcon() const
-{
-    if (d.type != Icon)
-        return QIcon();
-
-    return *v_cast<QIcon>(&d);
-}
-#ifdef QT3_SUPPORT
-/*!
-    Use toIcon() instead.
-*/
-QIcon QVariant::toIconSet() const { return toIcon(); }
-#endif
-
-#endif //QT_NO_ICON
-
-QTextLength QVariant::toTextLength() const
-{
-    if (d.type != TextLength)
-        return QTextLength();
-
-    return *v_cast<QTextLength>(&d);
-}
-
-QTextFormat QVariant::toTextFormat() const
-{
-    if (d.type != TextFormat)
-        return QTextFormat();
-
-    return *v_cast<QTextFormat>(&d);
-}
-
-#define Q_VARIANT_TO(f) \
-Q##f QVariant::to##f() const { \
-    if (d.type == f) \
-        return *v_cast<Q##f>(&d); \
-    static const Handler *h = qRegisterGuiVariantHandler(handler); \
-    Q_UNUSED(h); \
-    Q##f ret; \
-    handler->cast(&d, f, &ret, 0); \
-    return ret; \
-}
-
-Q_VARIANT_TO(Font);
-Q_VARIANT_TO(Color);
-#ifndef QT_NO_ACCEL
-Q_VARIANT_TO(KeySequence);
-#endif
-
-QPixmap QVariant::toPixmap() const
-{
-    if (d.type != Pixmap)
-        return QPixmap();
-
-    return *v_cast<QPixmap>(&d);
-}
+// ### TODO - add a debug handler
 
 #ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QVariant &v)
@@ -1304,7 +756,7 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
         dbg.nospace() << v.toPen();
         break;
     default:
-        dbg.nospace() << static_cast<QCoreVariant>(v);
+        dbg.nospace() << static_cast<QVariant>(v);
         break;
     }
     return dbg.space();
@@ -1317,100 +769,5 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
 
 #endif
 
-/*!
-    \fn QVariant::QVariant(bool b, int dummy)
-
-    Use the single-argument overload instead.
-*/
-
-/*!
-    \fn QFont& QVariant::asFont()
-
-    Use toFont() instead.
-*/
-
-/*!
-    \fn QImage& QVariant::asImage()
-
-    Use toImage() instead.
-*/
-
-/*!
-    \fn QBrush& QVariant::asBrush()
-
-    Use toBrush() instead.
-*/
-
-/*!
-    \fn QColor& QVariant::asColor()
-
-    Use toColor() instead.
-*/
-
-/*!
-    \fn QPalette& QVariant::asPalette()
-
-    Use toPalette() instead.
-*/
-
-/*!
-    \fn QColorGroup& QVariant::asColorGroup()
-
-    QVariant's don't store color groups directly; store and retrieve a
-    QPalette instead.
-*/
-
-/*!
-    \fn QIcon& QVariant::asIconSet()
-
-    Use toIcon() instead.
-*/
-
-/*!
-    \fn QPolygon& QVariant::asPointArray()
-
-    Use toPolygon() instead.
-*/
-
-/*!
-    \fn QBitmap& QVariant::asBitmap()
-
-    Use toBitmap() instead.
-*/
-
-/*!
-    \fn QRegion& QVariant::asRegion()
-
-    Use toRegion() instead.
-*/
-
-/*!
-    \fn QCursor& QVariant::asCursor()
-
-    Use toCursor() instead.
-*/
-
-/*!
-    \fn QKeySequence& QVariant::asKeySequence()
-
-    Use toKeySequence() instead.
-*/
-
-/*!
-    \fn QPen& QVariant::asPen()
-
-    Use toPen() instead.
-*/
-
-/*!
-    \fn QSizePolicy& QVariant::asSizePolicy()
-
-    Use toSizePolicy() instead.
-*/
-
-/*!
-    \fn QPixmap& QVariant::asPixmap()
-
-    Use toPixmap() instead.
-*/
+#endif
 
