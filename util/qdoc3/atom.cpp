@@ -40,6 +40,7 @@
   \value CaptionLeft
   \value CaptionRight
   \value Code
+  \value CodeBad
   \value CodeNew
   \value CodeOld
   \value FormatElse
@@ -102,6 +103,7 @@ static const struct {
     { "CaptionLeft", Atom::CaptionLeft },
     { "CaptionRight", Atom::CaptionRight },
     { "Code", Atom::Code },
+    { "CodeBad", Atom::CodeBad },
     { "CodeNew", Atom::CodeNew },
     { "CodeOld", Atom::CodeOld },
     { "FootnoteLeft", Atom::FootnoteLeft },

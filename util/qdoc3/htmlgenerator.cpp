@@ -141,6 +141,11 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	out() << "<pre>" << trimmedTrailing(protect(plainCode(indent(4, atom->string()))))
 	      << "</pre>\n";
 	break;
+    case Atom::CodeBad:
+        out() << "<pre><font color=\"#404040\">"
+              << trimmedTrailing(protect(plainCode(indent(4, atom->string()))))
+	      << "</font></pre>\n";
+	break;
     case Atom::CodeNew:
         out() << "<p>you can rewrite it as</p>\n"
               << "<pre>" << trimmedTrailing(protect(plainCode(indent(4, atom->string()))))
