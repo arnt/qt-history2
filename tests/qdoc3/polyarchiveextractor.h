@@ -11,7 +11,7 @@ class PolyArchiveExtractor : public ArchiveExtractor
 {
 public:
     PolyArchiveExtractor( const QStringList& extensions,
-			  const QString& commandLine );
+			  const QString& commandFormat );
     ~PolyArchiveExtractor();
 
     virtual void extractArchive( const Location& location,

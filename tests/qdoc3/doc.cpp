@@ -796,7 +796,7 @@ QString DocParser::detailsUnknownCommand( const Set<QString>& metaCommandSet,
 	++c;
     }
 
-    if ( numBest == 1 && deltaBest <= 2 && str.length() >= 3 ) {
+    if ( numBest == 1 && deltaBest <= 2 && str.length() + best.length() >= 5 ) {
 	return tr( "Maybe you meant '\\%1'?" ).arg( best );
     } else {
 	return "";

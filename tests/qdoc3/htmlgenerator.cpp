@@ -460,12 +460,10 @@ void HtmlGenerator::generateSynopsis( const Node *node,
 	} else {
 	    marked.replace( QRegExp("</?@link>"), "" );
 	}
-	marked.replace( QRegExp("<@extra>"), "&nbsp;<i>" );
-	marked.replace( QRegExp("</@extra>"), "</i>" );
-    } else {
-	marked.replace( QRegExp("<@extra>"), "&nbsp;<tt>" );
-	marked.replace( QRegExp("</@extra>"), "</tt>" );
     }
+    marked.replace( QRegExp("<@extra>"), "&nbsp;&nbsp;<i>" );
+    marked.replace( QRegExp("</@extra>"), "</i>" );
+
     out() << highlightedCode( marked, relative );
 
 #if 0
