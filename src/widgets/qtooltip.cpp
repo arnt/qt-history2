@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#51 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -81,7 +81,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.45 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.46 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -469,7 +469,7 @@ void QTipManager::showTip()
     label->show();
     label->raise();
 
-    fallAsleep.start( 4000, TRUE );
+    fallAsleep.start( 10000, TRUE );
     leaveWindow.stop();
 
     if ( t->group && !t->groupText.isEmpty() )
