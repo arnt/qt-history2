@@ -172,6 +172,15 @@ void QMYSQLResult::cleanup()
 
 bool QMYSQLResult::fetch( int i )
 {
+    if ( isForwardOnly() ) { // fake a forward seek
+	if ( at() < i ) {
+	    int x = i;
+	    while ( x-- && fetchNext() );
+	    return fetchNext();
+	} else {
+	    return FALSE;
+	}
+    }    
     if ( at() == i )
 	return TRUE;
     mysql_data_seek( d->result, i );
@@ -193,6 +202,11 @@ bool QMYSQLResult::fetchNext()
 
 bool QMYSQLResult::fetchLast()
 {
+    if ( isForwardOnly() ) { // fake this since MySQL can't seek on forward only queries
+	bool success = fetchNext(); // did we move at all?
+	while ( fetchNext() );
+	return success;
+    }
     my_ulonglong numRows = mysql_num_rows( d->result );
     if ( !numRows )
 	return FALSE;
@@ -201,6 +215,8 @@ bool QMYSQLResult::fetchLast()
 
 bool QMYSQLResult::fetchFirst()
 {
+    if ( isForwardOnly() ) // again, fake it
+	return fetchNext();
     return fetch( 0 );
 }
 
@@ -285,7 +301,13 @@ bool QMYSQLResult::reset ( const QString& query )
 	setLastError( qMakeError("Unable to execute query", QSqlError::Statement, d ) );
 	return FALSE;
     }
-    d->result = mysql_store_result( d->mysql );
+    if ( isForwardOnly() ) {
+ 	if ( isActive() || isValid() ) // have to empty the results from previous query
+	    fetchLast();
+ 	d->result = mysql_use_result( d->mysql );
+    } else {
+	d->result = mysql_store_result( d->mysql );
+    }
     if ( !d->result && mysql_field_count( d->mysql ) > 0 ) {
 	setLastError( qMakeError( "Unable to store result", QSqlError::Statement, d ) );
 	return FALSE;
@@ -453,7 +475,7 @@ QStringList QMYSQLDriver::tables( const QString& ) const
     MYSQL_RES* tableRes = mysql_list_tables( d->mysql, NULL );
     MYSQL_ROW	row;
     int i = 0;
-    while ( TRUE ) {
+    while ( tableRes && TRUE ) {
 	mysql_data_seek( tableRes, i );
 	row = mysql_fetch_row( tableRes );
 	if ( !row )
