@@ -113,6 +113,7 @@ public:
     int keyboardFocusTab() const;
 
     QTab * tab( int );
+    QTab * tabAt( int );
     int count() const;
 
     virtual void layoutTabs();

@@ -741,6 +741,19 @@ QTab * QTabBar::tab( int id )
 }
 
 
+/*! Returns a pointer to the tab at the position \a pos.
+*/
+
+QTab * QTabBar::tabAt( int pos )
+{
+    QTab * t;
+    t = lstatic->at( pos );
+    if ( t )
+        return t;
+    return 0;
+}
+
+
 /*! Returns the number of tabs in the tab bar.
 
   \sa tab()
