@@ -456,7 +456,6 @@
     connect( bookmarkMenu, SIGNAL( activated( int ) ),
 		this, SLOT( showBookmark( int ) ) );
     
-    
     setupBookmarkMenu();
     connect( browser, SIGNAL( highlighted( const QString &amp; ) ), statusBar(), SLOT( message( const QString &amp; ) ) );
     connect( actionZoomIn, SIGNAL( activated() ), browser, SLOT( zoomIn() ) );
@@ -470,18 +469,20 @@
     fontComboBox-&gt;insertStringList( fonts.families() );   
     fontComboBox-&gt;lineEdit()-&gt;setText( browser-&gt;QWidget::font().family() );  
     
+    QString keybase("/Qt Assistant/3.0/");
     QSettings config;  
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );  
     QFont fnt( browser-&gt;QWidget::font() ); 
-    fnt.setFamily( config.readEntry( "/Assistant/3.0/Family", fnt.family() ) );
-    fnt.setPointSize( config.readNumEntry( "/Assistant/3.0/Size", fnt.pointSize() ) );
+    fnt.setFamily( config.readEntry( keybase + "Family", fnt.family() ) );
+    fnt.setPointSize( config.readNumEntry( keybase + "Size", fnt.pointSize() ) );
     browser-&gt;setFont( fnt ); 
 }</function>
     <function name="destroy()" >{
+    QString keybase("/Qt Assistant/3.0/");
     QSettings config; 
     config.insertSearchPath( QSettings::Windows, "/Trolltech" ); 
-    config.writeEntry( "/Assistant/3.0/Family",  browser-&gt;QWidget::font().family() );
-    config.writeEntry( "/Assistant/3.0/Size",  browser-&gt;QWidget::font().pointSize() );
+    config.writeEntry( keybase + "Family",  browser-&gt;QWidget::font().family() );
+    config.writeEntry( keybase + "Size",  browser-&gt;QWidget::font().pointSize() );
 }</function>
     <function name="about()" >{
 }</function>
@@ -497,7 +498,7 @@
     findDialog-&gt;show();
 }</function>
     <function name="goHome()" >{
-    // #### we need a general Qt fonrtpage with links to Qt Class docu, Designer Manual, Linguist Manual, etc,
+    // #### we need a general Qt frontpage with links to Qt Class docu, Designer Manual, Linguist Manual, etc,
     showLink( "index.html", "Qt Reference Documentation" );
 }</function>
     <function name="showLinguistHelp()" >{
