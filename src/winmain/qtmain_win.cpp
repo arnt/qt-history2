@@ -12,8 +12,11 @@
 ****************************************************************************/
 
 #include "qt_windows.h"
-#include "qvector.h"
+
 #include "qbytearray.h"
+#include "qstring.h"
+#include "qvector.h"
+
 
 /*
   This file contains the code in the qtmain library for Windows.
@@ -49,27 +52,23 @@ extern "C" int main(int, char **);
 */
 
 #ifdef Q_OS_TEMP
-int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance,
-                          LPWSTR wCmdParam, int cmdShow)
+int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPWSTR /*wCmdParam*/, int cmdShow)
 #else
 extern "C"
-int APIENTRY WinMain(HINSTANCE instance, HINSTANCE prevInstance,
-                      LPSTR  cmdParam, int cmdShow)
+int APIENTRY WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParamarg, int cmdShow)
 #endif
 {
-#ifdef Q_OS_TEMP
-    LPSTR cmdParam = "";
-#endif
+    QByteArray cmdParam;
+    QT_WA({
+        LPTSTR cmdline = GetCommandLineW();
+        cmdParam = QString::fromUtf16(cmdline).toLocal8Bit();
+    }, {
+        cmdParam = GetCommandLineA();
+    });
 
     int argc = 0;
-    char* cmdp = 0;
-    if (cmdParam) {
-        // Use malloc/free for eval package compability
-        cmdp = (char*) malloc((qstrlen(cmdParam) + 1) * sizeof(char));
-        qstrcpy(cmdp, cmdParam);
-    }
     QVector<char *> argv(8);
-    qWinMain(instance, prevInstance, cmdp, cmdShow, argc, argv);
+    qWinMain(instance, prevInstance, cmdParam.data(), cmdShow, argc, argv);
 
 #ifdef Q_OS_TEMP
     TCHAR uniqueAppID[256];
@@ -96,7 +95,6 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE prevInstance,
 #endif // Q_OS_TEMP
 
     int result = main(argc, argv.data());
-    if (cmdp) free(cmdp);
     return result;
 }
 

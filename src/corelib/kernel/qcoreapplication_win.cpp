@@ -140,8 +140,7 @@ void qWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
     char *p = cmdParam;
     char *p_end = p + strlen(p);
 
-    argc = 1;
-    argv[0] = appFileName;
+    argc = 0;
 
     while (*p && p < p_end) {                                // parse cmd line arguments
         while (isspace((uchar) *p))                        // skip white space

@@ -166,24 +166,28 @@ extern "C" int main(int, char **);
 #endif
 
 
-EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
-                            HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+EXTERN_C int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR, int nShowCmd)
 {
     qAxOutProcServer = true;
     GetModuleFileNameA(0, qAxModuleFilename, MAX_PATH-1);
     qAxInstance = hInstance;
+
+    QByteArray cmdParam;
+    QT_WA({
+        LPTSTR cmdline = GetCommandLineW();
+        cmdParam = QString::fromUtf16(cmdline).toLocal8Bit();
+    }, {
+        cmdParam = GetCommandLineA();
+    });
     
-    lpCmdLine = GetCommandLineA();
-    QString cmdLine = QString::fromLatin1(lpCmdLine);
-    
-    QStringList cmds = cmdLine.split(" ");
-    QStringList unprocessed;
+    QList<QByteArray> cmds = cmdParam.split(' ');
+    QByteArray unprocessed;
 
     int nRet = 0;
     bool run = true;
     bool runServer = false;
-    for (QStringList::Iterator it = cmds.begin(); it != cmds.end(); ++it) {
-        QString cmd = (*it).toLower();
+    for (int i = 0; i < cmds.count(); ++i) {
+        QByteArray cmd = cmds.at(i);
         if (cmd == "-activex" || cmd == "/activex" || cmd == "-embedding" || cmd == "/embedding") {
             runServer = true;
         } else if (cmd == "-unregserver" || cmd == "/unregserver") {
@@ -195,15 +199,15 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
             run = false;
             break;
         } else if (cmd == "-dumpidl" || cmd == "/dumpidl") {
-            ++it;
-            if (it != cmds.end()) {
-                QString outfile = *it;
-                ++it;
-                QString version;
-                if (it != cmds.end() && (*it == "-version" || *it == "/version")) {
-                    ++it;
-                    if (it != cmds.end())
-                        version = *it;
+            ++i;
+            if (i < cmds.count()) {
+                QByteArray outfile = cmds.at(i);
+                ++i;
+                QByteArray version;
+                if (i < cmds.count() && (cmds.at(i) == "-version" || cmds.at(i) == "/version")) {
+                    ++i;
+                    if (i < cmds.count())
+                        version = cmds.at(i);
                     else
                         version = "1.0";
                 }
@@ -215,32 +219,24 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
             run = false;
             break;
         } else {
-            unprocessed += (*it);
+            unprocessed += cmds.at(i) + " ";
         }
     }
     
     if (run) {
-        int argc;
-        char* cmdp = 0;
-        cmdLine = unprocessed.join(" ");
-
-        // Use malloc/free for eval package compability
-        cmdp = (char*) malloc((cmdLine.length() + 1) * sizeof(char));
-        qstrcpy(cmdp, cmdLine.toLatin1());
-        
         HRESULT hRes = CoInitialize(0);
-        
+
+        int argc;
         QVector<char*> argv(8);
-        qWinMain(hInstance, hPrevInstance, cmdp, nShowCmd, argc, argv);
+        qWinMain(hInstance, hPrevInstance, unprocessed.data(), nShowCmd, argc, argv);
         qAxInit();
         if (runServer)
             QAxFactory::startServer();
-        nRet = main(argc - 1, argv.data() + 1); // application name double from qWinMain
+        nRet = main(argc, argv.data());
         QAxFactory::stopServer();
         qAxCleanup();
         CoUninitialize();
         
-        free(cmdp);
     }
     
     return nRet;
