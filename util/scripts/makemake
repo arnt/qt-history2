@@ -60,7 +60,6 @@ msg2qm: src FORCE
 
 symlinks:
 	@cd include; rm -f q*.h; ln -s ../src/*/q*.h .; ln -s ../extensions/*/src/q*.h .; rm -f q*_p.h
-	@cd include/qprivate; rm -f q*.h; ln -s ../../src/*/q*_p.h . ; ln -s ../../extensions/*/src/q*_p.h .
 
 src: moc .buildopts FORCE
 	cd \$@; \$(MAKE)
