@@ -497,6 +497,13 @@ void QFtp::connectToHost( const QString &host, Q_UINT16 port )
   \sa connectState()
 */
 
+/*!
+  \enum QFtp::Command
+
+###
+*/
+
+
 /*!  \fn void QFtp::connectState( int state )
   This signal is emitted when the state of the connection changes. The argument
   \a state is the new state of the connection; it is one of the enum \l
@@ -508,16 +515,16 @@ void QFtp::connectToHost( const QString &host, Q_UINT16 port )
 /*!  \fn void QFtp::start( int id )
   This signal is emitted ###
 */
-/*!  \fn void finishedSuccess( int )
+/*!  \fn void QFtp::finishedSuccess( int )
   This signal is emitted ###
 */
-/*!  \fn void finishedError( int, const QString& )
+/*!  \fn void QFtp::finishedError( int, const QString& )
   This signal is emitted ###
 */
-/*!  \fn void doneSuccess()
+/*!  \fn void QFtp::doneSuccess()
   This signal is emitted ###
 */
-/*!  \fn void doneError()
+/*!  \fn void QFtp::doneError()
   This signal is emitted ###
 */
 
@@ -530,6 +537,35 @@ int QFtp::login( const QString &user, const QString &password )
     cmds << "USER " + ( user.isNull() ? QString("anonymous") : user ) + "\r\n";
     cmds << "PASS " + ( password.isNull() ? QString("anonymous@") : password ) + "\r\n";
     return addCommand( Login, cmds );
+}
+
+/*!
+  Returns the identifier of the FTP command currently executed or 0 if there is
+  no command executed.
+
+  \sa currentCommand()
+*/
+int QFtp::currentId() const
+{
+    QFtpPrivate *d = ::d( this );
+    QFtpCommand *c = d->pending.getFirst();
+    if ( c == 0 )
+	return 0;
+    return c->id;
+}
+
+/*!
+  Returns the command type of the FTP command currently executed.
+
+  \sa currentId()
+*/
+QFtp::Command QFtp::currentCommand() const
+{
+    QFtpPrivate *d = ::d( this );
+    QFtpCommand *c = d->pending.getFirst();
+    if ( c == 0 )
+	return None;
+    return c->command;
 }
 
 int QFtp::addCommand( Command cmd, const QStringList &rawCmds )

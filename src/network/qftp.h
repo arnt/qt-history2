@@ -68,9 +68,6 @@ public:
     int supportedOperations() const;
 
     // non-QNetworkProtocol functions:
-    void connectToHost( const QString &host, Q_UINT16 port=21 );
-    int login( const QString &user=QString::null, const QString &password=QString::null );
-
     enum ConnectState {
 	CsHostFound,
 	CsConnected,
@@ -78,6 +75,28 @@ public:
 	CsHostNotFound,
 	CsConnectionRefused
     };
+    enum Command {
+	None,
+//###	ConnectToHost,
+	Login,
+//###	Close,
+//###	Cd,
+//###	Get,
+//###	Put,
+//###	Copy,
+//###	List,
+//###	Remove,
+//###	Mkdir,
+//###	Rename,
+//###	Abort,
+	FtpCommand
+    };
+
+    void connectToHost( const QString &host, Q_UINT16 port=21 );
+    int login( const QString &user=QString::null, const QString &password=QString::null );
+
+    int currentId() const;
+    Command currentCommand() const;
 
 signals:
     void connectState( int );
@@ -115,24 +134,7 @@ private:
     void errorForNow( int code, const QCString &data );
     void errorForgetIt( int code, const QCString &data );
 
-    enum Command {
-//###	ConnectToHost,
-	Login,
-//###	Close,
-//###	Cd,
-//###	Get,
-//###	Put,
-//###	Copy,
-//###	List,
-//###	Remove,
-//###	Mkdir,
-//###	Rename,
-//###	Abort,
-	FtpCommand
-    };
     int addCommand( Command cmd, const QStringList &rawCmds );
-
-    friend class QFtpCommand;
 
 private slots:
     void startNextCommand();
