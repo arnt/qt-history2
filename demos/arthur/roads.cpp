@@ -5,6 +5,7 @@
 
 Roads::Roads(QWidget *parent)
 {
+#if 0
     yellowLine.moveTo(0, 0);
 
     yellowLine.curveTo(100, 0, 100, 100, 0, 100);
@@ -13,10 +14,12 @@ Roads::Roads(QWidget *parent)
     QPainterPathStroker stroker;
     stroker.setWidth(10);
     carVector = stroker.createStroke(yellowLine).toFillPolygon();
+#endif
 }
 
 void Roads::paintEvent(QPaintEvent *e)
 {
+#if 0
     QPainter p(this);
     fillBackground(&p);
 
@@ -47,5 +50,5 @@ void Roads::paintEvent(QPaintEvent *e)
     p.setPen(Qt::NoPen);
     p.setBrush(Qt::red);
     p.drawEllipse(-3, -3, 6, 6);
-
+#endif
 }
