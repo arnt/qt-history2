@@ -620,6 +620,8 @@ public:
     QChar::Decomposition decompositionTag() const { return ((QChar)*this).decompositionTag(); }
     uchar combiningClass() const { return ((QChar)*this).combiningClass(); }
 
+    QChar::UnicodeVersion unicodeVersion() const { return ((QChar)*this).unicodeVersion(); }
+
     inline uchar cell() const { return ((QChar)*this).cell(); }
     inline uchar row() const { return ((QChar)*this).row(); }
     inline void setCell(uchar cell) { ((QChar)*this).setCell(cell); }
