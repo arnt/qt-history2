@@ -60,7 +60,11 @@
 
     \value Normal	    The normal state.
     \value Unavailable	    The object is unavailable to the user, e.g. a disabled widget.
+    \value Selectable	    The object can be selectable.
+    \value MultiSelectable  The object can have multiple selected items.
+    \value ExtSelectable    The object supports extended selection.
     \value Selected	    The object is selected.
+    \value Focusable	    The object can receive focus. Only objects on the active
     \value Focused	    The object has keyboard focus.
     \value Pressed	    The object is pressed.
     \value Checked	    The object's check box is checked.
@@ -68,6 +72,8 @@
 			    check box that is neither checked nor unchecked.
     \value ReadOnly	    The object can usually be edited, but is explicitly set to
 			    read-only.
+    \value Protected	    The object is password protected, e.g. a line edit for entering 
+			    a Password.
     \value HotTracked	    The object's appearance is sensitive to the mouse cursor position.
     \value DefaultButton    The object represents the default button in a dialog.
     \value Expanded	    The object is expandable, and currently the children are visible.
@@ -85,19 +91,14 @@
     \value Sizeable	    The object can be resized, e.g. toplevel windows.
     \value Moveable	    The object can be moved.
     \value SelfVoicing	    The object describes itself through speach or sound.
-    \value Focusable	    The object can receive focus. Only objects on the active
 			    window can receive focus.
-    \value Selectable	    The object can be selectable.
     \value Linked	    The object is linked to another object, e.g. a hyperlink.
     \value Traversed	    The object is linked and has been visited.
-    \value MultiSelectable  The object can have multiple selected items.
-    \value ExtSelectable    The object supports extended selection.
     \omit
     \value AlertLow
     \value AlertMedium
     \value AlertHigh
     \endomit
-    \value Protected	    The object is password protected.
     \value HasPopup	    The object opens a popup.
     \value Modal	    The object blocks input from other objects.
 
@@ -152,68 +153,80 @@
 
     This enum defines the role of an accessible object. The roles are:
 
-    \value NoRole
-    \value TitleBar
-    \value MenuBar
-    \value ScrollBar
-    \value Grip
-    \value Sound
-    \value Cursor
-    \value Caret
-    \value AlertMessage
-    \value Window
-    \value Client
-    \value PopupMenu
-    \value MenuItem
-    \value ToolTip
-    \value Application
-    \value Document
-    \value Pane
-    \value Chart
-    \value Dialog
-    \value Border
-    \value Grouping
-    \value Separator
-    \value ToolBar
-    \value StatusBar
-    \value Table
-    \value ColumnHeader
-    \value RowHeader
-    \value Column
-    \value Row
-    \value Cell
-    \value Link
-    \value HelpBalloon
-    \value Character
-    \value List
-    \value ListItem
-    \value Outline
-    \value OutlineItem
-    \value PageTab
-    \value PropertyPage
-    \value Indicator
-    \value Graphic
-    \value StaticText
-    \value EditableText
-    \value PushButton
-    \value CheckBox
-    \value RadioButton
-    \value ComboBox
-    \value DropLest
-    \value ProgressBar
-    \value Dial
-    \value HotkeyField
-    \value Slider
-    \value SpinBox
-    \value Diagram
-    \value Animation
-    \value Equation
-    \value ButtonDropDown
-    \value ButtonMenu
-    \value ButtonDropGrid
-    \value Whitespace
-    \value PageTabList
-    \value Clock
+    \value NoRole	    The object has no role. This usually indicates an invalid object.
+    \value TitleBar	    A title bar caption of a window.
+    \value MenuBar	    A menu bar from which menus are opened by the user.
+    \value MenuItem	    An item in a menu or menu bar.
+    \value PopupMenu	    A menu which lists options that the user can select to perform an
+			    action.
+    \value ScrollBar	    A scroll bar, which allows the user to scroll the visible area.
+    \value ToolBar	    A tool bar, which groups controls that the user accesses frequently.
+    \value StatusBar	    A status bar, displaying different information.
+    \value Grip		    A grip that the user can drag to change the size of controls.
+    \value Sound	    An object representing sound.
+    \value Cursor	    The object represents the mouse cursor.
+    \value Caret	    The object represents the system caret.
+    \value AlertMessage	    The object is used to alert the user.
+    \value Window	    A top level window.
+    \value Client	    The client area in a window.
+    \value Application	    The application main window.
+    \value Document	    A document window, usually in an MDI environment.
+    \value Pane		    A generic container.
+    \value Chart	    An object displays a graphical representation of data.
+    \value Dialog	    A dialog box.
+    \value Border	    The object represents a border.
+    \value Grouping	    The object represents logical grouping of other objects.
+    \value LayeredPane	    An object that can contain layered children, e.g. in a stack.
+    \value Splitter	    A splitter distributing available space between the children.
+    \value Separator	    A separator that divides space into logical areas.
+    \value Table	    A table representing data in a grid of rows and columns.
+    \value ColumnHeader	    A header for a column of data.
+    \value RowHeader	    A header for a row of data.
+    \value Column	    A column of cells, usually within a table.
+    \value Row		    A row of cells, usually within a table.
+    \value Cell		    A cell in a table.
+    \value Link		    A link to something else.
+    \value ToolTip	    A tool tip which provides information about other objects.
+    \value HelpBalloon	    An object displaying help in a separate, short lived window.
+    \value Assistant	    An object providing help interactively.
+    \value List		    A list of items, allowing the user to select one or more items.
+    \value ListItem	    An item in a list of items.
+    \value Tree		    A list of items in a tree structure.
+    \value TreeItem	    An item in a tree structure.
+    \value PageTab	    A page tab that the user can select to switch to a different
+			    page in a dialog.
+    \value PageTabList	    A list of page tabs.
+    \value PropertyPage	    A property page where the user can change options and settings.
+    \value Indicator	    An indicator that represents a current value or item.
+    \value Graphic	    A graphic or picture, e.g. an icon.
+    \value StaticText	    Static text, such as labels for other controls.
+    \value EditableText	    Editable text
+    \value PushButton	    A push button control.
+    \value CheckBox	    The object represents an option that can be checked or
+			    unchecked. Some options provide a "mixed" state, e.g. neither
+			    checked nor unchecked.
+    \value RadioButton	    The object represents an option that is mutually exclusive
+			    with other options.
+    \value ComboBox	    A list of choices that the user can select from.
+    \omit
+    \value DropList
+    \endomit
+    \value ProgressBar	    The object displays the progress of an operation in progress.
+    \value Dial		    The object represents a dial or knob.
+    \value HotkeyField	    A hotkey field that allows the user to enter a key sequence.			    
+    \value Slider	    A slider that allows the user to select a value within a
+			    given range.
+    \value SpinBox	    A spin box control that allows the user to enter a value within
+			    a given range.
+    \value Canvas	    An object displaying graphics that the user can interact with.
+    \value Animation	    An object displaying an animation.
+    \value Equation	    The object represents a mathematical equation.
+    \value ButtonDropDown   A button that drops down a list of items.
+    \value ButtonMenu	    A button that drops down a menu.
+    \value ButtonDropGrid   A button that drops down a grid.
+    \value Whitespace	    Blank space between other objects.
+    \value Clock	    A clock displaying time
+    \value UserRole	    The first value to be used for user defined roles.
 */
 
 /*!

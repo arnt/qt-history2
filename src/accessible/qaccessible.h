@@ -141,11 +141,11 @@ public:
 	Cell		= 0x0000001D,
 	Link		= 0x0000001E,
 	HelpBalloon	= 0x0000001F,
-	Character	= 0x00000020,
+	Assistant	= 0x00000020,
 	List		= 0x00000021,
 	ListItem	= 0x00000022,
-	Outline		= 0x00000023,
-	OutlineItem	= 0x00000024,
+	Tree		= 0x00000023,
+	TreeItem	= 0x00000024,
 	PageTab		= 0x00000025,
 	PropertyPage	= 0x00000026,
 	Indicator	= 0x00000027,
@@ -156,13 +156,13 @@ public:
 	CheckBox	= 0x0000002C,
 	RadioButton	= 0x0000002D,
 	ComboBox	= 0x0000002E,
-	DropLest	= 0x0000002F,
+	// DropList	= 0x0000002F,
 	ProgressBar	= 0x00000030,
 	Dial		= 0x00000031,
 	HotkeyField	= 0x00000032,
 	Slider		= 0x00000033,
 	SpinBox		= 0x00000034,
-	Diagram		= 0x00000035,
+	Canvas		= 0x00000035,
 	Animation	= 0x00000036,
 	Equation	= 0x00000037,
 	ButtonDropDown	= 0x00000038,
@@ -170,7 +170,10 @@ public:
 	ButtonDropGrid	= 0x0000003A,
 	Whitespace	= 0x0000003B,
 	PageTabList	= 0x0000003C,
-	Clock		= 0x0000003D
+	Clock		= 0x0000003D,
+	Splitter	= 0x0000003E,
+	LayeredPane	= 0x0000003F,
+	UserRole	= 0x0000ffff
     };
 
     enum Text {
