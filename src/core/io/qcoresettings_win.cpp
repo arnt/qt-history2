@@ -165,7 +165,7 @@ static HKEY createOrOpenKey(HKEY parentHandle, REGSAM perms, const QString &rSub
     if (res == ERROR_SUCCESS)
         return resultHandle;
 
-    qWarning("QCoreSettings: filed to create subkey \"%s\": %s",
+    qWarning("QCoreSettings: failed to create subkey \"%s\": %s",
             rSubKey.latin1(), errorCodeToString(res).latin1());
 
     return 0;
@@ -380,6 +380,8 @@ QWinSettingsPrivate::QWinSettingsPrivate(Qt::SettingsScope scope, const QString 
 
 QWinSettingsPrivate::QWinSettingsPrivate(QString rPath)
 {
+    deleteWriteHandleOnExit = false;
+
     if (rPath.startsWith("\\"))
         rPath = rPath.mid(1);
 
@@ -534,7 +536,7 @@ QWinSettingsPrivate::~QWinSettingsPrivate()
             res = RegDeleteKeyA(writeHandle(), emptyKey.local8Bit());
         } );
         if (res != ERROR_SUCCESS) {
-            qWarning("QCoreSettings: filed to delete key \"%s\": %s",
+            qWarning("QCoreSettings: failed to delete key \"%s\": %s",
                     regList.at(0).key.latin1(), errorCodeToString(res).latin1());
         }
     }
@@ -704,7 +706,7 @@ void QWinSettingsPrivate::set(const QString &uKey, const QCoreVariant &value)
     if (res == ERROR_SUCCESS) {
         deleteWriteHandleOnExit = false;
     } else {
-        qWarning("QCoreSettings: filed to set subkey \"%s\": %s",
+        qWarning("QCoreSettings: failed to set subkey \"%s\": %s",
                 rKey.latin1(), errorCodeToString(res).latin1());
     }
 
