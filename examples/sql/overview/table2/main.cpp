@@ -27,8 +27,8 @@ int main( int argc, char *argv[] )
 	app.setMainWidget( staffTable );
 
 	staffTable->addColumn( "forename", "Forename" );
-	staffTable->addColumn( "surname", "Surname" );
-	staffTable->addColumn( "salary", "Annual Salary" );
+	staffTable->addColumn( "surname",  "Surname" );
+	staffTable->addColumn( "salary",   "Annual Salary" );
 
 	QStringList order = QStringList() << "surname" << "forename";
 	staffTable->setSort( order );

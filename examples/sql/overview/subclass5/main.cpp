@@ -79,11 +79,11 @@ int main( int argc, char *argv[] )
 
 	app.setMainWidget( invoiceItemTable );
 
-	invoiceItemTable->addColumn( "productname" );
-	invoiceItemTable->addColumn( "price" );
-	invoiceItemTable->addColumn( "quantity" );
-	invoiceItemTable->addColumn( "cost" );
-	invoiceItemTable->addColumn( "paiddate" );
+	invoiceItemTable->addColumn( "productname", "Product" );
+	invoiceItemTable->addColumn( "price",	    "Price" );
+	invoiceItemTable->addColumn( "quantity",    "Quantity" );
+	invoiceItemTable->addColumn( "cost",	    "Cost" );
+	invoiceItemTable->addColumn( "paiddate",    "Paid" );
 
 	invoiceItemTable->refresh();
 	invoiceItemTable->show();
