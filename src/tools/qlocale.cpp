@@ -2475,7 +2475,7 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 
 #if defined(__m68k__)    || defined(__sparc__) || defined(__i386__) || \
     defined(__mips__)    || defined(__ns32k__) || defined(__alpha__) || \
-    defined(__powerpc__) || defined(Q_WS_WIN)
+    defined(__powerpc__) || defined(Q_WS_WIN) || defined(Q_WS_MACX)
 #include <sys/types.h>
 #if defined(BYTEORDER) && defined(BIG_ENDIAN) && (BYTE_ORDER == BIG_ENDIAN)
 #define IEEE_BIG_ENDIAN
@@ -2521,8 +2521,7 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 #endif
 */
 
-#include <malloc.h>
-#include <memory.h>
+#include <stdlib.h>
 
 /* char *__dtoa __P((double, int, int, int *, int *, char **, char **)); */
 
