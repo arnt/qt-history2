@@ -1561,7 +1561,8 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	ret = 8;
 	break;
     case PM_SpinBoxFrameWidth:
-	ret = 1;
+	GetThemeMetric(kThemeMetricEditTextFrameOutset, &ret);
+	ret += 2;
 	break;
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
