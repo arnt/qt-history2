@@ -497,7 +497,7 @@ QAction *QMenuBar::insertMenu(QAction *before, const QString &text, QMenu *menu)
 */
 QAction *QMenuBar::activeAction() const
 {
-    return d->currentAction->action;
+    return d->currentAction ? d->currentAction->action : 0;
 }
 
 /*!
