@@ -113,7 +113,7 @@ inline static QPaintEngine::PaintEngineFeatures qt_mac_qd_features()
 {
     return QPaintEngine::PaintEngineFeatures(
         QPaintEngine::UsesFontEngine|QPaintEngine::PixmapScale
-        |QPaintEngine::AlphaPixmap
+        |QPaintEngine::AlphaPixmap|QPaintEngine::PenWidthTransform
         );
 }
 
@@ -455,41 +455,29 @@ QQuickDrawPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
 {
     Q_ASSERT(isActive());
     if (mode == PolylineMode) {
-        int x1, y1, x2, y2, xsave, ysave;
         QPointArray pa = p.toPointArray();
         if(pa.isEmpty())
             return;
-        pa.point(pa.count()-2, &x1, &y1);      // last line segment
-        pa.point(pa.count()-1, &x2, &y2);
-        xsave = x2; ysave = y2;
-        bool plot_pixel = false;
-        if(x1 == x2) {                           // vertical
-            if(y1 < y2)
-                y2++;
-            else
-                y2--;
-        } else if(y1 == y2) {                    // horizontal
-            if(x1 < x2)
-                x2++;
-            else
-                x2--;
-        } else {
-            plot_pixel = d->current.pen.style() == Qt::SolidLine; // plot last pixel
-        }
         setupQDPort();
         if(d->clip.paintable.isEmpty())
             return;
 
         setupQDPen();
-        /* We draw 5000 chunks at a time because of limitations in QD */
+        QPoint penPoint(0, 0);
+        if(d->current.pen.width() > 0) {
+            int dot = d->current.pen.width() / 2;
+            penPoint = QPoint(-dot, -dot);
+        }
+
+        // We draw 5000 chunks at a time because of limitations in QD 
         for(int chunk = 0; chunk < pa.count();) {
             //make a region of it
             PolyHandle poly = OpenPoly();
-            MoveTo(pa[chunk].x()+d->offx, pa[chunk].y()+d->offy);
+            MoveTo(pa[chunk].x()+d->offx+penPoint.x(), pa[chunk].y()+d->offy+penPoint.y());
             for(int last_chunk=chunk+5000; chunk < last_chunk; chunk++) {
                 if(chunk == pa.count())
                     break;
-                LineTo(pa[chunk].x()+d->offx, pa[chunk].y()+d->offy);
+                LineTo(pa[chunk].x()+d->offx+penPoint.x(), pa[chunk].y()+d->offy+penPoint.y());
             }
             ClosePoly();
             //now draw it
