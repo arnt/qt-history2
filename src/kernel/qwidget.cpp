@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#302 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#303 $
 **
 ** Implementation of QWidget class
 **
@@ -2351,7 +2351,7 @@ void QWidget::setFRect( const QRect &r )
 	crect.setRight( crect.right() + r.right() - frect.right() );
 	crect.setBottom( crect.bottom() + r.bottom() - frect.bottom() );
 	fpos = r.topLeft();
-	extra->topextra->fsize = frect.size();
+	extra->topextra->fsize = r.size();
     } else {
 	// One rect is both the same.
 	fpos = r.topLeft();
@@ -2373,7 +2373,7 @@ void QWidget::setFRect( const QRect &r )
 void QWidget::setCRect( const QRect &r )
 {
     if ( extra && extra->topextra ) {
-	QRect frect;
+	QRect frect = frameGeometry();
 	frect.setLeft( frect.left() + r.left() - crect.left() );
 	frect.setTop( frect.top() + r.top() - crect.top() );
 	frect.setRight( frect.right() + r.right() - crect.right() );
