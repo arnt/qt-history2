@@ -33,6 +33,7 @@ void QProcess::init()
     socketStderr[0] = 0;
     socketStderr[1] = 0;
 #else
+/*
     overlappedStdin.Offset = 0;
     overlappedStdin.OffsetHigh = 0;
     overlappedStdin.hEvent = 0;
@@ -44,6 +45,7 @@ void QProcess::init()
     overlappedStderr.Offset = 0;
     overlappedStderr.OffsetHigh = 0;
     overlappedStderr.hEvent = 0;
+*/
 #endif
 }
 
@@ -202,14 +204,41 @@ bool QProcess::start()
     return TRUE;
 #else
     // open the pipes
+    // make non-inheritable copies of input write and output read handles
+    // to avoid non-closable handles
     SECURITY_ATTRIBUTES secAtt = { sizeof( SECURITY_ATTRIBUTES ), NULL, TRUE };
-    if ( !CreatePipe( &pipeStdin[0], &pipeStdin[1], &secAtt, 0 ) ) {
+    HANDLE tmpStdin, tmpStdout, tmpStderr;
+    if ( !CreatePipe( &pipeStdin[0], &tmpStdin, &secAtt, 0 ) ) {
 	return FALSE;
     }
-    if ( !CreatePipe( &pipeStdout[0], &pipeStdout[1], &secAtt, 0 ) ) {
+    if ( !CreatePipe( &tmpStdout, &pipeStdout[1], &secAtt, 0 ) ) {
 	return FALSE;
     }
-    if ( !CreatePipe( &pipeStderr[0], &pipeStderr[1], &secAtt, 0 ) ) {
+    if ( !CreatePipe( &tmpStderr, &pipeStderr[1], &secAtt, 0 ) ) {
+	return FALSE;
+    }
+    if ( !DuplicateHandle( GetCurrentProcess(), tmpStdin,
+	GetCurrentProcess(), &pipeStdin[1],
+	0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
+	return FALSE;
+    }
+    if ( !DuplicateHandle( GetCurrentProcess(), tmpStdout,
+	GetCurrentProcess(), &pipeStdout[0],
+	0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
+	return FALSE;
+    }
+    if ( !DuplicateHandle( GetCurrentProcess(), tmpStderr,
+	GetCurrentProcess(), &pipeStderr[0],
+	0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
+	return FALSE;
+    }
+    if ( !CloseHandle( tmpStdin ) ) {
+	return FALSE;
+    }
+    if ( !CloseHandle( tmpStdout ) ) {
+	return FALSE;
+    }
+    if ( !CloseHandle( tmpStderr ) ) {
 	return FALSE;
     }
 
@@ -536,7 +565,7 @@ QByteArray QProcess::readStdout()
     // and read it!
     QByteArray readBuffer( i );
     if ( i > 0 ) {
-	ReadFile( pipeStdout[0], readBuffer.data(), i, &r, &overlappedStdout );
+	ReadFile( pipeStdout[0], readBuffer.data(), i, &r, 0 );
     }
     return readBuffer;
 #endif
