@@ -301,6 +301,8 @@ public:
 
     virtual void paintCell( QPainter *p, int row, int col,
                             const QRect &cr, bool selected );
+    virtual void paintCell( QPainter *p, int row, int col,
+                            const QRect &cr, bool selected, const QColorGroup &cg );
     virtual void paintFocus( QPainter *p, const QRect &r );
     QSize sizeHint() const;
 

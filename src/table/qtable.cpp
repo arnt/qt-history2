@@ -2324,11 +2324,35 @@ QRect QTable::cellRect( int row, int col ) const
     return QRect( QPoint(0,0), cellGeometry( row, col ).size() );
 }
 
+/*! \overload
+
+  You should rather use the other paintCell() function, this one is
+  there for backwards compatibilty
+*/
+
+void QTable::paintCell( QPainter* p, int row, int col,
+			const QRect &cr, bool selected )
+{
+    QColorGroup cg;
+#if defined(Q_WS_WIN)
+    if ( !drawActiveSelection &&
+	 ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+	cg = palette().inactive();
+    else
+#endif
+	cg = colorGroup();
+
+    paintCell( p, row, col, cr, selected, cg );
+}
+
 /*! Paints the cell at \a row, \a col on the painter \a
   p. The painter has already been translated to the cell's origin. \a
   cr describes the cell coordinates in the content coordinate system.
 
   If \a selected is TRUE the cell is highlighted.
+
+  \a cg is the colorgroup which should be used to draw the cell
+  content.
 
   If you want to draw custom cell content, for example right-aligned
   text, you must either reimplement paintCell(), or subclass QTableItem
@@ -2350,12 +2374,10 @@ QRect QTable::cellRect( int row, int col ) const
     //... your drawing code
     p->setClipping( FALSE );
     \endcode
-
-
 */
 
-void QTable::paintCell( QPainter* p, int row, int col,
-			const QRect &cr, bool selected )
+void QTable::paintCell( QPainter *p, int row, int col,
+			const QRect &cr, bool selected, const QColorGroup &cg )
 {
     if ( focusStl == SpreadSheet && selected &&
 	 row == curRow &&
@@ -2367,14 +2389,6 @@ void QTable::paintCell( QPainter* p, int row, int col,
     int x2 = w - 1;
     int y2 = h - 1;
 
-    QColorGroup cg;
-#if defined(Q_WS_WIN)
-    if ( !drawActiveSelection &&
-	 ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
-	cg = palette().inactive();
-    else
-#endif
-	cg = colorGroup();
 
     QTableItem *itm = item( row, col );
     if ( itm ) {

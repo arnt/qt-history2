@@ -197,7 +197,7 @@ protected:
     void         setSize( QSqlCursor* sql );
     void         repaintCell( int row, int col );
     void         paintCell ( QPainter * p, int row, int col, const QRect & cr,
-			     bool selected );
+			     bool selected, const QColorGroup &cg );
     virtual void paintField( QPainter * p, const QSqlField* field, const QRect & cr,
 			     bool selected );
     virtual int  fieldAlignment( const QSqlField* field );

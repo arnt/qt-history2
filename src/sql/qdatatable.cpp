@@ -1527,14 +1527,14 @@ void QDataTable::repaintCell( int row, int col )
 */
 
 void QDataTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
-			  bool selected )
+			  bool selected, const QColorGroup &cg )
 {
-    QTable::paintCell( p, row, col, cr, selected );  // empty cell
+    QTable::paintCell( p, row, col, cr, selected, cg );  // empty cell
 
     if ( !sqlCursor() )
 	return;
 
-    p->setPen( selected ? colorGroup().highlightedText() : colorGroup().text() );
+    p->setPen( selected ? cg.highlightedText() : cg.text() );
     if ( d->dat.mode() != QSql::None ) {
 	if ( row == d->editRow && d->editBuffer ) {
 	    paintField( p, d->editBuffer->field( indexOf( col ) ), cr,
