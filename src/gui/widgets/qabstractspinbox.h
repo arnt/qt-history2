@@ -76,6 +76,7 @@ protected:
     void keyPressEvent(QKeyEvent *e);
     void keyReleaseEvent(QKeyEvent *e);
     void wheelEvent(QWheelEvent *e);
+    void focusInEvent(QFocusEvent *e);
     void focusOutEvent(QFocusEvent *e);
     void contextMenuEvent(QContextMenuEvent *e);
     void changeEvent(QEvent *e);

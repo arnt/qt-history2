@@ -1026,7 +1026,7 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
                 ((QMoveEvent *)(cur.event))->p = ((QMoveEvent *)event)->p;
 #ifdef Q_WS_QWS
             } else if (cur.event->type() == QEvent::QWSUpdate) {
-                QPaintEvent * p = (QPaintEvent*)(cur.event);
+                QPaintEvent * p = static_cast<QPaintEvent*>(cur.event);
                 p->reg = p->reg.unite(((QPaintEvent *)event)->reg);
                 p->rec = p->rec.unite(((QPaintEvent *)event)->rec);
 #endif
@@ -1837,7 +1837,7 @@ static bool qt_detectRTLLanguage()
 bool QApplication::event(QEvent *e)
 {
     if(e->type() == QEvent::Close) {
-        QCloseEvent *ce = (QCloseEvent*)e;
+        QCloseEvent *ce = static_cast<QCloseEvent*>(e);
         ce->accept();
         closeAllWindows();
 
@@ -2661,16 +2661,16 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     case QEvent::Accel:
     {
         if (d->use_compat()) {
-            QKeyEvent* key = (QKeyEvent*) e;
+            QKeyEvent* key = static_cast<QKeyEvent*>(e);
             res = notify_helper(receiver, e);
 
             if (!res && !key->isAccepted())
-                res = d->qt_dispatchAccelEvent((QWidget*)receiver, key);
+                res = d->qt_dispatchAccelEvent(static_cast<QWidget *>(receiver), key);
 
             // next lines are for compatibility with Qt <= 3.0.x: old
             // QAccel was listening on toplevel widgets
-            if (!res && !key->isAccepted() && !((QWidget*)receiver)->isTopLevel())
-                res = notify_helper(((QWidget*)receiver)->topLevelWidget(), e);
+            if (!res && !key->isAccepted() && !static_cast<QWidget *>(receiver)->isTopLevel())
+                res = notify_helper(static_cast<QWidget *>(receiver)->topLevelWidget(), e);
         }
         break;
     }
@@ -2697,9 +2697,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             else
                 key->ignore();
             res = notify_helper(w, e);
-            if (res && key->isAccepted())
-                break;
-            if (w->isTopLevel() || !w->parentWidget())
+            if ((res && key->isAccepted()) || w->isTopLevel() || !w->parentWidget())
                 break;
             w = w->parentWidget();
         }
@@ -2710,8 +2708,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     case QEvent::MouseButtonDblClick:
     case QEvent::MouseMove:
     {
-        QWidget* w = (QWidget*)receiver;
-        QMouseEvent* mouse = (QMouseEvent*) e;
+        QWidget* w = static_cast<QWidget *>(receiver);
+        QMouseEvent* mouse = static_cast<QMouseEvent*>(e);
         QPoint relpos = mouse->pos();
 
         if (e->spontaneous()) {
@@ -2774,8 +2772,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
     {
-        QWidget* w = (QWidget*)receiver;
-        QWheelEvent* wheel = (QWheelEvent*) e;
+        QWidget* w = static_cast<QWidget *>(receiver);
+        QWheelEvent* wheel = static_cast<QWheelEvent*>(e);
         QPoint relpos = wheel->pos();
 
         if (e->spontaneous()) {
@@ -2799,7 +2797,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             we.spont = wheel->spontaneous();
             res = notify_helper(w,  w == receiver ? wheel : &we);
             e->spont = false;
-            if (res || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation))
+            if ((res && (w == receiver ? wheel : &we)->isAccepted())
+                || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation))
                 break;
 
             relpos += w->pos();
@@ -2814,8 +2813,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 #endif
     case QEvent::ContextMenu:
     {
-        QWidget* w = (QWidget*)receiver;
-        QContextMenuEvent *context = (QContextMenuEvent*) e;
+        QWidget* w = static_cast<QWidget *>(receiver);
+        QContextMenuEvent *context = static_cast<QContextMenuEvent*>(e);
         QPoint relpos = context->pos();
         while (w) {
             QContextMenuEvent ce(context->reason(), relpos, context->globalPos());
@@ -2823,7 +2822,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             res = notify_helper(w,  w == receiver ? context : &ce);
             e->spont = false;
 
-            if (res || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation))
+            if ((res && (w == receiver ? context : &ce)->isAccepted())
+                || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation))
                 break;
 
             relpos += w->pos();
@@ -2840,8 +2840,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     case QEvent::TabletPress:
     case QEvent::TabletRelease:
     {
-        QWidget *w = (QWidget*)receiver;
-        QTabletEvent *tablet = (QTabletEvent*)e;
+        QWidget *w = static_cast<QWidget *>(receiver);
+        QTabletEvent *tablet = static_cast<QTabletEvent*>(e);
         QPoint relpos = tablet->pos();
         while (w) {
             QTabletEvent te(tablet->type(), tablet->pos(), tablet->globalPos(), tablet->hiResPos(),
@@ -2870,16 +2870,15 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     case QEvent::ToolTip:
     case QEvent::WhatsThis:
     {
-        QWidget* w = (QWidget*)receiver;
-        QHelpEvent *help = (QHelpEvent*) e;
+        QWidget* w = static_cast<QWidget *>(receiver);
+        QHelpEvent *help = static_cast<QHelpEvent*>(e);
         QPoint relpos = help->pos();
         while (w) {
             QHelpEvent he(help->type(), relpos, help->globalPos());
             he.spont = e->spontaneous();
             res = notify_helper(w,  w == receiver ? help : &he);
             e->spont = false;
-
-            if (res || w->isTopLevel())
+            if ((res && (w == receiver ? help : &he)->isAccepted()) || w->isTopLevel())
                 break;
 
             relpos += w->pos();
@@ -2891,10 +2890,10 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     case QEvent::StatusTip:
     case QEvent::WhatsThisClicked:
     {
-        QWidget *w = (QWidget*)receiver;
+        QWidget *w = static_cast<QWidget *>(receiver);
         while (w) {
             res = notify_helper(w, e);
-            if (res || w->isTopLevel())
+            if ((res && static_cast<QAcceptEvent*>(e)->isAccepted()) || w->isTopLevel())
                 break;
             w = w->parentWidget();
         }
@@ -2922,7 +2921,7 @@ bool QApplication::notify_helper(QObject *receiver, QEvent * e)
     bool handled = false;
 
     if (receiver->isWidgetType()) {
-        QWidget *widget = (QWidget*)receiver;
+        QWidget *widget = static_cast<QWidget *>(receiver);
 
         // toggle HasMouse widget state on enter and leave
         if (e->type() == QEvent::Enter || e->type() == QEvent::DragEnter)
@@ -2942,14 +2941,14 @@ bool QApplication::notify_helper(QObject *receiver, QEvent * e)
             case QEvent::MouseButtonRelease:
             case QEvent::MouseButtonDblClick:
             case QEvent::MouseMove:
-                ((QMouseEvent*) e)->ignore();
+                static_cast<QMouseEvent*>(e)->ignore();
                 consumed = true;
                 handled = true;
                 break;
 #ifndef QT_NO_DRAGANDDROP
             case QEvent::DragEnter:
             case QEvent::DragMove:
-                ((QDragMoveEvent*) e)->ignore();
+                static_cast<QDragMoveEvent*>(e)->ignore();
                 handled = true;
                 break;
             case QEvent::DragLeave:
@@ -2957,18 +2956,18 @@ bool QApplication::notify_helper(QObject *receiver, QEvent * e)
                 handled = true;
                 break;
             case QEvent::Drop:
-                ((QDropEvent*) e)->ignore();
+                static_cast<QDropEvent*>(e)->ignore();
                 handled = true;
                 break;
 #endif
 #ifndef QT_NO_WHEELEVENT
             case QEvent::Wheel:
-                ((QWheelEvent*) e)->ignore();
+                static_cast<QWheelEvent*>(e)->ignore();
                 handled = true;
                 break;
 #endif
             case QEvent::ContextMenu:
-                ((QContextMenuEvent*) e)->ignore();
+                static_cast<QContextMenuEvent*>(e)->ignore();
                 handled = true;
                 break;
             default:

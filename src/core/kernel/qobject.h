@@ -75,6 +75,9 @@ public:
     QObject(QObject *parent=0);
     virtual ~QObject();
 
+    virtual bool event(QEvent *);
+    virtual bool eventFilter(QObject *, QEvent *);
+
 #ifdef qdoc
     static QString tr(const char *, const char *);
     static QString trUtf8(const char *, const char *);
@@ -170,9 +173,6 @@ public slots:
 protected:
     QObject *sender() const;
     int receivers(const char* signal) const;
-
-    virtual bool event(QEvent *);
-    virtual bool eventFilter(QObject *, QEvent *);
 
     virtual void timerEvent(QTimerEvent *);
     virtual void childEvent(QChildEvent *);

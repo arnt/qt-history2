@@ -26,12 +26,6 @@
 #define d d_func()
 #define q q_func()
 
-class QComboBoxLineEdit : public QLineEdit
-{
-public:
-    bool forwardEvent(QEvent *e) { return event(e); }
-};
-
 
 /*!
     \internal
@@ -1309,7 +1303,7 @@ void QComboBox::focusInEvent(QFocusEvent *e)
 {
     update();
     if (d->lineEdit)
-        static_cast<QComboBoxLineEdit*>(d->lineEdit)->forwardEvent(e);
+        d->lineEdit->event(e);
 }
 
 /*!
@@ -1320,7 +1314,7 @@ void QComboBox::focusOutEvent(QFocusEvent *e)
 {
     update();
     if (d->lineEdit)
-        static_cast<QComboBoxLineEdit*>(d->lineEdit)->forwardEvent(e);
+        d->lineEdit->event(e);
 }
 
 /*! \reimp */
@@ -1500,7 +1494,7 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
     if (newRow != currentItem())
         setCurrentItem(newRow);
     else if (d->lineEdit)
-        static_cast<QComboBoxLineEdit*>(d->lineEdit)->forwardEvent(e);
+        d->lineEdit->event(e);
 }
 
 
@@ -1511,7 +1505,7 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
 void QComboBox::keyReleaseEvent(QKeyEvent *e)
 {
     if (d->lineEdit)
-        static_cast<QComboBoxLineEdit*>(d->lineEdit)->forwardEvent(e);
+        d->lineEdit->event(e);
 
 }
 
@@ -1521,7 +1515,7 @@ void QComboBox::keyReleaseEvent(QKeyEvent *e)
 void QComboBox::inputMethodEvent(QInputMethodEvent *e)
 {
     if (d->lineEdit)
-        static_cast<QComboBoxLineEdit*>(d->lineEdit)->forwardEvent(e);
+        d->lineEdit->event(e);
 }
 
 /*!

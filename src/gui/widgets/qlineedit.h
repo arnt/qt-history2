@@ -142,7 +142,6 @@ signals:
     void selectionChanged();
 
 protected:
-    bool event(QEvent *);
     void mousePressEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
@@ -167,6 +166,7 @@ protected:
     void inputMethodEvent(QInputMethodEvent *);
 public:
     QVariant inputMethodQuery(Qt::InputMethodQuery) const;
+    bool event(QEvent *);
 protected:
 
 public:
