@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#8 $
 **
 ** Implementation of QLabel class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#8 $";
 #endif
 
 
@@ -84,5 +84,3 @@ void QLabel::drawContents( QPainter *p )
 {
     p->drawText( contentsRect(), align, str );
 }
-
-

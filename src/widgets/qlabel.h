@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#7 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#8 $
 **
-** Definition of QLabel class
+** Definition of QLabel widget class
 **
 ** Author  : Eirik Eng
 ** Created : 941215
 **
-** Copyright (c) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
