@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#12 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#13 $
 **
-** Definition of 
+** Definition of
 **
 ** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
 **
@@ -34,7 +34,6 @@ public:
     virtual void removeItem( QListViewItem * );
 
     int height() const { return ownHeight; }
-    virtual void styleChange();
     virtual void invalidateHeight();
     int totalHeight() const;
 
@@ -43,11 +42,11 @@ public:
     virtual const char * key( int ) const;
     virtual void sortChildItems( int, bool );
 
-    int children() const;
+    int children() const { return childCount; }
 
     bool isOpen() const { return open && childCount>0; } // ###
     virtual void setOpen( bool );
-    virtual void createChildren();
+    virtual void setup();
 
     virtual void setSelected( bool );
     bool isSelected() const { return selected; }
@@ -60,25 +59,31 @@ public:
     const QListViewItem * firstChild() const { return childItem; }
     const QListViewItem * nextSibling() const { return siblingItem; }
 
-    virtual QListView *listView() const;
+    QListView *listView() const;
 
-    void setHeight( int );
+    virtual void setSelectable( bool enable );
+    bool isSelectable() const { return selectable; }
+
+    virtual void setExpandable( bool );
+    bool isExpandable() { return expandable; }
 
 protected:
     void enforceSortOrder();
+    void setHeight( int );
 
 private:
     void init();
-    int realChildCount() const;
     int ownHeight;
     int maybeTotalHeight;
     int childCount;
 
-    uint open : 1;
-    uint selected : 1;
     uint lsc: 15;
     uint lso: 1;
-    uint createChildrenCalled: 1;
+    uint open : 1;
+    uint selected : 1;
+    uint selectable: 1;
+    uint configured: 1;
+    uint expandable: 1;
 
     QListViewItem * parentItem;
     QListViewItem * siblingItem;
@@ -90,17 +95,6 @@ private:
 };
 
 
-inline int QListViewItem::children() const
-{
-    if ( childCount )
-	return childCount;
-    else if ( createChildrenCalled )
-	return 0;
-    else
-	return realChildCount();
-}
-
-
 class QListView: public QScrollView
 {
     Q_OBJECT
@@ -108,7 +102,7 @@ public:
     QListView( QWidget * parent = 0, const char * name = 0 );
     ~QListView();
 
-    int treeStepSize() const; 
+    int treeStepSize() const;
     virtual void setTreeStepSize( int );
 
     virtual void insertItem( QListViewItem * );
@@ -117,7 +111,6 @@ public:
     virtual void setColumn( const char * label, int size, int column=-1 );
 
     void show();
-    void setFont( const QFont & );
 
     QListViewItem * itemAt( QPoint screenPos ) const;
     QRect itemRect( QListViewItem * ) const;
@@ -129,8 +122,15 @@ public:
 
     virtual void setCurrentItem( QListViewItem * );
     QListViewItem * currentItem() const;
+    
+    virtual void setAllColumnsShowFocus( bool );
+    bool allColumnsShowFocus() const;
 
     virtual void setSorting( int column, bool increasing = TRUE );
+
+    void setStyle( GUIStyle );
+    void setFont( const QFont & );
+    void setPalette( const QPalette & );
 
 public slots:
     void triggerUpdate();
@@ -161,7 +161,7 @@ protected:
 
     void drawContentsOffset( QPainter *, int ox, int oy,
 			     int cx, int cy, int cw, int ch );
-    
+
 protected slots:
     void updateContents();
 
@@ -169,10 +169,12 @@ private slots:
     void changeSortColumn( int );
 
 private:
-    void doStyleChange( QListViewItem * );
     void buildDrawableList() const;
+    void reconfigureItems();
 
     QListViewPrivate * d;
+    
+    friend QListViewItem;
 };
 
 

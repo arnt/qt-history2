@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#30 $
 **
 ** Implementation of something useful
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#30 $");
 
 
 const int Unsorted = 32767;
@@ -39,7 +39,7 @@ struct QListViewPrivate
 
 	void setHeight( int );
 	void invalidateHeight();
-	QListView *listView() const;
+	void setup();
 
 	QListView * lv;
     };
@@ -73,6 +73,7 @@ struct QListViewPrivate
     Root * r;
 
     QListViewItem * currentSelected;
+    QListViewItem * focusItem;
 
     QTimer * timer;
     int levelWidth;
@@ -91,6 +92,10 @@ struct QListViewPrivate
     // sort column and order
     int column;
     bool ascending;
+    
+    // suggested height for the items
+    int fontMetricsHeight;
+    bool allColumnsShowFocus;
 };
 
 
@@ -124,7 +129,7 @@ QListViewItem::QListViewItem( QListViewItem * parent )
 
 
 /*!  Create a new list view item in the QListView \a parent,
-  with the contents asdf asdf asdf ### sex vold ### 
+  with the contents asdf asdf asdf ### sex vold ###
 
 */
 
@@ -146,7 +151,7 @@ QListViewItem::QListViewItem( QListView * parent,
 
 
 /*!  Create a new list view item which is a child of \a parent,
-  with the contents asdf asdf asdf ### sex vold ### 
+  with the contents asdf asdf asdf ### sex vold ###
 
 */
 
@@ -184,7 +189,9 @@ void QListViewItem::init()
 
     lsc = Unsorted;
     lso = TRUE; // unsorted in ascending order :)
-    createChildrenCalled = FALSE;
+    configured = FALSE;
+    expandable = FALSE;
+    selectable = TRUE;
 }
 
 
@@ -202,7 +209,7 @@ QListViewItem::~QListViewItem()
 	delete childItem;
 	childItem = nextChild;
     }
-    
+
 }
 
 
@@ -218,7 +225,8 @@ void QListViewItem::insertItem( QListViewItem * newChild )
     childCount++;
     newChild->parentItem = this;
     lsc = Unsorted;
-    newChild->ownHeight = ownHeight;
+    newChild->ownHeight = 0;
+    newChild->configured = FALSE;
 }
 
 
@@ -228,6 +236,12 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 void QListViewItem::removeItem( QListViewItem * tbg )
 {
     invalidateHeight();
+    
+    if ( tbg == listView()->d->currentSelected )
+	listView()->d->currentSelected = 0;
+
+    if ( tbg == listView()->d->focusItem )
+	listView()->d->focusItem = 0;
 
     childCount--;
 
@@ -288,7 +302,7 @@ void QListViewItem::sortChildItems( int column, bool ascending )
     if ( childItem == 0 || childItem->siblingItem == 0 )
 	return;
 
-    // make an array we can sort in a thread-safe way using qsort() 
+    // make an array we can sort in a thread-safe way using qsort()
     QListViewPrivate::SortableItem * siblings
 	= new QListViewPrivate::SortableItem[childCount];
     QListViewItem * s = childItem;
@@ -327,6 +341,9 @@ void QListViewItem::sortChildItems( int column, bool ascending )
 /*!  Sets this item's own height to \a height pixels.  This implictly
   changes totalHeight() too.
 
+  Note that e.g. a font change causes this height to be overwitten
+  unless you reimplement setup().
+
   \sa ownHeight() totalHeight() isOpen();
 */
 
@@ -358,34 +375,103 @@ void QListViewItem::invalidateHeight()
 /*!  Sets this item to be open (its children are visible) if \a o is
   TRUE, and to be closed (its children are not visible) if \a o is
   FALSE.
+  
+  Also does some bookeeping.
 
   \sa ownHeight() totalHeight()
 */
 
 void QListViewItem::setOpen( bool o )
 {
-    if ( o != open ) {
-	open = o;
-	if ( childCount ) {
-	    invalidateHeight();
-	    if ( open ) {
-		enforceSortOrder();
+    if ( o == open )
+	return;
+    open = o;
+
+    if ( !childCount )
+	return;
+    invalidateHeight();
+    
+    if ( !configured ) {
+	QListViewItem * l = this;
+	QStack<QListViewItem> s;
+	while( l ) {
+	    if ( l->open && l->childItem ) {
+		s.push( l->childItem );
+	    } else if ( l->childItem ) {
+		// first invisible child is unconfigured
+		QListViewItem * c = l->childItem;
+		while( c ) {
+		    c->configured = FALSE;
+		    c = c->siblingItem;
+		}
 	    }
+	    l->configured = TRUE;
+	    l->setup();
+	    l = (l == this) ? 0 : l->siblingItem;
+	    if ( !l && !s.isEmpty() )
+		l = s.pop();
 	}
     }
+
+    if ( !open )
+	return;
+    enforceSortOrder();
+
 }
 
 
-/*!  This virtual function is called the first time QListView needs to
-  know whether this class has any children, and if so, how many.
+/*!  This virtual function is called before the first time QListView
+  needs to know the height or any other graphical attribute of this
+  class, and whenever the font, GUI style or colors of the list view
+  change.
 
-  If you need to create children on demand, this function is where you
-  do it.
+  The default sets the item's height.
 */
 
-void QListViewItem::createChildren()
+void QListViewItem::setup()
 {
-    // nothing
+    setHeight( listView()->d->fontMetricsHeight );
+}
+
+
+/*! \fn bool QListViewItem::isSelectable() const
+  
+  Returns TRUE if the item is selectable (as it is by default) and
+  FALSE if it isn't. \sa setSelectable() */
+
+
+/*!  Sets this items to be selectable if \a enable is TRUE (the
+  default) or not to be selectable if \a enable is FALSE.
+  
+  The user is not able to select a non-selectable item using either
+  the keyboard or mouse.  The application programmer still can, of
+  course.  \sa isSelectable() */
+
+void QListViewItem::setSelectable( bool enable )
+{
+    selectable = enable;
+}
+
+
+/*! \fn bool QListViewItem::isExpandable() { return expnadable; }
+  
+  Returns TRUE if this item is selectable even when it has no
+  children.
+*/
+
+/*!  Sets this item to be expandable even if it has no children if \a
+  enable is TRUE, and to be expandable only if it has children if \a
+  enable is FALSE (the default).
+
+  The dirview example uses this in the canonical fashion: It checks
+  whether the directory is empty in setup() and calls
+  setExpandable(TRUE) if not, and in setOpen() it reads the contents
+  of the directory and inserts items accordingly.
+*/
+
+void QListViewItem::setExpandable( bool enable )
+{
+    expandable = enable;
 }
 
 
@@ -438,6 +524,10 @@ int QListViewItem::totalHeight() const
     if ( maybeTotalHeight >= 0 )
 	return maybeTotalHeight;
     QListViewItem * that = (QListViewItem *)this;
+    if ( !that->configured ) {
+	that->configured = TRUE;
+	that->setup(); // ### virtual non-const function called in const
+    }
     that->maybeTotalHeight = ownHeight;
 
     if ( !isOpen() || !children() )
@@ -571,7 +661,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
     // paint stuff in the magical area
     while ( child && y < h ) {
 	linebot = y + child->height()/2;
-	if ( child->children() ) {
+	if ( child->expandable || child->children() ) {
 	    if ( s == WindowsStyle ) {
 		// needs a box
 		p->setPen( cg.dark() );
@@ -686,9 +776,9 @@ void QListViewPrivate::Root::invalidateHeight()
 }
 
 
-QListView * QListViewPrivate::Root::listView() const
+void QListViewPrivate::Root::setup()
 {
-    return lv;
+    // nothing
 }
 
 
@@ -714,10 +804,12 @@ QListView::QListView( QWidget * parent, const char * name )
     d->h = new QHeader( this, "list view header" );
     d->h->installEventFilter( this );
     d->currentSelected = 0;
+    d->focusItem = 0;
     d->drawables = 0;
     d->multi = 0;
     d->column = 0;
     d->ascending = TRUE;
+    d->allColumnsShowFocus = FALSE;
 
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
@@ -737,7 +829,7 @@ QListView::QListView( QWidget * parent, const char * name )
     // will access d->r
     QListViewPrivate::Root * r = new QListViewPrivate::Root( this );
     d->r = r;
-    d->r->ownHeight = fontMetrics().height();
+    d->r->setSelectable( FALSE );
 
     setFocusProxy( viewport() );
 }
@@ -764,7 +856,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 {
     if ( !d->drawables ||
 	 d->drawables->isEmpty() ||
-	 d->topPixel > ch || 
+	 d->topPixel > cy ||
 	 d->bottomPixel < cy + ch - 1 ||
 	 d->r->maybeTotalHeight < 0 )
 	buildDrawableList();
@@ -811,8 +903,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		lc = c;
 		// also make sure that the top item indicates focus,
 		// if nothing would otherwise
-		if ( !d->currentSelected )
-		    d->currentSelected = current->i;
+		if ( !d->focusItem )
+		    d->focusItem = current->i;
 	    }
 
 	    x = fx;
@@ -833,8 +925,9 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
                 p->translate( r.left(), r.top() );
 		current->i->paintCell( p, colorGroup(),
 				       d->h->mapToLogical( c ), r.width(),
-				       hasFocus() &&
-				       current->i == d->currentSelected );
+				       hasFocus() && 
+				       (d->allColumnsShowFocus ||
+					current->i == d->focusItem) );
 		p->restore();
 		x += cs;
 		c++;
@@ -847,7 +940,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	// do any children of current need to be painted?
 	if ( current->i->isOpen() &&
 	     current->y + ith > cy &&
-	     current->y + ih < cy + ch && 
+	     current->y + ih < cy + ch &&
 	     tx < cx + cw &&
 	     tx + current->l * treeStepSize() > cx ) {
 	    // compute the clip rectangle the safe way
@@ -862,7 +955,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    int crleft = QMAX( rleft, cx );
 	    int crright = QMIN( rright, cx+cw );
 
-	    r.setRect( crleft+ox, crtop+oy, 
+	    r.setRect( crleft+ox, crtop+oy,
 		       crright-crleft, crbottom-crtop );
 
 	    if ( r.isValid() ) {
@@ -1021,6 +1114,7 @@ void QListView::clear()
 	d->drawables->clear();
 
     d->currentSelected = 0;
+    d->focusItem = 0;
     contentsResize( d->h->width(), viewport()->height() ); // ### ?
 
     // if it's down its downness makes no sense, so undown it
@@ -1058,6 +1152,8 @@ void QListView::show()
     if ( v )
 	v->setBackgroundMode( NoBackground );
 
+    reconfigureItems();
+
     contentsResize( 250, d->r->totalHeight() ); // ### 250
     QScrollView::show();
 }
@@ -1084,12 +1180,14 @@ void QListView::updateContents()
 
 
 /*!  Trigger a size-and-stuff update during the next iteration of the
-  event loop.  Cleverly makes sure that there'll be just one.
-
-*/
+  event loop.  Cleverly makes sure that there'll be just one. */
 
 void QListView::triggerUpdate()
 {
+    if ( d && d->drawables ) {
+	delete d->drawables;
+	d->drawables = 0;
+    }
     d->timer->start( 0, TRUE );
 }
 
@@ -1158,15 +1256,15 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 }
 
 /*!
-  Returns the listview containing this item. 
+  Returns the listview containing this item.
 */
 
 QListView * QListViewItem::listView() const
 {
-    if ( parentItem )
-	return parentItem->listView();
-    else 
-	return 0;
+   const QListViewItem * l = this;
+    while( l && l->parentItem )
+	l = l->parentItem;
+    return ((QListViewPrivate::Root*)l)->lv;
 }
 
 
@@ -1206,18 +1304,8 @@ QListView * QListViewItem::listView() const
 
 /*! \fn int QListViewItem::children () const
 
-  Returns the number of children of this item.  Calls createChildren()
-  if it hasn't been called yet.
+  Returns the current number of children of this item.
 */
-
-
-int QListViewItem::realChildCount() const
-{
-    QListViewItem * that = (QListViewItem *)this;
-    that->createChildren();
-    that->createChildrenCalled = TRUE;
-    return that->childCount;
-}
 
 
 /*! \fn int QListViewItem::height () const
@@ -1233,7 +1321,7 @@ int QListViewItem::realChildCount() const
   \a with when sorted by column \a column.
 */
 
-/*! \fn void QListView::sizeChanged () 
+/*! \fn void QListView::sizeChanged ()
 
   This signal is emitted when the list view changes width (or height?
   not at present).
@@ -1276,51 +1364,6 @@ int QListViewItem::realChildCount() const
 */
 
 
-/*!
-  Recalculates all cached parameters when the visual appearance of the
-  list view changes. The default implementation sets the height of the
-  item to QFontMetrics::lineSpacing().
-*/
-//#### should test for columnTexts
-void QListViewItem::styleChange()
-{
-    debug( "1" );
-    QListView *lv = listView();
-    if ( lv )
-	 setHeight( QFontMetrics( lv->font() ).lineSpacing() );
-    else
-	debug( "uh?" );
-}
-
-
-/*!
-  Sets the font of this widget to \a f
-*/
-
-void QListView::setFont( const QFont &f )
-{
-    d->h->setFont( f );
-    QScrollView::setFont( f );
-    doStyleChange( d->r );
-}
-
-
-/*!
-  Changes the style of \a item and all list view items 
-  under it.
-*/
-
-void QListView::doStyleChange( QListViewItem *item )
-{
-    item->styleChange();
-    QListViewItem *it = (QListViewItem*)item->firstChild();
-    while ( it ) {
-	doStyleChange( it );
-	it = (QListViewItem*)it->nextSibling();
-    }
-}
-
-
 /*!  Processes mouse move events on behalf of the viewed widget;
   eventFilter() calls this function.  Note that the coordinates in \a
   e is in the coordinate system of viewport(). */
@@ -1336,7 +1379,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
     d->buttonDown = TRUE;
 
     QListViewItem * i = itemAt( e->pos() );
-    if ( !i )
+    if ( !i );
 	return;
 
     if ( i->children() &&
@@ -1352,14 +1395,9 @@ void QListView::mousePressEvent( QMouseEvent * e )
 		 i->setOpen( !i->isOpen() );
 	}
     }
-
-    if ( isMultiSelection() ) {
-	i->setSelected( !i->isSelected() );
-    } else {
-	if ( d->currentSelected && i != d->currentSelected )
-	    d->currentSelected->setSelected( FALSE );
-	i->setSelected( TRUE );
-    }
+    
+    if ( i->isSelectable() )
+	setSelected( i, isMultiSelection() ? !i->isSelected() : TRUE );
 
     setCurrentItem( i ); // repaints
 
@@ -1398,13 +1436,10 @@ void QListView::mouseReleaseEvent( QMouseEvent * e )
     if ( !i )
 	return;
 
-    if ( isMultiSelection() ) {
-	i->setSelected( currentItem() ? currentItem()->isSelected() : TRUE );
-    } else if ( i != d->currentSelected ) {
-	if ( d->currentSelected )
-	    d->currentSelected->setSelected( FALSE );
-	i->setSelected( TRUE );
-    }
+    if ( i->isSelectable() )
+	setSelected( i, d->currentSelected
+		     ? d->currentSelected->isSelected()
+		     : TRUE );
 
     setCurrentItem( i ); // repaints
 
@@ -1444,13 +1479,10 @@ void QListView::mouseMoveEvent( QMouseEvent * e )
     if ( !i )
 	return;
 
-    if ( isMultiSelection() ) {
-	i->setSelected( currentItem() ? currentItem()->isSelected() : TRUE );
-    } else if ( i != d->currentSelected ) {
-	if ( d->currentSelected )
-	    d->currentSelected->setSelected( FALSE );
-	i->setSelected( TRUE );
-    }
+    if ( i->isSelectable() )
+	setSelected( i, d->currentSelected
+		     ? d->currentSelected->isSelected()
+		     : TRUE );
 
     setCurrentItem( i ); // repaints
     return;
@@ -1493,14 +1525,14 @@ void QListView::keyPressEvent( QKeyEvent * e )
     if ( !e )
 	return; // subclass bug
 
+    e->accept();
     if ( !currentItem() )
 	return;
 
     QListViewItem * i = currentItem();
 
-    if ( isMultiSelection() && e->ascii() == ' ' ) {
-	setSelected( i, i->isSelected() );
-	e->accept();
+    if ( isMultiSelection() && i->isSelectable() && e->ascii() == ' ' ) {
+	setSelected( i, !i->isSelected() );
 	return;
     }
 
@@ -1510,8 +1542,6 @@ void QListView::keyPressEvent( QKeyEvent * e )
     case Key_Enter:
     case Key_Return:
 	emit returnPressed( currentItem() );
-	// ### do not accept to work around QDialog breakage
-	// ### e->accept();
 	return;
     case Key_Down:
 	y = itemRect( i ).bottom() + 1 - contentsY();
@@ -1528,6 +1558,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	verticalScrollBar()->subtractPage();
 	break;
     default:
+	e->ignore();
 	return;
     }
 
@@ -1536,19 +1567,18 @@ void QListView::keyPressEvent( QKeyEvent * e )
     else if ( y >= d->r->totalHeight() )
 	y = d->r->totalHeight()-1;
 
+    ensureVisible( viewport()->width()/2 - contentsX(), y, 0, i->height() );
     i = itemAt( QPoint( 0, y + contentsY() ) );
     if ( !i ) {
 	warning("QListViewItem::keyPressEvent() no item at %d", y );
 	return;
     }
 
-    ensureVisible( viewport()->width()/2 - contentsX(), y, 0, i->height() );
-
-    if ( !isMultiSelection() && i != d->currentSelected ) {
-	if ( d->currentSelected )
-	    d->currentSelected->setSelected( FALSE );
-	i->setSelected( TRUE );
-    }
+    if ( i->isSelectable() && 
+	 ((e->state() & ShiftButton) || !isMultiSelection()) )
+	setSelected( i, d->currentSelected
+		     ? d->currentSelected->isSelected()
+		     : TRUE  );
 
     setCurrentItem( i );
 }
@@ -1628,8 +1658,14 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 	d->currentSelected = item;
 	r = r.unite( itemRect( item ) );
     }
+    
+    if ( !d->allColumnsShowFocus ) {
+	QRect col( d->h->cellPos(d->h->mapToActual(0)), r.top(),
+		   d->h->cellSize(d->h->mapToActual(0)), r.height() );
+	r = r.intersect( col );
+    }
 
-    viewport()->repaint( r );
+    viewport()->repaint( r, FALSE );
     if ( !isMultiSelection() )
 	emit selectionChanged( item );
     emit selectionChanged();
@@ -1657,12 +1693,22 @@ bool QListView::isSelected( QListViewItem * i ) const
 
 void QListView::setCurrentItem( QListViewItem * i )
 {
-    QListViewItem * prev = d->currentSelected;
+    QListViewItem * prev = d->focusItem;
     QRect r( 0, 0, -1, -1 );
-    d->currentSelected = i;
+    d->focusItem = i;
     if ( prev && prev != i )
 	r = itemRect( prev );
-    viewport()->repaint( i ? r.unite( itemRect( i ) ) : r );
+
+    if ( i )
+	r = r.unite( itemRect( i ) );
+    
+    if ( !d->allColumnsShowFocus ) {
+	QRect col( d->h->cellPos(d->h->mapToActual(0)), r.top(),
+		   d->h->cellSize(d->h->mapToActual(0)), r.height() );
+	r = r.intersect( col );
+    }
+    
+    viewport()->repaint( r, FALSE );
     if ( i != prev )
 	emit currentChanged( i );
 
@@ -1677,7 +1723,7 @@ void QListView::setCurrentItem( QListViewItem * i )
 
 QListViewItem * QListView::currentItem() const
 {
-    return d ? d->currentSelected : 0;
+    return d ? d->focusItem : 0;
 }
 
 
@@ -1752,7 +1798,6 @@ void QListView::setSorting( int column, bool ascending )
 
     d->ascending = ascending;
     d->column = column;
-    buildDrawableList();
     triggerUpdate();
 }
 
@@ -1771,3 +1816,84 @@ void QListView::changeSortColumn( int column )
   it's released).  The arguments are the relevant QListViewItem (may
   be 0), the point in global coordinates and the relevant column.
 */
+
+
+/*!  Reimplemented to let the list view items update themselves.  \a s
+  is the new GUI style. */
+
+void QListView::setStyle( GUIStyle s )
+{
+    d->h->setStyle( s );
+    QScrollView::setStyle( s );
+    reconfigureItems();
+}
+
+
+/*!  Reimplemented to let the list view items update themselves.  \a f
+  is the new font. */
+
+void QListView::setFont( const QFont & f )
+{
+    d->h->setFont( f );
+    QScrollView::setFont( f );
+    reconfigureItems();
+}
+
+
+/*!  Reimplemented to let the list view items update themselves.  \a p
+  is the new palette. */
+
+void QListView::setPalette( const QPalette & p )
+{
+    d->h->setPalette( p );
+    QScrollView::setPalette( p );
+    reconfigureItems();
+}
+
+
+/*!  Ensures that setup() are called for all currently visible items,
+  and that it will be called for currently invisuble items as soon as
+  their parents are opened.
+  
+  (A visible item, here, is an item whose parents are all open.  The
+  item may happen to be offscreen.)
+  
+  \sa QListViewItem::setup()
+*/
+
+void QListView::reconfigureItems()
+{
+    d->fontMetricsHeight = fontMetrics().height();
+    d->r->setOpen( FALSE );
+    d->r->setOpen( TRUE );
+}
+
+
+/*!  Sets this list view to assume that the items show focus and
+  selection state using all of their columns if \a enable is TRUE, or
+  that they show it just using column 0 if \a enable is FALSE.
+
+  The default is FALSE.
+
+  Setting this to TRUE if it isn't necessary can cause noticeable
+  flicker.
+  
+  \sa allColumnsShowFocus()
+*/
+
+void QListView::setAllColumnsShowFocus( bool enable )
+{
+    d->allColumnsShowFocus = enable;
+}
+
+
+/*!  Returns TRUE if the items in this list view indicate focus and
+  selection state using all of their columns, else FALSE.
+
+  \sa setAllColumnsShowFocus()
+*/
+
+bool QListView::allColumnsShowFocus() const
+{
+    return d->allColumnsShowFocus;
+}
