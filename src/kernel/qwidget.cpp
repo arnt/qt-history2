@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#9 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#9 $";
 #endif
 
 
@@ -119,17 +119,20 @@ QWidget::~QWidget()
 {
     if ( QApplication::main_widget == this )	// reset main widget
 	QApplication::main_widget = 0;
-    if ( children() ) {
-	QObjectListIt it(*children());
-	while ( it ) {				// show all widget children
-	    QObject *object = it.current();
-	    if ( object->isWidgetType() )
-		((QWidget*)object)->destroy();
-	    ++it;
-	}	
+    if ( childObjects ) {			// widget has children
+	register QObject *obj = childObjects->first();
+	while ( obj ) {				// delete all child objects
+	    obj->parentObj = 0;			// object should not remove
+	    delete obj;				//   itself from the list
+	    obj = childObjects->next();
+	}
+	delete childObjects;
+	childObjects = 0;
     }
     destroy();					// platform-dependent cleanup
     delete extra;
+    if ( nWidgets() == 0 )			// no more widgets left
+	QApplication::quit();
 }
 
 
@@ -286,6 +289,16 @@ QPoint QWidget::mapToParent( const QPoint &p ) const
 QPoint QWidget::mapFromParent( const QPoint &p ) const
 {						// map from parent coordinate
     return p - rect.topLeft();
+}
+
+
+bool QWidget::close( bool forceKill )		// close widget
+{
+    QEvent e( Event_Close );
+    bool ok = closeEvent(&e);
+    if ( ok || forceKill )
+	delete this;
+    return ok;
 }
 
 
