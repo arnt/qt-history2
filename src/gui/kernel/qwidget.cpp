@@ -4257,6 +4257,8 @@ void QWidget::adjustSize()
     setAttribute(WA_InvalidSize, false);
     ensurePolished();
     QSize s = sizeHint();
+    s.rwidth() += d->leftmargin + d->rightmargin;
+    s.rheight() += d->topmargin + d->bottommargin;
 
     if (isTopLevel()) {
 

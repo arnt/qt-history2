@@ -108,7 +108,7 @@ private slots:
 private:
     void        init();
     void        clearContents();
-    void        updateLabel(QSize oldSizeHint);
+    void        updateLabel();
     QSize        sizeForWidth(int w) const;
     QString        ltext;
     QPixmap    *lpixmap;

@@ -31,13 +31,13 @@ class QLabelPrivate
 {
 public:
     QLabelPrivate()
-        :img(0), pix(0), valid_hints(-1), margin(0)
+        :img(0), pix(0), valid_hints(false), margin(0)
     {}
     QImage* img; // for scaled contents
     QPixmap* pix; // for scaled contents
     QSize sh;
     QSize msh;
-    int valid_hints; // stores the frameWidth() for the stored size hint, -1 otherwise
+    bool valid_hints;
     int margin;
 };
 
@@ -248,7 +248,6 @@ void QLabel::setText(const QString &text)
 {
     if (ltext == text)
         return;
-    QSize osh = sizeHint();
 #ifndef QT_NO_RICHTEXT
     bool hadRichtext = doc != 0;
 #endif
@@ -289,7 +288,7 @@ void QLabel::setText(const QString &text)
     }
 #endif
 
-    updateLabel(osh);
+    updateLabel();
 }
 
 
@@ -314,8 +313,6 @@ void QLabel::clear()
 */
 void QLabel::setPixmap(const QPixmap &pixmap)
 {
-    QSize osh = sizeHint();
-
     if (!lpixmap || lpixmap->serialNumber() != pixmap.serialNumber()) {
         clearContents();
         lpixmap = new QPixmap(pixmap);
@@ -324,7 +321,7 @@ void QLabel::setPixmap(const QPixmap &pixmap)
     if (lpixmap->depth() == 1 && !lpixmap->mask())
         lpixmap->setMask(*((QBitmap *)lpixmap));
 
-    updateLabel(osh);
+    updateLabel();
 }
 
 #ifndef QT_NO_PICTURE
@@ -339,11 +336,10 @@ void QLabel::setPixmap(const QPixmap &pixmap)
 
 void QLabel::setPicture(const QPicture &picture)
 {
-    QSize osh = sizeHint();
     clearContents();
     lpicture = new QPicture(picture);
 
-    updateLabel(osh);
+    updateLabel();
 }
 #endif // QT_NO_PICTURE
 
@@ -415,7 +411,6 @@ void QLabel::setAlignment(int alignment)
 {
     if (alignment == align)
         return;
-    QSize osh = sizeHint();
 #ifndef QT_NO_ACCEL
     if (lbuddy)
         align = alignment | ShowPrefix;
@@ -431,7 +426,7 @@ void QLabel::setAlignment(int alignment)
     }
 #endif
 
-    updateLabel(osh);
+    updateLabel();
 }
 
 
@@ -456,7 +451,7 @@ void QLabel::setAlignment(int alignment)
 void QLabel::setIndent(int indent)
 {
     extraMargin = indent;
-    updateLabel(QSize(-1, -1));
+    updateLabel();
 }
 
 /*!
@@ -480,8 +475,7 @@ void QLabel::setMargin(int margin)
     if (d->margin == margin)
         return;
     d->margin = margin;
-    updateGeometry();
-    update();
+    updateLabel();
 }
 
 
@@ -544,7 +538,7 @@ QSize QLabel::sizeForWidth(int w) const
 #else
     const int mov = 0;
 #endif
-    int hextra = 2 * frameWidth() + 2 * d->margin;
+    int hextra = 2 * d->margin;
     int vextra = hextra;
     QFontMetrics fm(fontMetrics());
     int xw = fm.width('x');
@@ -625,7 +619,7 @@ int QLabel::heightForWidth(int w) const
 */
 QSize QLabel::sizeHint() const
 {
-    if (d->valid_hints != frameWidth())
+    if (!d->valid_hints)
         (void) QLabel::minimumSizeHint();
     return d->sh;
 }
@@ -636,11 +630,11 @@ QSize QLabel::sizeHint() const
 
 QSize QLabel::minimumSizeHint() const
 {
-    if (d->valid_hints == frameWidth() + d->margin)
+    if (d->valid_hints)
         return d->msh;
 
     ensurePolished();
-    d->valid_hints = frameWidth() + d->margin;
+    d->valid_hints = true;
     d->sh = sizeForWidth(-1);
     QSize sz(-1, -1);
 
@@ -797,16 +791,15 @@ void QLabel::paintEvent(QPaintEvent *)
     Updates the label, but not the frame.
 */
 
-void QLabel::updateLabel(QSize oldSizeHint)
+void QLabel::updateLabel()
 {
-    d->valid_hints = -1;
+    d->valid_hints = false;
     QSizePolicy policy = sizePolicy();
     bool wordBreak = align & WordBreak;
     policy.setHeightForWidth(wordBreak);
     if (policy != sizePolicy())
         setSizePolicy(policy);
-    if (sizeHint() != oldSizeHint)
-        updateGeometry();
+    updateGeometry();
     if (autoresize) {
         adjustSize();
         update(contentsRect());
@@ -948,7 +941,7 @@ void QLabel::movieUpdated(const QRect& rect)
 
 void QLabel::movieResized(const QSize& size)
 {
-    d->valid_hints = -1;
+    d->valid_hints = false;
     if (autoresize)
         adjustSize();
     movieUpdated(QRect(QPoint(0,0), size));
@@ -968,7 +961,6 @@ void QLabel::movieResized(const QSize& size)
 
 void QLabel::setMovie(const QMovie& movie)
 {
-    QSize osh = sizeHint();
     clearContents();
 
     lmovie = new QMovie(movie);
@@ -976,7 +968,7 @@ void QLabel::setMovie(const QMovie& movie)
         lmovie->connectUpdate(this, SLOT(movieUpdated(QRect)));
 
     if (!lmovie->running())        // Assume that if the movie is running,
-        updateLabel(osh);        // resize/update signals will come soon enough
+        updateLabel();        // resize/update signals will come soon enough
 }
 
 #endif // QT_NO_MOVIE
@@ -1084,7 +1076,7 @@ void QLabel::changeEvent(QEvent *ev)
             if (doc)
                 doc->setDefaultFont(font());
 #endif
-            updateLabel(QSize(-1, -1));
+            updateLabel();
         }
     }
     QFrame::changeEvent(ev);
