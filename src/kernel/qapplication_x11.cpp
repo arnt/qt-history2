@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#162 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#163 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -44,7 +44,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#162 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#163 $")
 
 
 /*****************************************************************************
@@ -122,7 +122,7 @@ public:
     void setWFlags( WFlags f )		{ QWidget::setWFlags(f); }
     void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
     bool translateMouseEvent( const XEvent * );
-    bool translateKeyEvent( const XEvent * );
+    bool translateKeyEvent( const XEvent *, bool grab );
     bool translatePaintEvent( const XEvent * );
     bool translateConfigEvent( const XEvent * );
     bool translateCloseEvent( const XEvent * );
@@ -1185,15 +1185,15 @@ int QApplication::enter_loop()
 		case KeyPress:			// keyboard event
 		case KeyRelease: {
 		    qt_x_clipboardtime = event.xkey.time;
-		    QWidget *w = QWidget::keyboardGrabber();
-		    if ( w )
-			widget = (QETWidget*)w;
+		    QWidget *g = QWidget::keyboardGrabber();
+		    if ( g )
+			widget = (QETWidget*)g;
 		    else if ( focus_widget )
 			widget = (QETWidget*)focus_widget;
 		    else
 			widget = (QETWidget*)widget->topLevelWidget();
 		    if ( widget->isEnabled() )
-			widget->translateKeyEvent( &event );
+			widget->translateKeyEvent( &event, g != 0 );
 		    }
 		    break;
 
@@ -2028,7 +2028,7 @@ static KeySym KeyTbl[] = {			// keyboard mapping table
     0,			0
 };
 
-bool QETWidget::translateKeyEvent( const XEvent *event )
+bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 {
     int	   type;
     int	   code = -1;
@@ -2088,6 +2088,12 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 	if ( popupWidgets )			// still in popup mode
 	    XAllowEvents( dpy, SyncKeyboard, CurrentTime );
 	return TRUE;
+    }
+    if ( type == Event_KeyPress && !grab ) {	// send accel event to tlw
+	QKeyEvent a( Event_Accel, code, count > 0 ? ascii[0] : 0, state );
+	QApplication::sendEvent( topLevelWidget(), &a );
+	if ( a.isAccepted() )
+	    return TRUE;
     }
     return QApplication::sendEvent( this, &e );
 }

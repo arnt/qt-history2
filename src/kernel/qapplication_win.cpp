@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#49 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#48 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#49 $")
 
 
 /*****************************************************************************
@@ -89,7 +89,7 @@ public:
     QWExtra    *xtra()			{ return QWidget::extraData(); }
     bool	winEvent( MSG *m )	{ return QWidget::winEvent(m); }
     bool	translateMouseEvent( const MSG &msg );
-    bool	translateKeyEvent( const MSG &msg );
+    bool	translateKeyEvent( const MSG &msg, bool grab );
     bool	translatePaintEvent( const MSG &msg );
     bool	translateConfigEvent( const MSG &msg );
     bool	translateCloseEvent( const MSG &msg );
@@ -768,13 +768,13 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WM_SYSKEYDOWN:
 	case WM_SYSKEYUP:
 	case WM_CHAR: {
-	    QWidget *w = QWidget::keyboardGrabber();
-	    if ( w )
-		widget = (QETWidget*)w;
+	    QWidget *g = QWidget::keyboardGrabber();
+	    if ( g )
+		widget = (QETWidget*)g;
 	    else if ( qApp->focusWidget() )
 		widget = (QETWidget*)qApp->focusWidget();
 	    if ( widget->isEnabled() )
-		widget->translateKeyEvent( msg );
+		widget->translateKeyEvent( msg, g != 0 );
 	    }
 	    break;
 
@@ -1421,7 +1421,7 @@ static int translateKeyCode( int key )		// get Key_... code
     return code;
 }
 
-bool QETWidget::translateKeyEvent( const MSG &msg )
+bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 {
     int type;
     int code;
@@ -1451,6 +1451,12 @@ bool QETWidget::translateKeyEvent( const MSG &msg )
 	    return FALSE;			// virtual key not found
 	type = msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN ?
 	       Event_KeyPress : Event_KeyRelease;
+    }
+    if ( type == Event_KeyPress && !grab ) {	// send accel event to tlw
+	QKeyEvent a( Event_Accel, code, ascii, state );
+	QApplication::sendEvent( topLevelWidget(), &a );
+	if ( a.isAccepted() )
+	    return TRUE;
     }
     QKeyEvent e( type, code, ascii, state );
     return QApplication::sendEvent( this, &e ); // send event

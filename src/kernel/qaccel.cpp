@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#24 $
 **
 ** Implementation of QAccel class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#23 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#24 $")
 
 
 /*----------------------------------------------------------------------------
@@ -297,14 +297,12 @@ bool QAccel::disconnectItem( int id, const QObject *receiver,
 
 
 /*----------------------------------------------------------------------------
-  Processes keyboard events intended for the top level widget.
-  Handles all types of events for the accelerator.  Overrides standard
-  widget event dispatching.
+  Processes accelerator events intended for the top level widget.
  ----------------------------------------------------------------------------*/
 
 bool QAccel::eventFilter( QObject *, QEvent *e )
 {
-    if ( enabled && e->type() == Event_KeyPress ) {
+    if ( enabled && e->type() == Event_Accel ) {
 	QKeyEvent *k = (QKeyEvent *)e;
 	int key = k->key();
 	if ( k->state() & ShiftButton )
@@ -313,13 +311,14 @@ bool QAccel::eventFilter( QObject *, QEvent *e )
 	    key |= CTRL;
 	if ( k->state() & AltButton )
 	    key |= ALT;
+	k->ignore();
 	QAccelItem *item = find_key(aitems,key,k->ascii());
 	if ( item && item->enabled ) {
 	    if ( item->signal )
 		item->signal->activate();
 	    else
 		emit activated( item->id );
-	    k->ignore();
+	    k->accept();
 	    return TRUE;
 	}
     }
