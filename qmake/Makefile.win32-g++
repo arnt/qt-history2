@@ -85,7 +85,7 @@ qglist.o: ..\src\tools\qglist.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qglist.cpp
 
 qlinkedlist.o: ..\src\tools\qlinkedlist.cpp
-        $(CXX) $(CXXFLAGS) ..\src\tools\qlinkedlist.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qlinkedlist.cpp
 
 qptrcollection.o: ..\src\tools\qptrcollection.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qptrcollection.cpp
