@@ -141,7 +141,7 @@ public:
     static void cleanup();
 
 protected:
-    void setupCGClip();
+    void setupCGClip(const QRegion *);
     QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *);
     void drawPolyInternal(const QPointArray &a, bool close=true);
 

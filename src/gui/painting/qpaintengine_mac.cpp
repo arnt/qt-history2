@@ -46,7 +46,7 @@ QPaintEngine *qt_mac_current_engine = 0; //Current "active" QPaintEngine
 extern QPoint posInWindow(QWidget *w); //qwidget_mac.cpp
 extern QRegion make_region(RgnHandle handle);
 extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
-extern void qt_mac_clip_cg(CGContextRef, const QRegion &); //qpaintdevice_mac.cpp
+extern void qt_mac_clip_cg(CGContextRef, const QRegion &, const QPoint *); //qpaintdevice_mac.cpp
 extern void qt_mac_clip_cg_reset(CGContextRef); //qpaintdevice_mac.cpp
 extern void unclippedBitBlt(QPaintDevice *dst, int dx, int dy, const QPaintDevice *src, int sx, int sy, int sw, int sh,
 			    Qt::RasterOp rop, bool imask, bool set_fore_colour); //qpaintdevice_mac.cpp
@@ -1073,7 +1073,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool u
     }
 
     d->pdev = pdev;
-    setupCGClip(); //get handle to drawable
+    setupCGClip(0); //get handle to drawable
     setActive(true);
     assignf(IsActive | DirtyFont);
 
@@ -1319,11 +1319,8 @@ QCoreGraphicsPaintEngine::updateClipRegion(QPainterState *ps)
 	setf(ClipOn);
     else
 	clearf(ClipOn);
-    if(ps->clipEnabled || old_clipEnabled) {
-	setupCGClip();
-	if(d->hd && ps->clipEnabled) 
-	    qt_mac_clip_cg((CGContextRef)d->hd, ps->clipRegion);
-    }
+    if(ps->clipEnabled || old_clipEnabled) 
+	setupCGClip(ps->clipEnabled ? &ps->clipRegion : 0);
 }
 
 void
@@ -1630,23 +1627,24 @@ QCoreGraphicsPaintEngine::cleanup()
 {
 }
 
-void QCoreGraphicsPaintEngine::setupCGClip()
+void QCoreGraphicsPaintEngine::setupCGClip(const QRegion *rgn)
 {
     if(!d->hd) 
 	d->hd = static_cast<CGContextRef>(d->pdev->macCGHandle());
     if(d->hd) {
 	qt_mac_clip_cg_reset(d->hd);
+	QPoint mp(0, 0);
 	if(d->pdev->devType() == QInternal::Widget) {
 	    QWidget *w = static_cast<QWidget*>(d->pdev);
-	    QPoint mp(posInWindow(w));
-	    QRegion rgn = w->d->clippedRegion();
-	    rgn.translate(mp.x(), mp.y());
-	    qt_mac_clip_cg(d->hd, rgn);
+	    mp = posInWindow(w);
+	    qt_mac_clip_cg(d->hd, w->d->clippedRegion(), &mp);
 	}
 	if(paintevent_item *pevent = qt_mac_get_paintevent()) {
 	    if((*pevent) == d->pdev) 
-		qt_mac_clip_cg(d->hd, pevent->region());
+		qt_mac_clip_cg(d->hd, pevent->region(), &mp);
 	}
+	if(rgn)
+	    qt_mac_clip_cg(d->hd, *rgn, 0); //already widget relative
     }
 }
 

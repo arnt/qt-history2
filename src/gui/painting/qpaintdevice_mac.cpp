@@ -421,23 +421,25 @@ void qt_mac_clip_cg_reset(CGContextRef hd)
     ClipCGContextToRegion(hd, &qdr, QRegion(qrect).handle(true));
 }
 
-void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn)
+void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt)
 {
+    CGContextBeginPath(hd);
     if(rgn.isEmpty()) {
-	CGContextBeginPath(hd);
 	CGContextAddRect(hd, CGRectMake(0, 0, 0, 0));
-	CGContextClip(hd);
     } else {
 	QVector<QRect> rects = rgn.rects();
 	const int count = rects.size();
-	CGRect *cg_rects = (CGRect *)malloc(sizeof(CGRect)*count);
 	for(int i = 0; i < count; i++) {
 	    const QRect &r = rects[i];
-	    cg_rects[i] = CGRectMake(r.x(), r.y(), r.width(), r.height());
+	    CGRect mac_r = CGRectMake(r.x(), r.y(), r.width(), r.height());
+	    if(pt) {
+		mac_r.origin.x -= pt->x();
+		mac_r.origin.y -= pt->y();
+	    }
+	    CGContextAddRect(hd, mac_r);
 	}
-	CGContextClipToRects(hd, cg_rects, count);
-	free(cg_rects);
     }
+    CGContextClip(hd);
 }
 
 /*!

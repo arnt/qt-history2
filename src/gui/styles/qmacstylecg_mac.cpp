@@ -410,7 +410,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
             info.state = tds;
         info.value = kThemeButtonOff;
         info.adornment = kThemeAdornmentNone;
-        if (btn->isMenuButton() || btn->isFlat())
+        if (btn->isFlat())
             info.kind = kThemeMediumBevelButton;
         else
             info.kind = kThemePushButton;
