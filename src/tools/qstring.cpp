@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#290 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#291 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10748,6 +10748,8 @@ QChar* QString::asciiToUnicode( const QByteArray& ba, uint* len )
 
 static QChar* internalAsciiToUnicode( const QByteArray& ba, uint* len )
 {
+    if ( ba.isNull() )
+	return 0;
     int l = 0;
     while ( l < (int)ba.size() && ba[l] )
 	l++;
@@ -11393,7 +11395,7 @@ QString &QString::sprintf( const char* cformat, ... )
     va_list ap;
     va_start( ap, cformat );
 
-    if ( !cformat ) {
+    if ( !cformat || !*cformat ) {
 	// Qt 1.x compat
 	*this = QString::fromLatin1("");
 	return *this;
@@ -11828,8 +11830,10 @@ QString QString::left( uint len ) const
 
 QString QString::right( uint len ) const
 {
-    if ( isEmpty() || len == 0 ) {
+    if ( isEmpty() ) {
 	return QString();
+    } else if ( len == 0 ) {			// ## just for 1.x compat:
+	return QString::fromLatin1("");
     } else {
 	uint l = length();
 	if ( len > l )
@@ -11861,8 +11865,10 @@ QString QString::right( uint len ) const
 QString QString::mid( uint index, uint len ) const
 {
     uint slen = length();
-    if ( isEmpty() || index >= slen || len == 0 ) {
+    if ( isEmpty() || index >= slen ) {
 	return QString();
+    } else if ( len == 0 ) {			// ## just for 1.x compat:
+	return QString::fromLatin1("");
     } else {
 	if ( len > slen-index )
 	    len = slen - index;
@@ -12910,6 +12916,8 @@ QString& QString::operator+=( const QString &str )
     if ( len2 ) {
 	setLength(len1+len2);
 	memcpy( d->unicode+len1, str.unicode(), sizeof(QChar)*len2 );
+    } else if ( isNull() && !str.isNull() ) {	// ## just for 1.x compat:
+	*this = fromLatin1("");
     }
     return *this;
 }
