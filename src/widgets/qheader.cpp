@@ -1827,8 +1827,9 @@ void QHeader::adjustHeaderSize( int diff )
     if ( !count() )
 	return;
 
-    if ( (d->lastPos - d->sizes[count() -1]) > ( orient == Horizontal ? width() : height() ) )
- 	return;
+    // we skip the adjustHeaderSize when trying to resize the last column which is set to stretchable
+    if ( d->fullSize == (count() -1) && (d->lastPos - d->sizes[count() -1]) > ( orient == Horizontal ? width() : height() ) )
+  	return;
 
     if ( d->fullSize >= 0 ) {
 	int sec = mapToSection( d->fullSize );
