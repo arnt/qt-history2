@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#61 $
 **
 ** Implementation of QPointArray class
 **
@@ -1034,3 +1034,25 @@ QDataStream &operator>>( QDataStream &s, QPointArray &a )
     }
     return s;
 }
+
+/*!
+  \fn QPointVal& QPointVal::operator= (const QPointVal & point) 
+
+  Assign the point this references with
+  the value of the point referenced by \a point.
+*/
+
+/*!
+  \fn bool QPointVal::operator!= (const QPointVal & point) const
+
+  Compare the point this references with
+  the value of the point referenced by \a point.
+*/
+
+/*!
+  \fn bool QPointVal::operator== (const QPointVal & point) const
+
+  Compare the point this references with
+  the value of the point referenced by \a point.
+*/
+
