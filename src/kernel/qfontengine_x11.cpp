@@ -477,6 +477,8 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 #endif
         }
 	transform = TRUE;
+    } else if ( p->txop == QPainter::TxTranslate ) {
+	p->map( x, y, &x, &y );
     }
 
     XSetFont(dpy, gc, font_id);
