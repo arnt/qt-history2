@@ -57,13 +57,13 @@ revised. Apart from great speed improvements, it now supports HTML
 tables as well as floating images.
 
 QMultiLineEdit, the text input field in Qt, got the missing word wrap
-functionality. It's probably the last big extension we will add to that
-widget. In Qt 3.0, it will be replaced by a fancier, faster and more
-powerful QTextEdit widget that also deals with different colors and
-fonts in a way similar to the existing QTextView.
+functionality. It's probably the last big extension we will add to
+that widget. In Qt 3.0, it will be replaced by a fancier, faster and
+more powerful QTextEdit widget that also deals with different colors
+and fonts in a way similar to the existing QTextView.
 
-Qt follows the respective GUI style guides even more closely. This includes
-honouring desktop settings, and keyboard shortcuts such as
+Qt follows the respective GUI style guides even more closely. This
+includes honouring desktop settings, and keyboard shortcuts such as
 Ctrl-Z/Y for undo/redo in line edit and multi-line edit
 controls. Dialog handling for both modal and non-modal dialogs has
 been improved to follow the platform conventions precisely.
@@ -103,8 +103,8 @@ QFileDialog	- many new features including fancy drag'n'drop
 		  such as HTTP and FTP (see the Network Extension).
 
 QFocusEvent	- carries a reason() for the event. Possible reasons are
-		Mouse, Tab, ActiveWindow, ShortCut and other. The
-		addition makes line edit controls behave properly.
+		  Mouse, Tab, ActiveWindow, ShortCut and other. The
+		  addition makes line edit controls behave properly.
 
 QHeader		- added optional visual sort indicator.
 
