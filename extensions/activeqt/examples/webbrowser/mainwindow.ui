@@ -63,12 +63,12 @@
         </widget>
       </item>
     </layout>
-    <widget class="QToolBar" name="Toolbar" >
+    <widget class="QToolBar" name="tbNavigate" >
       <property name="objectName" >
-        <string notr="true" >Toolbar</string>
+        <string notr="true" >tbNavigate</string>
       </property>
-      <property name="label" >
-        <string>Toolbar</string>
+      <property name="windowTitle" >
+        <string>Navigation</string>
       </property>
       <addaction name="actionBack" />
       <addaction name="actionForward" />
@@ -78,12 +78,12 @@
       <addaction name="separator" />
       <addaction name="actionSearch" />
     </widget>
-    <widget class="QToolBar" name="Toolbar_2" >
+    <widget class="QToolBar" name="tbAddress" >
       <property name="objectName" >
-        <string notr="true" >Toolbar_2</string>
+        <string notr="true" >tbAddress</string>
       </property>
-      <property name="label" >
-        <string>Toolbar_2</string>
+      <property name="windowTitle" >
+        <string>Address</string>
       </property>
       <widget class="QLabel" name="lblAddress" >
         <property name="objectName" >
