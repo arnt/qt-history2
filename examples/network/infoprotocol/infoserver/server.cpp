@@ -34,7 +34,7 @@ void ServerInfo::newConnect()
 
 
 SimpleServer::SimpleServer( Q_UINT16 port, QObject* parent, const char *name ) :
-    QServerSocket( port, 1, parent )
+    QServerSocket( port, 1, parent, name )
 {
     if ( !ok() ) {
 	QMessageBox::critical( 0, tr( "Error" ), tr( "Failed to bind to port %1" ).arg( port ) );
