@@ -1049,7 +1049,7 @@ void Uic::createFormImpl( const QDomElement &e )
 		out << endl;
 	}
 	if ( needSqlTableEventHandler ) {
-	    out << " *  default SQL table initialization" << endl;
+	    out << " *  default SQL table initialization";
 	    if ( needSqlFormEventHandler )
 		out << " and" << endl;
 	    else
