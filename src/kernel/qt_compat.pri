@@ -29,7 +29,7 @@ macx-g++ {
      CONFIG += tools kernel widgets dialogs iconview workspace \
                network canvas table xml zlib png styles sql mac
      #never
-     CONFIG -= nas mng jpeg x11 x11sm
+     CONFIG -= nas mng x11 x11sm
      
      CONFIG += shared
      CONFIG += sqlcrap
