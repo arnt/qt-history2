@@ -1384,8 +1384,12 @@ void QMainWindow::setUpLayout()
 	delete l;
     }
 
+    QLayout::ResizeMode tll_rm = QLayout::Minimum;
+    if ( d->tll )
+	tll_rm = d->tll->resizeMode();
     delete d->tll;
     d->tll = new QBoxLayout( this, QBoxLayout::Down );
+    d->tll->setResizeMode( tll_rm );
 
 #ifndef QT_NO_MENUBAR
     if ( d->mb && d->mb->isVisibleTo( this ) ) {
@@ -1717,8 +1721,6 @@ void QMainWindow::triggerLayout( bool deleteLayout )
 {
     if ( !deleteLayout && d->tll ) {
     } else {
-	delete d->tll;
-	d->tll = 0;
 	setUpLayout();
     }
     QApplication::postEvent( this, new QEvent( QEvent::LayoutHint ) );
