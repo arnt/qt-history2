@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/Makefile.inc#12 $
+# $Id: //depot/qt/main/Makefile.inc#13 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -68,7 +68,7 @@ NMakefile.debug: $(PROJECT).pro Makefile
 	    "CONFIG+=debug" "DEFINES+=QT_MAKEDLL" "OBJECTS_DIR=.obj/debug"
 !ELSE
 	tmake $(PROJECT).pro -o NMakefile.debug \
-	    "CONFIG+=debug" "DEFINES+=QT_DLL" "OBJECTS_DIR=.obj/debug"
+	    "CONFIG+=debug console" "DEFINES+=QT_DLL" "OBJECTS_DIR=.obj/debug"
 !ENDIF
 
 NMakefile.release: $(PROJECT).pro Makefile
@@ -82,7 +82,7 @@ NMakefile.release: $(PROJECT).pro Makefile
 	    "CONFIG+=release" "DEFINES+=QT_MAKEDLL" "OBJECTS_DIR=.obj/release" "TMAKE_LFLAGS_RELEASE=/INCREMENTAL:YES"
 !ELSE
 	tmake $(PROJECT).pro -o NMakefile.release \
-	    "CONFIG+=release" "DEFINES+=QT_DLL" "OBJECTS_DIR=.obj/release" "TMAKE_LFLAGS_RELEASE=/INCREMENTAL:YES"
+	    "CONFIG+=release console" "DEFINES+=QT_DLL" "OBJECTS_DIR=.obj/release" "TMAKE_LFLAGS_RELEASE=/INCREMENTAL:YES"
 !ENDIF
 
 NMakefile.static-debug: $(PROJECT).pro Makefile
@@ -92,7 +92,7 @@ NMakefile.static-debug: $(PROJECT).pro Makefile
 	-@mkdir .obj
 	-@mkdir .obj\static-debug
 	tmake $(PROJECT).pro -o NMakefile.static-debug \
-	    "CONFIG+=debug" "DEFINES+=QT_NODLL" "OBJECTS_DIR=.obj/static-debug"
+	    "CONFIG+=debug console" "DEFINES+=QT_NODLL" "OBJECTS_DIR=.obj/static-debug"
 
 NMakefile.static-release: $(PROJECT).pro Makefile
 !IF $(LIBTARGET) == 1
@@ -101,7 +101,7 @@ NMakefile.static-release: $(PROJECT).pro Makefile
 	-@mkdir .obj
 	-@mkdir .obj\static-release
 	tmake $(PROJECT).pro -o NMakefile.static-release \
-	    "CONFIG+=release" "DEFINES+=QT_NODLL" "OBJECTS_DIR=.obj/static-release"
+	    "CONFIG+=release console" "DEFINES+=QT_NODLL" "OBJECTS_DIR=.obj/static-release"
 
 !IF "$(PROJECT)" == "qt"
 NMakefile.x11-debug: qtx11.pro $(PROJECT).pro Makefile
