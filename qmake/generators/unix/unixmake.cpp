@@ -231,7 +231,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "-rm -f $(TARGET0) $(TARGET1) $(TARGET2) $(TARGETA)" << "\n\t";
     }
     t << varGlue("QMAKE_CLEAN","-rm -f "," ","") << "\n\t"
-      << "-rm -f *~ core" << "\n\t"
+      << "-rm -f *~ core *.core" << "\n\t"
       << varGlue("CLEAN_FILES","-rm -f "," ","") << endl << endl;
     t << "####### Sub-libraries" << endl << endl;
     if ( !project->variables()["SUBLIBS"].isEmpty() ) {
