@@ -2,13 +2,26 @@ Here is a list of (major) changes in Qt from 0.95 to 0.96.
 
 Bug-fixes, optimizations and much improved documentation, of course.
 
-There are few changes in the API (Qt header files).
+There are few changes in the API (Qt header files).  Some functions have
+been renamed or the arguments have changed.  We keep the old functions
+until the next release.  Compile with -DOBSOLETE to allow calls to the
+obsolete functions.
 
 
 QBitmap:
 --------
   Constructor takes "const uchar *bits" instead of "const char *"
   because of sign problems (uchar = unsigned char).
+
+
+QButton:
+--------
+  toggleButton() is obsolete, renamed to isToggleButton().
+
+
+QButtonGroup:
+-------------
+  Exclusive group setting added (isExclusive and setExclusive).
 
 
 QWidget:
