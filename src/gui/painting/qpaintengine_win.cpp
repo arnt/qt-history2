@@ -2216,6 +2216,14 @@ enum PixelOffsetMode {
     PixelOffsetModeHalf     // Offset by -0.5, -0.5 for fast anti-alias perf
 };
 
+enum DriverStringOptions
+{
+    DriverStringOptionsCmapLookup             = 1,
+    DriverStringOptionsVertical               = 2,
+    DriverStringOptionsRealizedAdvance        = 4,
+    DriverStringOptionsLimitSubpixel          = 8
+};
+
 QGdiplusPaintEngine::QGdiplusPaintEngine()
     : QPaintEngine(*(new QGdiplusPaintEnginePrivate))
 {
@@ -2590,21 +2598,25 @@ void QGdiplusPaintEngine::cleanup()
 
 void QGdiplusPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int /* flag */)
 {
-#if 0
-    HDC dc = ti.fontEngine->dc();
+    HDC hdc;
+    GdipGetDC(d->graphics, &hdc);
     QtGpFont *font;
-    GdipCreateFontFromLogfontW(dc, &ti.fontEngine->logfont, &font);
+    GdipCreateFontFromLogfontW(hdc, &ti.fontEngine->logfont, &font);
+    GdipReleaseDC(d->graphics, &hdc);
 
     GdipSetSolidFillColor(d->cachedSolidBrush, d->penColor.rgb());
 
-    uint flags = 1 | 4; // CmapLookup | RealizedAdvance
+    QVarLengthArray<unsigned short> glyphs(ti.num_glyphs);
+    for (int i=0; i<ti.num_glyphs; ++i)
+        glyphs[i] = ti.glyphs[i].glyph;
+
+    uint flags = DriverStringOptionsRealizedAdvance;
 
     GdipDrawDriverString(d->graphics,
-                         (Q_UINT16*)ti.chars, ti.num_glyphs, font, d->cachedSolidBrush, &p, flags, 0);
+                         glyphs.data(), ti.num_glyphs, font, d->cachedSolidBrush, &p, flags, 0);
 
     GdipSetSolidFillColor(d->cachedSolidBrush, d->brushColor.rgb());
     GdipDeleteFont(font);
-#endif
 }
 
 static QtGpBitmap *qt_convert_to_gdipbitmap(const QPixmap *pixmap, QImage *image)
