@@ -149,7 +149,7 @@ private:
 
 class QIconViewToolTip;
 
-class Q_EXPORT QIconViewItem : public QObject
+class Q_EXPORT QIconViewItem
 {
     friend class QIconView;
     friend class QIconViewToolTip;
@@ -268,7 +268,7 @@ class Q_EXPORT QIconView : public QScrollView
     friend class QIconViewItem;
     friend class QIconViewPrivate;
     friend class QIconViewToolTip;
-    
+
     Q_OBJECT
     // #### sorting and soring direction dont work
     Q_ENUMS( SelectionMode ItemTextPos Arrangement ResizeMode )
@@ -368,7 +368,7 @@ public:
     bool autoArrange() const;
     virtual void setShowToolTips( bool b );
     bool showToolTips() const;
-    
+
     void setSorting( bool sort, bool ascending = TRUE );
     bool sorting() const;
     bool sortDirection() const;

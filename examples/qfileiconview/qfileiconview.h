@@ -52,7 +52,7 @@ private:
  * Class QtFileIconView
  *
  *****************************************************************************/
-
+class QtFileIconViewItem;
 class QtFileIconView : public QIconView
 {
     Q_OBJECT
@@ -64,7 +64,10 @@ public:
 
     void setViewMode( ViewMode m );
     ViewMode viewMode() const { return vm; }
-
+    void setOpenItem( QtFileIconViewItem *i ) {
+	openItem = i;
+    }
+    
 public slots:
     void setDirectory( const QString &dir );
     void setDirectory( const QDir &dir );
@@ -96,6 +99,7 @@ protected slots:
     }
 
     void slotRightPressed( QIconViewItem *item );
+    void openFolder();
 
 protected:
     void readDir( const QDir &dir );
@@ -108,7 +112,8 @@ protected:
     QSize sz;
     QPixmap pix;
     ViewMode vm;
-
+    QtFileIconViewItem *openItem;
+    
 };
 
 /*****************************************************************************
@@ -119,7 +124,7 @@ protected:
 
 class QtFileIconViewItem : public QIconViewItem
 {
-    Q_OBJECT
+    friend class QtFileIconView;
 
 public:
     enum ItemType {
@@ -156,9 +161,6 @@ protected:
     bool checkSetText;
     QTimer timer;
     QtFileIconView::ViewMode vm;
-
-protected slots:
-    void openFolder();
 
 };
 

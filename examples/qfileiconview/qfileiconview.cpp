@@ -326,7 +326,7 @@ void QtFileIconDrag::append( const QIconDragItem &item, const QRect &pr,
 QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
     // set parent 0 => don't arrange in grid yet, as aour metrics is not correct yet
     : QIconViewItem( 0, fi->fileName() ), itemFileName( fi->filePath() ),
-      itemFileInfo( fi ), checkSetText( FALSE ), timer( this )
+      itemFileInfo( fi ), checkSetText( FALSE )
 {
     vm = QtFileIconView::Large;
     setView( parent );
@@ -346,8 +346,8 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
 
     checkSetText = TRUE;
 
-    connect( &timer, SIGNAL( timeout() ),
-	     this, SLOT( openFolder() ) );
+    QObject::connect( &timer, SIGNAL( timeout() ),
+		      iconView(), SLOT( openFolder() ) );
 
     // now do init stuff, to arrange in grid and so on
     init();
@@ -465,6 +465,7 @@ void QtFileIconViewItem::dragEntered()
 	 type() == Dir && !QDir( itemFileName ).isReadable() )
 	return;
 
+    ( (QtFileIconView*)iconView() )->setOpenItem( this );
     timer.start( 1500 );
 }
 
@@ -475,16 +476,6 @@ void QtFileIconViewItem::dragLeft()
 	return;
 
     timer.stop();
-}
-
-void QtFileIconViewItem::openFolder()
-{
-    if ( type() != Dir ||
-	 type() == Dir && !QDir( itemFileName ).isReadable() )
-	return;
-
-    timer.stop();
-    ((QtFileIconView*)iconView())->setDirectory( itemFileName );
 }
 
 /*****************************************************************************
@@ -538,6 +529,19 @@ QtFileIconView::QtFileIconView( const QString &dir, QWidget *parent, const char 
 
     setAutoArrange( TRUE );
     setSorting( TRUE );
+}
+
+void QtFileIconView::openFolder()
+{
+    if ( !openItem )
+	return;
+    if ( openItem->type() != QtFileIconViewItem::Dir ||
+	 openItem->type() == QtFileIconViewItem::Dir && 
+	 !QDir( openItem->itemFileName ).isReadable() )
+	return;
+
+    openItem->timer.stop();
+    setDirectory( openItem->itemFileName );
 }
 
 void QtFileIconView::setDirectory( const QString &dir )
