@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontinf.h#3 $
+** $Id: //depot/qt/main/src/kernel/qfontinf.h#4 $
 **
 ** Definition of QFontInfo class
 **
@@ -19,7 +19,8 @@
 class QFontInfo
 {
 public:
-    QFontInfo( const QFont & );
+    QFontInfo( QPaintDevice * );
+    QFontInfo( QPainter * );
 
     const char	       *family()	const;
     int			pointSize()	const;
@@ -35,11 +36,14 @@ public:
     bool		exactMatch()	const;
 
     const QFont	       &font()		const	{ return f; }
-    void		setFont( const QFont & );
 
 private:
+    static void		reset( const QPaintDevice * );
     void		updateData();
     QFont		f;
+    QPaintDevice	*pdev;
+    friend class QPaintDevice;
+    friend class QPainter;
 };
 
 
