@@ -269,33 +269,35 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, QGly
 // #define COLOR_VALUE(c) ((p->flags & QPainter::RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
 #define COLOR_VALUE(c) c.pixel()
 
-void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextItem &si, int textFlags )
+void QFontEngineWin::draw( QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags )
 {
     HDC old_hdc = hdc;
     hdc = p->handle();
-    bool nat_xf = (qWinVersion() & Qt::WV_NT_based) && p->d->txop >= QPainter::TxScale;
+    QPainterState *state = p->painterState();
+    bool nat_xf = (qWinVersion() & Qt::WV_NT_based) && state->txop >= QPainter::TxScale;
     nat_xf = false; // ### remove later
 
-    bool force_bitmap = p->d->state->rasterOp != QPainter::CopyROP;
-    force_bitmap |= p->d->txop >= QPainter::TxScale
+    bool force_bitmap = state->rasterOp != QPainter::CopyROP;
+    force_bitmap |= state->txop >= QPainter::TxScale
 		    && !(QT_WA_INLINE( tm.w.tmPitchAndFamily, tm.a.tmPitchAndFamily ) & (TMPF_VECTOR|TMPF_TRUETYPE));
 
     double scale = 1.;
     int angle = 0;
     bool transform = FALSE;
 
-    if ( force_bitmap || (p->d->txop >= QPainter::TxScale && !nat_xf) ) {
+    if ( force_bitmap || (state->txop >= QPainter::TxScale && !nat_xf) ) {
 	// Draw rotated and sheared text on Windows 95, 98
 
 	// All versions can draw rotated text natively. Scaling can be done with window/viewport transformations
 	// the hard part is only shearing
-	if ( force_bitmap || p->m11() != p->m22() || p->m12() != -p->m21() ) {
+	if ( force_bitmap || state->matrix.m11() != state->matrix.m22()
+	     || state->matrix.m12() != -state->matrix.m21() ) {
 	    // shearing transformation, have to do the work by hand
             QRect bbox( 0, 0, si.width, si.ascent + si.descent + 1 );
             int w=bbox.width(), h=bbox.height();
             int aw = w, ah = h;
             int tx=-bbox.x(),  ty=-bbox.y();    // text position
-            QWMatrix mat1 = p->d->matrix;
+            QWMatrix mat1 = state->matrix;
 	    if ( aw == 0 || ah == 0 )
 		return;
 	    double rx = (double)w / (double)aw;
@@ -308,7 +310,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextItem &si, int t
 	    HDC oldDC = hdc;
 	    hdc = paint.handle();
 	    SelectObject( hdc, hfont );
-	    draw( &paint, 0, si.ascent, si, textFlags );
+	    draw( bm.engine(), 0, si.ascent, si, textFlags );
 	    hdc = oldDC;
 	    paint.end();
 	    QBitmap wx_bm = bm.xForm(mat2); // transform bitmap
@@ -351,7 +353,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextItem &si, int t
 		    0x009b07a8, // SDPSoaxn, NandROP,
 		    0x00891b08  // SDPSnaoxn,NorROP,
 		};
-		HBRUSH b = CreateSolidBrush( COLOR_VALUE(p->d->state->pen.color()) );
+		HBRUSH b = CreateSolidBrush( COLOR_VALUE(state->pen.color()) );
 		COLORREF tc, bc;
 		b = (HBRUSH)SelectObject( hdc, b );
 		tc = SetTextColor( hdc, COLOR_VALUE(QColor(Qt::black)) );
@@ -366,7 +368,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextItem &si, int t
 		    wx_sy = 0;
 		}
 		BitBlt( hdc, x, y, wx_bm.width(), wx_bm.height(),
-			wx_dc, 0, wx_sy, ropCodes[p->d->state->rasterOp] );
+			wx_dc, 0, wx_sy, ropCodes[state->rasterOp] );
 		SetBkColor( hdc, bc );
 		SetTextColor( hdc, tc );
 		DeleteObject( SelectObject(hdc, b) );
@@ -375,9 +377,10 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextItem &si, int t
 	}
 
 	// rotation + scale + translation
-	scale = sqrt( p->m11()*p->m22() - p->m12()*p->m21() );
-	angle = 1800*acos( p->m11()/scale )/M_PI;
-	if ( p->m12() < 0 )
+	scale = sqrt( state->matrix.m11()*state->matrix.m22()
+		      - state->matrix.m12()*state->matrix.m21() );
+	angle = 1800*acos( state->matrix.m11()/scale )/M_PI;
+	if ( state->matrix.m12() < 0 )
 	    angle = 3600 - angle;
 
 	transform = TRUE;
@@ -388,9 +391,9 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextItem &si, int t
 	    return;
 	}
 #endif
-    } else if ( !p->d->engine->hasCapability(QPaintEngine::CoordTransform)
-		&& p->d->txop == QPainter::TxTranslate ) {
-	p->map( x, y, &x, &y );
+    } else if ( !p->hasCapability(QPaintEngine::CoordTransform)
+		&& state->txop == QPainter::TxTranslate ) {
+	state->painter->map( x, y, &x, &y );
     }
 
     if ( textFlags & Qt::Underline || textFlags & Qt::StrikeOut || scale != 1. || angle ) {
@@ -464,7 +467,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextItem &si, int t
 		    int xp = x + glyphs->offset.x;
 		    int yp = y + glyphs->offset.y;
 		    if ( transform )
-			p->map( xp, yp, &xp, &yp );
+			state->painter->map( xp, yp, &xp, &yp );
     		    ExtTextOutW( hdc, xp, yp, options, 0, &chr, 1, 0 );
 		    x += glyphs->advance;
 		    glyphs++;
@@ -487,7 +490,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextItem &si, int t
 	    int xp = x + glyphs->offset.x;
 	    int yp = y + glyphs->offset.y;
 	    if ( transform )
-		p->map( xp, yp, &xp, &yp );
+		state->painter->map( xp, yp, &xp, &yp );
     	    ExtTextOutW( hdc, xp, yp, options, 0, &chr, 1, 0 );
 	    x += glyphs->advance;
 	}
@@ -781,7 +784,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, QGlyph
     return NoError;
 }
 
-void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextItem &si, int textFlags )
+void QFontEngineBox::draw( QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags )
 {
     Q_UNUSED( p );
     Q_UNUSED( x );

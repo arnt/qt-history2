@@ -900,22 +900,7 @@ void QWin32PaintEngine::drawPixmap( const QRect &r, const QPixmap &pixmap, const
 
 void QWin32PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 {
-    return;
-
-    QTextEngine *engine = ti.engine();
-    QScriptItem *si = &engine->items[ti.item()];
-
-    engine->shape( ti.item() );
-    QFontEngine *fe = engine->fontEngine(*si);
-    Q_ASSERT( fe );
-
-    int x = p.x();
-    int y = p.y();
-
-    HDC oldDC = fe->hdc;
-    fe->hdc = d->hdc;
-    SelectObject( d->hdc, fe->hfont );
-//     fe->draw( this, x,  y, engine, si, textFlags );
+    ti.fontEngine->draw(this, p.x(),  p.y(), ti, textFlags);
 }
 
 
