@@ -745,15 +745,13 @@ void QWidget::update()
 
 void QWidget::update( int x, int y, int w, int h )
 {
-  if ( testWFlags( WState_Created ) ) {
-    if ( !isVisible() )
-      return;
-    Rect r;
+    if ( !testWState(WState_BlockUpdates) && testWState( WState_Visible ) && isVisible() ) {
+	Rect r;
 
-    QPoint mp(posInWindow(this));
-    SetRect( &r, mp.x()+x, mp.y()+y, mp.x()+x+w, mp.y()+y+h );
-    InvalWindowRect( (WindowRef)winId(), &r );
-  }
+	QPoint mp(posInWindow(this));
+	SetRect( &r, mp.x()+x, mp.y()+y, mp.x()+x+w, mp.y()+y+h );
+	InvalWindowRect( (WindowRef)winId(), &r );
+    }
 }
 
 /*!
