@@ -1247,7 +1247,7 @@ public:
 
 /*
   QTypeInfo     - type trait functionality
-  qInit/qDelete - type initialization/destruction
+  qInit         - type initialization
   qIsDetached   - data sharing functionality
 */
 
@@ -1257,7 +1257,6 @@ public:
   The catch-all template.
 */
 template <typename T> inline void qInit(T &) { }
-template <typename T> inline void qDelete(T &) { }
 template <typename T> inline bool qIsDetached(T &) { return true; }
 
 template <typename T>
@@ -1277,26 +1276,6 @@ public:
 */
 template <typename T> inline void qInit(T *&t) { t = 0; }
 template <typename T> inline void qInit(const T *&t) { t = 0; }
-template <typename T> inline void qDelete(T *&t)
-{
-    if (false) t->~T(); // provoke compile error if T is not a fully-defined type
-    delete t;
-}
-template <typename T> inline void qDelete(const T *&t)
-{
-    if (false) t->~T(); // ditto
-    delete t;
-}
-template <typename T> inline void qDelete(T * const &t)
-{
-    if (false) t->~T(); // ditto
-    delete t;
-}
-template <typename T> inline void qDelete(const T * const &t)
-{
-    if (false) t->~T(); // ditto
-    delete t;
-}
 
 template <typename T>
 class QTypeInfo<T*>
@@ -1312,25 +1291,17 @@ public:
 
 #else
 
-// It is not possible to delete const pointers on MSVC 6.0, here's the workaround...
-#if defined Q_CC_MSVC && _MSC_VER < 1300
-inline void qDelete(const char *c) { delete (char *) c; }
-#endif
-
 /*
   Lack of partial template specialization mostly on MSVC compilers
   makes it hard to distinguish between pointers and non-pointer types.
  */
 template <typename T> inline void qInitHelper(T*(*)(), void* ptr) { *(void**)ptr = 0; }
-template <typename T> inline void qDeleteHelper(T*(*)(), void* ptr) { delete*(T**)ptr; }
 inline void qInitHelper(...) { }
-inline void qDeleteHelper(...) { }
 
 template <typename T> char QTypeInfoHelper(T*(*)());
 void* QTypeInfoHelper(...);
 
 template <typename T> inline void qInit(T &t){ qInitHelper((T(*)())0, (void*)&t); }
-template <typename T> inline void qDelete(T &t){ qDeleteHelper((T(*)())0, (void*)&t); }
 template <typename T> inline bool qIsDetached(T &) { return true; }
 
 template <typename T>
@@ -1364,7 +1335,6 @@ enum { // TYPEINFO flags
 };
 
 #define Q_DECLARE_TYPEINFO(TYPE, FLAGS)					       		\
-template <> inline void qDelete<TYPE>(TYPE &) { }				       	\
 template <>								       		\
 class QTypeInfo<TYPE>									\
 {											\
@@ -1429,21 +1399,6 @@ template <> inline void qInit<double>(double &t) { t = 0.0; }
 template <> inline void qInit<long double>(long double &t) { t = 0.0; }
 #endif
 
-/*
-  void*, const void* and function pointers are special, since deleting
-  them is undefined.
-*/
-template <> inline void qDelete<void>(void *&) { }
-typedef void (*QFunctionPointer)();
-typedef void (*QFunctionPointerWithArgs)(...);
-#if defined(Q_CC_BOR)
-template <> inline void qDelete<void()>(QFunctionPointer &) { }
-#else
-template <> inline void qDelete(QFunctionPointer &) { }
-template <> inline void qDelete(QFunctionPointerWithArgs &) { }
-#endif
-
-
 Q_CORE_EXPORT void *qMalloc(size_t size);
 Q_CORE_EXPORT void qFree(void *ptr);
 Q_CORE_EXPORT void *qRealloc(void *ptr, size_t size);
@@ -1453,9 +1408,9 @@ Q_CORE_EXPORT void *qMemSet(void *dest, int c, size_t n);
 
 
 /*
- Avoid some particularly useless warnings from some stupid compilers.
- To get ALL C++ compiler warnings, define QT_CC_WARNINGS or comment out
- the line "#define QT_NO_WARNINGS"
+    Avoid some particularly useless warnings from some stupid compilers.
+    To get ALL C++ compiler warnings, define QT_CC_WARNINGS or comment out
+    the line "#define QT_NO_WARNINGS".
 */
 
 #if !defined(QT_CC_WARNINGS)

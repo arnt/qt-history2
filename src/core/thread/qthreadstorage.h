@@ -96,18 +96,12 @@ private:
     QThreadStorageData d;
 
 #if defined(Q_DISABLE_COPY)
-    // disable copy constructor and operator=
     QThreadStorage(const QThreadStorage &);
     QThreadStorage &operator=(const QThreadStorage &);
 #endif // Q_DISABLE_COPY
 
     static inline void deleteData(void *x)
-    {
-	if (QTypeInfo<T>::isPointer)
-	    qDelete(reinterpret_cast<T&>(x));
-	else
-	    qDelete(reinterpret_cast<T*&>(x));
-    }
+    { delete reinterpret_cast<T&>(x); }
 
 public:
     inline QThreadStorage() : d(deleteData) { }
