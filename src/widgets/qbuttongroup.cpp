@@ -424,18 +424,20 @@ void QButtonGroup::buttonToggled( bool on )
     if ( !excl_grp && !::qt_cast<QRadioButton*>(senderButton) )
 	return;
     
-    bool hasTabFocus = FALSE;
-    QButtonItem * item = 0;
+    bool hasTabFocus = false;
+    QButtonItem *item = 0;
     int i;
 
-    for (i=0; i<buttons->size() && !hasTabFocus; ++i) {
+    for (i=0; i<buttons->size(); ++i) {
 	item = buttons->at(i);
 	if (item && (excl_grp || ::qt_cast<QRadioButton*>(item->button))
-	    && (item->button->focusPolicy()&TabFocus))
+	    && (item->button->focusPolicy() & TabFocus)) {
 	    hasTabFocus = true;
+	    break;
+	}
     }
     
-    for (i=0,item=0; i<buttons->size() && !hasTabFocus; ++i) {
+    for (i=0,item=0; i<buttons->size(); ++i) {
 	item = buttons->at(i);
 	if (senderButton != item->button && item->button->isToggleButton()
 	     && item->button->isOn() && (excl_grp || qt_cast<QRadioButton*>(item->button)))
@@ -596,9 +598,9 @@ QButton *QButtonGroup::selected() const
 	    && item->button
 	    && item->button->isToggleButton()
 	    && item->button->isOn()) {
-	    if (candidate != 0)
-		return 0;
-	    candidate = item->button;
+ 	    if (candidate != 0)
+ 		return 0;
+ 	    candidate = item->button;
 	}
     }
     return candidate;
@@ -629,10 +631,10 @@ int QButtonGroup::id( QButton * button ) const
     QButtonItem *item = 0;
     for (int i=0; i<buttons->size(); ++i) {
 	item = buttons->at(i);
-	if (!item || item->button == button)
-	    break;
+	if (item->button == button)
+	    return item->id;
     }
-    return item ? item->id : -1;
+    return -1;
 }
 
 
