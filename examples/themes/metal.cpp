@@ -53,45 +53,17 @@ void MetalStyle::polish( QApplication *app)
     app->setFont( f, TRUE, "QPopupMenu");
 
 
-    //QPixmap button( stone1_xpm );
-    QPixmap button( stonedark_xpm );
+
+    //    QPixmap button( stonedark_xpm );
+
+    QColor gold("#B9B9A5A54040"); //same as topgrad below
+    QPixmap button( 1, 1 ); button.fill( gold );
+
     QPixmap background(marble_xpm);
-#if 0
-
-    int i;
-    for (i=0; i<img.numColors(); i++) {
-	QRgb rgb = img.color(i);
-	QColor c(rgb);
-	rgb = c.dark().rgb();
-	img.setColor(i,rgb);
-    }
-    QPixmap mid;
-    mid.convertFromImage(img);
-
-    img = orig;
-    for (i=0; i<img.numColors(); i++) {
-	QRgb rgb = img.color(i);
-	QColor c(rgb);
-	rgb = c.light().rgb();
-	img.setColor(i,rgb);
-    }
-    QPixmap light;
-    light.convertFromImage(img);
-
-    img = orig;
-    for (i=0; i<img.numColors(); i++) {
-	QRgb rgb = img.color(i);
-	QColor c(rgb);
-	rgb = c.dark().rgb();
-	img.setColor(i,rgb);
-    }
-    QPixmap dark;
-    dark.convertFromImage(img);
-#else
     QPixmap dark( 1, 1 ); dark.fill( red.dark() );
     QPixmap mid( stone1_xpm );
     QPixmap light( stone1_xpm );//1, 1 ); light.fill( green );
-#endif
+
     QPalette op = app->palette();
 
     QColor backCol( 227,227,227 );
@@ -189,6 +161,9 @@ void MetalStyle::drawPrimitive( PrimitiveElement pe,
 			     (flags & (Style_Sunken|Style_On|Style_Down)),
 			     TRUE, !(flags & Style_Raised) );
 	    break;
+    case PE_PanelMenuBar:
+	drawMetalFrame( p, r.x(), r.y(), r.width(), r.height() );
+	break;
     case PE_ScrollBarAddLine:	
 	drawMetalButton( p, r.x(), r.y(), r.width(), r.height(),
 			 flags & Style_Down, !( flags & Style_Horizontal ) );
@@ -366,51 +341,6 @@ void MetalStyle::drawComplexControl( ComplexControl cc,
     }
 }
 		
-QRect MetalStyle::querySubControlMetrics( ComplexControl cc,
-					  const QWidget *widget,
-					  SubControl sc,
-					  const QStyleOption& opt ) const
-{
-    QRect rect;
-    switch( cc ) {
-    case CC_ScrollBar:
-	{
-	    const QScrollBar *sb;
-	    sb = (const QScrollBar*)widget;
-	    bool horz = sb->orientation() == QScrollBar::Horizontal;
-	    int b = 2;
-	    int w = horz ? sb->height() : sb->width();
-	    switch ( sc ) {
-	    case SC_ScrollBarAddLine:
-		rect.setRect( b, b, w - 2 * b, w - 2 * b );
-		if ( horz )
-		    rect.moveBy( sb->width() - w, 0 );
-		else
-		    rect.moveBy( 0, sb->height() - w );
-		break;
-	    case SC_ScrollBarSubLine:
-		rect.setRect( b, b, w - 2 * b, w - 2 * b );
-		break;
-	    case SC_ScrollBarSlider:
-		// CHEAT
-		rect = QWindowsStyle::querySubControlMetrics( cc, widget, sc, opt );
-		if ( horz )
-		    rect.setRect( rect.x(), b, rect.width(), w - 2 * b );
-		else
-		    rect.setRect( b, rect.y(), w - 2 * b, rect.height() );
-		break;
-	    default:
-		rect = QWindowsStyle::querySubControlMetrics( cc, widget, sc, opt );
-		break;
-	    }
-	    break;
-	}
-    default:
-	rect = QWindowsStyle::querySubControlMetrics( cc, widget, sc, opt );
-	break;
-    }
-    return rect;
-}
 
 /*!
   Draw a metallic button, sunken if \a sunken is TRUE, horizontal if
@@ -420,18 +350,21 @@ QRect MetalStyle::querySubControlMetrics( ComplexControl cc,
 void MetalStyle::drawMetalButton( QPainter *p, int x, int y, int w, int h,
 				  bool sunken, bool horz, bool flat  ) const
 {
+
+    drawMetalFrame( p, x, y, w, h );
+    drawMetalGradient( p, x, y, w, h, sunken, horz, flat );
+}
+
+
+
+
+void MetalStyle::drawMetalFrame( QPainter *p, int x, int y, int w, int h ) const
+{
     QColor top1("#878769691515");
     QColor top2("#C6C6B4B44949");
 
     QColor bot2("#70705B5B1414");
-    QColor bot1("56564A4A0E0E"); //first from the bottom
-
-    QColor highlight("#E8E8DDDD6565");
-    QColor subh1("#CECEBDBD5151");
-    QColor subh2("#BFBFACAC4545");
-
-    QColor topgrad("#B9B9A5A54040");
-    QColor botgrad("#89896C6C1A1A");
+    QColor bot1("#56564A4A0E0E"); //first from the bottom
 
 
     int x2 = x + w - 1;
@@ -453,6 +386,23 @@ void MetalStyle::drawMetalButton( QPainter *p, int x, int y, int w, int h,
     p->drawLine( x+1, y2-1, x2-1, y2-1 );
     p->drawLine( x2-1, y2-1, x2-1, y+1 );
 
+
+}
+
+
+void MetalStyle::drawMetalGradient( QPainter *p, int x, int y, int w, int h,
+				    bool sunken, bool horz, bool flat  ) const
+
+{
+    QColor highlight("#E8E8DDDD6565");
+    QColor subh1("#CECEBDBD5151");
+    QColor subh2("#BFBFACAC4545");
+
+    QColor topgrad("#B9B9A5A54040");
+    QColor botgrad("#89896C6C1A1A");
+
+
+
     if ( flat && !sunken ) {
 	    p->fillRect( x + 2, y + 2, w - 4,h -4, topgrad );
     } else {
@@ -460,11 +410,12 @@ void MetalStyle::drawMetalButton( QPainter *p, int x, int y, int w, int h,
 	int i = 0;
 	int x1 = x + 2;
 	int y1 = y + 2;
+	int x2 = x + w - 1;
+	int y2 = y + h - 1;
 	if ( horz )
 	    x2 = x2 - 2;
 	else
 	    y2 = y2 - 2;
-	// Note that x2/y2 mean something else from this point down...
 	
 #define DRAWLINE if (horz) \
                     p->drawLine( x1, y1+i, x2, y1+i ); \
@@ -518,3 +469,14 @@ void MetalStyle::drawMetalButton( QPainter *p, int x, int y, int w, int h,
     }    
 }
 
+
+
+int MetalStyle::pixelMetric( PixelMetric metric, const QWidget *w ) const
+{
+    switch ( metric ) {
+    case PM_MenuBarFrameWidth:
+	return 2;
+    default:
+	return QWindowsStyle::pixelMetric( metric, w );
+    }
+}

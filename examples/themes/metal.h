@@ -51,12 +51,13 @@ public:
 			     SCFlags sub = SC_All,
 			     SCFlags subActive = SC_None,
 			     const QStyleOption& = QStyleOption::Default ) const;
+    int pixelMetric( PixelMetric, const QWidget * ) const;
 
-    QRect querySubControlMetrics( ComplexControl cc,
-				  const QWidget *widget,
-				  SubControl sc,
-				  const QStyleOption& ) const;
+
 private:
+    void drawMetalFrame(  QPainter *p, int x, int y, int w, int h ) const;
+    void drawMetalGradient( QPainter *p, int x, int y, int w, int h,
+			  bool sunken, bool horz, bool flat=FALSE ) const;
     void drawMetalButton( QPainter *p, int x, int y, int w, int h,
 			  bool sunken, bool horz, bool flat=FALSE ) const;
     QPalette oldPalette;
