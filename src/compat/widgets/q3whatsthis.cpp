@@ -169,8 +169,6 @@ bool Q3WhatsThis::clicked(const QString & /* href */)
 */
 
 /*!
-    \fn QToolButton *Q3WhatsThis::whatsThisButton(QWidget *parent)
-
     Creates a QToolButton preconfigured to enter "What's This?" mode
     when clicked. You will often use this with a tool bar as \a
     parent:
@@ -179,3 +177,7 @@ bool Q3WhatsThis::clicked(const QString & /* href */)
 	(void)QWhatsThis::whatsThisButton( my_help_tool_bar );
     \endcode
 */
+QToolButton *Q3WhatsThis::whatsThisButton(QWidget * parent)
+{
+    return QWhatsThis::whatsThisButton(parent);
+}
