@@ -124,14 +124,6 @@ int main(int argc, char **argv)
             }
             if(Option::mkfile::do_preprocess) //no need to create makefile
                 continue;
-
-            // let Option post-process
-            if(!Option::postProcessProject(&proj)) {
-                fprintf(stderr, "Error post-processing project file: %s",
-                        fn == "-" ? "(stdin)" : (*pfile).toLatin1().constData());
-                exit_val = 4;
-                continue;
-            }
         }
 
         MetaMakefileGenerator *mkfile = MetaMakefileGenerator::createMetaGenerator(&proj);
