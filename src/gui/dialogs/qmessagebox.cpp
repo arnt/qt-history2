@@ -434,18 +434,17 @@ const char * mb_texts[] = {
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
 
-    The \a parent and \a name arguments are passed to the QDialog
+    The \a parent argument is passed to the QDialog
     constructor.
 */
 
-QMessageBox::QMessageBox(QWidget *parent, const char *name)
-    : QDialog(parent, Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
+QMessageBox::QMessageBox(QWidget *parent)
+    : QDialog(parent, Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title
+                      | Qt::WStyle_SysMenu)
 {
-    setObjectName(name);
     setModal(true);
     init(Ok, 0, 0);
 }
-
 
 /*!
     Constructs a message box with a \a caption, a \a text, an \a icon,
@@ -502,10 +501,7 @@ QMessageBox::QMessageBox(QWidget *parent, const char *name)
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
 
-    If \a modal is true the message box is modal; otherwise it
-    is modeless.
-
-    The \a parent, \a name, \a modal, and \a f arguments are passed to
+    The \a parent and \a f arguments are passed to
     the QDialog constructor.
 
     \sa setWindowTitle(), setText(), setIcon()
@@ -514,9 +510,26 @@ QMessageBox::QMessageBox(QWidget *parent, const char *name)
 QMessageBox::QMessageBox(const QString& caption,
                           const QString &text, Icon icon,
                           int button0, int button1, int button2,
+                          QWidget *parent, Qt::WFlags f)
+    : QDialog(parent, f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title
+                        | Qt::WStyle_SysMenu)
+{
+    init(button0, button1, button2);
+#ifndef QT_NO_WIDGET_TOPEXTRA
+    setWindowTitle(caption);
+#endif
+    setText(text);
+    setIcon(icon);
+}
+
+#ifdef QT_COMPAT
+QMessageBox::QMessageBox(const QString& caption,
+                          const QString &text, Icon icon,
+                          int button0, int button1, int button2,
                           QWidget *parent, const char *name,
                           bool modal, Qt::WFlags f)
-    : QDialog(parent, f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
+    : QDialog(parent, f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title
+                        | Qt::WStyle_SysMenu)
 {
     setObjectName(name);
     setModal(modal);
@@ -527,6 +540,16 @@ QMessageBox::QMessageBox(const QString& caption,
     setText(text);
     setIcon(icon);
 }
+
+QMessageBox::QMessageBox(QWidget *parent, const char *name)
+    : QDialog(parent, Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title
+                      | Qt::WStyle_SysMenu)
+{
+    setObjectName(name);
+    setModal(true);
+    init(Ok, 0, 0);
+}
+#endif
 
 
 /*!
