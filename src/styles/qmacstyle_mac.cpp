@@ -302,8 +302,8 @@ static int mac_count = 0;
     does not fully implement this behaviour so as to maintain multiplatform
     compatibility. As a result some widgets sizes may be inappropriate (and
     subsequently not rendered correctly by the Appearance Manager).The
-    QWidget::sizeHint() will be return the appropriate size for many
-    managed widgets (widgets enumerated in QStyle::ContentsType).
+    QWidget::sizeHint() will return the appropriate size for many
+    managed widgets (widgets enumerated in \l QStyle::ContentsType).
 
     \i Effects - QMacStyle (in contrast to QAquaStyle) is not emulating
     (except where Appearance Manager does not provide certain
