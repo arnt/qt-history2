@@ -1,13 +1,13 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of an internal QLibrary class
 **
 ** Created : 2000-01-01
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
-** This file is part of the kernel module of the Qt GUI Toolkit.
+** This file is part of the tools module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Trolltech AS of Norway and appearing in the file

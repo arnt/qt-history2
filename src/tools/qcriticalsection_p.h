@@ -3,9 +3,7 @@
 **
 ** Definition of QCriticalSection class
 **
-** Created : 
-**
-** Copyright (C) 2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
