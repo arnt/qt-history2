@@ -751,8 +751,6 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
     Returns the keyboard modifier flags that existed immediately
     before the event occurred.
 
-    The returned value is \c ShiftButton, \c ControlButton and \c
-    AltButton OR'ed together.
     The returned value is \c ShiftButton, \c ControlButton, \c AltButton
     and \c MetaButton OR'ed together.
 

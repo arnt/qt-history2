@@ -134,8 +134,8 @@ void QLayoutItem::setAlignment( int a )
 /*!
     \fn QSizePolicy::ExpandData QLayoutItem::expanding() const
 
-    Implemented in subclasses to return whether this item "wants" to
-    expand.
+    Implemented in subclasses to return the direction(s) this item
+    "wants" to expand in (if any).
 */
 
 /*!
@@ -419,8 +419,9 @@ int QWidgetItem::heightForWidth( int w ) const
 }
 
 /*!
-    Returns TRUE if this spacer item is expanding; otherwise returns
-    FALSE.
+    Returns the direction in which this spacer item will expand.
+
+    \sa QSizePolicy::ExpandData
 */
 QSizePolicy::ExpandData QSpacerItem::expanding() const
 {
@@ -428,8 +429,11 @@ QSizePolicy::ExpandData QSpacerItem::expanding() const
 }
 
 /*!
-    Returns TRUE if this item's widget is expanding; otherwise returns
-    FALSE.
+    Returns whether this item's widget can make use of more space than
+    sizeHint(). A value of \c Vertical or \c Horizontal means that it wants
+    to grow in only one dimension, whereas \c BothDirections means that
+    it wants to grow in both dimensions and \c NoDirection means that
+    it doesn't want to grow at all.
 */
 QSizePolicy::ExpandData QWidgetItem::expanding() const
 {
@@ -1128,11 +1132,11 @@ QSize QLayout::maximumSize() const
 
 /*!
     Returns whether this layout can make use of more space than
-    sizeHint(). A value of Vertical or Horizontal means that it wants
-    to grow in only one dimension, whereas BothDirections means that
+    sizeHint(). A value of \c Vertical or \c Horizontal means that it wants
+    to grow in only one dimension, whereas \c BothDirections means that
     it wants to grow in both dimensions.
 
-    The default implementation returns BothDirections.
+    The default implementation returns \c BothDirections.
 */
 QSizePolicy::ExpandData QLayout::expanding() const
 {
@@ -1396,9 +1400,10 @@ bool QLayout::activate()
 /*!
     \fn QSizePolicy::ExpandData QSizePolicy::expanding() const
 
-    Returns a value indicating whether the widget can make use of
-    extra space (i.e. if it "wants" to grow) horizontally and/or
-    vertically.
+    Returns whether this layout can make use of more space than
+    sizeHint(). A value of \c Vertical or \c Horizontal means that it wants
+    to grow in only one dimension, whereas \c BothDirections means that
+    it wants to grow in both dimensions.
 
     \sa mayShrinkHorizontally() mayGrowHorizontally()
 	mayShrinkVertically() mayGrowVertically()

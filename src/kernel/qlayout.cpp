@@ -1398,7 +1398,10 @@ void QGridLayout::addColSpacing( int col, int minsize )
 }
 
 /*!
-    Returns the expansiveness of this layout.
+    Returns whether this layout can make use of more space than
+    sizeHint(). A value of \c Vertical or \c Horizontal means that it wants
+    to grow in only one dimension, whereas \c BothDirections means that
+    it wants to grow in both dimensions.
 */
 QSizePolicy::ExpandData QGridLayout::expanding() const
 {
@@ -1796,7 +1799,10 @@ QLayoutIterator QBoxLayout::iterator()
 }
 
 /*!
-    Returns the expansiveness of this layout.
+    Returns whether this layout can make use of more space than
+    sizeHint(). A value of \c Vertical or \c Horizontal means that it wants
+    to grow in only one dimension, whereas \c BothDirections means that
+    it wants to grow in both dimensions.
 */
 QSizePolicy::ExpandData QBoxLayout::expanding() const
 {
