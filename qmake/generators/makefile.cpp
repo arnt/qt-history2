@@ -1697,14 +1697,12 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                          (*it).toLatin1().constData());
                 continue;
             }
-            QString inputs, deps;
-            if(!tmp_dep.isEmpty()) {
-                QStringList dep_fixed = fileFixify(tmp_dep, Option::output_dir, Option::output_dir);
-                deps = " " + dep_fixed.join(" ");
-            }
+            QStringList deps, inputs;
+            if(!tmp_dep.isEmpty())
+                deps += fileFixify(tmp_dep, Option::output_dir, Option::output_dir);
             for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
-                deps += " " + findDependencies((*input)).join(" ");
-                inputs += " " + Option::fixPathToTargetOS((*input), false);
+                deps += findDependencies((*input)).join(" ");
+                inputs += Option::fixPathToTargetOS((*input), false);
                 if(!tmp_dep_cmd.isEmpty() && doDepends()) {
                     char buff[256];
                     QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, (*input),
@@ -1720,16 +1718,24 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                         }
                         fclose(proc);
                         if(!indeps.isEmpty())
-                            deps += " " + fileFixify(indeps.replace('\n', ' ').simplified().split(' ')).join(" ");
+                            deps += fileFixify(indeps.replace('\n', ' ').simplified().split(' '));
                     }
                 }
             }
             if (inputs.isEmpty())
                 continue;
             QString cmd = replaceExtraCompilerVariables(tmp_cmd, QString::null, tmp_out);
-            deps = replaceExtraCompilerVariables(deps, QString::null, tmp_out);
-            t << tmp_out << ": " << inputs << " " << deps << "\n\t"
-              << cmd.replace("${QMAKE_FILE_IN}", inputs) << endl << endl;
+            t << tmp_out << ": ";
+            for(int i = 0; i < inputs.size(); ++i) {
+                if(tmp_out != inputs.at(i))
+                    t << " " <<  inputs.at(i);
+            }
+            for(int i = 0; i < deps.size(); ++i) {
+                if(tmp_out != deps.at(i))
+                    t<< " " <<  deps.at(i);
+            }
+            t << "\n\t"
+              << cmd.replace("${QMAKE_FILE_IN}", inputs.join(" ")) << endl << endl;
             continue;
         }
         for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
@@ -1760,6 +1766,45 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                     if(!indeps.isEmpty())
                         deps += fileFixify(indeps.replace('\n', ' ').simplified().split(' '));
                 }
+                //use the depend system to find includes of these included files
+                QStringList inc_deps;
+                for(int i = 0; i < deps.size(); ++i) {
+                    const QString dep = deps.at(i);
+                    if(QFile::exists(dep)) {
+                        SourceFileType type = TYPE_UNKNOWN;
+                        if(type == TYPE_UNKNOWN) {
+                            if(dep.endsWith(".c"))
+                                type = TYPE_C;
+                        }
+                        if(type == TYPE_UNKNOWN) {
+                            for(QStringList::Iterator cppit = Option::cpp_ext.begin();
+                                cppit != Option::cpp_ext.end(); ++cppit) {
+                                if(dep.endsWith((*cppit))) {
+                                    type = TYPE_C;
+                                    break;
+                                }
+                            }
+                        }
+                        if(type == TYPE_UNKNOWN) {
+                            for(QStringList::Iterator hit = Option::h_ext.begin();
+                                type == TYPE_UNKNOWN && hit != Option::h_ext.end(); ++hit) {
+                                if(dep.endsWith((*hit))) {
+                                    type = TYPE_C;
+                                    break;
+                                }
+                            }
+                        }
+                        if(type == TYPE_UNKNOWN) {
+                            if(dep.endsWith(Option::ui_ext))
+                                type = TYPE_UI;
+                        }
+                        if(type != TYPE_UNKNOWN && !QMakeSourceFileInfo::containsSourceFile(dep, type)) {
+                            QMakeSourceFileInfo::addSourceFile(dep, type);
+                            inc_deps += QMakeSourceFileInfo::dependencies(dep);
+                        }
+                    }
+                }
+                deps += inc_deps;
             }
             t << out << ": " << in;
             for(int i = 0; i < deps.size(); ++i) {
