@@ -784,14 +784,14 @@ bool QSvgDevice::play( const QDomNode &node )
 	    cx1 = lenToDouble( attr, "cx" ) + 0.5;
 	    cy1 = lenToDouble( attr, "cy" ) + 0.5;
 	    crx = lenToDouble( attr, "r" );
-	    pt->drawEllipse( cx1-crx, cy1-crx, 2*crx, 2*crx );
+	    pt->drawEllipse( (int)(cx1-crx), (int)(cy1-crx), (int)(2*crx), (int)(2*crx) );
 	    break;
 	case EllipseElement:
 	    cx1 = lenToDouble( attr, "cx" ) + 0.5;
 	    cy1 = lenToDouble( attr, "cy" ) + 0.5;
 	    crx = lenToDouble( attr, "rx" );
 	    cry = lenToDouble( attr, "ry" );
-	    pt->drawEllipse( cx1-crx, cy1-cry, 2*crx, 2*cry );
+	    pt->drawEllipse( (int)(cx1-crx), (int)(cy1-cry), (int)(2*crx), (int)(2*cry) );
 	    break;
 	case LineElement:
 	    x1 = lenToInt( attr, "x1" );
