@@ -227,7 +227,6 @@ public:
 
 QNPlugin* QNPlugin::create()
 {
-    dup2(4,2);
     return new MoviePlugin;
 }
 
