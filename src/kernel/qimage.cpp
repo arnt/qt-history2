@@ -135,7 +135,11 @@
     *p = qRgb(255,255,0);
   \endcode
 
-  The scanlines are 32-bit aligned for all depths.
+  On Qt/Embedded, scanlines are aligned to the pixel depth and may be padded
+  to any degree, while on all other platforms, the scanlines are 32-bit aligned
+  for all depths. The constructor taking a \code uchar*\endcode argument
+  always expects 32-bit aligned data. On Qt/Embedded, an additional
+  constructor allows the number of byte-per-line to be specified.
 
   QImage supports a variety of methods for getting information about
   the image, for example, colorTable(), allGray(), isGrayscale(),
@@ -462,6 +466,8 @@ QImage::QImage( const QImage &image )
   If \a colortable is 0, a color table sufficient for \a numColors will be
   allocated (and destructed later).
 
+  Note that \a yourdata must be 32-bit aligned.
+
   The endianness is given in \a bitOrder.
 */
 QImage::QImage( uchar* yourdata, int w, int h, int depth,
@@ -475,24 +481,8 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
     data->h = h;
     data->d = depth;
     data->ncols = numColors;
-    switch ( depth ) {
-    case 1:
-	data->nbytes = (w+7)/8*h;
-	break;
-    case 8:
-	data->nbytes = w*h;
-	break;
-#ifndef QT_NO_IMAGE_16_BIT
-    case 16:
-	data->nbytes = w*h*2;
-	break;
-#endif
-#ifndef QT_NO_IMAGE_TRUECOLOR
-    case 32:
-	data->nbytes = w*h*4;
-	break;
-#endif
-    }
+    int bpl = ((w*depth+31)/32)*4;	// bytes per scanline
+    data->nbytes = bpl*h;
     if ( colortable || !numColors ) {
 	data->ctbl = colortable;
 	data->ctbl_mine = FALSE;
@@ -502,7 +492,6 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
 	data->ctbl_mine = TRUE;
     }
     uchar** jt = (uchar**)malloc(h*sizeof(uchar*));
-    int bpl = data->nbytes/h;
     for (int j=0; j<h; j++) {
 	jt[j] = yourdata+j*bpl;
     }
