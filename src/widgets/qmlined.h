@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.h#27 $
+** $Id: //depot/qt/main/src/widgets/qmlined.h#28 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -97,6 +97,9 @@ protected:
     virtual void home( bool mark=FALSE );
     virtual void end( bool mark=FALSE );
 
+
+    bool	getMarkedRegion( int *line1, int *col1, 
+				 int *line2, int *col2 ) const;
     int		lineLength( int row ) const;
     QString	*getString( int row ) const;
 
@@ -179,6 +182,5 @@ inline int QMultiLineEdit::numLines() const
 {
     return contents->count();
 }
-
 #endif // QMLINED_H
 

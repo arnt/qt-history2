@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#62 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -332,22 +332,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
     if ( markIsOn ) {
 	int markBeginX, markBeginY;
 	int markEndX, markEndY;
-	if ( markAnchorY < markDragY ) {
-	    markBeginX = markAnchorX;
-	    markBeginY = markAnchorY;
-	    markEndX   = markDragX;
-	    markEndY   = markDragY;
-	} else {
-	    markBeginX = markDragX;
-	    markBeginY = markDragY;
-	    markEndX   = markAnchorX;
-	    markEndY   = markAnchorY;
-	}
-	if ( markAnchorY == markDragY && markBeginX > markEndX ) {
-	    int tmp    = markBeginX;
-	    markBeginX = markEndX;
-	    markEndX   = tmp;
-	}
+	getMarkedRegion( &markBeginY, &markBeginX, &markEndY, &markEndX );
 	if ( row >= markBeginY && row <= markEndY ) {
 	    if ( row == markBeginY ) {
 		markX1 = markBeginX;
@@ -485,6 +470,29 @@ void QMultiLineEdit::timerEvent( QTimerEvent *t )
     }
 }
 
+/*!
+  
+ */
+bool QMultiLineEdit::getMarkedRegion( int *line1, int *col1, 
+				      int *line2, int *col2 ) const
+{
+    if ( !markIsOn )
+	return FALSE;
+    if ( markAnchorY < markDragY ||
+	 markAnchorY == markDragY && markAnchorX < markDragX) {
+	*line1 = markAnchorY;
+	*col1 = markAnchorX;
+	*line2 = markDragY;
+	*col2 = markDragX;
+    } else {
+	*line1 = markDragY;
+	*col1 = markDragX;
+	*line2 = markAnchorY;
+	*col2 = markAnchorX;
+    }
+    return TRUE;
+}
+
 
 /*!
   Returns TRUE if there is marked text.
@@ -502,29 +510,15 @@ bool QMultiLineEdit::hasMarkedText() const
 
 QString QMultiLineEdit::markedText() const
 {
-    if ( !markIsOn )
+    int markBeginX, markBeginY;
+    int markEndX, markEndY;
+    if ( !getMarkedRegion( &markBeginY, &markBeginX, &markEndY, &markEndX ) )
 	return QString();
-    if ( markAnchorY == markDragY ) { //just one line
-	int minMark = markDragX < markAnchorX ? markDragX : markAnchorX;
-	int maxMark = markDragX > markAnchorX ? markDragX : markAnchorX;
-	QString *s  = getString( markAnchorY );
+    if ( markBeginY == markEndY ) { //just one line
+	QString *s  = getString( markBeginY );
 	ASSERT(s);
-	return s->mid( minMark, maxMark - minMark );
+	return s->mid( markBeginX, markEndX - markBeginX );
     } else { //multiline
-	int markBeginX, markBeginY;
-	int markEndX, markEndY;
-	if ( markAnchorY < markDragY ) {
-	    markBeginX = markAnchorX;
-	    markBeginY = markAnchorY;
-	    markEndX   = markDragX;
-	    markEndY   = markDragY;
-	} else {
-	    markBeginX = markDragX;
-	    markBeginY = markDragY;
-	    markEndX   = markAnchorX;
-	    markEndY   = markAnchorY;
-	}
-	
 	ASSERT( markBeginY >= 0);
 	ASSERT( markEndY < (int)contents->count() );
 	
@@ -1386,34 +1380,20 @@ void QMultiLineEdit::backspace()
 
 void QMultiLineEdit::del()
 {
-    if ( hasMarkedText() ) {
+    int markBeginX, markBeginY;
+    int markEndX, markEndY;
+    if ( getMarkedRegion( &markBeginY, &markBeginX, &markEndY, &markEndX ) ) {
 	textDirty = TRUE;
 	setAutoUpdate( FALSE );
-	if ( markAnchorY == markDragY ) { //just one line
-	    int minMark = markDragX < markAnchorX ? markDragX : markAnchorX;
-	    int maxMark = markDragX > markAnchorX ? markDragX : markAnchorX;
-	    QString *s  = getString( markAnchorY );
+	if ( markBeginY == markEndY ) { //just one line
+	    QString *s  = getString( markBeginY );
 	    ASSERT(s);
-	    s->remove( minMark, maxMark - minMark );
-	    cursorX  = minMark;
-	    cursorY  = markAnchorY;
+	    s->remove( markBeginX, markEndX - markBeginX );
+	    cursorX  = markBeginX;
+	    cursorY  = markBeginY;
 	    markIsOn    = FALSE;
 	    updateCellWidth();
 	} else { //multiline
-	    int markBeginX, markBeginY;
-	    int markEndX, markEndY;
-	    if ( markAnchorY < markDragY ) {
-		markBeginX = markAnchorX;
-		markBeginY = markAnchorY;
-		markEndX   = markDragX;
-		markEndY   = markDragY;
-	    } else {
-		markBeginX = markDragX;
-		markBeginY = markDragY;
-		markEndX   = markAnchorX;
-		markEndY   = markAnchorY;
-	    }
-
 	    ASSERT( markBeginY >= 0);
 	    ASSERT( markEndY < (int)contents->count() );
 
