@@ -311,13 +311,15 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
     QString result;
 
     QString isel = initialSelection;
+
     if ( initialDirectory && initialDirectory->left( 5 ) == "file:" )
 	initialDirectory->remove( 0, 5 );
     QFileInfo fi( *initialDirectory );
 
     if ( initialDirectory && !fi.isDir() ) {
 	*initialDirectory = fi.dirPath( TRUE );
-	isel = fi.fileName();
+	if ( isel.isEmpty() )
+	    isel = fi.fileName();
     }
 
     if ( !fi.exists() )
@@ -395,7 +397,8 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 
     if ( initialDirectory && !fi.isDir() ) {
 	*initialDirectory = fi.dirPath( TRUE );
-	isel = fi.fileName();
+	if ( isel.isEmpty() )
+	    isel = fi.fileName();
     }
 
     if ( !fi.exists() )
