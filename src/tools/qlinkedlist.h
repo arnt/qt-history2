@@ -12,7 +12,7 @@ struct Q_CORE_EXPORT QLinkedListData
     QLinkedListData *n, *p;
     QAtomic ref;
     int size;
-    void *autoDelete;
+
     static QLinkedListData shared_null;
 };
 
@@ -38,9 +38,6 @@ public:
     bool operator==(const QLinkedList &l) const;
     inline bool operator!=(const QLinkedList &l) const { return !(*this == l); }
 
-    bool autoDelete() const;
-    void setAutoDelete(bool enable);
-
     inline int size() const { return d->size; }
     inline bool isEmpty() const { return d->size == 0; }
     inline void detach()
@@ -50,7 +47,6 @@ public:
     inline bool operator!() const { return d->size == 0; }
 
     void clear();
-    void deleteAll();
 
     void append(const T &);
     void prepend(const T &);
@@ -173,7 +169,7 @@ private:
 template <typename T>
 inline QLinkedList<T>::~QLinkedList()
 {
-    if (!--d->ref  || (QTypeInfo<T>::isPointer && d->autoDelete == this))
+    if (!--d->ref)
 	free(d);
 }
 
@@ -183,7 +179,6 @@ void QLinkedList<T>::detach_helper() {
     x.d = new QLinkedListData;
     x.d->ref = 1;
     x.d->size = d->size;
-    x.d->autoDelete = d->autoDelete;
     Node *i = e->n, *j = x.e;
     while (i != e) {
 	j->n = new Node(i->t);
@@ -203,14 +198,6 @@ void QLinkedList<T>::free(QLinkedListData *x)
 {
     Node *y = (Node*)x;
     Node *i = y->n;
-    if (QTypeInfo<T>::isPointer && x->autoDelete == this) {
-    	while(i != y) {
-	    qDelete(i->t);
-	    i = i->n;
-	}
-	i = y->n;
-	d->autoDelete = 0;
-    }
     if ( x->ref == 0 ) {
 	while(i != y) {
 	    Node *n = i;
@@ -224,35 +211,7 @@ void QLinkedList<T>::free(QLinkedListData *x)
 template <typename T>
 void QLinkedList<T>::clear()
 {
-    bool wasAutoDelete = d->autoDelete == this;
     *this = QLinkedList<T>();
-    if (QTypeInfo<T>::isPointer && wasAutoDelete)
-	setAutoDelete(wasAutoDelete);
-}
-
-template <typename T>
-Q_INLINE_TEMPLATE void QLinkedList<T>::deleteAll()
-{
-    Q_ASSERT_X(QTypeInfo<T>::isPointer,
-	       "QLinkedList<T>::deleteAll", "Cannot delete non-pointer types");
-    ConstIterator it = constBegin();
-    while (it != constEnd()) {
-	qDelete(*it);
-	++it;
-    }
-}
-
-template <typename T>
-inline bool QLinkedList<T>::autoDelete() const
-{ return d->autoDelete == (void*) this; }
-
-template <typename T>
-inline void QLinkedList<T>::setAutoDelete(bool enable)
-{
-    Q_ASSERT_X(QTypeInfo<T>::isPointer, "QLinkedList<T>::setAutoDelete",
-	       "Cannot delete non pointer types.");
-    detach();
-    d->autoDelete = enable ? this : 0;
 }
 
 template <typename T>
@@ -262,7 +221,7 @@ QLinkedList<T> &QLinkedList<T>::operator=(const QLinkedList<T> &l)
 	QLinkedListData *x = l.d;
 	++x->ref;
 	x = qAtomicSetPtr( &d, x );
-	if (!--x->ref || (QTypeInfo<T>::isPointer && x->autoDelete == this))
+	if (!--x->ref)
 	    free(x);
     }
     return *this;
@@ -322,8 +281,6 @@ int QLinkedList<T>::remove(const T &t)
 	    i->n->p = i->p;
 	    i->p->n = i->n;
 	    i = i->n;
-	    if (QTypeInfo<T>::isPointer && d->autoDelete == this)
-		qDelete(n->t);
 	    delete n;
 	    c++;
 	} else {
@@ -411,8 +368,6 @@ typename QLinkedList<T>::Iterator QLinkedList<T>::erase(Iterator pos)
 	i->n->p = i->p;
 	i->p->n = i->n;
 	i = i->n;
-	if (QTypeInfo<T>::isPointer && d->autoDelete == this)
-	    qDelete(n->t);
 	delete n;
 	d->size--;
     }

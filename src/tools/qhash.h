@@ -177,7 +177,6 @@ public:
     inline bool isDetached() const { return d->ref == 1; }
 
     void clear();
-    void deleteAll();
 
     int remove(const Key &key);
     T take(const Key &key);
@@ -383,18 +382,6 @@ template <class Key, class T>
 Q_INLINE_TEMPLATE void QHash<Key, T>::clear()
 {
     *this = QHash<Key,T>();
-}
-
-template <class Key, class T>
-Q_INLINE_TEMPLATE void QHash<Key, T>::deleteAll()
-{
-    Q_ASSERT_X(QTypeInfo<T>::isPointer,
-	       "QHash<Key, T>::deleteAll", "Cannot delete non-pointer types");
-    ConstIterator it = constBegin();
-    while (it != constEnd()) {
-	qDelete(*it);
-	++it;
-    }
 }
 
 template <class Key, class T>
