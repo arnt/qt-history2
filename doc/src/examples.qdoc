@@ -80,7 +80,7 @@
 
     \list
     \o \l{threads/mandelbrot}{Mandelbrot}\raisedaster
-    \o \l{threads/semaphores}{Semaphores}
+    \o \l{threads/semaphores}{Semaphores}\raisedaster
     \endlist
 
     \section1 Network Examples

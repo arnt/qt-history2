@@ -9,8 +9,8 @@ const int DataSize = 100000;
 const int BufferSize = 8192;
 char buffer[BufferSize];
 
-QSemaphore freeSpace(BufferSize);
-QSemaphore usedSpace;
+QSemaphore freeBytes(BufferSize);
+QSemaphore usedBytes;
 
 class Producer : public QThread
 {
@@ -21,9 +21,9 @@ public:
 void Producer::run()
 {
     for (int i = 0; i < DataSize; ++i) {
-        freeSpace.acquire();
+        freeBytes.acquire();
         buffer[i % BufferSize] = "ACGT"[(int)rand() % 4];
-        usedSpace.release();
+        usedBytes.release();
     }
 }
 
@@ -36,9 +36,9 @@ public:
 void Consumer::run()
 {
     for (int i = 0; i < DataSize; ++i) {
-        usedSpace.acquire();
+        usedBytes.acquire();
         fprintf(stderr, "%c", buffer[i % BufferSize]);
-        freeSpace.release();
+        freeBytes.release();
     }
     fprintf(stderr, "\n");
 }

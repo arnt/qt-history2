@@ -222,7 +222,7 @@ QIODevicePrivate::~QIODevicePrivate()
 
     Certain flags, such as QIODevice::Unbuffered and
     QIODevice::Truncate, might be meaningless for some subclasses.
-    (For example, access to a QBuffer is always "unbuffered".)
+    (For example, access to a QBuffer is always unbuffered.)
 */
 
 /*!     \fn QIODevice::bytesWritten(Q_LONGLONG bytes)

@@ -138,12 +138,12 @@
 
     \section1 Inspecting Resources
 
-    The \c lsqrc tool, located in Qt's \c tools/lsqrc directory,
+    The \c rccdump tool, located in Qt's \c tools/rccdump directory,
     allows you to inspect the resources stored in an executable. The
     usage is
 
     \code
-        lsqrc application.exe
+        rccdump application.exe
     \endcode
 
     The output is a list of resources:
@@ -160,10 +160,11 @@
     \endcode
 
     You can also extract specific resources by specifying the
-    resource path as additional command-line arguments to \c lsqrc, for example:
+    resource path as additional command-line arguments to \c rccdump, for
+    example:
 
     \code
-        lsqrc application.exe /images/new.png
+        rccdump application.exe /images/new.png
     \endcode
 
     The output is a hexadecimal dump of the resource data:

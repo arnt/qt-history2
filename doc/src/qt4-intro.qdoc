@@ -64,22 +64,6 @@
     and other resource files into the application executable.
     \endlist
 
-    \section1 Supported Platforms
-
-    For this beta release, we have tested the entire range of
-    platforms targeted by the final Qt 4.0 release, with three
-    exceptions: Windows with Borland C++, HP-UX i, and HP-UX with aCC
-    1.x.
-
-    While testing, we found out that we needed to install patches on
-    some of the compilers. If you run into problems when compiling,
-    make sure to get the most recent upgrades from your compiler
-    vendor.
-
-    \section1 How to Provide Feedback
-
-    \input betafeedback.qdocinc
-
     \section1 Getting Started with Qt 4
 
     This document covers the most important differences between Qt 3 and
@@ -355,4 +339,20 @@
 
     to your \c .pro file, depending on whether you want compatibility
     function calls to generate compiler warnings or not.
+
+    \section1 Supported Platforms
+
+    For this beta release, we have tested the entire range of
+    platforms targeted by the final Qt 4.0 release, with three
+    exceptions: Windows with Borland C++, HP-UX i, and HP-UX with aCC
+    1.x.
+
+    While testing, we found out that we needed to install patches on
+    some of the compilers. If you run into problems when compiling,
+    make sure to get the most recent upgrades from your compiler
+    vendor.
+
+    \section1 How to Provide Feedback
+
+    \input betafeedback.qdocinc
 */
