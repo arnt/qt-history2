@@ -11,12 +11,12 @@
 ****************************************************************************/
 
 /*
-main.cpp
+    main.cpp
 
-Provides the main function for the QImage color separation example.
+    Provides the main function for the QImage color separation example.
 */
 
-#include <qapplication.h>
+#include <QApplication>
 
 #include "viewer.h"
 

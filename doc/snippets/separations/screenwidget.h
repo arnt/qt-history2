@@ -13,13 +13,12 @@
 #ifndef SCREENWIDGET_H
 #define SCREENWIDGET_H
 
-#include <qcolor.h>
-#include <qframe.h>
-#include <qimage.h>
+#include <QColor>
+#include <QFrame>
+#include <QImage>
 
 class QGridLayout;
 class QLabel;
-class QMouseEvent;
 class QPushButton;
 class QWidget;
 

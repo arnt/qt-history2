@@ -13,24 +13,27 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
-#include <qimage.h>
-#include <qmainwindow.h>
+#include <QImage>
+#include <QMainWindow>
+#include <qmap.h>
 
-class ScreenWidget;
+class QAction;
 class QFrame;
 class QGridLayout;
 class QLabel;
-class QPopupMenu;
+class QMenu;
+class ScreenWidget;
 
 class Viewer : public QMainWindow
 {
     Q_OBJECT
 public:
+    enum Brightness { None, Quarter, Half, ThreeQuarters, Full };
     Viewer();
 
 public slots:
     void chooseFile();
-    void setBrightness(int amount);
+    void setBrightness(QAction *action);
     void createImage();
     void saveImage();
 
@@ -39,20 +42,19 @@ private:
     QFrame *createCentralWidget();
     void openImageFile(QString &filePath);
 
+    QAction *saveAction;
     QGridLayout *grid;
     QImage scaledImage;
     QLabel *finalWidget;
+    QMenu *brightnessMenu;
+    QMenu *fileMenu;
     ScreenWidget *cyanWidget;
     ScreenWidget *magentaWidget;
     ScreenWidget *yellowWidget;
-    QPopupMenu *fileMenu;
-    QPopupMenu *brightnessMenu;
 
-    int brightnessMenuId;
-    int saveItemId;
     int brightness;
-    int currentBrightness;
-    enum { None, Quarter, Half, ThreeQuarters, Full };
+    QAction *currentBrightness;
+    QMap <QAction*,Brightness> menuMap;
 };
 
 #endif

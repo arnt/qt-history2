@@ -20,25 +20,26 @@ A main menu provides entries for selecting files, and adjusting the
 brightness of the separations.
 */
 
-#include <qapplication.h>
-#include <qcolor.h>
-#include <qdir.h>
-#include <qdeepcopy.h>
-#include <qfiledialog.h>
-#include <qfileinfo.h>
-#include <qframe.h>
-#include <qlabel.h>
-#include <qlayout.h>
+#include <QApplication>
+#include <QAction>
+#include <QDir>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QFrame>
+#include <QKeySequence>
+#include <QLabel>
+#include <QGridLayout>
 #include <qlist.h>
-#include <qmenubar.h>
-#include <qmessagebox.h>
-#include <qpopupmenu.h>
-#include <qstringlist.h>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QMenu>
+#include <QPixmap>
+#include <QStringList>
 
 #include "screenwidget.h"
 #include "viewer.h"
 
-/*!
+/*
     Constructor: initializes a default value for the brightness, creates
     the main menu entries, and constructs a central widget that contains
     enough space for images to be displayed.
@@ -51,10 +52,10 @@ Viewer::Viewer() : QMainWindow()
     brightness = 255;
 
     createMenus();
-    setCentralWidget(createCentralWidget());
+    setCenterWidget(createCentralWidget());
 }
 
-/*!
+/*
     Creates a main menu with two entries: a File menu, to allow the image
     to be selected, and a Brightness menu to allow the brightness of the
     separations to be changed.
@@ -65,32 +66,39 @@ Viewer::Viewer() : QMainWindow()
 
 void Viewer::createMenus()
 {
-    fileMenu = new QPopupMenu(this);
-    fileMenu->insertItem(tr("&Open"), this, SLOT(chooseFile()), tr("Ctrl+O"));
-    fileMenu->insertItem(tr("&Save"), this, SLOT(saveImage()), tr("Ctrl+S"));
-    fileMenu->insertItem(tr("E&xit"), qApp, SLOT(quit()), tr("Ctrl+Q"));
-    fileMenu->setItemEnabled(saveItemId, false);
+    fileMenu = new QMenu(tr("&File"), this);
+    brightnessMenu = new QMenu(tr("&Brightness"), this);
 
-    QMenuBar *menu = menuBar();
-    menu->insertItem(tr("&File"), fileMenu);
+    QAction *openAction = fileMenu->addAction(tr("&Open"));
+    openAction->setShortcut(QKeySequence("Ctrl+O"));
+    saveAction = fileMenu->addAction(tr("&Save"));
+    saveAction->setShortcut(QKeySequence("Ctrl+S"));
+    saveAction->setEnabled(false);
+    QAction *quitAction = fileMenu->addAction(tr("E&xit"));
+    quitAction->setShortcut(QKeySequence("Ctrl+Q"));
 
-    brightnessMenu = new QPopupMenu(this);
-    brightnessMenu->insertItem(tr("&0%"), None, 0);
-    brightnessMenu->insertItem(tr("&25%"), Quarter, 1);
-    brightnessMenu->insertItem(tr("&50%"), Half, 2);
-    brightnessMenu->insertItem(tr("&75%"), ThreeQuarters, 3);
-    brightnessMenu->insertItem(tr("&100%"), Full, 4);
+    menuMap[brightnessMenu->addAction(tr("&0%"))] = None;
+    menuMap[brightnessMenu->addAction(tr("&25%"))] = Quarter;
+    menuMap[brightnessMenu->addAction(tr("&50%"))] = Half;
+    menuMap[brightnessMenu->addAction(tr("&75%"))] = ThreeQuarters;
+    QAction *fullBrightness = brightnessMenu->addAction(tr("&100%"));
+    menuMap[fullBrightness] = Full;
 
-    currentBrightness = Full;
-    brightnessMenu->setItemChecked(currentBrightness, true);
+    currentBrightness = fullBrightness;
+    currentBrightness->setChecked(true);
+    brightnessMenu->setEnabled(false);
 
-    connect(brightnessMenu, SIGNAL(activated(int)), this,
-            SLOT(setBrightness(int)));
-    brightnessMenuId = menu->insertItem(tr("&Brightness"), brightnessMenu);
-    menuBar()->setItemEnabled(brightnessMenuId, false);
+    menuBar()->addMenu(fileMenu);
+    menuBar()->addMenu(brightnessMenu);
+
+    connect(openAction, SIGNAL(triggered()), this, SLOT(chooseFile()));
+    connect(saveAction, SIGNAL(triggered()), this, SLOT(saveImage()));
+    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+    connect(brightnessMenu, SIGNAL(triggered(QAction *)), this,
+            SLOT(setBrightness(QAction *)));
 }
 
-/*!
+/*
     Constructs a central widget for the window consisting of a two-by-two
     grid of labels, each of which will contain an image. We restrict the
     size of the labels to 256 pixels, and ensure that the window cannot
@@ -100,7 +108,7 @@ void Viewer::createMenus()
 QFrame* Viewer::createCentralWidget()
 {
     QFrame* frame = new QFrame(this);
-    grid = new QGridLayout(frame, 2, 2);
+    grid = new QGridLayout(frame);
     grid->setSpacing(8);
     grid->setMargin(4);
 
@@ -110,13 +118,17 @@ QFrame* Viewer::createCentralWidget()
 
     finalWidget = new QLabel(frame);
     finalWidget->setMinimumSize(labelSize);
-    cyanWidget = new ScreenWidget(frame, Qt::cyan, tr("Cyan"), ScreenWidget::Cyan);
+
+    cyanWidget = new ScreenWidget(frame, Qt::cyan, tr("Cyan"),
+                                  ScreenWidget::Cyan);
     cyanWidget->setMinimumSize(labelSize);
+
     magentaWidget = new ScreenWidget(frame, Qt::magenta, tr("Magenta"),
-                              ScreenWidget::Magenta);
+                                     ScreenWidget::Magenta);
     magentaWidget->setMinimumSize(labelSize);
+
     yellowWidget = new ScreenWidget(frame, Qt::yellow, tr("Yellow"),
-                              ScreenWidget::Yellow);
+                                    ScreenWidget::Yellow);
     yellowWidget->setMinimumSize(labelSize);
 
     connect(cyanWidget, SIGNAL(imageChanged()), this, SLOT(createImage()));
@@ -131,7 +143,7 @@ QFrame* Viewer::createCentralWidget()
     return frame;
 }
 
-/*!
+/*
     Provides a dialog window to allow the user to specify an image file.
     If a file is selected, the appropriate function is called to process
     and display it.
@@ -139,14 +151,14 @@ QFrame* Viewer::createCentralWidget()
 
 void Viewer::chooseFile()
 {
-    QString imageFile = QFileDialog::getOpenFileName("", tr("Images (*.*)"),
-        this, "locate images", tr("Choose an image file to open"));
+    QString imageFile = QFileDialog::getOpenFileName(this,
+        tr("Choose an image file to open"), "", tr("Images (*.*)"));
 
     if (!imageFile.isEmpty())
         openImageFile(imageFile);
 }
 
-/*!
+/*
     Changes the value of the brightness according to the entry selected in the
     Brightness menu. The selected entry is checked, and the previously selected
     entry is unchecked.
@@ -154,8 +166,10 @@ void Viewer::chooseFile()
     The color separations are updated to use the new value for the brightness.
 */
 
-void Viewer::setBrightness(int amount)
+void Viewer::setBrightness(QAction *action)
 {
+    Brightness amount = menuMap[action];
+
     switch (amount) {
         case None:
             brightness = 0; break;
@@ -170,14 +184,14 @@ void Viewer::setBrightness(int amount)
         default: return;
     }
 
-    brightnessMenu->setItemChecked(currentBrightness, false);
-    brightnessMenu->setItemChecked(amount, true);
-    currentBrightness = amount;
+    currentBrightness->setChecked(false);
+    currentBrightness = action;
+    currentBrightness->setChecked(true);
 
     createImage();
 }
 
-/*!
+/*
     Load the image from the file given, and create four pixmaps based
     on the original image.
 
@@ -190,12 +204,14 @@ void Viewer::openImageFile(QString &imageFile)
     QImage originalImage;
 
     if (originalImage.load(imageFile)) {
-        setCaption(imageFile);
-        menuBar()->setItemEnabled(brightnessMenuId, true);
-        fileMenu->setItemEnabled(saveItemId, true);
+        setWindowTitle(imageFile);
+        //menuBar()->setItemEnabled(brightnessMenuId, true);
+        saveAction->setEnabled(true);
+        brightnessMenu->setEnabled(true);
 
         /* Note: the ScaleMin value may be different for Qt 4. */
-        scaledImage = originalImage.convertDepth(32).scale(256, 256, QImage::ScaleFree);
+        scaledImage = originalImage.convertDepth(32).scale(256, 256,
+            Qt::ScaleFree);
 
         cyanWidget->setImage(scaledImage);
         magentaWidget->setImage(scaledImage);
@@ -208,7 +224,7 @@ void Viewer::openImageFile(QString &imageFile)
             QMessageBox::Cancel, QMessageBox::NoButton, QMessageBox::NoButton);
 }
 
-/*!
+/*
     Creates an image by combining the contents of the three screens
     to present a page preview.
 
@@ -249,9 +265,9 @@ void Viewer::createImage()
             float yellow3 = 255 - qBlue(p3);
 
             QColor newColor(
-                QMAX(255 - int(cyan1+cyan2+cyan3) - darkness, 0),
-                QMAX(255 - int(magenta1+magenta2+magenta3) - darkness, 0),
-                QMAX(255 - int(yellow1+yellow2+yellow3) - darkness, 0));
+                qMax(255 - int(cyan1+cyan2+cyan3) - darkness, 0),
+                qMax(255 - int(magenta1+magenta2+magenta3) - darkness, 0),
+                qMax(255 - int(yellow1+yellow2+yellow3) - darkness, 0));
 
             newImage.setPixel(x, y, newColor.pixel());
         }
@@ -260,20 +276,20 @@ void Viewer::createImage()
     finalWidget->setPixmap(QPixmap(newImage));
 }
 
-/*!
+/*
     Provides a dialog window to allow the user to save the image file.
 */
 
 void Viewer::saveImage()
 {
-    QString imageFile = QFileDialog::getSaveFileName("", tr("Images (*.png)"),
-        this, "save image", tr("Choose a filename to save the image"));
+    QString imageFile = QFileDialog::getSaveFileName(this,
+        tr("Choose a filename to save the image"), "", tr("Images (*.png)"));
 
     QFileInfo info(imageFile);
 
-    if (!info.baseName(false).isEmpty()) {
-            QString newImageFile = info.dirPath(true) + "/" +
-                info.baseName(false) + ".png";
+    if (!info.baseName().isEmpty()) {
+        QString newImageFile = QFileInfo(info.absoluteDir(),
+            info.baseName() + ".png").absoluteFilePath();
 
         if (!finalWidget->pixmap()->save(newImageFile, "PNG"))
             (void) QMessageBox::warning(this, tr("Cannot save file"),

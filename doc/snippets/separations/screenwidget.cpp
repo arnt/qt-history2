@@ -19,20 +19,18 @@ the color to be selection via a standard dialog. The image is displayed in a
 label widget.
 */
 
-#include <qcolor.h>
-#include <qcolordialog.h>
-#include <qevent.h>
-#include <qhbox.h>
-#include <qlabel.h>
-#include <qlayout.h>
-#include <qpopupmenu.h>
-#include <qpushbutton.h>
-#include <qwidget.h>
+#include <QColorDialog>
+#include <QLabel>
+#include <QGridLayout>
+#include <QMenu>
+#include <QPixmap>
+#include <QPushButton>
+#include <QWidget>
 
 #include "screenwidget.h"
 
 /*!
-Constructor: initialises the paint color, the mask color (cyan, magenta,
+Initializes the paint color, the mask color (cyan, magenta,
 or yellow), connects the color selector and invert checkbox to functions,
 and creates a two-by-two grid layout.
 */
@@ -49,22 +47,28 @@ ScreenWidget::ScreenWidget(QWidget *parent, QColor initialColor, QString name,
 
     nameLabel = new QLabel(name, this);
     colorButton = new QPushButton(this);
-    colorButton->setPaletteBackgroundColor(initialColor);
+    colorButton->setBackgroundRole(QPalette::Button);
     colorButton->setMinimumSize(32, 32);
 
+    QPalette palette(colorButton->palette());
+    palette.setColor(QPalette::Button, initialColor);
+    colorButton->setPalette(palette);
+
+
     invertButton = new QPushButton(tr("Invert"), this);
-    invertButton->setToggleButton(true);
-    invertButton->setOn(inverted);
+    //invertButton->setToggleButton(true);
+    //invertButton->setOn(inverted);
     invertButton->setEnabled(false);
 
     connect(colorButton, SIGNAL(clicked()), this, SLOT(setColor()));
     connect(invertButton, SIGNAL(clicked()), this, SLOT(invertImage()));
 
-    grid = new QGridLayout(this, 3, 2);
-    grid->addMultiCellWidget(imageLabel, 0, 0, 0, 1);
+    grid = new QGridLayout(this);
+    //grid->expand(3, 2);
+    grid->addWidget(imageLabel, 0, 0, 1, 2);
     grid->addWidget(nameLabel, 1, 0);
     grid->addWidget(colorButton, 1, 1);
-    grid->addMultiCellWidget(invertButton, 2, 2, 1, 1);
+    grid->addWidget(invertButton, 2, 1, 1, 1);
 }
 
 /*!
@@ -79,7 +83,9 @@ void ScreenWidget::setColor()
 
     if (newColor.isValid()) {
         paintColor = newColor;
-        colorButton->setPaletteBackgroundColor(paintColor);
+        QPalette palette(colorButton->palette());
+        palette.setColor(QPalette::Button, paintColor);
+        colorButton->setPalette(palette);
         createImage();
         emit imageChanged();
     }
@@ -151,15 +157,15 @@ void ScreenWidget::createImage()
                 amount = 255 - convert(p);
 
             QColor newColor(
-                255 - QMIN(int(amount * cyanInk), 255),
-                255 - QMIN(int(amount * magentaInk), 255),
-                255 - QMIN(int(amount * yellowInk), 255));
+                255 - qMin(int(amount * cyanInk), 255),
+                255 - qMin(int(amount * magentaInk), 255),
+                255 - qMin(int(amount * yellowInk), 255));
 
             newImage.setPixel(x, y, newColor.pixel());
         }
     }
 
-    imageLabel->setPixmap(newImage);
+    imageLabel->setPixmap(QPixmap(newImage));
 }
 
 /*!
@@ -169,7 +175,8 @@ void ScreenWidget::createImage()
 
 void ScreenWidget::invertImage()
 {
-    inverted = invertButton->isOn();
+    //inverted = invertButton->isOn();
+    inverted = !inverted;
     createImage();
     emit imageChanged();
 }
