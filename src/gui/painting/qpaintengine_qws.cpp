@@ -20,6 +20,7 @@
 #include "qwsregionmanager_qws.h"
 
 #include "qpixmap.h"
+#include "private/qpixmap_p.h"
 #include "qgfx_qws.h"
 #include "qscreen_qws.h"
 #include "qregion.h"
@@ -185,7 +186,7 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev)
         } else {
             uchar * mydata;
             int xoffset,linestep;
-            QPixmap::QPixmapData *data=p->data;
+            QPixmapData *data=p->data;
             int depth = p->depth();
 
             memorymanager->findPixmap(data->id,data->rw,p->depth(),&mydata,&xoffset,&linestep);
