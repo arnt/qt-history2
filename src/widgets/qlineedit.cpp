@@ -333,7 +333,7 @@ void QLineEdit::setText( const QString &text )
     QString oldText = this->text();
     d->parag->truncate( 0 );
     d->parag->append( text );
-    d->cursor->setIndex( QMIN( d->cursor->index(), d->parag->length() - 1 ) );
+    d->cursor->setIndex( d->parag->length() - 1 );
     deselect();
     update();
     if ( oldText != text )
