@@ -68,7 +68,7 @@ protected:
     virtual void drawRow(QPainter *painter, QItemOptions *options, const QModelIndex &index) const;
     virtual void drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const;
 
-    void viewportMousePressEvent(QMouseEvent *e);
+    void mousePressEvent(QMouseEvent *e);
     
     void updateGeometries();
 };

@@ -532,7 +532,7 @@ void QGenericListView::contentsRemoved(const QModelIndex &parent,
 	emit this->needMore();
 }
 
-void QGenericListView::viewportDragMoveEvent(QDragMoveEvent *e)
+void QGenericListView::dragMoveEvent(QDragMoveEvent *e)
 {
     if (!model()->canDecode(e)) {
 	e->ignore();
@@ -556,7 +556,7 @@ void QGenericListView::viewportDragMoveEvent(QDragMoveEvent *e)
     qApp->processEvents(); // make sure we can draw items
 }
 
-void QGenericListView::viewportDropEvent(QDropEvent *e)
+void QGenericListView::dropEvent(QDropEvent *e)
 {
     if (e->source() == this && d->movement == Free
 	 /*&& e->action() == QDropEvent::Move*/) {
@@ -571,7 +571,7 @@ void QGenericListView::viewportDropEvent(QDropEvent *e)
 	    updateItem(pos);
 	}
     } else {
-	QAbstractItemView::viewportDropEvent(e);
+	QAbstractItemView::dropEvent(e);
     }
 }
 

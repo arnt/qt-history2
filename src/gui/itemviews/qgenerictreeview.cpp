@@ -247,7 +247,7 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
 //     static int fr = 0;
 //     qDebug("paint %d", fr++);
     
-    QRect area = e->rect();
+//    QRect area = e->rect();
     QPainter painter(viewport());
 
     d->left = 0;//qMax(d->header->sectionAt(contentsX()), 0);
@@ -354,7 +354,7 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const 
     painter->translate(d->indent - x, 0);
 }
 
-void QGenericTreeView::viewportMousePressEvent(QMouseEvent *e)
+void QGenericTreeView::mousePressEvent(QMouseEvent *e)
 {
     int column = d->header->sectionAt(e->x());
     int position = d->header->sectionPosition(column);
@@ -367,7 +367,7 @@ void QGenericTreeView::viewportMousePressEvent(QMouseEvent *e)
    	if (column == 0 && cx < (indent - d->indent))
    	    return; // we are in the empty area in front of the tree - do nothing
 	if (column > 0 || cx > indent) {
-	    QAbstractItemView::viewportMousePressEvent(e);
+	    QAbstractItemView::mousePressEvent(e);
 	    return; // we are on an item - select it
 	}
 	if (d->isOpen(vi))

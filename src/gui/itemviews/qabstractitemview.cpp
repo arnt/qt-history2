@@ -201,7 +201,7 @@ int QAbstractItemView::startEditActions() const
     return d->startEditActions;
 }
 
-void QAbstractItemView::viewportMousePressEvent(QMouseEvent *e)
+void QAbstractItemView::mousePressEvent(QMouseEvent *e)
 {
     QPoint pos = e->pos();
     QModelIndex item = itemAt(pos);
@@ -222,7 +222,7 @@ void QAbstractItemView::viewportMousePressEvent(QMouseEvent *e)
 	clearSelections();
 }
 
-void QAbstractItemView::viewportMouseMoveEvent(QMouseEvent *e)
+void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 {
     if (!(e->state() & LeftButton))
 	return;
@@ -262,7 +262,7 @@ void QAbstractItemView::viewportMouseMoveEvent(QMouseEvent *e)
     d->viewport->update(d->dragRect.normalize() | oldRect.normalize()); // draw selection rect
 }
 
-void QAbstractItemView::viewportMouseReleaseEvent(QMouseEvent *e)
+void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
 {
     QPoint pos = e->pos();
     QModelIndex item  = itemAt(pos);
@@ -274,7 +274,7 @@ void QAbstractItemView::viewportMouseReleaseEvent(QMouseEvent *e)
     setState(NoState);
 }
 
-void QAbstractItemView::viewportMouseDoubleClickEvent(QMouseEvent *e)
+void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
 {
     QModelIndex item = itemAt(e->pos());
     if (!item.isValid())
@@ -282,28 +282,13 @@ void QAbstractItemView::viewportMouseDoubleClickEvent(QMouseEvent *e)
     startEdit(item, QAbstractItemDelegate::DoubleClicked, e);
 }
 
-void QAbstractItemView::viewportContextMenuEvent(QContextMenuEvent *)
-{
-    // do nothing
-}
-
-void QAbstractItemView::viewportDragEnterEvent(QDragEnterEvent *e)
+void QAbstractItemView::dragEnterEvent(QDragEnterEvent *e)
 {
     if (model()->canDecode(e))
 	e->accept();
 }
 
-void QAbstractItemView::viewportDragMoveEvent(QDragMoveEvent *)
-{
-    // do nothing
-}
-
-void QAbstractItemView::viewportDragLeaveEvent(QDragLeaveEvent *)
-{
-    // do nothing
-}
-
-void QAbstractItemView::viewportDropEvent(QDropEvent *e)
+void QAbstractItemView::dropEvent(QDropEvent *e)
 {
     if (model()->decode(e))
 	e->accept();
@@ -504,64 +489,20 @@ void QAbstractItemView::updateGeometries()
 
 bool QAbstractItemView::eventFilter(QObject *object, QEvent *event)
 {
-    if (object == viewport()) {
-  	switch (event->type()) {
-  	case QEvent::MouseButtonPress:
-	    viewportMousePressEvent((QMouseEvent*)event);
-	    if (((QMouseEvent*)event)->isAccepted())
-		return true;
+    if (object == d->currentEditor && event->type() == QEvent::KeyPress) {
+	switch (((QKeyEvent*)event)->key()) {
+	case Key_Escape:
+	    endEdit(d->editItem, false);
+	    return true;
+	case Key_Enter:
+	case Key_Return:
+	    endEdit(d->editItem, true);
+	    return true;
+	default:
 	    break;
-  	case QEvent::MouseMove:
-  	    viewportMouseMoveEvent((QMouseEvent*)event);
-	    if (((QMouseEvent*)event)->isAccepted())
-		return true;
-	    break;
-  	case QEvent::MouseButtonRelease:
- 	    viewportMouseReleaseEvent((QMouseEvent*)event);
-	    if (((QMouseEvent*)event)->isAccepted())
-		return true;
-	    break;
-  	case QEvent::MouseButtonDblClick:
-  	    viewportMouseDoubleClickEvent((QMouseEvent*)event);
-	    if (((QMouseEvent*)event)->isAccepted())
-		return true;
-	    break;
-	case QEvent::ContextMenu:
-	    viewportContextMenuEvent((QContextMenuEvent*)event);
-	    if (((QContextMenuEvent*)event)->isAccepted())
-		return true;
-	    break;
-  	case QEvent::DragEnter:
-  	    viewportDragEnterEvent((QDragEnterEvent*)event);
-	    break;
-	case QEvent::DragMove:
-	    viewportDragMoveEvent((QDragMoveEvent*)event);
-	    break;
-	case QEvent::DragLeave:
-	    viewportDragLeaveEvent((QDragLeaveEvent*)event);
-	    break;
-  	case QEvent::Drop:
- 	    viewportDropEvent((QDropEvent*)event);
-	    break;
-  	default:
-  	    break;
- 	}
-    } else if (object == d->currentEditor) {
-	if (event->type() == QEvent::KeyPress) {
-	    switch (((QKeyEvent*)event)->key()) {
-	    case Key_Escape:
-		endEdit(d->editItem, false);
-		return true;
-	    case Key_Enter:
-	    case Key_Return:
-		endEdit(d->editItem, true);
-		return true;
-	    default:
-		break;
-	    }
 	}
     }
-    return QViewport::eventFilter(object, event);
+    return false;
 }
 
 int QAbstractItemView::visibleWidth() const

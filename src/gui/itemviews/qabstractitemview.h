@@ -116,16 +116,12 @@ protected:
     State state() const;
     void setState(State state);
 
-    virtual void viewportMousePressEvent(QMouseEvent *e);
-    virtual void viewportMouseMoveEvent(QMouseEvent *e);
-    virtual void viewportMouseReleaseEvent(QMouseEvent *e);
-    virtual void viewportMouseDoubleClickEvent(QMouseEvent *e);
-    virtual void viewportContextMenuEvent(QContextMenuEvent *e);
-    virtual void viewportDragEnterEvent(QDragEnterEvent *e);
-    virtual void viewportDragMoveEvent(QDragMoveEvent *e);
-    virtual void viewportDragLeaveEvent(QDragLeaveEvent *e);
-    virtual void viewportDropEvent(QDropEvent *e);
-
+    void mousePressEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
+    void mouseDoubleClickEvent(QMouseEvent *e);
+    void dragEnterEvent(QDragEnterEvent *e);
+    void dropEvent(QDropEvent *e);
     void focusInEvent(QFocusEvent *e);
     void focusOutEvent(QFocusEvent *e);
     void keyPressEvent(QKeyEvent *e);

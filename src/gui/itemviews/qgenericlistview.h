@@ -44,8 +44,8 @@ protected:
     bool doItemsLayout(int num);
     void stopItemsLayout();
 
-    void viewportDragMoveEvent(QDragMoveEvent *e);
-    void viewportDropEvent(QDropEvent *e);
+    void dragMoveEvent(QDragMoveEvent *e);
+    void dropEvent(QDropEvent *e);
 
     QDragObject *dragObject();
     void startDrag();
