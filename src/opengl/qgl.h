@@ -327,8 +327,8 @@ private:	// Disabled copy constructor and operator=
 #endif
 
 #ifdef Q_WS_MAC
+private:
     friend class QWidget;
-private slots:
     void fixReparented();
     void fixBufferRect();
 #endif
