@@ -22,7 +22,7 @@ Warpix::Warpix(QWidget *parent)
 {
     setPixmap(QPixmap(":/res/chux.png"));
 
-    beat = new QSound(":/res/beat.wav");
+    beat = new QSound("beat.wav");
     beat->setLoops(-1);
 
     clickPos = QPoint(-1, -1);
