@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#64 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#65 $
 **
 ** Definition of QSlider class
 **
@@ -128,15 +128,6 @@ protected:
     void	valueChange();
     void	rangeChange();
 
-    virtual void paintSlider( QPainter *, const QColorGroup&, const QRect & );
-    void	drawTicks( QPainter *, const QColorGroup&, int, int, int=1 ) const;
-
-    // obsolete
-    void	drawWinGroove( QPainter *,  QCOORD );
-    void	drawTicks( QPainter *p,  int dist, int w, int i=1 ) const { drawTicks( p, colorGroup(), dist, w, i); }
-
-    virtual int	thickness() const;
-
 private slots:
     void	repeatTimeout();
 
@@ -149,7 +140,6 @@ private:
     void	moveSlider( int );
     void	reallyMoveSlider( int );
     void	resetState();
-    int		slideLength() const;
     int		available() const;
     int		goodPart( const QPoint& ) const;
     void	initTicks();

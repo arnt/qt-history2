@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#102 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#103 $
 **
 ** Definition of QStyle class
 **
@@ -206,6 +206,10 @@ public:
 	SR_RadioButtonContents,
 	SR_RadioButtonFocusRect
 
+	SR_ComboBoxFocusRect,
+	
+	SR_SliderFocusRect
+	
 	/*
 	  SR_DefaultFrameContents,
 	  SR_PopupFrameContents,
@@ -251,10 +255,10 @@ public:
 
 	SC_ComboBoxEditField =		0x00000020,
 	SC_ComboBoxArrow =		0x00000021,
-	SC_ComboBoxFocusRect =		0x00000022,
 
 	SC_SliderGroove =		0x00000030,
-	SC_SliderHandle = 		0x00000031
+	SC_SliderHandle = 		0x00000031,
+	SC_SliderTickmarks = 		0x00000032
 
 	/*
 	  SC_MenuItemCheck =		0x00000001,
@@ -302,7 +306,8 @@ public:
 	PM_SliderThickness,	       	// total slider thickness
 	PM_SliderControlThickness,    	// thickness of the business part
 	PM_SliderLength,
-	PM_SliderMaximumDragDistance
+	PM_SliderMaximumDragDistance,
+	PM_SliderTickmarkOffset
 
 	/*
 	  PM_PopupFrameWidth,

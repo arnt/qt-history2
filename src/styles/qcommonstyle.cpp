@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#50 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#51 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -880,6 +880,24 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	rect = rect.intersect(wrect);
 	break; }
 
+    case SR_ComboBoxFocusRect: {
+	rect.setRect(3, 3, widget->width()-6-16, widget->height()-6);
+	if( QApplication::reverseLayout() )
+	    rect.moveBy( 2 + 16, 0 );	
+	break; }
+
+    case SR_SliderFocusRect: {
+	QSlider * sl = (QSlider *) widget;
+	int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
+	int thickness  = pixelMetric( PM_SliderControlThickness, sl );
+	
+	if ( sl->orientation() == Horizontal )
+	    rect.setRect( 0, tickOffset-1, sl->width(), thickness+2 );
+	else
+	    rect.setRect( tickOffset-1, 0, thickness+2, sl->height() );
+	rect = rect.intersect( sl->rect() ); // ## is this really necessary?
+	break; }
+    
     default:
 	rect = wrect;
 	break;
@@ -970,7 +988,6 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	case SC_ComboBoxArrow:
 	    rect.setRect(xpos, y+2, 16, he-4);
 	    break;
-	case SC_ComboBoxFocusRect:
 	case SC_ComboBoxEditField:
 	    rect.setRect(x+3, y+3, wi-6-16, he-6);
 	    if( reverse )
@@ -1074,17 +1091,16 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	case SC_SliderHandle: {
 	    QSlider * sl = (QSlider *) w;
 	    void ** sdata = (void **) data;
-	    int sliderPos = 0, tickOffset = 0,
-		thickness = pixelMetric( PM_SliderControlThickness, sl );
+	    int sliderPos = 0;
+	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
+	    int thickness  = pixelMetric( PM_SliderControlThickness, sl );
 	    int len   = pixelMetric( PM_SliderLength, sl );
 	    int space = (sl->orientation() == Horizontal) ? sl->height() :
 		        sl->width();
 	    int ticks = sl->tickmarks();
-
-	    if ( sdata ) {
+		
+	    if ( sdata )
 		sliderPos = *((int *) sdata[0]);
-		tickOffset = *((int *) sdata[1]);
-	    }
 
 	    if ( sl->orientation() == Horizontal )
 		rect.setRect( sliderPos, tickOffset, len, thickness );
@@ -1185,7 +1201,22 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     case PM_SliderThickness:
 	ret = 16;
 	break;
-
+	
+    case PM_SliderTickmarkOffset: {	
+	QSlider * sl = (QSlider *) widget;
+	int space = (sl->orientation() == Horizontal) ? sl->height() : 
+	            sl->width();
+	int thickness = pixelMetric( PM_SliderControlThickness, sl );
+	int ticks = sl->tickmarks();
+	
+	if ( ticks == QSlider::Both )
+	    ret = (space - thickness) / 2;
+	else if ( ticks == QSlider::Above )
+	    ret = space - thickness;
+	else
+	    ret = 0;
+	break; }
+	
     default:
 	ret = 0;
 	break;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#58 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#59 $
 **
 ** Implementation of Windows-like style class
 **
@@ -432,6 +432,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	    thick += (space * 2) / (n + 2);
 	ret = thick;
 	break; }
+    
     default:
 	ret = QCommonStyle::pixelMetric(metric, widget);
 	break;
@@ -1749,6 +1750,38 @@ QPixmap QWindowsStyle::titleBarPixmap( const QTitleBar *, TitleControl ctrl)
     return QPixmap();
 }
 
+/*
+  I really need this and I don't want to expose it in QRangeControl..
+*/
+static int qPositionFromValue( QRangeControl * rc, int logical_val, 
+			       int span )
+{
+    if ( span <= 0 || logical_val < rc->minValue() || 
+	 rc->maxValue() <= rc->minValue() )
+	return 0;
+    if ( logical_val > rc->maxValue() )
+	return span;
+
+    uint range = rc->maxValue() - rc->minValue();
+    uint p = logical_val - rc->minValue();
+
+    if ( range > (uint)INT_MAX/4096 ) {
+	const int scale = 4096*2;
+	return ( (p/scale) * span ) / (range/scale);
+	// ### the above line is probably not 100% correct
+	// ### but fixing it isn't worth the extreme pain...
+    } else if ( range > (uint)span ) {
+	return (2*p*span + range) / (2*range);
+    } else {
+	uint div = span / range;
+	uint mod = span % range;
+	return p*div + (2*p*mod + range) / (2*range);
+    }
+    //equiv. to (p*span)/range + 0.5
+    // no overflow because of this implicit assumption:
+    // span <= 4096   
+}
+
 void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 					const QWidget * w,
 					const QRect & r,
@@ -1865,8 +1898,6 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 			    subActive, data );
 	    drawSubControl( SC_ComboBoxEditField, p, w, r, cg, flags,
 			    subActive, data );
-	    drawSubControl( SC_ComboBoxFocusRect, p, w, r, cg, flags,
-			    subActive, data );
 	}
 	break; }
 
@@ -1874,10 +1905,12 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 	if ( sub != SC_None ) {
 	    drawSubControl( sub, p, w, r, cg, flags, subActive, data );
 	} else {
-	    drawSubControl( SC_SliderGroove, p, w, r, cg, flags,
-			    subActive, data );
-	    drawSubControl( SC_SliderHandle, p, w, r, cg, flags,
-			    subActive, data );
+	    drawSubControl( SC_SliderGroove, p, w, r, cg, flags, subActive,
+			    data );
+	    drawSubControl( SC_SliderTickmarks, p, w, r, cg, flags, subActive,
+			    data );
+	    drawSubControl( SC_SliderHandle, p, w, r, cg, flags, subActive,
+			    data );
 	}
 	break; }
 
@@ -1971,34 +2004,56 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	if ( cb->hasFocus() ) {
 	    p->setPen( cg.highlightedText() );
 	    p->setBackgroundColor( cg.highlight() );
+
 	} else {
 	    p->setPen( cg.text() );
 	    p->setBackgroundColor( cg.background() );
 	}
 
-        break; }
-
-    case SC_ComboBoxFocusRect: {
-	QComboBox * cb = (QComboBox *) w;
 	if ( cb->hasFocus() && !cb->editable() ) {
-	    QRect re = querySubControlMetrics( CC_ComboBox, w,
-					       SC_ComboBoxFocusRect );
+	    QRect re = subRect( SR_ComboBoxFocusRect, cb );
 	    drawPrimitive( PO_FocusRect, p, re, cg );
 	}
 	break; }
 
     case SC_SliderGroove: {
 	QSlider * sl = (QSlider *) w;
-	int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-	int c = pixelMetric( PM_SliderThickness, sl ) +
-		pixelMetric( PM_SliderLength, sl ) / 8;
+	
+	int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
+	int thickness = pixelMetric( PM_SliderControlThickness, sl );
+	int mid   = thickness / 2;
+	int ticks = sl->tickmarks();
+	int len   = pixelMetric( PM_SliderLength, sl );
+	int x, y, wi, he;
+
+	if ( sl->orientation() == Horizontal ) {
+	    x = 0;
+	    y = tickOffset;
+	    wi = sl->width();
+	    he = thickness;
+	} else {
+	    x = tickOffset;
+	    y = 0;
+	    wi = thickness;
+	    he = sl->height();
+	}
+	
+	if ( ticks & QSlider::Above )
+	    mid += len / 8;
+	if ( ticks & QSlider::Below )
+	    mid -= len / 8;
+	
 	p->setPen( cg.shadow() );
 	if ( sl->orientation() == Horizontal ) {
-	    qDrawWinPanel( p, x, y + c - 2,  w, 4, cg, TRUE );
-	    p->drawLine( x+1, y + c - 1, x + w - 3, y + c - 1 );
+	    qDrawWinPanel( p, x, y + mid - 2,  wi, 4, cg, TRUE );
+	    p->drawLine( x+1, y + mid - 1, x + wi - 3, y + mid - 1 );
+	    sl->erase( 0, 0, sl->width(), tickOffset );
+	    sl->erase( 0, tickOffset + thickness, sl->width(), sl->height() );
 	} else {
-	    qDrawWinPanel( p, x + c - 2, y, 4, h, cg, TRUE );
-	    p->drawLine( x + c - 1, y + 1, x + c - 1, y + h - 3 );
+	    qDrawWinPanel( p, x + mid - 2, y, 4, he, cg, TRUE );
+	    p->drawLine( x + mid - 1, y + 1, x + mid - 1, y + he - 3 );
+	    sl->erase( 0, 0,  tickOffset, sl->height() );
+	    sl->erase( tickOffset + thickness, 0, sl->width(), sl->height() );
 	}
 	break; }
 
@@ -2019,7 +2074,9 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	const QColor c3 = cg.midlight();
 	const QColor c4 = cg.light();
 
-	int x = r.x(), y = r.y(), wi = r.width(), he = r.height();
+	QRect re = querySubControlMetrics( CC_Slider, w, SC_SliderHandle,
+					   data );
+	int x = re.x(), y = re.y(), wi = re.width(), he = re.height();
 
 	int x1 = x;
 	int x2 = x+wi-1;
@@ -2039,6 +2096,11 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	    qDrawWinButton( p, QRect(x,y,wi,he), cg, FALSE,
 			    &cg.brush( QColorGroup::Button ) );
 	    return;
+	}
+
+	if ( sl->hasFocus() ) {
+	    QRect re = subRect( SR_SliderFocusRect, sl );
+	    drawPrimitive( PO_FocusRect, p, re, cg );
 	}
 
 	SliderDir dir;
@@ -2198,8 +2260,69 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
             p->drawLine( x2, y2-1, x2+d, y2-1-d);
             break;
 	}
-	break; }
 
+	break; }
+    
+    case SC_SliderTickmarks: {
+	QSlider * sl = (QSlider *) w;
+	int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
+	int ticks = sl->tickmarks();
+	int thickness = pixelMetric( PM_SliderControlThickness, sl );
+	int available;
+	int interval = sl->tickInterval();
+	
+	if ( sl->orientation() == Horizontal )
+	    available = sl->width() - pixelMetric( PM_SliderLength, sl );
+	else
+	    available = sl->height() - pixelMetric( PM_SliderLength, sl );
+	
+	if ( interval <= 0 ) {
+	    interval = sl->lineStep();
+	    if ( qPositionFromValue( sl, interval, available ) - 
+		 qPositionFromValue( sl, 0, available ) < 3 )
+		interval = sl->pageStep();
+	}
+
+	if ( ticks & QSlider::Above ) {
+	    p->setPen( cg.foreground() );
+	    int v = sl->minValue();
+	    int fudge = pixelMetric( PM_SliderLength, sl ) / 2 + 1;
+	    if ( !interval )
+		interval = 1;
+	    while ( v <= sl->maxValue() + 1 ) {
+		int pos = qPositionFromValue( sl, v, available ) + fudge;
+		if ( sl->orientation() == Horizontal )
+		    p->drawLine( pos, 0, pos, tickOffset-2 );
+		else
+		    p->drawLine( 0, pos, tickOffset-2, pos );
+		v += interval;
+	    }  
+	}
+	
+	if ( ticks & QSlider::Below ) {
+	    int avail = (sl->orientation() == Horizontal) ? sl->height() :
+		        sl->width();
+	    avail -= tickOffset + thickness;
+	    p->setPen( cg.foreground() );
+	    int v = sl->minValue();
+	    int fudge = pixelMetric( PM_SliderLength, sl ) / 2 + 1;
+	    if ( !interval )
+		interval = 1;
+	    while ( v <= sl->maxValue() + 1 ) {
+		int pos = qPositionFromValue( sl, v, available ) + fudge;
+		if ( sl->orientation() == Horizontal )
+		    p->drawLine( pos, tickOffset+thickness+1, pos, 
+				 tickOffset+thickness+1 + available-2 );
+		else
+		    p->drawLine( tickOffset+thickness+1, pos, 
+				 tickOffset+thickness+1 + available-2, pos );
+		v += interval;
+	    }  
+	    
+	}
+	
+	break; }
+        
     default:
 	break;
     }
