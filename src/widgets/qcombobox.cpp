@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#205 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#206 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -976,7 +976,7 @@ void QComboBox::resizeEvent( QResizeEvent * )
   Handles paint events for the combo box.
 */
 
-void QComboBox::paintEvent( QPaintEvent *event )
+void QComboBox::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
     const QColorGroup & g = colorGroup();
@@ -1221,7 +1221,7 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 {
     int c;
 
-    if ( e->key() == Key_F4 ||
+    if ( ( e->key() == Key_F4 && e->state() == 0 ) ||
 	 ( e->key() == Key_Down && (e->state() & AltButton) ) ||
 	 ( !d->ed && e->key() == Key_Space ) ) {
 	if ( count() ) {
@@ -1547,8 +1547,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
         case QEvent::MouseButtonPress:
 	    if ( !d->popup->rect().contains( e->pos() ) ) {
 		// remove filter, event will take down popup:
-		d->listBox->removeEventFilter( this );
-		d->listBox->viewport()->removeEventFilter( this );
+		d->popup->removeEventFilter( this );
 		// ### uglehack!
 		// call internalHighlight so the highlighed signal
 		// will be emitted at least as often as necessary.
