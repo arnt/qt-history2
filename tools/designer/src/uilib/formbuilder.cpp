@@ -134,6 +134,11 @@ QWidget *FormBuilder::widgetByName(QWidget *topLevel, const QString &name)
 
 void FormBuilder::createConnections(DomConnections *ui_connections, QWidget *widget)
 {
+    Q_ASSERT(widget != 0);
+
+    if (ui_connections == 0)
+        return;
+
     QList<DomConnection*> connections = ui_connections->elementConnection();
     foreach (DomConnection *c, connections) {
         QWidget *sender = widgetByName(widget, c->elementSender());

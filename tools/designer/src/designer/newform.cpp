@@ -28,7 +28,7 @@
 
 #include <QtCore/qdebug.h>
 
-enum
+enum NewForm_CustomRole
 {
     TemplateNameRole = QAbstractItemModel::UserRole + 100
 };
