@@ -1321,6 +1321,9 @@ void Doc::setLink( const QString& link, const QString& title )
 	q = QString::null;
     }
 
+    /*
+      If there are '\index' commands in this doc, find out their full address.
+     */
     if ( !idx.isEmpty() ) {
 	int k = link.find( QChar('#') );
 	if ( k == -1 )
@@ -1333,6 +1336,12 @@ void Doc::setLink( const QString& link, const QString& title )
 	idx.clear();
     }
 
+    /*
+      Rainer M. Schmid suggested that auto-referential links should be removed
+      automatically from '\sa'.  This is to simplify his typing if f1() refers
+      to f2() and f3(); f2() to f1() and f3(); and f3() to f1() and f2().  He
+      then copies and pastes '\sa f1() f2() f3()'.
+     */
     if ( !sa.isEmpty() ) {
 	QString who = title.mid( title.findRev(QChar(':')) + 1 );
 	QString whoElse = who + QString( "()" );
@@ -1593,7 +1602,7 @@ QString Doc::finalHtml() const
 		 offsetOK(&offsetMap, yyOut.length(), yyOut.mid(begin)) ) {
 		/*
 		  It's always a good idea to include the '()', as it provides
-		  some typing.
+		  some typing (in both senses of the word).
 		*/
 		if ( ch == QChar('(') && yyIn.mid(yyPos, 1) == QChar(')') ) {
 		    yyOut.replace( begin, end - begin,
@@ -1642,19 +1651,14 @@ QString Doc::finalHtml() const
 	}
     }
 
-    // ### I forgot what's wrong here.
-#if 0
     /*
       Complain before it's too late.
     */
     if ( !q.isEmpty() ) {
 	warning( 0, location(), "Ignored '\\mustquote' (fix qdoc)" );
-	q = QString::null;
     } else if ( !idx.isEmpty() ) {
 	warning( 0, location(), "Ignored '\\index' (fix qdoc)" );
-	idx.clear();
     }
-#endif
 
     return yyOut;
 }

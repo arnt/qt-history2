@@ -79,7 +79,7 @@ private:
     QStringList idx;
     QString lnk;
 
-    // ### dangerous static?
+    // ### dangerous statics?
     static const Resolver *res;
     static QRegExp *megaRegExp;
     static QMap<QString, QMap<QString, QString> > quotes;

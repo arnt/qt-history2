@@ -40,7 +40,8 @@
 */
 
 /*
-  ###
+  Sets the address of a Doc.  That information is used by the steering to emit
+  some index file, and by the Doc itself to know who it is.
 */
 static void setLink( Steering *steering, Doc *doc, const QString& link,
 		     const QString& text )
@@ -707,7 +708,7 @@ static void matchDocsAndStuff( Steering *steering )
 					 decl->relatesContext()->name()) +
 					 QChar('#') + decl->anchor(),
 				 decl->fullName() );
-			deleteDoc = FALSE; // ### get rid of
+			deleteDoc = FALSE;
 
 			((FunctionDecl *) decl)->borrowParameterNames(
 			    ((FunctionDecl *) yyLastDecl)->parameterBegin() );
