@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QLineEdit widget class
 **
@@ -2038,6 +2038,8 @@ bool QLineEdit::dragEnabled() const
     selection starts and \c *\a end to the position where the selection
     ends. Returns TRUE if \a start and \a end are not null and if
     there is some selected text; otherwise returns FALSE.
+
+    \sa setSelection()
 */
 
 bool QLineEdit::getSelection( int *start, int *end )
