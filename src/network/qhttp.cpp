@@ -2011,10 +2011,11 @@ void QHttp::slotReadyRead()
 		    n = d->socket.bytesAvailable();
 		    if ( n == 0 )
 			break;
-		    if ( (Q_LONG)n == d->chunkedSize )
-			n -= 1;
-		    else if ( (Q_LONG)n == d->chunkedSize+1 )
-			n -= 2;
+		    if ( (Q_LONG)n == d->chunkedSize || (Q_LONG)n == d->chunkedSize+1 ) {
+			n = d->chunkedSize - 1;
+			if ( n == 0 )
+			    break;
+		    }
 
 		    // read data
 		    uint toRead = QMIN( (Q_LONG)n, d->chunkedSize );
