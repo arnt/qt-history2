@@ -44,8 +44,8 @@ to be modified for other platforms.
 
 \code
     cd <anywhere>;
-    gunzip qt-embedded-VERSION-commercial.tar.gz    # uncompress the archive
-    tar xf qt-embedded-VERSION-commercial.tar       # unpack it
+    gunzip qt-embedded-commercial-VERSION.tar.gz    # uncompress the archive
+    tar xf qt-embedded-commercial-VERSION.tar       # unpack it
 \endcode
 Replace VERSION with the Qt/Embedded version number throughout.
 
@@ -449,7 +449,12 @@ supported devices.
 
 \section1 Mouse Protocols
 
-Qt/Embedded normally auto-detects the mouse type and device if it is one of
+Mouse drivers can be enabled/disabled via the configure script.  Running
+./configure -help lists the available mouse drivers.  Only the
+"pc" mouse driver is enabled in the default configuration.
+
+Provided the "pc" mouse driver is enabled, Qt/Embedded auto-detects the
+mouse type and device if it is one of
 the supported types on \c /dev/psaux or one of the \c /dev/ttyS?
 serial lines. If multiple mice are detected, all may be used simultaneously.
 
@@ -469,15 +474,13 @@ If no such variable is specified, the built-in default
 is \c Auto, which enables auto-detection of the mouse protocol
 and device.
 
-To add another protocol, new subclasses of QAutoMouseSubHandler or
-QMouseHandler can be written in \c kernel/qwsmouse_qws.cpp.
+To add another protocol, new subclasses of QWSMouseHandler and
+QMouseDriverPlugin can be written and installed as plugins.
 
 \section1 Touch Panels
 
 Qt/Embedded ships with support for the NEC Vr41XX touchpanel
-and the iPAQ touchpanel.
-These are subclasses of QCalibratedMouseHandler which is in turn
-a subclass of QMouseHandler in \c kernel/qwsmouse_qws.cpp.
+and the emerging linux touchpanel standard used by the iPAQ and Zaurus.
 
 */
 
