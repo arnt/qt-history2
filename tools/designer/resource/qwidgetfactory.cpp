@@ -52,7 +52,7 @@ static QList<QWidgetFactory> widgetFactories;
   \brief A class to dynamically create widgets from Qt Designer user
   interface description files
 
-  This class basically offers to things:
+  This class basically offers two things:
 
   <ul>
 
@@ -814,7 +814,7 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 	    // if this is a connection to a custom slot and we have a connector, try this as receiver
 	    if ( slotList.find( conn.slot ) == -1 && receiver == toplevel && connector )
 		slotList = connector->metaObject()->slotNames( TRUE );
-	    
+	
 	    // avoid warnings
 	    if ( signalList.find( conn.signal ) == -1 ||
 		 slotList.find( conn.slot ) == -1 ) {
