@@ -1,0 +1,34 @@
+#!/bin/sh
+
+MAC102=0
+VERBOSE=$1
+SRCDIR=$2
+OUTDIR=$3
+
+# debuggery
+[ "$VERBOSE" = "yes" ] && echo "Testing Mac 10.2 support..."
+
+# build a test program
+test -d $OUTDIR/config.tests/mac/ || mkdir -p $OUTDIR/config.tests/mac/
+cd $OUTDIR/config.tests/mac
+TSTFILE=$OUTDIR/config.tests/mac/mac102.cpp
+
+echo "#include <Carbon/Carbon.h>" >$TSTFILE
+echo "typedef struct OpaqueEventLoopTimerRef* EventLoopTimerRef;" >>$TSTFILE
+echo "typedef struct OpaqueMenuHandle *MenuRef;" >>$TSTFILE
+
+if [ "$VERBOSE" = "yes" ]; then
+    c++ $TSTFILE -c -O2 $TSTFILE
+else
+    c++ $TSTFILE -c -O2 $TSTFILE >/dev/null 2>&1
+fi
+MAC102=$?
+
+# done
+if [ "$MAC102" -ne 0 ]; then
+    [ "$VERBOSE" = "yes" ] && echo "Mac 10.2 support enabled."
+    exit 1
+else
+    [ "$VERBOSE" = "yes" ] && echo "Mac 10.2 support disabled."
+    exit 0
+fi
