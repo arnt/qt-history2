@@ -495,7 +495,7 @@ inline bool QWidgetMapper::remove( WId id )
 	state. This implies WState_Disabled.
   <dt>WState_Visible<dd> The widget is currently visible.
   <dt>WState_ForceHide<dd> The widget is explicitly hidden, i.e. it won't become
-	visible unless you call show() on it.  ForceHide implies !WState_Visible
+      visible unless you call show() on it.  ForceHide implies !WState_Visible
   <dt>WState_OwnCursor<dd> A cursor has been set for this widget.
   <dt>WState_MouseTracking<dd> Mouse tracking is enabled.
   <dt>WState_CompressKeys<dd> Compress keyboard events.
@@ -507,8 +507,8 @@ inline bool QWidgetMapper::remove( WId id )
   <dt>WState_AutoMask<dd> The widget has an automatic mask, see setAutoMask().
   <dt>WState_Polished<dd> The widget has been "polished" (i.e. late initializated ) by a QStyle.
   <dt>WState_DND<dd> The widget supports drag and drop, see setAcceptDrops().
-  <dt> WState_Exposed<dd> the widget was finally exposed (x11 only,
-	helps avoiding paint event doubling).
+  <dt>WState_Exposed<dd> the widget was finally exposed (x11 only,
+      helps avoiding paint event doubling).
   </dl>
 */
 
@@ -711,10 +711,12 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	if ( fd->focusWidgets.findRef(this) < 0 )
 	    fd->focusWidgets.append( this );
     } else {
+	// propagate enabled state
 	if ( !parentWidget()->isEnabled() )
-	    setWState( WState_Disabled );	// propagate enabled state
+	    setWState( WState_Disabled );
+	// new widgets do not show up in already visible parents
 	if ( parentWidget()->isVisibleTo( 0 ) )
-	    setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
+	    setWState( WState_ForceHide );
     }
 }
 
@@ -737,7 +739,7 @@ QWidget::~QWidget()
     // Remove myself and all children from the can-take-focus list
     QFocusData *f = focusData( FALSE );
     if ( f ) {
-	QPtrListIterator<QWidget> it(f->focusWidgets);
+	QListIterator<QWidget> it(f->focusWidgets);
 	QWidget *w;
 	while ( (w = it.current()) ) {
 	    ++it;
@@ -1899,9 +1901,6 @@ void QWidget::setBackgroundColorForMode( BackgroundMode mode, const QColor &colo
   background mode is PaletteButton the palette entry
   QColorGroup::ButtonText is set to \a color.
 
-  The foreground color is also accessible as
-  colorGroup().foreground().
-
   \sa setPalette() QApplication:setPalette() backgroundMode()
       foregroundColor() setBackgroundMode() setEraseColor()
 */
@@ -1928,51 +1927,22 @@ void QWidget::setForegroundColorForMode( BackgroundMode mode, const QColor & col
     setPalette( pal );
 }
 
-// Please do NOT remove the FAQ answer from this doc again.  It's a
-// FAQ, it remains a FAQ, and people apparently will not follow three
-// links to find the right answer.
+/*! \fn const QColor& eraseColor() const
 
-/*! \property QWidget::eraseColor
-    \brief the erase color of this widget
+  Returns the erase color of the widget.
 
-  The erase color is the color the widget is to be cleared to before
-  paintEvent() is called. If there is a background pixmap (set using
-  setBackgroundPixmap()), then this property has an indeterminate
-  value.
-
-  Note that using this function is very often a mistake. Here are the
-  most common mistakes:
-
-  If you want to set the background color of a widget to one of the
-  standard colors, setBackgroundMode() is usually the best function.
-  For example, man widgets that usually use white backgrounds (and
-  black text on it) can use this:
-
-  \code
-    thatWidget->setBackgroundMode( QWidget::PaletteBase );
-  \endcode
-
-  There is also convenience function setBackgroundColor() which
-  changes the widget palette according to the active background mode.
-
-  If you want to change the color scheme of a widget, the setPalette()
-  function is better suited.  Here is how to set \e thatWidget to use a
-  light green (RGB value 80, 255, 80) as background color, with shades
-  of green used for all the 3D effects:
-
-  \code
-    thatWidget->setPalette( QPalette(QColor(80, 255, 80)) );
-  \endcode
-
-  A fixed background color sometimes is just the right thing, but if
-  you use it, make sure that your application looks right when the
-  desktop color scheme has been changed.  (On X11, a quick way to test
-  is e.g. "./yourapp -bg paleblue". On Windows, you have to use the
-  control panel.)
-
-  \sa backgroundColor, backgroundMode, foregroundColor, colorGroup(), palette
+  \sa setEraseColor() setErasePixmap() backgroundColor
 */
 
+/*!
+  Sets the erase color of the widget to \a color.
+
+  The erase color is the color the widget is to be cleared to before
+  paintEvent() is called. If there is an erase pixmap (set using
+  setErasePixmap()), then this property has an indeterminate value.
+
+  \sa erasePixmap(), backgroundColor, backgroundMode, palette
+*/
 void QWidget::setEraseColor( const QColor & color )
 {
     setBackgroundModeDirect( FixedColor );
@@ -2025,51 +1995,21 @@ void QWidget::setBackgroundPixmapForMode( BackgroundMode mode, const QPixmap &pi
     }
 }
 
-/*! \property QWidget::backgroundPixmap
-    \brief the widget's background pixmap
+/*!
+  Returns the widget's erase pixmap.
 
-  If the widget has backgroundMode() NoBackground, the
-  backgroundPixmap() returns a pixmap for which QPixmap:isNull() is
-  true.  If the widget has no pixmap is the background,
-  backgroundPixmap() returns a null pointer.
-
-  setBackgroundPixmap() is a convenience function that creates and
-  sets a modified QPalette with setPalette(). The palette is modified
-  according to the widget's background mode. For example, if the
-  background mode is PaletteButton the pixmap used for the palette's
-  QColorGroup::Button brush entry is set.
-
-  \sa backgroundPixmapChange(), backgroundColor,
-      erasePixmap, palette, QApplication::setPalette()
+  \sa setErasePixmap() eraseColor()
 */
-
-/*! \property QWidget::erasePixmap
-    \brief widget's erase pixmap
-
-  If the widget has backgroundMode() NoBackground, erasePixmap()
-  returns a pixmap for which QPixmap:isNull() is true. If the widget
-  has no pixmap, erasePixmap() returns a null pointer.
-
-  #### jasmin: edit this
-
-  There is also convenience function setBackgroundPixmap()  which will change
-  the widget palette according to the active background mode.
-
-  A fixed background pixmap sometimes is just the right thing, but if
-  you use it, make sure that your application looks right when the
-  desktop color scheme has been changed.  (On X11, a quick way to test
-  is e.g. "./yourapp -bg paleblue".  On Windows, you have to use the
-  control panel.)
-
-  \sa setBackgroundMode(), backgroundPixmap(), backgroundPixmapChange(),
-  setBackgroundColor()
-*/
-
 const QPixmap *QWidget::erasePixmap() const
 {
     return ( extra && extra->bg_pix ) ? extra->bg_pix : 0;
 }
 
+/*!
+  Sets the widget's erase pixmap to \a pixmap.
+
+  This pixmap is used to clear the widget before paintEvent() is called.
+*/
 void QWidget::setErasePixmap( const QPixmap &pixmap )
 {
     // This function is called with a null pixmap by setBackgroundEmpty().
@@ -2171,13 +2111,13 @@ void QWidget::setBackgroundFromMode()
   \value PaletteShadow
   \value PaletteHighlight
   \value PaletteHighlightedText
-  \value NoBackground - the widget is not cleared before paintEvent().
+  \value NoBackground the widget is not cleared before paintEvent().
   If the widget's paint event always draws on all the pixels, using
   this mode can be both fast and flicker-free.
-  \value FixedColor - the widget is cleared to a fixed color,
+  \value FixedColor the widget is cleared to a fixed color,
   normally different from all the ones in the palette().  Set using
   setBackgroundColor().
-  \value FixedPixmap - the widget is cleared to a fixed pixmap,
+  \value FixedPixmap the widget is cleared to a fixed pixmap,
   normally different from all the ones in the palette().  Set using
   setBackgroundPixmap().
 
@@ -2192,23 +2132,25 @@ void QWidget::setBackgroundFromMode()
 */
 
 /*! \property QWidget::backgroundMode
-    \brief the way the system should clear the widget before sending a
-    paint event
+    \brief the color role used for painting the background of the widget
 
-  In other words, this decides how the widgets looks when paintEvent() is
-  called.
+  setBackgroundColor() reads this property to determine which entry of
+  the \l palette to set.
 
-  For most widgets the default (PaletteBackground, normally
-  gray) suffices, but some need to use PaletteBase (the
-  background color for text output, normally white) and a few need
-  other colors.
+  For most widgets the default suffices (PaletteBackground, typically
+  gray), but some need to use PaletteBase (the background color for
+  text output, typically white) or another role.
 
   QListBox, which is "sunken" and uses the base color to contrast with
-  its environment, does this:
+  its environment, does this in its constructor:
 
   \code
     setBackgroundMode( PaletteBase );
   \endcode
+
+  You will never need to set the background mode of a built-in widget
+  in Qt, but you might consider setting it in your custom widgets, so
+  that setBackgroundColor() works as expected.
 
   Note that two of the BackgroundMode values make no sense for
   setBackgroundMode(), namely FixedPixmap and FixedColor. You have to
@@ -2221,10 +2163,11 @@ Qt::BackgroundMode QWidget::backgroundMode() const
 
 void QWidget::setBackgroundMode( BackgroundMode m )
 {
-    if ( m == NoBackground )
+    if ( m == NoBackground ) {
 	setBackgroundEmpty();
-    else if ( m == FixedColor || m == FixedPixmap ) {
-	qWarning("May not pass FixedColor or FixedPixmap to setBackgroundMode()");
+    } else if ( m == FixedColor || m == FixedPixmap ) {
+	qWarning( "QWidget::setBackgroundMode: FixedColor or FixedPixmap makes"
+		  " no sense" );
 	return;
     }
     setBackgroundModeDirect(m);
@@ -2235,10 +2178,11 @@ void QWidget::setBackgroundMode( BackgroundMode m )
 */
 void QWidget::setBackgroundModeDirect( BackgroundMode m )
 {
-    if (m==PaletteBackground && !extra) return;
+    if ( m == PaletteBackground && !extra )
+	return;
 
     createExtra();
-    if ((BackgroundMode)extra->bg_mode != m) {
+    if ( (BackgroundMode)extra->bg_mode != m ) {
 	extra->bg_mode = m;
 	setBackgroundFromMode();
     }
@@ -2254,7 +2198,7 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
   If there is a background pixmap (set using setBackgroundPixmap()),
   then the return value of this function is indeterminate.
 
-  \sa foregroundColor(), colorGroup(), palette()
+  \sa foregroundColor, palette, colorGroup()
 */
 const QColor & QWidget::backgroundColor() const
 {
@@ -5195,7 +5139,7 @@ void QWidget::showFullScreen()
 
 /*! \property QWidget::ownCursor
     \brief whether the widget uses its own cursor
-    
+
   If FALSE, the widget uses its parent widget's cursor
 
   \sa setCursor(), unsetCursor()
