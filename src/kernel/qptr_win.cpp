@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#45 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -17,6 +17,7 @@
 #include "qpmcache.h"
 #include "qlist.h"
 #include "qintdict.h"
+#include <stdlib.h>
 #include <math.h>
 
 #if defined(_CC_BOOL_DEF_)
@@ -29,7 +30,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#44 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#45 $")
 
 
 /*****************************************************************************
@@ -1934,7 +1935,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     int	   codelen    = 200;
     bool   code_alloc = FALSE;
     ushort *codes     = codearray;
-    ushort cc	      = 0;			// character code
+    ushort cc;					// character code
     bool   decode     = internal && *internal;	// decode from internal data
     bool   encode     = internal && !*internal; // build internal data
 
@@ -2247,7 +2248,6 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 				  cpen.color() );
 		}
 		p[k++] = (char)*cp++;
-		index++;
 	    }
 	    if ( pp )				// gray text
 		pp->drawText( xp, fascent, p, k );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#178 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#179 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -26,7 +26,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#178 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#179 $")
 
 
 /*****************************************************************************
@@ -2716,7 +2716,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     int	   codelen    = 200;
     bool   code_alloc = FALSE;
     ushort *codes     = codearray;
-    ushort cc	      = 0;			// character code
+    ushort cc;					// character code
     bool   decode     = internal && *internal;	// decode from internal data
     bool   encode     = internal && !*internal; // build internal data
 
@@ -3035,7 +3035,6 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 				  cpen.color() );
 		}
 		p[k++] = (char)*cp++;
-		index++;
 	    }
 	    if ( pp )				// gray text
 		pp->drawText( xp, fascent, p, k );
