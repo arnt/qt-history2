@@ -37,10 +37,6 @@ for(QCONF, QCONFIG) {
    else:isEqual(QCONF, kernel):qlib = qtkernel
    else:message("Unknown QCONFIG: $$qlib):qlib =
    !isEmpty(qlib) {
-      thread {
-        win32-borland:qlib = $${qlib}mt
-	else:qlib = $${qlib}-mt
-      }
       target_qt:isEqual(TARGET, qlib) {
          warning($$TARGET cannot have a QCONFIG of $$QCONF)
       } else {
