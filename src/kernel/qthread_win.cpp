@@ -488,11 +488,14 @@ bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
     if ( !mutex )
        return FALSE;
 
-    d->s.enter();
+    if ( mutex->d->type() == QMUTEX_TYPE_RECURSIVE ) {
 #ifdef QT_CHECK_RANGE
-    if ( mutex->d->type() == QMUTEX_TYPE_RECURSIVE )
-	qWarning("Unlocking recursive mutex before wait");
+	qWarning("QWaitCondition::wait: Cannot wait on recursive mutexes.");
 #endif
+	return FALSE;
+    }
+
+    d->s.enter();
     d->waitersCount++;
     d->s.leave();
     mutex->unlock();
