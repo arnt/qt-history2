@@ -49,13 +49,13 @@ void InvokeMethod::methodSelected(const QString &method)
     listParameters->clear();
     listParameters->setSorting(-1);
     const QMetaObject *mo = activex->metaObject();
-    const QMetaMember slot = mo->slot(mo->indexOfSlot(method.latin1()));
+    const QMetaMember slot = mo->member(mo->indexOfSlot(method.latin1()));
     QString signature = slot.signature();
     signature = signature.mid(signature.indexOf('(') + 1);
     signature.truncate(signature.length()-1);
 
-    QStringList pnames = QString(slot.parameters()).split(',');
-    QStringList ptypes = signature.split(",");
+    QList<QByteArray> pnames = slot.parameterNames();
+    QList<QByteArray> ptypes = slot.parameterTypes();
 
     for (int p = ptypes.count()-1; p >= 0; --p) {
 	QString ptype(ptypes.at(p));
@@ -116,10 +116,11 @@ void InvokeMethod::setControl(QAxBase *ax)
     }
 
     const QMetaObject *mo = activex->metaObject();
-    if (mo->slotCount()) {
-	for (int i = mo->slotOffset(); i < mo->slotCount(); ++i) {
-	    const QMetaMember slot = mo->slot(i);
-	    comboMethods->insertItem(slot.signature());
+    if (mo->memberCount()) {
+	for (int i = mo->memberOffset(); i < mo->memberCount(); ++i) {
+	    const QMetaMember member = mo->member(i);
+            if (member.memberType() == QMetaMember::Slot)
+	        comboMethods->insertItem(member.signature());
 	}
 #if 0
         comboMethods->listBox()->sort();
