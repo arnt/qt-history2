@@ -1002,7 +1002,8 @@ void QMultiLineEdit::wheelEvent( QWheelEvent *e ){
   </ul>
   In addition, the following key bindings are used on Windows:
   <ul>
-  <li><i> Insert </i> Paste the clipboard text into line edit
+  <li><i> Shift - Delete </i> Cut the marked text, copy to clipboard
+  <li><i> Shift - Insert </i> Paste the clipboard text into line edit
   <li><i> Control - Insert </i> Copy the marked text to the clipboard
   </ul>
   All other keys with valid ASCII codes insert themselves into the line.
