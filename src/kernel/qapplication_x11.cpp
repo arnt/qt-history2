@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#212 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#213 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#212 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#213 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -1391,8 +1391,6 @@ bool QApplication::processNextEvent( bool canWait )
 
 	    case EnterNotify:			// enter window
 	    case LeaveNotify: {			// leave window
-		if ( event.xcrossing.mode > 0 )
-		    break;
 		QEvent e( event.type == EnterNotify ?
 			  Event_Enter : Event_Leave );
 		QApplication::sendEvent( widget, &e );
