@@ -78,7 +78,7 @@ int main( int argc, char **argv )
     if ( app.argc() > 1 )
 	tw->openFile( QString(app.argv()[app.argc() - 1]) );
 
-    QString   keybase("/Qt Linguist/3.0/");
+    QString   keybase("/Qt Linguist/3.1/");
     QSettings config;
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
     if ( config.readBoolEntry( keybase + "Geometry/MainwindowMaximized", FALSE ) )     

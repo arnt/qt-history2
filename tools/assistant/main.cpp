@@ -395,7 +395,7 @@ int main( int argc, char ** argv )
 	MainWindow * mw = new MainWindow;
 	mw->setIcon( logo_xpm );
 
-	QString keybase("/Qt Assistant/3.0/");
+	QString keybase("/Qt Assistant/3.1/");
 	QSettings config;
 	config.insertSearchPath( QSettings::Windows, "/Trolltech" );
 	if ( config.readBoolEntry( keybase  + "GeometryMaximized", FALSE ) )

@@ -1712,6 +1712,14 @@ void TrWindow::setupPhrase()
     phrasep->setItemEnabled( printPhraseBookId, enabled );
 }
 
+void TrWindow::closeEvent( QCloseEvent *e )
+{
+    if ( maybeSave() )
+	e->accept();
+    else
+	e->ignore();
+}
+
 bool TrWindow::maybeSave()
 {
     if ( dirty ) {
@@ -2721,7 +2729,7 @@ bool TrWindow::danger( const QString& source, const QString& translation,
 
 void TrWindow::readConfig()
 {
-    QString   keybase("/Qt Linguist/3.0/");
+    QString   keybase("/Qt Linguist/3.1/");
     QSettings config;
 
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
@@ -2784,7 +2792,7 @@ void TrWindow::readConfig()
 
 void TrWindow::writeConfig()
 {
-    QString   keybase("/Qt Linguist/3.0/");
+    QString   keybase("/Qt Linguist/3.1/");
     QSettings config;
 
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );

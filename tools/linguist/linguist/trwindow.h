@@ -63,6 +63,7 @@ public:
 protected:
     void readConfig();
     void writeConfig();
+    void closeEvent( QCloseEvent * );
         
 private slots:
     void doneAndNext();

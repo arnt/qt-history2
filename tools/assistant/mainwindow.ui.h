@@ -61,7 +61,7 @@ void MainWindow::init()
     a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+B") ) ), helpDock, SLOT( toggleBookmarks() ) );
 
     // read configuration
-    QString keybase("/Qt Assistant/3.0/");
+    QString keybase("/Qt Assistant/3.1/");
     QSettings config;
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
@@ -336,7 +336,7 @@ MainWindow* MainWindow::newWindow()
 
 void MainWindow::saveSettings()
 {
-    QString keybase("/Qt Assistant/3.0/");
+    QString keybase("/Qt Assistant/3.1/");
     QSettings config;
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
     config.writeEntry( keybase + "Family",  browser->QWidget::font().family() );
