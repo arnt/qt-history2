@@ -126,7 +126,7 @@ private:
     bool	tryMenuBar( QMouseEvent * );
     void	byeMenuBar();
 
-    QSize	updateSize(bool =TRUE);
+    QSize	updateSize(bool force_recalc=FALSE, bool do_resize=TRUE);
     void	updateRow( int row );
 #ifndef QT_NO_ACCEL
     void	updateAccel( QWidget * );
