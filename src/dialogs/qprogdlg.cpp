@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#6 $
+** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#7 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -14,7 +14,7 @@
 #include <qdrawutl.h>
 #include <qapp.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#7 $");
 
 // If the operation is expected to take this long (as predicted by
 // progress time), show the progress dialog.
@@ -311,7 +311,7 @@ void QProgressDialog::layout()
     QSize cs = d->cancel.sizeHint();
     QSize bh = bar().sizeHint();
     int cspc;
-    int lh;
+    int lh = 0;
 
     // Find spacing and sizes that fit.  It is important that a progress
     // dialog can be made very small if the user demands it so.
