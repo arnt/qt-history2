@@ -394,6 +394,20 @@ public:
     {
     }
 
+    void changeEvent(QEvent *e)
+    {
+	if (e->type() == QEvent::EnabledChange && isEnabled()) {
+	    Q3DateEdit *de = ::qt_cast<Q3DateEdit*>(parentWidget());
+	    if (de) {
+		setUpEnabled(de->date() < de->maxValue());
+		setDownEnabled(de->date() > de->minValue());
+	    } else {
+		setUpEnabled(true);
+		setDownEnabled(true);
+	    }
+	}
+    }
+
 protected:
 #ifndef QT_NO_WHEELEVENT
     void wheelEvent(QWheelEvent *e)
