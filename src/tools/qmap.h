@@ -3,7 +3,7 @@
 
 #include <qshared.h>
 
-#define DEBUG
+// #define DEBUG
 
 #ifdef DEBUG
 // HACK
@@ -432,7 +432,7 @@ public:
   void remove( const Key& k ) 
   {
     detach();
-    Iterator it = sh->find( k );
+    Iterator it = Iterator( sh->find( k ).node );
     if ( it != end() )
       sh->remove( it );
   }
@@ -443,7 +443,7 @@ protected:
   /**
    * Helpers
    */
-  void detach() { if ( sh->count > 1 ) { cout << "DEREF" << endl; sh->deref(); sh = new QMapPrivate<Key,T>( sh ); } }
+  void detach() { if ( sh->count > 1 ) { sh->deref(); sh = new QMapPrivate<Key,T>( sh ); } }
   
   Priv* sh;
 };
