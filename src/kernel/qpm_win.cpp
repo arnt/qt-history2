@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#41 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#41 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -385,12 +385,6 @@ QImage QPixmap::convertToImage() const
 				r->rgbGreen,
 				r->rgbBlue) );
     }
-
-    if ( d == 1 ) {
-	uint c0 = image.color( 0 );
-	image.setColor( 0, image.color(1) );
-	image.setColor( 1, c0 );
-    }
     delete [] bmi_data;
     return image;
 }
@@ -415,9 +409,9 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	}
     } else {					// can be both
 	bool conv8 = FALSE;
-	if ( mode == Color )			// native depth wanted
+	if ( mode == Color ) {			// native depth wanted
 	    conv8 = d == 1;
-	else if ( d == 1 && image.numColors() == 2 ) {
+	} else if ( d == 1 && image.numColors() == 2 ) {
 	    QRgb c0 = image.color(0);		// mode==Auto: convert to best
 	    QRgb c1 = image.color(1);
 	    conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != qRgb(255,255,255);
@@ -428,12 +422,8 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	}
     }
 
-    if ( d == 1 ) {				// 1 bit pixmap (bitmap)
+    if ( d == 1 )				// 1 bit pixmap (bitmap)
 	image = image.convertBitOrder( QImage::BigEndian );
-	uint c0 = image.color( 0 );
-	image.setColor( 0, image.color(1) );
-	image.setColor( 1, c0 );
-    }
 
     int w = image.width();
     int h = image.height();

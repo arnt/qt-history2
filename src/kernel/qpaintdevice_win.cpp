@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#31 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -25,7 +25,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#31 $");
 
 
 QPaintDevice::QPaintDevice( uint devflags )
@@ -207,12 +207,17 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( mask ) {
 	if ( qt_winver == WV_NT ) {
 	    MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
-		     sx, sy, MAKEROP4(ropCodes[rop],0x00aa0029) );
+		     sx, sy, MAKEROP4(0x00aa0029,ropCodes[rop]) );
 	} else {
 	    if ( ((QPixmap*)src)->data->selfmask ) {
 		HBRUSH b = CreateSolidBrush( black.pixel() );
+		COLORREF tc, bc;
 		b = SelectObject( dst_dc, b );
+		tc = SetTextColor( dst_dc, black.pixel() );
+		bc = SetBkColor( dst_dc, white.pixel() );
 		BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, 0x00b8074a );
+		SetBkColor( dst_dc, bc );
+		SetTextColor( dst_dc, tc );
 		DeleteObject( SelectObject(dst_dc, b) );		
 	    } else {
 		BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy,
