@@ -27,7 +27,7 @@
 #include <qtooltip.h>
 #include <qwhatsthis.h>
 
-QString Q_GUI_EXPORT qacc_stripAmp(const QString &text);
+QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 
 /*!
   \class QAccessibleHeader qaccessiblewidget.h
@@ -196,7 +196,7 @@ QString QAccessibleTabBar::text(Text t, int child) const
     } else if (child > 0) {
         switch (t) {
         case Name:
-            return qacc_stripAmp(tabBar()->tabText(child - 1));
+            return qt_accStripAmp(tabBar()->tabText(child - 1));
         default:
             break;
         }

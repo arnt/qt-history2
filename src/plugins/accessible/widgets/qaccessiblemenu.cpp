@@ -17,8 +17,8 @@
 #include <qmenubar.h>
 #include <qstyle.h>
 
-QString Q_GUI_EXPORT qacc_stripAmp(const QString &text);
-QString Q_GUI_EXPORT qacc_hotKey(const QString &text);
+QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
+QString Q_GUI_EXPORT qt_accHotKey(const QString &text);
 
 QAccessibleMenu::QAccessibleMenu(QWidget *w)
 : QAccessibleWidget(w)
@@ -85,7 +85,7 @@ QString QAccessibleMenu::text(Text t, int child) const
     case Name:
         if (!child)
             return menu()->windowTitle();
-        return qacc_stripAmp(menu()->actions().at(child-1)->text());
+        return qt_accStripAmp(menu()->actions().at(child-1)->text());
     case Help:
         return child ? menu()->actions().at(child-1)->whatsThis() : tx;
     case Accelerator:
@@ -221,9 +221,9 @@ QString QAccessibleMenuBar::text(Text t, int child) const
         if (QAction *action = menuBar()->actions().value(child, 0)) {
             switch (t) {
             case Name:
-                return qacc_stripAmp(action->text());
+                return qt_accStripAmp(action->text());
             case Accelerator:
-                str = qacc_hotKey(action->text());
+                str = qt_accHotKey(action->text());
                 break;
             default:
                 break;

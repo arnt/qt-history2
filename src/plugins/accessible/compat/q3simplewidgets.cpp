@@ -16,7 +16,7 @@
 #include <q3groupbox.h>
 #include <qlabel.h>
 
-QString Q_GUI_EXPORT qacc_stripAmp(const QString &text);
+QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 
 Q3AccessibleDisplay::Q3AccessibleDisplay(QWidget *w, Role role)
 : QAccessibleWidget(w, role)
@@ -59,7 +59,7 @@ QString Q3AccessibleDisplay::text(Text t, int child) const
     }
     if (str.isEmpty())
         str = QAccessibleWidget::text(t, child);;
-    return qacc_stripAmp(str);
+    return qt_accStripAmp(str);
 }
 
 /*! \reimp */

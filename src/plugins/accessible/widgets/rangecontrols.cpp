@@ -21,7 +21,7 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 
-QString Q_GUI_EXPORT qacc_stripAmp(const QString &text);
+QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 
 /*!
   \class QAccessibleSpinBox qaccessiblewidget.h

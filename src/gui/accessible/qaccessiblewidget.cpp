@@ -57,7 +57,7 @@ static QString buddyString(const QWidget *widget)
     return QString();
 }
 
-QString Q_GUI_EXPORT qacc_stripAmp(const QString &text)
+QString Q_GUI_EXPORT qt_accStripAmp(const QString &text)
 {
     if (text.isEmpty())
         return text;
@@ -79,7 +79,7 @@ QString Q_GUI_EXPORT qacc_stripAmp(const QString &text)
     return str;
 }
 
-QString Q_GUI_EXPORT qacc_hotKey(const QString &text)
+QString Q_GUI_EXPORT qt_accHotKey(const QString &text)
 {
     if (text.isEmpty())
         return text;
@@ -768,7 +768,7 @@ QString QAccessibleWidget::text(Text t, int child) const
         else if (!child && widget()->isTopLevel())
             str = widget()->windowTitle();
         else
-            str = qacc_stripAmp(buddyString(widget()));
+            str = qt_accStripAmp(buddyString(widget()));
         break;
     case Description:
         if (!d->description.isEmpty())
@@ -788,7 +788,7 @@ QString QAccessibleWidget::text(Text t, int child) const
         if (!d->accelerator.isEmpty())
             str = d->accelerator;
         else
-            str = qacc_hotKey(buddyString(widget()));
+            str = qt_accHotKey(buddyString(widget()));
         break;
     case Value:
         str = d->value;

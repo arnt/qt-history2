@@ -26,8 +26,8 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 
-QString Q_GUI_EXPORT qacc_stripAmp(const QString &text);
-QString Q_GUI_EXPORT qacc_hotKey(const QString &text);
+QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
+QString Q_GUI_EXPORT qt_accHotKey(const QString &text);
 
 /*!
   \class QAccessibleButton qaccessible.h
@@ -121,7 +121,7 @@ QString QAccessibleButton::text(Text t, int child) const
             if (pb && pb->isDefault())
                 str = (QString)QKeySequence(Qt::Key_Enter);
             if (str.isEmpty())
-                str = qacc_hotKey(button()->text());
+                str = qt_accHotKey(button()->text());
         }
         break;
     case Name:
@@ -132,7 +132,7 @@ QString QAccessibleButton::text(Text t, int child) const
     }
     if (str.isEmpty())
         str = QAccessibleWidget::text(t, child);;
-    return qacc_stripAmp(str);
+    return qt_accStripAmp(str);
 }
 
 /*! \reimp */
@@ -277,7 +277,7 @@ QString QAccessibleToolButton::text(Text t, int child) const
     }
     if (str.isEmpty())
         str = QAccessibleButton::text(t, child);;
-    return qacc_stripAmp(str);
+    return qt_accStripAmp(str);
 }
 
 /*!
@@ -407,7 +407,7 @@ QString QAccessibleDisplay::text(Text t, int child) const
     }
     if (str.isEmpty())
         str = QAccessibleWidget::text(t, child);;
-    return qacc_stripAmp(str);
+    return qt_accStripAmp(str);
 }
 
 /*! \reimp */
@@ -489,7 +489,7 @@ QString QAccessibleLineEdit::text(Text t, int child) const
     }
     if (str.isEmpty())
         str = QAccessibleWidget::text(t, child);;
-    return qacc_stripAmp(str);
+    return qt_accStripAmp(str);
 }
 
 /*! \reimp */
