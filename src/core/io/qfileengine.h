@@ -42,7 +42,7 @@ public:
 
     virtual bool isRelativePath() const = 0;
 
-    enum FileInfo { 
+    enum FileInfo {
         //perms (overlaps the QFile::PermissionSpec)
         ReadOwnerPerm = 0x4000, WriteOwnerPerm = 0x2000, ExeOwnerPerm = 0x1000,
         ReadUserPerm  = 0x0400, WriteUserPerm  = 0x0200, ExeUserPerm  = 0x0100,
@@ -50,8 +50,8 @@ public:
         ReadOtherPerm = 0x0004, WriteOtherPerm = 0x0002, ExeOtherPerm = 0x0001,
 
         //types
-        LinkType      = 0x10000, 
-        FileType      = 0x20000, 
+        LinkType      = 0x10000,
+        FileType      = 0x20000,
         DirectoryType = 0x40000,
 
         //flags
@@ -70,7 +70,8 @@ public:
 
     virtual bool chmod(uint perms) = 0;
 
-    enum FileName { DefaultName, BaseName, PathName, AbsoluteName, AbsolutePathName, LinkName, CanonicalName };
+    enum FileName { DefaultName, BaseName, PathName, AbsoluteName, AbsolutePathName, LinkName,
+                    CanonicalName, CanonicalPathName };
     virtual QString fileName(FileName file=DefaultName) const = 0;
 
     enum FileOwner { OwnerUser, OwnerGroup };
@@ -150,7 +151,7 @@ public:
     virtual QDateTime fileTime(FileTime time) const;
 
     //FS only!!
-    bool open(int flags, int fd); 
+    bool open(int flags, int fd);
     int handle() const;
     static bool setCurrentPath(const QString &path);
     static QString currentPath(const QString &path=QString::null);

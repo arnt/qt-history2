@@ -361,7 +361,7 @@ QFSFileEngine::fileName(FileName file) const
             return ret.left(slash);
         }
         return ret;
-    } else if(file == CanonicalName) {
+    } else if(file == CanonicalName || file == CanonicalPathName) {
         char cur[PATH_MAX+1];
         if(::getcwd(cur, PATH_MAX)) {
             QString ret;
@@ -376,6 +376,8 @@ QFSFileEngine::fileName(FileName file) const
             struct stat st;
             if(::stat(QFile::encodeName(ret), &st) != 0)
                 ret = QString();
+            if (file == CanonicalName)
+                ret += QLatin1Char('/') + fileName(BaseName);
             return ret;
         }
         return fileName(AbsoluteName);
@@ -430,7 +432,7 @@ QFSFileEngine::owner(FileOwner own) const
     return QString::null;
 }
 
-bool 
+bool
 QFSFileEngine::chmod(uint perms)
 {
     mode_t mode = 0;
@@ -458,16 +460,16 @@ QFSFileEngine::chmod(uint perms)
         mode |= S_IWOTH;
     if(perms & ExeOtherPerm)
         mode |= S_IXOTH;
-    if(d->fd != -1) 
+    if(d->fd != -1)
         return !fchmod(d->fd, mode);
     const QByteArray file = QFile::encodeName(d->file);
     return !::chmod(file.data(), mode);
 }
 
-bool 
+bool
 QFSFileEngine::setSize(QIODevice::Offset size)
 {
-    if(d->fd != -1) 
+    if(d->fd != -1)
         return !ftruncate(d->fd, size);
     const QByteArray file = QFile::encodeName(d->file);
     return !::truncate(file.data(), size);

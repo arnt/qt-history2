@@ -34,7 +34,7 @@ public:
         ReadOwner = QFile::ReadOwner, WriteOwner = QFile::WriteOwner, ExeOwner = QFile::ExeOwner,
         ReadUser  = QFile::ReadUser,  WriteUser  = QFile::WriteUser,  ExeUser  = QFile::ExeUser,
         ReadGroup = QFile::ReadGroup, WriteGroup = QFile::WriteGroup, ExeGroup = QFile::ExeGroup,
-        ReadOther = QFile::ReadOther, WriteOther = QFile::WriteOther, ExeOther = QFile::ExeOther 
+        ReadOther = QFile::ReadOther, WriteOther = QFile::WriteOther, ExeOther = QFile::ExeOther
     };
 #endif
 
@@ -71,16 +71,17 @@ public:
             return completeBaseName();
         return baseName();
     }
-    inline QT_COMPAT QString extension(bool complete = true) const { 
+    inline QT_COMPAT QString extension(bool complete = true) const {
         if(complete)
             return completeSuffix();
-        return suffix(); 
+        return suffix();
     }
     inline QT_COMPAT QString absFilePath() const { return absoluteFilePath(); }
 #endif
 
     QString path() const;
     QString absolutePath() const;
+    QString canonicalPath() const;
 #ifndef QT_NO_DIR
     QDir dir() const;
     QDir absoluteDir() const;

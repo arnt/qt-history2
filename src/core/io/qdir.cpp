@@ -529,7 +529,7 @@ QDir::canonicalPath() const
 {
     if(!d->data->fileEngine)
         return QLatin1String("");
-    return cleanPath(d->data->fileEngine->fileName(QFileEngine::CanonicalName));
+    return cleanPath(d->data->fileEngine->fileName(QFileEngine::CanonicalPathName));
 }
 
 /*!
