@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#2 $
 **
 ** Implementation of something useful.
 **
@@ -22,7 +22,7 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#2 $");
 
 
 class QMainWindowPrivate {
@@ -37,7 +37,7 @@ public:
     typedef QList<ToolBar> ToolBarDock;
 
     QMainWindowPrivate()
-	: top( new ToolBarDock() ), left(0), right(0), bottom(0),
+	: top(0), left(0), right(0), bottom(0),
 	  mb(0), sb(0), ttg(0), mc(0), timer(0), tll(0),
 	  ubp(FALSE)
     {
@@ -75,7 +75,7 @@ public:
     QTimer * timer;
 
     QBoxLayout * tll;
-    
+
     bool ubp;
 };
 
@@ -226,6 +226,59 @@ QToolTipGroup * QMainWindow::toolTipGroup() const
 }
 
 
+/*!  Sets \a dock to be available if \a enable is TRUE, and not
+  available if \a enable is FALSE.
+
+  The user can drag a toolbar to any enabled dock.
+
+*/
+
+void QMainWindow::setDockEnabled( ToolBarDock dock, bool enable )
+{
+    if ( enable ) {
+	switch ( dock ) {
+	case Top:
+	    if ( !d->top )
+		d->top = new QMainWindowPrivate::ToolBarDock();
+	    break;
+	case Left:
+	    if ( !d->left )
+		d->left = new QMainWindowPrivate::ToolBarDock();
+	    break;
+	case Right:
+	    if ( !d->right )
+		d->right = new QMainWindowPrivate::ToolBarDock();
+	    break;
+	case Bottom:
+	    if ( !d->bottom )
+		d->bottom = new QMainWindowPrivate::ToolBarDock();
+	    break;
+	}
+    } else {
+	warning( "ooop! unimplemented, untested, and not quite thought out." );
+    }
+}
+
+
+/*!
+
+*/
+
+bool QMainWindow::isDockEnabled( ToolBarDock dock ) const
+{
+    switch ( dock ) {
+    case Top:
+	return d->top != 0;
+    case Left:
+	return d->left != 0;
+    case Right:
+	return d->right != 0;
+    case Bottom:
+	return d->bottom != 0;
+    }
+}
+
+
 /*!  Adds \a toolbar to this the \a edge window of this window.
 
 */
@@ -235,15 +288,22 @@ void QMainWindow::addToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl )
     if ( !toolBar )
 	return;
 
+    setDockEnabled( edge, TRUE );
+    
     QMainWindowPrivate::ToolBarDock * dl = 0;
-    if ( edge == Top )
+    if ( edge == Top ) {
 	dl = d->top;
-    else if ( edge == Left )
+	toolBar->setOrientation( QToolBar::Horizontal );
+    } else if ( edge == Left ) {
 	dl = d->left;
-    else if ( edge == Bottom )
+	toolBar->setOrientation( QToolBar::Vertical );
+    } else if ( edge == Bottom ) {
 	dl = d->bottom;
-    else if ( edge == Right )
+	toolBar->setOrientation( QToolBar::Horizontal );
+    } else if ( edge == Right ) {
 	dl = d->right;
+	toolBar->setOrientation( QToolBar::Vertical );
+    }
 
     if ( !dl )
 	return;
@@ -411,7 +471,7 @@ void QMainWindow::setUsesBigPixmaps( bool enable )
 
 /*!  Returns TRUE if the tool bars managed by this window use big
   pixmaps, else FALSE.
-  
+
   \sa setUsesBigPixmaps()
 */
 

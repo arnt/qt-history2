@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#1 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#2 $
 **
 ** Definition of something or other
 **
@@ -28,7 +28,7 @@ class QMainWindow: public QWidget
 public:
     QMainWindow( QWidget * parent = 0, const char * name = 0 );
     ~QMainWindow();
-    
+
     virtual void setCentralWidget( QWidget * );
     QWidget * centralWidget() const;
 
@@ -43,19 +43,22 @@ public:
 
     enum ToolBarDock { Top, Bottom, Right, Left };
 
+    void setDockEnabled( ToolBarDock dock, bool enable );
+    bool isDockEnabled( ToolBarDock dock ) const;
+
     void addToolBar( QToolBar *, ToolBarDock = Top, bool newLine = FALSE );
     void removeToolBar( QToolBar * );
 
     void show();
-    
+
     bool usesBigPixmaps() const;
-    
+
 public slots:
     void setUsesBigPixmaps( bool );
-    
+
 protected slots:
     void setUpLayout();
-    
+
 signals:
     void internalUseBigPixmaps( bool );
 

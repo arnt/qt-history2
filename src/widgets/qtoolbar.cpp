@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#4 $
 **
 ** Implementation of something useful.
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#4 $");
 
 
 
@@ -33,7 +33,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#3 $");
 
 
 /*! \fn void QToolBar::useBigPixmaps( bool );
-  
+
   This signal is emitted when items in teh toolbar need to foo */
 
 
@@ -45,6 +45,7 @@ QToolBar::QToolBar( QWidget * parent, const char * name )
     d = 0;
     b = 0;
     o = Horizontal;
+    QToolTip::add( this, name );
 }
 
 
@@ -104,7 +105,7 @@ void QToolBar::setUpGM()
 {
     delete b;
     b = new QBoxLayout( this, orientation() == Vertical
-			? QBoxLayout::Up : QBoxLayout::LeftToRight, 1, 0 );
+			? QBoxLayout::Down : QBoxLayout::LeftToRight, 1, 0 );
 
     if ( style() == WindowsStyle )
 	b->addSpacing( 8 );

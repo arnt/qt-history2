@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#4 $
 **
 ** Implementation of something useful.
 **
@@ -18,9 +18,10 @@
 #include "qapp.h"
 #include "qtooltip.h"
 #include "qtoolbar.h"
+#include "qimage.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#4 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -90,6 +91,7 @@ QToolButton::QToolButton( const QPixmap & pm, const char * textLabel,
     connect( this, SIGNAL(clicked()), receiver, slot );
     connect( parent, SIGNAL(useBigPixmaps(bool)),
 	     this, SLOT(setUsesBigPixmap(bool)) );
+    debug( "Sex %s", grouptext );
 }
 
 
@@ -150,15 +152,15 @@ QPixmap QToolButton::bigPixmap()
 {
     if ( !pixmap() )
 	return QPixmap();
-
+    
     if ( bpID == pixmap()->serialNumber() )
 	return sp;
 
     bpID = pixmap()->serialNumber();
-    if ( pixmap()->width() < 17 && pixmap()->height() < 17 ) {
-	QWMatrix m;
-	m.scale( 2, 2 );
-	bp = pixmap()->xForm( m );
+    if ( pixmap()->width() < 21 && pixmap()->height() < 21 ) {
+	QImage i( pixmap()->convertToImage() );
+	i = i.smoothScale( 24, 24 );
+	bp.convertFromImage( i );
     } else {
 	bp = *pixmap();
     }
@@ -179,16 +181,11 @@ QPixmap QToolButton::smallPixmap()
 	return sp;
 
     spID = pixmap()->serialNumber();
-    if ( pixmap()->width() < 17 && pixmap()->height() < 17 ) {
+    if ( pixmap()->width() < 21 && pixmap()->height() < 21 ) {
 	sp = *pixmap();
     } else {
-	sp.resize( 16, 16 );
-	sp.fill( color0 );
-	// veeeeeeery primitive.  Warwick, let's see that scaling code
-	// RSN, please?
-	bitBlt( (QPixmap *)pixmap(), 0, 0, &sp, 0, 0,
-		QMIN( pixmap()->width(), 16),
-		QMIN( pixmap()->height(), 16) );
+	QImage i( pixmap()->convertToImage() );
+	bp.convertFromImage( i.smoothScale( 16, 16 ) );
     }
     return sp;
 }
@@ -208,10 +205,10 @@ QPixmap QToolButton::smallPixmap()
 */
 
 
-/*! \fn const char * textLabel() const
+/*! \fn const char * QToolButton::textLabel() const
 
   Returns the text label in use by this tool button, or 0.
-  
+
   \sa setTextLabel() usesTextLabel() setUsesTextLabel() setText()
 */
 
@@ -327,31 +324,38 @@ void QToolButton::drawButton( QPainter * p )
 
 void QToolButton::drawButtonLabel( QPainter * p )
 {
-    int x, y, fh;
-    fh = fontMetrics().height();
-    x = width()/2 - (usesBigPixmap() ? 16 : 8);
-    y = height()/2 - (usesBigPixmap() ? 16 : 8);
-    if ( usesTextLabel() )
-	y = y - fh/2 - 2;
+    if ( text() ) {
+	qDrawItem( p, style(), 1, 1, width()-2, height()-2,
+		   AlignCenter + ShowPrefix,
+		   colorGroup(), isEnabled(),
+		   0, text() );
+    } else {
+	int x, y, fh;
+	fh = fontMetrics().height();
+	x = width()/2 - (usesBigPixmap() ? 16 : 8);
+	y = height()/2 - (usesBigPixmap() ? 16 : 8);
+	if ( usesTextLabel() )
+	    y = y - fh/2 - 2;
+    
+	if ( usesBigPixmap() )
+	    qDrawItem( p, style(), x, y, 32, 32,
+		       AlignCenter + ShowPrefix,
+		       colorGroup(), isEnabled(),
+		       &bigPixmap(), 0 );
+	else
+	    qDrawItem( p, style(), x, y, 16, 16,
+		       AlignCenter + ShowPrefix,
+		       colorGroup(), isEnabled(),
+		       &smallPixmap(), 0 );
 
-    if ( usesBigPixmap() )
-	qDrawItem( p, style(), x, y, 32, 32,
-		   AlignCenter + ShowPrefix,
-		   colorGroup(), isEnabled(),
-		   &bigPixmap(), 0 );
-    else
-	qDrawItem( p, style(), x, y, 16, 16,
-		   AlignCenter + ShowPrefix,
-		   colorGroup(), isEnabled(),
-		   &smallPixmap(), 0 );
-
-    if ( usesTextLabel() ) {
-	y += (usesBigPixmap() ? 32 : 16) + 4;
-	p->setFont( font() );
-	qDrawItem( p, style(), 3, y, width()-6, fh,
-		   AlignCenter + ShowPrefix,
-		   colorGroup(), isEnabled(),
-		   0, textLabel() );
+	if ( usesTextLabel() ) {
+	    y += (usesBigPixmap() ? 32 : 16) + 4;
+	    p->setFont( font() );
+	    qDrawItem( p, style(), 3, y, width()-6, fh,
+		       AlignCenter + ShowPrefix,
+		       colorGroup(), isEnabled(),
+		       0, textLabel() );
+	}
     }
 }
 
@@ -361,7 +365,8 @@ void QToolButton::drawButtonLabel( QPainter * p )
 void QToolButton::enterEvent( QEvent * e )
 {
     threeDeeButton = this;
-    update();
+    if ( isEnabled() )
+	repaint();
     QButton::enterEvent( e );
 }
 
@@ -372,10 +377,8 @@ void QToolButton::leaveEvent( QEvent * e )
 {
     QToolButton * o = threeDeeButton;
     threeDeeButton = 0;
-    if ( o != this )
-	update();
-    else if ( o )
-	o->update();
+    if ( o && o->isEnabled() )
+	o->repaint();
     QButton::leaveEvent( e );
 }
 
@@ -388,7 +391,7 @@ void QToolButton::leaveEvent( QEvent * e )
 
 bool QToolButton::uses3D() const
 {
-    return threeDeeButton == this;
+    return threeDeeButton == this && isEnabled();
 }
 
 
