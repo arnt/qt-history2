@@ -65,8 +65,9 @@
      BSDI	- BSD/OS
      IRIX	- SGI Irix
      OSF	- Compaq Tru64
-     UNIXWARE	- SCO UnixWare 2
-     SCO	- SCO OpenServer, UnixWare 7, Open UNIX
+     SCO	- SCO OpenServer 5, Open UNIX
+     UNIXWARE7	- UnixWare 7
+     UNIXWARE	- UnixWare 2
      AIX	- AIX
      HURD	- GNU Hurd
      DGUX	- DG/UX
@@ -103,8 +104,8 @@
 #  define Q_OS_WIN32
 #elif defined(__CYGWIN__)
 #  define Q_OS_CYGWIN
-#elif defined(sun) || defined(__sun) || defined(__sun__)
-#  if defined(__SVR4)
+#elif defined(sun)
+#  if defined(__svr4__) || defined(__SVR4)
 #    define Q_OS_SOLARIS
 #  else
 #    define Q_OS_SUN
@@ -127,10 +128,10 @@
 #elif defined(__OpenBSD__)
 #  define Q_OS_OPENBSD
 #  define Q_OS_BSD4
-#elif defined(bsdi) || defined(__bsdi__)
+#elif defined(__bsdi__)
 #  define Q_OS_BSDI
 #  define Q_OS_BSD4
-#elif defined(sgi) || defined(__sgi)
+#elif defined(__sgi)
 #  define Q_OS_IRIX
 #elif defined(__osf__)
 #  define Q_OS_OSF
@@ -138,9 +139,7 @@
 #  define Q_OS_AIX
 #elif defined(__Lynx__)
 #  define Q_OS_LYNX
-#elif defined(_UNIXWARE)
-#  define Q_OS_UNIXWARE
-#elif defined(__GNU__)
+#elif defined(__GNU_HURD__)
 #  define Q_OS_HURD
 #elif defined(DGUX)
 #  define Q_OS_DGUX
@@ -148,7 +147,9 @@
 #  define Q_OS_QNX6
 #elif defined(__QNX__)
 #  define Q_OS_QNX
-#elif defined(_SCO_DS) || defined(M_UNIX) || defined(M_XENIX)
+#elif defined(UNIXWARE2)
+#  define Q_OS_UNIXWARE
+#elif defined(_SCO_DS)
 #  define Q_OS_SCO
 #elif defined(sco) || defined(_UNIXWARE7)
 #  define Q_OS_UNIXWARE7
@@ -156,7 +157,7 @@
 #  define Q_OS_UNIXWARE7
 #elif defined(_SEQUENT_)
 #  define Q_OS_DYNIX
-#elif defined(__SR8000)
+#elif defined(__H3050R)
 #  define Q_OS_HITACHI
 #elif defined(__svr4__)
 /*   generic fallback for the rest of svr4 systems, e.g. g++ on UnixWare7.*/
