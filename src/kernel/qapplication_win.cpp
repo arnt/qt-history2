@@ -373,7 +373,11 @@ public:
     void	clearWFlags( WFlags f ) { QWidget::clearWFlags(f); }
     QWExtra    *xtra()			{ return QWidget::extraData(); }
     bool	winEvent( MSG *m )	{ return QWidget::winEvent(m); }
+#if defined(Q_CC_GNU)
+    void	markFrameStrutDirty()	{ fstrut_dirty = 1; }
+#else
     void	markFrameStrutDirty()	{ QWidget::fstrut_dirty = 1; }
+#endif
     bool	translateMouseEvent( const MSG &msg );
     bool	translateKeyEvent( const MSG &msg, bool grab );
     bool	translateWheelEvent( const MSG &msg );
