@@ -1632,6 +1632,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
 	    break;
 	}
+	if((ekind == kEventMouseDown || ekind == kEventMouseWheelMoved) &&
+	   app->inPopupMode() && widget->topLevelWidget()->isPopup() &&
+	   QApplication::widgetAt(where.h, where.v, true) != widget)
+	    widget->topLevelWidget()->close();
 
 	if(ekind == kEventMouseDown) {
 	    bool mouse_down_unhandled;
