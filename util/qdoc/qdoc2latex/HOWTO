@@ -1,7 +1,7 @@
 This document will explain you how to generate PostScript and PDF
 documentation for Qt using qdoc2latex.
 
-First you should have a set of master files desctibing the books you
+First you should have a set of master files describing the books you
 want to generate. These master files typically have a .q2l extension.
 Here's an example of such a file:
 
