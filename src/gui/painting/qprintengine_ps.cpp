@@ -73,13 +73,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #endif
 
 #ifdef Q_WS_X11
-#include <private/qt_x11_p.h>
-#ifdef None
-#undef None
-#endif
-#ifdef GrayScale
-#undef GrayScale
-#endif
+#include <qx11info_x11.h>
 #endif
 
 static bool qt_gen_epsf = false;
@@ -528,6 +522,47 @@ static const struct { Q_UINT16 u; Q_UINT16 index; } unicodetoglyph[] = {
 
 
 
+#define MM(n) int((n * 720 + 127) / 254)
+#define IN(n) int(n * 72)
+
+struct PaperSize {
+    int width, height;
+};
+
+static const PaperSize paperSizes[QPrinter::NPageSize] =
+{
+    {  MM(210), MM(297) },      // A4
+    {  MM(176), MM(250) },      // B5
+    {  IN(8.5), IN(11) },       // Letter
+    {  IN(8.5), IN(14) },       // Legal
+    {  IN(7.5), IN(10) },       // Executive
+    {  MM(841), MM(1189) },     // A0
+    {  MM(594), MM(841) },      // A1
+    {  MM(420), MM(594) },      // A2
+    {  MM(297), MM(420) },      // A3
+    {  MM(148), MM(210) },      // A5
+    {  MM(105), MM(148) },      // A6
+    {  MM(74), MM(105)},        // A7
+    {  MM(52), MM(74) },        // A8
+    {  MM(37), MM(52) },        // A9
+    {  MM(1000), MM(1414) },    // B0
+    {  MM(707), MM(1000) },     // B1
+    {  MM(31), MM(44) },        // B10
+    {  MM(500), MM(707) },      // B2
+    {  MM(353), MM(500) },      // B3
+    {  MM(250), MM(353) },      // B4
+    {  MM(125), MM(176) },      // B6
+    {  MM(88), MM(125) },       // B7
+    {  MM(62), MM(88) },        // B8
+    {  MM(44), MM(62) },        // B9
+    {  MM(162),    MM(229) },   // C5E
+    {  IN(4.125),  IN(9.5) },   // Comm10E
+    {  MM(110),    MM(220) },   // DLE
+    {  IN(8.5),    IN(13) },    // Folio
+    {  IN(17),     IN(11) },    // Ledger
+    {  IN(11),     IN(17) }     // Tabloid
+};
+
 
 
 // ---------------------------------------------------------------------
@@ -834,8 +869,6 @@ public:
     bool fullPage;
     QPrinter::PaperSource paperSource;
     QPrinter::PrinterState printerState;
-    QRect paperRect;
-    QRect pageRect;
 };
 
 
@@ -4476,7 +4509,7 @@ QPSPrintEngineFont::QPSPrintEngineFont(const QFont &f, int script, QPSPrintEngin
 
 #define d d_func()
 
-QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode /*m*/)
+QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
     : buffer(0), outDevice(0), fd(-1), pageBuffer(0), fontBuffer(0), savedImage(0),
       bkMode(Qt::TransparentMode),
 #ifndef QT_NO_TEXTCODEC
@@ -4487,9 +4520,14 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode /*m*/)
       printerState(QPrinter::Idle)
 {
     firstPage = true;
-    // ### we need correct rectangles here
-    paperRect = QRect(0, 0, 595, 842);
-    pageRect = QRect(0, 0, 595, 842);
+    resolution = 72;
+    if (m == QPrinter::HighResolution)
+        resolution = 1200;
+#ifdef Q_WS_X11
+    else if (m == QPrinter::ScreenResolution)
+        resolution = QX11Info::appDpiY();
+#endif
+
     printer = 0;
 
     currentFontFile = 0;
@@ -5213,7 +5251,10 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     outStream.setDevice(outDevice);
     outStream << "%!PS-Adobe-1.0";
     QPaintDeviceMetrics m(printer);
-    scale = 1;// ################# 72. / ((float) m.logicalDpiY());
+    QPSPrintEngine *q = static_cast<QPSPrintEngine *>(q_ptr);
+    scale = 72. / ((float) q->metric(QPaintDeviceMetrics::PdmDpiY));
+    QRect pageRect = q->pageRect();
+    QRect paperRect = q->paperRect();
     uint mtop = pageRect.top() - paperRect.top();
     uint mleft = pageRect.left() - paperRect.left();
     uint mbottom = paperRect.bottom() - pageRect.bottom();
@@ -6019,12 +6060,22 @@ QList<int> QPSPrintEngine::supportedResolutions() const
 
 QRect QPSPrintEngine::paperRect() const
 {
-    return d->paperRect;
+    PaperSize s = paperSizes[d->pageSize];
+    int w = qRound(s.width*d->resolution/72.);
+    int h = qRound(s.height*d->resolution/72.);
+    if (d->orientation == QPrinter::Portrait)
+        return QRect(0, 0, w, h);
+    else
+        return QRect(0, 0, h, w);
 }
 
 QRect QPSPrintEngine::pageRect() const
 {
-    return d->pageRect;
+    QRect r = paperRect();
+    if (d->fullPage)
+        return r;
+    // would be nice to get better margins than this.
+    return QRect(d->resolution/3, d->resolution/3, r.width()-2*d->resolution/3, r.height()-2*d->resolution/3);
 }
 
 void QPSPrintEngine::setNumCopies(int numCopies)
@@ -6040,13 +6091,14 @@ int QPSPrintEngine::numCopies() const
 int  QPSPrintEngine::metric(int metricType) const
 {
     int val;
-    int res = 72; // ### d->resolution;
+    int res = d->resolution;
+    QRect r = paperRect();
     switch (metricType) {
     case QPaintDeviceMetrics::PdmWidth:
-        val = d->paperRect.width();
+        val = r.width();
         break;
     case QPaintDeviceMetrics::PdmHeight:
-        val = d->paperRect.height();
+        val = r.height();
         break;
     case QPaintDeviceMetrics::PdmDpiX:
         val = res;
@@ -6059,10 +6111,10 @@ int  QPSPrintEngine::metric(int metricType) const
         val = 1200;
         break;
     case QPaintDeviceMetrics::PdmWidthMM:
-        val = d->paperRect.width()*72 / res;
+        val = qRound(r.width()*25.4/res);
         break;
     case QPaintDeviceMetrics::PdmHeightMM:
-        val = d->paperRect.height()*72 / res;
+        val = qRound(r.height()*25.4/res);
         break;
     case QPaintDeviceMetrics::PdmNumColors:
         val = INT_MAX;
