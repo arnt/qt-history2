@@ -189,11 +189,17 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	debug_msg(0, "%s:%d :: %s %s %s",  file.latin1(), line_count, var.latin1(), op.latin1(), vals.latin1());
 
     var = UN_TMAKEIFY(var); //backwards compatability
-    char sep = ' ';
-    if(var == "DEPENDPATH")
-	sep = ':';
 
     QStringList vallist;  /* vallist is the broken up list of values */
+    if((var == "DEPENDPATH" || var == "INCLUDEPATH") && vals.find(';') != -1) { //these guys use ; for space reasons I guess
+	QRegExp rp("([^;]*)[;$]");
+	for(int x = 0; (x = rp.match(vals, 0)) != -1; ) {
+	    vallist.append("\"" + rp.cap(1) + "\"");
+	    vals.remove(x, rp.matchedLength());
+	}
+	vallist.append("\"" + vals + "\"");
+	vals = "";
+    }
     //strip out quoted entities
     QRegExp quoted("\"([^\"]*)\"");
     {
@@ -202,8 +208,9 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	    vals.remove(x, quoted.matchedLength());
 	}
     }
+
     //now split on space
-    vallist += QStringList::split(sep, vals);
+    vallist += QStringList::split(' ', vals);
     if(!vallist.grep("=").isEmpty())
 	debug_msg(1, "****Warning*****: Detected possible line continuation: {%s} %s:%d",
 		  var.latin1(), file.latin1(), line_count);
