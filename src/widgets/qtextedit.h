@@ -360,6 +360,7 @@ private slots:
     void setModified();
     void startDrag();
     void documentWidthChanged( int w );
+    void clipboardChanged();
 
 private:
     struct Q_EXPORT UndoRedoInfo {

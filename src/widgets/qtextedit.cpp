@@ -1847,7 +1847,14 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 #ifndef QT_NO_CLIPBOARD
 	if (QApplication::clipboard()->supportsSelection()) {
 	    QApplication::clipboard()->setSelectionMode(TRUE);
+
+            // don't listen to selection changes
+            disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
 	    copy();
+            // listen to selection changes
+            connect( QApplication::clipboard(), SIGNAL(selectionChanged()),
+                     this, SLOT(clipboardChanged()) );
+
 	    QApplication::clipboard()->setSelectionMode(FALSE);
 	}
 #endif
@@ -2029,9 +2036,25 @@ void QTextEdit::contentsContextMenuEvent( QContextMenuEvent *e )
 
     if ( r == d->id[ IdClear ] )
 	clear();
-    else if ( r == d->id[ IdSelectAll ] )
+    else if ( r == d->id[ IdSelectAll ] ) {
 	selectAll();
-    else if ( r == d->id[ IdUndo ] )
+#ifndef QT_NO_CLIPBOARD
+        // if the clipboard support selections, put the newly selected text into
+        // the clipboard
+	if (QApplication::clipboard()->supportsSelection()) {
+	    QApplication::clipboard()->setSelectionMode(TRUE);
+
+            // don't listen to selection changes
+            disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
+	    copy();
+            // listen to selection changes
+            connect( QApplication::clipboard(), SIGNAL(selectionChanged()),
+                     this, SLOT(clipboardChanged()) );
+
+	    QApplication::clipboard()->setSelectionMode(FALSE);
+	}
+#endif
+    } else if ( r == d->id[ IdUndo ] )
 	undo();
     else if ( r == d->id[ IdRedo ] )
 	redo();
@@ -4828,6 +4851,13 @@ void QTextEdit::updateCursor( const QPoint & pos )
 void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c )
 {
     placeCursor( pos, c, FALSE );
+}
+
+void QTextEdit::clipboardChanged()
+{
+    // don't listen to selection changes
+    disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
+    selectAll(FALSE);
 }
 
 /*! \property QTextEdit::allowTabs

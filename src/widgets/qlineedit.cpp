@@ -1440,11 +1440,8 @@ void QLineEdit::copy() const
 {
     QString t = selectedText();
     if ( !t.isEmpty() && echoMode() == Normal ) {
-	disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
 	disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
 	QApplication::clipboard()->setText( t );
-	connect( QApplication::clipboard(), SIGNAL(dataChanged()),
-		 this, SLOT(clipboardChanged()) );
 	connect( QApplication::clipboard(), SIGNAL(selectionChanged()),
 		 this, SLOT(clipboardChanged()) );
     }
@@ -1528,8 +1525,6 @@ int QLineEdit::alignment() const
 void QLineEdit::clipboardChanged()
 {
 #if defined(Q_WS_X11)
-    disconnect( QApplication::clipboard(), SIGNAL(dataChanged()),
-		this, SLOT(clipboardChanged()) );
     disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()),
 		this, SLOT(clipboardChanged()) );
     deselect();
