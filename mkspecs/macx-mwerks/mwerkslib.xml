@@ -78,11 +78,14 @@
                 <SETTING><NAME>SystemSearchPaths</NAME>
                     $$CODEWARRIOR_INCLUDEPATH
                     $$CODEWARRIOR_DEPENDPATH
-                    <SETTING><SETTING><NAME>SearchPath</NAME>
-                      <SETTING><NAME>Path</NAME><VALUE>:MacOS X Support:Libraries:MW_Runtime:Libs:</VALUE></SETTING>
-                      <SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>
-                      <SETTING><NAME>PathRoot</NAME><VALUE>CodeWarrior</VALUE></SETTING>
-                    </SETTING></SETTING>
+                    <SETTING><
+                      SETTING><NAME>SearchPath</NAME>
+                        <SETTING><NAME>Path</NAME><VALUE>:MacOS X Support:Libraries:MW_Runtime:Libs:</VALUE></SETTING>
+                        <SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>
+                        <SETTING><NAME>PathRoot</NAME><VALUE>CodeWarrior</VALUE></SETTING>
+                      </SETTING>
+				      <SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>
+                    </SETTING>
                 </SETTING>
 
                 <!-- Settings for "Debugger Runtime" panel -->
