@@ -892,12 +892,13 @@ void HelpDialog::setupFullTextIndex()
     QStringList documentList;
     for ( ; it != titleMap.end(); ++it )
 	documentList << it.key();
-    qApp->processEvents();
 
     QString pname = Config::configuration()->profileName();
     fullTextIndex = new Index( documentList, QDir::homeDirPath() ); // ### Is this correct ?
     fullTextIndex->setDictionaryFile( cacheFilesPath + "/indexdb.dict." + pname );
     fullTextIndex->setDocListFile( cacheFilesPath + "/indexdb.doc." + pname );
+    qApp->processEvents();
+
     connect( fullTextIndex, SIGNAL( indexingProgress( int ) ),
 	     this, SLOT( setIndexingProgress( int ) ) );
     QFile f( cacheFilesPath + "/indexdb.dict." + pname );
