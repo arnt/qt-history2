@@ -386,20 +386,26 @@ public:
 		                          int numPackets );
 #endif
     void	repolishStyle( QStyle &style ) { setStyle(&style); }
-    void	reparentWorkaround()
-    {
-	((QWidgetMapper*)QWidget::wmapper())->remove((WId)winid);
-	clearWState(WState_Created);
-	winid = 0;
-	QRect geom = geometry();
-	create(0, FALSE, FALSE);
-	setGeometry(geom);
-    }
-
+    void	reparentWorkaround();
     void eraseWindowBackground(HDC);
 };
 
-
+void QETWidget::reparentWorkaround()
+{
+    ((QWidgetIntDict*)QWidget::wmapper())->remove((long)winid);
+    clearWState(WState_Created | WState_Visible | WState_ForceHide);
+    winid = 0;
+    QRect geom = geometry();
+    create(0, FALSE, FALSE);
+    setGeometry(geom);
+    QWidget *p = parentWidget();
+    while (p) {
+	if (!p->isVisible())
+	    return;
+	p = p->parentWidget();
+    }
+    show();
+}
 
 static void qt_show_system_menu( QWidget* tlw)
 {
