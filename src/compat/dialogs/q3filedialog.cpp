@@ -500,7 +500,6 @@ static void resolveLibs()
         triedResolve = true;
         if (qt_winUnicode()) {
             QLibrary lib("shell32");
-            lib.setAutoUnload(false);
             ptrExtractIconEx = (PtrExtractIconEx) lib.resolve("ExtractIconExW");
         }
     }
