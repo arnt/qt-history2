@@ -75,6 +75,13 @@ void MainWindow::init()
     setObjectsEnabled( FALSE );
     tabs->setup();
     QTimer::singleShot( 0, this, SLOT( setup() ) );
+#if defined(Q_OS_MACX)
+    // Use the same forward and backward browser shortcuts as Safari and Internet Explorer do
+    // on the Mac. This means that if you have access to one of those cool Intellimice, the thing
+    // works just fine, since that's how Microsoft hacked it.
+    actionGoPrevious->setAccel(QKeySequence(Qt::CTRL|Qt::Key_Left));
+    actionGoNext->setAccel(QKeySequence(Qt::CTRL|Qt::Key_Right));
+#endif
 }
 
 void MainWindow::setup()
