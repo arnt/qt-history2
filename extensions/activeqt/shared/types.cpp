@@ -97,14 +97,14 @@ IPictureDisp *QPixmapToIPicture(const QPixmap &pixmap)
     desc.bmp.hpal = QColor::hPal();
     
     if (!pixmap.isNull()) {
-        HDC hdc = ::CreateCompatibleDC(pixmap.handle());
+        HDC hdc = ::CreateCompatibleDC(pixmap.winHDC());
         if (!hdc) {
 #if defined(QT_CHECK_STATE)
             qSystemWarning("QPixmapToIPicture: Failed to create compatible device context");
 #endif
             return 0;
         }
-        HBITMAP hbm = ::CreateCompatibleBitmap(pixmap.handle(), pixmap.width(), pixmap.height());
+        HBITMAP hbm = ::CreateCompatibleBitmap(pixmap.winHDC(), pixmap.width(), pixmap.height());
         if (!hbm) {
 #if defined(QT_CHECK_STATE)
             qSystemWarning("QPixmapToIPicture: Failed to create compatible bitmap");
@@ -112,7 +112,7 @@ IPictureDisp *QPixmapToIPicture(const QPixmap &pixmap)
             return 0;
         }
         ::SelectObject(hdc, hbm);
-        BOOL res = ::BitBlt(hdc, 0, 0, pixmap.width(), pixmap.height(), pixmap.handle(), 0, 0, SRCCOPY);
+        BOOL res = ::BitBlt(hdc, 0, 0, pixmap.width(), pixmap.height(), pixmap.winHDC(), 0, 0, SRCCOPY);
         
         ::DeleteObject(hdc);
         
@@ -153,7 +153,7 @@ QPixmap IPictureToQPixmap(IPicture *ipic)
         MAP_LOGHIM_TO_PIX(pHeight, pdm.logicalDpiY()));
     
     pm.resize(sz);
-    ipic->Render(pm.handle(), 0, 0, pm.width(), pm.height(), 0, pHeight, pWidth, -pHeight, 0);
+    ipic->Render(pm.winHDC(), 0, 0, pm.width(), pm.height(), 0, pHeight, pWidth, -pHeight, 0);
     
     return pm;
 }

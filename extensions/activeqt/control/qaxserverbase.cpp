@@ -1390,7 +1390,7 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 		    spSite->Release();
 		}
                 QWidget *candidate = that->qt.widget;
-                while (!(candidate->focusPolicy() & QWidget::TabFocus)) {
+                while (!(candidate->focusPolicy() & Qt::TabFocus)) {
                     candidate = candidate->nextInFocusChain();
                     if (candidate == that->qt.widget) {
                         candidate = 0;
@@ -2850,7 +2850,7 @@ HRESULT WINAPI QAxServerBase::Draw(DWORD dwAspect, LONG lindex, void *pvAspect, 
 
     qt.widget->resize(rc.right - rc.left, rc.bottom - rc.top);
     QPixmap pm = QPixmap::grabWidget(qt.widget);
-    ::BitBlt(hdcDraw, rc.left, rc.top, pm.width(), pm.height(), pm.handle(), 0, 0, SRCCOPY);
+    ::BitBlt(hdcDraw, rc.left, rc.top, pm.width(), pm.height(), pm.winHDC(), 0, 0, SRCCOPY);
 
     if (bDeleteDC)
 	DeleteDC(hicTargetDev);
@@ -3211,7 +3211,7 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW(MSG *pMsg)
                     QWidget *prevFocus = 0;
                     QWidget *topLevel = 0;
                     while (nextFocus != curFocus) {
-                        if (nextFocus->focusPolicy() & QWidget::TabFocus) {
+                        if (nextFocus->focusPolicy() & Qt::TabFocus) {
                             prevFocus = nextFocus;
                             topLevel = 0;
                         } else if (nextFocus->isTopLevel()) {
@@ -3231,7 +3231,7 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW(MSG *pMsg)
                     nextFocus = nextFocus->nextInFocusChain();
                     if (nextFocus->isTopLevel())
                         break;
-                    if (nextFocus->focusPolicy() & QWidget::TabFocus) {
+                    if (nextFocus->focusPolicy() & Qt::TabFocus) {
                         giveUp = false;
                         ((HackWidget*)curFocus)->focusNextPrevChild(true);
                         break;
@@ -3258,13 +3258,13 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW(MSG *pMsg)
 
     default:
 	if (isUIActive && qt.widget->focusWidget()) {
-	    int state = NoButton;
+            int state = Qt::NoButton;
 	    if (dwKeyMod & 1)
-		state |= ShiftButton;
+		state |= Qt::ShiftButton;
 	    if (dwKeyMod & 2)
-		state |= ControlButton;
+		state |= Qt::ControlButton;
 	    if (dwKeyMod & 4)
-		state |= AltButton;
+		state |= Qt::AltButton;
 
 	    int key = qt_translateKeyCode(pMsg->wParam);
 	    QKeyEvent override(QEvent::ShortcutOverride, key, state);
@@ -3461,23 +3461,23 @@ HRESULT QAxServerBase::internalActivate()
 
 	    if (m_hWndCD) {
 		::ShowWindow(m_hWndCD, SW_SHOW);
-		if (!::IsChild(m_hWndCD, ::GetFocus()) && qt.widget->focusPolicy() != QWidget::NoFocus)
+		if (!::IsChild(m_hWndCD, ::GetFocus()) && qt.widget->focusPolicy() != Qt::NoFocus)
 		    ::SetFocus(m_hWndCD);
 	    } else {
 		create(hwndParent, rcPos);
 	    }
 
-	    if (!qt.widget->testAttribute(QWidget::WA_Resized))
+	    if (!qt.widget->testAttribute(Qt::WA_Resized))
 		SetObjectRects(&rcPos, &rcClip);
 	}
 
 	// Gone active by now, take care of UIACTIVATE
-	canTakeFocus = qt.widget->focusPolicy() != QWidget::NoFocus && !inDesignMode;
+	canTakeFocus = qt.widget->focusPolicy() != Qt::NoFocus && !inDesignMode;
 	if (!canTakeFocus && !inDesignMode) {
 	    QList<QWidget*> widgets = qFindChildren<QWidget*>(qt.widget);
 	    for (int w = 0; w < widgets.count(); ++w) {
 		QWidget *widget = widgets[w];
-		canTakeFocus = widget->focusPolicy() != QWidget::NoFocus;
+		canTakeFocus = widget->focusPolicy() != Qt::NoFocus;
                 if (canTakeFocus)
                     break;
 	    }
