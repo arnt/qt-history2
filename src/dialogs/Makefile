@@ -15,11 +15,11 @@ CC	=	gcc
 
 #######	Files
 
-HEADERS =	qfilesel.h	qmsgbox.h	qprndlg.h
-SOURCES =	qfilesel.cpp	qmsgbox.cpp	qprndlg.cpp
-OBJECTS =	qfilesel.o	qmsgbox.o	qprndlg.o
-SRCMETA =	mfilesel.cpp	mmsgbox.cpp	mprndlg.cpp
-OBJMETA =	mfilesel.o	mmsgbox.o	mprndlg.o
+HEADERS =	qfiledlg.h	qmsgbox.h	qprndlg.h
+SOURCES =	qfiledlg.cpp	qmsgbox.cpp	qprndlg.cpp
+OBJECTS =	qfiledlg.o	qmsgbox.o	qprndlg.o
+SRCMETA =	mfiledlg.cpp	mmsgbox.cpp	mprndlg.cpp
+OBJMETA =	mfiledlg.o	mmsgbox.o	mprndlg.o
 TARGET = $(LIBDIR)/libqdialogs.a
 
 #######	Implicit rules
@@ -77,8 +77,8 @@ checkout:
 
 #######	Meta classes
 
-mfilesel.cpp: qfilesel.h
-	$(QTDIR)/bin/moc qfilesel.h -o mfilesel.cpp
+mfiledlg.cpp: qfiledlg.h
+	$(QTDIR)/bin/moc qfiledlg.h -o mfiledlg.cpp
 
 mmsgbox.cpp: qmsgbox.h
 	$(QTDIR)/bin/moc qmsgbox.h -o mmsgbox.cpp
