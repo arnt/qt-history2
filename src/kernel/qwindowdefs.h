@@ -91,12 +91,13 @@ class QWidgetListIt;
 
 // Window system dependent definitions
 
-#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
+#if defined(Q_WS_MAC)
 
 typedef struct OpaquePMPrintSession *PMPrintSession;
 typedef struct OpaquePMPrintSettings *PMPrintSettings;
 typedef struct OpaquePMPageFormat *PMPageFormat;
 typedef struct Point Point;
+typedef struct FSSpec FSSpec;
 typedef struct OpaqueEventHandlerCallRef*  EventHandlerCallRef;
 typedef struct OpaqueEventRef*          EventRef;
 typedef long int OSStatus;

@@ -41,7 +41,10 @@
 #ifndef QT_H
 #include "qstrlist.h"
 #include "qfileinfo.h"
+#include "qglobal.h"
+#include "qwindowdefs.h"
 #endif // QT_H
+
 
 #ifndef QT_NO_DIR
 typedef QList<QFileInfo> QFileInfoList;
@@ -178,6 +181,9 @@ public:
     static bool isRelativePath( const QString &path );
 
 private:
+#ifdef Q_OS_MAC
+	static FSSpec *make_spec(const QString &);
+#endif
     void init();
     virtual bool readDirEntries( const QString &nameFilter,
 				 int FilterSpec, int SortSpec  );

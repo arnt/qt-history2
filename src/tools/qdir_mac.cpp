@@ -40,6 +40,7 @@
 #include "qdir.h"
 #ifndef QT_NO_DIR
 
+#include "qglobal.h"
 #include "qdir_p.h"
 #include "qfileinfo.h"
 #include "qfiledefs_p.h"
@@ -49,6 +50,19 @@
 #include <ctype.h>
 #include "qt_mac.h"
 
+static QString qt_cwd = "";
+const unsigned char * p_str(const char * c); //qwidget_mac.cpp
+
+FSSpec *QDir::make_spec(const QString &f)
+{
+	static FSSpec ret;
+	const char *bk = f.latin1();
+	const unsigned char *p = p_str(QFile::encodeName(QDir::convertSeparators(f)) + ":");
+	if(FSMakeFSSpec(0, 0, p, &ret) != noErr)
+		return NULL;
+	return &ret;
+}
+	
 void QDir::slashify( QString& n )
 {
 	if( n.isNull() )
@@ -65,42 +79,42 @@ QString QDir::homeDirPath()
     d = QFile::decodeName(getenv("HOME"));
     slashify( d );
     if ( d.isNull() )
-	d = rootDirPath();
-    return d;
+		d = rootDirPath();
+    return d.isEmpty() ? QString::null : d;
 }
 
 QString QDir::canonicalPath() const
 {
-    QString r;
-
-    char cur[PATH_MAX];
-    char tmp[PATH_MAX];
-    GETCWD( cur, PATH_MAX );
-    if ( CHDIR(QFile::encodeName(dPath)) >= 0 ) {
-	GETCWD( tmp, PATH_MAX );
-	r = QFile::decodeName(tmp);
-    }
-    CHDIR( cur );
-
-    slashify( r );
-    return r;
+	return absPath();
 }
 
 bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 {
-    return MKDIR( QFile::encodeName(filePath(dirName,acceptAbsPath)), 0777 ) 
-	== 0;
+	FSSpec *spec = make_spec(filePath(dirName, acceptAbsPath));
+	if(!spec) 
+		return FALSE;
+	long int d;
+	if(DirCreate(spec->vRefNum, spec->parID, spec->name, &d) != noErr)
+		return FALSE;
+	return TRUE;
 }
 
 bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 {
-    return RMDIR( QFile::encodeName(filePath(dirName,acceptAbsPath)) ) == 0;
+	FSSpec *spec = make_spec(filePath(dirName, acceptAbsPath));
+	if(!spec) 
+		return FALSE;
+	if(HDelete(spec->vRefNum, spec->parID, spec->name) != noErr)
+		return FALSE;
+	return TRUE;
 }
 
 bool QDir::isReadable() const
 {
+	if(!make_spec(filePath(dPath, TRUE)))
+		return FALSE;
 #ifdef Q_OS_MACX
-    return ACCESS( QFile::encodeName(dPath), R_OK | X_OK ) == 0;
+    return ACCESS( QFile::encodeName(dPath), R_OK | X_OK ) == 0; //let macx do an additional check
 #else
 	return TRUE;
 #endif
@@ -108,7 +122,7 @@ bool QDir::isReadable() const
 
 bool QDir::isRoot() const
 {
-    return dPath == QString::fromLatin1("/");
+	return dPath == rootDirPath();
 }
 
 bool QDir::rename( const QString &name, const QString &newName,
@@ -128,48 +142,33 @@ bool QDir::rename( const QString &name, const QString &newName,
 
 bool QDir::setCurrent( const QString &path )
 {
-    int r;
-    r = CHDIR( QFile::encodeName(path) );
-    return r >= 0;
+ 	qt_cwd = path;
+ 	FSSpec *spec = make_spec(path);
+ 	if(!spec)
+ 		return FALSE;
+ 	if(HSetVol(0, spec->vRefNum, spec->parID) != noErr)
+ 		return FALSE;
+ 	return TRUE;
 }
 
 QString QDir::currentDirPath()
 {
-    QString result;
-
-    STATBUF st;
-    if ( STAT( ".", &st ) == 0 ) {
-	char currentName[PATH_MAX];
-	if ( GETCWD( currentName, PATH_MAX ) != 0 )
-	    result = QFile::decodeName(currentName);
-#if defined(QT_DEBUG)
-	if ( result.isNull() )
-	    qWarning( "QDir::currentDirPath: getcwd() failed" );
-#endif
-    } else {
-#if defined(QT_DEBUG)
-	qWarning( "QDir::currentDirPath: stat(\".\") failed" );
-#endif
-    }
-    slashify( result );
-    return result;
+	return qt_cwd;
 }
 
 QString QDir::rootDirPath()
 {
-    QString d = QString::fromLatin1( "/" );
-    return d;
+	//FIXME
+   return QString("");
 }
 
 bool QDir::isRelativePath( const QString &path )
 {
-    int len = path.length();
-    if ( len == 0 )
-	return TRUE;
-    return path[0] != '/';
+	int len = path.length();
+	if( len == 0)
+		return TRUE;
+	return path[0] != '/';
 }
-
-const unsigned char * p_str(const char * c); //qwidget_mac.cpp
 
 bool QDir::readDirEntries( const QString &nameFilter,
 			   int filterSpec, int sortSpec )
@@ -200,24 +199,25 @@ bool QDir::readDirEntries( const QString &nameFilter,
     FSIterator dir;
 	FSRef ref;
 	
-	OSStatus bar;
-	FSSpec spec;
-	if( FSMakeFSSpec(0, 0, p_str(QFile::encodeName(convertSeparators(dPath))), &spec) != noErr)
+	FSSpec *spec = make_spec(dPath);
+	if( !spec )
 		return FALSE;
- 	if( FSpMakeFSRef(&spec, &ref) != noErr)
- 		return FALSE;
+ 	if( FSpMakeFSRef(spec, &ref) != noErr)
+ 		return FALSE;	
 	if( FSOpenIterator( &ref, kFSIterateFlat, &dir ) != noErr)
 		return FALSE;
 
-	ItemCount refn = 512;
-	FSRef *refs = (FSRef *)malloc(refn);
-	FSGetCatalogInfoBulk( dir, refn, &refn, NULL, kFSCatInfoNone, NULL, refs, NULL, NULL );
-	const UInt32 tmp_len = 1024;
-	char *tmp_n = (char *)malloc(tmp_len);
-    for(int x = 0; x < refn; x++) {
-	   if(FSRefMakePath( &refs[x], (UInt8 *)tmp_n, tmp_len) != noErr)
-	   		continue;
-		QString fn = QFile::decodeName(tmp_n);
+	char hacky[512];
+	FSRefMakePath(&ref, (UInt8 *)hacky, 512);
+
+	ItemCount specn = 512;
+	FSSpec *specs = (FSSpec *)calloc(specn, sizeof(FSSpec));
+	FSGetCatalogInfoBulk( dir, specn, &specn, NULL, kFSCatInfoNone, NULL, NULL, specs, NULL );
+	Str255 tmp_n;
+ for(ItemCount specx = 0; specx < specn; specx++) {
+		memcpy(tmp_n, &(specs[specx].name[1]), specs[specx].name[0]);
+		tmp_n[specs[specx].name[0]] = '\0';
+		QString fn = QFile::decodeName((char *)tmp_n);
 		fi.setFile( *this, fn );
 		if ( !match( filters, fn ) && !(allDirs && fi.isDir()) )
 	     	continue;
@@ -237,8 +237,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 		}
     }
     FSCloseIterator(dir);
-    free(tmp_n);
-    free(refs);
+    free(specs);
     
     // Sort...
     if(fiList->count()) {
@@ -271,14 +270,13 @@ bool QDir::readDirEntries( const QString &nameFilter,
 
 const QFileInfoList * QDir::drives()
 {
-    // at most one instance of QFileInfoList is leaked, and this variable
-    // points to that list
+    // FIXME
     static QFileInfoList * knownMemoryLeak = 0;
 
     if ( !knownMemoryLeak ) {
-	knownMemoryLeak = new QFileInfoList;
-	// non-win32 versions both use just one root directory
-	knownMemoryLeak->append( new QFileInfo( rootDirPath() ) );
+    		//FIXME
+		knownMemoryLeak = new QFileInfoList;
+		knownMemoryLeak->append( new QFileInfo( ":MacOS 9:" ) );
     }
 
     return knownMemoryLeak;

@@ -61,7 +61,7 @@ void QFileInfo::slashify( QString& n )
 
 void QFileInfo::makeAbs( QString & )
 {
-    return;
+	return;
 }
 
 extern bool qt_file_access( const QString& fn, int t );
@@ -90,20 +90,17 @@ bool QFileInfo::isSymLink() const
 
 QString QFileInfo::readLink() const
 {
-    QString r;
-
-#if defined(Q_OS_UNIX) && !defined(Q_OS_OS2EMX)
+#if defined(Q_OS_MACX)
     char s[PATH_MAX+1];
     if ( !isSymLink() )
-	return QString();
+		return QString();
     int len = readlink( QFile::encodeName(fn).data(), s, PATH_MAX );
     if ( len >= 0 ) {
-	s[len] = '\0';
-	r = QFile::decodeName(s);
+		s[len] = '\0';
+		return QFile::decodeName(s);
     }
 #endif
-
-    return r;
+    return QString();
 }
 
 static const uint nobodyID = (uint) -2;
@@ -223,21 +220,10 @@ void QFileInfo::doStat() const
     STATBUF *b = &that->fic->st;
     that->fic->isSymLink = FALSE;
 
-#if defined(Q_OS_UNIX) && defined(S_IFLNK)
-    if ( ::lstat(QFile::encodeName(fn),b) == 0 ) {
-	if ( S_ISLNK( b->st_mode ) )
-	    that->fic->isSymLink = TRUE;
-	else
-	    return;
-    }
-#endif
-    int r;
-
-    r = STAT( QFile::encodeName(fn), b );
-
+    int r = STAT( QFile::encodeName(QDir::convertSeparators(fn)), b );
     if ( r != 0 ) {
-	delete that->fic;
-	that->fic = 0;
+		delete that->fic;
+		that->fic = 0;
     }
 }
 
