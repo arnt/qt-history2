@@ -309,6 +309,10 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
             if(s[i] == '{') {
                 scope_blocks.push(ScopeBlock(true));
             } else if(s[i] == '}') {
+                if(scope_blocks.count() == 1) {
+                    fprintf(stderr, "Braces mismatch %s:%d\n", parser.file.latin1(), parser.line_no);
+                    return false;
+                }
                 ScopeBlock sb = scope_blocks.pop();
                 if(sb.iterate)
                     sb.iterate->exec(this);
@@ -517,6 +521,10 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
             if(!scope_blocks.count()) {
                 warn_msg(WarnParser, "Possible braces mismatch %s:%d", parser.file.latin1(), parser.line_no);
             } else {
+                if(scope_blocks.count() == 1) {
+                    fprintf(stderr, "Braces mismatch %s:%d\n", parser.file.latin1(), parser.line_no);
+                    return false;
+                }
                 debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.latin1(),
                           parser.line_no, scope_blocks.count());
                 ScopeBlock sb = scope_blocks.pop();
