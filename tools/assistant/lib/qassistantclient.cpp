@@ -98,7 +98,7 @@ static QAssistantClientPrivate *data( const QAssistantClient *client, bool creat
     \fn void QAssistantClient::error( const QString &msg )
 
     This signal is emitted if Qt Assistant cannot be started or if an
-    error occurs during the initialisation of the connection between
+    error occurs during the initialization of the connection between
     Qt Assistant and the calling application. The \a msg provides an
     explanation of the error.
 */
