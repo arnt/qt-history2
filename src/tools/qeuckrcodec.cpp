@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qeuckrcodec.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qeuckrcodec.cpp#2 $
 **
 ** Implementation of QEucKrCodec class
 **
@@ -217,7 +217,7 @@ public:
 	  // ASCII
 	  result += QChar(ch);
 	} else if ( IsEucChar(ch) ) {
-	  // JIS X 0208
+	  // KSC 5601
 	  buf[0] = ch;
 	  nbuf = 1;
 	} else {
