@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#102 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#103 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -28,7 +28,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#102 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#103 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -643,7 +643,8 @@ void QWidget::update()
 
 void QWidget::update( int x, int y, int w, int h )
 {
-    if ( (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+    if ( w && h &&
+	 (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	RECT r;
 	r.left = x;
 	r.top  = y;

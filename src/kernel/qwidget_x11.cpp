@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#238 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#239 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -31,7 +31,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#238 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#239 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -979,7 +979,8 @@ void QWidget::update()
 
 void QWidget::update( int x, int y, int w, int h )
 {
-    if ( (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+    if ( w && h &&
+	 (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
