@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#54 $
 **
 ** Definition of QIconView widget class
 **
@@ -256,7 +256,7 @@ QIconDrag::QIconDrag( const QIconList &icons_, QWidget * dragSource, const char*
 {
 }
 
-QIconDrag::QIconDrag( QWidget * dragSource, const char* name = 0 )
+QIconDrag::QIconDrag( QWidget * dragSource, const char* name )
     : QDragObject( dragSource, name )
 {
 }
