@@ -375,7 +375,7 @@ void QItemDelegate::drawCheck(QPainter *painter,
     if (!rect.isValid())
         return;
 
-    QStyleOptionButton opt;
+    QStyleOptionViewItem opt;
     opt.QStyleOption::operator=(option);
     opt.rect = rect;
     opt.state = opt.state & ~QStyle::State_HasFocus;
@@ -392,7 +392,7 @@ void QItemDelegate::drawCheck(QPainter *painter,
         break;
     }
 
-    QApplication::style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &opt, painter);
+    QApplication::style()->drawPrimitive(QStyle::PE_IndicatorViewItemCheck, &opt, painter);
 }
 
 /*!
@@ -562,7 +562,7 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
         QStyleOptionButton opt;
         opt.QStyleOption::operator=(option);
         opt.rect.setWidth(opt.rect.height());
-        return QApplication::style()->subElementRect(QStyle::SE_CheckBoxIndicator, &opt);
+        return QApplication::style()->subElementRect(QStyle::SE_ViewItemCheckIndicator, &opt);
     }
     return QRect();
 }

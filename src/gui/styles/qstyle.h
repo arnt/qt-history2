@@ -129,6 +129,7 @@ public:
         PE_IndicatorArrowUp,
         PE_IndicatorBranch,
         PE_IndicatorButtonDropDown,
+        PE_IndicatorViewItemCheck,
         PE_IndicatorCheckBox,
         PE_IndicatorDockWidgetResizeHandle,
         PE_IndicatorHeaderArrow,
@@ -254,6 +255,8 @@ public:
         SE_TabWidgetTabContents,
         SE_TabWidgetLeftCorner,
         SE_TabWidgetRightCorner,
+
+        SE_ViewItemCheckIndicator,
 
         // do not add any values below/greater than this
         SE_CustomBase = 0xf0000000

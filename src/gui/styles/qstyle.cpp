@@ -458,6 +458,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PE_IndicatorSpinPlus  Increase symbol for a spin widget.
     \value PE_IndicatorSpinMinus  Decrease symbol for a spin widget.
 
+    \value PE_IndicatorViewItemCheck On/off indicator for a view item
+    
     \value PE_IndicatorCheckBox  On/off indicator, for example, a QCheckBox.
     \value PE_IndicatorRadioButton  Exclusive on/off indicator, for example, a QRadioButton.
 
@@ -804,9 +806,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SE_TabWidgetTabPane
     \value SE_ToolBoxTabContents  Area for a toolbox tab's icon and label
 
+    \value SE_ViewItemCheckIndicator Area for a view item's check mark
+    
     \value SE_CustomBase  Base value for custom ControlElements
     Custom values must be greater than this value
-
 
     \sa subElementRect()
 */

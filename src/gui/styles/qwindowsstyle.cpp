@@ -1040,12 +1040,13 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         else
             p->setPen(opt->palette.text().color());
         } // Fall through!
+    case PE_IndicatorViewItemCheck:
     case PE_Q3CheckListIndicator:
         if (!doRestore) {
             p->save();
             doRestore = true;
         }
-        if (pe == PE_Q3CheckListIndicator) {
+        if (pe == PE_Q3CheckListIndicator || pe == PE_IndicatorViewItemCheck) {
             if (opt->state & State_Enabled)
                 p->setPen(QPen(opt->palette.text().color(), 1));
             else

@@ -89,6 +89,9 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                         opt->state & (State_Sunken | State_On), 1,
                         &opt->palette.brush(QPalette::Button));
         break;
+    case PE_IndicatorViewItemCheck:
+        drawPrimitive(PE_IndicatorCheckBox, opt, p, widget);
+        break;
     case PE_IndicatorCheckBox:
         if (opt->state & State_NoChange) {
             p->setPen(opt->palette.foreground().color());
@@ -1175,7 +1178,9 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                       btn->rect.width() - dfw2 - dbw2, btn->rect.height()- dfw2 - dbw2);
         }
         break;
-
+    case SE_ViewItemCheckIndicator:
+        r = subElementRect(SE_CheckBoxIndicator, opt, widget);
+        break;
     case SE_CheckBoxIndicator:
         {
             int h = pixelMetric(PM_IndicatorHeight, opt, widget);
