@@ -1238,6 +1238,18 @@ void QTextHtmlParser::parseAttributes()
                     QTextHtmlParserNode::WhiteSpaceMode ws = stringToWhiteSpaceMode(s);
                     if (ws != QTextHtmlParserNode::WhiteSpaceModeUndefined)
                         node->wsm = ws;
+                } else if (style.startsWith(QLatin1String("margin-top:")) && style.endsWith("px")) {
+                    const QString s = style.mid(11, style.length() - 13).trimmed();
+                    setIntAttribute(&node->margin[MarginTop], s);
+                } else if (style.startsWith(QLatin1String("margin-bottom:")) && style.endsWith("px")) {
+                    const QString s = style.mid(14, style.length() - 16).trimmed();
+                    setIntAttribute(&node->margin[MarginBottom], s);
+                } else if (style.startsWith(QLatin1String("margin-left:")) && style.endsWith("px")) {
+                    const QString s = style.mid(12, style.length() - 14).trimmed();
+                    setIntAttribute(&node->margin[MarginLeft], s);
+                } else if (style.startsWith(QLatin1String("margin-right:")) && style.endsWith("px")) {
+                    const QString s = style.mid(13, style.length() - 15).trimmed();
+                    setIntAttribute(&node->margin[MarginRight], s);
                 }
             }
         } else if (key == QLatin1String("align")) {
