@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#191 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#192 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1241,15 +1241,6 @@ static int listHeight( QListBox *l, int sl )
 {
     l->setFixedVisibleLines(QMIN(l->count(), (uint)sl));
     return l->sizeHint().height();
-/*
-    int i;
-    int sumH = 0;
-    i = l->count();
-    i = QMIN(i,sl);
-    while( --i >= 0 )
-	sumH += l->itemHeight( i );
-    return sumH;
-*/
 }
 
 
