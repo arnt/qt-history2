@@ -633,14 +633,12 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 
 int QPixmap::defaultDepth()
 {
-    GDHandle gd;
-    gd=GetMainDevice();
-    int wug=(**gd).gdCCDepth;
-    if(wug) {
-        return wug;
-    } else {
-        return 16;
+    int ret = 32;
+    if(GDHandle gd = GetMainDevice()) {
+        if((**gd).gdCCDepth)
+            ret = (**gd).gdCCDepth;
     }
+    return ret;
 }
 
 void QPixmap::setOptimization(Optimization)
