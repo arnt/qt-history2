@@ -227,6 +227,8 @@ public:
     static void setExportMacro( QObject *o, const QString &macro );
     static QString exportMacro( QObject *o );
 
+    static bool hasObject( QObject *o );
+
 };
 
 #endif

@@ -1436,3 +1436,8 @@ QString MetaDataBase::exportMacro( QObject *o )
 
     return r->exportMacro;
 }
+
+bool MetaDataBase::hasObject( QObject *o )
+{
+    return !!db->find( o );
+}

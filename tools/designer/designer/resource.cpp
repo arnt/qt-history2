@@ -856,20 +856,6 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	ts << makeIndent( indent ) << "</property>" << endl;
     }
 
-    if ( MetaDataBase::hasEvents( MainWindow::self->currProject()->language() ) ) {
-	QMap<QString, QStringList> eventFunctions = MetaDataBase::eventFunctions( w );
-	QMap<QString, QStringList>::ConstIterator it = eventFunctions.begin();
-	for ( ; it != eventFunctions.end(); ++it ) {
-	    ts << makeIndent( indent ) << "<event name=\"" << entitize( it.key() ) << "\" functions=\"";
-	    for ( QStringList::ConstIterator fit = (*it).begin(); fit != (*it).end(); ++fit ) {
-		if ( fit != (*it).begin() )
-		    ts << ",";
-		ts << *fit;
-	    }
-	    ts << "\" />\n";
-	}
-    }
-
     if ( w->isWidgetType() && MetaDataBase::fakeProperties( w ) ) {
 	QMap<QString, QVariant>* fakeProperties = MetaDataBase::fakeProperties( w );
 	for ( QMap<QString, QVariant>::Iterator fake = fakeProperties->begin();
@@ -1742,7 +1728,7 @@ void Resource::saveConnections( QTextStream &ts, int indent )
 		continue;
 	}
 
-	ts << makeIndent( indent ) << "<connection>" << endl;
+	ts << makeIndent( indent ) << "<connection language=\"C++\">" << endl;
 	indent++;
 	ts << makeIndent( indent ) << "<sender>" << entitize( conn.sender->name() ) << "</sender>" << endl;
 	ts << makeIndent( indent ) << "<signal>" << entitize( conn.signal ) << "</signal>" << endl;
@@ -1750,6 +1736,34 @@ void Resource::saveConnections( QTextStream &ts, int indent )
 	ts << makeIndent( indent ) << "<slot>" << entitize( MetaDataBase::normalizeSlot( conn.slot ) ) << "</slot>" << endl;
 	indent--;
 	ts << makeIndent( indent ) << "</connection>" << endl;
+    }
+
+    if ( MetaDataBase::hasEvents( MainWindow::self->currProject()->language() ) ) {
+	QObjectList *l = formwindow->queryList( "QWidget" );
+	l->append( formwindow );
+	QPtrList<QAction> lst = formwindow->actionList();
+	for ( QAction *a = lst.first(); a; a = lst.next() )
+	    l->append( a );
+	for ( QObject *o = l->first(); o; o = l->next() ) {
+	    if ( !MetaDataBase::hasObject( o ) )
+		continue;
+	    QMap<QString, QStringList> eventFunctions = MetaDataBase::eventFunctions( o );
+	    QMap<QString, QStringList>::ConstIterator it = eventFunctions.begin();
+	    for ( ; it != eventFunctions.end(); ++it ) {
+		QString sls = (*it).join( "," );
+		ts << makeIndent( indent ) << "<connection language=\"" <<
+		    MainWindow::self->currProject()->language() << "\">" << endl;
+		indent++;
+		ts << makeIndent( indent ) << "<sender>" << entitize( o->name() ) << "</sender>" << endl;
+		ts << makeIndent( indent ) << "<signal>" << entitize( it.key() ) << "</signal>" << endl;
+		ts << makeIndent( indent ) << "<receiver>" << entitize( formwindow->name() ) <<
+		    "</receiver>" << endl;
+		ts << makeIndent( indent ) << "<slot>" << entitize( sls ) << "</slot>" << endl;
+		indent--;
+		ts << makeIndent( indent ) << "</connection>" << endl;
+	    }
+	}
+	delete l;
     }
 
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formwindow );
@@ -1772,6 +1786,7 @@ void Resource::loadConnections( const QDomElement &e )
     QDomElement n = e.firstChild().toElement();
     while ( !n.isNull() ) {
 	if ( n.tagName() == "connection" ) {
+	    QString lang = n.attribute( "language", "C++" );
 	    QDomElement n2 = n.firstChild().toElement();
 	    MetaDataBase::Connection conn;
 	    while ( !n2.isNull() ) {
@@ -1817,8 +1832,15 @@ void Resource::loadConnections( const QDomElement &e )
 		if ( conn.receiver == formwindow )
 		    conn.receiver = formwindow->mainContainer();
 	    }
-	    if ( conn.sender && conn.receiver )
-		MetaDataBase::addConnection( formwindow ? formwindow : toplevel, conn.sender, conn.signal, conn.receiver, conn.slot );
+	    if ( conn.sender && conn.receiver ) {
+		if ( lang == "C++" ) {
+		    MetaDataBase::addConnection( formwindow ? formwindow : toplevel,
+						 conn.sender, conn.signal, conn.receiver, conn.slot );
+		} else if ( MetaDataBase::hasEvents( lang ) ) {
+		    MetaDataBase::setEventFunctions( conn.sender, formwindow, lang, conn.signal,
+						     QStringList::split( ',', conn.slot ), FALSE );
+		}
+	    }
 	} else if ( n.tagName() == "slot" ) {
 	    MetaDataBase::Slot slot;
 	    slot.access = n.attribute( "access", "public" );

@@ -608,10 +608,6 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	}
     }
 
-    EventFunction ef;
-
-    QObject *propertyObject = obj;
-
     while ( !n.isNull() ) {
 	if ( n.tagName() == "spacer" ) {
 	    createSpacer( n, layout );
@@ -668,15 +664,10 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    createItem( n, w );
 	} else if ( n.tagName() == "column" || n.tagName() == "row" ) {
 	    createColumn( n, w );
-	} else if ( n.tagName() == "event" ) {
-	    ef.events.append( n.attribute( "name" ) );
-	    ef.functions.append( QStringList::split( ',', n.attribute( "functions" ) ) );
 	}
 
 	n = n.nextSibling().toElement();
     }
-
-    eventMap.insert( propertyObject, ef );
 
     return w;
 }
@@ -1078,6 +1069,7 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
     QDomElement n = e.firstChild().toElement();
     while ( !n.isNull() ) {
 	if ( n.tagName() == "connection" ) {
+	    QString lang = n.attribute( "language", "C++" );
 	    QDomElement n2 = n.firstChild().toElement();
 	    Connection conn;
 	    while ( !n2.isNull() ) {
@@ -1144,27 +1136,35 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 		receiver = l->first();
 		delete l;
 	    }
-	    QString s = "2""%1";
-	    s = s.arg( conn.signal );
-	    QString s2 = "1""%1";
-	    s2 = s2.arg( conn.slot );
 
-	    QPtrStrList signalList = sender->metaObject()->signalNames( TRUE );
-	    QPtrStrList slotList = receiver->metaObject()->slotNames( TRUE );
+	    if ( lang == "C++" ) {
+		QString s = "2""%1";
+		s = s.arg( conn.signal );
+		QString s2 = "1""%1";
+		s2 = s2.arg( conn.slot );
 
-	    // if this is a connection to a custom slot and we have a connector, try this as receiver
-	    if ( slotList.find( conn.slot ) == -1 && receiver == toplevel && connector ) {
-		slotList = connector->metaObject()->slotNames( TRUE );
-		receiver = connector;
+		QPtrStrList signalList = sender->metaObject()->signalNames( TRUE );
+		QPtrStrList slotList = receiver->metaObject()->slotNames( TRUE );
+
+		// if this is a connection to a custom slot and we have a connector, try this as receiver
+		if ( slotList.find( conn.slot ) == -1 && receiver == toplevel && connector ) {
+		    slotList = connector->metaObject()->slotNames( TRUE );
+		    receiver = connector;
+		}
+
+		// avoid warnings
+		if ( signalList.find( conn.signal ) == -1 ||
+		     slotList.find( conn.slot ) == -1 ) {
+		    n = n.nextSibling().toElement();
+		    continue;
+		}
+		QObject::connect( sender, s, receiver, s2 );
+	    } else {
+		EventFunction ef = eventMap[ conn.sender ];
+		ef.events.append( conn.signal );
+		ef.functions.append( QStringList::split( ',', conn.slot ) );
+		eventMap.replace( conn.sender, ef );
 	    }
-
-	    // avoid warnings
-	    if ( signalList.find( conn.signal ) == -1 ||
-		 slotList.find( conn.slot ) == -1 ) {
-		n = n.nextSibling().toElement();
-		continue;
-	    }
-	    QObject::connect( sender, s, receiver, s2 );
 	} else if ( n.tagName() == "slot" ) {
 	    QString s = n.firstChild().toText().data();
 	    languageSlots.insert( s.left( s.find( "(" ) ) , n.attribute( "language" ) );
