@@ -316,11 +316,11 @@ bool QTableModel::isValid(const QModelIndex &index) const
 // item
 
 QTableWidgetItem::QTableWidgetItem(QTableWidget *view)
-    : view(view),
-      itemFlags(QAbstractItemModel::ItemIsEditable
+    : itemFlags(QAbstractItemModel::ItemIsEditable
                 |QAbstractItemModel::ItemIsSelectable
                 |QAbstractItemModel::ItemIsCheckable
-                |QAbstractItemModel::ItemIsEnabled)
+                |QAbstractItemModel::ItemIsEnabled),
+      view(view)
 {
 }
 
@@ -454,7 +454,7 @@ int QTableWidget::columnCount() const
 /*!
   ###
 */
-void QTableWidget::insertRow(int row)
+void QTableWidget::insertRow(int /*row*/)
 {
 
 }
@@ -462,7 +462,7 @@ void QTableWidget::insertRow(int row)
 /*!
   ###
 */
-void QTableWidget::insertColumn(int column)
+void QTableWidget::insertColumn(int /*column*/)
 {
 
 }

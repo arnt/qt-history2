@@ -35,11 +35,21 @@ public:
     QTreeWidgetItem *headerItem();
     void setHeaderItem(QTreeWidgetItem *item);
 
+    QTreeWidgetItem *currentTreeItem() const;
+    void setCurrentTreeItem(QTreeWidgetItem *item);
+
+signals:
+    void clicked(QTreeWidgetItem *item, int column, int button);
+    void doubleClicked(QTreeWidgetItem *item, int column, int button);
+
 protected:
     void appendItem(QTreeWidgetItem *item);
     void removeItem(QTreeWidgetItem *item);
     bool isSelected(QTreeWidgetItem *item) const;
     void setModel(QAbstractItemModel *model);
+private:
+    Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));
+    Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, int button));
 };
 
 class Q_GUI_EXPORT QTreeWidgetItem
@@ -49,7 +59,7 @@ public:
     QTreeWidgetItem(QTreeWidget *view);
     QTreeWidgetItem(QTreeWidgetItem *parent);
     virtual ~QTreeWidgetItem();
-    
+
     inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
     inline void setFlags(QAbstractItemModel::ItemFlags flags) { itemFlags = flags; }
 
@@ -57,7 +67,7 @@ public:
         { return data(column, QAbstractItemModel::DisplayRole).toString(); }
     inline void setText(int column, const QString &text)
         { setData(column, QAbstractItemModel::DisplayRole, text); }
-    
+
     inline QIconSet icon(int column) const
         { return data(column, QAbstractItemModel::DecorationRole).toIcon(); }
     inline void setIcon(int column, const QIconSet &icon)
@@ -97,7 +107,7 @@ public:
         { return data(column, QAbstractItemModel::CheckStateRole).toInt(); }
     inline void setCheckedState(int column, bool state)
         { setData(column, QAbstractItemModel::CheckStateRole, state); }
-    
+
     virtual QVariant data(int column, int role) const;
     virtual void setData(int column, int role, const QVariant &value);
     virtual bool operator<(const QTreeWidgetItem &other) const;

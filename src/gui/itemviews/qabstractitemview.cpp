@@ -1454,7 +1454,8 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
 /*!
     This slot is called when rows are inserted. The new rows are those
     under the given \a parent from \a start to \a end inclusive. The
-    base class implementation does nothing.
+    base class implementation calls fetchMore() on the model to check
+    for more data.
 
     \sa rowsRemoved()
 */

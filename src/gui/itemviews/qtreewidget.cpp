@@ -340,7 +340,7 @@ bool QTreeModel::insertRows(int row, const QModelIndex &parent, int)
   if successful; otherwise false is returned.
 */
 
-bool QTreeModel::removeRows(int row, const QModelIndex &parent, int count)
+bool QTreeModel::removeRows(int row, const QModelIndex &parent, int /*count*/)
 {
     // FIXME: !!!!!!!
     if (parent.isValid()) {
@@ -521,7 +521,7 @@ QTreeWidgetItem::~QTreeWidgetItem()
     }
 
     if (par)
-        par->children.remove(this);
+        par->children.removeAll(this);
     else if (view)
         view->removeItem(this);
 }
@@ -563,10 +563,12 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 */
 QVariant QTreeWidgetItem::data(int column, int role) const
 {
-    const QVector<Data> column_values = values.at(column);
-    for (int i = 0; i < column_values.count(); ++i)
-        if (column_values.at(i).role == role)
-            return column_values.at(i).value;
+    if (column < values.size()) {
+        const QVector<Data> column_values = values.at(column);
+        for (int i = 0; i < column_values.count(); ++i)
+            if (column_values.at(i).role == role)
+                return column_values.at(i).value;
+    }
     return QVariant();
 }
 
@@ -576,10 +578,24 @@ class QTreeWidgetPrivate : public QTreeViewPrivate
 public:
     QTreeWidgetPrivate() : QTreeViewPrivate() {}
     inline QTreeModel *model() const { return ::qt_cast<QTreeModel*>(q_func()->model()); }
+    void emitClicked(const QModelIndex &index, int button);
+    void emitDoubleClicked(const QModelIndex &index, int button);
+
 };
 
 #define d d_func()
 #define q q_func()
+
+void QTreeWidgetPrivate::emitClicked(const QModelIndex &index, int button)
+{
+    emit q->clicked(model()->item(index), index.column(), button);
+}
+
+void QTreeWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button)
+{
+    emit q->doubleClicked(model()->item(index), index.column(), button);
+}
+
 
 /*!
   \class QTreeWidget qtreewidget.h
@@ -614,6 +630,26 @@ public:
 */
 
 /*!
+    \fn void QTreeWidget::clicked(QTreeWidgetItem *item)
+
+    This signal is emitted when a mouse button is clicked. The \a item
+    may be 0 if the mouse was not clicked on an item. The \a column
+    returns the item column clicked, or -1 if no column was
+    clicked. The button clicked is specified by \a button (see
+    \l{Qt::ButtonState}).
+*/
+
+/*!
+    \fn void QTreeWidget::doubleClicked(QTreeWidgetItem *item)
+
+    This signal is emitted when a mouse button is double clicked. The
+    \a item may be 0 if the mouse was not clicked on an item. The \a
+    column returns the item column clicked, or -1 if no column was
+    clicked. The button clicked is specified by \a button (see
+    \l{Qt::ButtonState}).
+*/
+
+/*!
   Constructs a tree view with the given \a parent widget, using the default
   model
 */
@@ -624,6 +660,10 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     setModel(new QTreeModel(0, this));
     setItemDelegate(new QTreeItemDelegate(this));
     header()->setItemDelegate(new QTreeItemDelegate(header()));
+    connect(this, SIGNAL(clicked(const QModelIndex&, int)),
+            SLOT(emitClicked(const QModelIndex&, int)));
+    connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
+            SLOT(emitDoubleClicked(const QModelIndex&, int)));
 }
 
 /*!
@@ -653,6 +693,19 @@ void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
 {
     delete d->model()->header;
     d->model()->header = item;
+}
+
+QTreeWidgetItem *QTreeWidget::currentTreeItem() const
+{
+    return d->model()->item(currentItem());
+}
+
+void QTreeWidget::setCurrentTreeItem(QTreeWidgetItem *item)
+{
+    if (item)
+        setCurrentItem(d->model()->index(item));
+    else
+        setCurrentItem(QModelIndex());
 }
 
 /*!
@@ -687,3 +740,5 @@ void QTreeWidget::setModel(QAbstractItemModel *model)
 {
     QTreeView::setModel(model);
 }
+
+#include "moc_qtreewidget.cpp"
