@@ -84,6 +84,8 @@ rm -rf ${DISTDIR}/qt/extensions/nsplugin/src/jri*
 
 VERSION=`grep "#define.*QT_VERSION_STR" ${DISTDIR}/qt/src/tools/qglobal.h | fmt -1 | grep '"' | sed -e 's/"//g'`
 VERSIONMAJOR=`echo ${VERSION} | sed -e 's/\..*$//'`
+VERSION_SHORT=`echo ${VERSION} | sed -e 's/[0-9]$//'`
+
 echo "Auto-detected the Qt version number -- " $VERSION >&2
 
 QTDIR=${DISTDIR}/qt
@@ -177,7 +179,8 @@ fi
 
 echo "Copying the README, LICENSE etc. files..." >&2
 cd ${DISTDIR}/qt/dist
-cp [A-Z]* changes-${VERSION} .. 2> /dev/null
+cp [A-Z]* .. 2> /dev/null
+cp changes-${VERSION_SHORT}[0-9] .. 2> /dev/null
 cd ${DISTDIR}/qt/dist/${disttype}
 tar cf - * | (cd ${DISTDIR}/qt ; tar xf -)
 cd ${DISTDIR}/qt/dist/${platform}
