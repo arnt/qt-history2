@@ -1671,16 +1671,13 @@ extern bool qws_accel;
 
 extern "C" QScreen * qt_get_screen(char * slot,unsigned char * config)
 {
-    qt_screen=0;
-    if(qws_accel && slot!=0) {
+    if ( !qt_screen && qws_accel && slot!=0) {
 	QMachScreen * ret=new QMachScreen(slot,config);
-	if(ret->success) {
+	if(ret->success)
 	    qt_screen=ret;
-	}
     }
-    if(!qt_screen) {
+    if( !qt_screen )
 	qt_screen=new QScreen();
-    }
     return qt_screen;
 }
 

@@ -3868,7 +3868,8 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 
 extern "C" QScreen * qt_get_screen(char *,unsigned char *)
 {
-    qt_screen=new QScreen();
+    if ( !qt_screen )
+	qt_screen=new QScreen();
     return qt_screen;
 }
 

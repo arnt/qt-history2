@@ -26,7 +26,7 @@
 
 bool qt_sw_cursor=false;
 QScreenCursor * qt_screencursor=0;
-QScreen * qt_screen;
+QScreen * qt_screen=0;
 
 QGfx *QGfx::createGfx( int depth, unsigned char *buffer, int w, int h,
 			     int offs )
