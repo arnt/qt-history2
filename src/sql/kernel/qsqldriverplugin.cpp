@@ -14,7 +14,7 @@
 #include "qsqldriverplugin.h"
 
 /*!
-    \class QSqlDriverPlugin qsqldriverplugin.h
+    \class QSqlDriverPlugin
     \brief The QSqlDriverPlugin class provides an abstract base for custom QSqlDriver plugins.
 
     \ingroup plugins

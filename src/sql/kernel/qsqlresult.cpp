@@ -638,7 +638,7 @@ void QSqlResult::addBindValue(const QCoreVariant& val, QSql::ParamType paramType
 */
 QCoreVariant QSqlResult::boundValue(int index) const
 {
-    return d->values.at(index);
+    return d->values.value(index);
 }
 
 /*!
@@ -652,9 +652,7 @@ QCoreVariant QSqlResult::boundValue(int index) const
 QCoreVariant QSqlResult::boundValue(const QString& placeholder) const
 {
     int idx = d->indexes.value(placeholder, -1);
-    if (idx < 0)
-        return QCoreVariant();
-    return d->values.at(idx);
+    return d->values.value(idx);
 }
 
 /*!

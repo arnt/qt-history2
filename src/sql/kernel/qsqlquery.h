@@ -52,7 +52,7 @@ public:
     QSqlRecord record() const;
 
     virtual void setForwardOnly(bool forward);
-    virtual bool exec (const QString& query);
+    virtual bool exec(const QString& query);
     virtual QCoreVariant value(int i) const;
 
     virtual bool seek(int i, bool relative = false);
