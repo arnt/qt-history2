@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.4 1997/03/18 20:33:59 agulbra Exp $
+** $Id: indices.doc,v 2.5 1997/03/23 19:52:23 agulbra Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.4 1997/03/18 20:33:59 agulbra Exp $";
+static char ident[] = "$Id: indices.doc,v 2.5 1997/03/23 19:52:23 agulbra Exp $";
 #endif
 
 /*! \page index.html
@@ -78,7 +78,6 @@ releases, send a message containing just "subscribe" to
 <li><a href="abstractwidgets.html">Abstract widget classes</a>
 <li><a href="drawing.html">Low-level drawing classes</a>
 <li><a href="headers.html">Header files</a>
-<li><a href="enums.html">enum types</a>
 <li><a href="examples.html">Example programs</a>
 </ul>
 
