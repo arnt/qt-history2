@@ -187,7 +187,8 @@ public:
     QRect oldPosRect;
     QRect origPosRect;
     bool oldPosRectValid, movedEnough;
-
+    QMainWindow::ToolBarDock origDock;
+    
     QMap< int, bool > dockable;
 };
 
@@ -1390,7 +1391,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 
 	QPoint pos = mapFromGlobal( e->globalPos() );
 	QRect r;
-	(void)findDockArea( pos, r, t );
+	d->origDock = findDockArea( pos, r, t );
 	d->rectPainter->drawRect( r );
 	d->oldPosRect = r;
 	d->origPosRect = r;
@@ -1410,7 +1411,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	QPoint pos = mapFromGlobal( e->globalPos() );
 	QRect r;
 	ToolBarDock dock = findDockArea( pos, r, t );
-	if ( dock != Unmanaged && isDockEnabled( dock ) &&
+	if ( dock != Unmanaged && dock != d->origDock && isDockEnabled( dock ) &&
 	     isDockEnabled( t, dock ) )
 	    moveToolBar( t, dock );
 	return;
