@@ -1270,7 +1270,11 @@ void QWidget::scroll( int dx, int dy )
 {
     if ( testWState( WState_BlockUpdates ) && !children() )
 	return;
-    ScrollWindowEx( winId(), dx, dy, 0, 0, 0, 0, SW_INVALIDATE | SW_SCROLLCHILDREN );
+    UINT flags = SW_INVALIDATE | SW_SCROLLCHILDREN;
+    if ( backgroundMode() != NoBackground )
+	flags |= SW_ERASE;
+
+    ScrollWindowEx( winId(), dx, dy, 0, 0, 0, 0, flags );
     UpdateWindow( winId() );
 }
 
@@ -1278,12 +1282,16 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 {
     if ( testWState( WState_BlockUpdates ) )
 	return;
+    UINT flags = SW_INVALIDATE | SW_SCROLLCHILDREN;
+    if ( backgroundMode() != NoBackground )
+	flags |= SW_ERASE;
+
     RECT wr;
     wr.top = r.top();
     wr.left = r.left();
     wr.bottom = r.bottom()+1;
     wr.right = r.right()+1;
-    ScrollWindowEx( winId(), dx, dy, &wr, &wr, 0, 0, SW_INVALIDATE );
+    ScrollWindowEx( winId(), dx, dy, &wr, &wr, 0, 0, flags );
     UpdateWindow( winId() );
 }
 
