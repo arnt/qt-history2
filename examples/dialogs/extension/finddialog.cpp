@@ -30,7 +30,7 @@ FindDialog::FindDialog(QWidget *parent)
     searchSelectionCheckBox = new QCheckBox(tr("Search se&lection"), extension);
 
     connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
-    connect(moreButton, SIGNAL(toggled(bool)), extension, SLOT(setShown(bool)));
+    connect(moreButton, SIGNAL(toggled(bool)), extension, SLOT(setVisible(bool)));
 
     QVBoxLayout *extensionLayout = new QVBoxLayout(extension);
     extensionLayout->setMargin(0);
