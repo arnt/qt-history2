@@ -50,6 +50,7 @@
   \value GeneratedList
   \value Image
   \value ImageText
+  \value InlineImage
   \value Link
   \value LinkNode
   \value ListLeft
@@ -74,6 +75,12 @@
   \value String
   \value TableLeft
   \value TableRight
+  \value TableHeaderLeft
+  \value TableHeaderRight
+  \value TableRowLeft
+  \value TableRowRight
+  \value TableItemLeft
+  \value TableItemRight
   \value TableOfContents
   \value Target
   \value UnhandledFormat
@@ -129,6 +136,12 @@ static const struct {
     { "String", Atom::String },
     { "TableLeft", Atom::TableLeft },
     { "TableRight", Atom::TableRight },
+    { "TableHeaderLeft", Atom::TableHeaderLeft },
+    { "TableHeaderRight", Atom::TableHeaderRight },
+    { "TableRowLeft", Atom::TableRowLeft },
+    { "TableRowRight", Atom::TableRowRight },
+    { "TableItemLeft", Atom::TableItemLeft },
+    { "TableItemRight", Atom::TableItemRight },
     { "TableOfContents", Atom::TableOfContents },
     { "Target", Atom::Target },
     { "UnhandledFormat", Atom::UnhandledFormat },

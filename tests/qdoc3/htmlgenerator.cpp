@@ -11,7 +11,7 @@
 #define COMMAND_VERSION                 Doc::alias("version")
 
 HtmlGenerator::HtmlGenerator()
-    : inLink(false), funcLeftParen("\\S(\\()"), root(0)
+    : inLink(false), inTableHeader(false), numTableRows(0), funcLeftParen("\\S(\\()"), root(0)
 {
 }
 
@@ -78,7 +78,9 @@ void HtmlGenerator::generateTree(const Tree *tree, CodeMarker *marker)
 
 void HtmlGenerator::startText(const Node * /* relative */, CodeMarker * /* marker */)
 {
-    inLink = FALSE;
+    inLink = false;
+    inTableHeader = false;
+    numTableRows = 0;
     link = "";
 }
 
@@ -174,11 +176,14 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	}
 	break;
     case Atom::Image:
+    case Atom::InlineImage:
 	{
 	    QString fileName = imageFileName(relative->doc().location(), atom->string());
 	    QString text;
 	    if ( atom->next() != 0 )
 		text = atom->next()->string();
+	    if (atom->type() == Atom::Image)
+		out() << "<center>";
 	    if ( fileName.isEmpty() ) {
 		out() << "<font color=\"red\">[Missing image "
 		      << protect( atom->string() ) << "]</font>";
@@ -188,6 +193,8 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 		    out() << " alt=\"" << protect( text ) << "\"";
 		out() << ">";
 	    }
+	    if (atom->type() == Atom::Image)
+		out() << "</center>";
 	}
 	break;
     case Atom::ImageText:
@@ -204,7 +211,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	} else {
 	    out() << "<a href=\"" << link << "\">";
 	}
-	inLink = TRUE;
+	inLink = true;
 	skipAhead = 1;
 	break;
     case Atom::LinkNode:
@@ -215,7 +222,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	} else {
 	    out() << "<a href=\"" << link << "\">";
 	}
-	inLink = TRUE;
+	inLink = true;
 	skipAhead = 1;
 	break;
     case Atom::ListLeft:
@@ -331,16 +338,48 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	    } else {
 		out() << "</a>";
 	    }
-	    inLink = FALSE;
+	    inLink = false;
 	    out() << protect( atom->string().mid(k) );
 	} else {
 	    out() << protect( atom->string() );
 	}
 	break;
     case Atom::TableLeft:
+	out() << "<center><table cellpadding=\"4\" cellspacing=\"2\" border=\"0\">\n";
+        numTableRows = 0;
 	break;
     case Atom::TableRight:
+	out() << "</table></center>\n";
 	break;
+    case Atom::TableHeaderLeft:
+	out() << "<tr bgcolor=\"#a2c511\">";
+        inTableHeader = true;
+        break;
+    case Atom::TableHeaderRight:
+	out() << "</tr>\n";
+        inTableHeader = false;
+        break;
+    case Atom::TableRowLeft:
+	if (++numTableRows % 2 == 1)
+	    out() << "<tr bgcolor=\"#f0f0f0\">";
+	else
+	    out() << "<tr bgcolor=\"#d0d0d0\">";
+        break;
+    case Atom::TableRowRight:
+	out() << "</tr>\n";
+        break;
+    case Atom::TableItemLeft:
+	if (inTableHeader)
+	    out() << "<th>";
+	else
+	    out() << "<td>";
+        break;
+    case Atom::TableItemRight:
+	if (inTableHeader)
+	    out() << "</th>";
+	else
+	    out() << "</td>";
+        break;
     case Atom::TableOfContents:
 	break;
     case Atom::Target:
@@ -484,8 +523,7 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     if (!brief.isEmpty()) {
 	out() << "<p>";
 	generateText( brief, fake, marker );
-	out() << " <a href=\"#" << registerRef( "details" )
-	      << "\">More...</a></p>\n";
+	out() << " <a href=\"#" << registerRef("details") << "\">More...</a></p>\n";
     }
 
     generateStatus(fake, marker);
@@ -499,10 +537,12 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
 	++s;
     }
 
-    out() << "<a name=\"" << registerRef("details") << "\"/>\n";
+    if (!brief.isEmpty())
+	out() << "<a name=\"" << registerRef("details") << "\"/>\n";
 
     if (!fake->doc().isEmpty()) {
-	out() << "<hr>\n" << "<h2>" << "Detailed Description" << "</h2>\n";
+	if (!brief.isEmpty())
+	    out() << "<hr>\n" << "<h2>" << "Detailed Description" << "</h2>\n";
 	generateBody(fake, marker);
 	generateAlsoList(fake, marker);
     }

@@ -261,11 +261,9 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
 	    doc.location().warning( tr("Ignored '\\%1'").arg(COMMAND_REIMP) );
 	}
     } else if (command == COMMAND_RELATES) {
-qDebug("RELATES '%s'", arg.latin1());
 	InnerNode *pseudoParent;
 	if (arg.startsWith("<") || arg.startsWith("\"")) {
 	    pseudoParent = static_cast<InnerNode *>(tre->findNode(arg, Node::Fake));
-qDebug(" RESOLVED %s to %p", arg.latin1(), pseudoParent);
 	} else {
 	    pseudoParent = static_cast<InnerNode *>(tre->findNode(arg, Node::Class));
         }

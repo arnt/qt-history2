@@ -1,12 +1,13 @@
 MISC:
   * remove getter/setter functions from list for properties
   * get rid of spurious 'global' functions
-  * make \enum work also for typedefs
+  * make \enum work also for typedefs (?)
 
-  * implement \headerfile
+  * implement \table
+  * implement \sidebar
+
   * implement \ingroup
   * implement \inmodule
-  * implement \table
   * implement qbook
   * implement \stl
   * implement Q_DECLARE_ITERATOR() hack
@@ -25,3 +26,4 @@ NICE FEATURES:
 OTHER:
   * make qdoc run faster
   * \annotated: specify which library
+  * make sure \headerfile works even if specified after \relates

@@ -87,6 +87,8 @@ private:
 #endif
     QMap<QString, QString> refMap;
     bool inLink;
+    bool inTableHeader;
+    int numTableRows;
     QString link;
     QRegExp funcLeftParen;
     QString style;

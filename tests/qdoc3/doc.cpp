@@ -34,8 +34,8 @@ enum {
     CMD_ENDIF, CMD_ENDLIST, CMD_ENDOMIT, CMD_ENDPART, CMD_ENDQUOTATION, CMD_ENDSECTION1,
     CMD_ENDSECTION2, CMD_ENDSECTION3, CMD_ENDSECTION4, CMD_ENDSIDEBAR, CMD_ENDTABLE, CMD_EXPIRE,
     CMD_FOOTNOTE, CMD_GENERATELIST, CMD_GRANULARITY, CMD_HEADER, CMD_I, CMD_IF, CMD_IMAGE,
-    CMD_INCLUDE, CMD_INDEX, CMD_KEYWORD, CMD_L, CMD_LEGALESE, CMD_LIST, CMD_O, CMD_OMIT,
-    CMD_OMITVALUE, CMD_PART, CMD_PRINTLINE, CMD_PRINTTO, CMD_PRINTUNTIL, CMD_QUOTATION,
+    CMD_INCLUDE, CMD_INLINEIMAGE, CMD_INDEX, CMD_KEYWORD, CMD_L, CMD_LEGALESE, CMD_LIST, CMD_O,
+    CMD_OMIT, CMD_OMITVALUE, CMD_PART, CMD_PRINTLINE, CMD_PRINTTO, CMD_PRINTUNTIL, CMD_QUOTATION,
     CMD_QUOTEFILE, CMD_QUOTEFROMFILE, CMD_QUOTEFUNCTION, CMD_RAW, CMD_ROW, CMD_SECTION1,
     CMD_SECTION2, CMD_SECTION3, CMD_SECTION4, CMD_SIDEBAR, CMD_SKIPLINE, CMD_SKIPTO, CMD_SKIPUNTIL,
     CMD_SUB, CMD_SUP, CMD_TABLE, CMD_TABLEOFCONTENTS, CMD_TARGET, CMD_TT, CMD_UNDERLINE, CMD_VALUE,
@@ -82,6 +82,7 @@ static struct {
     { "if", CMD_IF, 0 },
     { "image", CMD_IMAGE, 0 },
     { "include", CMD_INCLUDE, 0 },
+    { "inlineimage", CMD_INLINEIMAGE, 0 },
     { "index", CMD_INDEX, 0 },
     { "keyword", CMD_KEYWORD, 0 },
     { "l", CMD_L, 0 },
@@ -262,6 +263,9 @@ private:
     DocPrivate *priv;
     enum ParaState { OutsidePara, InsideSingleLinePara, InsideMultiLinePara };
     ParaState paraState;
+    bool inTableHeader;
+    bool inTableRow;
+    bool inTableItem;
     bool indexStartedPara; // ### rename
     Atom::Type pendingParaLeftType;
     Atom::Type pendingParaRightType;
@@ -295,6 +299,9 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
     priv->text << Atom::Nop;
 
     paraState = OutsidePara;
+    inTableHeader = false;
+    inTableRow = false;
+    inTableItem = false;
     indexStartedPara = false;
     pendingParaLeftType = Atom::Nop;
     pendingParaRightType = Atom::Nop;
@@ -485,10 +492,8 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    }
 		    break;
 		case CMD_ENDTABLE:
-		    if ( closeCommand(command) ) {
+		    if (closeCommand(command))
 			append( Atom::TableRight );
-			/* ... */
-		    }
 		    break;
 		case CMD_EXPIRE:
 		    checkExpiry( getArgument() );
@@ -508,7 +513,32 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    priv->extra->granularity = getSectioningUnit();
 		    break;
 		case CMD_HEADER:
-		    /* ... */
+		    if (openedCommands.top() == CMD_TABLE) {
+			if (inTableItem) {
+			    append(Atom::TableItemRight);
+                            inTableItem = FALSE;
+                        }
+                        if (inTableHeader) {
+			    append(Atom::TableHeaderRight);
+                            inTableHeader = false;
+                        }
+                        if (inTableRow) {
+			    append(Atom::TableRowRight);
+                            inTableRow = false;
+                        }
+                        append(Atom::TableHeaderLeft);
+                        inTableHeader = true;
+                    } else {
+			if (openedCommands.contains(CMD_TABLE)) {
+			    location().warning(tr("Cannot use '\\%1' within '\\%2'")
+					       .arg(commandName(CMD_HEADER))
+                                               .arg(commandName(openedCommands.top())));
+			} else {
+			    location().warning(tr("Cannot use '\\%1' outside of '\\%2'")
+					       .arg(commandName(CMD_HEADER))
+                                               .arg(commandName(CMD_TABLE)));
+			}
+                    }
 		    break;
 		case CMD_I:
 		    startFormat( ATOM_FORMATTING_ITALIC, command );
@@ -526,6 +556,10 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_INCLUDE:
 		    include( getArgument() );
+		    break;
+		case CMD_INLINEIMAGE:
+		    append( Atom::InlineImage, getArgument() );
+		    append( Atom::ImageText, getRestOfLine() );
 		    break;
 		case CMD_INDEX:
 		    if ( paraState == OutsidePara ) {
@@ -583,13 +617,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_O:
 		    leavePara();
-		    if ( openedLists.isEmpty() ) {
-#if 0
-			location().warning( tr("Command '\\%1' outside '\\%2'")
-					    .arg(commandName(command))
-					    .arg(commandName(CMD_LIST)) );
-#endif
-		    } else {
+                    if (openedCommands.top() == CMD_LIST) {
 			if ( openedLists.top().isStarted() ) {
 			    append( Atom::ListItemRight,
 				    openedLists.top().styleString() );
@@ -603,6 +631,26 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 			append( Atom::ListItemLeft,
 				openedLists.top().styleString() );
 			enterPara();
+		    } else if (openedCommands.top() == CMD_TABLE) {
+			if (!inTableHeader && !inTableRow) {
+			    location().warning(tr("Missing '\\%1' or '\\%1' before '\\%3'")
+					       .arg(commandName(CMD_HEADER))
+					       .arg(commandName(CMD_ROW))
+                                               .arg(commandName(CMD_O)));
+			    append(Atom::TableRowLeft);
+                            inTableRow = true;
+                        } else if (inTableItem) {
+                            append(Atom::TableItemRight);
+                            inTableItem = false;
+                        }
+
+                        append(Atom::TableItemLeft);
+                        inTableItem = true;
+		    } else {
+			location().warning(tr("Command '\\%1' outside of '\\%2' and '\\%3'")
+					   .arg(commandName(command))
+					   .arg(commandName(CMD_LIST))
+                                           .arg(commandName(CMD_TABLE)));
 		    }
 		    break;
 		case CMD_OMIT:
@@ -671,7 +719,32 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 #endif
 		    break;
 		case CMD_ROW:
-		    /* ... */
+		    if (openedCommands.top() == CMD_TABLE) {
+			if (inTableItem) {
+			    append(Atom::TableItemRight);
+                            inTableItem = FALSE;
+                        }
+                        if (inTableHeader) {
+			    append(Atom::TableHeaderRight);
+                            inTableHeader = false;
+                        }
+                        if (inTableRow) {
+			    append(Atom::TableRowRight);
+                            inTableRow = false;
+                        }
+                        append(Atom::TableRowLeft);
+                        inTableRow = true;
+                    } else {
+			if (openedCommands.contains(CMD_TABLE)) {
+			    location().warning(tr("Cannot use '\\%1' within '\\%2'")
+					       .arg(commandName(CMD_ROW))
+                                               .arg(commandName(openedCommands.top())));
+			} else {
+			    location().warning(tr("Cannot use '\\%1' outside of '\\%2'")
+					       .arg(commandName(CMD_ROW))
+                                               .arg(commandName(CMD_TABLE)));
+			}
+                    }
 		    break;
 		case CMD_SECTION1:
 		    startSection( Doc::Section1, command );
@@ -713,6 +786,9 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    if ( openCommand(command) ) {
 			leavePara();
 			append( Atom::TableLeft );
+                        inTableHeader = false;
+                        inTableRow = false;
+                        inTableItem = false;
 		    }
 		    break;
 		case CMD_TABLEOFCONTENTS:

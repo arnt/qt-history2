@@ -12,12 +12,14 @@ class Atom
 public:
     enum Type { AbstractLeft, AbstractRight, BaseName, BriefLeft, BriefRight, C, CaptionLeft,
                 CaptionRight, Code, FootnoteLeft, FootnoteRight, FormatElse, FormatEndif, FormatIf,
-                FormattingLeft, FormattingRight, GeneratedList, Image, ImageText, LegaleseLeft,
-                LegaleseRight, Link, LinkNode, ListLeft, ListItemNumber, ListTagLeft, ListTagRight,
-                ListItemLeft, ListItemRight, ListRight, Nop, ParaLeft, ParaRight, QuotationLeft,
-                QuotationRight, RawString, SectionLeft, SectionRight, SectionHeadingLeft,
-                SectionHeadingRight, SidebarLeft, SidebarRight, String, TableLeft, TableRight,
-                TableOfContents, Target, UnhandledFormat, UnknownCommand, Last = UnknownCommand };
+                FormattingLeft, FormattingRight, GeneratedList, Image, ImageText, InlineImage,
+                LegaleseLeft, LegaleseRight, Link, LinkNode, ListLeft, ListItemNumber, ListTagLeft,
+                ListTagRight, ListItemLeft, ListItemRight, ListRight, Nop, ParaLeft, ParaRight,
+                QuotationLeft, QuotationRight, RawString, SectionLeft, SectionRight,
+                SectionHeadingLeft, SectionHeadingRight, SidebarLeft, SidebarRight, String,
+                TableLeft, TableRight, TableHeaderLeft, TableHeaderRight, TableRowLeft,
+                TableRowRight, TableItemLeft, TableItemRight, TableOfContents, Target,
+                UnhandledFormat, UnknownCommand, Last = UnknownCommand };
 
     Atom(Type type, const QString &string = "")
 	: nex(0), typ(type), str(string) { }
