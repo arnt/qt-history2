@@ -27,6 +27,8 @@
     \list
     \o \l{Using qmake}
       \tableofcontents{1 Using qmake}
+    \o \l{qmake Project Files}
+      \tableofcontents{1 qmake Project Files}
     \o \l{Running qmake}
       \tableofcontents{1 Running qmake}
     \o \l{qmake Advanced Usage}
