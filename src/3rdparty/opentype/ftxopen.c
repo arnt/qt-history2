@@ -888,25 +888,22 @@
   }
 
 
-  static FT_Error  Coverage_Index1( TTO_CoverageFormat1*  cf1,
+  static inline FT_Error  Coverage_Index1( TTO_CoverageFormat1*  cf1,
                                     FT_UShort             glyphID,
                                     FT_UShort*            index )
   {
-    FT_UShort min, max, new_min, new_max, middle;
+    int min, max, middle;
 
     FT_UShort*  array = cf1->GlyphArray;
 
 
     /* binary search */
 
-    new_min = 0;
-    new_max = cf1->GlyphCount - 1;
+    min = 0;
+    max = cf1->GlyphCount - 1;
 
     do
     {
-      min = new_min;
-      max = new_max;
-
       /* we use (min + max) / 2 = max - (max - min) / 2  to avoid
          overflow and rounding errors                             */
 
@@ -919,15 +916,11 @@
       }
       else if ( glyphID < array[middle] )
       {
-        if ( middle == min )
-          break;
-        new_max = middle - 1;
+        max = middle - 1;
       }
       else
       {
-        if ( middle == max )
-          break;
-        new_min = middle + 1;
+        min = middle + 1;
       }
     } while ( min < max );
 
@@ -935,24 +928,22 @@
   }
 
 
-  static FT_Error  Coverage_Index2( TTO_CoverageFormat2*  cf2,
+  static inline FT_Error  Coverage_Index2( TTO_CoverageFormat2*  cf2,
                                     FT_UShort             glyphID,
                                     FT_UShort*            index )
   {
-    FT_UShort         min, max, new_min, new_max, middle;
+    int         min, max, middle;
 
     TTO_RangeRecord*  rr = cf2->RangeRecord;
 
 
     /* binary search */
 
-    new_min = 0;
-    new_max = cf2->RangeCount - 1;
+    min = 0;
+    max = cf2->RangeCount - 1;
 
     do
     {
-      min = new_min;
-      max = new_max;
 
       /* we use (min + max) / 2 = max - (max - min) / 2  to avoid
          overflow and rounding errors                             */
@@ -966,15 +957,11 @@
       }
       else if ( glyphID < rr[middle].Start )
       {
-        if ( middle == min )
-          break;
-        new_max = middle - 1;
+        max = middle - 1;
       }
       else
       {
-        if ( middle == max )
-          break;
-        new_min = middle + 1;
+        min = middle + 1;
       }
     } while ( min < max );
 
@@ -986,19 +973,11 @@
                             FT_UShort      glyphID,
                             FT_UShort*     index )
   {
-    switch ( c->CoverageFormat )
-    {
-    case 1:
+    if ( c->CoverageFormat == 1 )
       return Coverage_Index1( &c->cf.cf1, glyphID, index );
-
-    case 2:
+    else if ( c->CoverageFormat == 2 )
       return Coverage_Index2( &c->cf.cf2, glyphID, index );
-
-    default:
-      return TTO_Err_Invalid_SubTable_Format;
-    }
-
-    return TT_Err_Ok;               /* never reached */
+    return TTO_Err_Invalid_SubTable_Format;
   }
 
 
@@ -1244,54 +1223,46 @@
   }
 
 
-  static FT_Error  Get_Class1( TTO_ClassDefFormat1*  cdf1,
+  static inline FT_Error  Get_Class1( TTO_ClassDefFormat1*  cdf1,
                                FT_UShort             glyphID,
                                FT_UShort*            klass,
                                FT_UShort*            index )
   {
-    FT_UShort*  cva = cdf1->ClassValueArray;
-
-
     *index = 0;
 
     if ( glyphID >= cdf1->StartGlyph &&
          glyphID <= cdf1->StartGlyph + cdf1->GlyphCount )
     {
-      *klass = cva[glyphID - cdf1->StartGlyph];
+      *klass = cdf1->ClassValueArray[glyphID - cdf1->StartGlyph];
       return TT_Err_Ok;
     }
-    else
-    {
-      *klass = 0;
-      return TTO_Err_Not_Covered;
-    }
+    *klass = 0;
+    return TTO_Err_Not_Covered;
   }
 
 
   /* we need the index value of the last searched class range record
      in case of failure for constructed GDEF tables                  */
 
-  static FT_Error  Get_Class2( TTO_ClassDefFormat2*  cdf2,
+  static inline FT_Error  Get_Class2( TTO_ClassDefFormat2*  cdf2,
                                FT_UShort             glyphID,
                                FT_UShort*            klass,
                                FT_UShort*            index )
   {
-    FT_Error               error = TT_Err_Ok;
-    FT_UShort              min, max, new_min, new_max, middle;
+    FT_Error               error = TTO_Err_Not_Covered;
+    int              min, max, middle;
 
     TTO_ClassRangeRecord*  crr = cdf2->ClassRangeRecord;
 
+    *klass = 0;
 
     /* binary search */
 
-    new_min = 0;
-    new_max = cdf2->ClassRangeCount - 1;
+    min = 0;
+    max = cdf2->ClassRangeCount - 1;
 
     do
     {
-      min = new_min;
-      max = new_max;
-
       /* we use (min + max) / 2 = max - (max - min) / 2  to avoid
          overflow and rounding errors                             */
 
@@ -1305,23 +1276,11 @@
       }
       else if ( glyphID < crr[middle].Start )
       {
-        if ( middle == min )
-        {
-          *klass = 0;
-          error  = TTO_Err_Not_Covered;
-          break;
-        }
-        new_max = middle - 1;
+        max = middle - 1;
       }
       else
       {
-        if ( middle == max )
-        {
-          *klass = 0;
-          error  = TTO_Err_Not_Covered;
-          break;
-        }
-        new_min = middle + 1;
+        min = middle + 1;
       }
     } while ( min < max );
 
@@ -1337,19 +1296,11 @@
                        FT_UShort*            klass,
                        FT_UShort*            index )
   {
-    switch ( cd->ClassFormat )
-    {
-    case 1:
+    if ( cd->ClassFormat == 1 )
       return Get_Class1( &cd->cd.cd1, glyphID, klass, index );
-
-    case 2:
+    else if ( cd->ClassFormat == 2 )
       return Get_Class2( &cd->cd.cd2, glyphID, klass, index );
-
-    default:
-      return TTO_Err_Invalid_SubTable_Format;
-    }
-
-    return TT_Err_Ok;               /* never reached */
+    return TTO_Err_Invalid_SubTable_Format;
   }
 
 

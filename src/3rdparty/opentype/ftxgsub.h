@@ -62,7 +62,7 @@ extern "C" {
   struct  TTO_GSUBHeader_
   {
     FT_Memory        memory;
-    
+
     FT_ULong         offset;
 
     FT_Fixed         Version;
@@ -506,7 +506,7 @@ extern "C" {
   struct  TTO_GSUB_String_
   {
     FT_Memory   memory;
-    
+
     FT_ULong    length;
     FT_ULong    pos;
     FT_ULong    allocated;
@@ -575,7 +575,7 @@ extern "C" {
   FT_Error  TT_GSUB_Register_Alternate_Function( TTO_GSUBHeader*  gsub,
                                                  TTO_AltFunction  altfunc,
                                                  void*            data );
-  
+
   EXPORT_DEF
   FT_Error  TT_GSUB_String_New( FT_Memory           memory,
 				TTO_GSUB_String   **result );
@@ -583,6 +583,10 @@ extern "C" {
   EXPORT_DEF
   FT_Error  TT_GSUB_String_Set_Length( TTO_GSUB_String *str,
 				       FT_ULong         new_length);
+
+  EXPORT_DEF
+  FT_Error  TT_GSUB_String_Allocate( TTO_GSUB_String *str,
+				     FT_ULong         alloc);
 
   EXPORT_DEF
   FT_Error  TT_GSUB_String_Done( TTO_GSUB_String   *str );

@@ -1235,7 +1235,7 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QSc
     TT_GSUB_String_New( face->memory, &in );
     TT_GSUB_String_Set_Length( in, shaped->num_glyphs );
     TT_GSUB_String_New( face->memory, &out);
-    TT_GSUB_String_Set_Length( out, shaped->num_glyphs );
+    TT_GSUB_String_Set_Length( out, shaped->num_glyphs*3+1 );
     out->length = 0;
 
     for ( int i = 0; i < shaped->num_glyphs; i++) {

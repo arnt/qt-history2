@@ -36,7 +36,7 @@
 #include "ftxopen.h"
 #include "ftxopenf.h"
 
-
+#include <assert.h>
 
 #define GSUB_ID  Build_Extension_ID( 'G', 'S', 'U', 'B' )
 
@@ -93,87 +93,79 @@
                                 FT_UShort         component,
                                 FT_UShort         ligID )
   {
-    FT_Memory memory = in->memory;
-    FT_Error  error;
-    FT_UShort i;
-    FT_UShort p_in;
-    FT_UShort*p_out;
-
 
     /* sanity check */
+    assert( !( !in || !out || in->length == 0 || in->pos >= in->length || in->length < in->pos + num_in ) );
 
-    if ( !in || !out ||
-         in->length == 0 || in->pos >= in->length ||
-         in->length < in->pos + num_in )
-      return TT_Err_Invalid_Argument;
-
-    if ( out->pos + num_out >= out->allocated )
-    {
-      FT_ULong  size = out->pos + num_out + 256L;
-
-
-      /* The following works because all fields in `out' must be
-         initialized to zero (including the `string' field) for the
-         first use.                                                 */
-
-      if ( REALLOC_ARRAY( out->string, out->allocated, size, FT_UShort ) )
-        return error;
-      if ( REALLOC_ARRAY( out->components, out->allocated, size, FT_UShort ) )
-        return error;
-      if ( REALLOC_ARRAY( out->ligIDs, out->allocated, size, FT_UShort ) )
-        return error;
-      if ( in->properties )
-        if ( REALLOC_ARRAY( out->properties, out->allocated, size, FT_UShort ) )
-          return error;
-      if ( REALLOC_ARRAY( out->logClusters, out->allocated, size, FT_Int ) )
-	return error;
-
-      out->allocated = size;
-    }
+    if ( out->pos + num_out > out->allocated )
+	TT_GSUB_String_Allocate( out, out->pos + num_out );
 
     if ( num_out )
     {
-      MEM_Copy( &out->string[out->pos], glyph_data,
-                num_out * sizeof ( FT_UShort ) );
+      int n = num_out;
+      FT_UShort *dest_glyph = out->string + out->pos;
+      FT_UShort *dest_comp = out->components + out->pos;
+      FT_UShort *dest_lig = out->ligIDs + out->pos;
+      FT_Int *dest_log = out->logClusters + out->pos;
+      FT_Int src_log = in->logClusters[in->pos];
 
       if ( component == 0xFFFF )
         component = in->components[in->pos];
-
-      p_out = out->components;
-
-      for ( i = out->pos; i < out->pos + num_out; i++ )
-	p_out[i] = component;
-
-      p_out = out->ligIDs;
-
       if ( ligID == 0xFFFF )
         ligID = in->ligIDs[in->pos];
 
-      for ( i = out->pos; i < out->pos + num_out; i++ )
-        p_out[i] = ligID;
+      while ( n-- ) {
+	  *(dest_glyph++) = *(glyph_data++);
+	  *(dest_comp++) = component;
+	  *(dest_lig++) = ligID;
+	  *(dest_log++) = src_log;
+      }
 
       if ( in->properties )
       {
-        p_in  = in->properties[in->pos];
-        p_out = out->properties;
+        FT_UShort p_in = in->properties[in->pos];
+        FT_UShort *p_out = out->properties + out->pos;
+	FT_UShort i;
 
-        for ( i = out->pos; i < out->pos + num_out; i++ )
-          p_out[i] = p_in;
+        for ( i = 0; i < num_out; i++ )
+          *(p_out++) = p_in;
       }
-
-      for ( i = out->pos; i < out->pos + num_out; i++ )
-	out->logClusters[i] = in->logClusters[in->pos];
+      out->pos += num_out;
     }
 
     in->pos  += num_in;
-    out->pos += num_out;
-
     out->length = out->pos;
 
     return TT_Err_Ok;
   }
 
 
+
+/* optimised function for the common case of copying copying 1 glyph to out, replacing n in glyphs */
+static inline void glyph_copy( TTO_GSUB_String*  in,
+                                FT_UShort         num_in,
+                                TTO_GSUB_String*  out,
+                                FT_UShort        glyph,
+                                FT_UShort         component,
+                                FT_UShort         ligID )
+{
+
+    /* sanity check */
+    assert( !( !in || !out || in->length == 0 || in->pos >= in->length || in->length < in->pos + num_in ) );
+
+    if ( out->pos >= out->allocated )
+	TT_GSUB_String_Allocate( out, out->pos + 1 );
+
+    out->string[out->pos] = glyph;
+    out->components[out->pos] = component;
+    out->ligIDs[out->pos] = ligID;
+    out->logClusters[out->pos] = in->logClusters[in->pos];
+    if ( in->properties )
+	out->properties[out->pos] = in->properties[in->pos];
+    out->pos++;
+    in->pos  += num_in;
+    out->length = out->pos;
+}
 #if 0
 
   /**********************
@@ -544,17 +536,15 @@
     switch ( ss->SubstFormat )
     {
     case 1:
-      value[0] = ( in->string[in->pos] + ss->ssf.ssf1.DeltaGlyphID ) & 0xFFFF;
-      if ( ADD_String( in, 1, out, 1, value, 0xFFFF, 0xFFFF ) )
-        return error;
+      glyph_copy( in, 1, out, ( in->string[in->pos] + ss->ssf.ssf1.DeltaGlyphID ) & 0xFFFF,
+		  in->components[in->pos], in->ligIDs[in->pos] );
       break;
 
     case 2:
       if ( index >= ss->ssf.ssf2.GlyphCount )
         return TTO_Err_Invalid_GSUB_SubTable;
-      value[0] = ss->ssf.ssf2.Substitute[index];
-      if ( ADD_String( in, 1, out, 1, value, 0xFFFF, 0xFFFF ) )
-        return error;
+      glyph_copy( in, 1, out, ss->ssf.ssf2.Substitute[index],
+		  in->components[in->pos], in->ligIDs[in->pos] );
       break;
 
     default:
@@ -956,9 +946,8 @@
     else
       alt_index = 0;
 
-    if ( ADD_String( in, 1, out, 1, &aset.Alternate[alt_index],
-                     0xFFFF, 0xFFFF ) )
-      return error;
+    glyph_copy( in, 1, out, aset.Alternate[alt_index],
+		in->components[in->pos], in->ligIDs[in->pos] );
 
     if ( gdef && gdef->NewGlyphClasses )
     {
@@ -1284,27 +1273,19 @@
         {
           /* We don't use a new ligature ID if there are no skipped
              glyphs and the ligature already has an ID.             */
+	  FT_UShort l_id;
 
-          if ( in->ligIDs[in->pos] )
-          {
-            if ( ADD_String( in, i, out, 1, &lig->LigGlyph,
-                             0xFFFF, 0xFFFF ) )
-              return error;
-          }
-          else
-          {
-            if ( ADD_String( in, i, out, 1, &lig->LigGlyph,
-                             0xFFFF, in->max_ligID ) )
-              return error;
-
-            (in->max_ligID)++;
-          }
+	  if ( in->ligIDs[in->pos] )
+	      l_id = in->ligIDs[in->pos];
+	  else
+	      l_id = (in->max_ligID)++;
+	  glyph_copy( in, i, out, lig->LigGlyph,
+		      in->components[in->pos], l_id );
         }
         else
         {
-          if ( ADD_String( in, 1, out, 1, &lig->LigGlyph,
-                           0xFFFF, in->max_ligID ) )
-            return error;
+	  glyph_copy( in, 1, out, lig->LigGlyph,
+		      in->components[in->pos], in->max_ligID );
 
           /* Now we must do a second loop to copy the skipped glyphs to
              `out' and assign component values to it.  We start with the
@@ -1317,10 +1298,8 @@
           {
             while ( CHECK_Property( gdef, in->string[in->pos],
                                     flags, &property ) )
-              if ( ADD_String( in, 1, out, 1, &in->string[in->pos],
-                               i, in->max_ligID ) )
-                return error;
-
+		glyph_copy( in, 1, out, in->string[in->pos],
+			    i, in->max_ligID );
             (in->pos)++;
           }
 
@@ -1372,9 +1351,8 @@
         {
           /* XXX "can't happen" -- but don't count on it */
 
-          if ( ADD_String( in, 1, out, 1, &in->string[in->pos],
-                           0xFFFF, 0xFFFF ) )
-            return error;
+	  glyph_copy( in, 1, out, in->string[in->pos],
+		      in->components[in->pos], in->ligIDs[in->pos] );
           i++;
         }
         else if ( error )
@@ -1384,8 +1362,8 @@
       {
         /* No substitution for this index */
 
-        if ( ADD_String( in, 1, out, 1, &in->string[in->pos],
-                         0xFFFF, 0xFFFF ) )
+	  glyph_copy( in, 1, out, in->string[in->pos],
+		      in->components[in->pos], in->ligIDs[in->pos] );
           return error;
         i++;
       }
@@ -4317,8 +4295,8 @@
         error = TTO_Err_Not_Covered;
 
       if ( error == TTO_Err_Not_Covered )
-        if ( ADD_String( in, 1, out, 1, &s_in[in->pos], 0xFFFF, 0xFFFF ) )
-          return error;
+	  glyph_copy( in, 1, out, s_in[in->pos],
+		      in->components[in->pos], in->ligIDs[in->pos] );
     }
 
     return error;
@@ -4420,30 +4398,41 @@
   FT_Error  TT_GSUB_String_Set_Length( TTO_GSUB_String *str,
 				       FT_ULong         new_length)
   {
+    if ( new_length > str->allocated )
+	TT_GSUB_String_Allocate( str, new_length );
+    str->length = new_length;
+
+    return TT_Err_Ok;
+  }
+
+  EXPORT_DEF
+  FT_Error  TT_GSUB_String_Allocate( TTO_GSUB_String *str,
+				     FT_ULong         alloc)
+  {
     FT_Memory memory = str->memory;
     FT_Error error;
 
-    if ( new_length > str->allocated )
+    if ( alloc > str->allocated )
     {
-      if ( REALLOC_ARRAY( str->string, str->allocated, new_length, FT_UShort ) )
+	alloc = (alloc + (1<<5)) >> 5 << 5;
+      if ( REALLOC_ARRAY( str->string, str->allocated, alloc, FT_UShort ) )
         return error;
-      if ( REALLOC_ARRAY( str->properties, str->allocated, new_length, FT_UShort ) )
+      if ( REALLOC_ARRAY( str->properties, str->allocated, alloc, FT_UShort ) )
         return error;
-      if ( REALLOC_ARRAY( str->components, str->allocated, new_length, FT_UShort ) )
+      if ( REALLOC_ARRAY( str->components, str->allocated, alloc, FT_UShort ) )
         return error;
-      if ( REALLOC_ARRAY( str->ligIDs, str->allocated, new_length, FT_UShort ) )
+      if ( REALLOC_ARRAY( str->ligIDs, str->allocated, alloc, FT_UShort ) )
         return error;
-      if ( REALLOC_ARRAY( str->logClusters, str->allocated, new_length, FT_Int ) )
+      if ( REALLOC_ARRAY( str->logClusters, str->allocated, alloc, FT_Int ) )
         return error;
 
-      str->allocated = new_length;
-      str->length = new_length;
+      str->allocated = alloc;
     }
 
     return TT_Err_Ok;
   }
 
-  EXPORT_FUNC
+EXPORT_FUNC
   FT_Error  TT_GSUB_String_Done( TTO_GSUB_String   *str )
   {
     FT_Memory memory = str->memory;
