@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#69 $
 **
 ** Implementation of QTabBar class
 **
@@ -145,7 +145,7 @@ QTabBar::~QTabBar()
 /*!
   Adds \a newTab to the tab control.
 
-  Allocates a new id, sets t's id, locates it just to the right of the
+  Allocates a new id, sets \a newTab's id, locates it just to the right of the
   existing tabs, inserts an accelerator if the tab's label contains the
   string "&p" for some value of p, adds it to the bar, and returns the
   newly allocated id.
@@ -153,39 +153,30 @@ QTabBar::~QTabBar()
 
 int QTabBar::addTab( QTab * newTab )
 {
-
-    newTab->id = d->id++;
-    l->append( newTab );
-    lstatic->append( newTab );
-
-    layoutTabs();
-
-    int p = QAccel::shortcutKey( newTab->label );
-    if ( p )
-	d->a->insertItem( p, newTab->id );
-
-    return newTab->id;
+    return insertTab( newTab );
 }
+
 
 /*!
   Inserts \a newTab to the tab control.
 
-  Allocates a new id, sets t's id, locates it at position \e index,
-  inserts an accelerator if the tab's label contains the
-  string "&p" for some value of p, inserts it into the bar, and returns the
-  newly allocated id.
+  If \a index is not specified, the tab is simply added. Otherwise
+  it's inserted at the specified position.
+
+  Allocates a new id, sets \a newTab's id, locates it respectively,
+  inserts an accelerator if the tab's label contains the string "&p"
+  for some value of p, adds it to the bar, and returns the newly
+  allocated id.
 */
 
 int QTabBar::insertTab( QTab * newTab, int index )
 {
-	if ( index > l->count() - 1 )
-		index = l->count() - 1;
-	else if ( index < 0 )
-		index = 0;
-	
     newTab->id = d->id++;
-    l->insert( index, newTab );
-    lstatic->insert( index, newTab );
+    l->append( newTab );
+    if ( index < 0 || index > int(lstatic->count()) )
+	lstatic->append( newTab );
+    else
+	lstatic->insert( index, newTab );
 
     layoutTabs();
 
@@ -195,6 +186,7 @@ int QTabBar::insertTab( QTab * newTab, int index )
 
     return newTab->id;
 }
+
 
 /*!
   Removes \a tab from the tab control.
