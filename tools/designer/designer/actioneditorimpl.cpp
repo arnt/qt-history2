@@ -22,7 +22,8 @@
 #include "formwindow.h"
 #include "metadatabase.h"
 #include "actionlistview.h"
-#include "connectioneditorimpl.h"
+// #include "connectioneditorimpl.h"
+#include "connectiondialog.h"
 #include "mainwindow.h"
 
 #include <qaction.h>
@@ -253,6 +254,9 @@ void ActionEditor::updateActionIcon( QAction *a )
 
 void ActionEditor::connectionsClicked()
 {
-    ConnectionEditor editor( formWindow->mainWindow(), currentAction, formWindow, formWindow );
-    editor.exec();
+//     ConnectionEditor editor( formWindow->mainWindow(), currentAction, formWindow, formWindow );
+//     editor.exec();
+    ConnectionDialog dlg( formWindow->mainWindow() );
+    dlg.setDefault( currentAction, formWindow );
+    dlg.exec();
 }

@@ -9,6 +9,7 @@
 #include "project.h"
 #include <qcombobox.h>
 #include <qlistbox.h>
+#include <qaction.h>
 
 static const char* const ignore_slots[] = {
     "destroyed()",
@@ -155,8 +156,9 @@ void ConnectionItem::setConnection( ConnectionContainer *c )
 SenderItem::SenderItem( QTable *table, FormWindow *fw )
     : ConnectionItem( table, fw )
 {
-    QPtrDictIterator<QWidget> it( *formWindow->widgets() );
     QStringList lst;
+
+    QPtrDictIterator<QWidget> it( *formWindow->widgets() );
     while ( it.current() ) {
 	if ( lst.find( it.current()->name() ) != lst.end() ) {
 	    ++it;
@@ -171,15 +173,21 @@ SenderItem::SenderItem( QTable *table, FormWindow *fw )
 	}
 	++it;
     }
-    lst.prepend( "<No Sender>" );
 
+    QPtrListIterator<QAction> it2( formWindow->actionList() );
+    while ( it2.current() ) {
+	lst << it2.current()->name();
+	++it2;
+    }
+
+    lst.prepend( "<No Sender>" );
     setStringList( lst );
 }
 
 QWidget *SenderItem::createEditor() const
 {
     QComboBox *cb = (QComboBox*)ConnectionItem::createEditor();
-    cb->listBox()->setHScrollBarMode( QScrollView::AlwaysOn );
+    cb->listBox()->setMinimumWidth( cb->fontMetrics().width( "01234567890123456789012345678901234567890123456789" ) );
     connect( cb, SIGNAL( activated( const QString & ) ),
 	     this, SLOT( senderChanged( const QString & ) ) );
     return cb;
@@ -206,30 +214,38 @@ void SenderItem::senderChanged( const QString &sender )
 ReceiverItem::ReceiverItem( QTable *table, FormWindow *fw )
     : ConnectionItem( table, fw )
 {
-    QPtrDictIterator<QWidget> it( *formWindow->widgets() );
     QStringList lst;
+
+    QPtrDictIterator<QWidget> it( *formWindow->widgets() );
     while ( it.current() ) {
 	if ( lst.find( it.current()->name() ) != lst.end() ) {
 	    ++it;
 	    continue;
 	}
-	if ( it.current()->isVisibleTo( formWindow ) &&
+	if ( !QString( it.current()->name() ).startsWith( "qt_dead_widget_" ) &&
 	     !it.current()->inherits( "QLayoutWidget" ) &&
 	     !it.current()->inherits( "Spacer" ) &&
+	     !it.current()->inherits( "SizeHandle" ) &&
 	     qstrcmp( it.current()->name(), "central widget" ) != 0 ) {
 	    lst << it.current()->name();
 	}
 	++it;
     }
-    lst.prepend( "<No Receiver>" );
 
+    QPtrListIterator<QAction> it2( formWindow->actionList() );
+    while ( it2.current() ) {
+	lst << it2.current()->name();
+	++it2;
+    }
+
+    lst.prepend( "<No Receiver>" );
     setStringList( lst );
 }
 
 QWidget *ReceiverItem::createEditor() const
 {
     QComboBox *cb = (QComboBox*)ConnectionItem::createEditor();
-    cb->listBox()->setHScrollBarMode( QScrollView::AlwaysOn );
+    cb->listBox()->setMinimumWidth( cb->fontMetrics().width( "01234567890123456789012345678901234567890123456789" ) );
     connect( cb, SIGNAL( activated( const QString & ) ),
 	     this, SLOT( receiverChanged( const QString & ) ) );
     return cb;
@@ -294,7 +310,7 @@ void SignalItem::senderChanged( QObject *sender )
 QWidget *SignalItem::createEditor() const
 {
     QComboBox *cb = (QComboBox*)ConnectionItem::createEditor();
-    cb->listBox()->setHScrollBarMode( QScrollView::AlwaysOn );
+    cb->listBox()->setMinimumWidth( cb->fontMetrics().width( "01234567890123456789012345678901234567890123456789" ) );
     connect( cb, SIGNAL( activated( const QString & ) ),
 	     this, SIGNAL( currentSignalChanged( const QString & ) ) );
     return cb;
@@ -420,7 +436,7 @@ void SlotItem::updateSlotList()
 QWidget *SlotItem::createEditor() const
 {
     QComboBox *cb = (QComboBox*)ConnectionItem::createEditor();
-    cb->listBox()->setHScrollBarMode( QScrollView::AlwaysOn );
+    cb->listBox()->setMinimumWidth( cb->fontMetrics().width( "01234567890123456789012345678901234567890123456789" ) );
     connect( cb, SIGNAL( activated( const QString & ) ),
 	     this, SIGNAL( currentSlotChanged( const QString & ) ) );
     return cb;

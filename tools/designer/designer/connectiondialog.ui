@@ -181,6 +181,8 @@
 </forwards>
 <variables>
     <variable>QPtrList&lt;ConnectionContainer&gt; connections;</variable>
+    <variable>QObject *defaultSender;</variable>
+    <variable>QObject *defaultReceiver;</variable>
 </variables>
 <slots>
     <slot access="">init()</slot>
@@ -190,7 +192,8 @@
     <slot access="">okClicked()</slot>
     <slot access="">cancelClicked()</slot>
     <slot access="">deleteClicked()</slot>
-    <slot>editSlots()</slot>
+    <slot access="">editSlots()</slot>
+    <slot>setDefault( QObject * sender, QObject * receiver )</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

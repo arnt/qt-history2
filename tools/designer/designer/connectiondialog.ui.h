@@ -70,6 +70,7 @@ static QPixmap *validConnection = 0;
 
 void ConnectionDialog::init()
 {
+    defaultSender = defaultReceiver = 0;
     connectionsTable->setColumnStretchable( 0, TRUE );
     connectionsTable->setColumnStretchable( 1, TRUE );
     connectionsTable->setColumnStretchable( 2, TRUE );
@@ -95,7 +96,7 @@ void ConnectionDialog::init()
 
 void ConnectionDialog::addConnection()
 {
-    addConnection( 0, 0, QString::null, QString::null );
+    addConnection( defaultSender, defaultReceiver, QString::null, QString::null );
 }
 
 ConnectionContainer *ConnectionDialog::addConnection( QObject *sender, QObject *receiver,
@@ -154,8 +155,10 @@ ConnectionContainer *ConnectionDialog::addConnection( QObject *sender, QObject *
 
     if ( sender )
 	se->setSenderEx( sender );
+    defaultSender = sender;
     if ( receiver )
 	re->setReceiverEx( receiver );
+    defaultReceiver = receiver;
 
     if ( !signal.isEmpty() && !slot.isEmpty() ) {
 	si->setCurrentItem( signal );
@@ -262,4 +265,10 @@ void ConnectionDialog::editSlots()
 	    continue;
 	c->slotItem()->customSlotsChanged();
     }	
+}
+
+void ConnectionDialog::setDefault( QObject *sender, QObject *receiver )
+{
+    defaultSender = sender;
+    defaultReceiver = receiver;
 }
