@@ -61,7 +61,11 @@ tools {
 	 	  $$TOOLS_CPP/qfile_win.cpp \
 		  $$TOOLS_CPP/qfileinfo_win.cpp \
 		  $$TOOLS_CPP/qlibrary_win.cpp \
-		  $$TOOLS_CPP/qsettings_win.cpp
+		  $$TOOLS_CPP/qsettings_win.cpp \
+		  $$TOOLS_CPP/qmutex_win.cpp \
+		  $$TOOLS_CPP/qwaitcondition_win.cpp \
+		  $$TOOLS_CPP/qsemaphore_win.cpp \
+		  $$TOOLS_CPP/qcriticalsection_p.cpp
 
         offmac:SOURCES += $$TOOLS_CPP/qdir_mac.cpp \
 		  $$TOOLS_CPP/qfile_mac.cpp \
