@@ -134,8 +134,11 @@ void QLayoutWidget::paintEvent(QPaintEvent*)
     if (!m_formWindow->hasFeature(AbstractFormWindow::GridFeature))
         return;
 
+#if 0
+    // ### this is broken atm
     if (!m_formWindow->currentTool() != 0)
         return;
+#endif
 
     QPainter p(this);
 

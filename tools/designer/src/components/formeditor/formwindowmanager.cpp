@@ -133,9 +133,6 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
     }
 
     if (isPassiveInteractor(widget)) {
-/*        if (fw->editMode() == FormWindow::TabOrderEditMode)
-            fw->updateOrderIndicators(); */
-
         return false;
     }
 
