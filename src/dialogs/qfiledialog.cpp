@@ -3160,7 +3160,7 @@ void QFileDialog::okClicked()
 	    d->ignoreReturn = FALSE;
 	    return;
 	}
-	d->currentFileName = d->url.toString();//dirPath();
+        d->currentFileName = d->url.toString();//dirPath();
 	accept();
 	return;
     }
@@ -5102,8 +5102,8 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
 	    i = new QFileDialogPrivate::File( d, &inf, files );
 	    i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
 
-	    if ( ( d->mode == ExistingFiles && inf.isDir() ) ||
-		 isDirectoryMode( d->mode ) ) {
+	    if ( d->mode == ExistingFiles && inf.isDir() ||
+                ( isDirectoryMode( d->mode ) && inf.isFile() ) ) {
 		i->setSelectable( FALSE );
 		i2->setSelectable( FALSE );
 	    }
@@ -5365,8 +5365,8 @@ void QFileDialog::resortDir()
 	item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item, item2 );
 	item->i = item2;
 	d->pendingItems.append( item );
-	if ( d->mode == ExistingFiles && item->info.isDir() ||
-	     isDirectoryMode( d->mode ) ) {
+	if ( d->mode == ExistingFiles && item->info.isDir() || 
+            ( isDirectoryMode( d->mode ) && item->info.isFile() ) ) {
 	    item->setSelectable( FALSE );
 	    item2->setSelectable( FALSE );
 	}
