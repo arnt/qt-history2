@@ -993,7 +993,7 @@ MakefileGenerator::writeProjectMakefile()
     } else {
         t << "first: " << targets.first()->target << endl
           << "install: " << targets.first()->target << "-install" << endl
-          << "uninstall: " << targets.first()->target << "-uinstall" << endl;
+          << "uninstall: " << targets.first()->target << "-uninstall" << endl;
     }
     writeSubTargets(t, targets, SubTargetsNoFlags);
     return true;
