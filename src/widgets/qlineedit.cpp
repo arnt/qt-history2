@@ -2219,14 +2219,7 @@ void QLineEditPrivate::init( const QString& txt )
 
 void QLineEditPrivate::updateTextLayout()
 {
-    // ### Lars, you should fix this in QFont somewhere, workaround for now
-    // makes \n into spaces when drawing the text
-    QString display( q->displayText() );
-    QChar* uc = (QChar*)display.unicode();
-    for ( uint i = 0; i < display.length(); i++ )
-	if ( uc[(int)i]== '\n' || QChar(0x2028U) || uc[(int)i] == '\t' )
-	    uc[(int)i] = 0x20;
-    textLayout.setText( display, q->font() );
+    textLayout.setText( q->displayText(), q->font() );
     // ### want to do textLayout.setRightToLeft( text.isRightToLeft() );
     textLayout.beginLayout( QTextLayout::SingleLine );
     textLayout.beginLine( INT_MAX );
