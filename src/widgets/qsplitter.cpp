@@ -94,7 +94,7 @@ QSplitterHandle::QSplitterHandle( Qt::Orientation o,
 QSize QSplitterHandle::sizeHint() const
 {
     int sw = style().pixelMetric(QStyle::PM_SplitterWidth, this);
-    return (style().sizeFromContents(QStyle::CT_Splitter, this, QSize(sw, sw)).
+    return (style().sizeFromContents(QStyle::CT_Splitter, s, QSize(sw, sw)).
 	    expandedTo(QApplication::globalStrut()));
 }
 
