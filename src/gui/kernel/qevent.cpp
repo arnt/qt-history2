@@ -272,15 +272,16 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 
     \ingroup events
 
-    Wheel events are sent to the widget under the mouse, and if that widget
-    does not handle the event they are sent to the focus widget. The rotation
-    distance is provided by delta(). The functions pos() and globalPos() return
-    the mouse pointer location at the time of the event.
+    Wheel events are sent to the widget under the mouse cursor, and
+    if that widget does not handle the event they are sent to the
+    focus widget. The rotation distance is provided by delta().
+    The functions pos() and globalPos() return the mouse cursor's
+    location at the time of the event.
 
     A wheel event contains a special accept flag that indicates
     whether the receiver wants the event. You should call ignore() if
-    you do not handle the wheel event; otherwise it will be sent to
-    the parent widget.
+    you do not handle the wheel event; this ensures that it will be
+    sent to the parent widget.
 
     The QWidget::setEnable() function can be used to enable or disable
     mouse and keyboard events for a widget.
@@ -301,12 +302,12 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 
     Constructs a wheel event object.
 
-    The globalPos() is initialized to QCursor::pos(), i.e. \a pos,
-    which is usually (but not always) right. Use the other constructor
-    if you need to specify the global position explicitly. \a delta
-    contains the rotation distance, \a state holds the keyboard
-    modifier flags at the time of the event and \a orient holds the
-    wheel's orientation.
+    The globalPos() is initialized to QCursor::pos() which is usually,
+    but not always, right. Use the other constructor if you need to
+    specify the global position explicitly. \a delta contains the
+    rotation distance, \a state holds the keyboard modifier flags at
+    the time of the event, and \a orient holds the wheel's
+    orientation.
 
     \sa pos(), delta(), state()
 */
@@ -318,13 +319,14 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
 }
 #endif
 /*!
-    \fn QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, int state, Orientation orient = Vertical )
+    \fn QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint &globalPos, int delta, int state, Orientation orient = Vertical )
 
-    Constructs a wheel event object. The position when the event
-    occurred is given in \a pos and \a globalPos. \a delta contains
-    the rotation distance, \a state holds the keyboard modifier flags
-    at the time of the event and \a orient holds the wheel's
-    orientation.
+    Constructs a wheel event object.
+
+    The mouse cursor's position when the event occurred is given in \a pos
+    and \a globalPos. \a delta contains the rotation distance, \a state
+    holds the keyboard modifier flags at the time of the event, and
+    \a orient holds the wheel's orientation.
 
     \sa pos(), globalPos(), delta(), state()
 */
@@ -348,11 +350,11 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
 /*!
     \fn const QPoint &QWheelEvent::pos() const
 
-    Returns the position of the mouse pointer, relative to the widget
+    Returns the position of the mouse cursor relative to the widget
     that received the event.
 
-    If you move your widgets around in response to mouse
-    events, use globalPos() instead of this function.
+    If you move your widgets around in response to mouse events,
+    use globalPos() instead of this function.
 
     \sa x(), y(), globalPos()
 */
@@ -383,7 +385,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
     of the event}. This is important on asynchronous window systems
     such as X11; whenever you move your widgets around in response to
     mouse events, globalPos() can differ a lot from the current
-    pointer position QCursor::pos().
+    cursor position returned by QCursor::pos().
 
     \sa globalX(), globalY()
 */
@@ -412,8 +414,9 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
 
     Returns the keyboard modifier flags of the event.
 
-    The returned value is \c ShiftButton, \c ControlButton, and \c
-    AltButton OR'ed together.
+    The returned value is a selection of the following values,
+    combined using the logical OR operator:
+    \c ShiftButton, \c ControlButton, and \c AltButton.
 */
 
 
@@ -423,12 +426,12 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
     This enum type describes the keyboard modifier keys supported by
     Qt.
 
-    \value SHIFT the Shift keys provided on all standard keyboards.
-    \value META the Meta keys.
-    \value CTRL the Ctrl keys.
-    \value ALT the normal Alt keys, but not e.g. AltGr.
-    \value MODIFIER_MASK is a mask of Shift, Ctrl, Alt and Meta.
-    \value UNICODE_ACCEL the shortcut is specified as a Unicode code
+    \value SHIFT The Shift keys provided on all standard keyboards.
+    \value META The Meta keys.
+    \value CTRL The Ctrl keys.
+    \value ALT The normal Alt keys, but not keys like AltGr.
+    \value MODIFIER_MASK A mask of Shift, Ctrl, Alt, and Meta.
+    \value UNICODE_ACCEL The shortcut is specified as a Unicode code
     point, not as a Qt Key.
 */
 
@@ -831,18 +834,18 @@ Qt::ButtonState QKeyEvent::stateAfter() const
     \ingroup events
 
     Focus events are sent to widgets when the keyboard input focus
-    changes. Focus events occur due to mouse actions, keypresses (e.g.
-    Tab or Backtab), the window system, popup menus, keyboard
-    shortcuts or other application specific reasons. The reason for a
-    particular focus event is returned by reason() in the appropriate
-    event handler.
+    changes. Focus events occur due to mouse actions, key presses
+    (such as Tab or Backtab), the window system, popup menus,
+    keyboard shortcuts or other application-specific reasons.
+    The reason for a particular focus event is returned by reason()
+    in the appropriate event handler.
 
     The event handlers QWidget::focusInEvent() and
     QWidget::focusOutEvent() receive focus events.
 
     Use setReason() to set the reason for all focus events, and
-    resetReason() to set the reason for all focus events to the reason
-    in force before the last setReason() call.
+    resetReason() to reset the reason for all focus events to the
+    previously defined reason before the last setReason() call.
 
     \sa QWidget::setFocus(), QWidget::setFocusPolicy()
 */
@@ -867,17 +870,20 @@ QFocusEvent::Reason QFocusEvent::prev_reason = QFocusEvent::Other;
 
     This enum specifies why the focus changed.
 
-    \value Mouse  because of a mouse action.
-    \value Tab  because of a Tab press.
-    \value Backtab  because of a Backtab press
-            (possibly including Shift/Control, e.g. Shift+Tab).
-    \value ActiveWindow  because the window system made this window (in)active.
-    \value Popup  because the application opened/closed a popup that grabbed/released focus.
-    \value Shortcut  because of a keyboard shortcut.
-    \value Other  any other reason, usually application-specific.
+    \value Mouse         A mouse action occurred.
+    \value Tab           The Tab key was pressed.
+    \value Backtab       A Backtab occurred. The input for this may
+                         include the Shift or Control keys;
+                         e.g. Shift+Tab.
+    \value ActiveWindow  The window system made this window either
+                         active or inactive.
+    \value Popup         The application opened/closed a popup that
+                         grabbed/released the keyboard focus.
+    \value Shortcut      A keyboard shortcut was input.
+    \value Other         Another reason, usually application-specific.
 
-    See the \link focus.html keyboard focus overview\endlink for more
-    about focus.
+    See the \link focus.html keyboard focus overview \endlink for more
+    about the keyboard focus.
 */
 
 /*!
@@ -1297,7 +1303,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
     The returned value is a selection of the following values,
     combined with the logical OR operator:
     \c LeftButton, \c RightButton, \c MidButton,
-    \c ShiftButton, \c ControlButton and \c AltButton.
+    \c ShiftButton, \c ControlButton, and \c AltButton.
 */
 
 /*!
@@ -1331,18 +1337,18 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
     \ingroup events
 
     Input method events are sent to widgets when an input method is
-    used to enter text into a widget. Input methods are widely used to
-    enter text in Asian and other complex languages.
+    used to enter text into a widget. Input methods are widely used
+    to enter text for languages with non-Latin alphabets.
 
-    The events are of interest to widgets that accept keyboard input
-    and want to be able to correctly handle complex languages. Text
-    input in such languages is usually a three step process.
+    The events are of interest to authors of keyboard entry widgets
+    who want to be able to correctly handle complex character input.
+    Text input in such languages is usually a three step process.
 
     \list 1
     \i <b>Starting to Compose</b><br>
-    When the user presses the first key on a keyboard an input context
-    is created. This input context will contain a string with the
-    typed characters.
+    When the user presses the first key on a keyboard, an input
+    context is created. This input context will contain a string
+    of the typed characters.
 
     \i <b>Composing</b><br>
     With every new key pressed, the input method will try to create a
@@ -1351,7 +1357,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
     belonging to this input context.
 
     \i <b>Completing</b><br>
-    At some point, e.g. when the user presses the Spacebar, they get
+    At some point, e.g. when the user presses the Space bar, they get
     to this stage, where they can choose from a number of strings that
     match the text they have typed so far. The user can press Enter to
     confirm their choice or Escape to cancel the input; in either case
@@ -1360,7 +1366,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
 
     Note that the particular key presses used for a given input
     context may differ from those we've mentioned here, i.e. they may
-    not be Spacebar, Enter and Escape.
+    not be Space bar, Enter, and Escape.
 
     These three stages are represented by three different types of
     events. The IMStartEvent, IMComposeEvent and IMEndEvent. When a
@@ -1393,6 +1399,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
     widget where the composition is taking place the IMEndEvent will
     be sent and the string it holds will be the result of the
     composition up to that point (which may be an empty string).
+
 */
 
 /*!
@@ -1874,12 +1881,12 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
     This event is sent just before QWidget::hide() returns, and also
     when a top-level window has been hidden (iconified) by the user.
 
-    If spontaneous() is true the event originated outside the
-    application, i.e. the user hid the window using the window manager
-    controls, either by iconifying the window or by switching to
-    another virtual desktop where the window isn't visible. The window
-    will become hidden but not withdrawn. If the window was iconified,
-    QWidget::isMinimized() returns true.
+    If spontaneous() is true, the event originated outside the
+    application. In this case, the user hid the window using the
+    window manager controls, either by iconifying the window or by
+    switching to another virtual desktop where the window isn't
+    visible. The window will become hidden but not withdrawn. If the
+    window was iconified, QWidget::isMinimized() returns true.
 
     \sa QShowEvent
 */
@@ -1923,17 +1930,19 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 
 /*!
     \class QFileOpenEvent qevent.h
-    \brief The QFileOpenEvent class provides an event which will be
-    sent when a file is requested to be opened.
+    \brief The QFileOpenEvent class provides an event that will be
+    sent when there is a request to open a file.
 
     \ingroup events
 
-    FileOpen events will be sent to the QApplication instance when the
-    operating system is requesting that a file be opened. This is a
-    high level event that can be triggered via different desktop
-    environments (for example double clicking on an file icon on Mac
-    OS X in the Finder). If this even is ignored nothing will happen,
-    it is used only to notify of a request.
+    File open events will be sent to the QApplication instance when
+    the operating system requests that a file be opened. This is a
+    high level event that can be caused by different user actions
+    depending on the user's desktop environment; for example, double
+    clicking on an file icon in the Finder on Mac OS X.
+
+    This event is only used to notify the application of a request.
+    It may be safely ignored.
 */
 
 /*!
@@ -1941,7 +1950,7 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 
     \internal
 
-    Constructs a file open event for the file \a file.
+    Constructs a file open event for the given \a file.
 */
 
 /*!
