@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#244 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#245 $
 **
 ** Implementation of QApplication class
 **
@@ -298,6 +298,7 @@ static void create_palettes()			// creates default palettes
 static void destroy_palettes()
 {
     delete stdPalette;
+    stdPalette = 0;
 }
 
 void QApplication::process_cmdline( int* argcptr, char ** argv )
@@ -534,6 +535,7 @@ QApplication::~QApplication()
     delete objectDict;
     objectDict = 0;
     qApp = 0;
+    is_app_running = FALSE;
     //can not delete codecs until after QDict destructors
     //QTextCodec::deleteAllCodecs();
 }
