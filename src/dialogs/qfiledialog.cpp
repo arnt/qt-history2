@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#259 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#260 $
 **
 ** Implementation of QFileDialog class
 **
@@ -287,7 +287,7 @@ QCopyFileDialog::QCopyFileDialog( QWidget *parent, const char *name )
     pprogress = new QProgressBar( back );
     QHBox *hbox = new QHBox( back );
     (void)new QWidget( hbox );
-    cancel = new QPushButton( tr( "&Cancel" ), hbox );
+    cancel = new QPushButton( QFileDialog::tr( "&Cancel" ), hbox );
     (void)new QWidget( hbox );
     hbox->setMinimumHeight( cancel->height() );
 
@@ -319,8 +319,10 @@ static bool copyFile( const QString &from, const QString &to, QCopyFileDialog *d
         }
         if ( !overwriteAll ) {
             int r = QMessageBox::warning( dia, QFileDialog::tr( "Overwrite file?" ),
-                                          QFileDialog::tr( "The file\n%1\nalread exists. Do you want to overwrite it?" ).arg( to ),
-                                          QFileDialog::tr( "&Yes" ), QFileDialog::tr( "&No" ), QFileDialog::tr( "Overwrite &All" ) );
+                                          QFileDialog::tr( "The file\n%1\nalready exists. Do you want to overwrite it?" ).arg( to ),
+                                          QFileDialog::tr( "&Yes" ),
+					  QFileDialog::tr( "&No" ),
+					  QFileDialog::tr( "Overwrite &All" ) );
             if ( r == 1 ) {
                 f.close();
                 return FALSE;
@@ -1623,7 +1625,7 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
         for ( ; it != filters.end(); ++it )
             d->types->insertItem( *it );
     } else {
-        d->types->insertItem( tr( "All files (*)" ) );
+        d->types->insertItem( QFileDialog::tr( "All files (*)" ) );
     }
     if ( !dirName.isEmpty() )
         cwd.setPath( dirName );
