@@ -884,10 +884,7 @@ void QXmlInputSource::init()
     inputDevice = 0;
     inputStream = 0;
 
-    str = QString::null;
-    pos = 0;
-    length = str.length();
-    nextReturnedEndOfData = FALSE;
+    setData( QString::null );
     encMapper = 0;
 }
 
@@ -1059,10 +1056,7 @@ void QXmlInputSource::fetchData()
 	    rawData.resize( nread );
 	}
     }
-    str = fromRawData( rawData );
-    pos = 0;
-    length = str.length();
-    nextReturnedEndOfData = FALSE;
+    setData( fromRawData( rawData ) );
 }
 
 /*!
