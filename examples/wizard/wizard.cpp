@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/wizard/wizard.cpp#2 $
+** $Id: //depot/qt/main/examples/wizard/wizard.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -41,11 +41,15 @@ void Wizard::setupPage1()
                    "Your personal key\n"
                    "consists of 4 digits" );
     info->setMargin( 8 );
-    info->setAlignment( AlignTop|AlignLeft );
+    info->setMaximumWidth( info->sizeHint().width() );
 
-    (void)new QLabel( "Key:", page1 );
+    QVBox *page = new QVBox( page1 );
 
-    key = new QLineEdit( page1 );
+    QHBox *row1 = new QHBox( page );
+
+    (void)new QLabel( "Key:", row1 );
+
+    key = new QLineEdit( row1 );
     key->setMaxLength( 4 );
     key->setValidator( new QIntValidator( 9999, 0, key ) );
 
