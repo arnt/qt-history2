@@ -71,6 +71,7 @@
 #include <qmainwindow.h>
 #include <qmenubar.h>
 #include <qapplication.h>
+#include "database.h"
 
 #include <globaldefs.h>
 
@@ -662,6 +663,15 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	    dw->show();
 	}
 	return mw;
+    } else if ( className == "QSqlWidget" ) {
+	QWidget *w = new QDesignerSqlWidget( parent, name );
+	w->show();
+	return w;
+    } else if ( className == "QSqlDialog" ) {
+	QWidget *w = new QDesignerSqlDialog( parent, name );
+	if ( parent )
+	    w->reparent( parent, QPoint( 0, 0 ), TRUE );
+	return w;
     }
 
     QWidget *w = qt_create_kde_widget( className, parent, name, init );

@@ -18,33 +18,46 @@
 **
 **********************************************************************/
 
-#ifndef NEWFORMIMPL_H
-#define NEWFORMIMPL_H
+#ifndef DATABASE_H
+#define DATABASE_H
 
-#include "newform.h"
+#include <qdialog.h>
 
-class NewForm : public NewFormBase
+class QDesignerSqlWidget : public QWidget
 {
     Q_OBJECT
-
+    
 public:
-    enum Form {
-	Widget,
-	Dialog,
-	Wizard,
-	Mainwindow,
-	SqlWidget,
-	SqlDialog,
-	Custom
-    };
+    QDesignerSqlWidget( QWidget *parent, const char *name );
+    
+public slots:
+    void prev();
+    void next();
+    void first();
+    void last();
+    void newRecord(); // ##### Reggie: ?? Dave
+    
+protected:
+    void paintEvent( QPaintEvent *e );
 
-    NewForm( QWidget *parent, const QString &tPath );
+};
 
-    Form formType() const;
-    QString templateFile() const;
-
-private:
-    QString templPath;
+class QDesignerSqlDialog : public QDialog
+{
+    Q_OBJECT
+    
+public:
+    QDesignerSqlDialog( QWidget *parent, const char *name );
+    
+public slots:
+    void prev();
+    void next();
+    void first();
+    void last();
+    void newRecord(); // ##### Reggie: ?? Dave
+    
+protected:
+    void paintEvent( QPaintEvent *e );
 
 };
 

@@ -2214,6 +2214,12 @@ FormWindow* MainWindow::insertFormWindow( int type )
     } else if ( type == NewForm::Mainwindow ) {
 	QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QMainWindow" ), fw, n.latin1() );
 	fw->setMainContainer( w );
+    } else if ( type == NewForm::SqlWidget ) {
+	QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QSqlWidget" ), fw, n.latin1() );
+	fw->setMainContainer( w );
+    } else if ( type == NewForm::SqlDialog ) {
+	QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QSqlDialog" ), fw, n.latin1() );
+	fw->setMainContainer( w );
     }
     fw->setCaption( n );
     fw->resize( 600, 480 );

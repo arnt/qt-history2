@@ -142,6 +142,7 @@ void WidgetDatabase::setupDataBase()
 
 
     append( r );
+
     r = new WidgetDatabaseRecord;
     r->iconSet = "groupbox.xpm";
     r->name = "QGroupBox";
@@ -422,6 +423,24 @@ void WidgetDatabase::setupDataBase()
     r->name = "QMainWindow";
     r->includeFile = "qmainwindow.h";
     r->group = widgetGroup( "Temp" );
+    r->isContainer = TRUE;
+
+    append( r );
+
+    r = new WidgetDatabaseRecord;
+    r->iconSet = "";
+    r->name = "QSqlWidget";
+    r->includeFile = "qwidget.h";
+    r->group = widgetGroup( "Database" );
+    r->isContainer = TRUE;
+
+    append( r );
+
+    r = new WidgetDatabaseRecord;
+    r->iconSet = "";
+    r->name = "QSqlDialog";
+    r->includeFile = "qwidget.h";
+    r->group = widgetGroup( "Database" );
     r->isContainer = TRUE;
 
     append( r );
