@@ -4111,6 +4111,9 @@ QVariant QAxBase::asVariant() const
 // used by type-conversion code (types.cpp)
 void *qax_createObjectWrapper(IUnknown *iface, QObject *parent)
 {
+    if (!iface)
+        return 0;
+
     void *result = new QAxObject(iface, parent);
     iface->Release();
 
