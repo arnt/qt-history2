@@ -300,8 +300,7 @@ Win32MakefileGenerator::findLibraries(const QString &where)
             } else {
 		lib_dirs = dirs;
 	    }
-	    if ( !(project->variables()["QMAKE_QT_DLL"].isEmpty() && 
-		   (file == "qt.lib" || file == "qt-mt.lib")) ) {
+	    if (!project->variables()["QMAKE_QT_DLL"].isEmpty()) {
 		if(file.endsWith(".lib")) {
 		    file = file.left(file.length() - 4);
 		    if(!file.at(file.length()-1).isNumber()) {
