@@ -60,7 +60,6 @@
 #include <QtGui/QVBoxWidget>
 #include <QtGui/QVariant>
 
-
 #define IDE_NO_DEBUGVIEWS
 
 MainWindow::MainWindow()
@@ -1069,15 +1068,9 @@ void MainWindow::showTheNewStuff()
 
 void MainWindow::showHelp(const QString &url)
 {
-    if (!assistant) {
-        QString path = QDir::cleanPath(QString(qInstallPath()) +
-            QDir::separator() + "bin/");
-#if defined(Q_OS_MAC)
-        path += QDir::separator() + ".app/Contents/MacOS/";
-#endif
-        assistant = new QAssistantClient(path, this);
-    }
-    assistant->showPage(QString(qInstallPath()) + "\\doc\\html\\" + url);    
+    if (!assistant) 
+        assistant = new QAssistantClient(qInstallPathBins(), this);
+    assistant->showPage(QString(qInstallPathDocs()) + "/html/" + url);    
 }
 
 void MainWindow::aboutDesigner()
