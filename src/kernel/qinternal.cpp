@@ -192,9 +192,9 @@ bool QSharedDoubleBuffer::begin( QWidget* widget, int x, int y, int w, int h )
          ( mustsh  && ( w > sharedLimitWidth || h > sharedLimitWidth )
            && ! (xpix && w <= xpix->width() && h <= xpix->height() ) )  ||
          wid->backgroundMode() == Qt::X11ParentRelative ) {
+	if ( initbg )
+	    widget->erase( x, y, w, h );
         p = new QPainter( widget );
-        if ( initbg )
-            p->eraseRect( x, y, w, h );
         return TRUE;
     }
 
