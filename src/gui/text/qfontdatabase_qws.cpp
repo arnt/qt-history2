@@ -214,7 +214,6 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
         QString fn= QLatin1String(qInstallPath())+QLatin1String("/lib/fonts/") + family->name.toLower() + "_" + QString::number(pixelSize*10) + "_" + QString::number(style->key.weight) + (style->key.italic ? "i.qpf" : ".qpf");
         //###rotation ###
 
-        qDebug("creating QFontEngineQPF size->fileName: %s fn: %s", size->fileName.data(), fn.latin1());
         QFontEngine *fe = new QFontEngineQPF(request, paintdevice, fn);
         return fe;
     }

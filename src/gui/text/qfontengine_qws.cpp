@@ -868,12 +868,7 @@ public:
 
 QFontEngineQPF::QFontEngineQPF(const QFontDef&, const QPaintDevice *, const QString &fn)
 {
-    qDebug("QPF font engine created!");
     cache_cost = 1;
-
-
-
-
 
     int f = ::open( QFile::encodeName(fn), O_RDONLY );
     Q_ASSERT(f>=0);
@@ -948,8 +943,6 @@ bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 
 void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
 {
-    qDebug("QFontEngineQPF::draw(%d, %d, numglyphs=%d", x, y, si.num_glyphs);
-
     Q_ASSERT(p->painterState()->txop < QPainterPrivate::TxScale);
 
     if (p->painterState()->txop == QPainterPrivate::TxTranslate)
