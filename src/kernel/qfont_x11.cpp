@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#44 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#43 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#44 $";
 #endif
 
 
@@ -190,7 +190,7 @@ void QFont::cleanup()				// called when terminating app
 }
 
 /*----------------------------------------------------------------------------
-  Internal function that dump font cache statistics.
+  Internal function that dumps font cache statistics.
  ----------------------------------------------------------------------------*/
 
 void QFont::cacheStatistics()
@@ -229,9 +229,12 @@ QFont::QFont( bool )				// create default font
 #define DIRTY_METRICS	(f.d->req.dirty || f.d->xfd->dirty())
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a window system handle to the font.
- ----------------------------------------------------------------------------*/
+
+  Use of this function is discouraged at present.
+
+*/
 
 HANDLE QFont::handle( HANDLE ) const
 {
@@ -282,9 +285,9 @@ QString QFont::defaultFamily() const
 }
 
 /*----------------------------------------------------------------------------
-  Returns a last resort family name.
+  Returns a last resort family name for the \link fontmatch.html font
+  matching algorithm. \endlink
 
-  This font family name will be used if the specified family cannot be found.
   \sa lastResortFont()
  ----------------------------------------------------------------------------*/
 
@@ -312,9 +315,11 @@ static const char *tryFonts[] = {
     0 };
 
 /*----------------------------------------------------------------------------
-  Returns a last resort raw font name.
+  Returns a last resort raw font name for the \link fontmatch.html font
+  matching algorithm. \endlink
 
-  This font will be used if the last resort family is not available.
+  This is used if not even the last resort family is available.
+
   \sa lastResortFamily()
  ----------------------------------------------------------------------------*/
 
