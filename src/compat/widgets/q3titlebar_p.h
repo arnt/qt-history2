@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTITLEBAR_P_H
-#define QTITLEBAR_P_H
+#ifndef Q3TITLEBAR_P_H
+#define Q3TITLEBAR_P_H
 
 
 //
@@ -34,19 +34,19 @@
 #if !defined(QT_NO_TITLEBAR)
 
 class QToolTip;
-class QTitleBarPrivate;
+class Q3TitleBarPrivate;
 class QPixmap;
 
-class Q_GUI_EXPORT QTitleBar : public QWidget
+class Q_COMPAT_EXPORT Q3TitleBar : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTitleBar)
+    Q_DECLARE_PRIVATE(Q3TitleBar)
     Q_PROPERTY(bool autoRaise READ autoRaise WRITE setAutoRaise)
     Q_PROPERTY(bool movable READ isMovable WRITE setMovable)
 
 public:
-    QTitleBar (QWidget *w, QWidget *parent);
-    ~QTitleBar();
+    Q3TitleBar (QWidget *w, QWidget *parent);
+    ~Q3TitleBar();
 
     bool isActive() const;
     bool usesActiveColor() const;
@@ -92,9 +92,9 @@ protected:
     virtual void cutText();
 
 private:
-    Q_DISABLE_COPY(QTitleBar)
+    Q_DISABLE_COPY(Q3TitleBar)
 };
 
 #endif
 
-#endif //QTITLEBAR_P_H
+#endif //Q3TITLEBAR_P_H

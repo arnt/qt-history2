@@ -29,7 +29,7 @@
 #include "q3toolbar.h"
 #include "qtoolbutton.h"
 #include "qtooltip.h"
-#include <private/qtitlebar_p.h>
+#include <private/q3titlebar_p.h>
 #include <private/qwidgetresizehandler_p.h>
 
 #ifdef Q_WS_MAC
@@ -336,7 +336,7 @@ private:
     QPointer<QWidget> oldFocus;
 };
 
-class Q3DockWindowTitleBar : public QTitleBar
+class Q3DockWindowTitleBar : public Q3TitleBar
 {
     Q_OBJECT
     friend class Q3DockWindow;
@@ -560,7 +560,7 @@ void Q3DockWindowHandle::mouseDoubleClickEvent(QMouseEvent *e)
 }
 
 Q3DockWindowTitleBar::Q3DockWindowTitleBar(Q3DockWindow *dw)
-    : QTitleBar(0, dw), dockWindow(dw),
+    : Q3TitleBar(0, dw), dockWindow(dw),
       mousePressed(false), hadDblClick(false), opaque(default_opaque)
 {
     setObjectName("qt_dockwidget_internal");
@@ -604,7 +604,7 @@ void Q3DockWindowTitleBar::mousePressEvent(QMouseEvent *e)
     opt.titleBarFlags = getWFlags();
     QStyle::SubControl tbctrl = style().querySubControl(QStyle::CC_TitleBar, &opt, e->pos(), this);
     if (tbctrl > QStyle::SC_TitleBarLabel) {
-        QTitleBar::mousePressEvent(e);
+        Q3TitleBar::mousePressEvent(e);
         return;
     }
 
@@ -641,7 +641,7 @@ void Q3DockWindowTitleBar::mousePressEvent(QMouseEvent *e)
 void Q3DockWindowTitleBar::mouseMoveEvent(QMouseEvent *e)
 {
     if (!mousePressed) {
-        QTitleBar::mouseMoveEvent(e);
+        Q3TitleBar::mouseMoveEvent(e);
         return;
     }
 
@@ -653,7 +653,7 @@ void Q3DockWindowTitleBar::mouseMoveEvent(QMouseEvent *e)
 void Q3DockWindowTitleBar::mouseReleaseEvent(QMouseEvent *e)
 {
     if (!mousePressed) {
-        QTitleBar::mouseReleaseEvent(e);
+        Q3TitleBar::mouseReleaseEvent(e);
         return;
     }
 
@@ -682,7 +682,7 @@ void Q3DockWindowTitleBar::mouseReleaseEvent(QMouseEvent *e)
 void Q3DockWindowTitleBar::resizeEvent(QResizeEvent *e)
 {
     updateGui();
-    QTitleBar::resizeEvent(e);
+    Q3TitleBar::resizeEvent(e);
 }
 
 void Q3DockWindowTitleBar::updateGui()

@@ -35,7 +35,7 @@
 #include "qtoolbutton.h"
 #include "qtooltip.h"
 #include "qvboxwidget.h"
-#include <private/qtitlebar_p.h>
+#include <private/q3titlebar_p.h>
 #include <private/qwidget_p.h>
 #include <private/qwidgetresizehandler_p.h>
 
@@ -124,7 +124,7 @@ class Q3WorkspaceChild : public QFrame
 
     friend class Q3WorkspacePrivate;
     friend class Q3Workspace;
-    friend class QTitleBar;
+    friend class Q3TitleBar;
 
 public:
     Q3WorkspaceChild(QWidget* window, Q3Workspace* parent=0, Qt::WFlags flags = 0);
@@ -181,8 +181,8 @@ private:
     QWidget* childWidget;
     QPointer<QWidget> lastfocusw;
     QWidgetResizeHandler *widgetResizeHandler;
-    QTitleBar *titlebar;
-    QPointer<QTitleBar> iconw;
+    Q3TitleBar *titlebar;
+    QPointer<Q3TitleBar> iconw;
     QSize windowSize;
     QSize shadeRestore;
     QSize shadeRestoreMin;
@@ -1723,7 +1723,7 @@ Q3WorkspaceChild::Q3WorkspaceChild(QWidget* window, Q3Workspace *parent, Qt::WFl
     }
 
     if (window && window->testWFlags(Qt::WStyle_Title)) {
-        titlebar = new QTitleBar(window, this);
+        titlebar = new Q3TitleBar(window, this);
         connect(titlebar, SIGNAL(doActivate()),
                  this, SLOT(activate()));
         connect(titlebar, SIGNAL(doClose()),
@@ -2200,7 +2200,7 @@ QWidget* Q3WorkspaceChild::iconWidget() const
 
         QVBoxWidget* vbox = new QVBoxWidget(that, Qt::WType_TopLevel);
         vbox->setObjectName("qt_vbox");
-        QTitleBar *tb = new QTitleBar(windowWidget(), vbox);
+        Q3TitleBar *tb = new Q3TitleBar(windowWidget(), vbox);
         tb->setObjectName("_workspacechild_icon_");
         QStyleOptionTitleBar opt = tb->getStyleOption();
         int th = style().pixelMetric(QStyle::PM_TitleBarHeight, &opt, tb);

@@ -33,20 +33,20 @@
 
 #include "private/qapplication_p.h"
 #include "private/qinternal_p.h"
-#include "private/qtitlebar_p.h"
+#include "private/q3titlebar_p.h"
 #include "private/qwidget_p.h"
 
 #if 0
-class QTitleBarTip : public QToolTip
+class Q3TitleBarTip : public QToolTip
 {
 public:
-    QTitleBarTip(QWidget * parent) : QToolTip(parent) { }
+    Q3TitleBarTip(QWidget * parent) : QToolTip(parent) { }
 
     void maybeTip(const QPoint &pos)
     {
-        if (!qt_cast<QTitleBar*>(parentWidget()))
+        if (!qt_cast<Q3TitleBar*>(parentWidget()))
             return;
-        QTitleBar *t = (QTitleBar *)parentWidget();
+        Q3TitleBar *t = (Q3TitleBar *)parentWidget();
 
         QString tipstring;
         QStyle::SubControl ctrl = t->style().querySubControl(QStyle::CC_TitleBar, t, pos);
@@ -57,37 +57,37 @@ public:
             switch(ctrl) {
             case QStyle::SC_TitleBarSysMenu:
                 if (t->testWFlags(Qt::WStyle_SysMenu))
-                    tipstring = QTitleBar::tr("System Menu");
+                    tipstring = Q3TitleBar::tr("System Menu");
                 break;
 
             case QStyle::SC_TitleBarShadeButton:
                 if (t->testWFlags(Qt::WStyle_Tool) && t->testWFlags(Qt::WStyle_MinMax))
-                    tipstring = QTitleBar::tr("Shade");
+                    tipstring = Q3TitleBar::tr("Shade");
                 break;
 
             case QStyle::SC_TitleBarUnshadeButton:
                 if (t->testWFlags(Qt::WStyle_Tool) && t->testWFlags(Qt::WStyle_MinMax))
-                    tipstring = QTitleBar::tr("Unshade");
+                    tipstring = Q3TitleBar::tr("Unshade");
                 break;
 
             case QStyle::SC_TitleBarNormalButton:
             case QStyle::SC_TitleBarMinButton:
                 if (!t->testWFlags(Qt::WStyle_Tool) && t->testWFlags(Qt::WStyle_Minimize)) {
                     if(window->isMinimized())
-                        tipstring = QTitleBar::tr("Normalize");
+                        tipstring = Q3TitleBar::tr("Normalize");
                     else
-                        tipstring = QTitleBar::tr("Minimize");
+                        tipstring = Q3TitleBar::tr("Minimize");
                 }
                 break;
 
             case QStyle::SC_TitleBarMaxButton:
                 if (!t->testWFlags(Qt::WStyle_Tool) && t->testWFlags(Qt::WStyle_Maximize))
-                    tipstring = QTitleBar::tr("Maximize");
+                    tipstring = Q3TitleBar::tr("Maximize");
                 break;
 
             case QStyle::SC_TitleBarCloseButton:
                 if (t->testWFlags(Qt::WStyle_SysMenu))
-                    tipstring = QTitleBar::tr("Close");
+                    tipstring = Q3TitleBar::tr("Close");
                 break;
 
             default:
@@ -105,11 +105,11 @@ public:
 };
 #endif
 
-class QTitleBarPrivate : public QWidgetPrivate
+class Q3TitleBarPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC(QTitleBar)
+    Q_DECLARE_PUBLIC(Q3TitleBar)
 public:
-    QTitleBarPrivate()
+    Q3TitleBarPrivate()
         : toolTip(0), act(0), window(0), movable(1), pressed(0), autoraise(0)
     {
     }
@@ -128,17 +128,17 @@ public:
     void readColors();
 };
 
-inline int QTitleBarPrivate::titleBarState() const
+inline int Q3TitleBarPrivate::titleBarState() const
 {
     uint state = window ? window->windowState() : 0;
     return (int)state;
 }
 
 #define d d_func()
-#define q q_func()
 
-QStyleOptionTitleBar QTitleBarPrivate::getStyleOption() const
+QStyleOptionTitleBar Q3TitleBarPrivate::getStyleOption() const
 {
+    Q_Q(const Q3TitleBar);
     QStyleOptionTitleBar opt;
     opt.init(q);
     opt.text = q->windowTitle();
@@ -150,14 +150,14 @@ QStyleOptionTitleBar QTitleBarPrivate::getStyleOption() const
     return opt;
 }
 
-QTitleBar::QTitleBar(QWidget *w, QWidget *parent)
-    : QWidget(*new QTitleBarPrivate, parent, Qt::WStyle_Customize | Qt::WStyle_NoBorder)
+Q3TitleBar::Q3TitleBar(QWidget *w, QWidget *parent)
+    : QWidget(*new Q3TitleBarPrivate, parent, Qt::WStyle_Customize | Qt::WStyle_NoBorder)
 {
     d->window = w;
     d->buttonDown = QStyle::SC_None;
     d->act = 0;
     if (w) {
-        setWFlags(static_cast<QTitleBar *>(w)->getWFlags() & ~Qt::WType_Mask);
+        setWFlags(static_cast<Q3TitleBar *>(w)->getWFlags() & ~Qt::WType_Mask);
         if (w->minimumSize() == w->maximumSize())
             clearWFlags(Qt::WStyle_Maximize);
         setWindowTitle(w->windowTitle());
@@ -170,21 +170,25 @@ QTitleBar::QTitleBar(QWidget *w, QWidget *parent)
     setMouseTracking(true);
 }
 
-QTitleBar::~QTitleBar()
+Q3TitleBar::~Q3TitleBar()
 {
 }
 
-QStyleOptionTitleBar QTitleBar::getStyleOption() const
+QStyleOptionTitleBar Q3TitleBar::getStyleOption() const
 {
     return d->getStyleOption();
 }
 
 #ifdef Q_WS_WIN
-extern QRgb qt_colorref2qrgb(COLORREF col);
+static inline QRgb colorref2qrgb(COLORREF col)
+{
+    return qRgb(GetRValue(col),GetGValue(col),GetBValue(col));
+}
 #endif
 
-void QTitleBarPrivate::readColors()
+void Q3TitleBarPrivate::readColors()
 {
+    Q_Q(Q3TitleBar);
     QPalette pal = q->palette();
 
     bool colorsInitialized = false;
@@ -200,10 +204,10 @@ void QTitleBarPrivate::readColors()
 #define COLOR_GRADIENTINACTIVECAPTION 28
 #endif
     if (QApplication::desktopSettingsAware()) {
-        pal.setColor(QPalette::Active, QPalette::Highlight, qt_colorref2qrgb(GetSysColor(COLOR_ACTIVECAPTION)));
-        pal.setColor(QPalette::Inactive, QPalette::Highlight, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTION)));
-        pal.setColor(QPalette::Active, QPalette::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_CAPTIONTEXT)));
-        pal.setColor(QPalette::Inactive, QPalette::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTIONTEXT)));
+        pal.setColor(QPalette::Active, QPalette::Highlight, colorref2qrgb(GetSysColor(COLOR_ACTIVECAPTION)));
+        pal.setColor(QPalette::Inactive, QPalette::Highlight, colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTION)));
+        pal.setColor(QPalette::Active, QPalette::HighlightedText, colorref2qrgb(GetSysColor(COLOR_CAPTIONTEXT)));
+        pal.setColor(QPalette::Inactive, QPalette::HighlightedText, colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTIONTEXT)));
         if (QSysInfo::WindowsVersion != QSysInfo::WV_95 && QSysInfo::WindowsVersion != QSysInfo::WV_NT) {
             colorsInitialized = true;
             BOOL gradient;
@@ -213,8 +217,8 @@ void QTitleBarPrivate::readColors()
                 SystemParametersInfoA(SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0);
             });
             if (gradient) {
-                pal.setColor(QPalette::Active, QPalette::Base, qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION)));
-                pal.setColor(QPalette::Inactive, QPalette::Base, qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTINACTIVECAPTION)));
+                pal.setColor(QPalette::Active, QPalette::Base, colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION)));
+                pal.setColor(QPalette::Inactive, QPalette::Base, colorref2qrgb(GetSysColor(COLOR_GRADIENTINACTIVECAPTION)));
             } else {
                 pal.setColor(QPalette::Active, QPalette::Base, pal.color(QPalette::Active, QPalette::Highlight));
                 pal.setColor(QPalette::Inactive, QPalette::Base, pal.color(QPalette::Inactive, QPalette::Highlight));
@@ -239,14 +243,14 @@ void QTitleBarPrivate::readColors()
     q->setActive(d->act);
 }
 
-void QTitleBar::changeEvent(QEvent *ev)
+void Q3TitleBar::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::ModifiedChange)
         update();
     QWidget::changeEvent(ev);
 }
 
-void QTitleBar::mousePressEvent(QMouseEvent *e)
+void Q3TitleBar::mousePressEvent(QMouseEvent *e)
 {
     if (!d->act)
         emit doActivate();
@@ -259,7 +263,7 @@ void QTitleBar::mousePressEvent(QMouseEvent *e)
             if (testWFlags(Qt::WStyle_SysMenu) && !testWFlags(Qt::WStyle_Tool)) {
                 d->buttonDown = QStyle::SC_None;
                 static QTime *t = 0;
-                static QTitleBar *tc = 0;
+                static Q3TitleBar *tc = 0;
                 if (!t)
                     t = new QTime;
                 if (tc != this || t->elapsed() > QApplication::doubleClickInterval()) {
@@ -314,7 +318,7 @@ void QTitleBar::mousePressEvent(QMouseEvent *e)
     }
 }
 
-void QTitleBar::contextMenuEvent(QContextMenuEvent *e)
+void Q3TitleBar::contextMenuEvent(QContextMenuEvent *e)
 {
     QStyleOptionTitleBar opt = d->getStyleOption();
     QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, &opt, e->pos(), this);
@@ -326,7 +330,7 @@ void QTitleBar::contextMenuEvent(QContextMenuEvent *e)
     }
 }
 
-void QTitleBar::mouseReleaseEvent(QMouseEvent *e)
+void Q3TitleBar::mouseReleaseEvent(QMouseEvent *e)
 {
     if (e->button() == Qt::LeftButton && d->pressed) {
         e->accept();
@@ -385,7 +389,7 @@ void QTitleBar::mouseReleaseEvent(QMouseEvent *e)
     }
 }
 
-void QTitleBar::mouseMoveEvent(QMouseEvent *e)
+void Q3TitleBar::mouseMoveEvent(QMouseEvent *e)
 {
     e->accept();
     switch (d->buttonDown) {
@@ -448,13 +452,13 @@ void QTitleBar::mouseMoveEvent(QMouseEvent *e)
     }
 }
 
-void QTitleBar::resizeEvent(QResizeEvent *r)
+void Q3TitleBar::resizeEvent(QResizeEvent *r)
 {
     QWidget::resizeEvent(r);
     cutText();
 }
 
-void QTitleBar::paintEvent(QPaintEvent *)
+void Q3TitleBar::paintEvent(QPaintEvent *)
 {
     QStyleOptionTitleBar opt = d->getStyleOption();
     opt.subControls = QStyle::SC_TitleBarLabel;
@@ -498,7 +502,7 @@ void QTitleBar::paintEvent(QPaintEvent *)
     }
 }
 
-void QTitleBar::mouseDoubleClickEvent(QMouseEvent *e)
+void Q3TitleBar::mouseDoubleClickEvent(QMouseEvent *e)
 {
     if (e->button() != Qt::LeftButton) {
         e->ignore();
@@ -521,7 +525,7 @@ void QTitleBar::mouseDoubleClickEvent(QMouseEvent *e)
     }
 }
 
-void QTitleBar::cutText()
+void Q3TitleBar::cutText()
 {
     QFontMetrics fm(font());
     QStyleOptionTitleBar opt = d->getStyleOption();
@@ -549,13 +553,13 @@ void QTitleBar::cutText()
 }
 
 
-void QTitleBar::leaveEvent(QEvent *)
+void Q3TitleBar::leaveEvent(QEvent *)
 {
     if(autoRaise() && !d->pressed)
         repaint();
 }
 
-void QTitleBar::enterEvent(QEvent *)
+void Q3TitleBar::enterEvent(QEvent *)
 {
     if(autoRaise() && !d->pressed)
         repaint();
@@ -563,7 +567,7 @@ void QTitleBar::enterEvent(QEvent *)
     QApplication::sendEvent(parentWidget(), &e);
 }
 
-void QTitleBar::setActive(bool active)
+void Q3TitleBar::setActive(bool active)
 {
     if (d->act == active)
         return ;
@@ -572,23 +576,23 @@ void QTitleBar::setActive(bool active)
     update();
 }
 
-bool QTitleBar::isActive() const
+bool Q3TitleBar::isActive() const
 {
     return d->act;
 }
 
-bool QTitleBar::usesActiveColor() const
+bool Q3TitleBar::usesActiveColor() const
 {
     return (isActive() && isActiveWindow()) ||
            (!window() && topLevelWidget()->isActiveWindow());
 }
 
-QWidget *QTitleBar::window() const
+QWidget *Q3TitleBar::window() const
 {
     return d->window;
 }
 
-bool QTitleBar::event(QEvent *e)
+bool Q3TitleBar::event(QEvent *e)
 {
     if (e->type() == QEvent::ApplicationPaletteChange) {
         d->readColors();
@@ -629,27 +633,27 @@ bool QTitleBar::event(QEvent *e)
     return QWidget::event(e);
 }
 
-void QTitleBar::setMovable(bool b)
+void Q3TitleBar::setMovable(bool b)
 {
     d->movable = b;
 }
 
-bool QTitleBar::isMovable() const
+bool Q3TitleBar::isMovable() const
 {
     return d->movable;
 }
 
-void QTitleBar::setAutoRaise(bool b)
+void Q3TitleBar::setAutoRaise(bool b)
 {
     d->autoraise = b;
 }
 
-bool QTitleBar::autoRaise() const
+bool Q3TitleBar::autoRaise() const
 {
     return d->autoraise;
 }
 
-QSize QTitleBar::sizeHint() const
+QSize Q3TitleBar::sizeHint() const
 {
     ensurePolished();
     QStyleOptionTitleBar opt = d->getStyleOption();
