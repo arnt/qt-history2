@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#41 $
 **
 ** Definition of QIconView widget class
 **
@@ -1620,7 +1620,7 @@ void QIconView::clear()
     setCurrentItem( 0 );
     d->tmpCurrentItem = 0;
     d->drawDragShape = FALSE;
-    
+
     viewport()->repaint( TRUE );
 
     d->cleared = TRUE;
@@ -2430,9 +2430,6 @@ QDragObject *QIconView::dragObject()
 
     QPoint orig = viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
 
-    d->dragStart = QPoint( orig.x() - d->currentItem->x(),
-			   orig.y() - d->currentItem->y() );
-
     QIconDrag *drag = new QIconDrag( viewport() );
     drag->setPixmap( QPixmap( d->currentItem->icon().pixmap( d->mode, QIconSet::Normal ) ),
  		     QPoint( d->currentItem->iconRect().width() / 2, d->currentItem->iconRect().height() / 2 ) );
@@ -2449,6 +2446,10 @@ QDragObject *QIconView::dragObject()
 
 void QIconView::startDrag()
 {
+    QPoint orig = viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
+    d->dragStart = QPoint( orig.x() - d->currentItem->x(),
+			   orig.y() - d->currentItem->y() );
+    
     QDragObject *drag = dragObject();
     if ( !drag )
 	return;
@@ -2631,7 +2632,7 @@ void QIconView::drawDragShape( const QPoint &pos )
 	d->drawDragShape = TRUE;
 	return;
     }
-    
+
     if ( d->isIconDrag ) {
 	QPainter p;
 	p.begin( viewport() );
