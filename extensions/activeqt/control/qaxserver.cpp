@@ -336,7 +336,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
 	QStringList keys = qAxFactory()->featureList();
 	for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
 	    const QString className = *key;
-	    const QMetaObject *mo = QMetaObject::metaObject( className.latin1() );
+	    const QMetaObject *mo = qAxFactory()->metaObject(className);
 
 	    const QString classId = qAxFactory()->classID(className).toString().upper();
 	    const QString eventId = qAxFactory()->eventsID(className).toString().upper();
@@ -607,7 +607,7 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
     int id = 1;
     int i = 0;
     if ( !mo )
-	return E_FAIL;
+	return 3;
 
     QString topclass = qAxFactory()->exposeToSuperClass( className );
     bool hasStockEvents = qAxFactory()->hasStockEvents( className );
@@ -625,10 +625,16 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
     int qtSlots = QWidget::staticMetaObject()->numProperties(TRUE);
 
     QString classID = qAxFactory()->classID( className ).toString().upper();
+    if (QUuid(classID).isNull())
+	return 4;
     STRIPCB(classID);
     QString interfaceID = qAxFactory()->interfaceID( className ).toString().upper();
+    if (QUuid(interfaceID).isNull())
+	return 5;
     STRIPCB(interfaceID);
     QString eventsID = qAxFactory()->eventsID( className ).toString().upper();
+    if (QUuid(eventsID).isNull())
+	return 6;
     STRIPCB(eventsID);
 
     QStrList enumerators = mo->enumeratorNames( TRUE );
@@ -924,7 +930,7 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 #if defined(Q_CC_BOR)
 extern "C" __stdcall HRESULT DumpIDL( const QString &outfile, const QString &ver )
 #else
-STDAPI DumpIDL( const QString &outfile, const QString &ver )
+extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver )
 #endif
 {
     qAxIsServer = FALSE;
@@ -933,8 +939,24 @@ STDAPI DumpIDL( const QString &outfile, const QString &ver )
     QDir dir;
     dir.mkdir( outpath, FALSE );
     QFile file( outfile );
+    file.remove();
+
+    QString filebase = qAxModuleFilename;
+    filebase = filebase.left( filebase.findRev( "." ) );
+
+    QString appID = qAxFactory()->appID().toString().upper();
+    if (QUuid(appID).isNull())
+	return 1;
+    STRIPCB(appID);
+    QString typeLibID = qAxFactory()->typeLibID().toString().upper();
+    if (QUuid(typeLibID).isNull())
+	return 2;
+    STRIPCB(typeLibID);
+    QString typelib = filebase.right( filebase.length() - filebase.findRev( "\\" )-1 );
+
     if ( !file.open( IO_WriteOnly ) )
-	qFatal( "Couldn't open %s for writing", outfile.latin1() );
+	return -1;
+
     out.setDevice( &file );
 
     QString version( ver.unicode(), ver.length() );
@@ -942,9 +964,6 @@ STDAPI DumpIDL( const QString &outfile, const QString &ver )
 	int lastdot = version.findRev( '.' );
 	version = version.left( lastdot ) + version.right( version.length() - lastdot - 1 );
     }
-
-    QString filebase = qAxModuleFilename;
-    filebase = filebase.left( filebase.findRev( "." ) );
     
     out << "/****************************************************************************" << endl;
     out << "** Interface definition generated from '" << qAxModuleFilename << "'" << endl;
@@ -954,7 +973,6 @@ STDAPI DumpIDL( const QString &outfile, const QString &ver )
     out << "** WARNING! All changes made in this file will be lost!" << endl;
     out << "****************************************************************************/" << endl << endl;
 
-
     out << "import \"oaidl.idl\";" << endl;
     out << "import \"ocidl.idl\";" << endl;
     out << "#include \"olectl.h\"" << endl << endl << endl;
@@ -962,12 +980,6 @@ STDAPI DumpIDL( const QString &outfile, const QString &ver )
     // dummy application to create widgets
     int argc;
     QApplication app( argc, 0 );
-
-    QString appID = qAxFactory()->appID().toString().upper();
-    STRIPCB(appID);
-    QString typeLibID = qAxFactory()->typeLibID().toString().upper();
-    STRIPCB(typeLibID);
-    QString typelib = filebase.right( filebase.length() - filebase.findRev( "\\" )-1 );
 
     out << "[" << endl;
     out << "\tuuid(" << typeLibID << ")," << endl;
@@ -984,9 +996,10 @@ STDAPI DumpIDL( const QString &outfile, const QString &ver )
 
     out << "\t/* Forward declaration of classes that might be used as parameters */" << endl << endl;
 
+    int res = S_OK;
     for ( key = keys.begin(); key != keys.end(); ++key ) {
 	QString className = *key;
-	QMetaObject *mo = QMetaObject::metaObject( className );
+	QMetaObject *mo = qAxFactory()->metaObject( className );
 	// We have meta object information for this type. Forward declare it.
 	if ( mo ) {
 	    out << "\tcoclass " << className << ";" << endl;
@@ -997,12 +1010,16 @@ STDAPI DumpIDL( const QString &outfile, const QString &ver )
 		    subtypes = new QStrList;
 		subtypes->append( className );
 		subtypes->append( className + "*" );
-		classIDL( 0, mo, className, FALSE, out );
+		res = classIDL( 0, mo, className, FALSE, out );
+		if (res != S_OK)
+		    break;
 	    }
 	    delete o;
 	}
     }
     out << endl;
+    if (res != S_OK)
+	goto ErrorInClass;
 
     for ( key = keys.begin(); key != keys.end(); ++key ) {
 	QString className = *key;
@@ -1019,13 +1036,15 @@ STDAPI DumpIDL( const QString &outfile, const QString &ver )
 	    subtypes = new QStrList;
 	subtypes->append( className );
 	subtypes->append( className + "*" );
-	classIDL( w, w->metaObject(), className, isBindable, out );
-
+	res = classIDL( w, w->metaObject(), className, isBindable, out );
 	delete w;
+	if (res != S_OK)
+	    break;
     }
 
     out << "};" << endl;
 
+ErrorInClass:
     delete mapping;
     mapping = 0;
     delete enums;
@@ -1033,6 +1052,10 @@ STDAPI DumpIDL( const QString &outfile, const QString &ver )
     delete subtypes;
     subtypes = 0;
 
-    return S_OK;
-}
+    if (res != S_OK) {
+	file.close();
+	file.remove();
+    }
 
+    return res;
+}

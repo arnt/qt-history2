@@ -213,8 +213,34 @@ int main( int argc, char **argv )
 	}
 	HRESULT res = DumpIDL( idlfile, version );
 	FreeLibrary( hdll );
-	if ( res != S_OK )
-	    qFatal( "Error writing IDL from %s", (const char*)input.local8Bit() );
+	switch(res) {
+	case S_OK:
+	    break;
+	case -1:
+	    qWarning( "Couldn't open %s for writing", (const char*)idlfile.local8Bit() );
+	    return res;
+	case 1:
+	    qWarning( "Malformed appID value in %s!", (const char*)input.local8Bit() );
+	    return res;
+	case 2:
+	    qWarning( "Malformed typeLibID value in %s!", (const char*)input.local8Bit() );
+	    return res;
+	case 3:
+	    qWarning( "Class has no metaobject information (error in %s)!", (const char*)input.local8Bit() );
+	    return res;
+	case 4:
+	    qWarning( "Malformed classID value in %s!", (const char*)input.local8Bit() );
+	    return res;
+	case 5:
+	    qWarning( "Malformed interfaceID value in %s!", (const char*)input.local8Bit() );
+	    return res;
+	case 6:
+	    qWarning( "Malformed eventsID value in %s!", (const char*)input.local8Bit() );
+	    return res;
+
+	default:
+	    qFatal( "Unknown error writing IDL from %s", (const char*)input.local8Bit() );
+	}
     }
     return 0;
 }

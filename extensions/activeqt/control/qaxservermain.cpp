@@ -85,6 +85,34 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
 		}
 
 		nRet = DumpIDL( outfile, version );
+		switch (nRet) {
+		case S_OK:
+		    break;
+		case -1:
+		    qWarning( "Couldn't open %s for writing", (const char*)outfile.local8Bit() );
+		    return nRet;
+		case 1:
+		    qWarning( "Malformed appID value in %s!", qAxModuleFilename );
+		    return nRet;
+		case 2:
+		    qWarning( "Malformed typeLibID value in %s!", qAxModuleFilename );
+		    return nRet;
+		case 3:
+		    qWarning( "Class has no metaobject information (error in %s)!", qAxModuleFilename );
+		    return nRet;
+		case 4:
+		    qWarning( "Malformed classID value in %s!", qAxModuleFilename );
+		    return nRet;
+		case 5:
+		    qWarning( "Malformed interfaceID value in %s!", qAxModuleFilename );
+		    return nRet;
+		case 6:
+		    qWarning( "Malformed eventsID value in %s!", qAxModuleFilename );
+		    return nRet;
+
+		default:
+		    qFatal( "Unknown error writing IDL from %s", qAxModuleFilename );
+		}
 	    } else {
 		qWarning( "Wrong commandline syntax: <app> -dumpidl <idl file> [-version <x.y.z>]" );
 	    }
@@ -115,7 +143,7 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
 }
 
 
-// untill such time as mingw runtime calls winmain instead of main 
+// until such time as mingw runtime calls winmain instead of main 
 // in a GUI app we need this.
 #if defined(Q_OS_WIN32) && defined(Q_CC_GNU)
 #include <qtcrtentrypoint.cpp>
