@@ -2955,7 +2955,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             bool checkable = mi->checkState != Q4StyleOptionMenuItem::NotCheckable;
             bool checked = mi->checkState == Q4StyleOptionMenuItem::Checked;
             bool act = mi->state & Style_Active;
-            Rect mrect = *qt_glb_mac_rect(mi->menurect, p),
+            Rect mrect = *qt_glb_mac_rect(mi->menuRect, p),
             irect = *qt_glb_mac_rect(mi->rect, p, false);
 
             if (checkable)
@@ -2967,7 +2967,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             if (act)
                 tms |= kThemeMenuSelected;
             ThemeMenuItemType tmit = kThemeMenuItemPlain;
-            if (mi->menuItemType & Q4StyleOptionMenuItem::HasMenu)
+            if (mi->menuItemType & Q4StyleOptionMenuItem::SubMenu)
                 tmit |= kThemeMenuItemHierarchical;
             if (!mi->icon.isNull())
                 tmit |= kThemeMenuItemHasIcon;
@@ -3079,6 +3079,33 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                     text_flags ^= AlignRight;
                     p->drawText(xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t);
                 }
+            }
+        }
+        break;
+    case CE_MenuTearoff:
+    case CE_MenuScroller:
+        if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+            Rect mrect = *qt_glb_mac_rect(mi->menuRect, p),
+                 irect = *qt_glb_mac_rect(mi->rect, p, false);
+            ThemeMenuState tms = kThemeMenuActive;
+            ThemeMenuItemType tmit = kThemeMenuItemPlain;
+            if (opt->state & Style_Active)
+                tms |= kThemeMenuSelected;
+            if (ce == CE_MenuScroller) {
+                if (opt->state & Style_Down)
+                    tmit = kThemeMenuItemScrollDownArrow;
+                else
+                    tmit = kThemeMenuItemScrollUpArrow;
+            }
+            static_cast<QMacStyleQDPainter *>(p)->setport();
+            DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, 0, 0);
+            if (ce == CE_MenuTearoff) {
+                p->setPen(QPen(mi->palette.dark(), 1, DashLine));
+                p->drawLine(mi->rect.x() + 2, mi->rect.y() + mi->rect.height() / 2 - 1,
+                            mi->rect.x() + mi->rect.width() - 4, mi->rect.y() + mi->rect.height() / 2 - 1);
+                p->setPen(QPen(mi->palette.light(), 1, DashLine));
+                p->drawLine(mi->rect.x() + 2, mi->rect.y() + mi->rect.height() / 2,
+                            mi->rect.x() + mi->rect.width() - 4, mi->rect.y() + mi->rect.height() / 2);
             }
         }
         break;
@@ -3365,7 +3392,7 @@ QSize QMacStyleQD::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, c
             }
             if (mi->text.contains('\t'))
                 w += 12;
-            if (mi->menuItemType == Q4StyleOptionMenuItem::HasMenu)
+            if (mi->menuItemType == Q4StyleOptionMenuItem::SubMenu)
                 w += 20;
             if (maxpmw)
                 w += maxpmw + 6;

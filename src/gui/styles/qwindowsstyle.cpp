@@ -2838,7 +2838,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPa
                 p->drawText(xvis, y + windowsItemVMargin, w - xm - tab + 1,
                             h - 2 * windowsItemVMargin, text_flags, s, t);
             }
-            if (menuitem->menuItemType == Q4StyleOptionMenuItem::HasMenu) {// draw sub menu arrow
+            if (menuitem->menuItemType == Q4StyleOptionMenuItem::SubMenu) {// draw sub menu arrow
                 int dim = (h - 2 * windowsItemFrame) / 2;
                 PrimitiveElement arrow;
                 arrow = QApplication::reverseLayout() ? PE_ArrowLeft : PE_ArrowRight;

@@ -1365,6 +1365,19 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
             }
         }
         break;
+    case CE_MenuTearoff:
+        if (opt->state & Style_Active)
+            p->fillRect(opt->rect, opt->palette.brush(QPalette::Highlight));
+        else
+            p->fillRect(opt->rect, opt->palette.brush(QPalette::Button));
+        p->setPen(QPen(opt->palette.dark(), 1, DashLine));
+        p->drawLine(opt->rect.x() + 2, opt->rect.y() + opt->rect.height() / 2 - 1,
+                    opt->rect.x() + opt->rect.width() - 4,
+                    opt->rect.y() + opt->rect.height() / 2 - 1);
+        p->setPen(QPen(opt->palette.light(), 1, DashLine));
+        p->drawLine(opt->rect.x() + 2, opt->rect.y() + opt->rect.height() / 2,
+                    opt->rect.x() + opt->rect.width() - 4, opt->rect.y() + opt->rect.height() / 2);
+        break;
     default:
         qWarning("QCommonStyle::drawControl not currently handled %d", ce);
     }

@@ -1616,6 +1616,9 @@ int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const QStyleOpti
     case SH_ComboBox_Popup:
         ret = (!widget || !static_cast<const QComboBox *>(widget)->editable());
         break;
+    case SH_Menu_Scrollable:
+        ret = true;
+        break;
     default:
         ret = QWindowsStyle::styleHint(sh, widget, opt, d);
     }
@@ -1865,14 +1868,14 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                 int maxpmw = mi->maxIconWidth;
                 bool active = mi->state & Style_Active;
                 bool enabled = mi->state & Style_Enabled;
-                HIRect menuRect = qt_hirectForQRect(mi->menurect);
+                HIRect menuRect = qt_hirectForQRect(mi->menuRect);
                 HIRect itemRect = qt_hirectForQRect(mi->rect);
                 HIThemeMenuItemDrawInfo mdi;
-                mdi.version = 0;
+                mdi.version = qt_mac_hitheme_version;
                 mdi.itemType = kThemeMenuItemPlain;
                 if (!mi->icon.isNull())
                     mdi.itemType |= kThemeMenuItemHasIcon;
-                if (mi->menuItemType == Q4StyleOptionMenuItem::HasMenu)
+                if (mi->menuItemType == Q4StyleOptionMenuItem::SubMenu)
                     mdi.itemType |= kThemeMenuItemHierarchical | kThemeMenuItemHierBackground;
                 else
                     mdi.itemType |= kThemeMenuItemPopUpBackground;
@@ -1967,6 +1970,40 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                     }
                     text_flags ^= AlignRight;
                     p->drawText(xpos, y + m, w - xm - tabwidth + 1, h - 2 * m, text_flags, s, t);
+                }
+            }
+            break;
+        case CE_MenuTearoff:
+        case CE_MenuScroller:
+            if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+                HIRect menuRect = qt_hirectForQRect(mi->menuRect);
+                HIRect itemRect = qt_hirectForQRect(mi->rect);
+                HIThemeMenuItemDrawInfo mdi;
+                mdi.version = qt_mac_hitheme_version;
+                if (opt->state & Style_Active)
+                    mdi.state = kThemeMenuSelected;
+                else
+                    mdi.state = kThemeMenuActive;
+                if (ce == CE_MenuScroller) {
+                    if (opt->state & Style_Down)
+                        mdi.itemType = kThemeMenuItemScrollDownArrow;
+                    else
+                        mdi.itemType = kThemeMenuItemScrollUpArrow;
+                } else {
+                    mdi.itemType = kThemeMenuItemPlain;
+                }
+                HIThemeDrawMenuItem(&menuRect, &itemRect, &mdi,
+                                    static_cast<CGContextRef>(p->handle()),
+                                    kHIThemeOrientationNormal, 0);
+                if (ce == CE_MenuTearoff) {
+                    p->setPen(QPen(mi->palette.dark(), 1, DashLine));
+                    p->drawLine(mi->rect.x() + 2, mi->rect.y() + mi->rect.height() / 2 - 1,
+                                mi->rect.x() + mi->rect.width() - 4,
+                                mi->rect.y() + mi->rect.height() / 2 - 1);
+                    p->setPen(QPen(mi->palette.light(), 1, DashLine));
+                    p->drawLine(mi->rect.x() + 2, mi->rect.y() + mi->rect.height() / 2,
+                                mi->rect.x() + mi->rect.width() - 4,
+                                mi->rect.y() + mi->rect.height() / 2);
                 }
             }
             break;
@@ -2199,7 +2236,7 @@ QSize QMacStyleCG::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, c
             }
             if (mi->text.contains('\t'))
                 w += 12;
-            if (mi->menuItemType == Q4StyleOptionMenuItem::HasMenu)
+            if (mi->menuItemType == Q4StyleOptionMenuItem::SubMenu)
                 w += 20;
             if (maxpmw)
                 w += maxpmw + 6;
