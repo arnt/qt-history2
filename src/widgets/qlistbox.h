@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#19 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#20 $
 **
 ** Definition of QListBox widget class
 **
@@ -60,7 +60,7 @@ public:
     const char *string( int index ) const;
     const QPixmap *pixmap( int index ) const;
     void	changeItem( const char *string, int index );
-    void	changeItem( const QPixmap *pixmap, int index );
+    void	changeItem( const QPixmap &pixmap, int index );
 
     bool	stringCopy()	const;
     void	setStringCopy( bool );
@@ -102,17 +102,16 @@ protected:
     virtual int itemWidth( QLBItem * );
     virtual int itemHeight( QLBItem * );
 
+    bool	userItems()	const;
     void	setUserItems( bool );
-    bool	userItems();
 
     virtual QLBItem *newItem();
     virtual void     deleteItem( QLBItem * );
 
     virtual void paintItem( QPainter *, int index );
 
-
-    void	insertItem( const QLBItem*, int index=-1 );
-    void	changeItem( const QLBItem*, int index );
+    void	insertItem( const QLBItem *, int index=-1 );
+    void	changeItem( const QLBItem *, int index );
     QLBItem    *item( int index ) const;
     bool	itemVisible( int index );
 
