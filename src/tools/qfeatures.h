@@ -85,6 +85,14 @@
 //#define QT_NO_QWS_DEPTH_16
 //#define QT_NO_QWS_DEPTH_32
 
+
+
+#if defined(QT_NO_QWS_CURSOR) && defined(_WS_QWS_)
+    #define QT_NO_CURSOR
+#endif
+
+
+
 // network
 //#define QT_NO_DNS
 //#define QT_NO_NETWORKPROTOCOL
@@ -104,6 +112,8 @@
 
 //#define QT_NO_PICTURE
 
+//define QT_NO_LAYOUT
+
 // widgets
 //#define QT_NO_WIDGETS
 
@@ -119,6 +129,11 @@
 #endif
 
 #if defined(QT_NO_WIDGETS)
+    #define QT_NO_ACCEL
+    #define QT_NO_STYLE
+    #define QT_NO_ICONSET
+
+    #define QT_NO_SIZEGRIP
     #define QT_NO_LISTVIEW
     #define QT_NO_CANVAS
     #define QT_NO_DIAL

@@ -1018,11 +1018,11 @@ void QWSDefaultDecorator::paint(QPainter *painter, const QWidget *widget)
 	    widget->rect().width() + 2*BORDER_WIDTH,
 	    widget->rect().height() + 2*BORDER_WIDTH + TITLE_HEIGHT);
 
-#ifndef QT_NO_WIDGETS
+#if !defined(QT_NO_WIDGETS)
     style.drawPanel(painter, r.x(), r.y(), r.width(),
 		    r.height(), cg, FALSE, 2,
 		    &cg.brush(QColorGroup::Background));
-#else
+#elsif !defined(QT_NO_DRAWUTIL)
     qDrawWinPanel(painter, r.x(), r.y(), r.width(),
 		  r.height(), cg, FALSE,
 		  &cg.brush(QColorGroup::Background));
@@ -1041,11 +1041,11 @@ void QWSDefaultDecorator::paint(QPainter *painter, const QWidget *widget)
 	    titlePen   = cg.color(QColorGroup::Text);
 	}
 
-#ifndef QT_NO_WIDGETS
+#if !defined(QT_NO_WIDGETS)
 	style.drawPanel(painter, TITLE_HEIGHT, -TITLE_HEIGHT,
 			titleWidth, TITLE_HEIGHT - 1,
 			cg, TRUE, 1, &titleBrush);
-#else
+#elsif !defined(QT_NO_DRAWUTIL)
 	qDrawWinPanel(painter, TITLE_HEIGHT, -TITLE_HEIGHT,
 			titleWidth, TITLE_HEIGHT - 1,
 			cg, TRUE, &titleBrush);
@@ -1082,11 +1082,11 @@ void QWSDefaultDecorator::paintButton(QPainter *painter, const QWidget *w,
     const QPixmap *pm=pixmapFor(w,type,state & QWSButton::On, xoff, yoff);
 
     if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked)) {
-#ifndef QT_NO_WIDGETS
+#if !defined(QT_NO_WIDGETS)
 	style.drawToolButton(painter, brect.x(), brect.y(), brect.width()-1,
 		    brect.height()-1, cg, TRUE,
 		    &cg.brush(QColorGroup::Background));
-#else
+#elsif !defined(QT_NO_DRAWUTIL)
 	qDrawWinPanel(painter, brect.x(), brect.y(), brect.width()-1,
 		    brect.height()-1, cg, TRUE,
 		    &cg.brush(QColorGroup::Background));

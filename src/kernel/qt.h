@@ -27,8 +27,8 @@
 
 #ifndef QT_H
 #define QT_H
-#include <qfeatures.h>
 #include "qglobal.h"
+#include <qfeatures.h>
 #include "qshared.h"
 #include "qgarray.h"
 #include "qcollection.h"

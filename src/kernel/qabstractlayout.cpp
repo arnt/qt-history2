@@ -24,6 +24,8 @@
 *****************************************************************************/
 
 #include "qabstractlayout.h"
+
+#ifndef QT_NO_LAYOUT
 #include "qwidget.h"
 #include "qmenubar.h"
 #include "qapplication.h"
@@ -1817,3 +1819,5 @@ bool QLayout::isEnabled() const
 {
     return enabled;
 }
+
+#endif //QT_NO_LAYOUT

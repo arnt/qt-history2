@@ -281,10 +281,10 @@ QImage::QImage( const QString &fileName, const char* format )
     load( fileName, format );
 }
 
-
+#ifndef QT_NO_IMAGEIO_XPM
 // helper
 static void read_xpm_image_or_array( QImageIO *, const char **, QImage & );
-
+#endif
 /*!
   Constructs an image from \a xpm, which must be a valid XPM image.
 

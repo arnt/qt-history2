@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qdrawutil.h"
+#ifndef QT_NO_DRAWUTIL
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 
@@ -939,3 +940,4 @@ void qDrawArrow( QPainter *p, Qt::ArrowType type, Qt::GUIStyle style, bool down,
 #endif
     }
 }
+#endif //QT_NO_DRAWUTIL

@@ -32,6 +32,8 @@
 #include "qwidget.h"
 #endif // QT_H
 
+#ifndef QT_NO_LAYOUT
+
 class QMenuBar;
 class QWidget;
 struct QLayoutData;
@@ -255,5 +257,5 @@ inline void QLayoutIterator::deleteCurrent()
 {
     delete takeCurrent();
 }
-
+#endif //QT_NO_LAYOUT
 #endif

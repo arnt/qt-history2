@@ -32,7 +32,7 @@
 #include "qnamespace.h"
 #endif // QT_H
 
-
+#ifndef QT_NO_DRAWUTIL
 //
 // Standard shade drawing
 //
@@ -119,4 +119,5 @@ void qDrawArrow( QPainter *p, Qt::ArrowType type, Qt::GUIStyle style, bool down,
 		 int x, int y, int w, int h,
 		 const QColorGroup &g, bool enabled );
 
+#endif // QT_NO_DRAWUTIL
 #endif // QDRAWUTIL_H

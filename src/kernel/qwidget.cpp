@@ -682,7 +682,9 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     own_font = 0;
     own_palette = 0;
     sizehint_forced = 0;
+#ifndef QT_NO_LAYOUT
     lay_out = 0;
+#endif    
     extra = 0;					// no extra widget info
     bg_col = pal.normal().background();		// default background color
     create();					// platform-dependent init
@@ -3163,11 +3165,14 @@ void QWidget::show()
 	// minimum size.
 	QSize s = sizeHint();
 	QSizePolicy::ExpandData exp;
+#ifndef QT_NO_LAYOUT
 	if ( layout() ) {
 	    if ( layout()->hasHeightForWidth() )
 		s.setHeight( layout()->totalHeightForWidth( s.width() ) );
 	    exp =  layout()->expanding();
-	} else {
+	} else 
+#endif
+	{
 	    if ( sizePolicy().hasHeightForWidth() )
 		s.setHeight( heightForWidth( s.width() ) );
 	    exp = sizePolicy().expanding();
@@ -3639,8 +3644,10 @@ void QWidget::adjustSize()
 
 QSize QWidget::sizeHint() const
 {
+#ifndef QT_NO_LAYOUT
     if ( layout() )
 	return layout()->totalSizeHint();
+#endif
     constPolish();
     return QSize( -1, -1 );
 }
@@ -3660,8 +3667,10 @@ QSize QWidget::sizeHint() const
 
 QSize QWidget::minimumSizeHint() const
 {
+#ifndef QT_NO_LAYOUT
     if ( layout() )
 	return layout()->totalMinimumSize();
+#endif
     constPolish();
     return QSize( -1, -1 );
 }
@@ -4618,12 +4627,12 @@ void QWidget::updateMask()
 
   \sa layout() QLayout sizePolicy()
 */
-
+#ifndef QT_NO_LAYOUT
 void QWidget::setLayout( QLayout *l )
 {
     lay_out = l;
 }
-
+#endif
 
 /*!
   Returns the default layout behaviour of this widget.

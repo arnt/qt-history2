@@ -30,6 +30,7 @@
 #include "qabstractlayout.h"
 #endif // QT_H
 
+#ifndef QT_NO_LAYOUT
 class QLayoutArray;
 class QLayoutBox;
 
@@ -208,5 +209,5 @@ public:
 
 
 
-
+#endif //QT_NO_LAYOUT
 #endif // QLAYOUT_H

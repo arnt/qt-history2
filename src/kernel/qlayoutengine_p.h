@@ -42,7 +42,7 @@
 #ifndef QT_H
 #include "qabstractlayout.h"
 #endif // QT_H
-
+#ifndef QT_NO_LAYOUT
 struct QLayoutStruct
 {
     void init() { stretch = 0; initParameters(); }
@@ -92,5 +92,5 @@ static inline void qMaxExpCalc( QCOORD & max, bool &exp,
     exp = exp || boxexp;
 }
 
-
+#endif //QT_NO_LAYOUT
 #endif

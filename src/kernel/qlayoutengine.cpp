@@ -35,6 +35,8 @@
 
 #include "qlayoutengine_p.h"
 
+#ifndef QT_NO_LAYOUT
+
 static inline int toFixed( int i ) { return i * 256; }
 static inline int fRound( int i ) {
     return  i % 256 < 128 ? i / 256 : 1 + i / 256;
@@ -223,3 +225,5 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int start, int count, int pos,
 	    p += spacer+extra;
     }
 }
+
+#endif //QT_NO_LAYOUT

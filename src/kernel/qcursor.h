@@ -32,10 +32,6 @@
 #include "qnamespace.h"
 #endif // QT_H
 
-#if defined(QT_NO_QWS_CURSOR) && defined(_WS_QWS_)
-#define QT_NO_CURSOR
-#endif
-
 #ifndef QT_NO_CURSOR
 
 struct QCursorData;

@@ -341,7 +341,9 @@ public:
     virtual int heightForWidth(int) const;
 
     virtual void  	adjustSize();
+#ifndef QT_NO_LAYOUT
     QLayout *		layout() const { return lay_out; }
+#endif
     void		updateGeometry();
     virtual void 	reparent( QWidget *parent, WFlags, const QPoint &,
 				  bool showIt=FALSE );
@@ -486,7 +488,9 @@ private slots:
 
 private:
     void	 setFontSys();
+#ifndef QT_NO_LAYOUT
     void 	 setLayout( QLayout *l );
+#endif
     void	 setWinId( WId );
     void	 showWindow();
     void	 hideWindow();
@@ -523,7 +527,9 @@ private:
     QColor	 bg_col;
     QPalette	 pal;
     QFont	 fnt;
+#ifndef QT_NO_LAYOUT
     QLayout 	*lay_out;
+#endif
     QWExtra	*extra;
 #if defined(_WS_QWS_)
     QRegion	 req_region;			// Requested region

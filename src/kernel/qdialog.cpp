@@ -619,10 +619,10 @@ void QDialog::showExtension( bool showIt )
 	d->size = size();
 	d->min = minimumSize();
 	d->max = maximumSize();
-
+#ifndef QT_NO_LAYOUT
 	if ( layout() )
 	    layout()->setEnabled( FALSE );
-
+#endif
 	QSize s( d->extension->sizeHint() );
 	if ( d->orientation == Horizontal ) {
 	    d->extension->setGeometry( width(), 0, s.width(), height() );
@@ -637,8 +637,10 @@ void QDialog::showExtension( bool showIt )
 	setMinimumSize( d->min );
 	setMaximumSize( d->max );
 	resize( d->size );
+#ifndef QT_NO_LAYOUT
 	if ( layout() )
 	    layout()->setEnabled( TRUE );
+#endif
     }
 }
 

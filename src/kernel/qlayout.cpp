@@ -25,6 +25,8 @@
 
 #include "qlayout.h"
 
+#ifndef QT_NO_LAYOUT
+
 #include "qapplication.h" //for postEvent() in QBoxLayout::setDirection
 #include "qwidget.h"
 #include "qlist.h"
@@ -2457,3 +2459,4 @@ QVBoxLayout::~QVBoxLayout()
 
 
 
+#endif //QT_NO_LAYOUT
