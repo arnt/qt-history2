@@ -1673,7 +1673,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		HideMenuBar();
 	}
 
-#if defined(DEBUG_MOUSE_MAPS) || defined(DEBUG_DROPPED_EVENTS)
+#if defined(DEBUG_MOUSE_MAPS)
 	const char *edesc = 0;
 	switch(ekind) {
 	case kEventMouseDown: edesc = "MouseButtonPress"; break;
@@ -1681,19 +1681,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	case kEventMouseDragged: case kEventMouseMoved: edesc = "MouseMove"; break;
 	case kEventMouseWheelMoved: edesc = "MouseWheelMove"; break;
 	}
-#endif
-	if((ekind == kEventMouseDown && mouse_button_state) ||
-	    (ekind == kEventMouseUp && !mouse_button_state)) {
-#if defined(DEBUG_MOUSE_MAPS) || defined(DEBUG_DROPPED_EVENTS)
-	    qDebug("**** Dropping mouse event.. %s %d %p **** ",
-		   edesc, mouse_button_state, (QWidget*)qt_button_down);
-#endif
-	    break;
-	}
-#ifdef DEBUG_MOUSE_MAPS
-	else if(ekind == kEventMouseDown || ekind == kEventMouseUp) {
+	if(ekind == kEventMouseDown || ekind == kEventMouseUp)
 	    qDebug("Handling mouse: %s", edesc);
-	}
 #endif
 	QEvent::Type etype = QEvent::None;
 	UInt32 modifiers;
