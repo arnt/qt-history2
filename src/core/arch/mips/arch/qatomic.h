@@ -15,6 +15,10 @@
 #ifndef QATOMIC_P_H
 #define QATOMIC_P_H
 
+#ifndef QT_H
+#  include <qglobal.h>
+#endif
+
 extern "C" {
 
 Q_CORE_EXPORT
