@@ -2337,7 +2337,9 @@ void QFont::cleanup()
 Qt::HANDLE QFont::handle() const
 {
 
+#if defined(Q_CC_GNU)
 #warning "TODO: handle based on charset compatibility?"
+#endif
     // qDebug("QFont::handle: checking charset for !QT_NO_COMPAT");
     // qDebug("QFont::handle: d->charset is %d '%s'", d->charset,
     // qt_x11encodings[d->charset]);
