@@ -271,7 +271,7 @@ int QWindowsMimeText::cfFor(const char* mime)
 	    cs = cs.left(i);
 	if ( cs == "system" )
 	    return CF_TEXT;
-	if ( cs == "ISO-10646-UCS-2" )
+        if ( cs == "ISO-10646-UCS-2" || cs == "utf16" )
 	    return CF_UNICODETEXT;
     }
     return 0;
@@ -282,7 +282,10 @@ const char* QWindowsMimeText::mimeFor(int cf)
     if ( cf == CF_TEXT )
 	return "text/plain";
     else if ( cf == CF_UNICODETEXT )
-	return "text/plain;charset=ISO-10646-UCS-2";
+        if ( qt_winver & Qt::WV_DOS_based ) 
+            return "text/plain;charset=utf16";
+        else
+	    return "text/plain;charset=ISO-10646-UCS-2";
     else
 	return 0;
 }

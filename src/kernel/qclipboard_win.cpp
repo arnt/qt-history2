@@ -166,7 +166,7 @@ public:
 		int cf = 0;
 		QList<QWindowsMime> all = QWindowsMime::all();
 		while (cf = EnumClipboardFormats(cf)) {
-			if ( cf == CF_TEXT )
+                    if ( qt_winver & Qt::WV_NT_based && cf == CF_TEXT )
 				sawSBText = true;
 			else {
 				mime = QWindowsMime::cfToMime(cf);
@@ -181,7 +181,7 @@ public:
 
 		// If we did not find a suitable mime type, yet skipped
 		// CF_TEXT due to the priorities above, give it a shot
-		if ( !mime && sawSBText) {
+                if ( qt_winver & Qt::WV_NT_based && !mime && sawSBText ) {
 			mime = QWindowsMime::cfToMime( CF_TEXT );
 			if ( mime ) {
 				n--;
