@@ -1,0 +1,684 @@
+@SysInclude { tbl }
+@SysInclude { diag }
+@Include { mydoc }
+@Doc 
+//
+@Text @Begin
+@Place 
+    x { 22.4c }
+    y { 2c }
+{
+0.5 @Scale 90d @Rotate @IncludeGraphic { combobox.eps }
+}
+@Place 
+    x { 17.8c }
+    y { 30.5c }
+{
+1.5 @Scale lightgrey @Colour 150d @Rotate
+{ Times Bold } @Font { Qt by Trolltech }
+}
+@Place 
+    x { 22c }
+    y { 10.5c }
+{
+2.0 @Scale lightgrey @Colour 90d @Rotate
+@F { info@trolltech.com }
+}
+@Place 
+    x { 19c }
+    y { 36.5c }
+{
+0.5 @Scale lightgrey @Colour 180d @Rotate
+lines @Break {
+Qt is a C++ toolkit for cross-
+platform GUI and application 
+development. In addition to 
+the Qt C++ class library, the 
+toolkit includes tools to make 
+writing applications fast and 
+straightforward. Qt's cross-
+platform capabilities and 
+extensive internationalization support ensure 
+that Qt applications reach the widest possible market. 
+}
+}
+@Place 
+    x { 15.25c }
+    y { 24.25c }
+{
+0.5 @Scale 90d @Rotate lightgrey @Colour 
+@F @Verbatim @Begin 
+#include <qapplication.h>
+#include <qlabel.h>
+
+int main( int argc, char **argv )
+{
+    QApplication app( argc, argv );
+    QLabel *hello = new QLabel( 
+                           "<font color=blue>"
+                           " Hello <i>Qt!</i>"
+                           "</font>", 0 );
+    app.setMainWidget( hello );
+    hello->show();
+    return app.exec();
+}
+@End @Verbatim
+}
+@Place x { 5c } y { 5c }
+{ 0.75 @Scale lightgrey @Colour 120d @Rotate
+{ Windows~95 } }
+@Place x { 23c } y { 32.0c }
+{ 0.75 @Scale lightgrey @Colour 10d @Rotate
+{ Windows~98 } }
+@Place x { 5.25c } y { 35.5c }
+{ 0.75 @Scale lightgrey @Colour 100d @Rotate
+{ Windows~NT~4 } }
+@Place x { 19.7c } y { 19c }
+{ 0.75 @Scale lightgrey @Colour 140d @Rotate
+{ Windows~ME } }
+@Place x { 4c } y { 24.5c }
+{ 0.75 @Scale lightgrey @Colour 170d @Rotate
+{ Windows~2000 } }
+@Place x { 19c } y { 5.75c }
+{ 0.75 @Scale lightgrey @Colour 160d @Rotate
+{ AIX } }
+@Place x { 16.5c } y { 19.65c }
+{ 0.75 @Scale lightgrey @Colour 30d @Rotate
+{ OpenBSD } }
+@Place x { 12.5c } y { 6.25c }
+{ 0.75 @Scale lightgrey @Colour 50d @Rotate
+{ FreeBSD } }
+@Place x { 9.5c } y { 27.75c }
+{ 0.75 @Scale lightgrey @Colour 30d @Rotate
+{ HP-UX } }
+@Place x { 20.5c } y { 35c }
+{ 0.75 @Scale lightgrey @Colour 110d @Rotate
+{ Irix } }
+@Place x { 10.5c } y { 20c }
+{ 0.75 @Scale lightgrey @Colour 150d @Rotate
+{ Linux } }
+@Place x { 7.25c } y { 5.5c }
+{ 0.75 @Scale lightgrey @Colour 20d @Rotate
+{ NetBSD } }
+@Place x { 16.5c } y { 9c }
+{ 0.75 @Scale lightgrey @Colour 170d @Rotate
+{ BSDI } }
+@Place x { 3.5c } y { 20.35c }
+{ 0.75 @Scale lightgrey @Colour 20d @Rotate
+{ Solaris } }
+@Place x { 9.35c } y { 35.5c }
+{ 0.75 @Scale lightgrey @Colour 70d @Rotate
+{ Tru64 } }
+@Place x { 19.6375c } y { 2c }
+{ 0.75 @Scale lightgrey @Colour 0d @Rotate
+{ Qt"/"Embedded } }
+@Place x { 14.75c } y { 5.6375c }
+{ 0.75 @Scale lightgrey @Colour 110d @Rotate
+{ Mac~OS~X } }
+@Place x { 17c } y { 35.25c }
+{ 0.75 @Scale lightgrey @Colour 150d @Rotate
+{ UnixWare } }
+@Place x { 2.95c } y { 30.3c }
+{ 0.6 @Scale lightgrey @Colour 90d @Rotate rlines @Break { 
+utf16 @CDot Unicode
+utf8 @CDot Unicode
+
+
+Big5 @CDot Chinese
+GBK @CDot Chinese
+eucJP @CDot Japanese
+JIS7 @CDot Japanese
+Shift-JIS @CDot Japanese
+eucKR @CDot Korean
+KO18-R @CDot Russian
+TSCII @CDot Tamil
+TIS-620 @CDot Thai
+KO18-U @CDot Ukranian
+
+
+ISO8859-15 @CDot Western
+ISO8859-14
+ISO8859-13
+ISO8859-10
+ISO8859-9 @CDot Turkish
+ISO8859-8-i @CDot Hebrew
+ISO8859-8 @CDot Hebrew
+ISO8859-7 @CDot Greek
+ISO8859-6 @CDot Arabic
+ISO8859-5 @CDot Cyrillic
+ISO8859-4 @CDot Baltic
+ISO8859-3 @CDot Central Europe
+ISO8859-2 @CDot Central Europe
+ISO8859-1 @CDot Western
+
+
+CP 874
+CP 1250 @CDot Central Europe
+CP 1251 @CDot Cyrillic
+CP 1252 @CDot Western
+CP 1253 @CDot Greek
+CP 1254 @CDot Turkish
+CP 1255 @CDot Hebrew
+CP 1256 @CDot Arabic
+CP 1257 @CDot Baltic
+CP 1258
+
+
+Apple Roman
+} 
+}
+@CD 
+@Scale 
+@Diag 
+    # QWidget
+    margin { 0.3f }
+    outline { shadowbox }
+    shadow { 0.2f }
+    paint { lightgreen }
+
+    # Qt, QObject
+    amargin { 0.3f }
+    aoutline { shadowbox }
+    ashadow { 0.2f }
+    apaint { lightyellow }
+
+    # Independent
+    bmargin { 0.3f }
+    boutline { shadowbox }
+    bshadow { 0.2f }
+    bpaint { lightcyan }
+
+    # SQL
+    cmargin { 0.3f }
+    coutline { shadowbox }
+    cshadow { 0.2f }
+    cpaint { lightred }
+    {
+    @Tbl 
+	marginhorizontal { 0.55f }
+	aformat { @Cell A | 
+		  @Cell B | @Cell C | @Cell D | @Cell E |
+		  @Cell F | @Cell G | @Cell H | @Cell I | @Cell J |
+		  @Cell K | @Cell L | @Cell M | @Cell N | @Cell O | @Cell P |
+		  @Cell Q | @Cell R | @Cell S | @Cell T | @Cell U | 
+		  @Cell V | @Cell W | @Cell X | @Cell Y | @Cell Z }
+	bformat { @StartHSpan @Cell A | 
+		  @HSpan | @HSpan | @HSpan | @HSpan |
+		  @HSpan | @Cell G | @Cell H | @Cell I | @Cell J |
+		  @Cell K | @Cell L | @Cell M | @Cell N | @Cell O | @Cell P |
+		  @Cell Q | @Cell R | @Cell S | @Cell T | @Cell U | 
+		  @Cell V | @Cell W | @Cell X | @Cell Y | @Cell Z }
+    {
+	@Rowa
+	    A { QT:: @ANode Qt }
+	    G { QOBJECT:: @Node paint { yellow } { QObject } } 
+	    K { QWIDGET:: @Node { QWidget } } 
+	    Q { QWIDGETFACTORY:: @BNode { QWidgetFactory } }
+	    R { QACCESSIBLE:: @BNode { QAccessible } }
+	    V { QMEMARRAY:: @Node paint { cyan } { QMemArray } }
+	@Rowa
+	    B { QBRUSH:: @ANode { QBrush } } 
+	    E { QEVENT:: @Node paint { lightblue } { QEvent } } 
+	    F { QACCEL:: @Node paint { yellow } { QAccel } } 
+	    L { QBUTTON:: @Node { QButton } } 
+	    Q { QWIDGETPLUGIN:: @BNode { QWidgetPlugin } }
+	    R { QASCIICACHE:: @Node paint { cyan } { QAsciiCache } }
+	    V { QMETAOBJECT:: @BNode { QMetaObject } }
+	    W { QBYTEARRAY:: @Node paint { cyan } { QByteArray } }
+	@Rowa
+	    B { QCURSOR:: @ANode { QCursor } } 
+	    E { QIMEVENT:: @Node paint { lightblue } { QIMEvent } } 
+	    F { QACTION:: @Node paint { yellow } { QAction } } 
+	    L { QCOMBOBOX:: @Node { QComboBox } } 
+	    M { QCHECKBOX:: @Node { QCheckBox } } 
+	    R { QASYNCIO:: @BNode { QAsyncIO } } 
+	    V { QMETAPROPERTY:: @BNode { QMetaProperty } }
+	    W { QPOINTARRAY:: @Node paint { cyan } { QPointArray } }
+	@Rowa
+	    B { QKEYSEQUENCE:: @ANode { QKeySequence } } 
+	    E { QKEYEVENT:: @Node paint { lightblue } { QKeyEvent } } 
+	    F { QAPPLICATION:: @Node paint { yellow } { QApplication } } 
+	    L { QDATETIMEEDIT:: @Node { QDateTimeEdit } } 
+	    M { QTOOLBUTTON:: @Node { QToolButton } } 
+	    Q { QXMLATTRIBUTES:: @Node paint { lightmagenta } { QXmlAttributes } }
+	    R { QCHAR:: @BNode { QChar } } 
+	    V { QMIMESOURCE:: @BNode { QMimeSource } }
+	    W { QBITARRAY:: @Node paint { cyan } { QBitArray } }
+	@Rowa
+	    B { QPAINTER:: @ANode { QPainter } } 
+	    E { QHIDEEVENT:: @Node paint { lightblue } { QHideEvent } } 
+	    F { QCANVAS:: @Node paint { yellow } { QCanvas } } 
+	    L { QDESKTOPWIDGET:: @Node { QDesktopWidget } } 
+	    M { QPUSHBUTTON:: @Node { QPushButton } } 
+	    Q { QXMLDECLHANDLER:: @Node paint { lightmagenta } { QXmlDeclHandler } }
+	    R { QCOLOR:: @BNode { QColor } } 
+	    V { QMOVIE:: @BNode { QMovie } }
+	@Rowa
+	    B { QPEN:: @ANode { QPen } } 
+	    E { QDROPEVENT:: @Node paint { lightblue } { QDropEvent } } 
+	    F { QCLIPBOARD:: @Node paint { yellow } { QClipboard } } 
+	    L { QDIAL:: @Node { QDial } } 
+	    M { QRADIOBUTTON:: @Node { QRadioButton } } 
+	    Q { QXMLDTDHANDLER:: @Node paint { lightmagenta } { QXmlDTDHandler } }
+	    R { QCOLORGROUP:: @BNode { QColorGroup } } 
+	    V { QMUTEX:: @BNode { QMutex } }
+	@Rowa
+	    B { QTAB:: @ANode { QTab } } 
+	    E { QPAINTEVENT:: @Node paint { lightblue } { QPaintEvent } } 
+	    F { QDNS:: @Node paint { yellow } { QDns } } 
+	    L { QDIALOG:: @Node paint { green } { QDialog } } 
+	    Q { QXMLENTITYRESOLVER:: @Node paint { lightmagenta } { QXmlEntityResolver } }
+	    R { QDATASTREAM:: @BNode { QDataStream } } 
+	    V { QPAINTDEVICE:: @BNode { QPaintDevice } }
+	@Rowa
+	    B { QTHREAD:: @ANode { QThread } } 
+	    E { QCHILDEVENT:: @Node paint { lightblue } { QChildEvent } } 
+	    F { QDRAGOBJECT:: @Node paint { yellow } { QDragObject } } 
+	    L { QDOCKAREA:: @Node { QDockArea } } 
+	    M { QWIZARD:: @Node paint { green } { QWizard } } 
+	    Q { QXMLLOCATOR:: @Node paint { lightmagenta } { QXmlLocator } }
+	    R { QDATE:: @BNode { QDate } } 
+	    V { QPAINTDEVICEMETRICS:: @BNode { QPaintDeviceMetrics } }
+	    W { QPRINTER:: @BNode { QPrinter } }
+	@Rowa
+	    B { QTOOLTIP:: @ANode { QTooltip } } 
+	    E { QMOVEEVENT:: @Node paint { lightblue } { QMoveEvent } } 
+	    F { QNETWORKOPERATION:: @Node paint { yellow } { QNetworkOperation } } 
+	    L { QWORKSPACE:: @Node { QWorkspace } } 
+	    M { QTABDIALOG:: @Node paint { green } { QTabDialog } } 
+	    Q { QXMLNAMESPACESUPPORT:: @Node paint { lightmagenta } { QXmlNamespace... } }
+	    R { QDATETIME:: @BNode { QDateTime } } 
+	    V { QPAIR:: @Node paint { cyan } { QPair } }
+	    W { QPICTURE:: @BNode { QPicture } }
+	@Rowa
+	    B { QWHATSTHIS:: @ANode { QWhatsThis } } 
+	    E { QSHOWEVENT:: @Node paint { lightblue } { QShowEvent } } 
+	    F { QNETWORKPROTOCOL:: @Node paint { yellow } { QNetworkProtocol } } 
+	    L { QGLWIDGET:: @Node { QGLWidget } } 
+	    M { QFILEDIALOG:: @Node paint { green } { QFileDialog } } 
+	    Q { QXMLREADER:: @Node paint { lightmagenta } { QXmlReader } }
+	    R { QDIR:: @BNode { QDir } } 
+	    V { QPALETTE:: @BNode { QPalette } }
+	    W { QPIXMAP:: @BNode { QPixmap } }
+	@Rowa
+	    B { QCANVASITEM:: @ANode { QCanvasItem } } 
+	    E { QCLOSEEVENT:: @Node paint { lightblue } { QCloseEvent } } 
+	    F { QPROCESS:: @Node paint { yellow } { QProcess } } 
+	    L { QHEADER:: @Node { QHeader } } 
+	    M { QFONTDIALOG:: @Node paint { green } { QFontDialog } } 
+	    R { QDOMNODE:: @Node paint { lightmagenta } { QDomNode } } 
+	    V { QPIXMAPCACHE:: @Node paint { cyan } { QPixmapCache } }
+	    W { QBITMAP:: @BNode { QBitmap } }
+	@Rowa
+	    B { QCANVASTEXT:: @ANode { QCanvasText } } 
+	    E { QTIMEREVENT:: @Node paint { lightblue } { QTimerEvent } } 
+	    F { QSERVERSOCKET:: @Node paint { yellow } { QServerSocket } } 
+	    L { QMAINWINDOW:: @Node { QMainWindow } } 
+	    M { QINPUTDIALOG:: @Node paint { green } { QInputDialog } } 
+	    Q { QDOMATTR:: @Node paint { lightmagenta } { QDomAttr } } 
+	    R { QFILEINFO:: @BNode { QFileInfo } } 
+	    V { QPOINT:: @BNode { QPoint } }
+	@Rowa
+	    B { QCANVASSPRITE:: @ANode { QCanvasSprite } } 
+	    E { QFOCUSEVENT:: @Node paint { lightblue } { QFocusEvent } } 
+	    F { QSESSIONMANAGER:: @Node paint { yellow } { QSessionManager } } 
+	    L { QSCROLLBAR:: @Node { QScrollBar } } 
+	    M { QCOLORDIALOG:: @Node paint { green } { QColorDialog } } 
+	    Q { QDOMENTITY:: @Node paint { lightmagenta } { QDomEntity } } 
+	    R { QFONT:: @BNode { QFont } } 
+	    V { QPTRCOLLECTION:: @Node paint { cyan } { QPtrCollection } }
+	@Rowa
+	    B { QCANVASPOLYGONALITEM:: @ANode { QCanvasPolygonalItem } } 
+	    E { QWHEELEVENT:: @Node paint { lightblue } { QWheelEvent } } 
+	    F { QSIGNAL:: @Node paint { yellow } { QSignal } } 
+	    L { QSLIDER:: @Node { QSlider } } 
+	    M { QMESSAGEBOX:: @Node paint { green } { QMessageBox } } 
+	    Q { QDOMELEMENT:: @Node paint { lightmagenta } { QDomElement } } 
+	    R { QFONTDATABASE:: @BNode { QFontDatabase } } 
+	    V { QPTRQUEUE:: @Node paint { cyan } { QPtrQueue } }
+	    W { QDICT:: @Node paint { cyan } { QDict } }
+	@Rowa
+	    B { QCANVASELLIPSE:: @ANode { QCanvasEllipse } } 
+	    E { QMOUSEEVENT:: @Node paint { lightblue } { QMouseEvent } } 
+	    F { QSOCKET:: @Node paint { yellow } { QSocket } } 
+	    L { QSPINBOX:: @Node { QSpinBox } } 
+	    M { QPROGRESSDIALOG:: @Node paint { green } { QProgressDialog } } 
+	    Q { QDOMDOCUMENT:: @Node paint { lightmagenta } { QDomDocument } } 
+	    R { QFONTINFO:: @BNode { QFontInfo } } 
+	    V { QPTRSTACK:: @Node paint { cyan } { QPtrStack } }
+	    W { QCACHE:: @Node paint { cyan } { QCache } }
+	@Rowa
+	    B { QCANVASLINE:: @ANode { QCanvasLine } } 
+	    E { QRESIZEEVENT:: @Node paint { lightblue } { QResizeEvent } } 
+	    F { QSOUND:: @Node paint { yellow } { QSound } } 
+	    L { QFRAME:: @Node { QFrame } } 
+	    Q { QDOMCHARACTERDATA:: @Node paint { lightmagenta } { QDomCharacterData } } 
+	    R { QFONTMANAGER:: @BNode { QFontManager } } 
+	    V { QRANGECONTROL:: @BNode { QRangeControl } }
+	    W { QPTRLIST:: @Node paint { cyan } { QPtrList } }
+	@Rowa
+	    B { QCANVASPOLYGON:: @ANode { QCanvasPolygon } } 
+	    F { QSTYLE:: @Node paint { lightgrey } { QStyle } } 
+	    L { QSTATUSBAR:: @Node { QStatusBar } } 
+	    M { QGRID:: @Node { QGrid } } 
+	    R { QFONTMETRICS:: @BNode { QFontMetrics } } 
+	    V { QRECT:: @BNode { QRect } }
+	    W { QINTDICT:: @Node paint { cyan } { QIntDict } }
+	@Rowa
+	    F { QSTYLESHEET:: @Node paint { yellow } { QStyleSheet } } 
+	    L { QTABBAR:: @Node { QTabBar } } 
+	    M { QLABEL:: @Node { QLabel } } 
+	    R { QGL:: @BNode { QGL } } 
+	    V { QREGEXP:: @BNode { QRegExp } }
+	    W { QPTRDICT:: @Node paint { cyan } { QPtrDict } }
+	@Rowa
+	    B { QWINDOWSSTYLE:: @Node paint { lightgrey } { QWindowsStyle } } 
+	    E { QCOMMONSTYLE:: @Node paint { lightgrey } { QCommonStyle } } 
+	    F { QTIMER:: @Node paint { yellow } { QTimer } } 
+	    L { QTABWIDGET:: @Node { QTabWidget } } 
+	    M { QHBOX:: @Node { QHBox } } 
+	    Q { QGLFORMAT:: @BNode { QGLFormat } } 
+	    R { QGLCOLORMAP:: @BNode { QGLColorMap } } 
+	    V { QREGION:: @BNode { QRegion } }
+	    W { QASCIIDICT:: @Node paint { cyan } { QAsciiDict } }
+	@Rowa
+	    F { QTRANSLATOR:: @Node paint { yellow } { QTranslator } } 
+	    M { QVBOX:: @Node { QVBox } } 
+	    Q { QGLCONTEXT:: @BNode { QGLContext } } 
+	    R { QGUARDEDPTR:: @BNode { QGuardedPtr } } 
+	    V { QSEMAPHORE:: @BNode { QSemaphore } }
+	    W { QPTRVECTOR:: @Node paint { cyan } { QPtrVector } }
+	@Rowa
+	    B { QAQUASTYLE:: @Node paint { lightgrey } { QAquaStyle } } 
+	    E { QMOTIFSTYLE:: @Node paint { lightgrey } { QMotifStyle } } 
+	    F { QURLOPERATOR:: @Node paint { yellow } { QUrlOperator } } 
+	    L { QSCROLLVIEW:: @Node { QScrollView } } 
+	    M { QSPLITTER:: @Node { QSplitter } } 
+	    R { QICONSET:: @BNode { QIconSet } } 
+	    V { QSETTINGS:: @BNode { QSettings } }
+	    W { QSORTEDLIST:: @Node paint { cyan } { QSortedList } }
+	@Rowa
+	    B { QPLATINUMSTYLE:: @Node paint { lightgrey } { QPlatinumStyle } } 
+	    F { QVALIDATOR:: @Node paint { yellow } { QValidator } } 
+	    L { QCANVASVIEW:: @Node { QCanvasView } } 
+	    M { QLINEEDIT:: @Node { QLineEdit } } 
+	    R { QIMAGE:: @BNode { QImage } } 
+	    V { QSIMPLERICHTEXT:: @BNode { QSimpleRichText } }
+	@Rowa
+	    B { QSGISTYLE:: @Node paint { lightgrey } { QSGIStyle } } 
+	    F { QLAYOUT:: @Node paint { yellow } { QLayout } } 
+	    L { QGRIDVIEW:: @Node { QGridView } } 
+	    M { QMENUBAR:: @Node { QMenuBar } } 
+	    R { QIMAGEFORMATPLUGIN:: @BNode { QImageFormatPlugin } } 
+	    V { QSIZE:: @BNode { QSize } }
+	    W { QVALUELIST:: @Node paint { cyan } { QValueList } }
+	@Rowa
+	    B { QCDESTYLE:: @Node paint { lightgrey } { QCDEStyle } } 
+	    L { QICONVIEW:: @Node { QIconView } } 
+	    M { QGROUPBOX:: @Node { QGroupBox } } 
+	    R { QIMAGEIO:: @BNode { QImageIO } } 
+	    V { QSIZEPOLICY:: @BNode { QSizePolicy } }
+	    W { QSTRINGLIST:: @Node paint { cyan } { QStringList } }
+	@Rowa
+	    B { QMOTIFPLUSSTYLE:: @Node paint { lightgrey } { QMotifPlusStyle } } 
+	    F { QSQLDATABASE:: @CNode { QSqlDatabase } } 
+	    L { QLISTVIEW:: @Node { QListView } } 
+	    M { QPOPUPMENU:: @Node { QPopupMenu } } 
+	    R { QINTCACHE:: @Node paint { cyan } { QIntCache } } 
+	    V { QSTRING:: @BNode { QString } }
+	    W { QVALUESTACK:: @Node paint { cyan } { QValueStack } }
+	@Rowa
+	    B { QSTYLEPLUGIN:: @Node paint { lightgrey } { QStylePlugin } } 
+	    E { QSQLFIELD:: @CNode { QSqlField } } 
+	    F { QSQLDRIVER:: @CNode { QSqlDriver } } 
+	    L { QTEXTEDIT:: @Node { QTextEdit } } 
+	    M { QPROGRESSBAR:: @Node { QProgressBar } } 
+	    R { QIODEVICE:: @BNode { QIODevice } } 
+	    V { QTEXTCODEC:: @BNode { QTextCodec } }
+	    W { QVALUEVECTOR:: @Node paint { cyan } { QValueVector } }
+	@Rowa
+	    E { QSQLRECORD:: @CNode { QSqlRecord } } 
+	    F { QSQLFORM:: @CNode { QSqlForm } } 
+	    L { QLISTBOX:: @Node { QListBox } } 
+	    M { QLCDNUMBER:: @Node { QLCDNumber } } 
+	    Q { QFILE:: @BNode { QFile } } 
+	    R { QLIBRARY:: @BNode { QLibrary } } 
+	    V { QTEXTCODECPLUGIN:: @BNode { QTextCodecPlugin } }
+	    W { QURL:: @BNode { QUrl } }
+	@Rowa
+	    B { QSQLRESULT:: @CNode { QSqlResult } } 
+	    E { QSQLCURSOR:: @CNode { QSqlCursor } } 
+	    F { QDATABROWSER:: @CNode { QDataBrowser } } 
+	    L { QTABLE:: @Node { QTable } } 
+	    M { QWIDGETSTACK:: @Node { QWidgetStack } } 
+	    Q { QBUFFER:: @BNode { QBuffer } } 
+	    R { QLOCK:: @BNode { QLock } } 
+	    V { QTEXTSTREAM:: @BNode { QTextStream } }
+	    W { QVARIANT:: @BNode { QVariant } }
+	@Rowa
+	    B { QSQLPROPERTYMAP:: @CNode { QSqlPropertyMap } } 
+	    E { QSQLINDEX:: @CNode { QSqlIndex } } 
+	    F { QDATAVIEW:: @CNode { QDataView } } 
+	    M { QDOCKWINDOW:: @Node { QDockWindow } } 
+	    Q { QSOCKETDEVICE:: @BNode { QSocketDevice } } 
+	    R { QMAP:: @Node paint { cyan } { QMap } } 
+	    V { QTIME:: @BNode { QTime } }
+	    W { QWMATRIX:: @BNode { QWMatrix } }
+	@Rowa
+	    B { QSQLDRIVERPLUGIN:: @CNode { QSqlDriverPlugin } } 
+	    E { QSQLQUERY:: @CNode { QSqlQuery } } 
+	    L { 40s @Wide {} } # PADDING
+	    Q { QTOOLBAR:: @Node QToolBar }
+	    F { QDATATABLE:: @CNode { QDataTable } } 
+	@Rowa
+	    E { 32s @Wide {} } # PADDING
+	    L { QCUSTOMMENUITEM:: @ANode QCustomMenuItem }
+	    M { QICONVIEWITEM:: @ANode QIconViewItem }
+	    Q { QLISTBOXITEM:: @BNode QListBoxItem }
+	    R { QASCIICACHEITERATOR:: @Node paint { cyan } QAsciiCacheIterator }
+	    V { QPTRDICTITERATOR:: @Node paint { cyan } QPtrDictIterator }
+	@Rowa
+	    L { QSTYLESHEETITEM:: @Node paint { yellow } { QStyleSheetItem } } 
+	    M { QLISTVIEWITEM:: @ANode QListViewItem }
+	    Q { QLISTBOXTEXT:: @BNode QListBoxText }
+	    R { QCACHEITERATOR:: @Node paint { cyan } QCacheIterator }
+	    V { QMAPITERATOR:: @Node paint { cyan } QMapIterator }
+	@Rowa
+	    L { QGRIDLAYOUT:: @Node paint { yellow } { QGridLayout } } 
+	    M { QCHECKLISTITEM:: @ANode QCheckListItem }
+	    Q { QLISTBOXPIXMAP:: @BNode QListBoxPixmap }
+	    R { QINTCACHEITERATOR:: @Node paint { cyan } QIntCacheIterator }
+	    V { QVALUELISTITERATOR:: @Node paint { cyan } QValueListIterator }
+	@Rowa
+	    L { QBOXLAYOUT:: @Node paint { yellow } { QBoxLayout } } 
+	    M { QTABLEITEM:: @ANode QTableItem }
+	    Q { QLAYOUTITEM:: @BNode QLayoutItem }
+	    R { QASCIIDICTITERATOR:: @Node paint { cyan } QAsciiDictIterator }
+	    V { QPTRLISTITERATOR:: @Node paint { cyan } QPtrListIterator }
+	    W { QHBUTTONGROUP:: @Node { QHButtonGroup } }
+	@Rowa
+	    L { QHBOXLAYOUT:: @Node paint { yellow } { QHBoxLayout } } 
+	    M { QCHECKTABLEITEM:: @ANode QCheckTableItem }
+	    Q { QSPACERITEM:: @BNode QSpacerItem }
+	    R { QDICTITERATOR:: @Node paint { cyan } QDictIterator }
+	    V { QINTDICTITERATOR:: @Node paint { cyan } QIntDictIterator }
+	    W { QVBUTTONGROUP:: @Node { QVButtonGroup } }
+	@Rowb
+	    A { { BoldSlope +3p } @Font 
+		{ The Essential Qt 3.0 Class Hierarchy } }
+	    L { QVBOXLAYOUT:: @Node paint { yellow } { QVBoxLayout } } 
+	    M { QCOMBOTABLEITEM:: @ANode QComboTableItem }
+	    Q { QWIDGETITEM:: @BNode QWidgetItem }
+	    R { QHGROUPBOX:: @Node { QHGroupBox } }
+	    V { QVGROUPBOX:: @Node { QVGroupBox } }
+	    W { QBUTTONGROUP:: @Node { QButtonGroup } }
+    }
+    //
+    @VHCurveArrow from { QT } to { QBRUSH }
+    @VHCurveArrow from { QT } to { QCANVASITEM }
+    @VHCurveArrow from { QT } to { QCURSOR }
+    @VHCurveArrow from { QT } to { QKEYSEQUENCE }
+    @HVCurveArrow from { QT } to { QEVENT }
+    @Arrow from { QT } to { QOBJECT }
+    @VHCurveArrow from { QT } to { QPAINTER }
+    @VHCurveArrow from { QT } to { QPEN }
+    @VHCurveArrow from { QT } to { QTAB }
+    @VHCurveArrow from { QT } to { QTHREAD }
+    @VHCurveArrow from { QT } to { QTOOLTIP }
+    @VHCurveArrow from { QT } to { QWHATSTHIS }
+    @RVLCurveArrow from { QEVENT } to { QCHILDEVENT } bias { 1.5f }
+    @RVLCurveArrow from { QEVENT } to { QCLOSEEVENT } bias { 1.5f }
+    @RVLCurveArrow from { QEVENT } to { QDROPEVENT } bias { 1.5f }
+    @RVLCurveArrow from { QEVENT } to { QFOCUSEVENT } bias { 1.5f }
+    @RVLCurveArrow from { QEVENT } to { QHIDEEVENT } bias { 1.5f }
+    @RVLCurveArrow from { QEVENT } to { QIMEVENT } bias { 1.5f }
+    @RVLCurveArrow from { QEVENT } to { QKEYEVENT } bias { 1.5f }
+    @RVLCurveArrow from { QEVENT } to { QMOUSEEVENT } bias { 1.5f }
+    @RVLCurveArrow from { QEVENT } to { QMOVEEVENT } bias { 1.5f }
+    @RVLCurveArrow from { QEVENT } to { QPAINTEVENT } bias { 1.5f }
+    @RVLCurveArrow from { QEVENT } to { QRESIZEEVENT } bias { 1.5f }
+    @RVLCurveArrow from { QEVENT } to { QSHOWEVENT } bias { 1.5f }
+    @RVLCurveArrow from { QEVENT } to { QTIMEREVENT } bias { 1.5f }
+    @RVLCurveArrow from { QEVENT } to { QWHEELEVENT } bias { 1.5f }
+    @RVLCurveArrow from { QCANVASITEM } to { QCANVASPOLYGONALITEM } bias { 1.5f }
+    @RVLCurveArrow from { QCANVASITEM } to { QCANVASSPRITE } bias { 1.5f }
+    @RVLCurveArrow from { QCANVASITEM } to { QCANVASTEXT } bias { 1.5f }
+    @LVRCurveArrow from { QCANVASPOLYGONALITEM } to { QCANVASELLIPSE } bias { 1.5f }
+    @LVRCurveArrow from { QCANVASPOLYGONALITEM } to { QCANVASLINE } bias { 1.5f }
+    @LVRCurveArrow from { QCANVASPOLYGONALITEM } to { QCANVASPOLYGON } bias { 1.5f }
+    @Arrow from { QOBJECT } to { QWIDGET }
+    @VHCurveArrow from { QOBJECT } to { QACCEL }
+    @VHCurveArrow from { QOBJECT } to { QACTION }
+    @VHCurveArrow from { QOBJECT } to { QAPPLICATION }
+    @VHCurveArrow from { QOBJECT } to { QCANVAS }
+    @VHCurveArrow from { QOBJECT } to { QCLIPBOARD }
+    @VHCurveArrow from { QOBJECT } to { QDNS }
+    @VHCurveArrow from { QOBJECT } to { QDRAGOBJECT }
+    @VHCurveArrow from { QOBJECT } to { QLAYOUT }
+    @VHCurveArrow from { QOBJECT } to { QNETWORKOPERATION }
+    @VHCurveArrow from { QOBJECT } to { QNETWORKPROTOCOL }
+    @VHCurveArrow from { QOBJECT } to { QPROCESS }
+    @VHCurveArrow from { QOBJECT } to { QSERVERSOCKET }
+    @VHCurveArrow from { QOBJECT } to { QSESSIONMANAGER }
+    @VHCurveArrow from { QOBJECT } to { QSIGNAL }
+    @VHCurveArrow from { QOBJECT } to { QSOCKET }
+    @VHCurveArrow from { QOBJECT } to { QSOUND }
+    @VHCurveArrow from { QOBJECT } to { QSQLDATABASE }
+    @VHCurveArrow from { QOBJECT } to { QSQLDRIVER }
+    @VHCurveArrow from { QOBJECT } to { QSQLFORM }
+    @VHCurveArrow from { QOBJECT } to { QSTYLE }
+    @VHCurveArrow from { QOBJECT } to { QSTYLESHEET }
+    @VHCurveArrow from { QOBJECT } to { QTIMER }
+    @VHCurveArrow from { QOBJECT } to { QTRANSLATOR }
+    @VHCurveArrow from { QOBJECT } to { QURLOPERATOR }
+    @VHCurveArrow from { QOBJECT } to { QVALIDATOR }
+    @VHCurveArrow from { QWIDGET } to { QBUTTON }
+    @VHCurveArrow from { QWIDGET } to { QCOMBOBOX }
+    @VHCurveArrow from { QWIDGET } to { QDATABROWSER }
+    @VHCurveArrow from { QWIDGET } to { QDATAVIEW }
+    @VHCurveArrow from { QWIDGET } to { QDATETIMEEDIT }
+    @VHCurveArrow from { QWIDGET } to { QDESKTOPWIDGET }
+    @VHCurveArrow from { QWIDGET } to { QDIAL }
+    @VHCurveArrow from { QWIDGET } to { QDIALOG }
+    @VHCurveArrow from { QWIDGET } to { QDOCKAREA }
+    @VHCurveArrow from { QWIDGET } to { QFRAME }
+    @VHCurveArrow from { QWIDGET } to { QGLWIDGET }
+    @VHCurveArrow from { QWIDGET } to { QHEADER }
+    @VHCurveArrow from { QWIDGET } to { QMAINWINDOW }
+    @VHCurveArrow from { QWIDGET } to { QSCROLLBAR }
+    @VHCurveArrow from { QWIDGET } to { QSLIDER }
+    @VHCurveArrow from { QWIDGET } to { QSPINBOX }
+    @VHCurveArrow from { QWIDGET } to { QSTATUSBAR }
+    @VHCurveArrow from { QWIDGET } to { QTABBAR }
+    @VHCurveArrow from { QWIDGET } to { QTABWIDGET }
+    @VHCurveArrow from { QWIDGET } to { QWORKSPACE }
+    @LVRCurveArrow from { QDOMNODE } to { QDOMATTR } bias { 1.5f }
+    @LVRCurveArrow from { QDOMNODE } to { QDOMCHARACTERDATA } bias { 1.5f }
+    @LVRCurveArrow from { QDOMNODE } to { QDOMDOCUMENT } bias { 1.5f }
+    @LVRCurveArrow from { QDOMNODE } to { QDOMELEMENT } bias { 1.5f }
+    @LVRCurveArrow from { QDOMNODE } to { QDOMENTITY } bias { 1.5f }
+    @LVRCurveArrow from { QGL } to { QGLCONTEXT } bias { 1.5f }
+    @LVRCurveArrow from { QGL } to { QGLFORMAT } bias { 1.5f }
+    @LVRCurveArrow from { QIODEVICE } to { QBUFFER } bias { 1.5f }
+    @LVRCurveArrow from { QIODEVICE } to { QFILE } bias { 1.5f }
+    @LVRCurveArrow from { QIODEVICE } to { QSOCKETDEVICE } bias { 1.5f }
+    @RVLCurveArrow from { QMEMARRAY } to { QBYTEARRAY } bias { 1.5f }
+    @RVLCurveArrow from { QMEMARRAY } to { QPOINTARRAY } bias { 1.5f }
+    @LVRCurveArrow from { QBYTEARRAY } to { QBITARRAY } bias { 1.5f }
+    @RVLCurveArrow from { QPAINTDEVICE } to { QPICTURE } bias { 1.5f }
+    @RVLCurveArrow from { QPAINTDEVICE } to { QPIXMAP } bias { 1.5f }
+    @RVLCurveArrow from { QPAINTDEVICE } to { QPRINTER } bias { 1.5f }
+    @LVRCurveArrow from { QPIXMAP } to { QBITMAP } bias { 1.5f }
+    @RVLCurveArrow from { QPTRCOLLECTION } to { QASCIIDICT } bias { 1.5f }
+    @RVLCurveArrow from { QPTRCOLLECTION } to { QCACHE } bias { 1.5f }
+    @RVLCurveArrow from { QPTRCOLLECTION } to { QDICT } bias { 1.5f }
+    @RVLCurveArrow from { QPTRCOLLECTION } to { QINTDICT } bias { 1.5f }
+    @RVLCurveArrow from { QPTRCOLLECTION } to { QPTRDICT } bias { 1.5f }
+    @RVLCurveArrow from { QPTRCOLLECTION } to { QPTRLIST } bias { 1.5f }
+    @RVLCurveArrow from { QPTRCOLLECTION } to { QPTRVECTOR } bias { 1.5f }
+    @LVRCurveArrow from { QPTRLIST } to { QSORTEDLIST } bias { 1.5f }
+    @HVCurveArrow from { QSTYLE } to { QCOMMONSTYLE } bias { 1.5f }
+    @RVLCurveArrow from { QBUTTON } to { QCHECKBOX } bias { 1.5f }
+    @RVLCurveArrow from { QBUTTON } to { QPUSHBUTTON } bias { 1.5f }
+    @RVLCurveArrow from { QBUTTON } to { QRADIOBUTTON } bias { 1.5f }
+    @RVLCurveArrow from { QBUTTON } to { QTOOLBUTTON } bias { 1.5f }
+    @RVLCurveArrow from { QDIALOG } to { QCOLORDIALOG } bias { 1.5f }
+    @RVLCurveArrow from { QDIALOG } to { QFILEDIALOG } bias { 1.5f }
+    @RVLCurveArrow from { QDIALOG } to { QFONTDIALOG } bias { 1.5f }
+    @RVLCurveArrow from { QDIALOG } to { QINPUTDIALOG } bias { 1.5f }
+    @RVLCurveArrow from { QDIALOG } to { QMESSAGEBOX } bias { 1.5f }
+    @RVLCurveArrow from { QDIALOG } to { QPROGRESSDIALOG } bias { 1.5f }
+    @RVLCurveArrow from { QDIALOG } to { QTABDIALOG } bias { 1.5f }
+    @RVLCurveArrow from { QDIALOG } to { QWIZARD } bias { 1.5f }
+    @RVLCurveArrow from { QFRAME } to { QDOCKWINDOW } bias { 1.5f }
+    @RVLCurveArrow from { QFRAME } to { QGRID } bias { 1.5f }
+    @RVLCurveArrow from { QFRAME } to { QGROUPBOX } bias { 1.5f }
+    @RVLCurveArrow from { QFRAME } to { QHBOX } bias { 1.5f }
+    @RVLCurveArrow from { QFRAME } to { QLABEL } bias { 1.5f }
+    @RVLCurveArrow from { QFRAME } to { QLCDNUMBER } bias { 1.5f }
+    @RVLCurveArrow from { QFRAME } to { QLINEEDIT } bias { 1.5f }
+    @RVLCurveArrow from { QFRAME } to { QMENUBAR } bias { 1.5f }
+    @RVLCurveArrow from { QFRAME } to { QPOPUPMENU } bias { 1.5f }
+    @RVLCurveArrow from { QFRAME } to { QPROGRESSBAR } bias { 1.5f }
+    @RVLCurveArrow from { QFRAME } to { QSCROLLVIEW }
+    @RVLCurveArrow from { QFRAME } to { QSPLITTER } bias { 1.5f }
+    @RVLCurveArrow from { QFRAME } to { QWIDGETSTACK } bias { 1.5f }
+    @LVRCurveArrow from { QSCROLLVIEW } to { QCANVASVIEW } bias { 1.5 f }
+    @LVRCurveArrow from { QSCROLLVIEW } to { QGRIDVIEW } bias { 1.5 f }
+    @LVRCurveArrow from { QSCROLLVIEW } to { QICONVIEW } bias { 1.5 f }
+    @LVRCurveArrow from { QSCROLLVIEW } to { QLISTBOX } bias { 1.5 f }
+    @LVRCurveArrow from { QSCROLLVIEW } to { QLISTVIEW } bias { 1.5 f }
+    @LVRCurveArrow from { QSCROLLVIEW } to { QTABLE } bias { 1.5 f }
+    @LVRCurveArrow from { QSCROLLVIEW } to { QTEXTEDIT } bias { 1.5 f }
+    @Arrow from { QCOMMONSTYLE } to { QMOTIFSTYLE }
+    @Arrow from { QCOMMONSTYLE } to { QWINDOWSSTYLE }
+    @VHCurveArrow from { QMOTIFSTYLE } to { QCDESTYLE } bias { 1.5f }
+    @VHCurveArrow from { QMOTIFSTYLE } to { QMOTIFPLUSSTYLE } bias { 1.5f }
+    @VHCurveArrow from { QMOTIFSTYLE } to { QSGISTYLE } bias { 1.5f }
+    @LVRCurveArrow from { QWINDOWSSTYLE } to { QAQUASTYLE } bias { 1.5f }
+    @LVRCurveArrow from { QWINDOWSSTYLE } to { QPLATINUMSTYLE } bias { 1.5f }
+    @VHCurveArrow from { QTABLE } to { QDATATABLE } 
+    @LVRCurveArrow from { QSQLRECORD } to { QSQLCURSOR } bias { 1.5f }
+    @LVRCurveArrow from { QSQLRECORD } to { QSQLINDEX } bias { 1.5f } 
+    @RVLCurveArrow from { QVALUELIST } to { QSTRINGLIST } bias { 1.5f }
+    @RVLCurveArrow from { QVALUELIST } to { QVALUESTACK } bias { 1.5f }
+    @RVLCurveArrow from { QLAYOUTITEM } to { QSPACERITEM } bias { 1.5f }
+    @RVLCurveArrow from { QLAYOUTITEM } to { QWIDGETITEM } bias { 1.5f }
+    @RVLCurveArrow from { QLISTBOXITEM } to { QLISTBOXPIXMAP } bias { 1.5f }
+    @RVLCurveArrow from { QLISTBOXITEM } to { QLISTBOXTEXT } bias { 1.5f }
+    @RVLCurveArrow from { QLISTVIEWITEM } to { QCHECKLISTITEM } bias { 1.5f }
+    @RVLCurveArrow from { QTABLEITEM } to { QCHECKTABLEITEM } bias { 1.5f }
+    @RVLCurveArrow from { QTABLEITEM } to { QCOMBOTABLEITEM } bias { 1.5f }
+    @RVLCurveArrow from { QBOXLAYOUT } to { QHBOXLAYOUT } bias { 1.5f }
+    @RVLCurveArrow from { QBOXLAYOUT } to { QVBOXLAYOUT } bias { 1.5f }
+    @LVRCurveArrow from { QLAYOUT } to { QBOXLAYOUT } bias { 1.5f }
+    @LVRCurveArrow from { QLAYOUT } to { QGRIDLAYOUT } bias { 1.5f }
+    @VHCurveArrow from { QDOCKWINDOW } to { QTOOLBAR } bias { 1.5f }
+    @LVRCurveArrow from { QHBOX } to { QVBOX } bias { 1.5f }
+    @DWrapCurveArrow from { QGROUPBOX } to { QBUTTONGROUP } bias { 1.5f }
+    @DWrapCurveArrow from { QGROUPBOX } to { QHGROUPBOX } bias { 1.5f }
+    @DWrapCurveArrow from { QGROUPBOX } to { QVGROUPBOX } bias { 1.5f }
+    @LVRCurveArrow from { QBUTTONGROUP } to { QVBUTTONGROUP } bias { 1.5f }
+    @LVRCurveArrow from { QBUTTONGROUP } to { QHBUTTONGROUP } bias { 1.5f }
+}
+@End @Text
