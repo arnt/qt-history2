@@ -155,10 +155,10 @@ protected slots:
     virtual void deleteCurrent();
 
 protected:
-    enum Confirm {
-	Cancel = -1,
-	No = 0,
-	Yes = 1
+    enum Confirm { //## fix - right now this depends on messagebox
+	Yes = 0,
+	No = 1,
+	Cancel = -1
     };
 
     virtual Confirm confirmEdit( QSql::Op m );
