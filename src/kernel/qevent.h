@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#5 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#6 $
 **
 ** Definition of QEvent classes
 **
 ** Author  : Haavard Nord
 ** Created : 931029
 **
-** Copyright (C) 1993 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -44,10 +44,14 @@
 class QEvent					// event base class
 {
 public:
-    QEvent( int	 type )		{ t = type; }
+    QEvent( int type )		{ t=type; posted=FALSE; }
+   ~QEvent()			{ if ( posted ) peErrMsg( t ); }
     int	  type()	const	{ return t; }	// event type
 protected:
     int	  t;
+    bool  posted;
+private:
+    static void peErrMsg( int );
 };
 
 
