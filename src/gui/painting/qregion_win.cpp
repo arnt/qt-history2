@@ -46,7 +46,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
         ++d->ref;
     } else {
         d = new QRegionData;
-        d->ref = 1;
+        d->ref.init(1);
         if (t == Rectangle)
             d->rgn = CreateRectRgn(r.left(), r.top(),
                                    r.right() + 1,
@@ -78,7 +78,7 @@ QRegion::QRegion(const QPointArray &a, Qt::FillRule rule)
         ++d->ref;
     } else {
         d = new QRegionData;
-        d->ref = 1;
+        d->ref.init(1);
         d->rgn = CreatePolygonRgn(reinterpret_cast<const POINT*>(a.data()), a.size(),
                                   rule == Qt::OddEvenFill ? ALTERNATE : WINDING);
     }
@@ -204,7 +204,7 @@ QRegion::QRegion(const QBitmap &bm)
         ++d->ref;
     } else {
         d = new QRegionData;
-        d->ref = 1;
+        d->ref.init(1);
         d->rgn = qt_win_bitmapToRegion(bm);
     }
 }
@@ -244,7 +244,7 @@ QRegion QRegion::copy() const
 {
     QRegion r;
     QRegionData *x = new QRegionData;
-    x->ref = 1;
+    x->ref.init(1);
     if (d->rgn) {
         x->rgn = CreateRectRgn(0, 0, 2, 2);
         CombineRgn(x->rgn, d->rgn, 0, RGN_COPY);
