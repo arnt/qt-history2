@@ -2528,6 +2528,9 @@ bool QTextDocument::removeSelection( int id )
 	if ( p != start.paragraph() ) {
 	    p = start.paragraph();
 	    p->removeSelection( id );
+	    //### avoid endless loop by all means necessary, did somebody mention refactoring?
+	    if ( !parent() && p == lParag )
+		break;
 	}
 	start.gotoNextLetter();
     }
