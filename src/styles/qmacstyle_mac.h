@@ -86,6 +86,23 @@ public:
 			     SCFlags subActive = SC_None,
 			     const QStyleOption& = QStyleOption::Default ) const;
 
+
+    int pixelMetric( PixelMetric metric,
+		     const QWidget *widget = 0 ) const;
+
+
+    virtual QRect querySubControlMetrics( ComplexControl control,
+					  const QWidget *w,
+					  SubControl sc,
+					  const QStyleOption& = QStyleOption::Default ) const;
+
+    virtual QRect subRect( SubRect, const QWidget *w ) const;
+
+    SubControl querySubControl( ComplexControl control,
+				const QWidget *widget,
+				const QPoint &pos,
+				const QStyleOption& = QStyleOption::Default ) const;
+
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QMacStyle( const QMacStyle & );
