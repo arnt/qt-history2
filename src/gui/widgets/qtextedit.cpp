@@ -645,7 +645,7 @@ void QTextEdit::setHtml(const QByteArray &text)
     d->init(fragment);
 }
 
-void QTextEdit::keyPressEvent ( QKeyEvent *e )
+void QTextEdit::keyPressEvent(QKeyEvent *e)
 {
     bool updateCurrentFormat = true;
 
@@ -681,6 +681,15 @@ void QTextEdit::keyPressEvent ( QKeyEvent *e )
         case Key_Delete:
             d->cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
             goto process;
+        case Key_K: {
+            QTextBlock block = d->cursor.block();
+            if (d->cursor.position() == block.position() + block.length() - 2)
+                d->cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+            else
+                d->cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+            d->cursor.deleteChar();
+            break;
+        }
         default:
             e->ignore();
             return;
@@ -1234,6 +1243,15 @@ void QTextEdit::doKeyboardAction(KeyboardAction action)
         case ActionBackspace: d->cursor.deletePreviousChar(); break;
         case ActionDelete: d->cursor.deleteChar(); break;
         case ActionReturn: d->cursor.insertBlock(); break;
+        case ActionKill: {
+                QTextBlock block = d->cursor.block();
+                if (d->cursor.position() == block.position() + block.length() - 2)
+                    d->cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+                else
+                    d->cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+                d->cursor.deleteChar();
+                break;
+            }
         case ActionWordBackspace:
             d->cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
             d->cursor.deletePreviousChar();
@@ -1285,7 +1303,7 @@ QTextBlock QTextEdit::blockAt(int blockNr) const
 void QTextEdit::setCursorPosition(int parag, int index)
 {
     QTextCursor c(blockAt(parag));
-    c.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, index);
+    c.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, index);
     setCursor(c);
 }
 

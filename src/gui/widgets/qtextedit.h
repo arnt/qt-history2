@@ -221,7 +221,7 @@ public:
         ActionBackspace,
         ActionDelete,
         ActionReturn,
-        // #### ActionKill,
+        ActionKill,
         ActionWordBackspace,
         ActionWordDelete
     };
