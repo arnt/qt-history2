@@ -10954,20 +10954,24 @@ QString::QString( const QByteArray& ba )
   Constructs a string that is a deep copy of the
   first \a length QChar in the array \a unicode.
 
-  If \a unicode is 0, a null string is created.
+  If \a unicode and \a length are 0, a null string is created.
+
+  If only \a unicode is 0, the string is empty, but has
+  \a length characters of space preallocated - QString expands
+  automatically anyway, but this may speed some cases up a little.
 
   \sa isNull()
 */
 
 QString::QString( const QChar* unicode, uint length )
 {
-    if ( !unicode ) {
+    if ( !unicode && !length ) {
 	d = shared_null ? shared_null : makeSharedNull();
-    }
-    else {
+    } else {
 	QChar* uc = QT_ALLOC_QCHAR_VEC( length );
-	memcpy(uc, unicode, length*sizeof(QChar));
-	d = new QStringData(uc,length,length);
+	if ( unicode )
+	    memcpy(uc, unicode, length*sizeof(QChar));
+	d = new QStringData(uc,unicode ? length : 0,length);
     }
 }
 
