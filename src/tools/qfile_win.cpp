@@ -305,7 +305,7 @@ bool QFile::at( Offset pos )
 {
 #if defined(QT_LARGEFILE_SUPPORT)
 #error "large file support not yet implemented!"
-#else
+#endif
     if ( !isOpen() ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QFile::at: File is not open" );
