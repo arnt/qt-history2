@@ -62,21 +62,6 @@ public:
 };
 
 
-class QWidgetStackEventFilter : public QObject
-{
-    //For binary compatibility, since we cannot implement
-    //virtual functions
-public:
-    QWidgetStackEventFilter( QObject *parent = 0, const char * name = 0 )
-	: QObject( parent, name ) {}
-    bool eventFilter( QObject *o, QEvent * e ) {
-	if ( e->type() == QEvent::LayoutHint && o->isWidgetType() )
-	    ((QWidget*)o)->updateGeometry();
-	return FALSE;
-    }
-};
-
-
 /*!
     \class QWidgetStack qwidgetstack.h
     \brief The QWidgetStack class provides a stack of widgets of which
@@ -138,8 +123,6 @@ QWidgetStack::QWidgetStack( QWidget * parent, const char *name, WFlags f )
 void QWidgetStack::init()
 {
    d = 0;
-   QWidgetStackEventFilter *ef = new QWidgetStackEventFilter( this );
-   installEventFilter( ef );
    dict = new QIntDict<QWidget>;
    focusWidgets = 0;
    topWidget = 0;
@@ -227,6 +210,7 @@ void QWidgetStack::removeWidget( QWidget * w )
     int i = id( w );
     if ( i != -1 )
 	dict->take( i );
+
     if ( w == topWidget )
 	topWidget = 0;
     if ( dict->isEmpty() )
@@ -362,6 +346,18 @@ void QWidgetStack::frameChanged()
     setChildGeometries();
 }
 
+
+
+/*!
+    \reimp
+*/
+
+bool QWidgetStack::event( QEvent* e )
+{
+    if ( e->type() == QEvent::LayoutHint )
+	updateGeometry(); // propgate layout hints to parent
+    return QFrame::event( e );
+}
 
 /*!
     \reimp

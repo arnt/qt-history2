@@ -73,6 +73,7 @@ public:
 
     void setFrameRect( const QRect & );
 
+    bool event( QEvent *e );
 signals:
     void aboutToShow( int );
     void aboutToShow( QWidget * );
