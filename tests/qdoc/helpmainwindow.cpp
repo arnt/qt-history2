@@ -16,6 +16,7 @@
 #include <qevent.h>
 #include <qlabel.h>
 #include <qlayout.h>
+#include <qurl.h>
 
 #include <stdlib.h>
 
@@ -122,7 +123,7 @@ HelpMainWindow::HelpMainWindow()
     setCaption( tr( "Qt Online Documentation" ) );
     QSplitter *splitter = new QSplitter( this );
 
-    QString docDir = QString( getenv( "QTDIR" ) ) + "/html";
+    docDir = QString( getenv( "QTDIR" ) ) + "/html";
     if ( !QFile::exists( docDir ) )
 	docDir = QString( getenv( "QTDIR" ) ) + "/doc/html";
     if ( !QFile::exists( docDir ) ) {
@@ -207,8 +208,8 @@ HelpMainWindow::HelpMainWindow()
     tb->setStretchMode( QToolBar::FullWidth );
     setUsesTextLabel( TRUE );
 
-    //tb->setBackgroundPixmap( QPixmap( "marble.xpm" ) );
-    
+    tb->setBackgroundPixmap( QPixmap( "marble.xpm" ) );
+
     navigation->setViewMode( HelpNavigation::Index );
     viewer->blockSignals( TRUE );
     viewer->setSource( docDir + "/index.html" );
@@ -368,6 +369,7 @@ private slots:
     void createDatabase() {
 	navigation->loadIndexFile();
 	navigation->setupContentsView();
+	navigation->loadBookmarks();
 	accept();
     }
 
@@ -380,6 +382,25 @@ void HelpMainWindow::createDatabase()
 {
     StartDialog dia( this, navigation );
     dia.exec();
+    viewer->setSource( docDir + "/index.html" );
+}
+
+void HelpMainWindow::addBookmark()
+{
+    QString link = QUrl( viewer->context(), viewer->source() ).path();
+    QString title = viewer->caption();
+    navigation->addBookmark( title, link );
+}
+
+void HelpMainWindow::removeBookmark()
+{
+    navigation->removeBookmark();
+}
+
+HelpMainWindow::~HelpMainWindow()
+{
+    navigation->saveBookmarks();
 }
 
 #include "helpmainwindow.moc"
+

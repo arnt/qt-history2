@@ -60,6 +60,11 @@ public:
     void loadIndexFile();
     void setupContentsView();
 
+    void addBookmark( const QString &title, const QString &link );
+    void removeBookmark();
+    void saveBookmarks();
+    void loadBookmarks();
+    
 signals:
     void showLink( const QString &s, const QString& t );
     void moveFocusToBrowser();
@@ -73,12 +78,12 @@ private slots:
 private:
     QTabWidget *tabWidget;
     QLineEdit *indexEdit;
-    QListBox *indexList, *bookmarkList;
+    QListBox *indexList;
     QMap<QString, QString> titleMap;
-    QListView *contentsView;
+    QListView *contentsView, *bookmarkList;
     QWidget *contentsTab, *indexTab, *bookmarkTab;
     QString docDir;
-    
+
 };
 
 #endif

@@ -14,6 +14,7 @@
 #include <qheader.h>
 #include <qapplication.h>
 #include <qtl.h>
+#include <qpushbutton.h>
 
 HelpNavigationListItem::HelpNavigationListItem( QListBox *ls, const QString &txt )
     : QListBoxText( ls, txt )
@@ -129,8 +130,28 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &dd )
     l = new QLabel( tr( "Topics:" ), bookmarkTab );
     bookmarkLayout->addWidget( l );
 
-    bookmarkList = new QListBox( bookmarkTab );
+    bookmarkList = new QListView( bookmarkTab );
     bookmarkLayout->addWidget( bookmarkList );
+    
+    QHBoxLayout *buttonLayout = new QHBoxLayout( bookmarkLayout );
+    buttonLayout->setSpacing( 5 );
+    QPushButton *pb = new QPushButton( tr( "&Add bookmark" ), bookmarkTab );
+    buttonLayout->addWidget( pb );
+    connect( pb, SIGNAL( clicked() ),
+	     parent->parentWidget(), SLOT( addBookmark() ) );
+    pb = new QPushButton( tr( "&Remove bookmark" ), bookmarkTab );
+    buttonLayout->addWidget( pb );
+    connect( pb, SIGNAL( clicked() ),
+	     parent->parentWidget(), SLOT( removeBookmark() ) );
+    bookmarkList->addColumn( "" );
+    bookmarkList->header()->hide();
+
+    connect( bookmarkList, SIGNAL( doubleClicked( QListViewItem * ) ),
+	     this, SLOT( showContents( QListViewItem * ) ) );
+    connect( bookmarkList, SIGNAL( returnPressed( QListViewItem * ) ),
+	     this, SLOT( showContents( QListViewItem * ) ) );
+    connect( bookmarkList, SIGNAL( returnPressed( QListViewItem * ) ),
+	     this, SIGNAL( moveFocusToBrowser() ) );
 }
 
 
@@ -398,5 +419,53 @@ void HelpNavigation::setViewMode( ViewMode m )
     case Index:
 	tabWidget->showPage( indexTab );
 	break;
+    case Bookmarks:
+	tabWidget->showPage( bookmarkTab );
+	break;
+    }
+}
+
+void HelpNavigation::addBookmark( const QString &title, const QString &link )
+{
+    HelpNavigationContentsItem *i = new HelpNavigationContentsItem( bookmarkList, 0 );
+    i->setText( 0, title );
+    i->setLink( QUrl( link ).fileName() );
+}
+
+void HelpNavigation::removeBookmark()
+{
+    QListViewItem *i = bookmarkList->currentItem();
+    if ( !i || !i->isSelected() ) 
+	return;
+    delete i;
+}
+
+void HelpNavigation::saveBookmarks()
+{
+    QString fn( QDir::home().absPath() + "/.qdoc-bookmarks" );
+    QFile f( fn );
+    if ( !f.open( IO_WriteOnly ) )
+	return;
+    QTextStream ts( &f );
+    QListViewItemIterator it( bookmarkList );
+    for ( ; it.current(); ++it ) {
+	HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)it.current();
+	ts << i->text( 0 ) << endl;
+	ts << i->link() << endl;
+    }
+    f.close();
+}
+
+void HelpNavigation::loadBookmarks()
+{
+    QString fn( QDir::home().absPath() + "/.qdoc-bookmarks" );
+    QFile f( fn );
+    if ( !f.open( IO_ReadOnly ) )
+	return;
+    QTextStream ts( &f );
+    while ( !ts.atEnd() ) {
+	HelpNavigationContentsItem *i = new HelpNavigationContentsItem( bookmarkList, 0 );
+	i->setText( 0, ts.readLine() );
+	i->setLink( ts.readLine() );
     }
 }
