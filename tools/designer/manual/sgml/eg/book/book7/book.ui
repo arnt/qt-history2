@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>506</width>
-            <height>512</height>
+            <width>502</width>
+            <height>510</height>
         </rect>
     </property>
     <property name="caption">
@@ -167,6 +167,12 @@
         <signal>clicked()</signal>
         <receiver>BookForm</receiver>
         <slot>editClicked()</slot>
+    </connection>
+    <connection>
+        <sender>AuthorDataTable</sender>
+        <signal>primeInsert(QSqlRecord*)</signal>
+        <receiver>BookForm</receiver>
+        <slot>primeInsertAuthor(QSqlRecord*)</slot>
     </connection>
     <connection>
         <sender>AuthorDataTable</sender>
