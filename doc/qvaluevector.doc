@@ -423,18 +423,18 @@
 
 /*! \fn reference QValueVector::at( size_type i , bool* ok )
   Returns a reference to the item with index \a i.  If \a ok is
-  non-null, and the index \a i is out of range, \c *\a ok is set to FALSE
+  non-null, and the index \a i is out of range, *\a ok is set to FALSE
   and the returned reference is undefined.  If the index \a i is
-  within the range of the vector, and \a ok is non-null, \c *\a ok is set to
+  within the range of the vector, and \a ok is non-null, *\a ok is set to
   TRUE and the returned reference is well defined.
 */
 
 /*! \fn const_reference QValueVector::at( size_type i , bool* ok ) const
     \overload
   Returns a const reference to the item with index \a i.  If \a ok is
-  non-null, and the index \a i is out of range, \c *\a ok is set to FALSE
+  non-null, and the index \a i is out of range, *\a ok is set to FALSE
   and the returned reference is undefined.  If the index \a i is
-  within the range of the vector, and \a ok is non-null, \c *\a ok is set to
+  within the range of the vector, and \a ok is non-null, *\a ok is set to
   TRUE and the returned reference is well defined.
 */
 
