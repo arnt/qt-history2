@@ -12,6 +12,7 @@ HEADERS += \
         widgets/qbutton.h \
         widgets/qcheckbox.h \
         widgets/qcombobox.h \
+        widgets/qcombobox_p.h \
         widgets/qdatetimeedit.h \
         widgets/qdial.h \
         widgets/qdialogbuttons_p.h \

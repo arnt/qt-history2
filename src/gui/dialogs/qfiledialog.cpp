@@ -233,18 +233,6 @@ const char *qt_file_dialog_filter_reg_exp =
 
 #include <qlistbox.h>
 
-static int qt_combo_insert_unique(QComboBox *combo, const QString &text)
-{
-    if (text.isEmpty())
-        return -1;
-    QListBox *box = combo->listBox();
-    QListBoxItem *itm = box->findItem(text, Qt::ExactMatch);
-    if (itm && itm->text() == text) // FIXME: bug in findItem
-        return box->index(itm);
-    combo->insertItem(text);
-    return combo->count() - 1;
-}
-
 class QFileDialogLineEdit : public QLineEdit
 {
 public:
@@ -933,8 +921,11 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
     toParent->setEnabled(index.isValid());
     back->setEnabled(history.count() > 0);
     QString pth = d->model->path(index);
-    int idx = qt_combo_insert_unique(lookIn, pth);
-    lookIn->setCurrentItem(idx);
+    if (!lookIn->contains(pth)) {
+        int insertRow = lookIn->count();
+        lookIn->insertItem(pth, insertRow);
+        lookIn->setCurrentItem(insertRow);
+    }
 }
 
 void QFileDialogPrivate::setRoot(const QModelIndex &index)

@@ -7,6 +7,7 @@
 #include <qgenericheader.h>
 #include <qtabbar.h>
 #include <qcombobox.h>
+#include <qgenericlistview.h>
 #include <qlineedit.h>
 #include <qlistbox.h>
 #include <private/qtitlebar_p.h>
@@ -310,7 +311,7 @@ QRect QAccessibleComboBox::rect(int child) const
     QRect r;
     switch(child) {
     case CurrentText:
-        if (comboBox()->editable()) {
+        if (comboBox()->isEditable()) {
             tp = comboBox()->lineEdit()->mapToGlobal(QPoint(0,0));
             r = comboBox()->lineEdit()->rect();
             sc = QStyle::SC_None;
@@ -344,7 +345,7 @@ int QAccessibleComboBox::navigate(Relation rel, int entry, QAccessibleInterface 
         if (entry < PopupList)
             return entry;
         if (entry == PopupList) {
-            *target = QAccessible::queryAccessibleInterface(comboBox()->listBox());
+            *target = QAccessible::queryAccessibleInterface(comboBox()->listView());
             return *target ? 0 : -1;
         break; }
     case QAccessible::Left:
@@ -364,7 +365,7 @@ int QAccessibleComboBox::navigate(Relation rel, int entry, QAccessibleInterface 
 /*! \reimp */
 int QAccessibleComboBox::childCount() const
 {
-    return comboBox()->listBox() ? PopupList : OpenList;
+    return comboBox()->listView() ? PopupList : OpenList;
 }
 
 /*! \reimp */
@@ -385,7 +386,7 @@ int QAccessibleComboBox::childAt(int x, int y) const
 /*! \reimp */
 int QAccessibleComboBox::indexOfChild(const QAccessibleInterface *child) const
 {
-    if (child->object() == comboBox()->listBox())
+    if (child->object() == comboBox()->listView())
         return PopupList;
     return -1;
 }
@@ -406,7 +407,7 @@ QString QAccessibleComboBox::text(Text t, int child) const
         if (child == OpenList)
             str = (QString)QKeySequence(Qt::Key_Down);
     case Value:
-        if (comboBox()->editable())
+        if (comboBox()->isEditable())
             str = comboBox()->lineEdit()->text();
         else
             str = comboBox()->currentText();
@@ -424,7 +425,7 @@ QAccessible::Role QAccessibleComboBox::role(int child) const
 {
     switch (child) {
     case CurrentText:
-        if (comboBox()->editable())
+        if (comboBox()->isEditable())
             return EditableText;
         return StaticText;
     case OpenList:

@@ -1,165 +1,155 @@
-/****************************************************************************
-**
-** Definition of QComboBox class.
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the widgets module of the Qt GUI Toolkit.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
-
 #ifndef QCOMBOBOX_H
 #define QCOMBOBOX_H
 
 #ifndef QT_H
-#include "qwidget.h"
-#endif // QT_H
+#include <qwidget.h>
+#include <qabstractitemmodel.h>
+#include <qabstractitemdelegate.h>
+#endif
 
-#ifndef QT_NO_COMBOBOX
-
-
-class QStringList;
+class QGenericListView;
 class QLineEdit;
-class QValidator;
-class QListBox;
 class QComboBoxPrivate;
-class QWheelEvent;
 
 class Q_GUI_EXPORT QComboBox : public QWidget
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QComboBox)
-
-    Q_ENUMS(Policy)
-    Q_PROPERTY(bool editable READ editable WRITE setEditable)
+    Q_ENUMS(InsertionPolicy)
+    Q_PROPERTY(bool editable READ isEditable WRITE setEditable)
     Q_PROPERTY(int count READ count)
     Q_PROPERTY(QString currentText READ currentText WRITE setCurrentText DESIGNABLE false)
     Q_PROPERTY(int currentItem READ currentItem WRITE setCurrentItem)
-    Q_PROPERTY(bool autoResize READ autoResize WRITE setAutoResize DESIGNABLE false)
     Q_PROPERTY(int sizeLimit READ sizeLimit WRITE setSizeLimit)
     Q_PROPERTY(int maxCount READ maxCount WRITE setMaxCount)
-    Q_PROPERTY(Policy insertionPolicy READ insertionPolicy WRITE setInsertionPolicy)
+    Q_PROPERTY(InsertionPolicy insertionPolicy READ insertionPolicy WRITE setInsertionPolicy)
     Q_PROPERTY(bool autoCompletion READ autoCompletion WRITE setAutoCompletion)
     Q_PROPERTY(bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled)
-    Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
 
 public:
-    QComboBox(QWidget* parent=0, const char* name=0);
-    QComboBox(bool rw, QWidget* parent=0, const char* name=0);
+
+    enum InsertionPolicy {
+        NoInsertion,
+        AtTop,
+        AtCurrent,
+        AtBottom,
+        AfterCurrent,
+        BeforeCurrent
+    };
+
+    QComboBox(QWidget *parent = 0);
+    QComboBox(bool rw, QWidget *parent=0);
+    QComboBox(QAbstractItemModel *model, QWidget *parent = 0);
     ~QComboBox();
 
-    int                count() const;
+    int sizeLimit() const;
+    void setSizeLimit(int limit);
 
-    void        insertStringList(const QStringList &, int index=-1);
+    int count() const;
+    void setMaxCount(int max);
+    int maxCount() const;
 
-    void        insertItem(const QString &text, int index=-1);
-    void        insertItem(const QPixmap &pixmap, int index=-1);
-    void        insertItem(const QPixmap &pixmap, const QString &text, int index=-1);
+    bool autoCompletion() const;
+    void setAutoCompletion(bool enable);
 
-    void        removeItem(int index);
+    bool duplicatesEnabled() const;
+    void setDuplicatesEnabled(bool enable);
+    virtual bool contains(const QString &text);
 
-    int                currentItem() const;
-    virtual void setCurrentItem(int index);
+    InsertionPolicy insertionPolicy() const;
+    void setInsertionPolicy(InsertionPolicy policy);
 
-    QString         currentText() const;
-    virtual void setCurrentText(const QString&);
+    bool isEditable() const;
+    void setEditable(bool editable);
+    void setLineEdit(QLineEdit *edit);
+    QLineEdit *lineEdit() const;
+    void setValidator (const QValidator *v);
+    const QValidator * validator () const;
 
-    QString         text(int index) const;
-    const QPixmap *pixmap(int index) const;
+    QAbstractItemDelegate *itemDelegate() const;
+    void setItemDelegate(QAbstractItemDelegate *delegate);
 
-    void        changeItem(const QString &text, int index);
-    void        changeItem(const QPixmap &pixmap, int index);
-    void        changeItem(const QPixmap &pixmap, const QString &text, int index);
+    QAbstractItemModel *model() const;
 
-    bool        autoResize()        const;
-    virtual void setAutoResize(bool);
-    QSize        sizeHint() const;
+    QModelIndex root() const;
+    void setRoot(const QModelIndex &index);
 
-    virtual void setSizeLimit(int);
-    int                sizeLimit() const;
+    int currentItem() const;
+    void setCurrentItem(int row);
 
-    virtual void setMaxCount(int);
-    int                maxCount() const;
+    QString currentText() const;
+    void setCurrentText(const QString&);
 
-    enum Policy { NoInsertion, AtTop, AtCurrent, AtBottom,
-                  AfterCurrent, BeforeCurrent };
+    QString text (int row) const;
+    QPixmap pixmap (int row) const;
 
-    virtual void setInsertionPolicy(Policy policy);
-    Policy        insertionPolicy() const;
+    void insertStringList(const QStringList &list, int row = -1);
+    void insertItem(const QString &text, int row = -1);
+    void insertItem(const QIconSet &icon, int row = -1);
+    void insertItem(const QIconSet &icon, const QString &text, int row = -1);
 
-    virtual void setValidator(const QValidator *);
-    const QValidator * validator() const;
+    void removeItem(int row);
 
-    virtual void setListBox(QListBox *);
-    QListBox *        listBox() const;
+    void setItemText(const QString &text, int row);
+    void setItemIcon(const QIconSet &icon, int row);
+    void setItem(const QIconSet &icon, const QString &text, int row);
 
-    virtual void setLineEdit(QLineEdit *edit);
-    QLineEdit*        lineEdit() const;
+    QGenericListView *listView() const;
 
-    virtual void setAutoCompletion(bool);
-    bool        autoCompletion() const;
-
-    bool        eventFilter(QObject *object, QEvent *event);
-
-    void        setDuplicatesEnabled(bool enable);
-    bool        duplicatesEnabled() const;
-
-    bool        editable() const;
-    void        setEditable(bool);
+    QSize sizeHint() const;
 
     virtual void popup();
 
-    void        hide();
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QComboBox(QWidget *parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QComboBox(bool rw, QWidget *parent, const char *name);
+    QT_COMPAT bool editable() const { return isEditable(); }
+    QT_COMPAT void insertItem(const QPixmap &pix, int row = -1)
+        { insertItem(QIconSet(pix), row); }
+    QT_COMPAT void insertItem(const QPixmap &pix, const QString &text, int row = -1)
+        { insertItem(QIconSet(pix), text, row); }
+    QT_COMPAT void changeItem(const QString &text, int row)
+        { setItemText(text, row); }
+    QT_COMPAT void changeItem(const QPixmap &pix, int row)
+        { setItemIcon(QIconSet(pix), row); }
+    QT_COMPAT void changeItem(const QPixmap &pix, const QString &text, int row)
+        { setItem(QIconSet(pix), text, row); }
+#endif
 
 public slots:
-    void        clear();
-    void        clearValidator();
-    void        clearEdit();
-    virtual void setEditText(const QString &);
+    void clear();
+    void clearValidator();
+    void clearEdit();
+    virtual void setEditText(const QString &text);
 
 signals:
-    void        activated(int index);
-    void        highlighted(int index);
-    void        activated(const QString &);
-    void        highlighted(const QString &);
-    void        textChanged(const QString &);
+    void textChanged(const QString &);
+    void activated(int row);
+    void activated(const QString &);
+    void activated(const QModelIndex &);
+    void highlighted(int row);
+    void highlighted(const QString &);
+    void highlighted(const QModelIndex &);
+    void rootChanged(const QModelIndex &old, const QModelIndex &root);
 
-private slots:
-    void        internalActivate(int);
-    void        internalHighlight(int);
-    void        internalClickTimeout();
-    void        returnPressed();
+protected slots:
+    void currentChanged(const QModelIndex &old, const QModelIndex &current);
 
 protected:
-    void        paintEvent(QPaintEvent *);
-    void        resizeEvent(QResizeEvent *);
-    void        mousePressEvent(QMouseEvent *);
-    void        mouseMoveEvent(QMouseEvent *);
-    void        mouseReleaseEvent(QMouseEvent *);
-    void        mouseDoubleClickEvent(QMouseEvent *);
-    void        keyPressEvent(QKeyEvent *e);
-    void        focusInEvent(QFocusEvent *e);
-    void        focusOutEvent(QFocusEvent *e);
-#ifndef QT_NO_WHEELEVENT
-    void        wheelEvent(QWheelEvent *e);
-#endif
-    void        changeEvent(QEvent *);
+    QComboBox(QComboBoxPrivate &dd, QAbstractItemModel *model, QWidget *parent = 0);
 
-    void        updateMask();
+    void focusInEvent(QFocusEvent *e);
+    void focusOutEvent(QFocusEvent *e);
+    void resizeEvent(QResizeEvent *e);
+    void paintEvent(QPaintEvent *e);
+    void mousePressEvent(QMouseEvent *e);
+    void keyPressEvent(QKeyEvent *e);
 
 private:
-
-#if defined(Q_DISABLE_COPY)
-    QComboBox(const QComboBox &);
-    QComboBox &operator=(const QComboBox &);
-#endif
+    Q_PRIVATE_SLOT(void itemSelected(const QModelIndex &item))
+    Q_PRIVATE_SLOT(void emitHighlighted(const QModelIndex&))
+    Q_PRIVATE_SLOT(void returnPressed())
+    Q_PRIVATE_SLOT(void complete())
 };
-
-
-#endif // QT_NO_COMBOBOX
 
 #endif // QCOMBOBOX_H
