@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#69 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#70 $
 #
 # this is a massive hack, written very quickly
 #
@@ -645,6 +645,7 @@ sub readh {
 	   \s+\#define\s+(\S+)\s+(\S+)\s*\(\s*(\S+)\s*\)\s/gsx ) {
 	   next if ( ($1 ne $4) || ($2 ne $5) );
 	   $declared{$3} = $1 . " " . $2 . " " . $filename;
+	   #print $3, " -> ", $declared{$3}, "\n";
        }
 
     while ($h =~ /\bdeclare\s*\(\s*(\S+?)\s*,\s*(\S+?)\s*\)\s*;
@@ -673,6 +674,7 @@ sub templates {
 	    s/\b$t\s*<\s*$c\s*>/$n/gs;
 	    s/\b$t(\s*\()/$n$1/gs;
 	    s/\b$c\b/$i/gs;
+#print "making up ", $n, " in ", $f, " from ", $t, "<", $c, ">:\n", $_, "\n";
 	    &storeclass( $f, $n, $_ );
 	} else {
 	    print "declared $n as $t<$i> but $t is unknown\n";
@@ -1257,7 +1259,7 @@ sub printclass {
 	$class =~ s/\#.*//;
 	$class = $name{$class} . "::";
 	$_ = $def{$url};
-	if (/$class/) {
+	if ( /$class/ ) {
 	    $name = $url;
 	    $name =~ s/^[^\#]*\#//;
 	    print O $fnheader;
@@ -1266,24 +1268,22 @@ sub printclass {
 	    s;([^\(]*\s)\b(\S+);$1<a name=$name>$2</a>;s;
 	    print O "<p><h3>", $_, "</h3>\n<p>", $doc{$url};
 
-	    if ($url eq $anchor{$name{$url}}) {
-		$name = $name{$url};
-		$class = $name;
-		$name =~ s/.*:://;
-		$class =~ s/::.*//;
-		$reimp = "";
-		foreach $class ( sort split(/\s+/, $subclasses{$class})) {
-		    $_ = join("::", $class, $name);
-		    if (defined($anchor{$_}) && ($anchor{$_} ne $url)) {
-			$reimp .= ", <a href=" . $anchor{$_} . ">"
-			    . $class . "</a>";
-		    }
+	    $name = $name{$url};
+	    $class = $name;
+	    $name =~ s/.*:://;
+	    $class =~ s/::.*//;
+	    $reimp = "";
+	    foreach $class ( sort split(/\s+/, $subclasses{$class})) {
+		$_ = join("::", $class, $name);
+		if (defined($anchor{$_}) && ($anchor{$_} ne $url)) {
+		    $reimp .= ", <a href=" . $anchor{$_} . ">"
+			. $class . "</a>";
 		}
-		if ($reimp ne "") {
-		    $reimp =~ s/^\,\s*/<p>Reimplemented in /;
-		    $reimp =~ s/\,([^,]+)$/ and$1/;
-		    print O $reimp, ".\n";
-		}
+	    }
+	    if ($reimp ne "") {
+		$reimp =~ s/^\,\s*/<p>Reimplemented in /;
+		$reimp =~ s/\,([^,]+)$/ and$1/;
+		print O $reimp, ".\n";
 	    }
 	}
     }
@@ -1530,7 +1530,7 @@ if ($#ARGV > -1) {
     my($sources, $dirs);
     chdir($ENV{"QTDIR"} . "/src") || die "can't cd to QTDIR/src";
     $hdir = $ENV{"QTDIR"} . "/include";
-    foreach $dirs ( "tools", "kernel", "widgets", "doc" ) {
+    foreach $dirs ( "tools", "kernel", "widgets", "dialogs", "doc" ) {
 	chdir( $dirs ) || die "can't cd to $dirs";
 	open(F, "make showsources |") || die "can't make showsources";
 	$sources = <F>;
