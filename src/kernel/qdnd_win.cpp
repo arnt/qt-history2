@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#35 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -319,17 +319,15 @@ QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* mime, i
 	}
     }
 
-#if 1
-    // Windows uses un-marked byte-swapped Unicode (ie. NOT Unicode)
-    QByteArray r(data.size()+2);
+    // Windows uses un-marked little-endian nul-terminated Unicode
+    int s = data.size();
+    if ( !data[s-2] && !data[s-1] )
+	s -= 2; // strip nul
+    QByteArray r(s+2);
     r[0]=char(0xff);
     r[1]=char(0xfe);
-    memcpy(r.data()+2,data.data(),data.size());
+    memcpy(r.data()+2,data.data(),s);
     return r;
-#else
-    // Windows uses un-marked network-order Unicode
-    return data;
-#endif
 }
 
 QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime, int cf )
@@ -341,11 +339,10 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
 	return r;
     }
 
-#if 1
     if (data.size() < 2)
 	return QByteArray();
 
-    // Windows expects nul-terminated un-marked byte-swapped Unicode (ie. NOT Unicode)
+    // Windows uses un-marked little-endian nul-terminated Unicode
     if ( data[0] == char(0xff) && data[1] == char(0xfe) )
     {
 	// Right way - but skip header and add nul
@@ -379,44 +376,6 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
 	r[(int)r.size()-1] = 0;
 	return r;
     }
-#else
-    if (data.size() < 2)
-	return QByteArray();
-
-    // Windows expects un-marked network-ordered Unicode
-    if ( data.size() >= 2 && data[0] == 0xff && data[1] == 0xfe )
-    {
-	// Wrong way - reorder.
-	int s = data.size();
-	if ( s&1 ) {
-	    // Odd byte - drop last
-	    s--;
-	}
-	QByteArray r(s);
-	char* i = data.data();
-	if ( i[0] == 0xfe && i[1] == 0xff ) {
-	    i += 2;
-	    s -= 2;
-	}
-	char* o = r.data();
-	while (s) {
-	    o[0] = i[1];
-	    o[1] = i[0];
-	    i += 2;
-	    o += 2;
-	    s -= 2;
-	}
-	return r;
-    } else if ( data.size() >= 2 && data[1] == 0xff && data[0] == 0xfe ) {
-	// Right way - but skip header
-	QByteArray r(data.size()-2);
-	memcpy(r.data(),data.data()+2,data.size()-2);
-	return r;
-    } else {
-	// Right way, no header
-	return data;
-    }
-#endif
 }
 
 
