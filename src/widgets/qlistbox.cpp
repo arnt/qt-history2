@@ -1165,6 +1165,9 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
     if ( hasFocus() && !d->current ) {
 	d->current = d->head;
 	updateItem( d->current );
+	emit highlighted( d->current );
+	emit highlighted( d->current->text() );
+	emit highlighted( index );
     }
 
     triggerUpdate( TRUE );
@@ -1214,10 +1217,12 @@ void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
     if ( after == d->last )
 	d->last = (QListBoxItem*) lbi;
 
-
     if ( hasFocus() && !d->current ) {
 	d->current = d->head;
 	updateItem( d->current );
+	emit highlighted( d->current );
+	emit highlighted( d->current->text() );
+	emit highlighted( index( d->current ) );
     }
 
     triggerUpdate( TRUE );
