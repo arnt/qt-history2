@@ -138,7 +138,7 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 
 #else
 
-#ifndef Q_CC_BOR
+#if !(defined Q_CC_BOR) || (__BORLANDC__ < 0x560)
 
 extern "C" {
     __declspec(dllimport) long __stdcall InterlockedCompareExchange(long *, long, long);
