@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#48 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#47 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#48 $")
 
 
 static const int fontFields = 14;
@@ -1091,8 +1091,8 @@ static int computeLineWidth( const char *fontName )
 {
     char *tokens[fontFields];
     QString buffer(256);		// X font name always <= 255 chars
-    strcpy( buffer, fontName );
-    if ( !parseXFontName( buffer, tokens ) )
+    strcpy( buffer.data(), fontName );
+    if ( !parseXFontName(buffer, tokens) )
 	return 1;			// name did not conform to X LFD
     int weight = getWeight( tokens[Weight_] );
     int pSize  = atoi( tokens[PointSize] ) / 10;
