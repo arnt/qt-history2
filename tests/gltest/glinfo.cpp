@@ -23,32 +23,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
-struct visual_attribs {
-    /* X visual attribs */
-    int id;
-    int klass;
-    int depth;
-    int redMask, greenMask, blueMask;
-    int colormapSize;
-    int bitsPerRGB;
- 
-    /* GL visual attribs */
-    int supportsGL;
-    int transparent;
-    int bufferSize;
-    int level;
-    int rgba;
-    int doubleBuffer;
-    int stereo;
-    int auxBuffers;
-    int redSize, greenSize, blueSize, alphaSize;
-    int depthSize;
-    int stencilSize;
-    int accumRedSize, accumGreenSize, accumBlueSize, accumAlphaSize;
-    int numSamples, numMultisample;
-    int visualCaveat;
-};
  
 #ifndef GLX_NONE_EXT
 #define GLX_NONE_EXT  0x8000
@@ -77,7 +51,7 @@ void mesa_hack(Display *dpy, int scrnum)
         XFree(visinfo);
 }
 
-void print_extension_list(const char *ext)
+void GLInfo::print_extension_list(const char *ext)
 {
     const char *indentString = "    ";
     const int indent = 4;
@@ -88,7 +62,7 @@ void print_extension_list(const char *ext)
         return;
  
     width = indent;
-    printf(indentString);
+    infotext->sprintf("%s%s", (const char*)*infotext, indentString);
     i = j = 0;
     while (1) {
         if (ext[j] == ' ' || ext[j] == 0) {
@@ -96,13 +70,13 @@ void print_extension_list(const char *ext)
 	    const int len = j - i;
 	    if (width + len > max) {
                 /* start a new line */
-	        printf("\n");
+	        infotext->sprintf("%s\n", (const char*)*infotext);
 		width = indent;
-		printf(indentString);
+		infotext->sprintf("%s%s", (const char*)*infotext, indentString);
 	    }
 	    /* print the extension name between ext[i] and ext[j] */
 	    while (i < j) {
-	        printf("%c", ext[i]);
+	        infotext->sprintf("%s%c", (const char*)*infotext, ext[i]);
 		i++;
 	    }
 	    /* either we're all done, or we'll continue with next extension */
@@ -115,13 +89,13 @@ void print_extension_list(const char *ext)
 		j++;
 		if (ext[j] == 0)
 		    break; 
-		printf(", ");
+		infotext->sprintf("%s, ", (const char*)*infotext);
 		width += 2;
 	    }
 	}   
 	j++;
     }
-    printf("\n");
+    infotext->sprintf("%s\n", (const char*)*infotext);
 }
 
 void GLInfo::print_screen_info(Display *dpy, int scrnum)
@@ -187,8 +161,8 @@ void GLInfo::print_screen_info(Display *dpy, int scrnum)
       const char *glRenderer = (const char *) glGetString(GL_RENDERER);
       const char *glVersion = (const char *) glGetString(GL_VERSION);
       const char *glExtensions = (const char *) glGetString(GL_EXTENSIONS);
-      char *displayName = NULL;
-      char *colon = NULL, *period = NULL;
+      //char *displayName = NULL;
+      //char *colon = NULL, *period = NULL;
       //const char *gluVersion = (const char *) gluGetString(GLU_VERSION);
       //const char *gluExtensions = (const char *) gluGetString(GLU_EXTENSIONS);
       /* Strip the screen number from the display name, if present. */ 
@@ -205,22 +179,21 @@ void GLInfo::print_screen_info(Display *dpy, int scrnum)
       }
       printf("display: %s  screen: %d\n", displayName, scrnum);
       free(displayName);*/
-      infotext->sprintf("direct rendering: %s\n", glXIsDirect(dpy, ctx) ? "Yes" : "No");
-      printf("direct rendering: %s\n", glXIsDirect(dpy, ctx) ? "Yes" : "No");
-      printf("server glx vendor string: %s\n", serverVendor);
-      printf("server glx version string: %s\n", serverVersion);
-      printf("server glx extensions:\n");
+      infotext->sprintf("%sdirect rendering: %s\n", (const char*)*infotext, glXIsDirect(dpy, ctx) ? "Yes" : "No");
+      infotext->sprintf("%sserver glx vendor string: %s\n", (const char*)*infotext, serverVendor);
+      infotext->sprintf("%sserver glx version string: %s\n", (const char*)*infotext, serverVersion);
+      infotext->sprintf("%sserver glx extensions:\n", (const char*)*infotext);
       print_extension_list(serverExtensions);
-      printf("client glx vendor string: %s\n", clientVendor);
-      printf("client glx version string: %s\n", clientVersion);
-      printf("client glx extensions:\n");
+      infotext->sprintf("%sclient glx vendor string: %s\n", (const char*)*infotext, clientVendor);
+      infotext->sprintf("%sclient glx version string: %s\n", (const char*)*infotext, clientVersion);
+      infotext->sprintf("%sclient glx extensions:\n", (const char*)*infotext);
       print_extension_list(clientExtensions);
-      printf("GLX extensions:\n");
+      infotext->sprintf("%sGLX extensions:\n", (const char*)*infotext);
       print_extension_list(glxExtensions);
-      printf("OpenGL vendor string: %s\n", glVendor);
-      printf("OpenGL renderer string: %s\n", glRenderer);
-      printf("OpenGL version string: %s\n", glVersion);
-      printf("OpenGL extensions:\n");
+      infotext->sprintf("%sOpenGL vendor string: %s\n", (const char*)*infotext, glVendor);
+      infotext->sprintf("%sOpenGL renderer string: %s\n", (const char*)*infotext, glRenderer);
+      infotext->sprintf("%sOpenGL version string: %s\n", (const char*)*infotext, glVersion);
+      infotext->sprintf("%sOpenGL extensions:\n", (const char*)*infotext);
       print_extension_list(glExtensions);
       //printf("glu version: %s\n", gluVersion);
       //printf("glu extensions:\n");
@@ -254,44 +227,11 @@ const char * visual_class_name(int cls)
    }
 }
 
-void print_visual_attribs_long_header(void)
-{
-    printf("Vis  Vis   Visual Trans  buff lev render DB ste  r   g   b   a  aux dep ste  accum buffers  MS   MS\n");
-    printf(" ID Depth   Type  parent size el   type     reo sz  sz  sz  sz  buf th  ncl  r   g   b   a  num bufs\n");
-    printf("----------------------------------------------------------------------------------------------------\n");
-}
- 
- 
-void print_visual_attribs_long(const struct visual_attribs *attribs)
-{
-    printf("0x%2x %2d %-11s %2d     %2d %2d  %4s %3d %3d %3d %3d %3d %3d",
-	   attribs->id,
-	   attribs->depth,
-	   visual_class_name(attribs->klass),
-	   attribs->transparent,
-	   attribs->bufferSize,
-	   attribs->level,
-	   attribs->rgba ? "rgba" : "ci  ",
-	   attribs->doubleBuffer,
-	   attribs->stereo,
-	   attribs->redSize, attribs->greenSize,
-	   attribs->blueSize, attribs->alphaSize
-	   );
-    
-    printf(" %3d %4d %2d %3d %3d %3d %3d  %2d  %2d\n",
-	   attribs->auxBuffers,
-	   attribs->depthSize,
-	   attribs->stencilSize,
-	   attribs->accumRedSize, attribs->accumGreenSize,
-	   attribs->accumBlueSize, attribs->accumAlphaSize,
-	   attribs->numSamples, attribs->numMultisample
-	   );
-}
 
 void get_visual_attribs(Display *dpy, XVisualInfo *vInfo,
 			struct visual_attribs *attribs)
 {
-    const char *ext = glXQueryExtensionsString(dpy, vInfo->screen);
+  //const char *ext = glXQueryExtensionsString(dpy, vInfo->screen);
  
     memset(attribs, 0, sizeof(struct visual_attribs));
  
@@ -346,8 +286,10 @@ void get_visual_attribs(Display *dpy, XVisualInfo *vInfo,
 #endif
 }
 
-void print_visual_info(Display *dpy, int scrnum)
+
+void GLInfo::print_visual_info(Display *dpy, int scrnum)
 {
+    QString str;
     XVisualInfo *visuals, temp;
     int numVisuals;
     long mask;
@@ -358,12 +300,30 @@ void print_visual_info(Display *dpy, int scrnum)
     mask = VisualScreenMask;
     visuals = XGetVisualInfo(dpy, mask, &temp, &numVisuals);
  
-
-    print_visual_attribs_long_header();
     for (i = 0; i < numVisuals; i++) {
         struct visual_attribs attribs;
 	get_visual_attribs(dpy, &visuals[i], &attribs);
-	print_visual_attribs_long(&attribs);
+	str.sprintf("0x%2x %d %s %d %d %d %s %d %d %d %d %d %d"
+		     " %d %d %d %d %d %d %d %d %d",
+		     attribs.id,
+		     attribs.depth,
+		     visual_class_name(attribs.klass),
+		     attribs.transparent,
+		     attribs.bufferSize,
+		     attribs.level,
+		     attribs.rgba ? "rgba" : "ci",
+		     attribs.doubleBuffer,
+		     attribs.stereo,
+		     attribs.redSize, attribs.greenSize,
+		     attribs.blueSize, attribs.alphaSize,
+		     attribs.auxBuffers,
+		     attribs.depthSize,
+		     attribs.stencilSize,
+		     attribs.accumRedSize, attribs.accumGreenSize,
+		     attribs.accumBlueSize, attribs.accumAlphaSize,
+		     attribs.numSamples, attribs.numMultisample
+		     );
+	viewlist->append(str);
     }
 
  
@@ -373,6 +333,7 @@ void print_visual_info(Display *dpy, int scrnum)
 GLInfo::GLInfo()
 {
     infotext = new QString("GLTest:\n");
+    viewlist = new QStringList();
     char *displayName = NULL;
     Display *dpy;
     int numScreens, scrnum;
@@ -404,4 +365,9 @@ GLInfo::GLInfo()
 QString GLInfo::getText()
 {
   return *infotext;
+}
+
+QStringList GLInfo::getViewList()
+{
+  return *viewlist;
 }
