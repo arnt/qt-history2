@@ -2,6 +2,7 @@
 #define QEVENTLOOP_P_H
 
 #include "qplatformdefs.h"
+#include "qwindowdefs.h"
 
 #if defined(QT_THREAD_SUPPORT)
 #include "qmutex.h"
@@ -60,6 +61,10 @@ public:
 #if defined(QT_THREAD_SUPPORT)
     QMutex mutex;
 #endif // QT_THREAD_SUPPORT
+
+#if defined(Q_WS_MAC)
+    EventLoopTimerRef select_timer;
+#endif
 
 #if defined(Q_WS_X11)
     int xfd;

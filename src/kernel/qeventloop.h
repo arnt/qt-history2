@@ -7,6 +7,10 @@
 class QEventLoopPrivate;
 class QSocketNotifier;
 class QTimer;
+#ifdef Q_WS_MAC
+struct timeval; //stdc struct
+struct TimerInfo; //internal structure (qeventloop_mac.cpp)
+#endif
 
 #if defined(QT_THREAD_SUPPORT)
 class QMutex;
@@ -190,6 +194,10 @@ protected:
     virtual bool qwsProcessEvent( QWSEvent *event );
 #endif // Q_WS_QWS
 
+#if defined(Q_WS_MAC)
+    int macHandleSelect(timeval *);
+    void macHandleTimer(TimerInfo *);
+#endif
 
 private:
     // internal initialization/cleanup - implemented in various platform specific files
