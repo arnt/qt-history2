@@ -14588,7 +14588,7 @@ QString &QString::setNum( double n, char f, int prec )
     *fs++ = 'l';
     *fs++ = f;
     *fs = '\0';
-    ::sprintf( buf, 255, format, n );	// snprintf is unfortunately not portable
+    ::sprintf( buf, format, n );	// snprintf is unfortunately not portable
     return setLatin1(buf);
 }
 
