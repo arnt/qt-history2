@@ -68,7 +68,6 @@ signals:
     void fileChanged( const QString & );
 
 private slots:
-    void newData();
     void newStats( const QString&, P4Info* );
     void cmdProcessed();
     void internalProcessExited();

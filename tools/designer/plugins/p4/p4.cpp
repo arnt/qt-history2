@@ -39,8 +39,6 @@ bool P4Action::run( const QStringList &command )
     if ( !process ) {
 	p4Data = QString::null;
 	process = new QProcess( this );
-	connect( process, SIGNAL( readyReadStdout() ),
-  		 this, SLOT( newData() ) );
 	connect( process, SIGNAL( processExited() ),
 		 this, SLOT( internalProcessExited() ) );
     }
@@ -83,16 +81,12 @@ bool P4Action::success()
     return process && process->exitStatus() == 0;
 }
 
-void P4Action::newData()
-{
-    p4Data += process->readStdout();
-}
-
 void P4Action::internalProcessExited()
 {
-    p4Data += QString( process->readStdout() );
+    p4Data = QString( process->readStdout() );
     QString err = process->readStderr();
-    emit showStatusBarMessage( err );
+    if ( !err.isEmpty() )
+	emit showStatusBarMessage( err );
 
     processExited();
 }
