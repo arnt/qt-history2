@@ -193,6 +193,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    base.replace(QRegExp("\\..*$"), "").upper();
 		    base.replace(QRegExp("[^a-zA-Z]"), "_");
 
+		    t << "# Begin Source File\n\nSOURCE=" << sify << endl;
+
+		    /*
 		    QString userdep = "USERDEP_" + base + "=";
 		    QStringList forms = project->variables()["FORMS"];
 		    for ( QStringList::Iterator form = forms.begin(); form != forms.end();++form )
@@ -210,19 +213,19 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 				    "\tcopy " + sify +" tmp\\" + sify + "\n"
 				    "# End Custom Build\n\n";
 
-		    t << "# Begin Source File\n\nSOURCE=" << sify << endl;
-
 		    t << "USERDEP_" << base << "=\"$(QTDIR)\\bin\\lupdate.exe\" \"$(QTDIR)\\bin\\lrelease.exe\"" << endl << endl;
 
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"\n" << build
 		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"\n" << build 
 		      << "!ENDIF " << endl << endl;
+		    */
 
 		    t << "\n# End Source File" << endl;
 		}
 
 		t << "\n# End Group\n";
 	    }
+	    /*
 	    else if(variable == "MSVCDSP_STRIPPEDTRANSLATIONS" ) {
 		if(project->variables()["TRANSLATIONS"].isEmpty())
 		    continue;
@@ -251,6 +254,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    t << "\n# End Source File" << endl;
 		}
 	    }
+	    */
 	    else if (variable == "MSVCDSP_MOCSOURCES" && project->isActiveConfig("moc")) {
 		if ( project->variables()["SRCMOC"].isEmpty())
 		    continue;
