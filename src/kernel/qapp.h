@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#40 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#41 $
 **
 ** Definition of QApplication class
 **
@@ -47,6 +47,7 @@ public:
     void	    setMainWidget( QWidget * );
 
     static QWidget *desktop();
+    static QClipboard *clipboard();
     QWidget	   *focusWidget() const;
 
     static QWidget *widgetAt( int x, int y, bool child=FALSE );
