@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#22 $
+** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#23 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -16,7 +16,7 @@
 #include "qdatetm.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#23 $");
 
 
 // If the operation is expected to take this long (as predicted by
@@ -66,7 +66,7 @@ struct QProgressData
   A progress dialog is used to give the user an indication of how long an
   operation is going to take to perform, and to reassure them that the
   application has not frozen.
- 
+
   A potential problem with progress dialogs is that it is difficult to know
   when to use them, as operations take different amounts of time on different
   computer hardware.  QProgressDialog offers a solution to this problem:
@@ -393,8 +393,6 @@ int QProgressDialog::progress() const
     this function calls QApplication::processEvents(), so take care that
     this does not cause undesirable re-entrancy to your code. For example,
     don't use a QProgressDialog inside a paintEvent()!
-
-  Returns TRUE if the user has clicked the cancellation button. 
 
   \sa progress()
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#146 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#147 $
 **
 ** Implementation of QObject class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#146 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#147 $");
 
 
 /*!
@@ -596,8 +596,9 @@ bool QObject::activate_filters( QEvent *e )
     register QObject *obj = it.current();
     while ( obj ) {				// send to all filters
 	++it;					//   until one returns TRUE
-	if ( obj->eventFilter(this,e) )
+	if ( obj->eventFilter(this,e) ) {
 	    return TRUE;
+	}
 	obj = it.current();
     }
     return FALSE;				// don't do anything with it

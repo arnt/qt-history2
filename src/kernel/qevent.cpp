@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#47 $
 **
 ** Implementation of event classes
 **
@@ -11,7 +11,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#47 $");
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -294,7 +294,7 @@ void QEvent::peErrMsg()				// posted event error message
 
 /*!
   \fn int QKeyEvent::key() const
-  Returns the code if the key that was pressed or released.
+  Returns the code of the key that was pressed or released.
 
   The header file qkeycode.h lists the possible keyboard codes.	 These codes
   are independent of the underlying window system.
@@ -519,7 +519,7 @@ void QEvent::peErrMsg()				// posted event error message
     {
 	delete this;
     }
-  \endcode  
+  \endcode
 
   QObject emits the \link QObject::destroyed() destroyed()\endlink signal
   when it is deleted.  This is a useful signal if a widget needs to know
