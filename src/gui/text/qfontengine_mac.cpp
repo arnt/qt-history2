@@ -76,12 +76,12 @@ QFontEngineMac::~QFontEngineMac()
         ATSUDisposeTextLayout(mTextLayout);
 }
 
-QFontEngine::Error
-QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags /*flags*/) const
+bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
+                                  QTextEngine::ShaperFlags /*flags*/) const
 {
     if(*nglyphs < len) {
 	*nglyphs = len;
-	return OutOfMemory;
+	return false;
     }
     *nglyphs = len;
     for(int i = 0; i < len; i++) {
@@ -94,7 +94,7 @@ QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, in
 	    glyphs[i].advance.y = 0;
 	}
     }
-    return NoError;
+    return true;
 }
 
 void
@@ -571,11 +571,12 @@ QFontEngine::FECaps QFontEngineBox::capabilites() const
     return FullTransformations;
 }
 
-QFontEngine::Error QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphLayout *glyphs, int *nglyphs, Flags) const
+bool QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphLayout *glyphs,
+                                                int *nglyphs, QTextEngine::ShaperFlags) const
 {
     if(*nglyphs < len) {
 	*nglyphs = len;
-	return OutOfMemory;
+	return false;
     }
 
     for(int i = 0; i < len; i++)
@@ -587,7 +588,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphL
 	(glyphs++)->advance.y = 0;
     }
 
-    return NoError;
+    return true;
 }
 
 void QFontEngineBox::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
