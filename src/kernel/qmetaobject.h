@@ -43,7 +43,7 @@
 #endif // QT_H
 
 #ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 41
+#define Q_MOC_OUTPUT_REVISION 42
 #endif
 
 class QVariant;
@@ -61,7 +61,7 @@ public:
 
 private:
     const QMetaObject *mobj;
-    int handle;
+    uint handle;
     friend struct QMetaObject;
 };
 
@@ -84,7 +84,7 @@ public:
     inline operator bool() const { return name() != 0; }
 private:
     const QMetaObject *mobj;
-    int handle;
+    uint handle;
     friend struct QMetaObject;
 };
 
@@ -101,6 +101,7 @@ public:
     bool isDesignable(const QObject *obj = 0) const;
     bool isScriptable(const QObject *obj = 0) const;
     bool isStored(const QObject *obj = 0) const;
+    bool isEditable(const QObject *obj = 0) const;
 
     bool isSetType() const;
     bool isEnumType() const;
@@ -114,8 +115,8 @@ public:
     inline operator bool() const { return isReadable(); }
 
 private:
-    const QMetaObject *mobj[6];
-    int idx[6];
+    const QMetaObject *mobj[10];
+    int idx[10];
     QMetaEnum menum;
     friend struct QMetaObject;
 };
@@ -128,7 +129,7 @@ public:
     const char *value() const;
 private:
     const QMetaObject *mobj;
-    int handle;
+    uint handle;
     friend struct QMetaObject;
 };
 

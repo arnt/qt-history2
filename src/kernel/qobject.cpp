@@ -2088,7 +2088,7 @@ void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
 	QObjectPrivate::Senders *senders = c->receiver->d->senders;
 	QObject *sender = QObjectPrivate::setCurrentSender(senders, obj);
 	c->receiver->qt_metacall(
-	    c->member & 1, // 0 slot, 1 signal
+	    (Call)((c->member & 1) + 1),
 	    c->member >> 1,
 	    argv);
 	QObjectPrivate::resetCurrentSender(senders, sender);

@@ -74,7 +74,7 @@ QVariant::Private::Private()
     is_null = true;
 }
 
-QVariant::Private::Private( Type t )
+QVariant::Private::Private( uint t )
 {
     type = t;
     is_null = true;
@@ -192,7 +192,7 @@ QVariant::Private::Private( Type t )
     }
 }
 
-QVariant::Private::Private( Type t, void *v )
+QVariant::Private::Private( uint t, void *v )
 {
     type = t;
     is_null = true;

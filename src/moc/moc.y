@@ -409,10 +409,12 @@ public:
 struct Property
 {
     Property(int l, const char* t, const char* n, const char* s, const char* g, const char* r,
-	      const QByteArray& st, const QByteArray& d, const QByteArray& sc, bool ov)
+	     const QByteArray& d, const QByteArray& sc, const QByteArray& st, const QByteArray& ed,
+	     bool ov)
 	: lineNo(l), type(t), name(n), set(s), get(g), reset(r), setfunc(0), getfunc(0),
-	  sspec(Unspecified), gspec(Unspecified), stored(st),
-	  designable(d), scriptable(sc), override(ov), oredEnum(-1)
+	  sspec(Unspecified), gspec(Unspecified),
+	  designable(d), scriptable(sc), stored(st), editable(ed),
+	  override(ov), oredEnum(-1)
     {
 	/*
 	  The Q_PROPERTY construct cannot contain any commas, since
@@ -440,9 +442,10 @@ struct Property
     QByteArray set;
     QByteArray get;
     QByteArray reset;
-    QByteArray stored;
     QByteArray designable;
     QByteArray scriptable;
+    QByteArray stored;
+    QByteArray editable;
     bool override;
 
     Function* setfunc;
@@ -550,10 +553,10 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you MUST change it in qmetaobject.h too
-const int formatRevision = 41;		// moc output format revision
+const int formatRevision = 42;		// moc output format revision
 
 // if the flags change, you HAVE to change it in qmetaobject.h too
-enum Flags  {
+enum ProperyFlags  {
     Invalid		= 0x00000000,
     Readable		= 0x00000001,
     Writable		= 0x00000002,
@@ -562,11 +565,13 @@ enum Flags  {
     StdCppSet		= 0x00000100,
     Override		= 0x00000200,
     Designable		= 0x00001000,
-    Scriptable		= 0x00002000,
-    Stored		= 0x00004000,
-    ResolveDesignable	= 0x00008000,
-    ResolveScriptable	= 0x00010000,
-    ResolveStored	= 0x00020000
+    ResolveDesignable	= 0x00002000,
+    Scriptable		= 0x00004000,
+    ResolveScriptable	= 0x00008000,
+    Stored		= 0x00010000,
+    ResolveStored	= 0x00020000,
+    Editable		= 0x00040000,
+    ResolveEditable	= 0x00080000
 };
 
 %}
@@ -640,10 +645,11 @@ enum Flags  {
 
 %token			READ
 %token			WRITE
-%token			STORED
+%token			RESET
 %token			DESIGNABLE
 %token			SCRIPTABLE
-%token			RESET
+%token			STORED
+%token			EDITABLE
 
 %type  <string>		class_name
 %type  <string>		template_class_name
@@ -1443,13 +1449,15 @@ property:		IDENTIFIER IDENTIFIER
 				     g->propOverride = tmpPropOverride;
 				     g->propReset = "";
 				     if (g->propOverride) {
-					 g->propStored = "";
 					 g->propDesignable = "";
 					 g->propScriptable = "";
+					 g->propStored = "";
+					 g->propEditable = "";
 				     } else {
-					 g->propStored = "true";
 					 g->propDesignable = "true";
 					 g->propScriptable = "true";
+					 g->propStored = "true";
+					 g->propEditable = "true";
 				     }
 				}
 			prop_statements
@@ -1467,9 +1475,12 @@ property:		IDENTIFIER IDENTIFIER
 					}
 				    }
 				    g->props.append(new Property(lineNo, $1, $2,
-								g->propWrite, g->propRead, g->propReset,
-								   g->propStored, g->propDesignable,
-								   g->propScriptable, g->propOverride));
+								 g->propWrite, g->propRead, g->propReset,
+								 g->propDesignable,
+								 g->propScriptable,
+								 g->propStored,
+								 g->propEditable,
+								 g->propOverride));
 				}
 			;
 
@@ -1477,9 +1488,10 @@ prop_statements:	  /* empty */
 			| READ IDENTIFIER prop_statements { g->propRead = $2; }
 			| WRITE IDENTIFIER prop_statements { g->propWrite = $2; }
 			| RESET IDENTIFIER prop_statements { g->propReset = $2; }
-			| STORED IDENTIFIER prop_statements { g->propStored = $2; }
 			| DESIGNABLE IDENTIFIER prop_statements { g->propDesignable = $2; }
 			| SCRIPTABLE IDENTIFIER prop_statements { g->propScriptable = $2; }
+			| STORED IDENTIFIER prop_statements { g->propStored = $2; }
+			| EDITABLE IDENTIFIER prop_statements { g->propEditable = $2; }
 			;
 
 qt_enums:		  /* empty */ { }
@@ -1544,12 +1556,13 @@ class parser_reg {
     QStrList  strings;
 
 // Used to store the values in the Q_PROPERTY macro
-    QByteArray propWrite;				// set function
     QByteArray propRead;				// get function
+    QByteArray propWrite;				// set function
     QByteArray propReset;				// reset function
-    QByteArray propStored;				//
     QByteArray propDesignable;				// "true", "false" or function or empty if not specified
     QByteArray propScriptable;				// "true", "false" or function or empty if not specified
+    QByteArray propStored;				// "true", "false" or function or empty if not specified
+    QByteArray propEditable;				// "true", "false" or function or empty if not specified
     bool propOverride;				// Wether OVERRIDE was detected
 
     QStrList qtEnums;				// Used to store the contents of Q_ENUMS
@@ -2300,18 +2313,22 @@ void generateMetacall()
 {
     bool isQObject =  g->className == "QObject" ;
 
-    fprintf(out, "\nint %s::qt_metacall(int _f, int _id, void **_o)\n{\n",
+    fprintf(out, "\nint %s::qt_metacall(QMetaObject::Call _c, int _id, void **_o)\n{\n",
 	     (const char *)qualifiedClassName());
 
     if (!g->superClassName.isEmpty() && !isQObject)
-	fprintf(out, "    _id = %s::qt_metacall(_f, _id, _o);\n",
+	fprintf(out, "    _id = %s::qt_metacall(_c, _id, _o);\n",
 		 (const char *) purestSuperClassName());
 
+    fprintf(out, "    if (_id < 0)\n        return _id;\n");
     fprintf(out, "    ");
     Function *f;
+
+    bool needElse = false;
     if(!g->slots.isEmpty()) {
-	fprintf(out, "if (_f == 0) { // invoke slot\n");
-        fprintf(out, "        if (_id >= 0) switch (_id) {\n");
+	needElse = true;
+	fprintf(out, "if (_c == QMetaObject::InvokeSlot) {\n");
+        fprintf(out, "        switch (_id) {\n");
 	int slotindex = -1;
 	for (f = g->slots.first(); f; f = g->slots.next()) {
 	    slotindex ++;
@@ -2340,10 +2357,11 @@ void generateMetacall()
 		 "    }", g->slots.count());
     }
     if(!g->signals.isEmpty()) {
-	if (!g->slots.isEmpty())
+	if (needElse)
 	    fprintf(out, " else ");
-	fprintf(out, "if (_f == 1) { // emit signal\n");
-        fprintf(out, "        if (_id >= 0) switch (_id) {\n");
+	needElse = true;
+	fprintf(out, "if (_c == QMetaObject::EmitSignal) {\n");
+        fprintf(out, "        switch (_id) {\n");
 	int signalindex = -1;
 	for (f = g->signals.first(); f; f = g->signals.next()) {
 	    signalindex ++;
@@ -2393,49 +2411,56 @@ void generateMetacall()
 	for (p = g->props.first(); p && !isPropFunction(p->stored); p = g->props.next());
 	bool needStored = (p != 0);
 	needAnything |= needStored;
+	for (p = g->props.first(); p && !isPropFunction(p->editable); p = g->props.next());
+	bool needEditable = (p != 0);
+	needAnything |= needEditable;
 	if (!needAnything)
 	    goto skip_properties;
+	fprintf(out, "\n#ifndef QT_NO_PROPERTIES\n     ");
 
-	fprintf(out, "\n#ifndef QT_NO_PROPERTIES\n");
-	if (!g->slots.isEmpty() || !g->signals.isEmpty())
-		fprintf(out, "      else ");
-	else
-	    fprintf(out, "    ");
-
-	fprintf(out, "if (_f >= 2 && _f <= 7) { // properties\n");
-	if (needGet || needSet || needDesignable || needScriptable || needStored)
+	if (needGet){
+	    if (needElse)
+		fprintf(out, " else ");
+	    needElse = true;
+	    fprintf(out, "if (_c == QMetaObject::ReadProperty) {\n");
 	    fprintf(out, "        void *_v = _o[0];\n");
-	fprintf(out, "        if (_id >= 0) switch (_f) {\n");
-	if (needGet) {
-	    fprintf(out, "        case 2: switch (_id) { // get\n");
+	    fprintf(out, "        switch (_id) {\n");
 	    int propindex = -1;
 	    for (p = g->props.first(); p; p = g->props.next()) {
 		++propindex;
 		if (!p->getfunc)
 		    continue;
 		if (p->gspec == Property::Pointer)
-		    fprintf(out, "            case %d: _o[0] = (void*)%s(); break;\n",
+		    fprintf(out, "        case %d: _o[0] = (void*)%s(); break;\n",
 			    propindex,
 			    (const char *)p->getfunc->name );
 		else if (p->gspec == Property::Reference)
-		    fprintf(out, "            case %d: _o[0] = (void*)&%s(); break;\n",
+		    fprintf(out, "        case %d: _o[0] = (void*)&%s(); break;\n",
 			    propindex,
 			    (const char *)p->getfunc->name );
 		else
-		    fprintf(out, "            case %d: *(%s*)_v = %s(); break;\n",
+		    fprintf(out, "        case %d: *(%s*)_v = %s(); break;\n",
 			    propindex,
 			    !isVariantType(p->type) ? "int" : (const char *)p->type,
 			    (const char *)p->getfunc->name );
 	    }
-	    fprintf(out, "        } break;\n");
+	    fprintf(out,
+		    "        }\n"
+		    "        _id -= %d;\n"
+		    "    }", g->props.count());
 	}
 	if (needSet) {
-	    fprintf(out, "        case 3: switch (_id) { // set\n");
+	    if (needElse)
+		fprintf(out, " else ");
+	    needElse = true;
+	    fprintf(out, "if (_c == QMetaObject::WriteProperty) {\n");
+	    fprintf(out, "        void *_v = _o[0];\n");
+	    fprintf(out, "        switch (_id) {\n");
 	    int propindex = -1;
 	    for (p = g->props.first(); p; p = g->props.next()) {
 		++propindex;
 		if (p->setfunc) {
-		    fprintf(out, "            case %d: %s(*(%s*)_v); break;\n",
+		    fprintf(out, "        case %d: %s(*(%s*)_v); break;\n",
 			    propindex,
 			    (const char *)p->setfunc->name,
 			    p->oredEnum
@@ -2443,65 +2468,115 @@ void generateMetacall()
 			    : (const char *)p->type);
 		}
 	    }
-	    fprintf(out, "        } break;\n");
+	    fprintf(out,
+		    "        }\n"
+		    "        _id -= %d;\n"
+		    "    }", g->props.count());
 	}
 
 	if (needReset) {
-	    fprintf(out, "        case 4: switch (_id) { // reset\n");
+	    if (needElse)
+		fprintf(out, " else ");
+	    needElse = true;
+	    fprintf(out, "if (_c == QMetaObject::ResetProperty) {\n");
+	    fprintf(out, "        void *_v = _o[0];\n");
+	    fprintf(out, "        switch (_id) {\n");
 	    int propindex = -1;
 	    for (p = g->props.first(); p; p = g->props.next()) {
 		++propindex;
 		if (p->reset.isEmpty())
 		    continue;
-		fprintf(out, "            case %d: %s(); break;\n",
+		fprintf(out, "        case %d: %s(); break;\n",
 			propindex, (const char *)p->reset);
 	    }
-	    fprintf(out, "        } break;\n");
+	    fprintf(out,
+		    "        }\n"
+		    "        _id -= %d;\n"
+		    "    }", g->props.count());
 	}
 
 	if (needDesignable) {
-	    fprintf(out, "        case 5: switch (_id) { // query designable\n");
+	    if (needElse)
+		fprintf(out, " else ");
+	    needElse = true;
+	    fprintf(out, "if (_c == QMetaObject::QueryPropertyDesignable) {\n");
+	    fprintf(out, "        bool *_b = (bool*)_o[0];\n");
+	    fprintf(out, "        switch (_id) {\n");
 	    int propindex = -1;
 	    for (p = g->props.first(); p; p = g->props.next()) {
 		++propindex;
 		if (!isPropFunction(p->designable))
 		    continue;
-		fprintf(out, "            case %d: *(bool*)_v = %s(); break;\n",
+		fprintf(out, "        case %d: *_b = %s(); break;\n",
 			 propindex, (const char *)p->designable);
 	    }
-	    fprintf(out, "        } break;\n");
+	    fprintf(out,
+		    "        }\n"
+		    "        _id -= %d;\n"
+		    "    }", g->props.count());
 	}
-
 	if (needScriptable) {
-	    fprintf(out, "        case 6: switch (_id) { // query scriptable\n");
+	    if (needElse)
+		fprintf(out, " else ");
+	    needElse = true;
+	    fprintf(out, "if (_c == QMetaObject::QueryPropertyScriptable) {\n");
+	    fprintf(out, "        bool *_b = (bool*)_o[0];\n");
+	    fprintf(out, "        switch (_id) {\n");
 	    int propindex = -1;
 	    for (p = g->props.first(); p; p = g->props.next()) {
 		++propindex;
 		if (!isPropFunction(p->scriptable))
 		    continue;
-		fprintf(out, "            case %d: *(bool*)_v = %s(); break;\n",
+		fprintf(out, "        case %d: *_b = %s(); break;\n",
 			 propindex, (const char *)p->scriptable);
 	    }
-	    fprintf(out, "        } break;\n");
+	    fprintf(out,
+		    "        }\n"
+		    "        _id -= %d;\n"
+		    "    }", g->props.count());
 	}
-
 	if (needStored) {
-	    fprintf(out, "        case 7: switch (_id) { // query stored\n");
+	    if (needElse)
+		fprintf(out, " else ");
+	    needElse = true;
+	    fprintf(out, "if (_c == QMetaObject::QueryPropertyStored) {\n");
+	    fprintf(out, "        bool *_b = (bool*)_o[0];\n");
+	    fprintf(out, "        switch (_id) {\n");
 	    int propindex = -1;
 	    for (p = g->props.first(); p; p = g->props.next()) {
 		++propindex;
 		if (!isPropFunction(p->stored))
 		    continue;
-		fprintf(out, "            case %d: *(bool*)_v = %s(); break;\n",
+		fprintf(out, "        case %d: *_b = %s(); break;\n",
 			 propindex, (const char *)p->stored);
 	    }
-	    fprintf(out, "        } break;\n");
+	    fprintf(out,
+		    "        }\n"
+		    "        _id -= %d;\n"
+		    "    }", g->props.count());
+	}
+	if (needEditable) {
+	    if (needElse)
+		fprintf(out, " else ");
+	    needElse = true;
+	    fprintf(out, "if (_c == QMetaObject::QueryPropertyEditable) {\n");
+	    fprintf(out, "        bool *_b = (bool*)_o[0];\n");
+	    fprintf(out, "        switch (_id) {\n");
+	    int propindex = -1;
+	    for (p = g->props.first(); p; p = g->props.next()) {
+		++propindex;
+		if (!isPropFunction(p->editable))
+		    continue;
+		fprintf(out, "        case %d: *_b = %s(); break;\n",
+			 propindex, (const char *)p->editable);
+	    }
+	    fprintf(out,
+		    "        }\n"
+		    "        _id -= %d;\n"
+		    "    }", g->props.count());
 	}
 
-	fprintf(out,
-		"        }\n"
-		"        _id -= %d;\n"
-		"    }", g->props.count());
+
 	fprintf(out, "\n#endif // QT_NO_PROPERTIES");
     }
  skip_properties:
@@ -2900,6 +2975,10 @@ void generateProps()
 	else if (it.current()->stored != "false")
 	    flags |= Stored;
 
+	if (it.current()->editable.isEmpty())
+	    flags |= ResolveEditable;
+	else if (it.current()->editable != "false")
+	    flags |= Editable;
 
 	fprintf(out, "    %4d, %4d, 0x%.8x,\n",
 		 strreg(it.current()->name),
@@ -3027,7 +3106,7 @@ void generateClass()		      // generate C++ source code for a class
 // build the data array
 //
     int index = 12;
-    fprintf(out, "static const int qt_meta_data_%s[] = {\n", (const char*)g->className);
+    fprintf(out, "static const uint qt_meta_data_%s[] = {\n", (const char*)g->className);
     fprintf(out, "\n // content:\n");
     fprintf(out, "    %4d,       // revision\n", 1);
     fprintf(out, "    %4d,       // classname\n", strreg(g->className));

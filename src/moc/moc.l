@@ -172,10 +172,11 @@ STRING		{ALMOSTSTRING}\"
 <IN_PROPERTY>")"		{ X; return ')'; }
 <IN_PROPERTY>"READ"		{ X; return READ; }
 <IN_PROPERTY>"WRITE"		{ X; return WRITE; }
-<IN_PROPERTY>"STORED"		{ X; return STORED; }
 <IN_PROPERTY>"RESET"		{ X; return RESET; }
 <IN_PROPERTY>"DESIGNABLE"	{ X; return DESIGNABLE; }
 <IN_PROPERTY>"SCRIPTABLE"	{ X; return SCRIPTABLE; }
+<IN_PROPERTY>"STORED"		{ X; return STORED; }
+<IN_PROPERTY>"EDITABLE"		{ X; return EDITABLE; }
 
 
 <IN_EXPR>"("			{ expLevel++;X; }

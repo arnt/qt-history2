@@ -279,13 +279,13 @@ private:
     {
     public:
 	Private();
-	Private( Type );
-	Private( Type, void * );
+	Private( uint );
+	Private( uint, void * );
 	~Private();
 
 	void clear();
 
-	Type type : 30;
+	uint type : 30;
 	uint is_null : 1;
 	union
 	{
@@ -308,7 +308,7 @@ public:
 
 inline QVariant::Type QVariant::type() const
 {
-    return d->type;
+    return (Type)d->type;
 }
 
 inline bool QVariant::isValid() const

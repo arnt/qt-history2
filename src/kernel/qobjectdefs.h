@@ -66,7 +66,7 @@ public: \
 	{ return staticMetaObject.tr(s, c); } \
     static inline QString trUtf8(const char *s, const char *c = 0) \
 	{ return staticMetaObject.trUtf8(s, c); } \
-    virtual int qt_metacall(int _f, int _id, void **_o); \
+    virtual int qt_metacall(QMetaObject::Call _c, int _id, void **_o); \
 private:
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT_FAKE Q_OBJECT
@@ -174,6 +174,20 @@ struct QMetaObject
     static void activate(QObject *obj, int signal_index, void **argv);
     static void activate(QObject *obj, const QMetaObject *, int local_signal_index, void **argv);
 
+    enum Call {
+	InvokeSlot = QSLOT_CODE,
+	EmitSignal = QSIGNAL_CODE,
+	FirstPropertyCall,
+	ReadProperty = FirstPropertyCall,
+	WriteProperty,
+	ResetProperty,
+	QueryPropertyDesignable,
+	QueryPropertyScriptable,
+	QueryPropertyStored,
+	QueryPropertyEditable,
+	LastPropertyCall = QueryPropertyEditable
+    };
+
 #ifndef QT_NO_COMPAT
     const char *superClassName() const;
     bool inherits(const char* classname) const;
@@ -183,7 +197,7 @@ struct QMetaObject
     struct { // private data
 	const QMetaObject *superdata;
 	const char *stringdata;
-	const int *data;
+	const uint *data;
     } d;
 };
 
