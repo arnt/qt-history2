@@ -130,7 +130,7 @@ void ConnectionItem::paint( QPainter *p, const QColorGroup &cg,
     int x = 0;
 
     if ( currentText()[0] == '<' )
-	p->setPen( Qt::red );
+	p->setPen( QObject::red );
     else if ( selected )
 	p->setPen( cg.highlightedText() );
     else
