@@ -54,6 +54,7 @@ unix:SOURCES += ../core/io/qfileengine_unix.cpp
 win32:SOURCES += ../core/io/qfileengine_win.cpp 
 
 macx: {
+   QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)
    SOURCES += ../core/kernel/qcore_mac.cpp
    LIBS += -framework CoreServices
 }
