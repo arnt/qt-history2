@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#6 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#7 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -27,13 +27,17 @@ public:
 
     virtual void append( const char * );
     virtual void append( const char ** );
+    virtual void append( const QStrList * );
+    virtual void insert( const char *, int );
+    virtual void insert( const char **, int );
+    virtual void insert( const QStrList *, int );
     virtual void clear();
 
     virtual const char * text( int index ) const;
     int current() const { return c; }
     virtual int count() const;
 
-    void setWrapping( bool w );
+    virtual void setWrapping( bool w );
     bool wrapping() const { return wrap; }
 
     QSize sizeHint() const;
@@ -42,7 +46,7 @@ public slots:
     virtual void setCurrent( int );
 
     void next();
-    void previous();
+    void prev();
 
 signals:
     void selected( const char * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#9 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -50,7 +50,7 @@ QSpinBox::QSpinBox( QWidget * parent , const char * name )
     setLineWidth( 2 );
 
     connect( up, SIGNAL(clicked()), SLOT(next()) );
-    connect( down, SIGNAL(clicked()), SLOT(previous()) );
+    connect( down, SIGNAL(clicked()), SLOT(prev()) );
 }
 
 
@@ -64,9 +64,9 @@ QSpinBox::~QSpinBox()
 }
 
 
-/*!  Appends the single \a item to the end of the spin box list.
+/*!  Appends a deep copy of \a item to the end of the spin box list.
 
-  \sa clear()
+  \sa insert clear()
 */
 
 void QSpinBox::append( const char * item )
@@ -82,9 +82,9 @@ void QSpinBox::append( const char * item )
 }
 
 
-/*!  Appends the list of \a items to the and of the spin box list.
+/*!  Appends deep copies of \a items to the and of the spin box list.
 
-  \sa clear()
+  \sa insert clear()
 */
 
 void QSpinBox::append( const char ** items )
@@ -102,10 +102,104 @@ void QSpinBox::append( const char ** items )
 }
 
 
+/*!  Appends deep copies of \a items to the and of the spin box list.
+
+  \sa insert() clear()
+*/
+
+void QSpinBox::append( const QStrList * items )
+{
+    if ( !items || items->count() == 0 )
+	return;
+
+    if ( !l )
+	l = new QStrList;
+
+    QStrListIterator it( *items );
+    const char * tmp;
+    while ( (tmp=it.current()) ) {
+	++it;
+	l->append( tmp );
+    }
+}
+
+
+/*!  Inserts a deep copy of \a item at position \a index.  The first
+  position is numbered 0.
+
+  The current position is unchanged, so the displayed data may change.
+
+  \sa append() clear() current() text()
+*/
+
+void QSpinBox::insert( const char * item, int index )
+{
+    if ( !item )
+	return;
+
+    if ( !l )
+	l = new QStrList;
+
+    l->insert( index, item );
+    enableButtons();
+    repaint();
+}
+
+
+/*!  Inserts deep copies of \a items starting at position \a index.
+  The first position is numbered 0.
+
+  The current position is unchanged, so the displayed data may change.
+
+  \sa append() clear() current() text()
+*/
+
+void QSpinBox::insert( const char ** items, int index )
+{
+    if ( !items || !*items )
+	return;
+
+    if ( !l )
+	l = new QStrList;
+
+    int i = 0;
+    while ( items[i] )
+	l->insert(  index+i, items[i++] );
+    enableButtons();
+    repaint();
+}
+
+
+/*!  Inserts deep copies of \a items starting at position \a index.
+  The first position is numbered 0.
+
+  The current position is unchanged, so the displayed data may change.
+
+  \sa append() clear() current() text()
+*/
+
+void QSpinBox::insert( const QStrList * items, int index )
+{
+    if ( !items || items->count() == 0 )
+	return;
+
+    if ( !l )
+	l = new QStrList;
+
+    QStrListIterator it( *items );
+    const char * tmp;
+    while ( (tmp=it.current()) ) {
+	++it;
+	l->insert( index++, tmp );
+    }
+    repaint();
+}
+
+
 /*!  Clears the entire list.  This leaves the spin box in limbo
   until you insert something else it can reasonably display.
 
-  \sa append()
+  \sa append() insert()
 */
 
 void QSpinBox::clear()
@@ -146,7 +240,7 @@ void QSpinBox::setWrapping( bool w )
   This function is virtual and is the only way the value ever changes
   (except in the constructor, of course).
 
-  \sa next() previous() current()
+  \sa next() prev() current()
 */
 
 void QSpinBox::setCurrent( int i )
@@ -158,13 +252,13 @@ void QSpinBox::setCurrent( int i )
 }
 
 
-/*!  Moves the spin box to the \e next value.  This is the same as
+/*!  Moves the spin box to the next value.  This is the same as
   clicking on the pointing-up button, and can be used for e.g.
   keyboard accelerators.
 
   This function is not virtual, but it calls setCurrent(), which is.
 
-  \sa previous(), setCurrent(), current()
+  \sa prev(), setCurrent(), current()
 */
 
 void QSpinBox::next()
@@ -176,8 +270,8 @@ void QSpinBox::next()
 }
 
 
-/*!  Moves the spin box to the \e previous value.  This is the same
-  as clicking on the pointing-down button, and can be used for e.g.
+/*!  Moves the spin box to the previous value.  This is the same as
+  clicking on the pointing-down button, and can be used for e.g.
   keyboard accelerators.
 
   This function is not virtual, but it calls setCurrent(), which is.
@@ -185,7 +279,7 @@ void QSpinBox::next()
   \sa next(), setCurrent(), current()
 */
 
-void QSpinBox::previous()
+void QSpinBox::prev()
 {
     if ( c > 0 )
 	setCurrent( c - 1 );
@@ -280,7 +374,7 @@ void QSpinBox::keyPressEvent( QKeyEvent * e )
 	next();
 	e->accept();
     } else if ( e->key() == Key_Down ) {
-	previous();
+	prev();
 	e->accept();
     } else {
 	e->ignore();
