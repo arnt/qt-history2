@@ -6,7 +6,7 @@ HEADERS += \
 	text/q3textedit.h \
 	text/qmultilineedit.h \
 	text/qrichtext_p.h \
-	text/qsimplerichtext.h \
+	text/qsimplerichtext.h
 SOURCES += \
 	text/qsyntaxhighlighter.cpp \
 	text/qtextview.cpp \
@@ -15,4 +15,4 @@ SOURCES += \
 	text/qmultilineedit.cpp \
 	text/qrichtext.cpp \
 	text/qrichtext_p.cpp \
-	text/qsimplerichtext.cpp \
+	text/qsimplerichtext.cpp
