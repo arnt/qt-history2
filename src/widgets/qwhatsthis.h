@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#18 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#19 $
 **
 ** Definition of QWhatsThis class
 **
@@ -45,7 +45,7 @@ public:
     // the common static functions
     static void add( QWidget *, const QString &);
     static void remove( QWidget * );
-    static QString textFor( QWidget *, const QPoint & pos = QPoint(0,0) );
+    static QString textFor( QWidget *, const QPoint & pos = QPoint() );
 
     static QToolButton * whatsThisButton( QWidget * parent );
 
