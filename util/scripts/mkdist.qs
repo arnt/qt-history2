@@ -53,6 +53,7 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^tools/qconfig"),
 		       new RegExp("^tools/qembed"),
 		       new RegExp("^tools/qvfb"),
+		       new RegExp("^demos/sqlbrowser"),
 
 		       new RegExp("^doc/tutorial"),
 		       new RegExp("^src/gui/painting/makepsheader.pl"),

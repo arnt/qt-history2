@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS = mainwindow plasmatable sqlbrowser textedit widgetview arthur interview
+SUBDIRS = mainwindow plasmatable textedit widgetview arthur interview
