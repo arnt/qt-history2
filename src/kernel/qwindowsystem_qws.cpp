@@ -542,8 +542,10 @@ QWSServer::QWSServer( int flags,
 
     if ( !geteuid() ) {
 	if(mount(0,"/var/shm","shm",0,0)) {
+	    /* This just confuses people with 2.2 kernels
 	    if ( errno != EBUSY )
 		qDebug("Failed mounting shm fs on /var/shm: %s",strerror(errno));
+	    */
 	}
     }
 
