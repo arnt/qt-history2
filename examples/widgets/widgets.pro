@@ -4,5 +4,8 @@ SUBDIRS       = analogclock \
                 configwidget \
                 digitalclock \
                 groupbox \
+                lineedits \
+                sliders \
+                spinboxes \
                 tetrix \
                 wiggly
