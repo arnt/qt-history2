@@ -415,8 +415,6 @@ static void setupLocaleMapper()
         delete [] ctype;
         delete [] lang;
     }
-    if (localeMapper && localeMapper->mibEnum() == 11)
-        localeMapper = QTextCodec::codecForName("ISO 8859-8-I");
 
     // If everything failed, we default to 8859-1
     // We could perhaps default to 8859-15.
