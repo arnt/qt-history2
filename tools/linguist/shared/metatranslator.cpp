@@ -437,7 +437,8 @@ bool MetaTranslator::save( const QString& filename ) const
     return TRUE;
 }
 
-bool MetaTranslator::release( const QString& filename, bool verbose ) const
+bool MetaTranslator::release( const QString& filename, bool verbose,
+			      QTranslator::SaveMode mode ) const
 {
     QTranslator tor( 0 );
     int finished = 0;
@@ -479,7 +480,7 @@ bool MetaTranslator::release( const QString& filename, bool verbose ) const
 	}
     }
 
-    bool saved = tor.save( filename, QTranslator::Stripped );
+    bool saved = tor.save( filename, mode );
     if ( saved && verbose )
 	fprintf( stderr,
 		 " %d finished, %d unfinished and %d untranslated messages\n",

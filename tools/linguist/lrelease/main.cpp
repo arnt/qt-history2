@@ -38,13 +38,16 @@ static void printUsage()
 	      "    lrelease [options] ts-files\n"
 	      "Options:\n"
 	      "    -help  Display this information and exit\n"
+	      "    -nocompress\n"
+	      "           Do not compress the .qm files\n"
 	      "    -verbose\n"
 	      "           Explain what is being done\n"
 	      "    -version\n"
 	      "           Display the version of lrelease and exit\n" );
 }
 
-static void releaseQmFile( const QString& tsFileName, bool verbose )
+static void releaseQmFile( const QString& tsFileName, bool verbose,
+			   bool stripped )
 {
     MetaTranslator tor;
     QString qmFileName = tsFileName;
@@ -54,7 +57,9 @@ static void releaseQmFile( const QString& tsFileName, bool verbose )
     if ( tor.load(tsFileName) ) {
 	if ( verbose )
 	    fprintf( stderr, "Updating '%s'...\n", qmFileName.latin1() );
-	if ( !tor.release(qmFileName, verbose) )
+	if ( !tor.release(qmFileName, verbose,
+			  stripped ? QTranslator::Stripped
+			  : QTranslator::Everything) )
 	    fprintf( stderr,
 		     "lrelease warning: For some reason, I cannot save '%s'\n",
 		     qmFileName.latin1() );
@@ -68,6 +73,7 @@ static void releaseQmFile( const QString& tsFileName, bool verbose )
 int main( int argc, char **argv )
 {
     bool verbose = FALSE;
+    bool stripped = TRUE;
     bool metTranslations = FALSE;
     int numFiles = 0;
 
@@ -75,6 +81,9 @@ int main( int argc, char **argv )
 	if ( qstrcmp(argv[i], "-help") == 0 ) {
 	    printUsage();
 	    return 0;
+	} else if ( qstrcmp(argv[i], "-nocompress") == 0 ) {
+	    stripped = FALSE;
+	    continue;
 	} else if ( qstrcmp(argv[i], "-verbose") == 0 ) {
 	    verbose = TRUE;
 	    continue;
@@ -97,7 +106,7 @@ int main( int argc, char **argv )
 	f.close();
 
 	if ( fullText.find(QString("<!DOCTYPE TS>")) >= 0 ) {
-	    releaseQmFile( argv[i], verbose );
+	    releaseQmFile( argv[i], verbose, stripped );
 	} else {
 	    QMap<QString, QString> tagMap = proFileTagMap( fullText );
 	    QMap<QString, QString>::Iterator it;
@@ -109,7 +118,7 @@ int main( int argc, char **argv )
         	for ( t = toks.begin(); t != toks.end(); ++t ) {
 		    if ( it.key() == QString("TRANSLATIONS") ) {
 			metTranslations = TRUE;
-			releaseQmFile( *t, verbose );
+			releaseQmFile( *t, verbose, stripped );
 		    }
 		}
 	    }
