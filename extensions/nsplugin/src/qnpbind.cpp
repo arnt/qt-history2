@@ -3,6 +3,7 @@
 //   - What if !piApp upon NPP_NewStream?  Are we safe?
 //      - Yes, but users need to know of this:  that no GUI can be
 //         done until after setWindow is called.
+//   - Use NPN_GetValue in Communicator4.0 to get the display earlier!
 
 // Remaining _WS_WIN_ considerations:
 //   - we need to activateZeroTimers() at some time.
@@ -494,7 +495,7 @@ NPP_Initialize(void)
 extern "C" jref
 NPP_GetJavaClass(void)
 {
-    return NULL;  // None for this class
+    qNP->getJavaClass();
 }
 
 /*
@@ -1418,6 +1419,10 @@ QNPWidget* QNPInstance::widget()
   Otherwise, the data will be delivered in chunks to the write()
   function which must consume at least as much data as was returned
   by the most recent call to writeReady().
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgst.htm#nppnewstream>
+  Netscape: NPP_NewStream method</a>
 */
 bool QNPInstance::newStreamCreated(QNPStream*, StreamMode&)
 {
@@ -1429,6 +1434,10 @@ bool QNPInstance::newStreamCreated(QNPStream*, StreamMode&)
   as chunks.  This may be simpler for a plugin to deal with, but
   precludes any incremental behaviour.
   \sa newStreamCreated(), newStream()
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgst.htm#nppstreamasfile>
+  Netscape: NPP_StreamAsFile method</a>
 */
 void QNPInstance::streamAsFile(QNPStream*, const char*)
 {
@@ -1436,6 +1445,10 @@ void QNPInstance::streamAsFile(QNPStream*, const char*)
 
 /*!
   Called when a stream is destroyed.
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgst.htm#nppdestroystream>
+  Netscape: NPP_DestroyStream method</a>
 */
 void QNPInstance::streamDestroyed(QNPStream*)
 {
@@ -1446,6 +1459,10 @@ void QNPInstance::streamDestroyed(QNPStream*)
   willing to receive from the given stream.
 
   The default returns a very large value.
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgst.htm#nppwriteready>
+  Netscape: NPP_WriteReady method</a>
 */
 int QNPInstance::writeReady(QNPStream*)
 {
@@ -1465,6 +1482,10 @@ int QNPInstance::writeReady(QNPStream*)
   in prior calls.
 
   This function should return the amount of data actually consumed.
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgst.htm#nppwrite>
+  Netscape: NPP_NewStream method</a>
 */
 int QNPInstance::write(QNPStream*, int, int len, void*)
 {
@@ -1476,6 +1497,10 @@ int QNPInstance::write(QNPStream*, int, int len, void*)
   Requests that the given URL be retrieved and sent to the named
   window.  See Netscape's JavaScript documentation for an explanation
   of window names.
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgur.htm#npngeturl>
+  Netscape: NPN_GetURL method</a>
 */
 void QNPInstance::getURL(const char* url, const char* window)
 {
@@ -1485,6 +1510,10 @@ void QNPInstance::getURL(const char* url, const char* window)
 /*!
   This function is not tested.  It is an interface to the NPN_PostURL
   function of the Netscape Plugin API.
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgur.htm#npnposturl>
+  Netscape: NPN_PostURL method</a>
 */
 void QNPInstance::postURL(const char* url, const char* window,
 	     uint len, const char* buf, bool file)
@@ -1557,6 +1586,10 @@ const char* QNPInstance::arg(const char* name) const
 
 /*!
   Returns the user agent (browser name) containing this instance.
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgve.htm#npnuseragent>
+  Netscape: NPN_UserAgent method</a>
 */
 const char* QNPInstance::userAgent() const
 {
@@ -1564,8 +1597,14 @@ const char* QNPInstance::userAgent() const
 }
 
 /*!
-  This function is not tested.  It is an interface to the NPN_NewStream
+  Requests the creation of a new data stream \e from the plug-in.
+  This function is not tested.
+  It is an interface to the NPN_NewStream
   function of the Netscape Plugin API.
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgst.htm#npnnewstream>
+  Netscape: NPN_NewStream method</a>
 */
 QNPStream* QNPInstance::newStream(const char* mimetype, const char* window,
     bool as_file)
@@ -1577,12 +1616,32 @@ QNPStream* QNPInstance::newStream(const char* mimetype, const char* window,
 
 /*!
   Sets the status message in the browser containing this instance.
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgve.htm#npnstatus>
+  Netscape: NPN_Status method</a>
 */
 void QNPInstance::status(const char* msg)
 {
     NPN_Status(pi->npp, msg);
 }
 
+
+/*!
+  Returns the Java object associated with the plug-in instance, an
+  object of the 
+  \link QNPlugin::getJavaClass() plug-in's Java class\endlink, 
+  or 0 if the plug-in does not have a Java class, Java is disabled, or
+  an error occurred .  
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgja.htm#npngetjavapeer>
+  Netscape: NPN_GetJavaPeer</a>
+*/
+jref QNPInstance::getJavaPeer()
+{
+    return NPN_GetJavaPeer(pi->npp);
+}
 
 
 /*!
@@ -1665,6 +1724,10 @@ bool QNPStream::seekable() const
 /*!
   Requests the given section of the stream be sent to the
   QNPInstance::write() function of the instance() of this stream.
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgst.htm#npnrequestread>
+  Netscape: NPN_RequestRead method</a>
 */
 void QNPStream::requestRead(int offset, uint length)
 {
@@ -1677,6 +1740,10 @@ void QNPStream::requestRead(int offset, uint length)
 
 /*!
   Writes data \e to the stream.
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgst.htm#npnwrite>
+  Netscape: NPN_Write method</a>
 */
 int QNPStream::write( int len, void* buffer )
 {
@@ -1747,6 +1814,10 @@ QNPlugin::~QNPlugin()
 /*!
   Returns the version information - the version of the plugin API, and
   the version of the browser.
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgve.htm#npnversion>
+  Netscape: NPN_Version method</a>
 */
 void QNPlugin::getVersionInfo(int& plugin_major, int& plugin_minor,
 	     int& browser_major, int& browser_minor)
@@ -1784,14 +1855,43 @@ void QNPlugin::getVersionInfo(int& plugin_major, int& plugin_minor,
 */
 
 /*!
-    \fn const char* QNPlugin::getPluginNameString() const
+  \fn const char* QNPlugin::getPluginNameString() const
 
   Returns the plain-text name of the plugin.
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgdr.htm#nppgetvalue>
+  Netscape: NPP_GetValue method</a>
 */
 
 /*!
-    \fn const char* QNPlugin::getPluginDescriptionString() const
+  \fn const char* QNPlugin::getPluginDescriptionString() const
 
   Returns a plain-text description of the plugin.
 */
 
+/*!
+  Override to return a reference to the Java class that represents
+  the plugin.  The default returns 0, indicating no class.
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgja.htm#nppgetjavaclass>
+  Netscape: NPP_GetJavaClass</a>
+*/
+jref QNPlugin::getJavaClass()
+{
+    return NULL;
+}
+
+/*!
+  Returns a pointer to the Java execution environment, or 0 if
+  Java is disabled or an error occurred.
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgja.htm#npngetjavaenv>
+  Netscape: NPN_GetJavaEnv</a>
+*/
+JRIEnv* QNPlugin::getJavaEnv()
+{
+    return NPN_GetJavaEnv();
+}
