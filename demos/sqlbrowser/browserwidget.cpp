@@ -8,6 +8,7 @@
 #include <qsqlerror.h>
 #include <qsqlmodel.h>
 #include <qsqlquery.h>
+#include <qsplitter.h>
 #include <qtextedit.h>
 #include <qvbox.h>
 
@@ -19,13 +20,17 @@ BrowserWidget::BrowserWidget(QWidget *parent)
     QVBoxLayout *layout = new QVBoxLayout(this);
 
     QHBox *box = new QHBox(this);
-    dbc = new ConnectionWidget(box);
+    box->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    QSplitter *splitter = new QSplitter(box);
+    dbc = new ConnectionWidget(splitter);
 
-    QVBox *vbox = new QVBox(box);
-    view = new QGenericTableView(vbox);
-    edit = new QTextEdit(vbox);
+    QVBox *vbox = new QVBox(splitter);
+    QSplitter *splitter2 = new QSplitter(Qt::Vertical, vbox);
+    view = new QGenericTableView(splitter2);
+    edit = new QTextEdit(splitter2);
 
     QHBox *hbox = new QHBox(this);
+    hbox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     hbox->layout()->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
     submitButton = new QPushButton(tr("&Submit"), hbox);
@@ -57,5 +62,8 @@ void BrowserWidget::addConnection()
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(":memory:");
     db.open();
+    QSqlQuery q("create table foo(int id)");
+
+    dbc->refresh();
 }
 

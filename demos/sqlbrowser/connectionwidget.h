@@ -2,7 +2,7 @@
 #define CONNECTIONWIDGET_H
 
 #include <qabstractitemmodel.h>
-#include <qhash.h>
+#include <qvector.h>
 #include <qstringlist.h>
 #include <qwidget.h>
 
@@ -18,12 +18,17 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Role_Display) const;
+    bool hasChildren(const QModelIndex &parent) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
+                      QModelIndex::Type type = QModelIndex::View) const;
+    QModelIndex parent(const QModelIndex &child) const;
 
 public slots:
     void refresh();
 
 private:
-    QHash<QString, QString> connections;
+    struct CData { QString cname, label; };
+    QVector<CData> connections;
     QList<QStringList> tableNames;
 };
 
