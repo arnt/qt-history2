@@ -6862,6 +6862,9 @@ QListViewItem *QListView::findItem( const QString& text, int column,
     if ( text.isEmpty() )
 	return 0;
 
+    if ( compare == CaseSensitive || compare == 0 )
+	compare |= ExactMatch;
+
     QString itmtxt;
     QString comtxt = text;
     if ( !(compare & CaseSensitive) )
