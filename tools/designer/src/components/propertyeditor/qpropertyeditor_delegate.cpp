@@ -29,8 +29,6 @@
 #include <QtCore/qdebug.h>
 #include <limits.h>
 
-using namespace QPropertyEditor;
-
 class EditorWithReset : public QWidget
 {
     Q_OBJECT
@@ -81,17 +79,17 @@ void EditorWithReset::setChildEditor(QWidget *child_editor)
     setFocusProxy(m_child_editor);
 }
 
-Delegate::Delegate(QObject *parent)
+QPropertyEditorDelegate::QPropertyEditorDelegate(QObject *parent)
     : QItemDelegate(parent),
       m_readOnly(false)
 {
 }
 
-Delegate::~Delegate()
+QPropertyEditorDelegate::~QPropertyEditorDelegate()
 {
 }
 
-bool Delegate::eventFilter(QObject *object, QEvent *event)
+bool QPropertyEditorDelegate::eventFilter(QObject *object, QEvent *event)
 {
     switch (event->type()) {
         case QEvent::KeyPress:
@@ -121,13 +119,13 @@ bool Delegate::eventFilter(QObject *object, QEvent *event)
     return QItemDelegate::eventFilter(editor, event);
 }
 
-void Delegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
+void QPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
                      const QModelIndex &index) const
 {
     QStyleOptionViewItem option = opt;
 
     const QAbstractItemModel *model = index.model();
-    IProperty *property = static_cast<const Model*>(model)->privateData(index);
+    IProperty *property = static_cast<const QPropertyEditorModel*>(model)->privateData(index);
     if (index.column() == 0 && property && property->changed()) {
         option.font.setBold(true);
     }
@@ -146,13 +144,13 @@ void Delegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
     QItemDelegate::paint(painter, option, index);
 }
 
-QSize Delegate::sizeHint(const QStyleOptionViewItem &opt,
+QSize QPropertyEditorDelegate::sizeHint(const QStyleOptionViewItem &opt,
                          const QModelIndex &index) const
 {
     QStyleOptionViewItem option = opt;
 
     const QAbstractItemModel *model = index.model();
-    IProperty *property = static_cast<const Model*>(model)->privateData(index);
+    IProperty *property = static_cast<const QPropertyEditorModel*>(model)->privateData(index);
     if (index.column() == 0 && property && property->changed()) {
         option.font.setBold(true);
     }
@@ -160,29 +158,28 @@ QSize Delegate::sizeHint(const QStyleOptionViewItem &opt,
     option.state &= ~(QStyle::State_Selected | QStyle::State_HasFocus);
 
     QSize sz = QItemDelegate::sizeHint(option, index) + QSize(4, 4); // ####
-//    sz.setHeight(sz.height() + sz.height() % 2);
     return sz;
 }
 
 
-bool Delegate::isReadOnly() const
+bool QPropertyEditorDelegate::isReadOnly() const
 {
     return m_readOnly;
 }
 
-void Delegate::setReadOnly(bool readOnly)
+void QPropertyEditorDelegate::setReadOnly(bool readOnly)
 {
     // ### close the editor
     m_readOnly = readOnly;
 }
 
-QWidget *Delegate::createEditor(QWidget *parent,
+QWidget *QPropertyEditorDelegate::createEditor(QWidget *parent,
                                 const QStyleOptionViewItem &option,
                                 const QModelIndex &index) const
 {
     Q_UNUSED(option);
 
-    const Model *model = static_cast<const Model*>(index.model());
+    const QPropertyEditorModel *model = static_cast<const QPropertyEditorModel*>(index.model());
     const IProperty *property = model->privateData(index);
     if (property == 0)
         return 0;
@@ -201,10 +198,10 @@ QWidget *Delegate::createEditor(QWidget *parent,
                         model, SIGNAL(resetProperty(const QString&)));
 
             editor = editor_w_reset;
-            child_editor->installEventFilter(const_cast<Delegate *>(this));
+            child_editor->installEventFilter(const_cast<QPropertyEditorDelegate *>(this));
         } else {
             editor = property->createEditor(parent, this, SLOT(sync()));
-            editor->installEventFilter(const_cast<Delegate *>(this));
+            editor->installEventFilter(const_cast<QPropertyEditorDelegate *>(this));
         }
     }
 
@@ -212,39 +209,39 @@ QWidget *Delegate::createEditor(QWidget *parent,
     return editor;
 }
 
-void Delegate::setEditorData(QWidget *editor,
+void QPropertyEditorDelegate::setEditorData(QWidget *editor,
                              const QModelIndex &index) const
 {
     if (EditorWithReset *editor_w_reset = qobject_cast<EditorWithReset*>(editor))
         editor = editor_w_reset->childEditor();
 
     const QAbstractItemModel *model = index.model();
-    IProperty *property = static_cast<const Model*>(model)->privateData(index);
+    IProperty *property = static_cast<const QPropertyEditorModel*>(model)->privateData(index);
     if (property && property->hasEditor()) {
         property->updateEditorContents(editor);
     }
 }
 
-void Delegate::setModelData(QWidget *editor,
+void QPropertyEditorDelegate::setModelData(QWidget *editor,
                             QAbstractItemModel *model,
                             const QModelIndex &index) const
 {
     if (EditorWithReset *editor_w_reset = qobject_cast<EditorWithReset*>(editor))
         editor = editor_w_reset->childEditor();
 
-    if (IProperty *property = static_cast<const Model*>(model)->privateData(index)) {
+    if (IProperty *property = static_cast<const QPropertyEditorModel*>(model)->privateData(index)) {
         property->updateValue(editor);
         model->setData(index, property->value(), Qt::EditRole);
     }
 }
 
-void Delegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem &option,
+void QPropertyEditorDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem &option,
                               const QRect &rect, const QPixmap &pixmap) const
 {
     QItemDelegate::drawDecoration(painter, option, rect, pixmap);
 }
 
-void Delegate::sync()
+void QPropertyEditorDelegate::sync()
 {
     QWidget *w = qobject_cast<QWidget*>(sender());
     if (w == 0)
@@ -252,7 +249,7 @@ void Delegate::sync()
     emit commitData(w);
 }
 
-void Delegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void QPropertyEditorDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QItemDelegate::updateEditorGeometry(editor, option, index);
     editor->setGeometry(editor->geometry().adjusted(0, 0, -1, -1));

@@ -9,8 +9,14 @@ DESTDIR = ../../../lib
 
 include(propertyeditor.pri)
 
-HEADERS += propertyeditor.h
-SOURCES += propertyeditor.cpp 
+FORMS += actioneditor.ui
+
+HEADERS += propertyeditor.h \
+    actioneditor.h
+
+SOURCES += propertyeditor.cpp \
+    actioneditor.cpp
+
 #PRECOMPILED_HEADER=propertyeditor_pch.h
 
 INCLUDEPATH += \

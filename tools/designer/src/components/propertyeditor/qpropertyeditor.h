@@ -17,25 +17,22 @@
 #include "propertyeditor_global.h"
 #include "qpropertyeditor_items_p.h"
 
-#include <QTreeView>
+#include <QtGui/QTreeView>
 
-namespace QPropertyEditor
-{
+class QPropertyEditorModel;
+class QPropertyEditorDelegate;
 
-class Model;
-class Delegate;
-
-class QT_PROPERTYEDITOR_EXPORT View: public QTreeView
+class QT_PROPERTYEDITOR_EXPORT QPropertyEditor: public QTreeView
 {
     Q_OBJECT
 public:
-    View(QWidget *parent = 0);
-    ~View();
+    QPropertyEditor(QWidget *parent = 0);
+    ~QPropertyEditor();
 
     IProperty *initialInput() const;
     bool isReadOnly() const;
 
-    inline Model *editorModel() const
+    inline QPropertyEditorModel *editorModel() const
     { return m_model; }
 
 signals:
@@ -50,10 +47,8 @@ protected:
     virtual void keyPressEvent(QKeyEvent *ev);
 
 private:
-    Model *m_model;
-    Delegate *m_itemDelegate;
+    QPropertyEditorModel *m_model;
+    QPropertyEditorDelegate *m_itemDelegate;
 };
-
-}; // namespace QPropertyEditor
 
 #endif // QPROPERTYEDITOR_H

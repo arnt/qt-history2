@@ -37,8 +37,6 @@
 #include <QtCore/QTimer>
 #include <QtCore/qsignal.h>
 
-using namespace QPropertyEditor;
-
 IProperty *PropertyEditor::createSpecialProperty(const QVariant &value, const QString &name)
 {
     Q_UNUSED(value);
@@ -569,7 +567,7 @@ PropertyEditor::PropertyEditor(AbstractFormEditor *core,
 {
     QVBoxLayout *lay = new QVBoxLayout(this);
     lay->setMargin(0);
-    m_editor = new QPropertyEditor::View(this);
+    m_editor = new QPropertyEditor(this);
     lay->addWidget(m_editor);
     m_prop_sheet = 0;
 

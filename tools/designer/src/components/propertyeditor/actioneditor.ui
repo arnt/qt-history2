@@ -1,0 +1,115 @@
+<ui version="4.0" >
+ <author></author>
+ <comment></comment>
+ <exportmacro></exportmacro>
+ <class>ActionEditor</class>
+ <widget class="QWidget" name="ActionEditor" >
+  <property name="objectName" >
+   <string notr="true" >ActionEditor</string>
+  </property>
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>454</width>
+    <height>426</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Edit Actions...</string>
+  </property>
+  <layout class="QHBoxLayout" >
+   <property name="objectName" >
+    <string notr="true" />
+   </property>
+   <property name="margin" >
+    <number>9</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item>
+    <widget class="QSplitter" name="" >
+     <property name="objectName" >
+      <string notr="true" />
+     </property>
+     <property name="geometry" >
+      <rect>
+       <x>9</x>
+       <y>9</y>
+       <width>215</width>
+       <height>408</height>
+      </rect>
+     </property>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <layout class="QVBoxLayout" >
+      <property name="objectName" >
+       <string notr="true" />
+      </property>
+      <property name="margin" >
+       <number>9</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+     </layout>
+     <widget class="QListWidget" name="listWidget" >
+      <property name="objectName" >
+       <string notr="true" >listWidget</string>
+      </property>
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>215</width>
+        <height>201</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPropertyEditor" name="treeView" >
+      <property name="objectName" >
+       <string notr="true" >treeView</string>
+      </property>
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>207</y>
+        <width>215</width>
+        <height>201</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="listWidget_2" >
+     <property name="objectName" >
+      <string notr="true" >listWidget_2</string>
+     </property>
+     <property name="geometry" >
+      <rect>
+       <x>230</x>
+       <y>9</y>
+       <width>215</width>
+       <height>408</height>
+      </rect>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <pixmapfunction></pixmapfunction>
+ <customwidgets>
+  <customwidget>
+   <class>QPropertyEditor</class>
+   <extends>QTreeView</extends>
+   <header>qpropertyeditor.h</header>
+   <container>0</container>
+   <pixmap></pixmap>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

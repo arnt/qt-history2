@@ -14,17 +14,14 @@
 #ifndef QPROPERTYEDITOR_DELEGATE_P_H
 #define QPROPERTYEDITOR_DELEGATE_P_H
 
-#include <qitemdelegate.h>
+#include <QtGui/QItemDelegate>
 
-namespace QPropertyEditor
-{
-
-class Delegate : public QItemDelegate
+class QPropertyEditorDelegate : public QItemDelegate
 {
     Q_OBJECT
 public:
-    Delegate(QObject *parent = 0);
-    virtual ~Delegate();
+    QPropertyEditorDelegate(QObject *parent = 0);
+    virtual ~QPropertyEditorDelegate();
 
     virtual bool eventFilter(QObject *object, QEvent *event);
 
@@ -65,7 +62,5 @@ protected:
 private:
     bool m_readOnly;
 };
-
-} // namespace QPropertyEditor
 
 #endif // QPROPERTYEDITOR_DELEGATE_P_H

@@ -57,7 +57,7 @@ private:
 
 private:
     AbstractFormEditor *m_core;
-    QPropertyEditor::View *m_editor;
+    QPropertyEditor *m_editor;
     IPropertyGroup *m_properties;
     IPropertySheet *m_prop_sheet;
     QPointer<QObject> m_object;

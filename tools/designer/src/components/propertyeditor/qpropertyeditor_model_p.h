@@ -17,15 +17,12 @@
 #include "qpropertyeditor_items_p.h"
 #include <qabstractitemmodel.h>
 
-namespace QPropertyEditor
-{
-
-class Model: public QAbstractItemModel
+class QPropertyEditorModel: public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    Model(QObject *parent = 0);
-    ~Model();
+    QPropertyEditorModel(QObject *parent = 0);
+    ~QPropertyEditorModel();
 
     inline IProperty *initialInput() const
     { return m_initialInput; }
@@ -106,7 +103,5 @@ private:
     void refreshHelper(IProperty *property);
     IProperty *m_initialInput;
 };
-
-} // namespace QPropertyEditor
 
 #endif // QPROPERTYEDITOR_MODEL_P_H

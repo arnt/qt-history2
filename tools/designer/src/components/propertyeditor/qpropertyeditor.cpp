@@ -15,22 +15,19 @@
 #include "qpropertyeditor_model_p.h"
 #include "qpropertyeditor_delegate_p.h"
 
-#include <qitemdelegate.h>
-#include <qheaderview.h>
-#include <qapplication.h>
-#include <qpainter.h>
-#include <qscrollbar.h>
-
-using namespace QPropertyEditor;
+#include <QtGui/QHeaderView>
+#include <QtGui/QApplication>
+#include <QtGui/QPainter>
+#include <QtGui/QScrollBar>
 
 Q_GLOBAL_STATIC_WITH_ARGS(PropertyCollection, dummy_collection, (QLatin1String("<empty>")))
 
-View::View(QWidget *parent)
+QPropertyEditor::QPropertyEditor(QWidget *parent)
     : QTreeView(parent)
 {
-    m_model = new Model(this);
+    m_model = new QPropertyEditorModel(this);
     setModel(m_model);
-    m_itemDelegate = new Delegate(this);
+    m_itemDelegate = new QPropertyEditorDelegate(this);
     setItemDelegate(m_itemDelegate);
     setInitialInput(0);
 
@@ -47,21 +44,21 @@ View::View(QWidget *parent)
             this, SIGNAL(propertyChanged(IProperty*)));
 }
 
-View::~View()
+QPropertyEditor::~QPropertyEditor()
 {
 }
 
-bool View::isReadOnly() const
+bool QPropertyEditor::isReadOnly() const
 {
     return m_itemDelegate->isReadOnly();
 }
 
-void View::setReadOnly(bool readOnly)
+void QPropertyEditor::setReadOnly(bool readOnly)
 {
     m_itemDelegate->setReadOnly(readOnly);
 }
 
-void View::setInitialInput(IProperty *initialInput)
+void QPropertyEditor::setInitialInput(IProperty *initialInput)
 {
     if (!initialInput)
         initialInput = dummy_collection();
@@ -80,17 +77,17 @@ void View::setInitialInput(IProperty *initialInput)
 }
 
 
-IProperty *View::initialInput() const
+IProperty *QPropertyEditor::initialInput() const
 {
     return m_model->initialInput();
 }
 
-void View::drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const
+void QPropertyEditor::drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const
 {
     QStyleOptionViewItem opt = viewOptions();
     QStyleOptionViewItem option = opt;
 
-    IProperty *property = static_cast<const Model*>(model())->privateData(index);
+    IProperty *property = static_cast<const QPropertyEditorModel*>(model())->privateData(index);
     if (index.column() == 0 && property && property->changed()) {
         option.font.setBold(true);
     }
@@ -112,7 +109,7 @@ void View::drawBranches(QPainter *painter, const QRect &rect, const QModelIndex 
     }
 }
 
-void View::keyPressEvent(QKeyEvent *ev)
+void QPropertyEditor::keyPressEvent(QKeyEvent *ev)
 {
 /*    QApplication::syncX();*/
     QTreeView::keyPressEvent(ev);

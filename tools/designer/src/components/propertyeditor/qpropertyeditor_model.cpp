@@ -14,18 +14,17 @@
 #include "qpropertyeditor_model_p.h"
 #include <QtCore/qdebug.h>
 
-using namespace QPropertyEditor;
 
-Model::Model(QObject *parent)
+QPropertyEditorModel::QPropertyEditorModel(QObject *parent)
     : QAbstractItemModel(parent), m_initialInput(0)
 {
 }
 
-Model::~Model()
+QPropertyEditorModel::~QPropertyEditorModel()
 {
 }
 
-void Model::setInitialInput(IProperty *initialInput)
+void QPropertyEditorModel::setInitialInput(IProperty *initialInput)
 {
     Q_ASSERT(initialInput);
 
@@ -33,7 +32,7 @@ void Model::setInitialInput(IProperty *initialInput)
     emit reset();
 }
 
-QModelIndex Model::index(int row, int column, const QModelIndex &parent) const
+QModelIndex QPropertyEditorModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!parent.isValid())
         return createIndex(row, column, m_initialInput);
@@ -41,7 +40,7 @@ QModelIndex Model::index(int row, int column, const QModelIndex &parent) const
     return createIndex(row, column, childAt(privateData(parent), row));
 }
 
-QModelIndex Model::parent(const QModelIndex &index) const
+QModelIndex QPropertyEditorModel::parent(const QModelIndex &index) const
 {
     if (!index.isValid() || privateData(index) == m_initialInput)
         return QModelIndex();
@@ -51,7 +50,7 @@ QModelIndex Model::parent(const QModelIndex &index) const
     return indexOf(parentOf(privateData(index)));
 }
 
-int Model::rowCount(const QModelIndex &parent) const
+int QPropertyEditorModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
         return 1;
@@ -67,14 +66,14 @@ int Model::rowCount(const QModelIndex &parent) const
         : 0;
 }
 
-int Model::columnCount(const QModelIndex &parent) const
+int QPropertyEditorModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
 
     return 2;
 }
 
-bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
+bool QPropertyEditorModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (IProperty *property = privateData(index)) {
         if (role == Qt::EditRole) {
@@ -96,7 +95,7 @@ bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
     return false;
 }
 
-QVariant Model::data(const QModelIndex &index, int role) const
+QVariant QPropertyEditorModel::data(const QModelIndex &index, int role) const
 {
     Q_UNUSED(role);
 
@@ -138,7 +137,7 @@ QVariant Model::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-QString Model::columnText(int col) const
+QString QPropertyEditorModel::columnText(int col) const
 {
     switch (col) {
         case 0: return QLatin1String("Property");
@@ -149,14 +148,14 @@ QString Model::columnText(int col) const
 
 
 
-void Model::refreshHelper(IProperty *property)
+void QPropertyEditorModel::refreshHelper(IProperty *property)
 {
     QModelIndex index0 = indexOf(property, 0);
     QModelIndex index1 = indexOf(property, 1);
     emit dataChanged(index0, index1);
 }
 
-void Model::refresh(IProperty *property)
+void QPropertyEditorModel::refresh(IProperty *property)
 {
     refreshHelper(property);
 
@@ -179,7 +178,7 @@ void Model::refresh(IProperty *property)
     }
 }
 
-void Model::propertyAdded(IProperty *property)
+void QPropertyEditorModel::propertyAdded(IProperty *property)
 {
     QModelIndex p = parent(indexOf(property));
     int r = rowCount(p);
@@ -187,29 +186,29 @@ void Model::propertyAdded(IProperty *property)
     emit rowsInserted(p, r - 1, r);
 }
 
-void Model::propertyRemoved(const QModelIndex &index)
+void QPropertyEditorModel::propertyRemoved(const QModelIndex &index)
 {
     emit rowsAboutToBeRemoved(parent(index), index.row(), index.row() + 1);
 }
 
-void Model::refresh()
+void QPropertyEditorModel::refresh()
 {
     refresh(m_initialInput);
 }
 
-bool Model::isEditable(const QModelIndex &index) const
+bool QPropertyEditorModel::isEditable(const QModelIndex &index) const
 {
     return index.column() == 1 && privateData(index)->hasEditor();
 }
 
-QModelIndex Model::buddy(const QModelIndex &index) const
+QModelIndex QPropertyEditorModel::buddy(const QModelIndex &index) const
 {
     if (index.column() == 0)
         return createIndex(index.row(), 1, index.data());
     return index;
 }
 
-QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant QPropertyEditorModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal) {
         if (role != Qt::DisplayRole)
@@ -219,7 +218,7 @@ QVariant Model::headerData(int section, Qt::Orientation orientation, int role) c
     return QAbstractItemModel::headerData(section, orientation, role);
 }
 
-Qt::ItemFlags Model::flags(const QModelIndex &index) const
+Qt::ItemFlags QPropertyEditorModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags foo = QAbstractItemModel::flags(index);
     if (isEditable(index))
