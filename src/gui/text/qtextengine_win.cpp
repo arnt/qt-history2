@@ -116,43 +116,6 @@ const SCRIPT_PROPERTIES **script_properties = 0;
 int num_scripts = 0;
 int usp_latin_script = 0;
 
-
-#if 0
-const QUnicodeTables::Script japanese_tryScripts[] = {
-    QUnicodeTables::Latin,
-    QUnicodeTables::Han_Japanese,
-    QUnicodeTables::Hangul,
-    QUnicodeTables::Han_SimplifiedChinese,
-    QUnicodeTables::Han_TraditionalChinese
-};
-
-const QUnicodeTables::Script korean_tryScripts[] = {
-    QUnicodeTables::Latin,
-    QUnicodeTables::Hangul,
-    QUnicodeTables::Han_Japanese,
-    QUnicodeTables::Han_SimplifiedChinese,
-    QUnicodeTables::Han_TraditionalChinese
-};
-
-const QUnicodeTables::Script simplifiedChinese_tryScripts[] = {
-    QUnicodeTables::Latin,
-    QUnicodeTables::Han_SimplifiedChinese,
-    QUnicodeTables::Han_TraditionalChinese,
-    QUnicodeTables::Han_Japanese,
-    QUnicodeTables::Hangul
-};
-
-const QUnicodeTables::Script traditionalChinese_tryScripts[] = {
-    QUnicodeTables::Latin,
-    QUnicodeTables::Han_TraditionalChinese,
-    QUnicodeTables::Han_SimplifiedChinese,
-    QUnicodeTables::Han_Japanese,
-    QUnicodeTables::Hangul
-};
-
-const QUnicodeTables::Script *tryScripts = japanese_tryScripts;
-#endif
-
 static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl &control, QChar::Direction dir);
 
 static void resolveUsp10()
@@ -198,35 +161,14 @@ static void resolveUsp10()
         hasUsp10 = true;
         ScriptGetProperties(&script_properties, &num_scripts);
 
-        // get the usp script for western
-        for(int i = 0; i < num_scripts; i++) {
-            if (script_properties[i]->langid == LANG_ENGLISH &&
-                !script_properties[i]->fAmbiguousCharSet) {
-                usp_latin_script = i;
-                break;
-            }
-        }
-
-#if 0
-        // initialize tryScripts according to locale
-        LANGID lid = GetUserDefaultLangID();
-        switch(lid&0xff) {
-        case LANG_CHINESE: // Chinese (Taiwan)
-            if (lid == 0x0804) // Taiwan
-                tryScripts = traditionalChinese_tryScripts;
-            else
-                tryScripts = simplifiedChinese_tryScripts;
-            break;
-        case LANG_JAPANESE:
-            // japanese is already the default
-            break;
-        case LANG_KOREAN:
-                tryScripts = korean_tryScripts;
-                break;
-        default:
-            break;
-        }
-#endif
+         // get the usp script for western
+         for(int i = 0; i < num_scripts; i++) {
+             if (script_properties[i]->langid == LANG_ENGLISH &&
+                 !script_properties[i]->fAmbiguousCharSet) {
+                 usp_latin_script = i;
+                 break;
+             }
+         }
 
         appendItems = uspAppendItems;
     }
@@ -456,12 +398,6 @@ static inline QUnicodeTables::Script scriptForWinLanguage(DWORD langid)
     return script;
 }
 
-static inline bool isAsian(unsigned short ch)
-{
-    return (ch > 0x2dff) || ((ch & 0xff00) == 0x1100);
-}
-
-
 // we're not using Uniscribe's BiDi algorithm, since it is (a) not 100% Unicode compliant and
 // (b) seems to work wrongly when trying to use it with a base level != 0.
 //
@@ -582,28 +518,6 @@ void QTextEngine::shapeText(int item) const
     if (hasUsp10) {
         const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
         script = scriptForWinLanguage(script_prop->langid);
-#if 0
-        if (script == QUnicodeTables::Latin && script_prop->fAmbiguousCharSet) {
-            // either some asian language or something Uniscribe doesn't recognise
-            // we look at the first character to find out what it is
-            script = (QUnicodeTables::Script)qt_scriptForChar(layoutData->string.unicode()[si.position].unicode());
-            if ((script >= QUnicodeTables::Han && script <= QUnicodeTables::Yi)
-                || script == QUnicodeTables::KatakanaHalfWidth || script == QUnicodeTables::UnknownScript) {
-                // maybe some asian language
-                int i;
-                for(i = 0; i < 5; i++) {
-                    QFontEngine *fe = fp->engineForScript(tryScripts[i]);
-                    if (fe->type() == QFontEngine::Box)
-                        continue;
-
-                    if (fe->canRender(layoutData->string.unicode()+from, len)) {
-                        script = tryScripts[i];
-                        break;
-                    }
-                }
-            }
-        }
-#endif
     }
 
     QFontEngine *fontEngine = fp->engineForScript(script);
