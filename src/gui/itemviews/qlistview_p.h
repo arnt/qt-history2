@@ -77,6 +77,130 @@ private:
     mutable QVector< QVector<int> > leafVector; // the leaves are just indices into the itemVector
 };
 
+template <class T>
+void BinTree<T>::climbTree(const QRect &rect, callback *function, void *data)
+{
+    ++visited;
+    climbTree(rect, function, data, 0);
+}
+
+template <class T>
+void BinTree<T>::init(const QRect &area, typename BinTree::Node::Type type)
+{
+    init(area, depth_, type, 0);
+}
+
+template <class T>
+void BinTree<T>::reserve(int size)
+{
+    itemVector.reserve(size);
+}
+
+template <class T>
+int BinTree<T>::itemCount() const
+{
+    return itemVector.count();
+}
+
+template <class T>
+const T &BinTree<T>::const_item(int idx) const
+{
+    return itemVector[idx];
+}
+
+template <class T>
+T &BinTree<T>::item(int idx)
+{
+    return itemVector[idx];
+}
+
+template <class T>
+T *BinTree<T>::itemPtr(int idx)
+{
+    return &itemVector[idx];
+}
+
+template <class T>
+void BinTree<T>::setItemPosition(int x, int y, int idx)
+{
+    item(idx).x = x;
+    item(idx).y = y;
+}
+
+template <class T>
+void BinTree<T>::appendItem(T &item)
+{
+    itemVector.append(item);
+}
+
+template <class T>
+void BinTree<T>::insertItem(T &item, const QRect &rect, int idx)
+{
+    itemVector.insert(idx + 1, 1, item); // insert after idx
+    climbTree(rect, &insert, reinterpret_cast<void *>(idx), 0);
+}
+
+template <class T>
+void BinTree<T>::removeItem(const QRect &rect, int idx)
+{
+    climbTree(rect, &remove, reinterpret_cast<void *>(idx), 0);
+    itemVector.remove(idx, 1);
+}
+
+template <class T>
+void BinTree<T>::moveItem(const QPoint &dest, const QRect &rect, int idx)
+{
+    climbTree(rect, &remove, reinterpret_cast<void *>(idx), 0);
+    item(idx).x = dest.x();
+    item(idx).y = dest.y();
+    climbTree(QRect(dest, rect.size()), &insert, reinterpret_cast<void *>(idx), 0);
+}
+
+template <class T>
+int BinTree<T>::leafCount() const
+{
+    return leafVector.count();
+}
+
+template <class T>
+const QVector<int> &BinTree<T>::const_leaf(int idx) const
+{
+    return leafVector.at(idx);
+}
+
+template <class T>
+QVector<int> &BinTree<T>::leaf(int idx)
+{
+    return leafVector[idx];
+}
+
+template <class T>
+void BinTree<T>::clearLeaf(int idx) { leafVector[idx].clear(); }
+
+template <class T>
+int BinTree<T>::nodeCount() const
+{
+    return nodeVector.count();
+}
+
+template <class T>
+const typename BinTree<T>::Node &BinTree<T>::node(int idx) const
+{
+    return nodeVector[idx];
+}
+
+template <class T>
+int BinTree<T>::parentIndex(int idx) const
+{
+    return (idx & 1) ? ((idx - 1) / 2) : ((idx - 2) / 2);
+}
+
+template <class T>
+int BinTree<T>::firstChildIndex(int idx) const
+{
+    return ((idx * 2) + 1);
+}
+
 class QListViewItem
 {
 public:
@@ -94,6 +218,7 @@ public:
         return (x == other.x && y == other.y && w == other.w && h == other.h &&
                 indexHint == other.indexHint);
     }
+
     inline bool operator!=(const QListViewItem &other) const { return !(*this == other); }
 
     inline QRect rect() { return QRect(x, y, w, h); }

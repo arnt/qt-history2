@@ -50,8 +50,10 @@ void QTableViewPrivate::updateVerticalScrollbar(int itemHeight)
     int count = model->rowCount(q->root());
 
     // if we have no viewport or no rows, there is nothing to do
-    if (height <= 0 || count <= 0)
+    if (height <= 0 || count <= 0 || itemHeight <= 0) {
+        q->verticalScrollBar()->setRange(0, 0);
         return;
+    }
 
     // set page step size
     int visibleItems = height / itemHeight;
@@ -82,8 +84,10 @@ void QTableViewPrivate::updateHorizontalScrollbar(int itemWidth)
     int count = model->columnCount(q->root());
 
     // if we have no viewport or no columns, there is nothing to do
-    if (width <= 0 || count <= 0)
+    if (width <= 0 || count <= 0 || itemWidth <= 0) {
+        q->horizontalScrollBar()->setRange(0, 0);
         return;
+    }
 
     // set page step size
     int visibleItems = width / itemWidth;
@@ -612,25 +616,23 @@ void QTableView::columnCountChanged(int, int)
 void QTableView::updateGeometries()
 {
     int width = d->verticalHeader->sizeHint().width();
-    QSize topHint = d->horizontalHeader->sizeHint();
-
+    int height = d->horizontalHeader->sizeHint().height();
     bool reverse = QApplication::reverseLayout();
-    setViewportMargins(reverse ? 0 : width, topHint.height(), reverse ? width : 0, 0);
+    setViewportMargins(reverse ? 0 : width, height, reverse ? width : 0, 0);
 
     QRect vg = d->viewport->geometry();
-    if (QApplication::reverseLayout())
-        d->horizontalHeader->setOffset(vg.width() - topHint.width());
-    d->verticalHeader->setGeometry(reverse ? vg.right() : (vg.left() - width), vg.top(),
-                               width, vg.height());
-    d->horizontalHeader->setGeometry(vg.left(), vg.top() - topHint.height(),
-                              vg.width(), topHint.height());
+//     if (QApplication::reverseLayout())
+//         d->horizontalHeader->setOffset(vg.width() - topHint.width());
+    
+    int verticalLeft = reverse ? vg.right() : (vg.left() - width);
+    d->verticalHeader->setGeometry(verticalLeft, vg.top(), width, vg.height());
+
+    int horizontalTop = vg.top() - height;
+    d->horizontalHeader->setGeometry(vg.left(), horizontalTop, vg.width(), height);
 
     if (d->model) {
-        QStyleOptionViewItem option = viewOptions();
-        QModelIndex topLeft = d->model->index(0, 0);
-        QSize size = itemDelegate()->sizeHint(fontMetrics(), option, d->model, topLeft);
-        d->updateVerticalScrollbar(size.height());
-        d->updateHorizontalScrollbar(size.width());
+        d->updateVerticalScrollbar(d->verticalHeader->sectionSize(0));
+        d->updateHorizontalScrollbar(d->horizontalHeader->sectionSize(0));
     }
  
     QAbstractItemView::updateGeometries();

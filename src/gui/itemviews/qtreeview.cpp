@@ -657,14 +657,14 @@ QModelIndex QTreeView::itemBelow(const QModelIndex &index) const
 
 void QTreeView::doItemsLayout()
 {
-    QAbstractItemView::doItemsLayout();
     QStyleOptionViewItem option = viewOptions();
-    if (model()->rowCount(root()) > 0) {
+    if (model()->rowCount(root()) > 0 && model()->columnCount(root()) > 0) {
         QModelIndex index = model()->index(0, 0, root());
         d->itemHeight = itemDelegate()->sizeHint(fontMetrics(), option, model(), index).height();
         d->layout(-1);
         d->reopenChildren(root(), false);
     }
+    QAbstractItemView::doItemsLayout();
     updateGeometries();
 }
 
@@ -1004,7 +1004,7 @@ void QTreeView::updateGeometries()
         QModelIndex topLeft = model()->index(0, 0);
         QSize size = itemDelegate()->sizeHint(fontMetrics(), viewOptions(), model(), topLeft);
         d->updateVerticalScrollbar(size.height());
-        d->updateHorizontalScrollbar(size.width());
+        d->updateHorizontalScrollbar(d->header->sectionSize(0));
     }
 
     QAbstractItemView::updateGeometries();
@@ -1408,8 +1408,10 @@ void QTreeViewPrivate::updateVerticalScrollbar(int itemHeight)
     int itemCount = items.count();
     
     // if we have no viewport or no items, there is nothing to do
-    if (height <= 0 || itemCount <= 0)
+    if (height <= 0 || itemCount <= 0 || itemHeight <= 0) {
+        q->verticalScrollBar()->setRange(0, 0);
         return;
+    }
 
     // set page step size
     int visibleItems = height / itemHeight;
@@ -1442,8 +1444,10 @@ void  QTreeViewPrivate::updateHorizontalScrollbar(int itemWidth)
     int count = model->columnCount(q->root());
 
     // if we have no viewport or no columns, there is nothing to do
-    if (width <= 0 || count <= 0)
+    if (width <= 0 || count <= 0 | itemWidth <= 0) {
+        q->horizontalScrollBar()->setRange(0, 0);
         return;
+    }
 
     // set page step size
     int visibleItems = width / itemWidth;

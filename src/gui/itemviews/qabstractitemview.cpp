@@ -605,6 +605,7 @@ void QAbstractItemView::clearSelections()
 void QAbstractItemView::doItemsLayout()
 {
     d->layoutPosted = false;
+//    updateGeometries();
     d->viewport->update();
 }
 

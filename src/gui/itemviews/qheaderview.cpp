@@ -327,12 +327,10 @@ QSize QHeaderView::sizeHint() const
                              : QModelIndex::VerticalHeader;
     QModelIndex index = model()->index(row, col, QModelIndex::Null, type);
     if (!index.isValid())
-        return QSize();
+        return QSize(0, 0);
     QSize hint = itemDelegate()->sizeHint(fontMetrics(), option, model(), index);
     int margin = style().pixelMetric(QStyle::PM_HeaderMargin);
-    if (orientation() == Qt::Vertical)
-        return QSize(hint.width() + margin, 192);
-    return QSize(256, hint.height() + margin);
+    return QSize(hint.width() + margin, hint.height() + margin);
 }
 
 /*!
@@ -572,13 +570,8 @@ void QHeaderView::initializeSections(int start, int end)
     int oldCount = count();
     end += 1; // one past the last item, so we get the end position of the last section
     d->sections.resize(end + 1);
-    if (oldCount >= count()) {
-        d->viewport->update();
-        emit sectionCountChanged(oldCount, count());
-        return;
-    }
 
-    int pos = (start <= 0 ? 0 : d->sections.at(start).position);
+    int pos = (start > 0 ? d->sections.at(start).position : 0);
     QHeaderViewPrivate::HeaderSection *sections = d->sections.data() + start;
     int s = start;
     int num = end - start + 1;
@@ -1069,13 +1062,16 @@ QModelIndex QHeaderView::itemAt(int x, int y) const
 
 void QHeaderView::doItemsLayout()
 {
-    QAbstractItemView::doItemsLayout();
-    if (d->orientation == Qt::Horizontal)
-        initializeSections(0, d->model->columnCount(root()) - 1);
-    else
-        initializeSections(0, d->model->rowCount(root()) - 1);
+    if (d->orientation == Qt::Horizontal) {
+        int c = d->model->columnCount(root());
+        initializeSections(0, c > 0 ? c - 1 : 0);
+    } else {
+        int r = d->model->rowCount(root());
+        initializeSections(0, r > 0 ? r - 1 : 0);
+    }
     if (d->stretchSections)
         resizeSections();
+    QAbstractItemView::doItemsLayout();
 }
 
 /*!
@@ -1207,7 +1203,7 @@ QRect QHeaderView::selectionViewportRect(const QItemSelection &selection) const
 int QHeaderView::count() const
 {
     int c = d->sections.count();
-    return c ? c - 1 : 0;
+    return c > 0 ? c - 1 : 0;
 }
 
 /*!
