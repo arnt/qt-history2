@@ -23,7 +23,6 @@ sql {
 		    $$SQL_H/qsqlresult.h \
 		    $$SQL_H/qsqlindex.h \
 		    $$SQL_H/qsqlpropertymap.h \
-		    $$SQL_H/qdatetimeedit.h \
 		    $$SQL_P/qsqlmanager_p.h \
 		    $$SQL_H/qdatatable.h \
 		    $$SQL_H/qdataview.h \
@@ -41,7 +40,6 @@ sql {
 		    $$SQL_CPP/qsqlerror.cpp \
 		    $$SQL_CPP/qsqlresult.cpp \
 		    $$SQL_CPP/qsqlindex.cpp \
-		    $$SQL_CPP/qdatetimeedit.cpp \
 		    $$SQL_CPP/qsqlpropertymap.cpp \
 		    $$SQL_CPP/qsqlmanager_p.cpp \
 		    $$SQL_CPP/qdatatable.cpp \
@@ -94,7 +92,7 @@ sql {
 		SOURCES += $$SQL_CPP/drivers/oci/qsql_oci.cpp
 		DEFINES += QT_SQL_OCI
 		unix {
-			LIBS += -lclntsh
+			LIBS += -lclntsh -lwtc8
 		}
 		win32 {
 			LIBS += oci.lib
