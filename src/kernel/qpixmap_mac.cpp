@@ -239,33 +239,36 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     data->alphapm = 0;
     if(img.hasAlphaBuffer()) {
 #ifdef QMAC_PIXMAP_ALPHA
-	data->alphapm = new QPixmap(w, h, 32);
+	if(img.depth() == 32) {
+	    data->alphapm = new QPixmap(w, h, 32);
 #ifndef QMAC_ONE_PIXEL_LOCK
-	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)data->alphapm->hd)));
+	    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)data->alphapm->hd)));
 #endif
-	long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)data->alphapm->hd)), *drow;
-	unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
-	unsigned short sbpr = image.bytesPerLine();
-	long *sptr = (long*)image.bits(), *srow;
-	char mode = true32b, clr;
-	SwapMMUMode(&mode);
-	for(int yy=0;yy<h;yy++) {
-	    drow = (long *)((char *)dptr + (yy * dbpr));
-	    srow = (long *)((char *)sptr + (yy * sbpr));
-	    for(int xx=0;xx<w;xx++) {
-		clr = 255 - (*(srow + xx) >> 24);
-		*(drow + xx) = qRgba(clr, clr, clr, clr);
+	    long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)data->alphapm->hd)), *drow;
+	    unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
+	    unsigned short sbpr = image.bytesPerLine();
+	    long *sptr = (long*)image.bits(), *srow;
+	    char mode = true32b, clr;
+	    SwapMMUMode(&mode);
+	    for(int yy=0;yy<h;yy++) {
+		drow = (long *)((char *)dptr + (yy * dbpr));
+		srow = (long *)((char *)sptr + (yy * sbpr));
+		for(int xx=0;xx<w;xx++) {
+		    clr = 255 - (*(srow + xx) >> 24);
+		    *(drow + xx) = qRgba(clr, clr, clr, clr);
+		}
 	    }
-	}
-	SwapMMUMode(&mode);
+	    SwapMMUMode(&mode);
 #ifndef QMAC_ONE_PIXEL_LOCK
-	UnlockPixels(GetGWorldPixMap((GWorldPtr)data->alphapm->hd));
+	    UnlockPixels(GetGWorldPixMap((GWorldPtr)data->alphapm->hd));
 #endif
-#else //!QMAKE_PIXMAP_ALPHA
-	QBitmap m;
-	m = img.createAlphaMask(conversion_flags);
-	setMask(m);
-#endif
+	} else
+#endif //!QMAKE_PIXMAP_ALPHA
+	{
+	    QBitmap m;
+	    m = img.createAlphaMask(conversion_flags);
+	    setMask(m);
+	}
     }
     return TRUE;
 }
