@@ -543,7 +543,7 @@ void QListView::ensureItemVisible(const QModelIndex &index)
     QRect area = d->viewport->rect();
     QRect rect = itemViewportRect(index);
 
-    if (model()->parent(index) != root() || index.column() != d->modelColumn)
+    if (model()->parent(index) != root() || index.column() != d->column)
         return;
 
     if (area.contains(rect)) {
@@ -990,9 +990,9 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
         }
         return d->closestIndex(pos, d->intersectVector);
     case MoveHome:
-        return model()->index(0, d->modelColumn, root());
+        return model()->index(0, d->column, root());
     case MoveEnd:
-        return model()->index(d->layoutStart - 1, d->modelColumn, root());
+        return model()->index(d->layoutStart - 1, d->column, root());
     }
 
     return current;
@@ -1004,7 +1004,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
 */
 QRect QListView::itemRect(const QModelIndex &index) const
 {
-    if (!index.isValid() || model()->parent(index) != root() || index.column() != d->modelColumn)
+    if (!index.isValid() || model()->parent(index) != root() || index.column() != d->column)
         return QRect();
     QListViewItem item = d->indexToListViewItem(index);
     return item.rect();
@@ -1069,7 +1069,7 @@ QModelIndexList QListView::selectedIndexes() const
     for (int i=0; i<modelSelected.count(); ++i) {
         QModelIndex index = modelSelected.at(i);
         if (!isIndexHidden(index) && model()->parent(index) == root()
-            && index.column() == d->modelColumn)
+            && index.column() == d->column)
             viewSelected.append(index);
     }
     return viewSelected;
@@ -1190,7 +1190,7 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
         int dx, dy = grid.isValid() ? grid.height() : d->translate;
         for (int i = first; i <= last ; ++i) {
             if (!hiddenRows.contains(i)) {
-                index = model->index(i, d->modelColumn, root());
+                index = model->index(i, d->column, root());
                 if (!grid.isValid())
                     hint = delegate->sizeHint(option, model, index);
                 dx = hint.width();
@@ -1213,7 +1213,7 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
         int dy, dx = grid.isValid() ? grid.width() : d->translate;
         for (int i = first; i <= last ; ++i) {
             if (!hiddenRows.contains(i)) {
-                index = model->index(i, d->modelColumn, root());
+                index = model->index(i, d->column, root());
                 if (!grid.isValid())
                     hint = delegate->sizeHint(option, model, index);
                 dy = hint.height();
@@ -1368,7 +1368,7 @@ void QListView::updateGeometries()
 {
     if (model()->rowCount(root()) <= 0 || model()->columnCount(root()) <= 0)
         return;
-    QModelIndex index = model()->index(0, d->modelColumn, root());
+    QModelIndex index = model()->index(0, d->column, root());
     QStyleOptionViewItem option = viewOptions();
     QSize size = itemDelegate()->sizeHint(option, model(), index);
 
@@ -1389,17 +1389,17 @@ void QListView::updateGeometries()
 bool QListView::isIndexHidden(const QModelIndex &index) const
 {
     return d->hiddenRows.contains(index.row()) && (model()->parent(index) == root())
-           && index.column() == d->modelColumn;
+           && index.column() == d->column;
 }
 
 /*!
     Sets the \a column in the model that is visible.
 
-    \sa modelColumn()
+    \sa column()
  */
-void QListView::setModelColumn(int column)
+void QListView::setColumn(int column)
 {
-    d->modelColumn = column;
+    d->column = column;
     if (isVisible())
         doItemsLayout();
     else
@@ -1409,11 +1409,11 @@ void QListView::setModelColumn(int column)
 /*!
     Returns the column in the model that is visible.
 
-    \sa setModelColumn()
+    \sa setColumn()
  */
-int QListView::modelColumn() const
+int QListView::column() const
 {
-    return d->modelColumn;
+    return d->column;
 }
 
 
@@ -1429,7 +1429,7 @@ QListViewPrivate::QListViewPrivate()
       translate(0),
       layoutWraps(0),
       layoutTimer(0),
-      modelColumn(0)
+      column(0)
 {}
 
 void QListViewPrivate::init()
@@ -1489,7 +1489,7 @@ void QListViewPrivate::intersectingStaticSet(const QRect &area) const
             i = qBinarySearch<int>(xposVector, area.left(), first, last);
             for (; i <= last && xposVector.at(i) < area.right(); ++i) {
                 if (!hiddenRows.contains(i)) {
-                    index = model->index(i, d->modelColumn, root);
+                    index = model->index(i, d->column, root);
                     if (index.isValid())
                         intersectVector.push_back(index);
                     else
@@ -1508,7 +1508,7 @@ void QListViewPrivate::intersectingStaticSet(const QRect &area) const
             i = qBinarySearch<int>(yposVector, area.top(), first, last);
             for (; i <= last && yposVector.at(i) < area.bottom(); ++i) {
                 if (!hiddenRows.contains(i)) {
-                    index = model->index(i, d->modelColumn, root);
+                    index = model->index(i, d->column, root);
                     if (index.isValid())
                         intersectVector.push_back(index);
                     else
@@ -1534,7 +1534,7 @@ void QListViewPrivate::createItems(int to)
     QStyleOptionViewItem option = q->viewOptions();
     QModelIndex root = q->root();
     for (int i = count; i < to; ++i) {
-        size = delegate->sizeHint(option, model, model->index(i, d->modelColumn, root));
+        size = delegate->sizeHint(option, model, model->index(i, d->column, root));
         QListViewItem item(QRect(0, 0, size.width(), size.height()), i); // default pos
         tree.appendItem(item);
     }
