@@ -134,6 +134,12 @@ QPaintDevice::QPaintDevice( uint devflags )
 		"QPaintDevice" );
 #endif
 	return;
+    } else if ( qApp->type() == QApplication::Tty ) {
+#if defined(QT_CHECK_STATE)
+	qFatal( "QPaintDevice: Cannot create a QPaintDevice when no GUI "
+		"is being used" );
+#endif
+	return;
     }
     devFlags = devflags;
     painters = 0;
