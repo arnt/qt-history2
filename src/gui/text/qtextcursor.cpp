@@ -527,23 +527,26 @@ void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &format, QText
     \ingroup text
     \mainclass
 
-    A QTextCursor is an object that can be used to access and
-    manipulate a QTextDocument. It embodies both a cursor position and
-    optionally a selection.
+    Text cursors are objects that are used to access and modify the contents
+    and underlying structure of text documents via a programming interface
+    that mimics the behavior of a cursor in a text editor. QTextCursor contains
+    information about both the cursor's position within a QTextDocument and any
+    selection that it has made.
 
-    QTextCursor is modelled on how a text cursor behaves in a text
-    editor, providing a programmatic means of doing what users do
+    QTextCursor is modeled on the way a text cursor behaves in a text
+    editor, providing a programmatic means of performing standard actions
     through the user interface. A document can be thought of as a
     single string of characters with the cursor's position() being \e
     between any two characters (or at the very beginning or very end
     of the document). Documents can also contain tables, lists,
-    images, etc., in addition to text, but from the APIs point of view
-    the document is just one long string, with some portions of that
-    string considered to be within particular blocks (e.g.
-    paragraphs), or within a table's cell, or a list's item, etc. When
-    we refer to "current character" we mean the character immediately
-    after the cursor position() in the document; similarly the
-    "current block" is the block that contains the cursor position().
+    images, and other objects in addition to text but, from the developer's
+    point of view, the document can be treated as one long string.
+    Some portions of that string can be considered to lie within particular
+    blocks (e.g. paragraphs), or within a table's cell, or a list's item,
+    or other structural elements. When we refer to "current character" we
+    mean the character immediately after the cursor position() in the
+    document; similarly the "current block" is the block that contains the
+    cursor position().
 
     A QTextCursor also has an anchor() position. The text that is
     between the anchor() and the position() is the selection. If
@@ -569,9 +572,26 @@ void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &format, QText
 
     Deletions can be achieved using deleteChar(),
     deletePreviousChar(), and removeSelectedText().
-    Insertions are done using insertText(), insertBlock(),
-    insertList(), insertTable(), insertImage(), insertFrame(), and
-    insertFragment().
+
+    Text strings can be inserted into the document with the insertText()
+    function, blocks (representing new paragraphs) can be inserted with
+    insertBlock().
+    Fragments of text can be inserted with insertFragment(), but it is
+    sometimes simpler to use insertText() and supply a character format.
+
+    Various types of higher-level structure can also be inserted into the
+    document with the cursor:
+
+    \list
+    \i Lists are ordered sequences of block elements that are decorated with
+       bullet points or symbols. These are inserted in a specified format
+       with insertList().
+    \i Tables can be inserted in an optional format with the insertTable()
+       function. These contain an array of cells that can be traversed using
+       the cursor.
+    \i insertImage()
+    \i insertFrame()
+    \endlist
 
     Actions can be grouped (i.e. treated as a single action for
     undo/redo) using beginEditBlock() and endEditBlock().
@@ -582,6 +602,8 @@ void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &format, QText
     (e.g. a syllable in Devanagari, or a base letter plus diacritics).
     Functions such as movePosition() and deleteChar() limit cursor
     movement to these valid positions.
+
+    \sa \l{rich-text.html}{Rich Text Processing}
 
 */
 

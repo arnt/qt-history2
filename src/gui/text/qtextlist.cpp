@@ -32,14 +32,19 @@ class QTextListPrivate : public QTextBlockGroupPrivate
     \ingroup text
 
     A list contains a sequence of text blocks, each of which is marked with a
-    bullet point or other symbol. Multiple levels of lists can be used with
-    the automatic numbering feature to assist in the generation of tables of
-    contents and other itemized lists.
+    bullet point or other symbol. Multiple levels of lists can be used, and
+    the automatic numbering feature provides support for ordered numeric and
+    alphabetical lists.
 
     Lists are created by using a text cursor to insert an empty list at the
     current position or by moving existing text into a new list.
     The \l{QTextCursor::insertList()} function inserts an empty block into the
     document at the cursor position, and makes it the first item in a list.
+
+    \quotefromfile snippets/textdocument-lists/mainwindow.cpp
+    \skipto QTextListFormat listFormat
+    \printuntil insertList
+
     The \l{QTextCursor::createList()} function takes the contents of the
     cursor's current block and turns it into the first item of a new list.
 
