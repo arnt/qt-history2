@@ -538,6 +538,8 @@ void QTDSDriver::close()
 	dbclose( d->dbproc );
 	errs.remove ( d->dbproc );
 	d->dbproc = 0;
+	dbloginfree( d->login );
+	d->login = 0;
 	setOpen( FALSE );
 	setOpenError( FALSE );
     }
