@@ -20,6 +20,7 @@
 
 class AbstractFormEditor;
 class AbstractFormWindowCursor;
+class AbstractFormWindowTool;
 class DomUI;
 class QtUndoStack;
 
@@ -57,6 +58,10 @@ public:
     virtual AbstractFormEditor *core() const;
 
     virtual AbstractFormWindowCursor *cursor() const = 0;
+
+    virtual int toolCount() const = 0;
+    virtual int currentTool() const = 0;
+    virtual AbstractFormWindowTool *tool(int index) const = 0;
 
     virtual QString fileName() const = 0;
 

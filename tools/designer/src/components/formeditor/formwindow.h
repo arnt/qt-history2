@@ -29,7 +29,6 @@
 
 #include <QMap>
 
-class AbstractFormWindowCursor;
 class FormWindowCursor;
 class DomConnections;
 class Connection;
@@ -119,6 +118,10 @@ public:
     virtual AbstractFormEditor *core() const;
 
     virtual AbstractFormWindowCursor *cursor() const;
+
+    virtual int toolCount() const;
+    virtual int currentTool() const;
+    virtual AbstractFormWindowTool *tool(int index) const;
 
     virtual bool hasFeature(Feature f) const;
     virtual Feature features() const;
@@ -216,6 +219,8 @@ public:
 
     SignalSlotEditor *signalSlotEditor() const { return m_signalSlotEditor; }
 
+    bool handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event);
+
 signals:
     void showContextMenu(QWidget *w, const QPoint &pos);
 
@@ -251,6 +256,8 @@ private slots:
 
 private:
     void init();
+    void initializeCoreTools();
+
     QPoint gridPoint(const QPoint &p) const;
 
     enum RectType { Insert, Rubber };
@@ -356,15 +363,19 @@ private:
     WidgetToActionMap m_widget_to_action_map;
     ActionList m_action_list;
 
+    int m_currentTool;
+    QList<AbstractFormWindowTool*> m_tools;
+
 #ifdef DESIGNER_VIEW3D
     View3D *m_view_3d;
 #endif
 
 private:
-    friend class FormWindowManager;
+//    friend class FormWindowManager;
     friend class WidgetHandle;
     friend class WidgetSelection;
     friend class QDesignerWidget;
+    friend class ToolWidgetEditor;
 };
 
 #endif // FORMWINDOW_H

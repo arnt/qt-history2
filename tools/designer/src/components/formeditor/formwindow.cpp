@@ -14,6 +14,7 @@
 #include "formwindow.h"
 #include "formwindowcursor.h"
 #include "formwindowmanager.h"
+#include "tool_widgeteditor.h"
 
 #include "command.h"
 #include "orderindicator.h"
@@ -37,6 +38,7 @@
 
 // sdk
 #include <abstractformeditor.h>
+#include <abstractformwindowtool.h>
 #include <abstractwidgetfactory.h>
 #include <abstractwidgetdatabase.h>
 
@@ -275,6 +277,7 @@ void FormWindow::restoreCursors(QWidget *start, FormWindow *fw)
 
 void FormWindow::init()
 {
+    m_currentTool = -1;
     m_editMode = WidgetEditMode;
     m_feature = DefaultFeature;
 
@@ -322,6 +325,8 @@ void FormWindow::init()
     m_view_3d->setGeometry(rect());
     m_view_3d->show();
 #endif
+
+    initializeCoreTools();
 }
 /*
 void FormWindow::removeWidget(QWidget *w)
@@ -477,27 +482,6 @@ void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
         }
         break;
 
-#if 0 // ### fix me
-    case BuddyEditMode:
-        if (e->button() != Qt::LeftButton)
-            break;
-
-        validForBuddy = qt_cast<QLabel*>(w);
-
-        if (!validForBuddy)
-            break;
-
-        clearSelection(false);
-
-        // mainWindow()->statusBar()->showMessage(tr("Set buddy for '%1' to...").arg(w->name())); /// ### enable me?
-
-        startPos = mapFromGlobal(e->globalPos());
-        currentPos = startPos;
-        startWidget = designerWidget(w);
-        endWidget = startWidget;
-        break;
-#endif
-
     default:
         break;
     }
@@ -558,39 +542,6 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
     case TabOrderEditMode:
         break;
 
-#if 0
-    case BuddyEditMode: {
-        bool drawRecRect;
-        QWidget *newendWidget = endWidget, *wid = 0;
-
-        if (!validForBuddy)
-            break;
-
-        wid = QApplication::widgetAt(e->globalPos());
-        if (wid)
-            wid = designerWidget(wid);
-        if (wid && canBeBuddy(wid) && wid->isVisibleTo(this))
-            newendWidget = wid;
-        else
-            newendWidget = 0;
-        if (qt_cast<QLayoutWidget*>(newendWidget) || qt_cast<Spacer*>(newendWidget))
-            newendWidget = (QWidget*)endWidget;
-        drawRecRect = newendWidget != endWidget;
-        if (!newendWidget)
-            endWidget = newendWidget;
-        else if (isManaged(newendWidget) && !isCentralWidget(newendWidget))
-            endWidget = newendWidget;
-
-        if (endWidget)
-            mainWindow()->statusBar()->showMessage(tr("Set buddy '%1' to '%2'").arg(startWidget->name()).
-                                                arg(endWidget->name()));
-        else
-            mainWindow()->statusBar()->showMessage(tr("Set buddy '%1' to ...").arg(startWidget->name()));
-
-        currentPos = mapFromGlobal(e->globalPos());
-    } break;
-#endif
-
     default: // we are in an insert-widget tool
         break;
 
@@ -615,26 +566,6 @@ void FormWindow::handleMouseReleaseEvent(QWidget * /*w*/, QMouseEvent *e)
 
     case TabOrderEditMode:
         break;
-
-#if 0
-    case BuddyEditMode:
-        if (startWidget && endWidget) {
-           if (validForBuddy && startWidget != endWidget) {
-                QString oldBuddy = startWidget->property("buddy").toString();
-                if (oldBuddy.isNull())
-                    oldBuddy = QLatin1String("");
-
-                SetPropertyCommand *cmd = new SetPropertyCommand(tr("Set buddy for " + startWidget->objectName()),
-                                                                  this, startWidget,
-                                                                  "buddy", startWidget->property("buddy"),
-                                                                  endWidget->objectName());
-                commandHistory()->push(cmd);
-            }
-        }
-
-        startWidget = endWidget = 0;
-        break;
-#endif
 
     default:
         break;
@@ -1153,7 +1084,8 @@ void FormWindow::selectWidgets()
 
 void FormWindow::handleKeyPressEvent(QWidget *w, QKeyEvent *e)
 {
-    qDebug() << "handleKeyPressEvent:" << "widget:" << w << "event:" << e;
+    Q_UNUSED(w);
+
     e->accept(); // we always accept!
 
     switch (e->key()) {
@@ -2149,6 +2081,40 @@ QList<QWidget *> FormWindow::widgets(QWidget *widget) const
 void FormWindow::createConnections(DomConnections *connections, QWidget *parent)
 {
     m_signalSlotEditor->fromUi(connections, parent);
+}
+
+int FormWindow::toolCount() const
+{
+    return m_tools.count();
+}
+
+AbstractFormWindowTool *FormWindow::tool(int index) const
+{
+    return m_tools.at(index);
+}
+
+int FormWindow::currentTool() const
+{
+    return m_currentTool;
+}
+
+bool FormWindow::handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event)
+{
+    if (m_currentTool == -1)
+        return false;
+
+    AbstractFormWindowTool *tool = m_tools.at(m_currentTool);
+    bool handled = tool->handleEvent(widget, managedWidget, event);
+
+    return handled;
+}
+
+void FormWindow::initializeCoreTools()
+{
+    ToolWidgetEditor *widgetEditor = new ToolWidgetEditor(this);
+    m_tools.append(widgetEditor);
+
+    m_currentTool = m_tools.indexOf(widgetEditor);
 }
 
 #include "formwindow.moc"

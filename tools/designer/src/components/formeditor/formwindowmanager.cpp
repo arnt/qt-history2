@@ -115,41 +115,29 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
         return true;
     }
 
-    QWidget *w = static_cast<QWidget*>(o);
-    if (qt_cast<WidgetHandle*>(w))
-        return false;
+    QWidget *widget = static_cast<QWidget*>(o);
 
     if (!o->isWidgetType())
         return false;
 
-    FormWindow *fw = FormWindow::findFormWindow(w);
+    if (qt_cast<WidgetHandle*>(widget)) // ### remove me
+        return false;
+
+    FormWindow *fw = FormWindow::findFormWindow(widget);
     if (!fw)
         return false;
 
-    if (isPassiveInteractor(w)) {
+    if (isPassiveInteractor(widget)) {
         if (fw->editMode() == FormWindow::TabOrderEditMode)
             fw->updateOrderIndicators();
 
         return false;
     }
 
-    if (!qt_cast<OrderIndicator*>(w)) {
-        w = findManagedWidget(fw, w);
-    }
-
-    if (!w)
-        return false;
-
-    bool view_handles_events = fw->editMode() == AbstractFormWindow::ConnectionEditMode
-                                || fw->editMode() == AbstractFormWindow::BuddyEditMode
-#ifdef DESIGNER_VIEW3D
-                                || fw->editMode() == AbstractFormWindow::View3DEditMode
-#endif
-    ;
-
-    switch (e->type()) {
+    if (QWidget *managedWidget = findManagedWidget(fw, widget)) {
+        switch (e->type()) {
         case QEvent::Close: {
-            if (o != fw)
+            if (widget != fw)
                 break;
 
             bool accept = true;
@@ -157,14 +145,14 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
             static_cast<QCloseEvent *>(e)->setAccepted(accept);
         } break;
 
-        case QEvent::Hide:
-            if (w == o && fw->isWidgetSelected(w))
-                fw->hideSelection(w);
-            break;
+        case QEvent::Hide: {
+            if (widget == managedWidget && fw->isWidgetSelected(managedWidget))
+                fw->hideSelection(widget);
+        } break;
 
         case QEvent::WindowActivate: {
-            if (fw->mainContainer() == static_cast<QWidget*>(o)) {
-                setActiveFormWindow(fw);
+            if (fw->isMainContainer(managedWidget)) {
+                core()->formWindowManager()->setActiveFormWindow(fw);
             }
         } break;
 
@@ -172,83 +160,12 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
             fw->repaintSelection();
         } break;
 
-        case QEvent::Enter:
-        case QEvent::Leave:
-            return true;
-
-        case QEvent::Resize:
-        case QEvent::Move:
-            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
-                break;
-
-            if (LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout) {
-                fw->updateSelection(w);
-                if (e->type() != QEvent::Resize)
-                    fw->updateChildSelections(w);
-            }
-            break;
-
-        case QEvent::FocusOut:
-        case QEvent::FocusIn:
-            if (o == fw)
-                break;
-            return true;
-
-        case QEvent::KeyPress:
-            qDebug() << "key-press-event:" << w;
-            if (view_handles_events)
-                break;
-            fw->handleKeyPressEvent(w, static_cast<QKeyEvent*>(e));
-            if (static_cast<QKeyEvent*>(e)->isAccepted())
+        default: {
+            if (fw->handleEvent(widget, managedWidget, e))
                 return true;
-            break;
+        } break;
 
-        case QEvent::KeyRelease:
-            if (view_handles_events)
-                break;
-            fw->handleKeyReleaseEvent(w, static_cast<QKeyEvent*>(e));
-            if (static_cast<QKeyEvent*>(e)->isAccepted())
-                return true;
-            break;
-
-        case QEvent::MouseMove:
-            if (view_handles_events)
-                break;
-            fw->handleMouseMoveEvent(w, static_cast<QMouseEvent*>(e));
-            return true;
-
-        case QEvent::MouseButtonPress:
-            if (view_handles_events)
-                break;
-            fw->handleMousePressEvent(w, static_cast<QMouseEvent*>(e));
-            return true;
-
-        case QEvent::MouseButtonRelease:
-            if (view_handles_events)
-                break;
-            fw->handleMouseReleaseEvent(w, static_cast<QMouseEvent*>(e));
-            return true;
-
-        case QEvent::MouseButtonDblClick:
-            if (view_handles_events)
-                break;
-            fw->handleMouseButtonDblClickEvent(w, static_cast<QMouseEvent*>(e));
-            return true;
-
-        case QEvent::ContextMenu:
-            if (view_handles_events)
-                break;
-            fw->handleContextMenu(w, static_cast<QContextMenuEvent*>(e));
-            return true;
-
-#if 0 // ### fix me
-        case QEvent::Paint:
-            fw->handlePaintEvent(static_cast<QWidget*>(o), static_cast<QPaintEvent*>(e));
-            return true;
-#endif
-
-        default:
-            break;
+        } // end switch
     }
 
     return false;
@@ -323,6 +240,9 @@ void FormWindowManager::setActiveFormWindow(AbstractFormWindow *w)
 QWidget *FormWindowManager::findManagedWidget(FormWindow *fw, QWidget *w)
 {
     while (w && w != fw) {
+        if (qt_cast<OrderIndicator*>(w))
+            return w;
+
         if (fw->isManaged(w))
             return w;
         w = w->parentWidget();
