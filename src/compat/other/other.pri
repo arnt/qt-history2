@@ -4,12 +4,14 @@ compat {
 	COMPAT_P	= compat
 
 	HEADERS += \
+		other/qdropsite.h \
 		other/qurloperator.h \
 		other/qlocalfs.h \
 		other/qnetworkprotocol.h \
 		../gui/dialogs/qfiledialog.h 
 
 	SOURCES += \
+		other/qdropsite.cpp \
 		other/qurloperator.cpp \
 		other/qlocalfs.cpp \
 		other/qnetworkprotocol.cpp \

@@ -15,7 +15,6 @@ HEADERS += \
 	base/qcursor.h \
 	base/qdesktopwidget.h \
 	base/qdragobject.h \
-	base/qdropsite.h \
 	base/qevent.h \
 	base/qguieventloop.h\
 	base/qguieventloop_p.h \
@@ -39,7 +38,6 @@ SOURCES += \
 	base/qclipboard.cpp \
 	base/qcursor.cpp \
 	base/qdragobject.cpp \
-	base/qdropsite.cpp \
 	base/qevent.cpp \
 	base/qguieventloop.cpp \
 	base/qkeysequence.cpp \
