@@ -11,14 +11,23 @@ public:
 
 /*!
   \class QUnknownInterface qcomponentinterface.h
+  \brief This class serves as a base class for interfaces.
 */
 
-QUnknownInterface::QUnknownInterface( QUnknownInterface *p )
-: children( 0 ), par( p ), refcount( 0 ), appInterface( 0 )
+/*!
+  Constructs a QUnknownInterface with parent interface /a parent.
+*/
+
+QUnknownInterface::QUnknownInterface( QUnknownInterface *parent )
+: children( 0 ), par( parent ), refcount( 0 ), appInterface( 0 )
 {   
     if ( par )
 	par->insertChild( this );
 }
+
+/*!
+  Destroys the interface and all children.
+*/
 
 QUnknownInterface::~QUnknownInterface()
 {
@@ -38,6 +47,10 @@ QUnknownInterface::~QUnknownInterface()
     }
 }
 
+/*! 
+  Makes interface \a child a child of this interface. 
+*/
+
 void QUnknownInterface::insertChild( QUnknownInterface *child )
 {
     if ( !children )
@@ -45,6 +58,10 @@ void QUnknownInterface::insertChild( QUnknownInterface *child )
     
     children->append( child );
 }
+
+/*!
+  Removes \a child from the list of children of this interface.
+*/
 
 void QUnknownInterface::removeChild( QUnknownInterface *child )
 {
@@ -60,27 +77,44 @@ void QUnknownInterface::removeChild( QUnknownInterface *child )
     }
 }
 
+/*!
+  Returns the parent interface of this interface, or null if this
+  interface is top level.
+*/
+
 QUnknownInterface* QUnknownInterface::parent() const
 {
     return par;
 }
 
+/*!
+  Increases the reference counter for this interface by one.
+  If the counter was zero, the initialize() function is executed, and
+  the result of this routine is returned. Otherwise returns TRUE.
+  This function is called automatically when this interface is returned
+  as a result of a queryInterface call.
+
+  \sa release
+*/
 bool QUnknownInterface::ref()
 {
     if ( parent() )
 	parent()->ref();
 
-    QUnknownInterface *tlp = 0;
-    QUnknownInterface *p = this;
-    while ( ( p = p->parent() ) )
-	tlp = p;
-
-    if ( !refcount && !initialize( (tlp ? tlp->applicationInterface() : applicationInterface() ) ) )
+    if ( !refcount && !initialize( appInterface ) )
 	return FALSE;
 
     ++refcount;
     return TRUE;
 }
+
+/*!
+  Decreases the reference counter for this interface by one.
+  If the counter becomes zero, the cleanUp() function is executed, and
+  the result of this function is returned. Otherwise returns FALSE.
+
+  \sa ref
+*/
 
 bool QUnknownInterface::release()
 {
@@ -90,34 +124,54 @@ bool QUnknownInterface::release()
     if ( parent() )
 	parent()->release();
 
-    QUnknownInterface *tlp = 0;
-    QUnknownInterface *p = this;
-    while ( ( p = p->parent() ) )
-	tlp = p;
-
     bool deref = !--refcount;
-    if ( deref ) {
+    if ( deref )
+	return cleanUp( appInterface );
 
-	cleanUp( tlp ? tlp->applicationInterface() : applicationInterface() );
-    }
-
-    return deref;
+    return FALSE;
 }
+
+/*!
+  Returns a string identifying the interface. Subclasses of QUnknownInterface
+  have to reimplement this function, so that implementations of the interfaces
+  can be recognized.
+*/
 
 QString QUnknownInterface::interfaceID() const
 { 
     return "QUnknownInterface"; 
 }
 
-bool QUnknownInterface::initialize( QApplicationInterface* )
+/*!
+  This function is called when this interface is referenced the first time. The
+  application interface of this interface is set to \a appIface.
+  Reimplement this function and return TRUE if the initialization succeeded,
+  or FALSE when the process failed. The default implementation always returns
+  TRUE. Reimplementations of this function have to  call the parent class implementation.
+*/
+
+bool QUnknownInterface::initialize( QApplicationInterface* appIface )
 { 
+    appInterface = appIface;
     return TRUE; 
 }
+
+/*!
+  This function is called when this interface is released so that no further
+  references to this interface exist.
+  Reimplement this function and return TRUE if the cleanup process succeeded,
+  otherwise return FALSE. The default implementation always returns TRUE.
+*/
 
 bool QUnknownInterface::cleanUp( QApplicationInterface* )
 { 
     return TRUE; 
 }
+
+/*!
+  Returns TRUE if this interface has a child interface with an interfaceID
+  \a request.
+*/
 
 bool QUnknownInterface::hasInterface( const QString &request )
 {
@@ -137,12 +191,19 @@ bool QUnknownInterface::hasInterface( const QString &request )
     return FALSE;
 }
 
+/*!
+  Returns an interface that matches \a request. 
+  The function returns NULL if this interface doesn't have a child interface 
+  with the requested interfaceID.
+*/
+
 QUnknownInterface* QUnknownInterface::queryInterface( const QString& request )
 { 
     if ( !children )
 	return 0;
     QListIterator<QUnknownInterface> it( *children );
     while ( it.current() ) {
+	QUnknownInterface *iface = it.current();
 	if ( it.current()->interfaceID() == request ) {
 	    if ( it.current()->ref() )
 		return it.current();
@@ -157,17 +218,25 @@ QUnknownInterface* QUnknownInterface::queryInterface( const QString& request )
     return 0;
 }
 
+/*!
+  Returns the QApplicationInterface this interface is connected to.
+*/
 QApplicationInterface* QUnknownInterface::applicationInterface() const
 {
     return appInterface;
 }
 
-void QUnknownInterface::setApplicationInterface( QApplicationInterface* appIface )
-{
-    appInterface = appIface;
-}
+
 /*!
   \class QPlugInInterface qcomponentinterface.h
+
+  \brief This class provides a top level interface for modules.
+
+  \sa QApplicationInterfaces
+*/
+
+/*!
+  Creates a QPlugInInterface. This is always a toplevel interface.
 */
 
 QPlugInInterface::QPlugInInterface()
@@ -175,31 +244,39 @@ QPlugInInterface::QPlugInInterface()
 {
 }
 
-bool QPlugInInterface::initialize( QApplicationInterface *appIface )
-{
-    setApplicationInterface( appIface );
-    return QUnknownInterface::initialize( appIface );
-}
-
-bool QPlugInInterface::cleanUp( QApplicationInterface *appIface )
-{
-    return ( appIface == applicationInterface() );
-}
+/*!
+  \reimp
+*/
 
 QString QPlugInInterface::interfaceID() const 
 { 
     return "QPlugInInterface"; 
 }
 
+/*!
+  Returns a string with the name of the module.
+  The default implementation returns QString::null.
+*/
+
 QString QPlugInInterface::name() const 
 { 
     return QString::null; 
 }
 
+/*!
+  Returns a string with a description of the module.
+  The default implementation returns QString::null.
+*/
+
 QString QPlugInInterface::description() const 
 { 
     return QString::null; 
 }
+
+/*!
+  Returns a string with information about the author of the module.
+  The default implementation returns QString::null.
+*/
 
 QString QPlugInInterface::author() const 
 { 
@@ -207,53 +284,63 @@ QString QPlugInInterface::author() const
 }
 
 /*!
+  Returns a string with information about the version of the module.
+  The default implementation returns QString::null.
+*/
+
+QString QPlugInInterface::version() const
+{
+    return QString::null;
+}
+
+/*!
   \class QApplicationInterface qapplicationinterface.h
 
-  \brief This class provides an interface to give runtime access to application components.
-
+  \brief This class provides a top level interface for application modules.
+  
   \sa QPlugInInterface
 */
 
 /*!
-  Creates an QApplicationInterface that will provide an interface to the application component
-  \a object. As the interface depends on the passed object it gets deleted when the object gets
-  destroyed.
-  It's not valid to pass null for the same reason.
+  Creates an QApplicationInterface. This is always a toplevel interface.
 */
 QApplicationInterface::QApplicationInterface()
-: QUnknownInterface( 0 )
+: QPlugInInterface()
 {
 }
+
+/*!
+  \reimp
+*/
 
 QString QApplicationInterface::interfaceID() const
 { 
     return "QApplicationInterface"; 
 }
 
+/*!
+  \reimp
+
+  Provides a default implementation that returns the name() of the QApplication object.
+*/
+
 QString QApplicationInterface::name() const
 {
     return qApp->name();
 }
 
-QString QApplicationInterface::description() const
-{
-    return QString::null;
-}
-
-QString QApplicationInterface::author() const
-{
-    return QString::null;
-}
+/*!
+  Returns the current directory of the application.
+*/
 
 QString QApplicationInterface::workDirectory() const
 {
     return QDir::currentDirPath();
 }
 
-QString QApplicationInterface::version() const
-{
-    return QString::null;
-}
+/*!
+  Returns the command the application was executed with.
+*/
 
 QString QApplicationInterface::command() const
 {
@@ -261,41 +348,29 @@ QString QApplicationInterface::command() const
 }
 
 /*!
-  \fn QComponentInterface* QApplicationInterface::queryInterface( const QCString& request )
-  \overload
-
-  Returns an interface that matches the \a request, or NULL if no such interface cn be provided.
-  This function can be used to provide interfaces to sub-compontents of the object this interface
-  represents.
-  E.g. a menubar may be considered to be a sub-component of the application's mainwindow, and
-  therefore the mainwindow interface can give access to the menubar by providing an interface.
-  The interface will be deleted when the corresponding object is destroyed.
-*/
-
-/*!
   \class QApplicationComponentInterface qapplicationinterface.h
 
   \brief This class provides an interface to application components.
-
-  \sa QPlugInInterface
 */
 
 /*!
   Creates a QApplicationComponentInterface that provides an interface to the application component
   \a object.
-  As the interface depends on the passed object it gets deleted when the object gets
-  destroyed. It's not valid to pass null for the same reason.
+  Note that \a object must not be null.
 */
-QApplicationComponentInterface::QApplicationComponentInterface( QObject* o, QUnknownInterface *parent )
+QApplicationComponentInterface::QApplicationComponentInterface( QObject* object, QUnknownInterface *parent )
 : QUnknownInterface( parent )
 {
-
 #ifdef CHECK_RANGE
-    if ( !o )
+    if ( !object )
 	qWarning( "Can't create interface with null-object!" );
 #endif CHECK_RANGE
-    comp = o;
+    comp = object;
 }
+
+/*!
+  \reimp
+*/
 
 QString QApplicationComponentInterface::interfaceID() const
 {
@@ -303,41 +378,44 @@ QString QApplicationComponentInterface::interfaceID() const
 }
 
 /*!
-  \fn QObject* QComponentInterface::object()
-  \reimp
+  \fn QObject* QApplicationComponentInterface::component()
 
-  This function returns the pointer to the handled object.
+  Returns the pointer to the handled object.
 */
 
 #ifndef QT_NO_PROPERTIES
 
 /*!
-  This function is supposed to return the value of the property \a p of the object.
+  This function returns the value of the property \a p of the handled object.
   Reimplement this function for advanced processing.
 
-  The default implementation returns the \a value of the property of the handled object.
+  The default implementation makes use of the property system.
 */
 QVariant QApplicationComponentInterface::requestProperty( const QCString& p )
 {
+    if ( !component() )
+	return QVariant();
     return component()->property( p );
 }
 /*!
-  This function is supposed to change the value of the property \a p of the object to \a value and
-  return TRUE if the operation was successful, otherwise FALSE.
+  This function changes the value of the property \a p of the handled object to \a value and
+  returns TRUE if the operation was successful, otherwise returns FALSE.
   Reimplement this function for advanced processing.
 
   The default implementation sets the property \a p of the handled object to \a value.
 */
 bool QApplicationComponentInterface::requestSetProperty( const QCString& p, const QVariant& v )
 {
+    if ( !component() )
+	return FALSE;
     return component()->setProperty( p, v );
 }
 
 #endif
 
 /*!
-  This function can be used to connect the \a signal of the handled object to the \a slot of the \a target.
-  It should returns TRUE if the connection was made successfully, otherwise FALSE.
+  This function connects the \a signal of the handled object to the \a slot of the \a target.
+  It returns TRUE if the connection was made successfully, otherwise FALSE.
   Reimplement this function for advanced processing.
 
   The default implementation connects the \a signal of the handled object to the \a slot of \a target and
@@ -345,31 +423,39 @@ bool QApplicationComponentInterface::requestSetProperty( const QCString& p, cons
 */
 bool QApplicationComponentInterface::requestConnect( const char* signal, QObject* target, const char* slot )
 {
+    if( !component() )
+	return FALSE;
     return QObject::connect( component(), signal, target, slot );
 }
 
-/*!  This function can be used to connect the \a signal of the \a
-  sender to the \a slot of the \a handled object.  It should returns
-  TRUE if the connection was made successfully, otherwise FALSE.
+/*!  
+  This function can be used to connect the \a signal of the \a sender to the \a slot of the 
+  \a handled object.  It returns TRUE if the connection was made successfully, otherwise FALSE.
   Reimplement this function for advanced processing.
+
+  The default implementation makes the connection and returns the result.
 */
 
 bool QApplicationComponentInterface::requestConnect( QObject *sender, const char* signal, const char* slot )
 {
+    if( !component() )
+	return FALSE;
     return QObject::connect( sender, signal, component(), slot );
 }
 
 /*!
-  This function can be used by the plugin to have an event filter \e f installed for the handled object.
-  It should returns TRUE if the eventfilter has been installed, otherwise FALSE.
+  This function installs the event filter \e f for the handled object and returns TRUE if the 
+  eventfilter has been installed, otherwise FALSE.
   Reimplement this function for advanced processing.
 
   The default implementation installes the event filter on for the handled object and returns TRUE.
 */
 bool QApplicationComponentInterface::requestEvents( QObject* f )
 {
-    component()->installEventFilter( f );
+    if( !component() )
+	return FALSE;
 
+    component()->installEventFilter( f );
     return TRUE;
 }
 
