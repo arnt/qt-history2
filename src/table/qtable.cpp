@@ -3690,7 +3690,7 @@ void QTable::contentsMouseReleaseEvent( QMouseEvent *e )
 
 void QTable::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    if ( receivers( SIGNAL(contextMenuRequested(int row, int col, const QPoint &pos)) ) )
+    if ( receivers( SIGNAL(contextMenuRequested(int, int, const QPoint &)) ) )
 	e->accept();
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
 	QRect r = cellGeometry( curRow, curCol );

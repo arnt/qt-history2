@@ -4434,7 +4434,7 @@ void QIconView::contentsMousePressEventEx( QMouseEvent *e )
 
 void QIconView::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    if ( receivers( SIGNAL(contextMenuRequested(QIconViewItem* item, const QPoint &pos)) ) )
+    if ( receivers( SIGNAL(contextMenuRequested(QIconViewItem*, const QPoint &)) ) )
 	e->accept();
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
 	QIconViewItem *item = currentItem();
