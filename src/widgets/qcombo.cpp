@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#14 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#14 $";
 #endif
 
 /*!
@@ -76,7 +76,7 @@ static inline bool checkInsertIndex( const char *method, int count, int *index)
 {
     if ( *index > count ) {
 #if defined(CHECK_RANGE)
-	warning( "QComboBox::%s Index %i out of range", method, index );
+	warning( "QComboBox::%s Index %d out of range", method, *index );
 #endif
 	return FALSE;
     }
