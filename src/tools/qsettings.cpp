@@ -598,7 +598,11 @@ void QSettings::insertSearchPath( System s, const QString &path)
     }
 #endif
 
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd && s != Unix ) {
+#else
+    if ( s != Unix ) {
+#endif
 #ifdef Q_OS_MAC
 	if(s != Mac) //mac is respected on the mac as well
 #endif
@@ -627,7 +631,11 @@ void QSettings::removeSearchPath( System s, const QString &path)
 	return;
     }
 #endif
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd && s != Unix ) {
+#else
+    if ( s != Unix ) {
+#endif
 #ifdef Q_OS_MAC
 	if(s != Mac) //mac is respected on the mac as well
 #endif
