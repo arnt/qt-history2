@@ -1,3 +1,16 @@
+1.06b -
+  
+   support for reading and writing libtool (.la) files
+   support for reading pkgconfig (.pkg) files
+
+   PWD added as an automatic variable to mean the directory
+   the file being parsed is in (this change required that the
+   directory be set to the file being parsed as well, function
+   tests that query relative paths will need to be relative the
+   file being parsed).
+
+   persistant data cache introduced
+
 1.05a -
 
   caching of more information (speed ups)
