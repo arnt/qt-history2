@@ -2484,11 +2484,11 @@ QString QAxBase::generateDocumentation()
     QStrList enumerators = mo->enumeratorNames();
     if ( enumerators.count() ) {
 	stream << "<hr><h2>Member Type Documentation</h2>" << endl;
-	for ( int i = 0; i < enumerators.count(); ++i ) {
+	for ( uint i = 0; i < enumerators.count(); ++i ) {
 	    const QMetaEnum *enumdata = mo->enumerator( enumerators.at(i) );
 	    stream << "<h3><a name=" << enumdata->name << "></a>" << enumdata->name << "</h3>" << endl;
 	    stream << "<ul>" << endl;
-	    for ( int e = 0; e < enumdata->count; ++e ) {
+	    for ( uint e = 0; e < enumdata->count; ++e ) {
 		const QMetaEnum::Item *item = enumdata->items+e;
 		stream << "<li>" << item->key << "\t=" << item->value << "</li>" << endl;
 	    }
