@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#54 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#55 $
 **
 ** Implementation of QDir class
 **
@@ -35,6 +35,10 @@
 #else
 #include <windows.h>
 #endif
+#endif
+#if defined(_OS_OS2EMX_)
+extern Q_UINT32 DosQueryCurrentDisk(Q_UINT32*,Q_UINT32*);
+#define NO_ERROR 0
 #endif
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
@@ -1593,6 +1597,13 @@ const QFileInfoList * QDir::drives()
 #if defined(_OS_WIN32_)
 
 	Q_UINT32 driveBits = (Q_UINT32) GetLogicalDrives() & 0x3ffffff;
+#elif defined(_OS_OS2EMX_)
+	Q_UINT32 driveBits, cur;
+	if (DosQueryCurrentDisk(&cur,&driveBits) != NO_ERROR)
+	    exit(1);
+	driveBits &= 0x3ffffff;
+#endif
+#if defined(_OS_WIN32_) || defined(_OS_OS2EMX_)
 	char driveName[4];
 	qstrcpy( driveName, "a:/" );
 	while( driveBits ) {
