@@ -55,22 +55,22 @@ shareddbg: Makefile.shareddbg
 Makefile.static: qtx11.pro qtinternal.pro Makefile
 	mkdir -p obj/static
 	tmake qtx11.pro -p qtinternal.pro -o Makefile.static "CONFIG+=staticlib" "OBJECTS_DIR=obj/static"
-	make include
+	make -s include
 
 Makefile.staticdbg: qtx11.pro qtinternal.pro Makefile
 	mkdir -p obj/staticdbg
 	tmake qtx11.pro -p qtinternal.pro -o Makefile.staticdbg "CONFIG+=staticlib debug" "OBJECTS_DIR=obj/staticdbg"
-	make include
+	make -s include
 
 Makefile.shared: qtx11.pro qtinternal.pro Makefile
 	mkdir -p obj/shared
 	tmake qtx11.pro -p qtinternal.pro -o Makefile.shared "OBJECTS_DIR=obj/shared"
-	make include
+	make -s include
 
 Makefile.shareddbg: qtx11.pro qtinternal.pro Makefile
 	mkdir -p obj/shareddbg
 	tmake qtx11.pro -p qtinternal.pro -o Makefile.shareddbg "CONFIG+=debug" "OBJECTS_DIR=obj/shareddbg"
-	make include
+	make -s include
 
 
 showdirs:
@@ -93,8 +93,8 @@ showx11only:
 
 
 include:
-	-rm -f $(INCDIR)/*.h
-	( cd $(INCDIR) ; \
+	-rm -f ../include/*.h
+	( cd ../include ; \
 	  ln -s -f ../src/tools/*.h . ; \
 	  ln -s -f ../src/kernel/*.h . ; \
 	  ln -s -f ../src/widgets/*.h . ; \
