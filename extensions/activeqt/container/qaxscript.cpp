@@ -510,8 +510,10 @@ QStringList QAxScriptEngine::functions() const
     add the COM objects the script need to access using addObject(). Then load()
     the script sources and invoke the functions using call().
 
-    The scripts provide feedback to the host application through a signal interface.
-    The most important signal is error().
+    Every script can have a name which can later be used to unload or access the
+    script engine created for each script. The script engines provide feedback to 
+    the application through signals. The most important signal is the error() 
+    signal.
 */
 
 /*!
