@@ -98,11 +98,14 @@ public:
 
   \value LineEdit  A QLineEdit is used for obtaining string or numeric
   input. The QLineEdit can be accessed using lineEdit().
+
   \value SpinBox  A QSpinBox is used for obtaining integer input.
   Use spinBox() to access the QSpinBox.
+
   \value ComboBox  A read-only QComboBox is used to provide a fixed
   list of choices from which the user can choose.
   Use comboBox() to access the QComboBox.
+
   \value EditableComboBox  An editable QComboBox is used to provide a fixed
   list of choices from which the user can choose, but which also
   allows the user to enter their own value instead.
@@ -119,15 +122,16 @@ public:
   \sa getText(), getInteger(), getDouble(), getItem()
 */
 
-QInputDialog::QInputDialog( const QString &label, QWidget* parent, const char* name,
-			  bool modal, Type type)
+QInputDialog::QInputDialog( const QString &label, QWidget* parent,
+			    const char* name, bool modal, Type type )
     : QDialog( parent, name, modal )
 {
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    if ( parent && parent->icon() &&!parent->icon()->isNull() )
+    if ( parent && parent->icon() && !parent->icon()->isNull() )
 	setIcon( *parent->icon() );
-    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
-	QDialog::setIcon( *qApp->mainWidget()->icon() );
+    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() &&
+	      !qApp->mainWidget()->icon()->isNull() )
+	setIcon( *qApp->mainWidget()->icon() );
 #endif
 
     d = new QInputDialogPrivate;
@@ -154,14 +158,11 @@ QInputDialog::QInputDialog( const QString &label, QWidget* parent, const char* n
     d->ok->setDefault( TRUE );
     QPushButton *cancel = new QPushButton( tr( "Cancel" ), this, "qt_cancel_btn" );
 
-    QSize bs( d->ok->sizeHint() );
-    if ( cancel->sizeHint().width() > bs.width() )
-	bs.setWidth( cancel->sizeHint().width() );
-
+    QSize bs = d->ok->sizeHint().expandedTo( cancel->sizeHint() );
     d->ok->setFixedSize( bs );
     cancel->setFixedSize( bs );
 
-    hbox->addWidget( new QWidget( this, "qt_hbox" ) );
+    hbox->addStretch();
     hbox->addWidget( d->ok );
     hbox->addWidget( cancel );
 
@@ -173,9 +174,9 @@ QInputDialog::QInputDialog( const QString &label, QWidget* parent, const char* n
     connect( d->ok, SIGNAL( clicked() ), this, SLOT( accept() ) );
     connect( cancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 
-    resize( QMAX( sizeHint().width(), 400 ), sizeHint().height() );
-
+    QSize sh = sizeHint();
     setType( type );
+    resize( QMAX( sh.width(), 400 ), 1 );
 }
 
 /*!
@@ -242,6 +243,7 @@ void QInputDialog::setType( Type t )
     }
     if ( input ) {
 	d->stack->raiseWidget( input );
+	d->stack->setFixedHeight( input->sizeHint().height() );
 	input->setFocus();
 	d->label->setBuddy( input );
     }
@@ -298,10 +300,13 @@ QInputDialog::~QInputDialog()
   \endcode
 */
 
-QString QInputDialog::getText( const QString &caption, const QString &label, QLineEdit::EchoMode mode,
-			      const QString &text, bool *ok, QWidget *parent, const char *name )
+QString QInputDialog::getText( const QString &caption, const QString &label,
+			       QLineEdit::EchoMode mode, const QString &text,
+			       bool *ok, QWidget *parent, const char *name )
 {
-    QInputDialog *dlg = new QInputDialog( label, parent, name ? name : "qt_inputdlg_gettext", TRUE, LineEdit );
+    QInputDialog *dlg = new QInputDialog( label, parent,
+					  name ? name : "qt_inputdlg_gettext",
+					  TRUE, LineEdit );
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg->setCaption( caption );
@@ -352,10 +357,13 @@ QString QInputDialog::getText( const QString &caption, const QString &label, QLi
   \endcode
 */
 
-int QInputDialog::getInteger( const QString &caption, const QString &label, int num, int from, int to, int step,
-			    bool *ok, QWidget *parent, const char *name )
+int QInputDialog::getInteger( const QString &caption, const QString &label,
+			      int num, int from, int to, int step, bool *ok,
+			      QWidget *parent, const char *name )
 {
-    QInputDialog *dlg = new QInputDialog( label, parent, name ? name : "qt_inputdlg_getint", TRUE, SpinBox );
+    QInputDialog *dlg = new QInputDialog( label, parent,
+					  name ? name : "qt_inputdlg_getint",
+					  TRUE, SpinBox );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg->setCaption( caption );
 #endif
@@ -407,11 +415,13 @@ int QInputDialog::getInteger( const QString &caption, const QString &label, int 
   \endcode
 */
 
-double QInputDialog::getDouble( const QString &caption, const QString &label, double num,
-				double from, double to, int decimals,
-				bool *ok, QWidget *parent, const char *name )
+double QInputDialog::getDouble( const QString &caption, const QString &label,
+				double num, double from, double to,
+				int decimals, bool *ok, QWidget *parent,
+				const char *name )
 {
-    QInputDialog dlg( label, parent, name ? name : "qt_inputdlg_getdbl", TRUE, LineEdit );
+    QInputDialog dlg( label, parent,
+		      name ? name : "qt_inputdlg_getdbl", TRUE, LineEdit );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg.setCaption( caption );
 #endif
@@ -426,37 +436,38 @@ double QInputDialog::getDouble( const QString &caption, const QString &label, do
 }
 
 /*!
-  Static convenience function to let the user select an item from a
-  string list. \a caption is the text which is displayed in the title
-  bar of the dialog. \a label is the text which is shown to the user (it
-  should say what should be entered). \a list is the
-  string list which is inserted into the combobox, and \a current is the number
-  of the item which should be the current item. If \a editable is TRUE
-  the user can enter their own text; if \a editable is FALSE the user
-  may only select one of the existing items.
+    Static convenience function to let the user select an item from a
+    string list. \a caption is the text which is displayed in the title
+    bar of the dialog. \a label is the text which is shown to the user (it
+    should say what should be entered). \a list is the
+    string list which is inserted into the combobox, and \a current is the number
+    of the item which should be the current item. If \a editable is TRUE
+    the user can enter their own text; if \a editable is FALSE the user
+    may only select one of the existing items.
 
-  If \a ok is not-null \e *\a ok will be set to TRUE if the user
-  pressed OK and to FALSE if the user pressed Cancel. The dialog's
-  parent is \a parent; the dialog is called \a name. The dialog will
-  be modal.
+    If \a ok is not-null \e *\a ok will be set to TRUE if the user
+    pressed OK and to FALSE if the user pressed Cancel. The dialog's
+    parent is \a parent; the dialog is called \a name. The dialog will
+    be modal.
 
-  This function returns the text of the current item, or if \a
-  editable is TRUE, the current text of the combobox.
+    This function returns the text of the current item, or if \a
+    editable is TRUE, the current text of the combobox.
 
-  Use this static function like this:
+    Use this static function like this:
 
-  \code
-  QStringList lst;
-  lst << "First" << "Second" << "Third" << "Fourth" << "Fifth";
-  bool ok = FALSE;
-  QString res = QInputDialog::getItem(
-		    tr( "Application name" ),
-		    tr( "Please select an item" ), lst, 1, TRUE, &ok, this );
-  if ( ok )
-      ;// user selected an item and pressed OK
-  else
-      ;// user pressed Cancel
-  \endcode
+    \code
+    QStringList lst;
+    lst << "First" << "Second" << "Third" << "Fourth" << "Fifth";
+    bool ok = FALSE;
+    QString res = QInputDialog::getItem(
+		      tr( "Application name" ),
+		      tr( "Please select an item" ), lst, 1, TRUE, &ok, this );
+    if ( ok ) {
+	// user selected an item and pressed OK
+    } else {
+	// user pressed Cancel
+    }
+    \endcode
 */
 
 QString QInputDialog::getItem( const QString &caption, const QString &label, const QStringList &list,
