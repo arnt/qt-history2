@@ -2223,8 +2223,10 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		    delete ev;
 		}
 	    }
+#if defined( QT_TABLET_SUPPORT )
 	    if ( tablet->isAccepted() )
 		chokeMouse = true;
+#endif
 	}
 	break;
     default:
