@@ -77,7 +77,7 @@
   There are three kinds of dialog that are useful:
     \list 1
   \i A <b>modal</b> dialog is a dialog that blocks input to other visible
-  windows in the same application: the user \e must finish interacting
+  windows in the same application: users must finish interacting
   with the dialog and close it before they can access any other window
   in the application. Modal dialogs have their own local event loop.
   Dialogs which are used to request a filename from the user or which
@@ -164,7 +164,7 @@
     semi-modal dialog.
 
     \sa QTabDialog QWidget QProgressDialog
-  \link guibooks.html#fowler GUI Design Handbook: Dialogs, Standard.\endlink
+  \link guibooks.html#fowler GUI Design Handbook: Dialogs, Standard\endlink
 */
 
 /*! \enum QDialog::DialogCode
@@ -321,7 +321,7 @@ void QDialog::hideDefault()
     Executes a modal dialog. Control passes to the dialog until the user
     closes it, at which point the local event loop finishes and the
     function returns with the \l DialogCode result.
-    The user will not be able to interact with any other window in
+    Users will not be able to interact with any other window in
     the same application until they close this dialog. For a modeless or
     semi-modal dialog use show().
 
