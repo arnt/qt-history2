@@ -87,7 +87,6 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qlistview.cpp \
 	widgets/qmainwindow.cpp \
         widgets/qmenu.cpp \
-        widgets/qmenu_mac.cpp \
 	widgets/qmenubar.cpp \
 	widgets/qmenudata.cpp \
 	widgets/qpopupmenu.cpp \
@@ -124,7 +123,7 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qworkspace.cpp
    
 
-!embedded:mac:SOURCES += widgets/qmenubar_mac.cpp
+!embedded:mac:SOURCES += widgets/qmenubar_mac.cpp widgets/qmenu_mac.cpp
 
 wince-* {
 	SOURCES += widgets/ce/qcemainwindow.cpp

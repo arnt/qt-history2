@@ -1,5 +1,5 @@
-#ifndef __Q4MENU_H__
-#define __Q4MENU_H__
+#ifndef __QMENU_H__
+#define __QMENU_H__
 
 #include <qwidget.h>
 #include <qstring.h>
@@ -67,7 +67,7 @@ private slots:
 private:
     friend class Q4MenuBar;
     friend class Q4MenuBarPrivate;
-    friend class Q4TornOffMenu;
+    friend class QTornOffMenu;
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
     Q4Menu(const Q4Menu &);
     Q4Menu &operator=(const Q4Menu &);

@@ -72,6 +72,7 @@ typedef struct OpaqueMenuHandle *MenuRef;
 typedef struct __EventLoopTimer *EventLoopTimerRef;
 typedef struct OpaqueMenuRef *MenuRef;
 #endif
+typedef char **MenuBarHandle;
 typedef struct OpaqueDragRef *DragRef;
 typedef struct OpaqueControlRef* ControlRef;
 typedef ControlRef HIViewRef;
