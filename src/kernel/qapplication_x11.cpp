@@ -830,19 +830,19 @@ bool QApplication::x11_apply_settings()
     QStringList strlist;
     int i, num;
     QPalette pal(QApplication::palette());
-    strlist = settings.readListEntry("/qt/Palette/active");
+    strlist = settings.readListEntry("/qt/Palette/active", ';');
     if (strlist.count() == QColorGroup::NColorRoles) {
 	for (i = 0; i < QColorGroup::NColorRoles; i++)
 	    pal.setColor(QPalette::Active, (QColorGroup::ColorRole) i,
 			 QColor(strlist[i]));
     }
-    strlist = settings.readListEntry("/qt/Palette/inactive");
+    strlist = settings.readListEntry("/qt/Palette/inactive", ';');
     if (strlist.count() == QColorGroup::NColorRoles) {
 	for (i = 0; i < QColorGroup::NColorRoles; i++)
 	    pal.setColor(QPalette::Inactive, (QColorGroup::ColorRole) i,
 			 QColor(strlist[i]));
     }
-    strlist = settings.readListEntry("/qt/Palette/disabled");
+    strlist = settings.readListEntry("/qt/Palette/disabled", ';');
     if (strlist.count() == QColorGroup::NColorRoles) {
 	for (i = 0; i < QColorGroup::NColorRoles; i++)
 	    pal.setColor(QPalette::Disabled, (QColorGroup::ColorRole) i,
@@ -899,8 +899,7 @@ bool QApplication::x11_apply_settings()
 			      QApplication::wheelScrollLines());
     QApplication::setWheelScrollLines(num);
 
-    QString colorspec = settings.readEntry("/qt/colorSpec",
-					   "default");
+    QString colorspec = settings.readEntry("/qt/colorSpec", "default");
     if (colorspec == "normal")
 	QApplication::setColorSpec(QApplication::NormalColor);
     else if (colorspec == "custom")
@@ -910,15 +909,14 @@ bool QApplication::x11_apply_settings()
     else if (colorspec != "default")
 	colorspec = "default";
 
-    QString defaultcodec = settings.readEntry("/qt/defaultCodec",
-					      "none");
+    QString defaultcodec = settings.readEntry("/qt/defaultCodec", "none");
     if (defaultcodec != "none") {
 	QTextCodec *codec = QTextCodec::codecForName(defaultcodec);
 	if (codec)
 	    qApp->setDefaultCodec(codec);
     }
 
-    QStringList strut = settings.readListEntry("/qt/globalStrut");
+    QStringList strut = settings.readListEntry("/qt/globalStrut", ';');
     if (! strut.isEmpty()) {
 	if (strut.count() == 2) {
 	    QSize sz(strut[0].toUInt(), strut[1].toUInt());
@@ -929,7 +927,7 @@ bool QApplication::x11_apply_settings()
     }
 
     QStringList effects =
-	settings.readListEntry("/qt/GUIEffects");
+	settings.readListEntry("/qt/GUIEffects", ';');
 
     if (! effects.isEmpty()) {
 	if ( effects.contains("none") )
@@ -958,7 +956,7 @@ bool QApplication::x11_apply_settings()
 	while (it != fontsubs.end()) {
 	    fam = (*it++).latin1();
 	    skey = "/qt/Font Substitutions/" + fam;
-	    subs = settings.readListEntry(skey);
+	    subs = settings.readListEntry(skey, ';');
 	    QFont::insertSubstitutions(fam, subs);
 	}
     }
