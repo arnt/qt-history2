@@ -2490,17 +2490,16 @@ void QWidget::macWidgetChangedWindow()
 {
 }
 
-void QWidget::setWindowTransparency(int)
+void QWidget::setWindowTransparency(int level)
 {
     if(!isTopLevel())
 	return;
     level = QMIN(QMAX(level, 0), 255);
     QMacSavedPortInfo::setAlphaTransparency(this, ((float)level * 1000 / 255) / 1000);
-    topData()->transparency = level;
-
+    d->topData()->transparency = level;
 }
 
 int QWidget::windowTransparency() const
 {
-    return isTopLevel() ? ((QWidget*)this)->topData()->transparency : 255;
+    return isTopLevel() ? (d->topData()->transparency) : 255;
 }
