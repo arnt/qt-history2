@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qpic2cpp/qpic2cpp.cpp#1 $
+** $Id: //depot/qt/main/util/qpic2cpp/qpic2cpp.cpp#2 $
 **
 ** This is a utility program for converting Qt metafiles to C++ code
 **
 ** Author  : Haavard Nord
 ** Created : 940802
 **
-** Copyright (C) 1994 by Haavard Nord.	All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This utility translates a portable Qt metafile into a standalone C++
@@ -21,9 +21,11 @@
 #include <qmetafil.h>
 #include <qrect.h>
 #include <qpntarry.h>
+#include <qwxfmat.h>
 #include <qcolor.h>
 #include <qfile.h>
 #include <qbuffer.h>
+#include <qdstream.h>
 
 
 static const UINT32 mfhdr_tag = 0x11140d06;	// header tag
@@ -41,14 +43,13 @@ int qMain( int argc, char **argv )		// plain main
     }
     int retcode = 0;
     QString fn = argv[1];			// get filename argument
-    QFile s( argv[1] );
-    if ( !s.open( Stream_ReadOnly ) ) {		// cannot open file
+    QFile file( argv[1] );
+    if ( !file.open( IO_ReadOnly ) ) {		// cannot open file
 	fprintf( stderr, "qmf2cpp: Cannot open %s", (char *)fn );
-	retcode = 1;
+	return 1;
     }
-    else if ( !genCPlusPlus( fn, s ) )		// could not translate metafile
+    if ( !genCPlusPlus( fn, file ) )		// could not translate metafile
 	retcode = 1;
-    s.close();
     return retcode;
 }
 
@@ -60,10 +61,12 @@ bool genCPlusPlus( QString fileName, QFile &file )
 	return FALSE;
     }
     QByteArray bytes( file.size() );		// create byte array
-    file.readBytes( bytes.data(), file.size() );// read metafile into array
+    file.readBlock( bytes.data(), file.size() );// read metafile into array
     file.close();
-    QBuffer s( bytes );				// use buffer stream
-    s.open( Stream_ReadOnly );
+    QBuffer iodevice( bytes );			// use buffer device
+    QDataStream s;
+    iodevice.open( IO_ReadOnly );
+    s.setDevice( &iodevice );    
     int pa_count = 0;
     int c, len, i1, i2;
     ulong ul;
@@ -92,7 +95,7 @@ bool genCPlusPlus( QString fileName, QFile &file )
     printf( "void paintIt( QPaintDevice *pdev )\n{\n" );
     printf( "    QPainter painter;\n" );
     printf( "    painter.begin( pdev );\n" );
-    while ( !s.atEnd() ) {
+    while ( !s.device()->atEnd() ) {
 	s >> c;					// get command
 	s >> len;				// get param length
 	if ( c == PDC_DRAWLINESEGS || c == PDC_DRAWPOLYLINE ||
@@ -105,7 +108,7 @@ bool genCPlusPlus( QString fileName, QFile &file )
 		    if ( i % 8 == 0 )
 			printf( "\n\t" );
 		}
-		printf( " %d,%d", a.point(i).getX(), a.point(i).getY() );
+		printf( " %d,%d", a.point(i).x(), a.point(i).y() );
 	    }
 	    printf( " };\n" );
 	    printf( "    QPointArray pa_%d( pa_data_%d, %d );\n",
@@ -207,9 +210,9 @@ bool genCPlusPlus( QString fileName, QFile &file )
 		printf( "setBrush( QBrush( QColor(%d,%d,%d), (BrushStyle)%d ) );\n",
 			color.red(), color.green(), color.blue(), i1 );
 		break;
-	    case PDC_SETXFORM:
+	    case PDC_SETVXFORM:
 	        s >> i1;
-	        printf( "setXForm( %d );\n", i1 );
+	        printf( "setViewXForm( %d );\n", i1 );
 	        break;
 	    case PDC_SETSOURCEVIEW:
 	        s >> r;
@@ -221,12 +224,24 @@ bool genCPlusPlus( QString fileName, QFile &file )
 	        printf( "setTargetView( QRect(%d,%d,%d,%d) );\n",
 			r.left(), r.top(), r.width(), r.height() );
 	        break;
+	    case PDC_SETWXFORM:
+	        s >> i1;
+	        printf( "setWorldXForm( %d );\n", i1 );
+	        break;
+	    case PDC_SETWXFMATRIX: {
+		QWXFMatrix m;
+		s >> m;
+	        printf( "setWxfMatrix( QWXFMatrix(%g,%g,%g,%g,%g,%g) );\n",
+			m.m11(), m.m12(), m.m21(), m.m22(), m.dx(), m.dy() );
+	        }
+		break;
+
 	    case PDC_END:
 		break;
 	    default:
 		if ( len )			// skip unknown params
-		    s.at( s.at()+len );
-		printf( "// NOTE: Skipping unsupported feature\n" );
+		    s.device()->at( s.device()->at()+len );
+		printf( "isActive(); // NOTE: Skipping unsupported feature\n");
 	}
     }
     printf( "    painter.end();\n}\n" );
