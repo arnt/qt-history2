@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>289</width>
-            <height>346</height>
+            <width>285</width>
+            <height>344</height>
         </rect>
     </property>
     <property stdset="1">
@@ -230,7 +230,7 @@
             <column>
                 <property>
                     <name>text</name>
-                    <string>Column 1</string>
+                    <string>Actions</string>
                 </property>
                 <property>
                     <name>clickable</name>

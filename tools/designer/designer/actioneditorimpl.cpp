@@ -27,10 +27,28 @@
 #include <qcheckbox.h>
 #include <qpushbutton.h>
 
+class ActionItem : public QListViewItem
+{
+public:
+    ActionItem( QListView *lv, bool group ) 
+	: QListViewItem( lv ),
+	  a( group ? new QActionGroup( 0 ) : new QAction( 0 ) ) {}
+    ActionItem( ActionItem *parent )
+	: QListViewItem( parent ),
+	  a( new QAction( parent->action() ) ) {}
+    ~ActionItem() { if ( !a->parent() ) delete a; }
+    
+    QAction *action() const { return a; }
+    
+private:
+    QAction *a;
+    
+};
+
 ActionEditor::ActionEditor( QWidget* parent,  const char* name, WFlags fl )
     : ActionEditorBase( parent, name, fl ), currentAction( 0 )
 {
-	enableAll( FALSE );
+    enableAll( FALSE );
 }
 
 void ActionEditor::closeEvent( QCloseEvent *e )
@@ -74,6 +92,9 @@ void ActionEditor::nameChanged( const QString & )
 
 void ActionEditor::newAction()
 {
+    ActionItem *i = new ActionItem( listActions, FALSE );
+    i->setText( 0, tr( "Action" ) );
+    listActions->setCurrentItem( i );
 }
 
 void ActionEditor::onChanged( bool )
