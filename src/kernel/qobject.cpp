@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#390 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#391 $
 **
 ** Implementation of QObject class
 **
@@ -1007,7 +1007,7 @@ QObjectList *QObject::queryList( const char *inheritsClass,
 	QRegExp rx(QString::fromLatin1(objName));
 	objSearch( list, (QObjectList *)children(), inheritsClass, onlyWidgets,
 		   0, &rx, recursiveSearch );
-    } else 
+    } else
 #endif
 	{
 	objSearch( list, (QObjectList *)children(), inheritsClass, onlyWidgets,
@@ -1876,7 +1876,7 @@ void QObject::notifyAccessibility( int reason )
 
   Reimplement this function for QObject subclasses that are accessible,
   and return a new object that implements the QAccessibleInterface. Do
-  not call \link QUnknownInterface::addRef() addRef() \endlink on the 
+  not call \link QUnknownInterface::addRef() addRef() \endlink on the
   returned object.
 
   The default implementation return always NULL.
@@ -2357,7 +2357,7 @@ bool QObject::qt_property( const QMetaProperty* _p, int _f, QVariant* _v)
     case 0:	 switch( _f ) {
 	case 0: setName(_v->asCString()); break;
 	case 1: { const QVariant v = QVariant( name() ); (*_v) = v; } break;
-	case 3: case 4: break;
+	case 3: case 4: case 5: break;
 	default: return FALSE;
     } break;
     default:

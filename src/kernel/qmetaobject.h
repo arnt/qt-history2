@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.h#85 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.h#86 $
 **
 ** Definition of QMetaObject class
 **
@@ -97,9 +97,9 @@ public:
     int keysToValue( const QStrList& keys ) const;
     QStrList valueToKeys( int value ) const;
 
-    bool stored( QObject* ) const;
     bool designable( QObject* ) const;
     bool scriptable( QObject* ) const;
+    bool stored( QObject* ) const;
 
     bool reset( QObject* ) const;
 

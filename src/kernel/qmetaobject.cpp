@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#139 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#140 $
 **
 ** Implementation of QMetaObject class
 **
@@ -777,17 +777,6 @@ QMetaProperty::~QMetaProperty()
 */
 
 /*!
-  Returns whether the property shall be stored for object \a o or
-  not.
- */
-bool QMetaProperty::stored( QObject* o ) const
-{
-    if ( !o || !testFlags( Writable ) || !testFlags( Readable ) )
-	return FALSE;
-    return o->qt_property( this, 5, 0 );
-}
-
-/*!
   Returns whether the property is designable for object \a o or
   not.
  */
@@ -807,6 +796,17 @@ bool QMetaProperty::scriptable( QObject* o ) const
     if ( !o || !testFlags( Readable) || !testFlags(Writable) )
 	return FALSE;
     return o->qt_property( this, 4, 0 );
+}
+
+/*!
+  Returns whether the property shall be stored for object \a o or
+  not.
+ */
+bool QMetaProperty::stored( QObject* o ) const
+{
+    if ( !o || !testFlags( Writable ) || !testFlags( Readable ) )
+	return FALSE;
+    return o->qt_property( this, 5, 0 );
 }
 
 
