@@ -724,10 +724,10 @@ best it can.
 This setting affects the coordinate system as returned by
 e.g. QPaintDeviceMetrics and QPainter::viewport().
 
-The default is system-dependent. At the time of writing, it's 72dpi on
-Unix systems and printer-dependent on Microsoft Windows.  We expect
-that better Unix print subsystems will become available and supported
-in the near future, however.
+The value depends on the PrintingMode used in the QPrinter constructor.
+By default, the dpi value of the screen is used.
+
+This function must be called before setup() to have an effect on all platforms.
 
 \sa resolution() setPageSize()
 */
