@@ -1628,6 +1628,7 @@ if [ "x$GIF" = "xno" ]; then
 elif [ "x$GIF" = "xyes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG gif"
 fi
+[ "x$ZLIB" = "xyes" ] && [ "x$MAC_PLATFORM" = "xyes" ] && ZLIB="system"
 if [ "x$ZLIB" = "xno" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG no-zlib"
 elif [ "x$ZLIB" = "xyes" ]; then
