@@ -158,6 +158,7 @@ void TreeWalker::accept(DomProperty *property)
         case DomProperty::Cursor:
         case DomProperty::Enum:
         case DomProperty::Font:
+        case DomProperty::Pixmap:
         case DomProperty::IconSet:
         case DomProperty::Palette:
         case DomProperty::Point:

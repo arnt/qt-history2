@@ -46,6 +46,7 @@ WriteInitialization::WriteInitialization(Driver *drv)
 
 void WriteInitialization::accept(DomUI *node)
 {
+    m_actionGroupChain.push(0);
     m_widgetChain.push(node->elementWidget());
     m_layoutChain.push(0);
 
@@ -102,6 +103,7 @@ void WriteInitialization::accept(DomUI *node)
 
     m_layoutChain.pop();
     m_widgetChain.pop();
+    m_actionGroupChain.pop();
 }
 
 void WriteInitialization::accept(DomWidget *node)
@@ -339,13 +341,27 @@ void WriteInitialization::accept(DomLayoutItem *node)
 
 void WriteInitialization::accept(DomActionGroup *node)
 {
+    QString actionName = driver->findOrInsertActionGroup(node);
+    QString varName = driver->findOrInsertWidget(m_widgetChain.top());
+
+    if (m_actionGroupChain.top())
+        varName = driver->findOrInsertActionGroup(m_actionGroupChain.top());
+
+    output << option.indent << actionName << " = new QActionGroup(" << varName << ");\n";
+    writePropertiesImpl(actionName, "QActionGroup", node->elementProperty());
+
+    m_actionGroupChain.push(node);
     TreeWalker::accept(node);
+    m_actionGroupChain.pop();
 }
 
 void WriteInitialization::accept(DomAction *node)
 {
     QString actionName = driver->findOrInsertAction(node);
     QString varName = driver->findOrInsertWidget(m_widgetChain.top());
+
+    if (m_actionGroupChain.top())
+        varName = driver->findOrInsertActionGroup(m_actionGroupChain.top());
 
     output << option.indent << actionName << " = new QAction(" << varName << ");\n";
     writePropertiesImpl(actionName, "QAction", node->elementProperty());
@@ -453,10 +469,14 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
             propertyValue = fontName;
             break;
         }
-        case DomProperty::IconSet: {
+        case DomProperty::IconSet:
             propertyValue = pixCall(p->elementIconSet());
             break;
-        }
+
+        case DomProperty::Pixmap:
+            propertyValue = pixCall(p->elementPixmap());
+            break;
+
         case DomProperty::Palette: {
             DomPalette *pal = p->elementPalette();
             QString paletteName = driver->findOrInsertName("palette");
@@ -547,8 +567,6 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
                             .arg(dt->elementSecond());
             break;
         }
-        default:
-            continue;
         }
 
         if (propertyValue.size()) {
@@ -681,10 +699,13 @@ void WriteInitialization::initializeListView(DomWidget *w)
                    << varName << "->header()->count() - 1, " << pixCall(pixmap->elementIconSet()) << ", " << txt << ");\n";
         }
 
-        if (!clickable)
+        if (!clickable) {
             output << option.indent << varName << "->header()->setClickEnabled(false, " << varName << "->header()->count() - 1);\n";
-        if (!resizable)
+        }
+
+        if (!resizable) {
             output << option.indent << varName << "->header()->setResizeEnabled(false, " << varName << "->header()->count() - 1);\n";
+        }
     }
 
     initializeListViewItems(className, varName, w->elementItem());
@@ -706,6 +727,10 @@ void WriteInitialization::initializeListViewItems(const QString &className, cons
             if (p->attributeName() == QLatin1String("text"))
                 output << option.indent << itemName << "->setText(" << i << ", "
                        << trCall(p->elementString(), className) << ");\n";
+
+            if (p->attributeName() == QLatin1String("pixmap"))
+                output << option.indent << itemName << "->setText(" << i << ", "
+                       << pixCall(p->elementPixmap()) << ");\n";
         }
 
         if (item->elementItem().size()) {
@@ -725,11 +750,10 @@ QString WriteInitialization::pixCall(const QString &pix) const
         if (m_pixmapFunction.size())
             s = m_pixmapFunction + "(" + s + ")";
 
-    } else {
-        return QLatin1String("icon(") + s + QLatin1String("_ID)");
+        return QString("QPixmap(%1)").arg(s);
     }
 
-    return QString("QPixmap(%1)").arg(s);
+    return QLatin1String("icon(") + s + QLatin1String("_ID)");
 }
 
 QString WriteInitialization::trCall(const QString &str, const QString &className) const

@@ -94,6 +94,7 @@ private:
 
     QStack<DomWidget*> m_widgetChain;
     QStack<DomLayout*> m_layoutChain;
+    QStack<DomActionGroup*> m_actionGroupChain;
     QList<Buddy> m_buddies;
 
     QHash<QString, DomWidget*> m_registerdWidgets;

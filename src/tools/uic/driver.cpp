@@ -120,12 +120,21 @@ QString Driver::unique(const QString &instanceName, const QString &className)
 
 QString Driver::qtify(const QString &name)
 {
-    QRegExp prefix("^[QK]?");
+    QString qname = name;
+    if (qname.at(0) == 'Q' || qname.at(0) == 'K')
+        qname = qname.mid(1);
 
-    if (prefix.indexIn(name) == -1)
-        return name;
+    int i=0;
+    while (i < qname.length()) {
+        if (qname.at(i).toLower() != qname.at(i))
+            qname[i] = qname.at(i).toLower();
+        else
+            break;
 
-    return name.mid(prefix.matchedLength());
+        ++i;
+    }
+
+    return qname;
 }
 
 QString Driver::headerFileName(const QString &fileName)

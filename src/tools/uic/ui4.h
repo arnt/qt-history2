@@ -1473,6 +1473,7 @@ public:
         Enum,
         Font,
         IconSet,
+        Pixmap,
         Palette,
         Point,
         Rect,
@@ -1519,6 +1520,9 @@ public:
 
     inline QString elementIconSet() const { return m_eIconSet; }
     inline void setElementIconSet(const QString & a) { reset(false); m_eIconSet = a; m_kind = IconSet; };
+
+    inline QString elementPixmap() const { return m_ePixmap; }
+    inline void setElementPixmap(const QString & a) { reset(false); m_ePixmap = a; m_kind = Pixmap; };
 
     inline DomPalette * elementPalette() const { return m_ePalette; }
     inline void setElementPalette(DomPalette * a) { reset(false); m_ePalette = a; m_kind = Palette; };
@@ -1579,6 +1583,7 @@ private:
     QString m_eEnum;
     DomFont * m_eFont;
     QString m_eIconSet;
+    QString m_ePixmap;
     DomPalette * m_ePalette;
     DomPoint * m_ePoint;
     DomRect * m_eRect;
@@ -2025,17 +2030,17 @@ inline void DomUI::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "author") { m_eAuthor = e.firstChild().toText().data(); }
-        else if (tag == "comment") { m_eComment = e.firstChild().toText().data(); }
-        else if (tag == "exportmacro") { m_eExportMacro = e.firstChild().toText().data(); }
-        else if (tag == "class") { m_eClass = e.firstChild().toText().data(); }
-        else if (tag == "widget") { DomWidget* v = new DomWidget(); v->read(e); m_eWidget = v; }
-        else if (tag == "layoutdefault") { DomLayoutDefault* v = new DomLayoutDefault(); v->read(e); m_eLayoutDefault = v; }
-        else if (tag == "layoutfunction") { DomLayoutFunction* v = new DomLayoutFunction(); v->read(e); m_eLayoutFunction = v; }
-        else if (tag == "pixmapfunction") { m_ePixmapFunction = e.firstChild().toText().data(); }
-        else if (tag == "customwidgets") { DomCustomWidgets* v = new DomCustomWidgets(); v->read(e); m_eCustomWidgets = v; }
-        else if (tag == "tabstops") { DomTabStops* v = new DomTabStops(); v->read(e); m_eTabStops = v; }
-        else if (tag == "images") { DomImages* v = new DomImages(); v->read(e); m_eImages = v; }
+        if (tag == QLatin1String("author")) { m_eAuthor = e.firstChild().toText().data(); }
+        else if (tag == QLatin1String("comment")) { m_eComment = e.firstChild().toText().data(); }
+        else if (tag == QLatin1String("exportmacro")) { m_eExportMacro = e.firstChild().toText().data(); }
+        else if (tag == QLatin1String("class")) { m_eClass = e.firstChild().toText().data(); }
+        else if (tag == QLatin1String("widget")) { DomWidget* v = new DomWidget(); v->read(e); m_eWidget = v; }
+        else if (tag == QLatin1String("layoutdefault")) { DomLayoutDefault* v = new DomLayoutDefault(); v->read(e); m_eLayoutDefault = v; }
+        else if (tag == QLatin1String("layoutfunction")) { DomLayoutFunction* v = new DomLayoutFunction(); v->read(e); m_eLayoutFunction = v; }
+        else if (tag == QLatin1String("pixmapfunction")) { m_ePixmapFunction = e.firstChild().toText().data(); }
+        else if (tag == QLatin1String("customwidgets")) { DomCustomWidgets* v = new DomCustomWidgets(); v->read(e); m_eCustomWidgets = v; }
+        else if (tag == QLatin1String("tabstops")) { DomTabStops* v = new DomTabStops(); v->read(e); m_eTabStops = v; }
+        else if (tag == QLatin1String("images")) { DomImages* v = new DomImages(); v->read(e); m_eImages = v; }
 
         e = e.nextSibling().toElement();
     }
@@ -2051,10 +2056,10 @@ inline void DomActionGroup::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "action") { DomAction* v = new DomAction(); v->read(e); m_eAction.append(v); }
-        else if (tag == "actiongroup") { DomActionGroup* v = new DomActionGroup(); v->read(e); m_eActionGroup.append(v); }
-        else if (tag == "property") { DomProperty* v = new DomProperty(); v->read(e); m_eProperty.append(v); }
-        else if (tag == "attribute") { DomProperty* v = new DomProperty(); v->read(e); m_eAttribute.append(v); }
+        if (tag == QLatin1String("action")) { DomAction* v = new DomAction(); v->read(e); m_eAction.append(v); }
+        else if (tag == QLatin1String("actiongroup")) { DomActionGroup* v = new DomActionGroup(); v->read(e); m_eActionGroup.append(v); }
+        else if (tag == QLatin1String("property")) { DomProperty* v = new DomProperty(); v->read(e); m_eProperty.append(v); }
+        else if (tag == QLatin1String("attribute")) { DomProperty* v = new DomProperty(); v->read(e); m_eAttribute.append(v); }
 
         e = e.nextSibling().toElement();
     }
@@ -2070,8 +2075,8 @@ inline void DomAction::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "property") { DomProperty* v = new DomProperty(); v->read(e); m_eProperty.append(v); }
-        else if (tag == "attribute") { DomProperty* v = new DomProperty(); v->read(e); m_eAttribute.append(v); }
+        if (tag == QLatin1String("property")) { DomProperty* v = new DomProperty(); v->read(e); m_eProperty.append(v); }
+        else if (tag == QLatin1String("attribute")) { DomProperty* v = new DomProperty(); v->read(e); m_eAttribute.append(v); }
 
         e = e.nextSibling().toElement();
     }
@@ -2101,7 +2106,7 @@ inline void DomImages::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "image") { DomImage* v = new DomImage(); v->read(e); m_eImage.append(v); }
+        if (tag == QLatin1String("image")) { DomImage* v = new DomImage(); v->read(e); m_eImage.append(v); }
 
         e = e.nextSibling().toElement();
     }
@@ -2117,7 +2122,7 @@ inline void DomImage::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "data") { DomImageData* v = new DomImageData(); v->read(e); m_eData = v; }
+        if (tag == QLatin1String("data")) { DomImageData* v = new DomImageData(); v->read(e); m_eData = v; }
 
         e = e.nextSibling().toElement();
     }
@@ -2148,7 +2153,7 @@ inline void DomCustomWidgets::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "customwidget") { DomCustomWidget* v = new DomCustomWidget(); v->read(e); m_eCustomWidget.append(v); }
+        if (tag == QLatin1String("customwidget")) { DomCustomWidget* v = new DomCustomWidget(); v->read(e); m_eCustomWidget.append(v); }
 
         e = e.nextSibling().toElement();
     }
@@ -2178,13 +2183,13 @@ inline void DomCustomWidget::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "class") { m_eClass = e.firstChild().toText().data(); }
-        else if (tag == "header") { DomHeader* v = new DomHeader(); v->read(e); m_eHeader = v; }
-        else if (tag == "sizehint") { DomSize* v = new DomSize(); v->read(e); m_eSizeHint = v; }
-        else if (tag == "container") { m_eContainer = e.firstChild().toText().data().toInt(); }
-        else if (tag == "sizepolicy") { DomSizePolicyData* v = new DomSizePolicyData(); v->read(e); m_eSizePolicy = v; }
-        else if (tag == "pixmap") { m_ePixmap = e.firstChild().toText().data(); }
-        else if (tag == "properties") { DomProperties* v = new DomProperties(); v->read(e); m_eProperties = v; }
+        if (tag == QLatin1String("class")) { m_eClass = e.firstChild().toText().data(); }
+        else if (tag == QLatin1String("header")) { DomHeader* v = new DomHeader(); v->read(e); m_eHeader = v; }
+        else if (tag == QLatin1String("sizehint")) { DomSize* v = new DomSize(); v->read(e); m_eSizeHint = v; }
+        else if (tag == QLatin1String("container")) { m_eContainer = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("sizepolicy")) { DomSizePolicyData* v = new DomSizePolicyData(); v->read(e); m_eSizePolicy = v; }
+        else if (tag == QLatin1String("pixmap")) { m_ePixmap = e.firstChild().toText().data(); }
+        else if (tag == QLatin1String("properties")) { DomProperties* v = new DomProperties(); v->read(e); m_eProperties = v; }
 
         e = e.nextSibling().toElement();
     }
@@ -2199,7 +2204,7 @@ inline void DomProperties::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "property") { DomPropertyData* v = new DomPropertyData(); v->read(e); m_eProperty.append(v); }
+        if (tag == QLatin1String("property")) { DomPropertyData* v = new DomPropertyData(); v->read(e); m_eProperty.append(v); }
 
         e = e.nextSibling().toElement();
     }
@@ -2229,8 +2234,8 @@ inline void DomSizePolicyData::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "hordata") { m_eHorData = e.firstChild().toText().data().toInt(); }
-        else if (tag == "verdata") { m_eVerData = e.firstChild().toText().data().toInt(); }
+        if (tag == QLatin1String("hordata")) { m_eHorData = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("verdata")) { m_eVerData = e.firstChild().toText().data().toInt(); }
 
         e = e.nextSibling().toElement();
     }
@@ -2277,7 +2282,7 @@ inline void DomTabStops::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "tabstop") { m_eTabStop.append(e.firstChild().toText().data()); }
+        if (tag == QLatin1String("tabstop")) { m_eTabStop.append(e.firstChild().toText().data()); }
 
         e = e.nextSibling().toElement();
     }
@@ -2293,9 +2298,9 @@ inline void DomLayout::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "property") { DomProperty* v = new DomProperty(); v->read(e); m_eProperty.append(v); }
-        else if (tag == "attribute") { DomProperty* v = new DomProperty(); v->read(e); m_eAttribute.append(v); }
-        else if (tag == "item") { DomLayoutItem* v = new DomLayoutItem(); v->read(e); m_eItem.append(v); }
+        if (tag == QLatin1String("property")) { DomProperty* v = new DomProperty(); v->read(e); m_eProperty.append(v); }
+        else if (tag == QLatin1String("attribute")) { DomProperty* v = new DomProperty(); v->read(e); m_eAttribute.append(v); }
+        else if (tag == QLatin1String("item")) { DomLayoutItem* v = new DomLayoutItem(); v->read(e); m_eItem.append(v); }
 
         e = e.nextSibling().toElement();
     }
@@ -2316,9 +2321,9 @@ inline void DomLayoutItem::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "widget") { DomWidget* v = new DomWidget(); v->read(e); m_eWidget = v; m_kind = Widget; }
-        else if (tag == "layout") { DomLayout* v = new DomLayout(); v->read(e); m_eLayout = v; m_kind = Layout; }
-        else if (tag == "spacer") { DomSpacer* v = new DomSpacer(); v->read(e); m_eSpacer = v; m_kind = Spacer; }
+        if (tag == QLatin1String("widget")) { DomWidget* v = new DomWidget(); v->read(e); m_eWidget = v; m_kind = Widget; }
+        else if (tag == QLatin1String("layout")) { DomLayout* v = new DomLayout(); v->read(e); m_eLayout = v; m_kind = Layout; }
+        else if (tag == QLatin1String("spacer")) { DomSpacer* v = new DomSpacer(); v->read(e); m_eSpacer = v; m_kind = Spacer; }
 
         e = e.nextSibling().toElement();
     }
@@ -2333,7 +2338,7 @@ inline void DomRow::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "property") { DomProperty* v = new DomProperty(); v->read(e); m_eProperty.append(v); }
+        if (tag == QLatin1String("property")) { DomProperty* v = new DomProperty(); v->read(e); m_eProperty.append(v); }
 
         e = e.nextSibling().toElement();
     }
@@ -2348,7 +2353,7 @@ inline void DomColumn::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "property") { DomProperty* v = new DomProperty(); v->read(e); m_eProperty.append(v); }
+        if (tag == QLatin1String("property")) { DomProperty* v = new DomProperty(); v->read(e); m_eProperty.append(v); }
 
         e = e.nextSibling().toElement();
     }
@@ -2363,8 +2368,8 @@ inline void DomItem::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "property") { DomProperty* v = new DomProperty(); v->read(e); m_eProperty.append(v); }
-        else if (tag == "item") { DomItem* v = new DomItem(); v->read(e); m_eItem.append(v); }
+        if (tag == QLatin1String("property")) { DomProperty* v = new DomProperty(); v->read(e); m_eProperty.append(v); }
+        else if (tag == QLatin1String("item")) { DomItem* v = new DomItem(); v->read(e); m_eItem.append(v); }
 
         e = e.nextSibling().toElement();
     }
@@ -2381,17 +2386,17 @@ inline void DomWidget::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "class") { m_eClass.append(e.firstChild().toText().data()); }
-        else if (tag == "property") { DomProperty* v = new DomProperty(); v->read(e); m_eProperty.append(v); }
-        else if (tag == "attribute") { DomProperty* v = new DomProperty(); v->read(e); m_eAttribute.append(v); }
-        else if (tag == "row") { DomRow* v = new DomRow(); v->read(e); m_eRow.append(v); }
-        else if (tag == "column") { DomColumn* v = new DomColumn(); v->read(e); m_eColumn.append(v); }
-        else if (tag == "item") { DomItem* v = new DomItem(); v->read(e); m_eItem.append(v); }
-        else if (tag == "layout") { DomLayout* v = new DomLayout(); v->read(e); m_eLayout.append(v); }
-        else if (tag == "widget") { DomWidget* v = new DomWidget(); v->read(e); m_eWidget.append(v); }
-        else if (tag == "action") { DomAction* v = new DomAction(); v->read(e); m_eAction.append(v); }
-        else if (tag == "actiongroup") { DomActionGroup* v = new DomActionGroup(); v->read(e); m_eActionGroup.append(v); }
-        else if (tag == "addaction") { DomActionRef* v = new DomActionRef(); v->read(e); m_eAddAction.append(v); }
+        if (tag == QLatin1String("class")) { m_eClass.append(e.firstChild().toText().data()); }
+        else if (tag == QLatin1String("property")) { DomProperty* v = new DomProperty(); v->read(e); m_eProperty.append(v); }
+        else if (tag == QLatin1String("attribute")) { DomProperty* v = new DomProperty(); v->read(e); m_eAttribute.append(v); }
+        else if (tag == QLatin1String("row")) { DomRow* v = new DomRow(); v->read(e); m_eRow.append(v); }
+        else if (tag == QLatin1String("column")) { DomColumn* v = new DomColumn(); v->read(e); m_eColumn.append(v); }
+        else if (tag == QLatin1String("item")) { DomItem* v = new DomItem(); v->read(e); m_eItem.append(v); }
+        else if (tag == QLatin1String("layout")) { DomLayout* v = new DomLayout(); v->read(e); m_eLayout.append(v); }
+        else if (tag == QLatin1String("widget")) { DomWidget* v = new DomWidget(); v->read(e); m_eWidget.append(v); }
+        else if (tag == QLatin1String("action")) { DomAction* v = new DomAction(); v->read(e); m_eAction.append(v); }
+        else if (tag == QLatin1String("actiongroup")) { DomActionGroup* v = new DomActionGroup(); v->read(e); m_eActionGroup.append(v); }
+        else if (tag == QLatin1String("addaction")) { DomActionRef* v = new DomActionRef(); v->read(e); m_eAddAction.append(v); }
 
         e = e.nextSibling().toElement();
     }
@@ -2407,7 +2412,7 @@ inline void DomSpacer::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "property") { DomProperty* v = new DomProperty(); v->read(e); m_eProperty.append(v); }
+        if (tag == QLatin1String("property")) { DomProperty* v = new DomProperty(); v->read(e); m_eProperty.append(v); }
 
         e = e.nextSibling().toElement();
     }
@@ -2422,9 +2427,9 @@ inline void DomColor::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "red") { m_eRed = e.firstChild().toText().data().toInt(); }
-        else if (tag == "green") { m_eGreen = e.firstChild().toText().data().toInt(); }
-        else if (tag == "blue") { m_eBlue = e.firstChild().toText().data().toInt(); }
+        if (tag == QLatin1String("red")) { m_eRed = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("green")) { m_eGreen = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("blue")) { m_eBlue = e.firstChild().toText().data().toInt(); }
 
         e = e.nextSibling().toElement();
     }
@@ -2439,7 +2444,7 @@ inline void DomColorGroup::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "color") { DomColor* v = new DomColor(); v->read(e); m_eColor.append(v); }
+        if (tag == QLatin1String("color")) { DomColor* v = new DomColor(); v->read(e); m_eColor.append(v); }
 
         e = e.nextSibling().toElement();
     }
@@ -2454,9 +2459,9 @@ inline void DomPalette::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "active") { DomColorGroup* v = new DomColorGroup(); v->read(e); m_eActive = v; }
-        else if (tag == "inactive") { DomColorGroup* v = new DomColorGroup(); v->read(e); m_eInactive = v; }
-        else if (tag == "disabled") { DomColorGroup* v = new DomColorGroup(); v->read(e); m_eDisabled = v; }
+        if (tag == QLatin1String("active")) { DomColorGroup* v = new DomColorGroup(); v->read(e); m_eActive = v; }
+        else if (tag == QLatin1String("inactive")) { DomColorGroup* v = new DomColorGroup(); v->read(e); m_eInactive = v; }
+        else if (tag == QLatin1String("disabled")) { DomColorGroup* v = new DomColorGroup(); v->read(e); m_eDisabled = v; }
 
         e = e.nextSibling().toElement();
     }
@@ -2471,13 +2476,13 @@ inline void DomFont::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "family") { m_eFamily = e.firstChild().toText().data(); }
-        else if (tag == "pointsize") { m_ePointSize = e.firstChild().toText().data().toInt(); }
-        else if (tag == "weight") { m_eWeight = e.firstChild().toText().data().toInt(); }
-        else if (tag == "italic") { m_eItalic = e.firstChild().toText().data().toInt(); }
-        else if (tag == "bold") { m_eBold = e.firstChild().toText().data().toInt(); }
-        else if (tag == "underline") { m_eUnderline = e.firstChild().toText().data().toInt(); }
-        else if (tag == "strikeout") { m_eStrikeOut = e.firstChild().toText().data().toInt(); }
+        if (tag == QLatin1String("family")) { m_eFamily = e.firstChild().toText().data(); }
+        else if (tag == QLatin1String("pointsize")) { m_ePointSize = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("weight")) { m_eWeight = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("italic")) { m_eItalic = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("bold")) { m_eBold = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("underline")) { m_eUnderline = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("strikeout")) { m_eStrikeOut = e.firstChild().toText().data().toInt(); }
 
         e = e.nextSibling().toElement();
     }
@@ -2492,8 +2497,8 @@ inline void DomPoint::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "x") { m_eX = e.firstChild().toText().data().toInt(); }
-        else if (tag == "y") { m_eY = e.firstChild().toText().data().toInt(); }
+        if (tag == QLatin1String("x")) { m_eX = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("y")) { m_eY = e.firstChild().toText().data().toInt(); }
 
         e = e.nextSibling().toElement();
     }
@@ -2508,10 +2513,10 @@ inline void DomRect::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "x") { m_eX = e.firstChild().toText().data().toInt(); }
-        else if (tag == "y") { m_eY = e.firstChild().toText().data().toInt(); }
-        else if (tag == "width") { m_eWidth = e.firstChild().toText().data().toInt(); }
-        else if (tag == "height") { m_eHeight = e.firstChild().toText().data().toInt(); }
+        if (tag == QLatin1String("x")) { m_eX = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("y")) { m_eY = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("width")) { m_eWidth = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("height")) { m_eHeight = e.firstChild().toText().data().toInt(); }
 
         e = e.nextSibling().toElement();
     }
@@ -2526,10 +2531,10 @@ inline void DomSizePolicy::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "hsizetype") { m_eHSizeType = e.firstChild().toText().data(); }
-        else if (tag == "vsizetype") { m_eVSizeType = e.firstChild().toText().data(); }
-        else if (tag == "horstretch") { m_eHorStretch = e.firstChild().toText().data().toInt(); }
-        else if (tag == "verstretch") { m_eVerStretch = e.firstChild().toText().data().toInt(); }
+        if (tag == QLatin1String("hsizetype")) { m_eHSizeType = e.firstChild().toText().data(); }
+        else if (tag == QLatin1String("vsizetype")) { m_eVSizeType = e.firstChild().toText().data(); }
+        else if (tag == QLatin1String("horstretch")) { m_eHorStretch = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("verstretch")) { m_eVerStretch = e.firstChild().toText().data().toInt(); }
 
         e = e.nextSibling().toElement();
     }
@@ -2544,8 +2549,8 @@ inline void DomSize::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "width") { m_eWidth = e.firstChild().toText().data().toInt(); }
-        else if (tag == "height") { m_eHeight = e.firstChild().toText().data().toInt(); }
+        if (tag == QLatin1String("width")) { m_eWidth = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("height")) { m_eHeight = e.firstChild().toText().data().toInt(); }
 
         e = e.nextSibling().toElement();
     }
@@ -2560,9 +2565,9 @@ inline void DomDate::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "year") { m_eYear = e.firstChild().toText().data().toInt(); }
-        else if (tag == "month") { m_eMonth = e.firstChild().toText().data().toInt(); }
-        else if (tag == "day") { m_eDay = e.firstChild().toText().data().toInt(); }
+        if (tag == QLatin1String("year")) { m_eYear = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("month")) { m_eMonth = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("day")) { m_eDay = e.firstChild().toText().data().toInt(); }
 
         e = e.nextSibling().toElement();
     }
@@ -2577,9 +2582,9 @@ inline void DomTime::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "hour") { m_eHour = e.firstChild().toText().data().toInt(); }
-        else if (tag == "minute") { m_eMinute = e.firstChild().toText().data().toInt(); }
-        else if (tag == "second") { m_eSecond = e.firstChild().toText().data().toInt(); }
+        if (tag == QLatin1String("hour")) { m_eHour = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("minute")) { m_eMinute = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("second")) { m_eSecond = e.firstChild().toText().data().toInt(); }
 
         e = e.nextSibling().toElement();
     }
@@ -2594,12 +2599,12 @@ inline void DomDateTime::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "hour") { m_eHour = e.firstChild().toText().data().toInt(); }
-        else if (tag == "minute") { m_eMinute = e.firstChild().toText().data().toInt(); }
-        else if (tag == "second") { m_eSecond = e.firstChild().toText().data().toInt(); }
-        else if (tag == "year") { m_eYear = e.firstChild().toText().data().toInt(); }
-        else if (tag == "month") { m_eMonth = e.firstChild().toText().data().toInt(); }
-        else if (tag == "day") { m_eDay = e.firstChild().toText().data().toInt(); }
+        if (tag == QLatin1String("hour")) { m_eHour = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("minute")) { m_eMinute = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("second")) { m_eSecond = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("year")) { m_eYear = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("month")) { m_eMonth = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("day")) { m_eDay = e.firstChild().toText().data().toInt(); }
 
         e = e.nextSibling().toElement();
     }
@@ -2614,7 +2619,7 @@ inline void DomStringList::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "string") { m_eString.append(e.firstChild().toText().data()); }
+        if (tag == QLatin1String("string")) { m_eString.append(e.firstChild().toText().data()); }
 
         e = e.nextSibling().toElement();
     }
@@ -2633,25 +2638,26 @@ inline void DomProperty::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == "bool") { m_eBool = e.firstChild().toText().data(); m_kind = Bool; }
-        else if (tag == "color") { DomColor* v = new DomColor(); v->read(e); m_eColor = v; m_kind = Color; }
-        else if (tag == "cstring") { m_eCstring = e.firstChild().toText().data(); m_kind = Cstring; }
-        else if (tag == "cursor") { m_eCursor = e.firstChild().toText().data().toInt(); m_kind = Cursor; }
-        else if (tag == "enum") { m_eEnum = e.firstChild().toText().data(); m_kind = Enum; }
-        else if (tag == "font") { DomFont* v = new DomFont(); v->read(e); m_eFont = v; m_kind = Font; }
-        else if (tag == "iconset") { m_eIconSet = e.firstChild().toText().data(); m_kind = IconSet; }
-        else if (tag == "palette") { DomPalette* v = new DomPalette(); v->read(e); m_ePalette = v; m_kind = Palette; }
-        else if (tag == "point") { DomPoint* v = new DomPoint(); v->read(e); m_ePoint = v; m_kind = Point; }
-        else if (tag == "rect") { DomRect* v = new DomRect(); v->read(e); m_eRect = v; m_kind = Rect; }
-        else if (tag == "set") { m_eSet = e.firstChild().toText().data(); m_kind = Set; }
-        else if (tag == "sizepolicy") { DomSizePolicy* v = new DomSizePolicy(); v->read(e); m_eSizePolicy = v; m_kind = SizePolicy; }
-        else if (tag == "size") { DomSize* v = new DomSize(); v->read(e); m_eSize = v; m_kind = Size; }
-        else if (tag == "string") { m_eString = e.firstChild().toText().data(); m_kind = String; }
-        else if (tag == "stringlist") { DomStringList* v = new DomStringList(); v->read(e); m_eStringList = v; m_kind = StringList; }
-        else if (tag == "number") { m_eNumber = e.firstChild().toText().data().toInt(); m_kind = Number; }
-        else if (tag == "date") { DomDate* v = new DomDate(); v->read(e); m_eDate = v; m_kind = Date; }
-        else if (tag == "time") { DomTime* v = new DomTime(); v->read(e); m_eTime = v; m_kind = Time; }
-        else if (tag == "datetime") { DomDateTime* v = new DomDateTime(); v->read(e); m_eDateTime = v; m_kind = DateTime; }
+        if (tag == QLatin1String("bool")) { m_eBool = e.firstChild().toText().data(); m_kind = Bool; }
+        else if (tag == QLatin1String("color")) { DomColor* v = new DomColor(); v->read(e); m_eColor = v; m_kind = Color; }
+        else if (tag == QLatin1String("cstring")) { m_eCstring = e.firstChild().toText().data(); m_kind = Cstring; }
+        else if (tag == QLatin1String("cursor")) { m_eCursor = e.firstChild().toText().data().toInt(); m_kind = Cursor; }
+        else if (tag == QLatin1String("enum")) { m_eEnum = e.firstChild().toText().data(); m_kind = Enum; }
+        else if (tag == QLatin1String("font")) { DomFont* v = new DomFont(); v->read(e); m_eFont = v; m_kind = Font; }
+        else if (tag == QLatin1String("iconset")) { m_eIconSet = e.firstChild().toText().data(); m_kind = IconSet; }
+        else if (tag == QLatin1String("pixmap")) { m_ePixmap = e.firstChild().toText().data(); m_kind = Pixmap; }
+        else if (tag == QLatin1String("palette")) { DomPalette* v = new DomPalette(); v->read(e); m_ePalette = v; m_kind = Palette; }
+        else if (tag == QLatin1String("point")) { DomPoint* v = new DomPoint(); v->read(e); m_ePoint = v; m_kind = Point; }
+        else if (tag == QLatin1String("rect")) { DomRect* v = new DomRect(); v->read(e); m_eRect = v; m_kind = Rect; }
+        else if (tag == QLatin1String("set")) { m_eSet = e.firstChild().toText().data(); m_kind = Set; }
+        else if (tag == QLatin1String("sizepolicy")) { DomSizePolicy* v = new DomSizePolicy(); v->read(e); m_eSizePolicy = v; m_kind = SizePolicy; }
+        else if (tag == QLatin1String("size")) { DomSize* v = new DomSize(); v->read(e); m_eSize = v; m_kind = Size; }
+        else if (tag == QLatin1String("string")) { m_eString = e.firstChild().toText().data(); m_kind = String; }
+        else if (tag == QLatin1String("stringlist")) { DomStringList* v = new DomStringList(); v->read(e); m_eStringList = v; m_kind = StringList; }
+        else if (tag == QLatin1String("number")) { m_eNumber = e.firstChild().toText().data().toInt(); m_kind = Number; }
+        else if (tag == QLatin1String("date")) { DomDate* v = new DomDate(); v->read(e); m_eDate = v; m_kind = Date; }
+        else if (tag == QLatin1String("time")) { DomTime* v = new DomTime(); v->read(e); m_eTime = v; m_kind = Time; }
+        else if (tag == QLatin1String("datetime")) { DomDateTime* v = new DomDateTime(); v->read(e); m_eDateTime = v; m_kind = DateTime; }
 
         e = e.nextSibling().toElement();
     }
@@ -3616,6 +3622,16 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
     if (m_eIconSet.size()) {
         child = doc.createElement("iconSet");
         t = doc.createTextNode(m_eIconSet);
+        child.appendChild(t);
+        node.appendChild(child);
+    }
+    }
+    break;
+
+    case DomProperty::Pixmap: {
+    if (m_ePixmap.size()) {
+        child = doc.createElement("pixmap");
+        t = doc.createTextNode(m_ePixmap);
         child.appendChild(t);
         node.appendChild(child);
     }
