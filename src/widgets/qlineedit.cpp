@@ -1364,6 +1364,23 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	d->dragTimer.stop();
 	d->lastMovePos = e->pos();
 	dragSlot();
+#ifdef Q_WS_MACX
+	if ((e->y() < 0) || (e->y() > height())) {
+	    int selStart = d->parag->at( d->parag->selectionStart( QTextDocument::Standard ) )->x;
+	    int selEnd = d->parag->at( d->parag->selectionEnd( QTextDocument::Standard ) )->x;
+	    int mousePos = e->pos().x() + d->offset - frameWidth() - margin() - 1;
+	    QTextParagraph *par;
+	    QTextCursor *c;
+	    d->getTextObjects(&par, &c);
+	    if (mousePos >  ((selEnd + selStart)/2))
+		c->gotoEnd();
+	    else
+		c->gotoHome();
+	    d->releaseTextObjects( &par, &c );
+	    updateSelection();
+	    update();
+	}
+#endif
     }
 }
 
