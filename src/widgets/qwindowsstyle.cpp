@@ -42,6 +42,7 @@
 #include "qpopupmenu.h"
 #include <limits.h>
 
+
 // NOT REVISED
 /*!
   \class QWindowsStyle qwindowsstyle.h
@@ -52,6 +53,7 @@
   plattform. Naturally it is also Qt's default GUI style on Windows.
 */
 
+extern Qt::WindowsVersion qt_winver;
 
 /*!
     Constructs a QWindowsStyle
@@ -66,6 +68,19 @@ QWindowsStyle::QWindowsStyle() : QCommonStyle(WindowsStyle)
 */
 QWindowsStyle::~QWindowsStyle()
 {
+}
+
+
+/*! \reimp */
+
+void QWindowsStyle::polish( QApplication* app )
+{
+    QPalette pal = app->palette();
+
+    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 ) {
+	pal.setColor( QColorGroup::Midlight, pal.active().button().light( 110 ) );
+	app->setPalette( pal );
+    }
 }
 
 /*! \reimp */
@@ -1166,10 +1181,14 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
     bool dis	  = !enabled;
     QColorGroup itemg = dis ? pal.disabled() : pal.active();
 
-    if ( checkable )
-	maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
-    int checkcol	  =     maxpmw;
+    if ( checkable ) {
+	if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 )
+	    maxpmw = QMAX( maxpmw, 16);
+	else
+	    maxpmw = QMAX( maxpmw, 16 ); // space for the checkmarks
+    }
 
+    int checkcol	  =     maxpmw;
 
     if ( mi && mi->isSeparator() ) {			// draw separator
 	p->setPen( g.dark() );

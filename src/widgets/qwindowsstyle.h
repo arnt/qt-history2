@@ -32,12 +32,16 @@
 
 #if QT_FEATURE_STYLE_WINDOWS
 
+class QApplication;
+
 class Q_EXPORT QWindowsStyle : public QCommonStyle
 {
     Q_OBJECT
 public:
     QWindowsStyle();
     virtual ~QWindowsStyle();
+
+    void polish( QApplication*);
     void drawButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
 		     const QBrush *fill = 0 );
