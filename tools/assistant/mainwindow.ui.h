@@ -80,7 +80,6 @@ void MainWindow::init()
     if (config->sideBarHidden())
 	dw->hide();
 
-    setObjectsEnabled(false);
     tabs->setup();
     QTimer::singleShot(0, this, SLOT(setup()));
 #if defined(Q_OS_MACX)
@@ -97,6 +96,8 @@ void MainWindow::setup()
     if(setupCompleted)
  return;
 
+    qApp->setOverrideCursor( QCursor( Qt::WaitCursor ) );
+    statusBar()->message( tr( "Initializing Qt Assistant..." ) );
     setupCompleted = true;
     helpDock->initialize();
     connect(actionGoPrevious, SIGNAL(activated()), tabs, SLOT(backward()));
@@ -144,7 +145,7 @@ void MainWindow::setup()
     PopupMenu->insertItem(tr("Vie&ws"), createDockWindowMenu());
     helpDock->tabWidget->setCurrentPage(config->sideBarPage());
 
-    setObjectsEnabled(true);
+    qApp->restoreOverrideCursor();
     actionGoPrevious->setEnabled(false);
     actionGoNext->setEnabled(false);
 }
@@ -195,25 +196,6 @@ bool MainWindow::insertActionSeparator()
     goMenu->insertSeparator();
     Toolbar->addSeparator();
     return true;
-}
-
-void MainWindow::setObjectsEnabled(bool b)
-{
-    if (b) {
-	qApp->restoreOverrideCursor();
-    } else {
-	qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
-	statusBar()->message(tr("Initializing Qt Assistant..."));
-    }
-    QObjectList l = queryList("QAction");
-    for (int i = 0; i < l.size(); ++i) {
-	QObject *obj = l.at(i);
-        ((QAction*)obj)->setEnabled(b);
-    }
-    foreach (QAction *a, goActions)
-	a->setEnabled(b);
-    menubar->setEnabled(b);
-    helpDock->setEnabled(b);
 }
 
 bool MainWindow::close(bool alsoDelete)

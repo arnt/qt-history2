@@ -620,7 +620,6 @@
 <slots>
     <slot>init()</slot>
     <slot>setup()</slot>
-    <slot>setObjectsEnabled( bool b )</slot>
     <slot>destroy()</slot>
     <slot>about()</slot>
     <slot>aboutApplication()</slot>
