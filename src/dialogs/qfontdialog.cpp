@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#95 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#96 $
 **
 ** Implementation of QFontDialog
 **
@@ -759,6 +759,8 @@ void QFontDialog::sizeHighlighted( const QString &s )
     updateSample();
 }
 
+enum match_t { MATCH_NONE=0, MATCH_LAST_RESORT=1, MATCH_DEFAULT=2, MATCH_FAMILY=3 };
+
 /*!
   Sets the font the QFontDialog highlights to \a f.
 
@@ -767,7 +769,6 @@ void QFontDialog::sizeHighlighted( const QString &s )
 
 void QFontDialog::setFont( const QFont &f )
 {
-    enum match_t { MATCH_NONE=0, MATCH_LAST_RESORT=1, MATCH_DEFAULT=2, MATCH_FAMILY=3 };
     QString foundryName1, familyName1, foundryName2, familyName2;
     int bestFamilyMatch = -1;
     match_t bestFamilyType = MATCH_NONE;
