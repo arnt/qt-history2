@@ -34,9 +34,6 @@
     <property name="caption">
         <string>Help</string>
     </property>
-    <property name="sizeGripEnabled" stdset="0">
-        <bool>true</bool>
-    </property>
     <property name="whatsThis" stdset="0">
         <string>&lt;b&gt;Help&lt;/b&gt;&lt;p&gt;Choose the topic you need help for from the contents list, or search the index for keywords.&lt;/p&gt;</string>
     </property>
