@@ -33,9 +33,13 @@
 #include "qscrollview.h"
 #include "qptrdict.h"
 #include "qapplication.h"
+#include "qtimer.h"
 
 
 const int coord_limit = 4000;
+static const int autoscroll_margin = 16;
+static const int initialScrollTime = 30;
+static const int initialScrollAccel = 5;
 
 struct QSVChildRec {
     QSVChildRec(QWidget* c, int xx, int yy) :
@@ -92,8 +96,9 @@ struct QScrollViewData {
 	hbar( QScrollBar::Horizontal, parent, "qt_hbar" ),
 	vbar( QScrollBar::Vertical, parent, "qt_vbar" ),
 	viewport( parent, "qt_viewport", vpwflags ),
-	clipped_viewport( 0 ),
-	vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 )
+	clipped_viewport( 0 ), 
+	vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 ),
+	autoscroll_timer( parent ), drag_autoscroll( TRUE )
     {
 	l_marg = r_marg = t_marg = b_marg = 0;
 	viewport.setBackgroundMode( QWidget::PaletteDark );
@@ -212,7 +217,12 @@ struct QScrollViewData {
     QScrollView::ResizePolicy policy;
     QScrollView::ScrollBarMode	vMode;
     QScrollView::ScrollBarMode	hMode;
-
+    QPoint cpDragStart;
+    QTimer autoscroll_timer;
+    int autoscroll_time;
+    int autoscroll_accel;
+    bool drag_autoscroll;
+    
     // This variable allows ensureVisible to move the contents then
     // update both the sliders.  Otherwise, updating the sliders would
     // cause two image scrolls, creating ugly flashing.
@@ -398,7 +408,9 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
     QFrame( parent, name, f & (~WNorthWestGravity) & (~WRepaintNoErase), FALSE )
 {
     d = new QScrollViewData(this,WResizeNoErase| (f&WPaintClever) | (f&WRepaintNoErase) | (f&WNorthWestGravity));
-
+    connect( &d->autoscroll_timer, SIGNAL( timeout() ),
+	     this, SLOT( doDragAutoScroll() ) );
+    
     connect( &d->hbar, SIGNAL( valueChanged( int ) ),
 	this, SLOT( hslide( int ) ) );
     connect( &d->vbar, SIGNAL( valueChanged( int ) ),
@@ -1087,13 +1099,25 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	case QEvent::DragEnter:
 	    viewportDragEnterEvent( (QDragEnterEvent*)e );
 	    break;
-	case QEvent::DragMove:
+	case QEvent::DragMove: {
+	    if ( d->drag_autoscroll ) {
+		QPoint vp = contentsToViewport( ( (QDragMoveEvent*)e )->pos() );
+		QRect inside_margin( autoscroll_margin, autoscroll_margin,
+				     visibleWidth() - autoscroll_margin * 2,
+				     visibleHeight() - autoscroll_margin * 2 );
+		if ( !inside_margin.contains( vp ) ) {
+		    startDragAutoScroll();
+		    ( (QDragMoveEvent*)e )->accept( QRect(0,0,0,0) ); // Keep sending move events
+		}
+	    }	    
 	    viewportDragMoveEvent( (QDragMoveEvent*)e );
-	    break;
+	} break;
 	case QEvent::DragLeave:
+	    stopDragAutoScroll();
 	    viewportDragLeaveEvent( (QDragLeaveEvent*)e );
 	    break;
 	case QEvent::Drop:
+	    stopDragAutoScroll();
 	    viewportDropEvent( (QDropEvent*)e );
 	    break;
 	case QEvent::Wheel:
@@ -2121,4 +2145,69 @@ QSize	QScrollView::minimumSizeHint() const
 void QScrollView::drawContents( QPainter * )
 {
     //implemented to get rid of a compiler warning.
+}
+
+/*!
+  \internal
+*/
+
+void QScrollView::startDragAutoScroll()
+{
+    if ( !d->autoscroll_timer.isActive() ) {
+        d->autoscroll_time = initialScrollTime;
+        d->autoscroll_accel = initialScrollAccel;
+        d->autoscroll_timer.start( d->autoscroll_time );
+    }
+}
+
+/*!
+  \internal
+*/
+
+void QScrollView::stopDragAutoScroll()
+{
+    d->autoscroll_timer.stop();
+}
+
+/*!
+  \internal
+*/
+
+void QScrollView::doDragAutoScroll()
+{
+    QPoint p = viewport()->mapFromGlobal( QCursor::pos() );
+
+    if ( d->autoscroll_accel-- <= 0 && d->autoscroll_time ) {
+        d->autoscroll_accel = initialScrollAccel;
+        d->autoscroll_time--;
+        d->autoscroll_timer.start( d->autoscroll_time );
+    }
+    int l = QMAX( 1, ( initialScrollTime- d->autoscroll_time ) );
+
+    int dx = 0, dy = 0;
+    if ( p.y() < autoscroll_margin ) {
+        dy = -l;
+    } else if ( p.y() > visibleHeight() - autoscroll_margin ) {
+        dy = +l;
+    }
+    if ( p.x() < autoscroll_margin ) {
+        dx = -l;
+    } else if ( p.x() > visibleWidth() - autoscroll_margin ) {
+        dx = +l;
+    }
+    if ( dx || dy ) {
+        scrollBy(dx,dy);
+    } else {
+        stopDragAutoScroll();
+    }
+}
+
+void QScrollView::setDragAutoScroll( bool b )
+{
+    d->drag_autoscroll = b;
+}
+
+bool QScrollView::dragAutoScroll() const
+{
+    return d->drag_autoscroll;
 }

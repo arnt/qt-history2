@@ -54,7 +54,7 @@ public:
 
 public slots:
     void setDir( const QString & );
-    
+
 signals:
     void folderSelected( const QString & );
 
@@ -80,16 +80,6 @@ private:
     QPoint presspos;
     bool mousePressed;
 
-    // ############# Move this to QScrollView
-private:
-    QTimer autoscroll_timer;
-    int autoscroll_time;
-    int autoscroll_accel;
-public slots:
-    void startAutoScroll();
-    void stopAutoScroll();
-protected slots:
-    void autoScroll();
 };
 
 #endif

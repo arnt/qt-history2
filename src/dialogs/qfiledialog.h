@@ -179,7 +179,6 @@ protected:
     void addToolButton( QButton *b, bool separator = FALSE );
     void addLeftWidget( QWidget *w );
     void addRightWidget( QWidget *w );
-    void drawDragShapes( const QPoint &pnt, bool multRow, int num );
     void addFilter( const QString &filter );
 
 private slots:

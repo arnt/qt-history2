@@ -523,12 +523,10 @@ private:
 private slots:
     void rename();
     void cancelRename();
-
-private slots:
     void doubleClickTimeout();
     void changeDirDuringDrag();
-    void doDragScroll();
     void dragObjDestroyed();
+    void contentsMoved( int, int );
 
 private:
     QRenameEdit *lined;
@@ -537,12 +535,11 @@ private:
     QTimer* renameTimer;
     QListBoxItem *renameItem;
     QPoint pressPos, oldDragPos;
-    bool mousePressed, eraseDragShape;
+    bool mousePressed;
     int urls;
     QString startDragDir;
     QListBoxItem *currDropItem;
     QTimer *changeDirTimer;
-    QTimer *dragScrollTimer;
     bool firstMousePressEvent;
     QUrlOperator startDragUrl;
 
@@ -579,13 +576,11 @@ private slots:
     void rename();
     void cancelRename();
     void changeSortColumn2( int column );
-
-private slots:
     void doubleClickTimeout();
     void changeDirDuringDrag();
-    void doDragScroll();
     void dragObjDestroyed();
-
+    void contentsMoved( int, int );
+    
 private:
     QRenameEdit *lined;
     QFileDialog *filedialog;
@@ -593,12 +588,11 @@ private:
     QTimer* renameTimer;
     QListViewItem *renameItem;
     QPoint pressPos, oldDragPos;
-    bool mousePressed, eraseDragShape;
+    bool mousePressed;
     int urls;
     QString startDragDir;
     QListViewItem *currDropItem;
     QTimer *changeDirTimer;
-    QTimer *dragScrollTimer;
     bool firstMousePressEvent;
     bool ascending;
     int sortcolumn;
@@ -942,7 +936,6 @@ QFileListBox::QFileListBox( QWidget *parent, QFileDialog *dlg )
       firstMousePressEvent( TRUE )
 {
     changeDirTimer = new QTimer( this );
-    dragScrollTimer = new QTimer( this );
     lined = new QRenameEdit( viewport() );
     lined->hide();
     renameTimer = new QTimer( this );
@@ -954,9 +947,8 @@ QFileListBox::QFileListBox( QWidget *parent, QFileDialog *dlg )
 	     this, SLOT( doubleClickTimeout() ) );
     connect( changeDirTimer, SIGNAL( timeout() ),
 	     this, SLOT( changeDirDuringDrag() ) );
-    connect( dragScrollTimer, SIGNAL( timeout() ),
-	     this, SLOT( doDragScroll() ) );
-
+    connect( this, SIGNAL( contentsMoving( int, int ) ),
+	     this, SLOT( contentsMoved( int, int ) ) );
     viewport()->setAcceptDrops( TRUE );
 }
 
@@ -1085,7 +1077,6 @@ void QFileListBox::viewportDragEnterEvent( QDragEnterEvent *e )
     startDragUrl = filedialog->url();
     startDragDir = filedialog->dirPath();
     currDropItem = 0;
-    eraseDragShape = TRUE;
 
     if ( !QUriDrag::canDecode( e ) ) {
 	e->ignore();
@@ -1104,22 +1095,11 @@ void QFileListBox::viewportDragEnterEvent( QDragEnterEvent *e )
 	setCurrentDropItem( QPoint( -1, -1 ) );
     }
 
-    filedialog->drawDragShapes( e->pos(), TRUE, urls );
     oldDragPos = e->pos();
 }
 
 void QFileListBox::viewportDragMoveEvent( QDragMoveEvent *e )
 {
-    if ( eraseDragShape )
-	filedialog->drawDragShapes( oldDragPos, TRUE, urls );
-
-    if ( ( e->pos().y() < 16 || e->pos().y() > viewport()->height() - 16 ||
-	   e->pos().x() < 16 || e->pos().x() > viewport()->width() - 16 ) && !
-	 dragScrollTimer->isActive() ) {
-	dragScrollTimer->start( 100, FALSE );
-	e->accept( QRect( 0, 0, 0, 0 ) ); // Keep sending move events
-    }
-
     if ( acceptDrop( e->pos(), e->source() ) ) {
 	switch ( e->action() ) {
 	case QDropEvent::Copy:
@@ -1141,16 +1121,12 @@ void QFileListBox::viewportDragMoveEvent( QDragMoveEvent *e )
 	setCurrentDropItem( QPoint( -1, -1 ) );
     }
 
-    filedialog->drawDragShapes( e->pos(), TRUE, urls );
     oldDragPos = e->pos();
-    eraseDragShape = TRUE;
 }
 
 void QFileListBox::viewportDragLeaveEvent( QDragLeaveEvent * )
 {
     changeDirTimer->stop();
-    dragScrollTimer->stop();
-    filedialog->drawDragShapes( oldDragPos, TRUE, urls );
     setCurrentDropItem( QPoint( -1, -1 ) );
 //########
 //     if ( startDragDir != filedialog->url() )
@@ -1160,7 +1136,6 @@ void QFileListBox::viewportDragLeaveEvent( QDragLeaveEvent * )
 void QFileListBox::viewportDropEvent( QDropEvent *e )
 {
     changeDirTimer->stop();
-    dragScrollTimer->stop();
 
     if ( !QUriDrag::canDecode( e ) ) {
 	e->ignore();
@@ -1193,36 +1168,6 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
     currDropItem = 0;
 }
 
-void QFileListBox::doDragScroll()
-{
-    renameTimer->stop();
-    changeDirTimer->stop();
-
-    QPoint p = viewport()->mapFromGlobal( QCursor::pos() );
-
-    int l = 16;
-
-    int dx = 0,dy = 0;
-    if ( p.y() < 16 && contentsY() != 0 ) {
-	dy = -l;
-    } else if ( p.y() > visibleHeight() - 16 ) {
-	dy = +l;
-    }
-    if ( p.x() < 16 && contentsX() != 0  ) {
-	dx = -l;
-    } else if ( p.x() > visibleWidth() - 16 ) {
-	dx = +l;
-    }
-    if ( dx || dy ) {
-	filedialog->drawDragShapes( oldDragPos, TRUE, urls );
-	scrollBy( dx, dy );
-	filedialog->drawDragShapes( oldDragPos, TRUE, urls );
-    } else {
-	changeDirTimer->start( 750, TRUE );
-	dragScrollTimer->stop();
-    }
-}
-
 bool QFileListBox::acceptDrop( const QPoint &pnt, QWidget *source )
 {
     QListBoxItem *item = itemAt( pnt );
@@ -1252,21 +1197,9 @@ void QFileListBox::setCurrentDropItem( const QPoint &pnt )
     if ( item && !itemRect( item ).contains( pnt ) )
 	item = 0;
 
-    QPainter p;
-    p.begin( viewport() );
-    p.setRasterOp( NotROP );
-    p.setPen( Qt::color0 );
-    p.setBrush( Qt::NoBrush );
-
-    if ( currDropItem )
-	style().drawFocusRect( &p, itemRect( currDropItem ), colorGroup() );
-
-    if ( item )
-	style().drawFocusRect( &p, itemRect( item ), colorGroup() );
-
-    p.end();
-
     currDropItem = item;
+    if ( currDropItem )
+	setCurrentItem( currDropItem );
     changeDirTimer->start( 750 );
 }
 
@@ -1278,7 +1211,6 @@ void QFileListBox::changeDirDuringDrag()
     QUrl u( filedialog->url(), currDropItem->text() );
     filedialog->setDir( u );
     currDropItem = 0;
-    eraseDragShape = FALSE;
 }
 
 void QFileListBox::doubleClickTimeout()
@@ -1341,6 +1273,12 @@ void QFileListBox::cancelRename()
     updateItem( currentItem() );
 }
 
+void QFileListBox::contentsMoved( int, int )
+{
+    changeDirTimer->stop();
+    setCurrentDropItem( QPoint( -1, -1 ) );
+}
+
 /************************************************************************
  *
  * Internal class QFileListView
@@ -1353,7 +1291,6 @@ QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
       firstMousePressEvent( TRUE )
 {
     changeDirTimer = new QTimer( this );
-    dragScrollTimer = new QTimer( this );
     lined = new QRenameEdit( viewport() );
     lined->hide();
     renameTimer = new QTimer( this );
@@ -1366,13 +1303,13 @@ QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
 	     this, SLOT( doubleClickTimeout() ) );
     connect( changeDirTimer, SIGNAL( timeout() ),
 	     this, SLOT( changeDirDuringDrag() ) );
-    connect( dragScrollTimer, SIGNAL( timeout() ),
-	     this, SLOT( doDragScroll() ) );
     disconnect( header(), SIGNAL( sectionClicked( int ) ),
 		this, SLOT( changeSortColumn( int ) ) );
     connect( header(), SIGNAL( sectionClicked( int ) ),
 	     this, SLOT( changeSortColumn2( int ) ) );
-
+    connect( this, SIGNAL( contentsMoving( int, int ) ),
+	     this, SLOT( contentsMoved( int, int ) ) );
+    
     viewport()->setAcceptDrops( TRUE );
     sortcolumn = 0;
     ascending = TRUE;
@@ -1511,7 +1448,6 @@ void QFileListView::viewportDragEnterEvent( QDragEnterEvent *e )
     startDragUrl = filedialog->url();
     startDragDir = filedialog->dirPath();
     currDropItem = 0;
-    eraseDragShape = TRUE;
 
     if ( !QUriDrag::canDecode( e ) ) {
 	e->ignore();
@@ -1530,22 +1466,11 @@ void QFileListView::viewportDragEnterEvent( QDragEnterEvent *e )
 	setCurrentDropItem( QPoint( -1, -1 ) );
     }
 
-    filedialog->drawDragShapes( e->pos(), FALSE, urls );
     oldDragPos = e->pos();
 }
 
 void QFileListView::viewportDragMoveEvent( QDragMoveEvent *e )
 {
-    if ( eraseDragShape )
-	filedialog->drawDragShapes( oldDragPos, FALSE, urls );
-
-    if ( ( e->pos().y() < 16 || e->pos().y() > viewport()->height() - 16 ||
-	   e->pos().x() < 16 || e->pos().x() > viewport()->width() - 16 ) && !
-	 dragScrollTimer->isActive() ) {
-	dragScrollTimer->start( 100, FALSE );
-	e->accept( QRect( 0, 0, 0, 0 ) ); // Keep sending move events
-    }
-
     if ( acceptDrop( e->pos(), e->source() ) ) {
 	if ( oldDragPos != e->pos() )
 	    setCurrentDropItem( e->pos() );
@@ -1567,16 +1492,12 @@ void QFileListView::viewportDragMoveEvent( QDragMoveEvent *e )
 	setCurrentDropItem( QPoint( -1, -1 ) );
     }
 
-    filedialog->drawDragShapes( e->pos(), FALSE, urls );
     oldDragPos = e->pos();
-    eraseDragShape = TRUE;
 }
 
 void QFileListView::viewportDragLeaveEvent( QDragLeaveEvent * )
 {
     changeDirTimer->stop();
-    dragScrollTimer->stop();
-    filedialog->drawDragShapes( oldDragPos, FALSE, urls );
     setCurrentDropItem( QPoint( -1, -1 ) );
 //########
 //     if ( startDragDir != filedialog->url() )
@@ -1586,7 +1507,7 @@ void QFileListView::viewportDragLeaveEvent( QDragLeaveEvent * )
 void QFileListView::viewportDropEvent( QDropEvent *e )
 {
     changeDirTimer->stop();
-    dragScrollTimer->stop();
+
 
     if ( !QUriDrag::canDecode( e ) ) {
 	e->ignore();
@@ -1615,36 +1536,6 @@ void QFileListView::viewportDropEvent( QDropEvent *e )
     // ##### what is supportAction for?
     e->acceptAction();
     currDropItem = 0;
-}
-
-void QFileListView::doDragScroll()
-{
-    renameTimer->stop();
-    changeDirTimer->stop();
-
-    QPoint p = viewport()->mapFromGlobal( QCursor::pos() );
-
-    int l = 16;
-
-    int dx = 0,dy = 0;
-    if ( p.y() < 16 && contentsY() != 0 ) {
-	dy = -l;
-    } else if ( p.y() > visibleHeight() - 16 ) {
-	dy = +l;
-    }
-    if ( p.x() < 16 && contentsX() != 0 ) {
-	dx = -l;
-    } else if ( p.x() > visibleWidth() - 16 ) {
-	dx = +l;
-    }
-    if ( dx || dy ) {
-	filedialog->drawDragShapes( oldDragPos, FALSE, urls );
-	scrollBy( dx, dy );
-	filedialog->drawDragShapes( oldDragPos, FALSE, urls );
-    } else {
-	changeDirTimer->start( 750, TRUE );
-	dragScrollTimer->stop();
-    }
 }
 
 bool QFileListView::acceptDrop( const QPoint &pnt, QWidget *source )
@@ -1676,21 +1567,11 @@ void QFileListView::setCurrentDropItem( const QPoint &pnt )
     if ( item && !itemRect( item ).contains( pnt ) )
 	item = 0;
 
-    QPainter p;
-    p.begin( viewport() );
-    p.setRasterOp( NotROP );
-    p.setPen( Qt::color0 );
-    p.setBrush( Qt::NoBrush );
-
-    if ( currDropItem )
-	style().drawFocusRect( &p, itemRect( currDropItem ), colorGroup() );
-
-    if ( item )
-	style().drawFocusRect( &p, itemRect( item ), colorGroup() );
-
-    p.end();
-
     currDropItem = item;
+    
+    if ( currDropItem )
+	setCurrentItem( currDropItem );
+    
     changeDirTimer->start( 750 );
 }
 
@@ -1702,7 +1583,6 @@ void QFileListView::changeDirDuringDrag()
     QUrl u( filedialog->url(), currDropItem->text( 0 ) );
     filedialog->setDir( u );
     currDropItem = 0;
-    eraseDragShape = FALSE;
 }
 
 void QFileListView::doubleClickTimeout()
@@ -1765,6 +1645,12 @@ void QFileListView::cancelRename()
     renaming = FALSE;
     if ( currentItem() )
 	currentItem()->repaint();
+}
+
+void QFileListView::contentsMoved( int, int )
+{
+    changeDirTimer->stop();
+    setCurrentDropItem( QPoint( -1, -1 ) );
 }
 
 QString QFileDialogPrivate::File::text( int column ) const
@@ -4126,42 +4012,6 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 
     return QDialog::eventFilter( o, e );
 }
-
-/*!
-  \internal
-*/
-
-void QFileDialog::drawDragShapes( const QPoint &pnt, bool multRow, int num )
-{
-    QPainter p;
-    p.begin( multRow ? d->moreFiles->viewport() : files->viewport() );
-    p.setRasterOp( NotROP );
-    p.setPen( Qt::color0 );
-    p.setBrush( Qt::NoBrush );
-
-    QFontMetrics fm( font() );
-    int w = 100;
-    int h = fm.height() + 4;
-
-    int maxRows = d->moreFiles->viewport()->height() / h;
-    int rows = multRow ? num < maxRows ? num : maxRows : num;
-
-    int cols = 1;
-    if ( rows < num )
-	cols = num / rows + 1;
-
-    for ( int c = 0; c < cols; ++c ) {
-	for ( int r = 0; r < rows; ++r ) {
-	    int x = pnt.x() + c * w;
-	    int y = pnt.y() + r * h;
-	    style().drawFocusRect( &p, QRect( x + 1 , y + 1, 20, h - 2 ), colorGroup() );
-	    style().drawFocusRect( &p, QRect( x + 22, y + h / 2 - 1, w - 23, 4 ), colorGroup() );
-	}
-    }
-
-    p.end();
-}
-
 
 /*!  Sets this file dialog to offer \a types in the File Type combo
   box.	\a types must be a null-terminated list of strings; each

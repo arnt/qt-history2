@@ -399,7 +399,8 @@ protected slots:
 
 private slots:
     void clearInputString();
-
+    void movedContents( int dx, int dy );
+    
 protected:
     virtual void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void contentsMousePressEvent( QMouseEvent *e );

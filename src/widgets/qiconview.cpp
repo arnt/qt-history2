@@ -140,7 +140,7 @@ struct QIconViewPrivate
     QFontMetrics *fm;
     int minLeftBearing, minRightBearing;
     bool containerUpdateLocked;
-
+    
     struct ItemContainer {
 	ItemContainer( ItemContainer *pr, ItemContainer *nx, const QRect &r )
 	    : p( pr ), n( nx ), rect( r ) {
@@ -1374,7 +1374,7 @@ void QIconViewItem::calcRect( const QString &text_ )
 	    r.setWidth( iconView()->maxItemWidth() - ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
 						       iconRect().width() ) - bearing );
     }
-    
+
     tw = r.width() + bearing;
     th = r.height();
     if ( tw < view->d->fm->width( "X" ) )
@@ -1996,7 +1996,9 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
 	     this, SLOT( clearInputString() ) );
     connect( d->fullRedrawTimer, SIGNAL( timeout() ),
 	     this, SLOT( updateContents() ) );
-
+    connect( this, SIGNAL( contentsMoving( int, int ) ),
+	     this, SLOT( movedContents( int, int ) ) );
+    
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
 
@@ -4255,6 +4257,9 @@ void QIconView::emitRenamed( QIconViewItem *item )
 
 void QIconView::drawDragShapes( const QPoint &pos )
 {
+    if ( pos == QPoint( -1, -1 ) )
+	return;
+    
     if ( !d->drawDragShapes ) {
 	d->drawDragShapes = TRUE;
 	return;
@@ -4880,7 +4885,7 @@ void QIconView::appendItemContainer()
 }
 
 /*!
-  \a internal
+  \internal
   Rebuilds the whole internal data structure. This is done when
   most certainly all items change their geometry (e.g. in alignItemsInGrid()), because
   calling this is then more efiicient than calling updateItemContainer() for each
@@ -4936,6 +4941,18 @@ void QIconView::rebuildContainers()
 		c = d->lastContainer;
 	    }
 	}
+    }
+}
+
+/*!
+  \internal
+*/
+
+void QIconView::movedContents( int, int )
+{
+    if ( d->drawDragShapes ) {
+	drawDragShapes( d->oldDragPos );
+	d->oldDragPos = QPoint( -1, -1 );
     }
 }
 
