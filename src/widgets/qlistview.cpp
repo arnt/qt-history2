@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#115 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#116 $
 **
 ** Implementation of QListView widget class
 **
@@ -111,6 +111,8 @@ struct QListViewPrivate
 
     // TRUE if the widget should take notice of mouseReleaseEvent
     bool buttonDown;
+    // TRUE if the widget should ignore a double-click
+    bool ignoreDoubleClick;
 
     // Per-column structure for information not in the QHeader
     struct Column {
@@ -167,16 +169,16 @@ struct QListViewPrivate
   setText(), add pixmaps using setPixmap(), change its mode using
   setSelectable(), setSelected(), setOpen() and setExpandable(),
   change its height using setHeight(), and do much tree traversal.
-  
+
   You can traverse the tree as if it were a doubly linked list using
   itemAbove() and itemBelow(); they return pointers to the items
   directly above and below this item on the screen (even if none of
   the three are actually visible at the moment).
-  
+
   You can also traverse it as a tree, using parent(), firstChild() and
   nextSibling().  This code does something to each of an item's
   children:
-  
+
   \code
     QListViewItem * myChild = myItem->firstChild();
     while( myChild ) {
@@ -189,7 +191,7 @@ struct QListViewPrivate
   order changes, and is undefined if the items are not visible.  You
   can however call enforceSortOrder() at any time, and QListView will
   always call it before it needs to show an item.
-  
+
   Many programs will need to reimplement QListViewItem.  The most
   commonly reimplemented functions are: <ul> <li> text() returns the
   text in a column.  Many subclasses will compute that on the
@@ -207,14 +209,14 @@ struct QListViewPrivate
   This example shows a number of root items in a QListView.  These
   items are actually subclassed from QListViewItem: The file size,
   type etc. are computed on the fly.
-  
+
   <img src="listview.gif" width="518" height="82" alt="Example List View">
 
   The next example shows a fraction of the dirview example.  Again,
   the Direcotory/Symbolic Link column is computed on the fly.  None of
   the items are root items; the \e usr item is a child of the root and
   the \e X11 item is a child of the \e usr item.
-  
+
   <img src="treeview.gif" width="256" height="216" alt="Example Tree View">
 */
 
@@ -676,7 +678,7 @@ void QListViewItem::enforceSortOrder() const
 /*!  Sets this item to be selected \a s is TRUE, and to not be
   selected if \a o is FALSE.
 
-  Thsi function does not maintain any invariants or repaint anything -
+  This function does not maintain any invariants or repaint anything -
   QListView::setSelected() does that.
 
   \sa ownHeight() totalHeight() */
@@ -804,7 +806,7 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
 
 /*!  Returns a pointer to the pixmap for \a column, or a null pointer
   if there is no pixmap for \a column.
-  
+
   \sa setText() setPixmap()
 */
 
@@ -1218,6 +1220,8 @@ QListView::QListView( QWidget * parent, const char * name )
     d->allColumnsShowFocus = FALSE;
     d->fontMetricsHeight = fontMetrics().height();
     d->h->setTracking(TRUE);
+    d->buttonDown = FALSE;
+    d->ignoreDoubleClick = FALSE;
 
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
@@ -2161,6 +2165,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
     if ( e->button() != LeftButton )
 	return;
 
+    d->ignoreDoubleClick = FALSE;
     d->buttonDown = TRUE;
 
     QListViewItem * i = itemAt( e->pos() );
@@ -2178,10 +2183,12 @@ void QListView::mousePressEvent( QMouseEvent * e )
 
 	if ( it.current() ) {
 	    x1 -= treeStepSize() * (it.current()->l - 1);
-	    if ( x1 >= 0 && x1 < treeStepSize() ) {
+	    if ( x1 >= 0 && ( !i->isSelectable() || x1 < treeStepSize() ) ) {
 		setOpen( i, !i->isOpen() );
 		if ( !d->currentSelected )
 		    setCurrentItem( i );
+		d->buttonDown = FALSE;
+		d->ignoreDoubleClick = TRUE;
 		d->buttonDown = FALSE;
 		return;
 	    }
@@ -2254,6 +2261,11 @@ void QListView::mouseDoubleClickEvent( QMouseEvent * e )
     // ignored.
     d->buttonDown = FALSE;
 
+    if ( d->ignoreDoubleClick ) {
+	d->ignoreDoubleClick = FALSE;
+	return;
+    }
+
     QListViewItem * i = itemAt( e->pos() );
 
     if ( !i ) {
@@ -2291,7 +2303,8 @@ void QListView::mouseMoveEvent( QMouseEvent * e )
 	}
     }
 
-    setSelected( i, d->select );
+    if ( i->isSelectable() )
+	setSelected( i, d->select );
 
     setCurrentItem( i );
 }
@@ -2577,7 +2590,7 @@ bool QListView::isMultiSelection() const
 
 void QListView::setSelected( QListViewItem * item, bool selected )
 {
-    if ( !item || item->isSelected() == selected )
+    if ( !item || item->isSelected() == selected || !item->isSelectable() )
 	return;
 
     if ( selected && !isMultiSelection() && d->currentSelected ) {
