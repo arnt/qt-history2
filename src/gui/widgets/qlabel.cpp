@@ -862,7 +862,7 @@ void QLabel::paintEvent(QPaintEvent *)
         if (!pix.isNull()) {
             if (!isEnabled() )
                 pix = style->generatedIconPixmap(QIcon::Disabled, pix, &opt);
-            style->drawItemPixmap(&paint, cr, align, palette(), pix);
+            style->drawItemPixmap(&paint, cr, align, pix);
         } else {
             style->drawItemText(&paint, cr, align, palette(), isEnabled(), d->ltext);
         }

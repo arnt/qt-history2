@@ -263,11 +263,11 @@ public:
     enum { Type = SO_Q3ListViewItem };
     enum { Version = 1 };
 
-    enum ListViewItemFeature { None = 0x00, Expandable = 0x01, MultiLine = 0x02, Visible = 0x04,
-                               ParentControl = 0x08 };
-    Q_DECLARE_FLAGS(ListViewItemFeatures, ListViewItemFeature)
+    enum Q3ListViewItemFeature { None = 0x00, Expandable = 0x01, MultiLine = 0x02, Visible = 0x04,
+                                 ParentControl = 0x08 };
+    Q_DECLARE_FLAGS(Q3ListViewItemFeatures, Q3ListViewItemFeature)
 
-    ListViewItemFeatures features;
+    Q3ListViewItemFeatures features;
     int height;
     int totalHeight;
     int itemY;
@@ -285,7 +285,7 @@ protected:
     QStyleOptionQ3ListViewItem(int version);
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionQ3ListViewItem::ListViewItemFeatures);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionQ3ListViewItem::Q3ListViewItemFeatures);
 
 class Q_GUI_EXPORT QStyleOptionQ3DockWindow : public QStyleOption
 {

@@ -130,10 +130,9 @@
 */
 
 /*!
-    \fn void QStylePainter::drawItemPixmap(const QRect &rect, int flags, const QPalette &pal,
-                                           const QPixmap &pixmap, const QColor *penColor)
+    \fn void QStylePainter::drawItemPixmap(const QRect &rect, int flags, const QPixmap &pixmap)
 
-    Draws the \a pixmap in rectangle \a rect using palette \a pal.
+    Draws the \a pixmap in rectangle \a rect.
     The pixmap is aligned according to \a flags.
 
     \sa QStyle::drawItemPixmap(), Qt::Alignment

@@ -1941,10 +1941,8 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 q->drawItemPixmap(p, mi->rect,
                                   Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip
                                   | Qt::TextSingleLine,
-                                  mi->palette,
                                   mi->icon.pixmap(q->pixelMetric(QStyle::PM_SmallIconSize),
-                          (mi->state & QStyle::State_Enabled) ? QIcon::Normal : QIcon::Disabled),
-                                  &mi->palette.buttonText().color());
+                          (mi->state & QStyle::State_Enabled) ? QIcon::Normal : QIcon::Disabled));
             } else {
                 q->drawItemText(p, mi->rect,
                                 Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip
@@ -3583,8 +3581,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             if (!mi->icon.isNull()) {
             q->drawItemPixmap(p, mi->rect,
                         Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
-                              mi->palette, mi->icon.pixmap(q->pixelMetric(QStyle::PM_SmallIconSize), (mi->state & QStyle::State_Enabled)? QIcon::Normal : QIcon::Disabled),
-                        &mi->palette.buttonText().color());
+                              mi->icon.pixmap(q->pixelMetric(QStyle::PM_SmallIconSize)));
             } else {
                 q->drawItemText(p, mi->rect,
                                 Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip
@@ -5191,7 +5188,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
 
                 QRect pixr = header->rect;
                 pixr.setY(header->rect.center().y() - (pixmap.height() - 1) / 2);
-                drawItemPixmap(p, pixr, Qt::AlignVCenter, header->palette, pixmap);
+                drawItemPixmap(p, pixr, Qt::AlignVCenter, pixmap);
                 textr.translate(pixmap.width() + 2, 0);
             }
 
@@ -5268,7 +5265,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                         }
                         pr.translate(shiftX, shiftY);
                         pixmap = darkenPixmap(pixmap);
-                        drawItemPixmap(p, pr, Qt::AlignCenter, tb->palette, pixmap);
+                        drawItemPixmap(p, pr, Qt::AlignCenter, pixmap);
                         break; }
                     }
                 } else {
@@ -5611,8 +5608,10 @@ void QMacStyle::drawItemText(QPainter *p, const QRect &r, int flags, const QPale
 #endif
 
 
-bool
-QMacStyle::event(QEvent *e)
+/*!
+  \reimp
+*/
+bool QMacStyle::event(QEvent *e)
 {
     if(e->type() == QEvent::FocusIn) {
         QWidget *f = 0;

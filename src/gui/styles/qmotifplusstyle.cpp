@@ -183,7 +183,7 @@ void QMotifPlusStyle::polish(QWidget *widget)
 
 
 /*! \reimp */
-void QMotifPlusStyle::unPolish(QWidget *widget)
+void QMotifPlusStyle::unpolish(QWidget *widget)
 {
     widget->removeEventFilter(this);
     QMotifStyle::unPolish(widget);
@@ -197,7 +197,7 @@ void QMotifPlusStyle::polish(QApplication *)
 
 
 /*! \reimp */
-void QMotifPlusStyle::unPolish(QApplication *)
+void QMotifPlusStyle::unpolish(QApplication *)
 {
 }
 

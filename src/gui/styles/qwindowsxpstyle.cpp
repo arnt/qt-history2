@@ -77,6 +77,7 @@
 #define q q_func()
 
 
+/*! \reimp */
 QRect QWindowsXPStyle::subRect(SubRect r, const QStyleOption *option, const QWidget *widget) const
 {
     QRect rect(option->rect);
@@ -87,6 +88,7 @@ QRect QWindowsXPStyle::subRect(SubRect r, const QStyleOption *option, const QWid
     return rect;
 }
 
+/*! \reimp */
 QPixmap QWindowsXPStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *option, const QWidget *widget) const
 {
     return QWindowsStyle::standardPixmap(standardPixmap, option, widget);
@@ -551,6 +553,9 @@ QWindowsXPStyle::QWindowsXPStyle()
     d_func()->q_ptr = this;
 }
 
+/*!
+  Construct a QWindowsStyle using a shared QWindowsXPStylePrivate \a dd
+*/
 QWindowsXPStyle::QWindowsXPStyle(QWindowsXPStylePrivate &dd)
     : QWindowsStyle()
 {
@@ -567,7 +572,7 @@ QWindowsXPStyle::~QWindowsXPStyle()
 }
 
 /*! \reimp */
-void QWindowsXPStyle::unPolish(QApplication *app)
+void QWindowsXPStyle::unpolish(QApplication *app)
 {
     QWindowsStyle::unpolish(app);
 }
@@ -669,7 +674,7 @@ void QWindowsXPStyle::polish(QWidget *widget)
 }
 
 /*! \reimp */
-void QWindowsXPStyle::unPolish(QWidget *widget)
+void QWindowsXPStyle::unpolish(QWidget *widget)
 {
     // Unpolish of widgets is the first thing that
     // happens when a theme changes, or the theme
@@ -1419,7 +1424,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 
             p->fillRect(rect, fill);
             if (!pix.isNull())
-                drawItemPixmap(p, mbi->rect, alignment, mbi->palette, pix, &mbi->palette.buttonText().color());
+                drawItemPixmap(p, mbi->rect, alignment, pix);
             else
                 drawItemText(p, mbi->rect, alignment, mbi->palette, mbi->state & State_Enabled, mbi->text, &textColor);
         }

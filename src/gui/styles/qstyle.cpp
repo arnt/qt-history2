@@ -357,7 +357,7 @@ QRect QStyle::itemTextRect(const QFontMetrics &metrics, const QRect &rect, int a
 
 /*!
     Returns the appropriate area within rectangle \a rect in
-    which to draw the \a pixmap.
+    which to draw the \a pixmap with alignment defined in \a alignment.
 */
 QRect QStyle::itemPixmapRect(const QRect &rect, int alignment, const QPixmap &pixmap) const
 {
@@ -415,17 +415,13 @@ void QStyle::drawItemText(QPainter *painter, const QRect &rect, int alignment, c
 }
 
 /*!
-    Draws the \a pixmap in rectangle \a rect using \a painter and the
-    palette \a pal.
+    Draws the \a pixmap in rectangle \a rect with alignment \a alignment using
+    \a painter.
 */
 
 void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
-                            const QPalette &pal, const QPixmap &pixmap,
-                            const QColor *penColor) const
+                            const QPixmap &pixmap) const
 {
-
-    painter->setPen(penColor?*penColor:pal.foreground().color());
-
     QRect aligned = alignedRect(QApplication::layoutDirection(), QFlag(alignment), pixmap.size(), rect);
     QRect inter = aligned.intersect(rect);
 
@@ -476,8 +472,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PE_FrameButtonBevel  Panel frame for a button bevel
     \value PE_FrameButtonTool  Panel frame for a tool button
 
-    \value PE_PanelHeader Panel Section of a list or table header; see also
-                                QHeader.
     \value PE_IndicatorHeaderArrow  Arrow used to indicate sorting on a list or table
         header
     \value PE_FrameStatusBar Frame for a section of a status bar; see also QStatusBar.
@@ -588,10 +582,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \i \l PE_IndicatorHeaderArrow \i \l QStyleOptionHeader
          \i \l State_Up \i Indicates that the arrow should be drawn up;
          otherwise it should be down.
-    \row \i{1,3} \l PE_PanelHeaderSection \i{1,3} \l QStyleOptionHeader
-         \i \l State_Sunken \i Indicates that the section is pressed.
-    \row \i \l State_Up \i Indicates that the sort indicator should be pointing up.
-    \row \i \l State_Off \i Indicates that the the section is not selected.
     \row \i \l PE_PanelGroupBox, \l PE_Panel, \l PE_PanelLineEdit,
             \l PE_PanelPopup, \l PE_PanelDockWindow
          \i \l QStyleOptionFrame \i \l State_Sunken
@@ -632,8 +622,9 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CE_RadioButton  A QRadioButton, draws a PE_ExclusiveRadioButton, a CE_RadioButtonLabel and a PE_FrameFocusRect
     \value CE_RadioButtonLabel  The label (text or pixmap) of a QRadioButton
 
-    \value CE_TabBarTab  The tab within a QTabBar (a QTab)
-    \value CE_TabBarLabel  The label within a QTab
+    \value CE_TabBarTab       The tab and label within a QTabBar
+    \value CE_TabBarTabShape  The tab shape within a tab bar
+    \value CE_TabBarTabLabel  The label within a tab
 
     \value CE_ProgressBar  A QProgressBar, draws CE_ProgressBarGroove, CE_ProgressBarContents and CE_ProgressBarLabel
     \value CE_ProgressBarGroove  The groove where the progress
@@ -750,6 +741,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \i \l State_Raised \i Set if the button is not down and is not on
     \row \i \l CE_ToolBoxTab \i \l QStyleOptionToolBox
          \i \l State_Selected \i The tab is the currently selected tab
+    \row \i{1,3} \l CE_HeaderSection \i{1,3} \l QStyleOptionHeader
+         \i \l State_Sunken \i Indicates that the section is pressed.
+    \row \i \l State_Up \i Indicates that the sort indicator should be pointing up.
+    \row \i \l State_Down \i Indicates that the sort indicator should be pointing down.
     \endtable
 
     \sa ControlElement, StyleFlags, QStyleOption
@@ -805,7 +800,11 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SR_HeaderArrow
     \value SR_HeaderLabel
 
-    \value SR_PanelTab
+    \value SR_TabWidgetLeftCorner
+    \value SR_TabWidgetRightCorner
+    \value SR_TabWidgetTabBar
+    \value SR_TabWidgetTabContents
+    \value SR_TabWidgetTabPane
 
     \sa subRect()
 */
@@ -1015,11 +1014,11 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     information for the functions.
 
     Note that \a pos is expressed in screen coordinates. When using
-    querySubControlMetrics() to check for hits and misses, use
+    subControlRect() to check for hits and misses, use
     visualRect() to change the logical coordinates into screen
     coordinates.
 
-    \sa drawComplexControl() ComplexControl SubControl querySubControlMetrics() QStyleOptionComplex
+    \sa drawComplexControl() ComplexControl SubControl subControlRect() QStyleOptionComplex
 */
 
 /*!
@@ -1144,6 +1143,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value PM_FocusFrameHMargin Horizontal margin that the focus frame will outset the widget by.
     \value PM_FocusFrameVMargin Vertical margin that the focus frame will outset the widget by.
+    \value PM_IconViewIconSize
+    \value PM_ListViewIconSize
 
     \sa pixelMetric()
 */
@@ -1245,6 +1246,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     and/or feel hint.
 
     \value SH_EtchDisabledText Disabled text is "etched" as it is on Windows.
+
+    \value SH_DitherDisabledText
 
     \value SH_GUIStyle The GUI style to use.
 
@@ -1479,6 +1482,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SP_FileDialogListView
     \value SP_FileDialogBack
     \value SP_ItemChecked
+    \value SP_ItemPartiallyChecked
     \value SP_ItemUnchecked
     \value SP_DockWindowCloseButton  Close button on dock windows (see also QDockWindow)
     \value SP_ToolBarHorizontalExtensionButton Extension button for horizontal toolbars

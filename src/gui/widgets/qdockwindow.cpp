@@ -181,7 +181,7 @@ void QDockWindowTitleButton::paintEvent(QPaintEvent *)
 
     r.addCoords(2, 2, -2, -2);
     QPixmap pm = icon().pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize), isEnabled() ? QIcon::Normal : QIcon::Disabled);
-    style()->drawItemPixmap(&p, r, Qt::AlignCenter, palette(), pm);
+    style()->drawItemPixmap(&p, r, Qt::AlignCenter, pm);
 }
 
 QDockWindowTitle::QDockWindowTitle(QDockWindow *tw)

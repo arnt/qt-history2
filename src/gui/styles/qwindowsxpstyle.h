@@ -33,10 +33,10 @@ public:
     QWindowsXPStyle();
     ~QWindowsXPStyle();
 
-    void unPolish(QApplication*);
+    void unpolish(QApplication*);
     void polish(QApplication*);
     void polish(QWidget*);
-    void unPolish(QWidget*);
+    void unpolish(QWidget*);
 
     void drawPrimitive(PrimitiveElement pe, const QStyleOption *option, QPainter *p,
                        const QWidget *widget = 0) const;
@@ -55,9 +55,6 @@ public:
                   QStyleHintReturn *returnData = 0) const;
     QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                            const QWidget *widget = 0) const;
-
-    void drawControlMask(ControlElement element, const QStyleOption *opt, QPainter *p,
-                         const QWidget *w = 0) const;
 
 protected:
     QWindowsXPStyle(QWindowsXPStylePrivate &d);

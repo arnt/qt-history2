@@ -54,6 +54,7 @@
 /*!
     \enum Qt::ArrowType
 
+    \value NoArrow
     \value UpArrow
     \value DownArrow
     \value LeftArrow
@@ -342,9 +343,7 @@ static const char * const filedialog_back_xpm [] = {
     ".....#......."};
 
 /*!
-    Draws the primitive element \a pe, with style options \a opt, on
-    painter \a p. The \a widget is optional and may contain a widget
-    that is useful for drawing the primitive.
+    \reimp
 */
 void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                                  const QWidget *widget) const
@@ -795,11 +794,8 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     }
 }
 
-#include <qdebug.h>
 /*!
-    Draws the control \a ce, with style options \a opt, on painter \a
-    p. The \a widget is optional and may contain a widget that is
-    useful for drawing the control.
+  \reimp
 */
 void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                                QPainter *p, const QWidget *widget) const
@@ -915,7 +911,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             QPixmap pix;
             if (!btn->icon.isNull()) {
                 pix = btn->icon.pixmap(pixelMetric(PM_SmallIconSize), btn->state & State_Enabled ? QIcon::Normal : QIcon::Disabled);
-                drawItemPixmap(p, btn->rect, alignment, btn->palette, pix);
+                drawItemPixmap(p, btn->rect, alignment, pix);
             } else {
                 drawItemText(p, btn->rect, alignment | Qt::TextShowMnemonic,
                              btn->palette, btn->state & State_Enabled, btn->text);
@@ -943,7 +939,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 alignment |= Qt::TextHideMnemonic;
             QPixmap pix = mbi->icon.pixmap(pixelMetric(PM_SmallIconSize),  (mbi->state & State_Enabled) ? QIcon::Normal : QIcon::Disabled);
             if (!pix.isNull())
-                drawItemPixmap(p,mbi->rect, alignment, mbi->palette, pix, &mbi->palette.buttonText().color());
+                drawItemPixmap(p,mbi->rect, alignment, pix);
             else
                 drawItemText(p, mbi->rect, alignment, mbi->palette, mbi->state & State_Enabled,
                              mbi->text, &mbi->palette.buttonText().color());
@@ -1062,7 +1058,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                     = header->icon.pixmap(pixelMetric(PM_SmallIconSize), (header->state & State_Enabled) ? QIcon::Normal : QIcon::Disabled);
                 int pixw = pixmap.width();
                 // "pixh - 1" because of tricky integer division
-                drawItemPixmap(p, rect, header->iconAlignment, header->palette, pixmap);
+                drawItemPixmap(p, rect, header->iconAlignment, pixmap);
                 if (header->direction == Qt::LeftToRight)
                     rect.setLeft(rect.left() + pixw + 2);
                 else
@@ -1143,13 +1139,13 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                             pr.addCoords(0, 3, 0, -fh - 3);
                             tr.addCoords(0, pr.bottom(), 0, -3);
                             pr.translate(shiftX, shiftY);
-                            drawItemPixmap(p, pr, Qt::AlignCenter, toolbutton->palette, pm);
+                            drawItemPixmap(p, pr, Qt::AlignCenter, pm);
                             alignment |= Qt::AlignCenter;
                         } else {
                             pr.setWidth(pm.width() + 8);
                             tr.addCoords(pr.right(), 0, 0, 0);
                             pr.translate(shiftX, shiftY);
-                            drawItemPixmap(p, pr, Qt::AlignCenter, toolbutton->palette, pm);
+                            drawItemPixmap(p, pr, Qt::AlignCenter, pm);
                             alignment |= Qt::AlignLeft | Qt::AlignVCenter;
                         }
                         tr.translate(shiftX, shiftY);
@@ -1157,7 +1153,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                                      toolbutton->state & State_Enabled, toolbutton->text, &btext);
                     } else {
                         rect.translate(shiftX, shiftY);
-                        drawItemPixmap(p, rect, Qt::AlignCenter, toolbutton->palette, pm);
+                        drawItemPixmap(p, rect, Qt::AlignCenter, pm);
                     }
                 }
             }
@@ -1429,9 +1425,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
 
 
 /*!
-    Returns the rectangle occupied by sub-rectangle \a sr, with style
-    options \a opt. The \a widget parameter is optional and may
-    contain a widget that is useful for drawing the sub-rectangle.
+  \reimp
 */
 QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *widget) const
 {
@@ -1736,9 +1730,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
 }
 
 /*!
-    Draws the complex control \a cc, with style options \a opt, on painter
-    \a p. The \a widget is optional and may contain a widget that is
-    useful for drawing the primitive.
+  \reimp
 */
 void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                       QPainter *p, const QWidget *widget) const
@@ -2080,7 +2072,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 if (down)
                     p->translate(pixelMetric(PM_ButtonShiftHorizontal, tb, widget),
                                  pixelMetric(PM_ButtonShiftVertical, tb, widget));
-                drawItemPixmap(p, ir, Qt::AlignCenter, tb->palette, pm);
+                drawItemPixmap(p, ir, Qt::AlignCenter, pm);
                 p->restore();
             }
 
@@ -2099,7 +2091,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 if (down)
                     p->translate(pixelMetric(PM_ButtonShiftHorizontal, tb, widget),
                                  pixelMetric(PM_ButtonShiftVertical, tb, widget));
-                drawItemPixmap(p, ir, Qt::AlignCenter, tb->palette, pm);
+                drawItemPixmap(p, ir, Qt::AlignCenter, pm);
                 p->restore();
             }
 
@@ -2125,7 +2117,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 if (down)
                     p->translate(pixelMetric(PM_ButtonShiftHorizontal, tb, widget),
                                  pixelMetric(PM_ButtonShiftVertical, tb, widget));
-                drawItemPixmap(p, ir, Qt::AlignCenter, tb->palette, pm);
+                drawItemPixmap(p, ir, Qt::AlignCenter, pm);
                 p->restore();
             }
 
@@ -2142,7 +2134,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 if (down)
                     p->translate(pixelMetric(PM_ButtonShiftHorizontal, tb, widget),
                                  pixelMetric(PM_ButtonShiftVertical, tb, widget));
-                drawItemPixmap(p, ir, Qt::AlignCenter, tb->palette, pm);
+                drawItemPixmap(p, ir, Qt::AlignCenter, pm);
                 p->restore();
             }
 
@@ -2159,7 +2151,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 if (down)
                     p->translate(pixelMetric(PM_ButtonShiftHorizontal, tb, widget),
                                  pixelMetric(PM_ButtonShiftVertical, tb, widget));
-                drawItemPixmap(p, ir, Qt::AlignCenter, tb->palette, pm);
+                drawItemPixmap(p, ir, Qt::AlignCenter, pm);
                 p->restore();
             }
             if (tb->subControls & SC_TitleBarContextHelpButton
@@ -2177,7 +2169,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 if (down)
                     p->translate(pixelMetric(PM_ButtonShiftHorizontal, tb, widget),
                                  pixelMetric(PM_ButtonShiftVertical, tb, widget));
-                drawItemPixmap(p, ir, Qt::AlignCenter, tb->palette, pm);
+                drawItemPixmap(p, ir, Qt::AlignCenter, pm);
                 p->restore();
             }
 #ifndef QT_NO_WIDGET_TOPEXTRA
@@ -2185,12 +2177,12 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 ir = visualRect(opt->direction, opt->rect,
                         subControlRect(CC_TitleBar, tb, SC_TitleBarSysMenu, widget));
                 if (!tb->icon.isNull()) {
-                    drawItemPixmap(p, ir, Qt::AlignCenter, tb->palette, tb->icon);
+                    drawItemPixmap(p, ir, Qt::AlignCenter, tb->icon);
                 } else {
                     pm = standardPixmap(SP_TitleBarMenuButton, &tool, widget);
                     tool.rect = ir;
                     p->save();
-                    drawItemPixmap(p, ir, Qt::AlignCenter, tb->palette, pm);
+                    drawItemPixmap(p, ir, Qt::AlignCenter, pm);
                     p->restore();
                 }
             }
@@ -2203,10 +2195,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 }
 
 /*!
-    Returns the sub-widget in the complex control \a cc, with style
-    options \a opt, at point \a pt, and with parent widget \a widget.
-
-    \sa subControlRect()
+    \reimp
 */
 QStyle::SubControl QCommonStyle::hitTestComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                                  const QPoint &pt, const QWidget *widget) const
@@ -2315,12 +2304,7 @@ QStyle::SubControl QCommonStyle::hitTestComplexControl(ComplexControl cc, const 
 }
 
 /*!
-    Returns the rectangle occupied by the complex control \a cc, with
-    style options \a opt, sub-control \a sc. The \a widget is optional
-    and may contain a widget that is useful for drawing the
-    sub-control.
-
-    \sa hitTestComplexControl()
+    \reimp
 */
 QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
                                            SubControl sc, const QWidget *widget) const
@@ -2868,10 +2852,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
 }
 
 /*!
-    Returns the size required by the contents of type \a ct, with
-    style options \a opt, original size \a csz.  The \a widget is
-    optional and may contain a widget that is useful for calculating
-    the size.
+    \reimp
 */
 QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                                      const QSize &csz, const QWidget *widget) const

@@ -571,7 +571,6 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         d->dirty = true;
         return; // we'll do it later
     }
-
     QStyleOptionTabWidgetFrame option = d->getStyleOption();
 
     QRect tabRect = style()->subRect(QStyle::SR_TabWidgetTabBar, &option, this);
@@ -586,7 +585,7 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         d->leftCornerWidget->setGeometry(leftCornerRect);
     if (d->rightCornerWidget)
         d->rightCornerWidget->setGeometry(rightCornerRect);
-    
+
     if (!onlyCheck)
         update();
     updateGeometry();

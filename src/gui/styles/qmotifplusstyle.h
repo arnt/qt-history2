@@ -35,10 +35,10 @@ public:
 
     void polish(QPalette &pal);
     void polish(QWidget *widget);
-    void unPolish(QWidget*widget);
+    void unpolish(QWidget*widget);
 
     void polish(QApplication *app);
-    void unPolish(QApplication *app);
+    void unpolish(QApplication *app);
 
     void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                         const QWidget *w = 0) const;

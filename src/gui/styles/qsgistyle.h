@@ -39,9 +39,9 @@ public:
     using QMotifStyle::polish;
 #endif
     void polish(QWidget*);
-    void unPolish(QWidget*);
+    void unpolish(QWidget*);
     void polish(QApplication*);
-    void unPolish(QApplication*);
+    void unpolish(QApplication*);
 
     void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                        const QWidget *w = 0) const;
@@ -59,7 +59,7 @@ public:
 
     QRect subRect(SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const;
 
-    QRect querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc,
+    QRect subControlRect(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc,
                                  const QWidget *w = 0) const;
 
 protected:

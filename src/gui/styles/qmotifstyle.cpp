@@ -2240,8 +2240,8 @@ QMotifStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *o
     return QCommonStyle::standardPixmap(standardPixmap, opt, widget);
 }
 
-bool
-QMotifStyle::event(QEvent *e)
+/*! \reimp */
+bool QMotifStyle::event(QEvent *e)
 {
     if(e->type() == QEvent::FocusIn) {
         if (QApplication::focusWidget()) {

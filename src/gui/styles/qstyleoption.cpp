@@ -101,6 +101,7 @@
     \value SO_FocusRect \l QStyleOptionFocusRect
     \value SO_Button \l QStyleOptionButton
     \value SO_Tab \l QStyleOptionTab
+    \value SO_TabWidgetFrame \l QStyleOptionTabWidgetFrame
     \value SO_MenuItem \l QStyleOptionMenuItem
     \value SO_Complex \l QStyleOptionComplex
     \value SO_Slider \l QStyleOptionSlider
@@ -469,12 +470,6 @@ QStyleOptionTab::QStyleOptionTab(int version)
     \property QStyleOptionTab::shape
     \brief The tab shape used to draw the tab.
     \sa QTabBar::Shape
-*/
-
-/*!
-    \property QStyleOptionTab::orientation
-    \brief The orientation of the tab.
-    \sa Qt::Orientation
 */
 
 /*!
@@ -1411,17 +1406,6 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
     \value Bottom Below the text.
 
     \sa decorationPosition
-*/
-
-/*!
-    \enum QStyleOptionViewItem::Size
-
-    This enum describes the size of the item's decoration size.
-
-    \value Small Small decorations.
-    \value Large Large decorations.
-
-    \sa decorationSize
 */
 
 /*!

@@ -56,9 +56,7 @@ public:
                               const QString &text, const QColor *penColor = 0) const;
 
     virtual void drawItemPixmap(QPainter *painter, const QRect &rect,
-                                int alignment, const QPalette &pal,
-                                const QPixmap &pixmap,
-                                const QColor *penColor = 0) const;
+                                int alignment, const QPixmap &pixmap) const;
 
     enum StateFlag {
         State_None    =       0x00000000,
