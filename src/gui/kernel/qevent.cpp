@@ -2036,7 +2036,7 @@ QShortcutEvent::~QShortcutEvent()
 {
 }
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QEvent *e) {
 #ifndef Q_NO_STREAMING_DEBUG
     // More useful event output could be added here

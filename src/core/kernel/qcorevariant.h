@@ -412,7 +412,7 @@ template<> QUrl QVariant_to<QUrl>(const QCoreVariant &v);
 Q_DECLARE_SHARED(QCoreVariant);
 Q_DECLARE_TYPEINFO(QCoreVariant, Q_MOVABLE_TYPE);
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QCoreVariant &);
 #endif
 

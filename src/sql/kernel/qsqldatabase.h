@@ -112,7 +112,7 @@ private:
     QSqlDatabasePrivate *d;
 };
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 Q_SQL_EXPORT QDebug operator<<(QDebug, const QSqlDatabase &);
 #endif
 

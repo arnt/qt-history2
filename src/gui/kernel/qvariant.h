@@ -262,7 +262,7 @@ template<> QSizePolicy QVariant_to<QSizePolicy>(const QCoreVariant &v);
 Q_DECLARE_SHARED(QVariant);
 Q_DECLARE_TYPEINFO(QVariant, Q_MOVABLE_TYPE);
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QVariant &);
 #endif
 

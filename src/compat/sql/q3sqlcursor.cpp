@@ -42,18 +42,18 @@ public:
         return q;
     }
 
-    int               lastAt;
-    QString           nm;         //name
-    QSqlIndex         srt;        //sort
-    QString           ftr;        //filter
-    int               md;         //mode
-    QSqlIndex         priIndx;    //primary index
-    QSqlRecord        editBuffer;
+    int lastAt;
+    QString nm;         //name
+    QSqlIndex srt;        //sort
+    QString ftr;        //filter
+    int md;         //mode
+    QSqlIndex priIndx;    //primary index
+    QSqlRecord editBuffer;
     // the primary index as it was before the user changed the values in editBuffer
-    QString           editIndex;
-    Q3SqlRecordInfo    infoBuffer;
-    QSqlDatabase      db;
-    QSqlQuery*        q;
+    QString editIndex;
+    Q3SqlRecordInfo infoBuffer;
+    QSqlDatabase db;
+    QSqlQuery *q;
 };
 
 QString qOrderByClause(const QSqlIndex & i, const QString& prefix = QString())
@@ -1072,6 +1072,7 @@ int Q3SqlCursor::insert(bool invalidate)
 
 QSqlRecord* Q3SqlCursor::editBuffer(bool copy)
 {
+    sync();
     if (copy) {
         for(int i = 0; i < d->editBuffer.count(); i++) {
             if (QSqlRecord::isNull(i)) {
@@ -1458,15 +1459,6 @@ void Q3SqlCursor::sync()
     }
 }
 
-/*! \reimp
-
-*/
-
-void Q3SqlCursor::afterSeek()
-{
-    sync();
-}
-
 /*!
     \reimp
 
@@ -1475,6 +1467,7 @@ void Q3SqlCursor::afterSeek()
 
 QCoreVariant Q3SqlCursor::value(int i) const
 {
+    sync();
     return QSqlRecord::value(i);
 }
 
@@ -1494,6 +1487,7 @@ void Q3SqlCursor::append(const QSqlField& field)
 */
 bool Q3SqlCursor::isNull(int i) const
 {
+    sync();
     return QSqlRecord::isNull(i);
 }
 /*!
@@ -1506,12 +1500,14 @@ bool Q3SqlCursor::isNull(int i) const
 */
 bool Q3SqlCursor::isNull(const QString& name) const
 {
+    sync();
     return QSqlRecord::isNull(name);
 }
 
 /*! \internal */
 void Q3SqlCursor::setValue(int i, const QCoreVariant& val)
 {
+    sync();
 #ifdef QT_DEBUG
     qDebug("Q3SqlCursor::setValue(): This will not affect actual database values. Use primeInsert(), primeUpdate() or primeDelete().");
 #endif

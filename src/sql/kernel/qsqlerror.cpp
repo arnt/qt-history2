@@ -14,7 +14,7 @@
 #include "qsqlerror.h"
 #include "qdebug.h"
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QSqlError &s)
 {
     dbg.nospace() << "QSqlError(" << s.number() << ", \"" << s.driverText() <<

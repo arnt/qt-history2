@@ -302,7 +302,7 @@ bool QPersistentModelIndex::isValid() const
     return d->index.isValid();
 }
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 {
 #ifndef Q_NO_STREAMING_DEBUG

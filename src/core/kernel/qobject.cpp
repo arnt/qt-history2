@@ -2466,7 +2466,7 @@ QObjectUserData* QObject::userData(uint id) const
 #endif // QT_NO_USERDATA
 
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QObject *o) {
 #ifndef Q_NO_STREAMING_DEBUG
     if (!o)

@@ -459,7 +459,7 @@ bool QSqlField::isValid() const
     return d->type != QCoreVariant::Invalid;
 }
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 #if !defined(Q_OS_MAC) || (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_2)
 QDebug operator<<(QDebug dbg, const QSqlField &f)
 {

@@ -220,7 +220,7 @@ bool QCoreApplication::winEventFilter(MSG *msg, long *result)        // Windows 
     return false;
 }
 
-#if defined(Q_WS_WIN) && !defined(QT_NO_DEBUG)
+#if defined(Q_WS_WIN) && !defined(QT_NO_DEBUG_OUTPUT)
 /*****************************************************************************
   Convenience functions for convert WM_* messages into human readable strings,
   including a nifty QDebug operator<< for simpel QDebug() << msg output.

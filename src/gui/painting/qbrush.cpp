@@ -602,7 +602,7 @@ bool QBrush::operator==(const QBrush &b) const
     \internal
 */
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QBrush &b)
 {
 #ifndef Q_NO_STREAMING_DEBUG

@@ -1641,7 +1641,7 @@ uint QColor::pixel(int screen) const
   QColor stream functions
  *****************************************************************************/
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QColor &c)
 {
 #ifndef Q_NO_STREAMING_DEBUG

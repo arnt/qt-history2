@@ -58,7 +58,7 @@ private:
     int errorNumber;
 };
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 Q_SQL_EXPORT QDebug operator<<(QDebug, const QSqlError &);
 #endif
 

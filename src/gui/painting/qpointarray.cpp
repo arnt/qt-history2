@@ -653,7 +653,7 @@ QPointArray QPointArray::cubicBezier() const
 }
 #endif //QT_NO_BEZIER
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QPointArray &a)
 {
 #ifndef Q_NO_STREAMING_DEBUG

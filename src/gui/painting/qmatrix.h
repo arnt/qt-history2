@@ -118,7 +118,7 @@ inline bool QMatrix::isIdentity() const
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QMatrix &);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QMatrix &);
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QMatrix &);
 #endif
 

@@ -559,7 +559,7 @@ public:
     QEventPrivate *data() { return d; };
 };
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QEvent *);
 #endif
 

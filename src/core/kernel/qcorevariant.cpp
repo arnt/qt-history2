@@ -2331,7 +2331,7 @@ bool QCoreVariant::isNull() const
     return handler->isNull(&d);
 }
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QCoreVariant &v)
 {
 #ifndef Q_NO_STREAMING_DEBUG

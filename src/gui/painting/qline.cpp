@@ -303,7 +303,7 @@ float QLineF::angle(const QLineF &l) const
 }
 
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug d, const QLineF &p)
 {
     d << "QLineF(" << p.start() << "," << p.end() << ")";

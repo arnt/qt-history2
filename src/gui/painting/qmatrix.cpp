@@ -1069,7 +1069,7 @@ QDataStream &operator>>(QDataStream &s, QMatrix &m)
 }
 #endif // QT_NO_DATASTREAM
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QMatrix &m)
 {
     dbg.nospace() << "QMatrix("

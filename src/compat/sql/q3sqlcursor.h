@@ -96,7 +96,6 @@ public:
     bool                 isNull(const QString& name) const;
 
 protected:
-    void                afterSeek();
     virtual bool        exec(const QString & sql);
 
     virtual QCoreVariant calculateField(const QString& name);

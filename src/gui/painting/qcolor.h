@@ -21,7 +21,7 @@
 class QColor;
 class QColormap;
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QColor &);
 #endif
 #ifndef QT_NO_DATASTREAM

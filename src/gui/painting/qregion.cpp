@@ -283,7 +283,7 @@ QDataStream &operator>>(QDataStream &s, QRegion &r)
 }
 #endif //QT_NO_DATASTREAM
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug s, const QRegion &r)
 {
     QVector<QRect> rects = r.rects();

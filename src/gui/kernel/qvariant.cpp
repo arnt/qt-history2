@@ -1224,7 +1224,7 @@ QPixmap QVariant::toPixmap() const
     return *static_cast<QPixmap *>(d.data.shared->value.ptr);
 }
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QVariant &v)
 {
 #ifndef Q_NO_STREAMING_DEBUG

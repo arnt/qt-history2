@@ -749,7 +749,7 @@ QDataStream &operator>>(QDataStream &s, QKeySequence &keysequence)
 
 #endif //QT_NO_DATASTREAM
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QKeySequence &p)
 {
 #ifndef Q_NO_STREAMING_DEBUG

@@ -50,7 +50,7 @@ private:
 };
 Q_DECLARE_TYPEINFO(QModelIndex, Q_MOVABLE_TYPE);
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QModelIndex &);
 #endif
 
@@ -80,13 +80,13 @@ public:
     bool isValid() const;
 private:
     QPersistentModelIndexData *d;
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
     friend Q_GUI_EXPORT QDebug operator<<(QDebug, const QPersistentModelIndex &);
 #endif
 };
 Q_DECLARE_TYPEINFO(QPersistentModelIndex, Q_MOVABLE_TYPE);
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QPersistentModelIndex &);
 #endif
 
