@@ -62,7 +62,7 @@ dialog.
 list the most recently opened files. Click one of the files listed to
 open it. Note that we recommend that you open projects rather than
 files. You can open a file by clicking the file's name in the
-project's \l{File Overview Window}.
+project's \l{Project Overview Window}.
 
 \i \Menu {File|Recently Opened Projects}\BR Click this menu option to
 list the most recently opened projects. Click one of the projects
@@ -173,7 +173,7 @@ the \l{Project Settings Dialog}.
     \index Projects!Image Collection Dialog
     \index Image Collection Dialog
 \i \Menu {Project|Image Collection}\BR Click this menu option to invoke
-the \l{Image Collection Dialog}.
+the \l{Manage Image Collection Dialog}.
 
     \index Database Connections Dialog
 \i \Menu {Project|Database Connections}\BR Click this menu option to
@@ -545,10 +545,10 @@ that each window's title bar is visible.
 the \l{Output Window}, which displays debugging messages. 
 \endomit
 
-    \index File Overview Window
-    \index Windows!File Overview 
-\i \Menu{Window|Views|File Overview}\BR Click this menu option to make
-the \l{File Overview Window} visible, or to hide it if it is already
+    \index Project Overview Window
+    \index Windows!Project Overview 
+\i \Menu{Window|Views|Project Overview}\BR Click this menu option to make
+the \l{Project Overview Window} visible, or to hide it if it is already
 visible. If the window is currently visible, a check mark will appear
 next to the name in the menu.
 

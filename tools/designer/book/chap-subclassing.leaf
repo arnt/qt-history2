@@ -18,8 +18,9 @@ change more often than the underlying application logic.
 We'll start with a general description of how to subclass a form and
 follow with a short example. Note that subclassing has some
 disadvantages compared with putting your code into a form directly;
-see \l{Extending the functionality of a form} in \l{The Designer
-Approach} chapter for details.
+see \l{Extending the functionality of a form} in
+\link #the-designer-approach The Designer Approach\endlink chapter for
+details.
 
 \section2 Generating Source Code from \QD .ui Files
 
@@ -265,7 +266,8 @@ Connections} dialog.
 Create a new connection that connects the OK button's clicked() signal
 to the form's accept() slot. Create a second connection that connects
 the Cancel button's clicked() signal to the form's reject() slot. (See
-\l{Creating Signals and Slots Connections}.)
+\link #creating-signals-and-slots-connections-sidebar Creating Signals
+and Slots Connections\endlink.)
 
 We want the amount spin box to be enabled only if the special radio
 button is checked. Create another connection, this time connecting the

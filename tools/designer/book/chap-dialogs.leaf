@@ -28,9 +28,9 @@ Connections} dialog. Click \Button{New} to create a new connection.
 Change the Sender to "editAddAction", the signal to "activated()" and
 the receiver to "MainForm". We need to create a new slot to connect
 to. Click \Button{Edit Slots} to invoke the \Widget{Edit Functions}
-dialog. Change the slot's name to "editAdd()", then click \OK. Now
-change the slot we connect to "editAdd()", then click \OK to close the
-dialog.
+dialog. Click \Button {New Function} and change the slot's name to
+"editAdd()", then click \OK. Now change the slot we connect to
+"editAdd()", then click \OK to close the dialog.
 
 \sidebar Selecting Widgets
 
@@ -81,6 +81,7 @@ cursors, fonts, etc.
 
 \section2 Creating the Dialog
 
+\target layouts-subsection
 \section3 Layouts
 
 \index Layouts
@@ -101,6 +102,7 @@ faster to use than absolute positioning; you can just place your
 widgets on the form in approximate positions and leave the layout
 tools to size and scale the widgets correctly.
 
+\target adding-the-widgets-subsection
 \section3 Adding the Widgets
 
 We can use one of Qt's static dialogs to get the user to choose a
@@ -140,7 +142,7 @@ Click on the "Name" label and change its \Property{buddy} property to
 "colorLineEdit". The ampersand has now disappeared and \Key Alt+N will
 set the focus in the colorLineEdit.
 
-Click the PushButton tool, then click below the "Name" label. Change
+Click the PushButton tool, then click below the "colorLabel". Change
 the button's \Property{name} property to "okPushButton", its
 \Property{text} property to "OK", and its \Property{default} property
 to True.
@@ -151,6 +153,7 @@ Click the PushButton tool again, then click to the right of the OK
 button. Change this button's \Property{name} property to
 "cancelPushButton" and its \Property{text} property to "Cancel".
 
+\target laying-out-the-widgets-subsection
 \section3 Laying Out the Widgets
 
 Now that we've created and roughly placed the widgets we need we are
@@ -269,11 +272,12 @@ become the form's default size.
 
 When previewing the form, try pressing \Key Tab to move between
 widgets that can accept focus. It is most likely that the tab order is
-correct. If it isn't, we can easily change it: see the \l{Changing the
-Tab Order} sidebar.
+correct. If it isn't, we can easily change it: see the
+\link #changing-the-tab-order-sidebar Changing the Tab Order\endlink sidebar.
 
 \sidebar Changing the Tab Order
 
+\target changing-the-tab-order-sidebar
 \index Tab Order
 \index Tab Order Mode!Tab Order
 Keyboard users press the \Key Tab key to move the focus from widget to
@@ -327,7 +331,8 @@ invoke the \Widget{View and Edit Connections} dialogs. Click
 "okPushButton", the Signal to "clicked()" and the Receiver to
 "ColorNameForm". We want to invoke our own custom slot so that we can
 validate what the user has entered. Click \Button{Edit Slots} to
-invoke the \Widget{Edit Functions} dialog. Change the function's name
+invoke the \Widget{Edit Functions} dialog. Click \Button {New
+Function} and change the function's name
 to "validate()", then click \OK. Now change the receiver's slot to
 our newly created "validate()" slot. Click \OK to close the dialog.
 
@@ -665,8 +670,8 @@ You should now have added the following declaration to your includes
 \endlist
 
 In the class variables add "FindForm *findForm;". (Right click "Class
-Variables", click \Menu{New}, enter "FindForm *findForm;", then press
-\Key Enter.)
+Variables", click \Menu{Edit} and then click \Button Add. Enter
+"FindForm *findForm;", then press \OK.)
 
 You should now have added the following variable to your class
 variables:
@@ -853,7 +858,7 @@ connection from the optionsAction to a new slot called "editOptions".
 (Click \Menu{Edit|Connections}, then click \Button{New}. Change the
 Sender to "optionsAction", the Signal to "activated()" and the
 Receiver to "MainForm". Click the \Button{Edit Slots} button to invoke
-the \Widget{Edit Functions} dialog. Change the slot's name to
+the \Widget{Edit Functions} dialog. Click \Button{New Function} and change the slot's name to
 "editOptions()", then click \OK. Make the Slot function the newly
 created "editOptions()" slot. Click \OK.)
 

@@ -771,6 +771,9 @@ Property} button.
 
 Click \Button Close to leave the \Dialog {Edit Custom Widgets} dialog.
 
+\target dialog-configure-toolbox
+\section2 Configure Toolbox Dialog
+
 \img rd-configtb.png
 \caption Configure Toolbox
 

@@ -54,7 +54,7 @@ close the \Widget{Project Settings} dialog.
 
 \img qs-projset.png
 
-See also \l{Creating a Project}.
+See also \link #creating-the-project Creating the Project\endlink.
 
 \section1 Creating the Dialog
 
@@ -70,7 +70,8 @@ click \Button Save to save it.
 
 \img qs-newdlg.png 
 
-See also \l{Creating Dialogs} and \l{Layouts}.
+See also \l{Creating Dialogs} and \link #layouts-subsection
+Layouts\endlink.
 
 \section2 Adding Widgets to the Dialog
 
@@ -86,6 +87,9 @@ labels from top to bottom. Don't worry about exact placement of the
 labels since the layout tools will handle this automatically.
 \i Click the \Button Pointer toolbar button to deselect the text label.
 \endlist
+
+See also \link #adding-the-widgets-subsection Adding the
+Widgets\endlink.
 
 Now we will change the properties of the text labels to suit the
 application.
@@ -107,7 +111,9 @@ to "Convert \&From:".
 
 \img qs-txtlbl.png
 
-See also \l{Using the Property Editor}.
+See also 
+\link #using-the-property-editor-sidebar Using
+the Property Editor\endlink.
 
 \section3 Adding Line Edits, Comboboxes, and Spinboxes
 
@@ -277,7 +283,8 @@ the \Button{Lay Out Vertically} (\Key Ctrl+L) toolbar button.
 
 Click \Menu File|Save to save the dialog.
 
-See also \l{Laying Out the Widgets}.
+See also \link #laying-out-the-widgets-subsection Laying Out the
+Widgets\endlink.
 
 \section3 Tab Order
 
@@ -292,7 +299,8 @@ circle will appear next to every widget that can accept focus.
 
 \img qs-taborder.png
 
-See also \l{Changing the Tab Order}
+See also 
+\link #changing-the-tab-order-sidebar Changing the Tab Order\endlink.
 
 \section2 Previewing the Dialog
 

@@ -2,15 +2,15 @@
 
 \section1 Introduction
 
-    This manual presents \QD, a tool for designing and implementing user
-    interfaces built with the Qt multiplatform application development
-    framework. \QD makes it easy to
-    experiment with user interface design. At any time you can generate the
-    code required to reproduce the user interface from the files \QD produces,
-    changing your design as often as you like. If you used the previous
-    version you will find yourself immediately productive in the new version
-    since the interface is very similar. But you will find new widgets
-    and new and improved functionality which have been developed as a
+    This manual presents \QD, a tool for designing and implementing
+    user interfaces built with the Qt multiplatform GUI toolkit. \QD
+    makes it easy to experiment with user interface design. At any
+    time you can generate the code required to reproduce the user
+    interface from the files \QD produces, changing your design as
+    often as you like. If you used an earlier version you will find
+    yourself immediately productive in the new version since the
+    interface is very similar. And you will also find new widgets and
+    new and improved functionality which have been developed as a
     result of your feedback.
 
     \QD helps you build user interfaces with layout tools that move
@@ -43,7 +43,7 @@
     fully functional application. Along the way you will learn how to
     create a main window with menus, toolbars and a status bar. Most
     of the application's implementation will be covered, but the
-    custom dialogs will be deferred until chapter three. In the course
+    custom dialogs are deferred until chapter three. In the course
     of this chapter you will use the form and property editors to
     customize the application. You'll also learn how to use Qt's
     signals and slots mechanism and \QD's built-in code editor to make
@@ -57,7 +57,8 @@
     dialogs, you will also learn how to lay out forms using the
     layout tools. 
 
-    \i Chapter four, \l{The Designer Approach}, provides information
+    \i Chapter four, \link #the-designer-approach The Designer
+    Approach\endlink, provides information
     on the \QD approach to developing applications, and explains some
     of the rationale behind \QD.
 
@@ -121,8 +122,8 @@
     switch between all the forms in an application, and to maintain
     a common set of database settings and images. Although subclassing is
     fully supported, writing code directly in \QD offers a number of
-    advantages which are covered in \l{The Designer Approach} chapter.
-
+    advantages which are covered in 
+    \link #the-designer-approach The Designer Approach\endlink chapter.
     A new library \File libqui has also been introduced which allows you
     to load dialogs dynamically at runtime from \QD's \File .ui files.
     This allows you to provide your application's users with considerable
