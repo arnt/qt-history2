@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#55 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#54 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#55 $");
 
 
 /*!
@@ -29,7 +29,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#54 $");
   fill in the frame.  This function is reimplemented by essentially
   all subclasses.  There are also two other less useful functions,
   drawFrame() and frameChanged().
-
+  
   QMenuBar uses this to "raise" the menu bar above the surrounding
   screen:
 
@@ -73,7 +73,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#54 $");
 
   <img src=frames.gif height=422 width=520 alt="Table of frame styles">
 
-  For obvious reasons, \c NoFrame isn't shown.	The gray areas next to
+  For obvious reasons, \c NoFrame isn't shown.  The gray areas next to
   the \c VLine and \c HLine examples are there because the widgets are
   taller/wider than the natural width of the lines.  frameWidth()
   returns the natural width of the line.
@@ -132,14 +132,14 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
   Sets the frame style to \e style.
 
   The \e style is the bitwise OR between a frame shape and a frame
-  shadow style.	 See the <a href=#picture>illustration</a> in the
+  shadow style.  See the <a href="#picture">illustration</a> in the
   class documentation.
 
   The frame shapes are:
   <ul>
   <li> \c NoFrame draws nothing. Naturally, you should not specify a shadow
   style if you use this.
-  <li> \c Box draws a rectangular box.	The contents appear to be
+  <li> \c Box draws a rectangular box.  The contents appear to be
   level with the surrounding screen, but the border itself may be
   raised or sunken.
   <li> \c Panel draws a rectangular panel that can be raised or sunken.
@@ -169,7 +169,7 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
   (with any shadow style) are disregarded unless line shapes are
   allowed.  Line shapes are allowed by default.
 
-  \sa <a href=#picture>Illustration</a>, frameStyle(), lineShapesOk(),
+  \sa <a href="#picture">Illustration</a>, frameStyle(), lineShapesOk(),
   colorGroup(), QColorGroup
 */
 
@@ -452,7 +452,7 @@ void QFrame::paintEvent( QPaintEvent *event )
   Adjusts the frame rectangle for the resized widget.  The frame
   rectangle is elastic, the surrounding area is static.
 
-  The resulting frame rectangle may be null or invalid.	 You can use
+  The resulting frame rectangle may be null or invalid.  You can use
   setMinimumSize() to avoid that possibility.
 
   Nothing is done if the frame rectangle is a \link QRect::isNull()
@@ -541,7 +541,7 @@ void QFrame::drawFrame( QPainter *p )
   Virtual function that draws the contents of the frame.
 
   The QPainter is already open when you get it, and you must leave it
-  open.	 Painter \link QPainter::setWorldMatrix() transformations\endlink
+  open.  Painter \link QPainter::setWorldMatrix() transformations\endlink
   are switched off on entry.  If you transform the painter, remember to
   take the frame into account and \link QPainter::resetXForm() reset
   transformation\endlink before returning.
