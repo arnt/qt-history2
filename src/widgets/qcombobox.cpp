@@ -1478,6 +1478,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	return TRUE;
     else if ( object == d->ed ) {
 	if ( event->type() == QEvent::KeyPress ) {
+	    bool isAccepted = ( (QKeyEvent*)event )->isAccepted();
 	    keyPressEvent( (QKeyEvent *)event );
 	    if ( ((QKeyEvent *)event)->isAccepted() ) {
 		d->completeNow = FALSE;
@@ -1486,6 +1487,10 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		d->completeNow = TRUE;
 		d->completeAt = d->ed->cursorPosition();
 	    }
+	    if ( isAccepted )
+		( (QKeyEvent*)event )->accept();
+	    else
+		( (QKeyEvent*)event )->ignore();
 	} else if ( event->type() == QEvent::KeyRelease ) {
 	    d->completeNow = FALSE;
 	    keyReleaseEvent( (QKeyEvent *)event );

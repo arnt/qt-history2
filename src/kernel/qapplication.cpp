@@ -1640,9 +1640,9 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		else
 		    key->ignore();
 		res = internalNotify( w, e );
-		if ( res || w->isTopLevel() )
+		if ( res || key->isAccepted() )
 		    break;
-		w = w->parentWidget();
+		w = w->parentWidget( TRUE );
 	    }
 	}
 	break;
