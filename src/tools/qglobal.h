@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#160 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#161 $
 **
 ** Global type declarations and definitions
 **
@@ -476,10 +476,10 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 #if defined(CHECK_STATE)
 #if defined(QT_FATAL_ASSERT)
 #define ASSERT(x)  if ( !(x) )\
-	fatal("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
+	qFatal("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
 #else
 #define ASSERT(x)  if ( !(x) )\
-	warning("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
+	qWarning("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
 #endif
 #else
 #define ASSERT(x)
