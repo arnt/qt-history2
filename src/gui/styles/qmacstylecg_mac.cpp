@@ -1,4 +1,5 @@
-#include "qmacstylecg_mac.h"
+#include <qmacstyle_mac.h>
+#include <qmacstylecg_mac.h>
 
 #if QT_MACOSX_VERSION >= 0x1030
 
@@ -89,7 +90,8 @@ static inline HIThemeTrackDrawInfo *getTrackDrawInfo(QStyle::ComplexControl cont
     tdi.max = aslider->maximum();
     tdi.value = aslider->sliderPosition();
     tdi.attributes = kThemeTrackShowThumb;
-    if(control == QStyle::CC_Slider && QSysInfo::MacintoshVersion >= QSysInfo::MV_JAGUAR && aslider->hasFocus())
+    if(control == QStyle::CC_Slider && QSysInfo::MacintoshVersion >= QSysInfo::MV_JAGUAR
+       && aslider->hasFocus())
         tdi.attributes |= kThemeTrackHasFocus;
     if(aslider->orientation() == Qt::Horizontal)
         tdi.attributes |= kThemeTrackHorizontal;
@@ -183,7 +185,7 @@ void QMacStyleCG::polish(QWidget *w)
 	w->setWindowOpacity(0.95);
     }
 
-    if(::qt_cast<QRubberBand*>(w)) 
+    if (::qt_cast<QRubberBand*>(w)) 
 	w->setWindowOpacity(0.75);
 
     if (!px.isNull()) {
@@ -208,7 +210,7 @@ void QMacStyleCG::unPolish(QWidget *w)
         w->setPalette(pal);
 	w->setWindowOpacity(1.0);
     }
-    if(::qt_cast<QRubberBand*>(w)) 
+    if (::qt_cast<QRubberBand*>(w)) 
 	w->setWindowOpacity(1.0);
     QWindowsStyle::unPolish(w);
 }
@@ -385,6 +387,46 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
         HIThemeDrawGrowBox(&pt, &gdi, static_cast<CGContextRef>(p->handle()),
                            kHIThemeOrientationNormal);
         break; }
+    case PE_HeaderArrow: {
+        QWidget *w = qt_abuse_painter_for_widget(p);
+        if (w && w->inherits("QTable"))
+            drawPrimitive(flags & Style_Up ? PE_ArrowUp : PE_ArrowDown, p, r, pal, flags, opt);
+        // ListView header is taken care of.
+        break; }
+    case PE_HeaderSection: {
+        QWidget *w = qt_abuse_painter_for_widget(p);
+        HIThemeButtonDrawInfo bdi;
+        bdi.version = qt_mac_hitheme_version;
+        bdi.state = tds;
+        // This will have to go, but it keeps us in parity with the current state of
+        // affairs with table header.
+        if (w && w->parentWidget()->inherits("QTable")) {
+            bdi.kind = kThemeBevelButton;
+            if (p->font().bold())
+                flags |= Style_Sunken;
+            else
+                flags &= ~Style_Sunken;
+        } else {
+            bdi.kind = kThemeListHeaderButton;
+        }
+        if (flags & Style_Sunken)
+            bdi.value = kThemeButtonOn;
+        else
+            bdi.value = kThemeButtonOff;
+
+        bdi.adornment = kThemeAdornmentNone;
+        
+        QRect ir = r;
+        if (flags & Style_Off)
+            ir.setRight(ir.right() + 50);  // Cheat to hide the down indicator.
+        else if (flags & Style_Up)
+            bdi.adornment = kThemeAdornmentHeaderButtonSortUp;
+            
+        if (flags & Style_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
+            bdi.adornment = kThemeAdornmentFocus;
+        HIThemeDrawButton(qt_glb_mac_rect(ir, p), &bdi, static_cast<CGContextRef>(p->handle()),
+                          kHIThemeOrientationNormal, 0);
+        break; }
     default:
 	QWindowsStyle::drawPrimitive(pe, p, r, pal, flags, opt);
 	break;
@@ -435,7 +477,8 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
 		          kHIThemeOrientationNormal, 0);
 	break; }
     case CE_PushButtonLabel: {
-        // ### This is wrong, we should probably have another couple of rects, the arrow shouldn't be part of the label.
+        // ### This is wrong, we should probably have another couple of rects,
+        // the arrow shouldn't be part of the label.
 #ifndef QT_NO_PUSHBUTTON
         const QPushButton *button = static_cast<const QPushButton *>(widget);
         QRect ir = r;
