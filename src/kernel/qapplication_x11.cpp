@@ -1743,7 +1743,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	    vi = XGetVisualInfo( appDpy, VisualIDMask | VisualScreenMask,
 				 &visInfo, &nvis );
 	    if ( vi ) {
-		int useGL, depthSize; 
+		int useGL, depthSize;
 		glXGetConfig( appDpy, vi, GLX_USE_GL, &useGL );
 		glXGetConfig( appDpy, vi, GLX_DEPTH_SIZE, &depthSize );
 		if ( !useGL || !depthSize ) {
@@ -4290,8 +4290,11 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	    QWidget *widget	The popup widget to be removed
  *****************************************************************************/
 
+
+static bool contextMenuPopupShown = FALSE;
 void QApplication::openPopup( QWidget *popup )
 {
+    contextMenuPopupShown = TRUE;
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
 	Q_CHECK_PTR( popupWidgets );
@@ -4970,8 +4973,27 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 
 	Display* dpy = x11Display(); // store display, send() may destroy us
 
-	bool was_context = FALSE;
-	if ( type == QEvent::MouseButtonPress && button == RightButton ) {
+	if ( type == QEvent::MouseButtonPress && button == RightButton )
+	    contextMenuPopupShown = FALSE;
+	
+	if ( popupButtonFocus ) {
+	    QMouseEvent e( type, popupButtonFocus->mapFromGlobal(globalPos),
+			   globalPos, button, state );
+	    QApplication::sendSpontaneousEvent( popupButtonFocus, &e );
+	    if ( releaseAfter ) {
+		popupButtonFocus = 0;
+		popupOfPopupButtonFocus = 0;
+	    }
+	} else if ( popupChild ) {
+	    QMouseEvent e( type, popupChild->mapFromGlobal(globalPos),
+			   globalPos, button, state );
+	    QApplication::sendSpontaneousEvent( popupChild, &e );
+	} else {
+	    QMouseEvent e( type, pos, globalPos, button, state );
+	    QApplication::sendSpontaneousEvent( popup, &e );
+	}
+
+	if ( type == QEvent::MouseButtonPress && button == RightButton && !contextMenuPopupShown) {
 	    QWidget *popupEvent = popup;
 	    if(popupButtonFocus)
 		popupEvent = popupButtonFocus;
@@ -4979,27 +5001,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		popupEvent = popupChild;
 	    QContextMenuEvent e( QContextMenuEvent::Mouse, pos, globalPos, state );
 	    QApplication::sendSpontaneousEvent( popupEvent, &e );
-	    was_context = e.isAccepted();
 	}
-	if(!was_context) {
-	    if ( popupButtonFocus ) {
-		QMouseEvent e( type, popupButtonFocus->mapFromGlobal(globalPos),
-			       globalPos, button, state );
-		QApplication::sendSpontaneousEvent( popupButtonFocus, &e );
-		if ( releaseAfter ) {
-		    popupButtonFocus = 0;
-		    popupOfPopupButtonFocus = 0;
-		}
-	    } else if ( popupChild ) {
-		QMouseEvent e( type, popupChild->mapFromGlobal(globalPos),
-			       globalPos, button, state );
-		QApplication::sendSpontaneousEvent( popupChild, &e );
-	    } else {
-		QMouseEvent e( type, pos, globalPos, button, state );
-		QApplication::sendSpontaneousEvent( popup, &e );
-	    }
-	}
-
+	
 	if ( releaseAfter )
 	    qt_button_down = 0;
 
@@ -5042,14 +5045,14 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    qt_button_down = 0;
 	}
 
-	bool was_context = FALSE;
-	if ( type == QEvent::MouseButtonPress && button == RightButton ) {
+	if ( type == QEvent::MouseButtonPress && button == RightButton )
+	    contextMenuPopupShown = FALSE;
+	
+	QMouseEvent e( type, pos, globalPos, button, state );
+	QApplication::sendSpontaneousEvent( widget, &e );
+	
+	if ( type == QEvent::MouseButtonPress && button == RightButton && !contextMenuPopupShown ) {
 	    QContextMenuEvent e( QContextMenuEvent::Mouse, pos, globalPos, state );
-	    QApplication::sendSpontaneousEvent( widget, &e );
-	    was_context = e.isAccepted();
-	}
-	if(!was_context) {
-	    QMouseEvent e( type, pos, globalPos, button, state );
 	    QApplication::sendSpontaneousEvent( widget, &e );
 	}
     }
