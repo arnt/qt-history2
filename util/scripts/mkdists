@@ -408,7 +408,6 @@ public_file () {
 	 # some bins
 	 myexpr "$file_BASE" : 'bin\/.*_make_.*$' ||
 	 myexpr "$file" : 'bin\/syncqt.*$' ||
-	 myexpr "$file" : 'bin\/qmake$' ||
 
 	 # Everything under dist
 	 myexpr "$file" : '^dist\/' ||
@@ -508,6 +507,7 @@ public_file () {
 	 myexpr "$file" : "bin\/$" ||
 	 myexpr "$file" : "bin\/findtr$" ||
 	 myexpr "$file" : "bin\/qt20fix$" ||
+	 myexpr "$file" : 'bin\/qmake$' ||
 	 myexpr "$file" : "bin\/qtrename140$"
      then
 	 KEEP=yes
