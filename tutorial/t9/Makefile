@@ -48,10 +48,10 @@ clean:
 ####### Meta classes
 
 mlcdrang.cpp: lcdrange.h
-	moc -o $@ $<
+	$(MOC) -o $@ $<
 
 mcannon.cpp: cannon.h
-	moc -o $@ $<
+	$(MOC) -o $@ $<
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
