@@ -28,7 +28,6 @@
 //#define QFTPPI_DEBUG
 //#define QFTPDTP_DEBUG
 
-
 class QFtpPI;
 
 class QFtpDTP : public QObject
@@ -204,9 +203,8 @@ private:
 class QFtpCommand
 {
 public:
-    QFtpCommand( QFtp::Command cmd, QStringList raw );
-    QFtpCommand( QFtp::Command cmd, QStringList raw, const QByteArray &ba );
-    QFtpCommand( QFtp::Command cmd, QStringList raw, QIODevice *dev );
+    QFtpCommand(QFtp::Command cmd, QStringList raw, const QByteArray &ba);
+    QFtpCommand(QFtp::Command cmd, QStringList raw, QIODevice *dev = 0);
     ~QFtpCommand();
 
     int id;
@@ -225,13 +223,6 @@ public:
 };
 
 int QFtpCommand::idCounter = 0;
-
-QFtpCommand::QFtpCommand( QFtp::Command cmd, QStringList raw )
-    : command(cmd), rawCmds(raw), is_ba(FALSE)
-{
-    id = ++idCounter;
-    data.dev = 0;
-}
 
 QFtpCommand::QFtpCommand( QFtp::Command cmd, QStringList raw, const QByteArray &ba )
     : command(cmd), rawCmds(raw), is_ba(TRUE)
@@ -957,12 +948,13 @@ void QFtpPI::dtpConnectState( int s )
 class QFtpPrivate
 {
 public:
-    QFtpPrivate() :
-	close_waitForStateChange(FALSE),
-	state( QFtp::Unconnected ),
-	error( QFtp::NoError )
-    { pending.setAutoDelete( TRUE ); }
+    QFtpPrivate(QFtp *q0)
+	: q(q0), close_waitForStateChange(false), state(QFtp::Unconnected), error(QFtp::NoError)
+    { pending.setAutoDelete(true); }
 
+    int addCommand(QFtpCommand *cmd);
+
+    QFtp *q;
     QFtpPI pi;
     QList<QFtpCommand *> pending;
     bool close_waitForStateChange;
@@ -971,32 +963,15 @@ public:
     QString errorString;
 };
 
-static QHash<void *, QFtpPrivate *> *d_ptr = 0;
-static void cleanup_d_ptr()
+int QFtpPrivate::addCommand(QFtpCommand *cmd)
 {
-    delete d_ptr;
-    d_ptr = 0;
-}
-static QFtpPrivate* d( const QFtp* foo )
-{
-    if ( !d_ptr ) {
-	d_ptr = new QHash<void *, QFtpPrivate *>;
-	d_ptr->setAutoDelete( TRUE );
-	qAddPostRoutine( cleanup_d_ptr );
-    }
-    QFtpPrivate* ret = d_ptr->value((void *)foo, 0);
-    if (!ret) {
-	ret = new QFtpPrivate;
-        d_ptr->insert((void *)foo, ret);
-    }
+    pending.append(cmd);
 
-    return ret;
-}
-
-static void delete_d( const QFtp* foo )
-{
-    if ( d_ptr )
-	d_ptr->remove( (void*) foo );
+    if (pending.count() == 1) {
+	// don't emit the commandStarted() signal before the ID is returned
+	QTimer::singleShot(0, q, SLOT(startNextCommand()));
+    }
+    return cmd->id;
 }
 
 /**********************************************************************
@@ -1005,7 +980,7 @@ static void delete_d( const QFtp* foo )
  *
  *********************************************************************/
 /*!
-    \class QFtp qftp.h
+    \class QFtp
     \brief The QFtp class provides an implementation of the FTP protocol.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
@@ -1175,7 +1150,6 @@ static void delete_d( const QFtp* foo )
 QFtp::QFtp( QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    QFtpPrivate *d = ::d( this );
     d->errorString = tr( "Unknown error" );
 
     connect( &d->pi, SIGNAL(connectState(int)),
@@ -1380,7 +1354,7 @@ int QFtp::connectToHost( const QString &host, Q_UINT16 port )
     QStringList cmds;
     cmds << host;
     cmds << QString::number( (uint)port );
-    return addCommand( new QFtpCommand( ConnectToHost, cmds ) );
+    return d->addCommand(new QFtpCommand(ConnectToHost, cmds));
 }
 
 /*!
@@ -1406,7 +1380,7 @@ int QFtp::login( const QString &user, const QString &password )
     QStringList cmds;
     cmds << ( QString("USER ") + ( user.isNull() ? QString("anonymous") : user ) + "\r\n" );
     cmds << ( QString("PASS ") + ( password.isNull() ? QString("anonymous@") : password ) + "\r\n" );
-    return addCommand( new QFtpCommand( Login, cmds ) );
+    return d->addCommand(new QFtpCommand(Login, cmds));
 }
 
 /*!
@@ -1429,7 +1403,7 @@ int QFtp::login( const QString &user, const QString &password )
 */
 int QFtp::close()
 {
-    return addCommand( new QFtpCommand( Close, QStringList("QUIT\r\n") ) );
+    return d->addCommand(new QFtpCommand(Close, QStringList("QUIT\r\n")));
 }
 
 /*!
@@ -1458,7 +1432,7 @@ int QFtp::list( const QString &dir )
 	cmds << "LIST\r\n";
     else
 	cmds << ( "LIST " + dir + "\r\n" );
-    return addCommand( new QFtpCommand( List, cmds ) );
+    return d->addCommand(new QFtpCommand(List, cmds));
 }
 
 /*!
@@ -1477,7 +1451,7 @@ int QFtp::list( const QString &dir )
 */
 int QFtp::cd( const QString &dir )
 {
-    return addCommand( new QFtpCommand( Cd, QStringList("CWD "+dir+"\r\n") ) );
+    return d->addCommand(new QFtpCommand(Cd, QStringList("CWD " + dir + "\r\n")));
 }
 
 /*!
@@ -1524,9 +1498,7 @@ int QFtp::get( const QString &file, QIODevice *dev )
     cmds << "TYPE I\r\n";
     cmds << "PASV\r\n";
     cmds << ( "RETR " + file + "\r\n" );
-    if ( dev )
-	return addCommand( new QFtpCommand( Get, cmds, dev ) );
-    return addCommand( new QFtpCommand( Get, cmds ) );
+    return d->addCommand(new QFtpCommand(Get, cmds, dev));
 }
 
 /*!
@@ -1554,7 +1526,7 @@ int QFtp::put( const QByteArray &data, const QString &file )
     cmds << "PASV\r\n";
     cmds << ( "ALLO " + QString::number(data.size()) + "\r\n" );
     cmds << ( "STOR " + file + "\r\n" );
-    return addCommand( new QFtpCommand( Put, cmds, data ) );
+    return d->addCommand( new QFtpCommand( Put, cmds, data ) );
 }
 
 /*!
@@ -1576,7 +1548,7 @@ int QFtp::put( QIODevice *dev, const QString &file )
     if ( !dev->isSequentialAccess() )
 	cmds << ( "ALLO " + QString::number(dev->size()) + "\r\n" );
     cmds << ( "STOR " + file + "\r\n" );
-    return addCommand( new QFtpCommand( Put, cmds, dev ) );
+    return d->addCommand( new QFtpCommand( Put, cmds, dev ) );
 }
 
 /*!
@@ -1595,7 +1567,7 @@ int QFtp::put( QIODevice *dev, const QString &file )
 */
 int QFtp::remove( const QString &file )
 {
-    return addCommand( new QFtpCommand( Remove, QStringList("DELE "+file+"\r\n") ) );
+    return d->addCommand(new QFtpCommand(Remove, QStringList("DELE " + file + "\r\n")));
 }
 
 /*!
@@ -1614,7 +1586,7 @@ int QFtp::remove( const QString &file )
 */
 int QFtp::mkdir( const QString &dir )
 {
-    return addCommand( new QFtpCommand( Mkdir, QStringList("MKD "+dir+"\r\n") ) );
+    return d->addCommand(new QFtpCommand(Mkdir, QStringList("MKD " + dir + "\r\n")));
 }
 
 /*!
@@ -1633,7 +1605,7 @@ int QFtp::mkdir( const QString &dir )
 */
 int QFtp::rmdir( const QString &dir )
 {
-    return addCommand( new QFtpCommand( Rmdir, QStringList("RMD "+dir+"\r\n") ) );
+    return d->addCommand(new QFtpCommand(Rmdir, QStringList("RMD " + dir + "\r\n")));
 }
 
 /*!
@@ -1655,7 +1627,7 @@ int QFtp::rename( const QString &oldname, const QString &newname )
     QStringList cmds;
     cmds << ( "RNFR " + oldname + "\r\n" );
     cmds << ( "RNTO " + newname + "\r\n" );
-    return addCommand( new QFtpCommand( Rename, cmds ) );
+    return d->addCommand(new QFtpCommand(Rename, cmds));
 }
 
 /*!
@@ -1679,7 +1651,7 @@ int QFtp::rename( const QString &oldname, const QString &newname )
 int QFtp::rawCommand( const QString &command )
 {
     QString cmd = command.trimmed() + "\r\n";
-    return addCommand( new QFtpCommand( RawCommand, QStringList(cmd) ) );
+    return d->addCommand(new QFtpCommand(RawCommand, QStringList(cmd)));
 }
 
 /*!
@@ -1690,7 +1662,6 @@ int QFtp::rawCommand( const QString &command )
 */
 Q_ULONG QFtp::bytesAvailable() const
 {
-    QFtpPrivate *d = ::d( this );
     return d->pi.dtp.bytesAvailable();
 }
 
@@ -1702,7 +1673,6 @@ Q_ULONG QFtp::bytesAvailable() const
 */
 Q_LONG QFtp::readBlock( char *data, Q_ULONG maxlen )
 {
-    QFtpPrivate *d = ::d( this );
     return d->pi.dtp.readBlock( data, maxlen );
 }
 
@@ -1714,7 +1684,6 @@ Q_LONG QFtp::readBlock( char *data, Q_ULONG maxlen )
 */
 QByteArray QFtp::readAll()
 {
-    QFtpPrivate *d = ::d( this );
     return d->pi.dtp.readAll();
 }
 
@@ -1749,7 +1718,6 @@ QByteArray QFtp::readAll()
 */
 void QFtp::abort()
 {
-    QFtpPrivate *d = ::d( this );
     if ( d->pending.isEmpty() )
 	return;
 
@@ -1765,7 +1733,6 @@ void QFtp::abort()
 */
 int QFtp::currentId() const
 {
-    QFtpPrivate *d = ::d( this );
     QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( c == 0 )
 	return 0;
@@ -1780,7 +1747,6 @@ int QFtp::currentId() const
 */
 QFtp::Command QFtp::currentCommand() const
 {
-    QFtpPrivate *d = ::d( this );
     QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( c == 0 )
 	return None;
@@ -1799,7 +1765,6 @@ QFtp::Command QFtp::currentCommand() const
 */
 QIODevice* QFtp::currentDevice() const
 {
-    QFtpPrivate *d = ::d( this );
     QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( !c )
 	return 0;
@@ -1819,7 +1784,6 @@ QIODevice* QFtp::currentDevice() const
 */
 bool QFtp::hasPendingCommands() const
 {
-    QFtpPrivate *d = ::d( this );
     return d->pending.count() > 1;
 }
 
@@ -1832,7 +1796,6 @@ bool QFtp::hasPendingCommands() const
 */
 void QFtp::clearPendingCommands()
 {
-    QFtpPrivate *d = ::d( this );
     QFtpCommand *c = 0;
     if ( d->pending.count() > 0 )
 	c = d->pending.takeFirst();
@@ -1849,7 +1812,6 @@ void QFtp::clearPendingCommands()
 */
 QFtp::State QFtp::state() const
 {
-    QFtpPrivate *d = ::d( this );
     return d->state;
 }
 
@@ -1862,7 +1824,6 @@ QFtp::State QFtp::state() const
 */
 QFtp::Error QFtp::error() const
 {
-    QFtpPrivate *d = ::d( this );
     return d->error;
 }
 
@@ -1879,26 +1840,11 @@ QFtp::Error QFtp::error() const
 */
 QString QFtp::errorString() const
 {
-    QFtpPrivate *d = ::d( this );
     return d->errorString;
-}
-
-int QFtp::addCommand( QFtpCommand *cmd )
-{
-    QFtpPrivate *d = ::d( this );
-    d->pending.append( cmd );
-
-    if ( d->pending.count() == 1 )
-	// don't emit the commandStarted() signal before the id is returned
-	QTimer::singleShot( 0, this, SLOT(startNextCommand()) );
-
-    return cmd->id;
 }
 
 void QFtp::startNextCommand()
 {
-    QFtpPrivate *d = ::d( this );
-
     QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( c == 0 )
 	return;
@@ -1940,7 +1886,6 @@ void QFtp::startNextCommand()
 
 void QFtp::piFinished( const QString& )
 {
-    QFtpPrivate *d = ::d( this );
     QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( c == 0 )
 	return;
@@ -1967,7 +1912,6 @@ void QFtp::piFinished( const QString& )
 
 void QFtp::piError( int errorCode, const QString &text )
 {
-    QFtpPrivate *d = ::d( this );
     QFtpCommand *c = d->pending.isEmpty() ? 0 : d->pending.first();
 
     // non-fatal errors
@@ -2025,7 +1969,6 @@ void QFtp::piError( int errorCode, const QString &text )
 
 void QFtp::piConnectState( int state )
 {
-    QFtpPrivate *d = ::d( this );
     d->state = (State)state;
     emit stateChanged( d->state );
     if ( d->close_waitForStateChange ) {
@@ -2037,7 +1980,6 @@ void QFtp::piConnectState( int state )
 void QFtp::piFtpReply( int code, const QString &text )
 {
     if ( currentCommand() == RawCommand ) {
-	QFtpPrivate *d = ::d( this );
 	d->pi.rawCommand = TRUE;
 	emit rawCommandReply( code, text );
     }
@@ -2050,9 +1992,8 @@ QFtp::~QFtp()
 {
     abort();
     close();
-    delete_d( this );
+    delete d;
 }
-
 
 #include "qftp.moc"
 

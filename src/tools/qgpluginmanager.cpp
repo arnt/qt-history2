@@ -267,8 +267,6 @@ static int similarity( const QString& s1, const QString& s2 )
 QGPluginManager::QGPluginManager( const QUuid& id, const QStringList& paths, const QString &suffix, bool cs )
     : interfaceId( id ), casesens( cs ), autounload( TRUE )
 {
-    // Every QLibrary object is destroyed on destruction of the manager
-    libDict.setAutoDelete( TRUE );
     for ( QStringList::ConstIterator it = paths.begin(); it != paths.end(); ++it ) {
 	QString path = *it;
 	addLibraryPath( path + suffix );
@@ -284,6 +282,7 @@ QGPluginManager::~QGPluginManager()
 	    lib->setAutoUnload( FALSE );
 	}
     }
+    libDict.deleteAll();
 }
 
 void QGPluginManager::addLibraryPath( const QString& path )

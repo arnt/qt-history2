@@ -15,6 +15,8 @@
 
 #include <new>
 
+// #define QT_NO_QMAP_BACKWARD_ITERATORS
+
 struct Q_CORE_EXPORT QMapData
 {
     struct Node {

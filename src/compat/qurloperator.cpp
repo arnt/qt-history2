@@ -51,10 +51,10 @@ public:
     QDir dir;
 
     // maps needed for copy/move operations
-    QHash<void *, QNetworkOperation *> getOpPutOpMap;
-    QHash<void *, QNetworkProtocol *> getOpPutProtMap;
-    QHash<void *, QNetworkProtocol *> getOpGetProtMap;
-    QHash<void *, QNetworkOperation *> getOpRemoveOpMap;
+    QHash<QNetworkOperation *, QNetworkOperation *> getOpPutOpMap;
+    QHash<QNetworkOperation *, QNetworkProtocol *> getOpPutProtMap;
+    QHash<QNetworkOperation *, QNetworkProtocol *> getOpGetProtMap;
+    QHash<QNetworkOperation *, QNetworkOperation *> getOpRemoveOpMap;
     QGuardedPtr<QNetworkProtocol> currPut;
     QStringList waitingCopies;
     QString waitingCopiesDest;
@@ -597,16 +597,16 @@ QPtrList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QStri
 	QNetworkOperation *opPut = new QNetworkOperation( QNetworkProtocol::OpPut, toFile, QString::null, QString::null );
 	ops.append( opPut );
 
-	d->getOpPutProtMap.insertMulti((void*)opGet, pProt);
-	d->getOpGetProtMap.insertMulti((void*)opGet, gProt);
-	d->getOpPutOpMap.insertMulti((void *)opGet, opPut);
+	d->getOpPutProtMap.insertMulti(opGet, pProt);
+	d->getOpGetProtMap.insertMulti(opGet, gProt);
+	d->getOpPutOpMap.insertMulti(opGet, opPut);
 
 	if ( move && (gProt->supportedOperations()&QNetworkProtocol::OpRemove) ) {
 	    gProt->setAutoDelete( FALSE );
 
 	    QNetworkOperation *opRm = new QNetworkOperation( QNetworkProtocol::OpRemove, frm, QString::null, QString::null );
 	    ops.append( opRm );
-	    d->getOpRemoveOpMap.insert( (void*)opGet, opRm );
+	    d->getOpRemoveOpMap.insert( opGet, opRm );
 	} else {
 	    gProt->setAutoDelete( TRUE );
 	}
@@ -963,10 +963,10 @@ QUrlOperator& QUrlOperator::operator=( const QUrlOperator &url )
     deleteNetworkProtocol();
     QUrl::operator=( url );
 
-    QHash<void *, QNetworkOperation *> getOpPutOpMap = d->getOpPutOpMap;
-    QHash<void *, QNetworkProtocol *> getOpPutProtMap = d->getOpPutProtMap;
-    QHash<void *, QNetworkProtocol *> getOpGetProtMap = d->getOpGetProtMap;
-    QHash<void *, QNetworkOperation *> getOpRemoveOpMap = d->getOpRemoveOpMap;
+    QHash<QNetworkOperation *, QNetworkOperation *> getOpPutOpMap = d->getOpPutOpMap;
+    QHash<QNetworkOperation *, QNetworkProtocol *> getOpPutProtMap = d->getOpPutProtMap;
+    QHash<QNetworkOperation *, QNetworkProtocol *> getOpGetProtMap = d->getOpGetProtMap;
+    QHash<QNetworkOperation *, QNetworkOperation *> getOpRemoveOpMap = d->getOpRemoveOpMap;
 
     *d = *url.d;
 
@@ -1030,7 +1030,7 @@ void QUrlOperator::copyGotData( const QByteArray &data_, QNetworkOperation *op )
 #ifdef QURLOPERATOR_DEBUG
     qDebug( "QUrlOperator: copyGotData: %d new bytes", data_.size() );
 #endif
-    QNetworkOperation *put = d->getOpPutOpMap[ (void*)op ];
+    QNetworkOperation *put = d->getOpPutOpMap[op];
     if ( put ) {
 	QByteArray &s = put->raw( 1 );
 	int size = s.size();
@@ -1058,14 +1058,10 @@ void QUrlOperator::continueCopy( QNetworkOperation *op )
     }
 #endif
 
-    QNetworkOperation *put = d->getOpPutOpMap[ (void*)op ];
-    QNetworkProtocol *gProt = d->getOpGetProtMap[ (void*)op ];
-    QNetworkProtocol *pProt = d->getOpPutProtMap[ (void*)op ];
-    QNetworkOperation *rm = d->getOpRemoveOpMap[ (void*)op ];
-    d->getOpPutOpMap.take( op );
-    d->getOpGetProtMap.take( op );
-    d->getOpPutProtMap.take( op );
-    d->getOpRemoveOpMap.take( op );
+    QNetworkOperation *put = d->getOpPutOpMap.take(op);
+    QNetworkProtocol *gProt = d->getOpGetProtMap.take(op);
+    QNetworkProtocol *pProt = d->getOpPutProtMap.take(op);
+    QNetworkOperation *rm = d->getOpRemoveOpMap.take(op);
     if ( pProt )
 	pProt->setAutoDelete( TRUE );
     if ( put && pProt ) {
@@ -1120,16 +1116,18 @@ void QUrlOperator::stop()
 {
     d->getOpPutOpMap.clear();
     d->getOpRemoveOpMap.clear();
-    d->getOpGetProtMap.setAutoDelete( TRUE );
-    d->getOpPutProtMap.setAutoDelete( TRUE );
-    QHash<void *, QNetworkProtocol *>::Iterator it = d->getOpPutProtMap.begin();
-    for (; it != d->getOpPutProtMap.end(); ++it)
+    QHash<QNetworkOperation *, QNetworkProtocol *>::Iterator it = d->getOpPutProtMap.begin();
+    for (; it != d->getOpPutProtMap.end(); ++it) {
 	(*it)->stop();
+	delete *it;
+    }
     d->getOpPutProtMap.clear();
 
     it = d->getOpGetProtMap.begin();
-    for (; it != d->getOpGetProtMap.end(); ++it)
+    for (; it != d->getOpGetProtMap.end(); ++it) {
 	(*it)->stop();
+	delete *it;
+    }
     d->getOpGetProtMap.clear();
 
     if ( d->currPut ) {

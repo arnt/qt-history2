@@ -49,7 +49,8 @@
 
 struct CMapEntry {
     CMapEntry();
-   ~CMapEntry();
+    ~CMapEntry();
+
     Colormap		cmap;
     bool		alloc;
     XStandardColormap	scmap;
@@ -68,19 +69,19 @@ CMapEntry::~CMapEntry()
 	XFreeColormap( QX11Info::appDisplay(), cmap );
 }
 
-static QHash<int, CMapEntry*> *cmap_dict = 0;
-static bool		    mesa_gl   = FALSE;
-static QHash<int, QMap<int, QRgb>* > *qglcmap_dict = 0;
+static QHash<int, CMapEntry *> *cmap_dict = 0;
+static bool mesa_gl = false;
+static QHash<int, QMap<int, QRgb> * > *qglcmap_dict = 0;
 
 static void cleanup_cmaps()
 {
     if (cmap_dict) {
-	cmap_dict->setAutoDelete(TRUE);
+	cmap_dict->deleteAll();
 	delete cmap_dict;
 	cmap_dict = 0;
     }
     if (qglcmap_dict) {
-	qglcmap_dict->setAutoDelete(TRUE);
+	qglcmap_dict->deleteAll();
 	delete qglcmap_dict;
 	qglcmap_dict = 0;
     }
@@ -89,7 +90,7 @@ static void cleanup_cmaps()
 static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 {
     if ( !cmap_dict ) {
-	cmap_dict = new QHash<int, CMapEntry*>;
+	cmap_dict = new QHash<int, CMapEntry *>;
 	const char *v = glXQueryServerString( dpy, vi->screen, GLX_VERSION );
 	if ( v )
 	    mesa_gl = strstr(v,"Mesa") != 0;

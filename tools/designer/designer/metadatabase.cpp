@@ -82,9 +82,8 @@ MetaDataBase::MetaDataBase()
 
 inline void setupDataBase()
 {
-    if ( !db || !cWidgets ) {
+    if ( !db ) {
 	db = new QHash<QObject*, MetaDataBaseRecord*>();
-	db->setAutoDelete( TRUE );
 	cWidgets = new QList<MetaDataBase::CustomWidget*>;
 	cWidgets->setAutoDelete( TRUE );
     }
@@ -92,10 +91,13 @@ inline void setupDataBase()
 
 void MetaDataBase::clearDataBase()
 {
-    delete db;
-    db = 0;
-    delete cWidgets;
-    cWidgets = 0;
+    if ( db ) {
+        db->deleteAll();
+        delete db;
+        db = 0;
+        delete cWidgets;
+        cWidgets = 0;
+    }
 }
 
 void MetaDataBase::addEntry( QObject *o )
@@ -116,7 +118,7 @@ void MetaDataBase::addEntry( QObject *o )
 void MetaDataBase::removeEntry( QObject *o )
 {
     setupDataBase();
-    db->remove( o );
+    delete db->take( o );
 }
 
 void MetaDataBase::setPropertyChanged( QObject *o, const QString &property, bool changed )
@@ -1539,10 +1541,10 @@ void MetaDataBase::clear( QObject *o )
     if ( !o )
 	return;
     setupDataBase();
-    db->remove( o );
+    delete db->take( o );
     QHash<QWidget *, QWidget *> *widgets = ((FormWindow*)o)->widgets();
     for(QHash<QWidget*, QWidget*>::Iterator it = widgets->begin(); it != widgets->end(); ++it)
-	db->remove( it.value() );
+	delete db->take( it.value() );
 }
 
 void MetaDataBase::setBreakPoints( QObject *o, const QList<uint> &l )

@@ -69,7 +69,6 @@ struct Q_CORE_EXPORT QHashData
     short userNumBits;
     short numBits;
     int numBuckets;
-    void *autoDelete;
 
     QHashData *detach_helper(Node *(*node_duplicate)(Node *));
     void mightGrow();
@@ -177,9 +176,10 @@ public:
     inline bool isDetached() const { return d->ref == 1; }
 
     void clear();
+    void deleteAll();
 
     int remove(const Key &key);
-    T take(const Key &key); // ### on its way out
+    T take(const Key &key);
 
     bool contains(const Key &key) const;
     const T value(const Key &key) const;
@@ -315,10 +315,6 @@ public:
     inline QHash<Key, T> operator+(const QHash<Key, T> &other) const
     { QHash<Key, T> result = *this; result += other; return result; }
 
-    // should vanish soon
-    bool autoDelete() const { return d->autoDelete == static_cast<void *>(this); }
-    void setAutoDelete(bool enable);
-
     // STL compatibility
     typedef Iterator iterator;
     typedef ConstIterator const_iterator;
@@ -387,6 +383,18 @@ template <class Key, class T>
 Q_INLINE_TEMPLATE void QHash<Key, T>::clear()
 {
     *this = QHash<Key,T>();
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE void QHash<Key, T>::deleteAll()
+{
+    Q_ASSERT_X(QTypeInfo<T>::isPointer,
+	       "QHash<Key, T>::deleteAll", "Cannot delete non-pointer types");
+    ConstIterator it = constBegin();
+    while (it != constEnd()) {
+	delete *it;
+	++it;
+    }
 }
 
 template <class Key, class T>
@@ -516,8 +524,6 @@ Q_INLINE_TEMPLATE typename QHash<Key, T>::Iterator QHash<Key, T>::insert(const K
     if (*node == e)
 	return Iterator(createNode(h, key, value, node));
 
-    if (d->autoDelete == this)
-	qDelete((*node)->value);
     (*node)->value = value;
     return Iterator(*node);
 }
@@ -543,8 +549,6 @@ Q_OUTOFLINE_TEMPLATE int QHash<Key, T>::remove(const Key &key)
     Node **node = findNode(key);
     if ((*node) != e) {
 	do {
-	    if (d->autoDelete == this)
-	        qDelete((*node)->value);
 	    Node *next = (*node)->next;
 	    delete *node;
 	    *node = next;
@@ -567,7 +571,7 @@ Q_OUTOFLINE_TEMPLATE T QHash<Key, T>::take(const Key &key)
 	Node *next = (*node)->next;
 	delete *node;
 	*node = next;
-        --d->size;
+	--d->size;
 	d->hasShrunk();
     } else {
 	qInit(t);
@@ -589,21 +593,10 @@ Q_OUTOFLINE_TEMPLATE typename QHash<Key, T>::Iterator QHash<Key, T>::erase(Itera
     while (*node_ptr != node)
 	node_ptr = &(*node_ptr)->next;
     *node_ptr = node->next;
-    if (d->autoDelete == this)
-	qDelete(node->value);
     delete node;
     --d->size;
     d->hasShrunk();
     return ret;
-}
-
-template <class Key, class T>
-Q_INLINE_TEMPLATE void QHash<Key, T>::setAutoDelete(bool enable)
-{
-    Q_ASSERT_X(QTypeInfo<T>::isPointer,
-	       "QHash<Key,T>::setAutoDelete", "Cannot delete non-pointer types");
-    detach();
-    d->autoDelete = enable ? this : 0;
 }
 
 template <class Key, class T>

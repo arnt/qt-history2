@@ -29,7 +29,7 @@ const int dbsize = 300;
 const int dbcustom = 200;
 const int dbdictsize = 211;
 static WidgetDatabaseRecord* db[ dbsize ];
-static QHash<QString, int*> *className2Id = 0;
+static QHash<QString, int> *className2Id = 0;
 static int dbcount  = 0;
 static int dbcustomcount = 200;
 static QList<const char*> *wGroups;
@@ -107,8 +107,7 @@ void WidgetDatabase::setupDataBase( int id )
     invisibleGroups = new QList<const char*>;
     invisibleGroups->append( "Forms" );
     invisibleGroups->append( "Temp" );
-    className2Id = new QHash<QString, int*>;
-    className2Id->setAutoDelete( true );
+    className2Id = new QHash<QString, int>;
 
     WidgetDatabaseRecord *r = 0;
 
@@ -762,23 +761,23 @@ int WidgetDatabase::idFromClassName( const QString &name )
     setupDataBase( -1 );
     if ( name.isEmpty() )
 	return 0;
-    int *i = className2Id->value( name );
-    if ( i )
-	return *i;
+    int i = className2Id->value( name, -1 );
+    if ( i != -1 )
+	return i;
     if ( name == "FormWindow" )
 	return idFromClassName( "QLayoutWidget" );
 #ifdef UIC
     setupDataBase( -2 );
-    i = className2Id->value( name );
-    if ( i )
-	return *i;
+    i = className2Id->value( name, -1 );
+    if ( i != -1 )
+	return i;
 #endif
     return -1;
 }
 
 bool WidgetDatabase::hasWidget( const QString &name )
 {
-    return className2Id->value( name ) != 0;
+    return className2Id->contains( name );
 }
 
 WidgetDatabaseRecord *WidgetDatabase::at( int index )
@@ -797,7 +796,7 @@ void WidgetDatabase::insert( int index, WidgetDatabaseRecord *r )
     if ( index < 0 || index >= dbsize )
 	return;
     db[ index ] = r;
-    className2Id->insert( r->name, new int( index ) );
+    className2Id->insert(r->name, index);
     if ( index < dbcustom )
 	dbcount = QMAX( dbcount, index );
 }
@@ -862,8 +861,8 @@ void WidgetDatabase::customWidgetClassNameChanged( const QString &oldName,
 	return;
     WidgetDatabaseRecord *r = db[ id ];
     r->name = newName;
-    className2Id->remove( oldName );
-    className2Id->insert( newName, new int( id ) );
+    className2Id->remove(oldName);
+    className2Id->insert(newName, id);
 }
 
 bool WidgetDatabase::isCustomWidget( int id )

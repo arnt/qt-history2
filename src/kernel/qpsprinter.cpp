@@ -787,7 +787,7 @@ public:
     QIODevice * outDevice;
     int fd;
 
-    // buffer for the current page. Needed becaus we might have page fonts.
+    // buffer for the current page. Needed because we might have page fonts.
     QBuffer *pageBuffer;
     QTextStream pageStream;
 
@@ -2287,7 +2287,7 @@ void QPSPrinterFontTTF::uni2glyphSetup()
 	}
     }
     if (map==nmaps) {
-	qWarning("Font does not have unicode encoding\n");
+	qWarning("Font does not have unicode encoding");
 	return; // no unicode encoding!
     }
 
@@ -4353,7 +4353,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont &f, int script, QPSPrinterPrivate *pr
 #endif
 
     //qDebug("looking for font %s in dict", xfontname.latin1() );
-    p = priv->fonts.value(xfontname, 0);
+    p = priv->fonts.value(xfontname);
     if ( p )
 	return;
 
@@ -4508,7 +4508,6 @@ QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
 	fm( QFont() ), textY( 0 )
 {
     printer = prt;
-    fonts.setAutoDelete( TRUE );
     currentFontFile = 0;
     scale = 1.;
     scriptUsed = -1;
@@ -4580,6 +4579,7 @@ QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
 QPSPrinterPrivate::~QPSPrinterPrivate()
 {
     delete pageBuffer;
+    fonts.deleteAll();
 }
 
 void QPSPrinterPrivate::setFont( const QFont & fnt, int script )
@@ -4592,7 +4592,7 @@ void QPSPrinterPrivate::setFont( const QFont & fnt, int script )
     }
     if ( f.pointSize() == 0 ) {
 #if defined(CHECK_RANGE)
-        qWarning( "QPrinter: Cannot set a font with zero point size." );
+        qWarning( "QPrinter: Cannot set a font with zero point size" );
 #endif
         f.setPointSize(QApplication::font().pointSize());
         if ( f.pointSize() == 0 )

@@ -11,7 +11,7 @@ QVectorData* QVectorData::malloc(int size, int sizeofT)
 
 QVectorData* QVectorData::malloc(int size, int sizeofT, QVectorData* init)
 {
-    QVectorData* p = (QVectorData*)qMalloc(sizeof(QVectorData) + size * sizeofT);
+    QVectorData* p = (QVectorData *)qMalloc(sizeof(QVectorData) + size * sizeofT);
     ::memcpy(p, init, sizeof(QVectorData)+qMin(size, init->alloc)*sizeofT);
     return p;
 }

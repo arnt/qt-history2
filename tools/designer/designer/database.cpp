@@ -23,6 +23,7 @@
 #include "mainwindow.h"
 #endif
 
+#include <qevent.h>
 #include <qsqldatabase.h>
 #include <qsqlform.h>
 #include <qsqlcursor.h>

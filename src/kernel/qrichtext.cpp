@@ -6007,16 +6007,16 @@ Q3TextFormatCollection::Q3TextFormatCollection()
     : paintdevice( 0 )
 {
     defFormat = new Q3TextFormat( QApplication::font(),
-				 QApplication::palette().color( QPalette::Active, QPalette::Text ) );
+				  QApplication::palette().color( QPalette::Active, QPalette::Text ) );
     lastFormat = cres = 0;
     cflags = -1;
-    cKey.setAutoDelete( TRUE );
     cachedFormat = 0;
 }
 
 Q3TextFormatCollection::~Q3TextFormatCollection()
 {
     delete defFormat;
+    cKey.deleteAll();
 }
 
 void Q3TextFormatCollection::setPaintDevice( QPaintDevice *pd )
@@ -6051,7 +6051,7 @@ Q3TextFormat *Q3TextFormatCollection::format( Q3TextFormat *f )
 	return lastFormat;
     }
 
-    Q3TextFormat *fm = cKey.value(f->key(), 0);
+    Q3TextFormat *fm = cKey.value(f->key());
     if ( fm ) {
 	lastFormat = fm;
 	lastFormat->addRef();
@@ -6102,10 +6102,10 @@ Q3TextFormat *Q3TextFormatCollection::format( Q3TextFormat *of, Q3TextFormat *nf
 	cres->ha = nf->ha;
     cres->update();
 
-    Q3TextFormat *fm = cKey.value(cres->key(),0);
+    Q3TextFormat *fm = cKey.value(cres->key());
     if ( !fm ) {
 	cres->collection = this;
-	cKey.insert( cres->key(), cres );
+	cKey.insert(cres->key(), cres);
     } else {
 	delete cres;
 	cres = fm;
@@ -6123,7 +6123,7 @@ Q3TextFormat *Q3TextFormatCollection::format( const QFont &f, const QColor &c )
     }
 
     QString key = Q3TextFormat::getKey( f, c, FALSE,  Q3TextFormat::AlignNormal );
-    cachedFormat = cKey.value( key, 0 );
+    cachedFormat = cKey.value(key);
     cfont = f;
     ccol = c;
 
@@ -6137,7 +6137,7 @@ Q3TextFormat *Q3TextFormatCollection::format( const QFont &f, const QColor &c )
 
     cachedFormat = createFormat( f, c );
     cachedFormat->collection = this;
-    cKey.insert( cachedFormat->key(), cachedFormat );
+    cKey.insert(cachedFormat->key(), cachedFormat);
     if ( cachedFormat->key() != key )
 	qWarning("ASSERT: keys for format not identical: '%s '%s'", cachedFormat->key().latin1(), key.latin1() );
     return cachedFormat;
@@ -6151,8 +6151,8 @@ void Q3TextFormatCollection::remove( Q3TextFormat *f )
 	cres = 0;
     if ( cachedFormat == f )
 	cachedFormat = 0;
-    if (cKey.value(f->key(), 0) == f)
-	cKey.remove( f->key() );
+    if (cKey.value(f->key()) == f)
+	cKey.remove(f->key());
 }
 
 #define UPDATE( up, lo, rest ) \
@@ -6201,17 +6201,14 @@ void Q3TextFormatCollection::updateKeys()
 {
     if ( cKey.isEmpty() )
 	return;
-    cKey.setAutoDelete( FALSE );
-    Q3TextFormat** formats = new Q3TextFormat*[ cKey.count() + 1 ];
+    Q3TextFormat** formats = new Q3TextFormat *[cKey.count() + 1];
     Q3TextFormat **f = formats;
-    for (QHash<QString, Q3TextFormat *>::Iterator it = cKey.begin();
-	 it != cKey.end(); ++it, ++f)
+    for (QHash<QString, Q3TextFormat *>::Iterator it = cKey.begin(); it != cKey.end(); ++it, ++f)
 	*f = *it;
     *f = 0;
     cKey.clear();
     for ( f = formats; *f; f++ )
-       cKey.insert( (*f)->key(), *f );
-    cKey.setAutoDelete( TRUE );
+	cKey.insert((*f)->key(), *f);
     delete [] formats;
 }
 

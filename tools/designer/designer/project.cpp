@@ -200,8 +200,6 @@ Project::Project( const QString &fn, const QString &pName,
 	proName = pName;
     sourcefiles.setAutoDelete( TRUE );
     modified = FALSE;
-    objs.setAutoDelete( FALSE );
-    fakeFormFiles.setAutoDelete( FALSE );
 }
 
 Project::~Project()

@@ -4535,8 +4535,7 @@ static QChar keysymToUnicode(unsigned char byte3, unsigned char byte4)
 }
 #endif
 
-static QHash<int, KeySym>    keyHash;
-
+static QHash<int, KeySym> keyHash;
 
 bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QString& text, int& state,
 					   int& code, QEvent::Type &type, bool willRepeat )
@@ -4653,7 +4652,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
 	key = keyHash.value(keycode, 0);
 	if ( key )
 	    if( !willRepeat ) // Take out key of dictionary only if this call.
-		keyHash.take(keycode);
+		keyHash.remove(keycode);
     }
 #endif // !QT_NO_XIM
 

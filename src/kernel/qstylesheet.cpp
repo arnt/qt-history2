@@ -1056,6 +1056,7 @@ QStyleSheet::QStyleSheet( QObject *parent, const char *name )
 */
 QStyleSheet::~QStyleSheet()
 {
+    styles.deleteAll();
 }
 
 /*!
@@ -1064,12 +1065,9 @@ QStyleSheet::~QStyleSheet()
 */
 void QStyleSheet::init()
 {
-    styles.setAutoDelete( TRUE );
+    nullstyle = new QStyleSheetItem( this, QString::fromLatin1("") );
 
-    nullstyle  = new QStyleSheetItem( this,
-	QString::fromLatin1("") );
-
-    QStyleSheetItem*  style;
+    QStyleSheetItem *style;
 
     style = new QStyleSheetItem( this, "qml" ); // compatibility
     style->setDisplayMode( QStyleSheetItem::DisplayBlock );
@@ -1296,7 +1294,7 @@ QStyleSheetItem* QStyleSheet::item( const QString& name)
 {
     if ( name.isNull() )
 	return 0;
-    return styles.value(name, 0);
+    return styles.value(name);
 }
 
 /*!
@@ -1309,9 +1307,8 @@ const QStyleSheetItem* QStyleSheet::item( const QString& name) const
 {
     if ( name.isNull() )
 	return 0;
-    return styles.value(name, 0);
+    return styles.value(name);
 }
-
 
 /*!
     \preliminary

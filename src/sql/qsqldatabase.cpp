@@ -107,12 +107,12 @@ public:
     static void          removeDatabase( const QString& name );
     static void          removeDatabase( QSqlDatabase* db );
     static bool          contains( const QString& name );
-    static QDriverDict*  driverDict();
+    static QDriverDict &driverDict();
 
 protected:
     static QSqlDatabaseManager* instance();
-    QHash<QString, QSqlDatabase*> dbDict;
-    QDriverDict* drDict;
+    QHash<QString, QSqlDatabase *> dbDict;
+    QDriverDict drDict;
 };
 
 /*!
@@ -120,7 +120,7 @@ protected:
 */
 
 QSqlDatabaseManager::QSqlDatabaseManager(QObject * parent)
-    : QObject(parent), drDict( 0 )
+    : QObject(parent)
 {
 }
 
@@ -132,25 +132,16 @@ QSqlDatabaseManager::QSqlDatabaseManager(QObject * parent)
 
 QSqlDatabaseManager::~QSqlDatabaseManager()
 {
-    for (QHash<QString, QSqlDatabase*>::ConstIterator it = dbDict.begin();
-	 it != dbDict.end(); ++it) {
-	(*it)->close();
-	delete *it;
-    }
-    delete drDict;
+    dbDict.deleteAll();
+    drDict.deleteAll();
 }
 
 /*!
   \internal
 */
-QDriverDict* QSqlDatabaseManager::driverDict()
+QDriverDict &QSqlDatabaseManager::driverDict()
 {
-    QSqlDatabaseManager* sqlConnection = instance();
-    if ( !sqlConnection->drDict ) {
-	sqlConnection->drDict = new QDriverDict();
-	sqlConnection->drDict->setAutoDelete( TRUE );
-    }
-    return sqlConnection->drDict;
+    return instance()->drDict;
 }
 
 
@@ -223,7 +214,7 @@ bool QSqlDatabaseManager::contains( const QString& name )
 QSqlDatabase* QSqlDatabaseManager::addDatabase( QSqlDatabase* db, const QString & name )
 {
     QSqlDatabaseManager* sqlConnection = instance();
-    if( sqlConnection == 0 )
+    if (!sqlConnection)
 	return 0;
     if ( contains( name ) )
 	sqlConnection->removeDatabase( name );
@@ -242,12 +233,8 @@ QSqlDatabase* QSqlDatabaseManager::addDatabase( QSqlDatabase* db, const QString 
 
 void QSqlDatabaseManager::removeDatabase( const QString& name )
 {
-    QSqlDatabaseManager* sqlConnection = instance();
-    sqlConnection->dbDict.setAutoDelete( TRUE );
-    sqlConnection->dbDict.remove( name );
-    sqlConnection->dbDict.setAutoDelete( FALSE );
+    delete instance()->dbDict.take(name);
 }
-
 
 /*!
     Removes the database connection \a db from the SQL connection
@@ -263,10 +250,10 @@ void QSqlDatabaseManager::removeDatabase( QSqlDatabase* db )
     QSqlDatabaseManager* sqlConnection = instance();
     if ( !sqlConnection )
 	return;
-    for (QHash<QString, QSqlDatabase*>::ConstIterator it = sqlConnection->dbDict.begin();
+    for (QHash<QString, QSqlDatabase*>::Iterator it = sqlConnection->dbDict.begin();
 	 it != sqlConnection->dbDict.end(); ++it) {
 	if ( *it == db ) {
-	    sqlConnection->dbDict.remove( it.key() );
+	    sqlConnection->dbDict.erase(it);
 	    db->close();
 	    delete db;
 	    break;
@@ -428,7 +415,7 @@ QStringList QSqlDatabase::drivers()
     delete plugIns;
 #endif
 
-    QDriverDict *dict = QSqlDatabaseManager::driverDict();
+    QDriverDict *dict = &QSqlDatabaseManager::driverDict();
     for (QDriverDict::ConstIterator itd = dict->begin(); itd != dict->end(); ++itd ) {
 	if ( !l.contains( itd.key() ) )
 	    l << itd.key();
@@ -488,9 +475,9 @@ QStringList QSqlDatabase::drivers()
 */
 void QSqlDatabase::registerSqlDriver( const QString& name, const QSqlDriverCreatorBase* creator )
 {
-    QSqlDatabaseManager::driverDict()->remove( name );
+    delete QSqlDatabaseManager::driverDict().take( name );
     if ( creator )
-	QSqlDatabaseManager::driverDict()->insert( name, const_cast<QSqlDriverCreatorBase*>(creator) );
+	QSqlDatabaseManager::driverDict().insert( name, const_cast<QSqlDriverCreatorBase*>(creator) );
 }
 
 /*!
@@ -609,9 +596,9 @@ void QSqlDatabase::init( const QString& type, const QString& )
     }
 
     if ( !d->driver ) {
-	QDriverDict *dict = QSqlDatabaseManager::driverDict();
-	for (QDriverDict::ConstIterator it = dict->begin();
-	     it != dict->end() && !d->driver; ++it ) {
+	QDriverDict *dict = &QSqlDatabaseManager::driverDict();
+	for (QDriverDict::ConstIterator it = dict->constBegin();
+	     it != dict->constEnd() && !d->driver; ++it ) {
 	    if ( type == it.key() ) {
 		d->driver = ((QSqlDriverCreatorBase*)(*it))->createObject();
 	    }
@@ -645,6 +632,7 @@ void QSqlDatabase::init( const QString& type, const QString& )
 
 QSqlDatabase::~QSqlDatabase()
 {
+    close();
     delete d->driver;
 #ifndef QT_NO_COMPONENT
     delete d->plugIns;

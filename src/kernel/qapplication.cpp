@@ -452,8 +452,8 @@ void qt_setMaxWindowRect(const QRect& r)
 */
 
 // Default application palettes and fonts (per widget type)
-Q_GUI_EXPORT QHash<QString, QPalette*> *app_palettes = 0;
-Q_GUI_EXPORT QHash<QString, QFont*> *app_fonts = 0;
+Q_GUI_EXPORT QHash<QString, QPalette> *app_palettes = 0;
+Q_GUI_EXPORT QHash<QString, QFont> *app_fonts = 0;
 
 QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
@@ -1379,13 +1379,12 @@ QPalette QApplication::palette(const QWidget* w)
     }
 
     if ( w && app_palettes ) {
-	QPalette* wp = app_palettes->value( w->className(), 0 );
-	if ( wp )
-	    return *wp;
-	for (QHash<QString, QPalette *>::ConstIterator it = app_palettes->begin();
-	     it != app_palettes->end(); ++it) {
+	QHash<QString, QPalette>::ConstIterator it = app_palettes->find(w->className());
+        if (it != app_palettes->end())
+	    return *it;
+	for (it = app_palettes->constBegin(); it != app_palettes->constEnd(); ++it) {
 	    if (w->inherits(it.key()))
-		return *it.value();
+		return it.value();
 	}
     }
     return *app_pal;
@@ -1408,38 +1407,45 @@ QPalette QApplication::palette(const QWidget* w)
 void QApplication::setPalette( const QPalette &palette, const char* className )
 {
     QPalette pal = palette;
-    QPalette *oldpal = 0;
+
 #ifndef QT_NO_STYLE
     if ( !startingUp() ) // on startup this has been done already
 	qApp->style().polish( pal );	// NB: non-const reference
 #endif
-    bool all = FALSE;
+    bool all = false;
     if ( !className ) {
 	if ( !app_pal ) {
 	    app_pal = new QPalette( pal );
 	} else {
 	    *app_pal = pal;
 	}
-	all = app_palettes != 0;
-	delete app_palettes;
-	app_palettes = 0;
+        if (app_palettes) {
+	    all = true;
+	    delete app_palettes;
+	    app_palettes = 0;
+	}
 	qt_fix_tooltips();
     } else {
-	if ( !app_palettes ) {
-	    app_palettes = new QHash<QString, QPalette*>;
-	    app_palettes->setAutoDelete( TRUE );
-	}
-	oldpal = app_palettes->value( className );
-	app_palettes->insert( className, new QPalette( pal ) );
+	if (!app_palettes)
+	    app_palettes = new QHash<QString, QPalette>;
+
+	QHash<QString, QPalette>::Iterator it = app_palettes->find(className);
+        if (it != app_palettes->end()) {
+	    if (*it == pal)
+		return;
+	    *it = pal;
+        } else {
+	    app_palettes->insert(className, pal);
+        }
     }
-    if ( is_app_running && !is_app_closing ) {
-	if ( !oldpal || ( *oldpal != pal ) ) {
-	    QEvent e( QEvent::ApplicationPaletteChange );
-	    for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
-		register QWidget *w = *it;
-		if ( all || (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
-		    sendEvent( w, &e );
-	    }
+
+    if (is_app_running && !is_app_closing) {
+	QEvent e( QEvent::ApplicationPaletteChange );
+	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
+	     it != QWidget::mapper->constEnd(); ++it) {
+	    register QWidget *w = *it;
+	    if ( all || (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
+		sendEvent( w, &e );
 	}
     }
 }
@@ -1455,19 +1461,17 @@ void QApplication::setPalette( const QPalette &palette, const char* className )
 
 QFont QApplication::font( const QWidget *w )
 {
-    if ( w && app_fonts ) {
-	QFont* wf = app_fonts->value( w->className(), 0 );
-	if ( wf )
-	    return *wf;
-	for (QHash<QString, QFont *>::ConstIterator it = app_fonts->begin();
-	     it != app_fonts->end(); ++it) {
+    if (w && app_fonts) {
+	QHash<QString, QFont>::ConstIterator it = app_fonts->find(w->className());
+        if (it != app_fonts->end())
+	    return it.value();
+	for (it = app_fonts->begin(); it != app_fonts->end(); ++it) {
 	    if (w->inherits(it.key()))
-		return *it.value();
+		return it.value();
 	}
     }
-    if ( !app_font ) {
+    if (!app_font)
 	app_font = new QFont( "Helvetica" );
-    }
     return *app_font;
 }
 
@@ -1486,7 +1490,7 @@ QFont QApplication::font( const QWidget *w )
 
 void QApplication::setFont( const QFont &font, const char* className )
 {
-    bool all = FALSE;
+    bool all = false;
     if ( !className ) {
 	qt_app_has_font = TRUE;
 	if ( !app_font ) {
@@ -1494,20 +1498,21 @@ void QApplication::setFont( const QFont &font, const char* className )
 	} else {
 	    *app_font = font;
 	}
-	all = app_fonts != 0;
-	delete app_fonts;
-	app_fonts = 0;
-    } else {
-	if (!app_fonts){
-	    app_fonts = new QHash<QString, QFont*>;
-	    app_fonts->setAutoDelete( TRUE );
+        if (app_fonts) {
+	    all = true;
+	    delete app_fonts;
+	    app_fonts = 0;
 	}
-	QFont* fnt = new QFont(font);
-	app_fonts->insert(className, fnt);
+        // ### qt_fix_tooltips() ?
+    } else {
+	if (!app_fonts)
+	    app_fonts = new QHash<QString, QFont>;
+	app_fonts->insert(className, font);
     }
-    if ( is_app_running && !is_app_closing ) {
+    if (is_app_running && !is_app_closing) {
 	QEvent e( QEvent::ApplicationFontChange );
-	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
+	     it != QWidget::mapper->constEnd(); ++it) {
 	    register QWidget *w = *it;
 	    if ( all || (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
 		sendEvent( w, &e );

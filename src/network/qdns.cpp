@@ -190,10 +190,8 @@ public:
 
 class QDnsQuery: public QTimer { // this inheritance is a very evil hack
 public:
-    QDnsQuery():
-	id( 0 ), t( QDns::None ), step(0), started(0),
-	dns(new QHash<void *, void *>) { dns->reserve(17); }
-    ~QDnsQuery() { delete dns; }
+    QDnsQuery()
+	: id( 0 ), t( QDns::None ), step(0), started(0) { }
     Q_UINT16 id;
     QDns::RecordType t;
     QString l;
@@ -201,7 +199,7 @@ public:
     uint step;
     Q_UINT32 started;
 
-    QHash<void *, void *> *dns;
+    QHash<const QDns *, const QDns *> dns;
 };
 
 
@@ -709,15 +707,13 @@ void QDnsAnswer::parse()
 
     // now go through the list and mark all the As that are referenced
     // by something we care about.  we want to cache such As.
-    QHash<QString, void *> used; used.reserve(17);
-    used.setAutoDelete( FALSE );
+    QHash<QString, int> used;
 
     for (int i = 0; i < rrs->count(); ++i) {
 	rr = rrs->at(i);
 	if ( rr->target.length() && rr->deleteTime > 0 && rr->current )
-	    used.insert( rr->target, (void*)42 );
-	if ( ( rr->t == QDns::A || rr->t == QDns::Aaaa ) &&
-	     used.find( rr->domain->name() ) != 0 )
+	    used.insert(rr->target, 1);
+	if ((rr->t == QDns::A || rr->t == QDns::Aaaa) && used.contains(rr->domain->name()))
 	    rr->deleteTime = rr->expireTime;
     }
 
@@ -772,33 +768,30 @@ void QDnsAnswer::notify()
     if ( !rrs || !ok || !query || !query->dns )
 	return;
 
-    QHash<void *, void *> notified;
-    notified.setAutoDelete( FALSE );
+    QHash<const QDns *, const QDns *> notified;
 
-    QHash<void *, void *>::Iterator it = query->dns->begin();
-    QDns * dns;
-    while (it != query->dns->end()) {
-	dns = static_cast<QDns *>(*it);
-	++it;
-	if (notified.find((void *)dns) == notified.end()) {
-	    notified.insert( (void*)dns, (void*)42 );
+    QHash<const QDns *, const QDns *>::Iterator it = query->dns.begin();
+    while (it != query->dns.end()) {
+	if (!notified.contains(*it)) {
+	    notified.insert(*it, *it);
 	    if ( rrs->count() == 0 ) {
 #if defined(QDNS_DEBUG)
 		qDebug( "DNS Manager: found no answers!" );
 #endif
-		dns->d->noNames = TRUE;
-		((QDnsUgleHack*)dns)->ugle( TRUE );
+		(*it)->d->noNames = TRUE;
+		((QDnsUgleHack*)*it)->ugle( TRUE );
 	    } else {
-		QStringList n = dns->qualifiedNames();
+		QStringList n = (*it)->qualifiedNames();
 		if ( n.contains(query->l) )
-		    ((QDnsUgleHack*)dns)->ugle();
+		    ((QDnsUgleHack*)*it)->ugle();
 #if defined(QDNS_DEBUG)
 		else
 		    qDebug( "DNS Manager: DNS thing %s not notified for %s",
-			    dns->label().ascii(), query->l.ascii() );
+			    (*it)->label().ascii(), query->l.ascii() );
 #endif
 	    }
 	}
+	++it;
     }
 }
 
@@ -871,14 +864,11 @@ void QDnsUgleHack::ugle( bool emitAnyway)
 
 QDnsManager::QDnsManager()
     : QDnsSocket( qApp, "Internal DNS manager" ),
-      queries(QList<QDnsQuery *>() ),
-      cache(QHash<QString, QDnsDomain *>() ),
       ipv4Socket( new QSocketDevice( QSocketDevice::Datagram, QSocketDevice::IPv4, 0 ) )
 #if !defined (QT_NO_IPV6)
       , ipv6Socket( new QSocketDevice( QSocketDevice::Datagram, QSocketDevice::IPv6, 0 ) )
 #endif
 {
-    cache.setAutoDelete( TRUE );
     globalManager = this;
 
     QTimer * sweepTimer = new QTimer( this );
@@ -961,8 +951,8 @@ QDnsManager::~QDnsManager()
 {
     if ( globalManager )
 	globalManager = 0;
-    queries.setAutoDelete( TRUE );
-    cache.setAutoDelete( TRUE );
+    queries.setAutoDelete(true);
+    cache.deleteAll();
     delete ipv4Socket;
 #if !defined (QT_NO_IPV6)
     delete ipv6Socket;
@@ -1001,7 +991,7 @@ void QDnsManager::retransmit()
     if ( o == 0 || globalManager == 0 || this != globalManager )
 	return;
     uint q = 0;
-    while( q < (uint) queries.size() && queries[q] != o )
+    while ( q < (uint) queries.size() && queries[q] != o )
 	q++;
     if ( q < (uint) queries.size() )
 	transmitQuery( q );
@@ -1041,8 +1031,7 @@ void QDnsManager::answer()
 
     Q_UINT16 aid = (((Q_UINT8)a[0]) << 8) + ((Q_UINT8)a[1]);
     uint i = 0;
-    while( i < (uint) queries.size() &&
-	   !( queries[i] && queries[i]->id == aid ) )
+    while ( i < (uint) queries.size() && !( queries[i] && queries[i]->id == aid ) )
 	i++;
     if ( i == (uint) queries.size() ) {
 #if defined(QDNS_DEBUG)
@@ -1107,8 +1096,8 @@ void QDnsManager::transmitQuery( int i )
 	return;
     }
 
-    if ( q && !q->dns || q->dns->isEmpty() )
-	// noone currently wants the answer, so there's no point in
+    if ( q && q->dns.isEmpty() )
+	// no one currently wants the answer, so there's no point in
 	// retransmitting the query. we keep it, though. an answer may
 	// arrive for an earlier query transmission, and if it does we
 	// may benefit from caching the result.
@@ -1443,14 +1432,14 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 		query->id = ++::id;
 		query->t = r->recordType();
 		query->l = s;
-		query->dns->insert((void *)r, (void *)r);
+		query->dns.insert(r, r);
 		QObject::connect( query, SIGNAL(timeout()),
 				  QDnsManager::manager(), SLOT(retransmit()) );
 		QDnsManager::manager()->transmitQuery( query );
 	    } else if ( q < (uint) m->queries.size() ) {
 		// if we've found an earlier query for the same
 		// domain/type, subscribe to its answer
-		m->queries[q]->dns->insert((void *)r, (void *)r);
+		m->queries[q]->dns.insert(r, r);
 	    }
 	}
     }
@@ -1627,8 +1616,6 @@ QDns::QDns( const QHostAddress & address, RecordType rr )
 }
 
 
-
-
 /*!
     Destroys the DNS query object and frees its allocated resources.
 */
@@ -1639,19 +1626,14 @@ QDns::~QDns()
 	uint q = 0;
 	QDnsManager * m = globalManager;
 	while( q < (uint) m->queries.size() ) {
-	    QDnsQuery * query=m->queries[q];
-	    if ( query && query->dns )
-		    (void)query->dns->take( (void*) this );
-		q++;
+	    QDnsQuery *query = m->queries[q];
+	    if ( query )
+		query->dns.remove(this);
+	    ++q;
 	}
-
     }
-
     delete d;
-    d = 0;
 }
-
-
 
 
 /*!

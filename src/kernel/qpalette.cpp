@@ -707,6 +707,8 @@ bool QPalette::operator==(const QPalette &p) const
 #ifdef QT_COMPAT
     Q_ASSERT(is_colorgroup == p.is_colorgroup);
 #endif
+    if (isCopyOf(p))
+	return TRUE;
     for(int grp = 0; grp < (int)NColorGroups; grp++) {
 	for(int role = 0; role < (int)NColorRoles; role++) {
 	    if(d->br[grp][role] != p.d->br[grp][role])
@@ -872,7 +874,7 @@ QDataStream &operator>>(QDataStream &s, QPalette &p)
     \sa operator=() operator==()
 */
 
-bool QPalette::isCopyOf(const QPalette &p)
+bool QPalette::isCopyOf(const QPalette &p) const
 {
     return d == p.d;
 }

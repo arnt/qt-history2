@@ -352,7 +352,7 @@ void qt_mac_update_os_settings()
 	    pal.setColor(QPalette::Disabled, QPalette::Foreground, qc);
 	    pal.setColor(QPalette::Disabled, QPalette::HighlightedText, qc);
 	}
-	if(!(pal == QApplication::palette())) {
+	if(pal != QApplication::palette()) {
 	    QApplication::setPalette(pal);
 #ifdef DEBUG_PLATFORM_SETTINGS
 	    qt_mac_debug_palette(pal, QApplication::palette(), "Global Palette");
@@ -392,10 +392,12 @@ void qt_mac_update_os_settings()
 	    QFont fnt(pstring2qstring(f_name), f_size, (f_style & ::bold) ? QFont::Bold : QFont::Normal,
 		      (bool)(f_style & ::italic));
 	    bool set_font = TRUE;
-	    extern QHash<QString, QFont*> *app_fonts;  //qapplication.cpp
+	    extern QHash<QString, QFont> *app_fonts;  //qapplication.cpp
 	    if(app_fonts) {
-		if(QFont *oldfnt = app_fonts->value(mac_widget_fonts[i].qt_class))
-		    set_font = !(fnt == *oldfnt);
+		QHash<QString, QFont>::ConstIterator it =
+			app_fonts->find(mac_widget_fonts[i].qt_class);
+		if (it != app_fonts->constEnd())
+		    set_font = (fnt != *it);
 	    }
 	    if(set_font) {
 		QApplication::setFont(fnt, mac_widget_fonts[i].qt_class);
@@ -461,10 +463,12 @@ void qt_mac_update_os_settings()
 			     pal.color(QPalette::Active, QPalette::Text));
 	    }
 	    bool set_palette = TRUE;
-	    extern QHash<QString, QPalette*> *app_palettes; //qapplication.cpp
+	    extern QHash<QString, QPalette> *app_palettes; //qapplication.cpp
 	    if(app_palettes) {
-		if(QPalette *oldpal = app_palettes->value(mac_widget_colours[i].qt_class))
-		    set_palette = !(pal == *oldpal);
+		QHash<QString, QPalette>::ConstIterator it =
+			app_palettes->find(mac_widget_colours[i].qt_class);
+		if (it != app_palettes->constEnd())
+		    set_palette = (pal != *it);
 	    }
 	    if(set_palette && pal != apppal) {
 		QApplication::setPalette(pal, mac_widget_colours[i].qt_class);

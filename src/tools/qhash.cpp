@@ -91,7 +91,7 @@ static int countBits(int hint)
 const int MinNumBits = 4;
 
 QHashData QHashData::shared_null = {
-    0, 0, Q_ATOMIC_INIT(1), 0, MinNumBits, 0, 0, 0
+    0, 0, Q_ATOMIC_INIT(1), 0, MinNumBits, 0, 0
 };
 
 QHashData *QHashData::detach_helper(Node *(*node_duplicate)(Node *))
@@ -108,7 +108,6 @@ QHashData *QHashData::detach_helper(Node *(*node_duplicate)(Node *))
     d->userNumBits = userNumBits;
     d->numBits = numBits;
     d->numBuckets = numBuckets;
-    d->autoDelete = autoDelete;
 
     if (numBuckets) {
 	d->buckets = new Node *[numBuckets];

@@ -106,7 +106,7 @@ private:
     int wakeUpDelay;
     QTimer  fallAsleep;
 
-    QHash<QWidget*,Tip*> *tips;
+    QHash<QWidget *, Tip *> *tips;
     QTipLabel *label;
     QPoint pos;
     QGuardedPtr<QWidget> widget;
@@ -134,8 +134,7 @@ QTipManager::QTipManager()
     : QObject( qApp, "toolTipManager" )
 {
     wakeUpDelay = 700;
-    tips = new QHash<QWidget*,QTipManager::Tip*>;
-    tips->reserve(313);
+    tips = new QHash<QWidget *, Tip *>;
     currentTip = 0;
     previousTip = 0;
     label = 0;
@@ -153,13 +152,11 @@ QTipManager::~QTipManager()
 	qApp->removeEventFilter( tipManager );
 
     if ( tips ) {
-	for(QHash<QWidget*,QTipManager::Tip*>::Iterator it = tips->begin(); it != tips->end(); ) {
-	    QTipManager::Tip *t = it.value();
-	    QWidget *k = it.key();
-	    ++it; //advance before the take()
-	    tips->take( k );
+	for(QHash<QWidget *, Tip *>::Iterator it = tips->begin(); it != tips->end(); ) {
+	    Tip *t = it.value();
+	    it = tips->erase( it );
 	    while ( t ) {
-		QTipManager::Tip *n = t->next;
+		Tip *n = t->next;
 		delete t;
 		t = n;
 	    }
@@ -190,7 +187,7 @@ void QTipManager::add( const QRect &gm, QWidget *w,
     t->geometry = gm;
 
     if ( h ) {
-	tips->take( w );
+	tips->remove( w );
 	if ( h != currentTip && h->autoDelete ) {
 	    t->next = h->next;
 	    delete h;
@@ -242,7 +239,7 @@ void QTipManager::remove( QWidget *w, const QRect & r, bool delayhide )
 	previousTip = 0;
 
     if ( ( currentTip != t || !delayhide ) && t->rect == r ) {
-	tips->take( w );
+	tips->remove( w );
 	if ( t->next )
 	    tips->insert( w, t->next );
 	delete t;
@@ -296,7 +293,7 @@ void QTipManager::remove( QWidget *w )
     if ( t == 0 )
 	return;
 
-    tips->take( w );
+    tips->remove( w );
     QTipManager::Tip * d;
     while ( t ) {
 	if ( t == currentTip )
@@ -1222,19 +1219,17 @@ bool QToolTip::isGloballyEnabled()
 /*!
   Sets the wakeup delay for all tooltips to \a i.
 */
-void QToolTip::setWakeUpDelay ( int i )
+void QToolTip::setWakeUpDelay( int i )
 {
     initTipManager();
     tipManager->setWakeUpDelay(i);
 }
 
-
-// Dummy implementations to compile on windows..
-void Q4ToolTip::showText(int, int, const QString &s, QWidget *w)
+// Dummy implementations to compile on Windows
+void Q4ToolTip::showText(int, int, const QString & /* s */, QWidget * /* w */)
 {
 //    qDebug() << "Q4ToolTip::showText" << s << "for" << w;
 }
-
 
 #include "qtooltip.moc"
 

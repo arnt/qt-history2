@@ -104,7 +104,7 @@ public:
 
     bool operator==(const QPalette &p) const;
     inline bool operator!=(const QPalette &p) const { return !(operator==(p)); }
-    bool isCopyOf(const QPalette &p);
+    bool isCopyOf(const QPalette &p) const;
 
     int serialNumber() const;
 

@@ -29,11 +29,7 @@
 
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
 
-
-class QSocket;
-class QFtpCommand;
-class QFtpDTP;
-class QFtpProtocol;
+class QFtpPrivate;
 
 class QM_EXPORT_FTP QFtp : public QObject
 {
@@ -118,18 +114,15 @@ signals:
     void commandFinished( int, bool );
     void done( bool );
 
-
-private:
-    int addCommand( QFtpCommand * );
-
-    bool checkConnection( QNetworkOperation *op );
-
 private slots:
     void startNextCommand();
     void piFinished( const QString& );
     void piError( int, const QString& );
     void piConnectState( int );
     void piFtpReply( int, const QString& );
+
+private:
+    QFtpPrivate *d;
 };
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP

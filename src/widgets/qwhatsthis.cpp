@@ -178,8 +178,7 @@ public:
     void add( QWidget * widget, QWhatsThis* special );
     void add( QWidget * widget, const QString& text );
 
-    // say it.
-    void say( QWidget *, const QString&, const QPoint&  );
+    void say(QWidget *, const QString &, const QPoint &);
 
     // setup and teardown
     static void setUpWhatsThis();
@@ -189,9 +188,9 @@ public:
 
     // variables
     QWhatsThat *whatsThat;
-    QHash<QWidget *, WhatsThisItem *> *dict;
-    QHash<QWidget *, QWidget *> *tlw;
-    QHash<QToolButton *, QWhatsThisButton *> *buttons;
+    QHash<QWidget *, WhatsThisItem *> dict;
+    QHash<QWidget *, QWidget *> tlw;
+    QHash<QToolButton *, QWhatsThisButton *> buttons;
     State state;
 
 private slots:
@@ -309,8 +308,8 @@ void QWhatsThat::mouseReleaseEvent( QMouseEvent* e )
 	if ( anchor == a )
 	    href = a;
 	anchor = QString::null;
-	if ( widget && wt && wt->dict ) {
-	    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->value(widget);
+	if ( widget && wt ) {
+	    QWhatsThisPrivate::WhatsThisItem * i = wt->dict.value(widget);
 	    if ( i  && i->whatsthis && !i->whatsthis->clicked( href ) )
 		return;
 	}
@@ -425,7 +424,7 @@ QWhatsThisButton::QWhatsThisButton( QWidget * parent, const char * name )
     setAutoRaise( TRUE );
     setFocusPolicy( NoFocus );
     setTextLabel( tr( "What's this?" ) );
-    wt->buttons->insert(this, this );
+    wt->buttons.insert(this, this);
     connect( this, SIGNAL( released() ),
 	     this, SLOT( mouseReleased() ) );
 }
@@ -433,8 +432,8 @@ QWhatsThisButton::QWhatsThisButton( QWidget * parent, const char * name )
 
 QWhatsThisButton::~QWhatsThisButton()
 {
-    if ( wt && wt->buttons )
-	wt->buttons->take(this );
+    if (wt)
+	wt->buttons.remove(this);
 }
 
 
@@ -463,10 +462,7 @@ QWhatsThisPrivate::QWhatsThisPrivate()
     : QObject( 0, "global what's this object" )
 {
     whatsThat = 0;
-    dict = new QHash<QWidget *, WhatsThisItem *>;
-    tlw = new QHash<QWidget *, QWidget *>;
     wt = this;
-    buttons = new QHash<QToolButton *, QWhatsThisButton *>;
     state = Inactive;
 }
 
@@ -476,22 +472,7 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
     if ( state == Waiting && qApp )
 	QApplication::restoreOverrideCursor();
 #endif
-    // the two straight-and-simple dicts
-    delete tlw;
-    delete buttons;
-
-    // then delete the complex one.
-    QHash<QWidget *, WhatsThisItem*>::Iterator it = dict->begin();
-    WhatsThisItem * i;
-    QWidget * w;
-    while( it != dict->end() ) {
-	w = it.key();
-	++it;
-	i = dict->take(w);
-	delete i;
-    }
-    delete dict;
-    // and finally lose wt
+    dict.deleteAll();
     wt = 0;
 }
 
@@ -509,7 +490,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    QMouseEvent* me = (QMouseEvent*) e;
 	    QPoint p = me->pos();
 	    while( w && !i ) {
-		i = dict->value(w);
+		i = dict.value(w);
 		if ( !i ) {
 		    p += w->pos();
 		    w = w->parentWidget( TRUE );
@@ -600,8 +581,8 @@ void QWhatsThisPrivate::enterWhatsThisMode()
 void QWhatsThisPrivate::leaveWhatsThisMode()
 {
     if ( state == Waiting ) {
-	QHash<QToolButton *, QWhatsThisButton *>::Iterator it = wt->buttons->begin();
-	while (it != wt->buttons->end()) {
+	QHash<QToolButton *, QWhatsThisButton *>::Iterator it = wt->buttons.begin();
+	while (it != wt->buttons.end()) {
 	    (*it)->setOn(FALSE);
 	    ++it;
 	}
@@ -697,14 +678,14 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 
 QWhatsThisPrivate::WhatsThisItem* QWhatsThisPrivate::newItem( QWidget * widget )
 {
-    WhatsThisItem * i = dict->value(widget);
+    WhatsThisItem * i = dict.value(widget);
     if ( i )
 	QWhatsThis::remove( widget );
     i = new WhatsThisItem;
-    dict->insert(widget, i);
+    dict.insert(widget, i);
     QWidget * t = widget->topLevelWidget();
-    if ( !tlw->value(t) ) {
-	tlw->insert(t, t);
+    if ( !tlw.value(t) ) {
+	tlw.insert(t, t);
 	t->installEventFilter( this );
     }
     connect( widget, SIGNAL(destroyed()), this, SLOT(cleanupWidget()) );
@@ -752,13 +733,11 @@ void QWhatsThis::add( QWidget * widget, const QString &text )
 void QWhatsThis::remove( QWidget * widget )
 {
     QWhatsThisPrivate::setUpWhatsThis();
-    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->value(widget);
-    if ( !i )
-	return;
-
-    wt->dict->take(widget);
-
-    delete i;
+    QHash<QWidget *, QWhatsThisPrivate::WhatsThisItem *>::Iterator it = wt->dict.find(widget);
+    if (it != wt->dict.end()) {
+	delete it.value();
+        wt->dict.erase(it);
+    }
 }
 
 
@@ -779,7 +758,7 @@ QString QWhatsThis::textFor( QWidget * w, const QPoint& pos, bool includeParents
     QWhatsThisPrivate::WhatsThisItem * i = 0;
     QPoint p = pos;
     while( w && !i ) {
-	i = wt->dict->value(w);
+	i = wt->dict.value(w);
 	if ( !includeParents )
 	    break;
 	if ( !i ) {
