@@ -208,6 +208,10 @@
 */
 //#define QT_NO_QWS_VFB
 /*!
+    1-bit monochrome
+*/
+//#define QT_NO_QWS_DEPTH_1
+/*!
     8-bit grayscale
 */
 #define QT_NO_QWS_DEPTH_8GRAYSCALE
@@ -328,7 +332,12 @@
 //#define QT_NO_LAYOUT
 
 // Widgets
-#if defined(QT_NO_PALETTE)
+/*!
+    QStyle
+*/
+//#define QT_NO_STYLE
+
+#if defined(QT_NO_PALETTE) || defined (QT_NO_STYLE)
     /*!
 	Pre-defined widgets
     */
@@ -354,15 +363,26 @@
     #define QT_NO_ICONVIEW
 #endif
 
+#if defined(QT_NO_WIDGETS) || defined(QT_NO_STYLE)
+    /*!
+	Windows style
+    */
+    #define QT_NO_STYLE_WINDOWS
+    /*!
+	Motif style
+    */
+    #define QT_NO_STYLE_MOTIF
+    /*!
+	Platinum style
+    */
+    #define QT_NO_STYLE_PLATINUM
+#endif
+
 #if defined(QT_NO_WIDGETS)
     /*!
 	QAccel
     */
     #define QT_NO_ACCEL
-    /*!
-	QStyle
-    */
-    #define QT_NO_STYLE
     /*!
 	QIconSet
     */
@@ -400,19 +420,6 @@
 	Built-in dialogs
     */
     #define QT_NO_DIALOGS
-
-    /*!
-	Windows style
-    */
-    #define QT_NO_STYLE_WINDOWS
-    /*!
-	Motif style
-    */
-    #define QT_NO_STYLE_MOTIF
-    /*!
-	Platinum style
-    */
-    #define QT_NO_STYLE_PLATINUM
 #endif
 
 #if defined(QT_NO_STYLE_MOTIF)
