@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#31 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -462,7 +462,6 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
     if ( !gProt || !QNetworkProtocol::getNetworkProtocol( QUrl( to ).protocol() ) )
 	return ops;
 
-    u->d->entryMap = d->entryMap;
     gProt->setUrl( u );
 
     if ( gProt && ( gProt->supportedOperations() & QNetworkProtocol::OpGet ) &&
@@ -484,7 +483,6 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
 							  QString::null, QString::null );
 	ops.append( opPut );
 	QUrlOperator *u2 = new QUrlOperator( to );
-	u2->d->entryMap = d->entryMap;
 	QNetworkProtocol *pProt = QNetworkProtocol::getNetworkProtocol( u2->protocol() );
 	pProt->setUrl( u2 );
 	
@@ -776,14 +774,14 @@ QUrlOperator& QUrlOperator::operator=( const QUrlOperator &url )
     QPtrDict<QNetworkProtocol> getOpPutProtMap = d->getOpPutProtMap;
     QPtrDict<QNetworkProtocol> getOpGetProtMap = d->getOpGetProtMap;
     QPtrDict<QNetworkOperation> getOpRemoveOpMap = d->getOpRemoveOpMap;
-    
+
     *d = *url.d;
-    
+
     d->getOpPutOpMap = getOpPutOpMap;
     d->getOpPutProtMap = getOpPutProtMap;
     d->getOpGetProtMap = getOpGetProtMap;
     d->getOpRemoveOpMap = getOpRemoveOpMap;
-    
+
     getNetworkProtocol();
     return *this;
 }

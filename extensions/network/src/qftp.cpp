@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#49 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#50 $
 **
 ** Implementation of Network Extension Library
 **
@@ -33,7 +33,7 @@
 
 QFtp::QFtp()
     : QNetworkProtocol(), connectionReady( FALSE ),
-      passiveMode( FALSE )
+      passiveMode( FALSE ), startGetOnFail( FALSE )
 {
     commandSocket = new QSocket( this );
     dataSocket = new QSocket( this );
@@ -96,8 +96,6 @@ void QFtp::operationRename( QNetworkOperation *op )
 
 void QFtp::operationGet( QNetworkOperation *op )
 {
-    getTotalSize = -1;
-    getDoneSize = 0;
     commandSocket->writeBlock( "TYPE I\r\n", 8 );
 }
 
@@ -269,12 +267,31 @@ void QFtp::okButTryLater( int code, const QCString & )
 void QFtp::okGoOn( int code, const QCString &data )
 {
     switch ( code ) {
-    case 200: { // last command ok
+    case 213: { // state of a file (size and so on)
 	if ( operationInProgress() ) {
-	    if ( operationInProgress()->operation() == OpGet ||
-		 operationInProgress()->operation() == OpPut )
+	    if ( operationInProgress()->operation() == OpGet ) {
+		// cut off the "213 "
+		QString s( data );
+		s.remove( 0, 4 );
+		s = s.simplifyWhiteSpace();
+		getTotalSize = s.toInt();
 		operationInProgress()->setState( StInProgress );
 		commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
+	    }
+	}
+    } break;
+    case 200: { // last command ok
+	if ( operationInProgress() ) {
+	    if ( operationInProgress()->operation() == OpPut ) {
+		operationInProgress()->setState( StInProgress );
+		commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
+	    } else if ( operationInProgress()->operation() == OpGet ) {
+		startGetOnFail = TRUE;
+		getTotalSize = -1;
+		getDoneSize = 0;
+		QString cmd = "SIZE "+ QUrl( operationInProgress()->arg1() ).path() + "\r\n";
+		commandSocket->writeBlock( cmd.latin1(), cmd.length() );
+	    }
 	}
     } break;
     case 220: { // expect USERNAME
@@ -363,6 +380,13 @@ void QFtp::errorForNow( int code, const QCString & )
 
 void QFtp::errorForgetIt( int code, const QCString &data )
 {
+    if ( startGetOnFail ) {
+	operationInProgress()->setState( StInProgress );
+	commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
+	startGetOnFail = FALSE;
+	return;
+    }
+    
     switch ( code ) {
     case 530: { // Login incorrect
 	close();
@@ -501,10 +525,6 @@ void QFtp::dataReadyRead()
 	dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
 	emit data( s, operationInProgress() );
 	if ( url() ) {
-	    if ( getTotalSize == -1 ) {
-		QUrlInfo inf = url()->info( QUrl( operationInProgress()->arg1() ).fileName() );
-		getTotalSize = (int)inf.size() ? (int)inf.size() : -1;
-	    }
 	    getDoneSize += s.size();
 	    emit dataTransferProgress( getDoneSize, getTotalSize, operationInProgress() );
 	}

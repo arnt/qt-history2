@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#370 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#371 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3844,6 +3844,7 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	else
 	    d->cdToParent->setEnabled( TRUE );
     }
+					      
 }
 
 void QFileDialog::urlFinished( QNetworkOperation *op )
@@ -3878,28 +3879,36 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	resortDir();
     } else if ( op->operation() == QNetworkProtocol::OpPut ) {
  	rereadDir();
+	if ( d->progressDia )
+	    d->progressDia->close();
+	delete d->progressDia;
+	d->progressDia = 0;
     }
 }
 
-void QFileDialog::dataTransferProgress( int, int, QNetworkOperation * )
+void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *op )
 {
-//############# todo show progress!
-#if 0
-    if ( !d->progressDia )
+    if ( !op )
 	return;
-
-    if ( !d->progressDia->isVisible() || step == -1 ) {
-	QLabel *l = new QLabel( d->progressDia );
-	l->setText( tr( "From: %1\nTo: %2" ).arg( op->arg1() ).arg( op->arg2() ) );
-	d->progressDia->setLabel( l );
-	d->progressDia->reset();
-	d->progressDia->setMinimumDuration( 0 );
-	d->progressDia->setTotalSteps( total );
-	d->progressDia->show();
+    if ( !d->progressDia ) {
+	if ( bytesDone < bytesTotal) {
+	    d->progressDia = new QProgressDialog( tr( "Read: %1" ).arg( op->arg1() ), QString::null,
+						  bytesTotal, 0 );
+	    d->progressDia->show();
+	    d->progressDia->setProgress( 0 );
+	    d->progressDia->setTotalSteps( bytesTotal );
+	} else
+	    return;
     }
-
-    d->progressDia->setProgress( step );
-#endif
+					      
+    if ( op->operation() == QNetworkProtocol::OpGet )
+	d->progressDia->setLabelText( tr( "Read: %1" ).arg( op->arg1() ) );
+    else if ( op->operation() == QNetworkProtocol::OpPut )
+	d->progressDia->setLabelText( tr( "Write: %1" ).arg( op->arg1() ) );
+    else
+	return;
+    
+    d->progressDia->setProgress( bytesDone );
 }
 
 void QFileDialog::insertEntry( const QUrlInfo &inf, QNetworkOperation * )
