@@ -15,6 +15,8 @@ public slots:
     void doPlay2();
     void doPlay3();
     void doPlay4();
+    void doPlay34();
+    void doPlay1234();
 
 private:
     QSound bucket3;

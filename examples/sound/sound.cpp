@@ -37,6 +37,10 @@ SoundPlayer::SoundPlayer() :
     file->insertItem("Play &2",  this, SLOT(doPlay2()), CTRL+Key_2);
     file->insertItem("Play from bucket &3",  this, SLOT(doPlay3()), CTRL+Key_3);
     file->insertItem("Play from bucket &4",  this, SLOT(doPlay4()), CTRL+Key_4);
+    file->insertSeparator();
+    file->insertItem("Play 3 and 4 together",  this, SLOT(doPlay34()));
+    file->insertItem("Play all together",  this, SLOT(doPlay1234()));
+    file->insertSeparator();
     file->insertItem("E&xit",  qApp, SLOT(quit()));
     menuBar()->insertItem("&File", file);
 }
@@ -58,6 +62,22 @@ void SoundPlayer::doPlay3()
 
 void SoundPlayer::doPlay4()
 {
+    bucket4.play();
+}
+
+void SoundPlayer::doPlay34()
+{
+    // Some sound platforms will only play one sound at a time
+    bucket3.play();
+    bucket4.play();
+}
+
+void SoundPlayer::doPlay1234()
+{
+    // Some sound platforms will only play one sound at a time
+    QSound::play("sounds/1.wav");
+    QSound::play("sounds/2.wav");
+    bucket3.play();
     bucket4.play();
 }
 
