@@ -347,8 +347,12 @@ QTextLayout::~QTextLayout()
 */
 void QTextLayout::setText(const QString& string, const QFont& fnt)
 {
+    QAbstractTextDocumentLayout *layout = d->docLayout;
+    const QTextFormatCollection *formats = d->formats;
     delete d;
     d = new QTextEngine((string.isNull() ? (const QString&)QString::fromLatin1("") : string), fnt.d);
+    d->docLayout = layout;
+    d->formats = formats;
 }
 
 /*!
