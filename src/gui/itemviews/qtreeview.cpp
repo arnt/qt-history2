@@ -1169,31 +1169,33 @@ int QTreeView::sizeHintForColumn(int column) const
 */
 int QTreeView::indexRowSizeHint(const QModelIndex &left) const
 {
-    if (d->viewItems.count() <= 0)
+    if (d->viewItems.count() <= 0 || d->header->count() <= 0)
         return 0;
 
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     int width = viewport()->width();
     int height = 0;
-    // only check the visible columns - FIXME: is this ok ?
+    // FIXME: use visible indexes that we later convert them to logical indexes.
+    // If the sections have moved, we end up checking too many or too few
     int start = d->header->visualIndexAt(0);
     int end = d->header->visualIndexAt(width);
 
     if (isRightToLeft()) {
-        start = start == -1 ? d->header->count() - 1 : start;
-        end = end == -1 ? 0 : end;
+        start = (start == -1 ? d->header->count() - 1 : start);
+        end = (end == -1 ? 0 : end);
     } else {
-        start = start == -1 ? 0 : start;
-        end = end == -1 ? d->header->count() - 1 : end;
+        start = (start == -1 ? 0 : start);
+        end = (end == -1 ? d->header->count() - 1 : end);
     }
+    start = d->header->logicalIndex(start);
+    end = d->header->logicalIndex(end);
 
     int tmp = start;
     start = qMin(start, end);
     end = qMax(tmp, end);
 
     QModelIndex parent = left.parent();
-    const QVector<QTreeViewItem> viewItems = d->viewItems;
     for (int column = start; column <= end; ++column) {
         QModelIndex index = d->model->index(left.row(), column, parent);
         height = qMax(height, delegate->sizeHint(option, index).height());
