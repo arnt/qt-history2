@@ -102,17 +102,19 @@ static QPaintDevice* paintEventDevice = 0;
 
 void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 {
-    //THIS NEEDS TO BE IN AND FIXED, HOWEVER ITS CAUSING PAINT PROBLEMS SO ITS OUT FOR NOW
-#if 0
     if ( !paintEventClipRegion )
 	paintEventClipRegion = new QRegion;
     *paintEventClipRegion = region;
     if(dev->devType() == QInternal::Widget) {
 	QWidget *w = (QWidget *)dev;
-	*paintEventClipRegion &= w->clippedRegion();
+	QPoint mp(posInWindow(w));
+	paintEventClipRegion->translate(mp.x(), mp.y());
+
+	QRegion wclip = w->clippedRegion();
+	if(!wclip.isEmpty())
+	    *paintEventClipRegion &= wclip;
     }
     paintEventDevice = dev;
-#endif
 }
 
 void qt_clear_paintevent_clipping()
@@ -405,7 +407,6 @@ bool QPainter::begin( const QPaintDevice *pd )
             updatePen();
             updateBrush();
         }  else {
-
 	    if(paintEventDevice == pdev)
 		savedclip = *paintEventClipRegion;
 	    else
@@ -426,8 +427,6 @@ bool QPainter::begin( const QPaintDevice *pd )
 	//setup the gworld
 	SetGWorld((GWorldPtr)pm->handle(),0);
 	LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));
-
-	savedclip = QRegion(0, 0, pm->width(), pm->height());
     } 
 
     if ( testf(ExtDev) ) {               // external device
@@ -449,7 +448,8 @@ bool QPainter::begin( const QPaintDevice *pd )
         setRasterOp( CopyROP );                 // default raster operation
     }
 
-    SetClip((RgnHandle)savedclip.handle());
+    if(!savedclip.isEmpty())
+	SetClip((RgnHandle)savedclip.handle());
     updateBrush();
     updatePen();
     return TRUE;
@@ -592,10 +592,12 @@ void QPainter::setClipping( bool b )
 	clearf(ClipOn);
     }
 
-    if(reg.isEmpty())
-	reg = savedclip;
-    else 
-	reg &= savedclip;
+    if(!savedclip.isEmpty()) {
+	if(reg.isEmpty())
+	    reg = savedclip;
+	else 
+	    reg &= savedclip;
+    }
     SetClip((RgnHandle)reg.handle());
 }
 
@@ -621,11 +623,16 @@ void QPainter::setClipRect( const QRect &r )
 
 void QPainter::setClipRegion( const QRegion &r )
 {
-    QRegion rset(crgn = r);
-    if(r.isEmpty())
-	rset = savedclip;
-    else 
-	rset &= savedclip;
+    QRegion rset(r);
+    rset.translate(offx, offy);
+    crgn = rset;
+
+    if(!savedclip.isEmpty()) {
+	if(r.isEmpty())
+	    rset = savedclip;
+	else 
+	    rset &= savedclip;
+    }
     if(testf(ClipOn)) 
 	SetClip((RgnHandle)rset.handle());
 }

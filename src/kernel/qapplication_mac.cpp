@@ -1292,9 +1292,9 @@ bool QApplication::do_mouse_down( EventRecord* es )
   }
   return in_widget;
 }
-RgnHandle cliprgn=0;
-bool ignorecliprgn=true;
 
+/* almost all of this is bogus, it needs to be fixed on the next pass. Basically it needs to use
+   a qetwidget for event translation, mouse events and popups are wrong too, FIXME!! */
 int QApplication::macProcessEvent(MSG * m)
 {
     QWidget *widget;
@@ -1313,15 +1313,12 @@ int QApplication::macProcessEvent(MSG * m)
 	    int metricHeight = widget->metric( QPaintDeviceMetrics::PdmHeight );
 	    widget->crect.setWidth( metricWidth - 1 );
 	    widget->crect.setHeight( metricHeight - 1 );
-	    ignorecliprgn = false;
 
 	    BeginUpdate((WindowPtr)widget->handle());
 	    qt_set_paintevent_clipping( widget, QRegion( 0, 0, widget->width(), widget->height() ));
 	    widget->propagateUpdates( 0, 0, widget->width(), widget->height() );
 	    qt_clear_paintevent_clipping();
 	    EndUpdate((WindowPtr)widget->handle());
-
-	    ignorecliprgn = true;
 	}
     } else if( er->what == mouseDown ) {
 	short part = FindWindow( er->where, &wp );

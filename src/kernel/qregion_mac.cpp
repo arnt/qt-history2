@@ -93,7 +93,7 @@ QRegion::QRegion( const QRect &r, RegionType t )
     data->rgn = NewRgn();
 
     Rect rect;
-    SetRect(&rect, rr.x(), rr.y(), rr.x()+rr.width(), rr.y()+rr.height());
+    SetRect(&rect, rr.x(), rr.y(), rr.right()+1, rr.bottom()+1);
     OpenRgn();
     if ( t == Rectangle )			// rectangular region
 	FrameRect(&rect);
@@ -434,7 +434,7 @@ QRect QRegion::boundingRect() const
 {
     Rect r;
     GetRegionBounds(data->rgn, &r);
-    return QRect(r.top, r.left, r.right - r.top, r.bottom - r.left); 
+    return QRect(r.left, r.top, r.right - r.left, r.bottom - r.top); 
 }
 
 
