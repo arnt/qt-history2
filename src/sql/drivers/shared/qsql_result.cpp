@@ -145,6 +145,7 @@ public:
 	b->size = size;
 	b->type = type;
 	b->data = new char[ size ];
+	b->data[0] = 0; // avoid garbage in NULL strings
 	if ( !nd )
 	    b->nullBinder = new QSqlClientNullData();
 	else {	
