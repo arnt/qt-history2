@@ -1474,7 +1474,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		p->setPen( cgroup.highlightedText() );
 		p->save();
 		p->setClipRect( x, 0, tb->width() - x, tb->height() );
-		if((tb->width() - x) <= (p->fontMetrics().width(tb->caption())+iw)) 
+		if((tb->width() - x) <= (p->fontMetrics().width(tb->caption())+iw*2)) 
 		    x += iw;
 		else 
 		    x += ((tb->width() - x) / 2) - ( p->fontMetrics().width(tb->visibleText()) / 2);

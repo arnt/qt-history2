@@ -505,7 +505,7 @@ void QTitleBar::cutText()
 	maxw = width() - 20;
     const QString txt = caption();
     d->cuttext = txt;
-    if ( fm.width( txt+"m" ) > maxw ) {
+    if ( fm.width( txt ) > maxw ) {
 	int i = txt.length();
 	int dotlength = fm.width( "..." );
 	while ( i>0 && fm.width(txt.left( i )) + dotlength > maxw )
