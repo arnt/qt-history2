@@ -272,6 +272,7 @@ public:
 
     // documented in qevent.cpp
     enum Modifier {		// accelerator modifiers
+	META          = 0x00100000,
 	SHIFT         = 0x00200000,
 	CTRL          = 0x00400000,
 	ALT           = 0x00800000,

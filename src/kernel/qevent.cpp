@@ -658,6 +658,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
     Qt.
 
     \value SHIFT the Shift keys provided on all standard keyboards.
+    \value META the Meta keys.
     \value CTRL the Ctrl keys.
     \value ALT the normal Alt keys, but not e.g. AltGr.
     \value MODIFIER_MASK is a mask of Shift, Ctrl and Alt.

@@ -632,8 +632,8 @@ struct key_sym
 static key_sym modifier_syms[] = {
 { shiftKey, MAP_KEY(Qt::ShiftButton) },
 { rightShiftKeyBit, MAP_KEY(Qt::ShiftButton) },
-{ controlKey, MAP_KEY(Qt::ControlButton) },
-{ rightControlKey, MAP_KEY(Qt::ControlButton) },
+{ controlKey, MAP_KEY(Qt::MetaButton) },
+{ rightControlKey, MAP_KEY(Qt::MetaButton) },
 { cmdKey, MAP_KEY(Qt::ControlButton) },
 { optionKey, MAP_KEY(Qt::AltButton) },
 { rightOptionKey, MAP_KEY(Qt::AltButton) },
@@ -1524,8 +1524,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    static key_sym key_modif_syms[] = {
 		{ shiftKeyBit, MAP_KEY(Qt::Key_Shift) },
 		{ rightShiftKeyBit, MAP_KEY(Qt::Key_Shift) }, //???
-		{ controlKeyBit, MAP_KEY(Qt::Key_Control) },
-		{ rightControlKeyBit, MAP_KEY(Qt::Key_Control) }, //???
+		{ controlKeyBit, MAP_KEY(Qt::Key_Meta) },
+		{ rightControlKeyBit, MAP_KEY(Qt::Key_Meta) }, //???
 		{ cmdKeyBit, MAP_KEY(Qt::Key_Meta) },
 		{ optionKeyBit, MAP_KEY(Qt::Key_Super_L) },
 		{ rightOptionKeyBit, MAP_KEY(Qt::Key_Super_R) },
@@ -1581,7 +1581,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    static UInt32 tmp_state = 0L;
 	    if(modifiers & Qt::ShiftButton)
 		tmp_mod |= shiftKey;
-	    if(modifiers & Qt::ControlButton)
+	    if(modifiers & Qt::MetaButton)
 		tmp_mod |= controlKey;
 	    if(modif & alphaLock)
 		tmp_mod |= alphaLock;

@@ -340,6 +340,8 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 			char mod = 0;
 			if ( (k & Qt::CTRL) != Qt::CTRL )
 			    mod |= kMenuNoCommandModifier;
+			if ( (k & Qt::META) == Qt::META )
+			    mod |= kMenuControlModifier;
 			if ( (k & Qt::ALT) == Qt::ALT )
 			    mod |= kMenuOptionModifier;
 			if ( (k & Qt::SHIFT) == Qt::SHIFT )

@@ -56,7 +56,7 @@
     \ingroup misc
 
     A key sequence consists of a keyboard code, optionally combined
-    with modifiers, e.g. \c SHIFT, \c CTRL, \c ALT or \c
+    with modifiers, e.g. \c SHIFT, \c CTRL, \c ALT, \c META, or \c
     UNICODE_ACCEL. For example, \c{CTRL + Key_P} might be a sequence
     used as a shortcut for printing a document. The key codes are
     listed in \c{qnamespace.h}. As an alternative, use \c
@@ -124,7 +124,7 @@ QKeySequence::QKeySequence()
   Constructs a key sequence from the keycode \a key.
 
   The key codes are listed in \c{qnamespace.h} and can be combined
-  with modifiers, e.g. with \c SHIFT, \c CTRL, \c ALT or \c
+  with modifiers, e.g. with \c SHIFT, \c CTRL, \c ALT, \c META, or \c
   UNICODE_ACCEL.
 */
 QKeySequence::QKeySequence( int key )
@@ -201,6 +201,9 @@ done:
 #endif
 	if ( sl.contains("alt+") || sl.contains(QAccel::tr("Alt").lower() + "+") )
 	    k |= ALT;
+
+	if ( sl.contains("meta+") || sl.contains(QAccel::tr("Meta").lower() + "+") )
+	    k |= META;
 
 	if ( sl.contains("shift+") || sl.contains(QAccel::tr("Shift").lower() + "+") )
 	    k |= SHIFT;
@@ -283,7 +286,12 @@ QKeySequence::operator QString() const
 	    s += QAccel::tr( "+" );
 	s += QAccel::tr( "Shift" );
     }
-    k &= ~(SHIFT | CTRL | ALT);
+    if ( (k & META) == META ) {
+	if ( !s.isEmpty() )
+	    s += QAccel::tr( "+" );
+	s += QAccel::tr( "Meta" );
+    }
+    k &= ~(SHIFT | CTRL | ALT | META);
     QString p;
     if ( (k & UNICODE_ACCEL) == UNICODE_ACCEL ) {
 	p = QChar(k & 0xffff);

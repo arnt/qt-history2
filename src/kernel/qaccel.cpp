@@ -502,6 +502,8 @@ bool QAccel::eventFilter( QObject *o, QEvent *e )
 	    key |= SHIFT;
 	if ( k->state() & ControlButton )
 	    key |= CTRL;
+	if ( k->state() & MetaButton )
+	    key |= META;
 	if ( k->state() & AltButton )
 	    key |= ALT;
 	QAccelItem *item;
