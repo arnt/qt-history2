@@ -407,7 +407,7 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QString &type, b
 	    const uint count = bytes.count();
 	    SAFEARRAY *array =	SafeArrayCreateVector(VT_UI1, 0, count);
 	    if (count) {
-		const char *data = bytes.data();
+		const char *data = bytes.constData();
 		char *dest;
 		SafeArrayAccessData(array, (void **)&dest);
 		memcpy(dest, data, count);
@@ -600,21 +600,6 @@ bool QVariantToVoidStar(const QVariant &var, void *data)
     case QVariant::Point:
 	*(QPoint*)data = var.toPoint();
 	break;
-/*
-    case 1000: // rawAccess in QAxBase::toVariant
-	if (type == "IDispatch*") {
-	    arg.vt = VT_DISPATCH;
-	    arg.pdispVal = (IDispatch*)qvar.rawAccess();
-	    if ( arg.pdispVal )
-		arg.pdispVal->AddRef();
-	} else {
-	    arg.vt = VT_UNKNOWN;
-	    arg.punkVal = (IUnknown*)qvar.rawAccess();
-	    if ( arg.punkVal )
-		arg.punkVal->AddRef();
-	}
-	break;
-*/
     default:
 	return false;
     }
