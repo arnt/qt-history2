@@ -838,9 +838,6 @@ void QScrollBar::action( QStyle::SubControl control )
 	setValue( maxValue() );
 	break;
     default:
-#if defined(QT_CHECK_RANGE)
-	qWarning( "QScrollBar::action: (%s) internal error", name() );
-#endif
 	break;
     }
 }
