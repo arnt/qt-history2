@@ -711,8 +711,8 @@ void QListViewItem::startRename()
     int col = 0;
     QRect r = lv->itemRect( this );
     r = QRect( lv->viewportToContents( r.topLeft() ), r.size() );
-    r.setLeft( r.left() + lv->itemMargin() + ( depth() + ( lv->rootIsDecorated() ? 1 : 0 ) ) * lv->treeStepSize() );
-    r.setRight( lv->header()->sectionSize( 0 ) - 3 );
+    r.setLeft( r.left() + lv->itemMargin() + ( depth() + ( lv->rootIsDecorated() ? 1 : 0 ) ) * lv->treeStepSize() - 1 );
+    r.setRight( lv->header()->sectionSize( 0 ) - 1 );
     QVBox *box = new QVBox( lv->viewport() );
     box->setFrameStyle( QFrame::Box | QFrame::Plain );
     box->setBackgroundMode( QWidget::PaletteBase );
@@ -721,8 +721,8 @@ void QListViewItem::startRename()
     renameBox->setText( text( col ) );
     renameBox->selectAll();
     renameBox->installEventFilter( lv );
-    lv->addChild( box, r.x(), r.y() - 3 );
-    box->resize( r.size() + QSize( 0, 6 ) );
+    lv->addChild( box, r.x(), r.y() - 2 );
+    box->resize( r.size() + QSize( 0, 4 ) );
     lv->viewport()->setFocusProxy( renameBox );
     renameBox->setFocus();
     box->show();
