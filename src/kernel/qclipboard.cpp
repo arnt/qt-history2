@@ -51,7 +51,7 @@
 
   Only there is a single QClipboard object in an application, and you
   can gain access to it using QApplication::clipboard().
-  
+
   Example:
   \code
     QClipboard *cb = QApplication::clipboard();
@@ -70,10 +70,10 @@
   types: The methods setText() allows exchanging unicode text easily
   over the clipboard, while setPixmap() setImage() allows to exchange
   QPixmap and QImage between applications.  setData() is the ultimate
-  in flexibility: It allows you to add any QMimeSource onto the
+  in flexibility:  It allows you to add any QMimeSource onto the
   clipboard.  (There are corresponding getters for each of these,
   e.g. text().)
-  
+
   You can clear the clipboard by calling the method clear().
 */
 
@@ -86,7 +86,7 @@
   clipboard object.
 
   There is only one clipboard in the window system, and creating more
-  than one object to represent it is almost certainly a bug.  
+  than one object to represent it is almost certainly a bug.
 */
 
 QClipboard::QClipboard( QObject *parent, const char *name )
@@ -155,7 +155,7 @@ QClipboard *QApplication::clipboard()
 QString QClipboard::text(QCString& subtype) const
 {
     QString r;
-    QTextDrag::decode(data(),r,subtype);
+    QTextDrag::decode( data() ,r, subtype );
     return r;
 }
 
@@ -179,7 +179,7 @@ QString QClipboard::text() const
 
 void QClipboard::setText( const QString &text )
 {
-    setData(new QTextDrag(text));
+    setData( new QTextDrag(text) );
 }
 
 
@@ -194,7 +194,7 @@ void QClipboard::setText( const QString &text )
 QImage QClipboard::image() const
 {
     QImage r;
-    QImageDrag::decode(data(),r);
+    QImageDrag::decode( data(), r );
     return r;
 }
 
@@ -211,7 +211,7 @@ QImage QClipboard::image() const
 
 void QClipboard::setImage( const QImage &image )
 {
-    setData(new QImageDrag(image));
+    setData( new QImageDrag( image ) );
 }
 
 
@@ -221,14 +221,14 @@ void QClipboard::setImage( const QImage &image )
   example, if the image is 24-bit and the display 8-bit the result is
   converted to 8 bits, and if the image has an alpha channel the
   result just has a mask.
-  
+
   \sa setPixmap() image() data() QPixmap::convertFromImage().
 */
 
 QPixmap QClipboard::pixmap() const
 {
     QPixmap r;
-    QImageDrag::decode(data(),r);
+    QImageDrag::decode( data(), r );
     return r;
 }
 
@@ -242,7 +242,7 @@ QPixmap QClipboard::pixmap() const
 void QClipboard::setPixmap( const QPixmap &pixmap )
 {
     // *could* just use the handle, but that is X hackery, MIME is better.
-    setData(new QImageDrag(pixmap.convertToImage()));
+    setData( new QImageDrag( pixmap.convertToImage() ) );
 }
 
 #endif // QT_NO_CLIPBOARD
