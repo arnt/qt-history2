@@ -1,0 +1,76 @@
+# -*- makefile -*-
+#
+# Main Makefile for building the Qt library, examples and tutorial.
+
+FORCEDEP=FORCE
+CONTINUEONERROR=-k
+
+all: symlinks src-qmake src-moc sub-src sub-tools sub-tutorial sub-examples
+	@echo
+	@echo "The Qt library is now built in ./lib"
+	@echo "The Qt examples are built in the directories in ./examples"
+	@echo "The Qt tutorials are built in the directories in ./tutorial"
+	@echo
+	@echo "Enjoy!   - the Trolltech team"
+	@echo
+
+symlinks: .qmake.cache
+#	syncqt
+
+#moc
+src-moc: src-qmake $(FORCEDEP)
+#	cd src\moc && $(MAKE)
+
+#Qt
+sub-src: src-moc .qmake.cache $(FORCEDEP)
+	cd src && $(MAKE) && $(MAKE) -f Makefile.main
+
+#qmake
+src-qmake: symlinks $(FORCEDEP)
+	cd qmake && $(MAKE) -f Makefile.win32-g++
+
+#Tools
+sub-tools: sub-plugins $(FORCEDEP)
+	cd tools && $(MAKE)
+
+#Plugins
+sub-plugins: sub-src .qmake.cache $(FORCEDEP)
+	cd plugins\src && $(MAKE)
+
+#examples
+sub-examples: sub-tools $(FORCEDEP)
+	cd examples && $(MAKE) $(CONTINUEONERROR)
+
+#tutorials
+sub-tutorial: sub-src $(FORCEDEP)
+	cd tutorial && $(MAKE) $(CONTINUEONERROR)
+
+sub-extensions: sub-src $(FORCEDEP)
+	cd extensions && $(MAKE) $(CONTINUEONERROR)
+
+.qmake.cache:
+	@echo
+	@echo '  Qt must first be configured using the "configure" script.'
+	@echo
+
+clean:
+	cd qmake && $(MAKE) $(CONTINUEONERROR) clean
+	cd tools &&	$(MAKE) $(CONTINUEONERROR) clean
+	cd src && $(MAKE) $(CONTINUEONERROR) clean && $(MAKE) -f Makefile.main $(CONTINUEONERROR) clean
+	cd tutorial && $(MAKE) $(CONTINUEONERROR) clean
+	cd examples && $(MAKE) $(CONTINUEONERROR) clean
+	cd extensions && $(MAKE) $(CONTINUEONERROR) clean
+	cd plugins\src && $(MAKE) $(CONTINUEONERROR) clean
+
+
+distclean: clean
+	-del .qmake.cache
+
+.qmake.cache: 
+	@echo
+	@echo '  Qt must first be configured using the "configure" script.'
+	@echo
+
+
+FORCE:
+
