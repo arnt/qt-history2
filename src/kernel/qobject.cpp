@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#206 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#207 $
 **
 ** Implementation of QObject class
 **
@@ -2061,7 +2061,7 @@ bool QObject::setProperty( const char *_name, const QVariant& _value )
 
   if ( _value.typeName() != p->type )
   {
-    qDebug("Trying to get attribute %s with wrong type", _name );
+    qDebug("Trying to set attribute %s with wrong type", _name );
     return FALSE;
   }
   
