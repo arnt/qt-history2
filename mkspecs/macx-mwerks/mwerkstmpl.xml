@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<?codewarrior exportversion="1.0.1" ideversion="4.1" ?>
+<?codewarrior exportversion="1.0.1" ideversion="4.2" ?>
 
 <!DOCTYPE PROJECT [
 <!ELEMENT PROJECT (TARGETLIST, TARGETORDER, GROUPLIST, DESIGNLIST?)>
@@ -63,7 +63,7 @@
                 <!-- Settings for "Access Paths" panel -->
                 <SETTING><NAME>AlwaysSearchUserPaths</NAME><VALUE>false</VALUE></SETTING>
                 <SETTING><NAME>InterpretDOSAndUnixPaths</NAME><VALUE>true</VALUE></SETTING>
-
+                <SETTING><NAME>RequireFrameworkStyleIncludes</NAME><VALUE>true</VALUE></SETTING>
                 <SETTING><NAME>UserSearchPaths</NAME>
                     <SETTING>
                         <SETTING><NAME>SearchPath</NAME>
@@ -76,16 +76,8 @@
                     </SETTING>
                 </SETTING>
                 <SETTING><NAME>SystemSearchPaths</NAME>
-                    $$CODEWARRIOR_INCLUDEPATH
-                    $$CODEWARRIOR_DEPENDPATH
-                    <SETTING>
-                      <SETTING><NAME>SearchPath</NAME>
-                        <SETTING><NAME>Path</NAME><VALUE>:MacOS X Support:Libraries:MW_Runtime:Libs:</VALUE></SETTING>
-                        <SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>
-                        <SETTING><NAME>PathRoot</NAME><VALUE>CodeWarrior</VALUE></SETTING>
-                      </SETTING>
-				      <SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>
-                    </SETTING>
+$$CODEWARRIOR_INCLUDEPATH
+$$CODEWARRIOR_DEPENDPATH
                 </SETTING>
 
                 <!-- Settings for "Debugger Runtime" panel -->
@@ -114,6 +106,7 @@
 
                 <!-- Settings for "File Mappings" panel -->
                 <SETTING><NAME>FileMappings</NAME>
+<!--
                     <SETTING>
                         <SETTING><NAME>FileType</NAME><VALUE>TEXT</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE>.mocs</VALUE></SETTING>
@@ -123,6 +116,7 @@
                         <SETTING><NAME>ResourceFile</NAME><VALUE>false</VALUE></SETTING>
                         <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
                     </SETTING>
+-->
                     <SETTING>
                         <SETTING><NAME>FileType</NAME><VALUE>APPL</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE></VALUE></SETTING>
