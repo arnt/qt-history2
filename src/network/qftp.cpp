@@ -648,7 +648,7 @@ int QFtp::close()
 
   \sa listInfo() start() finishedSuccess() finishedError()
 */
-int QFtp::list( const QString &dir=QString::null )
+int QFtp::list( const QString &dir )
 {
     QStringList cmds;
     cmds << "TYPE A\r\n";
