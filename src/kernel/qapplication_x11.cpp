@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#525 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#526 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3379,7 +3379,9 @@ static void deleteKeyDicts()
 
 
 
-bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QString& text, int& state, char& ascii, int &code )
+bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
+					   QString& text, int& state,
+					   char& ascii, int &code )
 {
     QCString chars(64);
     KeySym key = 0;
@@ -3392,18 +3394,19 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
 	qAddPostRoutine( deleteKeyDicts );
     }
 
-    QEvent::Type type = (event->type == XKeyPress) ? QEvent::KeyPress : QEvent::KeyRelease;
     QWidget* tlw = topLevelWidget();
 
 #if defined(NO_XIM)
 
     count = XLookupString( &((XEvent*)event)->xkey,
-		    chars, chars.size(), &key, 0 );
+			   chars.data(), chars.size(), &key, 0 );
 
     if ( count == 1 )
 	ascii = chars[0];
 
 #else
+    QEvent::Type type = (event->type == XKeyPress) 
+			? QEvent::KeyPress : QEvent::KeyRelease;
     // Implementation for X11R5 and newer, using XIM
 
     static int composingKeycode;
