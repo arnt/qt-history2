@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#36 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#37 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -9,8 +9,8 @@
 **
 ***********************************************************************/
 
-#ifndef QMULTILINED_H
-#define QMULTILINED_H
+#ifndef QMULTILINEDIT_H
+#define QMULTILINEDIT_H
 
 #ifndef QT_H
 #include "qtableview.h"
