@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#88 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#87 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#88 $");
 
 
 /*!
@@ -917,15 +917,18 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
 
 
 
-/*!
-  Return a one-bpp image which problably is a reasonably good mask for
-  this image.
+/*!  Return a one-bpp image which problably is a reasonably good mask
+  for this image.  It works by selecting a color from one of the
+  corners, then chipping away pixels of that color, starting at all
+  the edges.
+
+  The four corners \"vote\" over which color is to be masked away.  In
+  case of a draw (ie. if the function is not applicable to this image)
+  the results are unpredictable.
 
   This function is much slower than it might have been, and not as
   flexible - it always returns a little-endian mask (which you can
-  convert to big-endianness using convertBitOrder()) and it assumes
-  that the pixel in the upper left corner is the background color (it
-  would be better to have the four corner pixels vote).
+  convert to big-endianness using convertBitOrder()).
 
   This function disregards the alpha channel.
 */
@@ -935,9 +938,20 @@ QImage QImage::reasonableMask( bool clipTightly ) const
     if ( depth() < 32 )
 	return convertDepth( 32 ).reasonableMask( clipTightly );
 
-    QImage m( width(), height(), 1, 0, QImage::LittleEndian );
+    int w = width(), h = height();
+    QImage m( w, h, 1, 0, QImage::LittleEndian );
     // note - need to mask out alpha channel here
     QRgb background = *(QRgb *)scanLine(0);
+    if ( background != *(w-1+(QRgb *)scanLine(0)) &&
+	 background != *(QRgb *)scanLine(h-1) &&
+	 background != *(w-1+(QRgb *)scanLine(h-1)) ) {
+	background = *(w-1+(QRgb *)scanLine(0));
+	if ( background != *(w-1+(QRgb *)scanLine(h-1)) &&
+	     background != *(QRgb *)scanLine(h-1) &&
+	     *(QRgb *)scanLine(h-1) == *(w-1+(QRgb *)scanLine(h-1))) {
+	    background = *(w-1+(QRgb *)scanLine(h-1));
+	}
+    }
     int x,y;
 
     for ( y = 0; y < height(); y++ )
@@ -945,7 +959,6 @@ QImage QImage::reasonableMask( bool clipTightly ) const
 
     bool done = FALSE;
     uchar * ypp, * ypc, * ypn;
-    int w = width(), h = height();
     while( !done ) {
 	done = TRUE;
 	ypn = m.scanLine(0);
