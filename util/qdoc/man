@@ -139,8 +139,9 @@ sub parseclassfile {
     local ($title );
 
     # strip head and tail
-    s/^.*?<body[^>]*>\s*//s;
+    s/^.*?<body[^>]*>\s*.*?<br(?:\s[^>]*)?>//s;
     s/<hr><p>\s+This file is part of the.*$//s;
+    s/<hr><p>\s*Search the doc.*$//s;
 
     # paragraphs, lines
     s/\s*<p>\s*/\n\n.PP\n/gs;
@@ -167,7 +168,7 @@ sub parseclassfile {
 
     # preformatted stuff
     s-\s*(?:\.PP\s*)?<pre>(.*?)</pre>\s*-&parsepre($1)-gse;
-    s/\s*<br>\n?/\n.br\n/gs;
+    s/\s*<br(?:\s[^>]*)?>\n?/\n.br\n/gs;
 
     # do the list voodoo
     $_ =~ s/"Public Members"\n.*?.SH DESCRIPTION\n/&parsemembers($&)/esi;
