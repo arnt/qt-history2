@@ -1300,8 +1300,21 @@ void Configure::displayConfig()
     }
 
     cout << "QMAKESPEC..................." << dictionary[ "QMAKESPEC" ] << endl;
-    cout << "Maketool...................." << dictionary[ "MAKE" ] << endl;
-    cout << "Configuration..............." << qmakeConfig.join( " " ) << endl;
+    cout << "Maketool...................." << dictionary[ "MAKE" ] << endl << endl;
+
+    cout << "Environment:" << endl;
+    char *cenv = getenv("INCLUDE");
+    QString env = QString::fromLocal8Bit(cenv ? cenv : "");
+    cout << "    INCLUDE=\r\n      " << QStringList::split(QRegExp("[;,]"), env).join("\r\n      ") << endl;
+    cenv = getenv("LIB");
+    env = QString::fromLocal8Bit(cenv ? cenv : "");
+    cout << "    LIB=\r\n      " << QStringList::split(QRegExp("[;,]"),env).join("\r\n      ") << endl;
+    cenv = getenv("PATH");
+    env = QString::fromLocal8Bit(cenv ? cenv : "");
+    cout << "    PATH=\r\n      " << QStringList::split(QRegExp("[;,]"),env).join("\r\n      ") << endl;
+
+    cout << "Configuration:" << endl;
+    cout << "    " << qmakeConfig.join( "\r\n    " ) << endl;
 
     cout << "Debug symbols..............." << dictionary[ "DEBUG" ] << endl;
     cout << "Thread support.............." << dictionary[ "THREAD" ] << endl << endl;
@@ -1315,31 +1328,31 @@ void Configure::displayConfig()
     cout << "OpenGL support.............." << dictionary[ "OPENGL" ] << endl << endl;
 
     cout << "Image formats:" << endl;
-    cout << "GIF support................." << dictionary[ "GIF" ] << endl;
-    cout << "MNG support................." << dictionary[ "MNG" ] << endl;
-    cout << "JPEG support................" << dictionary[ "JPEG" ] << endl;
-    cout << "PNG support................." << dictionary[ "PNG" ] << endl << endl;
+    cout << "    GIF support............." << dictionary[ "GIF" ] << endl;
+    cout << "    MNG support............." << dictionary[ "MNG" ] << endl;
+    cout << "    JPEG support............" << dictionary[ "JPEG" ] << endl;
+    cout << "    PNG support............." << dictionary[ "PNG" ] << endl << endl;
 
     cout << "Styles:" << endl;
-WCE( { cout << "PocketPC...................." << dictionary[ "STYLE_POCKETPC" ] << endl; } );
-    cout << "Windows....................." << dictionary[ "STYLE_WINDOWS" ] << endl;
-    cout << "Windows XP.................." << dictionary[ "STYLE_WINDOWSXP" ] << endl;
-    cout << "Motif......................." << dictionary[ "STYLE_MOTIF" ] << endl;
-    cout << "Platinum...................." << dictionary[ "STYLE_PLATINUM" ] << endl;
-    cout << "MotifPlus..................." << dictionary[ "STYLE_MOTIFPLUS" ] << endl;
-    cout << "CDE........................." << dictionary[ "STYLE_CDE" ] << endl;
-    cout << "SGI........................." << dictionary[ "STYLE_SGI" ] << endl << endl;
+WCE( { cout << "    PocketPC............." << dictionary[ "STYLE_POCKETPC" ] << endl; } );
+    cout << "    Windows................." << dictionary[ "STYLE_WINDOWS" ] << endl;
+    cout << "    Windows XP.............." << dictionary[ "STYLE_WINDOWSXP" ] << endl;
+    cout << "    Motif..................." << dictionary[ "STYLE_MOTIF" ] << endl;
+    cout << "    Platinum................" << dictionary[ "STYLE_PLATINUM" ] << endl;
+    cout << "    MotifPlus..............." << dictionary[ "STYLE_MOTIFPLUS" ] << endl;
+    cout << "    CDE....................." << dictionary[ "STYLE_CDE" ] << endl;
+    cout << "    SGI....................." << dictionary[ "STYLE_SGI" ] << endl << endl;
     // Only show the PocketPC style option for CE users
 
     cout << "Sql Drivers:" << endl;
-    cout << "ODBC........................" << dictionary[ "SQL_ODBC" ] << endl;
-    cout << "MySQL......................." << dictionary[ "SQL_MYSQL" ] << endl;
-    cout << "OCI........................." << dictionary[ "SQL_OCI" ] << endl;
-    cout << "PostgreSQL.................." << dictionary[ "SQL_PSQL" ] << endl;
-    cout << "TDS........................." << dictionary[ "SQL_TDS" ] << endl;
-    cout << "DB2........................." << dictionary[ "SQL_DB2" ] << endl;
-    cout << "SQLite......................" << dictionary[ "SQL_SQLITE" ] << endl;
-    cout << "Interbase..................." << dictionary[ "SQL_IBASE" ] << endl << endl;
+    cout << "    ODBC...................." << dictionary[ "SQL_ODBC" ] << endl;
+    cout << "    MySQL..................." << dictionary[ "SQL_MYSQL" ] << endl;
+    cout << "    OCI....................." << dictionary[ "SQL_OCI" ] << endl;
+    cout << "    PostgreSQL.............." << dictionary[ "SQL_PSQL" ] << endl;
+    cout << "    TDS....................." << dictionary[ "SQL_TDS" ] << endl;
+    cout << "    DB2....................." << dictionary[ "SQL_DB2" ] << endl;
+    cout << "    SQLite.................." << dictionary[ "SQL_SQLITE" ] << endl;
+    cout << "    Interbase..............." << dictionary[ "SQL_IBASE" ] << endl << endl;
 
     cout << "Sources are in.............." << dictionary[ "QT_SOURCE_TREE" ] << endl;
     cout << "Install prefix.............." << dictionary[ "QT_INSTALL_PREFIX" ] << endl;
