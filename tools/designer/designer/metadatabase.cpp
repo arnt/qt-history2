@@ -270,6 +270,8 @@ QMap<QString,QVariant>* MetaDataBase::fakeProperties( QObject* o )
 
 void MetaDataBase::setSpacing( QObject *o, int spacing )
 {
+    if ( !o )
+	return;
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r || !o->isWidgetType() ) {
@@ -287,6 +289,8 @@ void MetaDataBase::setSpacing( QObject *o, int spacing )
 
 int MetaDataBase::spacing( QObject *o )
 {
+    if ( !o )
+	return -1;
     setupDataBase();
     if ( o->inherits( "QMainWindow" ) )
 	o = ( (QMainWindow*)o )->centralWidget();
@@ -302,6 +306,8 @@ int MetaDataBase::spacing( QObject *o )
 
 void MetaDataBase::setMargin( QObject *o, int margin )
 {
+    if ( !o )
+	return;
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r || !o->isWidgetType() ) {
@@ -321,6 +327,8 @@ void MetaDataBase::setMargin( QObject *o, int margin )
 
 int MetaDataBase::margin( QObject *o )
 {
+    if ( !o )
+	return -1;
     setupDataBase();
     if ( o->inherits( "QMainWindow" ) )
 	o = ( (QMainWindow*)o )->centralWidget();
