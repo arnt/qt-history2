@@ -278,7 +278,7 @@ QColor::QColor( QRgb rgb, uint pixel )
   range 0-255.
 
   The arguments are an HSV value if \a colorSpec is QColor::Hsv. \a x
-  (hue) must be -1 for achromatic colors and 0-359 for chormatic
+  (hue) must be -1 for achromatic colors and 0-359 for chromatic
   colors; \a y (saturation) and \a z (value) must be in the range
   0-255.
 
