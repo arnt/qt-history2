@@ -116,17 +116,18 @@ Q_GLOBAL_STATIC(QConnectionList, connectionList)
 
 /*! \internal
 
-Removes \a object from the connection list completely, i.e. all
-connections containing \a object are removed.
+    Removes \a object from the connection list completely, i.e. all
+    connections containing \a object are removed.
 */
 void QConnectionList::remove(QObject *object)
 {
-    int x = 0;
     for (int i = 0; i < 2; ++i) {
-        Hash &hash = i == 0 ? sendersHash : receiversHash;
-        Hash::iterator it = hash.find(object);
-        while (it != hash.end() && it.key() == object) {
-            ++x;
+        Hash &hash1 = i == 0 ? sendersHash : receiversHash;
+        Hash &hash2 = i == 0 ? receiversHash : sendersHash;
+
+        Hash::iterator it = hash1.find(object);
+        const Hash::iterator end = hash1.end();
+        while (it != end && it.key() == object) {
             const int at = it.value();
             QConnection &c = connections[at];
             if (c.sender) {
@@ -136,10 +137,26 @@ void QConnectionList::remove(QObject *object)
                     qFree(c.types);
                     c.types = 0;
                 }
+                it = hash1.erase(it);
+
+                const QObject * const partner = i == 0 ? c.receiver : c.sender;
+                Hash::iterator x = hash2.find(partner);
+                const Hash::iterator xend = hash2.end();
+                while (x != xend && x.key() == partner) {
+                    if (x.value() == at) {
+                        x = hash2.erase(x);
+                        break;
+                    } else {
+                        ++x;
+                    }
+                }
+
                 memset(&c, 0, sizeof(c));
-                unusedConnections << at;
+                Q_ASSERT(!unusedConnections.contains(at));
+                unusedConnections.prepend(at);
+            } else {
+                ++it;
             }
-            it = hash.erase(it);
         }
     }
 }
@@ -176,9 +193,7 @@ bool QConnectionList::removeConnection(QObject *sender, int signal,
 {
     bool success = false;
     Hash::iterator it = sendersHash.find(sender);
-    int x = 0;
     while (it != sendersHash.end() && it.key() == sender) {
-        ++x;
         const int at = it.value();
         QConnection &c = connections[at];
         if (c.receiver
@@ -195,9 +210,9 @@ bool QConnectionList::removeConnection(QObject *sender, int signal,
             it = sendersHash.erase(it);
 
             Hash::iterator x = receiversHash.find(c.receiver);
-            while (x != receiversHash.end() && x.key() == c.receiver) {
-                const int y = x.value();
-                if (y == at) {
+            const Hash::iterator xend = receiversHash.end();
+            while (x != xend && x.key() == c.receiver) {
+                if (x.value() == at) {
                     x = receiversHash.erase(x);
                     break;
                 } else {
