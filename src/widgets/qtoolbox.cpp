@@ -549,7 +549,6 @@ void QToolBox::setItemEnabled( int index, bool enabled )
 
     c->button->setEnabled( enabled );
     if ( !enabled && c == d->currentPage ) {
-	// formerly known as activateClosetPage()
 	int curIndexUp = index;
 	int curIndexDown = curIndexUp;
 	const int count = d->pageList.count();
@@ -659,6 +658,13 @@ void QToolBox::frameChanged()
 {
     d->layout->setMargin( frameWidth() );
     QFrame::frameChanged();
+}
+
+/* \reimp */
+void QToolBox::styleChange(QStyle &style)
+{
+    d->updateTabs();
+    QFrame::styleChange(style);
 }
 
 /*!
