@@ -46,6 +46,12 @@ bool QPaintDevice::x11DefaultColormap() const
 
 bool QPaintDevice::x11DefaultVisual() const
 { return x11Data ? x11Data->x_defvisual : QX11GC::x11AppDefaultVisual(); }
+
+void *QPaintDevice::x11AppVisual(int screen)
+{ return QX11GC::x11AppVisual(screen); }
+
+Qt::HANDLE QPaintDevice::x11AppColormap(int screen)
+{ return QX11GC::x11AppDefaultColormap(screen); }
 #endif
 
 /*!

@@ -1428,7 +1428,7 @@ void QWidget::repaint(const QRegion& r)
 			  && br.height() <= QX11DoubleBuffer::MaxHeight);
 
 #ifdef Q_Q4PAINTER // won't work yet...
-    double_buffer = false;
+     double_buffer = false;
 #endif
     HANDLE old_hd = hd;
     HANDLE old_rendhd = rendhd;

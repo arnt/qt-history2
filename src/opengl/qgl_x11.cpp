@@ -20,6 +20,12 @@
 #include "qdesktopwidget.h"
 #include "qpixmap.h"
 #include "qintdict.h"
+
+#ifdef Q_Q4PAINTER
+#include "qx11gc.h"
+#define QPaintDevice QX11GC
+#endif
+
 #define INT8  dummy_INT8
 #define INT32 dummy_INT32
 #include <GL/glx.h>

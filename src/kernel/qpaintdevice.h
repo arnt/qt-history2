@@ -356,14 +356,18 @@ inline int QPaintDevice::x11AppCells( int screen )
 inline Qt::HANDLE QPaintDevice::x11AppRootWindow( int screen )
 { return x_approotwindow_arr[ screen == -1 ? x_appscreen : screen ]; }
 
+#ifndef Q_Q4PAINTER
 inline Qt::HANDLE QPaintDevice::x11AppColormap( int screen )
 { return x_appcolormap_arr[ screen == -1 ? x_appscreen : screen ]; }
+#endif
 
 inline bool QPaintDevice::x11AppDefaultColormap( int screen )
 { return x_appdefcolormap_arr[ screen == -1 ? x_appscreen : screen ]; }
 
+#ifndef Q_Q4PAINTER
 inline void *QPaintDevice::x11AppVisual( int screen )
 { return x_appvisual_arr[ screen == -1 ? x_appscreen : screen ]; }
+#endif
 
 inline bool QPaintDevice::x11AppDefaultVisual( int screen )
 { return x_appdefvisual_arr[ screen == -1 ? x_appscreen : screen ]; }

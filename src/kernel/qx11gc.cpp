@@ -1421,34 +1421,6 @@ void QX11GC::drawCubicBezier(const QPointArray &a, int index)
 
 void QX11GC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh)
 {
-//     if ( !isActive() || pixmap.isNull() )
-//         return;
-
-//     // right/bottom
-//     if ( sw < 0 )
-//         sw = pixmap.width()  - sx;
-//     if ( sh < 0 )
-//         sh = pixmap.height() - sy;
-
-//     // Sanity-check clipping
-//     if ( sx < 0 ) {
-//         x -= sx;
-//         sw += sx;
-//         sx = 0;
-//     }
-//     if ( sw + sx > pixmap.width() )
-//         sw = pixmap.width() - sx;
-//     if ( sy < 0 ) {
-//         y -= sy;
-//         sh += sy;
-//         sy = 0;
-//     }
-//     if ( sh + sy > pixmap.height() )
-//         sh = pixmap.height() - sy;
-
-//     if ( sw <= 0 || sh <= 0 )
-//         return;
-
     if ( d->pdev->x11Screen() != pixmap.x11Screen() ) {
         QPixmap* p = (QPixmap*) &pixmap;
         p->x11SetScreen( d->pdev->x11Screen() );
