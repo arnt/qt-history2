@@ -29,7 +29,7 @@
 #ifdef QT_COMPAT
 #define QGL_VERSION	450
 #define QGL_VERSION_STR	"4.5"
-QM_EXPORT_OPENGL QT_COMPAT inline const char *qGLVersion() {
+QM_EXPORT_OPENGL inline QT_COMPAT const char *qGLVersion() {
     return QGL_VERSION_STR;
 }
 #endif
