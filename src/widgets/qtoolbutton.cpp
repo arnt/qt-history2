@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#58 $
 **
 ** Implementation of QToolButton class
 **
@@ -527,6 +527,7 @@ void QToolButton::setIconSet( const QIconSet & set, bool on )
 	    delete son;
 	son = new QIconSet( set );
     }
+    repaint( FALSE );
 }
 
 
@@ -564,16 +565,16 @@ QIconSet QToolButton::iconSet( bool on ) const
 
 /*!
   Associates the popup menu \a popup with this toolbutton.
-  
+
   The popup will be shown each time the toolbutton has been pressed
   down for a certain amount of time. A typical application example is
   the "back" button in a web browser's toolbar. If the user clicks it,
   the browser simply browses back to the previous page. If the user
   holds the button down for a while, they receive a menu containing
   the current history list.
-  
+
   Ownership of the popup menu is not transferred.
-  
+
   \sa popup()
  */
 void QToolButton::setPopup( QPopupMenu* popup )
@@ -589,7 +590,7 @@ void QToolButton::setPopup( QPopupMenu* popup )
 /*!
   Returns the associated popup menu or 0 if no popup menu has been
   defined.
-  
+
   \sa setPopup()
  */
 QPopupMenu* QToolButton::popup() const
@@ -604,7 +605,7 @@ void QToolButton::popupPressed()
 	d->popupTimer->start(600, TRUE );
 }
 
-void QToolButton::popupTimerDone() 
+void QToolButton::popupTimerDone()
 {
     if ( isDown() && d->popup ) {
 	bool horizontal = TRUE;
@@ -612,10 +613,10 @@ void QToolButton::popupTimerDone()
 	if ( parentWidget() && parentWidget()->inherits("QToolBar") ) {
 	    if ( ( (QToolBar*) parentWidget() )->orientation() == Vertical ) {
 		horizontal = FALSE;
-		if ( mapToGlobal( rect().center() ).x() > 
+		if ( mapToGlobal( rect().center() ).x() >
 		     topLevelWidget()->x() + topLevelWidget()->width()/2 )
 		    topLeft = FALSE;
-	    } else if ( mapToGlobal( rect().center() ).y() > 
+	    } else if ( mapToGlobal( rect().center() ).y() >
 			topLevelWidget()->y() + topLevelWidget()->height()/2 )
 		topLeft = FALSE;
 	}
