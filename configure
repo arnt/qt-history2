@@ -3155,7 +3155,7 @@ fi
 CACHEFILE=$outpath/.qmake.cache
 [ -f $CACHEFILE.tmp ] && rm -f $CACHEFILE.tmp
 cat >>$CACHEFILE.tmp <<EOF
-CONFIG += $QMAKE_CONFIG dylib create_prl link_prl QTDIR_build
+CONFIG += $QMAKE_CONFIG dylib create_prl link_prl depend_includepath QTDIR_build
 QMAKESPEC = $XPLATFORM
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
