@@ -59,6 +59,8 @@
 /*! \example sql/overview/subclass3/main.cpp */
 /*! \example sql/overview/subclass4/main.h */
 /*! \example sql/overview/subclass4/main.cpp */
+/*! \example sql/overview/subclass5/main.h */
+/*! \example sql/overview/subclass5/main.cpp */
 
 /*! \page sql.html
 
@@ -1013,12 +1015,24 @@ We've written three separate queries rather than one to make the example
 more like a real application where it is more likely that each
 calculated field would be a lookup against a different table or view.
 
+The last feature that we need to add is defaulting values when the user
+attempts to insert a new record. 
+
+\dontinclude sql/overview/subclass5/main.h
+\skip primeInsert
+\line primeInsert
+<h5 align="center">From \l sql/overview/subclass5/main.h
+</h5>
+
+We declare our own primeInsert() function since we will need to override
+this.
+
 
 <h2><a name="Appendix_1_Tables">Appendix 1: The Example Tables</a></h2> 
 
 The example tables used can be recreated with the following standard SQL.
 You may need to modify the SQL to match that used by your particular
-database.
+database. Note that sequences are not supported in all databases.
 
 \code
 create table people (id integer primary key, name char(40));
@@ -1031,9 +1045,12 @@ create table creditors (id integer primary key, forename char(40),
 
 create table prices (id integer primary key, name char(40), price float);
 
+create sequence invoiceitem_seq;
+
 create table invoiceitem (id integer primary key, 
 			  pricesid integer, quantity integer,
 			  paiddate date);
+
 
 \endcode
 
