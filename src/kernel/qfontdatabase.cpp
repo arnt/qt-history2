@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of font database class.
 **
 ** Created : 990603
 **
-** Copyright (C) 1999-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1999-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -51,6 +51,12 @@
 
 class QtFontFamily;
 class QtFontFoundry;
+
+#if defined(Q_WS_WIN)
+static void newWinFont( void * p );
+static void add_style( QtFontFamily *family,
+		       bool italic, bool lesserItalic, int weight );
+#endif
 
 #if defined(Q_WS_MAC)
 static void add_style( QtFontFamily *family, const QString& styleName,
@@ -121,20 +127,18 @@ private:
 
     friend void QFontDatabase::createDatabase();
 
-#ifdef Q_WS_WIN
-
+#if defined(Q_WS_WIN)
     friend void newWinFont( void * p );
     friend void add_style( QtFontFamily *family,
 			   bool italic, bool lesserItalic, int weight );
-
-#endif // Q_WS_WIN
+#endif
 
 #if defined(Q_WS_MAC)
     friend void add_style( QtFontFamily *family, const QString& styleName,
-                bool italic, bool lesserItalic, int weight );
+			   bool italic, bool lesserItalic, int weight );
 #endif
 
-#ifdef Q_WS_QWS
+#if defined(Q_WS_QWS)
     friend void QFontDatabase::qwsAddDiskFont( QDiskFont *qdf );
 #endif
 };
@@ -312,13 +316,13 @@ private:
 
 static QFontDatabasePrivate *db=0;
 
-#if defined( Q_WS_X11 )
+#if defined(Q_WS_X11)
 #  include "qfontdatabase_x11.cpp"
-#elif defined( Q_WS_MAC )
+#elif defined(Q_WS_MAC)
 #  include "qfontdatabase_mac.cpp"
-#elif defined( Q_WS_WIN )
+#elif defined(Q_WS_WIN)
 #  include "qfontdatabase_win.cpp"
-#elif defined( Q_WS_QWS )
+#elif defined(Q_WS_QWS)
 #  include "qfontdatabase_qws.cpp"
 #endif
 

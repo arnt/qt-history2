@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1997-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 1997-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -29,11 +29,6 @@
 
 #include "qt_windows.h"
 
-#if !defined(Q_CC_GNU)
-static
-#endif
-void newWinFont( void * p );
-
 static
 int CALLBACK
 storeFont( ENUMLOGFONTEX* f, TEXTMETRIC*, int /*type*/, LPARAM /*p*/ )
@@ -43,9 +38,7 @@ storeFont( ENUMLOGFONTEX* f, TEXTMETRIC*, int /*type*/, LPARAM /*p*/ )
     return 1; // Keep enumerating.
 }
 
-#if !defined(Q_CC_GNU)
 static
-#endif
 void add_style( QtFontFamily *family,
                 bool italic, bool lesserItalic, int weight )
 {
@@ -109,9 +102,7 @@ qDebug("Already got it");
 }
 
 
-#if !defined(Q_CC_GNU)
 static
-#endif
 void newWinFont( void * p )
 {
     ENUMLOGFONTEX* f = (ENUMLOGFONTEX*)p;
