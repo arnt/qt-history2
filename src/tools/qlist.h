@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#5 $
+** $Id: //depot/qt/main/src/tools/qlist.h#6 $
 **
 ** Definition of QList template/macro class
 **
 ** Author  : Haavard Nord
 ** Created : 920701
 **
-** Copyright (C) 1992-1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -43,9 +43,9 @@ public:									      \
     uint  count()   const		{ return QGList::count(); }	      \
     bool  isEmpty() const		{ return QGList::count() == 0; }      \
     bool  insert( uint i, const type *d){ return QGList::insertAt(i,(GCI)d); }\
-    bool  insert( const type *d )	{ return QGList::insert((GCI)d); }    \
-    bool  inSort( const type *d )	{ return QGList::inSort((GCI)d); }    \
-    bool  append( const type *d )	{ return QGList::append((GCI)d); }    \
+    void  insert( const type *d )	{ QGList::insert((GCI)d); }	      \
+    void  inSort( const type *d )	{ QGList::inSort((GCI)d); }	      \
+    void  append( const type *d )	{ QGList::append((GCI)d); }	      \
     bool  remove( uint i )		{ return QGList::removeAt(i); }	      \
     bool  remove()			{ return QGList::remove((GCI)0); }    \
     bool  remove( const type *d )	{ return QGList::remove((GCI)d); }    \
@@ -124,9 +124,9 @@ public:
     uint  count()   const		{ return QGList::count(); }
     bool  isEmpty() const		{ return QGList::count() == 0; }
     bool  insert( uint i, const type *d){ return QGList::insertAt(i,(GCI)d); }
-    bool  insert( const type *d )	{ return QGList::insert((GCI)d); }
-    bool  inSort( const type *d )	{ return QGList::inSort((GCI)d); }
-    bool  append( const type *d )	{ return QGList::append((GCI)d); }
+    void  insert( const type *d )	{ QGList::insert((GCI)d); }
+    void  inSort( const type *d )	{ QGList::inSort((GCI)d); }
+    void  append( const type *d )	{ QGList::append((GCI)d); }
     bool  remove( uint i )		{ return QGList::removeAt(i); }
     bool  remove()			{ return QGList::remove((GCI)0); }
     bool  remove( const type *d )	{ return QGList::remove((GCI)d); }
