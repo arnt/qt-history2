@@ -8,6 +8,7 @@
 #include "qlayout.h"
 #include "qvaluelist.h"
 #include "qlist.h"
+#include "qguardedptr.h"
 #endif // QT_H
 
 class QSplitter;
@@ -65,6 +66,8 @@ class Q_EXPORT QDockArea : public QWidget
 {
     Q_OBJECT
 
+    friend class QDockWidget;
+    
 public:
     enum Gravity { Normal, Reverse };
 
@@ -94,15 +97,26 @@ protected:
     void mousePressEvent( QMouseEvent *e );
 
 private:
-    int findDockWidget( QDockWidget *w );
-    int QDockArea::lineOf( int index );
+    struct DockWidgetData
+    {
+	int index;
+	int offset;
+	int line;
+	QGuardedPtr<QDockArea> area;
+    };
 
+    int findDockWidget( QDockWidget *w );
+    int lineOf( int index );
+    DockWidgetData *dockWidgetData( QDockWidget *w );
+    void dockWidget( QDockWidget *dockWidget, DockWidgetData *data );
+    
 private:
     Orientation orient;
     QList<QDockWidget> *dockWidgets;
     QDockAreaLayout *layout;
     Gravity grav;
-
+    
+    
 };
 
 #endif

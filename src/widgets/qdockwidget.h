@@ -8,11 +8,11 @@
 class QDockWidgetHandle;
 class QDockWidgetTitleBar;
 class QPainter;
-class QDockArea;
 class QDockWidgetResizeHandle;
 class QBoxLayout;
 class QHBoxLayout;
 class QVBoxLayout;
+class QDockArea;
 
 class Q_EXPORT QDockWidget : public QFrame
 {
@@ -25,7 +25,8 @@ public:
     enum Place { InDock, OutsideDock };
 
     QDockWidget( Place p = InDock, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
-
+    ~QDockWidget();
+    
     virtual void setWidget( QWidget *w );
     QWidget *widget() const;
 
@@ -70,6 +71,10 @@ signals:
     void orientationChanged( Orientation o );
     void positionChanged();
 
+protected slots:
+    void doUndock();
+    void doDock();
+
 protected:
     void resizeEvent( QResizeEvent *e );
     QBoxLayout *boxLayout();
@@ -104,7 +109,8 @@ private:
     QVBoxLayout *hbox;
     QHBoxLayout *vbox;
     QBoxLayout *layout;
-
+    void *dockWidgetData;
+    
 };
 
 inline QDockArea *QDockWidget::area() const

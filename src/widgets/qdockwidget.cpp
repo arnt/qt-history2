@@ -192,13 +192,17 @@ public:
     QSize sizeHint() const { return minimumSize(); }
     QSizePolicy sizePolicy() const;
 
+signals:
+    void doubleClicked();
+
 protected:
     void paintEvent( QPaintEvent *e );
     void resizeEvent( QResizeEvent *e );
     void mousePressEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
-
+    void mouseDoubleClickEvent( QMouseEvent *e );
+    
 private:
     QDockWidget *dockWidget;
     QPoint offset;
@@ -296,6 +300,11 @@ QSizePolicy QDockWidgetHandle::sizePolicy() const
     return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
 }
 
+void QDockWidgetHandle::mouseDoubleClickEvent( QMouseEvent * )
+{
+    emit doubleClicked();
+}
+
 class QDockWidgetTitleBar : public QWidget
 {
     Q_OBJECT
@@ -310,6 +319,10 @@ protected:
     void mousePressEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
+    void mouseDoubleClickEvent( QMouseEvent *e );
+
+signals:
+    void doubleClicked();
 
 private:
     QDockWidget *dockWidget;
@@ -378,12 +391,16 @@ void QDockWidgetTitleBar::updateGui()
     closeButton->move( width() - closeButton->width(), 1 );
 }
 
+void QDockWidgetTitleBar::mouseDoubleClickEvent( QMouseEvent * )
+{
+    emit doubleClicked();
+}
 
 
 QDockWidget::QDockWidget( Place p, QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f | ( p == OutsideDock ? WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog : 0 ) ), 
+    : QFrame( parent, name, f | ( p == OutsideDock ? WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog : 0 ) ),
       curPlace( p ), wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), closeEnabled( FALSE ), resizeEnabled( FALSE ),
-      offs( 0 ), fExtend( -1, -1 ), nl( FALSE )
+      offs( 0 ), fExtend( -1, -1 ), nl( FALSE ), dockWidgetData( 0 )
 {
     hbox = new QVBoxLayout( this );
     hbox->setMargin( 2 );
@@ -413,6 +430,15 @@ QDockWidget::QDockWidget( Place p, QWidget *parent, const char *name, WFlags f )
     updateGui();
     stretchable[ Horizontal ] = FALSE;
     stretchable[ Vertical ] = FALSE;
+
+    connect( titleBar, SIGNAL( doubleClicked() ), this, SLOT( doDock() ) );
+    connect( verHandle, SIGNAL( doubleClicked() ), this, SLOT( doUndock() ) );
+    connect( horHandle, SIGNAL( doubleClicked() ), this, SLOT( doUndock() ) );
+}
+
+QDockWidget::~QDockWidget()
+{
+    delete (QDockArea::DockWidgetData*)dockWidgetData;
 }
 
 void QDockWidget::resizeEvent( QResizeEvent *e )
@@ -749,22 +775,40 @@ void QDockWidget::undock()
     if ( place() == OutsideDock )
 	return;
 
-    if ( dockArea )
+    if ( dockArea ) {
+	delete (QDockArea::DockWidgetData*)dockWidgetData;
+	dockWidgetData = dockArea->dockWidgetData( this );
 	dockArea->removeDockWidget( this, TRUE, orientation() != Horizontal );
+    }
     dockArea = 0;
     move( 50, 50 );
-    show();
     curPlace = OutsideDock;
     updateGui();
     emit orientationChanged( orientation() );
     QApplication::sendPostedEvents( this, QEvent::LayoutHint );
     adjustSize();
+    show();
 }
 
 void QDockWidget::removeFromDock()
 {
     if ( dockArea )
 	dockArea->removeDockWidget( this, FALSE, FALSE );
+}
+
+void QDockWidget::doUndock()
+{
+    undock();
+}
+
+void QDockWidget::doDock()
+{
+    if ( !(QDockArea::DockWidgetData*)dockWidgetData || 
+	 !( (QDockArea::DockWidgetData*)dockWidgetData )->area )
+	return;
+    curPlace = InDock;
+    ( (QDockArea::DockWidgetData*)dockWidgetData )->
+	area->dockWidget( this, (QDockArea::DockWidgetData*)dockWidgetData );
 }
 
 #include "qdockwidget.moc"

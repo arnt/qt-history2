@@ -570,3 +570,68 @@ void QDockArea::mousePressEvent( QMouseEvent *e )
     if ( e->button() == RightButton )
 	emit rightButtonPressed( e->globalPos() );
 }
+
+QDockArea::DockWidgetData *QDockArea::dockWidgetData( QDockWidget *w )
+{
+    DockWidgetData *data = new DockWidgetData;
+    data->index = findDockWidget( w );
+    if ( data->index == -1 ) {
+	delete data;
+	return 0;
+    }
+    QList<QDockWidget> lineStarts = layout->lineStarts();
+    int i = -1;
+    for ( QDockWidget *dw = dockWidgets->first(); dw; dw = dockWidgets->next() ) {
+ 	if ( lineStarts.findRef( dw ) != -1 )
+ 	    ++i;
+ 	if ( dw == w )
+ 	    break;
+    }
+    data->line = i;
+    data->offset = point_pos( QPoint( w->x(), w->y() ), orientation() );
+    data->area = this;
+    return data;
+}
+
+void QDockArea::dockWidget( QDockWidget *dockWidget, DockWidgetData *data )
+{
+    if ( !data )
+	return;
+    
+    dockWidget->reparent( this, QPoint( 0, 0 ), FALSE );
+    dockWidget->installEventFilter( this );
+    dockWidget->dockArea = this;
+    dockWidget->updateGui();
+    
+    if ( dockWidgets->isEmpty() ) {
+	dockWidgets->append( dockWidget );
+    } else {
+	QList<QDockWidget> lineStarts = layout->lineStarts();
+	int index = dockWidgets->find( lineStarts.at( data->line ) );
+	int lastPos = 0;
+	int offset = data->offset;
+	for ( QDockWidget *dw = dockWidgets->current(); dw; dw = dockWidgets->next() ) {
+	    if ( point_pos( dw->pos(), orientation() ) < lastPos )
+		break;
+	    if ( offset <
+		 point_pos( dw->pos(), orientation() ) + size_extend( dw->size(), orientation() ) / 2 )
+		break;
+	    index++;
+	    lastPos = point_pos( dw->pos(), orientation() );
+	}
+	if ( index >= 0 && index < (int)dockWidgets->count() &&
+	     dockWidgets->at( index )->newLine() && lineOf( index ) == data->line ) {
+	    dockWidgets->at( index )->setNewLine( FALSE );
+	    dockWidget->setNewLine( TRUE );
+	} else {
+	    dockWidget->setNewLine( FALSE );
+	}
+    
+	dockWidgets->insert( index, dockWidget );
+    }
+    dockWidget->show();
+    updateLayout();
+    setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
+				orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum ) );
+    
+}
