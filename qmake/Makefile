@@ -2,7 +2,7 @@
 CFLAGS	    =	/c /Fo$@ \
 		/W3 /Zi /nologo /GX /O1 \
 		/I. /Igenerators /Igenerators\unix /Igenerators\win32  /I$(QTDIR)\include /I$(QTDIR)\src\tools \
-		/I$(QTDIR)\mkspecs\$(QMAKESPEC) \
+		/I$(QTDIR)\mkspecs\win32-msvc \
 		/DQT_NO_CODECS /DQT_LITE_COMPONENT /DQT_NODLL
 LFLAGS	    =	/DEBUG
 LIBS	    =	ole32.lib
@@ -13,7 +13,7 @@ CXX	    =	bcc32
 CFLAGS	    =	-c -o$@ \
 		-tWR -w -O1 \
 		-I. -Igenerators -Igenerators\unix -Igenerators\win32 -I$(QTDIR)\include -I$(QTDIR)\src\tools \
-		-I$(QTDIR)\mkspecs\$(QMAKESPEC) \
+		-I$(QTDIR)\mkspecs\win32-borland \
 		-DQT_NO_CODECS -DQT_LITE_COMPONENT -DQT_NODLL
 LFLAGS	    =	-L$(BCB)\lib -c -x -Gn -ap -Tpe c0x32.obj
 LIBS	    =	import32.lib cw32i.lib
