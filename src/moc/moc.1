@@ -380,20 +380,6 @@ public slots:
 };
 .fi
 .in -4
-.SS "Signals and slots may not have default arguments"
-Since signal->slot binding occurs at run-time, it is
-conceptually difficult to use default parameters, which are a
-compile-time phenomenon.  This will fail:
-.PP
-.in +4
-.nf
-class SomeClass: public QObject {
-    Q_OBJECT
-public slots:
-    void someSlot(int x=100); // illegal
-};
-.fi
-.in -4
 .SS "Signals and slots may not have template arguments"
 .PP
 Declaring signals and slots with template-type parameters will not

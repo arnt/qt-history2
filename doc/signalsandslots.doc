@@ -254,11 +254,25 @@ Of course, you can also define slots to be virtual.  We have found
 this to be very useful.
 
 Signals and slots are fairly efficient. Of course there's some loss of
-speed compared to "real" callbacks due to the increased flexibility, but
-the loss is fairly small, we measured it to approximately 10 microseconds
-on a i586-133 running Linux (less than 1 microsecond when no slot has been
-connected) , so the simplicity and flexibility the mechanism affords is
-well worth it.
+speed compared to "real" callbacks due to the increased flexibility,
+but the loss is fairly small. As a general rule, emitting a signal
+that is connected to some slots is approximately ten times the costs
+of calling the receiveres directly with non-virtual functions
+calls. This is the overhead required to locate the connection object,
+to safely iterate over all connections (i.e. checking that subsequent
+receivers have not been destructed during the emission) and to
+marshall any parameters in a generic fashion. While ten non-virtual
+function calls may sound like a lot, it's much less overhead than any
+'new' or 'delete' operation. The very moment you do a character
+string, vector or list operation that behind the scene requires 'new'
+or 'delete', the signals and slots overhead is only responsable for a
+very small portion of the complete function call costs. The same is
+true whenever you do a system call in a slot - or indirectly call more
+than ten functions. On a i586-500, you can emit circa 2.000.000
+signals per second connected to one receiver, or circa 1.200.000 per
+second connected to two receivers. So the simplicity and flexibility
+the mechanism affords is well worth the costs.
+
 
 <h2>Meta Object Information</h2>
 
@@ -365,43 +379,4 @@ example.
     };
 \endcode
 
-<h2>Moc output</h2>
-
-This is really internal to Qt, but for the curious, here is the meat
-of the resulting mlcdnum.cpp:
-
-\code
-    const char *QLCDNumber::className() const
-    {
-	return "QLCDNumber";
-    }
-
-    QMetaObject *QLCDNumber::metaObj = 0;
-
-    void QLCDNumber::initMetaObject()
-    {
-	if ( metaObj )
-	    return;
-	if ( !QFrame::metaObject() )
-	    QFrame::initMetaObject();
-\endcode
-
-That last line is because QLCDNumber inherits QFrame.  The next part,
-which sets up the table/signal structures, has been deleted for
-brevity.
-
-\code
-    }
-
-    // SIGNAL overflow
-    void QLCDNumber::overflow()
-    {
-	activate_signal( "overflow()" );
-    }
-\endcode
-
-One function is generated for each signal, and at present it almost always
-is a single call to the internal Qt function activate_signal(), which
-finds the appropriate slot or slots and passes on the call.  It is not
-recommended to call activate_signal() directly.
 */

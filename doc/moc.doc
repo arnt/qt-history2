@@ -458,20 +458,6 @@ of the illegal syntax:
     };
 \endcode
 
-<h4>Signals and slots may not have default arguments</h4>
-
-Since signal->slot binding occurs at run-time, it is
-conceptually difficult to use default parameters, which are a
-compile-time phenomenon.  This will fail:
-
-\code
-    class SomeClass : public QObject {
-        Q_OBJECT
-    public slots:
-        void someSlot(int x=100); // illegal
-    };
-\endcode
-
 <h4>Signals and slots may not have template arguments</h4>
 
 Declaring signals and slots with template-type parameters will not
