@@ -379,74 +379,6 @@ static void mac_default_handler( const char *msg )
 #endif
 
 
-void qDebug( const char *msg, ... )
-{
-    char buf[QT_BUFFER_LENGTH];
-    va_list ap;
-    va_start( ap, msg );			// use variable arg list
-    if ( handler ) {
-#if defined(QT_VSNPRINTF)
-	QT_VSNPRINTF( buf, QT_BUFFER_LENGTH, msg, ap );
-#else
-	vsprintf( buf, msg, ap );
-#endif
-	va_end( ap );
-	(*handler)( QtDebugMsg, buf );
-    } else {
-#if defined(Q_CC_MWERKS)
-	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
-	va_end( ap );
-        mac_default_handler(buf);
-#else
-	vfprintf( stderr, msg, ap );
-	va_end( ap );
-	fprintf( stderr, "\n" );		// add newline
-#endif
-    }
-}
-
-void qWarning( const char *msg, ... )
-{
-    char buf[QT_BUFFER_LENGTH];
-    va_list ap;
-    va_start( ap, msg );			// use variable arg list
-    if ( handler ) {
-#if defined(QT_VSNPRINTF)
-	QT_VSNPRINTF( buf, QT_BUFFER_LENGTH, msg, ap );
-#else
-	vsprintf( buf, msg, ap );
-#endif
-	va_end( ap );
-	(*handler)( QtWarningMsg, buf );
-    } else {
-#ifdef Q_CC_MWERKS
-	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
-	va_end( ap );
-        mac_default_handler(buf);
-#else
-	vfprintf( stderr, msg, ap );
-	va_end( ap );
-	fprintf( stderr, "\n" );		// add newline
-#endif
-    }
-
-    static bool fatalWarnings = (getenv("QT_FATAL_WARNINGS") != 0);
-    if (!fatalWarnings)
-	return;
-
-#if defined(Q_OS_UNIX) && defined(QT_DEBUG)
-    abort();				// trap; generates core dump
-#elif defined(Q_OS_TEMP) && defined(_DEBUG)
-    QString fstr;
-    fstr.sprintf( "%s:%s %s %s", __FILE__, __LINE__, QT_VERSION_STR, buf );
-    OutputDebugString( fstr.ucs2() );
-#elif defined(Q_CC_MSVC) && defined(_DEBUG)
-    _CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
-#else
-    exit( 1 );				// goodbye cruel world
-#endif
-}
-
 
 /*!
     \fn void qFatal( const char *msg, ... )
@@ -906,3 +838,74 @@ void qFree(void *ptr) { ::free(ptr); }
 void *qRealloc(void *ptr, size_t size) { return ::realloc(ptr, size); }
 int qRand(void) { return ::rand(); }
 void *qMemCopy(void *dest, const void *src, size_t n) { return ::memcpy(dest, src, n); }
+
+#undef qDebug
+void qDebug( const char *msg, ... )
+{
+    char buf[QT_BUFFER_LENGTH];
+    va_list ap;
+    va_start( ap, msg );			// use variable arg list
+    if ( handler ) {
+#if defined(QT_VSNPRINTF)
+	QT_VSNPRINTF( buf, QT_BUFFER_LENGTH, msg, ap );
+#else
+	vsprintf( buf, msg, ap );
+#endif
+	va_end( ap );
+	(*handler)( QtDebugMsg, buf );
+    } else {
+#if defined(Q_CC_MWERKS)
+	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
+	va_end( ap );
+        mac_default_handler(buf);
+#else
+	vfprintf( stderr, msg, ap );
+	va_end( ap );
+	fprintf( stderr, "\n" );		// add newline
+#endif
+    }
+}
+
+#undef qWarning
+void qWarning( const char *msg, ... )
+{
+    char buf[QT_BUFFER_LENGTH];
+    va_list ap;
+    va_start( ap, msg );			// use variable arg list
+    if ( handler ) {
+#if defined(QT_VSNPRINTF)
+	QT_VSNPRINTF( buf, QT_BUFFER_LENGTH, msg, ap );
+#else
+	vsprintf( buf, msg, ap );
+#endif
+	va_end( ap );
+	(*handler)( QtWarningMsg, buf );
+    } else {
+#ifdef Q_CC_MWERKS
+	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
+	va_end( ap );
+        mac_default_handler(buf);
+#else
+	vfprintf( stderr, msg, ap );
+	va_end( ap );
+	fprintf( stderr, "\n" );		// add newline
+#endif
+    }
+
+    static bool fatalWarnings = (getenv("QT_FATAL_WARNINGS") != 0);
+    if (!fatalWarnings)
+	return;
+
+#if defined(Q_OS_UNIX) && defined(QT_DEBUG)
+    abort();				// trap; generates core dump
+#elif defined(Q_OS_TEMP) && defined(_DEBUG)
+    QString fstr;
+    fstr.sprintf( "%s:%s %s %s", __FILE__, __LINE__, QT_VERSION_STR, buf );
+    OutputDebugString( fstr.ucs2() );
+#elif defined(Q_CC_MSVC) && defined(_DEBUG)
+    _CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
+#else
+    exit( 1 );				// goodbye cruel world
+#endif
+}
+
