@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#19 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#20 $
 **
 ** Implementation of Network Extension Library
 **
@@ -225,7 +225,7 @@ void QFtp::readyRead()
     commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
 
     emit data( s );
-    
+
     if ( !url )
 	return;
 
@@ -292,11 +292,11 @@ void QFtp::dataConnected()
 
 void QFtp::dataClosed()
 {
-    if ( url )
-	url->emitFinished( QUrl::ActListDirectory );
     emit finished( QUrl::ActListDirectory );
     emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
     passiveMode = FALSE;
+    if ( url )
+	url->emitFinished( QUrl::ActListDirectory );
 }
 
 void QFtp::dataReadyRead()
