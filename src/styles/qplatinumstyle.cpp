@@ -1491,6 +1491,9 @@ int QPlatinumStyle::pixelMetric( PixelMetric metric,
     case PM_SliderLength:
 	ret = 17;
 	break;
+    case PM_MaximumDragDistance:
+	ret = -1;
+	break;
     default:
 	ret = QWindowsStyle::pixelMetric( metric, widget );
 	break;
