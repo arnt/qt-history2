@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: session.doc,v 1.1 1999/05/11 22:48:17 ettrich Exp $
+** $Id: session.doc,v 1.2 1999/05/20 20:00:56 ettrich Exp $
 **
-** Qt collection classes documentation
+** Qt session management overview documentation
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -45,7 +45,7 @@ sessions or to terminate gracefully. The set of these operations are
 called \e session \e management.
 
 In the common case, a session consists of all applications that a
-users runs on his desktop at a time. Under Unix/X11, however, a
+user runs on his desktop at a time. Under Unix/X11, however, a
 session may as well run on different computers, span multiple displays
 or just consists of a few applications.
 
@@ -66,7 +66,7 @@ TODO
 
 <center><img src="session.gif" alt="A typical dialog on shutdown"></center>
 
-TODO
+TODO	
 
 <h2> Protocols and support on different plattforms</h2>
 
