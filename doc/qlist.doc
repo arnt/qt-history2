@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.22 1999/03/08 17:49:59 weis Exp $
+** $Id: qlist.doc,v 2.23 1999/03/08 19:01:26 weis Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -659,7 +659,6 @@
   \ingroup collection
   \ingroup tools
 
-  QListIterator is implemented as both a template and a macro class.
   Define a template instance QListIterator\<X\> to create a list iterator
   that operates on QList\<X\> (list of X*).
 
