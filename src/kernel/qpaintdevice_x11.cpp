@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#26 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#26 $";
 #endif
 
 
@@ -59,7 +59,7 @@ This code demonstrates how to scroll the contents of a widget 10 pixels
 to the right:
 \code
     QWidget  w;
-    bitBlt( &w, 10, 0, &w, 0, 0, 0, 0 );
+    bitBlt( &w, 10, 0, &w, 0, 0, -1, -1 );
 \endcode
 
 \warning Qt requires that a QApplication object must exist before any paint
