@@ -322,7 +322,7 @@ do
 	VAL=yes
 	;;
     #Qt style options that pass an argument
-    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-embedded|-depths|-make|-nomake|-qconfig|-platform|-xplatform)
+    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-depths|-make|-nomake|-qconfig|-platform|-xplatform)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	shift
 	VAL=$1
