@@ -333,6 +333,14 @@ void read_jpeg_image(QImageIO* iio)
 	    }
         }
 
+	if ( cinfo.density_unit == 1 ) {
+	    image.setDotsPerMeterX( 100. * cinfo.X_density / 2.54 );
+	    image.setDotsPerMeterY( 100. * cinfo.Y_density / 2.54 );
+	} else if ( cinfo.density_unit == 2 ) {
+	    image.setDotsPerMeterX( 100. * cinfo.X_density );
+	    image.setDotsPerMeterY( 100. * cinfo.Y_density );
+	}
+
 	iio->setImage(image);
 	iio->setStatus(0);
     }
