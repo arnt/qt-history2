@@ -159,11 +159,14 @@ QMainWindowLayout::~QMainWindowLayout()
         for (int i = 0; i < lineInfo.list.size(); ++i)
             delete lineInfo.list.at(i).item;
     }
+    tb_layout_info.clear();
     for (int i = 0; i < NPOSITIONS; ++i) {
         delete layout_info[i].item;
         if (layout_info[i].sep)
             delete layout_info[i].sep->widget();
         delete layout_info[i].sep;
+        layout_info[i].item = 0;
+        layout_info[i].sep = 0;
     }
     delete statusbar;
 }
