@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#197 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#198 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1603,8 +1603,10 @@ bool QFileDialog::trySetSelection( const QFileInfo& info, bool updatelined )
         okB->setEnabled( TRUE );
         if ( d->currentFileName.isNull() && info.isDir() )
             okB->setText(tr("Open"));
-        else
-            okB->setText( mode() == AnyFile ? tr("Save") : tr("OK"));
+        else {
+	    QString okt = mode() == AnyFile ? tr("Save") : tr("OK");
+            okB->setText( okt );
+	}
     } else {
         okB->setEnabled( FALSE );
     }	
@@ -1804,8 +1806,14 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint & p,
 
     QPopupMenu m( files, "file dialog context menu" );
 
-    int ok = m.insertItem( QFileInfo( dirPath() + "/" + item->text( 0 ) ).isDir() ? tr( "&Open" ) :
-                           ( mode() == AnyFile ? tr( "&Save" ) : tr( "&Open" ) ) );
+    QString okt =
+		QFileInfo( dirPath() + "/" + item->text( 0 ) ).isDir()
+		    ? tr( "&Open" )
+		    : ( mode() == AnyFile
+			    ? tr( "&Save" )
+			    : tr( "&Open" ) );
+    int ok = m.insertItem( okt );
+
     m.insertSeparator();
     int rename = m.insertItem( tr( "&Rename" ) );
     int del = m.insertItem( tr( "&Delete" ) );
@@ -1847,8 +1855,12 @@ void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
 
     QPopupMenu m( files, "file dialog context menu" );
 
-    int ok = m.insertItem( QFileInfo( dirPath() + "/" + item->text() ).isDir() ? tr( "&Open" ) :
-                           ( mode() == AnyFile ? tr( "&Save" ) : tr( "&Open" ) ) );
+    QString okt =
+	QFileInfo( dirPath() + "/" + item->text() ).isDir()
+	    ? tr( "&Open" )
+	    : ( mode() == AnyFile
+		? tr( "&Save" ) : tr( "&Open" ) );
+    int ok = m.insertItem( okt );
     m.insertSeparator();
     int rename = m.insertItem( tr( "&Rename" ) );
     int del = m.insertItem( tr( "&Delete" ) );
