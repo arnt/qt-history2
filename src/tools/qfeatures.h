@@ -375,6 +375,13 @@
 # define QT_NO_DRAGANDDROP
 #endif
 
+#if defined(QT_NO_PROPERTIES)
+    /*!
+	SQL
+    */
+# define QT_NO_SQL
+#endif
+
 #if defined(QT_NO_CLIPBOARD) || defined(QT_NO_MIME) || defined(_WS_QWS_)
     /*!
 	Cut and paste of complex data types (non-text)
