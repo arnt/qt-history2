@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 QtCrashHandler QSegfaultHandler::callback = 0;
 
@@ -29,11 +30,11 @@ static void print_backtrace(FILE *outb)
     fprintf(outb, "Stack [%d]:\n", stack_size);
     if(FILE *cppfilt = popen("c++filt", "rw")) {
 	dup2(fileno(outb), fileno(cppfilt));
-	for(int i = stack_size-1; i>=0; --i) 
+	for(int i = stack_size-1; i>=0; --i)
 	    fwrite(stack_symbols[i], 1, strlen(stack_symbols[i]), cppfilt);
 	pclose(cppfilt);
     } else {
-	for(int i = stack_size-1; i>=0; --i) 
+	for(int i = stack_size-1; i>=0; --i)
 	    fprintf(outb, "#%d  %p [%s]\n", i, stack[i], stack_symbols[i]);
     }
 }
@@ -89,9 +90,9 @@ static bool backtrace_command(FILE *outb, char *format, ...)
 		ret = TRUE;
 	    }
 	    fwrite(buffer, 1, len, outb);
-	}   
+	}
 	fclose(inb);
-    } 
+    }
     return ret;
 }
 
