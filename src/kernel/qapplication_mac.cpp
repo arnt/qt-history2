@@ -81,10 +81,6 @@
 #include "qthread.h"
 #endif
 
-#if defined( Q_WS_MAC9 ) && 0
-extern "C" int main(int argc, char **argv) { return 0; }
-#endif
-
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/

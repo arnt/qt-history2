@@ -151,14 +151,14 @@ public:
 
 #endif // Q_WS_WIN
 
-#if defined( Q_WS_MACX ) || defined( Q_WS_MAC9 )
+#if defined( Q_WS_MAC )
 
 #include "qt_mac.h"
 
 class QFontStruct : public QShared
 {
 public:
-    inline QFontStruct( const QFontDef& d ) :   QShared(d), s(d), info(NULL), cache_cost(0) { }
+    inline QFontStruct( const QFontDef& d ) :   QShared(), s(d), info(NULL), cache_cost(0) { }
     inline const QFontDef *spec()  const { return &s; }
     int ascent() const { return info->ascent+2; /*2?? fixme!*/ }
     int descent() const { return info->descent; /*2?? fixme!*/ }
@@ -308,7 +308,7 @@ public:
 
 	charsetcompat = QFont::Unicode;
 
-#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MACX) || defined(Q_WS_MAC9)
+#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 	fin = 0;
 #endif // Q_WS_WIN
 
@@ -321,7 +321,7 @@ public:
 
 	charsetcompat = fp.charsetcompat;
 
-#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MACX) || defined(Q_WS_MAC9)
+#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 	fin = 0;
 #endif // Q_WS_WIN || Q_WS_QWS
 
@@ -489,7 +489,7 @@ public:
     void drawText( QGfx *gfx, int x, int y, const TextRun *cache );
 #endif
 
-#if defined( Q_WS_MACX ) || defined( Q_WS_MAC9 )
+#if defined( Q_WS_MAC )
     ~QFontPrivate() { if( fin ) fin->deref(); }
     void macSetFont(QPaintDevice *);
     void load();
