@@ -439,6 +439,7 @@ MakefileGenerator::init()
 	    if ( !v[dirs[x]].isEmpty() ) {
 		{
 		    QString &path = v[dirs[x]].first();
+		    fixEnvVariables(path);
 		    if(QDir::isRelativePath(path) && !v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
 			path.prepend(Option::output_dir + Option::dir_sep);
 		    fileFixify(path);
