@@ -1917,7 +1917,7 @@ void QFtp::startNextCommand()
 	    if ( c->is_ba ) {
 		d->pi.dtp.setData( c->data.ba );
 		d->pi.dtp.setBytesTotal( c->data.ba->size() );
-	    } else if ( c->data.dev ) {
+	    } else if ( c->data.dev && (c->data.dev->isOpen() || c->data.dev->open(IO_ReadOnly))) {
 		d->pi.dtp.setDevice( c->data.dev );
 		if ( c->data.dev->isSequentialAccess() )
 		    d->pi.dtp.setBytesTotal( 0 );
