@@ -683,7 +683,8 @@ void QApplication::initialize( int argc, char **argv )
 #elif defined(Q_WS_X11)
 	style = "Motif";		// default style for X11
 #elif defined(Q_WS_MAC)
-	style = "Platinum";		// round style for round devices
+//	style = "Platinum";		// round style for round devices
+	style = "Aqua";
 #elif defined(Q_WS_QWS)
 	style = "Compact";		// default style for small devices
 #endif
