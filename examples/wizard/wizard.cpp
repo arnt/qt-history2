@@ -38,7 +38,7 @@ void Wizard::setupPage1()
 
     QLabel *info = new QLabel( page1 );
     info->setMargin( 11 );
-    info->setPalette( yellow );
+    info->setPalette(QColor(yellow));
     info->setText( "Enter your personal\n"
                    "key here.\n\n"
                    "Your personal key\n"
@@ -71,7 +71,7 @@ void Wizard::setupPage2()
 
     QLabel *info = new QLabel( page2 );
     info->setMargin( 11 );
-    info->setPalette( yellow );
+    info->setPalette(QColor(yellow));
     info->setText( "\n"
                    "Enter your personal\n"
                    "data here.\n\n"
@@ -129,7 +129,7 @@ void Wizard::setupPage3()
     page3->setSpacing(8);
 
     QLabel *info = new QLabel( page3 );
-    info->setPalette( yellow );
+    info->setPalette(QColor(yellow));
     info->setText( "\n"
                    "Look here to see of\n"
                    "the data you entered\n"
