@@ -49,7 +49,7 @@ public:
     using QAbstractItemModel::setData;
 #endif
 
-    QVariant headerData(int section, Qt::Orientation orientation, int role);
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     bool isDirty(const QModelIndex &index) const;
     void clear();
@@ -68,7 +68,14 @@ public:
     QString filter() const;
     virtual void setFilter(const QString &filter);
 
-    int rows() const;
+#ifdef Q_NO_USING_KEYWORD
+    inline int rowCount(const QModelIndex &parent) const
+        { return QAbstractItemModel::rowCount(parnet); }
+#else
+    using QAbstractItemModel::rowCount;
+#endif
+
+    int rowCount() const;
 
     bool removeColumns(int column, const QModelIndex &parent, int count);
 #ifdef Q_NO_USING_KEYWORD
@@ -91,7 +98,13 @@ public:
 #else
     using QAbstractTableModel::insertRows;
 #endif
-
+#ifdef Q_NO_USING_KEYWORD
+    inline void sort(int column, const QModelIndex &parent, Qt::SortOrder order)
+        { sort(column, parent, order); }
+#else
+    using QAbstractTableModel::sort;
+#endif
+    
     bool insertRecord(int row, const QSqlRecord &record);
     bool setRecord(int row, const QSqlRecord &record);
 

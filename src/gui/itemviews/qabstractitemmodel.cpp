@@ -1464,7 +1464,7 @@ int QAbstractTableModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-    return rows();
+    return rowCount();
 }
 
 /*!
@@ -1479,7 +1479,7 @@ int QAbstractTableModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-    return columns();
+    return columnCount();
 }
 
 /*!
@@ -1603,7 +1603,7 @@ int QAbstractListModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-    return rows();
+    return rowCount();
 }
 
 /*!
@@ -1618,5 +1618,5 @@ int QAbstractListModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-    return columns();
+    return columnCount();
 }

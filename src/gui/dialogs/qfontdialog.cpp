@@ -39,7 +39,14 @@ class QFontListModel : public QAbstractListModel
 public:
     QFontListModel(QObject *parent);
 
-    int rows() const;
+#ifdef Q_NO_USING_KEYWORD
+    int rowCount(const QModelIndex &parent) const
+        { return QAbstractItemModel::rowCount(parnet); }
+#else
+    using QAbstractItemModel::rowCount;
+#endif
+
+    int rowCount() const;
     QVariant data(const QModelIndex &index, int role) const;
 
     inline QStringList list()  const { return lst; }
@@ -57,7 +64,7 @@ QFontListModel::QFontListModel(QObject *parent)
 {
 }
 
-int QFontListModel::rows() const
+int QFontListModel::rowCount() const
 {
     return lst.count();
 }
@@ -84,7 +91,7 @@ public:
         return QListView::currentIndex().row();
     }
     inline int count() const {
-        return model()->rows();
+        return model()->rowCount();
     }
     inline QString currentText() const {
         int row = QListView::currentIndex().row();

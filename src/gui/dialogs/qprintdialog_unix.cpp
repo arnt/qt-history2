@@ -119,8 +119,18 @@ class QPrinterModel : public QAbstractTableModel
 public:
     QPrinterModel(const QList<QPrinterDescription> &printers, QObject *parent);
 
-    int rows() const;
-    int columns() const;
+#ifdef Q_NO_USING_KEYWORD
+    int rowCount(const QModelIndex &parent) const
+        { return QAbstractItemModel::rowCount(parnet); }
+    int columnCount(const QModelIndex &parent) const
+        { return QAbstractItemModel::columnCount(parnet); }
+#else
+    using QAbstractItemModel::rowCount;
+    using QAbstractItemModel::columnCount;
+#endif
+
+    int rowCount() const;
+    int columnCount() const;
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
@@ -133,12 +143,12 @@ QPrinterModel::QPrinterModel(const QList<QPrinterDescription> &printers, QObject
     lst = printers;
 }
 
-int QPrinterModel::rows() const
+int QPrinterModel::rowCount() const
 {
     return lst.count();
 }
 
-int QPrinterModel::columns() const
+int QPrinterModel::columnCount() const
 {
     return 3;
 }
@@ -1487,7 +1497,7 @@ void QPrintDialogPrivate::setPrinter(QPrinter *p, bool pickUpSettings)
 //                    printers->setSelected(i, true);
                     ok->setEnabled(true);
                 } else if (fileName->text().isEmpty()) {
-                    ok->setEnabled(model->rows() != 0);
+                    ok->setEnabled(model->rowCount() != 0);
                 }
             }
         }

@@ -31,8 +31,24 @@ public:
     QSqlQueryModel(QObject *parent = 0);
     virtual ~QSqlQueryModel();
 
-    int rows() const;
-    int columns() const;
+#ifdef Q_NO_USING_KEYWORD
+    inline int rowCount(const QModelIndex &parent) const
+        { return QAbstractItemModel::rowCount(parnet); }
+    inline int columnCount(const QModelIndex &parent) const
+        { return QAbstractItemModel::columnCount(parnet); }
+    inline bool insertColumns(int column, int count)
+        { return QAbstractTableModel::insertColumns(column, count); }
+    inline bool removeColumns(int column, int count)
+        { return QAbstractTableModel::removeColumns(column, count); }
+#else
+    using QAbstractItemModel::rowCount;
+    using QAbstractItemModel::columnCount;
+    using QAbstractTableModel::insertColumns;
+    using QAbstractTableModel::removeColumns;
+#endif
+
+    int rowCount() const;
+    int columnCount() const;
     QSqlRecord record(int row = -1) const;
 
     QVariant data(const QModelIndex &item, int role = QAbstractItemModel::DisplayRole) const;
@@ -41,19 +57,7 @@ public:
     bool setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value);
 
     bool insertColumns(int column, const QModelIndex &parent, int count);
-#ifdef Q_NO_USING_KEYWORD
-    inline bool insertColumns(int column, int count)
-    { return QAbstractTableModel::insertColumns(column, count); }
-#else
-    using QAbstractTableModel::insertColumns;
-#endif
     bool removeColumns(int column, const QModelIndex &parent, int count);
-#ifdef Q_NO_USING_KEYWORD
-    inline bool removeColumns(int column, int count)
-    { return QAbstractTableModel::removeColumns(column, count); }
-#else
-    using QAbstractTableModel::removeColumns;
-#endif
 
     virtual void setQuery(const QSqlQuery &query);
     void setQuery(const QString &query, const QSqlDatabase &db = QSqlDatabase());

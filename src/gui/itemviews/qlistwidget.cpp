@@ -31,7 +31,14 @@ public:
     void remove(QListWidgetItem *item);
     QListWidgetItem *take(int row);
 
-    int rows() const;
+#ifdef Q_NO_USING_KEYWORD
+    int rowCount(const QModelIndex &parent) const
+        { return QAbstractItemModel::rowCount(parnet); }
+#else
+    using QAbstractItemModel::rowCount;
+#endif
+
+    int rowCount() const;
 
     QModelIndex index(QListWidgetItem *item) const;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
@@ -116,7 +123,7 @@ QListWidgetItem *QListModel::take(int row)
     return 0;
 }
 
-int QListModel::rows() const
+int QListModel::rowCount() const
 {
     return lst.count();
 }
@@ -157,7 +164,7 @@ bool QListModel::insertRows(int row, const QModelIndex &, int count)
     // insert rows
     QListWidget *view = ::qt_cast<QListWidget*>(QObject::parent());
     QListWidgetItem *itm = 0;
-    if (row < rows()) {
+    if (row < rowCount()) {
         for (int r = row; r < row + count; ++r) {
             itm = new QListWidgetItem();
             itm->view = view;
@@ -184,7 +191,7 @@ bool QListModel::insertRows(int row, const QModelIndex &, int count)
 
 bool QListModel::removeRows(int row, const QModelIndex &, int count)
 {
-    if (row >= 0 && row < rows()) {
+    if (row >= 0 && row < rowCount()) {
         emit rowsAboutToBeRemoved(QModelIndex::Null, row, row + count - 1);
         // remove items
         QListWidgetItem *itm = 0;
@@ -309,7 +316,7 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
     if (view)
         model = ::qt_cast<QListModel*>(view->model());
     if (model)
-        model->insert(model->rows(), this);
+        model->insert(model->rowCount(), this);
 }
 
 /*!
@@ -329,7 +336,7 @@ QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view)
     if (view)
         model = ::qt_cast<QListModel*>(view->model());
     if (model)
-        model->insert(model->rows(), this);
+        model->insert(model->rowCount(), this);
 }
 
 /*!
@@ -901,7 +908,7 @@ QListWidgetItem *QListWidget::takeItem(int row)
 
 int QListWidget::count() const
 {
-    return d->model()->rows();
+    return d->model()->rowCount();
 }
 
 /*!
@@ -996,7 +1003,7 @@ QList<QListWidgetItem*> QListWidget::findItems(const QString &text,
 {
     QModelIndex topLeft = d->model()->index(0, 0);
     int role = QAbstractItemModel::DisplayRole;
-    int hits = d->model()->rows();
+    int hits = d->model()->rowCount();
     QModelIndexList indexes = d->model()->match(topLeft, role, text,hits, flags);
     QList<QListWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i)

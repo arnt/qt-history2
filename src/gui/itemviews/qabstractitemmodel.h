@@ -265,9 +265,6 @@ public:
     QAbstractTableModel(QObject *parent = 0);
     ~QAbstractTableModel();
 
-    virtual int rows() const = 0;
-    virtual int columns() const = 0;
-
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
 
 #ifdef Q_NO_USING_KEYWORD
@@ -295,6 +292,9 @@ public:
     inline bool removeColumns(int column, int count)
         { return removeColumns(column, QModelIndex::Null, count); }
 
+    virtual int rowCount() const = 0;
+    virtual int columnCount() const = 0;
+
 protected:
     QAbstractTableModel(QAbstractItemModelPrivate &dd, QObject *parent);
 
@@ -314,11 +314,26 @@ public:
     QAbstractListModel(QObject *parent = 0);
     ~QAbstractListModel();
 
-    virtual int rows() const = 0;
-    int columns() const { return 1; }
-
     QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex::Null) const;
 
+#ifdef Q_NO_USING_KEYWORD
+    bool insertRows(int row, const QModelIndex &parent, int count)
+        { return QAbstractItemModel::insertRows(row, parent, count); }
+    bool removeRows(int row, const QModelIndex &parent, int count)
+        { return QAbstractItemModel::removeRows(row, parent, count); }
+#else
+    using QAbstractItemModel::insertRows;
+    using QAbstractItemModel::removeRows;
+#endif
+
+    inline bool insertRows(int row, int count)
+        { return insertRows(row, QModelIndex::Null, count); }
+    inline bool removeRows(int row, int count)
+        { return removeRows(row, QModelIndex::Null, count); }
+
+    virtual int rowCount() const = 0;
+    inline int columnCount() const { return 1; }
+    
 protected:
     QAbstractListModel(QAbstractItemModelPrivate &dd, QObject *parent);
 

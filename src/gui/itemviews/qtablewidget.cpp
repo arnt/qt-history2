@@ -49,11 +49,21 @@ public:
     QModelIndex index(const QTableWidgetItem *item) const;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
 
+#ifdef Q_NO_USING_KEYWORD
+    int rowCount(const QModelIndex &parent) const
+        { return QAbstractItemModel::rowCount(parnet); }
+    int columnCount(const QModelIndex &parent) const
+        { return QAbstractItemModel::columnCount(parnet); }
+#else
+    using QAbstractItemModel::rowCount;
+    using QAbstractItemModel::columnCount;
+#endif
+    
     void setRowCount(int rows);
     void setColumnCount(int columns);
 
-    int rows() const;
-    int columns() const;
+    int rowCount() const;
+    int columnCount() const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
@@ -138,8 +148,8 @@ bool QTableModel::removeRows(int row, const QModelIndex &, int count)
     if (row >= 0 && row < vertical.count()) {
         emit rowsAboutToBeRemoved(QModelIndex::Null, row, row + count - 1);
         // remove rows
-        int i = tableIndex(row, columns() - 1);
-        table.remove(qMax(i, 0), count * columns());
+        int i = tableIndex(row, columnCount() - 1);
+        table.remove(qMax(i, 0), count * columnCount());
         vertical.remove(row, count);
         // update persistent model indexes
         for (int j = 0; j < persistentIndexesCount(); ++j) {
@@ -159,7 +169,7 @@ bool QTableModel::removeColumns(int column, const QModelIndex &, int count)
     if (column >= 0 && column < horizontal.count()) {
         emit columnsAboutToBeRemoved(QModelIndex::Null, column, column + count - 1);
         // remove columns
-        for (int row = rows()-1; row >= 0; --row)
+        for (int row = rowCount() - 1; row >= 0; --row)
             table.remove(tableIndex(row, column), count);
         horizontal.remove(column, count);
         // update persistent model indexes
@@ -269,8 +279,8 @@ QTableWidgetItem *QTableModel::verticalHeaderItem(int section)
 QModelIndex QTableModel::index(const QTableWidgetItem *item) const
 {
     int i = table.indexOf(const_cast<QTableWidgetItem*>(item));
-    int row = i / columns();
-    int col = i % columns();
+    int row = i / columnCount();
+    int col = i % columnCount();
     return index(row, col);
 }
 
@@ -305,12 +315,12 @@ void QTableModel::setColumnCount(int columns)
         removeColumns(qMax(columns - 1, 0), QModelIndex::Null, cc - columns);
 }
 
-int QTableModel::rows() const
+int QTableModel::rowCount() const
 {
     return vertical.count();
 }
 
-int QTableModel::columns() const
+int QTableModel::columnCount() const
 {
     return horizontal.count();
 }
@@ -361,7 +371,7 @@ bool QTableModel::isSortable() const
 void QTableModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)
 {
     Q_UNUSED(parent);
-    QVector<QTableWidgetItem*> sorting(rows());
+    QVector<QTableWidgetItem*> sorting(rowCount());
     for (int i = 0; i < sorting.count(); ++i)
         sorting[i] = item(i, column);
     LessThan compare = order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan;
@@ -1097,7 +1107,7 @@ void QTableWidget::setRowCount(int rows)
 
 int QTableWidget::rowCount() const
 {
-    return d->model()->rows();
+    return d->model()->rowCount();
 }
 
 /*!
@@ -1118,7 +1128,7 @@ void QTableWidget::setColumnCount(int columns)
 
 int QTableWidget::columnCount() const
 {
-    return d->model()->columns();
+    return d->model()->columnCount();
 }
 
 /*!
@@ -1222,7 +1232,7 @@ void QTableWidget::setVerticalHeaderLabels(const QStringList &labels)
 {
     QTableModel *model = d->model();
     QTableWidgetItem *item = 0;
-    for (int i = 0; i < model->rows() && i < labels.count(); ++i) {
+    for (int i = 0; i < model->rowCount() && i < labels.count(); ++i) {
         item = model->verticalHeaderItem(i);
         if (!item) {
             item = createItem();
@@ -1239,7 +1249,7 @@ void QTableWidget::setHorizontalHeaderLabels(const QStringList &labels)
 {
     QTableModel *model = d->model();
     QTableWidgetItem *item = 0;
-    for (int i = 0; i < model->columns() && i < labels.count(); ++i) {
+    for (int i = 0; i < model->columnCount() && i < labels.count(); ++i) {
         item = model->horizontalHeaderItem(i);
         if (!item) {
             item = createItem();
@@ -1419,7 +1429,7 @@ QList<QTableWidgetItem*> QTableWidget::findItems(const QString &text,
 {
     QModelIndex topLeft = d->model()->index(0, 0);
     int role = QAbstractItemModel::DisplayRole;
-    int hits = d->model()->rows() * d->model()->columns();
+    int hits = d->model()->rowCount() * d->model()->columnCount();
     QModelIndexList indexes = d->model()->match(topLeft, role, text, hits, flags);
     QList<QTableWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i)

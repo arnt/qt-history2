@@ -40,8 +40,18 @@ public:
     QDefaultModel(QObject *parent) : QAbstractTableModel(parent) {}
     ~QDefaultModel() {}
 
-    int rows() const { return 0; }
-    int columns() const { return 0; }
+#ifdef Q_NO_USING_KEYWORD
+    int rowCount(const QModelIndex &parent) const
+        { return QAbstractItemModel::rowCount(parnet); }
+    int columnCount(const QModelIndex &parent) const
+        { return QAbstractItemModel::columnCount(parnet); }
+#else
+    using QAbstractItemModel::rowCount;
+    using QAbstractItemModel::columnCount;
+#endif
+
+    int rowCount() const { return 0; }
+    int columnCount() const { return 0; }
     QVariant data(const QModelIndex &, int) const { return QVariant(); }
 };
 
