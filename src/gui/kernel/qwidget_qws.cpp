@@ -1016,8 +1016,8 @@ void QWidgetPrivate::raise_sys()
 #else
         QWidget* act=0;
         if (!q->testWFlags(Qt::WStyle_Tool))
-            act=this;
-        qwsDisplay()->setAltitude(q->winId(), 0);
+            act=q;
+        q->qwsDisplay()->setAltitude(q->winId(), 0);
 
         QObjectList childObjects =  q->children();
         if (!childObjects.isEmpty()) {
@@ -1056,8 +1056,8 @@ void QWidgetPrivate::raise_sys()
 
 void QWidgetPrivate::lower_sys()
 {
-    if (isTopLevel()) {
-        qwsDisplay()->setAltitude(winId(), -1);
+    if (q->isTopLevel()) {
+        q->qwsDisplay()->setAltitude(data.winid, -1);
     } else if (QWidget *p = q->parentWidget()) {
         p->d->setChildrenAllocatedDirty(q->geometry());
         paint_children(p, q->geometry(),true);
