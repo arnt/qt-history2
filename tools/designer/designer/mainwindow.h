@@ -43,6 +43,7 @@ class HierarchyView;
 class QCloseEvent;
 class FormList;
 class Help;
+class ActionPlugInManager;
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
 #else
@@ -196,6 +197,9 @@ private:
     void setupPropertyEditor();
     void setupHierarchyView();
     void setupFormList();
+
+    void setupActionManager();
+    
     QWidget* previewFormInternal( QStyle* style = 0, QPalette* pal = 0 );
 
     FormWindow *insertFormWindow( int type );
@@ -267,7 +271,8 @@ private:
     QMap<QString,QString> propertyDocumentation;
     QRect propGeom, flGeom, hvGeom;
     bool client;
-
+    ActionPlugInManager *actionPluginManager;
+    
 };
 
 #endif

@@ -44,7 +44,7 @@
 #include "import.h"
 #include "multilineeditorimpl.h"
 #include "createtemplate.h"
-
+#include "actionplugin.h"
 #include <qinputdialog.h>
 #if defined(HAVE_KDE)
 #include <ktoolbar.h>
@@ -158,9 +158,10 @@ MainWindow::MainWindow( bool asClient )
     setupLayoutActions();
     setupPreviewActions();
     setupWindowActions();
+    setupActionManager();
     setupHelpActions();
     setupRMBMenus();
-
+    
     emit hasActiveForm( FALSE );
 
     lastPressWidget = 0;
@@ -3300,4 +3301,31 @@ void MainWindow::showDialogHelp()
 	openHelpForDialog( "The Preferences Dialog" );
     else if ( w->inherits( "TopicChooserBase" ) )
 	openHelpForDialog( "The Topic Chooser Dialog" );
+}
+
+void MainWindow::setupActionManager()
+{
+    QString dir = getenv( "QTDIR" );
+    dir += "/plugins";
+    actionPluginManager = new ActionPlugInManager( dir );
+    
+    QStringList lst = actionPluginManager->featureList();
+    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	QString grp = actionPluginManager->group( *it );
+	if ( TRUE ) { // group doesn't exist, create new toolbar/menu
+	    QPopupMenu *m = new QPopupMenu( this );
+#if defined(HAVE_KDE)
+	    KToolBar *tb = new KToolBar( this );
+	    tb->setFullSize( FALSE );
+#else
+	    QToolBar *tb = new QToolBar( this );
+#endif
+	    QAction *a = actionPluginManager->create( *it, this );
+	    if ( !a )
+		continue;
+	    a->addTo( m );
+	    a->addTo( tb );
+	    menubar->insertItem( tr( grp ), m );
+	}
+    }
 }
