@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#42 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -29,7 +29,13 @@
 #include <X11/Xlib.h>
 #endif
 #if defined(_OS_OS2EMX_)
+#if 0
 #include <process.h>
+#else
+#define INCL_DOSFILEMGR
+#define INCL_DOSERRORS
+#include <os2.h>
+#endif
 #endif
 
 /*****************************************************************************
@@ -155,12 +161,6 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 #if defined(_OS_WIN32_)
 		// Not implemented
 		// lpr needs -Sserver argument
-#elif defined(_OS_OS2EMX_)
-#error "this does not work - must be rewritten to spawn and pipe"
-		if ( spawnlp(P_NOWAIT,print_prog.data(), print_prog.data(),
-			     pr.data(), output->name(), 0) == -1 ) {
-		    ;			// couldn't exec, ignored
-		}
 #else
 		QApplication::flushX();
 		int fds[2];
@@ -169,6 +169,26 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    state = PST_ERROR;
 		    return FALSE;
 		}
+#if 0 && defined(_OS_OS2EMX_)
+		// this code is usable but not in use.  spawn() is
+		// preferable to fork()/exec() for very large
+		// programs.  if fork()/exec() is a problem and you
+		// use OS/2, remove '0 && ' from the #if.
+		int tmp;
+		tmp = dup(0);
+		dup2( fds[0], 0 );
+		::close( fds[0] );
+		fcntl(tmp, F_SETFD, FD_CLOEXEC);
+		fcntl(fds[1], F_SETFD, FD_CLOEXEC);
+		if ( spawnlp(P_NOWAIT,print_prog.data(), print_prog.data(),
+			     pr.data(), output->name(), 0) == -1 ) {
+		    ;			// couldn't exec, ignored
+		}
+		dup2( tmp, 0 );
+		::close( tmp );
+		pdrv = new QPSPrinter( this, fds[1] );
+		state = PST_ACTIVE;
+#else
 		if ( fork() == 0 ) {	// child process
 		    dup2( fds[0], 0 );
 #if defined(_WS_X11_)
@@ -176,7 +196,13 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    // hack time... getting the maximum number of open
 		    // files, if possible.  if not we assume it's 256.
 		    int i;
-#if defined(_SC_OPEN_MAX)
+#if defined(_OS_OS2EMX_)
+		    LONG req_count = 0;
+		    ULONG rc, handle_count;
+		    rc = DosSetRelMaxFH (&req_count, &handle_count);
+		    /* if (rc != NO_ERROR) ... */
+		    i = (int)handle_count;
+#elif defined(_SC_OPEN_MAX)
 		    i = (int)sysconf( _SC_OPEN_MAX );
 #elif defined(_POSIX_OPEN_MAX)
 		    i = (int)_POSIX_OPEN_MAX;
@@ -184,10 +210,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    i = (int)OPEN_MAX;
 #else
 		    i = 256;
-#endif
+#endif // ways-to-set i
 		    while( --i > 0 )
 			::close( i );
-#endif
+#endif // _WS_X11_
 		    (void)execlp( print_prog.data(), print_prog.data(),
 				  pr.data(), 0 );
 		    // if execlp returns EACCES it couldn't find the
@@ -207,7 +233,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    pdrv = new QPSPrinter( this, fds[1] );
 		    state = PST_ACTIVE;
 		}
-#endif
+#endif // else part of _OS_OS2EMX_
+#endif // else part for #if _OS_WIN32_
 	    }
 	    return ((QPSPrinter*)pdrv)->cmd( c, paint, p );
 	} else {
