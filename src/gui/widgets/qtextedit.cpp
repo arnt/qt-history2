@@ -1169,8 +1169,13 @@ void QTextEdit::timerEvent(QTimerEvent *ev)
             d->cursorOn &= (style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected, 0, this)
                             != 0);
 
+        QTextFrame *frame = d->cursor.currentFrame();
+
         QRect r = d->cursor.block().layout()->rect();
+
+        r.moveBy(d->doc->documentLayout()->frameBoundingRect(frame).topLeft());
         r.moveBy(-d->hbar->value(), -d->vbar->value());
+
         d->viewport->update(r);
     } else if (ev->timerId() == d->dragStartTimer.timerId()) {
         d->dragStartTimer.stop();
@@ -2311,9 +2316,11 @@ void QTextEdit::append(const QString &text)
 */
 void QTextEdit::ensureCursorVisible()
 {
+    QTextFrame *frame = d->cursor.currentFrame();
+    const QAbstractTextDocumentLayout *docLayout = d->doc->documentLayout();
     QTextBlock block = d->cursor.block();
     QTextLayout *layout = block.layout();
-    QPoint layoutPos = layout->position();
+    QPoint layoutPos = layout->position() + docLayout->frameBoundingRect(frame).topLeft();
     const int relativePos = d->cursor.position() - block.position();
     QTextLine line = layout->findLine(relativePos);
     if (!line.isValid())

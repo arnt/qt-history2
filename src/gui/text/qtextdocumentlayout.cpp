@@ -1188,3 +1188,8 @@ void QTextDocumentLayout::setFixedColumnWidth(int width)
     d->fixedColumnWidth = width;
 }
 
+QRect QTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
+{
+    return data(frame)->boundingRect;
+}
+

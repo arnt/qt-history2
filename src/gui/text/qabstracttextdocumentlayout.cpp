@@ -292,5 +292,14 @@ QString QAbstractTextDocumentLayout::anchorAt(const QPoint& pos) const
     return fmt.anchorHref();
 }
 
+/*!
+    Returns the bounding rectacle of \a frame .
+*/
+QRect QAbstractTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
+{
+    Q_UNUSED(frame)
+    return QRect();
+}
+
 #include "moc_qabstracttextdocumentlayout.cpp"
 

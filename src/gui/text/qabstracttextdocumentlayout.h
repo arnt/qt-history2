@@ -69,6 +69,8 @@ public:
 
     QString anchorAt(const QPoint& pos) const;
 
+    virtual QRect frameBoundingRect(QTextFrame *frame) const;
+
 protected:
     QAbstractTextDocumentLayout(QAbstractTextDocumentLayoutPrivate &, QTextDocument *);
 

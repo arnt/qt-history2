@@ -56,6 +56,8 @@ public:
     // internal, to support the ugly FixedColumnWidth wordwrap mode in QTextEdit
     void setFixedColumnWidth(int width);
 
+    virtual QRect frameBoundingRect(QTextFrame *frame) const;
+
 signals:
     void usedSizeChanged();
 };
