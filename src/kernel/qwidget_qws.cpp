@@ -593,25 +593,29 @@ void QWidget::setActiveWindow()
 }
 
 
-void QWidget::update()
+void QWidget::update(bool erase)
 {
-    //if ( (widget_state & (WState_Visible|WState_BlockUpdates)) ==
-    //WState_Visible && isVisible() )
-    //QApplication::postEvent( this, new QPaintEvent( rect() ) );
-    update(0,0,width(),height());
+    if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
+	QApplication::postEvent(this, new QPaintEvent(clipRegion(), erase));
 }
 
-void QWidget::update( int x, int y, int w, int h )
+void QWidget::update(const QRegion &rgn, bool erase)
 {
-    if ( w && h &&
-         (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible && isVisible() ) {
+     if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible)
+	QApplication::postEvent(this, new QPaintEvent( rgn&clipRegion(), erase));
+    }
+}
+
+void QWidget::update(int x, int y, int w, int h, bool erase)
+{
+    if (w && h && (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
 	    h = crect.height() - y;
-	QApplication::postEvent(this,new QPaintEvent(QRect(x,y,w,h),
-			   !testWFlags(WRepaintNoErase) ) );
-	//erase will be done in QApplication::sendPostedEvents(), if necessary
+	if ( w != 0 && h != 0 )
+	    QApplication::postEvent(this,
+		    new QPaintEvent( clipRegion().intersect(QRect(x,y,w,h)), erase));
     }
 }
 

@@ -292,41 +292,58 @@ public:
 #if 0 //def Q_WS_QWS
     void		repaintUnclipped( const QRegion &, bool erase = TRUE );
 #endif
-public slots:
-    void setUpdatesEnabled( bool enable );
-    void		update();
-    void		update( int x, int y, int w, int h );
-    void		update( const QRect& );
-    void		repaint();
-    void		repaint( bool erase );
-    void		repaint( int x, int y, int w, int h, bool erase=TRUE );
-    void		repaint( const QRect &, bool erase = TRUE );
-    void		repaint( const QRegion &, bool erase = TRUE );
 
+    void setUpdatesEnabled(bool enable);
+
+public slots:
+    void update();
+    void repaint();
+
+public:
+    void update( int x, int y, int w, int h );
+    void update(const QRect&);
+    void update( const QRegion& );
+
+    void update(bool erase);
+    void update(int x, int y, int w, int h, bool erase);
+    void update(const QRect&, bool erase);
+    void update(const QRegion&, bool erase);
+
+    void repaint(int x, int y, int w, int h);
+    void repaint(const QRect &);
+    void repaint(const QRegion &);
+
+    void repaint(bool erase);
+    void repaint(int x, int y, int w, int h, bool erase);
+    void repaint(const QRect &, bool erase);
+    void repaint(const QRegion &, bool erase);
+
+public slots:
     // Widget management functions
 
-    virtual void	show();
-    virtual void	hide();
-    void		setShown( bool show );
-    void		setHidden( bool hide );
+    virtual void show();
+    virtual void hide();
+    void setShown( bool show );
+    void setHidden( bool hide );
+
     void showMinimized();
     void showMaximized();
     void showFullScreen();
     void showNormal();
-    bool		close();
 
-    void		raise();
-    void		lower();
-    void		stackUnder( QWidget* );
-    void move( int x, int y );
-    void		move( const QPoint & );
-    void resize( int w, int h );
-    void		resize( const QSize & );
-    void setGeometry( int x, int y, int w, int h );
-    void setGeometry( const QRect & ); // ### make non virtual in Qt 4?
-    virtual void  	adjustSize();
+    bool close();
+    void raise();
+    void lower();
 
 public:
+    void stackUnder( QWidget* );
+    void move( int x, int y );
+    void move( const QPoint & );
+    void resize( int w, int h );
+    void resize( const QSize & );
+    void setGeometry( int x, int y, int w, int h );
+    void setGeometry( const QRect & );
+    virtual void adjustSize();
     bool close( bool alsoDelete );
     bool		isVisible()	const;
     bool		isVisibleTo(QWidget*) const;
@@ -586,7 +603,6 @@ private:
     EventHandlerRef window_event;
     //mac event functions
     void    propagateUpdates(bool update_rgn=TRUE);
-    void    update( const QRegion& );
     //friends, way too many - fix this immediately!
     friend void qt_clean_root_win();
     friend bool qt_recreate_root_win();
@@ -786,10 +802,13 @@ inline bool QWidget::isUpdatesEnabled() const
 { return !testWState(WState_BlockUpdates); }
 
 inline void QWidget::update( const QRect &r )
-{ update( r.x(), r.y(), r.width(), r.height() ); }
+{ update(r.x(), r.y(), r.width(), r.height()); }
 
-inline void QWidget::repaint()
-{ repaint( TRUE ); }
+inline void QWidget::update( const QRect &r, bool erase )
+{ update(r.x(), r.y(), r.width(), r.height(), erase); }
+
+inline void QWidget::repaint( const QRect &r)
+{ repaint(r.x(), r.y(), r.width(), r.height()); }
 
 inline void QWidget::repaint( const QRect &r, bool erase )
 { repaint( r.x(), r.y(), r.width(), r.height(), erase ); }

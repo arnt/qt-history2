@@ -5173,10 +5173,162 @@ bool QWidget::isFullScreen() const
     return isTopLevel() && that->d->topData()->fullscreen;
 }
 
+
+/*!
+    Repaints the widget directly by calling paintEvent() immediately,
+    unless updates are disabled or the widget is hidden.
+
+    We suggest only using repaint() if you need an immediate repaint,
+    for example during animation. In almost all circumstances update()
+    is better, as it permits Qt to optimize for speed and minimize
+    flicker.
+
+    \warning If you call repaint() in a function which may itself be
+    called from paintEvent(), you may get infinite recursion. The
+    update() function never causes recursion.
+
+    \sa update(), paintEvent(), setUpdatesEnabled(), erase()
+*/
+
+void QWidget::repaint()
+{
+    repaint( visibleRect(), !testWFlags(WRepaintNoErase));
+}
+
+/*! \overload
+
+    This version repaints a rectangle (\a x, \a y, \a w, \a h) inside
+    the widget.
+
+    If \a w is negative, it is replaced with \c{width() - x}, and if
+    \a h is negative, it is replaced width \c{height() - y}.
+*/
+
+void QWidget::repaint( int x, int y, int w, int h)
+{
+    repaint(x, y, w, h, !testWFlags(WRepaintNoErase));
+}
+
+/*!
+    \overload
+
+    This version erases only if \a erase is set to true.
+*/
+
 void QWidget::repaint( bool erase )
 {
     repaint( visibleRect(), erase );
 }
+
+/*!
+    \overload
+
+    This version repaints a region \a rgn inside the widget.
+*/
+
+void QWidget::repaint(const QRegion &rgn)
+{
+    repaint(rgn, !testWFlags(WRepaintNoErase));
+}
+
+/*!
+  \fn void QWidget::repaint( int x, int y, int w, int h, bool erase )
+    \overload
+
+    This version erases only if \a erase is set to true.
+*/
+
+/*!
+  \fn void QWidget::repaint( const QRegion& reg, bool erase )
+    \overload
+
+    This version erases only if \a erase is set to true.
+*/
+
+
+/*!
+    Updates the widget unless updates are disabled or the widget is
+    hidden.
+
+    This function does not cause an immediate repaint; instead it
+    schedules a paint event for processing when Qt returns to the main
+    event loop. This permits Qt to optimize for more speed and less
+    flicker than a call to repaint() does.
+
+    Calling update() several times normally results in just one
+    paintEvent() call.
+
+    Qt normally erases the widget's area before the paintEvent() call.
+    If the \c WRepaintNoErase widget flag is set, the widget is
+    responsible for painting all its pixels itself.
+
+    \sa repaint(), paintEvent(), setUpdatesEnabled(), erase(),
+    setWFlags()
+*/
+
+void QWidget::update()
+{
+    update(!testWFlags(WRepaintNoErase));
+}
+
+/*!
+    \overload
+
+    This version updates a rectangle (\a x, \a y, \a w, \a h) inside
+    the widget.
+*/
+
+void QWidget::update(int x, int y, int w, int h)
+{
+    update(x, y, w, h, !testWFlags(WRepaintNoErase));
+}
+
+/*!
+    \overload void QWidget::update(const QRect &r)
+
+    This version updates a rectangle \a r inside the widget.
+*/
+
+/*!
+    \overload
+
+    This version repaints a region \a rgn inside the widget.
+*/
+
+void QWidget::update(const QRegion &rgn)
+{
+    update(rgn, !testWFlags(WRepaintNoErase));
+}
+
+
+/*!
+  \fn void QWidget::update(bool erase)
+   \overload
+
+   This version erases only if \a erase is set to true.
+*/
+
+/*!
+    \overload void QWidget::update(const QRect &r, bool erase)
+
+    This version erases only if \a erase is set to true.
+*/
+
+
+/*!
+  \fn void QWidget::update(int x, int y, int w, int h, bool erase)
+   \overload
+
+   This version erases only if \a erase is set to true.
+*/
+
+/*!
+  \fn void QWidget::update( const QRegion& rgn, bool erase )
+    \overload
+
+    This version erases only if \a erase is set to true.
+*/
+
 
 
 /*!
@@ -5321,3 +5473,4 @@ bool QWidget::testAttribute_helper(WidgetAttribute attribute) const
     int x = attribute - 8*sizeof(uint);
     return (d->high_attributes[x / (8*sizeof(uint))] & (1<<x));
 }
+

@@ -127,6 +127,20 @@ COMPAT mode, but we recommend not using them in new code.
 The following functions were slots, but are no more:
 \list
 \i QWidget::setMouseTracking()
+\i QWidget::stackUnder( QWidget* );
+\i QWidget::move( int x, int y );
+\i QWidget::move( const QPoint & );
+\i QWidget::resize( int w, int h );
+\i QWidget::resize( const QSize & );
+\i QWidget::setGeometry( int x, int y, int w, int h );
+\i QWidget::setGeometry( const QRect & );
+\i QWidget::adjustSize();
+\i QWidget::update( int x, int y, int w, int h );
+\i QWidget::update(const QRect&);
+\i QWidget::repaint(bool erase);
+\i QWidget::repaint(int x, int y, int w, int h, bool erase);
+\i QWidget::repaint(const QRect &, bool erase);
+\i QWidget::repaint(const QRegion &, bool erase);
 \endlist
 
 \section1 QApplication

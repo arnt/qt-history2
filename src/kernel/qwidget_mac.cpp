@@ -1331,7 +1331,7 @@ void QWidget::update(int x, int y, int w, int h)
     }
 }
 
-void QWidget::update(const QRegion &rgn)
+void QWidget::update(const QRegion &rgn, bool erase)
 {
     if(!testWState(WState_BlockUpdates) && isVisible() && !clippedRegion().isEmpty()) {
 	qt_event_request_updates(this, rgn);
@@ -1848,7 +1848,7 @@ void qt_erase_region( QWidget* w, const QRegion& reg)
     }
 }
 
-void QWidget::erase(const QRegion& reg)
+void QWidget::erase(const QRegion& rgn)
 {
     if(testAttribute(WA_NoErase) || isDesktop() || !isVisible())
 	return;
@@ -1863,16 +1863,16 @@ void QWidget::erase(const QRegion& reg)
 	}
 	if(!parents.isEmpty()) {
 	    QWidget *p = parents.pop();
-	    QRegion preg = reg;
-	    preg.translate(offset);
-	    qt_set_paintevent_clipping(p, preg, this);
-	    qt_erase_region(p, preg);
+	    QRegion prgn = rgn;
+	    prgn.translate(offset);
+	    qt_set_paintevent_clipping(p, prgn, this);
+	    qt_erase_region(p, prgn);
 	    qt_clear_paintevent_clipping(p);
 	    for(;;) {
 		if(p->testAttribute(WA_ContentsPropagated)) {
 		    p->setWState(WState_InPaintEvent);
-		    qt_set_paintevent_clipping(p, preg, this);
-		    QPaintEvent e(preg);
+		    qt_set_paintevent_clipping(p, prgn, this);
+		    QPaintEvent e(prgn);
 		    QApplication::sendEvent(p, &e);
 		    qt_clear_paintevent_clipping(p);
 		    p->clearWState(WState_InPaintEvent);
@@ -1880,12 +1880,12 @@ void QWidget::erase(const QRegion& reg)
 		if(parents.isEmpty())
 		    break;
 		p = parents.pop();
-		preg.translate(-p->pos());
+		prgn.translate(-p->pos());
 	    }
 	}
 	return;
     }
-    qt_erase_region(this, reg);
+    qt_erase_region(this, rgn);
 }
 
 

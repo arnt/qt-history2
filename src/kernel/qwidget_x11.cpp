@@ -1225,120 +1225,30 @@ void QWidget::setActiveWindow()
 }
 
 
-/*!
-    Updates the widget unless updates are disabled or the widget is
-    hidden.
-
-    This function does not cause an immediate repaint; instead it
-    schedules a paint event for processing when Qt returns to the main
-    event loop. This permits Qt to optimize for more speed and less
-    flicker than a call to repaint() does.
-
-    Calling update() several times normally results in just one
-    paintEvent() call.
-
-    Qt normally erases the widget's area before the paintEvent() call.
-    If the \c WRepaintNoErase widget flag is set, the widget is
-    responsible for painting all its pixels itself.
-
-    \sa repaint(), paintEvent(), setUpdatesEnabled(), erase(),
-    setWFlags()
-*/
-
-void QWidget::update()
+void QWidget::update(bool erase)
 {
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) ==
-	 WState_Visible )
-	QApplication::postEvent( this, new QPaintEvent( clipRegion(), !testWFlags(WRepaintNoErase) ) );
+    if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
+	QApplication::postEvent(this, new QPaintEvent(clipRegion(), erase));
 }
 
-/*!
-    \overload
-
-    Updates a rectangle (\a x, \a y, \a w, \a h) inside the widget
-    unless updates are disabled or the widget is hidden.
-
-    This function does not cause an immediate repaint; instead it
-    schedules a paint event for processing when Qt returns to the main
-    event loop. This permits Qt to optimize for more speed and less
-    flicker and a call to repaint() does.
-
-    Calling update() several times normally results in just one
-    paintEvent() call.
-
-    If \a w is negative, it is replaced with \c{width() - x}. If \a h
-    is negative, it is replaced width \c{height() - y}.
-
-    Qt normally erases the specified area before the paintEvent()
-    call. If the \c WRepaintNoErase widget flag is set, the widget is
-    responsible for painting all its pixels itself.
-
-    \sa repaint(), paintEvent(), setUpdatesEnabled(), erase()
-*/
-
-void QWidget::update( int x, int y, int w, int h )
+void QWidget::update(const QRegion &rgn, bool erase)
 {
-    if ( w && h &&
-	 (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+    if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible)
+	QApplication::postEvent(this, new QPaintEvent( rgn&clipRegion(), erase));
+}
+
+void QWidget::update(int x, int y, int w, int h, bool erase)
+{
+    if (w && h && (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
 	    h = crect.height() - y;
 	if ( w != 0 && h != 0 )
-	    QApplication::postEvent( this,
-		new QPaintEvent( clipRegion().intersect(QRect(x,y,w,h)),
-				 !testWFlags( WRepaintNoErase ) ) );
+	    QApplication::postEvent(this,
+		    new QPaintEvent( clipRegion().intersect(QRect(x,y,w,h)), erase));
     }
 }
-
-/*!
-    \overload void QWidget::update( const QRect &r )
-
-    Updates a rectangle \a r inside the widget unless updates are
-    disabled or the widget is hidden.
-
-    This function does not cause an immediate repaint; instead it
-    schedules a paint event for processing when Qt returns to the main
-    event loop. This permits Qt to optimize for more speed and less
-    flicker and a call to repaint() does.
-
-    Calling update() several times normally results in just one
-    paintEvent() call.
-*/
-
-/*!
-    \overload void QWidget::repaint( bool erase )
-
-    This version repaints the entire widget.
-*/
-
-/*!
-    \overload void QWidget::repaint()
-
-    This version erases and repaints the entire widget.
-*/
-
-/*!
-    Repaints the widget directly by calling paintEvent() immediately,
-    unless updates are disabled or the widget is hidden.
-
-    If \a erase is TRUE, Qt erases the area \a (x, y, w, h) before the
-    paintEvent() call.
-
-    If \a w is negative, it is replaced with \c{width() - x}, and if
-    \a h is negative, it is replaced width \c{height() - y}.
-
-    We suggest only using repaint() if you need an immediate repaint,
-    for example during animation. In almost all circumstances update()
-    is better, as it permits Qt to optimize for speed and minimize
-    flicker.
-
-    \warning If you call repaint() in a function which may itself be
-    called from paintEvent(), you may get infinite recursion. The
-    update() function never causes recursion.
-
-    \sa update(), paintEvent(), setUpdatesEnabled(), erase()
-*/
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
@@ -1366,46 +1276,17 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
     }
 }
 
-/*!
-    \overload
-
-    Repaints the widget directly by calling paintEvent() directly,
-    unless updates are disabled or the widget is hidden.
-
-    Erases the widget region \a reg if \a erase is TRUE.
-
-    Only use repaint if your widget needs to be repainted immediately,
-    for example when doing some animation. In all other cases, use
-    update(). Calling update() many times in a row will generate a
-    single paint event.
-
-    \warning If you call repaint() in a function which may itself be
-    called from paintEvent(), you may get infinite recursion. The
-    update() function never causes recursion.
-
-    \sa update(), paintEvent(), setUpdatesEnabled(), erase()
-*/
-
-void QWidget::repaint( const QRegion& reg, bool erase )
+void QWidget::repaint( const QRegion& rgn, bool erase )
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
-	QPaintEvent e( reg, erase );
-	qt_set_paintevent_clipping( this, reg );
+	QPaintEvent e( rgn, erase );
+	qt_set_paintevent_clipping( this, rgn );
 	if ( erase )
-	    this->erase(reg);
+	    this->erase(rgn);
 	QApplication::sendEvent( this, &e );
 	qt_clear_paintevent_clipping();
     }
 }
-
-/*!
-    \overload void QWidget::repaint( const QRect &r, bool erase )
-
-    Repaints the widget directly by calling paintEvent() directly,
-    unless updates are disabled or the widget is hidden.
-
-    Erases the widget region \a r if \a erase is TRUE.
-*/
 
 
 /*!
@@ -1965,16 +1846,16 @@ void QWidget::erase( int x, int y, int w, int h )
 /*!
     \overload
 
-    Erases the area defined by \a reg, without generating a \link
+    Erases the area defined by \a rgn, without generating a \link
     paintEvent() paint event\endlink.
 
     Child widgets are not affected.
 */
 
-void QWidget::erase( const QRegion& reg )
+void QWidget::erase( const QRegion& rgn )
 {
     extern void qt_erase_region( QWidget*, const QRegion& ); // in qpainer_x11.cpp
-    qt_erase_region( this, reg );
+    qt_erase_region( this, rgn );
 }
 
 /*!

@@ -738,13 +738,19 @@ void QWidget::setActiveWindow()
 }
 
 
-void QWidget::update()
+void QWidget::update(bool erase)
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
-	InvalidateRect( winId(), 0, !testWFlags( WRepaintNoErase) );
+	InvalidateRect(winId(), 0, erase);
 }
 
-void QWidget::update( int x, int y, int w, int h )
+void QWidget::update(const QRegion &rgn, bool erase)
+{
+    if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible)
+	InvalidateRgn(winId(), rgn.handle());
+}
+
+void QWidget::update(int x, int y, int w, int h, bool erase)
 {
     if ( w && h &&
 	 (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
@@ -759,7 +765,7 @@ void QWidget::update( int x, int y, int w, int h )
 	    r.bottom = crect.height();
 	else
 	    r.bottom = y + h;
-	InvalidateRect( winId(), &r, !testWFlags( WRepaintNoErase) );
+	InvalidateRect(winId(), &r, erase);
     }
 }
 
@@ -789,16 +795,16 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
     }
 }
 
-void QWidget::repaint( const QRegion& reg, bool erase )
+void QWidget::repaint( const QRegion& rgn, bool erase )
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 #ifndef Q_OS_TEMP
-	ValidateRgn( winId(), reg.handle() );
+	ValidateRgn( winId(), rgn.handle() );
 #endif
-	QPaintEvent e( reg, erase );
-	qt_set_paintevent_clipping( this, reg );
+	QPaintEvent e( rgn, erase );
+	qt_set_paintevent_clipping( this, rgn );
 	if ( erase )
-	    this->erase( reg );
+	    this->erase( rgn );
 	QApplication::sendEvent( this, &e );
 	qt_clear_paintevent_clipping();
     }
