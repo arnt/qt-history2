@@ -58,7 +58,7 @@ public:
     static QAction *exec(QList<QAction*> actions, const QPoint &pos, QAction *at=0);
 
 #ifdef Q_WS_MAC
-    MenuRef macMenu();
+    MenuRef macMenu(MenuRef merge=0);
 #endif
 
 signals:

@@ -17,6 +17,7 @@ struct QMacMenuAction {
     uint command;
     uchar ignore_accel : 1;
     QPointer<QAction> action;
+    MenuRef menu;
 };
 #endif
 
@@ -121,9 +122,8 @@ public:
 	    }
 	    return 0;
 	}
-	short findActionIndex(QMacMenuAction *);
     } *mac_menu;
-    MenuRef macMenu();
+    MenuRef macMenu(MenuRef merge);
 #endif
 };
 
@@ -182,7 +182,7 @@ public:
 	static QPointer<Q4MenuBar> fallback;
 	static QHash<QWidget *, Q4MenuBar *> menubars;
 	QList<QMacMenuAction*> actionItems;
-	MenuRef menu;
+	MenuRef menu, apple_menu;
 	QMacMenuBarPrivate();
 	~QMacMenuBarPrivate();
 
@@ -200,7 +200,6 @@ public:
 	    }
 	    return 0;
 	}
-	short findActionIndex(QMacMenuAction *);
     } *mac_menubar;
     void macCreateMenuBar(QWidget *);
     void macDestroyMenuBar();
