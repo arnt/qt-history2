@@ -202,9 +202,9 @@ QCoreVariant QPSQLResult::data(int i)
         return d->isUtf8 ? QString::fromUtf8(val) : QString::fromLocal8Bit(val);
     case QCoreVariant::LongLong:
         if (val[0] == '-')
-            return strtoull(val, 0, 10);
+            return QString::fromLatin1(val).toULongLong();
         else
-            return strtoll(val, 0, 10);
+            return QString::fromLatin1(val).toLongLong();
     case QCoreVariant::Int:
         return atoi(val);
     case QCoreVariant::Double:
