@@ -105,7 +105,7 @@ static const unsigned char aqua_vsbr_tip_up_mask_bits[] = {
    0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f };
 
 /* XPM */
-static char * aqua_win_act_left_xpm[] = {
+static char * aqua_win_act_left_controls_xpm[] = {
 "70 23 459 2",
 "  	c None",
 ". 	c #2F589C",
@@ -589,6 +589,76 @@ static char * aqua_win_act_left_xpm[] = {
 ". ! ~ ) ! ! ! ~ ! e._ ).$ L#o M#N#M#o L#O#P#( D+) ~ ) ~ Q#~ ) D+( P#R#L#S#M#N#M#o L#R#P#T#D+) ~ ) ~ ) ~ Q#D+( P#R#L#o M#U#M#o L#R#P#( D+Q#~ ",
 ". e._ G+e#{ e#*#{ { f#V#f.& W#I+X#I+W#& f.).<@{ { { { { { { { { <@).f.& W#I+X#I+W#& f.).<@{ { { { { { { { { <@).f.& W#I+X#I+W#& f.).<@{ { { ",
 ". c+F+e#H+H+H+H+H+H+H+W+7 f.Y#=#=#=#Y#f.Z#W+H+H+H+H+H+H+H+H+H+H+H+W+Z#f.Y#=#=#=#Y#f.Z#W+H+H+H+H+H+H+H+H+H+H+H+W+Z#f.Y#=#=#=#Y#f.Z#W+H+H+H+H+"};
+/* XPM */
+static char * aqua_win_act_left_xpm[] = {
+"9 23 44 1",
+" 	c None",
+".	c #2F589C",
+"+	c #C0C0C0",
+"@	c #D2D2D2",
+"#	c #C5C5C5",
+"$	c #D4D4D4",
+"%	c #C7C7C7",
+"&	c #F4F4F4",
+"*	c #FFFFFF",
+"=	c #BCBCBC",
+"-	c #CECECE",
+";	c #ADADAD",
+">	c #FEFEFE",
+",	c #F9F9F9",
+"'	c #F1F1F1",
+")	c #E1E1E1",
+"!	c #FDFDFD",
+"~	c #F8F8F8",
+"{	c #F0F0F0",
+"]	c #EBEBEB",
+"^	c #EAEAEA",
+"/	c #FCFCFC",
+"(	c #FAFAFA",
+"_	c #EFEFEF",
+":	c #F7F7F7",
+"<	c #E9E9E9",
+"[	c #E7E7E7",
+"}	c #F3F3F3",
+"|	c #EEEEEE",
+"1	c #FBFBFB",
+"2	c #EDEDED",
+"3	c #E5E5E5",
+"4	c #E6E6E6",
+"5	c #E4E4E4",
+"6	c #D9D9D9",
+"7	c #F5F5F5",
+"8	c #ECECEC",
+"9	c #DFDFDF",
+"0	c #F6F6F6",
+"a	c #F2F2F2",
+"b	c #E8E8E8",
+"c	c #E2E2E2",
+"d	c #E0E0E0",
+"e	c #DEDEDE",
+".........",
+".........",
+"...+@#+++",
+"..$%&****",
+".=-******",
+".;>,&''''",
+".)!~{]^^^",
+".&>,&''''",
+"./**>**>>",
+".>(&_'{{_",
+".>:{<<<<[",
+".!(}|{_|<",
+".!!!/!!/}",
+"./~'|||])",
+".1}233456",
+".(7|88]<9",
+".:~~~~~:|",
+".0a]bbb[c",
+".&2[dd)9e",
+".a|[33335",
+".{_'{{{_{",
+".|<5d)dc)",
+".84d66666"};
 /* XPM */
 static char * aqua_win_act_right_xpm[] = {
 "13 22 43 1",
@@ -11169,10 +11239,13 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 
     // Titlebars
     if( s.contains("win_") ) {
-        QPixmapCache::insert( "$qt_aqua_win_act_mid",
-                              (const char **) aqua_win_act_mid_xpm );
+        QPixmapCache::insert( "$qt_aqua_win_act_left_controls",
+                              (const char **) aqua_win_act_left_controls_xpm );
+
         QPixmapCache::insert( "$qt_aqua_win_act_left",
                               (const char **) aqua_win_act_left_xpm );
+        QPixmapCache::insert( "$qt_aqua_win_act_mid",
+                              (const char **) aqua_win_act_mid_xpm );
         QPixmapCache::insert( "$qt_aqua_win_act_right",
                               (const char **) aqua_win_act_right_xpm );
     }
@@ -13387,23 +13460,28 @@ void
 QAquaStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 				  uint controls, uint )
 {
-    if((controls & TitleMaxButton) || (controls & TitleMaxButton) || 
-       (controls & TitleNormalButton) || (controls & TitleCloseButton)) {
+    bool other_controls = FALSE;
+    if(tb->window && ((controls & TitleMaxButton) || (controls & TitleMaxButton) || 
+		      (controls & TitleNormalButton) || (controls & TitleCloseButton))) {
 	QPixmap pm;
-	qAquaPixmap( "win_act_left", pm );
+	qAquaPixmap( "win_act_left_controls", pm );
 	p->drawPixmap(0, 0, pm);
+	other_controls = TRUE;
     }
     if(controls & TitleLabel) {
-	QPixmap mid, right;
+	QPixmap mid, right, left;
 	qAquaPixmap( "win_act_mid", mid );
 	qAquaPixmap( "win_act_right", right );
+	qAquaPixmap( "win_act_left", left );
 	
-	p->drawTiledPixmap( 70, 0, tb->width() - 70 - right.width(),
+	if(!other_controls) 
+	    p->drawPixmap(0, 0, left);
+	int left_size = other_controls ? 70 : left.width();
+	p->drawTiledPixmap( left_size, 0, tb->width() - left_size - right.width(),
 			    mid.height(), mid );
 	p->drawPixmap(tb->width() - right.width(), 0, right);
-
 	p->setPen( tb->act || !tb->window ? tb->atextc : tb->itextc );
-	p->drawText(70, 0, tb->width() - 70, tb->height(), 
+	p->drawText(left_size, 0, tb->width() - left_size, tb->height(), 
 		    AlignAuto | AlignVCenter | SingleLine | AlignHCenter, tb->cuttext );
     }
 }
