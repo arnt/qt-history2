@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#13 $
 **
 ** Implementation of QWMatrix class
 **
@@ -18,7 +18,7 @@ double qsincos( double, bool calcCos );		// defined in qptr_x11.cpp
 #include <math.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#13 $");
 
 
 /*----------------------------------------------------------------------------
@@ -28,7 +28,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#12 $");
 
   The standard coordinate system of a \link QPaintDevice paint
   device\endlink has the origin located at the top left position. X
-  values increase to the left, and Y values increase to the bottom.
+  values increase to the right, and Y values increase downwards.
 
   This coordinate system is default for the QPainter, which renders
   graphics in a paint device. A user-defined coordinate system can be
