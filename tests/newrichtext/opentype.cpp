@@ -438,8 +438,8 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QSc
 
     q_calculateAdvances( item );
 
-    item->width = 0;
     if ( hasGPos ) {
+	item->width = 0;
 	TTO_GPOS_Data *positions = 0;
 
 	bool reverse = (item->analysis.bidiLevel % 2);
