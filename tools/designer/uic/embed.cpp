@@ -195,7 +195,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 
 	out << "\n"
 	    "static QDict<QImage> *" << cProject << "image_dict = 0;\n"
-	    "static QImage& uic_findImage( const char *name )\n"
+	    "static QImage& uic_findImage( const QString& name )\n"
 	    "{\n"
 	    "    if ( !" << cProject << "image_dict ) {\n"
 	    "        " << cProject << "image_dict = new QDict<QImage>;\n"
