@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#26 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#25 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#26 $")
 
 
 const int sbDim = 16;
@@ -1749,7 +1749,7 @@ void QTableView::scroll( int xPixels, int yPixels )
 		repaint( frameWidth(), yStart, -xPixels, height );
 	    else
 		repaint( frameWidth() + width, yStart,
-			 maxX - frameWidht() - width, height );
+			 maxX - frameWidth() - width, height );
 	} else {
 	    bitBlt( this, xStart - xPixels, yStart,
 		    this, xStart, yStart, width, height );
