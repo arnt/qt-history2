@@ -12,6 +12,7 @@ contains( QT_PRODUCT, qt-(enterprise|internal|eval) ) {
     SOURCES = qmotifdialog.cpp qmotifwidget.cpp qmotif.cpp qxtwidget.cpp
 
     headers.files = $$HEADERS
+    target.path=$$libs.path
     INSTALLS += target headers
 } else {
     message( "QMotif requires a Qt/Enterprise edition." )
