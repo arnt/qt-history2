@@ -24,9 +24,11 @@ class DspMakefileGenerator : public Win32MakefileGenerator
 
     bool init_flag;
     bool writeDspParts(QTextStream &);
+    bool writeFileGroup(QTextStream &t, const QStringList &files, const QString &group, const QString &filter);
+    bool writeBuildstepForFile(QTextStream &t, const QString &file);
+    void writeMocStep(QTextStream &t, const QString &mocSource, const QString &mocFile);
 
     bool writeMakefile(QTextStream &);
-    QString findTemplate(const QString &file);
     void init();
 
 public:
@@ -40,8 +42,12 @@ protected:
     virtual void processPrlVariable(const QString &, const QStringList &);
     virtual bool findLibraries();
 
-    QString precompH,
+    QString precompH, namePCH,
             precompObj, precompPch;
+
+    QString mocPath, mocArgs;
+    QString platform;
+    QStringList configurations;
     bool usePCH;
 };
 
