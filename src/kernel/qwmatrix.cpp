@@ -797,8 +797,9 @@ bool QWMatrix::isIdentity() const
 
 QWMatrix &QWMatrix::translate( double dx, double dy )
 {
-    QWMatrix result( 1.0F, 0.0F, 0.0F, 1.0F, dx, dy );
-    return bmul( result );
+    _dx += dx;
+    _dy += dy;
+    return *this;
 }
 
 /*!
@@ -812,8 +813,11 @@ QWMatrix &QWMatrix::translate( double dx, double dy )
 
 QWMatrix &QWMatrix::scale( double sx, double sy )
 {
-    QWMatrix result( sx, 0.0F, 0.0F, sy, 0.0F, 0.0F );
-    return bmul( result );
+    _m11 *= sx;
+    _m12 *= sx;
+    _m21 *= sy;
+    _m22 *= sy;
+    return *this;
 }
 
 /*!
@@ -826,8 +830,15 @@ QWMatrix &QWMatrix::scale( double sx, double sy )
 
 QWMatrix &QWMatrix::shear( double sh, double sv )
 {
-    QWMatrix result( 1.0F, sv, sh, 1.0F, 0.0F, 0.0F );
-    return bmul( result );
+    double tm11 = sv*_m21;
+    double tm12 = sv*_m22;
+    double tm21 = sh*_m11;
+    double tm22 = sh*_m12;
+    _m11 += tm11;
+    _m12 += tm12;
+    _m21 += tm21;
+    _m22 += tm22;
+    return *this;
 }
 
 const double deg2rad = 0.017453292519943295769;	// pi/180
@@ -850,8 +861,13 @@ QWMatrix &QWMatrix::rotate( double a )
     double sina = sin(b);
     double cosa = cos(b);
 #endif
-    QWMatrix result( cosa, sina, -sina, cosa, 0.0F, 0.0F );
-    return bmul( result );
+    double tm11 = cosa*_m11 + sina*_m21;
+    double tm12 = cosa*_m12 + sina*_m22;
+    double tm21 = -sina*_m11 + cosa*_m21;
+    double tm22 = -sina*_m12 + cosa*_m22;
+    _m11 = tm11; _m12 = tm12;
+    _m21 = tm21; _m22 = tm22;
+    return *this;
 }
 
 /*! \fn bool QWMatrix::isInvertible() const
@@ -860,6 +876,12 @@ QWMatrix &QWMatrix::rotate( double a )
 
   \sa invert()
 */
+
+/*! \fn double QWMatrix::det() const
+  
+  Returns the determinant of the matrix.
+*/
+
 
 /*!
   Returns the inverted matrix.
@@ -876,8 +898,8 @@ QWMatrix &QWMatrix::rotate( double a )
 
 QWMatrix QWMatrix::invert( bool *invertible ) const
 {
-    double det = _m11*_m22 - _m12*_m21;
-    if ( det == 0.0 ) {
+    double determinant = det();
+    if ( determinant == 0.0 ) {
 	if ( invertible )
 	    *invertible = FALSE;		// singular matrix
 	QWMatrix defaultMatrix;
@@ -886,7 +908,7 @@ QWMatrix QWMatrix::invert( bool *invertible ) const
     else {					// invertible matrix
 	if ( invertible )
 	    *invertible = TRUE;
-	double dinv = 1.0/det;
+	double dinv = 1.0/determinant;
 	QWMatrix imatrix( (_m22*dinv),	(-_m12*dinv),
 			  (-_m21*dinv), ( _m11*dinv),
 			  ((_m21*_dy - _m22*_dx)*dinv),
@@ -930,24 +952,20 @@ bool QWMatrix::operator!=( const QWMatrix &m ) const
 
 QWMatrix &QWMatrix::operator*=( const QWMatrix &m )
 {
-    setMatrix( _m11*m._m11 + _m12*m._m21,  _m11*m._m12 + _m12*m._m22,
-	       _m21*m._m11 + _m22*m._m21,  _m21*m._m12 + _m22*m._m22,
-	       _dx*m._m11  + _dy*m._m21 + m._dx,
-	       _dx*m._m12  + _dy*m._m22 + m._dy );
-    return *this;
-}
-
-QWMatrix &QWMatrix::bmul( const QWMatrix &m )
-{
-    setMatrix( m._m11*_m11 + m._m12*_m21,  m._m11*_m12 + m._m12*_m22,
-	       m._m21*_m11 + m._m22*_m21,  m._m21*_m12 + m._m22*_m22,
-	       m._dx*_m11  + m._dy*_m21 + _dx,
-	       m._dx*_m12  + m._dy*_m22 + _dy );
+    double tm11 = _m11*m._m11 + _m12*m._m21;
+    double tm12 = _m11*m._m12 + _m12*m._m22;
+    double tm21 = _m21*m._m11 + _m22*m._m21;
+    double tm22 = _m21*m._m12 + _m22*m._m22;
+    double tdx  = _dx*m._m11  + _dy*m._m21 + m._dx;
+    double tdy =  _dx*m._m12  + _dy*m._m22 + m._dy;
+    _m11 = tm11; _m12 = tm12;
+    _m21 = tm21; _m22 = tm22;
+    _dx = tdx; _dy = tdy;
     return *this;
 }
 
 /*!
-    \overload
+  \overload
   \relates QWMatrix
   Returns the product of \a m1 * \a m2.
 

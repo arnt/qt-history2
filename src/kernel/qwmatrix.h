@@ -75,13 +75,15 @@ public:
 
     void	reset();
     bool	isIdentity() const;
-
+    
     QWMatrix   &translate( double dx, double dy );
     QWMatrix   &scale( double sx, double sy );
     QWMatrix   &shear( double sh, double sv );
     QWMatrix   &rotate( double a );
 
     bool isInvertible() const { return (_m11*_m22 - _m12*_m21) != 0; }
+    double det() const { return _m11*_m22 - _m12*_m21; }
+
     QWMatrix	invert( bool * = 0 ) const;
 
     bool	operator==( const QWMatrix & ) const;
@@ -100,12 +102,10 @@ public:
     static void setTransformationMode( QWMatrix::TransformationMode m );
     static TransformationMode transformationMode();
 private:
-    QWMatrix   &bmul( const QWMatrix & );
     double	_m11, _m12;
     double	_m21, _m22;
     double	_dx,  _dy;
 };
-
 
 Q_EXPORT QWMatrix operator*( const QWMatrix &, const QWMatrix & );
 
