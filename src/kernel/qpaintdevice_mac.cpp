@@ -332,8 +332,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
       dstoffx = p.x();
       dstoffy = p.y();
 
-      QRegion invr = QRegion(p.x(), p.y(), w->width(), w->height()) ^ w->clippedRegion();
-      SetClip((RgnHandle)invr.handle()); //probably shouldn't do this?
+      SetClip((RgnHandle)w->clippedRegion().handle()); //probably shouldn't do this?
 
   } else if(dst->devType() == QInternal::Pixmap) {
 
@@ -342,9 +341,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
       LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));
       dstbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
 
+      //I'm paranoid..
       QRegion rgn(0,0,pm->width(),pm->height());
       SetClip((RgnHandle)rgn.handle());
-
   }
 
   if(!dstbitmap || !srcbitmap) {  //FIXME, need to handle ExtDevice!!!!!!

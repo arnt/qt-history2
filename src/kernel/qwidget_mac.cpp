@@ -81,6 +81,10 @@ QPoint posInWindow(QWidget *w)
   return QPoint(x, y);
 }
 
+// Paint event clipping magic
+extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
+extern void qt_clear_paintevent_clipping();
+
 /*!
   Creates a new widget window if \a window is null, otherwise sets the
   widget's window to \a window.
@@ -110,7 +114,6 @@ QWidget *mac_keyboard_grabber = 0;
 void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindow */ )
 {
     bg_pix = 0;
-    back_type = 1;
     WId root_win = 0;
     setWState( WState_Created );                        // set created flag
 
@@ -805,17 +808,7 @@ void QWidget::update( int x, int y, int w, int h )
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
-  if ( (widget_state & (WState_Visible|WState_BlockUpdates)) 
-       == WState_Visible ) {
-    if ( w < 0 )
-      w = crect.width()  - x;
-    if ( h < 0 )
-      h = crect.height() - y;
-    QPaintEvent e( QRect(x, y, w, h ), erase );
-    if ( 1 && erase && w != 0 && h != 0 )
-      this->erase( x, y, w, h );
-    QApplication::sendEvent( this, &e );
-  }
+    repaint(QRegion(x, y, w, h), erase);
 }
 
 /*!
@@ -836,9 +829,16 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
   \sa update(), paintEvent(), setUpdatesEnabled(), erase()
 */
 
-void QWidget::repaint( const QRegion& , bool erase )
+void QWidget::repaint( const QRegion &reg , bool erase )
 {
-    repaint( 0, 0, width(), height(), erase );
+    if ( !testWState(WState_BlockUpdates) && testWState(WState_Visible) && isVisible() ) {
+	if ( erase )
+	    this->erase(reg);
+	QPaintEvent e( reg );
+	qt_set_paintevent_clipping( this, reg );
+	QApplication::sendEvent( this, &e );
+	qt_clear_paintevent_clipping();
+    }
 }
 
 /*!
@@ -1248,6 +1248,7 @@ void QWidget::erase( const QRegion& reg )
 	yoff = mp.y();
     }
 
+    //OPTIMIZATION fixme, I think macwindows is capable of doing this for us, look at PixBack fu
     QPainter p;
     p.begin(this);
     p.setClipRegion(reg);
@@ -1548,6 +1549,7 @@ void QWidget::propagateUpdates(int , int , int w, int h)
 
 QRegion QWidget::clippedRegion()
 {
+//    qDebug("ClippedRegion: %s %s", name(), className());
     QPoint tmp;
     createExtra();
     QRegion clippedRgn = extra->mask;
@@ -1557,8 +1559,10 @@ QRegion QWidget::clippedRegion()
 	for(QObjectListIt it(*chldnlst); it.current(); ++it) {
 	    if((*it)->isWidgetType()) {
 		QWidget *cw = (QWidget *)(*it);
-		if(cw->isVisible() && cw->back_type != 3) {
-		    tmp  = posInWindow(cw);
+		if(cw->isVisible()) {
+		    tmp = posInWindow(cw);
+//		    qDebug("clipping my child: %s %s %d %d %dx%d", cw->name(), cw->className(),
+//			   tmp.x(), tmp.y(), cw->width(), cw->height());
 		    clippedRgn += QRegion(tmp.x(), tmp.y(), cw->width(), cw->height());
 		}
 	    }
@@ -1583,7 +1587,7 @@ QRegion QWidget::clippedRegion()
     }
 
     QPoint mp = posInWindow(this);
-    return QRegion(mp.x(), mp.y(), width(), height()) & clippedRgn;
+    return QRegion(mp.x(), mp.y(), width(), height()) ^ clippedRgn;
 }
 
 

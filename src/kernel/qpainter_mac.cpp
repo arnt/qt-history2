@@ -90,6 +90,37 @@ const int TxRotShear=3;
   QPainter member functions
  *****************************************************************************/
 
+QPoint posInWindow(QWidget *w);
+typedef QIntDict<QPaintDevice> QPaintDeviceDict;
+static QPaintDeviceDict *pdev_dict = 0;
+
+
+/* paintevent magic to provide Windows semantics on MAC
+ */
+static QRegion* paintEventClipRegion = 0;
+static QPaintDevice* paintEventDevice = 0;
+
+void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
+{
+    //THIS NEEDS TO BE IN AND FIXED, HOWEVER ITS CAUSING PAINT PROBLEMS SO ITS OUT FOR NOW
+#if 0
+    if ( !paintEventClipRegion )
+	paintEventClipRegion = new QRegion;
+    *paintEventClipRegion = region;
+    if(dev->devType() == QInternal::Widget) {
+	QWidget *w = (QWidget *)dev;
+	*paintEventClipRegion &= w->clippedRegion();
+    }
+    paintEventDevice = dev;
+#endif
+}
+
+void qt_clear_paintevent_clipping()
+{
+    delete paintEventClipRegion;
+    paintEventClipRegion = 0;
+    paintEventDevice = 0;
+}
 
 /*!
   Internal function that initializes the painter.
@@ -108,9 +139,6 @@ void QPainter::cleanup()
 }
 
 
-QPoint posInWindow(QWidget *w);
-typedef QIntDict<QPaintDevice> QPaintDeviceDict;
-static QPaintDeviceDict *pdev_dict = 0;
 
 /*!
   Redirects all paint command for a paint device \a pdev to another
@@ -377,9 +405,11 @@ bool QPainter::begin( const QPaintDevice *pd )
             updatePen();
             updateBrush();
         }  else {
-	    savedclip = w->clippedRegion();
-	    QRegion invr = QRegion(wp.x(), wp.y(), w->width(), w->height()) ^ savedclip;
-	    SetClip((RgnHandle)invr.handle());
+
+	    if(paintEventDevice == pdev)
+		savedclip = *paintEventClipRegion;
+	    else
+		savedclip = w->clippedRegion();
 	}
     } else if ( dt == QInternal::Pixmap ) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)pdev;
@@ -397,8 +427,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	SetGWorld((GWorldPtr)pm->handle(),0);
 	LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));
 
-	QRegion rgn(0,0,pm->width(),pm->height());
-	SetClip((RgnHandle)rgn.handle());
+	savedclip = QRegion(0, 0, pm->width(), pm->height());
     } 
 
     if ( testf(ExtDev) ) {               // external device
@@ -419,6 +448,8 @@ bool QPainter::begin( const QPaintDevice *pd )
         setBackgroundMode( TransparentMode );   // default background mode
         setRasterOp( CopyROP );                 // default raster operation
     }
+
+    SetClip((RgnHandle)savedclip.handle());
     updateBrush();
     updatePen();
     return TRUE;
@@ -458,7 +489,6 @@ bool QPainter::end()				// end painting
     if ( testf( FontInf ) )                       // remove references to this
         QFontInfo::reset( this );
 
-    
     if ( pdev->devType() == QInternal::Pixmap )
 	UnlockPixels(GetGWorldPixMap((GWorldPtr)pdev->handle()));
 
@@ -553,7 +583,7 @@ void QPainter::setBrushOrigin( int, int )
 
 void QPainter::setClipping( bool b )
 {
-    QRegion reg = savedclip;
+    QRegion reg;
     if(b) {
 	setf(ClipOn);
 	if(!crgn.isEmpty())
@@ -561,6 +591,11 @@ void QPainter::setClipping( bool b )
     } else {
 	clearf(ClipOn);
     }
+
+    if(reg.isEmpty())
+	reg = savedclip;
+    else 
+	reg &= savedclip;
     SetClip((RgnHandle)reg.handle());
 }
 
@@ -586,12 +621,13 @@ void QPainter::setClipRect( const QRect &r )
 
 void QPainter::setClipRegion( const QRegion &r )
 {
-    if(testf(ClipOn)) {
-	crgn = r;
-	if(!savedclip.isEmpty())
-	    crgn ^= savedclip;
-	SetClip((RgnHandle)crgn.handle());
-    }
+    QRegion rset(crgn = r);
+    if(r.isEmpty())
+	rset = savedclip;
+    else 
+	rset &= savedclip;
+    if(testf(ClipOn)) 
+	SetClip((RgnHandle)rset.handle());
 }
 
 /*!
@@ -1468,7 +1504,8 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
       - no mask
     */
     QBitmap *mask = (QBitmap *)pixmap.mask();
-    if ( !testf(ExtDev) && txop <= TxTranslate && mask == 0 ) {
+    //fixme
+    if ( 0 && !testf(ExtDev) && txop <= TxTranslate && mask == 0 ) {
         if ( txop == TxTranslate )
             map( x, y, &x, &y );
         return;
@@ -1501,157 +1538,157 @@ extern const unsigned char * p_str(const char * c);
 
 void QPainter::drawText( int x, int y, const QString &str, int len)
 {
-  if ( !isActive() )
-    return;
-  if ( len < 0 )
-    len = str.length();
-  if ( len == 0 )                             // empty string
-    return;
+    if ( !isActive() )
+	return;
+    if ( len < 0 )
+	len = str.length();
+    if ( len == 0 )                             // empty string
+	return;
 
-  updateBrush();
-  updatePen();
+    updateBrush();
+    updatePen();
 
-  if ( testf(DirtyFont|ExtDev|VxF|WxF) ) {
     if ( testf(DirtyFont) )
-      updateFont();
+	updateFont();
 
     if ( testf(ExtDev) ) {
-      QPDevCmdParam param[2];
-      QPoint p( x, y );
-      QString newstr = str.left(len);
-      param[0].point = &p;
-      param[1].str = &newstr;
-      if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hd )
-	return;
+	QPDevCmdParam param[2];
+	QPoint p( x, y );
+	QString newstr = str.left(len);
+	param[0].point = &p;
+	param[1].str = &newstr;
+	if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hd )
+	    return;
     }
 
-    if ( txop >= TxScale ) {
-      const QFontMetrics & fm = fontMetrics();
-      QFontInfo    fi = fontInfo();
-      QRect bbox = fm.boundingRect( str, len );
-      int w=bbox.width(), h=bbox.height();
-      int aw, ah;
-      int tx=-bbox.x(),  ty=-bbox.y();    // text position
-      QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
-      QFont dfont( cfont );
-      QWMatrix mat2;
-      if ( txop == TxScale ) {
-	int newSize = qRound( m22() * (double)cfont.pointSize() ) - 1;
-	newSize = QMAX( 6, QMIN( newSize, 72 ) ); // empirical values
-	dfont.setPointSize( newSize );
-	QFontMetrics fm2( dfont );
-	QRect abbox = fm2.boundingRect( str, len );
-	aw = abbox.width();
-	ah = abbox.height();
-	tx = -abbox.x();
-	ty = -abbox.y();        // text position - off-by-one?
-	if ( aw == 0 || ah == 0 )
-	  return;
-	double rx = (double)bbox.width() * mat1.m11() / (double)aw;
-	double ry = (double)bbox.height() * mat1.m22() /(double)ah;
-	mat2 = QWMatrix( rx, 0, 0, ry, 0, 0 );
-      }
-      else {
-	mat2 = QPixmap::trueMatrix( mat1, w, h );
-	aw = w;
-	ah = h;
-      }
-      bool empty = aw == 0 || ah == 0;
-      QBitmap * wx_bm=0;
-      bool create_new_bm = wx_bm == 0;
-      if ( create_new_bm && !empty ) {    // no such cached bitmap
-	QBitmap bm( aw, ah );           // create bitmap
-	bm.fill( color0 );
-	QPainter paint;
-	paint.begin( &bm );             // draw text in bitmap
-	paint.setFont( dfont );
-	paint.drawText( tx, ty, str, len );
-	paint.end();
-	wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
-	if ( wx_bm->isNull() ) {
-	  delete wx_bm;               // nothing to draw
-	  return;
+    if ( testf(VxF|WxF) ) {
+	if ( txop >= TxScale ) {
+	    const QFontMetrics & fm = fontMetrics();
+	    QFontInfo    fi = fontInfo();
+	    QRect bbox = fm.boundingRect( str, len );
+	    int w=bbox.width(), h=bbox.height();
+	    int aw, ah;
+	    int tx=-bbox.x(),  ty=-bbox.y();    // text position
+	    QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
+	    QFont dfont( cfont );
+	    QWMatrix mat2;
+	    if ( txop == TxScale ) {
+		int newSize = qRound( m22() * (double)cfont.pointSize() ) - 1;
+		newSize = QMAX( 6, QMIN( newSize, 72 ) ); // empirical values
+		dfont.setPointSize( newSize );
+		QFontMetrics fm2( dfont );
+		QRect abbox = fm2.boundingRect( str, len );
+		aw = abbox.width();
+		ah = abbox.height();
+		tx = -abbox.x();
+		ty = -abbox.y();        // text position - off-by-one?
+		if ( aw == 0 || ah == 0 )
+		    return;
+		double rx = (double)bbox.width() * mat1.m11() / (double)aw;
+		double ry = (double)bbox.height() * mat1.m22() /(double)ah;
+		mat2 = QWMatrix( rx, 0, 0, ry, 0, 0 );
+	    }
+	    else {
+		mat2 = QPixmap::trueMatrix( mat1, w, h );
+		aw = w;
+		ah = h;
+	    }
+	    bool empty = aw == 0 || ah == 0;
+	    QBitmap * wx_bm=0;
+	    bool create_new_bm = wx_bm == 0;
+	    if ( create_new_bm && !empty ) {    // no such cached bitmap
+		QBitmap bm( aw, ah );           // create bitmap
+		bm.fill( color0 );
+		QPainter paint;
+		paint.begin( &bm );             // draw text in bitmap
+		paint.setFont( dfont );
+		paint.drawText( tx, ty, str, len );
+		paint.end();
+		wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
+		if ( wx_bm->isNull() ) {
+		    delete wx_bm;               // nothing to draw
+		    return;
+		}
+	    }
+	    if ( bg_mode == OpaqueMode ) {      // opaque fill
+		int fx = x;
+		int fy = y - fm.ascent();
+		int fw = fm.width(str,len);
+		int fh = fm.ascent() + fm.descent();
+		int m, n;
+		QPointArray a(5);
+		mat1.map( fx,    fy,    &m, &n );  a.setPoint( 0, m, n );
+		a.setPoint( 4, m, n );
+		mat1.map( fx+fw, fy,    &m, &n );  a.setPoint( 1, m, n );
+		mat1.map( fx+fw, fy+fh, &m, &n );  a.setPoint( 2, m, n );
+		mat1.map( fx,    fy+fh, &m, &n );  a.setPoint( 3, m, n );
+		QBrush oldBrush = cbrush;
+		setBrush( backgroundColor() );
+		updateBrush();
+		setBrush( oldBrush );
+	    }
+	    if ( empty ) 
+		return;
+
+	    double fx=x, fy=y, nfx, nfy;
+	    mat1.map( fx,fy, &nfx,&nfy );
+	    double tfx=tx, tfy=ty, dx, dy;
+	    mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
+	    x = qRound(nfx-dx);
+	    y = qRound(nfy-dy);
+	    return;
 	}
-      }
-      if ( bg_mode == OpaqueMode ) {      // opaque fill
-	int fx = x;
-	int fy = y - fm.ascent();
-	int fw = fm.width(str,len);
-	int fh = fm.ascent() + fm.descent();
-	int m, n;
-	QPointArray a(5);
-	mat1.map( fx,    fy,    &m, &n );  a.setPoint( 0, m, n );
-	a.setPoint( 4, m, n );
-	mat1.map( fx+fw, fy,    &m, &n );  a.setPoint( 1, m, n );
-	mat1.map( fx+fw, fy+fh, &m, &n );  a.setPoint( 2, m, n );
-	mat1.map( fx,    fy+fh, &m, &n );  a.setPoint( 3, m, n );
-	QBrush oldBrush = cbrush;
-	setBrush( backgroundColor() );
-	updateBrush();
-	setBrush( oldBrush );
-      }
-      if ( empty ) 
-	return;
-
-      double fx=x, fy=y, nfx, nfy;
-      mat1.map( fx,fy, &nfx,&nfy );
-      double tfx=tx, tfy=ty, dx, dy;
-      mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
-      x = qRound(nfx-dx);
-      y = qRound(nfy-dy);
-      return;
+	if ( txop == TxTranslate )
+	    map( x, y, &x, &y );
     }
-    if ( txop == TxTranslate )
-      map( x, y, &x, &y );
-  }
 
-  QCString mapped='?';
+    QCString mapped='?';
 
-  const QTextCodec* mapper = cfont.d->mapper();
-  if ( mapper ) {
-    // translate from Unicode to font charset encoding here
-    mapped = mapper->fromUnicode(str,len);
-  }
-
-  if(!mapped) {
-    char * soo=new char[2];
-    soo[0]='?';
-    soo[1]='\0';
-    mapped=soo;
-  }
-
-  if ( !cfont.handle() ) {
-    if ( mapped.isNull() )
-      warning("Fontsets only apply to mapped encodings");
-    else {
-      MoveTo(x+offx,y+offy);
-      DrawString(p_str(mapped));
+    const QTextCodec* mapper = cfont.d->mapper();
+    if ( mapper ) {
+	// translate from Unicode to font charset encoding here
+	mapped = mapper->fromUnicode(str,len);
     }
-  } else {
-    if ( !mapped.isNull() ) {
-      MoveTo(x+offx,y+offy);
-      DrawString(p_str(mapped));
+
+    if(!mapped) {
+	char * soo=new char[2];
+	soo[0]='?';
+	soo[1]='\0';
+	mapped=soo;
+    }
+
+    if ( !cfont.handle() ) {
+	if ( mapped.isNull() )
+	    warning("Fontsets only apply to mapped encodings");
+	else {
+	    MoveTo(x+offx,y+offy);
+	    DrawString(p_str(mapped));
+	}
     } else {
-      // Unicode font
+	if ( !mapped.isNull() ) {
+	    MoveTo(x+offx,y+offy);
+	    DrawString(p_str(mapped));
+	} else {
+	    // Unicode font
 
-      QString v = str;
+	    QString v = str;
 #ifdef QT_BIDI
-      v.compose();  // apply ligatures (for arabic, etc...)
-      v = v.visual(); // visual ordering
-      len = v.length();
+	    v.compose();  // apply ligatures (for arabic, etc...)
+	    v = v.visual(); // visual ordering
+	    len = v.length();
 #endif
 
-      MoveTo(x+offx,y+offy);
-      DrawString(p_str((char *)v.unicode()));
+	    MoveTo(x+offx,y+offy);
+	    DrawString(p_str((char *)v.unicode()));
+	}
     }
-  }
 
 #if 0
-  if ( cfont.underline() || cfont.strikeOut() ) {
-    const QFontMetrics & fm = fontMetrics();
-    int lw = fm.lineWidth();
-    int tw = fm.width( str, len );
-  }
+    if ( cfont.underline() || cfont.strikeOut() ) {
+	const QFontMetrics & fm = fontMetrics();
+	int lw = fm.lineWidth();
+	int tw = fm.width( str, len );
+    }
 #endif
 }
 

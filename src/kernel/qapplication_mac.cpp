@@ -90,6 +90,9 @@ static Cursor *currentCursor;                  //current cursor
 QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 
+// Paint event clipping magic
+extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
+extern void qt_clear_paintevent_clipping();
 
 static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 static QWidget     *popupButtonFocus = 0;
@@ -1313,7 +1316,9 @@ int QApplication::macProcessEvent(MSG * m)
 	    ignorecliprgn = false;
 
 	    BeginUpdate((WindowPtr)widget->handle());
+	    qt_set_paintevent_clipping( widget, QRegion( 0, 0, widget->width(), widget->height() ));
 	    widget->propagateUpdates( 0, 0, widget->width(), widget->height() );
+	    qt_clear_paintevent_clipping();
 	    EndUpdate((WindowPtr)widget->handle());
 
 	    ignorecliprgn = true;
@@ -1364,7 +1369,7 @@ int QApplication::macProcessEvent(MSG * m)
 	    if ( widget ) {
 		QPoint p( er->where.h, er->where.v );
 		QPoint plocal(widget->mapFromGlobal( p ));
-		QMouseEvent qme( QEvent::MouseButtonRelease, plocal, p, QMouseEvent::LeftButton, 0);
+		QMouseEvent qme( QEvent::MouseButtonRelease, plocal, p, QMouseEvent::LeftButton, QMouseEvent::LeftButton);
 		QApplication::sendEvent( widget, &qme );
 	    }
 	}
