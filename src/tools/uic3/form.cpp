@@ -144,10 +144,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
                 globalIncludes += (*it).header;
             else
                 localIncludes += (*it).header;
-#if 0 // already done
-        } else {
-            globalIncludes += getInclude(objClass);
-#endif
         }
     }
 
@@ -188,12 +184,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     out << endl;
 
     // forward declarations for child widgets and layouts
-#if 0 // already done
-    out << "class QVBoxLayout;" << endl;
-    out << "class QHBoxLayout;" << endl;
-    out << "class QGridLayout;" << endl;
-    out << "class QSpacerItem;" << endl;
-#endif
     if (objClass == "QMainWindow") {
         out << "class QAction;" << endl;
         out << "class QActionGroup;" << endl;
@@ -221,26 +211,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     }
     if (dbForm || subDbForms)
         forwardDecl += "QSqlForm";
-
-#if 0 // already done
-    for (it = tags.begin(); it != tags.end(); ++it) {
-        nl = e.parentNode().toElement().elementsByTagName(*it);
-        for (i = 1; i < (int) nl.length(); i++) { // begin at 1, 0 is the toplevel widget
-            QString s = getClassName(nl.item(i).toElement());
-            if (s == "QLayoutWidget")
-                continue; // hide qlayoutwidgets
-            if (s == "Line")
-                s = "QFrame";
-            if (!(nofwd && customWidgets.contains(s)))
-                forwardDecl += s;
-            if (s.mid(1) == "ListBox" || s.mid(1) == "ListView" || s.mid(1) == "IconView")
-                forwardDecl += "Q" + s.mid(1) + "Item";
-            if (s == "QDataTable") { // other convenience classes which are used in QDataTable signals, and thus should be forward-declared by uic for us
-                forwardDecl += "QSqlRecord";
-            }
-        }
-    }
-#endif
 
     // some typedefs, maybe
     typeDefs = unique(typeDefs);
@@ -346,24 +316,18 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     out << "    ~" << bareNameOfClass << "();" << endl;
     out << endl;
 
-    bool needPolish = FALSE; // ### remove me!
+    bool needPolish = false;
 
-#if 0 // already done
     // children
     nl = e.parentNode().toElement().elementsByTagName("widget");
     for (i = 1; i < (int) nl.length(); i++) { // start at 1, 0 is the toplevel widget
         n = nl.item(i).toElement();
-        createObjectDecl(n);
-        QString t = n.tagName();
-         if (t == "vbox" || t == "hbox" || t == "grid")
-             createSpacerDecl(n);
         QString s = getClassName(n);
         if (s == "QDataTable" || s == "QDataBrowser") {
             if (isFrameworkCodeGenerated(n))
-                 needPolish = TRUE;
+                 needPolish = true;
         }
     }
-#endif
 
     // actions, toolbars, menus
     for (n = e; !n.isNull(); n = n.nextSibling().toElement()) {
@@ -1105,7 +1069,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
                 }
             }
         }
-        out << indent << objClass << "::polish();" << endl;
+        out << indent << " // ### fixme: " << objClass << "::polish();" << endl;
         out << "}" << endl;
         out << endl;
     }
