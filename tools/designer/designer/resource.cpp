@@ -2218,8 +2218,6 @@ QImage Resource::loadFromCollection( const QString &name )
 
 void Resource::saveConnections( QTextStream &ts, int indent )
 {
-    if ( !formwindow->project()->isCpp() )
-	return;
     QValueList<MetaDataBase::Connection> connections = MetaDataBase::connections( formwindow );
     if ( connections.isEmpty() )
 	return;
@@ -2542,7 +2540,7 @@ void Resource::saveMetaInfoAfter( QTextStream &ts, int indent )
 	QValueList<MetaDataBase::Include> includes = MetaDataBase::includes( formwindow );
 	QString extensionInclude;
 	bool needExtensionInclude = FALSE;
-	if ( langIface && formwindow->project()->isCpp()  &&
+	if ( langIface &&
 	     formwindow->formFile()->hasFormCode() &&
 	     formwindow->formFile()->codeFileState() != FormFile::Deleted ) {
 	    extensionInclude = QFileInfo( currFileName ).fileName() + langIface->formCodeExtension();
