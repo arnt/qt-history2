@@ -2161,9 +2161,6 @@ void QWSServer::moveWindowRegion( QWSWindow *changingw, int dx, int dy )
   clients, and waits for all required acknowledgements.
 
   If \a changingw is 0, the server's reserved region is changed.
-  If \a onlyAllocate is TRUE, the requested region is not changed, only
-  the allocated region. Be careful using this option, it is only really
-  useful if the windows list changes.
 
   returns the exposed region.
 */
