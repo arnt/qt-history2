@@ -3,6 +3,8 @@ SUBDIRS		= util \
 		   uic \
 		   resource \
 		   designer \
-		  plugins/wizards
+		   editor \
+		  plugins/wizards \
+		  plugins/cppeditor
 CONFIG += ordered
 
