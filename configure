@@ -1265,6 +1265,11 @@ if [ "$OPT_SHADOW" = "yes" ]; then
     # symlink the doc directory
     rm -f $outpath/doc
     ln -s $relpath/doc $outpath/doc
+
+    # make sure q3porting.xml can be found
+    mkdir -p $outpath/tools/porting/src
+    rm -f $outpath/tools/porting/src/q3porting.xml
+    ln -s $relpath/tools/porting/src/q3porting.xml $outpath/tools/porting/src
 fi
 
 # things used to build inside of QTDIR (without QTDIR set)
