@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.h#30 $
+** $Id: //depot/qt/main/src/tools/qdatetime.h#31 $
 **
 ** Definition of date and time classes
 **
@@ -79,8 +79,8 @@ private:
     static const char *weekdayNames[];
     uint	 jd;
     friend class QDateTime;
-    friend QDataStream &operator<<( QDataStream &, const QDate & );
-    friend QDataStream &operator>>( QDataStream &, QDate & );
+    friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QDate & );
+    friend Q_EXPORT QDataStream &operator>>( QDataStream &, QDate & );
 };
 
 
@@ -130,8 +130,8 @@ private:
 
     uint   ds;
     friend class QDateTime;
-    friend QDataStream &operator<<( QDataStream &, const QTime & );
-    friend QDataStream &operator>>( QDataStream &, QTime & );
+    friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QTime & );
+    friend Q_EXPORT QDataStream &operator>>( QDataStream &, QTime & );
 };
 
 
@@ -174,8 +174,8 @@ public:
 private:
     QDate  d;
     QTime  t;
-    friend QDataStream &operator<<( QDataStream &, const QDateTime & );
-    friend QDataStream &operator>>( QDataStream &, QDateTime & );
+    friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QDateTime &);
+    friend Q_EXPORT QDataStream &operator>>( QDataStream &, QDateTime & );
 };
 
 
@@ -183,12 +183,12 @@ private:
   Date and time stream functions
  *****************************************************************************/
 
-QDataStream &operator<<( QDataStream &, const QDate & );
-QDataStream &operator>>( QDataStream &, QDate & );
-QDataStream &operator<<( QDataStream &, const QTime & );
-QDataStream &operator>>( QDataStream &, QTime & );
-QDataStream &operator<<( QDataStream &, const QDateTime & );
-QDataStream &operator>>( QDataStream &, QDateTime & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QDate & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QDate & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QTime & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QTime & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QDateTime & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QDateTime & );
 
 
 #endif // QDATETIME_H

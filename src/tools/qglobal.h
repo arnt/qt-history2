@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#130 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#131 $
 **
 ** Global type declarations and definitions
 **
@@ -232,14 +232,35 @@
 
 
 //
+// Some classes do not permit copies to be made of an object.
+// These classes contains a private copy constructor and operator=
+// to disable copying (the compiler gives an error message).
+// Undefine Q_DISABLE_COPY to turn of this checking.
+//
+
+#define Q_DISABLE_COPY
+
+//
 // Create Qt DLL if QT_DLL is defined (Windows only)
 //
 
+#if defined(_OS_WIN32_)
 #if defined(QT_DLL)
 #define Q_EXPORT __declspec(dllexport)
+#define Q_TEMPLATEDLL
+#undef  Q_DISABLE_COPY		/* otherwise we get unresolved externals */
 #else
+#if defined(QT_NODLL)
 #define Q_EXPORT
-#define Q_DISABLE_COPY
+#else
+#define Q_EXPORT __declspec(dllimport)
+#define Q_TEMPLATEDLL
+#endif
+#endif // QT_DLL
+#endif // _OS_WIN32_
+
+#ifndef Q_EXPORT
+#define Q_EXPORT
 #endif
 
 

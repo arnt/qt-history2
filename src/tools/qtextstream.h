@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#40 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#41 $
 **
 ** Definition of QTextStream class
 **
@@ -235,7 +235,7 @@ inline int QTextStream::precision( int p )
 typedef QTextStream & (*QTSFUNC)(QTextStream &);// manipulator function
 typedef int (QTextStream::*QTSMFI)(int);	// manipulator w/int argument
 
-class Q_EXPORT QTSManip {				// text stream manipulator
+class Q_EXPORT QTSManip {			// text stream manipulator
 public:
     QTSManip( QTSMFI m, int a ) { mf=m; arg=a; }
     void exec( QTextStream &s ) { (s.*mf)(arg); }
@@ -244,37 +244,37 @@ private:
     int	   arg;					// member function argument
 };
 
-inline QTextStream &operator>>( QTextStream &s, QTSFUNC f )
+Q_EXPORT inline QTextStream &operator>>( QTextStream &s, QTSFUNC f )
 { return (*f)( s ); }
 
-inline QTextStream &operator<<( QTextStream &s, QTSFUNC f )
+Q_EXPORT inline QTextStream &operator<<( QTextStream &s, QTSFUNC f )
 { return (*f)( s ); }
 
-inline QTextStream &operator<<( QTextStream &s, QTSManip m )
+Q_EXPORT inline QTextStream &operator<<( QTextStream &s, QTSManip m )
 { m.exec(s); return s; }
 
-QTextStream &bin( QTextStream &s );		// set bin notation
-QTextStream &oct( QTextStream &s );		// set oct notation
-QTextStream &dec( QTextStream &s );		// set dec notation
-QTextStream &hex( QTextStream &s );		// set hex notation
-QTextStream &endl( QTextStream &s );		// insert EOL ('\n')
-QTextStream &flush( QTextStream &s );		// flush output
-QTextStream &ws( QTextStream &s );		// eat whitespace on input
-QTextStream &reset( QTextStream &s );		// set default flags
+Q_EXPORT QTextStream &bin( QTextStream &s );	// set bin notation
+Q_EXPORT QTextStream &oct( QTextStream &s );	// set oct notation
+Q_EXPORT QTextStream &dec( QTextStream &s );	// set dec notation
+Q_EXPORT QTextStream &hex( QTextStream &s );	// set hex notation
+Q_EXPORT QTextStream &endl( QTextStream &s );	// insert EOL ('\n')
+Q_EXPORT QTextStream &flush( QTextStream &s );	// flush output
+Q_EXPORT QTextStream &ws( QTextStream &s );	// eat whitespace on input
+Q_EXPORT QTextStream &reset( QTextStream &s );	// set default flags
 
-inline QTSManip setw( int w )
+Q_EXPORT inline QTSManip setw( int w )
 {
 	QTSMFI func = &QTextStream::width;
 	return QTSManip(func,w);
 }
 
-inline QTSManip setfill( int f )
+Q_EXPORT inline QTSManip setfill( int f )
 {
 	QTSMFI func = &QTextStream::fill;
 	return QTSManip(func,f);
 }
 
-inline QTSManip setprecision( int p )
+Q_EXPORT inline QTSManip setprecision( int p )
 {
 	QTSMFI func = &QTextStream::precision;
 	return QTSManip(func,p);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#70 $
+** $Id: //depot/qt/main/src/tools/qstring.h#71 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -58,55 +58,55 @@ inline char *hack_strrchr( const char *s, int c )
   Safe and portable C string functions; extensions to standard string.h
  *****************************************************************************/
 
-void *qmemmove( void *dst, const void *src, uint len );
+Q_EXPORT void *qmemmove( void *dst, const void *src, uint len );
 
 #if defined(_OS_SUN_) || defined(_CC_OC_)
 #define memmove qmemmove
 #endif
 
-char *qstrdup( const char * );
+Q_EXPORT char *qstrdup( const char * );
 
-inline uint cstrlen( const char *str )
+Q_EXPORT inline uint cstrlen( const char *str )
 { return strlen(str); }
 
-inline uint qstrlen( const char *str )
+Q_EXPORT inline uint qstrlen( const char *str )
 { return str ? strlen(str) : 0; }
 
 #undef	strlen
 #define strlen qstrlen
 
-inline char *cstrcpy( char *dst, const char *src )
+Q_EXPORT inline char *cstrcpy( char *dst, const char *src )
 { return strcpy(dst,src); }
 
-inline char *qstrcpy( char *dst, const char *src )
+Q_EXPORT inline char *qstrcpy( char *dst, const char *src )
 { return src ? strcpy(dst, src) : 0; }
 
 #undef	strcpy
 #define strcpy qstrcpy
 
-char *qstrncpy( char *dst, const char *src, uint len );
+Q_EXPORT char *qstrncpy( char *dst, const char *src, uint len );
 
-inline int cstrcmp( const char *str1, const char *str2 )
+Q_EXPORT inline int cstrcmp( const char *str1, const char *str2 )
 { return strcmp(str1,str2); }
 
-inline int qstrcmp( const char *str1, const char *str2 )
+Q_EXPORT inline int qstrcmp( const char *str1, const char *str2 )
 { return (str1 && str2) ? strcmp(str1,str2) : (int)((long)str2 - (long)str1); }
 
 #undef	strcmp
 #define strcmp qstrcmp
 
-inline int cstrncmp( const char *str1, const char *str2, uint len )
+Q_EXPORT inline int cstrncmp( const char *str1, const char *str2, uint len )
 { return strncmp(str1,str2,len); }
 
-inline int qstrncmp( const char *str1, const char *str2, uint len )
+Q_EXPORT inline int qstrncmp( const char *str1, const char *str2, uint len )
 { return (str1 && str2) ? strncmp(str1,str2,len) :
 			  (int)((long)str2 - (long)str1); }
 
 #undef	strncmp
 #define strncmp qstrncmp
 
-int qstricmp( const char *, const char * );
-int qstrnicmp( const char *, const char *, uint len );
+Q_EXPORT int qstricmp( const char *, const char * );
+Q_EXPORT int qstrnicmp( const char *, const char *, uint len );
 
 #undef	stricmp
 #define stricmp	 qstricmp
@@ -118,17 +118,16 @@ int qstrnicmp( const char *, const char *, uint len );
 
 #if 1	/* OBSOLETE */
 #if !defined(QT_CLEAN_NAMESPACE)
-UINT16 qchecksum( const char *s, uint len );
+Q_EXPORT UINT16 qchecksum( const char *s, uint len );
 #endif
 #endif
-Q_UINT16 qChecksum( const char *s, uint len );
-
+Q_EXPORT Q_UINT16 qChecksum( const char *s, uint len );
 
 /*****************************************************************************
   QByteArray class
  *****************************************************************************/
 
-#if defined(QT_DLL)
+#if defined(Q_TEMPLATEDLL)
 template class Q_EXPORT QArray<char>;
 #endif
 typedef QArray<char> QByteArray;
@@ -138,8 +137,8 @@ typedef QArray<char> QByteArray;
   QByteArray stream functions
  *****************************************************************************/
 
-QDataStream &operator<<( QDataStream &, const QByteArray & );
-QDataStream &operator>>( QDataStream &, QByteArray & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QByteArray & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QByteArray & );
 
 
 /*****************************************************************************
@@ -336,8 +335,8 @@ private:
   QString stream functions
  *****************************************************************************/
 
-QDataStream &operator<<( QDataStream &, const QString & );
-QDataStream &operator>>( QDataStream &, const QString & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QString & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QString & );
 
 
 /*****************************************************************************
@@ -394,61 +393,61 @@ inline QString &QString::setNum( float n, char f, int prec )
   QString non-member operators
  *****************************************************************************/
 
-bool operator==( const QString &s1, const QString &s2 );
-bool operator==( const QString &s1, const char *s2 );
-bool operator==( const char *s1, const QString &s2 );
-bool operator!=( const QString &s1, const QString &s2 );
-bool operator!=( const QString &s1, const char *s2 );
-bool operator!=( const char *s1, const QString &s2 );
-bool operator<( const QString &s1, const QString &s2 );
-bool operator<( const QString &s1, const char *s2 );
-bool operator<( const char *s1, const QString &s2 );
-bool operator<=( const QString &s1, const QString &s2 );
-bool operator<=( const QString &s1, const char *s2 );
-bool operator<=( const char *s1, const QString &s2 );
-bool operator>( const QString &s1, const QString &s2 );
-bool operator>( const QString &s1, const char *s2 );
-bool operator>( const char *s1, const QString &s2 );
-bool operator>=( const QString &s1, const QString &s2 );
-bool operator>=( const QString &s1, const char *s2 );
-bool operator>=( const char *s1, const QString &s2 );
+Q_EXPORT bool operator==( const QString &s1, const QString &s2 );
+Q_EXPORT bool operator==( const QString &s1, const char *s2 );
+Q_EXPORT bool operator==( const char *s1, const QString &s2 );
+Q_EXPORT bool operator!=( const QString &s1, const QString &s2 );
+Q_EXPORT bool operator!=( const QString &s1, const char *s2 );
+Q_EXPORT bool operator!=( const char *s1, const QString &s2 );
+Q_EXPORT bool operator<( const QString &s1, const QString &s2 );
+Q_EXPORT bool operator<( const QString &s1, const char *s2 );
+Q_EXPORT bool operator<( const char *s1, const QString &s2 );
+Q_EXPORT bool operator<=( const QString &s1, const QString &s2 );
+Q_EXPORT bool operator<=( const QString &s1, const char *s2 );
+Q_EXPORT bool operator<=( const char *s1, const QString &s2 );
+Q_EXPORT bool operator>( const QString &s1, const QString &s2 );
+Q_EXPORT bool operator>( const QString &s1, const char *s2 );
+Q_EXPORT bool operator>( const char *s1, const QString &s2 );
+Q_EXPORT bool operator>=( const QString &s1, const QString &s2 );
+Q_EXPORT bool operator>=( const QString &s1, const char *s2 );
+Q_EXPORT bool operator>=( const char *s1, const QString &s2 );
 
-inline QString operator+( const QString &s1, const QString &s2 )
+Q_EXPORT inline QString operator+( const QString &s1, const QString &s2 )
 {
     QString tmp( s1 );
     tmp += s2;
     return tmp;
 }
 
-inline QString operator+( const QString &s1, const char *s2 )
+Q_EXPORT inline QString operator+( const QString &s1, const char *s2 )
 {
     QString tmp( s1 );
     tmp += s2;
     return tmp;
 }
 
-inline QString operator+( const char *s1, const QString &s2 )
+Q_EXPORT inline QString operator+( const char *s1, const QString &s2 )
 {
     QString tmp( s1 );
     tmp += s2;
     return tmp;
 }
 
-inline QString operator+( const QString &s1, QChar c2 )
+Q_EXPORT inline QString operator+( const QString &s1, QChar c2 )
 {
     QString tmp( s1 );
     tmp += c2;
     return tmp;
 }
 
-inline QString operator+( const QString &s1, char c2 )
+Q_EXPORT inline QString operator+( const QString &s1, char c2 )
 {
     QString tmp( s1 );
     tmp += c2;
     return tmp;
 }
 
-inline QString operator+( QChar c1, const QString &s2 )
+Q_EXPORT inline QString operator+( QChar c1, const QString &s2 )
 {
     QString tmp;
     tmp += c1;
@@ -456,7 +455,7 @@ inline QString operator+( QChar c1, const QString &s2 )
     return tmp;
 }
 
-inline QString operator+( char c1, const QString &s2 )
+Q_EXPORT inline QString operator+( char c1, const QString &s2 )
 {
     QString tmp;
     tmp += c1;
@@ -614,77 +613,77 @@ inline Q1String::operator const char *() const
   Q1String non-member operators
  *****************************************************************************/
 
-inline bool operator==( const Q1String &s1, const Q1String &s2 )
+Q_EXPORT inline bool operator==( const Q1String &s1, const Q1String &s2 )
 { return strcmp(s1.data(),s2.data()) == 0; }
 
-inline bool operator==( const Q1String &s1, const char *s2 )
+Q_EXPORT inline bool operator==( const Q1String &s1, const char *s2 )
 { return strcmp(s1.data(),s2) == 0; }
 
-inline bool operator==( const char *s1, const Q1String &s2 )
+Q_EXPORT inline bool operator==( const char *s1, const Q1String &s2 )
 { return strcmp(s1,s2.data()) == 0; }
 
-inline bool operator!=( const Q1String &s1, const Q1String &s2 )
+Q_EXPORT inline bool operator!=( const Q1String &s1, const Q1String &s2 )
 { return strcmp(s1.data(),s2.data()) != 0; }
 
-inline bool operator!=( const Q1String &s1, const char *s2 )
+Q_EXPORT inline bool operator!=( const Q1String &s1, const char *s2 )
 { return strcmp(s1.data(),s2) != 0; }
 
-inline bool operator!=( const char *s1, const Q1String &s2 )
+Q_EXPORT inline bool operator!=( const char *s1, const Q1String &s2 )
 { return strcmp(s1,s2.data()) != 0; }
 
-inline bool operator<( const Q1String &s1, const char *s2 )
+Q_EXPORT inline bool operator<( const Q1String &s1, const char *s2 )
 { return strcmp(s1.data(),s2) < 0; }
 
-inline bool operator<( const char *s1, const Q1String &s2 )
+Q_EXPORT inline bool operator<( const char *s1, const Q1String &s2 )
 { return strcmp(s1,s2.data()) < 0; }
 
-inline bool operator<=( const Q1String &s1, const char *s2 )
+Q_EXPORT inline bool operator<=( const Q1String &s1, const char *s2 )
 { return strcmp(s1.data(),s2) <= 0; }
 
-inline bool operator<=( const char *s1, const Q1String &s2 )
+Q_EXPORT inline bool operator<=( const char *s1, const Q1String &s2 )
 { return strcmp(s1,s2.data()) <= 0; }
 
-inline bool operator>( const Q1String &s1, const char *s2 )
+Q_EXPORT inline bool operator>( const Q1String &s1, const char *s2 )
 { return strcmp(s1.data(),s2) > 0; }
 
-inline bool operator>( const char *s1, const Q1String &s2 )
+Q_EXPORT inline bool operator>( const char *s1, const Q1String &s2 )
 { return strcmp(s1,s2.data()) > 0; }
 
-inline bool operator>=( const Q1String &s1, const char *s2 )
+Q_EXPORT inline bool operator>=( const Q1String &s1, const char *s2 )
 { return strcmp(s1.data(),s2) >= 0; }
 
-inline bool operator>=( const char *s1, const Q1String &s2 )
+Q_EXPORT inline bool operator>=( const char *s1, const Q1String &s2 )
 { return strcmp(s1,s2.data()) >= 0; }
 
-inline Q1String operator+( const Q1String &s1, const Q1String &s2 )
+Q_EXPORT inline Q1String operator+( const Q1String &s1, const Q1String &s2 )
 {
     Q1String tmp( s1.data() );
     tmp += s2;
     return tmp;
 }
 
-inline Q1String operator+( const Q1String &s1, const char *s2 )
+Q_EXPORT inline Q1String operator+( const Q1String &s1, const char *s2 )
 {
     Q1String tmp( s1.data() );
     tmp += s2;
     return tmp;
 }
 
-inline Q1String operator+( const char *s1, const Q1String &s2 )
+Q_EXPORT inline Q1String operator+( const char *s1, const Q1String &s2 )
 {
     Q1String tmp( s1 );
     tmp += s2;
     return tmp;
 }
 
-inline Q1String operator+( const Q1String &s1, char c2 )
+Q_EXPORT inline Q1String operator+( const Q1String &s1, char c2 )
 {
     Q1String tmp( s1.data() );
     tmp += c2;
     return tmp;
 }
 
-inline Q1String operator+( char c1, const Q1String &s2 )
+Q_EXPORT inline Q1String operator+( char c1, const Q1String &s2 )
 {
     Q1String tmp;
     tmp += c1;

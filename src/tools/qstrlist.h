@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrlist.h#27 $
+** $Id: //depot/qt/main/src/tools/qstrlist.h#28 $
 **
 ** Definition of QStrList, QStrIList and QStrListIterator classes
 **
@@ -31,7 +31,7 @@
 #endif // QT_H
 
 
-#if defined(QT_DLL)
+#if defined(Q_TEMPLATEDLL)
 template class Q_EXPORT QList<char>;
 template class Q_EXPORT QListIterator<char>;
 #endif

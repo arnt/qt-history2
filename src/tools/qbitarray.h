@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.h#26 $
+** $Id: //depot/qt/main/src/tools/qbitarray.h#27 $
 **
 ** Definition of QBitArray class
 **
@@ -114,9 +114,9 @@ inline QBitVal QBitArray::operator[]( int index )
   Misc. QBitArray operator functions
  *****************************************************************************/
 
-QBitArray operator&( const QBitArray &, const QBitArray & );
-QBitArray operator|( const QBitArray &, const QBitArray & );
-QBitArray operator^( const QBitArray &, const QBitArray & );
+Q_EXPORT QBitArray operator&( const QBitArray &, const QBitArray & );
+Q_EXPORT QBitArray operator|( const QBitArray &, const QBitArray & );
+Q_EXPORT QBitArray operator^( const QBitArray &, const QBitArray & );
 
 
 inline QBitVal::operator int()
@@ -141,8 +141,8 @@ inline QBitVal &QBitVal::operator=( int v )	// ### Qt 2.0: change to bool
   QBitArray stream functions
  *****************************************************************************/
 
-QDataStream &operator<<( QDataStream &, const QBitArray & );
-QDataStream &operator>>( QDataStream &, QBitArray & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QBitArray & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QBitArray & );
 
 
 #endif // QBITARRAY_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrvec.h#17 $
+** $Id: //depot/qt/main/src/tools/qstrvec.h#18 $
 **
 ** Definition of QStrVec and QStrIVec classes
 **
@@ -31,7 +31,7 @@
 #endif // QT_H
 
 
-#if defined(QT_DLL)
+#if defined(Q_TEMPLATEDLL)
 template class Q_EXPORT QVector<char>
 #endif
 

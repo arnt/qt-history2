@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.h#17 $
+** $Id: //depot/qt/main/src/tools/qgvector.h#18 $
 **
 ** Definition of QGVector class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class Q_EXPORT QGVector : public QCollection		// generic vector
+class Q_EXPORT QGVector : public QCollection	// generic vector
 {
 friend class QGList;				// needed by QGList::toVector
 public:
@@ -69,7 +69,7 @@ protected:
 
     GCI	  at( uint index ) const
 #if defined(CHECK_RANGE) || defined(QGVECTOR_CPP)
-	;					// safe (impl. in qcvector.cpp)
+	;					// safe (impl. in qgvector.cpp)
 #else
 	{ return vec[index]; }			// fast
 #endif
@@ -91,8 +91,8 @@ private:
   QGVector stream functions
  *****************************************************************************/
 
-QDataStream &operator>>( QDataStream &, QGVector & );
-QDataStream &operator<<( QDataStream &, const QGVector & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QGVector & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QGVector & );
 
 
 #endif // QGVECTOR_H

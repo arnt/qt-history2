@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.h#13 $
+** $Id: //depot/qt/main/src/tools/qcollection.h#14 $
 **
 ** Definition of base class for all collection classes
 **
@@ -37,7 +37,7 @@ class QGList;
 class QGDict;
 
 
-class Q_EXPORT QCollection				// inherited by all collections
+class Q_EXPORT QCollection			// inherited by all collections
 {
 public:
     bool autoDelete()	const	       { return del_item; }
