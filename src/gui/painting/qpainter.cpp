@@ -1048,7 +1048,8 @@ void QPainter::setWorldMatrix(const QWMatrix &wm, bool combine)
     }
 
     // Must update clip before changing matrix.
-    d->engine->updateState(d->state);
+    if (d->state->clipEnabled)
+        d->engine->updateState(d->state);
 
     if (combine)
         d->state->worldMatrix = wm * d->state->worldMatrix;                        // combines
@@ -1094,7 +1095,8 @@ void QPainter::setWorldXForm(bool enable)
         return;
 
     // Must update clip before changing matrix.
-    d->engine->updateState(d->state);
+    if (d->state->clipEnabled)
+        d->engine->updateState(d->state);
 
     d->state->WxF = enable;
     updateXForm();
