@@ -357,6 +357,7 @@ public:
 	PM_SliderLength,
 	PM_SliderMaximumDragDistance,
 	PM_SliderTickmarkOffset,
+	PM_SliderSpaceAvailable,	// available space for slider to move
 
 	PM_DockWindowSeparatorExtent,
 	PM_DockWindowHandleExtent,

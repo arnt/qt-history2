@@ -52,6 +52,7 @@
 #include "qtabbar.h"
 #include "qlistview.h"
 #include "qsplitter.h"
+#include "qslider.h"
 #include <limits.h>
 
 
@@ -674,31 +675,32 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 {
     switch ( control ) {
     case CC_SpinWidget:
-	switch ( sub ) {
-	case SC_SpinWidgetUp:
-	case SC_SpinWidgetDown:
+	if ( sub == SC_None )
+	    sub = SC_SpinWidgetUp | SC_SpinWidgetDown | SC_SpinWidgetFrame;
+	
+	if ( sub & SC_SpinWidgetUp || sub & SC_SpinWidgetDown )
 	    QCommonStyle::drawComplexControl( control, p, w, r, cg, flags,
 					      sub, subActive, data );
-	    break;
-	case SC_SpinWidgetFrame:
+	if ( sub & SC_SpinWidgetFrame )
 	    qDrawShadePanel( p, r, cg, TRUE,
 			     pixelMetric( PM_DefaultFrameWidth) );
-	    break;
-	}
 	break;
+	
+    case CC_Slider:
+	if ( sub == SC_None )
+	    sub = SC_SliderGroove | SC_SliderTickmarks | SC_SliderHandle;
 
-    case CC_Slider: {
-	if ( sub != SC_None ) {
-	    drawSubControl( sub, p, w, r, cg, flags, subActive, data );
-	} else {
+	if ( sub & SC_SliderGroove )
 	    drawSubControl( SC_SliderGroove, p, w, r, cg, flags, subActive,
 			    data );
-	    drawSubControl( SC_SliderTickmarks, p, w, r, cg, flags, subActive,
-			    data );
+	if ( sub & SC_SliderTickmarks )
+	    QCommonStyle::drawComplexControl( control, p, w, r, cg, flags,
+					      SC_SliderTickmarks, subActive,
+					      data );
+	if ( sub & SC_SliderHandle )
 	    drawSubControl( SC_SliderHandle, p, w, r, cg, flags, subActive,
 			    data );
-	}
-	break; }
+	break;
 
     default:
 	QCommonStyle::drawComplexControl( control, p, w, r, cg, flags,
@@ -708,16 +710,75 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 
 void QMotifStyle::drawSubControl( SCFlags subCtrl,
 				 QPainter *p,
-				 const QWidget *w,
+				 const QWidget *widget,
 				 const QRect &r,
 				 const QColorGroup &cg,
 				 CFlags flags,
 				 SCFlags subActive, void *data ) const
 {
-    switch( subCtrl ) {
-    case SC_SliderGroove:
-	qDrawShadePanel( p, r, cg, TRUE, 1, &cg.brush( QColorGroup::Mid ) );
-	break;
+    switch( subCtrl ) {    
+    case SC_SliderGroove: {
+	QSlider * sl = (QSlider *) widget;
+
+	int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
+	int thickness = pixelMetric( PM_SliderControlThickness, sl );
+	int mid   = thickness / 2;
+	int ticks = sl->tickmarks();
+	int len   = pixelMetric( PM_SliderLength, sl );
+	int x, y, wi, he;
+
+	if ( sl->orientation() == Horizontal ) {
+	    x = 0;
+	    y = tickOffset;
+	    wi = sl->width();
+	    he = thickness;
+	} else {
+	    x = tickOffset;
+	    y = 0;
+	    wi = thickness;
+	    he = sl->height();
+	}
+
+	if ( ticks & QSlider::Above )
+	    mid += len / 8;
+	if ( ticks & QSlider::Below )
+	    mid -= len / 8;
+
+	p->setPen( cg.shadow() );
+	if ( sl->orientation() == Horizontal ) {
+	    qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 1, 
+			     &cg.brush( QColorGroup::Mid ) );
+	    sl->erase( 0, 0, sl->width(), tickOffset );
+	    sl->erase( 0, tickOffset + thickness, sl->width(), sl->height() );
+	} else {
+	    qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 1, 
+			     &cg.brush( QColorGroup::Mid ) );
+	    sl->erase( 0, 0,  tickOffset, sl->height() );
+	    sl->erase( tickOffset + thickness, 0, sl->width(), sl->height() );
+	}
+	break; }
+
+    case SC_SliderHandle: {
+	QSlider * sl = (QSlider *) widget;
+	
+	if ( sl->hasFocus() ) {
+	    QRect re = subRect( SR_SliderFocusRect, sl );
+	    drawPrimitive( PO_FocusRect, p, re, cg );
+	}
+	
+	QRect re = querySubControlMetrics( CC_Slider, widget, SC_SliderHandle,
+					   data );
+	drawPrimitive( PO_ButtonBevel, p, re, cg );
+	if ( sl->orientation() == Horizontal ) {
+	    QCOORD mid = re.x() + re.width() / 2;
+	    qDrawShadeLine( p, mid,  re.y(), mid,  re.y() + re.height() - 2,
+			    cg, TRUE, 1);
+	} else {
+	    QCOORD mid = re.y() + re.height() / 2;
+	    qDrawShadeLine( p, re.x(), mid,  re.x() + re.width() - 2, mid,
+			    cg, TRUE, 1);
+	}
+	break; }
 	
     default:
 	break;
@@ -732,13 +793,54 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
     case PM_ButtonDefaultIndicator:
 	ret = 3;
 	break;
+
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
 	ret = 0;
 	break;
+
     case PM_SplitterWidth:
 	ret = QMAX( 10, QApplication::globalStrut().width() );
 	break;
+	
+    case PM_SliderLength:
+	ret = 30;
+	break;
+	
+    case PM_SliderThickness:
+	ret = 24;
+	break;
+
+    case PM_SliderControlThickness: {
+	QSlider * sl = (QSlider *) widget;
+	int space = (sl->orientation() == Horizontal) ? sl->height()
+	            : sl->width();
+	int ticks = sl->tickmarks();
+	int n = 0;
+	if ( ticks & QSlider::Above ) n++;
+	if ( ticks & QSlider::Below ) n++;
+	if ( !n ) {
+	    ret = space;
+	    break;
+	}
+
+	int thick = 6;	// Magic constant to get 5 + 16 + 5
+
+	space -= thick;
+	//### the two sides may be unequal in size
+	if ( space > 0 )
+	    thick += (space * 2) / (n + 2);
+	ret = thick;
+	break; }
+
+    case PM_SliderSpaceAvailable: {
+	QSlider * sl = (QSlider *) widget;
+	if ( sl->orientation() == Horizontal )
+	    ret = sl->width() - pixelMetric( PM_SliderLength, sl ) - 4;
+	else 
+	    ret = sl->height() - pixelMetric( PM_SliderLength, sl ) - 4;
+	break; }
+    
 //     case PM_SliderMaximumDragDistance:
 //     case PM_ScrollBarMaximumDragDistance: {
 // 	QScrollBar *sb = (QScrollBar*) widget;
@@ -831,13 +933,43 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	    rect.setRect(lx, fw, rx, widget->height() - 2*fw);
 	    break;
 	case SC_SpinWidgetFrame:
-	    rect.setRect( widget->x(), widget->y(),
-			  widget->width() - bs.width(),
-			  widget->height() );
+	    rect.setRect( widget->x(), widget->y(), 
+			  widget->width() - bs.width(), widget->height() );
 	default:
 	    break;
 	}
 	break; }
+	
+    case CC_Slider: {
+	switch ( sc ) {
+	case SC_SliderHandle: {
+	    QSlider * sl = (QSlider *) widget;
+	    void ** sdata = (void **) data;
+	    int sliderPos = 0;
+	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
+	    int thickness  = pixelMetric( PM_SliderControlThickness, sl );
+	    int len   = pixelMetric( PM_SliderLength, sl );
+	    int motifBorder = 2;
+
+	    if ( sdata )
+		sliderPos = *((int *) sdata[0]);
+
+	    if ( sl->orientation() == Horizontal )
+		rect.setRect( sliderPos + motifBorder, 
+			      tickOffset + motifBorder, len, 
+			      thickness - 2*motifBorder );
+	    else
+		rect.setRect( tickOffset + motifBorder, 
+			      sliderPos + motifBorder, 
+			      thickness - 2*motifBorder, len );
+	    break; }
+	
+	default:
+	    break;
+	}
+	
+	break; }
+	
 	
     default:
 	return QCommonStyle::querySubControlMetrics( control, widget, sc, data );
@@ -855,9 +987,24 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
     return QCommonStyle::sizeFromContents( contents, w, contentsSize, data );
 }
 
+QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
+{
+    QRect rect;
+    
+    switch ( r ) {
+    case SR_SliderFocusRect:
+	rect = QCommonStyle::subRect( r, widget );
+	rect.addCoords( 1, 1, -1, -2 );
+	break;
+	
+    default:
+	rect = QCommonStyle::subRect( r, widget );
+    }
+    
+    return rect;
+}
+
 /*! \reimp */
-
-
 void QMotifStyle::drawIndicator( QPainter* p,
                                  int x, int y, int w, int h, const QColorGroup &g,
                                  int s, bool down, bool /*enabled*/ )
@@ -2101,4 +2248,3 @@ QPixmap QMotifStyle::titleBarPixmap( const QTitleBar *, SubControl ctrl) const
 
 
 #endif
-

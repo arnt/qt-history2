@@ -246,26 +246,7 @@ int QSlider::positionFromValue( int v ) const
 
 int QSlider::available() const
 {
-    int len = style().pixelMetric( QStyle::PM_SliderLength, this );
-    if ( orient == Horizontal )
-	return width() - len;
-    else
-	return height() - len;
-//
-// ### Some Motif specific stuff
-//     int a;
-//     switch ( (GUIStyle)style() ) {
-//     case WindowsStyle:
-// 	a = (orient == Horizontal) ? width() - style().sliderLength()
-// 	    : height() - style().sliderLength();
-// 	break;
-//     default:
-//     case MotifStyle:
-// 	a = (orient == Horizontal) ? width() -style().sliderLength() - 2*motifBorder
-// 	    : height() - style().sliderLength() - 2*motifBorder;
-// 	break;
-//     }
-//     return a;
+    return style().pixelMetric( QStyle::PM_SliderSpaceAvailable, this );
 }
 
 /*!
@@ -359,29 +340,6 @@ QRect QSlider::sliderRect() const
 
     return style().querySubControlMetrics( QStyle::CC_Slider, this,
 					   QStyle::SC_SliderHandle, data );
-
-    // ### The Motif style will also need the motifBorder const..
-//     QRect r;
-//     switch ( (GUIStyle)style() ) {
-//     case WindowsStyle:
-// 	if (orient == Horizontal )
-// 	    r.setRect( sliderPos, tickOffset,
-// 		       style().sliderLength(), thickness()  );
-// 	else
-// 	    r.setRect ( tickOffset, sliderPos,
-// 			thickness(), style().sliderLength()  );
-// 	break;
-//     default:
-//     case MotifStyle:
-// 	if (orient == Horizontal )
-// 	    r.setRect ( sliderPos + motifBorder, tickOffset + motifBorder,
-// 			style().sliderLength(), thickness() - 2 * motifBorder );
-// 	else
-// 	    r.setRect ( tickOffset + motifBorder, sliderPos + motifBorder,
-// 			thickness() - 2 * motifBorder, style().sliderLength() );
-// 	break;
-//     }
-//     return r;
 }
 
 /*!
@@ -426,21 +384,6 @@ void QSlider::paintEvent( QPaintEvent * )
 				QStyle::SC_None,
 				QStyle::SC_None,
 				data );
-
-    // ### focus rect drawing contains some Motif specific stuff
-//     if ( hasFocus() ) {
-// 	QRect r;
-// 	if ( orient == Horizontal )
-// 	    r.setRect( 0, tickOffset-1, width(), thickness()+2 );
-// 	else
-// 	    r.setRect( tickOffset-1, 0, thickness()+2, height() );
-// 	r = r.intersect( rect() );
-
-// 	if (style() == MotifStyle)
-// 	    style().drawFocusRect(&p, QRect(r.x()+1, r.y()+1, r.width()-2, r.height()-2), g);
-// 	else
-// 	    style().drawFocusRect(&p, r, g);
-//     }
 }
 
 

@@ -115,6 +115,7 @@ public:
 			   const QSize &contentsSize,
 			   void *data ) const;
 
+    QRect subRect( SubRect r, const QWidget *widget ) const;
 
     // the old stuff that has to go!
     void drawButton( QPainter *p, int x, int y, int w, int h,

@@ -1304,38 +1304,6 @@ QPixmap QWindowsStyle::titleBarPixmap( const QTitleBar *, SubControl ctrl) const
     return QPixmap();
 }
 
-/*
-  I really need this and I don't want to expose it in QRangeControl..
-*/
-static int qPositionFromValue( QRangeControl * rc, int logical_val,
-			       int span )
-{
-    if ( span <= 0 || logical_val < rc->minValue() ||
-	 rc->maxValue() <= rc->minValue() )
-	return 0;
-    if ( logical_val > rc->maxValue() )
-	return span;
-
-    uint range = rc->maxValue() - rc->minValue();
-    uint p = logical_val - rc->minValue();
-
-    if ( range > (uint)INT_MAX/4096 ) {
-	const int scale = 4096*2;
-	return ( (p/scale) * span ) / (range/scale);
-	// ### the above line is probably not 100% correct
-	// ### but fixing it isn't worth the extreme pain...
-    } else if ( range > (uint)span ) {
-	return (2*p*span + range) / (2*range);
-    } else {
-	uint div = span / range;
-	uint mod = span % range;
-	return p*div + (2*p*mod + range) / (2*range);
-    }
-    //equiv. to (p*span)/range + 0.5
-    // no overflow because of this implicit assumption:
-    // span <= 4096
-}
-
 void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 					const QWidget * w,
 					const QRect & r,
@@ -1574,7 +1542,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 	}
 	break; }
 
-    case CC_ComboBox: {
+    case CC_ComboBox:
 	if ( sub != SC_None ) {
 	    drawSubControl( sub, p, w, r, cg, flags, subActive, data );
 	} else {
@@ -1583,20 +1551,23 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 	    drawSubControl( SC_ComboBoxEditField, p, w, r, cg, flags,
 			    subActive, data );
 	}
-	break; }
+	break;
 
-    case CC_Slider: {
-	if ( sub != SC_None ) {
-	    drawSubControl( sub, p, w, r, cg, flags, subActive, data );
-	} else {
+    case CC_Slider:
+	if ( sub == SC_None )
+	    sub = SC_SliderGroove | SC_SliderTickmarks | SC_SliderHandle;
+	
+	if ( sub & SC_SliderGroove )
 	    drawSubControl( SC_SliderGroove, p, w, r, cg, flags, subActive,
 			    data );
-	    drawSubControl( SC_SliderTickmarks, p, w, r, cg, flags, subActive,
-			    data );
+	if ( sub & SC_SliderTickmarks )
+	    QCommonStyle::drawComplexControl( ctrl, p, w, r, cg, flags,
+					      SC_SliderTickmarks, subActive, 
+					      data );
+	if ( sub & SC_SliderHandle )
 	    drawSubControl( SC_SliderHandle, p, w, r, cg, flags, subActive,
 			    data );
-	}
-	break; }
+	break;
 
     default:
 	QCommonStyle::drawComplexControl( ctrl, p, w, r, cg, flags, sub,
@@ -1910,68 +1881,6 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
             p->setPen( c1 );
             p->drawLine( x2, y2-1, x2+d, y2-1-d);
             break;
-	}
-
-	break; }
-
-    case SC_SliderTickmarks: {
-	QSlider * sl = (QSlider *) w;
-	int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
-	int ticks = sl->tickmarks();
-	int thickness = pixelMetric( PM_SliderControlThickness, sl );
-	int len = pixelMetric( PM_SliderLength, sl );
-	int available;
-	int interval = sl->tickInterval();
-
-	if ( sl->orientation() == Horizontal )
-	    available = sl->width() - len;
-	else
-	    available = sl->height() - len;
-
-	if ( interval <= 0 ) {
-	    interval = sl->lineStep();
-	    if ( qPositionFromValue( sl, interval, available ) -
-		 qPositionFromValue( sl, 0, available ) < 3 )
-		interval = sl->pageStep();
-	}
-
-	int fudge = len / 2 + 1;
-	int pos;
-
-	if ( ticks & QSlider::Above ) {
-	    p->setPen( cg.foreground() );
-	    int v = sl->minValue();
-	    if ( !interval )
-		interval = 1;
-	    while ( v <= sl->maxValue() + 1 ) {
-		pos = qPositionFromValue( sl, v, available ) + fudge;
-		if ( sl->orientation() == Horizontal )
-		    p->drawLine( pos, 0, pos, tickOffset-2 );
-		else
-		    p->drawLine( 0, pos, tickOffset-2, pos );
-		v += interval;
-	    }
-	}
-
-	if ( ticks & QSlider::Below ) {
-	    int avail = (sl->orientation() == Horizontal) ? sl->height() :
-		        sl->width();
-	    avail -= tickOffset + thickness;
-	    p->setPen( cg.foreground() );
-	    int v = sl->minValue();
-	    if ( !interval )
-		interval = 1;
-	    while ( v <= sl->maxValue() + 1 ) {
-		pos = qPositionFromValue( sl, v, available ) + fudge;
-		if ( sl->orientation() == Horizontal )
-		    p->drawLine( pos, tickOffset+thickness+1, pos,
-				 tickOffset+thickness+1 + available-2 );
-		else
-		    p->drawLine( tickOffset+thickness+1, pos,
-				 tickOffset+thickness+1 + available-2, pos );
-		v += interval;
-	    }
-
 	}
 
 	break; }
