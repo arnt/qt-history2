@@ -107,9 +107,7 @@ public:
 
     QSqlDriver*		driver() const;
 
-    // MOC_SKIP_BEGIN
-    QT_STATIC_CONST char * const defaultConnection;
-    // MOC_SKIP_END
+    static QString defaultConnection;
 
     static QSqlDatabase* addDatabase( const QString& type, const QString& connectionName = defaultConnection );
     static QSqlDatabase* addDatabase( QSqlDriver* driver, const QString& connectionName = defaultConnection );
