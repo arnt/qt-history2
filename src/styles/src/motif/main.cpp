@@ -1,6 +1,6 @@
 #include <qstyleinterface.h>
 #include <qmotifstyle.h>
-#include <qguardedptr.h>
+#include <qcleanuphandler.h>
 
 class MotifStyle : public QStyleInterface, public QLibraryInterface
 {
@@ -19,13 +19,13 @@ public:
     bool canUnload() const;
 
 private:
-    QGuardedPtr<QStyle> style;
+    QGuardedCleanupHandler<QStyle> styles;
 
     unsigned long ref;
 };
 
 MotifStyle::MotifStyle()
-: ref( 0 ), style( 0 )
+: ref( 0 )
 {
 }
 
@@ -68,8 +68,11 @@ QStringList MotifStyle::featureList() const
 
 QStyle* MotifStyle::create( const QString& s )
 {
-    if ( s.lower() == "motif" )
-	return style = new QMotifStyle();
+    if ( s.lower() == "motif" ) {
+	QStyle *style = new QMotifStyle();
+	styles.add( style );
+	return style;
+    }
     return 0;
 }
 
@@ -80,12 +83,12 @@ bool MotifStyle::init()
 
 void MotifStyle::cleanup() 
 {
-    delete style;
+    styles.clear();
 }
 
 bool MotifStyle::canUnload() const
 {
-    return style.isNull();
+    return styles.isEmpty();
 }
 
 Q_EXPORT_INTERFACE()
