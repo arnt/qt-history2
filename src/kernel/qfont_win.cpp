@@ -602,7 +602,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 	return 0;
 
     int width = 0;
-    SIZE s;
+    SIZE s = {0,0};
     QString substr = str.mid( pos, len );
     const TCHAR* tc = (const TCHAR*)qt_winTchar( substr, FALSE );
     int i;
@@ -621,7 +621,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
     BOOL res = GetTextExtentPoint32( fin->dc(), tc + last, i - last, &s );
 #ifndef QT_NO_DEBUG
     if ( !res )
-	qSystemWarning( "QFontPrivate: GetTextExtentPoint32 failed" );
+	qSystemWarning( "QFontPrivate:textWidth: GetTextExtentPoint32 failed" );
 #endif
     width += s.cx;
 
@@ -670,7 +670,7 @@ void QFontPrivate::buildCache( HDC hdc, const QString &str, int pos, int len, QF
 	    currHDC = fin->dc();
 
     int width = 0;
-    SIZE s;
+    SIZE s = {0,0};
     QPointArray pa;
     int nmarks = 0;
     int i;
@@ -691,7 +691,7 @@ void QFontPrivate::buildCache( HDC hdc, const QString &str, int pos, int len, QF
 	    BOOL res = GetTextExtentPoint32( currHDC, cache->mapped, length, &s );
 #ifndef QT_NO_DEBUG
 	    if ( !res )
-		qSystemWarning( "QFontPrivate: GetTextExtentPoint32 failed" );
+		qSystemWarning( "QFontPrivate::buildCache: GetTextExtentPoint32 failed" );
 #endif
 	    width += s.cx;
 	    cache->next = new QFontPrivate::TextRun();
@@ -747,10 +747,15 @@ void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache
 	    // algorithm of uniscribe from reordering things once again.
 	    int l = 0;
 	    int xadd = 0;
-	    SIZE s;
+	    SIZE s = {0,0};
 	    while( l < cache->length ) {
 		TextOut( hdc, x + cache->xoff + xadd, y + cache->yoff, cache->mapped + l, 1 );
-		GetTextExtentPoint32( hdc, cache->mapped + l, 1, &s );
+		BOOL res = GetTextExtentPoint32( hdc, cache->mapped + l, 1, &s );
+#ifndef QT_NO_DEBUG
+		if ( !res )
+		    qSystemWarning( "QFontPrivate::drawText: GetTextExtentPoint32 failed" );
+#endif
+
 		xadd += s.cx;
 		l++;
 	    }
@@ -1101,13 +1106,17 @@ int QFontMetrics::width( QChar ch ) const
     if ( ch.combiningClass() > 0 )
 	return 0;
 
-    SIZE s;
+    SIZE s = {0,0};
 #ifdef UNICODE
     TCHAR tc = ch.unicode();
 #else
     TCHAR tc = ch.latin1();
 #endif
-    GetTextExtentPoint32( hdc(), &tc, 1, &s );
+    BOOL res = GetTextExtentPoint32( hdc(), &tc, 1, &s );
+#ifndef QT_NO_DEBUG
+    if ( !res )
+	qSystemWarning( "QFontMetrics::width: GetTextExtentPoint32 failed" );
+#endif
     if ( (qt_winver & Qt::WV_NT_based) == 0 )
 	s.cx -= TMX->tmOverhang;
     return s.cx;
@@ -1134,13 +1143,18 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     ch = QComplexText::shapedCharacter( str, pos );
     if ( !ch.unicode() )
 		return 0;
-    SIZE s;
+    SIZE s = {0,0};
 #ifdef UNICODE
     TCHAR tc = ch.unicode();
 #else
     TCHAR tc = ch.latin1();
 #endif
-    GetTextExtentPoint32( hdc(), &tc, 1, &s );
+    BOOL res = GetTextExtentPoint32( hdc(), &tc, 1, &s );
+#ifndef QT_NO_DEBUG
+    if ( !res )
+	qSystemWarning( "QFontMatrics::charWidth: GetTextExtentPoint32 failed" );
+#endif
+
     if ( (qt_winver & Qt::WV_NT_based) == 0 )
 	s.cx -= TMX->tmOverhang;
     return s.cx;
