@@ -44,16 +44,6 @@
 
 // NOT REVISED
 
-/*****************************************************************************
-  The color dictionary speeds up color allocation significantly for X11.
-  When there are no more colors, QColor::alloc() will set the colors_avail
-  flag to FALSE and try to find the nearest color.
-  NOTE: From deep within the event loop, the colors_avail flag is reset to
-  TRUE (calls the function qt_reset_color_avail()), because some other
-  application might free its colors, thereby making them available for
-  this Qt application.
- *****************************************************************************/
-
 #include "qintdict.h"
 
 struct QColorData {
@@ -82,35 +72,16 @@ void qt_reset_color_avail()
   QColor static member functions
  *****************************************************************************/
 
-/*!
-  Returns the maximum number of colors supported by the underlying window
-  system.
-*/
-
 int QColor::maxColors()
 {
     return 2^24;
 }
-
-/*!
-  Returns the number of color bit planes for the underlying window system.
-
-  The returned values is equal to the default pixmap depth;
-
-  \sa QPixmap::defaultDepth()
-*/
 
 int QColor::numBitPlanes()
 {
     return 32;
 }
 
-
-/*!
-  Internal initialization required for QColor.
-  This function is called from the QApplication constructor.
-  \sa cleanup()
-*/
 
 void QColor::initialize()
 {
@@ -120,12 +91,6 @@ void QColor::initialize()
     color_init = TRUE;
 }
 
-/*!
-  Internal clean up required for QColor.
-  This function is called from the QApplication destructor.
-  \sa initialize()
-*/
-
 void QColor::cleanup()
 {
 }
@@ -134,19 +99,6 @@ void QColor::cleanup()
 /*****************************************************************************
   QColor member functions
  *****************************************************************************/
-
-/*!
-  Allocates the RGB color and returns the pixel value.
-
-  Allocating a color means to obtain a pixel value from the RGB
-  specification.  The pixel value is an index into the global color
-  table, but should be considered an arbitrary platform-dependent value.
-
-  The pixel() function calls alloc() if necessary, so in general you
-  don't need to call this function.
-
-  \sa setLazyAlloc(), enterAllocContext()
-*/
 
 uint QColor::alloc()
 {
@@ -166,62 +118,6 @@ void QColor::setSystemNamedColor( const QString& )
 {
 }
 
-/*!
-  Enters a color allocation context and returns a nonzero unique identifier.
-
-  Color allocation contexts are useful for programs that need to
-  allocate many colors and throw them away later, like image viewers.
-  The allocation context functions work for true color displays as
-  well as colormap display, except that QColor::destroyAllocContext()
-  does nothing for true color.
-
-  Example:
-  \code
-    QPixmap loadPixmap( QString fileName )
-    {
-	static int alloc_context = 0;
-	if ( alloc_context )
-	    QColor::destroyAllocContext( alloc_context );
-	alloc_context = QColor::enterAllocContext();
-	QPixmap pm( fileName );
-	QColor::leaveAllocContext();
-	return pm;
-    }
-  \endcode
-
-  The example code loads a pixmap from file. It frees up all colors
-  that were allocated the last time loadPixmap() was called.
-
-  The initial/default context is 0. Qt keeps a list of colors
-  associated with their allocation contexts. You can call
-  destroyAllocContext() to get rid of all colors that were allocated
-  in a specific context.
-
-  Calling enterAllocContext() enters an allocation context. The
-  allocation context lasts until you call leaveAllocContext(). QColor
-  has an internal stack of allocation contexts. Each call to
-  enterAllocContex() must have a corresponding leaveAllocContext().
-
-  \code
-      // context 0 active
-    int c1 = QColor::enterAllocContext();	// enter context c1
-      // context c1 active
-    int c2 = QColor::enterAllocContext();	// enter context c2
-      // context c2 active
-    QColor::leaveAllocContext();		// leave context c2
-      // context c1 active
-    QColor::leaveAllocContext();		// leave context c1
-      // context 0 active
-      // Now, free all colors that were allocated in context c2
-    QColor::destroyAllocContext( c2 );
-  \endcode
-
-  You may also want to set the application's color specification.
-  See QApplication::setColorSpec() for more information.
-
-  \sa leaveAllocContext(), currentAllocContext(), destroyAllocContext(),
-  QApplication::setColorSpec()
-*/
 
 int QColor::enterAllocContext()
 {
@@ -229,48 +125,16 @@ int QColor::enterAllocContext()
 }
 
 
-/*!
-  Leaves a color allocation context.
-
-  See enterAllocContext() for a detailed explanation.
-
-  \sa enterAllocContext(), currentAllocContext()
-*/
-
 void QColor::leaveAllocContext()
 {
 }
 
-
-/*!
-  Returns the current color allocation context.
-
-  The default context is 0.
-
-  \sa enterAllocContext(), leaveAllocContext()
-*/
 
 int QColor::currentAllocContext()
 {
     return 0;
 }
 
-
-/*!
-  Destroys a color allocation context, \e context.
-
-  This function deallocates all colors that were allocated in the
-  specified \a context.
-  If \a context == -1, it frees up all colors
-  that the application has allocated.
-  If \a context == -2, it frees up all colors
-  that the application has allocated, except those in the
-  default context.
-
-  The function does nothing for true color displays.
-
-  \sa enterAllocContext(), alloc()
-*/
 
 void QColor::destroyAllocContext( int )
 {
