@@ -245,16 +245,8 @@ private:
 #if defined(Q_WS_WIN)
     void initAlphaPixmap(uchar *bytes, int length, struct tagBITMAPINFO *bmi);
     void convertToAlphaPixmap(bool initAlpha=true);
-    static void bitBltAlphaPixmap(QPixmap *dst, int dx, int dy, const QPixmap *src,
-				  int sx, int sy, int sw, int sh, bool useDstAlpha);
 #endif
     static Optimization defOptim;
-    friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int, const QPaintDevice *,
-                                    int, int, int, int, bool);
-    friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int, const QImage* src,
-                                    int, int, int, int, int conversion_flags);
-    friend Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy, const QPixmap *src, int sx, int sy,
-                                     int sw, int sh);
     friend class QBitmap;
     friend class QPaintDevice;
     friend class QPainter;
@@ -346,9 +338,10 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPixmap &);
 /*****************************************************************************
   QPixmap (and QImage) helper functions
  *****************************************************************************/
-Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
-                          const QPixmap *src, int sx = 0, int sy = 0,
-                          int sw = -1, int sh = -1);
+#ifdef QT_COMPAT
+QT_COMPAT Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
+                                    const QPixmap *src, int sx=0, int sy=0, int sw=-1, int sh=-1);
+#endif // QT_COMPAT
 
 
 #endif // QPIXMAP_H

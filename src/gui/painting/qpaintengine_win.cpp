@@ -1156,7 +1156,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
             if (!BitBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
                         pm_dc, sr.x(), sr.y(),
                         SRCCOPY)) {
-                qSystemWarning("QWin32PaintEngine::drawPixmap, bitBlt failed");
+                qSystemWarning("QWin32PaintEngine::drawPixmap, BitBlt failed");
             }
         }
     }

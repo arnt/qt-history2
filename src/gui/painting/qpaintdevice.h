@@ -88,18 +88,23 @@ public:
     friend class QPaintDeviceMetrics;
     friend class QQuickDrawPaintEngine;
     friend class QFontEngineMac;
-    friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int, const QPaintDevice *, int, int, int, int, bool);
 };
-
-Q_GUI_EXPORT
+#ifdef QT_COMPAT
+QT_COMPAT Q_GUI_EXPORT
 void bitBlt(QPaintDevice *dst, int dx, int dy,
              const QPaintDevice *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
              bool ignoreMask=false);
 
-Q_GUI_EXPORT
+QT_COMPAT Q_GUI_EXPORT
 void bitBlt(QPaintDevice *dst, int dx, int dy,
              const QImage *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
              int conversion_flags=0);
+
+QT_COMPAT Q_GUI_EXPORT
+void bitBlt(QPaintDevice *dst, const QPoint &dp,
+            const QPaintDevice *src, const QRect &sr=QRect(0,0,-1,-1),
+            bool ignoreMask=false);
+#endif
 
 /*****************************************************************************
   Inline functions
@@ -114,12 +119,4 @@ inline bool QPaintDevice::isExtDev() const
 inline bool QPaintDevice::paintingActive() const
 { return painters != 0; }
 
-Q_GUI_EXPORT
-inline void bitBlt(QPaintDevice *dst, const QPoint &dp,
-                    const QPaintDevice *src, const QRect &sr =QRect(0,0,-1,-1),
-                    bool ignoreMask=false)
-{
-    bitBlt(dst, dp.x(), dp.y(), src, sr.x(), sr.y(), sr.width(), sr.height(),
-	   ignoreMask);
-}
 #endif // QPAINTDEVICE_H

@@ -95,7 +95,6 @@ static inline HDC alloc_mem_dc(HBITMAP hbm, HBITMAP *old_hbm)
     return hdc;
 }
 
-
 void QPixmap::initAlphaPixmap(uchar *bytes, int length, BITMAPINFO *bmi)
 {
     if (data->mcp)
@@ -111,7 +110,6 @@ void QPixmap::initAlphaPixmap(uchar *bytes, int length, BITMAPINFO *bmi)
     data->old_hbm = (HBITMAP)SelectObject((HDC)data->hd, hBitmap);
     DATA_HBM = hBitmap;
 }
-
 
 void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 {
@@ -1467,168 +1465,6 @@ bool QPixmap::hasAlphaChannel() const
     return data->realAlphaBits != 0;
 }
 
-void QPixmap::convertToAlphaPixmap(bool initAlpha)
-{
-    char bmi_data[sizeof(BITMAPINFO)];
-    memset(bmi_data, 0, sizeof(BITMAPINFO));
-    BITMAPINFO             *bmi = (BITMAPINFO*)bmi_data;
-    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
-    bmh->biSize                  = sizeof(BITMAPINFOHEADER);
-    bmh->biWidth          = width();
-    bmh->biHeight          = -height();                        // top-down bitmap
-    bmh->biPlanes          = 1;
-    bmh->biBitCount          = 32;
-    bmh->biCompression          = BI_RGB;
-    bmh->biSizeImage          = width() * height() * 4;
-    bmh->biClrUsed          = 0;
-    bmh->biClrImportant          = 0;
-
-    QPixmap pm(width(), height(), -1);
-    pm.initAlphaPixmap(0, 0, bmi);
-
-#ifndef Q_OS_TEMP
-    GetDIBits(qt_display_dc(), DATA_HBM, 0, height(), pm.data->realAlphaBits, bmi, DIB_RGB_COLORS);
-    if (initAlpha) {
-        // In bitBlt(), if the destination has an alpha channel and the source
-        // doesn't have one, we bitBlt() the source with the destination's
-        // alpha channel. In that case, there is no need to initialize the
-        // alpha values.
-        uchar *p = pm.data->realAlphaBits;
-        uchar *pe = p + bmh->biSizeImage;
-        if (mask()) {
-            QImage msk = mask()->convertToImage();
-            int i = 0;
-            int w = width();
-            int backgroundIndex = msk.color(0) == QColor(Qt::color0).rgb() ? 0 : 1;
-            while (p < pe) {
-                if (msk.pixelIndex(i%w, i/w) == backgroundIndex) {
-                    *(p++) = 0x00;
-                    *(p++) = 0x00;
-                    *(p++) = 0x00;
-                    *(p++) = 0x00;
-                } else {
-                    p += 3;
-                    *(p++) = 0xff;
-                }
-                ++i;
-            }
-        } else {
-            p += 3;
-            while (p < pe) {
-                *p = 0xff;
-                p += 4;
-            }
-        }
-    }
-#else
-    memcpy(pm.data->ppvBits, data->ppvBits, bmh->biSizeImage);
-#endif
-    if (mask())
-        pm.setMask(*mask());
-
-    *this = pm;
-}
-
-void QPixmap::bitBltAlphaPixmap(QPixmap *dst, int dx, int dy,
-                                 const QPixmap *src, int sx, int sy,
-                                 int sw, int sh, bool useDstAlpha)
-{
-    if (sw < 0)
-        sw = src->width() - sx;
-    else
-        sw = qMin(src->width()-sx, sw);
-    sw = qMin(dst->width()-dx, sw);
-
-    if (sh < 0)
-        sh = src->height() - sy ;
-    else
-        sh = qMin(src->height()-sy, sh);
-    sh = qMin(dst->height()-dy, sh);
-
-    if (sw <= 0 || sh <= 0)
-        return;
-
-#ifndef Q_OS_TEMP
-    GdiFlush();
-#endif
-    uchar *sBits = src->data->realAlphaBits + (sy * src->width() + sx) * 4;
-    uchar *dBits = dst->data->realAlphaBits + (dy * dst->width() + dx) * 4;
-    int sw4 = sw * 4;
-    int src4 = src->width() * 4;
-    int dst4 = dst->width() * 4;
-    if (useDstAlpha) {
-        // Copy the source pixels premultiplied with the destination's alpha
-        // channel. The alpha channel remains the destination's alpha channel.
-        uchar *sCur;
-        uchar *dCur;
-        uchar alphaByte;
-        for (int i=0; i<sh; i++) {
-            sCur = sBits;
-            dCur = dBits;
-            for (int j=0; j<sw; j++) {
-                alphaByte = *(dCur+3);
-                if (alphaByte == 0 || (*(sCur+3)) == 0) {
-                    dCur += 4;
-                    sCur += 4;
-                } else if (alphaByte == 255) {
-                    *(dCur++) = *(sCur++);
-                    *(dCur++) = *(sCur++);
-                    *(dCur++) = *(sCur++);
-                    dCur++;
-                    sCur++;
-                } else {
-                    *(dCur++) = ((*(sCur++)) * (int)alphaByte + 127) / 255;
-                    *(dCur++) = ((*(sCur++)) * (int)alphaByte + 127) / 255;
-                    *(dCur++) = ((*(sCur++)) * (int)alphaByte + 127) / 255;
-                    dCur++;
-                    sCur++;
-                }
-            }
-            sBits += src4;
-            dBits += dst4;
-        }
-    } else {
-        // Copy the source into the destination. Use the source's alpha
-        // channel.
-        for (int i=0; i<sh; i++) {
-            memcpy(dBits, sBits, sw4);
-            sBits += src4;
-            dBits += dst4;
-        }
-    }
-}
-
-Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
-                       const QPixmap *src, int sx, int sy, int sw, int sh)
-{
-    if (! dst || ! src || sw == 0 || sh == 0 || dst->depth() != src->depth()) {
-        Q_ASSERT(dst != 0);
-        Q_ASSERT(src != 0);
-        return;
-    }
-
-    // copy mask data
-    if (src->data->mask) {
-        if (! dst->data->mask) {
-            dst->data->mask = new QBitmap(dst->width(), dst->height());
-
-            // new masks are fully opaque by default
-            dst->data->mask->fill(Qt::color1);
-        }
-
-        bitBlt(dst->data->mask, dx, dy,
-                src->data->mask, sx, sy, sw, sh, true);
-    }
-
-    if (src->data->realAlphaBits) {
-        if (!dst->data->realAlphaBits)
-            dst->convertToAlphaPixmap();
-        QPixmap::bitBltAlphaPixmap(dst, dx, dy, src, sx, sy, sw, sh, false);
-    } else {
-        // copy pixel data
-        bitBlt(dst, dx, dy, src, sx, sy, sw, sh, true);
-    }
-}
 
 QPaintEngine *QPixmap::paintEngine() const
 {

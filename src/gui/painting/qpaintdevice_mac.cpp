@@ -57,26 +57,6 @@ int QPaintDevice::metric(int) const
     return 0;
 }
 
-void bitBlt(QPaintDevice *dst, int dx, int dy,
-            const QPaintDevice *src, int sx, int sy, int sw, int sh,
-            bool imask)
-{
-    if(dst->devType() == QInternal::Pixmap && src->devType() == QInternal::Widget) {
-        *((QPixmap*)dst) = QPixmap::grabWidget((QWidget*)src, sx, sy, sw, sh);
-    } else if(src->devType() == QInternal::Widget &&
-              (dst->devType() == QInternal::Widget || dst->devType() == QInternal::Printer)) {
-        QPixmap pm = QPixmap::grabWidget((QWidget*)src, sx, sy, sw, sh);
-        QPainter p(dst);
-        p.drawPixmap(dx, dy, sw, sh, pm);
-    } else if(src->devType() == QInternal::Pixmap) {
-        QPainter p(dst);
-        p.drawPixmap(QRect(dx, dy, sw, sh), *((QPixmap*)src), QRect(sx, sy, sw, sh),
-                     imask ? Qt::SourceCopy : Qt::AlphaBlend);
-    } else {
-        qWarning("bitBlt: Cannot bitBlt from/to device!");
-    }
-}
-
 void qt_mac_clip_cg_reset(CGContextRef hd)
 {
     QRect qrect = QRect(0, 0, 99999, 999999);

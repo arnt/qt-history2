@@ -1123,6 +1123,17 @@ QDataStream &operator>>(QDataStream &s, QPixmap &pixmap)
 
 #endif //QT_NO_DATASTREAM
 
+#ifdef QT_COMPAT
+Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
+                          const QPixmap *src, int sx, int sy, int sw, int sh)
+{
+    Q_ASSERT_X(dst, "::copyBlt", "Destination pixmap must be non null");
+    Q_ASSERT_X(src, "::copyBlt", "Source pixmap must be non null");
 
+    QPainter p(dst);
+    p.drawPixmap(dx, dy, *src, sx, sy, sw, sh, Qt::SourceCopy);
+}
+
+#endif
 
 

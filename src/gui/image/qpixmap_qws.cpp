@@ -941,34 +941,6 @@ bool QPixmap::hasAlphaChannel() const
     return data->hasAlpha;
 }
 
-Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
-                       const QPixmap *src, int sx, int sy, int sw, int sh)
-{
-    if (! dst || ! src || sw == 0 || sh == 0 || dst->depth() != src->depth()) {
-        Q_ASSERT(dst != 0);
-        Q_ASSERT(src != 0);
-        return;
-    }
-
-    // copy pixel data
-    bitBlt(dst, dx, dy, src, sx, sy, sw, sh, true);
-
-    // copy mask data
-    if (src->data->mask) {
-        if (! dst->data->mask) {
-            dst->data->mask = new QBitmap(dst->width(), dst->height());
-
-            // new masks are fully opaque by default
-            dst->data->mask->fill(Qt::color1);
-        }
-
-        bitBlt(dst->data->mask, dx, dy,
-	       src->data->mask, sx, sy, sw, sh, true);
-    }
-
-    dst->data->hasAlpha = src->data->hasAlpha;
-}
-
 QPaintEngine *QPixmap::paintEngine() const
 {
     if (!data->paintEngine)

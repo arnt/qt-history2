@@ -3681,3 +3681,45 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
     p->setPen(oldPen);
 
 }
+
+// Declared in qpaintdevice.h
+
+#ifdef QT_COMPAT
+static void bitBlt_helper(QPaintDevice *dst, const QPoint &dp,
+                          const QPaintDevice *src, const QRect &sr, bool imask)
+{
+    Q_ASSERT(dst);
+    Q_ASSERT(src);
+
+    if (src->devType() == QInternal::Pixmap) {
+        const QPixmap *pixmap = static_cast<const QPixmap *>(src);
+        QPainter pt(dst);
+        pt.drawPixmap(dp, *pixmap, sr, imask ? Qt::SourceCopy : Qt::AlphaBlend);
+    } else {
+        qWarning("::bitBlt only works when source is of type pixmap");
+    }
+}
+
+void bitBlt(QPaintDevice *dst, int dx, int dy,
+             const QPaintDevice *src, int sx, int sy, int sw, int sh,
+             bool ignoreMask )
+{
+    bitBlt_helper(dst, QPoint(dx, dy), src, QRect(sx, sy, sw, sh), ignoreMask);
+}
+
+void bitBlt(QPaintDevice *dst, const QPoint &dp,
+            const QPaintDevice *src, const QRect &sr,
+            bool ignoreMask)
+{
+    bitBlt_helper(dst, dp, src, sr, ignoreMask);
+}
+
+void bitBlt(QPaintDevice *dst, int dx, int dy,
+             const QImage *src, int sx, int sy, int sw, int sh,
+             int conversion_flags)
+{
+    QPixmap srcPixmap(src->width(), src->height());
+    srcPixmap.convertFromImage(*src, conversion_flags);
+    bitBlt_helper(dst, QPoint(dx, dy), &srcPixmap, QRect(sx, sy, sw, sh), false);
+}
+#endif // QT_COMPAT
