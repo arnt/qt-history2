@@ -15351,9 +15351,9 @@ int QString::localeAwareCompare( const QString& s ) const
 #if defined(UNICODE)
     int res;
     if ( qWinVersion() & Qt::WV_NT_based ) {
-	TCHAR* s1 = new TCHAR[ length() ];
-	wcscpy( s1, (TCHAR*)qt_winTchar( *this, FALSE ) );
-	TCHAR* s2 = (TCHAR*)qt_winTchar( s, FALSE );
+	TCHAR* s1 = new TCHAR[ length() + 1 ];
+	wcscpy( s1, (TCHAR*)qt_winTchar( *this, TRUE ) );
+	TCHAR* s2 = (TCHAR*)qt_winTchar( s, TRUE );
 	res = CompareStringW( LOCALE_USER_DEFAULT, 0, s1, length(), s2, s.length() );
 	delete[] s1;
 	switch ( res ) {
