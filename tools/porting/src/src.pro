@@ -15,7 +15,6 @@ HEADERS +=  replacetoken.h            \
             proparser.h               \
             fileporter.h              \
             logger.h                  \
-            lexer.h                   \
             tokens.h                  \
             filewriter.h
 
@@ -29,7 +28,6 @@ SOURCES += port.cpp                  \
            proparser.cpp             \
            fileporter.cpp            \
            logger.cpp                \
-           lexer.cpp                 \
            filewriter.cpp
 
 OBJECTS_DIR=.obj/debug-shared
