@@ -2021,7 +2021,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		else
 		    widget->setFocus();
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
-		QMenuBar::macUpdateMenuBar();
+		qt_event_request_menubarupdate();
 #endif
 	    }
 	} else if(ekind == kEventWindowDeactivated) {
