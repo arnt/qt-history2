@@ -48,6 +48,19 @@ Annet
 
    Hvorfor vokste datasegmentet i qt-biblioteket i sommer?
 
+Andre.Johansen@funcom.com (André Johansen)
+> Har hatt et lite problem med at fokus inn og ut events sendes
+> unødvendig (evt. feil :) når venstre mus-knapp trykkes inni en
+> QButton.
+> 
+> Når mus-knappen trykkes, sendes et fokus-ut signal, så et fokus-inn
+> signal.
+> 
+> Er dette en bug, eller er det en nødvendighet?
+
+Bug.  Vet ikke om den er fikset, men jeg har satt den på todo.
+
+
 Funksjonalitet:
 ---------------
 
@@ -58,8 +71,6 @@ Funksjonalitet:
     Progress bar
 
     Auto-orientation i scroll bar, slider og progress bar.
-
-    Mulighet for meny dings lengst til høyre på menybaren, "Help" & gutta
 
     Legg inn nye navn på *alt* som ikke begynner med Q, behold de
     gamle (kompilatrbryter for å kutte ut de gamle), må bruke
@@ -109,12 +120,7 @@ Funksjonalitet:
     Fontmetrics: endre boundingrect til alltid aa gi samme hoeyde, lag
 	         en ny funksjon som returnerer dagens bounding rect verdi.
 
-    legge inn signalet lastTopLevelWindowClosed (ellernoesåntnoe) i
-    QApplication
-
     setFont og setPalette &Co. bør ha propagateToChildren argumenter
-
-    QMenuBar bør kunne ha Help lengst til høyre.
 
     Smelt sammen itemsystemet i menu og list box, legg inn et item som tar
     både pixmap og text, folk skriker etter det. Multiseleksjon i listbox.
@@ -250,4 +256,9 @@ Gjort:
     Windows look & feel (spes. meny og combobox)
 
     QWidget::raise() og QWidget::lower maa stokke om i lista
+
+    legge inn signalet lastTopLevelWindowClosed (ellernoesåntnoe) i
+    QApplication
+
+    Mulighet for meny dings lengst til høyre på menybaren, "Help" & gutta
 
