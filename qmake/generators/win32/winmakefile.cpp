@@ -261,7 +261,7 @@ Win32MakefileGenerator::processPrlFiles()
 		    } else {
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
 			    QString prl = mdd->local_dir + Option::dir_sep + opt;
-			    if(processPrlFile(prl)) {
+			    if(processed[opt]) {
 				break;
 			    } else if(processPrlFile(prl)) {
 				processed.insert(prl, (void*)1);
