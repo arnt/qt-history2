@@ -599,7 +599,6 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 
     bool cancelInsert = FALSE;
     bool cancelUpdate = FALSE;
-    QWidget *editorWidget = cellWidget( r, c );
     switch ( e->type() ) {
     case QEvent::KeyPress: {
 	int conf = QSql::Yes;
@@ -613,8 +612,11 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	    if ( conf == QSql::Yes ) {
 		cancelInsert = TRUE;
 	    } else {
-		editorWidget->setActiveWindow();
-		editorWidget->setFocus();
+		QWidget *editorWidget = cellWidget( r, c );
+		if ( editorWidget ) {
+		    editorWidget->setActiveWindow();
+		    editorWidget->setFocus();
+		}
 		return TRUE;
 	    }
 	}
@@ -627,8 +629,11 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	    if ( conf == QSql::Yes ){
 		cancelUpdate = TRUE;
 	    } else {
-		editorWidget->setActiveWindow();
-		editorWidget->setFocus();
+		QWidget *editorWidget = cellWidget( r, c );
+		if ( editorWidget ) {
+		    editorWidget->setActiveWindow();
+		    editorWidget->setFocus();
+		}
 		return TRUE;
 	    }
 	}
@@ -651,7 +656,8 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     }
-    case QEvent::FocusOut:
+    case QEvent::FocusOut: {
+	QWidget *editorWidget = cellWidget( r, c );
 	repaintCell( currentRow(), currentColumn() );
 	if ( !d->cancelMode && editorWidget && o == editorWidget &&
 	     ( d->dat.mode() == QSql::Insert) && !d->continuousEdit) {
@@ -659,6 +665,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	    cancelInsert = TRUE;
 	}
 	break;
+    }
     case QEvent::FocusIn:
 	repaintCell( currentRow(), currentColumn() );
 	break;
