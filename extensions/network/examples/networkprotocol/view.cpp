@@ -54,7 +54,9 @@ View::View()
 
 void View::downloadFile()
 {
-    QString file = QFileDialog::getOpenFileName();
+    // QString file = QFileDialog::getOpenFileName();
+    // under Windows you must not use the native file dialog
+    QString file = getOpenFileName();
     if ( !file.isEmpty() ) {
 	// clear the view
 	fileView->clear();
@@ -63,6 +65,23 @@ void View::downloadFile()
 	op = file;
 	op.get();
     }
+}
+
+QString View::getOpenFileName()
+{
+    static QString workingDirectory = QDir::currentDirPath();
+
+    QFileDialog *dlg = new QFileDialog( workingDirectory,
+	    QString::null, 0, 0, TRUE );
+    dlg->setCaption( QFileDialog::tr( "Open" ) );
+    dlg->setMode( QFileDialog::ExistingFile );
+    QString result;
+    if ( dlg->exec() == QDialog::Accepted ) {
+	result = dlg->selectedFile();
+	workingDirectory = dlg->url();
+    }
+    delete dlg;
+    return result;
 }
 
 void View::newData( const QByteArray &ba )

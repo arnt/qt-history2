@@ -32,6 +32,7 @@ private:
     QMultiLineEdit *fileView;
     QUrlOperator op;
     
+    QString getOpenFileName();
 };
 
 #endif
