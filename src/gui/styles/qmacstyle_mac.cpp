@@ -4925,10 +4925,10 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                         int alignment = 0;
                         if (tb->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
                             int fh = p->fontMetrics().height();
-                            cr.addCoords(0, cr.bottom() - fh - 6, 0, -3);
+                            cr.addCoords(0, cr.bottom() - fh - 3, 0, -3);
                             alignment |= Qt::AlignCenter;
                         } else {
-                            cr.addCoords(pixmap.width() + 8, 0, 0, 0);
+                            cr.addCoords(pixmap.width() + 7, -1, 0, 0);
                             alignment |= Qt::AlignLeft | Qt::AlignVCenter;
                         }
                         p->drawText(cr, alignment, tb->text);
