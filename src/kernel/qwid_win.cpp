@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#89 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#89 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -722,6 +722,8 @@ void QWidget::internalMove( int x, int y )
 
 void QWidget::resize( int w, int h )
 {
+    if ( w == width() && h == height() )
+	return;
     if ( extra ) {				// any size restrictions?
 	w = QMIN(w,extra->maxw);
 	h = QMIN(h,extra->maxh);
@@ -797,35 +799,35 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h )
 }
 
 
-void QWidget::setMinimumSize( int w, int h )
+void QWidget::setMinimumSize( int minw, int minh )
 {
 #if defined(CHECK_RANGE)
-    if ( w < 0 || h < 0 )
+    if ( minw < 0 || minh < 0 )
 	warning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
 #endif
     createExtra();
-    extra->minw = w;
-    extra->minh = h;
-    int minw = QMAX(w,crect.width());
-    int minh = QMAX(h,crect.height());
-    if ( isVisible() && (minw > w || minh > h) )
-	resize( minw, minh );
+    if ( extra->minw == minw && extra->minh == minh )
+	return;
+    extra->minw = minw;
+    extra->minh = minh;
+    if ( isVisible() && (minw > width() || minh > height()) )
+	resize( QMAX(minw,width()), QMAX(minh,height()) );
 }
 
 void QWidget::setMaximumSize( int w, int h )
 {
 #if defined(CHECK_RANGE)
-    if ( w > QCOORD_MAX || h > QCOORD_MAX )
+    if ( maxw > QCOORD_MAX || maxh > QCOORD_MAX )
 	warning("QWidget::setMaximumSize: The largest allowed size is (%d,%d)",
 		 QCOORD_MAX, QCOORD_MAX );
 #endif
     createExtra();
-    extra->maxw = w;
-    extra->maxh = h;
-    int maxw = QMIN(w,crect.width());
-    int maxh = QMIN(h,crect.height());
-    if ( isVisible() && (maxw < w || maxh < h) )
-	resize( maxw, maxh );
+    if ( extra->maxw == maxw && extra->maxh == maxh )
+	return;
+    extra->maxw = maxw;
+    extra->maxh = maxh;
+    if ( isVisible() && (maxw < width() || maxh < height()) )
+	resize( QMIN(maxw,width()), QMIN(maxh,height()) );
 }
 
 void QWidget::setSizeIncrement( int w, int h )

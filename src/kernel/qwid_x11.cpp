@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#220 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#221 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -28,7 +28,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#220 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#221 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1180,6 +1180,8 @@ void QWidget::internalMove( int x, int y )
 
 void QWidget::resize( int w, int h )
 {
+    if ( w == width() && h == height() )
+	return;
     if ( testWFlags(WType_Desktop) )
 	return;
     if ( w < 1 )				// invalid size
@@ -1311,19 +1313,19 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h )
   \sa minimumSize(), setMaximumSize(), setSizeIncrement(), resize(), size()
 */
 
-void QWidget::setMinimumSize( int w, int h )
+void QWidget::setMinimumSize( int minw, int minh )
 {
 #if defined(CHECK_RANGE)
-    if ( w < 0 || h < 0 )
+    if ( minw < 0 || minh < 0 )
 	warning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
 #endif
     createExtra();
-    extra->minw = w;
-    extra->minh = h;
-    int minw = QMAX(w,crect.width());
-    int minh = QMAX(h,crect.height());
-    if ( minw > w || minh > h )
-	resize( minw, minh );
+    if ( extra->minw == minw && extra->minh == minh )
+	return;
+    extra->minw = minw;
+    extra->minh = minh;
+    if ( minw > width() || minh > height() )
+	resize( QMAX(minw,width()), QMAX(minh,height()) );
     if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
 	size_hints.flags = 0;
@@ -1345,20 +1347,20 @@ void QWidget::setMinimumSize( int w, int h )
   \sa maximumSize(), setMinimumSize(), setSizeIncrement(), resize(), size()
 */
 
-void QWidget::setMaximumSize( int w, int h )
+void QWidget::setMaximumSize( int maxw, int maxh )
 {
 #if defined(CHECK_RANGE)
-    if ( w > QCOORD_MAX || h > QCOORD_MAX )
+    if ( maxw > QCOORD_MAX || maxh > QCOORD_MAX )
 	warning("QWidget::setMaximumSize: The largest allowed size is (%d,%d)",
 		 QCOORD_MAX, QCOORD_MAX );
 #endif
     createExtra();
-    extra->maxw = w;
-    extra->maxh = h;
-    int maxw = QMIN(w,crect.width());
-    int maxh = QMIN(h,crect.height());
-    if ( maxw < w || maxh < h )
-	resize( maxw, maxh );
+    if ( extra->maxw == maxw && extra->maxh == maxh )
+	return;
+    extra->maxw = maxw;
+    extra->maxh = maxh;
+    if ( maxw < width() || maxh < height() )
+	resize( QMIN(maxw,width()), QMIN(maxh,height()) );
     if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
 	size_hints.flags = 0;
@@ -1383,6 +1385,8 @@ void QWidget::setMaximumSize( int w, int h )
 void QWidget::setSizeIncrement( int w, int h )
 {
     createExtra();
+    if ( extra->incw == w && extra->inch == h )
+	return;
     extra->incw = w;
     extra->inch = h;
     if ( testWFlags(WType_TopLevel) ) {
