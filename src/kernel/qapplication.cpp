@@ -2352,20 +2352,29 @@ void QApplication::setActiveWindow( QWidget* act )
     }
 
 #ifndef QT_NO_PALETTE
+    //### in 3.0, propagate activated event to all children
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets...
 	++it;
-	if ( (w->topLevelWidget() == old_active || w->topLevelWidget()==active_window )
-	    && w->palette().active() != w->palette().inactive() ) {
-	    if ( w->palette().active() != w->palette().inactive() &&
-		( w->inherits( "QPopupMenu" ) || w->inherits( "QMenuBar" ) ||
-		  w->parentWidget() &&
+	if ( w->topLevelWidget() == old_active || w->topLevelWidget()==active_window ) {
+	    QColorGroup acg = w->palette().active();
+	    QColorGroup icg = w->palette().inactive();
+	    if ( acg.background() != icg.background() ||
+		 acg.base() != icg.base() ||
+		 acg.button() != icg.button() ||
+		 acg.text() != icg.text() ||
+		 acg.foreground() != icg.foreground() ||
+		 acg.brightText() != icg.brightText() ||
+		 acg.buttonText() != icg.buttonText() ||
+		 acg.dark() != icg.dark() ||
+		 acg.light() != icg.light() ||
+		 acg.mid() != icg.mid() ||
+		 acg.midlight() != icg.midlight() ||
+		 acg.shadow() != icg.shadow() ||
+		( w->parentWidget() && w->parentWidget()->inherits( "QScrollView" ) && 
 		( qstrcmp( w->name(), "qt_clipped_viewport" ) == 0 ||
-		  qstrcmp( w->name(), "qt_viewport" ) == 0 ) &&
-		( w->parentWidget()->inherits( "QListView" ) ||
-		  w->parentWidget()->inherits( "QIconView" ) ||
-		  w->parentWidget()->inherits( "QListBox" ) ) ) )
+  		  qstrcmp( w->name(), "qt_viewport" ) == 0 ) ) )
 		    w->update();
 	}
     }
