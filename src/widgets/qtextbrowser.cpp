@@ -58,7 +58,7 @@
 
 /*!
   \class QTextBrowser qtextbrowser.h
-  \brief The QTextBrowser class provides a rich text  browser with hypertext navigation.
+  \brief The QTextBrowser class provides a rich text browser with hypertext navigation.
   \ingroup advanced
   \ingroup helpsystem
 
@@ -174,7 +174,7 @@ void QTextBrowser::setSource(const QString& name)
     QString mark;
     int hash = name.find('#');
     if ( hash != -1) {
-	source  = name.left( hash );
+	source = name.left( hash );
 	mark = name.mid( hash+1 );
     }
 
@@ -197,7 +197,7 @@ void QTextBrowser::setSource(const QString& name)
 	    }
 	}
 	if ( isVisible() ) {
-	    QString firstTag = txt.left( txt.find( '>'  ) + 1 );
+	    QString firstTag = txt.left( txt.find( '>' ) + 1 );
 	    if ( firstTag.left( 3 ) == "<qt" && firstTag.contains( "type" ) && firstTag.contains( "detail" ) ) {
 		popupDetail( txt, QCursor::pos() );
 #ifndef QT_NO_CURSOR
