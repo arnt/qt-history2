@@ -66,11 +66,7 @@ public:
     }
     QGuardedPtr( T* o)
     {
-#if defined(Q_TEMPLATE_NEEDS_EXPLICIT_CONVERSION)
 	priv = new QGuardedPtrPrivate( (QObject*)o );
-#else
-	priv = new QGuardedPtrPrivate( o );
-#endif
     }
     QGuardedPtr(const QGuardedPtr<T> &p)
     {
@@ -95,11 +91,7 @@ public:
     QGuardedPtr<T> &operator=(T* o)
     {
 	deref();
-#if defined(Q_TEMPLATE_NEEDS_EXPLICIT_CONVERSION)
 	priv = new QGuardedPtrPrivate( (QObject*)o );
-#else
-	priv = new QGuardedPtrPrivate( o );
-#endif
 	return *this;
     }
 

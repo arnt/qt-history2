@@ -193,7 +193,6 @@
 #  define Q_CC_GNU
 #  if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
 #    define Q_FULL_TEMPLATE_INSTANTIATION
-#    define Q_TEMPLATE_NEEDS_EXPLICIT_CONVERSION
 #    define Q_SPURIOUS_NON_VOID_WARNING
 #  endif
 #  if __GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 6
@@ -213,11 +212,6 @@
 #  define Q_FULL_TEMPLATE_INSTANTIATION
 #  if __xlC__ >= 0x400
 #    define Q_HAS_BOOL_TYPE
-#  endif
-#  if __xlC__ <= 0x0306
-// observed on C Set++ for AIX 3
-// observed on C and C++ compilers 3.6
-#    define Q_TEMPLATE_NEEDS_EXPLICIT_CONVERSION
 #  endif
 #elif defined(__COMO__) || defined(como40)
 // one documented, the other observed (?)
@@ -260,7 +254,6 @@
 #  else
 #    define Q_CC_HP
 #    define Q_FULL_TEMPLATE_INSTANTIATION
-#    define Q_TEMPLATE_NEEDS_EXPLICIT_CONVERSION
 #  endif
 #else
 #  error "Qt has not been tested with this compiler - talk to qt-bugs@trolltech.com"
