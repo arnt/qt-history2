@@ -46,14 +46,14 @@ static QAssistantClientPrivate *data( const QAssistantClient *client, bool creat
 
     \ingroup helpsystem
 
-    Using Qt Assistant is simple: Create a QAssistantClient instance,
+    Using Qt Assistant is simple: create a QAssistantClient instance,
     then call showPage() as often as necessary to show your help
     pages. When you call showPage(), Qt Assistant will be launched if
     it isn't already running.
 
     The QAssistantClient instance can open (openAssistant()) or close
     (closeAssistant()) Qt Assistant whenever required. If Qt Assistant
-    is open, isOpen() returns TRUE.
+    is open, isOpen() returns true.
 
     One QAssistantClient instance interacts with one Qt Assistant
     instance, so every time you call openAssistant(), showPage() or
@@ -73,7 +73,7 @@ static QAssistantClientPrivate *data( const QAssistantClient *client, bool creat
     line to your pro file:
 
     \code
-	LIBS += -lqassistantclient
+        LIBS += -lqassistantclient
     \endcode
 
     See also "Adding Documentation to Qt Assistant" in the \link
@@ -91,17 +91,17 @@ static QAssistantClientPrivate *data( const QAssistantClient *client, bool creat
     \fn void QAssistantClient::assistantClosed()
 
     This signal is emitted when the connection to Qt Assistant is
-    closed. This happens when the user exits Qt Assistant, or when an
+    closed. This happens when the user exits Qt Assistant, if an
     error in the server or client occurs, or if closeAssistant() is
     called.
 */
 
 /*!
-    \fn void QAssistantClient::error( const QString &msg )
+    \fn void QAssistantClient::error( const QString &message )
 
-    This signal is emitted if Qt Assistant cannot be started or if an
+    This signal is emitted if Qt Assistant cannot be started, or if an
     error occurs during the initialization of the connection between
-    Qt Assistant and the calling application. The \a msg provides an
+    Qt Assistant and the calling application. The \a message provides an
     explanation of the error.
 */
 
@@ -146,8 +146,7 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent, const 
 }
 
 /*!
-    Destroys the assistant client object and frees up all allocated
-    resources.
+    Destroys the assistant client object.
 */
 QAssistantClient::~QAssistantClient()
 {
@@ -170,7 +169,7 @@ QAssistantClient::~QAssistantClient()
 }
 
 /*!
-    This function opens Qt Assistant and sets up the client-server
+    This function opens Qt Assistant, and sets up the client-server
     communiction between the application and Qt Assistant. If it is
     already open, this function does nothing. If an error occurs,
     error() is emitted.
@@ -256,7 +255,7 @@ void QAssistantClient::showPage( const QString &page )
 
 /*!
     \property QAssistantClient::open
-    \brief Whether Qt Assistant is open.
+    \brief whether Qt Assistant is open
 
 */
 bool QAssistantClient::isOpen() const
@@ -300,8 +299,10 @@ void QAssistantClient::readStdError()
 }
 
 /*!
-    Sets the command line arguments used when Qt Assistant is
-    started to \a args.
+    \fn void QAssistantClient::setArguments(const QStringList &arguments)
+
+    Sets the command line \a arguments used when Qt Assistant is
+    started.
 */
 void QAssistantClient::setArguments( const QStringList &args )
 {
