@@ -100,27 +100,31 @@ bool ListViewDnd::dragMoveEvent( QDragMoveEvent * event )
 
 bool ListViewDnd::dropEvent( QDropEvent * event )
 {
-    dragInside = FALSE;
-    line->hide();
+    if ( dragInside) {
     
-    if ( dMode & NullDrop ) { // combined with Move, a NullDrop will delete an item
-	event->accept();
-	emit dropped( 0 ); // a NullDrop
-	return TRUE;
-    }
-    
-    QListViewItem * item = new QListViewItem( src );
+	if ( dMode & NullDrop ) { // combined with Move, a NullDrop will delete an item
+	    event->accept();
+	    emit dropped( 0 ); // a NullDrop
+	    return TRUE;
+	}
+	
+	QListViewItem * item = new QListViewItem( src );
 
-    if ( ListViewItemDrag::decode( event, item ) ) {
-	event->accept();
-	emit dropped( item );
-	src->insertItem( item );
-	QPoint pos = event->pos();
-	moveItemTo( item, pos );
-	src->setCurrentItem( item );
-	src->ensureItemVisible( item );
-	emit added( item ); // NOTE: signal is emitted _after_ item has been added
+	if ( ListViewItemDrag::decode( event, item ) ) {
+	    event->accept();
+	    emit dropped( item );
+	    src->insertItem( item );
+	    QPoint pos = event->pos();
+	    moveItemTo( item, pos );
+	    src->setCurrentItem( item );
+	    src->ensureItemVisible( item );
+	    emit added( item ); // NOTE: signal is emitted _after_ item has been added
+	}
     }
+
+    line->hide();
+    dragInside = FALSE;
+
     return TRUE;
 }
 
