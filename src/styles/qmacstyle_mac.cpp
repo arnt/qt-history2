@@ -52,6 +52,7 @@
 #include <qmenubar.h>
 #include <qcombobox.h>
 #include <qdrawutil.h>
+#include <qlineedit.h>
 #include "qwidgetlist.h"
 #include "private/qaquastyle_p.h"
 
@@ -287,18 +288,22 @@ void QMacStyle::polish( QWidget* w )
 {
     d->addWidget(w);
     qAquaPolishFont(w);
-    if( w->inherits("QToolButton") ){
+    if(w->inherits("QLineEdit")) {
+	SInt32 frame_size;
+	GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
+	((QLineEdit *)w)->setLineWidth(frame_size);
+    } else if(w->inherits("QToolButton")){
         QToolButton * btn = (QToolButton *) w;
-        btn->setAutoRaise( FALSE );
-	if( btn->group() ){
-	    btn->group()->setMargin( 0 );
-	    btn->group()->setInsideSpacing( 0 );
+        btn->setAutoRaise(FALSE);
+	if(btn->group()){
+	    btn->group()->setMargin(0);
+	    btn->group()->setInsideSpacing(0);
 	}
-    } else if( w->inherits("QToolBar") ){
+    } else if(w->inherits("QToolBar")){
 	QToolBar * bar = (QToolBar *) w;
 	QBoxLayout * layout = bar->boxLayout();
-	layout->setSpacing( 0 );
-	layout->setMargin( 0 );
+	layout->setSpacing(0);
+	layout->setMargin(0);
     } 
 
 #if 0
@@ -352,6 +357,15 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
     }
 
     switch(pe) {
+    case PE_PanelLineEdit: {
+	SInt32 frame_size;
+	GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
+	const Rect *rect = qt_glb_mac_rect(r, p, FALSE, 
+					   QRect(frame_size, frame_size, 
+						 frame_size * 2, frame_size * 2));
+	((QMacPainter *)p)->noop();
+	DrawThemeEditTextFrame(rect, tds);
+	break; }
     case PE_ArrowUp:
     case PE_ArrowDown:
     case PE_ArrowRight:

@@ -810,7 +810,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	break; }
 
     case PE_IndicatorMask: {
-	p->fillRect(r.x(), r.y()+1, r.width(), r.height()-2, color1);
+	p->fillRect(r.x(), r.y(), r.width(), r.height() - 1, color1);
 	break; }
 
     case PE_ExclusiveIndicator: {
