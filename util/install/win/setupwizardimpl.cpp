@@ -1248,30 +1248,32 @@ void SetupWizardImpl::showPageFolders()
 {
     QStringList makeCmds = QStringList::split( ' ', "nmake.exe make.exe gmake.exe make nmake.exe" );
     QString makeCmd = makeCmds[ globalInformation.sysId() ];
-    if( !findFile( makeCmd ) ) {
-	QMessageBox::critical( this, "Environment problems",
-				     "The installation program can't find the make tool '" + makeCmd + "'.\n"
-				     "Make sure the path to it is present in the PATH environment\n"
-				     "variable and restart the installation.\n"
-				     "\n"
-				     "You can find the path to the tool using the 'Find' tool\n"
-				     "and add the location to the environment settings of your\n"
-				     "system. Please contact your local system administration if\n"
-				     "you have difficulties finding the files, or if you don't\n"
-				     "know how to modifiy the environment settings of your system." );
-	qApp->quit();
-    }
-    if ( globalInformation.sysId() != GlobalInformation::Borland && !findFile( "string.h" ) ) {
-	QMessageBox::critical( this, "Environment problems",
-			      "The file 'string.h' could not be located in any directory\n"
-			      "listed in the 'INCLUDE' environment variable.\n"
-			      "You might have to install the platform headers, or adjust\n"
-			      "the environment variables of your system, and restart the\n"
-			      "installation.\n\n"
-			      "Please contact your local system administration if you have\n"
-			      "difficulties finding the file, or if you don't know how to\n"
-			      "modify the environment settings on your system." );
-	qApp->quit();
+    if ( optionsPage->skipBuild->isChecked() && optionsPage->skipBuild->isEnabled() ) {
+	if( !findFile( makeCmd ) ) {
+	    QMessageBox::critical( this, "Environment problems",
+					 "The installation program can't find the make tool '" + makeCmd + "'.\n"
+					 "Make sure the path to it is present in the PATH environment\n"
+					 "variable and restart the installation.\n"
+					 "\n"
+					 "You can find the path to the tool using the 'Find' tool\n"
+					 "and add the location to the environment settings of your\n"
+					 "system. Please contact your local system administration if\n"
+					 "you have difficulties finding the files, or if you don't\n"
+					 "know how to modifiy the environment settings of your system." );
+	    qApp->quit();
+	}
+	if ( globalInformation.sysId() != GlobalInformation::Borland && !findFile( "string.h" ) ) {
+	    QMessageBox::critical( this, "Environment problems",
+				  "The file 'string.h' could not be located in any directory\n"
+				  "listed in the 'INCLUDE' environment variable.\n"
+				  "You might have to install the platform headers, or adjust\n"
+				  "the environment variables of your system, and restart the\n"
+				  "installation.\n\n"
+				  "Please contact your local system administration if you have\n"
+				  "difficulties finding the file, or if you don't know how to\n"
+				  "modify the environment settings on your system." );
+	    qApp->quit();
+	}
     }
 
     QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio 6.0 path;Borland C++ Builder path;GNU C++ path;MAC X buildtool path;Microsoft Visual Studio .NET path" );
