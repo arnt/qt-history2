@@ -100,7 +100,6 @@ QSpinBox
 QFileDialog
   Re-use the history
 
-
 Feature Requests
 ----------------
 
@@ -127,6 +126,8 @@ QScrollView
 
 QApplication
   something like bool hasPostedEvents() (info/arc-07/15087)
+  Return QApplication::topLevelWidgets in z-order (order that the widgets 
+are shown on the screen) 
 
 QObject
   UserData. d-pointer.
