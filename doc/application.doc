@@ -1,4 +1,4 @@
-// $Id: application.doc,v 2.6 1999/07/20 18:59:11 warwick Exp $
+// $Id: application.doc,v 2.7 1999/07/20 19:06:03 warwick Exp $
 
 /*! \page simple-application.html
 <title>Qt Simple Application</title>
@@ -164,9 +164,9 @@ That's it.
 \line ::~
 \until }
 
-The only thing this widget needs to do is delete the printer it
-created.  All the other objects are child widgets, which Qt will
-delete as appropriate.  Simple.
+The only thing this widget needs to do in its destructor is delete the
+printer it created.  All the other objects are child widgets, which Qt
+will delete as appropriate.  Simple.  
 
 \line ::newDoc
 \until }
