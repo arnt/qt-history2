@@ -36,5 +36,11 @@ loserid int4 references team on delete cascade,
 winnerwins int4 not null,
 loserwins int4 not null);
 
+create view matchview as
+(select a.date, b.name as winner, a.winnerwins, c.name as loser, a.loserwins, (a.winnerwins+a.loserwins) as sets, a.id
+from match a, team b, team c
+where b.id=a.winnerid
+and c.id=a.loserid);
+
 
 

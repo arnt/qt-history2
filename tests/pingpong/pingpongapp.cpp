@@ -19,32 +19,6 @@
 #include <qgroupbox.h>
 
 //
-//  MatchTable class
-//
-MatchTable::MatchTable( QWidget * parent = 0, const char * name = 0 )
-    : QSqlTable( parent, name )
-{
-}
-
-void MatchTable::sortColumn ( int col, bool ascending, bool wholeRows )
-{
-    if ( cursor()->field(indexOf(col))->name() == "winner" ) {
-	cursor()->select( cursor()->filter(), cursor()->index( "winnerid" )  );
-	viewport()->repaint( FALSE );
-	return;
-    } else if ( cursor()->field(indexOf(col))->name() == "loser" ) {
-	cursor()->select( cursor()->filter(), cursor()->index( "loserid" )  );
-	viewport()->repaint( FALSE );
-	return;
-    } else if ( cursor()->field(indexOf(col))->name() == "sets" ) {
-	return;
-    }
-
-    QSqlTable::sortColumn( col, ascending, wholeRows );
-}
-
-
-//
 //  Statistics class
 //
 Statistics::Statistics( QWidget * parent = 0, const char * name = 0 )
@@ -203,7 +177,7 @@ void Statistics::updateStats()
     }
 
     // Find out who the team has lost most matches to
-   
+
 
     QSqlQuery qwids( "select name from team, match where loserid=" + QString::number( teamId ) + " and team.id=match.winnerid group by team.name order by count(winnerid);" );
     if ( qwids.next() && qwids.value(0).toString().length() )
@@ -311,7 +285,7 @@ void PingPongApp::init()
     connect( tab, SIGNAL( currentChanged( QWidget * ) ),
 	     SLOT( updateIcons( QWidget * ) ) );
 
-    matchTable = new MatchTable( tab );
+    matchTable = new QSqlTable( tab );
     teamEditor = new TeamEditorWidget( tab );
     statWidget = new Statistics( tab );
 
@@ -323,51 +297,60 @@ void PingPongApp::init()
     resize( 700, 400 );
 
     // Setup the initial match table
-    matchCr.select( matchCr.index( "date" ) );
+    matchView.select( matchView.index( "date" ) );
     matchTable->setConfirmEdits( TRUE );
     matchTable->setConfirmCancels( TRUE );
-    matchTable->setCursor( &matchCr, FALSE );
-    matchTable->addColumn( matchCr.field( "date" ) );
-    matchTable->addColumn( matchCr.field( "winner" ) );
-    matchTable->addColumn( matchCr.field( "winnerwins" ) );
-    matchTable->addColumn( matchCr.field( "loser" ) );
-    matchTable->addColumn( matchCr.field( "loserwins" ) );
-    matchTable->addColumn( matchCr.field( "sets" ) );
+    matchTable->setCursor( &matchView, FALSE );
+    matchTable->addColumn( matchView.field( "date" ) );
+    matchTable->addColumn( matchView.field( "winner" ) );
+    matchTable->addColumn( matchView.field( "winnerwins" ) );
+    matchTable->addColumn( matchView.field( "loser" ) );
+    matchTable->addColumn( matchView.field( "loserwins" ) );
+    matchTable->addColumn( matchView.field( "sets" ) );
     matchTable->setSorting( TRUE );
     matchTable->setReadOnly( TRUE );
 }
 
 void PingPongApp::insertMatch()
 {
-     QSqlCursor * cr = matchTable->cursor();
-
-     MatchDialog dlg( cr->insertBuffer(), MatchDialog::Insert, this );
+     MatchDialog dlg( matchCursor.insertBuffer(), MatchDialog::Insert, this );
      if( dlg.exec() == QDialog::Accepted ){
- 	cr->insert();
+ 	matchCursor.insert();
  	matchTable->refresh();
      }
 }
 
 void PingPongApp::updateMatch()
 {
-     QSqlCursor * cr = matchTable->cursor();
-
-     MatchDialog dlg( cr->updateBuffer(), MatchDialog::Update, this );
-     if( dlg.exec() == QDialog::Accepted ){
- 	cr->update();
- 	matchTable->refresh();
-     }
+    QSqlRecord r = matchTable->currentFieldSelection();
+    if ( !r.count() )
+	return;
+    matchCursor.setValue( "id", r.value( "id" ) );
+    matchCursor.select( matchCursor.primaryIndex(), matchCursor.primaryIndex() );
+    if ( matchCursor.next() ) {
+	MatchDialog dlg( matchCursor.updateBuffer(), MatchDialog::Update, this );
+	if( dlg.exec() == QDialog::Accepted ){
+	    matchCursor.update();
+	    matchTable->refresh();
+	}
+    }
 }
 
 void PingPongApp::deleteMatch()
 {
-     QSqlCursor * cr = matchTable->cursor();
-
-     MatchDialog dlg( cr->updateBuffer(), MatchDialog::Delete, this );
-     if( dlg.exec() == QDialog::Accepted ){
- 	cr->del();
- 	matchTable->refresh();
-     }
+    QSqlRecord r = matchTable->currentFieldSelection();
+    if ( !r.count() )
+	return;
+    
+    matchCursor.setValue( "id", r.value( "id" ) );
+    matchCursor.select( matchCursor.primaryIndex(), matchCursor.primaryIndex() );
+    if ( matchCursor.next() ) {
+	MatchDialog dlg( matchCursor.updateBuffer(), MatchDialog::Delete, this );
+	if( dlg.exec() == QDialog::Accepted ){
+	    matchCursor.del();
+	    matchTable->refresh();
+	}
+    }
 }
 
 void PingPongApp::updateIcons( QWidget * w )

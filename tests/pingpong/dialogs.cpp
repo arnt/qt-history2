@@ -57,6 +57,7 @@ TeamEditorWidget::TeamEditorWidget( QWidget * parent, const char * name )
     label->setFont( f );
     g->addWidget( label, 0, 0 );
     teamTable   = new QSqlTable( this );
+    teamCursor.select( teamCursor.index( "name" ) );
     teamTable->setCursor( &teamCursor );
     g->addWidget( teamTable, 1, 0 );
     connect( teamTable, SIGNAL( currentChanged( const QSqlRecord * ) ),
@@ -66,6 +67,7 @@ TeamEditorWidget::TeamEditorWidget( QWidget * parent, const char * name )
     label->setFont( f );
     g->addWidget( label, 0, 1 );
     playerTable = new QSqlTable( this );
+    playerCursor.select( playerCursor.index( "name" ) );
     playerTable->setCursor( &playerCursor );
     g->addWidget( playerTable, 1, 1 );
 
@@ -90,14 +92,18 @@ TeamEditorWidget::TeamEditorWidget( QWidget * parent, const char * name )
     v->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
 				 QSizePolicy::Expanding ) );
     g->addWidget( buttonFrame, 3, 1 );
+    
+    QSqlRecord t = teamTable->currentFieldSelection();
+    updateTeamMembers( &t );
 }
 
 void TeamEditorWidget::updateTeamMembers( const QSqlRecord * record )
 {
     player2teamCursor.select( "teamid = " + record->value( "id" ).toString());
     player2teamTable->refresh();
-    player2teamLabel->setText( "Players on " +
-			       teamCursor.value("name").toString() );
+    player2teamLabel->setText( "Players on <i>" +
+			       teamCursor.value("name").toString() +
+			       "</i>");
 }
 
 void TeamEditorWidget::addPlayer()

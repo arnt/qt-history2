@@ -15,14 +15,6 @@ class TeamEditorWidget;
 class TeamPicker;
 class Statistics;
 
-class MatchTable : public QSqlTable
-{
-public:
-    MatchTable( QWidget * parent = 0, const char * name = 0 );
-    void         sortColumn ( int col, bool ascending = TRUE,
-			      bool wholeRows = FALSE );
-};
-
 class Statistics : public QWidget
 {
     Q_OBJECT
@@ -31,7 +23,7 @@ public:
 
 protected slots:
     void updateStats();
-    
+
 private:
     QListView* list;
     TeamCursor teamCr;
@@ -64,17 +56,18 @@ protected slots:
     void deleteMatch();
     void updateIcons( QWidget * );
     void editTeams();
-    
+
 private:
     QAction * insertResultAc;
     QAction * updateResultAc;
     QAction * deleteResultAc;
-    
+
     QTabWidget * tab;
     TeamEditorWidget * teamEditor;
     Statistics * statWidget;
     QSqlTable * matchTable;
-    MatchCursor matchCr;
+    MatchView matchView;
+    MatchCursor matchCursor;
 };
 
 #endif

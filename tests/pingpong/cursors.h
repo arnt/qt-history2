@@ -5,6 +5,12 @@
 
 class QSqlRecord;
 
+class MatchView : public QSqlCursor
+{
+public:
+    MatchView();
+};
+
 class MatchCursor : public QSqlCursor
 {
 public:

@@ -2,6 +2,17 @@
 
 #include <qdatetime.h>
 
+MatchView::MatchView()
+    : QSqlCursor( "matchview" )
+{
+    setDisplayLabel( "loserwins", "Loser Wins" );
+    setDisplayLabel( "winnerwins", "Winner Wins" );
+    setDisplayLabel( "date", "Date" );
+    setDisplayLabel( "loser", "Loser" );
+    setDisplayLabel( "winner", "Winner" );    
+    setDisplayLabel( "sets", "Sets" );    
+}
+
 MatchCursor::MatchCursor()
     : QSqlCursor( "match" )
 {
@@ -82,7 +93,7 @@ Player2TeamCursor::Player2TeamCursor()
 
     QSqlField f( "playername", QVariant::String );
     append( f );
-    setDisplayLabel( "playername", "Player name" );    
+    setDisplayLabel( "playername", "Player name" );
     setCalculated( f.name(), TRUE );
 }
 
