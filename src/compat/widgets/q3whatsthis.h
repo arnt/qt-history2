@@ -25,7 +25,7 @@ class QToolButton;
 class QPopupMenu;
 class QStyleSheet;
 
-class Q_GUI_EXPORT Q3WhatsThis: public QObject
+class Q_COMPAT_EXPORT Q3WhatsThis: public QObject
 {
     Q_OBJECT
 public:
