@@ -2782,12 +2782,13 @@ void QWidget::setFocus()
 #if defined(Q_WS_WIN)
 	if ( !isPopup() )
 	    SetFocus( winId() );
-	else
+	else {
 #endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	    emit accessibilityChanged( QAccessible::Focus );
-#else
-	    int x = 5; // dummy code so that the else branch makes sense
+#endif
+#if defined(Q_WS_WIN)
+	}
 #endif
     }
 }
