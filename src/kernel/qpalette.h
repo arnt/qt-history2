@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#4 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#5 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -65,9 +65,9 @@ public:
     const QColorGroup &disabled() const	{ return data->disabled; }
     const QColorGroup &active()   const	{ return data->active; }
 
-    void  setNormalColors( const QColorGroup & );
-    void  setDisabledColors( const QColorGroup & );
-    void  setActiveColors( const QColorGroup & );
+    void  setNormal( const QColorGroup & );
+    void  setDisabled( const QColorGroup & );
+    void  setActive( const QColorGroup & );
 
     bool	operator==( const QPalette &p ) const;
     bool	operator!=( const QPalette &p ) const
