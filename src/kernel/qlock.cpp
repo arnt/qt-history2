@@ -70,6 +70,7 @@ public:
 #endif
     int id;
     int count;
+    bool owned;
 };
 
 #endif
@@ -120,6 +121,7 @@ QLock::QLock( const QString &filename, char id, bool create )
 #else
     key_t semkey = ftok(filename, id);
     data->id = semget(semkey,0,0);
+    data->owned = create;
     if ( create ) {
 	semun arg; arg.val = 0;
 	if ( data->id == -1 )
