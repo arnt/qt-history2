@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#234 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#235 $
 **
 ** Implementation of QListView widget class
 **
@@ -1719,12 +1719,12 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	     d->allColumnsShowFocus ) {
 	    p->save();
 	    int x = contentsX() - ox;
-	    int w = viewport()->width();
+	    int w = visibleWidth();
 	    if ( contentsX() ) {
 		x--;
 		w++;
 	    }
-	    if ( contentsX() + viewport()->width() < contentsWidth() ) {
+	    if ( contentsX() + visibleWidth() < contentsWidth() ) {
 		w++;
 	    }
 	    r.setRect( x, current->y - oy, w, ih );
@@ -1776,7 +1776,7 @@ void QListView::buildDrawableList() const
     // could mess with cy and ch in order to speed up vertical
     // scrolling
     int cy = contentsY();
-    int ch = ((QListView *)this)->viewport()->height();
+    int ch = ((QListView *)this)->visibleHeight();
     // ### hack to help sizeHint().  if not visible, assume that we'll
     // ### use 200 pixels rather than whatever QScrollView thinks.
     // ### this lets sizeHint() base its width on a more realistic
@@ -2110,7 +2110,7 @@ void QListView::updateGeometries()
 	QSize hs( d->h->sizeHint() );
 	setMargins( 0, hs.height(), 0, 0 );
 	d->h->setGeometry( viewport()->x(), viewport()->y()-hs.height(),
-			   viewport()->width(), hs.height() );
+			   visibleWidth(), hs.height() );
     }
 }
 
@@ -2121,8 +2121,8 @@ void QListView::handleSizeChange( int section, int, int )
 {
     updateGeometries();
     int left = d->h->cellPos( d->h->mapToActual( section ) - d->h->offset() );
-    viewport()->repaint( left, 0, viewport()->width()-left,
-                         viewport()->height(), FALSE );
+    viewport()->repaint( left, 0, visibleWidth()-left,
+                         visibleHeight(), FALSE );
 }
 
 
@@ -2153,7 +2153,7 @@ void QListView::updateDirtyItems()
 void QListView::resizeEvent( QResizeEvent *e )
 {
     QScrollView::resizeEvent( e );
-    d->h->resize( viewport()->width(), d->h->height() );
+    d->h->resize( visibleWidth(), d->h->height() );
 }
 
 void QListView::enabledChange( bool )
@@ -2644,7 +2644,7 @@ void QListView::mouseMoveEvent( QMouseEvent * e )
     bool needAutoScroll = FALSE;
 
     // check, if we need to scroll
-    if ( e->y() > viewport()->height() || e->y() < 0 )
+    if ( e->y() > visibleHeight() || e->y() < 0 )
 	needAutoScroll = TRUE;
 	
     // if we need to scroll and no autoscroll timer is started,
@@ -2679,9 +2679,9 @@ void QListView::doAutoScroll()
     pos = viewport()->mapFromGlobal( pos );
 
     // do the scrolling
-    if ( pos.y() > viewport()->height() ) {
+    if ( pos.y() > visibleHeight() ) {
         scrollBy( 0, verticalScrollBar()->lineStep() );
-	pos.setY( viewport()->height() - 1 );
+	pos.setY( visibleHeight() - 1 );
     }
 	
     if ( pos.y() < 0 ) {
@@ -2792,12 +2792,12 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	d->currentPrefix.truncate( 0 );
 	break;
     case Key_Next:
-	i2 = itemAt( QPoint( 0, viewport()->height()-1 ) );
+	i2 = itemAt( QPoint( 0, visibleHeight()-1 ) );
 	if ( i2 == i || !r.isValid() ||
-	     viewport()->height() <= itemRect( i ).bottom() ) {
+	     visibleHeight() <= itemRect( i ).bottom() ) {
 	    if ( i2 )
 		i = i2;
-	    int left = viewport()->height();
+	    int left = visibleHeight();
 	    while( (i2 = i->itemBelow()) != 0 && left > i2->height() ) {
 		left -= i2->height();
 		i = i2;
@@ -2812,7 +2812,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	if ( i == i2 || !r.isValid() || r.top() <= 0 ) {
 	    if ( i2 )
 		i = i2;
-	    int left = viewport()->height();
+	    int left = visibleHeight();
 	    while( (i2 = i->itemAbove()) != 0 && left > i2->height() ) {
 		left -= i2->height();
 		i = i2;
@@ -2832,7 +2832,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    i = i->childItem;
 	else if ( !i->isOpen() && (i->isExpandable() || i->childCount()) )
 	    setOpen( i, TRUE );
-	else if ( contentsX() + viewport()->width() < contentsWidth() )
+	else if ( contentsX() + visibleWidth() < contentsWidth() )
 	    horizontalScrollBar()->addLine();
 	d->currentPrefix.truncate( 0 );
 	break;
@@ -2912,7 +2912,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 
     setCurrentItem( i );
     ensureItemVisible( i );
-    
+
     if ( oldCurrent ) {
 	QRect r = itemRect( oldCurrent );
 	r = r.unite( itemRect( currentItem() ) );
@@ -3164,7 +3164,7 @@ QRect QListView::itemRect( const QListViewItem * i ) const
     if ( c && c->i == i ) {
 	int y = c->y - contentsY();
 	if ( y + c->i->height() >= 0 &&
-	     y < ((QListView *)this)->viewport()->height() ) {
+	     y < ((QListView *)this)->visibleHeight() ) {
 	    QRect r( 0, y, d->h->width(), i->height() );
 	    return r;
 	}
