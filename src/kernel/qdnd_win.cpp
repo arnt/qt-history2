@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#12 $
 **
 ** WM_FILES implementation for Qt.
 **
@@ -458,7 +458,7 @@ public:
  
 private:
     ULONG m_refs;  
-    BOOL m_bAcceptFmt;
+    BOOL acceptfmt;
 };
 
 static
@@ -643,15 +643,20 @@ void QDragManager::startDrag( QDragObject * o )
     object = o;
     dragSource = (QWidget *)(object->parent());
 
-    for (QDragObject* qobj = object; qobj; qobj = qobj->alternative())
-	registerMimeType(qobj->format());
+    for (QDragObject* qobj = object; qobj; qobj = qobj->alternative()) {
+	const char* fmt;
+	for (int i=0; (fmt=qobj->format(i)); i++)
+	    registerMimeType(fmt);
+    }
 
     DWORD dwEffect;
     QOleDropSource *src = new QOleDropSource(dragSource);
     QOleDataObject *obj = new QOleDataObject(o);
     // This drag source only allows copying of data.
     // Move and link is not allowed.
-    DoDragDrop(obj, src, DROPEFFECT_COPY, &dwEffect);     
+    HRESULT r = DoDragDrop(obj, src, DROPEFFECT_COPY, &dwEffect);     
+    QDragResponseEvent e( r == DRAGDROP_S_DROP );
+    QApplication::sendEvent( dragSource, &e );
     obj->Release();
 }
 
@@ -817,23 +822,26 @@ QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
     QWindowsMime *wm;
 
     for (QDragObject* obj = object; obj; obj = obj->alternative()) {
-	if ((wm=QWindowsMime::convertor(obj->format(),pformatetc->cfFormat))
-	    && pformatetc->dwAspect == DVASPECT_CONTENT &&
-	       pformatetc->tymed == TYMED_HGLOBAL)
-	{
-	    QByteArray data =
-		wm->convertFromMime(obj->encodedData(),
-			    obj->format(), pformatetc->cfFormat);
-	    if ( data.size() ) {
-		HGLOBAL hData = GlobalAlloc(GMEM_SHARE, data.size());
-		if (!hData)
-		    return ResultFromScode(E_OUTOFMEMORY);
-		void* out = GlobalLock(hData);
-		memcpy(out,data.data(),data.size());
-		GlobalUnlock(hData);
-		pmedium->tymed = TYMED_HGLOBAL;
-		pmedium->hGlobal = hData; 
-		return ResultFromScode(S_OK);
+	const char* fmt;
+	for (int i=0; (fmt=obj->format(i)); i++) {
+	    if ((wm=QWindowsMime::convertor(fmt,pformatetc->cfFormat))
+		&& pformatetc->dwAspect == DVASPECT_CONTENT &&
+		   pformatetc->tymed == TYMED_HGLOBAL)
+	    {
+		QByteArray data =
+		    wm->convertFromMime(obj->encodedData(fmt),
+				fmt, pformatetc->cfFormat);
+		if ( data.size() ) {
+		    HGLOBAL hData = GlobalAlloc(GMEM_SHARE, data.size());
+		    if (!hData)
+			return ResultFromScode(E_OUTOFMEMORY);
+		    void* out = GlobalLock(hData);
+		    memcpy(out,data.data(),data.size());
+		    GlobalUnlock(hData);
+		    pmedium->tymed = TYMED_HGLOBAL;
+		    pmedium->hGlobal = hData; 
+		    return ResultFromScode(S_OK);
+		}
 	    }
 	}
     }
@@ -853,11 +861,14 @@ QOleDataObject::QueryGetData(LPFORMATETC pformatetc)
     // provides data in a format that the target accepts.
 
     for (QDragObject* obj = object; obj; obj = obj->alternative()) {
-	if (QWindowsMime::convertor(obj->format(),pformatetc->cfFormat) &&
-	   pformatetc->dwAspect == DVASPECT_CONTENT &&
-	   pformatetc->tymed == TYMED_HGLOBAL)
-	{
-	    return ResultFromScode(S_OK); 
+	const char* fmt;
+	for (int i=0; (fmt=obj->format(i)); i++) {
+	    if (QWindowsMime::convertor(fmt,pformatetc->cfFormat) &&
+	       pformatetc->dwAspect == DVASPECT_CONTENT &&
+	       pformatetc->tymed == TYMED_HGLOBAL)
+	    {
+		return ResultFromScode(S_OK); 
+	    }
 	}
     }
     return ResultFromScode(S_FALSE);
@@ -941,7 +952,7 @@ QOleDropTarget::QOleDropTarget( QWidget* w ) :
     widget(w)
 {
    m_refs = 1; 
-   m_bAcceptFmt = FALSE;
+   acceptfmt = FALSE;
 }   
 
 //---------------------------------------------------------------------
@@ -1000,7 +1011,7 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
     QDragMoveEvent de( QPoint(pt.x,pt.y) );
     QApplication::sendEvent( widget, &de );
-    m_bAcceptFmt = de.isAccepted();
+    acceptfmt = de.isAccepted();
 
     QueryDrop(grfKeyState, pdwEffect);
     return NOERROR;
@@ -1009,9 +1020,11 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 STDMETHODIMP
 QOleDropTarget::DragLeave()
 {   
-    m_bAcceptFmt = FALSE;   
+    acceptfmt = FALSE;   
     current_drop = 0;
     current_dropobj = 0;
+    QDragLeaveEvent de;
+    QApplication::sendEvent( widget, &de );
     return NOERROR;
 }
 
@@ -1066,7 +1079,7 @@ QOleDropTarget::QueryDrop(DWORD grfKeyState, LPDWORD pdwEffect)
 {  
     DWORD dwOKEffects = *pdwEffect; 
     
-    if (!m_bAcceptFmt)
+    if (!acceptfmt)
         goto dropeffect_none; 
      
     *pdwEffect = OleStdGetDropEffect(grfKeyState);
