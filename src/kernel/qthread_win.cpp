@@ -104,7 +104,7 @@ QThreadInstance::QThreadInstance( unsigned int stackSize )
     if ( ! qt_thread_mutexpool ) QThread::initialize();
 }
 
-unsigned int QThreadInstance::start( void *_arg )
+unsigned int __stdcall QThreadInstance::start( void *_arg )
 {
     void **arg = (void **) _arg;
 
