@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#14 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -673,7 +673,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
     }
     case QEvent::ChildRemoved: {
 	QChildEvent *c = (QChildEvent*)e;
-	if ( c->child()->isWidgetType() ) {
+	if ( 1 ) { // ###hanord: FMR c->child()->isWidgetType() ) {
 	    QWidget *w = (QWidget*)c->child();
 	    if ( w == menubar )
 		menubar = 0;
