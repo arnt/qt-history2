@@ -506,7 +506,27 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
 	    break;
     }
     lf.lfCharSet	= cs;
-    lf.lfOutPrecision   = OUT_DEFAULT_PRECIS;
+
+    int strat;
+    switch ( styleStrategie() ) {
+	case NoStrategie:
+	    strat = OUT_DEFAULT_PRECIS;
+	    break;
+	case BitmapFont:
+	    strat = OUT_RASTER_PRECIS;
+	    break;
+	case DeviceFont:
+	    strat = OUT_DEVICE_PRECIS;
+	    break;
+	case OutlineFont:
+	    if ( qt_winver & Qt::WV_NT_based )
+		strat = OUT_OUTLINE_PRECIS;
+	    else
+		strat = OUT_TT_PRECIS;
+	    break;
+    }
+
+    lf.lfOutPrecision   = strat;
     lf.lfClipPrecision  = CLIP_DEFAULT_PRECIS;
     lf.lfQuality	= DEFAULT_QUALITY;
     lf.lfPitchAndFamily = DEFAULT_PITCH | hint;

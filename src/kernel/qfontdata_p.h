@@ -43,6 +43,7 @@ struct QFontDef {				// font definition
     QString	family;
     short	pointSize;
     uint	styleHint	: 8;
+    uint	styleStrategie	: 8;
     uint	charSet		: 8;
     uint	weight		: 8;
     uint	italic		: 1;
