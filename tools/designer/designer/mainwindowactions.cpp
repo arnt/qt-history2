@@ -488,10 +488,14 @@ void MainWindow::setupToolActions()
 		continue; // only widgets, i.e. not forms and temp stuff
 	    QAction* a = new QAction( actionGroupTools, QString::number( i ).latin1() );
 	    a->setToggleAction( TRUE );
-	    if ( WidgetDatabase::className( i )[0] == 'Q' )
-		a->setText( WidgetDatabase::className( i ).mid(1) );
-	    else
-		a->setText( WidgetDatabase::className( i ) );
+	    QString atext = WidgetDatabase::className( i );
+	    if ( atext[0] == 'Q' )
+		atext = atext.mid(1);
+	    while ( atext.length() && atext[0] >= 'a' && atext[0] <= 'z' )
+		atext = atext.mid(1);
+	    if ( atext.isEmpty() )
+		atext = WidgetDatabase::className( i );
+	    a->setText( atext );
 	    QString ttip = WidgetDatabase::toolTip( i );
 	    a->setIconSet( WidgetDatabase::iconSet( i ) );
 	    a->setToolTip( ttip );

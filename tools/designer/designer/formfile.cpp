@@ -201,6 +201,8 @@ bool FormFile::save( bool withMsgBox )
 		    QCString data( f.size() );
 		    f.readBlock( data.data(), f.size() );
 		    f2.writeBlock( data );
+		} else {
+		    QMessageBox::warning( MainWindow::self, "Save", "The file " + codeFile() + " could not be saved" );
 		}
 	    }
 	}
@@ -221,8 +223,10 @@ bool FormFile::save( bool withMsgBox )
 		    QCString data( f.size() );
 		    f.readBlock( data.data(), f.size() );
 		    f2.writeBlock( data );
+		} else {
+		    QMessageBox::warning( MainWindow::self, "Save", "The file " + codeFile() + " could not be saved" );
 		}
-	    }
+	    } 
 	}
     }
 

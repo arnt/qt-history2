@@ -647,8 +647,7 @@ void Project::save( bool onlyProjectFile )
     }
 
     if ( !f.open( IO_WriteOnly ) ) {
-	//## more of a warning here? mbox?
-	qWarning( "Couldn't write project file " + filename );
+	QMessageBox::warning( MainWindow::self, "Save Project Failed", "Couldn't write project file " + filename );
 	return;
     }
 
