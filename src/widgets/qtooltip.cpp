@@ -515,7 +515,7 @@ void QTipManager::showTip()
 	Q_CHECK_PTR( label );
 	connect( label, SIGNAL(destroyed()), SLOT(labelDestroyed()) );
     }
-    QRect screen = QApplication::desktop()->availableGeometry( scr );
+    QRect screen = QApplication::desktop()->screenGeometry( scr );
     QPoint p;
     if ( t->geometry == QRect( -1, -1, -1, -1 ) ) {
 	p = widget->mapToGlobal( pos ) + QPoint( 2, 16 );
