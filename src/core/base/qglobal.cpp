@@ -12,7 +12,6 @@
 
 #include "qplatformdefs.h"
 #include <qstring.h>
-#include <qhash.h>
 
 #include <limits.h>
 #include <stdio.h>
