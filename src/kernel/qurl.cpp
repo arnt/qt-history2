@@ -919,18 +919,18 @@ QString QUrl::path( bool correct ) const
 		    d->cleanPath = d->path;
 		else if ( fi.isDir() ) {
 		    QString dir =
-			QDir::cleanDirPath( qt_resolve_symlinks ?
+			QDir::cleanDirPath( (qt_resolve_symlinks ?
 					    QDir( d->path ).canonicalPath() :
-					    QDir( d->path ).absPath() ) + "/";
+					    QDir( d->path ).absPath()) ) + "/";
 		    if ( dir == "//" )
 			d->cleanPath = "/";
 		    else
 			d->cleanPath = dir;
 		} else {
 		    QString p =
-			QDir::cleanDirPath( qt_resolve_symlinks ?
+			QDir::cleanDirPath( (qt_resolve_symlinks ?
 					    fi.dir().canonicalPath() :
-					    fi.dir().absPath() );
+					    fi.dir().absPath()) );
 		    d->cleanPath = p + "/" + fi.fileName();
 		}
 	    }
