@@ -208,6 +208,7 @@ public:
     typedef QValueListConstIterator<T> ConstIterator;
     typedef QValueListNode<T> Node;
     typedef QValueListNode<T>* NodePtr;
+    typedef size_t size_type;
 
     /**
      * Functions
@@ -313,10 +314,10 @@ public:
 	return result;
     }
 
-    NodePtr at( uint i ) const {
+    NodePtr at( size_type i ) const {
 	Q_ASSERT( i <= nodes );
 	NodePtr p = node->next;
-	for( uint x = 0; x < i; ++x )
+	for( size_type x = 0; x < i; ++x )
 	    p = p->next;
 	return p;
     }
@@ -333,7 +334,7 @@ public:
     }
 
     NodePtr node;
-    uint nodes;
+    size_type nodes;
 };
 
 #ifdef QT_CHECK_RANGE

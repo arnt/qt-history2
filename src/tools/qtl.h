@@ -274,7 +274,7 @@ inline void qHeapSort( Container &c )
 
     // The second last parameter is a hack to retrieve the value type
     // Do the real sorting here
-    qHeapSortHelper( c.begin(), c.end(), *(c.begin()), c.count() );
+    qHeapSortHelper( c.begin(), c.end(), *(c.begin()), (uint)c.count() );
 }
 
 #endif

@@ -107,7 +107,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    t << "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl;
 
 		    if ( project->isActiveConfig("moc") &&
-			 (*it).right(strlen(Option::moc_ext)) == Option::moc_ext) {
+			 (*it).right(qstrlen(Option::moc_ext)) == Option::moc_ext) {
 			QString base = (*it);
 			base.replace(QRegExp("\\..*$"), "").upper();
 			base.replace(QRegExp("[^a-zA-Z]"), "_");

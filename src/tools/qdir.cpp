@@ -643,7 +643,7 @@ void QDir::setMatchAllDirs( bool enable )
 
 uint QDir::count() const
 {
-    return entryList().count();
+    return (uint)entryList().count();
 }
 
 /*!

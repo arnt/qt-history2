@@ -769,7 +769,7 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	  << depends[(*sit)].join(" \\\n\t\t");
 
 	QString comp, cimp;
-	if((*sit).right(strlen(Option::cpp_ext)) == Option::cpp_ext) {
+	if((*sit).right(qstrlen(Option::cpp_ext)) == Option::cpp_ext) {
 	    comp = "QMAKE_RUN_CXX";
 	    cimp = "QMAKE_RUN_CXX_IMP";
 	} else {
@@ -942,7 +942,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 			f = f.right(f.length() - slsh - 1);
 		    }
 		    QDir dir(dirstr, f);
-		    for(int x = 0; x < dir.count(); x++) {
+		    for(uint x = 0; x < dir.count(); x++) {
 			QString file = dir[x];
 			if(file == "." || file == "..") //blah
 			    continue;
@@ -1082,7 +1082,7 @@ QString MakefileGenerator::build_args()
 
 	//arguments
 	for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it) {
-	    if((*it).left(strlen("QMAKE_ABSOLUTE_SOURCE_PATH")) != "QMAKE_ABSOLUTE_SOURCE_PATH")
+	    if((*it).left(qstrlen("QMAKE_ABSOLUTE_SOURCE_PATH")) != "QMAKE_ABSOLUTE_SOURCE_PATH")
 		ret += " \"" + (*it) + "\"";
 	}
 
