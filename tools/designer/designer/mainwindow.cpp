@@ -1320,7 +1320,8 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	    if ( actionEditor->wantToBeShown() )
 		actionEditor->parentWidget()->show();
 	} else {
-	    if ( ofw && ofw->mainContainer()->inherits( "QMainWindow" ) )
+	    QWidget *mc = 0;
+	    if ( ofw && (mc = ofw->mainContainer()) && mc->inherits( "QMainWindow" ) )
 		actionEditor->setWantToBeShown( !actionEditor->parentWidget()->isHidden() );
 	    actionEditor->parentWidget()->hide();
 	}
