@@ -422,7 +422,7 @@ void TextEdit::textColor()
 	return;
     currentEditor()->setColor( col );
     QPixmap pix( 16, 16 );
-    pix.fill( black );
+    pix.fill( col );
     actionTextColor->setIconSet( pix );
 }
 
