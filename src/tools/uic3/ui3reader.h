@@ -92,6 +92,7 @@ private:
     QString fixHeaderName(const QString &headerName) const;
     QString fixClassName(const QString &className) const;
     QString fixDeclaration(const QString &declaration) const;
+    QString fixType(const QString &type) const;
 
     QTextStream &out;
     QTextOStream trout;

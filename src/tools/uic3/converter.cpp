@@ -83,7 +83,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
                             continue;
 
                         DomInclude *incl = new DomInclude();
-                        incl->setText(name);
+                        incl->setText(fixHeaderName(name));
                         incl->setAttributeLocation(n2.attribute(QLatin1String("location"), QLatin1String("global")));
                         ui_includes.append(incl);
                     }
@@ -97,7 +97,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
                     continue;
 
                 DomInclude *incl = new DomInclude();
-                incl->setText(name);
+                incl->setText(fixHeaderName(name));
                 incl->setAttributeLocation(n.attribute(QLatin1String("location"), QLatin1String("global")));
                 ui_includes.append(incl);
             }
@@ -407,7 +407,32 @@ QString Ui3Reader::fixClassName(const QString &className) const
         return QLatin1String("Q3DockWindow");
     else if (className == QLatin1String("QListView"))
         return QLatin1String("Q3ListView");
-
+    else if (className == QLatin1String("QGuardedPtr"))
+        return QLatin1String("QPointer");
+    else if (className == QLatin1String("QPtrList"))
+        return QLatin1String("Q3PtrList");
+    else if (className == QLatin1String("QListBox"))
+        return QLatin1String("Q3ListBox");
+    else if (className == QLatin1String("QListBoxItem"))
+        return QLatin1String("Q3ListBoxItem");
+    else if (className == QLatin1String("QProgressBar"))
+        return QLatin1String("Q3ProgressBar");
+    else if (className == QLatin1String("QAccel"))
+        return QLatin1String("Q3Accel");
+    else if (className == QLatin1String("QPaintDeviceMetrics"))
+        return QLatin1String("Q3PaintDeviceMetrics");
+    else if (className == QLatin1String("QSimpleRichText"))
+        return QLatin1String("Q3SimpleRichText");
+    else if (className == QLatin1String("QStyleSheet"))
+        return QLatin1String("Q3StyleSheet");
+    else if (className == QLatin1String("QTextBrowser"))
+        return QLatin1String("Q3TextBrowser");
+    else if (className == QLatin1String("QMimeSourceFactory"))
+        return QLatin1String("Q3MimeSourceFactory");
+    /*
+    else if (className == QLatin1String("QAction"))
+        return QLatin1String("Q3Action");
+    */
     return className;
 }
 
@@ -435,7 +460,32 @@ QString Ui3Reader::fixHeaderName(const QString &headerName) const
         return QLatin1String("q3dockwindow.h");
     else if (headerName == QLatin1String("qfiledialog.h"))
         return QLatin1String("q3filedialog.h");
-
+    else if (headerName == QLatin1String("qguardedptr.h"))
+        return QLatin1String("qpointer.h");
+    else if (headerName == QLatin1String("qptrlist.h"))
+        return QLatin1String("q3ptrlist.h");
+    else if (headerName == QLatin1String("qptrlist.h"))
+        return QLatin1String("q3ptrlist.h");
+    else if (headerName == QLatin1String("qlistbox.h"))
+        return QLatin1String("q3listbox.h");
+    else if (headerName == QLatin1String("qprogressbar.h"))
+        return QLatin1String("q3progressbar.h");
+    else if (headerName == QLatin1String("qaccel.h"))
+        return QLatin1String("q3accel.h");
+    else if (headerName == QLatin1String("qpaintdevicemetrics.h"))
+        return QLatin1String("q3paintdevicemetrics.h");
+    else if (headerName == QLatin1String("qsimplerichtext.h"))
+        return QLatin1String("q3simplerichtext.h");
+    else if (headerName == QLatin1String("qstylesheet.h"))
+        return QLatin1String("q3stylesheet.h");
+    else if (headerName == QLatin1String("qtextbrowser.h"))
+        return QLatin1String("q3textbrowser.h");
+    else if (headerName == QLatin1String("qmimesourcefactory.h"))
+        return QLatin1String("q3mimesourcefactory.h");
+    /*
+    else if (headerName == QLatin1String("qaction.h"))
+        return QLatin1String("q3action.h");
+      */ 
     return headerName;
 }
 
@@ -916,4 +966,21 @@ QString Ui3Reader::fixDeclaration(const QString &d) const
     }
 
     return text;
+}
+
+/*
+    fixes a (possible composite) type name
+*/
+QString Ui3Reader::fixType(const QString &t) const
+{
+    QString newText = t;
+    //split type name on <>*& and whitespace
+    QStringList typeNames = t.split(QRegExp("<|>|\\*|&| "), QString::SkipEmptyParts);
+    foreach(QString typeName , typeNames) {
+        QString newName = fixClassName(typeName);
+        if( newName != typeName ) {
+            newText.replace(typeName, newName);
+        }
+    }
+    return newText;
 }

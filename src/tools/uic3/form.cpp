@@ -10,7 +10,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
 #include "ui3reader.h"
 #include "parser.h"
 #include "domtool.h"
@@ -152,13 +151,17 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
 
     globalIncludes = unique(globalIncludes);
     for (it = globalIncludes.begin(); it != globalIncludes.end(); ++it) {
-        if (!(*it).isEmpty())
-            out << "#include <" << *it << ">" << endl;
+        if (!(*it).isEmpty()) {
+            QString header = fixHeaderName(*it);
+            out << "#include <" << header << ">" << endl;
+        }
     }
     localIncludes = unique(localIncludes);
     for (it = localIncludes.begin(); it != localIncludes.end(); ++it) {
-        if (!(*it).isEmpty())
-            out << "#include \"" << *it << "\"" << endl;
+        if (!(*it).isEmpty()) {
+            QString header = fixHeaderName(*it);
+            out << "#include \"" << header << "\"" << endl;
+        }
     }
     out << endl;
 
@@ -473,6 +476,7 @@ void Ui3Reader::writeFunctionsDecl(const QStringList &fuLst, const QStringList &
             signature.replace(QLatin1String(">>"), QLatin1String("> >"));
             
         signature = fixDeclaration(signature);
+        type = fixType(type);
         out << "    " << specifier << type << " " << signature << pure << ";" << endl;
     }
     out << endl;
