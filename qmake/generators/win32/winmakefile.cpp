@@ -119,8 +119,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	if(have_dir)
 	    t << "\n\t" << "cd " << (*it)->directory;
 	t << "\n\t" << "$(QMAKE) " << (*it)->profile << " " << buildArgs();
-	if((*it)->makefile != "$(MAKEFILE)")
-	    t << " -o " << (*it)->makefile;
+	t << " -o " << (*it)->makefile;
 	if(have_dir) {
 	    int subLevels = it.current()->directory.contains(Option::dir_sep) + 1;
 	    t << "\n\t" << "@cd ..";
@@ -136,8 +135,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	if(have_dir)
 	    t << "\n\t" << "cd " << (*it)->directory;
 	t << "\n\t" << "$(MAKE)";
-	if((*it)->makefile != "$(MAKEFILE)")
-	    t << " -f " << (*it)->makefile;
+        t << " -f " << (*it)->makefile;
 	if(have_dir) {
 	    int subLevels = it.current()->directory.contains(Option::dir_sep) + 1;
 	    t << "\n\t" << "@cd ..";
@@ -188,9 +186,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 		bool have_dir = !(*it)->directory.isEmpty();
 		if(have_dir)
 		    t << "\n\t" << "cd " << (*it)->directory;
-		QString in_file;
-		if((*it)->makefile != "$(MAKEFILE)")
-		    in_file = " -f " + (*it)->makefile;
+		QString in_file = " -f " + (*it)->makefile;
 		t << "\n\t" << "$(MAKE) " << in_file << " " << targs[x];
 		if(have_dir) {
 		    t << "\n\t" << "@cd ..";
