@@ -223,6 +223,7 @@
 #include <qstylefactory.h>
 #include <qstyleplugin.h>
 #include "qtextedit.h"
+#include "qsyntaxhighlighter.h"
 #include <qtabbar.h>
 #include <qtabdialog.h>
 #include "qsqleditorfactory.h"
