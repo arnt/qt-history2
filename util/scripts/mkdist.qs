@@ -261,11 +261,11 @@ for (var p in validPlatforms) {
 
   	    // package directory
 	    print("Compressing and packaging file(s)...")
-	    compress(platDir, platform, edition);
+	    compress(platform, edition, platDir);
 
 	    // create binaries
 	    print("Compiling binaries...")
-	    compile(platName, platform, edition);
+	    compile(platform, edition, platName);
 	    
   	    indentation-=tabSize;
   	}
@@ -510,7 +510,7 @@ function purgeFiles(rootDir, fileList, remove, keep)
 /************************************************************
  * compresses platDir into files (.zip .gz etc.)
  */
-function compress(packageDir, platform, edition)
+function compress(platform, edition, packageDir)
 {
     // set directory to parent of packageDir
     var dir = new Dir(packageDir);
@@ -570,7 +570,7 @@ function compress(packageDir, platform, edition)
  * copies a qt-package to binary host, compiles qt, and collects the
  * resulting dlls etc.
  */
-function compile(platformName, platform, edition)
+function compile(platform, edition, platformName)
 {
     if (!options["binaries"] || !binaryHosts[platform])
 	return;
@@ -593,12 +593,11 @@ function compile(platformName, platform, edition)
 	execute(["ssh", login, "cp", "-r", platformName, platformName+"clean"]);
 
 	// copy build script
-	var buildScript = p4Copy(p4BranchPath + "/util/scripts" ,
-				 "buildbinary" + platform + ".bat", p4Label);
+	var buildScript = p4Copy(p4BranchPath + "/util/scripts" ,"buildbinarywin.bat", p4Label);
 	execute(["scp", buildScript, login + ":."]);
 
 	// run it
-	execute(["ssh", login, "cmd /c buildbinarywin.bat win32-msvc " + platformName]);
+	execute(["ssh", login, "cmd", "/c", "buildbinarywin.bat win32-msvc " + platformName]);
 
 	// copy files from bin
 	execute(["ssh", login, "cp", platformName + "/bin/*.exe", platformName+"clean/bin/."]);
@@ -629,8 +628,24 @@ function compile(platformName, platform, edition)
 	execute(["ssh", login, "cp", "-r",
 		 platformName + "/include/QtCore/arch",
 		 platformName + "clean/include/QtCore/."]);
+	// copy generated .qt.config
+	execute(["ssh", login, "cp",
+		 platformName + "/mkspecs/.qt.config",
+		 platformName + "clean/mkspecs/.qt.config"]);
 
-	// create installer
+	// replace tags and copy over the install script
+	var installScript = p4Copy(p4BranchPath + "/util/scripts","installscriptwin.nsi", p4Label);
+	execute(["ssh", login, "cygpath", "-w", "`pwd`/" + platformName + "clean"]);
+	var windowsPath = Process.stdout;
+	print("REPLACING WITH! : " + windowsPath);
+	var extraTags = new Array();
+	extraTags[windowsPath] = /\%PACKAGEDIR\%/g;
+	var scriptFile = new File(installScript);
+	replaceTags(scriptFile.path, [scriptFile.name], platform, edition, platformName, extraTags);
+	execute(["scp", installScript, login + ":."]);
+
+	// run the install script and create compiler
+	execute(["ssh", login, "cmd", "/c", "makensis.exe", "installscriptwin.nsi"]);
 
 	// cleanup host
 
@@ -800,7 +815,7 @@ function qdoc(packageDir, edition)
 /************************************************************
  * goes through all txt files and replaces tags like %VERSION%, %THISYEAR% etc.
  */
-function replaceTags(packageDir, fileList, platform, edition, platName)
+function replaceTags(packageDir, fileList, platform, edition, platName, additionalTags)
 {
     var replace = new Array();
     replace[Date().getYear().toString()] = /\$THISYEAR\$/g;
@@ -810,21 +825,22 @@ function replaceTags(packageDir, fileList, platform, edition, platName)
 	replace[licenseHeaders[platform+"-"+edition]] = /\*\* \$LICENSE\$\n/;
     else
 	replace[licenseHeaders[edition]] = /\*\* \$LICENSE\$\n/;
-    
+    replace = replace.concat(additionalTags);
+
     var fileName = new String();
     var absFileName = new String();
     var content = new String();
     for (var i in fileList) {
 	fileName = fileList[i];
 	absFileName = packageDir + "/" + fileName;
-	//only replace in non binaries but not for .html files
+	//only replace for non binary files
 	if (File.isFile(absFileName) &&  !binaryFile(absFileName)) {
 	    content = File.read(absFileName);
 	    for (var i in replace)
 		content = content.replace(replace[i], i);
 	    // special case for $MODULE$
 	    if (content.find(/\$MODULE\$/) != -1) {
-		var match = false;	    		
+		var match = false;
 		for (var i in moduleMap) {
 		    if (fileName.find(moduleMap[i]) != -1) {
 			content = content.replace(/\$MODULE\$/, i);
