@@ -1794,28 +1794,28 @@ void QTextEdit::contentsContextMenuEvent( QContextMenuEvent *e )
 
     e->accept();
 #ifndef QT_NO_POPUPMENU
-    if ( !isReadOnly() ) {
-	QPopupMenu *popup = createPopupMenu();
-	int r = popup->exec( e->globalPos() );
-	delete popup;
+    QPopupMenu *popup = createPopupMenu();
+    if ( !popup )
+	return;
+    int r = popup->exec( e->globalPos() );
+    delete popup;
 
-	if ( r == d->id[ IdClear ] )
-	    clear();
-	else if ( r == d->id[ IdSelectAll ] )
-	    selectAll();
-	else if ( r == d->id[ IdUndo ] )
-	    undo();
-	else if ( r == d->id[ IdRedo ] )
-	    redo();
+    if ( r == d->id[ IdClear ] )
+	clear();
+    else if ( r == d->id[ IdSelectAll ] )
+	selectAll();
+    else if ( r == d->id[ IdUndo ] )
+	undo();
+    else if ( r == d->id[ IdRedo ] )
+	redo();
 #ifndef QT_NO_CLIPBOARD
-	else if ( r == d->id[ IdCut ] )
-	    cut();
-	else if ( r == d->id[ IdCopy ] )
-	    copy();
-	else if ( r == d->id[ IdPaste ] )
-	    paste();
+    else if ( r == d->id[ IdCut ] )
+	cut();
+    else if ( r == d->id[ IdCopy ] )
+	copy();
+    else if ( r == d->id[ IdPaste ] )
+	paste();
 #endif
-    }
 #endif
 }
 
@@ -3936,6 +3936,8 @@ bool QTextEdit::getParagraphFormat( int para, QFont *font, QColor *color,
 
 QPopupMenu *QTextEdit::createPopupMenu()
 {
+    if ( isReadOnly() )
+	return 0;
 #ifndef QT_NO_POPUPMENU
     QPopupMenu *popup = new QPopupMenu( this, "qt_edit_menu" );
     d->id[ IdUndo ] = popup->insertItem( tr( "&Undo\tCtrl+Z" ) );
