@@ -571,6 +571,10 @@ static struct {
     { 0, 0 }
 };
 
+#ifdef Q_WS_MAC
+#define QMAC_PROPELLER ((char)0x11)
+#endif
+
 /*!
    Creates an accelerator string for the key \a k.
    For instance CTRL+Key_O gives "Ctrl+O".  The "Ctrl" etc.
@@ -582,8 +586,8 @@ QString QAccel::keyToString( int k )
 {
     QString s;
     if ( (k & CTRL) == CTRL ) {
-#ifdef Q_WS_MAC
-	s += (char) 0x11;
+#ifdef QMAC_PROPELLER
+	s += QMAC_PROPELLER;
 #else
 	s += tr( "Ctrl" );
 #endif
@@ -674,8 +678,14 @@ int QAccel::stringToKey( const QString & s )
 done:
     if ( p > 0 ) {
 	QString sl = s.lower();
+#ifdef QMAC_PROPELLER
+	QString tmp; tmp.sprintf("%c+", QMAC_PROPELLER);
+	if ( sl.contains(tmp) )
+	    k |= CTRL;
+#else
 	if ( sl.contains("ctrl+") || sl.contains(tr("ctrl")+"+") )
 	    k |= CTRL;
+#endif
 	if ( sl.contains("shift+") || sl.contains(tr("shift")+"+") )
 	    k |= SHIFT;
 	if ( sl.contains("alt+") || sl.contains(tr("alt")+"+") )
