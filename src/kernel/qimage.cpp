@@ -461,12 +461,12 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
 	return;	    // Image header info can be saved without needing to allocate memory.
     int bpl = ((w*depth+31)/32)*4;	// bytes per scanline
     data->nbytes = bpl*h;
-    if ( colortable || !numColors ) {
+    if ( colortable || !data->ncols ) {
 	data->ctbl = colortable;
 	data->ctbl_mine = FALSE;
     } else {
 	// calloc since we realloc, etc. later (ick)
-	data->ctbl = (QRgb*)calloc( numColors*sizeof(QRgb), numColors );
+	data->ctbl = (QRgb*)calloc( data->ncols*sizeof(QRgb), data->ncols );
 	data->ctbl_mine = TRUE;
     }
     uchar** jt = (uchar**)malloc(h*sizeof(uchar*));
