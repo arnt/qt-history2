@@ -158,7 +158,5 @@
         <receiver>MyDialog2</receiver>
         <slot>reject()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
 </connections>
 </UI>
