@@ -51,74 +51,24 @@
 #include "qwidget.h"
 #include "qstring.h"
 #include "qdatetime.h"
-#include "qlineedit.h"
-#include "qframe.h"
-#include "qtimer.h"
 #endif // QT_H
 
-class QPushButton;
-
-
-class QM_EXPORT_SQL QNumberSection
-{
-public:
-    QNumberSection( int selStart = 0, int selEnd = 0 )
-	: selstart( selStart ), selend( selEnd )
-    {}
-    int selectionStart() const { return selstart; }
-    void setSelectionStart( int s ) { selstart = s; }
-    int selectionEnd() const { return selend; }
-    void setSelectionEnd( int s ) { selend = s; }
-    int width() const { return selend - selstart; }
-private:
-    int selstart;
-    int selend;
-};
-
-class QDateTimeEditBasePrivate;
-
-class QM_EXPORT_SQL QDateTimeEditBase : public QWidget
+class QDateTimeEditBase : public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY( bool frame READ frame WRITE setFrame )
-
 public:
-    QDateTimeEditBase( QWidget * parent = 0,
-		       const char * name = 0 );
-    ~QDateTimeEditBase();
-
-
-    bool frame() const;
-    void setSeparator( const QString& s );
-    QString separator() const;
-
+    QDateTimeEditBase( QWidget * parent = 0, const char * name = 0 )
+	: QWidget( parent, name ) {}
+    
 public slots:
-    virtual void stepUp();
-    virtual void stepDown();
-    virtual void setFrame( bool );
+    virtual void stepUp() {};
+    virtual void stepDown() {};
 
-signals:
-    void valueChanged();
-
-protected:
-    void init();
-    bool event( QEvent *e );
-    void resizeEvent( QResizeEvent * );
-    void paintEvent( QPaintEvent * );
-    void mousePressEvent( QMouseEvent *e );
-    void keyPressEvent( QKeyEvent *e );
-    void layout( const QSize& s );
-    int focusSection() const;
-
-    void setSectionSelection( int sec, int selstart, int selend );
-    void appendSection( const QNumberSection& sec );
-    virtual bool setFocusSection( int s );
-    virtual QString sectionFormattedText( int sec );
-    virtual void addNumber( int sec, int num );
-    virtual void removeLastNumber( int sec );
-
-private:
-    QDateTimeEditBasePrivate* d;
+public: //protected:
+    virtual bool setFocusSection( int /*s*/ ){ return TRUE; };
+    virtual QString sectionFormattedText( int /*sec*/ ){ return QString(); };
+    virtual void addNumber( int /*sec*/, int /*num*/ ){};
+    virtual void removeLastNumber( int /*sec*/ ){};
 };
 
 class QDateEditPrivate;
@@ -159,19 +109,23 @@ public:
     QDate maxValue() const;
     virtual void setRange( const QDate& min, const QDate& max );
 
+    bool frame() const { return TRUE; }
+    void setFrame( const bool /*b*/ ) {}
+
 signals:
     void valueChanged( const QDate& date );
 
 protected:
     bool event( QEvent *e );
     void timerEvent ( QTimerEvent * );
+    void resizeEvent ( QResizeEvent * );
     void stepUp();
     void stepDown();
     QString sectionFormattedText( int sec );
     void addNumber( int sec, int num );
     void removeLastNumber( int sec );
     bool setFocusSection( int s );
-
+    
     virtual void setYear( int year );
     virtual void setMonth( int month );
     virtual void setDay( int day );
@@ -219,6 +173,7 @@ signals:
 protected:
     bool event( QEvent *e );
     void timerEvent ( QTimerEvent *e );
+    void resizeEvent ( QResizeEvent * );
     void stepUp();
     void stepDown();
     QString sectionFormattedText( int sec );
@@ -239,7 +194,7 @@ private:
 
 class QDateTimeEditPrivate;
 
-class QM_EXPORT_SQL QDateTimeEdit : public QFrame
+class QM_EXPORT_SQL QDateTimeEdit : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY( QDateTime dateTime READ dateTime WRITE setDateTime )

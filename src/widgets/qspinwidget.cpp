@@ -64,7 +64,7 @@ public:
     QRect down;
     QTimer *auRepTimer;
     QSpinWidget::ButtonSymbols bsyms;
-    QLineEdit *vi;
+    QWidget *ed;
 };
 
 /*!  Constructs an empty range control widget with parent \a parent
@@ -76,9 +76,7 @@ QSpinWidget::QSpinWidget( QWidget* parent, const char* name )
     : QWidget( parent, name )
 {
     d = new QSpinWidgetPrivate();
-    d->vi = new QLineEdit( this );
-    //setFocusPolicy( QWidget::NoFocus );
-    setFocusProxy( d->vi );
+    d->ed = 0;
     setFocusPolicy( StrongFocus );
 
     arrange();
@@ -96,9 +94,21 @@ QSpinWidget::~QSpinWidget()
 }
 
 /*! */
-QLineEdit * QSpinWidget::lineEdit()
+QWidget * QSpinWidget::editWidget()
 {
-    return d->vi;
+    return d->ed;
+}
+
+/*! */
+void QSpinWidget::setEditWidget( QWidget * w )
+{
+    if ( w ) {
+	w->reparent( this, QPoint( 0, 0 ) );
+	setFocusProxy( w );
+    }
+    d->ed = w;
+    arrange();
+    updateDisplay();
 }
 
 /*! \reimp
@@ -153,9 +163,11 @@ void QSpinWidget::arrange()
 								QStyle::SC_SpinWidgetUp ), this );
     d->down = QStyle::visualRect( style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
 								  QStyle::SC_SpinWidgetDown ), this );
-    QRect r = QStyle::visualRect( style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
+    if ( d->ed ) {
+    	QRect r = QStyle::visualRect( style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
 								  QStyle::SC_SpinWidgetEditField ), this );
-    d->vi->setGeometry( r );
+	d->ed->setGeometry( r );
+    }
 }
 
 void QSpinWidget::stepUp()

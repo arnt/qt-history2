@@ -152,15 +152,12 @@ QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )
 	    break;
 	case QVariant::Date:
 	    w = new QDateEdit( parent );
-	    ((QDateEdit*)w)->setFrame( FALSE );
 	    break;
 	case QVariant::Time:
 	    w = new QTimeEdit( parent );
-	    ((QTimeEdit*)w)->setFrame( FALSE );
 	    break;
 	case QVariant::DateTime:
 	    w = new QDateTimeEdit( parent );
-	    ((QDateTimeEdit*)w)->setFrameShape( QFrame::NoFrame );
 	    break;
 	case QVariant::Pixmap:
 	    w = new QLabel( parent );

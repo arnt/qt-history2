@@ -186,7 +186,8 @@ void QSpinBox::initSpinBox()
     edited = FALSE;
 
     validate = new QIntValidator( minValue(), maxValue(), this, "validator" );
-    vi = d->controls->lineEdit();
+    vi = new QLineEdit( this );
+    d->controls->setEditWidget( vi );
     vi->setValidator( validate );
     vi->installEventFilter( this );
     vi->setFrame( FALSE );
