@@ -1313,6 +1313,11 @@ int QFtp::rmdir( const QString &dir )
   If you don't start further FTP commands directly after the abort(), there
   won't be any scheduled commands and the doneError() resp. doneSuccess()
   signal is emitted.
+
+  \warning We experienced that some FTP servers, namely the BSD FTP daemon
+  (version 0.3), wrongly return a positive reply in the case that the abort was
+  successful and as a result the finishedSuccess() signal is emitted, although
+  the command was aborted.
 */
 void QFtp::abort()
 {
