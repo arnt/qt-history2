@@ -267,7 +267,7 @@ enum {
     typeQWidget = 1,  /* QWidget *  */
     typeTimerInfo = 2, /* TimerInfo * */
     //params
-    kEventParamTimer = 'qtim',     /* typeUInt */
+    kEventParamTimer = 'qtim',     /* typeTimerInfo */
     kEventParamQWidget = 'qwid',   /* typeQWidget */
     //events
     kEventQtRequestPropagate = 10,
@@ -1318,18 +1318,18 @@ bool QApplication::do_mouse_down( Point *pt )
     {
 	Rect limits;
 	SetRect( &limits, -2, 0, 0, 0 );
+	int wstrut = 0, hstrut = 0;
 	if( widget ) {
-	    if ( widget->extra ) {
-		if(widget->fstrut_dirty)
-		    widget->updateFrameStrut();
-		QTLWExtra *tlextra = widget->topData();
-		QWExtra   *extra = widget->extraData();
-		int wstrut = tlextra->fleft + tlextra->fright;
-		int hstrut = tlextra->ftop + tlextra->fbottom;
+	    if(widget->fstrut_dirty)
+		widget->updateFrameStrut();
+	    if(QTLWExtra *tlextra = widget->topData()) {
+		wstrut = tlextra->fleft + tlextra->fright;
+		hstrut = tlextra->ftop + tlextra->fbottom;
+	    }
+	    if(QWExtra   *extra = widget->extraData()) 
 		SetRect( &limits, extra->minw+wstrut, extra->minh+hstrut,
 			 extra->maxw+wstrut < QWIDGETSIZE_MAX ? extra->maxw+wstrut : QWIDGETSIZE_MAX,
 			 extra->maxh+hstrut < QWIDGETSIZE_MAX ? extra->maxh+hstrut : QWIDGETSIZE_MAX);
-	    }
 	}
 	int growWindowSize = GrowWindow( wp, *pt, limits.left == -2 ? NULL : &limits);
 	if( growWindowSize) {
@@ -1338,7 +1338,7 @@ bool QApplication::do_mouse_down( Point *pt )
 	    int nh = HiWord( growWindowSize );
 	    if(nw != widget->width() || nh != widget->height()) {
 		if( nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0 && widget)
-			widget->resize(nw, nh);
+			widget->resize(nw-wstrut, nh-hstrut);
 	    }
 	}
 	break;
@@ -1490,12 +1490,16 @@ QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *d)
 QMAC_PASCAL OSStatus
 QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
 {
-    bool remove_context_timer = TRUE;
     QApplication *app = (QApplication *)data;
-    if ( app->macEventFilter( event ) )
-	return 1;
+    if ( app->macEventFilter( event ) ) //someone else ate it
+	return noErr; 
     QWidget *widget = NULL;
 
+    /*Only certain event don't remove the context timer (the left hold context menu),
+      otherwise we just turn it off. Similarly we assume all events are handled and in
+      the code below we set it to false when we know we didn't handle it, this will let
+      rogue events through (shouldn't really happen, but better safe than sorry) */
+    bool remove_context_timer = TRUE, handled_event=TRUE;
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
     switch(eclass)
     {
@@ -1595,6 +1599,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    qt_button_down = NULL;
 		    mouse_button_state = 0;
 		}
+	    } else {
+		handled_event = FALSE;
 	    }
 	} else if(ekind == kEventQtRequestTimer) {
 	    if(!timerList)
@@ -1606,6 +1612,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		QTimerEvent e( t->id );
 		QApplication::sendEvent( t->obj, &e );	// send event
 	    }
+	} else {
+	    handled_event = FALSE;
 	}
 	break;
     case kEventClassMouse:
@@ -1717,6 +1725,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		   qt_closed_popup)
 		    special_close = TRUE;
 	    }
+	    if(special_close) { 	    //We will resend this event later, so just return
+		qt_replay_event = CopyEvent(event);
+		return noErr;
+	    }
 	}
 
 	//figure out which widget to send it to
@@ -1727,10 +1739,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	else
 	    widget = QApplication::widgetAt( where.h, where.v, true );
 
-	if(special_close) {
-	    qt_replay_event = CopyEvent(event);
-	    return 0;
-	}
 	//This mouse button state stuff looks like this on purpose
 	//although it looks hacky it is VERY intentional..
 	if ( widget && app_do_modal && !qt_try_modal(widget, event) ) {
@@ -1858,11 +1866,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    QApplication::sendSpontaneousEvent( widget, &qme );
 		}
 	    }
+	} else {
+	    handled_event = FALSE;
 	}
 	break;
     }
-#if 0 //no need for text input since it doesn't really work yet..
     case kEventClassTextInput:
+#if 0 //no need for text input since it doesn't really work yet..
 	if(!(widget=focus_widget))
 	    return 1; //no use to me!
 	if(ekind == kEventTextInputShowHideBottomWindow) {
@@ -1886,11 +1896,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    QString text = QChar(unicode);
 	    QIMEvent imend(QEvent::IMEnd, text, 1);
 	    QApplication::sendSpontaneousEvent(widget, &imend);
+	} else {
+	    handled_event = FALSE;
 	}
-	break;
+#else
+	handled_event = FALSE;
 #endif
-    case kEventClassKeyboard:
-    {
+	break;
+
+    case kEventClassKeyboard: {
 	UInt32 modif;
 	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(modif), NULL, &modif);
 	int modifiers = get_modifiers(modif);
@@ -1914,9 +1928,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	else if(focus_widget)
 	    widget = focus_widget;
 
-	if(!widget) {
-	    return CallNextEventHandler(er, event);
-	} else {
+	if(widget) {
 	    if ( app_do_modal && !qt_try_modal(widget, event) )
 		return 1;
 
@@ -1968,11 +1980,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    QApplication::sendSpontaneousEvent(widget,&ke);
 		}
 	    }
+	} else {
+	    handled_event = FALSE;
 	}
-	break;
-    }
-    case kEventClassWindow:
-    {
+	break; }
+    case kEventClassWindow: {
 	WindowRef wid;
 	GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
 			  sizeof(WindowRef), NULL, &wid);
@@ -2010,7 +2022,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		}
 	    }
 	    if((flags & kWindowBoundsChangeSizeChanged)) {
-		// nw/nh might not match the actual size if setSizeIncrement is used
 		int nw = nr.right - nr.left, nh = nr.bottom - nr.top;
 		if(widget->width() != nw || widget->height() != nh) {
 		    widget->resize(nw, nh);
@@ -2044,6 +2055,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    app->setActiveWindow(NULL);
 	    while(app->inPopupMode())
 		app->activePopupWidget()->close();
+	} else {
+	    handled_event = FALSE;
 	}
 	break;
     case kEventClassApplication:
@@ -2056,9 +2069,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else if(ekind == kEventAppDeactivated) {
 	    app->clipboard()->saveScrap();
 	    app->setActiveWindow(NULL);
+	} else {
+	    handled_event = FALSE;
 	}
 	break;
-
     case kEventClassMenu:
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	if(ekind == kEventMenuOpening) {
@@ -2076,12 +2090,18 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex, NULL, sizeof(idx), NULL, &idx);
 	    QMenuBar::activate(mr, idx, TRUE);
 	}
+#else
+	handled_event = FALSE;
 #endif
 	break;
     case kAppearanceEventClass:
 #ifndef QT_NO_STYLE_AQUA
 	if(ekind == kAEAppearanceChanged) 
 	    QAquaStyle::appearanceChanged();
+	else
+	    handled_event = FALSE;
+#else
+	handled_event = FALSE;
 #endif
 	break;
     case kEventClassCommand:
@@ -2100,12 +2120,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		qApp->closeAllWindows();
 	    else if(cmd.commandID == kHICommandAbout)
 		QMessageBox::aboutQt(NULL);
+	    else
+		handled_event = FALSE;
 #endif
 	}
 	break;
     }
     }
 
+    // ok we clear all QtRequestContext events from the queue
     if(remove_context_timer) {
 	if(mac_trap_context) {
 	    RemoveEventLoopTimer(mac_trap_context);
@@ -2115,7 +2138,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    request_context_pending = FALSE;
 	    EventRef er;
 	    const EventTypeSpec eventspec = { kEventClassQt, kEventQtRequestContext };
-	    for (;;) {
+	    while(1) {
 		OSStatus ret = ReceiveNextEvent( 1, &eventspec, QMAC_EVENT_NOWAIT, TRUE, &er );
 		if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr)
 		    break;
@@ -2123,13 +2146,16 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    }
 	}
     }
-    return noErr;
+
+    if(!handled_event) //let the event go through
+	return CallNextEventHandler(er, event);
+    return noErr; //we eat the event
 }
 
 void QApplication::processEvents( int maxtime)
 {
-    QTime start = QTime::currentTime();
     QTime now;
+    QTime start = QTime::currentTime();
     while ( !quit_now && processNextEvent(FALSE) ) {
 	now = QTime::currentTime();
 	if ( start.msecsTo(now) > maxtime )
@@ -2149,7 +2175,7 @@ bool QApplication::hasPendingEvents()
 
   If you create an application that inherits QApplication and
   reimplement this function, you get direct access to all Carbon Events
-  that the are received from the MacOS.
+  that are received from the MacOS.
 
   Return TRUE if you want to stop the event from being processed, or
   return FALSE for normal event dispatching.
@@ -2157,7 +2183,7 @@ bool QApplication::hasPendingEvents()
 
 bool QApplication::macEventFilter( EventRef )
 {
-    return 0;
+    return FALSE;
 }
 
 void QApplication::openPopup( QWidget *popup )
@@ -2259,24 +2285,22 @@ int QApplication::wheelScrollLines()
 void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 {
     switch (effect) {
+    case UI_FadeMenu:
+	fade_menu = enable;
+	if( !enable )
+	    break;
     case UI_AnimateMenu:
 	animate_menu = enable;
 	break;
-    case UI_FadeMenu:
-	if ( enable )
-	    animate_menu = TRUE;
-	fade_menu = enable;
-	break;
-    case UI_AnimateCombo:
-	animate_combo = enable;
-	break;
+    case UI_FadeTooltip:
+	fade_tooltip = enable;
+	if( !enable )
+	    break;
     case UI_AnimateTooltip:
 	animate_tooltip = enable;
 	break;
-    case UI_FadeTooltip:
-	if ( enable )
-	    animate_tooltip = TRUE;
-	fade_tooltip = enable;
+    case UI_AnimateCombo:
+	animate_combo = enable;
 	break;
     default:
 	animate_ui = enable;
