@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#24 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#23 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#24 $")
 
 
 /*! \class QLCDNumber qlcdnum.h
@@ -24,9 +24,28 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#23 $")
 
   \ingroup realwidgets
 
-  This class is not yet documented.  Our <a
-  href=http://www.troll.no/>home page</a> contains a pointer to the
-  current version of Qt. */
+  It can display a number in just about any size, in decimal,
+  hexadecimal, octal or binary notation, and is easy to connect to
+  data sources via the display() slot, which is overloaded to take any
+  of five argument types.
+
+  There are also slots to change the \link setMode() notation mode
+  \endlink and \link decimal point mode. \endlink
+
+  QLCDNumber emits the overflow() signal when it is asked to display
+  something beyond its range.  The range is set by setNumDigits() (but
+  smallDecimalPoint() influences it too).
+
+  These digits and other symbols can be shown: 0/O, 1, 2, 3, 4, 5/S,
+  6, 7, 8, 9/g, -, ., A, B, C, D, E, F, h, H, L, o, P, r, u, U, Y, :,
+  ' (single quote) and space.  QLCDNumber substitutes spaces for
+  illegal characters.
+
+  Incidentally, QLCDNumber is the very oldest part of Qt, tracing back
+  to a BASIC program on the <a
+  href=http://www.nvg.unit.no/spectrum/>Sinclair Spectrum</a>.
+
+  \sa QLabel QFrame */
 
 
 static QString long2string( long num, int base, int ndigits, bool *oflow )
@@ -184,6 +203,14 @@ char *getSegments( char ch )			// gets list of segments for ch
 	return segments[28];
     return segments[29];
 }
+
+
+/*! The default constructor sets the number of digits to 5, the base
+  to decimal, the decimal point mode to 'small' and the frame style to
+  a raised box.
+
+  \sa setNumDigits() set
+
 
 
 QLCDNumber::QLCDNumber( QWidget *parent, const char *name )
@@ -376,7 +403,7 @@ void QLCDNumber::setMode( Mode m )
     display( "" );
 }
 
-void QLCDNumber::smallDecimalPoint( bool b )
+void QLCDNumber::setSmallDecimalPoint( bool b )
 {
     if ( (bool)smallPoint == b )
 	return;
