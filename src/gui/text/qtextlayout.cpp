@@ -257,8 +257,8 @@ bool QTextInlineObject::isRightToLeft() const
 
     \internal
 
-    \vaue None
-    \vaue UseTextColor
+    \value None
+    \value UseTextColor
 */
 
 /*!

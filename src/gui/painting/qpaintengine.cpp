@@ -18,7 +18,7 @@
 
 #include <private/qfontengine_p.h>
 
-/*!  class QPaintEngine qpaintengine.h
+/*! \class QPaintEngine qpaintengine.h
   \brief The QPaintEngine class provides an abstract definition of how
   QPainter draws to a given device on a given platform.
 
@@ -299,7 +299,7 @@ void QPaintEngine::setRenderHints(QPainter::RenderHints hints)
 }
 
 /*!
-  Clears the render hints specified by \hints
+  Clears the render hints specified by \a hints.
 */
 void QPaintEngine::clearRenderHints(QPainter::RenderHints hints)
 {

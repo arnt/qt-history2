@@ -38,7 +38,7 @@ public:
 #define q q_func()
 
 /*!
-    \class QCheckBox qcheckbox.h
+    \class QCheckBox
     \brief The QCheckBox widget provides a checkbox with a text label.
 
     \ingroup basic
@@ -68,11 +68,12 @@ public:
     The text can be set in the constructor or with setText(); the
     pixmap is set with setPixmap().
 
-    \important text(), setText(), text(), pixmap(), setPixmap(),
-    accel(), setAccel(), isToggleButton(), setDown(), isDown(),
-    isOn(), state(), autoRepeat(), isExclusiveToggle(), group(),
-    setAutoRepeat(), toggle(), pressed(), released(), clicked(),
-    toggled(), state() stateChanged()
+    Important inherited functions: text(), setText(), text(),
+    pixmap(), setPixmap(), accel(), setAccel(), isToggleButton(),
+    setDown(), isDown(), isOn(), state(), autoRepeat(),
+    isExclusiveToggle(), group(), setAutoRepeat(), toggle(),
+    pressed(), released(), clicked(), toggled(), state(), and
+    stateChanged().
 
     \inlineimage qchkbox-m.png Screenshot in Motif style
     \inlineimage qchkbox-w.png Screenshot in Windows style

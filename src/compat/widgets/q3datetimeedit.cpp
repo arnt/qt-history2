@@ -1538,7 +1538,7 @@ bool Q3DateEdit::setFocusSection(int s)
     current millennium, i.e. 2000, will be added giving a year
     in the range 2100..2999.
     \i If the day or month is 0 then it will be set to 1 or the
-    minimum valid day\month in the range.
+    minimum valid day/month in the range.
     \endlist
 
 */

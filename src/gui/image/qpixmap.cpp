@@ -170,8 +170,10 @@ QPixmap::Optimization QPixmap::defOptim = QPixmap::NormalOptim;
 
 
 /*!
-  \Internal
-  Private constructor which takes the bitmap flag, the optimization.and a screen.
+    \internal
+
+    Private constructor that takes the bitmap flag, the optimization,
+    and a screen.
 */
 
 QPixmap::QPixmap(int w, int h, int depth, bool bitmap,

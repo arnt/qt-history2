@@ -1965,7 +1965,7 @@ QX11Info *QPixmap::x11Info() const
     masked drawing.
 
     \a sx, \a sy is the top-left pixel in \a src (0, 0 by default), \a
-    dx, \a dy is the top-left position in \a dst and \a sw, \sh is the
+    dx, \a dy is the top-left position in \a dst and \a sw, \a sh is the
     size of the copied block (all of \a src by default).
 
     If \a src, \a dst, \a sw or \a sh is 0 (zero), copyBlt() does

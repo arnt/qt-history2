@@ -94,7 +94,7 @@ QFilePrivate::openExternalFile(int flags, int fd)
     with flush(). Data is usually read and written using QDataStream
     or QTextStream, but you can read with readBlock() and readLine()
     and write with writeBlock(). QFile also supports getch(),
-    ungetch() and putch().
+    ungetch(), and putch().
 
     The size of the file is returned by size(). You can get the
     current file position or move to a new file position using the
@@ -141,8 +141,6 @@ QFilePrivate::openExternalFile(int flags, int fd)
     Qt uses Unicode file names. If you want to do your own I/O on Unix
     systems you may want to use encodeName() (and decodeName()) to
     convert the file name into the local encoding.
-
-    \important readAll() at()
 
     \sa QDataStream, QTextStream
 */

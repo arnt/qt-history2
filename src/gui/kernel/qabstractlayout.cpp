@@ -1156,7 +1156,7 @@ void QLayout::addChildWidget(QWidget *w)
 /*!
 
   Sets this layout's parent widget to a fixed size with width \a w and
-  height \h, stopping the user form resizing it, and also preventss the
+  height \a h, stopping the user form resizing it, and also prevents the
   layout from resizing it, even if the layout's size hint should
   change. Does nothing if this is not a toplevel layout (isTopLevel()
   returns true).

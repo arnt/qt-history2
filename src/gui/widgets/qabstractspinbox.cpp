@@ -1045,7 +1045,7 @@ QCoreVariant QAbstractSpinBoxPrivate::bound(const QCoreVariant &val, const QCore
     \internal
 
     Sets the value of the spin box to \a val. Depending on the value
-    of \ep it will also emit signals.
+    of \a ep it will also emit signals.
 */
 
 void QAbstractSpinBoxPrivate::setValue(const QCoreVariant &val, EmitPolicy ep)

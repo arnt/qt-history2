@@ -406,8 +406,8 @@ int QAbstractSlider::sliderPosition() const
     \property QAbstractSlider::value
     \brief the slider's current value
 
-   The slider forces the value to be within the legal range (\lminimum
-   <= \l value <= \l maximum).
+   The slider forces the value to be within the legal range (\l
+   minimum <= \l value <= \l maximum).
 
    Changing the value also changes the \l sliderPosition.
 */
@@ -550,7 +550,7 @@ void QAbstractSlider::timerEvent(QTimerEvent *e)
 
 /*!  Reimplement this virtual function to track slider changes such as
   \c SliderRangeChange, \c SliderOrientationChange,
-  \cSliderStepsChange, or \c SliderValueChange. The default
+  \c SliderStepsChange, or \c SliderValueChange. The default
   implementation only updates the display.
  */
 void QAbstractSlider::sliderChange(SliderChange)

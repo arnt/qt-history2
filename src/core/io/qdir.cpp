@@ -628,7 +628,7 @@ QDir::absoluteFilePath(const QString &fileName, bool acceptAbsPath) const
     system.
 
     On Windows, convertSeparators("c:/winnt/system32") returns
-    "c:\winnt\system32".
+    "c:\\winnt\\system32".
 
     The returned string may be the same as the argument on some
     operating systems, for example on Unix.

@@ -167,13 +167,6 @@ QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent, Qt::WFlags f)
 	qFatal("Could not parse format 'hh:mm.ss'");
 }
 
-/*!
-    \property QDateTimeEdit::dateTime
-    \brief the QDateTime that is set in the QDateTimeEdit
-
-    \sa setDateTime()
-*/
-
 QDateTime QDateTimeEdit::dateTime() const
 {
     return d->value.toDateTime();
@@ -1345,11 +1338,6 @@ QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::nextPrevSection(SectionF
     }
     return (forward ? last : first);
 }
-
-/*!
-    \internal
-    \reimp
-*/
 
 // QStyleOptionSpinBox QDateTimeEditPrivate::styleOption() const
 // {

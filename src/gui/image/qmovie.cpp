@@ -959,7 +959,7 @@ void QMovie::connectUpdate(QObject* receiver, const char *member)
 }
 
 /*!
-    Disconnects the \a{receiver}'s \a member (or all members if \q
+    Disconnects the \a{receiver}'s \a member (or all members if \a
     member is zero) that were previously connected by connectUpdate().
 */
 void QMovie::disconnectUpdate(QObject* receiver, const char *member)

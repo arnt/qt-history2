@@ -257,7 +257,7 @@ QIconSetIcon *QIconSetData::icon(const QIconSet *iconSet, QIconSet::Size size,
 
 /*!
     \enum QIconSet::PixmapGeneratorFn
-    \interna
+    \internal
 */
 
 /*!

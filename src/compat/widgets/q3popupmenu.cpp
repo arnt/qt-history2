@@ -206,8 +206,6 @@ static QStyleOptionMenuItem getStyleOption(const Q3PopupMenu *pop, const Q3MenuI
     \link menu-example.html menu/menu.cpp\endlink is an example of
     Q3MenuBar and Q3PopupMenu use.
 
-    \important insertItem removeItem removeItemAt clear text pixmap iconSet insertSeparator changeItem whatsThis setWhatsThis accel setAccel setItemEnabled isItemEnabled setItemVisible isItemVisible setItemChecked isItemChecked connectItem disconnectItem setItemParameter itemParameter
-
     \sa Q3MenuBar
     \link guibooks.html#fowler GUI Design Handbook: Menu, Drop-Down and
     Pop-Up\endlink

@@ -283,7 +283,7 @@ bool QTreeModel::insertRows(int row, const QModelIndex &parent, int)
 }
 
 /*!
-  Removes the given \a row from the \parent item, and returns true
+  Removes the given \a row from the \a parent item, and returns true
   if successful; otherwise false is returned. */
 
 bool QTreeModel::removeRows(int row, const QModelIndex &parent, int)

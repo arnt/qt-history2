@@ -917,13 +917,9 @@ QString QHttpResponseHeader::toString() const
     obtained using method(), path(), majorVersion() and
     minorVersion().
 
-    This class is a QHttpHeader subclass so that class's functions,
-    e.g. \link QHttpHeader::setValue() setValue()\endlink, \link
-    QHttpHeader::value() value()\endlink, etc. are also available.
+    Important inherited functions: setValue() and value().
 
     \sa QHttpResponseHeader QHttp
-
-    \important value() setValue()
 */
 
 /*!

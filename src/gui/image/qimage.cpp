@@ -5872,7 +5872,7 @@ haveSamePalette(const QImage& a, const QImage& b)
     (\a dst).
 
     \a sx, \a sy is the top-left pixel in \a src, \a dx, \a dy
-    is the top-left position in \a dst and \a sw, \sh is the
+    is the top-left position in \a dst and \a sw, \a sh is the
     size of the copied block.
 
     The copying is clipped if areas outside \a src or \a dst are
@@ -5883,8 +5883,8 @@ haveSamePalette(const QImage& a, const QImage& b)
 
     Currently inefficient for non 32-bit images.
 */
-void bitBlt(QImage* dst, int dx, int dy, const QImage* src,
-                int sx, int sy, int sw, int sh, int conversion_flags)
+void bitBlt(QImage *dst, int dx, int dy, const QImage *src, int sx, int sy, int sw, int sh,
+            int conversion_flags)
 {
     // Parameter correction
     if (sw < 0) sw = src->width();

@@ -531,7 +531,7 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
 }
 
 /*!
-    \class QMenu qmenu.h
+    \class QMenu
     \brief The QMenu class provides a menu widget for use in menu
     bars, context menus, and other popup menus.
 
@@ -586,7 +586,8 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     \link menu-example.html menu/menu.cpp\endlink is an example of
     QMenuBar and QMenu use.
 
-    \important addAction removeAction clear addSeparator addMenu
+    Important inherited functions: addAction(), removeAction(), clear(),
+    addSeparator(), and addMenu().
 
     \inlineimage qmenu-m.png Screenshot in Motif style
     \inlineimage qmenu-w.png Screenshot in Windows style

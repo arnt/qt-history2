@@ -22,7 +22,7 @@
 #include "qstyleoption.h"
 
 /*!
-    \class QRadioButton qradiobutton.h
+    \class QRadioButton
     \brief The QRadioButton widget provides a radio button with a text or pixmap label.
 
     \ingroup basic
@@ -48,12 +48,12 @@
     pixmap. The text can be set in the constructor or with setText();
     the pixmap is set with setPixmap().
 
+    Important inherited members: text(), setText(), text(),
+    setDown(), isDown(), autoRepeat(), group(), setAutoRepeat(),
+    toggle(), pressed(), released(), clicked(), and toggled().
+
     \inlineimage qradiobt-m.png Screenshot in Motif style
     \inlineimage qradiobt-w.png Screenshot in Windows style
-
-    \important text(), setText(), text(), setDown(), isDown(),
-    autoRepeat(), group(), setAutoRepeat(), toggle(), pressed(),
-    released(), clicked(), toggled()
 
     \sa QPushButton QToolButton
     \link guibooks.html#fowler GUI Design Handbook: Radio Button\endlink

@@ -293,10 +293,8 @@ static int indexOfItem(Q3ListViewItem *item)
 #endif
 
 /*!
-  \internal
-  Creates a string with ... like "Trollte..." or "...olltech" depending on the alignment
+    Creates a string with ... like "Trollte..." or "...olltech", depending on the alignment.
 */
-
 static QString qEllipsisText(const QString &org, const QFontMetrics &fm, int width, int align)
 {
     int ellWidth = fm.width("...");
@@ -1910,8 +1908,8 @@ const QPixmap * Q3ListViewItem::pixmap(int column) const
 }
 
 
-/*!
-    This virtual function paints the contents of one column of an item
+/*
+    This function paints the contents of one column of an item
     and aligns it as described by \a align.
 
     \a p is a QPainter open on the relevant paint device. \a p is

@@ -206,7 +206,7 @@ void QUrlInfo::setName(const QString &name)
 
 
 /*!
-    If \a b is true then the URL is set to be a directory; if \b is
+    If \a b is true then the URL is set to be a directory; if \a b is
     false then the URL is set not to be a directory (which normally
     means it is a file). (Note that a URL can refer to both a file and
     a directory even though most file systems do not support this.)

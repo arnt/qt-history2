@@ -203,7 +203,7 @@ QAction::QAction(const QIconSet &icon, const QString &text, QWidget* parent)
 }
 
 /*!
-    Constructs an action with some \a text and a keyboard \shortcut
+    Constructs an action with some \a text and a keyboard \a shortcut
     for the \a parent action group. The action will be automatically
     inserted into the action group.
 */

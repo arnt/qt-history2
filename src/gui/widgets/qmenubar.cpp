@@ -268,7 +268,7 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
 }
 
 /*!
-    \class QMenuBar qmenubar.h
+    \class QMenuBar
     \brief The QMenuBar class provides a horizontal menu bar.
 
     \ingroup application
@@ -289,8 +289,6 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
     There is no need to lay out a menu bar. It automatically sets its
     own geometry to the top of the parent widget and changes it
     appropriately whenever the parent is resized.
-
-    \important addMenu insertMenu clear
 
     Example of creating a menu bar with menu items (from \l menu/menu.cpp):
     \quotefile menu/menu.cpp

@@ -50,7 +50,7 @@ extern int qt_xfocusout_grab_counter; // defined in qapplication_x11.cpp
 #endif
 
 /*!
-    \class Q3MenuBar q3menubar.h
+    \class Q3MenuBar
     \brief The Q3MenuBar class provides a horizontal menu bar.
 
     \ingroup application
@@ -75,8 +75,6 @@ extern int qt_xfocusout_grab_counter; // defined in qapplication_x11.cpp
     There is no need to lay out a menu bar. It automatically sets its
     own geometry to the top of the parent widget and changes it
     appropriately whenever the parent is resized.
-
-    \important insertItem removeItem clear insertSeparator setItemEnabled isItemEnabled setItemVisible isItemVisible
 
     Example of creating a menu bar with menu items (from \l menu/menu.cpp):
     \quotefile menu/menu.cpp

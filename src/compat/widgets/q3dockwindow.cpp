@@ -1627,10 +1627,11 @@ int Q3DockWindow::closeMode() const
     A dock window is horizontally stretchable if you call
     setHorizontallyStretchable(true) or setResizeEnabled(true).
 
-    \sa setResizeEnabled()
+    \warning Stretchability is broken. You must call
+    setResizeEnabled(TRUE) to get proper behavior and even then
+    Q3DockWindow does not limit stretchablilty.
 
-    \bug Strecthability is broken. You must call setResizeEnabled(TRUE) to get
-    proper behavior and even then Q3DockWindow does not limit stretchablilty.
+    \sa setResizeEnabled()
 */
 
 void Q3DockWindow::setHorizontallyStretchable(bool b)
@@ -1647,8 +1648,9 @@ void Q3DockWindow::setHorizontallyStretchable(bool b)
 
     \sa setResizeEnabled()
 
-    \bug Strecthability is broken. You must call setResizeEnabled(TRUE) to get
-    proper behavior and even then Q3DockWindow does not limit stretchablilty.
+    \warning Stretchability is broken. You must call
+    setResizeEnabled(TRUE) to get proper behavior and even then
+    Q3DockWindow does not limit stretchablilty.
 */
 
 void Q3DockWindow::setVerticallyStretchable(bool b)
@@ -1674,10 +1676,11 @@ bool Q3DockWindow::isVerticallyStretchable() const
     This property can be set using setHorizontallyStretchable() and
     setVerticallyStretchable(), or with setResizeEnabled().
 
-    \sa setResizeEnabled()
+    \warning Stretchability is broken. You must call
+    setResizeEnabled(TRUE) to get proper behavior and even then
+    Q3DockWindow does not limit stretchablilty.
 
-    \bug Strecthability is broken. You must call setResizeEnabled(TRUE) to get
-    proper behavior and even then Q3DockWindow does not limit stretchablilty.
+    \sa setResizeEnabled()
 */
 
 bool Q3DockWindow::isStretchable() const

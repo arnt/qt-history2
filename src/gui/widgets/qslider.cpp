@@ -167,8 +167,6 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
     \inlineimage qslider-m.png Screenshot in Motif style
     \inlineimage qslider-w.png Screenshot in Windows style
 
-    \important setRange
-
     \sa QScrollBar QSpinBox
     \link guibooks.html#fowler GUI Design Handbook: Slider\endlink
 */

@@ -377,7 +377,7 @@ struct ModifKeyName {
 Q_GLOBAL_STATIC(QList<ModifKeyName>, globalModifs)
 
 /*!
-  Constructs a single key from the string \str.
+  Constructs a single key from the string \a str.
 */
 int QKeySequence::decodeString(const QString &str)
 {
