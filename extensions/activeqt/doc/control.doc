@@ -402,6 +402,9 @@
     \i QValueList\<QVariant\>
     \i SAFEARRAY(VARIANT)
     \row
+    \i QStringList
+    \i SAFEARRAY(BSTR)
+    \row
     \i QByteArray
     \i SAFEARRAY(BYTE)
     \row
@@ -493,7 +496,13 @@
     \row
     \i QValueList\<QVariant\>&
     \i [in, out] SAFEARRAY(VARIANT)*
-    \row	
+    \row
+    \i QStringList, const QStringList&
+    \i [in] SAFEARRAY(BSTR)
+    \row
+    \i QStringList&
+    \i [in, out] SAFEARRAY(BSTR)*
+    \row
     \i QByteArray, const QByteArray&
     \i [in] SAFEARRAY(BYTE)
     \row
@@ -507,7 +516,8 @@
     \footnote
     OLE needs to marshal user defined types by reference (ByRef), and cannot 
     marshal them by value (ByVal). This is why const-references and object
-    parameters are not supported for QRect, QSize and QPoint.
+    parameters are not supported for QRect, QSize and QPoint. Also note that
+    servers with this datatype require Windows 98 or DCOM 1.2 to be installed.
     \endfootnote
     \i [in, out] struct QRect (user defined)
     \row
@@ -532,9 +542,9 @@
 
     Any QObject subclass can be used as the type for a sub object in ActiveX. The
     QAxFactory implementation (see below) needs to return the classname of the
-    sub type as one key in the featureList() implementation, as well as the IDs for 
-    the COM class, the interface and event interface of that type. Then the type can 
-    be used as e.g. the return value or paramter of a slot.
+    sub type as one key in the featureList() implementation, as well as the IDs 
+    for the COM class, the interface and event interface of that type. Then the
+    type can be used as e.g. the return value or paramter of a slot.
 
     \section2 Property Notification
 
