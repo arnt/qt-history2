@@ -2657,6 +2657,7 @@ static FWord getFWord(BYTE* s)  { return (FWord)  getUSHORT(s); }
 static uFWord getuFWord(BYTE* s) { return (uFWord) getUSHORT(s); }
 static SHORT getSHORT(BYTE* s)  { return (SHORT)  getUSHORT(s); }
 
+#if 0
 static const char * const Apple_CharStrings[]={
   ".notdef",".null","nonmarkingreturn","space","exclam","quotedbl","numbersign",
   "dollar","percent","ampersand","quotesingle","parenleft","parenright",
@@ -2695,7 +2696,7 @@ static const char * const Apple_CharStrings[]={
   "markingdeletertol","option","escape","parbreakltor","parbreakrtol",
   "newpage","checkmark","linebreakltor","linebreakrtol","markingnobreakspace",
   "diamond","appleoutline"};
-
+#endif
 
 
 #ifdef Q_PRINTER_USE_TYPE42
@@ -4458,7 +4459,7 @@ QPSPrinterFontPFB::QPSPrinterFontPFB(const QFont &f, QByteArray& d)
 
   int pos = 0;
   int len;
-  int typ;
+  //  int typ;
   unsigned char* p = (unsigned char*) data.data();
   QString fontname;
 
@@ -4467,7 +4468,7 @@ QPSPrinterFontPFB::QPSPrinterFontPFB(const QFont &f, QByteArray& d)
     return;
   }
   pos++;
-  typ = p[ pos ]; // 1=ascii 2=binary 3=done
+  //  typ = p[ pos ]; // 1=ascii 2=binary 3=done
   pos++;
   len = p[ pos ];          pos++;
   len |= (p[ pos ] << 8) ; pos++;
