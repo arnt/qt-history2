@@ -610,9 +610,8 @@ QSize QToolBar::minimumSizeHint() const
 }
 
 /*!
-  Sets whether the toolbars toggle buttons are exclusive or not.
-
-  \sa isToggleButtonExclusive  QButton::setToggleButton
+    \property QToolBar::toggleButtonExclusive
+    \brief whether toggle buttons are exclusive or not
 */
 
 void QToolBar::setToggleButtonExclusive( bool exclusive ) {
@@ -621,12 +620,6 @@ void QToolBar::setToggleButtonExclusive( bool exclusive ) {
 
     d->toggleButtonExclusive = exclusive;
 }
-
-/*!
-  Returns TRUE if the toggle buttons in the group are exclusive; otherwise returns FALSE.
-
-  \sa setToggleButtonExclusive
- */
 
 bool QToolBar::isToggleButtonExclusive() const {
     return d->toggleButtonExclusive;
