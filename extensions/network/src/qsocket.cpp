@@ -62,14 +62,13 @@ public:
     bool		newline;		// has newline/can read line
     int			ready_read_timer;	// timer for emit read signals
     QDns	       *dns;
-    bool		firstTime;		// workaround for Windows
 };
 
 QSocketPrivate::QSocketPrivate()
     : state(QSocket::Idle), mode(QSocket::Binary),
       host(QString::fromLatin1("")), port(0),
       socket(0), rsn(0), wsn(0), rsize(0), wsize(0), rindex(0), windex(0),
-      newline(FALSE), ready_read_timer(0), dns(0), firstTime(TRUE)
+      newline(FALSE), ready_read_timer(0), dns(0)
 {
     rba.setAutoDelete( TRUE );
     wba.setAutoDelete( TRUE );
@@ -969,46 +968,72 @@ QString QSocket::readLine()
 
 void QSocket::sn_read()
 {
-    int nbytes = d->socket->bytesAvailable();
-    // Here, nbytes can often be zero on Microsoft Windows the first
-    // time sn_read is invoked where there actually is data on the
-    // socket.  This is because of a bug in ioctlsocket().
-    // We use the firstTime variable to avoid this problem.
-    bool connectionClosed = !d->firstTime && nbytes == 0;
-    d->firstTime = FALSE;
+    char buf[512];
+    int  nbytes = d->socket->bytesAvailable();
+    int  nread;
+    QByteArray *a = 0;
 
-    if ( connectionClosed ) {			// connection closed
+    if ( nbytes <= 0 ) {			// connection closed?
+	// On Windows this may happen when the connection is still open.
+	// This happens when the system is heavily loaded and we have
+	// read all the data on the socket before a new WSAsyncSelect
+	// event is processed. A new read operation would then block.
+	nread = d->socket->readBlock( buf, sizeof(buf) );
+	if ( nread == 0 ) {			// really closed
 #if defined(QSOCKET_DEBUG)
-	qDebug( "QSocket: sn_read: Connection closed" );
+	    qDebug( "QSocket: sn_read: Connection closed" );
 #endif
-	// We keep the open state in case there's unread incoming data
-	d->state = Idle;
-	d->rsn->setEnabled( FALSE );
-	d->wsn->setEnabled( FALSE );
-	d->socket->close();
-	d->wba.clear();				// clear write buffer
-	d->windex = d->wsize = 0;
-	emit closed();
-    } else if ( nbytes > 0 ) {			// data to be read
+	    // We keep the open state in case there's unread incoming data
+	    d->state = Idle;
+	    d->rsn->setEnabled( FALSE );
+	    d->wsn->setEnabled( FALSE );
+	    d->socket->close();	
+	    d->wba.clear();			// clear write buffer
+	    d->windex = d->wsize = 0;
+	    emit closed();
+	    return;
+	} else {
+	    if ( nread < 0 ) {
+#if defined(_OS_WIN32_)
+		if ( WSAGetLastError() == WSAEWOULDBLOCK )
+		    return;			// WSA event too late
+#endif
+#if defined(CHECK_RANGE)
+		qWarning( "QSocket::sn_read: Close error" );
+#endif
+		emit error();			// socket close error
+		return;
+	    }
+	    a = new QByteArray( nread );
+	    memcpy( a->data(), buf, nread );
+	}
+    } else {					// data to be read
 #if defined(QSOCKET_DEBUG)
 	qDebug( "QSocket: sn_read: %d incoming bytes", nbytes );
 #endif
-	QByteArray *a = new QByteArray( nbytes );
-	int nread = d->socket->readBlock( a->data(), nbytes );
+	a = new QByteArray( nbytes );
+	nread = d->socket->readBlock( a->data(), nbytes );
+	if ( nread < 0 ) {
+#if defined(CHECK_RANGE)
+	    qWarning( "QSocket::sn_read: Read error" );
+#endif
+	    delete a;
+	    emit error();			// socket read error
+	}
 	if ( nread != nbytes ) {		// unexpected
 #if defined(CHECK_RANGE)
 	    qWarning( "QSocket::sn_read: Unexpected short read" );
 #endif
 	    a->resize( nread );
 	}
-	d->rba.append( a );
-	d->rsize += nread;
-	if ( d->mode == Ascii )
-	    d->newline = scanNewline();
-	if ( d->ready_read_timer == 0 )
-	    d->ready_read_timer = startTimer( 1000 );
-	emit readyRead();
     }
+    d->rba.append( a );
+    d->rsize += nread;
+    if ( d->mode == Ascii )
+	d->newline = scanNewline();
+    if ( d->ready_read_timer == 0 )
+	d->ready_read_timer = startTimer( 1000 );
+    emit readyRead();
 }
 
 
@@ -1030,7 +1055,6 @@ void QSocket::sn_write()
 #if defined(QSOCKET_DEBUG)
 	qDebug( "QSocket: sn_write: Got connection!" );
 #endif
-	d->firstTime = TRUE;
     }
     flush();
 }
