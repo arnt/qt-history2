@@ -126,19 +126,19 @@ WCHAR *_wgetdcwd( int drive, WCHAR *buffer, int maxlen )
     return wcscpy( buffer, L"\\" );
 }
 
-int _wchdir( const WCHAR *dirname ) 
+int _wchdir( const WCHAR *dirname )
 { 
     return -1;
 }
 
-int _wmkdir( const WCHAR *dirname ) 
+int _wmkdir( const WCHAR *dirname )
 { 
-    return -1; 
+    return CreateDirectory( dirname, 0 ) ? 0 : -1;
 }
 
-int _wrmdir( const WCHAR *dirname ) 
+int _wrmdir( const WCHAR *dirname )
 { 
-    return -1; 
+    return RemoveDirectory( dirname ) ? 0 : -1;
 }
 
 int _waccess( const WCHAR *path, int pmode )
@@ -162,12 +162,12 @@ int _waccess( const WCHAR *path, int pmode )
 
 int _wrename( const WCHAR *oldname, const WCHAR *newname )
 { 
-    return -1; 
+    return !MoveFile( oldname, newname );
 }
 
 int _wremove( const WCHAR *name )
 { 
-    return -1; 
+    return !DeleteFile( name );
 }
 
 int open( const char *filename, int oflag, int pmode ) 
