@@ -44,6 +44,7 @@ typedef unsigned short hide_wchar_t;
 #define strncasecmp(x, y, n) qstrnicmp(x, y, n) 
 #define strdup(x) qstrdup(x)
 
+#include <stddef.h>
 #include <cstdlib> //pull in some posix stuff
 using std::calloc;
 using std::free;
