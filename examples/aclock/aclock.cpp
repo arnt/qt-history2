@@ -42,22 +42,16 @@ void AnalogClock::mouseMoveEvent( QMouseEvent *e )
 	move( e->globalPos() - clickPos );
 }
 
-void AnalogClock::setTime( const QTime & t )
-{
-    time = t;
-    timeout();
-}
-
 //
 // The QTimer::timeout() signal is received by this slot.
 //
 
 void AnalogClock::timeout()
 {
-    QTime new_time = QTime::currentTime();	// get the current time
-    time = time.addSecs( 5 );
-    if ( new_time.minute() != time.minute() 
-	|| new_time.hour() != time.hour() ) {	// minute or hour has changed
+    QTime old_time = time;
+    time = QTime::currentTime();
+    if ( old_time.minute() != time.minute() 
+	|| old_time.hour() != time.hour() ) {	// minute or hour has changed
 	if (autoMask())
 	    updateMask();
 	else
@@ -109,8 +103,7 @@ void AnalogClock::drawClock( QPainter *paint )
     int d = qMin( v.width(), v.height() );
     paint->setViewport( v.left() + (v.width()-d)/2,
 			v.top() + (v.height()-d)/2, d, d );
-
-    // time = QTime::currentTime();
+    
     QPointArray pts;
 
     paint->save();

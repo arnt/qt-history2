@@ -23,9 +23,6 @@ class AnalogClock : public QWidget		// analog clock widget
 public:
     AnalogClock( QWidget *parent=0, const char *name=0 );
     void setAutoMask(bool b);
-
-public slots:    
-    void setTime( const QTime & t );
     
 protected:
     void updateMask();
@@ -35,11 +32,11 @@ protected:
     
 private slots:
     void drawClock( QPainter* );
-    void	timeout();
+    void timeout();
 
 private:
     QPoint clickPos;
-    QTime	time;
+    QTime time;
 };
 
 
