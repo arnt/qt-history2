@@ -21,8 +21,6 @@
 
 #include <qapplication.h>
 #include <qdebug.h>
-#include <qevent.h>
-#include <qmenubar.h>
 #include <qstatusbar.h>
 #include <qstyle.h>
 #include <qvarlengtharray.h>
@@ -851,12 +849,11 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     // the main rect, continue laying out each tool bar line
     int tb_fill = 0;
     if (tb_layout_info.size() != 0) {
-	tb_fill = QApplication::style()->pixelMetric(QStyle::PM_ToolBarHandleExtent)
-                  + QApplication::style()->pixelMetric(QStyle::PM_ToolBarFrameWidth) * 2
+	tb_fill = tb_layout_info.at(0).list.at(0).item->widget()->layout()->margin() * 2
+                  + QApplication::style()->pixelMetric(QStyle::PM_ToolBarHandleExtent)
 		  + QApplication::style()->pixelMetric(QStyle::PM_ToolBarItemSpacing) * 2
                   + QApplication::style()->pixelMetric(QStyle::PM_ToolBarExtensionExtent);
     }
-
     for (int line = 0; line < tb_layout_info.size(); ++line) {
         ToolBarLineInfo &lineInfo = tb_layout_info[line];
         int num_tbs = lineInfo.list.size();
