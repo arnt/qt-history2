@@ -15607,10 +15607,7 @@ QString &QString::setLatin1( const char *str, int len )
     if ( len < 0 )
 	len = qstrlen(str);
     if ( len == 0 ) {                           // won't make a null string
-	deref();
-	uint l;
-	QChar *uc = internalAsciiToUnicode(str,&l);
-	d = new QStringData(uc,l,l);
+	*this = QString::fromLatin1( "" );
     } else {
 	setUnicode( 0, len );                   // resize but not copy
 	QChar *p = d->unicode;
