@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#278 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#279 $
 **
 ** Implementation of QListView widget class
 **
@@ -2643,23 +2643,7 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 
 	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
 	emit rightButtonClicked( i, viewport()->mapToGlobal( vp ), c );
-        return;
     }
-
-    if ( e->button() != LeftButton || !d->buttonDown )
-        return;
-
-    QListViewItem * i = itemAt( vp );
-    if ( !i )
-        return;
-
-    if ( i->isSelectable() )
-        setSelected( i, d->select );
-
-    setCurrentItem( i ); // repaints
-    ensureItemVisible( i );
-
-    return;
 }
 
 
