@@ -110,7 +110,7 @@ void QWSHexDump::hexDump()
         if (wrapIndex && (wrapIndex % clustering == 0))
             *outstrm << " ";
 
-        outstrm->setPadWidth(2);
+        outstrm->setFieldWidth(2);
         outstrm->setPadChar('0');
         outstrm->setf(0, QTextStream::showbase);
         *outstrm << hex << c;
@@ -140,7 +140,7 @@ void QWSHexDump::sideviewDump(int at)
 
         *outstrm << " [";
         outstrm->setPadChar(' ');
-        outstrm->setPadWidth(wrap);
+        outstrm->setFieldWidth(wrap);
         outstrm->setf(QTextStream::left, QTextStream::adjustfield);
         *outstrm << sideview;
         *outstrm << "]";
@@ -511,6 +511,10 @@ QWSCommand *QWSCommand::factory(int type)
 
     case QWSCommand::IMMouse:
         command = new QWSIMMouseCommand;
+        break;
+
+    case QWSCommand::IMResponse:
+        command = new QWSIMResponseCommand;
         break;
 #endif
     case QWSCommand::PositionCursor:
