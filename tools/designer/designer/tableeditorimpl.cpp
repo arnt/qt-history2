@@ -1,6 +1,8 @@
 #include "tableeditorimpl.h"
 #include <qtable.h>
 #include "formwindow.h"
+#include <qlabel.h>
+#include <qcombobox.h>
 
 /*
  *  Constructs a TableEditor which is a child of 'parent', with the
@@ -12,6 +14,10 @@
 TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw, const char* name, bool modal, WFlags fl )
     : TableEditorBase( parent, name, modal, fl ), editTable( (QTable*)editWidget ), formWindow( fw )
 {
+    if ( !editTable->inherits( "QSqlTable" ) ) {
+	labelFields->hide();
+	comboFields->hide();
+    }
 }
 
 /*

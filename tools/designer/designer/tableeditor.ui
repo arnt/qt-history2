@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>627</width>
-            <height>355</height>
+            <width>623</width>
+            <height>353</height>
         </rect>
     </property>
     <property name="caption">
@@ -218,7 +218,7 @@
                     </widget>
                     <widget class="QLabel" row="6" column="0">
                         <property name="name">
-                            <cstring>TextLabel1</cstring>
+                            <cstring>labelFields</cstring>
                         </property>
                         <property name="text">
                             <string>Connected to &amp;field:</string>

@@ -999,7 +999,7 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
 	return;
     }
 
-    if ( className == "QTable" ) {
+    if ( className.contains( "Table" ) ) {
 	TableEditor *e = new TableEditor( parent, editWidget, fw );
 	e->exec();
 	delete e;
