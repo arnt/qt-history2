@@ -1719,6 +1719,8 @@ void QListViewItem::setSelected( bool s )
 	    QAccessible::updateAccessibility( listView()->viewport(), ind, QAccessible::StateChanged );
 	    QAccessible::updateAccessibility( listView()->viewport(), ind, selected ? QAccessible::SelectionAdd : QAccessible::SelectionRemove );
 	}
+#else
+	Q_UNUSED( old );
 #endif
     }
 }
@@ -6129,6 +6131,8 @@ void QCheckListItem::setCurrentState( ToggleState s )
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     if ( old != d->currentState && listView() )
 	QAccessible::updateAccessibility( listView()->viewport(), indexOfItem( this ), QAccessible::StateChanged );
+#else
+    Q_UNUSED( old );
 #endif
 }
 
