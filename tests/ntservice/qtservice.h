@@ -40,7 +40,7 @@ protected:
     virtual void resume();
     virtual void user( int code );
 
-    virtual void reportEvent( const QString &, EventType type = Success, uint category = 0 );
+    virtual void reportEvent( const QString &, EventType type = Success, uint category = 0, const QByteArray &data = QByteArray() );
 
 private:
     QtServicePrivate *d;

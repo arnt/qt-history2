@@ -1,7 +1,6 @@
 #include "qtservice.h"
 #include <qapplication.h>
 #include <qwidget.h>
-#include <qmessagebox.h>
 
 class AService : public QObject, public QtService
 {
