@@ -82,8 +82,8 @@ signals:
 protected slots:
     void updateSection(int section);
     void resizeSections();
-    void sectionsInserted(const QModelIndex &parent, int start, int end);
-    void sectionsRemoved(const QModelIndex &parent, int start, int end);
+    void sectionsInserted(const QModelIndex &parent, int first, int last);
+    void sectionsRemoved(const QModelIndex &parent, int first, int last);
 
 protected:
     void initializeSections(int start, int end);

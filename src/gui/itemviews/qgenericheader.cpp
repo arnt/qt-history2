@@ -462,24 +462,29 @@ void QGenericHeader::initializeSections(int start, int end)
 /*!
 */
 
-void QGenericHeader::sectionsInserted(const QModelIndex &parent, int start, int end)
+void QGenericHeader::sectionsInserted(const QModelIndex &parent, int first, int)
 {
-    if (parent != root() || start < 0 || end < 0)
+    if (parent != root())
         return; // we only handle changes in the top level
-    initializeSections(start, end);
+    if (d->orientation == Qt::Horizontal)
+        initializeSections(first, d->model->columnCount(root()) - 1);
+    else
+        initializeSections(first, d->model->rowCount(root()) - 1);
 }
 
 /*!
 */
 
-void QGenericHeader::sectionsRemoved(const QModelIndex &parent, int start, int)
+void QGenericHeader::sectionsRemoved(const QModelIndex &parent, int first, int last)
 {
     if (parent != root())
         return; // we only handle changes in the top level
+    // the sections have not been removed from the model yet
+    int count = last - first + 1;
     if (d->orientation == Qt::Horizontal)
-        initializeSections(start, d->model->columnCount(root()) - 1);
+        initializeSections(first, d->model->columnCount(root()) - count - 1);
     else
-        initializeSections(start, d->model->rowCount(root()) - 1);
+        initializeSections(first, d->model->rowCount(root()) - count - 1);
 }
 
 /*!
