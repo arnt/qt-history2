@@ -2211,7 +2211,13 @@ then
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
     rm -f src/.moc/$QMAKE_OUTDIR/allmoc.cpp # needs remaking if config changes
 fi
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$outpath/lib\""
+### couldn't we use something like
+### 	QMAKE_OUT_QTDIR=".."
+### 	[ "$OPT_SHADOW" = "yes" ] && QMAKE_OUT_QTDIR="${outpath}"
+### instead of the line below like it's done later on?
+qdir="\$(QTDIR)"
+[ "$OPT_SHADOW" = "yes" ] && qdir="$outpath"
+QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$qdir/lib\""
 QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
 
 if [ "$CFG_SHARED" = "no" ]
