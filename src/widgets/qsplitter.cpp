@@ -1202,8 +1202,7 @@ QValueList<int> QSplitter::sizes() const
     QSplitterLayoutStruct *s = d->list.first();
     while ( s ) {
 	if ( !s->isSplitter ) {
-	    QCOORD sz = (s->wid->x() < 0 || s->wid->y() < 0) ? 0 : s->getSizer(orient);
-	    list.append( sz );
+	    list.append( inFirstQuadrant( s->wid ) ? s->getSizer(orient) : 0 );
 	}
 	s = d->list.next();
     }
