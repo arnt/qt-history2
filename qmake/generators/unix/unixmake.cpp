@@ -306,7 +306,7 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
 void
 UnixMakefileGenerator::processPrlVariable(const QString &var, const QStringList &l)
 {
-    if(var == "QMAKE_PRL_LIBS") 
+    if(var == "QMAKE_PRL_LIBS")
 	project->variables()["QMAKE_CURRENT_PRL_LIBS"] = combineSetLFlags(project->variables()["QMAKE_CURRENT_PRL_LIBS"] +
 									  project->variables()["QMAKE_LIBS"], l);
     else
@@ -323,7 +323,7 @@ UnixMakefileGenerator::findDependency(const QString &dep)
 	    QString targ = var((*it) + ".target");
 	    if(targ.isEmpty())
 		targ = (*it);
-	    if(targ.endsWith(dep)) 
+	    if(targ.endsWith(dep))
 		return targ;
 	}
     }
@@ -342,7 +342,7 @@ UnixMakefileGenerator::findDependency(const QString &dep)
 		    QFileInfo fi(Option::fixPathToLocalOS((*input)));
 		    out.replace("${QMAKE_FILE_BASE}", fi.baseName());
 		    out.replace("${QMAKE_FILE_NAME}", fi.fileName());
-		    if(out.endsWith(dep)) 
+		    if(out.endsWith(dep))
 			return out;
 		}
 	    }
@@ -351,11 +351,11 @@ UnixMakefileGenerator::findDependency(const QString &dep)
     return MakefileGenerator::findDependency(dep);
 }
 
-QStringList 
+QStringList
 &UnixMakefileGenerator::findDependencies(const QString &file)
 {
     QStringList &ret = MakefileGenerator::findDependencies(file);
-    if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPH") && 
+    if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPH") &&
        project->isActiveConfig("native_precompiled_headers")) {
 	if(file.endsWith(".c")) {
 	    QString precomp_h = fileFixify(project->first("PRECOMPH") + ".gch/ppc_c");
@@ -549,7 +549,7 @@ UnixMakefileGenerator::processPrlFiles()
 	    }
 	    if(ret && l != l_out)
 		l = l_out;
-	    else 
+	    else
 		break;
 	}
     }

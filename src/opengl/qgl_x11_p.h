@@ -46,7 +46,7 @@
 
 #ifdef QT_DLOPEN_OPENGL
 // resolve the GL symbols we use ourselves
-void qt_resolve_gl_symbols();
+bool qt_resolve_gl_symbols(bool = TRUE);
 extern "C" {
 // GL symbols
 typedef void (*_glCallLists)( GLsizei n, GLenum type, const GLvoid *lists );
@@ -163,6 +163,6 @@ extern _glXWaitX qt_glXWaitX;
 #define glXWaitX qt_glXWaitX
 
 #else
-inline void qt_resolve_gl_symbols() {}
+inline bool qt_resolve_gl_symbols(bool = TRUE) { return TRUE; }
 #endif // QT_DLOPEN_OPENGL
 #endif // QGL_P_H

@@ -47,9 +47,9 @@ extern "C" {
 }
 #endif
 
+#include "qgl_x11_p.h"
 #ifdef QT_DLOPEN_OPENGL
 #include "qlibrary.h"
-#include "qgl_x11_p.h"
 
 extern "C" {
 _glCallLists qt_glCallLists;
@@ -90,11 +90,11 @@ _glXUseXFont qt_glXUseXFont;
 _glXWaitX qt_glXWaitX;
 };
 
-void qt_resolve_gl_symbols()
+bool qt_resolve_gl_symbols(bool fatal)
 {
     static bool gl_syms_resolved = FALSE;
     if (gl_syms_resolved)
-	return;
+	return TRUE;
 
     QLibrary gl("GL");
     gl.setAutoUnload(FALSE);
@@ -102,9 +102,9 @@ void qt_resolve_gl_symbols()
     qt_glCallLists = (_glCallLists) gl.resolve("glCallLists");
 
     if (!qt_glCallLists) { // if this fails the rest will surely fail
-	qFatal("Unable to resolve GL/GLX symbols - please check your GL library installation.");
-	gl_syms_resolved = TRUE;
-	return;
+	if (fatal)
+	    qFatal("Unable to resolve GL/GLX symbols - please check your GL library installation.");
+	return FALSE;
     }
 
     qt_glClearColor = (_glClearColor) gl.resolve("glClearColor");
@@ -143,10 +143,8 @@ void qt_resolve_gl_symbols()
     qt_glXUseXFont = (_glXUseXFont) gl.resolve("glXUseXFont");
     qt_glXWaitX = (_glXWaitX) gl.resolve("glXWaitX");
     gl_syms_resolved = TRUE;
-    return;
+    return TRUE;
 }
-#else
-inline void qt_resolve_gl_symbols() {}
 #endif // QT_DLOPEN_OPENGL
 
 
@@ -360,7 +358,8 @@ static void find_trans_colors()
 
 bool QGLFormat::hasOpenGL()
 {
-    qt_resolve_gl_symbols();
+    if (!qt_resolve_gl_symbols(FALSE))
+	return FALSE;
     return glXQueryExtension(qt_xdisplay(),0,0) != 0;
 }
 

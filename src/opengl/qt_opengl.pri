@@ -11,7 +11,8 @@ opengl {
 	}
 	else:mac:SOURCES += $$OPENGL_CPP/qgl_mac.cpp
 	else:win32:SOURCES += $$OPENGL_CPP/qgl_win.cpp
-}
 
+	dlopen_opengl:DEFINES+=QT_DLOPEN_OPENGL
+}
 
 

@@ -1726,8 +1726,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	    MODULES=`echo $MODULES | sed -e 's/opengl//'`
         else
 	    if [ "$CFG_DLOPEN_OPENGL" = "yes" ]; then
-		QMAKE_VARS="$QMAKE_VARS DEFINES+=QT_DLOPEN_OPENGL"
-		QMAKE_VARS="$QMAKE_VARS QMAKE_LIBS_OPENGL_QT="
+		QMAKE_CONFIG="$QMAKE_CONFIG dlopen_opengl"
 	    fi
 	fi
     fi
