@@ -619,6 +619,7 @@ static bool matchDeclList( Decl *context )
 			 "Needless ';' after 'Q_OBJECT' in C++ source" );
 	    break;
 	case Tok_Q_ENUMS:
+        case Tok_Q_FLAGS:
 	case Tok_Q_SETS:
 	case Tok_Q_DUMMY_COMPARISON_OPERATOR:
 	    yyTok = getToken();

@@ -28,11 +28,12 @@ enum { Tok_Eoi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
        Tok_Comment, Tok_Ident,
 
        Tok_char, Tok_class, Tok_const, Tok_double, Tok_enum, Tok_int,
-       Tok_long, Tok_namespace, Tok_operator, Tok_private, Tok_protected,
-       Tok_public, Tok_short, Tok_signals, Tok_signed, Tok_slots, Tok_static,
-       Tok_struct, Tok_template, Tok_typedef, Tok_union, Tok_unsigned,
-       Tok_virtual, Tok_void, Tok_volatile, Tok_Q_DUMMY_COMPARISON_OPERATOR,
-       Tok_Q_ENUMS, Tok_Q_OBJECT, Tok_Q_OVERRIDE, Tok_Q_PROPERTY,
+       Tok_long, Tok_namespace, Tok_operator, Tok_private,
+       Tok_protected, Tok_public, Tok_short, Tok_signals, Tok_signed,
+       Tok_slots, Tok_static, Tok_struct, Tok_template, Tok_typedef,
+       Tok_union, Tok_unsigned, Tok_virtual, Tok_void, Tok_volatile,
+       Tok_Q_DUMMY_COMPARISON_OPERATOR, Tok_Q_ENUMS, Tok_Q_FLAGS,
+       Tok_Q_OBJECT, Tok_Q_OVERRIDE, Tok_Q_PROPERTY,
        Tok_QDOC_PROPERTY, Tok_Q_SETS,
 
        Tok_FirstKeyword = Tok_char, Tok_LastKeyword = Tok_Q_SETS };
