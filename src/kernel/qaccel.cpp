@@ -395,7 +395,7 @@ void QAccel::repairEventFilter()
 	ntlw = d->watch->topLevelWidget();
     else
 	ntlw = 0;
-    
+
     if ( (QWidget*) d->tlw != ntlw ) {
 	if ( d->tlw )
 	    d->tlw->removeEventFilter( this );
@@ -768,7 +768,9 @@ The
 Microsoft book</a> has ISBN 1556156790.  The corresponding
 <a href="http://www.amazon.com/exec/obidos/ASIN/1859121047/trolltech/t">
 Open Group book</a> has ISBN 1859121047.  (The link does not work at
-the time of writing, but is correct: The books is simply hard to get
-hold of.  OGPubs@opengroup.org may be able to help, at a price.)
+the time of writing, since Amazon, like most book stores, does not
+supply it.  The Open Group books are \e very hard to find, and
+also rather expensive.  If you really want it, OGPubs@opengroup.org
+may be able to help.)
 
 */
