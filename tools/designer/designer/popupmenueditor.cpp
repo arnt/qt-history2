@@ -782,8 +782,15 @@ void PopupMenuEditor::mouseDoubleClickEvent( QMouseEvent * e )
 {
     QPoint pos = e->pos();
     currentItem()->setDirty( TRUE );
-    setFocusAt( pos );
+    setFocusAt( mousePressPos );
     currentItem()->setDirty( TRUE );
+
+    if ( currentItem() == &addSeparator ) {
+	PopupMenuEditorItem * i = createItem( new QSeparatorAction( 0 ) );
+	i->setSeparator( TRUE );
+	return;
+    }
+    
     if ( currentField == 0 ) {
 	choosePixmap();
 	resizeToContents();
@@ -1422,10 +1429,13 @@ void PopupMenuEditor::leaveEditMode( QKeyEvent * e )
     setFocus();
     lineEdit->hide();
 
-    if ( e && e->key() == Qt::Key_Escape )
-	return;
-
     PopupMenuEditorItem * i = 0;
+    if ( e && e->key() == Qt::Key_Escape ) {
+ 	drawAll++;
+ 	update();
+	return;
+    }
+	
     if ( currentIndex >= (int)itemList.count() ) {
 	QAction * a = formWnd->mainWindow()->actioneditor()->newActionEx();
 	i = createItem( a );
@@ -1442,8 +1452,10 @@ void PopupMenuEditor::leaveEditMode( QKeyEvent * e )
 	formWnd->commandHistory()->addCommand( cmd );
 	cmd->execute();
     }
-
     resizeToContents();
+
+    if ( !i )
+	return;
 
     if ( i->isSeparator() )
 	hideSubMenu();
