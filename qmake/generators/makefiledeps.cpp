@@ -531,6 +531,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                         if(fi.exists() && !fi.isDir()) {
                             lfn = fixPathForFile(f);
                             exists = true;
+                            break;
                         }
                     }
                 }
