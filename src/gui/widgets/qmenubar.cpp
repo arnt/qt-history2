@@ -107,7 +107,9 @@ void QMenuBarPrivate::setKeyboardMode(bool b)
     d->altPressed = false;
     d->keyboardState = b;
     if(b) {
-        d->keyboardFocusWidget = qApp->focusWidget();
+        QWidget *fw = qApp->focusWidget();
+        if (fw != q)
+            d->keyboardFocusWidget = qApp->focusWidget();
         q->setFocus();
     } else {
         if(d->keyboardFocusWidget) {

@@ -1741,10 +1741,9 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         {
             QPointer<QWidget> caused = d->causedPopup;
             hide(); //hide after getting causedPopup
-            if(caused) {
-                if(QMenuBar *mb = qt_cast<QMenuBar*>(caused))
-                    mb->d->setCurrentAction(d->menuAction);
-                caused->setFocus();
+            if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
+                mb->d->setCurrentAction(d->menuAction);
+                mb->d->setKeyboardMode(true);
             }
         }
         break;
