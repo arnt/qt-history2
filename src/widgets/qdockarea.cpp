@@ -541,7 +541,7 @@ void QDockArea::removeDockWidget( QDockWidget *w, bool makeFloating, bool swap )
     if ( lineStarts.findRef( dockWidget ) != -1 && i < (int)dockWidgets->count() )
 	dockWidgets->at( i )->setNewLine( TRUE );
     if ( makeFloating )
-	dockWidget->reparent( topLevelWidget(), WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog, 
+	dockWidget->reparent( topLevelWidget(), WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog,
 			      QPoint( 0, 0 ), FALSE );
     if ( swap )
 	dockWidget->resize( dockWidget->height(), dockWidget->width() );
@@ -571,9 +571,6 @@ bool QDockArea::eventFilter( QObject *o, QEvent *e )
 		removeDockWidget( (QDockWidget*)o, FALSE, FALSE );
 	    return TRUE;
 	}
-    } else if ( o == this && e->type() == QEvent::Resize ) {
-	if ( orientation() == Vertical ) // #### as we have no widthForHeight, "emulate" it for now
-	    updateLayout();
     }
     return FALSE;
 }
@@ -650,7 +647,13 @@ void QDockArea::dockWidget( QDockWidget *dockWidget, DockWidgetData *data )
 	dockWidgets->append( dockWidget );
     } else {
 	QList<QDockWidget> lineStarts = layout->lineStarts();
-	int index = dockWidgets->find( lineStarts.at( data->line ) );
+	int index = 0;
+	if ( (int)lineStarts.count() > data->line )
+	    index = dockWidgets->find( lineStarts.at( data->line ) );
+	if ( index == -1 ) {
+	    index = 0;
+	    (void)dockWidgets->at( index );
+	}
 	int lastPos = 0;
 	int offset = data->offset;
 	for ( QDockWidget *dw = dockWidgets->current(); dw; dw = dockWidgets->next() ) {
