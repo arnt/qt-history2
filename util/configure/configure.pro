@@ -24,8 +24,6 @@ SOURCES	 = main.cpp configureapp.cpp \
            $$QT_SOURCE_TREE/src/core/io/qioengine.cpp \
            $$QT_SOURCE_TREE/src/core/io/qiodevice.cpp \
            $$QT_SOURCE_TREE/src/core/io/qtextstream.cpp \
-           $$QT_SOURCE_TREE/src/core/plugin/qlibrary.cpp \
-           $$QT_SOURCE_TREE/src/core/plugin/qlibrary_win.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qbitarray.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qdatetime.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qmap.cpp \
