@@ -1,4 +1,3 @@
-#include <iostream.h>
 #include <qdragobject.h>
 
 #include "dnd.h"
