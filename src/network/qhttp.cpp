@@ -360,34 +360,6 @@ QString QHttpHeader::contentType() const
 }
 
 /*!
-  \enum QHttpHeader::Connection
-
-  \value Close - the connection should be closed when the current
-  request is finished
-
-  \value KeepAlive - the connection should be kept around for reuse
-*/
-/*!
-  Returns the value of the special HTTP header entry \c connection.
-
-  \sa setConnection()
-*/
-QHttpHeader::Connection QHttpHeader::connection() const
-{
-    if ( !m_values.contains( "connection" ) )
-	return Close;
-
-    const char* c = m_values[ "connection" ].latin1();
-
-    if ( qstrcmp( c, "close" ) == 0 )
-	return Close;
-    if ( qstrcmp( c, "keep-alive" ) == 0 )
-	return KeepAlive;
-
-    return Close;
-}
-
-/*!
   Sets the value of the special HTTP header entry \c content-length to \a len.
 
   \sa contentLength()
@@ -405,24 +377,6 @@ void QHttpHeader::setContentLength( int len )
 void QHttpHeader::setContentType( const QString& type )
 {
     m_values[ "content-type" ] = type;
-}
-
-/*!
-  Sets the value of the special HTTP header entry \c connection to \a con.
-
-  \sa connection()
-*/
-void QHttpHeader::setConnection( Connection con )
-{
-    switch( con )
-    {
-    case Close:
-	m_values[ "connection" ] = "close";
-	break;
-    case KeepAlive:
-	m_values[ "connection" ] = "Keep-Alive";
-	break;
-    }
 }
 
 /****************************************************
@@ -568,26 +522,6 @@ QString QHttpResponseHeader::toString() const
     return ret.arg( m_version / 10 ).arg ( m_version % 10 ).arg( m_code ).arg( m_text ).arg( QHttpHeader::toString() );
 }
 
-#if 0
-/*!
-  Reads a HTTP response header from the text stream \a stream and stores it in \a
-  header and returns a refernce to the stream.
-*/
-QTextStream& operator>>( QTextStream& stream, QHttpResponseHeader& header )
-{
-    return header.read( stream );
-}
-
-/*!
-  Writes the HTTP response header \a header to the stream \a stream and returns a
-  reference to the stream.
-*/
-QTextStream& operator<<( QTextStream& stream, const QHttpResponseHeader& header )
-{
-    return header.write( stream );
-}
-#endif
-
 /*!
   Returns TRUE if the server did not specify a size of the response data, This is
   only possible if the server set the connection mode to Close. Otherwise this
@@ -595,7 +529,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpResponseHeader& header 
 */
 bool QHttpResponseHeader::hasAutoContentLength() const
 {
-    if ( connection() == Close && !hasKey( "content-length" ) )
+    if ( value("connection")=="close" && !hasKey( "content-length" ) )
 	return TRUE;
 
     return FALSE;
@@ -1240,18 +1174,14 @@ void QHttpClient::slotReadyRead()
 	    // Save memory
 	    m_buffer = QByteArray();
 
-	    // Handle Keep Alive
-	    switch ( m_response.connection() ) {
-	    case QHttpHeader::KeepAlive:
+	    // Handle "Connection: close"
+	    if ( m_response.value("connection") == "close" ) {
+		close();
+	    } else {
 		m_state = Alive;
 		// Start a timer, so that we emit the keep alive signal
 		// "after" this method returned.
 		m_idleTimer = startTimer( 0 );
-		break;
-	    case QHttpHeader::Close:
-		// Close the socket
-		close();
-		break;
 	    }
 	}
     }

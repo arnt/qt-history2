@@ -80,10 +80,6 @@ public:
     void setContentLength( int len );
     void setContentType( const QString& type );
 
-    enum Connection { Close, KeepAlive };
-    void setConnection( Connection );
-    Connection connection() const;
-
     virtual QString toString() const;
 
     bool isValid() const;
