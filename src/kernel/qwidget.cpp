@@ -772,7 +772,7 @@ QWidget::~QWidget()
 	    qApp->quit();
     } else if ( isTopLevel() && !isPopup() ) {
 	    hide();
-	    if ( qApp->receivers(SIGNAL(lastWindowClosed()))
+	    if ( qApp && qApp->receivers(SIGNAL(lastWindowClosed()))
 		 && noMoreToplevels() )
 		emit qApp->lastWindowClosed();
     }
