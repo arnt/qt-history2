@@ -192,7 +192,7 @@ sub classNames {
                 $symbol = $1;
             } elsif($definition =~ m/^ *typedef +(.*) +([^ ]*);$/) {
                 $symbol = $2;
-            } elsif($definition =~ m/^ *(template<.*> *)?(class|struct) +([^ ]* +)?([^ ]+) ?((,|:) *(public|private) *.*)? *\{\}$/) {
+            } elsif($definition =~ m/^ *(template *<.*> *)?(class|struct) +([^ ]* +)?([^ ]+) ?((,|:) *(public|private) *.*)? *\{\}$/) {
                 $symbol = $4;
             }
             if($symbol && $symbol =~ /^Q/) {
