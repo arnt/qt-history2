@@ -1,3 +1,7 @@
+% the postscript header we use for our qpsprinter in uncompressed and commented form.
+% use the makepsheader perl script to generate a compressed version of this header
+% you can then paste into qpsprinter.cpp
+
 /d  /def load def
 /D  {bind d} bind d
 /d2 {dup dup} D
@@ -115,9 +119,10 @@
   } ifelse
 } D
 
-% uncompresses grayscale from currentfile until the string on the
+% uncompresses image data from currentfile until the string on the
 % stack is full; leaves the string there.  assumes that nothing could
 % conceivably go wrong.
+%%% Warning: if you change the method here, change the table in qpsprinter.cpp:compress()!
 /uc {
   /rL 0 d
   0
@@ -125,7 +130,6 @@
     dup 2 index length ge { exit } if
     1 rB
     1 eq { % compressed
-%%% Warning: if you change the method here, change the table in compress()!
       3 rB % string pos bits
       dup 3 ge {
 	1 add dup rB % string pos bits extra
@@ -172,9 +176,15 @@
   pop
 } D
 
+% defines for QCI
 /sl D0
 /QCIgray D0 /QCIcolor D0 /QCIindex D0
-/QCI { % as colorimage but without the last two arguments
+
+% this method prints color images if colorimage is available, otherwise
+% converts the string to a grayscale image and uses the reular postscript image
+% operator for printing.
+% Arguments are the same as for the image operator:
+/QCI { % width height bits/sample matrix datasrc
   /colorimage where {
     pop
     false 3 colorimage
