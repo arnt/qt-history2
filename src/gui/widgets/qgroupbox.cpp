@@ -373,7 +373,6 @@ void QGroupBoxPrivate::calculateFrame()
     int va = q->style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, q);
 
     d->topMargin = 0;
-    int labelmargin = 0;
     QFontMetrics fm = q->fontMetrics();
     if (lenvisible && !checkbox) { // do we have a label?
         while (lenvisible) {
@@ -383,7 +382,6 @@ void QGroupBoxPrivate::calculateFrame()
             lenvisible--;
         }
         if (lenvisible) { // but do we also have a visible label?
-            labelmargin = fm.height();
             if(va & Qt::AlignVCenter)
                 d->topMargin = fm.height()/2;
             else if(va & Qt::AlignTop)
@@ -391,7 +389,6 @@ void QGroupBoxPrivate::calculateFrame()
         }
     }
     else if (checkbox) {
-        labelmargin = checkbox->height();
         if(va & Qt::AlignVCenter)
             topMargin = checkbox->height()/2;
         else if(va & Qt::AlignTop)
@@ -399,7 +396,7 @@ void QGroupBoxPrivate::calculateFrame()
     }
 
     int marg = bFlat ? 0 : 2; // ###NEEDS TO BE A STYLE ATTRIBUTE
-    q->setContentsMargins(marg, labelmargin + (va & Qt::AlignVCenter ? 0 : marg), marg, marg);
+    q->setContentsMargins(marg, d->topMargin + marg, marg, marg);
 }
 
 
