@@ -99,7 +99,7 @@ QSocketDevice::Protocol QSocketDevice::getProtocol( int socket )
 #if !defined (QT_NO_IPV6)
     if (socket != -1) {
 	struct sockaddr_storage ss;
-	socklen_t sslen = sizeof( ss );
+	QT_SOCKLEN_T sslen = sizeof( ss );
 	if ( getsockname(socket, (struct sockaddr *)&ss, &sslen) == 0 ) {
 	    switch ( ss.ss_family ) {
 		case AF_INET:
@@ -362,7 +362,7 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
     struct sockaddr_in a4;
 
     struct sockaddr *aa;
-    socklen_t aalen;
+    QT_SOCKLEN_T aalen;
 #if !defined(QT_NO_IPV6)
     struct sockaddr_in6 a6;
 
@@ -894,7 +894,7 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
     struct sockaddr_in a4;
     struct sockaddr_in6 a6;
     struct sockaddr *aa;
-    socklen_t slen;
+    QT_SOCKLEN_T slen;
 
     if ( host.isIp6Addr() ) {
 	memset( &a6, 0, sizeof(a6) );
