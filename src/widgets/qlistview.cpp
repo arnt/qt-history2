@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#10 $
 **
 ** Implementation of something useful
 **
@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <qapp.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#10 $");
 
 /*!
   \class QListViewItem qlistview.h
@@ -506,8 +506,6 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		fx = x;
 		fc = c;
 		while( x < cx + cw && c < root->h->count() ) {
-		    if ( root->h->mapToLogical( c ) == 0 )
-			tx = x;
 		    x += cs;
 		    c++;
 		    if ( c < root->h->count() )
@@ -547,7 +545,12 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	     head->y + ith > cy &&
 	     head->y + ih < cy + ch ) {
 	    // perhaps even a branch?
-	    if ( tx >= 0 ) {
+
+	    if ( tx < 0 )
+		tx = root->h->cellPos( root->h->mapToActual( 0 ) );
+		
+	    if ( tx < cx + cw &&
+		 tx + head->l * treeStepSize() ) > cx ) {
 		debug( "tx = %d", tx );
 		p->save();
 		// compute the clip rectangle the safe way
