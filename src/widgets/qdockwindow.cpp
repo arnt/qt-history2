@@ -595,8 +595,9 @@ void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
     e->ignore();
     if ( e->button() != LeftButton )
 	return;
-    if ( e->y() < 3 )
+    if ( e->y() < 3 && dockWindow->isResizeEnabled() )
 	return;
+
     e->accept();
     bool oldPressed = mousePressed;
     mousePressed = TRUE;
