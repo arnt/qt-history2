@@ -71,7 +71,7 @@ void QResolverAgent::run()
                 }
             }
             local_freeaddrinfo(res);
-        } else if (err == EAI_NONAME) {
+        } else if (err == WSAHOST_NOT_FOUND) {
             results.error = QResolver::HostNotFound;
             results.errorString = tr("Host not found");
         } else {
