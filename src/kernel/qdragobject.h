@@ -118,8 +118,6 @@ private:
 
 class Q_EXPORT QImageDrag: public QDragObject {
     Q_OBJECT
-    QImage img;
-    QList<QByteArray> ofmts;
     QImageDragData* d;
 
 public:

@@ -898,6 +898,8 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str )
 class QImageDragData
 {
 public:
+    QImage img;
+    QList<QByteArray> ofmts;
 };
 
 
@@ -959,21 +961,23 @@ QImageDrag::~QImageDrag()
 */
 void QImageDrag::setImage( QImage image )
 {
-    img = image; // ### detach?
-    ofmts = QImage::outputFormats();
-    ofmts.remove("PBM"); // remove non-raw PPM
+    if (!d)
+	d = new QImageDragData;
+    d->img = image; // ### detach?
+    d->ofmts = QImage::outputFormats();
+    d->ofmts.remove("PBM"); // remove non-raw PPM
     if ( image.depth()!=32 ) {
 	// BMP better than PPM for paletted images
-	if ( ofmts.remove("BMP") ) // move to front
-	    ofmts.insert(0,"BMP");
+	if ( d->ofmts.remove("BMP") ) // move to front
+	    d->ofmts.insert(0,"BMP");
     }
     // PNG is best of all
-    if ( ofmts.remove("PNG") ) // move to front
-	ofmts.insert(0,"PNG");
+    if ( d->ofmts.remove("PNG") ) // move to front
+	d->ofmts.insert(0,"PNG");
 
     if(cacheType == QMimeSource::NoCache) { //cache it
 	cacheType = QMimeSource::Graphics;
-	cache.gfx.img = new QImage( img );
+	cache.gfx.img = new QImage(d->img );
 	cache.gfx.pix = 0;
     }
 }
@@ -983,10 +987,10 @@ void QImageDrag::setImage( QImage image )
 */
 const char * QImageDrag::format(int i) const
 {
-    if ( i < (int)ofmts.count() ) {
+    if ( i < d->ofmts.count() ) {
 	static const QByteArray img("image/");
 	QByteArray str(img);
-	str += (((QImageDrag*)this)->ofmts).at(i);
+	str += d->ofmts.at(i);
 	str = str.lower();
 	if ( str == "image/pbmraw" )
 	    str = "image/ppm";
@@ -1007,7 +1011,7 @@ QByteArray QImageDrag::encodedData(const char* fmt) const
 	QBuffer w( data );
 	w.open( IO_WriteOnly );
 	QImageIO io( &w, f.upper() );
-	io.setImage( img );
+	io.setImage(d->img);
 	if  ( !io.write() )
 	    return QByteArray();
 	w.close();
