@@ -356,6 +356,7 @@ public:
 
     // DOM read only attributes
     uint length() const;
+    uint count() const { return length(); } // Qt API consitancy
 
     // Qt extension
     bool contains( const QString& name ) const;

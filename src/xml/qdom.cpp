@@ -2778,6 +2778,14 @@ uint QDomNamedNodeMap::length() const
 }
 
 /*!
+  \fn uint QDomNamedNodeMap::count() const
+
+  Returns the number of nodes in the map.
+
+  This function is the same as length().
+*/
+
+/*!
   Returns TRUE if the map contains a node called \a name; otherwise
   returns FALSE.
 */
