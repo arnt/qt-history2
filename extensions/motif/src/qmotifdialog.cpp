@@ -193,7 +193,7 @@ public:
     parent.
 */
 
-/*! \enum DialogType
+/*! \enum QMotifDialog::DialogType
 
     This enum covers the predefined Motif dialog types.
 
