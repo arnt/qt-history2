@@ -16356,7 +16356,7 @@ const void* qt_winTchar(const QString& str, bool addnul)
 
     const QChar* uc = str.unicode();
 
-#  define EXTEND if (str.length() > buflen) { delete buf; buf = new TCHAR[buflen=str.length()+1]; }
+#  define EXTEND if (str.length() >= buflen) { delete buf; buf = new TCHAR[buflen=str.length()+1]; }
 
 #  if defined(QT_WIN32BYTESWAP)
     EXTEND
