@@ -105,8 +105,8 @@ sub checkUnix {
 ######################################################################
 sub shouldMasterInclude {
     my ($iheader) = @_;
-    return 0 if($iheader =~ /\/\w+_\w+\.h$/);
-    return 0 if($iheader =~ /qconfig/);
+    return 0 if(basename($iheader) =~ /_/);
+    return 0 if(basename($iheader) =~ /qconfig/);
     if(open(F, "<$iheader")) {
         while(<F>) {
 	    chomp;
