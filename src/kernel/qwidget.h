@@ -918,6 +918,7 @@ struct Q_EXPORT QTLWExtra {
     uint     iconic: 1;				// iconified [cur. win32 only]
     uint     fullscreen : 1;			// full-screen mode
     uint     showMode: 2;			// 0 normal, 1 minimized, 2 maximized, 3 reset
+    uint     savedFlags;			// Save widgetflags while showing fullscreen
     short    basew, baseh;			// base sizes
 #if defined(Q_WS_X11)
     WId  parentWinId;				// parent window Id (valid after reparenting)
@@ -926,7 +927,6 @@ struct Q_EXPORT QTLWExtra {
     uint     dnd : 1;				// DND properties installed
     uint     uspos : 1;				// User defined position
     uint     ussize : 1;			// User defined size
-    uint     savedFlags;			// Save widgetflags while showing fullscreen
     void    *xic;				// XIM Input Context
 #endif
 #if defined(Q_WS_MAC)
