@@ -8,6 +8,11 @@ until the next release.  Compile with -DOBSOLETE to allow calls to the
 obsolete functions.
 
 
+qglobal.h:
+----------
+  INT32 and UINT32 typedefs changed to work with DEC Alpha.
+
+
 QBitmap:
 --------
   Constructor takes "const uchar *bits" instead of "const char *"
@@ -22,6 +27,12 @@ QButton:
 QButtonGroup:
 -------------
   Exclusive group setting added (isExclusive and setExclusive).
+
+
+QDataStream:
+-----------
+  Removed serialization of int and uint. Doesn't work anymore when
+  INT32 and UINT32 are int and uint.
 
 
 QWidget:
