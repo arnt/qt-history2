@@ -461,7 +461,8 @@ static QPixmap * previewContentsViewIcon = 0;
 static QPixmap * previewInfoViewIcon = 0;
 static QPixmap *goBackIcon = 0;
 static QFileIconProvider * fileIconProvider = 0;
-static QSize *lastSize = 0;
+static int lastWidth = 0;
+static int lastHeight = 0;
 static QString * workingDirectory = 0;
 
 static bool bShowHiddenFiles = FALSE;
@@ -470,7 +471,6 @@ static bool sortAscending = TRUE;
 static bool detailViewMode = FALSE;
 
 static QCleanupHandler<QPixmap> qfd_cleanup_pixmap;
-static QCleanupHandler<QSize> qfd_cleanup_size;
 static QCleanupHandler<QString> qfd_cleanup_string;
 
 static bool isDirectoryMode( int m )
@@ -2698,14 +2698,12 @@ void QFileDialog::init()
     d->dir = tr( "Dir" );
     d->special = tr( "Special" );
 
-    if ( !lastSize ) {
+    if ( lastWidth == 0 ) {
 	QRect screen = QApplication::desktop()->screenGeometry( pos() );
-	if ( screen.width() < 1024 ||
-	     screen.height() < 768 ) {
-	    resize( QMIN(screen.width(),420),
-		    QMIN(screen.height(),236) );
+	if ( screen.width() < 1024 || screen.height() < 768 ) {
+	    resize( QMIN(screen.width(), 420), QMIN(screen.height(), 236) );
 	} else {
-	    QSize s( files->sizeHint() );
+	    QSize s = files->sizeHint();
 	    s = QSize( s.width() + 300, s.height() + 82 );
 
 	    if ( s.width() * 3 > screen.width() * 2 )
@@ -2718,11 +2716,11 @@ void QFileDialog::init()
 
 	    resize( s );
 	}
-	lastSize = new QSize;
-	qfd_cleanup_size.add( &lastSize );
-	*lastSize = size();
-    } else
-	resize( *lastSize );
+	lastWidth = width();
+	lastHeight = height();
+    } else {
+	resize( lastWidth, lastHeight );
+    }
 
     if ( detailViewMode ) {
 	d->stack->raiseWidget( files );
@@ -3546,7 +3544,8 @@ void QFileDialog::okClicked()
 
     *workingDirectory = d->url;
     detailViewMode = files->isVisible();
-    *lastSize = size();
+    lastWidth = width();
+    lastHeight = height();
 
     if ( isDirectoryMode( d->mode ) ) {
 	if ( d->ignoreReturn ) {
@@ -3676,7 +3675,8 @@ void QFileDialog::cancelClicked()
 {
     *workingDirectory = d->url;
     detailViewMode = files->isVisible();
-    *lastSize = size();
+    lastWidth = width();
+    lastHeight = height();
     reject();
 }
 
@@ -3995,7 +3995,8 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 
     *workingDirectory = d->url;
     detailViewMode = files->isVisible();
-    *lastSize = size();
+    lastWidth = width();
+    lastHeight = height();
 
     if ( !newItem )
 	return;
