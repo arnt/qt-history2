@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#23 $
+** $Id: //depot/qt/main/src/moc/moc.l#24 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -14,8 +14,6 @@
 
 %{
 #include "qstring.h"
-#include "qdict.h"
-#include <ctype.h>
 
 
 #define input yyinput				// yyinput in C++
@@ -38,23 +36,6 @@ int level      = 1;  /* Used to keep track of nested curly braces in IN_CLASS*/
 int expLevel   = 1;  /* Used to keep track of nested parentheses in IN_EXPR */
 int fctLevel   = 1;  /* Used to keep track of nested parentheses in IN_FCT */
 int templLevel = 1;  /* Used to keep track of levels in IN_TEMPL_ARGS */
-int ifdefDepth = 0;  /* Tracks #ifdef depth */
-int ignoreDepth = 0; /* Tracks #ifdefs inside ifdef-ed out code */
-static Q1String in_id;
-extern QDict<char> defines; /* in moc.y */
-
-#define inputId() \
-    { \
-	in_id = ""; \
-	char c; \
-	while (isspace(c = linput())) \
-	    ; \
-	while (isalnum(c) || c == '_') { \
-	    in_id += c; \
-	    c = linput(); \
-        } \
-	unput(c); \
-    }
 
 
 extern void addExpressionChar( char );
@@ -64,12 +45,12 @@ extern void addExpressionString( char * );
 %start OUTSIDE QT_DEF IN_CLASS IN_EXPR IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON
 
 %%
-<OUTSIDE>"class"		{ if (!ignoreDepth){X;
+<OUTSIDE>"class"		{ X;
 				  BEGIN QT_DEF;
-				  return CLASS;} }
-<OUTSIDE>"template"		{ if (!ignoreDepth){X;
+				  return CLASS; }
+<OUTSIDE>"template"		{ X;
 				  BEGIN QT_DEF;
-				  return TEMPLATE;} }
+				  return TEMPLATE; }
 <QT_DEF>"signals"		{ X;return SIGNALS; }
 <QT_DEF>"slots"			{ X;return SLOTS; }
 <IN_FCT>"{"			{ fctLevel++;Y; }
@@ -308,7 +289,7 @@ extern void addExpressionString( char * );
 			}
 
 
-^[ \t]*#define.*\\$	{ /* skip multi-line macro-definitions */
+^#define.*\\$		{ /* skip multi-line macro-definitions */
 			  char c, c1;
 			  input();   /* Discard the '\n'. */
 			  do {
@@ -319,38 +300,7 @@ extern void addExpressionString( char * );
 			  unput(c);  /* put back the '\n' or the EOF */
 			}
 
-^[ \t]*#ifdef		{
-			    /* honour the simplest configuration directives */
-			    ifdefDepth++;
-			    inputId();
-			    if ( ignoreDepth || !defines.find(in_id) )
-				ignoreDepth++;
-			}
-^[ \t]*#ifndef	{
-			    ifdefDepth++;
-			    inputId();
-			    if ( ignoreDepth || defines.find(in_id) )
-				ignoreDepth++;
-			}
-^[ \t]*#else		{
-			    if ( ignoreDepth == 1 )
-				ignoreDepth = 0;
-			    else if ( ignoreDepth == 0 )
-				ignoreDepth = 1;
-			}
-^[ \t]*#endif		{
-			    ifdefDepth--;
-			    if (ignoreDepth)
-				ignoreDepth--;
-			}
-^[ \t]*#define.*	{
-			}
-^[ \t]*#pragma.*	{
-			}
-^[ \t]*#include.*	{
-			}
-^[ \t]*#if[ \t].*	{
-			}
+^[ \t]*#.*		{ /* preprocessor commands are skipped */}
 "//"[^\n]*		{ /* C++ comment */ }
 "/*"			{ /* C	 comment */
 			  char c = ' ';
