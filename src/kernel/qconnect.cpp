@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnect.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qconnect.cpp#6 $
 **
 ** Implementation of QConnection class
 **
@@ -13,7 +13,7 @@
 #include "qconnect.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qconnect.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qconnect.cpp#6 $";
 #endif
 
 /*! \class QConnection qconnect.h
@@ -21,9 +21,9 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qconnect.cpp#5 $";
   \brief The QConnection class is an internal class, used in the
   signal/slot mechanism.
 
-  This class is not yet documented.  Our <a
-  href=http://www.troll.no/>home page</a> contains a pointer to the
-  current version of Qt. */
+  \internal
+
+  Sex! Haavard se her! Fett YO! Eirik se her! */
 
 
 QConnection::QConnection( const QObject *object, QMember member,
