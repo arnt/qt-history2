@@ -183,7 +183,7 @@ QStringList QMakeSourceFileInfo::dependencies(const QString &file)
             if(place.children) {
                 for(int i = 0; i < place.used_nodes; i++) {
                     place.children[i]->traversed = false; //reset flag
-                    ret.append(place.children[i]->file.local());
+                    ret.append(place.children[i]->file.real());
                 }
            }
        }
@@ -211,7 +211,7 @@ QString QMakeSourceFileInfo::mocFile(const QString &file)
     if (!files)
         return QString();
     if(SourceFile *node = files->lookupFile(file)) 
-        return node->mocfile.local();
+        return node->mocfile.real();
     return QString();
 }
 
@@ -220,7 +220,7 @@ QString QMakeSourceFileInfo::mocSource(const QString &mocfile)
     if (!files)
         return QString();
     if (SourceFile *node = files->lookupMocFile(mocfile))
-        return node->file.local();
+        return node->file.real();
     return QString();
 }
 
