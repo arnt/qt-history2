@@ -8,6 +8,10 @@
 #include "qscodeparser.h"
 #include "tree.h"
 
+#define CONFIG_QUICK                "quick"
+
+#define CONFIG_REPLACES             "replaces"
+
 #define COMMAND_FILE                Doc::alias( "file" )
 #define COMMAND_GROUP               Doc::alias( "group" )
 #define COMMAND_MODULE              Doc::alias( "module" )
@@ -21,9 +25,11 @@
 static QString balancedParens = "(?:[^()]+|\\([^()]*\\))*";
 
 int QsCodeParser::tabSize;
+QValueList<QRegExp> QsCodeParser::replaceBefores;
+QStringList QsCodeParser::replaceAfters;
 
 QsCodeParser::QsCodeParser( Tree *cppTree )
-    : cppTre( cppTree ), qsTre( 0 )
+    : cppTre( cppTree ), qsTre( 0 ), replaceRegExp( "/(.+)/([^/]*)/" )
 {
 }
 
@@ -34,11 +40,39 @@ QsCodeParser::~QsCodeParser()
 void QsCodeParser::initializeParser( const Config& config )
 {
     CppCodeParser::initializeParser( config );
+
     tabSize = config.getInt( CONFIG_TABSIZE );
+
+    QString quickDotReplaces = CONFIG_QUICK + Config::dot + CONFIG_REPLACES;
+    QStringList replaces = config.getStringList( CONFIG_QUICK + Config::dot +
+						 CONFIG_REPLACES );
+    QStringList::ConstIterator r = replaces.begin();
+    while ( r != replaces.end() ) {
+	if ( replaceRegExp.exactMatch(*r) ) {
+	    QRegExp before( replaceRegExp.cap(1) );
+	    QString after = replaceRegExp.cap( 2 );
+
+	    if ( before.isValid() ) {
+		replaceBefores << before;
+		replaceAfters << after;
+	    } else {
+		config.lastLocation().warning(
+			tr("Invalid regular expression '%1'")
+			.arg(before.pattern()) );
+	    }
+	} else {
+	    config.lastLocation().warning( tr("Bad syntax in '%1'")
+					   .arg(quickDotReplaces) );
+	}
+	++r;
+    }
 }
 
 void QsCodeParser::terminateParser()
 {
+    tabSize = 0;
+    replaceBefores.clear();
+    replaceAfters.clear();
     CppCodeParser::terminateParser();
 }
 
@@ -232,8 +266,6 @@ void QsCodeParser::extractTarget( const QString& target, QString *source,
 
 void QsCodeParser::applyReplacementList( QString *source, const Doc& doc )
 {
-    static QRegExp replaceRegExp( "/(.+)/([^/]*)/" );
-
     QStringList args = doc.metaCommandArgs( COMMAND_REPLACE );
     QStringList::ConstIterator a = args.begin();
     while ( a != args.end() ) {
@@ -599,6 +631,14 @@ QString QsCodeParser::quickifiedDoc( const QString& source )
 	    result += source[i++];
 	}
     }
+
+    QValueList<QRegExp>::ConstIterator b = replaceBefores.begin();
+    QStringList::ConstIterator a = replaceAfters.begin();
+    while ( a != replaceAfters.end() ) {
+	result.replace( *b, *a );
+	++b;
+	++a;
+    }
     return result;
 }
 
@@ -614,27 +654,24 @@ void QsCodeParser::setQtDoc( Node *quickNode, const Doc& doc )
 
 void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc )
 {
-    QRegExp quickifiedCommand( "\\\\" + COMMAND_QUICKIFY +
-			       "([^\n]*)(?:\n|$)" );
+    QRegExp quickifyCommand( "\\\\" + COMMAND_QUICKIFY + "([^\n]*)(?:\n|$)" );
 
     if ( doc.metaCommandsUsed() != 0 &&
 	 doc.metaCommandsUsed()->contains(COMMAND_QUICKIFY) ) {
 	QString source = doc.source();
-	int pos = source.find( quickifiedCommand );
+	int pos = source.find( quickifyCommand );
 	if ( pos != -1 ) {
 	    QString quickifiedSource = quickNode->doc().source();
 	    applyReplacementList( &quickifiedSource, doc );
 
 	    do {
 		QString extract = quickifiedSource;
-		QString target =
-			quickifiedCommand.cap( 1 ).simplifyWhiteSpace();
+		QString target = quickifyCommand.cap( 1 ).simplifyWhiteSpace();
 		if ( !target.isEmpty() )
 		    extractTarget( target, &extract, doc );
-		source.replace( pos, quickifiedCommand.matchedLength(),
-				extract );
-		pos += quickifiedCommand.matchedLength();
-	    } while ( (pos = source.find(quickifiedCommand)) != -1 );
+		source.replace( pos, quickifyCommand.matchedLength(), extract );
+		pos += quickifyCommand.matchedLength();
+	    } while ( (pos = source.find(quickifyCommand)) != -1 );
 	}
 
 	Doc quickDoc( doc.location(), source,

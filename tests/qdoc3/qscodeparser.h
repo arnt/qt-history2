@@ -59,8 +59,11 @@ private:
 
     Tree *cppTre;
     Tree *qsTre;
+    QRegExp replaceRegExp;
 
     static int tabSize;
+    static QValueList<QRegExp> replaceBefores;
+    static QStringList replaceAfters;
 };
 
 #endif

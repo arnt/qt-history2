@@ -10,3 +10,4 @@ exampledirs	= $QUICK/examples
 imagedirs	= $QTDIR/gif
 outputdir	= output/qsa
 outputformats	= HTML
+quick.replaces	= /([Mm]ark)/\\bold{\\1}/
