@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#7 $
 **
 ** Implementation of QGArray class
 **
@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#7 $";
 #endif
 
 
@@ -186,7 +186,7 @@ QGArray &QGArray::assign( const char *d, uint len )
 	if ( p->data )
 	    DELETE(p->data);
     }
-    p->data = d;
+    p->data = (char *)d;
     p->len = len;
     return *this;
 }
