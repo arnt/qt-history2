@@ -7,7 +7,7 @@
 
 class QDirModelPrivate;
 
-class Q4FileIconProvider
+class Q_GUI_EXPORT Q4FileIconProvider
 {
 public:
     Q4FileIconProvider();
@@ -21,7 +21,7 @@ protected:
     QIconSet linkDir;
 };
 
-class QDirModel : public QAbstractItemModel
+class Q_GUI_EXPORT QDirModel : public QAbstractItemModel
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QDirModel)
