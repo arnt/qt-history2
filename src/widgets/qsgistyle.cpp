@@ -138,7 +138,7 @@ QSGIStyle::polish( QApplication* app)
     QApplication::setPalette( pal, TRUE, "QMenuBar" );
 }
 
-/*! 
+/*!
     Installs eventfilters for several widgets to enable
     the SGI-effect of glowing buttons.
 */
@@ -207,7 +207,7 @@ QSGIStyle::drawSeparator( QPainter *p, int x1, int y1, int x2, int y2,
     p->setPen( oldPen );
 }
 
-/*! 
+/*!
     Draws a SGI-like panel with somewhat rounded edges.
 */
 void
@@ -266,8 +266,8 @@ QSGIStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
     p->setPen( oldPen );
 }
 
-/*! 
-    Reimplemented ot be SGI-like.    
+/*!
+    Reimplemented ot be SGI-like.
 */
 void
 QSGIStyle::drawPushButton( QPushButton* btn, QPainter* p)
@@ -311,7 +311,7 @@ QSGIStyle::drawPushButton( QPushButton* btn, QPainter* p)
 	p->setBrush( NoBrush );
 }
 
-/*! 
+/*!
     Reimplemented to be SGI-like.
 */
 void
@@ -359,7 +359,7 @@ QSGIStyle::indicatorSize() const
     return QSize(20,20);
 }
 
-/*! 
+/*!
     Draws a interface element showing the state of choice,
     used by a checkbox.
 
@@ -382,7 +382,7 @@ QSGIStyle::drawIndicator( QPainter* p, int x, int y, int w, int h,
     p->setPen( oldPen );
 }
 
-/*! 
+/*!
     Draws a fancy red checkmark indicating the state of choice
     in checkboxes or checkable menuitems.
 */
@@ -406,7 +406,7 @@ QSGIStyle::drawCheckMark( QPainter* p, int x, int y, int /*w*/, int /*h*/,
     QPointArray amark;
     amark = QPointArray( sizeof(check_mark)/(sizeof(QCOORD)*2), check_mark );
     amark.translate( x1, y1 );
-    
+
     p->setPen( dis ? g.dark() : g.shadow() );
     p->drawLineSegments( amark );
     amark.translate( -1, -1 );
@@ -415,7 +415,7 @@ QSGIStyle::drawCheckMark( QPainter* p, int x, int y, int /*w*/, int /*h*/,
     p->setPen( oldPen );
 }
 
-/*! 
+/*!
     Draws a mask for an indicator in state /e s.
 
   /sa drawIndicator()
@@ -428,7 +428,7 @@ QSGIStyle::drawIndicatorMask( QPainter* p, int x, int y, int w, int h, int s )
 
     p->setPen( color1 );
     p->setBrush( color1 );
-    p->fillRect( x, y, w, h, QBrush(color0) );   
+    p->fillRect( x, y, w, h, QBrush(color0) );
     p->fillRect( x+2, y+5, w-7, h-7, QBrush(color1) );
 
     if (s == QButton::On ) {
@@ -457,7 +457,7 @@ QSGIStyle::exclusiveIndicatorSize() const
     return QSize(12,12);
 }
 
-/*! 
+/*!
     Draws an interface element used to show the state
     of an exclusive choice as used in a radio button.
 */
@@ -660,7 +660,7 @@ void
 QSGIStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 				  int sliderStart, uint controls, uint activeControl )
 {
-    sb->setBackgroundMode( QWidget::PaletteButton );
+    ( (QScrollBar*)sb )->setBackgroundMode( QWidget::PaletteButton );
     QColorGroup g = sb->colorGroup();
 
     QColor lazyButton;
@@ -852,7 +852,7 @@ QSGIStyle::drawSliderMask( QPainter* p, int x, int y, int w, int h, const QColor
     drawSlider( p, x, y, w, h, g1, orient, tickAbove, tickBelow);
 }
 
-/*! 
+/*!
     Draws the groove of a slider widget.
 */
 void
@@ -1115,7 +1115,7 @@ QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, 
     }
 }
 
-/*! 
+/*!
     Reimplemented to enable the SGI-like effekt
     of "glowing" widgets.
 */
