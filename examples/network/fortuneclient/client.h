@@ -21,8 +21,6 @@ public slots:
     void displayError(int);
 
 private:
-    void showMessage(const QString &title, const QString &text);
-
     int blockSize;
     QLabel *portLabel;
     QLabel *hostLabel;

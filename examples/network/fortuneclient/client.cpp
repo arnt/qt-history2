@@ -39,7 +39,6 @@ Client::Client(QWidget *parent)
     mainLayout->addWidget(statusLabel, 2, 0);
     mainLayout->addLayout(buttonLayout, 3, 0, 1, 2);
 
-    getFortuneButton->setFocus();
     setWindowTitle(tr("Fortune client"));
 }
 
