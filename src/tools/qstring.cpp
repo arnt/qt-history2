@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#171 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#172 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -565,6 +565,10 @@ void QString::setLength( uint newLen )
   \link warning() warning message\endlink is printed and the
   text as appended with a space at the end of the string.
   This is error-recovery and should not be occur in correct code.
+
+  \a fieldwidth is the minimum amount of space the text will be padded
+  to.  A positive value produces right-aligned text, while a negative
+  value produces left aligned text.
 
   \sa QObject::tr()
 */
