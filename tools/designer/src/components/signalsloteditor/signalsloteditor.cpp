@@ -154,7 +154,7 @@ SignalSlotDialog::SignalSlotDialog(AbstractFormEditor *core, QWidget *source, QW
                 
     QPushButton *cancel_button = new QPushButton(tr("Cancel"), this);
     connect(cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
-    m_ok_button = new QPushButton(tr("Ok"), this);
+    m_ok_button = new QPushButton(tr("OK"), this);
     connect(m_ok_button, SIGNAL(clicked()), this, SLOT(accept()));
     m_ok_button->setEnabled(false);
 
