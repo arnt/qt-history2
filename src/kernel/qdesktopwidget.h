@@ -67,6 +67,9 @@ private:
 #endif
 
     friend class QApplication;
+#ifdef Q_WS_QWS
+    friend class QWSDisplay;
+#endif
 };
 
 #endif //QDESKTOPWIDGET_H

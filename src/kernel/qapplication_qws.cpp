@@ -1275,7 +1275,6 @@ void QWSDisplay::setRawMouseEventFilter( void (*filter)(QWSMouseEvent *) )
 #ifndef QT_NO_QWS_TRANSFORMED
 extern void qws_setScreenTransformation( int );
 extern void qws_mapPixmaps( bool from );
-extern void qws_clearLoadedFonts();
 #endif
 
 void QWSDisplay::setTransformation( int t )
@@ -1285,7 +1284,7 @@ void QWSDisplay::setTransformation( int t )
 	QSize(qt_screen->width(), qt_screen->height()) );
 
     QPixmapCache::clear();
-    qws_clearLoadedFonts();
+    QFontCache::instance->clear();
     qws_mapPixmaps( TRUE );
     qws_setScreenTransformation( t );
     qws_mapPixmaps( FALSE );
