@@ -1526,7 +1526,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         QRegExp regx(args[1]);
         const QStringList &l = place[args[0]];
         for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-            if(regx.exactMatch((*it)) || (*it) == args[1])
+            if((*it).contains(regx) || (*it) == args[1])
                 return true;
         }
         return false;
