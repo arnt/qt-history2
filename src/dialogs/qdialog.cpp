@@ -98,13 +98,13 @@
   and return the appropriate value. Alternatively you can connect to
   the done() slot, passing it \c Accepted or \c Rejected.
 
-  An alternative is to use showModal(). Unlike exec(), showModal()
-  returns control to the caller immediately.  showModal() is
-  especially useful for progress dialogs, where the user must have
-  the ability to interact with the dialog, e.g. to cancel a long
-  running operation. During the processing, it is necessary to call
-  QApplication::processEvents() periodically to enable the user to
-  interact with the dialog. (See \l QProgressDialog.)
+  An alternative is to call setModal(TRUE), then show().
+  Unlike exec(), show() returns control to the caller immediately.
+  Calling setModal(TRUE) is especially useful for progress dialogs,
+  where the user must have the ability to interact with the dialog,
+  e.g. to cancel a long running operation. During the processing, it
+  is necessary to call QApplication::processEvents() periodically to
+  enable the user to interact with the dialog. (See \l QProgressDialog.)
 
  \target modeless
  \i A <b>modeless</b> dialog is a dialog that operates independently of
@@ -239,11 +239,10 @@ public:
   of the dialog, pass WStyle_Customize | WStyle_NormalBorder |
   WStyle_Title | WStyle_SysMenu in \a f.
 
-  \warning In Qt 3.2, the \a modal flag is obsolete and should be
-  FALSE. In previous versions of Qt, this flag controlled whether the
-  dialog was modal or modeless. From Qt 3.2, it is sufficient to call
-  one of exec(), showModal(), and show(). For compatibility, show()
-  behaves like showModal() when \a modal is TRUE.
+  \warning In Qt 3.2, the \a modal flag is obsolete. There is now a
+  setModal() function that can be used for obtaining a modal behavior
+  when calling show(). This is rarely needed, because modal dialogs
+  are usually invoked using exec(), which ignores the \a modal flag.
 
   \sa QWidget::setWFlags() Qt::WidgetFlags
 */
@@ -345,7 +344,7 @@ void QDialog::hideDefault()
     Users cannot interact with any other window in the same
     application until they close the dialog.
 
-  \sa showModal(), show(), result()
+  \sa show(), result()
 */
 
 int QDialog::exec()
@@ -569,11 +568,10 @@ extern "C" { int XSetTransientForHint( Display *, unsigned long, unsigned long )
     Shows the dialog as a \link #modeless modeless \endlink dialog.
     Control returns immediately to the calling code.
 
-    \warning For compatibility, the dialog will be \link #modal
-    modal\endlink if the modal flag was set to TRUE in the
-    constructor.
+    The dialog will be modal or modeless according to the value
+    of the \l modal property.
 
-    \sa exec(), showModal()
+    \sa exec(), modal
 */
 
 void QDialog::show()
@@ -654,24 +652,6 @@ void QDialog::show()
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::DialogStart );
 #endif
-}
-
-/*!
-    Shows the dialog as a \link #modal modal \endlink dialog. Control
-    returns immediately to the calling code.
-
-    Users cannot interact with any other window in the same
-    application until they close the dialog.
-
-    \sa exec(), show()
-*/
-void QDialog::showModal()
-{
-    bool wasShowModal = testWFlags( WShowModal );
-    setWFlags( WShowModal );
-    show();
-    if ( !wasShowModal )
-	clearWFlags( WShowModal );
 }
 
 /*! \internal */
@@ -993,7 +973,30 @@ QSize QDialog::minimumSizeHint() const
     return QWidget::minimumSizeHint();
 }
 
+/*! \property QDialog::modal
+    \brief whether show() should pop up the dialog as modal or modeless
 
+    By default, this property is false and show() pops up the dialog as
+    modeless.
+
+    exec() ignores the value of this property and always pops up the
+    dialog as modal.
+
+    \sa show(), exec()
+*/
+
+void QDialog::setModal( bool modal )
+{
+    if ( modal )
+	setWFlags( WShowModal );
+    else
+	clearWFlags( WShowModal );
+}
+
+bool QDialog::isModal() const
+{
+    return testWFlags( WShowModal ) != 0;
+}
 
 bool QDialog::isSizeGripEnabled() const
 {
