@@ -1109,7 +1109,8 @@ QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o, con
 }
 
 bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &lang,
-				      const QString &e, const QStringList &functions, bool addIfNotExisting )
+				      const QString &e, const QStringList &functions,
+				      bool addIfNotExisting )
 {
     if ( !o )
 	return FALSE;
@@ -1132,6 +1133,9 @@ bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &
 
     QString event = e;
     event = event.simplifyWhiteSpace();
+    LanguageInterface *liface = languageInterface( lang );
+    if ( liface )
+	event = liface->cleanSignature( event );
 
     r->eventFunctions.remove( event );
     EventDescription ed;
@@ -1182,7 +1186,7 @@ bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &
     return !slotExists;
 }
 
-QStringList MetaDataBase::eventFunctions( QObject *o, const QString &e )
+QStringList MetaDataBase::eventFunctions( QObject *o, const QString &e, const QString &lang )
 {
     if ( !o )
 	return QStringList();
@@ -1197,6 +1201,17 @@ QStringList MetaDataBase::eventFunctions( QObject *o, const QString &e )
     QString event = e;
     event = event.simplifyWhiteSpace();
     QStringList l = *r->eventFunctions.find( event );
+    if ( l.isEmpty() ) {
+	LanguageInterface *liface = languageInterface( lang );
+	if ( liface ) {
+	    QString cleanSig = liface->cleanSignature( event );
+	    for ( QMap<QString, QStringList>::Iterator it = r->eventFunctions.begin();
+		  it != r->eventFunctions.end(); ++it ) {
+		if ( liface->cleanSignature( it.key() ) == cleanSig )
+		    return *it;
+	    }
+	}
+    }
 #if 0 // ### for conversation from old to new
     if ( l.isEmpty() ) {
 	int i = event.find( "(" );

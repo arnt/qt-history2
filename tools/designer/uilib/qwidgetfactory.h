@@ -73,6 +73,7 @@ private:
     void loadMenuBar( const QDomElement &e );
     void loadFunctions( const QDomElement &e );
     QAction *findAction( const QString &name );
+    void loadExtraSource();
 
 private:
     struct Image {

@@ -53,11 +53,19 @@ struct LanguageInterface : public QUnknownInterface
 	QString returnType;
     };
 
+    struct Connection
+    {
+	QString sender;
+	QString signal;
+	QString slot;
+    };
+
     enum Support
     {
 	ReturnType,
 	ConnectionsToCustomSlots,
-	AdditionalFiles
+	AdditionalFiles,
+	SaveFormCodeExternal
     };
 
     virtual void functions( const QString &code, QValueList<Function> *funcs ) const = 0;
@@ -70,7 +78,22 @@ struct LanguageInterface : public QUnknownInterface
     virtual void setDefinitionEntries( const QString &definition, const QStringList &entries, QUnknownInterface *designerIface ) = 0;
     virtual bool supports( Support s ) const = 0;
     virtual void fileFilters( QMap<QString, QString> &extensionFilterMap ) const = 0;
-
+    virtual QString cleanSignature( const QString &sig ) = 0;
+    virtual void saveFormCode( const QString &form, const QString &filename,
+			       const QValueList<Function> &functions,
+			       const QStringList &forwards,
+			       const QStringList &includesImpl,
+			       const QStringList &includesDecl,
+			       const QStringList &vars,
+			       const QValueList<Connection> &connections ) = 0;
+    virtual void loadFormCode( const QString &form, const QString &filename,
+			       QValueList<Function> &functions,
+			       QStringList &forwards,
+			       QStringList &includesImpl,
+			       QStringList &includesDecl,
+			       QStringList &vars,
+			       QValueList<Connection> &connections ) = 0;
+    virtual QString formCodeExtension() const = 0;
 
 };
 

@@ -2977,13 +2977,16 @@ void EventList::setup()
     clear();
 
     if ( MetaDataBase::hasEvents( formWindow->project()->language() ) ) {
-	QValueList<MetaDataBase::EventDescription> events = MetaDataBase::events( editor->widget(), formWindow->project()->language() );
+	QValueList<MetaDataBase::EventDescription> events =
+	    MetaDataBase::events( editor->widget(), formWindow->project()->language() );
 	if ( events.isEmpty() )
 	    return;
 	for ( QValueList<MetaDataBase::EventDescription>::Iterator it = events.begin(); it != events.end(); ++it ) {
 	    HierarchyItem *eventItem = new HierarchyItem( this, (*it).name, QString::null, QString::null );
 	    eventItem->setOpen( TRUE );
-	    QStringList funcs = MetaDataBase::eventFunctions( editor->widget(), (*it).name );
+	    QStringList funcs = MetaDataBase::eventFunctions( editor->widget(),
+							      (*it).name,
+							      formWindow->project()->language() );
 	    for ( QStringList::Iterator fit = funcs.begin(); fit != funcs.end(); ++fit ) {
 		HierarchyItem *item = new HierarchyItem( eventItem, *fit, QString::null, QString::null );
 		item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );

@@ -42,6 +42,22 @@ public:
     QString createEmptyFunction();
     bool supports( Support s ) const;
     void fileFilters( QMap<QString, QString> & ) const {}
+    QString cleanSignature( const QString &sig ) { return sig; } // #### implement me
+    void saveFormCode( const QString &, const QString &,
+		       const QValueList<Function> &,
+		       const QStringList &,
+		       const QStringList &,
+		       const QStringList &,
+		       const QStringList &,
+		       const QValueList<Connection> & ) {}
+    void loadFormCode( const QString &, const QString &,
+		       QValueList<Function> &,
+		       QStringList &,
+		       QStringList &,
+		       QStringList &,
+		       QStringList &,
+		       QValueList<Connection> & ) {}
+    QString formCodeExtension() const { return ".cpp"; }
 
 private:
     ulong ref;

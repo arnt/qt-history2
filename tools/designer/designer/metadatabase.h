@@ -206,7 +206,7 @@ public:
     static QValueList<EventDescription> events( QObject *o, const QString &lang );
     static bool setEventFunctions( QObject *o, QObject *form, const QString &lang,
 				   const QString &event, const QStringList &functions, bool = TRUE );
-    static QStringList eventFunctions( QObject *o, const QString &event );
+    static QStringList eventFunctions( QObject *o, const QString &event, const QString &lang );
     static bool hasEventFunctions( QObject *o );
     static QMap<QString, QStringList> eventFunctions( QObject *o );
     static void setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies, const QString &lang, const QString &returnType );

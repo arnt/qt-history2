@@ -99,6 +99,7 @@ QMap<QWidget*, QString> *qwf_forms = 0;
 QString *qwf_language = 0;
 bool qwf_execute_code = TRUE;
 bool qwf_stays_on_top = FALSE;
+QString qwf_currFileName = "";
 
 /*!
   \class QWidgetFactory
@@ -162,6 +163,7 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector, QWid
     if ( !f.open( IO_ReadOnly ) )
 	return 0;
 
+    qwf_currFileName = uiFile;
     QWidget *w = QWidgetFactory::create( &f, connector, parent, name );
     if ( !qwf_forms )
 	qwf_forms = new QMap<QWidget*, QString>;
@@ -252,6 +254,31 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     if ( !functions.isNull() )
 	widgetFactory->loadFunctions( functions );
 
+    QString dir = getenv( "QTDIR" );
+    dir += "/plugins/designer";
+    if ( !languageInterfaceManager ) {
+	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_Language, dir );
+	QStringList paths(QApplication::libraryPaths());
+	QStringList::Iterator it = paths.begin();
+	while (it != paths.end()) {
+	    languageInterfaceManager->addLibraryPath(*it + "/designer");
+	    it++;
+	}
+    }
+
+    if ( !interpreterInterfaceManager ) {
+	interpreterInterfaceManager =
+	    new QPluginManager<InterpreterInterface>( IID_Interpreter, dir );
+	QStringList paths(QApplication::libraryPaths());
+	QStringList::Iterator it = paths.begin();
+	while (it != paths.end()) {
+	    interpreterInterfaceManager->addLibraryPath(*it + "/designer");
+	    it++;
+	}
+    }
+
+    widgetFactory->loadExtraSource();
+
     if ( widgetFactory->toplevel ) {
 #ifndef QT_NO_SQL
 	QMap<QWidget*, SqlWidgetConnection>::Iterator cit = widgetFactory->sqlWidgetConnections.begin();
@@ -288,8 +315,6 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	}
 #endif
 
-	QString dir = getenv( "QTDIR" );
-	dir += "/plugins/designer";
 	if ( !eventInterfaceManager ) {
 	    eventInterfaceManager = new QPluginManager<EventInterface>( IID_Event, dir );
 
@@ -297,27 +322,6 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	    QStringList::Iterator it = paths.begin();
 	    while (it != paths.end()) {
 		eventInterfaceManager->addLibraryPath(*it + "/designer");
-		it++;
-	    }
-	}
-
-	if ( !interpreterInterfaceManager ) {
-	    interpreterInterfaceManager =
-		new QPluginManager<InterpreterInterface>( IID_Interpreter, dir );
-	    QStringList paths(QApplication::libraryPaths());
-	    QStringList::Iterator it = paths.begin();
-	    while (it != paths.end()) {
-		interpreterInterfaceManager->addLibraryPath(*it + "/designer");
-		it++;
-	    }
-	}
-
-	if ( !languageInterfaceManager ) {
-	    languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_Language, dir );
-	    QStringList paths(QApplication::libraryPaths());
-	    QStringList::Iterator it = paths.begin();
-	    while (it != paths.end()) {
-		languageInterfaceManager->addLibraryPath(*it + "/designer");
 		it++;
 	    }
 	}
@@ -1087,6 +1091,8 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 			    delete l;
 			}
 		    }
+		    if ( !conn.sender )
+			conn.sender = findAction( name );
 		} else if ( n2.tagName() == "signal" ) {
 		    conn.signal = n2.firstChild().toText().data();
 		} else if ( n2.tagName() == "receiver" ) {
@@ -1123,6 +1129,8 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 		sender = l->first();
 		delete l;
 	    }
+	    if ( !sender )
+		sender = findAction( conn.sender->name() );
 
 	    if ( qstrcmp( conn.receiver->name(), toplevel->name() ) == 0 ) {
 		receiver = toplevel;
@@ -1584,4 +1592,84 @@ void QWidgetFactory::loadImages( const QString &dir )
     for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it )
 	QMimeSourceFactory::defaultFactory()->setPixmap( *it, QPixmap( d.path() + "/" + *it, "PNG" ) );
 
+}
+
+void QWidgetFactory::loadExtraSource()
+{
+    if ( !qwf_language || !languageInterfaceManager )
+	return;
+    QString lang = *qwf_language;
+    LanguageInterface *iface = 0;
+    languageInterfaceManager->queryInterface( lang, &iface );
+    if ( !iface )
+	return;
+    if ( !iface->supports( LanguageInterface::SaveFormCodeExternal ) ) {
+	iface->release();
+	return;
+    }
+
+    QValueList<LanguageInterface::Function> functions;
+    QStringList forwards;
+    QStringList includesImpl;
+    QStringList includesDecl;
+    QStringList vars;
+    QValueList<LanguageInterface::Connection> connections;
+
+    iface->loadFormCode( toplevel->name(), qwf_currFileName + iface->formCodeExtension(),
+			 functions, forwards, includesImpl, includesDecl, vars, connections );
+
+    for ( QValueList<LanguageInterface::Connection>::Iterator cit = connections.begin();
+	  cit != connections.end(); ++cit ) {
+	QObject *sender  = 0;
+	QString name = (*cit).sender;
+	if ( name == "this" || qstrcmp( toplevel->name(), name ) == 0 ) {
+	    sender = toplevel;
+	} else {
+	    if ( name == "this" )
+		name = toplevel->name();
+	    QObjectList *l = toplevel->queryList( 0, name, FALSE );
+	    if ( l ) {
+		if ( l->first() )
+		    sender = l->first();
+		delete l;
+	    }
+	}
+	if ( !sender )
+	    sender = findAction( name );
+	EventFunction ef = eventMap[ sender ];
+	ef.events.append( (*cit).signal );
+	ef.functions.append( QStringList::split( ',', (*cit).slot ) );
+	eventMap.replace( sender, ef );
+    }
+
+    if ( interpreterInterfaceManager ) {
+	InterpreterInterface *interpreterInterface = 0;
+	interpreterInterfaceManager->queryInterface( lang, &interpreterInterface );
+	if ( interpreterInterface ) {
+	    Functions *funcs = 0;
+	    QMap<QString, Functions*>::Iterator fit = languageFunctions.find( lang );
+	    if ( fit == languageFunctions.end() ) {
+		funcs = new Functions;
+		languageFunctions.insert( lang, funcs );
+	    } else {
+		funcs = *fit;
+	    }
+	    for ( QValueList<LanguageInterface::Function>::Iterator fit = functions.begin();
+		  fit != functions.end(); ++fit ) {
+		languageSlots.insert( (*fit).name.left( (*fit).name.find( '(' ) ), lang );
+		QString s = interpreterInterface->createFunctionDeclaration( (*fit).name, (*fit).body );
+		funcs->functions += s;
+		if ( !qwf_functions )
+		    qwf_functions = new QMap<QWidget*, QString>;
+		if ( !qwf_forms )
+		    qwf_forms = new QMap<QWidget*, QString>;
+		(*(qwf_functions))[ toplevel ].append( s );
+	    }
+	    interpreterInterface->release();
+	}
+    }
+
+    QStringList::Iterator vit;
+    for ( vit = vars.begin(); vit != vars.end(); ++vit )
+	variables << *vit;
 }

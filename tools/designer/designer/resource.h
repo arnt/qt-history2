@@ -41,6 +41,7 @@ class QDomElement;
 class QDesignerGridLayout;
 class QListViewItem;
 class QMainWindow;
+class LanguageInterface;
 
 class Resource
 {
@@ -56,6 +57,7 @@ public:
 
     Resource();
     Resource( MainWindow* mw );
+    ~Resource();
 
     void setWidget( FormWindow *w );
     QWidget *widget() const;
@@ -115,6 +117,7 @@ private:
     QColorGroup loadColorGroup( const QDomElement &e );
     QPixmap loadPixmap( const QDomElement &e, const QString &tagname = "pixmap" );
     void loadFunctions( const QDomElement &e );
+    void loadExtraSource();
 
 private:
     MainWindow *mainwindow;
@@ -135,6 +138,9 @@ private:
     QMap<QString, QStringList> dbTables;
     QString exportMacro;
     bool hadGeometry;
+    QMap<QString, QValueList<MetaDataBase::Connection> > langConnections;
+    QString currFileName;
+    LanguageInterface *langIface;
 
 };
 
