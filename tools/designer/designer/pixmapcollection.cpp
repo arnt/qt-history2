@@ -36,6 +36,7 @@ PixmapCollection::PixmapCollection( Project *pro )
 
 PixmapCollection::~PixmapCollection()
 {
+    delete mimeSourceFactory;
     delete iface;
 }
 

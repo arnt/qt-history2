@@ -194,6 +194,7 @@ Project::Project( const QString &fn, const QString &pName, QPluginManager<Projec
 Project::~Project()
 {
     delete iface;
+    delete pixCollection;
 }
 
 #ifndef QT_NO_SQL
