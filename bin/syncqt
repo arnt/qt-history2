@@ -59,7 +59,7 @@ my @dirs = map { -d "$basedir/src/$_" ? "src/$_" : () } readdir(SRC);
 closedir SRC;
 @dirs = ( @dirs, "extensions/xt/src", "extensions/nsplugin/src", "tools/designer/uilib" );
 
-my $specdir = "mkspecs/" . $ENV{"MKSPEC"};
+my $specdir = "mkspecs/" . defined $ENV{"MKSPEC"} ? $ENV{"MKSPEC"} : '';
 @dirs = ( @dirs, $specdir );
 
 my @files;
@@ -139,7 +139,7 @@ exit 0;
 # file is symlinked to ifile
 #
 
-sub symlink_files()
+sub symlink_files
 {
   my ($file, $ifile) = @_;
   print "symlink created for $file ";
@@ -163,7 +163,7 @@ sub symlink_files()
 # the newest file is copied over the older file.
 #
 
-sub sync_files()
+sub sync_files
 {
     my ($file,$ifile,$fast,$copy,$knowdiff,$filecontents,$ifilecontents) = @_;
 
