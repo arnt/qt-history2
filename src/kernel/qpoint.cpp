@@ -27,7 +27,7 @@
 #include "qdatastream.h"
 
 
-// BEING REVISED: paul
+// REVISED: paul
 /*!
   \class QPoint qpoint.h
   \brief The QPoint class defines a point in the plane.
@@ -36,21 +36,41 @@
 
   A point is specified by an x coordinate and a y coordinate.
 
-  The coordinate type is QCOORD (defined in qwindowdefs.h as \c int).
-  The minimum value of QCOORD is QCOORD_MIN (-2147483648) and the maximum
-  value is  QCOORD_MAX (2147483647).
+  The coordinate type is \c QCOORD (a 32-bit integer).
+  The minimum value of \c QCOORD is \c QCOORD_MIN (-2147483648) and the maximum
+  value is  \c QCOORD_MAX (2147483647).
 
-  We have defined many operator functions that make arithmetic on points
-  simple and intuitive.
+  The coordinates are accessed by the functions x() and y(), they can
+  be set by setX() and setY(), or by the reference functions rx() and ry().
+  
+  Given a point \e p, the following statements are all equivalent:
+  \code
+     p.setX( p.x() + 1 );
+     p += QPoint( 1, 0 );
+     p.rx()++;
+  \endcode
+  
+  
+  A QPoint can also be used as a vector.  Addition and subtraction of
+  QPoint are defined as for vectors (each component is added
+  separately). You can divide or multiply a QPoint by an \c int or a
+  \c double. The function manhattanLength() gives an inexpensive
+  approximation to the length of the QPoint interpreted as a vector.
 
   Example:
   \code
-    QPoint p(  1, 2 );
-    QPoint q( -8, 5 );
-    QPoint r(  9, 7 );
-    QPoint x = 2*p + (q-r)*5.5 - (r+p/1.5);
+     //QPoint oldPos is defined somewhere else 
+     MyWidget::mouseMoveEvent( QMouseEvent *e )
+     {
+        QPoint vector = e->pos() - oldPos;
+	if ( vector.manhattanLength() > 3 )
+	   ... //mouse has moved more than 3 pixels since oldPos
+     }
   \endcode
-
+  
+  QPoints can be compared for equality or inequality, and they can be
+  written to and read from a QStream.
+  
   \sa QSize, QRect
 */
 
@@ -61,12 +81,12 @@
 
 /*!
   \fn QPoint::QPoint()
-  Constructs a point (0,0) (a \link QPoint::isNull() null point\endlink).
+  Constructs a point with coordinates (0,0) (isNull() returns TRUE).
 */
 
 /*!
   \fn QPoint::QPoint( int xpos, int ypos )
-  Constructs a point with the x value  \e xpos and y value \e ypos.
+  Constructs a point with the x value  \a xpos and y value \a ypos.
 */
 
 /*!
@@ -77,25 +97,25 @@
 /*!
   \fn int QPoint::x() const
   Returns the x coordinate of the point.
-  \sa y()
+  \sa setX() y()
 */
 
 /*!
   \fn int QPoint::y() const
   Returns the y coordinate of the point.
-  \sa x()
+  \sa setY() x()
 */
 
 /*!
   \fn void QPoint::setX( int x )
-  Sets the x coordinate of the point to \e x.
-  \sa setY()
+  Sets the x coordinate of the point to \a x.
+  \sa x() setY()
 */
 
 /*!
   \fn void QPoint::setY( int y )
-  Sets the y coordinate of the point to \e y.
-  \sa setX()
+  Sets the y coordinate of the point to \a y.
+  \sa y() setX()
 */
 
 
@@ -132,7 +152,7 @@
 
 /*!
   \fn QPoint &QPoint::operator+=( const QPoint &p )
-  Adds \e p to the point and returns a reference to this point.
+  Adds \a p to the point and returns a reference to this point.
 
   Example:
   \code
@@ -144,7 +164,7 @@
 
 /*!
   \fn QPoint &QPoint::operator-=( const QPoint &p )
-  Subtracts \e p from the point and returns a reference to this point.
+  Subtracts \a p from the point and returns a reference to this point.
 
   Example:
   \code
@@ -156,7 +176,7 @@
 
 /*!
   \fn QPoint &QPoint::operator*=( int c )
-  Multiplies both x and y with \e c, and return a reference to this point.
+  Multiplies both x and y with \a c, and return a reference to this point.
 
   Example:
   \code
@@ -167,7 +187,7 @@
 
 /*!
   \fn QPoint &QPoint::operator*=( double c )
-  Multiplies both x and y with \e c, and return a reference to this point.
+  Multiplies both x and y with \a c, and return a reference to this point.
 
   Example:
   \code
@@ -182,64 +202,72 @@
 /*!
   \fn bool operator==( const QPoint &p1, const QPoint &p2 )
   \relates QPoint
-  Returns TRUE if \e p1 and \e p2 are equal, or FALSE if they are different.
+  Returns TRUE if \a p1 and \a p2 are equal, or FALSE if they are different.
 */
 
 /*!
   \fn bool operator!=( const QPoint &p1, const QPoint &p2 )
   \relates QPoint
-  Returns TRUE if \e p1 and \e p2 are different, or FALSE if they are equal.
+  Returns TRUE if \a p1 and \a p2 are different, or FALSE if they are equal.
 */
 
 /*!
   \fn QPoint operator+( const QPoint &p1, const QPoint &p2 )
   \relates QPoint
-  Returns the sum of \e p1 and \e p2; each component is added separately.
+  Returns the sum of \a p1 and \a p2; each component is added separately.
 */
 
 /*!
   \fn QPoint operator-( const QPoint &p1, const QPoint &p2 )
   \relates QPoint
-  Returns \e p2 subtracted from \e p1; each component is
+  Returns \a p2 subtracted from \a p1; each component is
   subtracted separately.
 */
 
 /*!
   \fn QPoint operator*( const QPoint &p, int c )
   \relates QPoint
-  Multiplies both of \e p's components by \e c and returns the result.
+  Returns the QPoint formed by multiplying both components of \a p
+  by \a c.
 */
 
 /*!
   \fn QPoint operator*( int c, const QPoint &p )
   \relates QPoint
-  Multiplies both of \e p's components by \e c and returns the result.
+  Returns the QPoint formed by multiplying both components of \a p
+  by \a c.
 */
 
 /*!
   \fn QPoint operator*( const QPoint &p, double c )
   \relates QPoint
-  Multiplies both of \e p's components by \e c and returns the
-  result.
+  Returns the QPoint formed by multiplying both components of \a p
+  by \a c.
+
+  Note that the result is truncated.
 */
 
 /*!
   \fn QPoint operator*( double c, const QPoint &p )
   \relates QPoint
-  Multiplies both of \e p's components by \e c and returns the
-  result.
+  Returns the QPoint formed by multiplying both components of \a p
+  by \a c.
+
+  Note that the result is truncated.
 */
 
 /*!
-  \fn QPoint operator-( const QPoint &p )
-  \relates QPoint
-  Returns \e p where x and y have opposite signs.
+  \fn QPoint operator-( const QPoint &p ) 
+  \relates QPoint 
+  
+  Returns the QPoint formed by changing the sign of both components of
+  \a p, equivalent to <code>QPoint(0,0) - p</code>.
 */
 
 /*!
   \fn QPoint &QPoint::operator/=( int c )
 
-  Divides both x and y by \e c, and return a reference to this point.
+  Divides both x and y by \a c, and return a reference to this point.
 
   Example:
   \code
@@ -251,7 +279,7 @@
 /*!
   \fn QPoint &QPoint::operator/=( double c )
 
-  Divides both x and y by \e c, and return a reference to this point.
+  Divides both x and y by \a c, and return a reference to this point.
 
   Example:
   \code
@@ -265,14 +293,16 @@
 /*!
   \fn QPoint operator/( const QPoint &p, int c )
   \relates QPoint
-  Divides both of \e p's components by \e c and returns the result.
+  Returns the QPoint formed by dividing both components of \a p
+  by \a c.
 */
 
 /*!
   \fn QPoint operator/( const QPoint &p, double c )
   \relates QPoint
 
-  Divides both of \e p's components by \e c and returns the result.
+  Returns the QPoint formed by dividing both components of \a p
+  by \a c.
 
   Note that the result is truncated.
 */

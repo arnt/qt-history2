@@ -28,7 +28,7 @@
 #include "qobject.h"
 
 
-// NOT REVISED
+// BEING REVISED: paul
 /*!
   \class QPixmapCache qpixmapcache.h
 
