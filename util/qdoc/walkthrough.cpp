@@ -7,6 +7,8 @@
 #include <qstring.h>
 #include <qtextstream.h>
 
+#include <stdlib.h>
+
 #include "config.h"
 #include "messages.h"
 #include "walkthrough.h"
@@ -51,7 +53,8 @@ static QString killWhiteSpace( const QString& s )
     return t;
 }
 
-static QString stripTrailingBlankLine( const QString& s )
+// skip trailing blank line
+static QString fix( const QString& s )
 {
     if ( s.right(2) == QString("\n\n") )
 	return s.left( s.length() - 1 );
@@ -109,7 +112,7 @@ void Walkthrough::startPass2( const QString& fileName,
 QString Walkthrough::printline( const QString& substr, const Location& docLoc )
 {
     int lineNo0 = walkloc.lineNum();
-    QString t = xline( substr, docLoc, QString("printline") );
+    QString t = fix( xline(substr, docLoc, QString("printline")) );
     incrementScores( FALSE, lineNo0, 1001 );
     return t;
 }
@@ -117,7 +120,7 @@ QString Walkthrough::printline( const QString& substr, const Location& docLoc )
 QString Walkthrough::printto( const QString& substr, const Location& docLoc )
 {
     int lineNo0 = walkloc.lineNum();
-    QString t = xto( substr, docLoc, QString("printto") );
+    QString t = fix( xto(substr, docLoc, QString("printto")) );
     for ( int i = lineNo0; i < walkloc.lineNum(); i++ )
 	incrementScores( FALSE, i,
 			 484 + 989 / (walkloc.lineNum() - lineNo0 + 1) );
@@ -127,7 +130,7 @@ QString Walkthrough::printto( const QString& substr, const Location& docLoc )
 QString Walkthrough::printuntil( const QString& substr, const Location& docLoc )
 {
     int lineNo0 = walkloc.lineNum();
-    QString t = xuntil( substr, docLoc, QString("printuntil") );
+    QString t = fix( xuntil(substr, docLoc, QString("printuntil")) );
     for ( int i = lineNo0; i < walkloc.lineNum(); i++ )
 	incrementScores( FALSE, i,
 			 484 + 989 / (walkloc.lineNum() - lineNo0 + 1) );
@@ -151,7 +154,7 @@ void Walkthrough::skipuntil( const QString& substr, const Location& docLoc )
 
 void Walkthrough::addANames( QString *text, const LinkMap& exampleLinkMap )
 {
-    if ( exampleLinkMap.isEmpty() ) // ### optimization
+    if ( exampleLinkMap.isEmpty() )
 	return;
 
     int lineNo = 1;
@@ -167,7 +170,7 @@ void Walkthrough::addANames( QString *text, const LinkMap& exampleLinkMap )
 
 	/*
 	  This condition should always be met, in theory. If it isn't,
-	  and if we didn't test it, the results would be desastrous.
+	  and if we don't test it, the results are desastrous.
 	*/
 	if ( k < (int) text->length() && (*text)[k] != QChar('\n') ) {
 	    StringSet::ConstIterator link = (*links).begin();
@@ -213,15 +216,15 @@ QString Walkthrough::start( bool include, bool firstPass,
 	    if ( !uiFilePath.isEmpty() ) {
 		QString cmd( "uic %1 -o %2" );
 
-		filePath = uiFilePath.left( uiFilePath.length() - 3 ) + ext;
+		filePath = uiFilePath.left( uiFilePath.length() - 3 ) + ext +
+			   QString( ".temp" );
 		if ( ext == QString(".cpp") ) {
 		    QString hFileName = fileName.left( fileName.length() - 4 ) +
 					QString( ".h" );
 		    cmd.append( QString(" -impl %1").arg(hFileName) );
 		}
 
-		if ( system(QString("uic %1 -o %2")
-			    .arg(uiFilePath).arg(filePath).latin1()) != 0 ) {
+		if ( system(cmd.arg(uiFilePath).arg(filePath).latin1()) != 0 ) {
 		    message( 1, "Problems with generation of '%s'",
 			     filePath.latin1() );
 		    filePath = QString::null;
@@ -394,7 +397,7 @@ QString Walkthrough::xline( const QString& substr, const Location& docLoc,
     } else {
 	s = getNextLine( docLoc );
     }
-    return stripTrailingBlankLine( s );
+    return s;
 }
 
 QString Walkthrough::xto( const QString& substr, const Location& docLoc,
@@ -412,7 +415,7 @@ QString Walkthrough::xto( const QString& substr, const Location& docLoc,
 
     while ( !plainlines.isEmpty() ) {
 	if ( killWhiteSpace(plainlines.first()).find(subs) != -1 )
-	    return stripTrailingBlankLine( s );
+	    return s;
 	s += getNextLine( docLoc );
     }
     if ( !shutUp ) {
@@ -429,7 +432,7 @@ QString Walkthrough::xuntil( const QString& substr, const Location& docLoc,
 {
     QString s = xto( substr, docLoc, command );
     s += getNextLine( docLoc );
-    return stripTrailingBlankLine( s );
+    return s;
 }
 
 QString Walkthrough::getNextLine( const Location& docLoc )

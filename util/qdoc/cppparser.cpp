@@ -248,6 +248,10 @@ static bool matchParameter( FunctionDecl *funcDecl )
 	    defaultValue.append( yyTokenizer->lexeme() );
 	    yyTok = getToken();
 	}
+    } else if ( name.startsWith(QString("Q_")) ) {
+	// Q_NAME and Q_PARENT
+	name = name.mid( 2 ).lower();
+	defaultValue.append( QString("0") );
     }
     funcDecl->addParameter( Parameter(type, name, defaultValue) );
     return TRUE;
