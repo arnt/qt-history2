@@ -690,7 +690,7 @@ static HRESULT classIDL( QObject *o, const QMetaObject *mo, const QString &class
 	    out << ", readonly";
 	if (isBindable && property.isScriptable(o))
 	    out << ", bindable";
-	if (property.isDesignable(o))
+	if (!property.isDesignable(o))
 	    out << ", nonbrowsable";
 	if (isBindable)
 	    out << ", requestedit";
