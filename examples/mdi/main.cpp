@@ -14,7 +14,7 @@
 int main( int argc, char ** argv ) {
     QApplication a( argc, argv );
     ApplicationWindow * mw = new ApplicationWindow();
-    mw->setCaption( "Document 1" );
+    mw->setCaption( "Multiple Documents" );
     mw->show();
     a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
     int res = a.exec();

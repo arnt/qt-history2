@@ -952,7 +952,8 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	    c->setGeometry( d->maxRestore );
 	    d->maxWindow = 0;
 	    inCaptionChange = TRUE;
-	    topLevelWidget()->setCaption( d->topCaption );
+	    if ( !!d->topCaption )
+		topLevelWidget()->setCaption( d->topCaption );
 	    inCaptionChange = FALSE;
 	}
 	else {
@@ -989,8 +990,9 @@ void QWorkspace::maximizeWindow( QWidget* w)
 	activateWindow( w);
 	showMaximizeControls();
 	inCaptionChange = TRUE;
-	topLevelWidget()->setCaption( QString("%1 - [%2]")
-	    .arg(d->topCaption).arg(c->caption()) );
+	if ( !!d->topCaption )
+	    topLevelWidget()->setCaption( QString("%1 - [%2]")
+		.arg(d->topCaption).arg(c->caption()) );
 	inCaptionChange = FALSE;
 	setUpdatesEnabled( TRUE );
     }
@@ -1083,7 +1085,8 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 	    if ( !d->maxWindow ) {
     		hideMaximizeControls();
    		inCaptionChange = TRUE;
-		topLevelWidget()->setCaption( d->topCaption );
+		if ( !!d->topCaption )
+		    topLevelWidget()->setCaption( d->topCaption );
 		inCaptionChange = FALSE;
 	    }
 	}
@@ -1100,7 +1103,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 	if ( o == topLevelWidget() )
 	    d->topCaption = ((QWidget*)o)->caption();
 
-	if ( d->maxWindow )
+	if ( d->maxWindow && !!d->topCaption )
 	    topLevelWidget()->setCaption( QString("%1 - [%2]")
 		.arg(d->topCaption).arg(d->maxWindow->caption()));
 	inCaptionChange = FALSE;
@@ -1697,7 +1700,13 @@ void QWorkspaceChildTitleBar::setText( const QString& title )
 
 void QWorkspaceChildTitleBar::setIcon( const QPixmap& icon )
 {
-    iconL->setPixmap( icon );
+    if ( icon.height() > 14 || icon.width() > 14 ) {
+	QPixmap p;
+	p.convertFromImage( icon.convertToImage().smoothScale( 14, 14 ) );
+	iconL->setPixmap( p );
+    } else {
+	iconL->setPixmap( icon );
+    }
 }
 
 bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
