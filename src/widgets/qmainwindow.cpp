@@ -1416,6 +1416,7 @@ void QMainWindow::setUpLayout()
 	d->tll->addWidget( d->topDock );
 
     QMainWindowLayout *mwl = new QMainWindowLayout( this, d->tll );
+    d->tll->setStretchFactor( mwl, 1 );
 
     if(d->leftDock->parentWidget() == this)
 	mwl->setLeftDock( d->leftDock );
