@@ -196,7 +196,8 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
         return pm;
 
     QSize actualSize = pm.size();
-    actualSize.scale(size, Qt::KeepAspectRatio);
+    if (!actualSize.isNull() && (actualSize.width() > size.width() && actualSize.height() > size.height()))
+        actualSize.scale(size, Qt::KeepAspectRatio);
 
     QString key = QLatin1String("$qt_icon_")
                   + QString::number(pm.serialNumber())
@@ -229,7 +230,7 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
                 return pm;
             pm = generated;
         }
-        if (pm.width() > size.width() || pm.height() > size.height())
+        if (pm.size() != actualSize)
             pm = pm.scale(actualSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         if (pm.isDetached())
             QPixmapCache::insert(key + QString::number(mode), pm);
@@ -302,7 +303,7 @@ QSize QPixmapIconEngine::actualSize(const QSize &size, QIcon::Mode mode, QIcon::
 
 
     QSize actualSize = pe.size;
-    if (!actualSize.isNull())
+    if (!actualSize.isNull() && (actualSize.width() > size.width() && actualSize.height() > size.height()))
         actualSize.scale(size, Qt::KeepAspectRatio);
     return actualSize;
 }
