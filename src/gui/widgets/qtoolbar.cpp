@@ -716,16 +716,21 @@ void QToolBar::resizeEvent(QResizeEvent *event)
     i = d->items.size(); // note: the toolbar handle is not counted
     while (i > 0) {
 	QWidget *w = box->itemAt(i)->widget();
-	if (pick(orientation, w->pos()) + pick(orientation, w->size())
-            > pick(orientation, size()) - extension_size)
-            {
-                w->hide();
-                d->items[i - 1].hidden = true;
-                ++hidden_count;
-                // the size of the extension menu button needs to be
-                // considered when buttons in the toolbar are hidden
-                extension_size = pick(orientation, d->extension->sizeHint());
-            } else {
+	bool hide = false;
+	if (QApplication::layoutDirection() == Qt::RightToLeft && orientation == Qt::Horizontal) {
+	    hide = pick(orientation, w->pos()) < extension_size;
+	} else {
+	    hide = pick(orientation, w->pos()) + pick(orientation, w->size())
+		   > pick(orientation, size()) - extension_size;
+	}
+	if (hide) {
+	    w->hide();
+	    d->items[i - 1].hidden = true;
+	    ++hidden_count;
+	    // the size of the extension menu button needs to be
+	    // considered when buttons in the toolbar are hidden
+	    extension_size = pick(orientation, d->extension->sizeHint());
+	} else {
             w->setShown(d->items[i - 1].action->isVisible());
             d->items[i - 1].hidden = false;
 	}
@@ -735,7 +740,6 @@ void QToolBar::resizeEvent(QResizeEvent *event)
             max_item_extent = qMax(max_item_extent, w->width());
 	--i;
     }
-
     if (orientation == Qt::Horizontal) {
         setMinimumSize(d->handle->sizeHint().width() + box->spacing() + extension_size + margin*2,
                        max_item_extent + margin*2);
@@ -746,10 +750,10 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 
     if (hidden_count > 0) {
 	if (orientation == Qt::Horizontal) {
-	    d->extension->setGeometry(width() - d->extension->sizeHint().width() - margin,
-				      margin,
-				      d->extension->sizeHint().width(),
-				      max_item_extent);
+	    int x = QApplication::layoutDirection() == Qt::RightToLeft 
+		    ? margin
+		    : width() - d->extension->sizeHint().width() - margin;
+	    d->extension->setGeometry(x, margin, d->extension->sizeHint().width(), max_item_extent);
         } else {
 	    d->extension->setGeometry(margin,
 				      height() - d->extension->sizeHint().height() - margin,

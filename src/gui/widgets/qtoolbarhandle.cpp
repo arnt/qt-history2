@@ -82,7 +82,9 @@ void QToolBarHandle::mousePressEvent(QMouseEvent *event)
     Q_ASSERT(!state);
     state = new DragState;
 
-    state->offset = mapTo(parentWidget(), event->pos());
+    state->offset = QStyle::visualPos(QApplication::layoutDirection(),
+				      parentWidget()->rect(),
+				      mapTo(parentWidget(), event->pos()));
 }
 
 void QToolBarHandle::mouseReleaseEvent(QMouseEvent *event)
@@ -113,7 +115,9 @@ void QToolBarHandle::mouseMoveEvent(QMouseEvent *event)
 
     QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(widget->layout());
     Q_ASSERT_X(layout != 0, "QMainWindow", "must have a layout");
-    QPoint p = parentWidget()->mapFromGlobal(event->globalPos()) - state->offset;
+    QPoint p = QStyle::visualPos(QApplication::layoutDirection(), parentWidget()->rect(),
+				 parentWidget()->mapFromGlobal(event->globalPos())) 
+	       - state->offset;
 
     // ### the offset is measured from the widget origin
     if (orient == Qt::Vertical)

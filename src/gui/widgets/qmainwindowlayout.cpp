@@ -1012,6 +1012,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 	for (int i = 0; i < num_tbs; ++i) {
 	    ToolBarLayoutInfo &info = lineInfo.list[i];
 	    QRect tb(info.pos, info.size);
+	    tb = QStyle::visualRect(QApplication::layoutDirection(), tb_rect[line], tb);
 	    if (!tb.isEmpty() && relayout_type == QInternal::RelayoutNormal)
 		info.item->setGeometry(tb);
 	}
