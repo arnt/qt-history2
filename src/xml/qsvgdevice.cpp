@@ -549,6 +549,7 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	    e.setAttribute( "points", str.trimmed() );
 	}
 	break;
+#ifndef QT_NO_BEZIER
     case PdcDrawCubicBezier:
 	a = *p[0].ptarr;
 	e = doc.createElement( "path" );
@@ -557,6 +558,7 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 		     a[3].x(), a[3].y() );
 	e.setAttribute( "d", str );
 	break;
+#endif
     case PdcDrawText2:
 	e = doc.createElement( "text" );
 	if ( p[0].point->x() )
@@ -1375,6 +1377,7 @@ void QSvgDevice::drawPath( const QString &data )
 	    y = arg[ 0 ] + offsetY;
 	    path.setPoint( pcount++, int(x), int(y) );
 	    break;
+#ifndef QT_NO_BEZIER
 	case 5:					// 'C' cubic bezier curveto
 	case 6:					// 'S' smooth shorthand
 	case 7:					// 'Q' quadratic bezier curves
@@ -1417,6 +1420,7 @@ void QSvgDevice::drawPath( const QString &data )
 		path.setPoint( pcount++, bezier[ k ] );
 	    break;
 	}
+#endif // QT_NO_BEZIER
 	case 9:					// 'A' elliptical arc curve
 	    // ### just a straight line
 	    x = arg[ 5 ] + offsetX;

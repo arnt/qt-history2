@@ -56,8 +56,9 @@ public:
     void makeArc(int x, int y, int w, int h, int a1, int a2);
     void makeArc(int x, int y, int w, int h, int a1, int a2, const QWMatrix &matrix);
 #endif
+#ifndef QT_NO_BEZIER
     QPointArray cubicBezier() const;
-
+#endif
     void *shortPoints(int index = 0, int nPoints = -1) const;
     static void cleanBuffers();
 };
