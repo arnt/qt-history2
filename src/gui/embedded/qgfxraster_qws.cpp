@@ -5041,8 +5041,8 @@ void QGfxRaster<depth,type>::processSpans(int n, QPoint* point, int* width)
         if (*width > 0) {
             if (patternedbrush && srcwidth != 0 && srcheight != 0) {
                 unsigned char * savealphabits=alphabits;
-                int offx = srcwidgetoffs.x() + brushoffs.x() + point->x();
-                int offy = srcwidgetoffs.y() + brushoffs.y() + point->y();
+                int offx = srcwidgetoffs.x() - brushoffs.x() + point->x();
+                int offy = srcwidgetoffs.y() - brushoffs.y() + point->y();
 
                 // from qpainter_qws.cpp
                 if (offx < 0)
