@@ -1516,9 +1516,9 @@ void QWidget::showMinimized()
 
 void QWidget::showMaximized()
 {
-    if(isMaximized() || isDesktop())
+    if(isDesktop())
 	return;
-    if(isTopLevel()) {
+    if(!isMaximized() && isTopLevel()) {
 	Rect bounds;
 	fstrut_dirty = TRUE;
 	QDesktopWidget *dsk = QApplication::desktop();
@@ -1601,7 +1601,6 @@ void QWidget::raise()
 {
     if(isDesktop())
 	return;
-
     if(isTopLevel()) {
 	//we get to be the active process now
 	ProcessSerialNumber psn;
