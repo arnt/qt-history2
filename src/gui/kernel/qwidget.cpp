@@ -6390,7 +6390,7 @@ void QWidget::languageChange() { }  // compat
     \oldcode
     widget->setEraseColor(color);
     \newcode
-    QPalette palette(widget->palette());
+    QPalette palette;
     palette.setColor(widget->backgroundRole(), color);
     widget->setPalette(palette);
     \endcode
@@ -6404,7 +6404,7 @@ void QWidget::languageChange() { }  // compat
     \oldcode
     widget->setErasePixmap(pixmap);
     \newcode
-    QPalette palette(widget->palette());
+    QPalette palette;
     palette.setBrush(widget->backgroundRole(), QBrush(pixmap));
     widget->setPalette(palette);
     \endcode
@@ -6418,7 +6418,7 @@ void QWidget::languageChange() { }  // compat
     \oldcode
     widget->setPaletteForegroundColor(color);
     \newcode
-    QPalette palette(widget->palette());
+    QPalette palette;
     palette.setColor(widget->foregroundRole(), color);
     widget->setPalette(palette);
     \endcode
@@ -6432,7 +6432,7 @@ void QWidget::languageChange() { }  // compat
     \oldcode
     widget->setPaletteBackgroundColor(color);
     \newcode
-    QPalette palette(widget->palette());
+    QPalette palette;
     palette.setColor(widget->backgroundRole(), color);
     widget->setPalette(palette);
     \endcode
@@ -6446,7 +6446,7 @@ void QWidget::languageChange() { }  // compat
     \oldcode
     widget->setPaletteBackgroundPixmap(pixmap);
     \newcode
-    QPalette palette(widget->palette());
+    QPalette palette;
     palette.setBrush(widget->backgroundRole(), QBrush(pixmap));
     widget->setPalette(palette);
     \endcode
@@ -6460,7 +6460,7 @@ void QWidget::languageChange() { }  // compat
     \oldcode
     widget->setBackgroundPixmap(pixmap);
     \newcode
-    QPalette palette(widget->palette());
+    QPalette palette;
     palette.setBrush(widget->backgroundRole(), QBrush(pixmap));
     widget->setPalette(palette);
     \endcode
@@ -6474,7 +6474,7 @@ void QWidget::languageChange() { }  // compat
     \oldcode
     widget->setBackgroundColor(color);
     \newcode
-    QPalette palette(widget->palette());
+    QPalette palette;
     palette.setColor(widget->backgroundRole(), color);
     widget->setPalette(palette);
     \endcode
