@@ -86,7 +86,7 @@
 typedef unsigned int PackType;
 
 
-#define GET_MASKED(rev) \
+#define GET_MASKED(rev, advance) \
 		    if( amonolittletest ) { \
 			if(amonobitval & 0x1) { \
 			    masked=FALSE; \
@@ -101,7 +101,7 @@ typedef unsigned int PackType;
 		    } \
 		    if(amonobitcount<7) { \
 			amonobitcount++; \
-		    } else { \
+		    } else if (advance) { \
 			amonobitcount=0; \
 			if (rev) maskp--; \
 			else maskp++; \

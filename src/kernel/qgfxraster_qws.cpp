@@ -3388,7 +3388,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		if ( srctype == SourceImage )
 		    gv = get_value_32( srcdepth, &srcdata, reverse );
 		bool masked = TRUE;
-		GET_MASKED(reverse);
+		GET_MASKED(reverse, w);
 		if ( !masked ) {
 		  if(myrop==XorROP) {
 		    *(myptr)^=gv;
@@ -3425,7 +3425,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		if ( srctype == SourceImage )
 		    gv = get_value_24( srcdepth, &srcdata, reverse );
 		bool masked = TRUE;
-		GET_MASKED(reverse);
+		GET_MASKED(reverse, w);
 		if ( !masked )
 		    gfxSetRgb24( myptr, gv );
 		myptr += inc;
@@ -3582,7 +3582,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		    if ( srctype==SourceImage )
 			gv = get_value_16( srcdepth, &srcdata, reverse );
 		    bool masked = TRUE;
-		    GET_MASKED(reverse);
+		    GET_MASKED(reverse, w);
 		    if ( !masked ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
 			if(is_screen_gfx) {
@@ -3610,7 +3610,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		    if ( srctype==SourceImage )
 			gv = get_value_16( srcdepth, &srcdata, reverse );
 		    bool masked = TRUE;
-		    GET_MASKED(reverse);
+		    GET_MASKED(reverse, w);
 		    if ( !masked ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
 			if (is_screen_gfx)
@@ -3698,7 +3698,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		if ( srctype==SourceImage )
 		    gv = get_value_8( srcdepth, &srcdata, reverse);
 		bool masked = TRUE;
-		GET_MASKED(reverse);
+		GET_MASKED(reverse, w);
 		if ( !masked ) {
 		  if(myrop==XorROP) {
 		    *(myptr) ^= gv;
@@ -3722,7 +3722,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		    gv = get_value_4( srcdepth, &srcdata, reverse);
 		bool masked = TRUE;
 		if ( ismasking ) {
-		    GET_MASKED(reverse);
+		    GET_MASKED(reverse, w);
 		}
 		if ( !masked || !ismasking ) {
 		    int s = (x&1) << 2;
@@ -3740,7 +3740,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		    gv = get_value_4( srcdepth, &srcdata, reverse);
 		bool masked = TRUE;
 		if ( ismasking ) {
-		    GET_MASKED(reverse);
+		    GET_MASKED(reverse, w);
 		}
 		if ( !masked || !ismasking ) {
 		    int s = (x&1) << 2;
@@ -3765,11 +3765,12 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		    if (skipbits)
 			skipbits--;
 		    else {
+			w--;
 			if ( srctype == SourceImage )
 			    gv = get_value_1( srcdepth, &srcdata, TRUE);
 			bool masked = TRUE;
 			if ( ismasking ) {
-			    GET_MASKED(TRUE);
+			    GET_MASKED(TRUE, w);
 			}
 			if ( !masked || !ismasking ) {
 			    if (gv)
@@ -3777,7 +3778,6 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 			    else
 				m &= ~( 0x80 >> i );
 			}
-			w--;
 		    }
 		}
 		*(dp--) = m;
@@ -3791,11 +3791,12 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		    if (skipbits)
 			skipbits--;
 		    else {
+			w--;
 			if ( srctype == SourceImage )
 			    gv = get_value_1( srcdepth, &srcdata, FALSE);
 			bool masked = TRUE;
 			if ( ismasking ) {
-			    GET_MASKED(FALSE);
+			    GET_MASKED(FALSE, w);
 			}
 			if ( !masked || !ismasking ) {
 			    if (gv)
@@ -3803,7 +3804,6 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 			    else
 				m &= ~( 1 << i );
 			}
-			w--;
 		    }
 		}
 		*(dp++) = m;

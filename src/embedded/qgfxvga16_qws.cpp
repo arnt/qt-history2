@@ -887,7 +887,7 @@ void QGfxVga16::himageline_4(unsigned int y, unsigned int x1, unsigned int x2, u
 		    srcdata++;
 		}
 		bool masked = TRUE;
-		GET_MASKED(reverse);
+		GET_MASKED(reverse, w);
 		SavedRow[x] = (!masked) ? gv : getPixel( x, y );
 		x += inc;
 	    }
@@ -919,7 +919,7 @@ void QGfxVga16::himageline_4(unsigned int y, unsigned int x1, unsigned int x2, u
 		    gv = closestMatchUsingTable(r,g,b);
 		}
 		bool masked = TRUE;
-		GET_MASKED(reverse);
+		GET_MASKED(reverse, w);
 		SavedRow[x] = (!masked) ? gv : getPixel( x, y );
 		x += inc;
 	    }
