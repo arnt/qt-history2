@@ -221,10 +221,11 @@ void QListModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order
 
 /*!
     \class QListWidgetItem
-    \brief The QListWidgetItem class holds a single list widget data
-    item.
+    \brief The QListWidgetItem class provides an item for use with the
+    QListWidget item view class.
 
-    ###
+    \ingroup model-view
+
 */
 
 /*!
@@ -244,7 +245,7 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
 }
 
 /*!
-    Destructs this list widget item.
+    Destroys the list item.
 */
 
 QListWidgetItem::~QListWidgetItem()
@@ -308,6 +309,50 @@ QVariant QListWidgetItem::data(int role) const
 */
 
 /*!
+    \fn QString QListWidgetItem::statusTip() const
+
+    Returns the list item's status tip.
+
+    \sa setStatusTip()
+*/
+
+/*!
+    \fn QString QListWidgetItem::toolTip() const
+
+    Returns the list item's tooltip.
+
+    \sa setToolTip()
+*/
+
+/*!
+    \fn QString QListWidgetItem::whatsThis() const
+
+    Returns the list item's "What's This?" help text.
+
+    \sa setWhatsThis()
+*/
+
+/*!
+    \fn QColor QListWidgetItem::backgroundColor() const
+
+    Returns the color used to display the list item's background.
+
+    \sa setBackgroundColor() textColor()
+*/
+
+/*!
+    \fn QColor QListWidgetItem::textColor() const
+
+    Returns the used to display the list item's text.
+
+    \sa setTextColor() backgroundColor()
+*/
+
+/*!
+    \fn int QListWidgetItem::checked() const
+*/
+
+/*!
     \fn bool QListWidgetItem::isEditable() const
 
     Returns true if this list widget item is editable; otherwise
@@ -339,6 +384,56 @@ QVariant QListWidgetItem::data(int role) const
     Sets this list widget item's \a icon.
 
     \sa icon()
+*/
+
+/*!
+    \fn void QListWidgetItem::setStatusTip(const QString &statusTip)
+
+    Sets the status tip for this list item to the text specified by
+    \a statusTip.
+
+    \sa statusTip()
+*/
+
+/*!
+    \fn void QListWidgetItem::setToolTip(const QString &toolTip)
+
+    Sets the tooltip for this list item to the text specified by
+    \a toolTip.
+
+    \sa toolTip()
+*/
+
+/*!
+    \fn void QListWidgetItem::setWhatsThis(const QString &whatsThis)
+
+    Sets the "What's This?" help for this list item to the text specified
+    by \a whatsThis.
+*/
+
+/*!
+    \fn void QListWidgetItem::setBackgroundColor(const QColor &color)
+
+    Sets the background \a color of the list item.
+
+    \sa backgroundColor() setTextColor()
+*/
+
+/*!
+    \fn void QListWidgetItem::setTextColor(const QColor &color)
+
+    Sets the text \a color for this list item.
+
+    \sa color() setBackgroundColor()
+*/
+
+/*!
+    \fn void QListWidgetItem::setChecked(const bool checked)
+
+    Checks the list item if \a checked is true; otherwise the list item
+    will be shown as unchecked.
+
+    \sa checked()
 */
 
 /*!
@@ -398,12 +493,21 @@ QListWidget::QListWidget(QWidget *parent, const char* name)
 
 /*!
     \class QListWidget
-    \brief The QListWidget class provides a list or icon view with a
-    predefined model.
+    \brief The QListWidget class provides an item-based list or icon view using
+    a default model.
 
+    \ingroup model-view
     \mainclass
 
-    ###
+    QListWidget is a convenience class that provides a list view, like that
+    supplied by QListView, but with a classic item-based interface for adding
+    and removing items from the list. QListWidget uses an internal model
+    to manage the items.
+
+    For a more flexible list view widget, use the QListView class with a
+    standard model.
+
+    The number of items in the list can be found using the row() function
 */
 
 /*!
@@ -418,7 +522,7 @@ QListWidget::QListWidget(QWidget *parent)
 }
 
 /*!
-    Destructs this list widget.
+    Destroys the list widget.
 */
 
 QListWidget::~QListWidget()
@@ -437,7 +541,7 @@ QListWidgetItem *QListWidget::item(int row) const
 }
 
 /*!
-    Returns the row for the \a item.
+    Returns the row containing the given \a item.
 
     \sa item()
 */
@@ -450,7 +554,7 @@ int QListWidget::row(const QListWidgetItem *item) const
 
 
 /*!
-    Inserts \a item in position \a row in the list.
+    Inserts the \a item at the position in the list given by \a row.
 
     \sa appendItem()
 */
@@ -463,7 +567,8 @@ void QListWidget::insertItem(int row, QListWidgetItem *item)
 }
 
 /*!
-    Inserts items with the text set to \a labels starting at \a row.
+    Inserts items from the list of \a labels into the list, starting at the
+    given \a row.
 
     \sa insertItem(), appendItem()
 */
@@ -505,7 +610,8 @@ QListWidgetItem *QListWidget::takeItem(int row)
 }
 
 /*!
-  ###
+      Returns the number of items in the list.
+
 */
 int QListWidget::count() const
 {
@@ -522,7 +628,7 @@ void QListWidget::sort(Qt::SortOrder order)
 }
 
 /*!
-  Removes the \a item from the list.
+  Removes the given \a item from the list.
 */
 
 void QListWidget::removeItem(QListWidgetItem *item)
