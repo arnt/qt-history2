@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qproperty.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qproperty.cpp#3 $
 **
 ** Implementation of QProperty class
 **
-** Created : 930418
+** Created : 990414
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -23,16 +23,15 @@
 **
 *****************************************************************************/
 
-#include "qstring.h"
-#include "qfont.h"
-#include "qpixmap.h"
-#include "qmovie.h"
-#include "qbrush.h"
-#include "qrect.h"
-#include "qsize.h"
-#include "qcolor.h"
-#include "qpalette.h"
-#include "qstringlist.h"
+#include <qstring.h>
+#include <qfont.h>
+#include <qpixmap.h>
+// #include <qmovie.h>
+#include <qbrush.h>
+#include <qrect.h>
+#include <qsize.h>
+#include <qcolor.h>
+#include <qpalette.h>
 
 #include "qproperty.h"
 
@@ -42,7 +41,6 @@
 
   Not documented.
 */
-
 QProperty::QProperty()
 {
   typ = Empty;
@@ -58,10 +56,15 @@ QProperty::~QProperty()
     clear();
 }
 
-QProperty::QProperty( const QProperty& p )
+QProperty::QProperty( const QProperty& p ) : QShared()
 {
   typ = Empty;
   *this = p;
+}
+
+QProperty::QProperty( QDataStream& s )
+{
+  s >> *this;
 }
 
 QProperty& QProperty::operator= ( const QProperty& p )
@@ -78,12 +81,18 @@ QProperty& QProperty::operator= ( const QProperty& p )
     case StringListType:
       val.ptr = new QStringList( p.stringListValue() );
       break;
+    case IntListType:
+      val.ptr = new QValueList<int>( p.intListValue() );
+      break;
+    case DoubleListType:
+      val.ptr = new QValueList<double>( p.doubleListValue() );
+      break;
     case FontType:
       val.ptr = new QFont( p.fontValue() );
       break;
-    case MovieType:
-      val.ptr = new QMovie( p.movieValue() );
-      break;
+      // case MovieType:
+      // val.ptr = new QMovie( p.movieValue() );
+      // break;
     case PixmapType:
       val.ptr = new QPixmap( p.pixmapValue() );
       break;
@@ -142,6 +151,20 @@ void QProperty::setValue( const QStringList& _value )
   val.ptr = new QStringList( _value );
 }
 
+void QProperty::setValue( const QValueList<int>& _value )
+{
+  clear();
+  typ = IntListType;
+  val.ptr = new QValueList<int>( _value );
+}
+
+void QProperty::setValue( const QValueList<double>& _value )
+{
+  clear();
+  typ = DoubleListType;
+  val.ptr = new QValueList<double>( _value );
+}
+
 void QProperty::setValue( const QFont& _value )
 {
   clear();
@@ -156,12 +179,12 @@ void QProperty::setValue( const QPixmap& _value )
   val.ptr = new QPixmap( _value );
 }
 
-void QProperty::setValue( const QMovie& _value )
-{
-  clear();
-  typ = MovieType;
-  val.ptr = new QMovie( _value );
-}
+// void QProperty::setValue( const QMovie& _value )
+// {
+//   clear();
+//   typ = MovieType;
+//  val.ptr = new QMovie( _value );
+// }
 
 void QProperty::setValue( const QBrush& _value )
 {
@@ -241,15 +264,21 @@ void QProperty::clear()
     case StringType:
       delete (QString*)val.ptr;
       break;
+    case IntListType:
+      delete (QValueList<int>*)val.ptr;
+      break;
+    case DoubleListType:
+      delete (QValueList<double>*)val.ptr;
+      break;
     case StringListType:
       delete (QStringList*)val.ptr;
       break;
     case FontType:
       delete (QFont*)val.ptr;
       break;
-    case MovieType:
-      delete (QMovie*)val.ptr;
-      break;
+      // case MovieType:
+      // delete (QMovie*)val.ptr;
+      // break;
     case PixmapType:
       delete (QPixmap*)val.ptr;
       break;
@@ -274,6 +303,7 @@ void QProperty::clear()
     default:
       ASSERT( 0 );
     }  
+
   typ = Empty;
 }
 
@@ -287,10 +317,14 @@ QString QProperty::typeToName( QProperty::Type _typ )
       return "QString";
     case StringListType:
       return "QStringList";
+    case IntListType:
+      return "QValueList<int>";
+    case DoubleListType:
+      return "QValueList<double>";
     case FontType:
       return "QFont";
-    case MovieType:
-      return "QMovie";
+      // case MovieType:
+      // return "QMovie";
     case PixmapType:
       return "QPixmap";
     case BrushType:
@@ -318,9 +352,6 @@ QString QProperty::typeToName( QProperty::Type _typ )
   return QString();
 }
 
-/**
- Returns QProperty::Empty if the given name is empty or unknown.
-*/
 QProperty::Type QProperty::nameToType( const QString& _name )
 {
    if ( _name.isEmpty() )
@@ -328,8 +359,10 @@ QProperty::Type QProperty::nameToType( const QString& _name )
    
    if ( _name == "QString" ) return StringType;
    if ( _name == "QStringList" ) return StringListType;
+   if ( _name == "QValueList<int>" ) return IntListType;
+   if ( _name == "QValueList<double>" ) return DoubleListType;
    if ( _name == "QFont" ) return FontType;
-   if ( _name == "QMovie" ) return MovieType;
+   // if ( _name == "QMovie" ) return MovieType;
    if ( _name == "QPixmap" ) return PixmapType;
    if ( _name == "QBrush" ) return BrushType;
    if ( _name == "QRect" ) return RectType;
@@ -342,5 +375,129 @@ QProperty::Type QProperty::nameToType( const QString& _name )
    if ( _name == "double" ) return DoubleType;
  
    return Empty;
+}
+
+void QProperty::load( QDataStream& s )
+{
+  Q_UINT32 u;
+  s >> u;
+  Type t = (Type)u;
+  
+  switch( t )
+    {
+    case Empty:
+      typ = t;
+      break;
+    case StringType:
+      { QString x; s >> x; setValue( x ); }
+      break;
+    case StringListType:
+      { QStringList x; s >> x; setValue( x ); }
+      break;
+    case IntListType:
+      { QValueList<int> x; s >> x; setValue( x ); }
+      break;
+    case DoubleListType:
+      { QValueList<double> x; s >> x; setValue( x ); }
+      break;
+    case FontType:
+      { QFont x; s >> x; setValue( x ); }
+      break;
+      // case MovieType:
+      // return "QMovie";
+    case PixmapType:
+      { QPixmap x; s >> x; setValue( x ); }
+      break;
+    case BrushType:
+      { QBrush x; s >> x; setValue( x ); }
+      break;
+    case RectType:
+      { QRect x; s >> x; setValue( x ); }
+      break;
+    case SizeType:
+      { QSize x; s >> x; setValue( x ); }
+      break;
+    case ColorType:
+      { QColor x; s >> x; setValue( x ); }
+      break;
+    case PaletteType:
+      { QPalette x; s >> x; setValue( x ); }
+      break;
+    case ColorGroupType:
+      { QColorGroup x; s >> x; setValue( x ); }
+      break;
+    case IntType:
+      { int x; s >> x; setValue( x ); };
+      break;
+    case BoolType:
+      { Q_INT8 x; s >> x; setValue( (bool)x ); };
+      break;
+    case DoubleType:
+      { double x; s >> x; setValue( x ); };
+      break;
+    default:
+      ASSERT( 0 );
+    }  
+}
+
+void QProperty::save( QDataStream& s ) const
+{
+  s << (Q_UINT32)type();
+
+  switch( typ )
+    {
+    case Empty:
+      s << QString();
+      break;
+    case StringType:
+      s << stringValue();
+      break;
+    case StringListType:
+      s << stringListValue();
+      break;
+    case IntListType:
+      s << intListValue();
+      break;
+    case DoubleListType:
+      s << doubleListValue();
+      break;
+    case FontType:
+      s << fontValue();
+      break;
+      // case MovieType:
+      // return "QMovie";
+    case PixmapType:
+      s << pixmapValue();
+      break;
+    case BrushType:
+      s << brushValue();
+      break;
+    case RectType:
+      s << rectValue();
+      break;
+    case SizeType:
+      s << sizeValue();
+      break;
+    case ColorType:
+      s << colorValue();
+      break;
+    case PaletteType:
+      s << paletteValue();
+      break;
+    case ColorGroupType:
+      s << colorgroupValue();
+      break;
+    case IntType:
+      s << intValue();
+      break;
+    case BoolType:
+      s << (Q_INT8)boolValue();
+      break;
+    case DoubleType:
+      s << doubleValue();
+      break;
+    default:
+      ASSERT( 0 );
+    }  
 }
 

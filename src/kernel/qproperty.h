@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qproperty.h#2 $
+** $Id: //depot/qt/main/src/kernel/qproperty.h#3 $
 **
 ** Definition of QProperty class
 **
-** Created : 930419
+** Created : 990414
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -28,12 +28,16 @@
 
 #ifndef QT_H
 #include "qstring.h"
+#include "qvaluelist.h"
+#include "qstringlist.h"
+#include "qshared.h"
+#include "qdatastream.h"
 #endif // QT_H
 
 class QString;
 class QFont;
 class QPixmap;
-class QMovie;
+// class QMovie;
 class QBrush;
 class QRect;
 class QSize;
@@ -41,15 +45,22 @@ class QColor;
 class QPalette;
 class QColorGroup;
 
-class Q_EXPORT QProperty
+/**
+ * This class acts like a union. It can hold one value at the
+ * time but it can hold the most common types.
+ * For CORBA people: It is a poor mans CORBA::Any.
+ */
+class QProperty : public QShared
 {
 public:
     enum Type {
       Empty,
       StringType,
       StringListType,
+      IntListType,
+      DoubleListType,
       FontType,
-      MovieType,
+      // MovieType,
       PixmapType,
       BrushType,
       RectType,
@@ -65,15 +76,35 @@ public:
   
     QProperty();
     QProperty( const QProperty& );
+    QProperty( QDataStream& s );
     virtual ~QProperty();
   
+    QProperty( const QString& _v ) { setValue( _v ); }
+    QProperty( const QStringList& _v ) { setValue( _v ); }
+    QProperty( const QValueList<int>& _v ) { setValue( _v ); }
+    QProperty( const QValueList<double>& _v ) { setValue( _v ); }
+    QProperty( const QFont& _v ) { setValue( _v ); }
+    QProperty( const QPixmap& _v ) { setValue( _v ); }
+  // QProperty( const QMovie& _v ) { setValue( _v ); }
+    QProperty( const QBrush& _v ) { setValue( _v ); }
+    QProperty( const QRect& _v ) { setValue( _v ); }
+    QProperty( const QSize& _v ) { setValue( _v ); }
+    QProperty( const QColor& _v ) { setValue( _v ); }
+    QProperty( const QPalette& _v ) { setValue( _v ); }
+    QProperty( const QColorGroup& _v ) { setValue( _v ); }
+    QProperty( int _v ) { setValue( _v ); }
+    QProperty( bool _v ) { setValue( _v ); }
+    QProperty( double _v ) { setValue( _v ); }
+    
     QProperty& operator= ( const QProperty& );
     
     void setValue( const QString& );
     void setValue( const QStringList& );
+    void setValue( const QValueList<int>& );
+    void setValue( const QValueList<double>& );
     void setValue( const QFont& );
     void setValue( const QPixmap& );
-    void setValue( const QMovie& );
+  // void setValue( const QMovie& );
     void setValue( const QBrush& );
     void setValue( const QRect& );
     void setValue( const QSize& );
@@ -90,10 +121,15 @@ public:
     bool isEmpty() const { return ( typ == Empty ); }
   
     const QString& stringValue() const { ASSERT( typ == StringType ); return *((QString*)val.ptr); }
-    const QStringList& stringListValue() const { ASSERT( typ == StringType ); return *((QStringList*)val.ptr); }
+    const QStringList& stringListValue() const { ASSERT( typ == StringListType );
+                                                 return *((QStringList*)val.ptr); }
+    const QValueList<int>& intListValue() const { ASSERT( typ == IntListType );
+                                                  return *((QValueList<int>*)val.ptr); }
+    const QValueList<double>& doubleListValue() const { ASSERT( typ == IntListType );
+                                                        return *((QValueList<double>*)val.ptr); }
     const QFont& fontValue() const { ASSERT( typ == FontType ); return *((QFont*)val.ptr); }
     const QPixmap& pixmapValue() const { ASSERT( typ == PixmapType ); return *((QPixmap*)val.ptr); }
-    const QMovie& movieValue() const { ASSERT( typ == MovieType ); return *((QMovie*)val.ptr); }
+  // const QMovie& movieValue() const { ASSERT( typ == MovieType ); return *((QMovie*)val.ptr); }
     const QBrush& brushValue() const { ASSERT( typ == BrushType ); return *((QBrush*)val.ptr); }
     const QRect& rectValue() const { ASSERT( typ == RectType ); return *((QRect*)val.ptr); }
     const QSize& sizeValue() const { ASSERT( typ == SizeType ); return *((QSize*)val.ptr); }
@@ -105,7 +141,13 @@ public:
     bool boolValue() const { ASSERT( typ == BoolType ); return val.b; }
     double doubleValue() const { ASSERT( typ == DoubleType ); return val.d; }
 
+    void load( QDataStream& );
+    void save( QDataStream& ) const;
+
     static QString typeToName( Type _typ );
+    /**
+     * @return QProperty::Empty if the given name is empty or unknown.
+     */
     static Type nameToType( const QString& _name );
   
 protected:
@@ -120,5 +162,17 @@ protected:
       void *ptr;
     } val;
 };
+
+inline QDataStream& operator>> ( QDataStream& s, QProperty& p )
+{
+  p.load( s );
+  return s;
+}
+
+inline QDataStream& operator<< ( QDataStream& s, const QProperty& p )
+{
+  p.save( s );
+  return s;
+}
 
 #endif
