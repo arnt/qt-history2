@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#3 $
 **
 ** C++ file skeleton
 **
@@ -11,7 +11,7 @@
 
 #include "qregexp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#3 $");
 
 
 struct QValidatorPrivate {
@@ -32,7 +32,7 @@ struct QValidatorPrivate {
 
   \brief The QValidator class provides ways to validate an input text.
 
-  The class provides verifies the format of integers or floating-point
+  The class provides validation of integers or floating-point
   numbers, optionally with \link QRegExp regular expression \endlink
   prefixes or suffixes.  It is also possible to reimplement a number
   of three virtual functions and do your own testing.
@@ -40,7 +40,10 @@ struct QValidatorPrivate {
   QValidator is generally used with QLineEdit, QSpinBox and QComboBox.
 */
 
-/*! Creates a validator object which accepts everything.
+/*!
+  Creates a validator object which accepts everything.
+  If a parent object is given, the validator will be destroyed
+  when that object is destroyed.
 */
 
 QValidator::QValidator( QObject * parent, const char * name )
