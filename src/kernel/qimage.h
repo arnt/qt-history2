@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#9 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#10 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -62,8 +62,8 @@ public:
 			int bitOrder=IgnoreEndian );
     void	reset();
 
-    QImage	convertDepth( int )	const;
-    QImage	convertBitOrder( int )	const;
+    bool	convertDepth( int, QImage * )	 const;
+    bool	convertBitOrder( int, QImage * ) const;
 
     static int	systemBitOrder();
     static int	systemByteOrder();
@@ -181,7 +181,7 @@ inline uchar *QImage::bits() const
 
 inline bool QImage::contiguousBits() const
 {
-#if defined(_WS_WIN16)
+#if defined(_WS_WIN16_)
     return data->contig;
 #else
     return TRUE;
