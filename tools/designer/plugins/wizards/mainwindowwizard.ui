@@ -161,7 +161,7 @@
                             <cstring>checkCreateConnectionsFile</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Create Slots and Connections for the actions</string>
+                            <string>Create Slots and Connections for the actions</string>
                         </property>
                         <property name="checked">
                             <bool>true</bool>
@@ -238,7 +238,7 @@
                             <cstring>checkCreateConnectionsEdit</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Create Slots and Connections for the actions</string>
+                            <string>Create Slots and Connections for the actions</string>
                         </property>
                         <property name="checked">
                             <bool>true</bool>
@@ -339,7 +339,7 @@
                             <cstring>checkCreateConnectionsHelp</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Create Slots and Connections for the actions</string>
+                            <string>Create Slots and Connections for the actions</string>
                         </property>
                         <property name="checked">
                             <bool>true</bool>
