@@ -56,6 +56,7 @@ public:
 
     int sectionSize(int logicalIndex) const;
     int sectionPosition(int logicalIndex) const;
+    int sectionViewportPosition(int logicalIndex) const;
 
     void moveSection(int from, int to);
     void resizeSection(int logicalIndex, int size);

@@ -247,10 +247,7 @@ void QTreeView::setRootIsDecorated(bool show)
 
 int QTreeView::columnViewportPosition(int column) const
 {
-    int colp = d->header->sectionPosition(column) - d->header->offset();
-    if (!QApplication::reverseLayout())
-        return colp;
-    return colp + (d->header->x() - d->viewport->x());
+    return d->header->sectionViewportPosition(column);
 }
 
 /*!
@@ -269,10 +266,7 @@ int QTreeView::columnWidth(int column) const
 
 int QTreeView::columnAt(int x) const
 {
-    int p = x + d->header->offset();
-    if (!QApplication::reverseLayout())
-        return d->header->logicalIndexAt(p);
-    return d->header->logicalIndexAt(p - (d->header->x() - d->viewport->x()));
+    return d->header->logicalIndexAt(x);
 }
 
 /*!
@@ -510,8 +504,8 @@ void QTreeView::paintEvent(QPaintEvent *e)
 
     QPainter painter(d->viewport);
 
-    d->left = d->header->visualIndexAt(d->header->offset() + area.left());
-    d->right = d->header->visualIndexAt(d->header->offset() + area.right() - 1);
+    d->left = d->header->visualIndexAt(area.left());
+    d->right = d->header->visualIndexAt(area.right() - 1);
 
     if (d->left == -1)
         d->left = 0;
@@ -893,7 +887,6 @@ void QTreeView::scrollContentsBy(int dx, int dy)
             dx = d->header->offset() - offset;
             d->header->setOffset(offset);
         }
-        horizontalScrollBar()->repaint(); // not really needed, but it makes the view "feel" faster
     }
 
     if (dy) {
@@ -916,8 +909,6 @@ void QTreeView::scrollContentsBy(int dx, int dy)
             for (int i = previousViewIndex; i > currentViewIndex; --i)
                 dy += d->height(i);
         }
-
-        verticalScrollBar()->repaint(); // not really needed, but it makes the view "feel" faster
     }
 
     d->viewport->scroll(dx, dy);
@@ -1018,9 +1009,7 @@ void QTreeView::selectAll()
 
 void QTreeView::columnResized(int column, int, int)
 {
-    bool reverse = QApplication::reverseLayout();
-    int x = d->header->sectionPosition(column) - d->header->offset()
-            - (reverse ? d->header->sectionSize(column) : 0);
+    int x = columnViewportPosition(column);
     QRect rect(x, 0, d->viewport->width() - x, d->viewport->height());
     d->viewport->update(rect.normalize());
     updateGeometries();
@@ -1037,8 +1026,8 @@ void QTreeView::updateGeometries()
     setViewportMargins(0, hint.height(), 0, 0);
 
     QRect vg = d->viewport->geometry();
-    if (QApplication::reverseLayout())
-        d->header->setOffset(vg.width() - hint.width());
+//     if (QApplication::reverseLayout())
+//         d->header->setOffset(vg.width() - hint.width());
     QRect geometryRect(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
     d->header->setGeometry(geometryRect);
 
@@ -1111,8 +1100,8 @@ int QTreeView::rowSizeHint(const QModelIndex &left) const
     QAbstractItemDelegate *delegate = itemDelegate();
     int width = d->viewport->width();
     int height = 0;
-    int start = d->header->visualIndexAt(d->header->offset());
-    int end = d->header->visualIndexAt(d->header->offset() + width);
+    int start = d->header->visualIndexAt(0);
+    int end = d->header->visualIndexAt(width);
 
     start = start == -1 ? 0 : start;
     end = end == -1 ? d->header->count() - 1 : end;
@@ -1341,10 +1330,7 @@ int QTreeViewPrivate::coordinateAt(int value, int iheight) const
 
 int QTreeViewPrivate::columnAt(int x) const
 {
-    int hx = x + header->offset() - header->x();
-    if (QApplication::reverseLayout() && q->verticalScrollBar()->isVisible())
-        hx += q->verticalScrollBar()->width();
-    return header->logicalIndexAt(hx);
+    return header->logicalIndexAt(x);
 }
 
 void QTreeViewPrivate::relayout(const QModelIndex &parent)
@@ -1455,13 +1441,13 @@ void  QTreeViewPrivate::updateHorizontalScrollbar(int itemWidth)
 
 int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
 {
-    bool reverse = QApplication::reverseLayout();
-    int scrollbar = reverse && q->verticalScrollBar()->isVisible()
-                    ? q->verticalScrollBar()->width() : 0;
-    int x = pos.x() - header->x() + header->offset() + scrollbar;
+//    bool reverse = QApplication::reverseLayout();
+//     int scrollbar = reverse && q->verticalScrollBar()->isVisible()
+//                     ? q->verticalScrollBar()->width() : 0;
+    int x = pos.x();// - header->x() + header->offset() + scrollbar;
     int column = header->logicalIndexAt(x);
     int position = header->sectionPosition(column);
-    int cx = reverse ? position + header->sectionSize(column) - x : x - position;
+    int cx = /*reverse ? position + header->sectionSize(column) - x :*/ x - position;
     int viewItemIndex = item(pos.y());
     int itemIndentation = indentation(viewItemIndex);
     QModelIndex index = modelIndex(viewItemIndex);

@@ -692,7 +692,7 @@ int QTableView::columnSizeHint(int column) const
 
 int QTableView::rowViewportPosition(int row) const
 {
-    return d->verticalHeader->sectionPosition(row) - d->verticalHeader->offset();
+    return d->verticalHeader->sectionViewportPosition(row);
 }
 
 /*!
@@ -711,7 +711,7 @@ int QTableView::rowHeight(int row) const
 
 int QTableView::rowAt(int y) const
 {
-    return d->verticalHeader->logicalIndexAt(y + d->verticalHeader->offset());
+    return d->verticalHeader->logicalIndexAt(y);
 }
 
 /*!
@@ -721,10 +721,7 @@ int QTableView::rowAt(int y) const
 
 int QTableView::columnViewportPosition(int column) const
 {
-    int colp = d->horizontalHeader->sectionPosition(column) - d->horizontalHeader->offset();
-    if (!QApplication::reverseLayout())
-        return colp;
-    return colp + (d->horizontalHeader->x() - d->viewport->x());
+    return d->horizontalHeader->sectionViewportPosition(column);
 }
 
 /*!
@@ -743,10 +740,7 @@ int QTableView::columnWidth(int column) const
 
 int QTableView::columnAt(int x) const
 {
-    int p = x + d->horizontalHeader->offset();
-    if (!QApplication::reverseLayout())
-        return d->horizontalHeader->logicalIndexAt(p);
-    return d->horizontalHeader->logicalIndexAt(p - (d->horizontalHeader->x() - d->viewport->x()));
+    return d->horizontalHeader->logicalIndexAt(x);
 }
 
 /*!
@@ -913,8 +907,7 @@ void QTableView::rowResized(int row, int, int)
 
 void QTableView::columnResized(int column, int, int)
 {
-    bool reverse = QApplication::reverseLayout();
-    int x = columnViewportPosition(column) - (reverse ? columnWidth(column) : 0);
+    int x = columnViewportPosition(column);
     QRect rect(x, 0, d->viewport->width() - x, d->viewport->height());
     d->viewport->update(rect.normalize());
     updateGeometries();
