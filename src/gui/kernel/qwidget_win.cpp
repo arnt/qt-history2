@@ -665,11 +665,14 @@ void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
         QBitmap mask(pixmap.size(), false, QPixmap::NormalOptim);
         if (pixmap.mask()) {
             pm.fill(Qt::black);                        // make masked area black
-            bitBlt(&mask, 0, 0, pixmap.mask());
+            QPainter maskPainter(&mask);
+            maskPainter.drawPixmap(0, 0, *mask.mask());
         } else {
             mask.fill(Qt::color1);
         }
-        bitBlt(&pm, 0, 0, &pixmap);
+        QPainter painter(&pm);
+        painter.drawPixmap(0, 0, pixmap);
+        painter.end();
         HBITMAP im = qt_createIconMask(mask);
         ICONINFO ii;
         ii.fIcon    = true;

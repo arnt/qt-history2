@@ -1028,15 +1028,16 @@ static void drawTile(HDC hdc, int x, int y, int w, int h,
 
 void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap)
 {
-    copyBlt(tile, 0, 0, &pixmap, 0, 0, -1, -1);
+    QPainter p(tile);
+    p.drawPixmap(0, 0, pixmap);
     int x = pixmap.width();
     while (x < tile->width()) {
-        copyBlt(tile, x, 0, tile, 0, 0, x, pixmap.height());
+        p.drawPixmap(x, 0, *tile, 0, 0, x, pixmap.height());
         x *= 2;
     }
     int y = pixmap.height();
     while (y < tile->height()) {
-        copyBlt(tile, 0, y, tile, 0, 0, tile->width(), y);
+        p.drawPixmap(0, y, *tile, 0, 0, tile->width(), y);
         y *= 2;
     }
 }

@@ -368,13 +368,8 @@ QPixmap QPixmap::copy(bool ignoreMask) const
 
     QPixmap pm(data->w, data->h, data->d, data->bitmap, data->optim);
 
-    if (!pm.isNull()) {                        // copy the bitmap
-        if (ignoreMask) {
-            bitBlt(&pm, 0, 0, this, 0, 0, data->w, data->h, true);
-        } else {
-            copyBlt(&pm, 0, 0, this, 0, 0, data->w, data->h);
-        }
-    }
+    QPainter painter(&pm);
+    painter.drawPixmap(0, 0, *this, ignoreMask ? Qt::SourceCopy : Qt::AlphaBlend);
 
 #if defined(Q_WS_X11)
     x11SetDefaultScreen(old);
@@ -401,8 +396,10 @@ QPixmap &QPixmap::operator=(const QPixmap &pixmap)
         init(pixmap.width(), pixmap.height(), pixmap.depth(),
               pixmap.data->bitmap, pixmap.data->optim);
         data->uninit = false;
-        if (!isNull())
-            copyBlt(this, 0, 0, &pixmap, 0, 0, pixmap.width(), pixmap.height());
+        if (!isNull()) {
+            QPainter p(this);
+            p.drawPixmap(0, 0, pixmap);
+        }
         pixmap.data->deref();
     } else {
         data = pixmap.data;
@@ -561,10 +558,11 @@ void QPixmap::resize(int w, int h)
 #ifdef Q_WS_X11
     pm.x11SetScreen(data->xinfo->screen());
 #endif // Q_WS_X11
-    if (!data->uninit && !isNull())                // has existing pixmap
-        bitBlt(&pm, 0, 0, this, 0, 0,                // copy old pixmap
-                qMin(width(), w),
-                qMin(height(),h), true);
+    if (!data->uninit && !isNull()) {                // has existing pixmap
+        // Copy old pixmap
+        QPainter p(&pm);
+        p.drawPixmap(0, 0, *this, 0, 0, qMin(width(), w), qMin(height(), h));
+    }
 #if defined(Q_WS_MAC)
     if(data->alphapm) {
         data->alphapm->resize(w, h);
@@ -1007,7 +1005,9 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
     QPaintEvent e(r & widget->rect());
     QApplication::sendEvent(widget, &e);
     QPainter::restoreRedirected(widget);
-    ::bitBlt(&res, offset, &buf, QRect(QPoint(), r.size()));
+    QPainter pt(&res);
+    pt.drawPixmap(offset.x(), offset.y(), buf, 0, 0, r.width(), r.height());
+    pt.end();
 
     const QObjectList children = widget->children();
     for (int i = 0; i < children.size(); ++i) {

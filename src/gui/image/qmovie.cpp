@@ -351,8 +351,8 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint &off, const QRect &area)
             }
         }
         mypixmap.setMask(QBitmap()); // Remove reference to my mask
-        copyBlt(&mypixmap, area.left(), area.top(),
-                &lines, off.x(), off.y(), area.width(), area.height());
+        QPainter p(&mypixmap);
+        p.drawPixmap(area.left(), area.top(), lines, off.x(), off.y(), area.width(), area.height());
     }
 
 #if 0 //def Q_WS_QWS

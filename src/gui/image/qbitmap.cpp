@@ -250,7 +250,9 @@ QBitmap &QBitmap::operator=(const QPixmap &pixmap)
             QPixmap::operator=(pixmap);                // shallow assignment
         } else {                                // not a QBitmap, but 1-bit
             QBitmap bm(pixmap.size(), false, pixmap.optimization());
-            bitBlt(&bm, 0,0, &pixmap, 0,0,pixmap.width(),pixmap.height());
+            QPainter p(&bm);
+            p.drawPixmap(0, 0, pixmap);
+            p.end();
             QBitmap::operator=(bm);
         }
     } else {                                        // n-bit depth pixmap
