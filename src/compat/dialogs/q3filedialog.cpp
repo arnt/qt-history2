@@ -5853,7 +5853,9 @@ void Q3FileDialog::removeEntry(Q3NetworkOperation *op)
     Q3ListViewItemIterator it(files);
     bool ok1 = false, ok2 = false;
     for (i = d->sortedList.first(); it.current(); ++it, i = d->sortedList.next()) {
-        if (((Q3FileDialogPrivate::File*)it.current())->info.name() == op->arg(0)) {
+        QString encName = Q3FileDialogPrivate::encodeFileName(
+            ((Q3FileDialogPrivate::File*)it.current())->info.name());
+        if (encName == op->arg(0)) {
             d->pendingItems.removeRef((Q3FileDialogPrivate::File*)it.current());
             delete ((Q3FileDialogPrivate::File*)it.current())->i;
             delete it.current();
