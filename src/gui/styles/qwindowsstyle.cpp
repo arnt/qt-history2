@@ -1669,6 +1669,22 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             QCommonStyle::drawControl(ce, &newMbi, p, widget);
         }
         break;
+    case CE_TabBar:
+        if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
+            QRect r2(tab->rect);
+            if (tab->shape == QTabBar::RoundedAbove) {
+                p->setPen(tab->palette.light().color());
+                p->drawLine(r2.left(), r2.bottom() - 1, r2.right(), r2.bottom() - 1);
+            } else if (tab->shape == QTabBar::RoundedBelow) {
+                p->setPen(tab->palette.shadow().color());
+                p->drawLine(r2.left(), r2.top()+ 1, r2.right(), r2.top() + 1);
+                p->setPen(tab->palette.dark().color());
+                p->drawLine(r2.left(), r2.top(), r2.right()- 1, r2.top());
+            } else {
+                QCommonStyle::drawControl(ce, tab, p, widget);
+            }
+        }
+        break;
     case CE_TabBarTab:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
             bool selected = tab->state & Style_Selected;
@@ -1733,7 +1749,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             } else if (tab->shape == QTabBar::RoundedBelow){
                 bool rightAligned = styleHint(SH_TabBar_Alignment, tab, widget)== Qt::AlignRight;
                 if (selected) {
-                    p->fillRect(QRect(r2.left(), r2.top(), r2.width(), 1),
+                    p->fillRect(QRect(r2.left(), r2.top(), r2.width(), 2),
                                 tab->palette.brush(QPalette::Background));
                     p->setPen(tab->palette.background().color());
                     p->drawLine(r2.left(), r2.top(), r2.left(), r2.bottom() - 2);

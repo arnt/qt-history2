@@ -175,6 +175,7 @@ public:
         CE_RadioButton,
         CE_RadioButtonLabel,
 
+        CE_TabBar,
         CE_TabBarTab,
         CE_TabBarLabel,
 
