@@ -62,6 +62,7 @@ int main()
 	    input >> value;
 
 	    debug("got %s = %s", key.data(), value.data());
+	    debug("now at %d/%d",file.at(),file.size());
 	}
     }
 
