@@ -123,7 +123,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
   SetGWorld((GWorldPtr)hd,0);
   LockPixels(GetGWorldPixMap((GWorldPtr)hd));
   
-  // Slow and icky, but the proper way crashed
+  //OPTIMIZATION FIXME, we should not be iterating all the pixels, fix this on optimization pass
   RGBColor r;
   int loopc,loopc2;
   QRgb q;
@@ -154,9 +154,8 @@ int get_index(QImage * qi,QRgb mycol)
 {
     int loopc;
     for(loopc=0;loopc<qi->numColors();loopc++) {
-	if(qi->color(loopc)==mycol) {
+	if(qi->color(loopc)==mycol) 
 	    return loopc;
-	}
     }
     qi->setNumColors(qi->numColors()+1);
     qi->setColor(qi->numColors(),mycol);
@@ -197,14 +196,14 @@ QImage QPixmap::convertToImage() const
     SetGWorld((GWorldPtr)hd,0);
     LockPixels(GetGWorldPixMap((GWorldPtr)hd));
 
-    // Slow and icky, but the proper way crashed
+    //OPTIMIZATION FIXME, we should not be iterating all the pixels, fix this on optimization pass
     RGBColor r;
     int loopc,loopc2;
     QRgb q;
     for(loopc=0;loopc<w;loopc++) {
 	for(loopc2=0;loopc2<h;loopc2++) {
 	    GetCPixel(loopc,loopc2,&r);
-	    q=qRgb(r.red/256,r.green/256,r.blue/256);
+	    q=qRgba(r.red/256,r.green/256,r.blue/256, 0); //FIXME, should I be doing that to the alpha?
 	    if(ncols) {
 		image->setPixel(loopc,loopc2,get_index(image,q));
 	    } else {
