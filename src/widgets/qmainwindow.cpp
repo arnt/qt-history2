@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#39 $
 **
 ** Implementation of QMainWindow class
 **
@@ -758,12 +758,9 @@ bool QMainWindow::rightJustification() const
 
 void QMainWindow::triggerLayout()
 {
-    if ( isVisibleToTLW() ) {
-	setUpLayout();
-	d->timer->stop();
-    } else {
-	d->timer->start( 0, TRUE );
-    }
+    delete d->tll;
+    d->tll = 0;
+    d->timer->start( 0, TRUE );
 }
 
 
