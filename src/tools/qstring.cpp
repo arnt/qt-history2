@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#140 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#141 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -566,6 +566,8 @@ Q_EXPORT QString::Data *QString::shared_null = 0;
 QT_STATIC_CONST_IMPL QString QString::null;
 QT_STATIC_CONST_IMPL QChar QChar::null;
 QT_STATIC_CONST_IMPL QChar QChar::replacement((ushort)0xfffd);
+QT_STATIC_CONST_IMPL QChar QChar::byteOrderMark((ushort)0xfeff);
+QT_STATIC_CONST_IMPL QChar QChar::byteOrderSwapped((ushort)0xfffe);
 
 #define Q2HELPER(x) x
 #ifdef Q2HELPER

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#41 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#42 $
 **
 ** Definition of QTextStream class
 **
@@ -29,28 +29,17 @@
 #include "qstring.h"
 #include <stdio.h>
 #endif // QT_H
-
+class QTextCodec;
 
 class Q_EXPORT QTextStream				// text stream class
 {
 public:
-    enum Encoding {
-	Ascii,
-	Utf7,
-	Utf8,
-	UnicodeBigEndian,
-	UnicodeLittleEndian,
-	// C3 - A process shall interpret a Unicode value ...
-	//      by most significant byte first... -- The Unicode Standard 2.0
-	Unicode=UnicodeBigEndian
-    };
-
-    void	 setEncoding(Encoding);
-    Encoding encoding() const { return cmode; }
+    //    void	 setEncoding(Encoding);
+    //    Encoding encoding() const { return cmode; }
 
     QTextStream();
     QTextStream( QIODevice * );
-    QTextStream( QString &, int mode, Encoding m=Unicode );
+    QTextStream( QString &, int mode );
     QTextStream( QByteArray, int mode );
     QTextStream( FILE *, int mode );
     virtual ~QTextStream();
@@ -131,6 +120,7 @@ public:
 
 private:
     long	 input_int();
+    void	init();
     QTextStream &output_int( int, ulong, bool );
     QIODevice	*dev;
     int		 fflags;
@@ -139,12 +129,14 @@ private:
     int		 fprec;
     bool	 fstrm;
     bool	 owndev;
-    Encoding	 cmode;
-
+    QTextCodec 	*mapper;
+    bool 	swapUnicode;
+    bool	markerDone;
     int		eat_ws();
     void	ts_ungetc(int);
-    int		ts_getc();
+    int	ts_getc();
     void	ts_putc(int);
+    void	ts_putc(QChar);
     bool	ts_isspace(int c);
     bool	ts_isdigit(int c);
     ulong	input_bin();
@@ -166,8 +158,8 @@ typedef QTextStream QTS;
 
 class Q_EXPORT QTextIStream : public QTextStream {
 public:
-    QTextIStream( QString &s, Encoding m=Unicode ) :
-	QTextStream(s,IO_ReadOnly,m) { }
+    QTextIStream( QString &s ) :
+	QTextStream(s,IO_ReadOnly) { }
     QTextIStream( QByteArray ba ) :
 	QTextStream(ba,IO_ReadOnly) { }
     QTextIStream( FILE *f ) :
@@ -176,8 +168,8 @@ public:
 
 class Q_EXPORT QTextOStream : public QTextStream {
 public:
-    QTextOStream( QString &s, Encoding m=Unicode ) :
-	QTextStream(s,IO_WriteOnly,m) { }
+    QTextOStream( QString &s ) :
+	QTextStream(s,IO_WriteOnly) { }
     QTextOStream( QByteArray ba ) :
 	QTextStream(ba,IO_WriteOnly) { }
     QTextOStream( FILE *f ) :

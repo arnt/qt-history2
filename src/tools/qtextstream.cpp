@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#65 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#66 $
 **
 ** Implementation of QTextStream class
 **
@@ -160,6 +160,14 @@ int QTextStream::eat_ws()
     return c;
 }
 
+void QTextStream::init()
+{
+    dev = 0;					// no device set
+    fstrm = owndev = FALSE;    
+    mapper = 0;
+    markerDone = FALSE;
+    swapUnicode = FALSE; //######!QChar::networkOrdered;
+}
 
 /*!
   Constructs a data stream that has no IO device.
@@ -167,9 +175,7 @@ int QTextStream::eat_ws()
 
 QTextStream::QTextStream()
 {
-    dev = 0;					// no device set
-    fstrm = owndev = FALSE;
-    cmode = Ascii;
+    init();
     reset();
 }
 
@@ -179,9 +185,8 @@ QTextStream::QTextStream()
 
 QTextStream::QTextStream( QIODevice *d )
 {
+    init();
     dev = d;					// set device
-    fstrm = owndev = FALSE;
-    cmode = Ascii;
     reset();
 }
 
@@ -379,21 +384,20 @@ private:        // Disabled copy constructor and operator=
     ts << "pi = " << 3.14;			// str == "pi = 3.14..."
   \endcode
 
-  The \a mode argument cannot be Ascii.
-
+  ####Encoding??? Unicode, surely
+  
   Writing data to the text stream will modify the contents of the string.
   The string will be expanded when data is written beyond the end of the
   string.
 */
 
-QTextStream::QTextStream( QString& str, int filemode, Encoding mode )
+QTextStream::QTextStream( QString& str, int filemode )
 {
+    init();
     dev = new QStringBuffer( str );
     ((QStringBuffer *)dev)->open( filemode );
-    fstrm = FALSE;
     owndev = TRUE;
-    ASSERT(mode != Ascii);
-    cmode = mode;
+    swapUnicode = FALSE; // ????????
     reset();
 }
 
@@ -425,11 +429,12 @@ QTextStream::QTextStream( QString& str, int filemode, Encoding mode )
 
 QTextStream::QTextStream( QByteArray a, int mode )
 {
+    init();
     dev = new QBuffer( a );
     ((QBuffer *)dev)->open( mode );
-    fstrm = FALSE;
     owndev = TRUE;
-    cmode = Ascii;
+    //#######    cmode = Ascii;
+    // locale-specific 8-bit ????
     reset();
 }
 
@@ -447,10 +452,11 @@ QTextStream::QTextStream( QByteArray a, int mode )
 
 QTextStream::QTextStream( FILE *fh, int mode )
 {
+    init();
     dev = new QFile;
     ((QFile *)dev)->open( mode, fh );
     fstrm = owndev = TRUE;
-    cmode = Ascii;
+    //default to Unicode
     reset();
 }
 
@@ -466,58 +472,14 @@ QTextStream::~QTextStream()
 	delete dev;
 }
 
-/*!
-  Sets the encoding mode for the stream to \a mode.
+/*
+###### 
 
-  \define Encoding
+where do we put the "guess what encoding _this_ is" ?
 
-  The availables modes are:
-  <ol>
-    <li>Ascii - 8-bit text
-    <li>Utf7 - UTF-7 format (not yet supported)
-    <li>Utf8 - UTF-8 format (not yet supported)
-    <li>Unicode - Unicode text, unspecified order
-    <li>UnicodeBigEndian - big endian Unicode text
-    <li>UnicodeLittleEndian - little endian Unicode text
-  </ol>
+what API to use for setEncoding/setCodec?
 
-  Normally you choose one of Ascii or Unicode.  Using Unicode causes
-  Qt to attempt to auto-detect the endianness of the file using the
-  Unicode standard technique for this.
-
-  This should only be done, at most once, before any characters are written
-  to or read from the stream, and the stream must have a device set.
 */
-void QTextStream::setEncoding(Encoding mode)
-{
-    if ( cmode == mode )
-	return;
-
-    cmode = mode;
-
-    if ( mode != Ascii ) {
-	const int bom = 0xfeff;
-	const int mob = 0xfffe;
-	if ( dev->mode() & IO_WriteOnly ) {
-	    // Write the byte order marker
-	    ts_putc(bom);
-	} else {
-	    // Try to read the byte order marker
-	    int ch = ts_getc();
-	    if ( ch == bom ) {
-		// Good guess.
-	    } else if ( ch == mob ) {
-		// Bad guess.
-		mode = mode == UnicodeLittleEndian
-		    ? UnicodeBigEndian
-		    : UnicodeLittleEndian;
-	    } else {
-		// No clue.
-		ts_ungetc(ch);
-	    }
-	}
-    }
-}
 
 /*!
   \fn void QTextStream::eatWhiteSpace()
@@ -540,23 +502,41 @@ int QTextStream::ts_getc()
 {
     // WARNING: some QTextStream functions call getch directly.
 
-    switch (cmode) {
-     case Ascii:
-	return dev->getch();
-     case UnicodeBigEndian: {
-	    int c = dev->getch();
-	    if ( c == EOF )
-		return c;
-	    return (c << 8) | dev->getch();
+    if ( mapper ) {
+	warning( "QTextStream::ts_getc() mapper not supported" );
+    } else {
+	int c1 = dev->getch();
+	if ( c1 == EOF )
+	    return EOF;
+	int c2 = dev->getch();
+
+	if ( !markerDone ) {
+	    markerDone = TRUE; //only check first word
+	    //###########hacking
+	    if ( c1 == 0xff && c2 == 0xfe ) {
+		swapUnicode  = TRUE;
+		return ts_getc(); //skip byteordermark
+	    } else if ( c1 == 0xfe && c2 == 0xff ) {
+		swapUnicode = FALSE;
+		return ts_getc(); //skip byteordermark
+	    } 
 	}
-     case UnicodeLittleEndian: {
-	    int c = dev->getch();
-	    if ( c == EOF )
-		return c;
-	    return c | (dev->getch() << 8);
-	}
+	int r;
+	if ( swapUnicode )
+	    r = c1 | (c2 << 8);
+	else
+	    r = (c1 << 8) | c2;
+	return r;    
     }
-    return EOF;
+}
+
+
+/*!
+  Puts one character to the stream.
+*/
+void QTextStream::ts_putc( QChar c )
+{
+    ts_putc( (c.row << 8)|c.cell );
 }
 
 /*!
@@ -564,38 +544,47 @@ int QTextStream::ts_getc()
 */
 void QTextStream::ts_putc(int ch)
 {
-    switch (cmode) {
-     case Ascii:
-	dev->putch(ch);
-	break;
-     case UnicodeBigEndian:
-	dev->putch(ch>>8);
-	dev->putch(ch&0xff);
-	break;
-     case UnicodeLittleEndian:
-	dev->putch(ch&0xff);
-	dev->putch(ch>>8);
+    if ( mapper ) {
+	warning( "QTextStream::ts_putc() mapper not supported" );
+    } else {
+	if ( !markerDone ) {
+	    markerDone = TRUE;
+	    ts_putc( QChar::byteOrderMark );
+	}
+	if ( QChar::networkOrdered ) {
+	    dev->putch(ch>>8);
+	    dev->putch(ch&0xff);
+	} else {
+	    dev->putch(ch&0xff);
+	    dev->putch(ch>>8);
+	}
     }
 }
 
 bool QTextStream::ts_isdigit(int ch)
 {
+#if 0
     if ( cmode == Ascii )
 	return isdigit(ch);
     else // ######## see QString ucdigit()
+#endif
 	return isdigit(ch&0xff);
 }
 
 bool QTextStream::ts_isspace(int ch)
 {
+#if 0    
     if ( cmode == Ascii )
 	return isspace(ch);
     else // ######## see QString ucspace()
+#endif
 	return isspace(ch&0xff);
 }
 
 void QTextStream::ts_ungetc(int ch)
 {
+    debug( "QTextStream::ts_ungetc" );
+#if 0    
     switch (cmode) {
      case Ascii:
 	dev->ungetch(ch);
@@ -610,6 +599,11 @@ void QTextStream::ts_ungetc(int ch)
 	dev->ungetch(ch>>8);
 	dev->ungetch(ch&0xff);
     }
+#endif
+	// Reverse of put
+	dev->ungetch(ch&0xff);
+	dev->ungetch(ch>>8);
+
 }
 
 
@@ -1479,8 +1473,10 @@ QTextStream &QTextStream::writeRawBytes( const char* s, uint len )
     return *this;
 }
 
+
 QTextStream &QTextStream::writeBlock( const char* p, uint len )
 {
+#if 0
     switch ( cmode ) {
       case Ascii:
 	dev->writeBlock( p, len );
@@ -1498,11 +1494,18 @@ QTextStream &QTextStream::writeBlock( const char* p, uint len )
 	}
 	break;
     }
+#endif
+    //#########
+    for (uint i=0; i<len; i++)
+	ts_putc( p[i] ); //####
+    
     return *this;
 }
 
 QTextStream &QTextStream::writeBlock( const QChar* p, uint len )
 {
+    warning( "QTextStream::writeBlock" );
+#if 0
     switch ( cmode ) {
       case Ascii: {
 	    char *u = new char[len];
@@ -1521,6 +1524,10 @@ QTextStream &QTextStream::writeBlock( const QChar* p, uint len )
 	}
 	break;
     }
+#endif
+    for (uint i=0; i<len; i++)
+	ts_putc( p[i] ); //####
+
     return *this;
 }
 

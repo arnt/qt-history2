@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#2 $
 **
 ** Implementation of QTextCodec class
 **
@@ -190,7 +190,7 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 /*!
   \fn int QTextCodec::mib() const
   Subclasses of QTextCodec must override this function.  It returns
-  the MIBenum (see ######) for this encoding.
+  the MIBenum (see IANA######) for this encoding.
 */
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#83 $
+** $Id: //depot/qt/main/src/tools/qstring.h#84 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -171,6 +171,8 @@ public:
 
     QT_STATIC_CONST QChar null;            // 0000
     QT_STATIC_CONST QChar replacement;     // FFFD
+    QT_STATIC_CONST QChar byteOrderMark;     // FEFF
+    QT_STATIC_CONST QChar byteOrderSwapped;     // FFFE
 
     bool isSpace() const;
 
@@ -199,10 +201,12 @@ public:
     // XChar2b on X11, ushort on _WS_WIN_BYTESWAP_
     uchar row;
     uchar cell;
+    enum { networkOrdered = 1 };
 #else
     // ushort on _WS_WIN_
     uchar cell;
     uchar row;
+    enum { networkOrdered = 0 };
 #endif
 };
 
