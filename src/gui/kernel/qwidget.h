@@ -649,6 +649,7 @@ public:
     QT_COMPAT QRect visibleRect() const;
     inline QT_COMPAT void iconify() { showMinimized(); }
     inline QT_COMPAT void constPolish() const { ensurePolished(); }
+    inline QT_COMPAT void polish() { ensurePolished(); }
     inline QT_COMPAT void reparent(QWidget *parent, Qt::WFlags f, const QPoint &p, bool showIt=false)
     { setParent(parent, f); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
     inline QT_COMPAT void reparent(QWidget *parent, const QPoint &p, bool showIt=false)
