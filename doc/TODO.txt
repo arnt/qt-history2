@@ -294,6 +294,11 @@ Qt/X11 (Matthias, Brad)
    NET_WM functionality directly in Qt. Maybe also better support for
    Motif hints.
 
+Qt/X11
+   Modifier keys are currently hardwired: for example Mod1Mask for AltButton
+   and Mod4Mask for MetaButton in translateButtonState(). We should query the
+   current software mapping from X11, shouldn't we?
+
 moc: (Matthias)
     new and faster signal and slot system
     Q_DISPATCH macro and Q_OBJECT extensions to support remote

@@ -4018,6 +4018,8 @@ static int translateButtonState( int s )
 	bst |= Qt::ControlButton;
     if ( s & Mod1Mask )
 	bst |= Qt::AltButton;
+    if ( s & Mod4Mask )
+	bst |= Qt::MetaButton;
     return bst;
 }
 
