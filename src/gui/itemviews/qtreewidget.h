@@ -171,19 +171,6 @@ public:
     bool isItemVisible(const QTreeWidgetItem *item) const;
     bool isItemOpen(const QTreeWidgetItem *item) const;
 
-#ifdef Q_NO_USING_KEYWORD
-    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
-        { QTreeView::selectionChanged(selected, deselected); }
-    void currentChanged(const QModelIndex &current, const QModelIndex &previous)
-        { QTreeView::currentChanged(current, previous); }
-    void ensureVisible(const QModelIndex &index)
-        { QTreeView::ensureVisible(index); }
-#else
-    using QTreeView::selectionChanged;
-    using QTreeView::currentChanged;
-    using QTreeView::ensureVisible;
-#endif
-
 public slots:
     void ensureVisible(const QTreeWidgetItem *item);
     void openItem(const QTreeWidgetItem *item);

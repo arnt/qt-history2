@@ -197,19 +197,6 @@ public:
     QTableWidgetItemCreatorBase *itemCreator() const;
     void setItemCreator(QTableWidgetItemCreatorBase *factory);
 
-#ifdef Q_NO_USING_KEYWORD
-    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
-        { QTableView::selectionChanged(selected, deselected); }
-    void currentChanged(const QModelIndex &current, const QModelIndex &previous)
-        { QTableView::currentChanged(current, previous); }
-    void ensureVisible(const QModelIndex &index)
-        { QTableView::ensureVisible(index); }
-#else
-    using QTableView::selectionChanged;
-    using QTableView::currentChanged;
-    using QTableView::ensureVisible;
-#endif
-
 public slots:
     void ensureVisible(const QTableWidgetItem *item);
     void insertRow(int row);
