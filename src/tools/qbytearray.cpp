@@ -751,7 +751,7 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
 
     if ( bl == al ) {
 	if ( bl ) {
-	    while( (index = find( before, index ) ) != -1 ) {
+	    while( (index = indexOf( before, index ) ) != -1 ) {
 		memcpy( d+index, after, al );
 		index += bl;
 	    }
@@ -760,7 +760,7 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
 	uint to = 0;
 	uint movestart = 0;
 	uint num = 0;
-	while( (index = find( before, index ) ) != -1 ) {
+	while( (index = indexOf( before, index ) ) != -1 ) {
 	    if ( num ) {
 		int msize = index - movestart;
 		if ( msize > 0 ) {
@@ -791,7 +791,7 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
 	    uint indices[4096];
 	    uint pos = 0;
 	    while( pos < 4095 ) {
-		index = find(before, index);
+		index = indexOf(before, index);
 		if ( index == -1 )
 		    break;
 		indices[pos++] = index;
@@ -849,7 +849,7 @@ bool operator==(const QByteArray &a1, const QByteArray &a2)
     return (a1.size() == a2.size()) && (memcmp(a1, a2, a1.size())==0);
 }
 
-int QByteArray::find(char c, int i) const
+int QByteArray::indexOf(char c, int i) const
 {
     if (i < 0)
 	i = QMAX(i + d->size, 0);
@@ -863,7 +863,7 @@ int QByteArray::find(char c, int i) const
     return -1;
 }
 
-int QByteArray::findRev(char c, int i) const
+int QByteArray::lastIndexOf(char c, int i) const
 {
     if (i < 0)
 	i += d->size;
@@ -885,7 +885,7 @@ int QByteArray::findRev(char c, int i) const
     hashHaystack <<= 1
 
 
-int QByteArray::find(const QByteArray& a, int i) const
+int QByteArray::indexOf(const QByteArray& a, int i) const
 {
     const int l = d->size;
     const int sl = a.d->size;
@@ -894,7 +894,7 @@ int QByteArray::find(const QByteArray& a, int i) const
     if (sl == 0)
 	return i;
     if (sl == 1)
-	return find(*a.d->data, i);
+	return indexOf(*a.d->data, i);
     const char *needle = a.d->data;
     const char *haystack = d->data + i;
     const char *end = d->data + (l-sl);
@@ -919,7 +919,7 @@ int QByteArray::find(const QByteArray& a, int i) const
     return -1;
 }
 
-int QByteArray::findRev(const QByteArray& a, int i) const
+int QByteArray::lastIndexOf(const QByteArray& a, int i) const
 {
     const int sl = a.d->size;
     const int l = d->size;
@@ -972,7 +972,7 @@ int QByteArray::count(const char *a) const
 {
     int num = 0;
     int i = -1;
-    while ((i = find(a, i+1)) != -1)
+    while ((i = indexOf(a, i+1)) != -1)
 	++num;
     return num;
 }
@@ -981,7 +981,7 @@ int QByteArray::count(const QByteArray& a) const
 {
     int num = 0;
     int i = -1;
-    while ((i = find(a, i+1)) != -1)
+    while ((i = indexOf(a, i+1)) != -1)
 	++num;
     return num;
 }

@@ -96,12 +96,12 @@ public:
     const char operator[](uint i) const;
     QByteRef operator[](uint i);
 
-    int find(char c, int i=0) const;
-    int find(const char *c, int i=0) const;
-    int find(const QByteArray &a, int i=0) const;
-    int findRev(char c, int i=-1) const;
-    int findRev(const char *c, int i=-1) const;
-    int findRev(const QByteArray &a, int i=-1) const;
+    int indexOf(char c, int from = 0) const;
+    int indexOf(const char *c, int from = 0) const;
+    int indexOf(const QByteArray &a, int from = 0) const;
+    int lastIndexOf(char c, int from = -1) const;
+    int lastIndexOf(const char *c, int from = -1) const;
+    int lastIndexOf(const QByteArray &a, int from = -1) const;
 
     QBool contains(char c) const;
     QBool contains(const char *a) const;
@@ -181,6 +181,10 @@ public:
     inline QByteArray upper() const { return toUpper(); }
     inline QByteArray stripWhiteSpace() const { return trimmed(); }
     inline QByteArray simplifyWhiteSpace() const { return simplified(); }
+    inline int find(char c, int from = 0) const { return indexOf(c, from); }
+    inline int find(const char *c, int from = 0) const { return indexOf(c, from); }
+    inline int findRev(char c, int from = -1) const { return lastIndexOf(c, from); }
+    inline int findRev(const char *c, int from = -1) const { return lastIndexOf(c, from); }
 #endif
 
     inline bool ensure_constructed()
@@ -311,9 +315,9 @@ inline void QByteArray::push_front(const char *c)
 inline void QByteArray::push_front(const QByteArray &a)
 { prepend(a); }
 inline QBool QByteArray::contains(const QByteArray &a) const
-{ return QBool(find(a) != -1); }
+{ return QBool(indexOf(a) != -1); }
 inline QBool QByteArray::contains(char c) const
-{ return QBool(find(c) != -1); }
+{ return QBool(indexOf(c) != -1); }
 inline QByteArray &QByteArray::operator=(const QByteArray & a)
 {
     Data *x = a.d; ++x->ref;
@@ -367,10 +371,10 @@ inline const QByteArray operator+(const char *a1, const QByteArray &a2)
 { return QByteArray(a1) += a2; }
 inline const QByteArray operator+(char a1, const QByteArray &a2)
 { return QByteArray(&a1, 1) += a2; }
-inline int QByteArray::find(const char *c, int i) const
-{ QConstByteArray cb(c, strlen(c)); return find(cb, i); }
-inline int QByteArray::findRev(const char *c, int i) const
-{ QConstByteArray cb(c, strlen(c)); return findRev(cb, i); }
+inline int QByteArray::indexOf(const char *c, int i) const
+{ QConstByteArray cb(c, strlen(c)); return indexOf(cb, i); }
+inline int QByteArray::lastIndexOf(const char *c, int i) const
+{ QConstByteArray cb(c, strlen(c)); return lastIndexOf(cb, i); }
 inline QBool QByteArray::contains(const char *c) const
 { QConstByteArray cb(c, strlen(c)); return contains(cb); }
 inline QByteArray &QByteArray::replace(int index, int len, const char *s)
