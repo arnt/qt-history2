@@ -51,79 +51,15 @@ shown at the end of the installation process.
 Installation instructions for Qt/Mac
 ====================================
 
-You will find the Qt/Mac evaluation version in the MacOSX directory on 
+You will find the Qt/Mac evaluation version in the MacOS directory on 
 this CD.
 
-This Qt/Mac Evaluation version has the following limitations compared
-to the full Qt/Mac Professional and Enterprise Editions:
+Start the installation by double-clicking on the QtMacEval.tgz package 
+to unpack it. 
 
-* The Qt source code is not included. Instead, the Qt library is provided
-pre-compiled.
-
-* The library is time-limited.
-
-* The library is pre-built as a dynamic, multi-threaded library without
-debugging information. In the full versions, you may choose to build it as
-a static or dynamic library with single-threaded mode turned on or
-off. You may also build it with or without debugging information
-included included as an assistance during application development.
-
-* Database drivers are not included.
-
-
-Before using the evaluation version you must:
----------------------------------------------
-
-1. Set some environment variables in the file .profile (or .login,
-   depending on your shell) in your home directory. (Create the
-   file if it is not there already.)
-
-   QMAKESPEC         - compiler definitions if you plan to use qmake
-   QTDIR             - where you installed Qt
-   PATH              - to locate the moc program and other Qt tools
-   DYLD_LIBRARY_PATH - for the shared Qt library
-
-   In .profile (if your shell is bash, ksh, zsh or sh), add the 
-   following lines:
-
-   QTDIR=<where_you_installed_Qt>/QtMacEval
-   QMAKESPEC=macx-g++
-   PATH=$QTDIR/bin:$PATH
-   DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$QTDIR/lib
-
-   export QTDIR PATH DYLD_LIBRARY_PATH QMAKESPEC
-
-   In .login (in case your shell is csh or tcsh), add the following lines:
-
-   setenv QTDIR <where_you_installed_Qt>/QtMacEval
-   setenv QMAKESPEC macx-g++
-   setenv PATH $QTDIR/bin:$PATH
-   setenv DYLD_LIBRARY_PATH $DYLD_LIBRARY_PATH:$QTDIR/lib
-
-   After you have done this, you will need to login again, or re-source 
-   the profile before continuing, so that at least $QTDIR is set.  
-   The installation will give an error message and not proceed otherwise.
-
-2. Copy Qt to a system library path. This is necesary if you plan
-   to double-click on applications in the finder. To copy Qt, do the
-   following:
-
-   ln -s $QTDIR/lib/libqt-mt.dylib.3.0.2 /usr/lib
-
-   Qt/Designer requires the following libraries:
-
-   ln -s $QTDIR/lib/libqui.dylib.1.0.0 /usr/lib
-   ln -s $QTDIR/lib/libeditor.dylib.1.0.0 /usr/lib
-
-   You will need to do this as an administrator. The easiest way to do this
-   is to prefix the previous commands with sudo (ie. sudo ln -s ...) 
-   and type in your administration password when prompted.
-
-3. You should be able to run any of the programs in $QTDIR/examples/ or
-   $QTDIR/bin/ at this point.  To link you own apps against Qt/Mac you
-   will want to include files from $QTDIR/include and link against
-   $QTDIR/lib/libqt-mt.dylib.
-
+Before using the evaluation version, it is important that you follow 
+the instructions in the README.txt file that will be copied to the directory 
+you install the evalation version in.
 
 
 Installation instructions for Qt/X11
@@ -142,6 +78,39 @@ tar xf /cdrom/Unix/qt-x11-free-3.0.2.tar
 (replace "/cdrom" with the mount point of your CD-ROM drive). This will
 create a directory called qt-x11-free-3.0.2. Further installation
 instructions are then available in the file qt-x11-free-3.0.2/INSTALL.
+
+
+The Qt Reference Manual
+=======================
+
+The full Qt reference documentation in HTML format is included with this
+evaluation version. You can read it using the Qt Assistant tool, which is
+available from the Qt submenu on the Start menu. You can also read it by
+opening the file QTDIR/doc/html/index.html with any web browser.
+
+If you are new to Qt programming, we recommend that you check out the
+tutorial section and the Qt Designer manual. We also suggest that you
+obtain a copy of one of the many books about Qt programming that are
+available. For further information, see:
+
+http://www.trolltech.com/developer/documentation/literature.html
+
+
+Reporting Bugs, Mailing List and Support
+========================================
+
+If you should find something you believe to be a bug in Qt, please send a
+report to qt-bugs@trolltech.com. Include as much information as you can
+about your environment and versions.
+
+If you want to join the Qt users' mailing list, send a mail to
+qt-interest-request@trolltech.com containing the single word "subscribe".
+
+The Trolltech technical support service is available to Qt Professional
+and Enterprise Edition licensees. As an evaluation user, you can register
+for 30 days of evaluation support at
+
+http://www.trolltech.com/products/qt/evaluate.html
 
 
 Copyright (c) 2002 Trolltech AS. Qt is a trademark of Trolltech AS.
