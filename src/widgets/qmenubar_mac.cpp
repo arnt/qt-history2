@@ -675,7 +675,7 @@ bool QMenuBar::macUpdateMenuBar()
 			w = areaTL;
 		}
 	    }
-	    while(w && !w->testWFlags(WShowModal) && !mb) 
+	    while(w && /*!w->testWFlags(WShowModal) &&*/ !mb) 
 		mb = menubars->find((w = w->parentWidget()));
 	    if(!w || (!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup)))
 		fall_back_to_empty = TRUE;
