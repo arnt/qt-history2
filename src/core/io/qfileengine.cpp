@@ -533,14 +533,11 @@ QFSFileEngine::open(int flags)
     d->external_file = 0;
     d->fd = d->sysOpen(d->file, oflags);
     if(d->fd != -1) {
-
-#if defined(Q_OS_UNIX)
-        // Obscure workaround. On all tested unices, if a file is
-        // opened in append mode, lseek() will report that it's at the
-        // beginning of the file, regardless of how big the file is.
+        // Before appending, seek to the end of the file to allow
+        // at() to return the correct position before ::write()
+        //  has been called.
         if (flags & QFile::Append)
             QT_LSEEK(d->fd, 0, SEEK_END);
-#endif
 
         d->sequential = 0;
         struct stat st;
