@@ -33,7 +33,8 @@ SOURCES+=qchar.cpp qstring.cpp qtextstream.cpp \
 	 qfileinfo.cpp qdatetime.cpp qlinkedlist.cpp \
 	 qstringlist.cpp qmap.cpp \
 	 qsettings.cpp qunicodetables.cpp \
-	 qlibrary.cpp qlocale.cpp 
+	 qlibrary.cpp qlocale.cpp \
+         qstringmatcher.cpp qbytearraymatcher.cpp
 
 exists($$QT_BUILD_TREE/src/core/global/qconfig.cpp) {  #qconfig.cpp
     DEFINES += HAVE_QCONFIG_CPP
