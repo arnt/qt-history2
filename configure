@@ -235,7 +235,7 @@ CONCURRENT=0
 while [ -n "$1" ]; do
    case $1 in
    -frommake)
-       FROMMAKE=yes
+	FROMMAKE=yes
 	;;
    -embedded)
 	shift;
@@ -253,90 +253,90 @@ while [ -n "$1" ]; do
 	QCONFIG=$1
 	;;
    -make)
-       shift
-       if [ -f $1 ]
-       then
+	shift
+	if [ -f $1 ]
+	then
 	    QMAKE_PROJECTS="$QMAKE_PROJECTS $1"
-       else
-	  if [ -d $1 ]
-	  then
+	else
+	    if [ -d $1 ]
+	    then
 		QMAKE_PROJECTS="$QMAKE_PROJECTS `find $1 -name '*.pro' -print | sort`"
-          else
+            else
 		QMAKE_PROJECTS="$QMAKE_PROJECTS `find $relpath/$1 -name '*.pro' -print | sort`"
-          fi
-       fi
-       ;;
+	    fi
+	fi
+	;;
    -platform)
-       shift; PLATFORM=$1
+	shift; PLATFORM=$1
 	;;
    -xplatform)
-       shift; XPLATFORM=$1
+	shift; XPLATFORM=$1
 	;;
    -release)
-       DEBUG=no
+	DEBUG=no
 	;;
    -debug)
-       DEBUG=yes
+	DEBUG=yes
 	;;
    -shared)
-       SHARED=yes
+	SHARED=yes
 	;;
    -static)
-       SHARED=no
+	SHARED=no
 	;;
    -no-gif)
-       GIF=no
+	GIF=no
 	;;
    -qt-gif)
-       GIF=yes
+	GIF=yes
 	;;
    -no-sm)
-       SM=no
+	SM=no
 	;;
    -sm)
-       SM=yes
+	SM=yes
 	;;
    -no-thread)
-       THREAD=no
+	THREAD=no
 	;;
    -thread)
-       THREAD=yes
+	THREAD=yes
 	;;
    -freetype)
-       FT=yes
+	FT=yes
 	;;
    -no-freetype)
-       FT=no
+	FT=no
 	;;
    -qt-zlib)
-       ZLIB=yes
+	ZLIB=yes
 	;;
    -system-zlib)
-       ZLIB=no
+	ZLIB=no
 	;;
    -qt-libpng)
-       LIBPNG=yes
+	LIBPNG=yes
 	;;
    -system-libpng)
-       LIBPNG=no
+	LIBPNG=no
 	;;
    -no-mng)
-       MNG=no
+	MNG=no
 	;;
    -system-libmng)
-       MNG=yes
+	MNG=yes
 	;;
    -no-jpeg)
-       JPEG=no
+	JPEG=no
 	;;
    -system-jpeg)
-       JPEG=yes
+	JPEG=yes
 	;;
    -no-nas-sound)
-       NAS_SOUND=no
+	NAS_SOUND=no
 	;;
    -system-nas-sound)
-       NAS_SOUND=yes
+	NAS_SOUND=yes
 	;;
    -enable-kde2)
 	if [ '!' -f $KDEDIR/bin/dcopserver ]
@@ -352,44 +352,47 @@ while [ -n "$1" ]; do
 	fi
 	;;
    -enable-*)
-       MODULE=`echo $1 | sed "s/-enable-//"`
-       TMP="*${MODULE}*"
-       if [ -d "src/$MODULE" -a -n "${MODULES%%$TMP}" ]
-       then
-	   MODULES="$MODULES $MODULE"
-       fi
+	MODULE=`echo $1 | sed "s/-enable-//"`
+	if [ -n $MODULE -a -d "src/$MODULE" ]
+	then
+	    echo "${MODULES}" | grep $MODULE
+	    if [ ! $? ]
+	    then
+		MODULES="$MODULES $MODULE"
+	    fi
+	fi
 	;;
    -disable-*)
-       MODULE=`echo $1 | sed -e "s/-disable-//"`
-       if [ -d "src/$MODULE" ]
-       then
-	   MODULES=`echo $MODULES | sed -e "s/$MODULE//"`
-       else
-	   FEATURE=`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`;
-	   QT_CXX="$QT_CXX -DQT"`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`
-       fi
-       ;;
+	MODULE=`echo $1 | sed -e "s/-disable-//"`
+	if [ -d "src/$MODULE" ]
+	then
+	    MODULES=`echo $MODULES | sed -e "s/$MODULE//"`
+	else
+	    FEATURE=`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`;
+	    QT_CXX="$QT_CXX -DQT"`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`
+	fi
+	;;
     -with-*-*-*)
-       CONFIG=`echo $1 | sed -e "s/-with-//"`
-       VAR=`echo $CONFIG | sed -e "s/-[^-]*$//"`
-       VAL=`echo $CONFIG | sed -e "s/[^-]*-[^-]*-//"`
-       QMAKE_VARS="$QMAKE_VARS \"$VAR+=$VAL\""
-       ;;
+	CONFIG=`echo $1 | sed -e "s/-with-//"`
+	VAR=`echo $CONFIG | sed -e "s/-[^-]*$//"`
+	VAL=`echo $CONFIG | sed -e "s/[^-]*-[^-]*-//"`
+	QMAKE_VARS="$QMAKE_VARS \"$VAR+=$VAL\""
+	;;
     -without-*-*-*)
-       CONFIG=`echo $1 | sed -e "s/-without-//"`
-       VAR=`echo $CONFIG | sed -e "s/-[^-]*$//"`
-       VAL=`echo $CONFIG | sed -e "s/[^-]*-[^-]*-//"`
-       QMAKE_VARS="$QMAKE_VARS \"$VAR-=$VAL\""
-       ;;
+	CONFIG=`echo $1 | sed -e "s/-without-//"`
+	VAR=`echo $CONFIG | sed -e "s/-[^-]*$//"`
+	VAL=`echo $CONFIG | sed -e "s/[^-]*-[^-]*-//"`
+	QMAKE_VARS="$QMAKE_VARS \"$VAR-=$VAL\""
+	;;
     -internal)
-       QMAKE_CONFIG="$QMAKE_CONFIG internal"
-       ;;
+	QMAKE_CONFIG="$QMAKE_CONFIG internal"
+	;;
    -h | -help | --help)
-       HELP=yes
+	HELP=yes
 	;;
    -v)
-       [ "x$VERBOSE" = "xyes" ] && QMAKE_SWITCHES="$QMAKE_SWITCHES -d"
-       VERBOSE=yes
+	[ "x$VERBOSE" = "xyes" ] && QMAKE_SWITCHES="$QMAKE_SWITCHES -d"
+	VERBOSE=yes
         ;;
    -j?*)
 	CONCURRENT="`echo $1 | sed 's,-j,,'`"
@@ -422,12 +425,12 @@ while [ -n "$1" ]; do
 	R_FLAGS="$R_FLAGS -R$1"
 	;;
    *)
-       echo $1: unknown argument
-       HELP=yes;
-       ERROR=yes
+	echo $1: unknown argument
+	HELP=yes;
+	ERROR=yes
 	;;
-   esac
-   shift
+    esac
+    shift
 done
 
 if [ -z "$PLATFORM" ]
@@ -867,15 +870,15 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ -z "$QMAKE_PROJECTS" ] && QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sort | sed 's-/\./-/-'`
 
 # Make sure QMAKE_PROJECTS contains src/qt.pro and src/moc/moc.pro
-TMP="*src/qt.pro*"
-if [ -n "${QMAKE_PROJECTS%%$TMP}" ]
+echo "${MODULES}" | grep "src/qt.pro"
+if [ ! $? ]
 then
     echo "Adding src/qt.pro to list of projects"
     QMAKE_PROJECTS="src/qt.pro ${QMAKE_PROJECTS}"
 fi
 
-TMP="*src/moc/moc.pro*"
-if [ -n "${QMAKE_PROJECTS%%$TMP}" ]
+echo "${MODULES}" | grep "src/moc/moc.pro"
+if [ ! $? ]
 then
     echo "Adding src/moc/moc.pro to list of projects"
     QMAKE_PROJECTS="src/moc/moc.pro ${QMAKE_PROJECTS}"
@@ -986,10 +989,10 @@ echo
 
 #do the qmake..
 [ -x "$QTDIR/bin/syncqt" ] && $QTDIR/bin/syncqt
-if [ '!' -e $QTDIR/bin/qmake ]
+if [ '!' -f "$QTDIR/bin/qmake" ]
 then
     echo Creating qmake...
-    (cd qmake; /bin/sh -c $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
+    (cd qmake; $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
 fi
 
 QMAKE_ALL_ARGS="\"CONFIG+=$QMAKE_CONFIG\" $QMAKE_VARS $QMAKE_SWITCHES"
@@ -1062,7 +1065,7 @@ then
 fi
 
 #finally put the executed command to another script..
-[ -e config.status ] && rm -f config.status
+[ -f config.status ] && rm -f config.status
 cat >$relpath/config.status << EOF
 #!/bin/sh
 
