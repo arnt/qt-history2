@@ -8,10 +8,11 @@ qt-interest for Qt 4 specific issues. See \l
 http://lists.trolltech.com/ for more information on
 Trolltech's mailing lists, including archived discussions.
 
-If you think you have found an actual bug in Qt, we would
-like to hear about it so that we can fix it. In that case,
-please send the bug report to
-\l{mailto:qt-bugs@trolltech.com}{qt-bugs@trolltech.com}.
+If you think you have found an actual bug in Qt, we would like to
+hear about it so that we can fix it. In that case, please send the
+bug report to
+\l{mailto:qt-bugs@trolltech.com}{qt-bugs@trolltech.com}. Be aware
+that we cannot guarantee a personal reply for all bug reports.
 
 Before reporting a bug, please check the
 \l{http://doc.trolltech.com/4.0/known-issues.html}{Known
