@@ -97,7 +97,7 @@ inline int UibStrTable::insertCString( const char *cstr )
 
 inline int UibStrTable::insertString( const QString& str )
 {
-    if ( str.contains('\0') || str[0] == 0x7f ) {
+    if ( str.contains('\0') || str[0] == QChar(0x7f) ) {
 	int nextPos = table.size();
 	out << (Q_UINT8) 0x7f;
 	out << str;
