@@ -11,13 +11,13 @@ MainWindow::MainWindow()
 
     QMenu *itemsMenu = new QMenu(tr("&Items"));
 
-    QAction *insertAction = itemsMenu->addAction(tr("&Insert item"));
-    removeAction = itemsMenu->addAction(tr("&Remove item"));
+    QAction *insertAction = itemsMenu->addAction(tr("&Insert Item"));
+    removeAction = itemsMenu->addAction(tr("&Remove Item"));
     removeAction->setEnabled(false);
     itemsMenu->addSeparator();
-    ascendingAction = itemsMenu->addAction(tr("Sort in &ascending order"));
-    descendingAction = itemsMenu->addAction(tr("Sort in &descending order"));
-    autoSortAction = itemsMenu->addAction(tr("&Automatically sort items"));
+    ascendingAction = itemsMenu->addAction(tr("Sort in &Ascending Order"));
+    descendingAction = itemsMenu->addAction(tr("Sort in &Descending Order"));
+    autoSortAction = itemsMenu->addAction(tr("&Automatically Sort Items"));
     autoSortAction->setCheckable(true);
 
     menuBar()->addMenu(fileMenu);
@@ -86,7 +86,7 @@ void MainWindow::sortDescending()
 
 void MainWindow::insertItem()
 {
-    QString itemText = QInputDialog::getText(tr("Insert item"),
+    QString itemText = QInputDialog::getText(this, tr("Insert Item"),
         tr("Input text for the new item:"));
 
     if (itemText.isEmpty())

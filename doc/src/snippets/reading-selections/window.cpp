@@ -30,7 +30,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    setWindowTitle("Selected items in a table model");
+    setWindowTitle("Selected Items in a Table Model");
 
     model = new TableModel(8, 4, this);
 
@@ -38,9 +38,9 @@ MainWindow::MainWindow(QWidget *parent)
     table->setModel(model);
 
     QMenu *actionMenu = new QMenu(tr("&Actions"), this);
-    QAction *fillAction = actionMenu->addAction(tr("&Fill selection"));
-    QAction *clearAction = actionMenu->addAction(tr("&Clear selection"));
-    QAction *selectAllAction = actionMenu->addAction(tr("&Select all"));
+    QAction *fillAction = actionMenu->addAction(tr("&Fill Selection"));
+    QAction *clearAction = actionMenu->addAction(tr("&Clear Selection"));
+    QAction *selectAllAction = actionMenu->addAction(tr("&Select All"));
     menuBar()->addMenu(actionMenu);
 
     connect(fillAction, SIGNAL(triggered()), this, SLOT(fillSelection()));

@@ -11,11 +11,11 @@ MainWindow::MainWindow()
 
     QMenu *itemsMenu = new QMenu(tr("&Items"));
 
-    QAction *insertAction = itemsMenu->addAction(tr("&Insert item"));
-    removeAction = itemsMenu->addAction(tr("&Remove item"));
+    QAction *insertAction = itemsMenu->addAction(tr("&Insert Item"));
+    removeAction = itemsMenu->addAction(tr("&Remove Item"));
     removeAction->setEnabled(false);
-    QAction *ascendingAction = itemsMenu->addAction(tr("Sort in &ascending order"));
-    QAction *descendingAction = itemsMenu->addAction(tr("Sort in &descending order"));
+    QAction *ascendingAction = itemsMenu->addAction(tr("Sort in &Ascending Order"));
+    QAction *descendingAction = itemsMenu->addAction(tr("Sort in &Descending Order"));
 
     menuBar()->addMenu(fileMenu);
     menuBar()->addMenu(itemsMenu);
@@ -63,7 +63,7 @@ void MainWindow::sortDescending()
 
 void MainWindow::insertItem()
 {
-    QString itemText = QInputDialog::getText(tr("Insert item"),
+    QString itemText = QInputDialog::getText(tr("Insert Item"),
         tr("Input text for the new item:"));
 
     QListWidgetItem *newItem = new QListWidgetItem;
