@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#95 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#94 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#95 $";
 #endif
 
 
@@ -2235,7 +2235,19 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 
 /*!
 Draws an arc defined by the rectangle \e (x,y,w,h) and the start
-angle \e a1 and the end angle \e a2.
+angle \e a1 and the length of the arc \e a2.
+
+The angles \e a1 and \e a2 are 1/16th of a degree, i.e. a full
+circle equals 5760 (16*360). Positive values of \e a1 and \e a2 mean
+counter-clockwise while negative values mean clockwise direction.
+
+Example of use:
+\code
+  QPainter p;
+  p.begin( myWidget );
+  p.drawArc( 10,10, 70,100, 100*16, 160*16 );	// draws a "(" shape
+  p.end();
+\endcode
 */
 
 void QPainter::drawArc( int x, int y, int w, int h, int a1, int a2 )
