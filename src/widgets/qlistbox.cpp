@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#107 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#108 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#107 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#108 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -1660,8 +1660,8 @@ void QListBox::setMaxItemWidth( int len )
 }
 
 
-
-/*! \fn bool QListBox::isMultiSelection() const
+/*!
+  \fn bool QListBox::isMultiSelection() const
 
   Returns TRUE if the listbox is in multi-selection mode, and FALSE if
   it is in single-selection mode.
@@ -1669,28 +1669,34 @@ void QListBox::setMaxItemWidth( int len )
   \sa setMultiSelection()
 */
 
-/*!  Sets the list box to multi-selection mode if \a enable is TRUE,
+/*!
+  Sets the list box to multi-selection mode if \a enable is TRUE,
   and to single-selection mode if \a enable is FALSE.
 
   Single- and multi-selections modes work the same, except that the
   highlighed() and selected() signals are emitted at different times,
   and that the setSelected() and isSelected() functions are available
   only in multi-selection mode.
+
+  \sa isMultiSelection()
 */
 
 void QListBox::setMultiSelection( bool enable )
 {
-    if ( enable != multiSelect ) {
+    if ( enable != (bool)multiSelect ) {
 	multiSelect = enable;
 	update();
     }
 }
 
 
-/*!  Toggles the selection status of currentItem() and repaints, if
+/*!
+  Toggles the selection status of currentItem() and repaints, if
   the listbox is a multi-selection listbox.
 
   Does nothing if the listbox is a single-selection listbox.
+
+  \sa setMultiSelection()
 */
 
 void QListBox::toggleCurrentItem()
@@ -1708,28 +1714,32 @@ void QListBox::toggleCurrentItem()
 }
 
 
-/*!  Sets the selection status of item \a i \a s, if the listbox is a
-  multi-selection listbox.  May also repaint.
+/*!
+  Selects the item at position \a index if \a select is TRUE, or
+  unselects it if \a select is FALSE.  May also repaint the item.
 
   Does nothing if the listbox is a single-selection listbox.
+
+  \sa setMultiSelection()
 */
 
-void QListBox::setSelected( int i , bool s )
+void QListBox::setSelected( int index, bool select )
 {
     if ( !multiSelect || currentItem() < 0 )
 	return;
 
-    QListBoxItem * lbi = item( i );
-    if ( !lbi || lbi->selected == s )
+    QListBoxItem *lbi = item( index );
+    if ( !lbi || lbi->selected == select )
 	return;
 
-    lbi->selected = s;
-    updateItem( i );
-    emit selected( currentItem(), s );
+    lbi->selected = select;
+    updateItem( index );
+    emit selected( currentItem(), select );
 }
 
 
-/*!  Returns TRUE if item \a i is selected, FALSE if it is not or
+/*!
+  Returns TRUE if item \a i is selected, FALSE if it is not or
   there is an error.
 */
 

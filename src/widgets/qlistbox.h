@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#47 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#48 $
 **
 ** Definition of QListBox widget class
 **
@@ -149,8 +149,8 @@ public:
 
     long	maxItemWidth();
 
+    bool	isMultiSelection() const;
     void	setMultiSelection( bool );
-    bool	isMultiSelection() const { return multiSelect; }
 
     void	setSelected( int, bool );
     bool	isSelected( int ) const;
@@ -207,6 +207,12 @@ private:	// Disabled copy constructor and operator=
     QListBox( const QListBox & ) {}
     QListBox &operator=( const QListBox & ) { return *this; }
 };
+
+
+inline bool QListBox::isMultiSelection() const
+{
+    return multiSelect;
+}
 
 
 #endif // QLISTBOX_H
