@@ -6,11 +6,12 @@
 AnalogClock::AnalogClock(QWidget *parent)
     : QWidget(parent)
 {
+    setWindowTitle(tr("Analog Clock"));
+
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     timer->start(5000);
 
-    setWindowTitle(tr("Analog Clock"));
     resize(100, 100);
 }
 
