@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#28 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#28 $";
 #endif
 
 
@@ -50,10 +50,6 @@ int main( int argc, char **argv )
 
 Notice that the QApplication object must be created before the widget is
 defined!
-
-(The pedantic reader will note that modal widgets like QMessageBox can
-in certain circumstances be used even without a QApplication.  This is
-a special case.)
 
 \header qkeycode.h
 \header qwindefs.h
@@ -315,12 +311,14 @@ d->setBackgroundColor( red );
 */
 
 
-/*!
-\fn int QApplication::exec( QWidget *mainWidget )
-Enters the main event loop and waits until quit() is called.
-Returns the value that was specified to quit().
-*/
+/*! \fn int QApplication::exec( QWidget *mainWidget )
 
+  Enters the main event loop and waits until quit() is called or \e 
+  mainWidget is destroyed. Returns the value that was specified to quit().
+
+  (As a special case, modal widgets like QMessageBox can be used even
+  without calling exec().  This can e.g. be used to write a very short
+  "hello world" but in general, all programs must call exec().) */
 
 /*!
 \fn int QApplication::enter_loop()
