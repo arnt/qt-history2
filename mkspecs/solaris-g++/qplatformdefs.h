@@ -35,9 +35,22 @@
 #include <sys/wait.h>
 #include <netinet/in.h>
 
+
+
+#if defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE-0 >= 500) && (_XOPEN_VERSION-0 >= 500)
+// Solaris 7 and better with specific feature test macros
+#define QT_SOCKLEN_T            socklen_t
+#elif defined(_XOPEN_SOURCE_EXTENDED) && defined(_XOPEN_UNIX)
+// Solaris 2.6 and better with specific feature test macros
+#define QT_SOCKLEN_T            size_t
+#else
+// always this case in practice
+#define QT_SOCKLEN_T            int
+#endif
+
 // Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED
 static inline int qt_socket_connect(int s, struct sockaddr *addr, QT_SOCKLEN_T addrlen)
-{ return ::connect(s, addr, addrlen); }
+{ return  ::connect(s, addr, addrlen); }
 
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat
@@ -81,17 +94,6 @@ static inline int qt_socket_connect(int s, struct sockaddr *addr, QT_SOCKLEN_T a
 typedef unsigned int useconds_t;
 extern "C" int usleep(useconds_t);
 extern "C" int gethostname(char *, int);
-#endif
-
-#if defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE-0 >= 500) && (_XOPEN_VERSION-0 >= 500)
-// Solaris 7 and better with specific feature test macros
-#define QT_SOCKLEN_T		socklen_t
-#elif defined(_XOPEN_SOURCE_EXTENDED) && defined(_XOPEN_UNIX)
-// Solaris 2.6 and better with specific feature test macros
-#define QT_SOCKLEN_T		size_t
-#else
-// always this case in practice
-#define QT_SOCKLEN_T		int
 #endif
 
 #if defined(_XOPEN_UNIX)
