@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#20 $
 **
 ** Implementation of QTimer class
 **
@@ -12,7 +12,7 @@
 #include "qtimer.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#20 $");
 
 
 /*!
@@ -194,6 +194,23 @@ bool QSingleShotTimer::event( QEvent * )
   It is very convenient to use this function because you do not need to
   bother with a \link QObject::timerEvent() timerEvent\endlink or
   to create a local QTimer object.
+
+  Example:
+  \code
+      #include <qapp.h>
+      #include <qtimer.h>
+
+      int main( int argc, char **argv )
+      {
+          QApplication a( argc, argv );
+	  QTimer::singleShot( 10*60*1000, &a, SLOT(quit()) );
+	   ... // create your widgets
+          return a.exec();
+      }
+  \endcode
+
+  This sample program automatically terminates after 10 minutes (i.e.
+  600000 milliseconds).
 */
 
 bool QTimer::singleShot( int msec, QObject *receiver, const char *member )
