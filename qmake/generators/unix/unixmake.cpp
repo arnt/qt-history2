@@ -103,14 +103,17 @@ UnixMakefileGenerator::init()
     }
     if ( project->isActiveConfig("moc") )
 	setMocAware(TRUE);
+    QString compile_flag = project->first("QMAKE_COMPILE_FLAG");
+    if(compile_flag.isEmpty())
+	compile_flag = "-c";
     if ( project->isEmpty("QMAKE_RUN_CC") )
-	project->variables()["QMAKE_RUN_CC"].append("$(CC) -c $(CFLAGS) $(INCPATH) -o $obj $src");
+	project->variables()["QMAKE_RUN_CC"].append("$(CC) " + compile_flag + " $(CFLAGS) $(INCPATH) -o $obj $src");
     if ( project->isEmpty("QMAKE_RUN_CC_IMP") )
-	project->variables()["QMAKE_RUN_CC_IMP"].append("$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $<");
+	project->variables()["QMAKE_RUN_CC_IMP"].append("$(CC) " + compile_flag + " $(CFLAGS) $(INCPATH) -o $@ $<");
     if ( project->isEmpty("QMAKE_RUN_CXX") )
-	project->variables()["QMAKE_RUN_CXX"].append("$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $obj $src");
+	project->variables()["QMAKE_RUN_CXX"].append("$(CXX) " + compile_flag + " $(CXXFLAGS) $(INCPATH) -o $obj $src");
     if ( project->isEmpty("QMAKE_RUN_CXX_IMP") )
-	project->variables()["QMAKE_RUN_CXX_IMP"].append("$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $@ $<");
+	project->variables()["QMAKE_RUN_CXX_IMP"].append("$(CXX) " + compile_flag + " $(CXXFLAGS) $(INCPATH) -o $@ $<");
     project->variables()["QMAKE_FILETAGS"] += QStringList::split("HEADERS SOURCES TARGET DESTDIR", " ");
     if ( doPrecompiledHeaders() && !project->isEmpty("PRECOMPH") ) {
 	initOutPaths(); 	// Need to fix MOC_DIR since we do this before init()
