@@ -173,9 +173,9 @@ void Canvas::paintEvent( QPaintEvent *e )
 {
     QWidget::paintEvent( e );
 
-    QMemArray<QRect> rects = e->region().rects();
-    for ( uint i = 0; i < rects.count(); i++ ) {
-	QRect r = rects[(int)i];
-	bitBlt( this, r.x(), r.y(), &buffer, r.x(), r.y(), r.width(), r.height() );
+    QVector<QRect> rects = e->region().rects();
+    for (int i = 0; i < rects.count(); ++i) {
+	QRect r = rects[i];
+	bitBlt(this, r.x(), r.y(), &buffer, r.x(), r.y(), r.width(), r.height());
     }
 }

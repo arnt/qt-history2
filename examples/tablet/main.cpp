@@ -22,17 +22,13 @@ int main( int argc, char **argv )
     QTabWidget tab;
     Scribble scribble(&tab, "scribble");
     TabletStats tabStats( &tab, "tablet stats" );
-    
+
     scribble.setMinimumSize( 500, 350 );
     tabStats.setMinimumSize( 500, 350 );
     tab.addTab(&scribble, "Scribble" );
     tab.addTab(&tabStats, "Tablet Stats" );
-    
+
     a.setMainWidget( &tab );
-    if ( QApplication::desktop()->width() > 550
-	 && QApplication::desktop()->height() > 366 )
-	tab.show();
-    else
-	tab.showMaximized();
+    tab.show();
     return a.exec();
 }

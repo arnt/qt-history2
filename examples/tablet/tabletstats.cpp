@@ -10,6 +10,7 @@
 **
 ****************************************************************************/
 
+#include <qevent.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qpainter.h>
