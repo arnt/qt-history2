@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.7 1999/01/28 15:40:27 warwick Exp $
+** $Id: i18n.doc,v 1.8 1999/03/10 18:34:06 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -127,5 +127,24 @@ be too concerned with the actual limitations.
      <li>File I/O defaults to Latin-1, with Unicode options in QTextStream.
     </ul>
 </dl>
+
+<h2>Note about Kinput2</h2>
+
+If using the Kinput2 XIM Server, users may need to apply the
+bug-fix patch below.  Without this patch, Kinput2 produces bad
+XIM Protocol, causing application lock-up.
+
+\code
+--- lib/imlib/imrequest.c~	Mon Feb  3 10:21:46 1997
++++ lib/imlib/imrequest.c	Wed Mar 10 19:23:09 1999
+@@ -844,6 +844,6 @@
+ 	IMSendBadLength(conn, icp->im->id, icp->id);
+ 	return;
+     }
+-    IMDestroyIC(icp);
+     IMSendRequestWithIC(conn, XIM_DESTROY_IC_REPLY, 0, icp);
++    IMDestroyIC(icp);
+ }
+\endcode
 
 */
