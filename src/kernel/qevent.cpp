@@ -2189,10 +2189,6 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
 QCustomEvent::QCustomEvent( int type )
     : QEvent( (QEvent::Type)type ), d( 0 )
 {
-#if defined(QT_CHECK_RANGE)
-    if ( type < (int)QEvent::User || type > (int)QEvent::MaxUser )
-	qWarning( "QCustomEvent: Illegal type id." );
-#endif
 }
 
 
