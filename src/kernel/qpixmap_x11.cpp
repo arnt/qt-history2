@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#108 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#109 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#108 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#109 $");
 
 
 /*****************************************************************************
@@ -723,39 +723,60 @@ QImage QPixmap::convertToImage() const
 /*!
   Converts an image and sets this pixmap. Returns TRUE if successful.
 
-  The \e mode argument specifies whether the resulting pixmap should be
-  a monochrome (\link depth() depth\endlink == 1) or a normal
-  (\link defaultDepth() native depth\endlink) pixmap.  This argument
-  is ignored if this pixmap is a QBitmap.
+  The \a conversion_flags argument is a bitwise-OR from the following choices.
+  The options marked \e (default) are the choice if no other choice from the
+  list is included (they are zero):
 
-  If this pixmap is a QBitmap or \e mode == \c QPixmap::Mono, the pixmap
-  becomes monochrome.  If necessary, it is dithered using the
-  Floyd-Steinberg dithering algorithm.
+  <dl>
+   <dt>Color/Mono preference (ignored for QBitmap)
+   <dd>
+    <ul>
+     <li> \c AutoColor (default) - If the \e image has \link
+               QImage::depth() depth\endlink 1 and contains only
+               black and white pixels, then the pixmap becomes monochrome.
+     <li> \c ColorOnly - The pixmap is dithered/converted to the
+               \link defaultDepth() native display depth\endlink.
+     <li> \c MonoOnly - The pixmap becomes monochrome.  If necessary,
+               it is dithered using the chosen dithering algorithm.
+    </ul>
+   <dt>Dithering mode preference, for RGB channels
+   <dd>
+    <ul>
+     <li> \c DiffuseDither (default) - a high quality dither
+     <li> \c OrderedDither - a faster more ordered dither
+     <li> \c ThresholdDither - no dithering, closest color is used
+    </ul>
+   <dt>Dithering mode preference, for alpha channel
+   <dd>
+    <ul>
+     <li> \c DiffuseAlphaDither - a high quality dither
+     <li> \c OrderedAlphaDither - a faster more ordered dither
+     <li> \c ThresholdAlphaDither (default) - no dithering
+    </ul>
+   <dt>Color matching versus dithering preference
+   <dd>
+    <ul>
+     <li> \c AutoDither (default) - for conversions from 32-bit
+                images to 8-bit pixmaps, always dither.
+                For conversions from images to files,
+                only dither if too many colors.
+     <li> \c AlwaysDither - always dither when going to 8 bits.
+     <li> \c DemandDither - only dither if too many colors for 8 bits.
+    </ul>
+  </dl>
 
-  If \e mode == \c QPixmap::Auto (default) and the \e image has \link
-  QImage::depth() depth\endlink 1 and contains only black and white
-  pixels, then the pixmap becomes monochrome, as above.
-
-  If \e mode == \c QPixmap::Color, the pixmap is dithered/converted to the
-  \link defaultDepth() native display depth\endlink.
+  Passing 0 for \a conversion_flags gives all the \e (default) options.
 
   Note that even though a QPixmap with depth 1 behaves much like a
   QBitmap, isQBitmap() returns FALSE.
 
-  If \e image has more colors than the number of available colors, we
-  try to pick the most important colors.
-
-  If the image has an alpha buffer, and \a adither is TRUE,
-  QImage::alphaDitherMode() determines how this is converted to a mask.
-
-  \bug Does not support 2 or 4 bit display hardware. This function
-  needs to be tested on different types of X servers.
+  \bug Does not support 2 or 4 bit display hardware.
 
   \sa convertToImage(), isQBitmap(), QImage::convertDepth(), defaultDepth(),
     hasAlphaBuffer()
 */
 
-bool QPixmap::convertFromImage( const QImage &img, ColorMode mode, bool adither )
+bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 {
     if ( img.isNull() ) {
 #if defined(CHECK_NULL)
@@ -769,7 +790,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode, bool adither 
     int	 h   = image.height();
     int	 d   = image.depth();
     int	 dd  = x11Depth();
-    bool force_mono = (dd == 1 || isQBitmap() || mode == Mono);
+    bool force_mono = (dd == 1 || isQBitmap() || (conversion_flags & ColorMode_Mask)==MonoOnly );
 
     if ( data->mask ) {				// get rid of the mask
 	delete data->mask;
@@ -782,12 +803,13 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode, bool adither 
 
     if ( force_mono ) {				// must be monochrome
 	if ( d != 1 ) {
-	    image = image.convertDepth( 1 );	// dither
+	    image = image.convertDepth( 1, conversion_flags );	// dither
 	    d = 1;
 	}
     } else {					// can be both
 	bool conv8 = FALSE;
-	if ( mode == Color ) {			// native depth wanted
+	if ( (conversion_flags & ColorMode_Mask) == ColorOnly )
+	{					// native depth wanted
 	    conv8 = d == 1;
 	} else if ( d == 1 && image.numColors() == 2 ) {
 	    QRgb c0 = image.color(0);		// mode==Auto: convert to best
@@ -795,7 +817,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode, bool adither 
 	    conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != qRgb(255,255,255);
 	}
 	if ( conv8 ) {
-	    image = image.convertDepth( 8 );
+	    image = image.convertDepth( 8, conversion_flags );
 	    d = 8;
 	}
     }
@@ -842,7 +864,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode, bool adither 
 
 	if ( image.hasAlphaBuffer() ) {
 	    QBitmap m;
-	    m = image.createAlphaMask( adither );
+	    m = image.createAlphaMask( conversion_flags );
 	    setMask( m );
 	}
 	return TRUE;
@@ -948,7 +970,11 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode, bool adither 
     }
 
     if ( d == 32 && !trucol ) {			// convert to 8 bit
-	image = image.convertDepth( 8 );
+	if ( (conversion_flags & DitherMode_Mask) == AutoDither )
+	    image = image.convertDepth( 8,
+		      conversion_flags & ~DitherMode_Mask | AlwaysDither );
+	else
+	    image = image.convertDepth( 8, conversion_flags );
 	d = 8;
 	nbytes = image.numBytes();		// recalc image size
     }
@@ -1117,19 +1143,11 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode, bool adither 
 
     if ( img.hasAlphaBuffer() ) {
 	QBitmap m;
-	m = img.createAlphaMask( adither );
+	m = img.createAlphaMask( conversion_flags );
 	setMask( m );
     }
 
     return TRUE;
-}
-
-/*!
-  \overload
-*/
-bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
-{
-    return convertFromImage( img, mode, FALSE );
 }
 
 /*!

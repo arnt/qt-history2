@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#48 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#49 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -69,13 +69,18 @@ public:
     void	fill( uint pixel );
 
     QImage	convertDepth( int ) const;
+    QImage	convertDepth( int, int conversion_flags ) const;
     QImage	convertBitOrder( QImage::Endian ) const;
 
-    enum DitherMode { Threshold, Bayer, Floyd };
-    static void		setAlphaDitherMode( DitherMode );
-    static DitherMode	alphaDitherMode();
-
+#if defined(HAS_BOOL_TYPE)
+    // Needed for binary compatibility - calls createAlphaMask(int)
     QImage	createAlphaMask( bool dither=FALSE ) const;
+#else
+    // Needed for source compatibility - calls createAlphaMask(int)
+    QImage	createAlphaMask() const;
+#endif
+
+    QImage	createAlphaMask( int conversion_flags ) const;
     QImage	createHeuristicMask( bool clipTight=TRUE ) const;
 
     static QImage::Endian systemBitOrder();
@@ -109,8 +114,6 @@ private:
 	uchar **bits;				// image data
 	bool	alpha;				// alpha buffer
     } *data;
-
-    static DitherMode alphadithermode;
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#75 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#76 $
 **
 ** Definition of QPixmap class
 **
@@ -28,8 +28,7 @@ public:
     QPixmap( int w, int h,  int depth=-1 );
     QPixmap( const QSize &, int depth=-1 );
     QPixmap( const char *fileName, const char *format=0, ColorMode mode=Auto );
-    QPixmap( const char *fileName, const char *format, ColorMode mode,
-		bool adither );
+    QPixmap( const char *fileName, const char *format, int conversion_flags );
     QPixmap( const char *xpm[] );
     QPixmap( const QPixmap & );
    ~QPixmap();
@@ -64,20 +63,19 @@ public:
 
     QImage	convertToImage() const;
     bool	convertFromImage( const QImage &, ColorMode mode=Auto );
-    bool	convertFromImage( const QImage &, ColorMode mode,
-		    bool adither );
+    bool	convertFromImage( const QImage &, int conversion_flags );
 
     static const char *imageFormat( const char *fileName );
     bool	load( const char *fileName, const char *format=0,
 		      ColorMode mode=Auto );
     bool	load( const char *fileName, const char *format,
-		      ColorMode mode, bool adither );
+		      int conversion_flags );
     bool	loadFromData( const uchar *buf, uint len,
 			      const char *format=0,
 			      ColorMode mode=Auto );
     bool	loadFromData( const uchar *buf, uint len,
 			      const char *format,
-			      ColorMode mode, bool adither );
+			      int conversion_flags );
     bool	save( const char *fileName, const char *format ) const;
 
 #if defined(_WS_WIN_) || defined(_WS_PM_)

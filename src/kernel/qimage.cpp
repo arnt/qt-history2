@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#111 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#112 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#111 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#112 $");
 
 
 /*!
@@ -769,7 +769,7 @@ struct RgbMap {
     QRgb  rgb;
 };
 
-static bool convert_32_to_8( const QImage *src, QImage *dst )
+static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flags )
 {
     register QRgb *p;
     uchar  *b;
@@ -783,40 +783,44 @@ static bool convert_32_to_8( const QImage *src, QImage *dst )
     RgbMap table[tablesize];
     int   pix=0;
 
-    for ( y=0; y<src->height(); y++ ) {		// check if <= 256 colors
-	p = (QRgb *)src->scanLine(y);
-	b = dst->scanLine(y);
-	x = src->width();
-	while ( x-- ) {
-	    // Find in table...
-	    int hash = *p % tablesize;
-	    for (;;) {
-		if (table[hash].used()) {
-		    if (table[hash].rgb == *p & 0x00ffffff) {
-			// Found previous insertion - use it
+    if ( (conversion_flags & DitherMode_Mask) == AlwaysDither ) {
+	do_quant = TRUE;
+    } else {
+	for ( y=0; y<src->height(); y++ ) {		// check if <= 256 colors
+	    p = (QRgb *)src->scanLine(y);
+	    b = dst->scanLine(y);
+	    x = src->width();
+	    while ( x-- ) {
+		// Find in table...
+		int hash = *p % tablesize;
+		for (;;) {
+		    if (table[hash].used()) {
+			if (table[hash].rgb == *p & 0x00ffffff) {
+			    // Found previous insertion - use it
+			    break;
+			} else {
+			    // Keep searching...
+			    if (++hash == tablesize) hash = 0;
+			}
+		    } else {
+			// Cannot be in table
+			if ( pix == 256 ) {		// too many colors
+			    do_quant = TRUE;
+			    // Break right out
+			    x = 0;
+			    y = src->height();
+			} else {
+			    // Insert into table at this unused position
+			    dst->setColor( pix, *p );
+			    table[hash].pix = pix++;
+			    table[hash].rgb = *p & 0x00ffffff;
+			}
 			break;
-		    } else {
-			// Keep searching...
-			if (++hash == tablesize) hash = 0;
 		    }
-		} else {
-		    // Cannot be in table
-		    if ( pix == 256 ) {		// too many colors
-			do_quant = TRUE;
-			// Break right out
-			x = 0;
-			y = src->height();
-		    } else {
-			// Insert into table at this unused position
-			dst->setColor( pix, *p );
-			table[hash].pix = pix++;
-			table[hash].rgb = *p & 0x00ffffff;
-		    }
-		    break;
 		}
+		*b++ = table[hash].pix; // May occur once incorrectly
+		p++;
 	    }
-	    *b++ = table[hash].pix; // May occur once incorrectly
-	    p++;
 	}
     }
     int ncols = do_quant ? 256 : pix;
@@ -854,7 +858,6 @@ static bool convert_32_to_8( const QImage *src, QImage *dst )
 #define MAX_R 5
 #define MAX_G 5
 #define MAX_B 5
-#define DITHER(p,d,m) ((uchar) ((((256 * (m) + 1)) * (p) + (d)) / 65536 ))
 #define INDEXOF(r,g,b) (((r)*(MAX_G+1)+(g))*(MAX_B+1)+(b))
 
 	int rc, gc, bc;
@@ -866,34 +869,146 @@ static bool convert_32_to_8( const QImage *src, QImage *dst )
 			qRgb( rc*255/MAX_R, gc*255/MAX_G, bc*255/MAX_B ) );
 		}
 
+	int sw = src->width();
+
+	int* line1[3];
+	int* line2[3];
+	int* pv[3];
+	if ( ( conversion_flags & Dither_Mask ) == DiffuseDither ) {
+	    line1[0] = new int[src->width()];
+	    line2[0] = new int[src->width()];
+	    line1[1] = new int[src->width()];
+	    line2[1] = new int[src->width()];
+	    line1[2] = new int[src->width()];
+	    line2[2] = new int[src->width()];
+	    pv[0] = new int[sw];
+	    pv[1] = new int[sw];
+	    pv[2] = new int[sw];
+	}
+
 	for ( y=0; y < src->height(); y++ ) {
 	    p = (QRgb *)src->scanLine(y);
 	    b = dst->scanLine(y);
 	    int x = 0;
-	    QRgb *end = p + src->width();
-	    while ( p < end ) {			// perform quantization
-		uint d = bm[y&15][x&15];
+	    QRgb *end = p + sw;
 
-		rc = qRed( *p );
-		gc = qGreen( *p );
-		bc = qBlue( *p );
+	    // perform quantization
+	    if ( ( conversion_flags & Dither_Mask ) == ThresholdDither ) {
+#define DITHER(p,m) ((uchar) ((((256 * (m) + 1)) * (p)) / 65536 ))
+		while ( p < end ) {
+		    rc = qRed( *p );
+		    gc = qGreen( *p );
+		    bc = qBlue( *p );
 
-		*b++ =
-		    INDEXOF(
-			DITHER(rc, d, MAX_R),
-			DITHER(gc, d, MAX_G),
-			DITHER(bc, d, MAX_B)
-		    );
+		    *b++ =
+			INDEXOF(
+			    DITHER(rc, MAX_R),
+			    DITHER(gc, MAX_G),
+			    DITHER(bc, MAX_B)
+			);
 
-		p++;
-		x++;
+		    p++;
+		    x++;
+		}
+#undef DITHER
+	    } else if ( ( conversion_flags & Dither_Mask ) == OrderedDither ) {
+#define DITHER(p,d,m) ((uchar) ((((256 * (m) + 1)) * (p) + (d)) / 65536 ))
+		while ( p < end ) {
+		    uint d = bm[y&15][x&15];
+
+		    rc = qRed( *p );
+		    gc = qGreen( *p );
+		    bc = qBlue( *p );
+
+		    *b++ =
+			INDEXOF(
+			    DITHER(rc, d, MAX_R),
+			    DITHER(gc, d, MAX_G),
+			    DITHER(bc, d, MAX_B)
+			);
+
+		    p++;
+		    x++;
+		}
+#undef DITHER
+	    } else { // Diffuse
+#define DITHER(p,d,m) ((uchar) ((((256 * (m) + 1)) * (p) + (d)) / 65536 ))
+		int endian = (QImage::systemByteOrder() == QImage::BigEndian);
+		uchar* q = src->scanLine(y);
+		uchar* q2 = src->scanLine(y+1 < src->height() ? y + 1 : 0);
+		for (int chan = 0; chan < 3; chan++) {
+		    b = dst->scanLine(y);
+		    int *l1 = (y&1) ? line2[chan] : line1[chan];
+		    int *l2 = (y&1) ? line1[chan] : line2[chan];
+		    if ( y == 0 ) {
+			for (int i=0; i<sw; i++)
+			    l1[i] = q[i*4+chan+endian];
+		    }
+		    if ( y+1 < src->height() ) {
+			for (int i=0; i<sw; i++)
+			    l2[i] = q2[i*4+chan+endian];
+		    }
+		    // Bi-directional error diffusion
+		    if ( y&1 ) {
+			for (x=0; x<sw; x++) {
+			    int pix = QMAX(QMIN(5, (l1[x] * 5 + 128)/ 255), 0);
+			    int err = l1[x] - pix * 255 / 5;
+			    pv[chan][x] = pix;
+
+			    // Spread the error around...
+			    if ( x+1<sw ) {
+				l1[x+1] += (err*7)>>4;
+				l2[x+1] += err>>4;
+			    }
+			    l2[x]+=(err*5)>>4;
+			    if (x>1) 
+				l2[x-1]+=(err*3)>>4;
+			}
+		    } else {
+			for (x=sw; x-->0; ) {
+			    int pix = QMAX(QMIN(5, (l1[x] * 5 + 128)/ 255), 0);
+			    int err = l1[x] - pix * 255 / 5;
+			    pv[chan][x] = pix;
+
+			    // Spread the error around...
+			    if ( x > 0 ) {
+				l1[x-1] += (err*7)>>4;
+				l2[x-1] += err>>4;
+			    }
+			    l2[x]+=(err*5)>>4;
+			    if (x+1 < sw) 
+				l2[x+1]+=(err*3)>>4;
+			}
+		    }
+		}
+		if (endian) {
+		    for (x=0; x<sw; x++) {
+			*b++ = INDEXOF(pv[2][x],pv[1][x],pv[0][x]);
+		    }
+		} else {
+		    for (x=0; x<sw; x++) {
+			*b++ = INDEXOF(pv[0][x],pv[1][x],pv[2][x]);
+		    }
+		}
+#undef DITHER
 	    }
+	}
+
+	if ( ( conversion_flags & Dither_Mask ) == DiffuseDither ) {
+	    delete line1[0];
+	    delete line2[0];
+	    delete line1[1];
+	    delete line2[1];
+	    delete line1[2];
+	    delete line2[2];
+	    delete pv[0];
+	    delete pv[1];
+	    delete pv[2];
 	}
 
 #undef MAX_R
 #undef MAX_G
 #undef MAX_B
-#undef DITHER
 #undef INDEXOF
 
     }
@@ -947,8 +1062,17 @@ static bool convert_1_to_8( const QImage *src, QImage *dst )
 {
     if ( !dst->create(src->width(), src->height(), 8, 2) )
 	return FALSE;				// something failed
-    dst->setColor( 0, src->color(0) );		// copy color table
-    dst->setColor( 1, src->color(1) );
+    if (src->numColors() >= 2) {
+	dst->setColor( 0, src->color(0) );	// copy color table
+	dst->setColor( 1, src->color(1) );
+    } else {
+	// Unlikely, but they do exist
+	if (src->numColors() >= 1)
+	    dst->setColor( 0, src->color(0) );
+	else
+	    dst->setColor( 0, 0x00ffffff );
+	dst->setColor( 1, 0x00000000 );
+    }
     for ( int y=0; y<dst->height(); y++ ) {	// for each scan line...
 	register uchar *p = dst->scanLine(y);
 	uchar *b = src->scanLine(y);
@@ -972,97 +1096,275 @@ static bool convert_1_to_8( const QImage *src, QImage *dst )
 
 
 //
-// dither_image:  Uses the Floyd-Steinberg error diffusion algorithm.
-// Floyd-Steinberg dithering is a one-pass algorithm that moves errors
-// rightwards.
+// dither_to_1:  Uses selected dithering algorithm.
 //
 
-static bool dither_image( const QImage *src, QImage *dst )
+static bool dither_to_1( const QImage *src, QImage *dst, int conversion_flags, bool fromalpha )
 {
     if ( !dst->create(src->width(), src->height(), 1, 2, QImage::BigEndian) )
 	return FALSE;				// something failed
+
+    enum { Threshold, Ordered, Diffuse } dithermode;
+
+    if ( fromalpha ) {
+	if ( ( conversion_flags & AlphaDither_Mask ) == DiffuseAlphaDither )
+	    dithermode = Diffuse;
+	else if ( ( conversion_flags & AlphaDither_Mask ) == OrderedAlphaDither )
+	    dithermode = Ordered;
+	else
+	    dithermode = Threshold;
+    } else {
+	if ( ( conversion_flags & Dither_Mask ) == ThresholdDither )
+	    dithermode = Threshold;
+	else if ( ( conversion_flags & Dither_Mask ) == OrderedDither )
+	    dithermode = Ordered;
+	else
+	    dithermode = Diffuse;
+    }
+
     dst->setColor( 0, qRgb(255, 255, 255) );
     dst->setColor( 1, qRgb(  0,	  0,   0) );
     int	  w = src->width();
     int	  h = src->height();
+    int	  d = src->depth();
     uchar gray[256];				// gray map for 8 bit images
-    bool  use_gray = src->depth() == 8;
+    bool  use_gray = d == 8;
     if ( use_gray ) {				// make gray map
-	for ( int i=0; i<src->numColors(); i++ )
-	    gray[i] = qGray( src->color(i) & 0x00ffffff );
-    }
-    int *line1 = new int[w];
-    int *line2 = new int[w];
-    int bmwidth = (w+7)/8;
-    if ( !(line1 && line2) )
-	return FALSE;
-    register uchar *p;
-    uchar *end;
-    int *b1, *b2;
-    int wbytes = w * (src->depth()/8);
-    p = src->bits();
-    end = p + wbytes;
-    b2 = line2;
-    if ( use_gray ) {				// 8 bit image
-	while ( p < end )
-	    *b2++ = gray[*p++];
-    } else {					// 32 bit image
-	while ( p < end ) {
-	    *b2++ = qGray(*(uint*)p);
-	    p += 4;
+	if ( fromalpha ) {
+	    for ( int i=0; i<src->numColors(); i++ )
+		gray[i] = (255 - (src->color(i) >> 24));
+	} else {
+	    for ( int i=0; i<src->numColors(); i++ )
+		gray[i] = qGray( src->color(i) & 0x00ffffff );
 	}
     }
-    int x, y;
-    for ( y=0; y<h; y++ ) {			// for each scan line...
-	int *tmp = line1; line1 = line2; line2 = tmp;
-	bool not_last_line = y < h - 1;
-	if ( not_last_line ) {			// calc. grayvals for next line
-	    p = src->scanLine(y+1);
-	    end = p + wbytes;
-	    b2 = line2;
-	    if ( use_gray ) {			// 8 bit image
-		while ( p < end )
-		    *b2++ = gray[*p++];
-	    } else {				// 24 bit image
+
+    switch ( dithermode ) {
+      case Diffuse: {
+	int *line1 = new int[w];
+	int *line2 = new int[w];
+	int bmwidth = (w+7)/8;
+	if ( !(line1 && line2) )
+	    return FALSE;
+	register uchar *p;
+	uchar *end;
+	int *b1, *b2;
+	int wbytes = w * (d/8);
+	p = src->bits();
+	end = p + wbytes;
+	b2 = line2;
+	if ( use_gray ) {				// 8 bit image
+	    while ( p < end )
+		*b2++ = gray[*p++];
+	} else {					// 32 bit image
+	    if ( fromalpha ) {
+		while ( p < end ) {
+		    *b2++ = 255 - (*(uint*)p >> 24);
+		    p += 4;
+		}
+	    } else {
 		while ( p < end ) {
 		    *b2++ = qGray(*(uint*)p);
 		    p += 4;
 		}
 	    }
 	}
-	int err;
-	p = dst->scanLine( y );
-	memset( p, 0, bmwidth );
-	b1 = line1;
-	b2 = line2;
-	int bit = 7;
-	for ( x=1; x<=w; x++ ) {
-	    if ( *b1 < 128 ) {			// black pixel
-		err = *b1++;
-		*p |= 1 << bit;
-	    } else {				// white pixel
-		err = *b1++ - 255;
+	int x, y;
+	for ( y=0; y<h; y++ ) {			// for each scan line...
+	    int *tmp = line1; line1 = line2; line2 = tmp;
+	    bool not_last_line = y < h - 1;
+	    if ( not_last_line ) {			// calc. grayvals for next line
+		p = src->scanLine(y+1);
+		end = p + wbytes;
+		b2 = line2;
+		if ( use_gray ) {			// 8 bit image
+		    while ( p < end )
+			*b2++ = gray[*p++];
+		} else {				// 24 bit image
+		    if ( fromalpha ) {
+			while ( p < end ) {
+			    *b2++ = 255 - (*(uint*)p >> 24);
+			    p += 4;
+			}
+		    } else {
+			while ( p < end ) {
+			    *b2++ = qGray(*(uint*)p);
+			    p += 4;
+			}
+		    }
+		}
 	    }
-	    if ( bit == 0 ) {
-		p++;
-		bit = 7;
-	    } else {
-		bit--;
-	    }
-	    if ( x < w )
-		*b1 += (err*7)>>4;		// spread error to right pixel
-	    if ( not_last_line ) {
-		b2[0] += (err*5)>>4;		// pixel below
-		if ( x > 1 )
-		    b2[-1] += (err*3)>>4;	// pixel below left
+
+	    int err;
+	    p = dst->scanLine( y );
+	    memset( p, 0, bmwidth );
+	    b1 = line1;
+	    b2 = line2;
+	    int bit = 7;
+	    for ( x=1; x<=w; x++ ) {
+		if ( *b1 < 128 ) {			// black pixel
+		    err = *b1++;
+		    *p |= 1 << bit;
+		} else {				// white pixel
+		    err = *b1++ - 255;
+		}
+		if ( bit == 0 ) {
+		    p++;
+		    bit = 7;
+		} else {
+		    bit--;
+		}
 		if ( x < w )
-		    b2[1] += err>>4;		// pixel below right
+		    *b1 += (err*7)>>4;		// spread error to right pixel
+		if ( not_last_line ) {
+		    b2[0] += (err*5)>>4;		// pixel below
+		    if ( x > 1 )
+			b2[-1] += (err*3)>>4;	// pixel below left
+		    if ( x < w )
+			b2[1] += err>>4;		// pixel below right
+		}
+		b2++;
 	    }
-	    b2++;
 	}
+	delete [] line1;
+	delete [] line2;
+      } break;
+      case Ordered: {
+	static uint bm[16][16];
+	static int init=0;
+	if (!init) {
+	    // Build a Bayer Matrix for dithering
+
+	    init = 1;
+	    int n, i, j;
+
+	    bm[0][0]=0;
+
+	    for (n=1; n<16; n*=2) {
+		for (i=0; i<n; i++) {
+		    for (j=0; j<n; j++) {
+			bm[i][j]*=4;
+			bm[i+n][j]=bm[i][j]+2;
+			bm[i][j+n]=bm[i][j]+3;
+			bm[i+n][j+n]=bm[i][j]+1;
+		    }
+		}
+	    }
+
+	    // Force black to black
+	    bm[0][0]=1;
+	}
+
+	dst->fill( 0 );
+	uchar** mline = dst->jumpTable();
+	if ( d == 32 ) {
+	    uint** line = (uint**)src->jumpTable();
+	    for ( int i=0; i<h; i++ ) {
+		uint  *p = line[i];
+		uint  *end = p + w;
+		uchar *m = mline[i];
+		int bit = 7;
+		int j = 0;
+		if ( fromalpha ) {
+		    while ( p < end ) {
+			if ( (*p++ >> 24) >= bm[j++&15][i&15] )
+			    *m |= 1 << bit;
+			if ( bit == 0 ) {
+			    m++;
+			    bit = 7;
+			} else {
+			    bit--;
+			}
+		    }
+		} else {
+		    while ( p < end ) {
+			if ( (uint)qGray(*p++) < bm[j++&15][i&15] )
+			    *m |= 1 << bit;
+			if ( bit == 0 ) {
+			    m++;
+			    bit = 7;
+			} else {
+			    bit--;
+			}
+		    }
+		}
+	    }
+	} else if ( d == 8 ) {
+	    uchar** line = src->jumpTable();
+	    for ( int i=0; i<h; i++ ) {
+		uchar *p = line[i];
+		uchar *end = p + w;
+		uchar *m = mline[i];
+		int bit = 7;
+		int j = 0;
+		while ( p < end ) {
+		    if ( gray[*p++] >= bm[j++&15][i&15] )
+			*m |= 1 << bit;
+		    if ( bit == 0 ) {
+			m++;
+			bit = 7;
+		    } else {
+			bit--;
+		    }
+		}
+	    }
+	}
+      } break;
+      default: { // Threshold:
+	dst->fill( 1 );
+	uchar** mline = dst->jumpTable();
+	if ( d == 32 ) {
+	    uint** line = (uint**)src->jumpTable();
+	    for ( int i=0; i<h; i++ ) {
+		uint  *p = line[i];
+		uint  *end = p + w;
+		uchar *m = mline[i];
+		int bit = 7;
+		if ( fromalpha ) {
+		    while ( p < end ) {
+			if ( (*p++ >> 24) >= 128 )
+			    *m ^= 1 << bit;
+			if ( bit == 0 ) {
+			    m++;
+			    bit = 7;
+			} else {
+			    bit--;
+			}
+		    }
+		} else {
+		    while ( p < end ) {
+			if ( qGray(*p++) >= 128 )
+			    *m ^= 1 << bit;
+			if ( bit == 0 ) {
+			    m++;
+			    bit = 7;
+			} else {
+			    bit--;
+			}
+		    }
+		}
+	    }
+	} else if ( d == 8 ) {
+	    uchar** line = src->jumpTable();
+	    for ( int i=0; i<h; i++ ) {
+		uchar *p = line[i];
+		uchar *end = p + w;
+		uchar *m = mline[i];
+		int bit = 7;
+		while ( p < end ) {
+		    if ( gray[*p++] >= 128 )
+			*m ^= 1 << bit;
+		    if ( bit == 0 ) {
+			m++;
+			bit = 7;
+		    } else {
+			bit--;
+		    }
+		}
+	    }
+	}
+      }
     }
-    delete [] line1;
-    delete [] line2;
     return TRUE;
 }
 
@@ -1079,13 +1381,13 @@ static bool dither_image( const QImage *src, QImage *dst )
   \sa depth(), isNull()
 */
 
-QImage QImage::convertDepth( int depth ) const
+QImage QImage::convertDepth( int depth, int conversion_flags ) const
 {
     QImage image;
     if ( (data->d == 8 || data->d == 32) && depth == 1 ) // dither
-	dither_image( this, &image );
+	dither_to_1( this, &image, conversion_flags, FALSE );
     else if ( data->d == 32 && depth == 8 )	// 32 -> 8
-	convert_32_to_8( this, &image );
+	convert_32_to_8( this, &image, conversion_flags );
     else if ( data->d == 8 && depth == 32 )	// 8 -> 32
 	convert_8_to_32( this, &image );
     else if ( data->d == 1 && depth == 8 )	// 1 -> 8
@@ -1104,6 +1406,15 @@ QImage QImage::convertDepth( int depth ) const
     }
     return image;
 }
+
+/*!
+  \overload QImage QImage::convertDepth( int depth ) const
+*/
+QImage QImage::convertDepth( int depth ) const
+{
+    return convertDepth( depth, 0 );
+}
+
 
 #if 0
 const QRgb QImage::pixel( int x, int y ) const
@@ -1168,53 +1479,23 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
 }
 
 /*!
-  Sets the dithering algorithm used by createAlphaMask().
-
-  Mode QImage::Threshold, avoids dithering altogether
-  and instead interprets all alpha values from 127 and below as
-  transparent and values from 128 and above as opaque. It is much
-  faster than dithering and may be sufficient when reading images with
-  transparent colors.  This is also the effect of disabling dithering.
-
-  Mode QImage::Bayer selects Bayer's ordered
-  dithering algorithm to create the mask. This is relatively fast.  
-
-  Mode QImage::Floyd selects the Floyd-Steinberg
-  dithering algorithm to create the mask. It gives accurate results but
-  is somewhat slow.  This is the default if dithering is enabled.
-*/
-void QImage::setAlphaDitherMode( DitherMode mode )
-{
-    alphadithermode = mode;
-}
-
-/*!
-  Returns the dithering mode set by setAlphaDitherMode().
-*/
-QImage::DitherMode QImage::alphaDitherMode()
-{
-    return alphadithermode;
-}
-
-QImage::DitherMode QImage::alphadithermode = Floyd;
-
-/*!
   Builds and returns a 1-bpp mask from the alpha buffer in this image.
   Returns a null image if \link setAlphaBuffer() alpha buffer mode\endlink
   is disabled.
 
-  The mask is dithered from the 8-bit alpha mask according to
-  the mode set by setAlphaDitherMode().
+  See \link QPixmap::convertFromImage\endlink for a description of
+  the \a conversion_flags argument.
 
   The returned image has little-endian bit order, which you can
   convert to big-endianness using convertBitOrder().
-
-  \sa setAlphaBuffer()
 */
 
-QImage QImage::createAlphaMask( bool dither ) const
+QImage QImage::createAlphaMask( int conversion_flags ) const
 {
-    DitherMode dmode = dither ? alphadithermode : Threshold;
+    if ( conversion_flags == 1 ) {
+	// Old code is passing "TRUE".
+	conversion_flags = DiffuseAlphaDither;
+    }
 
     if ( isNull() || !hasAlphaBuffer() ) {
 	QImage nullImage;
@@ -1222,178 +1503,15 @@ QImage QImage::createAlphaMask( bool dither ) const
     }
 
     if ( depth() == 1 ) {
-	return convertDepth(8).createAlphaMask();
+	// A monochrome pixmap, with alpha channels on those two colors.
+	// Pretty unlikely, so use less efficient solution.
+	return convertDepth(8, conversion_flags)
+		.createAlphaMask( conversion_flags );
     }
 
-    int i;
-    switch ( dmode ) {
-      case Threshold:	    // simple quantization
-	{
-	    QImage mask1( width(), height(), 1, 2, QImage::BigEndian );
-	    mask1.setColor( 0, 0xffffff );
-	    mask1.setColor( 1, 0 );
-	    mask1.fill( 0 );
-	    uchar** mline = mask1.jumpTable();
-	    if ( depth() == 32 ) {
-		uint** line = (uint**)jumpTable();
-		for ( i=0; i<height(); i++ ) {
-		    uint  *p = line[i];
-		    uint  *end = p + width();
-		    uchar *m = mline[i];
-		    int bit = 7;
-		    while ( p < end ) {
-			if ( (*p++ >> 24) & 0x80 )
-			    *m |= 1 << bit;
-			if ( bit == 0 ) {
-			    m++;
-			    bit = 7;
-			} else {
-			    bit--;
-			}
-		    }
-		}
-	    } else if ( depth() == 8 ) {
-		uchar c[256];
-		QRgb* ctable = colorTable();
-		uchar** line = jumpTable();
-		for ( i=0; i<numColors(); i++ )
-		    c[i] = (ctable[i] >> 24) & 0x80;
-		for ( i=0; i<height(); i++ ) {
-		    uchar *p = line[i];
-		    uchar *end = p + width();
-		    uchar *m = mline[i];
-		    int bit = 7;
-		    while ( p < end ) {
-			if ( c[*p++] )
-			    *m |= 1 << bit;
-			if ( bit == 0 ) {
-			    m++;
-			    bit = 7;
-			} else {
-			    bit--;
-			}
-		    }
-		}
-	    }
-	    return mask1;
-	    break;
-	}
-      case Bayer:
-	{
-	    static uint bm[16][16];
-	    static int init=0;
-	    if (!init) {
-		// Build a Bayer Matrix for dithering
-
-		init = 1;
-		int n, i, j;
-
-		bm[0][0]=0;
-
-		for (n=1; n<16; n*=2) {
-		    for (i=0; i<n; i++) {
-			for (j=0; j<n; j++) {
-			    bm[i][j]*=4;
-			    bm[i+n][j]=bm[i][j]+2;
-			    bm[i][j+n]=bm[i][j]+3;
-			    bm[i+n][j+n]=bm[i][j]+1;
-			}
-		    }
-                }
-
-		// Force black to black
-		bm[0][0]=1;
-	    }
-
-	    QImage mask1( width(), height(), 1, 2, QImage::BigEndian );
-	    mask1.setColor( 0, 0xffffff );
-	    mask1.setColor( 1, 0 );
-	    mask1.fill( 0 );
-	    uchar** mline = mask1.jumpTable();
-	    if ( depth() == 32 ) {
-		uint** line = (uint**)jumpTable();
-		for ( i=0; i<height(); i++ ) {
-		    uint  *p = line[i];
-		    uint  *end = p + width();
-		    uchar *m = mline[i];
-		    int bit = 7;
-		    int j = 0;
-		    while ( p < end ) {
-			if ( (*p++ >> 24) >= bm[j++&15][i&15] )
-			    *m |= 1 << bit;
-			if ( bit == 0 ) {
-			    m++;
-			    bit = 7;
-			} else {
-			    bit--;
-			}
-		    }
-		}
-	    } else if ( depth() == 8 ) {
-		uchar c[256];
-		QRgb* ctable = colorTable();
-		uchar** line = jumpTable();
-		for ( i=0; i<numColors(); i++ )
-		    c[i] = (ctable[i] >> 24);
-		for ( i=0; i<height(); i++ ) {
-		    uchar *p = line[i];
-		    uchar *end = p + width();
-		    uchar *m = mline[i];
-		    int bit = 7;
-		    int j = 0;
-		    while ( p < end ) {
-			if ( c[*p++] >= bm[j++&15][i&15] )
-			    *m |= 1 << bit;
-			if ( bit == 0 ) {
-			    m++;
-			    bit = 7;
-			} else {
-			    bit--;
-			}
-		    }
-		}
-	    }
-	    return mask1;
-	    break;
-	}
-      case Floyd:
-	{
-	    QImage mask8( width(), height(), 8, 256 );
-	    uchar** mline = mask8.jumpTable();
-	    for ( i=0; i<256; i++ )
-		mask8.data->ctbl[i] = qRgb(255-i,255-i,255-i);
-	    if ( depth() == 32 ) {
-		uint **line = (uint**)jumpTable();
-		for ( i=0; i<height(); i++ ) {
-		    uint  *p = line[i];
-		    uint  *end = p + width();
-		    uchar *m = mline[i];
-		    while ( p < end )
-			*m++ = (uchar)(*p++ >> 24);
-		}
-	    } else if ( depth() == 8 ) {
-		uchar c[256];
-		QRgb* ctable = colorTable();
-		uchar** line = jumpTable();
-		for ( i=0; i<numColors(); i++ )
-		    c[i] = (uchar)(ctable[i] >> 24);
-		for ( i=0; i<height(); i++ ) {
-		    uchar *p = line[i];
-		    uchar *end = p + width();
-		    uchar *m = mline[i];
-		    while ( p < end )
-			*m++ = c[*p++];
-		}
-	    }
-	    QImage mask1;
-	    dither_image( &mask8, &mask1 );
-	    return mask1;
-	}
-    }
-
-    fatal("Bad DitherMode to QImage::createAlphaMask");
-    QImage dummy;
-    return dummy;
+    QImage mask1;
+    dither_to_1( this, &mask1, conversion_flags, TRUE );
+    return mask1;
 }
 
 

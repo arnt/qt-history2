@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#53 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#53 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -400,7 +400,7 @@ QImage QPixmap::convertToImage() const
 }
 
 
-bool QPixmap::convertFromImage( const QImage &img, ColorMode mode, bool adither )
+bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 {
     if ( img.isNull() ) {
 #if defined(CHECK_NULL)
@@ -410,24 +410,25 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode, bool adither 
     }
     QImage image = img;
     int	   d = image.depth();
-    bool   force_mono = (isQBitmap() || mode == Mono);
+    bool   force_mono = (isQBitmap()
+		         || (conversion_flags & ColorMode_Mask) == MonoOnly);
 
     if ( force_mono ) {				// must be monochrome
 	if ( d != 1 ) {
-	    image = image.convertDepth( 1 );	// dither
+	    image = image.convertDepth( 1, conversion_flags );	// dither
 	    d = 1;
 	}
     } else {					// can be both
 	bool conv8 = FALSE;
-	if ( mode == Color ) {			// native depth wanted
+	if ( (conversion_flags & ColorMode_Mask) == ColorOnly ) {			// native depth wanted
 	    conv8 = d == 1;
 	} else if ( d == 1 && image.numColors() == 2 ) {
-	    QRgb c0 = image.color(0);		// mode==Auto: convert to best
+	    QRgb c0 = image.color(0);		// Auto: convert to best
 	    QRgb c1 = image.color(1);
 	    conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != qRgb(255,255,255);
 	}
 	if ( conv8 ) {
-	    image = image.convertDepth( 8 );
+	    image = image.convertDepth( 8, conversion_flags );
 	    d = 8;
 	}
     }
@@ -511,11 +512,6 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode, bool adither 
     }
 
     return TRUE;
-}
-
-bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
-{
-    return convertFromImage( img, mode, FALSE );
 }
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )

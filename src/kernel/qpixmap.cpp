@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#73 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#72 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#73 $");
 
 
 /*!
@@ -125,12 +125,12 @@ QPixmap::QPixmap( const QSize &size, int depth )
   \sa isNull(), load(), loadFromData(), save(), imageFormat()
 */
 
-QPixmap::QPixmap( const char *fileName, const char *format, ColorMode mode,
-	bool adither )
+QPixmap::QPixmap( const char *fileName, const char *format,
+	int conversion_flags )
     : QPaintDevice( PDT_PIXMAP )
 {
     init( 0, 0, 0 );
-    load( fileName, format, mode, adither );
+    load( fileName, format, conversion_flags );
 }
 
 /*!
@@ -476,16 +476,8 @@ bool qt_image_did_native_bmp()
   specified format. If \e format is not specified (default),
   the loader reads a few bytes from the header to guess the file format.
 
-  The \e mode argument specifies whether the resulting pixmap should be a
-  monochrome (\link depth() depth\endlink == 1) or a normal (\link
-  defaultDepth() native depth\endlink) pixmap.	This argument is ignored
-  if this pixmap is a QBitmap.
-
-  The \e adither argument sets the
-  \link QImage::createAlphaMask() alpha dithering\endcode.
-
-  See the convertFromImage() documentation for a detailed description
-  of the \e mode argument, and note the effect of QImage::setDitherMode().
+  See the convertFromImage() documentation for a description
+  of the \e conversion_flags argument.
 
   The QImageIO documentation lists the supported image formats and
   explains how to add extra formats.
@@ -494,7 +486,7 @@ bool qt_image_did_native_bmp()
 */
 
 bool QPixmap::load( const char *fileName, const char *format,
-		    ColorMode mode, bool adither )
+		    int conversion_flags )
 {
     QImageIO io( fileName, format );
 #if defined(_WS_WIN_)
@@ -503,7 +495,7 @@ bool QPixmap::load( const char *fileName, const char *format,
     bool result = io.read();
     if ( result ) {
 	detach();
-	result = convertFromImage( io.image(), mode, adither );
+	result = convertFromImage( io.image(), conversion_flags );
     }
 #if defined(_WS_WIN_)
     can_handle_bmp = did_handle_bmp = FALSE;
@@ -517,8 +509,39 @@ bool QPixmap::load( const char *fileName, const char *format,
 bool QPixmap::load( const char *fileName, const char *format,
 		    ColorMode mode )
 {
-    return load( fileName, format, mode, FALSE );
+    int conversion_flags = 0;
+    switch (mode) {
+      case Color:
+	conversion_flags |= ColorOnly;
+	break;
+      case Mono:
+	conversion_flags |= MonoOnly;
+	break;
+      default:
+	;// Nothing.
+    }
+    return load( fileName, format, conversion_flags );
 }
+
+/*!
+  \overload
+*/
+bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
+{
+    int conversion_flags = 0;
+    switch (mode) {
+      case Color:
+	conversion_flags |= ColorOnly;
+	break;
+      case Mono:
+	conversion_flags |= MonoOnly;
+	break;
+      default:
+	;// Nothing.
+    }
+    return convertFromImage( img, conversion_flags );
+}
+
 
 /*!
   Loads a pixmap from the binary data in \e buf (\e len bytes).
@@ -528,16 +551,8 @@ bool QPixmap::load( const char *fileName, const char *format,
   specified format. If \e format is not specified (default),
   the loader reads a few bytes from the header to guess the file format.
 
-  The \e mode argument specifies whether the resulting pixmap should be a
-  monochrome (\link depth() depth\endlink == 1) or a normal (\link
-  defaultDepth() native depth\endlink) pixmap.	This argument is ignored
-  if this pixmap is a QBitmap.
-
-  See the convertFromImage() documentation for a detailed description
-  of the \e mode argument, and note the effect of QImage::setDitherMode().
-
-  The \e adither argument sets the
-  \link QImage::createAlphaMask() alpha dithering\endcode.
+  See the convertFromImage() documentation for a description
+  of the \a conversion_flags argument.
 
   The QImageIO documentation lists the supported image formats and
   explains how to add extra formats.
@@ -546,7 +561,7 @@ bool QPixmap::load( const char *fileName, const char *format,
 */
 
 bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
-			    ColorMode mode, bool adither )
+			    int conversion_flags )
 {
     QByteArray a;
     a.setRawData( (char *)buf, len );
@@ -561,7 +576,7 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
     a.resetRawData( (char *)buf, len );
     if ( result ) {
 	detach();
-	result = convertFromImage( io.image(), mode, adither );
+	result = convertFromImage( io.image(), conversion_flags );
     }
 #if defined(_WS_WIN_)
     can_handle_bmp = did_handle_bmp = FALSE;
@@ -575,7 +590,18 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
 bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
 			    ColorMode mode )
 {
-    return loadFromData( buf, len, format, mode, FALSE );
+    int conversion_flags = 0;
+    switch (mode) {
+      case Color:
+	conversion_flags |= ColorOnly;
+	break;
+      case Mono:
+	conversion_flags |= MonoOnly;
+	break;
+      default:
+	;// Nothing.
+    }
+    return loadFromData( buf, len, format, conversion_flags );
 }
 
 /*!
