@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.h#28 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.h#29 $
 **
 ** Definition of QPopupMenu class
 **
@@ -28,8 +28,8 @@ public:
     void	popup( const QPoint & pos, int indexAtPoint = 0 );// open popup
     void	updateItem( int id );
     
-    void	setItemCheckingEnabled( bool );
-    bool	isItemCheckingEnabled();
+    void	setCheckable( bool );
+    bool	isCheckable() const;
 
     void	setFont( const QFont & );	// reimplemented set font
     void	show();				// reimplemented show

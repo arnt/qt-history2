@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#87 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#86 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#87 $");
 
 
 // Motif style parameters
@@ -91,7 +91,7 @@ static int getWidthOfCheckCol( int gs )
 
 // Checkmark drawing -- temporarily here...
 static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
-			    const QColorGroup &g, int gs, bool act )
+			    const QColorGroup &g, GUIStyle gs, bool act )
 {
     int markW, markH;
     getSizeOfBitmap( gs, &markW, &markH );
@@ -103,7 +103,7 @@ static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
 	QPointArray a( 7*2 );
 	int i, xx, yy;
 	xx = posX;
-	yy = posY + 3;
+	yy = 3 + posY;
 	for ( i=0; i<3; i++ ) {
 	    a.setPoint( 2*i,   xx, yy );
 	    a.setPoint( 2*i+1, xx, yy+2 );
@@ -267,11 +267,12 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
 	case WindowsStyle:
 	    setFrameStyle( QFrame::WinPanel | QFrame::Raised );
 	    setMouseTracking( TRUE );
-	    setItemCheckingEnabled( TRUE );		
+	    setCheckable( TRUE );		
 	    break;
 	case MotifStyle:
 	    setFrameStyle( QFrame::Panel | QFrame::Raised );
 	    setLineWidth( motifPopupFrame );
+	    setCheckable( FALSE );		
 	    break;
 	default:
 	    setFrameStyle( QFrame::Panel | QFrame::Plain );
@@ -301,39 +302,45 @@ void QPopupMenu::updateItem( int id )		// update popup menu item
 
 /*!
   Enables or disables display of check marks by the menu items.
+  
+  Notice that checking is always enabled when in windows-style.
 
-  \sa isItemCheckingEnabled(), QMenuData::setItemChecked()
+  \sa isCheckable(), QMenuData::setItemChecked()
 */
 
-void QPopupMenu::setItemCheckingEnabled( bool enable )
+void QPopupMenu::setCheckable( bool enable )
 {
-    if ( enable ) {
-	setNumCols( 2 );
-	tabCheck |= 0x80000000;
+    bool oldState = isCheckable();
+    bool newState = (style() == WindowsStyle) || enable;
+    if ( oldState != newState ) {
+	if ( newState ) {
+	    setNumCols( 2 );
+	    tabCheck |= 0x80000000;
+	}
+	else {
+	    setNumCols( 1 );
+	    tabCheck &= 0x7FFFFFFF;
+	}
+	badSize = TRUE;
+	update();
     }
-    else {
-	setNumCols( 1 );
-	tabCheck &= 0x7FFFFFFF;
-    }
-    badSize = TRUE;
-    update();
 }
 
 /*!
   Returns whether display of check marks by the menu items is enabled.
 
-  \sa setItemCheckingEnabled(), QMenuData::setItemChecked()
+  \sa setCheckable(), QMenuData::setItemChecked()
 */
 
-bool QPopupMenu::isItemCheckingEnabled()
+bool QPopupMenu::isCheckable() const
 {
-    return tabCheck & 0x80000000;
+    return (tabCheck & 0x80000000) != 0;
 }
 
 
 void QPopupMenu::setTabMark( int t )
 {
-    bool e = isItemCheckingEnabled();
+    bool e = isCheckable();
     tabCheck = t;
     if ( e )
 	tabCheck |= 0x80000000;
@@ -629,7 +636,7 @@ void QPopupMenu::updateSize()
 
     max_width  += 2*motifItemHMargin;
 
-    if ( isItemCheckingEnabled() )
+    if ( isCheckable() )
 	max_width += getWidthOfCheckCol( gs ) + motifItemFrame;
     else
 	max_width += 2*motifItemFrame;
@@ -778,7 +785,7 @@ int QPopupMenu::cellHeight( int row )
 
 int QPopupMenu::cellWidth( int col )
 {
-    if ( isItemCheckingEnabled() ) {
+    if ( isCheckable() ) {
 	if ( col == 0 )
 	    return getWidthOfCheckCol(style());
 	else
@@ -802,7 +809,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
     if ( !mi->isDirty() )
 	return;
 
-    int rw = isItemCheckingEnabled() ? totalWidth() : cellw;
+    int rw = isCheckable() ? totalWidth() : cellw;
 
     if ( col == 0 ) {
 	if ( mi->isSeparator() ) {			// draw separator
@@ -825,7 +832,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 		qDrawPlainRect( p, 0, 0, rw, cellh, g.background(), pw );
 	}
 
-	if ( isItemCheckingEnabled() ) {	// just "checking"...
+	if ( isCheckable() ) {	// just "checking"...
 	    int mw = cellw - ( 2*motifCheckMarkHMargin + motifItemFrame );
 	    int mh = cellh - 2*motifItemFrame;
 	    if ( mi->isChecked() ) {
@@ -847,7 +854,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	p->setPen( discol );
     }
 
-    int x = motifItemHMargin + ( isItemCheckingEnabled() ? 0 : motifItemFrame);
+    int x = motifItemHMargin + ( isCheckable() ? 0 : motifItemFrame);
     if ( mi->pixmap() ) {			// draw pixmap
 	QPixmap *pixmap = mi->pixmap();
 	if ( pixmap->depth() == 1 )
@@ -1189,6 +1196,6 @@ void QPopupMenu::timerEvent( QTimerEvent *e )
 void QPopupMenu::updateRow( int row )
 {
     updateCell( row, 0, FALSE );
-    if ( isItemCheckingEnabled() )
+    if ( isCheckable() )
 	updateCell( row, 1, FALSE );
 }
