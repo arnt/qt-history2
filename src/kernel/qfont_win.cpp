@@ -236,7 +236,7 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 	DWORD res = GetGlyphOutline( currHDC, chr, GGO_METRICS, &gm, 0, 0, mat );
 	if ( res != GDI_ERROR )
 	    return QRect(gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y, gm.gmBlackBoxX, gm.gmBlackBoxY);
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
 	else if ( qt_winver & Qt::WV_NT_based )
 	    qSystemWarning( "QFontPrivate: GetGlyphOutline failed error code=%d", GetLastError() );
 #endif
@@ -353,7 +353,7 @@ void QFontPrivate::load()
 #  endif
 	    res = GetTextMetricsA( fin->dc(), &fin->tm.a );
 #endif
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
 	if ( !res )
 	    qSystemWarning( "QFontPrivate: GetTextMetrics failed" );
 #endif
@@ -603,7 +603,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 	uc++;
     }
     BOOL res = GetTextExtentPoint32( fin->dc(), tc + last, i - last, &s );
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
     if ( !res )
 	qSystemWarning( "QFontPrivate: GetTextExtentPoint32 failed" );
 #endif
@@ -673,7 +673,7 @@ void QFontPrivate::buildCache( HDC hdc, const QString &str, int pos, int len, QF
 	    cache->mapped = tchar( qc, length );
 	    singlePrint = FALSE;
 	    BOOL res = GetTextExtentPoint32( currHDC, cache->mapped, length, &s );
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
 	    if ( !res )
 		qSystemWarning( "QFontPrivate: GetTextExtentPoint32 failed" );
 #endif

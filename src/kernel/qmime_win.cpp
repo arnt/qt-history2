@@ -131,7 +131,7 @@ int QWindowsMime::registerMimeType(const char *mime)
 #else
     CLIPFORMAT f = RegisterClipboardFormatA(mime);
 #endif
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
     if ( !f )
 	qSystemWarning( "QWindowsMime: Failed to register clipboard format" );
 #endif

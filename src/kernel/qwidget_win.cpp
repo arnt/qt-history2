@@ -160,7 +160,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( window ) {
 	style = GetWindowLongA( window, GWL_STYLE );
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
 	if ( !style )
 	    qSystemWarning( "QWidget: GetWindowLong failed" );
 #endif
@@ -248,12 +248,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	id = window;
 	setWinId( window );
 	LONG res = SetWindowLongA( window, GWL_STYLE, style );
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
 	if ( !res )
 	    qSystemWarning( "QWidget: Failed to set window style" );
 #endif
 	res = SetWindowLongA( window, GWLP_WNDPROC, (LONG)QtWndProc );
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
 	if ( !res )
 	    qSystemWarning( "QWidget: Failed to set window procedure" );
 #endif
@@ -325,7 +325,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
 #endif
 
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
 	if ( id == NULL )
 	    qSystemWarning( "QWidget: Failed to create window" );
 #endif
@@ -350,7 +350,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 			    parentw, NULL, appinst, NULL );
 	}
 #endif
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
 	if ( id == NULL )
 	    qSystemWarning( "QWidget: Failed to create window" );
 #endif

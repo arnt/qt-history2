@@ -520,7 +520,7 @@ void fatal( const char *msg, ... )
 */
 void qSystemWarning( const char* msg, int code )
 {
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
 #if defined(Q_OS_WIN32)
     if ( code == -1 )
 	code = GetLastError();

@@ -655,7 +655,7 @@ int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 	p->cStencilBits = 4;
     p->iLayerType = PFD_MAIN_PLANE;
     int chosenPfi = ChoosePixelFormat( pdc, p );
-#if defined(Q_DEBUG)
+#ifndef QT_NO_DEBUG
     if ( !chosenPfi )
 	qSystemWarning( "QGLContext: Call of ChoosePixelFormat failed!" );
 #endif

@@ -112,7 +112,7 @@ void QClipboard::connectNotify( const char *signal )
 	QWidget *owner = clipboardOwner();
 	inClipboardChain = TRUE;
 	nextClipboardViewer = SetClipboardViewer( owner->winId() );
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
 	if ( !nextClipboardViewer )
 	    qSystemWarning( "QClipboard: Failed to set clipboard viewer" );
 #endif
@@ -135,14 +135,14 @@ public:
 		if ( QWindowsMime::convertor(mime,cf) )
 		    r = TRUE;
 	    }
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
 	    if ( !CloseClipboard() )
 		qSystemWarning( "QClipboard: Failed to close clipboard" );
 #else
 	    CloseClipboard();
 #endif
 	}
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
 	else
 	    qSystemWarning( "QClipboardWatcher: Failed to open clipboard" );
 #endif
@@ -223,7 +223,7 @@ public:
 			r = tr;
 			break;
 		    }
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
 		    else
 			qSystemWarning( "QClipboard: Failed to read clipboard data" );
 #endif
@@ -231,7 +231,7 @@ public:
 	    }
 	    CloseClipboard();
 	}
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
 	else
 	    qSystemWarning( "QClipboard: Failed to open Clipboard" );
 #endif
@@ -333,7 +333,7 @@ static void renderFormat(int cf)
 	    char *d = (char *)GlobalLock( h );
 	    memcpy( d, md.data(), len );
 	    HANDLE res = SetClipboardData( cf, h );
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
 	    if ( !res )
 		qSystemWarning( "QClipboard: Failed to write data" );
 #endif
@@ -471,7 +471,7 @@ QMimeSource* QClipboard::data() const
 void QClipboard::setData( QMimeSource* src )
 {
     if ( !OpenClipboard(clipboardOwner()->winId()) ) {
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
 	qSystemWarning( "QClipboard: Failed to open clipboard" );
 #endif
 	return;
@@ -481,7 +481,7 @@ void QClipboard::setData( QMimeSource* src )
     d->setSource( src );
 
     int res = EmptyClipboard();
-#ifndef Q_NO_DEBUG
+#ifndef QT_NO_DEBUG
     if ( !res )
 	qSystemWarning( "QClipboard: Failed to empty clipboard" );
 #endif
