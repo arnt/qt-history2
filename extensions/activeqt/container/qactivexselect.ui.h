@@ -15,7 +15,6 @@
 
 #include <qsettings.h>
 #include <qapplication.h>
-#include <designerinterface.h>
 #include <qt_windows.h>
 
 class ListBoxText : public QListBoxText
@@ -37,6 +36,7 @@ private:
 
 void QActiveXSelect::init()
 {
+    activex = 0;
     QApplication::setOverrideCursor( WaitCursor );
     HKEY classes_key;
     RegOpenKeyA( HKEY_CLASSES_ROOT, "CLSID", &classes_key );
@@ -83,6 +83,41 @@ void QActiveXSelect::controlSelected( QListBoxItem *ctrl )
 
     ActiveX->setText( ((ListBoxText*)ctrl)->clsid() );
 }
+
+void QActiveXSelect::openLater()
+{
+    if ( !activex || !activex->isNull() || !designer ) {
+	if ( designer )
+	    designer->release();
+	delete this;
+	return;
+    }
+    if ( exec() ) {
+	activex->setControl( ActiveX->text() );
+	DesignerFormWindow *form = designer->currentForm();
+	if ( form ) {
+	    form->setPropertyChanged( activex, "control", TRUE );
+	    form->clearSelection();
+	    qApp->processEvents();
+	    form->selectWidget( activex );
+	    form->setCurrentWidget( activex );
+	}
+	designer->release();
+	delete this;
+    }
+}
+
+void QActiveXSelect::setActiveX( QAxWidget *ax )
+{
+    activex = ax;
+}
+
+void QActiveXSelect::setDesigner( DesignerInterface *des )
+{
+    designer = des;
+    designer->addRef();
+}
+
 
 QString QActiveXSelect::selectedControl()
 {
