@@ -227,12 +227,6 @@
 #elif defined(__USLC__)
 // defines __EDG__ on UnixWare7 only
 #  define Q_CC_USLC
-#elif defined(__EDG__) || defined(__EDG)
-// one documented by EDG, the other documented by SGI
-#  define Q_CC_EDG
-#  if defined(_BOOL)
-#    define Q_HAS_BOOL_TYPE
-#  endif
 #elif defined(OBJECTCENTER) || defined(CENTERLINE_CLPP)
 // defines __EDG__?
 #  define Q_CC_OC
@@ -252,6 +246,12 @@
 // defines __EDG__?
 #  define Q_CC_CDS
 #  define Q_HAS_BOOL_TYPE
+#elif defined(__EDG__) || defined(__EDG)
+// one documented by EDG, the other documented by SGI
+#  define Q_CC_EDG
+#  if defined(_BOOL)
+#    define Q_HAS_BOOL_TYPE
+#  endif
 #elif defined(Q_OS_HPUX)
 // __HP_aCC was not defined by first aCC releases
 #  if defined(__HP_aCC) || __cplusplus >= 199707L
