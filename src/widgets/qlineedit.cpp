@@ -1084,7 +1084,7 @@ bool QLineEdit::hasAcceptableInput() const
     \row \i \c 9 \i ASCII digit required. 0-9.
     \row \i \c 0 \i ASCII digit permitted but not required.
     \row \i \c D \i ASCII digit required. 1-9.
-    \row \i \c d \i ASCII digit permitted but not required.
+    \row \i \c d \i ASCII digit permitted but not required (1-9).
     \row \i \c # \i ASCII digit or plus/minus sign permitted but not required.
     \row \i \c > \i All following alphabetic characters are uppercased.
     \row \i \c < \i All following alphabetic characters are lowercased.
