@@ -168,6 +168,8 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
 	case QVariant::Int:
 	    w = new QSpinBox( -2147483647, 2147483647, 1, parent, "qt_editor_int" );
 	    break;
+	case QVariant::LongLong:
+	case QVariant::ULongLong:
 	case QVariant::String:
 	case QVariant::CString:
 	case QVariant::Double:
