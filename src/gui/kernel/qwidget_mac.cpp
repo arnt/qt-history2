@@ -539,10 +539,11 @@ void QWidgetPrivate::toggleDrawers(bool visible)
         QWidget *widget = static_cast<QWidget*>(object);
         if(qt_mac_is_macdrawer(widget)) {
             if(visible) {
-                if (!widget->isHidden())
+                if (!widget->testWState(Qt::WState_ExplicitShowHide))
                     widget->show();
             } else {
-                widget->hide_helper();
+                widget->hide();
+                widget->clearWState(Qt::WState_ExplicitShowHide);
             }
         }
     }
