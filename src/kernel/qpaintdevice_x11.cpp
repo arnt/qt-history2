@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#61 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#60 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#61 $")
 
 
 /*----------------------------------------------------------------------------
@@ -270,14 +270,16 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
 	     RasterOp rop, bool ignoreMask )
 {
-    if ( !src->handle() )
-	return;
-    if ( src->isExtDev() ) {
+    if ( !src || !dst ) {
 #if defined(CHECK_NULL)
-	warning( "bitBlt: Cannot bitBlt from device" );
+	ASSERT( src != 0 );
+	ASSERT( dst != 0 );
 #endif
 	return;
     }
+    if ( !src->handle() || src->isExtDev() )
+	return;
+
     int ts = src->devType();			// from device type
     int td = dst->devType();			// to device type
     Display *dpy = src->x11Display();

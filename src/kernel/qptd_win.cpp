@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#22 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -26,7 +26,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_win.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_win.cpp#22 $")
 
 
 QPaintDevice::QPaintDevice( uint devflags )
@@ -73,12 +73,16 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
 	     RasterOp rop, bool ignoreMask  )
 {
-    if ( src->isExtDev() ) {
+    if ( !src || !dst ) {
 #if defined(CHECK_NULL)
-	warning( "bitBlt: Cannot bitBlt from device" );
+	ASSERT( src != 0 );
+	ASSERT( dst != 0 );
 #endif
 	return;
     }
+    if ( !src->handle() || src->isExtDev() )
+	return;
+
     int ts = src->devType();			// from device type
     int td = dst->devType();			// to device type
 
