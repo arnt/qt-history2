@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#52 $
 **
 ** Implementation of movie classes
 **
@@ -23,7 +23,7 @@
 **
 *****************************************************************************/
 
-#define QT_SAVE_MOVIE_HACK
+// #define QT_SAVE_MOVIE_HACK
 
 #include "qtimer.h"
 #include "qpainter.h"
@@ -1377,7 +1377,7 @@ QDataStream& operator<<(QDataStream& str, QMovieFrames& frames)
 ** QMovieFilePrivate meta object code from reading C++ file 'standard input'
 **
 ** Created: Fri Aug 21 01:55:09 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.51 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.52 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
