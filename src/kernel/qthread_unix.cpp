@@ -133,7 +133,7 @@ void QThreadInstance::finish( void * )
     d->args[0] = d->args[1] = 0;
 
 
-    QThreadStoragePrivate::finish( d->thread_storage );
+    QThreadStorageData::finish( d->thread_storage );
     d->thread_storage = 0;
 
     d->thread_id = 0;

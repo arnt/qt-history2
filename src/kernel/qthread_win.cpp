@@ -134,7 +134,7 @@ void QThreadInstance::finish( QThreadInstance *d )
     d->finished = TRUE;
     d->args[0] = d->args[1] = 0;
 
-    QThreadStoragePrivate::finish( d->thread_storage );
+    QThreadStorageData::finish( d->thread_storage );
     d->thread_storage = 0;
 
     d->id = 0;
@@ -169,7 +169,7 @@ void QThreadInstance::terminate()
 
     TerminateThread( handle, 0 );
 
-    QThreadStoragePrivate::finish( storage );
+    QThreadStorageData::finish( storage );
 }
 
 
@@ -380,7 +380,7 @@ void QThread::exit()
     d->finished = TRUE;
     d->args[0] = d->args[1] = 0;
 
-    QThreadStoragePrivate::finish( d->thread_storage );
+    QThreadStorageData::finish( d->thread_storage );
     d->thread_storage = 0;
 
     d->id = 0;
