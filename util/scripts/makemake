@@ -67,6 +67,7 @@ config: variables
 	\$(MAKE)
 
 variables: Makefile
+	@if [ -f bin/syncqt ] ; then bin/syncqt; fi
 	@echo
 	@echo These targets are available:
 	@echo

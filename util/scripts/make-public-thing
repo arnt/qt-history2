@@ -1,7 +1,8 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#11 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#12 $
 
+$base = "/tmp/striptree-$$";
 #$quiet=1;
 $skipdoc=1;
 
@@ -81,10 +82,9 @@ die '$TMAKEDIR not set - need $TMAKEDIR/lib/linux-g++/tmake.conf'
     if ! -f "$ENV{TMAKEDIR}/lib/linux-g++/tmake.conf";
 
 ($junk, $junk, $junk, $d, $m, $y, $junk, $junk, $junk) =
-  localtime( time() - 30 * 86400 );
+  localtime( time() - 90 * 86400 );
 $date = sprintf( "%4d%02d%02d", $y, 1+$m, $d ); ##### Y2K - what does CVS do?
 
-$base = "/tmp/striptree-$$";
 mkdir( $base, 0755 );
 mkdir( "$base/cvs", 0755 );
 mkdir( "$base/cvs/qt", 0755 );
@@ -119,9 +119,6 @@ mkdir qt/doc/html
 cd qt
 cp gif/*.gif doc/html
 
-# WWA: WHY? [btw, too late here, GNUmakefile.inc is gone
-#make -C src include
-
 export QTDIR=$base/head/qt
 export PATH=\$QTDIR/bin:\$QTDIR/util/scripts:\$PATH:/home/agulbra/bin
 ";
@@ -151,7 +148,8 @@ done
 
 # Remove non-public files
 cd $base/cvs/qt
-rm -rf bin bugs dist doc.conf,v etc iconify listview mlined netscape nsplugin printpicture reqs tests util
+rm -rf bin/*.bat,v
+rm -rf bugs dist doc.conf,v etc iconify listview mlined netscape nsplugin printpicture reqs tests util
 ";
 
 close(SH) # We want to wait for the script to complete.
