@@ -2291,7 +2291,7 @@ void QOpenType::init(QGlyphLayout *glyphs, int num_glyphs,
 
 #ifdef OT_DEBUG
     qDebug("-----------------------------------------");
-    qDebug("log clusters before shaping: char_offset = %d",  char_offset);
+    qDebug("log clusters before shaping:");
     for (int j = 0; j < length; j++)
 	qDebug("    log[%d] = %d", j, logClusters[j] );
     qDebug("original glyphs:");
@@ -2378,6 +2378,11 @@ void QOpenType::applyGPOSFeatures()
 	    if (error != FT_Err_Ok)
 		continue;
 
+#ifdef OT_DEBUG
+	    qDebug("applying POS feature %s with index %d", tag_to_string( r->FeatureTag ), feature_index);
+#endif
+
+	    str->pos = 0;
 	    // ### is FT_LOAD_DEFAULT the right thing to do?
 	    TT_GPOS_Apply_Feature( face, gpos, feature_index, FT_LOAD_DEFAULT, str, &positions, FALSE, false );
 	}

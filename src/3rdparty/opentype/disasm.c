@@ -630,6 +630,7 @@ DEF_DUMP (Lookup)
 	  break;
 	case GPOS_LOOKUP_MARKMARK:
 	  lookup_name = "MARKMARK";
+	  lookup_func = Dump_GPOS_Lookup_Markbase;
 	  break;
 	case GPOS_LOOKUP_CONTEXT:
 	  lookup_name = "CONTEXT";
