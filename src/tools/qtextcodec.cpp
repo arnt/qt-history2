@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#36 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#37 $
 **
 ** Implementation of QTextCodec class
 **
@@ -968,7 +968,7 @@ private:
 };
 
 
-static const char * iso88599mustbelast = "ISO 8859-9";
+#define LAST_MIB 12
 
 static struct {
     const char * cs;
@@ -1137,7 +1137,7 @@ static struct {
 	0x05D8, 0x05D9, 0x05DA, 0x05DB, 0x05DC, 0x05DD, 0x05DE, 0x05DF,
 	0x05E0, 0x05E1, 0x05E2, 0x05E3, 0x05E4, 0x05E5, 0x05E6, 0x05E7,
 	0x05E8, 0x05E9, 0x05EA, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD } },
-    { iso88599mustbelast, 12,
+    { "ISO 8859-9", LAST_MIB,
       { 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
@@ -1275,5 +1275,5 @@ static void setupBuiltinCodecs()
     int i = 0;
     do {
 	(void)new QSimpleTextCodec( i );
-    } while( unicodevalues[i++].cs != iso88599mustbelast );
+    } while( unicodevalues[i++].mib != LAST_MIB );
 }
