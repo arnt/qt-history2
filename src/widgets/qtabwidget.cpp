@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#32 $
 **
 ** Implementation of QTabWidget class
 **
@@ -490,6 +490,8 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     }
 	
     d->dirty = FALSE;
+    if ( !onlyCheck )
+	update();
     if ( autoMask() )
 	updateMask();
 }
