@@ -987,7 +987,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         break; }
     case PE_ButtonCommand: {
         QBrush fill;
-        SFlags flags = opt->state;
+        StyleFlags flags = opt->state;
         QPalette pal = opt->palette;
         QRect r = opt->rect;
         if (! (flags & Style_Down) && (flags & Style_On))
@@ -2087,7 +2087,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
     case CC_ComboBox:
         if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
             if (cmb->subControls & SC_ComboBoxArrow) {
-                SFlags flags = Style_Default;
+                StyleFlags flags = Style_Default;
 
                 qDrawWinPanel(p, opt->rect, opt->palette, true,
                               cmb->state & Style_Enabled ? &cmb->palette.brush(QPalette::Base)
