@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.h#19 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.h#20 $
 **
 ** Definition of the QSvgDevice class
 **
 ** Created : 20001024
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the XML module of the Qt GUI Toolkit.
 **
@@ -58,7 +58,6 @@
 class QPainter;
 class QDomNode;
 class QDomNamedNodeMap;
-class QSvgDevicePrivate;
 
 class Q_EXPORT QSvgDevice : public QPaintDevice
 {
@@ -105,7 +104,8 @@ private:
     QString svgName;			// name of the SVG document
     bool dirtyTransform, dirtyStyle;
 
-    QSvgDevicePrivate *d;
+    class Private;
+    Private *d;
 };
 
 inline QRect QSvgDevice::boundingRect() const

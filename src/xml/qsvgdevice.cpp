@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#29 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#30 $
 **
 ** Implementation of the QSvgDevice class
 **
 ** Created : 20001024
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the XML module of the Qt GUI Toolkit.
 **
@@ -54,7 +54,7 @@
 const double deg2rad = 0.017453292519943295769;	// pi/180
 const char piData[] = "version=\"1.0\" standalone=\"yes\"";
 
-class QSvgDevicePrivate {
+class QSvgDevice::Private {
 };
 
 enum ElementType {
@@ -94,7 +94,7 @@ QSvgDevice::QSvgDevice()
     : QPaintDevice( QInternal::ExternalDevice ),
       pt( 0 )
 {
-    d = new QSvgDevicePrivate;
+    d = new Private;
 }
 
 /*!
