@@ -63,6 +63,7 @@ public:
 	void detach();
 
 	void setPermissions(mode_t mode);
+	int size();
 	void * base() { return shmBase; };
 
 private:

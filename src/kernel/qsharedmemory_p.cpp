@@ -63,8 +63,7 @@ bool QSharedMemory::create ()
   return TRUE;
 }
 
-void
-QSharedMemory::destroy ()
+void QSharedMemory::destroy ()
 {
   shm_unlink (shmFile.latin1 ());
 }
@@ -80,16 +79,24 @@ bool QSharedMemory::attach ()
   return TRUE;
 }
 
-void
-QSharedMemory::detach ()
+void QSharedMemory::detach ()
 {
   munmap (shmBase, shmSize);
 }
 
-void
-QSharedMemory::setPermissions (mode_t mode)
+void QSharedMemory::setPermissions (mode_t mode)
 {
   mprotect (shmBase, shmSize, mode);	// Provide defines to make prot work properly
+}
+
+int QSharedMemory::size()
+{
+    struct stat buf;
+    int rc = fstat (shmFD, &buf);
+    if (rc != -1)
+        return buf.st_size;
+    else
+        return rc;
 }
 
 #else // Assume SysV for backwards compat
@@ -113,8 +120,7 @@ bool QSharedMemory::create ()
     return TRUE;
 }
 
-void
-QSharedMemory::destroy ()
+void QSharedMemory::destroy ()
 {
   struct shmid_ds shm;
   shmctl (shmId, IPC_RMID, &shm);
@@ -132,19 +138,24 @@ bool QSharedMemory::attach ()
     return TRUE;
 }
 
-void
-QSharedMemory::detach ()
+void QSharedMemory::detach ()
 {
   shmdt (shmBase);
 }
 
-void
-QSharedMemory::setPermissions (mode_t mode)
+void QSharedMemory::setPermissions (mode_t mode)
 {
   struct shmid_ds shm;
   shmctl (shmId, IPC_STAT, &shm);
   shm.shm_perm.mode = mode;
   shmctl (shmId, IPC_SET, &shm);
+}
+
+int QSharedMemory::size ()
+{
+    struct shmid_ds shm;
+    shmctl (shmId, IPC_STAT, &shm);
+    return shm.segsz;
 }
 
 #endif
