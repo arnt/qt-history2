@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#102 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#103 $
 **
 ** Implementation of QFileDialog class
 **
@@ -317,7 +317,7 @@ QFileDialogPrivate::MCList::MCList( QListView * files, QWidget * parent )
     lv = files;
     items = 0;
     widths = 0;
-    setCellHeight( fontMetrics().lineSpacing() + 1 );
+    setCellHeight( fontMetrics().height() + 2*files->itemMargin() );
     setCellWidth( 0 );
     setBackgroundMode( PaletteBase ); // NoBackground for really cool bugs
 }
