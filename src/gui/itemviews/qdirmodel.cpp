@@ -365,7 +365,7 @@ int QDirModel::rowCount(const QModelIndex &parent) const
     bool isDir = !p || p->info.isDir(); // no node pointer means that it is the root
     QVector<QDirModelPrivate::QDirNode> *nodes = p ? &(p->children) : &(d->root.children);
 
-    if (isDir && nodes->isEmpty()) { //FIXME: this is strange!
+    if (isDir && nodes->isEmpty()) {
         //qDebug("rowCount: refreshing children");
 	*nodes = d->children(p); // lazy population
     }
@@ -1149,7 +1149,7 @@ void QDirModelPrivate::init(const QDir &directory)
 
     root.parent = 0;
     root.info = QFileInfo(directory.absolutePath());
-    root.children = children(0); // FIXME: ???
+    root.children = children(0);
 
 //     qDebug("init: %s", root.info.absoluteFilePath().latin1());
 //     qDebug("init: %s", root.info.fileName().latin1());
@@ -1159,7 +1159,7 @@ void QDirModelPrivate::init(const QDir &directory)
 QDirModelPrivate::QDirNode *QDirModelPrivate::node(int row, QDirNode *parent) const
 {
     if (row < 0) {
-        qWarning("node: row is negative");
+        qWarning("node: the row is negative");
 	return 0;
     }
 
@@ -1170,7 +1170,7 @@ QDirModelPrivate::QDirNode *QDirModelPrivate::node(int row, QDirNode *parent) co
 //        qDebug("node: refreshing children");
 	*nodes = children(parent);
     } else if (parent && parent->info.isSymLink() && d->resolveSymlinks) {
-        qDebug("node: it's a link");
+        qWarning("node: the node is a symlink");
     }
 
     if (row >= nodes->count()) {
