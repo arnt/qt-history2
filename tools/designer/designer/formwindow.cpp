@@ -1544,8 +1544,10 @@ void FormWindow::checkPreviewGeometry( QRect &r )
     }
 }
 
-void FormWindow::focusInEvent( QFocusEvent * )
-{
+void FormWindow::focusInEvent( QFocusEvent * ){
+
+    if (ff)
+	ff->checkTimeStamp();
 }
 
 void FormWindow::focusOutEvent( QFocusEvent * )
