@@ -336,7 +336,7 @@ public:
     QString hname;
     QString drvName;
     int port;
-    QMap<QString, QVariant> connOptions;
+    QString connOptions;
 };
 
 /*!
@@ -1003,9 +1003,14 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
 }
 
 /*!
-    Sets the specified connect \a option to the given \a value. To
-    unset an option, set the option's \a value to a null variant. The
-    options supported depend on the database client used:
+    \property QSqlDatabase::connectOptions
+    \brief the database connect options
+    
+
+    The format of the options string is a semicolon separated list of
+    options or option = value pairs.
+    
+    The options supported depend on the database client used:
 
     \table
     \header \i ODBC \i MySQL \i PostgreSQL
@@ -1064,58 +1069,49 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
     \code
     ...
     // MySQL connection
-    db->setConnectOption( "CLIENT_SSL", TRUE ); // use an SSL connection to the server
+    db->setConnectOptions( "CLIENT_SSL;CLIENT_IGNORE_SPACE" ); // use an SSL connection to the server
     if ( !db->open() ) {
-        db->setConnectOption( "CLIENT_SSL", FALSE ); // disable the SSL option
+        db->setConnectOptions(); // clears the connect option string
 	...
     }
     ...
     // PostgreSQL connection
-    db->setConnectOption( "requiressl", 1 ); // enable SSL connections
+    db->setConnectOptions( "requiressl=1" ); // enable PostgreSQL SSL connections
     if ( !db->open() ) {
-        db->setConnectOption( "requiressl", QVariant() ); // removes the option from the connection string
+        db->setConnectOptions(); // clear options
 	...
     }
     ...
     // ODBC connection
-    db->setConnectOption( "SQL_ATTR_TRACE", "SQL_OPT_TRACE_ON" ); // turn ODBC tracing on
+    db->setConnectOptions( "SQL_ATTR_ACCESS_MODE=SQL_MODE_READ_ONLY;SQL_ATTR_TRACE=SQL_OPT_TRACE_ON" ); // set ODBC options
     if ( !db->open() ) {
-        db->setConnectOption( "SQL_ATTR_TRACE", QVariant() ); // don't try to set this option
+        db->setConnectOptions(); // don't try to set this option
 	...
     }
     \endcode
 
     Please refer to the client library documentation for more
     information about the different options. The options will be set
-    prior to opening the actual database connection. Setting a new
-    option without re-opening the connection does nothing.
+    prior to opening the actual database connection. Setting new
+    options without re-opening the connection does nothing.
     
-    \sa connectOption()
+    \sa connectOptions()
 */
 
-void QSqlDatabase::setConnectOption( const QString& option, const QVariant& value )
+void QSqlDatabase::setConnectOptions( const QString& options )
 {
-    if ( value.isNull() ) {
-	QMap<QString, QVariant>::Iterator it;
-	if ( (it = d->connOptions.find( option )) != d->connOptions.end() )
-	    d->connOptions.remove( it );
-    } else {
-	d->connOptions[option] = value;
-    }
+    d->connOptions = options;
 }
 
 /*!
-    Returns the value assosiated with connect \a option. If the option
-    is not explicitly set with setConnectOption(), a null variant is
-    returned.
+    Returns the connect options string.
+    
+    \sa setConnectOptions()
 */
 
-QVariant QSqlDatabase::connectOption( const QString& option ) const
+QString QSqlDatabase::connectOptions() const
 {
-    QMap<QString, QVariant>::ConstIterator it;
-    if ( (it = d->connOptions.find( option )) != d->connOptions.end() )
-	return it.data();
-    return QVariant();
+    return d->connOptions;
 }
 
 /*!

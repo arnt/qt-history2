@@ -102,7 +102,7 @@ public:
 				      const QString& password,
 				      const QString& host,
 				      int port,
-				      const QMap<QString, QVariant>& connOpts );
+				      const QString& connOpts );
 protected:
     virtual void		setOpen( bool o );
     virtual void		setOpenError( bool e );

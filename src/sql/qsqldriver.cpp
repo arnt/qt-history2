@@ -486,7 +486,7 @@ bool QSqlDriver::open( const QString& db,
 		       const QString& password,
 		       const QString& host,
 		       int port,
-		       const QMap<QString, QVariant>& connOpts )
+		       const QString& connOpts )
 {
     if ( !qSqlOpenExtDict()->isEmpty() ) {
 	QSqlOpenExtension *ext = qSqlOpenExtDict()->find( (QSqlDriver *) this );

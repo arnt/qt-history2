@@ -134,7 +134,7 @@ public:
 	       const QString& password,
 	       const QString& host,
 	       int port,
-	       const QMap<QString, QVariant>& connOpts );
+	       const QString& connOpts );
     
 protected:
     bool		beginTransaction();

@@ -84,7 +84,7 @@ public:
 	       const QString& password,
 	       const QString& host,
 	       int port,
-	       const QMap<QString, QVariant>& connOpts );    
+	       const QString& connOpts );    
 private:
     QDB2Driver *driver;
 };
@@ -94,7 +94,7 @@ bool QDB2OpenExtension::open( const QString& db,
 			      const QString& password,
 			      const QString& host,
 			      int port,
-			      const QMap<QString, QVariant>& connOpts )
+			      const QString& connOpts )
 {
     return driver->open( db, user, password, host, port, connOpts );
 }
@@ -1147,7 +1147,7 @@ bool QDB2Driver::open( const QString&, const QString&, const QString&, const QSt
 }
 
 bool QDB2Driver::open( const QString& db, const QString& user, const QString& password, const QString&, int, 
-		       const QMap<QString, QVariant>& connOpts )
+		       const QString& connOpts )
 {
     if ( isOpen() )
       close();
@@ -1170,14 +1170,24 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 	return FALSE;
     }
     // Set connection attributes
-    if ( connOpts.count() ) {
-	QMap<QString, QVariant>::ConstIterator it;
+    QStringList raw = QStringList::split( ';', connOpts );
+    QStringList opts;
+    QMap<QString, QString> connMap;
+    for ( QStringList::ConstIterator it = raw.begin(); it != raw.end(); ++it ) {
+	QString tmp( *it );
+	int idx;
+	if ( (idx = tmp.find( '=' )) != -1 )
+	    connMap[ tmp.left( idx ) ] = tmp.mid( idx + 1 ).simplifyWhiteSpace();
+	else
+	    qWarning( "QDB2Driver::open: Illegal connect option value '%s'", tmp.latin1() );
+    }
+    if ( connMap.count() ) {
+	QMap<QString, QString>::ConstIterator it;
 	QString opt, val;
 	SQLUINTEGER v = 0;
-	for ( it = connOpts.begin(); it != connOpts.end(); ++it ) {
+	for ( it = connMap.begin(); it != connMap.end(); ++it ) {
 	    opt = it.key().upper();
-	    val = it.data().toString().upper();
-	    qWarning( opt + " - " + val );
+	    val = it.data().upper();
 	    r = SQL_SUCCESS;
 	    if ( opt == "SQL_ATTR_ACCESS_MODE" ) {
 		if ( val == "SQL_MODE_READ_ONLY" ) {
@@ -1185,7 +1195,7 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 		} else if ( val == "SQL_MODE_READ_WRITE" ) {
 		    v = SQL_MODE_READ_WRITE;
 		} else {
-		    qWarning( "QDB2Driver::open: Unknown option value '%s'", (*it).toString().latin1() );
+		    qWarning( "QDB2Driver::open: Unknown option value '%s'", (*it).latin1() );
 		    break;
 		}
 		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER) v, 0 );
@@ -1195,11 +1205,11 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 	    }
 #ifdef QT_CHECK_RANGE
 	    else {
-		  qWarning( "QDB2Driver::open: Unknown connection attribute '%s'", opt.latin1() );
+		  qWarning( "QDB2Driver::open: Unknown connection attribute '%s'", it.key().latin1() );
 	    }
 #endif		
 	    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
-		qSqlWarning( QString("QDB2Driver::open: Unable to set connection attribute '%1'").arg(opt.latin1()), d );
+		qSqlWarning( QString("QDB2Driver::open: Unable to set connection attribute '%1'").arg( opt ), d );
 		return FALSE;
 	    }
 	}

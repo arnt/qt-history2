@@ -80,6 +80,7 @@ class QM_EXPORT_SQL QSqlDatabase : public QObject
     Q_PROPERTY( QString password  READ password WRITE setPassword )
     Q_PROPERTY( QString hostName  READ hostName WRITE setHostName )
     Q_PROPERTY( int port READ port WRITE setPort )
+    Q_PROPERTY( QString connectOptions READ connectOptions WRITE setConnectOptions )
 
 public:
     ~QSqlDatabase();
@@ -107,14 +108,14 @@ public:
     virtual void	setPassword( const QString& password );
     virtual void	setHostName( const QString& host );
     virtual void	setPort( int p );
-    void 		setConnectOption( const QString& option, const QVariant& value );
+    void 		setConnectOptions( const QString& options = QString::null );
     QString		databaseName() const;
     QString		userName() const;
     QString		password() const;
     QString		hostName() const;
     QString		driverName() const;
     int         	port() const;
-    QVariant 		connectOption( const QString& option ) const;
+    QString 		connectOptions() const;
 
     QSqlDriver*		driver() const;
     

@@ -57,7 +57,7 @@ public:
 	       const QString& password,
 	       const QString& host,
 	       int port,
-	       const QMap<QString, QVariant>& connOpts );
+	       const QString& connOpts );
     
 private:
     QMYSQLDriver *driver;
@@ -68,7 +68,7 @@ bool QMYSQLOpenExtension::open( const QString& db,
 				const QString& password,
 				const QString& host,
 				int port,
-				const QMap<QString, QVariant>& connOpts )
+				const QString& connOpts )
 {
     return driver->open( db, user, password, host, port, connOpts );
 }
@@ -412,35 +412,53 @@ bool QMYSQLDriver::open( const QString& db,
 			 const QString& password,
 			 const QString& host,
 			 int port,
-			 const QMap<QString, QVariant>& connOpts )
+			 const QString& connOpts )
 {
     if ( isOpen() )
 	close();
     
     unsigned int optionFlags = 0;
-    if ( connOpts.count() ) {
-	QMap<QString, QVariant>::ConstIterator it;
-	QString opt;
-	for ( it = connOpts.begin(); it != connOpts.end(); ++it ) {
-	    if ( it.data().toString().upper() == "TRUE" ) {
-		opt = it.key().upper();
-		if ( opt == "CLIENT_COMPRESS" )
-		    optionFlags |= CLIENT_COMPRESS;
-		else if ( opt == "CLIENT_FOUND_ROWS" )
-		    optionFlags |= CLIENT_FOUND_ROWS;
-		else if ( opt == "CLIENT_IGNORE_SPACE" )
-		    optionFlags |= CLIENT_IGNORE_SPACE;
-		else if ( opt == "CLIENT_INTERACTIVE" )
-		    optionFlags |= CLIENT_INTERACTIVE;
-		else if ( opt == "CLIENT_NO_SCHEMA" )
-		    optionFlags |= CLIENT_NO_SCHEMA;
-		else if ( opt == "CLIENT_ODBC" )
-		    optionFlags |= CLIENT_ODBC;
-		else if ( opt == "CLIENT_SSL" )
-		    optionFlags |= CLIENT_SSL;
-	    }
+    
+    QStringList raw = QStringList::split( ';', connOpts );
+    QStringList opts;
+    QStringList::ConstIterator it;
+    
+    // extract the real options from the string
+    for ( it = raw.begin(); it != raw.end(); ++it ) {
+	QString tmp( *it );
+	int idx;
+	if ( (idx = tmp.find( '=' )) != -1 ) {
+	    QString val( tmp.mid( idx + 1 ) );
+	    val.simplifyWhiteSpace();
+	    if ( val == "TRUE" || val == "1" )
+		opts << tmp.left( idx );
+	    else
+		qWarning( "QMYSQLDriver::open: Illegal connect option value '%s'", tmp.latin1() );
+	} else {
+	    opts << tmp;
 	}
     }
+    
+    for ( it = opts.begin(); it != opts.end(); ++it ) {
+	QString opt( (*it).upper() );
+	if ( opt == "CLIENT_COMPRESS" )
+	    optionFlags |= CLIENT_COMPRESS;
+	else if ( opt == "CLIENT_FOUND_ROWS" )
+	    optionFlags |= CLIENT_FOUND_ROWS;
+	else if ( opt == "CLIENT_IGNORE_SPACE" )
+	    optionFlags |= CLIENT_IGNORE_SPACE;
+	else if ( opt == "CLIENT_INTERACTIVE" )
+	    optionFlags |= CLIENT_INTERACTIVE;
+	else if ( opt == "CLIENT_NO_SCHEMA" )
+	    optionFlags |= CLIENT_NO_SCHEMA;
+	else if ( opt == "CLIENT_ODBC" )
+	    optionFlags |= CLIENT_ODBC;
+	else if ( opt == "CLIENT_SSL" )
+	    optionFlags |= CLIENT_SSL;
+	else 
+	    qWarning( "QMYSQLDriver::open: Unknown connect option '%s'", (*it).latin1() );
+    }
+
     if ( (d->mysql = mysql_init((MYSQL*) 0)) &&
 	    mysql_real_connect( d->mysql,
 				host,

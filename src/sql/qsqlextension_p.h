@@ -86,7 +86,6 @@ struct Holder {
 QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QMap<QString,Param>;
 QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QMap<int,QString>;
 QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QValueVector<Holder>;
-QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QMap<QString,QVariant>;
 #endif
 
 class QM_EXPORT_SQL QSqlExtension {
@@ -141,7 +140,7 @@ public:
 		       const QString& password,
 		       const QString& host,
 		       int port,
-		       const QMap<QString, QVariant>& connOpts ) = 0;
+		       const QString& connOpts ) = 0;
 };
 #endif
 #endif
