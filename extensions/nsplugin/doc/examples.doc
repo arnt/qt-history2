@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 1.8 1999/06/16 20:04:47 agulbra Exp $
+** $Id: examples.doc,v 1.9 1999/07/02 18:18:24 paul Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 1.8 1999/06/16 20:04:47 agulbra Exp $";
+static char ident[] = "$Id: examples.doc,v 1.9 1999/07/02 18:18:24 paul Exp $";
 #endif
 
 
@@ -82,7 +82,7 @@ num label
   function.
   <p>
   To build the example, you must first build the
-  <a href=http://www.troll.no/qtimage/>Qt Image Extension library</a>
+  <a href=imageio.html>Qt Image IO Extension library</a>
   and of course the
   <a href=nsplugin.html>Qt Netscape Plugin Extension</a> library.
   Then type <tt>make</tt> in <tt>extensions/nsplugin/examples/qtimage/</tt>

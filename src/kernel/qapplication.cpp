@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#267 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#268 $
 **
 ** Implementation of QApplication class
 **
@@ -968,8 +968,8 @@ void QApplication::setFont( const QFont &font, bool updateAllWidgets, const char
   Usually widgets call this automatically when they are polished.  It
   may be used to do some style-based central customization of widgets.
 
-  Note that you are not limited to public functions of \llink QWidget.
-  Instead, based on meta information like \link QObject::className()
+  Note that you are not limited to public functions of QWidget.
+  Instead, based on meta information like QObject::className()
   you are able to customize any kind of widgets.
 
   The default implementation sets a class specific font or palette if

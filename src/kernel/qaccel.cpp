@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#78 $
 **
 ** Implementation of QAccel class
 **
@@ -631,7 +631,7 @@ int QAccel::stringToKey( const QString & s )
 
   \arg \e id is the accelerator item id.
   \arg \e text is the Whats This help text.
-  
+
   The text will be shown when the application is in What's This mode
   and the user either hits the respective accelerator key or selects a
   menu item that has been attached to this accelerator.
@@ -674,6 +674,7 @@ bool QAccel::ignoreWhatsThis() const
 /*! \page accelerators.html
 
 <title>Standard Accelerators</title>
+</head><body bgcolor="#ffffff">
 \postheader
 
 <h1 align="center">Standard Accelerator Keys</h1>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#70 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#71 $
 **
 ** Global functions
 **
@@ -141,7 +141,7 @@ static msg_handler handler = 0;			// pointer to debug handler
   Prints a debug message, or calls the message handler (if it has been
   installed).
 
-  This function takes a format string and a stack arguments, similar to
+  This function takes a format string and a list of arguments, similar to
   the C printf() function.
 
   Example:
@@ -204,7 +204,7 @@ void debug( const char *msg, ... )
   Prints a warning message, or calls the message handler (if it has been
   installed).
 
-  This function takes a format string and a stack arguments, similar to
+  This function takes a format string and a list of arguments, similar to
   the C printf() function.
 
   Example:
@@ -268,7 +268,7 @@ void warning( const char *msg, ... )
   Prints a fatal error message and exits, or calls the message handler (if it
   has been installed).
 
-  This function takes a format string and a stack arguments, similar to
+  This function takes a format string and a list of arguments, similar to
   the C printf() function.
 
   Example:

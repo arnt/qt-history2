@@ -1,7 +1,8 @@
-// $Id: application.doc,v 2.3 1999/06/21 23:32:04 agulbra Exp $
+// $Id: application.doc,v 2.4 1999/07/02 18:18:23 paul Exp $
 
 /*! \page simple-application.html
-
+<title>Qt Simple Application</title>
+</head><body bgcolor="#ffffff">
 \postheader
 
 <h1 align=center>Walkthrough: A Simple Application</h1><br clear="all">
