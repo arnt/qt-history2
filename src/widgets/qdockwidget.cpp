@@ -820,6 +820,7 @@ void QDockWidget::doDock()
     lastPos = pos();
     ( (QDockArea::DockWidgetData*)dockWidgetData )->
 	area->dockWidget( this, (QDockArea::DockWidgetData*)dockWidgetData );
+    emit orientationChanged( orientation() );
 }
 
 #include "qdockwidget.moc"
