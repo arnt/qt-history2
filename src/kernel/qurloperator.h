@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.h#12 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.h#13 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -53,7 +53,7 @@ public:
     virtual const QNetworkOperation *remove( const QString &filename );
     virtual const QNetworkOperation *rename( const QString &oldname, const QString &newname );
     virtual const QNetworkOperation *get();
-    virtual const QNetworkOperation *put( const QCString &data );
+    virtual const QNetworkOperation *put( const QByteArray &data );
     virtual const QNetworkOperation *copy( const QString &from, const QString &to, bool move );
     virtual QList<QNetworkOperation> copy( const QStringList &files, const QString &dest, bool move );
     virtual bool isDir();
@@ -69,7 +69,7 @@ public:
     void emitCreatedDirectory( const QUrlInfo &, QNetworkOperation *res );
     void emitRemoved( QNetworkOperation *res );
     void emitItemChanged( QNetworkOperation *res );
-    void emitData( const QCString &, QNetworkOperation *res );
+    void emitData( const QByteArray &, QNetworkOperation *res );
     void emitCopyProgress( int step, int total, QNetworkOperation *res );
 
     QUrlOperator& operator=( const QUrlOperator &url );
@@ -81,7 +81,7 @@ signals:
     void createdDirectory( const QUrlInfo &, QNetworkOperation *res );
     void removed( QNetworkOperation *res );
     void itemChanged( QNetworkOperation *res );
-    void data( const QCString &, QNetworkOperation *res );
+    void data( const QByteArray &, QNetworkOperation *res );
     void copyProgress( int step, int total, QNetworkOperation *res );
 
 protected:
@@ -94,7 +94,7 @@ protected:
     void deleteNetworkProtocol();
 
 private slots:
-    void getGotData( const QCString &data, QNetworkOperation *op );
+    void getGotData( const QByteArray &data, QNetworkOperation *op );
     void finishedGet( QNetworkOperation *op );
 
 private:
@@ -139,7 +139,7 @@ inline void QUrlOperator::emitFinished( QNetworkOperation *res )
 }
 
 
-inline void QUrlOperator::emitData( const QCString &dat, QNetworkOperation *res )
+inline void QUrlOperator::emitData( const QByteArray &dat, QNetworkOperation *res )
 {
     emit data( dat, res );
 }

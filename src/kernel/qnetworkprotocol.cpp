@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#34 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -156,7 +156,7 @@ struct QNetworkProtocolPrivate
 */
 
 /*!
-  \fn void QNetworkProtocol::data( const QCString &data, QNetworkOperation *op )
+  \fn void QNetworkProtocol::data( const QByteArray &data, QNetworkOperation *op )
 
   This signal is emitted when new \a data has been received
   after e.g. calling get or put.
@@ -202,8 +202,8 @@ QNetworkProtocol::QNetworkProtocol()
     connect( d->removeTimer, SIGNAL( timeout() ),
 	     this, SLOT( removeMe() ) );
 
-    connect( this, SIGNAL( data( const QCString &, QNetworkOperation * ) ),
-	     this, SLOT( emitData( const QCString &, QNetworkOperation * ) ) );
+    connect( this, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
+	     this, SLOT( emitData( const QByteArray &, QNetworkOperation * ) ) );
     connect( this, SIGNAL( finished( QNetworkOperation * ) ),
 	     this, SLOT( emitFinished( QNetworkOperation * ) ) );
     connect( this, SIGNAL( start( QNetworkOperation * ) ),
@@ -250,7 +250,7 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
 
 /*!
   Tells the network protocol to get data. When data comes in,
-  the data( const QCString &, QNetworkOperation * ) signal
+  the data( const QByteArray &, QNetworkOperation * ) signal
   is emitted.
 
   Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
@@ -274,7 +274,7 @@ const QNetworkOperation *QNetworkProtocol::get()
 
 /*!
   Tells the network protocol to put \a d. When data comes back,
-  the data( const QCString &, QNetworkOperation * ) signal
+  the data( const QByteArray &, QNetworkOperation * ) signal
   is emitted.
 
   Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
@@ -287,11 +287,10 @@ const QNetworkOperation *QNetworkProtocol::get()
   methode returns immediately.
 */
 
-const QNetworkOperation *QNetworkProtocol::put( const QCString &d )
+const QNetworkOperation *QNetworkProtocol::put( const QByteArray &d )
 {
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpPut,
-						    QString::fromLatin1( d ),
-						    QString::null, QString::null );
+						    d, 0, 0);
     addOperation( res );
     return res;
 }
@@ -715,15 +714,6 @@ void QNetworkProtocol::removeMe()
 	delete this;
 }
 
-struct QNetworkOperationPrivate
-{
-    QNetworkProtocol::Operation operation;
-    QNetworkProtocol::State state;
-    QString arg1, arg2, arg3;
-    QString protocolDetail;
-    QNetworkProtocol::Error errorCode;
-};
-
 /*!
   \fn void QNetworkProtocol::emitNewChild( const QUrlInfo &, QNetworkOperation *op );
 
@@ -797,16 +787,28 @@ void QNetworkProtocol::emitItemChanged( QNetworkOperation *res )
 }
 
 /*!
-  \fn void QNetworkProtocol::emitData( const QCString &d, QNetworkOperation *op )
+  \fn void QNetworkProtocol::emitData( const QByteArray &d, QNetworkOperation *op )
 
-  Emits the signal data( const QCString &, QNetworkOperation * ).
+  Emits the signal data( const QByteArray &, QNetworkOperation * ).
 */
 
-void QNetworkProtocol::emitData( const QCString &d, QNetworkOperation *res )
+void QNetworkProtocol::emitData( const QByteArray &d, QNetworkOperation *res )
 {
     if ( url() )
 	url()->emitData( d, res );
 }
+
+
+
+struct QNetworkOperationPrivate
+{
+    QNetworkProtocol::Operation operation;
+    QNetworkProtocol::State state;
+    QString arg1, arg2, arg3;
+    QByteArray rawArg1, rawArg2, rawArg3;
+    QString protocolDetail;
+    QNetworkProtocol::Error errorCode;
+};
 
 /*!
   \class QNetworkOperation qnetworkprotocol.h
@@ -838,6 +840,33 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
     d->arg1 = arg1;
     d->arg2 = arg2;
     d->arg3 = arg3;
+    d->rawArg1 = 0;
+    d->rawArg2 = 0;
+    d->rawArg3 = 0;
+    d->protocolDetail = QString::null;
+    d->errorCode = QNetworkProtocol::NoError;
+}
+
+/*!
+  Creates a network operation object. \a operation is the type
+  of the operation, \a arg1, \a arg2 and  \a arg3 are the arguments
+  of the operation.
+  The state is initialized to StWaiting.
+*/
+
+QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
+				      const QByteArray &arg1, const QByteArray &arg2,
+				      const QByteArray &arg3 )
+{
+    d = new QNetworkOperationPrivate;
+    d->operation = operation;
+    d->state = QNetworkProtocol::StWaiting;
+    d->arg1 = QString::null;
+    d->arg2 = QString::null;
+    d->arg3 = QString::null;
+    d->rawArg1 = arg1;
+    d->rawArg2 = arg2;
+    d->rawArg3 = arg3;
     d->protocolDetail = QString::null;
     d->errorCode = QNetworkProtocol::NoError;
 }
@@ -909,6 +938,35 @@ void QNetworkOperation::setArg3( const QString &arg )
     d->arg3 = arg;
 }
 
+
+/*!
+  Sets the first argument of the network operation to \a arg.
+*/
+
+void QNetworkOperation::setRawArg1( const QByteArray &arg )
+{
+    d->rawArg1 = arg;
+}
+
+/*!
+  Sets the second argument of the network operation to \a arg.
+*/
+
+void QNetworkOperation::setRawArg2( const QByteArray &arg )
+{
+    d->rawArg2 = arg;
+}
+
+/*!
+  Sets the third argument of the network operation to \a arg.
+*/
+
+void QNetworkOperation::setRawArg3( const QByteArray &arg )
+{
+    d->rawArg3 = arg;
+}
+
+
 /*!
   Returns the type of the operation.
 */
@@ -954,6 +1012,33 @@ QString QNetworkOperation::arg2() const
 QString QNetworkOperation::arg3() const
 {
     return d->arg3;
+}
+
+/*!
+  Returns the first argument of the operation.
+*/
+
+QByteArray QNetworkOperation::rawArg1() const
+{
+    return d->rawArg1;
+}
+
+/*!
+  Returns the second argument of the operation.
+*/
+
+QByteArray QNetworkOperation::rawArg2() const
+{
+    return d->rawArg2;
+}
+
+/*!
+  Returns the third argument of the operation.
+*/
+
+QByteArray QNetworkOperation::rawArg3() const
+{
+    return d->rawArg3;
 }
 
 /*!
