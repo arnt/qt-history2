@@ -104,16 +104,16 @@ public:
 #endif // CHECK_RANGE
 	return fieldList[ position( name ) ].value();
     }
-    T& field( int i ) { return fieldList[ i ]; }
-    const T& field( int i ) const { return fieldList[ i ]; }
-    T& field( const QString& name ) { return fieldList[ position( name ) ]; }
-    const T& field( const QString& name ) const { return fieldList[ position( name ) ]; }
-    int position( const QString& name )
+    int position( const QString& name ) const
     {
 	if ( posMap.contains( name ) )
 	    return posMap[ name ];
 	return -1;
     }
+    T& field( int i ) { return fieldList[ i ]; }
+    const T& field( int i ) const { return fieldList[ i ]; }
+    T& field( const QString& name ) { return fieldList[ position( name ) ]; }
+    const T& field( const QString& name ) const { return fieldList[ position( name ) ]; }
     void append( const T& field )
     {
 	if ( fieldListStr.isNull() )
