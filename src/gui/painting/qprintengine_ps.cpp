@@ -4418,7 +4418,7 @@ QPSPrintEngineFont::QPSPrintEngineFont(QFontEngine *engine, QPSPrintEnginePrivat
             data.resize(fontfile.size());
 
             fontfile.open(IO_Raw | IO_ReadOnly);
-            fontfile.readBlock(data.data(), fontfile.size());
+            fontfile.read(data.data(), fontfile.size());
             fontfile.close();
         }
     }
