@@ -107,7 +107,7 @@ void QLayoutWidget::paintEvent( QPaintEvent* )
 
 
 QDesignerTabWidget::QDesignerTabWidget( QWidget *parent, const char *name )
-    : QTabWidget( parent, name ), dropIndicator( 0 ), mousePressed( FALSE )
+    : QTabWidget( parent, name ), dropIndicator( 0 ), dragPage( 0 ), mousePressed( FALSE )
 {
     tabBar()->setAcceptDrops( true );
     tabBar()->installEventFilter( this );
@@ -155,37 +155,53 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
 {
     if ( o != tabBar() ) return FALSE;
 
-    QMouseEvent *me;
-    QDragEnterEvent *de;
-    QRect rect;
-    QPoint pos;
-    int index = 0;
-
     switch ( e->type() ) {
         case QEvent::MouseButtonPress:
+        {
             mousePressed = true;
-            me = (QMouseEvent*)e;
+            QMouseEvent *me = (QMouseEvent*)e;
             pressPoint = me->pos();
-            if ( dropIndicator )
-                dropIndicator->hide();
-            break;
+        }
+        break;
         case QEvent::MouseMove:
-            me = (QMouseEvent*)e;
+        {
+            QMouseEvent *me = (QMouseEvent*)e;
             if ( mousePressed && ( pressPoint - me->pos()).manhattanLength() > QApplication::startDragDistance() ) {
                 QTextDrag *drg = new QTextDrag( "tab move" , this );
                 mousePressed = false;
-                drg->dragCopy();
+                dragPage = QTabWidget::currentPage();
+                dragLabel = QTabWidget::tabLabel( dragPage );
+
+                int index = 0;
+                for ( ; index < tabBar()->count(); index++ ) {
+                    if ( tabBar()->tabAt( index )->r.contains( me->pos() ) )
+                        break;
+                }
+
+                removePage( dragPage );
+                if ( !drg->dragMove() ) {
+                    insertTab( dragPage, dragLabel, index );
+                    showPage( dragPage );
+                }
+                if ( dropIndicator )
+                    dropIndicator->hide();
             }
-            break;
+        }
+        break;
         case QEvent::DragLeave:
+        {
             if ( dropIndicator )
                 dropIndicator->hide();
-            break;
+        }
+        break;
         case QEvent::DragMove:
-            de = (QDragEnterEvent*) e;
+        {
+            QDragEnterEvent *de = (QDragEnterEvent*) e;
             if ( QTextDrag::canDecode( de ) )
                 de->accept();
 
+            int index = 0;
+            QRect rect;
             for ( ; index < tabBar()->count(); index++ ) {
                 if ( tabBar()->tabAt( index )->r.contains( de->pos() ) ) {
                     rect = tabBar()->tabAt( index )->r;
@@ -193,20 +209,30 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
                 }
             }
 
+            if ( index == tabBar()->count() -1 ) {
+                QRect rect2 = rect;
+                rect2.setLeft( rect2.left() + rect2.width() / 2 );
+                if ( rect2.contains( de->pos() ) )
+                    index++;
+            }
+
             if ( ! dropIndicator )
                 dropIndicator = new QWidget( this );
 
-            if ( tabPosition() == Top )
-                pos = tabBar()->mapToParent( QPoint( rect.x(), rect.y() + rect.height() ) );
+            QPoint pos;
+            if ( index == tabBar()->count() )
+                pos = tabBar()->mapToParent( QPoint( rect.x() + rect.width(), rect.y() ) );
             else
                 pos = tabBar()->mapToParent( QPoint( rect.x(), rect.y() ) );
 
             dropIndicator->setBackgroundColor( colorGroup().highlight() );
-            dropIndicator->setGeometry( pos.x(), pos.y() , rect.width(), 2 );
+            dropIndicator->setGeometry( pos.x(), pos.y() , 3, rect.height() );
             dropIndicator->show();
-            break;
+        }
+        break;
         case QEvent::Drop:
-            de = (QDragEnterEvent*) e;
+        {
+            QDragEnterEvent *de = (QDragEnterEvent*) e;
             if ( QTextDrag::canDecode( de ) ) {
                 QString text;
                 QTextDrag::decode( de, text );
@@ -217,6 +243,14 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
                         if ( tabBar()->tabAt( newIndex )->r.contains( de->pos() ) )
                             break;
                     }
+
+                    if ( newIndex == tabBar()->count() -1 ) {
+                        QRect rect2 = tabBar()->tabAt( newIndex )->r;
+                        rect2.setLeft( rect2.left() + rect2.width() / 2 );
+                        if ( rect2.contains( de->pos() ) )
+                            newIndex++;
+                    }
+
                     int oldIndex = 0;
                     for ( ; oldIndex < tabBar()->count(); oldIndex++ ) {
                         if ( tabBar()->tabAt( oldIndex )->r.contains( pressPoint ) )
@@ -225,28 +259,18 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
 
                     FormWindow *fw = find_formwindow( this );
                     MoveTabPageCommand *cmd = new MoveTabPageCommand( "Move Tab Page",fw, this,
-                                                                      QTabWidget::currentPage(), newIndex, oldIndex );
+                                                                      dragPage, dragLabel, newIndex, oldIndex );
                     fw->commandHistory()->addCommand( cmd );
                     cmd->execute();
-                    if ( dropIndicator )
-                        dropIndicator->hide();
                     de->accept();
                 }
             }
+        }
+        break;
         default:
             break;
     }
     return FALSE;
-}
-
-void QDesignerTabWidget::movePage( QWidget* page, int newIndex )
-{
-    if ( !page ) return ;
-
-    QString l = QTabWidget::tabLabel( page );
-    removePage( page );
-    insertTab( page, l, newIndex );
-    showPage( page );
 }
 
 int QDesignerWizard::currentPageNum() const

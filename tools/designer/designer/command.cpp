@@ -822,8 +822,8 @@ void AddTabPageCommand::unexecute()
 // ------------------------------------------------------------
 
 MoveTabPageCommand::MoveTabPageCommand( const QString &n, FormWindow *fw,
-				      QTabWidget *tw, QWidget* page, int nIndex, int oIndex )
-    : Command( n, fw ), tabWidget( tw ), tabPage( page )
+				      QTabWidget *tw, QWidget* page, const QString& label, int nIndex, int oIndex )
+    : Command( n, fw ), tabWidget( tw ), tabPage( page ), tabLabel( label )
 {
     newIndex = nIndex;
     oldIndex = oIndex;
@@ -831,14 +831,18 @@ MoveTabPageCommand::MoveTabPageCommand( const QString &n, FormWindow *fw,
 
 void MoveTabPageCommand::execute()
 {
-    ((QDesignerTabWidget*)tabWidget )->movePage( tabPage, newIndex );
+    ((QDesignerTabWidget*)tabWidget )->removePage( tabPage );
+    ((QDesignerTabWidget*)tabWidget )->insertTab( tabPage, tabLabel, newIndex );
+    ((QDesignerTabWidget*)tabWidget )->showPage( tabPage );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
     formWindow()->mainWindow()->objectHierarchy()->tabsChanged( tabWidget );
 }
 
 void MoveTabPageCommand::unexecute()
 {
-    ((QDesignerTabWidget*)tabWidget )->movePage( tabPage, oldIndex );
+    ((QDesignerTabWidget*)tabWidget )->removePage( tabPage );
+    ((QDesignerTabWidget*)tabWidget )->insertTab( tabPage, tabLabel, oldIndex );
+    ((QDesignerTabWidget*)tabWidget )->showPage( tabPage );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
     formWindow()->mainWindow()->objectHierarchy()->tabsChanged( tabWidget );
 }

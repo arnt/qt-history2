@@ -398,7 +398,7 @@ class MoveTabPageCommand : public Command
 {
 public:
     MoveTabPageCommand(const QString &n, FormWindow *fw,
-                       QTabWidget *tw, QWidget *page,  int nIndex, int oIndex );
+                       QTabWidget *tw, QWidget *page,  const QString& label, int nIndex, int oIndex );
 
     void execute();
     void unexecute();
@@ -408,6 +408,7 @@ private:
     QTabWidget *tabWidget;
     int newIndex, oldIndex;
     QWidget *tabPage;
+    QString tabLabel;
 
 };
 

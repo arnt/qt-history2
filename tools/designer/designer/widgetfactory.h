@@ -125,11 +125,11 @@ public:
 
     bool eventFilter( QObject*, QEvent* );
 
-    void movePage( QWidget *page, int newIndex );
-
 private:
     QPoint pressPoint;
-    QWidget * dropIndicator;
+    QWidget *dropIndicator;
+    QWidget *dragPage;
+    QString dragLabel;
      bool mousePressed;
 };
 
