@@ -458,7 +458,7 @@ static HIViewRef qt_mac_create_widget(HIViewRef parent)
 bool qt_mac_is_macdrawer(QWidget *w)
 {
 #if 1
-    if(w && w->isTopLevel() && w->parentWidget() && w->testWFlags(Qt::WMacDrawer))
+    if(w && w->parentWidget() && w->testWFlags(Qt::WMacDrawer) == Qt::WMacDrawer) 
         return true;
 #else
     Q_UNUSED(w);
@@ -488,7 +488,7 @@ bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock where) //users of Qt/
 bool qt_mac_is_macsheet(QWidget *w)
 {
 #if 1
-    if(w && w->isTopLevel() && w->testWFlags(Qt::WMacSheet) 
+    if(w && w->testWFlags(Qt::WMacSheet) == Qt::WMacSheet
        && w->parentWidget() && !w->parentWidget()->topLevelWidget()->isDesktop() 
        && w->parentWidget()->topLevelWidget()->isVisible())
         return true;
@@ -823,7 +823,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             { 0, 0 }
         };
 #undef ADD_DEBUG_WINDOW_NAME
-        qDebug("Qt: internal: ************* Creating new window (%s::%s)", className(), objectName());
+        qDebug("Qt: internal: ************* Creating new window %p (%s::%s)", this, className(), objectName());
         bool found_class = false;
         for(int i = 0; known_classes[i].name; i++) {
             if(wclass == known_classes[i].tag) {

@@ -210,8 +210,8 @@ public:
 #elif defined(Q_WS_MAC)
         WX11BypassWM            = 0x00000000,
         WWinOwnDC               = 0x00000000,
-        WMacSheet               = 0x01000000,
-        WMacDrawer              = 0x20000000,
+        WMacSheet               = 0x01000000 | WType_TopLevel,
+        WMacDrawer              = 0x20000000 | WType_TopLevel,
         WMacMetal               = 0x40000000,
 #else
         WX11BypassWM            = 0x00000000,
