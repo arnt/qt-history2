@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#92 $
 **
 ** Definition of QIconView widget class
 **
@@ -1873,7 +1873,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 }
 
 /*!
-  Aligns all items in the grid.
+  Orders all items in the grid.
 */
 
 void QIconView::orderItemsInGrid()
@@ -1896,6 +1896,43 @@ void QIconView::orderItemsInGrid()
     }
     resizeContents( w, h );
     d->dirty = FALSE;
+}
+
+/*!
+  Aligns all items in the \a grid;
+*/
+
+void QIconView::alignItemsInGrid( const QSize &grid )
+{
+    int w = 0, h = 0;
+    QIconViewItem *item = d->firstItem;
+    for ( ; item; item = item->next ) {
+	int nx = item->x() / grid.width();
+	int ny = item->y() / grid.height();
+	item->move( nx * grid.width(), // + ( grid.width() - item->width() / 2 ),
+		    ny * grid.height() );// + ( grid.height() - item->height() / 2 ) );
+	w = QMAX( w, item->x() + item->width() );
+	h = QMAX( h, item->y() + item->height() );
+    }
+    
+    resizeContents( w, h );
+}
+
+/*!
+  Aligns the items in the best fitting grid.
+*/
+
+void QIconView::alignItemsInGrid()
+{
+    int w = 0, h = 0;
+    QIconViewItem *item = d->firstItem;
+    for ( ; item; item = item->next ) {
+	w = QMAX( w, item->width() );
+	h = QMAX( h, item->height() );
+    }
+    
+    alignItemsInGrid( QSize( QMAX( d->rastX, w ), 
+			     QMAX( d->rastY, h ) ) );
 }
 
 /*!
@@ -3037,7 +3074,7 @@ void QIconView::insertInGrid( QIconViewItem *item )
 	    begin = begin->next;
 	}
     } else {
-	QRegion r( QRect( 0, 0, QMAX( contentsWidth(), visibleWidth() ), 
+	QRegion r( QRect( 0, 0, QMAX( contentsWidth(), visibleWidth() ),
 			  QMAX( contentsHeight(), visibleHeight() ) ) );
 	
 	QIconViewItem *i = d->firstItem;
@@ -3046,7 +3083,7 @@ void QIconView::insertInGrid( QIconViewItem *item )
 	    r = r.subtract( i->rect() );
 	    y = QMAX( y, i->y() + i->height() );
 	}
-	    
+	
 	QArray<QRect> rects = r.rects();
 	QArray<QRect>::Iterator it = rects.begin();
 	bool foundPlace = FALSE;

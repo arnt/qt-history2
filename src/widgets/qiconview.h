@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#39 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#40 $
 **
 ** Definition of QIconView widget class
 **
@@ -282,7 +282,6 @@ public:
     virtual void setViewMode( QIconSet::Size mode );
     QIconSet::Size viewMode() const;
 
-    virtual void orderItemsInGrid();
     virtual void showEvent( QShowEvent * );
 
     virtual void setSelectionMode( SelectionMode m );
@@ -326,6 +325,11 @@ public:
     QSize minimumSizeHint() const;
     QSizePolicy sizePolicy() const;
 
+public slots:
+    virtual void orderItemsInGrid();
+    virtual void alignItemsInGrid( const QSize &grid );
+    virtual void alignItemsInGrid();
+    
 signals:
     void dropped( QDropEvent *e );
     void moved();
