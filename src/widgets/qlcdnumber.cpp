@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#63 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -51,13 +51,10 @@
   in the string) and space.  QLCDNumber substitutes spaces for illegal
   characters.
 
-  It is impossible to retrieve the contents of a QLCDNumber object.
+  It is not possible to retrieve the contents of a QLCDNumber object.
   If you need to, we recommend that you connect the signals which feed
   the display() slot to another slot as well and store the value
   there.
-
-  \warning The current version of QLCDNumber does not work well
-  with background pixmaps.
 
   Incidentally, QLCDNumber is the very oldest part of Qt, tracing back
   to a BASIC program on the <a
@@ -773,18 +770,58 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 			      int segLen, bool erase )
 {
     QPoint pt = pos;
+    int width = segLen/5;
+
+    if ( erase ){
+	int x = pos.x();
+	int y = pos.y();
+	width+=2; //a bit much
+	QRect r;
+	switch( segmentNo ) {
+	case 0:
+	    r.setRect( x, y, segLen, width );
+	    break;
+	case 1:
+	    r.setRect( x, y,  width, segLen );
+	    break;
+	case 2:
+	    r.setRect( x + segLen - width, y, width, segLen );
+	    break;
+	case 3:
+	    r.setRect( x, y + segLen - width/2, segLen, width);
+	    break;
+	case 4:
+	    r.setRect( x, y + segLen, width, segLen );	    
+	    break;
+	case 5:
+	    r.setRect( x +segLen - width, y + segLen, width, segLen );	    
+	    break;
+	case 6:
+	    r.setRect( x, y + 2*segLen - width + 1, segLen, width);
+	    break;
+	case 7:
+	    if ( smallPoint )	// if smallpoint place'.' between other digits
+		r.setRect( x + segLen + width/2 , segLen*2 - width, width, width);
+	    else
+		r.setRect( x + segLen/2, segLen*2 - width, width, width);
+	    break;
+	case 8:
+	    r.setRect( x + segLen/2 - width/2 + 1 , y + segLen/2, width, width );
+	    break;
+	case 9:
+	    r.setRect( x + segLen/2 - width/2 + 1 , y + 3*segLen/2, width, width );
+	    break;
+	}
+	//p.setBrush(green); p.drawRect(r);
+	update( r );
+	return;
+    } 
     QColorGroup g = colorGroup();
     QColor lightColor,darkColor,fgColor;
-    if ( erase ){
-	lightColor = backgroundColor();
-	darkColor  = lightColor;
-	fgColor    = lightColor;
-    } else {
-	lightColor = g.light();
-	darkColor  = g.dark();
-	fgColor    = g.foreground();
-    }
-    int width = segLen/5;
+    
+    lightColor = g.light();
+    darkColor  = g.dark();
+    fgColor    = g.foreground();
 
 #define LINETO(X,Y) addPoint( a, QPoint(pt.x() + (X),pt.y() + (Y)))
 #define LIGHT
