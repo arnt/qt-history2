@@ -4522,7 +4522,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	    if ( drawSelections ) {
 		for ( QMap<int, QTextParagraphSelection>::ConstIterator it = mSelections->begin();
 		      it != mSelections->end(); ++it )
-		    selectionStateChanged |=( (*it).start == i || (*it).start == i+1 || (*it).end == i+1 );
+		    selectionStateChanged |=( (*it).start == i+1 || (*it).end == i+1 );
 		flush |= selectionStateChanged;
 	    }
 	}
