@@ -1004,7 +1004,7 @@ void QPopupMenu::updateSize()
     updateAccel( 0 );
 #endif
     int height = 0;
-    int max_width = 0;
+    int max_width = 0, max_height = 0;
     QFontMetrics fm = fontMetrics();
     register QMenuItem *mi;
     maxPMWidth = 0;
@@ -1114,11 +1114,15 @@ void QPopupMenu::updateSize()
 	    }
 	} else if( height + 2*frameWidth() >= dh ) {
 	    ncols++;
+	    max_height = QMAX(max_height, height - itemHeight);
 	    height = 0;
 	}
 	if ( w > max_width )
 	    max_width = w;
     }
+    if( ncols == 1 && !max_height )
+	max_height = height;
+
     if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this))
 	setMouseTracking(TRUE);
 
@@ -1130,13 +1134,13 @@ void QPopupMenu::updateSize()
     if ( max_width + tab < maxWidgetWidth )
 	max_width = maxWidgetWidth - tab;
 
-    if ( ncols == 1 )
+    if ( ncols == 1 ) 
 	setMaximumSize( QMAX( minimumWidth(), max_width + tab + 2*frameWidth() ),
 		      QMAX( minimumHeight() , height + 2*frameWidth() ) );
     else
 	setMaximumSize( QMAX( minimumWidth(),
 			      (ncols*(max_width + tab)) + 2*frameWidth() ),
-			QMAX( minimumHeight(), dh ) );
+			QMAX( minimumHeight(), QMIN( max_height + 2*frameWidth() + 1, dh ) ) );
     resize( maximumSize() );
     badSize = FALSE;
 
