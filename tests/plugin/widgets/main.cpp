@@ -8,17 +8,12 @@
 class ExtraWidgetsInterface : public WidgetInterface
 {
 public:
-    ExtraWidgetsInterface();
+    ExtraWidgetsInterface( QUnknownInterface *parent );
     ~ExtraWidgetsInterface();
 
-    bool connectNotify( QApplication* theApp );
-    bool disconnectNotify( QApplication* theApp );
+    bool disconnectNotify();
 
-    QString name() { return "Extra Widgets"; }
-    QString description() { return "Qt Designer plugin for extra widgets"; }
-    QString author() { return "Trolltech"; }
-
-    QStringList featureList();
+    QStringList featureList() const;
     QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
     QString group( const QString& );
     QString iconSet( const QString& );
@@ -31,7 +26,8 @@ public:
     QGuardedCleanUpHandler<QObject> objects;
 };
 
-ExtraWidgetsInterface::ExtraWidgetsInterface()
+ExtraWidgetsInterface::ExtraWidgetsInterface( QUnknownInterface *parent )
+: WidgetInterface( parent )
 {
 }
 
@@ -39,19 +35,14 @@ ExtraWidgetsInterface::~ExtraWidgetsInterface()
 {
 }
 
-bool ExtraWidgetsInterface::connectNotify( QApplication* )
-{
-    return TRUE;
-}
-
-bool ExtraWidgetsInterface::disconnectNotify( QApplication* )
+bool ExtraWidgetsInterface::disconnectNotify()
 {
     if ( !objects.isClean() )
 	return FALSE;
     return TRUE;
 }
 
-QStringList ExtraWidgetsInterface::featureList()
+QStringList ExtraWidgetsInterface::featureList() const
 {
     QStringList list;
 
@@ -111,5 +102,32 @@ bool ExtraWidgetsInterface::isContainer( const QString& )
     return FALSE;
 }
 
-Q_EXPORT_INTERFACE(WidgetInterface, ExtraWidgetsInterface)
+class ExtraWidgetsPlugIn : public QPlugInInterface
+{
+public:
+    QString name() const { return "Extra-Widgets plugin"; }
+    QString description() const { return "QCanvas support for the Qt Designer"; }
+    QString author() const { return "Trolltech"; }
+
+    QUnknownInterface* queryInterface( const QString& );
+    QStringList interfaceList() const;
+};
+
+QStringList ExtraWidgetsPlugIn::interfaceList() const
+{
+    QStringList list;
+
+    list << "ExtraWidgetsInterface";
+
+    return list;
+}
+
+QUnknownInterface* ExtraWidgetsPlugIn::queryInterface( const QString &request )
+{
+    if ( request == "ExtraWidgetsInterface" )
+	return new ExtraWidgetsInterface( this );
+    return 0;
+}
+
+Q_EXPORT_INTERFACE(ExtraWidgetsPlugIn)
 
