@@ -721,11 +721,11 @@ MakefileGenerator::write()
     usePlatformDir();
     init();
     findLibraries();
-    if((Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || //write prl
-       Option::qmake_mode == Option::QMAKE_GENERATE_PRL) &&
-       project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty() &&
-       project->isActiveConfig("create_prl") && project->first("TEMPLATE") == "lib" &&
-       !project->isActiveConfig("plugin")) {
+    if((Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || Option::qmake_mode == Option::QMAKE_GENERATE_PRL)
+       && project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty() 
+       && project->isActiveConfig("create_prl") 
+       && (project->first("TEMPLATE") == "lib" || project->first("TEMPLATE") = "vclib") 
+       && !project->isActiveConfig("plugin")) {
         QString prl = var("TARGET");
         int slsh = prl.lastIndexOf(Option::dir_sep);
         if(slsh != -1)
