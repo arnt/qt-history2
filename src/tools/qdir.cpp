@@ -996,7 +996,7 @@ char QDir::separator()
 {
 #if defined(Q_OS_UNIX)
     return '/';
-#elif defined (Q_FS_FAT)
+#elif defined (Q_FS_FAT) || defined(Q_WS_WIN)
     return '\\';
 #elif defined (Q_OS_MAC)
     return ':';
