@@ -2225,7 +2225,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     if ( !meta )
 	return FALSE;
     const QMetaProperty* p = meta->property( name, TRUE );
-    if ( !p )
+    if ( !p || !p->writeable() )
 	return FALSE;
 
     if ( p->isEnumType() ) {
@@ -2259,7 +2259,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     QVariant::Type type = QVariant::nameToType( p->type() );
     if ( !value.canCast( type ) )
 	return FALSE;
-
+    
     // Some stupid casts in this switch... for #@$!&@ SunPro C++ 5.0 compiler
     switch ( type ) {
 
@@ -2270,306 +2270,308 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoImage m = (ProtoImage)p->set;
 	    (this->*m)( (QImage)(value.toImage()) );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoImage m = (RProtoImage)p->set;
 	    (this->*m)( value.toImage() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::Point:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoPoint m = (ProtoPoint)p->set;
 	    (this->*m)( value.toPoint() );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoPoint m = (RProtoPoint)p->set;
 	    (this->*m)( value.toPoint() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::StringList:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoStringList m = (ProtoStringList)p->set;
 	    (this->*m)( (QStringList)value.toStringList() );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoStringList m = (RProtoStringList)p->set;
 	    (this->*m)( value.toStringList() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::String:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoString m = (ProtoString)p->set;
 	    (this->*m)( (QString)(value.toString()) );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoString m = (RProtoString)p->set;
 	    (this->*m)( value.toString() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::CString:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoCString m = (ProtoCString)p->set;
 	    (this->*m)( (QCString)(value.toCString()) );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoCString m = (RProtoCString)p->set;
 	    (this->*m)( value.toCString() );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::ConstCharStar ) {
 	    ProtoConstCharStar m = (ProtoConstCharStar)p->set;
 	    (this->*m)( value.toCString().data() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::Font:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoFont m = (ProtoFont)p->set;
 	    (this->*m)( (QFont)(value.toFont()) );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoFont m = (RProtoFont)p->set;
 	    (this->*m)( value.toFont() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::Pixmap:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoPixmap m = (ProtoPixmap)p->set;
 	    (this->*m)( (QPixmap)(value.toPixmap()) );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoPixmap m = (RProtoPixmap)p->set;
 	    (this->*m)( value.toPixmap() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::Brush:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoBrush m = (ProtoBrush)p->set;
 	    (this->*m)( (QBrush)(value.toBrush()) );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoBrush m = (RProtoBrush)p->set;
 	    (this->*m)( value.toBrush() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::Rect:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoRect m = (ProtoRect)p->set;
 	    (this->*m)( value.toRect() );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoRect m = (RProtoRect)p->set;
 	    (this->*m)( value.toRect() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::Size:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoSize m = (ProtoSize)p->set;
 	    (this->*m)( value.toSize() );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoSize m = (RProtoSize)p->set;
 	    (this->*m)( value.toSize() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::Color:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoColor m = (ProtoColor)p->set;
 	    (this->*m)( (QColor)(value.toColor()) );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoColor m = (RProtoColor)p->set;
 	    (this->*m)( value.toColor() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::Palette:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoPalette m = (ProtoPalette)p->set;
 	    (this->*m)( (QPalette)(value.toPalette()) );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoPalette m = (RProtoPalette)p->set;
 	    (this->*m)( value.toPalette() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::ColorGroup:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoColorGroup m = (ProtoColorGroup)p->set;
 	    (this->*m)( (QColorGroup)(value.toColorGroup()) );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoColorGroup m = (RProtoColorGroup)p->set;
 	    (this->*m)( value.toColorGroup() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::Bitmap:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoBitmap m = (ProtoBitmap)p->set;
 	    (this->*m)( (QBitmap)(value.toBitmap()) );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference )  {
 	    RProtoBitmap m = (RProtoBitmap)p->set;
 	    (this->*m)( value.toBitmap() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::Region:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoRegion m = (ProtoRegion)p->set;
 	    (this->*m)( (QRegion)(value.toRegion()) );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference )  {
 	    RProtoRegion m = (RProtoRegion)p->set;
 	    (this->*m)( value.toRegion() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::PointArray:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoPointArray m = (ProtoPointArray)p->set;
 	    (this->*m)( (QPointArray)(value.toPointArray()) );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference )  {
 	    RProtoPointArray m = (RProtoPointArray)p->set;
 	    (this->*m)( value.toPointArray() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::Cursor:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoCursor m = (ProtoCursor)p->set;
 	    (this->*m)( (QCursor)(value.toCursor()) );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference )  {
 	    RProtoCursor m = (RProtoCursor)p->set;
 	    (this->*m)( value.toCursor() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::IconSet:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoIconSet m = (ProtoIconSet)p->set;
 	    (this->*m)( (QIconSet)(value.toIconSet()) );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference )  {
 	    RProtoIconSet m = (RProtoIconSet)p->set;
 	    (this->*m)( value.toIconSet() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::Int:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoInt m = (ProtoInt)p->set;
 	    (this->*m)( value.toInt() );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoInt m = (RProtoInt)p->set;
 	    (this->*m)( value.toInt() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::UInt:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoUInt m = (ProtoUInt)p->set;
 	    (this->*m)( value.toUInt() );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoUInt m = (RProtoUInt)p->set;
 	    (this->*m)( value.toUInt() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::Double:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoDouble m = (ProtoDouble)p->set;
 	    (this->*m)( value.toDouble() );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoDouble m = (RProtoDouble)p->set;
 	    (this->*m)( value.toDouble() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::Bool:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoBool m = (ProtoBool)p->set;
 	    (this->*m)( value.toBool() );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoBool m = (RProtoBool)p->set;
 	    (this->*m)( value.toBool() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::List:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoList m = (ProtoList)p->set;
 	    (this->*m)( (QValueList<QVariant>)(value.toList()) );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoList m = (RProtoList)p->set;
 	    (this->*m)( value.toList() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::Map:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoMap m = (ProtoMap)p->set;
 	    (this->*m)( (QMap<QString, QVariant>)(value.toMap()) );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoMap m = (RProtoMap)p->set;
 	    (this->*m)( value.toMap() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
 
     case QVariant::SizePolicy:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoSizePolicy m = (ProtoSizePolicy)p->set;
 	    (this->*m)( value.toSizePolicy() );
+	    return TRUE;
 	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoSizePolicy m = (RProtoSizePolicy)p->set;
 	    (this->*m)( value.toSizePolicy() );
-	} else {
-	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
+	    return TRUE;
 	}
-	return TRUE;
+	break;
     }
 
+    qWarning( "%s (%s): failed to set property %s", className(), QObject::name(), p->name() );
     return FALSE;
 }
 
