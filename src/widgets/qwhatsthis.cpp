@@ -198,6 +198,7 @@ QWhatsThisPrivate::WhatsThisItem::~WhatsThisItem()
 {
     if ( count )
 	qFatal( "Internal error #10%d in What's This", count );
+    delete whatsthis;
 }
 
 
@@ -333,8 +334,7 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 	w = (QWidget *)it.currentKey();
 	++it;
 	dict->take( w );
-	i->deref();
-	if ( !i->count )
+	if ( i->deref() )
 	    delete i;
     }
     delete dict;
@@ -802,7 +802,8 @@ RzkopxCUA4ByAFAOAMoBQDkAKAcA5QCgHACUA4ByAP4PEPjyFx6Cy2AAAAAASUVORK5CYII=
 
 
 /*!
-  Constructs a dynamic What's This? object for \a widget.
+  Constructs a dynamic What's This? object for \a widget. The object
+  is deleted when the passed widget is destroyed.
 
   When the widget is queried by the user the text() function of
   this QWhatsThis will be called to provide the appropriate text,
