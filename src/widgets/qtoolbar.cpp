@@ -508,7 +508,7 @@ bool QToolBar::event( QEvent * e )
 	if ( child && child->isWidgetType() && !((QWidget*)child)->isTopLevel() &&
 	     child->parent() == this && qstrcmp( "qt_dockwidget_internal", child->name() ) != 0 ) {
 	    boxLayout()->addWidget( (QWidget*)child );
-	    if ( isVisibleTo(0) && !((QWidget*)child)->isHidden() ) {
+	    if ( isVisibleTo(0) ) {
 		( (QWidget*)child )->show();
 		// We resize the toolbar in case it is too small to show all the icons
 		resize( sizeHint() );
