@@ -71,9 +71,6 @@ public:
 #endif
 
     QSize       sizeHint() const;
-    void	setSizePolicy( QSizePolicy sp );
-    inline void	setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE )
-    { QWidget::setSizePolicy( hor, ver, hfw ); }
 
     enum Shape { NoFrame  = 0,                  // no frame
                  Box      = 0x0001,             // rectangular box

@@ -50,17 +50,6 @@
 #endif
 #include <limits.h>
 
-#if QT_VERSION >= 0x040000
-#error Remove d-pointer hack
-#endif
-
-/*
-  We avoid creating a d-pointer object by storing the two values we
-  need as d-pointers themselves.
-*/
-static void * const DefaultSizePolicy = (void *) 0;
-static void * const UserSizePolicy = (void *) &DefaultSizePolicy;
-
 /*!
     \class QScrollBar
     \brief The QScrollBar widget provides a vertical or horizontal scroll bar.
@@ -294,7 +283,6 @@ void QScrollBar::init()
     setFocusPolicy( NoFocus );
 
     repeater = 0;
-    d = DefaultSizePolicy;
 
     setBackgroundMode((Qt::BackgroundMode)
 		      style().styleHint(QStyle::SH_ScrollBar_BackgroundMode));
@@ -302,7 +290,8 @@ void QScrollBar::init()
     QSizePolicy sp( QSizePolicy::Minimum, QSizePolicy::Fixed );
     if ( orient == Vertical )
 	sp.transpose();
-    QWidget::setSizePolicy( sp );
+    setSizePolicy( sp );
+    clearWState( WState_OwnSizePolicy );
 }
 
 
@@ -318,11 +307,11 @@ void QScrollBar::setOrientation( Orientation orientation )
 {
     if ( orientation == orient )
 	return;
-
-    if ( d == DefaultSizePolicy ) {
+    if ( !testWState( WState_OwnSizePolicy ) ) {
 	QSizePolicy sp = sizePolicy();
 	sp.transpose();
-	QWidget::setSizePolicy( sp );
+	setSizePolicy( sp );
+	clearWState( WState_OwnSizePolicy );
     }
 
     orient = orientation;
@@ -386,7 +375,7 @@ QSize QScrollBar::sizeHint() const
 /*! \reimp */
 void QScrollBar::setSizePolicy( QSizePolicy sp )
 {
-    d = UserSizePolicy;
+    //## remove 4.0
     QWidget::setSizePolicy( sp );
 }
 

@@ -5495,6 +5495,7 @@ QSizePolicy QWidget::sizePolicy() const
 
 void QWidget::setSizePolicy( QSizePolicy policy )
 {
+    setWState( WState_OwnSizePolicy );
     if ( policy == sizePolicy() )
 	return;
     createExtra();

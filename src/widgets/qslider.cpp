@@ -52,11 +52,9 @@ static const int repeatTime = 100;
 
 struct QSliderPrivate
 {
-    // ### move these to QSliter in Qt 4.0
+    // ### move these to QSlider in Qt 4.0
     int sliderStartVal;
-    bool defaultSizePolicy;
-
-    QSliderPrivate() : sliderStartVal( 0 ), defaultSizePolicy( TRUE ) { }
+    QSliderPrivate() : sliderStartVal( 0 ) { }
 };
 
 
@@ -190,7 +188,8 @@ void QSlider::init()
     QSizePolicy sp( QSizePolicy::Expanding, QSizePolicy::Fixed );
     if ( orient == Vertical )
 	sp.transpose();
-    QWidget::setSizePolicy( sp );
+    setSizePolicy( sp );
+    clearWState( WState_OwnSizePolicy );
 }
 
 
@@ -350,10 +349,11 @@ void QSlider::setOrientation( Orientation orientation )
     if ( orientation == orient )
 	return;
 
-    if ( d->defaultSizePolicy ) {
+    if ( !testWState( WState_OwnSizePolicy ) ) {
 	QSizePolicy sp = sizePolicy();
 	sp.transpose();
-	QWidget::setSizePolicy( sp );
+	setSizePolicy( sp );
+	clearWState( WState_OwnSizePolicy );
     }
 
     orient = orientation;
@@ -753,7 +753,7 @@ QSize QSlider::minimumSizeHint() const
 /*! \reimp */
 void QSlider::setSizePolicy( QSizePolicy sp )
 {
-    d->defaultSizePolicy = FALSE;
+    // ## remove 4.0
     QWidget::setSizePolicy( sp );
 }
 
