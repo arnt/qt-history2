@@ -544,6 +544,10 @@ QSql::ParameterType QSqlResult::boundValueType( int pos ) const
     return d->values[ d->index[ pos ] ].typ;
 }
 
+int QSqlResult::boundValueCount() const
+{
+    return d->values.count();
+}
 
 QMap<QString, QVariant> QSqlResult::boundValues() const
 {

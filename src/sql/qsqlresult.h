@@ -73,6 +73,7 @@ protected:
     QVariant boundValue( int pos ) const;
     QSql::ParameterType boundValueType( const QString& placeholder ) const;
     QSql::ParameterType boundValueType( int pos ) const;
+    int boundValueCount() const;
     QMap<QString, QVariant> boundValues() const;
     QString executedQuery() const;
     bool savePrepare( const QString& sqlquery ); // ### TODO - find a much better name
