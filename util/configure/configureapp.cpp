@@ -1170,7 +1170,11 @@ void Configure::generateConfigfiles()
 	QString internalName = licenseInfo["PRODUCTS"];
 
 	outStream << "#ifndef Q_CC_BOR" << endl; 
-	outStream << "#include <winver.h>" << endl;
+	outStream << "# if defined(UNDER_CE) && UNDER_CE >= 400" << endl; 
+	outStream << "#  include <winbase.h>" << endl; 
+	outStream << "# else" << endl; 
+	outStream << "#  include <winver.h>" << endl; 
+	outStream << "# endif" << endl; 
 	outStream << "#endif" << endl << endl;
 	outStream << "VS_VERSION_INFO VERSIONINFO" << endl;
 	outStream << "\tFILEVERSION 1,0,0,1" << endl;
