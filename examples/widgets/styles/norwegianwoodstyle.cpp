@@ -2,11 +2,6 @@
 
 #include "norwegianwoodstyle.h"
 
-static const int NumGroups = 3;
-static const QPalette::ColorGroup groups[NumGroups] = {
-    QPalette::Active, QPalette::Disabled, QPalette::Inactive
-};
-
 static QPainterPath roundRectPath(const QRect &rect)
 {
     int radius = qMin(rect.width(), rect.height()) / 2;
@@ -53,13 +48,25 @@ NorwegianWoodStyle::NorwegianWoodStyle()
     }
 
     woodPalette = QPalette(QColor(212, 140, 95));
-    setBrush(woodPalette, QPalette::BrightText, Qt::white);
-    setBrush(woodPalette, QPalette::Base, QColor(236, 182, 120));
+
+    woodPalette.setBrush(QPalette::BrightText, Qt::white);
+    woodPalette.setBrush(QPalette::Base, QColor(236, 182, 120));
+    woodPalette.setBrush(QPalette::Highlight, QColor(0, 127, 0));
     setBrushPixmap(woodPalette, QPalette::Button, buttonImage);
     setBrushPixmap(woodPalette, QPalette::Light, lightImage);
     setBrushPixmap(woodPalette, QPalette::Dark, darkImage);
     setBrushPixmap(woodPalette, QPalette::Mid, midImage);
     setBrushPixmap(woodPalette, QPalette::Background, backgroundImage);
+
+    QBrush brush = woodPalette.background();
+    brush.setColor(brush.color().dark());
+
+    woodPalette.setBrush(QPalette::Disabled, QPalette::Foreground, brush);
+    woodPalette.setBrush(QPalette::Disabled, QPalette::Text, brush);
+    woodPalette.setBrush(QPalette::Disabled, QPalette::ButtonText, brush);
+    woodPalette.setBrush(QPalette::Disabled, QPalette::Base, brush);
+    woodPalette.setBrush(QPalette::Disabled, QPalette::Button, brush);
+    woodPalette.setBrush(QPalette::Disabled, QPalette::Mid, brush);
 }
 
 void NorwegianWoodStyle::polish(QPalette &palette)
@@ -67,16 +74,17 @@ void NorwegianWoodStyle::polish(QPalette &palette)
     palette = woodPalette;
 }
 
-int NorwegianWoodStyle::pixelMetric(PixelMetric pm, const QStyleOption *option,
+int NorwegianWoodStyle::pixelMetric(PixelMetric metric,
+                                    const QStyleOption *option,
                                     const QWidget *widget) const
 {
-    switch (pm) {
+    switch (metric) {
     case PM_ComboBoxFrameWidth:
         return 8;
     case PM_ScrollBarExtent:
-        return QMotifStyle::pixelMetric(pm, option, widget) + 4;
+        return QMotifStyle::pixelMetric(metric, option, widget) + 4;
     default:
-        return QMotifStyle::pixelMetric(pm, option, widget);
+        return QMotifStyle::pixelMetric(metric, option, widget);
     }
 }
 
@@ -115,10 +123,8 @@ void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
 
             painter->setClipPath(roundRect);
             painter->fillRect(option->rect, brush); // ### replace with fillPath()
-            if ((option->state & (State_Down | State_On)) == State_On) {
-                painter->fillRect(option->rect,
-                                  QBrush(brush.color(), Qt::Dense4Pattern)); // ### ditto
-            }
+            if ((option->state & (State_Down | State_On)) == State_On)
+                painter->fillRect(option->rect, QColor(0, 0, 0, 63));
 
             int penWidth;
             if (minorSide < 10)
@@ -192,19 +198,26 @@ void NorwegianWoodStyle::drawControl(ControlElement element,
     }
 }
 
-void NorwegianWoodStyle::setBrush(QPalette &palette, QPalette::ColorRole role,
-                                  const QBrush &brush)
+int NorwegianWoodStyle::styleHint(StyleHint hint, const QStyleOption *option,
+                                  const QWidget *widget,
+                                  QStyleHintReturn *returnData) const
 {
-    for (int i = 0; i < NumGroups; ++i)
-        palette.setBrush(groups[i], role, brush);
+    switch (hint) {
+    case SH_DitherDisabledText:
+        return int(false);
+    case SH_EtchDisabledText:
+        return int(true);
+    default:
+        return QMotifStyle::styleHint(hint, option, widget, returnData);
+    }
 }
 
 void NorwegianWoodStyle::setBrushPixmap(QPalette &palette,
                                         QPalette::ColorRole role,
                                         const QPixmap &pixmap)
 {
-    for (int i = 0; i < NumGroups; ++i) {
-        QColor color = palette.brush(groups[i], role).color();
-        palette.setBrush(groups[i], role, QBrush(color, pixmap));
+    for (int i = 0; i < QPalette::NColorGroups; ++i) {
+        QColor color = palette.brush(QPalette::ColorGroup(i), role).color();
+        palette.setBrush(QPalette::ColorGroup(i), role, QBrush(color, pixmap));
     }
 }

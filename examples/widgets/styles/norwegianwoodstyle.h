@@ -1,8 +1,9 @@
 #ifndef NORWEGIANWOODSTYLE_H
 #define NORWEGIANWOODSTYLE_H
 
-#include <QPalette>
+#include <QImage>
 #include <QMotifStyle>
+#include <QPalette>
 
 class NorwegianWoodStyle : public QMotifStyle
 {
@@ -18,10 +19,10 @@ public:
                        QPainter *painter, const QWidget *widget) const;
     void drawControl(ControlElement control, const QStyleOption *option,
                      QPainter *painter, const QWidget *widget) const;
+    int styleHint(StyleHint hint, const QStyleOption *option,
+                  const QWidget *widget, QStyleHintReturn *returnData) const;
 
 private:
-    void setBrush(QPalette &palette, QPalette::ColorRole role,
-                  const QBrush &brush);
     void setBrushPixmap(QPalette &palette, QPalette::ColorRole role,
                         const QPixmap &pixmap);
 
