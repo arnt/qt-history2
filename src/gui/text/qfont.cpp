@@ -517,6 +517,7 @@ QFontEngineData::~QFontEngineData()
     specified font \a data.
 */
 QFont::QFont(QFontPrivate *data, QPaintDevice *pd)
+    : resolve_mask(0)
 {
     if (pd != data->paintdevice) {
         d = new QFontPrivate(*data);
