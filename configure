@@ -70,6 +70,10 @@ if [ "$relpath" != `pwd` ]; then
     #hacky src line
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC_SRC=$relpath/src/moc\""
 else
+    # Override the Windows Makefile
+    rm -f $outpath/Makefile
+    cp $relpath/GNUmakefile $outpath/Makefile
+
     touch .test.qt.
     if [ '!' -f ${QTDIR}/.test.qt. ];
     then
