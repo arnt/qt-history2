@@ -1703,7 +1703,12 @@ QSize QLineEdit::minimumSizeHint() const
 
 void QLineEdit::setValidator( const QValidator * v )
 {
+    if ( d->validator )
+	disconnect( (QObject*)d->validator, SIGNAL( destroyed() ),
+		    this, SLOT( clearValidator() ) );
     d->validator = v;
+    connect( (QObject*)d->validator, SIGNAL( destroyed() ),
+	     this, SLOT( clearValidator() ) );
 }
 
 /*!
