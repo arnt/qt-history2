@@ -49,6 +49,50 @@ static const char * right_xpm[] = {
 "                ",
 "                "};
 
+static const char * left_disabled_xpm[] = {
+"16 16 3 1",
+" 	c None",
+".	c #FFFFFF",
+"+	c darkgray",
+"                ",
+"                ",
+"          +     ",
+"         ++     ",
+"        +++     ",
+"       ++++     ",
+"      +++++     ",
+"     ++++++     ",
+"     ++++++     ",
+"      +++++     ",
+"       ++++     ",
+"        +++     ",
+"         ++     ",
+"          +     ",
+"                ",
+"                "};
+
+static const char * right_disabled_xpm[] = {
+"16 16 3 1",
+" 	c None",
+".	c #FFFFFF",
+"+	c darkgray",
+"                ",
+"                ",
+"     +          ",
+"     ++         ",
+"     +++        ",
+"     ++++       ",
+"     +++++      ",
+"     ++++++     ",
+"     ++++++     ",
+"     +++++      ",
+"     ++++       ",
+"     +++        ",
+"     ++         ",
+"     +          ",
+"                ",
+"                "};
+
 class ArrowButton : public QButton
 {
     Q_OBJECT
@@ -60,7 +104,7 @@ public:
     void drawButton( QPainter *p );
 
 private:
-    QPixmap pix;
+    QPixmap pix, pix_disabled;
 
 };
 
@@ -68,10 +112,13 @@ ArrowButton::ArrowButton( QWidget *parent, Dir d )
     : QButton( parent )
 {
     setFixedSize( 16, 16 );
-    if ( d == Left )
+    if ( d == Left ) {
 	pix = QPixmap( left_xpm );
-    else
+	pix_disabled = QPixmap( left_disabled_xpm );
+    } else {
 	pix = QPixmap( right_xpm );
+	pix_disabled = QPixmap( right_disabled_xpm );
+    }
 }
 
 void ArrowButton::drawButton( QPainter *p )
@@ -80,9 +127,10 @@ void ArrowButton::drawButton( QPainter *p )
 	p->fillRect( 0, 0, width(), height(), darkGray );
     else
 	p->fillRect( 0, 0, width(), height(), lightGray );
-    if ( !isEnabled() )
-	return;
-    p->drawPixmap( 0, 0, pix );
+    if ( isEnabled() )
+	p->drawPixmap( 0, 0, pix );
+    else
+	p->drawPixmap( 0, 0, pix_disabled );
 }
 
 
