@@ -257,7 +257,7 @@ private:
 
         void clear();
 
-        QVariant::Type typ;
+        Type typ;
         union
         {
 	    uint u;
