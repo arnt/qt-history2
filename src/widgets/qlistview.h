@@ -237,6 +237,7 @@ class Q_EXPORT QListView: public QScrollView
     Q_PROPERTY( bool showSortIndicator READ showSortIndicator WRITE setShowSortIndicator )
     Q_PROPERTY( int itemMargin READ itemMargin WRITE setItemMargin )
     Q_PROPERTY( bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated )
+    Q_PROPERTY( bool showToolTips READ showToolTips WRITE setShowToolTips )
 
 public:
     QListView( QWidget * parent = 0, const char *name = 0, WFlags f = 0 );
