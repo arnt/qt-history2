@@ -1024,7 +1024,11 @@ void QTreeView::selectAll()
 void QTreeView::columnResized(int column, int, int)
 {
     int x = columnViewportPosition(column);
-    QRect rect(x, 0, d->viewport->width() - x, d->viewport->height());
+    QRect rect;
+    if (QApplication::reverseLayout())
+        rect.setRect(0, 0, x + d->header->sectionSize(column), d->viewport->height());
+    else
+        rect.setRect(x, 0, d->viewport->width() - x, d->viewport->height());
     d->viewport->update(rect.normalize());
     updateGeometries();
 }

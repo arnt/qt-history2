@@ -539,11 +539,10 @@ QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
 */
 void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
-    QModelIndex tl = itemAt((QApplication::reverseLayout() ? rect.right() : rect.left()),
-                            rect.top());
-    QModelIndex br = itemAt((QApplication::reverseLayout() ? rect.left() : rect.right()),
-                            rect.bottom());
-
+    QModelIndex tl = itemAt((QApplication::reverseLayout()
+                             ? rect.right() : rect.left()), rect.top());
+    QModelIndex br = itemAt((QApplication::reverseLayout()
+                             ? rect.left() : rect.right()), rect.bottom());
     selectionModel()->select(QItemSelection(tl, br, model()), command);
 }
 
@@ -932,7 +931,11 @@ void QTableView::rowResized(int row, int, int)
 void QTableView::columnResized(int column, int, int)
 {
     int x = columnViewportPosition(column);
-    QRect rect(x, 0, d->viewport->width() - x, d->viewport->height());
+    QRect rect;
+    if (QApplication::reverseLayout())
+        rect.setRect(0, 0, x + columnWidth(column), d->viewport->height());
+    else
+        rect.setRect(x, 0, d->viewport->width() - x, d->viewport->height());
     d->viewport->update(rect.normalize());
     updateGeometries();
 }

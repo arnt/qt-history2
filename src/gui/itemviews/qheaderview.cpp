@@ -493,11 +493,12 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
     int w = d->viewport->width();
     int h = d->viewport->height();
     int pos = sectionViewportPosition(logicalIndex);
-    if (d->reverse())
-        pos -= size;
     QRect r;
     if (orientation() == Qt::Horizontal)
-        r.setRect(pos, 0, w - pos, h);
+        if (QApplication::reverseLayout())
+            r.setRect(0, 0, pos + size, h);
+        else
+            r.setRect(pos, 0, w - pos, h);
     else
         r.setRect(0, pos, w, h - pos);
     if (d->stretchSections) {
