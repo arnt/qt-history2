@@ -15,39 +15,39 @@ CC	=	gcc
 
 ####### Files
 
-HEADERS	=	qwmatrix.h	qaccel.h	qapp.h		qbitmap.h     \
-		qbrush.h	qcolor.h	qconnect.h	qcursor.h     \
-		qdialog.h	qevent.h	qfont.h		qfontdta.h    \
+HEADERS =	qaccel.h	qapp.h		qbitmap.h	qbrush.h      \
+		qcolor.h	qconnect.h	qcursor.h	qdialog.h     \
+		qdrawutl.h	qevent.h	qfont.h		qfontdta.h    \
 		qfontinf.h	qfontmet.h	qimage.h	qkeycode.h    \
 		qmetaobj.h	qobjcoll.h	qobjdefs.h	qobject.h     \
 		qpaintd.h	qpaintdc.h	qpainter.h	qpalette.h    \
 		qpdevmet.h	qpen.h		qpicture.h	qpixmap.h     \
 		qpmcache.h	qpntarry.h	qpoint.h	qprinter.h    \
-		qrect.h		qregion.h	qsignal.h	qsize.h	      \
-		qtimer.h	qwidcoll.h	qwidget.h	qwindefs.h    \
-		qwindow.h	qpsprn.h
-SOURCES	=	qwmatrix.cpp	qaccel.cpp	qapp.cpp	qapp_x11.cpp  \
-		qbitmap.cpp	qcol_x11.cpp	qcolor.cpp	qconnect.cpp  \
-		qcur_x11.cpp	qcursor.cpp	qdialog.cpp	qevent.cpp    \
+		qpsprn.h	qrect.h		qregion.h	qsignal.h     \
+		qsize.h		qtimer.h	qwidcoll.h	qwidget.h     \
+		qwindefs.h	qwindow.h	qwmatrix.h
+SOURCES =	qaccel.cpp	qapp.cpp	qapp_x11.cpp	qbitmap.cpp   \
+		qcol_x11.cpp	qcolor.cpp	qconnect.cpp	qcur_x11.cpp  \
+		qcursor.cpp	qdialog.cpp	qdrawutl.cpp	qevent.cpp    \
 		qfnt_x11.cpp	qfont.cpp	qimage.cpp	qmetaobj.cpp  \
 		qobject.cpp	qpainter.cpp	qpalette.cpp	qpdevmet.cpp  \
 		qpic_x11.cpp	qpicture.cpp	qpixmap.cpp	qpm_x11.cpp   \
 		qpmcache.cpp	qpntarry.cpp	qpoint.cpp	qprinter.cpp  \
-		qptd_x11.cpp	qptr_x11.cpp	qrect.cpp	qrgn_x11.cpp  \
-		qsignal.cpp	qsize.cpp	qtimer.cpp	qwid_x11.cpp  \
-		qwidget.cpp	qwindow.cpp	qregion.cpp	qprn_x11.cpp  \
-		qpsprn.cpp
-OBJECTS	=	qwmatrix.o	qaccel.o	qapp.o		qapp_x11.o    \
-		qbitmap.o	qcol_x11.o	qcolor.o	qconnect.o    \
-		qcur_x11.o	qcursor.o	qdialog.o	qevent.o      \
+		qprn_x11.cpp	qpsprn.cpp	qptd_x11.cpp	qptr_x11.cpp  \
+		qrect.cpp	qregion.cpp	qrgn_x11.cpp	qsignal.cpp   \
+		qsize.cpp	qtimer.cpp	qwid_x11.cpp	qwidget.cpp   \
+		qwindow.cpp	qwmatrix.cpp
+OBJECTS =	qaccel.o	qapp.o		qapp_x11.o	qbitmap.o     \
+		qcol_x11.o	qcolor.o	qconnect.o	qcur_x11.o    \
+		qcursor.o	qdialog.o	qdrawutl.o	qevent.o      \
 		qfnt_x11.o	qfont.o		qimage.o	qmetaobj.o    \
 		qobject.o	qpainter.o	qpalette.o	qpdevmet.o    \
 		qpic_x11.o	qpicture.o	qpixmap.o	qpm_x11.o     \
 		qpmcache.o	qpntarry.o	qpoint.o	qprinter.o    \
-		qptd_x11.o	qptr_x11.o	qrect.o		qrgn_x11.o    \
-		qsignal.o	qsize.o		qtimer.o	qwid_x11.o    \
-		qwidget.o	qwindow.o	qregion.o	qprn_x11.o    \
-		qpsprn.o
+		qprn_x11.o	qpsprn.o	qptd_x11.o	qptr_x11.o    \
+		qrect.o		qregion.o	qrgn_x11.o	qsignal.o     \
+		qsize.o		qtimer.o	qwid_x11.o	qwidget.o     \
+		qwindow.o	qwmatrix.o
 SRCMETA	=	maccel.cpp	mapp.cpp	mdialog.cpp	mtimer.cpp    \
 		mwidget.cpp	mwindow.cpp
 OBJMETA	=	maccel.o	mapp.o		mdialog.o	mtimer.o      \
