@@ -1808,9 +1808,7 @@ bool QHeader::isStretchEnabled( int section ) const
 void QHeader::fontChange( const QFont &oldFont )
 {
     QFontMetrics fm = fontMetrics();
-    for ( int i = 0; i < count(); i++ )
-	d->heights[i] =
-	    ( orient == Horizontal ) ? fm.lineSpacing() + 6 : fm.width( ' ' );
+    d->height = ( orient == Horizontal ) ? fm.lineSpacing() + 6 : fm.width( ' ' );
     QWidget::fontChange( oldFont );
 }
 
