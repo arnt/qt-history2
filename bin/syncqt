@@ -338,9 +338,15 @@ sub fix_paths {
     my $file1_dir = dirname($file1);
     my $file2_dir = dirname($file2);
     return basename($file1) if("$file1" eq "$file2");
-    $file1_dir = getcwd() if($file1_dir eq ".");
+    if($file1_dir eq ".") {
+	$file1_dir = getcwd();
+	$file1_dir =~ s=\\=/=g;
+    }
     $file1_dir =~ s,/cygdrive/([a-zA-Z])/,$1:,g;
-    $file2_dir = getcwd() if($file2_dir eq ".");
+    if($file2_dir eq ".") {
+	$file2_dir = getcwd();
+	$file2_dir =~ s=\\=/=g;
+    }
     $file2_dir =~ s,/cygdrive/([a-zA-Z])/,$1:/,g;
 
     #guts
