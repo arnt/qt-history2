@@ -51,6 +51,7 @@
 #include "qcursor.h"
 #include "qstylefactory.h"
 #include <stdlib.h>
+#include "qcomponentfactory.h"
 
 #if defined(QT_THREAD_SUPPORT)
 #include "qthread.h"
@@ -314,6 +315,9 @@ bool	  QApplication::fade_tooltip	= FALSE;
 QApplication::Type qt_appType=QApplication::Tty;
 QStringList *QApplication::app_libpaths = 0;
 
+#ifndef QT_NO_REMOTE
+QRemoteControlInterface *QApplication::remoteControl = 0;
+#endif
 
 void qt_setMaxWindowRect(const QRect& r)
 {
@@ -805,6 +809,54 @@ void QApplication::initialize( int argc, char **argv )
     if (qt_is_gui_used)
 	qApp->lock();
 #endif
+
+#ifndef QT_NO_REMOTE
+
+    remoteControl = 0;
+    QString S;
+    const QString TestStr = "QREMOTE_CONTROL:";
+    for (int i=0; i<argc; i++) {
+
+	S = argv[i];
+	int pos = S.find(TestStr);
+	if (pos >= 0) {
+			
+	    QString hostIp, hostPort;
+	    S = S.mid(pos + TestStr.length());
+	    int pos = S.find(":");
+	    if (pos > 0) {
+
+		hostIp = S.left(pos);
+		hostPort = S.mid(pos+1);
+		int port = hostPort.toInt();
+		if (port > 0) {
+
+		    // This is a hack, but since this number will never change...
+		    // {C71CE12C-AB3C-459B-87D6-C539FF45975D} 
+		    QUuid cid( 0xc71ce12c, 0xab3c, 0x459b, 0x87, 0xd6, 0xc5, 0x39, 0xff, 0x45, 0x97, 0x5d);
+		    if (QComponentFactory::createInstance(cid,IID_QRemoteControl,(QUnknownInterface**)&remoteControl) == QS_OK) {
+
+			remoteControl->open(hostIp,port); 
+			qDebug("Remote Control is enabled.");
+		    } else {
+
+    		        qDebug("Remote Control component NOT found");
+		    }
+		} else {
+
+		    qDebug("Host port seems invalid, remote control is NOT enabled!");
+		    qDebug("Use -QREMOTE_CONTROL:RcIpAddress:RcIpPort");
+		}
+	    } else {
+
+		qDebug("Ip address and port are not specified, remote control is NOT enabled!");
+		qDebug("Use -QREMOTE_CONTROL:RcIpAddress:RcIpPort");
+	    }
+	    break;
+	}
+    }
+#endif //QT_NO_REMOTE
+
 }
 
 
@@ -861,6 +913,12 @@ QWidget *QApplication::activeModalWidget()
 
 QApplication::~QApplication()
 {
+#ifndef QT_NO_REMOTE
+    if (remoteControl != 0) 
+    	remoteControl->release();
+    remoteControl = 0;
+#endif // QT_NO_REMOTE
+
     delete desktopWidget;
     desktopWidget = 0;
     is_app_closing = TRUE;
@@ -1787,6 +1845,13 @@ void QApplication::closeAllWindows()
 
 bool QApplication::notify( QObject *receiver, QEvent *e )
 {
+#ifndef QT_NO_REMOTE
+    if (remoteControl != 0) {
+	if (remoteControl->handleNotification(receiver, e))
+	    return TRUE;
+    }
+#endif
+
     // no events are delivered after ~QApplication has started
     if ( is_app_closing )
 	return FALSE;

@@ -45,6 +45,9 @@
 #include "qtranslator.h"
 #include "qstrlist.h"
 #include "qstringlist.h"
+    #ifndef QT_NO_REMOTE
+    #include "qremotecontrol_p.h"
+    #endif
 #endif // QT_H
 
 class QSessionManager;
@@ -61,6 +64,7 @@ extern Q_EXPORT QApplication *qApp;		// global application object
 #if defined(QT_THREAD_SUPPORT)
 class QMutex;
 #endif
+
 
 class Q_EXPORT QApplication : public QObject
 {
@@ -363,6 +367,11 @@ private:
     friend bool qt_sendSpontaneousEvent( QObject*, QEvent* );
 #endif
 
+#ifndef QT_NO_REMOTE
+private:
+    static QRemoteControlInterface *remoteControl;
+#endif // QT_NO_REMOTE
+    
 private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QApplication( const QApplication & );

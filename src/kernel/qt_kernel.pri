@@ -93,7 +93,9 @@ kernel {
 		  $$KERNEL_H/qvariant.h \
 		  $$KERNEL_P/qrichtext_p.h \
 		  $$KERNEL_P/qinternal_p.h \
-		  $$KERNEL_H/qsimplerichtext.h
+		  $$KERNEL_H/qsimplerichtext.h \
+		  $$KERNEL_P/qremotecontrol_p.h \
+		  $$KERNEL_P/qremotemessage_p.h
 
 
 	win32:SOURCES += $$KERNEL_CPP/qapplication_win.cpp \
@@ -224,7 +226,8 @@ kernel {
 		  $$KERNEL_CPP/qrichtext.cpp \
 		  $$KERNEL_CPP/qinternal.cpp \
 		  $$KERNEL_CPP/qrichtext_p.cpp \
-		  $$KERNEL_CPP/qsimplerichtext.cpp
+		  $$KERNEL_CPP/qsimplerichtext.cpp \
+		  $$KERNEL_CPP/qremotemessage.cpp
 
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \
 			  $$KERNEL_H/qfontdatabase.h
