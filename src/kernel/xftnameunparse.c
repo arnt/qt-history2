@@ -31,6 +31,39 @@
 #include <stdio.h>
 
 
+typedef struct _XftObjectType {
+    const char  *object;
+    XftType     type;
+} XftObjectType;
+
+
+const XftObjectType _XftObjectTypes[] = {
+    { XFT_FAMILY,       XftTypeString, },
+    { XFT_STYLE,        XftTypeString, },
+    { XFT_SLANT,        XftTypeInteger, },
+    { XFT_WEIGHT,       XftTypeInteger, },
+    { XFT_SIZE,         XftTypeDouble, },
+    { XFT_PIXEL_SIZE,   XftTypeDouble, },
+    { XFT_ENCODING,     XftTypeString, },
+    { XFT_SPACING,      XftTypeInteger, },
+    { XFT_FOUNDRY,      XftTypeString, },
+    { XFT_CORE,         XftTypeBool, },
+    { XFT_ANTIALIAS,    XftTypeBool, },
+    { XFT_XLFD,         XftTypeString, },
+    { XFT_FILE,         XftTypeString, },
+    { XFT_INDEX,        XftTypeInteger, },
+    { XFT_RASTERIZER,   XftTypeString, },
+    { XFT_OUTLINE,      XftTypeBool, },
+    { XFT_SCALABLE,     XftTypeBool, },
+    { XFT_RGBA,         XftTypeInteger, },
+    { XFT_SCALE,        XftTypeDouble, },
+    { XFT_RENDER,       XftTypeBool, },
+};
+
+
+#define NUM_OBJECT_TYPES    (sizeof _XftObjectTypes / sizeof _XftObjectTypes[0])
+
+
 static Bool
 _XftNameUnparseString (const char *string, char *escape, char **destp, int *lenp)
 {
