@@ -2354,7 +2354,7 @@ void QTextView::append( const QString &text )
     if ( f == PlainText ) {
 	QTextCursor oldc( *cursor );
 	cursor->gotoEnd();
-	insert( text + "\n", FALSE, TRUE );
+	insert( text, FALSE, TRUE );
 	*cursor = oldc;
     } else if ( f == RichText ) {
 	doc->setRichTextInternal( text );

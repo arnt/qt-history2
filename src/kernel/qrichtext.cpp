@@ -529,10 +529,15 @@ void QTextCursor::invalidateNested()
     }
 }
 
-void QTextCursor::insert( const QString &s, bool checkNewLine, QArray<QTextStringChar> *formatting )
+void QTextCursor::insert( const QString &str, bool checkNewLine, QArray<QTextStringChar> *formatting )
 {
     tmpIndex = -1;
     bool justInsert = TRUE;
+    QString s( str );
+#if defined(Q_WS_WIN)
+    if ( checkNewLine )
+	s = s.replace( QRegExp( "\\r" ), "" );
+#endif
     if ( checkNewLine )
 	justInsert = s.find( '\n' ) == -1;
     if ( justInsert ) {
