@@ -9,6 +9,8 @@
 #include <qpixmap.h>
 #include <qimage.h>
 
+#include <assert.h>
+
 static int errorcount = 0;
 static int loopcount = 50;
 
@@ -40,6 +42,7 @@ struct IDispatch;
 		qDebug( "\t\t\tobject value: %s\n\t\t\texpvar: %s", \
 		    valvar.toString().latin1(), expvar.toString().latin1() ); \
 	    } \
+	    assert( !reallyWrong ); \
 	} \
     } \
 } \
