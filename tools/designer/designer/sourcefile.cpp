@@ -28,6 +28,7 @@
 #include <qfiledialog.h>
 #include <qmessagebox.h>
 #include "mainwindow.h"
+#include "workspace.h"
 
 SourceFile::SourceFile( const QString &fn, bool temp, Project *p )
     : filename( fn ), ed( 0 ), fileNameTemp( temp ), timeStamp( this, p->makeAbsolute( fn ) ), pro( p )
@@ -173,14 +174,16 @@ bool SourceFile::closeEvent()
 	break;
     case 1: // don't save
 	load();
+	if ( ed )
+	    ed->editorInterface()->setText( txt );
+	MainWindow::self->workspace()->update();
 	break;
     case 2: // cancel
 	return FALSE;
     default:
 	break;
     }
-    if ( ed )
-	ed->setModified( FALSE );
+    setModified( FALSE );
     return TRUE;
 }
 
