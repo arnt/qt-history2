@@ -21,6 +21,7 @@ public:
     void buildQmake();
     void generateMakefiles();
     void showSummary();
+    void findProjects( const QString& dirName );
 
 private:
     QProcess qmakeBuilder;

@@ -51,8 +51,8 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     QObject::connect( &qmakeBuilder, SIGNAL( readyReadStdout() ), this, SLOT( readQmakeBuilderOutput() ) );
     QObject::connect( &qmakeBuilder, SIGNAL( readyReadStderr() ), this, SLOT( readQmakeBuilderError() ) );
     QObject::connect( &qmakeBuilder, SIGNAL( processExited() ), this, SLOT( qmakeBuilt() ) );
-    QObject::connect( &qmake, SIGNAL( readyReadStdout() ), this, SLOT( readQmakeOutput() ) );
-    QObject::connect( &qmake, SIGNAL( readyReadStderr() ), this, SLOT( readQmakeError() ) );
+//    QObject::connect( &qmake, SIGNAL( readyReadStdout() ), this, SLOT( readQmakeOutput() ) );
+//    QObject::connect( &qmake, SIGNAL( readyReadStderr() ), this, SLOT( readQmakeError() ) );
     QObject::connect( &qmake, SIGNAL( processExited() ), this, SLOT( qmakeDone() ) );
 }
 
@@ -318,7 +318,7 @@ void ConfigureApp::buildQmake()
 void ConfigureApp::readQmakeBuilderError()
 {
     QString tmp = qmakeBuilder.readStderr();
-    for( int i = 0; i < tmp.length(); i++ ) {
+    for( int i = 0; i < ( int )tmp.length(); i++ ) {
 	QChar c = tmp[ i ];
 	switch( char( c ) ) {
 	case 0x00:
@@ -344,7 +344,7 @@ void ConfigureApp::readQmakeBuilderError()
 void ConfigureApp::readQmakeBuilderOutput()
 {
     QString tmp = qmakeBuilder.readStdout();
-    for( int i = 0; i < tmp.length(); i++ ) {
+    for( int i = 0; i < ( int )tmp.length(); i++ ) {
 	QChar c = tmp[ i ];
 	switch( char( c ) ) {
 	case '\r':
@@ -373,32 +373,42 @@ void ConfigureApp::qmakeBuilt()
     generateMakefiles();
 }
 
+void ConfigureApp::findProjects( const QString& dirName )
+{
+    QDir dir( dirName );
+    QString entryName;
+    const QFileInfoList* list = dir.entryInfoList();
+    QFileInfoListIterator it( *list );
+    QFileInfo* fi;
+
+    while( ( fi = it.current() ) ) {
+	entryName = dirName + "/" + fi->fileName();
+	if( fi->fileName()[ 0 ] != '.' ) {
+	    if( fi->isDir() )
+		findProjects( entryName );
+	    else {
+		if( fi->fileName().right( 4 ) == ".pro" ) {
+		    makeList += dirName;
+		    makeList += fi->fileName();
+		    if( fi->fileName() == "qtmain.pro" )
+			makeList += "Makefile.main";
+		    else
+			makeList += "Makefile";
+
+		    makeList += dirName;
+		    makeList += fi->fileName();
+		    makeList += fi->fileName().left( fi->fileName().length() - 4 ) + ".dsp";
+		}
+	    }
+	}
+	++it;
+    }
+}
 void ConfigureApp::generateMakefiles()
 {
     cout << "Creating makefiles in src..." << endl;
 
-    makeList += qtDir + "/src/moc";
-    makeList += "moc.pro";
-    makeList += "Makefile";
-    makeList += qtDir + "/src";
-    makeList += "qt.pro";
-    makeList += "Makefile";
-    makeList += qtDir + "/src";
-    makeList += "qtmain.pro";
-    makeList += "Makefile.main";
-    makeList += qtDir + "/src/codecs/src";
-    makeList += "qcodecslib.pro";
-    makeList += "Makefile";
-    makeList += qtDir + "/tools";
-    makeList += "tools.pro";
-    makeList += "Makefile";
-    makeList += qtDir + "/tutorial";
-    makeList += "tutorial.pro";
-    makeList += "Makefile";
-    makeList += qtDir + "/examples";
-    makeList += "examples.pro";
-    makeList += "Makefile";
-
+    findProjects( qtDir );
 
     // Start the qmakes for the makelist.
     makeListIterator = makeList.begin();
@@ -411,7 +421,7 @@ void ConfigureApp::generateMakefiles()
 void ConfigureApp::readQmakeError()
 {
     QString tmp = qmake.readStderr();
-    for( int i = 0; i < tmp.length(); i++ ) {
+    for( int i = 0; i < ( int )tmp.length(); i++ ) {
 	QChar c = tmp[ i ];
 	switch( char( c ) ) {
 	case 0x00:
@@ -437,7 +447,7 @@ void ConfigureApp::readQmakeError()
 void ConfigureApp::readQmakeOutput()
 {
     QString tmp = qmake.readStdout();
-    for( int i = 0; i < tmp.length(); i++ ) {
+    for( int i = 0; i < ( int )tmp.length(); i++ ) {
 	QChar c = tmp[ i ];
 	switch( char( c ) ) {
 	case '\r':
@@ -472,8 +482,6 @@ void ConfigureApp::qmakeDone()
 	++makeListIterator;
 	QString makefileName = (*makeListIterator);
 	++makeListIterator;
-
-	cout << "For " << dirPath.latin1() << projectName.latin1() << endl;
 	QStringList args;
 	args << QDir::convertSeparators( qtDir + "/bin/qmake" );
 	args << ( dirPath + projectName );
@@ -482,6 +490,12 @@ void ConfigureApp::qmakeDone()
         args << ( dirPath + makefileName );
 	args << "-mkspec";
 	args << dictionary[ "TRG_MKSPEC" ];
+	if( makefileName.right( 4 ) == ".dsp" ) {
+	    args << "-t";
+	    args << "vcapp";
+	}
+	else
+	    cout << "For " << dirPath.latin1() << projectName.latin1() << endl;
 
 	qmake.setWorkingDirectory( QDir::convertSeparators( dirPath ) );
 	qmake.setArguments( args );
