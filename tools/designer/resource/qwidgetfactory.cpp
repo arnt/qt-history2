@@ -442,6 +442,7 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 	QMainWindow *mw = new QMainWindow( parent, name );
 	mw->setCentralWidget( new QWidget( mw, "qt_central_widget" ) );
 	mw->centralWidget()->show();
+	(void)mw->statusBar();
 	return mw;
 
     }

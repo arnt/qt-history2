@@ -823,6 +823,8 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     out << "{" << endl;
+    if ( isMainWindow )
+	out << indent << "(void)statusBar();" << endl;
 
     if ( objClass == "QMainWindow" )
 	out << indent << "setCentralWidget( new QWidget( this, \"qt_central_widget\" ) );" << endl;

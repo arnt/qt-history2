@@ -689,6 +689,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	QDesignerWidget *dw = new QDesignerWidget( (FormWindow*)parent, mw, "central widget" );
 	MetaDataBase::addEntry( dw );
 	mw->setCentralWidget( dw );
+	(void)mw->statusBar();
 	dw->show();
 	return mw;
     }
