@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#323 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#324 $
 **
 ** Implementation of QFileDialog class
 **
@@ -680,6 +680,7 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
 	dest = filedialog->d->url;
     filedialog->d->url.copy( l, dest, move );
 
+    // ##### what is supportAction for?
     e->acceptAction();
     currDropItem = 0;
 }
@@ -1097,6 +1098,7 @@ void QFileListView::viewportDropEvent( QDropEvent *e )
 	dest = filedialog->d->url;
     filedialog->d->url.copy( l, dest, move );
 
+    // ##### what is supportAction for?
     e->acceptAction();
 
     currDropItem = 0;
