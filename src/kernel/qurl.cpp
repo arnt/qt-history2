@@ -1027,18 +1027,22 @@ void QUrl::encode( QString& url )
     int newlen = 0;
 
     for ( int i = 0; i < oldlen ;++i ) {
-	if ( QString( "<>#@\"&%$:,;?={}|^~[]\'`\\ \n\t\r" ).contains( url[ i ].unicode() ) ) {
+	ushort inCh = url[ i ].unicode();
+
+	if ( inCh >= 128 ||
+	     QString( "<>#@\"&%$:,;?={}|^~[]\'`\\ \n\t\r" ).contains(inCh) ) {
 	    newUrl[ newlen++ ] = QChar( '%' );
 
-	    ushort c = url[ i ].unicode() / 16;
+	    ushort c = inCh / 16;
 	    c += c > 9 ? 'A' - 10 : '0';
 	    newUrl[ newlen++ ] = c;
 
-	    c = url[ i ].unicode() % 16;
+	    c = inCh % 16;
 	    c += c > 9 ? 'A' - 10 : '0';
 	    newUrl[ newlen++ ] = c;
-	} else
+	} else {
 	    newUrl[ newlen++ ] = url[ i ];
+	}
     }
 
     url = newUrl;
@@ -1046,7 +1050,7 @@ void QUrl::encode( QString& url )
 
 static ushort hex_to_int( ushort c )
 {
-    if ( c >= 'A' && c <= 'F')
+    if ( c >= 'A' && c <= 'F' )
 	return c - 'A' + 10;
     if ( c >= 'a' && c <= 'f')
 	return c - 'a' + 10;
