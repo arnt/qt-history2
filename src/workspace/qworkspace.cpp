@@ -86,7 +86,7 @@
   just as you'd expect. You can provide widget flags which will be
   used for the layout of the decoration or the behaviour of the widget
   itself.
-  To change the geometry of the MDI windows it is necessary to make 
+  To change the geometry of the MDI windows it is necessary to make
   the necessary function calls to the parentWidget() of the widget, as
   this will move or resize the decorated window.
 
@@ -472,7 +472,7 @@ protected:
     void mouseMoveEvent( QMouseEvent * );
     bool eventFilter( QObject *, QEvent * );
     void enterEvent( QEvent *e );
-    
+
 private:
     QToolButton* closeB;
     QToolButton* maxB;
@@ -497,7 +497,7 @@ class QWorkspaceChild : public QFrame
 
     friend class QWorkspace;
     friend class QWorkspaceChildTitleBar;
-    
+
 public:
     QWorkspaceChild( QWidget* window,
 		     QWorkspace *parent=0, const char *name=0 );
@@ -539,7 +539,7 @@ protected:
     void childEvent( QChildEvent* );
     void resizeEvent( QResizeEvent * );
     bool eventFilter( QObject *, QEvent * );
-    
+
     bool focusNextPrevChild( bool );
 
 private:
@@ -1178,8 +1178,11 @@ void QWorkspace::showMaximizeControls()
     // Do a breadth-first search first, and query recoursively is nothing is found.
     QObjectList * l = topLevelWidget()->queryList( "QMenuBar", 0,
 						   FALSE, FALSE );
-    if ( !l || !l->count() )
+    if ( !l || !l->count() ) {
+	if ( l )
+	    delete l;
 	l = topLevelWidget()->queryList( "QMenuBar", 0, 0, TRUE );
+    }
     if ( l && l->count() )
 	b = (QMenuBar *)l->first();
     delete l;
@@ -1989,7 +1992,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     resize( s );
 
     childWidget->installEventFilter( this );
-    
+
     widgetResizeHandler->setExtraHeight( ( titlebar ? titlebar->sizeHint().height() : 0 ) + TITLEBAR_SEPARATION + 1 );
 }
 
@@ -2172,7 +2175,7 @@ bool QWorkspaceChild::focusNextPrevChild( bool next )
 	    QWidget *lastValid = 0;
 	    candidate = startingPoint;
 	    while ( nw != startingPoint ) {
-		if ( ( candidate->focusPolicy() & TabFocus ) == TabFocus 
+		if ( ( candidate->focusPolicy() & TabFocus ) == TabFocus
 		    && candidate->isEnabled() &&!candidate->focusProxy() && candidate->isVisible() )
 		    lastValid = candidate;
 		if ( ol2->findRef( nw ) == -1 ) {
