@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledef.h#2 $
+** $Id: //depot/qt/main/src/tools/qfiledef.h#3 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -93,4 +93,10 @@
 #if defined(O_TEXT)
 #define OPEN_TEXT	O_TEXT
 #endif
+#endif
+
+#if defined(F_OK)
+#define Q_FILE_OK	F_OK
+#else
+#define Q_FILE_OK	0
 #endif
