@@ -1302,7 +1302,22 @@ void QTextEdit::setHtml(const QString &text)
 void QTextEdit::keyPressEvent(QKeyEvent *e)
 {
     if (d->readOnly) {
-        QViewport::keyPressEvent(e);
+        switch (e->key()) {
+            case Qt::Key_Home:
+                d->vbar->triggerAction(QAbstractSlider::SliderToMinimum);
+                break;
+            case Qt::Key_End:
+                d->vbar->triggerAction(QAbstractSlider::SliderToMaximum);
+                break;
+            case Qt::Key_Space:
+                if (e->modifiers() & Qt::ShiftModifier)
+                    d->vbar->triggerAction(QAbstractSlider::SliderPageStepSub);
+                else
+                    d->vbar->triggerAction(QAbstractSlider::SliderPageStepAdd);
+            default:
+                QViewport::keyPressEvent(e);
+                break;
+        }
         return;
     }
 
