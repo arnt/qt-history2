@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#135 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#136 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -3771,4 +3771,49 @@ QDataStream &operator>>( QDataStream &s, Q1String &str )
   \fn Q1String operator+( char c, const Q1String &s )
   \relates Q1String
   Returns the concatenated string of c and s.
+*/
+
+/*!
+  \class QConstString
+  \brief A QString which uses constant Unicode data.
+
+  In order to minimize copying, highly optimized applications
+  can use QConstString to provide a QString-compatible object
+  from existing Unicode data.  The Unicode data must exist
+  for the entire lifetime of the QConstString object.
+*/
+
+/*!
+  Creates a QConstString that uses the first \a length Unicode
+  characters in the array \a unicode.  Any attempt to modify
+  copies of the string will cause it to create a copy of the
+  data, thus it remains forever unmodified.
+*/
+QConstString::QConstString( QChar* unicode, uint length ) :
+    QString(new Data(unicode, length, length))
+{
+}
+
+/*!
+  Destroys the QConstString, creating a copy of the data if
+  other strings are still using it.
+*/
+QConstString::~QConstString()
+{
+    if ( d->count > 1 ) {
+	QChar* cp = new QChar[d->len];
+	memcpy( cp, d->unicode, d->len*sizeof(QChar) );
+	d->unicode = cp;
+    } else {
+	d->unicode = 0;
+    }
+
+    // The original d->unicode is now unlinked.
+}
+
+/*!
+  \fn const QString& QConstString::string() const
+
+  Returns a constant string referencing the data passed during
+  construction.
 */

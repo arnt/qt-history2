@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#78 $
+** $Id: //depot/qt/main/src/tools/qstring.h#79 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -392,6 +392,16 @@ private:
     Data *d;
     static Data* shared_null;
     friend int ucstrcmp( const QString &a, const QString &b );
+
+    friend class QConstString;
+    QString(Data* dd) : d(dd) { }
+};
+
+class QConstString : private QString {
+public:
+    QConstString( QChar* unicode, uint length );
+    ~QConstString();
+    const QString& string() const { return *this; }
 };
 
 
