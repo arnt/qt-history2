@@ -645,6 +645,19 @@ void FormFile::checkTimeStamp()
     }
 }
 
+bool FormFile::isUihFileUpToDate()
+{
+    if ( timeStamp.isUpToDate() )
+	return TRUE;
+    if ( !editor() ) {
+	MainWindow::self->editSource();
+	qDebug( "parse Code" );
+	parseCode( editor()->editorInterface()->text(), TRUE );
+    }
+    checkTimeStamp();
+    return FALSE;
+}
+
 void FormFile::addFunctionCode( MetaDataBase::Function function )
 {
     if ( pro->isCpp() && !hasFormCode() && !codeEdited )

@@ -889,7 +889,7 @@ static HierarchyItem::Type getChildType( int type )
 {
     switch ( (HierarchyItem::Type)type ) {
     case HierarchyItem::Widget:
-	qWarning( "getChildType: Inserting childs dynamically to Widget or SlotParent is not allwowed!" );
+	qWarning( "getChildType: Inserting childs dynamically to Widget or SlotParent is not allowed!" );
 	break;
     case HierarchyItem::SlotParent:
     case HierarchyItem::SlotPublic:
@@ -988,6 +988,8 @@ void FormDefinitionView::contentsMouseDoubleClickEvent( QMouseEvent *e )
 
 void FormDefinitionView::execFunctionDialog( const QString &access, const QString &type, bool addFunc )
 {
+    if ( formWindow->formFile() && !formWindow->formFile()->isUihFileUpToDate() )
+	return;
     EditFunctions dlg( this, formWindow );
     if ( addFunc )
 	dlg.functionAdd( access, type );

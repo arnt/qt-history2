@@ -75,6 +75,7 @@ public:
     void createFormCode();
     void syncCode();
     void checkTimeStamp();
+    bool isUihFileUpToDate();
     void addFunctionCode( MetaDataBase::Function function );
     void removeFunctionCode( MetaDataBase::Function function );
     void functionNameChanged( const QString &oldName, const QString &newName );
