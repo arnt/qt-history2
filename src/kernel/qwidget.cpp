@@ -1169,7 +1169,7 @@ void QWidget::styleChange( QStyle& )
   caption (title). \link isPopup() Popup\endlink and \link
   isDesktop() desktop\endlink widgets are also top-level widgets.
 
-  A top-level widgets can have a \link parentWidget() parent
+  A top-level widget can have a \link parentWidget() parent
   widget\endlink. It will then be grouped with its parent: deleted
   when the parent is deleted, minimized when the parent is minimized
   etc. If supported by the window manager, it will also have a common
@@ -1276,7 +1276,8 @@ void QWidget::setEnabled( bool enable )
     else
 	setWState( WState_ForceDisabled );
 
-    if ( !isTopLevel() && !parentWidget()->isEnabled() && enable )
+    if ( !isTopLevel() && parentWidget() &&
+	 !parentWidget()->isEnabled() && enable )
 	return; // nothing we can do
 
     if ( enable ) {
@@ -1872,9 +1873,9 @@ void QWidget::setBackgroundColorForMode( BackgroundMode mode, const QColor &colo
 	setPalette( pal );
 	break;
     }
-#else    
+#else
     setEraseColor( color );
-#endif    
+#endif
 }
 
 /*! \property QWidget::foregroundColor
@@ -1981,9 +1982,9 @@ void QWidget::setBackgroundPixmapForMode( BackgroundMode mode, const QPixmap &pi
 	setPalette( pal );
 	break;
     }
-#else    
+#else
     setErasePixmap( pixmap );
-#endif    
+#endif
 }
 
 /*!
@@ -2203,7 +2204,7 @@ void QWidget::setBackgroundColor( const QColor &color )
 
 const QColor & QWidget::backgroundColorForMode( BackgroundMode mode ) const
 {
-#ifndef QT_NO_PALETTE    
+#ifndef QT_NO_PALETTE
     switch( mode ) {
     case FixedColor:
     case FixedPixmap :
@@ -2221,12 +2222,12 @@ const QColor & QWidget::backgroundColorForMode( BackgroundMode mode ) const
 
 const QColor &QWidget::foregroundColorForMode( BackgroundMode mode ) const
 {
-#ifndef QT_NO_PALETTE    
+#ifndef QT_NO_PALETTE
     QPalette pal = palette();
     return pal.foregroundColorForMode( QPalette::Normal, mode );
 #else
     return Qt::black; //###
-#endif    
+#endif
 }
 
 
@@ -2252,7 +2253,7 @@ void QWidget::backgroundColorChange( const QColor & )
 
 const QPixmap *QWidget::backgroundPixmapForMode( BackgroundMode mode ) const
 {
-#ifndef QT_NO_PALETTE    
+#ifndef QT_NO_PALETTE
     switch( mode ) {
     case FixedColor:
     case FixedPixmap :
@@ -2263,9 +2264,9 @@ const QPixmap *QWidget::backgroundPixmapForMode( BackgroundMode mode ) const
 	QPalette pal = palette();
 	return pal.backgroundPixmapForMode( QPalette::Normal, mode );
     }
-#else    
+#else
     return erasePixmap();
-#endif    
+#endif
 }
 
 /*!
