@@ -374,9 +374,8 @@ inline int qRound( double d )
 // Size-dependent types (architechture-dependent byte order)
 //
 
-// QT_CLEAN_NAMESPACE is not defined by default; it would break too
-// much code.
 #if !defined(QT_CLEAN_NAMESPACE)
+// source compatibility with Qt 1.x
 typedef signed char	INT8;			// 8 bit signed
 typedef unsigned char	UINT8;			// 8 bit unsigned
 typedef short		INT16;			// 16 bit signed
@@ -507,6 +506,7 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 #if !defined(QT_NO_DEBUG) && !defined(QT_DEBUG)
 #  define QT_DEBUG				// display debug messages
 #  if !defined(QT_CLEAN_NAMESPACE)
+// source compatibility with Qt 2.x
 #    if !defined(NO_DEBUG) && !defined(DEBUG)
 #      if !defined(Q_OS_MACX)			// clash with MacOS X headers
 #        define DEBUG
@@ -573,13 +573,41 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 #endif
 #endif
 
+#if !defined(QT_CLEAN_NAMESPACE)
+// source compatibility with Qt 2.x
+#if !defined(ASSERT)
+#if defined(QT_CHECK_STATE)
+#if defined(QT_FATAL_ASSERT)
+#define ASSERT(x)  if ( !(x) )\
+	qFatal("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
+#else
+#define ASSERT(x)  if ( !(x) )\
+	qWarning("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
+#endif
+#else
+#define ASSERT(x)
+#endif
+#endif
+#endif // QT_CLEAN_NAMESPACE
+
+
 Q_EXPORT bool qt_check_pointer( bool c, const char *, int );
 
 #if defined(QT_CHECK_NULL)
-#  define Q_CHECK_PTR(p) (qt_check_pointer((p)==0,__FILE__,__LINE__))
+#define Q_CHECK_PTR(p) (qt_check_pointer((p)==0,__FILE__,__LINE__))
 #else
-#  define Q_CHECK_PTR(p)
+#define Q_CHECK_PTR(p)
 #endif
+
+#if !defined(QT_CLEAN_NAMESPACE)
+// source compatibility with Qt 2.x
+#if defined(QT_CHECK_NULL)
+#define CHECK_PTR(p) (qt_check_pointer((p)==0,__FILE__,__LINE__))
+#else
+#define CHECK_PTR(p)
+#endif
+#endif // QT_CLEAN_NAMESPACE
+
 
 enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };
 
