@@ -143,7 +143,6 @@ private:
     uint mac_dirty_popup : 1;
 #endif
 
-    QSize calcSize;
     int popupActive;
     int tab;
     uint accelDisabled : 1;

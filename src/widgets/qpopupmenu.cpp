@@ -230,6 +230,7 @@ public:
 	QTime lastScroll;
 	QTimer *scrolltimer;
     } scroll;
+    QSize calcSize;
     QRegion mouseMoveBuffer;
 };
 
@@ -1124,16 +1125,17 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 	int extra_width = (fw+style().pixelMetric(QStyle::PM_PopupMenuFrameHorizontalExtra, this)) * 2,
 	   extra_height = (fw+style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra,   this)) * 2;
 	if ( ncols == 1 )
-	    calcSize = QSize( qMax( minimumWidth(), max_width + tab + extra_width ),
+	    d->calcSize = QSize( qMax( minimumWidth(), max_width + tab + extra_width ),
 			      qMax( minimumHeight() , height + extra_height ) );
 	else
-	    calcSize = QSize( qMax( minimumWidth(), (ncols*(max_width + tab)) + extra_width ),
+	    d->calcSize = QSize( qMax( minimumWidth(), (ncols*(max_width + tab)) + extra_width ),
 			      qMax( minimumHeight(), qMin( max_height + extra_height + 1, dh ) ) );
 	badSize = FALSE;
     }
-    if(do_resize) {
-	setMaximumSize( calcSize );
-	resize( calcSize );
+    
+if(do_resize) {
+	setMaximumSize( d->calcSize );
+	resize( d->calcSize );
 
 	bool hasWidgetItems = FALSE;
 	for (int i = 0; i < mitems->size(); ++i) {
@@ -1173,7 +1175,7 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 	    }
 	}
     }
-    return calcSize;
+    return d->calcSize;
 }
 
 
