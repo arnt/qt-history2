@@ -1182,7 +1182,7 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
 	} );
     }
     LeaveCriticalSection( &createWindowSection );
-    if ( !atom )
+    if ( !atom  && GetLastError() != ERROR_CLASS_ALREADY_EXISTS )
 	return 0;
     
     Q_ASSERT( !m_hWnd );
@@ -1190,12 +1190,12 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
     HWND hWnd = 0;
 
     QT_WA( {
-	hWnd = ::CreateWindowW( (TCHAR*)MAKELONG(atom, 0), 0,
+	hWnd = ::CreateWindowW( L"QAxControl", 0,
 	    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	    rcPos.left, rcPos.top, rcPos.right - rcPos.left,
 	    rcPos.bottom - rcPos.top, hWndParent, 0, hInst, this );
     }, {
-	hWnd = ::CreateWindowA( (char*)MAKELONG(atom, 0), 0,
+	hWnd = ::CreateWindowA( "QAxControl", 0,
 	    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	    rcPos.left, rcPos.top, rcPos.right - rcPos.left,
 	    rcPos.bottom - rcPos.top, hWndParent, 0, hInst, this );
