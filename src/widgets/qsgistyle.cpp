@@ -251,14 +251,6 @@ QSGIStyle::unPolish( QWidget* w )
 	w->removeEventFilter( this );
 }
 
-/*! \reimp
-*/
-void
-QSGIStyle::polish( QPalette& pal )
-{
-    QCommonStyle::polish( pal );
-}
-
 /*!
   Draws a line to separate parts of the visual interface.
 */

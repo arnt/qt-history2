@@ -65,7 +65,6 @@ public:
     void unPolish( QWidget* );
     void polish( QApplication* );
     void unPolish( QApplication* );
-    void polish( QPalette& );
 
     int defaultFrameWidth() const;
 
