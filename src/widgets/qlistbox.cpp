@@ -4370,6 +4370,7 @@ void QListBox::sort( bool ascending )
 	    prev = item;
 	}
     }
+    d->last = item;
 
     delete [] items;
     setContentsPos( 0, contentsHeight() - visibleHeight() );
