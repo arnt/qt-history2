@@ -871,12 +871,10 @@ void QWidget::setFontSys( QFont * )
 void QWidget::setBackgroundColorDirect( const QColor &color )
 {
     bg_col = color;
-
     if ( extra && extra->bg_pix ) {		// kill the background pixmap
 	delete extra->bg_pix;
 	extra->bg_pix = 0;
     }
-
     if(isTopLevel()) {
 #ifdef QMAC_NO_QUARTZ
 	QMacSavedPortInfo savedInfo(this);
@@ -903,8 +901,9 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 	    extra->bg_pix = 0;
 	}
     } else {
+	QPixmap pm = pixmap;
+//	pm.setMask(QBitmap());
 	if (!pixmap.isNull()) {
-	    QPixmap pm = pixmap;
 	    if ( pm.depth() == 1 && QPixmap::defaultDepth() > 1 ) {
 		pm = QPixmap( pixmap.size() );
 		bitBlt( &pm, 0, 0, &pixmap, 0, 0, pm.width(), pm.height() );
@@ -914,7 +913,7 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 	    delete extra->bg_pix;
 	else
 	    createExtra();
-	extra->bg_pix = new QPixmap( pixmap );
+	extra->bg_pix = new QPixmap( pm );
     }
 }
 
@@ -1576,17 +1575,13 @@ void QWidget::erase( const QRegion& reg )
     QPainter p( this );
     if ( unclipped )
 	setWFlags( WPaintUnclipped );
-
     p.setClipRegion(reg);
-    if ( extra && extra->bg_pix ) {
-	if ( !extra->bg_pix->isNull() ) {
-
+    if(extra && extra->bg_pix) {
+	if(!extra->bg_pix->isNull()) {
 	    QPoint offset = backgroundOffset();
-	    int xoff = offset.x();
-	    int yoff = offset.y();
-
-	    QPoint point(rr.x()+(xoff%extra->bg_pix->width()), rr.y()+(yoff%extra->bg_pix->height()));
-	    p.drawTiledPixmap(rr,*extra->bg_pix, point);
+	    p.drawTiledPixmap(rr,*extra->bg_pix, 	
+			      QPoint(rr.x()+(offset.x()%extra->bg_pix->width()), 
+				     rr.y()+(offset.y()%extra->bg_pix->height())));
 	}
     } else {
 	p.fillRect(rr, bg_col);
