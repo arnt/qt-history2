@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#9 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -31,12 +31,26 @@ class QWidgetStackPrivate {
   The application programmer can move any widget to the top of the
   stack at any time using the slot raiseWidget(), and add or remove
   widgets using addWidget() and removeWidget().
+  
+  visibleWidget() is the \e get equivalent of raiseWidget(); it
+  returns a pointer ot the widget that is currently on the top of the
+  stack.
+  
+  QWidgetStack also provides the ability to manipulate widgets through
+  application-specfied integer IDs, and to translate from widget
+  pointers to IDs using id() and from IDs to widget pointers using
+  widget().  These numeric IDs have and unique (per QWidgetStack, not
+  globally) and cannot be -1, but apart from that QWidgetStack does
+  not attach any meaning to them.
 
   The default widget stack is frame-less and propagates its font and
   palette to all its children, but you can use the usual QFrame
   functions (like setFrameStyle()) to add a frame, and use
   setFontPropagation() and setPalettePropagation() to change the
   propagation style.
+
+  Finally, QWidgetStack provides a signal, aboutToShow(), which is
+  emitted just before a managed widget is shown.
 
   \sa QTabDialog QTabBar QFrame
 */
@@ -73,25 +87,37 @@ QWidgetStack::~QWidgetStack()
 
 void QWidgetStack::addWidget( QWidget * w, int id )
 {
-    dict->insert( id, w );
+    dict->insert( id+1, w );
     if ( w->parent() != this )
 	w->recreate( this, 0, QPoint(0,0), FALSE );
 }
 
 
-/*!  Removes \a w from this stack of widgets.  Does not delete \a w. */
+/*!  Removes \a w from this stack of widgets.  Does not delete \a
+  w. If \a w is the currently visible widget, no other widget is
+  substituted. \sa visibleWidget() raiseWidget() */
 
 void QWidgetStack::removeWidget( QWidget * w )
 {
-    dict->take( id( w ) );
+    if ( !w )
+	return;
+    int i = id( w );
+    if ( i != -1 )
+	dict->take( i+1 );
+    if ( w == topWidget )
+	topWidget = 0;
 }
 
 
-/*!  Raises \a id to the top of the widget stack. */
+/*!  Raises \a id to the top of the widget stack. \sa visibleWidget() */
 
 void QWidgetStack::raiseWidget( int id )
 {
-    raiseWidget( dict->find( id ) );
+    if ( id == -1 )
+	return;
+    QWidget * w = dict->find( id+1 );
+    if ( w )
+	raiseWidget( w );
 }
 
 
@@ -107,8 +133,12 @@ void QWidgetStack::raiseWidget( QWidget * w )
 	return;
 
     emit aboutToShow( w );
-    if ( receivers( SIGNAL(aboutToShow(int)) ) )
-	emit aboutToShow( id( w ) ); // ### O(n)
+    if ( receivers( SIGNAL(aboutToShow(int)) ) ) {
+	// ### O(n)
+	int i = id( w );
+	if ( i )
+	    emit aboutToShow( i );
+    }
     w->show();
 
     // try to move focus onto the incoming widget if focus
@@ -236,12 +266,12 @@ void QWidgetStack::show()
 
 QWidget * QWidgetStack::widget( int id ) const
 {
-    return dict->find( id );
+    return id != -1 ? dict->find( id+1 ) : 0;
 }
 
 
 /*!  Returns the ID of the \a widget.  If \a widget is 0 or is not
-  being managed by this widget stack, this function returns 0.
+  being managed by this widget stack, this function returns -1.
 
   \sa widget() addWidget()
 */
@@ -249,10 +279,37 @@ QWidget * QWidgetStack::widget( int id ) const
 int QWidgetStack::id( QWidget * widget ) const
 {
     if ( !widget || !dict )
-	return 0;
+	return -1;
 
     QIntDictIterator<QWidget> it( *dict );
     while ( it.current() && it.current() != widget )
 	++it;
-    return it.current() == widget ? it.currentKey() : 0;
+    return it.current() == widget ? it.currentKey()-1 : -1;
 }
+
+
+/*! Returns a pointer to the currently visible widget (the one on the
+  top of the stack), of 0 if nothing is currently being shown.
+
+  \sa aboutToShow() id() raiseWidget()
+*/
+
+QWidget * QWidgetStack::visibleWidget() const
+{
+    return topWidget;
+}
+
+
+/*! \fn void QWidgetStack::aboutToShow( int )
+  
+  This signal is emitted just before a managed widget is shown, if
+  that managed widget has a non-zero ID.  The argument is the numeric
+  ID of the widget.
+*/
+
+
+/*! \fn void QWidgetStack::aboutToShow( QWidget * )
+
+  This signal is emitted just before a managed widget is shown.  The
+  argument is a pointer to the widget.
+*/
