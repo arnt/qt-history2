@@ -126,8 +126,6 @@ void qBubbleSortHelper(BiIterator begin, BiIterator end, T)
 template <typename BiIterator>
 void qBubbleSort(BiIterator begin, BiIterator end)
 {
-    if (begin == end)
-        return;
     qBubbleSortHelper(begin, end, *begin);
 }
 
@@ -214,24 +212,18 @@ void qHeapSortHelper(BiIterator begin, BiIterator end, const T &dummy)
 template <typename BiIterator, typename LessThan>
 void qHeapSort(BiIterator begin, BiIterator end, LessThan lessThan)
 {
-    if (begin == end)
-        return;
     qHeapSortHelper(begin, end, *begin, lessThan);
 }
 
 template <typename BiIterator>
 void qHeapSort(BiIterator begin, BiIterator end)
 {
-    if (begin == end)
-        return;
     qHeapSortHelper(begin, end, *begin);
 }
 
 template <typename Container>
 void qHeapSort(Container &c)
 {
-    if (c.isEmpty())
-        return;
     qHeapSortHelper(c.begin(), c.end(), *c.begin());
 }
 
