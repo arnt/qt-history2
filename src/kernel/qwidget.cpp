@@ -3714,6 +3714,13 @@ void QWidget::show()
     if( isTopLevel() )
 	QApplication::sendPostedEvents(0, QEvent::LayoutHint);
 
+    // On Windows, show the popup now so that our own focus handling
+    // stores the correct old focus widget even if it's stolen in the showevent
+#if defined(Q_WS_WIN)
+    if ( testWFlags(WType_Popup) )
+	qApp->openPopup( this );
+#endif
+
     QShowEvent showEvent;
     QApplication::sendEvent( this, &showEvent );
 
@@ -3730,8 +3737,10 @@ void QWidget::show()
     else
 	showWindow();
 
+#if !defined(Q_WS_WIN)
     if ( testWFlags(WType_Popup) )
 	qApp->openPopup( this );
+#endif
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::ObjectShow );
