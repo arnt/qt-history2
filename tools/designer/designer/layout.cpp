@@ -895,6 +895,13 @@ void Spacer::paintEvent( QPaintEvent * )
     }
 }
 
+void Spacer::resizeEvent( QResizeEvent* e)
+{
+    QWidget::resizeEvent( e );
+    if ( !parentWidget() || WidgetFactory::layoutType( parentWidget() ) == WidgetFactory::NoLayout )
+	sh = size();
+}
+
 void Spacer::updateMask()
 {
     QRegion r( rect() );

@@ -146,6 +146,7 @@ public:
 
 protected:
     void paintEvent( QPaintEvent *e );
+    void resizeEvent( QResizeEvent* e );
     void updateMask();
     Qt::Orientation orient;
     bool interactive;

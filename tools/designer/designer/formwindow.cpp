@@ -399,12 +399,6 @@ void FormWindow::insertWidget()
     if ( useSizeHint ) {
 	r.setWidth( w->sizeHint().width() );
 	r.setHeight( w->sizeHint().height() );
-	if ( n == "Spacer" ) {
-	    if ( orient == Horizontal )
-		r.setWidth( 40 );
-	    else
-		r.setHeight( 40 );
-	}
     }
 
     if ( r.width() < 2 * grid().x() )
