@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#135 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#136 $
 **
 ** Definition of QObject class
 **
@@ -56,8 +56,6 @@ class QPostEventList;
 class QObjectPrivate;
 struct QUObject;
 struct QAccessibleInterface;
-
-#ifndef QT_MOC_CPP
 
 class Q_EXPORT QObject: public Qt
 {
@@ -201,8 +199,6 @@ private:	// Disabled copy constructor and operator=
     QObject &operator=( const QObject & );
 #endif
 };
-
-#endif
 
 
 inline bool QObject::connect( const QObject *sender, const char *signal,
