@@ -1,5 +1,6 @@
 DEFINES += QDOC2_COMPAT
 QT = core
+CONFIG += console
 CONFIG -= resource_fork
 HEADERS += archiveextractor.h \
 	   atom.h \
