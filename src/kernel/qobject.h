@@ -167,7 +167,7 @@ protected:
     virtual void customEvent( QCustomEvent * );
 
     virtual void accessibilityEvent( QEvent * );
-    virtual QAccessibleInterface* createAccessibilityInterface() const;
+    virtual QAccessibleInterface* createAccessibilityInterface();
 
     virtual void connectNotify( const char *signal );
     virtual void disconnectNotify( const char *signal );

@@ -1902,9 +1902,9 @@ QAccessibleInterface *QObject::accessibilityInterface() const
     if ( d->accessible ) 
 	return d->accessible;
 
-    d->accessible = createAccessibilityInterface();
-    if ( d->accessible ) {
-	QObject *that = (QObject*)this;
+    QObject *that = (QObject*)this;
+    d->accessible = that->createAccessibilityInterface();
+    if ( d->accessible ) {	
 	// initialize the new accessibility object
 	QEvent e( QEvent::Accessibility );
 	that->accessibilityEvent( &e );
@@ -1921,7 +1921,7 @@ QAccessibleInterface *QObject::accessibilityInterface() const
 
   The default implementation return always NULL.
 */
-QAccessibleInterface *QObject::createAccessibilityInterface() const
+QAccessibleInterface *QObject::createAccessibilityInterface()
 {
     return 0;
 }
@@ -1944,39 +1944,41 @@ void QObject::accessibilityEvent( QEvent * )
 
 #ifndef QT_NO_TRANSLATION // Otherwise we have a simple inline version
 
-/*!
-  Returns a translated version of \a sourceText, or \a sourceText
-  itself if there is no appropriate translated version.  The
-  translation context is QObject with \a comment (null by default).
-  All QObject subclasses using the Q_OBJECT macro automatically have
-  a reimplementation of this function with the subclass name as
-  context.
+/*! \overload
 
-  \sa trUtf8() QApplication::translate()
-      \link i18n.html Internationalization with Qt\endlink
+  Returns a translated version of \a text or \a text itself if there is
+  no appropriate translated version.  The translation context is
+  QObject. All QObject subclasses which use the Q_OBJECT macro have a
+  reimplementation of this function which uses the relevant class name
+  as context.
+
+  \sa QApplication::translate()
 */
 
-QString QObject::tr( const char *sourceText, const char *comment )
+QString QObject::tr( const char *text )
 {
     if ( qApp )
-	return qApp->translate( "QObject", sourceText, comment, FALSE );
+	return qApp->translate( "QObject", text, 0 );
     else
-	return QString::fromLatin1( sourceText );
+	return QString::fromLatin1(text);
 }
 
 /*!
-  Returns a translated version of \a sourceText, or
-  QString::fromUtf8(\a sourceText) if there is no apporpriate version.
-  It is otherwise identical to \l tr().
+  Returns a translated version of \a text or \a text itself if there is
+  no appropriate translated version.  The translation context is
+  QObject with \a comment. All QObject subclasses which use the Q_OBJECT
+  macro have a reimplementation of this function which uses the relevant
+  class name as context.
 
-  \sa tr() QApplication::translate()
+  \sa QApplication::translate()
 */
-QString QObject::trUtf8( const char *sourceText, const char *comment )
+
+QString QObject::tr( const char *text, const char * comment )
 {
     if ( qApp )
-	return qApp->translate( "QObject", sourceText, comment, TRUE );
+	return qApp->translate( "QObject", text, comment );
     else
-	return QString::fromUtf8( sourceText );
+	return QString::fromLatin1(text);
 }
 
 #endif
