@@ -166,7 +166,7 @@
 #  define _CC_SYM_
 #elif defined( __KCC )
 #  define _CC_KAI_
-// defines __EDG__?
+// does not define __EDG__
 #  define Q_HAS_BOOL_TYPE
 #elif defined(applec)
 #  define _CC_MPW_
