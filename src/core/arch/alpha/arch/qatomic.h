@@ -60,7 +60,12 @@ inline void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval)
 }
 
 #else
-#  error "Unsupported compiler"
+
+extern "C" {
+    int q_cas_32(volatile int *ptr, int expected, int newval);
+    void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval);
+}
+
 #endif
 
 #endif // QATOMIC_P_H
