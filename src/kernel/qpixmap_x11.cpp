@@ -623,16 +623,25 @@ QImage QPixmap::convertToImage() const
     QImage::Endian bitOrder = QImage::IgnoreEndian;
     if ( mono ) {
 	bitOrder = xi->bitmap_bit_order == LSBFirst ?
-	    QImage::LittleEndian : QImage::BigEndian;
+		   QImage::LittleEndian : QImage::BigEndian;
     }
     image.create( w, h, d, 0, bitOrder );
     if ( image.isNull() )			// could not create image
 	return image;
 
     const QPixmap* msk = mask();
+    const QPixmap *alf = data->alphapm;
 
     QImage alpha;
-    if (msk) {
+    if (alf) {
+	XImage *axi = XGetImage(x11Display(), alf->hd, 0, 0, w, h, AllPlanes, ZPixmap);
+
+	if (axi) {
+	    image.setAlphaBuffer( TRUE );
+	    alpha.create(w, h, 8);
+	    memcpy(alpha.bits(), axi->data, w * h);
+	}
+    } else if (msk) {
 	image.setAlphaBuffer( TRUE );
 	alpha = msk->convertToImage();
     }
@@ -678,49 +687,49 @@ QImage QPixmap::convertToImage() const
 	    bppc++;
 
 	for ( int y=0; y<h; y++ ) {
-	    uchar* asrc = msk ? alpha.scanLine( y ) : 0;
+	    uchar* asrc = alf || msk ? alpha.scanLine( y ) : 0;
 	    dst = (QRgb *)image.scanLine( y );
 	    src = (uchar *)xi->data + xi->bytes_per_line*y;
 	    for ( int x=0; x<w; x++ ) {
 		switch ( bppc ) {
-		    case 8:
-			pixel = *src++;
-			break;
-		    case 16:			// 16 bit MSB
-			pixel = src[1] | (ushort)src[0] << 8;
-			src += 2;
-			break;
-		    case 17:			// 16 bit LSB
-			pixel = src[0] | (ushort)src[1] << 8;
-			src += 2;
-			break;
-		    case 24:			// 24 bit MSB
-			pixel = src[2] | (ushort)src[1] << 8 |
-				(uint)src[0] << 16;
-			src += 3;
-			break;
-		    case 25:			// 24 bit LSB
-			pixel = src[0] | (ushort)src[1] << 8 |
-				(uint)src[2] << 16;
-			src += 3;
-			break;
-		    case 32:			// 32 bit MSB
-			pixel = src[3] | (ushort)src[2] << 8 |
-				(uint)src[1] << 16 | (uint)src[0] << 24;
-			src += 4;
-			break;
-		    case 33:			// 32 bit LSB
-			pixel = src[0] | (ushort)src[1] << 8 |
-				(uint)src[2] << 16 | (uint)src[3] << 24;
-			src += 4;
-			break;
-		    default:			// should not really happen
-			x = w;			// leave loop
-			y = h;
-			pixel = 0;		// eliminate compiler warning
+		case 8:
+		    pixel = *src++;
+		    break;
+		case 16:			// 16 bit MSB
+		    pixel = src[1] | (ushort)src[0] << 8;
+		    src += 2;
+		    break;
+		case 17:			// 16 bit LSB
+		    pixel = src[0] | (ushort)src[1] << 8;
+		    src += 2;
+		    break;
+		case 24:			// 24 bit MSB
+		    pixel = src[2] | (ushort)src[1] << 8 |
+			    (uint)src[0] << 16;
+		    src += 3;
+		    break;
+		case 25:			// 24 bit LSB
+		    pixel = src[0] | (ushort)src[1] << 8 |
+			    (uint)src[2] << 16;
+		    src += 3;
+		    break;
+		case 32:			// 32 bit MSB
+		    pixel = src[3] | (ushort)src[2] << 8 |
+			    (uint)src[1] << 16 | (uint)src[0] << 24;
+		    src += 4;
+		    break;
+		case 33:			// 32 bit LSB
+		    pixel = src[0] | (ushort)src[1] << 8 |
+			    (uint)src[2] << 16 | (uint)src[3] << 24;
+		    src += 4;
+		    break;
+		default:			// should not really happen
+		    x = w;			// leave loop
+		    y = h;
+		    pixel = 0;		// eliminate compiler warning
 #if defined(QT_CHECK_RANGE)
-			qWarning( "QPixmap::convertToImage: Invalid depth %d",
-				 bppc );
+		    qWarning( "QPixmap::convertToImage: Invalid depth %d",
+			      bppc );
 #endif
 		}
 		if ( red_shift > 0 )
@@ -743,13 +752,15 @@ QImage QPixmap::convertToImage() const
 		if ( blue_bits < 8 )
 		    b = blue_scale_table[b];
 
-		if (msk) {
+		if (alf) {
+		    *dst++ = qRgba(r, g, b, asrc[x]);
+		} else if (msk) {
 		    if ( ale ) {
 			*dst++ = (asrc[x >> 3] & (1 << (x & 7)))
-			    ? qRgba(r, g, b, 0xff) : qRgba(r, g, b, 0x00);
+				 ? qRgba(r, g, b, 0xff) : qRgba(r, g, b, 0x00);
 		    } else {
 			*dst++ = (asrc[x >> 3] & (1 << (7 -(x & 7))))
-			    ? qRgba(r, g, b, 0xff) : qRgba(r, g, b, 0x00);
+				 ? qRgba(r, g, b, 0xff) : qRgba(r, g, b, 0x00);
 		    }
 		} else {
 		    *dst++ = qRgb(r, g, b);
@@ -767,7 +778,7 @@ QImage QPixmap::convertToImage() const
 	/* Typically 2 or 4 bits display depth */
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QPixmap::convertToImage: Display not supported (bpp=%d)",
-		 xi->bits_per_pixel );
+		  xi->bits_per_pixel );
 #endif
 	image.reset();
 	return image;
@@ -865,10 +876,10 @@ QImage QPixmap::convertToImage() const
 	for ( i=0; i<256; i++ ) {		// translate pixels
 	    if ( use[i] ) {
 		image.setColor( j++,
-				 ( msk ? 0xff000000 : 0 )
-				 | qRgb( (carr[i].red   >> 8) & 255,
-					 (carr[i].green >> 8) & 255,
-					 (carr[i].blue  >> 8) & 255 ) );
+				( msk ? 0xff000000 : 0 )
+				| qRgb( (carr[i].red   >> 8) & 255,
+					(carr[i].green >> 8) & 255,
+					(carr[i].blue  >> 8) & 255 ) );
 	    }
 	}
 	delete [] carr;
