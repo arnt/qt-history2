@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#83 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -49,7 +49,23 @@
 
 class QUrlOperatorPrivate
 {
-public:
+    QUrlOperatorPrivate()
+    {
+	oldOps.setAutoDelete( FALSE );
+	networkProtocol = 0;
+	nameFilter = "*";
+	currPut = 0;
+    }
+
+    ~QUrlOperatorPrivate()
+    {
+	delete networkProtocol;
+	while ( oldOps.first() ) {
+	    oldOps.first()->free();
+	    oldOps.removeFirst();
+	}
+    }
+
     QMap<QString, QUrlInfo> entryMap;
     QNetworkProtocol *networkProtocol;
     QString nameFilter;
@@ -239,10 +255,6 @@ QUrlOperator::QUrlOperator()
     : QUrl()
 {
     d = new QUrlOperatorPrivate;
-    d->oldOps.setAutoDelete( FALSE );
-    d->networkProtocol = 0;
-    d->nameFilter = "*";
-    d->currPut = 0;
 }
 
 /*!
@@ -253,11 +265,7 @@ QUrlOperator::QUrlOperator( const QString &url )
     : QUrl( url )
 {
     d = new QUrlOperatorPrivate;
-    d->oldOps.setAutoDelete( FALSE );
-    d->networkProtocol = 0;
     getNetworkProtocol();
-    d->nameFilter = "*";
-    d->currPut = 0;
 }
 
 /*!
@@ -269,7 +277,7 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url )
 {
     d = new QUrlOperatorPrivate;
     *d = *url.d;
-    d->oldOps.setAutoDelete( FALSE );
+
     d->networkProtocol = 0;
     getNetworkProtocol();
     d->nameFilter = "*";
@@ -286,7 +294,7 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl, bool
     d = new QUrlOperatorPrivate;
     if ( relUrl == "." )
 	*d = *url.d;
-    d->oldOps.setAutoDelete( FALSE );
+
     d->networkProtocol = 0;
     getNetworkProtocol();
     d->currPut = 0;
@@ -298,18 +306,7 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl, bool
 
 QUrlOperator::~QUrlOperator()
 {
-    if ( !d )
-	return;
-
-    if ( d->networkProtocol )
-	delete d->networkProtocol;
-    while ( d->oldOps.first() ) {
-	d->oldOps.first()->free();
-	d->oldOps.removeFirst();
-    }
-    d->currPut = 0;
     delete d;
-    d = 0;
 }
 
 /*!  Starts listing the children of this URL (e.g., of a
