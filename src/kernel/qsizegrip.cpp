@@ -233,8 +233,8 @@ bool QSizeGrip::eventFilter( QObject *o, QEvent *e )
 	    break;
 	}
     } else if(o == this) {
-#if defined(Q_WS_MAC)
 	switch(e->type()) {
+#if defined(Q_WS_MAC)
 	case QEvent::Hide:
 	case QEvent::Show:
 	    if(!QApplication::closingDown() && parentWidget() && !qt_sizegrip_workspace(this)) {
@@ -244,10 +244,25 @@ bool QSizeGrip::eventFilter( QObject *o, QEvent *e )
 		}
 	    }
 	    break;
+#endif
+	case QEvent::Resize: {
+	    QPointArray pa(3);
+	    if (!QApplication::reverseLayout()) {
+		pa.setPoint(0, width() + 1, 0);
+		pa.setPoint(1, width() + 1, height() + 1);
+		pa.setPoint(2, 0, height());
+	    } else {
+		pa.setPoint(0, 0, 0);
+		pa.setPoint(1, width() + 1, height() + 1);
+		pa.setPoint(2, 0, height() + 1);
+	    }
+	    clearMask();
+	    setMask(QRegion(pa));
+	    break;
+	}
 	default:
 	    break;
 	}
- #endif
     }
     return FALSE;
 }
