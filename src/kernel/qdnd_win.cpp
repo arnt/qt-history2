@@ -917,9 +917,11 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 
     if (!acceptfmt&&!acceptact)
 	*pdwEffect = DROPEFFECT_NONE;
+#ifdef QT_DND_RESPECT_ACCEPTACTION
     else if (!acceptact)
 	*pdwEffect = DROPEFFECT_COPY;
-    else if ( de.action() == QDropEvent::Move )
+#endif    
+	else if ( de.action() == QDropEvent::Move )
 	*pdwEffect = DROPEFFECT_MOVE;
     else if ( de.action() == QDropEvent::Copy )
 	*pdwEffect = DROPEFFECT_COPY;
@@ -964,8 +966,10 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 
 	if (!acceptact&&!acceptfmt)
 	*pdwEffect = DROPEFFECT_NONE;
+#ifdef QT_DND_RESPECT_ACCEPTACTION
     else if (!acceptact)
 	*pdwEffect = DROPEFFECT_COPY;
+#endif    
     else if ( de.action() == QDropEvent::Move )
 	*pdwEffect = DROPEFFECT_MOVE;
     else if ( de.action() == QDropEvent::Copy )
