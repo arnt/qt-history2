@@ -827,19 +827,19 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \table
     \header \i PrimitiveElement \i Option Cast \i Style Flags \i Notes
     \row \i \l PE_FocusRect \i (const \l QStyleOptionFocusRect *) \i \l Style_FocusAtBorder \i Whether the focus is is at the border or inside the widget.
-    \row \i \l PE_Indicator \i (const \l QStyleOptionButton *) \i \l Sytle_NoChange \i Indicates a "tri-state" checkbox.
-    \row \i \i \i \l Style_On \i Indicates the indicator is checked.
+    \row \i{1,2} \l PE_Indicator \i{1,2} (const \l QStyleOptionButton *) \i \l Sytle_NoChange \i Indicates a "tri-state" checkbox.
+    \row \i \l Style_On \i Indicates the indicator is checked.
 
     \row \i \l PE_ExclusiveIndicator \i (const \l QStyleOptionButton *) \i \l Style_On \i Indicates a the radiobutton is selected.
-    \row \i \l PE_CheckListExclusiveIndicator and \l PE_CheckListIndicator \i (const \l QStyleOptionListView *) \i \l Style_On \i Indicates whether or not the controller is selected.
-    \row \i \i \i \l Style_NoChange \i Indicates a "tri-state" controller.
-    \row \i \i \i \l Style_Enable \i Indicates the controller is enabled.
-    \row \i \l PE_TreeBranch \i (const \l QStyleOption *) \i \l Style_Down \i Indicates the Tree Branch is pressed
-    \row \i \i \i Style_Open \i Indicates the tree branch is not collapsed.
+    \row \i{1,3} \l PE_CheckListExclusiveIndicator and \l PE_CheckListIndicator \i{1,3} (const \l QStyleOptionListView *) \i \l Style_On \i Indicates whether or not the controller is selected.
+    \row \i \l Style_NoChange \i Indicates a "tri-state" controller.
+    \row \i \l Style_Enable \i Indicates the controller is enabled.
+    \row \i{1,2} \l PE_TreeBranch \i{1,2} (const \l QStyleOption *) \i \l Style_Down \i Indicates the Tree Branch is pressed
+    \row \i Style_Open \i Indicates the tree branch is not collapsed.
     \row \i \l PE_HeaderArrow \i (const \l QStyleOptionHeader *) \i \l Style_Up \i Indicates the arrow should be drawn up otherwise it should be down.
-    \row \i \l PE_HeaderSection \i (const \l QStyleOptionHeader *) \i \l Style_Sunken \i Indicates the section is pressed.
-    \row \i \i \i \l Style_Up \i Indicates the sort indicator should be pointing up.
-    \row \i \i \i \l Style_Off \i Indicates the the section is not selected.
+    \row \i{1,3} \l PE_HeaderSection \i{1,3} (const \l QStyleOptionHeader *) \i \l Style_Sunken \i Indicates the section is pressed.
+    \row \i \l Style_Up \i Indicates the sort indicator should be pointing up.
+    \row \i \l Style_Off \i Indicates the the section is not selected.
     \row \i \l PE_PanelGroupBox, \l PE_Panel, \l PE_PanelLineEdit, \l PE_PanelPopup, and \l PE_PanelDockWindow \i (const \l QStyleOptionFrame *) \i \l Style_Sunken \i Indicates the Franme should be sunken.
     \row \i \l PE_DockWindowHandle \i (const \l QStyleOptionDockWindow *) \i \l Style_Horizontal \i Indicates the window handle is horizontal instead of vertical.
     \row \i \l PE_DockWindowSeparator \i (const \l QStyleOption *) \i \l Style_Horizontal \i Indicates the separator is horizontal instead of vertical.
@@ -917,35 +917,35 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     QStyleOption.
     \table
     \header \i ControlElement \i Option Cast \i Style Flags \i Notes
-    \row \i \l CE_MenuItem and \l CE_MenuBarItem \i const \l QStyleOptionMenuItem \i \l Style_Active \i The menu item is the current item.
-    \row \i \i \i \l Style_Enabled \i The item is enabled
-    \row \i \i \i \l Style_Down \i Set if the menuitem is down (i.e., the mouse button or space bar is pressed).
-    \row \i \i \i \l Style_HasFocus \i Set if the menubar has input focus.
-    \row \i \l CE_PushButton and \l CE_PushButtonLabel \i const \l QStyleOptionButton \i \l Style_Enabled \i Set if the button is enabled.
-    \row \i \i \i \l Style_HasFocus \i Set if the button has input focus.
-    \row \i \i \i \l Style_Raised \i Set if the button is not down, not on and not flat.
-    \row \i \i \i \l Style_On \i Set if the button is a toggle button and toggled on.
-    \row \i \i \i \l Style_Down \i Set if the button is down (i.e., the mouse button or
-                            space bar is pressed on the button).
-    \row \i \i \i \l Style_ButtonDefault \i Set if the button is a default button.
+    \row \i{1,4} \l CE_MenuItem and \l CE_MenuBarItem \i{1,4} const \l QStyleOptionMenuItem \i \l Style_Active \i The menu item is the current item.
+    \row \i \l Style_Enabled \i The item is enabled
+    \row \i \l Style_Down \i Set if the menuitem is down (i.e., the mouse button or space bar is pressed).
+    \row \i \l Style_HasFocus \i Set if the menubar has input focus.
+    \row \i{1,6} \l CE_PushButton and \l CE_PushButtonLabel \i{1,6} const \l QStyleOptionButton \i \l Style_Enabled \i Set if the button is enabled.
+    \row \i \l Style_HasFocus \i Set if the button has input focus.
+    \row \i \l Style_Raised \i Set if the button is not down, not on and not flat.
+    \row \i \l Style_On \i Set if the button is a toggle button and toggled on.
+    \row \i \l Style_Down \i Set if the button is down (i.e., the mouse button or
+                      space bar is pressed on the button).
+    \row \i \l Style_ButtonDefault \i Set if the button is a default button.
 
-    \row \i \l CE_RadioButton, \l CE_RadioButtonLabel, \l CE_CheckBox, and \l CE_CheckBoxLabel \i const \l QStyleOptionButton \i \l Style_Enabled \i Set if the button is enabled.
-    \row \i \i \i \l Style_HasFocus \i Set if the button has input focus.
-    \row \i \i \i \l Style_On \i Set if the button is checked.
-    \row \i \i \i \l Style_Off \i Set if the button is not checked.
-    \row \i \i \i \l Style_NoChange \i Set if the button is in the NoChange state.
-    \row \i \i \i \l Style_Down \i Set if the button is down (i.e., the mouse button or
+    \row \i{1,6} \l CE_RadioButton, \l CE_RadioButtonLabel, \l CE_CheckBox, and \l CE_CheckBoxLabel \i{1,6} const \l QStyleOptionButton \i \l Style_Enabled \i Set if the button is enabled.
+    \row \i \l Style_HasFocus \i Set if the button has input focus.
+    \row \i \l Style_On \i Set if the button is checked.
+    \row \i \l Style_Off \i Set if the button is not checked.
+    \row \i \l Style_NoChange \i Set if the button is in the NoChange state.
+    \row \i \l Style_Down \i Set if the button is down (i.e., the mouse button or
                             space bar is pressed on the button).
-    \row \i \l CE_ProgressBarContents, \l CE_ProgressBarLabel, \l CE_ProgressBarGroove \i const \l QStyleOptionProgressBar \i \l Style_Enabled \i Set if the progressbar is enabled.
-    \row \i \i \i \l Style_HasFocus \i Set if the progressbar has input focus.
+    \row \i{1,2} \l CE_ProgressBarContents, \l CE_ProgressBarLabel, \l CE_ProgressBarGroove \i{1,2} const \l QStyleOptionProgressBar \i \l Style_Enabled \i Set if the progressbar is enabled.
+    \row \i \l Style_HasFocus \i Set if the progressbar has input focus.
     \row \i \l CE_HeaderLabel \i const \l QStyleOptionHeader \i \i
-    \row \i \l CE_ToolButtonLabel \i const \l QStyleOptionToolButton \i \l Style_Enabled \i Set if the toolbutton is enabled.
-    \row \i \i \i \l Style_HasFocus \i Set if the toolbutton has input focus.
-    \row \i \i \i \l Style_Down \i Set if the toolbutton is down (i.e., a mouse button or the space is pressed).
-    \row \i \i \i \l Style_On \i Set if the toolbutton is a toggle button and is toggled on.
-    \row \i \i \i \l Style_AutoRaise \i Set if the toolbutton has auto-raise enabled.
-    \row \i \i \i \l Style_MouseOver \i Set if the mouse pointer is over the toolbutton.
-    \row \i \i \i \l Style_Raised \i Set if the button is not down, not on and doesn't
+    \row \i{1,7} \l CE_ToolButtonLabel \i{1,7} const \l QStyleOptionToolButton \i \l Style_Enabled \i Set if the toolbutton is enabled.
+    \row \i \l Style_HasFocus \i Set if the toolbutton has input focus.
+    \row \i \l Style_Down \i Set if the toolbutton is down (i.e., a mouse button or the space is pressed).
+    \row \i \l Style_On \i Set if the toolbutton is a toggle button and is toggled on.
+    \row \i \l Style_AutoRaise \i Set if the toolbutton has auto-raise enabled.
+    \row \i \l Style_MouseOver \i Set if the mouse pointer is over the toolbutton.
+    \row \i \l Style_Raised \i Set if the button is not down, not on and doesn't
     \row \i \l CE_ToolBoxTab \i const \l QStyleOptionToolBox \i \l Style_Selected \i The tab is the currently selected tab.
     \endtable
 
@@ -1155,32 +1155,32 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     \table
     \header \i Complex Control \i Option Cast \i Style Flags \i Notes
-    \row \i \l{CC_SpinBox} \i (const \l QStyleOptionSpinBox *)
+    \row \i{1,2} \l{CC_SpinBox} \i{1,2} (const \l QStyleOptionSpinBox *)
          \i \l Style_Enabled \i Set if the spinwidget is enabled.
-    \row \i \i \i  \l Style_HasFocus \i Set if the spinwidget has input focus.
+    \row \i \l Style_HasFocus \i Set if the spinwidget has input focus.
 
-    \row \i \l {CC_ComboBox} \i (const \l QStyleOptionComboBox *)
+    \row \i{1,2} \l {CC_ComboBox} \i{1,2} (const \l QStyleOptionComboBox *)
          \i \l Style_Enabled \i Set if the combobox is enabled.
-    \row \i \i \i \l Style_HasFocus \i Set if the combobox has input focus.
+    \row \i \l Style_HasFocus \i Set if the combobox has input focus.
 
-    \row \i \l {CC_ScrollBar} \i (const \l QStyleOptionSlider *)
+    \row \i{1,2} \l {CC_ScrollBar} \i{1,2} (const \l QStyleOptionSlider *)
          \i \l Style_Enabled \i Set if the scrollbar is enabled.
-    \row \i \i \i \l Style_HasFocus \i Set if the scrollbar has input focus.
+    \row \i \l Style_HasFocus \i Set if the scrollbar has input focus.
 
     \row \i \l {CC_Slider} \i(const \l QStyleOptionSlider *)
          \i \l Style_Enabled \i Set if the slider is enabled.
 
     \row \i \i \i \l Style_HasFocus \i Set if the slider has input focus.
 
-    \row \i \l {CC_ToolButton} \i (const \l QStyleOptionToolButton *)
+    \row \i{1,6} \l {CC_ToolButton} \i{1,6} (const \l QStyleOptionToolButton *)
          \i \l Style_Enabled \i Set if the toolbutton is enabled.
-    \row \i \i \i \l Style_HasFocus \i Set if the toolbutton has input focus.
-    \row \i \i \i \l Style_Down \i Set if the toolbutton is down (ie. mouse
+    \row \i \l Style_HasFocus \i Set if the toolbutton has input focus.
+    \row \i \l Style_Down \i Set if the toolbutton is down (ie. mouse
         button or space pressed).
-    \row \i \i \i \l Style_On \i Set if the toolbutton is a toggle button
+    \row \i \l Style_On \i Set if the toolbutton is a toggle button
         and is toggled on.
-    \row \i \i \i \l Style_AutoRaise \i Set if the toolbutton has auto-raise enabled.
-    \row \i \i \i \l Style_Raised \i Set if the button is not down, not on and doesn't
+    \row \i \l Style_AutoRaise \i Set if the toolbutton has auto-raise enabled.
+    \row \i \l Style_Raised \i Set if the button is not down, not on and doesn't
         contain the mouse when auto-raise is enabled.
 
     \row \i \l{CC_TitleBar} \i (const \l QStyleOptionTitleBar *)
