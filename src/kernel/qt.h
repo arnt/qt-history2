@@ -260,14 +260,14 @@
 #include "qworkspace.h"
 #include "qxml.h"
 #include "qinterfacemanager.h"
+#include "../kernel/qfontdata_p.h"
 
 #ifdef Q_WS_QWS
-#include "qfontdata_p.h"
 #include "qfontmanager_qws.h"
 #include "qfontfactorybdf_qws.h"
+//#include "qfontfactoryttf_qws.h"
 #include "qgfxvoodoodefs_qws.h"
 #include "qgfxmatroxdefs_qws.h"
-#include "qfontfactoryttf_qws.h"
 #include "qlock_qws.h"
 #include "qmemorymanager_qws.h"
 #include "qsoundqss_qws.h"
