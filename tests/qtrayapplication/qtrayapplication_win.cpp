@@ -138,6 +138,7 @@ public:
 
 /*!
   \class QTrayApplication qtrayapplication.h
+  \brief The QTrayApplication class provides an API to add a Qt application to the system tray.
 */
 
 /*!
@@ -311,15 +312,17 @@ void QTrayApplication::setMainWidget( QWidget *w )
 }
 
 /*!
-  \fn void QTrayApplication::clicked( const QPoint& )
+  \fn void QTrayApplication::clicked( const QPoint &p )
 
   This signal is emitted when the user clicks the system tray icon
-  with the left mouse button.
+  with the left mouse button, with \a p being the global mouse position 
+  at that moment.
 */
 
 /*!
-  \fn void QTrayApplication::doubleClicked( const QPoint& )
+  \fn void QTrayApplication::doubleClicked( const QPoint &p )
   
   This signal is emitted when the user doubleclicks the system tray
-  icon with the left mouse button.
+  icon with the left mouse button, with \a p being the global mouse position 
+  at that moment.
 */
