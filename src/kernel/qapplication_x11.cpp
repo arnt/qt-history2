@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#350 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#351 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1554,7 +1554,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 bool qRemovePostedChildEvent( QObject *child )
 {
     if ( !postedEvents )
-	return;
+	return FALSE;
     register QPostEvent *pe = postedEvents->first();
     while ( pe ) {
 	if ( pe->event->type() == QEvent::ChildInserted
