@@ -393,7 +393,7 @@ public:
     int rtti() const;
 
 protected:
-    void draw(class QPainter &);
+    void draw(QPainter &);
     virtual void drawShape(QPainter &) = 0;
 
 private:

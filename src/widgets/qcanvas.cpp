@@ -2955,7 +2955,7 @@ QPointArray QCanvasRectangle::areaPoints() const
 /*!
   Draws the rectangle on \a p.
 */
-void QCanvasRectangle::drawShape(class QPainter & p)
+void QCanvasRectangle::drawShape(QPainter & p)
 {
     p.drawRect(x(), y(), w, h);
 }
@@ -3072,7 +3072,7 @@ QPointArray QCanvasEllipse::areaPoints() const
   Note that QCanvasPolygon does not support an outline (pen is
   always NoPen).
 */
-void QCanvasEllipse::drawShape(class QPainter & p)
+void QCanvasEllipse::drawShape(QPainter & p)
 {
     p.setPen(NoPen); // since QRegion(QPointArray) excludes outline :-(  )-:
     if ( !a1 && a2 == 360*16 ) {
