@@ -373,6 +373,9 @@ void QMacStyle::polish(QWidget* w)
 	label->setFrameStyle(QFrame::NoFrame);
 	label->setLineWidth(1);
     } else if(w->inherits("QPopupMenu")) {
+	QPopupMenu *popup = (QPopupMenu*)w;
+	popup->setMargin(0);
+	popup->setLineWidth(0);
 #ifdef Q_WS_MAC
 	QMacSavedPortInfo::setAlphaTransparancy(w, 0.9);
 #endif
@@ -1422,7 +1425,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	GetThemeMenuItemExtra(kThemeMenuItemScrollUpArrow, &ash, &asw);
 	ret = ash;
 #else
-	ret = 10; //I hate having magic numbers in here...
+	ret = 15; //I hate having magic numbers in here...
 #endif
 	break;
     case PM_DefaultFrameWidth:
@@ -1512,6 +1515,9 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	    tm = kThemeMetricSmallRadioButtonWidth;
 	GetThemeMetric(tm, &ret);
 	break; }
+    case PM_PopupMenuFrameVerticalExtra:
+	ret = 4;
+	break;
     default:
 	ret = QWindowsStyle::pixelMetric(metric, widget);
 	break;

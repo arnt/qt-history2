@@ -567,7 +567,7 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 		h = d->scroll.scrollableSize = h - off_top - off_bottom;
 	    } else {
 		d->scroll.scrollable = QPopupMenuPrivate::Scroll::ScrollDown;
-		h = d->scroll.scrollableSize = h - off_bottom;
+		h = d->scroll.scrollableSize = h - off_bottom - 2*style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this);
 	    }
 	    badSize = TRUE;
 	    updateSize();
@@ -892,8 +892,8 @@ int QPopupMenu::itemAtPos( const QPoint &pos, bool ignoreSeparator ) const
 		row = 0;
 		it.toFirst();
 	    }
+	    y += style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
 	}
-	y += style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
     }
     int itemw = contentsRect().width() / ncols;
     QSize sz;
@@ -1102,7 +1102,6 @@ void QPopupMenu::updateSize()
 			  name( "unnamed" ) );
 #endif
 	}
-
 	height += itemHeight;
 	if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this)) {
 	    if(d->scroll.scrollable && d->scroll.scrollableSize) {
@@ -1112,7 +1111,7 @@ void QPopupMenu::updateSize()
 		if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown)
 		    scrheight += style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
 		if(height >= d->scroll.scrollableSize - scrheight) {
-		    height = d->scroll.scrollableSize;
+		    height = d->scroll.scrollableSize - scrheight;
 		    break;
 	       }
 	    }

@@ -2310,6 +2310,11 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 12;
 	break;
 
+    case PM_PopupMenuFrameHorizontalExtra:
+    case PM_PopupMenuFrameVerticalExtra:
+	ret = 0;
+	break;
+
     default:
 	ret = 0;
 	break;

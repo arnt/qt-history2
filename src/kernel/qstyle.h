@@ -464,6 +464,8 @@ public:
 	PM_ExclusiveIndicatorHeight,
 	PM_PopupMenuScrollerHeight,
 	PM_CheckListButtonSize,
+	PM_PopupMenuFrameHorizontalExtra,
+	PM_PopupMenuFrameVerticalExtra,
 
 	PM_DialogButtonsSeparator,
 	PM_DialogButtonsButtonWidth,

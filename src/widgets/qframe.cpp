@@ -484,7 +484,9 @@ QRect QFrame::contentsRect() const
 {
     QRect r = frameRect();
     int   w = frameWidth();                     // total width
-    r.setRect( r.x()+w, r.y()+w, r.width()-w*2, r.height()-w*2 );
+    int vExtra = style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this);
+    int hExtra = style().pixelMetric(QStyle::PM_PopupMenuFrameHorizontalExtra, this);
+    r.setRect( r.x()+w+hExtra, r.y()+w+vExtra, r.width()-w*2-hExtra*2, r.height()-w*2-vExtra*2 );
     return r;
 }
 
