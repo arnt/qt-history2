@@ -247,7 +247,7 @@ public:
 /*!  Adds a database to the list of database connections.  The
   database is referred to by \name.  A pointer to the newly added
   database is returned.
-  
+
 */
 QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& name )
 {
@@ -288,7 +288,8 @@ void QSqlDatabase::removeDatabase( const QString& name )
      <ul>
      <li>QODBC - ODBC (Open Database Connectivity) Driver
      <li>QOCI - Oracle Call Interface Driver
-     <li>QPSQL - PostgreSQL Driver
+     <li>QPSQL6 - PostgreSQL v6.x Driver
+     <li>QPSQL7 - PostgreSQL v7.x Driver
      <li>QMYSQL - MySQL Driver
      </ul>
 */
@@ -305,16 +306,6 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 {
 
     d = new QSqlDatabasePrivate();
-#ifndef QT_NO_PLUGIN
-    d->plugIns = new QInterfaceManager<QSqlDriverInterface>( "QSqlDriverInterface", QString((char*)getenv( "QTDIR" )) + "/lib" ); // ###
-
-//     QStringList sl = d->plugIns->featureList();
-//     for( QStringList::Iterator it = sl.begin(); it != sl.end(); ++it ){
-//  	qDebug("QSqlDatabase::init() -> Feature: " + (*it) );
-//     }
-    QSqlDriverInterface *iface = d->plugIns->queryInterface( type );
-    d->driver = iface ? iface->create( type ) : 0;
-#endif
 
     if ( !d->driver ) {
 
@@ -341,6 +332,14 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 #endif
 
     }
+    
+#ifndef QT_NO_PLUGIN
+    if ( !d->driver ) {
+	d->plugIns = new QInterfaceManager<QSqlDriverInterface>( "QSqlDriverInterface", QString((char*)getenv( "QTDIR" )) + "/lib" ); // ###
+	QSqlDriverInterface *iface = d->plugIns->queryInterface( type );
+	d->driver = iface ? iface->create( type ) : 0;
+    }
+#endif
 
     if ( !d->driver ) {
 
