@@ -577,6 +577,9 @@ void QApplication::process_cmdline()
             if (!qt_style_override)
                 qt_style_override = new QString;
             *qt_style_override = s;
+            delete QApplicationPrivate::app_style;
+            QApplicationPrivate::app_style = 0;
+            qt_explicit_app_style = false;
         }
 #endif
     }
@@ -1158,11 +1161,9 @@ void QApplication::setStyle(QStyle *style)
     if (!style)
         return;
 
+    qt_explicit_app_style = true;
     QStyle* old = QApplicationPrivate::app_style;
     QApplicationPrivate::app_style = style;
-#ifdef Q_WS_X11
-    qt_explicit_app_style = true;
-#endif // Q_WS_X11
 
     if (startingUp()) {
         delete old;
@@ -1231,10 +1232,6 @@ void QApplication::setStyle(QStyle *style)
 */
 QStyle* QApplication::setStyle(const QString& style)
 {
-#ifdef Q_WS_X11
-    qt_explicit_app_style = true;
-#endif // Q_WS_X11
-
     QStyle *s = QStyleFactory::create(style);
     if (!s)
         return 0;
