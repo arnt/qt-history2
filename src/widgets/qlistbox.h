@@ -283,6 +283,7 @@ private slots:
     void adjustItems();
 
 private:
+    void mousePressEventEx( QMouseEvent * );
     void tryGeometry( int, int ) const;
     int currentRow() const;
     int currentColumn() const;

@@ -1902,6 +1902,11 @@ bool QListBox::itemVisible( const QListBoxItem * item )
 
 void QListBox::mousePressEvent( QMouseEvent *e )
 {
+    mousePressEventEx( e );
+}
+
+void QListBox::mousePressEventEx( QMouseEvent *e )
+{
     QListBoxItem * i = itemAt( e->pos() );
 
     if ( !i && !d->current && d->head ) {
@@ -2260,7 +2265,7 @@ void QListBox::contentsContextMenuEvent( QContextMenuEvent *e )
     } else {
 	QMouseEvent me( QEvent::MouseButtonPress, contentsToViewport(e->pos()), e->globalPos(), RightButton, e->state() );
 	d->context_menu = TRUE;
-	mousePressEvent( &me );
+	mousePressEventEx( &me );
 	d->context_menu = FALSE;
     }
 }

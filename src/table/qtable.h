@@ -429,6 +429,7 @@ private slots:
     void doValueChanged();
 
 private:
+    void contentsMousePressEventEx( QMouseEvent* );
     void drawContents( QPainter* );
     void updateGeometries();
     void repaintSelections( QTableSelection *oldSelection,

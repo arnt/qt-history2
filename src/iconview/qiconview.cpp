@@ -4112,8 +4112,12 @@ bool QIconView::showToolTips() const
 /*!
   \reimp
 */
-
 void QIconView::contentsMousePressEvent( QMouseEvent *e )
+{
+    contentsMousePressEventEx( e );
+}
+
+void QIconView::contentsMousePressEventEx( QMouseEvent *e )
 {
     if ( d->rubber ) {
 	QPainter p;
@@ -4282,7 +4286,7 @@ void QIconView::contentsContextMenuEvent( QContextMenuEvent *e )
     } else {
 	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
 	d->context_menu = TRUE;
-	contentsMousePressEvent( &me );
+	contentsMousePressEventEx( &me );
 	d->context_menu = FALSE;
     }
     e->accept();

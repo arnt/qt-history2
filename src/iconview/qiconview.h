@@ -463,6 +463,7 @@ protected:
     void windowActivationChange( bool );
 
 private:
+    void contentsMousePressEventEx( QMouseEvent *e );
     virtual void drawDragShapes( const QPoint &pnt );
 #ifndef QT_NO_DRAGANDDROP
     virtual void initDragEnter( QDropEvent *e );

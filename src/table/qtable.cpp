@@ -2910,8 +2910,12 @@ int QTable::currentSelection() const
 
 /*! \reimp
 */
-
 void QTable::contentsMousePressEvent( QMouseEvent* e )
+{
+    contentsMousePressEventEx( e );
+}
+
+void QTable::contentsMousePressEventEx( QMouseEvent* e )
 {
     shouldClearSelection = FALSE;
     mousePressed = TRUE;
@@ -3221,7 +3225,7 @@ void QTable::contentsContextMenuEvent( QContextMenuEvent *e )
     } else {
 	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
 	context_menu = TRUE;
-	contentsMousePressEvent( &me );
+	contentsMousePressEventEx( &me );
 	context_menu = FALSE;
     }
     e->accept();
