@@ -662,8 +662,8 @@ void qSystemWarning( const char* msg, int code )
 
     \relates QApplication
 
-    If \a p is null, a fatal messages says that the program ran out of
-    memory and exits. If \e p is not null, nothing happens.
+    If \a p is 0, a fatal messages says that the program ran out of
+    memory and exits. If \e p is not 0, nothing happens.
 
     This is really a macro defined in \c qglobal.h.
 
@@ -673,7 +673,7 @@ void qSystemWarning( const char* msg, int code )
 
 	Q_CHECK_PTR( a = new int[80] );  // WRONG!
 
-	a = new int[80];                 // Right
+	a = new (nothrow) int[80];       // Right
 	Q_CHECK_PTR( a );
     \endcode
 
