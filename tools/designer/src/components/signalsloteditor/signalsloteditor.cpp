@@ -128,7 +128,7 @@ void SignalSlotDialog::populateSlotList(const QString &signal)
     m_slot_list->clear();
 
     bool show_all = m_show_all_checkbox->isChecked();
-    
+
     QStringList signatures;
 
     if (IMemberSheet *members = qt_extension<IMemberSheet*>(m_core->extensionManager(), m_destination)) {
@@ -138,7 +138,7 @@ void SignalSlotDialog::populateSlotList(const QString &signal)
 
             if (!show_all && members->inheritedFromWidget(i))
                 continue;
-            
+
             if (members->isSlot(i)) {
                 if (!signal.isEmpty() && !signalMatchesSlot(signal, members->signature(i)))
                     continue;
@@ -170,7 +170,7 @@ void SignalSlotDialog::populateSignalList()
 
     bool show_all = m_show_all_checkbox->isChecked();
     qDebug() << "populateSignalList" << show_all;
-    
+
     QStringList signatures;
 
     if (IMemberSheet *members = qt_extension<IMemberSheet*>(m_core->extensionManager(), m_source)) {
@@ -180,7 +180,7 @@ void SignalSlotDialog::populateSignalList()
 
             if (!show_all && members->inheritedFromWidget(i))
                 continue;
-                
+
             if (members->isSignal(i)) {
                 signatures.append(members->signature(i));
             }
@@ -198,10 +198,10 @@ void SignalSlotDialog::populateSignalList()
             found_selected = true;
         }
     }
-    
+
     if (!found_selected)
         selectedName.clear();
-    
+
     populateSlotList(selectedName);
     if (!found_selected)
         m_slot_list->setEnabled(false);
@@ -430,23 +430,33 @@ DomConnections *SignalSlotEditor::toUi() const
     return result;
 }
 
+QWidget *SignalSlotEditor::widgetByName(QWidget *topLevel, const QString &name)
+{
+    Q_ASSERT(topLevel);
+    if (topLevel->objectName() == name)
+        return topLevel;
+
+    return qFindChild<QWidget*>(topLevel, name);
+}
+
 void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
 {
     QList<DomConnection*> list = connections->elementConnection();
     foreach (DomConnection *dom_con, list) {
-        QWidget *source = qFindChild<QWidget*>(parent, dom_con->elementSender());
+        QWidget *source = widgetByName(parent, dom_con->elementSender());
         if (source == 0) {
             qWarning("SignalSlotEditor::fromUi(): no source widget called \"%s\"",
                         dom_con->elementSender().latin1());
             continue;
         }
-        QWidget *destination
-            = qFindChild<QWidget*>(parent, dom_con->elementReceiver());
+        QWidget *destination = widgetByName(parent, dom_con->elementReceiver());
         if (destination == 0) {
             qWarning("SignalSlotEditor::fromUi(): no destination widget called \"%s\"",
                         dom_con->elementReceiver().latin1());
             continue;
         }
+
+        qDebug() << "enstablish connection:" << source << destination;
 
         Connection::HintList hint_list;
         DomConnectionHints *dom_hints = dom_con->elementHints();
@@ -455,9 +465,9 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
             foreach (DomConnectionHint *hint, list) {
                 QString attr_type = hint->attributeType();
                 ConnectionHint::Type hint_type;
-                if (attr_type == "sourcelabel")
+                if (attr_type == QLatin1String("sourcelabel"))
                     hint_type = ConnectionHint::SourceLabel;
-                else if (attr_type == "destinationlabel")
+                else if (attr_type == QLatin1String("destinationlabel"))
                     hint_type = ConnectionHint::DestinationLabel;
                 else
                     hint_type = ConnectionHint::EndPoint;
@@ -478,13 +488,13 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
 static bool skipWidget(QWidget *w)
 {
     QString name = w->metaObject()->className();
-    if (name == "QDesignerWidget")
+    if (name == QLatin1String("QDesignerWidget"))
         return true;
-    if (name == "QLayoutWidget")
+    if (name == QLatin1String("QLayoutWidget"))
         return true;
-    if (name == "FormWindow")
+    if (name == QLatin1String("FormWindow"))
         return true;
-    if (name == "Spacer")
+    if (name == QLatin1String("Spacer"))
         return true;
     return false;
 }

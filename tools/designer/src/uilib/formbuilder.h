@@ -41,6 +41,8 @@ protected:
     virtual bool addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout);
     virtual bool addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget);
 
+    static QWidget *widgetByName(QWidget *topLevel, const QString &name);
+
 private:
     QMap<QString, QAction*> m_actions;
 };

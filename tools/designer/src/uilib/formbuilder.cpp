@@ -125,12 +125,21 @@ bool FormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parent
     return Resource::addItem(ui_widget, widget, parentWidget);
 }
 
+QWidget *FormBuilder::widgetByName(QWidget *topLevel, const QString &name)
+{
+    Q_ASSERT(topLevel);
+    if (topLevel->objectName() == name)
+        return topLevel;
+
+    return qFindChild<QWidget*>(topLevel, name);
+}
+
 void FormBuilder::createConnections(DomConnections *ui_connections, QWidget *widget)
 {
     QList<DomConnection*> connections = ui_connections->elementConnection();
     foreach (DomConnection *c, connections) {
-        QWidget *sender = qFindChild<QWidget*>(widget, c->elementSender());
-        QWidget *receiver = qFindChild<QWidget*>(widget, c->elementReceiver());
+        QWidget *sender = widgetByName(widget, c->elementSender());
+        QWidget *receiver = widgetByName(widget, c->elementReceiver());
         if (!sender || !receiver)
             continue;
 

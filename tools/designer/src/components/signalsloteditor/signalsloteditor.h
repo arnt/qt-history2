@@ -29,21 +29,21 @@ class DomConnection;
 class SignalSlotConnection : public Connection
 {
     Q_OBJECT
-    
+
 public:
     SignalSlotConnection(ConnectionEdit *edit);
-        
+
     void setSignal(const QString &signal);
     void setSlot(const QString &slot);
-    
+
     QString sender() const;
     QString receiver() const;
     inline QString signal() const { return m_signal; }
     inline QString slot() const { return m_slot; }
-    
+
     DomConnection *toUi() const;
-    
-private:    
+
+private:
     QString m_signal, m_slot;
 };
 
@@ -57,13 +57,15 @@ public:
     void fromUi(DomConnections *connections, QWidget *parent);
 
     AbstractFormWindow *formWindow() const { return m_form_window; }
-    
-protected:        
+
+    static QWidget *widgetByName(QWidget *topLevel, const QString &name);
+
+protected:
     virtual QWidget *widgetAt(const QPoint &pos) const;
-    
-private:    
+
+private:
     virtual Connection *createConnection(QWidget *source, QWidget *destination);
-    
+
     AbstractFormWindow *m_form_window;
 };
 
