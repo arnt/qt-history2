@@ -2,9 +2,9 @@
 #include <qtextcodec.h>
 #include <qstringlist.h>
 
-#include <qeucjpcodec.h>
-#include <qjiscodec.h>
-#include <qsjiscodec.h>
+#include <private/qeucjpcodec_p.h>
+#include <private/qjiscodec_p.h>
+#include <private/qsjiscodec_p.h>
 #include <private/qfontcodecs_p.h>
 
 

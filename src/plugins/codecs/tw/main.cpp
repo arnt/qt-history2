@@ -2,7 +2,7 @@
 #include <qtextcodec.h>
 #include <qstringlist.h>
 
-#include <qbig5codec.h>
+#include <private/qbig5codec_p.h>
 #include <private/qfontcodecs_p.h>
 
 
