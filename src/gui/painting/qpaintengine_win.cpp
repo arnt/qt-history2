@@ -1647,6 +1647,7 @@ typedef int (__stdcall *PtrGdipAddPathBezier)(QtGpPath *path,
                                               float, float, float, float);
 typedef int (__stdcall *PtrGdipClosePathFigure) (QtGpPath *path);
 typedef int (__stdcall *PtrGdipSetPathFillMode) (QtGpPath *path, int fillmode);
+typedef int (__stdcall *PtrGdipStartPathFigure) (QtGpPath *path);
 
 typedef int (__stdcall *PtrGdipCreateBitmapFromHBITMAP)(HBITMAP, HPALETTE, QtGpBitmap **);
 typedef int (__stdcall *PtrGdipCreateBitmapFromScan0)(int w, int h, int stride, int format,
@@ -1701,6 +1702,7 @@ static PtrGdipAddPathArc GdipAddPathArc = 0;                 // Path::AddArc(x, 
 static PtrGdipAddPathBezier GdipAddPathBezier = 0;           // Path::AddPathBezier(x1, y1, ... x4, y4)
 static PtrGdipClosePathFigure GdipClosePathFigure = 0;       // Path::CloseFigure()
 static PtrGdipSetPathFillMode GdipSetPathFillMode = 0;       // Path::SetFillMode(mode);
+static PtrGdipStartPathFigure GdipStartPathFigure = 0;       // Path::StartFigure(mode);
 
 static PtrGdipCreateBitmapFromHBITMAP GdipCreateBitmapFromHBITMAP = 0;  // Bitmap::Bitmap(hbm, hpalette)
 static PtrGdipCreateBitmapFromScan0 GdipCreateBitmapFromScan0 = 0;      // Bitmap::Bitmap(w, h .. bits)
@@ -1776,6 +1778,7 @@ static void qt_resolve_gdiplus()
     GdipAddPathBezier            = (PtrGdipAddPathBezier)      lib.resolve("GdipAddPathBezier");
     GdipClosePathFigure          = (PtrGdipClosePathFigure)    lib.resolve("GdipClosePathFigure");
     GdipSetPathFillMode          = (PtrGdipSetPathFillMode)    lib.resolve("GdipSetPathFillMode");
+    GdipStartPathFigure          = (PtrGdipStartPathFigure)    lib.resolve("GdipStartPathFigure");
 
     // Bitmap functions
     GdipCreateBitmapFromHBITMAP
@@ -1825,6 +1828,7 @@ static void qt_resolve_gdiplus()
     Q_ASSERT(GdipAddPathBezier);
     Q_ASSERT(GdipClosePathFigure);
     Q_ASSERT(GdipSetPathFillMode);
+    Q_ASSERT(GdipStartPathFigure);
     Q_ASSERT(GdipCreateBitmapFromHBITMAP);
     Q_ASSERT(GdipCreateBitmapFromScan0);
     Q_ASSERT(GdipGetImageGraphicsContext);
@@ -2060,7 +2064,7 @@ void QGdiplusPaintEngine::drawRect(const QRect &r)
 void QGdiplusPaintEngine::drawPoint(const QPoint &p)
 {
     if (d->usePen)
-        GdipDrawRectangleI(d->graphics, d->pen, p.x(), p.y(), 0, 0);
+        GdipDrawRectangleI(d->graphics, d->pen, p.x(), p.y(), 1, 1);
 }
 
 void QGdiplusPaintEngine::drawEllipse(const QRect &r)
@@ -2169,6 +2173,7 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
         const QPainterSubpath &sub = pd->subpaths.at(i);
         if (sub.elements.isEmpty())
             continue;
+        GdipStartPathFigure(path);
         QPointF current = sub.startPoint;
         for (int j=0; j<sub.elements.size(); ++j) {
             const QPainterPathElement &elm = sub.elements.at(j);
