@@ -2040,33 +2040,34 @@ void QTimeEdit::timerEvent( QTimerEvent * )
 void QTimeEdit::stepUp()
 {
     int sec = d->ed->mapSection( d->ed->focusSection() );
-    bool accepted = FALSE;
+    bool accepted = TRUE;
     switch( sec ) {
     case 0:
-	if ( !outOfRange( d->h+1, d->m, d->s ) ) {
-	    accepted = TRUE;
+	if ( !outOfRange( d->h+1, d->m, d->s ) )
 	    setHour( d->h+1 );
-	}
+	else
+	    setHour( 0 );
 	break;
     case 1:
-	if ( !outOfRange( d->h, d->m+1, d->s ) ) {
-	    accepted = TRUE;
+	if ( !outOfRange( d->h, d->m+1, d->s ) )
 	    setMinute( d->m+1 );
-	}
+	else
+	    setMinute( 0 );
 	break;
     case 2:
-	if ( !outOfRange( d->h, d->m, d->s+1 ) ) {
-	    accepted = TRUE;
+	if ( !outOfRange( d->h, d->m, d->s+1 ) )
 	    setSecond( d->s+1 );
-	}
+	else
+	    setSecond( 0 );
 	break;
     case 3:
-	if ( d->h < 12 ) {
-	    accepted = TRUE;
+	if ( d->h < 12 )
 	    setHour( d->h+12 );
-	}
+	else
+	    setHour( d->h-12 );
 	break;
     default:
+	accepted = FALSE;
 #ifdef QT_CHECK_RANGE
 	qWarning( "QTimeEdit::stepUp: Focus section out of range!" );
 #endif
@@ -2088,33 +2089,34 @@ void QTimeEdit::stepDown()
 {
     int sec = d->ed->mapSection( d->ed->focusSection() );
 
-    bool accepted = FALSE;
+    bool accepted = TRUE;
     switch( sec ) {
     case 0:
-	if ( !outOfRange( d->h-1, d->m, d->s ) ) {
-	    accepted = TRUE;
+	if ( !outOfRange( d->h-1, d->m, d->s ) )
 	    setHour( d->h-1 );
-	}
+	else
+	    setHour( 23 );
 	break;
     case 1:
-	if ( !outOfRange( d->h, d->m-1, d->s ) ) {
-	    accepted = TRUE;
+	if ( !outOfRange( d->h, d->m-1, d->s ) )
 	    setMinute( d->m-1 );
-	}
+	else
+	    setMinute( 59 );
 	break;
     case 2:
-	if ( !outOfRange( d->h, d->m, d->s-1 ) ) {
-	    accepted = TRUE;
+	if ( !outOfRange( d->h, d->m, d->s-1 ) )
 	    setSecond( d->s-1 );
-	}
+	else
+	    setSecond( 59 );
 	break;
     case 3:
-	if ( d->h > 11 ) {
-	    accepted = TRUE;
+	if ( d->h > 11 )
 	    setHour( d->h-12 );
-	}
+	else
+	    setHour( d->h+12 );
 	break;
     default:
+	accepted = FALSE;
 #ifdef QT_CHECK_RANGE
 	qWarning( "QTimeEdit::stepDown: Focus section out of range!" );
 #endif
@@ -2271,7 +2273,7 @@ QString QTimeEdit::sectionText( int sec )
 
 bool QTimeEdit::outOfRange( int h, int m, int s ) const
 {
-     if ( QTime::isValid( h, m, s ) ) {
+    if ( QTime::isValid( h, m, s ) ) {
 	QTime currentTime( h, m, s );
 	if ( currentTime > maxValue() ||
 	     currentTime < minValue() )
@@ -2279,7 +2281,7 @@ bool QTimeEdit::outOfRange( int h, int m, int s ) const
 	else
 	    return FALSE;
     }
-    return FALSE;
+    return TRUE;
 }
 
 /*! \reimp
