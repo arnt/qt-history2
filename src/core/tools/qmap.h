@@ -511,7 +511,7 @@ Q_OUTOFLINE_TEMPLATE T QMap<Key, T>::take(const Key &key)
 
     T t;
     if (next != e && !(key < concrete(next)->key)) {
-        t = concrete(next)->key;
+        t = concrete(next)->value;
         concrete(next)->key.~Key();
         concrete(next)->value.~T();
         d->node_delete(update, sizeof(Payload), next);
