@@ -166,7 +166,7 @@ public:
 	int frame;
 	enum { ButtonDark, ButtonLight } dir;
     } buttonState;
-    QMacStylePrivate() : QAquaAnimate(), progressbar(0) { }
+    QMacStylePrivate();
     ~QMacStylePrivate();
     ControlRef control(QAquaAnimate::Animates);
 protected:
@@ -188,6 +188,11 @@ QMacStylePrivate::control(QAquaAnimate::Animates as)
 	return progressbar;
     }
     return 0;
+}
+QMacStylePrivate::QMacStylePrivate() : QAquaAnimate(), progressbar(0) 
+{ 
+    buttonState.frame = 0;
+    buttonState.dir = ButtonState::ButtonDark;
 }
 QMacStylePrivate::~QMacStylePrivate()
 {
