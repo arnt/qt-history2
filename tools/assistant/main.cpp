@@ -1,5 +1,4 @@
 #include <qapplication.h>
-#include "mainwindow.h"
 #include <qserversocket.h>
 #include <qsocket.h>
 #include <qpixmap.h>
@@ -7,207 +6,97 @@
 #include <qstringlist.h>
 #include <qsettings.h>
 #include <qdir.h>
+#include <qmessagebox.h>
 #include <stdlib.h>
+
 #include "assistant.h"
+#include "mainwindow.h"
 #include "docuparser.h"
 
-const int server_port = 7358;
-
-
-class Socket : public QSocket
+class AssistantSocket : public QSocket
 {
     Q_OBJECT
-
 public:
-    Socket( QObject *parent );
-    ~Socket();
+    AssistantSocket( int sock, QObject *parent = 0 );
+    ~AssistantSocket() {}
 
-    void start();
+signals:
+    void showLinkRequest( const QString& );
 
 private slots:
-    void startOwnWindow();
-    void sendFile();
-
+    void readClient();
+    void connectionClosed();
 };
 
-class ServerSocket : public QServerSocket
+
+class AssistantServer : public QServerSocket
 {
     Q_OBJECT
 public:
-    ServerSocket( MainWindow *mw );
-    ~ServerSocket();
-    void newConnection( int );
+    AssistantServer( QObject* parent = 0 );
+    void newConnection( int socket );
+    Q_UINT16 getPort() const;
 
-private slots:
-    void dataReceived();
+signals:
+    void showLinkRequest( const QString& );
+    void newConnect();
 
 private:
-    QPtrList<QSocket> connections;
-    MainWindow *mainWindow;
-
+    Q_UINT16 p;
 };
 
 
-Socket::Socket( QObject *parent )
-    : QSocket( parent )
+AssistantSocket::AssistantSocket( int sock, QObject *parent )
+    : QSocket( parent, 0 )
 {
-    connect( this, SIGNAL( error( int ) ), this, SLOT( startOwnWindow() ) );
-    connect( this, SIGNAL( connected() ), this, SLOT( sendFile() ) );
-    connect( this, SIGNAL( delayedCloseFinished() ), qApp, SLOT( quit() ) );
+    connect( this, SIGNAL( readyRead() ),
+	     SLOT( readClient() ) );
+    connect( this, SIGNAL( connectionClosed() ),
+	     SLOT( connectionClosed() ) );
+    setSocket( sock );
 }
 
-Socket::~Socket()
+void AssistantSocket::readClient()
 {
-}
-
-void Socket::start()
-{
-    connectToHost( "127.0.0.1", server_port );
-}
-
-void Socket::startOwnWindow()
-{
-    MainWindow * mw = new MainWindow;
-
-    QString keybase("/Qt Assistant/3.1/");
-    QSettings config;
-    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    if ( config.readBoolEntry( keybase  + "GeometryMaximized", FALSE ) )
-	mw->showMaximized();
-    else
-	mw->show();
-
-    QString s = qApp->argv()[ 1 ];
-    if ( s.left( 2 ) == "d:" )
-	s.remove( 0, 2 );
-    if ( !s.isEmpty() )
-	mw->showLink( s );
-    (void)new ServerSocket( mw );
-}
-
-void Socket::sendFile()
-{
-    QString s = qApp->argv()[ 1 ];
-    if ( s.left( 2 ) == "d:" ) {
-	s.remove( 0, 2 );
-	s += "\n";
-	writeBlock( s.latin1(), s.length() );
-    } else {
-	s += "\n";
-	writeBlock( s.latin1(), s.length() );
+    QString link = QString::null;
+    while ( canReadLine() )
+	link = readLine();
+    if ( !link.isNull() ) {
+	link = link.replace( "\n", "" );
+	emit showLinkRequest( link );
     }
-    close();
-    if ( state() == Idle )
-        qApp->quit();
 }
 
-
-
-
-ServerSocket::ServerSocket( MainWindow *mw )
-    : QServerSocket( server_port, 0, mw ), mainWindow( mw )
+void AssistantSocket::connectionClosed()
 {
-    connections.setAutoDelete( TRUE );
+    delete this;
 }
 
-ServerSocket::~ServerSocket()
+AssistantServer::AssistantServer( QObject *parent )
+    : QServerSocket( 0x7f000001, 0, 1, parent )
 {
-    for ( QSocket *s = connections.first(); s; s = connections.next() )
-	s->close();
-}
-
-void ServerSocket::newConnection( int socket )
-{
-    QSocket *s = new QSocket( this );
-    s->setSocket( socket );
-    connect( s, SIGNAL( readyRead() ),
-	     this, SLOT( dataReceived() ) );
-    connections.append( s );
-}
-
-void ServerSocket::dataReceived()
-{
-    QSocket *s = (QSocket*)sender();
-    if ( !s || !s->inherits( "QSocket" ) )
-	return;
-    if ( !s->canReadLine() )
-	return;
-    QString line = s->readLine();
-    line = line.simplifyWhiteSpace();
-#if 0
-    if ( line == "assistant" ) {
-	Assistant *a = new Assistant( 0 );
-	a->resize( 300, 600 );
-	a->show();
-	return;
+    if ( !ok() ) {
+	QMessageBox::critical( 0, tr( "Qt Assistant" ),
+		tr( "Failed to bind to port %1" ).arg( port() ) );
+        exit( 1 );
     }
-#endif
-    mainWindow->showLink( line );
-    mainWindow->show();
-    mainWindow->raise();
+    p = port();
 }
 
-class StdInParser : public QSocket
+Q_UINT16 AssistantServer::getPort() const
 {
-    Q_OBJECT
-public:
-    StdInParser( MainWindow *aWindow, QObject *parent=0, const char *name = 0 );
-
-public slots:
-    void readIn();
-
-private:
-    MainWindow *mw;
-};
-
-StdInParser::StdInParser( MainWindow *aWindow, QObject *parent, const char *name )
-    :QSocket( parent, name )
-{
-    mw = aWindow;
-    connect( this, SIGNAL(readyRead()), this, SLOT(readIn()) );
-    setSocket(0);
+    return p;
 }
 
-void StdInParser::readIn()
+void AssistantServer::newConnection( int socket )
 {
-    QString data = readLine().simplifyWhiteSpace();
-    if ( '-' != data[0] ) {
-	mw->showLink( data );
-    } else {
-	if ( -1 != data.find("find") ) {
-	    mw->find();
-	} else if ( -1 != data.find("goHome") ) {
-	    mw->goHome();
-	} else if ( -1 != data.find("hide") ) {
-	    mw->hide();
-	    return;
-	} else if ( -1 != data.find("print") ) {
-	    mw->print();
-	} else if ( -1 != data.find("raise") ) {
-	    mw->raise();
-	} else if ( -1 != data.find("saveSettings") ) {
-	    mw->saveSettings();
-	} else if ( -1 != data.find("setupBookmarkMenu") ) {
-	    mw->setupBookmarkMenu();
-	} else if ( -1 != data.find("show") ) {
-	    mw->show();
-	} else if ( -1 != data.find("showBookmark") ) {
-	    mw->showBookmark( data.remove(0, data.findRev(' ')).toInt() );
-	} else if ( -1 != data.find("showDesignerHelp") ) {
-	    mw->showDesignerHelp();
-	} else if ( -1 != data.find("showLinguistHelp") ) {
-	    mw->showLinguistHelp();
-	} else if ( -1 != data.find("showQtHelp") ) {
-	    mw->showQtHelp();
-	} else if ( -1 != data.find("showSettingsDialog") ) {
-	    mw->showSettingsDialog();
-	} else if ( -1 != data.find("updateBookmarkMenu") ) {
-	    mw->updateBookmarkMenu();
-	}
-    }
-    mw->show();
-    mw->raise();
+    AssistantSocket *as = new AssistantSocket( socket, this );
+    connect( as, SIGNAL( showLinkRequest( const QString& ) ),
+	     this, SIGNAL( showLinkRequest( const QString& ) ) );
+    emit newConnect();
 }
+
+
 
 class AddDoc
 {
@@ -278,11 +167,11 @@ void AddDoc::addItemToList( const QString &rcEntry, const QString &item )
 int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
-    StdInParser *commandInput = 0;
 
+    AssistantServer *as = 0;
     QStringList catlist;
     QString file = "";
-    bool parsestdin = FALSE;
+    bool server = FALSE;
     if ( a.argc() == 2 ) {
 	if ( (a.argv()[1])[0] != '-' )
 	    file = a.argv()[1];
@@ -292,8 +181,8 @@ int main( int argc, char ** argv )
 	    if ( QString( a.argv()[i] ) == "-file" ) {
 		i++;
 		file = a.argv()[i];
-	    } else if ( QString( a.argv()[i] ) == "-stdin" ) {
-	        parsestdin = TRUE;
+	    } else if ( QString( a.argv()[i] ) == "-server" ) {
+	        server = TRUE;
 	    } else if ( QString( a.argv()[i] ).lower() == "-category" ) {
 		i++;
 		catlist << QString(a.argv()[i]).lower();
@@ -310,7 +199,7 @@ int main( int argc, char ** argv )
 		printf( " -category Category   displays all documentations which\n" );
 		printf( "                      belong to this category. This\n" );
 		printf( "                      option can be set serveral times\n" );
-		printf( " -stdin               reads commands from stdin after\n" );
+		printf( " -server              reads commands from a socket after\n" );
 		printf( "                      assistant has started\n" );
 		printf( " -addContentFile File adds the documentation found in the\n" );
 		printf( "                      specified file. Make sure that this\n" );
@@ -326,43 +215,42 @@ int main( int argc, char ** argv )
 	    }
 	}
     }
-    if ( a.argc() >= 1 || file.left( 2 ) != "d:" ) {
-	QString keybase("/Qt Assistant/3.1/");
-	QSettings *config = new QSettings();
-	config->insertSearchPath( QSettings::Windows, "/Trolltech" );
-	if( !catlist.isEmpty() ) {
-	    config->writeEntry( keybase + "CategoriesSelected/", catlist );
-	}
-	bool max = config->readBoolEntry( keybase  + "GeometryMaximized", FALSE );
-	QString link = config->readEntry( keybase + "Source", "" );
-	delete config;
-	config = 0;
-	MainWindow *mw = new MainWindow( 0, "Assistant" );
 
-	if ( max )
-	    mw->showMaximized();
-	else
-	    mw->show();
+    QString keybase("/Qt Assistant/3.1/");
+    QSettings *config = new QSettings();
+    config->insertSearchPath( QSettings::Windows, "/Trolltech" );
+    if( !catlist.isEmpty() ) {
+	config->writeEntry( keybase + "CategoriesSelected/", catlist );
+    }
+    bool max = config->readBoolEntry( keybase  + "GeometryMaximized", FALSE );
+    QString link = config->readEntry( keybase + "Source", "" );
+    delete config;
+    config = 0;
 
-	qApp->processEvents();
+    MainWindow *mw = new MainWindow( 0, "Assistant" );
 
-	if ( file.left( 2 ) == "d:" )
-	    file.remove( 0, 2 );
-	if ( parsestdin )
-	    commandInput = new StdInParser(mw, &a);
-	else if ( !file.isEmpty() )
+    if ( server ) {
+	as = new AssistantServer();
+	cout << as->port() << endl;
+	cout.flush();
+	as->connect( as, SIGNAL( showLinkRequest( const QString& ) ),
+		mw, SLOT( showLinkFromClient( const QString& ) ) );
+    }
+
+    if ( max )
+	mw->showMaximized();
+    else
+	mw->show();
+
+    qApp->processEvents();
+
+    if ( !server ) {
+	if ( !file.isEmpty() )
 	    mw->showLink( file );
 	else if ( file.isEmpty() )
 	    mw->showLink( link );
-
-    } else {
-	Socket *s = new Socket( 0 );
-	s->start();
     }
-
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
-
-    // Now we need to setup read from stdin...
 
     return a.exec();
 }

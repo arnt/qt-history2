@@ -60,9 +60,7 @@ class ReplaceDialog;
 class GotoLineDialog;
 class SourceFile;
 class FormFile;
-#ifndef Q_OS_WIN32
-class AssistProc;
-#endif
+class QAssistantClient;
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
@@ -177,6 +175,8 @@ public:
     void openProject( const QString &fn );
     void setPluginDirectory( const QString &pd );
     QString pluginDirectory() const { return pluginDir; }
+
+    QAssistantClient* assistantClient() const { return assistant; }
 
 public slots:
     void showProperties( QObject *w );
@@ -450,9 +450,7 @@ private:
     int toolsMenuId, toolsMenuIndex;
     uint guiStuffVisible : 1;
     uint editorsReadOnly : 1;
-#ifndef Q_OS_WIN32
-    AssistProc *assistant;
-#endif
+    QAssistantClient *assistant;
     bool shStartDialog;
     QString pluginDir;
 

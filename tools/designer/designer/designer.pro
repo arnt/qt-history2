@@ -36,9 +36,9 @@ FORMS	+= listboxeditor.ui editfunctions.ui newform.ui listvieweditor.ui customwi
 CONFIG	+= qt warn_on release
 DEFINES	+= DESIGNER
 INCLUDEPATH	+= ../shared ../uilib
-win32:LIBS	+= $$QT_BUILD_TREE/lib/qui.lib
+win32:LIBS	+= $$QT_BUILD_TREE/lib/qui.lib $$QT_BUILD_TREE/libqassistantclient.lib
 unix {
-	LIBS	+= -L$$QT_BUILD_TREE/lib -lqui
+	LIBS	+= -L$$QT_BUILD_TREE/lib -lqui -lqassistantclient
 }
 
 

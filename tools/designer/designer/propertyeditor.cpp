@@ -68,6 +68,7 @@
 #include <qprocess.h>
 #include <qstyle.h>
 #include <qdatetimeedit.h>
+#include <qassistantclient.h>
 
 #include <limits.h>
 
@@ -130,10 +131,9 @@ QString PropertyWhatsThis::text( const QPoint &pos )
 bool PropertyWhatsThis::clicked( const QString& href )
 {
     if ( !href.isEmpty() ) {
-	QStringList lst;
-	lst << assistantPath() << (QString( "d:" ) + QString( href ));
-	QProcess proc( lst );
-	proc.start();
+	QAssistantClient *ac = MainWindow::self->assistantClient();
+	ac->openAssistant();
+	ac->showPage( QString( qInstallPathDocs() ) + "/html/" + href );
     }
     return FALSE; // do not hide window
 }

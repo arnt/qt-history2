@@ -1,8 +1,10 @@
 TEMPLATE	= subdirs
-win32:SUBDIRS	= designer \
+win32:SUBDIRS	= assistant/lib \
+		  designer \
 		  assistant \
 		  linguist
-unix:SUBDIRS	= designer \
+unix:SUBDIRS	= assistant/lib \
+		  designer \
 		  assistant \
 		  linguist \
 		  qtconfig

@@ -543,7 +543,14 @@ void MainWindow::showDesignerHelp()
 	      "/html/designer-manual.html" );
 }
 
-void MainWindow::showLink( const QString & link )
+void MainWindow::showLinkFromClient( const QString &link )
+{
+    raise();
+    setActiveWindow();
+    showLink( link );
+}
+
+void MainWindow::showLink( const QString &link )
 {
     QString filename = link.left( link.find( '#' ) );
     QFileInfo fi( filename );

@@ -81,10 +81,8 @@
 #include <stdlib.h>
 #include "qcategorywidget.h"
 #include "widgetaction.h"
-#ifndef Q_OS_WIN32
-#include "assistproc.h"
-#endif
 #include "propertyobject.h"
+#include <qassistantclient.h>
 
 static bool mblockNewForms = FALSE;
 extern QMap<QWidget*, QString> *qwf_functions;
@@ -102,9 +100,9 @@ MainWindow *MainWindow::self = 0;
 QString assistantPath()
 {
     QString path = QDir::cleanDirPath( QString( qInstallPathBins() ) +
-				       QDir::separator() + "assistant" );
+				       QDir::separator() );
 #if defined(Q_OS_MACX)
-    path += QDir::separator() + ".app/Contents/MacOS/assistant";
+    path += QDir::separator() + ".app/Contents/MacOS/";
 #endif
 
     return path;
@@ -239,9 +237,7 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     setAppropriate( (QDockWindow*)actionEditor->parentWidget(), FALSE );
     actionEditor->parentWidget()->hide();
 
-#ifndef Q_OS_WIN32
-    assistant = new AssistProc( this, "Internal Assistant", assistantPath() );
-#endif
+    assistant = new QAssistantClient( assistantPath(), this );
 
     statusBar()->setSizeGripEnabled( TRUE );
     set_splash_status( "Initialization Done." );
@@ -769,35 +765,17 @@ void MainWindow::helpContents()
 	source = QString( WidgetFactory::classNameOf( propertyEditor->widget() ) ).lower() + ".html#details";
     }
 
-#ifdef Q_OS_WIN32
+    assistant->openAssistant();
     if ( !source.isEmpty() ) {
-	QStringList lst;
-	lst << assistantPath() << QString( "d:" + source );
-	QProcess proc( lst );
-	proc.start();
+	QString path = QString( qInstallPathDocs() ) + "/html/";
+	assistant->showPage( path + source );
     }
-#else
-    if ( !source.isEmpty() ) {
-	if ( assistant ) {
-	    QString path = QString( qInstallPathDocs() ) + "/html/";
-	    assistant->sendRequest( path+source+'\n' );
-	}
-    }
-#endif
 }
 
 void MainWindow::helpManual()
 {
-#ifdef Q_OS_WIN32
-    QStringList lst;
-    lst << assistantPath() << "d:designer-manual.html";
-    QProcess proc( lst );
-    proc.start();
-#else
-    if ( assistant )
-	assistant->sendRequest( QString( qInstallPathDocs() ) +
-				"/html/designer-manual.html\n" );
-#endif
+    assistant->openAssistant();
+    assistant->showPage( QString( qInstallPathDocs() ) + "/html/designer-manual.html" );
 }
 
 void MainWindow::helpAbout()
@@ -2737,15 +2715,8 @@ void MainWindow::showDialogHelp()
 	return;
     }
 
-#ifdef Q_OS_WIN32
-    QStringList lst;
-    lst << assistantPath() << (QString( "d:" ) + link);
-    QProcess proc( lst );
-    proc.start();
-#else
-    if ( assistant )
-	assistant->sendRequest( link+'\n');
-#endif
+    assistant->openAssistant();
+    assistant->showPage( link );
 }
 
 void MainWindow::setupActionManager()
