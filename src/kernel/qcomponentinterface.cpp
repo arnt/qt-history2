@@ -205,6 +205,7 @@ QUnknownInterface* QUnknownInterface::queryInterface( const QString& request )
     while ( it.current() ) {
 	QUnknownInterface *iface = it.current();
 	if ( it.current()->interfaceID() == request ) {
+	    it.current()->appInterface = appInterface;
 	    if ( it.current()->ref() )
 		return it.current();
 	    return 0;
