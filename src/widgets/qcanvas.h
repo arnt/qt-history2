@@ -130,7 +130,9 @@ public:
     QCanvas( QPixmap p, int h, int v, int tilewidth, int tileheight );
 
     void setBackgroundPixmap( const QPixmap& p );
+    QPixmap backgroundPixmap() const;
     void setBackgroundColor( const QColor& c );
+    QColor backgroundColor() const;
     void setTile( int x, int y, int tilenum );
     int tile( int x, int y ) const { return grid[x+y*htiles]; }
 
@@ -213,7 +215,7 @@ private:
     static bool double_buffer;
 
     void initTiles(QPixmap p, int h, int v, int tilewidth, int tileheight);
-    void setTiles( QPixmap tiles, int tilewidth, int tileheight );
+    void setTiles( QPixmap tiles, int h, int v, int tilewidth, int tileheight );
     ushort *grid;
     ushort htiles;
     ushort vtiles;

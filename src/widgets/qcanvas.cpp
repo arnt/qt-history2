@@ -304,6 +304,21 @@ private:
 };
 
 
+static int gcd(int a, int b)
+{
+    // XXX Should use good method, but not speed critical.
+
+    int r = QMIN(a,b);
+    while ( a%r || b%r )
+	r--;
+    return r;
+}
+static int scm(int a, int b)
+{
+    int g = gcd(a,b);
+    return a/g*b;
+}
+
 
 
 /*!
@@ -362,7 +377,7 @@ void QCanvas::init(int w, int h, int chunksze, int mxclusters)
     awidth=w;
     aheight=h;
     chunksize=chunksze;
-    maxclusters=maxclust;
+    maxclusters=mxclusters;
     chwidth=(w+chunksize-1)/chunksize;
     chheight=(h+chunksize-1)/chunksize;
     chunks=new QCanvasChunk[chwidth*chheight];
@@ -541,7 +556,7 @@ void QCanvas::retune(int chunksze, int mxclusters)
 	    item->show();
 	}
 
-	oneone = tilew == tileh && tilew = chunksize;
+	oneone = tilew == tileh && tilew == chunksize;
     }
 }
 
@@ -745,7 +760,7 @@ void QCanvas::setChanged(const QRect& area)
 
     for (int x=thearea.x()/chunksize; x<mx; x++) {
 	for (int y=thearea.y()/chunksize; y<my; y++) {
-	    chunk(x,y).change()
+	    chunk(x,y).change();
 	}
     }
 }
@@ -1039,21 +1054,6 @@ void QCanvas::drawForeground(QPainter&, const QRect&)
 }
 
 
-static int gcd(int a, int b)
-{
-    // XXX Should use good method, but not speed critical.
-
-    int r = QMIN(a,b);
-    while ( a%r || b%r )
-	r--;
-    return r;
-}
-static int scm(int a, int b)
-{
-    int g = gcd(a,b);
-    return a/g*b;
-}
-
 /*!
   Sets the QCanvas to be composed of
   \a h tiles horizontally and \a v tiles vertically.  Each tile
@@ -1092,7 +1092,7 @@ void QCanvas::setTiles(QPixmap p,
 	int s = scm(tilewidth,tileheight);
 	retune( s < 128 ? s : QMAX(tilewidth,tileheight) );
     }
-    oneone = tilew == tileh && tilew = chunksize;
+    oneone = tilew == tileh && tilew == chunksize;
     setAllChanged();
 }
 
