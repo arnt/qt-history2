@@ -265,6 +265,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
       << varGlue("UICIMPLS" ,"\n\t-del ","\n\t-del ","")
       << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","")
       << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","");
+    
     if ( project->isActiveConfig("activeqt")) {
 	t << ("\n\t-del tmp\\" + targetfilename + ".*");
 	t << "\n\t-del tmp\\dump.*";
@@ -291,6 +292,10 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     }
 
     t << endl << endl;
+
+    t << "distclean: clean"
+      << "\n\t-del $(TARGET)"
+      << endl << endl;
 }
 
 
