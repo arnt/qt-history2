@@ -202,11 +202,17 @@ QSqlPropertyMap::~QSqlPropertyMap()
 QVariant QSqlPropertyMap::property( QWidget * widget )
 {
     if( !widget ) return QVariant();
+    const QMetaObject* mo = widget->metaObject();
+    while ( mo && !d->propertyMap.contains( QString( mo->className() ) ) )
+	mo = mo->superClass();
+
+    if ( !mo ) {
 #ifdef QT_CHECK_RANGE
-    if ( !d->propertyMap.contains( QString(widget->metaObject()->className()) ) )
 	qWarning("QSqlPropertyMap::property: %s does not exist", widget->metaObject()->className() );
 #endif
-    return widget->property( d->propertyMap[ widget->metaObject()->className() ] );
+	return QVariant();
+    }
+    return widget->property( d->propertyMap[ mo->className() ] );
 }
 
 /*!
@@ -218,8 +224,17 @@ void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
 {
     if( !widget ) return;
 
-    widget->setProperty( d->propertyMap[ widget->metaObject()->className() ],
-			 value );
+    QMetaObject* mo = widget->metaObject();
+    while ( mo && !d->propertyMap.contains( QString( mo->className() ) ) )
+	mo = mo->superClass();
+    if ( !mo ) {
+#ifdef QT_CHECK_RANGE
+	qWarning("QSqlPropertyMap::setProperty: %s not handled by QSqlPropertyMap", widget->metaObject()->className() );
+#endif
+	return;
+    }
+
+    widget->setProperty( d->propertyMap[ mo->className() ], value );
 }
 
 /*!
