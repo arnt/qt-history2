@@ -9,8 +9,8 @@ CONFIG		+= png zlib
 CONFIG		+= builder
 
 # Uncomment the next line if you want to use NAS sound
-unix:DEFINES    += QT_NAS_SUPPORT
-unix:LIBS	+= -laudio -lXt
+#unix:DEFINES    += QT_NAS_SUPPORT
+#unix:LIBS	+= -laudio -lXt
 
 # Uncomment the next line if you want to use jpeglib
 unix:DEFINES += QT_JPEG_SUPPORT
