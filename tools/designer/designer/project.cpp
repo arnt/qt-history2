@@ -568,7 +568,11 @@ static void remove_multiline_contents( QString &contents, const QString &s, int 
 void Project::save( bool onlyProjectFile )
 {
     bool anythingModified = FALSE;
+    
+    //  save sources and forms
     if ( !onlyProjectFile ) {
+	saveConnections();
+	
 	for(QList<SourceFile*>::Iterator sit = sourcefiles.begin(); sit != sourcefiles.end(); ++sit) {
 	    SourceFile* sf = (*sit);
 	    anythingModified = anythingModified || sf->isModified();
@@ -597,23 +601,36 @@ void Project::save( bool onlyProjectFile )
     }
 
     QFile f( filename );
-    QString contents;
+    QString contents = "";
+
+    // read the existing file
+    bool hasPreviousContents = FALSE;
     if ( f.open( IO_ReadOnly ) ) {
 	QTextStream ts( &f );
 	contents = ts.read();
 	f.close();
-    } else {
-	// initial contents
-	contents =
-	    "unix {\n"
-	    "  UI_DIR = .ui\n"
-	    "  MOC_DIR = .moc\n"
-	    "  OBJECTS_DIR = .obj\n"
-	    "}\n";
+	hasPreviousContents = TRUE;
+	remove_contents( contents, "{SOURCES+=" ); // ### compatibility with early 3.0 betas
+	remove_contents( contents, "DBFILE" );
+	remove_contents( contents, "LANGUAGE" );
+	remove_contents( contents, "TEMPLATE" );
+	removePlatformSettings( contents, "CONFIG" );
+	removePlatformSettings( contents, "DEFINES" );
+	removePlatformSettings( contents, "LIBS" );
+	removePlatformSettings( contents, "INCLUDEPATH" );
+	remove_multiline_contents( contents, "FORMS" );
+	remove_multiline_contents( contents, "INTERFACES" ); // compatibility
+	remove_multiline_contents( contents, "IMAGES" );
+	for ( QStringList::Iterator it = csList.begin(); it != csList.end(); ++it )
+	    remove_contents( contents, *it );
     }
 
-    remove_multiline_contents( contents, "FORMS" );
-    remove_multiline_contents( contents, "INTERFACES" ); // compatibility
+    // template 
+    contents += "TEMPLATE\t= " + templ + "\n";
+
+    // language
+    contents += "LANGUAGE\t= " + lang + "\n";
+    contents += "\n";
 
     if ( !formfiles.isEmpty() ) {
 	contents += "FORMS\t= ";
@@ -622,31 +639,8 @@ void Project::save( bool onlyProjectFile )
 	contents += "\n";
     }
 
-    remove_multiline_contents( contents, "IMAGES" );
-     if ( !pixCollection->isEmpty() ) {
-	contents += "IMAGES\t= ";
-	QList<PixmapCollection::Pixmap> pixmaps = pixCollection->pixmaps();
-	for ( QList<PixmapCollection::Pixmap>::Iterator it = pixmaps.begin();
-	      it != pixmaps.end(); ++it ) {
-		  contents += makeRelative( (*it).absname );
-		  contents += ++it != pixmaps.end() ? " \\\n\t" : "";
-		  --it;
-	}
-	contents += "\n";
-    }
-
-    remove_contents( contents, "{SOURCES+=" ); // ### compatibility with early 3.0 betas
-    remove_contents( contents, "DBFILE" );
-    remove_contents( contents, "LANGUAGE" );
-    remove_contents( contents, "TEMPLATE" );
-    removePlatformSettings( contents, "CONFIG" );
-    removePlatformSettings( contents, "DEFINES" );
-    removePlatformSettings( contents, "LIBS" );
-    removePlatformSettings( contents, "INCLUDEPATH" );
-
-    contents += "TEMPLATE\t=" + templ + "\n";
+    // config
     writePlatformSettings( contents, "CONFIG", cfg );
-
     LanguageInterface *iface = MetaDataBase::languageInterface( lang );
     if ( iface ) {
 	QStringList sourceKeys;
@@ -654,16 +648,25 @@ void Project::save( bool onlyProjectFile )
 	for ( QStringList::Iterator spit = sourceKeys.begin(); spit != sourceKeys.end(); ++spit )
 	    remove_multiline_contents( contents, *spit );
     }
+    contents += "\n";
 
+    // libs, defines, includes
+    writePlatformSettings( contents, "LIBS", lbs );
     writePlatformSettings( contents, "DEFINES", defs );
     writePlatformSettings( contents, "INCLUDEPATH", inclPath );
-    writePlatformSettings( contents, "LIBS", lbs );
 
-    if ( !dbFile.isEmpty() )
-	contents += "DBFILE\t= " + dbFile + "\n";
+    // unix
+    if ( !hasPreviousContents ) {
+ 	contents +=
+ 	    "unix {\n"
+ 	    "  UI_DIR = .ui\n"
+ 	    "  MOC_DIR = .moc\n"
+ 	    "  OBJECTS_DIR = .obj\n"
+ 	    "}\n";
+    }
+    contents += "\n";
 
-    contents += "LANGUAGE\t= " + lang + "\n";
-
+    // sources
     if ( !sourcefiles.isEmpty() && iface ) {
 	QMap<QString, QStringList> sourceToKey;
 	for(QList<SourceFile*>::Iterator sit = sourcefiles.begin(); sit != sourcefiles.end(); ++sit) {
@@ -683,12 +686,41 @@ void Project::save( bool onlyProjectFile )
 		part += ++sit != lst.end() ? " \\\n\t" : "";
 		--sit;
 	    }
-	    contents.insert( 0, part + "\n" );
+	    part += "\n";
+	    contents += part;
 	}
     }
+    
+    // forms and interfaces
+    if ( !formfiles.isEmpty() ) {
+	contents += "FORMS\t= ";
+	for ( QPtrListIterator<FormFile> fit = formfiles; fit.current(); ++fit ) {
+	    contents += fit.current()->fileName() +
+		 (fit != formfiles.last() ? " \\\n\t" : "");
+	}
+	contents += "\n";
+    }
 
+    // images
+     if ( !pixCollection->isEmpty() ) {
+	contents += "IMAGES\t= ";
+	QValueList<PixmapCollection::Pixmap> pixmaps = pixCollection->pixmaps();
+	for ( QValueList<PixmapCollection::Pixmap>::Iterator it = pixmaps.begin();
+	      it != pixmaps.end(); ++it ) {
+		  contents += makeRelative( (*it).absname );
+		  contents += ++it != pixmaps.end() ? " \\\n\t" : "";
+		  --it;
+	}
+	contents += "\n";
+    }
+
+    // database
+    if ( !dbFile.isEmpty() )
+	contents += "DBFILE\t= " + dbFile + "\n";
+    contents += "\n";
+    
+    // custom settings
     for ( QStringList::Iterator it = csList.begin(); it != csList.end(); ++it ) {
-	remove_contents( contents, *it );
 	QString val = *customSettings.find( *it );
 	if ( !val.isEmpty() )
 	    contents += *it + "\t= " + val + "\n";
@@ -704,8 +736,6 @@ void Project::save( bool onlyProjectFile )
     os << contents;
 
     f.close();
-
-    saveConnections();
 
     setModified( FALSE );
 
@@ -803,20 +833,14 @@ static void saveSingleProperty( QTextStream &ts, const QString& name, const QStr
 }
 #endif
 
-#ifndef QT_NO_SQL
-static bool inSaveConnections = FALSE;
-#endif
 void Project::saveConnections()
 {
 #ifndef QT_NO_SQL
-    if ( inSaveConnections )
-	return;
-    inSaveConnections = TRUE;
-
     if ( dbFile.isEmpty() ) {
 	QFileInfo fi( fileName() );
 	setDatabaseDescription( fi.baseName() + ".db" );
     }
+    
     QFile f( makeAbsolute( dbFile ) );
 
     if ( dbConnections.isEmpty() ) {
@@ -824,12 +848,9 @@ void Project::saveConnections()
 	    f.remove();
 	setDatabaseDescription( "" );
 	modified = TRUE;
-	save( TRUE );
-	inSaveConnections = FALSE;
 	return;
     }
-    save( TRUE );
-
+    
     /* .db xml */
     if ( f.open( IO_WriteOnly | IO_Translate ) ) {
 	QTextStream ts( &f );
@@ -879,8 +900,6 @@ void Project::saveConnections()
 	ts << "</DB>" << endl;
 	f.close();
     }
-
-    inSaveConnections = FALSE;
 #endif
 }
 
