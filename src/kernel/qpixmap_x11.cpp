@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#79 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#78 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#79 $")
 
 
 /*****************************************************************************
@@ -626,7 +626,7 @@ QImage QPixmap::convertToImage() const
 	    xidata += xi->bytes_per_line;
 	}
     }
-    else {					// !!! to be implemented
+    else {
 	/* Typically 2 or 4 bits display depth */
 #if defined(CHECK_RANGE)
 	warning( "QPixmap::convertToImage: DISPLAY NOT SUPPORTED (BPP=%d)",
