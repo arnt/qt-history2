@@ -192,11 +192,6 @@ void QFontEngine::getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyph
 
 QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool stockFont, LOGFONT lf )
 {
-    static the_one_and_only = false;
-    Q_ASSERT(!the_one_and_only);
-    if (the_one_and_only) {
-	the_one_and_only = true;
-    }
     //qDebug("regular windows font engine created: font='%s', size=%d", name, lf.lfHeight);
 
     _name = name;
