@@ -169,8 +169,8 @@ Qt/Embedded supports four font formats:
 \table
 \row
 \i <b>TrueType (TTF)</b>
-\i The scalable font technology now standard on MS-Windows and Apple
-Macintosh, and becoming popular on X11.
+\i The scalable font technology now standard on Microsoft Windows and
+Apple Macintosh, and becoming popular on X11.
 \row
 \i <b>Postscript Type1 (PFA/PFB)</b>
 \i Scalable fonts often used by printers, also popular on X11. These
@@ -179,7 +179,7 @@ further in this document.
 \row
 \i <b>Bitmap Distribution Format<br>fonts (BDF)</b>
 \i A standard format for non-scalable fonts. A large number of BDF
-fonts are supplied as part of standard X11 distributions - most of
+fonts are supplied as part of standard X11 distributions -- most of
 these can be used with Qt/Embedded. You should \e not use these in a
 production system: they are very slow to load and take up a \e lot of
 storage space. Instead, render the BDF to a QPF.
@@ -190,7 +190,7 @@ storage space. Instead, render the BDF to a QPF.
 
 Support for each of these font formats (except QPF which is always
 enabled) can be enabled or disabled independently by using the \link
-emb-features.html Qt/Embedded Features Definition\endlink. There is
+emb-features.html Qt/Embedded Features Definitions\endlink. There is
 support in Qt/Embedded for writing a QPF font file from any font, so
 you can initially enable TTF and BDF formats, save QPF files for the
 fonts and sizes you need, then remove TTF and BDF support.
@@ -271,7 +271,7 @@ where
 
 The font definition file does not specify QPF fonts; these are loaded 
 directly from the directory containing the \c fontdir file, and must
-be named \e {name}_\e {size}_\e {weight}\e {italicflag}.qpf, where
+be called \e {name}_\e {size}_\e {weight}\e {italicflag}.qpf, where
 
 \table
 \header \i Field \i Value
@@ -453,7 +453,7 @@ overhead in both size and speed.
 \title Qt/Embedded Pointer Handling
 
 Pointer handling in Qt/Embedded works for any mouse or mouse-like
-device such as touchpanels and trackballs.
+device such as touch panels and trackballs.
 
 Usually only one pointer device is supported in an embedded device,
 but for demonstration purposes, Qt/Embedded includes a large number of
@@ -462,7 +462,7 @@ supported devices.
 \section1 Mouse Protocols
 
 Mouse drivers can be enabled/disabled via the configure script.  Running
-./configure -help lists the available mouse drivers.  Only the
+\c{./configure} \c{-help} lists the available mouse drivers.  Only the
 "pc" mouse driver is enabled in the default configuration.
 
 Provided the "pc" mouse driver is enabled, Qt/Embedded auto-detects the
@@ -491,8 +491,8 @@ QMouseDriverPlugin can be written and installed as plugins.
 
 \section1 Touch Panels
 
-Qt/Embedded ships with support for the NEC Vr41XX touchpanel and the
-emerging linux touchpanel standard used by the iPAQ and Zaurus. These
+Qt/Embedded ships with support for the NEC Vr41XX touch panel and the
+emerging linux touch panel standard used by the iPAQ and Zaurus. These
 are subclasses of QCalibratedMouseHandler which is in turn a subclass
 of QMouseHandler in \c kernel/qwsmouse_qws.cpp.
 */

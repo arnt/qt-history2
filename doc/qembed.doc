@@ -27,6 +27,11 @@ directly into your application, thus avoiding both the external file and the
 need to parse the image file format. This is useful for small images such as
 icons for which compression is not a great gain.
 
+Note that if you use \link designer-manual.book Qt Designer\endlink
+projects, you can visually add images to your project (Project|Image
+Collection), since Qt's \c uic tool incorporates the same
+functionality as \c{qembed}. (See \l{QPixmap::fromMimeSource()}.)
+
 \section1 Usage
 
 \code

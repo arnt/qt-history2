@@ -339,7 +339,7 @@ old header-file names are still supported.
 
 \table
 \header \i Old Name \i New Name \i New Header File
-\row \i QArray \i \l QMemArray \i \c <qmemarray.h>
+\row \i QArray \i QMemArray \i \c <qmemarray.h>
 \row \i QCollection \i QPtrCollection \i \c <qptrcollection.h>
 \row \i QList \i QPtrList \i \c <qptrlist.h>
 \row \i QListIterator \i QPtrListIterator \i \c <qptrlist.h>
