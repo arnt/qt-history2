@@ -256,8 +256,9 @@ QObject *HierarchyList::handleObjectClick( QListViewItem *i )
 		o = (QWidget*)w->parent()->parent();
 		formWindow->emitUpdateProperties( formWindow->currentWidget() );
 	    } else if ( w->parent() && w->parent()->inherits( "QWidgetStack" ) ) {
-		( (QDesignerWidgetStack*)w->parent() )->raiseWidget( w );
-		( (QDesignerWidgetStack*)w->parent() )->updateButtons();
+		( (QWidgetStack*)w->parent() )->raiseWidget( w );
+		if ( (QWidgetStack*)w->parent()->isA( "QDesignerWidgetStack" ) )
+		    ( (QDesignerWidgetStack*)w->parent() )->updateButtons();
 	    } else if ( w->inherits( "QMenuBar" ) || w->inherits( "QDockWindow" ) ) {
 		formWindow->setActiveObject( w );
 	    } else if ( w->inherits( "QPopupMenu" ) ) {
@@ -467,7 +468,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 		    if ( it.current()->parent()->inherits( "QWizard" ) )
 			dw = (QDesignerWizard*)it.current()->parent();
 		    QWidgetStack *stack = 0;
-		    if ( dw || tw )
+		    if ( dw || tw || obj->inherits( "QWidgetStack" ) )
 			stack = (QWidgetStack*)obj;
 		    else
 			stack = (QWidgetStack*)obj->parent();
