@@ -24,6 +24,7 @@
 #include <qdict.h>
 #include <qprinter.h>
 #include <qstringlist.h>
+#include <qpixmap.h>
 
 #include <qlistview.h>
 

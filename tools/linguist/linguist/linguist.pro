@@ -8,6 +8,7 @@ HEADERS		= finddialog.h \
 		  printout.h \
 		  trwindow.h \
 		  listviews.h \
+		  splashloader.h \
 		  ../pics/images.h \
 		  ../shared/metatranslator.h
 SOURCES		= finddialog.cpp \
@@ -20,9 +21,11 @@ SOURCES		= finddialog.cpp \
 		  simtexth.cpp \
 		  trwindow.cpp \
 		  listviews.cpp \
+		  splashloader.cpp \
 		  ../shared/metatranslator.cpp
 include( ../../../src/qt_professional.pri )
 INCLUDEPATH	= ../pics \
 		  ../shared \
 		  ../../../src/kernel
 DESTDIR		= ../../../bin
+INTERFACES	= about.ui

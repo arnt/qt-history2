@@ -25,6 +25,7 @@
 #include "msgedit.h"
 #include "phrasebookbox.h"
 #include "printout.h"
+#include "about.h"
 
 #include <qaccel.h>
 #include <qaction.h>
@@ -1087,63 +1088,7 @@ void TrWindow::manual()
 
 void TrWindow::about()
 {
-    Embed *ess = 0;
-
-    setupImageDict();
-    ess = imageDict->find( QString("splash") );
-    if ( ess == 0 )
-	return;
-
-    QPixmap pixmap;
-    pixmap.loadFromData( ess->data, ess->size );
-
-    QDialog about( this, 0, TRUE );
-    about.setCaption( tr("Qt Linguist") );
-    QBoxLayout * layout = new QVBoxLayout( &about );
-    layout->setSpacing( 6 );
-    layout->setMargin( 11 );
-
-    QLabel * splash = new QLabel( &about );
-    splash->setFrameStyle( QFrame::NoFrame | QFrame::Plain );
-    splash->setPixmap( pixmap );
-    splash->setScaledContents( FALSE );
-    splash->setAlignment( QLabel::AlignCenter );
-    layout->addWidget( splash );
-
-    QLabel * version = new QLabel( tr("Version 1.0-beta"), &about );
-    version->setAlignment( QLabel::AlignCenter );
-    layout->addWidget( version );
-
-    QLabel * copyright = new QLabel( tr("Copyright (C) 2000-2001 Trolltech AS"),
-    				     &about );
-    copyright->setAlignment( QLabel::AlignCenter );
-    layout->addWidget( copyright );
-
-    QLabel * license = new QLabel(
-	tr("<p>This program is licensed to you under the terms of the GNU General Public License Version 2 as published by the Free Software Foundation. This gives you legal permission to copy, distribute and/or modify this software under certain conditions. For details, see the file 'COPYING' that came with this software distribution. If you did not get the file, send email to info@trolltech.com.</p>\n"
-	   "<p>The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.</p>"),
-	&about );
-    license->setAlignment( QLabel::WordBreak|QLabel::AlignAuto|QLabel::AlignVCenter|QLabel::AlignLeft );
-    layout->addWidget( license );
-
-    QSpacerItem* spacer = new QSpacerItem( 20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding );
-    layout->addItem( spacer );
-
-    QBoxLayout * hlayout = new QHBoxLayout;
-    hlayout->setSpacing( 6 );
-    hlayout->setMargin( 0 );
-    QSpacerItem * lspacer = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-    hlayout->addItem( lspacer );
-    QPushButton * ok = new QPushButton( tr("OK"), &about, "ok about" );
-    ok->setAutoDefault( TRUE );
-    ok->setDefault( TRUE );
-    hlayout->addWidget( ok );
-    QSpacerItem * rspacer = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-    hlayout->addItem( rspacer );
-    layout->addLayout( hlayout );
-
-    connect( ok, SIGNAL(clicked()), &about, SLOT(accept()) );
-
+    AboutDialog about( this, 0, TRUE );
     about.exec();
 }
 
