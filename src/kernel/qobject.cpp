@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#110 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#111 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#110 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#111 $");
 
 
 /*!
@@ -144,20 +144,39 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#110 $");
 // Internal for QObject::connect() and QObject::disconnect()
 //
 
-static QString rmWS( const char *src )
+inline bool isIdentChar( char x )
+{
+    return isalnum(x) || x == '_';
+}
+
+inline bool isSpace( char x )
+{
+#if defined(_CC_BOR_)
+  /*
+    Borland C++ 4.5 has a weird isspace() bug.
+    isspace() usually works, but not here.
+    This implementation is sufficient for our internal use: rmWS()
+  */
+    return (uchar)x <= 32;
+#else
+    return isspace( x );
+#endif
+}
+
+QString rmWS( const char *src )
 {
     QString result( strlen(src)+1 );
     char *d = result.data();
     char *s = (char *)src;
     char last = 0;
-    while( *s && isspace(*s) )
+    while( *s && isSpace(*s) )			// skip leading space
 	s++;
     while ( *s ) {
-	while ( *s && !isspace(*s) )
+	while ( *s && !isSpace(*s) )
 	    last = *d++ = *s++;
-	while ( *s && isspace(*s) )
+	while ( *s && isSpace(*s) )
 	    s++;
-	if ( *s && (isalnum(*s) || *s == '_') && (isalnum(last) || last =='_'))
+	if ( *s && isIdentChar(*s) && isIdentChar(last) )
 	    last = *d++ = ' ';
     }
     result.truncate( (int)(d - result.data()) );
@@ -433,7 +452,8 @@ bool QObject::inherits( const char *clname ) const
 }
 
 
-/*! \fn const char *QObject::name() const
+/*!
+  \fn const char *QObject::name() const
 
   Returns the name of this object, or 0 if the object does not have a
   name.
@@ -716,11 +736,17 @@ static void objSearch( QObjectList *result,
 
 /*!
   \fn const QObjectList *QObject::children() const
-  Returns a list of child objects, or 0.
+  Returns a list of child objects, or 0 if this object has no children.
 
-  The list of child objects contains all the child objects: That is
-  the only guarantee this function gives.  Any undocumented behavior
-  you observe is probably not portable.
+  The latest child added is the \link QList::first() first\endlink object
+  in the list and the first child is added is the \link QList::last()
+  last\endlink object in the list.
+
+  Note that the list order might change when \link QWidget widget\endlink
+  children are \link QWidget::raise() raised\endlink or \link
+  QWidget::lower() lowered\endlink. A widget that is raised becomes the
+  first object in the list.  A widget that is lowered becomes the last
+  object in the list.
 
   \sa queryList(), parent(), insertChild(), removeChild()
 */
