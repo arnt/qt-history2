@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#1 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -383,11 +383,18 @@ void QtFileIconView::readDir( const QDir &dir )
 
     QFileInfoListIterator it( *filist );
     QFileInfo *fi;
+    bool allowRename = FALSE, allowRenameSet = FALSE;
     while ( ( fi = it.current() ) != 0 ) {
         ++it;
         QtFileIconViewItem *item = new QtFileIconViewItem( this, fi );
-        if ( !fi->isWritable() )
-            item->setAllowRename( FALSE );
+        if ( !allowRenameSet ) {
+            if ( !QFileInfo( fi->absFilePath() ).isWritable() )
+                allowRename = FALSE;
+            else
+                allowRename = TRUE;
+            allowRenameSet = TRUE;
+        }
+        item->setAllowRename( allowRename );
         qApp->processEvents();
     }
 
