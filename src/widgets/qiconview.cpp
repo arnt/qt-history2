@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#97 $
 **
 ** Definition of QIconView widget class
 **
@@ -2519,7 +2519,7 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
   \reimp
 */
 
-void QIconView::contentsMouseReleaseEvent( QMouseEvent * )
+void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 {
     d->mousePressed = FALSE;
     d->startDrag = FALSE;
@@ -2537,6 +2537,13 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent * )
 
 	delete d->rubber;
 	d->rubber = 0;
+    } else if ( !d->startDrag ) {
+	QIconViewItem *item = findItem( e->pos() );
+	if ( item ) {
+	    selectAll( FALSE );
+	    item->setSelected( TRUE, TRUE );
+	    emit doubleClicked( item );
+	}
     }
 
     if ( d->scrollTimer ) {

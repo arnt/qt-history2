@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#42 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#43 $
 **
 ** Definition of QIconView widget class
 **
@@ -297,7 +297,7 @@ public:
 			  QCursor *highlightedCursor, int &setCurrentInterval ) const;
     virtual void setUseSingleClickMode( bool b );
     bool useSingleClickMode() const;
-    
+
     QIconViewItem *findItem( const QPoint &pos ) const;
     QIconViewItem *findItem( const QString &text ) const;
     void selectAll( bool select );
