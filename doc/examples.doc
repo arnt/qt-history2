@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 1.4 1995/12/17 14:04:12 agulbra Exp $
+** $Id: examples.doc,v 1.5 1996/01/09 15:48:48 hanord Exp $
 **
 ** Documentation for the examples
 **
@@ -8,8 +8,58 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 1.4 1995/12/17 14:04:12 agulbra Exp $";
+static char ident[] = "$Id: examples.doc,v 1.5 1996/01/09 15:48:48 hanord Exp $";
 #endif
+
+
+/*! \example aclock/aclock.cpp
+
+  <h1>Analog Clock</h1>
+
+  This example displays an analog clock widget.
+
+  Here is the definition:
+
+  \include aclock/aclock.h
+
+  Here is the implementation:
+
+*/
+
+
+/*! \example connect/connect.cpp
+
+  <h1>A Graphical Hello World</h1>
+
+  This example shows very simple mouse-based user interaction and
+  painting without any world transform matrix or other advanced
+  features.  Run the program, click the button, move the mouse,
+  release the button, and watch the lines get drawn.
+*/
+
+
+/*! \example cursor/cursor.cpp
+
+  <h1>Cursors</h1>
+
+  This example shows how to set a mouse cursor for a widget.
+*/
+
+
+/*! \example dclock/dclock.cpp
+
+  <h1>Digital Clock</h1>
+
+  This example displays a digital LCD clock and can switch between time
+  and date.
+
+  Here is the definition:
+
+  \include dclock/dclock.h
+
+  Here is the implementation:
+*/
+
 
 /*! \example drawdemo/drawdemo.cpp
 
@@ -19,30 +69,6 @@ static char ident[] = "$Id: examples.doc,v 1.4 1995/12/17 14:04:12 agulbra Exp $
   You can easily add you own drawing functions.  See "ourDrawFunctions".
 */
 
-/*! \example menu/menu.cpp
-
-  <h1>Using menus</h1>
-
-  This example demontrates simple use of menus.*/
-
-/*! \example widgets/widgets.cpp
-
-  <h1>Widgets Demo</h1>
-
-  This example creates a window with many Qt widgets and two custom
-  example widgets; aclock and dclock.
-
-  It also shows how to connect widget signals to internal slots.
-*/
-
-/*! \example connect/connect.cpp
-
-  <h1>A Graphical Hello World</h1>
-
-  This example shows very simple mouse-based user interaction and
-  painting without any world transform matrix or other advanced
-  features.  Run the program, click the button, move the mouse,
-  release the button, and watch the lines get drawn. */
 
 /*! \example forever/forever.cpp
 
@@ -53,12 +79,6 @@ static char ident[] = "$Id: examples.doc,v 1.4 1995/12/17 14:04:12 agulbra Exp $
   are drawn per second.
 */
 
-/*! \example cursor/cursor.cpp
-
-  <h1>Cursors</h1>
-
-  This example shows how to set a mouse cursor for a widget.
-*/
 
 /*! \example hello/hello.cpp
   <h1>Hello, World</h1>
@@ -66,17 +86,28 @@ static char ident[] = "$Id: examples.doc,v 1.4 1995/12/17 14:04:12 agulbra Exp $
   This example brings up a message box with a text and a button.
 */
 
+
+/*! \example menu/menu.cpp
+
+  <h1>Using menus</h1>
+
+  This example demontrates simple use of menus.
+*/
+
+
 /*! \example picture/makepic.cpp
   <h1>Make Picture</h1>
 
   This example draws a car in a picture and writes it to a file.
 */
 
+
 /*! \example picture/showpic.cpp
   <h1>Show Picture</h1>
 
   This example loads a picture file and displays it in a window.
 */
+
 
 /*! \example qmag/qmag.cpp
 
@@ -91,4 +122,31 @@ Run it, click in the magnifier window, then click where you want to
 magnify.  Two combo boxes let you select amplification and refresh
 frequency, and a text label tells you the color of the pixel the
 cursor is on.
+*/
+
+
+/*! \example showimg/showimg.cpp
+
+  <h1>Show Image</h1>
+
+  This example reads and displays an image.
+*/
+
+
+/*! \example widgets/widgets.cpp
+
+  <h1>Widgets Demo</h1>
+
+  This example creates a window with many Qt widgets and two custom
+  example widgets; aclock and dclock.
+
+  It also shows how to connect widget signals to internal slots.
+*/
+
+
+/*! \example xshape/xshape.cpp
+
+  <h1>X Shape Extension Demo</h1>
+
+  This example creates a window which make use of the X Shape Extension.
 */
