@@ -386,8 +386,10 @@ static QSqlField qMakeFieldInfo(const SQLHANDLE hStmt, const QODBCDriverPrivate*
     } else {
         required = -1;
     }
-    int size = qGetIntData(hStmt, 6).toInt(); // column size
-    int prec = qGetIntData(hStmt, 8).toInt(); // precision
+    QCoreVariant var = qGetIntData(hStmt, 6);
+    int size = var.isNull() ? -1 : var.toInt(); // column size
+    var = qGetIntData(hStmt, 8).toInt();
+    int prec = var.isNull() ? -1 : var.toInt(); // precision
     return QSqlField(fname, qDecodeODBCType(type, p), required, size, prec, QCoreVariant(), type);
 }
 
