@@ -2652,14 +2652,12 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
     request.dirty = FALSE;
 
     // Insert font into the font cache and font dict
-    bool inserted;
-    inserted = fontCache->insert(k, qfs, qfs->cache_cost);
-
+    if ( !fontCache->insert(k, qfs, qfs->cache_cost) )
+    {
 #ifdef QT_CHECK_STATE
-    if (! inserted)
 	qFatal("QFont::load: font cache overflow error");
 #endif // QT_CHECK_STATE
-
+    }
 }
 
 
