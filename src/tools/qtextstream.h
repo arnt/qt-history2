@@ -159,25 +159,13 @@ private:
     int		fwidth;
     int		fillchar;
     int		fprec;
-    bool	doUnicodeHeader;
-    bool	owndev;
-    QTextCodec 	*mapper;
     QTextStreamPrivate * d;
-    QChar	unused1; // ### remove in Qt 4.0
-    bool	latin1;
-    bool 	internalOrder;
-    bool	networkOrder;
-    void	*unused2; // ### remove in Qt 4.0
 
-    QChar	eat_ws();
-    uint 	ts_getline( QChar* );
     void	ts_ungetc( QChar );
     QChar	ts_getc();
-    uint	ts_getbuf( QChar*, uint );
+    bool	ts_getbuf( QChar*, uint, uchar =0, uint * =NULL );
     void	ts_putc(int);
     void	ts_putc(QChar);
-    bool	ts_isspace(QChar);
-    bool	ts_isdigit(QChar);
     ulong	input_bin();
     ulong	input_oct();
     ulong	input_dec();
@@ -234,9 +222,6 @@ private:	// Disabled copy constructor and operator=
 inline QIODevice *QTextStream::device() const
 { return dev; }
 
-inline bool QTextStream::atEnd() const
-{ return dev ? dev->atEnd() : FALSE; }
-
 inline bool QTextStream::eof() const
 { return atEnd(); }
 
@@ -277,7 +262,7 @@ inline int QTextStream::precision( int p )
   Returns one character from the stream, or EOF.
 */
 inline QChar QTextStream::ts_getc()
-{ QChar r; return ( ts_getbuf( &r,1 ) == 1 ? r : QChar((ushort)0xffff) ); }
+{ QChar r; return ( !ts_getbuf( &r,1 ) ? r : QChar((ushort)0xffff) ); }
 
 /*****************************************************************************
   QTextStream manipulators
