@@ -650,7 +650,6 @@ typedef Q_UINT64		Q_ULLONG;	// unsigned long long
 #  define QT_COMPAT
 #endif
 
-#define QT_COMPAT_WARNINGS
 #if defined(QT_COMPAT_WARNINGS)
 #  ifdef QT_COMPAT
 #    undef QT_COMPAT
