@@ -1297,6 +1297,7 @@ void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
 }
 
 static const int qt_clip_operations[] = {
+    0,              // Qt::NoClip
     RGN_COPY,       // Qt::ReplaceClip
     RGN_AND,        // Qt::IntersectClip
     RGN_OR          // Qt::UniteClip
@@ -2187,7 +2188,9 @@ void QGdiplusPaintEngine::updateClipRegion(const QRegion &qtClip, Qt::ClipOperat
     } else {
         QtGpRegion *region = 0;
         GdipCreateRegionHrgn(qtClip.handle(), &region);
-        GdipSetClipRegion(d->graphics, region, op); // CombineMode in GDI+ has same layout as ours
+        GdipSetClipRegion(d->graphics, region,
+                          op + 1  // Same enum values in GDI+, but +1 due to Qt::NoClip
+                          );
         GdipDeleteRegion(region);
 
     }
