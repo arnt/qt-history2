@@ -1495,10 +1495,6 @@ void QPainter::setBackground(const QBrush &bg)
 
 void QPainter::setRasterOp(RasterOp op)
 {
-    if ((uint)op > LastROP) {
-	qWarning("QPainter::setRasterOp: Invalid ROP code");
-	return;
-    }
     d->state->rasterOp = op;
     if (d->engine)
 	d->engine->setDirty(QPaintEngine::DirtyRasterOp);
@@ -3278,9 +3274,9 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
 		qt_swap(dx, dy);
 	    }
 	    double gamma = double(dx) / double(-dy);
-	    xtop1 = (ry - gstart.y() + gamma * gstart.x()) / gamma;
-	    xtop2 = (rx - gstop.y() + gamma * gstop.x()) / gamma;
-	    xbot1 = ((ry+rh) - gstart.y() + gamma*gstart.x()) / gamma;
+	    xtop1 = qRound((ry - gstart.y() + gamma * gstart.x()) / gamma);
+	    xtop2 = qRound((rx - gstop.y() + gamma * gstop.x()) / gamma);
+	    xbot1 = qRound(((ry+rh) - gstart.y() + gamma*gstart.x()) / gamma);
 	    Q_ASSERT(xtop2 > xtop1);
 	}
 
@@ -3311,9 +3307,9 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
 		qt_swap(dx, dy);
 	    }
 	    double gamma = double(dy) / double(-dx);
-	    yleft1 = (rx - gstart.x() + gamma * gstart.y()) / gamma;
-	    yleft2 = (rx - gstop.x() + gamma * gstop.y()) / gamma;
-	    yright1 = ((rx+rw) - gstart.x() + gamma*gstart.y()) / gamma;
+	    yleft1 = qRound((rx - gstart.x() + gamma * gstart.y()) / gamma);
+	    yleft2 = qRound((rx - gstop.x() + gamma * gstop.y()) / gamma);
+	    yright1 = qRound(((rx+rw) - gstart.x() + gamma*gstart.y()) / gamma);
 	    Q_ASSERT(yleft2 > yleft1);
 	}
 
