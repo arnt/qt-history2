@@ -482,6 +482,11 @@ QRect QFrame::contentsRect() const
     return r;
 }
 
+/*!
+  Returns a size hint for the frame - for HLine and VLine shapes,
+  this is stretchable one way and 3 pixels wide the other.
+  For other shapes, QWidget::sizeHint() is used.
+*/
 QSize QFrame::sizeHint() const
 {
     switch (fstyle & MShape) {
