@@ -373,8 +373,8 @@ static void basic_attributes( int /*script*/, const QString &text, int from, int
 enum Shape {
     XIsolated,
     XFinal,
-    XInitial,
-    XMedial
+    XMedial,
+    XInitial
 };
 
 /*
@@ -431,7 +431,7 @@ static inline bool nextLogicalCharJoins( const QString &str, int pos)
 static inline Shape glyphVariantLogical( const QString &str, int pos)
 {
     QChar::Joining joining = ::joining( str.unicode()[pos] );
-    //qDebug("checking %x, joining=%d", str[pos].unicode(), joining);
+    //qDebug("checking at %d: %x, joining=%d", pos, str[pos].unicode(), joining);
     switch ( joining ) {
 	case QChar::OtherJoining:
 	case QChar::Center:
@@ -889,16 +889,19 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
     openType->applyGSUBFeature(FT_MAKE_TAG( 'c', 'c', 'm', 'p' ));
 
     if (script == QFont::Arabic) {
-	const int features[] = {
-	    FT_MAKE_TAG( 'i', 's', 'o', 'l' ),
-	    FT_MAKE_TAG( 'f', 'i', 'n', 'a' ),
-	    FT_MAKE_TAG( 'm', 'e', 'd', 'i' ),
-	    FT_MAKE_TAG( 'i', 'n', 'i', 't' )
+	const struct {
+	    int tag;
+	    int shape;
+	} features[] = {
+	    { FT_MAKE_TAG( 'i', 's', 'o', 'l' ), XIsolated },
+	    { FT_MAKE_TAG( 'f', 'i', 'n', 'a' ), XFinal },
+	    { FT_MAKE_TAG( 'm', 'e', 'd', 'i' ), XMedial },
+	    { FT_MAKE_TAG( 'i', 'n', 'i', 't' ), XInitial }
 	};
 	for (int j = 0; j < 4; ++j) {
 	    for ( int i = 0; i < si->num_glyphs; i++ )
-		apply[i] = (glyphVariant[i] == j);
-	    openType->applyGSUBFeature(features[j], apply);
+		apply[i] = (glyphVariant[i] == features[j].shape);
+	    openType->applyGSUBFeature(features[j].tag, apply);
 	}
     } else {
 	const struct {

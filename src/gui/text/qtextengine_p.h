@@ -293,7 +293,7 @@ public:
     inline unsigned short *logClusters( const QScriptItem *si ) const
 	{ return logClustersPtr+si->position; }
     inline QGlyphLayout *glyphs(const QScriptItem *si) const
-	{ return glyphPtr + si->position; }
+	{ return glyphPtr + si->glyph_data_offset; }
 
     void reallocate( int totalGlyphs );
     inline void ensureSpace( int nGlyphs ) const {
