@@ -164,6 +164,7 @@ main(int argc, char* argv[])
   QApplication app( argc, argv );
   QMotifWidget toplevel( 0, xmMainWindowWidgetClass,
 			 NULL, 0, "mainw" );
+  app.setMainWidget( &toplevel );
 
   mainw		= toplevel.motifWidget();
   shell		= XtParent( mainw );
