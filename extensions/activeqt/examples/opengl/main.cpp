@@ -14,11 +14,11 @@
 // Qt OpenGL example: Box
 //
 // A small example showing how a GLWidget can be used just as any Qt widget
-// 
+//
 // File: main.cpp
 //
-// The main() function 
-// 
+// The main() function
+//
 
 #include "globjwin.h"
 #include "glbox.h"
@@ -27,7 +27,7 @@
 
 #include <qaxfactory.h>
 
-QAXFACTORY_DEFAULT( GLBox, 
+QAXFACTORY_DEFAULT( GLBox,
 		    "{5fd9c22e-ed45-43fa-ba13-1530bb6b03e0}",
 		    "{33b051af-bb25-47cf-a390-5cfd2987d26a}",
 		    "{8c996c29-eafa-46ac-a6f9-901951e765b5}",
@@ -36,7 +36,7 @@ QAXFACTORY_DEFAULT( GLBox,
 		  )
 
 /*
-  The main program is here. 
+  The main program is here.
 */
 
 int main( int argc, char **argv )
@@ -52,7 +52,6 @@ int main( int argc, char **argv )
     if ( !QAxFactory::isServer() ) {
 	GLObjectWindow w;
 	w.resize( 400, 350 );
-	a.setMainWidget( &w );
 	w.show();
 	return a.exec();
     }

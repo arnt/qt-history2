@@ -30,7 +30,6 @@ int main( int argc, char **argv )
     QWidget *window = 0;
     if ( !QAxFactory::isServer() ) {
 	window = new QMenus();
-	a.setMainWidget( window );
 	window->show();
     }
 
