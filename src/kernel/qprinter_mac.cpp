@@ -171,6 +171,17 @@ QPrinter::prepare(PMPageFormat *f)
 }
 
 
+void QPrinter::setPrinterName( const QString &name )
+{
+    if ( state != 0 ) {
+#if defined(QT_CHECK_STATE)
+        qWarning( "QPrinter::setPrinterName: Cannot do this during printing" );
+#endif
+        return;
+    }
+    printer_name = name;
+}
+
 bool QPrinter::setup( QWidget *  )
 {
     if(!psession && PMCreateSession(&psession) != noErr)

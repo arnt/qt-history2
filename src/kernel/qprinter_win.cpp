@@ -535,6 +535,18 @@ static void setDefaultPrinter(const QString &printerName, HANDLE hdevmode, HANDL
     GlobalFree(pinf2);
 }
 
+void QPrinter::setPrinterName( const QString &name )
+{
+    if ( state != 0 ) {
+#if defined(QT_CHECK_STATE)
+        qWarning( "QPrinter::setPrinterName: Cannot do this during printing" );
+#endif
+        return;
+    }
+    printer_name = name;
+    setDefaultPrinter( name, hdevmode, hdevnames );
+}
+
 bool QPrinter::setup( QWidget *parent )
 {
     if ( parent )
@@ -543,9 +555,6 @@ bool QPrinter::setup( QWidget *parent )
         parent = qApp->mainWidget();
 
     bool result = FALSE;
-
-    if ( !printerName().isEmpty() )
-        setDefaultPrinter( printerName(), hdevmode, hdevnames );
 
     // Must handle the -A and -W versions separately; they're incompatible
     if ( qWinVersion() & Qt::WV_NT_based ) {

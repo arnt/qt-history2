@@ -155,6 +155,28 @@ bool QPrinter::aborted() const
     return state == PST_ABORTED;
 }
 
+/*!
+  Sets the printer name.
+
+  The default printer will be used if no printer name is set.
+
+  Under X11, the PRINTER environment variable defines the
+  default printer.  Under any other window system, the window
+  system defines the default printer.
+
+  \sa printerName()
+*/
+
+void QPrinter::setPrinterName( const QString &name )
+{
+    if ( state != 0 ) {
+#if defined(QT_CHECK_STATE)
+        qWarning( "QPrinter::setPrinterName: Cannot do this during printing" );
+#endif
+        return;
+    }
+    printer_name = name;
+}
 
 /*!
   Opens a printer setup dialog and asks the user to specify what printer
