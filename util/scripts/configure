@@ -198,6 +198,7 @@ VERBOSE=
 DEBUG=no
 SHARED=yes
 GIF=no
+OPENGL=auto
 THREAD=auto
 SM=auto
 ZLIB=yes
@@ -294,6 +295,11 @@ while [ -n "$1" ]; do
        MODULE=`echo $1 | sed -e "s/-no-//"`;
        if [ -d "src/$MODULE" ]
        then
+	    if [ $MODULE = "opengl" ]
+	    then
+		OPENGL=no
+	    fi
+		
 	   MODULES=`echo $MODULES | sed -e "s/$MODULE//"`
        else
 	   FEATURE=`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`;
@@ -353,7 +359,7 @@ then
     then
 	# This is a Qt/Embedded distribution
 	SM=no
-	MODULES=`echo $MODULES | sed -e 's/\<opengl\>//'`
+	MODULES=`echo $MODULES | sed -e 's/opengl//'`
 	PLATFORMS="linux-generic-g++ linux-mips-g++ linux-x86-g++ linux-arm-g++"
 	case "$UNAME_MACHINE" in
 	 *86) ARCH=x86-
@@ -495,7 +501,7 @@ if [ "x$SHARED" = "xyes" ]; then
         echo
         echo
         echo '    No shared library support for platform/compiler ' $TARGET
-        echo '    Please see the PLATFORMS file for more information.'
+        echo "    Available platforms: $PLATFORMS"
         echo
         echo
         exit 2
@@ -504,7 +510,7 @@ if [ "x$SHARED" = "xyes" ]; then
         echo
         echo
         echo '    No shared library support for platform/compiler ' $XTARGET
-        echo '    Please see the PLATFORMS file for more information.'
+        echo "    Available platforms: $PLATFORMS"
         echo
         echo
         exit 2
@@ -516,7 +522,7 @@ else
         echo
         echo
         echo '     No static library support for platform/compiler ' $TARGET
-        echo '    Please see the PLATFORMS file for more information.'
+        echo "    Available platforms: $PLATFORMS"
         echo
         echo
         exit 2
@@ -525,7 +531,7 @@ else
         echo
         echo
         echo '     No static library support for platform/compiler ' $XTARGET
-        echo '    Please see the PLATFORMS file for more information.'
+        echo "    Available platforms: $PLATFORMS"
         echo
         echo
         exit 2
@@ -545,7 +551,7 @@ then
     echo
     echo
     echo '   The specified platform/compiler not supported: ' $TARGET
-    echo '   Please see the PLATFORMS file for a complete list.'
+    echo "    Available platforms: $PLATFORMS"
     echo
     echo
     exit 2
@@ -555,14 +561,15 @@ then
     echo
     echo
     echo '   The specified platform/compiler not supported: ' $XTARGET
-    echo '   Please see the PLATFORMS file for a complete list.'
+    echo "    Available platforms: $PLATFORMS"
     echo
     echo
     exit 2
 fi
 
-if [ ! -f configs/linux-generic-g++-shared ]
+if [ ! -f configs/linux-generic-g++-shared -a $OPENGL = "auto" ]
 then
+    OPENGL=yes
     # Auto-detect opengl support
     LIBS=`sed -n -e '/^SYSCONF_LIBS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XCONFIG`
     for L in $LIBS
@@ -576,10 +583,31 @@ then
 		break
 	    fi
 	done
-	if [ -z "$F" ]
+	if [ "$F" = "yes" ]
 	then
-	    MODULES=`echo $MODULES | sed -e 's/\<opengl\>//'`
-	    break
+	    for I in GL/glu.h GL/gl.h
+	    do
+		G=
+		for INC in `sed -n -e '/^SYSCONF_CXXFLAGS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XCONFIG` /usr/include
+		do
+		    if [ -f $INC/$I ]
+		    then
+			G=yes
+			break
+		    fi
+		done
+	    done
+
+	    if [ -z "$G" ]
+            then
+                MODULES=`echo $MODULES | sed -e 's/opengl//'`
+		OPENGL=no
+	        break
+            fi
+	else
+            MODULES=`echo $MODULES | sed -e 's/opengl//'`
+	    OPENGL=no
+            break
 	fi
     done
 fi
@@ -664,7 +692,7 @@ if [ "$HELP" = "yes" ]; then
 
     cat <<EOF
 Usage: $0 [-debug] [-release] [-shared] [-static] [-gif] [-no-gif] \\
-        [-sm] [-no-sm] [-thread] [-no-thread] [-qt-zlib] [-system-zlib] \\
+	[-sm] [-no-sm] [-thread] [-no-thread] [-qt-zlib] [-system-zlib] \\
 	[-qt-libpng] [-system-libpng] [-no-jpeg] [-system-jpeg] \\
 	[-no-<module>] [-kde] [-Istring] [-Lstring] [-Rstring] [-lstring]
 
@@ -938,13 +966,41 @@ for a in `find $relpath/. -name Makefile.in -print | sort` ; do
 
 EOF
 
+	if [ $N = ././src/moc/Makefile ] ; then
+	# we don't want to link moc to SM and ICE
+	    OPT="sed -e s/^QT_LIBS_OPT.*$//g .buildopts"
+	else
+	    OPT="cat .buildopts"
+	fi
+
 	if [ $relpath != `pwd` ] ; then
 	    echo VPATH=$relpath/$buildpath >> $N
-	    cat .buildopts $CONF >> $N
+	    $OPT >> $N
+	    if [ $N = ././src/moc/Makefile ] ; then
+		cat $CONF | sed -e "s/^SYSCONF_LIBS_QTAPP.*$/SYSCONF_LIBS_QTAPP =/" >> $N
+	    else
+		if [ $OPENGL = "no" ]
+		then
+	  	    cat $CONF | sed -e "s/^SYSCONF_LIBS_OPENGL.*$/SYSCONF_LIBS_OPENGL =/" >> $N
+		else
+		    cat $CONF >> $N
+		fi
+	    fi
+
 	    sed -e's/	\$(MOC) [^ ]* -o .*/	$(MOC) $< -o $@/g' \
 		-e's/\(	\$(CXX) -c \$(CXXFLAGS) \$(INCPATH) -o\) [^ ]* [^ ]*/\1 $@ $</g' $M >> $N
 	else
-	    cat .buildopts $CONF $M >> $N
+	    $OPT >> $N
+	    if [ $N = ././src/moc/Makefile ] ; then
+		cat $CONF $M | sed -e "s/^SYSCONF_LIBS_QTAPP.*$/SYSCONF_LIBS_QTAPP =/" >> $N
+	    else
+                if [ $OPENGL = "no" ] 
+                then
+                    cat $CONF $M | sed -e "s/^SYSCONF_LIBS_OPENGL.*$/SYSCONF_LIBS_OPENGL =/" >> $N
+                else
+                    cat $CONF $M >> $N
+                fi
+	    fi
 	fi
 	if [ "$VERBOSE" = "yes" ]; then
 	   echo '  Created' $N
