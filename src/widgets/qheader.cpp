@@ -734,8 +734,16 @@ QRect QHeader::sRect( int index )
 {
 
     int section = mapToSection( index );
+    if ( index >= count() ) {
+	int s = d->positions[count()-1]-offset()+d->sizes[mapToSection(count()-1)];
+	if ( orient == Horizontal )
+	    return QRect(  s, 0, width()-s+10, height() );
+	else
+	    return QRect(  0, s, width(), height() - s +10);
+    }
     if ( section < 0 )
 	return rect(); // ### eeeeevil
+    
 
     if ( reverse() )
 	return QRect(  d->lastPos - d->positions[index] - d->sizes[section] -offset(), 0, d->sizes[section], height() );
@@ -1186,8 +1194,10 @@ void QHeader::setClickEnabled( bool enable, int section )
 void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 {
     int section = mapToSection( index );
-    if ( section < 0 )
+    if ( section < 0 ) {
+	style().drawHeaderSection( p, fr.x(), fr.y(), fr.width(), fr.height(), colorGroup(), FALSE );
 	return;
+    }
 
     bool down = (index==handleIdx) && ( state == Pressed || state == Moving );
     p->setBrushOrigin( fr.topLeft() );
@@ -1326,7 +1336,7 @@ void QHeader::paintEvent( QPaintEvent *e )
     int id = mapToIndex( sectionAt( pos + offset() ) );
     if ( id < 0 ) {
 	if ( pos > 0 )
-	    return;
+	    id = d->count;
 	else if ( reverse() )
 	    id = d->count - 1;
 	else
@@ -1340,13 +1350,15 @@ void QHeader::paintEvent( QPaintEvent *e )
 		return;
 	}
     } else {
-	for ( int i = id; i < count(); i++ ) {
+	for ( int i = id; i <= count(); i++ ) {
 	    QRect r = sRect( i );
-	    paintSection( &p, i, r );
+	    if ( i < count() || d->clicks[ mapToSection( count() - 1 ) ] ) 
+		paintSection( &p, i, r );
 	    if ( orient == Horizontal && r. right() >= e->rect().right() ||
 		 orient == Vertical && r. bottom() >= e->rect().bottom() )
 		return;
 	}
+
     }
 }
 
