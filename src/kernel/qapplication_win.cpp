@@ -288,7 +288,7 @@ static bool	qt_try_modal( QWidget *, MSG *, int& ret );
 
 QWidget	       *qt_button_down = 0;		// widget got last button-down
 
-extern bool qt_dispatchAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
+extern bool qt_tryAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
 
 static HWND	autoCaptureWnd = 0;
 static void	setAutoCapture( HWND );		// automatic capture
@@ -1287,7 +1287,7 @@ void qt_fill_tile( QPixmap *tile, const QPixmap &pixmap )
 #ifndef Q_OS_TEMP
 static inline void qt_draw_tiled_pixmapA( HDC hdc, int x, int y, int w, int h,
 			   const QPixmap *bg_pixmap,
-			   int off_x, int off_y ) 
+			   int off_x, int off_y )
 {
     QPixmap *tile = 0;
     QPixmap *pm;
@@ -1754,7 +1754,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 	case WM_SETTINGCHANGE:
 	    if ( !msg.wParam ) {
-		QString area = QT_WA_INLINE( QString::fromUcs2( (unsigned short *)msg.lParam ),  
+		QString area = QT_WA_INLINE( QString::fromUcs2( (unsigned short *)msg.lParam ),
 					     QString::fromLocal8Bit( (char*)msg.lParam ) );
 		if ( area == "intl" )
 		    QApplication::postEvent( widget, new QEvent( QEvent::LocaleChange ) );
@@ -1806,7 +1806,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		// we get focus, I want to use the tablet...
 		if (hTab && GET_WM_ACTIVATE_STATE(wParam, lParam)) {
 		    if ( ptrWTEnable(hTab, TRUE) )
-			ptrWTOverlap(hTab, TRUE);		    
+			ptrWTOverlap(hTab, TRUE);
 		}
 	    }
 #endif
@@ -1982,7 +1982,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		}
 	    }
 	    break;
-	case WT_PROXIMITY:		
+	case WT_PROXIMITY:
 	    // flush the QUEUE
 	    if ( ptrWTPacketsGet )
 		ptrWTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
@@ -2399,7 +2399,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
     if ( sm_blockUserInput ) //block user interaction during session management
 	return TRUE;
 
-    if ( msg.message == WM_MOUSEMOVE ) {	
+    if ( msg.message == WM_MOUSEMOVE ) {
 	// Process only the most current mouse move event. Otherwise you
 	// end up queueing events in certain situations. Very bad for graphics
 	// applications. Just grabbing the million poly model and moving the
@@ -3205,7 +3205,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
     t = QEvent::TabletMove;
     if ( winPeekMessage( &msg1, msg.hwnd, WM_MOUSEFIRST, WM_MOUSELAST, PM_NOREMOVE) ) {
 	switch (msg1.message) {
-	case WM_MOUSEMOVE:    	
+	case WM_MOUSEMOVE:
 	    t = QEvent::TabletMove;
 	    break;
 	case WM_LBUTTONDOWN:
@@ -3229,7 +3229,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	ptNew.x = (UINT)localPacketBuf[i].pkX;
 	ptNew.y = (UINT)localPacketBuf[i].pkY;
 	prsNew = 0;
-	if ( btnNew ) {	
+	if ( btnNew ) {
 	    prsNew = prsAdjust( localPacketBuf[i], hTab );
 	} else if ( button_pressed ) {
 	    // One button press, should only give one button release
@@ -3269,7 +3269,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	    csr_physid;
 	ptrWTInfo( WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_TYPE, &csr_type );
 	ptrWTInfo( WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_PHYSID, &csr_physid );
-	QPair<int,int> llId( csr_type, csr_physid );	
+	QPair<int,int> llId( csr_type, csr_physid );
 	QTabletEvent e( t, localPos, globalPos, dev, prsNew, tiltX, tiltY, llId );
 	sendEvent = QApplication::sendSpontaneousEvent( w, &e );
     }
@@ -3289,7 +3289,7 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
     if ( type == QEvent::KeyPress && !grab ) {
 	// send accel events if the keyboard is not grabbed
 	QKeyEvent a( type, code, ascii, state, text, autor, int(text.length()) );
-	if ( qt_dispatchAccelEvent( this, &a ) )
+	if ( qt_tryAccelEvent( this, &a ) )
 	    return TRUE;
     }
     if ( !isEnabled() )

@@ -164,6 +164,7 @@ public:
     static QAccelManager* self() { return self_ptr ? self_ptr : new QAccelManager; }
     void registerAccel( QAccelPrivate* a ) { accels.append( a ); }
     void unregisterAccel( QAccelPrivate* a ) { accels.removeRef( a ); if ( accels.isEmpty() ) delete this; }
+    bool tryAccelEvent( QWidget* w, QKeyEvent* e );
     bool dispatchAccelEvent( QWidget* w, QKeyEvent* e );
 
 private:
@@ -182,6 +183,10 @@ private:
 };
 QAccelManager* QAccelManager::self_ptr = 0;
 
+bool Q_EXPORT qt_tryAccelEvent( QWidget* w, QKeyEvent*  e){
+    return QAccelManager::self()->tryAccelEvent( w, e );
+}
+
 bool Q_EXPORT qt_dispatchAccelEvent( QWidget* w, QKeyEvent*  e){
     return QAccelManager::self()->dispatchAccelEvent( w, e );
 }
@@ -191,8 +196,17 @@ bool Q_EXPORT qt_dispatchAccelEvent( QWidget* w, QKeyEvent*  e){
     Returns TRUE if the accel is in the current subwindow, else FALSE.
 */
 bool QAccelManager::correctSubWindow( QWidget* w, QAccelPrivate* d ) {
-    if ( !d->enabled || !d->watch || !d->watch->isVisible()
-	 || d->watch->topLevelWidget() != w->topLevelWidget() )
+    if ( !d->enabled || !d->watch || !d->watch->isVisibleTo(0) )
+	return FALSE;
+    QWidget* tlw = w->topLevelWidget();
+    QWidget* wtlw = d->watch->topLevelWidget();
+
+    /* if we live in a floating dock window, keep our parent's
+     * accelerators working */
+    if ( tlw->isDialog() && tlw->parentWidget() && tlw->inherits( "QDockWindow" ) )
+	return tlw->parentWidget()->topLevelWidget() == wtlw;
+
+    if ( wtlw  != tlw )
 	return FALSE;
 
     /* if we live in a MDI subwindow, ignore the event if we are
@@ -280,6 +294,23 @@ Qt::SequenceMatch QAccelManager::match( QKeyEvent *e, QAccelItem* item, QKeySequ
     return result;
 }
 
+bool QAccelManager::tryAccelEvent( QWidget* w, QKeyEvent* e )
+{
+    if ( Qt::NoMatch == currentState ) {
+	e->t = QEvent::AccelOverride;
+	e->spont = TRUE;
+	e->ignore();
+	if ( QApplication::sendEvent( w, e ) || e->isAccepted() )
+	    return FALSE;
+	e->t = QEvent::Accel;
+	e->spont = TRUE;
+	e->ignore();
+	if ( QApplication::sendEvent( w, e ) )
+	    return TRUE;
+    }
+    return FALSE;
+}
+
 /*
     \internal
     Checks for possible accelerators, if no widget
@@ -290,15 +321,6 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 {
     // Needs to be declared and used here because of "goto doclash"
     QStatusBar* mainStatusBar = 0;
-    
-    if ( Qt::NoMatch == currentState ) {
-	e->spont = TRUE;
-	e->t = QEvent::AccelOverride;
-	e->ignore();
-	QApplication::sendEvent( w, e );
-	if ( e->isAccepted() )
-	    return FALSE;
-    }
 
     // Accelerators can NOT be modifiers themselvs...
     if ( e->key() >= Key_Shift &&
@@ -344,9 +366,9 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	    if ( currentState == Qt::PartialMatch ) {
 		mainStatusBar->message( (QString)partial + ", ...", 0 );
 	    } else {
-		mainStatusBar->message( (QString)intermediate + 
-					", " + 
-					QKeySequence::encodeString( e->key() | translateModifiers(e->state()) ) + 
+		mainStatusBar->message( (QString)intermediate +
+					", " +
+					QKeySequence::encodeString( e->key() | translateModifiers(e->state()) ) +
 					" not defined", 2000 );
 		// Since we're a NoMatch, reset the clash count
 		clash = -1;
@@ -358,7 +380,7 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	clash = -1; // reset
 	if ( currentState == Qt::PartialMatch && mainStatusBar )
 		mainStatusBar->clear();
-        currentState = Qt::NoMatch; // Free sequence keylock
+	currentState = Qt::NoMatch; // Free sequence keylock
 	intermediate = QKeySequence();
 	lastaccel->activate( lastitem );
 	return TRUE;

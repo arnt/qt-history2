@@ -1360,7 +1360,7 @@ void QDockWindow::drawContents( QPainter *p )
     QStyle::SFlags flags = QStyle::Style_Default;
     if ( titleBar->isActive() )
 	flags |= QStyle::Style_Active;
-    style().drawControl( QStyle::CE_DockWindowEmptyArea, p, this, 
+    style().drawControl( QStyle::CE_DockWindowEmptyArea, p, this,
 			 rect(), colorGroup(), flags );
 }
 
@@ -1872,31 +1872,10 @@ bool QDockWindow::eventFilter( QObject * o, QEvent *e )
 /*! \reimp */
 bool QDockWindow::event( QEvent *e )
 {
-    switch ( e->type() ) {
-    case QEvent::WindowDeactivate:
+    if ( e->type() == QEvent::WindowDeactivate ) {
 	if ( place() == OutsideDock && isTopLevel() && parentWidget()
 	     && parentWidget()->isActiveWindow() )
 	    return TRUE;
-	break;
-    case QEvent::Accel:
-    case QEvent::AccelAvailable: {
-	if ( place() == OutsideDock && isTopLevel() && parentWidget() ) {
-	    // if we are floating and active, we still want our
-	    // parent's accelerators to work
-	    if ( QFrame::event( e ) ) // check our own accelerators first
-		return TRUE;
-	    // then check our parent's accelerators ...
-	    if ( QApplication::sendEvent( parentWidget(), e ) ) {
-		// ... and if they worked, make the parent the active window if we safely can
-		if ( e->type() == QEvent::Accel && isActiveWindow() )
-		    parentWidget()->setActiveWindow();
-		return TRUE;
-	    }
-	}
-    }
-    break;
-    default:
-	break;
     }
     return QFrame::event( e );
 }

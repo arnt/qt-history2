@@ -123,7 +123,7 @@ extern bool qt_mac_in_drag; //qdnd_mac.cpp
 extern bool qt_resolve_symlinks; // from qapplication.cpp
 static char    *appName;                        // application name
 QGuardedPtr<QWidget> qt_button_down;		// widget got last button-down
-extern bool qt_dispatchAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
+extern bool qt_tryAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
 static QGuardedPtr<QWidget> qt_mouseover;
 static QPtrDict<void> unhandled_dialogs;        //all unhandled dialogs (ie mac file dialog)
 #if defined(QT_DEBUG)
@@ -270,7 +270,7 @@ void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
 	}
 	return;
     } else if(w->extra->has_dirty_area) {
-	w->extra->dirty_area |= r;	
+	w->extra->dirty_area |= r;
 	return;
     }
     w->extra->has_dirty_area = TRUE;
@@ -962,7 +962,7 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
 	return TRUE;
     // a bit of a hack: use WStyle_Tool as a general ignore-modality
     // allow tool windows; disallow tear off popups
-    if (widget->testWFlags(Qt::WStyle_Tool) && widget->inherits( "QPopupMenu"))	
+    if (widget->testWFlags(Qt::WStyle_Tool) && widget->inherits( "QPopupMenu"))
 	return TRUE;
 
     QWidget *modal=0, *top=QApplication::activeModalWidget();
@@ -1197,7 +1197,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	if( (ekind == kEventMouseDown && mouse_button_state ) ||
 	    (ekind == kEventMouseUp && !mouse_button_state) ) {
 #ifdef DEBUG_MOUSE_MAPS
-	    qDebug("**** Dropping mouse event.. %s %d %p **** ", 
+	    qDebug("**** Dropping mouse event.. %s %d %p **** ",
 		   edesc, mouse_button_state, (QWidget*)qt_button_down);
 #endif
 	    break;
@@ -1274,11 +1274,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	}
 	}
 	//figure out which widget to send it to
-	if(ekind != kEventMouseDown && qt_button_down) 
+	if(ekind != kEventMouseDown && qt_button_down)
 	    widget = qt_button_down;
-	else if(mac_mouse_grabber) 
+	else if(mac_mouse_grabber)
 	    widget = mac_mouse_grabber;
-	else 
+	else
 	    widget = QApplication::widgetAt(where.h, where.v, true);
 	if(!QMacBlockingFunction::blocking()) { //set the cursor up
 	    const QCursor *n = NULL;
@@ -1398,7 +1398,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	{
 	    if ((QWidget *)qt_mouseover != widget) {
 #ifdef DEBUG_MOUSE_MAPS
-		qDebug("Entering: %p - %s (%s), Leaving %s (%s)", widget, 
+		qDebug("Entering: %p - %s (%s), Leaving %s (%s)", widget,
 		       widget ? widget->className() : "none", widget ? widget->name() : "",
 		       qt_mouseover ? qt_mouseover->className() : "none",
 		       qt_mouseover ? qt_mouseover->name() : "");
@@ -1452,12 +1452,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    }
 #ifdef DEBUG_MOUSE_MAPS
 	    const char *event_desc = edesc;
-	    if(was_context) 
+	    if(was_context)
 		event_desc = "Context Menu";
 	    else if(etype == QEvent::MouseButtonDblClick)
 		event_desc = "Double Click";
 	    qDebug("%d %d (%d %d) - Would send (%s) event to %p %s %s (%d %d %d)", p.x(), p.y(),
-		   plocal.x(), plocal.y(), event_desc, widget, widget->name(), 
+		   plocal.x(), plocal.y(), event_desc, widget, widget->name(),
 		   widget->className(), button, state|keys, wheel_delta);
 #endif
 	    if(!was_context) {
@@ -1642,7 +1642,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(etype == QEvent::KeyPress && !mac_keyboard_grabber) {
 		QKeyEvent a(etype, mychar, chr, modifiers,
 			     mystr, ekind == kEventRawKeyRepeat, mystr.length());
-		if(qt_dispatchAccelEvent(widget, &a)) {
+		if(qt_tryAccelEvent(widget, &a)) {
 #ifdef DEBUG_KEY_MAPS
 		    qDebug("KeyEvent: %s::%s consumed Accel: %04x %c %s %d",
 			   widget ? widget->className() : "none", widget ? widget->name() : "",
@@ -1789,7 +1789,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(widget) {
 		QWidget *tlw = widget->topLevelWidget();
 		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() ||
-							    !tlw->testWFlags(WStyle_Tool))) 
+							    !tlw->testWFlags(WStyle_Tool)))
 		    app->setActiveWindow(tlw);
 		if (widget->focusWidget())
 		    widget->focusWidget()->setFocus();
@@ -1816,7 +1816,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
 	    WindowPtr wp = ActiveNonFloatingWindow();
 	    if(wp && !unhandled_dialogs.find((void *)wp)) {
-		if(QWidget *tmp_w = QWidget::find((WId)wp)) 
+		if(QWidget *tmp_w = QWidget::find((WId)wp))
 		    app->setActiveWindow(tmp_w);
 	    }
 	} else if(ekind == kEventAppDeactivated) {

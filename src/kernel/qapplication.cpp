@@ -357,6 +357,8 @@ static QMutex *postevent_mutex		= 0;
 
 QEventLoop *QApplication::eventloop = 0;	// application event loop
 
+extern bool qt_dispatchAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
+
 
 #if defined(QT_TABLET_SUPPORT)
 bool chokeMouse = FALSE;
@@ -2034,6 +2036,16 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
     if ( !receiver->isWidgetType() )
 	res = internalNotify( receiver, e );
     else switch ( e->type() ) {
+    case QEvent::Accel:
+	{
+	    QKeyEvent* key = (QKeyEvent*) e;
+	    res = qt_dispatchAccelEvent( (QWidget*)receiver, key );
+	    if ( !res )
+		res = internalNotify( receiver, e ) || key->isAccepted();
+	    if ( !res && !((QWidget*)receiver)->isTopLevel() )
+		res = internalNotify( ((QWidget*)receiver)->topLevelWidget(), e ) || key->isAccepted();
+	}
+    break;
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
     case QEvent::AccelOverride:

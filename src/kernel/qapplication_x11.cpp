@@ -369,7 +369,7 @@ int		qt_visual_option = -1;
 bool		qt_cmap_option	 = FALSE;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 
-extern bool qt_dispatchAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
+extern bool qt_tryAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
 
 struct QScrollInProgress {
     static long serial;
@@ -5021,7 +5021,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	// send accel events if the keyboard is not grabbed
 	QKeyEvent a( type, code, ascii, state, text, autor,
 		     QMAX(count, int(text.length())) );
-	if ( qt_dispatchAccelEvent( this, &a ) )
+	if ( qt_tryAccelEvent( this, &a ) )
 	    return TRUE;
     }
 
