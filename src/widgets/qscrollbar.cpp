@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#143 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#144 $
 **
 ** Implementation of QScrollBar class
 **
@@ -544,6 +544,7 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 				- sliderPos );
 	slidePrevVal   = value();
 	sliderStartPos = sliderPos;
+	drawControls( pressedControl, pressedControl );
 	emit sliderPressed();
     } else if ( pressedControl != QStyle::NoScroll ) {
 	drawControls( pressedControl, pressedControl );
