@@ -1164,12 +1164,14 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 {
     if ( !dock )
 	return 0;
-    QMainWindowPrivate::ToolBar * t = dock->first(), *tmp = 0;
+    QMainWindowPrivate::ToolBar * t = dock->first(), *tmp = 0, *maybe = 0;
     if ( !t )
 	return 0;
 
     if ( t->t->orientation() == Qt::Horizontal ) {
 	while ( t ) {
+	    if ( pos.x() >= t->t->x() && pos.x() <= t->t->x() + t->t->width() )
+		maybe = t;
 	    if ( pos.y() >= t->t->y() && pos.y() <= t->t->y() + t->t->height() ) {
 		if ( pos.x() >= t->t->x() && pos.x() <= t->t->x() + t->t->width() ) {
 		    if ( pos.x() < t->t->x() + t->t->width() / 2 )
@@ -1193,8 +1195,21 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 		t = dock->next();
 	    }
 	}
+
+	if ( maybe ) {
+	    t = maybe;
+	    dock->findRef( maybe );
+	    tmp = dock->next();
+	    if ( ( !tmp || tmp->nl || tmp->t->stretchable() ) && !t->t->stretchable() )
+		ipos = QMainWindowPrivate::TotalAfter;
+	    else
+		ipos = QMainWindowPrivate::After;
+	    return maybe;
+	}
     } else {
 	while ( t ) {
+	    if ( pos.y() >= t->t->y() && pos.y() <= t->t->y() + t->t->height() ) 
+		maybe = t;
 	    if ( pos.x() >= t->t->x() && pos.x() <= t->t->x() + t->t->width() ) {
 		if ( pos.y() >= t->t->y() && pos.y() <= t->t->y() + t->t->height() ) {
 		    if ( pos.y() < t->t->y() + t->t->height() / 2 )
@@ -1217,6 +1232,17 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 	    } else {
 		t = dock->next();
 	    }
+	}
+	
+	if ( maybe ) {
+	    t = maybe;
+	    dock->findRef( maybe );
+	    tmp = dock->next();
+	    if ( !tmp || tmp->nl )
+		ipos = QMainWindowPrivate::TotalAfter;
+	    else
+		ipos = QMainWindowPrivate::After;
+	    return maybe;
 	}
     }
 
@@ -1620,7 +1646,7 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarD
     int ms = 0xFFFFFF;
     if ( tdock ) {
 	QMainWindowPrivate::ToolBar *tt = tdock->first();
-	for ( ; tt; tt = tdock->next() ) 
+	for ( ; tt; tt = tdock->next() )
 	    ms = QMIN( ms, o == Qt::Horizontal ? tt->t->width() : tt->t->height() );
     }
 
