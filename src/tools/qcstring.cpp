@@ -1008,12 +1008,13 @@ QCString QCString::right( uint len ) const
 
 QCString QCString::mid( uint index, uint len ) const
 {
-    if ( len == 0xffffffff ) len = length()-index;
     uint slen = qstrlen( data() );
     if ( isEmpty() || index >= slen ) {
 	QCString empty;
 	return empty;
     } else {
+	if ( len > slen-index )
+	    len = slen - index;
 	register char *p = data()+index;
 	QCString s( len+1 );
 	strncpy( s.data(), p, len );
