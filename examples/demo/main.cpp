@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#27 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#28 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -16,6 +16,7 @@
 #include "textdrawing/textedit.h"
 #include "textdrawing/helpwindow.h"
 #include "dnd/dnd.h"
+#include "i18n/i18n.h"
 
 #include <qmodules.h>
 
@@ -91,7 +92,10 @@ int main( int argc, char **argv )
 
     // example 4
     tab = new QTabWidget();
-    w = new TextEdit( tab );
+    TextEdit *te = new TextEdit( tab );
+    te->load( "textdrawing/example.html" );
+    te->load( "textdrawing/bidi.txt" );
+    w = te;
     tab->addTab( w, "Richtext Editor" );
     QString home = QString(getenv("QTDIR")) + "/doc/html/index.html";
     w = new HelpWindow( home, ".", 0, "helpviewer" );
@@ -103,6 +107,11 @@ int main( int argc, char **argv )
     w = new DnDDemo( tab );
     tab->addTab( w, "Drag and Drop" );
     frame.addCategory( tab, textpix, textpix_sel, "Drag and Drop" );
+
+    tab = new QTabWidget();
+    w = new I18nDemo(tab);
+    tab->addTab(w, "Internationalization");
+    frame.addCategory( tab, textpix, textpix_sel, "Internationalization");
 
     a.setMainWidget( &frame );
     frame.show();

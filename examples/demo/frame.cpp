@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/frame.cpp#8 $
+** $Id: //depot/qt/main/examples/demo/frame.cpp#9 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -124,14 +124,8 @@ Frame::Frame( QWidget *parent, const char *name )
     }
     ag->addTo( styleMenu );
 
-    QPopupMenu *langMenu = new QPopupMenu( this, "language" );
-    styleMenu->setCheckable( TRUE );
-    idEnglish = langMenu->insertItem( tr( "English" ) );
-    langMenu->insertItem( tr( "Mandarin" ) );
-
     mainMenu->insertItem( tr( "&File" ), fileMenu );
     mainMenu->insertItem( tr( "St&yle" ), styleMenu );
-    mainMenu->insertItem( tr( "&Language" ), langMenu );
     mainMenu->setItemChecked( idEnglish, TRUE );
 
     // category chooser

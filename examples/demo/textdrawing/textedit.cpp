@@ -29,7 +29,7 @@
 #include <qcolordialog.h>
 
 TextEdit::TextEdit( QWidget *parent, const char *name )
-    : QMainWindow( parent, name )
+    : QMainWindow( parent, name, 0 )
 {
     setupFileActions();
     setupEditActions();
@@ -39,9 +39,6 @@ TextEdit::TextEdit( QWidget *parent, const char *name )
     connect( tabWidget, SIGNAL( currentChanged( QWidget * ) ),
 	     this, SLOT( editorChanged( QWidget * ) ) );
     setCentralWidget( tabWidget );
-
-    load( "textdrawing/example.html" );
-    load( "textdrawing/bidi.txt" );
 }
 
 void TextEdit::setupFileActions()
@@ -97,7 +94,7 @@ void TextEdit::setupEditActions()
     connect( a, SIGNAL( activated() ), this, SLOT( editCut() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "Copy" ), QPixmap( "textdrawing/editcopy.xpm" ), tr( "C&opy" ), CTRL + Key_Z, this, "editCopy" );
+    a = new QAction( tr( "Copy" ), QPixmap( "textdrawing/editcopy.xpm" ), tr( "C&opy" ), CTRL + Key_C, this, "editCopy" );
     connect( a, SIGNAL( activated() ), this, SLOT( editUndo() ) );
     a->addTo( tb );
     a->addTo( menu );
@@ -111,16 +108,16 @@ void TextEdit::setupTextActions()
 {
     QToolBar *tb = new QToolBar( this );
     QPopupMenu *menu = new QPopupMenu( this );
-    menuBar()->insertItem( tr( "&Format" ), menu );
+    menuBar()->insertItem( tr( "For&mat" ), menu );
 
     comboStyle = new QComboBox( FALSE, tb );
-    comboStyle->insertItem( "Standard" );
-    comboStyle->insertItem( "Bullet List (Disc)" );
-    comboStyle->insertItem( "Bullet List (Circle)" );
-    comboStyle->insertItem( "Bullet List (Square)" );
-    comboStyle->insertItem( "Ordered List (Decimal)" );
-    comboStyle->insertItem( "Ordered List (Alpha lower)" );
-    comboStyle->insertItem( "Ordered List (Alpha upper)" );
+    comboStyle->insertItem( tr("Standard") );
+    comboStyle->insertItem( tr("Bullet List (Disc)") );
+    comboStyle->insertItem( tr("Bullet List (Circle)") );
+    comboStyle->insertItem( tr("Bullet List (Square)") );
+    comboStyle->insertItem( tr("Ordered List (Decimal)") );
+    comboStyle->insertItem( tr("Ordered List (Alpha lower)") );
+    comboStyle->insertItem( tr("Ordered List (Alpha upper)") );
     connect( comboStyle, SIGNAL( activated( int ) ),
 	     this, SLOT( textStyle( int ) ) );
 
@@ -165,7 +162,7 @@ void TextEdit::setupTextActions()
     actionAlignLeft->addTo( tb );
     actionAlignLeft->addTo( menu );
     actionAlignLeft->setToggleAction( TRUE );
-    actionAlignCenter = new QAction( tr( "Center" ), QPixmap( "textdrawing/textcenter.xpm" ), tr( "&Center" ), CTRL + Key_M, grp, "textCenter" );
+    actionAlignCenter = new QAction( tr( "Center" ), QPixmap( "textdrawing/textcenter.xpm" ), tr( "C&enter" ), CTRL + Key_M, grp, "textCenter" );
     actionAlignCenter->addTo( tb );
     actionAlignCenter->addTo( menu );
     actionAlignCenter->setToggleAction( TRUE );

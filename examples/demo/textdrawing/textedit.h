@@ -26,15 +26,11 @@ class TextEdit : public QMainWindow
 public:
     TextEdit( QWidget *parent = 0, const char *name = 0 );
 
-private:
-    void setupFileActions();
-    void setupEditActions();
-    void setupTextActions();
-    void load( const QString &f );
     QTextEdit *currentEditor() const;
-    void doConnections( QTextEdit *e );
+    void load( const QString &f );
 
-private slots:
+
+public slots:
     void fileNew();
     void fileOpen();
     void fileSave();
@@ -63,7 +59,13 @@ private slots:
     void alignmentChanged( int a );
     void editorChanged( QWidget * );
 
+
 private:
+    void setupFileActions();
+    void setupEditActions();
+    void setupTextActions();
+    void doConnections( QTextEdit *e );
+
     QAction *actionTextBold,
 	*actionTextUnderline,
 	*actionTextItalic,
