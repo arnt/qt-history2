@@ -1472,40 +1472,38 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
             if (maxedOut)
                 flags &= ~State_Enabled;
 
+            bool isHorz = flags & State_Horizontal;
+            bool isRTL  = option->direction == Qt::RightToLeft;
             if (sub & SC_ScrollBarAddLine) {
-                theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarAddLine, widget);
+                theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_ScrollBar, option, SC_ScrollBarAddLine, widget));
                 partId = SBP_ARROWBTN;
                 if (!(flags & State_Enabled))
-                    stateId = ABS_DOWNDISABLED;
+                    stateId = (isHorz ? (isRTL ? ABS_LEFTDISABLED : ABS_RIGHTDISABLED) : ABS_DOWNDISABLED);
                 else if (scrollbar->activeSubControls & SC_ScrollBarAddLine && (scrollbar->state & State_Sunken))
-                    stateId = ABS_DOWNPRESSED;
+                    stateId = (isHorz ? (isRTL ? ABS_LEFTPRESSED : ABS_RIGHTPRESSED) : ABS_DOWNPRESSED);
                 else if (scrollbar->activeSubControls & SC_ScrollBarAddLine && (scrollbar->state & State_MouseOver))
-                    stateId = ABS_DOWNHOT;
+                    stateId = (isHorz ? (isRTL ? ABS_LEFTHOT : ABS_RIGHTHOT) : ABS_DOWNHOT);
                 else
-                    stateId = ABS_DOWNNORMAL;
-                if (flags & State_Horizontal)
-                    stateId += 8;
+                    stateId = (isHorz ? (isRTL ? ABS_LEFTNORMAL : ABS_RIGHTNORMAL) : ABS_DOWNNORMAL);
 
                 theme.drawBackground(partId, stateId);
             }
             if (sub & SC_ScrollBarSubLine) {
-                theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarSubLine, widget);
+                theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_ScrollBar, option, SC_ScrollBarSubLine, widget));
                 partId = SBP_ARROWBTN;
                 if (!(flags & State_Enabled))
-                    stateId = ABS_UPDISABLED;
-                else if (scrollbar->activeSubControls & SC_ScrollBarSubLine && (scrollbar->state & State_Sunken))
-                    stateId = ABS_UPPRESSED;
-                else if (scrollbar->activeSubControls & SC_ScrollBarSubLine && (scrollbar->state & State_MouseOver))
-                    stateId = ABS_UPHOT;
+                    stateId = (isHorz ? (isRTL ? ABS_RIGHTDISABLED : ABS_LEFTDISABLED) : ABS_UPDISABLED);
+                else if (scrollbar->activeSubControls & SC_ScrollBarAddLine && (scrollbar->state & State_Sunken))
+                    stateId = (isHorz ? (isRTL ? ABS_RIGHTPRESSED : ABS_LEFTPRESSED) : ABS_UPPRESSED);
+                else if (scrollbar->activeSubControls & SC_ScrollBarAddLine && (scrollbar->state & State_MouseOver))
+                    stateId = (isHorz ? (isRTL ? ABS_RIGHTHOT : ABS_LEFTHOT) : ABS_UPHOT);
                 else
-                    stateId = ABS_UPNORMAL;
-                if (flags & State_Horizontal)
-                    stateId += 8;
+                    stateId = (isHorz ? (isRTL ? ABS_RIGHTNORMAL : ABS_LEFTNORMAL) : ABS_UPNORMAL);
 
                 theme.drawBackground(partId, stateId);
             }
             if (maxedOut) {
-                theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarSlider, widget);
+                theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_ScrollBar, option, SC_ScrollBarSlider, widget));
                 theme.rec = theme.rec.unite(subControlRect(CC_ScrollBar, option, SC_ScrollBarSubPage, widget));
                 theme.rec = theme.rec.unite(subControlRect(CC_ScrollBar, option, SC_ScrollBarAddPage, widget));
                 partId = bar->orientation() == Qt::Horizontal ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
@@ -1514,7 +1512,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 theme.drawBackground(partId, stateId);
             } else {
                 if (sub & SC_ScrollBarAddPage) {
-                    theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarAddPage, widget);
+                    theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_ScrollBar, option, SC_ScrollBarAddPage, widget));
                     partId = flags & State_Horizontal ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
                     if (!(flags & State_Enabled))
                         stateId = SCRBS_DISABLED;
@@ -1528,7 +1526,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     theme.drawBackground(partId, stateId);
                 }
                 if (sub & SC_ScrollBarSubPage) {
-                    theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarSubPage, widget);
+                    theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_ScrollBar, option, SC_ScrollBarSubPage, widget));
                     partId = flags & State_Horizontal ? SBP_UPPERTRACKHORZ : SBP_UPPERTRACKVERT;
                     if (!(flags & State_Enabled))
                         stateId = SCRBS_DISABLED;
@@ -1542,13 +1540,13 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     theme.drawBackground(partId, stateId);
                 }
                 if (sub & SC_ScrollBarFirst) {
-                    theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarFirst, widget);
+                    theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_ScrollBar, option, SC_ScrollBarFirst, widget));
                 }
                 if (sub & SC_ScrollBarLast) {
-                    theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarLast, widget);
+                    theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_ScrollBar, option, SC_ScrollBarLast, widget));
                 }
                 if (sub & SC_ScrollBarSlider) {
-                    theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarSlider, widget);
+                    theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_ScrollBar, option, SC_ScrollBarSlider, widget));
                     if (!(flags & State_Enabled))
                         stateId = SCRBS_DISABLED;
                     else if (scrollbar->activeSubControls & SC_ScrollBarSlider && (scrollbar->state & State_Sunken))
@@ -1585,7 +1583,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     }
                 }
                 if (sub & SC_ScrollBarGroove) {
-                    theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarGroove, widget);
+                    theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_ScrollBar, option, SC_ScrollBarGroove, widget));
                 }
             }
         }
