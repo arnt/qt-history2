@@ -248,7 +248,7 @@ QTimer *QButton::timer()
 /*! \property QButton::accel
     \brief the accelerator associated with the button
 
-  This property will return 0 if there is no accelerator set, if you set
+  This property is 0 if there is no accelerator set. If you set
   this property to 0 then any current accelerator is removed.
 */
 
@@ -269,9 +269,9 @@ QTimer *QButton::timer()
 */
 
 /*! \property QButton::down
-    \brief whether the button is down (i.e. pressed)
+    \brief whether the button is pressed
 
-  If down is enabled then the button is set to be pressed down.  The
+  If this property is TRUE, the button is set to be pressed down.  The
   signals pressed() and clicked() are not emitted if you set this
   property to TRUE.
 */
@@ -279,7 +279,7 @@ QTimer *QButton::timer()
 /*! \property QButton::exclusiveToggle
     \brief whether the button is an exclusive toggle
 
-  If exclusiveToggle is enabled and the button is in a QButtonGroup then the
+  If this property is TRUE and the button is in a QButtonGroup, the
   button can only be toggled off by another one being toggled on.
 */
 
@@ -290,6 +290,7 @@ QTimer *QButton::timer()
 */
 
 /*! \fn void QButton::setOn( bool on )
+
   Sets the state of this button to On when \a on is TRUE, otherwise
   to Off.
 
@@ -299,23 +300,22 @@ QTimer *QButton::timer()
 /*! \property QButton::pixmap
     \brief the pixmap shown on the button
 
-  This property will return 0 if the button has no pixmap.
-
   If the pixmap is monochrome (i.e., it is a QBitmap or its \link
   QPixmap::depth() depth\endlink is 1) and it does not have a mask,
   this property will set the pixmap to be its own mask. The purpose of
   this is to draw transparent bitmaps which are important for
   toggle buttons, for example.
 
+  pixmap() returns 0 if no pixmap was set.
 */
 
 /*! \property QButton::text
     \brief the text shown on the button
 
   This property will return a null string if the button has
-  no text.  If the text has an ampersand '&' in it, then an
+  no text.  If the text has an ampersand ('\&') in it, then an
   accelerator is automatically created for it using the
-  character after the ampersand as the accelerator key.
+  character after the '\&' as the accelerator key.
 */
 
 /*! \property QButton::toggleButton
@@ -646,10 +646,7 @@ void QButton::drawButtonLabel( QPainter * )
     return;
 }
 
-
-/*!\reimp
-*/
-
+/*! \reimp */
 void QButton::keyPressEvent( QKeyEvent *e )
 {
     switch ( e->key() ) {
@@ -699,9 +696,7 @@ void QButton::keyPressEvent( QKeyEvent *e )
     }
 }
 
-/*!
-  \reimp
- */
+/*! \reimp */
 void QButton::keyReleaseEvent( QKeyEvent * e)
 {
     switch ( e->key() ) {
@@ -718,20 +713,14 @@ void QButton::keyReleaseEvent( QKeyEvent * e)
     }
 }
 
-
-
 /*! \reimp */
-
 bool QButton::focusNextPrevChild( bool next )
 {
     // we do not want this any more
     return QWidget::focusNextPrevChild( next );
 }
 
-
-/*!\reimp
-*/
-
+/*! \reimp */
 void QButton::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton ) {
@@ -755,9 +744,7 @@ void QButton::mousePressEvent( QMouseEvent *e )
     }
 }
 
-/*!\reimp
-*/
-
+/*! \reimp */
 void QButton::mouseReleaseEvent( QMouseEvent *e)
 {
     if ( e->button() != LeftButton ) {
@@ -783,9 +770,7 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
 #endif
 }
 
-/*!\reimp
-*/
-
+/*! \reimp */
 void QButton::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !((e->state() & LeftButton) && mlbDown) ) {
@@ -825,17 +810,13 @@ void QButton::paintEvent( QPaintEvent *)
     drawButton( buffer.painter() );
 }
 
-/*!\reimp
-*/
-
+/*! \reimp */
 void QButton::focusInEvent( QFocusEvent * e)
 {
     QWidget::focusInEvent( e );
 }
 
-/*!\reimp
-*/
-
+/*! \reimp */
 void QButton::focusOutEvent( QFocusEvent * e )
 {
     buttonDown = FALSE;
