@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/Makefile.inc#14 $
+# $Id: //depot/qt/main/Makefile.inc#15 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -229,6 +229,7 @@ updateqt:
 
 depend:
 	-del NMakefile.*
+	-del BMakefile.*
 !IFDEF MOREDEP
 	-del $(MOREDEP)
 !ENDIF
@@ -236,6 +237,7 @@ depend:
 clean: NMakefile.debug
 	$(MAKE) /$(MAKEFLAGS) -nologo -f NMakefile.debug clean
 	-del NMakefile.*
+	-del BMakefile.*
 	-del vc*.pdb
 	-del $(PROJECT).pdb
 	-del $(PROJECT).ilk
