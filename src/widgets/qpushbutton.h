@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#27 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#28 $
 **
 ** Definition of QPushButton class
 **
@@ -56,6 +56,7 @@ private:
     uint	defButton	: 1;
     uint	lastDown	: 1;
     uint	lastDef		: 1;
+    uint	lastEnabled	: 1;
 
 private:	// Disabled copy constructor and operator=
     QPushButton( const QPushButton & ) {}
