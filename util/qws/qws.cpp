@@ -53,9 +53,11 @@ static key_t semkey = 0;
 //### shmid < 0 means use frame buffer
 QWSClient::QWSClient( QObject* parent, int socket, int shmid, int swidth, int sheight,
 		      int ramid, int fblen, int offscreen, int offscreenlen) :
-    QSocketDevice(socket,QSocketDevice::Stream),
+    QSocket(parent),
+    s(socket),
     command(0)
 {
+    setSocket(socket);
     isClosed = FALSE;
     QWSHeader header;
     header.width = swidth;
@@ -81,32 +83,44 @@ QWSClient::QWSClient( QObject* parent, int socket, int shmid, int swidth, int sh
 
     flush();
 
-    QSocketNotifier* snr = new QSocketNotifier(socket,QSocketNotifier::Read,this);
-    QObject::connect(snr,SIGNAL(activated(int)),this,SIGNAL(readyRead()));
-    QSocketNotifier* sne = new QSocketNotifier(socket,QSocketNotifier::Exception,this);
-    QObject::connect(sne,SIGNAL(activated(int)),this,SIGNAL(errorHandler()));
+    connect( this, SIGNAL(closed()), this, SLOT(closeHandler()) );
+    connect( this, SIGNAL(error(int)), this, SLOT(errorHandler(int)) );
 }
 
 QWSClient::~QWSClient()
 {
 }
 
-
-/* ######### not in QSocketDevice API
 void QWSClient::closeHandler()
 {
     qDebug( "Client %p closed", this );
     isClosed = TRUE;
     emit connectionClosed();
 }
-*/
 
-void QWSClient::errorHandler()
+void QWSClient::errorHandler( int err )
 {
-    qDebug( "Client %p error %d", this, error() );
+    QString s = "Unknown";
+    switch( err ) {
+    case ErrConnectionRefused:
+	s = "Connection Refused";
+	break;
+    case ErrHostNotFound:
+	s = "Host Not Found";
+	break;
+    case ErrSocketRead:
+	s = "Socket Read";
+	break;
+    }
+    qDebug( "Client %p error %d (%s)", this, err, s.ascii() );
     isClosed = TRUE;
     flush(); //####We need to clean out the pipes, this in not the the way.
     emit connectionClosed();
+}
+
+int QWSClient::socket() const
+{
+    return s;
 }
 
 void QWSClient::sendSimpleEvent( void* event, uint size )
@@ -427,6 +441,7 @@ void QWSServer::doClient()
     active = TRUE;
     QWSClient* client = (QWSClient*)sender();
     QWSCommand* command=client->readMoreCommand();
+
 
     while ( command ) {
 	if ( command->type == QWSCommand::RegionAck ) {

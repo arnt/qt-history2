@@ -178,7 +178,7 @@ private:
  *********************************************************************/
 class QWSMouseEvent;
 
-class QWSClient : public QObject, private QSocketDevice
+class QWSClient : private QSocket
 {
     Q_OBJECT
     //  friend class QWSServer;
@@ -187,7 +187,7 @@ public:
 	       int ramid, int fblen, int offscreen, int offscreenlen);
     ~QWSClient();
 
-    int socket() const { return QSocketDevice::socket(); }
+    int socket() const;
 
     QObject* asQObject() { return (QObject*)this; } //### private inheritance 
     
@@ -202,11 +202,12 @@ public:
     QWSCommand* readMoreCommand();
     void writeRegion( QRegion reg );
 signals:
-    void readyRead();
     void connectionClosed();
 private slots:
-    void errorHandler();
+    void closeHandler();
+    void errorHandler( int );
 private:
+    int s; // XXX QSocket::d::socket->socket() is this value
     QWSCommand* command;
     uint isClosed : 1;
 };

@@ -29,7 +29,7 @@
  *
  *********************************************************************/
 
-static void qws_write_command( QSocketDevice *socket, int type,
+static void qws_write_command( QSocket *socket, int type,
 			       char *simpleData, int simpleLen, char *rawData, int rawLen )
 {
     qws_write_uint( socket, type );
@@ -40,19 +40,19 @@ static void qws_write_command( QSocketDevice *socket, int type,
 	socket->writeBlock( rawData, rawLen );
 }
 
-static bool qws_read_command( QSocketDevice *socket, char *&simpleData, int &simpleLen,
+static bool qws_read_command( QSocket *socket, char *&simpleData, int &simpleLen,
 			      char *&rawData, int &rawLen,
 			      int &bytesRead )
 {
     if ( rawLen == -1 ) {
-	if ( socket->bytesAvailable() < sizeof( rawLen ) )
+	if ( socket->size() < sizeof( rawLen ) )
 	    return FALSE;
 	rawLen = qws_read_uint( socket );
     }
 
     if ( !bytesRead ) {
 	if ( simpleLen ) {
-	    if ( socket->bytesAvailable() < uint(simpleLen) )
+	    if ( socket->size() < uint(simpleLen) )
 		return FALSE;
 	    bytesRead = socket->readBlock( simpleData, simpleLen );
 	} else
@@ -62,7 +62,7 @@ static bool qws_read_command( QSocketDevice *socket, char *&simpleData, int &sim
     if ( bytesRead ) {
 	if ( !rawLen )
 	    return TRUE;
-	if ( socket->bytesAvailable() < uint(rawLen) )
+	if ( socket->size() < uint(rawLen) )
 	    return FALSE;
 	rawData = new char[ rawLen ];
 	bytesRead += socket->readBlock( rawData, rawLen );
@@ -106,10 +106,10 @@ struct QWSCommand
     int rawLen;
 
     // functions
-    void write( QSocketDevice *s ) {
+    void write( QSocket *s ) {
 	qws_write_command( s, type, simpleDataPtr, simpleLen, rawDataPtr, rawLen );
     }
-    bool read( QSocketDevice *s ) {
+    bool read( QSocket *s ) {
 	bool b = qws_read_command( s, simpleDataPtr, simpleLen,
 				 rawDataPtr, rawLen, bytesRead );
 	setData( rawDataPtr, rawLen, FALSE );

@@ -29,9 +29,9 @@
  *
  ********************************************************************/
 
-static int qws_read_uint( QSocketDevice *socket )
+static int qws_read_uint( QSocket *socket )
 {
-    if ( !socket || socket->bytesAvailable() < (int)sizeof( int ) )
+    if ( !socket || socket->size() < sizeof( int ) )
 	return -1;
 
     int i;
@@ -40,7 +40,7 @@ static int qws_read_uint( QSocketDevice *socket )
     return i;
 }
 
-static void qws_write_uint( QSocketDevice *socket, int i )
+static void qws_write_uint( QSocket *socket, int i )
 {
     if ( !socket )
 	return;
