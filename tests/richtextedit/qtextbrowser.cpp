@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextbrowser.cpp#6 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextbrowser.cpp#7 $
 **
 ** Implementation of the QtTextView class
 **
@@ -377,9 +377,7 @@ QString QtTextBrowser::anchorAt(const QPoint& pos)
 {
     QPainter p( viewport() );
     return richText().anchorAt( &p, contentsX() + pos.x(),
-					   contentsY() + pos.y(),
-					   contentsY(),
-					   contentsY() + visibleHeight() );
+				contentsY() + pos.y() );
 }
 
 

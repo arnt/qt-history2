@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#20 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#21 $
 **
 ** Implementation of the QtTextView class
 **
@@ -221,7 +221,7 @@ void QtTextView::setText( const QString& text, const QString& context)
 
 /*!
   Appends \a text to the current text.
-  
+
   Useful for log viewers.
 */
 void QtTextView::append( const QString& text )
@@ -684,20 +684,20 @@ void QtTextView::updateLayout( int ymax )
 	d->dirty = TRUE;
 	return;
     }
-    
+
     QSize cs( viewportSize( contentsWidth(), contentsHeight() ) );
     if ( ymax < 0 )
 	ymax = contentsY() + cs.height() + 1;
 
     delete d->fcresize;
     d->fcresize = new QtTextCursor( richText() );
-    
+
     {
 	QPainter p( viewport() );
 	d->fcresize->initParagraph( &p, &richText() );
 	d->fcresize->updateLayout( &p, ymax );
     }
-    
+
     QtTextFlow* flow = richText().flow();
     QSize vs( viewportSize( flow->widthUsed, flow->height ) );
 
@@ -753,6 +753,10 @@ void QtTextEdit::setText( const QString& text, const QString& context  )
     QtTextView::setText( text, context );
     delete d->cursor;
     d->cursor = new QtTextCursor( richText() );
+    {
+	QPainter p( this );
+	d->cursor->gotoParagraph( &p, &richText() );
+    }
 }
 
 
@@ -788,12 +792,15 @@ void QtTextEdit::keyPressEvent( QKeyEvent * e )
 	break;
     default:	
 	if (!e->text().isEmpty() ) {
-	    d->cursor->insert( &p, e->text() ); // the painter will be closed
+	    d->cursor->insert( &p, e->text() );
+	    p.end();
+	    repaintContents( richText().flow()->updateRect, FALSE );
 	}
 
     };
     if ( p.isActive() )
 	p.end();
+    
     QRect geom ( d->cursor->caretGeometry() );
     ensureVisible( geom.center().x(), geom.center().y(), geom.width()/2, geom.height()/2 );
     showCursor();
@@ -969,12 +976,11 @@ void QtTextEdit::viewportMousePressEvent( QMouseEvent * e )
     if ( !d->cursor )
 	return;
      hideCursor();
-     e = 0; //#####
 //      cursor->clearSelection();
 //      updateSelection();
      {
-//  	QPainter p( viewport() );
-//  	cursor->goTo( &p, contentsX() + e->x(), contentsY() + e->y());
+	 QPainter p( viewport() );
+	 d->cursor->goTo( &p, contentsX() + e->x(), contentsY() + e->y());
      }
      showCursor();
 }
@@ -984,34 +990,53 @@ void QtTextEdit::viewportMouseReleaseEvent( QMouseEvent * )
     // nothing
 }
 
-void QtTextEdit::viewportMouseMoveEvent( QMouseEvent * )
+void QtTextEdit::viewportMouseMoveEvent( QMouseEvent * e)
 {
-//     if (e->state() & LeftButton) {
-// 	hideCursor();
-// 	QtTextRow*  oldCursorRow =c ursor->row;
-// 	{
-// 	    QPainter p(viewport());
-// 	    cursor->goTo( &p, e->pos().x() + contentsX(),
-// 			  e->pos().y() + contentsY(), TRUE);
-// 	}
-// 	if (cursor->row == oldCursorRow)
-// 	    updateSelection(cursor->rowY, cursor->rowY );
-// 	else
-// 	    updateSelection();
-// 	if (cursor->y + cursor->height > contentsY() + visibleHeight()) {
-// 	    scrollBy(0, cursor->y + cursor->height-contentsY()-visibleHeight());
-// 	}
-// 	else if (cursor->y < contentsY())
-// 	    scrollBy(0, cursor->y - contentsY() );
-// 	showCursor();
-//     }
+     if (e->state() & LeftButton ) {
+ 	hideCursor();
+	QPainter p(viewport());
+	QtTextCursor oldc( *d->cursor );
+	d->cursor->goTo( &p, e->pos().x() + contentsX(),
+			 e->pos().y() + contentsY() );
+	int oldy = oldc.y();
+	int oldx = oldc.x();
+	int oldh = oldc.height;
+	int newy = d->cursor->y();
+	int newx = d->cursor->x();
+	int newh = d->cursor->height;
+	    
+	QtTextCursor start( richText() ), end( richText() );
+	    
+	if (oldy < newy || (oldy == newy && oldx <= newx) ) {
+	    start = oldc;
+	    end = *d->cursor;
+	} else {
+	    start = *d->cursor;
+	    end = oldc;
+	}
+	
+	while ( start.paragraph != end.paragraph ) {
+	    start.setSelected( !start.selected() );
+	    start.rightOneItem( &p );
+	}
+	while ( !start.atEnd() && start.paragraph == end.paragraph && start.current < end.current ) {
+	    start.setSelected( !start.selected() );
+	    start.rightOneItem( &p );
+	}
+	p.end();
+	repaintContents( 0, QMIN(oldy, newy), 
+			 contentsWidth(), 
+			 QMAX(oldy+oldh, newy+newh)-QMIN(oldy,newy),
+			 FALSE);
+	QRect geom ( d->cursor->caretGeometry() );
+	ensureVisible( geom.center().x(), geom.center().y(), geom.width()/2, geom.height()/2 );
+     }
 }
 
 void QtTextEdit::drawContentsOffset(QPainter*p, int ox, int oy,
 				 int cx, int cy, int cw, int ch)
 {
     QtTextView::drawContentsOffset(p, ox, oy, cx, cy, cw, ch);
-    d->cursor->update( p ); //##### it may be on a dirty paragraph
     return;
 //     if (!d->cursor_hidden)
 //  	cursor->draw(p, ox, oy, cx, cy, cw, ch);
@@ -1019,7 +1044,6 @@ void QtTextEdit::drawContentsOffset(QPainter*p, int ox, int oy,
 
 void QtTextEdit::cursorTimerDone()
 {
-    return;
     if ( !d->cursor )
 	return;
      if (d->cursor_hidden) {
@@ -1088,7 +1112,6 @@ void QtTextEdit::resizeEvent( QResizeEvent* e )
     QtTextView::resizeEvent( e );
     if ( d->cursor ) {
  	QPainter p( this );
-  	d->cursor->update(&p); //##### it may be on a dirty paragraph
     }
 }
 

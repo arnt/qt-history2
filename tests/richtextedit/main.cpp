@@ -45,7 +45,7 @@ int main( int argc, char* argv[]  )
     QVBox box;
 
     QPushButton* b = new QPushButton( "Push me", &box, 0 );
-    QtTextBrowser*  v = new QtTextBrowser( &box );
+    QtTextView*  v = new QtTextEdit( &box );
     v->setFocus();
     b->connect( b, SIGNAL( clicked() ), v, SLOT( temporary() ) );
     v->setTextFormat( QtTextEdit::RichText );
@@ -73,6 +73,7 @@ int main( int argc, char* argv[]  )
     }
 //     QtTextEdit second;
 //     second.setView( &v );
+    box.resize( 500, 800 );
     box.show();
 //     second.show();
     return a.exec();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#20 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#21 $
 **
 ** Internal rich text classes
 **
@@ -73,22 +73,25 @@ public:
     QtTextRichString& operator=( const QtTextRichString &other );
     ~QtTextRichString();
 
-    inline int length() const;
-    inline bool isEmpty() const;
+    int length() const;
+    bool isEmpty() const;
     void remove( int index, int len );
     void insert( int index, const QString& c, const QtTextCharFormat& fmt );
-    inline void append( const QString& c,const  QtTextCharFormat& fmt );
+    void append( const QString& c,const  QtTextCharFormat& fmt );
     void clear();
 
-    inline QString charAt( int index ) const;
+    QString charAt( int index ) const;
     QString& getCharAt( int index );
-    inline QtTextCharFormat *formatAt( int index ) const;
-    inline bool haveSameFormat( int index1, int index2 ) const;
+    QtTextCharFormat *formatAt( int index ) const;
+    bool haveSameFormat( int index1, int index2 ) const;
 
-    inline bool isCustomItem( int index ) const;
-    inline QtTextCustomItem* customItemAt( int index ) const;
+    bool isCustomItem( int index ) const;
+    QtTextCustomItem* customItemAt( int index ) const;
 
-    QtTextFormatCollection* format; // make private
+    void setSelected( int index, bool selected );
+    bool selected( int index ) const;
+
+    QtTextFormatCollection* formats; // make private
 private:
     void setLength( int l );
 };
@@ -391,6 +394,7 @@ class QtTextCursor {
     bool pastEnd() const;
     bool atEndOfLine() const;
     bool pastEndOfLine() const;
+    bool inLastLine() const;
     void gotoParagraph( QPainter* p, QtTextParagraph* b );
 
     void initParagraph( QPainter* p, QtTextParagraph* b );
@@ -412,6 +416,7 @@ class QtTextCursor {
     void updateCharFormat( QPainter* p, const QFontMetrics& fm );
 
     int y() const { return y_; }
+    int x() const { return currentx + currentoffsetx; }
     QtTextCharFormat* currentFormat();
     int width;
     int widthUsed;
@@ -434,12 +439,17 @@ class QtTextCursor {
     void down( QPainter* p );
     void insert( QPainter*, const QString& text );
 
+    void goTo( QPainter* p, int xpos, int ypos );
+
     bool rightOneItem( QPainter* p );
     QtRichText* doc;
     int xline;
     QtTextParagraph* xline_paragraph;
     int xline_current;
     
+    void setSelected( bool selected );
+    bool selected() const;
+
 private:
     int y_;
 
@@ -471,6 +481,8 @@ public:
 
 
     QtTextFlow* parent;
+    
+    QRect updateRect;
 
 private:
     QList<QtTextCustomItem> leftItems;
@@ -500,17 +512,17 @@ public:
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
 
     void doLayout( QPainter* p, int nwidth );
-    QString anchorAt( QPainter* p, int x, int y, int fromY = 0, int toY = -1 ) const;
+    QString anchorAt( QPainter* p, int x, int y ) const;
 
     void append( const QString& txt, const QMimeSourceFactory* factory = 0, const QtStyleSheet* sheet = 0 );
-    
+
 
 private:
     void init( const QString& doc, int& pos );
 
     bool parse (QtTextParagraph* current, const QStyleSheetItem* cursty, QtTextParagraph* dummy,
 		QtTextCharFormat fmt, const QString& doc, int& pos);
-    
+
     bool eatSpace(const QString& doc, int& pos, bool includeNbsp = FALSE );
     bool eat(const QString& doc, int& pos, QChar c);
     bool lookAhead(const QString& doc, int& pos, QChar c);

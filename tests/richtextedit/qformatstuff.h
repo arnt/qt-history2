@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#15 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#16 $
 **
 ** Definition of the QtTextView class
 **
@@ -50,6 +50,8 @@ public:
 
     QtTextCharFormat makeTextFormat( const QStyleSheetItem *style, const QMap<QString,QString>& attr,
 				     QtTextCustomItem* item = 0) const;
+    
+    QtTextCharFormat makeTextFormat( bool selected ) const;
 
     QColor color() const;
     QFont font() const;
@@ -63,9 +65,10 @@ public:
     int addRef();
     int removeRef();
 
-    inline QtTextCustomItem *customItem() const;
+    QtTextCustomItem *customItem() const;
+    bool selected() const;
 
-protected:
+private:
     QFont font_;
     QColor color_;
     QString key;
@@ -74,11 +77,10 @@ protected:
     int stdPointSize;
     QString anchor_href;
     QString anchor_name;
-
     void createKey();
-private:
     QtTextFormatCollection* parent;
     QtTextCustomItem* custom;
+    bool selected_;
 };
 
 
@@ -126,6 +128,11 @@ inline QtTextCustomItem * QtTextCharFormat::customItem() const
 inline bool QtTextCharFormat::isAnchor() const
 {
     return !anchor_href.isEmpty()  || !anchor_href.isEmpty();
+}
+
+inline bool QtTextCharFormat::selected() const
+{
+    return selected_;
 }
 
 

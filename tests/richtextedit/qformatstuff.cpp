@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#20 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#21 $
 **
 ** Definition of the QtTextView class
 **
@@ -29,7 +29,8 @@
 #include <qstylesheet.h>
 
 QtTextCharFormat::QtTextCharFormat()
-    : ref( 1 ), logicalFontSize( 3 ), stdPointSize( 12 ), custom( 0 )
+    : ref( 1 ), logicalFontSize( 3 ), stdPointSize( 12 ), 
+      custom( 0 ), selected_( FALSE )
 {
 }
 
@@ -40,12 +41,14 @@ QtTextCharFormat::QtTextCharFormat( const QtTextCharFormat &format )
       stdPointSize( format.stdPointSize ),
       anchor_href( format.anchor_href ),
       anchor_name( format.anchor_name ),
-      parent(0), custom( format.custom )
+      parent(0), custom( format.custom ), 
+      selected_( format.selected_ )
 {
 }
 
 QtTextCharFormat::QtTextCharFormat( const QFont &f, const QColor &c )
-    : font_( f ), color_( c ), ref( 1 ), logicalFontSize( 3 ), stdPointSize( f.pointSize() ), parent(0), custom( 0 )
+    : font_( f ), color_( c ), ref( 1 ), logicalFontSize( 3 ), stdPointSize( f.pointSize() ), 
+      parent(0), custom( 0 ), selected_( FALSE )
 {
     createKey();
 }
@@ -70,7 +73,8 @@ void QtTextCharFormat::createKey()
 	<< anchor_name << "_"
 	<< color_.pixel()
 	<< font_.family() << "_"
-	<<(ulong) custom;
+	<<(ulong) custom << "_"
+	<< (int) selected_;
 }
 
 QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt )
@@ -84,6 +88,7 @@ QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt )
     anchor_href = fmt.anchor_href;
     anchor_name = fmt.anchor_name;
     custom = fmt.custom;
+    selected_ = fmt.selected_;
     return *this;
 }
 
@@ -111,7 +116,7 @@ QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *style,
     bool changed = FALSE;
     if ( style ) {
 	if ( style->name() == "font") {
-	    
+	
 	    if ( attr.contains("color") )
 		format.color_.setNamedColor( attr["color"] );
 	    if ( attr.contains("size") ) {
@@ -166,6 +171,16 @@ QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *style,
 	format.createKey();
     return format;
 }
+
+
+QtTextCharFormat QtTextCharFormat::makeTextFormat( bool selected ) const
+{
+    QtTextCharFormat fm( *this );
+    fm.selected_ = selected;
+    fm.createKey();
+    return fm;
+}
+
 
 QtTextCharFormat QtTextCharFormat::formatWithoutCustom()
 {
