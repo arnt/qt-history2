@@ -2786,6 +2786,10 @@ void QTable::setCurrentCell( int row, int col, bool updateSelections )
 	else if ( col < curCol )
 	    col = QMAX( 0, itm->col() - 1 );
     }
+    if ( row > numRows() - 1 )
+	row = numRows() - 1;
+    if ( col > numCols() - 1 )
+	col = numCols() - 1;
     if ( curRow != row || curCol != col ) {
 	itm = oldIitem;
 	if ( itm && itm->editType() != QTableItem::Always )
