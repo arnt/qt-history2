@@ -1082,12 +1082,10 @@ void QWidget::setBackgroundEmpty()
 
 void QWidget::setCursor(const QCursor &cursor)
 {
-    if(cursor.handle() != arrowCursor.handle() || (extra && extra->curs)) {
-	createExtra();
-	delete extra->curs;
-	extra->curs = new QCursor(cursor);
-    }
-    setWState(WState_OwnCursor);
+    createExtra();
+    delete extra->curs;
+    extra->curs = new QCursor(cursor);
+    setWState( WState_OwnCursor );
 
     if(qApp && qApp->activeWindow() && 
        QApplication::widgetAt(QCursor::pos()) == this) {
