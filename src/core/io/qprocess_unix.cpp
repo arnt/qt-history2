@@ -288,6 +288,7 @@ void QProcessPrivate::startProcess()
 
 void QProcessPrivate::execChild()
 {
+    Q_Q(QProcess);
     QByteArray prog = QFile::encodeName(program);
 
     // create argument list with right number of elements, and set the
@@ -348,6 +349,9 @@ void QProcessPrivate::execChild()
     // enter the working directory
     if (!workingDirectory.isEmpty())
         ::chdir(QFile::encodeName(workingDirectory).data());
+
+    // this is a virtual call, and it base behavior is to do nothing.
+    q->setupChildProcess();
 
     // execute the process
     if (environment.isEmpty()) {

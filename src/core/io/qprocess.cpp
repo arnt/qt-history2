@@ -952,6 +952,18 @@ void QProcess::setProcessState(ProcessState state)
     d->processState = state;
 }
 
+/*!
+    This is a platform specific virtual function called by QProcess on
+    Unix only. On Windows, it is not called.
+
+    setupChildProcess() is called in the child process context, at the
+    very moment before the program is executed. Reimplement this
+    function to do last minute initialization of the child process.
+*/
+void QProcess::setupChildProcess()
+{
+}
+
 /*! \reimp
 */
 qint64 QProcess::readData(char *data, qint64 maxlen)
