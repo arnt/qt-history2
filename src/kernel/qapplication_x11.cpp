@@ -3469,6 +3469,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	}
 	// fall through intended
     case ButtonPress:
+	if ( event->xbutton.root != RootWindow( widget->x11Display(),
+						widget->x11Screen() ) ) {
+	    while ( activePopupWidget() )
+		activePopupWidget()->close();
+	    return 1;
+	}
+	// fall through intended
     case MotionNotify:
 #if defined(QT_TABLET_SUPPORT)
 	if ( !chokeMouse ) {
