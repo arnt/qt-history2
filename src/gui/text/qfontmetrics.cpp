@@ -478,7 +478,8 @@ int QFontMetrics::width(const QString &str, int len) const
         return 0;
 
     QTextEngine layout(str, d);
-    layout.itemize(QTextEngine::WidthOnly);
+    layout.setMode(QTextEngine::WidthOnly);
+    layout.itemize();
     return qRound(layout.width(0, len));
 }
 
@@ -564,7 +565,8 @@ QRect QFontMetrics::boundingRect(const QString &str, int len) const
         return QRect();
 
     QTextEngine layout(str, d);
-    layout.itemize(QTextEngine::NoBidi|QTextEngine::SingleLine);
+    layout.setMode(QTextEngine::WidthOnly);
+    layout.itemize();
     glyph_metrics_t gm = layout.boundingBox(0, len);
     return QRect(qRound(gm.x), qRound(gm.y), qRound(gm.width), qRound(gm.height));
 }
@@ -1208,7 +1210,8 @@ float QFontMetricsF::rightBearing(QChar ch) const
 float QFontMetricsF::width(const QString &str) const
 {
     QTextEngine layout(str, d);
-    layout.itemize(QTextEngine::WidthOnly);
+    layout.setMode(QTextEngine::WidthOnly);
+    layout.itemize();
     return layout.width(0, str.length());
 }
 
@@ -1281,7 +1284,8 @@ QRectF QFontMetricsF::boundingRect(const QString &str) const
         return QRectF();
 
     QTextEngine layout(str, d);
-    layout.itemize(QTextEngine::NoBidi|QTextEngine::SingleLine);
+    layout.setMode(QTextLayout::NoBidi|QTextLayout::SingleLine);
+    layout.itemize();
     glyph_metrics_t gm = layout.boundingBox(0, len);
     return QRectF(gm.x, gm.y, gm.width, gm.height);
 }

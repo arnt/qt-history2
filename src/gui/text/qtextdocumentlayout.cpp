@@ -1281,6 +1281,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
 //    qDebug() << "layoutBlock; width" << layoutStruct->x_right - layoutStruct->x_left << "(maxWidth is btw" << tl->maximumWidth() << ")";
 //    tl->useDesignMetrics(true);
 //     tl->enableKerning(true);
+//     tl->setLayoutMode(QTextLayout::NoGlyphCache);
     tl->clearLines();
 
     layoutStruct->y += blockFormat.topMargin();
@@ -1332,6 +1333,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
         layoutStruct->y += qRound(line.ascent() + line.descent() + 1);
         layoutStruct->widthUsed = qRound(qMax(layoutStruct->widthUsed, left - layoutStruct->x_left + line.textWidth()));
     }
+
     layoutStruct->y += blockFormat.bottomMargin();
     // ### doesn't take floats into account. would need to do it per line. but how to retrieve then? (Simon)
     layoutStruct->minimumWidth = qMax(layoutStruct->minimumWidth, tl->minimumWidth() + blockFormat.leftMargin() + indent);
@@ -1343,6 +1345,9 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
         else
             layoutStruct->maximumWidth = qMax(layoutStruct->maximumWidth, maxW);
     }
+
+    tl->endLayout();
+
 }
 
 void QTextDocumentLayoutPrivate::floatMargins(LayoutStruct *layoutStruct, int *left, int *right)

@@ -245,9 +245,6 @@ public:
     void setDocumentLayout(QAbstractTextDocumentLayout *layout) { docLayout = layout; }
 
     enum Mode {
-        Full = 0x00,
-        NoBidi = 0x01,
-        SingleLine = 0x02,
         WidthOnly = 0x07
     };
 
@@ -258,7 +255,8 @@ public:
     };
     Q_DECLARE_FLAGS(ShaperFlags, ShaperFlag)
 
-    void itemize(int mode = Full);
+    void setMode(int mode) { itemization_mode = mode; }
+    void itemize();
 
     static void bidiReorder(int numRuns, const Q_UINT8 *levels, int *visualOrder);
 
@@ -270,11 +268,6 @@ public:
     void shape(int item) const;
 
     void justify(const QScriptLine &si);
-
-    enum Edge {
-        Leading,
-        Trailing
-    };
 
     float width(int charFrom, int numChars) const;
     glyph_metrics_t boundingBox(int from,  int len) const;
@@ -306,6 +299,7 @@ public:
             const_cast<QTextEngine *>(this)->reallocate((((used + nGlyphs)*3/2 + 15) >> 4) << 4);
     }
 
+    void freeMemory();
 
     int findItem(int strPos) const;
 
@@ -315,13 +309,16 @@ public:
     QString string;
     QFontPrivate *fnt;
     const QTextFormatCollection *formats;
+
     QChar::Direction direction : 5;
     unsigned int haveCharAttributes : 1;
     unsigned int widthOnly : 1;
     unsigned int designMetrics : 1;
     unsigned int textColorFromPalette : 1;
-    unsigned int reserved : 23;
+    unsigned int reserved : 7;
+    unsigned int itemization_mode : 16;
     unsigned int textFlags;
+
     QPalette *pal;
     QAbstractTextDocumentLayout *docLayout;
     QTextBlock block;

@@ -3236,7 +3236,8 @@ void QPainter::drawText(const QPointF &p, const QString &str, TextDirection dir)
     QTextLayout layout(str, d->state->pfont ? *d->state->pfont : d->state->font);
     QTextEngine *engine = layout.engine();
 
-    engine->itemize(QTextEngine::SingleLine);
+    engine->setMode(QTextLayout::SingleLine);
+    engine->itemize();
 
     if (dir != Auto) {
         int level = dir == RTL ? 1 : 0;
@@ -4347,7 +4348,8 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         float lineWidth = wordwrap ? qMax(0, r.width()) : 0x01000000;
         if(!wordwrap)
             tf |= Qt::TextIncludeTrailingSpaces;
-        textLayout.beginLayout((tf & Qt::TextDontPrint) ? QTextLayout::NoBidi : QTextLayout::MultiLine);
+        textLayout.setLayoutMode((tf & Qt::TextDontPrint) ? QTextLayout::NoBidi : QTextLayout::MultiLine);
+        textLayout.beginLayout();
 
         float leading = fm.leading();
         height = -leading;

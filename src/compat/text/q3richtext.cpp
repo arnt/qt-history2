@@ -3829,7 +3829,8 @@ void Q3TextString::checkBidi() const
     QTextEngine textEngine;
     textEngine.setText(toString());
     textEngine.direction = (QChar::Direction)dir;
-    textEngine.itemize(QTextEngine::SingleLine);
+    textEngine.setMode(QTextLayout::SingleLine);
+    textEngine.itemize();
     const QCharAttributes *ca = textEngine.attributes() + length-1;
     Q3TextStringChar *ch = (Q3TextStringChar *)end - 1;
     QScriptItem *item = &textEngine.items[textEngine.items.size()-1];

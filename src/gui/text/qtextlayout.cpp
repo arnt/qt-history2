@@ -367,7 +367,7 @@ QTextLayout::QTextLayout(const QTextBlock &block)
     if (txt.isEmpty())
         return;
 
-    d->itemize(QTextEngine::Full);
+    d->itemize();
 
     int lastTextPosition = 0;
     int textLength = 0;
@@ -480,19 +480,22 @@ void QTextLayout::setPalette(const QPalette &p, PaletteFlags f)
     d->textColorFromPalette = (f & UseTextColor);
 }
 
-/*!
-  \internal
-*/
-void QTextLayout::beginLayout(LayoutMode m, int textFlags)
+
+void QTextLayout::setLayoutMode(LayoutMode m)
+{
+    d->setMode(m);
+}
+
+void QTextLayout::beginLayout()
 {
     d->items.clear();
-    QTextEngine::Mode mode = QTextEngine::Full;
-    if (m == NoBidi)
-        mode = QTextEngine::NoBidi;
-    else if (m == SingleLine)
-        mode = QTextEngine::SingleLine;
-    d->itemize(mode);
-    d->textFlags = textFlags;
+    d->itemize();
+}
+
+void QTextLayout::endLayout()
+{
+    if (d->itemization_mode & NoGlyphCache)
+        d->freeMemory();
 }
 
 /*!
@@ -805,6 +808,8 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, int cursorPos,
     }
 
     d->cursorPos = -1;
+    if (d->itemization_mode & NoGlyphCache)
+        d->freeMemory();
 }
 
 /*!
@@ -977,6 +982,7 @@ void QTextLine::layout(float width)
     line.width = width;
     line.length = 0;
     line.textWidth = 0;
+    eng->boundingRect = QRectF();
     layout_helper(INT_MAX);
 }
 
@@ -990,13 +996,12 @@ void QTextLine::layoutFixedColumnWidth(int numColumns)
     line.width = (float)(INT_MAX >> 6);
     line.length = 0;
     line.textWidth = 0;
+    eng->boundingRect = QRectF();
     layout_helper(numColumns);
 }
 
 void QTextLine::layout_helper(int maxGlyphs)
 {
-    eng->boundingRect = QRectF();
-
     QScriptLine &line = eng->lines[i];
 
     if (!eng->items.size()) {
@@ -1024,6 +1029,8 @@ void QTextLine::layout_helper(int maxGlyphs)
         eng->shape(item);
         const QCharAttributes *attributes = eng->attributes();
         const QScriptItem &current = eng->items[item];
+        if (!current.num_glyphs)
+            eng->shape(item);
 
         if (current.isObject) {
             QTextFormat format = eng->formats->format(eng->items[item].format);
@@ -1128,8 +1135,8 @@ void QTextLine::layout_helper(int maxGlyphs)
     if (line.textWidth > 0 && item < eng->items.size())
         eng->maxWidth += spacew;
 
-    // What's missing here? :)
-    // ##########################
+    line.justified = false;
+    line.gridfitted = false;
 }
 
 /*!
@@ -1307,6 +1314,8 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
     for (int i = 0; i < nItems; ++i) {
         int item = visualOrder[i]+firstItem;
         QScriptItem &si = eng->items[item];
+        if (!si.num_glyphs)
+            eng->shape(item);
 
         if (si.isObject || si.isTab) {
             QTextLayout::SelectionType selType = QTextLayout::NoSelection;
@@ -1467,7 +1476,8 @@ float QTextLine::cursorToX(int *cursorPos, Edge edge) const
     const QScriptItem *si = &eng->items[itm];
     pos -= si->position;
 
-    eng->shape(itm);
+    if (!si->num_glyphs)
+        eng->shape(itm);
     QGlyphLayout *glyphs = eng->glyphs(si);
     unsigned short *logClusters = eng->logClusters(si);
 
@@ -1526,6 +1536,8 @@ float QTextLine::cursorToX(int *cursorPos, Edge edge) const
         if (item == itm)
             break;
         QScriptItem &si = eng->items[item];
+        if (!si.num_glyphs)
+            eng->shape(item);
 
         if (si.isTab || si.isObject) {
             x += si.width;
@@ -1593,6 +1605,8 @@ int QTextLine::xToCursor(float x, CursorPosition cpos) const
         // left of first item
         int item = visualOrder[0]+firstItem;
         QScriptItem &si = eng->items[item];
+        if (!si.num_glyphs)
+            eng->shape(item);
         int pos = si.position;
         if (si.analysis.bidiLevel % 2)
             pos += eng->length(item);
@@ -1606,6 +1620,8 @@ int QTextLine::xToCursor(float x, CursorPosition cpos) const
         for (int i = 0; i < nItems; ++i) {
             int item = visualOrder[i]+firstItem;
             QScriptItem &si = eng->items[item];
+            if (!si.num_glyphs)
+                eng->shape(item);
             int item_length = eng->length(item);
 //             qDebug("    item %d, visual %d x_remain=%f", i, item, x);
 
@@ -1708,6 +1724,8 @@ int QTextLine::xToCursor(float x, CursorPosition cpos) const
     // right of last item
     int item = visualOrder[nItems-1]+firstItem;
     QScriptItem &si = eng->items[item];
+    if (!si.num_glyphs)
+        eng->shape(item);
     int pos = si.position;
     if (!(si.analysis.bidiLevel % 2))
         pos += eng->length(item);

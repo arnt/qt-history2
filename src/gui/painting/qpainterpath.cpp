@@ -838,7 +838,8 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
 
     QTextLayout layout(text, f);
     QTextEngine *eng = layout.engine();
-    eng->itemize(QTextEngine::SingleLine);
+    eng->setMode(QTextLayout::SingleLine);
+    eng->itemize();
 
     QTextLine line = layout.createLine();
     line.layout(0x01000000);

@@ -100,11 +100,17 @@ public:
     void useDesignMetrics(bool);
     bool usesDesignMetrics() const;
 
-    enum LayoutMode {
+    enum LayoutModeFlags {
         MultiLine = 0,
-        NoBidi = 1,
-        SingleLine = 2
+        NoBidi = 0x1,
+        SingleLine = 0x2,
+        NoGlyphCache = 0x4000
     };
+    Q_DECLARE_FLAGS(LayoutMode, LayoutModeFlags);
+
+    void setLayoutMode(LayoutMode m);
+    void beginLayout();
+    void endLayout();
 
     void clearLines();
     QTextLine createLine();
@@ -112,9 +118,6 @@ public:
     int numLines() const;
     QTextLine lineAt(int i) const;
     QTextLine findLine(int pos) const;
-
-    // ### go away!
-    void beginLayout(LayoutMode m = MultiLine, int textFlags = 0);
 
 
     enum CursorMode {
@@ -176,6 +179,8 @@ private:
     friend class QPSPrinter;
     QTextEngine *d;
 };
+Q_DECLARE_OPERATORS_FOR_FLAGS(QTextLayout::LayoutMode);
+
 
 class Q_GUI_EXPORT QTextLine
 {

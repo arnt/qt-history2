@@ -236,7 +236,7 @@ static fAppendItems appendItems = qAppendItems;
 static void bidiItemize(QTextEngine *engine, bool rightToLeft, int mode)
 {
     BidiControl control(rightToLeft);
-    if (mode & QTextEngine::SingleLine)
+    if (mode & QTextLayout::SingleLine)
         control.singleLine = true;
 
     int sor = 0;
@@ -836,11 +836,12 @@ static void init(QTextEngine *e)
     e->cursorPos = -1;
     e->underlinePositions = 0;
     e->designMetrics = false;
+    e->itemization_mode = 0;
     e->textColorFromPalette = false;
     e->pal = 0;
     e->minWidth = 0.;
     e->maxWidth = 0.;
-      }
+}
 
 QTextEngine::QTextEngine()
     : fnt(0)
@@ -871,7 +872,6 @@ void QTextEngine::setText(const QString &str)
     used = 0;
     allocated = 0;
 
-    reallocate(qMax(16, str.length()*3/2));
     items.clear();
     lines.clear();
 }
@@ -906,8 +906,26 @@ void QTextEngine::reallocate(int totalGlyphs)
     num_glyphs = totalGlyphs;
 }
 
+void QTextEngine::freeMemory()
+{
+    free(memory);
+    memory = 0;
+    haveCharAttributes = 0;
+    allocated = 0;
+    num_glyphs = 0;
+    used = 0;
+    for (int i = 0; i < items.size(); ++i)
+        items[i].num_glyphs = 0;
+    for (int i = 0; i < lines.size(); ++i) {
+        lines[i].justified = 0;
+        lines[i].gridfitted = 0;
+    }
+//     items.clear();
+}
+
 const QCharAttributes *QTextEngine::attributes()
 {
+    ensureSpace(string.length());
     QCharAttributes *charAttributes = (QCharAttributes *) memory;
     if (haveCharAttributes)
         return charAttributes;
@@ -1007,25 +1025,25 @@ void QTextEngine::splitItem(int item, int pos)
 //     qDebug("split at position %d itempos=%d", pos, item);
 }
 
-void QTextEngine::itemize(int mode)
+void QTextEngine::itemize()
 {
     items.clear();
     if (string.length() == 0)
         return;
 
-    if (!(mode & NoBidi)) {
+    if (!(itemization_mode & QTextLayout::NoBidi)) {
         if (direction == QChar::DirON)
             direction = basicDirection(string);
-        bidiItemize(this, direction == QChar::DirR, mode);
+        bidiItemize(this, direction == QChar::DirR, itemization_mode);
     } else {
         BidiControl control(false);
-        if (mode & QTextEngine::SingleLine)
+        if (itemization_mode & QTextLayout::SingleLine)
             control.singleLine = true;
         int start = 0;
         int stop = string.length() - 1;
         appendItems(this, start, stop, control, QChar::DirL);
     }
-    if ((mode & WidthOnly) == WidthOnly)
+    if ((itemization_mode & QTextEngine::WidthOnly) == WidthOnly)
         widthOnly = true;
 }
 
@@ -1243,6 +1261,8 @@ void QTextEngine::justify(const QScriptLine &line)
 
     for (int i = 0; i < nItems; ++i) {
         QScriptItem &si = items[firstItem + i];
+        if (!si.num_glyphs)
+            shape(firstItem + i);
 
         int kashida_type = QGlyphLayout::Arabic_Normal;
         int kashida_pos = -1;
