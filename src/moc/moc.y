@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#226 $
+** $Id: //depot/qt/main/src/moc/moc.y#227 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -94,14 +94,14 @@ public:
 
 
 struct Function					// member function meta data
-{						//   used for signals and slots
+{
     Access access;
     QCString    qualifier;			// const or volatile
     QCString    name;
     QCString    type;
     int	       lineNo;
     ArgList   *args;
-    Function() { args=0; }
+    Function() { args=0; isVirtual = FALSE;}
    ~Function() { delete args; }
     const char* accessAsString() {
 	switch ( access ) {
@@ -110,6 +110,7 @@ struct Function					// member function meta data
 	default: return "Public";
 	}
     }
+    bool isVirtual;
 };
 
 class FuncList : public QList<Function> {	// list of member functions
@@ -268,7 +269,9 @@ ArgList *addArg( Argument * );			// add arg to tmpArgList
 
 enum Member { SignalMember,
 	      SlotMember,
-	      PropertyCandidateMember
+	      PropertyCandidateMember,
+	      MethodMember,
+	      EventMember,
 	    };
 
 void	 addMember( Member );			// add tmpFunc to current class
@@ -302,8 +305,8 @@ Access subClassPerm;			// current access permission
 
 bool	   Q_OBJECTdetected;			// TRUE if current class
 						// contains the Q_OBJECT macro
-bool	   Q_DISPATCHABLEdetected;			// TRUE if current class
-						// contains the Q_DISPATCHABLE macro
+bool	   Q_DISPATCHdetected;			// TRUE if current class
+						// contains the Q_DISPATCH macro
 bool	   Q_PROPERTYdetected;			// TRUE if current class
 						// contains at least one Q_PROPERTY,
 						// Q_OVERRIDE, Q_SETS or Q_ENUMS macro
@@ -376,8 +379,10 @@ const int  formatRevision = 12;			// moc output format revision
 
 %token			SIGNALS
 %token			SLOTS
+%token			METHODS
+%token			EVENTS
 %token			Q_OBJECT
-%token			Q_DISPATCHABLE
+%token			Q_DISPATCH
 %token			Q_PROPERTY
 %token			Q_OVERRIDE
 %token			Q_CLASSINFO
@@ -537,7 +542,6 @@ decl_specifier:		  storage_class_specifier { $$ = ""; }
 decl_specifiers:	  decl_specs_opt type_name decl_specs_opt
 						  { $$ = straddSpc($1,$2,$3); }
 			;
-
 decl_specs_opt:			/* empty */	  { $$ = ""; }
 			| decl_specs		  { $$ = $1; }
 			;
@@ -553,7 +557,7 @@ storage_class_specifier:  AUTO
 			;
 
 fct_specifier:		  INLINE
-			| VIRTUAL
+			| VIRTUAL 		{ tmpFunc->isVirtual = TRUE; }
 			;
 
 type_specifier:		  CONST			{ $$ = "const"; }
@@ -837,21 +841,29 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 			  slot_area
 			| SIGNALS		{ BEGIN QT_DEF; }
 			  ':'  opt_signal_declarations
+			| METHODS		{ BEGIN QT_DEF; }
+			  ':'  opt_method_declarations
+			| EVENTS		{ BEGIN QT_DEF; }
+			  ':'  opt_event_declarations
 			| Q_OBJECT		{
 			      if ( tmpAccess )
 				  moc_warn("Q_OBJECT is not in the private"
 					   " section of the class.\n"
 					   "Q_OBJECT is a macro that resets"
 					   " access permission to \"private\".");
+			      if ( Q_DISPATCHdetected )
+				  moc_err( "Classes with Q_DISPATCH must not contain the Q_OBJECT macro" );
 			      Q_OBJECTdetected = TRUE;
 			  }
-			| Q_DISPATCHABLE		{
+			| Q_DISPATCH		{
 			      if ( tmpAccess )
-				  moc_warn("Q_DISPATCHABLE is not in the private"
+				  moc_warn("Q_DISPATCH is not in the private"
 					   " section of the class.\n"
-					   "Q_DISPATCHABLE is a macro that resets"
+					   "Q_DISPATCH is a macro that resets"
 					   " access permission to \"private\".");
-			      Q_DISPATCHABLEdetected = TRUE;
+			      if ( Q_OBJECTdetected )
+				  moc_err( "Classes with Q_OBJECT must not contain the Q_DISPATCH macro" );
+			      Q_DISPATCHdetected = TRUE;
 			  }
 			| Q_PROPERTY { tmpYYStart = YY_START;
 				       tmpPropOverride = FALSE;
@@ -890,8 +902,12 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 
 slot_area:		  SIGNALS ':'	{ moc_err( "Signals cannot "
 						 "have access specifiers" ); }
+			| METHODS ':'	{ moc_err( "Methods cannot "
+						 "have access specifiers" ); }
+			| EVENTS ':'	{ moc_err( "Events cannot "
+						 "have access specifiers" ); }
 			| SLOTS	  ':' opt_slot_declarations
-			| ':'		{ if ( tmpAccess == Public && (Q_PROPERTYdetected || Q_DISPATCHABLEdetected) )
+			| ':'		{ if ( tmpAccess == Public && Q_PROPERTYdetected )
                                                   BEGIN QT_DEF;
                                               else
                                                   BEGIN IN_CLASS;
@@ -939,7 +955,29 @@ slot_declarations:	  slot_declarations slot_declaration
 			| slot_declaration
 			;
 
-slot_declaration:	  signal_or_slot		{ addMember( SlotMember ); }
+slot_declaration:	  signal_or_slot	{ addMember( SlotMember ); }
+			;
+
+opt_method_declarations:	/* empty */
+			| method_declarations
+			;
+
+method_declarations:	  method_declarations method_declaration
+			| method_declaration
+			;
+
+method_declaration:	  signal_or_slot	{ addMember( MethodMember ); }
+			;
+
+opt_event_declarations:	/* empty */
+			| event_declarations
+			;
+
+event_declarations:	  event_declarations event_declaration
+			| event_declaration
+			;
+
+event_declaration:	  signal_or_slot	{ addMember( EventMember ); }
 			;
 
 opt_semicolons:			/* empty */
@@ -1077,27 +1115,23 @@ type_and_name:		  type_name fct_name
 
 signal_or_slot:		type_and_name fct_decl opt_semicolons
 			| type_and_name opt_bitfield ';' opt_semicolons
-				{ func_warn("Variable as signal or slot."); }
+				{ func_warn("Unexpected variable declaration."); }
 			| type_and_name opt_bitfield ','member_declarator_list
 			  ';' opt_semicolons
-				{ func_warn("Variable as signal or slot."); }
+				{ func_warn("Unexpected variable declaration."); }
 			| enum_specifier opt_identifier ';' opt_semicolons
-				{ func_warn("Enum declaration as signal or"
-					    " slot."); }
+				{ func_warn("Unexpected enum declaration."); }
                         | USING complete_class_name ';' opt_semicolons
-                                { func_warn("Using declaration as signal or"
-					    " slot."); }
+                                { func_warn("Unexpected using declaration."); }
 			| USING NAMESPACE complete_class_name ';' opt_semicolons
-                                { func_warn("Using declaration as signal or"
-					    " slot."); }
+                                { func_warn("Unexpected using declaration."); }
 			| NAMESPACE IDENTIFIER '{'
                                 { classPLevel++;
-				  moc_err("Namespace declaration as signal or"
-					  " slot."); }
+				  moc_err("Unexpected namespace declaration."); }
  			| nested_class_head ';' opt_semicolons
- 				{ func_warn("Class declaration as signal or slot.");}
+ 				{ func_warn("Unexpected class declaration.");}
  			| nested_class_head
- 			  '{'   { func_warn("Class declaration as signal or slot.");
+ 			  '{'   { func_warn("Unexpected class declaration.");
 				  BEGIN IN_FCT; fctLevel=1;
 				}
                           '}'  { BEGIN QT_DEF; }
@@ -1261,6 +1295,8 @@ class parser_reg {
     FuncList  signals;				// signal interface
     FuncList  slots;				// slots interface
     FuncList  propfuncs;				// all possible property access functions
+    FuncList  methods;				// methods interface
+    FuncList  events;				// events interface
     FuncList  funcs;			// all parsed functions, including signals
     EnumList  enums;				// enums used in properties
     PropList  props;				// list of all properties
@@ -1308,7 +1344,7 @@ void replace( char *s, char c1, char c2 );
 int main( int argc, char **argv )
 {
     init();
-    
+
     bool autoInclude = TRUE;
     char *error	     = 0;
     g->qtPath = "";
@@ -1465,7 +1501,7 @@ CWPluginContext g_ctx;
 moc_status do_moc( CWPluginContext ctx, const QCString &fin, const QCString &fout, CWFileSpec *dspec, bool i)
 {
     init();
-    
+
     g_ctx = ctx;
     g->noInclude = i;
     g->fileName = fin;
@@ -1492,14 +1528,14 @@ moc_status do_moc( CWPluginContext ctx, const QCString &fin, const QCString &fou
         cleanup();
         return moc_no_source;
     }
-    
+
     if(dspec) {
         memcpy(dspec, &fi.filespec, sizeof(fi.filespec));
         const unsigned char *f = p_str(fout.data());
         memcpy(dspec->name, f, f[0]+1);
     }
     buf_size_total = fi.filedatalength;
-    buf_buffer = fi.filedata;    
+    buf_buffer = fi.filedata;
 
     QCString path("");
     AliasHandle alias;
@@ -1542,7 +1578,7 @@ moc_status do_moc( CWPluginContext ctx, const QCString &fin, const QCString &fou
     yyparse();
     if(out != stdout)
       fclose(out);
-   
+
    if(g->mocError || !g->generatedCode) {
         unlink(outpath.data());
         moc_status ret = !g->generatedCode ? moc_no_qobject : moc_parse_error;
@@ -1713,7 +1749,7 @@ void init()					// initialize
     buf_buffer = NULL;
     buf_index = 0;
     buf_size_total = 0;
-#endif    
+#endif
 }
 
 void cleanup()
@@ -1722,9 +1758,9 @@ void cleanup()
     g = NULL;
 
 #ifdef MOC_MWERKS_PLUGIN
-    if(buf_buffer && g_ctx) 
+    if(buf_buffer && g_ctx)
 	CWReleaseFileText(g_ctx, buf_buffer);
-#endif    
+#endif
 }
 
 void initClass()				 // prepare for new class
@@ -1733,11 +1769,14 @@ void initClass()				 // prepare for new class
     subClassPerm       = Private;
     Q_OBJECTdetected   = FALSE;
     Q_PROPERTYdetected = FALSE;
+    Q_DISPATCHdetected = FALSE;
     skipClass	       = FALSE;
     templateClass      = FALSE;
     g->slots.clear();
     g->signals.clear();
     g->propfuncs.clear();
+    g->methods.clear();
+    g->events.clear();
     g->enums.clear();
     g->funcs.clear();
     g->props.clear();
@@ -2734,51 +2773,344 @@ int generateClassInfos()
     return i;
 }
 
+QCString uType( QCString ctype )
+{
+    ctype = ctype.simplifyWhiteSpace();
+    if ( ctype.left(6) == "const " )
+	ctype = ctype.mid( 6, ctype.length() - 6 );
+    if ( ctype.right(1) == "&" ) {
+	ctype = ctype.left( ctype.length() - 1 );
+    } else if ( ctype.right(1) == "*" ) {
+	QCString raw = ctype.left( ctype.length() - 1 );
+	ctype = "ptr";
+	if ( raw = "char" )
+	    ctype = "charstar";
+	
+    }
+    return ctype;
+}
+
+bool isInOut( QCString ctype )
+{
+    ctype = ctype.simplifyWhiteSpace();
+    if ( ctype.left(6) == "const " )
+	return FALSE;
+    if ( ctype.right(1) == "&" )
+	return TRUE;
+    return FALSE;
+}
+
+QCString uTypeExtra( QCString ctype )
+{
+    QCString typeExtra = "0";
+    ctype = ctype.simplifyWhiteSpace();
+    if ( ctype.left(6) == "const " )
+	ctype = ctype.mid( 6, ctype.length() - 6 );
+    if ( ctype.right(1) == "&" ) {
+	ctype = ctype.left( ctype.length() - 1 );
+    } else if ( ctype.right(1) == "*" ) {
+	QCString raw = ctype.left( ctype.length() - 1 );
+	ctype = "ptr";
+	if ( raw = "char" )
+	    ;
+	else
+	    typeExtra.sprintf( "\"%s\"", raw.data() );
+	
+    }
+    return typeExtra;
+}
+
+
 void generateDispatch()
 {
-    qDebug("generateDispatch");
-    for ( Function* f = g->funcs.first(); f; f = g->funcs.next() ) {
-	QCString typstr = "";
-	int count = 0;
+    Function* f;
+
+    QListIterator<Function> it( g->methods);
+    while ( ( f = it.current() ) ) {
+	++it;
 	Argument *a = f->args->first();
 
-	if ( f->type != "void" && qvariant_nameToType( f->type ) == 0  ) {
-	    fprintf( stderr, "%s: Warning: Function %s cannot be dispatched. Return type '%s' not supported.\n", g->fileName.data(),
-		     f->name.data(), f->type.data() );
-	    continue;
-	}
-	
 	bool isValid = TRUE;
+	if ( f->type != "void" && FALSE ) { // #### TODO check parameters
+	    fprintf( stderr, "%s: Warning: Method %s cannot be dispatched. Return type '%s' not supported.\n", g->fileName.data(),
+		     f->name.data(), f->type.data() );
+	    isValid = FALSE;
+	}
+
  	while ( a ) {
- 	    if ( !a->rightType.isEmpty() || qvariant_nameToType( a->leftType ) == 0 ) {
-		fprintf( stderr, "%s: Warning: Function %s cannot be dispatched. Offending parameter: %s\n", g->fileName.data(),
-			 f->name.data(), (a->leftType + ' ' + a->name + a->rightType).data() );
+ 	    if ( FALSE ) { // ###TODO check parameters
+		
+		fprintf( stderr, "%s: Warning: Method %s cannot be dispatched. Offending parameter: %s\n", g->fileName.data(),
+			 f->name.data(), (a->leftType + '|' + a->name + '|' + a->rightType).data() );
 		isValid = FALSE;
  		break;
 	    }
 	    a = f->args->next();
  	}
-	if ( !isValid)
-	    continue;
-
-	a = f->args->first();
-	while ( a ) {
-	    if ( !a->leftType.isEmpty() || ! a->rightType.isEmpty() ) {
-		if ( count++ )
-		    typstr += ",";
-		typstr += a->leftType;
-		typstr += a->rightType;
-		if ( a->name ) {
-		    typstr += " ";
-		    typstr += a->name;
-		}
-		qDebug("left:%s right: %s", a->leftType.data(), a->rightType.data() );
-		
-	    }
-	    a = f->args->next();
-	}
-	qDebug("function: %s %s(%s)", f->type.data(), f->name.data(), typstr.data());
+	if ( !isValid )
+	    g->methods.removeRef( f );
     }
+
+
+    // methods
+    int index = -1;
+    if ( !g->methods.isEmpty() ) {
+	
+	for ( f = g->methods.first(); f; f = g->methods.next() ) {
+	    index++;
+	    if ( f->type == "void" && f->args->isEmpty() )
+		continue;
+	
+	    fprintf( out, "\nstatic const UParameter %s_METHOD%d[] = {\n", pureClassName().data(), index );
+	    if ( f->type != "void" ) {
+		fprintf( out, "    { 0, pUType_%s, %s, UParameter::Out }", uType(f->type).data(), uTypeExtra(f->type).data() );
+		if ( !f->args->isEmpty() )
+		    fprintf( out, ",\n" );
+	    }
+	    Argument* a = f->args->first();
+	    while ( a ) {
+		QCString type = a->leftType + ' ' + a->rightType;
+		fprintf( out, "    { %s, pUType_%s, %s, UParameter::%s }",
+			 a->name ? (QCString("\"")+a->name + "\"").data()  : "0",
+			 uType( type ).data(), uTypeExtra( type ).data(),
+			 isInOut( type ) ? "InOut" : "In" );
+		a = f->args->next();
+		if ( a )
+		    fprintf( out, ",\n" );
+	    }
+	    fprintf( out, "\n};\n");
+	}
+	
+	fprintf( out, "\nstatic const UMethod %s_METHODS[] = {\n", pureClassName().data() );
+	index = -1;
+	f = g->methods.first();
+	while ( f ) {
+	    index++;
+	    int n = f->args->count();
+	    if ( f->type != "void" )
+		n++;
+	    fprintf( out, "    { \"%s\", %d, ", f->name.data(), n );
+	    if ( n )
+		fprintf( out, "%s_METHOD%d }", pureClassName().data(), index );
+	    else
+		fprintf( out, " 0 }" );
+	
+	    f = g->methods.next();
+	    if ( f )
+		fprintf( out, ",\n" );
+	}
+	fprintf( out, "\n};\n");
+    }
+	
+
+    // events
+    index = -1;
+    if ( !g->events.isEmpty() ) {
+	
+	for ( f = g->events.first(); f; f = g->events.next() ) {
+	    index ++;
+	    if ( f->type != "void" ) {
+		fprintf( stderr, "%s: Warning: Event %s cannot be dispatched. Return type must be void.\n", g->fileName.data(),
+			 f->name.data(), f->type.data() );
+		continue;
+	    }
+	    if ( f->args->isEmpty() )
+		continue;
+	
+	    fprintf( out, "\nstatic const UParameter %s_EVENT%d[] = {\n", pureClassName().data(), index );
+	    Argument* a = f->args->first();
+	    while ( a ) {
+		QCString type = a->leftType + ' ' + a->rightType;
+		fprintf( out, "    { %s, pUType_%s, %s, UParameter::%s }",
+			 a->name ? (QCString("\"")+a->name + "\"").data()  : "0",
+			 uType( type ).data(), uTypeExtra( type ).data(),
+			 isInOut( type ) ? "InOut" : "In" );
+		a = f->args->next();
+		if ( a )
+		    fprintf( out, ",\n" );
+	    }
+	    fprintf( out, "\n};\n");
+	}
+	
+	fprintf( out, "\nstatic const UMethod %s_EVENTS[] = {\n", pureClassName().data() );
+	index = -1;
+	f = g->events.first();
+	while ( f ) {
+	    index ++;
+	    int n = f->args->count();
+	    if ( f->type != "void" )
+		n++;
+	    fprintf( out, "    { \"%s\", %d, ", f->name.data(), n );
+	    if ( n )
+		fprintf( out, "%s_EVENT%d }", pureClassName().data(), index );
+	    else
+		fprintf( out, " 0 }" );
+	
+	    f = g->events.next();
+	    if ( f )
+		fprintf( out, ",\n" );
+	}
+	fprintf( out, "\n};\n");
+    }
+	
+
+
+
+    if ( !g->methods.isEmpty() ) {
+	fprintf( out, "\nstatic const UInterfaceDescription %s_INTERFACE = {\n", pureClassName().data() );
+	
+	if ( !g->methods.isEmpty() )
+	    fprintf( out, "    %d, %s_METHODS,\n", g->methods.count(), pureClassName().data() );
+	else
+	    fprintf( out, "    0, 0,\n");
+
+	//### TODO add properties
+	fprintf( out, "    0, 0\n");
+	fprintf( out, "};\n" );
+    }
+
+    fprintf( out, "\nconst UInterfaceDescription* %s::interfaceDescription() const\n{\n", qualifiedClassName().data() );
+    if ( !g->methods.isEmpty() )
+	fprintf( out, "    return &%s_INTERFACE;\n", pureClassName().data() );
+    else
+	fprintf( out, "    return 0;\n" );
+
+    fprintf( out, "};\n" );
+
+    if ( !g->events.isEmpty() ) {
+	fprintf( out, "static const UInterfaceDescription %s_LISTENER = {\n", pureClassName().data() );
+	
+	if ( !g->events.isEmpty() )
+	    fprintf( out, "    %d, %s_EVENTS,\n", g->events.count(), pureClassName().data() );
+	else
+	    fprintf( out, "    0, 0,\n");
+
+	//### TODO add properties
+	fprintf( out, "    0, 0\n");
+	fprintf( out, "};\n" );
+    }
+
+    fprintf( out, "\nconst UInterfaceDescription* %s::eventsDescription() const\n{\n", qualifiedClassName().data() );
+    if ( !g->events.isEmpty() )
+	fprintf( out, "    return &%s_LISTENER;\n", pureClassName().data() );
+    else
+	fprintf( out, "    return 0;\n" );
+
+    fprintf( out, "};\n" );
+
+    fprintf( out, "\nURESULT %s::invoke( int id, UObject* o)\n{\n", qualifiedClassName().data() );
+    fprintf( out, "    Q_UNUSED( o );\n" );
+    fprintf( out, "    bool ok = TRUE;\n" );
+    fprintf( out, "    switch ( id ) {\n" );
+
+
+    if ( !g->methods.isEmpty() ) {
+	index = -1;
+	for ( f = g->methods.first(); f; f = g->methods.next() ) {
+	    index ++;
+	    if ( f->type == "void" && f->args->isEmpty() ) {
+		fprintf( out, "    case %d:\n", index );
+		fprintf( out, "\t%s();\n", f->name.data() );
+		fprintf( out, "\tbreak;\n " );
+		continue;
+	    }
+	
+	    fprintf( out, "    case %d:\n", index );
+	    fprintf( out, "\t" );
+	    bool hasReturn = FALSE;
+	    int offset = 0;
+	    if ( f->type != "void" ) {
+		hasReturn = TRUE;
+		fprintf( out, "pUType_%s->set(o,", uType(f->type).data() );
+	    }
+	    fprintf( out, "%s(", f->name.data() );
+	    Argument* a = f->args->first();
+	    while ( a ) {
+		QCString type = a->leftType + ' ' + a->rightType;
+		fprintf( out, "pUType%s->get(o", uType( type ).data() );
+		if ( offset > 0 )
+		    fprintf( out, "+%d", offset );
+		offset++;
+		fprintf( out, ",&ok)" );
+		a = f->args->next();
+		if ( a )
+		    fprintf( out, "," );
+	    }
+	    fprintf( out, ")" );
+	    if ( hasReturn )
+		fprintf( out, ")" );
+	    fprintf( out, ";\n\tbreak;\n" );
+	}
+    }
+
+
+    fprintf( out, "    default:\n" );
+    fprintf( out, "\treturn URESULT_INVALID_ID;\n" );
+    fprintf( out, "    }\n" );
+    fprintf( out, "    return ok ? URESULT_OK : URESULT_TYPE_MISMATCH;\n}\n" );
+
+
+    if ( !g->events.isEmpty() ) {
+	index = -1;
+	for ( f = g->events.first(); f; f = g->events.next() ) {
+	    index ++;
+
+	    fprintf( out, "\n// EVENT %s\n", (const char*)f->name );
+	    fprintf( out, "void %s::%s(", (const char*)qualifiedClassName(),
+		 (const char*)f->name );
+
+	    QCString argstr;
+	    char buf[12];
+	    Argument *a = f->args->first();
+	    int offset = 0;
+	    while ( a ) { // argument list
+		if ( !a->leftType.isEmpty() || !a->rightType.isEmpty() ) {
+		    argstr += a->leftType;
+		    argstr += " ";
+		    sprintf( buf, "t%d", offset++ );
+		    argstr += buf;
+		    argstr += a->rightType;
+		    a = f->args->next();
+		    if ( a )
+			argstr += ", ";
+		} else {
+		    a = f->args->next();
+		}
+	    }
+	    if ( argstr.isEmpty() )
+		fprintf( out, ")\n{\n" );
+	    else
+		fprintf( out, " %s )\n{\n", (const char*)argstr );
+	
+	    fprintf( out, "    if ( !listeners )\n" );
+	    fprintf( out, "\treturn;\n" );
+	
+	    if ( !f->args->isEmpty() ) {
+		offset = 0;
+		fprintf( out, "    UObject o[%d];\n", f->args->count() );
+		Argument* a = f->args->first();
+		while ( a ) {
+		    QCString type = a->leftType + ' ' + a->rightType;
+		    fprintf( out, "    pUType_%s->set(o", uType( type ).data() );
+		    if ( offset > 0 )
+			fprintf( out, "+%d", offset );
+		    fprintf( out, ",t%d);\n", offset );
+		    a = f->args->next();
+		    offset++;
+		}
+	    }
+	
+	
+	    fprintf( out, "    QListIterator<QDispatchInterface> it(*listeners);\n" );
+	    fprintf( out, "    QDispatchInterface* l;\n" );
+	    fprintf( out, "    while ( (l=it.current()) ) {\n" );
+	    fprintf( out, "	++it;\n" );
+	    fprintf( out, "	l->invoke( 0, %s );\n", f->args->isEmpty()?"0":"o" );
+	    fprintf( out, "    }\n" );
+	    fprintf( out, "}\n" );
+	}
+    }
+
 
 }
 
@@ -2787,7 +3119,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#226 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#227 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2795,15 +3127,11 @@ void generateClass()		      // generate C++ source code for a class
     if ( skipClass )				// don't generate for class
 	return;
 
-    if ( Q_DISPATCHABLEdetected ) {
-	generateDispatch();
-	g->generatedCode = TRUE;
-    }
-
-    if ( !Q_OBJECTdetected ) {
+    if ( Q_DISPATCHdetected ) {
+	//
+    } else if ( !Q_OBJECTdetected ) {
 	if ( g->signals.count() == 0 && g->slots.count() == 0 && g->props.count() == 0 && g->infos.count() == 0 )
 	    return;
-	g->generatedCode = TRUE;
 	if ( displayWarnings && (g->signals.count()+g->slots.count()) != 0 )
 	    moc_err("The declaration of the class \"%s\" contains slots "
 		    "and/or signals\n\t but no Q_OBJECT macro!", g->className.data());
@@ -2838,6 +3166,11 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "#include \"%s\"\n", (const char*)g->includeFile );
 	fprintf( out, "#include <%sqmetaobject.h>\n", (const char*)g->qtPath );
 	fprintf( out, "#include <%sqapplication.h>\n\n", (const char*)g->qtPath );
+	if ( Q_DISPATCHdetected ) {
+	    fprintf( out, "#include <%sqcom.h>\n", (const char*)g->qtPath );
+	    fprintf( out, "#include <%sucom.h>\n", (const char*)g->qtPath );
+	    fprintf( out, "#include <%sutypes.h>\n", (const char*)g->qtPath );
+	}
 	fprintf( out, "#if !defined(Q_MOC_OUTPUT_REVISION) || (Q_MOC_OUTPUT_REVISION != %d)\n", formatRevision );
 	fprintf( out, "#error \"This file was generated using the moc from %s."
 		 " It\"\n#error \"cannot be used with the include files from"
@@ -2847,6 +3180,15 @@ void generateClass()		      // generate C++ source code for a class
     } else {
 	fprintf( out, "\n\n" );
     }
+
+
+    if ( Q_DISPATCHdetected ) {
+	generateDispatch();
+	if ( !Q_OBJECTdetected &&
+	     g->signals.count() == 0 && g->slots.count() == 0 && g->props.count() == 0 && g->infos.count() == 0 )
+	    return;
+    }
+
 
 
 //
@@ -3009,9 +3351,9 @@ void generateClass()		      // generate C++ source code for a class
 		argstr += buf;
 		argstr += a->rightType;
 		++i;
-		typvec[i] = typstr.copy();
-		valvec[i] = valstr.copy();
-		argvec[i] = argstr.copy();
+		typvec[i] = typstr;
+		valvec[i] = valstr;
+		argvec[i] = argstr;
 	    }
 	    a = f->args->next();
 	}
@@ -3037,7 +3379,7 @@ void generateClass()		      // generate C++ source code for a class
 	    included_list_stuff = TRUE;
 	}
 
-	fprintf( out, "\n/" /* c++ */ "/ SIGNAL %s\n", (const char*)f->name );
+	fprintf( out, "\n// SIGNAL %s\n", (const char*)f->name );
 	fprintf( out, "void %s::%s(", (const char*)qualifiedClassName(),
 		 (const char*)f->name );
 
@@ -3137,6 +3479,12 @@ void addEnum()
 
 void addMember( Member m )
 {
+
+    if ( m == MethodMember && !tmpFunc->isVirtual )
+	moc_err( "Method %s must be virtual.", (const char*)tmpFunc->name );
+    if ( m == EventMember && tmpFunc->isVirtual )
+	moc_err( "Event %s must not be virtual.", (const char*)tmpFunc->name );
+
     if ( skipFunc ) {
 	tmpFunc->args = tmpArgList; // just to be sure
   	delete tmpFunc;
@@ -3155,6 +3503,12 @@ void addMember( Member m )
     switch( m ) {
     case SignalMember:
 	g->signals.append( tmpFunc );
+	break;
+    case MethodMember:
+	g->methods.append( tmpFunc );
+	break;
+    case EventMember:
+	g->events.append( tmpFunc );
 	break;
     case SlotMember:
 	g->slots.append( tmpFunc );

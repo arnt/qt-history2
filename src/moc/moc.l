@@ -57,7 +57,7 @@ long buf_size_total = 0, buf_index = 0;
               } \
               buf_index += result; \
           } else result = YY_NULL; \
-     } 
+     }
 #endif
 
 #include "qstring.h"
@@ -92,12 +92,12 @@ int lastState        = 0;  /* Remembers the state when a
                               MOC_SKIP_BEGIN is encountered */
 int skipLevel        = 0; /* Depth of MOC_SKIP_BEGINs */
 
-
 class QString;
 
 extern void addExpressionChar( const char );
 extern void addExpressionString( const char * );
 extern void moc_warn( const char *msg );
+extern bool Q_DISPATCHdetected;
 %}
 
 %start OUTSIDE QT_DEF IN_CLASS IN_NAMESPACE IN_ENUM IN_EXPR IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON SKIP IN_PROPERTY IN_PROPDEF IN_CLASSINFO
@@ -116,10 +116,12 @@ extern void moc_warn( const char *msg );
 				  BEGIN QT_DEF;
 				  return TEMPLATE; }
 <QT_DEF>"Q_OBJECT"		{ X; return Q_OBJECT; }
-<QT_DEF>"Q_DISPATCHABLE"	{ X; return Q_DISPATCHABLE; }
+<QT_DEF>"Q_DISPATCH"	{ X; return Q_DISPATCH; }
 <QT_DEF>"signals"		{ X; return SIGNALS; }
 <QT_DEF>"slots"			{ X; return SLOTS; }
-<QT_DEF>"Q_CLASSINFO"		{ X;return Q_CLASSINFO; }
+<QT_DEF>"methods"		{ X;if ( Q_DISPATCHdetected ) return METHODS; }
+<QT_DEF>"events"		{ X;if ( Q_DISPATCHdetected ) return EVENTS; }
+<QT_DEF>"Q_CLASSINFO"		{ X; return Q_CLASSINFO; }
 <QT_DEF>"Q_PROPERTY"		{ X; return Q_PROPERTY; }
 <QT_DEF>"Q_OVERRIDE"		{ X; return Q_OVERRIDE; }
 <QT_DEF>"Q_ENUMS"		{ X; return Q_ENUMS; }
@@ -135,9 +137,11 @@ extern void moc_warn( const char *msg );
 <IN_CLASS>"private"		{ X;if( classPLevel == 1 ) return PRIVATE; }
 <IN_CLASS>"signals"		{ X;if( classPLevel == 1 ) return SIGNALS; }
 <IN_CLASS>"slots"		{ X;if( classPLevel == 1 ) return SLOTS; }
+<IN_CLASS>"methods"		{ X;if ( Q_DISPATCHdetected ) return METHODS; }
+<IN_CLASS>"events"		{ X;if ( Q_DISPATCHdetected ) return EVENTS; }
 <IN_CLASS>"Q_CLASSINFO"		{ X;if( classPLevel == 1 ) return Q_CLASSINFO; }
 <IN_CLASS>"Q_OBJECT"		{ X;if( classPLevel == 1 ) return Q_OBJECT; }
-<IN_CLASS>"Q_DISPATCHABLE"	{ X;if( classPLevel == 1 ) return Q_DISPATCHABLE; }
+<IN_CLASS>"Q_DISPATCH"	{ X;if( classPLevel == 1 ) return Q_DISPATCH; }
 <IN_CLASS>"Q_PROPERTY"		{ X;if( classPLevel == 1 ) return Q_PROPERTY; }
 <IN_CLASS>"Q_OVERRIDE"		{ X;if( classPLevel == 1 ) return Q_OVERRIDE; }
 <IN_CLASS>"Q_ENUMS"		{ X;if( classPLevel == 1 ) return Q_ENUMS; }
