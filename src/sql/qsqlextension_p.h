@@ -73,6 +73,8 @@ struct Param {
 
 struct Holder {
     Holder( const QString& hldr = QString::null, int pos = -1 ): holderName( hldr ), holderPos( pos ) {}
+    bool operator==( const Holder& h ) const { return h.holderPos == holderPos && h.holderName == holderName; }
+    bool operator!=( const Holder& h ) const { return h.holderPos != holderPos || h.holderName != holderName; }
     QString holderName;
     int	    holderPos;
 };
