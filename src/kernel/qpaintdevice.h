@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#45 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#46 $
 **
 ** Definition of QPaintDevice class
 **
@@ -62,6 +62,7 @@ public:
     static int	    x11Depth();
     static int	    x11Cells();
     static HANDLE   x11Colormap();
+    static bool	    x11DefaultColormap();
     static void	   *x11Visual();
     static bool	    x11DefaultVisual();
 #endif
@@ -98,6 +99,7 @@ private:
     static int	    x_depth;
     static int	    x_cells;
     static HANDLE   x_colormap;
+    static bool	    x_defcmap;
     static void	   *x_visual;
     static bool     x_defvisual;
 #endif
@@ -142,13 +144,14 @@ inline Display *QPaintDevice::x11Display() const { return 0; }
 #endif
 
 #if defined(_WS_X11_)
-inline Display *QPaintDevice::x__Display()	 { return x_display; }
-inline int	QPaintDevice::x11Screen()	 { return x_screen; }
-inline int	QPaintDevice::x11Depth()	 { return x_depth; }
-inline int	QPaintDevice::x11Cells()	 { return x_cells; }
-inline HANDLE	QPaintDevice::x11Colormap()	 { return x_colormap; }
-inline void    *QPaintDevice::x11Visual()	 { return x_visual; }
-inline bool    	QPaintDevice::x11DefaultVisual() { return x_defvisual; }
+inline Display *QPaintDevice::x__Display()	   { return x_display; }
+inline int	QPaintDevice::x11Screen()	   { return x_screen; }
+inline int	QPaintDevice::x11Depth()	   { return x_depth; }
+inline int	QPaintDevice::x11Cells()	   { return x_cells; }
+inline HANDLE	QPaintDevice::x11Colormap()	   { return x_colormap; }
+inline bool    	QPaintDevice::x11DefaultColormap() { return x_defcmap; }
+inline void    *QPaintDevice::x11Visual()	   { return x_visual; }
+inline bool    	QPaintDevice::x11DefaultVisual()   { return x_defvisual; }
 #endif
 
 

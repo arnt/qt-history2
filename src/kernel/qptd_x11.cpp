@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#70 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#70 $");
 
 
 /*!
@@ -75,6 +75,7 @@ int	 QPaintDevice::x_screen;
 int	 QPaintDevice::x_depth;
 int	 QPaintDevice::x_cells;
 HANDLE	 QPaintDevice::x_colormap;
+bool	 QPaintDevice::x_defcmap;
 void	*QPaintDevice::x_visual;
 bool	 QPaintDevice::x_defvisual;
 
