@@ -14,6 +14,7 @@
 #include "qstring.h"
 #include <agl.h>
 #include <gl.h>
+#include <Carbon/Carbon.h>
 
 static QString bitsToModes(int bits)
 {
@@ -78,7 +79,7 @@ GLInfo::GLInfo()
 
     GLint val = 0;
     QGLWidget gl((QWidget *) 0);
-    int rid;
+    GLint rid;
     AGLRendererInfo rf = aglQueryRendererInfo(NULL, 0), tf;
     do {
 	aglDescribeRenderer(rf, AGL_RENDERER_ID, &rid);
