@@ -306,12 +306,14 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     QDesignerToolWindow *widgetBoxWrapper = 0;
     if (0 != (widgetBoxWrapper = findToolWindow(core()->widgetBox()))) {
         widgetBoxWrapper->action()->setEnabled(true);
+        widgetBoxWrapper->setWindowTitle(tr("Widget Box"));
     }
 
     Q_ASSERT(m_workspace == 0);
 
     QDesignerToolWindow *mw = new QDesignerToolWindow(this); // Just to have a copy of
     mw->setSaveSettingsOnClose(true);
+    mw->setWindowTitle(tr("Qt Designer"));
     m_workspace = new Q3Workspace(mw);
     connect(m_workspace, SIGNAL(windowActivated(QWidget*)),
             this, SLOT(activateWorkspaceChildWindow(QWidget* )));
@@ -387,6 +389,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
         widgetBoxWrapper->action()->setEnabled(false);
         widgetBoxWrapper->setSaveSettingsOnClose(true);
         qDesigner->setMainWindow(widgetBoxWrapper);
+        widgetBoxWrapper->setWindowTitle(tr("Qt Designer"));
 #endif
         widgetBoxWrapper->addToolBar(m_editToolBar);
         widgetBoxWrapper->addToolBar(m_toolToolBar);
