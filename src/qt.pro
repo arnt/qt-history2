@@ -3,6 +3,8 @@ CONFIG		= qt warn_on release
 unix:CONFIG    += x11inc
 
 
+win32:TMAKE_CFLAGS   += -DUNICODE
+
 win32:INCLUDEPATH	= tmp
 win32:MOC_DIR		= tmp
 
@@ -164,12 +166,27 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h
 
-SOURCES		= dialogs/qdeveloper.cpp \
-		  dialogs/qfiledialog.cpp \
-		  dialogs/qfontdialog.cpp \
-		  dialogs/qmessagebox.cpp \
-		  dialogs/qprogressdialog.cpp \
-		  dialogs/qtabdialog.cpp \
+
+# DO NOT sort directories - dependency order = tools,kernel,widgets,dialogs
+SOURCES		= \
+		  tools/qbitarray.cpp \
+		  tools/qbuffer.cpp \
+		  tools/qcollection.cpp \
+		  tools/qdatetime.cpp \
+		  tools/qdir.cpp \
+		  tools/qdatastream.cpp \
+		  tools/qfile.cpp \
+		  tools/qfileinfo.cpp \
+		  tools/qgarray.cpp \
+		  tools/qgcache.cpp \
+		  tools/qgdict.cpp \
+		  tools/qglist.cpp \
+		  tools/qglobal.cpp \
+		  tools/qgvector.cpp \
+		  tools/qiodevice.cpp \
+		  tools/qregexp.cpp \
+		  tools/qstring.cpp \
+		  tools/qtextstream.cpp \
 		  kernel/qabstractlayout.cpp \
 		  kernel/qaccel.cpp \
 		  kernel/qapplication.cpp \
@@ -219,24 +236,6 @@ SOURCES		= dialogs/qdeveloper.cpp \
 		  kernel/qwidget.cpp \
 		  kernel/qwindowsstyle.cpp \
 		  kernel/qwmatrix.cpp \
-		  tools/qbitarray.cpp \
-		  tools/qbuffer.cpp \
-		  tools/qcollection.cpp \
-		  tools/qdatetime.cpp \
-		  tools/qdir.cpp \
-		  tools/qdatastream.cpp \
-		  tools/qfile.cpp \
-		  tools/qfileinfo.cpp \
-		  tools/qgarray.cpp \
-		  tools/qgcache.cpp \
-		  tools/qgdict.cpp \
-		  tools/qglist.cpp \
-		  tools/qglobal.cpp \
-		  tools/qgvector.cpp \
-		  tools/qiodevice.cpp \
-		  tools/qregexp.cpp \
-		  tools/qstring.cpp \
-		  tools/qtextstream.cpp \
 		  widgets/qbuttongroup.cpp \
 		  widgets/qbutton.cpp \
 		  widgets/qcheckbox.cpp \
@@ -275,7 +274,13 @@ SOURCES		= dialogs/qdeveloper.cpp \
 		  widgets/qvbox.cpp \
 		  widgets/qwellarray.cpp \
 		  widgets/qwhatsthis.cpp \
-		  widgets/qwidgetstack.cpp
+		  widgets/qwidgetstack.cpp \
+		  dialogs/qdeveloper.cpp \
+		  dialogs/qfiledialog.cpp \
+		  dialogs/qfontdialog.cpp \
+		  dialogs/qmessagebox.cpp \
+		  dialogs/qprogressdialog.cpp \
+		  dialogs/qtabdialog.cpp
 
 win32:SOURCES  += kernel/qapplication_win.cpp \
 		  kernel/qclipboard_win.cpp \
