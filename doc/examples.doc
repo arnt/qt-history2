@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.15 1998/06/01 12:52:32 agulbra Exp $
+** $Id: examples.doc,v 2.16 1998/08/20 21:26:53 agulbra Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.15 1998/06/01 12:52:32 agulbra Exp $";
+static char ident[] = "$Id: examples.doc,v 2.16 1998/08/20 21:26:53 agulbra Exp $";
 #endif
 
 
@@ -156,6 +156,20 @@ static char ident[] = "$Id: examples.doc,v 2.15 1998/06/01 12:52:32 agulbra Exp 
   This example demontrates simple use of menus (a menu bar and
   pull-down menus).  Qt also supports popup menus, but this example
   doesn't contain any.
+
+  <blockquote>
+  Customer: "My computer crashed!"<br>
+  Tech Support: "It crashed?"<br>
+  Customer: "Yeah, it won't let me play my game."<br>
+  Tech Support: "All right, hit Control-Alt-Delete to reboot."<br>
+  Customer: "No, it didn't crash -- it crashed."<br>
+  Tech Support: "Huh?"<br>
+  Customer: "I crashed my game. That's what I said before. I crashed my spaceship and now it doesn't work."<br>
+  Tech Support: "Click on 'File,' then 'New Game.'"<br>
+  Customer: [pause] "Wow! How'd you learn how to do that?"<br>
+  </blockquote>
+
+  Now you too can write menu trees tech support will know how to use!
 */
 
 
