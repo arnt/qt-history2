@@ -83,6 +83,20 @@ UnixMakefileGenerator::init()
 	project->variables()["QMAKE_COPY_FILE"].append( "$(COPY) -p" );
     if( project->isEmpty("QMAKE_COPY_DIR") )
 	project->variables()["QMAKE_COPY_DIR"].append( "$(COPY) -pR" );
+    //If the TARGET looks like a path split it into DESTDIR and the resulting TARGET 
+    if(!project->isEmpty("TARGET")) {
+	QString targ = project->first("TARGET");
+	int slsh = QMAX(targ.findRev('/'), targ.findRev(Option::dir_sep));
+	if(slsh != -1) {
+	    if(project->isEmpty("DESTDIR"))
+		project->values("DESTDIR").append("");
+	    else if(project->first("DESTDIR").right(1) != Option::dir_sep)
+		project->variables()["DESTDIR"] = project->first("DESTDIR") + Option::dir_sep;
+	    project->variables()["DESTDIR"] = project->first("DESTDIR") + targ.left(slsh+1);
+	    project->variables()["TARGET"] = targ.mid(slsh+1);
+	}
+    }
+
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
     bool is_qt = (project->first("TARGET") == "qt" || project->first("TARGET") == "qte" ||
