@@ -28,6 +28,7 @@
 #include <qpainter.h>
 #include <qpen.h>
 #include <qbitmap.h>
+#include <qsplitter.h>
 
 bool operator<( const QGuardedPtr<QWidget> &p1, const QGuardedPtr<QWidget> &p2 )
 {
@@ -52,8 +53,8 @@ bool operator<( const QGuardedPtr<QWidget> &p1, const QGuardedPtr<QWidget> &p2 )
   widget is found later by Layout.)
  */
 
-Layout::Layout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup )
-    : widgets( wl ), parent( p ), formWindow( fw ), isBreak( !doSetup )
+Layout::Layout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup, bool splitter )
+    : widgets( wl ), parent( p ), formWindow( fw ), isBreak( !doSetup ), useSplitter( splitter )
 {
     widgets.setAutoDelete( FALSE );
     layoutBase = lb;
@@ -158,10 +159,14 @@ bool Layout::prepareLayout( bool &needMove, bool &needReparent )
     for ( QWidget *w = widgets.first(); w; w = widgets.next() )
 	w->raise();
     needMove = !layoutBase;
-    needReparent = needMove || layoutBase->inherits( "QLayoutWidget" );
+    needReparent = needMove || layoutBase->inherits( "QLayoutWidget" ) || layoutBase->inherits( "QSplitter" );
     if ( !layoutBase ) {
-	layoutBase = WidgetFactory::create( WidgetDatabase::idFromClassName( "QLayoutWidget" ),
-					    WidgetFactory::containerOfWidget( parent ) );
+	if ( !useSplitter )
+	    layoutBase = WidgetFactory::create( WidgetDatabase::idFromClassName( "QLayoutWidget" ),
+						WidgetFactory::containerOfWidget( parent ) );
+	else
+	    layoutBase = WidgetFactory::create( WidgetDatabase::idFromClassName( "QSplitter" ),
+						WidgetFactory::containerOfWidget( parent ) );
     } else {
 	WidgetFactory::deleteLayout( layoutBase );
     }
@@ -212,6 +217,7 @@ void Layout::breakLayout()
 {
     WidgetFactory::deleteLayout( layoutBase );
     bool needReparent = qstrcmp( layoutBase->className(), "QLayoutWidget" ) == 0 ||
+			qstrcmp( layoutBase->className(), "QSplitter" ) == 0 ||
 			( !WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( layoutBase ) ) ) &&
 			  layoutBase != formWindow->mainContainer() );
     bool add = geometries.isEmpty();
@@ -252,8 +258,8 @@ public:
 
 };
 
-HorizontalLayout::HorizontalLayout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup )
-    : Layout( wl, p, fw, lb, doSetup )
+HorizontalLayout::HorizontalLayout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup, bool splitter )
+    : Layout( wl, p, fw, lb, doSetup, splitter )
 {
     if ( doSetup )
 	setup();
@@ -278,12 +284,17 @@ void HorizontalLayout::doLayout()
     for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
 	if ( needReparent && w->parent() != layoutBase )
 	    w->reparent( layoutBase, 0, QPoint( 0, 0 ), FALSE );
-	if ( qstrcmp( w->className(), "Spacer" ) == 0 )
-	    layout->addWidget( w, 0, ( (Spacer*)w )->alignment() );
-	else
-	    layout->addWidget( w );
+	if ( !useSplitter ) {
+	    if ( qstrcmp( w->className(), "Spacer" ) == 0 )
+		layout->addWidget( w, 0, ( (Spacer*)w )->alignment() );
+	    else
+		layout->addWidget( w );
+	}
 	w->show();
     }
+
+    if ( layoutBase->inherits( "QSplitter" ) )
+	( (QSplitter*)layoutBase )->setOrientation( Qt::Horizontal );
 
     finishLayout( needMove, layout );
 }
@@ -309,8 +320,8 @@ public:
 
 };
 
-VerticalLayout::VerticalLayout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup )
-    : Layout( wl, p, fw, lb, doSetup )
+VerticalLayout::VerticalLayout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup, bool splitter )
+    : Layout( wl, p, fw, lb, doSetup, splitter )
 {
     if ( doSetup )
 	setup();
@@ -335,12 +346,17 @@ void VerticalLayout::doLayout()
     for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
 	if ( needReparent && w->parent() != layoutBase )
 	    w->reparent( layoutBase, 0, QPoint( 0, 0 ), FALSE );
- 	if ( qstrcmp( w->className(), "Spacer" ) == 0 )
- 	    layout->addWidget( w, 0, ( (Spacer*)w )->alignment() );
- 	else
-	    layout->addWidget( w );
+	if ( !useSplitter ) {
+	    if ( qstrcmp( w->className(), "Spacer" ) == 0 )
+		layout->addWidget( w, 0, ( (Spacer*)w )->alignment() );
+	    else
+		layout->addWidget( w );
+	}
 	w->show();
     }
+
+    if ( layoutBase->inherits( "QSplitter" ) )
+	( (QSplitter*)layoutBase )->setOrientation( Qt::Vertical );
 
     finishLayout( needMove, layout );
 }

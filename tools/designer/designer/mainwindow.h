@@ -145,6 +145,8 @@ private slots:
     void editAdjustSize();
     void editLayoutHorizontal();
     void editLayoutVertical();
+    void editLayoutHorizontalSplit();
+    void editLayoutVerticalSplit();
     void editLayoutGrid();
     void editLayoutContainerHorizontal();
     void editLayoutContainerVertical();
@@ -260,6 +262,7 @@ private:
     *actionEditPaste, *actionEditDelete,
     *actionEditAdjustSize,
     *actionEditHLayout, *actionEditVLayout, *actionEditGridLayout,
+    *actionEditSplitHorizontal, *actionEditSplitVertical,
     *actionEditSelectAll, *actionEditBreakLayout, *actionEditSlots, *actionEditConnections,
     *actionEditLower, *actionEditRaise;
     QActionGroup *actionGroupTools, *actionGroupProjects;

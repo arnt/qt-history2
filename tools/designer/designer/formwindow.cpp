@@ -1732,6 +1732,26 @@ void FormWindow::layoutVertical()
     cmd->execute();
 }
 
+void FormWindow::layoutHorizontalSplit()
+{
+    QWidgetList widgets( selectedWidgets() );
+    LayoutHorizontalSplitCommand *cmd = new LayoutHorizontalSplitCommand( tr( "Layout horizontally (in splitter)" ),
+									  this, mainContainer(), 0, widgets );
+    clearSelection( FALSE );
+    commandHistory()->addCommand( cmd );
+    cmd->execute();
+}
+
+void FormWindow::layoutVerticalSplit()
+{
+    QWidgetList widgets( selectedWidgets() );
+    LayoutVerticalSplitCommand *cmd = new LayoutVerticalSplitCommand( tr( "Layout vertically (in splitter)" ),
+								      this, mainContainer(), 0, widgets );
+    clearSelection( FALSE );
+    commandHistory()->addCommand( cmd );
+    cmd->execute();
+}
+
 void FormWindow::layoutGrid()
 {
     int xres = grid().x();
@@ -1825,7 +1845,7 @@ void FormWindow::breakLayout( QWidget *w )
 	    Command *cmd = breakLayoutCommand( w );
 	    if ( cmd )
 		commands.insert( 0, cmd );
-	    if ( !w->inherits( "QLayoutWidget" ) )
+	    if ( !w->inherits( "QLayoutWidget" ) && !w->inherits( "QSplitter" ) )
 		break;
 	}
 	w = w->parentWidget();

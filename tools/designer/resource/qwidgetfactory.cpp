@@ -51,6 +51,7 @@
 #include <qmainwindow.h>
 #include <qdatetimeedit.h>
 #include <qsqltable.h>
+#include <qsplitter.h>
 
 static QList<QWidgetFactory> widgetFactories;
 
@@ -363,6 +364,8 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 	return new QSlider( parent, name );
     } else if ( className == "QFrame" ) {
 	return new QFrame( parent, name );
+    } else if ( className == "QSplitter" ) {
+	return new QSplitter( parent, name );
     } else if ( className == "Line" ) {
 	QFrame *f = new QFrame( parent, name );
 	f->setFrameStyle( QFrame::HLine | QFrame::Sunken );

@@ -76,6 +76,7 @@
 #include <qmenubar.h>
 #include <qapplication.h>
 #include <qdatetimeedit.h>
+#include <qsplitter.h>
 #include "database.h"
 
 #include <globaldefs.h>
@@ -552,6 +553,8 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return new QLineEdit( parent, name );
     else if ( className == "QSpinBox" )
 	return new QSpinBox( parent, name );
+    else if ( className == "QSplitter" )
+	return new QSplitter( parent, name );
     else if ( className == "QMultiLineEdit" )
 	return new QMultiLineEdit( parent, name );
     else if ( className == "QTextEdit" )
@@ -734,6 +737,9 @@ WidgetFactory::LayoutType WidgetFactory::layoutType( QWidget *w, QLayout *&layou
     if ( w && w->inherits( "QWidgetStack" ) )
 	w = ((QWidgetStack*)w)->visibleWidget();
 
+    if ( w->inherits( "QSplitter" ) )
+	return ( (QSplitter*)w )->orientation() == Horizontal ? HBox : VBox;
+
     if ( !w || !w->layout() )
 	return NoLayout;
     QLayout *lay = w->layout();
@@ -915,6 +921,8 @@ void WidgetFactory::initChangedProperties( QObject *o )
     } else if ( o->inherits( "QTable" ) && !o->inherits( "QSqlTable" ) ) {
 	MetaDataBase::setPropertyChanged( o, "numRows", TRUE );
 	MetaDataBase::setPropertyChanged( o, "numCols", TRUE );
+    } else if ( o->inherits( "QSplitter" )  ) {
+	MetaDataBase::setPropertyChanged( o, "orientation", TRUE );
     }
 }
 

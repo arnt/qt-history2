@@ -2406,7 +2406,7 @@ void PropertyList::setupProperties()
 	}
     }
 
-    if ( w->isWidgetType() && WidgetFactory::layoutType( (QWidget*)w ) != WidgetFactory::NoLayout ) {
+    if ( !w->inherits( "QSplitter" ) && w->isWidgetType() && WidgetFactory::layoutType( (QWidget*)w ) != WidgetFactory::NoLayout ) {
 	item = new PropertyIntItem( this, item, 0, "layoutSpacing", TRUE );
 	setPropertyValue( item );
 	item->setChanged( TRUE );
@@ -2428,7 +2428,7 @@ void PropertyList::setupProperties()
     }
 
     if ( ( editor->formWindow()->mainContainer()->inherits( "QDesignerSqlWidget" ) ||
-	   editor->formWindow()->mainContainer()->inherits( "QDesignerSqlDialog" ) ) && 
+	   editor->formWindow()->mainContainer()->inherits( "QDesignerSqlDialog" ) ) &&
 	 !editor->widget()->inherits( "QSqlTable" ) ) {
 	item = new PropertyDatabaseItem( this, item, 0, "database", editor->formWindow()->mainContainer() != w );
 	setPropertyValue( item );

@@ -462,6 +462,22 @@ void MainWindow::setupLayoutActions()
     connect( actionEditGridLayout, SIGNAL( activated() ), this, SLOT( editLayoutGrid() ) );
     actionEditGridLayout->setEnabled( FALSE );
 
+    actionEditSplitHorizontal = new QAction( tr( "Lay Out Horizontally (in Splitter)" ), createIconSet("editvlayout.xpm"),
+					     tr( "Lay Out Horizontally (in &Splitter)" ), 0, this, 0 );
+    actionEditSplitHorizontal->setStatusTip(tr("Lays out the selected widgets horizontally in a splitter") );
+    actionEditSplitHorizontal->setWhatsThis(tr("<b>Layout widgets horizontally in a splitter</b>"
+				       "<p>The selected widgets will be laid out vertically in a splitter.</p>") );
+    connect( actionEditSplitHorizontal, SIGNAL( activated() ), this, SLOT( editLayoutHorizontalSplit() ) );
+    actionEditSplitHorizontal->setEnabled( FALSE );
+
+    actionEditSplitVertical = new QAction( tr( "Lay Out Vertically (in Splitter)" ), createIconSet("editvlayout.xpm"),
+					     tr( "Lay Out Vertically (in &Splitter)" ), 0, this, 0 );
+    actionEditSplitVertical->setStatusTip(tr("Lays out the selected widgets vertically in a splitter") );
+    actionEditSplitVertical->setWhatsThis(tr("<b>Layout widgets vertically in a splitter</b>"
+				       "<p>The selected widgets will be laid out vertically in a splitter.</p>") );
+    connect( actionEditSplitVertical, SIGNAL( activated() ), this, SLOT( editLayoutVerticalSplit() ) );
+    actionEditSplitVertical->setEnabled( FALSE );
+
     actionEditBreakLayout = new QAction( tr( "Break Layout" ), createIconSet("editbreaklayout.xpm"),
 					 tr( "&Break Layout" ), CTRL + Key_B, this, 0 );
     actionEditBreakLayout->setStatusTip(tr("Breaks the selected layout") );
@@ -491,6 +507,8 @@ void MainWindow::setupLayoutActions()
     actionEditHLayout->addTo( layoutToolBar );
     actionEditVLayout->addTo( layoutToolBar );
     actionEditGridLayout->addTo( layoutToolBar );
+    actionEditSplitHorizontal->addTo( layoutToolBar );
+    actionEditSplitVertical->addTo( layoutToolBar );
     actionEditBreakLayout->addTo( layoutToolBar );
     layoutToolBar->addSeparator();
     a->addTo( layoutToolBar );
@@ -502,6 +520,8 @@ void MainWindow::setupLayoutActions()
     actionEditHLayout->addTo( menu );
     actionEditVLayout->addTo( menu );
     actionEditGridLayout->addTo( menu );
+    actionEditSplitHorizontal->addTo( menu );
+    actionEditSplitVertical->addTo( menu );
     actionEditBreakLayout->addTo( menu );
     menu->insertSeparator();
     a->addTo( menu );
@@ -1118,6 +1138,8 @@ void MainWindow::setupRMBMenus()
     actionEditHLayout->addTo( rmbWidgets );
     actionEditVLayout->addTo( rmbWidgets );
     actionEditGridLayout->addTo( rmbWidgets );
+    actionEditSplitHorizontal->addTo( rmbWidgets );
+    actionEditSplitVertical->addTo( rmbWidgets );
     actionEditBreakLayout->addTo( rmbWidgets );
     rmbWidgets->insertSeparator();
     actionEditConnections->addTo( rmbWidgets );
@@ -1543,24 +1565,28 @@ void MainWindow::editLayoutVertical()
 	formWindow()->layoutVertical();
 }
 
+void MainWindow::editLayoutHorizontalSplit()
+{
+    if ( layoutChilds )
+	; // no way to do that
+    else if ( layoutSelected && formWindow() )
+	formWindow()->layoutHorizontalSplit();
+}
+
+void MainWindow::editLayoutVerticalSplit()
+{
+    if ( layoutChilds )
+	; // no way to do that
+    else if ( layoutSelected && formWindow() )
+	formWindow()->layoutVerticalSplit();
+}
+
 void MainWindow::editLayoutGrid()
 {
     if ( layoutChilds )
 	editLayoutContainerGrid();
     else if ( layoutSelected && formWindow() )
 	formWindow()->layoutGrid();
-}
-
-void MainWindow::editLayoutContainerHorizontal()
-{
-    if ( !formWindow() )
-	return;
-    QWidget *w = formWindow()->mainContainer();
-    QWidgetList l( formWindow()->selectedWidgets() );
-    if ( l.count() == 1 )
-	w = l.first();
-    if ( w )
-	formWindow()->layoutHorizontalContainer( w );
 }
 
 void MainWindow::editLayoutContainerVertical()
@@ -1573,6 +1599,18 @@ void MainWindow::editLayoutContainerVertical()
 	w = l.first();
     if ( w )
 	formWindow()->layoutVerticalContainer( w  );
+}
+
+void MainWindow::editLayoutContainerHorizontal()
+{
+    if ( !formWindow() )
+	return;
+    QWidget *w = formWindow()->mainContainer();
+    QWidgetList l( formWindow()->selectedWidgets() );
+    if ( l.count() == 1 )
+	w = l.first();
+    if ( w )
+	formWindow()->layoutHorizontalContainer( w );
 }
 
 void MainWindow::editLayoutContainerGrid()
@@ -2699,6 +2737,8 @@ void MainWindow::selectionChanged()
 	actionEditAdjustSize->setEnabled( FALSE );
 	actionEditHLayout->setEnabled( FALSE );
 	actionEditVLayout->setEnabled( FALSE );
+	actionEditSplitHorizontal->setEnabled( FALSE );
+	actionEditSplitVertical->setEnabled( FALSE );
 	actionEditGridLayout->setEnabled( FALSE );
 	actionEditBreakLayout->setEnabled( FALSE );
 	actionEditLower->setEnabled( FALSE );
@@ -2716,6 +2756,8 @@ void MainWindow::selectionChanged()
     actionEditRaise->setEnabled( enable );
 
     actionEditAdjustSize->setEnabled( FALSE );
+    actionEditSplitHorizontal->setEnabled( FALSE );
+    actionEditSplitVertical->setEnabled( FALSE );
 
     enable = FALSE;
     QWidgetList widgets = formWindow()->selectedWidgets();
@@ -2730,6 +2772,8 @@ void MainWindow::selectionChanged()
 	}
 	actionEditHLayout->setEnabled( unlaidout > 1 );
 	actionEditVLayout->setEnabled( unlaidout > 1 );
+	actionEditSplitHorizontal->setEnabled( unlaidout > 1 );
+	actionEditSplitVertical->setEnabled( unlaidout > 1 );
 	actionEditGridLayout->setEnabled( unlaidout > 1 );
 	actionEditBreakLayout->setEnabled( laidout > 0 );
 	actionEditAdjustSize->setEnabled( laidout > 0 );

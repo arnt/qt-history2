@@ -431,6 +431,14 @@ void WidgetDatabase::setupDataBase()
     append( r );
 
     r = new WidgetDatabaseRecord;
+    r->name = "QSplitter";
+    r->group = widgetGroup( "Temp" );
+    r->includeFile = "qsplitter.h";
+    r->isContainer = TRUE;
+
+    append( r );
+
+    r = new WidgetDatabaseRecord;
     r->iconSet = "tabwidget.xpm";
     r->name = "QDesignerTabWidget";
     r->group = widgetGroup( "Temp" );

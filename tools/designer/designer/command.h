@@ -58,6 +58,8 @@ public:
 	SetProperty,
 	LayoutHorizontal,
 	LayoutVertical,
+	LayoutHorizontalSplitter,
+	LayoutVerticalSplitter,
 	LayoutGrid,
 	BreakLayout,
 	Macro,
@@ -242,6 +244,22 @@ private:
 
 };
 
+class LayoutHorizontalSplitCommand : public Command
+{
+public:
+    LayoutHorizontalSplitCommand( const QString &n, FormWindow *fw,
+				  QWidget *parent, QWidget *layoutBase,
+				  const QWidgetList &wl );
+
+    void execute();
+    void unexecute();
+    Type type() const { return LayoutHorizontalSplitter; }
+
+private:
+    HorizontalLayout layout;
+
+};
+
 class LayoutVerticalCommand : public Command
 {
 public:
@@ -252,6 +270,22 @@ public:
     void execute();
     void unexecute();
     Type type() const { return LayoutVertical; }
+
+private:
+    VerticalLayout layout;
+
+};
+
+class LayoutVerticalSplitCommand : public Command
+{
+public:
+    LayoutVerticalSplitCommand( const QString &n, FormWindow *fw,
+				QWidget *parent, QWidget *layoutBase,
+				const QWidgetList &wl );
+
+    void execute();
+    void unexecute();
+    Type type() const { return LayoutVerticalSplitter; }
 
 private:
     VerticalLayout layout;

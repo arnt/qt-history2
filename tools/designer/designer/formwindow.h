@@ -86,6 +86,8 @@ public:
 
     virtual void layoutHorizontal();
     virtual void layoutVertical();
+    virtual void layoutHorizontalSplit();
+    virtual void layoutVerticalSplit();
     virtual void layoutGrid();
 
     virtual void layoutHorizontalContainer( QWidget *w );

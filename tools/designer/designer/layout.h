@@ -38,7 +38,7 @@ class Layout : public QObject
     Q_OBJECT
 
 public:
-    Layout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup = TRUE );
+    Layout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup = TRUE, bool splitter = FALSE );
     virtual ~Layout() {}
 
     virtual void doLayout() = 0;
@@ -56,6 +56,7 @@ protected:
     FormWindow *formWindow;
     QRect oldGeometry;
     bool isBreak;
+    bool useSplitter;
 
 protected:
     virtual void setup();
@@ -68,7 +69,7 @@ protected slots:
 class HorizontalLayout : public Layout
 {
 public:
-    HorizontalLayout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup = TRUE );
+    HorizontalLayout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup = TRUE, bool splitter = FALSE );
 
     void doLayout();
 
@@ -80,7 +81,7 @@ protected:
 class VerticalLayout : public Layout
 {
 public:
-    VerticalLayout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup = TRUE );
+    VerticalLayout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup = TRUE, bool splitter = FALSE );
 
     void doLayout();
 

@@ -622,6 +622,29 @@ void LayoutHorizontalCommand::unexecute()
 
 // ------------------------------------------------------------
 
+LayoutHorizontalSplitCommand::LayoutHorizontalSplitCommand( const QString &n, FormWindow *fw,
+							    QWidget *parent, QWidget *layoutBase,
+							    const QWidgetList &wl )
+    : Command( n, fw ), layout( wl, parent, fw, layoutBase, TRUE, TRUE )
+{
+}
+
+void LayoutHorizontalSplitCommand::execute()
+{
+    formWindow()->clearSelection( FALSE );
+    layout.doLayout();
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
+}
+
+void LayoutHorizontalSplitCommand::unexecute()
+{
+    formWindow()->clearSelection( FALSE );
+    layout.undoLayout();
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
+}
+
+// ------------------------------------------------------------
+
 LayoutVerticalCommand::LayoutVerticalCommand( const QString &n, FormWindow *fw,
 					      QWidget *parent, QWidget *layoutBase,
 					      const QWidgetList &wl )
@@ -637,6 +660,29 @@ void LayoutVerticalCommand::execute()
 }
 
 void LayoutVerticalCommand::unexecute()
+{
+    formWindow()->clearSelection( FALSE );
+    layout.undoLayout();
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
+}
+
+// ------------------------------------------------------------
+
+LayoutVerticalSplitCommand::LayoutVerticalSplitCommand( const QString &n, FormWindow *fw,
+							QWidget *parent, QWidget *layoutBase,
+							const QWidgetList &wl )
+    : Command( n, fw ), layout( wl, parent, fw, layoutBase, TRUE, TRUE )
+{
+}
+
+void LayoutVerticalSplitCommand::execute()
+{
+    formWindow()->clearSelection( FALSE );
+    layout.doLayout();
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
+}
+
+void LayoutVerticalSplitCommand::unexecute()
 {
     formWindow()->clearSelection( FALSE );
     layout.undoLayout();
@@ -677,9 +723,9 @@ BreakLayoutCommand::BreakLayoutCommand( const QString &n, FormWindow *fw,
     margin = MetaDataBase::margin( layoutBase );
     layout = 0;
     if ( lay == WidgetFactory::HBox )
-	layout = new HorizontalLayout( wl, layoutBase, fw, layoutBase, FALSE );
+	layout = new HorizontalLayout( wl, layoutBase, fw, layoutBase, FALSE, layoutBase->inherits( "QSplitter" ) );
     else if ( lay == WidgetFactory::VBox )
-	layout = new VerticalLayout( wl, layoutBase, fw, layoutBase, FALSE );
+	layout = new VerticalLayout( wl, layoutBase, fw, layoutBase, FALSE, layoutBase->inherits( "QSplitter" ) );
     else if ( lay == WidgetFactory::Grid )
 	layout = new GridLayout( wl, layoutBase, fw, layoutBase, QSize( fw->grid().x(), fw->grid().y()), FALSE );
 }
