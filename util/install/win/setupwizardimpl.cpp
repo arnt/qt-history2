@@ -2142,13 +2142,17 @@ bool SetupWizardImpl::findFile( const QString &fileName )
 #else
     QRegExp split( "[:]" );
 #endif
-    if ( file.endsWith( ".h" ) )
+    if ( file.endsWith( ".h" ) ) {
+	if ( globalInformation.sysId() == GlobalInformation::Borland )
+	    return TRUE;
 	paths = QStringList::split( split, QEnvironment::getEnv( "INCLUDE" ) );
-    else if ( file.endsWith( ".lib" ) )
+    } else if ( file.endsWith( ".lib" ) ) {
+	if ( globalInformation.sysId() == GlobalInformation::Borland )
+	    return TRUE;
 	paths = QStringList::split( split, QEnvironment::getEnv( "LIB" ) );
-    else
+    } else {
 	paths = QStringList::split( split, QEnvironment::getEnv( "PATH" ) );
-
+    }
     return findFileInPaths( file, paths );
 }
 
@@ -2189,9 +2193,7 @@ void SetupWizardImpl::readLicenseAgreement()
 
 bool SetupWizardImpl::findXPSupport()
 {
-    if ( ( globalInformation.sysId() == GlobalInformation::MSVCNET ) || ( globalInformation.sysId() == GlobalInformation::MSVC ) )
-	return findFile( "uxtheme.h" );
-    return FALSE;
+    return findFile( "uxtheme.h" );
 }
 
 void SetupWizardImpl::accept()
