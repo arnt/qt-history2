@@ -20,13 +20,13 @@ QWidget* WidgetPlugInManager::create( const QString& classname, QWidget* parent,
 QString WidgetPlugInManager::group( const QString& classname )
 {
     WidgetInterface* iface = (*this)[classname];
-    return iface ? iface->group( classname ) : 0;
+    return iface ? iface->group( classname ) : QString::null;
 }
 
 QString WidgetPlugInManager::iconSet( const QString& classname )
 {
     WidgetInterface* iface = (*this)[classname];
-    return iface ? iface->iconSet( classname ) : 0;
+    return iface ? iface->iconSet( classname ) : QString::null;
 }
 
 QIconSet WidgetPlugInManager::iconset( const QString& classname )
@@ -38,19 +38,19 @@ QIconSet WidgetPlugInManager::iconset( const QString& classname )
 QString WidgetPlugInManager::includeFile( const QString& classname )
 {
     WidgetInterface* iface = (*this)[classname];
-    return iface ? iface->includeFile( classname ) : 0;
+    return iface ? iface->includeFile( classname ) : QString::null;
 }
 
 QString WidgetPlugInManager::toolTip( const QString& classname )
 {
     WidgetInterface* iface = (*this)[classname];
-    return iface ? iface->toolTip( classname ) : 0;
+    return iface ? iface->toolTip( classname ) : QString::null;
 }
 
 QString WidgetPlugInManager::whatsThis( const QString& classname )
 {
     WidgetInterface* iface = (*this)[classname];
-    return iface ? iface->whatsThis( classname ) : 0;
+    return iface ? iface->whatsThis( classname ) : QString::null;
 }
 
 bool WidgetPlugInManager::isContainer( const QString& classname )
