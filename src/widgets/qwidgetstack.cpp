@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#31 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -32,6 +32,25 @@
 #include "qbuttongroup.h"
 
 class QWidgetStackPrivate {
+    class Invisible: public QWidget
+    {
+    public:
+	Invisible( QWidgetStack * parent ): QWidget( parent )
+	{
+	    setBackgroundMode( NoBackground );
+	}
+
+	QSizePolicy sizePolicy()
+	{
+	    return QSizePolicy( QSizePolicy::Expanding,
+				QSizePolicy::Expanding );
+	}
+
+	QSize sizeHint()
+	{
+	    return QSize( 256, 256 );
+	}
+    };
 };
 
 
@@ -82,8 +101,7 @@ QWidgetStack::QWidgetStack( QWidget * parent, const char *name )
     focusWidgets = 0;
     l = 0;
     topWidget = 0;
-    invisible = new QWidget( this );
-    invisible->setBackgroundMode( NoBackground );
+    invisible = new QWidgetStackPrivate::Invisible( this );
     setFontPropagation( AllChildren );
     setPalettePropagation( AllChildren );
 }
