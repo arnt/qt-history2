@@ -175,7 +175,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
 
     DWORD major = libAttr->wMajorVerNum;
     DWORD minor = libAttr->wMinorVerNum;
-    typeLibVersion = QString::number(major) + "." + QString::number(minor);
+    typeLibVersion = QString::number((uint)major) + "." + QString::number((uint)minor);
 
     if (bRegister)
         RegisterTypeLib(qAxTypeLibrary, (TCHAR*)libFile.utf16(), 0);
@@ -335,8 +335,8 @@ static const char* const type_map[][2] =
     { "QPixmap",	"IPictureDisp*" },
     { "QVariant",	"VARIANT" },
     { "QVariantList",	"SAFEARRAY(VARIANT)" },
-    { "Q_ULONGLONG",	"CY" },
-    { "Q_LONGLONG",	"CY" },
+    { "quint64",	"CY" },
+    { "qint64",	        "CY" },
     { "QByteArray",	"SAFEARRAY(BYTE)" },
     { "QStringList",	"SAFEARRAY(BSTR)" },
     // Userdefined Qt datatypes - some not on Borland though
