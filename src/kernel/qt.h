@@ -4,7 +4,7 @@
 **
 ** This header file efficiently includes all Qt GUI Toolkit functionality.
 **
-** Generated : Thu May 10 15:09:36 EST 2001
+** Generated : Thu May 10 12:18:39 CEST 2001
 
 **
 ** Copyright (C) 1995-2000 Trolltech AS.  All rights reserved.
@@ -17,8 +17,6 @@
 #define QT_H
 #include "qglobal.h"
 #include <qfeatures.h>
-#include "qaccessible.h"
-#include <qaccessiblewidget.h>
 #include "qshared.h"
 #include "qnamespace.h"
 #include "qptrcollection.h"
@@ -33,7 +31,7 @@
 #include "qpoint.h"
 #include "qsize.h"
 #include "qgdict.h"
-#include <qrect.h>
+#include "qrect.h"
 #include "qsizepolicy.h"
 #include "qregion.h"
 #include "qptrlist.h"
@@ -58,12 +56,12 @@
 #include "qmime.h"
 #include "qevent.h"
 #include "qdict.h"
-#include "qdatetime.h"
+#include <qdatetime.h>
 #include "qhostaddress.h"
 #include "qobject.h"
 #include "qstyle.h"
 #include <qdom.h>
-#include "qwidget.h"
+#include <qwidget.h>
 #include <qdrawutil.h>
 #include "qbutton.h"
 #include "qstrlist.h"
@@ -116,7 +114,7 @@
 #include "qlabel.h"
 #include "qabstractlayout.h"
 #include <qlcdnumber.h>
-#include "qcom.h"
+#include <qcom.h>
 #include "qtimer.h"
 #include "qscrollbar.h"
 #include "qscrollview.h"
