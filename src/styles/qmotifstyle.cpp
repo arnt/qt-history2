@@ -622,15 +622,6 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 	    const int motifOffset = 10;
  	    int sw = pixelMetric( PM_SplitterWidth );
 	    if ( flags & Style_Horizontal ) {
- 		QCOORD xPos = r.x() + r.width() / 2;
- 		QCOORD kPos = motifOffset;
- 		QCOORD kSize = sw - 2;
-
- 		qDrawShadeLine( p, xPos, kPos + kSize - 1, xPos, r.height(), cg );
- 		qDrawShadePanel( p, xPos - sw / 2 + 1, kPos, kSize, kSize, cg,
- 				 FALSE, 1, &cg.brush( QColorGroup::Button ) );
- 		qDrawShadeLine( p, xPos, 0, xPos, kPos, cg );
- 	    } else {
  		QCOORD yPos = r.y() + r.height() / 2;
  		QCOORD kPos = r.width() - motifOffset - sw;
  		QCOORD kSize = sw - 2;
@@ -639,6 +630,15 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
  		qDrawShadePanel( p, kPos, yPos - sw / 2 + 1, kSize, kSize,
  				 cg, FALSE, 1, &cg.brush( QColorGroup::Button ) );
  		qDrawShadeLine( p, kPos + kSize - 1, yPos, r.width(), yPos, cg );
+ 	    } else {
+ 		QCOORD xPos = r.x() + r.width() / 2;
+ 		QCOORD kPos = motifOffset;
+ 		QCOORD kSize = sw - 2;
+
+ 		qDrawShadeLine( p, xPos, kPos + kSize - 1, xPos, r.height(), cg );
+ 		qDrawShadePanel( p, xPos - sw / 2 + 1, kPos, kSize, kSize, cg,
+ 				 FALSE, 1, &cg.brush( QColorGroup::Button ) );
+ 		qDrawShadeLine( p, xPos, 0, xPos, kPos, cg );
  	    }
  	    break;
 	}
@@ -705,7 +705,7 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 	break;
 
     case PE_ScrollBarSlider:
-	drawPrimitive(PE_ButtonBevel, p, r, cg, Style_Enabled | Style_Raised);
+	drawPrimitive(PE_ButtonBevel, p, r, cg, flags | Style_Raised);
 	break;
 
     case PE_ProgressBarChunk:

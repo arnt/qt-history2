@@ -62,15 +62,13 @@ struct QMotifPlusStylePrivate
 {
     QMotifPlusStylePrivate()
         : hoverWidget(0), hovering(FALSE), sliderActive(FALSE), mousePressed(FALSE),
-          scrollbarElement(0), lastElement(0), ref(1), hoverPalette(0)
+          scrollbarElement(0), lastElement(0), ref(1)
     { ; }
 
     QGuardedPtr<QWidget> hoverWidget;
-    QPalette oldpalette, prelight_palette;
     bool hovering, sliderActive, mousePressed;
     int scrollbarElement, lastElement, ref;
     QPoint mousePos;
-    QPalette *hoverPalette;
 };
 
 static QMotifPlusStylePrivate * singleton = 0;
@@ -79,11 +77,15 @@ static QMotifPlusStylePrivate * singleton = 0;
 static void drawMotifPlusShade(QPainter *p,
 			       const QRect &r,
 			       const QColorGroup &g,
-			       bool sunken,
+			       bool sunken, bool mouseover,
 			       const QBrush *fill = 0)
 {
     QPen oldpen = p->pen();
     QPointArray a(4);
+    QColor button =
+	mouseover ? g.midlight() : g.button();
+    QBrush brush =
+	mouseover ? g.brush(QColorGroup::Midlight) : g.brush(QColorGroup::Button);
     int x, y, w, h;
 
     r.rect(&x, &y, &w, &h);
@@ -95,14 +97,14 @@ static void drawMotifPlusShade(QPainter *p,
     a.setPoint(3, x + w - 1, y);
     p->drawLineSegments(a);
 
-    if (sunken) p->setPen(Qt::black); else p->setPen(g.button());
+    if (sunken) p->setPen(Qt::black); else p->setPen(button);
     a.setPoint(0, x + 1, y + h - 2);
     a.setPoint(1, x + 1, y + 1);
     a.setPoint(2, x + 1, y + 1);
     a.setPoint(3, x + w - 2, y + 1);
     p->drawLineSegments(a);
 
-    if (sunken) p->setPen(g.button()); else p->setPen(g.dark());
+    if (sunken) p->setPen(button); else p->setPen(g.dark());
     a.setPoint(0, x + 2, y + h - 2);
     a.setPoint(1, x + w - 2, y + h - 2);
     a.setPoint(2, x + w - 2, y + h - 2);
@@ -119,7 +121,7 @@ static void drawMotifPlusShade(QPainter *p,
     if (fill)
 	p->fillRect(x + 2, y + 2, w - 4, h - 4, *fill);
     else
-	p->fillRect(x + 2, y + 2, w - 4, h - 4, QBrush(g.button()));
+	p->fillRect(x + 2, y + 2, w - 4, h - 4, brush);
 
     p->setPen(oldpen);
 }
@@ -166,7 +168,6 @@ QMotifPlusStyle::~QMotifPlusStyle()
 /*! \reimp */
 void QMotifPlusStyle::polish(QPalette &)
 {
-
 }
 
 
@@ -209,19 +210,6 @@ void QMotifPlusStyle::polish(QWidget *widget)
 void QMotifPlusStyle::unPolish(QWidget *widget)
 {
     widget->removeEventFilter(this);
-
-    if (widget == singleton->hoverWidget) {
-        if (singleton->hoverPalette) {
-	    singleton->hoverWidget->setPalette(*(singleton->hoverPalette));
-	    delete singleton->hoverPalette;
-	    singleton->hoverPalette = 0;
-	} else {
-	    singleton->hoverWidget->unsetPalette();
-	}
-
-	singleton->hoverWidget = 0;
-    }
-
     QMotifStyle::unPolish(widget);
 }
 
@@ -229,134 +217,12 @@ void QMotifPlusStyle::unPolish(QWidget *widget)
 /*! \reimp */
 void QMotifPlusStyle::polish(QApplication *app)
 {
-    QPalette pal = app->palette();
-
-    QColor bg = pal.color(QPalette::Active, QColorGroup::Background);
-
-    if (bg.red()   == 0xc0 &&
-        bg.green() == 0xc0 &&
-        bg.blue()  == 0xc0) {
-        // assume default palette... no -bg arg or color read from RESOURCE_MANAGER
-
-        QColor gtkdf(0x75, 0x75, 0x75);
-        QColor gtksf(0xff, 0xff, 0xff);
-        QColor gtkbg(0xd6, 0xd6, 0xd6);
-        QColor gtksl(0x00, 0x00, 0x9c);
-
-        pal.setColor(QPalette::Active, QColorGroup::Background, gtkbg);
-        pal.setColor(QPalette::Inactive, QColorGroup::Background, gtkbg);
-        pal.setColor(QPalette::Disabled, QColorGroup::Background, gtkbg);
-
-        pal.setColor(QPalette::Active, QColorGroup::Button, gtkbg);
-        pal.setColor(QPalette::Inactive, QColorGroup::Button, gtkbg);
-        pal.setColor(QPalette::Disabled, QColorGroup::Button, gtkbg);
-
-        pal.setColor(QPalette::Active, QColorGroup::Highlight, gtksl);
-        pal.setColor(QPalette::Inactive, QColorGroup::Highlight, gtksl);
-        pal.setColor(QPalette::Disabled, QColorGroup::Highlight, gtksl);
-
-        pal.setColor(QPalette::Active, QColorGroup::HighlightedText, gtksf);
-        pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, gtksf);
-        pal.setColor(QPalette::Disabled, QColorGroup::HighlightedText, gtkdf);
-    }
-
-    {
-        QColorGroup active(pal.color(QPalette::Active,
-                                     QColorGroup::Foreground),           // foreground
-                           pal.color(QPalette::Active,
-                                     QColorGroup::Button),               // button
-                           pal.color(QPalette::Active,
-                                     QColorGroup::Background).light(),   // light
-                           pal.color(QPalette::Active,
-                                     QColorGroup::Background).dark(142), // dark
-                           pal.color(QPalette::Active,
-                                     QColorGroup::Background).dark(110), // mid
-                           pal.color(QPalette::Active,
-                                     QColorGroup::Text),                 // text
-                           pal.color(QPalette::Active,
-                                     QColorGroup::BrightText),           // bright text
-                           pal.color(QPalette::Active,
-                                     QColorGroup::Base),                 // base
-                           pal.color(QPalette::Active,
-                                     QColorGroup::Background)),          // background
-
-
-            disabled(pal.color(QPalette::Disabled,
-                               QColorGroup::Foreground),                 // foreground
-                     pal.color(QPalette::Disabled,
-                               QColorGroup::Button),                     // button
-                     pal.color(QPalette::Disabled,
-                               QColorGroup::Background).light(),         // light
-                     pal.color(QPalette::Disabled,
-                               QColorGroup::Background).dark(156),       // dark
-                     pal.color(QPalette::Disabled,
-                               QColorGroup::Background).dark(110),       // mid
-                     pal.color(QPalette::Disabled,
-                               QColorGroup::Text),                       // text
-                     pal.color(QPalette::Disabled,
-                               QColorGroup::BrightText),                 // bright text
-                     pal.color(QPalette::Disabled,
-                               QColorGroup::Base),                       // base
-                     pal.color(QPalette::Disabled,
-                               QColorGroup::Background));                // background
-
-        active.setColor(QColorGroup::Highlight,
-                        pal.color(QPalette::Active, QColorGroup::Highlight));
-        disabled.setColor(QColorGroup::Highlight,
-                          pal.color(QPalette::Disabled, QColorGroup::Highlight));
-
-        active.setColor(QColorGroup::HighlightedText,
-                        pal.color(QPalette::Active, QColorGroup::HighlightedText));
-        disabled.setColor(QColorGroup::HighlightedText,
-                          pal.color(QPalette::Disabled, QColorGroup::HighlightedText));
-
-        pal.setActive(active);
-        pal.setInactive(active);
-        pal.setDisabled(disabled);
-    }
-
-    singleton->oldpalette = pal;
-
-    QColor prelight;
-
-    if ( (bg.red() + bg.green() + bg.blue()) / 3 > 128)
-	prelight = pal.color(QPalette::Active,
-			     QColorGroup::Background).light(110);
-    else
-	prelight = pal.color(QPalette::Active,
-			     QColorGroup::Background).light(120);
-
-    QColorGroup active2(pal.color(QPalette::Active,
-				  QColorGroup::Foreground), // foreground
-			prelight,                           // button
-			prelight.light(),                   // light
-			prelight.dark(156),                 // dark
-			prelight.dark(110),                 // mid
-			pal.color(QPalette::Active,
-				  QColorGroup::Text),       // text
-			pal.color(QPalette::Active,
-				  QColorGroup::BrightText), // bright text
-			pal.color(QPalette::Active,
-				  QColorGroup::Base),       // base
-			prelight);                          // background
-
-    active2.setColor(QColorGroup::Highlight,
-		     pal.color(QPalette::Active, QColorGroup::Highlight));
-    active2.setColor(QColorGroup::HighlightedText,
-		     pal.color(QPalette::Active, QColorGroup::HighlightedText));
-
-    singleton->prelight_palette = pal;
-    singleton->prelight_palette.setActive(active2);
-    singleton->prelight_palette.setInactive(active2);
-
-    app->setPalette(pal);
 }
 
 
 /*! \reimp */
 void QMotifPlusStyle::unPolish(QApplication *app)
 {
-    app->setPalette(singleton->oldpalette);
 }
 
 
@@ -410,12 +276,16 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 				     const QStyleOption& opt ) const
 {
     switch (pe) {
+    case PE_HeaderSection:
+
     case PE_ButtonCommand:
     case PE_ButtonBevel:
     case PE_ButtonTool:
-    case PE_HeaderSection:
-	if (flags & (Style_Down | Style_On | Style_Raised))
-	drawMotifPlusShade( p, r, cg, bool(flags & (Style_Down | Style_On)));
+	if (flags & (Style_Down | Style_On | Style_Raised | Style_Sunken))
+	    drawMotifPlusShade( p, r, cg, bool(flags & (Style_Down | Style_On)),
+				bool(flags & Style_MouseOver));
+	else if (flags & Style_MouseOver)
+	    p->fillRect(r, cg.brush(QColorGroup::Midlight));
 	else
 	    p->fillRect(r, cg.brush(QColorGroup::Button));
 	break;
@@ -424,7 +294,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
     case PE_PanelPopup:
     case PE_PanelMenuBar:
     case PE_PanelDockWindow:
-	drawMotifPlusShade( p, r, cg, bool(flags & Style_Sunken));
+	drawMotifPlusShade( p, r, cg, (flags & Style_Sunken), (flags & Style_MouseOver));
 	break;
 
     case PE_SpinWidgetUp:
@@ -440,6 +310,8 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 	    QBrush fill;
 	    if (flags & Style_On)
 		fill = cg.brush(QColorGroup::Mid);
+	    else if (flags & Style_MouseOver)
+		fill = cg.brush(QColorGroup::Midlight);
 	    else
 		fill = cg.brush(QColorGroup::Button);
 
@@ -447,7 +319,8 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 		qDrawPlainRect(p, r, cg.text(), 1, &fill);
 		p->drawLine(r.topRight(), r.bottomLeft());
 	    } else
-		drawMotifPlusShade(p, r, cg, (flags & Style_On), &fill);
+		drawMotifPlusShade(p, r, cg, (flags & Style_On),
+				   (flags & Style_MouseOver), &fill);
 	    break;
 	}
 
@@ -456,10 +329,14 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 	    QPen oldpen =  p->pen();
 	    QPointArray thick(8);
 	    QPointArray thin(4);
+	    QColor button = ((flags & Style_MouseOver) ? cg.midlight() : cg.button());
+	    QBrush brush = ((flags & Style_MouseOver) ?
+			    cg.brush(QColorGroup::Midlight) :
+			    cg.brush(QColorGroup::Button));
 	    int x, y, w, h;
 	    r.rect(&x, &y, &w, &h);
 
-	    p->fillRect(x, y, w, h, cg.button());
+	    p->fillRect(x, y, w, h, brush);
 
 
 	    if (flags & Style_On) {
@@ -525,7 +402,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 		thin.setPoint(1, x + (w / 2), y + 2);
 		thin.setPoint(2, x + (w / 2), y + 2);
 		thin.setPoint(3, x + w - 3, y + (h / 2));
-		p->setPen(cg.button());
+		p->setPen(button);
 		p->drawLineSegments(thin);
 
 		thin.setPoint(0, x + 1, y + (h / 2) + 1);
@@ -550,12 +427,13 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 	    QPen oldpen = p->pen();
 	    QBrush oldbrush = p->brush();
 	    QPointArray poly(3);
+	    QColor button = (flags & Style_MouseOver) ? cg.midlight() : cg.button();
 	    bool down = (flags & Style_Down);
 	    int x, y, w, h;
 	    r.rect(&x, &y, &w, &h);
 
 	    p->save();
-	    p->setBrush(cg.button());
+	    p->setBrush(button);
 
 	    switch (pe) {
 	    case PE_ArrowUp:
@@ -566,7 +444,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 		    p->drawPolygon(poly);
 
 		    if (down)
-			p->setPen(cg.button());
+			p->setPen(button);
 		    else
 			p->setPen(cg.dark());
 		    p->drawLine(x + 1, y + h - 2, x + w - 2, y + h - 2);
@@ -578,7 +456,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 		    p->drawLine(x, y + h - 1, x + w - 1, y + h - 1);
 
 		    if (down)
-			p->setPen(cg.button());
+			p->setPen(button);
 		    else
 			p->setPen(cg.dark());
 		    p->drawLine(x + w - 2, y + h - 1, x + (w / 2), y + 1);
@@ -592,7 +470,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 		    if (down)
 			p->setPen(black);
 		    else
-			p->setPen(cg.button());
+			p->setPen(button);
 		    p->drawLine(x + (w / 2), y + 1, x + 1, y + h - 1);
 
 		    if (down)
@@ -613,7 +491,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 		    if (down)
 			p->setPen(black);
 		    else
-			p->setPen(cg.button());
+			p->setPen(button);
 		    p->drawLine(x + w - 2, y + 1, x + 1, y + 1);
 
 		    if (down)
@@ -625,7 +503,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 		    if (down)
 			p->setPen(black);
 		    else
-			p->setPen(cg.button());
+			p->setPen(button);
 		    p->drawLine(x + 1, y, x + (w / 2), y + h - 2);
 
 		    if (down)
@@ -635,7 +513,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 		    p->drawLine(x, y, x + (w / 2), y + h - 1);
 
 		    if (down)
-			p->setPen(cg.button());
+			p->setPen(button);
 		    else
 			p->setPen(cg.dark());
 		    p->drawLine(x + (w / 2), y + h - 2, x + w - 2, y);
@@ -656,7 +534,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 		    p->drawPolygon(poly);
 
 		    if (down)
-			p->setPen(cg.button());
+			p->setPen(button);
 		    else
 			p->setPen(cg.dark());
 		    p->drawLine(x + 1, y + (h / 2), x + w - 1, y + h - 1);
@@ -668,7 +546,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 		    p->drawLine(x, y + (h / 2), x + w - 1, y + h - 1);
 
 		    if (down)
-			p->setPen(cg.button());
+			p->setPen(button);
 		    else
 			p->setPen(cg.dark());
 		    p->drawLine(x + w - 2, y + h - 1, x + w - 2, y + 1);
@@ -682,7 +560,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 		    if (down)
 			p->setPen(black);
 		    else
-			p->setPen(cg.button());
+			p->setPen(button);
 		    p->drawLine(x + w - 1, y + 1, x + 1, y + (h / 2));
 
 		    if (down)
@@ -703,7 +581,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 		    if (down)
 			p->setPen(black);
 		    else
-			p->setPen(cg.button());
+			p->setPen(button);
 		    p->drawLine( x + w - 1, y + (h / 2), x + 1, y + 1);
 
 		    if (down)
@@ -715,7 +593,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 		    if (down)
 			p->setPen(black);
 		    else
-			p->setPen(cg.button());
+			p->setPen(button);
 		    p->drawLine(x + 1, y + 1, x + 1, y + h - 2);
 
 		    if (down)
@@ -725,7 +603,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 		    p->drawLine(x, y, x, y + h - 1);
 
 		    if (down)
-			p->setPen(cg.button());
+			p->setPen(button);
 		    else
 			p->setPen(cg.dark());
 		    p->drawLine(x + 1, y + h - 2, x + w - 1, y + (h / 2));
@@ -765,6 +643,9 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 				   SFlags flags,
 				   const QStyleOption& opt ) const
 {
+    if (widget == singleton->hoverWidget)
+	flags |= Style_MouseOver;
+
     switch (element) {
     case CE_PushButton:
 	{
@@ -775,7 +656,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 
 	    if (button->isDefault() || button->autoDefault()) {
 		if (button->isDefault())
-		    drawMotifPlusShade(p, br, cg, TRUE,
+		    drawMotifPlusShade(p, br, cg, TRUE, FALSE,
 				       &cg.brush(QColorGroup::Background));
 
 		br.setCoords(br.left()   + dbi,
@@ -796,6 +677,14 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 #ifndef QT_NO_CHECKBOX
 	    const QCheckBox *checkbox = (const QCheckBox *) widget;
 
+	    if (flags & Style_MouseOver) {
+		QRegion r(checkbox->rect());
+		r -= visualRect(subRect(SR_CheckBoxIndicator, widget), widget);
+		p->setClipRegion(r);
+		p->fillRect(checkbox->rect(), cg.brush(QColorGroup::Midlight));
+		p->setClipping(FALSE);
+	    }
+
 	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
 	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, cg,
 		     flags & Style_Enabled, checkbox->pixmap(), checkbox->text());
@@ -812,6 +701,14 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	{
 #ifndef QT_NO_RADIOBUTTON
 	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
+
+	    if (flags & Style_MouseOver) {
+		QRegion r(radiobutton->rect());
+		r -= visualRect(subRect(SR_RadioButtonIndicator, widget), widget);
+		p->setClipRegion(r);
+		p->fillRect(radiobutton->rect(), cg.brush(QColorGroup::Midlight));
+		p->setClipping(FALSE);
+	    }
 
 	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
 	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, cg,
@@ -833,7 +730,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 
 	    QMenuItem *mi = opt.menuItem();
 	    if ((flags & Style_Enabled) && (flags & Style_Active))
-		drawMotifPlusShade(p, r, singleton->prelight_palette.active(), FALSE);
+		drawMotifPlusShade(p, r, cg, FALSE, TRUE);
 	    else
 		p->fillRect(r, cg.button());
 
@@ -862,11 +759,8 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	    bool checkable = popupmenu->isCheckable();
 	    bool act = flags & Style_Active;
 	    int x, y, w, h;
-	    const QColorGroup &g = ((act && !dis) ?
-				    singleton->prelight_palette.active() : cg);
 
 	    r.rect(&x, &y, &w, &h);
-
 
 	    if (checkable)
 		maxpmw = QMAX(maxpmw, 15);
@@ -874,18 +768,17 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	    int checkcol = maxpmw;
 
 	    if (mi && mi->isSeparator()) {
-		p->setPen( g.dark() );
+		p->setPen( cg.dark() );
 		p->drawLine( x, y, x+w, y );
-		p->setPen( g.light() );
+		p->setPen( cg.light() );
 		p->drawLine( x, y+1, x+w, y+1 );
 		return;
 	    }
 
 	    if ( act && !dis )
-		drawMotifPlusShade(p, QRect(x, y, w, h), g, FALSE,
-				   &g.brush(QColorGroup::Button));
+		drawMotifPlusShade(p, QRect(x, y, w, h), cg, FALSE, TRUE);
 	    else
-		p->fillRect(x, y, w, h, g.brush( QColorGroup::Button ));
+		p->fillRect(x, y, w, h, cg.brush( QColorGroup::Button ));
 
 	    if ( !mi )
 		return;
@@ -893,11 +786,11 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	    if ( mi->isChecked() ) {
 		if ( mi->iconSet() ) {
 		    qDrawShadePanel( p, x+2, y+2, checkcol, h-2*2,
-				     g, TRUE, 1, &g.brush( QColorGroup::Midlight ) );
+				     cg, TRUE, 1, &cg.brush( QColorGroup::Midlight ) );
 		}
 	    } else if ( !act ) {
 		p->fillRect(x+2, y+2, checkcol, h-2*2,
-			    g.brush( QColorGroup::Button ));
+			    cg.brush( QColorGroup::Button ));
 	    }
 
 	    if ( mi->iconSet() ) {              // draw iconset
@@ -939,7 +832,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 		}
 	    }
 
-	    p->setPen( g.buttonText() );
+	    p->setPen( cg.buttonText() );
 
 	    QColor discol;
 	    if (dis) {
@@ -976,7 +869,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	    if (mi->popup()) {
 		int hh = h / 2;
 		drawPrimitive(PE_ArrowRight, p,
-			      QRect(x + w - hh - 6, y + (hh / 2), hh, hh), g,
+			      QRect(x + w - hh - 6, y + (hh / 2), hh, hh), cg,
 			      ((act && mi->isEnabled()) ?
 			       Style_Down : Style_Default) |
 			      ((mi->isEnabled()) ? Style_Enabled : Style_Default));
@@ -1007,8 +900,8 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	    fr.setWidth(fr.width() - 3);
 
 	    p->fillRect(fr.left() + 1, fr.top() + 1, fr.width() - 2, fr.height() - 2,
-			(selected) ? g.brush(QColorGroup::Button)
-			: g.brush(QColorGroup::Mid));
+			(selected) ? cg.brush(QColorGroup::Button)
+			: cg.brush(QColorGroup::Mid));
 
 	    if (tabbar->shape() == QTabBar::RoundedAbove) {
 		// "rounded" tabs on top
@@ -1197,6 +1090,9 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 			    SCFlags active,
 			    const QStyleOption& opt ) const
 {
+    if (widget == singleton->hoverWidget)
+	flags |= Style_MouseOver;
+
     switch (control) {
     case CC_ScrollBar:
 	{
@@ -1243,67 +1139,65 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 	    if (controls == (SC_ScrollBarAddLine | SC_ScrollBarSubLine |
 			     SC_ScrollBarAddPage | SC_ScrollBarSubPage |
 			     SC_ScrollBarFirst | SC_ScrollBarLast | SC_ScrollBarSlider))
-		drawMotifPlusShade(p, widget->rect(), cg, TRUE,
+		drawMotifPlusShade(p, widget->rect(), cg, TRUE, FALSE,
 				   &cg.brush(QColorGroup::Mid));
 
 	    if ((controls & SC_ScrollBarSubLine) && subline.isValid())
-		drawPrimitive(PE_ScrollBarSubLine, p, subline,
+		drawPrimitive(PE_ScrollBarSubLine, p, subline, cg,
 			      ((active == SC_ScrollBarSubLine ||
 				singleton->scrollbarElement == SC_ScrollBarSubLine) ?
-			       singleton->prelight_palette.active(): cg),
+			       Style_MouseOver: Style_Default) |
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarSubLine) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : 0));
+			       Style_Horizontal : Style_Default));
 	    if ((controls & SC_ScrollBarAddLine) && addline.isValid())
-		drawPrimitive(PE_ScrollBarAddLine, p, addline,
+		drawPrimitive(PE_ScrollBarAddLine, p, addline, cg,
 			      ((active == SC_ScrollBarAddLine ||
 				singleton->scrollbarElement == SC_ScrollBarAddLine) ?
-			       singleton->prelight_palette.active(): cg),
+			       Style_MouseOver: Style_Default) |
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarAddLine) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : 0));
+			       Style_Horizontal : Style_Default));
 	    if ((controls & SC_ScrollBarSubPage) && subpage.isValid())
 		drawPrimitive(PE_ScrollBarSubPage, p, subpage, cg,
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarSubPage) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : 0));
+			       Style_Horizontal : Style_Default));
 	    if ((controls & SC_ScrollBarAddPage) && addpage.isValid())
 		drawPrimitive(PE_ScrollBarAddPage, p, addpage, cg,
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarAddPage) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : 0));
+			       Style_Horizontal : Style_Default));
 	    if ((controls & SC_ScrollBarFirst) && first.isValid())
 		drawPrimitive(PE_ScrollBarFirst, p, first, cg,
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarFirst) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : 0));
+			       Style_Horizontal : Style_Default));
 	    if ((controls & SC_ScrollBarLast) && last.isValid())
 		drawPrimitive(PE_ScrollBarLast, p, last, cg,
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarLast) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : 0));
+			       Style_Horizontal : Style_Default));
 	    if ((controls & SC_ScrollBarSlider) && slider.isValid()) {
-		drawPrimitive(PE_ScrollBarSlider, p, slider,
+		drawPrimitive(PE_ScrollBarSlider, p, slider, cg,
 			      ((active == SC_ScrollBarSlider ||
 				singleton->scrollbarElement == SC_ScrollBarSlider) ?
-			       singleton->prelight_palette.active(): cg),
+			       Style_MouseOver: Style_Default) |
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
-			      ((active == SC_ScrollBarSlider) ?
-			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : 0));
+			       Style_Horizontal : Style_Default));
 
 		// ### perhaps this should not be able to accept focus if maxedOut?
 		if (scrollbar->hasFocus()) {
@@ -1338,14 +1232,15 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 		    editfield.addCoords(-3, -3, 3, 3);
 		    if (combobox->hasFocus())
 			editfield.addCoords(1, 1, -1, -1);
-		    drawMotifPlusShade(p, editfield, cg, TRUE,
+		    drawMotifPlusShade(p, editfield, cg, TRUE, FALSE,
 				       (widget->isEnabled() ?
 					&cg.brush(QColorGroup::Base) :
 					&cg.brush(QColorGroup::Background)));
 		}
 
 		if (controls & SC_ComboBoxArrow && arrow.isValid()) {
-		    drawMotifPlusShade(p, arrow, cg, (active == SC_ComboBoxArrow));
+		    drawMotifPlusShade(p, arrow, cg, (active == SC_ComboBoxArrow),
+				       (flags & Style_MouseOver));
 
 		    int space = (r.height() - 13) / 2;
 		    arrow.addCoords(space, space, -space, -space);
@@ -1359,11 +1254,12 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 		    editfield.addCoords(-3, -3, 3, 3);
 		    if (combobox->hasFocus())
 			editfield.addCoords(1, 1, -1, -1);
-		    drawMotifPlusShade(p, editfield, cg, FALSE);
+		    drawMotifPlusShade(p, editfield, cg, FALSE,
+				       (flags & Style_MouseOver));
 		}
 
 		if (controls & SC_ComboBoxArrow && arrow.isValid())
-		    drawMotifPlusShade(p, arrow, cg, FALSE);
+		    drawMotifPlusShade(p, arrow, cg, FALSE, (flags & Style_MouseOver));
 	    }
 
 	    if (combobox->hasFocus() ||
@@ -1423,6 +1319,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 	{
 #ifndef QT_NO_SLIDER
 	    const QSlider *slider = (const QSlider *) widget;
+	    bool mouseover = (flags & Style_MouseOver);
 
 	    QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
 						  opt),
@@ -1430,20 +1327,22 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 						  opt);
 
 	    if ((controls & SC_SliderGroove) && groove.isValid()) {
-		drawMotifPlusShade(p, groove, cg, TRUE, &cg.brush(QColorGroup::Mid));
+		drawMotifPlusShade(p, groove, cg, TRUE, FALSE,
+				   &cg.brush(QColorGroup::Mid));
 
 		if ( slider->hasFocus() ) {
 		    QRect fr = subRect( SR_SliderFocusRect, widget );
-		    drawPrimitive( PE_FocusRect, p, fr, cg );
+		    drawPrimitive( PE_FocusRect, p, fr, cg, flags );
 		}
 	    }
 
 	    if ((controls & SC_SliderHandle) && handle.isValid()) {
-		drawPrimitive(PE_ButtonBevel, p, handle,
-			      (((singleton->hovering &&
-				 handle.contains(singleton->mousePos)) ||
-				singleton->sliderActive ) ?
-			       singleton->prelight_palette.active() : cg));
+		if ((mouseover && handle.contains(singleton->mousePos)) ||
+		    singleton->sliderActive)
+		    flags |= Style_MouseOver;
+		else
+		    flags &= ~Style_MouseOver;
+		drawPrimitive(PE_ButtonBevel, p, handle, cg, flags | Style_Raised);
 
 		if ( slider->orientation() == Horizontal ) {
 		    QCOORD mid = handle.x() + handle.width() / 2;
@@ -1643,28 +1542,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 		singleton->hoverWidget = 0;
 		break;
 	    }
-
-	    if (object->inherits("QScrollBar") ||
-		object->inherits("QSlider")) {
-		singleton->hoverWidget->repaint(FALSE);
-	    } else {
-		QPalette pal = singleton->hoverWidget->palette();
-
-		if (singleton->hoverWidget->ownPalette())
-		    singleton->hoverPalette = new QPalette(pal);
-
-		if (object->inherits("QPushButton")) {
-		    pal.setColor(QPalette::Active, QColorGroup::Button,
-				 singleton->prelight_palette.color(QPalette::Active,
-								   QColorGroup::Button));
-		    pal.setColor(QPalette::Inactive, QColorGroup::Button,
-				 singleton->prelight_palette.color(QPalette::Inactive,
-								   QColorGroup::Button));
-		    singleton->hoverWidget->setPalette(pal);
-		} else
-		    singleton->hoverWidget->setPalette(singleton->prelight_palette);
-	    }
-
+	    singleton->hoverWidget->repaint(FALSE);
 	    break;
 	}
 
@@ -1672,24 +1550,15 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 	{
 	    if (object != singleton->hoverWidget)
 		break;
-
-	    if (singleton->hoverPalette) {
-		singleton->hoverWidget->setPalette(*(singleton->hoverPalette));
-		delete singleton->hoverPalette;
-		singleton->hoverPalette = 0;
-	    } else {
-		singleton->hoverWidget->unsetPalette();
-	    }
-
+	    QWidget *w = singleton->hoverWidget;
 	    singleton->hoverWidget = 0;
-
+	    w->repaint(FALSE);
 	    break;
 	}
 
     case QEvent::MouseMove:
 	{
-	    if (! object->isWidgetType() ||
-		object != singleton->hoverWidget)
+	    if (! object->isWidgetType() || object != singleton->hoverWidget)
 		break;
 
 	    if (! object->inherits("QScrollBar") && ! object->inherits("QSlider"))
