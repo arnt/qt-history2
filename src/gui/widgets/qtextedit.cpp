@@ -572,7 +572,7 @@ void QTextEdit::timerEvent(QTimerEvent *ev)
         d->cursorOn = !d->cursorOn;
 
         if (d->cursor.hasSelection())
-            d->cursorOn &= style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected);
+            d->cursorOn &= (style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected) != 0);
 
         viewport()->update();
     } else if (ev->timerId() == d->dragStartTimer.timerId()) {
