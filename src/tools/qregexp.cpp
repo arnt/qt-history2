@@ -684,11 +684,11 @@
     To imitate the matching of a shell we can use wildcard mode.
 
     \code
-    QRegExp rx( "*.html" );     // invalid regexp: * doesn't quantify anything
-    rx.setWildcard( TRUE );     // now it's a valid wildcard regexp
-    rx.search( "index.html" );  // returns 0 (matched at position 0)
-    rx.search( "default.htm" ); // returns -1 (no match)
-    rx.search( "readme.txt" );  // returns -1 (no match)
+    QRegExp rx( "*.html" );         // invalid regexp: * doesn't quantify anything
+    rx.setWildcard( TRUE );         // now it's a valid wildcard regexp
+    rx.exactMatch( "index.html" );  // returns TRUE
+    rx.exactMatch( "default.htm" ); // returns FALSE
+    rx.exactMatch( "readme.txt" );  // returns FALSE
     \endcode
 
     Wildcard matching can be convenient because of its simplicity, but
