@@ -970,7 +970,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
         CGShadingRelease(d->shading);
         d->shading = 0;
     }
-    d->setClip(0);  //clear the context's cliping
+    d->setClip(0);  //clear the context's clipping
 
     setActive(true);
     assignf(IsActive | DirtyFont);
@@ -1202,8 +1202,8 @@ QCoreGraphicsPaintEngine::drawLine(const QLineF &line)
     Q_ASSERT(isActive());
 
     CGContextBeginPath(d->hd);
-    CGContextMoveToPoint(d->hd, line.startX(), line.startY());
-    CGContextAddLineToPoint(d->hd, line.endX(), line.endY());
+    CGContextMoveToPoint(d->hd, line.startX(), line.startY()+1);
+    CGContextAddLineToPoint(d->hd, line.endX(), line.endY()+1);
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
 
@@ -1211,20 +1211,16 @@ void
 QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
 {
     CGMutablePathRef path = CGPathCreateMutable();
-    // Drawing the subpaths
-
     for (int i=0; i<p.elementCount(); ++i) {
         const QPainterPath::Element &elm = p.elementAt(i);
         switch (elm.type) {
         case QPainterPath::MoveToElement:
-            // ### Strickly speaking this would imply connecting the last point
-            // but this is just a copy of the previous code so I'll keep it for now.
             if (i != 0)
                 CGPathCloseSubpath(path);
-            CGPathMoveToPoint(path, 0, elm.x, elm.y);
+            CGPathMoveToPoint(path, 0, elm.x+1, elm.y+1);
             break;
         case QPainterPath::LineToElement:
-            CGPathAddLineToPoint(path, 0, elm.x, elm.y);
+            CGPathAddLineToPoint(path, 0, elm.x+1, elm.y+1);
             break;
         case QPainterPath::CurveToElement:
             Q_ASSERT(p.elementAt(i+1).type == QPainterPath::CurveToDataElement);
@@ -1317,17 +1313,17 @@ QCoreGraphicsPaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
     Q_ASSERT(isActive());
 
     if (mode == PolylineMode) {
-        CGContextMoveToPoint(d->hd, a[0].x(), a[0].y());
+        CGContextMoveToPoint(d->hd, a[0].x(), a[0].y()+1);
         for(int x = 1; x < a.size(); ++x)
-            CGContextAddLineToPoint(d->hd, a[x].x(), a[x].y());
+            CGContextAddLineToPoint(d->hd, a[x].x(), a[x].y()+1);
         d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
     } else {
         CGMutablePathRef path = CGPathCreateMutable();
-        CGPathMoveToPoint(path, 0, a[0].x(), a[0].y());
+        CGPathMoveToPoint(path, 0, a[0].x(), a[0].y()+1);
         for(int x = 1; x < a.size(); ++x)
-            CGPathAddLineToPoint(path, 0, a[x].x(), a[x].y());
+            CGPathAddLineToPoint(path, 0, a[x].x(), a[x].y()+1);
         if (a.first() != a.last())
-            CGPathAddLineToPoint(path, 0, a[0].x(), a[0].y());
+            CGPathAddLineToPoint(path, 0, a[0].x(), a[0].y()+1);
         CGContextBeginPath(d->hd);
         d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill
                     | QCoreGraphicsPaintEnginePrivate::CGStroke, path);
@@ -1342,8 +1338,8 @@ QCoreGraphicsPaintEngine::drawLines(const QList<QLineF> &lines)
     CGContextBeginPath(d->hd);
     for(int i = 0; i < lines.size(); i++) {
         const QPointF start = lines[i].start(), end = lines[i].end();
-        CGContextMoveToPoint(d->hd, start.x(), start.y());
-        CGContextAddLineToPoint(d->hd, end.x(), end.y());
+        CGContextMoveToPoint(d->hd, start.x(), start.y()+1);
+        CGContextAddLineToPoint(d->hd, end.x(), end.y()+1);
     }
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
@@ -1465,7 +1461,7 @@ QCoreGraphicsPaintEnginePrivate::setClip(const QRegion *rgn)
                 qt_mac_clip_cg(hd, pevent->region(), &mp, &orig_xform);
         }
         if(rgn)
-            qt_mac_clip_cg(hd, *rgn, 0, 0); //already widget relative
+            qt_mac_clip_cg(hd, *rgn, 0, 0); //already device relative
     }
 }
 
