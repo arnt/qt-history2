@@ -2981,7 +2981,7 @@ bool QAxBase::dynamicCallHelper( const QString &name, void *inout, QList<QVarian
     // clean up
     for ( int i = 0; i < varc; ++i )
 	clearVARIANT( params.rgvarg+i );
-    if (arg != &staticarg)
+    if (arg && arg != &staticarg)
 	delete[] arg;
 
     return checkHRESULT( hres, &excepinfo, this, function, varc-argerr-1 );
