@@ -1863,7 +1863,7 @@ static const struct {
 static QString wrapDSC( const QString &str )
 {
     QString dsc = str.simplifyWhiteSpace();
-    static const int wrapAt = 254;
+    const uint wrapAt = 254;
     QString wrapped;
     if ( dsc.length() < wrapAt )
 	wrapped = dsc;
@@ -1887,7 +1887,7 @@ class QPSPrinterPrivate {
 public:
     QPSPrinterPrivate( QPrinter *prt, int filedes );
     ~QPSPrinterPrivate();
-    
+
     void matrixSetup( QPainter * );
     void clippingSetup( QPainter * );
     void setClippingOff( QPainter * );
@@ -2434,7 +2434,7 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
         vector += line + "] def\n";
         s << vector;
     }
-    
+
     delete [] inverse;
 
     // DEFINE BASE FONTS
@@ -5284,7 +5284,7 @@ void QPSPrinterPrivate::setFont( const QFont & fnt, int script )
 
     if ( f.pointSize() != -1 )
 	key.sprintf( "%s %d", ff.xfontname.ascii(), f.pointSize() );
-    else 
+    else
 	key.sprintf( "%s px%d", ff.xfontname.ascii(), f.pixelSize() );
     QString * tmp;
     if ( !buffer )
@@ -5863,7 +5863,7 @@ void QPSPrinterPrivate::emitHeader( bool finished )
     else
         outStream << "Portrait";
     if ( finished )
-        outStream << "\n%%Pages: " << pageCount << "\n" 
+        outStream << "\n%%Pages: " << pageCount << "\n"
 		  << wrapDSC( "%%DocumentFonts: " + fontsUsed );
     else
         outStream << "%%Pages: (atend)"
