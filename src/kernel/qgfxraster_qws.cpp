@@ -1414,11 +1414,11 @@ void QGfxRasterBase::drawText(int x,int y,const QString & s)
 #ifdef DEBUG_LOCKS
     qDebug("unaccelerated drawText grab");
 #endif
-    
+
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab(); // we need it later, and grab-must-precede-lock
 #endif
-    
+
 #ifdef DEBUG_LOCKS
     qDebug("unaccelerated drawText lock");
 #endif
@@ -2796,7 +2796,7 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
     if((*gfx_optype))
     sync();
     (*gfx_optype)=0;
-    
+
 #ifdef QWS_EXPERIMENTAL_FASTPATH
     // Fast path
     if (y1 == y2 && !dashedLines && ncliprect == 1) {
@@ -5161,7 +5161,7 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
     if((*gfx_optype)!=0)
 	sync();
     (*gfx_optype)=0;
-    
+
     QPoint srcoffs = srcwidgetoffs + QPoint( sx, sy );
 
     int dl = linestep();
@@ -6054,6 +6054,10 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 #include "qgfxrepeater_qws.cpp"
 #endif
 
+#if !defined(QT_NO_QWS_SHADOWFB)
+#include "qgfxshadowfb_qws.cpp"
+#endif
+
 //#if !defined(QT_NO_QWS_SVGALIB)
 //# include "qgfxsvgalib_qws.cpp"
 //#endif
@@ -6095,6 +6099,9 @@ struct DriverTable
 #if !defined(QT_NO_QWS_TRANSFORMED)
     { "Transformed", qt_get_screen_transformed, 0 },
 #endif
+#if !defined(QT_NO_QWS_LINUXFB)
+    { "ShadowFb", qt_get_screen_shadowfb, 0 },
+#endif    
 #if defined(QT_QWS_EE)
     { "EE", qt_get_screen_ee, 0 },
 #endif

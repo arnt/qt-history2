@@ -3,14 +3,6 @@
 #ifndef QT_NO_QWS_SHADOWFB
 
 #ifndef QT_NO_QWS_CURSOR
-class QShadowScreenCursor : public QScreenCursor
-{
-public:
-    QShadowScreenCursor();
-
-    virtual void set( const QImage &image, int hotx, int hoty );
-    virtual void move( int x, int y );
-};
 
 QShadowScreenCursor::QShadowScreenCursor() : QScreenCursor()
 {
@@ -150,6 +142,7 @@ void QGfxShadow<depth,type>::tiledBlt( int x,int y,int w,int h )
 }
 
 QShadowFbScreen::QShadowFbScreen( int display_id )
+    : QLinuxFbScreen(display_id)
 {
 }
 
@@ -157,7 +150,7 @@ QShadowFbScreen::~QShadowFbScreen()
 {
 }
 
-QShadowFbScreen::initDevice()
+bool QShadowFbScreen::initDevice()
 {
 }
 
@@ -195,6 +188,11 @@ void QShadowFbScreen::setMode(int nw,int nh,int nd)
 
 void QShadowFbScreen::setDirty( const QRect& r )
 {
+}
+
+extern "C" QScreen * qt_get_screen_shadowfb( int display_id )
+{
+    return new QShadowFbScreen( display_id );
 }
 
 #endif

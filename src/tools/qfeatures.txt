@@ -144,7 +144,7 @@ SeeAlso: ???
 
 Feature: DATESTRING
 Section: Data structures
-Requires: 
+Requires:
 Name: QDate/QTime/QDateTime toString() and fromString()
 SeeAlso: ???
 
@@ -457,7 +457,7 @@ SeeAlso: ???
 
 Feature: QWS_REPEATER
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: Repeater display
 SeeAlso: ???
 
@@ -483,6 +483,12 @@ Feature: QWS_VNC
 Section: Qt/Embedded-specific
 Requires: NETWORK
 Name: Remote frame buffer (VNC)
+SeeAlso: ???
+
+Feature: QWS_SHADOWFB
+Section: Qt/Embedded-specific
+Requires: 
+Name: Shadow frame buffer
 SeeAlso: ???
 
 Feature: QWS_DEPTH_1

@@ -295,6 +295,11 @@
 #define QT_NO_QWS_VNC
 #endif
 
+// Shadow frame buffer
+#if !defined(QT_NO_QWS_VNC)
+#define QT_NO_QWS_SHADOWFB
+#endif
+
 // The "Windows" style
 #if !defined(QT_NO_QWS_WINDOWS_WM_STYLE) && (defined(QT_NO_QWS_MANAGER))
 #define QT_NO_QWS_WINDOWS_WM_STYLE

@@ -76,7 +76,7 @@ class QShadowFbScreen : public QLinuxFbScreen
 
 public:
 
-    QShadowFbScreen();
+    QShadowFbScreen(int);
     virtual ~QShadowFbScreen();
     virtual bool initDevice();
     virtual bool connect( const QString & );
