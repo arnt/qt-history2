@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#204 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#205 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -608,7 +608,6 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	    } else {
 		mark2 = 0;
 	    }
-
 		
 	    // display code comes here - a bit yucky but it works
 	
@@ -1030,14 +1029,16 @@ void QLineEdit::newMark( int pos, bool copy )
 void QLineEdit::markWord( int pos )
 {
     int i = pos - 1;
-    while ( i >= 0 && tbuf.at(i).isPrint() && !tbuf.at(i).isPrint() )
+    while ( i >= 0 && tbuf.at(i).isPrint() && !tbuf.at(i).isSpace() )
 	i--;
     i++;
     markAnchor = i;
 
+    
+    
     int lim = tbuf.length();
     i = pos;
-    while ( i < lim && tbuf.at(i).isPrint() && !tbuf.at(i).isPrint() )
+    while ( i < lim && tbuf.at(i).isPrint() && !tbuf.at(i).isSpace() )
 	i++;
     markDrag = i;
 
@@ -1056,6 +1057,7 @@ void QLineEdit::markWord( int pos )
     }
     if ( style() == MotifStyle && echoMode() == Normal )
 	copy();
+    
     d->pmDirty = TRUE;
 }
 
