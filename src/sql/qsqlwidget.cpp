@@ -106,16 +106,16 @@ QString QSqlWidget::filter() const
     return QSqlFormNavigator::filter();
 }
 
-/*! \fn void firstRecordAvailable( bool available )
+/*! \fn void QSqlWidget::firstRecordAvailable( bool available )
 */
 
-/*! \fn void lastRecordAvailable( bool available )
+/*! \fn void QSqlWidget::lastRecordAvailable( bool available )
 */
 
-/*! \fn void nextRecordAvailable( bool available )
+/*! \fn void QSqlWidget::nextRecordAvailable( bool available )
 */
 
-/*! \fn void prevRecordAvailable( bool available )
+/*! \fn void QSqlWidget::prevRecordAvailable( bool available )
 */
 
 void QSqlWidget::insertRecord()

@@ -80,16 +80,16 @@ QString QSqlDialog::filter() const
     return QSqlFormNavigator::filter();
 }
 
-/*! \fn void firstRecordAvailable( bool available )
+/*! \fn void QSqlDialog::firstRecordAvailable( bool available )
 */
 
-/*! \fn void lastRecordAvailable( bool available )
+/*! \fn void QSqlDialog::lastRecordAvailable( bool available )
 */
 
-/*! \fn void nextRecordAvailable( bool available )
+/*! \fn void QSqlDialog::nextRecordAvailable( bool available )
 */
 
-/*! \fn void prevRecordAvailable( bool available )
+/*! \fn void QSqlDialog::prevRecordAvailable( bool available )
 */
 
 void QSqlDialog::insertRecord()

@@ -422,6 +422,7 @@ QSqlIndex QSqlCursor::index( const char* fieldName ) const
   ...
   myCursor.select();  // re-select everything in department 10
   ...
+  \endcode
 
 */
 

@@ -52,17 +52,17 @@ class QNumEditPrivate : public QLineEdit
 {
 public:
     QNumEditPrivate( QWidget * parent, const char * name = 0 )
-        : QLineEdit( parent, name )
+	: QLineEdit( parent, name )
     {
-        setFrame( FALSE );
-        setAlignment( AlignRight );
+	setFrame( FALSE );
+	setAlignment( AlignRight );
     }
 
     void setRange( int min, int max )
     {
-        QIntValidator * v = new QIntValidator( this );
-        v->setRange( min, max );
-        setValidator( v );
+	QIntValidator * v = new QIntValidator( this );
+	v->setRange( min, max );
+	setValidator( v );
     }
 };
 
@@ -70,14 +70,14 @@ class QDateTimeEditLabelPrivate : public QLabel
 {
 public:
     QDateTimeEditLabelPrivate( QWidget * parent = 0, const char * name = 0,
-                        WFlags f = 0 )
-        : QLabel( parent, name, f){}
+			WFlags f = 0 )
+	: QLabel( parent, name, f){}
 
 protected:
     void drawContents( QPainter * p )
     {
-        p->fillRect( contentsRect(), colorGroup().background() );
-        QLabel::drawContents( p );
+	p->fillRect( contentsRect(), colorGroup().background() );
+	QLabel::drawContents( p );
     }
 };
 
@@ -98,16 +98,16 @@ QDateTimeEditBase::QDateTimeEditBase( QWidget * parent, const char * name )
 void QDateTimeEditBase::init()
 {
     if( style() == WindowsStyle )
-        setFrameStyle( WinPanel | Sunken );
+	setFrameStyle( WinPanel | Sunken );
     else
-        setFrameStyle( Panel | Sunken );
+	setFrameStyle( Panel | Sunken );
     setLineWidth( 2 );
 
     QPalette p = palette();
     p.setColor( QPalette::Active, QColorGroup::Background,
-                palette().active().color( QColorGroup::Base ) );
+		palette().active().color( QColorGroup::Base ) );
     p.setColor( QPalette::Inactive, QColorGroup::Background,
-                palette().inactive().color( QColorGroup::Base ) );
+		palette().inactive().color( QColorGroup::Base ) );
     setPalette( p );
 
     ed[0] = new QNumEditPrivate( this, "Ed_1" );
@@ -157,27 +157,27 @@ QSize QDateTimeEditBase::sizeHint() const
     QFontMetrics fm = fontMetrics();
     int h = fm.height();
     if ( h < 12 )       // ensure enough space for the button pixmaps
-        h = 12;
+	h = 12;
     int w = 35; // minimum width for the value
     int wx = fm.width( ' ' )*2;
     QString s;
     s = ed[0]->text() + sep[0]->text() +ed[1]->text() + sep[1]->text() +
-        ed[2]->text();
+	ed[2]->text();
     w = QMAX( w, fm.width( s ) + wx);
     QSize r( h // buttons AND frame both sides - see resizeevent()
-             + 6 // right/left margins
-             + w, // widest value
-             frameWidth() * 2 // top/bottom frame
-             + 4 // top/bottom margins
-             + h // font height
-             );
+	     + 6 // right/left margins
+	     + w, // widest value
+	     frameWidth() * 2 // top/bottom frame
+	     + 4 // top/bottom margins
+	     + h // font height
+	     );
     return r.expandedTo( QApplication::globalStrut() );
 }
 
 QSize QDateTimeEditBase::minimumSizeHint() const
 {
     int w = 35 // minimum for value
-            + 6; // arrows
+	    + 6; // arrows
     int h = 12; // arrow pixmaps
     return QSize( w, h );
 }
@@ -205,40 +205,40 @@ void QDateTimeEditBase::updateArrows()
     QBitmap dnBm;
 
     bool found = QPixmapCache::find( dnKey, dnBm )
-                 && QPixmapCache::find( upKey, upBm );
+		 && QPixmapCache::find( upKey, upBm );
 
     if ( !found ) {
-        QPainter p;
-        int w = down->width()-4;
-        if ( w < 3 )
-            return;
-        else if ( !(w & 1) )
-            w--;
-        w -= ( w / 7 ) * 2;     // Empty border
-        int h = w/2 + 2;        // Must have empty row at foot of arrow
-        dnBm.resize( w, h );
-        p.begin( &dnBm );
-        p.eraseRect( 0, 0, w, h );
-        QPointArray a;
-        a.setPoints( 3,  0, 1,  w-1, 1,  h-2, h-1 );
-        p.setBrush( color1 );
-        p.drawPolygon( a );
-        p.end();
+	QPainter p;
+	int w = down->width()-4;
+	if ( w < 3 )
+	    return;
+	else if ( !(w & 1) )
+	    w--;
+	w -= ( w / 7 ) * 2;     // Empty border
+	int h = w/2 + 2;        // Must have empty row at foot of arrow
+	dnBm.resize( w, h );
+	p.begin( &dnBm );
+	p.eraseRect( 0, 0, w, h );
+	QPointArray a;
+	a.setPoints( 3,  0, 1,  w-1, 1,  h-2, h-1 );
+	p.setBrush( color1 );
+	p.drawPolygon( a );
+	p.end();
 #ifndef QT_NO_TRANSFORMATIONS
-        QWMatrix wm;
-        wm.scale( 1, -1 );
-        upBm = dnBm.xForm( wm );
+	QWMatrix wm;
+	wm.scale( 1, -1 );
+	upBm = dnBm.xForm( wm );
 #else
-        upBm.resize( w, h );
-        p.begin( &upBm );
-        p.eraseRect( 0, 0, w, h );
-        a.setPoints( 3,  0, h-2,  w-1, h-2,  h-2, 0 );
-        p.setBrush( color1 );
-        p.drawPolygon( a );
-        p.end();
+	upBm.resize( w, h );
+	p.begin( &upBm );
+	p.eraseRect( 0, 0, w, h );
+	a.setPoints( 3,  0, h-2,  w-1, h-2,  h-2, 0 );
+	p.setBrush( color1 );
+	p.drawPolygon( a );
+	p.end();
 #endif
-        QPixmapCache::insert( dnKey, dnBm );
-        QPixmapCache::insert( upKey, upBm );
+	QPixmapCache::insert( dnKey, dnBm );
+	QPixmapCache::insert( upKey, upBm );
     }
     down->setPixmap( dnBm );
     up->setPixmap( upBm );
@@ -255,8 +255,8 @@ void QDateTimeEditBase::stepUp()
     int focus = 0;
 
     for( i = 0; i < 3; i++)
-        if( ed[i]->hasFocus() )
-            focus = i;
+	if( ed[i]->hasFocus() )
+	    focus = i;
 
     QNumEditPrivate * e = ed[focus];
     QIntValidator * v = (QIntValidator *) e->validator();
@@ -266,9 +266,9 @@ void QDateTimeEditBase::stepUp()
     n++;
 
     if( n > v->top() )
-        n = v->top();
+	n = v->top();
     else if( n < v->bottom() )
-        n = v->bottom();
+	n = v->bottom();
 
     e->setText( QString::number( n ) );
 }
@@ -284,8 +284,8 @@ void QDateTimeEditBase::stepDown()
     int focus = 0;
 
     for( i = 0; i < 3; i++)
-        if( ed[i]->hasFocus() )
-            focus = i;
+	if( ed[i]->hasFocus() )
+	    focus = i;
 
     QNumEditPrivate * e = ed[focus];
     QIntValidator * v = (QIntValidator *) e->validator();
@@ -295,9 +295,9 @@ void QDateTimeEditBase::stepDown()
     n--;
 
     if( n > v->top() )
-        n = v->top();
+	n = v->top();
     else if( n < v->bottom() )
-        n = v->bottom();
+	n = v->bottom();
 
     e->setText( QString::number( n ) );
 }
@@ -309,43 +309,43 @@ void QDateTimeEditBase::stepDown()
 bool QDateTimeEditBase::eventFilter( QObject * o, QEvent * e )
 {
     if( e->type() == QEvent::KeyPress ){
-        QKeyEvent * k = (QKeyEvent *) e;
-        // This hack is needed to handle TAB focusing properly
-        if( (k->key() == Key_Tab) ) {
-            if( o == ed[2] ){
-                qApp->sendEvent( this, e );
-                return TRUE;
-            }
-        }
-        if( k->key() == Key_BackTab ){
-            if( o == ed[0] ){
-                qApp->sendEvent( this, e );
-                return TRUE;
-            }
-        }
-        if( (k->key() == Key_Up) ){
-            stepUp();
-            return TRUE;
-        }
-        if( (k->key() == Key_Down) ){
-            stepDown();
-            return TRUE;
-        }
+	QKeyEvent * k = (QKeyEvent *) e;
+	// This hack is needed to handle TAB focusing properly
+	if( (k->key() == Key_Tab) ) {
+	    if( o == ed[2] ){
+		qApp->sendEvent( this, e );
+		return TRUE;
+	    }
+	}
+	if( k->key() == Key_BackTab ){
+	    if( o == ed[0] ){
+		qApp->sendEvent( this, e );
+		return TRUE;
+	    }
+	}
+	if( (k->key() == Key_Up) ){
+	    stepUp();
+	    return TRUE;
+	}
+	if( (k->key() == Key_Down) ){
+	    stepDown();
+	    return TRUE;
+	}
     }
 
     if( e->type() == QEvent::FocusOut ){
-        for(int i = 0; i < 3; i++){
-            QString s = ed[i]->text();
-            int pos = 0;
+	for(int i = 0; i < 3; i++){
+	    QString s = ed[i]->text();
+	    int pos = 0;
 
-            if( ed[i]->validator()->validate( s, pos ) !=
-                QValidator::Acceptable )
-            {
-                ed[i]->setText( lastValid[i] );
-            } else {
-                lastValid[i] = ed[i]->text();
-            }
-        }
+	    if( ed[i]->validator()->validate( s, pos ) !=
+		QValidator::Acceptable )
+	    {
+		ed[i]->setText( lastValid[i] );
+	    } else {
+		lastValid[i] = ed[i]->text();
+	    }
+	}
     }
     return QFrame::eventFilter( o, e );;
 }
@@ -358,33 +358,33 @@ void QDateTimeEditBase::layoutArrows()
 {
     QSize bs;
     if ( style() == WindowsStyle )
-        bs.setHeight( height()/2 - frameWidth() );
+	bs.setHeight( height()/2 - frameWidth() );
     else
-        bs.setHeight( height()/2 );
+	bs.setHeight( height()/2 );
     if ( bs.height() < 8 )
-        bs.setHeight( 8 );
+	bs.setHeight( 8 );
     bs.setWidth( bs.height() * 8 / 5 ); // 1.6 - approximate golden mean
 
     int y = style() == WindowsStyle ? frameWidth() : 0;
     int x, lx;
     if ( QApplication::reverseLayout() ) {
-        x = y;
-        lx = x + bs.width() + frameWidth();
+	x = y;
+	lx = x + bs.width() + frameWidth();
     } else {
-        x = width() - y - bs.width();
-        lx = frameWidth();
+	x = width() - y - bs.width();
+	lx = frameWidth();
     }
 
     if ( style() == WindowsStyle )
-        setFrameRect( QRect( 0, 0, 0, 0 ) );
+	setFrameRect( QRect( 0, 0, 0, 0 ) );
     else
-        setFrameRect( QRect( lx - frameWidth(), 0, width() - bs.width(),
-                             height() ) );
+	setFrameRect( QRect( lx - frameWidth(), 0, width() - bs.width(),
+			     height() ) );
 
     if ( up->size() != bs || down->size() != bs ) {
-        up->resize( bs );
-        down->resize( bs );
-        updateArrows();
+	up->resize( bs );
+	down->resize( bs );
+	updateArrows();
     }
 
     up->move( x, y );
@@ -411,7 +411,7 @@ void QDateTimeEditBase::layoutArrows()
     If illegal values are entered, they will be reverted to the last
     known legal value when the user presses Return. For example if the
     user enters 5000 for the year value, and it was 2000 before they
-    stated editing, the value will be reverted to 2000.  
+    stated editing, the value will be reverted to 2000.
 
     See \l examples/datetime for an example. 
 
@@ -442,7 +442,6 @@ QDateEdit::QDateEdit( const QDate & d, QWidget * parent, const char * name )
 }
 
 /*!
-
   \internal Initialization.
  */
 void QDateEdit::init()
@@ -451,6 +450,9 @@ void QDateEdit::init()
     setOrder( "YMD" ); // ## ISO default?
     connect( this, SIGNAL( valueChanged() ), this, SLOT( someValueChanged() ) );
 }
+
+/*! \internal
+ */
 
 void QDateEdit::someValueChanged()
 {
@@ -475,20 +477,20 @@ void QDateEdit::setDate( const QDate & d )
     v[2] = (QIntValidator *) ed[2]->validator();
 
     if( (yy > v[yearPos]->top()) || (yy < v[yearPos]->bottom()) ||
-        (mm > v[monthPos]->top()) || (mm < v[monthPos]->bottom()) ||
-        (dd > v[dayPos]->top()) || (dd < v[dayPos]->bottom()) )
+	(mm > v[monthPos]->top()) || (mm < v[monthPos]->bottom()) ||
+	(dd > v[dayPos]->top()) || (dd < v[dayPos]->bottom()) )
     {
-        // Date out of range - leave it blank
-        ed[0]->setText( "" );
-        ed[1]->setText( "" );
-        ed[2]->setText( "" );
+	// Date out of range - leave it blank
+	ed[0]->setText( "" );
+	ed[1]->setText( "" );
+	ed[2]->setText( "" );
     } else {
-        ed[yearPos]->setText( QString::number( yy ) );
-        ed[monthPos]->setText( QString::number( mm ) );
-        ed[dayPos]->setText( QString::number( dd ) );
+	ed[yearPos]->setText( QString::number( yy ) );
+	ed[monthPos]->setText( QString::number( mm ) );
+	ed[dayPos]->setText( QString::number( dd ) );
     }
     if ( oldDate != date() )
-        emit valueChanged( d );
+	emit valueChanged( d );
 //    ed[0]->setFocus();
 //    ed[0]->selectAll();
 }
@@ -502,10 +504,10 @@ QDate QDateEdit::date() const
     ((QDateEdit *) this)->fixup(); // Fix invalid dates
 
     return QDate( ed[yearPos]->text().toInt(), ed[monthPos]->text().toInt(),
-                  ed[dayPos]->text().toInt() );
+		  ed[dayPos]->text().toInt() );
 }
 
-/*! \fn void valueChanged( const QDate& )
+/*! \fn void QDateEdit::valueChanged( const QDate& )
 
   This signal is emitted every time the date changes.  The argument is
   the new date.
@@ -530,7 +532,7 @@ void QDateEdit::setOrder( const QString & fmt )
     tmp = fmt.upper();
 
     if( !tmp.contains( 'Y' ) || !tmp.contains( 'M' ) || !tmp.contains( 'D' ) )
-        return;
+	return;
 
     yearPos  = tmp.find( 'Y' );
     monthPos = tmp.find( 'M' );
@@ -567,7 +569,7 @@ QString QDateEdit::order() const
 }
 
 /*!
-  Set the separator string for this date editor to \a s. 
+  Set the separator string for this date editor to \a s.
 
  */
 void QDateEdit::setDateSeparator( const QString & s )
@@ -604,21 +606,21 @@ void QDateEdit::fixup()
     dd = ed[dayPos]->text().toInt();
 
     if( !QDate::isValid( yy, mm, dd) ){
-        if( !QDate::isValid( yy, 1, 1 ) )
-            if( yy > v[yearPos]->top() ) yy = v[yearPos]->top();
-            else if( yy < v[yearPos]->bottom() ) yy = v[yearPos]->bottom();
-        if( !QDate::isValid( yy, mm, 1 ) )
-            if( mm > v[monthPos]->top() ) mm = v[monthPos]->top();
-            else if( mm < v[monthPos]->bottom() ) mm = v[monthPos]->bottom();
-        if( dd > v[dayPos]->top() ) dd = v[dayPos]->top();
-        else if( dd < v[dayPos]->bottom() ) dd = v[dayPos]->bottom();
+	if( !QDate::isValid( yy, 1, 1 ) )
+	    if( yy > v[yearPos]->top() ) yy = v[yearPos]->top();
+	    else if( yy < v[yearPos]->bottom() ) yy = v[yearPos]->bottom();
+	if( !QDate::isValid( yy, mm, 1 ) )
+	    if( mm > v[monthPos]->top() ) mm = v[monthPos]->top();
+	    else if( mm < v[monthPos]->bottom() ) mm = v[monthPos]->bottom();
+	if( dd > v[dayPos]->top() ) dd = v[dayPos]->top();
+	else if( dd < v[dayPos]->bottom() ) dd = v[dayPos]->bottom();
 
-        while( !QDate::isValid( yy, mm, dd ) ){
-            dd--;
-        }
-        ed[yearPos]->setText( QString::number( yy ) );
-        ed[monthPos]->setText( QString::number( mm ) );
-        ed[dayPos]->setText( QString::number( dd ) );
+	while( !QDate::isValid( yy, mm, dd ) ){
+	    dd--;
+	}
+	ed[yearPos]->setText( QString::number( yy ) );
+	ed[monthPos]->setText( QString::number( mm ) );
+	ed[dayPos]->setText( QString::number( dd ) );
     }
 }
 
@@ -628,20 +630,20 @@ bool QDateEdit::event( QEvent* e )
 {
     switch ( e->type() ) {
     case QEvent::KeyPress: {
-        QKeyEvent *ke = (QKeyEvent*)e;
-        QDate newDate = date();
-        if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
-            if ( newDate != oldDate ) {
-                emit valueChanged( newDate );
-            }
-        } else if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
-            if ( newDate != oldDate )
-                emit valueChanged( newDate );
-        }
+	QKeyEvent *ke = (QKeyEvent*)e;
+	QDate newDate = date();
+	if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
+	    if ( newDate != oldDate ) {
+		emit valueChanged( newDate );
+	    }
+	} else if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
+	    if ( newDate != oldDate )
+		emit valueChanged( newDate );
+	}
     }
     break;
     default:
-        break;
+	break;
     }
     return QDateTimeEditBase::event( e );
 }
@@ -692,7 +694,7 @@ void QDateEdit::resizeEvent( QResizeEvent * )
   If illegal values are entered, these will be reverted to the last
   known legal value when the user presses Return. For example if the
   user entered 99 for the hour value, and it was 12 before they stated
-  editing, the value will be reverted to 12. 
+  editing, the value will be reverted to 12.
 
     See \l examples/datetime for an example. 
 
@@ -720,6 +722,9 @@ QTimeEdit::QTimeEdit( const QTime & t, QWidget * parent, const char * name )
     init();
     setTime( t );
 }
+
+/*! \internal
+ */
 
 void QTimeEdit::someValueChanged()
 {
@@ -750,7 +755,7 @@ void QTimeEdit::setTime( const QTime & t )
     ed[1]->setText( QString::number( t.minute() ) );
     ed[2]->setText( QString::number( t.second() ) );
     if ( oldTime != time() )
-        emit valueChanged( t );
+	emit valueChanged( t );
 
 //    ed[0]->setFocus();
 //    ed[0]->selectAll();
@@ -763,10 +768,10 @@ void QTimeEdit::setTime( const QTime & t )
 QTime QTimeEdit::time() const
 {
     return QTime( ed[0]->text().toInt(), ed[1]->text().toInt(),
-                  ed[2]->text().toInt() );
+		  ed[2]->text().toInt() );
 }
 
-/*! \fn void valueChanged( const QTime& )
+/*! \fn void QTimeEdit::valueChanged( const QTime& )
 
     This signal is emitted every time the time changes.  The argument is
     the new time.
@@ -774,7 +779,7 @@ QTime QTimeEdit::time() const
 
 
 /*!
-  Set the separator string for this time editor to \a s. 
+  Set the separator string for this time editor to \a s.
  */
 void QTimeEdit::setTimeSeparator( const QString & s )
 {
@@ -798,19 +803,19 @@ bool QTimeEdit::event( QEvent* e )
 {
     switch ( e->type() ) {
     case QEvent::KeyPress: {
-        QKeyEvent *ke = (QKeyEvent*)e;
-        QTime newTime = time();
-        if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
-            if ( newTime != oldTime )
-                emit valueChanged( newTime );
-        } else if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
-            if ( newTime != oldTime )
-                emit valueChanged( newTime );
-        }
+	QKeyEvent *ke = (QKeyEvent*)e;
+	QTime newTime = time();
+	if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
+	    if ( newTime != oldTime )
+		emit valueChanged( newTime );
+	} else if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
+	    if ( newTime != oldTime )
+		emit valueChanged( newTime );
+	}
     }
     break;
     default:
-        break;
+	break;
     }
     return QDateTimeEditBase::event( e );
 }
@@ -866,7 +871,7 @@ void QTimeEdit::resizeEvent( QResizeEvent * )
     If illegal values are entered, they will be reverted to the last
     known legal value when the user presses Return. For example if the
     user enters 5000 for the year value, and it was 2000 before they
-    stated editing, the value will be reverted to 2000.  
+    stated editing, the value will be reverted to 2000.
 
     See \l examples/datetime for an example. 
     
@@ -894,16 +899,27 @@ QDateTimeEdit::QDateTimeEdit( const QDateTime & dt, QWidget * parent, const char
     setDateTime( dt );
 }
 
+/*! \reimp
+
+   Intercepts and handles resize events which have special meaning for the QDateTimeEdit.
+
+*/
 
 void QDateTimeEdit::resizeEvent( QResizeEvent * )
 {
     layoutEditors();
 }
 
+/*! \reimp
+*/
+
 QSize QDateTimeEdit::minimumSizeHint() const
 {
     return de->minimumSizeHint() + te->minimumSizeHint();
 }
+
+/*! Moves and resizes the internal date and time editors.
+*/
 
 void QDateTimeEdit::layoutEditors()
 {
@@ -926,12 +942,15 @@ void QDateTimeEdit::init()
     de = new QDateEdit( this );
     te = new QTimeEdit( this );
     connect( de, SIGNAL( valueChanged( const QDate& ) ),
-             this, SLOT( newValue( const QDate& ) ) );
+	     this, SLOT( newValue( const QDate& ) ) );
     connect( te, SIGNAL( valueChanged( const QTime& ) ),
-             this, SLOT( newValue( const QTime& ) ) );
+	     this, SLOT( newValue( const QTime& ) ) );
     setFocusProxy( de );
     layoutEditors();
 }
+
+/*! \reimp
+ */
 
 QSize QDateTimeEdit::sizeHint() const
 {
@@ -955,14 +974,14 @@ QDateTime QDateTimeEdit::dateTime() const
     return QDateTime( de->date(), te->time() );
 }
 
-/*!  Set the separator for the date in this QDateTimeEdit to \a s. 
+/*!  Set the separator for the date in this QDateTimeEdit to \a s.
  */
 void QDateTimeEdit::setDateSeparator( const QString & s )
 {
     de->setDateSeparator( s );
 }
 
-/*!  Returns the separator for the date in this QDateTimeEdit. 
+/*!  Returns the separator for the date in this QDateTimeEdit.
     The default is "-".
 
  */
@@ -985,6 +1004,13 @@ QString QDateTimeEdit::timeSeparator() const
 {
     return te->timeSeparator();
 }
+
+/*! \fn void QDateTimeEdit::valueChanged( const QDateTime& )
+
+  This signal is emitted every time the date/time changes.  The
+  argument is the new date/time.
+*/
+
 
 /*! \internal
  */
