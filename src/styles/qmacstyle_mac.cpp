@@ -343,6 +343,7 @@ void QMacStyle::drawItem( QPainter *p, const QRect &r,
 			   const QPixmap *pixmap, const QString& text,
 			   int len, const QColor* penColor ) const
 {
+#if defined(Q_WS_MACX) && 0
     /* No accelerators drawn here! */
     bool pass_through = TRUE;
     if(!pixmap && !text.isEmpty()) {
@@ -385,6 +386,7 @@ void QMacStyle::drawItem( QPainter *p, const QRect &r,
 	CFRelease(str);
     }
     if(pass_through)
+#endif
 	QWindowsStyle::drawItem( p, r, flags | NoAccel, cg, 
 				 enabled, pixmap, text, len, penColor );
 }
@@ -745,7 +747,7 @@ void QMacStyle::drawControl( ControlElement element,
 	if(!widget)
 	    break;
 	QProgressBar *pbar = (QProgressBar *) widget;
-#ifndef QMAC_NO_MACSTYLE_ANIMATEf
+#ifndef QMAC_NO_MACSTYLE_ANIMATE
 	if(ControlRef prgctl = d->control(QAquaAnimate::AquaProgressBar)) {
 	    qDebug("foo..");
 	    SetControlBounds(prgctl, qt_glb_mac_rect(r, p->device()));

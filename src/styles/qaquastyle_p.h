@@ -152,11 +152,11 @@ static inline void qAquaPolishFont( QWidget *w )
 	}
     }
 #if 0
-    if( !w->ownPalette() && 
-	w->palette().serialNumber() == qApp->palette().serialNumber() ) {
-	ThemeBrush active = -1, inactive = -1;
+    if( !w->ownPalette() ) {
+	ThemeBrush active = kThemeTextColorDialogActive, 
+		 inactive = kThemeTextColorDialogInactive;
 	bool set_colour = TRUE;
-	if(w->inherits("QPushButton")) {
+	if(w->inherits("QButton")) {
 	    active = kThemeTextColorPushButtonActive;
 	    inactive = kThemeTextColorPushButtonInactive;
 	} else if(w->inherits("QListView") || w->inherits("QListBox")) {
@@ -168,23 +168,26 @@ static inline void qAquaPolishFont( QWidget *w )
 	    active = kThemeTextColorPopupLabelActive;
 	    inactive = kThemeTextColorPopupLabelInactive;
 	} else {
-	    set_colour = FALSE;
+//	    set_colour = FALSE;
 	}
 	if(set_colour) {
 	    QColor qc;
 	    RGBColor c;
 	    QPalette pal = w->palette();
 	    //active
-	    if(!GetThemeBrushAsColor(active, 32, true, &c )) {
+	    if(!GetThemeTextColor(active, 32, true, &c)) {
 		qc = QColor(c.red / 256, c.green / 256, c.blue / 256);		
 		pal.setColor(QPalette::Active, QColorGroup::Text, qc);
+		pal.setColor(QPalette::Active, QColorGroup::Foreground, qc);
 		pal.setColor(QPalette::Active, QColorGroup::HighlightedText, qc);
 	    }
 	    //inactive
-	    if(!GetThemeBrushAsColor(inactive, 32, true, &c )) {
+	    if(!GetThemeTextColor(inactive, 32, true, &c)) {
 		qc = QColor(c.red / 256, c.green / 256, c.blue / 256);		
 		pal.setColor(QPalette::Inactive, QColorGroup::Text, qc);
 		pal.setColor(QPalette::Disabled, QColorGroup::Text, qc);
+		pal.setColor(QPalette::Inactive, QColorGroup::Foreground, qc);
+		pal.setColor(QPalette::Disabled, QColorGroup::Foreground, qc);
 		pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, qc);
 		pal.setColor(QPalette::Disabled, QColorGroup::HighlightedText, qc);
 	    }
