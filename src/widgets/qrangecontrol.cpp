@@ -122,9 +122,7 @@ QRangeControl::QRangeControl()
   Constructs a range control whose value can never be smaller than \a
   minValue or greater than \a maxValue, whose line step size is \a
   lineStep and page step size is \a pageStep and whose value is
-  initially \a value.
-
-  \a value is forced to be within the legal range using the bound() method.
+  initially \a value (adjusted using bound()).
 */
 
 QRangeControl::QRangeControl( int minValue, int maxValue,

@@ -211,15 +211,13 @@ QScrollBar::QScrollBar( Orientation orientation, QWidget *parent,
 }
 
 /*!
-  Constructs a scroll bar.
+  Constructs a scoll bar whose value can never be smaller than \a
+  minValue or greater than \a maxValue, whose line step size is \a
+  lineStep and page step size is \a pageStep and whose value is
+  initially \a value (adjusted using bound()).
 
-  \arg \e minValue is the minimum scroll bar value.
-  \arg \e maxValue is the maximum scroll bar value.
-  \arg \e lineStep is the line step value.
-  \arg \e pageStep is the page step value. It is also used to calculate the size
-	    of the slider.
-  \arg \e value is the initial value.
-  \arg \e orientation must be QScrollBar::Vertical or QScrollBar::Horizontal.
+  If \a orientation is Vertical the scroll bar is vertical and if it
+  is \a Horizontal the scroll bar is horizontal.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
 */

@@ -1184,10 +1184,7 @@ bool QMenuData::disconnectItem( int id, const QObject *receiver,
 }
 
 /*!
-  Sets a What's This help for a certain menu item.
-  
-  \arg \e id is the menu item id.
-  \arg \e text is the What's This help text in rich text format (see QStyleSheet).
+  Sets \a text as What's This help for the menu item with id \a id.
 
   \sa whatsThis()
  */
@@ -1329,8 +1326,8 @@ bool QCustomMenuItem::isSeparator() const
 
 
 /*!
-  Activates the menu item at index \a index. 
-  
+  Activates the menu item at index \a index.
+
   If the index is invalid (for example -1), the object itself is
   deactivated.
  */
@@ -1341,7 +1338,7 @@ void QMenuData::activateItemAt( int index )
 	( (QMenuBar*)this )->activateItemAt( index );
     else
 #endif
-    if ( isPopupMenu ) 
+    if ( isPopupMenu )
 	( (QPopupMenu*)this )->activateItemAt( index );
 }
 

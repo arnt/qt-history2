@@ -127,14 +127,13 @@ QSlider::QSlider( Orientation orientation, QWidget *parent, const char *name )
     init();
 }
 
-/*!
-  Constructs a slider.
+/*!  Constructs a slider whose value can never be smaller than \a
+  minValue or greater than \a maxValue, whose line step size is \a
+  lineStep and page step size is \a pageStep and whose value is
+  initially \a value (adjusted using bound()).
 
-  \arg \e minValue is the minimum slider value.
-  \arg \e maxValue is the maximum slider value.
-  \arg \e step is the page step value.
-  \arg \e value is the initial value.
-  \arg \e orientation must be QSlider::Vertical or QSlider::Horizontal.
+  If \a orientation is Vertical the slider is vertical and if it is \a
+  Horizontal the slider is horizontal.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
 */
@@ -931,7 +930,7 @@ int QSlider::thickness() const
     return thick;
 }
 
-/*! 
+/*!
   \fn void QSlider::drawTicks( QPainter *, int, int, int ) const
   \obsolete
   \overload
