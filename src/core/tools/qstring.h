@@ -419,8 +419,8 @@ public:
     { *this = fromLatin1(str, len); return *this; }
 #endif
 
-    bool isSimpleText() const { if (!d->clean) updateProperties(); return (bool)d->simpletext; }
-    bool isRightToLeft() const { if (!d->clean) updateProperties(); return (bool)d->righttoleft; }
+    bool isSimpleText() const { if (!d->clean) updateProperties(); return d->simpletext; }
+    bool isRightToLeft() const { if (!d->clean) updateProperties(); return d->righttoleft; }
 
 private:
 #if defined (QT_NO_CAST_FROM_ASCII) && defined (Q_DISABLE_COPY)
@@ -498,17 +498,17 @@ inline const QChar QString::at(int i) const
 inline const QChar QString::operator[](int i) const
 { Q_ASSERT(i >= 0 && i < size()); return d->data[i]; }
 inline const QChar QString::operator[](uint i) const
-{ Q_ASSERT(i < (uint)size()); return d->data[i]; }
+{ Q_ASSERT(i < uint(size())); return d->data[i]; }
 inline bool QString::isEmpty() const
 { return d->size == 0; }
 inline const QChar *QString::unicode() const
-{ return (const QChar*) d->data; }
+{ return reinterpret_cast<const QChar*>(d->data); }
 inline const QChar *QString::data() const
-{ return (const QChar*) d->data; }
+{ return reinterpret_cast<const QChar*>(d->data); }
 inline QChar *QString::data()
-{ detach(); return (QChar*) d->data; }
+{ detach(); return reinterpret_cast<QChar*>(d->data); }
 inline const QChar *QString::constData() const
-{ return (const QChar*) d->data; }
+{ return reinterpret_cast<const QChar*>(d->data); }
 inline void QString::detach()
 { if (d->ref != 1 || d->data != d->array) realloc(); }
 inline bool QString::isDetached() const
@@ -525,31 +525,31 @@ inline QString::QString(const QString &s) : d(s.d)
 inline int QString::capacity() const
 { return d->alloc; }
 inline QString &QString::setNum(short n, int base)
-{ return setNum((Q_LLONG)n, base); }
+{ return setNum(Q_LLONG(n), base); }
 inline QString &QString::setNum(ushort n, int base)
-{ return setNum((Q_ULLONG)n, base); }
+{ return setNum(Q_ULLONG(n), base); }
 inline QString &QString::setNum(int n, int base)
-{ return setNum((Q_LLONG)n, base); }
+{ return setNum(Q_LLONG(n), base); }
 inline QString &QString::setNum(uint n, int base)
-{ return setNum((Q_ULLONG)n, base); }
+{ return setNum(Q_ULLONG(n), base); }
 inline QString &QString::setNum(long n, int base)
-{ return setNum((Q_LLONG)n, base); }
+{ return setNum(Q_LLONG(n), base); }
 inline QString &QString::setNum(ulong n, int base)
-{ return setNum((Q_ULLONG)n, base); }
+{ return setNum(Q_ULLONG(n), base); }
 inline QString &QString::setNum(float n, char f, int prec)
-{ return setNum((double)n,f,prec); }
+{ return setNum(double(n),f,prec); }
 inline QString QString::arg(long a, int fieldWidth, int base) const
-{ return arg((Q_LLONG)a, fieldWidth, base); }
+{ return arg(Q_LLONG(a), fieldWidth, base); }
 inline QString QString::arg(ulong a, int fieldWidth, int base) const
-{ return arg((Q_ULLONG)a, fieldWidth, base); }
+{ return arg(Q_ULLONG(a), fieldWidth, base); }
 inline QString QString::arg(int a, int fieldWidth, int base) const
-{ return arg((Q_LLONG)a, fieldWidth, base); }
+{ return arg(Q_LLONG(a), fieldWidth, base); }
 inline QString QString::arg(uint a, int fieldWidth, int base) const
-{ return arg((Q_ULLONG)a, fieldWidth, base); }
+{ return arg(Q_ULLONG(a), fieldWidth, base); }
 inline QString QString::arg(short a, int fieldWidth, int base) const
-{ return arg((Q_LLONG)a, fieldWidth, base); }
+{ return arg(Q_LLONG(a), fieldWidth, base); }
 inline QString QString::arg(ushort a, int fieldWidth, int base) const
-{ return arg((Q_ULLONG)a, fieldWidth, base); }
+{ return arg(Q_ULLONG(a), fieldWidth, base); }
 inline QString QString::arg(const QString &a1, const QString &a2) const
 { return multiArg(2, a1, a2); }
 inline QString QString::arg(const QString &a1, const QString &a2, const QString &a3) const
@@ -582,70 +582,70 @@ public:
     inline QCharRef operator=(char c) { return operator=(QChar(c)); }
     inline QCharRef operator=(uchar c) { return operator=(QChar(c)); }
 #endif
-    inline QCharRef operator=(const QCharRef &c) { return operator=((QChar)c); }
+    inline QCharRef operator=(const QCharRef &c) { return operator=(QChar(c)); }
     inline QCharRef operator=(ushort rc) { return operator=(QChar(rc)); }
     inline QCharRef operator=(short rc) { return operator=(QChar(rc)); }
     inline QCharRef operator=(uint rc) { return operator=(QChar(rc)); }
     inline QCharRef operator=(int rc) { return operator=(QChar(rc)); }
 
     // each function...
-    inline bool isNull() const { return ((QChar)*this).isNull(); }
-    inline bool isPrint() const { return ((QChar)*this).isPrint(); }
-    inline bool isPunct() const { return ((QChar)*this).isPunct(); }
-    inline bool isSpace() const { return ((QChar)*this).isSpace(); }
-    inline bool isMark() const { return ((QChar)*this).isMark(); }
-    inline bool isLetter() const { return ((QChar)*this).isLetter(); }
-    inline bool isNumber() const { return ((QChar)*this).isNumber(); }
-    inline bool isLetterOrNumber() { return ((QChar)*this).isLetterOrNumber(); }
-    inline bool isDigit() const { return ((QChar)*this).isDigit(); }
+    inline bool isNull() const { return QChar(*this).isNull(); }
+    inline bool isPrint() const { return QChar(*this).isPrint(); }
+    inline bool isPunct() const { return QChar(*this).isPunct(); }
+    inline bool isSpace() const { return QChar(*this).isSpace(); }
+    inline bool isMark() const { return QChar(*this).isMark(); }
+    inline bool isLetter() const { return QChar(*this).isLetter(); }
+    inline bool isNumber() const { return QChar(*this).isNumber(); }
+    inline bool isLetterOrNumber() { return QChar(*this).isLetterOrNumber(); }
+    inline bool isDigit() const { return QChar(*this).isDigit(); }
 
-    inline int digitValue() const { return ((QChar)*this).digitValue(); }
-    QChar toLower() const { return ((QChar)*this).toLower(); }
-    QChar toUpper() const { return ((QChar)*this).toUpper(); }
+    inline int digitValue() const { return QChar(*this).digitValue(); }
+    QChar toLower() const { return QChar(*this).toLower(); }
+    QChar toUpper() const { return QChar(*this).toUpper(); }
 #ifdef QT_COMPAT
-    inline QT_COMPAT QChar lower() const { return ((QChar)*this).toLower(); }
-    inline QT_COMPAT QChar upper() const { return ((QChar)*this).toUpper(); }
+    inline QT_COMPAT QChar lower() const { return QChar(*this).toLower(); }
+    inline QT_COMPAT QChar upper() const { return QChar(*this).toUpper(); }
 #endif
 
-    QChar::Category category() const { return ((QChar)*this).category(); }
-    QChar::Direction direction() const { return ((QChar)*this).direction(); }
-    QChar::Joining joining() const { return ((QChar)*this).joining(); }
-    bool hasMirrored() const { return ((QChar)*this).hasMirrored(); }
+    QChar::Category category() const { return QChar(*this).category(); }
+    QChar::Direction direction() const { return QChar(*this).direction(); }
+    QChar::Joining joining() const { return QChar(*this).joining(); }
+    bool hasMirrored() const { return QChar(*this).hasMirrored(); }
 #ifdef QT_COMPAT
     inline bool QT_COMPAT mirrored() const { return hasMirrored(); }
 #endif
-    QChar mirroredChar() const { return ((QChar)*this).mirroredChar(); }
-    QString decomposition() const { return ((QChar)*this).decomposition(); }
-    QChar::Decomposition decompositionTag() const { return ((QChar)*this).decompositionTag(); }
-    uchar combiningClass() const { return ((QChar)*this).combiningClass(); }
+    QChar mirroredChar() const { return QChar(*this).mirroredChar(); }
+    QString decomposition() const { return QChar(*this).decomposition(); }
+    QChar::Decomposition decompositionTag() const { return QChar(*this).decompositionTag(); }
+    uchar combiningClass() const { return QChar(*this).combiningClass(); }
 
-    QChar::UnicodeVersion unicodeVersion() const { return ((QChar)*this).unicodeVersion(); }
+    QChar::UnicodeVersion unicodeVersion() const { return QChar(*this).unicodeVersion(); }
 
-    inline uchar cell() const { return ((QChar)*this).cell(); }
-    inline uchar row() const { return ((QChar)*this).row(); }
-    inline void setCell(uchar cell) { ((QChar)*this).setCell(cell); }
-    inline void setRow(uchar row) { ((QChar)*this).setRow(row); }
+    inline uchar cell() const { return QChar(*this).cell(); }
+    inline uchar row() const { return QChar(*this).row(); }
+    inline void setCell(uchar cell) { QChar(*this).setCell(cell); }
+    inline void setRow(uchar row) { QChar(*this).setRow(row); }
 
-    const char ascii() const { return ((QChar)*this).ascii(); }
-    const char latin1() const { return ((QChar)*this).latin1(); }
-    const ushort unicode() const { return ((QChar)*this).unicode(); }
+    const char ascii() const { return QChar(*this).ascii(); }
+    const char latin1() const { return QChar(*this).latin1(); }
+    const ushort unicode() const { return QChar(*this).unicode(); }
 };
 inline QCharRef QString::operator[](int i)
 { Q_ASSERT(i >= 0); return QCharRef(*this, i); }
 inline QCharRef QString::operator[](uint i)
 { return QCharRef(*this, i); }
 inline QString::iterator QString::begin()
-{ detach(); return (QChar*) d->data; }
+{ detach(); return reinterpret_cast<QChar*>(d->data); }
 inline QString::const_iterator QString::begin() const
-{ return (const QChar*)d->data; }
+{ return reinterpret_cast<const QChar*>(d->data); }
 inline QString::const_iterator QString::constBegin() const
-{ return (const QChar*)d->data; }
+{ return reinterpret_cast<const QChar*>(d->data); }
 inline QString::iterator QString::end()
-{ detach(); return (QChar*) d->data + d->size; }
+{ detach(); return reinterpret_cast<QChar*>(d->data + d->size); }
 inline QString::const_iterator QString::end() const
-{ return (const QChar*)d->data + d->size; }
+{ return reinterpret_cast<const QChar*>(d->data + d->size); }
 inline QString::const_iterator QString::constEnd() const
-{ return (const QChar*)d->data + d->size; }
+{ return reinterpret_cast<const QChar*>(d->data + d->size); }
 inline QBool QString::contains(const QString &s, Qt::CaseSensitivity cs) const
 { return QBool(indexOf(s, 0, cs) != -1); }
 inline QBool QString::contains(QChar c, Qt::CaseSensitivity cs) const
@@ -728,7 +728,7 @@ inline const QString operator+(const QString &s1, char *s2)
 inline const QString operator+(char *s1, const QString &s2)
 { QString t(s1); t += s2; return t; }
 inline const QString operator+(char c, const QString &s)
-{ QString t((QChar)c); t += s; return t; }
+{ QString t = s; t.prepend(QChar(c)); return t; }
 inline const QString operator+(const QString &s, char c)
 { QString t(s); t += c; return t; }
 inline const QString operator+(const QByteArray &ba, const QString &s)

@@ -46,9 +46,9 @@ public:
     Q3StyleOption(const QColor& c) : def(false), cl(&c) {}
     Q3StyleOption(QTab *t) : def(false), tb(t) {}
     Q3StyleOption(QCheckListItem *i) : def(false), cli(i) {}
-    Q3StyleOption(Qt::ArrowType a) : def(false), i1((int)a) {}
+    Q3StyleOption(Qt::ArrowType a) : def(false), i1(a) {}
     Q3StyleOption(const QRect &r) : def(false), i1(r.x()), i2(r.y()), i3(r.width()),i4(r.height()){}
-    Q3StyleOption(QWidget *w) : def(false), p1((void*)w) {}
+    Q3StyleOption(QWidget *w) : def(false), p1(w) {}
 
     bool isDefault() const { return def; }
 
@@ -72,9 +72,9 @@ public:
 
     QCheckListItem *checkListItem() const { return cli; }
 
-    Qt::ArrowType arrowType() const { return (Qt::ArrowType)i1; }
+    Qt::ArrowType arrowType() const { return static_cast<Qt::ArrowType>(i1); }
     QRect rect() const { return QRect(i1, i2, i3, i4); }
-    QWidget *widget() const { return (QWidget*)p1; }
+    QWidget *widget() const { return static_cast<QWidget*>(p1); }
 
 private:
     // NOTE: none of these components have constructors.

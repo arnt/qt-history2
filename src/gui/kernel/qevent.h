@@ -47,7 +47,7 @@ public:
 
     QMouseEvent( Type type, const QPoint &pos, const QPoint&globalPos,
                  int button, int state )
-        : QInputEvent(type), p(pos), g(globalPos), b((ushort)button),s((ushort)state) {};
+        : QInputEvent(type), p(pos), g(globalPos), b(button),s(state) {};
 
     const QPoint &pos()         const { return p; }
     const QPoint &globalPos()   const { return g; }
@@ -55,8 +55,8 @@ public:
     int y()                     const { return p.y(); }
     int globalX()               const { return g.x(); }
     int globalY()               const { return g.y(); }
-    Qt::ButtonState button()        const { return (Qt::ButtonState) b; }
-    Qt::ButtonState state()         const { return (Qt::ButtonState) s; }
+    Qt::ButtonState button()        const { return static_cast<Qt::ButtonState>(b); }
+    Qt::ButtonState state()         const { return static_cast<Qt::ButtonState>(s); }
     Qt::ButtonState stateAfter()    const;
 protected:
     QPoint p;
@@ -72,7 +72,7 @@ class Q_GUI_EXPORT QWheelEvent : public QInputEvent
 public:
     QWheelEvent( const QPoint &pos, int delta, int state, Qt::Orientation orient = Qt::Vertical );
     QWheelEvent( const QPoint &pos, const QPoint& globalPos, int delta, int state, Qt::Orientation orient = Qt::Vertical  )
-        : QInputEvent(Wheel), p(pos), g(globalPos), d(delta), s((ushort)state), o(orient) {}
+        : QInputEvent(Wheel), p(pos), g(globalPos), d(delta), s(state), o(orient) {}
     int delta()                 const { return d; }
     const QPoint &pos()         const { return p; }
     const QPoint &globalPos()   const { return g; }
@@ -80,7 +80,7 @@ public:
     int y()                     const { return p.y(); }
     int globalX()               const { return g.x(); }
     int globalY()               const { return g.y(); }
-    Qt::ButtonState state()         const { return Qt::ButtonState(s); }
+    Qt::ButtonState state()         const { return static_cast<Qt::ButtonState>(s); }
     Qt::Orientation orientation()   const { return o; }
 protected:
     QPoint p;
@@ -133,7 +133,7 @@ class Q_GUI_EXPORT QKeyEvent : public QInputEvent
 public:
     QKeyEvent( Type type, int key, int state, const QString& text = QString::null,
                bool autorep = FALSE, ushort count = 1 )
-        : QInputEvent(type), txt(text), k(key), s((ushort)state), c(count), autor(autorep)
+        : QInputEvent(type), txt(text), k(key), s(state), c(count), autor(autorep)
     {
         if ( key >= Qt::Key_Back && key <= Qt::Key_MediaLast )
             ignore();
@@ -304,7 +304,7 @@ public:
     enum Reason { Mouse, Keyboard, Other };
     QContextMenuEvent( Reason reason, const QPoint &pos, const QPoint &globalPos, int state )
         : QInputEvent( ContextMenu ), p( pos ), gp( globalPos ),
-        reas( reason ), s((ushort)state) {}
+        reas( reason ), s(state) {}
     QContextMenuEvent( Reason reason, const QPoint &pos, int state );
 
     int x()                     const { return p.x(); }
@@ -315,7 +315,7 @@ public:
     const QPoint& pos()         const { return p; }
     const QPoint& globalPos()   const { return gp; }
 
-    Qt::ButtonState state()         const   { return (Qt::ButtonState) s; }
+    Qt::ButtonState state()         const   { return static_cast<Qt::ButtonState>(s); }
     Reason reason()             const { return Reason( reas ); }
 
 protected:
@@ -362,7 +362,7 @@ public:
     enum Action { Copy, Link, Move, Private, UserAction = 100 };
     bool isActionAccepted()     const { return accptact; }
     void acceptAction(bool y = TRUE)  { accptact = y; }
-    void setAction( Action a )        { act = (uint)a; }
+    void setAction( Action a )        { act = uint(a); }
     Action action()             const { return Action(act); }
 
     QWidget* source() const;
@@ -475,7 +475,7 @@ class Q_GUI_EXPORT QActionEvent : public QEvent
     QAction *act, *bef;
 public:
     QActionEvent(int type, QAction *action, QAction *before = 0)
-        : QEvent((QEvent::Type)type), act(action), bef(before) { }
+        : QEvent(static_cast<QEvent::Type>(type)), act(action), bef(before) { }
 
     QAction *action()           const { return act; }
     QAction *before()           const { return bef; }

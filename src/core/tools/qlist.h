@@ -57,7 +57,8 @@ class QList
         Q_INLINE_TEMPLATE T &t();
 #else
         Q_INLINE_TEMPLATE T &t()
-        { return QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic ? *(T*)v : *(T*)this; }
+        { return QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic
+                 ? *reinterpret_cast<T*>(v) : *reinterpret_cast<T*>(this); }
 #endif
     };
 
@@ -167,12 +168,12 @@ public:
     };
 
     // stl style
-    inline iterator begin() { detach(); return (Node*) p.begin(); }
-    inline const_iterator begin() const { return (Node*) p.begin(); }
-    inline const_iterator constBegin() const { return (Node*) p.begin(); }
-    inline iterator end() { detach(); return (Node*) p.end(); }
-    inline const_iterator end() const { return (Node*) p.end(); }
-    inline const_iterator constEnd() const { return (Node*) p.end(); }
+    inline iterator begin() { detach(); return reinterpret_cast<Node*>(p.begin()); }
+    inline const_iterator begin() const { return reinterpret_cast<Node*>(p.begin()); }
+    inline const_iterator constBegin() const { return reinterpret_cast<Node*>(p.begin()); }
+    inline iterator end() { detach(); return reinterpret_cast<Node*>(p.end()); }
+    inline const_iterator end() const { return reinterpret_cast<Node*>(p.end()); }
+    inline const_iterator constEnd() const { return reinterpret_cast<Node*>(p.end()); }
     iterator insert(iterator before, const T &t);
     iterator erase(iterator pos);
     iterator erase(iterator first, iterator last);
@@ -248,14 +249,14 @@ Q_INLINE_TEMPLATE void QList<T>::node_construct(Node *n, const T &t)
 {
     if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) n->v = new T(t);
     else if (QTypeInfo<T>::isComplex) new (n) T(t);
-    else *(T*)n = t;
+    else *reinterpret_cast<T*>(n) = t;
 }
 
 template <typename T>
 Q_INLINE_TEMPLATE void QList<T>::node_destruct(Node *n)
 {
-    if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) delete (T*)n->v;
-    else if (QTypeInfo<T>::isComplex) ((T*)n)->~T();
+    if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) delete reinterpret_cast<T*>(n->v);
+    else if (QTypeInfo<T>::isComplex) reinterpret_cast<T*>(n)->~T();
 }
 
 template <typename T>
@@ -263,19 +264,19 @@ Q_INLINE_TEMPLATE void QList<T>::node_copy(Node *from, Node *to, Node *src)
 {
     if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic)
         while(from != to)
-            (from++)->v = new T(*(T*)(src++)->v);
+            (from++)->v = new T(*reinterpret_cast<T*>((src++)->v));
     else if (QTypeInfo<T>::isComplex)
         while(from != to)
-            new (from++) T(*(T*)src++);
+            new (from++) T(*reinterpret_cast<T*>(src++));
 }
 
 template <typename T>
 Q_INLINE_TEMPLATE void QList<T>::node_destruct(Node *from, Node *to)
 {
     if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic)
-        while(from != to) --to, delete (T*) to->v;
+        while(from != to) --to, delete reinterpret_cast<T*>(to->v);
     else if (QTypeInfo<T>::isComplex)
-        while (from != to) --to, ((T*)to)->~T();
+        while (from != to) --to, reinterpret_cast<T*>(to)->~T();
 }
 
 template <typename T>
@@ -292,32 +293,32 @@ Q_INLINE_TEMPLATE QList<T> &QList<T>::operator=(const QList<T> &l)
 }
 template <typename T>
 inline typename QList<T>::iterator QList<T>::insert(iterator before, const T &t)
-{ Node *n = (Node*) p.insert(before.i-(Node*)p.begin());
+{ Node *n = reinterpret_cast<Node*>(p.insert(before.i-reinterpret_cast<Node*>(p.begin())));
  node_construct(n,t); return n; }
 template <typename T>
 inline typename QList<T>::iterator QList<T>::erase(iterator it)
 { node_destruct(it.i);
- return (Node*) p.erase((void**)it.i); }
+ return reinterpret_cast<Node*>(p.erase(reinterpret_cast<void**>(it.i))); }
 template <typename T>
 inline const T &QList<T>::at(int i) const
 { Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::at", "index out of range");
- return ((Node*) p.at(i))->t(); }
+ return reinterpret_cast<Node*>(p.at(i))->t(); }
 template <typename T>
 inline const T &QList<T>::operator[](int i) const
 { Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::operator[]", "index out of range");
- return ((Node*) p.at(i))->t(); }
+ return reinterpret_cast<Node*>(p.at(i))->t(); }
 template <typename T>
 inline T &QList<T>::operator[](int i)
 { Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::operator[]", "index out of range");
-  detach(); return ((Node*) p.at(i))->t(); }
+  detach(); return reinterpret_cast<Node*>(p.at(i))->t(); }
 template <typename T>
 inline void QList<T>::removeAt(int i)
 { if(i >= 0 && i < p.size()) { detach();
- node_destruct((Node*) p.at(i)); p.remove(i); } }
+ node_destruct(reinterpret_cast<Node*>(p.at(i))); p.remove(i); } }
 template <typename T>
 inline T QList<T>::takeAt(int i)
 { Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::take", "index out of range");
- detach(); Node*n = (Node*)p.at(i); T t = n->t(); node_destruct(n);
+ detach(); Node*n = reinterpret_cast<Node*>(p.at(i)); T t = n->t(); node_destruct(n);
  p.remove(i); return t; }
 template <typename T>
 inline T QList<T>::takeFirst()
@@ -327,24 +328,24 @@ inline T QList<T>::takeLast()
 { T t = last(); removeLast(); return t; }
 template <typename T>
 inline void QList<T>::append(const T &t)
-{ detach();node_construct((Node*)p.append(), t); }
+{ detach();node_construct(reinterpret_cast<Node*>(p.append()), t); }
 template <typename T>
 inline void QList<T>::prepend(const T &t)
-{ detach(); node_construct(((Node*)p.prepend()), t); }
+{ detach(); node_construct(reinterpret_cast<Node*>(p.prepend()), t); }
 template <typename T>
 inline void QList<T>::insert(int i, const T &t)
-{ detach(); node_construct((Node*)p.insert(i), t); }
+{ detach(); node_construct(reinterpret_cast<Node*>(p.insert(i)), t); }
 template <typename T>
 inline void QList<T>::replace(int i, const T &t)
 { Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::replace", "index out of range");
- detach(); ((Node*)p.at(i))->t() = t; }
+ detach(); reinterpret_cast<Node*>(p.at(i))->t() = t; }
 template <typename T>
 inline void QList<T>::swap(int i, int j)
 { Q_ASSERT_X(i >= 0 && i < p.size() && j >= 0 && j < p.size(),
                "QList<T>::swap", "index out of range");
- detach(); T t = ((Node*)p.at(i))->t();
- ((Node*)p.at(i))->t() = ((Node*)p.at(j))->t();
- ((Node*)p.at(j))->t() = t;
+ detach(); T t = reinterpret_cast<Node*>(p.at(i))->t();
+ reinterpret_cast<Node*>(p.at(i))->t() = reinterpret_cast<Node*>(p.at(j))->t();
+ reinterpret_cast<Node*>(p.at(j))->t() = t;
 }
 
 template <typename T>
@@ -377,22 +378,22 @@ Q_OUTOFLINE_TEMPLATE T QList<T>::value(int i) const
         qInit(t);
         return t;
     }
-    return ((Node*) p.at(i))->t();
+    return reinterpret_cast<Node*>(p.at(i))->t();
 }
 template<typename T>
 Q_OUTOFLINE_TEMPLATE T QList<T>::value(int i, const T& defaultValue) const
 {
-    return ((i < 0 || i >= p.size()) ? defaultValue : ((Node*) p.at(i))->t());
+    return ((i < 0 || i >= p.size()) ? defaultValue : reinterpret_cast<Node*>(p.at(i))->t());
 }
 
 template <typename T>
 Q_OUTOFLINE_TEMPLATE void QList<T>::detach_helper()
 {
-    Node *n = (Node*) p.begin();
+    Node *n = reinterpret_cast<Node*>(p.begin());
     QListData::Data *x = p.detach();
     if (x)
         free(x);
-    node_copy((Node*) p.begin(), (Node*) p.end(), n);
+    node_copy(reinterpret_cast<Node*>(p.begin()), reinterpret_cast<Node*>(p.end()), n);
 }
 
 template <typename T>
@@ -413,9 +414,9 @@ Q_OUTOFLINE_TEMPLATE bool QList<T>::operator== (const QList<T> &l) const
         return false;
     if (d == l.d)
         return true;
-    Node *i = (Node*) p.end();
-    Node *b = (Node*) p.begin();
-    Node *li = (Node*) l.p.end();
+    Node *i = reinterpret_cast<Node*>(p.end());
+    Node *b = reinterpret_cast<Node*>(p.begin());
+    Node *li = reinterpret_cast<Node*>(l.p.end());
     while (i != b) {
         --i; --li;
         if (! (i->t() == li->t()))
@@ -428,8 +429,8 @@ Q_OUTOFLINE_TEMPLATE bool QList<T>::operator== (const QList<T> &l) const
 template <typename T>
 Q_OUTOFLINE_TEMPLATE void QList<T>::free(QListData::Data *data)
 {
-    node_destruct((Node*)(data->array + data->begin),
-                  (Node*)(data->array + data->end));
+    node_destruct(reinterpret_cast<Node*>(data->array + data->begin),
+                  reinterpret_cast<Node*>(data->array + data->end));
     if (data->ref == 0)
         qFree(data);
 }
@@ -448,7 +449,7 @@ Q_OUTOFLINE_TEMPLATE int QList<T>::removeAll(const T &t)
     int count=0, i=0;
     Node *n;
     while (i < p.size())
-        if ((n = (Node*)p.at(i))->t() == t) {
+        if ((n = reinterpret_cast<Node*>(p.at(i)))->t() == t) {
             node_destruct(n);
             p.remove(i);
             ++count;
@@ -473,8 +474,8 @@ template <typename T>
 Q_OUTOFLINE_TEMPLATE QList<T> &QList<T>::operator+=(const QList<T> &l)
 {
     detach();
-    Node *n = (Node*)p.append(l.p);
-    node_copy(n, (Node*) p.end(), (Node*) l.p.begin());
+    Node *n = reinterpret_cast<Node*>(p.append(l.p));
+    node_copy(n, reinterpret_cast<Node*>(p.end()), reinterpret_cast<Node*>(l.p.begin()));
     return *this;
 }
 
@@ -484,11 +485,11 @@ Q_OUTOFLINE_TEMPLATE int QList<T>::indexOf(const T &t, int from) const
     if (from < 0)
         from = qMax(from + p.size(), 0);
     if (from < p.size()) {
-        Node *n = (Node*) p.at(from -1);
-        Node *e = (Node*) p.end();
+        Node *n = reinterpret_cast<Node*>(p.at(from -1));
+        Node *e = reinterpret_cast<Node*>(p.end());
         while (++n != e)
             if (n->t() == t)
-                return n - (Node*)p.begin();
+                return n - reinterpret_cast<Node*>(p.begin());
     }
     return -1;
 }
@@ -501,8 +502,8 @@ Q_OUTOFLINE_TEMPLATE int QList<T>::lastIndexOf(const T &t, int from) const
     else if (from >= p.size())
         from = p.size()-1;
     if (from >= 0) {
-        Node *b = (Node*) p.begin();
-        Node *n = (Node*) p.at(from + 1);
+        Node *b = reinterpret_cast<Node*>(p.begin());
+        Node *n = reinterpret_cast<Node*>(p.at(from + 1));
         while (n-- != b) {
             if (n->t() == t)
                 return n - b;
@@ -514,8 +515,8 @@ Q_OUTOFLINE_TEMPLATE int QList<T>::lastIndexOf(const T &t, int from) const
 template <typename T>
 Q_OUTOFLINE_TEMPLATE QBool QList<T>::contains(const T &t) const
 {
-    Node *b = (Node*) p.begin();
-    Node *i = (Node*) p.end();
+    Node *b = reinterpret_cast<Node*>(p.begin());
+    Node *i = reinterpret_cast<Node*>(p.end());
     while (i-- != b)
         if (i->t() == t)
             return QBool(true);
@@ -526,8 +527,8 @@ template <typename T>
 Q_OUTOFLINE_TEMPLATE int QList<T>::count(const T &t) const
 {
     int c = 0;
-    Node *b = (Node*) p.begin();
-    Node *i = (Node*) p.end();
+    Node *b = reinterpret_cast<Node*>(p.begin());
+    Node *i = reinterpret_cast<Node*>(p.end());
     while (i-- != b)
         if (i->t() == t)
             ++c;

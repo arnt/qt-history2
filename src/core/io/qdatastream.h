@@ -135,37 +135,37 @@ inline void QDataStream::setVersion(int v)
 { ver = v; }
 
 inline QDataStream &QDataStream::operator>>(Q_UINT8 &i)
-{ return *this >> (Q_INT8&)i; }
+{ return *this >> reinterpret_cast<Q_INT8&>(i); }
 
 inline QDataStream &QDataStream::operator>>(Q_UINT16 &i)
-{ return *this >> (Q_INT16&)i; }
+{ return *this >> reinterpret_cast<Q_INT16&>(i); }
 
 inline QDataStream &QDataStream::operator>>(Q_UINT32 &i)
-{ return *this >> (Q_INT32&)i; }
+{ return *this >> reinterpret_cast<Q_INT32&>(i); }
 
 inline QDataStream &QDataStream::operator>>(Q_UINT64 &i)
-{ return *this >> (Q_INT64&)i; }
+{ return *this >> reinterpret_cast<Q_INT64&>(i); }
 
 #if !defined(Q_OS_WIN64)
 inline QDataStream &QDataStream::operator>>(Q_ULONG &i)
-{ return *this >> (Q_LONG&)i; }
+{ return *this >> reinterpret_cast<Q_LONG&>(i); }
 #endif
 
 inline QDataStream &QDataStream::operator<<(Q_UINT8 i)
-{ return *this << (Q_INT8)i; }
+{ return *this << Q_INT8(i); }
 
 inline QDataStream &QDataStream::operator<<(Q_UINT16 i)
-{ return *this << (Q_INT16)i; }
+{ return *this << Q_INT16(i); }
 
 inline QDataStream &QDataStream::operator<<(Q_UINT32 i)
-{ return *this << (Q_INT32)i; }
+{ return *this << Q_INT32(i); }
 
 inline QDataStream &QDataStream::operator<<(Q_UINT64 i)
-{ return *this << (Q_INT64)i; }
+{ return *this << Q_INT64(i); }
 
 #if !defined(Q_OS_WIN64)
 inline QDataStream &QDataStream::operator<<(Q_ULONG i)
-{ return *this << (Q_LONG)i; }
+{ return *this << Q_LONG(i); }
 #endif
 
 template <typename T>
@@ -188,7 +188,7 @@ QDataStream& operator>>(QDataStream& s, QList<T>& l)
 template <typename T>
 QDataStream& operator<<(QDataStream& s, const QList<T>& l)
 {
-    s << (Q_UINT32)l.size();
+    s << Q_UINT32(l.size());
     for (int i = 0; i < l.size(); ++i)
         s << l.at(i);
     return s;
@@ -214,7 +214,7 @@ QDataStream& operator>>(QDataStream& s, QLinkedList<T>& l)
 template <typename T>
 QDataStream& operator<<(QDataStream& s, const QLinkedList<T>& l)
 {
-    s << (Q_UINT32)l.size();
+    s << Q_UINT32(l.size());
     typename QLinkedList<T>::ConstIterator it = l.constBegin();
     for(; it != l.constEnd(); ++it)
         s << *it;
@@ -256,7 +256,7 @@ QDataStream& operator>>(QDataStream& s, QVector<T>& v)
 template<typename T>
 QDataStream& operator<<(QDataStream& s, const QVector<T>& v)
 {
-    s << (Q_UINT32)v.size();
+    s << Q_UINT32(v.size());
     const T* it = v.begin();
     for(; it != v.end(); ++it)
         s << *it;
@@ -266,7 +266,7 @@ QDataStream& operator<<(QDataStream& s, const QVector<T>& v)
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QDataStream &operator<<(QDataStream &out, const QHash<Key, T>& hash)
 {
-    out << (Q_UINT32)hash.size();
+    out << Q_UINT32(hash.size());
     typename QHash<Key, T>::ConstIterator it = hash.begin();
     while (it != hash.end()) {
         out << it.key() << it.value();
@@ -301,7 +301,7 @@ Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QMap<aKey, aT> &ma
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QDataStream &operator<<(QDataStream &out, const QMap<Key, T> &map)
 {
-    out << (Q_UINT32)map.size();
+    out << Q_UINT32(map.size());
     typename QMap<Key, T>::ConstIterator it = map.begin();
     while (it != map.end()) {
         out << it.key() << it.value();

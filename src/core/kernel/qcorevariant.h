@@ -310,7 +310,7 @@ inline QCoreVariant::QCoreVariant(const QMap<QString,QCoreVariant> &val)
 #endif
 
 inline QCoreVariant::Type QCoreVariant::type() const
-{ return d->type >= QMetaType::User ? UserType : (Type)d->type; }
+{ return d->type >= QMetaType::User ? UserType : static_cast<Type>(d->type); }
 inline bool QCoreVariant::isValid() const
 { return d->type != Invalid; }
 

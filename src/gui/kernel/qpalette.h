@@ -51,7 +51,7 @@ public:
                      Highlight, HighlightedText, Link, LinkVisited,
                      NColorRoles };
 
-    inline ColorGroup currentColorGroup() const { return (ColorGroup)current_group; }
+    inline ColorGroup currentColorGroup() const { return static_cast<ColorGroup>(current_group); }
     inline void setCurrentColorGroup(ColorGroup cg) { current_group = cg; }
 
     inline const QColor &color(ColorGroup cg, ColorRole cr) const

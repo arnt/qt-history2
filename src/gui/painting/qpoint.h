@@ -84,7 +84,7 @@ inline QPoint::QPoint()
 { xp=0; yp=0; }
 
 inline QPoint::QPoint(int xpos, int ypos)
-{ xp=(QCOORD)xpos; yp=(QCOORD)ypos; }
+{ xp = xpos; yp = ypos; }
 
 inline bool QPoint::isNull() const
 { return xp == 0 && yp == 0; }
@@ -96,10 +96,10 @@ inline int QPoint::y() const
 { return yp; }
 
 inline void QPoint::setX(int x)
-{ xp = (QCOORD)x; }
+{ xp = x; }
 
 inline void QPoint::setY(int y)
-{ yp = (QCOORD)y; }
+{ yp = y; }
 
 inline QCOORD &QPoint::rx()
 { return xp; }
@@ -114,10 +114,10 @@ inline QPoint &QPoint::operator-=(const QPoint &p)
 { xp-=p.xp; yp-=p.yp; return *this; }
 
 inline QPoint &QPoint::operator*=(int c)
-{ xp*=(QCOORD)c; yp*=(QCOORD)c; return *this; }
+{ xp *= c; yp *= c; return *this; }
 
 inline QPoint &QPoint::operator*=(double c)
-{ xp=(QCOORD)(xp*c); yp=(QCOORD)(yp*c); return *this; }
+{ xp = qRound(xp*c); yp = qRound(yp*c); return *this; }
 
 inline bool operator==(const QPoint &p1, const QPoint &p2)
 { return p1.xp == p2.xp && p1.yp == p2.yp; }
@@ -138,10 +138,10 @@ inline const QPoint operator*(int c, const QPoint &p)
 { return QPoint(p.xp*c, p.yp*c); }
 
 inline const QPoint operator*(const QPoint &p, double c)
-{ return QPoint((QCOORD)(p.xp*c), (QCOORD)(p.yp*c)); }
+{ return QPoint(qRound(p.xp*c), qRound(p.yp*c)); }
 
 inline const QPoint operator*(double c, const QPoint &p)
-{ return QPoint((QCOORD)(p.xp*c), (QCOORD)(p.yp*c)); }
+{ return QPoint(qRound(p.xp*c), qRound(p.yp*c)); }
 
 inline const QPoint operator-(const QPoint &p)
 { return QPoint(-p.xp, -p.yp); }
@@ -149,16 +149,16 @@ inline const QPoint operator-(const QPoint &p)
 inline QPoint &QPoint::operator/=(int c)
 {
     Q_ASSERT(c != 0);
-    xp/=(QCOORD)c;
-    yp/=(QCOORD)c;
+    xp /= c;
+    yp /= c;
     return *this;
 }
 
 inline QPoint &QPoint::operator/=(double c)
 {
     Q_ASSERT(c != 0.0);
-    xp=(QCOORD)(xp/c);
-    yp=(QCOORD)(yp/c);
+    xp = qRound(xp/c);
+    yp = qRound(yp/c);
     return *this;
 }
 
@@ -171,7 +171,7 @@ inline const QPoint operator/(const QPoint &p, int c)
 inline const QPoint operator/(const QPoint &p, double c)
 {
     Q_ASSERT(c != 0.0);
-    return QPoint((QCOORD)(p.xp/c), (QCOORD)(p.yp/c));
+    return QPoint(qRound(p.xp/c), qRound(p.yp/c));
 }
 
 #ifndef QT_NO_DEBUG

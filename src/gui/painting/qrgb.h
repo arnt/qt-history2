@@ -23,16 +23,16 @@ typedef unsigned int QRgb;                        // RGB triplet
 const QRgb  RGB_MASK    = 0x00ffffff;                // masks RGB values
 
 Q_GUI_EXPORT inline int qRed(QRgb rgb)                // get red part of RGB
-{ return (int)((rgb >> 16) & 0xff); }
+{ return ((rgb >> 16) & 0xff); }
 
 Q_GUI_EXPORT inline int qGreen(QRgb rgb)                // get green part of RGB
-{ return (int)((rgb >> 8) & 0xff); }
+{ return ((rgb >> 8) & 0xff); }
 
 Q_GUI_EXPORT inline int qBlue(QRgb rgb)                // get blue part of RGB
-{ return (int)(rgb & 0xff); }
+{ return (rgb & 0xff); }
 
 Q_GUI_EXPORT inline int qAlpha(QRgb rgb)                // get alpha part of RGBA
-{ return (int)((rgb >> 24) & 0xff); }
+{ return ((rgb >> 24) & 0xff); }
 
 Q_GUI_EXPORT inline QRgb qRgb(int r, int g, int b)// set RGB value
 { return (0xff << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff); }

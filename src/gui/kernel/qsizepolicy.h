@@ -48,11 +48,11 @@ public:
     QSizePolicy() : data(0) { }
 
     QSizePolicy(SizeType hor, SizeType ver, bool hfw = false)
-        : data(hor | (ver<<HSize) | (hfw ? (Q_UINT32)(1<<2*HSize) : 0)) { }
+        : data(hor | (ver<<HSize) | (hfw ? (1U<<2*HSize) : 0)) { }
     QSizePolicy(SizeType hor, SizeType ver, uchar hors, uchar vers, bool hfw = false);
 
-    SizeType horData() const { return (SizeType)(data & HMask); }
-    SizeType verData() const { return (SizeType)((data & VMask) >> HSize); }
+    SizeType horData() const { return static_cast<SizeType>(data & HMask); }
+    SizeType verData() const { return static_cast<SizeType>((data & VMask) >> HSize); }
 
     bool mayShrinkHorizontally() const { return horData() & MayShrink || horData() == Ignored; }
     bool mayShrinkVertically() const { return verData() & MayShrink || verData() == Ignored; }
@@ -61,16 +61,14 @@ public:
 
     ExpandData expanding() const
     {
-        return (ExpandData)((int)(verData() & ExpMask ? Vertically : 0) |
-                             (int)(horData() & ExpMask ? Horizontally : 0));
+        return static_cast<ExpandData>(int(verData() & ExpMask ? Vertically : 0)
+                                       | int(horData() & ExpMask ? Horizontally : 0));
     }
 
-    void setHorData(SizeType d) { data = (Q_UINT32)(data & ~HMask) | d; }
-    void setVerData(SizeType d) { data = (Q_UINT32)(data & ~(HMask << HSize)) |
-                                           (d << HSize); }
+    void setHorData(SizeType d) { data = (data & ~HMask) | d; }
+    void setVerData(SizeType d) { data = (data & ~(HMask << HSize)) | (d << HSize); }
 
-    void setHeightForWidth(bool b) { data = b ? (Q_UINT32)(data | (1 << 2*HSize))
-                                              : (Q_UINT32)(data & ~(1 << 2*HSize));  }
+    void setHeightForWidth(bool b) { data = b ? (data | (1 << 2*HSize)) : (data & ~(1 << 2*HSize));  }
     bool hasHeightForWidth() const { return data & (1 << 2*HSize); }
 
     bool operator==(const QSizePolicy& s) const { return data == s.data; }
@@ -84,7 +82,7 @@ public:
     inline void transpose();
 
 private:
-    QSizePolicy(int i) : data((Q_UINT32)i) { }
+    QSizePolicy(int i) : data(i) { }
 
     Q_UINT32 data;
 };
@@ -92,7 +90,7 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(QSizePolicy::SizeType);
 
 inline QSizePolicy::QSizePolicy(SizeType hor, SizeType ver, uchar hors, uchar vers, bool hfw)
-    : data(hor | (ver<<HSize) | (hfw ? (Q_UINT32)(1<<2*HSize) : 0)) {
+    : data(hor | (ver<<HSize) | (hfw ? (1U<<2*HSize) : 0)) {
     setHorStretch(hors);
     setVerStretch(vers);
 }

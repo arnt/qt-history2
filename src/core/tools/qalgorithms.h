@@ -199,11 +199,11 @@ void qHeapSortHelper(BiIterator b, BiIterator e, Value, uint n)
     }
 
     // Now do the sorting
-    for (uint i = n; i > 0; i--) {
+    for (int i = n; i > 0; i--) {
         *b++ = heap[1];
         if (i > 1) {
             heap[1] = heap[i];
-            qHeapSortPushDown(heap, 1, (int)i - 1);
+            qHeapSortPushDown(heap, 1, i - 1);
         }
     }
 
@@ -238,7 +238,7 @@ void qHeapSort(Container &c)
 
     // The second last parameter is a hack to retrieve the value type
     // Do the real sorting here
-    qHeapSortHelper(c.begin(), c.end(), *c.begin(), (uint)c.count());
+    qHeapSortHelper(c.begin(), c.end(), *c.begin(), uint(c.count()));
 }
 
 template <class RandomAccessIterator, class T>

@@ -1688,8 +1688,8 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
 #endif
 
 #define Q_DECLARE_PRIVATE(Class) \
-    inline Class##Private* d_func() { return (Class##Private *)d_ptr; } \
-    inline const Class##Private* d_func() const { return (const Class##Private *)d_ptr; } \
+    inline Class##Private* d_func() { return reinterpret_cast<Class##Private *>(d_ptr); } \
+    inline const Class##Private* d_func() const { return reinterpret_cast<const Class##Private *>(d_ptr); } \
     inline Class* q_func() { return this; } \
     inline const Class* q_func() const { return this; } \
     friend class Class##Private;

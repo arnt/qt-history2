@@ -76,22 +76,22 @@ QBitArray operator^(const QBitArray &, const QBitArray &);
 
 inline bool QBitArray::testBit(int i) const
 { Q_ASSERT(i >= 0); if (i >= size()) return false;
- return (*((uchar*)d.constData()+1+(i>>3)) & (1 << (i & 7))) != 0; }
+ return (*(reinterpret_cast<const uchar*>(d.constData())+1+(i>>3)) & (1 << (i & 7))) != 0; }
 
 inline void QBitArray::setBit(int i)
 { Q_ASSERT(i >= 0); if (i >= size()) resize(i+1);
- *((uchar*)d.data()+1+(i>>3)) |= (1 << (i & 7)); }
+ *(reinterpret_cast<uchar*>(d.data())+1+(i>>3)) |= (1 << (i & 7)); }
 
 inline void QBitArray::clearBit(int i)
 { Q_ASSERT(i >= 0); if (i >= size()) resize(i+1);
- *((uchar*)d.data()+1+(i>>3)) &= ~(1 << (i & 7)); }
+ *(reinterpret_cast<uchar*>(d.data())+1+(i>>3)) &= ~(1 << (i & 7)); }
 
 inline void QBitArray::setBit(int i, bool val)
 { if (val) setBit(i); else clearBit(i); }
 
 inline bool QBitArray::toggleBit(int i)
 { Q_ASSERT(i >= 0); if (i >= size()) resize(i+1);
- uchar b = 1<< (i&7); uchar* p = (uchar*)d.data()+1+(i>>3);
+ uchar b = 1<< (i&7); uchar* p = reinterpret_cast<uchar*>(d.data())+1+(i>>3);
  uchar c = *p&b; *p^=b; return c!=0; }
 
 inline bool QBitArray::operator[](int i) const { return testBit(i); }

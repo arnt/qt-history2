@@ -404,7 +404,7 @@ public:
     inline void setPosition(Position f)
     { setProperty(CssFloat, f, InFlow); }
     inline Position position() const
-    { return (Position)intProperty(CssFloat, InFlow); }
+    { return static_cast<Position>(intProperty(CssFloat, InFlow)); }
 
     inline void setBorder(int border)
     { setProperty(FrameBorder, border, 0); }

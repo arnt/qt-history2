@@ -28,7 +28,7 @@
 Q_CORE_EXPORT char *qstrdup(const char *);
 
 inline uint qstrlen(const char *str)
-{ return str ? (uint)strlen(str) : 0; }
+{ return str ? uint(strlen(str)) : 0; }
 inline char *qstrcpy(char *dst, const char *src)
 { return src ? strcpy(dst, src) : 0; }
 Q_CORE_EXPORT char *qstrncpy(char *dst, const char *src, uint len);
@@ -301,7 +301,7 @@ inline const char QByteArray::at(int i) const
 inline const char QByteArray::operator[](int i) const
 { Q_ASSERT(i >= 0 && i < size()); return d->data[i]; }
 inline const char QByteArray::operator[](uint i) const
-{ Q_ASSERT(i < (uint)size()); return d->data[i]; }
+{ Q_ASSERT(i < uint(size())); return d->data[i]; }
 inline bool QByteArray::isEmpty() const
 { return d->size == 0; }
 inline QByteArray::operator const char *() const
@@ -463,19 +463,19 @@ inline QByteArray &QByteArray::replace(const char *before, const char *after)
 { return replace(fromRawData(before, strlen(before)), fromRawData(after, strlen(after))); }
 
 inline QByteArray &QByteArray::setNum(short n, int base)
-{ return setNum((Q_LLONG)n, base); }
+{ return setNum(Q_LLONG(n), base); }
 inline QByteArray &QByteArray::setNum(ushort n, int base)
-{ return setNum((Q_ULLONG)n, base); }
+{ return setNum(Q_ULLONG(n), base); }
 inline QByteArray &QByteArray::setNum(int n, int base)
-{ return setNum((Q_LLONG)n, base); }
+{ return setNum(Q_LLONG(n), base); }
 inline QByteArray &QByteArray::setNum(uint n, int base)
-{ return setNum((Q_ULLONG)n, base); }
+{ return setNum(Q_ULLONG(n), base); }
 inline QByteArray &QByteArray::setNum(long n, int base)
-{ return setNum((Q_LLONG)n, base); }
+{ return setNum(Q_LLONG(n), base); }
 inline QByteArray &QByteArray::setNum(ulong n, int base)
-{ return setNum((Q_ULLONG)n, base); }
+{ return setNum(Q_ULLONG(n), base); }
 inline QByteArray &QByteArray::setNum(float n, char f, int prec)
-{ return setNum((double)n,f,prec); }
+{ return setNum(double(n),f,prec); }
 
 
 #ifndef QT_NO_DATASTREAM
@@ -487,9 +487,9 @@ Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QByteArray &);
 Q_CORE_EXPORT QByteArray qCompress(const uchar* data, int nbytes, int compressionLevel = -1);
 Q_CORE_EXPORT QByteArray qUncompress(const uchar* data, int nbytes);
 inline QByteArray qCompress(const QByteArray& data, int compressionLevel = -1)
-{ return qCompress((const uchar *)data.constData(), data.size(), compressionLevel); }
+{ return qCompress(reinterpret_cast<const uchar *>(data.constData()), data.size(), compressionLevel); }
 inline QByteArray qUncompress(const QByteArray& data)
-{ return qUncompress((const uchar*)data.constData(), data.size()); }
+{ return qUncompress(reinterpret_cast<const uchar*>(data.constData()), data.size()); }
 #endif
 
 Q_DECLARE_TYPEINFO(QByteArray, Q_MOVABLE_TYPE);

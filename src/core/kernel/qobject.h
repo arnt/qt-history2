@@ -304,13 +304,13 @@ template <> inline IFace *qt_cast_helper<IFace *>(const QObject *object, IFace *
 
 template<typename T>
 inline T qFindChild(const QObject *o, const QString &name = QString())
-{ return static_cast<T>(qt_qFindChild_helper(o, name, ((T)0)->staticMetaObject)); }
+{ return static_cast<T>(qt_qFindChild_helper(o, name, reinterpret_cast<T>(0)->staticMetaObject)); }
 
 template<typename T>
 inline QList<T> qFindChildren(const QObject *o, const QString &name = QString())
 {
     QList<T> list;
-    qt_qFindChildren_helper(o, name, 0, ((T)0)->staticMetaObject,
+    qt_qFindChildren_helper(o, name, 0, reinterpret_cast<T>(0)->staticMetaObject,
                          reinterpret_cast<QList<void *>*>(&list));
     return list;
 }
@@ -320,7 +320,7 @@ template<typename T>
 inline QList<T> qFindChildren(const QObject *o, const QRegExp &re)
 {
     QList<T> list;
-    qt_qFindChildren_helper(o, 0, &re, ((T)0)->staticMetaObject,
+    qt_qFindChildren_helper(o, 0, &re, reinterpret_cast<T>(0)->staticMetaObject,
                         reinterpret_cast<QList<void*>*>(&list));
     return list;
 }
@@ -328,11 +328,11 @@ inline QList<T> qFindChildren(const QObject *o, const QRegExp &re)
 
 template <class T>
 inline T qt_cast(QObject *object)
-{ return static_cast<T>(((T)0)->staticMetaObject.cast(object)); }
+{ return static_cast<T>(reinterpret_cast<T>(0)->staticMetaObject.cast(object)); }
 
 template <class T>
 inline T qt_cast(const QObject *object)
-{ return static_cast<T>(const_cast<const QObject *>(((T)0)->staticMetaObject.cast(const_cast<QObject *>(object)))); }
+{ return static_cast<T>(const_cast<const QObject *>(reinterpret_cast<T>(0)->staticMetaObject.cast(const_cast<QObject *>(object)))); }
 
 
 #define Q_DECLARE_INTERFACE(IFace, IId) \

@@ -112,7 +112,7 @@ private:        // Disabled copy constructor and operator=
 };
 
 inline bool QLCDNumber::smallDecimalPoint() const
-{ return (bool)smallPoint; }
+{ return smallPoint; }
 
 inline int QLCDNumber::numDigits() const
 { return ndigits; }

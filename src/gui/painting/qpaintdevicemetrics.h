@@ -37,16 +37,16 @@ public:
         PdmPhysicalDpiY
     };
 
-    int          width()        const        { return (int)pdev->metric(PdmWidth); }
-    int          height()        const        { return (int)pdev->metric(PdmHeight); }
-    int          widthMM()        const        { return (int)pdev->metric(PdmWidthMM); }
-    int          heightMM()        const        { return (int)pdev->metric(PdmHeightMM); }
-    int          logicalDpiX()        const        { return (int)pdev->metric(PdmDpiX); }
-    int          logicalDpiY()        const        { return (int)pdev->metric(PdmDpiY); }
-    int          physicalDpiX()const        { return (int)pdev->metric(PdmPhysicalDpiX); }
-    int          physicalDpiY()const        { return (int)pdev->metric(PdmPhysicalDpiY); }
-    int          numColors()        const        { return (int)pdev->metric(PdmNumColors); }
-    int          depth()        const        { return (int)pdev->metric(PdmDepth); }
+    int          width()        const        { return pdev->metric(PdmWidth); }
+    int          height()        const        { return pdev->metric(PdmHeight); }
+    int          widthMM()        const        { return pdev->metric(PdmWidthMM); }
+    int          heightMM()        const        { return pdev->metric(PdmHeightMM); }
+    int          logicalDpiX()        const        { return pdev->metric(PdmDpiX); }
+    int          logicalDpiY()        const        { return pdev->metric(PdmDpiY); }
+    int          physicalDpiX()const        { return pdev->metric(PdmPhysicalDpiX); }
+    int          physicalDpiY()const        { return pdev->metric(PdmPhysicalDpiY); }
+    int          numColors()        const        { return pdev->metric(PdmNumColors); }
+    int          depth()        const        { return pdev->metric(PdmDepth); }
 
 private:
     QPaintDevice *pdev;

@@ -83,7 +83,7 @@ inline QSize::QSize()
 { wd = ht = -1; }
 
 inline QSize::QSize(int w, int h)
-{ wd=(QCOORD)w; ht=(QCOORD)h; }
+{ wd = w; ht = h; }
 
 inline bool QSize::isNull() const
 { return wd==0 && ht==0; }
@@ -101,10 +101,10 @@ inline int QSize::height() const
 { return ht; }
 
 inline void QSize::setWidth(int w)
-{ wd=(QCOORD)w; }
+{ wd = w; }
 
 inline void QSize::setHeight(int h)
-{ ht=(QCOORD)h; }
+{ ht = h; }
 
 inline void QSize::scale(int w, int h, Qt::ScaleMode mode)
 { scale(QSize(w, h), mode); }
@@ -122,10 +122,10 @@ inline QSize &QSize::operator-=(const QSize &s)
 { wd-=s.wd; ht-=s.ht; return *this; }
 
 inline QSize &QSize::operator*=(int c)
-{ wd*=(QCOORD)c; ht*=(QCOORD)c; return *this; }
+{ wd *= c; ht *= c; return *this; }
 
 inline QSize &QSize::operator*=(double c)
-{ wd=(QCOORD)(wd*c); ht=(QCOORD)(ht*c); return *this; }
+{ wd = qRound(wd*c); ht = qRound(ht*c); return *this; }
 
 inline bool operator==(const QSize &s1, const QSize &s2)
 { return s1.wd == s2.wd && s1.ht == s2.ht; }
@@ -146,22 +146,22 @@ inline const QSize operator*(int c, const QSize &s)
 {  return QSize(s.wd*c, s.ht*c); }
 
 inline const QSize operator*(const QSize &s, double c)
-{ return QSize((QCOORD)(s.wd*c), (QCOORD)(s.ht*c)); }
+{ return QSize(qRound(s.wd*c), qRound(s.ht*c)); }
 
 inline const QSize operator*(double c, const QSize &s)
-{ return QSize((QCOORD)(s.wd*c), (QCOORD)(s.ht*c)); }
+{ return QSize(qRound(s.wd*c), qRound(s.ht*c)); }
 
 inline QSize &QSize::operator/=(int c)
 {
     Q_ASSERT(c != 0);
-    wd/=(QCOORD)c; ht/=(QCOORD)c;
+    wd /= c; ht /= c;
     return *this;
 }
 
 inline QSize &QSize::operator/=(double c)
 {
     Q_ASSERT(c != 0.0);
-    wd=(QCOORD)(wd/c); ht=(QCOORD)(ht/c);
+    wd = qRound(wd/c); ht = qRound(ht/c);
     return *this;
 }
 
@@ -174,7 +174,7 @@ inline const QSize operator/(const QSize &s, int c)
 inline const QSize operator/(const QSize &s, double c)
 {
     Q_ASSERT(c != 0.0);
-    return QSize((QCOORD)(s.wd/c), (QCOORD)(s.ht/c));
+    return QSize(qRound(s.wd/c), qRound(s.ht/c));
 }
 
 inline QSize QSize::expandedTo(const QSize & otherSize) const

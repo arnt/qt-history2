@@ -181,8 +181,8 @@ static int qRegisterMetaType(const char *typeName, T * = 0)
     typedef void(*DeletePtr)(T*);
     DeletePtr dptr = qMetaTypeDeleteHelper<T>;
 
-    return QMetaType::registerType(typeName, (QMetaType::Destructor)dptr,
-                                   (QMetaType::CopyConstructor)cptr);
+    return QMetaType::registerType(typeName, reinterpret_cast<QMetaType::Destructor>(dptr),
+                                   reinterpret_cast<QMetaType::CopyConstructor>(cptr));
 }
 
 template <typename T>
@@ -193,8 +193,8 @@ static void qRegisterMetaTypeStreamOperators(const char *typeName, T * = 0)
     SavePtr sptr = qMetaTypeSaveHelper<T>;
     LoadPtr lptr = qMetaTypeLoadHelper<T>;
 
-    QMetaType::registerStreamOperators(typeName, (QMetaType::SaveOperator)sptr,
-                                       (QMetaType::LoadOperator)lptr);
+    QMetaType::registerStreamOperators(typeName, reinterpret_cast<QMetaType::SaveOperator>(sptr),
+                                       reinterpret_cast<QMetaType::LoadOperator>(lptr));
 }
 
 #endif // QMETAOBJECT_H

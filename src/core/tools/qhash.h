@@ -61,7 +61,7 @@ template <class T> inline uint qHash(const T *key)
     if (sizeof(const T *) > sizeof(uint))
         return qHash(reinterpret_cast<Q_ULLONG>(key));
     else
-        return static_cast<uint>(reinterpret_cast<ulong>(key));
+        return uint(reinterpret_cast<ulong>(key));
 }
 
 struct Q_CORE_EXPORT QHashData

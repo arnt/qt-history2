@@ -150,26 +150,26 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QRect &);
 
 inline QRect::QRect(int left, int top, int width, int height)
 {
-    x1 = (QCOORD)left;
-    y1 = (QCOORD)top;
-    x2 = (QCOORD)(left + width - 1);
-    y2 = (QCOORD)(top + height - 1);
+    x1 = left;
+    y1 = top;
+    x2 = (left + width - 1);
+    y2 = (top + height - 1);
 }
 
 inline QRect::QRect(const QPoint &topLeft, const QPoint &bottomRight)
 {
-    x1 = (QCOORD)topLeft.x();
-    y1 = (QCOORD)topLeft.y();
-    x2 = (QCOORD)bottomRight.x();
-    y2 = (QCOORD)bottomRight.y();
+    x1 = topLeft.x();
+    y1 = topLeft.y();
+    x2 = bottomRight.x();
+    y2 = bottomRight.y();
 }
 
 inline QRect::QRect(const QPoint &topLeft, const QSize &size)
 {
-    x1 = (QCOORD)topLeft.x();
-    y1 = (QCOORD)topLeft.y();
-    x2 = (QCOORD)(x1+size.width() - 1);
-    y2 = (QCOORD)(y1+size.height() - 1);
+    x1 = topLeft.x();
+    y1 = topLeft.y();
+    x2 = (x1+size.width() - 1);
+    y2 = (y1+size.height() - 1);
 }
 
 inline bool QRect::isNull() const
@@ -212,16 +212,16 @@ inline int QRect::y() const
 { return y1; }
 
 inline void QRect::setLeft(int pos)
-{ x1 = (QCOORD)pos; }
+{ x1 = pos; }
 
 inline void QRect::setTop(int pos)
-{ y1 = (QCOORD)pos; }
+{ y1 = pos; }
 
 inline void QRect::setRight(int pos)
-{ x2 = (QCOORD)pos; }
+{ x2 = pos; }
 
 inline void QRect::setBottom(int pos)
-{ y2 = (QCOORD)pos; }
+{ y2 = pos; }
 
 inline void QRect::setTopLeft(const QPoint &p)
 { x1 = p.x(); y1 = p.y(); }
@@ -236,10 +236,10 @@ inline void QRect::setBottomLeft(const QPoint &p)
 { x1 = p.x(); y2 = p.y(); }
 
 inline void QRect::setX(int x)
-{ x1 = (QCOORD)x; }
+{ x1 = x; }
 
 inline void QRect::setY(int y)
-{ y1 = (QCOORD)y; }
+{ y1 = y; }
 
 inline QPoint QRect::topLeft() const
 { return QPoint(x1, y1); }
@@ -267,36 +267,36 @@ inline QSize QRect::size() const
 
 inline void QRect::moveBy(int dx, int dy)
 {
-    x1 += (QCOORD)dx;
-    y1 += (QCOORD)dy;
-    x2 += (QCOORD)dx;
-    y2 += (QCOORD)dy;
+    x1 += dx;
+    y1 += dy;
+    x2 += dx;
+    y2 += dy;
 }
 
 inline void QRect::moveBy(const QPoint &p)
 {
-    x1 += (QCOORD)p.x();
-    y1 += (QCOORD)p.y();
-    x2 += (QCOORD)p.x();
-    y2 += (QCOORD)p.y();
+    x1 += p.x();
+    y1 += p.y();
+    x2 += p.x();
+    y2 += p.y();
 }
 
 inline void QRect::moveLeft(int pos)
-{ x2 += (QCOORD)(pos - x1); x1 = (QCOORD)pos; }
+{ x2 += (pos - x1); x1 = pos; }
 
 inline void QRect::moveTop(int pos)
-{ y2 += (QCOORD)(pos - y1); y1 = (QCOORD)pos; }
+{ y2 += (pos - y1); y1 = pos; }
 
 inline void QRect::moveRight(int pos)
 {
-    x1 += (QCOORD)(pos - x2);
-    x2 = (QCOORD)pos;
+    x1 += (pos - x2);
+    x2 = pos;
 }
 
 inline void QRect::moveBottom(int pos)
 {
-    y1 += (QCOORD)(pos - y2);
-    y2 = (QCOORD)pos;
+    y1 += (pos - y2);
+    y2 = pos;
 }
 
 inline void QRect::moveTopLeft(const QPoint &p)
@@ -333,10 +333,10 @@ inline void QRect::getRect(int *x, int *y, int *w, int *h) const
 
 inline void QRect::setRect(int x, int y, int w, int h)
 {
-    x1 = (QCOORD)x;
-    y1 = (QCOORD)y;
-    x2 = (QCOORD)(x + w - 1);
-    y2 = (QCOORD)(y + h - 1);
+    x1 = x;
+    y1 = y;
+    x2 = (x + w - 1);
+    y2 = (y + h - 1);
 }
 
 inline void QRect::getCoords(int *xp1, int *yp1, int *xp2, int *yp2) const
@@ -349,30 +349,30 @@ inline void QRect::getCoords(int *xp1, int *yp1, int *xp2, int *yp2) const
 
 inline void QRect::setCoords(int xp1, int yp1, int xp2, int yp2)
 {
-    x1 = (QCOORD)xp1;
-    y1 = (QCOORD)yp1;
-    x2 = (QCOORD)xp2;
-    y2 = (QCOORD)yp2;
+    x1 = xp1;
+    y1 = yp1;
+    x2 = xp2;
+    y2 = yp2;
 }
 
 inline void QRect::addCoords(int xp1, int yp1, int xp2, int yp2)
 {
-    x1 += (QCOORD)xp1;
-    y1 += (QCOORD)yp1;
-    x2 += (QCOORD)xp2;
-    y2 += (QCOORD)yp2;
+    x1 += xp1;
+    y1 += yp1;
+    x2 += xp2;
+    y2 += yp2;
 }
 
 inline void QRect::setWidth(int w)
-{ x2 = (QCOORD)(x1 + w); }
+{ x2 = (x1 + w); }
 
 inline void QRect::setHeight(int h)
-{ y2 = (QCOORD)(y1 + h); }
+{ y2 = (y1 + h); }
 
 inline void QRect::setSize(const QSize &s)
 {
-    x2 = (QCOORD)(s.width()  + x1 - 1);
-    y2 = (QCOORD)(s.height() + y1 - 1);
+    x2 = (s.width()  + x1 - 1);
+    y2 = (s.height() + y1 - 1);
 }
 
 inline bool QRect::contains(int x, int y, bool proper) const

@@ -740,10 +740,15 @@ template <> inline QWidget *qt_cast_helper<QWidget*>(const QObject *o, QWidget *
     return (QWidget*)(o);
 }
 #else
-template <> inline QWidget *qt_cast<QWidget*>(const QObject *o)
+template <> inline QWidget *qt_cast<QWidget*>(QObject *o)
 {
     if (!o || !o->isWidgetType()) return 0;
-    return (QWidget*)(o);
+    return static_cast<QWidget*>(o);
+}
+template <> inline const QWidget *qt_cast<const QWidget*>(const QObject *o)
+{
+    if (!o || !o->isWidgetType()) return 0;
+    return static_cast<const QWidget*>(o);
 }
 #endif
 
@@ -874,7 +879,7 @@ inline void QWidget::setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeT
 { setSizePolicy(QSizePolicy(hor, ver, hfw)); }
 
 inline bool QWidget::isInputMethodEnabled() const
-{ return (bool)data->im_enabled; }
+{ return data->im_enabled; }
 
 inline bool QWidget::testAttribute(Qt::WidgetAttribute attribute) const
 {

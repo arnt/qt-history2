@@ -89,7 +89,7 @@ public:
     QRect rect() const { return QRect(0,0,data->w,data->h); }
     int depth() const { return data->d; }
     int numColors() const { return data->ncols; }
-    Endian bitOrder() const { return (Endian) data->bitordr; }
+    Endian bitOrder() const { return static_cast<Endian>(data->bitordr); }
 
     QRgb color(int i)        const;
     void setColor(int i, QRgb c);
@@ -369,7 +369,7 @@ inline QImage QImage::copy(const QRect& r) const
 inline QRgb QImage::color(int i) const
 {
     Q_ASSERT(i < numColors());
-    return data->ctbl ? data->ctbl[i] : (QRgb)-1;
+    return data->ctbl ? data->ctbl[i] : QRgb(uint(-1));
 }
 
 inline void QImage::setColor(int i, QRgb c)

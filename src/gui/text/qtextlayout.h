@@ -34,7 +34,7 @@ class Q_GUI_EXPORT QTextInlineObject
 public:
     QTextInlineObject(int i, QTextEngine *e) : itm(i), eng(e) {}
     inline QTextInlineObject() : itm(0), eng(0) {}
-    inline bool isValid() const { return (bool)eng; }
+    inline bool isValid() const { return eng; }
 
     QRect rect() const;
     int width() const;
@@ -185,7 +185,7 @@ class Q_GUI_EXPORT QTextLine
 {
 public:
     inline QTextLine() : i(0), eng(0) {}
-    inline bool isValid() const { return (bool)eng; }
+    inline bool isValid() const { return eng; }
 
     QRect rect() const;
     int x() const;

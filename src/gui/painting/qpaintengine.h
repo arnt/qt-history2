@@ -175,14 +175,14 @@ public:
            Qt2Compat                 = 0x00040000 };
     inline bool testf(uint b) const { return (flags&b)!=0; }
     inline void setf(uint b) { flags |= b; }
-    inline void clearf(uint b) { flags &= (uint)(~b); }
-    inline void assignf(uint b) { flags = (uint) b; }
+    inline void clearf(uint b) { flags &= (~b); }
+    inline void assignf(uint b) { flags = b; }
     inline void fix_neg_rect(int *x, int *y, int *w, int *h);
     inline bool hasClipping() const { return testf(ClipOn); }
 
     inline bool testDirty(DirtyFlags df) { return (dirtyFlag & df) != 0; }
     inline void setDirty(DirtyFlags df) { dirtyFlag |= df; }
-    inline void clearDirty(DirtyFlags df) { dirtyFlag &= (uint)(~df); }
+    inline void clearDirty(DirtyFlags df) { dirtyFlag &= ~static_cast<uint>(df); }
 
     bool hasFeature(PaintEngineFeatures feature) const { return (gccaps & feature) != 0; }
 
