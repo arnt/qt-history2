@@ -214,16 +214,16 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
     t.replace(QRegExp("\\.*$"), ""); //no ellipses
     //now the fun part
     uint ret = 0;
-    if(t.find(tr("about"), 0, FALSE) == 0) {
+    if(t.find(tr("About").lower(), 0, FALSE) == 0) {
 	if(t.find(QRegExp("qt$", FALSE)) == -1)
 	    ret = kHICommandAbout;
 	else
 	    ret = 'CUTE';
-    } else if(t.find(tr("config"), 0, FALSE) == 0 || t.find(tr("preference"), 0, FALSE) == 0 ||
-	      t.find(tr("options"), 0, FALSE) == 0 || t.find(tr("setting"), 0, FALSE) == 0 ||
-	      t.find(tr("setup"), 0, FALSE) == 0 ) {
+    } else if(t.find(tr("Config").lower(), 0, FALSE) == 0 || t.find(tr("Preference").lower(), 0, FALSE) == 0 ||
+	      t.find(tr("Options").lower(), 0, FALSE) == 0 || t.find(tr("Setting").lower(), 0, FALSE) == 0 ||
+	      t.find(tr("Setup").lower(), 0, FALSE) == 0 ) {
 	ret = kHICommandPreferences;
-    } else if(t.find(tr("quit"), 0, FALSE) == 0 || t.find(tr("exit"), 0, FALSE) == 0) {
+    } else if(t.find(tr("Quit").lower(), 0, FALSE) == 0 || t.find(tr("Exit").lower(), 0, FALSE) == 0) {
 	ret = kHICommandQuit;
     }
     //shall we?
@@ -241,7 +241,7 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 		    text.remove(st, text.length()-st);
 		text.replace(QRegExp("\\.*$"), ""); //no ellipses
 #ifdef Q_WS_MACX
-		if(ret == kHICommandAbout && text.lower() == tr("about")) {
+		if(ret == kHICommandAbout && text.lower() == tr("About").lower()) {
 		    QString prog = qApp->argv()[0];
 		    text += " " + prog.section('/', -1, -1);;
 		}
