@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#299 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#300 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -86,7 +86,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#299 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#300 $");
 
 
 /*****************************************************************************
@@ -175,7 +175,7 @@ static void	qt_save_rootinfo();
 static bool	qt_try_modal( QWidget *, XEvent * );
 void		qt_reset_color_avail();		// defined in qcol_x11.cpp
 
-int		qt_ncols_option  = 256;		// used in qcol_x11.cpp
+int		qt_ncols_option  = 216;		// used in qcol_x11.cpp
 int		qt_visual_option = -1;
 bool		qt_cmap_option	 = FALSE;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#69 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#69 $");
 
 
 /*****************************************************************************
@@ -43,7 +43,6 @@ typedef Q_DECLARE(QIntDictIteratorM,QColorData) QColorDictIt;
 static QColorDict *colorDict  = 0;		// dict of allocated colors
 
 static bool	colors_avail  = TRUE;		// X colors available
-static bool	colors_frozen = FALSE;		// allocating disabled
 static int	current_alloc_context = 0;	// current color alloc context
 static Visual  *g_vis	= 0;			// visual
 static XColor  *g_carr	= 0;			// color array
@@ -53,8 +52,13 @@ static bool    *g_our_alloc = 0;		// our allocated colors
 static bool	g_truecolor;
 static uint	red_mask , green_mask , blue_mask;
 static int	red_shift, green_shift, blue_shift;
-static const int q_col_std_dict = 419;
-static const int q_col_large_dict = 18397;
+static const int col_std_dict = 419;
+static const int col_large_dict = 18397;
+
+static bool	color_reduce = FALSE;
+static int	col_div_r;
+static int	col_div_g;
+static int	col_div_b;
 
 extern int	qt_ncols_option;		// defined in qapp_x11.cpp
 extern int	qt_visual_option;
@@ -78,22 +82,16 @@ void qt_reset_color_avail()
 
 
 /*
-  Finds the nearest color.  If colors_frozen is TRUE, we only search among
-  the colors we have already allocated and not colors that have been
-  allocated by other applications.
+  Finds the nearest color.
 */
 
-static int find_nearest_color( int r, int g, int b )
+static int find_nearest_color( int r, int g, int b, int* mindist_out )
 {
     int mincol = -1;
     int mindist = 200000;
     int rx, gx, bx, dist;
     XColor *xc = &g_carr[0];
     for ( int i=0; i<g_cells; i++ ) {
-	if ( colors_frozen && !g_our_alloc[i] ) {
-	    xc++;				// skip color we didn't alloc
-	    continue;
-	}
 	rx = r - (xc->red >> 8);
 	gx = g - (xc->green >> 8);
 	bx = b - (xc->blue>> 8);
@@ -104,6 +102,7 @@ static int find_nearest_color( int r, int g, int b )
 	}
 	xc++;
     }
+    *mindist_out = mindist;
     return mincol;
 }
 
@@ -278,7 +277,7 @@ void QColor::initialize()
 	green_shift = highest_bit( green_mask ) - 7;
 	blue_shift  = highest_bit( blue_mask )	- 7;
     } else {
-	dictsize = q_col_std_dict;
+	dictsize = col_std_dict;
     }
     colorDict = new QColorDict(dictsize);	// create dictionary
     CHECK_PTR( colorDict );
@@ -297,79 +296,42 @@ void QColor::initialize()
 
 #if QT_VERSION == 200
 #error "Remove old colorspecs"
-    if ( spec == (int)QApplication::ManyColor && !g_truecolor ) {
+    if ( spec == (int)QApplication::ManyColor ) {
 #else /* } bracket match */
-    if ( (spec & ((int)QApplication::ManyColor | 2)) && !g_truecolor ) {
+    if ( spec & ((int)QApplication::ManyColor | 2) ) {
 #endif
-	// Allocate a color cube, starting from the most common and extreme
-	// colours in the cube, then each most-distant color.
-	static QRgb cmap[216] = {
-	    0x000000, 0xffffff, 0x0000ff, 0x00ff00,
-	    0xff0000, 0x00ffff, 0xffff00, 0xff00ff,
-	    0x00ff99, 0xff0099, 0xcccc00, 0x6699ff,
-	    0x666666, 0x33ff00, 0xff3300, 0xff66ff,
-	    0x9900ff, 0x99ff99, 0xff9966, 0x009933,
-	    0x990033, 0x33ffff, 0x0099cc, 0x003399,
-	    0x660099, 0x669900, 0x99ffff, 0xff00ff,
-	    0xffff99, 0xcccccc, 0x9966cc, 0x66cc66,
-	    0xcc3366, 0xffff33, 0x99ff33, 0x333333,
-	    0x00ccff, 0xcc99ff, 0x3366ff, 0xcc33ff,
-	    0x6633ff, 0x66ffcc, 0x33cccc, 0xff99cc,
-	    0xff33cc, 0x3333cc, 0xcc00cc, 0xcc9999,
-	    0x669999, 0xff6699, 0x336699, 0x993399,
-	    0xccff66, 0x33ff66, 0x00cc66, 0x999966,
-	    0x339966, 0x006666, 0x330066, 0x00ff33,
-	    0x33cc33, 0xcc9933, 0xff6633, 0x996633,
-	    0xff0033, 0x00cc00, 0xff9900, 0xcc6600,
-	    0x336600, 0x993300, 0xcc0000, 0x660000,
-	    0xccffff, 0x66ffff, 0x00ffff, 0xffccff,
-	    0xccccff, 0x99ccff, 0x66ccff, 0x33ccff,
-	    0xff99ff, 0x9999ff, 0x3399ff, 0x0099ff,
-	    0xcc66ff, 0x9966ff, 0x6666ff, 0x0066ff,
-	    0xff33ff, 0x9933ff, 0x3333ff, 0x0033ff,
-	    0xcc00ff, 0x6600ff, 0x3300ff, 0xffffcc,
-	    0xccffcc, 0x99ffcc, 0x33ffcc, 0x00ffcc,
-	    0xffcccc, 0x99cccc, 0x66cccc, 0x00cccc,
-	    0xcc99cc, 0x9999cc, 0x6699cc, 0x3399cc,
-	    0xff66cc, 0xcc66cc, 0x6666cc, 0x3366cc,
-	    0x0066cc, 0xcc33cc, 0x9933cc, 0x6633cc,
-	    0x0033cc, 0xff00cc, 0x9900cc, 0x6600cc,
-	    0x3300cc, 0x0000cc, 0xccff99, 0x66ff99,
-	    0x33ff99, 0xffcc99, 0xcccc99, 0x99cc99,
-	    0x66cc99, 0x33cc99, 0x00cc99, 0xff9999,
-	    0x999999, 0x339999, 0x009999, 0xcc6699,
-	    0x996699, 0x666699, 0x006699, 0xff3399,
-	    0xcc3399, 0x663399, 0x333399, 0xcc0099,
-	    0x990099, 0x330099, 0x000099, 0xffff66,
-	    0x99ff66, 0x66ff66, 0x00ff66, 0xffcc66,
-	    0xcccc66, 0x99cc66, 0x33cc66, 0xcc9966,
-	    0x669966, 0x009966, 0xff6666, 0xcc6666,
-	    0x996666, 0x336666, 0xff3366, 0x993366,
-	    0x663366, 0x333366, 0x003366, 0xff0066,
-	    0xcc0066, 0x990066, 0x660066, 0x000066,
-	    0xccff33, 0x66ff33, 0x33ff33, 0xffcc33,
-	    0xcccc33, 0x99cc33, 0x66cc33, 0x00cc33,
-	    0xff9933, 0x999933, 0x669933, 0x339933,
-	    0xcc6633, 0x666633, 0x336633, 0x006633,
-	    0xff3333, 0xcc3333, 0x993333, 0x663333,
-	    0x003333, 0xcc0033, 0x660033, 0x330033,
-	    0x000033, 0xffff00, 0xccff00, 0x99ff00,
-	    0x66ff00, 0x00ff00, 0xffcc00, 0x99cc00,
-	    0x66cc00, 0x33cc00, 0xcc9900, 0x999900,
-	    0x339900, 0x009900, 0xff6600, 0x996600,
-	    0x666600, 0x006600, 0xcc3300, 0x663300,
-	};
+	color_reduce = TRUE;
 
-	if ( qt_ncols_option > 216 )
-	    qt_ncols_option = 216;
-
-	for ( int i=0; i < qt_ncols_option; i++ ) {
-	    QColor c(cmap[i]);
-	    c.alloc();
-        }
-
-	// No more custom allocations: user has set limit
-	colors_frozen = TRUE;
+	switch ( qt_ncols_option ) {
+	  case 216:
+	    // 6:6:6
+	    col_div_r = col_div_g = col_div_b = (255/(6-1));
+	    break;
+	  case 108:
+	    // 3:3:3
+	    col_div_r = col_div_g = col_div_b = (255/(3-1));
+	    break;
+	  default:
+	    // 2:3:1 proportions, solved numerically
+	    if ( qt_ncols_option > 255 ) qt_ncols_option = 255;
+	    if ( qt_ncols_option < 1 ) qt_ncols_option = 1;
+	    int nr = 2;
+	    int ng = 2;
+	    int nb = 2;
+	    while ( 1 ) {
+		if ( nb*2 < nr && (nb+1)*nr*ng < qt_ncols_option )
+		    nb++;
+		else if ( nr*3 < ng*2 && nb*(nr+1)*ng < qt_ncols_option )
+		    nr++;
+		else if ( nb*nr*(ng+1) < qt_ncols_option )
+		    ng++;
+		else break;
+	    }
+	    qt_ncols_option = nr*ng*nb;
+	    col_div_r = (255/(nr-1));
+	    col_div_g = (255/(ng-1));
+	    col_div_b = (255/(nb-1));
+	}
     }
 
 #if 0 /* 0 == allocate colors on demand */
@@ -463,31 +425,23 @@ uint QColor::alloc()
 	}
 	return pix;
     }
+
     XColor col;
     col.red   = r << 8;
     col.green = g << 8;
     col.blue  = b << 8;
 
     bool try_again = FALSE;
+    bool try_alloc = !color_reduce;
     int  try_count = 0;
 
-    if ( colors_frozen ) {
-	// Find the nearest color we have already allocated
-	pix = find_nearest_color( r, g, b );
-	if ( (int)pix == -1 ) {			// no nearest color?!
-	    rgbVal |= RGB_INVALID;
-	    pix = BlackPixel( dpy, scr );
-	    return pix;
-	} else {
-	    rgbVal &= RGB_MASK;
-	}
-    }
-
-    else  do {
+    do {
 	// This loop is run until we manage to either allocate or
 	// find an approximate color, it stops after 100 iterations.
 
-	if ( colors_avail &&
+	try_again = FALSE;
+
+	if ( try_alloc && colors_avail &&
 	     XAllocColor(dpy,QPaintDevice::x11Colormap(),&col) ) {
 
 	    // We could allocate the color
@@ -498,7 +452,6 @@ uint QColor::alloc()
 		g_our_alloc[pix] = TRUE;	// reuse without XAllocColor
 
 	} else {
-
 	    // No available colors
 	    int i;
 	    colors_avail = FALSE;		// no more available colors
@@ -506,26 +459,56 @@ uint QColor::alloc()
 		g_carr_fetch = FALSE;
 		XQueryColors(dpy, QPaintDevice::x11Colormap(), g_carr,g_cells);
 	    }
-	    i = find_nearest_color( r, g, b );
+	    int mindist;
+	    i = find_nearest_color( r, g, b, &mindist );
+
+	    if ( mindist != 0 && !try_alloc ) {
+		// Not an exact match with an existing color
+		int rr = ((r+col_div_r/2)/col_div_r)*col_div_r;
+		int rg = ((g+col_div_g/2)/col_div_g)*col_div_g;
+		int rb = ((b+col_div_b/2)/col_div_b)*col_div_b;
+		int rx = rr - r;
+		int gx = rg - g;
+		int bx = rb - b;
+		int dist = rx*rx + gx*gx + bx*bx;		// calculate distance
+		if ( dist < mindist ) {
+		    // reduced color is closer - try to alloc it
+		    r = rr;
+		    g = rg;
+		    b = rb;
+		    col.red   = r << 8;
+		    col.green = g << 8;
+		    col.blue  = b << 8;
+		    try_alloc = TRUE;
+		    try_again = TRUE;
+		    colors_avail = TRUE;
+		    continue; // Try alloc reduced colour
+		}
+	    }
+
 	    if ( i == -1 ) {			// no nearest color?!
 		rgbVal |= RGB_INVALID;
 		pix = BlackPixel( dpy, scr );
 		return pix;
 	    }
 	    if ( g_our_alloc[i] ) {		// we've already allocated it
-		pix = g_carr[i].pixel;
+		i = g_carr[i].pixel;//#### not needed
 	    } else {
-		if ( XAllocColor(dpy,QPaintDevice::x11Colormap(),&g_carr[i])){
+		// Try to allocate existing color
+		col = g_carr[i];
+		if ( XAllocColor(dpy,QPaintDevice::x11Colormap(), &col) ) {
+		    i = col.pixel;
+		    g_carr[i] = col;		// update color array
 		    if ( current_alloc_context == 0 )
 			g_our_alloc[i] = TRUE;	// only in the default context
 		} else {
+		    // Oops, it's gone again
 		    try_count++;
 		    try_again    = TRUE;
 		    colors_avail = TRUE;
 		    g_carr_fetch = TRUE;
 		}
 	    }
-	    ASSERT(i==(int)g_carr[i].pixel);
 	    if ( !try_again ) {			// got it
 		pix = g_carr[i].pixel;		// allocated X11 color
 		rgbVal &= RGB_MASK;
@@ -541,15 +524,15 @@ uint QColor::alloc()
     }
     // All colors outside context 0 must go into the dictionary
     bool many = colorDict->count() >= colorDict->size() * 8;
-    if ( many && colorDict->size() == q_col_std_dict )
+    if ( many && colorDict->size() == col_std_dict )
     {
-	colorDict->resize( q_col_large_dict );
+	colorDict->resize( col_large_dict );
     }
     if ( !many || current_alloc_context != 0 ) {
 	c = new QColorData;			// insert into color dict
 	CHECK_PTR( c );
 	c->pix	   = pix;
-	c->context = colors_frozen ? 0 : current_alloc_context;
+	c->context = current_alloc_context;
 	colorDict->insert( (long)rgbVal, c );	// store color in dict
     }
     return pix;
@@ -723,7 +706,7 @@ int QColor::currentAllocContext()
 void QColor::destroyAllocContext( int context )
 {
     init_context_stack();
-    if ( !color_init || g_truecolor || colors_frozen )
+    if ( !color_init || g_truecolor )
 	return;
     ulong pixels[256];
     bool freeing[256];
