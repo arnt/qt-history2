@@ -5,17 +5,8 @@
 
 #include "rc2ui.h"
 
-#ifdef _WS_WIN_
-#undef LIBEXPORT
-#define LIBEXPORT __declspec(dllexport)
-#else
-#define LIBEXPORT
-#endif
-
 class RCInterface : public QObject, public FilterInterface
 {
-    Q_OBJECT
-
 public:
     RCInterface();
     ~RCInterface();
@@ -32,7 +23,6 @@ public:
 
 private:
     QGuardedPtr<QApplicationInterface> appInterface;
-
 };
 
 RCInterface::RCInterface()
@@ -71,19 +61,4 @@ QStringList RCInterface::import( const QString& filter, const QString& filename 
     return c.targetFiles;
 }
 
-
-#if defined(__cplusplus )
-extern "C"
-{
-#endif
-
-LIBEXPORT FilterInterface* loadInterface()
-{
-    return new RCInterface();
-}
-
-#if defined(__cplusplus)
-}
-#endif // __cplusplus
-
-#include "main.moc"
+QtExportInterface(FilterInterface, RCInterface)
