@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#17 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#18 $
 **
 ** Implementation of something useful.
 **
@@ -30,6 +30,7 @@
 #include "qapplication.h"
 #include "qvector.h"
 #include "qpainter.h"
+#include "qaccel.h"
 
 
 /*! \class QWizard qwizard.h
@@ -126,6 +127,12 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
 	     this, SLOT(finish()) );
     connect( d->helpButton, SIGNAL(clicked()),
 	     this, SLOT(help()) );
+
+    QAccel * a = new QAccel( this, "arrow-key accel" );
+    a->connectItem( a->insertItem( Qt::ALT + Qt::Key_Left ), 
+		    this, SLOT(back()) );
+    a->connectItem( a->insertItem( Qt::ALT + Qt::Key_Right ),
+		    this, SLOT(next()) );
 }
 
 
@@ -237,7 +244,7 @@ void QWizard::next()
 	   d->current && d->pages[i]->w != d->current->w )
 	i++;
     i++;
-    while( i <= (int)d->pages.size()-1 && 
+    while( i <= (int)d->pages.size()-1 &&
 	   ( !d->pages[i] || !appropriate( d->pages[i]->w ) ) )
 	i++;
     // if we fell of the end of the world, step back
