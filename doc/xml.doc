@@ -33,7 +33,7 @@ SAX is an event-based standard interface for XML parsers.
 The Qt interface follows the design of the SAX2 Java implementation.
 Its naming scheme was adapted to fit the Qt naming conventions.
 Details on SAX2 can be found at
-\link http://www.megginson.com/SAX/ http://www.megginson.com/SAX/ \endlink.
+\link http://www.saxproject.org http://www.saxproject.org \endlink.
 
 Support for SAX2 filters and the reader factory are under
 development. The Qt implementation does not include the SAX1
