@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#37 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#36 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#37 $";
 #endif
 
 /*!
@@ -149,7 +149,7 @@ then calling the create() function.
 \sa create().
 */
 
-QImage::QImage( int w, int h, int depth, int numColors, int bitOrder )
+QImage::QImage( int w, int h, int depth, int numColors, QImage::Endian bitOrder )
 {
     data = new QImageData;
     CHECK_PTR( data );
@@ -413,9 +413,9 @@ Determines the host computer byte order.
 Returns QImage::LittleEndian (LSB first) or QImage::BigEndian (MSB first).
 */
 
-int QImage::systemByteOrder()			// determine system byte order
+QImage::Endian QImage::systemByteOrder()
 {
-    static int sbo = IgnoreEndian;
+    static Endian sbo = IgnoreEndian;
     if ( sbo == IgnoreEndian ) {		// initialize
 	int  ws;
 	bool be;
@@ -438,7 +438,7 @@ Determines the bit order of the display hardware.
 Returns QImage::LittleEndian (LSB first) or QImage::BigEndian (MSB first).
 */
 
-int QImage::systemBitOrder()			// determine hardware bit order
+QImage::Endian QImage::systemBitOrder()	    // determine hardware bit order
 {
 #if defined(_WS_X11_)
     return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? BigEndian :LittleEndian;
@@ -503,7 +503,7 @@ table of pointers to each scanline.
 */
 
 bool QImage::create( int width, int height, int depth, int numColors,
-		     int bitOrder )
+		     QImage::Endian bitOrder )
 {
     reset();					// reset old data
     if ( width <= 0 || height <= 0 || depth <= 0 || numColors < 0 )
@@ -903,7 +903,7 @@ image.
 \sa bitOrder(), setBitOrder().
 */
 
-QImage QImage::convertBitOrder( int bitOrder ) const
+QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
 {
     QImage image;
     if ( isNull() || data->d != 1 ||		// cannot convert bit order
