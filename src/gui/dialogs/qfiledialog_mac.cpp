@@ -142,7 +142,7 @@ static QMAC_PASCAL Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
     }
     QStringList reg = QStringList::split(";", fn->regxp);
     for(QStringList::Iterator it = reg.begin(); it != reg.end(); ++it) {
-	QRegExp rg((*it), TRUE, TRUE);
+	QRegExp rg((*it), FALSE, TRUE);
 #ifdef DEBUG_FILEDIALOG_FILTERS
 	qDebug("QFileDialog:%d, asked to filter.. %s (%s)", __LINE__, 
 	       file.latin1(), (*it).latin1());
