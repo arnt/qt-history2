@@ -111,9 +111,9 @@ IPictureDisp *QPixmapToIPicture( const QPixmap &pixmap )
 	}
 	::SelectObject( hdc, hbm );
 	BOOL res = ::BitBlt( hdc, 0, 0, pixmap.width(), pixmap.height(), pixmap.handle(), 0, 0, SRCCOPY );
-	
+
 	::DeleteObject( hdc );
-	
+
 	desc.bmp.hbitmap = hbm;
     }
 
@@ -190,7 +190,7 @@ DATE QDateTimeToDATE( const QDateTime &dt )
 /*
     Converts \a var to \a arg, and tries to coerce \a arg to \a type.
 
-    Used by 
+    Used by
     QUObjectToVARIANT
 
     QAxServerBase:
@@ -399,7 +399,7 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *pa
 bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *param )
 {
     switch ( arg.vt ) {
-    case VT_BSTR: 
+    case VT_BSTR:
 	{
 	    QString str = BSTRToQString( arg.bstrVal );
 	    if ( QUType::isEqual( param->type, &static_QUType_QString ) ) {
@@ -507,8 +507,6 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		static_QUType_varptr.set( obj, new uint( arg.ulVal ) );
 		break;
 	    }
-	} else {
-	    static_QUType_uint.set( obj, arg.ulVal );
 	}
 	break;
     case VT_UI4|VT_BYREF:
@@ -519,8 +517,6 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    else
 		reference = new QColor(OLEColorToQColor( *arg.pulVal ));
 	    static_QUType_varptr.set( obj, reference );
-	} else {
-	    static_QUType_uint.set( obj, *arg.pulVal );
 	}
 	break;
     case VT_UINT:
@@ -534,12 +530,17 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		static_QUType_varptr.set( obj, new uint( arg.uintVal ) );
 		break;
 	    }
-	} else {
-	    static_QUType_uint.set( obj, arg.uintVal );
 	}
 	break;
     case VT_UINT|VT_BYREF:
-	static_QUType_uint.set( obj, *arg.puintVal );
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
+	    switch( vartype ) {
+	    case QVariant::UInt:
+		static_QUType_varptr.set( obj, new uint( *arg.puintVal ) );
+		break;
+	    }
+	}
 	break;
     case VT_R8:
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Double )
@@ -879,7 +880,7 @@ bool QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *
 	static_QUType_int.set( &obj, var.toInt() );
 	break;
     case QVariant::UInt:
-	static_QUType_uint.set( &obj, var.toUInt() );
+	static_QUType_varptr.set( &obj, new uint( var.toUInt() ) );
 	break;
     case QVariant::Double:
 	static_QUType_double.set( &obj, var.toDouble() );

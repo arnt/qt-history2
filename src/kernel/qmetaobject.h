@@ -44,7 +44,7 @@
 #endif // QT_H
 
 #ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 25
+#define Q_MOC_OUTPUT_REVISION 26
 #endif
 
 class QObject;

@@ -254,7 +254,7 @@ public:
 	    bool ret = combase->qt_emit( index, objects );
 
 	    // update the VARIANT for references and free memory
-	    for ( p = 0; p < pcount; ++p ) { 
+	    for ( p = 0; p < pcount; ++p ) {
 		const QUParameter *param = params+p;
 		if ( param->inOut & QUParameter::Out ) {
 		    VARIANT *arg = &(pDispParams->rgvarg[ pcount-p-1 ]);
@@ -591,7 +591,7 @@ public:
     equivalent Qt data types. Some COM types, for example the VARIANT
     type VT_CY, have no equivalent Qt data structure.
 
-    Supported COM datatypes are listed in the first column of following table. 
+    Supported COM datatypes are listed in the first column of following table.
     The second column is the Qt type that can be used with the QObject property
     functions. The third column is the Qt type that is used in the prototype of
     generated signals and slots for in-parameters, and the last column is the Qt
@@ -1158,7 +1158,8 @@ static inline void QStringToQUType( const QString& fulltype, QUParameter *param,
     } else if ( type == "short" || type == "long" ) {
 	param->type = &static_QUType_int;
     } else if ( type == "uint" ) {
-	param->type = &static_QUType_uint;
+	param->type = &static_QUType_varptr;
+	param->typeExtra = new char(QVariant::UInt);
     } else if ( type == "bool" ) {
 	param->type = &static_QUType_bool;
     } else if ( type == "QString" ) {
@@ -1818,7 +1819,7 @@ QMetaObject *QAxBase::metaObject() const
 		// get variable type
 		TYPEDESC typedesc = vardesc->elemdescVar.tdesc;
 		QString variableType = guessTypes( typedesc, info, enumDict, variableName );
-		
+
 		if ( !(vardesc->wVarFlags & VARFLAG_FHIDDEN) ) {
 		    // generate meta property
 		    QMetaProperty *prop = proplist[variableName];
@@ -1984,7 +1985,7 @@ QMetaObject *QAxBase::metaObject() const
 		    if ( eventSink )
 			eventSink->advise( cpoint, conniid );
 		    continue;
-		} 
+		}
 		ITypeInfo *eventinfo = 0;
 		if ( typelib )
 		    typelib->GetTypeInfoOfGuid( conniid, &eventinfo );
@@ -2454,7 +2455,7 @@ QString QAxBase::generateDocumentation()
 		detail += "\tQAxObject *" + name + " = object->querySubObject( \"" + name + "\" );\n";
 		detail += "</pre>\n";
 	    } else {
-		detail += "<p>This property is of an unsupported type.\n";	    
+		detail += "<p>This property is of an unsupported type.\n";
 	    }
 	    if ( prop->writable() ) {
 		detail += "Set this property' value using QObject::setProperty:<pre>\n";
@@ -2890,7 +2891,7 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	} else {
 #ifdef QT_CHECK_STATE
 	    const char *coclass = metaObject()->classInfo( "CoClass" );
-	    qWarning( "QAxBase::internalInvoke: %s: No such method in %s [%s].", (const char*)name, control().latin1(), 
+	    qWarning( "QAxBase::internalInvoke: %s: No such method in %s [%s].", (const char*)name, control().latin1(),
 		coclass ? coclass: "unknown" );
 #endif
 	    return FALSE;
@@ -2911,7 +2912,7 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	} else {
 #ifdef QT_CHECK_STATE
 	    const char *coclass = metaObject()->classInfo( "CoClass" );
-	    qWarning( "QAxBase::internalInvoke: %s: No such property in %s [%s]", (const char*)name, control().latin1(), 
+	    qWarning( "QAxBase::internalInvoke: %s: No such property in %s [%s]", (const char*)name, control().latin1(),
 		coclass ? coclass: "unknown" );
 #endif
 	    return FALSE;
@@ -2972,14 +2973,14 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
     the method, or an invalid QVariant if the method does not return
     a value or when the function call failed.
 
-    If \a function is a method of the object the string must be provided 
-    as the full prototype, for example as it would be written in a 
+    If \a function is a method of the object the string must be provided
+    as the full prototype, for example as it would be written in a
     QObject::connect() call.
     \code
     activeX->dynamicCall( "Navigate(const QString&)", "www.trolltech.com" );
     \endcode
 
-    If \a function is a property the string has to be the name of the 
+    If \a function is a property the string has to be the name of the
     property. The property setter is called when \a var1 is a valid QVariant,
     otherwise the getter is called.
     \code
@@ -3047,8 +3048,8 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
 
     Calls the COM object's method \a function, passing the
     parameters in \a vars, and returns the value returned by
-    the method. If the method does not return a value or when 
-    the function call failed this function returns an invalid 
+    the method. If the method does not return a value or when
+    the function call failed this function returns an invalid
     QVariant object.
 
     The QVariant objects in \a vars are updated when the method has
@@ -3082,11 +3083,11 @@ QVariant QAxBase::dynamicCall( const QCString &function, QValueList<QVariant> &v
 
 /*!
     Returns a pointer to a QAxObject wrapping the COM object provided
-    by the method or property \a name, passing passing the parameters 
-    \a var1, \a var1, \a var2, \a var3, \a var4, \a var5, \a var6, 
-    \a var7 and \a var8. 
-    
-    If \a name is provided by a method the string must include the 
+    by the method or property \a name, passing passing the parameters
+    \a var1, \a var1, \a var2, \a var3, \a var4, \a var5, \a var6,
+    \a var7 and \a var8.
+
+    If \a name is provided by a method the string must include the
     full function prototype.
 
     If \a name is a property the string must be the name of the property,
@@ -3112,13 +3113,13 @@ QVariant QAxBase::dynamicCall( const QCString &function, QValueList<QVariant> &v
     }
     \endcode
 */
-QAxObject *QAxBase::querySubObject( const QCString &name, const QVariant &var1,							 
-							  const QVariant &var2, 
-							  const QVariant &var3, 
-							  const QVariant &var4, 
-							  const QVariant &var5, 
-							  const QVariant &var6, 
-							  const QVariant &var7, 
+QAxObject *QAxBase::querySubObject( const QCString &name, const QVariant &var1,
+							  const QVariant &var2,
+							  const QVariant &var3,
+							  const QVariant &var4,
+							  const QVariant &var5,
+							  const QVariant &var6,
+							  const QVariant &var7,
 							  const QVariant &var8 )
 {
     QAxObject *object = 0;
@@ -3395,7 +3396,7 @@ bool QAxBase::isNull() const
     \fn void QAxBase::exception( int code, const QString &source, const QString &desc, const QString &help )
 
     This signal is emitted when the COM object throws an exception while called using the OLE automation
-    interface IDispatch. \a code, \a source, \a desc and \a help provide information about the exception as 
+    interface IDispatch. \a code, \a source, \a desc and \a help provide information about the exception as
     provided by the COM server and can be used to provide useful feedback to the end user. \a help includes
     the help file, and the help context ID in brackets, e.g. "filename [id]".
 */

@@ -102,9 +102,7 @@ static const char* const utype_map[] =
 {
     "bool",
     "int",
-    "uint",
     "double",
-    "float",
     "QString",
     "QVariant",
     0
@@ -568,7 +566,7 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you MUST change it in qmetaobject.h too
-const int formatRevision = 25;		// moc output format revision
+const int formatRevision = 26;		// moc output format revision
 
 // if the flags change, you HAVE to change it in qmetaobject.h too
 enum Flags  {
