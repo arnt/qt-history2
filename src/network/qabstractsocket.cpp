@@ -1244,6 +1244,7 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
         if (state() != ConnectedState)
             return false;
     }
+    return false;
 }
 
 /*! \reimp
@@ -1298,6 +1299,7 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
         if (state() != ConnectedState)
             return false;
     }
+    return false;
 }
 
 /*!
@@ -1363,6 +1365,7 @@ bool QAbstractSocket::waitForDisconnected(int msecs)
         if (state() == UnconnectedState)
             return true;
     }
+    return false;
 }
 
 /*!
