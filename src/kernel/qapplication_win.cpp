@@ -3199,6 +3199,8 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 {
     if ( !testWState(WState_Created) )		// in QWidget::create()
 	return TRUE;
+    if (testWState(WState_ConfigPending))
+	return TRUE;
     if (!isTopLevel())
 	return TRUE;
     setWState( WState_ConfigPending );		// set config flag
