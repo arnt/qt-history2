@@ -42,7 +42,7 @@ inline void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval)
 {
   register void *ret, *tmp;
   asm volatile("\n"
-#if defined(Q_OS_IRIX) && _MIPS_SZPTR == 64
+#if _MIPS_SZPTR == 64
       "1:  lld  %0,%2\n"
       "    bne  %0,%3,2f\n"
       "    move %1,$0\n"
