@@ -40,7 +40,11 @@
 #include "qdatastream.h"
 #include "qlist.h"
 
-inline  void qDelete( QGListIterator * ) {}
+
+// cannot delete this type
+template <> inline void qDelete(QGListIterator *&) { }
+
+
 /*!
   \class QLNode qglist.h
   \reentrant
