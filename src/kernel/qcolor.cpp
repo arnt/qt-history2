@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#27 $
 **
 ** Implementation of QColor class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#27 $";
 #endif
 
 
@@ -59,8 +59,8 @@ color and save it in the internal table.
 // Global colors
 //
 
-const QColor color0	( 0x00ffffff, 0 );
-const QColor color1	( 0x00000000, 1 );
+const QColor color0	( 0x00fffff1, 0 );   // quick-fix 11/9-95 EE
+const QColor color1	( 0x00000001, 1 );   // quick-fix 11/9-95 EE
 const QColor black	(   0,	 0,   0 );
 const QColor white	( 255, 255, 255 );
 const QColor darkGray	( 128, 128, 128 );
