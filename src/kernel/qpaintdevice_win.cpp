@@ -354,7 +354,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( src_pm && src_pm->data->realAlphaBits ) {
 	qt_AlphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
     } else if ( mask ) {
-	if ( src_pm->data->selfmask ) {
+	if ( src_pm && td==QInternal::Pixmap && ((QPixmap *)dst)->data->realAlphaBits ) {
+	    src_pm->convertToAlphaPixmap();
+	    QPixmap::bitBltAlphaPixmap( (QPixmap *)dst, dx, dy, src_pm, sx, sy, sw, sh, TRUE );
+	} else if ( src_pm->data->selfmask ) {
 	    uint   c = dst->paintingActive() ? qt_bitblt_foreground
 					     : QColor(Qt::black).pixel();
 	    DWORD ropCodes[] = {
@@ -438,7 +441,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	} else if ( src_pm && td==QInternal::Pixmap && ((QPixmap *)dst)->data->realAlphaBits ) {
 	    QPixmap *dst_pm = (QPixmap *)dst;
 	    if ( rop == Qt::CopyROP ) {
-		src_pm->convertToAlphaPixmap( FALSE );
+		src_pm->convertToAlphaPixmap();
 		QPixmap::bitBltAlphaPixmap( dst_pm, dx, dy, src_pm, sx, sy, sw, sh, TRUE );
 	    } else {
 		src_pm->convertToAlphaPixmap();

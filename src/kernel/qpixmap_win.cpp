@@ -1464,9 +1464,24 @@ void QPixmap::convertToAlphaPixmap( bool initAlpha )
 	// alpha values.
 	uchar *p = pm.data->realAlphaBits + 3;
 	uchar *pe = p + bmh->biSizeImage;
-	while ( p < pe ) {
-	    *p = 0xff;
-	    p += 4;
+	if ( mask() ) {
+	    QImage msk = mask()->convertToImage();
+	    int i = 0;
+	    int w = width();
+	    int backgroundIndex = msk.color(0) == Qt::color0.rgb() ? 0 : 1;
+	    while ( p < pe ) {
+		if ( msk.pixelIndex( i%w, i/w ) == backgroundIndex )
+		    *p = 0x00;
+		else
+		    *p = 0xff;
+		p += 4;
+		i++;
+	    }
+	} else {
+	    while ( p < pe ) {
+		*p = 0xff;
+		p += 4;
+	    }
 	}
     }
 #else
@@ -1516,7 +1531,7 @@ void QPixmap::bitBltAlphaPixmap( QPixmap *dst, int dx, int dy,
 	    dCur = dBits;
 	    for ( int j=0; j<sw; j++ ) {
 		alphaByte = *(dCur+3);
-		if ( alphaByte == 0 ) {
+		if ( alphaByte == 0 || (*(sCur+3)) == 0 ) {
 		    dCur += 4;
 		    sCur += 4;
 		} else if ( alphaByte == 255 ) {
