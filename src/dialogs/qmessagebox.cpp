@@ -979,11 +979,11 @@ void QMessageBox::keyPressEvent( QKeyEvent *e )
 	if ( mbd->escButton >= 0 ) {
 	    QPushButton *pb = mbd->pb[mbd->escButton];
 	    pb->animateClick();
-	}
-	e->accept();
-    } else {
-	QDialog::keyPressEvent( e );
+	    e->accept();
+	    return;
+	} 
     }
+    QDialog::keyPressEvent( e );
 }
 
 

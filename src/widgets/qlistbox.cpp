@@ -1898,13 +1898,16 @@ void QListBox::updateSelection()
 
 void QListBox::keyPressEvent( QKeyEvent *e )
 {
-    if ( count() == 0 )
+    if ( count() == 0 ) {
+	e->ignore();
 	return;
+    }
     QListBoxItem *old = d->current;
     if ( !old ) {
 	setCurrentItem( d->head );
 	if ( d->selectionMode == Single )
 	    setSelected( d->head, TRUE );
+	e->ignore();
 	return;
     }
 
@@ -2127,6 +2130,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 			selectAll( TRUE );
 			break;
 		    }
+		} else {
+		    e->ignore();
 		}
 	    }
 	}
