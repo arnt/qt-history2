@@ -433,10 +433,20 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "echo \"APPL????\" >" << pkginfo << endl;
     }
 
+    QString ddir = project->isEmpty("QMAKE_DISTDIR") ? project->first("QMAKE_ORIG_TARGET") :
+		   project->first("QMAKE_DISTDIR");
+    QString ddir_c = (project->isEmpty("OBJECTS_DIR") ? QString(".tmp/") : 
+		    project->first("OBJECTS_DIR")) + ddir;
+    fileFixify(ddir_c);	
     t << "dist: " << "\n\t"
-      << "cd ..\n\t"
-      << "$(TAR) " << var("PROJECT") << ".tar " << " $(SOURCES) $(HEADERS) $(FORMS) $(DIST)" << "\n\t"
-      << "$(GZIP) " << var("PROJECT") << ".tar" << endl << endl;
+      << "@mkdir -p " << ddir_c << " && "
+      << "$(COPY_FILE) $(SOURCES) $(HEADERS) $(FORMS) $(DIST) " << ddir_c << Option::dir_sep << " && "
+      << "( cd `dirname " << ddir_c << "` && "
+      << "$(TAR) " << var("QMAKE_ORIG_TARGET") << ".tar " << ddir << " && "
+      << "$(GZIP) " << var("QMAKE_ORIG_TARGET") << ".tar ) && " 
+      << "mv `dirname " << ddir_c << "`" << Option::dir_sep << var("QMAKE_ORIG_TARGET") << ".tar.gz . && "
+      << "rm -rf " << ddir_c
+      << endl << endl;
 
     QString clean_targets;
     if(mocAware()) {
