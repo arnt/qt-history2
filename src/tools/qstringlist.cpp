@@ -51,7 +51,8 @@
   \ingroup tools
   \ingroup shared
 
-  QStringList is basically a QValueList of QString objects. As opposed
+  It is used to store and manipulate strings that logically belong together.
+  Basically QStringList is a QValueList of QString objects. As opposed
   to QStrList, which stores pointers to characters, QStringList deals
   with real QString objects.  It is the class of choice whenever you
   work with Unicode strings.
@@ -59,28 +60,33 @@
   Like QString itself, QStringList objects are implicitly shared.
   Passing them around as value-parameters is both fast and safe.
 
-  Example:
-  \code
-	QStringList list;
+  There are several approaches to add strings to a string list:
 
-	// three different ways of appending values:
-	list.append( "Torben");
-	list += "Warwick";
-	list << "Matthias" << "Arnt" << "Paul";
+  \walkthrough fonts/simple-qfont-demo/viewer.cpp	
 
-	// sort the list, Arnt's now first
-	list.sort();
+  \skipto QStringList substitutes
+  \printline substitutes
+  \printline append 
+  \printline += 
+  \printline << 
 
-	// print it out
-	QStringList::Iterator it = list.begin();
-	while ( it != list.end() ) {
-	    printf( "%s\n", (*it).latin1() );
-	    ++it;
-	}
-  \endcode
+  To successively access the members of a QStringList use the provided
+  Iterator:
+
+  \walkthrough fonts/simple-qfont-demo/viewer.cpp	
+
+  \skipto QStringList substitutions 
+  \printline substitutes
+  \skipto QStringList::Iterator
+  \printline substitutions.begin
+  \printline substitutions.end
+  \printuntil }
+
+  (Code examples taken from \link simple-font-demo-example.html 
+  examples/fonts/simple-qfont-demo/viewer.cpp \endlink)
 
   Convenience methods such as sort(), split(), join() and grep() make
-  working with QStringList easy.
+  working with QStringLists easy. 
 */
 
 /*!
