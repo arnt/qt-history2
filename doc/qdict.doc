@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qdict.doc,v 1.6 1995/12/21 21:12:19 hanord Exp $
+** $Id: qdict.doc,v 1.7 1995/12/27 17:31:59 hanord Exp $
 **
 ** QDict and QDictIterator class documentation
 **
@@ -61,7 +61,7 @@
 
   The dictionary in our example maps \c char* keys to \c char* items.
   Note that the mapping is case insensitive (set in the
-  \link QDict::QDict() constructor).  QDict implements the \link
+  \link QDict::QDict() constructor\endlink).  QDict implements the \link
   operator[] [] operator\endlink to lookup an item.
 
   A QDict can also be instantiated through a macro expansion, but this

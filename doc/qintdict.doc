@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qintdict.doc,v 1.2 1995/12/21 21:12:19 hanord Exp $
+** $Id: qintdict.doc,v 1.3 1995/12/27 17:32:40 hanord Exp $
 **
 ** QIntDict and QIntDictIterator class documentation
 **
@@ -103,7 +103,7 @@
 	dict.insert( 7, "USSR" );
 
 	printf( "%s\n", dict[7] );
-	dict.remove( 7 );		// Gorbie
+	dict.remove( 7 );		// Gorbie was here
 	printf( "%s\n", dict[7] );
     }
   \endcode
