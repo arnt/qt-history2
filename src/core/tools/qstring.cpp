@@ -2660,6 +2660,31 @@ bool QString::startsWith(const QString& s, Qt::CaseSensitivity cs) const
 }
 
 /*!
+  \overload
+ */
+bool QString::startsWith(const QLatin1String& s, Qt::CaseSensitivity cs) const
+{
+    if (d == &shared_null)
+        return (s.latin1() == 0);
+    if (d->size == 0)
+        return !s.latin1() || *s.latin1() == 0;
+    int slen = qstrlen(s.latin1());
+    if (slen > d->size)
+        return false;
+    const uchar *latin = (const uchar *)s.latin1();
+    if (cs == Qt::CaseSensitive) {
+        for (int i = 0; i < slen; ++i)
+            if (d->data[i] != latin[i])
+                return false;
+    } else {
+        for (int i = 0; i < slen; ++i)
+            if (::lower(d->data[i]) != ::lower(latin[i]))
+                return false;
+    }
+    return true;
+}
+
+/*!
     Returns true if the string ends with \a s; otherwise returns
     false.
 
@@ -2688,6 +2713,31 @@ bool QString::endsWith(const QString& s, Qt::CaseSensitivity cs) const
     } else {
         for (int i = 0; i < (int) s.length(); i++)
             if (::lower(d->data[pos+i]) != ::lower(s.d->data[i]))
+                return false;
+    }
+    return true;
+}
+
+/* \overload
+ */
+bool QString::endsWith(const QLatin1String& s, Qt::CaseSensitivity cs) const
+{
+    if (d == &shared_null)
+        return (s.latin1() == 0);
+    if (d->size == 0)
+        return !s.latin1() || *s.latin1() == 0;
+    int slen = qstrlen(s.latin1());
+    int pos = d->size - slen;
+    const uchar *latin = (const uchar *)s.latin1();
+    if (pos < 0)
+        return false;
+    if (cs == Qt::CaseSensitive) {
+        for (int i = 0; i < slen; i++)
+            if (d->data[pos+i] != latin[i])
+                return false;
+    } else {
+        for (int i = 0; i < slen; i++)
+            if (::lower(d->data[pos+i]) != ::lower(latin[i]))
                 return false;
     }
     return true;

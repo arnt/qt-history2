@@ -151,7 +151,9 @@ public:
     QString mid(int i, int len = -1) const;
 
     bool startsWith(const QString &s, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+    bool startsWith(const QLatin1String &s, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
     bool endsWith(const QString &s, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+    bool endsWith(const QLatin1String &s, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
 
     QString leftJustified(int width, QChar fill = QLatin1Char(' '), bool trunc = false) const;
     QString rightJustified(int width, QChar fill = QLatin1Char(' '), bool trunc = false) const;
