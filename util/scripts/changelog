@@ -7,9 +7,12 @@
 
 # This script requires perl 5.
 
-chdir( "/home/agulbra/qt" );
+chdir( $ENV{"QTDIR"} );
 
-open( I, "cvs -Q log '-d>04/05/97 12:12:12' |" ) || die;
+$last=$ARGV[0];
+
+#open( I, "cvs -Q log '-r" . $last . ":' examples extensions src |" ) || die;
+open( I, "cvs -Q log '-d" . $last . "<' examples extensions src |" ) || die;
 
 undef $/;
 $_ = <I>;
@@ -20,26 +23,31 @@ close I;
 foreach $logentry ( split( /\n=============*\n/s, $_ ) ) {
     if ( $logentry =~ /\nWorking file: (\S+)/s ) {
 	$file = $1;
-	while ( $logentry =~ s/^.*?----------------------------\n/\n/s ) {
-	    if ( $logentry =~ /^\s*revision\s+(\S+)\s+date:\s+(\S+).*?author:\s+(\S+?);.*?lines:\s+(.*?)\s*\n(.*?)(?:$|(?:\n----------------------------\n))/s ) {
-		$rev = $1;
-		$date = $2;
-		$author = $3;
-		$lines = $4;
-		$entry = $5;
-		$entry =~ s/\n/\n  /gs;
-		$entry =~ s/\s*$//s;
-		$logs{$date}{$entry} .= "\n" . $file . "    " . $rev 
-		    . "  " . $author . "  " . $lines;
-	    } elsif ( $logentry =~ /^\s*revision\s+(\S+)\s+date:\s+(\S+).*?author:\s+(\S+?);.*?\s*\n(.*?)(?:$|(?:\n----------------------------\n))/s ) {
-		$rev = $1;
-		$date = $2;
-		$author = $3;
-		$entry = $4;
-		$entry =~ s/\n/\n  /gs;
-		$entry =~ s/\s*$//s;
-		$logs{$date}{$entry} .= "\n" . $file . "    " . $rev 
-		    . "  " . $author . "  initial checkin";
+	if ( ! -e $file ) {
+	    while ( $logentry =~ s/^.*?----------------------------\n/\n/s ) {
+	    }
+	} else {
+	    while ( $logentry =~ s/^.*?----------------------------\n/\n/s ) {
+		if ( $logentry =~ /^\s*revision\s+(\S+)\s+date:\s+(\S+).*?author:\s+(\S+?);.*?lines:\s+(.*?)\s*\n(.*?)(?:$|(?:\n----------------------------\n))/s ) {
+		    $rev = $1;
+		    $date = $2;
+		    $author = $3;
+		    $lines = $4;
+		    $entry = $5;
+		    $entry =~ s/\n/\n  /gs;
+		    $entry =~ s/\s*$//s;
+		    $logs{$date}{$entry} .= "\n" . $file . "    " . $rev 
+			. "  " . $author . "  " . $lines;
+		} elsif ( $logentry =~ /^\s*revision\s+(\S+)\s+date:\s+(\S+).*?author:\s+(\S+?);.*?\s*\n(.*?)(?:$|(?:\n----------------------------\n))/s ) {
+		    $rev = $1;
+		    $date = $2;
+		    $author = $3;
+		    $entry = $4;
+		    $entry =~ s/\n/\n  /gs;
+		    $entry =~ s/\s*$//s;
+		    $logs{$date}{$entry} .= "\n" . $file . "    " . $rev 
+			. "  " . $author . "  initial checkin";
+		}
 	    }
 	}
     }
