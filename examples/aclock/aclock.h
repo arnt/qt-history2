@@ -22,6 +22,9 @@ public:
     AnalogClock( QWidget *parent=0, const char *name=0 );
     void setAutoMask(bool b);
 
+public slots:    
+    void setTime( const QTime & t );
+    
 protected:
     void updateMask();
     void paintEvent( QPaintEvent *);

@@ -27,6 +27,12 @@ AnalogClock::AnalogClock( QWidget *parent, const char *name )
 }
 
 
+void AnalogClock::setTime( const QTime & t )
+{
+    time = t;
+    timeout();
+}
+
 //
 // The QTimer::timeout() signal is received by this slot.
 //
@@ -87,7 +93,8 @@ void AnalogClock::drawClock( QPainter *paint )
     paint->setViewport( v.left() + (v.width()-d)/2,
 			v.top() + (v.height()-d)/2, d, d );
 
-    time = QTime::currentTime();
+    time.addSecs( QTime::currentTime().second() - time.second() );
+    //    time = QTime::currentTime();
     QPointArray pts;
 
     paint->save();
