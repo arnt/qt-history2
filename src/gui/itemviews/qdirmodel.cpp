@@ -164,9 +164,9 @@ public:
 
     QFileInfoList rootChildren() const;
     inline QString rootPath() const
-        { return rootIsVirtual ? QString::null : root.info.absoluteFilePath(); }
+        { return rootIsVirtual ? QObject::tr("My Computer") : root.info.absoluteFilePath(); }
     inline QString rootName() const
-        { return rootIsVirtual ? QString::null : root.info.fileName(); }
+        { return rootIsVirtual ? QObject::tr("My Computer") : root.info.fileName(); }
     inline QIconSet rootIcons() const
         { return rootIsVirtual ? iconProvider->computerIcons() : iconProvider->icons(root.info); }
 
@@ -810,7 +810,7 @@ QModelIndex QDirModel::index(const QString &path) const
 {
 //    qDebug("index: <<<");
 
-    if (path.isEmpty())
+    if (path.isEmpty() || path == d->rootPath()) // FIXME: slow
         return QModelIndex();
 
 //    qDebug("index: path '%s'", path.latin1());
