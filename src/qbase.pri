@@ -21,9 +21,12 @@ DLLDESTDIR	= $$QT_INSTALL_PREFIX/bin
 CONFIG		+= qt warn_on depend_includepath
 CONFIG          += qmake_cache target_qt
 
-#mac:QMAKE_LFLAGS += -undefined suppress -flat_namespace
-
-mac:QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)
+mac {
+   #QMAKE_LFLAGS += -undefined suppress -flat_namespace
+   QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)
+   QMAKE_CFLAGS += -fconstant-cfstrings
+   QMAKE_CXXFLAGS += -fconstant-cfstrings
+}
 
 win32:!shared:CONFIG += staticlib
 
