@@ -94,7 +94,7 @@ public:
 	    return token;
 	}
 
-	// first look for the special stuff
+	// first, look for the special stuff
 	QChar parseChar = expr[parsePos];
 qDebug( QString(parseChar) );
 	if        ( parseChar == '(' ) {
@@ -262,7 +262,17 @@ qDebug( QString(parseChar) );
 	    if ( forceQName )
 		goto finished;
 	    if ( parseChar == '(' ) {
-		token = TkFunctionName;
+		if ( str == "comment" ) {
+		    token = TkNodeType_Comment;
+		} else if ( str == "text" ) {
+		    token = TkNodeType_Text;
+		} else if ( str == "processing-instruction" ) {
+		    token = TkNodeType_PI;
+		} else if ( str == "node" ) {
+		    token = TkNodeType_Node;
+		} else {
+		    token = TkFunctionName;
+		}
 	    } else if ( parseChar == ':' ) {
 		if ( lookAhead(1) == ':' ) {
 		    if ( str == "child" ) {
