@@ -13,7 +13,13 @@ class QVBox;
 class QListBox;
 class QLabel;
 
-class CPP_EXPORT EditorCompletion : public QObject
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class EDITOR_EXPORT QMap<QChar, QStringList>;
+// MOC_SKIP_ENDI
+#endif
+
+class EDITOR_EXPORT EditorCompletion : public QObject
 {
     Q_OBJECT
 

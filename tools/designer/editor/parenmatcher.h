@@ -7,7 +7,7 @@
 
 class QTextCursor;
 
-struct Paren 
+struct EDITOR_EXPORT Paren 
 {
     Paren() : type( Open ), chr( ' ' ), pos( -1 ) {}
     Paren( int t, const QChar &c, int p ) : type( (Type)t ), chr( c ), pos( p ) {}
@@ -19,7 +19,7 @@ struct Paren
 
 typedef QValueList<Paren> ParenList;
 
-class CPP_EXPORT ParenMatcher
+class EDITOR_EXPORT ParenMatcher
 {
 public:
     ParenMatcher();

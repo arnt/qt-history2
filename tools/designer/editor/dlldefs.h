@@ -4,13 +4,13 @@
 #include <qglobal.h>
 
 #if defined(Q_OS_WIN32)
-#  if defined(CPP_DLL)
-#    define CPP_EXPORT __declspec(dllexport)
+#  if defined(EDITOR_DLL)
+#    define EDITOR_EXPORT __declspec(dllexport)
 #  else
-#    define CPP_EXPORT __declspec(dllimport)
+#    define EDITOR_EXPORT __declspec(dllimport)
 #  endif
 #else
-#  define CPP_EXPORT
+#  define EDITOR_EXPORT
 #endif
 
 #endif //DLLDEFS_H

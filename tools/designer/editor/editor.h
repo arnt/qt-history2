@@ -7,7 +7,7 @@
 class ParenMatcher;
 class EditorCompletion;
 
-class CPP_EXPORT Editor : public QTextEdit
+class EDITOR_EXPORT Editor : public QTextEdit
 {
     Q_OBJECT
 

@@ -8,7 +8,7 @@ class QChildEvent;
 class MarkerWidget;
 class QHBoxLayout;
 
-class CPP_EXPORT ViewManager : public QWidget
+class EDITOR_EXPORT ViewManager : public QWidget
 {
     Q_OBJECT
 
