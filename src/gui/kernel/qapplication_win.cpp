@@ -210,7 +210,7 @@ void qt_erase_background(HDC hdc, int x, int y, int w, int h,
                          const QBrush &brush, int off_x, int off_y,
                          QWidget *widget)
 {
-    if (brush.texture().isNull())        // empty background
+    if (brush.style() == Qt::CustomPattern && brush.texture().isNull())        // empty background
         return;
     HPALETTE oldPal = 0;
     HPALETTE hpal = QColormap::hPal();
@@ -222,8 +222,7 @@ void qt_erase_background(HDC hdc, int x, int y, int w, int h,
         QPainter p(widget);
         p.fillRect(x, y, w, h, brush);
         return;
-    }
-    else if (!brush.texture().isNull()) {
+    } else if (brush.style() == Qt::CustomPattern) {
         qt_draw_tiled_pixmap(hdc, x, y, w, h, &brush.texture(), off_x, off_y);
     } else {
         QColor c = brush.color();
@@ -3258,7 +3257,7 @@ bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
 #endif
     if (!isEnabled())
         return false;
-    QKeyEvent e(type, code, Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask), text, 
+    QKeyEvent e(type, code, Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask), text,
                 autor, qMax(1, int(text.length())));
     QApplication::sendSpontaneousEvent(this, &e);
     if (!isModifierKey(code) && state == Qt::AltModifier
