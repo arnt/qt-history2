@@ -4294,7 +4294,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
     // otherwise)
     QChar* uc = (QChar*) qstr.unicode();
     for ( uint ii = 0; ii < qstr.length(); ii++ )
-	if ( uc[(int)ii]== '\n' || uc[(int)ii] == QChar_linesep )
+	if ( uc[(int)ii]== '\n' || uc[(int)ii] == QChar_linesep || uc[(int)ii] == '\t' )
 	    uc[(int)ii] = 0x20;
 
     int line = -1;
