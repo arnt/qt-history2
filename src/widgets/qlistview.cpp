@@ -3043,7 +3043,7 @@ void QListView::setColumnText( int column, const QIconSet& iconset, const QStrin
 */
 void QListView::setColumnWidth( int column, int w )
 {
-    if ( column < d->h->count() && d->h->cellSize( column ) != w ) {
+    if ( column < d->h->count() && d->h->sectionSize( column ) != w ) {
 	d->h->resizeSection( column, w );
 	viewport()->update();
     }
