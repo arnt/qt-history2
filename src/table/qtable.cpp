@@ -5303,9 +5303,9 @@ void QTable::activateNextCell()
 	 ( currentSel->leftCol() == currentSel->rightCol() &&
 	   currentSel->topRow() == currentSel->bottomRow() ) ) {
 	clearSelection();
-	if ( curRow < numRows() - d->hiddenRows.count() - 1 )
+	if ( (uint)curRow < numRows() - d->hiddenRows.count() - 1 )
 	    setCurrentCell( curRow + 1, curCol );
-	else if ( curCol < numCols() - d->hiddenCols.count() - 1 )
+	else if ( (uint)curCol < numCols() - d->hiddenCols.count() - 1 )
 	    setCurrentCell( 0, curCol + 1 );
 	else
 	    setCurrentCell( 0, 0 );
