@@ -1008,7 +1008,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
     if(ofile.lastIndexOf(Option::dir_sep) != -1)
 	ofile = ofile.right(ofile.length() - ofile.lastIndexOf(Option::dir_sep) -1);
     t << "MAKEFILE =	" << var("MAKEFILE") << endl;
-    t << "QMAKE    =	" << var("QMAKE") << endl;
+    t << "QMAKE    =	" << var("QMAKE_QMAKE") << endl;
     t << "DEL_FILE =    " << var("QMAKE_DEL_FILE") << endl;
     t << "CHK_DIR_EXISTS= " << var("QMAKE_CHK_DIR_EXISTS") << endl;
     t << "MKDIR    = " << var("QMAKE_MKDIR") << endl;
