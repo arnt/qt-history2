@@ -2019,17 +2019,17 @@ QRegion QPainter::clipRegion( CoordinateMode m ) const
 
 /*!
   \overload void QPainter::drawRect( const QRect &r )
-  Draws the rectange \a r.
+  Draws the rectangle \a r.
 */
 
 /*!
   \overload void QPainter::drawWinFocusRect( const QRect &r )
-  Draws rectange \a r as a window focus rectangle.
+  Draws rectangle \a r as a window focus rectangle.
 */
 
 /*!
   \overload void QPainter::drawWinFocusRect( const QRect &r, const QColor &bgColor )
-  Draws rectange \a r as a window focus rectangle using background
+  Draws rectangle \a r as a window focus rectangle using background
   color \a bgColor.
 */
 
@@ -2046,7 +2046,7 @@ void QPainter::drawWinFocusRect( int, int, int, int,
 
 /*!
   \overload void QPainter::drawRoundRect( const QRect &r, int xRnd, int yRnd )
-  Draws a rounded rectange \a r, rounding to the x position \a xRnd
+  Draws a rounded rectangle \a r, rounding to the x position \a xRnd
   and the y position \a yRnd on each corner.
 */
 
@@ -2371,13 +2371,13 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
 /*!
   \overload void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm, const QPoint &sp )
-  Draws a tiled pixmap, \a pm, inside rectange \a r with its origin at
+  Draws a tiled pixmap, \a pm, inside rectangle \a r with its origin at
   point \a sp.
 */
 
 /*!
   \overload void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm )
-  Draws a tiled pixmap, \a pm, inside rectange \a r.
+  Draws a tiled pixmap, \a pm, inside rectangle \a r.
 */
 
 /*!
