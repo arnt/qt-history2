@@ -53,6 +53,7 @@ Just call the generated function; \e name is the original image
 filename <b>without</b> the extension.
 
 \section2 qembed_findData()
+
 \code
     #include "generated_qembed_file.h"
 
