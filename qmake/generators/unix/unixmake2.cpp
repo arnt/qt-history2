@@ -372,12 +372,6 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << "$(TAR) " << var("PROJECT") << ".tar " << " $(SOURCES) $(HEADERS) $(INTERFACES) $(DIST)" << "\n\t"
       << "$(GZIP) " << var("PROJECT") << ".tar" << endl << endl;
 
-#if 0
-    t << "install: " << "\n\t"
-      << "$(TAR) " << var("PROJECT") << ".tar " << " $(SOURCES) $(HEADERS) $(INTERFACES) $(DIST)" << "\n\t"
-      << "$(GZIP) " << var("PROJECT") << ".tar" << endl << endl;
-#endif
-
     QString clean_targets;
     if(mocAware()) {
 	t << "mocclean:" << "\n\t"
@@ -441,9 +435,6 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
     t << endl << endl;
 
     t << "all: " << ofile << " $(SUBTARGETS)" << endl << endl;
-    t << "install: " << ofile << " qmake_all" << "\n\t"
-      << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; "
-      << "[ -f $(MAKEFILE) ] && $(MAKE) -f $(MAKEFILE) install; fi; ) ; done" << endl;
 
     // generate target rules
     it = subdirs.begin();
