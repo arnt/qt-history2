@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#21 $
 **
 ** Implementation of QPointArray class
 **
@@ -16,12 +16,35 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#21 $")
 
 
-// --------------------------------------------------------------------------
-// QPointArray class
-//
+/*----------------------------------------------------------------------------
+  \class QPointArray qpntarry.h
+  \brief The QPointArray class provides an array of points.
+
+  \inherit QArray
+
+  QPointArray is used by the QPainter to draw
+  \link QPainter::drawLineSegments() line segments\endlink,
+  \link QPainter::drawPolyline() polylines\endlink,
+  \link QPainter::drawPolygon() polygons\endlink and
+  \link QPainter::drawLineBezier() Bezier curves\endlink.
+
+  The QPointArray is not an array of QPoint, instead it contains a
+  platform dependent point type to make the QPainter functions more
+  efficient (no conversion needed).  On the other hand, QPointArray
+  has member functions that operate on QPoint to make programming
+  easier.
+
+  Note that since this class is a QArray, it is explicitly shared
+  and works with shallow copies by default.
+ ----------------------------------------------------------------------------*/
+
+
+/*****************************************************************************
+  QPointArray member functions
+ *****************************************************************************/
 
 QPointArray::QPointArray( const QRect &r, bool closed )
 {
@@ -503,9 +526,20 @@ QPointArray QPointArray::bezier() const		// calculate Bezier curve
 }
 
 
-// --------------------------------------------------------------------------
-// QPointArray stream functions
-//
+/*****************************************************************************
+  QPointArray stream functions
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+  \relates QPointArray
+  Writes a point array to the stream and returns a reference to the stream.
+
+  The serialization format is:
+  <ol>
+  <li> The array size (UINT32)
+  <li> The array points (QPoint)
+  </ol>
+ ----------------------------------------------------------------------------*/
 
 QDataStream &operator<<( QDataStream &s, const QPointArray &a )
 {
@@ -516,6 +550,11 @@ QDataStream &operator<<( QDataStream &s, const QPointArray &a )
 	s << a.point( i );
     return s;
 }
+
+/*----------------------------------------------------------------------------
+  \relates QPointArray
+  Reads a point array from the stream and returns a reference to the stream.
+ ----------------------------------------------------------------------------*/
 
 QDataStream &operator>>( QDataStream &s, QPointArray &a )
 {
