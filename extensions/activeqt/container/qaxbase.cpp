@@ -122,6 +122,15 @@ static QHash<QString, QAxMetaObject*> mo_cache;
 static int mo_cache_ref = 0;
 static QMutex cache_mutex;
 
+
+static const char *const type_conversion[][2] =
+{
+    { "float", "double"},
+    { "short", "int"},
+    { "char", "int"},
+    { 0, 0 }
+};
+
 /*
     \internal
     \class QAxEventSink qaxbase.cpp
@@ -183,17 +192,16 @@ public:
     
     void addSignal(DISPID memid, const char *name)
     {
-	QString signalname = name;
-	int pi = signalname.find('(');
-	int i = pi;
-	while ((i = signalname.find("short", i)) != -1)
-	    signalname.replace(i, 5, "int");
-	i = pi;
-	while ((i = signalname.find("char", i)) != -1)
-	    signalname.replace(i, 4, "int");
-	i = pi;
-	while ((i = signalname.find("float", i)) != -1)
-	    signalname.replace(i, 5, "double");
+	QByteArray signalname = name;
+	int pi = signalname.indexOf('(');
+        int i = 0;
+        while (type_conversion[i][0]) {
+            int ti = pi;
+            int len = strlen(type_conversion[i][0]);
+            while ((ti = signalname.indexOf(type_conversion[i][0], ti)) != -1)
+	        signalname.replace(ti, len, type_conversion[i][1]);
+            ++i;
+        }
 
         sigs.insert(memid, name);
         QMap<DISPID,QByteArray>::ConstIterator it;
@@ -277,11 +285,10 @@ public:
 
         int index = -1;
         // emit the generic signal "as is"
-        if (((QAxObject*)qobject)->receivers(SIGNAL(signal(QString,int,void*))))
+        if (((QAxObject*)qobject)->receivers(SIGNAL(signal(QString,int,void*)))) {
             index = meta->indexOfSignal("signal(QString,int,void*)");
+            Q_ASSERT(index != -1);
 
-        Q_ASSERT(index != -1);
-        if (index != -1) {
             QString nameString(signame);
             void *argv[] = {0, &nameString, &pDispParams->cArgs, &pDispParams->rgvarg};
             combase->qt_metacall(QMetaObject::EmitSignal, index, argv);
@@ -291,10 +298,9 @@ public:
 
         // get the signal information from the metaobject
         index = -1;
-        Q_ASSERT(meta->indexOfSignal(signame) != -1);
-        if (((QAxObject*)qobject)->receivers(QByteArray::number(QSIGNAL_CODE) + signame))
+        if (((QAxObject*)qobject)->receivers(QByteArray::number(QSIGNAL_CODE) + signame)) {
             index = meta->indexOfSignal(signame);
-        if (index != -1) {
+            Q_ASSERT(index != -1);
             const QMetaMember signal = meta->signal(index);
             Q_ASSERT(signame == signal.signature());
             // verify parameter count
@@ -1181,14 +1187,6 @@ long QAxBase::queryInterface(const QUuid &uuid, void **iface) const
     
     return E_NOTIMPL;
 }
-
-static const char *const type_conversion[][2] =
-{
-    { "float", "double"},
-    { "short", "int"},
-    { "char", "int"},
-    { 0, 0 }
-};
 
 inline QByteArray replaceType(const char *type)
 {
