@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#190 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#191 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -26,7 +26,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#190 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#191 $");
 
 
 /*****************************************************************************
@@ -2557,17 +2557,17 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		XCharStruct overall;
 		XTextExtents( fs, str, len, &direction, &ascent, &descent,
 			      &overall );
-		int xx = x;
-		int yy = y - ascent;
-		int ww = overall.width;
-		int hh = ascent + descent;
+		int fx = x;
+		int fy = y - ascent;
+		int fw = overall.width;
+		int fh = ascent + descent;
 		int m, n;
 		QPointArray a(5);
-		mat1.map( xx,    yy,    &m, &n );  a.setPoint( 0, m, n );
+		mat1.map( fx,    fy,    &m, &n );  a.setPoint( 0, m, n );
 					           a.setPoint( 4, m, n );
-		mat1.map( xx+ww, yy,    &m, &n );  a.setPoint( 1, m, n );
-		mat1.map( xx+ww, yy+hh, &m, &n );  a.setPoint( 2, m, n );
-		mat1.map( xx,    yy+hh, &m, &n );  a.setPoint( 3, m, n );
+		mat1.map( fx+fw, fy,    &m, &n );  a.setPoint( 1, m, n );
+		mat1.map( fx+fw, fy+fh, &m, &n );  a.setPoint( 2, m, n );
+		mat1.map( fx,    fy+fh, &m, &n );  a.setPoint( 3, m, n );
 		QBrush oldBrush = cbrush;
 		setBrush( backgroundColor() );
 		updateBrush();
