@@ -2027,7 +2027,7 @@ void PropertyList::setupProperties()
     }
 
 
-    if ( !w->inherits( "Spacer" ) && !w->inherits( "QLayoutWidget" ) ) {
+    if ( !w->inherits( "Spacer" ) && !w->inherits( "QLayoutWidget" ) && !w->inherits( "QAction" ) ) {
 	item = new PropertyTextItem( this, item, 0, "toolTip", TRUE, FALSE );
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "toolTip" ) )
