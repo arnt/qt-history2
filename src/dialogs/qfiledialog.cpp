@@ -4780,6 +4780,8 @@ void QFileDialog::setFilters( const QString &filters )
 
 /*!
   Adds \a filter to the filter list and makes it the current one.
+
+  See setFilter() for advanced \a filter syntax. 
 */
 
 void QFileDialog::addFilter( const QString &filter )
