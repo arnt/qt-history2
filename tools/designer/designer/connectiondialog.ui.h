@@ -194,10 +194,13 @@ void ConnectionDialog::okClicked()
     QPtrList<Command> oldConnectionCmds;
     for ( ConnectionContainer *c = connections.first(); c; c = connections.next() ) {
 	MetaDataBase::Connection conn;
-	conn.sender =
-	    MainWindow::self->formWindow()->child( c->senderItem()->currentText() );
-	conn.receiver =
-	    MainWindow::self->formWindow()->child( c->receiverItem()->currentText() );
+	conn.sender = MainWindow::self->formWindow()->child( c->senderItem()->currentText() );	
+	if ( !conn.sender ) 
+	    conn.sender = MainWindow::self->formWindow()->findAction( c->senderItem()->currentText() );	
+	conn.receiver = MainWindow::self->formWindow()->child( c->receiverItem()->currentText() );
+	if ( !conn.receiver )
+	    conn.receiver = MainWindow::self->formWindow()->findAction( c->senderItem()->currentText() );
+	    
 	conn.signal = c->signalItem()->currentText();
 	conn.slot = c->slotItem()->currentText();
 	AddConnectionCommand *cmd = new AddConnectionCommand( tr( "Add Signal/Slot "
