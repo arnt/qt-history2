@@ -41,7 +41,11 @@
 #include <qvbox.h>
 #include <qgrid.h>
 #include <qiconview.h>
-
+#include <qworkspace.h>
+#include <qprintdialog.h>
+#include <qprinter.h>
+#include <qfontdialog.h>
+#include <qcolordialog.h>
 
 #include <life.h>
 
@@ -225,9 +229,40 @@ public:
 class EgQFileDialog : public QFileDialog {
 public:
     EgQFileDialog() :
-	QFileDialog( "/", "*" )
+#if defined (_WS_WIN_)
+	QFileDialog( "c:\\winnt", "*" )
+#else
+	QFileDialog( getenv( "HOME" ), "*" )
+#endif
     {
-	resize(300,300);
+	//resize(300,300);
+	clearWFlags( WType_Modal );
+    }
+};
+
+class EgQPrintDialog : public QPrintDialog {
+public:
+    EgQPrintDialog() :
+	QPrintDialog( new QPrinter )
+    {
+	clearWFlags( WType_Modal );
+    }
+};
+
+class EgQColorDialog : public QColorDialog {
+public:
+    EgQColorDialog() :
+	QColorDialog()
+    {
+	clearWFlags( WType_Modal );
+    }
+};
+
+class EgQFontDialog : public QFontDialog {
+public:
+    EgQFontDialog() :
+	QFontDialog()
+    {
 	clearWFlags( WType_Modal );
     }
 };
@@ -237,7 +272,7 @@ public:
     EgQMessageBox() :
 	QMessageBox()
     {
-	setText("This is a QMessageBox\nwith a message");
+	setText("This is a <b>QMessageBox</b> with a message. It can even display <em>Rich-Text!</em>");
 	setIcon(QMessageBox::Information);
 	clearWFlags( WType_Modal );
     }
@@ -262,11 +297,36 @@ public:
     }
 };
 
+class EgRangeControls : public QVBox
+{
+public:
+    EgRangeControls( QWidget *parent = 0 ) : QVBox( parent ) {
+	(void)new QLabel( "Some Range-Controls and a LCD-Number:", this );
+	
+	setMargin( 5 );
+	setSpacing( 5 );
+	
+	QSlider *slider = new QSlider( this );
+	slider->setRange( 0, 100 );
+	slider->setValue( 30 );
+	slider->setOrientation( Horizontal );
+	
+	QSpinBox *sb = new QSpinBox( this );
+	sb->setRange( 0, 600 );
+	sb->setSuffix( " $" );
+	sb->setValue( 300 );
+	
+	QLCDNumber *lcd = new QLCDNumber( this );
+	lcd->display( "33" );
+	
+    }
+};
+
 class EgQTabDialog : public QTabDialog {
-    QWidget t1;
+    QVBox t1;
     QWidget t2;
     QWidget t3;
-    EgQRadioButton rb;
+    EgRangeControls rb;
 
 public:
     EgQTabDialog() :
@@ -275,7 +335,6 @@ public:
 	t3(this),
 	rb(&t1)
     {
-	rb.move(10,10);
 	addTab(&t1, "Base");
 	addTab(&t2, "Innings");
 	addTab(&t3, "Style");
@@ -781,6 +840,7 @@ public:
 	menuBar()->insertItem( "&Tools" );
 	menuBar()->insertItem( "&Plugins" );
 	menuBar()->insertItem( "E&xtra" );
+	menuBar()->insertItem( "&Windows" );
 	menuBar()->insertSeparator();
 	menuBar()->insertItem( "&Help" );
 	
@@ -816,10 +876,12 @@ public:
 	tb = new QToolButton( t );
 	tb->setPixmap( QPixmap( "rightjust.xpm" ) );
 	
-	QMultiLineEdit *me = new QMultiLineEdit( this );
-	setCentralWidget( me );
+	QWorkspace *ws = new QWorkspace( this );
+	setCentralWidget( ws );
+	QMultiLineEdit *me = new QMultiLineEdit( ws );
 	me->setText( "This is the Central Widget." );
-	
+	me->setCaption( "Document 1" );
+
 	statusBar()->message( "For Hel, Press F1" );
 	
 	resize( 400, 300 );
@@ -889,6 +951,33 @@ public:
     }
 };
 
+class EgComplexGroupBox : public QGroupBox
+{
+public:
+    EgComplexGroupBox() : QGroupBox( 1, Horizontal, "Group Box" ) {
+	(void)new QLineEdit( "Some Text", this );
+	QComboBox *cb = new QComboBox( FALSE, this );
+	cb->insertItem( "First Item" );
+	cb = new QComboBox( TRUE, this );
+	cb->insertItem( "Third Item" );
+    }
+};
+
+class EgComplexButtonGroup : public QButtonGroup
+{
+public:
+    EgComplexButtonGroup() : QButtonGroup( 1, Horizontal, "Group Box" ) {
+	QRadioButton *rb = new QRadioButton( "Radiobutton &1", this );
+	rb->setChecked( TRUE );
+	rb = new QRadioButton( "Radiobutton &2", this );
+	rb = new QRadioButton( "Radiobutton &3", this );
+	rb = new QRadioButton( "Radiobutton &4", this );
+	QCheckBox *cb = new QCheckBox( "&Checkbox 1", this );
+	cb = new QCheckBox( "&Checkbox 2", this );
+	cb->setChecked( TRUE );
+    }
+};
+
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
@@ -915,8 +1004,6 @@ wd.depict( new eg(), ofile, wname, TRUE );
 	DEPICT( EgQComboBox1, "qcombo1", "QComboBox()" );
 	DEPICT( EgQComboBox2, "qcombo2", "QComboBox(TRUE)" );
 	DEPICT( EgQComboBox3, "qcombo3", "QComboBox(FALSE)" );
-	DEPICT( EgQFileDialog, "qfiledlg", "QFileDialog" );
-	DEPICT( EgQMessageBox, "qmsgbox", "QMessageBox" );
 	DEPICT( EgQLCDNumber, "qlcdnum", "QLCDNumber" );
 	DEPICT( EgQLabel, "qlabel", "QLabel" );
 	DEPICT( EgNestedQMenuBar, "qmenubar", "QMenuBar" );
@@ -944,10 +1031,18 @@ wd.depict( new eg(), ofile, wname, TRUE );
 	DEPICT( EgQHBox, "qhbox", "QHBox" );
 	DEPICT( EgQVBox, "qvbox", "QVBox" );
 	DEPICT( EgQDial, "qdial", "QDial" );
-
 	DEPICT( EgQSizeGrip, "qsizegrip", "QSizeGrip" );	
-	DEPICTFRAMED( EgComplexMainWindow, "mainwindow", "QMainWindow" );	
 	DEPICT( EgComplexSplitter, "splitter-views", "QSplitter" );	
+	DEPICTFRAMED( EgComplexMainWindow, "mainwindow", "QMainWindow" );	
+	DEPICT( EgQFileDialog, "qfiledlg", "QFileDialog" );
+	DEPICT( EgQPrintDialog, "qprintdlg", "QPrintDialog" );
+	DEPICT( EgQFontDialog, "qfontdlg", "QFontDialog" );
+	DEPICT( EgQColorDialog, "qcolordlg", "QColorDialog" );
+	DEPICT( EgQMessageBox, "qmsgbox", "QMessageBox" );
+	DEPICT( EgComplexGroupBox, "groupbox", "QGroupBox" );
+	DEPICT( EgComplexButtonGroup, "buttongroup", "QButtonGroup" );
+	DEPICT( EgQTabDialog, "qtabdlg", "QTabDialog" );
+
 	if ( !first ) break;
 
 	first = false;
