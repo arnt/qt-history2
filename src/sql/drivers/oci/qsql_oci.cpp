@@ -298,8 +298,8 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 	if ( colScale > 0 )
 	    type = QVariant::Double;
     }
-    if ( type == QVariant::ByteArray )
-	 colLength = 0;
+    if ( colType == SQLT_BLOB )
+ 	 colLength = 0;
 
     ofi.name = QString((char*)colName);
     ofi.name.truncate(colNameLen);
@@ -351,7 +351,7 @@ public:
 
 	while ( parmStatus == OCI_SUCCESS ) {
 	    OraFieldInfo ofi = qMakeOraField( d, param );
-	    dataSize = ofi.oraLength+1;
+	    dataSize = ofi.oraLength;
 	    QVariant::Type type = ofi.type;
 	    createType( count-1, type );
 	    switch ( type ) {
@@ -360,8 +360,8 @@ public:
 				    &dfn,
 				    d->err,
 				    count,
-				    create(count-1, dataSize) ,
-				    dataSize,
+				    create( count-1, dataSize+1 ),
+				    dataSize+1,
 				    SQLT_DAT,
 				    (dvoid *) createInd( count-1 ),
 				    0, 0, OCI_DEFAULT );
@@ -380,23 +380,46 @@ public:
 				    OCI_DYNAMIC_FETCH ); /* piecewise */
 		break;
 	    case QVariant::ByteArray:
-		r = OCIDefineByPos( d->sql,
-				    &dfn,
-				    d->err,
-				    count,
-				    createLobLocator( count-1, d->env ),
-				    (sb4)-1,
-				    SQLT_BLOB,
-				    (dvoid *) createInd( count-1 ),
-				    0, 0, OCI_DEFAULT );
+		// RAW and LONG RAW fields can't be bound to LOB locators
+		if ( ofi.oraType == SQLT_BIN ) {
+		    r = OCIDefineByPos( d->sql,
+					&dfn,
+					d->err,
+					count,
+					create( count-1, dataSize ),
+					dataSize,
+					SQLT_BIN,
+					(dvoid *) createInd( count-1 ),
+					0, 0, OCI_DEFAULT );
+		} else if ( ofi.oraType == SQLT_LBI ) {
+		    r = OCIDefineByPos( d->sql,
+					&dfn,
+					d->err,
+					count,
+					0,
+					SB4MAXVAL,
+					SQLT_LBI,
+					(dvoid *) createInd( count-1 ),
+					0, 0, OCI_DYNAMIC_FETCH );
+		} else {
+		    r = OCIDefineByPos( d->sql,
+					&dfn,
+					d->err,
+					count,
+					createLobLocator( count-1, d->env ),
+					(sb4)-1,
+					SQLT_BLOB,
+					(dvoid *) createInd( count-1 ),
+					0, 0, OCI_DEFAULT );
+		}
 		break;
 	    default:
 		r = OCIDefineByPos( d->sql,
 				    &dfn,
 				    d->err,
 				    count,
-				    create(count-1,dataSize),
-				    dataSize,
+				    create( count-1, dataSize+1 ),
+				    dataSize+1,
 				    SQLT_STR,
 				    (dvoid *) createInd( count-1 ),
 				    0, 0, OCI_DEFAULT );
@@ -495,8 +518,13 @@ public:
 	    if ( nullField || !chunkSize ) {
 		res.setValue( fieldNum, QCString() );
 	    } else {
-		QCString tmp( (char*)col, chunkSize+1 );
-		res.setValue( fieldNum, res.value( fieldNum ).asCString() + tmp );
+		QByteArray ba = res.value( fieldNum ).toByteArray();
+		// NB! not a leak - tmp is deleted by QByteArray later on
+		char * tmp = (char *)malloc( chunkSize + ba.size() );
+		memcpy( tmp, ba.data(), ba.size() );
+		memcpy( tmp + ba.size(), col, chunkSize );
+		ba = ba.assign( tmp, ba.size() + chunkSize );
+		res.setValue( fieldNum, ba );
 	    }
 	    if ( status == OCI_SUCCESS_WITH_INFO ||
 		 status == OCI_NEED_DATA ) {
@@ -534,8 +562,8 @@ public:
 		} else {
 		    res.setValue( i, buf );
 		}
-	    if ( r != 0 || !amount )
-		res.setValue( i, QByteArray() );
+		if ( r != 0 || !amount )
+		    res.setValue( i, QByteArray() );
 		r = 0; // non-fatal error
 	    }
 	}
@@ -646,6 +674,8 @@ private:
     char* create( int position, int size )
     {
 	char* c = new char[ size+1 ];
+	// Oracle may not fill fixed width fields
+	memset( c, 0, size+1 );
 	data.insert( position , c );
 	int* l = new int();
 	*l = size;
