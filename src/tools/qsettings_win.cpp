@@ -750,7 +750,7 @@ QStringList QSettingsPrivate::sysEntryList( const QString &key ) const
 #endif
 	    res = RegEnumValueW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, NULL );
 	    if ( res == ERROR_SUCCESS )
-		qname = QString( vnameT );
+		qname = QString::fromUcs2( vnameT );
 #ifndef Q_OS_TEMP
 	} else
 #endif
@@ -828,7 +828,7 @@ QStringList QSettingsPrivate::sysSubkeyList( const QString &key ) const
 #endif
 	    res = RegEnumKeyExW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, &lastWrite );
 	    if ( res == ERROR_SUCCESS )
-		qname = QString( vnameT );
+		qname = QString::fromUcs2( vnameT );
 #ifndef Q_OS_TEMP
 	} else
 #endif

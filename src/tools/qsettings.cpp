@@ -449,9 +449,9 @@ QSettingsPrivate::QSettingsPrivate()
 	if ( SHGetSpecialFolderPath ) {
 	    TCHAR path[MAX_PATH];
 	    SHGetSpecialFolderPath( 0, path, CSIDL_APPDATA, FALSE );
-	    appSettings  = path;
+	    appSettings  = QString::fromUcs2( path );
 	    SHGetSpecialFolderPath( 0, path, CSIDL_COMMON_APPDATA, FALSE );
-	    defPath = path;
+	    defPath = QString::fromUcs2( path );
 	}
     } else
 #endif

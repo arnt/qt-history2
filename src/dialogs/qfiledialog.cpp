@@ -4844,7 +4844,7 @@ static QString getWindowsRegString( HKEY key, const QString &subKey )
 	DWORD bsz = sizeof(buf);
 	int r = RegQueryValueEx( key, subKey.ucs2(), 0, 0, (LPBYTE)buf, &bsz );
 	if ( r == ERROR_SUCCESS ) {
-	    s = (unsigned short *)buf;
+	    s = QString::fromUcs2( (unsigned short *)buf );
 	} else if ( r == ERROR_MORE_DATA ) {
 	    char *ptr = new char[bsz+1];
 	    r = RegQueryValueEx( key, subKey.ucs2(), 0, 0, (LPBYTE)ptr, &bsz );

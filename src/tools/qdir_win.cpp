@@ -108,7 +108,7 @@ QString QDir::canonicalPath() const
 	if ( ::_wchdir( dPath.ucs2() ) >= 0 ) {
 	    TCHAR tmp[PATH_MAX];
 	    if ( ::_wgetcwd( tmp, PATH_MAX ) )
-		r = tmp;
+		r = QString::fromUcs2( tmp );
 	}
     } else 
 #endif
@@ -286,7 +286,7 @@ QString QDir::currentDirPath()
     if ( qt_winunicode ) {
 	TCHAR currentName[PATH_MAX];
 	if ( ::_wgetcwd(currentName,PATH_MAX) != 0 ) {
-	    result = currentName;
+	    result = QString::fromUcs2( currentName );
 	}
     } else 
 #endif
@@ -466,7 +466,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	QString fname;
 #ifdef UNICODE
 	if ( qt_winunicode )
-	    fname = (unsigned short *)finfo.cFileName;
+	    fname = QString::fromUcs2( (unsigned short *)finfo.cFileName );
 	else 
 #endif
 	    fname = QString::fromLocal8Bit( (const char*)finfo.cFileName );

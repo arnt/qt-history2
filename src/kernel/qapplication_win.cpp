@@ -1793,7 +1793,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    if ( !msg.wParam ) {
 		QString area =
 #if defined(UNICODE)
-		    ( qt_winver & Qt::WV_NT_based ) ? QString( (unsigned short *)msg.lParam ) :
+		    ( qt_winver & Qt::WV_NT_based ) ? QString::fromUcs2( (unsigned short *)msg.lParam ) :
 #endif
 		    QString::fromLocal8Bit( (char*)msg.lParam );
 		if ( area == "intl" )

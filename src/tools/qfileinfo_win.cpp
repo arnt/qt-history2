@@ -128,7 +128,7 @@ static QString currentDirOfDrive( char ch )
     if ( qt_winunicode ) {
 	TCHAR currentName[PATH_MAX];
 	if ( _wgetdcwd( toupper( (uchar) ch ) - 'A' + 1, currentName, PATH_MAX ) >= 0 ) {
-	    result = currentName;
+	    result = QString::fromUcs2( currentName );
 	}
     } else 
 #endif
@@ -216,7 +216,7 @@ QString QFileInfo::readLink() const
 		    if (SUCCEEDED(hres)) {
 			memcpy( szGotPath, fn.ucs2(), (fn.length()+1)*sizeof(QChar) );
 			hres = psl->GetPath( szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH );
-			fileLinked = szGotPath;
+			fileLinked = QString::fromUcs2( szGotPath );
 		    }
 		}
 		ppf->Release();
@@ -288,7 +288,7 @@ QString QFileInfo::owner() const
 		TCHAR *domain = new TCHAR[ldomain];
 		// Second call, size is without '\0'
 		if ( ptrLookupAccountSidW( NULL, pOwner, (LPWSTR)owner, &lowner, (LPWSTR)domain, &ldomain, &use ) ) {
-		    name = owner;
+		    name = QString::fromUcs2( owner );
 		}
 		LocalFree( pSD );
 		delete [] owner;
@@ -353,7 +353,7 @@ QString QFileInfo::group() const
 		TCHAR *domain = new TCHAR[ldomain];
 		// Second call, size is without '\0'
 		if ( ptrLookupAccountSidW( NULL, pGroup, (LPWSTR)group, &lgroup, (LPWSTR)domain, &ldomain, &use ) ) {
-		    name = group;
+		    name = QString::fromUcs2( group );
 		}
 		LocalFree( pSD );
 		delete [] group;

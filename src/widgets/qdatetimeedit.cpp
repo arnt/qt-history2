@@ -119,17 +119,17 @@ static void readLocaleSettings()
 #endif
 	TCHAR data[10];
 	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDATE, data, 10 );
-	*lDateSep = data;
+	*lDateSep = QString::fromUcs2( data );
 	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_STIME, data, 10 );
-	*lTimeSep = data;
+	*lTimeSep = QString::fromUcs2( data );
 	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_ITIME, data, 10 );
-	lAMPM = QString( data ).toInt()==0;
+	lAMPM = QString::fromUcs2( data ).toInt()==0;
 	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_S1159, data, 10 );
-	QString am( data );
+	QString am = QString::fromUcs2( data );
 	if ( !am.isEmpty() )
 	    lAM = new QString( am );
 	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_S2359, data, 10 );
-	QString pm( data );
+	QString pm = QString::fromUcs2( data );
 	if ( !pm.isEmpty()  )
 	    lPM = new QString( pm );
 #ifndef Q_OS_TEMP

@@ -120,7 +120,7 @@ void newWinFont( void * p )
 
     QString familyName;
     if ( qt_winver & Qt::WV_NT_based ) {
-        familyName = QString( tc );
+        familyName = QString::fromUcs2( tc );
     } else {
         familyName = QString::fromLocal8Bit((const char*)tc);
     }
@@ -143,7 +143,7 @@ void newWinFont( void * p )
 
     QString styleName;
     if ( qt_winver & Qt::WV_NT_based ) {
-        styleName = QString( tc );
+        styleName = QString::fromUcs2( tc );
     } else {
         styleName = QString::fromLocal8Bit((const char*)tc);
     }

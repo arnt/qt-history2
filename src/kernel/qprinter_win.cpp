@@ -472,9 +472,9 @@ void QPrinter::readPdlg( void* pdv )
 	    // order is important here since setPrinterName() calls
 	    // setDefaultPrinter() which modifies the DEVNAMES structure
             TCHAR* drName = ((TCHAR*)dn) + dn->wDriverOffset;
-            setPrintProgram( drName );
+            setPrintProgram( QString::fromUcs2( drName ) );
             TCHAR* prName = ((TCHAR*)dn) + dn->wDeviceOffset;
-            setPrinterName( prName );
+            setPrinterName( QString::fromUcs2( prName ) );
 	    GlobalUnlock( pd->hDevNames );
         }
     }

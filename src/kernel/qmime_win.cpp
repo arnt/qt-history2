@@ -589,7 +589,7 @@ QByteArray QWindowsMimeUri::convertToMime( QByteArray data, const char* mime, in
     int i=0;
     if ( hdrop->fWide ) {
 	while ( filesw[i] ) {
-	    QString fn = QString( filesw+i );
+	    QString fn = QString::fromUcs2( filesw+i );
 	    texturi += QUriDrag::localFileToUri(fn);
 	    texturi += "\r\n";
 	    i += fn.length()+1;

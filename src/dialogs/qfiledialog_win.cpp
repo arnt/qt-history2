@@ -305,7 +305,7 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 				     *initialDirectory, title,
 				     winFilter(filter), ExistingFile );
 	if ( GetOpenFileName( ofn ) ) {
-	    result = QString( ofn->lpstrFile );
+	    result = QString::fromUcs2( ofn->lpstrFile );
 	    selFilIdx = ofn->nFilterIndex;
 	}
 	cleanUpOFN( &ofn );
@@ -375,7 +375,7 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 				     *initialDirectory, title,
 				     winFilter(filter), AnyFile );
 	if ( GetSaveFileName( ofn ) ) {
-	    result = QString( ofn->lpstrFile );
+	    result = QString::fromUcs2( ofn->lpstrFile );
 	    selFilIdx = ofn->nFilterIndex;
 	}
 	cleanUpOFN( &ofn );
@@ -446,7 +446,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 				     *initialDirectory, title,
 				     winFilter( filter ), ExistingFiles );
 	if ( GetOpenFileName( ofn ) ) {
-	    QString fileOrDir = QString( ofn->lpstrFile );
+	    QString fileOrDir = QString::fromUcs2( ofn->lpstrFile );
 	    selFilIdx = ofn->nFilterIndex;
 	    int offset = fileOrDir.length() + 1;
 	    if ( ofn->lpstrFile[offset] == 0 ) {
@@ -460,7 +460,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 		// Several files selected; first string is path
 		dir.setPath( fileOrDir );
 		QString f;
-		while( !(f = QString(ofn->lpstrFile+offset)).isEmpty() ) {
+		while( !(f = QString::fromUcs2(ofn->lpstrFile+offset)).isEmpty() ) {
 		    fi.setFile( dir, f );
 		    QString res = fi.absFilePath();
 		    if ( !res.isEmpty() )
@@ -534,7 +534,7 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
 	if ( ptrSHGetPathFromIDList && qt_winver & Qt::WV_NT_based ) {
 	    TCHAR path[MAX_PATH];
 	    ptrSHGetPathFromIDList(LPITEMIDLIST(lParam), (LPSTR)path);
-	    QString tmpStr(path);
+	    QString tmpStr = QString::fromUcs2(path);
 	    if (!tmpStr.isEmpty())
 		SendMessage(hwnd, BFFM_ENABLEOK, 1, 1);
 	    else
@@ -601,7 +601,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	    else {
 		pMalloc->Free(pItemIDList);
 		pMalloc->Release();
-		result = QString(path);
+		result = QString::fromUcs2(path);
 	    }
 	} else
 	    result = QString::null;

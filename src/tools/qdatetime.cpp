@@ -512,7 +512,7 @@ QString QDate::shortMonthName( int month )
 #endif
 	TCHAR buf[255];
 	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, L"MMM", buf, 255 ) )
-	    return buf;
+	    return QString::fromUcs2( buf );
 #ifndef Q_OS_TEMP
     } else
 #endif
@@ -566,7 +566,7 @@ QString QDate::longMonthName( int month )
 #endif
 	TCHAR buf[255];
 	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, L"MMMM", buf, 255 ) )
-	    return buf;
+	    return QString::fromUcs2( buf );
 #ifndef Q_OS_TEMP
     } else
 #endif
@@ -628,7 +628,7 @@ QString QDate::shortDayName( int weekday )
 #endif
 	TCHAR buf[255];
 	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, L"ddd", buf, 255 ) )
-	    return buf;
+	    return QString::fromUcs2( buf );
 #ifndef Q_OS_TEMP
     } else
 #endif
@@ -683,7 +683,7 @@ QString QDate::longDayName( int weekday )
 #endif
 	TCHAR buf[255];
 	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, L"dddd", buf, 255 ) )
-	    return buf;
+	    return QString::fromUcs2( buf );
 #ifndef Q_OS_TEMP
     } else
 #endif
@@ -753,7 +753,7 @@ QString QDate::toString( Qt::DateFormat f ) const
 #endif
 		TCHAR buf[255];
 		if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, 0, buf, 255 ) )
-		    return buf;
+		    return QString::fromUcs2( buf );
 #ifndef Q_OS_TEMP
 	    } else
 #endif
@@ -798,7 +798,7 @@ QString QDate::toString( Qt::DateFormat f ) const
 #endif
 		TCHAR out[255];
 		GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_ILDATE, out, 255 );
-		winstr = out;
+		winstr = QString::fromUcs2( out );
 #ifndef Q_OS_TEMP
 	    } else
 #endif
@@ -1426,7 +1426,7 @@ QString QTime::toString( Qt::DateFormat f ) const
 #endif
 		TCHAR buf[255];
 		if ( GetTimeFormat( LOCALE_USER_DEFAULT, 0, &st, 0, buf, 255 ) )
-		    return buf;
+		    return QString::fromUcs2( buf );
 #ifndef Q_OS_TEMP
 	    } else
 #endif
@@ -2124,7 +2124,7 @@ QString QDateTime::toString( Qt::DateFormat f ) const
 #endif
 	    TCHAR out[255];
 	    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_ILDATE, out, 255 );
-	    winstr = out;
+	    winstr = QString::fromUcs2( out );
 #ifndef Q_OS_TEMP
 	} else
 #endif

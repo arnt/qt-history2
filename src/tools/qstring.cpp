@@ -13205,29 +13205,6 @@ QString::QString( const char *str )
     d = new QStringData(uc,l,l);
 }
 
-/*!
-  Constructs a string that is a deep copy of \a str, interpreted as a
-  UCS2 encoded, zero terminated, Unicode string.
-
-  If \a str is 0, then a null string is created.
-
-  \sa isNull()
-*/
-QString::QString( const unsigned short *str )
-{
-    if ( !str ) {
-	d = shared_null ? shared_null : makeSharedNull();
-	d->ref();
-    } else {
-	int length = 0;
-	while( str[length] != 0 )
-	    length++;
-	QChar* uc = QT_ALLOC_QCHAR_VEC( length );
-	memcpy( uc, str, length*sizeof(QChar) );
-	d = new QStringData( uc, length, length );
-    }
-}
-
 /*! \fn QString::~QString()
 
 Destroys the string and frees the "real" string if this is the last
@@ -13312,32 +13289,6 @@ QString &QString::operator=( const char *str )
     return setLatin1(str);
 }
 
-
-/*! \overload
-
-  Assigns a deep copy of \a str, interpreted as a UCS2 encoded 0 terminated Unicode 
-  string to this string and returns a reference to this string.
-
-  If \a str is 0, then a null string is created.
-
-  \sa isNull()
-*/
-QString &QString::operator=( const unsigned short *str )
-{
-    d->deref();
-    if ( !str ) {
-	d = shared_null ? shared_null : makeSharedNull();
-	d->ref();
-    } else {
-	int length = 0;
-	while( str[length] != 0 )
-	    length++;
-	QChar* uc = QT_ALLOC_QCHAR_VEC( length );
-	memcpy( uc, str, length*sizeof(QChar) );
-	d = new QStringData( uc, length, length );
-    }
-    return *this;
-}
 
 /*!
   \fn bool QString::isNull() const
@@ -16360,6 +16311,28 @@ const unsigned short *QString::ucs2() const
 }
 
 /*!
+  Constructs a string that is a deep copy of \a str, interpreted as a
+  UCS2 encoded, zero terminated, Unicode string.
+
+  If \a str is 0, then a null string is created.
+
+  \sa isNull()
+*/
+QString QString::fromUcs2( const unsigned short *str )
+{
+    if ( !str ) {
+	return QString::null;
+    } else {
+	int length = 0;
+	while( str[length] != 0 )
+	    length++;
+	QChar* uc = QT_ALLOC_QCHAR_VEC( length );
+	memcpy( uc, str, length*sizeof(QChar) );
+	return QString( new QStringData( uc, length, length ), TRUE );
+    }
+}
+
+/*!
   \fn QChar QString::at( uint ) const
 
   Returns the character at index \a i, or 0 if \a i is beyond the length
@@ -17230,7 +17203,11 @@ void* qt_winTchar_new(const QString& str)
 */
 QString qt_winQString(void* tc)
 {
-    return (TCHAR *)tc;
+#ifdef UNICODE
+    return QString::fromUcs2( (TCHAR *)tc );
+#else
+    return QString::fromLatin1( (TCHAR *)tc );
+#endif
 }
 
 QCString qt_winQString2MB( const QString& s, int uclen )

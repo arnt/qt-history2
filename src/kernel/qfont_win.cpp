@@ -64,7 +64,7 @@ QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)
 {
     QString family =
 	(qt_winver & Qt::WV_NT_based)
-	    ? QString(lf.lfFaceName)
+	    ? QString::fromUcs2(lf.lfFaceName)
 	    : QString::fromLatin1((char*)lf.lfFaceName);
     QFont qf(family);
     if (lf.lfItalic)
@@ -298,7 +298,7 @@ void QFontPrivate::initFontInfo()
 #  endif
 	TCHAR n[64];
 	GetTextFaceW( fin->dc(), 64, n );
-	actual.family = QString(n);
+	actual.family = QString::fromUcs2(n);
 	actual.fixedPitch = !(fin->textMetricW()->tmPitchAndFamily & TMPF_FIXED_PITCH);
 #  ifndef Q_OS_TEMP
     } else 
