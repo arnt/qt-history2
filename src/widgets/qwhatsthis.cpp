@@ -189,7 +189,6 @@ private slots:
     }
 };
 
-
 // static, but static the less-typing way
 static QWhatsThisPrivate * wt = 0;
 
@@ -294,10 +293,17 @@ void QWhatsThisButton::mouseReleased()
     }
 }
 
+static void qWhatsThisPrivateCleanup()
+{
+    if( wt ) {
+	delete wt;
+	wt = 0;
+    }
+}
 
 // the what's this manager class
 QWhatsThisPrivate::QWhatsThisPrivate()
-    : QObject( qApp, "global what's this object" )
+    : QObject( 0, "global what's this object" )
 {
     whatsThat = 0;
     dict = new QPtrDict<QWhatsThisPrivate::WhatsThisItem>;
@@ -321,7 +327,6 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 	QApplication::restoreOverrideCursor();
     delete cursor;
 #endif
-
     // the two straight-and-simple dicts
     delete tlw;
     delete buttons;
@@ -338,7 +343,9 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 	    delete i;
     }
     delete dict;
-    delete whatsThat;
+    // ### whatsThat is destroyed when its parent is destroyed.
+    // ### Deleting it here will cause a double QObject deletion error.
+    // delete whatsThat;
 
     // and finally lose wt
     wt = 0;
@@ -440,6 +447,11 @@ void QWhatsThisPrivate::setUpWhatsThis()
 {
     if ( !wt ) {
 	wt = new QWhatsThisPrivate();
+
+	// It is necessary to use a post routine, because
+	// the destructor deletes pixmaps and other stuff that
+	// needs a working X connection under X11.
+	qAddPostRoutine( qWhatsThisPrivateCleanup );
     }
 }
 
@@ -591,7 +603,6 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 	p.drawLine( 6, h + 6 - i,
 		    i + 5, h + 5 );
 }
-
 
 void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint& ppos)
 {
