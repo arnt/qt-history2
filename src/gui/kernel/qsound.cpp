@@ -99,13 +99,12 @@ public:
     On Microsoft Windows the underlying multimedia system is used;
     only WAVE format sound files are supported.
 
-    On X11 the \link ftp://ftp.x.org/contrib/audio/nas/ Network Audio
-    System\endlink is used if available, otherwise all operations work
-    silently. NAS supports WAVE and AU files.
+    On X11 the \l{ftp://ftp.x.org/contrib/audio/nas/}{Network Audio System}
+    is used if available, otherwise all operations work silently. NAS
+    supports WAVE and AU files.
 
-    On Macintosh, ironically, we use QT (\link
-    http://quicktime.apple.com QuickTime\endlink) for sound, this
-    means all QuickTime formats are supported by Qt/Mac.
+    On Mac OS X we use \l{http://quicktime.apple.com/}{QuickTime) for sound.
+    All QuickTime formats are supported by Qt/Mac.
 
     On Qt/Embedded, a built-in mixing sound server is used, which
     accesses \c /dev/dsp directly. Only the WAVE format is supported.
