@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclb_x11.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qclb_x11.cpp#20 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_x11.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_x11.cpp#20 $");
 
 
 /*****************************************************************************
@@ -384,9 +384,12 @@ void *QClipboard::data( const char *format ) const
 	    buf = readIncrementalProperty( dpy, win, qt_selection_property,
 					   nbytes );
 	} else if ( type != XA_STRING ) {
+#if 0
+	    // For debugging
 	    char *n = XGetAtomName( dpy, type );
 	    debug( "Qt clipboard: unknown atom = %s",n);
 	    XFree( n );
+#endif
 	}
     }
     return buf.data();
