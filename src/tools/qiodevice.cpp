@@ -415,7 +415,7 @@ void QIODevice::setState( int s )
 
 /*!
   \internal
-  Used by subclasses to set the device status (not state).
+  Used by subclasses to set the device status (not state) to \a s.
 */
 
 void QIODevice::setStatus( int s )
@@ -426,11 +426,12 @@ void QIODevice::setStatus( int s )
 
 /*!
   \fn bool QIODevice::open( int mode )
-  Opens the I/O device using the specified \e mode.
+  Opens the I/O device using the specified \a mode.
   Returns TRUE if the device was successfully opened; otherwise
   returns FALSE.
 
-  The mode parameter \e m must be an OR'ed combination of the following flags.
+  The mode parameter \a mode must be an OR'ed combination of the
+  following flags.
   \list
   \i \c IO_Raw specified raw (unbuffered) file access.
   \i \c IO_ReadOnly opens a file in read-only mode.
@@ -489,7 +490,8 @@ QIODevice::Offset QIODevice::at() const
 }
 
 /*!
-  Virtual function that sets the I/O device position to \e pos.
+    \overload
+  Virtual function that sets the I/O device position to \a pos.
   \sa size()
 */
 
@@ -532,7 +534,7 @@ bool QIODevice::atEnd() const
 
 /*!
   \fn int QIODevice::readBlock( char *data, Q_ULONG maxlen )
-  Reads at most \e maxlen bytes from the I/O device into \e data and
+  Reads at most \a maxlen bytes from the I/O device into \a data and
   returns the number of bytes actually read.
 
   This virtual function must be reimplemented by all subclasses.
@@ -578,7 +580,7 @@ QByteArray QIODevice::readAll()
 
 /*!
   \fn int QIODevice::writeBlock( const char *data, Q_ULONG len )
-  Writes \e len bytes from \e data to the I/O device and returns the
+  Writes \a len bytes from \a data to the I/O device and returns the
   number of bytes actually written.
 
   This virtual function must be reimplemented by all subclasses.
@@ -587,6 +589,7 @@ QByteArray QIODevice::readAll()
 */
 
 /*!
+    \overload
   This convenience function is the same as calling
   writeBlock( data.data(), data.size() ).
 */
@@ -596,7 +599,7 @@ Q_LONG QIODevice::writeBlock( const QByteArray& data )
 }
 
 /*!
-  Reads a line of text, (or up to \e maxlen bytes if a newline isn't
+  Reads a line of text, (or up to \a maxlen bytes if a newline isn't
   encountered) plus a terminating \0 into \a data.  If there is a
   newline at the end if the line, it is not stripped.
 
@@ -643,9 +646,9 @@ Q_LONG QIODevice::readLine( char *data, Q_ULONG maxlen )
 /*!
   \fn int QIODevice::putch( int ch )
 
-  Writes the character \e ch to the I/O device.
+  Writes the character \a ch to the I/O device.
 
-  Returns \e ch, or -1 if an error occurred.
+  Returns \a ch, or -1 if an error occurred.
 
   This virtual function must be reimplemented by all subclasses.
 
@@ -655,12 +658,12 @@ Q_LONG QIODevice::readLine( char *data, Q_ULONG maxlen )
 /*!
   \fn int QIODevice::ungetch( int ch )
 
-  Puts the character \e ch back into the I/O device and decrements the
+  Puts the character \a ch back into the I/O device and decrements the
   index position if it is not zero.
 
   This function is normally called to "undo" a getch() operation.
 
-  Returns \e ch, or -1 if an error occurred.
+  Returns \a ch, or -1 if an error occurred.
 
   This virtual function must be reimplemented by all subclasses.
 

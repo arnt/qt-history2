@@ -206,6 +206,7 @@ void QPointArray::point( uint index, int *x, int *y ) const
 }
 
 /*!
+    \overload
   Returns the point at position \a index within the array.
 */
 
@@ -216,6 +217,7 @@ QPoint QPointArray::point( uint index ) const
 
 /*!
   \overload void QPointArray::setPoint( uint i, const QPoint &p )
+  Sets the point at array index \a i to \a p.
 */
 
 /*!
@@ -258,6 +260,7 @@ bool QPointArray::setPoints( int nPoints, const QCOORD *points )
 }
 
 /*!
+    \overload
   Resizes the array to \a nPoints and sets the points in the array to
   the values taken from the variable argument list.
 
@@ -270,6 +273,9 @@ bool QPointArray::setPoints( int nPoints, const QCOORD *points )
     QPointArray a;
     a.setPoints( 2, 1,2, 3,4 );
   \endcode
+
+  The points are given as a sequence of integers, starting with \a
+  firstx then \a firsty, and so on.
 
   \sa resize(), putPoints()
 */
@@ -292,7 +298,15 @@ bool QPointArray::setPoints( int nPoints, int firstx, int firsty, ... )
     return TRUE;
 }
 
-/*! \overload */
+/*! \overload 
+    Copies \a nPoints points from the \a points coord array into
+  this point array, and resizes the point array if
+  \c{index+nPoints} exceeds the size of the array.
+
+  Returns TRUE if successful, or FALSE if the array could not be
+  resized (typically due to lack of memory).
+
+*/
 
 bool QPointArray::putPoints( int index, int nPoints, const QCOORD *points )
 {
@@ -310,8 +324,8 @@ bool QPointArray::putPoints( int index, int nPoints, const QCOORD *points )
 }
 
 /*!  Copies \a nPoints points from the variable argument list into
-  this point array, and resizes the point array if
-  <code>index+nPoints</code> exceeds the size of the array.
+  this point array from position \a index, and resizes the point array
+  if \c{index+nPoints} exceeds the size of the array.
 
   Returns TRUE if successful, or FALSE if the array could not be
   resized (typically due to lack of memory).
@@ -322,7 +336,7 @@ bool QPointArray::putPoints( int index, int nPoints, const QCOORD *points )
   \code
     QPointArray a( 1 );
     a[0] = QPoint( 1, 2 );
-    a.putPoints( 1, 2, 3,4, 5,6 );
+    a.putPoints( 1, 2, 3,4, 5,6 ); // index == 1, points == 2
   \endcode
 
   This has the same result, but here putPoints overwrites rather than
@@ -332,6 +346,9 @@ bool QPointArray::putPoints( int index, int nPoints, const QCOORD *points )
     a.putPoints( 0, 3, 1,2, 0,0, 5,6 );
     a.putPoints( 1, 1, 3,4 );
   \endcode
+
+  The points are given as a sequence of integers, starting with \a
+  firstx then \a firsty, and so on.
 
   \sa resize(), setPoints()
 */
@@ -536,12 +553,13 @@ qtr_elips(QPointArray& a, int& offset, double dxP, double dyP, double dxQ, doubl
 
 
 /*!
+    \overload
   Sets the points of the array to those describing an arc of an
-  ellipse with size \a w by \a h and position (\a x, \a y ), starting
-  from angle \a a1, spanning \a a2 and transformed by the matrix \a xf.
+  ellipse with width \a w and height \a h and position (\a x, \a y ), starting
+  from angle \a a1, spanning angle \a a2 and transformed by the matrix \a xf.
   The resulting array has sufficient resolution for pixel accuracy.
 
-  Angles are specified in 16ths of a degree, i.e., a full circle equals
+  Angles are specified in 16ths of a degree, i.e. a full circle equals
   5760 (16*360). Positive values mean counter-clockwise, whereas negative
   values mean a clockwise direction.  Zero degrees is at the 3 o'clock
   position.
@@ -986,7 +1004,8 @@ QPointArray QPointArray::cubicBezier() const
 #ifndef QT_NO_DATASTREAM
 /*!
   \relates QPointArray
-  Writes a point array to the stream and returns a reference to the stream.
+  Writes the point array, \a a to the stream \a s and returns a
+  reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -1003,7 +1022,8 @@ QDataStream &operator<<( QDataStream &s, const QPointArray &a )
 
 /*!
   \relates QPointArray
-  Reads a point array from the stream and returns a reference to the stream.
+  Reads a point array, \a a from the stream \a s and returns a
+  reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */

@@ -199,11 +199,19 @@ bool QPrinter::newPage()
     return success;
 }
 
+/*!
+    \internal
+    Sets the state of the printer to be 'active'.
+*/
 void QPrinter::setActive()
 {
     state = PST_ACTIVE;
 }
 
+/*!
+    \internal
+    Sets the state of the printer to be 'idle'.
+*/
 void QPrinter::setIdle()
 {
     state = PST_IDLE;

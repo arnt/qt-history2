@@ -103,23 +103,23 @@
 /*! \enum QFrame::Shape
 
   This enum type defines the shapes of a QFrame's frame.  The
-  currently defined shapes are: <ul>
+  currently defined shapes are: \list
 
-  <li> \c NoFrame - QFrame draws nothing
-  <li> \c Box - QFrame draws a box around its contents
-  <li> \c Panel - QFrame draws a panel such that the contents appear raised or sunken
-  <li> \c WinPanel - like \c Panel, but QFrame draws the 3D effects
+  \i NoFrame - QFrame draws nothing
+  \i Box - QFrame draws a box around its contents
+  \i Panel - QFrame draws a panel such that the contents appear raised or sunken
+  \i WinPanel - like \c Panel, but QFrame draws the 3D effects
   the way Microsoft Windows 95 (etc.) does
-  <li> \c ToolBarPanel - QFrame calls QStyle::drawToolBarPanel()
-  <li> \c MenuBarPanel - QFrame calls QStyle::drawMenuBarPanel()
-  <li> \c HLine - QFrame draws a horizontal line that frames nothing
+  \i ToolBarPanel - QFrame calls QStyle::drawToolBarPanel()
+  \i MenuBarPanel - QFrame calls QStyle::drawMenuBarPanel()
+  \i HLine - QFrame draws a horizontal line that frames nothing
   (useful as separator)
-  <li> \c VLine - QFrame draws a vertical line that frames nothing
+  \i VLine - QFrame draws a vertical line that frames nothing
   (useful as separator)
-  <li> \c StyledPanel - QFrame calls QStyle::drawPanel()
-  <li> \c PopupPanel - QFrame calls QStyle::drawPopupPanel()
+  \i StyledPanel - QFrame calls QStyle::drawPanel()
+  \i PopupPanel - QFrame calls QStyle::drawPopupPanel()
 
-  </ul>
+  \endlist
 
   When it does not call QStyle, Shape interacts with QFrame::Shadow,
   the lineWidth() and the midLineWidth() to create the total result.
@@ -139,6 +139,7 @@
   \value Plain  the frame and contents appear level with the surroundings
   \value Raised the frame and contents appear raised
   \value Sunken the frame and contents appear sunken
+  \value MShadow internal; mask for the shadow
 
   Shadow interacts with QFrame::Shape, the lineWidth() and the
   midLineWidth().  The <a href="#picture">picture of the frames</a> in
@@ -199,39 +200,39 @@ static const int wpwidth = 2; // WinPanel lwidth
   class documentation.
 
   The frame shapes are:
-  <ul>
-  <li> \c NoFrame draws nothing. Naturally, you should not specify a shadow
+  \list
+  \i NoFrame draws nothing. Naturally, you should not specify a shadow
   style if you use this.
-  <li> \c Box draws a rectangular box.  The contents appear to be
+  \i Box draws a rectangular box.  The contents appear to be
   level with the surrounding screen, but the border itself may be
   raised or sunken.
-  <li> \c Panel draws a rectangular panel that can be raised or sunken.
-  <li> \c StyledPanel draws a rectangular panel with a look that depends on
+  \i Panel draws a rectangular panel that can be raised or sunken.
+  \i StyledPanel draws a rectangular panel with a look that depends on
   the current GUI style.  It can be raised or sunken.
-  <li> \c PopupPanel is used to draw a frame suitable for popup windows.
+  \i PopupPanel is used to draw a frame suitable for popup windows.
   Its look also depends on the current GUI style,  usually the same as
   \c StyledPanel.
-  <li> \c ToolBarPanel is used to draw a frame suitable for tool bars. The
+  \i ToolBarPanel is used to draw a frame suitable for tool bars. The
   look depends upon the current GUI style.
-  <li> \c MenuBarPanel is used to draw a frame suitable for menu bars. The
+  \i MenuBarPanel is used to draw a frame suitable for menu bars. The
   look depends upon the current GUI style.
-  <li> \c WinPanel draws a rectangular panel that can be raised or
+  \i WinPanel draws a rectangular panel that can be raised or
   sunken like those in Windows 95.  Specifying this shape sets
   the line width to 2 pixels.  WinPanel is provided for compatibility.
   For GUI style independence we recommend using StyledPanel instead.
-  <li> \c HLine draws a horizontal line (vertically centered).
-  <li> \c VLine draws a vertical line (horizontally centered).
-  </ul>
+  \i HLine draws a horizontal line (vertically centered).
+  \i VLine draws a vertical line (horizontally centered).
+  \endlist
 
   The shadow styles are:
-  <ul>
-  <li> \c Plain draws using the palette foreground color (without any
+  \list
+  \i Plain draws using the palette foreground color (without any
   3D effect).
-  <li> \c Raised draws a 3D raised line using the light and dark
+  \i Raised draws a 3D raised line using the light and dark
   colors of the current color group.
-  <li> \c Sunken draws a 3D sunken line using the light and dark
+  \i Sunken draws a 3D sunken line using the light and dark
   colors of the current color group.
-  </ul>
+  \endlist
 
   If a mid-line width greater than 0 is specified, an additional line
   is drawn for \c Raised or \c Sunken \c Box, \c HLine, and \c VLine
@@ -495,7 +496,7 @@ void QFrame::paintEvent( QPaintEvent *event )
 
 
 /*!
-  Processes the resize event \e.
+  Processes the resize event \a e.
 
   Adjusts the frame rectangle for the resized widget.  The frame
   rectangle is elastic, and the surrounding area is static.

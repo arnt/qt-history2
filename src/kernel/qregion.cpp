@@ -273,62 +273,88 @@ QDataStream &operator>>( QDataStream &s, QRegion &r )
 //  (eg. Windows at least provides 3-variable operations).  For now, simple.
 
 
-/*! \c r1|r2 is equivalent to \c r1.unite(r2)
+/*! 
+    Applies the unite() function to this region and \a r.
+    \c r1|r2 is equivalent to \c r1.unite(r2)
  \sa unite(), operator+()
  */
 const QRegion QRegion::operator|( const QRegion &r ) const
     { return unite(r); }
 
-/*! \c r1+r2 is equivalent to \c r1.unite(r2)
+/*! 
+    Applies the unite() function to this region and \a r.
+    \c r1+r2 is equivalent to \c r1.unite(r2)
  \sa unite(), operator|()
  */
 const QRegion QRegion::operator+( const QRegion &r ) const
     { return unite(r); }
 
-/*! \c r1&r2 is equivalent to \c r1.intersect(r2)
+/*! 
+    Applies the intersect() function to this region and \a r.
+    \c r1&r2 is equivalent to \c r1.intersect(r2)
  \sa intersect()
 */
 const QRegion QRegion::operator&( const QRegion &r ) const
     { return intersect(r); }
 
-/*! \c r1-r2 is equivalent to \c r1.subtract(r2)
+/*! 
+    Applies the subtract() function to this region and \a r.
+    \c r1-r2 is equivalent to \c r1.subtract(r2)
  \sa subtract()
 */
 const QRegion QRegion::operator-( const QRegion &r ) const
     { return subtract(r); }
 
-/*! \c r1^r2 is equivalent to \c r1.eor(r2)
+/*! 
+    Applies the eor() function to this region and \a r.
+    \c r1^r2 is equivalent to \c r1.eor(r2)
  \sa eor()
 */
 const QRegion QRegion::operator^( const QRegion &r ) const
     { return eor(r); }
 
-/*! \c r1|=r2 is equivalent to \c r1=r1.unite(r2)
+/*! 
+    Applies the unite() function to this region and \a r and assigns the
+    result to this region.
+    \c r1|=r2 is equivalent to \c r1=r1.unite(r2)
  \sa unite()
 */
 QRegion& QRegion::operator|=( const QRegion &r )
     { return *this = *this | r; }
 
-/*! \c r1+=r2 is equivalent to \c r1=r1.unite(r2)
+/*! 
+    Applies the unite() function to this region and \a r and assigns the
+    result to this region.
+    \c r1+=r2 is equivalent to \c r1=r1.unite(r2)
  \sa intersect()
 */
 QRegion& QRegion::operator+=( const QRegion &r )
     { return *this = *this + r; }
 
-/*! \c r1&=r2 is equivalent to \c r1=r1.intersect(r2)
+/*! 
+    Applies the intersect() function to this region and \a r and
+    assigns the result to this region.
+    \c r1&=r2 is equivalent to \c r1=r1.intersect(r2)
  \sa intersect()
 */
 QRegion& QRegion::operator&=( const QRegion &r )
     { return *this = *this & r; }
 
-/*! \c r1-=r2 is equivalent to \c r1=r1.subtract(r2)
+/*! 
+    Applies the subtract() function to this region and \a r and
+    assigns the result to this region.
+    \c r1-=r2 is equivalent to \c r1=r1.subtract(r2)
  \sa subtract()
 */
 QRegion& QRegion::operator-=( const QRegion &r )
     { return *this = *this - r; }
 
-/*! \c r1^=r2 is equivalent to \c r1=r1.eor(r2)
+/*! 
+    Applies the eor() function to this region and \a r and
+    assigns the result to this region.
+    \c r1^=r2 is equivalent to \c r1=r1.eor(r2)
  \sa eor()
 */
 QRegion& QRegion::operator^=( const QRegion &r )
     { return *this = *this ^ r; }
+

@@ -94,16 +94,16 @@
   as diverse as QPushButton, QListBox and QTabDialog.
 
   <strong>Groups of functions:</strong>
-  <ul>
+  \list
 
-  <li> Window functions:
+  \i Window functions:
 	show(),
 	hide(),
 	raise(),
 	lower(),
 	close().
 
-  <li> Top level windows:
+  \i Top level windows:
 	caption(),
 	setCaption(),
 	icon(),
@@ -117,14 +117,14 @@
 	showFullScreen(),
 	showNormal().
 
-  <li> Window contents:
+  \i Window contents:
 	update(),
 	repaint(),
 	erase(),
 	scroll(),
 	updateMask().
 
-  <li> Geometry:
+  \i Geometry:
 	pos(),
 	size(),
 	rect(),
@@ -157,7 +157,7 @@
 	setBaseSize(),
 	setFixedSize()
 
-  <li> Mode:
+  \i Mode:
 	isVisible(),
 	isVisibleTo(),
 	visibleRect(),
@@ -174,7 +174,7 @@
 	isUpdatesEnabled(),
 	setUpdatesEnabled(),
 
-  <li> Look and feel:
+  \i Look and feel:
 	style(),
 	setStyle(),
 	cursor(),
@@ -192,7 +192,7 @@
 	fontMetrics(),
 	fontInfo().
 
-  <li> Keyboard focus functions:
+  \i Keyboard focus functions:
 	isFocusEnabled(),
 	setFocusPolicy(),
 	focusPolicy(),
@@ -202,7 +202,7 @@
 	setTabOrder(),
 	setFocusProxy().
 
-  <li> Mouse and keyboard grabbing:
+  \i Mouse and keyboard grabbing:
 	grabMouse(),
 	releaseMouse(),
 	grabKeyboard(),
@@ -210,7 +210,7 @@
 	mouseGrabber(),
 	keyboardGrabber().
 
-  <li> Event handlers:
+  \i Event handlers:
 	event(),
 	mousePressEvent(),
 	mouseReleaseEvent(),
@@ -236,14 +236,14 @@
 	hideEvent(),
 	customEvent().
 
-  <li> Change handlers:
+  \i Change handlers:
 	enabledChange(),
 	fontChange(),
 	paletteChange(),
 	styleChange(),
 	windowActivationChange().
 
-  <li> System functions:
+  \i System functions:
 	parentWidget(),
 	topLevelWidget(),
 	reparentolish((),
@@ -251,7 +251,7 @@
 	find(),
 	metric().
 
-  <li> Internal kernel functions:
+  \i Internal kernel functions:
 	focusNextPrevChild(),
 	wmapper(),
 	clearWFlags(),
@@ -259,28 +259,28 @@
 	setWFlags(),
 	testWFlags().
 
-  <li> What's this help:
+  \i What's this help:
 	customWhatsThis()
-  </ul>
+  \endlist
 
   Every widget's constructor accepts two or three standard arguments:
-  <ul>
-  <li><code>QWidget *parent = 0</code> is the parent of the new widget.
+  \list
+  \i <code>QWidget *parent = 0</code> is the parent of the new widget.
   If it is 0 (the default), the new widget will be a top-level window.
   If not, it will be a child of \e parent, and be constrained by \e
   parent's geometry (Unless you specify \c WType_TopLevel as
   widget flag).
-  <li><code>const char *name = 0</code> is the widget name of the new
+  \i <code>const char *name = 0</code> is the widget name of the new
   widget.  You can access it using name().  The widget name is little
   used by programmers but is quite useful with GUI builders such as the
   Qt Designer (you can name a widget in the builder, and connect() to
   it by name in your code).  The dumpObjectTree() debugging function also
   uses it.
-  <li><code>WFlags f = 0</code> (where available) sets the <a
+  \i <code>WFlags f = 0</code> (where available) sets the <a
   href="qt.html#WidgetFlags">widget flags</a>; the default is good for almost
   all widgets, but to get e.g. top-level widgets without a window
   system frame you must use special flags.
-  </ul>
+  \endlist
 
   The tictac/tictac.cpp example program is good example of a simple
   widget.  It contains a few event handlers (as all widgets must), a
@@ -291,22 +291,22 @@
 
   You will need to supply the content for your widgets yourself, but
   here is a brief run-down of the events, starting with the most common
-  ones: <ul>
+  ones: \list
 
-  <li> paintEvent() - called whenever the widget needs to be
+  \i paintEvent() - called whenever the widget needs to be
   repainted.  Every widget which displays output must implement it,
   and it is sensible to \e never paint on the screen outside
   paintEvent().
 
-  <li> resizeEvent() - called when the widget has been resized.
+  \i resizeEvent() - called when the widget has been resized.
 
-  <li> mousePressEvent() - called when a mouse button is pressed.
+  \i mousePressEvent() - called when a mouse button is pressed.
   There are six mouse-related events, mouse press and mouse release
   events are by far the most important.  A widget receives mouse press
   events when the widget is inside it, or when it has grabbed the
   mouse using grabMouse().
 
-  <li> mouseReleaseEvent() - called when a mouse button is released.
+  \i mouseReleaseEvent() - called when a mouse button is released.
   A widget receives mouse release events when it has received the
   corresponding mouse press event.  This means that if the user
   presses the mouse inside \e your widget, then drags the mouse to
@@ -315,7 +315,7 @@
   while the mouse button is held down, that popup steals the mouse
   events at once.
 
-  <li> mouseDoubleClickEvent() - not quite as obvious as it might seem.
+  \i mouseDoubleClickEvent() - not quite as obvious as it might seem.
   If the user double-clicks, the widget receives a mouse press event
   (perhaps a mouse move event or two if he/she does not hold the mouse
   quite steady), a mouse release event and finally this event.  It is \e
@@ -323,41 +323,41 @@
   seen whether the second click arrives.  (This is one reason why most GUI
   books recommend that double clicks be an extension of single clicks,
   rather than trigger a different action.)
-  </ul>
+  \endlist
 
   If your widget only contains child widgets, you probably do not need to
   implement any event handlers.
 
   Widgets that accept keyboard input need to reimplement a few more
-  event handlers: <ul>
+  event handlers: \list
 
-  <li> keyPressEvent() - called whenever a key is pressed, and again
+  \i keyPressEvent() - called whenever a key is pressed, and again
   when a key has been held down long enough for it to auto-repeat.
   Note that the Tab and shift-Tab keys are only passed to the widget
   if they are not used by the focus-change mechanisms.  To force those
   keys to be processed by your widget, you must reimplement
   QWidget::event().
 
-  <li> focusInEvent() - called when the widget gains keyboard focus
+  \i focusInEvent() - called when the widget gains keyboard focus
   (assuming you have called setFocusPolicy(), of course). Well
   written widgets indicate that they own the keyboard focus in a clear
   but discreet way.
 
-  <li> focusOutEvent() - called when the widget loses keyboard
+  \i focusOutEvent() - called when the widget loses keyboard
   focus.
-  </ul>
+  \endlist
 
   Some widgets will need to reimplement some more obscure event
-  handlers, too: <ul>
+  handlers, too: \list
 
-  <li> mouseMoveEvent() - called whenever the mouse moves while a
+  \i mouseMoveEvent() - called whenever the mouse moves while a
   button is held down.  This is useful for e.g. dragging.  If you call
   setMouseTracking(TRUE), you get mouse move events even when no
   buttons are held down.  (Note that applications which make use of
   mouse tracking are often not very useful on low-bandwidth X
   connections.)
 
-  <li> keyReleaseEvent() - called whenever a key is released, and also
+  \i keyReleaseEvent() - called whenever a key is released, and also
   while it is held down if the key is auto-repeating.  In that case
   the widget receives a key release event and immediately a key press
   event for every repeat.  Note that the Tab and shift-Tab keys are
@@ -365,22 +365,22 @@
   mechanisms.  To force those keys to be processed by your widget, you
   must reimplement QWidget::event().
 
-  <li> wheelEvent() -- called whenever the user turns the mouse wheel
+  \i wheelEvent() -- called whenever the user turns the mouse wheel
   while the widget has the focus.
 
-  <li> enterEvent() - called when the mouse enters the widget's screen
+  \i enterEvent() - called when the mouse enters the widget's screen
   space.  (This excludes screen space owned by any children of the
   widget.)
 
-  <li> leaveEvent() - called when the mouse leaves the widget's screen
+  \i leaveEvent() - called when the mouse leaves the widget's screen
   space.
 
-  <li> moveEvent() - called when the widget has been moved relative to its
+  \i moveEvent() - called when the widget has been moved relative to its
   parent.
 
-  <li> closeEvent() - called when the user closes the widget (or when
+  \i closeEvent() - called when the user closes the widget (or when
   close() is called).
-  </ul>
+  \endlist
 
   There are also some \e really obscure events.  They are listed in
   qevent.h and you need to reimplement event() to handle them.  The
@@ -389,22 +389,22 @@
   more specialized handlers above.
 
   When writing a widget, there are a few more things to look out
-  for. <ul>
+  for. \list
 
-  <li> In the constructor, be sure to set up your member variables
+  \i In the constructor, be sure to set up your member variables
   early on, before there's any chance that you might receive an event.
 
-  <li>It is almost always useful to reimplement sizeHint() and to set
+  \i It is almost always useful to reimplement sizeHint() and to set
   the correct size policy with setSizePolicy(), so users of your class
   can set up layout management more easily.  A size policy lets you
   supply good defaults for the layout management handling, so that
   other widgets can contain and manage yours easily.  sizeHint()
   indicates a "good" size for the widget.
 
-  <li>If your widget is a top-level window, setCaption() and setIcon() set
+  \i If your widget is a top-level window, setCaption() and setIcon() set
   the title bar and icon respectively.
 
-  </ul>
+  \endlist
 
   \sa QEvent, QPainter, QGridLayout, QBoxLayout
 */
@@ -489,30 +489,30 @@ inline bool QWidgetMapper::remove( WId id )
 
 /*
     Widget state flags:
-  <dl compact>
-  <dt>WState_Created<dd> The widget has a valid winId().
-  <dt>WState_Disabled<dd> The widget does not receive any mouse
-       or keyboard events.
-  <dt>WState_ForceDisabled<dd> The widget is explicitly disabled, i.e. it will remain
-	disabled even when all its ancestors are set to enabled
-	state. This implies WState_Disabled.
-  <dt>WState_Visible<dd> The widget is currently visible.
-  <dt>WState_ForceHide<dd> The widget is explicitly hidden, i.e. it won't become
-      visible unless you call show() on it.  ForceHide implies !WState_Visible
-  <dt>WState_OwnCursor<dd> A cursor has been set for this widget.
-  <dt>WState_MouseTracking<dd> Mouse tracking is enabled.
-  <dt>WState_CompressKeys<dd> Compress keyboard events.
-  <dt>WState_BlockUpdates<dd> Repaints and updates are disabled.
-  <dt>WState_InPaintEvent<dd> Currently processing a paint event.
-  <dt>WState_Reparented<dd> The widget has been reparented.
-  <dt>WState_ConfigPending<dd> A config (resize/move) event is pending.
-  <dt>WState_Resized<dd> The widget has been resized.
-  <dt>WState_AutoMask<dd> The widget has an automatic mask, see setAutoMask().
-  <dt>WState_Polished<dd> The widget has been "polished" (i.e. late initializated ) by a QStyle.
-  <dt>WState_DND<dd> The widget supports drag and drop, see setAcceptDrops().
-  <dt>WState_Exposed<dd> the widget was finally exposed (x11 only,
+  \list
+  \i WState_Created The widget has a valid winId().
+  \i WState_Disabled The widget does not receive any mouse
+  \i  or keyboard events.
+  \i WState_ForceDisabled The widget is explicitly disabled, i.e. it will remain
+  \i   disabled even when all its ancestors are set to enabled
+  \i   state. This implies WState_Disabled.
+  \i WState_Visible The widget is currently visible.
+  \i WState_ForceHide The widget is explicitly hidden, i.e. it won't become
+  \i visible unless you call show() on it.  ForceHide implies !WState_Visible
+  \i WState_OwnCursor A cursor has been set for this widget.
+  \i WState_MouseTracking Mouse tracking is enabled.
+  \i WState_CompressKeys Compress keyboard events.
+  \i WState_BlockUpdates Repaints and updates are disabled.
+  \i WState_InPaintEvent Currently processing a paint event.
+  \i WState_Reparented The widget has been reparented.
+  \i WState_ConfigPending A config (resize/move) event is pending.
+  \i WState_Resized The widget has been resized.
+  \i WState_AutoMask The widget has an automatic mask, see setAutoMask().
+  \i WState_Polished The widget has been "polished" (i.e. late initializated ) by a QStyle.
+  \i WState_DND The widget supports drag and drop, see setAcceptDrops().
+  \i WState_Exposed the widget was finally exposed (x11 only,
       helps avoiding paint event doubling).
-  </dl>
+  \endlist
 */
 
 
@@ -607,7 +607,7 @@ Usually it will also be minimized when the parent is minimized.  If not
 customized, the window is decorated with a slightly simpler title bar.
 This is the flag QDialog uses.
 
-Finally, there are some modifier flags:
+Modifier flags:
 
 \value WDestructiveClose  makes Qt delete this object when the object has
 accepted closeEvent(), or when the widget tried to ignore closeEvent() but
@@ -641,6 +641,21 @@ erase the widget.  This allows smart-repainting to avoid flicker.
 \value WGroupLeader  makes this widget or window a group
 leader. Modality of secondary windows only affects windows within the
 same group.
+
+Miscellaneous flags
+\value WShowModal see WType_Dialog
+
+Internal flags.
+
+\value WNoMousePropagation
+\value WStaticContents
+\value WStyle_Reserved
+\value WSubWindow
+\value WType_Modal
+\value WWinOwnDC
+\value WX11BypassWM
+\value WStyle_Mask
+\value WType_Mask
 
 */
 
@@ -1757,6 +1772,7 @@ void QWidget::setFixedSize( const QSize & s)
 
 /*!
   \overload void QWidget::setFixedSize( int w, int h )
+  Sets the width fo the widget to \a w and the height to \a h.
 */
 
 void QWidget::setFixedSize( int w, int h )
@@ -2094,6 +2110,9 @@ void QWidget::setBackgroundFromMode()
   \value FixedPixmap the widget is cleared to a fixed pixmap,
   normally different from all the ones in the palette().  Set using
   setBackgroundPixmap().
+  \value PaletteLink
+  \value PaletteLinkVisited
+  \value X11ParentRelative (internal use)
 
   \c FixedColor and \c FixedPixmap sometimes are just the right
   thing, but if you use them, make sure that your application looks
@@ -2153,7 +2172,7 @@ void QWidget::setBackgroundMode( BackgroundMode m )
   PaletteBackground as background mode (typically dark grey), while
   it's embedded lineedit control uses PaletteBase (typically
   white). Since the lineedit covers most of the visual area of a
-  spinbox, it defines PaletteBase to be its \e visual background
+  spinbox, it defines PaletteBase to be its \a visual background
   mode. Changing the backgroundColor property thus changes the
   lineedit control's background, which is exactly what the user
   expects in Qt Designer.
@@ -2228,6 +2247,19 @@ const QColor & QWidget::backgroundColor() const
 #endif
 }
 
+/*!
+    This function sets the widget's background color to \a color.
+
+    Qt uses palettes for colors to ensure good contrast and consistent
+    color use. Behind-the-scenes this function either sets the
+    setEraseColor() or the palette (see setPalette()) depending on the
+    background mode. For example, if the background mode is
+    PaletteButton the pixmap used for the palette's
+    QColorGroup::Button brush entry is set.
+
+  \sa backgroundColor, setBackgroundColor() erasePixmap, palette, QApplication::setPalette()
+*/
+
 void QWidget::setBackgroundColor( const QColor &color )
 {
 #ifndef QT_NO_PALETTE
@@ -2254,21 +2286,14 @@ void QWidget::setBackgroundColor( const QColor &color )
 }
 
 
-/*! \property QWidget::backgroundPixmap
-    \brief the widget's background pixmap
-
+/*! 
+    Returns the widget's background pixmap.
   If the widget has backgroundMode() NoBackground, the
   backgroundPixmap() returns a pixmap for which QPixmap:isNull() is
   true.  If the widget has no pixmap is the background,
   backgroundPixmap() returns a null pointer.
 
-  setBackgroundPixmap() is a convenience function that creates and
-  sets a modified QPalette with setPalette(). The palette is modified
-  according to the widget's background mode. For example, if the
-  background mode is PaletteButton the pixmap used for the palette's
-  QColorGroup::Button brush entry is set.
-
-  \sa backgroundColor,  erasePixmap, palette, QApplication::setPalette()
+  \sa backgroundColor, setBackgroundColor() erasePixmap, palette, QApplication::setPalette()
 */
 const QPixmap *QWidget::backgroundPixmap() const
 {
@@ -2288,6 +2313,19 @@ const QPixmap *QWidget::backgroundPixmap() const
     return erasePixmap();
 #endif
 }
+
+/*!
+    This function sets the widget's background pixmap to \a pixmap.
+
+    Qt uses palettes for colors to ensure good contrast and consistent
+    color use. Behind-the-scenes this function either sets the
+    setEraseColor() or the palette (see setPalette()) depending on the
+    background mode. For example, if the background mode is
+    PaletteButton the pixmap used for the palette's
+    QColorGroup::Button brush entry is set.
+
+  \sa backgroundColor, setBackgroundColor() erasePixmap, palette, QApplication::setPalette()
+*/
 
 void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 {
@@ -2420,7 +2458,7 @@ void QWidget::unsetPalette()
 /*!
   \fn void QWidget::paletteChange( const QPalette &oldPalette )
 
-  This virtual function is called from setPalette().  \e oldPalette is the
+  This virtual function is called from setPalette().  \a oldPalette is the
   previous palette; you can get the new palette from palette().
 
   Reimplement this function if your widget needs to know when its
@@ -2501,7 +2539,7 @@ void QWidget::unsetFont()
 /*!
   \fn void QWidget::fontChange( const QFont &oldFont )
 
-  This virtual function is called from setFont().  \e oldFont is the
+  This virtual function is called from setFont().  \a oldFont is the
   previous font; you can get the new font from font().
 
   Reimplement this function if your widget needs to know when its font
@@ -2979,7 +3017,7 @@ bool QWidget::isActiveWindow() const
   so that keyboard focus moves from \a first widget to \a second
   widget when Tab is pressed.
 
-  Note that since the tab order of the \e second widget is changed,
+  Note that since the tab order of the \a second widget is changed,
   you should order a chain like this:
 
   \code
@@ -3624,6 +3662,7 @@ void QWidget::polish()
 */
 
 /*!
+    \overload
   Closes this widget. Returns TRUE if the widget was closed, otherwise
   FALSE.
 
@@ -3883,7 +3922,9 @@ QSize QWidget::minimumSizeHint() const
   \fn QWidget *QWidget::parentWidget( bool sameWindow ) const
 
   Returns a pointer to the parent of this widget, or a null pointer if
-  it does not have any parent widget.
+  it does not have any parent widget. If \a sameWindow is TRUE and the
+  widget is top level returns 0; otherwise returns the widget's
+  parent.
 */
 
 /*!
@@ -3926,11 +3967,10 @@ QSize QWidget::minimumSizeHint() const
   QWidget event handling
  *****************************************************************************/
 
-
 /*!
-  This is the main event handler. You may reimplement this function
-  in a subclass, but we recommend using one of the specialized event
-  handlers instead.
+  This is the main event handler; it handles event \a e. You may
+  reimplement this function in a subclass, but we recommend using one
+  of the specialized event handlers instead.
 
   The main event handler first passes an event through all \link
   QObject::installEventFilter() event filters\endlink that have been
@@ -4184,8 +4224,8 @@ bool QWidget::event( QEvent *e )
 
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  mouse move events for the widget.
+  This event handler, for event \a e, can be reimplemented in a
+  subclass to receive mouse move events for the widget.
 
   If mouse tracking is switched off, mouse move events only occur if a
   mouse button is down while the mouse is being moved.	If mouse
@@ -4208,8 +4248,8 @@ void QWidget::mouseMoveEvent( QMouseEvent * e)
 }
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  mouse press events for the widget.
+  This event handler, for event \a e, can be reimplemented in a
+  subclass to receive mouse press events for the widget.
 
   If you create new widgets in the mousePressEvent() the
   mouseReleaseEvent() may not end up where you expect, depending on the
@@ -4242,8 +4282,8 @@ void QWidget::mousePressEvent( QMouseEvent *e )
 }
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  mouse release events for the widget.
+  This event handler, for event \a e, can be reimplemented in a
+  subclass to receive mouse release events for the widget.
 
   \sa mouseReleaseEvent(), mouseDoubleClickEvent(),
   mouseMoveEvent(), event(),  QMouseEvent
@@ -4255,8 +4295,8 @@ void QWidget::mouseReleaseEvent( QMouseEvent * e )
 }
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  mouse double click events for the widget.
+  This event handler, for event \a e, can be reimplemented in a
+  subclass to receive mouse double click events for the widget.
 
   The default implementation generates a normal mouse press event.
 
@@ -4274,8 +4314,8 @@ void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
 
 #ifndef QT_NO_WHEELEVENT
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  wheel events for the widget.
+  This event handler, for event \a e, can be reimplemented in a
+  subclass to receive wheel events for the widget.
 
   If you reimplement this handler, it is very important that you \link
   QWheelEvent ignore()\endlink the event if you do not handle it, so
@@ -4294,8 +4334,8 @@ void QWidget::wheelEvent( QWheelEvent *e )
 #endif
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  tablet events for the widget.
+  This event handler, for event \a e, can be reimplemented in a
+  subclass to receive tablet events for the widget.
 
   ### More information to come.
 */
@@ -4306,8 +4346,8 @@ void QWidget::tabletEvent( QTabletEvent *e )
 }
 
 /*!
-  This event handler can be reimplemented in a subclass to receive key
-  press events for the widget.
+  This event handler, for event \a e, can be reimplemented in a
+  subclass to receive key press events for the widget.
 
   A widget must call setFocusPolicy() to accept focus initially and
   have focus in order to receive a key press event.
@@ -4334,8 +4374,8 @@ void QWidget::keyPressEvent( QKeyEvent *e )
 }
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  key release events for the widget.
+  This event handler, for event \a e, can be reimplemented in a
+  subclass to receive key release events for the widget.
 
   A widget must \link setFocusPolicy() accept focus\endlink initially
   and \link hasFocus() have focus\endlink in order to receive a key
@@ -4357,8 +4397,9 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
 }
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  keyboard focus events (focus received) for the widget.
+  This event handler can be reimplemented in a
+  subclass to receive keyboard focus events (focus received) for the
+  widget.
 
   A widget normally must setFocusPolicy() to something other than
   NoFocus in order to receive focus events.  (Note that the
@@ -4384,8 +4425,9 @@ void QWidget::focusInEvent( QFocusEvent * )
 }
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  keyboard focus events (focus lost) for the widget.
+  This event handler can be reimplemented in a
+  subclass to receive keyboard focus events (focus lost) for the
+  widget.
 
   A widget normally must setFocusPolicy() to something other than
   NoFocus in order to receive focus events.  (Note that the
@@ -4424,8 +4466,8 @@ QRect QWidget::microFocusHint() const
 }
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  widget enter events.
+  This event handler can be reimplemented in a
+  subclass to receive widget enter events.
 
   An event is sent to the widget when the mouse cursor enters the widget.
 
@@ -4437,8 +4479,8 @@ void QWidget::enterEvent( QEvent * )
 }
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  widget leave events.
+  This event handler can be reimplemented in a
+  subclass to receive widget leave events.
 
   A leave event is sent to the widget when the mouse cursor leaves
   the widget.
@@ -4451,8 +4493,8 @@ void QWidget::leaveEvent( QEvent * )
 }
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  paint events.
+  This event handler can be reimplemented in a
+  subclass to receive paint events.
 
   A paint event is a request to repaint all or part of the widget.  It
   can happen as a result of repaint() or update(), or because the
@@ -4507,10 +4549,10 @@ void QWidget::moveEvent( QMoveEvent * )
 
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  widget resize events. When resizeEvent() is called, the widget
-  already has its new geometry. The old size is accessible through
-  QResizeEvent::oldSize(), though.
+  This event handler can be reimplemented in a
+  subclass to receive widget resize events. When resizeEvent() is
+  called, the widget already has its new geometry. The old size is
+  accessible through QResizeEvent::oldSize(), though.
 
   The widget will be erased and receive a paint event immediately
   after processing the resize event. No drawing has to (and should) be
@@ -4535,8 +4577,8 @@ void QWidget::resizeEvent( QResizeEvent * )
 }
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  widget close events.
+  This event handler, for event \a e, can be reimplemented in a
+  subclass to receive widget close events.
 
   The default implementation calls e->accept(), which hides this widget.
   See the QCloseEvent documentation for more details.
@@ -4551,8 +4593,8 @@ void QWidget::closeEvent( QCloseEvent *e )
 
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  widget context menu events.
+  This event handler, for event \a e, can be reimplemented in a
+  subclass to receive widget context menu events.
 
   The default implementation calls e->ignore(), which rejects the context
   event.
@@ -4568,9 +4610,9 @@ void QWidget::contextMenuEvent( QContextMenuEvent *e )
 
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  Input Method composition events.  This handler is called when
-  the user begins inputting text via an Input Method.
+  This event handler, for event \a e, can be reimplemented in a
+  subclass to receive Input Method composition events.  This handler
+  is called when the user begins inputting text via an Input Method.
 
   The default implementation calls e->ignore(), which rejects the
   Input Method event.
@@ -4584,9 +4626,9 @@ void QWidget::imStartEvent( QIMEvent *e )
 }
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  Input Method composition events.  This handler is called when
-  the user has entered some text via an Input Method.
+  This event handler, for event \a e, can be reimplemented in a
+  subclass to receive Input Method composition events.  This handler
+  is called when the user has entered some text via an Input Method.
 
   The default implementation calls e->ignore(), which rejects the
   Input Method event.
@@ -4601,9 +4643,10 @@ void QWidget::imComposeEvent( QIMEvent *e )
 
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  Input Method composition events.  This handler is called when
-  the user has finished inputting text via an Input Method.
+  This event handler, for event \a e, can be reimplemented in a
+  subclass to receive Input Method composition events.  This handler
+  is called when the user has finished inputting text via an Input
+  Method.
 
   The default implementation calls e->ignore(), which rejects the
   Input Method event.
@@ -4620,8 +4663,8 @@ void QWidget::imEndEvent( QIMEvent *e )
 #ifndef QT_NO_DRAGANDDROP
 
 /*!
-  This event handler is called when a drag is in progress and the
-  mouse enters this widget.
+  This event handler is called when a drag is in
+  progress and the mouse enters this widget.
 
   See the \link dnd.html Drag-and-drop documentation\endlink for
   an overview of how to provide drag-and-drop in your application.
@@ -4633,9 +4676,9 @@ void QWidget::dragEnterEvent( QDragEnterEvent * )
 }
 
 /*!
-  This event handler is called when a drag is in progress and the
-  mouse enters this widget, and whenever it moves within
-  the widget.
+  This event handler is called when a drag is in
+  progress and the mouse enters this widget, and whenever it moves
+  within the widget.
 
   See the \link dnd.html Drag-and-drop documentation\endlink for
   an overview of how to provide drag-and-drop in your application.
@@ -4647,8 +4690,8 @@ void QWidget::dragMoveEvent( QDragMoveEvent * )
 }
 
 /*!
-  This event handler is called when a drag is in progress and the
-  mouse leaves this widget.
+  This event handler is called when a drag is in
+  progress and the mouse leaves this widget.
 
   See the \link dnd.html Drag-and-drop documentation\endlink for
   an overview of how to provide drag-and-drop in your application.
@@ -4660,8 +4703,8 @@ void QWidget::dragLeaveEvent( QDragLeaveEvent * )
 }
 
 /*!
-  This event handler is called when the drag is dropped on this
-  widget.
+  This event handler is called when the drag is
+  dropped on this widget.
 
   See the \link dnd.html Drag-and-drop documentation\endlink for
   an overview of how to provide drag-and-drop in your application.
@@ -4675,8 +4718,8 @@ void QWidget::dropEvent( QDropEvent * )
 #endif // QT_NO_DRAGANDDROP
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  widget show events.
+  This event handler can be reimplemented in a
+  subclass to receive widget show events.
 
   Non-spontaneous show events are sent to widgets right before they are
   shown. Spontaneous show events of top level widgets are delivered
@@ -4695,8 +4738,8 @@ void QWidget::showEvent( QShowEvent * )
 }
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  widget hide events.
+  This event handler can be reimplemented in a
+  subclass to receive widget hide events.
 
   Hide events are sent to widgets right after they have been hidden.
 
@@ -5020,7 +5063,15 @@ QWidget  *QWidget::childAt( int x, int y, bool includeThis ) const
     return 0;
 }
 
-/*!\overload */
+/*!\overload 
+
+    Returns the visible child widget at point \a p in
+  the widget's own coordinate system.
+
+  If \a includeThis is TRUE, and there is no child visible at \a
+  p, the widget itself is returned.
+    
+*/
 QWidget  *QWidget::childAt( const QPoint & p, bool includeThis ) const
 {
     return childAt( p.x(), p.y(), includeThis );

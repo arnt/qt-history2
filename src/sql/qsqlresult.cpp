@@ -320,7 +320,7 @@ bool QSqlResult::isForwardOnly() const
     return forwardOnly;
 }
 
-/*! Sets forward only mode to \a forward. In forward only mode only fetchNext() is
+/*! Sets forward only mode to \a forward. If forward is TRUE only fetchNext() is
     allowed for navigating the results. Forward only mode needs far less
     memory since results do not have to be cached.
     forward only mode is off by default.

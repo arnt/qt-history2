@@ -147,7 +147,7 @@ QSize QSizeGrip::sizeHint() const
 }
 
 /*!  Paints the resize grip - small diagonal textured lines in the
-  lower-right corner.
+  lower-right corner. The event is in \a e.
 */
 void QSizeGrip::paintEvent( QPaintEvent *e )
 {
@@ -157,7 +157,7 @@ void QSizeGrip::paintEvent( QPaintEvent *e )
 }
 
 /*!
-  Primes the resize operation.
+  Primes the resize operation. The event is in \a e.
 */
 void QSizeGrip::mousePressEvent( QMouseEvent * e )
 {
@@ -167,7 +167,8 @@ void QSizeGrip::mousePressEvent( QMouseEvent * e )
 
 
 /*!
-  Resizes the top-level widget containing this widget.
+  Resizes the top-level widget containing this widget. The event is in
+  \a e.
 */
 void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
 {

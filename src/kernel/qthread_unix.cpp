@@ -332,13 +332,13 @@ Qt::HANDLE QThread::currentThread()
 
 /*!
   Provides a way of posting an event from a thread which is not the
-  event thread to an object. The event is put into a queue, then the
-  event thread is woken which then sends the event to the object.
+  event thread to an object. The \a event is put into a queue, then the
+  event thread is woken which then sends the event to the \a receiver object.
   It is important to note that the event handler for the event, when called,
   will be called from the event thread and not from the thread calling
   QThread::postEvent().
 
-  Same as with \l QApplication::postEvent(), \a event must be allocated on the
+  Just as with \l QApplication::postEvent(), \a event must be allocated on the
   heap, as it is deleted when the event has been posted.
 */
 void QThread::postEvent( QObject * receiver, QEvent * event )
@@ -459,16 +459,16 @@ void QThread::start()
 /*!
   This allows similar functionality to POSIX pthread_join.  A thread
   calling this will block until one of 2 conditions is met:
-  <ul>
-  <li> The thread associated with this QThread object has finished
+  \list
+  \i The thread associated with this QThread object has finished
        execution (i.e. when it returns from run() ).  This
        function will return TRUE if the thread has finished.
        It also returns TRUE if the thread has not been started yet.
-  <li> \a time milliseconds has elapsed.  If \a time is ULONG_MAX (default
+  \i \a time milliseconds has elapsed.  If \a time is ULONG_MAX (default
        argument), then the wait will never timeout (the thread must
        return from run() ).  This function will return FALSE
        if the wait timed out.
-  </ul>
+  \endlist
 */
 bool QThread::wait(unsigned long time)
 {
@@ -614,14 +614,14 @@ QWaitCondition::~QWaitCondition()
 /*!
   Wait on the thread event object. The thread calling this will block
   until one of 2 conditions is met:
-  <ul>
-  <li> Another thread signals it using wakeOne() or wakeAll(). This
+  \list
+  \i Another thread signals it using wakeOne() or wakeAll(). This
        function will return TRUE in this case.
-  <li> \a time milliseconds has elapsed.  If \a time is ULONG_MAX (default
+  \i \a time milliseconds has elapsed.  If \a time is ULONG_MAX (default
        argument), then the wait will never timeout (the event must
        signalled).  This function will return FALSE if the
        wait timed out.
-  </ul>
+  \endlist
 
   \sa wakeOne(), wakeAll()
 */
@@ -632,19 +632,20 @@ bool QWaitCondition::wait(unsigned long time)
 
 
 /*!
+    \overload
   Release the locked \a mutex and wait on the thread event object. The
   \a mutex must be initially locked by the calling thread.  If \a mutex
   is not in a locked state, this function returns immediately.  The
   \a mutex will be unlocked, and the thread calling will block until
   one of 2 conditions is met:
-  <ul>
-  <li> Another thread signals it using wakeOne() or wakeAll(). This
+  \list
+  \i Another thread signals it using wakeOne() or wakeAll(). This
        function will return TRUE in this case.
-  <li> \a time milliseconds has elapsed.  If \a time is ULONG_MAX (default
+  \i \a time milliseconds has elapsed.  If \a time is ULONG_MAX (default
        argument), then the wait will never timeout (the event must
        signalled).  This function will return FALSE if the
        wait timed out.
-  </ul>
+  \endlist
 
   The mutex will be returned to the same locked state.  This function is
   provided to allow the atomic transition from the locked state to the

@@ -56,7 +56,7 @@
 /*!
   Constructs a horizontal button group with no title.
 
-  The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \a parent and \a name arguments are passed to the QWidget constructor.
 */
 QHButtonGroup::QHButtonGroup( QWidget *parent, const char *name )
     : QButtonGroup( 1, Vertical /* sic! */, parent, name )
@@ -66,7 +66,7 @@ QHButtonGroup::QHButtonGroup( QWidget *parent, const char *name )
 /*!
   Constructs a horizontal button group with a title.
 
-  The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \a parent and \a name arguments are passed to the QWidget constructor.
 */
 
 QHButtonGroup::QHButtonGroup( const QString &title, QWidget *parent,

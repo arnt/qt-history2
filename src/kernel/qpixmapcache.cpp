@@ -188,6 +188,7 @@ QPixmap *QPixmapCache::find( const QString &key )
 
 
 /*!
+    \overload
   Looks for a cached pixmap associated with \a key in the cache.  If a
   pixmap is found, the function sets \a pm to that pixmap and returns
   TRUE.  Otherwise, the function returns FALSE and does not change \a

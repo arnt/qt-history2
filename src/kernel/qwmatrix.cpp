@@ -168,7 +168,8 @@ QWMatrix::QWMatrix()
 }
 
 /*!
-  Constructs a matrix with the specified elements.
+  Constructs a matrix with the elements, \a m11, \a m12, \a m21, \a
+  m22, \a dx and \a dy.
 */
 
 QWMatrix::QWMatrix( double m11, double m12, double m21, double m22,
@@ -181,7 +182,8 @@ QWMatrix::QWMatrix( double m11, double m12, double m21, double m22,
 
 
 /*!
-  Sets the matrix elements to the specified values.
+  Sets the matrix elements to the specified values, \a m11, \a m12, \a m21,
+  \a m22, \a dx and \a dy.
 */
 
 void QWMatrix::setMatrix( double m11, double m12, double m21, double m22,
@@ -263,7 +265,7 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
   
   \obsolete
   
-  Does the same as \l operator *( const QPoint &)
+  Does the same as operator *( const QPoint &)
 */
 
 /*!
@@ -271,7 +273,7 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
   
   \obsolete
   
-  Please use \l mapRect instead.
+  Please use \l QWMatrix::mapRect() instead.
 
   Note that this method does return the bounding rectangle of the \a r, when
   shearing or rotations are used.
@@ -282,7 +284,7 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
   
   \obsolete
   
-  Does the same as \l operator *( const QPointArray &)
+  Does the same as operator *( const QPointArray &)
 */
 
 
@@ -291,9 +293,9 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 
   The bounding rectangle is returned if rotation or shearing has been specified.
   
-  If you need to know the exact region \a rect maps to use \l operator *( const QRect & ).
+  If you need to know the exact region \a rect maps to use \l operator*().
 
-  \sa operator *( const QRect & )
+  \sa operator*()
 */
 
 QRect QWMatrix::mapRect( const QRect &rect ) const
@@ -355,10 +357,10 @@ QPointArray QWMatrix::operator *( const QPointArray &a ) const
   
   Calling this method can be rather expensive, if rotations or
   shearing are used.  If you just need to know the bounding rectangle
-  of the returned region, use \l mapRect, as the method is a lot
+  of the returned region, use mapRect(), as the method is a lot
   faster than this one.
 
-  \sa mapRect
+    \sa QWMatrix::mapRect()
 */
 QRegion QWMatrix::operator * (const QRect &r ) const
 {
@@ -600,6 +602,7 @@ QWMatrix &QWMatrix::bmul( const QWMatrix &m )
 }
 
 /*!
+    \overload
   \relates QWMatrix
   Returns the product \a m1 * \a m2.
 

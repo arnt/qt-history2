@@ -1116,7 +1116,7 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
     }
 }
 
-/*! Sets the dock window's main widget.
+/*! Sets the dock window's main widget to \a w.
 
   \sa boxLayout()
 */

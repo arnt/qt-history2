@@ -499,6 +499,16 @@ const QMetaProperty* QMetaObject::property( int index, bool super ) const
     return superclass->property( index, super );
 }
 
+
+/*!
+  Returns the property meta data for the property with name \a name
+  or 0 if no such property exists.
+
+  If \a super is TRUE, inherited properties are included.
+
+  \sa property(), propertyNames()
+*/
+
 int QMetaObject::findProperty( const char *name, bool super ) const
 {
     for( int i = 0; i < d->numPropData; ++i ) {

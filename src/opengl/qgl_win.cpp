@@ -607,13 +607,12 @@ static bool qLogEq( bool a, bool b )
     return ( ((!a) && (!b)) || (a && b) );
 }
 
-/* 
+/*! 
 
-<strong>Win32 only</strong>: This virtual function chooses a pixel format
-that matches the OpenGL \link setFormat() format\endlink \a
-fmt. Reimplement this function in a subclass if you need a custom context.
+<strong>Win32 only</strong> This virtual function chooses a pixel format
+that matches the OpenGL \link setFormat() format\endlink. Reimplement this function in a subclass if you need a custom context.
 
-  \warning The \a pfd pointer is really a \c PIXELFORMATDESCRIPTOR*.
+  \warning The \a pdc pointer is really a \c PIXELFORMATDESCRIPTOR*.
   We use \c void to avoid using Windows-specific types in our header files.
 
   \sa chooseContext() */

@@ -314,7 +314,8 @@ public:
   explicitly documented as such.
 */
 
-/*!  Constructs an empty message file not connected to any file.
+/*!  Constructs an empty message file not connected to any file. The
+    object has parent \a parent and is called \a name.
 */
 
 QTranslator::QTranslator( QObject * parent, const char * name )
@@ -611,7 +612,7 @@ void QTranslator::clear()
   message files on disk.
 
   You should never need to call this directly; save() and other functions call
-  it as necessary.
+  it as necessary. \a mode is for internal use.
 
   \sa save() unsqueeze()
 */
@@ -1141,7 +1142,7 @@ QTranslatorMessage & QTranslatorMessage::operator=(
 
 /*! \fn void QTranslatorMessage::setTranslation( const QString & translation )
 
-  Sets the translation of the source text.
+  Sets the translation of the source text to \a translation.
 
   \sa translation()
 */

@@ -1662,6 +1662,10 @@ void QDataTable::setSize( QSqlCursor* sql )
     This is an alias for setCursor(); it is only required if you have
     a conflict with the QWidget::setCursor() function.
 
+    Sets \a cursor as the data source for the table.
+    Does not automatically create columns based on the fields
+    (\a autoPopulate is FALSE). The data table does not take ownership of
+    the cursor (\a autoDelete is FALSE).
 */
 
 /*!

@@ -702,7 +702,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 
 
 /*!
-  Translates the widget coordinate \e pos to global screen coordinates.
+  Translates the widget coordinate \a pos to global screen coordinates.
   For example, \code mapToGlobal(QPoint(0,0))\endcode would give the
   global coordinates of the top-left pixel of the widget.
   \sa mapFromGlobal() mapTo() mapToParent()
@@ -719,7 +719,7 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
 }
 
 /*!
-  Translates the global screen coordinate \e pos to widget coordinates.
+  Translates the global screen coordinate \a pos to widget coordinates.
   \sa mapToGlobal() mapFrom() mapFromParent()
 */
 
@@ -748,6 +748,8 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
   In the X11 version of Qt, if \a text is TRUE, this method sets the
   XIM "spot" point for complex language input handling.
+
+  The font parameter, \a f, is currently unused.
 
   \sa microFocusHint()
 */
@@ -1065,9 +1067,10 @@ void QWidget::grabMouse()
 }
 
 /*!
+    \overload
   Grabs the mouse input and changes the cursor shape.
 
-  The cursor will assume shape \e cursor (for as long as the mouse focus is
+  The cursor will assume shape \a cursor (for as long as the mouse focus is
   grabbed) and this widget will be the only one to receive mouse events
   until releaseMouse() is called().
 
@@ -1259,7 +1262,8 @@ void QWidget::update()
 }
 
 /*!
-  Updates a rectangle (\e x, \e y, \e w, \e h) inside the widget
+    \overload
+  Updates a rectangle (\a x, \a y, \a w, \a h) inside the widget
   unless updates are disabled or the widget is hidden.
 
   This function does not cause an immediate repaint - rather, it
@@ -1270,8 +1274,8 @@ void QWidget::update()
   Calling update() several times normally results in just one
   paintEvent() call.
 
-  If \e w is negative, it is replaced with <code>width() - x</code>.
-  If \e h is negative, it is replaced width <code>height() - y</code>.
+  If \a w is negative, it is replaced with \c{width() - x}.
+  If \a h is negative, it is replaced width \c{height() - y}.
 
   Qt normally erases the specified area before the paintEvent() call.
   Only if the WRepaintNoErase widget flag is set, the widget itself is
@@ -1297,6 +1301,16 @@ void QWidget::update( int x, int y, int w, int h )
 
 /*!
   \overload void QWidget::update( const QRect &r )
+  Updates a rectangle \a r inside the widget
+  unless updates are disabled or the widget is hidden.
+    
+  This function does not cause an immediate repaint - rather, it
+  schedules a paint event for processing when Qt returns to the main
+  event loop. This permits Qt to optimize for more speed and less
+  flicker and a call to repaint() does.
+
+  Calling update() several times normally results in just one
+  paintEvent() call.
 */
 
 /*!
@@ -1315,11 +1329,11 @@ void QWidget::update( int x, int y, int w, int h )
   Repaints the widget directly by calling paintEvent() immediately,
   unless updates are disabled or the widget is hidden.
 
-  If \e erase is TRUE, Qt erases the area \e (x,y,w,h) before the
+  If \a erase is TRUE, Qt erases the area \a (x,y,w,h) before the
   paintEvent() call.
 
-  If \e w is negative, it is replaced with <code>width() - x</code>,
-  and if \e h is negative, it is replaced width <code>height() -
+  If \a w is negative, it is replaced with <code>width() - x</code>,
+  and if \a h is negative, it is replaced width <code>height() -
   y</code>.
 
   We suggest using repaint() if you need an immediate repaint, for
@@ -1360,6 +1374,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 }
 
 /*!
+    \overload
   Repaints the widget directly by calling paintEvent() directly,
   unless updates are disabled or the widget is hidden.
 
@@ -1391,6 +1406,11 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 
 /*!
   \overload void QWidget::repaint( const QRect &r, bool erase )
+
+  Repaints the widget directly by calling paintEvent() directly,
+  unless updates are disabled or the widget is hidden.
+
+  Erases the widget region \a r if \a erase is TRUE.
 */
 
 
@@ -1792,6 +1812,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
   \overload
 
   This function corresponds to setMinimumSize( QSize(minw, minh) ).
+  Sets the minimum width to \a minw and the minimum height to \a minh.
 */
 
 void QWidget::setMinimumSize( int minw, int minh )
@@ -1820,6 +1841,7 @@ void QWidget::setMinimumSize( int minw, int minh )
   \overload
 
   This function corresponds to setMaximumSize( QSize(\a maxw, \a maxh) ).
+  Sets the maximum width to \a maxw and the maximum height to \a maxh.
 */
 void QWidget::setMaximumSize( int maxw, int maxh )
 {
@@ -1856,7 +1878,11 @@ void QWidget::setMaximumSize( int maxw, int maxh )
     updateGeometry();
 }
 
-/*! \overload */
+/*! \overload 
+
+    Sets the x (width) size increment to \a w and the y (height) size
+    increment to \a h.
+*/
 void QWidget::setSizeIncrement( int w, int h )
 {
     QTLWExtra* x = topData();
@@ -1872,6 +1898,7 @@ void QWidget::setSizeIncrement( int w, int h )
   \overload
 
   This corresponds to setBaseSize( QSize(\a basew, \a baseh) ).
+  Sets the widgets base size to width \a basew and height \a baseh.
 */
 void QWidget::setBaseSize( int basew, int baseh )
 {
@@ -1892,14 +1919,16 @@ void QWidget::setBaseSize( int basew, int baseh )
 
 /*!
   \overload void QWidget::erase( const QRect &r )
+  Erases the specified area \a r in the widget without generating
+  a \link paintEvent() paint event\endlink.
 */
 
 /*!
-  Erases the specified area \e (x,y,w,h) in the widget without generating
+  Erases the specified area \a (x, y, w, h) in the widget without generating
   a \link paintEvent() paint event\endlink.
 
-  If \e w is negative, it is replaced with <code>width() - x</code>.
-  If \e h is negative, it is replaced width <code>height() - y</code>.
+  If \a w is negative, it is replaced with \c{width() - x}.
+  If \a h is negative, it is replaced width <code>height() - y</code>.
 
   Child widgets are not affected.
 
@@ -1918,6 +1947,7 @@ void QWidget::erase( int x, int y, int w, int h )
 }
 
 /*!
+    \overload
   Erases the area defined by \a reg, without generating a
   \link paintEvent() paint event\endlink.
 
@@ -2036,12 +2066,13 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 
 /*!
   \overload void QWidget::drawText( const QPoint &pos, const QString& str )
+  Draws the string \a str at position \a pos.
 */
 
 /*!
-  Writes \e str at position \e x,y.
+  Draws the string \a str at position \a(x, y).
 
-  The \e y position is the base line position of the text.  The text is
+  The \a y position is the base line position of the text.  The text is
   drawn using the default font and the default foreground color.
 
   This function is provided for convenience.  You will generally get
@@ -2066,6 +2097,8 @@ void QWidget::drawText( int x, int y, const QString &str )
   Internal implementation of the virtual QPaintDevice::metric() function.
 
   Use the QPaintDeviceMetrics class instead.
+
+  \a m is the metric to get.
 */
 
 int QWidget::metric( int m ) const
@@ -2159,6 +2192,7 @@ void QWidget::setAcceptDrops( bool on )
 }
 
 /*!
+    \overload
   Causes only the parts of the widget which overlap \a region
   to be visible.  If the region includes pixels outside the
   rect() of the widget, window system controls in that area

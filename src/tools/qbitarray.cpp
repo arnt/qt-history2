@@ -71,8 +71,7 @@
 */
 
 /*!
-    \overload
-  \fn QBitVal& QBitVal::operator= (bool v)
+    \overload QBitVal& QBitVal::operator= (bool v)
 
   Sets the value referenced by the QBitVal to \a v.
 */
@@ -378,8 +377,7 @@ bool QBitArray::toggleBit( uint index )
 */
 
 /*!
-    \overload
-  \fn bool QBitArray::operator[]( int index ) const
+    \overload bool QBitArray::operator[]( int index ) const
   Implements the [] operator for constant bit arrays.
 */
 

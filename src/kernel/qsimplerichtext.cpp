@@ -117,16 +117,31 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 }
 
 
-/*!  A more complex constructor for QSimpleRichText that takes an
+/*!  
+  Constructs a QSimpleRichText from the rich text string \a text
+  and the font \a fnt.
+
+    A more complex constructor for QSimpleRichText that takes an
   additional mime source factory \a factory, a vertical break
   parameter \a verticalBreak, a bool \a linkUnderline. \a linkColor is
   only provided for compatibility, but has no effect, as QColorGroup's
   QColorGroup::link() color is used now.
 
+  \a context is the optional context of the document. This becomes
+  important if \a text contains relative references, for example
+  within image tags. QSimpleRichText always uses the default mime
+  source factory (see QMimeSourceFactory::defaultFactory() ) to
+  resolve those references. The context will then be used to calculate
+  the absolute path. See QMimeSourceFactory::makeAbsolute() for
+  details.
+
+  Finally, \a sheet is an optional style sheet. If it is 0, the default
+  style sheet will be used (see QStyleSheet::defaultSheet() ).
+
   The constructor is useful to create a QSimpleRichText object
   suitable for printing. Set \a verticalBreak to be the height of the
   contents area of the pages.
- */
+*/
 
 QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 				  const QString& context,  const QStyleSheet* sheet,
@@ -159,6 +174,7 @@ QSimpleRichText::~QSimpleRichText()
 }
 
 /*!
+    \overload
   Sets the width of the document to \a w pixels.
 
   \sa height(), adjustSize()
@@ -316,7 +332,7 @@ QString QSimpleRichText::context() const
     return d->doc->context();
 }
 
-/*! Returns the anchor at the requested position. An empty string is
+/*! Returns the anchor at the requested position, \a pos. An empty string is
   returned if no anchor is specified for this certain position.
 */
 

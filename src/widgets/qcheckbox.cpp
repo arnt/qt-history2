@@ -98,7 +98,7 @@
 /*!
   Constructs a checkbox with no text.
 
-  The \e parent and \e name arguments are sent to the QWidget constructor.
+  The \a parent and \a name arguments are sent to the QWidget constructor.
 */
 
 QCheckBox::QCheckBox( QWidget *parent, const char *name )
@@ -111,7 +111,7 @@ QCheckBox::QCheckBox( QWidget *parent, const char *name )
 /*!
   Constructs a checkbox with text \a text.
 
-  The \e parent and \e name arguments are sent to the QWidget constructor.
+  The \a parent and \a name arguments are sent to the QWidget constructor.
 */
 
 QCheckBox::QCheckBox( const QString &text, QWidget *parent, const char *name )

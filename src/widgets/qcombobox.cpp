@@ -52,7 +52,6 @@
 #include "qcombobox.h"
 #include <limits.h>
 
-// NOT REVISED
 /*!
   \class QComboBox qcombobox.h
   \brief The QComboBox widget is a combined button and popup list.
@@ -179,10 +178,10 @@
 /*! \fn void QComboBox::activated( int index )
 
   This signal is emitted when a new item has been activated (selected).
-  The \e index is the position of the item in the combobox.
+  The \a index is the position of the item in the combobox.
 */
 
-/*! \fn void QComboBox::activated( const QString &string )
+/*! \overload void QComboBox::activated( const QString &string )
 
   This signal is emitted when a new item has been activated
   (selected). \a string is the selected string.
@@ -195,10 +194,10 @@
 /*! \fn void QComboBox::highlighted( int index )
 
   This signal is emitted when a new item has been set to current.
-  The \e index is the position of the item in the combobox.
+  The \a index is the position of the item in the combobox.
 */
 
-/*! \fn void QComboBox::highlighted( const QString &string )
+/*! \overload void QComboBox::highlighted( const QString &string )
 
   This signal is emitted when a new item has been highlighted. \a
   string is the highlighted string.
@@ -209,7 +208,8 @@
 /*! \fn void QComboBox::textChanged( const QString &string )
 
   This signal is used for editable comboboxes. It is emitted whenever
-  the contents of the text entry field changes.
+  the contents of the text entry field changes. \a string contains the
+  new text.
 */
 
 /*! \property QComboBox::autoCompletion
@@ -444,6 +444,9 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 
   The input field can be edited if \a rw is TRUE, otherwise the user
   may only choose one of the items in the combobox.
+
+  The \a parent and \a name arguments are passed on to the QWidget
+  constructor.
 */
 
 
@@ -504,6 +507,10 @@ int QComboBox::count() const
 
 /*!
   \overload
+  Inserts the \a list of strings at position \a index in the combobox.
+
+  This is only for compatibility, as it does not support Unicode
+  strings.  See insertStringList().
 */
 
 void QComboBox::insertStrList( const QStrList &list, int index )
@@ -512,6 +519,7 @@ void QComboBox::insertStrList( const QStrList &list, int index )
 }
 
 /*!
+    \overload
   Inserts the \a list of strings at position \a index in the combobox.
 
   This is only for compatibility, as it does not support Unicode
@@ -581,8 +589,8 @@ void QComboBox::insertStringList( const QStringList &list, int index )
   Inserts the array of char * \a strings at position \a index in the
   combobox.
 
-  The \e numStrings argument is the number of strings.
-  If \e numStrings is -1 (default), the \e strs array must be
+  The \a numStrings argument is the number of strings.
+  If \a numStrings is -1 (default), the \a strings array must be
   terminated with 0.
 
   Example:
@@ -651,6 +659,7 @@ void QComboBox::insertItem( const QString &t, int index )
 }
 
 /*!
+    \overload
   Inserts a \a pixmap item at position \a index. The item will be
   appended if \a index is negative.
 */
@@ -678,6 +687,7 @@ void QComboBox::insertItem( const QPixmap &pixmap, int index )
 }
 
 /*!
+    \overload
   Inserts a \a pixmap item with additional text \a text at position \a
   index. The item will be appended if \a index is negative.
 */
@@ -838,6 +848,7 @@ void QComboBox::changeItem( const QString &t, int index )
 }
 
 /*!
+    \overload
   Replaces the item at position \a index with the pixmap \a im, unless
   the combobox is editable.
 
@@ -857,6 +868,7 @@ void QComboBox::changeItem( const QPixmap &im, int index )
 }
 
 /*!
+    \overload
   Replaces the item at position \a index with the pixmap \a im and the
   text \a t.
 

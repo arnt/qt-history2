@@ -290,7 +290,7 @@ QTimer *QButton::timer()
 */
 
 /*! \fn void QButton::setOn( bool on )
-  Sets the state of this button to On when \on is TRUE, otherwise
+  Sets the state of this button to On when \a on is TRUE, otherwise
   to Off.
 
   \sa toggleState

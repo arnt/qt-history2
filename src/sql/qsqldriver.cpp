@@ -254,6 +254,8 @@ QSqlError QSqlDriver::lastError() const
 /*!
   Returns a list of tables in the database.  The default
   implementation returns an empty list.
+
+  Currently the \a user argument is unused.
 */
 
 QStringList QSqlDriver::tables( const QString&	) const

@@ -83,8 +83,8 @@
 */
 
 /*!
-  Constructs a rectangle with \e topLeft as the top-left corner and
-  \e bottomRight as the bottom-right corner.
+  Constructs a rectangle with \a topLeft as the top-left corner and
+  \a bottomRight as the bottom-right corner.
 */
 
 QRect::QRect( const QPoint &topLeft, const QPoint &bottomRight )
@@ -96,8 +96,8 @@ QRect::QRect( const QPoint &topLeft, const QPoint &bottomRight )
 }
 
 /*!
-  Constructs a rectangle with \e topLeft as the top-left corner and
-  \e size as the rectangle size.
+  Constructs a rectangle with \a topLeft as the top-left corner and
+  \a size as the rectangle size.
 */
 
 QRect::QRect( const QPoint &topLeft, const QSize &size )
@@ -111,8 +111,8 @@ QRect::QRect( const QPoint &topLeft, const QSize &size )
 /*!
   \fn QRect::QRect( int left, int top, int width, int height )
 
-  Constructs a rectangle with the \e top, \e left corner and \e
-  width and \e height.
+  Constructs a rectangle with the \a top, \a left corner and \a
+  width and \a height.
 
   Example (creates three identical rectangles):
   \code
@@ -280,8 +280,8 @@ QRect QRect::normalize() const
 /*!
   \fn void QRect::setLeft( int pos )
 
-  Sets the left edge of the rectangle.	May change the width, but
-  will never change the right edge of the rectangle.
+  Sets the left edge of the rectangle to \a pos. May change the
+  width, but will never change the right edge of the rectangle.
 
   Identical to setX().
 
@@ -291,8 +291,8 @@ QRect QRect::normalize() const
 /*!
   \fn void QRect::setTop( int pos )
 
-  Sets the top edge of the rectangle.  May change the height, but
-  will never change the bottom edge of the rectangle.
+  Sets the top edge of the rectangle to \a pos. May change the height,
+  but will never change the bottom edge of the rectangle.
 
   Identical to setY().
 
@@ -302,7 +302,7 @@ QRect QRect::normalize() const
 /*!
   \fn void QRect::setRight( int pos )
 
-  Sets the right edge of the rectangle.	 May change the width, but
+  Sets the right edge of the rectangle to \a pos. May change the width, but
   will never change the left edge of the rectangle.
 
   \sa right(), setLeft(), setWidth()
@@ -311,7 +311,7 @@ QRect QRect::normalize() const
 /*!
   \fn void QRect::setBottom( int pos )
 
-  Sets the bottom edge of the rectangle.  May change the height,
+  Sets the bottom edge of the rectangle to \a pos. May change the height,
   but will never change the top edge of the rectangle.
 
   \sa bottom(), setTop(), setHeight()
@@ -320,7 +320,7 @@ QRect QRect::normalize() const
 /*!
   \fn void QRect::setX( int x )
 
-  Sets the x position of the rectangle (its left end).	May change
+  Sets the x position of the rectangle (its left end) to \a x. May change
   the width, but will never change the right edge of the rectangle.
 
   Identical to setLeft().
@@ -331,7 +331,7 @@ QRect QRect::normalize() const
 /*!
   \fn void QRect::setY( int y )
 
-  Sets the y position of the rectangle (its top).  May change the
+  Sets the y position of the rectangle (its top) to \a y. May change the
   height, but will never change the bottom edge of the rectangle.
 
   Identical to setTop().
@@ -371,7 +371,8 @@ QRect QRect::normalize() const
 
 
 /*!
-  Extracts the rectangle parameters as the position and the size.
+  Extracts the rectangle parameters as the position \c *\a x, \c *\a y
+  and width \c *\a w and height \c *\a h. 
   \sa setRect(), coords()
 */
 
@@ -384,8 +385,8 @@ void QRect::rect( int *x, int *y, int *w, int *h ) const
 }
 
 /*!
-  Extracts the rectangle parameters as the top-left point and the
-  bottom-right point.
+  Extracts the rectangle parameters as the top-left point \c *\a xp1,
+  \c *\a yp1 and the bottom-right point \c *\a xp2, \c *\a yp2.
   \sa setCoords(), rect()
 */
 
@@ -398,7 +399,7 @@ void QRect::coords( int *xp1, int *yp1, int *xp2, int *yp2 ) const
 }
 
 /*!
-  Sets the top-left position of the rectangle to \e p, leaving the
+  Sets the top-left position of the rectangle to \a p, leaving the
   size unchanged.
   \sa topLeft(), moveTopRight(), moveBottomLeft(), moveBottomRight(),
   setTop(), setLeft()
@@ -413,7 +414,7 @@ void QRect::moveTopLeft( const QPoint &p )
 }
 
 /*!
-  Sets the bottom-right position of the rectangle to \e p, leaving the size
+  Sets the bottom-right position of the rectangle to \a p, leaving the size
   unchanged.
   \sa bottomRight(), moveBottomLeft(), moveTopLeft(), moveTopRight(),
   setBottom(), setRight()
@@ -428,7 +429,7 @@ void QRect::moveBottomRight( const QPoint &p )
 }
 
 /*!
-  Sets the top-right position of the rectangle to \e p, leaving the
+  Sets the top-right position of the rectangle to \a p, leaving the
   size unchanged.
   \sa topRight(), moveTopLeft(), moveBottomLeft(), moveBottomRight(),
   setTop(), setRight()
@@ -443,7 +444,7 @@ void QRect::moveTopRight( const QPoint &p )
 }
 
 /*!
-  Sets the bottom-left position of the rectangle to \e p, leaving
+  Sets the bottom-left position of the rectangle to \a p, leaving
   the size unchanged.
   \sa bottomLeft(), moveBottomRight(), moveTopLeft(), moveTopRight(),
   setBottom(), setLeft()
@@ -459,7 +460,7 @@ void QRect::moveBottomLeft( const QPoint &p )
 
 
 /*!
-  Sets the center point of the rectangle to \e p, leaving the size
+  Sets the center point of the rectangle to \a p, leaving the size
   unchanged.
   \sa center(), moveTopLeft(), moveTopRight(), moveBottomLeft(), moveBottomRight()
 */
@@ -476,7 +477,7 @@ void QRect::moveCenter( const QPoint &p )
 
 
 /*!
-  Moves the rectangle \e dx along the X axis and \e dy along the Y
+  Moves the rectangle \a dx along the X axis and \a dy along the Y
   axis, relative to the current position. (Positive values move the
   rectangle right and/or down.)
 */
@@ -491,8 +492,8 @@ void QRect::moveBy( int dx, int dy )
 }
 
 /*!
-  Sets the coordinates of the rectangle's top-left corner to \e
-  (x,y), and its size to (w,h).
+  Sets the coordinates of the rectangle's top-left corner to \a
+  (x, y), and its size to \a (w, h).
   \sa rect(), setCoords()
 */
 
@@ -505,8 +506,8 @@ void QRect::setRect( int x, int y, int w, int h )
 }
 
 /*!
-  Sets the coordinates of the rectangle's top-left corner to \e (xp1,yp1),
-  and the coordinates of its bottom-right corner to \e (xp2,yp2).
+  Sets the coordinates of the rectangle's top-left corner to \a (xp1, yp1),
+  and the coordinates of its bottom-right corner to \a (xp2, yp2).
   \sa coords(), setRect()
 */
 
@@ -519,7 +520,7 @@ void QRect::setCoords( int xp1, int yp1, int xp2, int yp2 )
 }
 
 /*!  
-  Adds \a x1, \a y1, \a x2 and \a y2 respectively to the existing
+  Adds \a xp1, \a yp1, \a xp2 and \a yp2 respectively to the existing
   coordinates of the rectangle.
 */
 
@@ -552,7 +553,7 @@ void QRect::addCoords( int xp1, int yp1, int xp2, int yp2 )
 */
 
 /*!
-  Sets the width of the rectangle to \e w. The right edge is
+  Sets the width of the rectangle to \a w. The right edge is
   changed, but not the left edge.
   \sa width(), setLeft(), setRight(), setSize()
 */
@@ -563,7 +564,7 @@ void QRect::setWidth( int w )
 }
 
 /*!
-  Sets the height of the rectangle to \e h. The top edge is not
+  Sets the height of the rectangle to \a h. The top edge is not
   moved, but the bottom edge may be moved.
   \sa height(), setTop(), setBottom(), setSize()
 */
@@ -574,7 +575,7 @@ void QRect::setHeight( int h )
 }
 
 /*!
-  Sets the size of the rectangle to \e s. The top-left corner is not moved.
+  Sets the size of the rectangle to \a s. The top-left corner is not moved.
   \sa size(), setWidth(), setHeight()
 */
 
@@ -585,10 +586,10 @@ void QRect::setSize( const QSize &s )
 }
 
 /*!
-  Returns TRUE if the point \e p is inside or on the edge of the
+  Returns TRUE if the point \a p is inside or on the edge of the
   rectangle.
 
-  If \e proper is TRUE, this function returns TRUE only if \e p is
+  If \a proper is TRUE, this function returns TRUE only if \a p is
   inside (not on the edge).
 */
 
@@ -604,12 +605,17 @@ bool QRect::contains( const QPoint &p, bool proper ) const
 
 /*!
   \overload bool QRect::contains( int x, int y, bool proper ) const
+  Returns TRUE if the point \a x, \a y is inside this rectangle.
+
+  If \a proper is TRUE, this function returns TRUE only if the point
+  is entirely inside (not on the edge).
 */
 
 /*!
-  Returns TRUE if the rectangle \e r is inside this rectangle.
+    \overload
+  Returns TRUE if the rectangle \a r is inside this rectangle.
 
-  If \e proper is TRUE, this function returns TRUE only if \e r is
+  If \a proper is TRUE, this function returns TRUE only if \a r is
   entirely inside (not on the edge).
 
   \sa unite(), intersect(), intersects()
@@ -671,7 +677,8 @@ QRect QRect::operator|(const QRect &r) const
 }
 
 /*!
-  \code r.unite(s) \endcode is equivalent to \code r|s\endcode.
+  Returns the bounding rectangle of this and \a r.
+  \c{r.unite(s)} is equivalent to \c{r|s}.
 */
 QRect QRect::unite( const QRect &r ) const
 {
@@ -680,7 +687,7 @@ QRect QRect::unite( const QRect &r ) const
 
 
 /*!
-  Returns the intersection of this rectangle and \e r.
+  Returns the intersection of this rectangle and \a r.
 
   Returns an empty rectangle if there is no intersection.
 
@@ -698,7 +705,8 @@ QRect QRect::operator&( const QRect &r ) const
 }
 
 /*!
-  \code r.intersect(s) \endcode is equivalent to \code r&s\endcode.
+  Returns the intersection of this rectangle and \a r.
+  \c{r.intersect(s)} is equivalent to \c{r&s}.
 */
 QRect QRect::intersect( const QRect &r ) const
 {
@@ -706,7 +714,7 @@ QRect QRect::intersect( const QRect &r ) const
 }
 
 /*!
-  Returns TRUE if this rectangle intersects with \e r (there is at
+  Returns TRUE if this rectangle intersects with \a r (there is at
   least one pixel that is within both rectangles).
   \sa intersect(), contains()
 */
@@ -720,7 +728,7 @@ bool QRect::intersects( const QRect &r ) const
 
 /*!
   \relates QRect
-  Returns TRUE if \e r1 and \e r2 are equal or FALSE if they are different.
+  Returns TRUE if \a r1 and \a r2 are equal or FALSE if they are different.
 */
 
 bool operator==( const QRect &r1, const QRect &r2 )
@@ -730,7 +738,7 @@ bool operator==( const QRect &r1, const QRect &r2 )
 
 /*!
   \relates QRect
-  Returns TRUE if \e r1 and \e r2 are different or FALSE if they are equal.
+  Returns TRUE if \a r1 and \a r2 are different or FALSE if they are equal.
 */
 
 bool operator!=( const QRect &r1, const QRect &r2 )
@@ -746,7 +754,8 @@ bool operator!=( const QRect &r1, const QRect &r2 )
 /*!
   \relates QRect
 
-  Writes a QRect to the stream and returns a reference to the stream.
+  Writes the QRect, \a r, to the stream \a s, and returns a reference
+  to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -765,7 +774,8 @@ QDataStream &operator<<( QDataStream &s, const QRect &r )
 /*!
   \relates QRect
 
-  Reads a QRect from the stream and returns a reference to the stream.
+  Reads a QRect from the stream \a s into rect \a r and returns a
+  reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */

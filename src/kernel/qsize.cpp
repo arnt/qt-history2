@@ -185,7 +185,7 @@ void QSize::transpose()
 */
 
 /*!
-  \fn QSize &QSize::operator*=( double c )
+  \overload QSize &QSize::operator*=( double c )
 
   Multiplies both the width and height with \a c and returns a reference to
   the size.
@@ -225,19 +225,19 @@ void QSize::transpose()
 */
 
 /*!
-  \fn const QSize operator*( int c, const QSize &s )
+  \overload const QSize operator*( int c, const QSize &s )
   \relates QSize
   Multiplies \a s by \a c and returns the result.
 */
 
 /*!
-  \fn const QSize operator*( const QSize &s, double c )
+  \overload const QSize operator*( const QSize &s, double c )
   \relates QSize
   Multiplies \a s by \a c and returns the result.
 */
 
 /*!
-  \fn const QSize operator*( double c, const QSize &s )
+  \overload const QSize operator*( double c, const QSize &s )
   \relates QSize
   Multiplies \a s by \a c and returns the result.
 */
@@ -301,7 +301,8 @@ void QSize::warningDivByZero()
 #ifndef QT_NO_DATASTREAM
 /*!
   \relates QSize
-  Writes the size to the stream and returns a reference to the stream.
+  Writes the size \a sz to the stream \a s and returns a reference to
+  the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -317,7 +318,8 @@ QDataStream &operator<<( QDataStream &s, const QSize &sz )
 
 /*!
   \relates QSize
-  Reads the size from the stream and returns a reference to the stream.
+  Reads the size from the stream \a s into size \a sz and returns a
+  reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */

@@ -86,7 +86,7 @@
 /*!
   Constructs a group box widget with no title.
 
-  The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \a parent and \a name arguments are passed to the QWidget constructor.
 
   This constructor does not do automatic layout.
 */
@@ -100,7 +100,7 @@ QGroupBox::QGroupBox( QWidget *parent, const char *name )
 /*!
   Constructs a group box with a title.
 
-  The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \a parent and \a name arguments are passed to the QWidget constructor.
 
   This constructor does not do automatic layout.
 */
@@ -116,7 +116,7 @@ QGroupBox::QGroupBox( const QString &title, QWidget *parent, const char *name )
   Constructs a group box with no title. Child widgets will be arranged
   in \a strips rows or columns (depending on \a orientation).
 
-  The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \a parent and \a name arguments are passed to the QWidget constructor.
 */
 
 QGroupBox::QGroupBox( int strips, Orientation orientation,
@@ -131,7 +131,7 @@ QGroupBox::QGroupBox( int strips, Orientation orientation,
   Constructs a group box titled \a title. Child widgets will be arranged
   in \a strips rows or columns (depending on \a orientation).
 
-  The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \a parent and \a name arguments are passed to the QWidget constructor.
 */
 
 QGroupBox::QGroupBox( int strips, Orientation orientation,
@@ -245,14 +245,14 @@ void QGroupBox::setTitle( const QString &title )
   \brief the alignment of the group box title.
 
   The title is always placed on the upper frame line; however,
-  the horizontal alignment can be specified by the \e alignment parameter.
+  the horizontal alignment can be specified by the \a alignment parameter.
 
-  The \e alignment is one of the following flags:
+  The \a alignment is one of the following flags:
   \list
-  \value \c AlignAuto aligns the title accroding to the language, usually left.
-  \value \c AlignLeft aligns the title text to the left.
-  \value \c AlignRight aligns the title text to the right.
-  \value \c AlignHCenter aligns the title text centered.
+  \i \c AlignAuto aligns the title accroding to the language, usually left.
+  \i \c AlignLeft aligns the title text to the left.
+  \i \c AlignRight aligns the title text to the right.
+  \i \c AlignHCenter aligns the title text centered.
   \endlist
 
   The default alignment is \c AlignAuto.
@@ -446,6 +446,8 @@ void QGroupBox::setOrientation( Qt::Orientation o )
   layout information. This function will put all existing children in
   the new layout. It is not good Qt programming style to
   call this function after children have been inserted.
+  Sets the number of columns to be \a columns and the orientation to
+  be \a direction.
 
   \sa orientation columns
  */

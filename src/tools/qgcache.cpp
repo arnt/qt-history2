@@ -235,6 +235,10 @@ private:
 
 /*!
   Constructs a cache.
+  The maximum cost of the cache is given by \a maxCost and the size by \a
+  size. The key type is \a kt which may be \c StringKey, \c AsciiKey,
+  \c IntKey or \c PtrKey. The case-sensitivity of lookups is set with
+  \a caseSensitive. Keys are copied if \a copyKeys is TRUE.
 */
 
 QGCache::QGCache( int maxCost, uint size, KeyType kt, bool caseSensitive,
@@ -322,7 +326,7 @@ QGCache &QGCache::operator=( const QGCache & )
 */
 
 /*!
-  Sets the maximum cache cost.
+  Sets the maximum cache cost to \a maxCost.
 */
 
 void QGCache::setMaxCost( int maxCost )
@@ -336,7 +340,8 @@ void QGCache::setMaxCost( int maxCost )
 
 
 /*!
-  Inserts an item into the cache.
+    Inserts an item with data \a data into the cache using key \a key.
+    The item has cost \a cost and priority \a priority.
 
   \warning If this function returns FALSE, you must delete \a data
   yourself.  Additionally, be very careful about using \a data after
@@ -411,7 +416,8 @@ bool QGCache::insert_other( const char *key, QPtrCollection::Item data,
 
 
 /*!
-  Removes an item from the cache.
+  Removes the item with key \a key from the cache. Returns TRUE if the
+  item was removed; otherwise returns FALSE.
 */
 
 bool QGCache::remove_string( const QString &key )
@@ -432,7 +438,8 @@ bool QGCache::remove_other( const char *key )
 
 
 /*!
-  Takes an item out of the cache (no delete).
+  Takes the item with key \a key out of the cache. The item is not
+  deleted. If no item has this \a key 0 is returned.
 */
 
 QPtrCollection::Item QGCache::take_string( const QString &key )
@@ -452,7 +459,8 @@ QPtrCollection::Item QGCache::take_string( const QString &key )
 }
 
 /*!
-  Takes an item out of the cache (no delete).
+  Takes the item with key \a key out of the cache. The item is not
+  deleted. If no item has this \a key 0 is returned.
 */
 
 QPtrCollection::Item QGCache::take_other( const char *key )
@@ -659,7 +667,7 @@ void QGCache::statistics() const
 */
 
 /*!
-  Constructs an iterator that operates on the cache \e c.
+  Constructs an iterator that operates on the cache \a c.
 */
 
 QGCacheIterator::QGCacheIterator( const QGCache &c )
@@ -671,7 +679,7 @@ QGCacheIterator::QGCacheIterator( const QGCache &c )
 }
 
 /*!
-  Constructs an iterator that operates on the same cache as \e ci.
+  Constructs an iterator that operates on the same cache as \a ci.
 */
 
 QGCacheIterator::QGCacheIterator( const QGCacheIterator &ci )
@@ -692,7 +700,7 @@ QGCacheIterator::~QGCacheIterator()
 }
 
 /*!
-  Assigns the iterator \e ci to this cache iterator.
+  Assigns the iterator \a ci to this cache iterator.
 */
 
 QGCacheIterator &QGCacheIterator::operator=( const QGCacheIterator &ci )
@@ -809,7 +817,7 @@ QPtrCollection::Item QGCacheIterator::operator++()
 }
 
 /*!
-  Moves \e jumps positions forward.
+  Moves \a jump positions forward.
 */
 
 QPtrCollection::Item QGCacheIterator::operator+=( uint jump )
@@ -829,7 +837,7 @@ QPtrCollection::Item QGCacheIterator::operator--()
 }
 
 /*!
-  Moves \e jumps positions backward.
+  Moves \a jump positions backward.
 */
 
 QPtrCollection::Item QGCacheIterator::operator-=( uint jump )

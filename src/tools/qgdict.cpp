@@ -80,7 +80,7 @@ public:
  *****************************************************************************/
 
 /*!
-  Returns the hash key for \e key, when key is a string.
+  Returns the hash key for \a key, when key is a string.
 */
 
 int QGDict::hashKeyString( const QString &key )
@@ -152,10 +152,11 @@ int QGDict::hashKeyAscii( const char *key )
 #ifndef QT_NO_DATASTREAM
 
 /*!
-  Reads a collection/dictionary item from the stream \e s and returns a
+    \overload
+  Reads a collection/dictionary item from the stream \a s and returns a
   reference to the stream.
 
-  The default implementation sets \e item to 0.
+  The default implementation sets \a item to 0.
 
   \sa write()
 */
@@ -167,7 +168,8 @@ QDataStream& QGDict::read( QDataStream &s, QPtrCollection::Item &item )
 }
 
 /*!
-  Writes a collection/dictionary item to the stream \e s and returns a
+    \overload
+  Writes a collection/dictionary item to the stream \a s and returns a
   reference to the stream.
 
   \sa read()
@@ -185,6 +187,11 @@ QDataStream& QGDict::write( QDataStream &s, QPtrCollection::Item ) const
 
 /*!
   Constructs a dictionary.
+
+  \a len is the initial size of the dictionary.
+  The key type is \a kt which may be \c StringKey, \c AsciiKey,
+  \c IntKey or \c PtrKey. The case-sensitivity of lookups is set with
+  \a caseSensitive. Keys are copied if \a copyKeys is TRUE.
 */
 
 QGDict::QGDict( uint len, KeyType kt, bool caseSensitive, bool copyKeys )
@@ -220,7 +227,7 @@ void QGDict::init( uint len, KeyType kt, bool caseSensitive, bool copyKeys )
 
 
 /*!
-  Constructs a copy of \e dict.
+  Constructs a copy of \a dict.
 */
 
 QGDict::QGDict( const QGDict & dict )
@@ -268,7 +275,7 @@ QGDict::~QGDict()
 
 
 /*!
-  Assigns \e dict to this dictionary.
+  Assigns \a dict to this dictionary.
 */
 
 QGDict &QGDict::operator=( const QGDict &dict )
@@ -308,7 +315,8 @@ QGDict &QGDict::operator=( const QGDict &dict )
 */
 
 /*!
-  The do-it-all function; op is one of op_find, op_insert, op_replace.
+  The do-it-all function; \a op is one of op_find, op_insert, op_replace.
+  The key is \a key and the item is \a d.
 */
 
 QPtrCollection::Item QGDict::look_string( const QString &key, QPtrCollection::Item d,
@@ -445,7 +453,7 @@ QPtrCollection::Item QGDict::look_ptr( void *key, QPtrCollection::Item d, int op
 
 
 /*!
-  Changes the size of the hashtable.
+  Changes the size of the hashtable to \a newsize.
   The contents of the dictionary are preserved,
   but all iterators on the dictionary become invalid.
 */
@@ -647,7 +655,7 @@ QPtrBucket *QGDict::unlink_ptr( void *key, QPtrCollection::Item d )
 
 
 /*!
-  Removes the item with the specified key.  If item is nonnull,
+  Removes the item with the specified \a key.  If \a item is not null,
   the remove will match the \a item as well (used to remove an
   item when several items have the same key).
 */
@@ -886,7 +894,7 @@ QDataStream &operator<<( QDataStream &s, const QGDict &dict )
 #endif
 
 /*!
-  Reads a dictionary from the stream \e s.
+  Reads a dictionary from the stream \a s.
 */
 
 QDataStream &QGDict::read( QDataStream &s )
@@ -942,7 +950,7 @@ QDataStream &QGDict::read( QDataStream &s )
 }
 
 /*!
-  Writes the dictionary to the stream \e s.
+  Writes the dictionary to the stream \a s.
 */
 
 QDataStream& QGDict::write( QDataStream &s ) const
@@ -990,7 +998,7 @@ QDataStream& QGDict::write( QDataStream &s ) const
 */
 
 /*!
-  Constructs an iterator that operates on the dictionary \e d.
+  Constructs an iterator that operates on the dictionary \a d.
 */
 
 QGDictIterator::QGDictIterator( const QGDict &d )
@@ -1005,7 +1013,7 @@ QGDictIterator::QGDictIterator( const QGDict &d )
 }
 
 /*!
-  Constructs a copy of the iterator \e it.
+  Constructs a copy of the iterator \a it.
 */
 
 QGDictIterator::QGDictIterator( const QGDictIterator &it )
@@ -1018,7 +1026,7 @@ QGDictIterator::QGDictIterator( const QGDictIterator &it )
 }
 
 /*!
-  Assigns a copy of the iterator \e it and returns a reference to this
+  Assigns a copy of the iterator \a it and returns a reference to this
   iterator.
 */
 
@@ -1121,7 +1129,7 @@ QPtrCollection::Item QGDictIterator::operator++()
 }
 
 /*!
-  Moves \e jumps positions forward.
+  Moves \a jumps positions forward.
 */
 
 QPtrCollection::Item QGDictIterator::operator+=( uint jumps )

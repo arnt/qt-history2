@@ -844,7 +844,7 @@
 */
 
 /*!
-  \fn QValueListIterator<T> QValueListIterator::operator++(int)
+  \overload QValueListIterator<T> QValueListIterator::operator++(int)
   Postfix ++ makes the succeeding item current and returns
   an iterator pointing to the new current item.
   The iterator cannot check whether it reached the end of the list. Incrementing

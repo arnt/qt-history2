@@ -466,8 +466,9 @@ int QStringBuffer::ungetch( int ch )
 
 
 /*!
-  Constructs a text stream that operates on a Unicode QString through an
-  internal device.
+  Constructs a text stream that operates on a Unicode QString, \a str,
+  through an internal device. The \a filemode argument is passed to
+  the device's open() function.
 
   If you set an encoding or codec with setEncoding() or setCodec(), this
   setting is ignored for text streams that operate on QString.
@@ -523,8 +524,9 @@ QTextStream::QTextStream( QString& str, int filemode )
 }
 
 /*!
-  Constructs a text stream that operates on a byte array through an
-  internal QBuffer device.
+  Constructs a text stream that operates on a byte array, \a a,
+  through an internal QBuffer device. The \a mode argument is passed
+  to the device's open() function.
 
   Example:
   \code
@@ -560,7 +562,8 @@ QTextStream::QTextStream( QByteArray a, int mode )
 }
 
 /*!  Constructs a text stream that operates on an existing file handle
-  \a fh through an internal QFile device.
+  \a fh through an internal QFile device. The \a mode argument is
+  passed to the device's open() function.
 
   Note that if you create a QTextStream \c cout or another name that
   is also used for another variable of a different type, some linkers
@@ -1127,7 +1130,8 @@ void QTextStream::unsetDevice()
 
 
 /*!
-  Reads a \c char from the stream and returns a reference to the stream.
+    \overload
+  Reads a char \a c from the stream and returns a reference to the stream.
   Note that whitespace is skipped.
 */
 
@@ -1139,8 +1143,8 @@ QTextStream &QTextStream::operator>>( char &c )
 }
 
 /*!
-  Reads a \c char from the stream and returns a reference to the stream.
-  Note that whitespace is \a not skipped.
+  Reads a char \a c from the stream and returns a reference to the stream.
+  Note that whitespace is \e not skipped.
 */
 
 QTextStream &QTextStream::operator>>( QChar &c )
@@ -1378,8 +1382,10 @@ double QTextStream::input_double()
 
 
 /*!
-  Reads a signed \c short integer from the stream and returns a reference to
-  the stream. See flags() for an explanation of expected input format.
+    \overload
+  Reads a signed \c short integer \a i from the stream and returns a
+  reference to the stream. See flags() for an explanation of expected
+  input format.
 */
 
 QTextStream &QTextStream::operator>>( signed short &i )
@@ -1391,8 +1397,10 @@ QTextStream &QTextStream::operator>>( signed short &i )
 
 
 /*!
-  Reads an unsigned \c short integer from the stream and returns a reference to
-  the stream. See flags() for an explanation of expected input format.
+    \overload
+  Reads an unsigned \c short integer \a i from the stream and returns
+  a reference to the stream. See flags() for an explanation of
+  expected input format.
 */
 
 QTextStream &QTextStream::operator>>( unsigned short &i )
@@ -1404,7 +1412,8 @@ QTextStream &QTextStream::operator>>( unsigned short &i )
 
 
 /*!
-  Reads a signed \c int from the stream and returns a reference to the
+    \overload
+  Reads a signed \c int \a i from the stream and returns a reference to the
   stream. See flags() for an explanation of expected input format.
 */
 
@@ -1417,7 +1426,8 @@ QTextStream &QTextStream::operator>>( signed int &i )
 
 
 /*!
-  Reads an unsigned \c int from the stream and returns a reference to the
+    \overload
+  Reads an unsigned \c int \a i from the stream and returns a reference to the
   stream. See flags() for an explanation of expected input format.
 */
 
@@ -1430,8 +1440,10 @@ QTextStream &QTextStream::operator>>( unsigned int &i )
 
 
 /*!
-  Reads a signed \c long int from the stream and returns a reference to the
-  stream. See flags() for an explanation of expected input format.
+    \overload
+  Reads a signed \c long int \a i from the stream and returns a
+  reference to the stream. See flags() for an explanation of expected
+  input format.
 */
 
 QTextStream &QTextStream::operator>>( signed long &i )
@@ -1443,8 +1455,10 @@ QTextStream &QTextStream::operator>>( signed long &i )
 
 
 /*!
-  Reads an unsigned \c long int from the stream and returns a reference to the
-  stream. See flags() for an explanation of expected input format.
+    \overload
+  Reads an unsigned \c long int \a i from the stream and returns a
+  reference to the stream. See flags() for an explanation of expected
+  input format.
 */
 
 QTextStream &QTextStream::operator>>( unsigned long &i )
@@ -1456,8 +1470,9 @@ QTextStream &QTextStream::operator>>( unsigned long &i )
 
 
 /*!
-  Reads a \c float from the stream and returns a reference to the stream.
-  See flags() for an explanation of expected input format.
+    \overload
+  Reads a \c float \a f from the stream and returns a reference to the
+  stream. See flags() for an explanation of expected input format.
 */
 
 QTextStream &QTextStream::operator>>( float &f )
@@ -1469,7 +1484,8 @@ QTextStream &QTextStream::operator>>( float &f )
 
 
 /*!
-  Reads a \c double from the stream and returns a reference to the stream.
+    \overload
+  Reads a \c double \a f from the stream and returns a reference to the stream.
   See flags() for an explanation of expected input format.
 */
 
@@ -1482,7 +1498,9 @@ QTextStream &QTextStream::operator>>( double &f )
 
 
 /*!
-  Reads a word from the stream and returns a reference to the stream.
+    \overload
+  Reads a word from the stream into \a s and returns a reference to
+  the stream.
 */
 
 QTextStream &QTextStream::operator>>( char *s )
@@ -1506,7 +1524,9 @@ QTextStream &QTextStream::operator>>( char *s )
 }
 
 /*!
-  Reads a word from the stream and returns a reference to the stream.
+    \overload
+  Reads a word from the stream into \a str and returns a reference to
+  the stream.
 */
 
 QTextStream &QTextStream::operator>>( QString &str )
@@ -1527,7 +1547,9 @@ QTextStream &QTextStream::operator>>( QString &str )
 }
 
 /*!
-  Reads a word from the stream and returns a reference to the stream.
+    \overload
+  Reads a word from the stream into \a str and returns a reference to
+  the stream.
 */
 
 QTextStream &QTextStream::operator>>( QCString &str )
@@ -1726,7 +1748,8 @@ QTextStream &QTextStream::operator<<( QChar c )
 }
 
 /*!
-  Writes a \c char to the stream and returns a reference to the stream.
+    \overload
+  Writes a char \a c to the stream and returns a reference to the stream.
 */
 QTextStream &QTextStream::operator<<( char c )
 {
@@ -1839,7 +1862,8 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 
 
 /*!
-  Writes a \c short integer to the stream and returns a reference to
+    \overload
+  Writes a \c short integer \a i to the stream and returns a reference to
   the stream.
 */
 
@@ -1850,8 +1874,9 @@ QTextStream &QTextStream::operator<<( signed short i )
 
 
 /*!
-  Writes an \c unsigned \c short integer to the stream and returns a reference
-  to the stream.
+    \overload
+  Writes an \c unsigned \c short integer \a i to the stream and
+  returns a reference to the stream.
 */
 
 QTextStream &QTextStream::operator<<( unsigned short i )
@@ -1861,7 +1886,8 @@ QTextStream &QTextStream::operator<<( unsigned short i )
 
 
 /*!
-  Writes an \c int to the stream and returns a reference to
+    \overload
+  Writes an \c int \a i to the stream and returns a reference to
   the stream.
 */
 
@@ -1872,7 +1898,8 @@ QTextStream &QTextStream::operator<<( signed int i )
 
 
 /*!
-  Writes an \c unsigned \c int to the stream and returns a reference to
+    \overload
+  Writes an \c unsigned \c int \a i to the stream and returns a reference to
   the stream.
 */
 
@@ -1883,7 +1910,8 @@ QTextStream &QTextStream::operator<<( unsigned int i )
 
 
 /*!
-  Writes a \c long \c int to the stream and returns a reference to
+    \overload
+  Writes a \c long \c int \a i to the stream and returns a reference to
   the stream.
 */
 
@@ -1894,7 +1922,9 @@ QTextStream &QTextStream::operator<<( signed long i )
 
 
 /*!
-  Writes an \c unsigned \c long \c int to the stream and returns a reference to
+    \overload
+  Writes an \c unsigned \c long \c int \a i to the stream and returns
+  a reference to
   the stream.
 */
 
@@ -1905,7 +1935,8 @@ QTextStream &QTextStream::operator<<( unsigned long i )
 
 
 /*!
-  Writes a \c float to the stream and returns a reference to the stream.
+    \overload
+  Writes a \c float \a f to the stream and returns a reference to the stream.
 */
 
 QTextStream &QTextStream::operator<<( float f )
@@ -1915,7 +1946,8 @@ QTextStream &QTextStream::operator<<( float f )
 
 
 /*!
-  Writes a \c double to the stream and returns a reference to the stream.
+    \overload
+  Writes a \c double \a f to the stream and returns a reference to the stream.
 */
 
 QTextStream &QTextStream::operator<<( double f )
@@ -1955,6 +1987,7 @@ QTextStream &QTextStream::operator<<( double f )
 
 
 /*!
+    \overload
   Writes a string to the stream and returns a reference to the stream.
 
   The string \a s is assumed to be Latin1 encoded independent of the Encoding set
@@ -1995,6 +2028,7 @@ QTextStream &QTextStream::operator<<( const char* s )
 }
 
 /*!
+    \overload
   Writes \a s to the stream and returns a reference to the stream.
 
   The string \a s is assumed to be Latin1 encoded independent of the Encoding set
@@ -2007,6 +2041,7 @@ QTextStream &QTextStream::operator<<( const QCString & s )
 }
 
 /*!
+    \overload
   Writes \a s to the stream and returns a reference to the stream.
 */
 
@@ -2028,6 +2063,7 @@ QTextStream &QTextStream::operator<<( const QString& s )
 
 
 /*!
+    \overload
   Writes a pointer to the stream and returns a reference to the stream.
 
   The \a ptr is output as an unsigned long hexadecimal integer.
@@ -2076,7 +2112,7 @@ QTextStream &QTextStream::operator<<( void *ptr )
 */
 
 /*!
-  \fn int QTextStream::flags( int f )
+  \overload int QTextStream::flags( int f )
   Sets the stream flags to \a f.
   Returns the previous stream flags.
 
@@ -2094,7 +2130,7 @@ QTextStream &QTextStream::operator<<( void *ptr )
 */
 
 /*!
-  \fn int QTextStream::setf( int bits, int mask )
+  \overload int QTextStream::setf( int bits, int mask )
   Sets the stream flag bits \a bits with a bit mask \a mask.
   Returns the previous stream flags.
 
@@ -2119,7 +2155,7 @@ QTextStream &QTextStream::operator<<( void *ptr )
 */
 
 /*!
-  \fn int QTextStream::width( int w )
+  \overload int QTextStream::width( int w )
   Sets the field width to \a w. Returns the previous field width.
 */
 
@@ -2129,7 +2165,7 @@ QTextStream &QTextStream::operator<<( void *ptr )
 */
 
 /*!
-  \fn int QTextStream::fill( int f )
+  \overload int QTextStream::fill( int f )
   Sets the fill character to \a f. Returns the previous fill character.
 */
 
@@ -2139,7 +2175,7 @@ QTextStream &QTextStream::operator<<( void *ptr )
 */
 
 /*!
-  \fn int QTextStream::precision( int p )
+  \overload int QTextStream::precision( int p )
   Sets the precision to \a p. Returns the previous precision setting.
 */
 

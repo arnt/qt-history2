@@ -954,7 +954,7 @@ bool QDir::remove( const QString &fileName, bool acceptAbsPath )
   If \a acceptAbsPath is TRUE a path starting with separator "/" will
   check the file with the absolute path. If \a
   acceptAbsPath is FALSE any number of separators at the beginning of \a
-  file will be removed and the resultant file name will be checked.
+  name will be removed and the resultant file name will be checked.
 
   Returns TRUE if the file exists; otherwise returns FALSE.
 

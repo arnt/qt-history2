@@ -111,7 +111,7 @@ static int get_object_id()
 
 /*!
   \class QWSWindow qwindowsystem_qws.h
-  \brief Server-specific functionality in Qt/Embedded
+  \brief The QWSWindow class provides Server-specific functionality in Qt/Embedded.
 
   When you run a Qt/Embedded application, it either runs as a server
   or connects to an existing server. If it runs as a server, some additional
@@ -295,6 +295,9 @@ void QWSWindow::operation( QWSWindowOperationEvent::Operation o )
     c->sendEvent( &event );
 }
 
+/*!
+    Destructor.
+*/
 QWSWindow::~QWSWindow()
 {
 }
@@ -788,7 +791,8 @@ static void ignoreSignal( int )
 */
 
 /*!
-  Construct a QWSServer class.
+  Construct a QWSServer class with parent \a parent, called \a name
+  and flags \a flags.
 
   This class is instantiated by QApplication for Qt/Embedded server processes.
   You should never construct this class yourself.

@@ -849,6 +849,7 @@ bool QSettings::writeEntry(const QString &key, bool value)
 
 
 /*!
+    \overload
     Writes the double entry \a value into key \a key. The \a key is
     created if it doesn't exist. Any previous value is overwritten by \a
     value.
@@ -866,6 +867,7 @@ bool QSettings::writeEntry(const QString &key, double value)
 
 
 /*!
+    \overload
     Writes the integer entry \a value into key \a key. The \a key is
     created if it doesn't exist. Any previous value is overwritten by \a
     value.
@@ -905,6 +907,7 @@ bool QSettings::writeEntry(const QString &key, const char *value)
 
 
 /*!
+    \overload
     Writes the string entry \a value into key \a key. The \a key is
     created if it doesn't exist. Any previous value is overwritten by \a
     value. If \a value is an empty string or a null string the key's
@@ -967,6 +970,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 
 
 /*!
+    \overload
     Writes the string list entry \a value into key \a key. The \a key is
     created if it doesn't exist. Any previous value is overwritten by \a
     value. The list is stored as a sequence of strings separated by \a

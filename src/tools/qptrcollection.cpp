@@ -133,7 +133,7 @@
   Virtual function that creates a copy of an object that is about to
   be inserted into the collection.
 
-  The default implementation returns the \e d pointer, i.e., no copy
+  The default implementation returns the \a d pointer, i.e. no copy
   is made.
 
   This function is seldom reimplemented in the collection template
@@ -166,3 +166,4 @@ QPtrCollection::Item QPtrCollection::newItem( Item d )
 
   \sa newItem(), setAutoDelete()
 */
+

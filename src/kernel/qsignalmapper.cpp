@@ -74,8 +74,8 @@ public:
 */
 
 /*!
-  Constructs a QSignalMapper.  Like all QObjects, it will be deleted when the
-  parent is deleted.
+  Constructs a QSignalMapper with parent \a parent and name \a name.
+  Like all QObjects, it will be deleted when the parent is deleted.
 */
 QSignalMapper::QSignalMapper( QObject* parent, const char* name ) :
     QObject( parent, name )
@@ -93,7 +93,7 @@ QSignalMapper::~QSignalMapper()
 
 /*!
   Adds a mapping so that when map() is signaled from the given
-  sender, the signal mapped(identifier) is emitted.
+  \a sender, the signal mapped(\a identifier) is emitted.
 
   There may be at most one integer identifier for each object.
 */
@@ -105,8 +105,9 @@ void QSignalMapper::setMapping( const QObject* sender, int identifier )
 }
 
 /*!
+    \overload
   Adds a mapping so that when map() is signaled from the given
-  sender, the signal mapper(identifier) is emitted.
+  \a sender, the signal mapper(\a identifier) is emitted.
 
   There may be at most one string identifier for each object, and
   it may not be null.
@@ -168,7 +169,7 @@ QSignalMapperRec* QSignalMapper::getRec( const QObject* sender )
 */
 
 /*!
-  \fn void QSignalMapper::mapped(const QString&)
+  \overload void QSignalMapper::mapped(const QString&)
 
 
   This signal is emitted when map() is signaled from an object that

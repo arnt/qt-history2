@@ -241,7 +241,7 @@ void QDial::paintEvent( QPaintEvent * e )
 }
 
 /*!
-  Paints the dial.
+  Paints the dial using clip region \a cr.
 */
 
 void QDial::repaintScreen( const QRect *cr )
@@ -689,7 +689,7 @@ void QDial::subtractPage()
 /*!
   \fn void QDial::valueChanged( int value )
 
-  This signal is emitted whenever the dial's value changes.  The frequency
+  This signal is emitted whenever the dial's \a value changes.  The frequency
   of this signal is influenced by setTracking().
 */
 
@@ -705,7 +705,7 @@ void QDial::subtractPage()
 /*!
   \fn void QDial::dialMoved( int value )
 
-  This signal is emitted whenever the dial value changes.  The frequency
+  This signal is emitted whenever the dial \a value changes.  The frequency
   of this signal is \e not influenced by setTracking().
 
   \sa valueChanged(int)

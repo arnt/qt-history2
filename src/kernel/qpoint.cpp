@@ -198,7 +198,7 @@
 */
 
 /*!
-  \fn QPoint &QPoint::operator*=( double c )
+  \overload QPoint &QPoint::operator*=( double c )
   Multiplies both x and y with \a c, and return a reference to this point.
 
   Example:
@@ -244,23 +244,14 @@
 */
 
 /*!
-  \fn const QPoint operator*( int c, const QPoint &p )
+  \overload const QPoint operator*( int c, const QPoint &p )
   \relates QPoint
   Returns the QPoint formed by multiplying both components of \a p
   by \a c.
 */
 
 /*!
-  \fn const QPoint operator*( const QPoint &p, double c )
-  \relates QPoint
-  Returns the QPoint formed by multiplying both components of \a p
-  by \a c.
-
-  Note that the result is truncated.
-*/
-
-/*!
-  \fn const QPoint operator*( double c, const QPoint &p )
+  \overload const QPoint operator*( const QPoint &p, double c )
   \relates QPoint
   Returns the QPoint formed by multiplying both components of \a p
   by \a c.
@@ -269,7 +260,16 @@
 */
 
 /*!
-  \fn const QPoint operator-( const QPoint &p ) 
+  \overload const QPoint operator*( double c, const QPoint &p )
+  \relates QPoint
+  Returns the QPoint formed by multiplying both components of \a p
+  by \a c.
+
+  Note that the result is truncated.
+*/
+
+/*!
+  \overload const QPoint operator-( const QPoint &p ) 
   \relates QPoint 
   
   Returns the QPoint formed by changing the sign of both components of
@@ -289,7 +289,7 @@
 */
 
 /*!
-  \fn QPoint &QPoint::operator/=( double c )
+  \overload QPoint &QPoint::operator/=( double c )
 
   Divides both x and y by \a c, and returns a reference to this point.
 
@@ -310,7 +310,7 @@
 */
 
 /*!
-  \fn const QPoint operator/( const QPoint &p, double c )
+  \overload const QPoint operator/( const QPoint &p, double c )
   \relates QPoint
 
   Returns the QPoint formed by dividing both components of \a p
@@ -334,7 +334,7 @@ void QPoint::warningDivByZero()
 #ifndef QT_NO_DATASTREAM
 /*!
   \relates QPoint
-  Writes a QPoint to the stream and returns a reference to the stream.
+  Writes point \a p to the stream \a s and returns a reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -350,7 +350,8 @@ QDataStream &operator<<( QDataStream &s, const QPoint &p )
 
 /*!
   \relates QPoint
-  Reads a QPoint from the stream and returns a reference to the stream.
+  Reads a QPoint from the stream \a s into point \a p and returns a
+  reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */

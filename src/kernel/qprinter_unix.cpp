@@ -80,7 +80,9 @@ struct PrinterDefaults {
 static PrinterDefaults * globalPrinterDefaults = 0;
 
 /*!
-  Constructs a printer paint device.
+  Constructs a printer paint device with mode \a m.
+
+  \sa QPrinter::PrinterMode
 */
 
 QPrinter::QPrinter( PrinterMode m )
@@ -173,7 +175,7 @@ bool QPrinter::aborted() const
 }
 
 /*!
-  Sets the printer name.
+  Sets the printer name to \a name.
 
   The default printer will be used if no printer name is set.
 
@@ -202,8 +204,9 @@ static void deleteGlobalPrinterDefaults()
 }
 
 /*!
-  Opens a printer setup dialog and asks the user to specify what printer
-  to use and miscellaneous printer settings.
+  Opens a printer setup dialog, with parent \a parent, and asks the
+  user to specify what printer to use and miscellaneous printer
+  settings.
 
   Returns TRUE if the user pressed "OK" to print, or FALSE if the
   user cancelled the operation.

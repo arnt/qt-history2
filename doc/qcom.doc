@@ -22,9 +22,10 @@
 /*!
   \fn QRESULT  QUnknownInterface::queryInterface( const QUuid &request, QUnknownInterface** iface )
 
-  Returns a pointer to an interface specified with \a request, or NULL if this interface
-  can't provide the requested interface. An implementation of this function must call
-  addRef() on the pointer it returns.
+  Returns a pointer to an interface specified with \a request, or NULL
+  if this interface can't provide the requested interface. An
+  implementation of this function must call addRef() on the pointer it
+  returns.
 
   Example:
   \code
@@ -43,21 +44,21 @@
   \endcode
 
   There are five requirements for implementations of queryInterface:
-  <ul>
-  <li>Always the same QUnknownInterface
+  \list
+  \i Always the same QUnknownInterface
   For any component, a query for the QUnknownInterface must always return the same pointer value to
   allow a client to determine whether two interfaces point to the same component.
-  <li>Static set of interfaces
+  \i Static set of interfaces
   The number of interfaces for which queryInterface returns a valid pointer must not change.
-  <li>Reflexive
+  \i Reflexive
   If a client holding a pointer to one interface queries for that interface, the call must succeed.
-  <li>Symmetric
+  \i Symmetric
   If a client holding a pointer to one interface queries for another, a query through the obtained
   interface for the first interface must succeed.
-  <li>Transitive
+  \i Transitive
   If a client holding a pointer to one interface queries successfully for a second, and queries that
   successfully for a third interface, a query for that third interface on the first interface must succeed.
-  </ul>
+  \endlist
 
   \sa addRef(), release()
 */

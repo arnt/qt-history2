@@ -123,7 +123,7 @@ typedef QPtrListIterator<QButtonItem> QButtonListIt;
 /*!
   Constructs a button group with no title.
 
-  The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \a parent and \a name arguments are passed to the QWidget constructor.
 */
 
 QButtonGroup::QButtonGroup( QWidget *parent, const char *name )
@@ -135,7 +135,7 @@ QButtonGroup::QButtonGroup( QWidget *parent, const char *name )
 /*!
   Constructs a button group with the title \a title.
 
-  The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \a parent and \a name arguments are passed to the QWidget constructor.
 */
 
 QButtonGroup::QButtonGroup( const QString &title, QWidget *parent,
@@ -149,7 +149,7 @@ QButtonGroup::QButtonGroup( const QString &title, QWidget *parent,
   Constructs a button group with no title. Child widgets will be arranged
   in \a strips rows or columns (depending on \a orientation).
 
-  The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \a parent and \a name arguments are passed to the QWidget constructor.
 */
 
 QButtonGroup::QButtonGroup( int strips, Orientation orientation,
@@ -163,7 +163,7 @@ QButtonGroup::QButtonGroup( int strips, Orientation orientation,
   Constructs a button group with title \a title. Child widgets will be
   arranged in \a strips rows or columns (depending on \a orientation).
 
-  The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \a parent and \a name arguments are passed to the QWidget constructor.
 */
 
 QButtonGroup::QButtonGroup( int strips, Orientation orientation,
@@ -213,7 +213,7 @@ void QButtonGroup::setExclusive( bool enable )
 
 
 /*!
-  Inserts a button with the identifier \e id into the button group.
+  Inserts the \a button with the identifier \a id into the button group.
   Returns the button identifier.
 
     Buttons are normally inserted into a button group automatically by
@@ -222,14 +222,14 @@ void QButtonGroup::setExclusive( bool enable )
     have this button group as their parent widget. An exception is when
     you want custom identifiers instead of the default 0, 1, 2, etc.
 
-  The button is assigned the identifier \e id or an automatically
-  generated identifier.	 It works as follows: If \e id >= 0, this
-  identifier is assigned.  If \e id == -1 (default), the identifier is
-  equal to the number of buttons in the group.	If \e id is any other
+  The button is assigned the identifier \a id or an automatically
+  generated identifier.	 It works as follows: If \a id >= 0, this
+  identifier is assigned.  If \a id == -1 (default), the identifier is
+  equal to the number of buttons in the group.	If \a id is any other
   negative integer, for instance -2, a unique identifier (negative
   integer \<= -2) is generated. No button has an id of -1.
 
-  Inserting several buttons with \e id = -1 assigns the identifiers 0,
+  Inserting several buttons with \a id = -1 assigns the identifiers 0,
   1, 2, etc.
 
   \sa find(), remove(), setExclusive()
@@ -277,7 +277,7 @@ int QButtonGroup::count() const
 }
 
 /*!
-  Removes the button from the button group.
+  Removes the \a button from the button group.
   \sa insert()
 */
 
@@ -302,7 +302,7 @@ void QButtonGroup::remove( QButton *button )
 
 /*!
   Finds and returns a pointer to the button with the specified identifier
-  \e id.
+  \a id.
 
   Returns null if the button was not found.
 */
@@ -321,21 +321,21 @@ QButton *QButtonGroup::find( int id ) const
   \fn void QButtonGroup::pressed( int id )
   This signal is emitted when a button in the group is
   \link QButton::pressed() pressed\endlink.
-  The \e id argument is the button's identifier.
+  The \a id argument is the button's identifier.
 */
 
 /*!
   \fn void QButtonGroup::released( int id )
   This signal is emitted when a button in the group is
   \link QButton::released() released\endlink.
-  The \e id argument is the button's identifier.
+  The \a id argument is the button's identifier.
 */
 
 /*!
   \fn void QButtonGroup::clicked( int id )
 
   This signal is emitted when a button in the group is clicked.  The
-  \e id argument is the button's identifier.
+  \a id argument is the button's identifier.
 
   \sa QButton::clicked() insert() (about the identifier)
 */

@@ -71,8 +71,8 @@ public:
 
 /*!
   \fn QLock::QLock( const QString &filename, char id, bool create )
-  Creates a lock. filename is the file path of the Unix-domain socket
-  the Qt/Embedded client is using. Id is the name of the particular lock
+  Creates a lock. \a filename is the file path of the Unix-domain socket
+  the Qt/Embedded client is using. \a id is the name of the particular lock
   to be created on that socket. \a create is TRUE if it is to be created
   (as the Qt/Embedded server does), FALSE if it is expected to already
   exist (as the Qt/Embedded client does).
@@ -131,13 +131,14 @@ bool QLock::isValid() const
 }
 
 /*!
-  Locks the semaphore. Locks can either be Read or Write. If a lock is
-  Read, attempts to lock by other processes as Read will succeed, Write
-  attempts will block until the lock is unlocked. If locked as Write,
-  all attempts to lock by other processes will lock until the lock is
-  unlocked. Locks are recursive; that is a given QLock can be locked
-  multiple times by the same process without blocking, and will only be
-  unlocked after a corresponding number of unlock() calls.
+  Locks the semaphore with a lock of type \a t. Locks can either be
+  Read or Write. If a lock is Read, attempts to lock by other
+  processes as Read will succeed, Write attempts will block until the
+  lock is unlocked. If locked as Write, all attempts to lock by other
+  processes will lock until the lock is unlocked. Locks are recursive;
+  that is a given QLock can be locked multiple times by the same
+  process without blocking, and will only be unlocked after a
+  corresponding number of unlock() calls.
 */
 
 void QLock::lock( Type t )

@@ -175,7 +175,7 @@ QRect QGridView::cellGeometry( int row, int column )
 
 /*!  Repaints cell (\a row, \a column).
 
-  If \e erase is TRUE, Qt erases the area of the cell before the
+  If \a erase is TRUE, Qt erases the area of the cell before the
   paintCell() call; otherwise no erasing takes place.
 
   \sa QWidget::repaint()

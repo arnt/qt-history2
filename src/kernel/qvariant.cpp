@@ -430,8 +430,9 @@ QVariant::~QVariant()
 }
 
 /*!
-  Constructs a copy of the variant passed as argument to this
-  constructor. Usually this is a deep copy, but a shallow copy is made if the stored data type is explicitly shared, as e.g. QImage is.
+  Constructs a copy of the variant, \a p, passed as argument to this
+  constructor. Usually this is a deep copy, but a shallow copy is made
+  if the stored data type is explicitly shared, as e.g. QImage is.
 */
 QVariant::QVariant( const QVariant& p )
 {
@@ -441,7 +442,7 @@ QVariant::QVariant( const QVariant& p )
 
 #ifndef QT_NO_DATASTREAM
 /*!
-  Reads the variant from the data stream.
+  Reads the variant from the data stream, \a s.
 */
 QVariant::QVariant( QDataStream& s )
 {
@@ -451,7 +452,7 @@ QVariant::QVariant( QDataStream& s )
 #endif //QT_NO_DATASTREAM
 
 /*!
-  Constructs a new variant with a string value.
+  Constructs a new variant with a string value, \a val.
 */
 QVariant::QVariant( const QString& val )
 {
@@ -461,7 +462,7 @@ QVariant::QVariant( const QString& val )
 }
 
 /*!
-  Constructs a new variant with a c-string value.
+  Constructs a new variant with a c-string value, \a val.
 
   If you want to modify the QCString you pass to this constructor
   after this call, we recommend passing a deep copy (see
@@ -491,7 +492,7 @@ QVariant::QVariant( const char* val )
 
 #ifndef QT_NO_STRINGLIST
 /*!
-  Constructs a new variant with a string list value.
+  Constructs a new variant with a string list value, \a val.
 */
 QVariant::QVariant( const QStringList& val )
 {
@@ -503,7 +504,7 @@ QVariant::QVariant( const QStringList& val )
 
 #ifndef QT_NO_TEMPLATE_VARIANT
 /*!
-  Constructs a new variant with a map of QVariants.
+  Constructs a new variant with a map of QVariants, \a val.
 */
 QVariant::QVariant( const QMap<QString,QVariant>& val )
 {
@@ -513,7 +514,7 @@ QVariant::QVariant( const QMap<QString,QVariant>& val )
 }
 #endif
 /*!
-  Constructs a new variant with a font value.
+  Constructs a new variant with a font value, \a val.
 */
 QVariant::QVariant( const QFont& val )
 {
@@ -523,7 +524,7 @@ QVariant::QVariant( const QFont& val )
 }
 
 /*!
-  Constructs a new variant with a pixmap value.
+  Constructs a new variant with a pixmap value, \a val.
 */
 QVariant::QVariant( const QPixmap& val )
 {
@@ -534,7 +535,7 @@ QVariant::QVariant( const QPixmap& val )
 
 
 /*!
-  Constructs a new variant with an image value.
+  Constructs a new variant with an image value, \a val.
 
   Because QImage is explicitly shared, you may need to pass a deep copy
   to the variant using QImage::copy().
@@ -547,7 +548,7 @@ QVariant::QVariant( const QImage& val )
 }
 
 /*!
-  Constructs a new variant with a brush value.
+  Constructs a new variant with a brush value, \a val.
 */
 QVariant::QVariant( const QBrush& val )
 {
@@ -557,7 +558,7 @@ QVariant::QVariant( const QBrush& val )
 }
 
 /*!
-  Constructs a new variant with a point value.
+  Constructs a new variant with a point value, \a val.
 */
 QVariant::QVariant( const QPoint& val )
 {
@@ -567,7 +568,7 @@ QVariant::QVariant( const QPoint& val )
 }
 
 /*!
-  Constructs a new variant with a rect value.
+  Constructs a new variant with a rect value, \a val.
 */
 QVariant::QVariant( const QRect& val )
 {
@@ -577,7 +578,7 @@ QVariant::QVariant( const QRect& val )
 }
 
 /*!
-  Constructs a new variant with a size value.
+  Constructs a new variant with a size value, \a val.
 */
 QVariant::QVariant( const QSize& val )
 {
@@ -587,7 +588,7 @@ QVariant::QVariant( const QSize& val )
 }
 
 /*!
-  Constructs a new variant with a color value.
+  Constructs a new variant with a color value, \a val.
 */
 QVariant::QVariant( const QColor& val )
 {
@@ -598,7 +599,7 @@ QVariant::QVariant( const QColor& val )
 
 #ifndef QT_NO_PALETTE
 /*!
-  Constructs a new variant with a color palette value.
+  Constructs a new variant with a color palette value, \a val.
 */
 QVariant::QVariant( const QPalette& val )
 {
@@ -608,7 +609,7 @@ QVariant::QVariant( const QPalette& val )
 }
 
 /*!
-  Constructs a new variant with a color group value.
+  Constructs a new variant with a color group value, \a val.
 */
 QVariant::QVariant( const QColorGroup& val )
 {
@@ -619,7 +620,7 @@ QVariant::QVariant( const QColorGroup& val )
 #endif //QT_NO_PALETTE
 #ifndef QT_NO_ICONSET
 /*!
-  Constructs a new variant with an icon set value.
+  Constructs a new variant with an icon set value, \a val.
 */
 QVariant::QVariant( const QIconSet& val )
 {
@@ -629,7 +630,7 @@ QVariant::QVariant( const QIconSet& val )
 }
 #endif //QT_NO_ICONSET
 /*!
-  Constructs a new variant with a region.
+  Constructs a new variant with a region, \a val.
 */
 QVariant::QVariant( const QRegion& val )
 {
@@ -641,7 +642,7 @@ QVariant::QVariant( const QRegion& val )
 }
 
 /*!
-  Constructs a new variant with a bitmap value.
+  Constructs a new variant with a bitmap value, \a val.
 */
 QVariant::QVariant( const QBitmap& val )
 {
@@ -651,7 +652,7 @@ QVariant::QVariant( const QBitmap& val )
 }
 
 /*!
-  Constructs a new variant with a cursor value.
+  Constructs a new variant with a cursor value, \a val.
 */
 QVariant::QVariant( const QCursor& val )
 {
@@ -661,7 +662,7 @@ QVariant::QVariant( const QCursor& val )
 }
 
 /*!
-  Constructs a new variant with a point array value.
+  Constructs a new variant with a point array value, \a val.
 
   Because QPointArray is explicitly shared, you may need to pass a deep
   copy to the variant using QPointArray::copy().
@@ -674,7 +675,7 @@ QVariant::QVariant( const QPointArray& val )
 }
 
 /*!
-  Constructs a new variant with a date value.
+  Constructs a new variant with a date value, \a val.
 */
 QVariant::QVariant( const QDate& val )
 {
@@ -684,7 +685,7 @@ QVariant::QVariant( const QDate& val )
 }
 
 /*!
-  Constructs a new variant with a time value.
+  Constructs a new variant with a time value, \a val.
 */
 QVariant::QVariant( const QTime& val )
 {
@@ -694,7 +695,7 @@ QVariant::QVariant( const QTime& val )
 }
 
 /*!
-  Constructs a new variant with a date/time value.
+  Constructs a new variant with a date/time value, \a val.
 */
 QVariant::QVariant( const QDateTime& val )
 {
@@ -704,7 +705,7 @@ QVariant::QVariant( const QDateTime& val )
 }
 
 /*!
-  Constructs a new variant with a bytearray value.
+  Constructs a new variant with a bytearray value, \a val.
 */
 QVariant::QVariant( const QByteArray& val )
 {
@@ -714,7 +715,7 @@ QVariant::QVariant( const QByteArray& val )
 }
 
 /*!
-  Constructs a new variant with an integer value.
+  Constructs a new variant with an integer value, \a val.
 */
 QVariant::QVariant( int val )
 {
@@ -724,7 +725,7 @@ QVariant::QVariant( int val )
 }
 
 /*!
-  Constructs a new variant with an unsigned integer value.
+  Constructs a new variant with an unsigned integer value, \a val.
 */
 QVariant::QVariant( uint val )
 {
@@ -734,7 +735,7 @@ QVariant::QVariant( uint val )
 }
 
 /*!
-  Constructs a new variant with a boolean value. The integer argument
+  Constructs a new variant with a boolean value, \a val. The integer argument
   is a dummy, necessary for compatibility with a certain compiler that
   even its mother cannot love!
 */
@@ -747,7 +748,7 @@ QVariant::QVariant( bool val, int )
 
 
 /*!
-  Constructs a new variant with a floating point value.
+  Constructs a new variant with a floating point value, \a val.
 */
 QVariant::QVariant( double val )
 {
@@ -758,7 +759,7 @@ QVariant::QVariant( double val )
 
 #ifndef QT_NO_TEMPLATE_VARIANT
 /*!
-  Constructs a new variant with a list value.
+  Constructs a new variant with a list value, \a val.
 */
 QVariant::QVariant( const QValueList<QVariant>& val )
 {
@@ -769,7 +770,7 @@ QVariant::QVariant( const QValueList<QVariant>& val )
 #endif
 
 /*!
-  Constructs a new variant with a size policy value.
+  Constructs a new variant with a size policy value, \a val.
 */
 QVariant::QVariant( QSizePolicy val )
 {
@@ -880,7 +881,7 @@ static const char* const type_map[ntypes] =
 
 
 /*!
-  Converts the enum representation of the storage type to its
+  Converts the enum representation of the storage type, \a typ, to its
   string representation.
 */
 const char* QVariant::typeToName( Type typ )
@@ -892,8 +893,8 @@ const char* QVariant::typeToName( Type typ )
 
 
 /*!
-  Converts the string representation of the storage type to
-  its enum representation.
+  Converts the string representation of the storage type gven in \a
+  name, to its enum representation.
 
   If the string representation cannot be converted to any enum
   representation, the variant is set to \c Invalid.
@@ -908,8 +909,8 @@ QVariant::Type QVariant::nameToType( const char* name )
 }
 
 #ifndef QT_NO_DATASTREAM
-/*! Internal function for loading a variant. Use the stream operators
-  instead.
+/*! Internal function for loading a variant from stream \a s. Use the
+ stream operators instead.
 
   \internal
 */
@@ -1144,8 +1145,8 @@ void QVariant::load( QDataStream& s )
 }
 
 /*!
-  Internal function for saving a variant. Use the stream operators
-  instead.
+  Internal function for saving a variant to the stream \a s. Use the
+  stream operators instead.
 */
 void QVariant::save( QDataStream& s ) const
 {
@@ -2197,25 +2198,25 @@ QMap<QString, QVariant>& QVariant::asMap()
 #endif
 
 /*!
-  Returns TRUE if the current type of the variant can be cast to
+  Returns TRUE if the current type, \a t, of the variant can be cast to
   the requested type. Such casting is done automatically when calling
   the toInt(), toBool(), ... or asInt(), asBool(), ... methods.
 
   The following casts are done automatically:
-  <ul>
-  <li> Bool -> Double, Int, UInt
-  <li> Double -> String, Int, Bool, UInt
-  <li> Int -> String, Double, Bool, UInt
-  <li> UInt -> String, Double, Bool, Int
-  <li> String -> CString, Int, Uint, Double, Date, Time, DateTime
-  <li> CString -> String
-  <li> Date -> String
-  <li> Time -> String
-  <li> DateTime -> String
-  <li> List -> StringList (if the list contains strings or something
+  \list
+  \i Bool -> Double, Int, UInt
+  \i Double -> String, Int, Bool, UInt
+  \i Int -> String, Double, Bool, UInt
+  \i UInt -> String, Double, Bool, Int
+  \i String -> CString, Int, Uint, Double, Date, Time, DateTime
+  \i CString -> String
+  \i Date -> String
+  \i Time -> String
+  \i DateTime -> String
+  \i List -> StringList (if the list contains strings or something
        that can be cast to a string)
-  <li> StringList -> List
-  </ul>
+  \i StringList -> List
+  \endlist
 */
 bool QVariant::canCast( Type t ) const
 {

@@ -83,7 +83,8 @@ public:
   layout, the light usually comes from top right instead of top left.
 */
 
-/*! \enum QStyle::ScrollControl
+/* ### Delete when revised
+    \enum QStyle::ScrollControl
   This enum type defines
   \value AddLine  control to scroll one line down, usually an arrow button
   \value SubLine  control to scroll one line up, usually an arrow button
@@ -175,6 +176,7 @@ void QStyle::unPolish( QWidget*)
 
 
 /*!
+    \overload
   Late initialization of the QApplication object.
 
   \sa unPolish(QApplication*)
@@ -184,6 +186,7 @@ void QStyle::polish( QApplication*)
 }
 
 /*!
+    \overload
   Undoes the application polish.
 
   \sa polish(QApplication*)
@@ -193,6 +196,7 @@ void QStyle::unPolish( QApplication*)
 }
 
 /*!
+    \overload
   The style may have certain requirements for color palettes.  In this
   function it has the chance to change the palette according to these
   requirements.
@@ -206,6 +210,7 @@ void QStyle::polish( QPalette&)
 /*!
   Returns the appropriate area within a rectangle in which to
   draw text or a pixmap.
+
 */
 QRect QStyle::itemRect( QPainter *p, const QRect &r,
 			int flags, bool enabled, const QPixmap *pixmap,

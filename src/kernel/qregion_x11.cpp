@@ -84,7 +84,11 @@ QRegion::QRegion( bool is_null )
 /*!
   \overload
 
+  Create a region based on the rectange \a r with region type \a t.
+
   If the rectangle is invalid a null region will be created.
+  
+  \sa QRegion::RegionType
  */
 
 QRegion::QRegion( const QRect &r, RegionType t )
@@ -347,7 +351,8 @@ bool QRegion::contains( const QPoint &p ) const
 }
 
 /*!
-  Returns TRUE if the region overlaps the rectangle \a r, or FALSE if \a r is
+    \overload
+  Returns TRUE if the region overlaps the rectangle \a r; or FALSE if \a r is
   completely outside the region.
 */
 

@@ -1921,9 +1921,10 @@ bool QDomNode::isSupported( const QString& feature, const QString& version ) con
   Returns the namespace URI of this node; if the node has no namespace URI,
   this function returns QString::null.
 
-  Only nodes of type \l ElementNode or \l AttributeNode can have namespaces. A
-  namespace URI must be specified at creation time and cannot be changed
-  later.
+  Only nodes of type \link QDomNode::NodeType ElementNode\endlink or
+  \link QDomNode::NodeType AttributeNode\endlink can have namespaces.
+  A namespace URI must be specified at creation time and cannot be
+  changed later.
 
   \sa prefix() localName() QDomDocument::createElementNS()
   QDomDocument::createAttributeNS()
@@ -1939,7 +1940,8 @@ QString QDomNode::namespaceURI() const
   Returns the namespace prefix of the node; if a node has no namespace prefix,
   this function returns QString::null.
 
-  Only nodes of type ElementNode or AttributeNode can have namespaces. A
+  Only nodes of type \link QDomNode::NodeType ElementNode\endlink or 
+  \link QDomNode::NodeType AttributeNode\endlink can have namespaces. A
   namespace prefix must be specified at creation time. If a node was
   created with a namespace prefix, you can change it later with setPrefix().
 
@@ -1963,9 +1965,10 @@ QString QDomNode::prefix() const
   If the node has a namespace prefix, this function changes the namespace
   prefix of the node to \a pre. Otherwise this function has no effect.
 
-  Only nodes of type \l ElementNode or \l AttributeNode can have namespaces. A
-  namespace prefix must have be specified at creation time; it is not possible
-  to add a namespace prefix afterwards.
+  Only nodes of type \link QDomNode::NodeType ElementNode\endlink or
+  \link QDomNode::NodeType AttributeNode\endlink can have namespaces.
+  A namespace prefix must have be specified at creation time; it is
+  not possible to add a namespace prefix afterwards.
 
   \sa prefix() localName() namespaceURI() QDomDocument::createElementNS()
   QDomDocument::createAttributeNS()
@@ -1982,9 +1985,10 @@ void QDomNode::setPrefix( const QString& pre )
   If the node uses namespaces, this function returns the local name of the
   node. Otherwise it returns QString::null.
 
-  Only nodes of type \l ElementNode or \l AttributeNode can have namespaces. A
-  namespace must have been specified at creation time; it is not possible
-  to add a namespace afterwards.
+  Only nodes of type \link QDomNode::NodeType ElementNode\endlink or
+  \link QDomNode::NodeType AttributeNode\endlink can have namespaces.
+  A namespace must have been specified at creation time; it is not
+  possible to add a namespace afterwards.
 
   \sa prefix() namespaceURI() QDomDocument::createElementNS()
   QDomDocument::createAttributeNS()
@@ -3700,7 +3704,7 @@ void QDomAttr::setValue( const QString& v )
 }
 
 /*!
-  Returns \c AttributeNode.
+  Returns \link QDomNode::NodeType AttributeNode\endlink.
 */
 QDomNode::NodeType QDomAttr::nodeType() const
 {

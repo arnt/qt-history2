@@ -161,6 +161,8 @@ private:
 
 /*!
   Documented as QPtrList::compareItems().
+
+  Compares \a item1 with \a item2.
 */
 int QGList::compareItems( QPtrCollection::Item item1, QPtrCollection::Item item2 )
 {
@@ -169,6 +171,7 @@ int QGList::compareItems( QPtrCollection::Item item1, QPtrCollection::Item item2
 
 #ifndef QT_NO_DATASTREAM
 /*!
+    \overload
   Reads a collection/list item from the stream \a s and returns a reference
   to the stream.
 
@@ -184,8 +187,9 @@ QDataStream &QGList::read( QDataStream &s, QPtrCollection::Item &item )
 }
 
 /*!
-  Writes a collection/list item to the stream \a s and returns a reference
-  to the stream.
+    \overload
+  Writes a collection/list item to the stream \a s and
+  returns a reference to the stream.
 
   The default implementation does nothing.
 
@@ -215,7 +219,7 @@ QGList::QGList()
 }
 
 /*!
-  Constructs a copy of \e list.
+  Constructs a copy of \a list.
 */
 
 QGList::QGList( const QGList & list )
@@ -249,7 +253,7 @@ QGList::~QGList()
 
 
 /*!
-  Assigns \e list to this list.
+  Assigns \a list to this list.
 */
 
 QGList& QGList::operator=( const QGList &list )
@@ -301,7 +305,7 @@ bool QGList::operator==( const QGList &list ) const
 
 
 /*!
-  Returns the node at position \e index.  Sets this node to current.
+  Returns the node at position \a index.  Sets this node to current.
 */
 
 QLNode *QGList::locate( uint index )
@@ -352,7 +356,7 @@ QLNode *QGList::locate( uint index )
 
 
 /*!
-  Inserts an item at its sorted position in the list.
+  Inserts item \a d at its sorted position in the list.
 */
 
 void QGList::inSort( QPtrCollection::Item d )
@@ -368,7 +372,7 @@ void QGList::inSort( QPtrCollection::Item d )
 
 
 /*!
-  Inserts an item at the start of the list.
+  Inserts item \a d at the start of the list.
 */
 
 void QGList::prepend( QPtrCollection::Item d )
@@ -387,7 +391,7 @@ void QGList::prepend( QPtrCollection::Item d )
 
 
 /*!
-  Inserts an item at the end of the list.
+  Inserts item \a d at the end of the list.
 */
 
 void QGList::append( QPtrCollection::Item d )
@@ -406,7 +410,7 @@ void QGList::append( QPtrCollection::Item d )
 
 
 /*!
-  Inserts an item at position \e index in the list.
+  Inserts item \a d at position \a index in the list.
 */
 
 bool QGList::insertAt( uint index, QPtrCollection::Item d )
@@ -435,7 +439,7 @@ bool QGList::insertAt( uint index, QPtrCollection::Item d )
 
 
 /*!
-  Relinks node \e n and makes it the first node in the list.
+  Relinks node \a n and makes it the first node in the list.
 */
 
 void QGList::relinkNode( QLNode *n )
@@ -492,7 +496,7 @@ QLNode *QGList::unlink()
 
 
 /*!
-  Removes the node \e n from the list.
+  Removes the node \a n from the list.
 */
 
 bool QGList::removeNode( QLNode *n )
@@ -514,7 +518,7 @@ bool QGList::removeNode( QLNode *n )
 }
 
 /*!
-  Removes the item \e d from the list.	Uses compareItems() to find the item.
+  Removes the item \a d from the list.	Uses compareItems() to find the item.
 */
 
 bool QGList::remove( QPtrCollection::Item d )
@@ -532,7 +536,7 @@ bool QGList::remove( QPtrCollection::Item d )
 }
 
 /*!
-  Removes the item \e d from the list.
+  Removes the item \a d from the list.
 */
 
 bool QGList::removeRef( QPtrCollection::Item d )
@@ -562,7 +566,7 @@ bool QGList::removeRef( QPtrCollection::Item d )
 */
 
 /*!
-  Removes the item at position \e index from the list.
+  Removes the item at position \a index from the list.
 */
 
 bool QGList::removeAt( uint index )
@@ -579,7 +583,7 @@ bool QGList::removeAt( uint index )
 
 
 /*!
-  Takes the node \e n out of the list.
+  Takes the node \a n out of the list.
 */
 
 QPtrCollection::Item QGList::takeNode( QLNode *n )
@@ -613,7 +617,7 @@ QPtrCollection::Item QGList::take()
 }
 
 /*!
-  Takes the item at position \e index out of the list.
+  Takes the item at position \a index out of the list.
 */
 
 QPtrCollection::Item QGList::takeAt( uint index )
@@ -679,7 +683,8 @@ void QGList::clear()
 
 
 /*!
-  Finds an item in the list.
+  Finds item \a d in the list. If \a fromStart is TRUE the search
+  begins at the first node; otherwise it begins at the current node.
 */
 
 int QGList::findRef( QPtrCollection::Item d, bool fromStart )
@@ -703,7 +708,9 @@ int QGList::findRef( QPtrCollection::Item d, bool fromStart )
 }
 
 /*!
-  Finds an item in the list.  Uses compareItems().
+  Finds item \a d in the list using compareItems(). If \a fromStart is
+  TRUE the search begins at the first node; otherwise it begins at the
+  current node.
 */
 
 int QGList::find( QPtrCollection::Item d, bool fromStart )
@@ -728,7 +735,7 @@ int QGList::find( QPtrCollection::Item d, bool fromStart )
 
 
 /*!
-  Counts the number an item occurs in the list.
+  Counts the number item \a d occurs in the list.
 */
 
 uint QGList::containsRef( QPtrCollection::Item d ) const
@@ -744,7 +751,8 @@ uint QGList::containsRef( QPtrCollection::Item d ) const
 }
 
 /*!
-  Counts the number an item occurs in the list.	 Uses compareItems().
+  Counts the number of times item \a d occurs in the list. Uses
+  compareItems().
 */
 
 uint QGList::contains( QPtrCollection::Item d ) const
@@ -762,9 +770,9 @@ uint QGList::contains( QPtrCollection::Item d ) const
 
 
 /*!
-  \fn QPtrCollection::Item QGList::at( uint index )
+  \overload QPtrCollection::Item QGList::at( uint index )
 
-  Sets the item at position \e index to the current item.
+  Sets the item at position \a index to the current item.
 */
 
 /*!
@@ -862,7 +870,7 @@ QPtrCollection::Item QGList::prev()
 
 
 /*!
-  Converts the list to a vector.
+  Converts the list to a vector, \a vector.
 */
 
 void QGList::toVector( QGVector *vector ) const
@@ -979,7 +987,7 @@ QDataStream &operator<<( QDataStream &s, const QGList &list )
 }
 
 /*!
-  Reads a list from the stream \e s.
+  Reads a list from the stream \a s.
 */
 
 QDataStream &QGList::read( QDataStream &s )
@@ -1011,7 +1019,7 @@ QDataStream &QGList::read( QDataStream &s )
 }
 
 /*!
-  Writes the list to the stream \e s.
+  Writes the list to the stream \a s.
 */
 
 QDataStream &QGList::write( QDataStream &s ) const
@@ -1043,7 +1051,7 @@ QDataStream &QGList::write( QDataStream &s ) const
 
 /*!
   \internal
-  Constructs an iterator that operates on the list \e l.
+  Constructs an iterator that operates on the list \a l.
 */
 
 QGListIterator::QGListIterator( const QGList &l )
@@ -1059,7 +1067,7 @@ QGListIterator::QGListIterator( const QGList &l )
 
 /*!
   \internal
-  Constructs a copy of the iterator \e it.
+  Constructs a copy of the iterator \a it.
 */
 
 QGListIterator::QGListIterator( const QGListIterator &it )
@@ -1072,7 +1080,7 @@ QGListIterator::QGListIterator( const QGListIterator &it )
 
 /*!
   \internal
-  Assigns a copy of the iterator \e it and returns a reference to this
+  Assigns a copy of the iterator \a it and returns a reference to this
   iterator.
 */
 
@@ -1181,7 +1189,7 @@ QPtrCollection::Item QGListIterator::operator++()
 
 /*!
   \internal
-  Moves \e jumps positions forward.
+  Moves \a jumps positions forward.
 */
 
 QPtrCollection::Item QGListIterator::operator+=( uint jumps )
@@ -1206,7 +1214,7 @@ QPtrCollection::Item QGListIterator::operator--()
 
 /*!
   \internal
-  Moves \e jumps positions backward.
+  Moves \a jumps positions backward.
 */
 
 QPtrCollection::Item QGListIterator::operator-=( uint jumps )

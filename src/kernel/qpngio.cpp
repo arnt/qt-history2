@@ -604,6 +604,12 @@ void write_png_image(QImageIO* iio)
   Creates an image packer that writes PNG data to \a iod using a
   \a storage_depth bit encoding (use 8 or 32, depending on the
   desired quality and compression requirements).
+
+    If the image needs to be modified to fit in a lower-resolution
+    result (eg. converting from 32-bit to 8-bit), use the \a
+    conversionflags to specify how you'd prefer this to happen.
+
+  \sa Qt::ImageConversionFlags
 */
 QPNGImagePacker::QPNGImagePacker(QIODevice* iod, int storage_depth,
 	int conversionflags) :

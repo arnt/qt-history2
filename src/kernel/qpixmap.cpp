@@ -785,6 +785,10 @@ bool QPixmap::load( const QString &fileName, const char *format,
 
 /*!
   \overload
+  Converts \a image and sets this pixmap using color mode \a mode.
+  Returns TRUE if successful; otherwise returns FALSE.
+
+  \sa QPixmap::ColorMode
 */
 
 bool QPixmap::convertFromImage( const QImage &image, ColorMode mode )
@@ -841,6 +845,15 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
 
 /*!
   \overload
+  Loads a pixmap from the binary data in \a buf (\a len bytes) using
+  color mode \a mode.
+  Returns TRUE if successful, or FALSE if the pixmap could not be loaded.
+
+  If \a format is specified, the loader attempts to read the pixmap using the
+  specified format. If \a format is not specified (default),
+  the loader reads a few bytes from the header to guess the file format.
+
+  \sa QPixmap::ColorMode
 */
 
 bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
@@ -930,11 +943,11 @@ QPixmap::Optimization QPixmap::defaultOptimization()
 /*!
   Sets the default pixmap optimization.
 
-  All \a new pixmaps that are created will use this default optimization.
+  All \e new pixmaps that are created will use this default optimization.
   You may also set optimization for individual pixmaps using the
   setOptimization() function.
 
-  The initial default optimization setting is \c QPixmap::Normal.
+  The initial default \a optimization setting is \c QPixmap::Normal.
 
   \sa defaultOptimization(), setOptimization(), optimization()
 */

@@ -98,7 +98,7 @@ const int INV_TIMER = -1;			// invalid timer id
 
 
 /*!
-  Constructs a timer with a \e parent and a \e name.
+  Constructs a timer with a \a parent and a \a name.
 
   Notice that the destructor of the parent object will destroy this timer
   object.
@@ -133,9 +133,9 @@ QTimer::~QTimer()
 
 
 /*!
-  Starts the timer with an \e msecs milliseconds timeout.
+  Starts the timer with an \a msec milliseconds timeout.
 
-  If \e sshot is TRUE, the timer will be activated only once;
+  If \a sshot is TRUE, the timer will be activated only once;
   otherwise it will continue until it is stopped.
 
   Any pending timer will be stopped.
@@ -156,7 +156,7 @@ int QTimer::start( int msec, bool sshot )
 
 
 /*!
-  Changes the timeout interval to \e msec milliseconds.
+  Changes the timeout interval to \a msec milliseconds.
 
   If the timer signal is pending, it will be stopped and restarted;
   otherwise it will be started.
@@ -283,6 +283,9 @@ bool QSingleShotTimer::event( QEvent * )
 
   This sample program automatically terminates after 10 minutes (i.e.,
   600000 milliseconds).
+
+  The \a receiver is the receiving object and the \a member is the
+  slot. The time interval is \a msec.
 */
 
 void QTimer::singleShot( int msec, QObject *receiver, const char *member )

@@ -1932,9 +1932,6 @@ static bool convert_32_to_16( const QImage *src, QImage *dst )
 
   The \a depth argument must be 1, 8, 16 or 32.
 
-  See QPixmap::convertFromImage() for a description of the \a
-  conversion_flags argument.
-
   Returns \c *this if \a depth is equal to the image depth, or a null
   image if this image cannot be converted.
 

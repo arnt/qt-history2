@@ -90,6 +90,7 @@
   \value HelpChanged
   \value DefaultActionChanged
   \value AcceleratorChanged
+  \value MenuCommand
 */
 
 /*!
@@ -322,7 +323,7 @@
   method of manipulation, and should be a verb or a short phrase, e.g. 
   "Press" for a button.
 
-  The \a accelerator is a keyboard shortcut that activates the default action of the object.
+  The accelerator is a keyboard shortcut that activates the default action of the object.
   A keyboard shortcut is the underlined character in the text of a menu, menu item or control, 
   and is either the character itself, or a combination of this character and a modifier key 
   like ALT, CTRL or SHIFT. Command controls like tool buttons also have shortcut keys and 

@@ -55,7 +55,7 @@
   In general, we recommend inheriting QObject instead.	QObject provides
   much more functionality.
 
-  Note that QObject is a \e private base class of QSignal, i.e., you cannot
+  Note that QObject is a \e private base class of QSignal, i.e. you cannot
   call any QObject member functions from a QSignal object.
 
   Example:
@@ -100,7 +100,7 @@
 */
 
 /*!
-  Constructs a signal object with the parent object \e parent and a \e name.
+  Constructs a signal object with the parent object \a parent and a \a name.
   These arguments are passed directly to QObject.
 */
 
@@ -130,7 +130,7 @@ static inline bool intSignature( const char *member )
 }
 #endif
 /*!
-  Connects the signal to \e member in object \e receiver.
+  Connects the signal to \a member in object \a receiver.
   \sa disconnect(), QObject::connect()
 */
 
@@ -147,7 +147,7 @@ bool QSignal::connect( const QObject *receiver, const char *member )
 }
 
 /*!
-  Disonnects the signal from \e member in object \e receiver.
+  Disonnects the signal from \a member in object \a receiver.
   \sa connect(), QObject::disconnect()
 */
 
@@ -177,7 +177,7 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 /*!
   \fn void QSignal::block( bool b )
   \obsolete
-  Blocks the signal if \e b is TRUE, or unblocks the signal if \e b is FALSE.
+  Blocks the signal if \a b is TRUE, or unblocks the signal if \a b is FALSE.
 
   An activated signal disappears into hyperspace if it is blocked.
 

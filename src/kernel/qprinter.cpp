@@ -55,23 +55,23 @@
   QPrinter supports a number of settable parameters, most of which can be
   changed by the end user when the application calls QPrinter::setup().
 
-  The most important parameters are: <ul>
-  <li> setOrientation() tells QPrinter to turn the page (virtual).
-  <li> setPageSize() tells QPrinter what page size to expect from the
+  The most important parameters are: \list
+  \i setOrientation() tells QPrinter to turn the page (virtual).
+  \i setPageSize() tells QPrinter what page size to expect from the
   printer.
-  <li> setResolution() tells QPrinter what resolution you wish the
+  \i setResolution() tells QPrinter what resolution you wish the
   printer to provide (in dpi).
-  <li> setFullPage() tells QPrinter whether you want to deal with the
+  \i setFullPage() tells QPrinter whether you want to deal with the
   full page (so you can have accurate margins, etc.) or just with
   the part the printer can draw on.  The default is FALSE, so that by
   default you can probably paint on (0,0) but the document's margins
   are unknown.
 
-  <li> setNumCopies() tells QPrinter how many copies of the document
+  \i setNumCopies() tells QPrinter how many copies of the document
   it should print.
-  <li> setMinMax() tells QPrinter and QPrintDialog what the allowed
+  \i setMinMax() tells QPrinter and QPrintDialog what the allowed
   range for fromPage() and toPage() are.
-  </ul>
+  \endlist
 
   Except where noted, you can only call the set functions before
   setup(), or between QPainter::end() and setup(). (Some may have
@@ -80,24 +80,24 @@
   depending on platform.)
 
   There are also some settings that the user sets (through the printer
-  dialog) and that applications are expected to obey: <ul>
+  dialog) and that applications are expected to obey: \list
 
-  <li> pageOrder() tells the application program whether to print
+  \i pageOrder() tells the application program whether to print
   first-page-first or last-page-first.
 
-  <li> colorMode() tells the application program whether to print
+  \i colorMode() tells the application program whether to print
   in color or grayscale.  (If you print in color and the printer does
   not support color, Qt will try to approximate.  The document may
   take longer to print, but the quality should not be made visibly
   poorer.)
 
-  <li> fromPage() and toPage() indicate what pages the application
+  \i fromPage() and toPage() indicate what pages the application
   program should print.
 
-  <li> paperSource() tells the application progam which paper source
+  \i paperSource() tells the application progam which paper source
   to print from.
 
-  </ul>
+  \endlist
 
   You can of course call these functions to establish defaults
   before you ask the user through QPrinter::setup().
@@ -196,6 +196,8 @@
   \value Legal 8.5 x 14 inches, 216 x 356 mm
   \value Letter 8.5 x 11 inches, 216 x 279 mm
   \value Tabloid 279 x 432 mm
+  \value Custom
+  \value NPageSize (internal)
 
   With setFullPage(FALSE) (the default), the metrics will be a bit
   smaller; how much depends on the printer in use.
@@ -274,8 +276,8 @@
   Specifies whether the output should be written to a file or sent
   directly to the printer.
 
-  Will output to a file if \e enable is TRUE, or will output directly
-  to the printer if \e enable is FALSE.
+  Will output to a file if \a enable is TRUE, or will output directly
+  to the printer if \a enable is FALSE.
 
   This function is currently supported only under X11.
 
@@ -301,7 +303,7 @@ void QPrinter::setOutputToFile( bool enable )
 */
 
 /*!
-  Sets the name of the output file.
+  Sets the name of the output file to \a fileName.
 
   Setting a null name (0 or "") disables output to a file, i.e., calls
   setOutputToFile(FALSE). Setting a non-null name enables output to a
@@ -340,7 +342,8 @@ void QPrinter::setOutputFileName( const QString &fileName )
 */
 
 /*!
-  Sets the name of the program that should do the print job.
+  Sets the name of the program that should do the print job to \a
+  printProg.
 
   On X11, this function sets the program to call with the PostScript
   output.  On other platforms, it has no effect.
@@ -361,7 +364,7 @@ void QPrinter::setPrintProgram( const QString &printProg )
 */
 
 /*!
-  Sets the document name.
+  Sets the document name to \a name.
 */
 
 void QPrinter::setDocName( const QString &name )
@@ -383,7 +386,7 @@ void QPrinter::setDocName( const QString &name )
 */
 
 /*!
-  Sets the creator name.
+  Sets the creator name to \a creator.
 
   Calling this function has effect only for the X11 version of Qt.
   The creator name is the name of the application that created the
@@ -408,7 +411,7 @@ void QPrinter::setCreator( const QString &creator )
 */
 
 /*!
-  Sets the print orientation.
+  Sets the print orientation to \a orientation.
 
   The orientation can be either \c QPrinter::Portrait or
   \c QPrinter::Landscape.
@@ -531,7 +534,8 @@ QPrinter::ColorMode QPrinter::colorMode() const
 */
 
 /*!
-  Sets the from-page and to-page settings.
+  Sets the from-page and to-page settings to \a fromPage and \a toPage
+  respectively.
 
   The from-page and to-page settings specify what pages to print.
 
@@ -569,7 +573,8 @@ void QPrinter::setFromTo( int fromPage, int toPage )
 */
 
 /*!
-  Sets the min-page and max-page settings.
+  Sets the min-page and max-page settings to \a minPage and \a maxPage
+  respectively.
 
   The min-page and max-page restrict the from-page and to-page
   settings.  When the printer setup dialog comes up, the user cannot
@@ -593,7 +598,7 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 */
 
 /*!
-  Sets the number of pages to be printed.
+  Sets the number of pages to be printed to \a numCopies.
 
   The printer driver reads this setting and prints the specified number of
   copies.
@@ -706,7 +711,7 @@ int QPrinter::resolution() const
     return res;
 }
 
-/*! Sets the paper source setting.
+/*! Sets the paper source setting to \a source.
 
     \sa paperSource()
 */

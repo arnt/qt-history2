@@ -371,7 +371,9 @@ void QPixmap::deref()
 
 
 /*!
-  Constructs a monochrome pixmap that is initialized with the data in \a bits.
+  Constructs a monochrome pixmap, with width \a w and height \a h,
+  that is initialized with the data in \a bits. The \a isXbitmap
+  indicates whether the data is an X bitmap and defaults to FALSE.
   This constructor is protected and used by the QBitmap class.
 */
 
@@ -476,12 +478,12 @@ int QPixmap::defaultDepth()
 
   The default optimization setting is \c QPixmap::NormalOptim. You may
   change this settings in two ways:
-  <ul>
-  <li> Call setDefaultOptimization() to set the default optimization
+  \list
+  \i Call setDefaultOptimization() to set the default optimization
   for all new pixmaps.
-  <li> Call setOptimization() to set a the optimization for individual
+  \i Call setOptimization() to set a the optimization for individual
   pixmaps.
-  </ul>
+  \endlist
 
   \sa setOptimization(), setDefaultOptimization(), defaultOptimization()
 */
@@ -489,7 +491,7 @@ int QPixmap::defaultDepth()
 /*!
   Sets pixmap drawing optimization for this pixmap.
 
-  The optimization setting affects pixmap operations, in particular
+  The \a optimization setting affects pixmap operations, in particular
   drawing of transparent pixmaps (bitBlt() a pixmap with a mask set) and
   pixmap transformations (the xForm() function).
 
@@ -537,6 +539,8 @@ void QPixmap::fill( const QColor &fillColor )
   Internal implementation of the virtual QPaintDevice::metric() function.
 
   Use the QPaintDeviceMetrics class instead.
+
+  \a m is the metric to get.
 */
 
 int QPixmap::metric( int m ) const
@@ -901,7 +905,7 @@ QImage QPixmap::convertToImage() const
 
 
 /*!
-  Converts an image and sets this pixmap. Returns TRUE if successful;
+  Converts image \a img and sets this pixmap. Returns TRUE if successful;
   otherwise returns FALSE.
 
   The \a conversion_flags argument is a bitwise-OR of the 
@@ -1547,11 +1551,11 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
 
 /*!
-  Grabs the contents of a window and makes a pixmap out of it.
-  Returns the pixmap.
+  Grabs the contents of the window \a window and makes a pixmap out of
+  it. Returns the pixmap.
 
-  The arguments \e (x,y) specify the offset in the window, whereas
-  \e (w,h) specify the width and height of the area to be copied.
+  The arguments \a (x, y) specify the offset in the window, whereas
+  \a (w, h) specify the width and height of the area to be copied.
 
   If \a w is negative, the function copies everything to the right
   border of the window.	 If \a h is negative, the function copies

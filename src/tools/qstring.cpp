@@ -12383,12 +12383,12 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   QStrings are legal parameters to the methods. Assigning \c {(const char
   *)0} to QString gives a null QString.
 
-  Note that if you find that you are mixing usage of \l QCString, \l
+  Note that if you find that you are mixing usage of \l QCString, 
   QString, and \l QByteArray, this causes lots of unnecessary copying
   and might indicate that the true nature of the data you are dealing
   with is uncertain.  If the data is 0-terminated 8-bit data, use \l
   QCString; if it is unterminated (i.e., contains 0s) 8-bit data, use
-  \l QByteArray; if it is text, use \l QString.
+  \l QByteArray; if it is text, use QString.
 
   <b>Note for C programmers</b>
 
@@ -13487,26 +13487,29 @@ int QString::contains( QChar c, bool cs ) const
 
   Returns the number of times the string \a str occurs in the string.
 
-  If \a cs is TRUE then the match is case sensitive.  If \a cs is FALSE, then the
-  match is case insensitive.
+  If \a cs is TRUE then the match is case sensitive.  If \a cs is
+  FALSE, then the match is case insensitive.
 */
-int QString::contains( const char* str, bool cs ) const
-{
-    return contains( QString(str), cs );
-}
+int QString::contains( const char* str, bool cs ) const { return
+contains( QString(str), cs ); }
 
 /*! \fn int QString::contains( char c, bool cs ) const
   \overload
 
 */
 
-/*! \fn int QString::find( char c, int index, bool cs ) const
-  \overload
-
+/*! \overload int QString::find( char c, int index, bool cs ) const
+    Find character \a c starting from position \a index.
+  If \a cs is TRUE then the match is case sensitive.  If \a cs is
+  FALSE, then the match is case insensitive.
 */
 
-/*!\fn int QString::findRev( char c, int index, bool cs ) const
-  \overload
+/*!
+    \overload int QString::findRev( char c, int index, bool cs ) const
+    Find character \a c starting from position \a index and working
+    backwards.
+  If \a cs is TRUE then the match is case sensitive.  If \a cs is
+  FALSE, then the match is case insensitive.
 */
 
 /*! \overload
@@ -13948,8 +13951,8 @@ QString &QString::insert( uint index, QChar c ) // insert char
     return insert( index, s );
 }
 
-/*! \fn QString& QString::insert( uint index, char c )
-  \overload
+/*! \overload QString& QString::insert( uint index, char c )
+    Insert character \a c at position \a index.
 */
 
 /*!
@@ -14126,7 +14129,8 @@ int QString::findRev( const QRegExp &rx, int index ) const
 
 /*! \overload
 
-  Returns the number of times the regexp occurs in the string.
+  Returns the number of times the regexp, \a rx,  occurs in the
+  string.
 
   This function counts overlapping occurrences, so in the example
   below, there are four instances of "ana" or "ama".
@@ -15654,7 +15658,7 @@ bool operator>=( const char *s1, const QString &s2 )
 #ifndef QT_NO_DATASTREAM
 /*!
   \relates QString
-  Writes a string from the stream.
+  Writes the string \a str to the stream \a s.
 
   See also \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -15702,7 +15706,7 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
 
 /*!
   \relates QString
-  Reads a string from the stream.
+  Reads a string from the stream \a s into string \a str.
 
   See also \link datastreamformat.html Format of the QDataStream operators \endlink
 */

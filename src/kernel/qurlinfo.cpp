@@ -105,7 +105,7 @@ QUrlInfo::QUrlInfo( const QUrlOperator &path, const QString &file )
 }
 
 /*!
-  Copy constructor.
+  Copy constructor, copies \a ui to this url info object.
 */
 
 QUrlInfo::QUrlInfo( const QUrlInfo &ui )
@@ -115,7 +115,12 @@ QUrlInfo::QUrlInfo( const QUrlInfo &ui )
 }
 
 /*!
-  Constructs a QUrlInfo object by specifying all information of the URL.
+  Constructs a QUrlInfo object by specifying all information of the URL. 
+  The information that is passed is the \a name, the \a permissions,
+  the \a owner and \a group, as well as the \a size, \a lastModified
+  date/time and \a lastRead date/time. Flags are also passed, namely, \a
+  isDir, \a isFile, \a isSymLink, \a isWritable, \a isReadable and \a
+  isExecutable.
 */
 
 QUrlInfo::QUrlInfo( const QString &name, int permissions, const QString &owner,
@@ -142,6 +147,11 @@ QUrlInfo::QUrlInfo( const QString &name, int permissions, const QString &owner,
 
 /*!
   Constructs a QUrlInfo object by specifying all information of the URL.
+  The information that is passed is the \a url, the \a permissions,
+  the \a owner and \a group, as well as the \a size, \a lastModified
+  date/time and \a lastRead date/time. Flags are also passed, namely, \a
+  isDir, \a isFile, \a isSymLink, \a isWritable, \a isReadable and \a
+  isExecutable.
 */
 
 QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
