@@ -98,6 +98,7 @@ int QCDEStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
     case PM_SpinBoxFrameWidth:
     case PM_MenuBarVMargin:
     case PM_MenuBarHMargin:
+    case PM_DockWidgetFrameWidth:
         ret = 1;
         break;
     case PM_ScrollBarExtent:
