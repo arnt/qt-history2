@@ -66,7 +66,35 @@ public:
 
   \module network
 
-  fnord
+  This class is the common part of the more special QHttpReplyHeader and
+  QHttpRequestHeader classes. Probably, you will instantiate one of the more
+  special classes rather than this one.
+
+  It provides to the header fields. A HTTP header field consists (accroding to
+  RFC 1945) of a name followed immediately by a colon, a single space, and the
+  field value. Field names are case-insensitive. A typical header field looks
+  like:
+  \code
+  content-type: text/html
+  \endcode
+
+  The header field name is called "key" and the content "value" in the API. You
+  can set the above header field with:
+  \code
+  header.setValue( "content-type", "text/html" );
+  \endcode
+
+  Since content-type is a very common header field, there is a shortcut for it.
+  So the above can also be written as:
+  \code
+  header.setContentType( "text/html" );
+  \endcode
+
+  Please note that it is only possible to have at most one header field for the
+  same key. If you try to set the value for a key which already exists, the old
+  value is overwritten.
+
+  \sa QHttpRequestHeader QHttpReplyHeader
 */
 
 /*!
@@ -90,7 +118,9 @@ QHttpHeader::QHttpHeader( const QHttpHeader& header )
 
 /*!
   Constructs a HTTP header for \a str.
-### \a atr is parsed...
+
+  This constructor parses the string \a str for header fields and adds this
+  information.
 */
 QHttpHeader::QHttpHeader( const QString& str )
     : m_bValid( TRUE )
@@ -128,7 +158,10 @@ bool QHttpHeader::isValid() const
 }
 
 /*!
-  Parses the HTTP header string \a str and add the information.
+  Parses the HTTP header string \a str for header fields and add the
+  information.
+
+  \sa toString() read()
 */
 void QHttpHeader::parse( const QString& str )
 {
@@ -168,6 +201,8 @@ void QHttpHeader::parse( const QString& str )
 /*!
   Reads a HTTP header from the text stream \a stream and returns a reference to
   the stream.
+
+  \sa write() toString() parse()
 */
 QTextStream& QHttpHeader::read( QTextStream& stream )
 {
@@ -203,6 +238,8 @@ QTextStream& QHttpHeader::read( QTextStream& stream )
   Looks up if the HTTP header contains an entry with the key \a key. If such an
   entry exists, this function returns the value of the entry; otherwise an
   empty string is returned.
+
+  \sa setValue() removeValue() hasKey() keys()
 */
 QString QHttpHeader::value( const QString& key ) const
 {
@@ -211,6 +248,8 @@ QString QHttpHeader::value( const QString& key ) const
 
 /*!
   Looks up all keys in the HTTP header and returns a list of them.
+
+  \sa hasKey()
 */
 QStringList QHttpHeader::keys() const
 {
@@ -226,6 +265,8 @@ QStringList QHttpHeader::keys() const
 /*!
   Returns TRUE, if the HTTP header contains an entry with the key \a key,
   otherwise FALSE.
+
+  \sa value() setValue() keys()
 */
 bool QHttpHeader::hasKey( const QString& key ) const
 {
@@ -237,6 +278,8 @@ bool QHttpHeader::hasKey( const QString& key ) const
 
   If an entry with the key \a key already existed, the previous value will be
   replaced. If no such entry existed, e new one will be added to HTTP header.
+
+  \sa value() hasKey() removeValue()
 */
 void QHttpHeader::setValue( const QString& key, const QString& value )
 {
@@ -245,6 +288,8 @@ void QHttpHeader::setValue( const QString& key, const QString& value )
 
 /*!
   Removes the entry with the key \a key from the HTTP header.
+
+  \sa value() setValue()
 */
 void QHttpHeader::removeValue( const QString& key )
 {
@@ -252,7 +297,9 @@ void QHttpHeader::removeValue( const QString& key )
 }
 
 /*!
-  Parses a single HTTP header line and add it the information.
+  Parses a single HTTP header line and add the information.
+
+  \sa parse()
 */
 bool QHttpHeader::parseLine( const QString& line, int )
 {
@@ -267,6 +314,8 @@ bool QHttpHeader::parseLine( const QString& line, int )
 
 /*!
   Returns a string representation of the HTTP header.
+
+  \sa write()
 */
 QString QHttpHeader::toString() const
 {
@@ -282,6 +331,8 @@ QString QHttpHeader::toString() const
 /*!
   Writes a string representation of the HTTP header to the text stream \a
   stream and returns a reference to the stream.
+
+  \sa read() toString()
 */
 QTextStream& QHttpHeader::write( QTextStream& stream ) const
 {
@@ -291,6 +342,8 @@ QTextStream& QHttpHeader::write( QTextStream& stream ) const
 
 /*!
   Returns the value of the special HTTP header entry \c content-length.
+
+  \sa setContentLength()
 */
 uint QHttpHeader::contentLength() const
 {
@@ -299,6 +352,8 @@ uint QHttpHeader::contentLength() const
 
 /*!
   Returns the value of the special HTTP header entry \c content-type.
+
+  \sa setContentType()
 */
 QString QHttpHeader::contentType() const
 {
@@ -323,6 +378,8 @@ QString QHttpHeader::contentType() const
 */
 /*!
   Returns the value of the special HTTP header entry \c connection.
+
+  \sa setConnection()
 */
 QHttpHeader::Connection QHttpHeader::connection() const
 {
@@ -343,6 +400,8 @@ QHttpHeader::Connection QHttpHeader::connection() const
 
 /*!
   Sets the value of the special HTTP header entry \c content-length to \a len.
+
+  \sa contentLength()
 */
 void QHttpHeader::setContentLength( int len )
 {
@@ -351,6 +410,8 @@ void QHttpHeader::setContentLength( int len )
 
 /*!
   Sets the value of the special HTTP header entry \c content-type to \a type.
+
+  \sa contentType()
 */
 void QHttpHeader::setContentType( const QString& type )
 {
@@ -359,6 +420,8 @@ void QHttpHeader::setContentType( const QString& type )
 
 /*!
   Sets the value of the special HTTP header entry \c connection to \a con.
+
+  \sa connection()
 */
 void QHttpHeader::setConnection( QHttpHeader::Connection con )
 {
@@ -385,7 +448,22 @@ void QHttpHeader::setConnection( QHttpHeader::Connection con )
 
   \module network
 
-  fnord
+  This class is used in the QHttpClient class to report the header information
+  that the client received from the server.
+
+  This class is also used in the QHttpConnection class to send HTTP replies
+  from a server to a client.
+
+  HTTP replies have a status code that indicates the status of the reply. This
+  code is a 3-digit integer result code (for details please refer to RFC 1945).
+  In addition to the status code, you can also specify a human-readable text
+  that describes the reason for the code ("reason phrase"). This class provides
+  means to set and query the status code and the reason phrase.
+
+  Since this is a subclass of QHttpHeader, all functions in this class are also
+  available, especially setValue() and value().
+
+  \sa QHttpRequestHeader QHttpClient QHttpConnection
 */
 
 /*!
@@ -397,7 +475,8 @@ QHttpReplyHeader::QHttpReplyHeader()
 }
 
 /*!
-  Constructs a HTTP reply header with....#### args?
+  Constructs a HTTP reply header with the status code \a code, the reason
+  phrase \a text and the protocol-version \a version.
 */
 QHttpReplyHeader::QHttpReplyHeader( int code, const QString& text, int version )
     : QHttpHeader(), m_code( code ), m_text( text ), m_version( version )
@@ -415,7 +494,8 @@ QHttpReplyHeader::QHttpReplyHeader( const QHttpReplyHeader& header )
 }
 
 /*!
-  Constructs a HTTP rely header from the string \a str.
+  Constructs a HTTP reply header from the string \a str. The string is parsed
+  and the information is set.
 */
 QHttpReplyHeader::QHttpReplyHeader( const QString& str )
     : QHttpHeader()
@@ -425,8 +505,10 @@ QHttpReplyHeader::QHttpReplyHeader( const QString& str )
 }
 
 /*!
-  Don't know about this one.
-  ####???
+  Sets the status code to \a code, the reason phrase to \a text and the
+  protocol-version to \a version.
+
+  \sa replyCode() replyText() version()
 */
 void QHttpReplyHeader::setReply( int code, const QString& text, int version )
 {
@@ -436,7 +518,9 @@ void QHttpReplyHeader::setReply( int code, const QString& text, int version )
 }
 
 /*!
-  Returns the reply code of the HTTP reply header.
+  Returns the status code of the HTTP reply header.
+
+  \sa setReply() replyText() version()
 */
 int QHttpReplyHeader::replyCode() const
 {
@@ -444,7 +528,9 @@ int QHttpReplyHeader::replyCode() const
 }
 
 /*!
-  Returns the reply text of the HTTP reply header.
+  Returns the reason phrase of the HTTP reply header.
+
+  \sa setReply() replyCode() version()
 */
 QString QHttpReplyHeader::replyText() const
 {
@@ -452,7 +538,9 @@ QString QHttpReplyHeader::replyText() const
 }
 
 /*!
-  Returns the version of the HTTP reply header.
+  Returns the protocol-version of the HTTP reply header.
+
+  \sa setReply() replyCode() replyText()
 */
 int QHttpReplyHeader::version() const
 {
