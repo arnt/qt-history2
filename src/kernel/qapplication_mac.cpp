@@ -1948,12 +1948,16 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
 	//set the cursor up
 	const QCursor *n = NULL;
-	if(!widget) //not over the app, don't set a cursor..
-	    ;
-	else if(cursorStack)
-	    n = app_cursor;
-	else if(widget->extra && widget->extra->curs)
-	    n = widget->extra->curs;
+	if(widget) { //only over the app, do we set a cursor..
+	    if(cursorStack) {
+		n = app_cursor;
+	    } else {
+		for(QWidget *p = widget; p; p = p->parentWidget()) {
+		    if(p->extra && p->extra->curs)
+			n = p->extra->curs;
+		}
+	    }
+	}
 	if(!n)
 	    n = &arrowCursor; //I give up..
 	qt_mac_set_cursor(n, &where);
