@@ -39,7 +39,7 @@ public:
         TargetMoveAction = 0x8002,
         IgnoreAction = 0x0
     };
-    Q_DECLARE_FLAGS(DropActions, DropAction);
+    Q_DECLARE_FLAGS(DropActions, DropAction)
 
     void setMimeData(QMimeData *data);
     QMimeData *mimeData() const;
@@ -67,5 +67,5 @@ private:
     Q_DISABLE_COPY(QDrag)
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QDrag::DropActions);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QDrag::DropActions)
 #endif

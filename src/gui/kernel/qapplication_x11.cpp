@@ -1202,7 +1202,7 @@ static bool isXInputSupported(Display *dpy, int *event_base)
     if (!exists)
         return false;
     version = XGetExtensionVersion(dpy, "XInputExtension");
-    if (!version || int(version) == NoSuchExtension)
+    if (!version || version == reinterpret_cast<XExtensionVersion *>(NoSuchExtension))
         return false;
     XFree(version);
     return true;

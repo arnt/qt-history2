@@ -39,7 +39,7 @@ public:
 
         Dummy = 0xffffffff
     };
-    Q_DECLARE_FLAGS(RenderFlags, RenderFlag);
+    Q_DECLARE_FLAGS(RenderFlags, RenderFlag)
     RenderFlags flags;
     double descent;
     double ascent;
