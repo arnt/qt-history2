@@ -1,5 +1,5 @@
 #
-# $Id: //depot/qt/main/mkspecs/irix-64#14 $
+# $Id: //depot/qt/main/mkspecs/irix-64#15 $
 #
 # qmake configuration for irix-64
 #
@@ -84,9 +84,8 @@ QMAKE_LFLAGS_RELEASE	=
 QMAKE_LFLAGS_DEBUG	=
 QMAKE_LFLAGS_SHLIB	= -shared
 QMAKE_LFLAGS_PLUGIN	= $$QMAKE_LFLAGS_SHLIB
-QMAKE_LFLAGS_THREAD	=
-
 QMAKE_LFLAGS_SONAME	= -Wl,-soname,
+QMAKE_LFLAGS_THREAD	=
 QMAKE_RPATH		= -Wl,-rpath,
 
 QMAKE_LIBS		=

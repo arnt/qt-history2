@@ -1,5 +1,5 @@
 #
-# $Id: //depot/qt/main/mkspecs/freebsd-g++#16 $
+# $Id: //depot/qt/main/mkspecs/freebsd-g++#17 $
 #
 # qmake configuration for freebsd-g++
 #
@@ -49,10 +49,10 @@ QMAKE_LFLAGS_RELEASE	=
 QMAKE_LFLAGS_DEBUG	=
 QMAKE_LFLAGS_SHLIB	= -shared
 QMAKE_LFLAGS_PLUGIN	= $$QMAKE_LFLAGS_SHLIB
+# soname does not work on freebsd 2.x
+# QMAKE_LFLAGS_SONAME	= -Wl,-soname,
 QMAKE_LFLAGS_THREAD	= -pthread
 QMAKE_RPATH		= -Wl,-rpath,
-# soname does not work on fbsd 2.x
-# QMAKE_LFLAGS_SONAME	= -Wl,-soname,
 
 QMAKE_LIBS		=
 QMAKE_LIBS_X11		= -lXext -lX11 -lm
