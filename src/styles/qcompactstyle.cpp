@@ -54,13 +54,21 @@ QCompactStyle::QCompactStyle()
 /*! \reimp */
 int QCompactStyle::pixelMetric( PixelMetric metric, const QWidget *widget )
 {
+    int ret;
     switch ( metric ) {
     case PM_ButtonMargin:
-	return 2;
-
+	ret = 2;
+	break;
+	// tws - I added this in to stop this "Windows Scroll behaivor."  Remove it
+	// if you don't want it.
+    case PM_MaximumDragDistance:
+	ret = -1;
+	break;
     default:
-	return QWindowsStyle::pixelMetric( metric, widget );
+	ret = QWindowsStyle::pixelMetric( metric, widget );
+	break;
     }
+    return ret;
 }
 
 static const int motifItemFrame		= 0;	// menu item frame width
@@ -217,7 +225,7 @@ void QCompactStyle::drawControl( ControlElement element, QPainter *p, const QWid
 		int mw = checkcol + motifItemFrame;
 		int mh = h - 2*motifItemFrame;
 		if ( mi->isChecked() ) {
-		    
+
 		    SFlags cflags = Style_Default;
 		    if (! dis)
 			cflags |= Style_Enabled;
@@ -298,7 +306,7 @@ void QCompactStyle::drawControl( ControlElement element, QPainter *p, const QWid
 				  g, mi->isEnabled() ? Style_Enabled : Style_Default);
 		}
 	    }
-	}	
+	}
 	break;
 
     default:
