@@ -11,6 +11,11 @@ EditorInterfaceImpl::EditorInterfaceImpl()
 {
 }
 
+EditorInterfaceImpl::~EditorInterfaceImpl()
+{
+    delete viewManager;
+}
+
 QUnknownInterface *EditorInterfaceImpl::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;

@@ -9,6 +9,7 @@ class EditorInterfaceImpl : public EditorInterface
 {
 public:
     EditorInterfaceImpl();
+    ~EditorInterfaceImpl();
 
     QUnknownInterface *queryInterface( const QUuid& );
     unsigned long addRef();
