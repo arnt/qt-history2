@@ -56,7 +56,7 @@ TARGET	=	moc
 
 all: $(TARGET)
 
-$(TARGET): $(OBJECTS) $(TOOLOBJ)
+$(TARGET): $(TOOLOBJ) $(OBJECTS)
 	$(CC) $(OBJECTS) $(TOOLOBJ) -o $(TARGET)
 
 depend:
