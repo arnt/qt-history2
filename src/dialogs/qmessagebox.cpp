@@ -157,71 +157,59 @@ static const char* critical_xpm[]={
 
 
 // the Qt logo, for aboutQt
+/* XPM */
 static const char *qtlogo_xpm[] = {
-"56 32 30 1",
+/* width height ncolors chars_per_pixel */
+"54 34 13 1",
+/* colors */
 "  c #000000",
-". c #000033",
-"X c #330033",
-"o c #333333",
-"O c #000066",
-"+ c #333366",
-"@ c #663366",
-"# c #666633",
+". c #999999",
+"X c #333366",
+"o c #6666CC",
+"O c #333333",
+"@ c #666699",
+"# c #000066",
 "$ c #666666",
-"% c #333399",
-"& c #3333cc",
-"* c #663399",
-"= c #6633cc",
-"- c #666699",
-"; c #6666cc",
-": c #6666ff",
-"> c #9966cc",
-", c #999966",
-"< c #999999",
-"1 c #9999cc",
-"2 c #9999ff",
-"3 c #99cccc",
-"4 c #cc99cc",
-"5 c #cccc99",
-"6 c #cccccc",
-"7 c #ccccff",
-"8 c #ccffcc",
-"9 c #ffccff",
-"0 c #ffffcc",
-"w c None",
+"% c #3333CC",
+"& c #000033",
+"* c #9999CC",
+"= c #333399",
+"+ c None",
 /* pixels */
-"wwwwwwwwwwwwwwwwwwwwww6$oo o$<6wwwwwwwwwwwwwwwwwwwwwwwww",
-"wwwwwwwwwwwwwwwwwwww6o         $6wwwwwwwwwwwwwwwwwwwwwww",
-"wwwwwwwwwwwwwwwwwww<    oooo     <wwwwwwwwwwwwwwwwwwwwww",
-"wwwwwwwwwwwwwwwwww$   o$<<<<<o    <wwwwwwwwwwwwwwwwwwwww",
-"wwwwwwwwwwwwwwwww<   $<<6wwww6$    <wwwwwwwwwwwwwwwwwwww",
-"wwwwwwwwwwwwwwww6   o<<6wwwwwww$    6wwwwwwwwwwwwwwwwwww",
-"wwwwwwwwwwwwwwww$   $<wwwwwwwwwwo   owwwwww6wwwwwwwwwwww",
-"wwwwwwwwwwwwwww6   o<6wwwwwwwwww6    <www6$owwwwwwwwwwww",
-"wwwwwwwwwwwwwww$   $<wwwwwwwwwwww#   owww< owwwwwwwwwwww",
-"wwwwwwwwwwwwwwwo .O;;117wwwwwwwww4    6ww< o6wwwwwwwwwww",
-"wwwwwwwwwwwwww7+%&&&;&&&&;17wwwwww    $ww< .6wwwwwwwwwww",
-"wwwwwwwwwww61;;;;;;;1772;&&&:17www+   $0wo  6ww6wwwwwwww",
-"wwwwwwww661111<+.o@;;;;1361%%&&;27-   o6,      6wwwwwww6",
-"wwwww61<6<6761<<<$$<<1--;;131;&&&%+   o1<o  $--6www7916w",
-"www6666w6ww766$o$<<<46611-;;;111;%+.  o7wo  <666w66119ww",
-"w66w6ww7wwwwww<   +<<<<5661;;;;;16-   .%>o  6876;=;7wwww",
-"6wwwwwwwwwwwww6    $<<<<<<6661<---$   +*%.  ---;179wwwww",
-"wwwwwwwwwwwwwww    $6w66<<<<<6671<+   +;1o  -1677wwwwwww",
-"wwwwwwwwwwwwwwwo   o6wwww66<<<<166o   $11o  <6wwwwwwwwww",
-"wwwwwwwwwwwwwww<    <ww6<<6w66<<<<   o<<<o .6wwwwwwwwwww",
-"wwwwwwwwwwwwwwww    $<oo    <ww06<   $<6wo .6wwwwwwwwwww",
-"wwwwwwwwwwwwwwww$    <ww6$   o6wwo  X<6wwo .6wwwwwwwwwww",
-"wwwwwwwwwwwwwwwwwo   o6www6o  o6<   $<wwwo  6wwwwwwwwwww",
-"wwwwwwwwwwwwwwwww6    o6www6   o   #<6wwwo  6ww6wwwwwwww",
-"wwwwwwwwwwwwwwwwww6o   o<www6     o<6ww6w$  $6<owwwwwwww",
-"wwwwwwwwwwwwwwwwwww6$     ooo    o<6www<66     $wwwwwwww",
-"wwwwwwwwwwwwwwwwwwwww6o           $wwww$<w6$o$$<wwwwwwww",
-"wwwwwwwwwwwwwwwwwwwwwww6<$oo$$<    $<6$ <www666wwwwwwwww",
-"wwwwwwwwwwwwwwwwwwwwwwwwwww666w<        <wwwwwwwwwwwwwww",
-"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww<      o<wwwwwwwwwwwwwww",
-"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww<o   o<6wwwwwwwwwwwwwww",
-"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww<$<<6wwwwwwwwwwwwwwww",
+"+++++++++++++++++++.$OOO$.++++++++++++++++++++++++++++",
+"+++++++++++++++++$         O.+++++++++++++++++++++++++",
+"+++++++++++++++.O            $++++++++++++++++++++++++",
+"++++++++++++++.    $.++.$     O+++++++++++++++++++++++",
+"+++++++++++++.   O.+++++++$    O++++++++++++++++++++++",
+"+++++++++++++O   ++++++++++$    $+++++++++++++++++++++",
+"++++++++++++$   .+++++++++++O    .++++++++++++++++++++",
+"+++++++++++.   O+++++++++++++    O++++++.+++++++++++++",
+"+++++++++++$   .+++++++++++++$    .+++.O +++++++++++++",
+"+++++++++++    +++++++++++++++    O+++.  +++++++++++++",
+"++++++++++.  &Xoooo*++++++++++$    +++.  +++++++++++++",
+"++++++++++@=%%%%%%%%%%*+++++++.    .++.  +++++++++++++",
+"+++++++**oooooo**++*o%%%%o+++++    $++O  +++++++++++++",
+"+++++*****$OOX@oooo*++*%%%%%*++O   $+.   OOO$++++++++*",
+"++..+.++....$O$+*ooooo*+*o%%%%%O   O+$   $$O.++++++**+",
+"***+*+++++$$....+++*oooo**+*o%%#   O++O  ++++++***o*++",
+"*+++++++++O  $.....++**oooo**+*X   &o*O  ++++*ooo*++++",
+"++++++++++$   O++.....++**oooo*X   &%%&  ..*o%%*++++++",
+"++++++++++$    ++++.....+++**ooO   $*o&  @oo*+++++++++",
+"++++++++++.    .++++++.....+++*O   Xo*O  .++++++++++++",
+"+++++++++++    O+++++++++......    .++O  +++++++++++++",
+"+++++++++++O    +++.$$$.++++++.   O+++O  +++++++++++++",
+"+++++++++++.    $$OO    O.++++O   .+++O  +++++++++++++",
+"++++++++++++O    .+++.O   $++.   O++++O  +++++++++++++",
+"++++++++++++.    O+++++O   $+O   +++++O  +++++++++++++",
+"+++++++++++++.    O+++++O   O   .+++++O  .++++++++++++",
+"++++++++++++++$     .++++O     .++++.+$  O+.$.++++++++",
+"+++++++++++++++.      O$$O    .+++++...      +++++++++",
+"+++++++++++++++++$            O+++++$$+.O O$.+++++++++",
+"+++++++++++++++++++$OO  O$.O   O.++. .++++++++++++++++",
+"+++++++++++++++++++++++++++.     OO  .++++++++++++++++",
+"++++++++++++++++++++++++++++.       O+++++++++++++++++",
+"+++++++++++++++++++++++++++++.      .+++++++++++++++++",
+"++++++++++++++++++++++++++++++.O  O.++++++++++++++++++"
 };
 
 
@@ -1349,7 +1337,22 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
     mb->setCaption( caption.isNull()?QString::fromLatin1("About Qt"):caption );
     mb->setText( qApp->translate( "QMessageBox", textAboutQt ) );
     QPixmap pm;
-    if ( pm.convertFromImage( QImage( qtlogo_xpm ) ) )
+    QImage logo(qtlogo_xpm);
+    if ( qGray(mb->palette().active().text().rgb()) >
+         qGray(mb->palette().active().base().rgb()) )
+    {
+	// light on dark, adjust some colors
+	logo.setColor( 0,0xFFffffff);
+	logo.setColor( 1,0xFF666666);
+	logo.setColor( 2,0xFFcccc66);
+	logo.setColor( 4,0xFFcccccc);
+	logo.setColor( 6,0xFFffff66);
+	logo.setColor( 7,0xFF999999);
+	logo.setColor( 8,0xFF3333FF);
+	logo.setColor( 9,0xFFffff33);
+	logo.setColor(11,0xFFcccc99);
+    }
+    if ( pm.convertFromImage( logo ) )
 	mb->setIconPixmap( pm );
     mb->setButtonText( 0, tr("OK") );
     if ( mb->mbd && mb->mbd->pb[0] ) {
