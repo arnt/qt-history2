@@ -1672,7 +1672,7 @@ int QTextLine::xToCursor(float x, CursorPosition cpos) const
                     }
                 }
             } else {
-                float dist = 1.e30;
+                float dist = 1.e30f;
                 if (si.analysis.bidiLevel % 2) {
                     pos += item_width;
                     while (gs <= ge) {
