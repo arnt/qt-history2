@@ -34,8 +34,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>934</width>
-            <height>774</height>
+            <width>930</width>
+            <height>772</height>
         </rect>
     </property>
     <property name="caption">
@@ -52,6 +52,10 @@
         <action name="actionEditCopy"/>
         <separator/>
         <action name="actionEditFind"/>
+    </item>
+    <item text="&amp;View" name="PopupMenu">
+        <action name="actionZoomIn"/>
+        <action name="actionZoomOut"/>
     </item>
     <item text="&amp;Go" name="goMenu">
         <action name="actionGoHome"/>
@@ -75,6 +79,9 @@
         <separator/>
         <action name="actionEditCopy"/>
         <action name="actionEditFind"/>
+        <separator/>
+        <action name="actionZoomIn"/>
+        <action name="actionZoomOut"/>
         <separator/>
         <action name="actionGoHome"/>
         <action name="actionGoPrev"/>
@@ -242,6 +249,40 @@
             <string>Qt Designer Manual</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>actionZoomIn</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image8</iconset>
+        </property>
+        <property name="text">
+            <string>Zoom in</string>
+        </property>
+        <property name="menuText">
+            <string>Zoom &amp;in</string>
+        </property>
+        <property name="accel">
+            <number>272629803</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionZoomOut</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image9</iconset>
+        </property>
+        <property name="text">
+            <string>Zoom out</string>
+        </property>
+        <property name="menuText">
+            <string>Zoom &amp;out</string>
+        </property>
+        <property name="accel">
+            <number>272629805</number>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -267,6 +308,12 @@
     </image>
     <image name="image7">
         <data format="XPM.GZ" length="1127">789c7dd2496f824014c0f1bb9f62c2dc4c83ac0a697a70bdb5e9b149d3c33080a22c0ab8b5e9772f33ef61656989077efce7cd40e26848de5e9fc97034284a56469cf00dcbc9d03f26c9f5fde3e96ba01806a97ea64574e561a0a88493972c0dc43dadeea9262fc14fa405dc221d602ee9d4e4480ebc0275dcea24a86b3a6e95493a0672266868262e5e49ba357d241ec4044dd7c2d93d12eb1489afe1095aba8d5b45481b789464b60f2c046d364626c0890e5c2071b6141c1b135f73042f92acfa60c9a5e0c474b0ee243dd70506828ee9629d03990d4c25bd9a1b24039e9101f020e85a1ed650927b58d7406e00634166f13150858baa8debaeb452a3d0bf8afa4fa177738d523da77d33b47992fc93d6eb69bbe052da380677938be548f71c8a133def561f724bbf33b73d99c7e97da907fd205c6fa26dfb4babb48be33049b34e51f7617cf0f2a2a49d725c871e3d9d2fdd724d8bfcf4399d750b8de6c5792f5eb25dd46db658ae7acbedb37a0a66e5fb71f003a667dc72</data>
+    </image>
+    <image name="image8">
+        <data format="XPM.GZ" length="2301">789c8dd5595322311007f0773e0545deacad168661606a6b1fbc95f5026fb7f6219309828a788c076eed77df4e7727ac088546cafa997f673a31e0f252f9fc70afbcb45c7a2a74313065d3d78fe5a5fc79381cfffafde34fa9124565fc6e36ca51e55ba9d229caa6bc3fbab30e6a805055fa22f7d8da6631d9925b36ca39afd83dfc720672adea06cde7cef5b46ee21af9ca39aec55536d49d1b91d1bc1e44622bbe20ebe0967332993f67e7d20f1c9327f913b69f577de766bd596bd669fe881dea136f9b9077c959f09e3811af38b7eaad468bd7d3c119f9273be4bb622dae92b3562ef90d7698a7f34fe3344d0d799d1de6dfc5564c7f9fd4a4b9e43bec30df0ee6fd8ed936622bea5fc75a6bae5f63db44f24db2d156e6337696f0fd8027b65f0fdec4be7ecb398b43fe4c6cb39c9c7b9b0639669b485cb0c37a8f62dde3fd6d92f3506fd8a1fe409c889fc5daf0f3f7d97922f7e152ecefe729dbfafb7028d6d2cfaa37f7a3c0d934f07ef1f35271c256861dd6db11fbfd3c88adac47e76d26fd35d8a1fe562c79b861f72231bdfff246d8cf8bd8bf5f6aec507fcd0ef543b20dcfeb8bfdfe07ec90df1627e2fb60febc1839db24f88e6c7b5afc2a96cf974ee107283f26bffb382679ca69c8c0400e765e8dcfe37c0faea00f03b8861bb8c59f665605e7293d843b18c13d3cc0233c418115cf9f2b42fe05d3aff81a60fe0dc6f04e1533f3985ec14e46b4fe35acc21aacc306be0ad89cae90fc166c6327aef71d5cbd0d3f6117f6b0627f4efe8076f9008798ee40178ee0184ef019a773f267d4c71b76d2a6f4395ce0e8c2e59c7c156ad86d1b3be07404755cbf8078569ecea781abbb74829d5c60daad3ee77c28dfc4d9023b4ea085d9234aa7f3f2549151c5186bbaeeec15b83ed5cc7efcfd515a65cae02e0d29571677a666e73fdf4fd55357aaffb1e2637e7ae033a62a7c5e0dbe56b1283f5dc1fffffd585cb178fdff2abe9ce7935b7c3e9f47e5eff7d23f61245e85</data>
+    </image>
+    <image name="image9">
+        <data format="XPM.GZ" length="2301">789c8dd5595322311007f0773ec59479b3b65a188681a9ad7df0563cc1dbad7dc86482a0e2391eb8b5df7d3bdd9db022ac1228eb47fe9de90c0117e6a3d3fd9d687ea1f258ea726022d3d70fd17cf1341c8e7efefaf1bb3217c7113e9b8d289efb5699eb949189766f6fac831a2054951ee41e5bdb3c215b72cbc605e715bb870f6720d7aa6ed07ce15ccfea26a9912f9c935a526543ddb9111bcdeb412cb6e233b20e6e39a7e3f9537621fdc021799c3f62fb79d5776ed69bb5669de60fd8a13ef5b629799b9c07ef8853f1a273abde6ab4783d1d9c93b7d821df156b71959cb70ac9afb2c33cddff2cc9b2cc9057d861fe4d6cc5f4f964262b24df6187f97630ef77c4b6315b51ff3ad15a73fd32dba6926f928db6329fb3f394cf073cb2fd7af02af6f5ebce7912f227629b17e4c2db34c809dbc4e2921dd67b10eb1eef6f8d5c847ac30ef57be254fc24d686afbfcb2e52390fe7627f3e8fd9d69f877db1967e96bcb91f05cea681e78baf978953b632ecb0dea6d8efe75e6c653dbadf66dc5f831deaafc592872b762f16d3f7af6884fd3c8bfdf7a5c60ef597ec503f24db70bdbed8ef7fc00ef90d712abe0be6df8b5b679b06df906d4f8b5fc4f2fbd229fd00e5c7f8bdf7639ca79c861c0c146067d5f83ccef7e002fa30804bb8826bfc6ba655709ed243b8815bb8837b78804728b1e2e96345c83f63fa055f03ccbfc208dea8626a1ed38bd8c92dad7f094bb00c2bb08aaf12d6262b24bf0e1bd889eb7d13576fc3166cc30e56eccec8efd12eef611fd31de8c2011cc2115ee37846fe84fa78c54eda943e85331c5d389f91af420dbb6d63079c8ea18eeb97904ccbd3fd69e0ea2e9d6227679876abcfb83f946fe26c891da7d0c2ec01a5b35979aac8a96284355d77ef15b83ed5d47efcf9515ae5cae02e0da9501677a6a6e73f9e4fd55317aaffbee27d7e72e035262afe9fff58f1597eb282fffffbf179c5e7ebff53f1e53cdfb9aff53ff179fdf95ef90b08775f69</data>
     </image>
 </images>
 <connections>
@@ -361,6 +408,8 @@
     
     setupBookmarkMenu();
     connect( browser, SIGNAL( highlighted( const QString &amp; ) ), statusBar(), SLOT( message( const QString &amp; ) ) );
+    connect( actionZoomIn, SIGNAL( activated() ), browser, SLOT( zoomIn() ) );
+    connect( actionZoomOut, SIGNAL( activated() ), browser, SLOT( zoomOut() ) ); 
 }</function>
     <function name="destroy()" >{
     
