@@ -1596,84 +1596,19 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
 
     case CC_ScrollBar:
         if (const QStyleOptionSlider *scrollbar = qt_cast<const QStyleOptionSlider *>(opt)) {
-            int sbextent = pixelMetric(PM_ScrollBarExtent, opt, widget);
-            int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
-            int buttonw = sbextent - (fw * 2);
-            int buttonh = sbextent - (fw * 2);
-            int maxlen = ((scrollbar->orientation == Qt::Horizontal) ?
-                          scrollbar->rect.width() : scrollbar->rect.height()) -
-                         (buttonw * 2) - (fw * 2);
-            int sliderlen;
-
-            // calculate slider length
-            if (scrollbar->maximum != scrollbar->minimum) {
-                uint range = scrollbar->maximum - scrollbar->minimum;
-                sliderlen = (scrollbar->pageStep * maxlen) /
-                            (range + scrollbar->pageStep);
-
-                if (sliderlen < 9 || range > INT_MAX/2)
-                    sliderlen = 9;
-                if (sliderlen > maxlen)
-                    sliderlen = maxlen;
-            } else {
-                sliderlen = maxlen;
-            }
-
-            int sliderstart = sbextent + sliderPositionFromValue(scrollbar->minimum, scrollbar->maximum,
-                                                                 scrollbar->sliderPosition,
-                                                                 maxlen - sliderlen,
-                                                                 scrollbar->upsideDown);
-
-            switch (sc) {
-            case SC_ScrollBarSubLine:
-                // top/left button
-                if (scrollbar->orientation == Qt::Horizontal) {
-                    if (scrollbar->rect.width()/2 < sbextent)
-                        buttonw = scrollbar->rect.width()/2 - (fw*2);
-                    return QRect(fw, fw, buttonw, buttonh);
-                } else {
-                    if (scrollbar->rect.height()/2 < sbextent)
-                        buttonh = scrollbar->rect.height()/2 - (fw*2);
-                    return QRect(fw, fw, buttonw, buttonh);
-                }
-            case SC_ScrollBarAddLine:
-                // bottom/right button
-                if (scrollbar->orientation == Qt::Horizontal) {
-                    if (scrollbar->rect.width()/2 < sbextent)
-                        buttonw = scrollbar->rect.width()/2 - (fw*2);
-                    return QRect(scrollbar->rect.width() - buttonw - fw, fw,
-                                 buttonw, buttonh);
-                } else {
-                    if (scrollbar->rect.height()/2 < sbextent)
-                        buttonh = scrollbar->rect.height()/2 - (fw*2);
-                    return QRect(fw, scrollbar->rect.height() - buttonh - fw,
-                                 buttonw, buttonh);
-                }
-            case SC_ScrollBarSubPage:
+            int dfw = pixelMetric(PM_DefaultFrameWidth);
+            QRect rect =  QCommonStyle::subControlRect(cc, scrollbar, sc, widget);
+            if (sc == SC_ScrollBarSlider) {
                 if (scrollbar->orientation == Qt::Horizontal)
-                    return QRect(buttonw + fw, fw, sliderstart - buttonw - fw, buttonw);
-                return QRect(fw, buttonw + fw, buttonw, sliderstart - buttonw - fw);
-
-            case SC_ScrollBarAddPage:
+                    rect.addCoords(-dfw, dfw, dfw, -dfw);
+                else
+                    rect.addCoords(dfw, -dfw, -dfw, dfw);
+            } else if (sc != SC_ScrollBarGroove)
                 if (scrollbar->orientation == Qt::Horizontal)
-                    return QRect(sliderstart + sliderlen, fw,
-                                 maxlen - sliderstart - sliderlen + buttonw + fw, buttonw);
-                return QRect(fw, sliderstart + sliderlen, buttonw,
-                             maxlen - sliderstart - sliderlen + buttonw + fw);
-
-            case SC_ScrollBarGroove:
-                if (scrollbar->orientation == Qt::Horizontal)
-                    return QRect(buttonw + fw, fw, maxlen, buttonw);
-                return QRect(fw, buttonw + fw, buttonw, maxlen);
-
-            case SC_ScrollBarSlider:
-                if (scrollbar->orientation == Qt::Horizontal)
-                    return QRect(sliderstart, fw, sliderlen, buttonw);
-                return QRect(fw, sliderstart, buttonw, sliderlen);
-
-            default:
-                break;
-            }
+                    rect.addCoords(0, dfw, 0, -dfw);
+                else
+                    rect.addCoords(dfw, 0, -dfw, 0);
+            return rect;
         }
         break;
 
