@@ -523,7 +523,7 @@ void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h)
 //#define QT_DEBUG_TESSELATOR
 
 #define FloatToXFixed(i) (int)((i) * 65536)
-#define IntToXFixed(i) ((i) * 65536)
+#define IntToXFixed(i) ((i) << 16)
 
 // used by the edge point sort algorithm
 static float currentY = 0.f;
@@ -534,6 +534,8 @@ struct QEdge {
     float b;
     char winding;
 };
+
+Q_DECLARE_TYPEINFO(QEdge, Q_PRIMITIVE_TYPE);
 
 static inline bool compareEdges(const QEdge *e1, const QEdge *e2)
 {
@@ -549,10 +551,11 @@ struct QIntersectionPoint {
     float x;
     const QEdge *edge;
 };
+Q_DECLARE_TYPEINFO(QIntersectionPoint, Q_PRIMITIVE_TYPE);
 
-static bool QT_FASTCALL compareIntersections(const QIntersectionPoint &i1, const QIntersectionPoint &i2)
+static inline bool compareIntersections(const QIntersectionPoint &i1, const QIntersectionPoint &i2)
 {
-    if (QABS(i1.x - i2.x) > 0.01) { // x != other.x in 99% of the cases
+    if (qAbs(i1.x - i2.x) > 0.01) { // x != other.x in 99% of the cases
         return i1.x < i2.x;
     } else {
         float x1 = qIsInf(i1.edge->b) ? i1.edge->p1.x()
@@ -564,24 +567,31 @@ static bool QT_FASTCALL compareIntersections(const QIntersectionPoint &i1, const
 }
 
 
-static XTrapezoid QT_FASTCALL toXTrapezoid(float y1, float y2, const QEdge &left, const QEdge &right, bool round)
+static XTrapezoid QT_FASTCALL toXTrapezoid(XFixed y1, XFixed y2, const QEdge &left, const QEdge &right)
 {
     XTrapezoid trap;
-    if (round) {
-        trap.top = IntToXFixed(qRound(y1));
-        trap.bottom = IntToXFixed(qRound(y2));
-        trap.left.p1.y = IntToXFixed(qRound(left.p1.y()));
-        trap.left.p2.y = IntToXFixed(qRound(left.p2.y()));
-        trap.right.p1.y = IntToXFixed(qRound(right.p1.y()));
-        trap.right.p2.y = IntToXFixed(qRound(right.p2.y()));
-    } else {
-        trap.top = FloatToXFixed(y1);
-        trap.bottom = FloatToXFixed(y2);
-        trap.left.p1.y = FloatToXFixed(left.p1.y());
-        trap.left.p2.y = FloatToXFixed(left.p2.y());
-        trap.right.p1.y = FloatToXFixed(right.p1.y());
-        trap.right.p2.y = FloatToXFixed(right.p2.y());
-    }
+    trap.top = y1;
+    trap.bottom = y2;
+    trap.left.p1.y = FloatToXFixed(left.p1.y());
+    trap.left.p2.y = FloatToXFixed(left.p2.y());
+    trap.right.p1.y = FloatToXFixed(right.p1.y());
+    trap.right.p2.y = FloatToXFixed(right.p2.y());
+    trap.left.p1.x = FloatToXFixed(left.p1.x());
+    trap.left.p2.x = FloatToXFixed(left.p2.x());
+    trap.right.p1.x = FloatToXFixed(right.p1.x());
+    trap.right.p2.x = FloatToXFixed(right.p2.x());
+    return trap;
+}
+
+static XTrapezoid QT_FASTCALL toXTrapezoidRound(XFixed y1, XFixed y2, const QEdge &left, const QEdge &right)
+{
+    XTrapezoid trap;
+    trap.top = y1;
+    trap.bottom = y2;
+    trap.left.p1.y = IntToXFixed(qRound(left.p1.y()));
+    trap.left.p2.y = IntToXFixed(qRound(left.p2.y()));
+    trap.right.p1.y = IntToXFixed(qRound(right.p1.y()));
+    trap.right.p2.y = IntToXFixed(qRound(right.p2.y()));
     trap.left.p1.x = FloatToXFixed(left.p1.x());
     trap.left.p2.x = FloatToXFixed(left.p2.x());
     trap.right.p1.x = FloatToXFixed(right.p1.x());
@@ -760,26 +770,43 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPolygon &pg,
 	// sort intersection points
  	qHeapSort(&isects[0], &isects[isects.size()-1], compareIntersections);
 
-	if (winding) {
-	    // winding fill rule
-	    for (int i = 0; i < isects.size()-1;) {
-		int winding = 0;
-		const QEdge *left = isects[i].edge;
-		const QEdge *right = 0;
-		winding += isects[i].edge->winding;
-		for (++i; i < isects.size()-1 && winding != 0; ++i) {
-		    winding += isects[i].edge->winding;
-		    right = isects[i].edge;
-		}
-		if (!left || !right)
-		    break;
-                traps->append(toXTrapezoid(y, next_y, *left, *right, do_rounding));
-	    }
-	} else {
-	    // odd-even fill rule
-	    for (int i = 0; i < isects.size()-2; i += 2)
-                traps->append(toXTrapezoid(y, next_y, *isects[i].edge, *isects[i+1].edge, do_rounding));
-	}
+        XFixed yf, next_yf;
+        if (do_rounding) {
+            yf = FloatToXFixed(qRound(y));
+            next_yf = FloatToXFixed(qRound(next_y));
+        } else {
+            yf = FloatToXFixed(y);
+            next_yf = FloatToXFixed(next_y);
+        }
+        if (yf != next_yf) {
+            if (winding) {
+                // winding fill rule
+                for (int i = 0; i < isects.size()-1;) {
+                    int winding = 0;
+                    const QEdge *left = isects[i].edge;
+                    const QEdge *right = 0;
+                    winding += isects[i].edge->winding;
+                    for (++i; i < isects.size()-1 && winding != 0; ++i) {
+                        winding += isects[i].edge->winding;
+                        right = isects[i].edge;
+                    }
+                    if (!left || !right)
+                        break;
+                    if (do_rounding)
+                        traps->append(toXTrapezoidRound(yf, next_yf, *left, *right));
+                    else
+                        traps->append(toXTrapezoid(yf, next_yf, *left, *right));
+                }
+            } else {
+                // odd-even fill rule
+                if (do_rounding)
+                    for (int i = 0; i < isects.size()-2; i += 2)
+                        traps->append(toXTrapezoidRound(yf, next_yf, *isects[i].edge, *isects[i+1].edge));
+                else
+                    for (int i = 0; i < isects.size()-2; i += 2)
+                        traps->append(toXTrapezoid(yf, next_yf, *isects[i].edge, *isects[i+1].edge));
+            }
+        }
 	y = currentY = next_y;
     }
 

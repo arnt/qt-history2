@@ -62,6 +62,7 @@ public:
 private:
     QPointF p1, p2;
 };
+Q_DECLARE_TYPEINFO(QLineF, Q_MOVABLE_TYPE);
 
 inline QLineF::QLineF()
 {

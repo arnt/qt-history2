@@ -66,6 +66,8 @@ struct QBezierLineSegment
     QLineF l;
 };
 
+Q_DECLARE_TYPEINFO(QBezierLineSegment, Q_PRIMITIVE_TYPE); // actually MOVABLE, but we don't care here...
+
 /*!
   \internal
 */

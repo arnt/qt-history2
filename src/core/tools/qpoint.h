@@ -64,6 +64,7 @@ private:
 #endif
 };
 
+Q_DECLARE_TYPEINFO(QPoint, Q_MOVABLE_TYPE);
 
 /*****************************************************************************
   QPoint stream functions
@@ -219,6 +220,7 @@ private:
     float yp;
 };
 
+Q_DECLARE_TYPEINFO(QPointF, Q_MOVABLE_TYPE);
 
 /*****************************************************************************
   QPointF stream functions

@@ -142,6 +142,7 @@ private:
 #endif
 
 };
+Q_DECLARE_TYPEINFO(QRect, Q_MOVABLE_TYPE);
 
 Q_CORE_EXPORT inline bool operator==(const QRect &, const QRect &);
 Q_CORE_EXPORT inline bool operator!=(const QRect &, const QRect &);
@@ -518,6 +519,7 @@ private:
     float w;
     float h;
 };
+Q_DECLARE_TYPEINFO(QRectF, Q_MOVABLE_TYPE);
 
 Q_CORE_EXPORT inline bool operator==(const QRectF &, const QRectF &);
 Q_CORE_EXPORT inline bool operator!=(const QRectF &, const QRectF &);
