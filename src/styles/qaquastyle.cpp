@@ -40,7 +40,6 @@
 #include "qpixmap.h"
 #include "qpalette.h"
 #include "qpushbutton.h"
-#include "qtoolbutton.h"
 #include "qdockwindow.h"
 #include "qtabbar.h"
 #include "qscrollbar.h"
@@ -452,6 +451,11 @@ void QAquaStylePrivate::doFocus(QWidget *w)
 #if defined( QMAC_QAQUASTYLE_SIZE_CONSTRAIN ) || defined(DEBUG_SIZE_CONSTRAINT)
 static AquaSize qt_aqua_size(QWidget *widg, QSize large, QSize small)
 {
+    if(large == QSize(-1, -1) && small != QSize(-1, -1))
+	return AquaSizeSmall;
+    else if(small == QSize(-1, -1) && large != QSize(-1, -1))
+	return AquaSizeLarge;
+
     if(widg->topLevelWidget()->inherits("QDockWindow") || getenv("QWIDGET_ALL_SMALL")) {
 	//if(small.width() != -1 || small.height() != -1)
 	    return AquaSizeSmall;
@@ -579,7 +583,8 @@ static QSize qt_aqua_size_constraints(QWidget *widg, AquaSize sz)
 	else 
 	    ret = QSize(-1, 17);
 #endif
-    } else if(widg->inherits("QToolButton")) {
+    } else if(widg->inherits("QToolButton") && widg->parentWidget() && 
+	      widg->parentWidget()->inherits("QToolBar")) {
 	if(sz == AquaSizeSmall)
 	    ret = QSize(20, 20);
     } else if(widg->inherits("QSlider")) {
