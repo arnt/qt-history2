@@ -1167,7 +1167,7 @@ Q_CORE_EXPORT void qt_assert(const char *assertion, const char *file, int line);
 #  ifndef QT_NO_DEBUG
 #    define Q_ASSERT(cond) do {if(!(cond))qt_assert(#cond,__FILE__,__LINE__);} while (0)
 #  else
-#    define Q_ASSERT(cond)
+#    define Q_ASSERT(cond) do{}while(0)
 #  endif
 #endif
 
@@ -1177,7 +1177,7 @@ Q_CORE_EXPORT void qt_assert_x(const char *where, const char *what, const char *
 #  ifndef QT_NO_DEBUG
 #    define Q_ASSERT_X(cond, where, what) do {if(!(cond))qt_assert_x(where, what,__FILE__,__LINE__);} while (0)
 #  else
-#    define Q_ASSERT_X(cond, where, what)
+#    define Q_ASSERT_X(cond, where, what) do{}while(0)
 #  endif
 #endif
 
