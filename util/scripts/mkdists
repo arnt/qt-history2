@@ -808,7 +808,7 @@ for plat in mac win x11 qnx6 embedded; do
 	    [ "x$DO_COMMERCIAL" = "xyes" ] || continue
 	    ;;
 	free)
-            [ "x$DO_FREE" == "xyes" ] || continue
+	    [ "x$DO_FREE" = "xyes" ] || continue
 	    [ "$plat" != "embedded" ] && [ "$plat" != "x11" ] && [ "$plat" != "mac" ] && continue
 	    ;;
 	review)
@@ -888,7 +888,7 @@ for plat in mac win x11 qnx6 embedded; do
 	rm -rf "$PLATDIR/tmake"
 	rm -rf "$PLATDIR/util"
 	rm -rf "$PLATDIR/tests"
-	if [ "$plat" != "mac" ] || [ "$edition" == "free" ]; then
+	if [ "$plat" != "mac" ] || [ "$edition" = "free" ]; then
 	    remove_file_and_includes "src/styles/qaquastyle.h" "src/styles/qaquastyle_p.h"
 	    remove_file_and_includes "src/styles/qaquastyle.cpp"
 	    remove_file_and_includes "src/styles/qaquastylepix_p.h" "src/styles/qaquastyle_p.cpp"
