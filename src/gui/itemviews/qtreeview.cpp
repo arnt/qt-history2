@@ -22,6 +22,7 @@
 #include <qevent.h>
 #include <qpen.h>
 #include <qsignal.h>
+#include <qdebug.h>
 
 #include <private/qtreeview_p.h>
 
@@ -1174,9 +1175,13 @@ void QTreeView::updateGeometries()
     }
 
     // update scrollbars
-    if (model() && model()->rowCount(rootIndex()) > 0 && model()->columnCount(rootIndex()) > 0) {
+    if (model() && model()->rowCount(rootIndex()) > 0
+        && model()->columnCount(rootIndex()) > 0) {
         d->updateVerticalScrollbar();
         d->updateHorizontalScrollbar();
+    } else {
+        horizontalScrollBar()->setRange(0, 0);
+        verticalScrollBar()->setRange(0, 0);
     }
 
     QAbstractItemView::updateGeometries();
@@ -1515,12 +1520,6 @@ void QTreeViewPrivate::updateVerticalScrollbar()
     int viewHeight = viewport->height();
     int itemCount = viewItems.count();
 
-    // if we have no viewport or no items, there is nothing to do
-    if (viewHeight <= 0 || itemCount <= 0) {
-        q->verticalScrollBar()->setRange(0, 0);
-        return;
-    }
-
     // set page step size
     int verticalScrollBarValue = q->verticalScrollBar()->value();
     int itemsInViewport = 0;
@@ -1528,7 +1527,12 @@ void QTreeViewPrivate::updateVerticalScrollbar()
         itemsInViewport = viewHeight / itemHeight;
     } else {
         int topItemInViewport = itemAt(verticalScrollBarValue);
-        Q_ASSERT(topItemInViewport != -1);
+        if (topItemInViewport < 0) {
+            // if itemAt can't find the top item, there are no visible items in the view
+            q->verticalScrollBar()->setRange(0, 0);
+            q->verticalScrollBar()->setPageStep(0);
+            return;
+        }
         int h = height(topItemInViewport);
         int y = topItemDelta(verticalScrollBarValue, h);
         int i = topItemInViewport;
