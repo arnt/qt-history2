@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qhostaddress.cpp#1 $
+** $Id: //depot/qt/main/src/network/qhostaddress.cpp#6 $
 **
 ** Implementation of QHostAddress class.
 **
@@ -102,7 +102,7 @@ QHostAddress::QHostAddress()
 
 
 /*!
-  Creates a socket address object with a specified IPv4 address.
+  Creates a socket address object for the IPv4 address \a ip4Addr.
 */
 QHostAddress::QHostAddress( Q_UINT32 ip4Addr )
     : d( new QHostAddressPrivate( ip4Addr ) )
@@ -162,7 +162,7 @@ void QHostAddress::setAddress( Q_UINT32 ip4Addr )
 }
 
 
-/*!
+/*!  \overload
   Set a IPv6 address specified by \a ip6Addr.
 
   \a ip6Addr must be a 16 byte array in network byte order (high-order byte
@@ -175,7 +175,7 @@ void QHostAddress::setAddress( Q_UINT8 *ip6Addr )
 }
 
 #ifndef QT_NO_STRINGLIST
-/*!
+/*!  \overload
   Sets the IPv4 or IPv6 address specified by the string representation
   \a address (e.g. "127.0.0.1").
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qhttp.cpp#27 $
+** $Id: //depot/qt/main/src/network/qhttp.cpp#28 $
 **
 ** Implementation of QHtpp and related classes.
 **
@@ -107,7 +107,7 @@ QHttpHeader::QHttpHeader()
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a header.
 */
 QHttpHeader::QHttpHeader( const QHttpHeader& header )
     : m_bValid( header.m_bValid )
@@ -138,7 +138,7 @@ QHttpHeader::~QHttpHeader()
 }
 
 /*!
-  Assignment operator.
+  Assigns \a h and returns a reference to this http header.
 */
 QHttpHeader& QHttpHeader::operator=( const QHttpHeader& h )
 {
@@ -294,7 +294,8 @@ void QHttpHeader::removeValue( const QString& key )
 }
 
 /*!
-  Parses a single HTTP header line and add the information.
+  Parses the single HTTP header line \a line and adds the information. The
+  linenumber is \a number.
 
   \sa parse()
 */
@@ -482,7 +483,7 @@ QHttpReplyHeader::QHttpReplyHeader( int code, const QString& text, int version )
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a header.
 */
 QHttpReplyHeader::QHttpReplyHeader( const QHttpReplyHeader& header )
     : QHttpHeader( header ), m_code( header.m_code ), m_text( header.m_text ), m_version( header.m_version )
@@ -662,7 +663,7 @@ QHttpRequestHeader::QHttpRequestHeader( const QString& method, const QString& pa
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a header.
 */
 QHttpRequestHeader::QHttpRequestHeader( const QHttpRequestHeader& header )
     : QHttpHeader( header ), m_method( header.m_method ), m_path( header.m_path ), m_version( header.m_version )
@@ -820,8 +821,9 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 /*!
   \fn void QHttpClient::reply( const QHttpReplyHeader& repl, const QByteArray& data )
 
-  This signal is emitted when the reply is available. Do not call request()
-  in response to this signal. Instead wait for finished().
+  This signal is emitted when the reply is available. The reply header is
+  passed in \a repl and the data of the reply is passed in \a data. Do not
+  call request() in response to this signal. Instead wait for finished().
  
   If this QHttpClient has a device set, then this signal is not emitted.
 
@@ -829,10 +831,11 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 */
 /*!
   \fn void QHttpClient::reply( const QHttpReplyHeader& repl, const QIODevice* device )
+  \overload
 
   This signal is emitted when the reply is available and the data was written
-  to a device. Do not call request() in response to this signal. Instead wit
-  for finished().
+  to the device \a device. The reply header is passed in \a repl. Do not call
+  request() in response to this signal. Instead wit for finished().
 
   If this QHttpClient has no device set, then this signal is not emitted.
 
@@ -855,7 +858,8 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 /*!
   \fn void QHttpClient::replyHeader( const QHttpReplyHeader& repl )
 
-  This signal is emitted if the HTTP header of the reply is available.
+  This signal is emitted if the HTTP header of the reply is available. The
+  header is passed in \a repl.
  
   It is now possible to decide wether the reply data should be read in memory
   or rather in some device by calling setDevice().
@@ -994,7 +998,7 @@ bool QHttpClient::request( const QString& hostname, int port, const QHttpRequest
     return TRUE;
 }
 
-/*!
+/*!  \overload
   Sends a request to the server \a hostname at port \a port. Use the \a header
   as the HTTP request header. You have to take care that the \a header is set
   up appropriate for your request.  The content data is read from \a device
@@ -1362,7 +1366,8 @@ QIODevice* QHttpClient::device() const
 */
 
 /*!
-  Constructor.
+  Constructor. The parameters \a port, \a parent and \a name are passed to the
+  QServerSocket constructor.
 */
 QHttpServer::QHttpServer( int port, QObject* parent, const char* name )
     : QServerSocket( port, 0, parent, name )
@@ -1397,7 +1402,9 @@ QHttpServer::QHttpServer( int port, QObject* parent, const char* name )
 */
 
 /*!
-  Constructor. ### args?
+  Constructs a HTTP connection for the OS socket \a socket. The \a socket must
+  be connected to the server. The parameters \a parent and \a name are passed
+  to the QObject constructor.
 */
 QHttpConnection::QHttpConnection( int socket, QObject* parent, const char* name )
     : QObject( parent, name ), m_bytesToWrite( 0 ), m_state( Created ), m_killTimer( 0 ),
@@ -1720,7 +1727,8 @@ bool QHttpConnection::isKeepAliveAllowed() const
 
 /*!
   Sets the timeout after which a connection that is kept alive will be
-  terminated. Passing a value of 0 means infinite waiting.
+  terminated to \a timeout milliseconds. Passing a value of 0 means infinite
+  waiting.
 */
 void QHttpConnection::setKeepAliveTimeout( int timeout )
 {

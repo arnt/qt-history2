@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id$
+** $Id:$
 **
 ** Implementation of QFtp class.
 **
@@ -462,7 +462,7 @@ void QFtp::readyRead()
     // else strange things happen...
 }
 
-/*!
+/*
   Handles responses from the server which say that
   currently something couldn't be done and it should be tried later again.
 */
@@ -471,7 +471,7 @@ void QFtp::okButTryLater( int, const QCString & )
 {
 }
 
-/*!
+/*
   Handles responses from the server which are the result of a success
 */
 
@@ -596,7 +596,7 @@ void QFtp::okGoOn( int code, const QCString &data )
     }
 }
 
-/*!
+/*
   Handles responses from the server which needs more information about something
 */
 
@@ -618,7 +618,7 @@ void QFtp::okButNeedMoreInfo( int code, const QCString & )
     }
 }
 
-/*!
+/*
   Handles error messages from the server
 */
 
@@ -626,7 +626,7 @@ void QFtp::errorForNow( int, const QCString & )
 {
 }
 
-/*!
+/*
   Handles fatal error messages from the server (after this nothing more can't be done)
 */
 

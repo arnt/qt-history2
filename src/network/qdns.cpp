@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#15 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#16 $
 **
 ** Implementation of QDns class.
 **
@@ -1583,7 +1583,7 @@ void QDns::setLabel( const QString & label )
 }
 
 
-/*!
+/*!  \overload
   Sets this query object to query for information about the address \a address.
   The label is set to the IN-ADDR.ARPA domain name. This is useful in
   combination with the Ptr record type (i.e. if you want to look up a hostname
@@ -1693,7 +1693,7 @@ void QDns::setStartQueryTimer()
 }
 
 /*!
-  Transform a host address to the IN-ADDR.ARPA domain name.
+  Transforms the host address \a address to the IN-ADDR.ARPA domain name.
 */
 QString QDns::toInAddrArpaDomain( const QHostAddress &address )
 {
