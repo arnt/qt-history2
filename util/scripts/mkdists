@@ -905,10 +905,6 @@ for plat in mac win x11 embedded; do
                status "Stuffit.."
                stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "${PLATNAME}"
             fi
-	    if [ "x$DO_PKG" = "xyes" ]; then
-		status "CD Package..."
-		$QPKG_PATH -o "$OUT_TREE/${PLATNAME}" "${PLATNAME}"
-	    fi
 	elif [ "$plat" = "win" ]; then
 	    txtfiles=""
 	    binfiles=""
@@ -923,10 +919,16 @@ for plat in mac win x11 embedded; do
 	    { for a in $txtfiles; do echo $a; done ; } | zip -l9q $OUT_TREE/${PLATNAME}.zip -@
 	    status "Binary files..."
 	    { for a in $binfiles; do echo $a; done ; } | zip -9q $OUT_TREE/${PLATNAME}.zip -@
-	    if [ "x$DO_PKG" = "xyes" ]; then
-		status "CD Package..."
-		$QPKG_PATH -n -o "$OUT_TREE/${PLATNAME}" "${PLATNAME}"
-	    fi
+	fi
+	if [ "x$DO_PKG" = "xyes" ]; then
+	   status "CD Package..."
+	   case $plat in
+	   win) opts="-win -n" ;;
+	   x11) opts="-unix" ;;
+	   *) opts="-${plat}" ;;
+	   esac
+	   [ "$edition" = "commercial-US" ] && opts="$opts -us"
+	   $QPKG_PATH $opts -o "$OUT_TREE/${PLATNAME}" "${PLATNAME}"
 	fi
 	)
 	status "" "-1"

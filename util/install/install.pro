@@ -2,7 +2,8 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS += archive \
-           package
+           package \
+	   keygen
 
 win:SUBDIRS += win
 mac:SUBDIRS += mac

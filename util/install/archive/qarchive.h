@@ -7,7 +7,7 @@ class QArchive : public QObject
 {
     Q_OBJECT;
 public:
-    QArchive( const QString& archivePath = QString:: null );
+    QArchive( const QString& archivePath = QString::null );
     ~QArchive();
 
     void setPath( const QString& archivePath );
@@ -20,13 +20,14 @@ public:
     void close();
     bool isOpen() { return arcFile.isOpen(); }
 
+    bool writeFeatures( uint features );
     bool writeFile( const QString& fileName, const QString& localPath = QString::null );
     bool writeFileList( const QStringList fileList );
     bool writeDir( const QString& dirName, bool includeLastComponent = false, 
 		   const QString& localPath = QString::null );
     bool writeDirList( const QStringList dirList, bool includeLastComponent = true );
 
-    bool readArchive( QString outpath );
+    bool readArchive( const QString &outpath, const QString &key = QString::null );
 private:
     QFile arcFile;
 

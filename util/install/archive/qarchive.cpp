@@ -4,6 +4,7 @@
 #include <qdir.h>
 #include <qapplication.h>
 #include <zlib/zlib.h>
+#include <keyinfo.h>
 #ifdef Q_OS_UNIX
 #  include <unistd.h>
 #  include <sys/types.h>
@@ -13,7 +14,8 @@
 enum ChunkType {
     ChunkDirectory = 0,
     ChunkFile      = 1,
-    ChunkSymlink   = 2
+    ChunkSymlink   = 2,
+    ChunkKey       = 3
 };
 
 static bool createDir( const QString& fullPath )
@@ -154,6 +156,19 @@ bool QArchive::setDirectory( const QString& dirName )
     return FALSE;
 }
 
+bool
+QArchive::writeFeatures( uint features )
+{
+    if( arcFile.isOpen() ) {
+	QDataStream outStream( &arcFile );
+	outStream << (int)ChunkKey;
+	outStream << features;
+	return TRUE;
+    }
+    return FALSE;
+}
+
+
 bool QArchive::writeDir( const QString &dirName1, bool includeLastComponent, const QString &localPath1 )
 {
     if( arcFile.isOpen() ) {
@@ -215,9 +230,9 @@ void QArchive::setVerbosity( int verbosity )
     verbosityMode = verbosity;
 }
 
-bool QArchive::readArchive( QString outpath ) 
+bool QArchive::readArchive( const QString &outpath, const QString &key ) 
 {
-    QDataStream inStream, outStream;
+    QDataStream outStream;
     QFile outFile;
     QDir outDir;
     QByteArray inBuffer;
@@ -228,6 +243,19 @@ bool QArchive::readArchive( QString outpath )
     QString entryName, dirName, symName;
     int entryLength, chunktype;
 
+    QDataStream inStream( &arcFile );
+
+    //get the key
+    inStream >> chunktype;
+    if(chunktype == ChunkKey) {
+	uint features, infeatures = featuresForKey( key );
+	inStream >> features;
+	if( (features & infeatures) != features) {
+	    emit operationFeedback( "Invalid key" );
+	    return FALSE;
+	}
+    }
+
     // Set up the initial directory.
     // If the dir does not exist, try to create it
     dirName = QDir::convertSeparators( outpath );
@@ -235,8 +263,8 @@ bool QArchive::readArchive( QString outpath )
     if( !outDir.exists( dirName ) && !createDir( dirName ) )
 	return FALSE;
     outDir.cd( dirName );
-    
-    for( QDataStream inStream( &arcFile ); !inStream.atEnd();  ) {
+
+    while(  !inStream.atEnd()  ) {
 	//get our type
 	inStream >> chunktype;
 	totalRead += sizeof( entryLength ) + entryLength;
@@ -258,8 +286,10 @@ bool QArchive::readArchive( QString outpath )
 		if( verbosityMode & Destination )
 		    emit operationFeedback( "Directory " + dirName + "... " );
 
-		if( !outDir.exists( dirName ) && !createDir( dirName ) )
+		if( !outDir.exists( dirName ) && !createDir( dirName ) ) {
+		    emit operationFeedback( "Cannot create directory: " + dirName );
 		    return FALSE;
+		}
 		outDir.cd( dirName );
 	    }
 	} else if(chunktype == ChunkFile) {
@@ -351,3 +381,4 @@ bool QArchive::readArchive( QString outpath )
     }
     return TRUE;
 }
+

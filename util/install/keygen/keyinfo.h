@@ -34,55 +34,35 @@
 ** not clear to you.
 **
 **********************************************************************/
+#ifndef __QKEYGEN_H__
+#define __QKEYGEN_H__
 
-#include "qarchive.h"
-#include <qapplication.h>
-#include <qdir.h>
-#include <qfileinfo.h>
+#include <qfile.h>
+#include <qregexp.h>
 
-class ConsoleOutput : public QObject
-{
-    Q_OBJECT
-public:
-    ConsoleOutput() : QObject() { }
-    ~ConsoleOutput() { }
-public slots:
-    void updateProgress( const QString& str) {	qDebug("%s", str.latin1());   }
-};
+#define MASK(n) ( (1 << (n)) - 1 )
 
-int main( int argc, char** argv )
-{
-    QString key;
-    bool output = TRUE;
-    QStringList files;
-    for(int i = 1; i < argc; i++) {
-	if(!strcmp(argv[i], "-s")) {
-	    output = FALSE;
-	} else if(!strcmp(argv[i], "-k")) {
-	    key = argv[++i];
-	} else {
-	    files.append(argv[i]);
-	}
-    }
-    if(!files.isEmpty()) {
-	QArchive archive;
-	ConsoleOutput out;
-	QObject::connect( &archive, SIGNAL( operationFeedback( const QString& ) ), 
-			  &out, SLOT( updateProgress( const QString& ) ) );
-	if(output) 
-	    archive.setVerbosity( QArchive::Destination | QArchive::Verbose );
-	for(QStringList::Iterator it = files.begin(); it != files.end(); ++it) {
-	    archive.setPath( (*it) );
-	    if( !archive.open( IO_ReadOnly ) ) {
-		qDebug("Failed to open input %s", (*it).latin1());
-		continue;
-	    } 
-	    if(!archive.readArchive( QDir::currentDirPath(), key )) 
-		qDebug("Failed to unpack %s", (*it).latin1());
-	    archive.close();
-	}
-    }
-    return 0;
-}
+/*
+  Feel free to use Feature_Extra{1,2} when the need arises.
+*/
+enum { Feature_US = 0x1, Feature_Enterprise = 0x2, Feature_Unix = 0x4,
+       Feature_Windows = 0x8, Feature_Mac = 0x10, Feature_Embedded = 0x20,
+       Feature_Extra1 = 0x40, Feature_Extra2 = 0x80,
 
-#include "main.moc"
+       NumFeatures = 8,
+       FeatureMask = MASK( NumFeatures ) };
+
+enum { CheckMask = MASK( 32 - NumFeatures ) };
+
+/*
+  (1 << NumRandomBits) keys are generated per feature set.
+  NumRandomBits must at most 32 - 2 * NumFeatures.
+*/
+enum { NumRandomBits = 12,
+       RandomBitMask = MASK( NumRandomBits ) };
+
+uint featuresForKey( const QString& key );
+QString keyForFeatures( uint features, uint randomBits );
+uint featuresForKeyOnUnix( const QString& key );
+
+#endif /* __QKEYGEN_H__ */
