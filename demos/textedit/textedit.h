@@ -36,7 +36,7 @@ private:
     void setupFileActions();
     void setupEditActions();
     void setupTextActions();
-    void load(const QString &f);
+    bool load(const QString &f);
 
 private slots:
     void fileNew();

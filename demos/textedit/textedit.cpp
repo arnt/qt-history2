@@ -56,7 +56,8 @@ TextEdit::TextEdit(QWidget *parent)
     connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
 
     if (qApp->argc() == 1) {
-        load("example.html");
+        if (!load("example.html"))
+            fileNew();
     } else {
         for (int i = 1; i < qApp->argc(); ++i)
             load(qApp->argv()[i]);
@@ -248,14 +249,14 @@ void TextEdit::setupTextActions()
     menu->addAction(actionTextColor);
 }
 
-void TextEdit::load(const QString &f)
+bool TextEdit::load(const QString &f)
 {
     if (!QFile::exists(f))
-        return;
+        return false;
     QTextEdit *edit = createNewEditor(QFileInfo(f).fileName());
     QFile file(f);
     if (!file.open(IO_ReadOnly))
-        return;
+        return false;
 
     QByteArray data = file.readAll();
     QString str = QString::fromLatin1(data);
@@ -265,6 +266,7 @@ void TextEdit::load(const QString &f)
         edit->setPlainText(str); // assume plain text is latin1 encoded
 
     filenames.insert(edit, f);
+    return true;
 }
 
 void TextEdit::fileNew()
