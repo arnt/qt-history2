@@ -461,11 +461,11 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     int vGuess = QEffects::DownScroll;
     if ( snapToMouse && ( x + w/2 < mouse.x() ) ||
 	( parentMenu && parentMenu->isPopupMenu &&
-	( x + w/2 < ((QPopupMenu*)parentMenu)->mapToGlobal( ((QPopupMenu*)parentMenu)->pos() ).x() ) ) )
+	( x + w/2 < ((QPopupMenu*)parentMenu)->x() ) ) )
 	hGuess = QEffects::LeftScroll;
     if ( snapToMouse && ( y + h/2 < mouse.y() ) ||
 	( parentMenu && parentMenu->isMenuBar &&
-	( y + h/2 < ((QMenuBar*)parentMenu)->mapToGlobal( ((QMenuBar*)parentMenu)->pos() ).y() ) ) )
+	( y + h/2 < ((QMenuBar*)parentMenu)->y() ) ) )
 	vGuess = QEffects::UpScroll;
 
     if ( QApplication::isEffectEnabled( UI_AnimateMenu ) &&
