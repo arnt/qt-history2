@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#24 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#23 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#24 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -460,23 +460,33 @@ void QWidget::update()
 void QWidget::update( int x, int y, int w, int h )
 {
     if ( !testWFlags(WNoUpdates) ) {
-	RECT rect;
-	rect.left   = x;
-	rect.top    = y;
-	rect.right  = x + w;
-	rect.bottom = y + h;
-	InvalidateRect( id(), &rect, TRUE );
+	RECT r;
+	r.left = x;
+	r.top  = y;
+	if ( w < 0 )
+	    r.right = crect.width();
+	else
+	    rect.right = x + w;
+	if ( h < 0 )
+	    r.bottom = crect.height();
+	else
+	    r.bottom = y + h;
+	InvalidateRect( id(), &r, TRUE );
     }
 }
 
 
-void QWidget::repaint( const QRect &r, bool erase )
+void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
     if ( !isVisible() || testWFlags(WNoUpdates) ) // ignore repaint
 	return;
-    QPaintEvent e( r );				// send fake paint event
+    if ( w < 0 )
+	w = crect.width()  - x;
+    if ( h < 0 )
+	h = crect.height() - y;
+    QPaintEvent e( QRect(x,y,w,h) );		// send fake paint event
     if ( erase )
-	this->erase( r );
+	this->erase( x, y, w, h );
     QApplication::sendEvent( this, &e );
 }
 
@@ -629,8 +639,14 @@ void QWidget::erase( int x, int y, int w, int h )
     RECT r;
     r.left = x;
     r.top  = y;
-    r.right  = x + w;
-    r.bottom = y + h;
+    if ( w < 0 )
+	r.right = crect.width();
+    else
+	r.right = x + w;
+    if ( h < 0 )
+	r.bottom = crect.height();
+    else
+	r.bottom = y + h;
     FillRect( tmphdc, &r, hbrush );
     DeleteObject( hbrush );
     if ( !hdc )

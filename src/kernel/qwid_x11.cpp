@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#111 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#112 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#111 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#112 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -769,16 +769,25 @@ void QWidget::update()
   Updates a rectangle (\e x, \e y, \e w, \e h) inside the widget
   unless updates are disabled.
 
-  Updating the widget will erase the widget area \e (x,y,w,h) and
-  generate a paint event from the window system.
+  Updating the widget erases the widget area \e (x,y,w,h), which in turn
+  generates a paint event from the window system.
+
+  If \e w is negative, it is replaced with <code>width() - x</code>.
+  If \e h is negative, it is replaced width <code>height() - y</code>.
 
   \sa repaint(), paintEvent(), enableUpdates(), erase()
  ----------------------------------------------------------------------------*/
 
 void QWidget::update( int x, int y, int w, int h )
 {
-    if ( !testWFlags(WNoUpdates) )
-	XClearArea( dpy, ident, x, y, w, h, TRUE );
+    if ( !testWFlags(WNoUpdates) ) {
+	if ( w < 0 )
+	    w = crect.width()  - x;
+	if ( h < 0 )
+	    h = crect.height() - y;
+	if ( w != 0 && h != 0 )
+	    XClearArea( dpy, ident, x, y, w, h, TRUE );
+    }
 }
 
 
@@ -797,24 +806,13 @@ void QWidget::update( int x, int y, int w, int h )
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn void QWidget::repaint( int x, int y, int w, int h, bool erase )
   Repaints the widget directly by calling paintEvent() directly,
   unless updates are disabled.
 
   Erases the widget area  \e (x,y,w,h) if \e erase is TRUE.
 
-  Doing a repaint() usually is faster than doing an update(), but
-  calling update() many times in a row will generate a single paint
-  event.
-
-  \sa update(), paintEvent(), enableUpdates(), erase()
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  Repaints the widget directly by calling paintEvent() directly, unless
-  updates are disabled.
-
-  Erases the widget area  \e r if \e erase is TRUE.
+  If \e w is negative, it is replaced with <code>width() - x</code>.
+  If \e h is negative, it is replaced width <code>height() - y</code>.
 
   Doing a repaint() usually is faster than doing an update(), but
   calling update() many times in a row will generate a single paint
@@ -823,15 +821,23 @@ void QWidget::update( int x, int y, int w, int h )
   \sa update(), paintEvent(), enableUpdates(), erase()
  ----------------------------------------------------------------------------*/
 
-void QWidget::repaint( const QRect &r, bool erase )
+void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
     if ( !isVisible() || testWFlags(WNoUpdates) ) // ignore repaint
 	return;
-    QPaintEvent e( r );				// send fake paint event
-    if ( erase )
-	XClearArea( dpy, ident, r.x(), r.y(), r.width(), r.height(), FALSE );
+    if ( w < 0 )
+	w = crect.width()  - x;
+    if ( h < 0 )
+	h = crect.height() - y;
+    QPaintEvent e( QRect(x,y,w,h) );		// send fake paint event
+    if ( erase && w != 0 && h != 0 )
+	XClearArea( dpy, ident, x, y, w, h, FALSE );
     QApplication::sendEvent( this, &e );
 }
+
+/*----------------------------------------------------------------------------
+  \overload void QWidget::repaint( const QRect &r, bool erase )
+ ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
@@ -1142,8 +1148,7 @@ void QWidget::setSizeIncrement( int w, int h )
 
 /*----------------------------------------------------------------------------
   \overload void QWidget::erase()
-
-  This version uses the entire widget.
+  This version erases the entire widget.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -1154,6 +1159,9 @@ void QWidget::setSizeIncrement( int w, int h )
   Erases the specified area \e (x,y,w,h) in the widget without generating
   a \link paintEvent() paint event\endlink.
 
+  If \e w is negative, it is replaced with <code>width() - x</code>.
+  If \e h is negative, it is replaced width <code>height() - y</code>.
+
   Child widgets are not affected.
 
   \sa repaint()
@@ -1161,7 +1169,12 @@ void QWidget::setSizeIncrement( int w, int h )
 
 void QWidget::erase( int x, int y, int w, int h )
 {
-    XClearArea( dpy, ident, x, y, w, h, FALSE );
+    if ( w < 0 )
+	w = crect.width()  - x;
+    if ( h < 0 )
+	h = crect.height() - y;
+    if ( w != 0 && h != 0 )
+	XClearArea( dpy, ident, x, y, w, h, FALSE );
 }
 
 /*----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#66 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#67 $
 **
 ** Definition of QWidget class
 **
@@ -303,10 +303,10 @@ inline QFontInfo QWidget::fontInfo() const
 { return QFontInfo(this); }
 
 inline void QWidget::repaint( bool erase )
-{ repaint( rect(), erase ); }
+{ repaint( 0, 0, crect.width(), crect.height(), erase ); }
 
-inline void QWidget::repaint( int x, int y, int w, int h, bool erase )
-{ repaint( QRect(x,y,w,h), erase ); }
+inline void QWidget::repaint( const QRect &r, bool erase )
+{ repaint( r.x(), r.y(), r.width(), r.height(), erase ); }
 
 inline void QWidget::erase()
 { erase( 0, 0, crect.width(), crect.height() ); }
