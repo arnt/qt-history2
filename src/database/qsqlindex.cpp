@@ -128,7 +128,7 @@ QString QSqlIndex::name() const
 
 */
 
-QString QSqlIndex::toString( const QString& prefix = QString::null ) const
+QString QSqlIndex::toString( const QString& prefix ) const
 {
     QString pfix = ( prefix.isNull() ? tableName() : prefix ) + ".";
     QString pflist = flist;

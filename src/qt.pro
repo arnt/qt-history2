@@ -718,10 +718,10 @@ unix:NETWORK_SOURCES += network/qsocketdevice_unix.cpp
 win32:NETWORK_SOURCES += network/qsocketdevice_win.cpp
 network:SOURCES    += $$NETWORK_SOURCES
 
-oldrichtext:SOURCES += $$KERNEL_H/qrichtext.cpp \
-			$$KERNEL_H/qsimplerichtext.cpp \
-			$$WIDGETS_H/qtextview.cpp \
-			$$WIDGETS_H/qtextbrowser.cpp
+oldrichtext:SOURCES += kernel/qrichtext.cpp \
+			kernel/qsimplerichtext.cpp \
+			widgets/qtextview.cpp \
+			widgets/qtextbrowser.cpp
 newrichtext:SOURCES += ../tests/qtextedit/qrichtext.cpp \
 			../tests/qtextedit/qsimplerichtext.cpp \
 			../tests/qtextedit/qtextedit.cpp \

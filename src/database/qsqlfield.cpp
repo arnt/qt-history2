@@ -16,7 +16,7 @@
 
 */
 
-QSqlResultField::QSqlResultField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid )
+QSqlResultField::QSqlResultField( const QString& fieldName, int fieldNumber, QVariant::Type type )
     : nm(fieldName), num(fieldNumber)
 {
     val.cast( type );
