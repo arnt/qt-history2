@@ -34,6 +34,7 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$KERNEL_H/qasyncio.h \
 		  $$KERNEL_H/qbitmap.h \
 		  $$KERNEL_H/qbrush.h \
+		  $$KERNEL_H/qcdestyle.h \
 		  $$KERNEL_H/qclipboard.h \
 		  $$KERNEL_H/qcolor.h \
 		  $$KERNEL_H/qconnection.h \
@@ -239,6 +240,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qclipboard.cpp \
 		  kernel/qcolor.cpp \
 		  kernel/qconnection.cpp \
+		  kernel/qcdestyle.cpp \
 		  kernel/qcursor.cpp \
 		  kernel/qdialog.cpp \
 		  kernel/qdragobject.cpp \

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#188 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#189 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -35,8 +35,9 @@
 
 // Motif style parameters
 
-static const int motifPopupFrame	= 2;	// popup frame width
-static const int motifItemFrame		= 2;	// menu item frame width
+#define motifPopupFrame	style().defaultFrameWidth()  // popup frame width
+//#define motifItemFrame	style().defaultFrameWidth()	// menu item frame width
+static const motifItemFrame	=2;	// menu item frame width
 static const int motifSepHeight		= 2;	// separator item height
 static const int motifItemHMargin	= 3;	// menu item hor text margin
 static const int motifItemVMargin	= 2;	// menu item ver text margin
@@ -1075,9 +1076,12 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    int pixw = pixmap->width();
 	    int pixh = pixmap->height();
 	    if ( gs == MotifStyle ) {
-		if ( act && !dis )			// active item frame
-		    qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE,
-				     motifItemFrame, &g.fillButton() );
+		if ( act && !dis ) {			// active item frame
+		    if (style().defaultFrameWidth() > 1)
+			qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE, motifItemFrame, &g.fillButton() );
+		    else
+			qDrawShadePanel( p, 1, 1, rw-2, cellh-2, g, TRUE, 1, &g.fillButton() );
+		}
 		else				// incognito frame
 		    p->fillRect(0,0,rw, cellh, g.fillButton() );
 // 		    qDrawPlainRect( p, 0, 0, rw, cellh, g.button(),
@@ -1130,8 +1134,12 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    else
 		p->fillRect( 0, 0, rw, cellh, fill);
 	} else if ( gs == MotifStyle ) {
-	    if ( act && !dis )			// active item frame
-		qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE, pw, &g.fillButton() );
+	    if ( act && !dis ) {			// active item frame
+		if (style().defaultFrameWidth() > 1)
+		    qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE, pw, &g.fillButton() );
+		else
+		    qDrawShadePanel( p, 1, 1, rw-2, cellh-2, g, TRUE, 1, &g.fillButton() );
+	    }
 	    else				// incognito frame
 		p->fillRect(0, 0, rw, cellh, g.fillButton());
 	}
@@ -1555,6 +1563,28 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 void QPopupMenu::timerEvent( QTimerEvent *e )
 {
     QTableView::timerEvent( e );
+}
+
+/*!
+  Reimplemented for internal purposes.
+*/
+void  QPopupMenu::styleChange( GUIStyle )
+{
+    switch ( style() ) {
+	case WindowsStyle:
+	    setFrameStyle( QFrame::WinPanel | QFrame::Raised );
+	    setMouseTracking( TRUE );
+	    setCheckableFlag( TRUE );		
+	    break;
+	case MotifStyle:
+	    setFrameStyle( QFrame::Panel | QFrame::Raised );
+	    setLineWidth( motifPopupFrame );
+	    setCheckableFlag( FALSE );		
+	    break;
+	default:
+	    setFrameStyle( QFrame::Panel | QFrame::Plain );
+	    setLineWidth( 1 );
+    }
 }
 
 

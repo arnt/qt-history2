@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#6 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#7 $
 **
 ** Definition of something or other
 **
@@ -28,7 +28,8 @@ public:
     void drawFocusRect( QPainter*,
 			const QRect&, const QColorGroup &, const QColor* =0 );
     void drawPushButton( QPushButton* btn, QPainter *p);
-    void drawPushButtonLabel( QPushButton* btn, QPainter *p);
+
+    void getButtonShift( int &x, int &y);
 
     void drawPanel( QPainter *p, int x, int y, int w, int h,
 		    const QColorGroup &, bool sunken=FALSE,

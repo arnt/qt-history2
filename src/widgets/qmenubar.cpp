@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#128 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#129 $
 **
 ** Implementation of QMenuBar class
 **
@@ -706,7 +706,7 @@ void QMenuBar::drawContents( QPainter *p )
 	    else
 		g = palette().disabled();
 		
-	    if ( gs == WindowsStyle ) {
+	    if ( gs == WindowsStyle || style().defaultFrameWidth() < 2) {
 		p->fillRect( r, palette().normal().fillButton() );
 		if ( i == actItem ) {
 		    QBrush b = palette().normal().fillButton() ;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#127 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#128 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -791,7 +791,9 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	 e->key() != Key_Return &&
 	 e->key() != Key_Enter &&
 	 e->key() != Key_Delete &&
-	 e->key() != Key_Backspace ) {
+	 e->key() != Key_Backspace &&
+	 (!e->ascii() || e->ascii()>=32)
+	 ) {
 	insert( e->text() );
 	if ( textDirty )
 	    emit textChanged();

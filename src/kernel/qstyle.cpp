@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#24 $
 **
 ** Implementation of QStyle class
 **
@@ -289,31 +289,78 @@ void QStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
 }
 
 
-
-
 /*!
+  \fn void QStyle::drawPushButton( QPushButton*, QPainter *)
+
   Draws a pushbutton. This function will normally call drawButton()
   with arguments according to the current state of the pushbutton.
 
   \sa drawPushButtonLabel(), QPushButton::drawButton()
 */
-void
-QStyle::drawPushButton( QPushButton* , QPainter *)
-{
-}
 
 /*!
+  \fn void QStyle::drawPushButtonLabel( QPushButton*, QPainter *)
+
   Draws the label of a pushbutton. This function will normally call
   drawItem() with arguments according to the current state of the
   pushbutton.
 
   \sa drawPushButton(), QPushButton::drawButtonLabel()
 */
-void
-QStyle::drawPushButtonLabel( QPushButton*, QPainter *)
+
+void QStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 {
+    QRect r = btn->rect();
+    int x, y, w, h;
+    r.rect( &x, &y, &w, &h );
+
+    int x1, y1, x2, y2;
+    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
+    int dx = 0;
+    int dy = 0;
+    if ( btn->isMenuButton() )
+	dx = (y2-y1) / 3;
+    if ( dx || dy )
+	p->translate( dx, dy );
+
+    if ( btn->isDown() || btn->isOn() ){
+	int sx = 0;
+	int sy = 0;
+	getButtonShift(sx, sy);
+	x+=sx;
+	y+=sy;
+    }
+    x += 2;  y += 2;  w -= 4;  h -= 4;
+    drawItem( p, x, y, w, h,
+	       AlignCenter|ShowPrefix,
+	       btn->colorGroup(), btn->isEnabled(),
+	       btn->pixmap(), btn->text(), -1, &btn->colorGroup().buttonText() );
+
+    if ( dx || dy )
+	p->translate( -dx, -dy );
 }
 
+
+
+/*!
+  Some GUI styles shift the contents of a button when the button is down.
+  The default implementation returns 0 for both x and y.
+ */
+void QStyle::getButtonShift( int &x, int &y)
+{
+    x = 0;
+    y = 0;
+}
+
+
+
+/*!
+  The default frame width, usually 2.
+ */
+int QStyle::defaultFrameWidth()
+{
+    return 2;
+}
 
 /*!
   Draws a panel to separate parts of the visual interface.
@@ -442,7 +489,7 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on *
 
   \fn void QStyle::scrollBarMetrics( const QScrollBar*, int &, int &, int &, int& )
 
-  Returns the metrics of the passed scrollbar: sliderMin, sliderMax, 
+  Returns the metrics of the passed scrollbar: sliderMin, sliderMax,
   sliderLength and buttonDim.
 
 */

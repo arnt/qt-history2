@@ -18,7 +18,6 @@
   \brief Motif Look and Feel
 */
 
-
 /*!
     Constructs a QMotifStyle
 */
@@ -34,7 +33,7 @@ QMotifStyle::QMotifStyle() : QStyle(MotifStyle)
 void QMotifStyle::polish( QApplication* app)
 {
     oldPalette = *app->palette();
-    
+
     // force the ugly motif way of highlighting *sigh*
     QColorGroup normal = app->palette()->normal();
     QColorGroup disabled = app->palette()->disabled();
@@ -72,7 +71,7 @@ void QMotifStyle::drawIndicator( QPainter* p,
 {
     bool showUp = !(down ^ on);
     QBrush fill =  showUp ? g.fillButton() : g.fillMid();
-    qDrawShadePanel( p, x, y, w, h, g, !showUp, 2, &fill );
+    qDrawShadePanel( p, x, y, w, h, g, !showUp, defaultFrameWidth(), &fill );
 }
 
 
@@ -103,6 +102,7 @@ void QMotifStyle::drawExclusiveIndicator( QPainter* p,
     { 0,6, 6,0 , 11,5, 10,5, 6,1, 1,6, 2,6, 6,2, 9,5 };
     static QCOORD bottom_pts[] =		// bottom (V) of diamond
     { 1,7, 6,12, 12,6, 11,6, 6,11, 2,7, 3,7, 6,10, 10,6 };
+
     bool showUp = !(down ^ on );
     QPointArray a( QCOORDARRLEN(inner_pts), inner_pts );
     p->eraseRect( x, y, w, h );
@@ -289,7 +289,7 @@ void QMotifStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 				const QColorGroup &g, bool sunken, const QBrush* fill)
 {
     qDrawShadePanel( p, x, y, w, h, g, sunken,
-		     2, fill?fill:(sunken?&g.fillMid():&g.fillButton()));
+		     defaultFrameWidth(), fill?fill:(sunken?&g.fillMid():&g.fillButton()));
 }
 
 /*!
@@ -374,8 +374,9 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 
 #define HORIZONTAL	(sb->orientation() == QScrollBar::Horizontal)
 #define VERTICAL	!HORIZONTAL
-#define MOTIF_BORDER	2
+#define MOTIF_BORDER	defaultFrameWidth();
 #define SLIDER_MIN	9 // ### motif says 6 but that's too small
+
 
 /*!
   Reimplementation from QStyle
@@ -496,37 +497,6 @@ void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int 
     }
 
 }
-
-/*!
-  Reimplementation from QStyle
-
-  \sa QStyle
-  */
-void QMotifStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
-{
-    QRect r = btn->rect();
-    int x, y, w, h;
-    r.rect( &x, &y, &w, &h );
-
-    int x1, y1, x2, y2;
-    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
-    int dx = 0;
-    int dy = 0;
-    if ( btn->isMenuButton() )
-	dx = (y2-y1) / 3;
-    if ( dx || dy )
-	p->translate( dx, dy );
-
-    x += 2;  y += 2;  w -= 4;  h -= 4;
-    drawItem( p, x, y, w, h,
-	      AlignCenter|ShowPrefix,
-	      btn->colorGroup(), btn->isEnabled(),
-	      btn->pixmap(), btn->text(), -1, &btn->colorGroup().buttonText() );
-    if ( dx || dy )
-	p->translate( -dx, -dy );
-
-}
-
 
 
 int QMotifStyle::sliderLength() const

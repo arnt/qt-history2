@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#7 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#8 $
 **
 ** Definition of something or other
 **
@@ -32,7 +32,6 @@ public:
     void drawFocusRect( QPainter*,
 			const QRect&, const QColorGroup &, const QColor* =0 );
     void drawPushButton( QPushButton* btn, QPainter *p);
-    void drawPushButtonLabel( QPushButton* btn, QPainter *p);
 
     void drawArrow( QPainter *p, ArrowType type, bool down,
 		    int x, int y, int w, int h,

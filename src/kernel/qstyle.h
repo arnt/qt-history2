@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#20 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#21 $
 **
 ** Definition of QStyle class
 **
@@ -17,6 +17,7 @@
 #include "qobject.h"
 #endif // QT_H
 
+class QButton;
 class QPushButton;
 class QScrollBar;
 
@@ -127,12 +128,15 @@ public:
     virtual void drawFocusRect( QPainter*,
 		    const QRect&, const QColorGroup &, const QColor* bg = 0 ) = 0;
 
-
     // push buttons
-    virtual void drawPushButton( QPushButton* btn, QPainter *p);
+    virtual void drawPushButton( QPushButton* btn, QPainter *p) = 0;
     virtual void drawPushButtonLabel( QPushButton* btn, QPainter *p);
 
-
+    virtual void getButtonShift( int &x, int &y);
+    
+    // frame
+    virtual int defaultFrameWidth();
+    
     // scrollbars
     enum ScrollControl { ADD_LINE = 0x1 , SUB_LINE = 0x2 , ADD_PAGE = 0x4,
 			    SUB_PAGE = 0x8 , FIRST    = 0x10, LAST	= 0x20,

@@ -392,39 +392,16 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
 
 }
 
+
 /*!
   Reimplementation from QStyle
 
   \sa QStyle
   */
-void QWindowsStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
+void QWindowsStyle::getButtonShift( int &x, int &y)
 {
-    QRect r = btn->rect();
-    int x, y, w, h;
-    r.rect( &x, &y, &w, &h );
-
-    int x1, y1, x2, y2;
-    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
-    int dx = 0;
-    int dy = 0;
-    if ( btn->isMenuButton() )
-	dx = (y2-y1) / 3;
-    if ( dx || dy )
-	p->translate( dx, dy );
-
-    if ( btn->isDown() || btn->isOn()) {
-        // shift pixmap/text
-	x++;
-	y++;
-    }
-    x += 2;  y += 2;  w -= 4;  h -= 4;
-    drawItem( p, x, y, w, h,
-	       AlignCenter|ShowPrefix,
-	       btn->colorGroup(), btn->isEnabled(),
-	       btn->pixmap(), btn->text(), -1, &btn->colorGroup().buttonText() );
-
-    if ( dx || dy )
-	p->translate( -dx, -dy );
+    x = 1;
+    y = 1;
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#395 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#396 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2381,6 +2381,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			if (data && data[0] ) {
 			    // extra/topextra was created above
 			    widget->extra->topextra->embedded = 1;
+			    widget->show();
 			}
 			if (data)
 			    XFree( data );

@@ -34,7 +34,7 @@ QPlatinumStyle::QPlatinumStyle()
 void QPlatinumStyle::polish( QApplication* app)
 {
     oldPalette = *app->palette();
-    
+
     QColor standardLightGray( 222, 222, 222 );
     QColor light( 255, 255, 255 );
     QColor dark (98, 101, 98);
@@ -453,6 +453,13 @@ void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
     if ( dx || dy )
 	p->translate( dx, dy );
 
+    if (btn->isDown() || btn->isOn() ){
+	int sx = 0;
+	int sy = 0;
+	getButtonShift(sx, sy);
+	x+=sx;
+	y+=sy;
+    }
     x += 2;  y += 2;  w -= 4;  h -= 4;
     drawItem( p, x, y, w, h,
 	      AlignCenter|ShowPrefix,
@@ -505,7 +512,7 @@ void QPlatinumStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int
  	 sliderLength = buttonDim; // macintosh
 
 	 */
-	 
+	
     sliderMax = sliderMin + maxLength - sliderLength;
 
 }
@@ -594,12 +601,12 @@ QStyle::ScrollControl QPlatinumStyle::scrollBarPointOver( const QScrollBar* sb, 
     int sliderMin, sliderMax, sliderLength, buttonDim, pos;
     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
     pos = (sb->orientation() == QScrollBar::Horizontal)? p.x() : p.y();
-    
-    if (sb->orientation() == QScrollBar::Horizontal) 
+
+    if (sb->orientation() == QScrollBar::Horizontal)
 	pos = p.x();
     else
 	pos = p.y();
-    
+
     if (pos < sliderStart)
 	return SUB_PAGE;
     if (pos < sliderStart + sliderLength)

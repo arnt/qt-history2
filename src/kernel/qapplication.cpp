@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#178 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#179 $
 **
 ** Implementation of QApplication class
 **
@@ -31,6 +31,7 @@
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
 #include "qplatinumstyle.h"
+#include "qcdestyle.h"
 #include "qmessagefile.h"
 
 #include "qutfcodec.h"
@@ -171,6 +172,8 @@ void process_cmdline( int* argcptr, char ** argv )
 	    qApp->setStyle( new QMotifStyle );
 	} else if ( stricmp(arg, "-style=platinum") == 0 ) {
 	    qApp->setStyle( new QPlatinumStyle );
+	} else if ( stricmp(arg, "-style=cde") == 0 ) {
+	    qApp->setStyle( new QCDEStyle );
 	} else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
 	    s = s.lower();
@@ -180,6 +183,8 @@ void process_cmdline( int* argcptr, char ** argv )
 		qApp->setStyle( new QMotifStyle );
 	    else if ( s == "platinum" )
 		qApp->setStyle( new QPlatinumStyle );
+	    else if ( s == "cde" )
+		qApp->setStyle( new QCDEStyle );
 	} else
 	    argv[j++] = argv[i];
     }
@@ -265,7 +270,7 @@ QApplication::QApplication( int &argc, char **argv )
 
     qt_init( &argc, argv );
     process_cmdline( &argc, argv );
-    
+
     initialize( argc, argv );
 }
 
@@ -331,7 +336,7 @@ void QApplication::initialize( int argc, char **argv )
 	app_style = new QMotifStyle;// default style for X Windows
 #endif
     }
-    
+
     app_style->polish( this ); //##### wrong place, still inside the qapplication constructor...grmbl....
     // no longer starting up .....
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#215 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#216 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1194,9 +1194,25 @@ Q_EXPORT void qt_ebg( void *p )
 {
     qt_ebg_inst = (qt_ebg_fn)p;
 }
+
+void qt_erase_bg( HANDLE hdc, int x, int y, int w, int h,
+		  const QColor &bg_color,
+		  const QPixmap *bg_pixmap, int off_x, int off_y )
+{
+    if ( qt_ebg_inst )
+	(*qt_ebg_inst)( hdc, x, y, w, h, bg_color, bg_pixmap, off_x, off_y );
+}
+
 #else
 
 #define QT_ERASE_BACKGROUND
+
+void qt_erase_bg( HANDLE hdc, int x, int y, int w, int h,
+		  const QColor &bg_color,
+		  const QPixmap *bg_pixmap, int off_x, int off_y )
+{
+    qt_erase_background( hdc, x, y, w, h, bg_color, bg_pixmap, off_x, off_y );
+}
 
 #endif
 
@@ -1426,8 +1442,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 #if defined(QT_ERASE_BACKGROUND)
 	    qt_erase_background
 #else
-	    if ( qt_ebg_inst )
-		(*qt_ebg_inst)
+	   qt_erase_bg
 #endif
 		    ( (HANDLE)wParam, r.left, r.top,
 		      r.right-r.left, r.bottom-r.top,

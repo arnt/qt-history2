@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#43 $
 **
 ** Implementation of QToolButton class
 **
@@ -388,8 +388,13 @@ void QToolButton::drawButton( QPainter * p )
 
 void QToolButton::drawButtonLabel( QPainter * p )
 {
+    int sx = 0;
+    int sy = 0;
+    if (isDown() || isOn() )
+	style().getButtonShift(sx, sy);
     if ( !text().isNull() ) {
-	qDrawItem( p, style(), 1, 1, width()-2, height()-2,
+	
+	qDrawItem( p, style(), 1 + sx, 1 + sy, width()-2, height()-2,
 		   AlignCenter + ShowPrefix,
 		   colorGroup(), isEnabled(),
 		   0, text() );
@@ -414,15 +419,15 @@ void QToolButton::drawButtonLabel( QPainter * p )
 
 	if ( usesTextLabel() ) {
 	    int fh = fontMetrics().height();
-	    qDrawItem( p, style(), 1, 1, width()-2, height() - 2 - fh - 6,
+	    qDrawItem( p, style(), 1 + sx, 1 + sy, width()-2, height() - 2 - fh - 6,
 		       AlignCenter, colorGroup(), TRUE, &pm, 0 );
 	    p->setFont( font() );
-	    qDrawItem( p, style(), 1, height() - 4 - fh, width()-2, fh,
+	    qDrawItem( p, style(), 1 + sx, height() - 4 - fh + sy, width()-2, fh,
 		       AlignCenter + ShowPrefix,
 		       colorGroup(), isEnabled(),
 		       0, textLabel() );
 	} else {
-	    qDrawItem( p, style(), 1, 1, width()-2, height() - 2,
+	    qDrawItem( p, style(), 1 + sx, 1 + sy, width()-2, height() - 2,
 		       AlignCenter, colorGroup(), TRUE, &pm, 0 );
 
 	}
