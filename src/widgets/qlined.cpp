@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#38 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#37 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#38 $")
 
 
 /*!
@@ -361,10 +361,10 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 
 
 /*!
-\internal
-Repaints the line editor as needed. If the line editor is in
-focus, the line is painted using a pixmap buffer. If not, a faster
-but flickering drawing method is used.
+  \internal
+  Repaints the line editor as needed. If the line editor is in
+  focus, the line is painted using a pixmap buffer. If not, a faster
+  but flickering drawing method is used.
 */
 
 void QLineEdit::paint( bool frame )
@@ -375,9 +375,10 @@ void QLineEdit::paint( bool frame )
 	QPainter p;
 	p.begin( this );
 	if ( !frame )
-	    p.eraseRect( LEFT_MARGIN, TOP_MARGIN,
-			 width()  - LEFT_MARGIN - RIGHT_MARGIN  + 1,
-			 height() - TOP_MARGIN	- BOTTOM_MARGIN + 1 );
+	    p.fillRect( LEFT_MARGIN, TOP_MARGIN,
+			width()  - LEFT_MARGIN - RIGHT_MARGIN  + 1,
+			height() - TOP_MARGIN  - BOTTOM_MARGIN + 1,
+			colorGroup().base() );
 	paintText( &p, size(), frame );
 	p.end();
     }
