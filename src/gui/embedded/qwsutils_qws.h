@@ -30,7 +30,7 @@ inline int qws_read_uint(QWSSocket *socket)
         return -1;
 
     int i;
-    socket->readBlock((char*)&i, sizeof(i));
+    socket->readBlock(reinterpret_cast<char*>(&i), sizeof(i));
 
     return i;
 }
@@ -40,7 +40,7 @@ inline void qws_write_uint(QWSSocket *socket, int i)
     if (!socket)
         return;
 
-    socket->writeBlock((char*)&i, sizeof(i));
+    socket->writeBlock(reinterpret_cast<char*>(&i), sizeof(i));
 }
 
 #endif // QT_NO_QWS_MULTIPROCESS

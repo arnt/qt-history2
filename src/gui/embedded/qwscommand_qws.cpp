@@ -141,7 +141,7 @@ void QWSProtocolItem::copyFrom(const QWSProtocolItem *item) {
     setData(item->rawDataPtr, item->rawLen);
 }
 
-void QWSProtocolItem::setData(char *data, int len, bool allocateMem) {
+void QWSProtocolItem::setData(const char *data, int len, bool allocateMem) {
     if (!data && !len) {
         rawDataPtr = 0;
         rawLen = 0;
@@ -157,7 +157,7 @@ void QWSProtocolItem::setData(char *data, int len, bool allocateMem) {
             memcpy(rawDataPtr, data, len);
         deleteRaw = true;
     } else {
-        rawDataPtr = data;
+        rawDataPtr = const_cast<char *>(data);
         deleteRaw = false;
     }
     rawLen = len;

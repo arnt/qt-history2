@@ -64,7 +64,7 @@ struct QWSProtocolItem
 #endif
     void copyFrom(const QWSProtocolItem *item);
 
-    virtual void setData(char *data, int len, bool allocateMem = true);
+    virtual void setData(const char *data, int len, bool allocateMem = true);
 
     char *simpleDataPtr;
     char *rawDataPtr;
@@ -120,11 +120,11 @@ struct QWSIdentifyCommand : public QWSCommand
 {
     QWSIdentifyCommand() :
         QWSCommand(QWSCommand::Identify,
-                    sizeof(simpleData), (char *)&simpleData) {}
+                   sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
 
-    void setData(char *d, int len, bool allocateMem) {
+    void setData(const char *d, int len, bool allocateMem) {
         QWSCommand::setData(d, len, allocateMem);
-        id = QString((QChar*)d, simpleData.idLen/2);
+        id = QString(reinterpret_cast<const QChar*>(d), simpleData.idLen/2);
     }
 
     void setId(const QString& i)
@@ -153,13 +153,13 @@ struct QWSRegionNameCommand : public QWSCommand
 {
     QWSRegionNameCommand() :
         QWSCommand(QWSCommand::RegionName,
-                    sizeof(simpleData), (char *)&simpleData) {}
+                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
 
-    void setData(char *d, int len, bool allocateMem) {
+    void setData(const char *d, int len, bool allocateMem) {
         QWSCommand::setData(d, len, allocateMem);
-        name = QString((QChar*)d, simpleData.nameLen/2);
+        name = QString(reinterpret_cast<const QChar*>(d), simpleData.nameLen/2);
         d += simpleData.nameLen;
-        caption = QString((QChar*)d, simpleData.captionLen/2);
+        caption = QString(reinterpret_cast<const QChar*>(d), simpleData.captionLen/2);
     }
 
     void setName(const QString& n, const QString &c)
@@ -188,11 +188,11 @@ struct QWSRegionCommand : public QWSCommand
 {
     QWSRegionCommand() :
         QWSCommand(QWSCommand::Region, sizeof(simpleData),
-                    (char*)&simpleData) {}
+                    reinterpret_cast<char*>(&simpleData)) {}
 
-    void setData(char *d, int len, bool allocateMem = true) {
+    void setData(const char *d, int len, bool allocateMem = true) {
         QWSCommand::setData(d, len, allocateMem);
-        rectangles = (QRect*)rawDataPtr;
+        rectangles = reinterpret_cast<QRect*>(rawDataPtr);
     }
 
     struct SimpleData {
@@ -208,7 +208,7 @@ struct QWSRegionMoveCommand : public QWSCommand
 {
     QWSRegionMoveCommand() :
         QWSCommand(QWSCommand::RegionMove, sizeof(simpleData),
-                    (char*)&simpleData) {}
+                    reinterpret_cast<char*>(&simpleData)) {}
 
     struct SimpleData {
         int windowid;
@@ -222,7 +222,7 @@ struct QWSRegionDestroyCommand : public QWSCommand
 {
     QWSRegionDestroyCommand() :
         QWSCommand(QWSCommand::RegionDestroy, sizeof(simpleData),
-                    (char*)&simpleData) {}
+                    reinterpret_cast<char*>(&simpleData)) {}
 
     struct SimpleData {
         int windowid;
@@ -233,7 +233,7 @@ struct QWSRegionDestroyCommand : public QWSCommand
 struct QWSRequestFocusCommand : public QWSCommand
 {
     QWSRequestFocusCommand() :
-        QWSCommand(QWSCommand::RequestFocus, sizeof(simpleData), (char*)&simpleData) {}
+        QWSCommand(QWSCommand::RequestFocus, sizeof(simpleData), reinterpret_cast<char*>(&simpleData)) {}
 
     struct SimpleData {
         int windowid;
@@ -244,7 +244,7 @@ struct QWSRequestFocusCommand : public QWSCommand
 struct QWSChangeAltitudeCommand : public QWSCommand
 {
     QWSChangeAltitudeCommand() :
-        QWSCommand(QWSCommand::ChangeAltitude, sizeof(simpleData), (char*)&simpleData) {}
+        QWSCommand(QWSCommand::ChangeAltitude, sizeof(simpleData), reinterpret_cast<char*>(&simpleData)) {}
 
     struct SimpleData {
         int windowid;
@@ -258,7 +258,7 @@ struct QWSChangeAltitudeCommand : public QWSCommand
 struct QWSAddPropertyCommand : public QWSCommand
 {
     QWSAddPropertyCommand() :
-        QWSCommand(QWSCommand::AddProperty, sizeof(simpleData), (char*)&simpleData) {}
+        QWSCommand(QWSCommand::AddProperty, sizeof(simpleData), reinterpret_cast<char*>(&simpleData)) {}
 
     struct SimpleData {
         int windowid, property;
@@ -270,9 +270,9 @@ struct QWSSetPropertyCommand : public QWSCommand
 {
     QWSSetPropertyCommand() :
         QWSCommand(QWSCommand::SetProperty, sizeof(simpleData),
-                    (char*)&simpleData) { data = 0; }
+                    reinterpret_cast<char*>(&simpleData)) { data = 0; }
 
-    void setData(char *d, int len, bool allocateMem = true) {
+    void setData(const char *d, int len, bool allocateMem = true) {
         QWSCommand::setData(d, len, allocateMem);
         data = rawDataPtr;
     }
@@ -288,11 +288,11 @@ struct QWSRepaintRegionCommand : public QWSCommand
 {
     QWSRepaintRegionCommand() :
         QWSCommand(QWSCommand::RepaintRegion, sizeof(simpleData),
-                    (char*)&simpleData) {}
+                    reinterpret_cast<char*>(&simpleData)) {}
 
-    void setData(char *d, int len, bool allocateMem = true) {
+    void setData(const char *d, int len, bool allocateMem = true) {
         QWSCommand::setData(d, len, allocateMem);
-        rectangles = (QRect *)rawDataPtr;
+        rectangles = reinterpret_cast<QRect *>(rawDataPtr);
     }
 
     struct SimpleData {
@@ -306,7 +306,7 @@ struct QWSRepaintRegionCommand : public QWSCommand
 struct QWSRemovePropertyCommand : public QWSCommand
 {
     QWSRemovePropertyCommand() :
-        QWSCommand(QWSCommand::RemoveProperty, sizeof(simpleData), (char*)&simpleData) {}
+        QWSCommand(QWSCommand::RemoveProperty, sizeof(simpleData), reinterpret_cast<char*>(&simpleData)) {}
 
     struct SimpleData {
         int windowid, property;
@@ -317,7 +317,7 @@ struct QWSRemovePropertyCommand : public QWSCommand
 struct QWSGetPropertyCommand : public QWSCommand
 {
     QWSGetPropertyCommand() :
-        QWSCommand(QWSCommand::GetProperty, sizeof(simpleData), (char*)&simpleData) {}
+        QWSCommand(QWSCommand::GetProperty, sizeof(simpleData), reinterpret_cast<char*>(&simpleData)) {}
 
     struct SimpleData {
         int windowid, property;
@@ -329,7 +329,7 @@ struct QWSSetSelectionOwnerCommand : public QWSCommand
 {
     QWSSetSelectionOwnerCommand() :
         QWSCommand(QWSCommand::SetSelectionOwner,
-                    sizeof(simpleData), (char*)&simpleData) {}
+                    sizeof(simpleData), reinterpret_cast<char*>(&simpleData)) {}
 
     struct SimpleData {
         int windowid;
@@ -342,7 +342,7 @@ struct QWSConvertSelectionCommand : public QWSCommand
 {
     QWSConvertSelectionCommand() :
         QWSCommand(QWSCommand::ConvertSelection,
-                    sizeof(simpleData), (char*)&simpleData) {}
+                    sizeof(simpleData), reinterpret_cast<char*>(&simpleData)) {}
 
     struct SimpleData {
         int requestor; // requestor window of the selection
@@ -356,11 +356,11 @@ struct QWSDefineCursorCommand : public QWSCommand
 {
     QWSDefineCursorCommand() :
         QWSCommand(QWSCommand::DefineCursor,
-                    sizeof(simpleData), (char *)&simpleData) {}
+                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
 
-    void setData(char *d, int len, bool allocateMem = true) {
+    void setData(const char *d, int len, bool allocateMem = true) {
         QWSCommand::setData(d, len, allocateMem);
-        data = (unsigned char *)rawDataPtr;
+        data = reinterpret_cast<unsigned char *>(rawDataPtr);
     }
 
     struct SimpleData {
@@ -378,7 +378,7 @@ struct QWSSelectCursorCommand : public QWSCommand
 {
     QWSSelectCursorCommand() :
         QWSCommand(QWSCommand::SelectCursor,
-                    sizeof(simpleData), (char *)&simpleData) {}
+                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
 
     struct SimpleData {
         int windowid;
@@ -390,7 +390,7 @@ struct QWSGrabMouseCommand : public QWSCommand
 {
     QWSGrabMouseCommand() :
         QWSCommand(QWSCommand::GrabMouse,
-                    sizeof(simpleData), (char *)&simpleData) {}
+                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
 
     struct SimpleData {
         int windowid;
@@ -402,7 +402,7 @@ struct QWSGrabKeyboardCommand : public QWSCommand
 {
     QWSGrabKeyboardCommand() :
         QWSCommand(QWSCommand::GrabKeyboard,
-                    sizeof(simpleData), (char *)&simpleData) {}
+                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
 
     struct SimpleData {
         int windowid;
@@ -415,15 +415,15 @@ struct QWSPlaySoundCommand : public QWSCommand
 {
     QWSPlaySoundCommand() :
         QWSCommand(QWSCommand::PlaySound,
-                    sizeof(simpleData), (char *)&simpleData) {}
+                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
 
-    void setData(char *d, int len, bool allocateMem) {
+    void setData(const char *d, int len, bool allocateMem) {
         QWSCommand::setData(d, len, allocateMem);
-        filename = QString((QChar*)rawDataPtr,len/2);
+        filename = QString(reinterpret_cast<QChar*>(rawDataPtr),len/2);
     }
     void setFileName(const QString& n)
     {
-        setData((char*)n.unicode(), n.length()*2, true);
+        setData(reinterpret_cast<const char*>(n.unicode()), n.length()*2, true);
     }
 
     struct SimpleData {
@@ -439,16 +439,16 @@ struct QWSQCopRegisterChannelCommand : public QWSCommand
 {
     QWSQCopRegisterChannelCommand() :
         QWSCommand(QWSCommand::QCopRegisterChannel,
-                    sizeof(simpleData), (char *)&simpleData) {}
+                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
 
-    void setData(char *d, int len, bool allocateMem) {
+    void setData(const char *d, int len, bool allocateMem) {
         QWSCommand::setData(d, len, allocateMem);
         channel = QByteArray(d, len);
     }
 
     void setChannel(const QByteArray& n)
     {
-        setData((char*)n.data(), n.length()+1, true);
+        setData(reinterpret_cast<const char*>(n.data()), n.length()+1, true);
     }
 
     struct SimpleData {
@@ -461,9 +461,9 @@ struct QWSQCopSendCommand : public QWSCommand
 {
     QWSQCopSendCommand() :
         QWSCommand(QWSCommand::QCopSend,
-                    sizeof(simpleData), (char *)&simpleData) {}
+                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
 
-    void setData(char *d, int len, bool allocateMem) {
+    void setData(const char *d, int len, bool allocateMem) {
         QWSCommand::setData(d, len, allocateMem);
         channel = QByteArray(d, simpleData.clen + 1);
         d += simpleData.clen;
@@ -507,7 +507,7 @@ struct QWSSetIMInfoCommand : public QWSCommand
 {
     QWSSetIMInfoCommand() :
         QWSCommand(QWSCommand::SetIMInfo,
-                    sizeof(simpleData), (char *)&simpleData) {}
+                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
 
     struct SimpleData {
         int windowid;
@@ -525,7 +525,7 @@ struct QWSIMMouseCommand : public QWSCommand
 {
     QWSIMMouseCommand() :
         QWSCommand(QWSCommand::IMMouse,
-                    sizeof(simpleData), (char *)&simpleData) {}
+                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
 
     struct SimpleData {
         int windowid;
@@ -538,7 +538,7 @@ struct QWSResetIMCommand : public QWSCommand
 {
     QWSResetIMCommand() :
         QWSCommand(QWSCommand::ResetIM,
-                    sizeof(simpleData), (char *)&simpleData) {}
+                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
 
     struct SimpleData {
         int windowid;
@@ -549,9 +549,9 @@ struct QWSSetIMFontCommand : public QWSCommand
 {
     QWSSetIMFontCommand() :
         QWSCommand(QWSCommand::SetIMFont,
-                    sizeof(simpleData), (char *)&simpleData) {}
+                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
 
-    void setData(char *d, int len, bool allocateMem) {
+    void setData(const char *d, int len, bool allocateMem) {
         QWSCommand::setData(d, len, allocateMem);
 
         QByteArray tmp(d, len);
