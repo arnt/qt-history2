@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#51 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#50 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#51 $")
 
 
 /*
@@ -508,6 +508,12 @@ QImage QPixmap::convertToImage() const
 				(ulong)src[2] << 16 | (ulong)src[3] << 24;
 			src += 4;
 			break;
+		    default:
+			x = w;			// leave loop
+			y = h;			
+#if defined(CHECK_RANGE)
+			warning( "QPixmap::convertToImage: Internal error" );
+#endif
 		}
 		if ( red_shift > 0 )
 		    r = (pixel & red_mask) >> red_shift;
