@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#225 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#226 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -630,7 +630,7 @@ int QPopupMenu::itemPos( int index )		// get y coord for item
     QMenuItemListIt it( *mitems );
     while ( (mi=it.current()) && row < index ) {
 	++it;
-	y += itemHeight( row );
+	y += itemHeight( mi );
 	++row;
     }
 
@@ -848,12 +848,19 @@ void QPopupMenu::hide()
 }
 
 
-/*
-  Calculates the height of the item in row \a row in pixels.
+/*!
+  Calculates the height in pixels of the item in row \a row.
  */
 int QPopupMenu::itemHeight( int row ) const
 {
-    QMenuItem *mi = mitems->at( row );
+    return itemHeight( mitems->at( row ) );
+}
+
+/*!
+  Calculates the height in pixels of the item \a mi.
+ */
+int QPopupMenu::itemHeight( QMenuItem *mi ) const
+{
     return style().popupMenuItemHeight( checkable, mi, fontMetrics() );
 }
 
