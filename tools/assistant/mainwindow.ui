@@ -588,7 +588,7 @@
     <slot>setupBookmarkMenu()</slot>
     <slot>showBookmark( int id )</slot>
     <slot>showDesignerHelp()</slot>
-    <slot>showLink( const QString &amp; link, const QString &amp; title )</slot>
+    <slot>showLink( const QString &amp; link )</slot>
     <slot>showQtHelp()</slot>
     <slot>setFamily( const QString &amp; f )</slot>
     <slot>showSettingsDialog()</slot>

@@ -3,7 +3,6 @@
 #include <qaccel.h>
 #include <qtimer.h>
 
-
 static const char *logo_xpm[] = {
 /* width height num_colors chars_per_pixel */
 "21 16 213 2",
@@ -297,8 +296,8 @@ void MainWindow::init()
     dw->setCaption( "Sidebar" );
     dw->setFixedExtentWidth( 250 );
 
-    connect( helpDock, SIGNAL( showLink( const QString&, const QString & ) ),
-	     this, SLOT( showLink( const QString&, const QString & ) ) );
+    connect( helpDock, SIGNAL( showLink( const QString& ) ),
+	     this, SLOT( showLink( const QString& ) ) );
 
     connect( bookmarkMenu, SIGNAL( activated( int ) ),
 	     this, SLOT( showBookmark( int ) ) );
@@ -373,13 +372,17 @@ void MainWindow::init()
 
     QString source = config.readEntry( keybase + "Source", QString::null );
     QString title = config.readEntry( keybase + "Title", source );
+
+#if 0
     if ( !source.isEmpty() )
-	showLink( source, title );
+	showLink( source );
     else
 	goHome();
+
     qApp->processEvents();
+#endif
     if ( config.readBoolEntry( "/Qt Assistant/3.1/NewDoc/", FALSE ) ) {
-	QTimer::singleShot( 100, helpDock, SLOT( generateNewDocu() ));
+	QTimer::singleShot( 0, helpDock, SLOT( generateNewDocu() ));
 	config.writeEntry( "/Qt Assistant/3.1/NewDoc/", FALSE );
     }
 }
@@ -424,24 +427,24 @@ void MainWindow::find()
 void MainWindow::goHome()
 {
 #ifdef QT_PALMTOPCENTER_DOCS
-    showLink( "qtopiadesktop.html", "Qtopia Desktop Documentation" );
+    showLink( "qtopiadesktop.html" );
 #else
     // #### we need a general Qt frontpage with links to Qt Class docu, Designer Manual, Linguist Manual, etc,
     showLink( QString( qInstallPathDocs() ) +
-	      "/html/index.html", "Qt Reference Documentation" );
+	      "/html/index.html" );
 #endif
 }
 
 void MainWindow::showAssistantHelp()
 {
     showLink( QString( qInstallPathDocs() ) +
-	      "/html/assistant.html", tr( "Qt Assistant Manual" ) );
+	      "/html/assistant.html" );
 }
 
 void MainWindow::showLinguistHelp()
 {
     showLink( QString( qInstallPathDocs() ) +
-	      "/html/linguist-manual.html", tr( "Qt Linguist Manual" ) );
+	      "/html/linguist-manual.html" );
 }
 
 void MainWindow::print()
@@ -506,35 +509,35 @@ void MainWindow::setupBookmarkMenu()
 void MainWindow::showBookmark( int id )
 {
     if ( bookmarks.find( id ) != bookmarks.end() )
-	showLink( *bookmarks.find( id ), bookmarkMenu->text( id ) );
+	showLink( *bookmarks.find( id ) );
 }
 
 void MainWindow::showDesignerHelp()
 {
     showLink( QString( qInstallPathDocs() ) +
-	      "/html/designer-manual.html", tr( "Qt Designer Manual" ) );
+	      "/html/designer-manual.html" );
 }
 
-void MainWindow::showLink( const QString & link, const QString & title )
+void MainWindow::showLink( const QString & link )
 {
-    browser->setCaption( title );
     QString filename = link.left( link.find( '#' ) );
     QFileInfo fi( filename );
     // introduce a default-not-found site
     if ( !fi.exists() )
 	browser->setSource( "index.html" );
-    else
+    else {
 	browser->setSource( link );
+    }
     browser->setFocus();
 }
 
 void MainWindow::showQtHelp()
 {
 #ifdef QT_PALMTOPCENTER_DOCS
-    showLink( "palmtopcenter.html", tr( "Qt Palmtopcenter Documentation" ) );
+    showLink( "palmtopcenter.html" );
 #else
     showLink( QString( qInstallPathDocs() ) +
-	      "/html/index.html", tr( "Qt Reference Documentation" ) );
+	      "/html/index.html" );
 #endif
 }
 

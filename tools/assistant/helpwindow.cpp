@@ -27,7 +27,7 @@ void HelpWindow::setSource( const QString &name )
 	mw->saveSettings();
 	mw->saveToolbarSettings();
 	MainWindow *nmw = new MainWindow;
-	nmw->showLink( name, "" );
+	nmw->showLink( name );
 	nmw->move( mw->geometry().topLeft() );
 	if ( mw->isMaximized() )
 	    nmw->showMaximized();
@@ -35,9 +35,8 @@ void HelpWindow::setSource( const QString &name )
 	    nmw->show();
 	return;
     }
-    QFileInfo fi( name );    
-    mw->setCaption( tr( "Qt Assistant by Trolltech - %1" ).arg( fi.fileName() ) );
-    
+    QFileInfo fi( name );
+
     if ( name.left( 7 ) == "http://" || name.left( 6 ) == "ftp://" ) {
 	QSettings settings;
 	QString webbrowser = settings.readEntry( "/Qt Assistant/3.1/Webbrowser/" );
@@ -51,13 +50,13 @@ void HelpWindow::setSource( const QString &name )
 	proc->launch( "" );
 	return;
     }
-    
+
     if ( name.left( 2 ) != "p:" ) {
 	QUrl u( context(), name );
 	if ( !u.isLocalFile() ) {
 	    QMessageBox::information( this, tr( "Help" ), tr( "Can't load and display non-local file\n"
 							      "%1" ).arg( name ) );
-	    return;	
+	    return;
 	}
 
 	QTextBrowser::setSource( name );
@@ -67,7 +66,7 @@ void HelpWindow::setSource( const QString &name )
 	if ( !u.isLocalFile() ) {
 	    QMessageBox::information( this, tr( "Help" ), tr( "Can't load and display non-local file\n"
 							      "%1" ).arg( name.mid( 2 ) ) );
-	    return;	
+	    return;
 	}
 
 	QTextBrowser::setSource( name.mid( 2 ) );
@@ -77,8 +76,8 @@ void HelpWindow::setSource( const QString &name )
 	if ( !m || !QTextDrag::decode( m, txt ) ) {
 	    qWarning("QTextBrowser: cannot decode %s", name.mid( 2 ).latin1() );
 	    return;
-	}	
-	
+	}
+
 	int i = txt.find( "name=\"" + name.mid( name.find( '#' ) + 1 ) );
 	i = txt.findRev( "<h3 class", i );
 	QString s( "<a name=\"" + name.mid( name.find( '#' ) + 1 ) + "\"><p><table><tr><td bgcolor=gray>" );
@@ -97,6 +96,11 @@ void HelpWindow::setSource( const QString &name )
 	    scrollToAnchor( u.ref() );
 #endif
     }
+    int i = name.find( '#' );
+    QString sect;
+    if ( i != -1 )
+	sect = ": " + name.right( name.length() - i - 1 );
+    mw->setCaption( tr( "Qt Assistant by Trolltech - %1%2" ).arg( documentTitle() ).arg( sect ) );
 }
 
 

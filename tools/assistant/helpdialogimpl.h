@@ -86,7 +86,7 @@ public slots:
     void toggleBookmarks();
 
 signals:
-    void showLink( const QString &s, const QString& t );
+    void showLink( const QString &s );
 
 private slots:
     void lastWinClosed();

@@ -367,19 +367,19 @@ void HelpDialog::loadIndexFile()
 		if( !ok ){
 		    QMessageBox::critical( this, "Parse Error",
 				 handler.errorProtocol()
-				 + "\nSkipping file " + *i + "index.xml" );
+				 + "\nSkipping file " + *i );
 		}
 		else{
 		    if( !isValidCategory( handler.getCategory() ) )
 			continue;
-		    
+
 		    QFileInfo finfo( *i );
-		    QString dir = finfo.dirPath( TRUE ) + "/";		    
+		    QString dir = finfo.dirPath( TRUE ) + "/";
 		    QPtrList<IndexItem> indLst = handler.getIndexItems();
 		    QPtrListIterator<IndexItem> it( indLst );
 		    IndexItem *indItem;
 		    while ( (indItem = it.current()) != 0 ) {
-			QFileInfo fi( dir + indItem->reference );			
+			QFileInfo fi( dir + indItem->reference );
 			QString s( "\"" + indItem->keyword + "\" " + fi.absFilePath() );
 			lst->append( s );
 			if ( bar )
@@ -506,8 +506,8 @@ void HelpDialog::setupTitleMap()
 	    file.close();
 	    if( ok ){
 		if( !isValidCategory( handler.getCategory() ) )
-		    continue;		
-		
+		    continue;
+
 		QFileInfo finfo( *it );
 		QString dir = finfo.dirPath( TRUE ) + "/";
 		QPtrList<ContentItem> contLst = handler.getContentItems();
@@ -520,7 +520,6 @@ void HelpDialog::setupTitleMap()
 		}
 	    }
 	}
-
 	QFile titleout( QDir::homeDirPath() + "/.titlemapdb" + num );
 	if ( titleout.open( IO_WriteOnly ) ) {
 	    QDataStream s( &titleout );
@@ -574,7 +573,7 @@ void HelpDialog::showIndexTopic()
 
     QStringList links = item->links();
     if ( links.count() == 1 ) {
-	emit showLink( links.first(), item->text() );
+	emit showLink( links.first() );
     } else {
 	QStringList::Iterator it = links.begin();
 	QStringList linkList;
@@ -585,7 +584,7 @@ void HelpDialog::showIndexTopic()
 	}
 	QString link = TopicChooser::getLink( this, linkNames, linkList, i->text() );
 	if ( !link.isEmpty() )
-	    emit showLink( link, i->text() );
+	    emit showLink( link );
     }
 }
 
@@ -655,7 +654,7 @@ void HelpDialog::addBookmark()
     if ( !bookmarksInserted )
 	insertBookmarks();
     QString link = QUrl( viewer->context(), viewer->source() ).path();
-    QString title = viewer->documentTitle(); 
+    QString title = viewer->documentTitle();
     if ( title.isEmpty() )
 	title = titleOfLink( link );
     HelpNavigationContentsItem *i = new HelpNavigationContentsItem( listBookmarks, 0 );
@@ -702,7 +701,7 @@ void HelpDialog::showBookmarkTopic()
 	return;
 
     HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)listBookmarks->currentItem();
-    emit showLink( i->link(), i->text( 0 ) );
+    emit showLink( i->link() );
 
 }
 
@@ -773,8 +772,8 @@ void HelpDialog::insertContents()
 	if( !ok )
 	    delete additionalDocu;
     }
-#endif
 
+#endif
     HelpNavigationContentsItem *lastItem = 0;
     HelpNavigationContentsItem *lastGroup = 0;
 
@@ -855,6 +854,7 @@ void HelpDialog::insertContents()
 	}
     }
     delete lst;
+
 #ifdef QT_PALMTOPCENTER_DOCS
     settings.insertSearchPath( QSettings::Unix,
 			       QDir::homeDirPath() + "/.palmtopcenter/" );
@@ -901,11 +901,11 @@ bool HelpDialog::insertContents( const QString &filename, HelpNavigationContents
     int depth = 0;
     bool root = FALSE;
     QPtrList<ContentItem> contentList = handler.getContentItems();
-    
+
     HelpNavigationContentsItem *lastItem[64];
-    for( int j = 0; j < 64; ++j )  
+    for( int j = 0; j < 64; ++j )
 	lastItem[j] = 0;
-    ContentItem *item;    
+    ContentItem *item;
     for( item = contentList.first(); item; item = contentList.next() ){
 	if( item->depth == 0 ){
 	    newEntry->setText( 0, item->title );
@@ -1029,7 +1029,7 @@ void HelpDialog::currentContentsChanged( QListViewItem * )
 void HelpDialog::showContentsTopic()
 {
     HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)listContents->currentItem();
-    emit showLink( i->link(), i->text( 0 ) );
+    emit showLink( i->link() );
 }
 
 void HelpDialog::toggleContents()

@@ -81,7 +81,7 @@ void Socket::startOwnWindow()
     if ( s.left( 2 ) == "d:" )
 	s.remove( 0, 2 );
     if ( !s.isEmpty() )
-	mw->showLink( s, "" );
+	mw->showLink( s );
     (void)new ServerSocket( mw );
 }
 
@@ -142,7 +142,7 @@ void ServerSocket::dataReceived()
 	return;
     }
 #endif
-    mainWindow->showLink( line, "" );
+    mainWindow->showLink( line );
     mainWindow->show();
     mainWindow->raise();
 }
@@ -172,7 +172,7 @@ void StdInParser::readIn()
 {
     QString data = readLine().simplifyWhiteSpace();
     if ( '-' != data[0] ) {
-	mw->showLink( data, "" );
+	mw->showLink( data );
     } else {
 	if ( -1 != data.find("find") ) {
 	    mw->find();
@@ -247,8 +247,8 @@ bool AddDoc::addDocFile( const QString &file )
 	return FALSE;
     }
     if ( handler.getCategory().isEmpty() )
-	return TRUE;    
-    
+	return TRUE;
+
     addItemToList( "/Qt Assistant/3.1/CategoriesAvailable/", handler.getCategory() );
     addItemToList( "/Qt Assistant/3.1/CategoriesSelected/", handler.getCategory() );
 
@@ -331,24 +331,29 @@ int main( int argc, char ** argv )
 	QSettings *config = new QSettings();
 	config->insertSearchPath( QSettings::Windows, "/Trolltech" );
 	if( !catlist.isEmpty() ) {
-	    config->writeEntry( "/Qt Assistant/3.1/CategoriesSelected/", catlist );
+	    config->writeEntry( keybase + "CategoriesSelected/", catlist );
 	}
-	bool max = config->readBoolEntry( keybase  + "GeometryMaximized", FALSE ) ;
+	bool max = config->readBoolEntry( keybase  + "GeometryMaximized", FALSE );
+	QString link = config->readEntry( keybase + "Source", "" );
 	delete config;
 	config = 0;
-	MainWindow * mw = new MainWindow(0, "Assistant" );
+	MainWindow *mw = new MainWindow( 0, "Assistant" );
 
 	if ( max )
 	    mw->showMaximized();
 	else
 	    mw->show();
 
+	qApp->processEvents();
+
 	if ( file.left( 2 ) == "d:" )
 	    file.remove( 0, 2 );
 	if ( parsestdin )
 	    commandInput = new StdInParser(mw, &a);
 	else if ( !file.isEmpty() )
-	    mw->showLink( file, "" );
+	    mw->showLink( file );
+	else if ( file.isEmpty() )
+	    mw->showLink( link );
 
     } else {
 	Socket *s = new Socket( 0 );

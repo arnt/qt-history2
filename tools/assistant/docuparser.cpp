@@ -4,18 +4,18 @@
 #include <qstring.h>
 
 
-DocuParser::DocuParser() : QXmlDefaultHandler() 
-{ 
-} 
+DocuParser::DocuParser() : QXmlDefaultHandler()
+{
+}
 
 bool DocuParser::startDocument()
 {
     state = StateInit;
     errorProt = "";
-    
+
     contentRef = "";
     indexRef = "";
-    depth = 0;    
+    depth = 0;
     contentList.clear();
     indexList.clear();
     category = "undefined";
@@ -24,28 +24,28 @@ bool DocuParser::startDocument()
 }
 
 bool DocuParser::startElement( const QString &, const QString &,
-			       const QString &qname, 
+			       const QString &qname,
 			       const QXmlAttributes &attr )
 {
     if( qname == "DCF" && state == StateInit ) {
 	state = StateContent;
 	contentRef = attr.value( "ref" );
 	title = attr.value( "title" );
-	category = attr.value( "category" );	
+	category = attr.value( "category" );
 	contentList.append( new ContentItem( title, contentRef, depth ) );
     }
     else if( qname == "section" && ( state == StateContent || state == StateSect ) ) {
 	state = StateSect;
 	contentRef = attr.value( "ref" );
 	title = attr.value( "title" );
-	depth++;    
+	depth++;
 	contentList.append( new ContentItem( title, contentRef, depth ) );
     }
     else if ( qname == "keyword" && state == StateSect ) {
 	state = StateKeyword;
 	indexRef = attr.value( "ref" );
     }
-    else 
+    else
 	return FALSE;
     return TRUE;
 }
@@ -57,20 +57,20 @@ bool DocuParser::endElement( const QString &, const QString &,
 	case StateInit:
 	    break;
 	case StateContent:
-	    state = StateInit;	    
+	    state = StateInit;
 	    break;
 	case StateSect:
 	    state = StateContent;
 	    if( depth ){
 		depth--;
-		state = StateSect;		
+		state = StateSect;
 	    }
 	    break;
 	case StateKeyword:
 	    state = StateSect;
-	    break;    	    
-    }	
-    return TRUE;        
+	    break;
+    }
+    return TRUE;
 }
 
 bool DocuParser::characters( const QString& ch )
@@ -78,11 +78,11 @@ bool DocuParser::characters( const QString& ch )
     QString str = ch.simplifyWhiteSpace();
     if ( str.isEmpty() )
 	return TRUE;
-        
+
     switch ( state ) {
 	case StateInit:
-        case StateContent:        
-        case StateSect:	    
+        case StateContent:
+        case StateSect:
             return FALSE;
 	    break;
         case StateKeyword:
@@ -90,7 +90,7 @@ bool DocuParser::characters( const QString& ch )
 	    break;
 	default:
             return FALSE;
-    }    
+    }
     return TRUE;
 }
 
