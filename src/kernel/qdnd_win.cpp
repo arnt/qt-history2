@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#9 $
 **
 ** WM_FILES implementation for Qt.
 **
@@ -12,9 +12,101 @@
 #include "qapplication.h"
 #include "qwidget.h"
 #include "qdragobject.h"
+#include "qimage.h"
+#include "qbuffer.h"
+#include "qmessagebox.h"
 
 #include <windows.h>
 #include <ole2.h>          
+
+static bool
+mimeEqCf( const char* mime, CLIPFORMAT cf )
+{
+    if ( qstrncmp(mime,"text/",5)==0 )
+	return cf == CF_TEXT || cf == CF_UNICODETEXT;
+    if ( qstrncmp(mime,"image/",6)==0 )
+	return cf == CF_DIB;
+    // #### user-extension?
+QMessageBox::information(0,"...","Bad mimeEqCf");
+    return FALSE;
+}
+
+static bool
+isAcceptableCf( CLIPFORMAT cf )
+{
+    return cf==CF_TEXT || cf==CF_UNICODETEXT || cf==CF_DIB;
+}
+
+static int
+countAcceptableCf()
+{
+    return 3;
+}
+
+static CLIPFORMAT
+acceptableCf( int i )
+{
+    static CLIPFORMAT ok[]={CF_TEXT,CF_UNICODETEXT,CF_DIB};
+    if (i<3) return ok[i];
+QMessageBox::critical(0,"...","Bad acceptableCf");
+    return 0;
+}
+
+static CLIPFORMAT
+cfFromMime(const char* mime)
+{
+    if ( qstrncmp(mime,"text/",5)==0 )
+	return CF_TEXT; // CF_UNICODETEXT
+
+    if ( qstrncmp(mime,"image/",6)==0 )
+	return CF_DIB;
+
+QMessageBox::critical(0,"cfFromMime",mime);
+    return 0;
+}
+
+static QByteArray
+cfFromMime(QByteArray data, const char* mime, CLIPFORMAT cf)
+{
+    QByteArray result;
+
+    if ( qstrncmp(mime,"text/",5)==0 ) {
+	if ( cf == CF_TEXT ) {
+	    result = data;
+	} else if ( cf == CF_UNICODETEXT ) {
+	    result = data;
+	}
+    }
+
+    if ( qstrcmp(mime,"image/bmp")==0 ) {
+	result = data;
+    } else if ( qstrncmp(mime,"image/",6)==0 ) {
+	if ( cf == CF_DIB ) {
+	    QImage img;  // Convert from BMP
+	    img.loadFromData((const unsigned char*)data.data(),data.size());
+
+	    if ( !img.isNull() ) {
+		QStrList ofmts = QImage::outputFormats();
+		for (const char* fmt=ofmts.first(); fmt; fmt=ofmts.next()) {
+		    if ( qstricmp(fmt,mime+6)==0 ) {
+			QByteArray ba;
+			QBuffer iod(ba);
+			iod.open(IO_WriteOnly);
+			QImageIO iio(&iod, fmt);
+			iio.setImage(img);
+			if (iio.write()) {
+			    result = ba;
+			    break;
+			}
+		    }
+		}
+	    }
+	}
+    }
+
+    return result;
+}
+
 
 class QOleDropSource : public IDropSource
 {
@@ -42,7 +134,7 @@ private:
 class QOleDataObject : public IDataObject
 {
 public:
-    QOleDataObject( QByteArray data, const char* fmt );
+    QOleDataObject( QDragObject* );
    
     /* IUnknown methods */
     STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
@@ -64,8 +156,7 @@ public:
     
 private:
     ULONG m_refs;   
-    QString format;
-    const QByteArray data;
+    QDragObject* object;
 };
    
    
@@ -99,7 +190,6 @@ private:
 
 void QDragManager::cancel()
 {
-    debug( "c " );
     if ( object ) {
 	beingCancelled = TRUE;
 	if ( object->autoDelete() )
@@ -119,14 +209,12 @@ void QDragManager::cancel()
 void QDragManager::move( const QPoint & globalPos )
 {
     // tbi
-debug("QDM::move");
 }
 
 
 void QDragManager::drop()
 {
     // tbi
-debug("QDM::drop");
 }
 
 
@@ -147,24 +235,23 @@ QByteArray qt_olednd_obtain_data( const char *format )
     FORMATETC fmtetc;
     STGMEDIUM medium;   
     HGLOBAL hText;
-    LPSTR pszText;
     HRESULT hr;
 
-    fmtetc.cfFormat = CF_TEXT;
+    fmtetc.cfFormat = cfFromMime(format);
     fmtetc.ptd = NULL;
     fmtetc.dwAspect = DVASPECT_CONTENT;  
     fmtetc.lindex = -1;
     fmtetc.tymed = TYMED_HGLOBAL;       
     
-    // User has dropped on us. Get the CF_TEXT data from drag source
+    // User has dropped on us. Get the data from drag source
     hr = current_dropobj->GetData(&fmtetc, &medium);
     if (!FAILED(hr)) {
 	// Display the data and release it.
 	hText = medium.hGlobal;
-	pszText = (LPSTR)GlobalLock(hText);
-	int len = strlen(pszText);
+	void* d = GlobalLock(hText);
+	int len = GlobalSize(medium.hGlobal);
 	tmp.resize(len);
-	memcpy(tmp.data(),pszText,len);
+	memcpy(tmp.data(),d,len);
 	GlobalUnlock(hText);
 	ReleaseStgMedium(&medium);
     }
@@ -200,7 +287,7 @@ void QDragManager::startDrag( QDragObject * o )
 
     DWORD dwEffect;
     QOleDropSource *src = new QOleDropSource(dragSource);
-    QOleDataObject *obj = new QOleDataObject(o->encodedData(), o->format());
+    QOleDataObject *obj = new QOleDataObject(o);
     // This drag source only allows copying of data.
     // Move and link is not allowed.
     DoDragDrop(obj, src, DROPEFFECT_COPY, &dwEffect);     
@@ -209,7 +296,6 @@ void QDragManager::startDrag( QDragObject * o )
 
 void qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst )
 {
-debug("unreg");
     RevokeDragDrop(widget->winId());
     dst->widget = 0;
     dst->Release();
@@ -218,15 +304,9 @@ debug("unreg");
 
 QOleDropTarget* qt_olednd_register( QWidget* widget )
 {
-debug("reg");
     QOleDropTarget* dst = new QOleDropTarget( widget );
-HRESULT hr;
-hr=
     CoLockObjectExternal(dst, TRUE, TRUE);
-debug("%d",hr);
-hr=
     RegisterDragDrop(widget->winId(), dst);
-debug("%d",hr);
     return dst;
 }
 
@@ -306,11 +386,10 @@ QOleDropSource::GiveFeedback(DWORD dwEffect)
 //                    QOleDataObject Constructor
 //---------------------------------------------------------------------        
 
-QOleDataObject::QOleDataObject( QByteArray d, const char* fmt ) :
-    data(d)
+QOleDataObject::QOleDataObject( QDragObject* o ) :
+    object(o)
 {
     m_refs = 1;    
-    format = fmt;
 }   
 
 //---------------------------------------------------------------------
@@ -366,31 +445,35 @@ QOleDataObject::Release(void)
 
 STDMETHODIMP 
 QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium) 
-{   
-    HGLOBAL hText; 
-    LPSTR pszText;
-    
+{
+    // This method is called by the drag-drop target to obtain the data
+    // that is being dragged.
+
     pmedium->tymed = NULL;
     pmedium->pUnkForRelease = NULL;
     pmedium->hGlobal = NULL;
-    
-    // This method is called by the drag-drop target to obtain the text
-    // that is being dragged.
-    if (pformatetc->cfFormat == CF_TEXT &&
-       pformatetc->dwAspect == DVASPECT_CONTENT &&
-       pformatetc->tymed == TYMED_HGLOBAL)
-    {
-        hText = GlobalAlloc(GMEM_SHARE | GMEM_ZEROINIT, data.size());    
-        if (!hText)
-            return ResultFromScode(E_OUTOFMEMORY);
-        pszText = (LPSTR)GlobalLock(hText);
-        lstrcpy(pszText, data.data());
-        GlobalUnlock(hText);
-        
-        pmedium->tymed = TYMED_HGLOBAL;
-        pmedium->hGlobal = hText; 
- 
-        return ResultFromScode(S_OK);
+
+    for (QDragObject* obj = object; obj; obj = obj->alternative()) {
+	if (mimeEqCf(obj->format(),pformatetc->cfFormat) &&
+	   pformatetc->dwAspect == DVASPECT_CONTENT &&
+	   pformatetc->tymed == TYMED_HGLOBAL)
+	{
+	    QByteArray data =
+		cfFromMime(obj->encodedData(),
+			obj->format(), pformatetc->cfFormat);
+	    if ( data.size() ) {
+		HGLOBAL hData = GlobalAlloc(GMEM_SHARE, data.size());
+		if (!hData)
+		    return ResultFromScode(E_OUTOFMEMORY);
+		void* out = GlobalLock(hData);
+		memcpy(out,data.data(),data.size());
+		GlobalUnlock(hData);
+		pmedium->tymed = TYMED_HGLOBAL;
+		pmedium->hGlobal = hData; 
+		return ResultFromScode(S_OK);
+	    }
+QMessageBox::critical(0,"EEEE","Conversion failed late");
+	}
     }
     return ResultFromScode(DATA_E_FORMATETC);
 }
@@ -406,7 +489,7 @@ QOleDataObject::QueryGetData(LPFORMATETC pformatetc)
 {   
     // This method is called by the drop target to check whether the source
     // provides data is a format that the target accepts.
-    if (pformatetc->cfFormat == CF_TEXT 
+    if (isAcceptableCf(pformatetc->cfFormat)
         && pformatetc->dwAspect == DVASPECT_CONTENT
         && pformatetc->tymed & TYMED_HGLOBAL)
         return ResultFromScode(S_OK); 
@@ -436,18 +519,21 @@ QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumForm
     // A standard implementation is provided by OleStdEnumFmtEtc_Create
     // which can be found in \ole2\samp\ole2ui\enumfetc.c in the OLE 2 SDK.
     // This code from ole2ui is copied to the enumfetc.c file in this sample.
-    
+
     SCODE sc = S_OK;
-    FORMATETC fmtetc;
-    
-    fmtetc.cfFormat = CF_TEXT;
-    fmtetc.dwAspect = DVASPECT_CONTENT;
-    fmtetc.tymed = TYMED_HGLOBAL;
-    fmtetc.ptd = NULL;
-    fmtetc.lindex = -1;
+    int n = countAcceptableCf();
+    LPFORMATETC fmtetc = new FORMATETC[n];
+
+    for (int i=0; i<n; i++) {
+	fmtetc[i].cfFormat = acceptableCf(i);
+	fmtetc[i].dwAspect = DVASPECT_CONTENT;
+	fmtetc[i].tymed = TYMED_HGLOBAL;
+	fmtetc[i].ptd = NULL;
+	fmtetc[i].lindex = -1;
+    }
 
     if (dwDirection == DATADIR_GET){
-        *ppenumFormatEtc = OleStdEnumFmtEtc_Create(1, &fmtetc);
+        *ppenumFormatEtc = OleStdEnumFmtEtc_Create(n, fmtetc);
         if (*ppenumFormatEtc == NULL)
             sc = E_OUTOFMEMORY;
 
@@ -463,6 +549,8 @@ QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumForm
     }
 
 error:
+
+    delete fmtetc;
     return ResultFromScode(sc);
 }
 
@@ -541,17 +629,21 @@ QOleDropTarget::Release(void)
 STDMETHODIMP
 QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {  
-debug("DEnter");
-    FORMATETC fmtetc;
-       
-    fmtetc.cfFormat = CF_TEXT;
-    fmtetc.ptd      = NULL;
-    fmtetc.dwAspect = DVASPECT_CONTENT;  
-    fmtetc.lindex   = -1;
-    fmtetc.tymed    = TYMED_HGLOBAL; 
-    
-    // Does the drag source provide CF_TEXT, which is the only format we accept.    
-    m_bAcceptFmt = (NOERROR == pDataObj->QueryGetData(&fmtetc)) ? TRUE : FALSE;    
+    int n = countAcceptableCf();
+    m_bAcceptFmt = FALSE;
+    for (int i=0; i<n && !m_bAcceptFmt; i++) {
+	FORMATETC fmtetc;
+	fmtetc.cfFormat = acceptableCf(i);
+	fmtetc.ptd      = NULL;
+	fmtetc.dwAspect = DVASPECT_CONTENT;  
+	fmtetc.lindex   = -1;
+	fmtetc.tymed    = TYMED_HGLOBAL; 
+	// Does the drag source provide this format that we accept?
+	m_bAcceptFmt = (NOERROR == pDataObj->QueryGetData(&fmtetc))
+			    ? TRUE : FALSE;    
+    }
+if (!m_bAcceptFmt)
+QMessageBox::information(0,"...","Bad fmt");
     
     QueryDrop(grfKeyState, pdwEffect);
     return NOERROR;
@@ -560,7 +652,6 @@ debug("DEnter");
 STDMETHODIMP
 QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
-debug("DOver");
     QueryDrop(grfKeyState, pdwEffect);
     return NOERROR;
 }
@@ -568,7 +659,6 @@ debug("DOver");
 STDMETHODIMP
 QOleDropTarget::DragLeave()
 {   
-debug("DLeave");
     m_bAcceptFmt = FALSE;   
     return NOERROR;
 }
@@ -576,45 +666,19 @@ debug("DLeave");
 STDMETHODIMP
 QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)  
 {   
-debug("DDrop");
-    FORMATETC fmtetc;   
-    STGMEDIUM medium;   
-    HGLOBAL hText;
-    LPSTR pszText;
-    HRESULT hr;
-     
     if (QueryDrop(grfKeyState, pdwEffect))
     {      
-        fmtetc.cfFormat = CF_TEXT;
-        fmtetc.ptd = NULL;
-        fmtetc.dwAspect = DVASPECT_CONTENT;  
-        fmtetc.lindex = -1;
-        fmtetc.tymed = TYMED_HGLOBAL;       
-        
-        // User has dropped on us. Get the CF_TEXT data from drag source
-        hr = pDataObj->GetData(&fmtetc, &medium);
-        if (FAILED(hr))
-            goto error; 
-        
-        // Display the data and release it.
-        hText = medium.hGlobal;
-        pszText = (LPSTR)GlobalLock(hText);
-
 	current_dropobj = pDataObj;
 	current_drop = this; // ##### YUCK.  Arnt, we need to put info in event
-	QDropEvent de( QPoint(0,0)/*###*/ );
+	QDropEvent de( QPoint(pt.x,pt.y) );
 	QApplication::sendEvent( widget, &de );
 	current_drop = 0;
 	current_dropobj = 0;
-
-        GlobalUnlock(hText);
-        ReleaseStgMedium(&medium);
+	return NOERROR;      
     }
-    return NOERROR;      
     
-error:
     *pdwEffect = DROPEFFECT_NONE;
-    return hr; 
+    return ResultFromScode(DATA_E_FORMATETC);
 }   
 
 /* OleStdGetDropEffect
