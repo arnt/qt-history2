@@ -482,21 +482,26 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 		return - 1;
 	    return entry + 1;
 	} else {
-	    QWidget *start = widget();
-	    QWidget *parentWidget = start->parentWidget();
-	    if (!parentWidget)
+	    QObject *parent = parentObject();
+	    QAccessibleInterface *pIface = 0;
+	    QAccessible::queryAccessibleInterface(parent, &pIface);
+	    if (!pIface)
 		return -1;
-	    QObjectList ol = parentWidget->queryList("QWidget", 0, 0, FALSE);
+	    QWidget *start = widget();
 
-	    QRect startg = start->geometry();
+	    QRect startg = rect(0);
 	    QPoint startc = startg.center();
-	    QWidget *candidate = 0;
+	    QAccessibleInterface *candidate = 0;
 	    int mindist = 100000;
-	    for (int i = 0; i < ol.count(); ++i) {
-		QWidget *sibling = static_cast<QWidget*>(ol.at(i));
-		if (sibling == start)
+	    int sibCount = pIface->childCount();
+	    for (int i = 0; i < sibCount; ++i) {
+		QAccessibleInterface *sibling = 0;
+		pIface->navigate(Child, i+1, &sibling);
+		Q_ASSERT(sibling);
+		if (relationTo(0, sibling, 0) & Self)
 		    continue;
-		QRect sibg = sibling->geometry();
+
+		QRect sibg = sibling->rect(0);
 		QPoint sibc = sibg.center();
 		QPoint sibp;
 		QPoint startp;
@@ -534,13 +539,18 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 
 		int dist = (int)sqrt(distp.x() * distp.x() + distp.y() * distp.y());
 		if (dist < mindist) {
-		    QWidget *oldcandidate = candidate;
+		    if (candidate)
+			candidate->release();
 		    candidate = sibling;
-		    if (candidate && candidate != oldcandidate)
-			mindist = dist;
+		    candidate->addRef();
+		    mindist = dist;
 		}
+		sibling->release();
 	    }
-	    targetObject = candidate;
+	    pIface->release();
+	    *target = candidate;
+	    if (*target)
+		return 0;
 	}
 	break;
     case Covers:
