@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#16 $
 **
 ** Implementation of QPaintDevice class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#15 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#16 $")
 
 
 QPaintDevice::QPaintDevice( uint devflags )
@@ -194,7 +194,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		ReleaseDC( ((QWidget*)src)->id(), src_dc );
 		break;
 	    case PDT_PIXMAP:
-		((QPixmap*)src)->freeMemDC();
+		if ( !((QPixmap*)src)->isOptimized() )
+		    ((QPixmap*)src)->freeMemDC();
 		break;
 	}
     }
@@ -204,7 +205,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		ReleaseDC( ((QWidget*)dst)->id(), dst_dc );
 		break;
 	    case PDT_PIXMAP:
-		((QPixmap*)dst)->freeMemDC();
+		if ( !((QPixmap*)dst)->isOptimized() )
+		    ((QPixmap*)dst)->freeMemDC();
 		break;
 	}
     }
