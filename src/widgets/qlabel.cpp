@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#200 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#201 $
 **
 ** Implementation of QLabel widget class
 **
@@ -293,7 +293,7 @@ void QLabel::clear()
 /*!
   \property QLabel::pixmap
   \brief the label contents pixmap
- 
+
   If no pixmap has been set this will return an invalid pixmap.
 
   Setting the pixmap clears any previous content, and resizes the label
@@ -912,9 +912,9 @@ void QLabel::updateLabel( QSize oldSizeHint )
 	updateGeometry();
     if ( autoresize ) {
 	adjustSize();
-	update(cr.x(), cr.y(), cr.width(), cr.height());
+	update( contentsRect() );
     } else {
-	update(cr.x(), cr.y(), cr.width(), cr.height());
+	update( contentsRect() );
 	updateGeometry();
 	if ( autoMask() )
 	    updateMask();
@@ -1172,10 +1172,8 @@ void QLabel::fontChange( const QFont & )
 {
     if ( !ltext.isEmpty() ) {
 #ifndef QT_NO_RICHTEXT
-	if ( doc ) {
+	if ( doc )
 	    doc->setDefaultFont( font() );
-	    update();
-	}
 #endif
 	updateLabel( QSize( -1, -1 ) );
     }
@@ -1209,7 +1207,7 @@ void QLabel::setScaledContents( bool enable )
     }
     if ( autoMask() )
 	updateMask();
-    update();
+    update( contentsRect() );
 }
 
 #endif // QT_NO_IMAGE_SMOOTHSCALE
@@ -1221,12 +1219,6 @@ void QLabel::setScaledContents( bool enable )
 void QLabel::setFont( const QFont &f )
 {
     QFrame::setFont( f );
-#ifndef QT_NO_RICHTEXT
-    if ( doc ) {
-	doc->setDefaultFont( f );
-	update();
-    }
-#endif
 }
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
