@@ -40,7 +40,7 @@ QCursorData::~QCursorData()
 }
 
 
-void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
+QCursorData *QCursorData::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
 {
     if (!QCursorData::initialized)
         QCursorData::initialize();
@@ -48,16 +48,16 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
         qWarning("QCursor: Cannot create bitmap cursor; invalid bitmap(s)");
         QCursorData *c = qt_cursorTable[0];
         c->ref.ref();
-        d = c;
-        return;
+        return c;
     }
-    d = new QCursorData;
+    QCursorData *d = new QCursorData;
     d->bm  = new QBitmap(bitmap);
     d->bmm = new QBitmap(mask);
     d->hcurs = 0;
     d->cshape = Qt::BitmapCursor;
     d->hx = hotX >= 0 ? hotX : bitmap.width()/2;
     d->hy = hotY >= 0 ? hotY : bitmap.height()/2;
+    return d;
 }
 
 HCURSOR QCursor::handle() const
@@ -65,7 +65,7 @@ HCURSOR QCursor::handle() const
     if (!QCursorData::initialized)
         QCursorData::initialize();
     if (!d->hcurs)
-        update();
+        d->update();
     return d->hcurs;
 }
 
@@ -88,11 +88,11 @@ void QCursor::setPos(int x, int y)
 }
 
 
-void QCursor::update() const
+void QCursorData::update()
 {
     if (!QCursorData::initialized)
         QCursorData::initialize();
-    if (d->hcurs)
+    if (hcurs)
         return;
 
     // Non-standard Windows cursors are created from bitmaps
@@ -177,7 +177,7 @@ void QCursor::update() const
     };
 
     unsigned short *sh;
-    switch (d->cshape) {                        // map to windows cursor
+    switch (cshape) {                        // map to windows cursor
     case Qt::ArrowCursor:
         sh = (unsigned short*)IDC_ARROW;
         break;
@@ -230,27 +230,27 @@ void QCursor::update() const
     case Qt::BitmapCursor: {
         QImage bbits, mbits;
         bool invb, invm;
-        if (d->cshape == Qt::BlankCursor) {
+        if (cshape == Qt::BlankCursor) {
             bbits.create(32, 32, 1, 2, QImage::BigEndian);
             bbits.fill(0);                // ignore color table
             mbits = bbits.copy();
-            d->hx = d->hy = 16;
+            hx = hy = 16;
             invb = invm = false;
-        } else if (d->cshape != Qt::BitmapCursor) {
-            int i = d->cshape - Qt::SplitVCursor;
+        } else if (cshape != Qt::BitmapCursor) {
+            int i = cshape - Qt::SplitVCursor;
             QBitmap cb(32, 32, cursor_bits32[i * 2], true);
             QBitmap cm(32, 32, cursor_bits32[i * 2 + 1], true);
             bbits = cb.toImage();
             mbits = cm.toImage();
-            if (d->cshape == Qt::PointingHandCursor) {
-                d->hx = 7;
-                d->hy = 0;
+            if (cshape == Qt::PointingHandCursor) {
+                hx = 7;
+                hy = 0;
             } else
-                d->hx = d->hy = 16;
+                hx = hy = 16;
             invb = invm = false;
         } else {
-            bbits = d->bm->toImage();
-            mbits = d->bmm->toImage();
+            bbits = bm->toImage();
+            mbits = bmm->toImage();
             invb = bbits.numColors() > 1 && qGray(bbits.color(0)) < qGray(bbits.color(1));
             invm = mbits.numColors() > 1 && qGray(mbits.color(0)) < qGray(mbits.color(1));
         }
@@ -275,7 +275,7 @@ void QCursor::update() const
             }
         }
 #ifndef Q_OS_TEMP
-        d->hcurs = CreateCursor(qWinAppInst(), d->hx, d->hy, bbits.width(), bbits.height(),
+        hcurs = CreateCursor(qWinAppInst(), hx, hy, bbits.width(), bbits.height(),
                                    xBits, xMask);
 #endif
 	delete [] xBits;
@@ -283,14 +283,14 @@ void QCursor::update() const
 	return;
     }
     default:
-        qWarning("QCursor::update: Invalid cursor shape %d", d->cshape);
+        qWarning("QCursor::update: Invalid cursor shape %d", cshape);
         return;
     }
     // ### From MSDN:
     // ### LoadCursor has been superseded by the LoadImage function.
     QT_WA({
-        d->hcurs = LoadCursorW(0, reinterpret_cast<const TCHAR *>(sh));
+        hcurs = LoadCursorW(0, reinterpret_cast<const TCHAR *>(sh));
     } , {
-        d->hcurs = LoadCursorA(0, reinterpret_cast<const char*>(sh));
+        hcurs = LoadCursorA(0, reinterpret_cast<const char*>(sh));
     });
 }

@@ -851,7 +851,7 @@ void QLabel::paintEvent(QPaintEvent *)
             if (!d->pix)
                 d->pix = new QPixmap;
             if (d->pix->size() != cr.size())
-                d->pix->fromImage(d->img->scaled(cr.width(), cr.height()));
+                *d->pix = QPixmap::fromImage(d->img->scaled(cr.width(), cr.height()));
             pix = *d->pix;
         }
 #endif

@@ -903,7 +903,8 @@ bool Q3ImageDrag::decode(const QMimeSource* e, QPixmap& pm)
     QImage img;
     // We avoid dither, since the image probably came from this display
     if (decode(e, img)) {
-        if (!pm.fromImage(img, Qt::AvoidDither))
+        pm = QPixmap::fromImage(img, Qt::AvoidDither);
+        if (pm.isNull())
             return false;
 
         return true;

@@ -47,7 +47,7 @@ QPixmap::QPixmap(const QImage& image)
     : QPaintDevice(QInternal::Pixmap)
 {
     init(0, 0, 0, false);
-    fromImage(image);
+    *this = fromImage(image);
 }
 
 QPixmap::QPixmap(int w, int h, int depth)
@@ -90,9 +90,9 @@ QPixmap::QPixmap(const char * const xpm[])
 {
     init(0, 0, 0, false);
 
-   QImage image(xpm);
+    QImage image(xpm);
     if (!image.isNull())
-        fromImage(image);
+        (*this) = fromImage(image);
 }
 
 QPixmap::~QPixmap()
@@ -119,7 +119,7 @@ QPixmap &QPixmap::operator=(const QPixmap &pixmap)
 }
 QPixmap &QPixmap::operator=(const QImage &image)
 {
-    fromImage(image);
+    (*this) = fromImage(image);
     return *this;
 }
 QPixmap::operator QVariant() const
@@ -263,14 +263,12 @@ bool QPixmap::hasAlphaChannel() const
 
 QBitmap QPixmap::createHeuristicMask(bool clipTight ) const
 {
-    QBitmap m;
-    m.fromImage(toImage().createHeuristicMask(clipTight));
+    QBitmap m = fromImage(toImage().createHeuristicMask(clipTight));
     return m;
 }
 
 QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
 {
-    QBitmap m;
     QImage maskImage(size(), 1, 0, QImage::LittleEndian);
     QImage image = toImage();
     QRgb mColor = maskColor.rgba();
@@ -282,7 +280,7 @@ QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
                 maskImage.setPixel(w, h, Qt::color0);
         }
     }
-    m.fromImage(maskImage);
+    QBitmap m = fromImage(maskImage);
     return m;
 }
 
@@ -561,7 +559,7 @@ QDataStream &operator>>(QDataStream &s, QPixmap &pixmap)
 {
     QImage img;
     s >> img;
-    pixmap.fromImage(img);
+    pixmap = QPixmap::fromImage(img);
     return s;
 }
 

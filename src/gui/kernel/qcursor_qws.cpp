@@ -49,7 +49,7 @@ int QCursor::handle() const
 }
 
 
-void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
+QCursorData *QCursorData::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
 {
     if (!QCursorData::initialized)
         QCursorData::initialize();
@@ -57,10 +57,9 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
         qWarning("QCursor: Cannot create bitmap cursor; invalid bitmap(s)");
         QCursorData *c = qt_cursorTable[0];
         c->ref.ref();
-        d = c;
-        return;
+        return c;
     }
-    d = new QCursorData;
+    QCursorData *d = new QCursorData;
     d->bm  = new QBitmap(bitmap);
     d->bmm = new QBitmap(mask);
     d->cshape = Qt::BitmapCursor;
@@ -69,33 +68,11 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
     d->hy = hotY >= 0 ? hotY : bitmap.height() / 2;
 
     QPaintDevice::qwsDisplay()->defineCursor(d->id, *d->bm, *d->bmm, d->hx, d->hy);
+    return d;
 }
 
-void QCursor::update() const
+void QCursorData::update()
 {
-    if (!QCursorData::initialized)
-        QCursorData::initialize();
-    if (d->cshape == Qt::BitmapCursor) {
-        // XXX
-        return;
-    }
-    if (d->cshape >= Qt::SizeVerCursor && d->cshape < Qt::SizeAllCursor ||
-         d->cshape == Qt::BlankCursor) {
-        //        int i = (d->cshape - Qt::SizeVerCursor)*2;
-        // XXX data: cursor_bits16[i], 16,16
-        // XXX mask: cursor_bits16[i+1], 16,16
-        return;
-    }
-    if (d->cshape >= Qt::SplitVCursor && d->cshape <= Qt::PointingHandCursor) {
-        //int i = (d->cshape - Qt::SplitVCursor)*2;
-        // XXX data: cursor_bits32[i], 32, 32
-        // XXX mask: cursor_bits32[i+1], 32, 32
-        //int hs = d->cshape != Qt::PointingHandCursor? 16 : 0;
-        // XXX ...
-        return;
-    }
-
-    // XXX standard shapes?
 }
 
 #endif //QT_NO_CURSOR

@@ -174,8 +174,6 @@ QDataStream &operator>>(QDataStream &s, QCursor &c)
     because this size is supported on all platforms. Some platforms
     also support 16x16, 48x48 and 64x64 cursors.
 
-    Currently, only black-and-white pixmaps can be used.
-
     \sa QPixmap::QPixmap(), QPixmap::setMask()
 */
 
@@ -183,9 +181,7 @@ QCursor::QCursor(const QPixmap &pixmap, int hotX, int hotY)
     : d(0)
 {
     QImage img = pixmap.toImage().convertDepth(8, Qt::ThresholdDither|Qt::AvoidDither);
-    QBitmap bm;
-    bm.fromImage(img, Qt::ThresholdDither|Qt::AvoidDither);
-    // #################### PIXMAP
+    QBitmap bm = QBitmap::fromImage(img, Qt::ThresholdDither|Qt::AvoidDither);
     QBitmap bmm = bm.mask();
     if (!bmm.isNull()) {
         QBitmap nullBm;
@@ -193,14 +189,15 @@ QCursor::QCursor(const QPixmap &pixmap, int hotX, int hotY)
     }
     else if (!pixmap.mask().isNull()) {
         QImage mimg = pixmap.mask().toImage().convertDepth(8, Qt::ThresholdDither|Qt::AvoidDither);
-        bmm.fromImage(mimg, Qt::ThresholdDither|Qt::AvoidDither);
+        bmm = QBitmap::fromImage(mimg, Qt::ThresholdDither|Qt::AvoidDither);
     }
     else {
         bmm = QBitmap(bm.size());
         bmm.fill(Qt::color1);
     }
 
-    setBitmap(bm, bmm, hotX, hotY);
+    d = QCursorData::setBitmap(bm, bmm, hotX, hotY);
+    d->pixmap = pixmap;
 }
 
 
@@ -238,7 +235,7 @@ QCursor::QCursor(const QPixmap &pixmap, int hotX, int hotY)
 QCursor::QCursor(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
     : d(0)
 {
-    setBitmap(bitmap, mask, hotX, hotY);
+    d = QCursorData::setBitmap(bitmap, mask, hotX, hotY);
 }
 
 QCursorData *qt_cursorTable[Qt::LastCursor + 1];

@@ -500,11 +500,11 @@ void QWidgetPrivate::setWindowIcon_sys()
     if (unscaledPixmap.isNull()) {
     } else {
         QImage unscaledIcon = unscaledPixmap.toImage();
-        QPixmap pixmap;
+        QPixmap pixmap =
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
-        pixmap.fromImage(unscaledIcon.scale(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+            QPixmap::fromImage(unscaledIcon.scale(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 #else
-        pixmap.fromImage(unscaledIcon);
+            QPixmap::fromImage(unscaledIcon);
 #endif
         x->icon = new QPixmap(pixmap);
         mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();

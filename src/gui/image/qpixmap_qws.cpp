@@ -299,7 +299,7 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
     if (qt_screen->isTransformed()) {
         int bpl = isXbitmap ? (w+7)/8 : ((w+31)/32)*4;
         QImage img((uchar *)bits, w, h, 1, bpl, 0, 0, QImage::LittleEndian);
-        fromImage(img, Qt::MonoOnly);
+        (*this) = fromImage(img, Qt::MonoOnly);
         if (flipped_bits)
             delete [] flipped_bits;
         return;
@@ -360,7 +360,7 @@ void QPixmap::fill(const QColor &fillColor)
         QImage im(width(), height(), 32);
         im.fill(fillColor.rgba());
         im.setAlphaBuffer(true);
-        fromImage(im);
+        (*this) = fromImage(im);
         return;
     }
 
@@ -856,7 +856,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     }
 
     if (qt_screen->isTransformed()) {
-        pm.fromImage(destImg);
+        pm = QPixmap::fromImage(destImg);
     }
 
     if (data->mask)

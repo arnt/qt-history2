@@ -550,8 +550,7 @@ void QPixmap::resize_helper(const QSize &s)
 */
 QBitmap QPixmap::createHeuristicMask(bool clipTight) const
 {
-    QBitmap m;
-    m = fromImage(toImage().createHeuristicMask(clipTight));
+    QBitmap m = fromImage(toImage().createHeuristicMask(clipTight));
     return m;
 }
 #endif
@@ -566,7 +565,6 @@ QBitmap QPixmap::createHeuristicMask(bool clipTight) const
 */
 QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
 {
-    QBitmap m;
     QImage maskImage(size(), 1, 0, QImage::LittleEndian);
     QImage image = toImage();
     QRgb mColor = maskColor.rgba();
@@ -578,7 +576,7 @@ QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
                 maskImage.setPixel(w, h, Qt::color0);
         }
     }
-    m = fromImage(maskImage);
+    QBitmap m = fromImage(maskImage);
     return m;
 }
 

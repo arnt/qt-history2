@@ -540,8 +540,7 @@ QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette,
                      | (0xff & static_cast<int>(qBlue(*p) * 0.70 + qBlue(rgb) * 0.30));
             }
         }
-        pm = new QPixmap;
-        pm->fromImage(img);
+        pm = new QPixmap(QPixmap::fromImage(img));
         QPixmapCache::insert(key, pm);
     }
     return pm;

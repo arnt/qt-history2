@@ -497,8 +497,7 @@ void QPaintEngine::drawTiledPixmap(const QRectF &rect, const QPixmap &pixmap, co
 void QPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF &sr,
                              Qt::ImageConversionFlags flags)
 {
-    QPixmap pm;
-    pm.fromImage(image, flags);
+    QPixmap pm = QPixmap::fromImage(image, flags);
     drawPixmap(r, pm, sr);
 }
 

@@ -2041,7 +2041,7 @@ void QPixmap::x11SetScreen(int screen)
     xd->visual = (Visual *)QX11Info::appVisual(screen);
     xd->defaultVisual = QX11Info::appDefaultVisual(screen);
     data->xinfo.setX11Data(xd);
-    fromImage(img);
+    (*this) = fromImage(img);
 }
 
 /*!

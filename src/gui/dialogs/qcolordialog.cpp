@@ -737,8 +737,7 @@ void QColorLuminancePicker::paintEvent(QPaintEvent *)
             for (x = 0; x < wi; x++)
                 img.setPixel(x, y, r);
         }
-        pix = new QPixmap;
-        pix->fromImage(img);
+        pix = new QPixmap(QPixmap::fromImage(img));
     }
     QPainter p(this);
     p.drawPixmap(1, coff, *pix);
@@ -786,8 +785,7 @@ QColorPicker::QColorPicker(QWidget* parent)
             c.setHsv(huePt(p), satPt(p), 200);
             img.setPixel(x, y, c.rgb());
         }
-    pix = new QPixmap;
-    pix->fromImage(img);
+    pix = new QPixmap(QPixmap::fromImage(img));
     setAttribute(Qt::WA_NoSystemBackground);
     setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed) );
 }

@@ -1379,7 +1379,7 @@ void QMacStylePrivate::AppManDrawColorlessButton(const Rect &macRect,
                 }
             }
         }
-        pm.fromImage(img);
+        pm = QPixmap::fromImage(img);
         QPixmapCache::insert(key, pm);
     }
     p->drawPixmap(x, y, width, height, pm);
@@ -5000,7 +5000,7 @@ QPixmap QMacStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixm
                                          qAlpha(pixel) / 2));
             }
         }
-        return QPixmap::fromImage(img); 
+        return QPixmap::fromImage(img);
     }
     default:
         ;

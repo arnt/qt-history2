@@ -55,6 +55,7 @@ struct QCursorData {
     QAtomic ref;
     Qt::CursorShape cshape;
     QBitmap  *bm, *bmm;
+    QPixmap pixmap;
     short     hx, hy;
 #if defined (Q_WS_MAC) || defined(Q_WS_QWS)
     int id;
@@ -89,6 +90,8 @@ struct QCursorData {
     } curs;
 #endif
     static bool initialized;
+    void update();
+    static QCursorData *setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY);
 };
 
 #endif // QCURSOR_P_H

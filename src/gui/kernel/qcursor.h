@@ -83,8 +83,6 @@ public:
     int handle() const;
 #endif
 private:
-    void update() const;
-    void setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY);
     QCursorData *d;
 #if defined(Q_WS_MAC)
     friend void qt_mac_set_cursor(const QCursor *c, const QPoint &p);

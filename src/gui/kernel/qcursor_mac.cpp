@@ -187,7 +187,7 @@ QCursorData::~QCursorData()
         currentCursor = 0;
 }
 
-void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
+QCursorData *QCursorData::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
 {
     if (!QCursorData::initialized)
         QCursorData::initialize();
@@ -195,25 +195,19 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
         qWarning("Qt: QCursor: Cannot create bitmap cursor; invalid bitmap(s)");
         QCursorData *c = qt_cursorTable[0];
         c->ref.ref();
-        d = c;
-        return;
+        return c;
     }
     // This is silly, but this is apparently called outside the constructor, so we have
     // to be ready for that case.
-    QCursorData *x;
-    if (!d) {
-        x = new QCursorData;
-        x->ref = 1;
-        x->id = ++nextCursorId;
-    } else {
-        x = d;
-    }
-    d = x;
+    QCursorData *x = new QCursorData;
+    x->ref = 1;
+    x->id = ++nextCursorId;
     x->bm  = new QBitmap(bitmap);
     x->bmm = new QBitmap(mask);
     x->cshape = Qt::BitmapCursor;
     x->hx = hotX >= 0 ? hotX : bitmap.width() / 2;
     x->hy = hotY >= 0 ? hotY : bitmap.height() / 2;
+    return x;
 }
 
 Qt::HANDLE QCursor::handle() const
@@ -221,7 +215,7 @@ Qt::HANDLE QCursor::handle() const
     if(!QCursorData::initialized)
         QCursorData::initialize();
     if(d->type == QCursorData::TYPE_None)
-        update();
+        d->update();
     return (Qt::HANDLE)d->id;
 }
 
@@ -252,11 +246,11 @@ void QCursor::setPos(int x, int y)
     }
 }
 
-void QCursor::update() const
+void QCursorData::update()
 {
     if(!QCursorData::initialized)
         QCursorData::initialize();
-    if(d->type != QCursorData::TYPE_None)
+    if(type != QCursorData::TYPE_None)
         return;
 
     /* Note to self... ***
@@ -267,18 +261,18 @@ void QCursor::update() const
      * 0x00 x 0x00 == fully transparent
      */
 
-    switch(d->cshape) {                        // map Q cursor to MAC cursor
+    switch(cshape) {                        // map Q cursor to MAC cursor
     case Qt::BitmapCursor: {
-        if(d->bm->width() == 16 && d->bm->height() == 16) {
-            d->type = QCursorData::TYPE_CursPtr;
-            d->curs.cp.my_cursor = true;
-            d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+        if(bm->width() == 16 && bm->height() == 16) {
+            type = QCursorData::TYPE_CursPtr;
+            curs.cp.my_cursor = true;
+            curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
             QImage bmi, bmmi;
-            bmi = d->bm->toImage();
-            bmmi = d->bmm->toImage();
+            bmi = bm->toImage();
+            bmmi = bmm->toImage();
 
-            memset(d->curs.cp.hcurs->mask, 0, 32);
-            memset(d->curs.cp.hcurs->data, 0, 32);
+            memset(curs.cp.hcurs->mask, 0, 32);
+            memset(curs.cp.hcurs->data, 0, 32);
             for(int y = 0; y < 16; y++) {
                 for(int x = 0; x < 16; x++) {
                     int bmi_val = 0, bmmi_val = 0;
@@ -289,40 +283,40 @@ void QCursor::update() const
                             bmi_val = bmmi_val = 1;
                     }
                     if(bmmi_val)
-                        *(((uchar*)d->curs.cp.hcurs->mask) + (y*2) + (x / 8)) |= (1 << (7 - (x % 8)));
+                        *(((uchar*)curs.cp.hcurs->mask) + (y*2) + (x / 8)) |= (1 << (7 - (x % 8)));
                     if(bmi_val)
-                        *(((uchar*)d->curs.cp.hcurs->data) + (y*2) + (x / 8)) |= (1 << (7 - (x % 8)));
+                        *(((uchar*)curs.cp.hcurs->data) + (y*2) + (x / 8)) |= (1 << (7 - (x % 8)));
                 }
             }
 #ifdef QMAC_USE_BIG_CURSOR_API
-        } else if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_2 && d->bm->width() < 64
-                  && d->bm->height() < 64) {
-            d->curs.big_cursor_name = (char *)malloc(128);
+        } else if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_2 && bm->width() < 64
+                  && bm->height() < 64) {
+            curs.big_cursor_name = (char *)malloc(128);
             static int big_cursor_cnt = 0;
-            sprintf(d->curs.big_cursor_name, "qt_QCursor_%d_%d", getpid(), big_cursor_cnt++);
+            sprintf(curs.big_cursor_name, "qt_QCursor_%d_%d", getpid(), big_cursor_cnt++);
             Point hotspot;
-            if((hotspot.h = d->hx) < 0)
+            if((hotspot.h = hx) < 0)
                 hotspot.h = 0;
-            if((hotspot.v = d->hy) < 0)
+            if((hotspot.v = hy) < 0)
                 hotspot.v = 0;
-            OSStatus ret = QDRegisterNamedPixMapCursor(GetGWorldPixMap(qt_mac_qd_context(d->bm)),
-                                                       GetGWorldPixMap(qt_mac_qd_context(d->bmm)),
-                                                       hotspot, d->curs.big_cursor_name);
+            OSStatus ret = QDRegisterNamedPixMapCursor(GetGWorldPixMap(qt_mac_qd_context(bm)),
+                                                       GetGWorldPixMap(qt_mac_qd_context(bmm)),
+                                                       hotspot, curs.big_cursor_name);
             if(ret == noErr)
-                d->type = QCursorData::TYPE_BigCursor;
+                type = QCursorData::TYPE_BigCursor;
             else
-                free(d->curs.big_cursor_name);
+                free(curs.big_cursor_name);
 #endif
         }
-        if(d->type == QCursorData::TYPE_None) {
+        if(type == QCursorData::TYPE_None) {
             if (QSysInfo::MacintoshVersion <= QSysInfo::MV_10_2) {
-                d->type = QCursorData::TYPE_FakeCursor;
-                d->curs.fc.widget = new QMacCursorWidget(d->bm, d->bmm);
+                type = QCursorData::TYPE_FakeCursor;
+                curs.fc.widget = new QMacCursorWidget(bm, bmm);
                 //make an empty cursor
-                d->curs.fc.empty_curs = (CursPtr)malloc(sizeof(Cursor));
-                memset(d->curs.fc.empty_curs->data, 0x00, sizeof(d->curs.fc.empty_curs->data));
-                memset(d->curs.fc.empty_curs->mask, 0x00, sizeof(d->curs.fc.empty_curs->mask));
-                int hx = d->hx, hy = d->hy;
+                curs.fc.empty_curs = (CursPtr)malloc(sizeof(Cursor));
+                memset(curs.fc.empty_curs->data, 0x00, sizeof(curs.fc.empty_curs->data));
+                memset(curs.fc.empty_curs->mask, 0x00, sizeof(curs.fc.empty_curs->mask));
+                int hx = hx, hy = hy;
                 if(hx < 0)
                     hx = 8;
                 else if(hx > 15)
@@ -331,52 +325,52 @@ void QCursor::update() const
                     hy = 8;
                 else if(hy > 15)
                     hy = 15;
-                d->curs.fc.empty_curs->hotSpot.h = hx;
-                d->curs.fc.empty_curs->hotSpot.v = hy;
+                curs.fc.empty_curs->hotSpot.h = hx;
+                curs.fc.empty_curs->hotSpot.v = hy;
             } else {
-                d->type = QCursorData::TYPE_CursorImage;
-                d->curs.ci = (CursorImageRec*)malloc(sizeof(CursorImageRec));
-                d->curs.ci->majorVersion = kCursorImageMajorVersion;
-                d->curs.ci->minorVersion = kCursorImageMinorVersion;
-                d->curs.ci->cursorPixMap = GetGWorldPixMap(qt_mac_qd_context(d->bm));
-                d->curs.ci->cursorBitMask = (BitMap **)GetGWorldPixMap(qt_mac_qd_context(d->bmm));
+                type = QCursorData::TYPE_CursorImage;
+                curs.ci = (CursorImageRec*)malloc(sizeof(CursorImageRec));
+                curs.ci->majorVersion = kCursorImageMajorVersion;
+                curs.ci->minorVersion = kCursorImageMinorVersion;
+                curs.ci->cursorPixMap = GetGWorldPixMap(qt_mac_qd_context(bm));
+                curs.ci->cursorBitMask = (BitMap **)GetGWorldPixMap(qt_mac_qd_context(bmm));
             }
         }
         break; }
     case Qt::ArrowCursor: {
-        d->type = QCursorData::TYPE_ThemeCursor;
-        d->curs.tc.curs = kThemeArrowCursor;
+        type = QCursorData::TYPE_ThemeCursor;
+        curs.tc.curs = kThemeArrowCursor;
         break; }
     case Qt::CrossCursor: {
-        d->type = QCursorData::TYPE_ThemeCursor;
-        d->curs.tc.curs = kThemeCrossCursor;
+        type = QCursorData::TYPE_ThemeCursor;
+        curs.tc.curs = kThemeCrossCursor;
         break; }
     case Qt::WaitCursor: {
-        d->type = QCursorData::TYPE_ThemeCursor;
-        d->curs.tc.curs = kThemeWatchCursor;
+        type = QCursorData::TYPE_ThemeCursor;
+        curs.tc.curs = kThemeWatchCursor;
         break; }
     case Qt::IBeamCursor: {
-        d->type = QCursorData::TYPE_ThemeCursor;
-        d->curs.tc.curs = kThemeIBeamCursor;
+        type = QCursorData::TYPE_ThemeCursor;
+        curs.tc.curs = kThemeIBeamCursor;
         break; }
     case Qt::SizeAllCursor: {
-        d->type = QCursorData::TYPE_ThemeCursor;
-        d->curs.tc.curs = kThemePlusCursor;
+        type = QCursorData::TYPE_ThemeCursor;
+        curs.tc.curs = kThemePlusCursor;
         break; }
     case Qt::WhatsThisCursor: { //for now just use the pointing hand
     case Qt::PointingHandCursor:
-        d->type = QCursorData::TYPE_ThemeCursor;
-        d->curs.tc.curs = kThemePointingHandCursor;
+        type = QCursorData::TYPE_ThemeCursor;
+        curs.tc.curs = kThemePointingHandCursor;
         break; }
     case Qt::BusyCursor: {
-        d->type = QCursorData::TYPE_ThemeCursor;
-        d->curs.tc.curs = kThemeSpinningCursor;
+        type = QCursorData::TYPE_ThemeCursor;
+        curs.tc.curs = kThemeSpinningCursor;
         break; }
     case Qt::SplitVCursor: {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
         if(qMacVersion() >= QSysInfo::MV_10_3) {
-            d->type = QCursorData::TYPE_ThemeCursor;
-            d->curs.tc.curs = kThemeResizeUpDownCursor;
+            type = QCursorData::TYPE_ThemeCursor;
+            curs.tc.curs = kThemeResizeUpDownCursor;
             break;
         }
 #endif
@@ -389,17 +383,17 @@ void QCursor::update() const
 	    0xff, 0xfe, 0x00, 0x00, 0x00, 0x00, 0xff, 0xfe, 0x01, 0x00, 0x01, 0x00,
 	    0x03, 0x80, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-	d->type = QCursorData::TYPE_CursPtr;
-	d->curs.cp.my_cursor = true;
-	d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
-	memcpy(d->curs.cp.hcurs->data, cur_vsplit_bits, sizeof(cur_vsplit_bits));
-        memcpy(d->curs.cp.hcurs->mask, mcur_vsplit_bits, sizeof(mcur_vsplit_bits));
+	type = QCursorData::TYPE_CursPtr;
+	curs.cp.my_cursor = true;
+	curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+	memcpy(curs.cp.hcurs->data, cur_vsplit_bits, sizeof(cur_vsplit_bits));
+        memcpy(curs.cp.hcurs->mask, mcur_vsplit_bits, sizeof(mcur_vsplit_bits));
         break; }
     case Qt::SplitHCursor: {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
         if(qMacVersion() >= QSysInfo::MV_10_3) {
-            d->type = QCursorData::TYPE_ThemeCursor;
-            d->curs.tc.curs = kThemeResizeLeftRightCursor;
+            type = QCursorData::TYPE_ThemeCursor;
+            curs.tc.curs = kThemeResizeLeftRightCursor;
             break;
         }
 #endif
@@ -412,11 +406,11 @@ void QCursor::update() const
 	    0x24, 0x90, 0x7c, 0xf8, 0x24, 0x90, 0x04, 0x80, 0x04, 0x80, 0x04, 0x80,
 	    0x04, 0x80, 0x04, 0x80, 0x04, 0x80, 0x00, 0x00 };
 
-	d->type = QCursorData::TYPE_CursPtr;
-	d->curs.cp.my_cursor = true;
-	d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
-	memcpy(d->curs.cp.hcurs->data, cur_hsplit_bits, sizeof(cur_hsplit_bits));
-	memcpy(d->curs.cp.hcurs->mask, mcur_hsplit_bits, sizeof(mcur_hsplit_bits));
+	type = QCursorData::TYPE_CursPtr;
+	curs.cp.my_cursor = true;
+	curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+	memcpy(curs.cp.hcurs->data, cur_hsplit_bits, sizeof(cur_hsplit_bits));
+	memcpy(curs.cp.hcurs->mask, mcur_hsplit_bits, sizeof(mcur_hsplit_bits));
         break; }
 
 #define QT_USE_APPROXIMATE_CURSORS
@@ -431,11 +425,11 @@ void QCursor::update() const
             0x7f, 0xfc, 0x07, 0xc0, 0x07, 0xc0, 0x07, 0xc0, 0x7f, 0xfc, 0x3f, 0xf8,
             0x1f, 0xf0, 0x0f, 0xe0, 0x07, 0xc0, 0x03, 0x80 };
 
-        d->type = QCursorData::TYPE_CursPtr;
-        d->curs.cp.my_cursor = true;
-        d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
-        memcpy(d->curs.cp.hcurs->data, cur_ver_bits, sizeof(cur_ver_bits));
-        memcpy(d->curs.cp.hcurs->mask, mcur_ver_bits, sizeof(mcur_ver_bits));
+        type = QCursorData::TYPE_CursPtr;
+        curs.cp.my_cursor = true;
+        curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+        memcpy(curs.cp.hcurs->data, cur_ver_bits, sizeof(cur_ver_bits));
+        memcpy(curs.cp.hcurs->mask, mcur_ver_bits, sizeof(mcur_ver_bits));
         break; }
 
     case Qt::SizeHorCursor: {
@@ -448,11 +442,11 @@ void QCursor::update() const
             0x7f, 0xfc, 0xff, 0xfe, 0xff, 0xfe, 0xff, 0xfe, 0x7f, 0xfc, 0x3c, 0x78,
             0x1c, 0x70, 0x0c, 0x60, 0x04, 0x40, 0x00, 0x00 };
 
-        d->type = QCursorData::TYPE_CursPtr;
-        d->curs.cp.my_cursor = true;
-        d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
-        memcpy(d->curs.cp.hcurs->data, cur_hor_bits, sizeof(cur_hor_bits));
-        memcpy(d->curs.cp.hcurs->mask, mcur_hor_bits, sizeof(mcur_hor_bits));
+        type = QCursorData::TYPE_CursPtr;
+        curs.cp.my_cursor = true;
+        curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+        memcpy(curs.cp.hcurs->data, cur_hor_bits, sizeof(cur_hor_bits));
+        memcpy(curs.cp.hcurs->mask, mcur_hor_bits, sizeof(mcur_hor_bits));
         break; }
 
     case Qt::SizeBDiagCursor: {
@@ -465,11 +459,11 @@ void QCursor::update() const
             0x41, 0xfc, 0x63, 0xfc, 0x77, 0xdc, 0x7f, 0x8c, 0x7f, 0x04, 0x7e, 0x00,
             0x7f, 0x00, 0x7f, 0x80, 0x7f, 0xc0, 0x00, 0x00 };
 
-        d->type = QCursorData::TYPE_CursPtr;
-        d->curs.cp.my_cursor = true;
-        d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
-        memcpy(d->curs.cp.hcurs->data, cur_fdiag_bits, sizeof(cur_fdiag_bits));
-        memcpy(d->curs.cp.hcurs->mask, mcur_fdiag_bits, sizeof(mcur_fdiag_bits));
+        type = QCursorData::TYPE_CursPtr;
+        curs.cp.my_cursor = true;
+        curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+        memcpy(curs.cp.hcurs->data, cur_fdiag_bits, sizeof(cur_fdiag_bits));
+        memcpy(curs.cp.hcurs->mask, mcur_fdiag_bits, sizeof(mcur_fdiag_bits));
         break; }
     case Qt::SizeFDiagCursor: {
         static const uchar cur_bdiag_bits[] = {
@@ -481,22 +475,22 @@ void QCursor::update() const
             0x7f, 0x8c, 0x77, 0xdc, 0x63, 0xfc, 0x41, 0xfc, 0x00, 0xfc, 0x01, 0xfc,
             0x03, 0xfc, 0x07, 0xfc, 0x00, 0x00, 0x00, 0x00 };
 
-        d->type = QCursorData::TYPE_CursPtr;
-        d->curs.cp.my_cursor = true;
-        d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
-        memcpy(d->curs.cp.hcurs->data, cur_bdiag_bits, sizeof(cur_bdiag_bits));
-        memcpy(d->curs.cp.hcurs->mask, mcur_bdiag_bits, sizeof(mcur_bdiag_bits));
+        type = QCursorData::TYPE_CursPtr;
+        curs.cp.my_cursor = true;
+        curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+        memcpy(curs.cp.hcurs->data, cur_bdiag_bits, sizeof(cur_bdiag_bits));
+        memcpy(curs.cp.hcurs->mask, mcur_bdiag_bits, sizeof(mcur_bdiag_bits));
         break; }
     case Qt::ForbiddenCursor: {
-        d->type = QCursorData::TYPE_ThemeCursor;
-        d->curs.tc.curs = kThemeNotAllowedCursor;
+        type = QCursorData::TYPE_ThemeCursor;
+        curs.tc.curs = kThemeNotAllowedCursor;
         break; }
     case Qt::BlankCursor: {
-        d->type = QCursorData::TYPE_CursPtr;
-        d->curs.cp.my_cursor = true;
-        d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
-        memset(d->curs.cp.hcurs->data, 0x00, sizeof(d->curs.cp.hcurs->data));
-        memset(d->curs.cp.hcurs->mask, 0x00, sizeof(d->curs.cp.hcurs->data));
+        type = QCursorData::TYPE_CursPtr;
+        curs.cp.my_cursor = true;
+        curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+        memset(curs.cp.hcurs->data, 0x00, sizeof(curs.cp.hcurs->data));
+        memset(curs.cp.hcurs->mask, 0x00, sizeof(curs.cp.hcurs->data));
         break; }
     case Qt::UpArrowCursor: {
         static const unsigned char cur_up_arrow_bits[] = {
@@ -508,20 +502,20 @@ void QCursor::update() const
             0x07, 0xf0, 0x0f, 0xf8, 0x0f, 0xf8, 0x01, 0xc0, 0x01, 0xc0, 0x01, 0xc0,
             0x01, 0xc0, 0x01, 0xc0, 0x01, 0xc0, 0x01, 0xc0 };
 
-        d->type = QCursorData::TYPE_CursPtr;
-        d->curs.cp.my_cursor = true;
-        d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
-        memcpy(d->curs.cp.hcurs->data, cur_up_arrow_bits, sizeof(cur_up_arrow_bits));
-        memcpy(d->curs.cp.hcurs->mask, mcur_up_arrow_bits, sizeof(mcur_up_arrow_bits));
+        type = QCursorData::TYPE_CursPtr;
+        curs.cp.my_cursor = true;
+        curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+        memcpy(curs.cp.hcurs->data, cur_up_arrow_bits, sizeof(cur_up_arrow_bits));
+        memcpy(curs.cp.hcurs->mask, mcur_up_arrow_bits, sizeof(mcur_up_arrow_bits));
         break; }
 #endif
     default:
-        qWarning("Qt: QCursor::update: Invalid cursor shape %d", d->cshape);
+        qWarning("Qt: QCursor::update: Invalid cursor shape %d", cshape);
         return;
     }
 
-    if(d->type == QCursorData::TYPE_CursPtr && d->curs.cp.hcurs && d->curs.cp.my_cursor) {
-        d->curs.cp.hcurs->hotSpot.h = d->hx >= 0 ? d->hx : 8;
-        d->curs.cp.hcurs->hotSpot.v = d->hy >= 0 ? d->hy : 8;
+    if(type == QCursorData::TYPE_CursPtr && curs.cp.hcurs && curs.cp.my_cursor) {
+        curs.cp.hcurs->hotSpot.h = hx >= 0 ? hx : 8;
+        curs.cp.hcurs->hotSpot.v = hy >= 0 ? hy : 8;
     }
 }
