@@ -16,7 +16,7 @@
 
 class QStackedBoxPrivate;
 
-class QStackedBox : public QFrame
+class Q_GUI_EXPORT QStackedBox : public QFrame
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QStackedBox)

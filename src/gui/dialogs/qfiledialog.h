@@ -22,7 +22,7 @@
 class QModelIndex;
 class QFileDialogPrivate;
 
-class QFileDialog : public QDialog
+class Q_GUI_EXPORT QFileDialog : public QDialog
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QFileDialog)
@@ -42,7 +42,7 @@ public:
 
     void addFilter(const QString &filter);
     QStringList filters() const;
-    
+
     void selectFilter(const QString &filter);
     QString selectedFilter() const;
 
