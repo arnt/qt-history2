@@ -64,6 +64,7 @@ public:
     QImage* image;
     QPoint offset;
     int w,h;
+    QRect change;
 };
 
 /*!
@@ -131,6 +132,7 @@ QDirectPainter::QDirectPainter( const QWidget* w ) :
     d->w = w->width();
     d->h = w->height();
     d->gfx->beginTransaction(QRect(d->offset,size()));
+    d->change = QRect(d->offset, QSize(d->w,d->h));
 }
 
 /*!
@@ -140,6 +142,7 @@ QDirectPainter::QDirectPainter( const QWidget* w ) :
 QDirectPainter::~QDirectPainter()
 {
     d->gfx->endTransaction();
+    qt_screen->setDirty(d->change);
     delete d;
 }
 
@@ -215,5 +218,16 @@ QPoint QDirectPainter::offset() const { return d->offset; }
   \sa width(), height()
 */
 QSize QDirectPainter::size() const { return QSize(d->w,d->h); }
+
+/*!
+  Sets the area changed by the transaction to \a r. By default, the
+  entire widget is assumed to have changed. The area changed is only
+  used by some graphics drivers, so often calling this function for
+  a smaller area will make no difference.
+*/
+void QDirectPainter::setAreaChanged( const QRect& r )
+{
+    d->change = r;
+}
 
 #endif

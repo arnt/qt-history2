@@ -231,6 +231,8 @@ public:
 
     virtual bool isInterlaced() const;
 
+    virtual void setDirty( const QRect& );
+
 protected:
 
     QRgb screenclut[256];

@@ -61,6 +61,8 @@ public:
     QPoint offset() const;
     QSize size() const;
 
+    void setAreaChanged( const QRect& );
+
 private:
     class Private;
     Private* d;

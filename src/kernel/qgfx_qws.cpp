@@ -51,6 +51,10 @@ QGfx *QGfx::createGfx( int depth, unsigned char *buffer, int w, int h,
     return qt_screen->createGfx( buffer, w, h, depth, offs );
 }
 
+void QScreen::setDirty( const QRect& )
+{
+}
+
 bool QScreen::isTransformed() const
 {
     return FALSE;

@@ -73,7 +73,7 @@ public:
     virtual void restore();
     virtual void setMode(int nw,int nh,int nd);
 
-    void setDirty( QRect r )
+    virtual void setDirty( const QRect& r )
 	{ hdr->dirty = TRUE;
 	  int x1 = r.x()/MAP_TILE_SIZE;
 	  int y1 = r.y()/MAP_TILE_SIZE;

@@ -60,7 +60,7 @@ public:
     virtual void restore();
     virtual void setMode(int nw,int nh,int nd);
 
-    void setDirty( QRect r )
+    virtual void setDirty( const QRect& r )
 	{ hdr->dirty = true; hdr->update = hdr->update.unite( r ); }
 
     bool success;
