@@ -110,8 +110,8 @@ QLayoutItem *QStackedLayout::takeAt(int index)
     if (index == d->index) {
         d->index = -1;
         if ( d->list.count() > 0 ) {
-            index = index > 0 ? index - 1 : 0;
-            setCurrentIndex(index);
+            int newIndex = index > 0 ? index - 1 : 0;
+            setCurrentIndex(newIndex);
         }
     } else if (index < d->index) {
         --d->index;
