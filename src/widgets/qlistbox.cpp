@@ -2902,13 +2902,13 @@ QListBoxItem * QListBox::itemAt( QPoint p ) const
     if ( row && y < d->rowPos[row] )
 	row--;
 
-    QListBoxItem *i = item( col*numRows()+row );
+    QListBoxItem *i = item( col * numRows()  +row );
     if ( i && numColumns() > 1 ) {
-	if ( d->columnPos[ col ] + contentsX() + i->width( this ) >=  p.x() )
+	if ( d->columnPos[ col ] + i->width( this ) >=  p.x() + contentsX() )
 	    return i;
 	return 0;
     } else {
-	if ( d->columnPos[ col + 1 ] + contentsX() >=  p.x() )
+	if ( d->columnPos[ col + 1 ] + contentsX() >=  p.x() + contentsX() )
 	    return i;
 	return 0;
     }	
