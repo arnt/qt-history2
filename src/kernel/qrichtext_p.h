@@ -766,7 +766,9 @@ public:
 		    QPixmap *&doubleBuffer, const QColorGroup &cg,
 		    bool drawCursor, QTextCursor *cursor, bool resetChanged = TRUE );
     QTextParag *draw( QPainter *p, int cx, int cy, int cw, int ch, const QColorGroup &cg,
-		      bool onlyChanged = FALSE, bool drawCursor = FALSE, QTextCursor *cursor = 0 );
+		      bool onlyChanged = FALSE, bool drawCursor = FALSE, QTextCursor *cursor = 0,
+		      bool resetChanged = TRUE );
+
     void setDefaultFont( const QFont &f );
 
     void registerCustomItem( QTextCustomItem *i, QTextParag *p );
