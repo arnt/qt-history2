@@ -276,6 +276,10 @@ comment out the \c{#define ODBC_CHECK_DRIVER} line and recompile the
 driver, otherwise you will not be able to connect to a Microsoft
 Access database.
 
+If you experience that accessing an ODBC datasource is very slow,
+please make sure that ODBC call tracing is turned off in the ODBC
+datasource manager.
+
 \section3 Unicode support
 
 The QODBC3 Plugin will use the Unicode API if UNICODE is defined. On
