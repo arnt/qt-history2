@@ -28,7 +28,7 @@ class Q_CORE_EXPORT QMutex
 public:
     enum RecursionMode { NonRecursive, Recursive };
 
-    QMutex(RecursionMode mode = NonRecursive);
+    explicit QMutex(RecursionMode mode = NonRecursive);
     ~QMutex();
 
     void lock();
@@ -58,7 +58,7 @@ private:
 class Q_CORE_EXPORT QMutexLocker
 {
 public:
-    inline QMutexLocker(QMutex *m)
+    inline explicit QMutexLocker(QMutex *m)
         : mtx(m)
     { relock(); }
     inline ~QMutexLocker()
@@ -85,7 +85,7 @@ private:
 class Q_CORE_EXPORT QMutex
 {
 public:
-    inline QMutex(bool = false) {}
+    inline explicit QMutex(bool = false) {}
     inline ~QMutex() {}
 
     static inline void lock() {}
@@ -104,7 +104,7 @@ private:
 class Q_CORE_EXPORT QMutexLocker
 {
 public:
-    inline QMutexLocker(QMutex *) {}
+    inline explicit QMutexLocker(QMutex *) {}
     inline ~QMutexLocker() {}
 
     static inline void unlock() {}

@@ -24,8 +24,8 @@ class Q_CORE_EXPORT QPluginLoader : public QObject
     Q_OBJECT
     Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
 public:
-    QPluginLoader(QObject *parent = 0);
-    QPluginLoader(const QString &fileName, QObject *parent = 0);
+    explicit QPluginLoader(QObject *parent = 0);
+    explicit QPluginLoader(const QString &fileName, QObject *parent = 0);
     ~QPluginLoader();
 
     QObject *instance();

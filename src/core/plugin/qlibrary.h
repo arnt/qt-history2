@@ -23,8 +23,8 @@ class Q_CORE_EXPORT QLibrary : public QObject
     Q_OBJECT
     Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
 public:
-    QLibrary(QObject *parent = 0);
-    QLibrary(const QString& fileName, QObject *parent = 0);
+    explicit QLibrary(QObject *parent = 0);
+    explicit QLibrary(const QString& fileName, QObject *parent = 0);
     ~QLibrary();
 
     void *resolve(const char *symbol);
@@ -45,6 +45,5 @@ private:
     QLibraryPrivate *d;
     bool did_load;
 };
-
 
 #endif //QLIBRARY_H

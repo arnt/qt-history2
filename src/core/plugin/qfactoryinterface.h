@@ -24,4 +24,4 @@ struct QFactoryInterface
 
 Q_DECLARE_INTERFACE(QFactoryInterface, "http://trolltech.com/Qt/QFactoryInterface")
 
-#endif
+#endif // QFACTORYINTERFACE_H

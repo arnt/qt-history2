@@ -85,6 +85,4 @@ typedef QObject *(*QtPluginInstanceFunction)();
             Q_PLUGIN_INSTANCE(PLUGIN)
 #endif
 
-
 #endif // Q_PLUGIN_H
-

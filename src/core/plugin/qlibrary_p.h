@@ -64,7 +64,7 @@ public:
 
 
 private:
-    QLibraryPrivate(const QString &canonicalFileName);
+    explicit QLibraryPrivate(const QString &canonicalFileName);
     ~QLibraryPrivate();
 
     bool load_sys();

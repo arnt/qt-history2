@@ -49,4 +49,4 @@ struct QReadWriteLockPrivate
 };
 #endif
 
-#endif
+#endif // QREADWRITELOCK_P_H

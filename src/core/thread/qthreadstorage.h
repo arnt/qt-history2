@@ -19,7 +19,7 @@
 class Q_CORE_EXPORT QThreadStorageData
 {
 public:
-    QThreadStorageData(void (*func)(void *));
+    explicit QThreadStorageData(void (*func)(void *));
     ~QThreadStorageData();
 
     void** get() const;

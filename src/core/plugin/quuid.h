@@ -148,4 +148,4 @@ Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QUuid &);
 Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QUuid &);
 #endif
 
-#endif //QUUID_H
+#endif // QUUID_H

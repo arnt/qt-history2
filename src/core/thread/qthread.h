@@ -27,7 +27,7 @@ public:
     static Qt::HANDLE currentThreadId();
     static QThread *currentThread();
 
-    QThread(QObject *parent = 0);
+    explicit QThread(QObject *parent = 0);
     ~QThread();
 
     enum Priority {

@@ -84,4 +84,4 @@ private:
     QReadWriteLock *q_lock;
 };
 
-#endif
+#endif // QREADWRITELOCK_H
