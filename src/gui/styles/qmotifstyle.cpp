@@ -1547,6 +1547,10 @@ int QMotifStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt,
         }
         break;
 
+    case PM_DockWidgetFrameWidth:
+        ret = 2;
+        break;
+
     case PM_DockWidgetHandleExtent:
         ret = 9;
         break;
