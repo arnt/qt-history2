@@ -1767,7 +1767,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    if ( index < 0 )
 			index = 0;
 		    QTextFormat format = curtag.format.makeTextFormat( nstyle, attr );
-		    curpar->append( QChar('b') );
+		    curpar->append( QChar('*') );
 		    curpar->setFormat( index, 1, &format );
 		    curpar->at( index )->setCustomItem( custom );
 		    if ( !curtag.anchorHref.isEmpty() )
@@ -1972,7 +1972,24 @@ QString QTextDocument::plainText( QTextParag *p ) const
 	QString s;
 	QTextParag *p = fParag;
 	while ( p ) {
-	    s = p->string()->toString();
+	    if ( !p->mightHaveCustomItems ) {
+		s = p->string()->toString();
+	    } else {
+		for ( int i = 0; i < p->length() - 1; ++i ) {
+		    if ( p->at( i )->isCustom() ) {
+			if ( p->at( i )->customItem()->isNested() ) {
+			    s += "\n";
+			    QTextTable *t = (QTextTable*)p->at( i )->customItem();
+			    QPtrList<QTextTableCell> cells = t->tableCells();
+			    for ( QTextTableCell *c = cells.first(); c; c = cells.next() )
+				s += c->richText()->plainText() + "\n";
+			    s += "\n";
+			}
+		    } else {
+			s += p->at( i )->c;
+		    }
+		}
+	    }
 	    s.remove( s.length() - 1, 1 );
 	    if ( p->next() )
 		s += "\n";
@@ -2436,23 +2453,22 @@ QString QTextDocument::selectedText( int id, bool withCustom ) const
 	c1 = sel.endCursor;
     }
 
-    
     /* 3.0.3 improvement: Make it possible to get a reasonable
        selection inside a table.  This approach is very conservative:
        make sure that both cursors have the same depth level and point
        to paragraphs within the same text document.
-       
+
        Meaning if you select text in two table cells, you will get the
        entire table. This is still far better than the 3.0.2, where
        you always got the entire table.
-       
+
        ### Fix this properly for 3.0.4.
      */
     while ( c2.nestedDepth() > c1.nestedDepth() )
 	c2.oneUp();
     while ( c1.nestedDepth() > c2.nestedDepth() )
 	c1.oneUp();
-    while ( c1.nestedDepth() && c2.nestedDepth() && 
+    while ( c1.nestedDepth() && c2.nestedDepth() &&
 	    c1.parag()->document() != c2.parag()->document() ) {
 	c1.oneUp();
 	c2.oneUp();
@@ -2464,9 +2480,9 @@ QString QTextDocument::selectedText( int id, bool withCustom ) const
 	c2 = c1;
 	c1 = tmp;
     }
-    
+
     // end selection 3.0.3 improvement
-    
+
 
     if ( c1.parag() == c2.parag() ) {
 	QString s;
@@ -2491,7 +2507,6 @@ QString QTextDocument::selectedText( int id, bool withCustom ) const
 		} else {
 		    s += p->at( i )->c;
 		}
-		s += "\n";
 	    }
 	}
 #else
@@ -2526,7 +2541,6 @@ QString QTextDocument::selectedText( int id, bool withCustom ) const
 		} else {
 		    s += p->at( i )->c;
 		}
-		s += "\n";
 	    }
 	}
 #else
