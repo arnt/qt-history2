@@ -1522,15 +1522,18 @@ void QWidget::setWindowState(uint newstate)
                     }
                     tlextra->savedFlags = getWFlags();
                 }
+                needShow = isVisible();
                 setParent(0, Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_NoBorder |
                           (getWFlags() & 0xffff0000));                           // preserve some widget flags
+
                 setGeometry(qApp->desktop()->screenGeometry(qApp->desktop()->screenNumber(this)));
                 qt_mac_set_fullscreen_mode(true);
             } else {
+                needShow = isVisible();
                 setParent(0, d->topData()->savedFlags);
                 setGeometry(d->topData()->normalGeometry);
                 qt_mac_set_fullscreen_mode(false);
-                d->topData()->normalGeometry = QRect(0, 0, -1, -1);
+                d->topData()->normalGeometry.setRect(0, 0, -1, -1);
             }
         }
 
@@ -1549,9 +1552,10 @@ void QWidget::setWindowState(uint newstate)
         } else if(!(newstate & Qt::WindowFullScreen)) {
             d->topData()->normalGeometry = QRect(0, 0, -1, -1);
         }
+
         if(!(newstate & Qt::WindowMinimized) &&
-            ((oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized)
-             || (oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized))) {
+            (((oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized)))
+             || (oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized)) {
             if(newstate & Qt::WindowMaximized) {
                 Rect bounds;
                 data->fstrut_dirty = true;
