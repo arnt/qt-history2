@@ -40,6 +40,20 @@
 
 /* ATTENTION: this file must remain in sync with qsqldialog.cpp */
 
+/*!
+
+  \class QSqlWidget qsqlwidget.h
+  \brief SQL cursor/form manipulation and navigation
+
+  \module sql
+
+  This class is used to manipulate and navigate data entry forms.  A
+  high-level API is provided to navigate through data records in a
+  cursor, insert, update and delete records, and refresh data in the
+  display.
+
+*/
+
 QSqlWidget::QSqlWidget( QWidget *parent, const char *name, WFlags fl )
     : QWidget( parent, name, fl ), QSqlFormNavigator()
 {
