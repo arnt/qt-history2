@@ -398,13 +398,12 @@ QStringList QSQLiteDriver::tables(QSql::TableType type) const
 
     QSqlQuery q = createQuery();
     q.setForwardOnly(true);
-    if (type & (QSql::Tables | QSql::Views))
+    if ((type & QSql::Tables) && (type & QSql::Views))
         q.exec("SELECT name FROM sqlite_master WHERE type='table' OR type='view'");
     else if (type & QSql::Tables)
         q.exec("SELECT name FROM sqlite_master WHERE type='table'");
     else if (type & QSql::Views)
         q.exec("SELECT name FROM sqlite_master WHERE type='view'");
-
 
     if (q.isActive()) {
         while(q.next())
