@@ -875,7 +875,7 @@ bool QClipboard::event( QEvent *e )
 
 		    // for 64 bit cleanness... XChangeProperty expects long* for data
 		    // with format == 32
-		    data = QByteArray((atoms+3) * sizeof(long));  // plus TARGETS, MULTIPLE and TIMESTAMP
+		    data = QByteArray((atoms+3) * sizeof(long)); // plus TARGETS, MULTIPLE and TIMESTAMP
 		    long *atarget = (long *) data.data();
 
 		    int n = 0;
