@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#194 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#195 $
 **
 ** Implementation of QListView widget class
 **
@@ -3121,10 +3121,8 @@ int QListView::itemMargin() const
 /*!  Reimplemented to let the list view items update themselves.  \a s
   is the new GUI style. */
 
-void QListView::setStyle( GUIStyle /* s */ )
+void QListView::styleChange( GUIStyle /* s */ )
 {
-//#####    d->h->setStyle( s );
-//#####    QScrollView::setStyle( s );
     reconfigureItems();
 }
 

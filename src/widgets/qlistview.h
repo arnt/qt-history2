@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#69 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#70 $
 **
 ** Definition of QListView widget class
 **
@@ -223,7 +223,6 @@ public:
 
     virtual void setSorting( int column, bool increasing = TRUE );
 
-    virtual void setStyle( GUIStyle );
     virtual void setFont( const QFont & );
     virtual void setPalette( const QPalette & );
 
@@ -265,6 +264,7 @@ protected:
 
     virtual void paintEmptyArea( QPainter *, const QRect & );
     void enabledChange( bool );
+    void styleChange( GUIStyle );
 
 protected slots:
     void updateContents();
