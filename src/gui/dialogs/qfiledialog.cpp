@@ -611,7 +611,7 @@ QStringList QFileDialog::selectedFiles() const
     int r = -1;
     for (int i = 0; i < items.count(); ++i) {
         if (items.at(i).row() != r) {
-            files.append(d->model->fileInfo(items.at(i)).filePath());
+            files.append(d->model->path(items.at(i)));
             r = items.at(i).row();
         }
     }
@@ -1047,6 +1047,10 @@ void QFileDialog::useFilter(const QString &filter)
         f = regexp.cap(2);
     QStringList filters = f.split(' ', QString::SkipEmptyParts);
     d->model->setNameFilters(filters);
+
+    // FIXME: workaroud for problem in rowsRemoved()/rowsInserted()
+    d->lview->doItemsLayout();
+    d->tview->doItemsLayout();
 }
 
 /*!
@@ -1259,8 +1263,6 @@ void QFileDialogPrivate::setup()
 
     // model
     model = new QDirModel(QString::null, q);
-    model->setFilter(model->filter() | QDir::AllDirs);
-    model->setSorting(QDir::DirsFirst);
 
     // views
     lview = new QGenericListView(q);

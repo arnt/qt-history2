@@ -303,8 +303,8 @@ public:
 
     QDirModelPrivate()
         : rootIsVirtual(true),
-          filterSpec(QDir::All),
-          sortSpec(QDir::Name|QDir::IgnoreCase),
+          filterSpec(QDir::All|QDir::AllDirs|QDir::Drives),
+          sortSpec(QDir::Name|QDir::IgnoreCase|QDir::DirsFirst),
           nameFilters(QStringList(QString::fromLatin1("*"))),
           iconProvider(&defaultProvider) {}
 
@@ -848,11 +848,11 @@ QFileIconProvider *QDirModel::iconProvider() const
 
 void QDirModel::setNameFilters(const QStringList &filters)
 {
-    // FIXME: this will rebuild the entire structure of the qdirmodel
-    d->savePersistentIndexes();
+//    qDebug("setNameFilters:");
+    d->savePersistentIndexes(); // FIXME: this will rebuild the entire structure of the qdirmodel
     emit rowsRemoved(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
     d->nameFilters = filters;
-    d->root.children = d->children(&d->root); // clear model
+    d->root.children = d->children(0); // clear model
     d->restorePersistentIndexes();
     emit rowsRemoved(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
 }
@@ -878,7 +878,7 @@ void QDirModel::setFilter(int spec)
     d->savePersistentIndexes();
     emit rowsRemoved(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
     d->filterSpec = spec;
-    d->root.children = d->children(&d->root);
+    d->root.children = d->children(0);
     d->restorePersistentIndexes();
     emit rowsInserted(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
 }
@@ -908,7 +908,7 @@ void QDirModel::setSorting(int spec)
     d->savePersistentIndexes();
     emit rowsRemoved(parent, 0, rowCount(parent) - 1);
     d->sortSpec = spec;
-    d->root.children = d->children(&d->root);
+    d->root.children = d->children(0);
     d->restorePersistentIndexes();
     emit rowsInserted(parent, 0, rowCount(parent) - 1);
 }
@@ -945,10 +945,12 @@ void QDirModel::refresh(const QModelIndex &parent)
 
 QModelIndex QDirModel::index(const QString &path) const
 {
+//    qDebug("index: <<<");
+
     if (path.isEmpty())
         return QModelIndex();
 
-//    qDebug("index: path %s", path.latin1());
+//    qDebug("index: path '%s'", path.latin1());
     QStringList pth = QDir(path).absolutePath().split(QDir::separator(), QString::SkipEmptyParts);
 
 //     for (int j = 0; j < pth.count(); ++j)
@@ -972,7 +974,7 @@ QModelIndex QDirModel::index(const QString &path) const
 
     for (int i = 0; i < pth.count(); ++i) {
 
-//        qDebug("---");
+//        qDebug("index: ---");
 
         if (pth.at(i).isEmpty()) {
             qWarning("index: path element %d was empty", i);
@@ -980,6 +982,7 @@ QModelIndex QDirModel::index(const QString &path) const
         }
 
         node = idx.isValid() ? static_cast<QDirModelPrivate::QDirNode*>(idx.data()) : &(d->root);
+
 #if 0
         if (!idx.isValid()) {
 //            qDebug("index: idx is not valid");
@@ -992,7 +995,20 @@ QModelIndex QDirModel::index(const QString &path) const
         {
 //            qDebug("index: idx is valid");
             QString absPath = node->info.absoluteFilePath();
+//            qDebug("index: getting entries in '%s'", absPath.latin1());
+
+            // FIXME: workaround for problem in QDir
+#if 1
+            QDir dir(absPath);
+            QFileInfoList info = dir.entryInfoList(d->nameFilters, d->filterSpec, d->sortSpec);
+//            qDebug("index: fileinfo count %d", info.count());
+            entries.clear();
+            for (int fi = 0; fi < info.count(); ++fi)
+                entries << info.at(fi).fileName();
+#else
             entries = QDir(absPath).entryList(d->nameFilters, d->filterSpec, d->sortSpec);
+//            qDebug("index: got %d entries", entries.count());
+#endif
         }
 
 //         for (int j = 0; j < entries.count(); ++j)
@@ -1004,12 +1020,12 @@ QModelIndex QDirModel::index(const QString &path) const
 //        qDebug("index: index of element is %d", r);
         idx = index(r, 0, idx); // will check row and lazily populate
         if (!idx.isValid()) {
-//            qDebug("index: path does not exist");
+            qWarning("index: path does not exist\n");
             return QModelIndex();
         }
     }
 
-//    qDebug("index: end of funcion");
+//    qDebug("index: >>>\n");
     return idx;
 }
 
@@ -1021,9 +1037,12 @@ QModelIndex QDirModel::index(const QString &path) const
 
 QString QDirModel::path(const QModelIndex &index) const
 {
+    QString pth;
     if (!index.isValid())
-        return d->rootPath();
-    return fileInfo(index).absoluteFilePath();
+        pth = d->rootPath();
+    else
+        pth = fileInfo(index).absoluteFilePath();
+    return QDir::cleanPath(pth);
 }
 
 /*!
@@ -1337,6 +1356,7 @@ void QDirModelPrivate::savePersistentIndexes()
     for (int i = 0; i < persistentIndexes.count(); ++i) {
         QModelIndex idx = persistentIndexes.at(i)->index;
         QString pth = q->path(idx);
+//        qDebug("savePersistentIndexes: saving '%s'", pth.latin1());
         savedPaths.append(pth);
         ++persistentIndexes.at(i)->ref; // save
         persistentIndexes[i]->index = QModelIndex(); // invalidated

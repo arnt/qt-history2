@@ -616,6 +616,7 @@ void QGenericListView::resizeContents(int width, int height)
 */
 void QGenericListView::rowsInserted(const QModelIndex &parent, int, int)
 {
+    // FIXME: if the parent is above root() in the tree, nothing will happen
     if (parent == root() && isVisible())
         doItemsLayout();
 }
@@ -625,6 +626,7 @@ void QGenericListView::rowsInserted(const QModelIndex &parent, int, int)
 */
 void QGenericListView::rowsRemoved(const QModelIndex &parent, int, int)
 {
+    // FIXME: if the parent is above root() in the tree, nothing will happen
     if (parent == root() && isVisible())
         doItemsLayout();
 }
