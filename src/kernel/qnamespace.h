@@ -39,6 +39,9 @@
 #define QNAMESPACE_H
 
 #ifndef QT_H
+#ifdef _WS_WIN_
+#include "qt_windows.h"
+#endif
 #include "qglobal.h"
 #endif // QT_H
 

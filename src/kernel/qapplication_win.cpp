@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#409 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#410 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -991,14 +991,14 @@ void QApplication::beep()
 #include "qqueue.h"
 
 struct QWinConfigRequest {
-    WId	 id;					// widget to be configured
+    Qt::WId	 id;					// widget to be configured
     int	 req;					// 0=move, 1=resize, 2=setGeo
     int	 x, y, w, h;				// request parameters
 };
 
 static QQueue<QWinConfigRequest> *configRequests = 0;
 
-void qWinRequestConfig( WId id, int req, int x, int y, int w, int h )
+void qWinRequestConfig( Qt::WId id, int req, int x, int y, int w, int h )
 {
     if ( !configRequests )			// create queue
 	configRequests = new QQueue<QWinConfigRequest>;
@@ -1636,7 +1636,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		break;
 
 	    case WM_PALETTECHANGED:			// our window changed palette
-		if ( QColor::hPal() && (WId)wParam == widget->winId() )
+		if ( QColor::hPal() && (Qt::WId)wParam == widget->winId() )
 		    return 0;			// otherwise: FALL THROUGH!
 		// FALL THROUGH
 	    case WM_QUERYNEWPALETTE:		// realize own palette
@@ -1748,7 +1748,7 @@ void qt_enter_modal( QWidget *widget )
     releaseAutoCapture();
     qt_modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
-    qt_dispatchEnterLeave( 0, QWidget::find( (WId)curWin  ) ); // send synthetic leave event
+    qt_dispatchEnterLeave( 0, QWidget::find( (Qt::WId)curWin  ) ); // send synthetic leave event
     curWin = 0;
 }
 
