@@ -1117,7 +1117,7 @@ void QLineEditPrivate::copy(bool clipboard) const
 */
 bool QLineEdit::event(QEvent * e)
 {
-    if (e->type() == QEvent::AccelOverride && !d->readOnly) {
+    if (e->type() == QEvent::ShortcutOverride && !d->readOnly) {
         QKeyEvent* ke = (QKeyEvent*) e;
         if (ke->state() == NoButton || ke->state() == ShiftButton
              || ke->state() == Keypad) {

@@ -43,9 +43,7 @@ public:
         HideToParent = 27,                      // widget is hidden to parent
         ShowMaximized = 28,                     // widget is shown maximized
         ShowFullScreen = 29,                    // widget is shown full-screen
-        Accel = 30,                             // accelerator event
         Wheel = 31,                             // wheel event
-        AccelAvailable = 32,                    // accelerator available event
         WindowTitleChange = 33,                 // window title changed
         WindowIconChange = 34,                  // icon changed
         ApplicationFontChange = 36,             // application font changed
@@ -56,7 +54,6 @@ public:
         InvokeSlot =  43,                       // invoke slot event
         EmitSignal =  44,                       // emit signal event
         SockAct = 50,                           // socket activation
-        AccelOverride = 51,                     // accelerator override event
         DeferredDelete = 52,                    // deferred delete event
         DragEnter = 60,                         // drag moves into widget
         DragMove = 61,                          // drag moves in widget
@@ -123,7 +120,13 @@ public:
         FileOpen = 116,                         // file open request
 
         Shortcut = 117,                         // shortcut triggered
-        ShortcutOverride = 118,                 // shortcut override request
+        ShortcutOverride = 51,                  // shortcut override request
+
+#ifdef QT_COMPAT
+        Accel = 30,                             // accelerator event
+        AccelAvailable = 32,                    // accelerator available event
+        AccelOverride = ShortcutOverride,       // accelerator override event
+#endif
 
         WhatsThisClicked = 119,
 

@@ -460,7 +460,7 @@ bool QDateTimeEditor::event(QEvent *e)
         if (e->type() == QEvent::FocusOut)
             qApp->sendEvent(cw, e);
         update(rect());
-    } else if (e->type() == QEvent::AccelOverride) {
+    } else if (e->type() == QEvent::ShortcutOverride) {
         QKeyEvent* ke = (QKeyEvent*) e;
         switch (ke->key()) {
         case Key_Delete:

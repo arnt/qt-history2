@@ -799,7 +799,7 @@ QMenuBar::eventFilter(QObject *object, QEvent *event)
         if(f && !f->isTopLevel())
             f->removeEventFilter(this);
         return false;
-    } else if(!(event->type() == QEvent::AccelOverride ||
+    } else if(!(event->type() == QEvent::ShortcutOverride ||
                 event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) ||
               !style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this)) {
         return false;
@@ -843,7 +843,7 @@ QMenuBar::eventFilter(QObject *object, QEvent *event)
             if(!widget->isTopLevel())
                 object->removeEventFilter(this);
             return true;
-        } else if(!hasFocus() && (event->type() == QEvent::AccelOverride) &&
+        } else if(!hasFocus() && (event->type() == QEvent::ShortcutOverride) &&
                   !(((QKeyEvent *)event)->key() == Key_Alt || ((QKeyEvent *)event)->key() == Key_Meta)) {         // Cancel if next keypress is NOT Alt/Meta,
             if(!widget->isTopLevel())
                 object->removeEventFilter(this);

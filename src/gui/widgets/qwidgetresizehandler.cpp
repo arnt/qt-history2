@@ -84,7 +84,7 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
          ee->type() != QEvent::MouseButtonRelease &&
          ee->type() != QEvent::MouseMove &&
          ee->type() != QEvent::KeyPress &&
-         ee->type() != QEvent::AccelOverride)
+         ee->type() != QEvent::ShortcutOverride)
         return false;
 
     QWidget *w = childOf(widget, (QWidget*)o);
@@ -139,7 +139,7 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
     case QEvent::KeyPress:
         keyPressEvent((QKeyEvent*)e);
         break;
-    case QEvent::AccelOverride:
+    case QEvent::ShortcutOverride:
         if (buttonDown) {
             ((QKeyEvent*)ee)->accept();
             return true;

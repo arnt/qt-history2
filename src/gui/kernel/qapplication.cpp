@@ -2516,8 +2516,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             res = notify_helper(((QWidget*)receiver)->topLevelWidget(), e);
         break;
     }
-    case QEvent::AccelOverride:
 #endif //QT_NO_ACCEL
+    case QEvent::ShortcutOverride:
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
         {
