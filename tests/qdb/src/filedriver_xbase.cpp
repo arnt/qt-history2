@@ -802,7 +802,7 @@ bool FileDriver::update( const List& data )
     env->output() << "success" << endl;
 #endif
     return TRUE;
-}
+y}
 
 bool FileDriver::rangeAction( const List* data, const List* cols,
 			      LocalSQLResultSet* result )
@@ -967,7 +967,7 @@ bool FileDriver::saveResult( const List* cols, LocalSQLResultSet* result )
     env->output() << "FileDriver::saveResult..." << flush;
 #endif
     if ( !cols || !result ) {
-	ERROR_RETURN( "Internal error: no cols or result" );
+	ERROR_RETURN( "Internal error: Unable to save result, no columss or no result" );
     }
     /* build a Record from cols, which may be a field desc
        or a literal value
@@ -1029,10 +1029,10 @@ bool FileDriver::createIndex( const List& data, bool unique )
     env->output() << "FileDriver::createIndex..." << flush;
 #endif
     if ( !isOpen() ) {
-	ERROR_RETURN( "Internal error: File not open" );
+	ERROR_RETURN( "Internal error: Unable to create index, file not open" );
     }
     if ( !data.count() ) {
-	ERROR_RETURN( "Internal error: No fields defined");
+	ERROR_RETURN( "Internal error: Unable to create index, no fields defined");
     }
     uint i = 0;
     xbShort rc;
@@ -1043,7 +1043,7 @@ bool FileDriver::createIndex( const List& data, bool unique )
 	/* create the index description string */
 	xbShort fieldnum = d->file.GetFieldNo( name );
 	if (  fieldnum == -1 ) {
-	    ERROR_RETURN( "Internal error: Field not found:" + name );
+	    ERROR_RETURN( "Internal error: Unable to create index, field not found:" + name );
 	}
 	if ( indexType == QVariant::Invalid ) /* save type of first indexed field */
 	    indexType = xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) );
@@ -1051,7 +1051,8 @@ bool FileDriver::createIndex( const List& data, bool unique )
 			  indexType ) ) {
 	    QVariant v1; v1.cast( indexType );
 	    QVariant v2; v2.cast( xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) ) );
-	    ERROR_RETURN( "Incompatible index field types: '" + QString( v1.typeName() ) + "' and '" +
+	    ERROR_RETURN( "Unable to create index, incompatible index field types: '" +
+			  QString( v1.typeName() ) + "' and '" +
 			  QString( v2.typeName() ) + "'" );
 	}
 	indexDesc += QString(( indexDesc.length()>0 ? QString("+") : QString::null ) ) + name;
@@ -1064,7 +1065,7 @@ bool FileDriver::createIndex( const List& data, bool unique )
 	    d->indexes[i]->GetExpression( buf,XB_MAX_NDX_NODE_SIZE  );
 	    if ( QString(buf) == indexDesc ) {
 		forceCreate = FALSE;
-		env->output() << "Index already exists: " << env->path() + "/" + name() << "." << buf << endl;
+		env->output() << "Unable to create index, index already exists: " << env->path() + "/" + name() << "." << buf << endl;
 		break;
 	    }
 	}
@@ -1099,7 +1100,7 @@ bool FileDriver::createIndex( const List& data, bool unique )
 	/* build index */
 	if ( ( rc = idx->ReIndex() ) != XB_NO_ERROR ) {
 	    QFile::remove( env->path() + "/" + indexName );
-	    ERROR_RETURN( "Unable to build index: " + QString( xbStrError( rc ) ) );
+	    ERROR_RETURN( "Unable to create index, unable to build index: " + QString( xbStrError( rc ) ) );
 	}
 
     }
@@ -1115,7 +1116,7 @@ bool FileDriver::drop()
     env->output() << "FileDriver::drop..." << flush;
 #endif
     if ( !name() ) {
-	ERROR_RETURN( "Internal error: No file name" );
+	ERROR_RETURN( "Internal error: unable to drop table, no table name" );
     }
     if ( isOpen() )
 	close();
@@ -1150,7 +1151,7 @@ bool FileDriver::star( QVariant& v )
     env->output() << "FileDriver::star..." << flush;
 #endif
     if ( !isOpen() ) {
-	ERROR_RETURN( "Internal error: File not open" );
+	ERROR_RETURN( "Internal error: Unable to get star values, file not open" );
     }
     List list;
     for ( uint i = 0; i < count(); ++i ) {
@@ -1172,7 +1173,7 @@ bool FileDriver::starDescription( QVariant& v )
     env->output() << "FileDriver::starDescription..." << flush;
 #endif
     if ( !isOpen() ) {
-	ERROR_RETURN( "Internal error: File not open" );
+	ERROR_RETURN( "Internal error: Unable to get star description, file not open" );
     }
     List list;
     for ( uint i = 0; i < count(); ++i ) {
