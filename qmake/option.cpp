@@ -134,7 +134,7 @@ bool
 Option::parseCommandLine(int argc, char **argv)
 {
     for(int x = 1; x < argc; x++) {
-	if(*argv[x] == '-') { /* options */
+	if(*argv[x] == '-' && strlen(argv[x]) > 1) { /* options */
 	    QString opt = argv[x] + 1;
 
 	    //first param is a mode, or we default

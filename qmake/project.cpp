@@ -266,9 +266,17 @@ QMakeProject::read(const char *file, QMap<QString, QStringList> &place)
     scope_flag = 0x01;
     scope_block = 0;
 
-    bool ret;
-    QFile qfile(file);
-    if ( (ret = qfile.open(IO_ReadOnly)) ) {
+    bool ret = FALSE, using_stdin = FALSE;
+    QFile qfile;
+    if(!strcmp(file, "-")) {
+	qfile.setName("");
+	ret = qfile.open(IO_ReadOnly, stdin);
+	using_stdin = TRUE;
+    } else {
+	qfile.setName(file);
+	ret = qfile.open(IO_ReadOnly);
+    }
+    if ( ret ) {
 	QTextStream t( &qfile );
 	QString s, line;
 	line_count = 0;
@@ -289,7 +297,8 @@ QMakeProject::read(const char *file, QMap<QString, QStringList> &place)
 		s = "";
 	    }
 	}
-	qfile.close();
+	if(!using_stdin)
+	    qfile.close();
     }
     return ret;
 }
@@ -375,7 +384,7 @@ QMakeProject::read(QString project, QString pwd)
     vars = base_vars; /* start with the base */
 
     pfile = project;
-    if(!QFile::exists(pfile) && pfile.right(4) != ".pro")
+    if(pfile != "-" && !QFile::exists(pfile) && pfile.right(4) != ".pro")
 	pfile += ".pro";
 
     if(!read(pfile, vars))

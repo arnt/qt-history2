@@ -57,7 +57,7 @@ public:
     ~QMakeProject() { }
 
     bool read(QString project, QString pwd);
-    QString projectFile() { return pfile; }
+    QString projectFile() { return pfile == "-" ? QString("(stdin)") : pfile; }
     QString configFile() { return cfile; }
 
     bool isEmpty(const QString &v) { return !vars.contains(v) || vars[v].isEmpty(); }

@@ -86,12 +86,11 @@ int main(int argc, char **argv)
 		if(!QDir::setCurrent(fn.left(fn.findRev(Option::dir_sep))))
 		    fprintf(stderr, "Cannot find directory: %s\n", fn.left(di).latin1());
 		fn = fn.right(fn.length() - di - 1);
-
 	    }
 
 	    /* read project.. */
 	    if(!proj.read(fn, oldpwd)) {
-		fprintf(stderr, "Error processing project file: %s\n", (*pfile).latin1());
+		fprintf(stderr, "Error processing project file: %s\n", fn == "-" ? "(stdin)" : (*pfile).latin1());
 		exit_val = 2;
 		continue;
 	    }
@@ -146,7 +145,8 @@ int main(int argc, char **argv)
 			QFileInfo fi(Option::output);
 			Option::output_dir = Option::fixPathToTargetOS(fi.dirPath());
 			if(!Option::output.open(IO_WriteOnly | IO_Translate)) {
-			    fprintf(stderr, "Failure to open file: %s\n", Option::output.name().latin1());
+			    fprintf(stderr, "Failure to open file: %s\n", 
+				    Option::output.name().isEmpty() ? "(stdout)" : Option::output.name().latin1());
 			    return 5;
 			}
 		    }
