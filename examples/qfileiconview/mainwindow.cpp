@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#5 $
+** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#6 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -80,7 +80,7 @@ void FileMainWindow::setup()
 {
     QSplitter *splitter = new QSplitter( this );
 
-    dirlist = new DirectoryView( splitter, "dirlist", true );
+    dirlist = new DirectoryView( splitter, "dirlist", TRUE );
     dirlist->addColumn( "Name" );
     dirlist->addColumn( "Type" );
     Directory *root = new Directory( dirlist, "/" );
