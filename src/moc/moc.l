@@ -498,7 +498,7 @@ extern void moc_warn( const char *msg );
                             }
                           }
                         }
-"/*"			{ /* C	 comment */
+"/*"			{ /* C comment */
 			  char c = ' ';
 			  do {
 			      if ( c!= '*' ) {
@@ -511,13 +511,18 @@ extern void moc_warn( const char *msg );
 			      unput(c);
 			}
 
-[ \t\r\b\f]+   		;
+<IN_TEMPL_ARGS>.	  { addExpressionChar( yytext[0] ); }
+
+<IN_TEMPL_ARGS>[ \t\r\b\f]+	  {
+				    /* spaces are important in template args,
+				       cf. Foo<const int> */
+				    addExpressionChar( yytext[0] ); }
+[ \t\r\b\f]+		;
 <IN_CLASS>.		;
 <IN_NAMESPACE>.		;
 <IN_FCT>.		;
 <IN_EXPR>.		  { addExpressionChar( yytext[0] ); }
 <IN_ENUM>.		  { addExpressionChar( yytext[0] ); }
-<IN_TEMPL_ARGS>.	  { addExpressionChar( yytext[0] ); }
 <IN_PROPDEF>.		  { addExpressionChar( yytext[0] ); }
 <OUTSIDE>.		;
 <SKIP>.		        ;

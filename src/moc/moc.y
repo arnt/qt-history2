@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#254 $
+** $Id: //depot/qt/main/src/moc/moc.y#255 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -390,34 +390,33 @@ char	*straddSpc( const char *, const char *,
 
 extern int yydebug;
 bool	   lexDebug	   = FALSE;
-int	   lineNo;				// current line number
-bool	   errorControl	   = FALSE;		// controlled errors
+int	   lineNo;			// current line number
+bool	   errorControl	   = FALSE;	// controled errors
 bool	   displayWarnings = TRUE;
-bool	   skipClass;				// don't generate for class
-bool	   skipFunc;				// don't generate for func
-bool	   templateClass;			// class is a template
-bool	   templateClassOld;			// previous class is a template
+bool	   skipClass;			// don't generate for class
+bool	   skipFunc;			// don't generate for func
+bool	   templateClass;		// class is a template
+bool	   templateClassOld;		// previous class is a template
 
-ArgList	  *tmpArgList;				// current argument list
-Function  *tmpFunc;				// current member function
-Enum      *tmpEnum;				// current enum
+ArgList	  *tmpArgList;			// current argument list
+Function  *tmpFunc;			// current member function
+Enum      *tmpEnum;			// current enum
 Access tmpAccess;			// current access permission
 Access subClassPerm;			// current access permission
 
-bool	   Q_OBJECTdetected;			// TRUE if current class
-						// contains the Q_OBJECT macro
-bool	   Q_PROPERTYdetected;			// TRUE if current class
-						// contains at least one Q_PROPERTY,
-						// Q_OVERRIDE, Q_SETS or Q_ENUMS macro
-bool	   tmpPropOverride;			// current property override setting
+bool	   Q_OBJECTdetected;		// TRUE if current class
+					//  contains the Q_OBJECT macro
+bool	   Q_PROPERTYdetected;		// TRUE if current class
+					//  contains at least one Q_PROPERTY,
+					//  Q_OVERRIDE, Q_SETS or Q_ENUMS macro
+bool	   tmpPropOverride;		// current property override setting
 
-int	   tmpYYStart;				// Used to store the lexers current mode
-int	   tmpYYStart2;				// Used to store the lexers current mode
-						// (if tmpYYStart is already used)
-
-const int  formatRevision = 12;			// moc output format revision
+int	   tmpYYStart;			// Used to store the lexers current mode
+int	   tmpYYStart2;			// Used to store the lexers current mode
+					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you HAVE to change it in qmetaobject.h too
+const int  formatRevision = 12;		// moc output format revision
 
 %}
 
@@ -594,9 +593,9 @@ class_name:		  IDENTIFIER	      { $$ = $1; }
 			;
 
 template_class_name:	  IDENTIFIER '<' template_args '>'
-				   { $$ = stradd( $1, "<",
-				     g->tmpExpression =
-				     g->tmpExpression.stripWhiteSpace(), ">" ); }
+				   { g->tmpExpression = rmWS( g->tmpExpression );
+				     $$ = stradd( $1, "<",
+						  g->tmpExpression, ">" ); }
 			;
 
 /*
@@ -681,9 +680,9 @@ simple_type_name:	  CHAR			    { $$ = "char"; }
 			;
 
 template_spec:		  TEMPLATE '<' template_args '>'
-				   { $$ = stradd( "template<",
-				     g->tmpExpression =
-				     g->tmpExpression.stripWhiteSpace(), ">" ); }
+				   { g->tmpExpression = rmWS( g->tmpExpression );
+				     $$ = stradd( "template<",
+						  g->tmpExpression, ">" ); }
 			;
 
 opt_template_spec:	  /* empty */
@@ -1438,6 +1437,10 @@ int main( int argc, char **argv )
 		replace(g->qtPath.data(),'\\','/');
 		if ( g->qtPath.right(1) != "/" )
 		    g->qtPath += '/';
+	    } else if ( opt == "v" ) {		// version number
+		fprintf( stderr, "Qt Meta-Object Compiler version %d"
+				 " (Qt %s)\n", formatRevision,
+				 QT_VERSION_STR );
 	    } else if ( opt == "k" ) {		// don't stop on errors
 		errorControl = TRUE;
 	    } else if ( opt == "nw" ) {		// don't display warnings
@@ -1451,7 +1454,7 @@ int main( int argc, char **argv )
 	    }
 	} else {
 	    if ( !g->fileName.isNull() )		// can handle only one file
-		error	 = "Too many input files specified";
+		error = "Too many input files specified";
 	    else
 		g->fileName = arg.copy();
 	}
@@ -1489,7 +1492,7 @@ int main( int argc, char **argv )
 		 "\t-p path  Path prefix for included file\n"
 		 "\t-k       Do not stop on errors\n"
 		 "\t-nw      Do not display warnings\n"
-		 );
+		 "\t-v       Display version of moc\n" );
 	cleanup();
 	return 1;
     } else {
@@ -2637,7 +2640,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#254 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#255 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
