@@ -1335,6 +1335,10 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 /*!
     \fn int QStyle::pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
 
+    \e {This function will be replaced in Qt 4.0} The functionality will be
+    replaced by a new pixelMetric() that is not dependent on the \a widget
+    argument.
+
     Returns the pixel metric for \a metric. The \a widget argument is
     a pointer to a QWidget or one of its subclasses. The widget can be
     cast to the appropriate type based on the value of \a metric. Note
@@ -1583,6 +1587,10 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
 /*!
     \fn int QStyle::styleHint(StyleHint stylehint, const QWidget *widget = 0, const Q3StyleOption &opt = Q3StyleOption::Default, QStyleHintReturn *returnData = 0) const;
+
+    \e {This function will be replaced in Qt 4.0} The functionality will be
+    replaced by a new styleHint() that is not dependent on the \a widget
+    argument nor \a opt.
 
     Returns the style hint \a stylehint for \a widget. Currently, \a
     widget, \a opt, and \a returnData are unused; they're included to
