@@ -3,7 +3,6 @@
 
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
 
-//#include <q3popupmenu.h>
 #include <qapplication.h>
 #include <qaquastyle_mac.h>
 #include <qcombobox.h>
@@ -267,11 +266,7 @@ void QMacStyleCG::polish(QWidget *w)
         p.end();
     }
 
-    if (::qt_cast<QMenu*>(w)
-#ifdef QT_COMPAT
-            || w->inherits("Q3PopupMenu")
-#endif
-       ) {
+    if (::qt_cast<QMenu*>(w)) {
         px.resize(200, 200);
         QPainter p(&px);
         HIThemeMenuDrawInfo mtinfo;
@@ -302,11 +297,7 @@ void QMacStyleCG::polish(QWidget *w)
 void QMacStyleCG::unPolish(QWidget *w)
 {
     d->removeWidget(w);
-    if (::qt_cast<QMenu*>(w) || qt_mac_is_metal(w)
-#ifdef QT_COMPAT
-            || w->inherits("Q3PopupMenu")
-#endif
-       ) {
+    if (::qt_cast<QMenu*>(w) || qt_mac_is_metal(w)) {
         QPalette pal = w->palette();
         QPixmap tmp;
         QBrush background(tmp);
