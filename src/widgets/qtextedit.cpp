@@ -6213,10 +6213,11 @@ void QTextEdit::optimSetTextFormat( QTextDocument * td, QTextCursor * cur,
 	}
 	if ( tag ) {
 	    QString col = tag->tag.simplifyWhiteSpace();
-	    if ( col.left(11) == "font color=" ) {
-		col = col.mid( 11 );
+	    if ( col.left( 10 ) == "font color" ) {
+		int i = col.find( '=', 10 );
+		col = col.mid( i + 1 ).simplifyWhiteSpace();
 		if ( col[0] == '\"' )
-		    col = col.mid(1, col.length() - 2);
+		    col = col.mid( 1, col.length() - 2 );
 	    }
 	    QColor color = QColor( col );
 	    if ( color.isValid() ) {
