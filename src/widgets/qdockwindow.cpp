@@ -881,6 +881,8 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
 	mw = da->parentWidget();
     }
     if ( mw && mw->inherits( "QMainWindow" ) ) {
+	if ( place() == InDock )
+	    ( (QMainWindow*)mw )->addDockWindow( this, Qt::Top );
 	moveEnabled = ((QMainWindow*)mw)->dockWindowsMovable();
 	opaque = ((QMainWindow*)mw)->opaqueMoving();
     }
