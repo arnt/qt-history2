@@ -132,7 +132,7 @@ void warning( int level, const Location& loc, const char *message, ... )
     previousWasEmitted = TRUE;
 }
 
-void warning( int level, const char *message, ... )
+void message( int level, const char *message, ... )
 {
     if ( warningLevel < level )
 	return;

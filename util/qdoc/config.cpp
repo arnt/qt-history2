@@ -45,7 +45,7 @@ static QString eval( const QString& str )
 static QString singleton( const QString& key, const QStringList& val )
 {
     if ( val.count() != 1 ) {
-	warning( 1, "Entry '%s' should contain exactly one value (found %d)",
+	message( 1, "Entry '%s' should contain exactly one value (found %d)",
 		 key.latin1(), val.count() );
 	if ( val.isEmpty() )
 	    return QString( "" );
@@ -64,7 +64,7 @@ static bool isYes( const QString& key, const QStringList& val )
 {
     if ( val.count() != 1 ||
 	 !QRegExp(QString("yes|no|true|false")).exactMatch(val.first()) ) {
-	warning( 1, "Entry '%s' in configuration file should be 'yes' or 'no'",
+	message( 1, "Entry '%s' in configuration file should be 'yes' or 'no'",
 		 key.latin1() );
 	return FALSE;
     }
@@ -121,7 +121,7 @@ Config::Config( int argc, char **argv )
 
     QFile f( confFilePath );
     if ( !f.open(IO_ReadOnly) ) {
-	warning( 0, "Cannot open configuration file '%s'",
+	message( 0, "Cannot open configuration file '%s'",
 		 confFilePath.latin1() );
 	exit( EXIT_FAILURE );
     }
@@ -188,7 +188,7 @@ Config::Config( int argc, char **argv )
 	    if ( wlevel < 0 )
 		wlevel = 0;
 	} else {
-	    warning( 1, "Unknown entry '%s' in configuration file",
+	    message( 1, "Unknown entry '%s' in configuration file",
 		     key.latin1() );
 	    break;
 	}
@@ -251,7 +251,7 @@ Config::Config( int argc, char **argv )
 		    wlevel = 0;
 		wlevel += val.toInt();
 	    } else {
-		warning( 0, "Unknown command-line option '%s'", opt.latin1() );
+		message( 0, "Unknown command-line option '%s'", opt.latin1() );
 		showHelp();
 	    }
 	} else if ( opt.startsWith(QChar('-')) ) {
@@ -290,11 +290,11 @@ Config::Config( int argc, char **argv )
 		maxSim = 262144;
 		maxAll = 262144;
 	    } else {
-		warning( 0, "Unknown command-line option '%s'", opt.latin1() );
+		message( 0, "Unknown command-line option '%s'", opt.latin1() );
 		showHelpShort();
 	    }
 	} else if ( !opt.isEmpty() ) {
-	    warning( 0, "Command-line argument '%s' ignored", opt.latin1() );
+	    message( 0, "Command-line argument '%s' ignored", opt.latin1() );
 	    showHelp();
 	}
     }
@@ -410,7 +410,7 @@ bool Config::matchLine( QString *key, QStringList *val )
     }
 
     if ( yyPos < (int) yyIn.length() )
-	warning( 0, "Bad syntax in configuration file at line %d",
+	message( 0, "Bad syntax in configuration file at line %d",
 		 yyIn.left(yyPos).contains(QChar('\n')) + 1 );
     return FALSE;
 }

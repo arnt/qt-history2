@@ -86,7 +86,7 @@ static void emitHtmlHeaderFile( const QString& headerFilePath,
 {
     QFile f( headerFilePath );
     if ( !f.open(IO_ReadOnly) ) {
-	warning( 1, "Cannot open %s", headerFilePath.latin1() );
+	message( 1, "Cannot open %s", headerFilePath.latin1() );
 	return;
     }
 
@@ -360,7 +360,7 @@ void DocEmitter::emitHtml() const
 	    QString headerFilePath =
 		    config->findDepth( *s, config->includeDirList() );
 	    if ( headerFilePath.isEmpty() )
-		warning( 1, "Cannot find header file '%s'", (*s).latin1() );
+		message( 1, "Cannot find header file '%s'", (*s).latin1() );
 	    else
 		emitHtmlHeaderFile( headerFilePath, htmlFileName );
 	}
@@ -536,9 +536,9 @@ void DocEmitter::emitHtml() const
 void DocEmitter::addHtmlFile( const QString& fileName )
 {
     if ( htmllist.contains(fileName) )
-	warning( 1, "HTML file '%s' overwritten", fileName.latin1() );
+	message( 1, "HTML file '%s' overwritten", fileName.latin1() );
     else if ( fileName.right(5) != QString(".html") )
-	warning( 1, "HTML file '%s' lacking '.html' extension",
+	message( 1, "HTML file '%s' lacking '.html' extension",
 		 fileName.latin1() );
     htmllist.insert( fileName );
 }

@@ -514,9 +514,10 @@ void Decl::printHtmlLong( HtmlWriter& out ) const
 
 Decl::Decl( Kind kind, const Location& loc, const QString& name, Decl *context )
     : k( kind ), a( Public ), d( 0 ), lo( loc ), n( name ), cura( Public ),
-      c( context ), relc( context ), rootc( this ), declsFilledIn( FALSE ),
+      c( context ), relc( context ), declsFilledIn( FALSE ),
       docsFilledIn( FALSE ), reimp( 0 )
 {
+    rootc = this;
     if ( context != 0 ) {
 	// properties are always public, no matter where they are declared
 	if ( kind != Property )

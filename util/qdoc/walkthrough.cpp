@@ -207,14 +207,14 @@ QString Walkthrough::start( bool include, bool firstPass,
 
     if ( filePath.isEmpty() ) {
 	if ( !shutUp )
-	    warning( 1, "Cannot find example file '%s'", fileName.latin1() );
+	    message( 1, "Cannot find example file '%s'", fileName.latin1() );
 	return QString::null;
     }
 
     QFile f( config->findDepth(filePath, config->exampleDirList()) );
     if ( !f.open(IO_ReadOnly) ) {
 	if ( !shutUp )
-	    warning( 1, "Cannot open example file '%s'", filePath.latin1() );
+	    message( 1, "Cannot open example file '%s'", filePath.latin1() );
 	return QString::null;
     }
 
@@ -223,7 +223,7 @@ QString Walkthrough::start( bool include, bool firstPass,
     f.close();
     if ( code.isEmpty() ) {
 	if ( !shutUp )
-	    warning( 2, "Example file '%s' empty", filePath.latin1() );
+	    message( 2, "Example file '%s' empty", filePath.latin1() );
 	return QString::null;
     }
 

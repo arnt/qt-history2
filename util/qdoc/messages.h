@@ -12,7 +12,7 @@ void setMaxMessages( int n );
 void setWarningLevel( int level );
 
 void warning( int level, const Location& loc, const char *message, ... );
-void warning( int level, const char *message, ... );
+void message( int level, const char *message, ... );
 void syswarning( const char *message, ... );
 void warnAboutOmitted();
 
