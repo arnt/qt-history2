@@ -249,7 +249,8 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     }
 
     if ( qt_screen->isTransformed() ) {
-	QImage img( (uchar *)bits, w, h, 1, 0, 0, QImage::LittleEndian );
+	int bpl = isXbitmap ? (w+7)/8 : ((w+31)/32)*4;
+	QImage img( (uchar *)bits, w, h, 1, bpl, 0, 0, QImage::LittleEndian );
 	convertFromImage( img, MonoOnly );
 	if ( flipped_bits )
 	    delete [] flipped_bits;
