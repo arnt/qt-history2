@@ -58,7 +58,6 @@ int main(int argc, char *argv[])
             return 0;
         } else if (opt == QLatin1String("-d") || opt == QLatin1String("-dependencies")) {
             driver.option().dependencies = true;
-            break;
         } else if (opt == QLatin1String("-v") || opt == QLatin1String("-version")) {
             fprintf(stderr, "Qt user interface compiler %s.\n", QT_VERSION_STR);
             return 0;
