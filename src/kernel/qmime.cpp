@@ -51,7 +51,6 @@
   \ingroup io
   \ingroup draganddrop
   \ingroup misc
-  \mainclass
 
   \link dnd.html Drag-and-drop\endlink and
   \link QClipboard clipboard\endlink use this abstraction.
@@ -190,7 +189,6 @@ public:
   \brief The QMimeSourceFactory class is an extensible provider of mime-typed data.
   \ingroup io
   \ingroup environment
-  \mainclass
 
   A QMimeSourceFactory provides an abstract interface to a collection of
   information.  Each piece of information is represented by a QMimeSource

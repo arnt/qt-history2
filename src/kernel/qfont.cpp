@@ -1537,7 +1537,6 @@ void QFontMetrics::reset( const QPainter *painter )
 
   \ingroup graphics
   \ingroup shared
-  \mainclass
 
   QFontMetrics functions calculate size of characters and strings for
   a given font. There are three ways you can create a QFontMetrics object:
@@ -1899,7 +1898,6 @@ void QFontInfo::reset( const QPainter *painter )
 
   \ingroup graphics
   \ingroup shared
-  \mainclass
 
   The QFontInfo class provides the same access functions as QFont, e.g.
   family(), pointSize(), italic(), weight(), fixedPitch(), styleHint()

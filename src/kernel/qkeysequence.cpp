@@ -48,8 +48,7 @@
   \brief The QKeySequence class encapsulates a key sequence as used by accelerators.
 
   \ingroup misc
-  \mainclass
-
+  
   A key sequence consists of a keyboard code, optionally combined with
   modifiers, e.g. \c SHIFT, \c CTRL, \c ALT or \c UNICODE_ACCEL.  For
   example, \c{CTRL + Key_P} might be a sequence used as a shortcut for

@@ -65,7 +65,6 @@ class QObjectPrivate
   that need to be global-like.
 
   \ingroup misc
-  \mainclass
 
   Normally, you can ignore this class.  QObject and a few other
   classes inherit it, so all the identifiers in the Qt namespace

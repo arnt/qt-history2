@@ -44,7 +44,6 @@
 
   \ingroup graphics
   \ingroup images
-  \mainclass
 
   Sometimes when drawing graphics it is necessary to obtain
   information about the physical characteristics of a paint device.

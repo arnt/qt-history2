@@ -168,7 +168,6 @@ static int similarity( const QString& s1, const QString& s2 )
   \class QPluginManager qpluginmanager.h
   \brief The QPluginManager class provides basic functions to access a certain kind of functionality in libraries.
   \ingroup componentmodel
-  \mainclass
 
   A common usage of components is to extend the existing functionality in an application using plugins. The application
   defines interfaces that abstract a certain group of functionality, and a plugin provides a specialized implementation

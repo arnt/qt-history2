@@ -11326,7 +11326,6 @@ static int ucstrnicmp( const QChar *a, const QChar *b, int l )
 
 /*! \class QChar qstring.h
   \ingroup text
-  \mainclass
 
 \brief The QChar class provides a lightweight Unicode character.
 
