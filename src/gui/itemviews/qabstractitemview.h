@@ -148,8 +148,6 @@ protected slots:
     virtual void closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint);
     virtual void commitData(QWidget *editor);
     virtual void editorDestroyed(QObject *editor);
-    virtual void editNextItem();
-    virtual void editPreviousItem();
 
 signals:
     void rootChanged(const QModelIndex &old, const QModelIndex &root);
@@ -186,7 +184,6 @@ protected:
     virtual QModelIndexList selectedIndexes() const;
 
     virtual bool edit(const QModelIndex &index, BeginEditAction action, QEvent *event);
-    virtual void endEdit(QWidget *editor);
 
     virtual QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex &index,
                                                                  const QEvent *event) const;

@@ -1291,25 +1291,6 @@ bool QAbstractItemView::edit(const QModelIndex &index,
 }
 
 /*!
-    Ends the editing operation on the item represented by the given \a index.
-    If there was an editor widget it is released.
-
-    \sa edit() QAbstractItemDelegate::releaseEditor()
-*/
-void QAbstractItemView::endEdit(QWidget *editor)
-{
-    if (editor && !d->persistent.contains(editor)) { // if the editor is not persistent, remove it
-        d->state = NoState;
-        QObject::disconnect(editor, SIGNAL(destroyed(QObject*)),
-                            this, SLOT(editorDestroyed(QObject*)));
-        d->editors.remove(d->editors.key(editor));
-        itemDelegate()->releaseEditor(editor);
-    }
-
-    setFocus();
-}
-
-/*!
   \internal
 */
 
@@ -1394,16 +1375,43 @@ void QAbstractItemView::selectionModelDestroyed()
 
   \sa endEdit()
 */
+
+/*!
+    Ends the editing operation on the item represented by the given \a index.
+    If there was an editor widget it is released.
+
+    \sa edit() QAbstractItemDelegate::releaseEditor()
+*/
+
 void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
 {
-    endEdit(editor);
+    // close the editor
+    if (editor && !d->persistent.contains(editor)) { // if the editor is not persistent, remove it
+        d->state = NoState;
+        QObject::disconnect(editor, SIGNAL(destroyed(QObject*)),
+                            this, SLOT(editorDestroyed(QObject*)));
+        d->editors.remove(d->editors.key(editor));
+        itemDelegate()->releaseEditor(editor);
+    }
+
+    setFocus();
+
+    // The EndEditHint part
+    QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::ClearAndSelect
+                                                |d->selectionBehaviorFlags();
     switch (hint) {
-    case QAbstractItemDelegate::EditNextItem:
-        editNextItem();
-        break;
-    case QAbstractItemDelegate::EditPreviousItem:
-        editPreviousItem();
-        break;
+    case QAbstractItemDelegate::EditNextItem: {
+        QModelIndex index = moveCursor(MoveNext, Qt::NoModifier);
+        if (index.isValid()) {
+            selectionModel()->setCurrentIndex(index, flags);
+            edit(index);
+        } break; }
+    case QAbstractItemDelegate::EditPreviousItem: {
+        QModelIndex index = moveCursor(MoveNext, Qt::NoModifier);
+        if (index.isValid()) {
+            selectionModel()->setCurrentIndex(index, flags);
+            edit(index);
+        } break; }
     case QAbstractItemDelegate::SubmitModelCache:
         model()->submit();
         break;
@@ -1426,7 +1434,6 @@ void QAbstractItemView::commitData(QWidget *editor)
     itemDelegate()->setModelData(editor, model(), index);
 }
 
-
 /*!
   Remove the editor \a editor from the map.
 */
@@ -1438,34 +1445,6 @@ void QAbstractItemView::editorDestroyed(QObject *editor)
     d->persistent.removeAll(w);
     if (d->state == EditingState)
         d->state = NoState;
-}
-
-/*!
-  Go to the next item and start editing.
-*/
-void QAbstractItemView::editNextItem()
-{
-    QModelIndex index = moveCursor(MoveNext, Qt::NoModifier);
-    if (index.isValid()) {
-        selectionModel()->setCurrentIndex(index,
-                                          QItemSelectionModel::ClearAndSelect
-                                          |d->selectionBehaviorFlags());
-        edit(index, EditKeyPressed, 0); // FIXME: lying about EditKeyPressed
-    }
-}
-
-/*!
-  Go to the previous item and start editing.
-*/
-void QAbstractItemView::editPreviousItem()
-{
-    QModelIndex index = moveCursor(MovePrevious, Qt::NoModifier);
-    if (index.isValid()) {
-        selectionModel()->setCurrentIndex(index,
-                                          QItemSelectionModel::ClearAndSelect
-                                          |d->selectionBehaviorFlags());
-        edit(index, EditKeyPressed, 0); // FIXME: lying about EditKeyPressed
-    }
 }
 
 // ###DOC: this value is also used by the "scroll in item units" algorithm to
@@ -1722,24 +1701,23 @@ void QAbstractItemView::selectionChanged(const QItemSelection &selected,
 void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     if (previous.isValid()) {
-        int behavior = selectionBehavior();
-        QRect rect = itemViewportRect(previous);
-        if (behavior & SelectRows) {
-            rect.setLeft(0);
-            rect.setRight(d->viewport->width());
-        }
-        if (behavior & SelectColumns) {
-            rect.setTop(0);
-            rect.setBottom(d->viewport->height());
-        }
-        d->viewport->repaint(rect);
-
+//         int behavior = selectionBehavior();
+//         QRect rect = itemViewportRect(previous);
+//         if (behavior & SelectRows) {
+//             rect.setLeft(0);
+//             rect.setRight(d->viewport->width());
+//         }
+//         if (behavior & SelectColumns) {
+//             rect.setTop(0);
+//             rect.setBottom(d->viewport->height());
+//         }
+//         d->viewport->repaint(rect);
         if (state() == EditingState) {
             QPersistentModelIndex persistent(previous, model());
             QWidget *editor = d->editors.value(persistent);
             if (editor) {
                 commitData(editor);
-                endEdit(editor);
+                closeEditor(editor, QAbstractItemDelegate::NoHint);
             }
         }
     }
