@@ -1515,16 +1515,18 @@ void QTextDocument::setRichText( const QString &text, const QString &context )
 	    // normal contents
 	    QString s;
 	    QChar c;
+	    bool hadNonSpace = !curpar->string()->toString().simplifyWhiteSpace().isEmpty();
 	    while ( pos < int( doc.length() ) && !hasPrefix(doc, pos, '<' ) ){
 		c = parseChar( doc, pos, curtag.wsm );
 		space = c.isSpace();
+		hadNonSpace = hadNonSpace || !space;
 		if ( c == '\n' ) // happens in WhiteSpacePre mode
 		    break;
+		if ( !hadNonSpace && space && curtag.wsm == QStyleSheetItem::WhiteSpaceNormal )
+		    continue;
 		s += c;
 	    }
 	    if ( !s.isEmpty() && curtag.style->displayMode() != QStyleSheetItem::DisplayNone ) {
-		if ( curpar->length() == 0 )
-		    s = s.simplifyWhiteSpace();
 		hasNewPar = FALSE;
 		int index = curpar->length() - 1;
 		if ( index < 0 )
