@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#24 $
 **
 ** Implementation of QTimer class
 **
@@ -11,8 +11,9 @@
 
 #include "qtimer.h"
 #include "qsignal.h"
+#include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#24 $");
 
 
 /*!
@@ -161,13 +162,35 @@ bool QTimer::event( QEvent *e )
   and kills itself when it gets the timeout.
 */
 
-class QSingleShotTimer : public QSignal
+static QObjectList *sst_list = 0;		// list of single shot timers
+
+void sst_cleanup()
+{
+    if ( sst_list ) {
+	sst_list->setAutoDelete( TRUE );
+	delete sst_list;
+	sst_list = 0;
+    }
+}
+
+void sst_init()
+{
+    if ( !sst_list ) {
+	sst_list = new QObjectList;
+	CHECK_PTR( sst_list );
+	qAddPostRoutine( sst_cleanup );
+    }
+}
+
+
+class QSingleShotTimer : public QObject
 {
 public:
     bool    start( int msec, QObject *r, const char *m );
 protected:
     bool    event( QEvent * );
 private:
+    QSignal signal;
     int	    timerId;
 };
 
@@ -177,16 +200,17 @@ bool qKillTimer( int id );
 bool QSingleShotTimer::start( int msec, QObject *r, const char *m )
 {
     timerId = 0;
-    if ( connect(r, m) )
+    if ( signal.connect(r, m) )
 	timerId = qStartTimer( msec, (QObject *)this );
     return timerId != 0;
 }
 
 bool QSingleShotTimer::event( QEvent * )
 {
-    activate();					// emit the signal
+    signal.activate();				// emit the signal
+    signal.disconnect( 0, 0 );
     qKillTimer( timerId );			// no more timeouts
-    delete this;				// kill itself
+    sst_list->insert( 0, this );		// store in free list
     return TRUE;
 }
 
@@ -200,16 +224,16 @@ bool QSingleShotTimer::event( QEvent * )
 
   Example:
   \code
-      #include <qapp.h>
-      #include <qtimer.h>
+    #include <qapp.h>
+    #include <qtimer.h>
 
-      int main( int argc, char **argv )
-      {
-          QApplication a( argc, argv );
-	  QTimer::singleShot( 10*60*1000, &a, SLOT(quit()) );
-	   ... // create your widgets
-          return a.exec();
-      }
+    int main( int argc, char **argv )
+    {
+	QApplication a( argc, argv );
+	QTimer::singleShot( 10*60*1000, &a, SLOT(quit()) );
+	    ... // create and show your widgets
+	return a.exec();
+    }
   \endcode
 
   This sample program automatically terminates after 10 minutes (i.e.
@@ -218,8 +242,14 @@ bool QSingleShotTimer::event( QEvent * )
 
 void QTimer::singleShot( int msec, QObject *receiver, const char *member )
 {
-    QSingleShotTimer *sst = new QSingleShotTimer;
+    if ( !sst_list )
+	sst_init();
+    QSingleShotTimer *sst;
+    if ( sst_list->isEmpty() ) {		// create new ss timer
+	sst = new QSingleShotTimer;
+    } else {					// use existing one
+	sst = (QSingleShotTimer *)sst_list->take( 0 );
+    }	
     sst->start(msec, receiver, member);
 }
-
 
