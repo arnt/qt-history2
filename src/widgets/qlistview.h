@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#64 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#65 $
 **
 ** Definition of QListView widget class
 **
@@ -112,6 +112,8 @@ public:
     QListViewItem * itemAbove();
     QListViewItem * itemBelow();
 
+    int itemPos() const;
+    
     QListView *listView() const;
 
     virtual void setSelectable( bool enable );
@@ -249,7 +251,7 @@ protected:
     void keyPressEvent( QKeyEvent *e );
 
     void resizeEvent( QResizeEvent *e );
-    
+
     void showEvent( QShowEvent * );
 
     void drawContentsOffset( QPainter *, int ox, int oy,
