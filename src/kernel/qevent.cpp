@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#88 $
 **
 ** Implementation of event classes
 **
@@ -996,10 +996,14 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
 /*!
   \class QShowEvent qevent.h
-  \brief The event sent after a widget is shown.
+  \brief The event sent when a widget is shown.
 
-  This event is sent just after the window system shows the window, including
-  after a top-level window has been shown (un-iconified) by the user.
+  There are two kind of show events: spontaneous show events by the
+  window system and internal show events. Spontaneous show events are
+  sent just after the window system shows the window, including after
+  a top-level window has been shown (un-iconified) by the
+  user. Internal show events are delivered just before the widget
+  becomes visible.
 
   \sa QHideEvent
 */
