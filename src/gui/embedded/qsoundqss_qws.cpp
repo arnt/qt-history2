@@ -222,13 +222,22 @@ private:
 };
 
 #ifndef QT_NO_QWS_SOUNDSERVER
-QWSSoundServerSocket::QWSSoundServerSocket(QObject* parent, const char* name) :
+QWSSoundServerSocket::QWSSoundServerSocket(QObject *parent) :
+    QTcpServer(parent)
+{
+    listen(sound_port);
+}
+
+
+#ifdef QT_COMPAT
+QWSSoundServerSocket::QWSSoundServerSocket(QObject *parent, const char *name) :
     QTcpServer(parent)
 {
     if (name)
         setObjectName(name);
     listen(sound_port);
 }
+#endif
 
 
 void QWSSoundServerSocket::incomingConnection(int s)
