@@ -24,7 +24,9 @@ class UnixMakefileGenerator : public MakefileGenerator
     void writeExtraVariables(QTextStream &);
     QString libtoolFileName();
     void writeLibtoolFile();     // for libtool
+    QString pkgConfigPrefix() const;
     QString pkgConfigFileName();
+    QString pkgConfigFixPath(QString) const;
     void writePkgConfigFile();   // for pkg-config
     QStringList combineSetLFlags(const QStringList &list1, const QStringList &list2);
     void writePrlFile(QTextStream &);

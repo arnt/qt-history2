@@ -1820,6 +1820,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		    + " \"" + root + fileFixify(dst + filestr, QString::null, QString::null, FALSE, FALSE) + "\"");
 		    continue;
 		}
+		fixEnvVariables(dirstr);
 		QDir dir(dirstr, filestr);		    //wild
 		for(uint x = 0; x < dir.count(); x++) {
 		    QString file = dir[x];

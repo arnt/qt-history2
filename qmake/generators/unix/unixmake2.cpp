@@ -1427,6 +1427,23 @@ UnixMakefileGenerator::pkgConfigFileName()
     return ret;
 }
 
+QString
+UnixMakefileGenerator::pkgConfigPrefix() const
+{
+    if(!project->isEmpty("QMAKE_PKGCONFIG_PREFIX"))
+	return project->first("QMAKE_PKGCONFIG_PREFIX");
+    return qInstallPath();
+}
+
+QString
+UnixMakefileGenerator::pkgConfigFixPath(QString path) const
+{
+    QString prefix = pkgConfigPrefix();
+    if(path.startsWith(prefix))
+	path = path.replace(prefix, "${prefix}");
+    return path;
+}
+
 void
 UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for libqt so far
 {
@@ -1440,14 +1457,18 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
     project->variables()["ALL_DEPS"].append(fname);
     QTextStream t(&ft);
 
-    QString prefix = qInstallPath();
-    QString libDir = prefix + "/lib";
-    QString includeDir = prefix + "/include";
+    QString prefix = pkgConfigPrefix();
+    QString libDir = project->first("QMAKE_PKGCONFIG_LIBDIR");
+    if(libDir.isEmpty())
+	libDir = prefix + "/lib";
+    QString includeDir = project->first("QMAKE_PKGCONFIG_INCDIR");
+    if(includeDir.isEmpty())
+	includeDir = prefix + "/include";
 
-    t << "prefix=" << libDir << endl;
+    t << "prefix=" << prefix << endl;
     t << "exec_prefix=${prefix}\n"
-      << "libdir=${exec_prefix}/lib\n"
-      << "includedir=${prefix}/include" << endl;
+      << "libdir=" << pkgConfigFixPath(libDir) << "\n"
+      << "includedir=" << pkgConfigFixPath(includeDir) << endl;
     // non-standard entry. Provides useful info normally only
     // contained in the internal .qmake.cache file
     t << varGlue("CONFIG", "qt_config=", " ", "") << endl << endl;
@@ -1464,7 +1485,7 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
 	libs << "QMAKE_LIBS"; //obvious one
     if(project->isActiveConfig("thread"))
 	libs << "QMAKE_LFLAGS_THREAD"; //not sure about this one, but what about things like -pthread?
-    t << "Libs: -L" << libDir << " -l" << lname << " ";
+    t << "Libs: -L${libdir} -l" << lname << " ";
     for(QStringList::ConstIterator it = libs.begin(); it != libs.end(); ++it)
 	t << project->variables()[(*it)].join(" ") << " ";
     t << endl;
@@ -1476,5 +1497,5 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
       << varGlue("PRL_EXPORT_DEFINES","-D"," -D"," ")
       << project->variables()["PRL_EXPORT_CXXFLAGS"].join(" ")
 	//      << varGlue("DEFINES","-D"," -D"," ")
-      << " -I" << includeDir;
+      << " -I${includedir}";
 }
