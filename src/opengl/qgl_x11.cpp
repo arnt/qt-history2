@@ -20,6 +20,7 @@
 #include "qdesktopwidget.h"
 #include "qpixmap.h"
 #include "qhash.h"
+#include <private/qfontengine_p.h>
 #include "qx11info_x11.h"
 
 #define INT8  dummy_INT8
@@ -194,7 +195,7 @@ static void find_trans_colors()
 	    return;					// Should not happen
 	Atom overlayVisualsAtom = XInternAtom( appDisplay,
 					       "SERVER_OVERLAY_VISUALS", True );
-	if ( overlayVisualsAtom == None )
+	if ( overlayVisualsAtom == XNone )
 	    return;					// Server has no overlays
 
 	Atom actualType;
@@ -331,7 +332,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	    d->sharing = TRUE;
     }
     if ( !cx )
-	cx = glXCreateContext( disp, (XVisualInfo *)vi, None, direct );
+	cx = glXCreateContext( disp, (XVisualInfo *)vi, NULL, direct );
     if ( !cx )
 	return FALSE;
     glFormat.setDirectRendering( glXIsDirect( disp, (GLXContext)cx ) );
@@ -454,7 +455,7 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
 		// the implementation supports transparent overlays
 		int tmpSpec[] = { GLX_LEVEL, f.plane(), GLX_TRANSPARENT_TYPE_EXT,
 				  f.rgba() ? GLX_TRANSPARENT_RGB_EXT : GLX_TRANSPARENT_INDEX_EXT,
-				  None };
+				  XNone };
 		XVisualInfo * vinf = glXChooseVisual( xinfo->display(), xinfo->screen(), tmpSpec );
 		if ( !vinf ) {
 		    useTranspExt = FALSE;
@@ -514,7 +515,7 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
 	spec[i++] = bufDepth;
     }
 
-    spec[i] = None;
+    spec[i] = XNone;
     return glXChooseVisual( xinfo->display(), xinfo->screen(), spec );
 }
 
@@ -667,11 +668,128 @@ uint QGLContext::colorIndex( const QColor& c ) const
     return 0;
 }
 
+#ifndef QT_NO_XFTFREETYPE
+/*! \internal
+    This is basically a substitute for glxUseXFont() which can only
+    handle XLFD fonts. This version relies on XFT v2 to render the
+    glyphs, but it works with all fonts that XFT2 provides - both
+    antialiased and aliased bitmap and outline fonts.
+*/
+void qgl_use_font(QFontEngineXft *engine, int first, int count, int listBase)
+{
+    GLfloat color[4];
+    glGetFloatv(GL_CURRENT_COLOR, color);
+
+    // save the pixel unpack state
+    GLint gl_swapbytes, gl_lsbfirst, gl_rowlength, gl_skiprows, gl_skippixels, gl_alignment;
+    glGetIntegerv (GL_UNPACK_SWAP_BYTES, &gl_swapbytes);
+    glGetIntegerv (GL_UNPACK_LSB_FIRST, &gl_lsbfirst);
+    glGetIntegerv (GL_UNPACK_ROW_LENGTH, &gl_rowlength);
+    glGetIntegerv (GL_UNPACK_SKIP_ROWS, &gl_skiprows);
+    glGetIntegerv (GL_UNPACK_SKIP_PIXELS, &gl_skippixels);
+    glGetIntegerv (GL_UNPACK_ALIGNMENT, &gl_alignment);
+
+    glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
+    glPixelStorei(GL_UNPACK_LSB_FIRST, GL_FALSE);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+    glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    Bool antialiased = False;
+#if 0 // disable antialias support for now
+    XftPatternGetBool(engine->pattern(), XFT_ANTIALIAS, 0, &antialiased);
+#endif
+    FT_Face face = engine->freetypeFace();
+
+    // start generating font glyphs
+    for (int i = first; i < count; ++i) {
+	int list = listBase + i;
+	GLfloat x0, y0, dx, dy;
+
+	FT_Error err;
+
+	err = FT_Load_Glyph(face, FT_Get_Char_Index(face, i), FT_LOAD_DEFAULT);
+	if (err) {
+	    qDebug("failed loading glyph %d from font", i);
+	    Q_ASSERT(!err);
+	}
+	err = FT_Render_Glyph(face->glyph, (antialiased ? FT_RENDER_MODE_NORMAL
+					    : FT_RENDER_MODE_MONO));
+	if (err) {
+	    qDebug("failed rendering glyph %d from font", i);
+	    Q_ASSERT(!err);
+	}
+
+	FT_Bitmap bm = face->glyph->bitmap;
+	x0 = face->glyph->metrics.horiBearingX >> 6;
+	y0 = (face->glyph->metrics.height - face->glyph->metrics.horiBearingY) >> 6;
+	dx = face->glyph->metrics.horiAdvance >> 6;
+	dy = 0;
+ 	int sz = bm.pitch * bm.rows;
+	uint *aa_glyph = 0;
+	uchar *ua_glyph = 0;
+
+	if (antialiased)
+	    aa_glyph = new uint[sz];
+	else
+	    ua_glyph = new uchar[sz];
+
+	// convert to GL format
+	for (int y = 0; y < bm.rows; ++y) {
+	    for (int x = 0; x < bm.pitch; ++x) {
+		int c1 = y*bm.pitch + x;
+		int c2 = (bm.rows - y - 1) > 0 ? (bm.rows-y-1)*bm.pitch + x : x;
+		if (antialiased) {
+		    aa_glyph[c1] = (int(color[0]*255) << 24)
+				   | (int(color[1]*255) << 16)
+				   | (int(color[2]*255) << 8) | bm.buffer[c2];
+		} else {
+		    ua_glyph[c1] = bm.buffer[c2];
+		}
+	    }
+	}
+
+	glNewList(list, GL_COMPILE);
+	if (antialiased) {
+	    // calling glBitmap() is just a trick to move the current
+	    // raster pos, since glGet*() won't work in display lists
+	    glBitmap(0, 0, 0, 0, x0, -y0, 0);
+	    glDrawPixels(bm.pitch, bm.rows, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, aa_glyph);
+	    glBitmap(0, 0, 0, 0, dx-x0, y0, 0);
+	} else {
+	    glBitmap(bm.pitch*8, bm.rows, -x0, y0, dx, dy, ua_glyph);
+	}
+	glEndList();
+	antialiased ? delete[] aa_glyph : delete[] ua_glyph;
+    }
+
+    // restore pixel unpack settings
+    glPixelStorei(GL_UNPACK_SWAP_BYTES, gl_swapbytes);
+    glPixelStorei(GL_UNPACK_LSB_FIRST, gl_lsbfirst);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, gl_rowlength);
+    glPixelStorei(GL_UNPACK_SKIP_ROWS, gl_skiprows);
+    glPixelStorei(GL_UNPACK_SKIP_PIXELS, gl_skippixels);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, gl_alignment);
+}
+#endif
+
 void QGLContext::generateFontDisplayLists( const QFont & fnt, int listBase )
 {
-    QFont f = fnt;
-    f.setStyleStrategy( QFont::OpenGLCompatible );
-    glXUseXFont( (Font) f.handle(), 0, 256, listBase );
+    QFont f(fnt);
+    QFontEngine *engine = f.d->engineForScript(QFont::Latin);
+
+#ifndef QT_NO_XFTFREETYPE
+    if(engine->type() == QFontEngine::Xft) {
+	qgl_use_font((QFontEngineXft *) engine, 0, 256, listBase);
+	return;
+    }
+#endif
+    // glXUseXFont() only works with XLFD font structures and a few GL
+    // drivers crash if 0 is passed as the font handle
+    f.setStyleStrategy(QFont::OpenGLCompatible);
+    if (f.handle() && engine->type() == QFontEngine::XLFD)
+	glXUseXFont((Font) f.handle(), 0, 256, listBase);
 }
 
 /*****************************************************************************

@@ -2120,7 +2120,20 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
     // always regenerate font disp. lists for pixmaps - hw accelerated
     // contexts can't handle this otherwise
     bool regenerate = d->glcx->deviceIsPixmap();
-    QString key = fnt.key() + QString::number( (int)regenerate );
+#if 0 // QT_NO_XFTFREETYPE
+    // font color needs to be part of the font cache key when using
+    // antialiased fonts since one set of glyphs needs to be generated
+    // for each font color
+    QString color_key;
+    if (fnt.styleStrategy() != QFont::NoAntialias) {
+	GLfloat color[4];
+	glGetFloatv(GL_CURRENT_COLOR, color);
+	color_key.sprintf("%f_%f_%f",color[0], color[1], color[2]);
+    }
+    QString key = fnt.key() + color_key + QString::number((int) regenerate);
+#else
+    QString key = fnt.key() + QString::number((int) regenerate);
+#endif
     if ( !regenerate && (d->displayListCache.find( key ) != d->displayListCache.end()) ) {
 	base = d->displayListCache[ key ];
     } else {

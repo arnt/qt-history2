@@ -19,6 +19,7 @@ opengl {
 		   qglcolormap.cpp \
 		   qpaintengine_opengl.cpp
 	x11:SOURCES += qgl_x11.cpp
+	x11:!xftfreetype:DEFINES += QT_NO_XFTFREETYPE 
 	mac { 
 	    SOURCES += qgl_mac.cpp
             LIBS += -framework Carbon

@@ -315,6 +315,7 @@ private:
     friend class QTextLayout;
     friend class QTextEngine;
     friend class QTextLine;
+    friend class QGLContext;
 
 #ifndef QT_NO_DATASTREAM
     friend Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QFont & );
