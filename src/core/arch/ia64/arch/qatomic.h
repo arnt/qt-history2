@@ -16,43 +16,78 @@
 
 #include <qglobal.h>
 
-extern "C" {
-
 #if defined(Q_CC_GNU) && !defined(Q_CC_INTEL)
 
-    inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
-    {
-        int ret;
-        asm volatile("mov ar.ccv=%2\n"
-                     ";;\n"
-                     "cmpxchg4.acq %0=%1,%3,ar.ccv\n"
-                     : "=r" (ret), "+m" (*ptr)
-                     : "r" (expected), "r" (newval)
-                     : "memory");
-        return ret == expected;
-    }
+inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
+{
+    int ret;
+    asm volatile("mov ar.ccv=%2\n"
+                 ";;\n"
+                 "cmpxchg4.acq %0=%1,%3,ar.ccv\n"
+                 : "=r" (ret), "+m" (*ptr)
+                 : "r" (expected), "r" (newval)
+                 : "memory");
+    return ret == expected;
+}
 
-    inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval) {
-        void *ret;
-        asm volatile("mov ar.ccv=%2\n"
-                     ";;\n"
-                     "cmpxchg8.acq %0=%1,%3,ar.ccv\n"
-                     : "=r" (ret), "+m" (*ptr)
-                     : "r" (expected), "r" (newval)
-                     : "memory");
-        return ret == expected;
-    }
+inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval) {
+    void *ret;
+    asm volatile("mov ar.ccv=%2\n"
+                 ";;\n"
+                 "cmpxchg8.acq %0=%1,%3,ar.ccv\n"
+                 : "=r" (ret), "+m" (*ptr)
+                 : "r" (expected), "r" (newval)
+                 : "memory");
+    return ret == expected;
+}
 
 #else
 
-    Q_CORE_EXPORT
-    int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
-
-    Q_CORE_EXPORT
-    int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
+extern "C" {
+    Q_CORE_EXPORT int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
+    Q_CORE_EXPORT int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
+} // extern "C"
 
 #endif // Q_CC_GNU && !Q_CC_INTEL
 
-} // extern "C"
+inline int q_atomic_increment(volatile int * const ptr)
+{
+    register int expected;
+    for (;;) {
+        expected = *ptr;
+        if (q_atomic_test_and_set_int(ptr, expected, expected + 1)) break;
+    }
+    return expected != -1;
+}
+
+inline int q_atomic_decrement(volatile int * const ptr)
+{
+    register int expected;
+    for (;;) {
+        expected = *ptr;
+        if (q_atomic_test_and_set_int(ptr, expected, expected - 1)) break;
+    }
+    return expected != 1;
+}
+
+inline int q_atomic_set_int(volatile int *ptr, int newval)
+{
+    register int expected;
+    for (;;) {
+        expected = *ptr;
+        if (q_atomic_test_and_set_int(ptr, expected, newval)) break;
+    }
+    return expected;
+}
+
+inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
+{
+    register void *expected;
+    for (;;) {
+        expected = *reinterpret_cast<void * volatile *>(ptr);
+        if (q_atomic_test_and_set_ptr(ptr, expected, newval)) break;
+    }
+    return expected;
+}
 
 #endif // IA64_QATOMIC_H

@@ -17,14 +17,48 @@
 #include <qglobal.h>
 
 extern "C" {
-
-    Q_CORE_EXPORT
-    int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
-
-    Q_CORE_EXPORT
-    void *q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
-
+    Q_CORE_EXPORT int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
+    Q_CORE_EXPORT int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
 } // extern "C"
 
-#endif // MIPS_QATOMIC_H
+inline int q_atomic_increment(volatile int * const ptr)
+{
+    register int expected;
+    for (;;) {
+        expected = *ptr;
+        if (q_atomic_test_and_set_int(ptr, expected, expected + 1)) break;
+    }
+    return expected != -1;
+}
 
+inline int q_atomic_decrement(volatile int * const ptr)
+{
+    register int expected;
+    for (;;) {
+        expected = *ptr;
+        if (q_atomic_test_and_set_int(ptr, expected, expected - 1)) break;
+    }
+    return expected != 1;
+}
+
+inline int q_atomic_set_int(volatile int *ptr, int newval)
+{
+    register int expected;
+    for (;;) {
+        expected = *ptr;
+        if (q_atomic_test_and_set_int(ptr, expected, newval)) break;
+    }
+    return expected;
+}
+
+inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
+{
+    register void *expected;
+    for (;;) {
+        expected = *reinterpret_cast<void * volatile *>(ptr);
+        if (q_atomic_test_and_set_ptr(ptr, expected, newval)) break;
+    }
+    return expected;
+}
+
+#endif // MIPS_QATOMIC_H

@@ -18,7 +18,7 @@ struct QAtomic
     int atomic;
 
     inline bool operator++()
-    { 
+    {
 	q_atomic_lock(lock);
 	bool ret = (++atomic != 0);
 	q_atomic_unlock(lock);
@@ -127,4 +127,3 @@ struct QAtomicPointer
 #define Q_ATOMIC_INIT(a) {{-1,-1,-1,-1},(a)}
 
 #endif // PARISC_QATOMIC_H
-
