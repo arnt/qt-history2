@@ -186,7 +186,7 @@ void QMotifStyle::polish( QApplication* a )
 static void rot(QPointArray& a, int n)
 {
     QPointArray r(a.size());
-    for (int i=0; i<a.size(); i++) {
+    for (int i = 0; i < (int)a.size(); i++) {
 	switch (n) {
 	    case 1: r.setPoint(i,-a[i].y(),a[i].x()); break;
 	    case 2: r.setPoint(i,-a[i].x(),-a[i].y()); break;
