@@ -1944,7 +1944,7 @@ fi
 if true; then ###[ '!' -f "$outpath/bin/qmake" ];
     echo "Creating qmake. Please wait..."
     rm -f mkspecs/default
-    ln -s `basename $QMAKESPEC` mkspecs/default
+    ln -s `echo $QMAKESPEC | sed "s,^${relpath}/mkspecs/,,"` mkspecs/default
     # fix makefiles
     for mkfile in GNUmakefile Makefile; do
 	EXTRA_LFLAGS=
@@ -2002,7 +2002,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	    -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
     done
 
-    (cd $outpath/qmake; $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
+    (cd $outpath/qmake; $MAKE || (echo "qmake failed to build. Aborting." && exit 2)) || exit 2
 fi
 
 
@@ -2597,8 +2597,8 @@ else
 fi
 
 if [ "$OPT_VERBOSE" = "yes" ]; then
-    echo "QMake vars ...... $QMAKE_VARS"
-    echo "QMake switches .. $QMAKE_SWITCHES"
+    echo "qmake vars ...... $QMAKE_VARS"
+    echo "qmake switches .. $QMAKE_SWITCHES"
 fi
 
 [ "$OPT_CONCURRENT" != "0" ] && echo "Concurrent .......... $OPT_CONCURRENT"
