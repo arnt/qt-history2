@@ -2357,7 +2357,7 @@ void QDns::doResInit()
     }
 
     searchList = searchList + " " + domainName;
-    searchList = searchList.simplifyWhiteSpace().lower();
+    searchList = searchList.simplifyWhiteSpace().toLower();
     first = 0;
     do {
 	last = searchList.find( separator, first );
@@ -2449,7 +2449,7 @@ void QDns::doResInit()
 	while ( !stream.atEnd() ) {
 	    line = stream.readLine();
 	    QStringList list = QStringList::split( " ", line );
-	    const QString type = list[0].lower();
+	    const QString type = list[0].toLower();
 
 	    if ( type == "nameserver" ) {
 		QHostAddress *address = new QHostAddress();
@@ -2460,10 +2460,10 @@ void QDns::doResInit()
 	    } else if ( type == "search" ) {
 		QStringList srch = QStringList::split( " ", list[1] );
 		for ( QStringList::Iterator i = srch.begin(); i != srch.end(); ++i )
-		    domains->append( (*i).lower() );
+		    domains->append( (*i).toLower().latin1() );
 
 	    } else if ( type == "domain" ) {
-		domains->append( list[1].lower() );
+		domains->append( list[1].toLower().latin1() );
 	    }
 	}
     }
@@ -2479,13 +2479,13 @@ void QDns::doResInit()
 #  if defined(MAXDFLSRCH)
 	for( i=0; i < MAXDFLSRCH; i++ ) {
 	    if ( res.dnsrch[i] && *(res.dnsrch[i]) )
-		domains->append( QString::fromLatin1( res.dnsrch[i] ).lower() );
+		domains->append( QString::fromLatin1(res.dnsrch[i]).toLower().latin1() );
 	    else
 		break;
 	}
 #  endif
 	if ( *res.defdname )
-	    domains->append( QString::fromLatin1( res.defdname ).lower() );
+	    domains->append( QString::fromLatin1( res.defdname ).toLower().latin1() );
 #else
 	res_init();
 	int i;
@@ -2495,24 +2495,26 @@ void QDns::doResInit()
 #  if defined(MAXDFLSRCH)
 	for( i=0; i < MAXDFLSRCH; i++ ) {
 	    if ( _res.dnsrch[i] && *(_res.dnsrch[i]) )
-		domains->append( QString::fromLatin1( _res.dnsrch[i] ).lower() );
+		domains->append( QString::fromLatin1( _res.dnsrch[i] ).toLower() );
 	    else
 		break;
 	}
 #  endif
 	if ( *_res.defdname )
-	    domains->append( QString::fromLatin1( _res.defdname ).lower() );
+	    domains->append( QString::fromLatin1( _res.defdname ).toLower() );
 #endif
 
 	// the code above adds "0.0.0.0" as a name server at the slightest
 	// hint of trouble. so remove those again.
-	ns->first();
-	while( ns->current() ) {
-	    if ( ns->current()->isNull() )
-		delete ns->take();
+/*
+	QList<QHostAddress *> nsi = ns->begin();
+	for (; nsi != ns->end(); ++nsi) {
+	    if ( (*nsi)->isNull() )
+		delete (*nsi)->take();
 	    else
 		ns->next();
 	}
+*/
     }
 
     QFile hosts( QString::fromLatin1( "/etc/hosts" ) );
