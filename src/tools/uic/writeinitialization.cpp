@@ -47,7 +47,7 @@ WriteInitialization::WriteInitialization(Driver *drv)
 void WriteInitialization::accept(DomUI *node)
 {
     m_actionGroupChain.push(0);
-    m_widgetChain.push(node->elementWidget());
+    m_widgetChain.push(0);
     m_layoutChain.push(0);
 
     m_externPixmap = node->elementImages() == 0;
