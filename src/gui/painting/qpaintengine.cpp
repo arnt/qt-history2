@@ -72,8 +72,6 @@
 
   \value LinearGradients The engine can fill with linear gradients
 
-  \value DrawRects The engine can draw rectangles.
-
   \value PixmapScale The engine can scale pixmaps.
 
   \value AlphaFill The engine can fill and outline with alpha colors

@@ -58,7 +58,6 @@ public:
         PixmapTransform         = 0x0008,               // Pixmap transforms
         LinearGradients   	= 0x0010,               // Can fill gradient areas.
         PixmapScale             = 0x0020,               // Can scale (w/o XForm) in drawPixmap
-        DrawRects               = 0x0040,               // Can draw rectangles
 	AlphaFill               = 0x0080,               // Can fill with alpha.
         AlphaStroke             = 0x0100,               // Can outline with alpha.
         PainterPaths            = 0x0200,               // Can fill, outline and clip paths
