@@ -515,11 +515,13 @@ void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString &acc
 	if ( iface ) {
 	    QMap<QString, QString>::Iterator it = r->functionBodies.find( normalizeSlot( slot ) );
 	    if ( it == r->functionBodies.end() ) {
-		r->code += "\n\n" + iface->createFunctionStart( o->name(), make_pretty( slot ),
-								returnType.isEmpty() ?
-								QString( "void" ) :
-								returnType ) +
-			   "\n" + iface->createEmptyFunction();
+		QString body = "\n\n" + iface->createFunctionStart( o->name(), make_pretty( slot ),
+								    returnType.isEmpty() ?
+								    QString( "void" ) :
+								    returnType ) +
+			       "\n" + iface->createEmptyFunction();
+		r->code += body;
+		r->functionBodies.insert( normalizeSlot( slot ), body );
 	    }
 	}
     }
