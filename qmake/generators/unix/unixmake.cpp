@@ -165,13 +165,17 @@ UnixMakefileGenerator::init()
 	if ( !project->isActiveConfig("debug") )
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_NO_DEBUG");
 	if ( !is_qt ) {
-	    if ( !project->isEmpty("QMAKE_LIBDIR_QT") ) {
-		if ( !project->isEmpty("QMAKE_RPATH") )
+	    if ( !project->isEmpty("QMAKE_RPATH") ) {
+		if ( !project->isEmpty("QMAKE_RTLDIR_QT") )
+		    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_RTLDIR_QT", " " + var("QMAKE_RPATH"),
+									  " " + var("QMAKE_RPATH"), "");
+		else if ( !project->isEmpty("QMAKE_LIBDIR_QT") )
 		    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QT", " " + var("QMAKE_RPATH"),
 									  " " + var("QMAKE_RPATH"), "");
-		project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QT", "-L", " -L", "");
 	    }
-	    if (project->isActiveConfig("thread") && !project->isEmpty("QMAKE_LIBS_QT_THREAD"))
+	    if ( !project->isEmpty("QMAKE_LIBDIR_QT") )
+		project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QT", "-L", " -L", "");
+	    if ( project->isActiveConfig("thread") && !project->isEmpty("QMAKE_LIBS_QT_THREAD") )
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
 	    else
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
