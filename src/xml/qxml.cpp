@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#68 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#69 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -764,9 +764,15 @@ void QXmlInputSource::init()
     inputDevice = 0;
     inputStream = 0;
 
+#if defined(XML_INPUT_SOURCE_CLASSIC)
     userStringData = 0;
     userRawData = 0;
     rawData = 0;
+#else
+    str = QString::null;
+    pos = 0;
+    length = str.length();
+#endif
     encMapper = 0;
 }
 
@@ -822,10 +828,23 @@ QXmlInputSource::~QXmlInputSource()
 {
     delete encMapper;
 
+#if defined(XML_INPUT_SOURCE_CLASSIC)
     delete userStringData;
     delete userRawData;
     delete rawData;
+#endif
 }
+
+#if defined(XML_INPUT_SOURCE_CLASSIC)
+#else
+static const QChar QEOF = QChar((ushort)0xffff); // ### change this
+QChar QXmlInputSource::next()
+{
+    if ( pos >= length )
+	return QEOF;
+    return str[pos++];
+}
+#endif
 
 /*!
   Returns the data the input source contains or QString::null if the input
@@ -848,6 +867,7 @@ QXmlInputSource::~QXmlInputSource()
 */
 QString QXmlInputSource::data()
 {
+#if defined(XML_INPUT_SOURCE_CLASSIC)
     QString str;
     if ( rawData!=0  && encMapper==0 ) {
 	// first call of data()
@@ -873,6 +893,9 @@ QString QXmlInputSource::data()
 	}
     }
     return QString::null;
+#else
+    return str;
+#endif
 }
 
 /*!
@@ -885,9 +908,15 @@ QString QXmlInputSource::data()
 */
 void QXmlInputSource::setData( const QString& dat )
 {
+#if defined(XML_INPUT_SOURCE_CLASSIC)
     delete userStringData;
     delete userRawData;
     userStringData = new QString( dat );
+#else
+    str = dat;
+    pos = 0;
+    length = str.length();
+#endif
 }
 
 /*! \overload
@@ -896,9 +925,15 @@ void QXmlInputSource::setData( const QString& dat )
 */
 void QXmlInputSource::setData( const QByteArray& dat )
 {
+#if defined(XML_INPUT_SOURCE_CLASSIC)
     delete userStringData;
     delete userRawData;
     userRawData = new QByteArray( dat );
+#else
+    str = inputToString( (QByteArray*)&dat ); // ### change the cast
+    pos = 0;
+    length = str.length();
+#endif
 }
 
 /*!
@@ -908,9 +943,13 @@ void QXmlInputSource::setData( const QByteArray& dat )
 */
 void QXmlInputSource::getData()
 {
+#if defined(XML_INPUT_SOURCE_CLASSIC)
     if ( rawData == 0 ) {
 	rawData = new QByteArray;
     }
+#else
+    QByteArray *rawData = new QByteArray; // ### change this
+#endif
 
     if ( inputDevice != 0 ) {
 	if ( inputDevice->isOpen() || inputDevice->open( IO_ReadOnly )  )
@@ -928,6 +967,12 @@ void QXmlInputSource::getData()
 	    rawData->resize( nread );
 	}
     }
+#if defined(XML_INPUT_SOURCE_CLASSIC)
+#else
+    str = inputToString( rawData );
+    pos = 0;
+    length = str.length();
+#endif
 }
 
 /*!
@@ -6638,6 +6683,7 @@ void QXmlSimpleReader::next()
 	    lineNr++;
 	    columnNr = -1;
 	}
+#if defined(XML_INPUT_SOURCE_CLASSIC)
 	if ( pos >= xmlLength ) {
 	    c = QEOF;
 	} else {
@@ -6645,6 +6691,9 @@ void QXmlSimpleReader::next()
 	    columnNr++;
 	    pos++;
 	}
+#else
+	c = inputSource->next();
+#endif
     }
 }
 
@@ -6688,7 +6737,7 @@ void QXmlSimpleReader::init( const QXmlInputSource& i )
 {
     lineNr = 0;
     columnNr = -1;
-    inputSource = &i; // ### not pointer stuff
+    inputSource = (QXmlInputSource *)&i; // ### pointer stuff is not nice
     initData();
 
     d->externParameterEntities.clear();
@@ -6711,12 +6760,12 @@ void QXmlSimpleReader::init( const QXmlInputSource& i )
 */
 void QXmlSimpleReader::initData()
 {
-    QXmlInputSource *i = (QXmlInputSource *)inputSource; // ### change this
-    xml = i->data();
+#if defined(XML_INPUT_SOURCE_CLASSIC)
+    xml = inputSource->data();
     xmlLength = xml.length();
-    xmlRef = "";
-
     pos = 0;
+#endif
+    xmlRef = "";
     next();
 }
 

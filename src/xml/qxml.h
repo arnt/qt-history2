@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#32 $
+** $Id: //depot/qt/main/src/xml/qxml.h#33 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -55,6 +55,8 @@
 #endif
 
 #ifndef QT_NO_XML
+
+//#define XML_INPUT_SOURCE_CLASSIC
 
 class QXmlNamespaceSupport;
 class QXmlAttributes;
@@ -157,6 +159,10 @@ public:
     QXmlInputSource( QTextStream& stream ); // obsolete
     virtual ~QXmlInputSource();
 
+#if defined(XML_INPUT_SOURCE_CLASSIC)
+#else
+    virtual QChar next();
+#endif
     virtual QString data();
     virtual void setData( const QString& dat );
     virtual void setData( const QByteArray& dat );
@@ -169,9 +175,15 @@ private:
     QIODevice *inputDevice;
     QTextStream *inputStream;
 
+#if defined(XML_INPUT_SOURCE_CLASSIC)
     QString *userStringData;
     QByteArray *userRawData;
     QByteArray *rawData;
+#else
+    QString str;
+    int pos;
+    int length;
+#endif
     QTextDecoder *encMapper;
 
     QXmlInputSourcePrivate *d;
@@ -273,7 +285,7 @@ private:
     QXmlLexicalHandler *lexicalHnd;
     QXmlDeclHandler    *declHnd;
 
-    const QXmlInputSource *inputSource;
+    QXmlInputSource *inputSource;
 
     QChar c; // the character at reading position
     int   lineNr; // number of line
