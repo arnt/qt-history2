@@ -36,7 +36,6 @@ public:
 
     void updateGrid() const;
     inline QTextBlockIterator cellAt(int r, int c) const {
-        if (dirty) updateGrid();
         // nCols is without the 'eor column', however in the grid we store the
         // eor cells, hence the +1
         return QTextBlockIterator(pieceTable(), grid[r*nCols + c]);

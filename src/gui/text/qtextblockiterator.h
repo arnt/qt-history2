@@ -19,6 +19,7 @@ class QTextBlockIterator
     friend class QTextPieceTable;
     friend class QAbstractTextDocumentLayout;
     friend class QTextTablePrivate;
+    friend class QTextTable;
     friend class QTextFormatGroup;
 
     inline QTextBlockIterator(const QTextPieceTable *p, int b) : pt(p), n(b) {}
