@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#306 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#307 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -86,7 +86,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#306 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#307 $");
 
 
 /*****************************************************************************
@@ -190,6 +190,7 @@ extern void qt_handle_xdnd_status( QWidget *, const XEvent * );
 extern void qt_handle_xdnd_leave( QWidget *, const XEvent * );
 extern void qt_handle_xdnd_drop( QWidget *, const XEvent * );
 extern void qt_handle_xdnd_finished( QWidget *, const XEvent * );
+extern void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * );
 // client message atoms
 extern Atom qt_xdnd_enter;
 extern Atom qt_xdnd_position;
@@ -197,6 +198,8 @@ extern Atom qt_xdnd_status;
 extern Atom qt_xdnd_leave;
 extern Atom qt_xdnd_drop;
 extern Atom qt_xdnd_finished;
+// xdnd selection atom
+extern Atom qt_xdnd_selection;
 // thatsall
 
 void qt_x11_intern_atom( const char *, Atom * );
@@ -2038,9 +2041,17 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    }
 	    break;
 
+	case SelectionRequest:
+	    if ( qt_xdnd_selection ) {
+		XSelectionRequestEvent *req = &event->xselectionrequest;
+		if ( req && req->selection == qt_xdnd_selection ) {
+		    qt_xdnd_handle_selection_request( req );
+		    break;
+		}
+	    }
+	    // FALL THROUGH
 	case SelectionClear:
 	case SelectionNotify:
-	case SelectionRequest:
 	    if ( qt_clipboard ) {
 		QCustomEvent e( Event_Clipboard, event );
 		QApplication::sendEvent( qt_clipboard, &e );

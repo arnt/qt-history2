@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#3 $
 **
 ** WM_FILES implementation for Qt.
 **
@@ -70,3 +70,25 @@ const QByteArray QDropEvent::data( const char * format )
     QByteArray tmp;
     return tmp;
 }
+
+
+void QDragManager::startDrag( QDragObject * o )
+{
+    if ( object == o ) {
+	debug( "meaningless" );
+	return;
+    }
+
+    if ( object ) {
+	cancel();
+	dragSource->removeEventFilter( this );
+	beingCancelled = FALSE;
+    }
+
+    object = o;
+    dragSource = (QWidget *)(object->parent());
+    dragSource->installEventFilter( this );
+    debug( "started drag" );
+}
+
+

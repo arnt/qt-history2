@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipbrd.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qclipbrd.cpp#15 $
 **
 ** Implementation of QClipboard class
 **
@@ -13,7 +13,7 @@
 #include "qapp.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipbrd.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipbrd.cpp#15 $");
 
 
 /*!
@@ -140,10 +140,6 @@ extern QObject *qt_clipboard;			// defined in qapp_xyz.cpp
 
 static void cleanupClipboard()
 {
-#if 0
-    delete [] cb_text;
-    delete [] cb_pixmap;
-#endif
     delete qt_clipboard;
     qt_clipboard = 0;
 }

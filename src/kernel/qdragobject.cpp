@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#11 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -22,18 +22,19 @@
 extern void qt_xdnd_send_move( Window, QDragObject *, const QPoint & );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#11 $");
 
 
 // both a struct for storing stuff in and a wrapper to avoid polluting
 // the name space
 
 struct QDragData {
-    QDragData(): autoDelete( TRUE ) {}
+    QDragData(): autoDelete( TRUE ), next( 0 ) {}
 
     QString fmt;
     QByteArray enc;
     bool autoDelete;
+    QDragObject * next;
 };
 
 
@@ -61,26 +62,6 @@ QDragManager::~QDragManager()
     manager = 0;
 }
 
-
-
-void QDragManager::startDrag( QDragObject * o )
-{
-    if ( object == o ) {
-	debug( "meaningless" );
-	return;
-    }
-
-    if ( object ) {
-	cancel();
-	dragSource->removeEventFilter( this );
-	beingCancelled = FALSE;
-    }
-
-    object = o;
-    dragSource = (QWidget *)(object->parent());
-    dragSource->installEventFilter( this );
-    debug( "started drag" );
-}
 
 
 bool QDragManager::eventFilter( QObject * o, QEvent * e)
@@ -322,4 +303,24 @@ QWidget * QDragObject::source()
 	return (QWidget *)parent();
     else
 	return 0;
+}
+
+
+/*!
+
+*/
+
+void QDragObject::setAlternative( QDragObject * next )
+{
+    d->next = next;
+}
+
+
+/*!
+
+*/
+
+QDragObject * QDragObject::alternative() const
+{
+    return d->next;
 }
