@@ -27,8 +27,8 @@
 #define QGL_H
 
 
-#define QGL_VERSION	430
-#define QGL_VERSION_STR	"4.3"
+#define QGL_VERSION	440
+#define QGL_VERSION_STR	"4.4"
 
 const char *qGLVersion();
 

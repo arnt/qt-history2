@@ -1,4 +1,11 @@
 
+Changes from version 4.30 to version 4.40 (Qt 2.??)
+--------------------------------------------------
+
+Fixed a problem in the Windows version where the QGLContext DC could be
+used after it was released. Also avoids hitting the 9x resource limit when
+having many QGLWidgets at the same time.
+
 Changes from version 4.20 to version 4.30 (Qt 2.1)
 --------------------------------------------------
 
