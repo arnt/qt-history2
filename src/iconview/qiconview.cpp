@@ -2989,8 +2989,8 @@ void QIconView::setSelected( QIconViewItem *item, bool s, bool cb )
     item->setSelected( s, cb );
 }
 
-/*!
-  Returns the number of items in the icon view.
+/*! \property QIconView::count
+  \brief the number of items in the iconview
 */
 
 uint QIconView::count() const
@@ -3343,24 +3343,17 @@ void QIconView::showEvent( QShowEvent * )
     QScrollView::show();
 }
 
-/*!
-  Sets the selection mode of the icon view to \a m, which may be
-\c Single (the default), \c Extended, \c Multi or \c NoSelection.
+/*! \property QIconView::selectionMode
+  \brief the selection mode of the iconview
 
-  \sa selectionMode()
+  This can be \c Single (the default), \c Extended, \c Multi or \c
+  NoSelection. The default mode is \c Single.
 */
 
 void QIconView::setSelectionMode( SelectionMode m )
 {
     d->selectionMode = m;
 }
-
-/*!
-  Returns the selection mode of the icon view.  The default mode is
-  \c Single.
-
-  \sa setSelectionMode()
-*/
 
 QIconView::SelectionMode QIconView::selectionMode() const
 {
@@ -3718,56 +3711,46 @@ void QIconView::clear()
     d->clearing = FALSE;
 }
 
-/*!  Sets the horizontal grid width to \a rx.  If \a rx is -1, (the
-   default), QIconView computes suitable column widths based on
-  the icon view's contents.
+/*!  \property QIconView::gridX
+  \brief the horizontal grid  of the iconview
+
+  If the value is -1, (the default), QIconView computes suitable
+  column widths based on the icon view's contents.
 
   Note that setting a grid width overrides setMaxItemWidth().
-
-  \sa setGridY() gridX() setMaxItemWidth()
 */
 
 void QIconView::setGridX( int rx )
-{ // ### bug 0
+{
     d->rastX = rx >= 0 ? rx : -1;
 }
 
-/*!  Sets the vertical grid width to \a ry.  If \a ry is -1, (the
-   default), QIconView computes suitable row heights based on the
-  icon view's contents.
+/*!  \property QIconView::gridY
+  \brief the vertical grid  of the iconview
 
-  \sa setGridX() gridY()
+  If the value is -1, (the default), QIconView computes suitable
+  column heights based on the icon view's contents.
 */
 
 void QIconView::setGridY( int ry )
-{ // ### bug 0
+{
     d->rastY = ry >= 0 ? ry : -1;
 }
-
-/*!
-  Returns the horizontal grid size (the column width).
-
-  \sa QIconView::setGridX()
-*/
 
 int QIconView::gridX() const
 {
     return d->rastX;
 }
 
-/*!
-  Returns the vertical grid size (the row height).
-
-  \sa QIconView::setGridY()
-*/
-
 int QIconView::gridY() const
 {
     return d->rastY;
 }
 
-/*!
-  Sets the space in pixels between icon view items to \a sp.
+/*! \property QIconView::spacing
+  \brief the space in pixels between icon view items
+
+  Negative values for spacing are illegal.
 */
 
 void QIconView::setSpacing( int sp )
@@ -3775,20 +3758,15 @@ void QIconView::setSpacing( int sp )
     d->spacing = sp;
 }
 
-/*!
-  Returns the spacing between icon view items.
-*/
-
 int QIconView::spacing() const
 {
     return d->spacing;
 }
 
-/*!
-  Sets the position where the text of each item is drawn. This can be \c Bottom
-  or \c Right. The default is \c Bottom.
+/*! \property QIconView::itemTextPos
+  \brief the position where the text of each item is drawn.
 
-  \sa ItemTextPos itemTextPos()
+  Valid values are \c Bottom or \c Right. The default is \c Bottom.
 */
 
 void QIconView::setItemTextPos( ItemTextPos pos )
@@ -3807,21 +3785,16 @@ void QIconView::setItemTextPos( ItemTextPos pos )
     arrangeItemsInGrid( TRUE );
 }
 
-/*! Returns \c Bottom if each item's text is drawn below its icon, and
-  \c Right if it is drawn to the right of its icon.
-
-  \sa QIconView::setItemTextPos() ItemTextPos
-*/
-
 QIconView::ItemTextPos QIconView::itemTextPos() const
 {
     return d->itemTextPos;
 }
 
-/*!
-  Sets the \a brush that should be used when drawing the background
-  of an item's text. By default this brush is set to NoBrush, meaning that
-  only the normal icon view background is used.
+/*! \property QIconView::itemTextBackground
+  \brief the brush that should be used when drawing the background of an item's text.
+
+  By default this brush is set to NoBrush, meaning that only the
+  normal icon view background is used.
 */
 
 void QIconView::setItemTextBackground( const QBrush &brush )
@@ -3829,22 +3802,15 @@ void QIconView::setItemTextBackground( const QBrush &brush )
     d->itemTextBrush = brush;
 }
 
-/*!
-  Returns the brush that is used to draw the background of an item's text.
-
-  \sa setItemTextBackground()
-*/
-
 QBrush QIconView::itemTextBackground() const
 {
     return d->itemTextBrush;
 }
 
-/*!
-  Sets the arrangement mode of the icon view to \a am, which must be
-  \c LeftToRight or \c TopToBottom.
+/*! \property QIconView::arrangement
+  \brief the arrangement mode of the icon view
 
-  \sa Arrangement
+  This can be \c LeftToRight or \c TopToBottom.
 */
 
 void QIconView::setArrangement( Arrangement am )
@@ -3860,22 +3826,15 @@ void QIconView::setArrangement( Arrangement am )
     arrangeItemsInGrid( TRUE );
 }
 
-/*!
-  Returns the arrangement mode of the icon view.
-
-  \sa QIconView::setArrangement()
-*/
-
 QIconView::Arrangement QIconView::arrangement() const
 {
     return d->arrangement;
 }
 
-/*!
-  Sets the resize mode of the icon view to \a rm, which must be
-  \c Fixed or \c Adjust.
+/*! \property QIconView::resizeMode
+  \brief the resize mode of the icon view
 
-  \sa ResizeMode
+  This can be \c Fixed or \c Adjust.
 */
 
 void QIconView::setResizeMode( ResizeMode rm )
@@ -3886,22 +3845,16 @@ void QIconView::setResizeMode( ResizeMode rm )
     d->resizeMode = rm;
 }
 
-/*!
-  Returns the resize mode of the icon view.
-
-  \sa QIconView::setResizeMode()
-*/
-
 QIconView::ResizeMode QIconView::resizeMode() const
 {
     return d->resizeMode;
 }
 
-/*!
-  Sets the maximum width that an item may have.
+/*! \property QIconView::maxItemWidth
+  \brief the maximum width that an item may have.
 
   Note that if the gridX() value is set QIconView will ignore
-  maxItemWidth().
+  this property.
 */
 
 void QIconView::setMaxItemWidth( int w )
@@ -3909,21 +3862,16 @@ void QIconView::setMaxItemWidth( int w )
     d->maxItemWidth = w;
 }
 
-/*!  Sets the maximum length (in characters) that an item's text may
-  have. The default is 255 characters.
+/*!  \property QIconView::maxItemTextLength
+  \brief the maximum length (in characters) that an item's text may have.
+
+  The default is 255 characters.
 */
 
 void QIconView::setMaxItemTextLength( int w )
 {
     d->maxItemTextLength = w;
 }
-
-/*!  Returns the maximum width (in pixels) that an item may have. This
-  may be the value set using setMaxItemWidth(), but may also be
-  derived from gridX() since gridX() overrides setMaxItemWidth().
-
-  \sa QIconView::setMaxItemWidth() setGridX()
-*/
 
 int QIconView::maxItemWidth() const
 {
@@ -3933,22 +3881,13 @@ int QIconView::maxItemWidth() const
 	return d->maxItemWidth;
 }
 
-/*!
-  Returns the maximum length (in characters) that the
-  text of an icon may have.
-
-  \sa QIconView::setMaxItemTextLength()
-*/
-
 int QIconView::maxItemTextLength() const
 {
     return d->maxItemTextLength;
 }
 
-/*!
-  If \a b is TRUE, the user is allowed to move items around in
-  the icon view; if \a b is FALSE, the user may not move items in the
-  icon view.
+/*! \property QIconView::itemsMovable
+  \brief whether the user is allowed to move items around in the icon view
 */
 
 void QIconView::setItemsMovable( bool b )
@@ -3956,21 +3895,15 @@ void QIconView::setItemsMovable( bool b )
     d->rearrangeEnabled = b;
 }
 
-/*!
-  Returns TRUE if the user is allowed to move items around
-  in the icon view, otherwise FALSE. The default is TRUE.
-
-  \sa QIconView::setItemsMovable()
-*/
-
 bool QIconView::itemsMovable() const
 {
     return d->rearrangeEnabled;
 }
 
-/*! Sets the icon view to rearrange its items when a new item is
-  inserted if \a b is TRUE, and to simply find a spot for the new item
-  if \a b is FALSE. The initial setting is TRUE.
+/*! \property QIconView::autoArrange
+  \brief whether the icon view rearranges its items when a new item is inserted.
+
+  The default is set to TRUE.
 
   Note that if the icon view is not visible at the time of insertion,
   QIconView defers all position-related work until it's shown and then
@@ -3981,12 +3914,6 @@ void QIconView::setAutoArrange( bool b )
 {
     d->reorderItemsWhenInsert = b;
 }
-
-/*! Returns TRUE if inserting a new item triggers rearrangement of the
-other items, and FALSE if it does not.
-
-  \sa QIconView::setAutoArrange()
-*/
 
 bool QIconView::autoArrange() const
 {
@@ -4016,9 +3943,10 @@ void QIconView::setSorting( bool sort, bool ascending )
     d->sortDirection = ascending;
 }
 
-/*! Returns TRUE if the icon view sorts on insertion and FALSE otherwise.
+/*! \property QIconView::sorting
+  \brief whether the icon view sorts on insertion
 
-  \sa QIconView::setSorting()
+  To set the soring, use setSorting().
 */
 
 bool QIconView::sorting() const
@@ -4026,12 +3954,13 @@ bool QIconView::sorting() const
     return d->resortItemsWhenInsert;
 }
 
-/*!
-  Returns TRUE if the sort direction for inserting new items is ascending;
-  FALSE means descending. This sort direction only has meaning if sorting()
-  and autoArrange() are both TRUE.
+/*! \property QIconView::sortDirection
+  \brief whether the sort direction for inserting new items is ascending;
 
-  \sa QIconView::setSorting(), QIconView::setAutoArrange()
+  This sort direction only has meaning if sorting() and autoArrange()
+  are both TRUE.
+
+  To set the sort direction, use setSorting()
 */
 
 bool QIconView::sortDirection() const
@@ -4039,17 +3968,12 @@ bool QIconView::sortDirection() const
     return d->sortDirection;
 }
 
-/*!
-    This function sets the behaviour of the QIconView when it must
-    display an item's text that is too long to fit the horizontal space
-    available to the item.
+/*! \property QIconView::wordWrapIconText
+  \brief whether the item text will be word-wrapped if it is too long
 
-    If \a b is TRUE, the text will be wrapped, and if \a b is FALSE, the
-    text will be shown truncated.
-
-  The initial value is TRUE.
-
-  \sa setShowToolTips()
+  If this property is set to FALSE, too long icon textes will be
+  truncated and an ellipsis (...) at the end will indicate that to the
+  user.
 */
 
 void QIconView::setWordWrapIconText( bool b )
@@ -4065,37 +3989,22 @@ void QIconView::setWordWrapIconText( bool b )
     arrangeItemsInGrid( TRUE );
 }
 
-/*! Returns TRUE if item text that is too long will be word-wrapped, and
-   FALSE if the text will be shown truncated.
-
-  \sa setWordWrapIconText(), setShowToolTips()
-*/
-
 bool QIconView::wordWrapIconText() const
 {
     return d->wordWrapIconText;
 }
 
-/*! If \a b is TRUE the icon view will display a tool tip with the
-  complete text for any truncated item text; if \a b is FALSE no such
-  tool tip will be shown.
+/*! \property QIconView::showToolTips
+  \brief whether the icon view will display a tool tip with the complete text for any truncated item text
 
   The default is TRUE. Note that this has no effect if
   setWordWrapIconText() is TRUE, as it is by default.
-
-  \sa setWordWrapIconText()
 */
 
 void QIconView::setShowToolTips( bool b )
 {
     d->showTips = b;
 }
-
-/*!  Returns TRUE if a tool tip is shown for truncated item texts, and
-  FALSE if it is not.
-
-  \sa setShowToolTips(), setWordWrapIconText()
-*/
 
 bool QIconView::showToolTips() const
 {
