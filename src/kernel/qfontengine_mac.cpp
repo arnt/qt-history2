@@ -90,7 +90,6 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
     advance_t *advances = engine->advances( si );
     offset_t *offsets = engine->offsets( si );
     
-#if 0
     p->updateBrush();
     if(p->backgroundMode() == Qt::OpaqueMode) {
 	glyph_metrics_t br = boundingBox(glyphs, advances, offsets, si->num_glyphs);
@@ -107,7 +106,6 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 	RGBForeColor(&f);
 	PaintRect(&r);
     }
-#endif
     p->updatePen();
     if(p->testf(QPainter::DirtyFont))
 	p->updateFont();
