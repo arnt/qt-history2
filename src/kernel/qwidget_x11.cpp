@@ -1009,12 +1009,26 @@ void QWidget::grabMouse()
     if ( !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
+#if defined(CHECK_STATE)
+	int status =
+#endif
 	XGrabPointer( x11Display(), winId(), TRUE,
 		      (uint)( ButtonPressMask | ButtonReleaseMask |
 			      PointerMotionMask | EnterWindowMask |
 			      LeaveWindowMask ),
 		      GrabModeAsync, GrabModeAsync,
 		      None, None, qt_x_time );
+#if defined(CHECK_STATE)
+	if ( status ) {
+	    const char *s =
+		status == GrabNotViewable ? "\"GrabNotViewable\"" :
+		status == AlreadyGrabbed  ? "\"AlreadyGrabbed\"" :
+		status == GrabFrozen      ? "\"GrabFrozen\"" :
+		status == GrabInvalidTime ? "\"GrabInvalidTime\"" :
+					    "<?>";
+	    qWarning( "Grabbing the mouse failed with %s", s );
+	}
+#endif
 	mouseGrb = this;
     }
 }
@@ -1036,11 +1050,25 @@ void QWidget::grabMouse( const QCursor &cursor )
     if ( !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
+#if defined(CHECK_STATE)
+	int status =
+#endif
 	XGrabPointer( x11Display(), winId(), TRUE,
 		      (uint)(ButtonPressMask | ButtonReleaseMask |
 			     PointerMotionMask | EnterWindowMask | LeaveWindowMask),
 		      GrabModeAsync, GrabModeAsync,
 		      None, cursor.handle(), qt_x_time );
+#if defined(CHECK_STATE)
+	if ( status ) {
+	    const char *s =
+		status == GrabNotViewable ? "\"GrabNotViewable\"" :
+		status == AlreadyGrabbed  ? "\"AlreadyGrabbed\"" :
+		status == GrabFrozen      ? "\"GrabFrozen\"" :
+		status == GrabInvalidTime ? "\"GrabInvalidTime\"" :
+					    "<?>";
+	    qWarning( "Grabbing the mouse failed with %s", s );
+	}
+#endif
 	mouseGrb = this;
     }
 }
@@ -1891,6 +1919,9 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     if ( testWState( WState_BlockUpdates ) )
 	return;
     bool valid_rect = r.isValid();
+    bool just_update = QABS( dx ) > width() || QABS( dy ) > height();
+    if ( just_update )
+	update();
     QRect sr = valid_rect?r:visibleRect();
     int x1, y1, x2, y2, w=sr.width(), h=sr.height();
     if ( dx > 0 ) {
@@ -1918,7 +1949,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     Display *dpy = x11Display();
     GC gc = qt_xget_readonly_gc();
     // Want expose events
-    if ( w > 0 && h > 0 ) {
+    if ( w > 0 && h > 0 && !just_update ) {
 	XSetGraphicsExposures( dpy, gc, TRUE );
 	XCopyArea( dpy, winId(), winId(), gc, x1, y1, w, h, x2, y2);
 	XSetGraphicsExposures( dpy, gc, FALSE );
@@ -1938,6 +1969,9 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 	}
     }
 
+    if ( just_update )
+	return;
+    
     // Don't let the server be bogged-down with repaint events
     bool repaint_immediately = qt_sip_count( this ) < 3;
 
