@@ -47,9 +47,12 @@ class Q_EXPORT QGroupBox : public QFrame
 	
 public:
     QGroupBox( QWidget *parent=0, const char *name=0 );
-    QGroupBox( const QString &title, QWidget *parent=0, const char* name=0 );
-    QGroupBox( int columns, Orientation o, QWidget *parent=0, const char *name=0 );
-    QGroupBox( int columns, Orientation o, const QString &title, QWidget *parent=0, const char* name=0 );
+    QGroupBox( const QString &title,
+	       QWidget *parent=0, const char* name=0 );
+    QGroupBox( int columns, Orientation o,
+	       QWidget *parent=0, const char *name=0 );
+    QGroupBox( int columns, Orientation o, const QString &title,
+	       QWidget *parent=0, const char* name=0 );
 
     virtual void setColumnLayout(int columns, Orientation o);
 
@@ -71,6 +74,7 @@ protected:
     void childEvent( QChildEvent * );
     void resizeEvent( QResizeEvent * );
     void paintEvent( QPaintEvent * );
+    void focusInEvent( QFocusEvent * );
     void updateMask();
 
 private slots:
