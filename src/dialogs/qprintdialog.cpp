@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#30 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#31 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#31 $");
 
 
 struct QPrintDialogPrivate
@@ -694,9 +694,18 @@ bool QPrintDialog::getPrinterSetup( QPrinter * p )
 void QPrintDialog::printerOrFileSelected( int id )
 {
     d->outputToFile = id ? TRUE : FALSE;
-    d->printers->setEnabled( !d->outputToFile );
-    d->browse->setEnabled( d->outputToFile );
-    d->fileName->setEnabled( d->outputToFile );
+    if ( d->outputToFile ) {
+	d->browse->setEnabled( TRUE );
+	d->fileName->setEnabled( TRUE );
+	d->fileName->setFocus();
+	d->printers->setEnabled( FALSE );
+    } else {
+	d->printers->setEnabled( TRUE );
+	if ( d->fileName->hasFocus() || d->browse->hasFocus() )
+	    d->printers->setFocus();
+	d->browse->setEnabled( FALSE );
+	d->fileName->setEnabled( FALSE );
+    }
 }
 
 
