@@ -402,9 +402,9 @@ void QColor::setNamedColor( const QString& name )
 	    g = (hex2int(p[2]) << 4) + hex2int(p[3]);
 	    b = (hex2int(p[4]) << 4) + hex2int(p[5]);
 	} else if ( len == 3 ) {
-	    r = hex2int(p[0]) << 4;
-	    g = hex2int(p[1]) << 4;
-	    b = hex2int(p[2]) << 4;
+	    r = (hex2int(p[0]) << 4) + hex2int(p[0]);
+	    g = (hex2int(p[1]) << 4) + hex2int(p[1]);
+	    b = (hex2int(p[2]) << 4) + hex2int(p[2]);
 	} else {
 	    r = g = b = 0;
 	}
