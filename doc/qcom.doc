@@ -8,28 +8,31 @@
 
   \ingroup componentmodel
 
-  All interfaces in the component object model are derived from the QUnknownInterface. This 
-  interface provides control of the object's lifetime and the ability to navigate a component 
-  that implements multiple interfaces.
+  All interfaces in the component object model are derived from the
+  QUnknownInterface. This interface provides control of the object's
+  lifetime and the ability to navigate a component that implements
+  multiple interfaces.
 
-  The object's lifetime is controlled using a reference count that is increased and
-  decreased using the functions addRef() and release(), respectively.
+  The object's lifetime is controlled using a reference count that is
+  increased and decreased using the functions addRef() and release(),
+  respectively.
 
-  The queryInterface() function determines whether the component supports a specific interface.
-  For every interface a Unique Universal Identifier (UUID) is provided to identify requests
-  for that interface. In Qt, this identifier is wrapped in the \link QUuid QUuid \endlink class 
-  which provides convenience operators for comparison and copying.
+  The queryInterface() function determines whether the component supports
+  a specific interface. For every interface a Unique Universal Identifier
+  (UUID) is provided to identify requests for that interface. In Qt, this
+  identifier is wrapped in the \link QUuid QUuid \endlink class which
+  provides convenience operators for comparison and copying.
 */
 
 /*!
   \fn QRESULT  QUnknownInterface::queryInterface( const QUuid &request, QUnknownInterface** iface )
 
-  Sets \a iface to point to an interface specified with \a request, or null if this 
-  interface can't provide the interface requested. An implementation of this function 
-  must call addRef() on the pointer it returns.
+  Sets \a iface to point to an interface specified with \a request, or null
+  if this interface can't provide the interface requested. An implementation
+  of this function must call addRef() on the pointer it returns.
 
-  Possible return values for this function are QS_OK when the call succeeds, or QE_NOINTERFACE
-  if the requested interface cannot be provided.
+  Possible return values for this function are QS_OK when the call succeeds,
+  or QE_NOINTERFACE if the requested interface cannot be provided.
 
   Example:
   \code
@@ -52,19 +55,22 @@
   There are five requirements for implementations of queryInterface:
   \list
   \i Always the same QUnknownInterface
-  For any component, a query for the QUnknownInterface must always return the same pointer value to
-  allow a client to determine whether two interfaces point to the same component.
+  For any component, a query for the QUnknownInterface must always return the
+  same pointer value to allow a client to determine whether two interfaces
+  point to the same component.
   \i Static set of interfaces
-  The number of interfaces for which queryInterface returns a valid pointer must not change during
-  the lifetime of the component.
+  The number of interfaces for which queryInterface returns a valid pointer
+  must not change during the lifetime of the component.
   \i Reflexive
-  If a client holding a pointer to one interface queries for that interface, the call must succeed.
+  If a client holding a pointer to one interface queries for that interface,
+  the call must succeed.
   \i Symmetric
-  If a client holding a pointer to one interface queries for another, a query through the obtained
-  interface for the first interface must succeed.
+  If a client holding a pointer to one interface queries for another, a query
+  through the obtained interface for the first interface must succeed.
   \i Transitive
-  If a client holding a pointer to one interface queries successfully for a second, and queries that
-  successfully for a third interface, a query for that third interface on the first interface must succeed.
+  If a client holding a pointer to one interface queries successfully for
+  a second, and queries that successfully for a third interface, a query
+  for that third interface on the first interface must succeed.
   \endlist
 
   \sa addRef(), release()
@@ -84,9 +90,9 @@
   }
   \endcode
 
-  This function must be called when this interface is returned as a result of a
-  queryInterface() call. It should be called for every new copy of a pointer to
-  this interface.
+  This function must be called when this interface is returned as a result
+  of a queryInterface() call. It should be called for every new copy of
+  a pointer to this interface.
 
   \sa queryInterface(), release()
 */
@@ -94,8 +100,9 @@
 /*!
   \fn ulong QUnknownInterface::release()
 
-  Decreases the reference count for this interface by one and returns the new 
-  reference count. If the reference count falls to 0, the object is freed from memory.
+  Decreases the reference count for this interface by one and returns the
+  new reference count. If the reference count falls to 0, the object is
+  freed from memory.
 
   Example:
   \code
@@ -109,8 +116,8 @@
   }
   \endcode
 
-  This function should be called whenever a copy of a pointer to this interface is no 
-  longer needed.
+  This function should be called whenever a copy of a pointer to this
+  interface is no longer needed.
 
   \sa addRef()
 */
@@ -118,40 +125,40 @@
 
 
 /*!
-  \class QComponentInterface qcom.h
-  \brief The QComponentInterface class defines an interface to get basic information about a component.
+  \class QComponentInformationInterface qcom.h
+  \brief The QComponentInformationInterface class defines an interface to get basic information about a component.
 
   \ingroup componentmodel
 
-  This interface defines the functions name(), description(), author() and version(), all of which return 
-  a string containing the relevant information.
+  This interface defines the functions name(), description(), author() and
+  version(), all of which return a string containing the relevant information.
 
-  Components that implement the QComponentInterface can be identified by the QPluginManager class and can 
-  be used in plugins.
+  Components that implement the QComponentInformationInterface can be
+  identified by the QPluginManager class and can be used in plugins.
 
   \sa QFeatureListInterface
 */
 
 /*!
-  \fn QString QComponentInterface::name() const
+  \fn QString QComponentInformationInterface::name() const
 
   Returns a string with the name of the module.
 */
 
 /*!
-  \fn QString QComponentInterface::description() const
+  \fn QString QComponentInformationInterface::description() const
 
   Returns a string with a description of the module.
 */
 
 /*!
-  \fn QString QComponentInterface::author() const
+  \fn QString QComponentInformationInterface::author() const
 
   Returns a string with information about the author of the module.
 */
 
 /*!
-  \fn QString QComponentInterface::version() const
+  \fn QString QComponentInformationInterface::version() const
 
   Returns a string with information about the version of the module.
 */
@@ -163,23 +170,26 @@
 
   \ingroup componentmodel
 
-  A component server can only export a single component that might implement any number
-  of interfaces. To be able to provide multiple components in one component server, implement
-  this interface in the exported component and create the actual components in the createInstance()
-  implementation. A client using this interface has to know the component identifiers of the
+  A component server can only export a single component that might implement
+  any number of interfaces. To be able to provide multiple components in one
+  component server, implement this interface in the exported component and
+  create the actual components in the createInstance() implementation.
+  A client using this interface has to know the component identifiers of the
   components provided.
 */
 
 /*!
   \fn QRESULT QComponentFactoryInterface::createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface **iface, QUnknownInterface *outer )
 
-  Creates the component specified by \a cid and sets \a iface to point to the interface \a iid implemented by that component. 
-  The component can use the \a outer interface for containment and aggregation. \a iface is set to null if the component \cid 
-  is not provided by this factory, or if the component does not implement the interface requested.
+  Creates the component specified by \a cid and sets \a iface to point to the
+  interface \a iid implemented by that component.  The component can use the
+  \a outer interface for containment and aggregation. \a iface is set to null
+  if the component \cid  is not provided by this factory, or if the component
+  does not implement the interface requested.
 
-  The function returns QS_OK if the interface was successfully instantiated, QE_NOINTERFACE if
-  the component does not provide an interface \a iid, or QE_NOCOMPONENT if there was an error 
-  loading the component \a cid.
+  The function returns QS_OK if the interface was successfully instantiated,
+  QE_NOINTERFACE if the component does not provide an interface \a iid, or
+  QE_NOCOMPONENT if there was an error loading the component \a cid.
 */
 
 
@@ -189,38 +199,43 @@
 
   \ingroup componentmodel
 
-  If the component exported by a component server implements this interface, QLibrary calls the function init()
-  after loading the library, and the loading is stopped if this function call rerturns FALSE. 
+  If the component exported by a component server implements this interface,
+  QLibrary calls the function init() after loading the library, and the
+  loading is stopped if this function call rerturns FALSE. 
 
-  Before the component server is unloaded, QLibrary calls the cleanup() function so that the library can free
-  all allocated resources. If the following call to canUnload() returns FALSE, the unloading will be cancelled.
+  Before the component server is unloaded, QLibrary calls the cleanup()
+  function so that the library can free all allocated resources. If the
+  following call to canUnload() returns FALSE, the unloading will be cancelled.
 */
 
 /*!
   \fn bool QLibraryInterface::init()
 
-  This function is called by QLibrary right after retrieving the component exported by a component server.
-  When this function returns FALSE, the component server will not be loaded.
+  This function is called by QLibrary right after retrieving the component
+  exported by a component server. When this function returns FALSE, the
+  component server will not be loaded.
 */
 
 /*!
   \fn void QLibraryInterface::cleanup()
 
-  This function is called by QLibrary while unloading the component server. Implement this function
-  to free any resources allocated inside the component, e.g. memory, file handles or sockets.
+  This function is called by QLibrary while unloading the component server.
+  Implement this function to free any resources allocated inside the component,
+  e.g. memory, file handles or sockets.
 */
 
 /*!
   \fn bool QLibraryInterface::canUnload() const
 
-  When this function returns FALSE, the component implementing this interface will not be unloaded.
-  QLibrary calls this function regularily to unload unused libraries, so the implementation of this
-  function should be efficient.
+  When this function returns FALSE, the component implementing this interface
+  will not be unloaded. QLibrary calls this function regularily to unload
+  unused libraries, so the implementation of this function should be efficient.
 
-  This function should return FALSE when memory is still allocated by the library and referenced outside
-  of the library. To watch the lifetime of allocated memory, use the QObject::destroyed() signal, or the
-  QObjectCleanupHandler class. For more information, see the implementation of this interface in the style 
-  plugins that ship with Qt.
+  This function should return FALSE when memory is still allocated by the
+  library and referenced outside of the library. To watch the lifetime of
+  allocated memory, use the QObject::destroyed() signal, or the
+  QObjectCleanupHandler class. For more information, see the implementation
+  of this interface in the style plugins that ship with Qt.
 */
 
 
@@ -231,18 +246,22 @@
 
   \ingroup componentmodel
 
-  Component servers are commonly used as plugins that can be removed from or added to an application dynamically to change the
-  functionality of the program. The application needs to identify which functionality is provided by which plugin and can use
-  the QPluginManager class to get the plugin interface corresponding to a certain feature. The QPluginManager class utilizes
-  the QFeatureListInterface or the QComponentInterface to get the list of features provided by a plugin.
+  Component servers are commonly used as plugins that can be removed from
+  or added to an application dynamically to change the functionality of the
+  program. The application needs to identify which functionality is provided
+  by which plugin and can use the QPluginManager class to get the plugin
+  interface corresponding to a certain feature. The QPluginManager class
+  utilizes the QFeatureListInterface or the QComponentInformationInterface
+  to get the list of features provided by a plugin.
 
-  \sa QComponentInterface QPluginManager
+  \sa QComponentInformationInterface QPluginManager
 */
 
 /*!
   \fn QStringList QFeatureListInterface::featureList() const
 
-  Returns a list of features implemented in this component. A feature can be anything.
+  Returns a list of features implemented in this component. A feature can be
+  anything.
 */
 
 
@@ -252,8 +271,10 @@
 
   \ingroup componentmodel
   
-  This interface defines two functions, registerComponents() and unregisterComponents(), that are used
-  by the QComponentFactory class to register and unregister all components provided by a component server.
+  This interface defines two functions, registerComponents() and
+  unregisterComponents(), that are used by the QComponentFactory
+  class to register and unregister all components provided by a
+  component server.
 
   \sa QComponentFactory QComponentFactoryInterface
 */
@@ -261,12 +282,13 @@
 /*!
   \fn bool QComponentServerInterface::registerComponents( const QString &filepath ) const
 
-  Registers the components in this server in the system component registry and
-  returns TRUE if successful, otherwise returns FALSE. The \a filepath is
-  the absolute path to the shared library file.
+  Registers the components in this server in the system component registry
+  and returns TRUE if successful, otherwise returns FALSE. The \a filepath
+  is the absolute path to the shared library file.
 
-  Implementations of this function should use the \link QComponentFactory::registerComponent()
-  static functions \endlink in QComponentFactory to access the component registry.
+  Implementations of this function should use the
+  \link QComponentFactory::registerComponent() static functions \endlink
+  in QComponentFactory to access the component registry.
 
   Example:
   \code
@@ -277,11 +299,12 @@
 /*!
   \fn bool QComponentServerInterface::unregisterComponents() const
 
-  Removes the components in this server from the system component registry and returns
-  TRUE if successful, otherwise returns FALSE.
+  Removes the components in this server from the system component registry
+  and returns TRUE if successful, otherwise returns FALSE.
 
-  Implementations of this function should use the \link QComponentFactory::unregisterComponent()
-  static functions \endlink in QComponentFactory to access the component registry.
+  Implementations of this function should use the
+  \link QComponentFactory::unregisterComponent() static functions \endlink
+  in QComponentFactory to access the component registry.
 
   \code
   return QComponentFactory::unregisterComponent( QUuid(DD19964B-A2C8-42AE-AAF9-8ADC509BCA03) );

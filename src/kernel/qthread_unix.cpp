@@ -329,9 +329,10 @@ void QThread::cleanup()
   Since QThread::postEvent() posts events into the event queue of QApplication,
   you must create a QApplication object before calling QThread::postEvent().
 
-  Just like \l{QApplication::postEvent()}, the \a event must be
-  allocated on the heap, as it is deleted when the event has been
-  posted.
+  The event must be allocated on the heap since the post event queue
+  will take ownership of the event and delete it once it has been posted.
+
+  \sa QApplication::postEvent()
 */
 void QThread::postEvent( QObject * receiver, QEvent * event )
 {

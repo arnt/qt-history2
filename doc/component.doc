@@ -655,11 +655,11 @@ QImage ImageColorComponent::changeColor( const QString &feature,
 }
 \endcode
 
-Sometimes this is not necessary or wanted, so there is another interface that can be used to 
-inform the application about what the component does:
+Sometimes this is not necessary or wanted, so there is another interface that
+can be used to inform the application about what the component does:
 
 \code
-struct QComponentInterface : public QUnknownInterface
+struct QComponentInformationInterface : public QUnknownInterface
 {
     QString name() const = 0;
     QString description() const = 0;
@@ -669,9 +669,9 @@ struct QComponentInterface : public QUnknownInterface
 \endcode
 
 Any component that implements the ImageColorInterface and either the
-QFeatureListInterface or the QComponentInterface can now be used as
-a plugin for an image processing (or any other) application. The
-QPluginManager template class provides a generic solution for this.
+QFeatureListInterface or the QComponentInformationInterface can now be
+used as a plugin for an image processing (or any other) application.
+The QPluginManager template class provides a generic solution for this.
 
 \code
 QImage image( "picture.png" );
@@ -685,11 +685,12 @@ if ( iface ) {
 }
 \endcode
 
-The plugin manager will load all shared libraries in the path specified using
-QLibrary, calls \link QLibrary::queryInterface() queryInterface()\endlink to test
-the library for the implementation of the interface of type IID_ImageColor, and
-uses any implementation of the QFeatureListInterface or the QComponentInterface to
-get information about what the plugin actually does. Calling 
+The plugin manager will load all shared libraries in the path specified
+using QLibrary, calls \link QLibrary::queryInterface() queryInterface()\endlink
+to test the library for the implementation of the interface of type
+IID_ImageColor, and uses any implementation of the QFeatureListInterface or
+the QComponentInformationInterface to get information about what the plugin
+actually does. Calling 
 
 \code
 colorPlugins.queryInterface( "Sepia", &iface );

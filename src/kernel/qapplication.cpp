@@ -2402,7 +2402,7 @@ QString QApplication::translate( const char * context, const char * sourceText,
   When control returns to the main event loop, all events that are
   stored in the queue will be sent using the notify() function.
 
-  \sa sendEvent(), notify()
+  \sa sendEvent(), QThread::postEvent(), notify()
 */
 
 void QApplication::postEvent( QObject *receiver, QEvent *event )
