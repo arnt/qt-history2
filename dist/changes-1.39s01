@@ -948,3 +948,16 @@ extensions/nsplugin/src/qnp.cpp    1.18  warwick  +4 -1
   Work for multi-visual displays.
 
 
+extensions/opengl/examples/box/.cvsignore    1.2  aavit  +0 -1
+extensions/opengl/examples/box/glbox.cpp    1.4  aavit  +15 -6
+extensions/opengl/examples/box/glbox.h    1.5  aavit  +2 -1
+extensions/opengl/examples/gear/gear.cpp    1.5  aavit  +26 -35
+extensions/opengl/src/qgl.cpp    1.18  aavit  +127 -41
+extensions/opengl/src/qgl.h    1.8  aavit  +80 -77
+
+  New features in OpenGL extension:
+  1) virtual initalizeGL() method in QGLWidget; facilitates easier GL initialization.
+  2) Added support for using shared OpenGL display lists
+  3) Added sharedbox example showing this feature.
+
+
