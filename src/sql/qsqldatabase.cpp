@@ -58,7 +58,7 @@
 #include "qcleanuphandler.h"
 #include <stdlib.h>
 
-QString QSqlDatabase::defaultConnection = QString::fromLatin1("qt_sql_default_connection");
+const char *QSqlDatabase::defaultConnection = "qt_sql_default_connection";
 
 class QNullResult : public QSqlResult
 {

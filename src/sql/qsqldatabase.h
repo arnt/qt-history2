@@ -106,7 +106,7 @@ public:
 
     QSqlDriver* driver() const;
 
-    static QString defaultConnection;
+    static const char *defaultConnection;
 
     static QSqlDatabase *addDatabase(const QString& type,
                                      const QString& connectionName = defaultConnection);
