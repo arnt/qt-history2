@@ -1,2 +1,0 @@
-The movies example only works if GIF reading is enabled in Qt.
-See qt/include/qgif.h for more information.

@@ -6,8 +6,10 @@ $Id$
   \ingroup examples
   \title Movies or the Story of the Animated GIF file
 
-  The Movies example displays animated GIF files using the QMovie and
+  The Movies example displays MNG and animated GIF files using the QMovie and
   QLabel classes.
+
+  The movies will only read an animated GIF if GIF reading was enabled when Qt was built.
 
   <hr>
 
