@@ -1196,8 +1196,7 @@ void QRasterPaintEngine::drawLine(const QLineF &l)
 #endif
 
     Q_D(QRasterPaintEngine);
-    // Specalized vertical && horizontal line drawing...
-    if (0 && !d->antialiased
+    if (!d->antialiased
         && d->pen.style() == Qt::SolidLine
         && (d->pen.widthF() == 0
             || (d->pen.widthF() <= 1 && d->txop <= QPainterPrivate::TxTranslate))) {
@@ -1209,10 +1208,15 @@ void QRasterPaintEngine::drawLine(const QLineF &l)
 
         if (mode == LineDrawNormal && d->pen.capStyle() != Qt::FlatCap)
             mode = LineDrawIncludeLastPixel;
-        FillData fillData = { d->rasterBuffer, 0, 0 };
-        d->fillForBrush(QBrush(d->pen.brush()), &fillData, 0); // ############# will crash for gradients
 
-        drawLine_bresenham(line, d->clipEnabled ? qt_span_fill_clipped : fillData.callback , &fillData, mode);
+        FillData fillData = { d->rasterBuffer, 0, 0 };
+        d->fillForBrush(QBrush(d->pen.brush()), &fillData, 0);
+
+        FillData clipData = { d->rasterBuffer, fillData.callback, fillData.data };
+        void *data = d->clipEnabled ? (void *)&clipData : (void *) fillData.data;
+        qt_span_func func = d->clipEnabled ? qt_span_fill_clipped : fillData.callback;
+
+        drawLine_bresenham(line, func, data, mode);
         return;
     }
     QPaintEngine::drawLine(l);
@@ -1384,7 +1388,7 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
                 static_cast<const QRadialGradient *>(brush.gradient())->focalPoint();
             radialGradientData->alphaColor = !brush.isOpaque();
             radialGradientData->initColorTable();
-            QRectF bounds = path->boundingRect();
+            QRectF bounds = path ? path->boundingRect() : deviceRect;
             tempImage = qt_draw_radial_gradient_image(bounds.toRect(), radialGradientData);
 
             fillData->data = textureFillData;
@@ -1410,7 +1414,7 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
                 static_cast<const QConicalGradient *>(brush.gradient())->angle();
             conicalGradientData->alphaColor = !brush.isOpaque();
             conicalGradientData->initColorTable();
-            QRectF bounds = path->boundingRect();
+            QRectF bounds = path ? path->boundingRect() : deviceRect;
             tempImage = qt_draw_conical_gradient_image(bounds.toRect(), conicalGradientData);
 
             fillData->data = textureFillData;
