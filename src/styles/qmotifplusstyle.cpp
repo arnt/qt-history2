@@ -981,7 +981,6 @@ void QMotifPlusStyle::drawControl( ControlElement element,
     case CE_TabBarTab:
 	{
 	    const QTabBar *tabbar = (const QTabBar *) widget;
-	    int dfw = pixelMetric(PM_DefaultFrameWidth, widget);
 	    bool selected = flags & Style_Selected;
 
 	    QColorGroup g = tabbar->colorGroup();
@@ -1378,7 +1377,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 		    pe = PE_SpinWidgetPlus;
 		else
 		    pe = PE_SpinWidgetUp;
-		
+
 		QRect re = sw->upRect();
 		QColorGroup ucg = sw->isUpEnabled() ? cg : sw->palette().disabled();
 		drawPrimitive(pe, p, re, ucg, flags);
