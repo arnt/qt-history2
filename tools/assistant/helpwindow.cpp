@@ -94,9 +94,10 @@ void HelpWindow::setSource( const QString &name )
 		return;
 	}
 	QProcess *proc = new QProcess();
+	proc->setCommunication(0);
 	proc->addArgument( webbrowser );
 	proc->addArgument( name );
-	proc->launch( "" );
+	proc->start();
 	return;
     }
 
@@ -120,9 +121,10 @@ void HelpWindow::setSource( const QString &name )
 	    return;
 	}
 	QProcess *proc = new QProcess();
+	proc->setCommunication(0);
 	proc->addArgument( pdfbrowser );
 	proc->addArgument( name );
-	proc->launch( "" );
+	proc->start();
 
 	return;
     }
