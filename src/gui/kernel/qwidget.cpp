@@ -493,7 +493,9 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
  /*!
     \enum Qt::FocusReason
 
-    This enum specifies why the focus changed.
+    This enum specifies why the focus changed. It will be passed
+    through QWidget::setFocus and can be retrieved in the QFocusEvent
+    sent to the widget upon focus change.
 
     \value MouseFocusReason        A mouse action occurred.
     \value TabFocusREason          The Tab key was pressed.
