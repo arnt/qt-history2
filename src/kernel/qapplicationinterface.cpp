@@ -23,7 +23,7 @@ QApplicationInterface::QApplicationInterface()
 }
 
 /*!
-  \fn QComponentInterface* QApplicationInterface::requestInterface( const QCString& request )
+  \fn QComponentInterface* QApplicationInterface::queryInterface( const QCString& request )
   \overload
 
   Returns an interface that matches the \a request, or NULL if no such interface cn be provided.
@@ -133,7 +133,7 @@ bool QComponentInterface::requestEvents( QObject* f )
   Reimplement this function for to process interface requests for your application. The default
   implementation returns NULL.
 */
-QComponentInterface* QComponentInterface::requestInterface( const QCString& )
+QComponentInterface* QComponentInterface::queryInterface( const QCString& )
 {
     return 0;
 }
