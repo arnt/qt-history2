@@ -288,7 +288,7 @@ void QFontPrivate::initFontInfo()
 	char an[64];
 	GetTextFaceA( fin->dc(), 64, an );
 	fin->s.family = QString::fromLocal8Bit(an);
-	fin->s.fixedPitch = !(fin->textMetricW()->tmPitchAndFamily & TMPF_FIXED_PITCH);
+	fin->s.fixedPitch = !(fin->textMetricA()->tmPitchAndFamily & TMPF_FIXED_PITCH);
     }
     fin->s.dirty = FALSE;
 }
