@@ -13,3 +13,6 @@
 
 #define SQLITE_PTR_SZ QT_POINTER_SIZE
 
+#ifdef UNICODE
+# undef UNICODE
+#endif

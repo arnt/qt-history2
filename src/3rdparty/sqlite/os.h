@@ -17,6 +17,7 @@
 #ifndef _SQLITE_OS_H_
 #define _SQLITE_OS_H_
 
+#include "config.h"
 /*
 ** Helpful hint:  To get this to compile on HP/UX, add -D_INCLUDE_POSIX_SOURCE
 ** to the compiler command line.
