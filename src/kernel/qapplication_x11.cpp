@@ -4939,6 +4939,10 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	char	asciiIntern = 0;
 	XEvent	evRelease;
 	XEvent	evPress;
+
+	// sync the event queue, this makes key compress work better
+	XSync( dpy, FALSE );
+
 	for (;;) {
 	    QString textIntern;
 	    if ( !XCheckTypedWindowEvent(dpy,event->xkey.window,
