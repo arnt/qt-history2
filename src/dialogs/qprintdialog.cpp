@@ -470,7 +470,7 @@ static int retrieveNisPrinters( QListView * printers )
 	    cb.data = (char *) printers;
 	    err = _ypAll( domain, printersConfByname, &cb );
 	}
-	switch ( !err )
+	if ( !err )
 	    return Success;
     }
     return Unavail;
