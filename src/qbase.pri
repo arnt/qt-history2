@@ -63,7 +63,7 @@ CONFIG          += qmake_cache target_qt debug_and_release
 contains(QT_CONFIG, largefile):CONFIG += largefile
 
 mac {
-   #QMAKE_LFLAGS += -undefined suppress -flat_namespace
+   CONFIG += explicitlib
    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)
    !macx-xlc: {
        QMAKE_CFLAGS += -fconstant-cfstrings

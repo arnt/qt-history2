@@ -4,8 +4,6 @@ CONFIG -= resource_fork
 
 QT += xml compat
 
-mac:QT += network sql
-
 DESTDIR = ../../../bin
 
 include(../uic/uic.pri)
