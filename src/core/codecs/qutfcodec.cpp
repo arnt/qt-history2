@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qutfcodec.h"
+#include "qutfcodec_p.h"
 
 #ifndef QT_NO_TEXTCODEC
 

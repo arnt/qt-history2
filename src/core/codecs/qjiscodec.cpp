@@ -106,7 +106,7 @@
   SUCH DAMAGE.
 */
 
-#include "qjiscodec.h"
+#include "qjiscodec_p.h"
 
 #ifndef QT_NO_BIG_CODECS
 

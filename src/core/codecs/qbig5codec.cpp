@@ -72,7 +72,7 @@
   SUCH DAMAGE.
 */
 
-#include "qbig5codec.h"
+#include "qbig5codec_p.h"
 
 #ifndef QT_NO_BIG_CODECS
 

@@ -88,7 +88,7 @@
  * SUCH DAMAGE.
  */
 
-#include "qeucjpcodec.h"
+#include "qeucjpcodec_p.h"
 
 #ifndef QT_NO_BIG_CODECS
 

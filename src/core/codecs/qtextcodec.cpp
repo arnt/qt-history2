@@ -24,20 +24,19 @@
 
 #include "qlist.h"
 #include "qtextcodecfactory.h"
-#include "qutfcodec.h"
+#include "qutfcodec_p.h"
 #include "qnamespace.h"
 #ifndef QT_NO_CODECS
-#include "qtsciicodec.h"
+#include "qtsciicodec_p.h"
 #include "qisciicodec_p.h"
 #endif // QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
-#include "qbig5codec.h"
-#include "qeucjpcodec.h"
-#include "qeuckrcodec.h"
-#include "qgb18030codec.h"
-#include "qjiscodec.h"
-#include "qjpunicode.h"
-#include "qsjiscodec.h"
+#include "qbig5codec_p.h"
+#include "qeucjpcodec_p.h"
+#include "qeuckrcodec_p.h"
+#include "qgb18030codec_p.h"
+#include "qjiscodec_p.h"
+#include "qsjiscodec_p.h"
 #endif // QT_NO_BIG_CODECS
 #include "qfile.h"
 #include "qstring.h"

@@ -66,7 +66,7 @@
     int heuristicNameMatch(const char* hint) const;
 */
 
-#include "qeuckrcodec.h"
+#include "qeuckrcodec_p.h"
 
 #ifndef QT_NO_BIG_CODECS
 

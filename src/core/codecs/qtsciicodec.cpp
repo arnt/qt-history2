@@ -68,7 +68,7 @@
   SUCH DAMAGE.
 */
 
-#include "qtsciicodec.h"
+#include "qtsciicodec_p.h"
 
 #ifndef QT_NO_CODECS
 
