@@ -269,6 +269,20 @@ void *QLibrary::resolve( const char* symb )
 }
 
 /*!
+  Loads the library \a filename and returns the address of the exported symbol \a symb.
+  Note that like for the constructor, \a filename does not need to include the (platform specific) 
+  file extension. The library staying loaded until the process exits.
+
+  The function returns a null pointer if the symbol could not be resolved or if loading
+  the library failed.
+*/
+void *QLibrary::resolve( const QString &filename, const char *symb )
+{
+    QLibrary lib( filename, Manual );
+    return lib.resolve( symb );
+}
+
+/*!
   Returns whether the library is loaded.
 
   \sa unload
