@@ -1721,38 +1721,37 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
         d->trippleClickTimer.stop();
     } else {
         int cursorPos = d->doc->documentLayout()->hitTest(pos, Qt::FuzzyHit);
-        if (cursorPos != -1) {
+        if (cursorPos == -1)
+            return;
 
 #if (defined(Q_WS_X11) || defined(Q_WS_QWS)) && !defined(QT_NO_IM)
-            QTextLayout *layout = d->cursor.block().layout();
-            if (!layout->preeditAreaText().isEmpty()) {
-                inputContext()->mouseHandler(cursorPos - d->cursor.position(), e);
-                if (!layout->preeditAreaText().isEmpty())
-                    return;
-            }
+        QTextLayout *layout = d->cursor.block().layout();
+        if (!layout->preeditAreaText().isEmpty()) {
+            inputContext()->mouseHandler(cursorPos - d->cursor.position(), e);
+            if (!layout->preeditAreaText().isEmpty())
+                return;
+        }
 #endif
-            if (e->modifiers() & Qt::ShiftModifier) {
-                if (d->selectedWordOnDoubleClick.hasSelection())
-                    d->extendWordwiseSelection(cursorPos, pos.x());
-                else
-                    d->doWindowsShiftClickSelection(cursorPos);
-            } else if (e->modifiers() & Qt::ControlModifier) {
-                d->doWindowsCtrlClickSelection(cursorPos);
-            } else {
 
-                if (d->cursor.hasSelection()
-                        && cursorPos >= d->cursor.selectionStart()
-                        && cursorPos <= d->cursor.selectionEnd()) {
-                    d->mightStartDrag = true;
-                    d->dragStartPos = e->globalPos();
-                    d->dragStartTimer.start(QApplication::startDragTime(), this);
-                    return;
-                }
-
-                d->setCursorPosition(cursorPos);
-            }
+        if (e->modifiers() == Qt::ShiftModifier) {
+            if (d->selectedWordOnDoubleClick.hasSelection())
+                d->extendWordwiseSelection(cursorPos, pos.x());
+            else
+                d->doWindowsShiftClickSelection(cursorPos);
+        } else if (e->modifiers() == Qt::ControlModifier) {
+            d->doWindowsCtrlClickSelection(cursorPos);
         } else {
-            d->cursor.clearSelection();
+
+            if (d->cursor.hasSelection()
+                    && cursorPos >= d->cursor.selectionStart()
+                    && cursorPos <= d->cursor.selectionEnd()) {
+                d->mightStartDrag = true;
+                d->dragStartPos = e->globalPos();
+                d->dragStartTimer.start(QApplication::startDragTime(), this);
+                return;
+            }
+
+            d->setCursorPosition(cursorPos);
         }
     }
 
