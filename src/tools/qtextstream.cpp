@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#122 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#123 $
 **
 ** Implementation of QTextStream class
 **
@@ -1623,13 +1623,17 @@ QTextStream &QTextStream::operator<<( const char* s )
     return *this;
 }
 
+/*!
+  Writes \a s to the stream and returns a reference to the stream.
+*/
+
 QTextStream &QTextStream::operator<<( const QCString & s )
 {
     return operator<<(s.data());
 }
 
 /*!
-  Writes a string to the stream and returns a reference to the stream.
+  Writes \a s to the stream and returns a reference to the stream.
 */
 
 QTextStream &QTextStream::operator<<( const QString& s )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#81 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -82,7 +82,7 @@ struct QSpinBoxPrivate
   choice in addition to the range of numeric values.  See
   setSpecialValueText() for how to do this with QSpinBox.
 
-  The default \l focusPolicy() is StrongFocus.
+  The default \l QWidget::focusPolicy() is StrongFocus.
 
   QSpinBox can easily be subclassed to allow the user to input other
   things than a numeric value, as long as the allowed input can be
@@ -426,7 +426,7 @@ void QSpinBox::arrangeWidgets()
 	down->resize( bs );
 	updateButtonSymbols();
     }
-    
+
     int y = style() == WindowsStyle ? frameWidth() : 0;
     int x = width() - y - bs.width();
     up->move( x, y );
@@ -893,7 +893,7 @@ void QSpinBox::updateButtonSymbols()
     QString dnKey = key + QString::fromLatin1( "$down" );
     QBitmap upBm;
     QBitmap dnBm;
-    
+
     bool found = QPixmapCache::find( dnKey, dnBm )
 		 && QPixmapCache::find( upKey, upBm );
 
@@ -907,7 +907,7 @@ void QSpinBox::updateButtonSymbols()
 		h = 3;
 	    else if ( (h > 6) && (h & 1) )
 		h--;
-	    h -= ( h / 8 ) * 2;		// Empty border 
+	    h -= ( h / 8 ) * 2;		// Empty border
 	    dnBm.resize( h, h );
 	    p.begin( &dnBm );
 	    p.eraseRect( 0, 0, h, h );
@@ -930,7 +930,7 @@ void QSpinBox::updateButtonSymbols()
 		return;
 	    else if ( !(w & 1) )
 		w--;
-	    w -= ( w / 7 ) * 2;		// Empty border 
+	    w -= ( w / 7 ) * 2;		// Empty border
 	    int h = w/2 + 2;        // Must have empty row at foot of arrow
 	    dnBm.resize( w, h );
 	    p.begin( &dnBm );
