@@ -540,20 +540,19 @@ void QPushButtonPrivate::popupPressed()
             if (q->mapToGlobal(QPoint(0, rect.bottom())).y() + menu->sizeHint().height() <= qApp->desktop()->height())
                 menu->exec(q->mapToGlobal(rect.bottomLeft()));
             else
-                menu->exec(q->mapToGlobal(rect.topLeft() - QPoint(0, menu->sizeHint().height())));
+                menu->exec(q->mapToGlobal(rect.topLeft()));
         } else {
             QSize sz(menu->sizeHint());
             QPoint p = q->mapToGlobal(rect.topLeft());
             p.ry() -= sz.height();
             menu->exec(p);
         }
-    }
-    else {
+    } else {
         if (topLeft) {
             if (q->mapToGlobal(QPoint(rect.right(), 0)).x() + menu->sizeHint().width() <= qApp->desktop()->width())
                 menu->exec(q->mapToGlobal(rect.topRight()));
             else
-                menu->exec(q->mapToGlobal(rect.topLeft() - QPoint(menu->sizeHint().width(), 0)));
+                menu->exec(q->mapToGlobal(rect.topLeft()));
         } else {
             QSize sz(menu->sizeHint());
             QPoint p = q->mapToGlobal(rect.topLeft());
