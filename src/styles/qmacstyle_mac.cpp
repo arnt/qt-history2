@@ -876,52 +876,68 @@ void QMacStyle::drawControl(ControlElement element,
 	d->addWidget(btn);
 	if(btn->isToggleButton() && btn->isOn())
 	    tds = kThemeStatePressed;
-	QPixmap *buffer = NULL;
 	QString pmkey;
+	bool do_draw = FALSE;
+	QPixmap *buffer = NULL;
 	QTextOStream os(&pmkey);
-	int frame = d->buttonState.frame;
-	if(how & Style_Down)
-	    frame = 0;
-	os << "$qt_mac_pshbtn_" << r.width() << "x" << r.height() 
-	   << "_" << how << "_" << frame;
+	int frame = ((how & Style_Down) ? 0 : d->buttonState.frame);
+	os << "$qt_mac_pshbtn_" << r.width() << "x" << r.height() << "_" << how << "_" << frame;
 	if(d->animatable(QAquaAnimate::AquaPushButton, (QWidget *)widget)) {
 	    tds = kThemeStatePressed;
-	    if(frame) {
-		if(!(buffer = QPixmapCache::find(pmkey))) {
-		    buffer = new QPixmap(r.width(), r.height(), 32);
-		    buffer->fill(color0);
-		} else {
-		    p->drawPixmap(r, *buffer);
-		    break;
-		}
+	    if(frame && !(buffer = QPixmapCache::find(pmkey))) {
+		do_draw = TRUE;
+		buffer = new QPixmap(r.width(), r.height(), 32);
+		buffer->fill(color0);
 	    }
 	}
+	const QRect off_rct(1, 1, 1, 2);
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 	if(btn->isFlat())
 	    info.adornment = kThemeAdornmentNoShadow;
-	const Rect *mac_rct = NULL;
-	const QRect off_rct(1, 1, 1, 2);
+	((QMacPainter *)p)->setport();
+	DrawThemeButton(qt_glb_mac_rect(r, p, TRUE, off_rct), 
+			kThemePushButton, &info, NULL, NULL, NULL, 0);
 	if(buffer) {
-	    QMacSavedPortInfo::setPaintDevice(buffer);
-	    mac_rct = qt_glb_mac_rect(QRect(0, 0, r.width(), r.height()), buffer, TRUE, off_rct);
-	} else {
-	    ((QMacPainter *)p)->setport();
-	    mac_rct = qt_glb_mac_rect(r, p, TRUE, off_rct);
-	}
-	DrawThemeButton(mac_rct, kThemePushButton, &info, NULL, NULL, NULL, 0);
-	if(buffer) {
-	    if(frame) {
-		QImage img;
-		img = *buffer;
+	    if(do_draw && frame) {
+		QMacSavedPortInfo savedInfo(buffer);
+		const Rect *buff_rct = qt_glb_mac_rect(QRect(0, 0, r.width(), r.height()), 
+						       buffer, TRUE, off_rct);
+		DrawThemeButton(buff_rct, kThemePushButton, &info, NULL, NULL, NULL, 0);
+
+		QPixmap buffer_mask(buffer->size(), 32);
+		{
+		    buffer_mask.fill(color0);
+		    ThemeButtonDrawInfo mask_info = info;
+		    mask_info.state = kThemeStateActive;
+		    QMacSavedPortInfo savedInfo(&buffer_mask);
+		    DrawThemeButton(buff_rct, kThemePushButton, &mask_info, NULL, NULL, NULL, 0);
+		}
+
+		QImage img = buffer->convertToImage(), maskimg = buffer_mask.convertToImage();
+		QImage mask_out(img.width(), img.height(), 1, 2, QImage::LittleEndian);
 		for(int y = 0; y < img.height(); y++) {
+		    //calculate a mask
+		    for(int maskx = 0; maskx < img.width(); maskx++) {
+			QRgb in = img.pixel(maskx, y), out = maskimg.pixel(maskx, y);
+			int diff = (((qRed(in)-qRed(out))*((qRed(in)-qRed(out)))) +
+				    ((qGreen(in)-qGreen(out))*((qGreen(in)-qGreen(out)))) +
+				    ((qBlue(in)-qBlue(out))*((qBlue(in)-qBlue(out)))));
+			mask_out.setPixel(maskx, y, diff > 100);
+		    }
+		    //pulse the colours
 		    uchar *bytes = img.scanLine(y);
 		    for(int x = 0; x < img.bytesPerLine(); x++) 
 			*(bytes + x) = (*(bytes + x) * (100 - frame)) / 100;
 		}
 		*buffer = img;
+		{
+		    QBitmap qmask;
+		    qmask = mask_out;
+		    buffer->setMask(qmask);
+		}
 	    }
 	    p->drawPixmap(r, *buffer);
-	    if(!QPixmapCache::insert(pmkey, buffer))	// save in cache
+	    if(do_draw && !QPixmapCache::insert(pmkey, buffer))	// save in cache
 		delete buffer;
 	}
 	break; }
@@ -1003,6 +1019,13 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    QListViewItem *item = opt.listViewItem();
 	    int y=r.y(), h=r.height();
 	    ((QMacPainter *)p)->setport();
+	    {
+		::RGBColor f;
+		f.red = f.green = f.blue = 0;
+		RGBForeColor(&f);
+		f.red = f.green = f.blue = ~0;
+		RGBBackColor(&f);
+	    }
 	    for(QListViewItem *child = item->firstChild(); child && y < h;
 		y += child->totalHeight(), child = child->nextSibling()) {
 		if(y + child->height() > 0) {
