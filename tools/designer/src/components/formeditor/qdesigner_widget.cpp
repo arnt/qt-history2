@@ -482,12 +482,15 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
                 m_indicatorRight->show();
                 m_indicatorRight->raise();
 
+                int incr = (mx == dx1) ? 0 : +1;
+
                 if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout())) {
                     m_currentInsertMode = ILayoutDecoration::InsertColumnMode;
                     int row, column, rowspan, colspan;
                     gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
-                    int incr = (mx == dx1) ? 0 : +1;
                     m_currentCell = qMakePair(row, qMax(0, column + incr));
+                } else if (QBoxLayout *box = qt_cast<QBoxLayout*>(layout())) {
+                    m_currentCell = qMakePair(0, box->findWidget(item->widget()) + incr);
                 }
             }
         } else {
@@ -498,12 +501,15 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
                 m_indicatorBottom->show();
                 m_indicatorBottom->raise();
 
+                int incr = (my == dy1) ? 0 : +1;
+
                 if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout())) {
                     m_currentInsertMode = ILayoutDecoration::InsertRowMode;
                     int row, column, rowspan, colspan;
                     gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
-                    int incr = (my == dy1) ? 0 : +1;
                     m_currentCell = qMakePair(qMax(0, row + incr), column);
+                } else if (QBoxLayout *box = qt_cast<QBoxLayout*>(layout())) {
+                    m_currentCell = qMakePair(box->findWidget(item->widget()) + incr, 0);
                 }
             }
         }
@@ -581,19 +587,11 @@ void QLayoutSupport::insertWidget(QWidget *widget)
     LayoutInfo::Type lt = LayoutInfo::layoutType(core, layout());
     switch (lt) {
         case LayoutInfo::VBox: {
-            QList<QWidget*> items = widgets(layout());
-            items.append(widget);
-            VerticalLayoutList lst(items);
-            lst.sort();
-            static_cast<QVBoxLayout*>(layout())->insertWidget(lst.indexOf(widget), widget);
+            static_cast<QVBoxLayout*>(layout())->insertWidget(currentCell().first, widget);
         } break;
 
         case LayoutInfo::HBox: {
-            QList<QWidget*> items = widgets(layout());
-            items.append(widget);
-            HorizontalLayoutList lst(items);
-            lst.sort();
-            static_cast<QVBoxLayout*>(layout())->insertWidget(lst.indexOf(widget), widget);
+            static_cast<QHBoxLayout*>(layout())->insertWidget(currentCell().second, widget);
         } break;
 
         case LayoutInfo::Grid: {
