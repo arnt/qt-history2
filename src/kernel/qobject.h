@@ -96,11 +96,11 @@ public:
     // MOC_SKIP_BEGIN
 #ifndef QT_MOC_CPP
     template<typename T>
-    T findChild(const char *name, T* = 0) const
+    T findChild(const char *name, T = 0) const
     { return static_cast<T>(findChild_helper(name, ((T)0)->staticMetaObject)); }
 
     template<typename T>
-    QList<T> findChildren(const char *name, T* = 0) const
+    QList<T> findChildren(const char *name, T = 0) const
     {
 	QList<T> list;
 	findChildren_helper(name, 0, ((T)0)->staticMetaObject,
@@ -114,7 +114,7 @@ public:
     // MOC_SKIP_BEGIN
 #ifndef QT_MOC_CPP
     template<typename T>
-    QList<T> findChildren(const QRegExp &re, T* = 0) const
+    QList<T> findChildren(const QRegExp &re, T = 0) const
     {
 	QList<T> list;
 	findChildren_helper(0, &re, ((T)0)->staticMetaObject,
