@@ -191,6 +191,7 @@ public:
     static WindowsVersion winVersion();
     void	     winFocus( QWidget *, bool );
     static void	     winMouseButtonUp();
+    static bool winEffectSupport( Qt::WindowsEffect );
 #endif
 
     // session management

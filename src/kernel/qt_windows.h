@@ -29,6 +29,12 @@
 
 #include "qwindowdefs.h"
 
+#if defined(QT_WINEFFECTS) // support for new win2000 features
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+#endif
+
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
 #include <windows.h>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#382 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#383 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -473,7 +473,7 @@ static void qt_set_windows_resources()
 		      QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
 	icg = cg;
-	if ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) {
+	if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 ) {
 	    icg.setColor( QColorGroup::ButtonText, icg.dark() );
 	}
 	QPalette menu(cg, dcg, icg);
@@ -847,6 +847,60 @@ Qt::WindowsVersion QApplication::winVersion()
     return qt_winver;
 }
 
+bool QApplication::winEffectSupport( Qt::WindowsEffect effect )
+{
+    bool result = FALSE;
+
+    if (qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 ) {
+	uint WINPARAM;
+
+	switch (effect) {
+	case Qt::UI_AnimateMenu:
+#if defined(SPI_GETMENUANIMATION)
+	    WINPARAM = SPI_GETMENUANIMATION;
+#else
+	    return FALSE;
+#endif
+	    break;
+	case Qt::UI_FadeMenu:
+#if defined(SPI_GETMENUFADE)
+	    WINPARAM = SPI_GETMENUFADE;
+#else
+	    return FALSE;
+#endif
+	    break;
+	case Qt::UI_AnimateCombo:
+#if defined(SPI_GETCOMBOBOXANIMATION)
+	    WINPARAM = SPI_GETCOMBOBOXANIMATION;
+#else
+	    return FALSE;
+#endif
+	    break;
+	case Qt::UI_AnimateTooltip:
+#if defined(SPI_GETTOOLTIPANIMATION)
+	    WINPARAM = SPI_GETTOOLTIPANIMATION;
+#else
+	    return FALSE;
+#endif
+	    break;
+	case Qt::UI_FadeTooltip:
+#if defined(SPI_GETTOOLTIPFADE)
+	    WINPARAM = SPI_GETTOOLTIPFADE;
+#else
+	    return FALSE;
+#endif
+	default:
+#if defined(SPI_GETUIEFFECTS)
+	    WINPARAM = SPI_GETUIEFFECTS;
+#else
+	    return TRUE;
+#endif
+	    break;
+	}
+	SystemParametersInfo( WINPARAM, 0, &result, 0 );
+    }
+    return result;
+}
 
 /*****************************************************************************
   QApplication cursor stack

@@ -544,6 +544,15 @@ public:
 	WV_NT_based	= 0x00f0
     };
 
+    enum WindowsEffect {
+	UI_General,
+	UI_AnimateMenu,
+	UI_FadeMenu,
+	UI_AnimateCombo,
+	UI_AnimateTooltip,
+	UI_FadeTooltip
+    };
+
 
     // Global cursors
 
