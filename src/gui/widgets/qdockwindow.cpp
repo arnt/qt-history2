@@ -583,8 +583,8 @@ QDockWindow::QDockWindow(QMainWindow *parent)
 }
 
 /*!
-    Constructs a QDockWindow with parent \a parent, placed in \a area
-    and with widget flags \a flags.
+    Constructs a QDockWindow with the given \a parent, placed in the
+    specified \a area.
 */
 QDockWindow::QDockWindow(QMainWindow *parent, Qt::DockWindowArea area)
     : QFrame(*(new QDockWindowPrivate(parent)), parent,
