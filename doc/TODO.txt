@@ -322,6 +322,10 @@ QLayout
 QMessageBox
   Use 'Y' and 'N' etc as well as ALT+Key_Y for the shortcuts
 
+QPopupMenu
+  Be able to specify a maximum height for popup menus so that they don't use the whole 
+  height of the desktop before splitting into another menu.
+
 New functionality
 -----------------
 
