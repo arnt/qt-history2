@@ -1771,14 +1771,14 @@ QModelIndex QListViewPrivate::closestIndex(const QPoint &target,
                                            const QVector<QModelIndex> &candidates) const
 {
     int distance = 0;
-    int shortest = 0;
+    int shortest = -1;
     QModelIndex closest;
     QVector<QModelIndex>::const_iterator it = candidates.begin();
     for (; it != candidates.end(); ++it) {
         if (!(*it).isValid())
             continue;
-        distance = (indexToListViewItem(*it).rect().topLeft() - target).manhattanLength();
-        if (distance < shortest || shortest == 0) {
+        distance = (indexToListViewItem(*it).rect().center() - target).manhattanLength();
+        if (distance < shortest || shortest == -1) {
             shortest = distance;
             closest = *it;
         }
