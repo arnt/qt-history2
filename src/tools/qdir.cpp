@@ -144,7 +144,7 @@ const bool CaseSensitiveFS = TRUE;
 */
 
 /*!
-    Constructs a QDir pointing to the current directory.
+    Constructs a QDir pointing to the current directory (".").
 
     \sa currentDirPath()
 */
