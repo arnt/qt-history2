@@ -27,7 +27,6 @@ class Q_GUI_EXPORT QStatusBar: public QWidget
     Q_PROPERTY(bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled)
 
 public:
-    QStatusBar(QWidget* parent, const char* name);
     explicit QStatusBar(QWidget* parent=0);
     virtual ~QStatusBar();
 
@@ -42,6 +41,9 @@ public slots:
     void clearMessage();
 
 #ifdef QT_COMPAT
+public:
+    QT_COMPAT_CONSTRUCTOR QStatusBar(QWidget* parent, const char* name);
+public slots:
     inline QT_COMPAT void message(const QString &text, int timeout = 0) { showMessage(text, timeout); }
     inline QT_COMPAT void clear() { clearMessage(); }
 #endif
