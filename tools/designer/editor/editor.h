@@ -60,9 +60,11 @@ public:
 
 signals:
     void clearErrorMarker();
+    void intervalChanged();
 
 private slots:
     void cursorPosChanged( QTextCursor *c );
+    void doChangeInterval();
 
 protected:
     ParenMatcher *parenMatcher;

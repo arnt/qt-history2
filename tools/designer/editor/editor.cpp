@@ -105,3 +105,8 @@ void Editor::setStepSelection( int line )
     document()->setSelectionEnd( Step, &c );
 }
 
+void Editor::doChangeInterval()
+{
+    emit intervalChanged();
+    QTextEdit::doChangeInterval();
+}

@@ -77,6 +77,7 @@ QWidget *EditorInterfaceImpl::editor( QWidget *parent, QUnknownInterface *iface 
 	CppEditor *e = new CppEditor( QString::null, viewManager, "editor" );
 	e->installEventFilter( this );
 	dIface = (DesignerInterface*)iface->queryInterface( IID_DesignerInterface );
+	connect( e, SIGNAL( intervalChanged() ), this, SLOT( intervalChanged() ) );
 	QApplication::sendPostedEvents( viewManager, QEvent::ChildInserted );
     }
     return viewManager->currentView();
@@ -278,20 +279,11 @@ bool EditorInterfaceImpl::eventFilter( QObject *o, QEvent *e )
 {
     if ( e->type() == QEvent::ChildRemoved ) {
 	viewManager = 0;
-    } else if ( e->type() == QEvent::FocusOut && dIface ) {
-	dIface->updateFunctionList();
+    } else if ( e->type() == QEvent::KeyPress ) {
 	updateTimer->stop();
-    } else if ( e->type() == QEvent::FocusIn && dIface ) {
-	updateTimer->start( 5000, FALSE );
     }
 
     return QObject::eventFilter( o, e );
-}
-
-void EditorInterfaceImpl::update()
-{
-    if ( dIface )
-	dIface->updateFunctionList();
 }
 
 int EditorInterfaceImpl::numLines() const
@@ -299,4 +291,18 @@ int EditorInterfaceImpl::numLines() const
     if ( !viewManager || !viewManager->currentView() )
 	return 0;
     return ( (CppEditor*)viewManager->currentView() )->paragraphs();
+}
+
+void EditorInterfaceImpl::intervalChanged()
+{
+    if ( !dIface )
+	return;
+    updateTimer->start( 2000, TRUE );
+}
+
+void EditorInterfaceImpl::update()
+{
+    if ( !dIface )
+	return;
+    dIface->updateFunctionList();
 }

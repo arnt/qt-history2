@@ -73,6 +73,7 @@ protected:
 
 private slots:
     void modificationChanged();
+    void intervalChanged();
     void update();
 
 private:
