@@ -339,6 +339,7 @@ private:
     static bool	     animate_combo;
     static bool	     fade_menu;
     static bool	     fade_tooltip;
+    static bool	     widgetCount; // Coupled with -widgetcount switch
 
     QPtrList<QTranslator> *translators;
 #ifndef QT_NO_SESSIONMANAGER

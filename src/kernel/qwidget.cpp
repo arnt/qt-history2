@@ -792,6 +792,8 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	if ( parentWidget()->isVisibleTo( 0 ) )
 	    setWState( WState_ForceHide );
     }
+    if ( ++instanceCounter > maxInstances )
+    	maxInstances = instanceCounter;
 }
 
 static bool noMoreToplevels();
@@ -824,7 +826,8 @@ QWidget::~QWidget()
 		f->focusWidgets.removeRef( w );
 	}
     }
-
+    --instanceCounter;
+    
     if ( QApplication::main_widget == this ) {	// reset main widget
 	QApplication::main_widget = 0;
 	if (qApp)
@@ -858,6 +861,8 @@ QWidget::~QWidget()
     destroy();					// platform-dependent cleanup
 }
 
+int QWidget::instanceCounter = 0;  // Current number of widget instances
+int QWidget::maxInstances = 0;     // Maximum number of widget instances
 
 /*!
   \internal

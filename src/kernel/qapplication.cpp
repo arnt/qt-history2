@@ -318,6 +318,7 @@ bool	  QApplication::fade_menu	= FALSE;
 bool	  QApplication::animate_combo	= FALSE;
 bool	  QApplication::animate_tooltip	= FALSE;
 bool	  QApplication::fade_tooltip	= FALSE;
+bool	  QApplication::widgetCount	= FALSE;
 QApplication::Type qt_appType=QApplication::Tty;
 QStringList *QApplication::app_libpaths = 0;
 
@@ -469,6 +470,8 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 #endif
 	} else if ( qstrcmp(arg, "-reverse") == 0 ) {
 	    setReverseLayout( TRUE );
+	} else if ( qstrcmp(arg, "-widgetcount") == 0 ) {
+	    widgetCount = TRUE;;
 	} else {
 	    argv[j++] = argv[i];
 	}
@@ -529,6 +532,8 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
   \i -session= \e session, restores the application from an earlier
        \link session.html session \endlink.
   \i -session \e session, is the same as listed above.
+  \i -widgetcount, prints debug message at the end about number of widgets left
+       undestroyed and maximum number of widgets existed at the same time
   \endlist
 
   The X11 version of Qt also supports some traditional X11
@@ -1012,6 +1017,9 @@ QApplication::~QApplication()
     qt_mutex = 0;
 #endif
 
+    if ( widgetCount ) {
+	qDebug( "Widgets left: %i    Max widgets: %i \n", QWidget::instanceCounter, QWidget::maxInstances );
+    }
     // Cannot delete codecs until after QDict destructors
     // QTextCodec::deleteAllCodecs()
 }

@@ -645,6 +645,8 @@ private:
     bool isSettingGeometry;
     friend class QWSManager;
 #endif
+    static int instanceCounter;  // Current number of widget instances
+    static int maxInstances;     // Maximum number of widget instances
 
     static void	 createMapper();
     static void	 destroyMapper();
