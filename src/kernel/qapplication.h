@@ -225,13 +225,16 @@ public:
 
 #if defined(Q_WS_MAC)
     virtual bool     macEventFilter( EventRef );
-#elif defined(Q_WS_WIN)
+#endif
+#if defined(Q_WS_WIN)
     virtual bool     winEventFilter( MSG * );
-#elif defined(Q_WS_X11)
+#endif
+#if defined(Q_WS_X11)
     virtual bool     x11EventFilter( XEvent * );
     virtual int	     x11ClientMessage( QWidget*, XEvent*, bool passive_only);
     int              x11ProcessEvent( XEvent* );
-#elif defined(Q_WS_QWS)
+#endif
+#if defined(Q_WS_QWS)
     virtual bool     qwsEventFilter( QWSEvent * );
     int              qwsProcessEvent( QWSEvent* );
     void             qwsSetCustomColors( QRgb *colortable, int start, int numColors );
@@ -461,7 +464,7 @@ inline QString QApplication::translate( const char *, const char *sourceText,
     if ( encoding == UnicodeUTF8 )
 	return QString::fromUtf8( sourceText );
     else
-#endif	
+#endif
 	return QString::fromLatin1( sourceText );
 }
 #endif

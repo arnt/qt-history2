@@ -393,10 +393,10 @@ void QScrollBar::doAutoRepeat()
 {
     bool sendRepeat = clickedAt;
 #if !defined( QT_NO_CURSOR ) && !defined( QT_NO_STYLE )
-    if(sendRepeat && (pressedControl == QStyle::SC_ScrollBarAddPage || 
+    if(sendRepeat && (pressedControl == QStyle::SC_ScrollBarAddPage ||
                       pressedControl == QStyle::SC_ScrollBarSubPage) &&
        style().styleHint(QStyle::SH_ScrollBar_StopMouseOverSlider, this) &&
-       style().querySubControl(QStyle::CC_ScrollBar, this, 
+       style().querySubControl(QStyle::CC_ScrollBar, this,
                                mapFromGlobal(QCursor::pos()) ) == QStyle::SC_ScrollBarSlider)
         sendRepeat = FALSE;
 #endif
@@ -575,18 +575,20 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 						  QStyle::SC_ScrollBarSlider ),
 	      gr = style().querySubControlMetrics(QStyle::CC_ScrollBar, this,
 						  QStyle::SC_ScrollBarGroove );
-	int sliderMin, sliderLength;
+	int sliderMin, sliderMax, sliderLength;
 	if (HORIZONTAL) {
 	    sliderMin = gr.x();
+	    sliderMax = sliderMin + gr.width();
 	    sliderLength = sr.width();
 	} else {
 	    sliderMin = gr.y();
+	    sliderMax = sliderMax + gr.height();
 	    sliderLength = sr.height();
 	}
 
 	int newSliderPos = (HORIZONTAL ? e->pos().x() : e->pos().y())
 			   - sliderLength/2;
-	newSliderPos = QMAX( sliderMin, newSliderPos );
+	newSliderPos = QMIN( newSliderPos, sliderMax - sliderLength );
 	setValue( sliderPosToRangeValue(newSliderPos) );
 	sliderPos = newSliderPos;
 	pressedControl = QStyle::SC_ScrollBarSlider;
