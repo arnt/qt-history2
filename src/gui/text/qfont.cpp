@@ -123,7 +123,7 @@ int qt_defaultDpi()
 
 QFontPrivate::QFontPrivate()
     : engineData(0), dpi(qt_defaultDpi()), screen(0),
-      rawMode(false), underline(false), overline(false), strikeOut(false), kerning(false)
+      rawMode(false), underline(false), overline(false), strikeOut(false), kerning(true)
 {
     ref = 1;
 #ifdef Q_WS_X11
@@ -888,11 +888,12 @@ bool QFont::kerning() const
 }
 
 /*!
-  Enable kerning for this font if \a enable is true, otherwise disable it.
+  Enable kerning for this font if \a enable is true, otherwise
+  disable it. The default is enabled.
 
-  \warning When kerning is enabled, glyph metrics do not add up
-  anymore even for latin text. So the assumption that
-  width('a')+width('b') is equal to width("ab") is not neccesairly true.
+  When kerning is enabled, glyph metrics do not add up anymore even
+  for latin text. So the assumption that width('a')+width('b') is
+  equal to width("ab") is not neccesairly true.
 
   \sa kerning()
 */
