@@ -71,7 +71,6 @@ signals:
 
 protected:
     void	drawContents( QPainter * );
-    void	fontChange( const QFont & );
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
@@ -82,7 +81,7 @@ protected:
     void	leaveEvent( QEvent * );
     void	menuContentsChanged();
     void	menuStateChanged();
-    void 	styleChange( QStyle& );
+    void        changeEvent( QEvent * );
     int	itemAtPos( const QPoint & );
     void	hidePopups();
     QRect	itemRect( int item );
@@ -96,8 +95,6 @@ private slots:
 #endif
     void	popupDestroyed( QObject* );
     void 	performDelayedChanges();
-
-    void	languageChange();
 
 private:
     void 	performDelayedContentsChanged();

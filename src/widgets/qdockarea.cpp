@@ -1213,7 +1213,7 @@ QTextStream &operator<<( QTextStream &ts, const QDockArea &dockArea )
     QPtrList<QDockWindow> l = dockArea.dockWindowList();
 
     for ( QDockWindow *dw = l.first(); dw; dw = l.next() )
-	str += "[" + QString( dw->caption() ) + "," + QString::number( (int)dw->offset() ) +
+	str += "[" + QString( dw->windowCaption() ) + "," + QString::number( (int)dw->offset() ) +
 	       "," + QString::number( (int)dw->newLine() ) + "," + QString::number( dw->fixedExtent().width() ) +
 	       "," + QString::number( dw->fixedExtent().height() ) + "," + QString::number( (int)!dw->isHidden() ) + "]";
     ts << str << endl;
@@ -1256,7 +1256,7 @@ QTextStream &operator>>( QTextStream &ts, QDockArea &dockArea )
 	}
 	if ( state == Visible && c == ']' ) {
 	    for ( QDockWindow *dw = l.first(); dw; dw = l.next() ) {
-		if ( QString( dw->caption() ) == name ) {
+		if ( QString( dw->windowCaption() ) == name ) {
 		    dw->setNewLine( (bool)newLine.toInt() );
 		    dw->setOffset( offset.toInt() );
 		    dw->setFixedExtentWidth( width.toInt() );

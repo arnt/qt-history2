@@ -94,10 +94,11 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
 #ifndef QT_NO_CURSOR
     Q_PROPERTY( QCursor cursor READ cursor WRITE setCursor RESET unsetCursor )
 #endif
+    Q_PROPERTY( bool modified READ isWindowModified WRITE setWindowModified )
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    Q_PROPERTY( QString caption READ caption WRITE setCaption )
-    Q_PROPERTY( QPixmap icon READ icon WRITE setIcon )
-    Q_PROPERTY( QString iconText READ iconText WRITE setIconText )
+    Q_PROPERTY( QString caption READ windowCaption WRITE setWindowCaption )
+    Q_PROPERTY( QPixmap icon READ windowIcon WRITE setWindowIcon )
+    Q_PROPERTY( QString iconText READ windowIconText WRITE setWindowIconText )
 #endif
     Q_PROPERTY( bool mouseTracking READ hasMouseTracking WRITE setMouseTracking )
     Q_PROPERTY( bool isActiveWindow READ isActiveWindow )
@@ -227,9 +228,14 @@ public:
 #endif
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    QString		caption() const;
-    const QPixmap      *icon() const;
-    QString		iconText() const;
+    QString		windowCaption() const;
+    const QPixmap      *windowIcon() const;
+    QString		windowIconText() const;
+# ifndef QT_NO_COMPAT
+    inline QString             caption() const  { return windowCaption(); }
+    inline const QPixmap      *icon() const     { return windowIcon(); }
+    inline QString             iconText() const { return windowIconText(); }
+# endif
 #endif
 
     void setMouseTracking(bool enable);
@@ -242,9 +248,14 @@ public:
 
 public slots:
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    void setCaption( const QString &); // ### becomes setWidgetTitle
-    void setIcon( const QPixmap & ); // ### becomes setWidgetIcon(const QIconSet &)
-    void setIconText( const QString &); // ### becomes extern qt_x11_setIconText(...)
+    void setWindowCaption( const QString &);
+    void setWindowIcon( const QPixmap & );
+    void setWindowIconText( const QString &);
+# ifndef QT_NO_COMPAT
+    inline void setCaption( const QString &c)   { setWindowCaption(c); }
+    inline void setIcon( const QPixmap &i)      { setWindowIcon(i); }
+    inline void setIconText( const QString &it) { setWindowIconText(it); }
+# endif
 #endif
     // Keyboard input focus functions
 
@@ -259,6 +270,9 @@ public:
 	StrongFocus = TabFocus | ClickFocus | 0x8,
 	WheelFocus = StrongFocus | 0x4
     };
+
+    bool                isWindowModified() const;
+    void                setWindowModified(bool);
 
     bool		isActiveWindow() const;
     void setActiveWindow();
@@ -423,6 +437,7 @@ public:
 	WA_SetForegroundRole,
 	WA_SetBackgroundRole,
 	WA_PaintOnScreen,
+	WA_WindowModified,
 	WA_NoSystemBackground
     };
     void setAttribute(WidgetAttribute, bool = true);
@@ -482,17 +497,19 @@ protected:
     virtual void updateMask();
 
     // Misc. protected functions
-
+#ifndef QT_NO_COMPAT
 #ifndef QT_NO_STYLE
-    virtual void styleChange( QStyle& );
+    virtual void styleChange( QStyle& ) { }
 #endif
-    virtual void enabledChange( bool oldEnabled );
+    virtual void enabledChange( bool) { }
 #ifndef QT_NO_PALETTE
-    virtual void paletteChange( const QPalette & );
+    virtual void paletteChange( const QPalette & ) { }
 #endif
-    virtual void fontChange( const QFont & );
-    virtual void windowActivationChange( bool oldActive );
-    virtual void languageChange();
+    virtual void fontChange( const QFont & ) { }
+    virtual void windowActivationChange( bool ) { }
+    virtual void languageChange() { }
+#endif
+    virtual void changeEvent( QEvent * );
 
     int		 metric( int )	const;
 

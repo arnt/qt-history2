@@ -1059,10 +1059,11 @@ QString QTabDialog::tabLabel( QWidget * w )
 
 /*!  \reimp
 */
-void QTabDialog::styleChange( QStyle& s )
+void QTabDialog::changeEvent( QEvent *ev )
 {
-    QDialog::styleChange( s );
-    setSizes();
+    if(ev->type() == QEvent::StyleChange) 
+	setSizes();
+    QDialog::changeEvent(ev);
 }
 
 

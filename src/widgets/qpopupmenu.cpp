@@ -2125,19 +2125,16 @@ void QPopupMenu::leaveEvent( QEvent * )
 /*!
     \reimp
 */
-void QPopupMenu::styleChange( QStyle& old )
+void QPopupMenu::changeEvent( QEvent *ev )
 {
-    QFrame::styleChange( old );
-    setMouseTracking(style().styleHint(QStyle::SH_PopupMenu_MouseTracking, this));
-    updateSize();
-}
-
-/*!\reimp
- */
-void QPopupMenu::enabledChange( bool )
-{
-    if ( QMenuData::d->aWidget ) // torn-off menu
-	QMenuData::d->aWidget->setEnabled( isEnabled() );
+    if(ev->type() == QEvent::StyleChange) {
+	setMouseTracking(style().styleHint(QStyle::SH_PopupMenu_MouseTracking, this));
+	updateSize();
+    } else if(ev->type() == QEvent::EnabledChange) {
+	if ( QMenuData::d->aWidget ) // torn-off menu
+	    QMenuData::d->aWidget->setEnabled( isEnabled() );
+    }
+    QFrame::changeEvent(ev);
 }
 
 
@@ -2635,7 +2632,7 @@ void QPopupMenu::toggleTearOff()
 	QPopupMenu* p = new QPopupMenu( parentWidget(), "tear off menu" );
 	connect( p, SIGNAL( activated(int) ), this, SIGNAL( activated(int) ) );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-	p->setCaption( caption() );
+	p->setWindowCaption( windowCaption() );
 #endif
 	p->setCheckable( isCheckable() );
 	p->reparent( parentWidget(), WType_TopLevel | WStyle_Tool |

@@ -1438,7 +1438,7 @@ QColor QColorDialog::getColor( const QColor& initial, QWidget *parent,
     int allocContext = QColor::enterAllocContext();
     QColorDialog *dlg = new QColorDialog( parent, name, TRUE );  //modal
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    dlg->setCaption( QColorDialog::tr( "Select color" ) );
+    dlg->setWindowCaption( QColorDialog::tr( "Select color" ) );
 #endif
     dlg->setColor( initial );
     dlg->selectColor( initial );
@@ -1476,7 +1476,7 @@ QRgb QColorDialog::getRgba( QRgb initial, bool *ok,
     QColorDialog *dlg = new QColorDialog( parent, name, TRUE );  //modal
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    dlg->setCaption( QColorDialog::tr( "Select color" ) );
+    dlg->setWindowCaption( QColorDialog::tr( "Select color" ) );
 #endif
     dlg->setColor( initial );
     dlg->selectColor( initial );

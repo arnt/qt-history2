@@ -343,7 +343,7 @@ QString QAccessibleApplication::text( Text t, int ) const
     switch (t) {
     case Name:
 	if (qApp->mainWidget())
-	    return qApp->mainWidget()->caption();
+	    return qApp->mainWidget()->windowCaption();
 	break;
     case Description:
 	return qApp->applicationFilePath();

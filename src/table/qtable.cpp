@@ -6195,16 +6195,15 @@ void QTable::startDrag()
 #endif
 
 /*! \reimp */
-void QTable::windowActivationChange( bool oldActive )
+void QTable::changeEvent( QEvent *ev )
 {
-    if ( oldActive && autoScrollTimer )
-	autoScrollTimer->stop();
-
-    if ( !isVisible() )
-	return;
-
-    if ( !palette().isEqual(QPalette::Active, QPalette::Inactive) )
-	updateContents();
+    if(ev->type() == QEvent::ActivationChange) {
+	if ( !isActiveWindow() && autoScrollTimer )
+	    autoScrollTimer->stop();
+	if (isVisible() && !palette().isEqual(QPalette::Active, QPalette::Inactive) )
+	    updateContents();
+    }
+    QScrollView::changeEvent(ev);
 }
 
 /*! \reimp */

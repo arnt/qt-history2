@@ -151,7 +151,7 @@ protected:
 #ifndef QT_NO_WHEELEVENT
     void	wheelEvent( QWheelEvent *e );
 #endif
-    void	styleChange( QStyle& );
+    void        changeEvent( QEvent * );
 
     void	updateMask();
 

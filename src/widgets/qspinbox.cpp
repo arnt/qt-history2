@@ -935,11 +935,11 @@ QString QSpinBox::currentValueText()
 /*!
     \reimp
 */
-
-void QSpinBox::styleChange( QStyle& old )
+void QSpinBox::changeEvent( QEvent *ev )
 {
-    arrangeWidgets();
-    QWidget::styleChange( old );
+    if(ev->type() == QEvent::StyleChange) 
+	arrangeWidgets();
+    QWidget::changeEvent(ev);
 }
 
 

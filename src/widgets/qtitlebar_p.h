@@ -71,8 +71,8 @@ public:
 
 public slots:
     void setActive( bool );
-    void setCaption( const QString& title );
-    void setIcon( const QPixmap& icon );
+    void setWindowCaption( const QString& title );
+    void setWindowIcon( const QPixmap& icon );
 
 signals:
     void doActivate();

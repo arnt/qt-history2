@@ -824,7 +824,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 		    int drawArea = QMIN( r.right() - r.left(), r.bottom() - r.top() );
 		    drawDockTitle = ( drawArea >= w->fontMetrics().height() );
 		    isDockWindow = TRUE;
-		    title = p->caption();
+		    title = p->windowCaption();
 		}
 	    }
 
@@ -1687,8 +1687,8 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		else
 		    stateId = SBS_NORMAL;
 		theme.drawBackground( partId, stateId );
-		if ( titlebar->icon() )
-		    drawItem( p, theme.rec, AlignCenter, titlebar->palette(), TRUE, *titlebar->icon() );
+		if ( titlebar->windowIcon() )
+		    drawItem( p, theme.rec, AlignCenter, titlebar->palette(), TRUE, *titlebar->windowIcon() );
 	    }
 	    if ( titlebar->window() ) {
 		if ( sub & SC_TitleBarMinButton ) {

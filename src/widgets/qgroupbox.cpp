@@ -714,16 +714,6 @@ void QGroupBox::focusInEvent( QFocusEvent * )
 }
 
 
-/*!\reimp
- */
-void QGroupBox::fontChange( const QFont & oldFont )
-{
-    QWidget::fontChange( oldFont );
-    updateCheckBoxGeometry();
-    calculateFrame();
-    setTextSpacer();
-}
-
 /*!
   \reimp
 */
@@ -895,15 +885,21 @@ void QGroupBox::setChildrenEnabled( bool b )
 }
 
 /*! \reimp */
-void QGroupBox::enabledChange(bool b)
+void QGroupBox::changeEvent( QEvent *ev )
 {
-    QFrame::enabledChange(b);
-    if ( !d->checkbox || !isEnabled() )
-	return;
+    if(ev->type() == QEvent::EnabledChange) {
+	if ( !d->checkbox || !isEnabled() )
+	    return;
 
-    // we are being enabled - disable children
-    if ( !d->checkbox->isChecked() )
-	setChildrenEnabled( FALSE );
+	// we are being enabled - disable children
+	if ( !d->checkbox->isChecked() )
+	    setChildrenEnabled( FALSE );
+    } else if(ev->type() == QEvent::FontChange) {
+	updateCheckBoxGeometry();
+	calculateFrame();
+	setTextSpacer();
+    }
+    QFrame::changeEvent(ev);
 }
 
 /*

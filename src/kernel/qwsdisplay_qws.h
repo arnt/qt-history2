@@ -99,7 +99,7 @@ public:
 #endif
     QWSQCopMessageEvent* waitForQCopResponse();
 
-    void setCaption( QWidget *w, const QString & );
+    void setWindowCaption( QWidget *w, const QString & );
 
     // Lock display for access only by this process
     static bool initLock( const QString &filename, bool create = FALSE );

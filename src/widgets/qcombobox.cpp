@@ -2122,12 +2122,14 @@ bool QComboBox::autoCompletion() const
 
 /*!\reimp
  */
-void QComboBox::styleChange( QStyle& s )
+void QComboBox::changeEvent( QEvent *ev )
 {
-    d->sizeHint = QSize();		// invalidate size hint...
-    if ( d->ed )
-	d->updateLinedGeometry();
-    QWidget::styleChange( s );
+    if(ev->type() == QEvent::StyleChange) {
+	d->sizeHint = QSize();		// invalidate size hint...
+	if ( d->ed )
+	    d->updateLinedGeometry();
+    }
+    QWidget::changeEvent(ev);
 }
 
 bool QComboBox::editable() const

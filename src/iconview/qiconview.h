@@ -442,8 +442,7 @@ protected:
 
     QIconViewItem *makeRowLayout( QIconViewItem *begin, int &y, bool &changed );
 
-    void styleChange( QStyle& );
-    void windowActivationChange( bool );
+    void changeEvent( QEvent * );
 
 private:
     void contentsMousePressEventEx( QMouseEvent *e );

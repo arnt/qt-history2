@@ -107,7 +107,7 @@ class MinimisedWindow : public QWidget
 {
 public:
     MinimisedWindow( QWidget *restore ) :
-	QWidget( (QWidget *)restore->parent(), restore->caption(), WStyle_Customize | WStyle_NoBorder ),
+	QWidget( (QWidget *)restore->parent(), restore->windowCaption(), WStyle_Customize | WStyle_NoBorder ),
 	w(restore)
     {
 	w->hide();

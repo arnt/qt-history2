@@ -661,10 +661,11 @@ void QToolBox::frameChanged()
 }
 
 /*! \reimp */
-void QToolBox::styleChange(QStyle &style)
+void QToolBox::changeEvent( QEvent *ev )
 {
-    d->updateTabs();
-    QFrame::styleChange(style);
+    if(ev->type() == QEvent::StyleChange) 
+	d->updateTabs();
+    QFrame::changeEvent(ev);
 }
 
 /*!

@@ -375,7 +375,7 @@ QFont QFontDialog::getFont( bool *ok, const QFont *def,
 
     dlg->setFont( ( def ? *def : QFont() ) );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    dlg->setCaption( tr("Select Font") );
+    dlg->setWindowCaption( tr("Select Font") );
 #endif
 
     bool res = (dlg->exec() == QDialog::Accepted);

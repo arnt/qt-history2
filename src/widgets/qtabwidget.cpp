@@ -873,10 +873,11 @@ void QTabWidget::setMargin( int w )
 /*!
     \reimp
  */
-void QTabWidget::styleChange( QStyle& old )
+void QTabWidget::changeEvent( QEvent *ev )
 {
-    QWidget::styleChange( old );
-    setUpLayout();
+    if(ev->type() == QEvent::StyleChange) 
+	setUpLayout();
+    QWidget::changeEvent(ev);
 }
 
 

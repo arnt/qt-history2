@@ -302,8 +302,8 @@ public:
 	AccelAvailable = 32,			// accelerator available event
 	CaptionChange = 33,			// caption changed
 	IconChange = 34,			// icon changed
-	ApplicationFontChange = 36,		// application font changed
-	ApplicationPaletteChange = 38,		// application palette changed
+	ApplicationFontChange = 36,             // application font changed	
+	ApplicationPaletteChange = 38,          // application palette changed
 	PaletteChange = 39,			// widget palette changed
 	Clipboard = 40,				// internal clipboard event
 	Speech = 42,				// reserved for speech input
@@ -346,8 +346,16 @@ public:
 	TabletRelease = 93,			// tablet release
 	OkRequest = 94,				// CE (Ok) button pressed
 	HelpRequest = 95,			// CE (?)  button pressed
+
+	FontChange = 96,                        // font has changed
+	EnabledChange = 97,                     // enabled state has changed
+	ActivationChange = 98,                  // window activation has changed
+	StyleChange = 99,                      // style has changed
+	IconTextChange = 100,                   // icon text has changed
+	ModifiedChange = 101,                   // modified state has changed
+
 	User = 1000,				// first user event id
-	MaxUser = 65535				// last user event id
+	MaxUser = 65535,				// last user event id
     };
 
     QEvent(Type type) : t(type), posted(FALSE), spont(FALSE) {}

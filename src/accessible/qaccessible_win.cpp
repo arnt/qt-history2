@@ -65,7 +65,7 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 #ifndef QT_NO_MESSAGEBOX
 	    QMessageBox *mb = ::qt_cast<QMessageBox*>(o);
 	    if ( mb ) {
-		switch ( mb->icon() ) {
+		switch ( mb->windowIcon() ) {
 		case QMessageBox::Warning:
 		    soundName = "SystemExclamation";
 		    break;

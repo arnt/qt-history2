@@ -5586,13 +5586,15 @@ void QTextEdit::setSelectionAttributes( int selNum, const QColor &back, bool inv
 /*!
     \reimp
 */
-void QTextEdit::windowActivationChange( bool oldActive )
+void QTextEdit::changeEvent( QEvent *ev )
 {
-    if ( oldActive && scrollTimer )
-	scrollTimer->stop();
-    if ( !palette().isEqual(QPalette::Active, QPalette::Inactive ))
-	updateContents();
-    QScrollView::windowActivationChange( oldActive );
+    if(ev->type() == QEvent::ActivationChange) {
+	if ( !isActiveWindow() && scrollTimer )
+	    scrollTimer->stop();
+	if ( !palette().isEqual(QPalette::Active, QPalette::Inactive ))
+	    updateContents();
+    }
+    QScrollView::changeEvent(ev);
 }
 
 void QTextEdit::setReadOnly( bool b )

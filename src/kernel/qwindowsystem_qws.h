@@ -87,7 +87,7 @@ private:
     bool forClient(const QWSClient* cl) const { return cl==c; }
 
     void setName( const QString &n );
-    void setCaption( const QString &c );
+    void setWindowCaption( const QString &c );
 
     void addAllocation( QWSRegionManager *, const QRegion & );
     void removeAllocation( QWSRegionManager *, const QRegion & );

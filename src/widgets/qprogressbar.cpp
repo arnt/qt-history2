@@ -289,10 +289,11 @@ void QProgressBar::initFrame()
 /*!
     \reimp
 */
-void QProgressBar::styleChange( QStyle& old )
+void QProgressBar::changeEvent( QEvent *ev )
 {
-    initFrame();
-    QFrame::styleChange( old );
+    if(ev->type() == QEvent::StyleChange) 
+	initFrame();
+    QFrame::changeEvent(ev);
 }
 
 

@@ -97,8 +97,8 @@ public:
 	}
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	if ( tipstring.isEmpty() ) {
-	    if ( t->visibleText() != t->caption() )
-		tipstring = t->caption();
+	    if ( t->visibleText() != t->windowCaption() )
+		tipstring = t->windowCaption();
 	}
 #endif
 	if(!tipstring.isEmpty())
@@ -145,7 +145,7 @@ QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
 	if ( w->minimumSize() == w->maximumSize() )
 	    clearWFlags( WStyle_Maximize );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    	setCaption( w->caption() );
+    	setWindowCaption( w->windowCaption() );
 #endif
     } else {
 	setWFlags( WStyle_Customize );
@@ -486,7 +486,7 @@ void QTitleBar::mouseDoubleClickEvent( QMouseEvent *e )
 
 #ifdef QT_NO_WIDGET_TOPEXTRA
 // We provide one, since titlebar is useless otherwise.
-QString QTitleBar::caption() const
+QString QTitleBar::windowCaption() const
 {
     return d->cap;
 }
@@ -500,7 +500,7 @@ void QTitleBar::cutText()
 					      QStyle::SC_TitleBarLabel).width();
     if ( !d->window )
 	maxw = width() - 20;
-    const QString txt = caption();
+    const QString txt = windowCaption();
     d->cuttext = txt;
     if ( fm.width( txt + "m" ) > maxw ) {
 	int i = txt.length();
@@ -512,12 +512,12 @@ void QTitleBar::cutText()
     }
 }
 
-void QTitleBar::setCaption( const QString& title )
+void QTitleBar::setWindowCaption( const QString& title )
 {
-    if( caption() == title)
+    if( windowCaption() == title)
 	return;
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    QWidget::setCaption( title );
+    QWidget::setWindowCaption( title );
 #else
     d->cap = title;
 #endif
@@ -527,7 +527,7 @@ void QTitleBar::setCaption( const QString& title )
 }
 
 
-void QTitleBar::setIcon( const QPixmap& icon )
+void QTitleBar::setWindowIcon( const QPixmap& icon )
 {
 #ifndef QT_NO_WIDGET_TOPEXTRA
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
@@ -550,9 +550,9 @@ void QTitleBar::setIcon( const QPixmap& icon )
     } else
 	theIcon = icon;
 
-    QWidget::setIcon( theIcon );
+    QWidget::setWindowIcon( theIcon );
 #else
-    QWidget::setIcon( icon );
+    QWidget::setWindowIcon( icon );
 #endif
 
     update();

@@ -98,7 +98,7 @@ protected:
     void	stepChange();
     void	rangeChange();
 
-    void	styleChange( QStyle& );
+    void        changeEvent( QEvent * );
 
 private slots:
     void doAutoRepeat();

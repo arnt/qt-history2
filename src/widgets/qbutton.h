@@ -110,8 +110,7 @@ protected:
     void	paintEvent( QPaintEvent * );
     void	focusInEvent( QFocusEvent * );
     void	focusOutEvent( QFocusEvent * );
-
-    void	enabledChange( bool );
+    void	changeEvent( QEvent * );
 
 private slots:
     void	animateTimeout();

@@ -1002,10 +1002,13 @@ void QToolButton::setText( const QString &txt )
 /*!
     \reimp
 */
-void QToolButton::paletteChange( const QPalette & )
+void QToolButton::changeEvent( QEvent *ev )
 {
-    if ( s )
-	s->clearGenerated();
+    if(ev->type() == QEvent::PaletteChange) {
+	if ( s )
+	    s->clearGenerated();
+    }
+    QButton::changeEvent(ev);
 }
 #endif
 

@@ -84,8 +84,7 @@ protected:
     void	focusOutEvent( QFocusEvent * );
     void	timerEvent( QTimerEvent * );
     void	leaveEvent( QEvent * );
-    void 	styleChange( QStyle& );
-    void	enabledChange( bool );
+    void        changeEvent( QEvent * );
     int 	columns() const;
 
     bool	focusNextPrevChild( bool next );

@@ -394,6 +394,7 @@ protected:
     void updateStyles();
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     bool event( QEvent *e );
+    void changeEvent( QEvent * );
     void keyPressEvent( QKeyEvent *e );
     void resizeEvent( QResizeEvent *e );
     void viewportResizeEvent( QResizeEvent* );
@@ -421,8 +422,6 @@ protected:
     virtual QPopupMenu *createPopupMenu( const QPoint& pos );
     virtual QPopupMenu *createPopupMenu();
     void drawCursor( bool visible );
-
-    void windowActivationChange( bool );
 
 protected slots:
     virtual void doChangeInterval();

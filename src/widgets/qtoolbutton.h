@@ -119,16 +119,13 @@ protected:
     void enterEvent( QEvent * );
     void leaveEvent( QEvent * );
     void moveEvent( QMoveEvent * );
+    void changeEvent( QEvent * );
 
     // ### Make virtual in 4.0, maybe act like QPushButton with
     // regards to setFlat() instead?  Andy
     virtual bool uses3D() const;
 
     bool eventFilter( QObject *o, QEvent *e );
-
-#ifndef QT_NO_PALETTE
-    void paletteChange( const QPalette & );
-#endif
 
 private slots:
     void popupTimerDone();

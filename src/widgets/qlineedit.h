@@ -172,9 +172,9 @@ protected:
     void dragLeaveEvent( QDragLeaveEvent *e );
     void dropEvent( QDropEvent * );
 #endif
+    void changeEvent( QEvent * );
     void contextMenuEvent( QContextMenuEvent * );
     virtual QPopupMenu *createPopupMenu();
-    void windowActivationChange( bool );
 #ifndef QT_NO_COMPAT
     void repaintArea( int, int ) { update(); }
 #endif

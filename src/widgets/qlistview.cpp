@@ -5634,10 +5634,17 @@ int QListView::itemMargin() const
 /*!
     \reimp
 */
-void QListView::styleChange( QStyle& old )
+void QListView::changeEvent( QEvent *ev )
 {
-    QScrollView::styleChange( old );
-    reconfigureItems();
+    if(ev->type() == QEvent::StyleChange) {
+	reconfigureItems();
+    } else if(ev->type() == QEvent::ActivationChange) {
+	if ( !isActiveWindow() && d->scrollTimer )
+	    d->scrollTimer->stop();
+	if ( !palette().isEqual(QPalette::Active, QPalette::Inactive ))
+	    viewport()->update();
+    }
+    QScrollView::changeEvent(ev);
 }
 
 
@@ -7960,16 +7967,6 @@ QListViewItem *QListView::findItem( const QString& text, int column,
     else if ( containsItem )
 	return containsItem;
     return 0;
-}
-
-/*! \reimp */
-void QListView::windowActivationChange( bool oldActive )
-{
-    if ( oldActive && d->scrollTimer )
-	d->scrollTimer->stop();
-    if ( !palette().isEqual(QPalette::Active, QPalette::Inactive ))
-	viewport()->update();
-    QScrollView::windowActivationChange( oldActive );
 }
 
 /*!

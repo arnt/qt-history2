@@ -64,6 +64,7 @@
 #include "qhash.h"
 #include "qevent.h"
 #include <private/qunicodetables_p.h>
+#include <private/qcrashhandler_p.h>
 
 // Input method stuff - UNFINISHED
 #include "qinputcontext_p.h"
@@ -1820,7 +1821,9 @@ void qt_init( QApplicationPrivate *priv, int,
 	}
 
 	// Misc. initialization
-
+#if 0 //disabled for now..
+	QSegfaultHandler::initialize(priv->argv, priv->argc);
+#endif
 	QColor::initialize();
 	QFont::initialize();
 	QCursor::initialize();

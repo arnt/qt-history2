@@ -671,21 +671,13 @@ bool QScrollView::isVerticalSliderPressed()
 /*!
     \reimp
 */
-void QScrollView::styleChange( QStyle& old )
+void QScrollView::changeEvent( QEvent *ev )
 {
-    QWidget::styleChange( old );
-    updateScrollBars();
-    d->cachedSizeHint = QSize();
-}
-
-/*!
-    \reimp
-*/
-void QScrollView::fontChange( const QFont &old )
-{
-    QWidget::fontChange( old );
-    updateScrollBars();
-    d->cachedSizeHint = QSize();
+    if(ev->type() == QEvent::StyleChange || ev->type() == QEvent::FontChange) {
+	updateScrollBars();
+	d->cachedSizeHint = QSize();
+    }
+    QWidget::changeEvent(ev);
 }
 
 void QScrollView::hslide( int pos )

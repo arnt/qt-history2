@@ -127,7 +127,6 @@ public:
     Icon	icon() const;
 
     void	setIcon( Icon );
-    void	setIcon( const QPixmap & );
 
     const QPixmap *iconPixmap() const;
     void	setIconPixmap( const QPixmap & );
@@ -150,7 +149,7 @@ protected:
     void	showEvent( QShowEvent * );
     void	closeEvent( QCloseEvent * );
     void	keyPressEvent( QKeyEvent * );
-    void	styleChanged( QStyle& );
+    void	changeEvent( QEvent * );
 
 private slots:
     void	buttonClicked();

@@ -87,7 +87,7 @@ public:
 public slots:
     void setOrientation( Orientation );
 protected:
-    void styleChange( QStyle& );
+    void changeEvent( QEvent * );
     void paintEvent( QPaintEvent * );
 
 private:
@@ -156,9 +156,11 @@ void QToolBarSeparator::setOrientation( Orientation o )
     orient = o;
 }
 
-void QToolBarSeparator::styleChange( QStyle& )
+void QToolBarSeparator::changeEvent( QEvent *ev )
 {
-    setOrientation( orient );
+    if(ev->type() == QEvent::StyleChange) 
+	setOrientation( orient );
+    QWidget::changeEvent(ev);
 }
 
 QSize QToolBarSeparator::sizeHint() const
@@ -401,15 +403,6 @@ void QToolBar::addSeparator()
 }
 
 /*!
-    \reimp
-*/
-
-void QToolBar::styleChange( QStyle &s )
-{
-    QWidget::styleChange(s);
-}
-
-/*!
     \reimp.
 */
 
@@ -518,7 +511,7 @@ bool QToolBar::event( QEvent * e )
 void QToolBar::setLabel( const QString & label )
 {
     l = label;
-    setCaption( l );
+    setWindowCaption( l );
 }
 
 QString QToolBar::label() const
@@ -624,7 +617,7 @@ void QToolBar::createPopup()
 		QComboBox *c = (QComboBox*)w;
 		if ( c->count() != 0 ) {
 #ifndef QT_NO_WIDGET_TOPEXTRA
-		    QString s = c->caption();
+		    QString s = c->windowCaption();
 #else
 		    QString s;
 #endif

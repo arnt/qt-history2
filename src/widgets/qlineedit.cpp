@@ -2121,12 +2121,14 @@ QPopupMenu *QLineEdit::createPopupMenu()
 }
 
 /*! \reimp */
-void QLineEdit::windowActivationChange( bool b )
+void QLineEdit::changeEvent( QEvent *ev )
 {
-    //### remove me with WHighlightSelection attribute
-    if ( !palette().isEqual(QPalette::Active, QPalette::Inactive))
-	update();
-    QWidget::windowActivationChange( b );
+    if(ev->type() == QEvent::ActivationChange) {
+	//### remove me with WHighlightSelection attribute
+	if ( !palette().isEqual(QPalette::Active, QPalette::Inactive))
+	    update();
+    }
+    QWidget::changeEvent(ev);
 }
 
 /*! \reimp */

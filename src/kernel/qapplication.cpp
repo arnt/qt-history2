@@ -1191,10 +1191,13 @@ void QApplication::setStyle( QStyle *style )
 		if ( !w->testWFlags(WType_Desktop) ) {	// except desktop
 		    if ( w->testWState(WState_Polished) )
 			app_style->polish(w);		// repolish
+		    QEvent e(QEvent::StyleChange);
+		    QApplication::sendEvent(w, &e);
+#ifndef QT_NO_COMPAT
 		    w->styleChange( *old );
-		    if ( w->isVisible() ){
+#endif
+		    if ( w->isVisible() )
 			w->update();
-		    }
 		}
 	    }
 	}

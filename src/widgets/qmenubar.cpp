@@ -281,11 +281,19 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 
 
 /*! \reimp */
-
-void QMenuBar::styleChange( QStyle& old )
+void QMenuBar::changeEvent( QEvent *ev )
 {
-    setMouseTracking( style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle );
-    QFrame::styleChange( old );
+    if(ev->type() == QEvent::StyleChange) {
+	setMouseTracking( style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle );
+    } else if(ev->type() == QEvent::FontChange) {
+	badSize = TRUE;
+	updateGeometry();
+	if ( isVisible() )
+	    calculateRects();
+    } else if(ev->type() == QEvent::LanguageChange) {
+	menuContentsChanged();
+    }
+    QFrame::changeEvent(ev);
 }
 
 
@@ -453,11 +461,6 @@ void QMenuBar::frameChanged()
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     fromFrameChange = FALSE;
 #endif
-}
-
-void QMenuBar::languageChange()
-{
-    menuContentsChanged();
 }
 
 /*!
@@ -817,21 +820,6 @@ void QMenuBar::hide()
 	mw->triggerLayout();
 #endif
 }
-
-/*!
-  \internal
-  Needs to change the size of the menu bar when a new font is set.
-*/
-
-void QMenuBar::fontChange( const QFont & f )
-{
-    badSize = TRUE;
-    updateGeometry();
-    if ( isVisible() )
-	calculateRects();
-    QWidget::fontChange( f );
-}
-
 
 /*****************************************************************************
   Item geometry functions

@@ -442,7 +442,7 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();
-    QString capt= caption();
+    QString capt = windowCaption();
     widget_flags = f;
     clearWState(WState_Created | WState_Visible | WState_Hidden | WState_ExplicitShowHide);
     create();
@@ -467,7 +467,7 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
     setFocusPolicy( fp );
     if ( !capt.isNull() ) {
 	d->extra->topextra->caption = QString::null;
-	setCaption( capt );
+	setWindowCaption( capt );
     }
     if ( showIt )
 	show();
@@ -559,9 +559,36 @@ void QWidget::unsetCursor()
     qt_set_cursor( this, cursor() );
 }
 
-void QWidget::setCaption( const QString &caption )
+void QWidget::setWindowModified(bool mod)
 {
-    if ( QWidget::caption() == caption )
+    setAttribute(WA_WindowModified, mod);
+    {
+	QString caption = QWidget::windowCaption();
+#if defined(QT_NON_COMMERCIAL)
+	QT_NC_CAPTION
+#else
+	    QString cap = caption;
+#endif
+	if(mod)
+	    cap += " *";
+	QT_WA( {
+	    SetWindowText( winId(), (TCHAR*)cap.ucs2() );
+	} , {
+	    SetWindowTextA( winId(), cap.local8Bit() );
+	} );
+    }
+    QEvent e(QEvent::ModifiedChange);
+    QApplication::sendEvent(this, &e);
+}
+
+bool QWidget::isWindowModified() const
+{
+    return testAttribute(WA_WindowModified);
+}
+
+void QWidget::setWindowCaption( const QString &caption )
+{
+    if ( QWidget::windowCaption() == caption )
 	return; // for less flicker
     d->topData()->caption = caption;
 
@@ -570,6 +597,8 @@ void QWidget::setCaption( const QString &caption )
 #else
     QString cap = caption;
 #endif
+    if(isWindowModified())
+	cap += " *";
     QT_WA( {
 	SetWindowText( winId(), (TCHAR*)cap.ucs2() );
     } , {
@@ -600,7 +629,7 @@ HBITMAP qt_createIconMask( const QBitmap &bitmap )
 }
 
 
-void QWidget::setIcon( const QPixmap &pixmap )
+void QWidget::setWindowIcon( const QPixmap &pixmap )
 {
     QTLWExtra* x = d->topData();
     delete x->icon;
@@ -640,7 +669,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
 }
 
 
-void QWidget::setIconText( const QString &iconText )
+void QWidget::setWindowIconText( const QString &iconText )
 {
     d->topData()->iconText = iconText;
 }

@@ -126,8 +126,7 @@ protected:
     virtual void paintSection( QPainter *p, int index, const QRect& fr);
     virtual void paintSectionLabel( QPainter* p, int index, const QRect& fr );
 
-    void 	fontChange( const QFont & );
-
+    void        changeEvent( QEvent * );
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );

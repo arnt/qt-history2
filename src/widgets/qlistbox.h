@@ -215,6 +215,7 @@ signals:
     void onViewport();
 
 protected:
+    void changeEvent( QEvent * );
     void mousePressEvent( QMouseEvent * );
     void mouseReleaseEvent( QMouseEvent * );
     void mouseDoubleClickEvent( QMouseEvent * );
@@ -244,8 +245,6 @@ protected:
     bool isRubberSelecting() const;
 
     void doLayout() const;
-
-    void windowActivationChange( bool );
 
 #ifndef QT_NO_COMPAT
     bool itemYPos( int index, int *yPos ) const;

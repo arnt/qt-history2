@@ -1012,7 +1012,7 @@ void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool s
     bool     owned = own_id;
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();
-    QString capt= caption();
+    QString capt = windowCaption();
     widget_flags = f;
     clearWState(WState_Created | WState_Visible | WState_Hidden | WState_ExplicitShowHide);
     create();
@@ -1032,7 +1032,7 @@ void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool s
     setAcceptDrops(dropable);
     if(!capt.isNull()) {
 	d->topData()->caption = QString::null;
-	setCaption(capt);
+	setWindowCaption(capt);
     }
     if(showIt)
 	show();
@@ -1179,7 +1179,21 @@ void QWidget::unsetCursor()
     }
 }
 
-void QWidget::setCaption(const QString &cap)
+void QWidget::setWindowModified(bool mod)
+{
+    setAttribute(WA_WindowModified, mod);
+    if(isTopLevel())
+	SetWindowModality((WindowRef)handle(), mod);
+    QEvent e(QEvent::ModifiedChange);
+    QApplication::sendEvent(this, &e);
+}
+
+bool QWidget::isWindowModified() const
+{
+    return testAttribute(WA_WindowModified);
+}
+
+void QWidget::setWindowCaption(const QString &cap)
 {
     if(d->topData() && d->topData()->caption == cap)
 	return; // for less flicker
@@ -1193,7 +1207,7 @@ void QWidget::setCaption(const QString &cap)
     QApplication::sendEvent(this, &e);
 }
 
-void QWidget::setIcon(const QPixmap &pixmap)
+void QWidget::setWindowIcon(const QPixmap &pixmap)
 {
     if(d->topData()) {
 	delete d->topData()->icon;
@@ -1231,12 +1245,16 @@ void QWidget::setIcon(const QPixmap &pixmap)
 
     }
 #endif
+    QEvent e( QEvent::IconChange );
+    QApplication::sendEvent( this, &e );
 }
 
-void QWidget::setIconText(const QString &iconText)
+void QWidget::setWindowIconText(const QString &iconText)
 {
     d->createTLExtra();
     d->topData()->iconText = iconText;
+    QEvent e( QEvent::IconTextChange );
+    QApplication::sendEvent( this, &e );
 }
 
 void QWidget::grabMouse()
@@ -1476,8 +1494,6 @@ void QWidget::hideWindow()
     }
     deactivateWidgetCleanup();
 }
-
-
 
 bool QWidget::isMinimized() const
 {

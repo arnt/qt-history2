@@ -158,7 +158,7 @@ static QWSInputMethod *current_IM = 0;
     This class maintains information about each window and allows
     operations to be performed on the windows.
 
-    You can get the window's name(), caption() and winId(), along with
+    You can get the window's name(), windowCaption() and winId(), along with
     the client() that owns the window.
 
     The region the window wants to draw on is returned by requested();
@@ -185,7 +185,7 @@ static QWSInputMethod *current_IM = 0;
 */
 
 /*!
-    \fn const QString &QWSWindow::caption() const
+    \fn const QString &QWSWindow::windowCaption() const
 
     Returns the window's caption.
 */
@@ -288,7 +288,7 @@ void QWSWindow::setName( const QString &n )
     rgnName = n;
 }
 
-void QWSWindow::setCaption( const QString &c )
+void QWSWindow::setWindowCaption( const QString &c )
 {
     rgnCaption = c;
 }
@@ -1549,7 +1549,7 @@ void QWSServer::invokeRegionName( const QWSRegionNameCommand *cmd, QWSClient *cl
     QWSWindow* changingw = findWindow(cmd->simpleData.windowid, client);
     if ( changingw ) {
 	changingw->setName( cmd->name );
-	changingw->setCaption( cmd->caption );
+	changingw->setWindowCaption( cmd->caption );
     }
 }
 

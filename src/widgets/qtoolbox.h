@@ -76,7 +76,7 @@ protected:
     virtual void itemRemoved( int index );
     void showEvent( QShowEvent *e );
     void frameChanged();
-    void styleChange(QStyle&);
+    void changeEvent( QEvent * );
 
 private:
     void relayout();

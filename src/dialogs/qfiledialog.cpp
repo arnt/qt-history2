@@ -826,7 +826,7 @@ QFDProgressDialog::QFDProgressDialog( QWidget *parent, const QString &fn, int st
     : QDialog( parent, "", TRUE )
 {
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    setCaption( QFileDialog::tr( "Copy or Move a File" ) );
+    setWindowCaption( QFileDialog::tr( "Copy or Move a File" ) );
 #endif
     QVBoxLayout *layout = new QVBoxLayout( this );
     layout->setSpacing( 5 );
@@ -3405,9 +3405,9 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !caption.isNull() )
-	dlg->setCaption( caption );
+	dlg->setWindowCaption( caption );
     else
-	dlg->setCaption( QFileDialog::tr( "Open" ) );
+	dlg->setWindowCaption( QFileDialog::tr( "Open" ) );
 #endif
 
     dlg->setFilters( filters );
@@ -3523,9 +3523,9 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !caption.isNull() )
-	dlg->setCaption( caption );
+	dlg->setWindowCaption( caption );
     else
-	dlg->setCaption( QFileDialog::tr( "Save As" ) );
+	dlg->setWindowCaption( QFileDialog::tr( "Save As" ) );
 #endif
 
     QString result;
@@ -4410,9 +4410,9 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !caption.isNull() )
-	dlg->setCaption( caption );
+	dlg->setWindowCaption( caption );
     else
-	dlg->setCaption( QFileDialog::tr("Find Directory") );
+	dlg->setWindowCaption( QFileDialog::tr("Find Directory") );
 #endif
 
     dlg->setMode( dirOnly ? DirectoryOnly : Directory );
@@ -5548,9 +5548,9 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !caption.isNull() )
-	dlg->setCaption( caption );
+	dlg->setWindowCaption( caption );
     else
-	dlg->setCaption( QFileDialog::tr("Open") );
+	dlg->setWindowCaption( QFileDialog::tr("Open") );
 #endif
 
     dlg->setFilters( filters );

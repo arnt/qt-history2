@@ -2785,24 +2785,30 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
 /*!
     \reimp
 */
-
-void QIconView::styleChange( QStyle& old )
+void QIconView::changeEvent( QEvent *ev )
 {
-    QScrollView::styleChange( old );
-    *d->fm = QFontMetrics( font() );
-    d->minLeftBearing = d->fm->minLeftBearing();
-    d->minRightBearing = d->fm->minRightBearing();
-
-    QIconViewItem *item = d->firstItem;
-    for ( ; item; item = item->next ) {
-	item->wordWrapDirty = TRUE;
-	item->calcRect();
-    }
+    if(ev->type() == QEvent::StyleChange) {
+	*d->fm = QFontMetrics( font() );
+	d->minLeftBearing = d->fm->minLeftBearing();
+	d->minRightBearing = d->fm->minRightBearing();
+	
+	QIconViewItem *item = d->firstItem;
+	for ( ; item; item = item->next ) {
+	    item->wordWrapDirty = TRUE;
+	    item->calcRect();
+	}
 
 #if !defined(Q_WS_X11)
-    delete qiv_selection;
-    qiv_selection = 0;
+	delete qiv_selection;
+	qiv_selection = 0;
 #endif
+    } else if(ev->type() == QEvent::ActivationChange) {
+	if ( !isActiveWindow() && d->scrollTimer )
+	    d->scrollTimer->stop();
+	if(isVisible() && !palette().isEqual(QPalette::Active, QPalette::Inactive) )
+	    repaintSelectedItems();
+    }
+    QScrollView::changeEvent(ev);
 }
 
 /*!
@@ -6322,23 +6328,6 @@ QBitmap QIconView::mask( QPixmap *pix ) const
 */
 void QIconView::drawContents( QPainter * )
 {
-}
-
-/*!
-    \reimp
-*/
-void QIconView::windowActivationChange( bool oldActive )
-{
-    if ( oldActive && d->scrollTimer )
-	d->scrollTimer->stop();
-
-    if ( !isVisible() )
-	return;
-
-    if ( !palette().isEqual(QPalette::Active, QPalette::Inactive) )
-	return;
-
-    repaintSelectedItems();
 }
 
 /*!

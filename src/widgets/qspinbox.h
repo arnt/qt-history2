@@ -114,7 +114,7 @@ protected:
 #endif
     void		leaveEvent( QEvent* );
 
-    void		styleChange( QStyle& );
+    void                changeEvent( QEvent * );
 
 protected slots:
     void		textChanged();

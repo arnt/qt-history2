@@ -275,7 +275,7 @@ QString QInputDialog::getText( const QString &caption, const QString &label,
 					  TRUE, LineEdit, f );
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    dlg->setCaption( caption );
+    dlg->setWindowCaption( caption );
 #endif
     dlg->lineEdit()->setText( text );
     dlg->lineEdit()->setEchoMode( mode );
@@ -332,7 +332,7 @@ int QInputDialog::getInteger( const QString &caption, const QString &label,
 					  name ? name : "qt_inputdlg_getint",
 					  TRUE, SpinBox, f );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    dlg->setCaption( caption );
+    dlg->setWindowCaption( caption );
 #endif
     dlg->spinBox()->setRange( minValue, maxValue );
     dlg->spinBox()->setSteps( step, 0 );
@@ -390,7 +390,7 @@ double QInputDialog::getDouble( const QString &caption, const QString &label,
     QInputDialog dlg( label, parent,
 		      name ? name : "qt_inputdlg_getdbl", TRUE, LineEdit, f );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    dlg.setCaption( caption );
+    dlg.setWindowCaption( caption );
 #endif
     dlg.lineEdit()->setValidator( new QDoubleValidator( minValue, maxValue, decimals, dlg.lineEdit() ) );
     dlg.lineEdit()->setText( QString::number( value, 'f', decimals ) );
@@ -443,7 +443,7 @@ QString QInputDialog::getItem( const QString &caption, const QString &label, con
 {
     QInputDialog *dlg = new QInputDialog( label, parent, name ? name : "qt_inputdlg_getitem", TRUE, editable ? EditableComboBox : ComboBox, f );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    dlg->setCaption( caption );
+    dlg->setWindowCaption( caption );
 #endif
     if ( editable ) {
 	dlg->editableComboBox()->insertStringList( list );

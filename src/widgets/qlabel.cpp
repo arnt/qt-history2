@@ -1042,16 +1042,18 @@ void QLabel::setTextFormat( Qt::TextFormat format )
 /*!
   \reimp
 */
-
-void QLabel::fontChange( const QFont & )
+void QLabel::changeEvent( QEvent *ev )
 {
-    if ( !ltext.isEmpty() ) {
+    if(ev->type() == QEvent::FontChange) {
+	if ( !ltext.isEmpty() ) {
 #ifndef QT_NO_RICHTEXT
-	if ( doc )
-	    doc->setDefaultFont( font() );
+	    if ( doc )
+		doc->setDefaultFont( font() );
 #endif
-	updateLabel( QSize( -1, -1 ) );
+	    updateLabel( QSize( -1, -1 ) );
+	}
     }
+    QFrame::changeEvent(ev);
 }
 
 #ifndef QT_NO_IMAGE_SMOOTHSCALE

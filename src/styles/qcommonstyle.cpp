@@ -1683,9 +1683,9 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    }
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	    if ( controls & SC_TitleBarSysMenu ) {
-		if ( titlebar->icon() ) {
+		if ( titlebar->windowIcon() ) {
 		    ir = visualRect( querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarSysMenu ), widget );
-		    drawItem( p, ir, AlignCenter, titlebar->palette(), TRUE, titlebar->icon(), QString::null );
+		    drawItem( p, ir, AlignCenter, titlebar->palette(), TRUE, titlebar->windowIcon(), QString::null );
 		}
 	    }
 #endif

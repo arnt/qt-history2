@@ -903,11 +903,13 @@ void QButton::nextState()
 }
 
 /*! \reimp */
-void QButton::enabledChange( bool e )
+void QButton::changeEvent( QEvent *ev )
 {
-    if ( !isEnabled() )
-	setDown( FALSE );
-    QWidget::enabledChange( e );
+    if(ev->type() == QEvent::EnabledChange) {
+	if ( !isEnabled() )
+	    setDown( FALSE );
+    }
+    QWidget::changeEvent(ev);
 }
 
 

@@ -68,9 +68,7 @@ public slots:
     void activatePrevWindow();
 
 protected:
-#ifndef QT_NO_STYLE
-    void styleChange( QStyle& );
-#endif
+    void changeEvent( QEvent * );
     void childEvent( QChildEvent * );
     void resizeEvent( QResizeEvent * );
     bool eventFilter( QObject *, QEvent * );

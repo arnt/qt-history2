@@ -712,7 +712,7 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();
-    QString capt= caption();
+    QString capt = windowCaption();
     widget_flags = f;
     clearWState(WState_Created | WState_Visible | WState_Hidden | WState_ExplicitShowHide);
     create();
@@ -753,7 +753,7 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
     setFocusPolicy( fp );
     if ( !capt.isNull() ) {
 	d->extra->topextra->caption = QString::null;
-	setCaption( capt );
+	setWindowCaption( capt );
     }
     if ( showIt )
 	show();
@@ -958,9 +958,21 @@ qstring_to_xtp( const QString& s )
     return &tp;
 }
 
-void QWidget::setCaption( const QString &caption )
+void QWidget::setWindowModified(bool mod)
 {
-    if ( QWidget::caption() == caption )
+    setAttribute(WA_WindowModified, mod);
+    QEvent e(QEvent::ModifiedChange);
+    QApplication::sendEvent(this, &e);
+}
+
+bool QWidget::isWindowModified() const
+{
+    return testAttribute(WA_WindowModified);
+}
+
+void QWidget::setWindowCaption( const QString &caption )
+{
+    if ( QWidget::windowCaption() == caption )
 	return;
 
     d->topData()->caption = caption;
@@ -975,7 +987,7 @@ void QWidget::setCaption( const QString &caption )
     QApplication::sendEvent( this, &e );
 }
 
-void QWidget::setIcon( const QPixmap &pixmap )
+void QWidget::setWindowIcon( const QPixmap &pixmap )
 {
     if ( d->extra && d->extra->topextra ) {
 	delete d->extra->topextra->icon;
@@ -1011,12 +1023,14 @@ void QWidget::setIcon( const QPixmap &pixmap )
     QApplication::sendEvent( this, &e );
 }
 
-void QWidget::setIconText( const QString &iconText )
+void QWidget::setWindowIconText( const QString &iconText )
 {
     d->createTLExtra();
     d->extra->topextra->iconText = iconText;
     XSetIconName( x11Display(), winId(), iconText.utf8() );
     XSetWMIconName( x11Display(), winId(), qstring_to_xtp(iconText) );
+    QEvent e( QEvent::IconTextChange );
+    QApplication::sendEvent( this, &e );
 }
 
 

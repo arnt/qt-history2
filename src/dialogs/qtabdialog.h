@@ -85,7 +85,7 @@ public:
 protected:
     void paintEvent( QPaintEvent * );
     void resizeEvent( QResizeEvent * );
-    void styleChange( QStyle& );
+    void changeEvent( QEvent * );
     void setTabBar( QTabBar* );
     QTabBar* tabBar() const;
 

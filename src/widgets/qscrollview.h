@@ -48,7 +48,7 @@ public:
     virtual void setResizePolicy( ResizePolicy );
     ResizePolicy resizePolicy() const;
 
-    void styleChange( QStyle & );
+    void changeEvent( QEvent * );
     void removeChild(QWidget* child);
     virtual void addChild( QWidget* child, int x=0, int y=0 );
     virtual void moveChild( QWidget* child, int x, int y );
@@ -203,7 +203,6 @@ protected:
 
     void setCachedSizeHint( const QSize &sh ) const;
     QSize cachedSizeHint() const;
-    void fontChange( const QFont & );
 
 private:
     void drawContents( QPainter* );

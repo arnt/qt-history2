@@ -67,7 +67,7 @@ protected:
     void	drawContents( QPainter * );
     virtual bool setIndicator( QString & progress_str, int progress,
 			       int totalSteps );
-    void styleChange( QStyle& );
+    void changeEvent( QEvent * );
 
 private:
     int		total_steps;

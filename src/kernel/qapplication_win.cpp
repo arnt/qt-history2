@@ -380,7 +380,7 @@ public:
 	bool	translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 		                          int numPackets );
 #endif
-    void	repolishStyle( QStyle &style ) { styleChange( style ); }
+    void	repolishStyle( QStyle &style ) { setStyle(&style); }
 
     void eraseWindowBackground(HDC);
 };
@@ -3419,13 +3419,14 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    }
 	    QString txt;
 #ifndef Q_OS_TEMP
-	    if ( IsIconic(winId()) && !!iconText() )
-		txt = iconText();
+	    if ( IsIconic(winId()) && !!windowIconText() )
+		txt = windowIconText();
 	    else
 #endif
-		if ( !caption().isNull() )
-		txt = caption();
-
+		if ( !windowCaption().isNull() )
+		    txt = windowCaption();
+	    if(isWindowModified())
+		txt += " *";
 	    if ( !!txt ) {
 		QT_WA( {
 		    SetWindowText( winId(), (TCHAR*)txt.ucs2() );

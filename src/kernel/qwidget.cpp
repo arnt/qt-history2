@@ -106,12 +106,14 @@ QWidgetPrivate::~QWidgetPrivate()
 	close().
 
     \row \i Top level windows \i
-	caption(),
-	setCaption(),
-	icon(),
-	setIcon(),
-	iconText(),
-	setIconText(),
+        windowModified(),
+	setWindowModified(),
+        windowCaption(),
+	setWindowCaption(),
+	windowIcon(),
+	setWindowIcon(),
+	windowIconText(),
+	setWindowIconText(),
 	isActiveWindow(),
 	setActiveWindow(),
 	showMinimized().
@@ -233,13 +235,7 @@ QWidgetPrivate::~QWidgetPrivate()
 	showEvent(),
 	hideEvent(),
 	customEvent().
-
-    \row \i Change handlers \i
-	enabledChange(),
-	fontChange(),
-	paletteChange(),
-	styleChange(),
-	windowActivationChange().
+	changeEvent(),
 
     \row \i System functions \i
 	parentWidget(),
@@ -411,7 +407,7 @@ QWidgetPrivate::~QWidgetPrivate()
     other widgets can contain and manage yours easily. sizeHint()
     indicates a "good" size for the widget.
 
-    \i If your widget is a top-level window, setCaption() and setIcon() set
+    \i If your widget is a top-level window, setWindowCaption() and setWindowIcon() set
     the title bar and icon respectively.
 
     \endlist
@@ -1045,7 +1041,9 @@ void QWidgetPrivate::propagatePaletteChange()
 	    w->d->propagatePaletteChange();
 	}
     }
+#ifndef QT_NO_COMPAT
     q->paletteChange(q->palette()); // compatibility
+#endif
 }
 
 
@@ -1304,7 +1302,11 @@ void QWidget::setStyle( QStyle *style )
 	old.unPolish( this );
 	QWidget::style().polish( this );
     }
+    QEvent e(QEvent::StyleChange);
+    QApplication::sendEvent(this, &e);
+#ifndef QT_NO_COMPAT    
     styleChange( old );
+#endif
 }
 
 /*!
@@ -1317,27 +1319,6 @@ QStyle* QWidget::setStyle( const QString &style )
     QStyle *s = QStyleFactory::create( style );
     setStyle( s );
     return s;
-}
-
-/*!
-    This virtual function is called when the style of the widgets
-    changes. \a oldStyle is the previous GUI style; you can get the
-    new style from style().
-
-    Reimplement this function if your widget needs to know when its
-    GUI style changes. You will almost certainly need to update the
-    widget using update().
-
-    The default implementation updates the widget including its
-    geometry.
-
-    \sa QApplication::setStyle(), style(), update(), updateGeometry()
-*/
-
-void QWidget::styleChange( QStyle& /* oldStyle */ )
-{
-    update();
-    updateGeometry();
 }
 
 #endif
@@ -1483,13 +1464,13 @@ bool QWidget::isEnabledTo( QWidget* ancestor ) const
     Some widgets display themselves differently when they are
     disabled. For example a button might draw its label grayed out. If
     your widget needs to know when it becomes enabled or disabled, you
-    can reimplement the enabledChange() function.
+    can use the changeEvent() with type QEvent::EnabledChange.
 
     Disabling a widget implicitly disables all its children. Enabling
     respectively enables all child widgets unless they have been
     explicitly disabled.
 
-    \sa isEnabled(), isEnabledTo(), QKeyEvent, QMouseEvent, enabledChange()
+    \sa isEnabled(), isEnabledTo(), QKeyEvent, QMouseEvent, changeEvent()
 */
 void QWidget::setEnabled( bool enable )
 {
@@ -1529,7 +1510,11 @@ void QWidget::setEnabled_helper(bool enable)
 #ifdef Q_WS_WIN
     QInputContext::enable(this, im_enabled && enable);
 #endif
+    QEvent e(QEvent::EnabledChange);
+    QApplication::sendEvent(this, &e);
+#ifndef QT_NO_COMPAT
     enabledChange(!enable); // compatibility
+#endif
 }
 
 /*!
@@ -1538,92 +1523,11 @@ void QWidget::setEnabled_helper(bool enable)
 
     See the \l enabled documentation for more information.
 
-    \sa isEnabledTo(), QKeyEvent, QMouseEvent, enabledChange()
+    \sa isEnabledTo(), QKeyEvent, QMouseEvent, changeEvent()
 */
 void QWidget::setDisabled( bool disable )
 {
     setEnabled( !disable );
-}
-
-/*!
-    \fn void QWidget::enabledChange( bool oldEnabled )
-
-    This virtual function is called from setEnabled(). \a oldEnabled
-    is the previous setting; you can get the new setting from
-    isEnabled().
-
-    Reimplement this function if your widget needs to know when it
-    becomes enabled or disabled. You will almost certainly need to
-    update the widget using update().
-
-    The default implementation repaints the visible part of the
-    widget.
-
-    \sa setEnabled(), isEnabled(), repaint(), update(), clipRegion()
-*/
-
-void QWidget::enabledChange( bool )
-{
-    update();
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
-#endif
-}
-
-/*!
-    \fn void QWidget::windowActivationChange( bool oldActive )
-
-    This virtual function is called for a widget when its window is
-    activated or deactivated by the window system. \a oldActive is the
-    previous state; you can get the new setting from isActiveWindow().
-
-    Reimplement this function if your widget needs to know when its
-    window becomes activated or deactivated.
-
-    The default implementation updates the visible part of the widget
-    if the inactive and the active roles in the palette are different
-    for colors other than the highlight and link colors, or the
-    WA_UpdateOnActivationChange attribute is set.
-
-    \sa setActiveWindow(), isActiveWindow(), update(), palette()
-*/
-
-void QWidget::windowActivationChange( bool )
-{
-#ifndef QT_NO_PALETTE
-    if ( !isVisible() )
-	return;
-
-    for(int role=0; role < (int)QPalette::NColorRoles; role++) {
-	if(pal.brush(QPalette::Active, (QPalette::ColorRole)role) !=
-	   pal.brush(QPalette::Inactive, (QPalette::ColorRole)role)) {
-	    QPalette::ColorRole bg_role = backgroundRole();
-	    if ( !testAttribute(WA_NoSystemBackground) && bg_role < QPalette::NColorRoles &&
-		 (role == bg_role || (role < bg_role && pal.brush(QPalette::Active, bg_role) !=
-					 pal.brush(QPalette::Inactive, bg_role ))))
-		d->updateSystemBackground();
-	    else if(role <= QPalette::Shadow)
-		update();
-	    break;
-	}
-    }
-#endif
-}
-
-/*!
-    This virtual function is called when the application language has
-    changed.
-
-    Reimplement this function if your widget needs to know when the
-    language changes.  You will typically need to retranslate all user
-    visible strings in your reimplementation.
-
-    The default implementation does nothing.
-
-    \sa QTranslator
-*/
-void QWidget::languageChange()
-{
 }
 
 /*!
@@ -2127,7 +2031,7 @@ QPoint QWidget::mapFromParent( const QPoint &pos ) const
     Typical usage is changing the window caption:
 
     \code
-	aWidget->topLevelWidget()->setCaption( "New Caption" );
+	aWidget->topLevelWidget()->setWindowCaption( "New Caption" );
     \endcode
 
     \sa isTopLevel()
@@ -2397,22 +2301,6 @@ void QWidget::unsetPalette()
   Use setPalette( const QPalette& p ) instead.
 */
 
-/*!
-    \fn void QWidget::paletteChange( const QPalette &oldPalette )
-
-    This virtual function is called from setPalette(). \a oldPalette
-    is the previous palette; you can get the new palette from
-    palette().
-
-    Reimplement this function if your widget needs to know when its
-    palette changes.
-
-    \sa setPalette(), palette()
-*/
-
-void QWidget::paletteChange( const QPalette & )
-{
-}
 #endif // QT_NO_PALETTE
 
 /*!
@@ -2436,7 +2324,7 @@ void QWidget::paletteChange( const QPalette & )
     In addition to setting the font, setFont() informs all children
     about the change.
 
-    \sa fontChange() fontInfo() fontMetrics()
+    \sa fontInfo() fontMetrics()
 */
 
 void QWidget::setFont( const QFont &font )
@@ -2471,7 +2359,11 @@ void QWidget::setFont_helper( const QFont &font )
     }
     if ( hasFocus() )
 	setFontSys();
-    fontChange(old); // compatibility
+    QEvent e(QEvent::FontChange);
+    QApplication::sendEvent(this, &e);
+#ifndef QT_NO_COMPAT
+    fontChange(old);
+#endif
 }
 
 void QWidget::unsetFont()
@@ -2486,29 +2378,6 @@ void QWidget::unsetFont()
 
   Use setFont(const QFont& font) instead.
 */
-
-/*!
-    \fn void QWidget::fontChange( const QFont &oldFont )
-
-    This virtual function is called from setFont(). \a oldFont is the
-    previous font; you can get the new font from font().
-
-    Reimplement this function if your widget needs to know when its
-    font changes. You will almost certainly need to update the widget
-    using update().
-
-    The default implementation updates the widget including its
-    geometry.
-
-    \sa setFont(), font(), update(), updateGeometry()
-*/
-
-void QWidget::fontChange( const QFont & )
-{
-    update();
-    updateGeometry();
-}
-
 
 /*!
     \fn QFontMetrics QWidget::fontMetrics() const
@@ -2569,9 +2438,9 @@ QCursor QWidget::cursor() const
     This property only makes sense for top-level widgets. If no
     caption has been set, the caption is QString::null.
 
-    \sa icon() iconText()
+    \sa icon iconText
 */
-QString QWidget::caption() const
+QString QWidget::windowCaption() const
 {
     return d->extra && d->extra->topextra
 	? d->extra->topextra->caption
@@ -2583,12 +2452,12 @@ QString QWidget::caption() const
     \brief the widget's icon
 
     This property only makes sense for top-level widgets. If no icon
-    has been set, icon() returns 0.
+    has been set, windowIcon() returns 0.
 
     \sa iconText, caption,
       \link appicon.html Setting the Application Icon\endlink
 */
-const QPixmap *QWidget::icon() const
+const QPixmap *QWidget::windowIcon() const
 {
     return ( d->extra && d->extra->topextra ) ? d->extra->topextra->icon : 0;
 }
@@ -2603,7 +2472,7 @@ const QPixmap *QWidget::icon() const
     \sa icon, caption
 */
 
-QString QWidget::iconText() const
+QString QWidget::windowIconText() const
 {
     return ( d->extra && d->extra->topextra ) ? d->extra->topextra->iconText
 	: QString();
@@ -3398,22 +3267,22 @@ void QWidget::show_helper()
 #ifndef QT_NO_WIDGET_TOPEXTRA
     // make sure toplevels have an icon
     if ( isTopLevel() ) {
-	const QPixmap *pm = icon();
+	const QPixmap *pm = windowIcon();
 	if ( !pm || pm->isNull() ) {
 	    QWidget *mw = (QWidget *)parent();
-	    pm = mw ? mw->icon() : 0;
+	    pm = mw ? mw->windowIcon() : 0;
 	    if ( pm && !pm->isNull() )
-		setIcon( *pm );
+		setWindowIcon( *pm );
 	    else {
 		mw = mw ? mw->topLevelWidget() : 0;
-		pm = mw ? mw->icon() : 0;
+		pm = mw ? mw->windowIcon() : 0;
 		if ( pm && !pm->isNull() )
-		    setIcon( *pm );
+		    setWindowIcon( *pm );
 		else {
 		    mw = qApp ? qApp->mainWidget() : 0;
-		    pm = mw ? mw->icon() : 0;
+		    pm = mw ? mw->windowIcon() : 0;
 		    if ( pm && !pm->isNull() )
-			setIcon( *pm );
+			setWindowIcon( *pm );
 		}
 	    }
 	}
@@ -3940,253 +3809,316 @@ bool QWidget::event( QEvent *e )
 	return TRUE;
 
     switch ( e->type() ) {
-	case QEvent::MouseMove:
-	    mouseMoveEvent( (QMouseEvent*)e );
-	    if ( ! ((QMouseEvent*)e)->isAccepted() )
-		return FALSE;
-	    break;
-
-	case QEvent::MouseButtonPress:
-	    resetInputContext();
-	    mousePressEvent( (QMouseEvent*)e );
-	    if ( ! ((QMouseEvent*)e)->isAccepted() )
-		return FALSE;
-	    break;
-
-	case QEvent::MouseButtonRelease:
-	    mouseReleaseEvent( (QMouseEvent*)e );
-	    if ( ! ((QMouseEvent*)e)->isAccepted() )
-		return FALSE;
-	    break;
-
-	case QEvent::MouseButtonDblClick:
-	    mouseDoubleClickEvent( (QMouseEvent*)e );
-	    if ( ! ((QMouseEvent*)e)->isAccepted() )
-		return FALSE;
-	    break;
-#ifndef QT_NO_WHEELEVENT
-	case QEvent::Wheel:
-	    wheelEvent( (QWheelEvent*)e );
-	    if ( ! ((QWheelEvent*)e)->isAccepted() )
-		return FALSE;
-	    break;
-#endif
-	case QEvent::TabletMove:
-	case QEvent::TabletPress:
-	case QEvent::TabletRelease:
-	    tabletEvent( (QTabletEvent*)e );
-	    if ( ! ((QTabletEvent*)e)->isAccepted() )
-		return FALSE;
-	    break;
-	case QEvent::Accel:
-	    ((QKeyEvent*)e)->ignore();
+    case QEvent::MouseMove:
+	mouseMoveEvent( (QMouseEvent*)e );
+	if ( ! ((QMouseEvent*)e)->isAccepted() )
 	    return FALSE;
-	case QEvent::KeyPress: {
-	    QKeyEvent *k = (QKeyEvent *)e;
-	    bool res = FALSE;
-	    if ( !(k->state() & ControlButton || k->state() & AltButton) ) {
-		if ( k->key() == Key_Backtab ||
-		     (k->key() == Key_Tab &&
-		      (k->state() & ShiftButton)) ) {
-		    QFocusEvent::setReason( QFocusEvent::Backtab );
-		    res = focusNextPrevChild( FALSE );
-		    QFocusEvent::resetReason();
+	break;
 
-		} else if ( k->key() == Key_Tab ) {
-		    QFocusEvent::setReason( QFocusEvent::Tab );
-		    res = focusNextPrevChild( TRUE );
-		    QFocusEvent::resetReason();
-		}
-		if ( res )
-		    break;
-	    }
-	    keyPressEvent( k );
-	    if ( !k->isAccepted() )
-		return FALSE;
-	    }
-	    break;
+    case QEvent::MouseButtonPress:
+	resetInputContext();
+	mousePressEvent( (QMouseEvent*)e );
+	if ( ! ((QMouseEvent*)e)->isAccepted() )
+	    return FALSE;
+	break;
 
-	case QEvent::KeyRelease:
-	    keyReleaseEvent( (QKeyEvent*)e );
-	    if ( ! ((QKeyEvent*)e)->isAccepted() )
-		return FALSE;
-	    break;
+    case QEvent::MouseButtonRelease:
+	mouseReleaseEvent( (QMouseEvent*)e );
+	if ( ! ((QMouseEvent*)e)->isAccepted() )
+	    return FALSE;
+	break;
 
-	case QEvent::IMStart: {
-	    QIMEvent *i = (QIMEvent *) e;
-	    imStartEvent(i);
-	    if (! i->isAccepted())
-		return FALSE;
-	    }
-	    break;
-
-	case QEvent::IMCompose: {
-	    QIMEvent *i = (QIMEvent *) e;
-	    imComposeEvent(i);
-	    if (! i->isAccepted())
-		return FALSE;
-	    }
-	    break;
-
-	case QEvent::IMEnd: {
-	    QIMEvent *i = (QIMEvent *) e;
-	    imEndEvent(i);
-	    if (! i->isAccepted())
-		return FALSE;
-	    }
-	    break;
-
-	case QEvent::FocusIn:
-	    focusInEvent( (QFocusEvent*)e );
-	    setFontSys();
-	    break;
-
-	case QEvent::FocusOut:
-	    focusOutEvent( (QFocusEvent*)e );
-	    break;
-
-	case QEvent::Enter:
-	    enterEvent( e );
-	    break;
-
-	case QEvent::Leave:
-	     leaveEvent( e );
-	    break;
-
-	case QEvent::Paint:
-	    // At this point the event has to be delivered, regardless
-	    // whether the widget isVisible() or not because it
-	    // already went through the filters
-	    paintEvent( (QPaintEvent*)e );
-	    break;
-
-	case QEvent::Move:
-	    moveEvent( (QMoveEvent*)e );
-	    break;
-
-	case QEvent::Resize:
-	    resizeEvent( (QResizeEvent*)e );
-	    break;
-
-	case QEvent::Close: {
-	    QCloseEvent *c = (QCloseEvent *)e;
-	    closeEvent( c );
-	    if ( !c->isAccepted() )
-		return FALSE;
-	    }
-	    break;
-
-	case QEvent::ContextMenu: {
-	    QContextMenuEvent *c = (QContextMenuEvent *)e;
-	    contextMenuEvent( c );
-	    if ( !c->isAccepted() )
-		return FALSE;
-	    }
-	    break;
-
-#ifndef QT_NO_DRAGANDDROP
-	case QEvent::Drop:
-	    dropEvent( (QDropEvent*) e);
-	    break;
-
-	case QEvent::DragEnter:
-	    dragEnterEvent( (QDragEnterEvent*) e);
-	    break;
-
-	case QEvent::DragMove:
-	    dragMoveEvent( (QDragMoveEvent*) e);
-	    break;
-
-	case QEvent::DragLeave:
-	    dragLeaveEvent( (QDragLeaveEvent*) e);
-	    break;
+    case QEvent::MouseButtonDblClick:
+	mouseDoubleClickEvent( (QMouseEvent*)e );
+	if ( ! ((QMouseEvent*)e)->isAccepted() )
+	    return FALSE;
+	break;
+#ifndef QT_NO_WHEELEVENT
+    case QEvent::Wheel:
+	wheelEvent( (QWheelEvent*)e );
+	if ( ! ((QWheelEvent*)e)->isAccepted() )
+	    return FALSE;
+	break;
 #endif
+    case QEvent::TabletMove:
+    case QEvent::TabletPress:
+    case QEvent::TabletRelease:
+	tabletEvent( (QTabletEvent*)e );
+	if ( ! ((QTabletEvent*)e)->isAccepted() )
+	    return FALSE;
+	break;
+    case QEvent::Accel:
+	((QKeyEvent*)e)->ignore();
+	return FALSE;
+    case QEvent::KeyPress: {
+	QKeyEvent *k = (QKeyEvent *)e;
+	bool res = FALSE;
+	if ( !(k->state() & ControlButton || k->state() & AltButton) ) {
+	    if ( k->key() == Key_Backtab ||
+		 (k->key() == Key_Tab &&
+		  (k->state() & ShiftButton)) ) {
+		QFocusEvent::setReason( QFocusEvent::Backtab );
+		res = focusNextPrevChild( FALSE );
+		QFocusEvent::resetReason();
 
-	case QEvent::Show:
-	    showEvent( (QShowEvent*) e);
-	    break;
-
-	case QEvent::Hide:
-	    hideEvent( (QHideEvent*) e);
-	    break;
-
-	case QEvent::ShowWindowRequest:
-	    if ( isShown() )
-		showWindow();
-	    break;
-
-	case QEvent::ApplicationFontChange:
-	    if (testAttribute(WA_SetFont))
-		setFont_helper(fnt.resolve(qt_naturalWidgetFont(this)));
-	    else
-		setFont_helper(qt_naturalWidgetFont(this));
-	    break;
-
-	case QEvent::ApplicationPaletteChange:
-	    if (!testAttribute(WA_SetPalette) && !isDesktop())
-		unsetPalette();
-	    break;
-
-	case QEvent::PaletteChange:
-	    update();
-	    break;
-
-	case QEvent::WindowActivate:
-	case QEvent::WindowDeactivate:
-	    windowActivationChange( e->type() != QEvent::WindowActivate );
-	    for (int i = 0; i < d->children.size(); ++i) {
-		QObject *o = d->children.at(i);
-		if (o->isWidgetType()
-		    && static_cast<QWidget*>(o)->isVisible()
-		    && !static_cast<QWidget*>(o)->isTopLevel())
-		    QApplication::sendEvent( o, e );
+	    } else if ( k->key() == Key_Tab ) {
+		QFocusEvent::setReason( QFocusEvent::Tab );
+		res = focusNextPrevChild( TRUE );
+		QFocusEvent::resetReason();
 	    }
-	    break;
-
-	case QEvent::LanguageChange:
-	    languageChange();
-	    // fall through
-	case QEvent::LocaleChange:
-	    for (int i = 0; i < d->children.size(); ++i) {
-		QObject *o = d->children.at(i);
-		QApplication::sendEvent( o, e );
-	    }
-	    update();
-	    break;
-
-#ifndef QT_NO_LAYOUT
-	case QEvent::LayoutDirectionChange:
-	    if ( layout() ) {
-		layout()->activate();
-		d->layout->activate();
-	    } else {
-		QObjectList llist = queryList( "QLayout", 0, TRUE, TRUE );
-		for (int i = 0; i < llist.size(); ++i) {
-		    QLayout *lay = static_cast<QLayout *>(llist.at(i));
-		    lay->activate();
-		}
-	    }
-	    update();
-	    break;
-#endif
-#if defined(Q_WS_X11)
-	case QEvent::UpdateRequest:
-	    if (!d->invalidated_region.isEmpty()) {
-		QRegion rgn = d->invalidated_region;
-		d->invalidated_region = QRegion();
-		repaint(rgn);
-	    }
-	    break;
-#endif
-#if defined(Q_WS_QWS)
-	case QEvent::QWSUpdate:
-	    repaint(static_cast<QWSUpdateEvent*>(e)->region());
-	    break;
-#endif
-	default:
+	    if ( res )
+		break;
+	}
+	keyPressEvent( k );
+	if ( !k->isAccepted() )
 	    return FALSE;
     }
+	break;
+
+    case QEvent::KeyRelease:
+	keyReleaseEvent( (QKeyEvent*)e );
+	if ( ! ((QKeyEvent*)e)->isAccepted() )
+	    return FALSE;
+	break;
+
+    case QEvent::IMStart: {
+	QIMEvent *i = (QIMEvent *) e;
+	imStartEvent(i);
+	if (! i->isAccepted())
+	    return FALSE;
+    }
+	break;
+
+    case QEvent::IMCompose: {
+	QIMEvent *i = (QIMEvent *) e;
+	imComposeEvent(i);
+	if (! i->isAccepted())
+	    return FALSE;
+    }
+	break;
+
+    case QEvent::IMEnd: {
+	QIMEvent *i = (QIMEvent *) e;
+	imEndEvent(i);
+	if (! i->isAccepted())
+	    return FALSE;
+    }
+	break;
+
+    case QEvent::FocusIn:
+	focusInEvent( (QFocusEvent*)e );
+	setFontSys();
+	break;
+
+    case QEvent::FocusOut:
+	focusOutEvent( (QFocusEvent*)e );
+	break;
+
+    case QEvent::Enter:
+	enterEvent( e );
+	break;
+
+    case QEvent::Leave:
+	leaveEvent( e );
+	break;
+
+    case QEvent::Paint:
+	// At this point the event has to be delivered, regardless
+	// whether the widget isVisible() or not because it
+	// already went through the filters
+	paintEvent( (QPaintEvent*)e );
+	break;
+
+    case QEvent::Move:
+	moveEvent( (QMoveEvent*)e );
+	break;
+
+    case QEvent::Resize:
+	resizeEvent( (QResizeEvent*)e );
+	break;
+
+    case QEvent::Close: {
+	QCloseEvent *c = (QCloseEvent *)e;
+	closeEvent( c );
+	if ( !c->isAccepted() )
+	    return FALSE;
+    }
+	break;
+
+    case QEvent::ContextMenu: {
+	QContextMenuEvent *c = (QContextMenuEvent *)e;
+	contextMenuEvent( c );
+	if ( !c->isAccepted() )
+	    return FALSE;
+    }
+	break;
+
+#ifndef QT_NO_DRAGANDDROP
+    case QEvent::Drop:
+	dropEvent( (QDropEvent*) e);
+	break;
+
+    case QEvent::DragEnter:
+	dragEnterEvent( (QDragEnterEvent*) e);
+	break;
+
+    case QEvent::DragMove:
+	dragMoveEvent( (QDragMoveEvent*) e);
+	break;
+
+    case QEvent::DragLeave:
+	dragLeaveEvent( (QDragLeaveEvent*) e);
+	break;
+#endif
+
+    case QEvent::Show:
+	showEvent( (QShowEvent*) e);
+	break;
+
+    case QEvent::Hide:
+	hideEvent( (QHideEvent*) e);
+	break;
+
+    case QEvent::ShowWindowRequest:
+	if ( isShown() )
+	    showWindow();
+	break;
+
+    case QEvent::ApplicationFontChange:
+	if (testAttribute(WA_SetFont))
+	    setFont_helper(fnt.resolve(qt_naturalWidgetFont(this)));
+	else
+	    setFont_helper(qt_naturalWidgetFont(this));
+	break;
+
+    case QEvent::ApplicationPaletteChange:
+	if (!testAttribute(WA_SetPalette) && !isDesktop())
+	    unsetPalette();
+	break;
+
+    case QEvent::ActivationChange:
+    case QEvent::EnabledChange:
+    case QEvent::FontChange:
+    case QEvent::StyleChange:
+    case QEvent::PaletteChange:
+    case QEvent::IconTextChange:
+    case QEvent::ModifiedChange:
+	changeEvent(e);
+	break;
+
+    case QEvent::WindowActivate:
+    case QEvent::WindowDeactivate: {
+	{
+	    QEvent ae(QEvent::ActivationChange);
+	    QApplication::sendEvent(this, &ae);
+	}
+#ifndef QT_NO_COMPAT
+	windowActivationChange( e->type() != QEvent::WindowActivate );
+#endif
+#ifndef QT_NO_PALETTE
+	if ( isVisible() ) {
+	    for(int role=0; role < (int)QPalette::NColorRoles; role++) {
+		if(pal.brush(QPalette::Active, (QPalette::ColorRole)role) !=
+		   pal.brush(QPalette::Inactive, (QPalette::ColorRole)role)) {
+		    QPalette::ColorRole bg_role = backgroundRole();
+		    if ( !testAttribute(WA_NoSystemBackground) && bg_role < QPalette::NColorRoles &&
+			 (role == bg_role || (role < bg_role && pal.brush(QPalette::Active, bg_role) !=
+					      pal.brush(QPalette::Inactive, bg_role ))))
+			d->updateSystemBackground();
+		    else if(role <= QPalette::Shadow)
+			update();
+		    break;
+		}
+	    }
+	}
+#endif
+	for (int i = 0; i < d->children.size(); ++i) {
+	    QObject *o = d->children.at(i);
+	    if (o->isWidgetType()
+		&& static_cast<QWidget*>(o)->isVisible()
+		&& !static_cast<QWidget*>(o)->isTopLevel())
+		QApplication::sendEvent( o, e );
+	}
+	break; }
+
+    case QEvent::LanguageChange:
+	changeEvent(e);
+#ifndef QT_NO_COMPAT
+	languageChange();
+#endif
+	// fall through
+    case QEvent::LocaleChange:
+	for (int i = 0; i < d->children.size(); ++i) {
+	    QObject *o = d->children.at(i);
+	    QApplication::sendEvent( o, e );
+	}
+	update();
+	break;
+
+#ifndef QT_NO_LAYOUT
+    case QEvent::LayoutDirectionChange:
+	if ( layout() ) {
+	    layout()->activate();
+	    d->layout->activate();
+	} else {
+	    QObjectList llist = queryList( "QLayout", 0, TRUE, TRUE );
+	    for (int i = 0; i < llist.size(); ++i) {
+		QLayout *lay = static_cast<QLayout *>(llist.at(i));
+		lay->activate();
+	    }
+	}
+	update();
+	break;
+#endif
+#if defined(Q_WS_X11)
+    case QEvent::UpdateRequest:
+	if (!d->invalidated_region.isEmpty()) {
+	    QRegion rgn = d->invalidated_region;
+	    d->invalidated_region = QRegion();
+	    repaint(rgn);
+	}
+	break;
+#endif
+#if defined(Q_WS_QWS)
+    case QEvent::QWSUpdate:
+	repaint(static_cast<QWSUpdateEvent*>(e)->region());
+	break;
+#endif
+    default:
+	return FALSE;
+    }
     return TRUE;
+}
+
+/*!
+  This event handler can be reimplemented to handle state changes. 
+
+  The state being changed in this event can be retrieved through event \a
+  e.
+  
+*/
+void QWidget::changeEvent( QEvent * e )
+{
+    switch(e->type()) {
+    case QEvent::EnabledChange:
+	update();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+#endif
+	break;
+
+    case QEvent::FontChange:
+    case QEvent::StyleChange:
+	update();
+	updateGeometry();
+	break;
+
+    case QEvent::PaletteChange:
+	update();
+	break;
+    default:
+	break;
+    }
 }
 
 /*!
@@ -5422,6 +5354,11 @@ void QWidget::drawText(const QPoint &p, const QString &str)
     \row \i WA_PaintOnScreen \i Indicates that the widget wants to
     draw directly onto the screen. This is not supported on all
     platforms. \i Widget author.
+
+    \row \i WA_WindowModified \i Indicates that the window is marked as
+    modified. On some platforms this will mean nothing, on others
+    (including Mac OS X and Windows) the window will take a modified
+    appearance. \i Function QWidget::setWindowModified()
 
     \endtable
 */

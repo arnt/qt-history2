@@ -142,10 +142,8 @@ protected:
 #ifndef QT_NO_WHEELEVENT
     void wheelEvent( QWheelEvent * );
 #endif
-    void styleChange( QStyle& );
+    void changeEvent( QEvent * );
     void paintEvent( QPaintEvent * );
-    void enableChanged( bool old );
-    void windowActivationChange( bool );
 
 private slots:
     void timerDone();

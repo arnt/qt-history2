@@ -1274,11 +1274,11 @@ void QSplitter::processChildEvents()
 /*!
     \reimp
 */
-
-void QSplitter::styleChange( QStyle& old )
+void QSplitter::changeEvent( QEvent *ev )
 {
-    updateHandles();
-    QFrame::styleChange( old );
+    if(ev->type() == QEvent::StyleChange) 
+	updateHandles();
+    QFrame::changeEvent(ev);
 }
 
 void QSplitter::updateHandles()

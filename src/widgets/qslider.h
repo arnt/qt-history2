@@ -108,8 +108,6 @@ protected:
     void	focusInEvent( QFocusEvent *e );
     void	focusOutEvent( QFocusEvent *e );
 
-    void	styleChange( QStyle& );
-
     void	valueChange();
     void	rangeChange();
 

@@ -916,12 +916,14 @@ void QScrollBar::drawControls( uint controls, uint activeControl,
 /*!
     \reimp
 */
-void QScrollBar::styleChange( QStyle& old )
+void QScrollBar::changeEvent( QEvent *ev )
 {
-    positionSliderFromValue();
-    setBackgroundMode((Qt::BackgroundMode)
-		      style().styleHint(QStyle::SH_ScrollBar_BackgroundMode));
-    QWidget::styleChange( old );
+    if(ev->type() == QEvent::StyleChange) {
+	positionSliderFromValue();
+	setBackgroundMode((Qt::BackgroundMode)
+			  style().styleHint(QStyle::SH_ScrollBar_BackgroundMode));
+    }
+    QWidget::changeEvent(ev);
 }
 
 /*!

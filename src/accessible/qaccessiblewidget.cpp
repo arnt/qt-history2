@@ -766,7 +766,7 @@ QString QAccessibleWidget::text(Text t, int child) const
 	if (!d->name.isEmpty())
 	    str = d->name;
 	else if (!child && widget()->isTopLevel())
-	    str = widget()->caption();
+	    str = widget()->windowCaption();
 	else
 	    str = qacc_stripAmp(buddyString(widget()));
 	break;

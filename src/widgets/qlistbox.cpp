@@ -4598,13 +4598,15 @@ void QListBox::selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, b
 }
 
 /*! \reimp */
-void QListBox::windowActivationChange( bool oldActive )
+void QListBox::changeEvent( QEvent *ev )
 {
-    if ( oldActive && d->scrollTimer )
-	d->scrollTimer->stop();
-    if ( !palette().isEqual(QPalette::Active, QPalette::Inactive))
-	viewport()->update();
-    QScrollView::windowActivationChange( oldActive );
+    if(ev->type() == QEvent::ActivationChange) {
+	if ( !isActiveWindow() && d->scrollTimer )
+	    d->scrollTimer->stop();
+	if ( !palette().isEqual(QPalette::Active, QPalette::Inactive))
+	    viewport()->update();
+    }
+    QScrollView::changeEvent(ev);
 }
 
 int QListBoxItem::RTTI = 0;

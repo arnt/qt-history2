@@ -787,14 +787,6 @@ void QSlider::setTickInterval( int i )
 
 
 /*!
-    \reimp
-*/
-void QSlider::styleChange( QStyle& old )
-{
-    QWidget::styleChange( old );
-}
-
-/*!
     \property QSlider::minValue
     \brief the current minimum value of the slider
 

@@ -1480,8 +1480,8 @@ void QAquaStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 
 	    if(sub & SC_TitleBarLabel) {
 		int x = ctrlw, y = 0, iw = 0;
-		if(tb->icon())
-		   iw = tb->icon()->width() + 3;
+		if(tb->windowIcon())
+		   iw = tb->windowIcon()->width() + 3;
 		QPixmap fill;
 		qAquaPixmap("win_fill", fill);
 		p->drawTiledPixmap(x, 0, tb->width() - x, fill.height(), fill);
@@ -1491,13 +1491,13 @@ void QAquaStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		p->setPen(pal.highlightedText());
 		p->save();
 		p->setClipRect(x, 0, tb->width() - x, tb->height());
-		if((tb->width() - x) <= (p->fontMetrics().width(tb->caption())+iw*2))
+		if((tb->width() - x) <= (p->fontMetrics().width(tb->windowCaption())+iw*2))
 		    x += iw;
 		else
 		    x += ((tb->width() - x) / 2) - (p->fontMetrics().width(tb->visibleText()) / 2);
 		y = (tb->height() / 2) - (p->fontMetrics().height() / 2);
-		if(tb->icon() && !tb->caption().isEmpty())
-		    p->drawPixmap(x - iw, y, *tb->icon());
+		if(tb->windowIcon() && !tb->windowCaption().isEmpty())
+		    p->drawPixmap(x - iw, y, *tb->windowIcon());
 		p->drawText(x, y + p->fontMetrics().ascent(), tb->visibleText());
 		p->restore();
 	    }
@@ -1763,8 +1763,8 @@ QRect QAquaStyle::querySubControlMetrics(ComplexControl control,
 		wd = 55;
 	    else if(tb->testWFlags(WStyle_SysMenu))
 		wd = 17;
-	    if(tb->icon())
-		wd += tb->icon()->width() + 3;
+	    if(tb->windowIcon())
+		wd += tb->windowIcon()->width() + 3;
 	    return QRect(wd, 0, w->width() - wd, 16);
 	} else if(sc & SC_TitleBarSysMenu) {
 	    return QRect(-666, -666, 10, 10); //ugh

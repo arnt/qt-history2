@@ -68,7 +68,7 @@ protected:
 
     void showEvent(QShowEvent *);
     void resizeEvent(QResizeEvent *);
-    void styleChanged(QStyle &);
+    void changeEvent( QEvent * );
 
 private slots:
     void handleClicked();

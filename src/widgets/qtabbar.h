@@ -129,8 +129,7 @@ protected:
     void mouseMoveEvent ( QMouseEvent * );
     void mouseReleaseEvent ( QMouseEvent * );
     void keyPressEvent( QKeyEvent * );
-    void styleChange( QStyle& );
-    void fontChange ( const QFont & );
+    void changeEvent( QEvent * );
 
     bool event( QEvent *e );
     

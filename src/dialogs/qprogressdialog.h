@@ -88,7 +88,7 @@ signals:
 protected:
     void	resizeEvent( QResizeEvent * );
     void	closeEvent( QCloseEvent * );
-    void	styleChange( QStyle& );
+    void	changeEvent( QEvent * );
     void	showEvent( QShowEvent *e );
 
 protected slots:

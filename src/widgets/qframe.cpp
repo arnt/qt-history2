@@ -712,10 +712,11 @@ void QFrame::frameChanged()
 
 /*!\reimp
  */
-void  QFrame::styleChange( QStyle& old )
+void QFrame::changeEvent( QEvent *ev )
 {
-    updateFrameWidth( TRUE );
-    QWidget::styleChange( old );
+    if(ev->type() == QEvent::StyleChange)
+	updateFrameWidth( TRUE );
+    QWidget::changeEvent(ev);
 }
 
 #endif //QT_NO_FRAME

@@ -106,7 +106,7 @@ protected:
     void resizeEvent( QResizeEvent * );
     void setTabBar( QTabBar * );
     QTabBar* tabBar() const;
-    void styleChange( QStyle& );
+    void changeEvent( QEvent * );
     void updateMask();
     bool eventFilter( QObject *, QEvent * );
 

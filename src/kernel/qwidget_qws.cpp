@@ -251,9 +251,9 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
     if ( topLevel ) {
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	if ( name( 0 ) )
-	    qwsDisplay()->nameRegion( winId(), name(), caption() );
+	    qwsDisplay()->nameRegion( winId(), name(), windowCaption() );
 	else
-	    qwsDisplay()->nameRegion( winId(), "", caption() );
+	    qwsDisplay()->nameRegion( winId(), "", windowCaption() );
 	d->createTLExtra();
 #else
 	qwsDisplay()->nameRegion( winId(), name(), QString::null );
@@ -371,7 +371,7 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
     QSize    s	    = size();
     //QBrush   bgc    = background();			// save colors
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    QString capt= caption();
+    QString capt = windowCaption();
 #endif
     widget_flags = f;
     clearWState(WState_Created | WState_Visible | WState_Hidden | WState_ExplicitShowHide);
@@ -384,7 +384,7 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !capt.isNull() ) {
 	d->extra->topextra->caption = QString::null;
-	setCaption( capt );
+	setWindowCaption( capt );
     }
 #endif
     if ( showIt )
@@ -470,19 +470,31 @@ void QWidget::unsetCursor()
 }
 #endif //QT_NO_CURSOR
 
+void QWidget::setWindowModified(bool mod)
+{
+    setAttribute(WA_WindowModified, mod);
+    QEvent e(QEvent::ModifiedChange);
+    QApplication::sendEvent(this, &e);
+}
+
+bool QWidget::isWindowModified() const
+{
+    return testAttribute(WA_WindowModified);
+}
+
 #ifndef QT_NO_WIDGET_TOPEXTRA
-void QWidget::setCaption( const QString &caption )
+void QWidget::setWindowCaption( const QString &caption )
 {
     if ( d->extra && d->extra->topextra && d->extra->topextra->caption == caption )
 	return; // for less flicker
     d->createTLExtra();
     d->extra->topextra->caption = caption;
-    qwsDisplay()->setCaption(this, caption);
+    qwsDisplay()->setWindowCaption(this, caption);
     QEvent e( QEvent::CaptionChange );
     QApplication::sendEvent( this, &e );
 }
 
-void QWidget::setIcon( const QPixmap &unscaledPixmap )
+void QWidget::setWindowIcon( const QPixmap &unscaledPixmap )
 {
     if ( d->extra && d->extra->topextra ) {
 	delete d->extra->topextra->icon;
@@ -503,16 +515,17 @@ void QWidget::setIcon( const QPixmap &unscaledPixmap )
 	d->extra->topextra->icon = new QPixmap( pixmap );
 	mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
     }
-    // XXX
+    QEvent e( QEvent::IconChange );
+    QApplication::sendEvent( this, &e );
 }
 
 
-void QWidget::setIconText( const QString &iconText )
+void QWidget::setWindowIconText( const QString &iconText )
 {
     d->createTLExtra();
     d->extra->topextra->iconText = iconText;
-    // XXX XSetIconName( x11Display(), winId(), iconText.utf8() );
-    // XXX XSetWMIconName( x11Display(), winId(), qstring_to_xtp(iconText) );
+    QEvent e( QEvent::IconTextChange );
+    QApplication::sendEvent( this, &e );
 }
 #endif
 

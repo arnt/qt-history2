@@ -89,8 +89,7 @@ protected:
     void resizeEvent( QResizeEvent * );
     void paintEvent( QPaintEvent * );
     void focusInEvent( QFocusEvent * );
-    void fontChange( const QFont & );
-    void enabledChange(bool);
+    void changeEvent( QEvent * );
 
 private slots:
     void fixFocus();

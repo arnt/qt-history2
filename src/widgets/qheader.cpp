@@ -1999,11 +1999,13 @@ bool QHeader::isStretchEnabled( int section ) const
 /*!
   \reimp
 */
-void QHeader::fontChange( const QFont &oldFont )
+void QHeader::changeEvent( QEvent *ev )
 {
-    QFontMetrics fm = fontMetrics();
-    d->height = ( orient == Horizontal ) ? fm.lineSpacing() + 6 : fm.width( ' ' );
-    QWidget::fontChange( oldFont );
+    if(ev->type() == QEvent::FontChange) {
+	QFontMetrics fm = fontMetrics();
+	d->height = ( orient == Horizontal ) ? fm.lineSpacing() + 6 : fm.width( ' ' );
+    }
+    QWidget::changeEvent(ev);
 }
 
 #endif // QT_NO_HEADER

@@ -402,8 +402,7 @@ protected:
 			     int cx, int cy, int cw, int ch );
 
     virtual void paintEmptyArea( QPainter *, const QRect & );
-    void styleChange( QStyle& );
-    void windowActivationChange( bool );
+    void changeEvent( QEvent * );
 
 protected slots:
     void updateContents();

@@ -389,6 +389,7 @@ protected:
     void contentsMouseDoubleClickEvent( QMouseEvent* );
     void contentsMouseReleaseEvent( QMouseEvent* );
     void contentsContextMenuEvent( QContextMenuEvent * e );
+    void changeEvent( QEvent *);
     void keyPressEvent( QKeyEvent* );
     void focusInEvent( QFocusEvent* );
     void focusOutEvent( QFocusEvent* );
@@ -416,7 +417,6 @@ protected:
     virtual void insertWidget( int row, int col, QWidget *w );
     int indexOf( int row, int col ) const;
 
-    void windowActivationChange( bool );
     bool isEditing() const;
     EditMode editMode() const;
     int currEditRow() const;

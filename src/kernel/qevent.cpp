@@ -151,6 +151,15 @@
     \value TabletRelease  A Wacom Tablet Release Event
     \value OkRequest  Internal event used by Qt on some platforms.
     \value HelpRequest  Internal event used by Qt on some platforms.
+
+    ###TBD!!!!
+    \value FontChange
+    \value EnabledChange
+    \value ActivationChange
+    \value StyleChange
+    \value IconTextChange 
+    \value ModifiedChange
+
     \value User  User defined event.
     \value MaxUser  Last user event id.
 

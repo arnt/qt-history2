@@ -151,7 +151,6 @@ protected:
     void paintEvent( QPaintEvent * );
     void childEvent( QChildEvent * );
     bool event( QEvent * );
-    void styleChange( QStyle& );
 
 private slots:
     void slotPlaceChanged();

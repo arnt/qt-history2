@@ -298,7 +298,7 @@ public:
     QSizePolicy sizePolicy() const;
     void setOpaqueMoving( bool b ) { opaque = b; }
 
-    QString caption() const { return dockWindow->caption(); }
+    QString windowCaption() const { return dockWindow->windowCaption(); }
 
 signals:
     void doubleClicked();
@@ -312,9 +312,7 @@ protected:
     void mouseDoubleClickEvent( QMouseEvent *e );
     void keyPressEvent( QKeyEvent *e );
     void keyReleaseEvent( QKeyEvent *e );
-#ifndef QT_NO_STYLE
-    void styleChange( QStyle& );
-#endif
+    void changeEvent( QEvent * );
 
 private slots:
     void minimize();
@@ -510,13 +508,14 @@ void QDockWindowHandle::updateGui()
     }
 }
 
-#ifndef QT_NO_STYLE
-void QDockWindowHandle::styleChange( QStyle& )
+void QDockWindowHandle::changeEvent( QEvent *ev )
 {
-    if ( closeButton )
-	closeButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton, closeButton ) );
+    if(ev->type() == QEvent::StyleChange) {
+	if ( closeButton )
+	    closeButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton, closeButton ) );
+    }
+    QWidget::changeEvent(ev);
 }
-#endif
 
 QSize QDockWindowHandle::minimumSizeHint() const
 {
@@ -1946,11 +1945,11 @@ bool QDockWindow::opaqueMoving() const
 
 /*! \reimp */
 
-void QDockWindow::setCaption( const QString &s )
+void QDockWindow::setWindowCaption( const QString &s )
 {
-    titleBar->setCaption( s );
+    titleBar->setWindowCaption( s );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    QFrame::setCaption( s );
+    QFrame::setWindowCaption( s );
 #endif
 #ifndef QT_NO_TOOLTIP
     QToolTip::remove( horHandle );
@@ -2029,9 +2028,9 @@ bool QDockWindow::event( QEvent *e )
 }
 
 #ifdef QT_NO_WIDGET_TOPEXTRA
-QString QDockWindow::caption() const
+QString QDockWindow::windowCaption() const
 {
-    return titleBar->caption();
+    return titleBar->windowCaption();
 }
 #endif
 

@@ -325,11 +325,12 @@ QDialogButtons::showEvent(QShowEvent *)
     layoutButtons();
 }
 
-void
-QDialogButtons::styleChanged(QStyle &old)
+void 
+QDialogButtons::changeEvent( QEvent *ev )
 {
-    layoutButtons();
-    QWidget::styleChange(old);
+    if(ev->type() == QEvent::StyleChange) 
+	layoutButtons();
+    QWidget::changeEvent(ev);
 }
 
 void

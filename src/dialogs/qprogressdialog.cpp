@@ -640,10 +640,11 @@ void QProgressDialog::resizeEvent( QResizeEvent * )
 /*!
   \reimp
 */
-void QProgressDialog::styleChange(QStyle& s)
+void QProgressDialog::changeEvent( QEvent *ev )
 {
-    QDialog::styleChange(s);
-    layout();
+    if(ev->type() == QEvent::StyleChange)
+	layout();
+    QDialog::changeEvent(ev);
 }
 
 void QProgressDialog::layout()

@@ -525,7 +525,7 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
     The \a parent, \a name, \a modal, and \a f arguments are passed to
     the QDialog constructor.
 
-    \sa setCaption(), setText(), setIcon()
+    \sa setWindowCaption(), setText(), setIcon()
 */
 
 QMessageBox::QMessageBox( const QString& caption,
@@ -537,7 +537,7 @@ QMessageBox::QMessageBox( const QString& caption,
 {
     init( button0, button1, button2 );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    setCaption( caption );
+    setWindowCaption( caption );
 #endif
     setText( text );
     setIcon( icon );
@@ -1261,13 +1261,15 @@ void QMessageBox::about( QWidget *parent, const QString &caption,
 
 /*! \reimp
 */
-
-void QMessageBox::styleChanged( QStyle& )
+void QMessageBox::changeEvent( QEvent *ev )
 {
-    if ( mbd->icon != NoIcon ) {
-        // Reload icon for new style
-        setIcon( mbd->icon );
+    if(ev->type() == QEvent::StyleChange) {
+	if ( mbd->icon != NoIcon ) {
+	    // Reload icon for new style
+	    setIcon( mbd->icon );
+	}
     }
+    QWidget::changeEvent(ev);
 }
 
 
@@ -1504,7 +1506,7 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
     QString c = caption;
     if ( c.isNull() )
         c = tr( "About Qt" );
-    mb->setCaption( c );
+    mb->setWindowCaption( c );
 #endif
     mb->setText( *translatedTextAboutQt );
 #ifndef QT_NO_IMAGEIO
@@ -1536,19 +1538,6 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
     }
     mb->exec();
 }
-
-/*!
-  \reimp
-*/
-
-void QMessageBox::setIcon( const QPixmap &pix )
-{
-    //reimplemented to avoid compiler warning.
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    QDialog::setIcon( pix );
-#endif
-}
-
 
 /*!
     \property QMessageBox::textFormat

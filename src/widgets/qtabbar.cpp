@@ -1097,19 +1097,21 @@ bool QTabBar::event( QEvent *e )
 	updateArrowButtons();
 	makeVisible( tab( currentTab() ));
     }
-
     return QWidget::event( e );
 }
 
 /*!
   \reimp
 */
-
-void QTabBar::styleChange( QStyle& old )
+void QTabBar::changeEvent( QEvent *ev )
 {
-    layoutTabs();
-    updateArrowButtons();
-    QWidget::styleChange( old );
+    if(ev->type() == QEvent::StyleChange) {
+	layoutTabs();
+	updateArrowButtons();
+    } else if(ev->type() == QEvent::FontChange) {
+	layoutTabs();
+    }
+    QWidget::changeEvent(ev);
 }
 
 /*!
@@ -1290,15 +1292,6 @@ void QTab::setIconSet( const QIconSet &icon )
 void QTab::setTabBar( QTabBar *newTb )
 {
     tb = newTb;
-}
-
-/*!
-    \internal
-*/
-void QTabBar::fontChange( const QFont & oldFont )
-{
-    layoutTabs();
-    QWidget::fontChange( oldFont );
 }
 
 #endif

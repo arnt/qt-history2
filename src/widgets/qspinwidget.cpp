@@ -200,19 +200,6 @@ void QSpinWidget::timerDoneEx()
 }
 
 
-void QSpinWidget::windowActivationChange( bool oldActive )
-{
-    //was active, but lost focus
-    if ( oldActive && d->buttonDown ) {
-	d->stopTimer();
-	d->buttonDown = 0;
-	d->theButton = 0;
-    }
-    QWidget::windowActivationChange( oldActive );
-}
-
-
-
 /*!
     The event is passed in \a e.
 */
@@ -324,11 +311,22 @@ void QSpinWidget::paintEvent( QPaintEvent * )
 /*!
     The previous style is passed in \a old.
 */
-
-void QSpinWidget::styleChange( QStyle& old )
+void QSpinWidget::changeEvent( QEvent *ev )
 {
-    arrange();
-    QWidget::styleChange( old );
+    if(ev->type() == QEvent::StyleChange) {
+	arrange();
+    } else if(ev->type() == QEvent::ActivationChange) {
+	if ( !isActiveWindow() && d->buttonDown ) { 	//was active, but lost focus
+	    d->stopTimer();
+	    d->buttonDown = 0;
+	    d->theButton = 0;
+	}
+    } else if(ev->type() == QEvent::EnabledChange) {
+	d->upEnabled = isEnabled();
+	d->downEnabled = isEnabled();
+	updateDisplay();
+    }
+    QWidget::changeEvent(ev);
 }
 
 /*!
@@ -367,19 +365,6 @@ void QSpinWidget::updateDisplay()
     }
     repaint( FALSE );
 }
-
-
-/*!
-    The previous enabled state is passed in \a old.
-*/
-
-void QSpinWidget::enableChanged( bool )
-{
-    d->upEnabled = isEnabled();
-    d->downEnabled = isEnabled();
-    updateDisplay();
-}
-
 
 /*!
     Sets up-enabled to \a on.
