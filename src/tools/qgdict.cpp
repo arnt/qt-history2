@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#43 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#44 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#44 $");
 
 
 /*!
@@ -241,8 +241,7 @@ GCI QGDict::look( const char *key, GCI d, int op )
 	    }
 	    return 0;				// not such item
 	}
-    }
-    else {					// key is a string
+    } else {					// key is a string
 	index = hashKey( key ) % vlen;
 	if ( op == 0 ) {			// find
 	    for ( n=vec[index]; n; n=n->getNext() ) {
@@ -470,9 +469,9 @@ QDataStream &QGDict::read( QDataStream &s )
 	    UINT32 k_triv;
 	    s >> k_triv;			// key is 32-bit int
 	    k = (char *)k_triv;
-	}
-	else
+	} else {
 	    s >> k;				// key is string
+	}
 	read( s, d );				// read data
 	look( k, d, TRUE );
     }
