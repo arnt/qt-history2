@@ -322,7 +322,8 @@ QString QSettings::readEntry( const QString &key, bool *ok )
 	int s = array.size();
 	for ( int i = 0; i < s; i+=2 ) {
 	    QChar c( array[ i ], array[ i+1 ] );
-	    result+=c;
+	    if( !c.isNull() )
+		result+=c;
 	}
     } else
 #endif
