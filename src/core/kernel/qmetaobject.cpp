@@ -1536,7 +1536,7 @@ static const struct { const char * typeName; int type; } types[] = {
 class QCustomTypeInfo
 {
 public:
-    QCustomTypeInfo() : typeName(0), copy(0), destr(0), saveOp(0), loadOp(0) {}
+    QCustomTypeInfo() : typeName(0, '\0'), copy(0), destr(0), saveOp(0), loadOp(0) {}
     inline void setData(const char *tname, QMetaType::CopyConstructor cp, QMetaType::Destructor de)
     { typeName = tname; copy = cp; destr = de; }
     inline void setData(QMetaType::CopyConstructor cp, QMetaType::Destructor de)

@@ -344,7 +344,11 @@ void QFileDialog::setDirectory(const QDir &directory)
 QDir QFileDialog::directory() const
 {
     QFileInfo info = d->model->fileInfo(d->root());
-    return QDir(info.filePath(), d->model->nameFilters(), d->model->filter(), d->model->sorting());
+    QDir dir(info.filePath());
+    dir.setNameFilters(d->model->nameFilters());
+    dir.setSorting(d->model->sorting());
+    dir.setFilter(d->model->filter());
+    return dir;
 }
 
 void QFileDialog::selectFile(const QString &filename)
@@ -871,7 +875,9 @@ void QFileDialogPrivate::setup()
     grid->addWidget(fileType, 3, 2, 1, 3);
 
     // tool buttons
-    QHBoxLayout *box = new QHBoxLayout(0, 3, 3);
+    QHBoxLayout *box = new QHBoxLayout;
+    box->setMargin(3);
+    box->setSpacing(3);
     QSize tools(22, 22);
 
     back = new QToolButton(q);
