@@ -14,6 +14,7 @@ isEmpty(UI_SOURCES_DIR):UI_SOURCES_DIR = $$UI_DIR
 isEmpty(UI_HEADERS_DIR):UI_HEADERS_DIR = $$UI_DIR
 
 uic.commands = $$QMAKE_UIC ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+uic.depends = $$QMAKE_UIC
 uic.output = $$UI_HEADERS_DIR/ui_${QMAKE_FILE_BASE}.h
 uic.input = FORMS
 uic.variable_out = HEADERS
@@ -24,7 +25,7 @@ QMAKE_EXTRA_COMPILERS += uic
 uic3 {
     uic3_decl.commands = $$QMAKE_UIC3 -decl ui_${QMAKE_FILE_BASE}.h ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
     uic3_decl.output = $$UI_HEADERS_DIR/${QMAKE_FILE_BASE}.h
-    uic3_decl.depends = ui_${QMAKE_FILE_BASE}.h
+    uic3_decl.depends = $$QMAKE_UIC3 ui_${QMAKE_FILE_BASE}.h
     uic3_decl.input = FORMS
     uic3_decl.CONFIG += no_link
     uic3_decl.variable_out = HEADERS
@@ -33,7 +34,7 @@ uic3 {
 
     uic3_impl.commands = $$QMAKE_UIC3 -impl ${QMAKE_FILE_BASE}.h ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
     uic3_impl.output = $$UI_SOURCES_DIR/${QMAKE_FILE_BASE}.cpp
-    uic3_impl.depends = ${QMAKE_FILE_BASE}.h
+    uic3_impl.depends = $$QMAKE_UIC3 ${QMAKE_FILE_BASE}.h
     uic3_impl.input = FORMS
     uic3_impl.variable_out = SOURCES
     uic3_impl.name = UIC3 Impl ${QMAKE_FILE_IN}
@@ -42,7 +43,7 @@ uic3 {
     ### add a moc step
     uic3_moc.commands = $$QMAKE_MOC $(DEFINES) $(INCPATH) ${QMAKE_FILE_BASE}.h -o ${QMAKE_FILE_OUT}
     isEmpty(MOC_DIR):MOC_DIR = . #we just default to .
-    uic3_moc.output = $$MOC_DIR/moc_${QMAKE_FILE_BASE}.cpp
+    uic3_moc.output = $$QMAKE_MOC $$MOC_DIR/moc_${QMAKE_FILE_BASE}.cpp
     uic3_moc.depends = ${QMAKE_FILE_BASE}.h
     uic3_moc.input = FORMS
     uic3_moc.variable_out = HDRMOC
