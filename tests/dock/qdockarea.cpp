@@ -61,7 +61,7 @@ void QDockArea::setupLayout()
 {
     if ( !sections )
 	return;
-    
+
     if ( orientation() == Horizontal )
 	setupHorizontalLayout();
     else
@@ -76,10 +76,11 @@ void QDockArea::setupHorizontalLayout()
     QVector<QBoxLayout> layouts;
     layouts.resize( sections );
     for ( int i = 0; i < sections; ++i )
-	layouts.insert( i, new QVBoxLayout( layout ) );
-    
+	layouts.insert( i, new QHBoxLayout( layout ) );
+
     for ( QDockWidgetData *d = dockWidgets.first(); d; d = dockWidgets.next() )
 	layouts[ d->section ]->addWidget( d->dockWidget );
+    layout->activate();
 }
 
 void QDockArea::setupVerticalLayout()
@@ -90,8 +91,9 @@ void QDockArea::setupVerticalLayout()
     QVector<QBoxLayout> layouts;
     layouts.resize( sections );
     for ( int i = 0; i < sections; ++i )
-	layouts.insert( i, new QHBoxLayout( layout ) );
-    
+	layouts.insert( i, new QVBoxLayout( layout ) );
+
     for ( QDockWidgetData *d = dockWidgets.first(); d; d = dockWidgets.next() )
 	layouts[ d->section ]->addWidget( d->dockWidget );
+    layout->activate();
 }
