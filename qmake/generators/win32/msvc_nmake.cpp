@@ -382,7 +382,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 					  QDir::currentDirPath(), 
 					  TRUE);
 	QString precompRule = QString("-c -Yc%1 /Fp%2").arg(realPrecompH).arg(pch);
-	t << pch << ": " << precomph << " " << precompcpp << findDependencies(precomph).join(" \\\n\t\t")
+	t << pch << ": " << precomph << " " << precompcpp << findDependencies(precompcpp).join(" \\\n\t\t")
 	  << "\n\t" << "$(CXX) " + precompRule +" $(CXXFLAGS) $(INCPATH) " << precompcpp << endl << endl;
 	if (deletePCHcpp)
 	    t << precompcpp << ":\n\t" << "@echo #include \"" << realPrecompH << "\" > " << precompcpp << endl << endl;

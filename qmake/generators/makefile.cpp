@@ -705,8 +705,9 @@ MakefileGenerator::init()
 
     QMap<QString, QStringList> &v = project->variables();
     QString paths[] = { QString("SOURCES"), QString("FORMS"), QString("YACCSOURCES"), QString("INCLUDEPATH"),
-			    QString("HEADERS"), QString("HEADERS_ORIG"),
-			    QString("LEXSOURCES"), QString("QMAKE_INTERNAL_INCLUDED_FILES"), QString::null };
+			QString("HEADERS"), QString("HEADERS_ORIG"), QString("LEXSOURCES"),
+			QString("QMAKE_INTERNAL_INCLUDED_FILES"),
+			QString("PRECOMPILED_SOURCE"), QString("PRECOMPILED_HEADER"), QString::null };
     for(int y = 0; paths[y] != QString::null; y++) {
 	QStringList &l = v[paths[y]];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
@@ -846,8 +847,8 @@ MakefileGenerator::init()
 	}
 	if(!noIO()) {
 	    QString sources[] = { QString("OBJECTS"), QString("LEXSOURCES"), QString("YACCSOURCES"),
-				  QString("HEADERS"), QString("SOURCES"), QString("FORMS"), QString("PRECOMPILED_HEADER"),
-				  QString::null };
+				  QString("HEADERS"), QString("SOURCES"), QString("FORMS"), 
+				  QString("PRECOMPILED_HEADER"), QString("PRECOMPILED_SOURCE"), QString::null };
 	    depHeuristics.clear();
 	    bool write_cache = FALSE, read_cache = QFile::exists(cache_file);
 	    int x;
