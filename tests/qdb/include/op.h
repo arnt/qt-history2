@@ -165,6 +165,24 @@ protected:
     virtual QVariant bin( const QVariant& v1, const QVariant& v2 ) = 0;
 };
 
+
+class IsNull : public Op
+{
+public:
+    IsNull( int trueLab, int falseLab )
+	: Op( trueLab, falseLab )
+    {}
+    int exec( LocalSQLEnvironment* env )
+    {
+	if ( !checkStack(env, 1) )
+	    return 0;
+	QVariant v1 = env->stack()->pop();
+	env->program()->setCounter( v1.type() == LOCALSQL_NULL_TYPE ? p1.toInt() : p2.toInt() );
+	return 1;
+    }
+};
+
+
 /* Pop the top two elements from the stack, add them together, and
    push the result (which is of type double) back onto the stack.
 */
