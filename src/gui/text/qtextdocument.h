@@ -143,13 +143,4 @@ private:
     Q_DISABLE_COPY(QTextDocument)
 };
 
-// ### just a temporary hook/interface, until Q4TextBrowser and friends moved into main
-// ### will be gone soon again
-class QImage;
-struct QTextDocumentLoaderInterface
-{
-    virtual QImage image(const QString &name) = 0;
-};
-Q_DECLARE_INTERFACE(QTextDocumentLoaderInterface, "http://trolltech.com/Qt/QTextDocumentLoaderInterface/1.0")
-
 #endif

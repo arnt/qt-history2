@@ -21,7 +21,6 @@
 class QTextBrowserPrivate;
 
 class QTextBrowser : public QTextEdit
-                      , public QTextDocumentLoaderInterface // ### temporary
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextBrowser)
@@ -29,13 +28,13 @@ class QTextBrowser : public QTextEdit
     Q_OVERRIDE(bool modified SCRIPTABLE false)
     Q_OVERRIDE(bool readOnly DESIGNABLE false SCRIPTABLE false)
     Q_OVERRIDE(bool undoRedoEnabled DESIGNABLE false SCRIPTABLE false)
-    Q_INTERFACES(QTextDocumentLoaderInterface)
 public:
     QTextBrowser(QWidget* parent = 0);
     virtual ~QTextBrowser();
 
     QString source() const;
 
+    virtual QImage loadImage(const QString &name);
 public slots:
     virtual void setSource(const QString& name);
     virtual void backward();
@@ -56,8 +55,6 @@ protected:
     void mouseMoveEvent(QMouseEvent *ev);
     void mouseReleaseEvent(QMouseEvent *ev);
 
-    virtual QImage loadImage(const QString &name);
-
 #if defined(QT_COMPAT)
 signals:
     QT_MOC_COMPAT void anchorClicked(const QString&, const QString&);
@@ -70,7 +67,6 @@ private:        // Disabled copy constructor and operator=
     QTextBrowser(const QTextBrowser &);
     QTextBrowser& operator=(const QTextBrowser &);
 #endif
-    virtual QImage image(const QString &name);
 };
 
 #endif // QTEXTBROWSER_H

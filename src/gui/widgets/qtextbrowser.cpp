@@ -385,9 +385,3 @@ void QTextBrowser::setText(const QString &txt, const QString &context)
 }
 */
 
-// #### temporary
-QImage QTextBrowser::image(const QString &name)
-{
-    return loadImage(name);
-}
-

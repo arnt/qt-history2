@@ -21,6 +21,7 @@
 #include <qdebug.h>
 #include <private/qtextengine_p.h>
 #include <qpalette.h>
+#include <qtextbrowser.h>
 
 QTextImageHandler::ExternalImageLoaderFunction QTextImageHandler::externalLoader = 0;
 
@@ -51,9 +52,9 @@ static QPixmap getPixmap(const QTextDocument *doc, const QTextImageFormat &forma
             */
             img = QTextImageHandler::externalLoader(name, context);
         } else if (layout && layout->parent() && layout->parent()->parent()) { // ### temporary, until Q4TextBrowser and friends are in main
-            QTextDocumentLoaderInterface *loader = qt_cast<QTextDocumentLoaderInterface *>(layout->parent()->parent());
-            if (loader)
-                img = loader->image(name);
+            QTextBrowser *browser = qt_cast<QTextBrowser *>(layout->parent()->parent());
+            if (browser)
+                img = browser->loadImage(name);
         }
 
         if (img.isNull()) // try direct loading
