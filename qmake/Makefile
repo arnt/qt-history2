@@ -64,6 +64,7 @@ QTOBJS= \
 	qbitarray.obj \
 	qbuffer.obj \
 	qbytearray.obj \
+        qvsnprintf.obj \
 	qbytearraymatcher.obj \
 	qchar.obj \
 	qconfig.obj \
@@ -164,6 +165,9 @@ qhash.obj: ..\src\core\tools\qhash.cpp
 
 qbytearray.obj: ..\src\core\tools\qbytearray.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qbytearray.cpp
+
+qvsnprintf.obj: ..\src\core\tools\qvsnprintf.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qvsnprintf.cpp
 
 qbytearraymatcher.obj: ..\src\core\tools\qbytearraymatcher.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qbytearraymatcher.cpp
