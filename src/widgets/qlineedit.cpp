@@ -834,12 +834,23 @@ void QLineEdit::end( bool mark )
     return value and set the line edit's contents if the user has not
     started editing the line edit.
 
-    Calling setText() resets the modified flag to FALSE.
+    Calling clearModified() or setText() resets the modified flag to
+    FALSE.
 */
 
 bool QLineEdit::isModified() const
 {
     return d->modified;
+}
+
+/*!
+  Resets the modified flag to FALSE.
+
+  \sa isModified()
+ */
+void QLineEdit::clearModified()
+{
+    d->modified = FALSE;
 }
 
 /*!
@@ -1412,7 +1423,7 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent* e )
 	while ( end > d->cursor && d->text[end-1].isSpace() )
 	    --end;
 	d->moveCursor( end, TRUE );
-	d->tripleClickTimer = startTimer( qApp->doubleClickInterval() );
+	d->tripleClickTimer = startTimer( QApplication::doubleClickInterval() );
 	d->tripleClick = e->pos();
     }
 }
@@ -1723,8 +1734,10 @@ void QLineEdit::focusInEvent( QFocusEvent* e )
 	      e->reason() == QFocusEvent::Backtab  ||
 	      e->reason() == QFocusEvent::Shortcut )
 	selectAll();
-    if ( !d->cursorTimer )
-	d->cursorTimer = startTimer( QApplication::cursorFlashTime()/2 );
+    if ( !d->cursorTimer ) {
+	int cft = QApplication::cursorFlashTime();
+	d->cursorTimer = cft ? startTimer( cft/2 ) : -1;
+    }
     d->setCursorVisible( TRUE );
     d->updateMicroFocusHint();
 }
@@ -1738,7 +1751,8 @@ void QLineEdit::focusOutEvent( QFocusEvent* e )
 	 e->reason() != QFocusEvent::Popup )
 	deselect();
     d->setCursorVisible( FALSE );
-    killTimer( d->cursorTimer );
+    if ( d->cursorTimer > 0 )
+	killTimer( d->cursorTimer );
     d->cursorTimer = 0;
     emit lostFocus();
 }

@@ -120,9 +120,10 @@ public:
     void end( bool mark );
 
     bool isModified() const;
+    void clearModified();
 
     bool edited() const; // obsolete, use isModified()
-    void setEdited( bool ); // obsolete, use setText()
+    void setEdited( bool ); // obsolete, use clearModified()
 
     bool hasSelectedText() const;
     QString selectedText() const;
