@@ -31,8 +31,8 @@ static void blend_transformed_bilinear(ARGB *target, const QSpan *span, qreal ix
                                        ARGB *image_bits, int image_width, int image_height)
 {
     const int fixed_scale = 1 << 16;
-    int x = int(ix + dx * span->x) * fixed_scale;
-    int y = int(iy + dy * span->x) * fixed_scale;
+    int x = int((ix + dx * span->x) * fixed_scale);
+    int y = int((iy + dy * span->x) * fixed_scale);
 
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
@@ -91,28 +91,27 @@ static void blend_transformed_bilinear_tiled(ARGB *target,
                                               ARGB *image_bits, int image_width, int image_height)
 {
     const int fixed_scale = 1 << 16;
-    int x = int(ix + dx * span->x) * fixed_scale;
-    int y = int(iy + dy * span->x) * fixed_scale;
+    int x = int((ix + dx * span->x) * fixed_scale);
+    int y = int((iy + dy * span->x) * fixed_scale);
 
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
     for (int i = 0; i < span->len; ++i) {
-        int tx = x % (image_width << 16);
-        int ty = y % (image_height << 16);
+        int x1 = (x >> 16);
+        int x2 = (x1 + 1);
+        int y1 = (y >> 16);
+        int y2 = (y1 + 1);
 
-        if (tx<0) tx = (image_width << 16) + tx;
-        if (ty<0) ty = (image_height << 16) + ty;
-
-        int x1 = (tx >> 16) % image_width;
-        int x2 = (x1 + 1) % image_width;
-        int y1 = (ty >> 16) % image_height;
-        int y2 = (y1 + 1) % image_height;
-
-        int distx = ((tx - (x1 << 16)) >> 8);
-        int disty = ((ty - (y1 << 16)) >> 8);
+        int distx = ((x - (x1 << 16)) >> 8);
+        int disty = ((y - (y1 << 16)) >> 8);
         int idistx = 256 - distx;
         int idisty = 256 - disty;
+
+        x1 %= image_width;
+        x2 %= image_width;
+        y1 %= image_height;
+        y2 %= image_height;
 
         Q_ASSERT(x1 >= 0 && x1 < image_width);
         Q_ASSERT(x2 >= 0 && x2 < image_width);

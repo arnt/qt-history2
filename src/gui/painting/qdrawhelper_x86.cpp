@@ -129,8 +129,8 @@ static void blend_transformed_bilinear_sse(ARGB *target, const QSpan *span,
                                            ARGB *image_bits, int image_width, int image_height)
 {
     const int fixed_scale = 1 << 16;
-    int x = int(ix + dx * span->x) * fixed_scale;
-    int y = int(iy + dy * span->x) * fixed_scale;
+    int x = int((ix + dx * span->x) * fixed_scale);
+    int y = int((iy + dy * span->x) * fixed_scale);
 
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
