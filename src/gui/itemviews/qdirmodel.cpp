@@ -194,6 +194,8 @@ QString QFileIconProvider::type(const QFileInfo &info) const
     return QObject::tr("Unknown");
 }
 
+#define Q_DIRMODEL_CACHED
+
 class QDirModelPrivate : public QAbstractItemModelPrivate
 {
     Q_DECLARE_PUBLIC(QDirModel)
@@ -204,6 +206,15 @@ public:
         QFileInfo info;
         mutable QVector<QDirNode> children;
         mutable bool populated; // have we read the children
+#ifndef Q_DIRMODEL_CACHED
+        inline qint64 size() const { return info.size(); }
+        inline QDateTime lastModified() const { return info.lastModified(); }
+#else
+        inline qint64 size() const { return cached_size; }
+        inline QDateTime lastModified() const { return cached_modified; }
+        qint64 cached_size;
+        QDateTime cached_modified;
+#endif
     };
 
     QDirModelPrivate()
@@ -464,19 +475,18 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
     Q_ASSERT(node);
 
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
-        QFileInfo info = node->info;
         switch (index.column()) {
-	case 0:	if (info.isRoot()) {
-                    QString s = info.absoluteFilePath();
+	case 0:	if (node->info.isRoot()) {
+                    QString s = node->info.absoluteFilePath();
 #ifdef Q_OS_WIN
                     s.chop(1);
 #endif
                     return s;
 		}
-                return info.fileName();
-        case 1: return info.size();
-        case 2: return d->iconProvider->type(info);
-        case 3: return info.lastModified();
+                return node->info.fileName();
+        case 1: return node->size();
+        case 2: return d->iconProvider->type(node->info);
+        case 3: return node->lastModified();
         default:
             qWarning("data: invalid display value column %d", index.column());
             return QVariant();
@@ -944,10 +954,15 @@ QModelIndex QDirModel::index(const QString &path, int column) const
                 break;
         }
         if (r >= d->root.children.count()) {
+            QFileInfo info("//" + host);
             QDirModelPrivate::QDirNode node;
             node.parent = 0;
-            node.info = QFileInfo("//" + host);
+            node.info = info; 
             node.populated = false;
+#ifdef Q_DIRMODEL_CACHED
+            node.cached_size = info.size();
+            node.cached_modified = info.lastModified();
+#endif
             d->root.children.append(node);
         }
         idx = index(r, 0, QModelIndex());
@@ -1247,6 +1262,10 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent)
         nodes[i].parent = parent;
         nodes[i].info = info.at(i);
         nodes[i].populated = false;
+#ifdef Q_DIRMODEL_CACHED
+        nodes[i].cached_size = info.at(i).size();
+        nodes[i].cached_modified = info.at(i).lastModified();
+#endif
     }
 
     return nodes;
