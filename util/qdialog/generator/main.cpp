@@ -99,12 +99,12 @@ void generateImpl( QFile& out, QXMLIterator it, const QString& basename )
 int main( int argc, char **argv )
 {
   if ( argc != 2 )
-    fatal( "Syntax: qgenerator resourcefile\n" );
+    qFatal( "Syntax: qgenerator resourcefile\n" );
 
   QXMLParseTree tree;
   QFile file( argv[1] );
   if ( !file.open( IO_ReadOnly ) )
-    fatal( "Could not open file %s\n", argv[1] );
+    qFatal( "Could not open file %s\n", argv[1] );
 
   QTextStream str( &file );
   str >> tree;
@@ -116,11 +116,11 @@ int main( int argc, char **argv )
 
   QFile outh( basename + "_skel.h" );
   if ( !outh.open( IO_WriteOnly ) )
-    fatal( "Could not write file %s", (basename+"_skel.h").ascii() );
+    qFatal( "Could not write file %s", (basename+"_skel.h").ascii() );
 
   QFile outc( basename + "_skel.cpp" );
   if ( !outc.open( IO_WriteOnly ) )
-    fatal( "Could not write file %s", (basename+"_skel.cpp").ascii() );
+    qFatal( "Could not write file %s", (basename+"_skel.cpp").ascii() );
 
   {
     QTextStream str( &outh );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#42 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#43 $
 **
 ** Implementation of QBuffer class
 **
@@ -117,7 +117,7 @@ bool QBuffer::setBuffer( QByteArray buf )
 {
     if ( isOpen() ) {
 #if defined(CHECK_STATE)
-	warning( "QBuffer::setBuffer: Buffer is open");
+	qWarning( "QBuffer::setBuffer: Buffer is open");
 #endif
 	return FALSE;
     }
@@ -156,7 +156,7 @@ bool QBuffer::open( int m  )
 {
     if ( isOpen() ) {				// buffer already open
 #if defined(CHECK_STATE)
-	warning( "QBuffer::open: Buffer already open" );
+	qWarning( "QBuffer::open: Buffer already open" );
 #endif
 	return FALSE;
     }
@@ -221,13 +221,13 @@ bool QBuffer::at( int pos )
 {
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {
-	warning( "QBuffer::at: Buffer is not open" );
+	qWarning( "QBuffer::at: Buffer is not open" );
 	return FALSE;
     }
 #endif
     if ( (uint)pos > a_len ) {
 #if defined(CHECK_RANGE)
-	warning( "QBuffer::at: Index %d out of range", pos );
+	qWarning( "QBuffer::at: Index %d out of range", pos );
 #endif
 	return FALSE;
     }
@@ -250,11 +250,11 @@ int QBuffer::readBlock( char *p, uint len )
 #if defined(CHECK_STATE)
     CHECK_PTR( p );
     if ( !isOpen() ) {				// buffer not open
-	warning( "QBuffer::readBlock: Buffer not open" );
+	qWarning( "QBuffer::readBlock: Buffer not open" );
 	return -1;
     }
     if ( !isReadable() ) {			// reading not permitted
-	warning( "QBuffer::readBlock: Read operation not permitted" );
+	qWarning( "QBuffer::readBlock: Read operation not permitted" );
 	return -1;
     }
 #endif
@@ -285,15 +285,15 @@ int QBuffer::writeBlock( const char *p, uint len )
 {
 #if defined(CHECK_NULL)
     if ( p == 0 && len != 0 )
-	warning( "QBuffer::writeBlock: Null pointer error" );
+	qWarning( "QBuffer::writeBlock: Null pointer error" );
 #endif
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {				// buffer not open
-	warning( "QBuffer::writeBlock: Buffer not open" );
+	qWarning( "QBuffer::writeBlock: Buffer not open" );
 	return -1;
     }
     if ( !isWritable() ) {			// writing not permitted
-	warning( "QBuffer::writeBlock: Write operation not permitted" );
+	qWarning( "QBuffer::writeBlock: Write operation not permitted" );
 	return -1;
     }
 #endif
@@ -301,7 +301,7 @@ int QBuffer::writeBlock( const char *p, uint len )
 	uint new_len = a_len + a_inc*(((uint)ioIndex+len-a_len)/a_inc+1);
 	if ( !a.resize( new_len ) ) {		// could not resize
 #if defined(CHECK_NULL)
-	    warning( "QBuffer::writeBlock: Memory allocation error" );
+	    qWarning( "QBuffer::writeBlock: Memory allocation error" );
 #endif
 	    setStatus( IO_ResourceError );
 	    return -1;
@@ -332,11 +332,11 @@ int QBuffer::readLine( char *p, uint maxlen )
 #if defined(CHECK_STATE)
     CHECK_PTR( p );
     if ( !isOpen() ) {				// buffer not open
-	warning( "QBuffer::readLine: Buffer not open" );
+	qWarning( "QBuffer::readLine: Buffer not open" );
 	return -1;
     }
     if ( !isReadable() ) {			// reading not permitted
-	warning( "QBuffer::readLine: Read operation not permitted" );
+	qWarning( "QBuffer::readLine: Read operation not permitted" );
 	return -1;
     }
 #endif
@@ -370,11 +370,11 @@ int QBuffer::getch()
 {
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {				// buffer not open
-	warning( "QBuffer::getch: Buffer not open" );
+	qWarning( "QBuffer::getch: Buffer not open" );
 	return -1;
     }
     if ( !isReadable() ) {			// reading not permitted
-	warning( "QBuffer::getch: Read operation not permitted" );
+	qWarning( "QBuffer::getch: Read operation not permitted" );
 	return -1;
     }
 #endif
@@ -399,11 +399,11 @@ int QBuffer::putch( int ch )
 {
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {				// buffer not open
-	warning( "QBuffer::putch: Buffer not open" );
+	qWarning( "QBuffer::putch: Buffer not open" );
 	return -1;
     }
     if ( !isWritable() ) {			// writing not permitted
-	warning( "QBuffer::putch: Write operation not permitted" );
+	qWarning( "QBuffer::putch: Write operation not permitted" );
 	return -1;
     }
 #endif
@@ -435,11 +435,11 @@ int QBuffer::ungetch( int ch )
 {
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {				// buffer not open
-	warning( "QBuffer::ungetch: Buffer not open" );
+	qWarning( "QBuffer::ungetch: Buffer not open" );
 	return -1;
     }
     if ( !isReadable() ) {			// reading not permitted
-	warning( "QBuffer::ungetch: Read operation not permitted" );
+	qWarning( "QBuffer::ungetch: Read operation not permitted" );
 	return -1;
     }
 #endif

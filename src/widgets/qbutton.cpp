@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#142 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#143 $
 **
 ** Implementation of QButton widget class
 **
@@ -588,7 +588,7 @@ void QButton::setState( ToggleState s )
 {
     if ( !toggleTyp ) {
 #if defined(CHECK_STATE)
-	warning( "QButton::setState() / setOn: (%s) Only toggle buttons "
+	qWarning( "QButton::setState() / setOn: (%s) Only toggle buttons "
 		 "may be switched", name( "unnamed" ) );
 #endif
 	return;

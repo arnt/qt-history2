@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.23 1999/04/28 09:54:16 aavit Exp $
+** $Id: tutorial.doc,v 2.24 1999/05/23 20:27:25 agulbra Exp $
 **
 ** Tutorial
 **
@@ -1058,7 +1058,7 @@ limit the possible range of \c minVal and \c maxVal to 0..99 to avoid
 overflow of the QLCDNumber.  We could have allowed values in -9..99
 but choose not to.  If the arguments are illegal, we use Qt's warning()
 function to issue a warning to the user and return immediately.
-warning() is a printf-like function that by default sends its output
+qWarning() is a printf-like function that by default sends its output
 to \c stderr. You can install your own
 \link ::qInstallMsgHandler() handler function\endlink if you want.
 

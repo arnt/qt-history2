@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#17 $
 **
 ** Localization database support.
 **
@@ -579,7 +579,7 @@ static inline void writethreebytes( QByteArray & b, uint o, uint d )
 
 static inline void writeoffset( QByteArray & b, uint o, uint d ) {
     if ( d & 1 )
-	fatal( "oops! wanted to write offset %6x, which is odd", d );
+	qFatal( "oops! wanted to write offset %6x, which is odd", d );
     writethreebytes( b, o, d/2 );
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#93 $
 **
 ** Implementation of QColor class
 **
@@ -473,7 +473,7 @@ void QColor::setHsv( int h, int s, int v )
 {
 #if defined(CHECK_RANGE)
     if ( h < -1 || (uint)s > 255 || (uint)v > 255 ) {
-	warning( "QColor::setHsv: HSV parameters out of range" );
+	qWarning( "QColor::setHsv: HSV parameters out of range" );
 	return;
     }
 #endif
@@ -540,7 +540,7 @@ void QColor::setRgb( int r, int g, int b )
 {
 #if defined(CHECK_RANGE)
     if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 )
-	warning( "QColor::setRgb: RGB parameter(s) out of range" );
+	qWarning( "QColor::setRgb: RGB parameter(s) out of range" );
 #endif
     rgbVal = qRgb(r,g,b);
     if ( lazy_alloc || !color_init ) {

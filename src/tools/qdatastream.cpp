@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#47 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#48 $
 **
 ** Implementation of QDataStream class
 **
@@ -91,7 +91,7 @@
 #if defined(CHECK_STATE)
 #undef  CHECK_STREAM_PRECOND
 #define CHECK_STREAM_PRECOND  if ( !dev ) {				\
-				warning( "QDataStream: No device" );	\
+				qWarning( "QDataStream: No device" );	\
 				return *this; }
 #else
 #define CHECK_STREAM_PRECOND

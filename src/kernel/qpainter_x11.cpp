@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#297 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#298 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -216,7 +216,7 @@ static GC alloc_gc( Display *dpy, Drawable hd, bool monochrome=FALSE,
 	p++;
     }
 #if defined(CHECK_NULL)
-    warning( "QPainter: Internal error; no available GC" );
+    qWarning( "QPainter: Internal error; no available GC" );
 #endif
     GC gc = XCreateGC( dpy, hd, 0, 0 );
     XSetGraphicsExposures( dpy, gc, FALSE );
@@ -302,9 +302,9 @@ static void cleanup_gc_cache()
     if ( !gc_cache_init )
 	return;
 #if defined(GC_CACHE_STAT)
-    debug( "Number of cache hits = %d", g_numhits );
-    debug( "Number of cache creates = %d", g_numcreates );
-    debug( "Number of cache faults = %d", g_numfaults );
+    qDebug( "Number of cache hits = %d", g_numhits );
+    qDebug( "Number of cache creates = %d", g_numcreates );
+    qDebug( "Number of cache faults = %d", g_numfaults );
     for ( int i=0; i<gc_cache_size; i++ ) {
 	QString	    str;
 	QBuffer	    buf( str );
@@ -317,7 +317,7 @@ static void cleanup_gc_cache()
 	      << g->count << '\t';
 	}
 	s << '\0';
-	debug( str );
+	qDebug( str );
 	buf.close();
     }
 #endif
@@ -465,7 +465,7 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
     }
 #if defined(CHECK_NULL)
     if ( pdev == 0 )
-	warning( "QPainter::redirect: The pdev argument cannot be 0" );
+	qWarning( "QPainter::redirect: The pdev argument cannot be 0" );
 #endif
     if ( replacement ) {
 	pdev_dict->insert( (long)pdev, replacement );
@@ -517,7 +517,7 @@ void QPainter::setFont( const QFont &font )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setFont: Will be reset by begin()" );
+	qWarning( "QPainter::setFont: Will be reset by begin()" );
 #endif
     if ( cfont.d != font.d ) {
 	cfont = font;
@@ -809,14 +809,14 @@ bool QPainter::begin( const QPaintDevice *pd )
 {
     if ( isActive() ) {				// already active painting
 #if defined(CHECK_STATE)
-	warning( "QPainter::begin: Painter is already active."
+	qWarning( "QPainter::begin: Painter is already active."
 		 "\n\tYou must end() the painter before a second begin()" );
 #endif
 	return FALSE;
     }
     if ( pd == 0 ) {
 #if defined(CHECK_NULL)
-	warning( "QPainter::begin: Paint device cannot be null" );
+	qWarning( "QPainter::begin: Paint device cannot be null" );
 #endif
 	return FALSE;
     }
@@ -837,7 +837,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     if ( pdev->isExtDev() && pdev->paintingActive() ) {
 		// somebody else is already painting
 #if defined(CHECK_STATE)
-	warning( "QPainter::begin: Another QPainter is already painting "
+	qWarning( "QPainter::begin: Another QPainter is already painting "
 		 "this device;\n\tAn extended paint device can only be painted "
 	         "by one QPainter at a time." );
 #endif
@@ -914,7 +914,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->isNull() ) {
 #if defined(CHECK_NULL)
-	    warning( "QPainter::begin: Cannot paint null pixmap" );
+	    qWarning( "QPainter::begin: Cannot paint null pixmap" );
 #endif
 	    end();
 	    return FALSE;
@@ -959,7 +959,7 @@ bool QPainter::end()				// end painting
 {
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
-	warning( "QPainter::end: Missing begin() or begin() failed" );
+	qWarning( "QPainter::end: Missing begin() or begin() failed" );
 #endif
 	return FALSE;
     }
@@ -1034,7 +1034,7 @@ void QPainter::setBackgroundColor( const QColor &c )
 {
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
-	warning( "QPainter::setBackgroundColor: Call begin() first" );
+	qWarning( "QPainter::setBackgroundColor: Call begin() first" );
 #endif
 	return;
     }
@@ -1071,13 +1071,13 @@ void QPainter::setBackgroundMode( BGMode m )
 {
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
-	warning( "QPainter::setBackgroundMode: Call begin() first" );
+	qWarning( "QPainter::setBackgroundMode: Call begin() first" );
 #endif
 	return;
     }
     if ( m != TransparentMode && m != OpaqueMode ) {
 #if defined(CHECK_RANGE)
-	warning( "QPainter::setBackgroundMode: Invalid mode" );
+	qWarning( "QPainter::setBackgroundMode: Invalid mode" );
 #endif
 	return;
     }
@@ -1131,13 +1131,13 @@ void QPainter::setRasterOp( RasterOp r )
 {
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
-	warning( "QPainter::setRasterOp: Call begin() first" );
+	qWarning( "QPainter::setRasterOp: Call begin() first" );
 #endif
 	return;
     }
     if ( (uint)r > LastROP ) {
 #if defined(CHECK_RANGE)
-	warning( "QPainter::setRasterOp: Invalid ROP code" );
+	qWarning( "QPainter::setRasterOp: Invalid ROP code" );
 #endif
 	return;
     }
@@ -1170,7 +1170,7 @@ void QPainter::setBrushOrigin( int x, int y )
 {
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
-	warning( "QPainter::setBrushOrigin: Call begin() first" );
+	qWarning( "QPainter::setBrushOrigin: Call begin() first" );
 #endif
 	return;
     }
@@ -1198,7 +1198,7 @@ void QPainter::setClipping( bool enable )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setClipping: Will be reset by begin()" );
+	qWarning( "QPainter::setClipping: Will be reset by begin()" );
 #endif
     if ( !isActive() || enable == testf(ClipOn) )
 	return;
@@ -1253,7 +1253,7 @@ void QPainter::setClipRegion( const QRegion &rgn )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setClipRegion: Will be reset by begin()" );
+	qWarning( "QPainter::setClipRegion: Will be reset by begin()" );
 #endif
     crgn = rgn;
     if ( paintEventDevice == device() )
@@ -2168,7 +2168,7 @@ void QPainter::drawQuadBezier( const QPointArray &a, int index )
 	return;
     if ( a.size() - index < 4 ) {
 #if defined(CHECK_RANGE)
-	warning( "QPainter::drawQuadBezier: Cubic Bezier needs 4 control "
+	qWarning( "QPainter::drawQuadBezier: Cubic Bezier needs 4 control "
 		 "points" );
 #endif
 	return;
@@ -2651,7 +2651,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 
     if ( !cfont.handle() ) {
 	if ( mapped.isNull() )
-	    warning("Fontsets only apply to mapped encodings");
+	    qWarning("Fontsets only apply to mapped encodings");
 	else {
 	    XFontSet set = (XFontSet)cfont.d->fontSet();
 	    if ( bg_mode == TransparentMode )

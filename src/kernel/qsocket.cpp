@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#23 $
 **
 ** Implementation of QSocket class
 **
@@ -152,7 +152,7 @@ QSocket::QSocket( int socket, QObject *parent, const char *name )
     QSocketDevice::initWinSock();
 #endif
 #if defined(QSOCKET_DEBUG)
-    debug( "QSocket: Attach to socket %x", socket );
+    qDebug( "QSocket: Attach to socket %x", socket );
 #endif
     d = new QSocketPrivate;
     d->socket = new QSocketDevice( socket, QSocketDevice::Stream );
@@ -181,7 +181,7 @@ QSocket::QSocket( int socket, QObject *parent, const char *name )
 QSocket::~QSocket()
 {
 #if defined(QSOCKET_DEBUG)
-    debug( "QSocket: Destroy" );
+    qDebug( "QSocket: Destroy" );
 #endif
     if ( state() != Idle )
 	close();
@@ -292,7 +292,7 @@ QSocket::Mode QSocket::mode() const
 void QSocket::setMode( Mode mode )
 {
 #if defined(QSOCKET_DEBUG)
-    debug( "QSocket: Set mode %s", (mode == Binary ? "Binary" : "Ascii") );
+    qDebug( "QSocket: Set mode %s", (mode == Binary ? "Binary" : "Ascii") );
 #endif
     if ( d->mode == mode )
 	return;
@@ -328,7 +328,7 @@ void QSocket::setMode( Mode mode )
 bool QSocket::connectToHost( const QString &host, int port )
 {
 #if defined(QSOCKET_DEBUG)
-    debug( "QSocket::connectToHost: host %s, port %d", host.ascii(), port );
+    qDebug( "QSocket::connectToHost: host %s, port %d", host.ascii(), port );
 #endif
     if ( d->state != Idle )
 	close();
@@ -339,13 +339,13 @@ bool QSocket::connectToHost( const QString &host, int port )
     d->port = port;
     // Host lookup - no async DNS yet
 #if defined(QSOCKET_DEBUG)
-    debug( "QSocket::connectToHost: Lookup host" );
+    qDebug( "QSocket::connectToHost: Lookup host" );
 #endif
     struct hostent *hp;
     hp = gethostbyname( d->host.latin1() );
     if ( !hp ) {
 #if defined(QSOCKET_DEBUG)
-	debug( "QSocket::connectToHost: gethostbyname failed" );
+	qDebug( "QSocket::connectToHost: gethostbyname failed" );
 #endif
 	d->state = Idle;
 	return FALSE;
@@ -353,7 +353,7 @@ bool QSocket::connectToHost( const QString &host, int port )
     struct in_addr *in_a = (struct in_addr *)(hp->h_addr_list[0]);
     QSocketAddress  addr( port, htonl(in_a->s_addr) );
 #if defined(QSOCKET_DEBUG)
-    debug( "QSocket::connectToHost: Connect to IP address %s",
+    qDebug( "QSocket::connectToHost: Connect to IP address %s",
 	   addr.ip4AddrString().ascii() );
 #endif
     // Now prepare a connection
@@ -364,7 +364,7 @@ bool QSocket::connectToHost( const QString &host, int port )
     d->addr = addr;
     if ( !d->socket->connect(d->addr) ) {
 #if defined(QSOCKET_DEBUG)
-	debug( "QSocket::connectToHost: Connect failed" );
+	qDebug( "QSocket::connectToHost: Connect failed" );
 #endif
 	d->state = Idle;
 	delete d->socket;
@@ -490,7 +490,7 @@ bool QSocket::open( int m )
 {
     if ( isOpen() || d->socket == 0 ) {
 #if defined(CHECK_STATE)
-	warning( "QSocket::open: Already open or no socket device" );
+	qWarning( "QSocket::open: Already open or no socket device" );
 #endif
 	return FALSE;
     }
@@ -520,7 +520,7 @@ void QSocket::close()
     if ( !isOpen() || d->state != Idle )	// already closed
 	return;
 #if defined(QSOCKET_DEBUG)
-    debug( "QSocket: close socket" );
+    qDebug( "QSocket: close socket" );
 #endif
     d->mode = Binary;
     if ( d->wsize ) {				// there's data to be written
@@ -553,7 +553,7 @@ bool QSocket::skipReadBuf( int nbytes, char *copyInto )
     if ( nbytes <= 0 || nbytes > d->rsize )
 	return FALSE;
 #if defined(QSOCKET_DEBUG)
-    debug( "QSocket: skipReadBuf %d bytes", nbytes );
+    qDebug( "QSocket: skipReadBuf %d bytes", nbytes );
 #endif
     d->rsize -= nbytes;
     while ( TRUE ) {
@@ -598,7 +598,7 @@ bool QSocket::skipWriteBuf( int nbytes )
     if ( nbytes <= 0 || nbytes > d->wsize )
 	return FALSE;
 #if defined(QSOCKET_DEBUG)
-    debug( "QSocket: skipWriteBuf %d bytes", nbytes );
+    qDebug( "QSocket: skipWriteBuf %d bytes", nbytes );
 #endif
     d->wsize -= nbytes;
     while ( TRUE ) {
@@ -656,7 +656,7 @@ bool QSocket::scanNewline( QByteArray *store )
 		switch ( *p ) {
 		    case '\0':
 #if defined(QSOCKET_DEBUG)
-			debug( "QSocket::scanNewline: Oops, unexpected "
+			qDebug( "QSocket::scanNewline: Oops, unexpected "
 			       "0-terminated text read %s", store->data() );
 #endif
 			store->resize( i );
@@ -773,19 +773,19 @@ int QSocket::readBlock( char *data, uint maxlen )
 {
 #if defined(CHECK_NULL)
     if ( data == 0 && maxlen != 0 ) {
-	warning( "QSocket::readBlock: Null pointer error" );
+	qWarning( "QSocket::readBlock: Null pointer error" );
     }
 #endif
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {
-	warning( "QSocket::readBlock: Socket is not open" );
+	qWarning( "QSocket::readBlock: Socket is not open" );
 	return -1;
     }
 #endif
     if ( (int)maxlen >= d->rsize )
 	maxlen = d->rsize;
 #if defined(QSOCKET_DEBUG)
-    debug( "QSocket: readBlock %d bytes", maxlen );
+    qDebug( "QSocket: readBlock %d bytes", maxlen );
 #endif
     skipReadBuf( maxlen, data );
     if ( d->mode == Ascii )
@@ -803,18 +803,18 @@ int QSocket::writeBlock( const char *data, uint len )
 {
 #if defined(CHECK_NULL)
     if ( data == 0 && len != 0 ) {
-	warning( "QSocket::writeBlock: Null pointer error" );
+	qWarning( "QSocket::writeBlock: Null pointer error" );
     }
 #endif
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {
-	warning( "QSocket::writeBlock: Socket is not open" );
+	qWarning( "QSocket::writeBlock: Socket is not open" );
 	return -1;
     }
 #endif
 #if defined(CHECK_STATE)
     if ( d->state == Closing ) {
-	warning( "QSocket::writeBlock: Cannot write, socket is closing" );
+	qWarning( "QSocket::writeBlock: Cannot write, socket is closing" );
     }
 #endif
     if ( len == 0 || d->state == Closing )
@@ -832,7 +832,7 @@ int QSocket::writeBlock( const char *data, uint len )
     d->wsize += len;
     d->wsn->setEnabled( TRUE );			// there's data to write
 #if defined(QSOCKET_DEBUG)
-    debug( "QSocket: writeBlock %d bytes", len );
+    qDebug( "QSocket: writeBlock %d bytes", len );
 #endif
     return len;
 }
@@ -931,7 +931,7 @@ void QSocket::sn_read()
     int nbytes = d->socket->bytesAvailable();
     if ( nbytes == 0 ) {			// connection closed
 #if defined(QSOCKET_DEBUG)
-	debug( "QSocket: sn_read: Connection closed" );
+	qDebug( "QSocket: sn_read: Connection closed" );
 #endif
 	// We keep the open state in case there's unread incoming data
 	d->state = Idle;
@@ -943,13 +943,13 @@ void QSocket::sn_read()
 	emit closed();
     } else if ( nbytes > 0 ) {			// data to be read
 #if defined(QSOCKET_DEBUG)
-	debug( "QSocket: sn_read: %d incoming bytes", nbytes );
+	qDebug( "QSocket: sn_read: %d incoming bytes", nbytes );
 #endif
 	QByteArray *a = new QByteArray( nbytes );
 	int nread = d->socket->readBlock( a->data(), nbytes );
 	if ( nread != nbytes ) {		// unexpected
 #if defined(CHECK_RANGE)
-	    warning( "QSocket::sn_read: Unexpected short read" );
+	    qWarning( "QSocket::sn_read: Unexpected short read" );
 #endif
 	    a->resize( nread );
 	}
@@ -973,7 +973,7 @@ void QSocket::sn_write()
     if ( d->state == Connecting ) {		// connection established?
 	// assume we got a connection
 #if defined(QSOCKET_DEBUG)
-	debug( "QSocket: sn_write: Got connection!" );
+	qDebug( "QSocket: sn_write: Got connection!" );
 #endif
 	d->state = Connection;
 	emit connected();
@@ -988,7 +988,7 @@ void QSocket::sn_write()
     }
     if ( (d->state == Connection || d->state == Closing) && d->wsize > 0 ) {
 #if defined(QSOCKET_DEBUG)
-	debug( "QSocket: sn_write: Write data to the socket" );
+	qDebug( "QSocket: sn_write: Write data to the socket" );
 #endif
 	QByteArray *a = d->wba.first();
 	int nwritten;
@@ -1015,12 +1015,12 @@ void QSocket::sn_write()
 	if ( nwritten > 0 )
 	    emit bytesWritten( nwritten );
 #if defined(QSOCKET_DEBUG)
-	debug( "QSocket: sn_write: wrote %d bytes, %d left", nwritten,
+	qDebug( "QSocket: sn_write: wrote %d bytes, %d left", nwritten,
 	       d->wsize );
 #endif
 	if ( d->state == Closing && d->wsize == 0 ) {
 #if defined(QSOCKET_DEBUG)
-	    debug( "QSocket: sn_write: Delayed close done. Terminating now" );
+	    qDebug( "QSocket: sn_write: Delayed close done. Terminating now" );
 #endif
 	    setFlags( IO_Sequential );
 	    setStatus( IO_Ok );

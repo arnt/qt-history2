@@ -47,11 +47,11 @@ int main()
     printf("Testing QDir::canonicalPath(.)..\n");
     {
 	QDir d("/home/warwick/local");;
-	debug("/home/warwick/local -> %s", d.canonicalPath().ascii());
+	qDebug("/home/warwick/local -> %s", d.canonicalPath().ascii());
 	d.setPath("/home/warwick/local/src/index.html");
-	debug("/home/warwick/local/src/index.html -> %s", d.canonicalPath().ascii());
+	qDebug("/home/warwick/local/src/index.html -> %s", d.canonicalPath().ascii());
 	d.setPath("/home/warwick/local/src");
-	debug("/home/warwick/local/src/index.html -> %s", d.canonicalPath().ascii());
+	qDebug("/home/warwick/local/src/index.html -> %s", d.canonicalPath().ascii());
     }
 
     printf("Testing userbug...\n");
@@ -72,8 +72,8 @@ int main()
 	    QString value;
 	    input >> value;
 
-	    debug("got %s = %s", key.data(), value.data());
-	    debug("now at %d/%d",file.at(),file.size());
+	    qDebug("got %s = %s", key.data(), value.data());
+	    qDebug("now at %d/%d",file.at(),file.size());
 	}
     }
 

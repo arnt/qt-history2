@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: debug.doc,v 2.11 1999/05/03 11:32:13 aavit Exp $
+** $Id: debug.doc,v 2.12 1999/05/23 20:27:24 agulbra Exp $
 **
 ** Qt Debugging Techniques
 **
@@ -143,12 +143,12 @@ Example:
   {
   #if defined(CHECK_NULL)
       if ( p == 0 )
-	  warning( "f: Null pointer not allowed" );
+	  qWarning( "f: Null pointer not allowed" );
   #endif
 
   #if defined(CHECK_RANGE)
       if ( i < 0 )
-	  warning( "f: The index cannot be negative" );
+	  qWarning( "f: The index cannot be negative" );
   #endif
   }
 \endcode

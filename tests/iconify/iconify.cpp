@@ -24,15 +24,15 @@ void Main::bang()
 
 counter++;
 #ifdef WIN_SOMETHING
-   debug( " Windows thinks the widget is %svisible", IsWindowVisible(winId())?"":"not " );
+   qDebug( " Windows thinks the widget is %svisible", IsWindowVisible(winId())?"":"not " );
 #endif
-   debug( " Qt thinks the widget is %svisible", isVisible()?"":"not " );
+   qDebug( " Qt thinks the widget is %svisible", isVisible()?"":"not " );
    if ( counter % 30 == 0 ) {
        show();
-       debug( "                  ***showing" );
+       qDebug( "                  ***showing" );
    }
    if ( counter % 8 == 0 ) {
-       debug( "   ***MessageBox" );
+       qDebug( "   ***MessageBox" );
        QMessageBox msg( "Hello", "Hi There!", QMessageBox::Information, 
 			QMessageBox::Ok+QMessageBox::Default, 0, 0 );
        msg.exec();

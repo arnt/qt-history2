@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#50 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -559,7 +559,7 @@ QLayout::QLayout( QWidget *parent, int border, int space, const char *name )
     activated = FALSE;
     if ( parent ) {
 	if ( parent->layout() ) {
-	    warning( "QLayout \"%s\" added to %s \"%s\","
+	    qWarning( "QLayout \"%s\" added to %s \"%s\","
 		     " which already had a layout.", QObject::name(),
 		     parent->className(), parent->name() );
 	} else {
@@ -965,7 +965,7 @@ void QLayout::addChildLayout( QLayout *l )
 {
     if ( l->parent() ) {
 #if defined(CHECK_NULL)
-	warning( "QLayout::addChildLayout(), layout already has a parent." );
+	qWarning( "QLayout::addChildLayout(), layout already has a parent." );
 #endif
 	return;
     }

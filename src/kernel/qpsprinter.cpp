@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#97 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -1976,7 +1976,7 @@ void QPSPrinter::setFont( const QFont & f )
     }
     if ( f.pointSize() == 0 ) {
 #if defined(CHECK_RANGE)
-	warning( "QPrinter: Cannot set a font with zero point size." );
+	qWarning( "QPrinter: Cannot set a font with zero point size." );
 #endif
 	return;
     }
@@ -2396,7 +2396,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	break;
     case PdcDrawText2:
 	if ( !p[1].str->isEmpty() ) {
-	    debug( "string is %s", p[1].str->ascii() );
+	    qDebug( "string is %s", p[1].str->ascii() );
 	    // #### Unicode ignored
 
 	    char * tmp = new char[ p[1].str->length() * 2 + 2 ];
@@ -2446,7 +2446,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     case PdcSetROP:
 #if defined(CHECK_RANGE)
 	if ( p[0].ival != Qt::CopyROP )
-	    warning( "QPrinter: Raster operation setting not supported" );
+	    qWarning( "QPrinter: Raster operation setting not supported" );
 #endif
 	break;
     case PdcSetBrushOrigin:
@@ -2461,7 +2461,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     case PdcSetBrush:
 	if ( p[0].brush->style() == Qt::CustomPattern ) {
 #if defined(CHECK_RANGE)
-	    warning( "QPrinter: Pixmap brush not supported" );
+	    qWarning( "QPrinter: Pixmap brush not supported" );
 #endif
 	    return FALSE;
 	}

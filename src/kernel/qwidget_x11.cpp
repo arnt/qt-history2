@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#360 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#361 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1422,7 +1422,7 @@ void QWidget::setMinimumSize( int minw, int minh )
 {
 #if defined(CHECK_RANGE)
     if ( minw < 0 || minh < 0 )
-	warning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
+	qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
 #endif
     createExtra();
     if ( extra->minw == minw && extra->minh == minh )
@@ -1457,7 +1457,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 {
 #if defined(CHECK_RANGE)
     if ( maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX ) {
-	warning("QWidget::setMaximumSize: (%s/%s) "
+	qWarning("QWidget::setMaximumSize: (%s/%s) "
 		"The largest allowed size is (%d,%d)",
 		 name( "unnamed" ), className(), QWIDGETSIZE_MAX,
 		QWIDGETSIZE_MAX );
@@ -1465,7 +1465,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 	maxh = QMIN( maxh, QWIDGETSIZE_MAX );
     }
     if ( maxw < 0 || maxh < 0 ) {
-	warning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
+	qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
 		"are not possible",
 		name( "unnamed" ), className(), maxw, maxh );
 	maxw = QMAX( maxw, 0 );
@@ -1742,7 +1742,7 @@ int QWidget::metric( int m ) const
 	    default:
 		val = 0;
 #if defined(CHECK_RANGE)
-		warning( "QWidget::metric: Invalid metric command" );
+		qWarning( "QWidget::metric: Invalid metric command" );
 #endif
 	}
     }

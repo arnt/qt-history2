@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#45 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#46 $
 **
 ** Implementation of QGArray class
 **
@@ -100,7 +100,7 @@ QGArray::QGArray( int size )
 {
     if ( size < 0 ) {
 #if defined(CHECK_RANGE)
-	warning( "QGArray: Cannot allocate array with negative length" );
+	qWarning( "QGArray: Cannot allocate array with negative length" );
 #endif
 	size = 0;
     }
@@ -475,7 +475,7 @@ void QGArray::resetRawData( const char *d, uint len )
 {
     if ( d != shd->data || len != shd->len ) {
 #if defined(CHECK_STATE)
-	warning( "QGArray::resetRawData: Inconsistent arguments" );
+	qWarning( "QGArray::resetRawData: Inconsistent arguments" );
 #endif
 	return;
     }
@@ -499,7 +499,7 @@ int QGArray::find( const char *d, uint index, uint sz ) const
     index *= sz;
     if ( index >= shd->len ) {
 #if defined(CHECK_RANGE)
-	warning( "QGArray::find: Index %d out of range", index/sz );
+	qWarning( "QGArray::find: Index %d out of range", index/sz );
 #endif
 	return -1;
     }
@@ -652,7 +652,7 @@ bool QGArray::setExpand( uint index, const char *d, uint sz )
 void QGArray::msg_index( uint index )
 {
 #if defined(CHECK_RANGE)
-    warning( "QGArray::at: Absolute index %d out of range", index );
+    qWarning( "QGArray::at: Absolute index %d out of range", index );
 #else
     Q_UNUSED( index )
 #endif

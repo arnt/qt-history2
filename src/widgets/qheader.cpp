@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#83 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -556,7 +556,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 	break;
     }
     default:
-	warning( "QHeader::mouseMoveEvent: (%s) unknown state", name() );
+	qWarning( "QHeader::mouseMoveEvent: (%s) unknown state", name() );
 	break;
     }
 }

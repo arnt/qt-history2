@@ -32,18 +32,18 @@ main(int argc, char** argv)
 	for ( QDictIterator<int> it(dict); it.current(); ++it ) {
 	    n++;
 	    if ( keyFor( *it.current() ) != it.currentKey() ) {
-		fatal("Wrong key");
+		qFatal("Wrong key");
 	    }
 	}
 	if ( n != nins )
-	    fatal("Too few");
+	    qFatal("Too few");
 	int ms_i = timer.elapsed();
 	timer.start();
 	for ( int i = 0; i<nins; i++ ) {
 	    dict.find( keyFor(i) );
 	}
 	int ms_f = timer.elapsed();
-	debug("resize(%d) took %dms, iteration took %dms, find took %0.1f\265s", j, ms_r, ms_i, 1000.0*ms_f/nins);
+	qDebug("resize(%d) took %dms, iteration took %dms, find took %0.1f\265s", j, ms_r, ms_i, 1000.0*ms_f/nins);
     }
     dict.resize( 10 );
 }

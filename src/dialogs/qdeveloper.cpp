@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#13 $
+** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#14 $
 **
 ** Implementation of QDeveloper class
 **
@@ -197,7 +197,7 @@ public:
 		}
 		cursor = cursor->nextSibling();
 	    }
-	    fatal("Huh?");
+	    qFatal("Huh?");
 	    return 0;
 	} else {
 	    // QObject

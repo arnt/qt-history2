@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#35 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#36 $
 **
 ** Implementation of QGVector class
 **
@@ -127,7 +127,7 @@ bool QGVector::insert( uint index, Item d )	// insert item at index
 {
 #if defined(CHECK_RANGE)
     if ( index >= len ) {			// range error
-	warning( "QGVector::insert: Index %d out of range", index );
+	qWarning( "QGVector::insert: Index %d out of range", index );
 	return FALSE;
     }
 #endif
@@ -150,7 +150,7 @@ bool QGVector::remove( uint index )		// remove item at index
 {
 #if defined(CHECK_RANGE)
     if ( index >= len ) {			// range error
-	warning( "QGVector::remove: Index %d out of range", index );
+	qWarning( "QGVector::remove: Index %d out of range", index );
 	return FALSE;
     }
 #endif
@@ -166,7 +166,7 @@ QCollection::Item QGVector::take( uint index )		// take out item
 {
 #if defined(CHECK_RANGE)
     if ( index >= len ) {			// range error
-	warning( "QGVector::take: Index %d out of range", index );
+	qWarning( "QGVector::take: Index %d out of range", index );
 	return 0;
     }
 #endif
@@ -294,7 +294,7 @@ int QGVector::bsearch( Item d ) const		// binary search; when sorted
 	return -1;
     if ( !d ) {
 #if defined(CHECK_NULL)
-	warning( "QGVector::bsearch: Cannot search for null object" );
+	qWarning( "QGVector::bsearch: Cannot search for null object" );
 #endif
 	return -1;
     }
@@ -323,7 +323,7 @@ int QGVector::findRef( Item d, uint index) const // find exact item in vector
 {
 #if defined(CHECK_RANGE)
     if ( index >= len ) {			// range error
-	warning( "QGVector::findRef: Index %d out of range", index );
+	qWarning( "QGVector::findRef: Index %d out of range", index );
 	return -1;
     }
 #endif
@@ -338,7 +338,7 @@ int QGVector::find( Item d, uint index ) const	// find equal item in vector
 {
 #if defined(CHECK_RANGE)
     if ( index >= len ) {			// range error
-	warning( "QGVector::find: Index %d out of range", index );
+	qWarning( "QGVector::find: Index %d out of range", index );
 	return -1;
     }
 #endif
@@ -398,7 +398,7 @@ void QGVector::toList( QGList *list ) const	// store items in list
 void QGVector::warningIndexRange( uint i )
 {
 #if defined(CHECK_RANGE)
-    warning( "QGVector::operator[]: Index %d out of range", i );
+    qWarning( "QGVector::operator[]: Index %d out of range", i );
 #else
     Q_UNUSED( i )
 #endif

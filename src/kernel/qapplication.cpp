@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#232 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#233 $
 **
 ** Implementation of QApplication class
 **
@@ -468,7 +468,7 @@ void QApplication::init_precmdline()
     is_session_restored = FALSE;
 #if defined(CHECK_STATE)
     if ( qApp )
-	warning( "QApplication: There should be only one application object" );
+	qWarning( "QApplication: There should be only one application object" );
 #endif
 
     qApp = this;
@@ -771,7 +771,7 @@ void QApplication::setColorSpec( int spec )
 {
 #if defined(CHECK_STATE)
     if ( qApp ) {
-	warning( "QApplication::setColorSpec: This function must be "
+	qWarning( "QApplication::setColorSpec: This function must be "
 		 "called before the QApplication object is created" );
     }
 #endif
@@ -798,7 +798,7 @@ QPalette *QApplication::palette(const QWidget* w)
 {
 #if defined(CHECK_STATE)
     if ( !qApp ) {
-	warning( "QApplication::palette: This function can only be "
+	qWarning( "QApplication::palette: This function can only be "
 		 "called after the QApplication object has been created" );
     }
 #endif
@@ -1248,7 +1248,7 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 
     if ( receiver == 0 ) {			// serious error
 #if defined(CHECK_NULL)
-	warning( "QApplication::notify: Unexpected null receiver" );
+	qWarning( "QApplication::notify: Unexpected null receiver" );
 #endif
 	return FALSE;
     }
@@ -1557,7 +1557,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
     }
     if ( receiver == 0 ) {
 #if defined(CHECK_NULL)
-	warning( "QApplication::postEvent: Unexpected null receiver" );
+	qWarning( "QApplication::postEvent: Unexpected null receiver" );
 #endif
 	return;
     }
@@ -1800,7 +1800,7 @@ void QApplication::removePostedEvent( QEvent *  event )
 		n = "<other>";
 		break;
 	    }
-	    warning( "QEvent: Warning: %s event deleted while posted to %s %s",
+	    qWarning( "QEvent: Warning: %s event deleted while posted to %s %s",
 		     n,
 		     pe->receiver ? pe->receiver->className() : "null ",
 		     pe->receiver ? pe->receiver->name() : "object" );

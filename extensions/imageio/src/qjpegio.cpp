@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/imageio/src/qjpegio.cpp#9 $
+** $Id: //depot/qt/main/extensions/imageio/src/qjpegio.cpp#10 $
 **
 ** Implementation of JPEG QImage IOHandler
 **
@@ -44,7 +44,7 @@ void my_error_exit (j_common_ptr cinfo)
     my_error_mgr* myerr = (my_error_mgr*) cinfo->err;
     char buffer[JMSG_LENGTH_MAX];
     (*cinfo->err->format_message)(cinfo, buffer);
-    warning(buffer);
+    qWarning(buffer);
     longjmp(myerr->setjmp_buffer, 1);
 }
 

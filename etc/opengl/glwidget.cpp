@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/glwidget.cpp#6 $
+** $Id: //depot/qt/main/etc/opengl/glwidget.cpp#7 $
 **
 ** Implementation of GLWidget class for X11.
 **
@@ -98,11 +98,11 @@ void GLWidget::initialize()
 	dblBuf = FALSE;
 	vi = glXChooseVisual( dpy, DefaultScreen(dpy), sbuf );
 	if ( !vi )
-	    fatal( "GLWidget::initialize: Cannot create a visual" );
+	    qFatal( "GLWidget::initialize: Cannot create a visual" );
     }
     glx_context = glXCreateContext( dpy, vi, None, GL_TRUE );
     if ( !glx_context )
-	fatal( "GLWidget::initialize: Cannot create a GLX context" );
+	qFatal( "GLWidget::initialize: Cannot create a GLX context" );
     glx_cmap = XCreateColormap( dpy, RootWindow(dpy,vi->screen),
 				vi->visual, AllocNone );
     glx_vi = vi;
@@ -127,7 +127,7 @@ void GLWidget::initialize()
 void GLWidget::setDoubleBuffer( bool enable )
 {
     if ( glx_init ) {
-	warning( "GLWidget::setDoubleBuffer: Too late, set it before creating"
+	qWarning( "GLWidget::setDoubleBuffer: Too late, set it before creating"
 		 " any GLWidget" );
 	return;
     }

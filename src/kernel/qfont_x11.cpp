@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#156 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#157 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -309,12 +309,12 @@ void QFont::cacheStatistics()
     fontCache->statistics();
     QFontCacheIt it(*fontCache);
     QFontInternal *fin;
-    debug( "{" );
+    qDebug( "{" );
     while ( (fin = it.current()) ) {
 	++it;
-	debug( "   [%s]", fin->name() );
+	qDebug( "   [%s]", fin->name() );
     }
-    debug( "}" );
+    qDebug( "}" );
 #endif
 }
 
@@ -466,7 +466,7 @@ QString QFont::lastResortFont() const
 	i++;
     }
 #if defined(CHECK_NULL)
-    fatal( "QFont::lastResortFont: Cannot find any reasonable font" );
+    qFatal( "QFont::lastResortFont: Cannot find any reasonable font" );
 #endif
     return last;
 }
@@ -653,7 +653,7 @@ void QFont::load() const
 		fn->exactMatch = FALSE;
 #if defined(CHECK_NULL)
 		if ( !f )
-		    fatal( "QFont::load: Internal error" );
+		    qFatal( "QFont::load: Internal error" );
 #endif
 	    }
 	    int size = (f->max_bounds.ascent + f->max_bounds.descent) *
@@ -663,7 +663,7 @@ void QFont::load() const
 		fontCache->setMaxCost( size + reserveCost );
 #if defined(CHECK_STATE)
 	    if ( !fontCache->insert(d->fin->name(), d->fin, size) )
-		fatal( "QFont::load: Cache overflow error" );
+		qFatal( "QFont::load: Cache overflow error" );
 #endif
 	    d->fin->f = f;
 	    initFontInfo();
@@ -2031,7 +2031,7 @@ void QFontDatabasePrivate::createDatabase()
     xFontList = XListFonts( qt_xdisplay(), "*", 32767, &xFontCount );
 
     if ( xFontCount >= 32767 )
-	warning( "More than 32k fonts, please notify qt-bugs@troll.no" );
+	qWarning( "More than 32k fonts, please notify qt-bugs@troll.no" );
 
     char *tokens[fontFields];
 
@@ -2174,7 +2174,7 @@ static QString getCharSetName( QFont::CharSet cs )
 	name = "Unicode (ISO 10646)";
 	break;
     default:
-	warning( "getCharSetName: Internal error, unknown charset (%i).", cs );
+	qWarning( "getCharSetName: Internal error, unknown charset (%i).", cs );
 	name = "Unknown";
 	break;
     }

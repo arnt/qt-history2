@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/texture/gltexobj.cpp#2 $
+** $Id: //depot/qt/main/extensions/opengl/examples/texture/gltexobj.cpp#3 $
 **
 ** Implementation of GLTexobj
 ** This is a simple QGLWidget demonstrating the use of QImages for textures.
@@ -101,7 +101,7 @@ void GLTexobj::initializeGL()
 
     QImage img1( "qtlogo.bmp" );	// Load first image from file
     if ( img1.isNull() ) {		// File not found handling
-	warning( "Could not read image file, using single-color instead." );
+	qWarning( "Could not read image file, using single-color instead." );
 	QImage dummy( 128, 128, 32 );
 	dummy.fill( Qt::red.rgb() );
 	img1 = dummy;
@@ -114,7 +114,7 @@ void GLTexobj::initializeGL()
 
     QImage img2( "gllogo.bmp" );	// Load second image from file
     if ( img2.isNull() ) {		// File not found handling
-	warning( "Could not read image file, using single-color instead." );
+	qWarning( "Could not read image file, using single-color instead." );
 	QImage dummy( 128, 128, 32 );
 	dummy.fill( Qt::green.rgb() );
 	img2 = dummy;

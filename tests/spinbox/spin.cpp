@@ -26,9 +26,9 @@ MainParent::MainParent( QWidget* parent, const char* name, int f )
 void MainParent::mousePressEvent( QMouseEvent * )
 {
     Main* myMain = new Main( this );
-    debug("Starting!");
+    qDebug("Starting!");
     myMain->exec();
-    debug("Finished!");
+    qDebug("Finished!");
     delete myMain;
 }
 
@@ -222,7 +222,7 @@ void Main::updateSpecValTxt( const QString& s )
 
 void Main::showValue( int i )
 {
-    debug("Spin: main box emitted valueChanged( %i )", i);
+    qDebug("Spin: main box emitted valueChanged( %i )", i);
 }
 
 

@@ -12,7 +12,7 @@ Main::Main(QWidget* parent, const char* name, int f) :
 void Main::bang()
 {
     static int level=0;
-    debug("level %d in",level);
+    qDebug("level %d in",level);
     level++;
     QPopupMenu p;
     p.insertItem("Nothing");
@@ -20,7 +20,7 @@ void Main::bang()
     p.move(QCursor::pos());
     p.exec();
     level--;
-    debug("level %d out",level);
+    qDebug("level %d out",level);
 }
 
 void Main::mousePressEvent(QMouseEvent*)

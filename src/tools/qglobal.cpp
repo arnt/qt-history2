@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#68 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#69 $
 **
 ** Global functions
 **
@@ -90,14 +90,14 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 	 *wordSize != 32 &&
 	 *wordSize != 16 ) {			// word size: 16, 32 or 64
 #if defined(CHECK_RANGE)
-	fatal( "qSysInfo: Unsupported system word size %d", *wordSize );
+	qFatal( "qSysInfo: Unsupported system word size %d", *wordSize );
 #endif
 	return FALSE;
     }
     if ( sizeof(Q_INT8) != 1 || sizeof(Q_INT16) != 2 || sizeof(Q_INT32) != 4 ||
 	 sizeof(float) != 4 || sizeof(double) != 8 ) {
 #if defined(CHECK_RANGE)
-	fatal( "qSysInfo: Unsupported system data type size" );
+	qFatal( "qSysInfo: Unsupported system data type size" );
 #endif
 	return FALSE;
     }
@@ -120,7 +120,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 
     if ( be16 != be32 ) {			// strange machine!
 #if defined(CHECK_RANGE)
-	fatal( "qSysInfo: Inconsistent system byte order" );
+	qFatal( "qSysInfo: Inconsistent system byte order" );
 #endif
 	return FALSE;
     }
@@ -146,7 +146,7 @@ static msg_handler handler = 0;			// pointer to debug handler
 
   Example:
   \code
-    debug( "my window handle = %x", myWidget->id() );
+    qDebug( "my window handle = %x", myWidget->id() );
   \endcode
 
   Under X11, the text is printed to stderr.  Under Windows, the text is
@@ -163,9 +163,8 @@ static msg_handler handler = 0;			// pointer to debug handler
 */
 
 Q_EXPORT
-void debug( const char *msg, ... )
+void qDebug( const char *msg, ... )
 {
-//#if defined(TESTEAA)
     char buf[512];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
@@ -178,10 +177,27 @@ void debug( const char *msg, ... )
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
     }
-//#else
-    //Q_UNUSED( msg );
-//#endif
 }
+
+// copied... this looks really bad.
+Q_EXPORT
+void debug( const char *msg, ... )
+{
+    char buf[512];
+    va_list ap;
+    va_start( ap, msg );			// use variable arg list
+    if ( handler ) {
+	vsprintf( buf, msg, ap );
+	va_end( ap );
+	(*handler)( QtDebugMsg, buf );
+    } else {
+	vfprintf( stderr, msg, ap );
+	va_end( ap );
+	fprintf( stderr, "\n" );		// add newline
+    }
+}
+
+
 
 /*!
   \relates QApplication
@@ -196,7 +212,7 @@ void debug( const char *msg, ... )
     void f( int c )
     {
 	if ( c > 200 )
-	    warning( "f: bad argument, c == %d", c );
+	    qWarning( "f: bad argument, c == %d", c );
     }
   \endcode
 
@@ -210,6 +226,25 @@ void debug( const char *msg, ... )
   \link debug.html Debugging\endlink
 */
 
+Q_EXPORT
+void qWarning( const char *msg, ... )
+{
+    char buf[512];
+    va_list ap;
+    va_start( ap, msg );			// use variable arg list
+    if ( handler ) {
+	vsprintf( buf, msg, ap );
+	va_end( ap );
+	(*handler)( QtWarningMsg, buf );
+    } else {
+	vfprintf( stderr, msg, ap );
+	va_end( ap );
+	fprintf( stderr, "\n" );		// add newline
+    }
+}
+
+
+// again, copied
 Q_EXPORT
 void warning( const char *msg, ... )
 {
@@ -241,7 +276,7 @@ void warning( const char *msg, ... )
     int divide( int a, int b )
     {
 	if ( b == 0 )				// program error
-	    fatal( "divide: cannot divide by zero" );
+	    qFatal( "divide: cannot divide by zero" );
 	return a/b;
     }
   \endcode
@@ -256,6 +291,29 @@ void warning( const char *msg, ... )
   \link debug.html Debugging\endlink
 */
 
+Q_EXPORT
+void qFatal( const char *msg, ... )
+{
+    char buf[512];
+    va_list ap;
+    va_start( ap, msg );			// use variable arg list
+    if ( handler ) {
+	vsprintf( buf, msg, ap );
+	va_end( ap );
+	(*handler)( QtFatalMsg, buf );
+    } else {
+	vfprintf( stderr, msg, ap );
+	va_end( ap );
+	fprintf( stderr, "\n" );		// add newline
+#if defined(UNIX) && defined(DEBUG)
+	abort();				// trap; generates core dump
+#else
+	exit( 1 );				// goodbye cruel world
+#endif
+    }
+}
+
+// yet again, copied
 Q_EXPORT
 void fatal( const char *msg, ... )
 {
@@ -277,6 +335,9 @@ void fatal( const char *msg, ... )
 #endif
     }
 }
+
+
+
 
 /*!
   \fn void ASSERT( bool test )
@@ -342,7 +403,7 @@ Q_EXPORT
 bool qt_check_pointer( bool c, const char *n, int l )
 {
     if ( c )
-	fatal( "In file %s, line %d: Out of memory", n, l );
+	qFatal( "In file %s, line %d: Out of memory", n, l );
     return TRUE;
 }
 
@@ -353,7 +414,7 @@ static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
     if ( !obsoleteDict ) {			// first time func is called
 	obsoleteDict = new QDict<int>;
 #if defined(DEBUG)
-	debug(
+	qDebug(
       "You are using obsolete functions in the Qt library. Call the function\n"
       "qSuppressObsoleteWarnings() to suppress obsolete warnings.\n"
 	     );
@@ -384,7 +445,7 @@ void qObsolete(	 const char *obj, const char *oldfunc, const char *newfunc )
 	return;
     if ( !firstObsoleteWarning(obj, oldfunc) )
 	return;
-    debug( "%s::%s: This function is obsolete, use %s instead",
+    qDebug( "%s::%s: This function is obsolete, use %s instead",
 	   obj, oldfunc, newfunc );
 }
 
@@ -395,7 +456,7 @@ void qObsolete(	 const char *obj, const char *oldfunc )
 	return;
     if ( !firstObsoleteWarning(obj, oldfunc) )
 	return;
-    debug( "%s::%s: This function is obsolete.", obj, oldfunc );
+    qDebug( "%s::%s: This function is obsolete.", obj, oldfunc );
 }
 
 Q_EXPORT
@@ -405,7 +466,7 @@ void qObsolete(	 const char *message )
 	return;
     if ( !firstObsoleteWarning( "Qt", message) )
 	return;
-    debug( "%s", message );
+    qDebug( "%s", message );
 }
 
 

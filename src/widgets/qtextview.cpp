@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#8 $
 **
 ** Implementation of the QTextView class
 **
@@ -458,7 +458,7 @@ void QTextEdit::setText( const QString& contents)
  */
 QString QTextEdit::text()
 {
-    debug("not yet implemented");
+    qDebug("not yet implemented");
     return "not yet implemented";
 }
 

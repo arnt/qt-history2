@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#45 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#46 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -229,7 +229,7 @@ QGCache::QGCache( const QGCache & )
     : QCollection()
 {
 #if defined(CHECK_NULL)
-    fatal( "QGCache::QGCache(QGCache &): Cannot copy a cache" );
+    qFatal( "QGCache::QGCache(QGCache &): Cannot copy a cache" );
 #endif
 }
 
@@ -253,7 +253,7 @@ QGCache::~QGCache()
 QGCache &QGCache::operator=( const QGCache & )
 {
 #if defined(CHECK_NULL)
-    fatal( "QGCache::operator=: Cannot copy a cache" );
+    qFatal( "QGCache::operator=: Cannot copy a cache" );
 #endif
     return *this;				// satisfy the compiler
 }
@@ -481,28 +481,28 @@ void QGCache::statistics() const
 #if defined(DEBUG)
     QString line;
     line.fill( '*', 80 );
-    debug( line.ascii() );
-    debug( "CACHE STATISTICS:" );
-    debug( "cache contains %d item%s, with a total cost of %d",
+    qDebug( line.ascii() );
+    qDebug( "CACHE STATISTICS:" );
+    qDebug( "cache contains %d item%s, with a total cost of %d",
 	   count(), count() != 1 ? "s" : "", tCost );
-    debug( "maximum cost is %d, cache is %d%% full.",
+    qDebug( "maximum cost is %d, cache is %d%% full.",
 	   mCost, (200*tCost + mCost) / (mCost*2) );
-    debug( "find() has been called %d time%s",
+    qDebug( "find() has been called %d time%s",
 	   lruList->finds, lruList->finds != 1 ? "s" : "" );
-    debug( "%d of these were hits, items found had a total cost of %d.",
+    qDebug( "%d of these were hits, items found had a total cost of %d.",
 	   lruList->hits,lruList->hitCosts );
-    debug( "%d item%s %s been inserted with a total cost of %d.",
+    qDebug( "%d item%s %s been inserted with a total cost of %d.",
 	   lruList->inserts,lruList->inserts != 1 ? "s" : "",
 	   lruList->inserts != 1 ? "have" : "has", lruList->insertCosts );
-    debug( "%d item%s %s too large or had too low priority to be inserted.",
+    qDebug( "%d item%s %s too large or had too low priority to be inserted.",
 	   lruList->insertMisses, lruList->insertMisses != 1 ? "s" : "",
 	   lruList->insertMisses != 1 ? "were" : "was" );
-    debug( "%d item%s %s been thrown away with a total cost of %d.",
+    qDebug( "%d item%s %s been thrown away with a total cost of %d.",
 	   lruList->dumps, lruList->dumps != 1 ? "s" : "",
 	   lruList->dumps != 1 ? "have" : "has", lruList->dumpCosts );
-    debug( "Statistics from internal dictionary class:" );
+    qDebug( "Statistics from internal dictionary class:" );
     dict->statistics();
-    debug( line.ascii() );
+    qDebug( line.ascii() );
 #endif
 }
 
@@ -712,7 +712,7 @@ QCollection::Item QGCacheIterator::operator-=( uint jump )
 bool QGCache::insert( const QString& key, Item i, int cost, int priority )
 {
     if ( !copyK )
-	fatal("QGCache: attempted to insert QString without copying key");
+	qFatal("QGCache: attempted to insert QString without copying key");
     QCString kutf8 = key.utf8();
     return insert( kutf8.data(), i, cost, priority );
 }

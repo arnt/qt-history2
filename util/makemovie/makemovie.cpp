@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/makemovie/makemovie.cpp#4 $
+** $Id: //depot/qt/main/util/makemovie/makemovie.cpp#5 $
 **
 ** C++ file
 **
@@ -255,7 +255,7 @@ QList<QMovieFrame> optimize( QStrList& files, unsigned int count )
 				maxrect.width(), maxrect.height());
 	writer.setFrameDelay(FRAME_DELAY);
 	writer.writeImage(clip, maxrect.left(), maxrect.top());
-debug("offset = %d,%d",maxrect.left(), maxrect.top());
+qDebug("offset = %d,%d",maxrect.left(), maxrect.top());
       }
       else
       {

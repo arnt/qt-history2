@@ -166,7 +166,7 @@ int main( int argc, char **argv )
     bool flat = FALSE;				// hierarchical output default
     bool wasFiles = FALSE;
     if ( argc < 2 )
-	fatal( "Usage:\n\tshowincs [-Ipath] [-hf] files ..." );
+	qFatal( "Usage:\n\tshowincs [-Ipath] [-hf] files ..." );
 
     for ( int n=1; n<argc; n++ ) {
 	QString s = argv[n];
@@ -186,7 +186,7 @@ int main( int argc, char **argv )
 	}
     }
     if ( !wasFiles )
-	fatal( "Hey! You forgot to specify some files" );
+	qFatal( "Hey! You forgot to specify some files" );
     runIt();					// starts looking for includes
     if ( flat )
 	printFlat();				// print flat results

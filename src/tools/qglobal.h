@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#156 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#157 $
 **
 ** Global type declarations and definitions
 **
@@ -425,6 +425,27 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 #define Q_UNUSED(x) x=x;
 
 
+Q_EXPORT void qDebug( const char *, ... )	// print debug message
+#if defined(_CC_GNU_)
+    __attribute__ ((format (printf, 1, 2)))
+#endif
+;
+
+Q_EXPORT void qWarning( const char *, ... )	// print warning message
+#if defined(_CC_GNU_)
+    __attribute__ ((format (printf, 1, 2)))
+#endif
+;
+
+Q_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
+#if defined(_CC_GNU_)
+    __attribute__ ((format (printf, 1, 2)))
+#endif
+;
+
+
+#if !defined(QT_CLEAN_NAMESPACE)
+// in that case, also define the old ones...
 
 Q_EXPORT void debug( const char *, ... )	// print debug message
 #if defined(_CC_GNU_)
@@ -443,6 +464,9 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
+
+// okay, that was debug()/warning()/fatal()
+#endif
 
 #if !defined(ASSERT)
 #if defined(CHECK_STATE)

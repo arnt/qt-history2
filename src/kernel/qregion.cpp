@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#36 $
 **
 ** Implementation of QRegion class
 **
@@ -126,7 +126,7 @@ void QRegion::exec( const QByteArray &buffer, int ver )
 	s >> id;
 #if defined(CHECK_STATE)
 	if ( test_cnt > 0 && id != QRGN_TRANSLATE )
-	    warning( "QRegion::exec: Internal error" );
+	    qWarning( "QRegion::exec: Internal error" );
 	test_cnt++;
 #endif
 	if ( id == QRGN_SETRECT || id == QRGN_SETELLIPSE ) {

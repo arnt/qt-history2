@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#26 $
 **
 ** Implementation of QClipboard class
 **
@@ -53,7 +53,7 @@
     // Copy text from the clipboard (paste)
     text = cb->text();
     if ( text )
-	debug( "The clipboard contains: %s", text );
+	qDebug( "The clipboard contains: %s", text );
 
     // Copy text into the clipboard
     cb->setText( "This text can be pasted by other programs" );

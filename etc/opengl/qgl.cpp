@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/qgl.cpp#12 $
+** $Id: //depot/qt/main/etc/opengl/qgl.cpp#13 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -73,7 +73,7 @@
     if ( !w->create() ) {
         f.setStereo( FALSE );	// ok, googles off
         if ( !w->create() ) {
-            fatal( "Cool hardware wanted" );
+            qFatal( "Cool hardware wanted" );
         }
     }
   \endcode
@@ -456,13 +456,13 @@ QGLContext::QGLContext( const QGLFormat &format, QPaintDevice *device )
     valid = FALSE;
     if ( paintDevice == 0 ) {
 #if defined(CHECK_NULL)
-	warning( "QGLContext: Paint device cannot be null" );
+	qWarning( "QGLContext: Paint device cannot be null" );
 #endif
     }
     if ( paintDevice->devType() != PDT_WIDGET &&
 	 paintDevice->devType() != PDT_PIXMAP ) {
 #if defined(CHECK_RANGE)
-	warning( "QGLContext: Unsupported paint device type" );
+	qWarning( "QGLContext: Unsupported paint device type" );
 #endif
     }
 }
@@ -579,7 +579,7 @@ bool QGLContext::chooseContext()
 		0, GetLastError(),
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		(LPTSTR) &lpMsgBuf, 0, 0 );
-	    debug( (const char *)lpMsgBuf );
+	    qDebug( (const char *)lpMsgBuf );
 	    LocalFree( lpMsgBuf );
  	}
 	rc = wglCreateContext( dc );
@@ -954,12 +954,12 @@ void QGLWidget::setContext( QGLContext *context )
 {
     if ( context == 0 ) {
 #if defined(CHECK_NULL)
-	warning( "QGLWidget::setContext: Cannot set null context" );
+	qWarning( "QGLWidget::setContext: Cannot set null context" );
 #endif
     }
     if ( context->device() != this ) {
 #if defined(CHECK_STATE)
-	warning( "QGLWidget::setContext: Context must refer this widget" );
+	qWarning( "QGLWidget::setContext: Context must refer this widget" );
 #endif
     }
     delete glcx;

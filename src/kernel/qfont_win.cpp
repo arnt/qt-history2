@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#102 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#103 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -239,12 +239,12 @@ void QFont::cacheStatistics()
     fontCache->statistics();
     QFontCacheIt it(*fontCache);
     QFontInternal *fin;
-    debug( "{" );
+    qDebug( "{" );
     while ( (fin = it.current()) ) {
 	++it;
-	debug( "   [%s]", fin->key() );
+	qDebug( "   [%s]", fin->key() );
     }
-    debug( "}" );
+    qDebug( "}" );
 #endif
 }
 

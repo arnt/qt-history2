@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qresource.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qresource.cpp#3 $
 **
 ** Implementation of QResource classes
 **
@@ -126,7 +126,7 @@ void QResourceItem::insert( const QResourceItem* pos, QResourceItem* _tag )
 	t = t->nextSiblingItem;
      if ( !t )
      {
-	warning("Illegal Iterator in QResourceItem::insert");
+	qWarning("Illegal Iterator in QResourceItem::insert");
 	return;
      }
      _tag->nextSiblingItem = t->nextSiblingItem;
@@ -147,7 +147,7 @@ QResourceItem* QResourceItem::extractAndReplace( const QResourceItem* pos, QReso
 {
   if ( pos == end() )
   {
-    debug("QResourceItem::extractAndReplace()  Can not replace with invalid position");
+    qDebug("QResourceItem::extractAndReplace()  Can not replace with invalid position");
     return 0;
   }
 
@@ -168,7 +168,7 @@ QResourceItem* QResourceItem::extractAndReplace( const QResourceItem* pos, QReso
 
   if ( t == 0 )
   {
-    warning("QResourceItem::extractAndReplace  Illegal Iterator");
+    qWarning("QResourceItem::extractAndReplace  Illegal Iterator");
     return 0;
   }
 
@@ -202,7 +202,7 @@ QResourceItem* QResourceItem::extract( const QResourceItem* pos )
 
   if ( t == 0 )
   {
-    warning("Illegal Iterator in QResourceItem::insert");
+    qWarning("Illegal Iterator in QResourceItem::insert");
     return 0;
   }
 
@@ -784,7 +784,7 @@ QResourceXMLConsumer::~QResourceXMLConsumer()
 
 bool QResourceXMLConsumer::tagStart( const QString& name )
 {
-  debug("Start=%s\n",name.ascii() );
+  qDebug("Start=%s\n",name.ascii() );
 
   if ( !item )
     item = new QResourceItem( name );
@@ -800,13 +800,13 @@ bool QResourceXMLConsumer::tagStart( const QString& name )
 
 bool QResourceXMLConsumer::tagEnd( const QString& name )
 {
-  debug("End=%s\n",name.ascii());
+  qDebug("End=%s\n",name.ascii());
   if ( !item )
     return FALSE;
   
   if ( item->type() != name )
   {
-    debug("Tag %s does not close %s\n",item->type().ascii(),name.ascii() );
+    qDebug("Tag %s does not close %s\n",item->type().ascii(),name.ascii() );
     return FALSE;
   }
 
@@ -992,27 +992,27 @@ QWidget* QResource::createWidget( QWidget* _parent ) const
   QMetaObject* m = QMetaObjectInit::metaObject( type() );
   if ( !m )
   {
-    debug("Dont know class %s", type().ascii() );
+    qDebug("Dont know class %s", type().ascii() );
     return 0;
   }
   
   if ( !m->inherits( "QWidget" ) )
   {
-    debug("Class %s does not inherit from QWidget", type().ascii() );
+    qDebug("Class %s does not inherit from QWidget", type().ascii() );
     return 0;
   }
   
   QObjectFactory f = m->factory();
   if ( !f )
   {
-    debug("Class %s has no factory", type().ascii() );
+    qDebug("Class %s has no factory", type().ascii() );
     return 0;
   }
 
   QWidget* w = (QWidget*)(*f)( _parent, *this );
   if ( !w )
   {
-    debug("Factory for class %s returned 0", type().ascii() );
+    qDebug("Factory for class %s returned 0", type().ascii() );
     return 0;
   }
   
@@ -1029,27 +1029,27 @@ QLayout* QResource::createLayout( QWidget* _parent ) const
   QMetaObject* m = QMetaObjectInit::metaObject( type() );
   if ( !m )
   {
-    debug("Dont know class %s", type().ascii() );
+    qDebug("Dont know class %s", type().ascii() );
     return 0;
   }
   
   if ( !m->inherits( "QLayout" ) )
   {
-    debug("Class %s does not inherit from QWidget", type().ascii() );
+    qDebug("Class %s does not inherit from QWidget", type().ascii() );
     return 0;
   }
   
   QObjectFactory f = m->factory();
   if ( !f )
   {
-    debug("Class %s has no factory", type().ascii() );
+    qDebug("Class %s has no factory", type().ascii() );
     return 0;
   }
   
   QLayout* w = (QLayout*)(*f)( _parent, *this );
   if ( !w )
   {
-    debug("Factory for class %s returned 0", type().ascii() );
+    qDebug("Factory for class %s returned 0", type().ascii() );
     return 0;
   }
   
@@ -1066,27 +1066,27 @@ QLayout* QResource::createLayout( QLayout* _parent ) const
   QMetaObject* m = QMetaObjectInit::metaObject( type() );
   if ( !m )
   {
-    debug("Dont know class %s", type().ascii() );
+    qDebug("Dont know class %s", type().ascii() );
     return 0;
   }
   
   if ( !m->inherits( "QLayout" ) )
   {
-    debug("Class %s does not inherit from QWidget", type().ascii() );
+    qDebug("Class %s does not inherit from QWidget", type().ascii() );
     return 0;
   }
   
   QObjectFactory f = m->factory();
   if ( !f )
   {
-    debug("Class %s has no factory", type().ascii() );
+    qDebug("Class %s has no factory", type().ascii() );
     return 0;
   }
   
   QLayout* w = (QLayout*)(*f)( _parent, *this );
   if ( !w )
   {
-    debug("Factory for class %s returned 0", type().ascii() );
+    qDebug("Factory for class %s returned 0", type().ascii() );
     return 0;
   }
   
@@ -1103,27 +1103,27 @@ QLayout* QResource::createLayout() const
   QMetaObject* m = QMetaObjectInit::metaObject( type() );
   if ( !m )
   {
-    debug("Dont know class %s", type().ascii() );
+    qDebug("Dont know class %s", type().ascii() );
     return 0;
   }
   
   if ( !m->inherits( "QLayout" ) )
   {
-    debug("Class %s does not inherit from QWidget", type().ascii() );
+    qDebug("Class %s does not inherit from QWidget", type().ascii() );
     return 0;
   }
   
   QObjectFactory f = m->factory();
   if ( !f )
   {
-    debug("Class %s has no factory", type().ascii() );
+    qDebug("Class %s has no factory", type().ascii() );
     return 0;
   }
   
   QLayout* w = (QLayout*)(*f)( 0, *this );
   if ( !w )
   {
-    debug("Factory for class %s returned 0", type().ascii() );
+    qDebug("Factory for class %s returned 0", type().ascii() );
     return 0;
   }
   

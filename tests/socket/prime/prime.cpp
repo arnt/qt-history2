@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/socket/prime/prime.cpp#2 $
+** $Id: //depot/qt/main/tests/socket/prime/prime.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -84,11 +84,11 @@ void Prime::makeConnection()
 
 void Prime::dataArrived()
 {
-    debug("Prime::dataArrived");
+    qDebug("Prime::dataArrived");
     if ( c == 0 || s == 0 )
-	debug("Prime::dataArrived: Fatal error c=%p, s=%p", c, s);
-    debug("stream eof : %d", s->eof());
-    debug("canreadline: %d", c->canReadLine());
+	qDebug("Prime::dataArrived: Fatal error c=%p, s=%p", c, s);
+    qDebug("stream eof : %d", s->eof());
+    qDebug("canreadline: %d", c->canReadLine());
     QString l;
     if ( !s->eof() && c->canReadLine() ) {
 	l = c->readLine();
@@ -99,7 +99,7 @@ void Prime::dataArrived()
 
 void Prime::timeToUpdate()
 {
-    debug("Prime::timeToUpdate");
+    qDebug("Prime::timeToUpdate");
     delete c;
     c = 0;
     delete s;

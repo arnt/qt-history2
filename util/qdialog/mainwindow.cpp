@@ -293,7 +293,7 @@ void manipulateXML( QResourceItem* it, bool _root )
   
   if ( it->type() == "QWidget" )
   {
-    debug("-- SUBSTITUE QWidget");
+    qDebug("-- SUBSTITUE QWidget");
     it->setType( "DFormWidget" );
     if ( _root )
       it->insertAttrib( "__mode", "TopMost" );
@@ -302,7 +302,7 @@ void manipulateXML( QResourceItem* it, bool _root )
   }
   else if ( it->type() == "QGridLayout" )
   {
-    debug("-- SUBSTITUE QGridLayout");
+    qDebug("-- SUBSTITUE QGridLayout");
     // TODO: insert intermediate DFormWidgets
     it->setType( "DGridLayout" );
     it->insertAttrib( "__mode", "grid" );

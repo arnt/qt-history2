@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#77 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -331,7 +331,7 @@ void QLCDNumber::setNumDigits( int numDigits )
 {
     if ( numDigits > 99 ) {
 #if defined(CHECK_RANGE)
-	warning( "QLCDNumber::setNumDigits: (%s) Max 99 digits allowed",
+	qWarning( "QLCDNumber::setNumDigits: (%s) Max 99 digits allowed",
 		 name( "unnamed" ) );
 #endif
 	numDigits = 99;
@@ -874,7 +874,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    break;
 #if defined(CHECK_RANGE)
 	default :
-	    warning( "QLCDNumber::drawSegment: (%s) Internal error."
+	    qWarning( "QLCDNumber::drawSegment: (%s) Internal error."
 		     "  Illegal segment id: %d\n",
 		     name( "unnamed" ), segmentNo );
 #endif
@@ -1009,7 +1009,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    break;
 #if defined(CHECK_RANGE)
 	default :
-	    warning( "QLCDNumber::drawSegment: (%s) Internal error."
+	    qWarning( "QLCDNumber::drawSegment: (%s) Internal error."
 		     "  Illegal segment id: %d\n",
 		     name( "unnamed" ), segmentNo );
 #endif

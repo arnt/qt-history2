@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#34 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#35 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -140,7 +140,7 @@ const char *qGLVersion()
     if ( !w->format().stereo() ) {
         // ok, goggles off
         if ( !w->format().alpha() ) {
-            fatal( "Cool hardware wanted" );
+            qFatal( "Cool hardware wanted" );
         }
     }
   \endcode
@@ -185,9 +185,9 @@ QGLFormat::QGLFormat()
         : QGLWidget( QGLFormat( StencilBuffer | AlphaChannel ), parent, name )
     {
       if ( !format().stencil() )
-        warning( "Could not get stencil buffer; results will be suboptimal" );
+        qWarning( "Could not get stencil buffer; results will be suboptimal" );
       if ( !format().alphaChannel() )
-        warning( "Could not get alpha channel; results will be suboptimal" );
+        qWarning( "Could not get alpha channel; results will be suboptimal" );
       ...
    }
   \endcode
@@ -692,14 +692,14 @@ QGLContext::QGLContext( const QGLFormat &format, QPaintDevice *device )
     sharing = FALSE;
     if ( paintDevice == 0 ) {
 #if defined(CHECK_NULL)
-	warning( "QGLContext: Paint device cannot be null" );
+	qWarning( "QGLContext: Paint device cannot be null" );
 	return;
 #endif
     }
     if ( paintDevice->devType() != QInternal::Widget &&
 	 paintDevice->devType() != QInternal::Pixmap ) {
 #if defined(CHECK_RANGE)
-	warning( "QGLContext: Unsupported paint device type" );
+	qWarning( "QGLContext: Unsupported paint device type" );
 #endif
     }
 }
@@ -910,7 +910,7 @@ void qwglError( const char* method, const char* func )
 		  0, GetLastError(),
 		  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		  (LPTSTR) &lpMsgBuf, 0, 0 );
-    warning( "%s : %s failed: %s", method, func, (const char *)lpMsgBuf );
+    qWarning( "%s : %s failed: %s", method, func, (const char *)lpMsgBuf );
     LocalFree( lpMsgBuf );
 #endif
     const char* dummy = method; // Avoid compiler warning
@@ -937,7 +937,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 
     if ( !dc ) {
 #if defined(CHECK_NULL)
-	warning( "QGLContext::chooseContext(): Paint device cannot be null" );
+	qWarning( "QGLContext::chooseContext(): Paint device cannot be null" );
 #endif
 	return FALSE;
     }
@@ -963,14 +963,14 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 
 	if ( deviceIsPixmap() && !(realPfd.dwFlags & PFD_DRAW_TO_BITMAP) ) {
 #if defined(CHECK_NULL)
-	    warning( "QGLContext::chooseContext(): Failed to get pixmap rendering context." );
+	    qWarning( "QGLContext::chooseContext(): Failed to get pixmap rendering context." );
 #endif
 	    return FALSE;
 	}
 	if ( deviceIsPixmap() && 
             (((QPixmap*)paintDevice)->depth() != realPfd.cColorBits ) ) {
 #if defined(CHECK_NULL)
-	    warning( "QGLContext::chooseContext(): Failed to get pixmap rendering context of suitable depth." );
+	    qWarning( "QGLContext::chooseContext(): Failed to get pixmap rendering context of suitable depth." );
 #endif
 	    return FALSE;
 	}
@@ -1131,7 +1131,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     if ( shareContext && 
 	 ( !shareContext->isValid() || !shareContext->cx ) ) {
 #if defined(CHECK_NULL)
-	    warning("QGLContext::chooseContext(): Cannot share with invalid context");
+	    qWarning("QGLContext::chooseContext(): Cannot share with invalid context");
 #endif
 	    shareContext = 0;
     }
@@ -1316,7 +1316,7 @@ void QGLContext::makeCurrent()
 {
     if ( !valid ) {
 #if defined(CHECK_NULL)
-	warning("QGLContext::makeCurrent(): Cannot make invalid context current.");
+	qWarning("QGLContext::makeCurrent(): Cannot make invalid context current.");
 #endif
 	return;
     }
@@ -1333,7 +1333,7 @@ void QGLContext::makeCurrent()
 #if defined(CHECK_NULL)
     //    debug("makeCurrent: %i, vi=%i, vi->vi=%i, vi->id=%i", (int)this, (int)vi, (int)((XVisualInfo*)vi)->visual, (int)((XVisualInfo*)vi)->visualid );
     if ( !ok )
-	warning("QGLContext::makeCurrent(): Failed.");
+	qWarning("QGLContext::makeCurrent(): Failed.");
 #endif
 }
 
@@ -1713,13 +1713,13 @@ void QGLWidget::setContext( QGLContext *context,
 {
     if ( context == 0 ) {
 #if defined(CHECK_NULL)
-	warning( "QGLWidget::setContext: Cannot set null context" );
+	qWarning( "QGLWidget::setContext: Cannot set null context" );
 #endif
 	return;
     }
     if ( !context->deviceIsPixmap() && context->device() != this ) {
 #if defined(CHECK_STATE)
-	warning( "QGLWidget::setContext: Context must refer to this widget" );
+	qWarning( "QGLWidget::setContext: Context must refer to this widget" );
 #endif
 	return;
     }

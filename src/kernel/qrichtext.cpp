@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#13 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -1893,7 +1893,7 @@ bool QTextDocument::parse (QTextContainer* current, QTextNode* lastChild, const 
 	
 	    const QStyleSheetItem* nstyle = sheet_->item(tagname);
 	    if ( nstyle && !nstyle->allowedInContext( current->style ) ) {
-		warning( "QText Warning: Document not valid ( '%s' not allowed in '%s' #%d)",
+		qWarning( "QText Warning: Document not valid ( '%s' not allowed in '%s' #%d)",
 			 tagname.ascii(), current->style->name().ascii(), pos);
 		pos = beforePos;
 		return FALSE;
@@ -2250,12 +2250,12 @@ bool QTextDocument::eatCloseTag(const QString& doc, int& pos, const QString& ope
     eatSpace(doc, pos);
     eat(doc, pos, '>');
     if (!valid) {
-	warning( "QText Warning: Document not valid ( '%s' not closing #%d)", open.ascii(), pos);
+	qWarning( "QText Warning: Document not valid ( '%s' not closing #%d)", open.ascii(), pos);
 	valid = TRUE;
     }
     valid &= tag == open;
     if (!valid) {
-	warning( "QText Warning: Document not valid ( '%s' not closed before '%s' #%d)",
+	qWarning( "QText Warning: Document not valid ( '%s' not closed before '%s' #%d)",
 		 open.ascii(), tag.ascii(), pos);
     }
     return valid;

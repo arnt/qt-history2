@@ -135,7 +135,7 @@ int main( int argc, char **argv )
 
     int event_base, error_base;			// shape extension supported?
     if ( !XShapeQueryExtension(shape.x11Display(),&event_base,&error_base) ) {
-	warning( "shapewin: Cannot create shape window" );
+	qWarning( "shapewin: Cannot create shape window" );
 	return 1;
     }
 

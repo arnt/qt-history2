@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#6 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -845,7 +845,7 @@ QTextNode* QStyleSheet::tag( const QString& name,
 {
     QStyleSheetItem* style = styles[name];
     if ( !style ) {
-	warning( "QStyleSheet Warning: unknown tag '%s'", name.ascii() );
+	qWarning( "QStyleSheet Warning: unknown tag '%s'", name.ascii() );
 	style = nullstyle;
     }
 

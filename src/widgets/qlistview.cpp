@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#236 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#237 $
 **
 ** Implementation of QListView widget class
 **
@@ -3479,7 +3479,7 @@ QCheckListItem::QCheckListItem( QCheckListItem *parent, const QString &text,
     init();
     if ( myType == RadioButton ) {
 	if ( parent->type() != Controller )
-	    warning( "QCheckListItem::QCheckListItem(), radio button must be "
+	    qWarning( "QCheckListItem::QCheckListItem(), radio button must be "
 		     "child of a controller" );
 	else
 	    exclusive = parent;
@@ -3497,7 +3497,7 @@ QCheckListItem::QCheckListItem( QListViewItem *parent, const QString &text,
 {
     myType = tt;
     if ( myType == RadioButton ) {
-      warning( "QCheckListItem::QCheckListItem(), radio button must be "
+      qWarning( "QCheckListItem::QCheckListItem(), radio button must be "
 	       "child of a QCheckListItem" );
     }
     init();
@@ -3514,7 +3514,7 @@ QCheckListItem::QCheckListItem( QListView *parent, const QString &text,
 {
     myType = tt;
     if ( tt == RadioButton )
-	warning( "QCheckListItem::QCheckListItem(), radio button must be "
+	qWarning( "QCheckListItem::QCheckListItem(), radio button must be "
 		 "child of a QCheckListItem" );
     init();
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#479 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#480 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -127,7 +127,7 @@ static inline void bzero( void *s, int n )
 extern "C" char *_Xsetlocale(int category, const char *locale);
 char *_Xsetlocale(int category, const char *locale)
 {
-    debug("_Xsetlocale(%d,%s),category,locale");
+    qDebug("_Xsetlocale(%d,%s),category,locale");
     return setlocale(category,locale);
 }
 #endif
@@ -358,14 +358,14 @@ static int qt_x_errhandler( Display *dpy, XErrorEvent *err ) {
 
     char errstr[256];
     XGetErrorText( dpy, err->error_code, errstr, 256 );
-    fatal( "X Error: %s %d\n  Major opcode:  %d", errstr, err->error_code, err->request_code );
+    qFatal( "X Error: %s %d\n  Major opcode:  %d", errstr, err->error_code, err->request_code );
     return 0;
 }
 
 
 static int qt_xio_errhandler( Display * )
 {
-    warning( "%s: Fatal IO error: client killed", appName );
+    qWarning( "%s: Fatal IO error: client killed", appName );
     exit( 1 );
     return 0;
 }
@@ -834,7 +834,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 		}
 		if ( s == "gdb" ) {
 		    appNoGrab = TRUE;
-		    debug( "Qt: gdb: -nograb added to command-line options.\n"
+		    qDebug( "Qt: gdb: -nograb added to command-line options.\n"
 			   "\t Use the -dograb option to enforce grabbing." );
 		}
 		f.close();
@@ -844,7 +844,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
       // Connect to X server
 
 	if ( ( appDpy = XOpenDisplay(appDpyName) ) == 0 ) {
-	    warning( "%s: cannot connect to X server %s", appName,
+	    qWarning( "%s: cannot connect to X server %s", appName,
 		     XDisplayName(appDpyName) );
 	    exit( 1 );
 	}
@@ -946,9 +946,9 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
 
     if ( !XSupportsLocale() )
-	debug("Qt: Locales not supported on X server");
+	qDebug("Qt: Locales not supported on X server");
     else if ( XSetLocaleModifiers ("") == NULL )
-	debug("Qt: Cannot set locale modifiers");
+	qDebug("Qt: Cannot set locale modifiers");
     else
 	qt_xim = XOpenIM( appDpy, 0, 0, 0 );
 
@@ -994,7 +994,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	}
 	if ( !qt_xim_style ) {
 	    // Give up
-	    warning( "Input style unsupported."
+	    qWarning( "Input style unsupported."
 		     "  See InputMethod documentation.");
 	    close_xim();
 	}
@@ -1002,7 +1002,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	if ( qt_xim ) {
 	    const char* locale = XLocaleOfIM( qt_xim );
 	    input_mapper = QTextCodec::codecForName( locale );
-	    debug( "Codec for %s (%p) is %s", locale, qt_xim,
+	    qDebug( "Codec for %s (%p) is %s", locale, qt_xim,
 		   input_mapper ? input_mapper->name() : "<null>" );
 	}
     }
@@ -1746,7 +1746,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 {
     if ( sockfd < 0 || type < 0 || type > 2 || obj == 0 ) {
 #if defined(CHECK_RANGE)
-	warning( "QSocketNotifier: Internal error" );
+	qWarning( "QSocketNotifier: Internal error" );
 #endif
 	return FALSE;
     }
@@ -1779,7 +1779,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 #if defined(CHECK_STATE)
 	    if ( p && p->fd == sockfd ) {
 		static const char *t[] = { "read", "write", "exception" };
-		warning( "QSocketNotifier: Multiple socket notifiers for "
+		qWarning( "QSocketNotifier: Multiple socket notifiers for "
 			 "same socket %d and type %s", sockfd, t[type] );
 	    }
 #endif	
@@ -4096,7 +4096,7 @@ static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
 {
     if (smcConn != smcConnection )
 	return;
-    debug("sm_saveYourselfCallback");
+    qDebug("sm_saveYourselfCallback");
     sm_setProperties();
     sm_cancel = FALSE;
     sm_smActive = TRUE;
@@ -4161,7 +4161,7 @@ static void sm_shutdownCancelledCallback( SmcConn smcConn, SmPointer /* clientDa
 {
     if (smcConn != smcConnection )
 	return;
-    debug("sm_shutdownCancelledCallback");
+    qDebug("sm_shutdownCancelledCallback");
     if ( sm_waitingForInteraction )
 	qApp->exit_loop();
     resetSmState();
@@ -4169,10 +4169,10 @@ static void sm_shutdownCancelledCallback( SmcConn smcConn, SmPointer /* clientDa
 
 static void sm_saveCompleteCallback( SmcConn smcConn, SmPointer /*clientData */)
 {
-    debug("sm_saveCompleteCallback");
+    qDebug("sm_saveCompleteCallback");
     if (smcConn != smcConnection )
 	return;
-    debug("sm_saveCompleteCallback");
+    qDebug("sm_saveCompleteCallback");
     resetSmState();
 }
 
@@ -4286,7 +4286,7 @@ QSessionManager::QSessionManager( QApplication * /* app */, QString session )
 
     QString error = cerror;
     if (!smcConnection ) {
-	warning("Session management error: %s", error.latin1() );
+	qWarning("Session management error: %s", error.latin1() );
     }
     else {
 	sm_receiver = new QSmSocketReceiver(  IceConnectionNumber( SmcGetIceConnection( smcConnection ) ) );

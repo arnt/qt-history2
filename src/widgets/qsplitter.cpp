@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#68 $
 **
 **  Splitter widget
 **
@@ -936,7 +936,7 @@ void QSplitter::setHidden( QWidget *w, bool hide )
 	w2show = !hide;
     } else {
 #ifdef CHECK_RANGE
-	warning( "QSplitter::setHidden(), unknown widget" );
+	qWarning( "QSplitter::setHidden(), unknown widget" );
 #endif	
 	return;
     }
@@ -960,7 +960,7 @@ bool QSplitter::isHidden( QWidget *w ) const
 	return !w2show;
 #ifdef CHECK_RANGE
     else
-	warning( "QSplitter::isHidden(), unknown widget" );
+	qWarning( "QSplitter::isHidden(), unknown widget" );
 #endif	
     return FALSE;
 }

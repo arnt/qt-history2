@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#227 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#228 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10421,13 +10421,13 @@ static int stat_copy_on_write_size=0;
 static int stat_fast_copy=0;
 void Q_EXPORT qt_qstring_stats()
 {
-	debug("construct_charstar = %d (%d chars)", stat_construct_charstar, stat_construct_charstar_size);
-	debug("construct_null = %d", stat_construct_null);
-	debug("construct_int = %d (%d chars)", stat_construct_int, stat_construct_int_size);
-	debug("construct_ba = %d", stat_construct_ba);
-	debug("get_ascii = %d (%d chars)", stat_get_ascii, stat_get_ascii_size);
-	debug("copy_on_write = %d (%d chars)", stat_copy_on_write, stat_copy_on_write_size);
-	debug("fast_copy = %d", stat_fast_copy);
+	qDebug("construct_charstar = %d (%d chars)", stat_construct_charstar, stat_construct_charstar_size);
+	qDebug("construct_null = %d", stat_construct_null);
+	qDebug("construct_int = %d (%d chars)", stat_construct_int, stat_construct_int_size);
+	qDebug("construct_ba = %d", stat_construct_ba);
+	qDebug("get_ascii = %d (%d chars)", stat_get_ascii, stat_get_ascii_size);
+	qDebug("copy_on_write = %d (%d chars)", stat_copy_on_write, stat_copy_on_write_size);
+	qDebug("fast_copy = %d", stat_fast_copy);
 }
 #else
 #define Q2HELPER(x)
@@ -10758,7 +10758,7 @@ QString QString::arg(const QString& a, int fieldwidth) const
     QString r = *this;
 
     if ( !findArg(pos,len) ) {
-	warning("Argument missing");
+	qWarning("Argument missing");
 	// Make sure the text at least appears SOMEWHERE
 	r += ' ';
 	pos = r.length();
@@ -12168,7 +12168,7 @@ QString &QString::setNum( long n, int base )
 {
 #if defined(CHECK_RANGE)
     if ( base < 2 || base > 36 ) {
-	warning( "QString::setNum: Invalid base %d", base );
+	qWarning( "QString::setNum: Invalid base %d", base );
 	base = 10;
     }
 #endif
@@ -12203,7 +12203,7 @@ QString &QString::setNum( ulong n, int base )
 {
 #if defined(CHECK_RANGE)
     if ( base < 2 || base > 36 ) {
-	warning( "QString::setNum: Invalid base %d", base );
+	qWarning( "QString::setNum: Invalid base %d", base );
 	base = 10;
     }
 #endif
@@ -12255,7 +12255,7 @@ QString &QString::setNum( double n, char f, int prec )
 {
 #if defined(CHECK_RANGE)
     if ( !(f=='f' || f=='F' || f=='e' || f=='E' || f=='g' || f=='G') ) {
-	warning( "QString::setNum: Invalid format char '%c'", f );
+	qWarning( "QString::setNum: Invalid format char '%c'", f );
 	f = 'f';
     }
 #endif
@@ -13112,7 +13112,7 @@ QCString qt_winQString2MB( const QString& s )
 		// and try again...
 	} else {
 	    // Fail.
-	    warning("WideCharToMultiByte cannot convert multibyte text (error %d): %s (UTF8)",
+	    qWarning("WideCharToMultiByte cannot convert multibyte text (error %d): %s (UTF8)",
 		r, s.utf8().data());
 	    break;
 	}
@@ -13134,7 +13134,7 @@ QString qt_winMB2QString( const char* mb, int mblen )
 	int r = GetLastError();
 	if ( r == ERROR_INSUFFICIENT_BUFFER ) {
 	    if ( wc != wc_auto ) {
-		warning("Size changed in MultiByteToWideChar");
+		qWarning("Size changed in MultiByteToWideChar");
 		wclen = 0;
 		break;
 	    } else {
@@ -13145,7 +13145,7 @@ QString qt_winMB2QString( const char* mb, int mblen )
 	    }
 	} else {
 	    // Fail.
-	    warning("MultiByteToWideChar cannot convert multibyte text");
+	    qWarning("MultiByteToWideChar cannot convert multibyte text");
 	    wclen = 0;
 	    break;
 	}

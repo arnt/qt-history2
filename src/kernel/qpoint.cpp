@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#36 $
 **
 ** Implementation of QPoint class
 **
@@ -280,7 +280,7 @@
 void QPoint::warningDivByZero()
 {
 #if defined(CHECK_MATH)
-    warning( "QPoint: Division by zero error" );
+    qWarning( "QPoint: Division by zero error" );
 #endif
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/glpixmap/globjwin.cpp#1 $
+** $Id: //depot/qt/main/extensions/opengl/examples/glpixmap/globjwin.cpp#2 $
 **
 ** Implementation of GLObjectWindow widget class
 **
@@ -240,7 +240,7 @@ void GLObjectWindow::drawOnPixmap( QPixmap* pm )
     // Draw some text on the pixmap to differentiate it from the GL window
 
     if ( pm->isNull() ) {
-	warning("Cannot draw on null pixmap");
+	qWarning("Cannot draw on null pixmap");
 	return;
     }
     else {

@@ -12,7 +12,7 @@ Main::Main(const char* enc, QWidget* parent, const char* name, int f) :
 {
     codec = QTextCodec::codecForName(enc);
     if ( !codec )
-	fatal("No codec for \"%s\"",enc);
+	qFatal("No codec for \"%s\"",enc);
     setFocus();
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#46 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -923,13 +923,13 @@ QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
 {
     if ( (uint)gr > (uint)QPalette::MaxColorGroup ) {
 #if defined(CHECK_RANGE)
-	warning( "QPalette::directBrush: colorGroup(%i) out of range", gr );
+	qWarning( "QPalette::directBrush: colorGroup(%i) out of range", gr );
 #endif
 	return data->normal.br[QColorGroup::Foreground];
     }
     if ( (uint)r > (uint)QColorGroup::MaxColorRole ) {
 #if defined(CHECK_RANGE)
-	warning( "QPalette::directBrush: colorRole(%i) out of range", r );
+	qWarning( "QPalette::directBrush: colorRole(%i) out of range", r );
 #endif
 	return data->normal.br[QColorGroup::Foreground];
     }
@@ -945,7 +945,7 @@ QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
 	break;
     };
 #if defined(CHECK_RANGE)
-    warning( "QPalette::directBrush: colorGroup(%i) internal error", gr );
+    qWarning( "QPalette::directBrush: colorGroup(%i) internal error", gr );
 #endif
     return data->normal.br[QColorGroup::Foreground]; // Satisfy compiler
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#42 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -360,7 +360,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
     QFontMetrics fm( painter->font() );
     QString s = stringShown(row);
     if ( s.isNull() ) {
-	warning( "QMultiLineEdit::paintCell: (%s) no text at line %d",
+	qWarning( "QMultiLineEdit::paintCell: (%s) no text at line %d",
 		 name( "unnamed" ), row );
 	return;
     }
@@ -2819,7 +2819,7 @@ int QMultiLineEdit::hMargin() const
 */
 void QMultiLineEdit::setSelection( int row_from, int col_from, int row_to, int col_to )
 {
-    fatal("Not implemented: setSelection");
+    qFatal("Not implemented: setSelection");
     row_from = col_from = row_to = col_to;
 }
 

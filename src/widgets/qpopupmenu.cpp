@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#222 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#223 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -694,7 +694,7 @@ void QPopupMenu::updateSize()
 
 #if defined(CHECK_NULL)
 	if ( mi->text().isNull() && !mi->pixmap() && !mi->isSeparator() )
-	    warning( "QPopupMenu: (%s) Popup has invalid menu item",
+	    qWarning( "QPopupMenu: (%s) Popup has invalid menu item",
 		     name( "unnamed" ) );
 #endif
 	

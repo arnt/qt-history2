@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#26 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -144,7 +144,7 @@ QSocketNotifier::QSocketNotifier( int socket, Type type, QObject *parent,
 {
 #if defined(CHECK_RANGE)
     if ( socket < 0 )
-	warning( "QSocketNotifier: Invalid socket specified" );
+	qWarning( "QSocketNotifier: Invalid socket specified" );
 #endif
     sockfd = socket;
     sntype = type;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#28 $
 **
 ** Implementation of QSignal class
 **
@@ -181,7 +181,7 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 void QSignal::dummy()				// just for the meta object
 {						//   should never be called
 #if defined(CHECK_STATE)
-    warning( "QSignal: Internal error" );
+    qWarning( "QSignal: Internal error" );
 #endif
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/trial/qapplication_trial.cpp#7 $
+** $Id: //depot/qt/main/etc/trial/qapplication_trial.cpp#8 $
 **
 **		     ***   STRICTLY CONFIDENTIAL   ***
 **
@@ -487,10 +487,10 @@ static void extract_trial_info()
 		 "Please report to qt-bugs@troll.no.\n" );
 	exit( 1 );
 #endif
-	warning( dummy_1 );			// don't optimize them away
-	warning( dummy_2 );
-	warning( dummy_3 );
-	warning( dummy_4 );
+	qWarning( dummy_1 );			// don't optimize them away
+	qWarning( dummy_2 );
+	qWarning( dummy_3 );
+	qWarning( dummy_4 );
     }
 
     len = strlen(p)+1;

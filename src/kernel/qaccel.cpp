@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#70 $
 **
 ** Implementation of QAccel class
 **
@@ -137,7 +137,7 @@ QAccel::QAccel( QWidget *parent, const char *name )
     } else {
 	d->tlw = 0;
 #if defined(CHECK_NULL)
-	warning( "QAccel: An accelerator must have a parent widget" );
+	qWarning( "QAccel: An accelerator must have a parent widget" );
 #endif
     }
 }

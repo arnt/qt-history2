@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#65 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -179,7 +179,7 @@ void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
     if ( bitmap.depth() != 1 || mask.depth() != 1 ||
 	 bitmap.size() != mask.size() ) {
 #if defined(CHECK_NULL)
-	warning( "QCursor: Cannot create bitmap cursor; invalid bitmap(s)" );
+	qWarning( "QCursor: Cannot create bitmap cursor; invalid bitmap(s)" );
 #endif
 	QCursor *c = (QCursor *)&Qt::arrowCursor;
 	c->data->ref();
@@ -623,7 +623,7 @@ void QCursor::update() const
 	    break;
 	default:
 #if defined(CHECK_RANGE)
-	    warning( "QCursor::update: Invalid cursor shape %d", d->cshape );
+	    qWarning( "QCursor::update: Invalid cursor shape %d", d->cshape );
 #endif
 	    return;
     }

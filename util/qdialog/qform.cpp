@@ -32,7 +32,7 @@ bool QForm::event( QEvent *e )
   if ( e->type() != QEvent::LayoutHint )
     return QFrame::event( e );
 
-  debug("---------- LayoutHint ----------" );
+  qDebug("---------- LayoutHint ----------" );
   
   // updateLayout();
   
@@ -105,6 +105,6 @@ void QForm::scrollHor( int _v )
 
 void QForm::wheelEvent( QWheelEvent* e )
 {
-  debug("WHEEL");
+  qDebug("WHEEL");
   QApplication::sendEvent( vbar, e);
 }

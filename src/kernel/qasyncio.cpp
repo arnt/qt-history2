@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#18 $
 **
 ** Implementation of asynchronous I/O classes
 **
@@ -177,7 +177,7 @@ bool QDataSource::rewindable() const
 */
 void QDataSource::enableRewind(bool)
 {
-    fatal("Attempted to make unrewindable QDataSource rewindable");
+    qFatal("Attempted to make unrewindable QDataSource rewindable");
 }
 
 /*!
@@ -186,7 +186,7 @@ void QDataSource::enableRewind(bool)
 */
 void QDataSource::rewind()
 {
-    fatal("Attempted to rewind unrewindable QDataSource");
+    qFatal("Attempted to rewind unrewindable QDataSource");
 }
 
 /*!

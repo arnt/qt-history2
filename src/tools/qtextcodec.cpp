@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#62 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#63 $
 **
 ** Implementation of QTextCodec class
 **
@@ -73,7 +73,7 @@ void QTextCodec::deleteAllCodecs()
     ball->clear();
     delete ball;
     destroying_is_ok = FALSE;
-    debug( "ball over (%p)", all );
+    qDebug( "ball over (%p)", all );
 }
 
 
@@ -84,7 +84,7 @@ static void realSetup()
 {
 #if defined(CHECK_STATE)
     if ( destroying_is_ok )
-	warning( "creating new codec during codec cleanup" );
+	qWarning( "creating new codec during codec cleanup" );
 #endif
     all = new QList<QTextCodec>;
     all->setAutoDelete( TRUE );
@@ -179,7 +179,7 @@ QTextCodec::QTextCodec()
 QTextCodec::~QTextCodec()
 {
     if ( !destroying_is_ok )
-	warning("QTextCodec::~QTextCodec() called by application");
+	qWarning("QTextCodec::~QTextCodec() called by application");
     if ( all )
 	all->remove( this );
 }

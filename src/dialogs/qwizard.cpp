@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#23 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#24 $
 **
 ** Implementation of something useful.
 **
@@ -185,7 +185,7 @@ void QWizard::addPage( QWidget * page, const QString & title )
 	return;
     if ( d->page( page ) ) {
 #if defined(CHECK_STATE)
-	debug( "already added %s/%s to %s/%s",
+	qDebug( "already added %s/%s to %s/%s",
 	       page->className(), page->name(),
 	       className(), name() );
 #endif	

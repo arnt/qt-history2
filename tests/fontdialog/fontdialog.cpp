@@ -11,9 +11,9 @@ main(int argc, char** argv)
     bool ok;
     QFont f = QFontDialog::getFont( &ok );
     if ( ok ) {
-	warning( "OK!" );
+	qWarning( "OK!" );
     } else {
-	warning( "CANCEL!" );
+	qWarning( "CANCEL!" );
     }
 
     QPushButton quit( 0 );

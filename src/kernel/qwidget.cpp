@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#410 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#411 $
 **
 ** Implementation of QWidget class
 **
@@ -564,7 +564,7 @@ QWidget::~QWidget()
 {
 #if defined (CHECK_STATE)
     if ( paintingActive() )
-	warning( "%s (%s): deleted while being painted", className(), name() );
+	qWarning( "%s (%s): deleted while being painted", className(), name() );
 #endif
 
     // remove myself and all children from the can-take-focus list
@@ -1593,7 +1593,7 @@ void QWidget::setBackgroundMode( BackgroundMode m )
     if ( m == NoBackground )
 	setBackgroundEmpty();
     else if ( m == FixedColor || m == FixedPixmap ) {
-	warning("May not pass FixedColor or FixedPixmap to setBackgroundMode()");
+	qWarning("May not pass FixedColor or FixedPixmap to setBackgroundMode()");
 	return;
     }
     setBackgroundModeDirect(m);

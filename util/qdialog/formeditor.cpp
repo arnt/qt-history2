@@ -297,7 +297,7 @@ void DFormEditor::slotAutoArrange()
 	p = ((QObject*)it.currentKey())->parent();
       else if ( p != ((QObject*)it.currentKey())->parent() )
       {
-	debug("Error: NOT ALL IN SAME PARENT");
+	qDebug("Error: NOT ALL IN SAME PARENT");
 	// TODO: Error message
 	return;
       }
@@ -308,7 +308,7 @@ void DFormEditor::slotAutoArrange()
   // Is anything selected at all ?
   if ( selected.isEmpty() )
   {
-    debug("Error: NOTHING SELECTED");
+    qDebug("Error: NOTHING SELECTED");
     // TODO: Error message
     return;
   }
@@ -349,7 +349,7 @@ void DFormEditor::simpleArrange( DFormWidget::Layout _l )
 	p = ((QObject*)it.currentKey())->parent();
       else if ( p != ((QObject*)it.currentKey())->parent() )
       {
-	debug("Error: NOT ALL IN SAME PARENT");
+	qDebug("Error: NOT ALL IN SAME PARENT");
 	// TODO: Error message
 	return;
       }
@@ -360,7 +360,7 @@ void DFormEditor::simpleArrange( DFormWidget::Layout _l )
   // Is anything selected at all ?
   if ( selected.isEmpty() )
   {
-    debug("Error: NOTHING SELECTED");
+    qDebug("Error: NOTHING SELECTED");
     // TODO: Error message
     return;
   }
@@ -1183,7 +1183,7 @@ void DFormWidget::setLayout( DFormWidget::Layout _l, bool _force )
 	  ((DSpacing*)it->w)->setOrientation( _l == DFormWidget::VBoxLayout ?
 					      Qt::Vertical : Qt::Horizontal );
 	
-	debug("Adding widget class %s", it->w->className() );
+	qDebug("Adding widget class %s", it->w->className() );
 	if ( _l == DFormWidget::VBoxLayout )
 	  m_gridLayout->addWidget2( it->w, pos, 0 );
 	else
@@ -1192,7 +1192,7 @@ void DFormWidget::setLayout( DFormWidget::Layout _l, bool _force )
 
       m_gridLayout->activate();
 
-      debug("%s has size hint of %i %i", className(), sizeHint().width(), sizeHint().height() );
+      qDebug("%s has size hint of %i %i", className(), sizeHint().width(), sizeHint().height() );
       resize( sizeHint() );
 
       QWidget* w = parentWidget();
@@ -1200,11 +1200,11 @@ void DFormWidget::setLayout( DFormWidget::Layout _l, bool _force )
       {
 	if ( w->layout() )
 	{
-	  debug("%s has size hint of %i %i", w->className(), w->sizeHint().width(), w->sizeHint().height() );
+	  qDebug("%s has size hint of %i %i", w->className(), w->sizeHint().width(), w->sizeHint().height() );
 	  w->layout()->invalidate();
 	  w->layout()->activate();
 	  w->resize( w->sizeHint() );
-	  debug("2. %s has size hint of %i %i", w->className(), w->sizeHint().width(), w->sizeHint().height() );
+	  qDebug("2. %s has size hint of %i %i", w->className(), w->sizeHint().width(), w->sizeHint().height() );
 	}
 	w = w->parentWidget();
       }
@@ -1349,13 +1349,13 @@ void DFormWidget::replace( QWidget* _old, QWidget *_new )
 	return;
       }
 
-  debug("Could not find widget to replace");
+  qDebug("Could not find widget to replace");
   ASSERT( 0 );
 }
 
 QResourceItem* DFormWidget::save()
 {
-  debug("Saving Form");
+  qDebug("Saving Form");
   switch( m_layout )
   {
   case NoLayout:

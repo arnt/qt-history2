@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#102 $
 **
 ** Implementation of QPixmap class
 **
@@ -258,7 +258,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 {
     if ( paintingActive() ) {
 #if defined(CHECK_STATE)
-	warning("QPixmap::operator=: Cannot assign to pixmap during painting");
+	qWarning("QPixmap::operator=: Cannot assign to pixmap during painting");
 #endif
 	return *this;
     }
@@ -496,7 +496,7 @@ void QPixmap::setMask( const QBitmap &mask )
     }
     if ( mask.width() != width() || mask.height() != height() ) {
 #if defined(CHECK_RANGE)
-	warning( "QPixmap::setMask: The pixmap and the mask must have "
+	qWarning( "QPixmap::setMask: The pixmap and the mask must have "
 		 "the same size" );
 #endif
 	return;

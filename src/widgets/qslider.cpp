@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#85 $
 **
 ** Implementation of QSlider class
 **
@@ -775,7 +775,7 @@ void QSlider::resetState()
     case Idle:
 	break;
     default:
-	warning("QSlider: (%s) in wrong state", name( "unnamed" ) );
+	qWarning("QSlider: (%s) in wrong state", name( "unnamed" ) );
     }
     state = Idle;
 }

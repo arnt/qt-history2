@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#75 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#76 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -75,7 +75,7 @@ int QGDict::hashKey( const char *key )
 {
 #if defined(CHECK_NULL)
     if ( key == 0 )
-	warning( "QGDict::hash: Invalid null key" );
+	qWarning( "QGDict::hash: Invalid null key" );
 #endif
     register const char *k = key;
     register uint h=0;
@@ -273,7 +273,7 @@ QCollection::Item QGDict::look( const char *key, Item d, int op )
     node->setData( newItem(d) );
 #if defined(CHECK_NULL)
     if ( node->getData() == 0 )
-	warning( "QGDict::look: Attempt to insert null item" );
+	qWarning( "QGDict::look: Attempt to insert null item" );
 #endif
     node->setNext( vec[index] );		// link node into table
     vec[index] = node;
@@ -473,11 +473,11 @@ void QGDict::statistics() const
     QString line;
     line.fill( '-', 60 );
     double real, ideal;
-    debug( line.ascii() );
-    debug( "DICTIONARY STATISTICS:" );
+    qDebug( line.ascii() );
+    qDebug( "DICTIONARY STATISTICS:" );
     if ( count() == 0 ) {
-	debug( "Empty!" );
-	debug( line.ascii() );
+	qDebug( "Empty!" );
+	qDebug( line.ascii() );
 	return;
     }
     real = 0.0;
@@ -498,15 +498,15 @@ void QGDict::statistics() const
 	while ( b-- )
 	    *pbuf++ = '*';
 	*pbuf = '\0';
-	debug( buf );
+	qDebug( buf );
 	i++;
     }
-    debug( "Array size = %d", size() );
-    debug( "# items    = %d", count() );
-    debug( "Real dist  = %g", real );
-    debug( "Rand dist  = %g", ideal );
-    debug( "Real/Rand  = %g", real/ideal );
-    debug( line.ascii() );
+    qDebug( "Array size = %d", size() );
+    qDebug( "# items    = %d", count() );
+    qDebug( "Real dist  = %g", real );
+    qDebug( "Rand dist  = %g", ideal );
+    qDebug( "Real/Rand  = %g", real/ideal );
+    qDebug( line.ascii() );
 #endif // DEBUG
 }
 
@@ -676,7 +676,7 @@ QCollection::Item QGDictIterator::toFirst()
 {
     if ( !dict ) {
 #if defined(CHECK_NULL)
-	warning( "QGDictIterator::toFirst: Dictionary has been deleted" );
+	qWarning( "QGDictIterator::toFirst: Dictionary has been deleted" );
 #endif
 	return 0;
     }
@@ -703,7 +703,7 @@ QCollection::Item QGDictIterator::operator()()
 {
     if ( !dict ) {
 #if defined(CHECK_NULL)
-	warning( "QGDictIterator::operator(): Dictionary has been deleted" );
+	qWarning( "QGDictIterator::operator(): Dictionary has been deleted" );
 #endif
 	return 0;
     }
@@ -723,7 +723,7 @@ QCollection::Item QGDictIterator::operator++()
 {
     if ( !dict ) {
 #if defined(CHECK_NULL)
-	warning( "QGDictIterator::operator++: Dictionary has been deleted" );
+	qWarning( "QGDictIterator::operator++: Dictionary has been deleted" );
 #endif
 	return 0;
     }
@@ -799,7 +799,7 @@ QCollection::Item QGDict::look( const QString& key, Item g, int op )
 	return look( kutf8.data(), g, op );
     } else {
 	if ( !copyk ) {
-	    fatal("QGDict: attempted to insert QString without copying key");
+	    qFatal("QGDict: attempted to insert QString without copying key");
 	    return 0;
 	} else {
 	    return look( kutf8.data(), g, op );

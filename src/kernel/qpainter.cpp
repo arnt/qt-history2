@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#175 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#176 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -240,7 +240,7 @@ bool QPainter::begin( const QPaintDevice *pd, const QWidget *copyAttributes )
 {
     if ( pd == 0 ) {
 #if defined(CHECK_NULL)
-	warning( "QPainter::begin: The widget to copy attributes from cannot "
+	qWarning( "QPainter::begin: The widget to copy attributes from cannot "
 		 "be null" );
 #endif
 	return FALSE;
@@ -379,7 +379,7 @@ void QPainter::restore()
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 || pss->isEmpty() ) {
 #if defined(CHECK_STATE)
-	warning( "QPainter::restore: Empty stack error" );
+	qWarning( "QPainter::restore: Empty stack error" );
 #endif
 	return;
     }
@@ -460,7 +460,7 @@ void QPainter::setPen( const QPen &pen )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setPen: Will be reset by begin()" );
+	qWarning( "QPainter::setPen: Will be reset by begin()" );
 #endif
     cpen = pen;
     updatePen();
@@ -475,7 +475,7 @@ void QPainter::setPen( PenStyle style )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setPen: Will be reset by begin()" );
+	qWarning( "QPainter::setPen: Will be reset by begin()" );
 #endif
     register QPen::QPenData *d = cpen.data;	// low level access
     if ( d->count != 1 ) {
@@ -498,7 +498,7 @@ void QPainter::setPen( const QColor &color )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setPen: Will be reset by begin()" );
+	qWarning( "QPainter::setPen: Will be reset by begin()" );
 #endif
     register QPen::QPenData *d = cpen.data;	// low level access
     if ( d->count != 1 ) {
@@ -529,7 +529,7 @@ void QPainter::setBrush( const QBrush &brush )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setBrush: Will be reset by begin()" );
+	qWarning( "QPainter::setBrush: Will be reset by begin()" );
 #endif
     cbrush = brush;
     updateBrush();
@@ -544,7 +544,7 @@ void QPainter::setBrush( BrushStyle style )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setBrush: Will be reset by begin()" );
+	qWarning( "QPainter::setBrush: Will be reset by begin()" );
 #endif
     register QBrush::QBrushData *d = cbrush.data; // low level access
     if ( d->count != 1 ) {
@@ -570,7 +570,7 @@ void QPainter::setBrush( const QColor &color )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setBrush: Will be reset by begin()" );
+	qWarning( "QPainter::setBrush: Will be reset by begin()" );
 #endif
     register QBrush::QBrushData *d = cbrush.data; // low level access
     if ( d->count != 1 ) {
@@ -632,7 +632,7 @@ void QPainter::setTabStops( int ts )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setTabStops: Will be reset by begin()" );
+	qWarning( "QPainter::setTabStops: Will be reset by begin()" );
 #endif
     tabstops = ts;
     if ( isActive() && testf(ExtDev) ) {	// tell extended device
@@ -665,7 +665,7 @@ void QPainter::setTabArray( int *ta )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setTabArray: Will be reset by begin()" );
+	qWarning( "QPainter::setTabArray: Will be reset by begin()" );
 #endif
     if ( ta != tabarray ) {
 	tabarraylen = 0;
@@ -711,7 +711,7 @@ void QPainter::setViewXForm( bool enable )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setViewXForm: Will be reset by begin()" );
+	qWarning( "QPainter::setViewXForm: Will be reset by begin()" );
 #endif
     if ( !isActive() || enable == testf(VxF) )
 	return;
@@ -788,7 +788,7 @@ void QPainter::setWindow( int x, int y, int w, int h )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setWindow: Will be reset by begin()" );
+	qWarning( "QPainter::setWindow: Will be reset by begin()" );
 #endif
     wx = x;
     wy = y;
@@ -865,7 +865,7 @@ void QPainter::setViewport( int x, int y, int w, int h )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setViewport: Will be reset by begin()" );
+	qWarning( "QPainter::setViewport: Will be reset by begin()" );
 #endif
     vx = x;
     vy = y;
@@ -894,7 +894,7 @@ void QPainter::setWorldXForm( bool enable )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setWorldXForm: Will be reset by begin()" );
+	qWarning( "QPainter::setWorldXForm: Will be reset by begin()" );
 #endif
     if ( !isActive() || enable == testf(WxF) )
 	return;
@@ -996,7 +996,7 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setWorldMatrix: Will be reset by begin()" );
+	qWarning( "QPainter::setWorldMatrix: Will be reset by begin()" );
 #endif
     if ( combine )
 	wxmat = m * wxmat;			// combines
@@ -1051,7 +1051,7 @@ void QPainter::restoreWorldMatrix()
     QWMatrixStack *stack = (QWMatrixStack *)wm_stack;
     if ( stack == 0 || stack->isEmpty() ) {
 #if defined(CHECK_STATE)
-	warning( "QPainter::restoreWorldMatrix: Empty stack error" );
+	qWarning( "QPainter::restoreWorldMatrix: Empty stack error" );
 #endif
 	return;
     }
@@ -1288,7 +1288,7 @@ void QPainter::map( int x, int y, int w, int h,
 	    } break;
 	default:
 #if defined(CHECK_STATE)
-	    warning( "QPainter::map: Internal error" );
+	    qWarning( "QPainter::map: Internal error" );
 #endif
 	    break;
     }
@@ -1303,7 +1303,7 @@ void QPainter::mapInv( int x, int y, int *rx, int *ry ) const
 {
 #if defined(CHECK_STATE)
     if ( !txinv )
-	warning( "QPainter::mapInv: Internal error" );
+	qWarning( "QPainter::mapInv: Internal error" );
 #endif
     double tx = im11()*x + im21()*y+idx();
     double ty = im12()*x + im22()*y+idy();
@@ -1322,7 +1322,7 @@ void QPainter::mapInv( int x, int y, int w, int h,
 {
 #if defined(CHECK_STATE)
     if ( !txinv || txop == TxRotShear )
-	warning( "QPainter::mapInv: Internal error" );
+	qWarning( "QPainter::mapInv: Internal error" );
 #endif
     double tx = im11()*x + idx();
     double ty = im22()*y + idy();
@@ -2117,7 +2117,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	if ( strncmp(ti->tag,"qptr",4)!=0 || ti->w != w || ti->h != h ||
 	     ti->tf != tf || ti->len != len ) {
 #if defined(CHECK_STATE)
-	    warning( "QPainter::drawText: Internal text info is invalid" );
+	    qWarning( "QPainter::drawText: Internal text info is invalid" );
 #endif
 	    return;
 	}
@@ -2181,7 +2181,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	hAlignFlags++;
 
     if ( hAlignFlags > 1 )
-	warning("QPainter::drawText: More than one of AlignRight, AlignLeft\n"
+	qWarning("QPainter::drawText: More than one of AlignRight, AlignLeft\n"
 		"                    and AlignHCenter set in the tf parameter."
 		);
 
@@ -2194,7 +2194,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	vAlignFlags++;
 
     if ( hAlignFlags > 1 )
-	warning("QPainter::drawText: More than one of AlignTop, AlignBottom\n"
+	qWarning("QPainter::drawText: More than one of AlignTop, AlignBottom\n"
 		"                    and AlignVCenter set in the tf parameter."
 		);
 #endif // CHECK_RANGE
@@ -2866,7 +2866,7 @@ void QBrush::setStyle( BrushStyle s )		// set brush style
 	return;
 #if defined(CHECK_RANGE)
     if ( s == CustomPattern )
-	warning( "QBrush::setStyle: CustomPattern is for internal use" );
+	qWarning( "QBrush::setStyle: CustomPattern is for internal use" );
 #endif
     detach();
     data->style = s;

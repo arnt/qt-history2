@@ -40,7 +40,7 @@ main()
 {
     
 #ifndef EMPTYRXWORKS
-    warning("Not testing Empty regexp; in 1.x it crashes.");
+    qWarning("Not testing Empty regexp; in 1.x it crashes.");
 #endif
 
     int len = -1;

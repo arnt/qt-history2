@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#75 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#76 $
 **
 ** Implementation of date and time classes
 **
@@ -212,7 +212,7 @@ QString QDate::monthName( int month ) const
 {
 #if defined(CHECK_RANGE)
     if ( month < 0 || month > 12 ) {
-	warning( "QDate::monthName: Parameter out ouf range." );
+	qWarning( "QDate::monthName: Parameter out ouf range." );
 	month = 0;
     }
 #endif
@@ -230,7 +230,7 @@ QString QDate::dayName( int weekday) const
 {
 #if defined(CHECK_RANGE)
     if ( weekday < 0 || weekday > 7 ) {
-	warning( "QDate::dayName: Parameter out of range." );
+	qWarning( "QDate::dayName: Parameter out of range." );
 	weekday = 0;
     }
 #endif
@@ -268,7 +268,7 @@ bool QDate::setYMD( int y, int m, int d )
 {
     if ( !isValid(y,m,d) ) {
 #if defined(CHECK_RANGE)
-	 warning( "QDate::setYMD: Invalid date %04d/%02d/%02d", y, m, d );
+	 qWarning( "QDate::setYMD: Invalid date %04d/%02d/%02d", y, m, d );
 #endif
 	 return FALSE;
     }
@@ -569,7 +569,7 @@ bool QTime::setHMS( int h, int m, int s, int ms )
 {
     if ( !isValid(h,m,s,ms) ) {
 #if defined(CHECK_RANGE)
-	warning( "QTime::setHMS Invalid time %02d:%02d:%02d.%03d", h, m, s,
+	qWarning( "QTime::setHMS Invalid time %02d:%02d:%02d.%03d", h, m, s,
 		 ms );
 #endif
 	return FALSE;
@@ -686,7 +686,7 @@ bool QTime::currentTime( QTime *ct )
 {
     if ( !ct ) {
 #if defined(CHECK_NULL)
-	warning( "QTime::currentTime(QTime *): Null pointer not allowed" );
+	qWarning( "QTime::currentTime(QTime *): Null pointer not allowed" );
 #endif
 	return FALSE;
     }
@@ -758,7 +758,7 @@ bool QTime::isValid( int h, int m, int s, int ms )
     QTime t;
     t.start();				// start clock
     ... // some lengthy task
-    debug( "%d\n", t.elapsed() );	// prints # msecs elapsed
+    qDebug( "%d\n", t.elapsed() );	// prints # msecs elapsed
   \endcode
 
   \sa restart(), elapsed()
@@ -914,7 +914,7 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 	tM = localtime( 0 );
 	if ( !tM ) {
 #if defined(CHECK_NULL)
-	    warning( "QDateTime::setTime_t: Cannot get localtime" );
+	    qWarning( "QDateTime::setTime_t: Cannot get localtime" );
 #endif
 	    return;
 	}
@@ -1009,7 +1009,7 @@ int QDateTime::daysTo( const QDateTime &dt ) const
   \code
     QDateTime dt = QDateTime::currentDateTime();
     QDateTime x( QDate(dt.year(),12,24), QTime(17,00) );
-    debug( "There are %d seconds to Christmas", dt.secsTo(x) );
+    qDebug( "There are %d seconds to Christmas", dt.secsTo(x) );
   \endcode
 
   \sa addSecs() daysTo() QTime::secsTo()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qpic2cpp/qpic2cpp.cpp#5 $
+** $Id: //depot/qt/main/util/qpic2cpp/qpic2cpp.cpp#6 $
 **
 ** This is a utility program for converting Qt metafiles to C++ code
 **
@@ -57,7 +57,7 @@ int qMain( int argc, char **argv )		// plain main
 bool genCPlusPlus( QString fileName, QFile &file )
 {
     if ( file.size() == 0 ) {			// nothing recorded
-	warning( "qmf2cpp: Empty metafile" );
+	qWarning( "qmf2cpp: Empty metafile" );
 	return FALSE;
     }
     QByteArray bytes( file.size() );		// create byte array

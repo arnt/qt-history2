@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#80 $
 **
 ** Implementation of QDialog class
 **
@@ -188,7 +188,7 @@ int QDialog::exec()
 {
 #if defined(CHECK_STATE)
     if ( !testWFlags(WType_Modal) )
-	warning( "QDialog::exec: Calling this function for a modeless dialog "
+	qWarning( "QDialog::exec: Calling this function for a modeless dialog "
 		 "makes no sense" );
 #endif
     setResult( 0 );

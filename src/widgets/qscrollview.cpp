@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#98 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#99 $
 **
 ** Implementation of QScrollView class
 **
@@ -1774,7 +1774,7 @@ void QScrollView::enableClipper(bool y)
     if ( !d->clipped_viewport == !y )
 	return;
     if ( d->children.count() )
-	fatal("May only call QScrollView::enableClipper() before adding widgets");
+	qFatal("May only call QScrollView::enableClipper() before adding widgets");
     if ( y ) {
 	d->clipped_viewport = new QWidget(clipper());
 	d->clipped_viewport->setGeometry(-coord_limit/2,-coord_limit/2,

@@ -314,7 +314,7 @@ QMLImage::QMLImage(const QDict<QString> &attr, const QMLProvider &provider)
 
 QMLImage::~QMLImage()
 {
-    debug("image destructor");
+    qDebug("image destructor");
 }
 
 void QMLImage::draw(QPainter* p, int x, int y,
@@ -1731,7 +1731,7 @@ void QMLDocument::init( const QString& doc )
     int pos = 0;
     parse(this, 0, doc, pos);
     if (!valid)
-	debug("qml document not valid!");
+	qDebug("qml document not valid!");
 }
 
 QMLDocument::~QMLDocument()
@@ -1773,7 +1773,7 @@ QString QMLDocument::firstTag( const QString& doc)
 	    l++;
 	tag = doc.mid( i,l ).lower();
     }
-    debug("first tag is %s", tag.ascii() );
+    qDebug("first tag is %s", tag.ascii() );
     return tag;
 }
 
@@ -2192,17 +2192,17 @@ void QMLView::resizeEvent(QResizeEvent* e)
 
 void QMLView::viewportMousePressEvent( QMouseEvent* )
 {
-    debug("QMLView::viewportMousePressEvent");
+    qDebug("QMLView::viewportMousePressEvent");
 }
 
 void QMLView::viewportMouseReleaseEvent( QMouseEvent* )
 {
-    debug("QMLView::viewportMouseReleaseEvent");
+    qDebug("QMLView::viewportMouseReleaseEvent");
 }
 
 void QMLView::viewportMouseMoveEvent( QMouseEvent* )
 {
-    debug("QMLView::viewportMouseMoveEvent");
+    qDebug("QMLView::viewportMouseMoveEvent");
 }
 
 void QMLView::keyPressEvent( QKeyEvent * e)
@@ -2290,7 +2290,7 @@ void QMLEdit::setContents( const QString& contents)
  */
 QString QMLEdit::contents()
 {
-    debug("not yet implemented");
+    qDebug("not yet implemented");
     return "not yet implemented";
 }
 
@@ -2652,7 +2652,7 @@ void QMLBrowser::viewportMouseMoveEvent( QMouseEvent* e)
 	viewport()->setCursor( act?upArrowCursor:arrowCursor );
 	if (act && act->attributes()["href"])
 	    href = *act->attributes()["href"];
-	debug("highlight: %s", href.ascii());
+	qDebug("highlight: %s", href.ascii());
 	emit highlighted( href );
     }
     highlight = act;
@@ -2694,7 +2694,7 @@ public:
 protected:
     void hideEvent( QHideEvent * ) //###### need real popup function, see qwhatsthis
 	{
-	    debug("hide event, delete myself!");
+	    qDebug("hide event, delete myself!");
 	    delete this;
 	}
 
@@ -2753,7 +2753,7 @@ int main( int argc, char* argv[] ){
 
     //t.setPaperPixmap( QPixmap("marble01.bmp"));
 
-    debug("title ist %s", t.title().ascii() );
+    qDebug("title ist %s", t.title().ascii() );
 
     a.setMainWidget(&t);
     t.show();

@@ -11,7 +11,7 @@ Main::Main(QWidget* parent, const char* name, int f) :
 
 void Main::bang()
 {
-    debug( "%d timers so far", ++fucks );
+    qDebug( "%d timers so far", ++fucks );
 }
 
 void Main::resizeEvent(QResizeEvent*)

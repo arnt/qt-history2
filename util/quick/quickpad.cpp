@@ -21,7 +21,7 @@ public:
 	if ( name == "QWidget" ) return new QWidget(parent,objname);
 	if ( name == "QPushButton" ) return new QPushButton("Button",parent,objname);
 	if ( name == "QButtonGroup" ) return new QButtonGroup(parent,objname);
-debug("QNamedWidgetFactory::instance() - what is a %s?",(const char*)name);
+qDebug("QNamedWidgetFactory::instance() - what is a %s?",(const char*)name);
 	return new QWidget(parent,objname);
     }
 };
@@ -169,7 +169,7 @@ void QuickPad::addTab( QWidget* child, QPixmap pm, const char* text )
 */
 void QuickPad::addTab( QWidget*, const char* )
 {
-    fatal("wrong QuickTab::addTab called");
+    qFatal("wrong QuickTab::addTab called");
 }
 
 QuickPad::~QuickPad()

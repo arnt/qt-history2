@@ -110,7 +110,7 @@ QValueList<int> dGuessGrid( QValueList<DRange>& _ranges )
     }
   }
   qBubbleSort( edges );
-  debug("#edges=%i", edges.count() );
+  qDebug("#edges=%i", edges.count() );
 
   // Debug
   QTextStream out( stdout, IO_WriteOnly );
@@ -137,7 +137,7 @@ QValueList<int> dGuessGrid( QValueList<DRange>& _ranges )
       QValueList<DRange>::Iterator rit = _ranges.begin();
       for( ; rit != _ranges.end() && !contains; ++rit )
       {
-	debug("Testing range %i %i and %i %i", l, r, rit->left(), rit->right() );
+	qDebug("Testing range %i %i and %i %i", l, r, rit->left(), rit->right() );
 	if ( range.contains( *rit ) )
 	  contains = TRUE;
       }
@@ -150,23 +150,23 @@ QValueList<int> dGuessGrid( QValueList<DRange>& _ranges )
 	{
 	  if ( rit->isLeftEdge( range ) )
 	  {
-	    debug("Removing left edge");
+	    qDebug("Removing left edge");
 	    rit->setCoords( range.right(), rit->right() );
 	  }
 	  else if ( rit->isRightEdge( range.left() ) )
 	  {
-	    debug("Extending right edge" );
+	    qDebug("Extending right edge" );
 	    rit->setCoords( rit->left(), range.right() - 1 );
 	  }
 	}
 	// Remove the left edge
-	debug("-Delete range %i %i", *it2, *it3 );
+	qDebug("-Delete range %i %i", *it2, *it3 );
 	it2 = edges.remove( it2 );
       }
       // Dont erase this range since it contains a complete widget
       else
       {
-	debug("-skipping range %i %i", *it2, *it3 );
+	qDebug("-skipping range %i %i", *it2, *it3 );
 	++it2;
       }
     }
@@ -195,7 +195,7 @@ DGridLayout* dGuessGrid( QWidget* _parent, QList<QWidget>& _widgets )
     it.current()->setGeometry( it2->left(), it.current()->y(),
 			       it2->width(), it.current()->height() );
 
-  debug("#hedges=%i", hedges.count() );
+  qDebug("#hedges=%i", hedges.count() );
 
   // Vertical
   ranges.clear();
@@ -212,7 +212,7 @@ DGridLayout* dGuessGrid( QWidget* _parent, QList<QWidget>& _widgets )
     it.current()->setGeometry( it.current()->x(), it2->left(),
 			       it.current()->width(), it2->width() );
 
-  debug("#vedges=%i", vedges.count() );
+  qDebug("#vedges=%i", vedges.count() );
 
   DGridLayout* grid = new DGridLayout( _parent, DGridLayout::Grid, vedges.count() - 1, hedges.count() - 1, 6, 6 );
 #ifdef GRID_TEST
@@ -642,7 +642,7 @@ bool DGridLayout::configure( const QResource& _resource )
       {
 	if ( icol->type() == "Cell" )
 	{
-	  debug("QGridLayout child at %i %i", r, c );
+	  qDebug("QGridLayout child at %i %i", r, c );
 
 	  int multicol = 1;
 	  int multirow = 1;
@@ -704,7 +704,7 @@ bool DGridLayout::configure( const QResource& _resource )
 	    addColSpacing( c, icol->intAttrib( "size" ) );
 	  if ( icol->hasAttrib( "stretch" ) )
 	  {
-	    debug("Setting stretch of col %i to %i",c,icol->intAttrib( "stretch" ) );
+	    qDebug("Setting stretch of col %i to %i",c,icol->intAttrib( "stretch" ) );
 	    setColStretch( c, icol->intAttrib( "stretch" ) );
 	  }
 	  

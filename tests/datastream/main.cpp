@@ -52,7 +52,7 @@ public:
 /*
 void dumpColor( const QColor& c )
 {
-    debug( "   R:%0x G:%0x B:%0x", c.red(), c.green(), c.blue() );
+    qDebug( "   R:%0x G:%0x B:%0x", c.red(), c.green(), c.blue() );
 }
 
 
@@ -77,7 +77,7 @@ void dumpColorGroup( const QColorGroup& g )
 
 void dumpPalette( const QPalette& p )
 {
-    debug( "Palette dump:" );
+    qDebug( "Palette dump:" );
     //dumpColorGroup( p.normal() );
     //dumpColorGroup( p.active() );
     dumpColorGroup( p.disabled() );
@@ -235,8 +235,8 @@ bool Streamer::readIn( QIODevice* dev, int ver )
     ASSERT( d12.size() == QImage( open_xpm ).size() );
     QImage ref( open_xpm );
     /*
-    debug( "Alpha: %i %i", (int)d12.hasAlphaBuffer(), ref.hasAlphaBuffer() );
-    debug( "Feil %i %i: %x != %x", 3, 0, d12.pixel( 3, 0 ), ref.pixel( 3, 0 ) );
+    qDebug( "Alpha: %i %i", (int)d12.hasAlphaBuffer(), ref.hasAlphaBuffer() );
+    qDebug( "Feil %i %i: %x != %x", 3, 0, d12.pixel( 3, 0 ), ref.pixel( 3, 0 ) );
     
      ################ Bug : ref and orig has ff in alpha; readback has 0
      ### (Was like this in 1.44 as well )
@@ -244,7 +244,7 @@ bool Streamer::readIn( QIODevice* dev, int ver )
     for( int i = 0; i < d12.height(); i++ )
 	for( int j = 0; j < d12.width(); j++ )
 	    if ( d12.pixel( j, i ) != ref.pixel( j, i ) )
-		debug( "Feil %i %i", j, i );
+		qDebug( "Feil %i %i", j, i );
 
     */
     //ASSERT( d12 == QImage( open_xpm ) );
@@ -319,7 +319,7 @@ bool Streamer::readIn( QIODevice* dev, int ver )
 
 int main( int argc, char **argv )
 {
-    debug( "Starting..." );
+    qDebug( "Starting..." );
     QApplication a(argc,argv);
 
     Streamer s;
@@ -340,7 +340,7 @@ int main( int argc, char **argv )
     }
 
 #if QT_VERSION >= 200
-    debug( "Using QDatastream format %i.", ver );
+    qDebug( "Using QDatastream format %i.", ver );
 #endif
 
     if ( argc > 1 ) {
@@ -354,7 +354,7 @@ int main( int argc, char **argv )
 	    b.open( IO_ReadOnly );
 	    s.readIn( &b, ver );
 	    b.close();
-	    debug( "%s: Internal write and read done.", argv[0] );
+	    qDebug( "%s: Internal write and read done.", argv[0] );
 	    return 0;
 	}
     }
@@ -373,7 +373,7 @@ int main( int argc, char **argv )
 
 	QFile f( fileName );
 	if ( !f.open( IO_WriteOnly ) ) {
-	    warning( "%s: Could not open %s for writing", argv[0], 
+	    qWarning( "%s: Could not open %s for writing", argv[0], 
 		     (const char*)fileName );
 	    return 0;
 	}
@@ -381,20 +381,20 @@ int main( int argc, char **argv )
 	s.writeOut( &f, ver );
 	f.close();
 	
-	debug( "%s: Output written to %s.", argv[0], (const char*)fileName );
+	qDebug( "%s: Output written to %s.", argv[0], (const char*)fileName );
     }
     else {
 	QString fileName( argv[1+off] );
 	QFile f( fileName );
 	if ( !f.open( IO_ReadOnly ) ) {
-	    warning( "%s: Could not open %s for reading", argv[0], 
+	    qWarning( "%s: Could not open %s for reading", argv[0], 
 		     (const char*)fileName );
 	    return 0;
 	}
 	 
 	s.readIn( &f, ver );
 	f.close();
-	debug( "%s: %s read.", argv[0], (const char*)fileName );
+	qDebug( "%s: %s read.", argv[0], (const char*)fileName );
     }
 
     return 0;

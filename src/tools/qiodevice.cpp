@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#48 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#49 $
 **
 ** Implementation of QIODevice class
 **
@@ -286,7 +286,7 @@ void QIODevice::setType( int t )
 {
 #if defined(CHECK_RANGE)
     if ( (t & IO_TypeMask) != t )
-	warning( "QIODevice::setType: Specified type out of range" );
+	qWarning( "QIODevice::setType: Specified type out of range" );
 #endif
     ioMode &= ~IO_TypeMask;			// reset type bits
     ioMode |= t;
@@ -301,7 +301,7 @@ void QIODevice::setMode( int m )
 {
 #if defined(CHECK_RANGE)
     if ( (m & IO_ModeMask) != m )
-	warning( "QIODevice::setMode: Specified mode out of range" );
+	qWarning( "QIODevice::setMode: Specified mode out of range" );
 #endif
     ioMode &= ~IO_ModeMask;			// reset mode bits
     ioMode |= m;
@@ -316,7 +316,7 @@ void QIODevice::setState( int s )
 {
 #if defined(CHECK_RANGE)
     if ( ((uint)s & IO_StateMask) != (uint)s )
-	warning( "QIODevice::setState: Specified state out of range" );
+	qWarning( "QIODevice::setState: Specified state out of range" );
 #endif
     ioMode &= ~IO_StateMask;			// reset state bits
     ioMode |= (uint)s;
@@ -402,7 +402,7 @@ bool QIODevice::at( int pos )
 {
 #if defined(CHECK_RANGE)
     if ( (uint)pos > size() ) {
-	warning( "QIODevice::at: Index %d out of range", pos );
+	qWarning( "QIODevice::at: Index %d out of range", pos );
 	return FALSE;
     }
 #endif

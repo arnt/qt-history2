@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#47 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -136,7 +136,7 @@ static QWhatsThisPrivate * wt = 0;
 QWhatsThisPrivate::WhatsThisItem::~WhatsThisItem()
 {
     if ( count )
-	fatal( "Internal error #10%d in What's This", count );
+	qFatal( "Internal error #10%d in What's This", count );
 }
 
 

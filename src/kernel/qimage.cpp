@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#222 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#223 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -488,7 +488,7 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 void QImage::warningIndexRange( const char *func, int i )
 {
 #if defined(CHECK_RANGE)
-    warning( "QImage::%s: Index %d out of range", func, i );
+    qWarning( "QImage::%s: Index %d out of range", func, i );
 #else
     Q_UNUSED( func )
     Q_UNUSED( i )
@@ -725,7 +725,7 @@ bool QImage::create( int width, int height, int depth, int numColors,
 	return FALSE;				// invalid parameter(s)
     if ( depth == 1 && bitOrder == IgnoreEndian ) {
 #if defined(CHECK_RANGE)
-	warning( "QImage::create: Bit order is required for 1 bpp images" );
+	qWarning( "QImage::create: Bit order is required for 1 bpp images" );
 #endif
 	return FALSE;
     }
@@ -734,7 +734,7 @@ bool QImage::create( int width, int height, int depth, int numColors,
 
 #if defined(CHECK_RANGE)
     if ( depth == 24 )
-	warning( "QImage::create: 24-bpp images no longer supported, "
+	qWarning( "QImage::create: 24-bpp images no longer supported, "
 		 "use 32-bpp instead" );
 #endif
     switch ( depth ) {
@@ -1531,9 +1531,9 @@ QImage QImage::convertDepth( int depth, int conversion_flags ) const
     else {
 #if defined(CHECK_RANGE)
 	if ( isNull() )
-	    warning( "QImage::convertDepth: Image is a null image" );
+	    qWarning( "QImage::convertDepth: Image is a null image" );
 	else
-	    warning( "QImage::convertDepth: Depth %d not supported", depth );
+	    qWarning( "QImage::convertDepth: Depth %d not supported", depth );
 #endif
     }
     return image;
@@ -1570,7 +1570,7 @@ int QImage::pixelIndex( int x, int y ) const
 {
 #if defined(CHECK_RANGE)
     if ( x < 0 || x > width() ) {
-	warning( "QImage::pixel: x=%d out of range", x );
+	qWarning( "QImage::pixel: x=%d out of range", x );
 	return -12345;
     }
 #endif
@@ -1585,7 +1585,7 @@ int QImage::pixelIndex( int x, int y ) const
 	return (int)s[x];
     case 32:
 #if defined(CHECK_RANGE)
-	warning( "QImage::pixelIndex: Not applicable for 32-bpp images "
+	qWarning( "QImage::pixelIndex: Not applicable for 32-bpp images "
 		 "(no palette)" );
 #endif
 	return 0;
@@ -1605,7 +1605,7 @@ QRgb QImage::pixel( int x, int y ) const
 {
 #if defined(CHECK_RANGE)
     if ( x < 0 || x > width() ) {
-	warning( "QImage::pixel: x=%d out of range", x );
+	qWarning( "QImage::pixel: x=%d out of range", x );
 	return 12345;
     }
 #endif
@@ -1638,7 +1638,7 @@ void QImage::setPixel( int x, int y, uint index_or_rgb )
 {
     if ( x < 0 || x > width() ) {
 #if defined(CHECK_RANGE)
-	warning( "QImage::setPixel: x=%d out of range", x );
+	qWarning( "QImage::setPixel: x=%d out of range", x );
 #endif
 	return;
     }
@@ -1646,7 +1646,7 @@ void QImage::setPixel( int x, int y, uint index_or_rgb )
 	uchar * s = scanLine( y );
 	if ( index_or_rgb > 1) {
 #if defined(CHECK_RANGE)
-	    warning( "QImage::setPixel: index=%d out of range",
+	    qWarning( "QImage::setPixel: index=%d out of range",
 		     index_or_rgb );
 #endif
 	} else if ( bitOrder() == QImage::LittleEndian ) {
@@ -1663,7 +1663,7 @@ void QImage::setPixel( int x, int y, uint index_or_rgb )
     } else if ( depth() == 8 ) {
 	if (index_or_rgb > (uint)numColors()) {
 #if defined(CHECK_RANGE)
-	    warning( "QImage::setPixel: index=%d out of range",
+	    qWarning( "QImage::setPixel: index=%d out of range",
 		     index_or_rgb );
 #endif
 	    return;
@@ -3005,7 +3005,7 @@ bool QImageIO::write()
     QImageHandler *h = get_image_handler( frmt );
     if ( !h || !h->write_image ) {
 #if defined(CHECK_RANGE)
-	warning( "QImageIO::write: No such image format handler: %s",
+	qWarning( "QImageIO::write: No such image format handler: %s",
 		 format() );
 #endif
 	return FALSE;
@@ -3128,17 +3128,17 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 	return FALSE;
 #if 0
     //debug( "bfOffBits........%d", bf.bfOffBits );
-    debug( "biSize...........%d", bi.biSize );
-    debug( "biWidth..........%d", bi.biWidth );
-    debug( "biHeight.........%d", bi.biHeight );
-    debug( "biPlanes.........%d", bi.biPlanes );
-    debug( "biBitCount.......%d", bi.biBitCount );
-    debug( "biCompression....%d", bi.biCompression );
-    debug( "biSizeImage......%d", bi.biSizeImage );
-    debug( "biXPelsPerMeter..%d", bi.biXPelsPerMeter );
-    debug( "biYPelsPerMeter..%d", bi.biYPelsPerMeter );
-    debug( "biClrUsed........%d", bi.biClrUsed );
-    debug( "biClrImportant...%d", bi.biClrImportant );
+    qDebug( "biSize...........%d", bi.biSize );
+    qDebug( "biWidth..........%d", bi.biWidth );
+    qDebug( "biHeight.........%d", bi.biHeight );
+    qDebug( "biPlanes.........%d", bi.biPlanes );
+    qDebug( "biBitCount.......%d", bi.biBitCount );
+    qDebug( "biCompression....%d", bi.biCompression );
+    qDebug( "biSizeImage......%d", bi.biSizeImage );
+    qDebug( "biXPelsPerMeter..%d", bi.biXPelsPerMeter );
+    qDebug( "biYPelsPerMeter..%d", bi.biYPelsPerMeter );
+    qDebug( "biClrUsed........%d", bi.biClrUsed );
+    qDebug( "biClrImportant...%d", bi.biClrImportant );
 #endif
     int w = bi.biWidth,	 h = bi.biHeight,  nbits = bi.biBitCount;
     int t = bi.biSize,	 comp = bi.biCompression;
@@ -4059,7 +4059,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
     for( currentColor=0; currentColor < ncols; ++currentColor ) {
 	if ( !read_xpm_string( buf, d, source, index ) ) {
 #if defined(CHECK_RANGE)
-	    warning( "QImage: XPM color specification missing");
+	    qWarning( "QImage: XPM color specification missing");
 #endif
 	    return;
 	}
@@ -4070,7 +4070,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 	    i = buf.find( " c " );
 	    if ( i < 0 ) {
 #if defined(CHECK_RANGE)
-		warning( "QImage: XPM color specification is missing");
+		qWarning( "QImage: XPM color specification is missing");
 #endif
 		return;				// no c specification
 	    }
@@ -4106,7 +4106,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
     for( int y=0; y<h; y++ ) {
 	if ( !read_xpm_string( buf, d, source, index ) ) {
 #if defined(CHECK_RANGE)
-	    warning( "QImage: XPM pixels missing on image line %d", y);
+	    qWarning( "QImage: XPM pixels missing on image line %d", y);
 #endif
 	    return;
 	}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#43 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#44 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -319,7 +319,7 @@ void QProgressDialog::setBar( QProgressBar *bar )
 {
     if ( progress() > 0 ) {
 #if defined(CHECK_STATE)
-	warning( "QProgrssDialog::setBar: Cannot set a new progress bar "
+	qWarning( "QProgrssDialog::setBar: Cannot set a new progress bar "
 		 "while the old one is active" );
 #endif
     }

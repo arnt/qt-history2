@@ -21,7 +21,7 @@ public:
 
     void resizeEvent(QResizeEvent*)
     {
-	debug("Main got resized");
+	qDebug("Main got resized");
 	log.setGeometry(0,0,width()/2,height());
     }
 

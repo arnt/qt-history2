@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#81 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#82 $
 **
 ** Implementation of QDir class
 **
@@ -101,7 +101,7 @@ static void slashify( QString& )
   \code
     QDir d( "example" );			// "./example"
     if ( !d.exists() )
-	warning( "Cannot find the example directory" );
+	qWarning( "Cannot find the example directory" );
   \endcode
 
   If you always use '/' as a directory separator, Qt will translate your
@@ -115,11 +115,11 @@ static void slashify( QString& )
   \code
     QDir d = QDir::root();			// "/"
     if ( !d.cd("tmp") ) {			// "/tmp"
-	warning( "Cannot find the \"/tmp\" directory" );
+	qWarning( "Cannot find the \"/tmp\" directory" );
     } else {
 	QFile f( d.filePath("ex1.txt") );	// "/tmp/ex1.txt"
 	if ( !f.open(IO_ReadWrite) )
-	    warning( "Cannot create the file %s", f.name() );
+	    qWarning( "Cannot create the file %s", f.name() );
     }
   \endcode
 
@@ -477,18 +477,18 @@ QString QDir::convertSeparators( const QString &pathName )
       QFileInfo fi( d, "c++" );
       if ( fi.exists() ) {
 	  if ( fi.isDir() )
-	      warning( "Cannot cd into \"%s\".", (char*)d.absFilePath("c++") );
+	      qWarning( "Cannot cd into \"%s\".", (char*)d.absFilePath("c++") );
 	  else
-	      warning( "Cannot create directory \"%s\"\n"
+	      qWarning( "Cannot create directory \"%s\"\n"
 		       "A file named \"c++\" already exists in \"%s\"",
 		       (const char *)d.absFilePath("c++"),
 		       (const char *)d.path() );
 	  return;
       } else {
-	  warning( "Creating directory \"%s\"",
+	  qWarning( "Creating directory \"%s\"",
 		   (const char *) d.absFilePath("c++") );
 	  if ( !d.mkdir( "c++" ) ) {
-	      warning("Could not create directory \"%s\"",
+	      qWarning("Could not create directory \"%s\"",
 		      (const char *)d.absFilePath("c++") );
 	      return;
 	  }
@@ -950,7 +950,7 @@ bool QDir::exists() const
     QDir d( "/tmp/root_link" );
     d = d.canonicalPath();
     if ( d.isRoot() )
-	warning( "It IS a root link!" );
+	qWarning( "It IS a root link!" );
   \endcode
 
   \sa root(), rootDirPath()
@@ -1057,7 +1057,7 @@ bool QDir::remove( const QString &fileName, bool acceptAbsPath )
 {
     if ( fileName.isEmpty() ) {
 #if defined(CHECK_NULL)
-	warning( "QDir::remove: Empty or null file name" );
+	qWarning( "QDir::remove: Empty or null file name" );
 #endif
 	return FALSE;
     }
@@ -1086,7 +1086,7 @@ bool QDir::rename( const QString &name, const QString &newName,
 {
     if ( name.isEmpty() || newName.isEmpty() ) {
 #if defined(CHECK_NULL)
-	warning( "QDir::rename: Empty or null file name(s)" );
+	qWarning( "QDir::rename: Empty or null file name(s)" );
 #endif
 	return FALSE;
     }
@@ -1123,7 +1123,7 @@ bool QDir::exists( const QString &name, bool acceptAbsPath )
 {
     if ( name.isEmpty() ) {
 #if defined(CHECK_NULL)
-	warning( "QDir::exists: Empty or null file name" );
+	qWarning( "QDir::exists: Empty or null file name" );
 #endif
 	return FALSE;
     }
@@ -1248,13 +1248,13 @@ QString QDir::currentDirPath()
 		slashify( result );
 		// forcecwd = FALSE;   ### caching removed, not safe
 	    } else {
-		warning( "QDir::currentDirPath: getcwd() failed" );
+		qWarning( "QDir::currentDirPath: getcwd() failed" );
 		forcecwd    = TRUE;
 	    }
 	}
     } else {
 #if defined(DEBUG)
-	warning( "QDir::currentDirPath: stat(\".\") failed" );
+	qWarning( "QDir::currentDirPath: stat(\".\") failed" );
 #endif
 	forcecwd    = TRUE;
     }
@@ -1518,7 +1518,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 
     if ( plen == 0 ) {
 #if defined(CHECK_NULL)
-	warning( "QDir::readDirEntries: No directory name specified" );
+	qWarning( "QDir::readDirEntries: No directory name specified" );
 #endif
 	return FALSE;
     }
@@ -1534,7 +1534,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     }
     if ( ff == FF_ERROR ) {
 #if defined(CHECK_RANGE)
-	warning( "QDir::readDirEntries: Cannot read the directory: %s (UTF8)",
+	qWarning( "QDir::readDirEntries: Cannot read the directory: %s (UTF8)",
 		 dPath.utf8().data() );
 #endif
 	return FALSE;
@@ -1621,7 +1621,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     dir = opendir( QFile::encodeName(dPath) );
     if ( !dir ) {
 #if defined(CHECK_NULL)
-	warning( "QDir::readDirEntries: Cannot read the directory: %s",
+	qWarning( "QDir::readDirEntries: Cannot read the directory: %s",
 		 QFile::encodeName(dPath).data() );
 #endif
 	return FALSE;
@@ -1649,7 +1649,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     }
     if ( closedir(dir) != 0 ) {
 #if defined(CHECK_NULL)
-	warning( "QDir::readDirEntries: Cannot close the directory: %s (UTF8)",
+	qWarning( "QDir::readDirEntries: Cannot close the directory: %s (UTF8)",
 		 dPath.utf8().data() );
 #endif
     }

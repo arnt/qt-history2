@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#288 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#289 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -174,7 +174,7 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 
     if ( already_called ) {
 #if defined(CHECK_STATE)
-	warning( "Qt internal error: qWinMain should be called only once" );
+	qWarning( "Qt internal error: qWinMain should be called only once" );
 #endif
 	return;
     }
@@ -249,7 +249,7 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 }
 
 static void outColor(const char* s, const QColor& col) {
-    debug("%s is %d %d %d", s, col.red(), col.green(), col.blue());
+    qDebug("%s is %d %d %d", s, col.red(), col.green(), col.blue());
 }
 
 
@@ -476,7 +476,7 @@ void qt_init( int *argcptr, char **argv )
     r = OleInitialize(0);
     if ( r != S_OK && r != S_FALSE ) {
 #if defined(CHECK_STATE)
-	warning( "Qt: Could not initialize OLE (error %x)", r );
+	qWarning( "Qt: Could not initialize OLE (error %x)", r );
 #endif
     }
 
@@ -920,7 +920,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 {
     if ( sockfd < 0 || type < 0 || type > 2 || obj == 0 ) {
 #if defined(CHECK_RANGE)
-	warning( "QSocketNotifier: Internal error" );
+	qWarning( "QSocketNotifier: Internal error" );
 #endif
 	return FALSE;
     }
@@ -940,7 +940,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 #if defined(CHECK_STATE)
 	if ( dict->find(sockfd) ) {
 	    static const char *t[] = { "read", "write", "exception" };
-	    warning( "QSocketNotifier: Multiple socket notifiers for "
+	    qWarning( "QSocketNotifier: Multiple socket notifiers for "
 		     "same socket %d and type %s", sockfd, t[type] );
 	}
 #endif
@@ -1860,7 +1860,7 @@ int qStartTimer( int interval, QObject *obj )
     }
     if ( t->id == 0 ) {
 #if defined(CHECK_STATE)
-	warning( "qStartTimer: No more Windows timers" );
+	qWarning( "qStartTimer: No more Windows timers" );
 #endif
 	delete t;				// could not set timer
 	return 0;
@@ -2251,7 +2251,7 @@ static void store_key_rec( int code, int ascii, const QString& text )
 {
     if ( nrecs == maxrecs ) {
 #if defined(CHECK_RANGE)
-	warning( "Qt: Internal keyboard buffer overflow" );
+	qWarning( "Qt: Internal keyboard buffer overflow" );
 #endif
 	return;
     }

@@ -196,7 +196,7 @@ void Urk::makeMenu()
 {
     if ( pop )
 	return;
-    debug( "make menu" );
+    qDebug( "make menu" );
     pop = new QPopupMenu;
     CHECK_PTR( pop );
 
@@ -214,11 +214,11 @@ void Urk::popup()
 {
     makeMenu();
     static int lvl = 0;
-    debug( "%d Urk::popup()", lvl++);
+    qDebug( "%d Urk::popup()", lvl++);
     int i = pop->exec(pbutn->mapToGlobal(QPoint(0,0)));
     //int i = pop->exec(QCursor::pos());
     //pop->move(200,200); int i = pop->exec();
-    debug( "%d Menu returned %d", --lvl, i );
+    qDebug( "%d Menu returned %d", --lvl, i );
     //pop->show();
 }
 

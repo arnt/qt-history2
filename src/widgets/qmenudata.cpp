@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#80 $
 **
 ** Implementation of QMenuData class
 **
@@ -182,7 +182,7 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
 {
     if ( index > (int)mitems->count() ) {
 #if defined(CHECK_RANGE)
-	warning( "QMenuData::insertItem: Index %d out of range", index );
+	qWarning( "QMenuData::insertItem: Index %d out of range", index );
 #endif
 	return 0;
     }
@@ -668,7 +668,7 @@ void QMenuData::removeItemAt( int index )
 {
     if ( index < 0 || index >= (int)mitems->count() ) {
 #if defined(CHECK_RANGE)
-	warning( "QMenuData::removeItem: Index %d out of range", index );
+	qWarning( "QMenuData::removeItem: Index %d out of range", index );
 #endif
 	return;
     }

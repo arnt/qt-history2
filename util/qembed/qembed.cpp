@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qembed/qembed.cpp#10 $
+** $Id: //depot/qt/main/util/qembed/qembed.cpp#11 $
 **
 ** Utility program for embedding binary data into a C/C++ source code.
 ** It reads a binary file and generates a C array with the binary data.
@@ -39,7 +39,7 @@ struct Embed {
 int main( int argc, char **argv )
 {
     if ( argc < 2 ) {
-	warning( "Usage:\n\t%s files", argv[0] );
+	qWarning( "Usage:\n\t%s files", argv[0] );
 	return 1;
     }
 
@@ -57,12 +57,12 @@ int main( int argc, char **argv )
     for ( int i=1; i<argc; i++ ) {
 	QFile f( argv[i] );
 	if ( !f.open(IO_ReadOnly) ) {
-	    warning( "Cannot open file %s, ignoring it", argv[i] );
+	    qWarning( "Cannot open file %s, ignoring it", argv[i] );
 	    continue;
 	}
 	QByteArray a( f.size() );
 	if ( f.readBlock(a.data(), f.size()) != (int)f.size() ) {
-	    warning( "Cannot read file %s, ignoring it", argv[i] );
+	    qWarning( "Cannot read file %s, ignoring it", argv[i] );
 	    f.close();
 	    continue;
 	}

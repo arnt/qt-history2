@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#31 $
 **
 ** Implementation of QRangeControl class
 **
@@ -269,7 +269,7 @@ void QRangeControl::setRange( int minValue, int maxValue )
 	return;
     if ( minValue > maxValue ) {
 #if defined(CHECK_RANGE)
-	warning( "QRangeControl::setRange: minValue %d > maxValue %d",
+	qWarning( "QRangeControl::setRange: minValue %d > maxValue %d",
 		 minValue, maxValue );
 #endif
 	minVal = maxVal = minValue;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#85 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -107,7 +107,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	DATA_HBM = 0;
 #if defined(CHECK_RANGE)
 	if ( !make_null )			// invalid parameters
-	    warning( "QPixmap: Invalid pixmap parameters" );
+	    qWarning( "QPixmap: Invalid pixmap parameters" );
 #endif
 	return;
     }
@@ -307,7 +307,7 @@ int QPixmap::metric( int m ) const
 	    default:
 		val = 0;
 #if defined(CHECK_RANGE)
-		warning( "QPixmap::metric: Invalid metric command" );
+		qWarning( "QPixmap::metric: Invalid metric command" );
 #endif
 	}
 	return val;
@@ -319,7 +319,7 @@ QImage QPixmap::convertToImage() const
 {
     if ( isNull() ) {
 #if defined(CHECK_NULL)
-	warning( "QPixmap::convertToImage: Cannot convert a null pixmap" );
+	qWarning( "QPixmap::convertToImage: Cannot convert a null pixmap" );
 #endif
 	QImage nullImage;
 	return nullImage;
@@ -392,7 +392,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 {
     if ( img.isNull() ) {
 #if defined(CHECK_NULL)
-	warning( "QPixmap::convertFromImage: Cannot convert a null image" );
+	qWarning( "QPixmap::convertFromImage: Cannot convert a null image" );
 #endif
 	return FALSE;
     }
@@ -753,7 +753,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 		default: {
 #if defined(CHECK_RANGE)
-		warning( "QPixmap::xForm: Display not supported (bpp=%d)",bpp);
+		qWarning( "QPixmap::xForm: Display not supported (bpp=%d)",bpp);
 #endif
 		return QPixmap( 0, 0, 0, data->bitmap, data->optim );
 		}
@@ -1070,16 +1070,16 @@ void QPixmap::freeCell()
 
 void QMultiCellPixmap::debugger()
 {
-    debug( "  Multi cell pixmap %d x %d x %d (%p)",
+    qDebug( "  Multi cell pixmap %d x %d x %d (%p)",
 	   pixmap->width(), max_height, pixmap->depth(), this );
-    debug( "    Actual pixmap height = %d", pixmap->height() );
-    debug( "    Free List" );
+    qDebug( "    Actual pixmap height = %d", pixmap->height() );
+    qDebug( "    Free List" );
     QMCPFreeNode *n = free_list->first();
     while ( n  ) {
-	debug( "      Offset %4d, Size %3d", n->offset, n->size );
+	qDebug( "      Offset %4d, Size %3d", n->offset, n->size );
 	n = free_list->next();
     }
-    debug( "      Num free nodes = %d", free_list->count() );
+    qDebug( "      Num free nodes = %d", free_list->count() );
 }
 
 
@@ -1088,8 +1088,8 @@ Q_EXPORT void mcp_debugger()
     int i, s=16;
     const char *info = "pixmaps";
     bool nothing = TRUE;
-    debug( "MCP DEBUGGER" );
-    debug( "------------" );
+    qDebug( "MCP DEBUGGER" );
+    qDebug( "------------" );
     for ( i=0; i<mcp_num_lists; i++ ) {
 	if ( i == 5 ) {
 	    s = 16;
@@ -1097,7 +1097,7 @@ Q_EXPORT void mcp_debugger()
 	}
 	if ( mcp_lists[i] ) {
 	    nothing = FALSE;
-	    debug( "Multi cell list %d, %s, size<=%d, number of lists = %d",
+	    qDebug( "Multi cell list %d, %s, size<=%d, number of lists = %d",
 		   i, info, s, mcp_lists[i]->count() );
 	    QMultiCellPixmap *mcp = mcp_lists[i]->first();
 	    while ( mcp ) {
@@ -1107,6 +1107,6 @@ Q_EXPORT void mcp_debugger()
 	}
     }
     if ( nothing )
-	debug( "No internal info" );
-    debug( "MCP DONE\n" );
+	qDebug( "No internal info" );
+    qDebug( "MCP DONE\n" );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/makergb/makergb.cpp#4 $
+** $Id: //depot/qt/main/util/makergb/makergb.cpp#5 $
 **
 ** makergb - Utility to generate X11 RGB color lookup function
 **
@@ -80,7 +80,7 @@ ColorVector *readData( FILE *f )
     cv->resize( n );				// resize to current size
 #if 0
     for ( int i=0; i<n; i++ ) {
-	debug( "%d: %s", i, cv->at(i)->name.data() );
+	qDebug( "%d: %s", i, cv->at(i)->name.data() );
     }
     exit(1);
 #endif

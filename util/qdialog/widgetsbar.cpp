@@ -203,7 +203,7 @@ DWidgetsBar::DWidgetsBar( QWidget* _parent, const char* _name )
   addPage( "Lists" );
   addPage( "Range Controls" );
 
-  debug( "sizehint is %i %i", sizeHint().width(),sizeHint().height() );
+  qDebug( "sizehint is %i %i", sizeHint().width(),sizeHint().height() );
 
   setMinimumSize( sizeHint() );
 }
@@ -217,7 +217,7 @@ DWidgetsPage* DWidgetsBar::addPage( const QString& _label )
   DWidgetsPage* p = new DWidgetsPage( this );
   addTab( p, _label );
 
-  debug( "child sizehint is %i %i", p->sizeHint().width(), p->sizeHint().height() );
+  qDebug( "child sizehint is %i %i", p->sizeHint().width(), p->sizeHint().height() );
 
   return p;
 }

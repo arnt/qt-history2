@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#151 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#152 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -143,10 +143,10 @@ static void cleanup_cache()
 	return;
     int i;
 #if defined(CACHE_STAT)
-    debug( "Number of cache hits = %d", c_numhits );
-    debug( "Number of cache creates = %d", c_numcreates );
-    debug( "Number of cache faults = %d", c_numfaults );
-    debug( "PEN CACHE" );
+    qDebug( "Number of cache hits = %d", c_numhits );
+    qDebug( "Number of cache creates = %d", c_numcreates );
+    qDebug( "Number of cache faults = %d", c_numfaults );
+    qDebug( "PEN CACHE" );
     for ( i=0; i<cache_size; i++ ) {
 	QString	    str;
 	QTextStream s(str,IO_WriteOnly);
@@ -157,9 +157,9 @@ static void cleanup_cache()
 	      << h->count << '\t';
 	}
 	s << '\0';
-	debug( str );
+	qDebug( str );
     }
-    debug( "BRUSH CACHE" );
+    qDebug( "BRUSH CACHE" );
     for ( i=0; i<cache_size; i++ ) {
 	QString	    str;
 	QTextStream s(str,IO_WriteOnly);
@@ -170,7 +170,7 @@ static void cleanup_cache()
 	      << h->count << '\t';
 	}
 	s << '\0';
-	debug( str );
+	qDebug( str );
     }
 #endif
     for ( i=0; i<4*cache_size; i++ ) {
@@ -324,7 +324,7 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
     }
 #if defined(CHECK_NULL)
     if ( pdev == 0 )
-	warning( "QPainter::redirect: The pdev argument cannot be 0" );
+	qWarning( "QPainter::redirect: The pdev argument cannot be 0" );
 #endif
     if ( replacement ) {
 	pdev_dict->insert( (long)pdev, replacement );
@@ -365,7 +365,7 @@ void QPainter::setFont( const QFont &font )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setFont: Will be reset by begin()" );
+	qWarning( "QPainter::setFont: Will be reset by begin()" );
 #endif
     if ( cfont.d != font.d ) {
 	cfont = font;
@@ -497,7 +497,7 @@ void QPainter::updatePen()
 	default:
 	    s = PS_SOLID;
 #if defined(CHECK_STATE)
-	    warning( "QPainter::updatePen: Invalid pen style" );
+	    qWarning( "QPainter::updatePen: Invalid pen style" );
 #endif
     }
 
@@ -628,14 +628,14 @@ bool QPainter::begin( const QPaintDevice *pd )
 {
     if ( isActive() ) {				// already active painting
 #if defined(CHECK_STATE)
-	warning( "QPainter::begin: Painter is already active."
+	qWarning( "QPainter::begin: Painter is already active."
 		 "\n\tYou must end() the painter before a second begin()" );
 #endif
 	return FALSE;
     }
     if ( pd == 0 ) {
 #if defined(CHECK_NULL)
-	warning( "QPainter::begin: Paint device cannot be null" );
+	qWarning( "QPainter::begin: Paint device cannot be null" );
 #endif
 	return FALSE;
     }
@@ -655,7 +655,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 
     if ( pdev->paintingActive() ) {		// somebody else is already painting
 #if defined(CHECK_STATE)
-	warning( "QPainter::begin: Another QPainter is already painting "
+	qWarning( "QPainter::begin: Another QPainter is already painting "
 		 "this device;\n\tA paint device can only be painted by "
 		 "one QPainter at a time" );
 #endif
@@ -736,7 +736,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->isNull() ) {
 #if defined(CHECK_NULL)
-	    warning( "QPainter::begin: Cannot paint null pixmap" );
+	    qWarning( "QPainter::begin: Cannot paint null pixmap" );
 #endif
 	    end();
 	    return FALSE;
@@ -803,7 +803,7 @@ bool QPainter::end()
 {
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
-	warning( "QPainter::end: Missing begin() or begin() failed" );
+	qWarning( "QPainter::end: Missing begin() or begin() failed" );
 #endif
 	return FALSE;
     }
@@ -882,7 +882,7 @@ void QPainter::setBackgroundColor( const QColor &c )
 {
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
-	warning( "QPainter::setBackgroundColor: Call begin() first" );
+	qWarning( "QPainter::setBackgroundColor: Call begin() first" );
 #endif
 	return;
     }
@@ -900,13 +900,13 @@ void QPainter::setBackgroundMode( BGMode m )
 {
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
-	warning( "QPainter::setBackgroundMode: Call begin() first" );
+	qWarning( "QPainter::setBackgroundMode: Call begin() first" );
 #endif
 	return;
     }
     if ( m != TransparentMode && m != OpaqueMode ) {
 #if defined(CHECK_RANGE)
-	warning( "QPainter::setBackgroundMode: Invalid mode" );
+	qWarning( "QPainter::setBackgroundMode: Invalid mode" );
 #endif
 	return;
     }
@@ -930,13 +930,13 @@ void QPainter::setRasterOp( RasterOp r )
 
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
-	warning( "QPainter::setRasterOp: Call begin() first" );
+	qWarning( "QPainter::setRasterOp: Call begin() first" );
 #endif
 	return;
     }
     if ( (uint)r > LastROP ) {
 #if defined(CHECK_RANGE)
-	warning( "QPainter::setRasterOp: Invalid ROP code" );
+	qWarning( "QPainter::setRasterOp: Invalid ROP code" );
 #endif
 	return;
     }
@@ -955,7 +955,7 @@ void QPainter::setBrushOrigin( int x, int y )
 {
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
-	warning( "QPainter::setBrushOrigin: Call begin() first" );
+	qWarning( "QPainter::setBrushOrigin: Call begin() first" );
 #endif
 	return;
     }
@@ -1009,7 +1009,7 @@ void QPainter::setClipping( bool enable )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setClipping: Will be reset by begin()" );
+	qWarning( "QPainter::setClipping: Will be reset by begin()" );
 #endif
     if ( !isActive() || enable == testf(ClipOn) )
 	return;
@@ -1043,7 +1043,7 @@ void QPainter::setClipRegion( const QRegion &rgn )
 {
 #if defined(CHECK_STATE)
     if ( !isActive() )
-	warning( "QPainter::setClipRegion: Will be reset by begin()" );
+	qWarning( "QPainter::setClipRegion: Will be reset by begin()" );
 #endif
     crgn = rgn;
     if ( paintEventDevice == device() )
@@ -1740,7 +1740,7 @@ void QPainter::drawQuadBezier( const QPointArray &a, int index )
 	return;
     if ( (int)a.size() - index < 4 ) {
 #if defined(CHECK_RANGE)
-	warning( "QPainter::drawQuadBezier: Cubic Bezier needs 4 control "
+	qWarning( "QPainter::drawQuadBezier: Cubic Bezier needs 4 control "
 		 "points" );
 #endif
 	return;
@@ -2133,9 +2133,9 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    if ( testf(ExtDev) ) {		// to printer
 		/*
 		if ( !wx_bm->mask() ) {
-		    debug( "adding mask" );
+		    qDebug( "adding mask" );
 		    wx_bm->setMask( *wx_bm );
-		    debug( "selfmask: %i", (int)wx_bm->selfMask() );
+		    qDebug( "selfmask: %i", (int)wx_bm->selfMask() );
 		}
 		*/
 		uint oldf = flags;

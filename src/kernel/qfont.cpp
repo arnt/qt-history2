@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#125 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#126 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -289,8 +289,8 @@ QFont &QFont::operator=( const QFont &font )
   \code
     QFont     font( "Nairobi" );
     QFontInfo info( font );
-    debug( "Font family requested is    : \"%s\"", font.family() );
-    debug( "Font family actually used is: \"%s\"", info.family() );
+    qDebug( "Font family requested is    : \"%s\"", font.family() );
+    qDebug( "Font family actually used is: \"%s\"", info.family() );
   \endcode
   \sa setFamily(), substitute()
 */
@@ -343,8 +343,8 @@ int QFont::deciPointSize() const
     QFont     font( "helvetica" );
     QFontInfo info( font );
     font.setPointSize( 53 );
-    debug( "Font size requested is    : %d", font.pointSize() );
-    debug( "Font size actually used is: %d", info.pointSize() );
+    qDebug( "Font size requested is    : %d", font.pointSize() );
+    qDebug( "Font size actually used is: %d", info.pointSize() );
   \endcode
 
   \sa setPointSize() deciPointSize()
@@ -372,7 +372,7 @@ void QFont::setPointSize( int pointSize )
 {
     if ( pointSize <= 0 ) {
 #if defined(CHECK_RANGE)
-	warning( "QFont::setPointSize: Point size <= 0 (%d)", pointSize );
+	qWarning( "QFont::setPointSize: Point size <= 0 (%d)", pointSize );
 #endif
 	return;
     }
@@ -460,7 +460,7 @@ void QFont::setWeight( int weight )
 {
     if ( weight < 0 || weight > 99 ) {
 #if defined(CHECK_RANGE)
-	warning( "QFont::setWeight: Value out of range (%d)", weight );
+	qWarning( "QFont::setWeight: Value out of range (%d)", weight );
 #endif
 	return;
     }
@@ -679,7 +679,7 @@ QFont::CharSet QFont::charSet() const
     QFont     font( "times", 14 );	     // default character set is Latin1
     QFontInfo info( font );
     if ( info.charSet() != Latin1 )	     // check actual font
-	fatal( "Cannot find a Latin 1 Times font" );
+	qFatal( "Cannot find a Latin 1 Times font" );
   \endcode
 
   In Qt 1.40, the following character set encodings are available: <ul>
@@ -738,7 +738,7 @@ bool QFont::rawMode() const
 	QFont font( "-*-fixed-*-*-*-*-*-140-75-75-c-*-iso8859-1" );
 	font.setRawMode( TRUE );
 	if ( !font.exactMatch() )
-	    fatal( "Sorry, could not find the X specific font" );
+	    qFatal( "Sorry, could not find the X specific font" );
     #endif
   \endcode
 
@@ -1155,7 +1155,7 @@ static void removeFontMetrics( QFontMetrics *fm )
 {
     if ( !fm_list ) {
 #if defined(CHECK_NULL)
-	warning( "QFontMetrics::~QFontMetrics: Internal error" );
+	qWarning( "QFontMetrics::~QFontMetrics: Internal error" );
 #endif
 	return;
     }
@@ -1251,7 +1251,7 @@ QFontMetrics::QFontMetrics( const QPainter *p )
     painter = (QPainter *)p;
 #if defined(CHECK_STATE)
     if ( !painter->isActive() )
-	warning( "QFontMetrics: Get font metrics between QPainter::begin() "
+	qWarning( "QFontMetrics: Get font metrics between QPainter::begin() "
 		 "and QPainter::end()" );
 #endif
     painter->updateFont();
@@ -1461,7 +1461,7 @@ static void removeFontInfo( QFontInfo *fi )
 {
     if ( !fi_list ) {
 #if defined(CHECK_NULL)
-	warning( "QFontInfo::~QFontInfo: Internal error" );
+	qWarning( "QFontInfo::~QFontInfo: Internal error" );
 #endif
 	return;
     }
@@ -1564,7 +1564,7 @@ QFontInfo::QFontInfo( const QPainter *p )
     painter = (QPainter *)p;
 #if defined(CHECK_STATE)
     if ( !painter->isActive() )
-	warning( "QFontInfo: Get font info between QPainter::begin() "
+	qWarning( "QFontInfo: Get font info between QPainter::begin() "
 		 "and QPainter::end()" );
 #endif
     painter->updateFont();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#62 $
 **
 ** Implementation of QPicture class
 **
@@ -182,7 +182,7 @@ bool QPicture::play( QPainter *painter )
 	s.readRawBytes( mf_id, 4 );		// read actual tag
 	if ( memcmp(mf_id, mfhdr_tag, 4) != 0 ) { // wrong header id
 #if defined(CHECK_RANGE)
-	    warning( "QPicture::play: Incorrect header" );
+	    qWarning( "QPicture::play: Incorrect header" );
 #endif
 	    pictb.close();
 	    return FALSE;
@@ -196,7 +196,7 @@ bool QPicture::play( QPainter *painter )
 	ccs = qchecksum( buf.data() + data_start, buf.size() - data_start );
 	if ( ccs != cs ) {
 #if defined(CHECK_STATE)
-	    warning( "QPicture::play: Invalid checksum %x, %x expected",
+	    qWarning( "QPicture::play: Invalid checksum %x, %x expected",
 		     ccs, cs );
 #endif
 	    pictb.close();
@@ -207,7 +207,7 @@ bool QPicture::play( QPainter *painter )
 	s >> major >> minor;			// read version number
 	if ( major > mfhdr_maj ) {		// new, incompatible version
 #if defined(CHECK_RANGE)
-	    warning( "QPicture::play: Incompatible version %d.%d",
+	    qWarning( "QPicture::play: Incompatible version %d.%d",
 		     major, minor);
 #endif
 	    pictb.close();
@@ -228,7 +228,7 @@ bool QPicture::play( QPainter *painter )
     }
     if ( c !=  PdcBegin ) {
 #if defined(CHECK_RANGE)
-	warning( "QPicture::play: Format error" );
+	qWarning( "QPicture::play: Format error" );
 #endif
 	pictb.close();
 	return FALSE;
@@ -462,7 +462,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		break;
 	    default:
 #if defined(CHECK_RANGE)
-		warning( "QPicture::play: Invalid command %d", c );
+		qWarning( "QPicture::play: Invalid command %d", c );
 #endif
 		if ( len )			// skip unknown command
 		    s.device()->at( s.device()->at()+len );
@@ -605,7 +605,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	    break;
 #if defined(CHECK_RANGE)
 	default:
-	    warning( "QPicture::cmd: Command %d not recognized", c );
+	    qWarning( "QPicture::cmd: Command %d not recognized", c );
 #endif
     }
     int newpos = (int)pictb.at();		// new position
@@ -663,7 +663,7 @@ int QPicture::metric( int m ) const
 	default:
 	    val = 0;
 #if defined(CHECK_RANGE)
-	    warning( "QPicture::metric: Invalid metric command" );
+	    qWarning( "QPicture::metric: Invalid metric command" );
 #endif
     }
     return val;

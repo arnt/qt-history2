@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#82 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#83 $
 **
 ** Implementation of QFile class
 **
@@ -157,7 +157,7 @@ void QFile::setName( const QString &name )
 {
     if ( isOpen() ) {
 #if defined(CHECK_STATE)
-	warning( "QFile::setName: File is open" );
+	qWarning( "QFile::setName: File is open" );
 #endif
 	close();
     }
@@ -221,7 +221,7 @@ bool QFile::remove( const QString &fileName )
 {
     if ( fileName.isEmpty() ) {
 #if defined(CHECK_NULL)
-        warning( "QFile::remove: Empty or NULL file name" );
+        qWarning( "QFile::remove: Empty or NULL file name" );
 #endif
         return FALSE;
     }
@@ -301,13 +301,13 @@ bool QFile::open( int m )
 {
     if ( isOpen() ) {				// file already open
 #if defined(CHECK_STATE)
-	warning( "QFile::open: File already open" );
+	qWarning( "QFile::open: File already open" );
 #endif
 	return FALSE;
     }
     if ( fn.isNull() ) {			// no file name defined
 #if defined(CHECK_NULL)
-	warning( "QFile::open: No file name specified" );
+	qWarning( "QFile::open: No file name specified" );
 #endif
 	return FALSE;
     }
@@ -315,7 +315,7 @@ bool QFile::open( int m )
     setMode( m );
     if ( !(isReadable() || isWritable()) ) {
 #if defined(CHECK_RANGE)
-	warning( "QFile::open: File access not specified" );
+	qWarning( "QFile::open: File access not specified" );
 #endif
 	return FALSE;
     }
@@ -469,7 +469,7 @@ bool QFile::open( int m, FILE *f )
 {
     if ( isOpen() ) {
 #if defined(CHECK_RANGE)
-	warning( "QFile::open: File already open" );
+	qWarning( "QFile::open: File already open" );
 #endif
 	return FALSE;
     }
@@ -509,7 +509,7 @@ bool QFile::open( int m, int f )
 {
     if ( isOpen() ) {
 #if defined(CHECK_RANGE)
-	warning( "QFile::open: File already open" );
+	qWarning( "QFile::open: File already open" );
 #endif
 	return FALSE;
     }
@@ -638,7 +638,7 @@ bool QFile::at( int pos )
 {
     if ( !isOpen() ) {
 #if defined(CHECK_STATE)
-	warning( "QFile::at: File is not open" );
+	qWarning( "QFile::at: File is not open" );
 #endif
 	return FALSE;
     }
@@ -653,7 +653,7 @@ bool QFile::at( int pos )
 	ioIndex = pos;
 #if defined(CHECK_RANGE)
     else
-	warning( "QFile::at: Cannot set file position %d", pos );
+	qWarning( "QFile::at: Cannot set file position %d", pos );
 #endif
     return ok;
 }
@@ -668,7 +668,7 @@ bool QFile::atEnd() const
 {
     if ( !isOpen() ) {
 #if defined(CHECK_STATE)
-	warning( "QFile::atEnd: File is not open" );
+	qWarning( "QFile::atEnd: File is not open" );
 #endif
 	return FALSE;
     }
@@ -699,15 +699,15 @@ int QFile::readBlock( char *p, uint len )
 {
 #if defined(CHECK_NULL)
     if ( !p )
-	warning( "QFile::readBlock: Null pointer error" );
+	qWarning( "QFile::readBlock: Null pointer error" );
 #endif
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {				// file not open
-	warning( "QFile::readBlock: File not open" );
+	qWarning( "QFile::readBlock: File not open" );
 	return -1;
     }
     if ( !isReadable() ) {			// reading not permitted
-	warning( "QFile::readBlock: Read operation not permitted" );
+	qWarning( "QFile::readBlock: Read operation not permitted" );
 	return -1;
     }
 #endif
@@ -747,15 +747,15 @@ int QFile::writeBlock( const char *p, uint len )
 {
 #if defined(CHECK_NULL)
     if ( p == 0 && len != 0 )
-	warning( "QFile::writeBlock: Null pointer error" );
+	qWarning( "QFile::writeBlock: Null pointer error" );
 #endif
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {				// file not open
-	warning( "QFile::writeBlock: File not open" );
+	qWarning( "QFile::writeBlock: File not open" );
 	return -1;
     }
     if ( !isWritable() ) {			// writing not permitted
-	warning( "QFile::writeBlock: Write operation not permitted" );
+	qWarning( "QFile::writeBlock: Write operation not permitted" );
 	return -1;
     }
 #endif
@@ -803,11 +803,11 @@ int QFile::readLine( char *p, uint maxlen )
 #if defined(CHECK_STATE)
     CHECK_PTR( p );
     if ( !isOpen() ) {				// file not open
-	warning( "QFile::readLine: File not open" );
+	qWarning( "QFile::readLine: File not open" );
 	return -1;
     }
     if ( !isReadable() ) {			// reading not permitted
-	warning( "QFile::readLine: Read operation not permitted" );
+	qWarning( "QFile::readLine: Read operation not permitted" );
 	return -1;
     }
 #endif
@@ -869,11 +869,11 @@ int QFile::getch()
 {
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {				// file not open
-	warning( "QFile::getch: File not open" );
+	qWarning( "QFile::getch: File not open" );
 	return EOF;
     }
     if ( !isReadable() ) {			// reading not permitted
-	warning( "QFile::getch: Read operation not permitted" );
+	qWarning( "QFile::getch: Read operation not permitted" );
 	return EOF;
     }
 #endif
@@ -911,11 +911,11 @@ int QFile::putch( int ch )
 {
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {				// file not open
-	warning( "QFile::putch: File not open" );
+	qWarning( "QFile::putch: File not open" );
 	return EOF;
     }
     if ( !isWritable() ) {			// writing not permitted
-	warning( "QFile::putch: Write operation not permitted" );
+	qWarning( "QFile::putch: Write operation not permitted" );
 	return EOF;
     }
 #endif
@@ -950,11 +950,11 @@ int QFile::ungetch( int ch )
 {
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {				// file not open
-	warning( "QFile::ungetch: File not open" );
+	qWarning( "QFile::ungetch: File not open" );
 	return EOF;
     }
     if ( !isReadable() ) {			// reading not permitted
-	warning( "QFile::ungetch: Read operation not permitted" );
+	qWarning( "QFile::ungetch: Read operation not permitted" );
 	return EOF;
     }
 #endif

@@ -12,5 +12,5 @@ int main()
     int j = D::g2j( 1998,
 		    5,
 		    1 );
-    debug( "hex = %x, dec = %d", j, j );
+    qDebug( "hex = %x, dec = %d", j, j );
 }

@@ -111,7 +111,7 @@ void DPropertyInspector::inspect( DFormEditor*, DObjectInfo* _info )
   g->setColStretch( 1, 1 );
   g->activate();
 
-  debug("====== Inspector done =========");
+  qDebug("====== Inspector done =========");
   
   // ###########
   resizeEvent( 0 );

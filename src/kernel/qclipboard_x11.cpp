@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#47 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -624,7 +624,7 @@ void QClipboard::setData( QMimeSource* src )
     XSetSelectionOwner( dpy, XA_PRIMARY, win, qt_x_clipboardtime );
     if ( XGetSelectionOwner(dpy,XA_PRIMARY) != win ) {
 #if defined(DEBUG)
-	warning( "QClipboard::setData: Cannot set X11 selection owner" );
+	qWarning( "QClipboard::setData: Cannot set X11 selection owner" );
 #endif
 	return;
     }

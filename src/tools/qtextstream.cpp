@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#109 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#110 $
 **
 ** Implementation of QTextStream class
 **
@@ -128,7 +128,7 @@
 #if defined(CHECK_STATE)
 #undef  CHECK_STREAM_PRECOND
 #define CHECK_STREAM_PRECOND  if ( !dev ) {				\
-				warning( "QTextStream: No device" );	\
+				qWarning( "QTextStream: No device" );	\
 				return *this; }
 #else
 #define CHECK_STREAM_PRECOND
@@ -220,7 +220,7 @@ public:
     {
 	if ( isOpen() ) {                           // buffer already open
 #if defined(CHECK_STATE)
-	    warning( "QStringBuffer::open: Buffer already open" );
+	    qWarning( "QStringBuffer::open: Buffer already open" );
 #endif
 	    return FALSE;
 	}
@@ -264,13 +264,13 @@ public:
     {
 #if defined(CHECK_STATE)
 	if ( !isOpen() ) {
-	    warning( "QStringBuffer::at: Buffer is not open" );
+	    qWarning( "QStringBuffer::at: Buffer is not open" );
 	    return FALSE;
 	}
 #endif
 	if ( (uint)pos >= s.length()*2 ) {
 #if defined(CHECK_RANGE)
-	    warning( "QStringBuffer::at: Index %d out of range", pos );
+	    qWarning( "QStringBuffer::at: Index %d out of range", pos );
 #endif
 	    return FALSE;
 	}
@@ -284,11 +284,11 @@ public:
 #if defined(CHECK_STATE)
 	CHECK_PTR( p );
 	if ( !isOpen() ) {                          // buffer not open
-	    warning( "QBuffer::readBlock: Buffer not open" );
+	    qWarning( "QBuffer::readBlock: Buffer not open" );
 	    return -1;
 	}
 	if ( !isReadable() ) {                      // reading not permitted
-	    warning( "QBuffer::readBlock: Read operation not permitted" );
+	    qWarning( "QBuffer::readBlock: Read operation not permitted" );
 	    return -1;
 	}
 #endif
@@ -310,23 +310,23 @@ public:
     {
 #if defined(CHECK_NULL)
 	if ( p == 0 && len != 0 )
-	    warning( "QBuffer::writeBlock: Null pointer error" );
+	    qWarning( "QBuffer::writeBlock: Null pointer error" );
 #endif
 #if defined(CHECK_STATE)
 	if ( !isOpen() ) {                          // buffer not open
-	    warning( "QBuffer::writeBlock: Buffer not open" );
+	    qWarning( "QBuffer::writeBlock: Buffer not open" );
 	    return -1;
 	}
 	if ( !isWritable() ) {                      // writing not permitted
-	    warning( "QBuffer::writeBlock: Write operation not permitted" );
+	    qWarning( "QBuffer::writeBlock: Write operation not permitted" );
 	    return -1;
 	}
 	if ( ioIndex&1 ) {
-	    warning( "QBuffer::writeBlock: non-even index - non Unicode" );
+	    qWarning( "QBuffer::writeBlock: non-even index - non Unicode" );
 	    return -1;
 	}
 	if ( len&1 ) {
-	    warning( "QBuffer::writeBlock: non-even length - non Unicode" );
+	    qWarning( "QBuffer::writeBlock: non-even length - non Unicode" );
 	    return -1;
 	}
 #endif
@@ -339,11 +339,11 @@ public:
     {
 #if defined(CHECK_STATE)
 	if ( !isOpen() ) {                          // buffer not open
-	    warning( "QBuffer::getch: Buffer not open" );
+	    qWarning( "QBuffer::getch: Buffer not open" );
 	    return -1;
 	}
 	if ( !isReadable() ) {                      // reading not permitted
-	    warning( "QBuffer::getch: Read operation not permitted" );
+	    qWarning( "QBuffer::getch: Read operation not permitted" );
 	    return -1;
 	}
 #endif
@@ -367,11 +367,11 @@ public:
     {
 #if defined(CHECK_STATE)
 	if ( !isOpen() ) {                          // buffer not open
-	    warning( "QBuffer::ungetch: Buffer not open" );
+	    qWarning( "QBuffer::ungetch: Buffer not open" );
 	    return -1;
 	}
 	if ( !isReadable() ) {                      // reading not permitted
-	    warning( "QBuffer::ungetch: Read operation not permitted" );
+	    qWarning( "QBuffer::ungetch: Read operation not permitted" );
 	    return -1;
 	}
 #endif
@@ -1245,7 +1245,7 @@ QString QTextStream::readLine()
 {
 #if defined(CHECK_STATE)
     if ( !dev ) {
-	warning( "QTextStream::readLine: No device" );
+	qWarning( "QTextStream::readLine: No device" );
 	return QString::null;
     }
 #endif
@@ -1278,7 +1278,7 @@ QString QTextStream::read()
 {
 #if defined(CHECK_STATE)
     if ( !dev ) {
-	warning( "QTextStream::readLine: No device" );
+	qWarning( "QTextStream::readLine: No device" );
 	return QString::null;
     }
 #endif

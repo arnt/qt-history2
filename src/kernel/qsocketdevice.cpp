@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#20 $
 **
 ** Implementation of QSocketDevice class
 **
@@ -216,7 +216,7 @@ static void cleanupWinSock()
 {
     WSACleanup();
 #if defined(QSOCKETDEVICE_DEBUG)
-    debug( "QSocketDevice: WinSock cleanup" );
+    qDebug( "QSocketDevice: WinSock cleanup" );
 #endif
 }
 
@@ -247,12 +247,12 @@ static bool initWinSock()
 	bool error = WSAStartup(MAKEWORD(1,1),&wsadata) != 0;
 	if ( error ) {
 #if defined(CHECK_NULL)
-	    warning( "QSocketDevice: WinSock initialization failed" );
+	    qWarning( "QSocketDevice: WinSock initialization failed" );
 #endif
 	    return FALSE;
 	}
 #if defined(QSOCKETDEVICE_DEBUG)
-	debug( "QSocketDevice: WinSock initialization %s",
+	qDebug( "QSocketDevice: WinSock initialization %s",
 	       (error ? "failed" : "OK") );
 #endif
     }
@@ -291,7 +291,7 @@ QSocketDevice::QSocketDevice( Type type )
     : sock_fd(-1)
 {
 #if defined(QSOCKETDEVICE_DEBUG)
-    debug( "QSocketDevice: Created QSocketDevice object %p, type %d",
+    qDebug( "QSocketDevice: Created QSocketDevice object %p, type %d",
 	   this, type );
 #endif
 #if defined(_OS_WIN32_)
@@ -307,7 +307,7 @@ QSocketDevice::QSocketDevice( Type type )
 	    break;
 	default:
 #if defined(CHECK_RANGE)
-	    warning( "QSocketDevice::QSocketDevice: Invalid socket type %d",
+	    qWarning( "QSocketDevice::QSocketDevice: Invalid socket type %d",
 		     sock_type );
 #endif
 	    s = -1;
@@ -332,7 +332,7 @@ QSocketDevice::QSocketDevice( int socket, Type type )
     : sock_fd(-1)
 {
 #if defined(QSOCKETDEVICE_DEBUG)
-    debug( "QSocketDevice: Created QSocketDevice %p (socket %x, type %d)",
+    qDebug( "QSocketDevice: Created QSocketDevice %p (socket %x, type %d)",
 	   this, socket, type );
 #endif
     setSocket( socket, type );
@@ -347,7 +347,7 @@ QSocketDevice::~QSocketDevice()
 {
     close();
 #if defined(QSOCKETDEVICE_DEBUG)
-    debug( "QSocketDevice: Destroyed QSocketDevice %p", this );
+    qDebug( "QSocketDevice: Destroyed QSocketDevice %p", this );
 #endif
 }
 
@@ -398,7 +398,7 @@ void QSocketDevice::setSocket( int socket, Type type )
     if ( sock_fd != -1 )			// close any open socket
 	close();
 #if defined(QSOCKETDEVICE_DEBUG)
-    debug( "QSocketDevice::setSocket: socket %x, type %d", socket, type );
+    qDebug( "QSocketDevice::setSocket: socket %x, type %d", socket, type );
 #endif
     sock_type = type;
     sock_fd = socket;
@@ -421,7 +421,7 @@ bool QSocketDevice::open( int mode )
     if ( isOpen() || !isValid() )
 	return FALSE;
 #if defined(QSOCKETDEVICE_DEBUG)
-    debug( "QSocketDevice::open: mode %x", mode );
+    qDebug( "QSocketDevice::open: mode %x", mode );
 #endif
     setMode( mode & IO_ReadWrite );
     setState( IO_Open );
@@ -446,7 +446,7 @@ void QSocketDevice::close()
     ::close( sock_fd );
 #endif
 #if defined(QSOCKETDEVICE_DEBUG)
-    debug( "QSocketDevice::close: Closed socket %x", sock_fd );
+    qDebug( "QSocketDevice::close: Closed socket %x", sock_fd );
 #endif
     sock_fd = -1;
 }
@@ -790,20 +790,20 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 {
 #if defined(CHECK_NULL)
     if ( data == 0 && maxlen != 0 ) {
-	warning( "QSocketDevice::readBlock: Null pointer error" );
+	qWarning( "QSocketDevice::readBlock: Null pointer error" );
     }
 #endif
 #if defined(CHECK_STATE)
     if ( !isValid() ) {
-	warning( "QSocketDevice::readBlock: Invalid socket" );
+	qWarning( "QSocketDevice::readBlock: Invalid socket" );
 	return -1;
     }
     if ( !isOpen() ) {
-	warning( "QSocketDevice::readBlock: Device is not open" );
+	qWarning( "QSocketDevice::readBlock: Device is not open" );
 	return -1;
     }
     if ( !isReadable() ) {
-	warning( "QSocketDevice::readBlock: Read operation not permitted" );
+	qWarning( "QSocketDevice::readBlock: Read operation not permitted" );
 	return -1;
     }
 #endif
@@ -824,20 +824,20 @@ int QSocketDevice::writeBlock( const char *data, uint len )
 {
 #if defined(CHECK_NULL)
     if ( data == 0 && len != 0 ) {
-	warning( "QSocketDevice::writeBlock: Null pointer error" );
+	qWarning( "QSocketDevice::writeBlock: Null pointer error" );
     }
 #endif
 #if defined(CHECK_STATE)
     if ( !isValid() ) {
-	warning( "QSocketDevice::writeBlock: Invalid socket" );
+	qWarning( "QSocketDevice::writeBlock: Invalid socket" );
 	return -1;
     }
     if ( !isOpen() ) {
-	warning( "QSocketDevice::writeBlock: Device is not open" );
+	qWarning( "QSocketDevice::writeBlock: Device is not open" );
 	return -1;
     }
     if ( !isWritable() ) {
-	warning( "QSocketDevice::writeBlock: Write operation not permitted" );
+	qWarning( "QSocketDevice::writeBlock: Write operation not permitted" );
 	return -1;
     }
 #endif

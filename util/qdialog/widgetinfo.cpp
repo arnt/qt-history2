@@ -23,6 +23,6 @@ QSize DWidgetInfo::sizeHint() const
   QSize s = w->sizeHint();
   delete w;
 
-  debug("Sizehint is %i %i", s.width(),s.height() );
+  qDebug("Sizehint is %i %i", s.width(),s.height() );
   return s;
 }

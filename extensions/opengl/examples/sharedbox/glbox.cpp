@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/sharedbox/glbox.cpp#2 $
+** $Id: //depot/qt/main/extensions/opengl/examples/sharedbox/glbox.cpp#3 $
 **
 ** Implementation of GLBox
 ** This is a simple QGLWidget displaying a box
@@ -48,18 +48,18 @@ void GLBox::initializeGL()
 	sharedDisplayList = makeObject();	// Make one
 	object = sharedDisplayList;		// Use it
 	sharedListUsers++;				// Keep reference count
-	debug( "GLBox %s created shared display list.", name() );
+	qDebug( "GLBox %s created shared display list.", name() );
     }
     else {				// There is a shared diplay list
 	if ( isSharing() ) {		// Can we access it?
 	    object = sharedDisplayList;		// Yes, use it
 	    sharedListUsers++;			// Keep reference count
-	    debug( "GLBox %s uses shared display list.", name() );
+	    qDebug( "GLBox %s uses shared display list.", name() );
 	}
 	else {				
 	    localDisplayList = makeObject();	// No, roll our own
 	    object = localDisplayList;		// and use that
-	    debug( "GLBox %s uses private display list.", name() );
+	    qDebug( "GLBox %s uses private display list.", name() );
 	}
     }
 }
@@ -74,14 +74,14 @@ GLBox::~GLBox()
 {
     if ( localDisplayList != 0 ) {		// Did we make our own?
 	glDeleteLists( localDisplayList, 1 );	// Yes, delete it
-	debug( "GLBox %s deleted private display list.", name() );
+	qDebug( "GLBox %s deleted private display list.", name() );
     }
     else {
 	sharedListUsers--;	// No, we used the shared one; keep refcount
 	if ( sharedListUsers == 0 ) { 			// Any sharers left?
 	    glDeleteLists( sharedDisplayList, 1 );	// No, delete it
 	    sharedDisplayList = 0;
-	    debug( "GLBox %s deleted shared display list.", name() );
+	    qDebug( "GLBox %s deleted shared display list.", name() );
 	}
     }
 }

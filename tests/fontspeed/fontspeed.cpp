@@ -80,7 +80,7 @@ int main( int argc, char **argv )
     p.begin( &pm );
     QTime t; t.start();
     drawFonts( &p );
-    debug( "TIME = %d", t.elapsed() );
+    qDebug( "TIME = %d", t.elapsed() );
     p.end();
     deleteFontArray();
     return 0;

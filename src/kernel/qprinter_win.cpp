@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#50 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -475,7 +475,7 @@ int QPrinter::metric( int m ) const
 	break;
     default:
 #if defined(CHECK_RANGE)
-	warning( "QPrinter::metric: Invalid metric command" );
+	qWarning( "QPrinter::metric: Invalid metric command" );
 #endif
 	return 0;
     }

@@ -91,7 +91,7 @@ void Table::moveCol( int fromIdx, int toIdx )
 {
     if ( fromIdx == toIdx )
 	return;
-    debug( "Table::moveCol() from %d to %d", fromIdx, toIdx );
+    qDebug( "Table::moveCol() from %d to %d", fromIdx, toIdx );
 
     int s = numbers[fromIdx];
     if ( fromIdx < toIdx ) {

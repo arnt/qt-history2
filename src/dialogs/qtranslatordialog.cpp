@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.cpp#7 $
+** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.cpp#8 $
 **
 ** Implementation of QTranslatorDialog class
 **
@@ -187,7 +187,7 @@ void QMessageParser::parse( const QString &filename, const QCString& defScope )
     QFile f( filename );
 
     if ( ! f.open( IO_ReadOnly ) ) {
-	warning( "Could not open file %s", filename.ascii() );
+	qWarning( "Could not open file %s", filename.ascii() );
 	return;
     }
 
@@ -281,19 +281,19 @@ void QMessageParser::error( int t, QString s)
 {
     switch ( t ) {
     case QMessageLexer::BadString:
-	warning( "%s:%d: Unterminated string \"%s\".",
+	qWarning( "%s:%d: Unterminated string \"%s\".",
 		  fileName.ascii(), lex->lineNumber(), s.ascii() );
 	break;
     case QMessageLexer::String:
-	warning( "%s:%d: Unexpected string \"%s\" found  %s.",
+	qWarning( "%s:%d: Unexpected string \"%s\" found  %s.",
 		 fileName.ascii(), lex->lineNumber(), s.ascii(),  stateStr( state ) );
 	break;
     case QMessageLexer::Eof:
-	warning( "%s:%d: Unexpected end of file  %s.",
+	qWarning( "%s:%d: Unexpected end of file  %s.",
 		 fileName.ascii(), lex->lineNumber(), stateStr( state ) );
 	break;
     default:
-    warning( "%s:%d: Unexpected \"%s\" found  %s.",
+    qWarning( "%s:%d: Unexpected \"%s\" found  %s.",
 	     fileName.ascii(), lex->lineNumber(), s.ascii(),  stateStr( state ) );
     break;
     }
@@ -304,7 +304,7 @@ void QMessageParser::error( int t, QString s)
 
 void QMessageParser::add( const char *scope, const char *key , const QString& trans )
 {
-    debug( "Item: %s::\"%s\" -> \"%s\"", scope, key, trans.latin1() );
+    qDebug( "Item: %s::\"%s\" -> \"%s\"", scope, key, trans.latin1() );
 }
 
 
@@ -578,7 +578,7 @@ void QTranslatorDialog::save()
 	while ( sub ) {
 	    if ( !!sub->text(1) ) {
 		mf.insert( scope, sub->text(0).latin1(), sub->text(1) );
-		debug( "QTranslatorDialog::save %d, %s, %s, %s",
+		qDebug( "QTranslatorDialog::save %d, %s, %s, %s",
 		       mf.hash( scope, sub->text(0).latin1() ),
 		       scope.data(),
 		       sub->text(0).latin1(),
@@ -591,7 +591,7 @@ void QTranslatorDialog::save()
 
     int hash = mf.hash("Main","Quit");
     QString s = mf.find( hash, "Main", "Quit" );
-    debug( "mf: %d -> %s", hash, s.latin1() );
+    qDebug( "mf: %d -> %s", hash, s.latin1() );
 
 
     mf.save( filename );

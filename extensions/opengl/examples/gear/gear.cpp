@@ -264,7 +264,7 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     if ( !QGLFormat::hasOpenGL() ) {
-	warning( "This system has no OpenGL support. Exiting." );
+	qWarning( "This system has no OpenGL support. Exiting." );
 	return -1;
     }
 

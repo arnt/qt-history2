@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#67 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#68 $
 **
 ** Implementation of QRegExp class
 **
@@ -386,7 +386,7 @@ bool matchcharclass( uint *rxd, QChar c )
     uint clcode = *d & MCD;
     bool neg = clcode == CCN;
     if ( clcode != CCL && clcode != CCN)
-	warning("QRegExp: Internal error, please report to qt-bugs@troll.no");
+	qWarning("QRegExp: Internal error, please report to qt-bugs@troll.no");
     uint numFields = *d & MVL;
     uint cval = (((uint)(c.row())) << 8) | ((uint)c.cell());
     bool found = FALSE;
@@ -727,28 +727,28 @@ static uint *dump( uint *p )
 	    QChar uc = (QChar)*p;
 	    char c = (char)uc;
 	    uint u = (((uint)(uc.row())) << 8) | ((uint)uc.cell());
-	    debug( "\tCHR\tU%04x (%c)", u, (c ? c : ' '));
+	    qDebug( "\tCHR\tU%04x (%c)", u, (c ? c : ' '));
 	    p++;
 	}
 	else if ( *p & MCC ) {
 	    uint clcode = *p & MCD;
 	    uint numFields = *p & MVL;
 	    if ( clcode == CCL )
-		debug( "\tCCL\t%i", numFields );
+		qDebug( "\tCCL\t%i", numFields );
 	    else if ( clcode == CCN )
-		debug( "\tCCN\t%i", numFields );
+		qDebug( "\tCCN\t%i", numFields );
 	    else
-		debug("coding error!");
+		qDebug("coding error!");
 	    for ( int i = 0; i < (int)numFields; i++ ) {
 		p++;
 		if ( *p == PWS )
-		    debug( "\t\tPWS" );
+		    qDebug( "\t\tPWS" );
 		else {
 		    uint from = ( *p & MCD ) >> 16;
 		    uint to = *p & MVL;
 		    char fc = (char)QChar(from);
 		    char tc = (char)QChar(to);
-		    debug( "\t\tU%04x (%c) - U%04x (%c)", from,
+		    qDebug( "\t\tU%04x (%c) - U%04x (%c)", from,
 			   (fc ? fc : ' '), to, (tc ? tc : ' ') );
 		}
 	    }
@@ -756,34 +756,34 @@ static uint *dump( uint *p )
 	}
 	else switch ( *p++ ) {
 	    case PWS:
-		debug( "\tPWS" );
+		qDebug( "\tPWS" );
 		break;
 	    case BOL:
-		debug( "\tBOL" );
+		qDebug( "\tBOL" );
 		break;
 	    case EOL:
-		debug( "\tEOL" );
+		qDebug( "\tEOL" );
 		break;
 	    case BOW:
-		debug( "\tBOW" );
+		qDebug( "\tBOW" );
 		break;
 	    case EOW:
-		debug( "\tEOW" );
+		qDebug( "\tEOW" );
 		break;
 	    case ANY:
-		debug( "\tANY" );
+		qDebug( "\tANY" );
 		break;
 	    case CLO:
-		debug( "\tCLO" );
+		qDebug( "\tCLO" );
 		p = dump( p );
 		break;
 	    case OPT:
-		debug( "\tOPT" );
+		qDebug( "\tOPT" );
 		p = dump( p );
 		break;
 	}
     }
-    debug( "\tEND" );
+    qDebug( "\tEND" );
     return p+1;
 }
 #endif // DEBUG

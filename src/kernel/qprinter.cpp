@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#46 $
 **
 ** Implementation of QPrinter class
 **
@@ -110,7 +110,7 @@ void QPrinter::setPrinterName( const QString &name )
 {
     if ( state != 0 ) {
 #if defined(CHECK_STATE)
-	warning( "QPrinter::setPrinterName: Cannot do this during printing" );
+	qWarning( "QPrinter::setPrinterName: Cannot do this during printing" );
 #endif
 	return;
     }
@@ -145,7 +145,7 @@ void QPrinter::setOutputToFile( bool enable )
 {
     if ( state != 0 ) {
 #if defined(CHECK_STATE)
-	warning( "QPrinter::setOutputToFile: Cannot do this during printing" );
+	qWarning( "QPrinter::setOutputToFile: Cannot do this during printing" );
 #endif
 	return;
     }
@@ -176,7 +176,7 @@ void QPrinter::setOutputFileName( const QString &fileName )
 {
     if ( state != 0 ) {
 #if defined(CHECK_STATE)
-	warning("QPrinter::setOutputFileName: Cannot do this during printing");
+	qWarning("QPrinter::setOutputFileName: Cannot do this during printing");
 #endif
 	return;
     }
@@ -226,7 +226,7 @@ void QPrinter::setDocName( const QString &name )
 {
     if ( state != 0 ) {
 #if defined(CHECK_STATE)
-	warning( "QPrinter::setDocName: Cannot do this during printing" );
+	qWarning( "QPrinter::setDocName: Cannot do this during printing" );
 #endif
 	return;
     }
@@ -441,7 +441,7 @@ void QPrinter::setFromTo( int fromPage, int toPage )
 {
     if ( state != 0 ) {
 #if defined(CHECK_STATE)
-	warning( "QPrinter::setFromTo: Cannot do this during printing" );
+	qWarning( "QPrinter::setFromTo: Cannot do this during printing" );
 #endif
 	return;
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#29 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#30 $
 **
 ** Implementation of QFontDialog
 **
@@ -243,11 +243,11 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     updateFamilies();
     QSize sz;
     sz = d->familyList->sizeHint();
-    warning( "Xfamily(%i, %i)", sz.width(), sz.height() );
+    qWarning( "Xfamily(%i, %i)", sz.width(), sz.height() );
     sz = d->styleList->sizeHint();
-    warning( "Xstyle(%i, %i)", sz.width(), sz.height() );
+    qWarning( "Xstyle(%i, %i)", sz.width(), sz.height() );
     sz = d->sizeList->sizeHint();
-    warning( "Xsize(%i, %i)", sz.width(), sz.height() );
+    qWarning( "Xsize(%i, %i)", sz.width(), sz.height() );
 
     // grid layout
     QGridLayout * mainGrid = new QGridLayout( this, 5, 7, 12, 0 );
@@ -591,7 +591,7 @@ void QFontDialog::familyHighlighted( const QString &s )
 
     QFontFamily tmp = d->fdb.family( s );
     if ( tmp.isNull() ) {
-	warning( "QFontDialog::updateFamilies: Internal error, cannot find family" );
+	qWarning( "QFontDialog::updateFamilies: Internal error, cannot find family" );
 	return;
     }
     d->family = tmp;
@@ -606,7 +606,7 @@ void QFontDialog::scriptHighlighted( const QString &s )
 {
     QFontCharSet tmp = d->family.charSet( s );
     if ( tmp.isNull() ) {
-	warning( "QFontCharSet::updateScripts: Internal error, cannot find script." );
+	qWarning( "QFontCharSet::updateScripts: Internal error, cannot find script." );
 	return;
     }
     d->charSet = tmp;
@@ -622,7 +622,7 @@ void QFontDialog::styleHighlighted( const QString &s )
 {
     QFontStyle tmp = d->charSet.style( s );
     if ( tmp.isNull() ) {
-	warning( "QFontCharSet::updateScripts: Internal error, cannot find script." );
+	qWarning( "QFontCharSet::updateScripts: Internal error, cannot find script." );
 	return;
     }
     d->style = tmp;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#199 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#200 $
 **
 ** Implementation of QObject class
 **
@@ -359,7 +359,7 @@ QObject::~QObject()
 {
     if ( wasDeleted ) {
 #if defined(DEBUG)
-	warning( "Double QObject deletion detected." );
+	qWarning( "Double QObject deletion detected." );
 #endif
 	return;
     }
@@ -539,7 +539,7 @@ QStringList QObject::superClasses( bool includeThis ) const
   to be returned for unnamed objects, you can call name(0).
 
   \code
-    debug( "MyClass::setPrecision(): (%s) unable to set precision to %f",
+    qDebug( "MyClass::setPrecision(): (%s) unable to set precision to %f",
 	    name(), newPrecision );
   \endcode
 
@@ -660,7 +660,7 @@ bool QObject::event( QEvent *e )
 {
 #if defined(CHECK_NULL)
     if ( e == 0 )
-	warning( "QObject::event: Null events are not permitted" );
+	qWarning( "QObject::event: Null events are not permitted" );
 #endif
     if ( eventFilters ) {			// try filters
 	if ( activate_filters(e) )		// stopped by a filter
@@ -812,7 +812,7 @@ void QObject::blockSignals( bool block )
 
     void MyObject::timerEvent( QTimerEvent *e )
     {
-	debug( "timer event, id=%d", e->timerId() );
+	qDebug( "timer event, id=%d", e->timerId() );
     }
   \endcode
 
@@ -1016,7 +1016,7 @@ void QObject::insertChild( QObject *obj )
     if ( obj->parentObj ) {
 #if defined(CHECK_STATE)
 	if ( obj->parentObj != this && obj->isWidgetType() )
-	    warning( "QObject::insertChild: Cannot reparent a widget, "
+	    qWarning( "QObject::insertChild: Cannot reparent a widget, "
 		     "use QWidget::reparent() instead" );
 #endif
 	obj->parentObj->removeChild( obj );
@@ -1028,7 +1028,7 @@ void QObject::insertChild( QObject *obj )
     }
 #if defined(CHECK_STATE)
     else if ( childObjects->findRef(obj) >= 0 ) {
-	warning( "QObject::insertChild: Object %s::%s already in list",
+	qWarning( "QObject::insertChild: Object %s::%s already in list",
 		 obj->className(), obj->name( "unnamed" ) );
 	return;
     }
@@ -1102,7 +1102,7 @@ void QObject::removeChild( QObject *obj )
     {
 	if ( e->type() == QEvent::KeyPress ) {	// key press
 	    QKeyEvent *k = (QKeyEvent*)e;
-	    debug( "Ate key press %d", k->key() );
+	    qDebug( "Ate key press %d", k->key() );
 	    return TRUE;			// eat event
 	}
 	return FALSE;				// standard event processing
@@ -1167,10 +1167,10 @@ static bool check_signal_macro( const QObject *sender, const char *signal,
     int sigcode = (int)(*signal) - '0';
     if ( sigcode != SIGNAL_CODE ) {
 	if ( sigcode == SLOT_CODE )
-	    warning( "QObject::%s: Attempt to %s non-signal %s::%s",
+	    qWarning( "QObject::%s: Attempt to %s non-signal %s::%s",
 		     func, op, sender->className(), signal+1 );
 	else
-	    warning( "QObject::%s: Use the SIGNAL macro to %s %s::%s",
+	    qWarning( "QObject::%s: Use the SIGNAL macro to %s %s::%s",
 		     func, op, sender->className(), signal );
 	return FALSE;
     }
@@ -1181,7 +1181,7 @@ static bool check_member_code( int code, const QObject *object,
 			       const char *member, const char *func )
 {
     if ( code != SLOT_CODE && code != SIGNAL_CODE ) {
-	warning( "QObject::%s: Use the SLOT or SIGNAL macro to "
+	qWarning( "QObject::%s: Use the SLOT or SIGNAL macro to "
 		 "%s %s::%s", func, func, object->className(), member );
 	return FALSE;
     }
@@ -1197,10 +1197,10 @@ static void err_member_notfound( int code, const QObject *object,
 	case SIGNAL_CODE: type = "signal"; break;
     }
     if ( strchr(member,')') == 0 )		// common typing mistake
-	warning( "QObject::%s: Parentheses expected, %s %s::%s",
+	qWarning( "QObject::%s: Parentheses expected, %s %s::%s",
 		 func, type, object->className(), member );
     else
-	warning( "QObject::%s: No such %s %s::%s",
+	qWarning( "QObject::%s: No such %s %s::%s",
 		 func, type, object->className(), member );
 }
 
@@ -1211,9 +1211,9 @@ static void err_info_about_objects( const char * func,
 {
     const char * a = sender->name(), * b = receiver->name();
     if ( a )
-	warning( "QObject::%s:  (sender name:   '%s')", func, a );
+	qWarning( "QObject::%s:  (sender name:   '%s')", func, a );
     if ( b )
-	warning( "QObject::%s:  (receiver name: '%s')", func, b );
+	qWarning( "QObject::%s:  (receiver name: '%s')", func, b );
 }
 
 static void err_info_about_candidates( int code,
@@ -1234,7 +1234,7 @@ static void err_info_about_candidates( int code,
 	    case SIGNAL_CODE: rm = mo->signal( newname, TRUE ); break;
 	}
 	if ( rm ) {
-	    warning("QObject::%s:  Candidate: %s", func, newname.data());
+	    qWarning("QObject::%s:  Candidate: %s", func, newname.data());
 	}
     }
 }
@@ -1342,7 +1342,7 @@ void QObject::badSuperclassWarning( const char *className,
 				    const char *superclassName )
 {
 #if defined(CHECK_NULL)
-    warning(
+    qWarning(
     "%s::initMetaObject(): Warning:\n"
     "    The class \"%s\" contains the Q_OBJECT macro, but inherits from the\n"
     "    \"%s\" class, which does not contain the Q_OBJECT macro.\n"
@@ -1430,7 +1430,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 {
 #if defined(CHECK_NULL)
     if ( sender == 0 || receiver == 0 || signal == 0 || member == 0 ) {
-	warning( "QObject::connect: Cannot connect %s::%s to %s::%s",
+	qWarning( "QObject::connect: Cannot connect %s::%s to %s::%s",
 		 sender ? sender->className() : "(null)",
 		 signal ? signal+1 : "(null)",
 		 receiver ? receiver->className() : "(null)",
@@ -1491,7 +1491,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
     }
 #if defined(CHECK_RANGE)
     if ( !s->checkConnectArgs(signal,receiver,member) )
-	warning( "QObject::connect: Incompatible sender/receiver arguments"
+	qWarning( "QObject::connect: Incompatible sender/receiver arguments"
 		 "\n\t%s::%s --> %s::%s",
 		 s->className(), signal,
 		 r->className(), member );
@@ -1591,7 +1591,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 {
 #if defined(CHECK_NULL)
     if ( sender == 0 || (receiver == 0 && member != 0) ) {
-	warning( "QObject::disconnect: Unexpected null parameter" );
+	qWarning( "QObject::disconnect: Unexpected null parameter" );
 	return FALSE;
     }
 #endif
@@ -1672,7 +1672,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	    if ( !smeta )			// no meta object
 		return FALSE;
 	    if ( !smeta->signal(signal,TRUE) )
-		warning( "QObject::disconnect: No such signal %s::%s",
+		qWarning( "QObject::disconnect: No such signal %s::%s",
 			 s->className(), signal );
 #endif
 	    return FALSE;
@@ -1741,7 +1741,7 @@ QMetaObject *QObject::queryMetaObject() const
     }
 #if defined(CHECK_NULL)
     if ( !m )					// still no meta object: error
-	warning( "QObject: Object %s::%s has no meta object",
+	qWarning( "QObject: Object %s::%s has no meta object",
 		 x->className(), x->name( "unnamed" ) );
 #endif
     return m;
@@ -1908,7 +1908,7 @@ static void dumpRecursive( int level, QObject *object )
 		flags += 'I';
 	    }
 	}	
-	debug( "%s%s::%s %s", (const char*)buf, object->className(), name,
+	qDebug( "%s%s::%s %s", (const char*)buf, object->className(), name,
 	    flags.latin1() );
 	if ( object->children() ) {
 	    QObjectListIt it(*object->children());
@@ -1946,39 +1946,39 @@ void QObject::dumpObjectTree()
 void QObject::dumpObjectInfo()
 {
 #if defined(DEBUG)
-    debug( "OBJECT %s::%s", className(), name( "unnamed" ) );
-    debug( "  SIGNALS OUT" );
+    qDebug( "OBJECT %s::%s", className(), name( "unnamed" ) );
+    qDebug( "  SIGNALS OUT" );
     int n = 0;
     if ( connections ) {
 	QSignalDictIt it(*connections);
 	QConnectionList *clist;
 	while ( (clist=it.current()) ) {
-	    debug( "\t%s", it.currentKey().ascii() );
+	    qDebug( "\t%s", it.currentKey().ascii() );
 	    n++;
 	    ++it;
 	    register QConnection *c;
 	    QConnectionListIt cit(*clist);
 	    while ( (c=cit.current()) ) {
 		++cit;
-		debug( "\t  --> %s::%s %s", c->object()->className(),
+		qDebug( "\t  --> %s::%s %s", c->object()->className(),
 		       c->object()->name( "unnamed" ), c->memberName() );
 	    }
 	}
     }
     if ( n == 0 )
-	debug( "\t<None>" );
-    debug( "  SIGNALS IN" );
+	qDebug( "\t<None>" );
+    qDebug( "  SIGNALS IN" );
     n = 0;
     if ( senderObjects ) {
 	QObject *sender = senderObjects->first();
 	while ( sender ) {
-	    debug( "\t%s::%s",
+	    qDebug( "\t%s::%s",
 		   sender->className(), sender->name( "unnamed" ) );
 	    n++;
 	    sender = senderObjects->next();
 	}
     }
     if ( n == 0 )
-	debug( "\t<None>" );
+	qDebug( "\t<None>" );
 #endif
 }

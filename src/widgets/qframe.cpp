@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#88 $
 **
 ** Implementation of QFrame widget class
 **
@@ -204,7 +204,7 @@ void QFrame::setFrameStyle( int style )
     bool shape	= (style & MShape)  != 0;
     bool shadow = (style & MShadow) != 0;
     if ( shape != shadow )
-	warning( "QFrame::setFrameStyle: (%s) Incomplete frame style",
+	qWarning( "QFrame::setFrameStyle: (%s) Incomplete frame style",
 		 name( "unnamed" ) );
 #endif
     fstyle = (short)style;

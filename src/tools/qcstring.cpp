@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcstring.cpp#7 $
+** $Id: //depot/qt/main/src/tools/qcstring.cpp#8 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QCString classes
@@ -375,7 +375,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
     }
     if ( !a.resize( (uint)len ) ) {		// resize array
 #if defined(CHECK_NULL)
-	warning( "QDataStream: Not enough memory to read QByteArray" );
+	qWarning( "QDataStream: Not enough memory to read QByteArray" );
 #endif
 	len = 0;
     }
@@ -1650,7 +1650,7 @@ QCString &QCString::setNum( double n, char f, int prec )
 {
 #if defined(CHECK_RANGE)
     if ( !(f=='f' || f=='F' || f=='e' || f=='E' || f=='g' || f=='G') )
-	warning( "QCString::setNum: Invalid format char '%c'", f );
+	qWarning( "QCString::setNum: Invalid format char '%c'", f );
 #endif
     char format[20];
     register char *fs = format;			// generate format string
@@ -1788,7 +1788,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
     }
     if ( !str.QByteArray::resize( (uint)len )) {// resize string
 #if defined(CHECK_NULL)
-	warning( "QDataStream: Not enough memory to read QCString" );
+	qWarning( "QDataStream: Not enough memory to read QCString" );
 #endif
 	len = 0;
     }

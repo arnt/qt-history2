@@ -357,7 +357,7 @@ QPoint QuickEditedWidget::mapTo( QWidget* ancestor, QWidget* decendant, QPoint p
     {
 #if defined(CHECK_RANGE)
 	if ( !decendant ) {
-	    fatal( "QuickEditedWidget::mapTo - "
+	    qFatal( "QuickEditedWidget::mapTo - "
 		   " ancestor is not ancestor of decendant" );
 	}
 #endif

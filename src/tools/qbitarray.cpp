@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#46 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#47 $
 **
 ** Implementation of QBitArray class
 **
@@ -247,7 +247,7 @@ bool QBitArray::testBit( uint index ) const
 {
 #if defined(CHECK_RANGE)
     if ( index >= size() ) {
-	warning( "QBitArray::testBit: Index %d out of range", index );
+	qWarning( "QBitArray::testBit: Index %d out of range", index );
 	return FALSE;
     }
 #endif
@@ -263,7 +263,7 @@ void QBitArray::setBit( uint index )
 {
 #if defined(CHECK_RANGE)
     if ( index >= size() ) {
-	warning( "QBitArray::setBit: Index %d out of range", index );
+	qWarning( "QBitArray::setBit: Index %d out of range", index );
 	return;
     }
 #endif
@@ -294,7 +294,7 @@ void QBitArray::clearBit( uint index )
 {
 #if defined(CHECK_RANGE)
     if ( index >= size() ) {
-	warning( "QBitArray::clearBit: Index %d out of range", index );
+	qWarning( "QBitArray::clearBit: Index %d out of range", index );
 	return;
     }
 #endif
@@ -314,7 +314,7 @@ bool QBitArray::toggleBit( uint index )
 {
 #if defined(CHECK_RANGE)
     if ( index >= size() ) {
-	warning( "QBitArray::toggleBit: Index %d out of range", index );
+	qWarning( "QBitArray::toggleBit: Index %d out of range", index );
 	return FALSE;
     }
 #endif
@@ -383,7 +383,7 @@ QBitArray &QBitArray::operator&=( const QBitArray &a )
     }
 #if defined(CHECK_RANGE)
     else
-	warning( "QBitArray::operator&=: Bit arrays have different size" );
+	qWarning( "QBitArray::operator&=: Bit arrays have different size" );
 #endif
     return *this;
 }
@@ -418,7 +418,7 @@ QBitArray &QBitArray::operator|=( const QBitArray &a )
     }
 #if defined(CHECK_RANGE)
     else
-	warning( "QBitArray::operator|=: Bit arrays have different size" );
+	qWarning( "QBitArray::operator|=: Bit arrays have different size" );
 #endif
     return *this;
 }
@@ -453,7 +453,7 @@ QBitArray &QBitArray::operator^=( const QBitArray &a )
     }
 #if defined(CHECK_RANGE)
     else
-	warning( "QBitArray::operator^=: Bit arrays have different size" );
+	qWarning( "QBitArray::operator^=: Bit arrays have different size" );
 #endif
     return *this;
 }
@@ -557,7 +557,7 @@ QDataStream &operator>>( QDataStream &s, QBitArray &a )
     s >> len;					// read size of array
     if ( !a.resize( (uint)len ) ) {		// resize array
 #if defined(CHECK_NULL)
-	warning( "QDataStream: Not enough memory to read QBitArray" );
+	qWarning( "QDataStream: Not enough memory to read QBitArray" );
 #endif
 	len = 0;
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#28 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#29 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -1142,7 +1142,7 @@ QNPWidget::QNPWidget() :
     pi(next_pi)
 {
     if (!next_pi) {
-	fatal("QNPWidget must only be created within call to newWindow");
+	qFatal("QNPWidget must only be created within call to newWindow");
     }
     next_pi->widget = this;
     next_pi = 0;
@@ -1333,7 +1333,7 @@ QNPInstance::QNPInstance() :
     pi(next_pi)
 {
     if (!next_pi) {
-	fatal("QNPInstance must only be created within call to newInstance");
+	qFatal("QNPInstance must only be created within call to newInstance");
     }
     next_pi->instance = this;
     next_pi = 0;
@@ -1946,7 +1946,7 @@ void* QNPlugin::getJavaClass()
 */
 void QNPlugin::unuseJavaClass()
 {
-    fatal("QNPlugin::unuseJavaClass() must overridden along with getJavaClass()");
+    qFatal("QNPlugin::unuseJavaClass() must overridden along with getJavaClass()");
 }
 
 /*!

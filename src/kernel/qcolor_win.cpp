@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#58 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -896,7 +896,7 @@ void QColor::setSystemNamedColor( const QString& name )
 {
     if ( !color_init ) {
 #if defined(CHECK_STATE)
-	warning( "QColor::setSystemNamedColor: Cannot perform this operation "
+	qWarning( "QColor::setSystemNamedColor: Cannot perform this operation "
 		 "because QApplication does not exist" );
 #endif
 	alloc();				// makes the color black
@@ -932,7 +932,7 @@ int QColor::enterAllocContext()
     init_context_stack();
     if ( context_ptr+1 == MAX_CONTEXTS ) {
 #if defined(CHECK_STATE)
-	warning( "QColor::enterAllocContext: Context stack overflow" );
+	qWarning( "QColor::enterAllocContext: Context stack overflow" );
 #endif
 	return 0;
     }
@@ -946,7 +946,7 @@ void QColor::leaveAllocContext()
     init_context_stack();
     if ( context_ptr == 0 ) {
 #if defined(CHECK_STATE)
-	warning( "QColor::leaveAllocContext: Context stack underflow" );
+	qWarning( "QColor::leaveAllocContext: Context stack underflow" );
 #endif
 	return;
     }

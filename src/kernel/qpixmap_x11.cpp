@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#154 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#155 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -224,7 +224,7 @@ static void build_scale_table( uint **table, uint nBits )
 {
     if ( nBits > 7 ) {
 #if defined(CHECK_RANGE)
-	warning( "build_scale_table: internal error, nBits = %i", nBits );
+	qWarning( "build_scale_table: internal error, nBits = %i", nBits );
 #endif
 	return;
     }
@@ -276,7 +276,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	hd = 0;
 #if defined(CHECK_RANGE)
 	if ( !make_null )
-	    warning( "QPixmap: Invalid pixmap parameters" );
+	    qWarning( "QPixmap: Invalid pixmap parameters" );
 #endif
 	return;
     }
@@ -491,7 +491,7 @@ int QPixmap::metric( int m ) const
 	    default:
 		val = 0;
 #if defined(CHECK_RANGE)
-		warning( "QPixmap::metric: Invalid metric command" );
+		qWarning( "QPixmap::metric: Invalid metric command" );
 #endif
 	}
     }
@@ -519,7 +519,7 @@ QImage QPixmap::convertToImage() const
     QImage image;
     if ( isNull() ) {
 #if defined(CHECK_NULL)
-	warning( "QPixmap::convertToImage: Cannot convert a null pixmap" );
+	qWarning( "QPixmap::convertToImage: Cannot convert a null pixmap" );
 #endif
 	return image;
     }
@@ -641,7 +641,7 @@ QImage QPixmap::convertToImage() const
 			y = h;
 			pixel = 0;		// eliminate compiler warning
 #if defined(CHECK_RANGE)
-			warning( "QPixmap::convertToImage: Invalid depth %d",
+			qWarning( "QPixmap::convertToImage: Invalid depth %d",
 				 bppc );
 #endif
 		}
@@ -688,7 +688,7 @@ QImage QPixmap::convertToImage() const
     } else {
 	/* Typically 2 or 4 bits display depth */
 #if defined(CHECK_RANGE)
-	warning( "QPixmap::convertToImage: Display not supported (bpp=%d)",
+	qWarning( "QPixmap::convertToImage: Display not supported (bpp=%d)",
 		 xi->bits_per_pixel );
 #endif
 	image.reset();
@@ -872,7 +872,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 {
     if ( img.isNull() ) {
 #if defined(CHECK_NULL)
-	warning( "QPixmap::convertFromImage: Cannot convert a null image" );
+	qWarning( "QPixmap::convertFromImage: Cannot convert a null image" );
 #endif
 	return FALSE;
     }
@@ -1278,7 +1278,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    newbits = (uchar *)newerbits;
 	} else if ( xi->bits_per_pixel != 8 ) {
 #if defined(CHECK_RANGE)
-	    warning( "QPixmap::convertFromImage: Display not supported "
+	    qWarning( "QPixmap::convertFromImage: Display not supported "
 		     "(bpp=%d)", xi->bits_per_pixel );
 #endif
 	}
@@ -1550,17 +1550,17 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 // #define DEBUG_XIMAGE
 #if defined(DEBUG_XIMAGE)
-    debug( "----IMAGE--INFO--------------" );
-    debug( "width............. %d", xi->width );
-    debug( "height............ %d", xi->height );
-    debug( "xoffset........... %d", xi->xoffset );
-    debug( "format............ %d", xi->format );
-    debug( "byte order........ %d", xi->byte_order );
-    debug( "bitmap unit....... %d", xi->bitmap_unit );
-    debug( "bitmap bit order.. %d", xi->bitmap_bit_order );
-    debug( "depth............. %d", xi->depth );
-    debug( "bytes per line.... %d", xi->bytes_per_line );
-    debug( "bits per pixel.... %d", xi->bits_per_pixel );
+    qDebug( "----IMAGE--INFO--------------" );
+    qDebug( "width............. %d", xi->width );
+    qDebug( "height............ %d", xi->height );
+    qDebug( "xoffset........... %d", xi->xoffset );
+    qDebug( "format............ %d", xi->format );
+    qDebug( "byte order........ %d", xi->byte_order );
+    qDebug( "bitmap unit....... %d", xi->bitmap_unit );
+    qDebug( "bitmap bit order.. %d", xi->bitmap_bit_order );
+    qDebug( "depth............. %d", xi->depth );
+    qDebug( "bytes per line.... %d", xi->bytes_per_line );
+    qDebug( "bits per pixel.... %d", xi->bits_per_pixel );
 #endif
 
     int m11 = qRound((double)mat.m11()*65536.0);
@@ -1646,7 +1646,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 		default: {
 #if defined(CHECK_RANGE)
-		warning( "QPixmap::xForm: DISPLAY NOT SUPPORTED (BPP=%d)",bpp);
+		qWarning( "QPixmap::xForm: DISPLAY NOT SUPPORTED (BPP=%d)",bpp);
 #endif
 		QPixmap pm;
 		return pm;

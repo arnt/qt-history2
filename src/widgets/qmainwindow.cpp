@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#59 $
 **
 ** Implementation of QMainWindow class
 **
@@ -531,7 +531,7 @@ void QMainWindow::setDockEnabled( ToolBarDock dock, bool enable )
 	    break;
 	}
     } else {
-	warning( "oops! unimplemented, untested, and not quite thought out." );
+	qWarning( "oops! unimplemented, untested, and not quite thought out." );
     }
 }
 
@@ -1123,13 +1123,13 @@ void QMainWindow::moveToolBar( QToolBar* /*t*/ , QMouseEvent * /*e*/ )
 	// right dock
 	dock = d->right;
     } else {
-	fatal( "never to happen" );
+	qFatal( "never to happen" );
     }
 
     if ( !dock )
 	return;
 
-    debug( "1" );
+    qDebug( "1" );
     // at this point dock points to the new dock
     QMainWindowPrivate::ToolBar * ct;
     ct = takeToolBarFromDock( t, d->top );
@@ -1144,13 +1144,13 @@ void QMainWindow::moveToolBar( QToolBar* /*t*/ , QMouseEvent * /*e*/ )
     if ( dock == d->tornOff || ct == 0 )
 	return;
 
-    debug( "2" );
+    qDebug( "2" );
     QMainWindowPrivate::ToolBar * c = dock->first();
     QRect inLine;
     QRect betweenLines;
     int linestart = 0;
     while( c && ct ) {
-	debug( "3 %p %p", c, ct );
+	qDebug( "3 %p %p", c, ct );
 	if ( c->nl ) {
 	    if ( dock == d->top ) {
 		betweenLines.setRect( 0, 0, width(),
@@ -1231,10 +1231,10 @@ void QMainWindow::moveToolBar( QToolBar* /*t*/ , QMouseEvent * /*e*/ )
 	    c = c2;
 	}
     }
-    debug( "4" );
+    qDebug( "4" );
     // okay, is it at the very end?
     if ( ct ) {
-	debug( "4a" );
+	qDebug( "4a" );
 	dock->append( ct );
 	if ( t->parentWidget() != this )
 	    t->reparent( this, 0, QPoint( 0, -t->height() ), TRUE );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#67 $
 **
 ** Implementation of QPointArray class
 **
@@ -816,7 +816,7 @@ QPointArray QPointArray::quadBezier() const
 #ifdef USE_SIMPLE_QBEZIER_CODE
     if ( size() != 4 ) {
 #if defined(CHECK_RANGE)
-	warning( "QPointArray::bezier: The array must have 4 control points" );
+	qWarning( "QPointArray::bezier: The array must have 4 control points" );
 #endif
 	QPointArray p;
 	return p;
@@ -871,7 +871,7 @@ QPointArray QPointArray::quadBezier() const
 
     if ( size() != 4 ) {
 #if defined(CHECK_RANGE)
-	warning( "QPointArray::bezier: The array must have 4 control points" );
+	qWarning( "QPointArray::bezier: The array must have 4 control points" );
 #endif
 	QPointArray pa;
 	return pa;

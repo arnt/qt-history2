@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#50 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#51 $
 **
 ** Implementation of QFileInfo class
 **
@@ -739,9 +739,9 @@ uint QFileInfo::groupId() const
   \code
     QFileInfo fi( "/tmp/tonsils" );
     if ( fi.permission( QFileInfo::WriteUser | QFileInfo::ReadGroup ) )
-	warning( "Tonsils can be changed by me, and the group can read them.");
+	qWarning( "Tonsils can be changed by me, and the group can read them.");
     if ( fi.permission( QFileInfo::WriteGroup | QFileInfo::WriteOther ) )
-	warning( "Danger! Tonsils can be changed by the group or others!" );
+	qWarning( "Danger! Tonsils can be changed by the group or others!" );
   \endcode
 
   \sa isReadable(), isWritable(), isExecutable()
@@ -776,7 +776,7 @@ bool QFileInfo::permission( int permissionSpec ) const
 	   return (fic->st.st_mode & mask) == mask;
 	} else {
 #if defined(CHECK_NULL)
-	   warning( "QFileInfo::permission: permissionSpec is 0" );
+	   qWarning( "QFileInfo::permission: permissionSpec is 0" );
 #endif
 	   return TRUE;
 	}
@@ -868,7 +868,7 @@ void QFileInfo::doStat() const
 	r = _tstat((const TCHAR*)qt_winTchar(fn,TRUE), b);
     } else {
 	r = _stat(qt_winQString2MB(fn), b);
-debug("%d for %s",r,qt_winQString2MB(fn).data());
+qDebug("%d for %s",r,qt_winQString2MB(fn).data());
     }
 #endif
 

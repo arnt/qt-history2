@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#63 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -204,7 +204,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		QApplication::flushX();
 		int fds[2];
 		if ( pipe( fds ) != 0 ) {
-		    warning( "QPSPrinter: could not open pipe to print" );
+		    qWarning( "QPSPrinter: could not open pipe to print" );
 		    state = PST_ERROR;
 		    return FALSE;
 		}
@@ -380,7 +380,7 @@ int QPrinter::metric( int m ) const
 	default:
 	    val = 0;
 #if defined(CHECK_RANGE)
-	    warning( "QPixmap::metric: Invalid metric command" );
+	    qWarning( "QPixmap::metric: Invalid metric command" );
 #endif
     }
     return val;
