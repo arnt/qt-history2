@@ -65,15 +65,11 @@ unix {
 	XML_H	        = $$XML_CPP
 	STYLES_H	= $$STYLES_CPP
 
-	CONFIG	   += x11 x11inc
 	DEFINES    += QT_FATAL_ASSERT
-	!macx:!freebsd-g++:LIBS += -ldl
-	xinerama:LIBS += -lXinerama
-	!xinerama:DEFINES += QT_NO_XINERAMA
-	xrender:LIBS += -lXrender
-	!xrender:DEFINES += QT_NO_XRENDER
-	xftfreetype:LIBS += -lXft
-	!xftfreetype:DEFINES += QT_NO_XFTFREETYPE
+	!macx-g++ { #macx is a unix, but doesn't need this
+		!freebsd-g++:LIBS += -ldl
+		CONFIG	   += x11 x11inc
+	}
 }
 
 DEPENDPATH += :$$NETWORK_H:$$KERNEL_H:$$WIDGETS_H:$$SQL_H:$$TABLE_H:$$DIALOGS_H:
@@ -84,20 +80,17 @@ thread {
 	DEFINES += QT_THREAD_SUPPORT
 }
 
-nas {
-	DEFINES     += QT_NAS_SUPPORT
-	LIBS	+= -laudio -lXt
-}
-
-sm:CONFIG += x11sm
-!x11sm:DEFINES += QT_NO_SM_SUPPORT
-
 cups {
 	# next few lines add cups support
 	DEFINES += QT_CUPS_SUPPORT
 	LIBS += -lcups
 }
 
+#platforms
+x11:include($$KERNEL_CPP/qt_x11.pri)
+macx-g++:include($$KERNEL_CPP/qt_mac.pri)
+
+#modules
 include($$KERNEL_CPP/qt_compat.pri)
 include($$KERNEL_CPP/qt_embedded.pri)
 include($$KERNEL_CPP/qt_kernel.pri)
