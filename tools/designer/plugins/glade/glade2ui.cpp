@@ -435,7 +435,7 @@ static QString accelerate( const QString& gtkLabel )
     QString qtLabel = gtkLabel;
     qtLabel.replace( '&', QString("&&") );
     // close but not quite right
-    qtLabel.replace( '_', QChar('&') );
+    qtLabel.replace( QChar('_'), QChar('&') );
     return qtLabel;
 }
 
