@@ -44,6 +44,15 @@
 #include <qsqlresult.h>
 #include <qsqlindex.h>
 
+#if defined (Q_OS_WIN32)
+#include <qt_windows.h>
+// Have to undefine this to force the use of the non-unicode
+// ODBC API.
+#ifdef UNICODE
+#undef UNICODE
+#endif
+#endif
+
 #include <sql.h>
 #include <sqlext.h>
 
