@@ -1289,7 +1289,7 @@ QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *)
     if ( widget ) {
 	QPoint plocal(widget->mapFromGlobal( where ));
 	QContextMenuEvent qme( QContextMenuEvent::Mouse, plocal, where, 0 );
-	QApplication::sendEvent( widget, &qme );
+//	QApplication::sendEvent( widget, &qme );
 	if(qme.isAccepted()) { //once this happens the events before are pitched
 	    qt_button_down = NULL;
 	    mouse_button_state = 0;
