@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#93 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -451,6 +451,71 @@ QWidget * QDragObject::source()
   an overview of how to provide cut-and-paste in your application.
 */
 
+static
+void stripws(QCString& s)
+{
+    int f;
+    while ( (f=s.find(' ')) >= 0 )
+	s.remove(f,1);
+}
+
+static
+const char * staticCharset(int i)
+{
+    static QCString localcharset;
+
+    switch ( i ) {
+      case 0:
+	return "utf8";
+      case 1:
+	if ( localcharset.isNull() ) {
+	    localcharset = QTextCodec::codecForLocale()->name();
+	    localcharset = localcharset.lower();
+	    stripws(localcharset);
+	}
+	return localcharset;
+      case 2:
+	return "utf16";
+      case 3:
+	return "";
+    }
+    return 0;
+}
+
+
+class QTextDragPrivate {
+public:
+    QTextDragPrivate()
+    {
+	setSubType("plain");
+    }
+
+    enum { nfmt=4 };
+
+    QString txt;
+    QCString fmt[nfmt];
+    QCString subtype;
+
+    void setSubType(const QCString & st)
+    {
+	subtype = st.lower();
+	for ( int i=0; i<nfmt; i++ ) {
+	    fmt[i] = "text/";
+	    fmt[i].append(subtype);
+	    QCString cs = staticCharset(i);
+	    if ( !cs.isEmpty() ) {
+		fmt[i].append(";charset=");
+		fmt[i].append(cs);
+	    }
+	}
+    }
+};
+
+void QTextDrag::setSubtype( const QCString & st)
+{
+    d->setSubType(st);
+}
+
 /*! \class QTextDrag qdragobject.h
 
   \brief The QTextDrag provides a drag-and-drop object for
@@ -476,6 +541,7 @@ QTextDrag::QTextDrag( const QString &text,
 		      QWidget * dragSource, const char * name )
     : QDragObject( dragSource, name )
 {
+    d = new QTextDragPrivate;
     setText( text );
 }
 
@@ -487,15 +553,15 @@ QTextDrag::QTextDrag( const QString &text,
 QTextDrag::QTextDrag( QWidget * dragSource, const char * name )
     : QDragObject( dragSource, name )
 {
+    d = new QTextDragPrivate;
 }
 
 
 /*!  Destroys the text drag object and frees all allocated resources.
 */
-
 QTextDrag::~QTextDrag()
 {
-    // nothing
+    delete d;
 }
 
 
@@ -505,52 +571,61 @@ QTextDrag::~QTextDrag()
 */
 void QTextDrag::setText( const QString &text )
 {
-    txt = text;
+    d->txt = text;
 }
 
-// #### Should use "text/plain;charset=utf8", etc. as per Xdnd4
-static const char* text_formats[] = { // All must start with "text/"
-	"text/utf16",
-	"text/utf8",
-	"text/plain", // LAST
-	0
-    };
 
 const char * QTextDrag::format(int i) const
 {
-    for (int j=0; i>=0 && text_formats[j]; j++) {
-	const char* fmt = text_formats[j]+5;
-	QTextCodec *codec = QTextCodec::codecForName(fmt);
-	if ( codec || !text_formats[j+1] ) {
-	    if ( !i )
-		return text_formats[j];
-	    i--;
-	}
-    }
+    if ( i >= d->nfmt )
+	return 0;
+    return d->fmt[i];
+}
 
+static
+QTextCodec* findcharset(const QCString& mimetype)
+{
+    int i=mimetype.find("charset=");
+    if ( i >= 0 ) {
+	QCString cs = mimetype.mid(i+8);
+	stripws(cs);
+	i = cs.find(';');
+	if ( i >= 0 )
+	    cs = cs.left(i);
+	// May return 0 if unknown charset
+	return QTextCodec::codecForName(cs,cs.length()*3/4);
+    }
+    // no charset=, use locale
+    return QTextCodec::codecForLocale();
+}
+
+static
+QTextCodec* findcodec(const QMimeSource* e)
+{
+    QTextCodec* r;
+    const char* f;
+    int i;
+    for ( i=0; (f=e->format(i)); i++ )
+	if ( (r = findcharset(QCString(f).lower())) )
+	    return r;
     return 0;
 }
+
 
 QByteArray QTextDrag::encodedData(const char* mime) const
 {
     QCString r;
     if ( 0==strnicmp(mime,"text/",5) ) {
-	QTextCodec *codec = 0;
-	if ( 0==stricmp(mime,"text/plain") ) {
-	    // local
-	} else if ( 0==stricmp(mime,"text/utf16")
-	         || 0==stricmp(mime,"text/utf8") ) {
-	    codec = QTextCodec::codecForName(mime+5);
+	QCString m(mime);
+	m = m.lower();
+	QTextCodec *codec = findcharset(m);
+	if ( !codec )
+	    return r;
+	r = codec->fromUnicode(d->txt);
+	if (!codec || codec->mibEnum() != 1000) {
+	    // Don't include NUL in size (QCString::resize() adds NUL)
+	    ((QByteArray&)r).resize(r.length());
 	}
-	if (codec) {
-	    r = codec->fromUnicode(txt);
-	} else {
-	    r = txt.local8Bit();
-	}
-    }
-    if (stricmp(mime,"text/utf16")!=0) {
-	// Don't include NUL in size (QCString::resize() adds NUL)
-	((QByteArray&)r).resize(r.length());
     }
     return r;
 }
@@ -561,10 +636,13 @@ QByteArray QTextDrag::encodedData(const char* mime) const
 */
 bool QTextDrag::canDecode( const QMimeSource* e )
 {
-    for ( int i=0; text_formats[i]; i++ )
-	if ( e->provides( text_formats[i] ) )
-	    return TRUE;
-    return FALSE;
+    const char* f;
+    for (int i=0; (f=e->format(i)); i++) {
+	if ( 0==strnicmp(f,"text/",5) ) {
+	    return findcodec(e) != 0;
+	}
+    }
+    return 0;
 }
 
 /*!
@@ -575,27 +653,33 @@ bool QTextDrag::canDecode( const QMimeSource* e )
 */
 bool QTextDrag::decode( const QMimeSource* e, QString& str )
 {
-    QTextCodec* codec = 0;
-    QByteArray payload;
-    for ( int i=0; !codec && text_formats[i]; i++ ) {
-	payload = e->encodedData(text_formats[i]);
-	if ( payload.size() ) {
-	    if ( !text_formats[i+1] ) {
-		// text/plain is NUL terminated, or payload.size().
-		int l = 0;
-		while ( l < (int)payload.size() && payload[l] )
-		    l++;
-		str = QString::fromLocal8Bit(payload,l);
-		return TRUE;
+    const char* mime;
+    for (int i=0; (mime = e->format(i)); i++) {
+	if ( 0==strnicmp(mime,"text/",5) ) {
+	    QTextCodec* codec = findcharset(QCString(mime).lower());
+	    if ( codec ) {
+		QByteArray payload;
+
+		payload = e->encodedData(mime);
+		if ( payload.size() ) {
+		    int l;
+		    if ( codec->mibEnum() != 1000) {
+			// length is at NUL or payload.size()
+			l = 0;
+			while ( l < (int)payload.size() && payload[l] )
+			    l++;
+		    } else {
+			l = payload.size();
+		    }
+
+		    str = codec->toUnicode(payload,l);
+
+		    return TRUE;
+		}
 	    }
-	    const char* subtype = text_formats[i]+5; // 5="text/"
-	    codec = QTextCodec::codecForName(subtype);
 	}
     }
-    if ( !codec )
-	return FALSE;
-    str = codec->toUnicode(payload);
-    return TRUE;
+    return FALSE;
 }
 
 

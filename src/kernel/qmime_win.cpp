@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#10 $
 **
 ** Implementation of Win32 MIME <-> clipboard converters
 **
@@ -50,9 +50,9 @@ static QList<QWindowsMime> mimes;
 
   Qt has predefined support for the following Windows Clipboard formats:
   <ul>
-    <li> \c CF_UNICODETEXT - converted to "text/plain" or "text/utf16",
+    <li> \c CF_UNICODETEXT - converted to "text/plain;charset=utf16"
 	    and thus supported by QTextDrag.
-    <li> \c CF_TEXT - converted to "text/plain" or "text/utf16",
+    <li> \c CF_TEXT - converted to "text/plain;charset=system" or "text/plain"
 	    and thus supported by QTextDrag.
     <li> \c CF_DIB - converted to "image/*", where * is
 		a \link QImage::outputFormats() Qt image format\endlink,
@@ -225,17 +225,29 @@ const char* QWindowsMimeText::convertorName()
 
 int QWindowsMimeText::cf(int index)
 {
-    return index ? CF_UNICODETEXT : CF_TEXT;  // Note UNICODE first.
+    if ( index == 0 )
+	return CF_UNICODETEXT;
+    else
+	return CF_TEXT;
 }
 
 int QWindowsMimeText::cfFor(const char* mime)
 {
     if ( 0==qstricmp( mime, "text/plain" ) )
 	return CF_TEXT;
-    else if ( 0==qstricmp( mime, "text/utf16" ) )
-	return CF_UNICODETEXT;
-    else
-	return 0;
+    QCString m(mime);
+    int i = m.find("charset=");
+    if ( i >= 0 ) {
+	QCString cs(m.data()+i+8);
+	i = cs.find(";");
+	if ( i>=0 )
+	    cs = cs.left(i);
+	if ( cs == "system" )
+	    return CF_TEXT;
+	if ( cs == "utf16" )
+	    return CF_UNICODETEXT;
+    }
+    return 0;
 }
 
 const char* QWindowsMimeText::mimeFor(int cf)
@@ -243,7 +255,7 @@ const char* QWindowsMimeText::mimeFor(int cf)
     if ( cf == CF_TEXT )
 	return "text/plain";
     else if ( cf == CF_UNICODETEXT )
-	return "text/utf16";
+	return "text/plain;charset=utf16";
     else
 	return 0;
 }
