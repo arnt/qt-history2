@@ -4471,8 +4471,9 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
 
 void QListView::doAutoScroll()
 {
-    QPoint pos = !d->lastMousePos.isNull() ? d->lastMousePos : QCursor::pos();
-    pos = viewport()->mapFromGlobal( pos );
+    QPoint pos = d->lastMousePos;
+    if ( pos.isNull() )
+	pos = viewport()->mapFromGlobal( QCursor::pos() );
 
     if ( !d->focusItem || ( d->pressedEmptyArea && pos.y() > contentsHeight() ) )
 	return;
