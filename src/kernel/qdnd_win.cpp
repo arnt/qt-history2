@@ -999,6 +999,7 @@ void QDragManager::updatePixmap()
 		int w = x2-x1+1;
 		int h = y2-y1+1;
 
+#ifndef Q_OS_TEMP
 		if ( qWinVersion() & WV_DOS_based ) {
 		    // Limited cursor size
 		    int reqw = GetSystemMetrics(SM_CXCURSOR);
@@ -1015,6 +1016,7 @@ void QDragManager::updatePixmap()
 		    w = reqw;
 		    h = reqh;
 		}
+#endif
 
 		QPixmap colorbits(w,h,-1,QPixmap::NormalOptim);
 		{

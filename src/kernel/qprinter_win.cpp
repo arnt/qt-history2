@@ -561,186 +561,207 @@ void QPrinter::readPdlgA( void* pdv )
     }
 }
 
-static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE *hnames)
+#ifdef UNICODE
+static void setDefaultPrinterW(const QString &printerName, HANDLE *hmode, HANDLE *hnames)
 {
     HANDLE hdevmode = *hmode;
     HANDLE hdevnames = *hnames;
     // Open the printer by name, to get a HANDLE
     HANDLE hPrinter;
-    if(qt_winunicode) {
-	if ( !OpenPrinter( (TCHAR *)printerName.ucs2(), &hPrinter, NULL ) ) {
-	    qDebug("OpenPrinter(%s) failed, error %d",printerName.latin1(),GetLastError());
-	    return;
-	}
-	// Obtain PRINTER_INFO_2 and close printer afterwords
-	DWORD nbytes, rbytes;
-	GetPrinter(hPrinter,2,NULL,0,&nbytes);
-	PRINTER_INFO_2 *pinf2 = (PRINTER_INFO_2 *)GlobalAlloc( GPTR, nbytes );
-	BOOL callOk = GetPrinter(hPrinter,2,(LPBYTE)pinf2,nbytes,&rbytes);
-	ClosePrinter(hPrinter);
-	if (! callOk) {
-	    qDebug("GetPrinter() failed, error %d",GetLastError());
-	    GlobalFree(pinf2);
-	    return;
-	}
-
-
-	// There are drivers with no pDevMode structure!
-	if ( pinf2->pDevMode ) {
-	    // Allocate a global HANDLE for a DEVMODE Structure
-	    size_t szDEVMODE = pinf2->pDevMode->dmSize;
-	    if ( szDEVMODE == 0 )
-		    szDEVMODE = sizeof( DEVMODE );
-	    szDEVMODE += pinf2->pDevMode->dmDriverExtra;
-
-	    // the lines below are rather ugly, but necessary for some drivers, that
-	    // don't initialize the dmSize member correctly (as sizeof(DEVMODE) is dependent on
-	    // on the winversion the driver was built with.
-	    // below we assure we don't get out of bound reads that might lead to a crash
-	    if ( ((char *)pinf2) < ((char *)pinf2->pDevMode) && 
-		((char *)pinf2)+nbytes > ((char *)pinf2->pDevMode) &&
-		((char *)pinf2) + nbytes - ((char *)pinf2->pDevMode) < (int)szDEVMODE )
-		szDEVMODE = (size_t)(((char *)pinf2) + nbytes - ((char *)pinf2->pDevMode));
-
-	    if ( hdevmode ) {
-		GlobalFree( hdevmode );
-		hdevmode = 0;
-	    }
-	    hdevmode = GlobalAlloc(GHND,szDEVMODE);
-	    Q_ASSERT(hdevmode != 0);
-	    DEVMODE *pDevMode = (DEVMODE *)GlobalLock(hdevmode);
-	    Q_ASSERT(pDevMode != 0);
-
-	    // Copy DEVMODE from PRINTER_INFO_2 Structure
-	    memcpy(pDevMode,pinf2->pDevMode,szDEVMODE);
-	    if ( hdevmode )
-		GlobalUnlock(hdevmode);
-	}
-
-	// Allocate a global HANDLE for a DEVNAMES Structure
-	DWORD lDrvrName = lstrlen(pinf2->pDriverName) + 1;
-	DWORD lPrntName = lstrlen(pinf2->pPrinterName) + 1;
-	DWORD lPortName = lstrlen(pinf2->pPortName) + 1;
-	if ( hdevnames ) {
-	    GlobalFree( hdevnames );
-	    hdevnames = 0;
-	}
-	hdevnames = GlobalAlloc(GHND,(lDrvrName + lPrntName + lPortName)*sizeof( TCHAR ) + sizeof(DEVNAMES));
-	Q_ASSERT(hdevnames != 0);
-	DEVNAMES *pDevNames = (DEVNAMES *)GlobalLock(hdevnames);
-	Q_ASSERT(pDevNames != 0);
-
-	// Create DEVNAMES Information from PRINTER_INFO_2 Structure
-	int tcOffset = sizeof(DEVNAMES) / sizeof(TCHAR);
-	Q_ASSERT(sizeof(DEVNAMES) == tcOffset * sizeof(TCHAR));
-
-	pDevNames->wDriverOffset = tcOffset;
-	memcpy((LPTSTR)pDevNames + tcOffset,pinf2->pDriverName,lDrvrName * sizeof(TCHAR));
-	tcOffset += lDrvrName;
-
-	pDevNames->wDeviceOffset = tcOffset;
-	memcpy((LPTSTR)pDevNames + tcOffset,pinf2->pPrinterName,lPrntName * sizeof(TCHAR));
-	tcOffset += lPrntName;
-
-	pDevNames->wOutputOffset = tcOffset;
-	memcpy((LPTSTR)pDevNames + tcOffset,pinf2->pPortName,lPortName * sizeof(TCHAR));
-	tcOffset += lPortName;
-
-	// This is (probably) not the Default Printer
-	pDevNames->wDefault = 0;
-
-	// Clean up
-	GlobalUnlock(hdevnames);
-	GlobalFree(pinf2);
-    } else {
-	QCString pName = printerName.local8Bit();
-	if ( !OpenPrinterA( pName.data(), &hPrinter,NULL ) ) {
-	    qDebug( "OpenPrinterA(%s) failed, error %d", pName.data(), GetLastError() );
-	    return;
-	}
-	// Obtain PRINTER_INFO_2 and close printer afterwords
-	DWORD nbytes, rbytes;
-	GetPrinterA( hPrinter, 2, NULL, 0, &nbytes );
-	PRINTER_INFO_2A *pinf2 = (PRINTER_INFO_2A *) GlobalAlloc( GPTR, nbytes );
-	BOOL callOk = GetPrinterA( hPrinter, 2, (LPBYTE)pinf2, nbytes, &rbytes);
-	ClosePrinter( hPrinter );
-	if (! callOk) {
-	    qDebug("GetPrinter() failed, error %d",GetLastError());
-	    GlobalFree( pinf2 );
-	    return;
-	}
-
-
-	// There are drivers with no pDevMode structure!
-	if ( pinf2->pDevMode ) {
-	    // Allocate a global HANDLE for a DEVMODE Structure
-	    size_t szDEVMODE = pinf2->pDevMode->dmSize;
-	    if ( szDEVMODE == 0 )
-		    szDEVMODE = sizeof( DEVMODEA );
-	    szDEVMODE += pinf2->pDevMode->dmDriverExtra;
-
-	    // the lines below are rather ugly, but necessary for some drivers, that
-	    // don't initialize the dmSize member correctly (as sizeof(DEVMODE) is dependent on
-	    // on the winversion the driver was built with.
-	    // below we assure we don't get out of bound reads that might lead to a crash
-	    if ( ((char *)pinf2) < ((char *)pinf2->pDevMode) && 
-		((char *)pinf2)+nbytes > ((char *)pinf2->pDevMode) &&
-		((char *)pinf2) + nbytes - ((char *)pinf2->pDevMode) < (int)szDEVMODE )
-		szDEVMODE = (size_t)(((char *)pinf2) + nbytes - ((char *)pinf2->pDevMode));
-
-	    if ( hdevmode ) {
-		GlobalFree( hdevmode );
-		hdevmode = 0;
-	    }
-	    hdevmode = GlobalAlloc(GHND,szDEVMODE);
-	    Q_ASSERT(hdevmode != 0);
-	    DEVMODE *pDevMode = (DEVMODE *)GlobalLock(hdevmode);
-	    Q_ASSERT(pDevMode != 0);
-
-	    // Copy DEVMODE from PRINTER_INFO_2 Structure
-	    memcpy(pDevMode,pinf2->pDevMode,szDEVMODE);
-	    if ( hdevmode )
-		GlobalUnlock(hdevmode);
-	}
-
-        // Allocate a global HANDLE for a DEVNAMES Structure
-    	DWORD lDrvrName = strlen(pinf2->pDriverName) + 1;
-	DWORD lPrntName = strlen(pinf2->pPrinterName) + 1;
-	DWORD lPortName = strlen(pinf2->pPortName) + 1;
-	if ( hdevnames ) {
-	    GlobalFree( hdevnames );
-	    hdevnames = 0;
-	}
-	hdevnames = GlobalAlloc(GHND, lDrvrName + lPrntName + lPortName + sizeof(DEVNAMES));
-	Q_ASSERT(hdevnames != 0);
-	DEVNAMES *pDevNames = (DEVNAMES *)GlobalLock(hdevnames);
-	Q_ASSERT(pDevNames != 0);
-
-	// Create DEVNAMES Information from PRINTER_INFO_2 Structure
-	int tcOffset = sizeof(DEVNAMES);
-
-	pDevNames->wDriverOffset = tcOffset;
-	memcpy( (char *)pDevNames + tcOffset,pinf2->pDriverName,lDrvrName );
-	tcOffset += lDrvrName;
-
-	pDevNames->wDeviceOffset = tcOffset;
-	memcpy( (char *)pDevNames + tcOffset,pinf2->pPrinterName,lPrntName );
-	tcOffset += lPrntName;
-
-	pDevNames->wOutputOffset = tcOffset;
-	memcpy( (char *)pDevNames + tcOffset,pinf2->pPortName,lPortName );
-	tcOffset += lPortName;
-
-	// This is (probably) not the Default Printer
-	pDevNames->wDefault = 0;
-
-	// Clean up
-	GlobalUnlock(hdevnames);
-	GlobalFree(pinf2);
+    if ( !OpenPrinter( (TCHAR *)printerName.ucs2(), &hPrinter, NULL ) ) {
+	qDebug("OpenPrinter(%s) failed, error %d",printerName.latin1(),GetLastError());
+	return;
     }
+    // Obtain PRINTER_INFO_2 and close printer afterwords
+    DWORD nbytes, rbytes;
+    GetPrinter(hPrinter,2,NULL,0,&nbytes);
+    PRINTER_INFO_2 *pinf2 = (PRINTER_INFO_2 *)GlobalAlloc( GPTR, nbytes );
+    BOOL callOk = GetPrinter(hPrinter,2,(LPBYTE)pinf2,nbytes,&rbytes);
+    ClosePrinter(hPrinter);
+    if (! callOk) {
+	qDebug("GetPrinter() failed, error %d",GetLastError());
+	GlobalFree(pinf2);
+	return;
+    }
+
+
+    // There are drivers with no pDevMode structure!
+    if ( pinf2->pDevMode ) {
+	// Allocate a global HANDLE for a DEVMODE Structure
+	size_t szDEVMODE = pinf2->pDevMode->dmSize;
+	if ( szDEVMODE == 0 )
+		szDEVMODE = sizeof( DEVMODE );
+	szDEVMODE += pinf2->pDevMode->dmDriverExtra;
+
+	// the lines below are rather ugly, but necessary for some drivers, that
+	// don't initialize the dmSize member correctly (as sizeof(DEVMODE) is dependent on
+	// on the winversion the driver was built with.
+	// below we assure we don't get out of bound reads that might lead to a crash
+	if ( ((char *)pinf2) < ((char *)pinf2->pDevMode) && 
+	    ((char *)pinf2)+nbytes > ((char *)pinf2->pDevMode) &&
+	    ((char *)pinf2) + nbytes - ((char *)pinf2->pDevMode) < (int)szDEVMODE )
+	    szDEVMODE = (size_t)(((char *)pinf2) + nbytes - ((char *)pinf2->pDevMode));
+
+	if ( hdevmode ) {
+	    GlobalFree( hdevmode );
+	    hdevmode = 0;
+	}
+	hdevmode = GlobalAlloc(GHND,szDEVMODE);
+	Q_ASSERT(hdevmode != 0);
+	DEVMODE *pDevMode = (DEVMODE *)GlobalLock(hdevmode);
+	Q_ASSERT(pDevMode != 0);
+
+	// Copy DEVMODE from PRINTER_INFO_2 Structure
+	memcpy(pDevMode,pinf2->pDevMode,szDEVMODE);
+	if ( hdevmode )
+	    GlobalUnlock(hdevmode);
+    }
+
+    // Allocate a global HANDLE for a DEVNAMES Structure
+    DWORD lDrvrName = lstrlen(pinf2->pDriverName) + 1;
+    DWORD lPrntName = lstrlen(pinf2->pPrinterName) + 1;
+    DWORD lPortName = lstrlen(pinf2->pPortName) + 1;
+    if ( hdevnames ) {
+	GlobalFree( hdevnames );
+	hdevnames = 0;
+    }
+    hdevnames = GlobalAlloc(GHND,(lDrvrName + lPrntName + lPortName)*sizeof( TCHAR ) + sizeof(DEVNAMES));
+    Q_ASSERT(hdevnames != 0);
+    DEVNAMES *pDevNames = (DEVNAMES *)GlobalLock(hdevnames);
+    Q_ASSERT(pDevNames != 0);
+
+    // Create DEVNAMES Information from PRINTER_INFO_2 Structure
+    int tcOffset = sizeof(DEVNAMES) / sizeof(TCHAR);
+    Q_ASSERT(sizeof(DEVNAMES) == tcOffset * sizeof(TCHAR));
+
+    pDevNames->wDriverOffset = tcOffset;
+    memcpy((LPTSTR)pDevNames + tcOffset,pinf2->pDriverName,lDrvrName * sizeof(TCHAR));
+    tcOffset += lDrvrName;
+
+    pDevNames->wDeviceOffset = tcOffset;
+    memcpy((LPTSTR)pDevNames + tcOffset,pinf2->pPrinterName,lPrntName * sizeof(TCHAR));
+    tcOffset += lPrntName;
+
+    pDevNames->wOutputOffset = tcOffset;
+    memcpy((LPTSTR)pDevNames + tcOffset,pinf2->pPortName,lPortName * sizeof(TCHAR));
+    tcOffset += lPortName;
+
+    // This is (probably) not the Default Printer
+    pDevNames->wDefault = 0;
+
+    // Clean up
+    GlobalUnlock(hdevnames);
+    GlobalFree(pinf2);
 
     *hnames = hdevnames;
     *hmode = hdevmode;
+}
+#endif
+
+#ifndef Q_OS_TEMP
+static void setDefaultPrinterA(const QString &printerName, HANDLE *hmode, HANDLE *hnames)
+{
+    HANDLE hdevmode = *hmode;
+    HANDLE hdevnames = *hnames;
+    // Open the printer by name, to get a HANDLE
+    HANDLE hPrinter;
+    QCString pName = printerName.local8Bit();
+    if ( !OpenPrinterA( pName.data(), &hPrinter,NULL ) ) {
+	qDebug( "OpenPrinterA(%s) failed, error %d", pName.data(), GetLastError() );
+	return;
+    }
+    // Obtain PRINTER_INFO_2 and close printer afterwords
+    DWORD nbytes, rbytes;
+    GetPrinterA( hPrinter, 2, NULL, 0, &nbytes );
+    PRINTER_INFO_2A *pinf2 = (PRINTER_INFO_2A *) GlobalAlloc( GPTR, nbytes );
+    BOOL callOk = GetPrinterA( hPrinter, 2, (LPBYTE)pinf2, nbytes, &rbytes);
+    ClosePrinter( hPrinter );
+    if (! callOk) {
+	qDebug("GetPrinter() failed, error %d",GetLastError());
+	GlobalFree( pinf2 );
+	return;
+    }
+
+
+    // There are drivers with no pDevMode structure!
+    if ( pinf2->pDevMode ) {
+	// Allocate a global HANDLE for a DEVMODE Structure
+	size_t szDEVMODE = pinf2->pDevMode->dmSize;
+	if ( szDEVMODE == 0 )
+		szDEVMODE = sizeof( DEVMODEA );
+	szDEVMODE += pinf2->pDevMode->dmDriverExtra;
+
+	// the lines below are rather ugly, but necessary for some drivers, that
+	// don't initialize the dmSize member correctly (as sizeof(DEVMODE) is dependent on
+	// on the winversion the driver was built with.
+	// below we assure we don't get out of bound reads that might lead to a crash
+	if ( ((char *)pinf2) < ((char *)pinf2->pDevMode) && 
+	    ((char *)pinf2)+nbytes > ((char *)pinf2->pDevMode) &&
+	    ((char *)pinf2) + nbytes - ((char *)pinf2->pDevMode) < (int)szDEVMODE )
+	    szDEVMODE = (size_t)(((char *)pinf2) + nbytes - ((char *)pinf2->pDevMode));
+
+	if ( hdevmode ) {
+	    GlobalFree( hdevmode );
+	    hdevmode = 0;
+	}
+	hdevmode = GlobalAlloc(GHND,szDEVMODE);
+	Q_ASSERT(hdevmode != 0);
+	DEVMODE *pDevMode = (DEVMODE *)GlobalLock(hdevmode);
+	Q_ASSERT(pDevMode != 0);
+
+	// Copy DEVMODE from PRINTER_INFO_2 Structure
+	memcpy(pDevMode,pinf2->pDevMode,szDEVMODE);
+	if ( hdevmode )
+	    GlobalUnlock(hdevmode);
+    }
+
+    // Allocate a global HANDLE for a DEVNAMES Structure
+    DWORD lDrvrName = strlen(pinf2->pDriverName) + 1;
+    DWORD lPrntName = strlen(pinf2->pPrinterName) + 1;
+    DWORD lPortName = strlen(pinf2->pPortName) + 1;
+    if ( hdevnames ) {
+	GlobalFree( hdevnames );
+	hdevnames = 0;
+    }
+    hdevnames = GlobalAlloc(GHND, lDrvrName + lPrntName + lPortName + sizeof(DEVNAMES));
+    Q_ASSERT(hdevnames != 0);
+    DEVNAMES *pDevNames = (DEVNAMES *)GlobalLock(hdevnames);
+    Q_ASSERT(pDevNames != 0);
+
+    // Create DEVNAMES Information from PRINTER_INFO_2 Structure
+    int tcOffset = sizeof(DEVNAMES);
+
+    pDevNames->wDriverOffset = tcOffset;
+    memcpy( (char *)pDevNames + tcOffset,pinf2->pDriverName,lDrvrName );
+    tcOffset += lDrvrName;
+
+    pDevNames->wDeviceOffset = tcOffset;
+    memcpy( (char *)pDevNames + tcOffset,pinf2->pPrinterName,lPrntName );
+    tcOffset += lPrntName;
+
+    pDevNames->wOutputOffset = tcOffset;
+    memcpy( (char *)pDevNames + tcOffset,pinf2->pPortName,lPortName );
+    tcOffset += lPortName;
+
+    // This is (probably) not the Default Printer
+    pDevNames->wDefault = 0;
+
+    // Clean up
+    GlobalUnlock(hdevnames);
+    GlobalFree(pinf2);
+
+    *hnames = hdevnames;
+    *hmode = hdevmode;
+}
+#endif
+
+static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE *hnames)
+{
+    QT_WA( {
+	setDefaultPrinterW( printerName, hmode, hnames );
+    } , {
+	setDefaultPrinterA( printerName, hmode, hnames );
+    } );
 }
 
 void QPrinter::setPrinterName( const QString &name )

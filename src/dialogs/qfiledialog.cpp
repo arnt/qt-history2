@@ -2413,7 +2413,7 @@ void QFileDialog::init()
     d->fileL = new QLabel( nameEdit, tr("File &name:"), this, "qt_filename_lbl" );
     d->typeL = new QLabel( d->types, tr("File &type:"), this, "qt_filetype_lbl" );
 
-#if defined(Q_WS_WIN)
+#if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
 	d->goBack = new QToolButton( this, "go back" );
 	d->goBack->setAutoRaise( TRUE );
@@ -2431,7 +2431,7 @@ void QFileDialog::init()
 #endif
 
     d->cdToParent = new QToolButton( this, "cd to parent" );
-#if defined(Q_WS_WIN)
+#if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
 	d->cdToParent->setAutoRaise( TRUE );
 #endif
@@ -2444,7 +2444,7 @@ void QFileDialog::init()
 	     this, SLOT(cdUpClicked()) );
 
     d->newFolder = new QToolButton( this, "new folder" );
-#if defined(Q_WS_WIN)
+#if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
 	d->newFolder->setAutoRaise( TRUE );
 #endif
@@ -2466,7 +2466,7 @@ void QFileDialog::init()
 	     this, SLOT(changeMode(int)) );
 
     d->mcView = new QToolButton( this, "mclistbox view" );
-#if defined(Q_WS_WIN)
+#if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
 	d->mcView->setAutoRaise( TRUE );
 #endif
@@ -2478,7 +2478,7 @@ void QFileDialog::init()
     d->mcView->setToggleButton( TRUE );
     d->stack->addWidget( d->moreFiles, d->modeButtons->insert( d->mcView ) );
     d->detailView = new QToolButton( this, "list view" );
-#if defined(Q_WS_WIN)
+#if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
 	d->detailView->setAutoRaise( TRUE );
 #endif
@@ -2491,7 +2491,7 @@ void QFileDialog::init()
     d->stack->addWidget( files, d->modeButtons->insert( d->detailView ) );
 
     d->previewInfo = new QToolButton( this, "preview info view" );
-#if defined(Q_WS_WIN)
+#if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
 	d->previewInfo->setAutoRaise( TRUE );
 #endif
@@ -2504,7 +2504,7 @@ void QFileDialog::init()
     d->modeButtons->insert( d->previewInfo );
 
     d->previewContents = new QToolButton( this, "preview info view" );
-#if defined(Q_WS_WIN)
+#if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
 	d->previewContents->setAutoRaise( TRUE );
 #endif

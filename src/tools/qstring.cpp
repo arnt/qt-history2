@@ -16623,43 +16623,25 @@ int QString::compare( const QString& s ) const
 int QString::localeAwareCompare( const QString& s ) const
 {
 #if defined(Q_WS_WIN)
-#if defined(UNICODE)
     int res;
-#ifndef Q_OS_TEMP
-    if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
-	TCHAR* s1 = new TCHAR[ length() + 1 ];
-	wcscpy( s1, ucs2() );
+    QT_WA( {
+	const TCHAR* s1 = ucs2();
 	const TCHAR* s2 = s.ucs2();
 	res = CompareStringW( LOCALE_USER_DEFAULT, 0, s1, length(), s2, s.length() );
-	delete[] s1;
-	switch ( res ) {
-	case CSTR_LESS_THAN:
-	    return -1;
-	case CSTR_GREATER_THAN:
-	    return 1;
-	default:
-	    return 0;
-	}
-#ifndef Q_OS_TEMP
-    } else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-    {
+    } , {
 	QCString s1 = local8Bit();
 	QCString s2 = s.local8Bit();
-	int res = CompareStringA( LOCALE_USER_DEFAULT, 0, s1.data(), s1.length(), s2.data(), s2.length() );
-	switch ( res ) {
-	case CSTR_LESS_THAN:
-	    return -1;
-	case CSTR_GREATER_THAN:
-	    return 1;
-	default:
-	    return 0;
-	}
+	res = CompareStringA( LOCALE_USER_DEFAULT, 0, s1.data(), s1.length(), s2.data(), s2.length() );
+    } );
+
+    switch ( res ) {
+    case CSTR_LESS_THAN:
+	return -1;
+    case CSTR_GREATER_THAN:
+	return 1;
+    default:
+	return 0;
     }
-#endif
 #elif defined(Q_WS_X11)
     // declared in <string.h>
     int delta = strcoll( local8Bit(), s.local8Bit() );

@@ -1807,10 +1807,11 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
     uint i = index;
     uint pixel = COLOR_VALUE(cpen.data->color);
     bool maybe_plot_pixel = FALSE;
-    if ( qt_winver & WV_NT_based )
+    QT_WA( {
 	maybe_plot_pixel = (cpen.width() == 0) && (cpen.style() == SolidLine);
-    else
+    } , {
 	maybe_plot_pixel = (cpen.width() <= 1) && (cpen.style() == SolidLine);
+    } );
 
     while ( nlines-- ) {
 	pa.point( i++, &x1, &y1 );
@@ -1881,10 +1882,12 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
     pa.point( index+npoints-1, &x2, &y2 );
     xsave = x2; ysave = y2;
     bool plot_pixel = FALSE;
-    if ( qt_winver & WV_NT_based )
+    QT_WA( {
 	plot_pixel = (cpen.width() == 0) && (cpen.style() == SolidLine);
-    else
+    } , {
 	plot_pixel = (cpen.width() <= 1) && (cpen.style() == SolidLine);
+    } );
+
     if ( plot_pixel ) {
 	if ( x1 == x2 ) {				// vertical
 	    if ( y1 < y2 )

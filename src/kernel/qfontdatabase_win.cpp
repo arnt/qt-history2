@@ -119,11 +119,11 @@ void newWinFont( void * p )
     const TCHAR* tc = f->elfLogFont.lfFaceName;
 
     QString familyName;
-    if ( qt_winver & Qt::WV_NT_based ) {
+    QT_WA( {
         familyName = QString::fromUcs2( tc );
-    } else {
+    } , {
         familyName = QString::fromLocal8Bit((const char*)tc);
-    }
+    } );
 
     // the "@family" fonts are just the same as "family". Ignore them.
     if ( familyName[0] == '@' )
@@ -142,11 +142,11 @@ void newWinFont( void * p )
     tc = (TCHAR*)f->elfStyle;
 
     QString styleName;
-    if ( qt_winver & Qt::WV_NT_based ) {
+    QT_WA( {
         styleName = QString::fromUcs2( tc );
-    } else {
+    } , {
         styleName = QString::fromLocal8Bit((const char*)tc);
-    }
+    } );
 
     if ( styleName.isEmpty() ) {
         // Not TTF, we enumerate the

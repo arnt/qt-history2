@@ -31,7 +31,6 @@
 #include "qapplication.h"
 #include <private/qinputcontext_p.h>
 
-extern Qt::WindowsVersion qt_winver;
 extern uint qGlobalPostedEventsCount();
 extern bool qt_winEventFilter( MSG* msg );
 

@@ -309,7 +309,7 @@ QWidget *QDesktopWidget::screen( int /*screen*/ )
 */
 const QRect& QDesktopWidget::availableGeometry( int screen ) const
 {
-    if ( qt_winver & Qt::WV_98 || qt_winver & Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
+    if ( qt_winver != Qt::WV_95 && qt_winver != Qt::WV_NT ) {
 	if ( screen < 0 || screen >= d->screenCount )
 	    screen = d->primaryScreen;
 

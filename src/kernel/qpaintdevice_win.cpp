@@ -416,7 +416,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    SetBkColor( dst_dc, bc );
 	    SetTextColor( dst_dc, tc );
 	    DeleteObject( SelectObject(dst_dc, b) );
-	} else if ( (qt_winver & Qt::WV_DOS_based) || qt_bitblt_bsm ) {
+	} 
+#ifndef Q_OS_TEMP
+	else if ( (qt_winver & Qt::WV_DOS_based) || qt_bitblt_bsm ) {
 	    HDC mask_dc;
 	    int mask_offset;
 	    if ( mask->isMultiCellPixmap() ) {
@@ -437,7 +439,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		delete src_pm->data->maskpm;
 		src_pm->data->maskpm = 0;
 	    }
-	} else {
+	} 
+#endif
+	else {
 	    // We can safely access hbm() here since multi cell pixmaps
 	    // are not used under NT.
 	    if ( td==QInternal::Pixmap && ((QPixmap *)dst)->isQBitmap() )

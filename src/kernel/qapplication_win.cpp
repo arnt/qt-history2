@@ -592,8 +592,7 @@ static void qt_set_windows_resources()
     cg.setColor( QColorGroup::Link, Qt::blue );
     cg.setColor( QColorGroup::LinkVisited, Qt::magenta );
 
-    if ( qt_winver != Qt::WV_NT &&
-	 qt_winver != Qt::WV_95 ) {
+    if ( qt_winver != Qt::WV_NT && qt_winver != Qt::WV_95 ) {
 	if ( cg.midlight() == cg.button() )
 	    cg.setColor( QColorGroup::Midlight, cg.button().light(110) );
     }
@@ -609,8 +608,7 @@ static void qt_set_windows_resources()
 		  QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
     QColorGroup icg = cg;
-    if ( qt_winver != Qt::WV_NT &&
-	 qt_winver != Qt::WV_95 ) {
+    if ( qt_winver != Qt::WV_NT && qt_winver != Qt::WV_95 ) {
 	if ( icg.background() != icg.base() ) {
 	    icg.setColor( QColorGroup::Highlight, icg.background() );
 	    icg.setColor( QColorGroup::HighlightedText, icg.text() );
@@ -1271,49 +1269,55 @@ void qt_fill_tile( QPixmap *tile, const QPixmap &pixmap )
     }
 }
 
+
+#ifndef Q_OS_TEMP
+static inline void qt_draw_tiled_pixmapA( HDC hdc, int x, int y, int w, int h,
+			   const QPixmap *bg_pixmap,
+			   int off_x, int off_y ) 
+{
+    QPixmap *tile = 0;
+    QPixmap *pm;
+    int  sw = bg_pixmap->width(), sh = bg_pixmap->height();
+    if ( sw*sh < 8192 && sw*sh < 16*w*h ) {
+	int tw = sw, th = sh;
+	while ( tw*th < 32678 && tw < w/2 )
+	    tw *= 2;
+	while ( tw*th < 32678 && th < h/2 )
+	    th *= 2;
+	tile = new QPixmap( tw, th, bg_pixmap->depth(),
+			    QPixmap::NormalOptim );
+	qt_fill_tile( tile, *bg_pixmap );
+	pm = tile;
+    } else {
+	pm = (QPixmap*)bg_pixmap;
+    }
+    drawTile( hdc, x, y, w, h, pm, off_x, off_y );
+    if ( tile )
+	delete tile;
+}
+#endif
+
 Q_EXPORT
 void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
 			   const QPixmap *bg_pixmap,
 			   int off_x, int off_y )
 {
-    if ( qt_winver & Qt::WV_NT_based ) {
+    QT_WA( {
 	// NT has no brush size limitation, so this is straight-forward
 	// Note: Since multi cell pixmaps are not used under NT, we can
 	// safely access the hbm() parameter of the pixmap.
 	HBRUSH brush = CreatePatternBrush( bg_pixmap->hbm() );
 	HBRUSH oldBrush = (HBRUSH)SelectObject( hdc, brush );
-	if ( off_x || off_y ) {
-	    POINT p;
-	    SetBrushOrgEx( hdc, -off_x, -off_y, &p );
-	    PatBlt( hdc, x, y, w, h, PATCOPY );
-	    SetBrushOrgEx( hdc, p.x, p.y, 0 );
-	} else {
-	    PatBlt( hdc, x, y, w, h, PATCOPY );
-	}
+	POINT p;
+	SetBrushOrgEx( hdc, -off_x, -off_y, &p );
+	PatBlt( hdc, x, y, w, h, PATCOPY );
+	SetBrushOrgEx( hdc, p.x, p.y, 0 );
 	SelectObject( hdc, oldBrush );
 	DeleteObject( brush );
-    } else {
+    } , {
 	// For Windows 9x, we must do everything ourselves.
-	QPixmap *tile = 0;
-	QPixmap *pm;
-	int  sw = bg_pixmap->width(), sh = bg_pixmap->height();
-	if ( sw*sh < 8192 && sw*sh < 16*w*h ) {
-	    int tw = sw, th = sh;
-	    while ( tw*th < 32678 && tw < w/2 )
-		tw *= 2;
-	    while ( tw*th < 32678 && th < h/2 )
-		th *= 2;
-	    tile = new QPixmap( tw, th, bg_pixmap->depth(),
-				QPixmap::NormalOptim );
-	    qt_fill_tile( tile, *bg_pixmap );
-	    pm = tile;
-	} else {
-	    pm = (QPixmap*)bg_pixmap;
-	}
-	drawTile( hdc, x, y, w, h, pm, off_x, off_y );
-	if ( tile )
-	    delete tile;
-    }
+	qt_draw_tiled_pixmapA( hdc, x, y, w, h, bg_pixmap, off_x, off_y );
+    } );
 }
 
 

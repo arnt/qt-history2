@@ -51,26 +51,6 @@ extern const char qt_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
 const int maxNameLen = 255;
 const int maxMultiLen = 16383;
 
-typedef LPITEMIDLIST (WINAPI *PtrSHBrowseForFolder)(BROWSEINFO*);
-static PtrSHBrowseForFolder ptrSHBrowseForFolder = 0;
-typedef BOOL (WINAPI *PtrSHGetPathFromIDList)(LPITEMIDLIST,LPSTR);
-static PtrSHGetPathFromIDList ptrSHGetPathFromIDList = 0;
-
-static void resolveLibs()
-{
-#ifndef Q_OS_TEMP
-    QLibrary* lib = new QLibrary("shell32");
-    lib->setAutoUnload( FALSE );
-    static bool triedResolve = FALSE;
-    if ( !ptrSHBrowseForFolder && !ptrSHGetPathFromIDList && !triedResolve ) {
-	triedResolve = TRUE;
-	ptrSHBrowseForFolder = (PtrSHBrowseForFolder) lib->resolve( "SHBrowseForFolderW" );
-	ptrSHGetPathFromIDList = (PtrSHGetPathFromIDList) lib->resolve( "SHGetPathFromIDListW" );
-    }
-    delete lib;
-#endif
-}
-
 // Returns the wildcard part of a filter.
 static QString extractFilter( const QString& rawFilter )
 {
@@ -513,27 +493,24 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
     if (uMsg == BFFM_INITIALIZED && lpData != NULL) {
 	QString *initDir = (QString *)(lpData);
 	if (!initDir->isEmpty()) {
-	    // ### Lars: is this correct for the A version????
-	    if (qt_winunicode )
+	    // ### Lars asks: is this correct for the A version????
+	    QT_WA( {
 		SendMessage(hwnd, BFFM_SETSELECTION, TRUE, Q_ULONG(initDir->ucs2()));
-	    else
+	    } , {
 		SendMessageA(hwnd, BFFM_SETSELECTION, TRUE, Q_ULONG(initDir->ucs2()));
+	    } );
 	}
     } else if (uMsg == BFFM_SELCHANGED) {
-#if defined(UNICODE)
-	resolveLibs();
-	if ( ptrSHGetPathFromIDList && qt_winver & Qt::WV_NT_based ) {
+	QT_WA( {
 	    TCHAR path[MAX_PATH];
-	    ptrSHGetPathFromIDList(LPITEMIDLIST(lParam), (LPSTR)path);
+	    SHGetPathFromIDList(LPITEMIDLIST(lParam), path);
 	    QString tmpStr = QString::fromUcs2(path);
 	    if (!tmpStr.isEmpty())
 		SendMessage(hwnd, BFFM_ENABLEOK, 1, 1);
 	    else
 		SendMessage(hwnd, BFFM_ENABLEOK, 0, 0);
 	    SendMessage(hwnd, BFFM_SETSTATUSTEXT, 1, Q_ULONG(path));
-	} else 
-#endif
-	{
+	} , {
 	    char path[MAX_PATH];
 	    SHGetPathFromIDListA(LPITEMIDLIST(lParam), path);
 	    QString tmpStr = QString::fromLocal8Bit(path);
@@ -542,7 +519,7 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
 	    else
 		SendMessageA(hwnd, BFFM_ENABLEOK, 0, 0);
 	    SendMessageA(hwnd, BFFM_SETSTATUSTEXT, 1, Q_ULONG(path));
-	}
+	} );
     }
 #endif
     return 0;
@@ -566,9 +543,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 
     if ( parent )
 	qt_enter_modal( parent );
-#if defined(UNICODE)
-    resolveLibs();
-    if ( ptrSHBrowseForFolder && ptrSHGetPathFromIDList && qt_winver & Qt::WV_NT_based ) { 
+    QT_WA( {
 	QString initDir = QDir::convertSeparators(initialDirectory);
 	TCHAR path[MAX_PATH];
 	TCHAR initPath[MAX_PATH];
@@ -583,9 +558,9 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_STATUSTEXT;
 	bi.lpfn = winGetExistDirCallbackProc;
 	bi.lParam = Q_ULONG(&initDir);
-	LPITEMIDLIST pItemIDList = ptrSHBrowseForFolder(&bi);
+	LPITEMIDLIST pItemIDList = SHBrowseForFolder(&bi);
 	if (pItemIDList) {
-	    ptrSHGetPathFromIDList(pItemIDList, (LPSTR)path);
+	    SHGetPathFromIDList(pItemIDList, path);
 	    IMalloc *pMalloc;
 	    if (SHGetMalloc(&pMalloc) != NOERROR)
 		result = QString::null;
@@ -597,9 +572,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	} else
 	    result = QString::null;
 	tTitle = QString::null;
-    } else 
-#endif
-    {
+    } , {
 	QString initDir = QDir::convertSeparators(initialDirectory);
 	char path[MAX_PATH];
 	char initPath[MAX_PATH];
@@ -627,7 +600,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	    }
 	} else
 	    result = QString::null;
-    }
+    } );
     if ( parent )
 	qt_leave_modal( parent );
 

@@ -257,7 +257,10 @@ bool QProcess::start( QStringList *env )
     // CreateProcess()
     bool success;
     d->newPid();
+#ifdef UNICODE
+#ifndef Q_OS_TEMP
     if( qt_winunicode ) {
+#endif
 	STARTUPINFO startupInfo = { 
 	    sizeof( STARTUPINFO ), 0, 0, 0,
 	    (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
@@ -303,7 +306,10 @@ bool QProcess::start( QStringList *env )
 		workingDir.absPath().ucs2(),
 		&startupInfo, d->pid );
 	free( commandLine );
-    } else {
+#ifndef Q_OS_TEMP
+    } else 
+#endif
+    {
 	STARTUPINFOA startupInfo = { sizeof( STARTUPINFOA ), 0, 0, 0,
 	    (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
 	    0, 0, 0,
@@ -342,6 +348,7 @@ bool QProcess::start( QStringList *env )
 		(const char*)workingDir.absPath().local8Bit(),
 		&startupInfo, d->pid );
     }
+#endif
     if  ( !success ) {
 	d->deletePid();
 	return FALSE;
