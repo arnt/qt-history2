@@ -1603,18 +1603,16 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 		p->fillRect( x, y, wi, he, cg.brush( QColorGroup::Background ) );
 
-		if ( (tickAbove && tickBelow) || (!tickAbove && !tickBelow) ) {
-		    qDrawWinButton( p, QRect(x,y,wi,he), cg, FALSE,
-				    &cg.brush( QColorGroup::Button ) );
-		}
-
 		if ( sl->hasFocus() ) {
 		    QRect re = subRect( SR_SliderFocusRect, sl );
 		    drawPrimitive( PE_FocusRect, p, re, cg );
 		}
 
-		if ( (tickAbove && tickBelow) || (!tickAbove && !tickBelow) )
+		if ( (tickAbove && tickBelow) || (!tickAbove && !tickBelow) ) {
+		    qDrawWinButton( p, QRect(x,y,wi,he), cg, FALSE,
+				    &cg.brush( QColorGroup::Button ) );
 		    return;
+		}
 
 		QSliderDirection dir;
 

@@ -838,9 +838,9 @@ void QCommonStyle::drawControl( ControlElement element,
 	    const QProgressBar *progressbar = (const QProgressBar *) widget;
 
 	    bool reverse = QApplication::reverseLayout();
+	    int w = r.width() - 4;
 	    if ( !progressbar->totalSteps() ) {
 		// draw busy indicator
-		int w = r.width() - 4;
 		int x = progressbar->progress() % (w * 2);
 		if (x > w)
 		    x = 2 * w - x;
@@ -849,7 +849,11 @@ void QCommonStyle::drawControl( ControlElement element,
 		p->drawLine(x, r.y() + 1, x, r.height() - 2);
 	    } else {
 		const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, widget);
-		int u   = (r.width()+unit_width/3) / unit_width;
+		int u;
+		if ( unit_width > 1 )
+		    u = (r.width()+unit_width/3) / unit_width;
+		else
+		    u = w / unit_width;
 		int p_v = progressbar->progress();
 		int t_s = progressbar->totalSteps();
 
@@ -861,15 +865,18 @@ void QCommonStyle::drawControl( ControlElement element,
 
 		// nu < tnu, if last chunk is only a partial chunk
 		int tnu, nu;
-		tnu = nu = ( u * p_v + t_s / 2 ) / t_s;
-		if (nu * unit_width > r.width() - 4)
+		tnu = nu = p_v * u / (t_s - 1);
+
+		if (nu * unit_width > w)
 		    nu--;
 
-		// Draw nu units out of a possible u of unit_width width, each
-		// a rectangle bordered by background color, all in a sunken panel
-		// with a percentage text display at the end.
+		// Draw nu units out of a possible u of unit_width
+		// width, each a rectangle bordered by background
+		// color, all in a sunken panel with a percentage text
+		// display at the end.
 		int x = 0;
-		int x0 = reverse ? r.right() - unit_width : r.x() + 2;
+		int x0 = reverse ? r.right() - ((unit_width > 1) ? 
+						unit_width : 2) : r.x() + 2;
 		for (int i=0; i<nu; i++) {
 		    drawPrimitive( PE_ProgressBarChunk, p,
 				   QRect( x0+x, r.y(), unit_width, r.height() ),
@@ -877,17 +884,15 @@ void QCommonStyle::drawControl( ControlElement element,
 		    x += reverse ? -unit_width: unit_width;
 		}
 
-		// Draw the last partial chunk to fill up the progressbar entirely
+		// Draw the last partial chunk to fill up the
+		// progressbar entirely
 		if (nu < tnu) {
-		    int pixels_left = r.width() - (nu*unit_width) - 4;
-		    if (!reverse)
-			drawPrimitive( PE_ProgressBarChunk, p,
-				       QRect( x0+x, r.y(), pixels_left, r.height() ),
-				       cg, Style_Default, opt );
-		    else
-			drawPrimitive( PE_ProgressBarChunk, p,
-				       QRect( x0+x+unit_width-pixels_left, r.y(), pixels_left, r.height() ),
-				       cg, Style_Default, opt );
+		    int pixels_left = w - (nu*unit_width);
+		    int offset = reverse ? x0+x+unit_width-pixels_left : x0+x;
+		    drawPrimitive( PE_ProgressBarChunk, p,
+				   QRect( offset, r.y(), pixels_left,
+					  r.height() ), cg, Style_Default,
+				   opt );
 		}
 	    }
 	}

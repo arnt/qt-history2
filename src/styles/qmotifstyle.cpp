@@ -1819,7 +1819,7 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
     switch ( r ) {
     case SR_SliderFocusRect:
 	rect = QCommonStyle::subRect( r, widget );
-	rect.addCoords( 2, 2, -2, -3 ); // ### fix this!
+	rect.addCoords( 2, 2, -2, -2 );
 	break;
 
     case SR_ComboBoxFocusRect:
