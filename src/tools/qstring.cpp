@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#248 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#249 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12703,18 +12703,20 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
 	} else {
 	    static const uint auto_size = 1024;
 	    char t[auto_size];
-	    char* b;
+	    char *b;
 	    if ( str.length()*2 > auto_size ) {
 		b = new char[str.length()*2];
 	    } else {
 		b = t;
 	    }
 	    int l = str.length();
+	    char *c=b;
 	    while ( l-- ) {
-		*b++ = ub[1];
-		*b++ = ub[0];
+		*c++ = ub[1];
+		*c++ = ub[0];
 		ub+=2;
 	    }
+	    s.writeBytes( b, sizeof(QChar)*str.length() );
 	    if ( str.length()*2 > auto_size )
 		delete [] b;
 	}
