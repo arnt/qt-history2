@@ -53,6 +53,7 @@ struct QHeaderData
 	s2i.resize(n);
 	clicks.resize(n);
 	resize.resize(n);
+	was_in_show = FALSE;
 	int p =0;
 	for ( int i = 0; i < n ; i ++ ) {
 	    sizes[i] = 88;
@@ -85,6 +86,7 @@ struct QHeaderData
     uint move : 1;
     uint clicks_default : 1; // default value for new clicks bits
     uint resize_default : 1; // default value for new resize bits
+    uint was_in_show : 1;
     bool sortDirection;
     int sortColumn;
     int count;
@@ -187,6 +189,16 @@ QHeader::~QHeader()
 {
     delete d;
     d = 0;
+}
+
+/*! \reimp
+ */
+
+void QHeader::showEvent( QShowEvent *e )
+{
+    d->was_in_show = TRUE;
+    d->calculatePositions();
+    QWidget::showEvent( e );
 }
 
 /*!
@@ -726,7 +738,8 @@ void QHeader::setLabel( int section, const QString &s, int size )
     d->labels.insert( section, new QString( s ) );
     if ( size >= 0 )
 	d->sizes[section] = size;
-    d->calculatePositions();
+    if ( isVisible() )
+	d->calculatePositions();
     update();
 }
 
@@ -1032,7 +1045,8 @@ void QHeader::setCellSize( int section, int s )
     if ( section < 0 || section >= count() )
 	return;
     d->sizes[ section ] = s;
-    d->calculatePositions();
+    if ( isVisible() )
+	d->calculatePositions();
 }
 
 
@@ -1284,10 +1298,13 @@ void QHeader::setSortIndicator( int section, bool increasing )
 
 void QHeader::resizeSection( int section, int s )
 {
+    if ( !d->was_in_show )
+	d->calculatePositions();
     if ( section < 0 || section >= count() )
 	return;
     d->sizes[ section ] = s;
-    d->calculatePositions();
+    if ( isVisible() )
+	d->calculatePositions();
     update();
 }
 

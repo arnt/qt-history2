@@ -35,6 +35,7 @@
 #ifndef QT_NO_HEADER
 
 struct QHeaderData;
+class QShowEvent;
 
 class Q_EXPORT QHeader : public QWidget
 {
@@ -110,6 +111,7 @@ signals:
 
 protected:
     void	paintEvent( QPaintEvent * );
+    void	showEvent( QShowEvent *e );
     QRect	sRect( int index );
 
     void	paintSection( QPainter *p, int index, QRect fr); // ### const QRect& ## virtual 3.0
