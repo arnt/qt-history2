@@ -22,11 +22,10 @@ static void addFont(QFontDatabasePrivate *db, const char *family, int weight, bo
     QtFontStyle::Key styleKey;
     styleKey.style = italic ? QFont::StyleItalic : QFont::StyleNormal;
     styleKey.weight = weight;
-
     QtFontFamily *f = db->family(familyname, true);
-    //##########   f->scripts[QUnicodeTables::Common] = QtFontFamily::Supported;
-    f->writingSystems[QFontDatabase::Latin] = QtFontFamily::Supported; //#########
-
+    //### get lang info from freetype
+    for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws)
+        family->writingSystems[ws] = QtFontFamily::Supported;
     QtFontFoundry *foundry = f->foundry(foundryname, true);
     QtFontStyle *style = foundry->style(styleKey,  true);
     style->smoothScalable = (pixelSize == 0);
@@ -119,8 +118,10 @@ static void initializeDb()
         bool italic = dir[i].mid(u2-1,1) == "i";
         int weight = dir[i].mid(u1+1,u2-u1-1-(italic?1:0)).toInt();
         QtFontFamily *f = db->family(familyname, true);
-//###############        f->scripts[QUnicodeTables::Common] = QtFontFamily::Supported;
-        f->writingSystems[QFontDatabase::Latin] = QtFontFamily::Supported; //#########
+        for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws) {
+            if (!requiresOpenType(ws))
+                family->writingSystems[ws] = QtFontFamily::Supported;
+        }
         QtFontFoundry *foundry = f->foundry("qt", true);
         QtFontStyle::Key styleKey;
         styleKey.style = italic ? QFont::StyleItalic : QFont::StyleNormal;
