@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#283 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#284 $
 **
 ** Implementation of QApplication class
 **
@@ -922,33 +922,29 @@ QPalette QApplication::palette( const QWidget* w, const char* className  )
 void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets,
 			       const char* className )
 {
-    QPalette* pal = new QPalette( palette );
-    CHECK_PTR( pal );
-
+    QPalette pal = palette;
     if ( !startingUp() )
-	qApp->style().polish( *pal );
+	qApp->style().polish( pal );	// NB: non-const reference
 
-    if (!className) {
+    if ( !className ) {
 	if ( !app_pal ) {
-	    app_pal = pal;
+	    app_pal = new QPalette( pal );
 	    CHECK_PTR( app_pal );
 	}
 	else {
-	    *app_pal = *pal;
-	    delete pal;
-	    pal = 0;
+	    *app_pal = pal;
 	}
 	delete app_palettes;
 	app_palettes = 0;
-	qt_fix_tooltips();
+	qt_fix_tooltips();		// ### Doesn't (always) work
     }
     else {
-	if (!app_palettes){
+	if ( !app_palettes ) {
 	    app_palettes = new QAsciiDict<QPalette>;
 	    CHECK_PTR( app_palettes );
 	    app_palettes->setAutoDelete( TRUE );
 	}
-	app_palettes->insert(className, pal);
+	app_palettes->insert( className, new QPalette( pal ) );
     }
 
     if ( updateAllWidgets && is_app_running && !is_app_closing ) {
