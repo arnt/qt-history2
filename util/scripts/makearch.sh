@@ -342,8 +342,8 @@ ${PLATFORM}: patchtest
 	cd template ; tar cf - . | ( cd ../${PLATFORM} ; tar xf - )
 EOF
     [ -s $a ] && ( echo "	( cd ${PLATFORM} ; \\" ; echo "		patch -p1 -s < ../../makefiles/${PLATFORM} )" )
-    echo '	[ -d ../lib -o -h ../lib ] || ln -s arch/'${PLATFORM}'/lib ..'
-    echo '	[ -d ../bin -o -h ../bin ] || ln -s arch/'${PLATFORM}'/bin ..'
+    echo '	[ -r ../lib -a -d ../lib/. ] || ln -s arch/'${PLATFORM}'/lib ..'
+    echo '	[ -r ../bin -a -d ../bin/. ] || ln -s arch/'${PLATFORM}'/bin ..'
     echo
 
 done
