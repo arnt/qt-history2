@@ -651,6 +651,8 @@
 /*!
   Buttons
 */
+//#define QT_NO_BUTTON
+
 #if defined(QT_NO_BUTTON) || defined(QT_NO_STYLE)
 /*!
   Check-boxes

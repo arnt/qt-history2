@@ -2424,6 +2424,7 @@ QString QFontPrivate::key() const
 
 QFont::Script QFontPrivate::scriptForChar( const QChar &c )
 {
+#ifndef Q_WS_QWS
     uchar row = c.row();
     uchar cell = c.cell();
 
@@ -2825,5 +2826,7 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
     }
 
     // return QFont::UnknownScript;
+#endif //Q_WS_QWS
+    // "Qt/Embedded is Unicode throughout..."
     return QFont::Unicode;
 }

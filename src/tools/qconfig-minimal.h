@@ -48,6 +48,8 @@
 #define QT_NO_SESSIONMANAGER
 #define QT_NO_QWS_KEYBOARD
 
+#define QT_NO_ACCEL
+#define QT_NO_BUTTON
 #define QT_NO_DIALOG
 #define QT_NO_FRAME
 #define QT_NO_SEMIMODAL
@@ -56,6 +58,8 @@
 #define QT_NO_EFFECTS
 #define QT_NO_COP
 #define QT_NO_QWS_TRANSFORMED
+
+#define QT_NO_SQL
 
 #define QT_NO_REGEXP_CAPTURE
 #define QT_NO_REGEXP_WILDCARD
