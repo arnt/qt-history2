@@ -464,10 +464,7 @@ public:
 	return first;
     }
 
-#if QT_VERSION >= 400
-#error "operator==() should be const"
-#endif
-    bool operator==( const QValueVector<T>& x )
+    bool operator==( const QValueVector<T>& x ) const
     {
 	return qEqual( begin(), end(), x.begin() );
     }
