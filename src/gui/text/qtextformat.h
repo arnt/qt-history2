@@ -140,16 +140,16 @@ public:
         ListIndent = 0x3001,
 
         // table and frame properties
-        TableColumns = 0x4000,
-        FrameBorder = 0x4080,
-        FrameMargin = 0x4081,
-        FramePadding = 0x4082,
-        Width = 0x4100,
-        Height = 0x4101,
-        TableColumnWidthConstraints = 0x4200,
-        TableCellSpacing = 0x4300,
-        TableCellPadding = 0x4301,
-        TableBackgroundColor = 0x4400,
+        FrameBorder = 0x4000,
+        FrameMargin = 0x4001,
+        FramePadding = 0x4002,
+        FrameWidth = 0x4003,
+        FrameHeight = 0x4004,
+        TableColumns = 0x4100,
+        TableColumnWidthConstraints = 0x4101,
+        TableCellSpacing = 0x4102,
+        TableCellPadding = 0x4103,
+        TableBackgroundColor = 0x4104,
 
         // table cell properties
         TableCellRowSpan = 0x4810,
@@ -502,18 +502,18 @@ public:
     { return intProperty(FramePadding); }
 
     inline void setWidth(int width)
-    { setProperty(Width, QTextLength(QTextLength::FixedLength, width)); }
+    { setProperty(FrameWidth, QTextLength(QTextLength::FixedLength, width)); }
     inline void setWidth(const QTextLength &length)
-    { setProperty(Width, length); }
+    { setProperty(FrameWidth, length); }
     inline QTextLength width() const
-    { return lengthProperty(Width); }
+    { return lengthProperty(FrameWidth); }
 
     inline void setHeight(int height)
-    { setProperty(Height, QTextLength(QTextLength::FixedLength, height)); }
+    { setProperty(FrameHeight, QTextLength(QTextLength::FixedLength, height)); }
     inline void setHeight(const QTextLength &height)
-    { setProperty(Height, height); }
+    { setProperty(FrameHeight, height); }
     inline QTextLength height() const
-    { return lengthProperty(Height); }
+    { return lengthProperty(FrameHeight); }
 
 
 };
