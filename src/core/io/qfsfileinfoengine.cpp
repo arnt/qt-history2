@@ -51,7 +51,7 @@ QFSFileInfoEngine::setFileName(const QString &file)
     d->tried_stat = false;
 }
 
-uint
+QIODevice::Offset
 QFSFileInfoEngine::size() const
 {
     if(d->doStat())

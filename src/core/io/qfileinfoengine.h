@@ -61,7 +61,7 @@ public:
     virtual uint ownerId(FileOwner) const = 0;
     virtual QString owner(FileOwner) const = 0;
 
-    virtual uint size() const = 0;
+    virtual QIODevice::Offset size() const = 0;
 
     enum FileTime { CreationTime, ModificationTime, AccessTime };
     virtual QDateTime fileTime(FileTime time) const = 0;
@@ -96,7 +96,7 @@ public:
     virtual uint ownerId(FileOwner) const;
     virtual QString owner(FileOwner) const;
 
-    virtual uint size() const;
+    virtual QIODevice::Offset size() const;
 
     virtual QDateTime fileTime(FileTime time) const;
 };
