@@ -387,7 +387,7 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
 {
     need_reroot=FALSE;
     xtparent = 0;
-    if (parent ) {
+    if ( parent ) {
 	Q_ASSERT(!qparent);
 	xtw = XtCreateWidget(name, widget_class, parent, args, num_args);
 	if ( widget_class == qWidgetClass )
@@ -440,7 +440,7 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
   subwidgets, layouts, etc. using Qt functionality.
 */
 QXtWidget::QXtWidget(const char* name, Widget parent, bool managed)
-    : QWidget( 0, name, WResizeNoErase ), xtw(NULL)
+    : QWidget( 0, name, WResizeNoErase ), xtw( 0 )
 {
     init(name, qWidgetClass, parent, 0, 0, 0, managed);
     Arg reqargs[20];
@@ -468,7 +468,7 @@ QXtWidget::QXtWidget(const char* name, Widget parent, bool managed)
 QXtWidget::QXtWidget(const char* name, WidgetClass widget_class,
 		     QWidget *parent, ArgList args, Cardinal num_args,
 		     bool managed)
-    : QWidget( parent, name, WResizeNoErase ), xtw(NULL)
+    : QWidget( parent, name, WResizeNoErase ), xtw( 0 )
 {
     if ( !parent )
 	init(name, widget_class, 0, 0, args, num_args, managed);
