@@ -1790,7 +1790,7 @@ void QTable::setSelectionMode( SelectionMode mode )
 	return;
     selMode = mode;
     clearSelection();
-    if ( isRowSelection( selMode ) ) {
+    if ( isRowSelection( selMode ) && numRows() > 0 && numCols() > 0 ) {
 	currentSel = new QTableSelection();
 	selections.append( currentSel );
 	currentSel->init( curRow, 0 );
@@ -3855,6 +3855,12 @@ void QTable::setNumRows( int r )
 	repaintContents( contentsX(), contentsY(),
 			 visibleWidth(), visibleHeight(), FALSE );
     leftHeader->update();
+
+    if ( isRowSelection( selectionMode() ) ) {
+	int r = curRow;
+	curRow = -1;
+	setCurrentCell( r, curCol );
+    }
 }
 
 /*! Sets the number of columns to \a c.
@@ -3907,6 +3913,12 @@ void QTable::setNumCols( int c )
 	repaintContents( contentsX(), contentsY(),
 			 visibleWidth(), visibleHeight(), FALSE );
     topHeader->update();
+
+    if ( isRowSelection( selectionMode() ) ) {
+	int r = curRow;
+	curRow = -1;
+	setCurrentCell( r, curCol );
+    }
 }
 
 /*! This function returns the widget which should be used as an editor for
@@ -4199,7 +4211,7 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
     bottom = QMAX( oldSelection ? oldSelection->bottomRow() : newSelection->bottomRow(), newSelection->bottomRow() );
     right = QMAX( oldSelection ? oldSelection->rightCol() : newSelection->rightCol(), newSelection->rightCol() );
 
-    if ( updateHorizontal && left >= 0 ) {
+    if ( updateHorizontal && numCols() > 0 && left >= 0 ) {
 	register int *s = &topHeader->states.data()[left];
 	for ( i = left; i <= right; ++i ) {
 	    if ( !isColumnSelected( i ) )
@@ -4213,7 +4225,7 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 	topHeader->repaint( FALSE );
     }
 
-    if ( updateVertical && top >= 0 ) {
+    if ( updateVertical && numRows() > 0 && top >= 0 ) {
 	register int *s = &leftHeader->states.data()[top];
 	for ( i = top; i <= bottom; ++i ) {
 	    if ( !isRowSelected( i ) )
