@@ -175,7 +175,7 @@ void VW::computeSelection()
 	return; // no model selected yet
 
     QString s;
-    s.sprintf( "You have selected a Wolkswagen %s model %d with a "
+    s.sprintf( "You have selected a Volkswagen %s model %d with a "
 	       "%d cm³ motor.\n\nGood choice!",
 	       (const char *)currentModel,
 	       (int)currentYear, currentMotorSize );
