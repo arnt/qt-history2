@@ -576,9 +576,13 @@ QLineEdit *PropertyTextItem::lined()
     else
 	lin = new QLineEdit( listview->viewport() );
 
-    if ( asciiOnly )
-	lin->setValidator( new AsciiValidator( lin, "ascii_validator" ) );
-    if ( !hasMultiLines ) {
+    if ( asciiOnly ) {
+	if ( PropertyItem::name() == "name" )
+	    lin->setValidator( new AsciiValidator( lin, "ascii_validator" ) );
+	else
+	    lin->setValidator( new AsciiValidator( QString("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+							   "¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿"), lin, "ascii_validator" ) );
+    } if ( !hasMultiLines ) {
 	lin->hide();
     } else {
 	button = new QPushButton( tr("..."), box );

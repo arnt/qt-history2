@@ -1,0 +1,90 @@
+@SysInclude { diag }
+@SysInclude { tbl }
+@Include { diagdoc.lout }
+# This file is the source of designer2.jpg, produced like this:
+# % lout -EPS designer-ui-subclass.lout > designer-ui-subclass.eps
+# % convert -crop 0x0 -quality 100 designer-ui-subclass.eps images/designer2.jpg
+# The png is produces similarly:
+# % convert -crop 0x0 designer-ui-subclass.eps images/designer2.png
+@Doc @Text @Begin
+#8c @High 13c @Wide 
+@Diag 
+    # Tool
+    aoutline { ellipse }
+    apaint { lightgreen }
+
+    # Revision controlled source file
+    boutline { box }
+    bpaint { lightyellow }
+
+    # Generated source file
+    coutline { box }
+    cpaint { lightred }
+{
+@Tbl
+    font { Helvetica Base }
+    aformat { 
+	@Cell margin { 1f } indent { ctr } A | 
+	@Cell margin { 1f } indent { ctr } B | 
+	@Cell margin { 1f } indent { ctr } C | 
+	@Cell margin { 1f } marginleft { 2f } indent { ctr } D |
+	@Cell margin { 1f } indent { ctr } E }
+    bformat { 
+	@StartVSpan @Cell A | 
+	@Cell margin { 1f } indent { ctr } B | 
+	@Cell margin { 1f } indent { ctr } C | 
+	@Cell margin { 1f } marginleft { 2f } indent { ctr } D |
+	@Cell margin { 1f } indent { ctr } E }
+    cformat { 
+	@VSpan | 
+	@Cell margin { 1f } indent { ctr } B | 
+	@Cell margin { 1f } indent { ctr } C | 
+	@Cell margin { 1f } marginleft { 2f } indent { ctr } D |
+	@Cell width { 3.25c } margin { 1f } indent { ctr } E }
+{
+    @Rowa
+	A { QTDESIGNER:: @ANode { @I{Qt Designer} } }
+	B { FORMUI:: @BNode { form.ui } }
+    @Rowb
+	A { -1p @Font { 
+	@B Key
+	@LP
+	@Diag { @Ellipse paint { lightgreen } { } } Tool
+	@LP
+	
+	@Diag { @Square paint { lightyellow } { } } Revision controlled @LLP source file
+	@LP
+	
+	@Diag { @Square paint { lightred } { } } Generated @LLP source file
+	@LP
+	@B @Sym arrowboth Reads and writes
+	@LP
+	@B @Sym arrowright Reads
+	@LP
+	darkgreen @Colour @B @Sym arrowright Generates
+	@LP
+	blue @Colour @B @Sym arrowright "#"includes
+	}
+	}
+	B { UIC:: @ANode { uic } }
+	C { FORMH:: @CNode { form.h } }
+	D { FORMIMPLH:: @BNode { formimpl.h } }
+    @Rowc
+	C { @DP }
+    @Rowc
+	C { FORMCPP:: @CNode { form.cpp } }
+	D { FORMIMPLCPP:: @BNode { formimpl.cpp } }
+	E { MAINCPP:: @BNode { main.cpp } }
+}
+//
+@Link from { QTDESIGNER } to { FORMUI } arrow { both } pathwidth { thick } arrowwidth { 0.5f }
+@Arrow from { UIC } to { FORMUI } pathwidth { thick } arrowwidth { 0.5f }
+darkgreen @Colour @Arrow from { UIC } to { FORMH } pathwidth { thick } arrowwidth { 0.5f } 
+darkgreen @Colour @VHArrow from { UIC } to { FORMCPP } pathwidth { thick } arrowwidth { 0.5f } 
+blue @Colour @Arrow from { FORMCPP } to { FORMH } pathwidth { thick } arrowwidth { 0.5f }
+blue @Colour @Arrow from { FORMIMPLH } to { FORMH } pathwidth { thick } arrowwidth { 0.5f } ylabel { black @Colour @I inherits }
+blue @Colour @Arrow from { FORMIMPLCPP } to { FORMIMPLH } pathwidth { thick } arrowwidth { 0.5f }
+blue @Colour @VHArrow from { MAINCPP } to { FORMIMPLH } pathwidth { thick } arrowwidth { 0.5f }
+}
+@End @Text
+

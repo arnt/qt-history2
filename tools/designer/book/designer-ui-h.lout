@@ -1,0 +1,88 @@
+@SysInclude { diag }
+@SysInclude { tbl }
+@Include { diagdoc.lout }
+# This file is the source of designer3.jpg, produced like this:
+# % lout -EPS designer-ui-h.lout > designer-ui-h.eps
+# % convert -crop 0x0 -quality 100 designer-ui-h.eps images/designer3.jpg
+# The png is produces similarly:
+# % convert -crop 0x0 designer-ui-h.eps images/designer3.png
+@Doc
+@Text @Begin
+8c @High 13c @Wide @Diag 
+    # Tool
+    aoutline { ellipse }
+    apaint { lightgreen }
+
+    # Revision controlled source file
+    boutline { box }
+    bpaint { lightyellow }
+
+    # Generated source file
+    coutline { box }
+    cpaint { lightred }
+{
+@Tbl
+    font { Helvetica Base }
+    aformat { 
+	@Cell margin { 1f } indent { ctr } A | 
+	@Cell margin { 1f } indent { ctr } B | 
+	@Cell margin { 1f } indent { ctr } C | 
+	@Cell margin { 1f } indent { ctr } D }
+    bformat { 
+	@StartVSpan @Cell A | 
+	@Cell margin { 1f } indent { ctr } B | 
+	@Cell margin { 1f } indent { ctr } C | 
+	@Cell margin { 1f } indent { ctr } D }
+    cformat { 
+	@VSpan | 
+	@Cell margin { 1f } indent { ctr } B | 
+	@Cell margin { 1f } indent { ctr } C | 
+	@Cell margin { 1f } indent { ctr } D }
+{
+    @Rowa
+	A { QTDESIGNER:: @ANode { @I{Qt Designer} } }
+	B { FORMUI:: @BNode { form.ui } }
+	C { FORMUIH:: @BNode { form.ui.h } }
+    @Rowb
+	A { -1p @Font { 
+	@B Key
+	@LP
+	@Diag { @Ellipse paint { lightgreen } { } } Tool
+	@LP
+	
+	@Diag { @Square paint { lightyellow } { } } Revision controlled @LLP source file
+	@LP
+	
+	@Diag { @Square paint { lightred } { } } Generated @LLP source file
+	@LP
+	@B @Sym arrowboth Reads and writes
+	@LP
+	@B @Sym arrowright Reads
+	@LP
+	darkgreen @Colour @B @Sym arrowright Generates
+	@LP
+	blue @Colour @B @Sym arrowright "#"includes
+	}
+	}
+	B { UIC:: @ANode { uic } }
+	C { FORMH:: @CNode { form.h } }
+    @Rowc
+	C { @DP }
+    @Rowc
+	C { FORMCPP:: @CNode { form.cpp } }
+	D { MAINCPP:: @BNode { main.cpp } }
+}
+//
+@Link from { QTDESIGNER } to { FORMUI } arrow { both } pathwidth { thick } arrowwidth { 0.5f }
+@Link from { QTDESIGNER } to { FORMUIH } arrow { both } path { ccurve } pathwidth { thick } arrowwidth { 0.5f }
+@Arrow from { UIC } to { FORMUI } pathwidth { thick } arrowwidth {
+0.5f }
+darkgreen @Colour @Arrow from { UIC } to { FORMH } pathwidth { thick } arrowwidth { 0.5f } 
+darkgreen @Colour @VHArrow from { UIC } to { FORMCPP } pathwidth { thick } arrowwidth { 0.5f } 
+blue @Colour @Arrow from { FORMCPP } to { FORMH } pathwidth { thick }
+arrowwidth { 0.5f }
+blue @Colour @VHArrow from { MAINCPP } to { FORMH } pathwidth { thick } arrowwidth { 0.5f }
+blue @Colour @RVLArrow from { FORMCPP } to { FORMUIH } pathwidth { thick } arrowwidth { 0.5f } bias { 0.5f }
+}
+@End @Text
+

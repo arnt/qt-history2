@@ -641,7 +641,6 @@ void MetaDataBase::changeSlotAttributes( QObject *o, const QCString &slot,
     for ( QValueList<Slot>::Iterator it = r->slotList.begin(); it != r->slotList.end(); ++it ) {
 	Slot s = *it;
 	if ( normalizeSlot( s.slot ) == normalizeSlot( slot ) ) {
-	    qDebug( "yes" );
 	    (*it).specifier = specifier;
 	    (*it).access = access;
 	    (*it).language = language;

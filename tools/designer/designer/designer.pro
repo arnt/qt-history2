@@ -11,7 +11,7 @@ include( ../../../src/qt_professional.pri )
 TARGET	= designer
 DEPENDPATH	+= $(QTDIR)/include
 DESTDIR	= ../../../bin
-win32-msvc:RC_FILE = designer.rc
+win32:RC_FILE = designer.rc
 mac:RC_FILE = designer.icns
 
 sql {

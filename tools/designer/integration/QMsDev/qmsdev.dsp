@@ -151,7 +151,7 @@ SOURCE=.\NewQtProjectDialog.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\QMsDev.h
+SOURCE=.\qmsdev.h
 # End Source File
 # Begin Source File
 
@@ -181,10 +181,6 @@ SOURCE=.\res\TBarLrge.bmp
 SOURCE=.\res\TBarMedm.bmp
 # End Source File
 # End Group
-# Begin Source File
-
-SOURCE=.\qmsdev.h
-# End Source File
 # Begin Source File
 
 SOURCE=.\ReadMe.txt

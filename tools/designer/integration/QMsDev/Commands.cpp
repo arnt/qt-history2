@@ -796,15 +796,15 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 	    if ( group.IsEmpty() && string.Find( "# Begin Group" ) == 0 ) {
 		group = string.Mid( 15, string.GetLength() - 16 );
 		group.MakeUpper();
-		if ( group == "GENERATED" )
-		    group.Empty();
-	    } else if ( !group.IsEmpty() && string.Find( "SOURCE=" ) == 0 ) {
+	    } else if ( string.Find( "SOURCE=" ) == 0 ) {
 		bool ignore = FALSE;
 		file = string.Right( string.GetLength() - 7 );
+		file.TrimLeft();
+		file.TrimRight();
 		splitFileName( file, filepath, filename, fileext );
 		if ( filepath.Left( 2 ) == ".\\" )
 		    filepath = filepath.Right( filepath.GetLength() - 2 );
-		ignore = filename.Left( 4 ) == "moc_" || fileext == "moc";
+		ignore = filename.Left( 4 ) == "moc_" || fileext == "moc" || group == "GENERATED" || filename.Right(3) == ".ui";
 
 		if ( !ignore ) {
 		    if ( fileext == "ui" )
@@ -817,6 +817,8 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 			group = "YACCSOURCES";
 		    else if ( fileext == "l" )
 			group = "LEXSOURCES";
+		    else if ( fileext == "ts" )
+			group = "TRANSLATIONS";
 
 		    CString temp;
 		    filelists.Lookup( group, temp );
@@ -873,7 +875,6 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 		}
 	    }
 	    pro.Close();
-	    m_pApplication->PrintToOutputWindow( CComBSTR("Finished with old stuff" ) );
 	}
 	// add remaining new files and groups
 	POSITION pos = filelists.GetStartPosition();
