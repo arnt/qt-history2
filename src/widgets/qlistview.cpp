@@ -887,7 +887,12 @@ void QListViewItem::setup()
 {
     widthChanged();
     QListView * v = listView();
-    int h = v->d->fontMetricsHeight + 2*v->itemMargin();
+    int ph = 0;
+    for ( unsigned int i = 0; i < v->d->column.size(); ++i ) {
+	if ( pixmap( i ) )
+	    ph = QMAX( ph, pixmap( i )->height() );
+    }
+    int h = QMAX( v->d->fontMetricsHeight, ph ) + 2*v->itemMargin();
     if ( h % 2 > 0 )
 	h++;
     setHeight( h );
@@ -1137,7 +1142,9 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
 	else
 	    l->pm = new QPixmap( pm );
     }
+    setup();
     widthChanged( column );
+    invalidateHeight();
     repaint();
 }
 
@@ -1208,7 +1215,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     }
 
     QString t = text( column );
-    
+
     if ( columns ) {
 	QListViewPrivate::ItemColumnInfo *ci = 0;
 	// try until we have a column info....
