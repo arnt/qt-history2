@@ -35,7 +35,7 @@ const char * const qt_close_xpm[] = {
 "............",
 "............"};
 
-static const char * const qt_maximize_xpm[]={
+const char * const qt_maximize_xpm[]={
 "12 12 2 1",
 "# c #000000",
 ". c None",
@@ -53,7 +53,7 @@ static const char * const qt_maximize_xpm[]={
 "............"};
 
 
-static const char * const qt_minimize_xpm[] = {
+const char * const qt_minimize_xpm[] = {
 "12 12 2 1",
 "# c #000000",
 ". c None",
@@ -70,7 +70,7 @@ static const char * const qt_minimize_xpm[] = {
 "............",
 "............"};
 
-static const char * const qt_normalize_xpm[] = {
+const char * const qt_normalize_xpm[] = {
 "12 12 2 1",
 "# c #000000",
 ". c None",
@@ -87,7 +87,7 @@ static const char * const qt_normalize_xpm[] = {
 ".#######...",
 "..........."};
 
-static const char * const qt_normalizeup_xpm[] = {
+char * const qt_normalizeup_xpm[] = {
 "12 12 2 1",
 "# c #000000",
 ". c None",
@@ -105,7 +105,7 @@ static const char * const qt_normalizeup_xpm[] = {
 "..........."};
 
 
-static const char * const qt_shade_xpm[] = {
+const char * const qt_shade_xpm[] = {
 "12 12 2 1",
 "# c #000000",
 ". c None",
@@ -122,7 +122,7 @@ static const char * const qt_shade_xpm[] = {
 "............",
 "............"};
 
-static const char * const qt_unshade_xpm[] = {
+const char * const qt_unshade_xpm[] = {
 "12 12 2 1",
 "# c #000000",
 ". c None",
@@ -148,7 +148,7 @@ static const char * const qt_unshade_xpm[] = {
 #define BUTTON_HEIGHT 14
 #define RANGE 16
 
-static const char * const qt_close_xpm[] = {
+const char * const qt_close_xpm[] = {
 "12 12 2 1",
 "       s None  c None",
 ".      c black",
@@ -165,7 +165,7 @@ static const char * const qt_close_xpm[] = {
 "            ",
 "            "};
 
-static const char * const qt_maximize_xpm[] = {
+const char * const qt_maximize_xpm[] = {
 "12 12 2 1",
 "       s None  c None",
 ".      c black",
@@ -182,7 +182,7 @@ static const char * const qt_maximize_xpm[] = {
 "            ",
 "            "};
 
-static const char * const qt_minimize_xpm[] = {
+const char * const qt_minimize_xpm[] = {
 "12 12 2 1",
 "       s None  c None",
 ".      c black",
@@ -199,7 +199,7 @@ static const char * const qt_minimize_xpm[] = {
 "            ",
 "            "};
 
-static const char * const qt_normalize_xpm[] = {
+const char * const qt_normalize_xpm[] = {
 "12 12 2 1",
 "       s None  c None",
 ".      c black",
@@ -216,7 +216,7 @@ static const char * const qt_normalize_xpm[] = {
 "            ",
 "            "};
 
-static const char * const qt_normalizeup_xpm[] = {
+const char * const qt_normalizeup_xpm[] = {
 "12 12 2 1",
 "       s None  c None",
 ".      c black",
@@ -233,7 +233,7 @@ static const char * const qt_normalizeup_xpm[] = {
 "            ",
 "            "};
 
-static const char * const qt_shade_xpm[] = {
+const char * const qt_shade_xpm[] = {
 "12 12 2 1", "# c #000000",
 ". c None",
 "............",
@@ -250,7 +250,7 @@ static const char * const qt_shade_xpm[] = {
 "............"};
 
 
-static const char * const qt_unshade_xpm[] = {
+const char * const qt_unshade_xpm[] = {
 "12 12 2 1",
 "# c #000000",
 ". c None",
