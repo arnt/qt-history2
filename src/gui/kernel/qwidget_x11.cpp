@@ -1444,7 +1444,6 @@ static void qt_discard_double_buffer(QX11DoubleBuffer **db)
     if (X11->use_xrender && X11->has_xft)
         XftDrawDestroy((XftDraw *) (*db)->xft_hd);
 #endif
-
     delete *db;
     *db = 0;
 }
@@ -1475,7 +1474,6 @@ static QX11DoubleBuffer *qt_x11_create_double_buffer(Qt::HANDLE hd, int screen, 
                                        (Visual *) QX11Info::appVisual(),
                                        QX11Info::appColormap());
 #endif
-
     db->screen = screen;
     db->depth = depth;
     db->width = width;
@@ -1486,16 +1484,16 @@ static QX11DoubleBuffer *qt_x11_create_double_buffer(Qt::HANDLE hd, int screen, 
 static
 void qt_x11_get_double_buffer(QX11DoubleBuffer **db, Qt::HANDLE hd, int screen, int depth, int width, int height)
 {
-    // the db should consist of 128x128 chunks
-    width  = qMin(((width / 128) + 1) * 128, (int)QX11DoubleBuffer::MaxWidth);
-    height = qMin(((height / 128) + 1) * 128, (int)QX11DoubleBuffer::MaxHeight);
-
+    qt_x11_global_double_buffer_active = true;
     if (qt_x11_global_double_buffer_active) {
         *db = qt_x11_create_double_buffer(hd, screen, depth, width, height);
 	return;
     }
 
-    qt_x11_global_double_buffer_active = true;
+    // the db should consist of 128x128 chunks
+    width  = qMin(((width / 128) + 1) * 128, (int)QX11DoubleBuffer::MaxWidth);
+    height = qMin(((height / 128) + 1) * 128, (int)QX11DoubleBuffer::MaxHeight);
+
 
     if (qt_x11_global_double_buffer) {
         if (qt_x11_global_double_buffer->screen == screen
@@ -1512,7 +1510,7 @@ void qt_x11_get_double_buffer(QX11DoubleBuffer **db, Qt::HANDLE hd, int screen, 
         qt_discard_double_buffer();
     }
 
-    *db = qt_x11_create_double_buffer(hd, screen, depth, width, height);
+    qt_x11_global_double_buffer = *db = qt_x11_create_double_buffer(hd, screen, depth, width, height);
 }
 
 void QWidget::repaint(const QRegion& rgn)
