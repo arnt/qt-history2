@@ -103,7 +103,7 @@ bool QAbstractItemModelDrag::decode(QMimeSource *src,
     QVariant data;
     QModelIndex index;
     while (!stream.atEnd()) {
-        model->insertRows(row, parent); // append row
+        model->insertRows(row, parent, 1); // append row
         index = model->index(row, 0, parent); // only insert in col 0
         stream >> count;
         for (int i = 0; i < count; ++i) {
