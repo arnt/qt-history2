@@ -608,11 +608,17 @@ QValueList< QList<QNetworkOperation> > QUrlOperator::copy( const QStringList &fi
 
 /*!
   Returns TRUE if the url is a directory, else
-  returns FALSE. This may not always work correcrly!
+  returns FALSE. This may not always work correcrly,
+  if the protocol of the URL is something else than file
+  (local filesystem)! If you pass a bool as \a ok argument,
+  this is set to TRUE, if the result of this method is correct
+  for sure, else \a ok is set to FALSE.
 */
 
-bool QUrlOperator::isDir()
+bool QUrlOperator::isDir( bool *ok )
 {
+    if ( ok )
+	*ok = TRUE;
     if ( isLocalFile() ) {
 	if ( QFileInfo( path() ).isDir() )
 	    return TRUE;
@@ -624,8 +630,13 @@ bool QUrlOperator::isDir()
 	return d->entryMap[ "." ].isDir();
     else {
 	// #### can assume that we are a directory?
+	if ( ok )
+	    *ok = FALSE;
 	return TRUE;
     }
+
+    if ( ok )
+	*ok = FALSE;
 
     return FALSE;
 }

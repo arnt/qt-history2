@@ -1598,24 +1598,24 @@ static QStringList makeFiltersList( const QString &filter )
 
 /*!
   \enum QFileDialog::ViewMode
-  
+
   This enum type describes the view mode of the filedialog.
-  
+
   <ul>
-  <li> \c DetailView - View which shows except the filename also 
+  <li> \c DetailView - View which shows except the filename also
   size, date, etc. of a file in columns
   <li> \c ListView - Simple view which shows only all filenames plus icons
-  <li> \c PreviewContents - Besides the view with the files a preview 
+  <li> \c PreviewContents - Besides the view with the files a preview
   widget is shown shich shows the contents of the currently selected file
-  <li> \c PreviewInfo - Besides the view with the files a preview 
+  <li> \c PreviewInfo - Besides the view with the files a preview
   widget is shown shich shows infos of the currently selected file
   </ul>
-  
+
   Using setViewMode() you can set the view mode of the filedialog, and
   with viewMode() you can get the current view mode. The value which is
   set or returned here can also be or'd together combination of these values
 */
-  
+
 /*!
   \fn void QFileDialog::showPreview( const QUrl &u )
 
@@ -2104,7 +2104,11 @@ void QFileDialog::setSelection( const QString & filename )
 	d->url = QUrlOperator( filename );
     d->url.setNameFilter( nf );
     d->checkForFilter = TRUE;
-    if ( !d->url.isDir() ) {
+    bool isDirOk;
+    bool isDir = d->url.isDir( &isDirOk );
+    if ( !isDirOk )
+	isDir = d->url.path().right( 1 ) == "/";
+    if ( !isDir ) {
 	QUrlOperator u( d->url );
 	d->url.setPath( d->url.dirPath() );
 	trySetSelection( FALSE, d->url, FALSE );
@@ -2379,7 +2383,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 	    *workingDirectory = startWith;
 	} else {
 	    *workingDirectory = u.toString();
-	    initialSelection = u.fileName();
+	    initialSelection = QString::null;//u.fileName();
 	}
     }
 
@@ -2467,7 +2471,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 	    *workingDirectory = startWith;
 	} else {
 	    *workingDirectory = u.toString();
-	    initialSelection = u.fileName();
+	    initialSelection = QString::null;//u.fileName();
 	}
     }
 

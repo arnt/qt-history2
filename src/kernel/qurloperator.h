@@ -60,7 +60,7 @@ public:
     virtual QList<QNetworkOperation> copy( const QString &from, const QString &to, bool move = FALSE );
     virtual QValueList< QList<QNetworkOperation> > copy( const QStringList &files, const QString &dest,
 							 bool move = FALSE );
-    virtual bool isDir();
+    virtual bool isDir( bool *ok = 0 );
 
     virtual void setNameFilter( const QString &nameFilter );
     QString nameFilter() const;
