@@ -70,8 +70,7 @@ public:
 
 inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi)
 {
-    if(d->request.dirty)
-	((QFontPrivate *)d)->load();
+    ((QFontPrivate *)d)->load();
 
     QMacFontInfo *fi = d->fin->internal_fi;
     if(!fi) {
@@ -184,9 +183,8 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
     //create converter
     UnicodeToTextRunInfo runi;
     ItemCount scpts = 1 << 31; //high bit
-    short scpt[1]; 
-    scpt[0] = FontToScript( fi.font() );
-    err =  CreateUnicodeToTextRunInfoByScriptCode(scpts, scpt, &runi);
+    short scpt = FontToScript( fi.font() );
+    err =  CreateUnicodeToTextRunInfoByScriptCode(scpts, &scpt, &runi);
     if(err != noErr) {
 	qDebug("unlikely error %d %s:%d", (int)err, __FILE__, __LINE__);
 	return 0;
@@ -365,9 +363,8 @@ void QFont::cleanup()
 
 Qt::HANDLE QFont::handle() const
 {
-    if(d->request.dirty) {
+    if(d->request.dirty || d->actual.dirty) 
 	d->load();
-    }
     return 0;
 }
 
@@ -378,10 +375,7 @@ void QFont::macSetFont(QPaintDevice *v)
 
 void QFontPrivate::macSetFont(QPaintDevice *v)
 {
-    if(v && !v->paintingActive()) {
-	qDebug("I was really hoping it would never come to this...");
-	Q_ASSERT(0); //we need to figure out if this can really happen
-    }
+    QMacSavedPortInfo::setPaintDevice(v);
     QMacSetFontInfo::setMacFont(this);
 }
 
@@ -411,29 +405,34 @@ void QFontPrivate::drawText( int x, int y, QString s, int len )
 
 void QFontPrivate::load()
 {
-    if(!request.dirty)
-	return;
-    request.dirty=FALSE;
+    if(request.dirty) {
+	request.dirty=FALSE;
 
-    QString k = key();
-    QFontStruct* qfs = fontCache->find(k);
-    if ( !qfs ) {
-	qfs = new QFontStruct(request);
-	fontCache->insert(k, qfs, 1);
+	QString k = key();
+	QFontStruct* qfs = fontCache->find(k);
+	if ( !qfs ) {
+	    qfs = new QFontStruct(request);
+	    fontCache->insert(k, qfs, 1);
+	}
+	qfs->ref();
+
+	if(fin) 
+	    fin->deref();
+	fin=qfs;
+	if(!fin->info) {
+	    fin->info = (FontInfo *)malloc(sizeof(FontInfo));
+	    QMacSetFontInfo fi(this);
+	    GetFontInfo(fin->info);
+	}
     }
-    qfs->ref();
-
-    if(fin) 
-	fin->deref();
-    fin=qfs;
-    if(!fin->info) {
-	fin->info = (FontInfo *)malloc(sizeof(FontInfo));
-	QMacSetFontInfo fi(this);
-	GetFontInfo(fin->info);
+    if(actual.dirty) {
+	actual = request;
+	actual.dirty = FALSE;
+	if ( actual.pointSize == -1 )
+	    actual.pointSize = int( (actual.pixelSize * 10 * 80) / 72. + 0.5);
+	else
+	    actual.pixelSize = (actual.pointSize * 72 / (10 * 80));
     }
-
-    // Our 'handle' is actually a structure with the information needed to load
-    // the font into the current grafport
 }
 
 void QFont::initialize()
