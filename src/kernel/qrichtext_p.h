@@ -582,7 +582,6 @@ private:
     void basicDirection() const;
 
     QArray<Char> data;
-    QString cache;
     uint textChanged : 1;
     uint bidi : 1; // true when the paragraph right to left characters
     uint rightToLeft : 1; // true if the basic direction of the paragraph is right to left.
@@ -608,12 +607,12 @@ class QTextParag
 {
 public:
     struct LineStart {
-	LineStart() : y( 0 ), baseLine( 0 ), h( 0 ), bidicontext( 0 ) {}
+	LineStart() : y( 0 ), baseLine( 0 ), h( 0 ), bidicontext( 0 ) {  }
 	LineStart( ushort y_, ushort bl, ushort h_ ) : y( y_ ), baseLine( bl ), h( h_ ),
-	    w( 0 ), bidicontext( 0 ) {}
+	    w( 0 ), bidicontext( 0 )  {  }
 	LineStart( QTextBidiContext *c, QTextBidiStatus s ) : y(0), baseLine(0), h(0),
-	    status( s ), bidicontext( c ) { if ( bidicontext ) bidicontext->ref(); }
-	~LineStart() { if ( bidicontext ) bidicontext->deref(); }
+	    status( s ), bidicontext( c ) { if ( bidicontext ) bidicontext->ref();  }
+	~LineStart() { if ( bidicontext ) bidicontext->deref();  }
 	void setContext( QTextBidiContext *c ) {
 	    if ( c == bidicontext )
 		return;
@@ -1831,7 +1830,11 @@ inline QTextString::Char &QTextString::at( int i ) const
 
 inline QString QTextString::toString() const
 {
-    return cache;
+    QString s;
+    for ( int i = 0; i < length(); ++i ) 
+	s += data[ i ].c;
+	
+    return s;
 }
 
 inline int QTextString::length() const

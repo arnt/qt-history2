@@ -2188,7 +2188,6 @@ void QTextString::insert( int index, const QString &s, QTextFormat *f )
 #endif
 	data[ (int)index + i ].setFormat( f );
     }
-    cache.insert( index, s );
     textChanged = TRUE;
 }
 
@@ -2220,14 +2219,12 @@ void QTextString::insert( int index, Char *c )
     data[ (int)index ].rightToLeft = 0;
     data[ (int)index ].d = 0;
     data[ (int)index ].isCustom = 0;
-    cache.insert( index, QString::null );
     textChanged = TRUE;
 }
 
 void QTextString::truncate( int index )
 {
     data.truncate( index );
-    cache.truncate( index );
     textChanged = TRUE;
 }
 
@@ -2236,7 +2233,6 @@ void QTextString::remove( int index, int len )
     memmove( data.data() + index, data.data() + index + len,
 	     sizeof( Char ) * ( data.size() - index - len ) );
     data.resize( data.size() - len );
-    cache.remove( index, len );
     textChanged = TRUE;
 }
 
