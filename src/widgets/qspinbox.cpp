@@ -687,7 +687,7 @@ void QSpinBox::wheelEvent( QWheelEvent * e )
 
 void QSpinBox::valueChange()
 {
-    d->selreq = TRUE;
+    d->selreq = hasFocus();
     updateDisplay();
     d->selreq = FALSE;
     emit valueChanged( value() );
