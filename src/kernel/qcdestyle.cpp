@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcdestyle.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qcdestyle.cpp#5 $
 **
 ** Implementation of CDE-like style class
 **
@@ -192,13 +192,13 @@ void QCDEStyle::drawArrow( QPainter *p, ArrowType type, bool down,
   */
 void QCDEStyle::drawIndicator( QPainter* p,
 			       int x, int y, int w, int h, const QColorGroup &g,
-			       bool on, bool down, bool /* enabled */ )
+			       int s, bool down, bool /* enabled */ )
 {
-    bool showUp = !down && !on;
+    bool showUp = !down && s == QButton::Off;
     QBrush fill =  down ? g.fillMid() : g.fillButton();
     qDrawShadePanel( p, x, y, w, h, g, !showUp, defaultFrameWidth(), &fill );
 
-    if (on) {
+    if (s != QButton::Off) {
 	QPointArray a( 7*2 );
 	int i, xx, yy;
 	xx = x+3;
@@ -214,7 +214,10 @@ void QCDEStyle::drawIndicator( QPainter* p,
 	    a.setPoint( 2*i+1, xx, yy+2 );
 	    xx++; yy--;
 	}
-	p->setPen( g.foreground() );
+	if ( s == QButton::NoChange )
+	    p->setPen( g.dark() );
+	else
+	    p->setPen( g.foreground() );
 	p->drawLineSegments( a );
     }
 }

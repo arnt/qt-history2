@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcdestyle.h#2 $
+** $Id: //depot/qt/main/src/kernel/qcdestyle.h#3 $
 **
 ** Definition of something or other
 **
@@ -26,7 +26,7 @@ public:
 		    const QColorGroup &g, bool enabled, const QBrush *fill = 0 );
 
     void drawIndicator( QPainter* p, int x, int y, int w, int h,  const QColorGroup &g,
-			bool on, bool down = FALSE, bool enabled = TRUE );
+		       int state, bool down = FALSE, bool enabled = TRUE );
 
     void drawExclusiveIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
 				 bool on, bool down = FALSE, bool enabled = TRUE );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#128 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#129 $
 **
 ** Implementation of QButton widget class
 **
@@ -178,7 +178,9 @@ static QChar shortcutChar( const QString &str )
   <li>clicked() is emitted when the button is first pressed then
   released, or when the accelerator key is typed, or when animateClick()
   is called.
-  <li>toggled() is emitted when the state of a toggle button changes.
+  <li>toggled(bool) is emitted when the state of a toggle button changes.
+  <li>stateChanged(int) is emitted when the state of a tristate
+			toggle button changes.
   </ul>
 
   If the button is a text button with "&" in its text, QButton creates
@@ -231,9 +233,9 @@ QButton::QButton( QWidget *parent, const char *name, WFlags f )
     : QWidget( parent, name, f )
 {
     bpixmap    = 0;
-    toggleBt   = FALSE;				// button is not on/off
+    toggleTyp  = SingleShot;			// button is simple
     buttonDown = FALSE;				// button is up
-    buttonOn   = FALSE;				// button is off
+    stat       = Off;				// button is off
     mlbDown    = FALSE;				// mouse left button up
     autoresize = FALSE;				// not auto resizing
     animation  = FALSE;				// no pending animateClick
@@ -289,6 +291,19 @@ QButton::~QButton()
 
   This may be the result of a user action, toggle() slot activation,
   or because setOn() was called.
+
+  \sa clicked()
+*/
+
+/*!
+  \fn void QButton::stateChanged( int state )
+  This signal is emitted whenever a toggle button changes status.
+  \e state is 2 if the button is on, 1 if it is in the
+  \link QCheckBox::setTristate() "no change" state\endlink
+  or 0 if the button is off.
+
+  This may be the result of a user action, toggle() slot activation,
+  setState(), or because setOn() was called.
 
   \sa clicked()
 */
@@ -509,8 +524,8 @@ void QButton::setAutoRepeat( bool enable )
   Performs an animated click: The button is pressed and a short while
   later released.
 
-  pressed(), released(), clicked() and toggled() signals are emitted as
-  appropriate.
+  pressed(), released(), clicked(), toggled(), and stateChanged()
+  signals are emitted as appropriate.
 
   This function does nothing if the button is \link setEnabled()
   disabled. \endlink
@@ -568,25 +583,30 @@ void QButton::setDown( bool enable )
 */
 
 /*!
+  \fn void QButton::setOn( bool enable )
+
   Switches a toggle button on if \e enable is TRUE or off if \e enable is
   FALSE.  This function should be called only for toggle buttons.
   \sa isOn(), toggleButton()
 */
 
-void QButton::setOn( bool enable )
+void QButton::setState( ToggleState s )
 {
-    if ( !toggleBt ) {
+    if ( !toggleTyp ) {
 #if defined(CHECK_STATE)
-	warning( "QButton::setOn(): (%s) Only toggle buttons may be switched",
-		 name( "unnamed" ) );
+	warning( "QButton::setState() / setOn: (%s) Only toggle buttons "
+		 "may be switched", name( "unnamed" ) );
 #endif
 	return;
     }
 
-    if ( (bool)buttonOn != enable ) {		// changed state
-	buttonOn = enable;
+    if ( (ToggleState)stat != s ) {		// changed state
+	bool was = stat != Off;
+	stat = s;
 	repaint( FALSE );
-	emit toggled( buttonOn );
+	if ( was != (stat != Off) )
+	    emit toggled( stat != Off );
+	emit stateChanged( s );
     }
 }
 
@@ -598,6 +618,8 @@ void QButton::setOn( bool enable )
 */
 
 /*!
+  \fn void QButton::setToggleButton( bool enable )
+
   Makes the button a toggle button if \e enable is TRUE, or a normal button
   if \e enable is FALSE.
 
@@ -608,12 +630,6 @@ void QButton::setOn( bool enable )
 
   \sa isToggleButton()
 */
-
-void QButton::setToggleButton( bool enable )
-{
-    toggleBt = enable;
-}
-
 
 /*!
   Returns TRUE if \e pos is inside the widget rectangle, or FALSE if it
@@ -703,12 +719,7 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
     mlbDown = FALSE;				// left mouse button up
     buttonDown = FALSE;
     if ( hitButton( e->pos() ) ) {		// mouse release on button
-	int t = toggleBt && ( !isOn() || !group() || !group()->isExclusive() );
-	if ( t )
-	    buttonOn = !buttonOn;
-	repaint( FALSE );
-	if ( t )
-	    emit toggled( buttonOn );
+	nextState();
 	emit released();
 	emit clicked();
     } else {
@@ -822,15 +833,29 @@ void QButton::animateTimeout()
 	return;
     animation  = FALSE;
     buttonDown = FALSE;
-    bool t = isToggleButton() &&
-	     (!isOn() || !group() || !group()->isExclusive());
-    if ( t )
-	buttonOn = !buttonOn;
-    repaint( FALSE );
-    if ( t )
-	emit toggled( buttonOn );
+    nextState();
     emit released();
     emit clicked();
+}
+
+void QButton::nextState()
+{
+    bool t = isToggleButton() &&
+	     (!isOn() || !group() || !group()->isExclusive());
+
+    bool was = stat != Off;
+    if ( t ) {
+	if ( toggleTyp == Tristate )
+	    stat = ( stat + 1 ) % 3;
+	else
+	    stat = stat ? Off : On;
+    }
+    repaint( FALSE );
+    if ( t ) {
+	if ( was != (stat != Off) )
+	    emit toggled( stat != Off );
+	emit stateChanged( stat );
+    }
 }
 
 
@@ -851,3 +876,25 @@ void QButton::toggle()
     if ( isToggleButton() )
 	 setOn( !isOn() );
 }
+
+/*!
+  Sets the type of toggling behavior.  \a type is one of:
+  <ul>
+   <li>\c SingleShot - pressing the button causes and action, then the
+			button returns to the unpressed state.
+   <li>\c Toggle - pressing the button toggles between an On and and Off
+			state.
+   <li>\c Tristate - pressing the button cycles between three states -
+	    On, Off, and \link QCheckBocx::setTristate() NoChanged\endlink.
+  </ul>
+
+  Subclasses use this, and present it with a more comfortable interface.
+*/
+void QButton::setToggleType( ToggleType type )
+{
+    toggleTyp = type;
+    if ( type != Tristate && stat == NoChange ) {
+	setState(On);
+    }
+}
+

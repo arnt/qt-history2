@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#90 $
 **
 ** Implementation of QCheckBox class
 **
@@ -87,6 +87,31 @@ QCheckBox::QCheckBox( const QString &text, QWidget *parent, const char *name )
   \sa isChecked()
 */
 
+/*!
+  Sets the checkbox into the "no change" state.
+
+  \sa setTristate()
+*/
+void QCheckBox::setNoChange()
+{
+    setTristate(TRUE);
+    
+}
+
+/*!
+  Makes the checkbox a tristate checkbox if \a y is TRUE.  A tristate
+  checkbox is useful when you need to give the use the option of
+  neither setting nor unsetting an option, for example choosing Italic
+  or non-Italic when the selected text is partially Italic and partially
+  not.
+
+  \sa setNoChange() stateChanged()
+*/
+void QCheckBox::setTristate(bool y)
+{
+    setToggleType( y ? Tristate : Toggle );
+}
+
 static int extraWidth( int gs )
 {
     if ( gs == Qt::MotifStyle )
@@ -140,16 +165,15 @@ void QCheckBox::drawButton( QPainter *paint )
     x = gs == MotifStyle ? 1 : 0;
     y = (height() - lsz.height() + fm.height() - sz.height())/2;
 
-#define SAVE_CHECKBOX_PIXMAPS
+//#define SAVE_CHECKBOX_PIXMAPS
 #if defined(SAVE_CHECKBOX_PIXMAPS)
     QString pmkey;				// pixmap key
     int kf = 0;
     if ( isDown() )
 	kf |= 1;
-    if ( isOn() )
-	kf |= 2;
     if ( isEnabled() )
-	kf |= 4;
+	kf |= 2;
+    kf |= state() << 2;
     pmkey.sprintf( "$qt_check_%d_%d_%d", gs, palette().serialNumber(), kf );
     QPixmap *pm = QPixmapCache::find( pmkey );
     if ( pm ) {					// pixmap exists
@@ -171,7 +195,7 @@ void QCheckBox::drawButton( QPainter *paint )
     }
 #endif
 
-    style().drawIndicator(p, x, y, sz.width(), sz.height(), colorGroup(), isOn(), isDown(), isEnabled());
+    style().drawIndicator(p, x, y, sz.width(), sz.height(), colorGroup(), state(), isDown(), isEnabled());
 
 #if defined(SAVE_CHECKBOX_PIXMAPS)
     if ( use_pm ) {
@@ -258,7 +282,7 @@ void QCheckBox::updateMask()
 	x = gs == MotifStyle ? 1 : 0;
 	y = (height() - lsz.height() + fm.height() - sz.height())/2;
 	
-	style().drawIndicatorMask(&p, x, y, sz.width(), sz.height(), isOn() );
+	style().drawIndicatorMask(&p, x, y, sz.width(), sz.height(), state() );
 
 	sz = style().indicatorSize();
 	y = 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#19 $
 **
 ** Implementation of Windows-like style class
 **
@@ -59,15 +59,23 @@ QWindowsStyle::QWindowsStyle() : QStyle(WindowsStyle)
 
 void QWindowsStyle::drawIndicator( QPainter* p,
 				   int x, int y, int w, int h, const QColorGroup &g,
-				   bool on, bool down, bool /* enabled */ )
+				   int s, bool down, bool /*enabled*/ )
 {
     QBrush fill;
-    if ( down )
+    if ( s == QButton::NoChange ) {
+	QBrush b = p->brush();	
+	QColor c = p->backgroundColor();
+	p->setBackgroundMode( TransparentMode );
+	p->setBackgroundColor( green );
+	fill = QBrush(g.base(), Dense4Pattern);
+	p->setBackgroundColor( c );
+	p->setBrush( b );
+    } else if ( down )
 	fill = g.fillButton();
     else
 	fill = g.fillBase();
     qDrawWinPanel( p, x, y, w, h, g, TRUE, &fill );
-    if ( on ) {
+    if ( s != QButton::Off ) {
 	QPointArray a( 7*2 );
 	int i, xx, yy;
 	xx = x+3;
@@ -83,7 +91,11 @@ void QWindowsStyle::drawIndicator( QPainter* p,
 	    a.setPoint( 2*i+1, xx, yy+2 );
 	    xx++; yy--;
 	}
-	p->setPen( g.foreground() );
+	if ( s == QButton::NoChange ) {
+	    p->setPen( g.dark() );
+	} else {
+	    p->setPen( g.foreground() );
+	}
 	p->drawLineSegments( a );
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplatinumstyle.h#8 $
+** $Id: //depot/qt/main/src/kernel/qplatinumstyle.h#9 $
 **
 ** Definition of something or other
 **
@@ -35,8 +35,8 @@ public:
 
     QSize indicatorSize() const;
     void drawIndicator( QPainter* p, int x, int y, int w, int h,  const QColorGroup &g,
-			bool on, bool down = FALSE, bool enabled = TRUE );
-    void drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool on);
+			int state, bool down = FALSE, bool enabled = TRUE );
+    void drawIndicatorMask( QPainter *p, int x, int y, int w, int h, int state );
 
     QSize exclusiveIndicatorSize() const;
     void drawExclusiveIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#68 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#69 $
 **
 ** Definition of QButton widget class
 **
@@ -51,11 +51,16 @@ public:
     virtual void	setAccel( int );
 
     bool	isToggleButton() const;
+    enum ToggleType { SingleShot, Toggle, Tristate };
+    ToggleType	toggleType() const;
 
     virtual void	setDown( bool );
     bool	isDown() const;
 
     bool	isOn() const;
+
+    enum ToggleState { Off, NoChange, On };
+    ToggleState	state() const;
 
     bool	autoResize() const;
     virtual void	setAutoResize( bool );
@@ -72,10 +77,13 @@ signals:
     void	released();
     void	clicked();
     void	toggled( bool );
+    void	stateChanged( int );
 
 protected:
-    virtual void	setToggleButton( bool );
-    virtual void	setOn( bool );
+    void	setToggleButton( bool );
+    virtual void	setToggleType( ToggleType );
+    void	setOn( bool );
+    virtual void	setState( ToggleState );
 
     virtual bool hitButton( const QPoint &pos ) const;
     virtual void drawButton( QPainter * );
@@ -98,9 +106,9 @@ private slots:
 private:
     QString	btext;
     QPixmap    *bpixmap;
-    uint	toggleBt	: 1;
+    uint	toggleTyp	: 2;
     uint	buttonDown	: 1;
-    uint	buttonOn	: 1;
+    uint	stat		: 2;
     uint	mlbDown		: 1;
     uint	autoresize	: 1;
     uint	animation	: 1;
@@ -113,6 +121,8 @@ private:
     QButtonGroup *group() const;
     virtual void	  setGroup( QButtonGroup* );
     QTimer	 *timer();
+    void	nextState();
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QButton( const QButton & );
@@ -133,7 +143,7 @@ inline const QPixmap *QButton::pixmap() const
 
 inline bool QButton::isToggleButton() const
 {
-    return toggleBt;
+    return toggleTyp != SingleShot;
 }
 
 inline  bool QButton::isDown() const
@@ -143,7 +153,7 @@ inline  bool QButton::isDown() const
 
 inline bool QButton::isOn() const
 {
-    return buttonOn;
+    return stat != Off;
 }
 
 inline bool QButton::autoResize() const
@@ -154,6 +164,26 @@ inline bool QButton::autoResize() const
 inline bool QButton::autoRepeat() const
 {
     return repeat;
+}
+
+inline QButton::ToggleState QButton::state() const
+{
+    return ToggleState(stat);
+}
+
+inline void QButton::setToggleButton( bool b )
+{
+    setToggleType( b ? Toggle : SingleShot );
+}
+
+inline void QButton::setOn( bool y )
+{
+    setState( y ? On : Off );
+}
+
+inline QButton::ToggleType QButton::toggleType() const
+{
+    return ToggleType(toggleTyp);
 }
 
 

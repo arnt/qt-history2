@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#10 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#11 $
 **
 ** Definition of something or other
 **
@@ -41,7 +41,7 @@ public:
 		    const QColorGroup &g, bool enabled, const QBrush *fill = 0 );
     QSize indicatorSize() const;
     void drawIndicator( QPainter* p, int x, int y, int w, int h,  const QColorGroup &g,
-			bool on, bool down = FALSE, bool enabled = TRUE );
+			int state, bool down = FALSE, bool enabled = TRUE );
 
 
     QSize exclusiveIndicatorSize() const;

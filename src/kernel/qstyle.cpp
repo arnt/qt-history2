@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#31 $
 **
 ** Implementation of QStyle class
 **
@@ -493,7 +493,7 @@ QStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int h, boo
 
 /*!
   \fn void QStyle::drawIndicator( QPainter* , int , int , int , int , const QColorGroup &,
-		       bool , bool , bool  )
+		       int state , bool , bool  )
   Draws a mark indicating the state of a choice.
 */
 
@@ -501,7 +501,7 @@ QStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int h, boo
   Draws the mask of a mark indicating the state of a choice.
 */
 void
-QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on */)
+QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, int /*state*/ )
 {
     p->fillRect(x, y, w, h, color1);
 }

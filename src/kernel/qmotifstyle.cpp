@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#21 $
 **
 ** Implementation of Motif-like style class
 **
@@ -140,11 +140,17 @@ void QMotifStyle::polish( QPalette& pal)
 
 void QMotifStyle::drawIndicator( QPainter* p,
 				 int x, int y, int w, int h, const QColorGroup &g,
-				 bool on, bool down, bool /* enabled */ )
+			         int s, bool down, bool /*enabled*/ )
 {
+    bool on = s != QButton::Off;
     bool showUp = !(down ^ on);
-    QBrush fill =  showUp ? g.fillButton() : g.fillMid();
-    qDrawShadePanel( p, x, y, w, h, g, !showUp, defaultFrameWidth(), &fill );
+    QBrush fill =  showUp || s == QButton::NoChange
+		    ? g.fillButton() : g.fillMid();
+    if ( s == QButton::NoChange ) {
+	qDrawPlainRect( p, x, y, w, h, g.text(), 1, &fill );
+	p->drawLine(x+w-1,y,x,y+h-1);
+    } else
+	qDrawShadePanel( p, x, y, w, h, g, !showUp, defaultFrameWidth(), &fill );
 }
 
 

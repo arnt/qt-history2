@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#22 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#23 $
 **
 ** Definition of QStyle class
 **
@@ -111,8 +111,8 @@ public:
     // "check box"
     virtual QSize indicatorSize() const = 0;
     virtual void drawIndicator( QPainter* p, int x, int y, int w, int h, const QColorGroup &g,
-				bool on, bool down = FALSE, bool enabled = TRUE ) = 0;
-    virtual void drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool on);
+				int state, bool down = FALSE, bool enabled = TRUE ) = 0;
+    virtual void drawIndicatorMask( QPainter *p, int x, int y, int w, int h, int state);
 
     // "combo box"
     virtual void drawComboButton( QPainter *p, int x, int y, int w, int h,
