@@ -72,7 +72,7 @@ public:
     bool operator!=(const QModelIndex &other) const;
 private:
     QPersistentModelIndexData *d;
-    friend QDebug operator<<(QDebug, const QPersistentModelIndex &);
+    friend Q_GUI_EXPORT QDebug operator<<(QDebug, const QPersistentModelIndex &);
 };
 
 #ifndef QT_NO_DEBUG
