@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#199 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#200 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -414,7 +414,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 	case Key_C:
 	    if ( hasMarkedText() && echoMode() == Normal )
-		copyText();
+		copy();
 	    break;
 	case Key_D:
 	    del();
@@ -440,7 +440,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    insert( QApplication::clipboard()->text() );
 	case Key_X:
 	    if ( hasMarkedText() && echoMode() == Normal ) {
-		copyText();
+		copy();
 		del();
 	    }
 	    break;
@@ -500,7 +500,8 @@ void QLineEdit::focusOutEvent( QFocusEvent * )
     if ( style() == WindowsStyle ) {
 #if defined(_WS_X11_)
 	// X11 users are very accustomed to "auto-copy"
-	copyText();
+	if ( echoMode() == Normal && hasMarkedText() )
+	    copy();
 #endif
 	if ( focusWidget() != this ||
 	   qApp->focusWidget() == 0 ||
@@ -520,7 +521,8 @@ void QLineEdit::leaveEvent( QEvent * )
 #if defined(_WS_X11_)
     if ( style() == WindowsStyle ) {
 	// X11 users are very accustomed to "auto-copy"
-	copyText();
+	if ( echoMode() == Normal && hasMarkedText() )
+	    copy();
     }
 #endif
 }
@@ -800,10 +802,10 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 
 #if defined(_WS_X11_)
     if ( hasMarkedText() && echoMode() == Normal )
-	copyText();
+	copy();
 #else
     if ( style() == MotifStyle && hasMarkedText() && echoMode() == Normal )
-	copyText();
+	copy();
 #endif
 
     if ( e->button() == MidButton ) {
@@ -1022,7 +1024,7 @@ void QLineEdit::newMark( int pos, bool copy )
     markDrag  = pos;
     cursorPos = pos;
     if ( copy && style() == MotifStyle && echoMode() == Normal )
-	copyText(); // ### ????????????
+	this->copy();
 }
 
 
@@ -1054,7 +1056,7 @@ void QLineEdit::markWord( int pos )
 	cursorPos = markBegin;
     }
     if ( style() == MotifStyle && echoMode() == Normal )
-	copyText();
+	copy();
     d->pmDirty = TRUE;
 }
 
