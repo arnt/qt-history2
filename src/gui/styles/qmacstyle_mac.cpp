@@ -5226,20 +5226,20 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
         break;
     case CE_TabBarLabel:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
-            QStyleOptionTab myTab = *tab;
-            bool westSide = getTabDirection(myTab.shape) == kThemeTabWest;
-            if (westSide)
-                p->save();
-            if (QSysInfo::MacintoshVersion == QSysInfo::MV_10_3 && myTab.icon.isNull()) {
+            if (QSysInfo::MacintoshVersion == QSysInfo::MV_10_3) {
+                QStyleOptionTab myTab = *tab;
+                bool westSide = getTabDirection(myTab.shape) == kThemeTabWest;
                 myTab.rect.setHeight(myTab.rect.height() - 2);
-                if (westSide)
+                if (westSide) {
+                    p->save();
                     p->translate(-1, 0);
+                }
+                QCommonStyle::drawControl(ce, &myTab, p, w);
+                if (westSide)
+                    p->restore();
+            } else {
+                QCommonStyle::drawControl(ce, &myTab, p, w);
             }
-
-
-            QCommonStyle::drawControl(ce, &myTab, p, w);
-            if (westSide)
-                p->restore();
         }
         break;
     default:
