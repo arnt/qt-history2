@@ -1485,16 +1485,17 @@ void QApplication::exit( int retcode )
   Tells the application to exit with return code 0 (success).
   Equivalent to calling QApplication::exit( 0 ).
 
-  This function is a slot, so you may connect any signal to activate
-  quit().
-
+  It's common to connect the lastWindowClosed() signal to quit(), and
+  you also often connect e.g. QButton::clicked() or signals in
+  QAction, QPopupMenu or QMenuBar to it.
+  
   Example:
   \code
     QPushButton *quitButton = new QPushButton( "Quit" );
     connect( quitButton, SIGNAL(clicked()), qApp, SLOT(quit()) );
   \endcode
 
-  \sa exit(), aboutToQuit()
+  \sa exit() aboutToQuit() lastWindowClosed() QAction
 */
 
 void QApplication::quit()
@@ -1690,7 +1691,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    }
 	}
 	break;
-	
+
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
     case QEvent::MouseMove:
@@ -2197,7 +2198,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 		    r->postedEvents = 0;
 		}
 	    }
-	
+
 	    // after all that work, it's time to deliver the event.
 	    if ( e->type() == QEvent::Paint && r->isWidgetType() ) {
 		QWidget * w = (QWidget*)r;
