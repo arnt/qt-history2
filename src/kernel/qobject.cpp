@@ -2233,7 +2233,7 @@ QMetaObject* QObject::staticQtMetaObject()
     static const QMetaEnum enum_tbl[] = {
 	{ "Alignment", 10, enum_0, TRUE },
 	{ "Orientation", 2, enum_1, FALSE },
-	{ "TextFormat", 3, enum_2, FALSE },
+	{ "TextFormat", 4, enum_2, FALSE },
 	{ "BackgroundMode", 18, enum_3, FALSE },
 	{ "DateFormat", 3, enum_4, FALSE }
     };
