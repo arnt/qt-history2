@@ -132,7 +132,7 @@ QFileEngineHandler::~QFileEngineHandler()
     A QFileEngine refers to one file or one directory. If the referent
     is a file the setFileName(), rename(), and remove()
     functions are applicable. If the referent is a directory the
-    mkdir(), rmdir(), entryList(), and isRoot() functions are
+    mkdir(), rmdir(), and entryList() functions are
     applicable. In all cases the caseSensitive(), isRelativePath(),
     fileFlags(), ownerId(), owner(), and fileTime() functions are
     applicable.
@@ -276,17 +276,6 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
     otherwise return false.
 
     This virtual function must be reimplemented by all subclasses.
- */
-
-/*!
-    \fn bool QFileEngine::isRoot() const
-
-    Return true if the file referred to by this file engine is the
-    root of the file system; otherwise return false.
-
-    This virtual function must be reimplemented by all subclasses.
-
-    \sa setFileName()
  */
 
 /*!
@@ -434,6 +423,8 @@ link to. (This will be empty if this file is not a link.)
 
     \value HiddenFlag The file is hidden.
     \value ExistsFlag The file actually exists in the file system.
+    \value RootFlag  The file or the file pointed to is the root of the filesystem.
+    \value LocalDiskFlag The file resides on the local disk and can be passed to standard file functions.
 
     \omitvalue PermsMask
     \omitvalue TypesMask

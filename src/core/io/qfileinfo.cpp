@@ -795,7 +795,7 @@ QFileInfo::isSymLink() const
 
 /*!
   Returns true if the object points to a directory or to a symbolic
-  link to a directory, and that directory is the riit directory; otherwise
+  link to a directory, and that directory is the root directory; otherwise
   returns false.
 */
 
@@ -804,7 +804,7 @@ QFileInfo::isRoot() const
 {
     if (!d->data->fileEngine)
         return true;
-    return d->data->fileEngine->isRoot();
+    return d->getFileInfo(QFileEngine::RootFlag);
 }
 
 /*!

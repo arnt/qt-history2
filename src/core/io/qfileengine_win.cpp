@@ -491,13 +491,6 @@ QFSFileEngine::caseSensitive() const
 }
 
 bool
-QFSFileEngine::isRoot() const
-{
-    return d->file == "/" || d->file == "//" ||
-		    (d->file[0].isLetter() && d->file.mid(1,d->file.length()) == ":/");
-}
-
-bool
 QFSFileEngine::setCurrentPath(const QString &path)
 {
     int r;
@@ -907,7 +900,7 @@ QFSFileEngine::fileFlags(uint type) const
     }
     if(type & FlagsMask) {
 	if(d->doStat()) {
-	    ret |= ExistsFlag;
+	    ret |= ExistsFlag | LocalDiskFlag;
 	    if(fileName(BaseName)[0] == QChar('.')) {
 		QT_WA({
 		    if(GetFileAttributesW((TCHAR*)d->file.utf16()) & FILE_ATTRIBUTE_HIDDEN)
@@ -916,6 +909,9 @@ QFSFileEngine::fileFlags(uint type) const
 		    if(GetFileAttributesA(d->file.local8Bit()) & FILE_ATTRIBUTE_HIDDEN)
 			ret |= HiddenFlag;
 		});
+                if(d->file == "/" || d->file == "//" ||
+                   (d->file[0].isLetter() && d->file.mid(1,d->file.length()) == ":/"))
+                    ret |= RootFlag;
 	    }
 	}
     }

@@ -53,8 +53,6 @@ public:
 
     virtual bool caseSensitive() const;
 
-    virtual bool isRoot() const;
-
     virtual uint fileFlags(uint type) const;
 
     virtual QString fileName(QFileEngine::FileName file) const;

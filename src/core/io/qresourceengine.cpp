@@ -107,14 +107,6 @@ QResourceFileEngine::caseSensitive() const
     return true;
 }
 
-bool
-QResourceFileEngine::isRoot() const
-{
-    if(!d->resource)
-        d->resource = qt_find_resource(d->file);
-    return d->resource && d->resource->parent();
-}
-
 QResourceFileEngine::QResourceFileEngine(const QString &file) : QFileEngine(*new QResourceFileEnginePrivate)
 {
     d->file = file;
@@ -247,8 +239,11 @@ QResourceFileEngine::fileFlags(uint type) const
         else
             ret |= FileType;
     }
-    if(type & FlagsMask)
+    if(type & FlagsMask) {
         ret |= ExistsFlag;
+        if(d->resource && d->resource->parent())
+            ret |= RootFlag;
+    }
     return ret;
 }
 

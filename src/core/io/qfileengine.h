@@ -37,8 +37,6 @@ public:
 
     virtual bool caseSensitive() const = 0;
 
-    virtual bool isRoot() const = 0;
-
     virtual bool isRelativePath() const = 0;
 
     enum FileInfo { 
@@ -56,6 +54,8 @@ public:
         //flags
         HiddenFlag     = 0x0100000,
         ExistsFlag     = 0x0400000,
+        RootFlag       = 0x0800000,
+        LocalDiskFlag  = 0x0F00000,
 
         //masks
         PermsMask  = 0x0000FFFF,
@@ -127,8 +127,6 @@ public:
     virtual QStringList entryList(int filterSpec, const QStringList &filters) const;
 
     virtual bool caseSensitive() const;
-
-    virtual bool isRoot() const;
 
     virtual bool isRelativePath() const;
 

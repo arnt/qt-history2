@@ -193,12 +193,6 @@ QFSFileEngine::caseSensitive() const
 }
 
 bool
-QFSFileEngine::isRoot() const
-{
-    return d->file == QLatin1String("/");
-}
-
-bool
 QFSFileEngine::setCurrentPath(const QString &path)
 {
     int r;
@@ -320,9 +314,11 @@ QFSFileEngine::fileFlags(uint type) const
             ret |= DirectoryType;
     }
     if(type & FlagsMask) {
-        ret |= ExistsFlag;
+        ret |= ExistsFlag | LocalDiskFlag;
         if(fileName(BaseName)[0] == QLatin1Char('.'))
             ret |= HiddenFlag;
+        if(d->file == QLatin1String("/"))
+            ret |= RootFlag;
     }
     return ret;
 }

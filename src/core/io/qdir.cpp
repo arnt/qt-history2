@@ -1154,7 +1154,7 @@ QDir::isRoot() const
 {
     if(!d->data->fileEngine)
         return true;
-    return d->data->fileEngine->isRoot();
+    return d->data->fileEngine->fileFlags(QFileEngine::FlagsMask) & QFileEngine::RootFlag;
 }
 
 /*!
