@@ -912,6 +912,7 @@ void QComboBox::setEditable(bool editable)
 {
     if (isEditable() == editable)
         return;
+    setAttribute(Qt::WA_InputMethodEnabled, editable);
 
     QStyleOptionComboBox opt = d->getStyleOption();
     if (editable) {
