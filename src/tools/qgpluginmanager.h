@@ -34,7 +34,7 @@
 **********************************************************************/
 
 #ifndef QGPLUGINMANAGER_H
-#define QPLUGINMANAGER_H
+#define QGPLUGINMANAGER_H
 
 #ifndef QT_H
 #include "qlibrary.h"
