@@ -59,15 +59,27 @@
 
   \brief The QWizard class provides a framework for wizard dialogs.
 
-  A wizard is a special type of input dialog that consists of a sequence of dialog pages to be walked through
-  step by step. A wizards purpose is to assist a user by automating a task and by walking the user through
-  the process step by step. Wizards are usefull for complex or infrequently occuring tasks that people may find difficult
-  to learn or do.
+  A wizard is a special type of input dialog that consists of a sequence of dialog pages.
+  A wizard's purpose is to assist a user by automating a task and by walking the user through
+  the process step by step. Wizards are usefull for complex or infrequently occuring tasks that people
+  may find difficult to learn or do.
 
   QWizard provides page titles and displays Next, Back, Finish, Cancel, and Help push buttons, as
-  appropriate to the current position in the page sequence. QWizard also provides functionality to mark pages
-  irrelevant for the current context. The idea is that a page may be irrelevant in the current context depending
-  on the data entered by the user on a preceding page.
+  appropriate to the current position in the page sequence.
+
+  Create and populate dialog pages inheriting from QWidget and add them to the wizard using addPage().
+  Use insertPage() to add a dialog page at a certain position in the page sequence. Use removePage() to remove
+  a page from the page sequence.
+
+  Use currentPage() to retrieve a pointer to the currently displayed page. page() returns a pointer to the page at a certain
+  position in the page sequence.
+
+  Use pageCount() to retrieve the total number of pages in the page sequence. indexOf() will return the index of a page in the
+  page sequence.
+
+  QWizard provides functionality to mark pages irrelevant for the current context. Use setAppropriate() to mark a page (ir)relevant for
+  the current context. The idea is that a page may be irrelevant and should be skipped depending on the data entered by the user on
+  a preceding page.
 
   It is considered good design to provide a greater number of simple pages with fewer choices instead of a smaller
   number of complex pages.

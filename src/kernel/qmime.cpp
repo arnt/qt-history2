@@ -47,7 +47,7 @@
 
 /*!
   \class QMimeSource qmime.h
-  \brief An abstract piece of formatted data.
+  \brief Am abstract class of objects which provide formatted data of a certain MIME type.
   \ingroup misc
 
   \link dnd.html Drag-and-drop\endlink and
@@ -100,7 +100,7 @@ void QMimeSource::clearCache()
 }
 
 /*!
-  Provided to ensure that subclasses destruct correctly.
+  Provided to ensure that subclasses destroy themself correctly.
 */
 QMimeSource::~QMimeSource()
 {
@@ -122,8 +122,7 @@ QMimeSource::~QMimeSource()
 /*!
   \fn QByteArray QMimeSource::encodedData(const char*) const
 
-  Returns the encoded payload of this object in the specified
-  MIME format.
+  Returns the encoded data of this object in the specified MIME format.
 
   Subclasses must reimplement this function.
 */
@@ -132,11 +131,10 @@ QMimeSource::~QMimeSource()
 
 /*!
   Returns TRUE if the object can provide the data
-  in format \a mimeType.  The default implementation
-  iterates over format().
+  in format \a mimeType.
 
-  Note that it is often better to use the more abstract
-  canDecode() functions such as QTextDrag::canDecode()
+  If you inherit from QMimeSource for consistency reasons it is better
+  to implement more abstract canDecode() functions such as QTextDrag::canDecode()
   and QImageDrag::canDecode().
 */
 bool QMimeSource::provides(const char* mimeType) const
@@ -153,7 +151,7 @@ bool QMimeSource::provides(const char* mimeType) const
 /*!
   \fn const char * QMimeSource::format(int i) const
 
-  Returns the \e ith format, or NULL.
+  Returns the \e ith supported MIME format, or NULL.
 */
 
 
