@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#34 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#35 $
 **
 ** Implementation of QTextCodec class
 **
@@ -693,7 +693,7 @@ public:
 		    if (!from_unicode_page[ch.row]) {
 			from_unicode_page[ch.row] = new char[256];
 			for (int i=0; i<256; i++)
-			    from_unicode_page[ch.row][i]=0;
+			    from_unicode_page[ch.row][i] = unkn;
 		    }
 		    if ( mb_unicode ) {
 			from_unicode_page[ch.row][ch.cell] = 0;
@@ -817,7 +817,7 @@ public:
     {
 	if (lenInOut > (int)uc.length())
 	    lenInOut = uc.length();
-	int rlen = lenInOut*max_bytes_per_char;
+	int rlen = lenInOut*max_bytes_per_char+1;
 	char* result = new char[rlen];
 	char* cursor = result;
 	char* s;
@@ -825,8 +825,7 @@ public:
 	int lout = 0;
 	for (int i=0; i<l; i++) {
 	    QChar ch = uc[i];
-	    if ( from_unicode_page[ch.row] &&
-		from_unicode_page[ch.row][ch.cell] )
+	    if ( from_unicode_page[ch.row] )
 	    {
 		*cursor++ = from_unicode_page[ch.row][ch.cell];
 		lout++;
@@ -843,6 +842,7 @@ public:
 		lout++;
 	    }
 	}
+	*cursor = 0;
 	lenInOut = lout;
 	QCString rstr;
 	rstr.setRawData(result,rlen);
