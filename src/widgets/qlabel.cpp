@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#110 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#111 $
 **
 ** Implementation of QLabel widget class
 **
@@ -245,6 +245,8 @@ void QLabel::setText( const QString &text )
     } else {
 	updateLabel();
     }
+    if ( !isTopLevel() )
+	QApplication::postEvent( parentWidget(), new QEvent( QEvent::LayoutHint ) );
 }
 
 
@@ -867,7 +869,7 @@ int QLabel::heightForWidth(int w) const
   with one or maximal two lines of text.  If you need to display
   larger documents, a QMLView is the widget of choice. It will flicker
   less on resize and can also provide a scrollbar if necessary.
-  
+
   \sa text(), setText(), setPixmap(), setAutoResize(), QMLView
 */
 void QLabel::setQML( const QString & qml )
@@ -894,4 +896,6 @@ void QLabel::setQML( const QString & qml )
     } else {
 	updateLabel();
     }
+    if ( !isTopLevel() )
+	QApplication::postEvent( parentWidget(), new QEvent( QEvent::LayoutHint ) );
 }
