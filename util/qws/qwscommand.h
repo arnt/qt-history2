@@ -29,7 +29,7 @@
  *
  *********************************************************************/
 
-static void qws_write_command( QSocket *socket, int type,
+static void qws_write_command( QSocketDevice *socket, int type,
 			       char *simpleData, int simpleLen, char *rawData, int rawLen )
 {
     qws_write_uint( socket, type );
@@ -40,7 +40,7 @@ static void qws_write_command( QSocket *socket, int type,
 	socket->writeBlock( rawData, rawLen );
 }
 
-static bool qws_read_command( QSocket *socket, char *&simpleData, int &simpleLen,
+static bool qws_read_command( QSocketDevice *socket, char *&simpleData, int &simpleLen,
 			      char *&rawData, int &rawLen,
 			      int &bytesRead )
 {
@@ -106,10 +106,10 @@ struct QWSCommand
     int rawLen;
 
     // functions
-    void write( QSocket *s ) {
+    void write( QSocketDevice *s ) {
 	qws_write_command( s, type, simpleDataPtr, simpleLen, rawDataPtr, rawLen );
     }
-    bool read( QSocket *s ) {
+    bool read( QSocketDevice *s ) {
 	bool b = qws_read_command( s, simpleDataPtr, simpleLen,
 				 rawDataPtr, rawLen, bytesRead );
 	setData( rawDataPtr, rawLen, FALSE );

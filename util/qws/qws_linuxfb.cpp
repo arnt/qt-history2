@@ -101,7 +101,7 @@ static void open_fb()
   }
 
   /* Figure out the size of the screen in bytes */
-  qfb.screensize = fb_vinfo.xres * fb_vinfo.yres * fb_vinfo.bits_per_pixel / 8;
+  qfb.screensize = fb_finfo.smem_len;
 
   qfb.width = fb_vinfo.xres;
   qfb.height = fb_vinfo.yres;
@@ -109,8 +109,7 @@ static void open_fb()
   qfb.fbp = (uchar *)mmap(0, qfb.screensize, PROT_READ | PROT_WRITE, MAP_SHARED,
 		     qfb.fbfd, 0);
   if ((int)qfb.fbp == -1) {
-    printf("Error: failed to map framebuffer device to
-memory.\n");
+    printf("Error: failed to map framebuffer device to memory.\n");
     exit(4);
   }
   printf("The framebuffer device was mapped to memory successfully.\n");

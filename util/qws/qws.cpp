@@ -53,11 +53,9 @@ static key_t semkey = 0;
 //### shmid < 0 means use frame buffer
 QWSClient::QWSClient( QObject* parent, int socket, int shmid, int swidth, int sheight,
 		      int ramid, int fblen, int offscreen, int offscreenlen) :
-    QSocket(parent),
-    s(socket),
+    QSocketDevice(socket,QSocketDevice::Stream),
     command(0)
 {
-    setSocket(socket);
     isClosed = FALSE;
     QWSHeader header;
     header.width = swidth;
@@ -83,14 +81,20 @@ QWSClient::QWSClient( QObject* parent, int socket, int shmid, int swidth, int sh
 
     flush();
 
+    /*
+    ####### Use QSocketNotifier to implement these anew.
+
     connect( this, SIGNAL(closed()), this, SLOT(closeHandler()) );
     connect( this, SIGNAL(error(int)), this, SLOT(errorHandler(int)) );
+    */
 }
 
 QWSClient::~QWSClient()
 {
 }
 
+
+/* ######### not in QSocketDevice API
 void QWSClient::closeHandler()
 {
     qDebug( "Client %p closed", this );
@@ -100,6 +104,7 @@ void QWSClient::closeHandler()
 
 void QWSClient::errorHandler( int err )
 {
+
     QString s = "Unknown";
     switch( err ) {
     case ErrConnectionRefused:
@@ -117,11 +122,7 @@ void QWSClient::errorHandler( int err )
     flush(); //####We need to clean out the pipes, this in not the the way.
     emit connectionClosed();
 }
-
-int QWSClient::socket() const
-{
-    return s;
-}
+*/
 
 void QWSClient::sendSimpleEvent( void* event, uint size )
 {
