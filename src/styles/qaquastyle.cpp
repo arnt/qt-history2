@@ -75,8 +75,9 @@ static const int aquaCheckMarkHMargin  = 2;    // horiz. margins of check mark
 static const int aquaRightBorder       = 12;   // right border on aqua
 static const int aquaCheckMarkWidth    = 12;   // checkmarks width on aqua
 
-class QAquaStylePrivate
+class QAquaStylePrivate : public QObject
 {
+    Q_OBJECT
 public:
     //blinking buttons
     struct buttonState {
@@ -97,8 +98,20 @@ public:
     QFrame::Shape oldFrameShape;
     QFrame::Shadow oldFrameShadow;
     int oldFrameWidth;
+
+public slots:
+    void objDestroyed(QObject *);
 };
 #include "qaquastyle_p.h"
+#include "qaquastyle.moc"
+
+void QAquaStylePrivate::objDestroyed(QObject *o)
+{
+    if(o == defaultButton)
+	defaultButton = NULL;
+    if(o == focusWidget)
+	focusWidget = NULL;
+}
 
 // NOT REVISED
 /*!
@@ -107,7 +120,7 @@ public:
   \ingroup appearance
 
   This class implements the Aqua look and feel. It's an
-  experimental class that tries to resemble a Macinosh-like GUI style
+  experimental class that tries to resemble a Macintosh-like GUI style
   with the QStyle system. The emulation is far from being
   perfect.
 
@@ -128,15 +141,13 @@ QAquaStyle::QAquaStyle()
     d->progressOff = 0;
 }
 
-/*!\reimp
-*/
+/*!\reimp */
 QAquaStyle::~QAquaStyle()
 {
     delete d;
 }
 
-/*! \reimp
-*/
+/*! \reimp */
 void QAquaStyle::polish( QPalette & pal )
 {
     oldPalette = pal;
@@ -169,21 +180,20 @@ void QAquaStyle::polish( QPalette & pal )
     pal.setColor( QPalette::Disabled, QColorGroup::HighlightedText, Qt::black);
 }
 
-/*! \reimp
-*/
+/*! \reimp */
 void QAquaStyle::unPolish( QPalette & pal )
 {
     pal = oldPalette;
     qApp->setPalette( pal, TRUE );
 }
 
-/*! \reimp
-*/
+/*! \reimp */
 void QAquaStyle::polish( QWidget * w )
 {
     if( w->inherits("QPushButton") ){
         QPushButton * btn = (QPushButton *) w;
         if( btn->isDefault() || btn->autoDefault() ){
+	    QObject::connect(btn, SIGNAL(destroyed(QObject*)), d, SLOT(objDestroyed(QObject*)));
             btn->installEventFilter( this );
             if( d->buttonTimerId == -1 ){
                 d->buttonTimerId = startTimer( 50 );
@@ -221,12 +231,14 @@ void QAquaStyle::polish( QWidget * w )
     }
 
     if( w->inherits("QFrame") && w->parentWidget() &&
-	!w->inherits("QSpinBox") && !w->topLevelWidget()->inherits("QPopupMenu") && !w->inherits("QMenuBar") )
+	!w->inherits("QSpinBox") && !w->topLevelWidget()->inherits("QPopupMenu") && 
+	!w->inherits("QMenuBar") && !w->inherits("QTable")) {
+	QObject::connect(w, SIGNAL(destroyed(QObject*)), d, SLOT(objDestroyed(QObject*)));
 	w->installEventFilter( this );
+    }
 }
 
-/*! \reimp
-*/
+/*! \reimp */
 void QAquaStyle::unPolish( QWidget * w )
 {
     if( w->inherits("QPushButton") ){
@@ -261,9 +273,11 @@ void QAquaStyle::unPolish( QWidget * w )
     }
 
     if(w == d->focusWidget) {
-	d->focusWidget->setFrameShape(d->oldFrameShape);
-	d->focusWidget->setFrameShadow(d->oldFrameShadow);
-	d->focusWidget->setLineWidth(d->oldFrameWidth);
+	if(w->inherits("QFrame")) {
+	    d->focusWidget->setFrameShape(d->oldFrameShape);
+	    d->focusWidget->setFrameShadow(d->oldFrameShadow);
+	    d->focusWidget->setLineWidth(d->oldFrameWidth);
+	}
 	d->focusWidget = NULL;
     }
 }
@@ -287,21 +301,21 @@ void QAquaStyle::timerEvent( QTimerEvent * te )
     }
 }
 
-/*! \reimp
-*/
+/*! \reimp */
 bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 {
-    if( (e->type() == QEvent::FocusOut && d->focusWidget == o) ||
-	(e->type() == QEvent::FocusIn && d->focusWidget) )  { //restore it
-	d->focusWidget->setFrameShape(d->oldFrameShape);
-	d->focusWidget->setFrameShadow(d->oldFrameShadow);
-	d->focusWidget->setLineWidth(d->oldFrameWidth);
-	d->focusWidget->repaint();
+    if(d->focusWidget && ((e->type() == QEvent::FocusOut && d->focusWidget == o) ||
+			  (e->type() == QEvent::FocusIn && d->focusWidget != o)))  { //restore it
+	if(o != d->focusWidget || o->inherits("QFrame")) {
+	    d->focusWidget->setFrameShape(d->oldFrameShape);
+	    d->focusWidget->setFrameShadow(d->oldFrameShadow);
+	    d->focusWidget->setLineWidth(d->oldFrameWidth);
+	    d->focusWidget->repaint();
+	}
 	d->focusWidget = NULL;
     }
-
-    if( e->type() == QEvent::FocusIn ) {
-	if( o->inherits("QFrame") && !o->inherits("QTable") ) {
+    if( o && e->type() == QEvent::FocusIn ) {
+	if( o != d->focusWidget && o->inherits("QFrame") ) {
 	    //save it
 	    d->focusWidget = (QFrame *)o;
 	    d->oldFrameShape = d->focusWidget->frameShape();
@@ -317,7 +331,7 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 	}
     } else if( e->type() == QEvent::Hide && d->defaultButton == o ) {
 	d->defaultButton = NULL;
-    } else if( (e->type() == QEvent::FocusOut || e->type() == QEvent::Show) &&
+    } else if( o && (e->type() == QEvent::FocusOut || e->type() == QEvent::Show) &&
 	       o->inherits("QPushButton") ) {
 	QPushButton *btn = (QPushButton *)o;
 	// Find the correct button to use as default button
@@ -372,6 +386,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	else
 	    drawPrimitive(PE_ArrowDown, p, QRect(r.x(), r.y()+2, r.width(), r.height()-4), cg, 0, data);
 	break;
+
     case PE_ArrowUp:
     case PE_ArrowDown:
     case PE_ArrowRight:
@@ -392,6 +407,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	p->setBrush( NoBrush );
 	p->restore();
 	break; }
+
     case PE_HeaderSection: {
 	QPixmap px;
 	QString nstr = QString::number(r.height()), mod;
@@ -401,20 +417,22 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	    mod = "act_";
 	qAquaPixmap( "hdr_" + mod + nstr, px );
 	p->drawTiledPixmap( r, px );
-
 	//separator
 	p->save();
 	p->setPen( gray );
 	p->drawLine( r.right(), r.top(), r.right(), r.bottom() );
 	p->restore();
 	break; }
+
     case PE_ProgressBarChunk: {
 	QPixmap px;
 	qAquaPixmap( "progress_" + QString::number(r.height()), px );
 	p->drawTiledPixmap( r, px, QPoint((r.x() % px.width()) - d->progressOff, 0) );
 	break; }
+
     case PE_FocusRect:
 	break;     // The Mac Aqua style doesn't use focus rectangles
+
     case PE_DockWindowHandle: {
 	p->save();
 	p->translate( r.x(), r.y() );
@@ -471,6 +489,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	}
 	p->restore();
 	break; }
+
     case PE_DockWindowSeparator: {
 	QPixmap px;
 	if( flags & Style_Vertical )
@@ -479,22 +498,19 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	    qAquaPixmap( "tbar_hsep_" + QString::number(r.width())+ "_" + QString::number(r.height()), px );
 	p->drawPixmap( r.x(), r.y(), px );
 	break; }
+
     case PE_TabBarBase: {
 	QPixmap px;
-	if( qAquaActive( cg ) ){
-	    if( flags & Style_Top )
-		qAquaPixmap( "tab_t_top_act", px );
-	    else
-		qAquaPixmap( "tab_b_top_act", px );
-	} else {
-	    if( flags & Style_Bottom )
-		qAquaPixmap( "tab_t_top_dis", px );
-	    else
-		qAquaPixmap( "tab_b_top_dis", px );
-	}
-
+	QString mod = "act";
+	if( qAquaActive( cg ) )
+	    mod = "dis";
+	if( flags & Style_Top )
+	    qAquaPixmap( "tab_t_top_" + mod, px );
+	else
+	    qAquaPixmap( "tab_b_top_" + mod, px );
 	p->drawTiledPixmap( r.x(), r.y(), r.width(), r.height(), px );
 	break; }
+
     case PE_Indicator: {
 	QPixmap px;
 	bool down = flags & Style_Down;
@@ -523,9 +539,11 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	}
 	p->drawPixmap( r.x(), r.y(), px );
 	break; }
+
     case PE_IndicatorMask: {
 	p->fillRect(r.x(), r.y()+2, r.width(), r.height(), color1);
 	break; }
+
     case PE_ExclusiveIndicator: {
 	QPixmap px;
 	bool down = flags & Style_Down;
@@ -541,10 +559,14 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	    else
 		qAquaPixmap("radio_f", px);
 	} else {
-	    on ? qAquaPixmap("radio_dis_t", px) : qAquaPixmap("radio_f", px);
+	    if(on)
+		qAquaPixmap("radio_dis_t", px) ;
+	    else
+		qAquaPixmap("radio_f", px);
 	}
 	p->drawPixmap( r.x(), r.y(), px );
 	break; }
+
     case PE_ExclusiveIndicatorMask: {
 	QBitmap radio_mask( aqua_radio_mask_xbm_width,
 			    aqua_radio_mask_xbm_height,
@@ -644,6 +666,9 @@ void QAquaStyle::drawControl( ControlElement element,
     switch(element) {
     case CE_TabBarTab: {
 #ifndef QT_NO_TABBAR
+	if(!widget)
+	    break;
+
 	QPixmap left, mid, right;
 	QTabBar * tb = (QTabBar *) widget;
 	bool selected = how & Style_Selected;
@@ -682,6 +707,7 @@ void QAquaStyle::drawControl( ControlElement element,
 	p->drawPixmap( r.x() + r.width() - right.width(), r.y(), right );
 #endif
 	break; }
+
     case CE_PopupMenuItem: {
 #ifndef QT_NO_POPUPMENU
 	if(!widget || !data || !data[0])
@@ -864,7 +890,11 @@ void QAquaStyle::drawControl( ControlElement element,
 	}
 #endif
 	break; }
+
     case CE_MenuBarItem: {
+	if(!data || !data[0])
+	    break;
+
 	QMenuItem *mi = (QMenuItem *)data[0];
 	bool down = flags & Style_Down;
 	bool active = flags & Style_On;
@@ -879,8 +909,11 @@ void QAquaStyle::drawControl( ControlElement element,
 		  cg, mi->isEnabled(), mi->pixmap(), mi->text(), -1,
 		  (down && active) ? &white : &cg.buttonText() );
 	break; }
+
     case CE_PushButton: {
 #ifndef QT_NO_PUSHBUTTON
+	if(!widget)
+	    break;
 	QPushButton *btn = (QPushButton *)widget;
 	QPixmap left, mid, right;
 	QColorGroup g = btn->colorGroup();
@@ -936,8 +969,11 @@ void QAquaStyle::drawControl( ControlElement element,
 	p->drawPixmap( w-right.width(), y, right );
 #endif
 	break; }
+
     case CE_PushButtonLabel: {
 #ifndef QT_NO_PUSHBUTTON
+	if(!widget)
+	    break;
 	QPushButton *btn = (QPushButton *)widget;
 	bool on = btn->isDown() || btn->isOn();
 	int x, y, w, h;
@@ -983,6 +1019,7 @@ void QAquaStyle::drawControl( ControlElement element,
 		  btn->pixmap(), btn->text(), -1);
 #endif
 	break; }
+
     default:
 	QWindowsStyle::drawControl( element, p, widget, r, cg, how, data);
 	break;
@@ -1054,6 +1091,8 @@ QSize QAquaStyle::sizeFromContents( ContentsType contents,
     switch(contents) {
     case CT_PopupMenuItem: {
 #ifndef QT_NO_POPUPMENU
+	if(!widget || !data || !data[0] || !data[1])
+	    break;
 	const QPopupMenu *popup = (const QPopupMenu *) widget;
 	bool checkable = popup->isCheckable();
 	QMenuItem *mi = (QMenuItem *) data[0];
@@ -1089,10 +1128,12 @@ QSize QAquaStyle::sizeFromContents( ContentsType contents,
 	sz = QSize(w, h);
 #endif
 	break; }
+
     case CT_PushButton:
 	sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, data);
 	sz.setWidth(sz.width() + 16);
 	break;
+
     default:
 	sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, data);
 	break;
@@ -1114,10 +1155,12 @@ QRect QAquaStyle::subRect( SubRect r, const QWidget *w ) const
 	ret.setBottom( ret.bottom()-1);
 	ret.setRight( ret.right()-8);
 	break;
+
     case SR_ComboBoxFocusRect: {
 	QRect wrect = w->rect();
 	ret = QRect(wrect.x()+4, wrect.y()+4, wrect.width()-8-20, wrect.height()-8);
 	break; }
+
     default:
 	ret = QWindowsStyle::subRect(r, w);
 	break;
@@ -1139,6 +1182,8 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 {
     switch(ctrl) {
     case CC_ScrollBar: {
+	if(!widget)
+	    break;
 	sub = 0xFFFFFFF; //bleh, must paint all?
 	QScrollBar *scrollbar = (QScrollBar *) widget;
 	QRect addline, subline, addpage, subpage, slider, first, last;
@@ -1231,7 +1276,10 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    }
 	}
 	break; }
+
     case CC_TitleBar: {
+	if(!widget)
+	    break;
 	if(sub) {
 	    QTitleBar *tb = (QTitleBar *)widget;
 	    QPixmap left;
@@ -1255,7 +1303,10 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    }
 	}
 	break; }
+
     case CC_ListView: {
+	if(!data || !data[0])
+	    break;
 	QListViewItem *item = (QListViewItem *)data[0];
 	int y=r.y(), h=r.height(), bx = r.width() / 2;
 	for(QListViewItem *child = item->firstChild(); child && y < h;
@@ -1269,6 +1320,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    }
 	}
 	break; }
+
     case CC_SpinWidget: {
 	QString wstr = QString::number( r.width() );
 	QString hstr = QString::number( r.height() );
@@ -1289,7 +1341,10 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, sub, subActive, data);
 	}
 	break; }
+
     case CC_Slider: {
+	if(!widget)
+	    break;
 	QSlider *sldr = (QSlider *)widget;
 
 	if ( sub == SC_None )
@@ -1358,6 +1413,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    p->drawPixmap( re.x(), re.y(), px );
 	}
 	break; }
+
     case CC_ComboBox: {
 	QPixmap left, mid, right;
 	QString hstr = QString::number( r.height() );
@@ -1373,8 +1429,10 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	p->drawTiledPixmap( r.x() + left.width(), r.y(), r.width() - left.width()*2, r.height(), mid );
 	p->drawPixmap( r.x() + r.width() - right.width(), r.y(), right );
 	break; }
-    case CC_ToolButton:
-    {
+
+    case CC_ToolButton: {
+	if(!widget)
+	    break;
 	QToolButton *toolbutton = (QToolButton *) widget;
 
 	QRect button, menuarea;
@@ -1571,6 +1629,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    drawPrimitive(PE_FocusRect, p, fr, cg);
 	}
 	break; }
+
     default:
 	QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, sub, subActive, data);
     }
@@ -1591,6 +1650,7 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 	if(sc == SC_ComboBoxEditField)
 	    rect.setWidth(rect.width() - 5);
 	break; }
+
     case CC_TitleBar: {
 	if(sc & SC_TitleBarCloseButton)
 	    rect = QRect(7, 3, 15, 17);
@@ -1603,10 +1663,13 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 	else if(sc & SC_TitleBarSysMenu)
 	    rect = QRect(-666, -666, 0, 23); //ugh, how bogus!
 	break; }
+
     case CC_ScrollBar:
 	switch(sc) {
 	case SC_ScrollBarAddLine:
 	case SC_ScrollBarSubLine: {
+	    if(!w)
+		break;
 	    QScrollBar *scr = (QScrollBar *)w;
 	    rect = QRect(0, 0, 16, 26);
 	    if(sc == SC_ScrollBarAddLine) {
@@ -1624,6 +1687,7 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 	    rect = QWindowsStyle::querySubControlMetrics( control, w, sc, data);
 	}
 	break;
+
     default:
 	rect = QWindowsStyle::querySubControlMetrics( control, w, sc, data);
 	break;
