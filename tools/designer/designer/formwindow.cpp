@@ -2278,7 +2278,7 @@ void FormWindow::restoreConnectionLine()
 
 void FormWindow::restoreRect( const QRect &rect )
 {
-    if (!unclippedPainter)
+    if (!unclippedPainter || !buffer)
 	return;
 
     QRect r( rect );
