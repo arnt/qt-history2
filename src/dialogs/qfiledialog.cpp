@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#203 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#204 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1326,6 +1326,7 @@ void QFileDialog::rereadDir()
     }
     d->moreFiles->setCurrentItem( 0 );
     files->setCurrentItem( files->firstChild() );
+    delete filist;
 }
 
 
@@ -1820,7 +1821,7 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint &p,
 
     PopupAction action;
     popupContextMenu( item ? item->text( 0 ) : QString::null, TRUE, action, p );
-    
+
     if ( action == PA_Open )
         selectDirectoryOrFile( item );
     else if ( action == PA_Rename )
@@ -1840,7 +1841,7 @@ void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
 
     PopupAction action;
     popupContextMenu( item->text(), FALSE, action, p );
-    
+
     if ( action == PA_Open )
         selectDirectoryOrFile( item );
     else if ( action == PA_Rename )
@@ -1849,7 +1850,7 @@ void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
         deleteFile( item->text() );
 }
 
-void QFileDialog::popupContextMenu( const QString &filename, bool withSort, 
+void QFileDialog::popupContextMenu( const QString &filename, bool withSort,
                                     PopupAction &action, const QPoint &p )
 {
     action = PA_Cancel;
@@ -1867,7 +1868,7 @@ void QFileDialog::popupContextMenu( const QString &filename, bool withSort,
     m.insertSeparator();
     int rename = m.insertItem( tr( "&Rename" ) );
     int del = m.insertItem( tr( "&Delete" ) );
-    
+
     int asc = -2;
     int desc = -2;
     if ( withSort ) {
@@ -1875,7 +1876,7 @@ void QFileDialog::popupContextMenu( const QString &filename, bool withSort,
         asc = m.insertItem( tr( "Sort &Ascending" ) );
         desc = m.insertItem( tr( "Sort &Descending" ) );
     }
-    
+
     if ( filename.isEmpty() || !QFileInfo( dirPath() ).isWritable() ||
          filename == ".." ) {
         if ( filename.isEmpty() || !QFileInfo( dirPath() + "/" + filename ).isReadable() )

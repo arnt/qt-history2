@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#72 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#73 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -532,6 +532,11 @@ static void parseQconfig( QListView * printers )
 
 static QPrintDialog * globalPrintDialog = 0;
 
+static void deleteGlobalPrintDialog()
+{
+    delete globalPrintDialog;
+    globalPrintDialog = 0;
+}
 
 /*! \class QPrintDialog qprintdialog.h
 
@@ -1025,8 +1030,10 @@ QGroupBox * QPrintDialog::setupPaper()
 
 bool QPrintDialog::getPrinterSetup( QPrinter * p )
 {
-    if ( !globalPrintDialog )
+    if ( !globalPrintDialog ) {
 	globalPrintDialog = new QPrintDialog( 0, 0, "global print dialog" );
+	qAddPostRoutine( deleteGlobalPrintDialog );
+    }
 
     globalPrintDialog->setPrinter( p );
     bool r = globalPrintDialog->exec() == QDialog::Accepted;
