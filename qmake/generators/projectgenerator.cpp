@@ -34,8 +34,6 @@ QString project_builtin_regx() //calculate the builtin regular expression..
     return ret;
 }
 
-
-
 ProjectGenerator::ProjectGenerator() : MakefileGenerator(), init_flag(false)
 {
 }
@@ -277,8 +275,9 @@ ProjectGenerator::init()
         }
     }
 
+#if 0
     //if we find a file that matches an forms it needn't be included in the project
-    QStringList &u = v["INTERFACES"];
+    QStringList &u = v["FORMS"];
     QString no_ui[] = { "SOURCES", "HEADERS", QString::null };
     {
         for(int i = 0; !no_ui[i].isNull(); i++) {
@@ -304,8 +303,8 @@ ProjectGenerator::init()
             }
         }
     }
+#endif
 }
-
 
 bool
 ProjectGenerator::writeMakefile(QTextStream &t)
@@ -331,7 +330,7 @@ ProjectGenerator::writeMakefile(QTextStream &t)
 
         t << "# Input" << "\n";
         t << getWritableVar("HEADERS")
-          << getWritableVar("INTERFACES")
+          << getWritableVar("FORMS")
           << getWritableVar("LEXSOURCES")
           << getWritableVar("YACCSOURCES")
           << getWritableVar("SOURCES")
@@ -355,7 +354,6 @@ ProjectGenerator::addConfig(const QString &cfg, bool add)
     }
     return false;
 }
-
 
 bool
 ProjectGenerator::addFile(QString file)
@@ -388,7 +386,7 @@ ProjectGenerator::addFile(QString file)
     }
     if(where.isEmpty()) {
         if(file.endsWith(Option::ui_ext))
-            where = "INTERFACES";
+            where = "FORMS";
         else if(file.endsWith(".c"))
             where = "SOURCES";
         else if(file.endsWith(Option::lex_ext))
@@ -410,7 +408,6 @@ ProjectGenerator::addFile(QString file)
     }
     return false;
 }
-
 
 QString
 ProjectGenerator::getWritableVar(const QString &v, bool fixPath)
