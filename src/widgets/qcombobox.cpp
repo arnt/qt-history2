@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#97 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#96 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#97 $");
 
 
 /*!
@@ -83,8 +83,6 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#96 $");
   argument and one with an \c int argument.  If the user highlights or
   activates a pixmap, only the \c int signals are emitted.
 
-  QComboBox has no public slots.
-
   Read-write combo boxes offer four policies for dealing with typed
   input: <ul> <li> \c NoInsertion means to simply emit the activated()
   signal, <li> \c AtBottom means to insert the string at the bottom of
@@ -96,6 +94,9 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#96 $");
   size limit, the item at the other end of the list is deleted.  The
   default insertion policy is \c AtBottom, you can change it using
   setInsertionPolicy().
+
+  It is possible to constrain the input to an editable combo box using
+  QValidator; see setValidator().  By default, all input is accepted.
 
   A combo box has a default focusPolicy() of \c TabFocus, i.e. it will
   not grab focus if clicked.  This differs from both Windows and Motif.
@@ -1549,3 +1550,37 @@ void QComboBox::focusInEvent( QFocusEvent * )
 	repaint();
 }
 
+
+/*!  Sets this combo box to be editable only as allowed by \a v.
+
+  This function does nothing if the combo is not editable.
+
+  \sa validator() clearValidator() QValidator
+*/
+
+void QComboBox::setValidator( QValidator * v )
+{
+    if ( d && d->ed )
+	d->ed->setValidator( v );
+}
+
+
+/*!  Returns the validator which constrains editing for this combo
+  box if there is any, or else 0.
+
+  \sa setValidator() clearValidator() QValidator
+*/
+
+QValidator * QComboBox::validator() const
+{
+    return d && d->ed ? d->ed->validator() : 0;
+}
+
+
+/*!  This slot is equivalent to setValidator( 0 ). */
+
+void QComboBox::clearValidator()
+{
+    if ( d && d->ed )
+	d->ed->setValidator( 0 );
+}

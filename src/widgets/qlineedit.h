@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#38 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#39 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -47,6 +47,8 @@ public slots:
     void	setText( const char * );
     void	selectAll();
     void	deselect();
+
+    void	clearValidator();
 
 signals:
     void	textChanged( const char * );

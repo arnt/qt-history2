@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#87 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#86 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#87 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -60,6 +60,7 @@ static QLineEditExtra * makeLEDict( QLineEdit * that )
 	x = new QLineEditExtra;
 	x->frame = TRUE;
 	x->mode = QLineEdit::Normal;
+	x->validator = 0;
 	qle_extraStuff->insert( (long)that, x );
     }
 
@@ -1208,6 +1209,14 @@ QValidator * QLineEdit::validator() const
 {
     QLineEditExtra * x = lookInLEDict( this );
     return x ? x->validator : 0;
+}
+
+
+/*!  This slot is equivalent to setValidator( 0 ). */
+
+void QLineEdit::clearValidator()
+{
+    setValidator( 0 );
 }
 
 
