@@ -70,24 +70,20 @@ public:
                              /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
 
 
-    int pixelMetric(PixelMetric metic,
-                     const QWidget *widget = 0) const;
+    int pixelMetric(PixelMetric metic, const QStyleOption *option = 0, const QWidget *widget = 0) const;
 
     QRect querySubControlMetrics(ComplexControl control,
-                                  const QWidget *widget,
-                                  SubControl sc
-                                  /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+                                 const QWidget *widget,
+                                 SubControl sc
+                                 /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
 
-    QSize sizeFromContents(ContentsType contents,
-                                    const QWidget *widget,
-                                    const QSize &contentsSize
-                                    /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    QSize sizeFromContents(ContentsType contents, const QWidget *widget,
+                           const QSize &contentsSize
+                           /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
 
-    int styleHint(StyleHint stylehint,
-                           const QWidget *widget = 0,
-                           /*const Q3StyleOption& = Q3StyleOption::Default, */
-                           QStyleHintReturn* returnData = 0
-                          ) const;
+    int styleHint(StyleHint stylehint, const QWidget *widget = 0,
+                  /*const Q3StyleOption& = Q3StyleOption::Default, */
+                  QStyleHintReturn *returnData = 0) const;
 
 protected:
     bool eventFilter(QObject *o, QEvent *e);

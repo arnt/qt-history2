@@ -27,7 +27,7 @@
 #include <limits.h>
 
 /*!
-    \class QPlatinumStyle qplatinumstyle.h
+    \class QPlatinumStyle
     \brief The QPlatinumStyle class provides Mac/Platinum look and feel.
 
     \ingroup appearance
@@ -55,29 +55,21 @@ QPlatinumStyle::QPlatinumStyle()
 }
 
 /*!
-    \overload
-
     Destroys the style.
 */
 QPlatinumStyle::~QPlatinumStyle()
 {
 }
 
-
 /*!
-    \overload
-
-    Draws the primitive element \a pe on painter \a p. The confining
-    rectangle is \a r and the palette to use is \a pal. The drawing
-    respects the style \a flags and the style options specified by \a
-    opt.
- */
+    \reimp
+*/
 void QPlatinumStyle::drawPrimitive(PrimitiveElement pe,
-                                    QPainter *p,
-                                    const QRect &r,
-                                    const QPalette &pal,
-                                    SFlags flags,
-                                    const Q3StyleOption& opt) const
+                                   QPainter *p,
+                                   const QRect &r,
+                                   const QPalette &pal,
+                                   SFlags flags,
+                                   const Q3StyleOption& opt) const
 {
     switch (pe) {
     case PE_HeaderSection:
@@ -722,20 +714,15 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe,
 }
 
 /*!
-    \overload
-
-    Draws the control \a element on painter \a p. The \a widget may be
-    given and may be useful for drawing the element. The confining
-    rectangle is \a r and the palette to use is \a pal. The drawing
-    respects the style flags, \a how, and the style options, \a opt.
- */
+    \reimp
+*/
 void QPlatinumStyle::drawControl(ControlElement element,
-                                  QPainter *p,
-                                  const QWidget *widget,
-                                  const QRect &r,
-                                  const QPalette &pal,
-                                  SFlags how,
-                                  const Q3StyleOption& opt) const
+                                 QPainter *p,
+                                 const QWidget *widget,
+                                 const QRect &r,
+                                 const QPalette &pal,
+                                 SFlags how,
+                                 const Q3StyleOption& opt) const
 {
     switch(element) {
     case CE_PushButton:
@@ -915,23 +902,17 @@ void QPlatinumStyle::drawControl(ControlElement element,
 }
 
 /*!
-    \overload
-
-    Draws the complex \a control on the painter \a p. The \a widget
-    may be given and may be useful for drawing the element. The
-    confining rectangle is \a r and the palette to use is \a pal. The
-    style flags are specified by \a how, \a sub, and \a subActive, and
-    the style options by \a opt.
- */
+    \reimp
+*/
 void QPlatinumStyle::drawComplexControl(ComplexControl control,
-                                         QPainter *p,
-                                         const QWidget *widget,
-                                         const QRect &r,
-                                         const QPalette &pal,
-                                         SFlags how,
-                                         SCFlags sub,
-                                         SCFlags subActive,
-                                         const Q3StyleOption& opt) const
+                                        QPainter *p,
+                                        const QWidget *widget,
+                                        const QRect &r,
+                                        const QPalette &pal,
+                                        SFlags how,
+                                        SCFlags sub,
+                                        SCFlags subActive,
+                                        const Q3StyleOption& opt) const
 {
     switch (control) {
     case CC_ComboBox:
@@ -1312,17 +1293,12 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
 
 
 /*!
-    \overload
-
-    Returns the rectangle required by the sub-control \a sc in the
-    complex \a control with the style options specified by \a opt. The
-    \a widget may contain a widget that is useful for drawing the
-    sub-control.
- */
+    \reimp
+*/
 QRect QPlatinumStyle::querySubControlMetrics(ComplexControl control,
-                                              const QWidget *widget,
-                                              SubControl sc,
-                                              const Q3StyleOption& opt) const
+                                             const QWidget *widget,
+                                             SubControl sc,
+                                             const Q3StyleOption& opt) const
 {
     switch(control) {
 #ifndef QT_NO_COMBOBOX
@@ -1442,8 +1418,8 @@ QRect QPlatinumStyle::querySubControlMetrics(ComplexControl control,
 
 /*!\reimp
  */
-int QPlatinumStyle::pixelMetric(PixelMetric metric,
-                                 const QWidget *widget) const
+int QPlatinumStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
+                                const QWidget *widget) const
 {
     int ret;
     switch(metric) {
@@ -1471,19 +1447,15 @@ int QPlatinumStyle::pixelMetric(PixelMetric metric,
         ret = -1;
         break;
     default:
-        ret = QWindowsStyle::pixelMetric(metric, widget);
+        ret = QWindowsStyle::pixelMetric(metric, option, widget);
         break;
     }
     return ret;
 }
 
 /*!
-    \overload
-
-    Returns the rectangle for the given sub-rectangle \a r. The \a
-    widget is optional and may contain a widget that is useful for
-    drawing the sub-rectangle.
- */
+    \reimp
+*/
 QRect QPlatinumStyle::subRect(SubRect r, const QWidget *widget) const
 {
     QRect rect;
@@ -1562,6 +1534,5 @@ void QPlatinumStyle::drawRiffles(QPainter* p,  int x, int y, int w, int h,
         }
     }
 }
-
 
 #endif

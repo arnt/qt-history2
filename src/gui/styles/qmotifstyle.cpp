@@ -1610,7 +1610,8 @@ void QMotifStyle::drawComplexControl(ComplexControl control,
 
 
 /*! \reimp */
-int QMotifStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
+int QMotifStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
+                             const QWidget *widget) const
 {
      int ret;
 
@@ -1688,7 +1689,7 @@ int QMotifStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
         break;
 
     default:
-        ret =  QCommonStyle::pixelMetric(metric, widget);
+        ret =  QCommonStyle::pixelMetric(metric, option, widget);
         break;
     }
     return ret;

@@ -134,8 +134,6 @@ QMotifPlusStyle::QMotifPlusStyle(bool hoveringHighlight) : QMotifStyle(true)
 }
 
 /*!
-    \overload
-
     Destroys the style.
 */
 QMotifPlusStyle::~QMotifPlusStyle()
@@ -205,7 +203,8 @@ void QMotifPlusStyle::unPolish(QApplication *)
 
 
 /*! \reimp */
-int QMotifPlusStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
+int QMotifPlusStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
+                                 const QWidget *widget) const
 {
     int ret;
 
@@ -237,7 +236,7 @@ int QMotifPlusStyle::pixelMetric(PixelMetric metric, const QWidget *widget) cons
         break;
 
     default:
-        ret = QMotifStyle::pixelMetric(metric, widget);
+        ret = QMotifStyle::pixelMetric(metric, option, widget);
         break;
     }
 
@@ -246,11 +245,7 @@ int QMotifPlusStyle::pixelMetric(PixelMetric metric, const QWidget *widget) cons
 
 
 /*!
-    \overload
-
-    Draws the primitive element \a pe on painter \a p. The confining
-    rectangle is \a r and the palette to use is \a pal. The drawing
-    respects the style \a flags and the style options given by \a opt.
+    \reimp
 */
 void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
                                      QPainter *p, const QRect &r, const QPalette &pal,
@@ -622,20 +617,15 @@ void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
 
 
 /*!
-    \overload
-
-    Draws the given control \a element on painter \a p. The parent
-    widget is \a widget. The confining rectangle is \a r and the
-    palette to use is \a pal. The drawing respects the given style \a
-    flags and the style options \a opt.
+    \reimp
 */
 void QMotifPlusStyle::drawControl(ControlElement element,
-                                   QPainter *p,
-                                   const QWidget *widget,
-                                   const QRect &r,
-                                   const QPalette &pal,
-                                   SFlags flags,
-                                   const Q3StyleOption& opt) const
+                                  QPainter *p,
+                                  const QWidget *widget,
+                                  const QRect &r,
+                                  const QPalette &pal,
+                                  SFlags flags,
+                                  const Q3StyleOption& opt) const
 {
     if (widget == singleton->hoverWidget)
         flags |= Style_MouseOver;
@@ -1140,11 +1130,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 
 
 /*!
-    \overload
-
-    Returns the rectangle for the sub-rectangle \a r. The \a widget is
-    optional and may contain a widget that is useful for drawing the
-    sub-rectangle.
+    \reimp
 */
 QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
 {
@@ -1237,23 +1223,17 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
 
 
 /*!
-    \overload
-
-    Draws the complex \a control on the painter \a p. The \a widget
-    may be given and may be useful for drawing the element. The
-    confining rectangle is given by \a r. The palette to use is \a
-    pal. The flags are given by \a flags, \a controls and \a active,
-    and the style options by \a opt.
+    \reimp
 */
 void QMotifPlusStyle::drawComplexControl(ComplexControl control,
-                            QPainter *p,
-                            const QWidget *widget,
-                            const QRect &r,
-                            const QPalette &pal,
-                            SFlags flags,
-                            SCFlags controls,
-                            SCFlags active,
-                            const Q3StyleOption& opt) const
+                                         QPainter *p,
+                                         const QWidget *widget,
+                                         const QRect &r,
+                                         const QPalette &pal,
+                                         SFlags flags,
+                                         SCFlags controls,
+                                         SCFlags active,
+                                         const Q3StyleOption& opt) const
 {
     if (widget == singleton->hoverWidget)
         flags |= Style_MouseOver;
@@ -1527,12 +1507,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 
 
 /*!
-    \overload
-
-    This function returns the rectangle that would be occupied by a
-    complex control of the type specified by \a control with the
-    parent widget \a widget, sub control \a subcontrol, and with the
-    style options \a opt.
+    \reimp
 */
 QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
                                               const QWidget *widget,

@@ -345,7 +345,6 @@ QPocketPCStyle::QPocketPCStyle()
 }
 
 
-/*! \reimp */
 QPocketPCStyle::~QPocketPCStyle()
 {
     activePainter = 0;
@@ -379,7 +378,6 @@ void QPocketPCStyle::modifyOriginalPalette()
 }
 
 
-/*! \reimp */
 void QPocketPCStyle::polish(QApplication* app)
 {
 #ifndef Q_OS_TEMP
@@ -388,7 +386,6 @@ void QPocketPCStyle::polish(QApplication* app)
 }
 
 
-/*! \reimp */
 void QPocketPCStyle::polish(QWidget *w)
 {
 #ifndef Q_OS_TEMP
@@ -427,7 +424,6 @@ void QPocketPCStyle::polish(QWidget *w)
 }
 
 
-/*! \reimp */
 void QPocketPCStyle::unPolish(QApplication* app)
 {
 #ifndef Q_OS_TEMP
@@ -437,7 +433,6 @@ void QPocketPCStyle::unPolish(QApplication* app)
 #endif // Q_OS_TEMP
 }
 
-/*! \reimp */
 void QPocketPCStyle::unpolish(QWidget *w)
 {
 #ifndef Q_OS_TEMP
@@ -455,8 +450,7 @@ void QPocketPCStyle::unpolish(QWidget *w)
 }
 
 
-/*! \reimp */
-int QPocketPCStyle::pixelMetric(PixelMetric    pixelmetric,
+int QPocketPCStyle::pixelMetric(PixelMetric pixelmetric, const QStyleOption * /* option */,
                                 const QWidget *widget) const
 {
     int ret = 0;
@@ -755,11 +749,10 @@ int QPocketPCStyle::pixelMetric(PixelMetric    pixelmetric,
 }
 
 
-/*! \reimp */
-int QPocketPCStyle::styleHint(StyleHint                  stylehint,
-                              const QWidget         *widget,
+int QPocketPCStyle::styleHint(StyleHint stylehint,
+                              const QWidget *widget,
                               const QStyleOption &opt,
-                              QStyleHintReturn   *stylehint_return) const
+                              QStyleHintReturn *stylehint_return) const
 {
     int ret = 0;
 
@@ -886,7 +879,6 @@ int QPocketPCStyle::styleHint(StyleHint                  stylehint,
 }
 
 
-/*! \reimp */
 QRect QPocketPCStyle::subRect(SubRect             subrect,
                               const QWidget *widget) const
 {
@@ -1182,7 +1174,6 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
 }
 
 
-/*! \reimp */
 QSize QPocketPCStyle::sizeFromContents(ContentsType           contents,
                                        const QWidget          *widget,
                                        const QSize          &contentsSize,
@@ -1364,7 +1355,6 @@ QSize QPocketPCStyle::sizeFromContents(ContentsType           contents,
 }
 
 
-/*! \reimp */
 QStyle::SubControl QPocketPCStyle::querySubControl(ComplexControl      complex,
                                                    const QWidget      *widget,
                                                    const QPoint              &point,
@@ -1439,7 +1429,6 @@ QStyle::SubControl QPocketPCStyle::querySubControl(ComplexControl      complex,
 }
 
 
-/*! \reimp */
 QRect QPocketPCStyle::querySubControlMetrics(ComplexControl         complex,
                                              const QWidget        *widget,
                                              SubControl                 sc,
@@ -1685,7 +1674,6 @@ QRect QPocketPCStyle::querySubControlMetrics(ComplexControl         complex,
 }
 
 
-/*! \reimp */
 void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
                                    QPainter              *p,
                                    const QRect              &r,
@@ -2238,7 +2226,6 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 }
 
 
-/*! \reimp */
 void QPocketPCStyle::drawControl(ControlElement             control,
                                  QPainter            *p,
                                  const QWidget            *widget,
@@ -2963,7 +2950,6 @@ void QPocketPCStyle::drawControl(ControlElement             control,
 }
 
 
-/*! \reimp */
 void QPocketPCStyle::drawControlMask(ControlElement         control,
                                      QPainter                *p,
                                      const QWidget        *,
@@ -3003,7 +2989,6 @@ void QPocketPCStyle::drawControlMask(ControlElement         control,
 }
 
 
-/*! \reimp */
 void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                                         QPainter           *p,
                                         const QWidget           *widget,
@@ -3855,7 +3840,6 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
 }
 
 
-/*! \reimp */
 void QPocketPCStyle::drawComplexControlMask(ComplexControl      complex,
                                             QPainter               *p,
                                             const QWidget      *widget,
@@ -3876,7 +3860,6 @@ void QPocketPCStyle::drawComplexControlMask(ComplexControl      complex,
     activePainter = 0;
 }
 
-/*! \reimp */
 QPixmap QPocketPCStyle::stylePixmap(PixmapType                pixmapType,
                                     const QPixmap      &pix,
                                     const QPalette     &pal,
@@ -3885,7 +3868,6 @@ QPixmap QPocketPCStyle::stylePixmap(PixmapType                pixmapType,
     return QPixmap();
 }
 
-/*! \reimp */
 QPixmap QPocketPCStyle::stylePixmap(StylePixmap         stylepixmap,
                                     const QWidget      *widget,
                                     const QStyleOption &opt) const

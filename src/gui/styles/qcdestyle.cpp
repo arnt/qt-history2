@@ -21,7 +21,7 @@
 #include <limits.h>
 
 /*!
-    \class QCDEStyle qcdestyle.h
+    \class QCDEStyle
     \brief The QCDEStyle class provides a CDE look and feel.
 
     \ingroup appearance
@@ -47,7 +47,8 @@
     highlighting, which is a simple inversion between the base and the
     text color.
 */
-QCDEStyle::QCDEStyle(bool useHighlightCols) : QMotifStyle(useHighlightCols)
+QCDEStyle::QCDEStyle(bool useHighlightCols)
+    : QMotifStyle(useHighlightCols)
 {
 }
 
@@ -61,7 +62,8 @@ QCDEStyle::~QCDEStyle()
 
 /*!\reimp
 */
-int QCDEStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
+int QCDEStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
+                           const QWidget *widget) const
 {
     int ret;
 
@@ -69,7 +71,7 @@ int QCDEStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_MenuFrameWidth:
     case PM_DefaultFrameWidth:
         ret = 1;
-        break        ;
+        break;
     case PM_MenuBarFrameWidth:
         ret = 1;
         break;
@@ -77,28 +79,21 @@ int QCDEStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
         ret = 13;
         break;
     default:
-        ret = QMotifStyle::pixelMetric(metric, widget);
+        ret = QMotifStyle::pixelMetric(metric, option, widget);
         break;
     }
     return ret;
 }
 
 /*!
-    \overload
-
-    The control element to be drawn is specified by \a element. It is
-    drawn on painter \a p. The \a widget may be given and may be
-    useful for drawing the element. The rectangle in which the drawing
-    must take place is \a r, and the palette to use is \a pal. The
-    style flags are given by \a how, and the style options by \a opt.
+    \reimp
 */
 void QCDEStyle::drawControl(ControlElement element,
-                             QPainter *p,
-                             const QWidget *widget,
-                             const QRect &r,
-                             const QPalette &pal,
-                             SFlags how,
-                             const Q3StyleOption& opt) const
+                            QPainter *p,
+                            const QWidget *widget,
+                            const QRect &r,
+                            const QPalette &pal,
+                            SFlags how) const
 {
 
     switch(element) {
@@ -133,19 +128,13 @@ void QCDEStyle::drawControl(ControlElement element,
 }
 
 /*!
-    \overload
-
-    The primitive element to be drawn is specified by \a pe. It is
-    drawn on the painter \a p. The rectangle in which the primitive is
-    to be drawn is given by \a r, the palette by \a pal, the style
-    flags by \a flags, and the options by \a opt.
+    \reimp
 */
 void QCDEStyle::drawPrimitive(PrimitiveElement pe,
-                               QPainter *p,
-                               const QRect &r,
-                               const QPalette &pal,
-                               SFlags flags,
-                               const Q3StyleOption& opt) const
+                              QPainter *p,
+                              const QRect &r,
+                              const QPalette &pal,
+                              SFlags flags) const
 {
     switch(pe) {
     case PE_Indicator: {

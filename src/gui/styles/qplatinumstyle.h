@@ -64,7 +64,8 @@ public:
                                   SubControl sc
                                   /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
 
-    int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
+    int pixelMetric(PixelMetric metric, const QStyleOption *option = 0,
+		    const QWidget *widget = 0) const;
 
     QRect subRect(SubRect r, const QWidget *widget) const;
 

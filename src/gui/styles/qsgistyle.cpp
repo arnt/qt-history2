@@ -395,7 +395,7 @@ static const int sgiTabSpacing                 = 12;   // space between text and
 static const int sgiCheckMarkSpace      = 20;
 
 /*! \reimp */
-int QSGIStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
+int QSGIStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const
 {
     switch (metric) {
     case PM_MenuFrameWidth:
@@ -422,7 +422,7 @@ int QSGIStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     default:
         break;
     }
-    return QMotifStyle::pixelMetric(metric, widget);
+    return QMotifStyle::pixelMetric(metric, option, widget);
 }
 
 static void drawPanel(QPainter *p, int x, int y, int w, int h,
@@ -909,21 +909,15 @@ void QSGIStyle::drawPrimitive(PrimitiveElement pe,
 }
 
 /*!
-    \overload
-
-    Draws the control \a element on painter \a p. The \a widget may be
-    given and may be useful for drawing the element. The confining
-    rectangle is \a r and the palette to use is \a pal. The drawing
-    respects the style \a flags and uses the style options specified
-    by \a opt.
+    \reimp
 */
 void QSGIStyle::drawControl(ControlElement element,
-                  QPainter *p,
-                  const QWidget *widget,
-                  const QRect &r,
-                  const QPalette &pal,
-                  SFlags flags,
-                  const Q3StyleOption& opt) const
+                            QPainter *p,
+                            const QWidget *widget,
+                            const QRect &r,
+                            const QPalette &pal,
+                            SFlags flags,
+                            const Q3StyleOption& opt) const
 {
     if (widget == d->hotWidget)
         flags |= Style_MouseOver;
@@ -1342,23 +1336,17 @@ void QSGIStyle::drawControl(ControlElement element,
 }
 
 /*!
-    \overload
-
-    Draws the complex \a control on the painter \a p. The \a widget
-    may be given and may be useful for drawing the element. The
-    confining rectangle is \a r and the palette to use is \a pal. The
-    style flags are specified by \a flags, \a sub, and \a subActive,
-    and the style options by \a opt.
+    \reimp
 */
 void QSGIStyle::drawComplexControl(ComplexControl control,
-                         QPainter *p,
-                         const QWidget* widget,
-                         const QRect& r,
-                         const QPalette& pal,
-                         SFlags flags,
-                         SCFlags sub,
-                         SCFlags subActive,
-                         const Q3StyleOption& opt) const
+                                   QPainter *p,
+                                   const QWidget* widget,
+                                   const QRect& r,
+                                   const QPalette& pal,
+                                   SFlags flags,
+                                   SCFlags sub,
+                                   SCFlags subActive,
+                                   const Q3StyleOption& opt) const
 {
     if (widget == d->hotWidget)
         flags |= Style_MouseOver;
@@ -1574,16 +1562,12 @@ void QSGIStyle::drawComplexControl(ComplexControl control,
 }
 
 /*!
-    \overload
-
-    Returns the size needed by the \a contents with the specified \a
-    contentsSize and style options, \a opt. The \a widget is optional
-    and may contain a widget that is useful for calculating the size.
+    \reimp
 */
 QSize QSGIStyle::sizeFromContents(ContentsType contents,
-                                     const QWidget *widget,
-                                     const QSize &contentsSize,
-                                     const Q3StyleOption& opt) const
+                                  const QWidget *widget,
+                                  const QSize &contentsSize,
+                                  const Q3StyleOption& opt) const
 {
     QSize sz(contentsSize);
 
@@ -1638,11 +1622,7 @@ QSize QSGIStyle::sizeFromContents(ContentsType contents,
 }
 
 /*!
-    \overload
-
-    Returns the rectangle needed by the given sub-rectangle \a r. The
-    \a widget is optional and may contain a widget that is useful for
-    drawing the sub-rectangle.
+    \reimp
 */
 QRect QSGIStyle::subRect(SubRect r, const QWidget *widget) const
 {
@@ -1668,17 +1648,12 @@ QRect QSGIStyle::subRect(SubRect r, const QWidget *widget) const
 }
 
 /*!
-    \overload
-
-    Returns the rectangle needed by the sub-control \a sub in the
-    complex \a control using the style options specified by \a opt.
-    The \a widget may contain a widget that is useful for drawing the
-    sub-control.
+    \reimp
 */
 QRect QSGIStyle::querySubControlMetrics(ComplexControl control,
-                                           const QWidget *widget,
-                                           SubControl sub,
-                                           const Q3StyleOption& opt) const
+                                        const QWidget *widget,
+                                        SubControl sub,
+                                        const Q3StyleOption& opt) const
 {
     switch (control) {
     case CC_ComboBox:

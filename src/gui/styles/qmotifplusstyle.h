@@ -72,7 +72,8 @@ public:
                                  SubControl subcontrol
                                  /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
 
-    int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
+    int pixelMetric(PixelMetric metric, const QStyleOption *option = 0,
+		    const QWidget *widget = 0) const;
 
     int styleHint(StyleHint sh, const QWidget * /*const Q3StyleOption & = Q3StyleOption::Default*/,
                   QStyleHintReturn* = 0) const;

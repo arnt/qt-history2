@@ -23,12 +23,12 @@
 #include "q3popupmenu.h"
 
 QCompactStyle::QCompactStyle()
-: QWindowsStyle()
 {
 }
 
 /*! \reimp */
-int QCompactStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
+int QCompactStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
+                               const QWidget *widget) const
 {
     int ret;
     switch (metric) {
@@ -41,7 +41,7 @@ int QCompactStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
         ret = -1;
         break;
     default:
-        ret = QWindowsStyle::pixelMetric(metric, widget);
+        ret = QWindowsStyle::pixelMetric(metric, option, widget);
         break;
     }
     return ret;

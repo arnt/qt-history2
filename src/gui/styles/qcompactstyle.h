@@ -29,7 +29,8 @@ class Q_GUI_EXPORT_STYLE_COMPACT QCompactStyle : public QWindowsStyle
 public:
     QCompactStyle();
 
-    int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
+    int pixelMetric(PixelMetric metric, const QStyleOption *option = 0,
+		    const QWidget *widget = 0) const;
 
     void drawControl(ControlElement element, QPainter *p, const QWidget *w, const QRect &r,
                       const QPalette &pal, SFlags how = Style_Default /*const Q3StyleOption& = Q3StyleOption::Default*/);
