@@ -741,6 +741,87 @@ void PropertyTextItem::getText()
 
 // --------------------------------------------------------------
 
+PropertyDoubleItem::PropertyDoubleItem( PropertyList *l, PropertyItem *after, PropertyItem *prop,
+				    const QString &propName )
+    : PropertyItem( l, after, prop, propName )
+{
+    lin = 0;
+}
+
+QLineEdit *PropertyDoubleItem::lined()
+{
+    if ( lin )
+	return lin;
+    lin = new QLineEdit( listview->viewport() );
+    lin->setValidator( new QDoubleValidator( lin, "double_validator" ) );
+
+    connect( lin, SIGNAL( returnPressed() ),
+	     this, SLOT( setValue() ) );
+    connect( lin, SIGNAL( textChanged( const QString & ) ),
+	     this, SLOT( setValue() ) );
+    lin->installEventFilter( listview );
+    return lin;
+}
+
+PropertyDoubleItem::~PropertyDoubleItem()
+{
+    delete (QLineEdit*)lin;
+    lin = 0;
+}
+
+void PropertyDoubleItem::showEditor()
+{
+    PropertyItem::showEditor();
+    if ( !lin ) {
+	lined()->blockSignals( TRUE );
+	lined()->setText( QString::number( value().toDouble() ) );
+	lined()->blockSignals( FALSE );
+    }
+    QWidget* w = lined();
+
+    placeEditor( w );
+    if ( !w->isVisible() || !lined()->hasFocus() ) {
+	w->show();
+	setFocus( lined() );
+    }
+}
+
+
+void PropertyDoubleItem::hideEditor()
+{
+    PropertyItem::hideEditor();
+    QWidget* w = lined();
+    w->hide();
+}
+
+void PropertyDoubleItem::setValue( const QVariant &v )
+{
+    if ( value() == v )
+	return;
+    if ( lin ) {
+	lined()->blockSignals( TRUE );
+	int oldCursorPos;
+	oldCursorPos = lin->cursorPosition();
+	lined()->setText( QString::number( v.toDouble() ) );
+	if ( oldCursorPos < (int)lin->text().length() )
+	    lin->setCursorPosition( oldCursorPos );
+	lined()->blockSignals( FALSE );
+    }
+    setText( 1, QString::number( v.toDouble() ) );
+    PropertyItem::setValue( v );
+}
+
+void PropertyDoubleItem::setValue()
+{
+    setText( 1, lined()->text() );
+    QVariant v = lined()->text().toDouble();
+    PropertyItem::setValue( v );
+    notifyValueChange();
+}
+
+
+// --------------------------------------------------------------
+
 PropertyDateItem::PropertyDateItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName )
     : PropertyItem( l, after, prop, propName )
 {
@@ -2700,6 +2781,9 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
 	    item = new PropertyTextItem( this, item, 0, name, FALSE, FALSE, FALSE, TRUE );
 	else
 	    item = new PropertyIntItem( this, item, 0, name, TRUE );
+	break;
+    case QVariant::Double:
+	item = new PropertyDoubleItem( this, item, 0, name );
 	break;
     case QVariant::KeySequence:
 	item = new PropertyTextItem( this, item, 0, name, FALSE, FALSE, FALSE, TRUE );

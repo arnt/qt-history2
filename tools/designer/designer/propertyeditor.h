@@ -209,6 +209,29 @@ private:
 
 };
 
+class PropertyDoubleItem : public QObject,
+			public PropertyItem
+{
+    Q_OBJECT
+
+public:
+    PropertyDoubleItem( PropertyList *l, PropertyItem *after, PropertyItem *prop,
+		     const QString &propName );
+    ~PropertyDoubleItem();
+
+    virtual void showEditor();
+    virtual void hideEditor();
+
+    virtual void setValue( const QVariant &v );
+
+private slots:
+    void setValue();
+
+private:
+    QLineEdit *lined();
+    QGuardedPtr<QLineEdit> lin;
+};
+
 class PropertyListItem : public QObject,
 			 public PropertyItem
 {

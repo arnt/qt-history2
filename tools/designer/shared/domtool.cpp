@@ -171,7 +171,10 @@ QVariant DomTool::elementToVariant( const QDomElement& e, const QVariant& defVal
     } else if ( e.tagName() == "cstring" ) {
 	v = QVariant( QCString( e.firstChild().toText().data() ) );
     } else if ( e.tagName() == "number" ) {
-	v = QVariant( e.firstChild().toText().data().toInt() );
+	bool ok = TRUE;
+	v = QVariant( e.firstChild().toText().data().toInt( &ok ) );
+	if ( !ok ) 
+	    v = QVariant( e.firstChild().toText().data().toDouble() );
     } else if ( e.tagName() == "bool" ) {
 	QString t = e.firstChild().toText().data();
 	v = QVariant( t == "true" || t == "1", 0 );

@@ -1040,6 +1040,7 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
     if ( name == "hAlign" || name =="vAlign" || name == "wordwrap" || name == "layoutMargin" || name =="layoutSpacing" )
 	return;
     int num, unum;
+    double dob;
     QString comment;
     if ( w && formwindow->widgets()->find( (QWidget*)w ) )
 	comment = MetaDataBase::propertyComment( w, name );
@@ -1064,6 +1065,10 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 		num = MetaDataBase::margin( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) );
 	}
 	ts << makeIndent( indent ) << "<number>" << QString::number( num ) << "</number>" << endl;
+	break;
+    case QVariant::Double:
+	dob = value.toDouble();
+	ts << makeIndent( indent ) << "<number>" << QString::number( dob ) << "</number>" << endl;
 	break;
     case QVariant::KeySequence:
 	num = value.toInt();
