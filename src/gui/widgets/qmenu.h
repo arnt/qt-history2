@@ -49,9 +49,11 @@ public:
                        const QKeySequence& shortcut = 0);
     QAction *addAction(const QIconSet &icon, const QString &text, const QObject *receiver, const char* member, 
                        const QKeySequence& shortcut = 0);
+    QAction *addMenu(const QIconSet &icon, const QString &text, QMenu *menu);
     QAction *addMenu(const QString &text, QMenu *menu);
     QAction *addSeparator();
 
+    QAction *insertMenu(QAction *before, const QIconSet &icon, const QString &text, QMenu *menu);
     QAction *insertMenu(QAction *before, const QString &text, QMenu *menu);
     QAction *insertSeparator(QAction *before);
 

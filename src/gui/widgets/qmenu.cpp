@@ -702,6 +702,8 @@ QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObje
 }
 
 /*!
+    \overload
+
     This convenience function creates a new action with some \a
     text, and a submenu given by \a menu. The function adds the newly
     created action to the menu's list of actions, and returns it.
@@ -711,6 +713,23 @@ QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObje
 QAction *QMenu::addMenu(const QString &text, QMenu *menu)
 {
     QAction *ret = new QAction(text, menu, this);
+    addAction(ret);
+    return ret;
+}
+
+/*!
+    \overload
+
+    This convenience function creates a new action with an \a icon,
+    some \a text, and a submenu given by \a menu. The function adds
+    the newly created action to the menu's list of actions, and
+    returns it.
+
+    \sa QWidget::addAction()
+*/
+QAction *QMenu::addMenu(const QIconSet &icon, const QString &text, QMenu *menu)
+{
+    QAction *ret = new QAction(icon, text, menu, this);
     addAction(ret);
     return ret;
 }
@@ -732,6 +751,8 @@ QAction *QMenu::addSeparator()
 }
 
 /*!
+    \overload
+
     This convenience function creates a new action with the text \a
     text, and submenu \a menu. The function inserts the newly created
     action into this menu's list of actions before action \a before
@@ -742,6 +763,23 @@ QAction *QMenu::addSeparator()
 QAction *QMenu::insertMenu(QAction *before, const QString &text, QMenu *menu)
 {
     QAction *ret = new QAction(text, menu, this);
+    insertAction(before, ret);
+    return ret;
+}
+
+/*!
+    \overload
+
+    This convenience function creates a new action with an icon \a icon, the text \a
+    text, and submenu \a menu. The function inserts the newly created
+    action into this menu's list of actions before action \a before
+    and returns it.
+
+    \sa QWidget::insertAction() addMenu()
+*/
+QAction *QMenu::insertMenu(QAction *before, const QIconSet &icon, const QString &text, QMenu *menu)
+{
+    QAction *ret = new QAction(icon, text, menu, this);
     insertAction(before, ret);
     return ret;
 }
