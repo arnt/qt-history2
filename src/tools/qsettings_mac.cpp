@@ -200,13 +200,12 @@ bool QSettingsSysPrivate::writeEntry(QString key, CFPropertyListRef plr, bool gl
 #if 1
     global = FALSE; //this doesn't work very well!
 #endif
-    QString realKey = key;
-    while(realKey.right(1) == "/")
-	realKey.truncate(realKey.length() -1);
+    while(key.right(1) == "/")
+	key.truncate(key.length() -1);
 
     bool ret = FALSE;
-    for(QStringList::Iterator it = searchPaths.fromLast(); it != searchPaths.end(); --it) {
-	search_keys k((*it), realKey, "writeEntry");
+    for(int i = searchPaths.size() - 1; i >= 0; --i) {
+	search_keys k(searchPaths.at(i), key, "writeEntry");
 	CFStringRef scopes[] = { kCFPreferencesAnyUser, kCFPreferencesCurrentUser, NULL };
 	for(int scope = (global ? 0 : 1); scopes[scope]; scope++) {
 	    CFPreferencesSetValue(k.key(), plr, k.id(), scopes[scope], kCFPreferencesAnyHost);
@@ -228,8 +227,8 @@ CFPropertyListRef QSettingsSysPrivate::readEntry(QString key, bool global)
     global = FALSE; //this doesn't work very well!
 #endif
 
-    for(QStringList::Iterator it = searchPaths.fromLast(); it != searchPaths.end(); --it) {
-	search_keys k((*it), key, "readEntry");
+    for(int i = searchPaths.size() - 1; i >= 0; --i) {
+	search_keys k(searchPaths.at(i), key, "readEntry");
 	CFStringRef scopes[] = { kCFPreferencesAnyUser, kCFPreferencesCurrentUser, NULL };
 	for(int scope = (global ? 0 : 1); scopes[scope]; scope++) {
 	    if(CFPropertyListRef ret = CFPreferencesCopyValue(k.key(), k.id(), 
@@ -247,8 +246,8 @@ QStringList QSettingsSysPrivate::entryList(QString key, bool subkey, bool global
 #endif
 
     QStringList ret;
-    for(QStringList::Iterator it = searchPaths.fromLast();  it != searchPaths.end(); --it) {
-	search_keys k((*it), key, subkey ? "subkeyList" : "entryList");
+    for(int i = searchPaths.size() - 1; i >= 0; --i) {
+	search_keys k(searchPaths.at(i), key, subkey ? "subkeyList" : "entryList");
 	CFStringRef scopes[] = { kCFPreferencesAnyUser, kCFPreferencesCurrentUser, NULL };
 	for(int scope = (global ? 0 : 1); scopes[scope]; scope++) {
 	    if(CFArrayRef cfa = CFPreferencesCopyKeyList(k.id(), scopes[scope],
