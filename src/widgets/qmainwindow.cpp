@@ -1872,7 +1872,7 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl, in
 	if ( !tb )
 	    moveToolBar( toolBar, edge, (QToolBar*)0, QMainWindowPrivate::After );
 	else
-	    moveToolBar( toolBar, edge, tb->t, 
+	    moveToolBar( toolBar, edge, tb->t,
 			 after ? QMainWindowPrivate::After : QMainWindowPrivate::Before );
     }
 }
@@ -2576,6 +2576,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 		}
 	    }
 	} else { // ... or hide it if it was only a click
+	    saveToolLayout( d, d->origDock, t );
 	    if ( isDockEnabled( Minimized ) && isDockEnabled( t, Minimized ) )
 		moveToolBar( t, Minimized );
 	}
