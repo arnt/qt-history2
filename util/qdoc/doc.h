@@ -87,7 +87,7 @@ private:
     static const Resolver *res;
     static QRegExp *megaRegExp;
     static QMap<QString, QMap<QString, QString> > quotes;
-    static QMap<QString, QString> indices;
+    static QMap<QString, QString> keywordLinks;
     static StringSet hflist;
     static QMap<QString, QString> clist;
     static QMap<QString, StringSet> findex;

@@ -41,6 +41,8 @@
     check( target ); \
     consumed = TRUE;
 
+static QString punctuation( ".,:;" );
+
 static bool isCppSym( QChar ch )
 {
     return isalnum( ch.latin1() ) || ch == QChar( '_' ) || ch == QChar( ':' );
@@ -97,17 +99,20 @@ static QString indexAnchor( const QString& str )
 /*
   This function makes sure no two automatic links for the same identifier are
   too close to each other.  It returns TRUE if it's OK to have a new link to
-  name, otherwise FALSE.
+  name, otherwise FALSE.  It also updates offsetMap.
 
   The criterion is that two automatic links to the same place should be
   separated by at least 1009 characters.
 */
-static bool offsetOK( QMap<QString, int> *omap, int off, const QString& name )
+static bool offsetOK( QMap<QString, int> *offsetMap, int off,
+		      const QString& name )
 {
-    QMap<QString, int>::Iterator prevOff = omap->find( name );
-    bool ok = ( prevOff == omap->end() || *prevOff <= off - 1009 );
+    QString lowerName = name.lower();
+
+    QMap<QString, int>::Iterator prevOff = offsetMap->find( lowerName );
+    bool ok = ( prevOff == offsetMap->end() || *prevOff <= off - 1009 );
     if ( ok )
-	omap->insert( name, off );
+	offsetMap->insert( lowerName, off );
     return ok;
 }
 
@@ -190,10 +195,21 @@ static QString getArgument( const QString& in, int& pos )
 
     skipSpacesOrNL( in, pos );
     int begin = pos;
+
+    /*
+      Typically, an argument ends at the next white-space.  However, braces can
+      be used to group words:
+
+	  {a few words}
+
+      Also, opening and closing parentheses have to match.  Thus,
+
+	  printf( "%d\n", x )
+
+      is an argument too, although it contains spaces.  Finally, trailing
+      punctuation is not included in an argument.
+    */
     if ( pos < (int) in.length() && in[pos] == QChar('{') ) {
-	/*
-	  Don't tell Arnt Gulbrandsen about this.
-	*/
 	pos++;
 	while ( in[pos].unicode() != '}' )
 	    pos++;
@@ -224,7 +240,7 @@ static QString getArgument( const QString& in, int& pos )
 	    pos++;
 	}
 
-	if ( pos > begin + 1 && QString(".,:;").find(in[pos - 1]) != -1 )
+	if ( pos > begin + 1 && punctuation.find(in[pos - 1]) != -1 )
 	    pos--;
 	return in.mid( begin, pos - begin );
     }
@@ -901,9 +917,11 @@ void DocParser::setKindHasToBe( Doc::Kind kind, const QString& thanksToCommand )
 QStringList DocParser::getStringList()
 {
     static QRegExp ahref( QString("^<a[ \t\n]+href=[^>]*>.*</a>") );
+    static QRegExp bracy( QString("^\\{.+\\}") );
     QStringList stringl;
 
     ahref.setMinimal( TRUE );
+    bracy.setMinimal( TRUE );
 
     skipSpaces( yyIn, yyPos );
     while ( TRUE ) {
@@ -918,13 +936,16 @@ QStringList DocParser::getStringList()
 		break;
 	    } else {
 		yyPos = end + 8;
-		if ( yyPos < yyLen && QString(".,:;").find(yyIn[yyPos]) != -1 )
-		    yyPos++;
 	    }
 	} else if ( yyIn[yyPos].unicode() == '<' &&
 		    ahref.search(yyIn.mid(yyPos)) != -1 ) {
-	    end = begin + ahref.matchedLength();
-	    yyPos = end;
+	    yyPos = begin + ahref.matchedLength();
+	    end = yyPos;
+	} else if ( yyIn[yyPos].unicode() == '{' &&
+		    bracy.search(yyIn.mid(yyPos)) != -1 ) {
+	    yyPos = begin + bracy.matchedLength();
+	    begin++;
+	    end = yyPos - 1;
 	} else {
 	    while ( yyPos < yyLen && !yyIn[yyPos].isSpace() )
 		yyPos++;
@@ -932,8 +953,10 @@ QStringList DocParser::getStringList()
 		break;
 	    end = yyPos;
 	}
-	if ( QString(".,:;").find(yyIn[end - 1]) != -1 )
+	if ( punctuation.find(yyIn[end - 1]) != -1 )
 	    end--;
+	else if ( yyPos < yyLen && punctuation.find(yyIn[yyLen]) != -1 )
+	    yyPos++;
 
 	if ( end > begin )
 	    stringl.append( yyIn.mid(begin, end - begin) );
@@ -976,7 +999,7 @@ void DocParser::leavePre()
 const Resolver *Doc::res = 0;
 QRegExp *Doc::megaRegExp = 0;
 QMap<QString, QMap<QString, QString> > Doc::quotes;
-QMap<QString, QString> Doc::indices;
+QMap<QString, QString> Doc::keywordLinks;
 StringSet Doc::hflist;
 QMap<QString, QString> Doc::clist;
 QMap<QString, StringSet> Doc::findex;
@@ -1007,9 +1030,9 @@ void Doc::setClassList( const QMap<QString, QString>& classList )
 	return;
 
     QString t( "(?:<pre>.*</pre>|(?:Qmagicwordthatyoushouldavoid" );
-    QMap<QString, QString>::ConstIterator s = indices.begin();
-    while ( s != indices.end() ) {
-	if ( s == indices.end() )
+    QMap<QString, QString>::ConstIterator s = keywordLinks.begin();
+    while ( s != keywordLinks.end() ) {
+	if ( s == keywordLinks.end() )
 	    break;
 	t += QChar( '|' );
 	t += s.key();
@@ -1043,7 +1066,18 @@ void Doc::printHtmlIncludeHeader( HtmlWriter& out, const QString& fileName )
 
 QString Doc::href( const QString& name, const QString& text )
 {
-    return res->href( name, text );
+    QString t = text;
+
+    if ( t.isEmpty() )
+	t = name;
+
+    QString y = res->href( name, t );
+    if ( y.length() == t.length() ) {
+	QString k = keywordLinks[t];
+	if ( !k.isEmpty() )
+	    return QString( "<a href=\"%1\">%2</a>" ).arg( k ).arg( t );
+    }
+    return y;
 }
 
 QString Doc::htmlQuoteList()
@@ -1396,7 +1430,7 @@ Doc::Doc( Kind kind, const Location& loc, const QString& htmlText )
 
 void Doc::setLink( const QString& link, const QString& title )
 {
-    QString indexLink;
+    QString kwordLnk;
 
     if ( !q.isEmpty() ) {
 	quotes[q].insert( link, title );
@@ -1414,13 +1448,13 @@ void Doc::setLink( const QString& link, const QString& title )
 	StringSet::ConstIterator s = kwords.begin();
 	while ( s != kwords.end() ) {
 	    if ( kind() == Page )
-		indexLink = link.left( k ) + QChar( '#' ) + indexAnchor( *s );
+		kwordLnk = link.left( k ) + QChar( '#' ) + indexAnchor( *s );
 	    else
-		indexLink = link;
+		kwordLnk = link;
 
-	    indices.insert( *s, indexLink );
+	    keywordLinks.insert( *s, kwordLnk );
 	    if ( (*s)[0] != (*s)[0].upper() )
-		indices.insert( (*s)[0].upper() + (*s).mid(1), indexLink );
+		keywordLinks.insert( (*s)[0].upper() + (*s).mid(1), kwordLnk );
 	    ++s;
 	}
 	kwords.clear();
@@ -1460,7 +1494,7 @@ QString Doc::htmlSeeAlso() const
     QStringList::ConstIterator s = sa.begin();
     while ( s != sa.end() ) {
 	QString name = *s;
-	QString text;
+	QString text = *s;
 
 	if ( name.left(5) == QString("\\link") ) {
 	    QStringList toks =
@@ -1477,8 +1511,8 @@ QString Doc::htmlSeeAlso() const
 	}
 
 	QString y = href( name, text );
-	if ( y.length() == text.length() )
-	    warning( 3, location(), "Unresolved '\\sa' to '%s'",
+	if ( y.length() == text.length() && text.left(2) != QString("<a") )
+	    warning( 1, location(), "Unresolved '\\sa' to '%s'",
 		     name.latin1() );
 
 	html += y;
@@ -1522,6 +1556,7 @@ QString Doc::finalHtml() const
     Walkthrough walkthrough;
     QString fileName;
     QString link;
+    QString name, ahref;
     QString substr;
     bool metSpace = TRUE;
 
@@ -1620,7 +1655,12 @@ QString Doc::finalHtml() const
 		break;
 	    case hash( 'l', 1 ):
 		consume( "l" );
-		yyOut += href( getArgument(yyIn, yyPos) );
+		name = getArgument( yyIn, yyPos );
+		ahref = href( name );
+		if ( ahref.length() == name.length() )
+		    warning( 2, location(), "Unresolved '\\l' to '%s'",
+			     name.latin1() );
+		yyOut += ahref;
 		break;
 	    case hash( 'l', 4 ):
 		consume( "link" );
@@ -1634,7 +1674,7 @@ QString Doc::finalHtml() const
 				    .stripWhiteSpace();
 		    QString y = href( link, x );
 		    if ( y.length() == x.length() )
-			warning( 2, location(), "Unresolved '\\link' to '%s'",
+			warning( 1, location(), "Unresolved '\\link' to '%s'",
 				 link.latin1() );
 		    yyOut += y;
 		    yyPos = end + 8;
@@ -1740,7 +1780,7 @@ QString Doc::finalHtml() const
     */
     if ( megaRegExp != 0 ) {
 	int k = 0;
-	while ( (k = yyOut.find(*megaRegExp, k)) != -1 ) {
+	while ( (k = megaRegExp->search(yyOut, k)) != -1 ) {
 	    /*
 	      Make sure we didn't match a '<pre>...</pre>' thingy, but rather
 	      skip over it.  (See the construction of megaRegExp.)
@@ -1754,11 +1794,11 @@ QString Doc::finalHtml() const
 		  (2) The current doc and the entry are both at
 		  foo.html#printBar.
 		*/
-		if ( lnk != indices[t].left(lnk.length()) &&
+		if ( lnk != keywordLinks[t].left(lnk.length()) &&
 		     offsetOK(&offsetMap, yyOut.length(), t) ) {
 		    yyOut.replace( k + 1, t.length(),
 				   QString("<a href=\"%1\">%2</a>")
-				   .arg(indices[t]).arg(t) );
+				   .arg(keywordLinks[t]).arg(t) );
 		}
 	    }
 	    k += megaRegExp->matchedLength() + 1;
