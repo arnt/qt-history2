@@ -392,8 +392,10 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    int envSpec = QEnvironment::LocalEnv;
 	    QString vsCommonDir, msDevDir, msVCDir, osDir;
 
-	    if( QMessageBox::warning( this, "Environment", "The Visual C++ environment variables has not been set\nDo you want to do this now?", "Yes", "No", QString::null, 0, 1 ) == 0 )
+	    if( QMessageBox::warning( this, "Environment", "The Visual C++ environment variables has not been set\nDo you want to do this now?", "Yes", "No", QString::null, 0, 1 ) == 0 ) {
 		envSpec |= QEnvironment::PersistentEnv;
+		persistentEnv = true;
+	    }
 
 	    vsCommonDir = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup", "VsCommonDir", QEnvironment::LocalMachine );
 	    msDevDir = vsCommonDir + "\\MSDev98";
@@ -661,6 +663,19 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	configure.start();
 	compileProgress->setTotalSteps( filesToCompile );
     }
+    else if( newPage == finishPage ) {
+	QString finishMsg;
+	if( int( qWinVersion() ) & int( WV_NT_based ) ) {
+	    finishMsg = QString( "Qt has been installed to " ) + installPath->text() + " and is ready to use.";
+	}
+	else {
+	    finishMsg = QString( "Qt has been installed to " ) + installPath->text() + " and is ready to use.\n";
+	    finishMsg += "The environment variables needed to use Qt have been recorded into your AUTOEXEC.BAT file.\n";
+	    finishMsg += "Please review this file, and take action as appropriate depending on your operating system \
+to get them into the persistent environment. (Windows Me users, run MsConfig)";
+	}
+	finishText->setText( finishMsg );
+    }
 }
 
 bool SetupWizardImpl::createDir( const QString& fullPath )
@@ -866,6 +881,8 @@ void SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 		copyFiles( entryName, targetName );
 	    }
 	    else {
+		if( ( entryName.right( 4 ) == ".cpp" ) || ( entryName.right( 2 ) == ".h" ) )
+		    filesToCompile++;
 		QByteArray buffer( fi->size() );
 		QFile inFile( entryName );
 		QFile outFile( targetName );

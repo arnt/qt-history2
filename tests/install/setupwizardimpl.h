@@ -65,6 +65,7 @@ private:
     int totalRead;
 
     bool filesCopied;
+    bool persistentEnv;
     int filesToCompile;
     int filesCompiled;
 
