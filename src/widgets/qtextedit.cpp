@@ -6932,6 +6932,7 @@ bool QTextEdit::optimFind( const QString & expr, bool cs, bool /*wo*/,
 	int h = fm.lineSpacing();
 	int x = fm.width( d->od->lines[ LOGOFFSET(i) ].left( idx + expr.length()) ) + 4;
 	ensureVisible( x, i * h + h / 2, 1, h / 2 + 2 );
+	repaintContents(); // could possibly be optimized
     }
     return found;
 }
