@@ -5978,7 +5978,7 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat *f ) const
 	    f +=" face=\"" + fn.family() + "\"";
 	if ( font().pointSize() != defaultFormat->font().pointSize() ) {
 	    f +=" size=\"" + QString::number( makeLogicFontSize( fn.pointSize() ) ) + "\"";
-	    tag +=" style=\"font-size:" + QString::number( fn.pointSize() ) + "pt\"";
+	    f +=" style=\"font-size:" + QString::number( fn.pointSize() ) + "pt\"";
 	}
 	if ( color().rgb() != defaultFormat->color().rgb() )
 	    f +=" color=\"" + col.name() + "\"";
