@@ -328,7 +328,7 @@ private:
 
     void push();
     void pop();
-    void processNesting( Operation op );
+    bool processNesting( Operation op );
     void invalidateNested();
     void gotoIntoNested( const QPoint &globalPos );
 

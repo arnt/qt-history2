@@ -756,10 +756,10 @@ bool QTextCursor::place( const QPoint &p, QTextParagraph *s, bool link )
     return TRUE;
 }
 
-void QTextCursor::processNesting( Operation op )
+bool QTextCursor::processNesting( Operation op )
 {
     if ( !para->document() )
-	return;
+	return FALSE;
     QTextDocument* doc = para->document();
     push();
     ox = para->at( idx )->x;
@@ -792,6 +792,7 @@ void QTextCursor::processNesting( Operation op )
     if ( !ok )
 #endif
 	pop();
+    return ok;
 }
 
 void QTextCursor::gotoRight()
@@ -809,8 +810,8 @@ void QTextCursor::gotoNextLetter()
 #ifndef QT_NO_TEXTCUSTOMITEM
     const QTextStringChar *tsc = para->at( idx );
     if ( tsc && tsc->isCustom() && tsc->customItem()->isNested() ) {
-	processNesting( EnterBegin );
-	return;
+	if ( processNesting( EnterBegin ) )
+	    return;
     }
 #endif
 
