@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#9 $
+** $Id: //depot/qt/main/src/tools/qdict.h#10 $
 **
 ** Definition of QDict template/macro class
 **
@@ -40,8 +40,8 @@ public:									      \
     uint  count()   const		{ return QGDict::count(); }	      \
     uint  size()    const		{ return QGDict::size(); }	      \
     bool  isEmpty() const		{ return QGDict::count() == 0; }      \
-    bool  insert( const char *k, const type *d )			      \
-					{ return QGDict::look(k,(GCI)d,1)!=0;}\
+    void  insert( const char *k, const type *d )			      \
+					{ QGDict::look(k,(GCI)d,1); }	      \
     bool  remove( const char *k )	{ return QGDict::remove(k); }	      \
     type *take( const char *k )		{ return (type *)QGDict::take(k); }   \
     void  clear()			{ QGDict::clear(); }		      \
@@ -97,8 +97,8 @@ public:
     uint  count()   const		{ return QGDict::count(); }
     uint  size()    const		{ return QGDict::size(); }
     bool  isEmpty() const		{ return QGDict::count() == 0; }
-    bool  insert( const char *k, const type *d )
-					{ return QGDict::look(k,(GCI)d,1)!=0; }
+    void  insert( const char *k, const type *d )
+					{ QGDict::look(k,(GCI)d,1); }
     bool  remove( const char *k )	{ return QGDict::remove(k); }
     type *take( const char *k )		{ return (type *)QGDict::take(k); }
     void  clear()			{ QGDict::clear(); }
