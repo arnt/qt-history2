@@ -1130,6 +1130,10 @@ void QListViewItem::insertItem( QListViewItem * newChild )
     view and then insertItem() to put the item back in its new
     position.
 
+    Note: For Singel selection mode, if the selected item is part of the taken
+    item(s), it is unselected and a selectionChanged is emitted. For Multi or Extended
+    selection, no unselection happens and no selectionChanged signals are emitted.
+
     \warning This function leaves \a item and its children in a state
     where most member functions are unsafe. Only a few functions work
     correctly on an item in this state, most notably insertItem(). The
@@ -1151,7 +1155,6 @@ void QListViewItem::takeItem( QListViewItem * item )
 	else
 	    lv->currentItem()->okRename( lv->currentItem()->renameCol );
     }
-    bool was_selected = FALSE;
     bool emit_changed = FALSE;
     if ( lv && !lv->d->clearing ) {
 	if ( lv->d->oldFocusItem == this )
@@ -1184,26 +1187,17 @@ void QListViewItem::takeItem( QListViewItem * item )
 	    }
 	}
 
-	was_selected = item->isSelected();
-	item->setSelected( FALSE );
-
-#if 0
-	// ##### do we really want that???
-	if ( lv->selectedItem() ) {
-	    QListViewItem * c = lv->selectedItem();
-	    while( c && c != item )
-		c = c->parentItem;
-	    if ( c == item ) {
-		emit lv->selectionChanged( 0 );
-	    }
-	}
-#endif
-
 	if ( lv->d->focusItem ) {
 	    const QListViewItem * c = lv->d->focusItem;
 	    while( c && c != item )
 		c = c->parentItem;
 	    if ( c == item ) {
+		if ( lv->selectedItem() ) {
+		    // for Single, setSelected( FALSE ) when selectedItem() is taken
+		    lv->selectedItem()->setSelected( FALSE );
+		    // we don't emit selectionChanged( 0 )
+		    emit lv->selectionChanged();
+		}
 		if ( item->nextSibling() )
 		    lv->d->focusItem = item->nextSibling();
 		else if ( item->itemAbove() )
@@ -1234,8 +1228,6 @@ void QListViewItem::takeItem( QListViewItem * item )
 
     if ( emit_changed )
 	emit lv->currentChanged( lv->d->focusItem );
-    if ( was_selected )
-	emit lv->selectionChanged();
 }
 
 
