@@ -1196,7 +1196,11 @@ void QTextLine::layout(int width, LineWidthUnit unit)
 //     qDebug("        : '%s'", eng->string.mid(line.from, line.length).utf8());
 
     eng->minWidth = qMax(eng->minWidth, minw);
-    eng->maxWidth += line.textWidth + spacew;
+    eng->maxWidth += line.textWidth;
+    if (line.textWidth > 0 && item < eng->items.size())
+        eng->maxWidth += spacew;
+
+    // What's missing here? :)
     // ##########################
 }
 
