@@ -377,7 +377,7 @@ const char* QJisCodec::name() const
 */
 const char* QJisCodec::mimeName() const
 {
-    return "ISO-2022-JP-2";
+    return "ISO-2022-JP";
 }
 
 /*! \internal */
@@ -385,6 +385,8 @@ int QJisCodec::heuristicNameMatch(const char* hint) const
 {
     if ( qstrnicmp( hint, "ISO-2022-JP", 11 ) == 0 )
 	return 10000;
+    if ( simpleHeuristicNameMatch( "ISO-2022-JP-2", hint ) > 0 )
+	return 10;
 
     int score = 0;
     bool ja = FALSE;
