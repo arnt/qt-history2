@@ -433,6 +433,75 @@ bool QVariantToVoidStar(const QVariant &var, void *data)
     case QVariant::String:
 	*(QString*)data = var.toString();
 	break;
+    case QVariant::Int:
+	*(int*)data = var.toInt();
+	break;
+    case QVariant::UInt:
+	*(uint*)data = var.toUInt();
+	break;
+    case QVariant::Bool:
+	*(bool*)data = var.toBool();
+	break;
+    case QVariant::Double:
+	*(double*)data = var.toDouble();
+	break;
+    case QVariant::Color:
+	*(QColor*)data = var.toColor();
+	break;
+    case QVariant::Date:
+	*(QDate*)data = var.toDate();
+	break;
+    case QVariant::Time:
+	*(QTime*)data = var.toTime();
+	break;
+    case QVariant::DateTime:
+	*(QDateTime*)data = var.toDateTime();
+	break;
+    case QVariant::Font:
+	*(QFont*)data = var.toFont();
+	break;
+    case QVariant::Pixmap:
+	*(QPixmap*)data = var.toPixmap();
+	break;
+    case QVariant::List:
+	*(QList<QCoreVariant>*)data = var.toList();
+	break;
+    case QVariant::StringList:
+	*(QStringList*)data = var.toStringList();
+	break;
+    case QVariant::ByteArray:
+	*(QByteArray*)data = var.toByteArray();
+	break;
+    case QVariant::LongLong:
+	*(Q_LLONG*)data = var.toLongLong();
+	break;
+    case QVariant::ULongLong:
+	*(Q_ULLONG*)data = var.toULongLong();
+	break;
+    case QVariant::Rect:
+	*(QRect*)data = var.toRect();
+	break;
+    case QVariant::Size:
+	*(QSize*)data = var.toSize();
+	break;
+    case QVariant::Point:
+	*(QPoint*)data = var.toPoint();
+	break;
+/*
+    case 1000: // rawAccess in QAxBase::toVariant
+	if (type == "IDispatch*") {
+	    arg.vt = VT_DISPATCH;
+	    arg.pdispVal = (IDispatch*)qvar.rawAccess();
+	    if ( arg.pdispVal )
+		arg.pdispVal->AddRef();
+	} else {
+	    arg.vt = VT_UNKNOWN;
+	    arg.punkVal = (IUnknown*)qvar.rawAccess();
+	    if ( arg.punkVal )
+		arg.punkVal->AddRef();
+	}
+	break;
+*/
     default:
 	return false;
     }
