@@ -1,8 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>PreferencesBase</class>
-<include location="local" impldecl="in declaration">dlldefs.h</include>
-<include location="local" impldecl="in declaration">config.h</include>
-<include location="global" impldecl="in declaration">qmap.h</include>
 <include location="global" impldecl="in implementation">qsettings.h</include>
 <include location="global" impldecl="in implementation">qcolordialog.h</include>
 <include location="global" impldecl="in implementation">qcheckbox.h</include>
@@ -12,6 +9,9 @@
 <include location="global" impldecl="in implementation">qcombobox.h</include>
 <include location="global" impldecl="in implementation">qpixmap.h</include>
 <include location="global" impldecl="in implementation">qlineedit.h</include>
+<include location="global" impldecl="in declaration">qmap.h</include>
+<include location="local" impldecl="in declaration">conf.h</include>
+<include location="local" impldecl="in declaration">dlldefs.h</include>
 <variable>QString path;</variable>
 <variable>QMap&lt;QString, ConfigStyle&gt; styles;</variable>
 <variable>ConfigStyle currentStyle;</variable>
@@ -24,8 +24,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>354</width>
-            <height>197</height>
+            <width>350</width>
+            <height>195</height>
         </rect>
     </property>
     <property name="caption">
@@ -263,6 +263,7 @@
         <slot>elementChanged(const QString&amp;)</slot>
     </connection>
     <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++">destroy()</slot>
     <slot access="protected" language="C++">colorClicked()</slot>
     <slot access="protected" language="C++">reInit()</slot>
     <slot access="protected" language="C++">save()</slot>

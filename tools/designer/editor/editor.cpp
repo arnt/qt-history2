@@ -23,7 +23,7 @@
 #include "completion.h"
 #include <qfile.h>
 #include <qrichtext_p.h>
-#include "config.h"
+#include "conf.h"
 #include <qapplication.h>
 
 Editor::Editor( const QString &fn, QWidget *parent, const char *name )

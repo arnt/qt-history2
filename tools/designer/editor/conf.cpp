@@ -1,4 +1,4 @@
-#include "config.h"
+#include "conf.h"
 #include <qapplication.h>
 #include <qfont.h>
 #include <qcolor.h>

@@ -6,14 +6,14 @@ HEADERS		= editor.h  \
 		  completion.h \
 		  viewmanager.h \
 		  markerwidget.h\
-		  config.h
+		  conf.h
 
 SOURCES		= editor.cpp \
 		  parenmatcher.cpp  \
 		  completion.cpp \
 		  viewmanager.cpp \
 		  markerwidget.cpp \
-		  config.cpp
+		  conf.cpp
 
 INTERFACES	= preferences.ui
 		
