@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#22 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#23 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -72,6 +72,22 @@
  *    on its associated intern object and deletes it if nobody else hold references
  *    on the intern object.
  */
+
+
+/*
+  Helper to split a qualified name in the prefix and local name.
+*/
+static void qt_split_namespace( QString& prefix, QString& name, const QString& qName )
+{
+    int i = qName.find( ':' );
+    if ( i == -1 ) {
+	prefix = ""; // empty, not null!
+	name = qName;
+    } else {
+	prefix = qName.left( i );
+	name = qName.mid( i + 1 );
+    }
+}
 
 /**************************************************************
  *
@@ -287,7 +303,8 @@ public:
 class QDomAttrPrivate : public QDomNodePrivate
 {
 public:
-    QDomAttrPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& name );
+    QDomAttrPrivate( QDomDocumentPrivate*, QDomNodePrivate*, const QString& name );
+    QDomAttrPrivate( QDomDocumentPrivate*, QDomNodePrivate*, const QString& nsURI, const QString& qName );
     QDomAttrPrivate( QDomAttrPrivate* n, bool deep );
     ~QDomAttrPrivate();
 
@@ -306,6 +323,7 @@ class QDomElementPrivate : public QDomNodePrivate
 {
 public:
     QDomElementPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& name );
+    QDomElementPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& nsURI, const QString& qName );
     QDomElementPrivate( QDomElementPrivate* n, bool deep );
     ~QDomElementPrivate();
 
@@ -440,15 +458,18 @@ public:
     QDomElementPrivate* documentElement();
 
     // Factories
-    QDomElementPrivate*               createElement( const QString& tagName );
-    QDomDocumentFragmentPrivate*      createDocumentFragment();
-    QDomTextPrivate*                  createTextNode( const QString& data );
-    QDomCommentPrivate*               createComment( const QString& data );
-    QDomCDATASectionPrivate*          createCDATASection( const QString& data );
+    QDomElementPrivate* createElement( const QString& tagName );
+    QDomElementPrivate*	createElementNS( const QString& namespaceURI, const QString& qName );
+    QDomDocumentFragmentPrivate* createDocumentFragment();
+    QDomTextPrivate* createTextNode( const QString& data );
+    QDomCommentPrivate* createComment( const QString& data );
+    QDomCDATASectionPrivate* createCDATASection( const QString& data );
     QDomProcessingInstructionPrivate* createProcessingInstruction( const QString& target, const QString& data );
-    QDomAttrPrivate*                  createAttribute( const QString& name );
-    QDomEntityReferencePrivate*       createEntityReference( const QString& name );
-    QDomNodeListPrivate*              elementsByTagName( const QString& tagname );
+    QDomAttrPrivate* createAttribute( const QString& name );
+    QDomAttrPrivate* createAttributeNS( const QString& namespaceURI, const QString& qName );
+    QDomEntityReferencePrivate* createEntityReference( const QString& name );
+
+    QDomNodeListPrivate* elementsByTagName( const QString& tagname );
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode( bool deep = TRUE );
@@ -3174,6 +3195,14 @@ QDomAttrPrivate::QDomAttrPrivate( QDomDocumentPrivate* d, QDomNodePrivate* paren
     m_specified = FALSE;
 }
 
+QDomAttrPrivate::QDomAttrPrivate( QDomDocumentPrivate* d, QDomNodePrivate* p, const QString& nsURI, const QString& qName )
+    : QDomNodePrivate( d, p )
+{
+    qt_split_namespace( prefix, name, qName );
+    namespaceURI = nsURI;
+    m_specified = FALSE;
+}
+
 QDomAttrPrivate::QDomAttrPrivate( QDomAttrPrivate* n, bool deep )
     : QDomNodePrivate( n, deep )
 {
@@ -3405,6 +3434,15 @@ QDomElementPrivate::QDomElementPrivate( QDomDocumentPrivate* d, QDomNodePrivate*
     : QDomNodePrivate( d, p )
 {
     name = tagname;
+    m_attr = new QDomNamedNodeMapPrivate( this );
+}
+
+QDomElementPrivate::QDomElementPrivate( QDomDocumentPrivate* d, QDomNodePrivate* p,
+	const QString& nsURI, const QString& qName )
+    : QDomNodePrivate( d, p )
+{
+    qt_split_namespace( prefix, name, qName );
+    namespaceURI = nsURI;
     m_attr = new QDomNamedNodeMapPrivate( this );
 }
 
@@ -5084,6 +5122,13 @@ QDomElementPrivate* QDomDocumentPrivate::createElement( const QString& tagName )
     return e;
 }
 
+QDomElementPrivate* QDomDocumentPrivate::createElementNS( const QString& namespaceURI, const QString& qName )
+{
+    QDomElementPrivate* e = new QDomElementPrivate( this, this, namespaceURI, qName );
+    e->deref();
+    return e;
+}
+
 QDomDocumentFragmentPrivate* QDomDocumentPrivate::createDocumentFragment()
 {
     QDomDocumentFragmentPrivate* f = new QDomDocumentFragmentPrivate( this, this );
@@ -5122,6 +5167,13 @@ QDomProcessingInstructionPrivate* QDomDocumentPrivate::createProcessingInstructi
 QDomAttrPrivate* QDomDocumentPrivate::createAttribute( const QString& aname )
 {
     QDomAttrPrivate* a = new QDomAttrPrivate( this, this, aname );
+    a->deref();
+    return a;
+}
+
+QDomAttrPrivate* QDomDocumentPrivate::createAttributeNS( const QString& namespaceURI, const QString& qName )
+{
+    QDomAttrPrivate* a = new QDomAttrPrivate( this, this, namespaceURI, qName );
     a->deref();
     return a;
 }
@@ -5322,6 +5374,8 @@ bool QDomDocument::setContent( QIODevice* dev )
 
 /*!
   Converts the parsed document back to its textual representation.
+
+  \sa toCString()
 */
 QString QDomDocument::toString() const
 {
@@ -5336,6 +5390,8 @@ QString QDomDocument::toString() const
   \fn QCString QDomDocument::toCString() const
 
   Converts the parsed document back to its textual representation.
+
+  \sa toString()
 */
 
 
@@ -5372,6 +5428,8 @@ QDomElement QDomDocument::documentElement() const
 /*!
   Creates a new element with the name \a tagName that can be inserted into the
   DOM tree.
+
+  \sa createElementNS()
 */
 QDomElement QDomDocument::createElement( const QString& tagName )
 {
@@ -5435,6 +5493,8 @@ QDomProcessingInstruction QDomDocument::createProcessingInstruction( const QStri
 
 /*!
   Creates a new attribute that can be inserted into an element.
+
+  \sa createAttributeNS()
 */
 QDomAttr QDomDocument::createAttribute( const QString& name )
 {
@@ -5472,19 +5532,33 @@ QDomNode QDomDocument::importNode( const QDomNode& /*importedNode*/, bool /*deep
 }
 
 /*!
-  fnord
+  Creates a new element with namespace support that can be inserted into the
+  DOM tree. The name of the element is \a qualifiedName and the namespace URI
+  is \a namespaceURI. This function also sets QDomNode::prefix() and
+  QDomNode::localName() to appropriate values (depending on \a qualifiedName).
+
+  \sa createElement()
 */
-QDomElement QDomDocument::createElementNS( const QString& /*namespaceURI*/, const QString& /*qualifiedName*/ )
+QDomElement QDomDocument::createElementNS( const QString& namespaceURI, const QString& qualifiedName )
 {
-    return QDomElement();
+    if ( !impl )
+	return QDomElement();
+    return QDomElement( IMPL->createElementNS( namespaceURI, qualifiedName ) );
 }
 
 /*!
-  fnord
+  Creates a new attribute with namespace support that can be inserted into an
+  element. The name of the attribute is \a qualifiedName and the namespace URI
+  is \a namespaceURI. This function also sets QDomNode::prefix() and
+  QDomNode::localName() to appropriate values (depending on \a qualifiedName).
+
+  \sa createAttribute()
 */
-QDomAttr QDomDocument::createAttributeNS( const QString& /*namespaceURI*/, const QString& /*qualifiedName*/ )
+QDomAttr QDomDocument::createAttributeNS( const QString& namespaceURI, const QString& qualifiedName )
 {
-    return QDomAttr();
+    if ( !impl )
+	return QDomAttr();
+    return QDomAttr( IMPL->createAttributeNS( namespaceURI, qualifiedName ) );
 }
 
 /*!
