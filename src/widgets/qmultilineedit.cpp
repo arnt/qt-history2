@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#97 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -121,6 +121,7 @@ struct QMultiLineData
     {
 	undoList.setAutoDelete( TRUE );
 	redoList.setAutoDelete( TRUE );
+	clearChartable();
     }
     bool isHandlingEvent;
     bool edited;
@@ -147,6 +148,13 @@ struct QMultiLineData
     QList<QMultiLineEditCommand> redoList;
     bool undo;
     int undodepth;
+    short chartable[256];
+    void clearChartable() 
+    {
+	int i = 256;
+	while ( i )
+	    chartable[--i] = 0;
+    }
 };
 
 
@@ -508,7 +516,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
     QMultiLineEditRow* r = contents->at( row );
     int wcell = cellWidth() - 2*d->lr_marg;
     int wrow = r->w;
-    int x = d->lr_marg;
+    int x = d->lr_marg - p.fontMetrics().leftBearing(s[0]);
     if ( d->align == Qt::AlignCenter )
 	x += (wcell - wrow) / 2;
     else if ( d->align == Qt::AlignRight )
@@ -2320,6 +2328,7 @@ void QMultiLineEdit::clear()
 void QMultiLineEdit::setFont( const QFont &font )
 {
     QWidget::setFont( font );
+    d->clearChartable();
     QFontMetrics fm( font );
     setCellHeight( fm.lineSpacing() );
     updateCellWidth();
@@ -3118,12 +3127,12 @@ void QMultiLineEdit::cursorWordBackward( bool mark )
     blinkTimer = startTimer(  QApplication::cursorFlashTime() / 2  );
 }
 
-#define DO_BREAK doBreak = TRUE; if ( lastSpace > a ) { \
+#define DO_BREAK {doBreak = TRUE; if ( lastSpace > a ) { \
 i = lastSpace; \
 linew = lastw; \
 } \
 else \
-i = QMAX( a, i-1 );
+i = QMAX( a, i-1 );}
 
 void QMultiLineEdit::wrapLine( int line, int removed )
 {
@@ -3148,22 +3157,30 @@ void QMultiLineEdit::wrapLine( int line, int removed )
 	    if ( tabDist<0 )
 		tabDist = tabStopDist(fm);
 	    linew = ( linew/tabDist + 1 ) * tabDist;
-	} else if ( s[i] != '\n' )
-	    linew += fm.width( s[i] );
+	} else if ( s[i] != '\n' ) {
+	    char c = s[i].latin1();
+	    if ( c > 0 ) {
+		if ( !d->chartable[c] )
+		    d->chartable[c] = fm.width( s[i] ); 
+		linew += d->chartable[c];
+	    } else {
+		linew += fm.width( s[i] );
+	    }
+	}
 	if ( WORD_WRAP &&
 	     ( BREAK_WITHIN_WORDS || lastSpace > a) && s[i] != '\n' ) {
 	    if ( DYNAMIC_WRAP ) {
 		if  (linew >= contentsRect().width() -  2*d->lr_marg) {
-		    DO_BREAK
-			}
+		    DO_BREAK;
+		}
 	    } else if ( FIXED_COLUMN_WRAP ) {
 		if ( d->wrapcol >= 0 && i-a >= d->wrapcol ) {
-		    DO_BREAK
-			}
+		    DO_BREAK;
+		}
 	    } else if ( FIXED_WIDTH_WRAP ) {
 		if ( d->wrapcol >= 0 && linew > d->wrapcol ) {
-		    DO_BREAK
-			}
+		    DO_BREAK;
+		}
 	    }
 	}
 	if ( s[i] == '\n' || doBreak ) {
@@ -3527,7 +3544,7 @@ void QMultiLineEdit::undo()
     do {
 	QMultiLineEditCommand *command = d->undoList.take();
 	if ( !command )
-	    break; 
+	    break;
 	command->undo();
 	macroLevel += command->terminator();
 	if ( d->undoList.isEmpty() )
@@ -3670,10 +3687,8 @@ void QMultiLineEdit::del()
 		    ; // noop
 	    }
 	}
+	setAutoUpdate( oldAuto );
 	delAux();
-	setAutoUpdate(oldAuto);
-	if ( autoUpdate() )
-	    repaintDelayed( FALSE );
 	d->undo = TRUE;
     }
     else
