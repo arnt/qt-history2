@@ -278,6 +278,7 @@
 #include <time.h>
 
 #define QABSTRACTSOCKET_BUFFERSIZE 32768
+//#define QABSTRACTSOCKET_BUFFERSIZE 10
 
 //#define QABSTRACTSOCKET_DEBUG
 
@@ -290,6 +291,7 @@
 */
 QRingBuffer::QRingBuffer(int growth) : basicBlockSize(growth)
 {
+    buffers << QByteArray();
     clear();
 }
 
@@ -299,7 +301,7 @@ QRingBuffer::QRingBuffer(int growth) : basicBlockSize(growth)
 */
 int QRingBuffer::nextDataBlockSize() const
 {
-    return (tailBuffer == 0 ? tail : buffers[0].size()) - head;
+    return (tailBuffer == 0 ? tail : buffers.at(0).size()) - head;
 }
 
 /*! \internal
@@ -321,7 +323,7 @@ void QRingBuffer::free(int bytes)
 {
     for (;;) {
         int nextBlockSize = nextDataBlockSize();
-        if (bytes < nextBlockSize) {
+        if (bytes <= nextBlockSize) {
             head += bytes;
             if (head == tail && tailBuffer == 0)
                 head = tail = 0;
@@ -335,10 +337,9 @@ void QRingBuffer::free(int bytes)
             head = tail = 0;
             tailBuffer = 0;
             return;
-        } else {
-            buffers.removeAt(0);
         }
 
+        buffers.removeAt(0);
         --tailBuffer;
         head = 0;
     }
@@ -352,38 +353,27 @@ char *QRingBuffer::reserve(int bytes)
 {
     // if there is already enough space, simply return.
     if (tail + bytes <= buffers.at(tailBuffer).size()) {
-        if (buffers.isEmpty()) {
-            buffers << QByteArray();
-            buffers[0].resize(basicBlockSize);
-        }
-
+        char *writePtr = buffers[tailBuffer].data() + tail;
         tail += bytes;
-        return buffers[tailBuffer].data() + tail - bytes;
+        return writePtr;
     }
 
     // if our buffer isn't half full yet, simply resize it.
     if (tail < buffers.at(tailBuffer).size() / 2) {
-        if (buffers.isEmpty())
-            buffers << QByteArray();
-
         buffers[tailBuffer].resize(tail + bytes);
+        char *writePtr = buffers[tailBuffer].data() + tail;
         tail += bytes;
-        return buffers[tailBuffer].data() + tail - bytes;
+        return writePtr;
     }
 
     // shrink this buffer to its current size
-    int oldBlockSize = buffers.at(tailBuffer).size();
     buffers[tailBuffer].resize(tail);
-    if (tail == oldBlockSize)
-        tail = bytes - (oldBlockSize - tail);
-    else
-        tail = bytes - (oldBlockSize - tail) + (oldBlockSize - tail);
 
-    // create a new QByteArray with the right size, and set the
-    // tail to 0.
+    // create a new QByteArray with the right size
     buffers << QByteArray();
     ++tailBuffer;
-    buffers[tailBuffer].resize(basicBlockSize);
+    buffers[tailBuffer].resize(qMax(basicBlockSize, bytes));
+    tail = bytes;
     return buffers[tailBuffer].data();
 }
 
@@ -394,27 +384,24 @@ char *QRingBuffer::reserve(int bytes)
 void QRingBuffer::truncate(int bytes)
 {
     for (;;) {
+        // special case: head and tail are in the same buffer
         if (tailBuffer == 0) {
             tail -= bytes;
-            if (tail < head)
-                clear();
+            if (tail <= head)
+                tail = head = 0;
             return;
         }
 
-        if (bytes < tail) {
+        if (bytes <= tail) {
             tail -= bytes;
             return;
         }
 
-        bytes -= (tail + 1);
+        bytes -= tail;
         buffers.removeAt(tailBuffer);
-        if (buffers.isEmpty()) {
-            clear();
-            return;
-        }
 
         --tailBuffer;
-        tail = buffers.at(tailBuffer).size() - 1;
+        tail = buffers.at(tailBuffer).size();
     }
 }
 
@@ -425,7 +412,7 @@ void QRingBuffer::truncate(int bytes)
 int QRingBuffer::getChar()
 {
     if (isEmpty())
-        return -1;
+       return -1;
     char c = *readPointer();
     free(1);
     return c;
@@ -450,6 +437,7 @@ void QRingBuffer::ungetChar(char c)
         buffers.prepend(QByteArray());
         buffers[0].resize(basicBlockSize);
         head = basicBlockSize - 1;
+        ++tailBuffer;
     }
     buffers[0][head] = c;
 }
@@ -472,7 +460,6 @@ int QRingBuffer::size() const
         } else {
             tmpSize += buffers.at(i).size();
         }
-
     }
 
     return tmpSize;
@@ -483,10 +470,13 @@ int QRingBuffer::size() const
 */
 void QRingBuffer::clear()
 {
-    if (!buffers.isEmpty())
-        buffers.clear();
-    buffers << QByteArray();
-    buffers[0].resize(basicBlockSize);
+    QByteArray tmp = buffers[0];
+    buffers.clear();
+    buffers << tmp;
+
+    if (buffers.at(0).size() != basicBlockSize)
+        buffers[0].resize(basicBlockSize);
+
     head = tail = 0;
     tailBuffer = 0;
 }
@@ -496,7 +486,7 @@ void QRingBuffer::clear()
 */
 bool QRingBuffer::isEmpty() const
 {
-    return size() == 0;
+    return tailBuffer == 0 && tail == 0;
 }
 
 /*! \internal
@@ -509,12 +499,14 @@ int QRingBuffer::indexOf(char c) const
     for (int i = 0; i < buffers.size(); ++i) {
         int start = 0;
         int end = buffers.at(i).size();
+
         if (i == 0)
             start = head;
         if (i == tailBuffer)
             end = tail;
+        const char *ptr = buffers.at(i).data() + start;
         for (int j = start; j < end; ++j) {
-            if (buffers.at(i).data()[j] == c)
+            if (*ptr++ == c)
                 return index;
             ++index;
         }
@@ -1687,12 +1679,15 @@ Q_LLONG QAbstractSocket::write(const char *data, Q_LLONG length)
     else
         memcpy(ptr, data, length);
 
-    if (d->isBlocking)
+    Q_LLONG written = length;
+    if (d->isBlocking) {
         flush();
+        written -= d->writeBuffer.size();
+    }
 
     if (d->writeSocketNotifier)
         d->writeSocketNotifier->setEnabled(true);
-    return length - d->writeBuffer.size();
+    return written;
 }
 
 /*!
