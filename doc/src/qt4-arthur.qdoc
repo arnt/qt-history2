@@ -56,7 +56,7 @@
     \i PostScript on Linux, Unix, and Mac OS X
     \i QuickDraw and CoreGraphics on Mac OS X
     \i X11 and the X Render Extension on Linux and Unix systems
-    \i Qt/Embedded
+    \i QVFb, VNC and LinuxFb on Qt/Embedded
     \endlist
 
     To implement support for a new backend, you must derive from

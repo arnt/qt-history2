@@ -37,11 +37,12 @@
 <h3>How painting is done in Qt 4</h3>
 <p>In Qt 4 we have introduced the abstract class QPaintEngine. Implementations of this class provide the concrete functionallity needed to draw to a specific device type. The class QPaintEngine is only used internally by QPainter and QPaintDevice and is hidden from application programmers, unless they reimplement their own device type in their own QPaintEngine subclass. Qt currently provides paint engines for the following platforms and API's:</p>
 <ul>
-<li>GDI and GDI+ on Windows.</li>
-<li>OpenGL on all platforms.</li>
+<li>GDI and GDI+ on Windows</li>
+<li>OpenGL on all platforms</li>
 <li>PostScript on Linux, Unix, and Mac OS X</li>
-<li>QuickDraw and CoreGraphics on Mac OS X.</li>
+<li>QuickDraw and CoreGraphics on Mac OS X</li>
 <li>X11 and the X Render Extension on Linux and Unix systems</li>
+<li>QVFb, VNC and LinuxFb on Qt/Embedded</li>
 </ul>
 <p>To implement support for a new backend, you must derive from QPaintEngine and reimplement its virtual functions. You also need to derive from QPaintDevice and reimplement the virtual function <b>QPaintDevice::paintEngine</b>()&nbsp;to tell QPainter which paint engine should be used to draw on this particular device.</p>
 <p>The main benefit of this approach is that all painting follows the same painting pipeline which means that adding support for new features and providing default implementations for unsupported ones has become much simpler.</p>
