@@ -131,7 +131,7 @@ bool QWSInputContext::translateIMEvent(QWidget *w, const QWSIMEvent *e)
             return false;
         }
         if (type == QInputMethodEvent::TextFormat)
-            data = QVariant(qic->standardFormat(static_cast<QInputContext::StandardFormat>(data.toInt())));
+            data = qVariant(qic->standardFormat(static_cast<QInputContext::StandardFormat>(data.toInt())));
         attrs << QInputMethodEvent::Attribute(static_cast<QInputMethodEvent::AttributeType>(type), start, length, data);
     }
 
