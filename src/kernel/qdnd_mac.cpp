@@ -435,7 +435,7 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode mode )
     qt_mac_in_drag = FALSE;
 
     return ((result == noErr) && (current_drag_action == QDropEvent::Move) &&
-	    widget_>extraData()->macDndExtra->acceptfmt &&
+	    widget->extraData()->macDndExtra->acceptfmt &&
 	    !widget->extraData()->macDndExtra->acceptact);
 }
 
