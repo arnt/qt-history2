@@ -12168,7 +12168,7 @@ static inline bool format(QChar::Decomposition tag, QString & str,
   who developed the unicode data tables.
 */
 /*!
-  Note that this function is not supported in Qt 2.0 and is merely
+  Note that this function is not supported in Qt 3.0 and is merely
   for experimental and illustrative purposes.  It is mainly of interest
   to those experimenting with Arabic and other composition-rich texts.
 
@@ -12369,11 +12369,11 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   QString uses \link shclass.html implicit sharing\endlink, and so it
   is very efficient and easy to use.
 
-  In all QString methods that take <var>const char*</var> parameters,
+  In all of the QString methods that take <var>const char*</var> parameters,
   the <var>const char*</var> is interpreted as a classic C-style
   0-terminated ASCII string. It is legal for the <var>const
-  char*</var> parameter to be 0. The results are undefined if the
-  <var>const char*</var> string is not 0-terminated. Functions that
+  char*</var> parameter to be 0. If the <var>const char*</var> is not
+  0-terminated, then the results are undefined.  Functions that
   copy classic C strings into a QString will not copy the terminating
   0-character. The QChar array of the QString (as returned by
   unicode()) is not terminated by a null.
@@ -12449,7 +12449,7 @@ Q_EXPORT void qt_qstring_stats()
 */
 
 /*!
-  Constructs a string containing the one character \a ch.
+  Constructs a string assigning it the character \a ch.
 */
 QString::QString( QChar ch )
 {
@@ -12506,10 +12506,10 @@ QString::QString( const QByteArray& ba )
 }
 
 /*!
-  Constructs a string that is a deep copy of the
-  first \a length QChar in the array \a unicode.
+  Constructs a string that is a deep copy of the first \a length 
+  characters in the QChar array.
 
-  If \a unicode and \a length are 0, a null string is created.
+  If \a unicode and \a length are 0, then a null string is created.
 
   If only \a unicode is 0, the string is empty but has \a length
   characters of space preallocated - QString expands automatically
@@ -12537,14 +12537,14 @@ QString::QString( const QChar* unicode, uint length )
   Constructs a string that is a deep copy of \a str, interpreted as a
   classic C string.
 
-  If \a str is 0 a null string is created.
+  If \a str is 0, then a null string is created.
 
   This is a cast constructor, but it is perfectly safe: converting a Latin1
   const char* to QString preserves all the information.
   You can disable this constructor by
   defining QT_NO_CAST_ASCII when you compile your applications.
-  You can also make QString objects by using setLatin1()/fromLatin1(), or
-  fromLocal8Bit(), fromUtf8(), or whatever encoding is appropriate for
+  You can also make QString objects by using setLatin1(), fromLatin1(), 
+  fromLocal8Bit(), and fromUtf8().  Or whatever encoding is appropriate for
   the 8-bit data you have.
 
   \sa isNull()
@@ -12755,27 +12755,44 @@ void QString::setLength( uint newLen )
     }
 }
 
-/*!  Returns a string equal to this one, but with the lowest-numbered
-  occurrence of \c %i (for a positive integer i) replaced by \a a.
+/*!  
 
   \code
-    label.setText( tr("Rename %1 to %2?").arg(oldName).arg(newName) );
+    QString firstName("Joe");
+    QString lastName("Bloggs");
+    QString fullName;
+    fullName = QString("My first name is %1 and my last name is %2").arg(firstName).arg(lastName);
+
+    // fullName == My first name is Joe and my last name is Bloggs
+  \endcode
+  
+  This function will return an string that replaces the lowest occurence of 
+  \a %i (i being a positive integer) with \a a.
+    
+  The \a fieldwidth value specifies the minimum amount of space that 
+  \a a is padded to.  A positive value will produce right-aligned text, 
+  whereas a negative value will produce left-aligned text.
+
+  \code
+    QString firstName("Joe");
+    QString lastName("Bloggs");
+    QString fullName;
+    fullName = QString("My first name is %1 and my last name is %2").arg(firstName, -10).arg(lastName, 10);
+
+    // My first name is Joe        and my last name is     Bloggs
   \endcode
 
-  \a fieldwidth is the minimum amount of space \a a is padded to.  A
-  positive value produces right-aligned text, whereas a negative value
-  produces left-aligned text.
+  \warning If you use arg() to construct "real" sentences like the one shown 
+  in the examples above, then this will likely have problems with translation 
+  (when you use the tr() function).  You will also likely have problems with 
+  translation if you rely on spaces to create the alignment.
 
-  \warning Using arg() for constructing "real" sentences
-  programmatically is likely to lead to translation problems.
-  Inserting objects such as numbers or file names is fairly safe.
-
-  \warning Relying on spaces to create alignment can lead to
-  translation problems.
+  If you specify \a a to be an object such as a number or a file name, then 
+  it is fairly safe when it comes to translation.
 
   If there is no \c %i pattern, a warning message (qWarning()) is
-  printed and the text as appended at the end of the string.  This is
-  error recovery and should not occur in correct code.
+  printed and the text is appended at the end of the string.  This is
+  error recovery done by the function and should not occur in correct code.
 
   \sa QObject::tr()
 */
@@ -12816,7 +12833,14 @@ QString QString::arg(const QString& a, int fieldwidth) const
 
 /*! \overload
 
-  \a a is expressed in \a base notation, which is decimal by
+  \code
+    QString str;
+    str = QString("The number 63 is %1 in hexidecimal (base 16)").arg( 63, 0, 16 );
+  
+    // str == "The number 63 is 3f in hexidecimal (base 16)"
+  \endcode
+
+  \a a is expressed in \a base notation, which is base 10 (decimal) by
   default and must be in the range 2-36, inclusive.
 */
 QString QString::arg(long a, int fieldwidth, int base) const
@@ -12887,9 +12911,26 @@ QString QString::arg(QChar a, int fieldwidth) const
 /*! \overload
 
   \a a is formatted according to the \a fmt format specified, which is
-  'g' by default and can be any of 'f', 'F', 'e', 'E', 'g' or 'G' - all
-  of which have the same meaning as for sprintf().  \a prec determines
-  the precision, just as for number() and sprintf().
+  'g' by default and can be any of the following.
+
+  <ul>
+  <li> 'e' - Formats the double using the form [-]9.9999e[+|-]999
+  <li> 'E' - Formats the double using the form [-]9.9999E[+|-]999
+  <li> 'f' - Formats the double using the form [-]9999.9999
+  <li> 'g' - Formats the double using the 'e' or 'f' format, depending on which is the most precise
+  <li> 'G' - Formats the double using the 'E' or 'f' format, depending on which is the most precise
+  </ul>
+
+  These have the same effect as using sprintf().
+  
+  \a prec determines the precision of the double, just as for number() and sprintf().
+
+  \code
+    double m = 12.34;
+    string = QString("Using the 'E' format with a precision of 3, the double is %1").arg( m, 0, 'E', 3); 
+    
+    // string == "1.234E+001"
+  \endcode
 */
 QString QString::arg(double a, int fieldwidth, char fmt, int prec) const
 {
@@ -13091,6 +13132,10 @@ QString &QString::sprintf( const char* cformat, ... )
 
 
 /*!
+  \code
+    QString string("abcdef");
+    string = string.fill('g');      // string == "gggggg"
+    
   Fills the string with \a len characters of value \a c, and returns a
   reference to the string.
 
@@ -13330,10 +13375,15 @@ int QString::findRev( const QString& str, int index, bool cs ) const
 
 
 /*!
+  \code
+    QString string("Trolltech and Qt");
+    int a = string.contains( 't', FALSE );  // a == 3
+  \endcode
+  
   Returns the number of times the character \a c occurs in the string.
 
-  The match is case-sensitive if \a cs is TRUE or case-insensitive if \a cs
-  if FALSE.
+  If \a cs is TRUE then the match is case-sensitive.  If \a cs is FALSE, then the 
+  match is case-insensitive.
 */
 
 int QString::contains( QChar c, bool cs ) const
@@ -13362,8 +13412,8 @@ int QString::contains( QChar c, bool cs ) const
 
   Returns the number of times the string \a str occurs in the string.
 
-  The match is case-sensitive if \a cs is TRUE or case-insensitive if \a cs
-  if FALSE.
+  If \a cs is TRUE then the match is case-sensitive.  If \a cs is FALSE, then the 
+  match is case-insensitive.
 */
 int QString::contains( const char* str, bool cs ) const
 {
@@ -13373,10 +13423,6 @@ int QString::contains( const char* str, bool cs ) const
 /*! \fn int QString::contains( char c, bool cs ) const
   \overload
 
-  Returns the number of times the character \a c occurs in the string.
-
-  The match is case-sensitive if \a cs is TRUE or case-insensitive if \a cs
-  if FALSE.
 */
 
 /*! \fn int QString::find( char c, int index, bool cs ) const
@@ -13402,8 +13448,13 @@ int QString::contains( const char* str, bool cs ) const
   The match is case-sensitive if \a cs is TRUE or case-insensitive if \e
   cs if FALSE.
 
-  This function counts overlapping substrings; for example, "banana"
-  contains two occurrences of "ana".
+  This function counts overlapping string, so in the example below, there are two
+  instances of "ana" in "bananas".
+
+  \code
+    QString str("bananas");
+    int a = str.contains("ana");    // a == 2
+  \endcode
 
   \sa findRev()
 */
@@ -13999,13 +14050,18 @@ int QString::findRev( const QRegExp &rx, int index ) const
 
 /*! \overload
 
-  Counts the number of overlapping occurrences of \a rx in the string.
+  Returns the number of times \a str occurs in the string.
 
-  Example:
+  The match is case-sensitive if \a cs is TRUE or case-insensitive if \e
+  cs if FALSE.
+
+  This function counts overlapping string, so in the example below, there are four
+  instances of "ana" or "ama" in "banana and panama".
+
   \code
     QString s = "banana and panama";
     QRegExp r = QRegExp( "a[nm]a", TRUE, FALSE );
-    s.contains( r );                            // 4 matches
+    int a = s.contains( r );    // a == 4
   \endcode
 
   \sa find() findRev()
@@ -14597,6 +14653,12 @@ void QString::setExpand( uint index, QChar c )
 /*!
   \fn QString& QString::append( const QString& str )
   Appends \a str to the string and returns a reference to the result.
+
+\code
+   string = "Test";
+   string = string.append("ing");    // string == "Testing"
+\endcode
+
   Equivalent to operator+=().
  */
 
@@ -14691,7 +14753,7 @@ const char* QString::latin1() const
   \fn const char* QString::ascii() const
   \obsolete
 
-  This functions simply calls latin1() and returns the result.
+  This function simply calls latin1() and returns the result.
 */
 
 #ifndef QT_NO_CODECS
@@ -14850,6 +14912,11 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 /*!
   \fn QChar QString::at( uint ) const
 
+  \code
+    QString string("abcdefgh");
+    str = string.at( 4 );   // str == "e"
+  \endcode
+  
   Returns the character at \a i, or 0 if \a i is beyond the length
   of the string.
 
@@ -15072,16 +15139,24 @@ bool QString::isRightToLeft() const
 /*!
   \fn int QString::compare (const QString & s1, const QString & s2)
 
-  Compares \a s1 to \a s2 and returnin an integer less than, equal to, or
-  greater than zero if s1 is lexically less than, equal to,
-  or greater than s2.
+  \code 
+    int a = QString::compare( "def", "abc" );   // a == 3
+    int b = QString::compare( "abc", "def" );   // b == -3
+    int c = QString::compare(" abc", "abc" );   // c == 0
+  \endcode
+  
+  Lexically compares \a s1 with \a s2 and returns an integer less than, equal to, or
+  greater than zero if s1 is lexically less than, equal to, or greater than \a s2.
+
+  The lexical order is similar to dictionary order, and it is case insensitive.
 */
 
 /*! \overload
 
-  Compares this string to \a s and returns an integer less than, equal to, or
-  greater than zero if it is lexically less than, equal to,
-  or greater than \a s.
+   Lexically compares this string with \a s and returns an integer less than, equal 
+   to, or greater than zero if it is lexically less than, equal to, or greater than
+   \a s.
+
 */
 int QString::compare( const QString& s ) const
 {
