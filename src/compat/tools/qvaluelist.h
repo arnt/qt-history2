@@ -28,28 +28,27 @@
 #endif
 
 #ifdef QT_COMPAT
-template <typename T> class QT_COMPAT QValueListIterator : public QLinkedList<T>::Iterator
+template <typename T> class QT_COMPAT QValueListIterator : public QLinkedList<T>::iterator
 {
 public:
     inline QValueListIterator<T>() :
-        QLinkedList<T>::Iterator() {}
+        QLinkedList<T>::iterator() {}
     inline QValueListIterator<T>(const QValueListIterator &o) :
-        QLinkedList<T>::Iterator(o) {}
-    inline QValueListIterator<T>(const typename QLinkedList<T>::Iterator &o) :
-        QLinkedList<T>::Iterator(o) {}
+        QLinkedList<T>::iterator(o) {}
+    inline QValueListIterator<T>(const typename QLinkedList<T>::iterator &o) :
+        QLinkedList<T>::iterator(o) {}
 };
 
-template <typename T> class QT_COMPAT QValueListConstIterator : public QLinkedList<T>::ConstIterator
+template <typename T> class QT_COMPAT QValueListConstIterator : public QLinkedList<T>::const_iterator
 {
 public:
-    inline QValueListConstIterator<T>() :
-        QLinkedList<T>::ConstIterator() {}
+    inline QValueListConstIterator<T>() {}
     inline QValueListConstIterator<T>(const QValueListConstIterator &o) :
-        QLinkedList<T>::ConstIterator(o) {}
-    inline QValueListConstIterator<T>(const typename QLinkedList<T>::ConstIterator &o) :
-        QLinkedList<T>::ConstIterator(o) {}
-    inline QValueListConstIterator<T>(const typename QLinkedList<T>::Iterator &o) :
-        QLinkedList<T>::ConstIterator(o) {}
+        QLinkedList<T>::const_iterator(o) {}
+    inline QValueListConstIterator<T>(const typename QLinkedList<T>::const_iterator &o) :
+        QLinkedList<T>::const_iterator(o) {}
+    inline QValueListConstIterator<T>(const typename QLinkedList<T>::iterator &o) :
+        QLinkedList<T>::const_iterator(o) {}
 };
 
 template <typename T>
