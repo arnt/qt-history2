@@ -29,10 +29,10 @@ Server binaries no longer need to implement a main() entry point function.
 A default implementation will be used for out-of-process servers.
 IClassFactory2 is supported for the development of licensed components, and
 QAxFactory supports the creation of non-visual COM objects.
-Class specific information provided by the Q_CLASSINFO macro can be provided
-directly in the C++ class declaration to control how objects and controls
+Class specific information can be provided directly in the C++ class 
+declaration using the Q_CLASSINFO macro to control how objects and controls
 are registered and exposed.
-New helper classes and macros are provided to make it even easier to expose
+New helper classes and macros are avialable to make it even easier to expose
 object classes (see the QAxServer documentation for details).
 
 COM objects developed with ActiveQt are now supported in a wider range of
