@@ -64,14 +64,14 @@ static XFontSet fontsetCache[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 static int fontsetRefCount = 0;
 
 static const char * const fontsetnames[] = {
-    "-*-fixed-medium-r-*-*-16-*",
-    "-*-fixed-medium-i-*-*-16-*",
-    "-*-fixed-bold-r-*-*-16-*",
-    "-*-fixed-bold-i-*-*-16-*",
-    "-*-fixed-medium-r-*-*-24-*",
-    "-*-fixed-medium-i-*-*-24-*",
-    "-*-fixed-bold-r-*-*-24-*",
-    "-*-fixed-bold-i-*-*-24-*"
+    "-*-fixed-medium-r-*-*-16-*,-*-*-medium-r-*-*-16-*",
+    "-*-fixed-medium-i-*-*-16-*,-*-*-medium-i-*-*-16-*",
+    "-*-fixed-bold-r-*-*-16-*,-*-*-bold-r-*-*-16-*",
+    "-*-fixed-bold-i-*-*-16-*,-*-*-bold-i-*-*-16-*",
+    "-*-fixed-medium-r-*-*-24-*,-*-*-medium-r-*-*-24-*",
+    "-*-fixed-medium-i-*-*-24-*,-*-*-medium-i-*-*-24-*",
+    "-*-fixed-bold-r-*-*-24-*,-*-*-bold-r-*-*-24-*",
+    "-*-fixed-bold-i-*-*-24-*,-*-*-bold-i-*-*-24-*"
 };
 
 static XFontSet getFontSet( const QFont &f )
