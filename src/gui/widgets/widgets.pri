@@ -1,6 +1,6 @@
 # Qt widgets module
 
-message("QT_NO_MAINWINDOW is only temporary")
+!build_pass:message("QT_NO_MAINWINDOW is only temporary")
 DEFINES += QT_NO_MAINWINDOW
 
 HEADERS += \
