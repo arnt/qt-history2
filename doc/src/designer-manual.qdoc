@@ -654,7 +654,7 @@ QDialog that we use to host the user interface described by the
 \c imagedialog.ui file.
 
 \skipto main
-\printuntil /^\};/
+\printuntil /^\}/
 
 In this case, the \c{Ui::ImageDialog} is an interface description object
 from the \c ui_imagedialog.h file that sets up all the dialog's widgets
