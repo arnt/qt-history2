@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#95 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#96 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#95 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#96 $");
 
 
 /*****************************************************************************
@@ -358,6 +358,10 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 {
     Q_UINT32 len;
     s >> len;					// read size of array
+    if ( len == 0 || s.eof() ) {		// end of file reached
+	a.resize( 0 );
+	return s;
+    }
     if ( !a.resize( (uint)len ) ) {		// resize array
 #if defined(CHECK_NULL)
 	warning( "QDataStream: Not enough memory to read QByteArray" );
@@ -1649,6 +1653,10 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 {
     Q_UINT32 len;
     s >> len;					// read size of string
+    if ( len == 0 || s.eof() ) {		// end of file reached
+	str.resize( 0 );
+	return s;
+    }
     if ( !str.QByteArray::resize( (uint)len )) {// resize string
 #if defined(CHECK_NULL)
 	warning( "QDataStream: Not enough memory to read QString" );

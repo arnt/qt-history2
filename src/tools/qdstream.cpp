@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.cpp#34 $
+** $Id: //depot/qt/main/src/tools/qdstream.cpp#35 $
 **
 ** Implementation of QDataStream class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#35 $");
 
 
 /*!
@@ -461,7 +461,7 @@ QDataStream &QDataStream::readBytes( char *&s, uint &l )
     Q_UINT32 len;
     *this >> len;				// first read length spec
     l = (uint)len;
-    if ( len == 0 ) {
+    if ( len == 0 || eof() ) {
 	s = 0;
 	return *this;
     } else {
