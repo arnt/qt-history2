@@ -213,10 +213,21 @@ extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region
 extern void qt_clear_paintevent_clipping( QPaintDevice *dev );
 
 static void *qt_root_win() {
-    WindowPtr ret = NULL;
-#if 0 //FIXME NEED TO FIGURE OUT HOW TO GET DESKTOP
-    GetCWMgrPort(ret);
+     WindowPtr ret = NULL;
+#ifdef Q_WS_MAC9
+    //FIXME NEED TO FIGURE OUT HOW TO GET DESKTOP
+    //GetCWMgrPort(ret);
+#else if defined(Q_WS_MACX)
+#if 0
+    Rect r;
+    GDHandle g = GetMainDevice();
+    if(g) 
+	SetRect(&r, 0, 0, (*g)->gdRect.right, (*g)->gdRect.bottom);
+    else 
+	SetRect(&r, 0, 0, 0, 0);
+    CreateNewWindow(kOverlayWindowClass, 0, &r, &ret);
 #endif
+#endif //MACX
     return (void *) ret;
 }
 
@@ -364,10 +375,18 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id);
 	InstallWindowContentPaintProc((WindowPtr)id, NewWindowPaintUPP(macSpecialErase), 0, this);
 //	ChangeWindowAttributes((WindowPtr)id, kWindowNoBufferingAttribute, 0);
-	fstrut_dirty = TRUE; // when we create a toplevel widget, the frame strut should be dirty
-
+#if 0
+	{ //set transparency!
+	    CGContextRef ctx = NULL;
+	    qDebug("%d -- %d", CreateCGContextForPort(GetWindowPort((WindowPtr)id), &ctx), ctx);
+	    CGContextSetAlpha(ctx, .5);
+//	    CGContextRelease(ctx);
+	}
 	if(testWFlags( WType_Popup ))
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
+#endif
+	fstrut_dirty = TRUE; // when we create a toplevel widget, the frame strut should be dirty
+
 	if(!mac_window_count++)
 	    QMacSavedPortInfo::setPaintDevice(this);
 

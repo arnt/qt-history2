@@ -72,8 +72,8 @@
 #define QT_OPEN_APPEND		O_APPEND
 
 #define QT_SIGNAL_RETTYPE	void
-#define QT_SIGNAL_ARGS		
-#define QT_SIGNAL_IGNORE	(void (*)())1
+#define QT_SIGNAL_ARGS		int
+#define QT_SIGNAL_IGNORE	(void (*)(int))1
 
 #define QT_SOCKLEN_T	int
 #define QT_NREAD	FIONREAD

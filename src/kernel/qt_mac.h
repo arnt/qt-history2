@@ -10,8 +10,6 @@
 
 #include "Carbon.h"
 #include "Movies.h"
-#include "PMCore.h"
-#include "OSUtils.h"
 
 #ifdef Q_WS_MAC9
 #include "qt_mac9.h"

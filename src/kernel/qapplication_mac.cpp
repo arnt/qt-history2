@@ -874,20 +874,33 @@ bool QApplication::processNextEvent( bool canWait )
 	//try to send null timers..
 	activateNullTimers();
 
+	/* Where noted (by wtf) we have to hack around brokenness in
+	   the OSX RC, hopefully this will be fixed before we ship,
+	   otherwise these hacks will have to be left in until we can
+	   convince apple to fix it
+	*/
+	EventRecord event_hack; //wtf?
 	EventRef event;
 	OSStatus ret;
 	while(GetNumEventsInQueue(GetCurrentEventQueue())) {
-	    while(GetNumEventsInQueue(GetCurrentEventQueue())) {
-		ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
-		if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr) {
+	    do {
+		ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, FALSE, &event ); //wtf^3
+		if(ret != noErr) {
 		    broke_early = TRUE;
 		    break;
 		}
-		ret = SendEventToApplication(event);
-		ReleaseEvent(event);
-		if(ret == noErr)
-		    nevents++;
-	    }
+		//wtf^4: That's right kids, apple is that lame!
+		UInt32 ekind = GetEventKind(event), eclass=GetEventClass(event);
+		if(eclass == kEventClassMouse && ekind == kEventMouseDown) {
+		    if(GetNextEvent(everyEvent, &event_hack))
+			nevents++;
+		} else {
+		    ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
+		    if(SendEventToApplication(event) == noErr)
+			nevents++;
+		    ReleaseEvent(event);
+		}
+	    } while(GetNumEventsInQueue(GetCurrentEventQueue()));
 	    sendPostedEvents();
 	}
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
@@ -1528,7 +1541,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	case kEventMouseDown:
 	    if(button == QMouseEvent::LeftButton && !mac_trap_context) {
 		remove_context_timer = FALSE;
-		InstallEventLoopTimer(GetMainEventLoop(), .25, 0, 
+		InstallEventLoopTimer(GetMainEventLoop(), 2, 0, 
 				      NewEventLoopTimerUPP(qt_trap_context_mouse), widget, 
 				      &mac_trap_context);
 	    }
@@ -1545,16 +1558,16 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		QWidget* w = widget;
 		while ( w->focusProxy() )
 		    w = w->focusProxy();
-		if ( w->focusPolicy() & QWidget::ClickFocus ) {
-		    QFocusEvent::setReason( QFocusEvent::Mouse);
-		    w->setFocus();
-		    QFocusEvent::resetReason();
-		}
-		if(QWidget *tlw = widget->topLevelWidget()) {
+		if(QWidget *tlw = w->topLevelWidget()) {
 		    tlw->raise();
 		    if(tlw->isTopLevel() && !tlw->isPopup() &&
 		       (tlw->isModal() || !tlw->isDialog())) 
 			app->setActiveWindow(tlw);
+		}
+		if ( w->focusPolicy() & QWidget::ClickFocus ) {
+		    QFocusEvent::setReason( QFocusEvent::Mouse);
+		    w->setFocus();
+		    QFocusEvent::resetReason();
 		}
 	    } else if(ekind == kEventMouseWheelMoved) {
 		QWidget* w = widget;
@@ -1623,7 +1636,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 	UInt32 keyc;
 	GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
-	const UInt32 state = 0L;
+	UInt32 state = 0L;
 	char chr = KeyTranslate((void *)GetScriptManagerVariable(smKCHRCache),
 				(modif & shiftKey) | keyc, &state);
 	int mychar=get_key(chr);
