@@ -571,6 +571,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     d->gc = XCreateGC(d->dpy, d->hd, 0, 0);
     d->gc_brush = XCreateGC(d->dpy, d->hd, 0, 0);
     d->use_path_fallback = false;
+    d->matrix = QMatrix();
 
     // Set up the polygon clipper. Note: This will only work in
     // polyline mode as long as we have a buffer zone, since a
@@ -1195,17 +1196,30 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
     }
 }
 
-void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
+void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &_sr,
                                  Qt::PixmapDrawingMode mode)
 {
+    // since we can't scale pixmaps this should always hold
+    // #####
+    //Q_ASSERT(r.width() == sr.width() && r.height() == sr.height());
+    QPixmap pixmap = pm;
+    QRectF sr = _sr;
+    if (r.size() != sr.size()) {
+        QImage image = pm.toImage();
+        image = image.copy(sr.toRect());
+        image = image.scaled(qRound(r.width()), qRound(r.height()), Qt::IgnoreAspectRatio,
+                             d->render_hints & QPainter::SmoothPixmapTransform
+                             ? Qt::SmoothTransformation : Qt::FastTransformation);
+        pixmap = QPixmap::fromImage(image);
+        sr = QRectF(0, 0, r.width(), r.height());
+    }
+
     int x = qRound(r.x());
     int y = qRound(r.y());
     int sx = qRound(sr.x());
     int sy = qRound(sr.y());
     int sw = qRound(sr.width());
     int sh = qRound(sr.height());
-    // since we can't scale pixmaps this should always hold
-    Q_ASSERT(r.width() == sr.width() && r.height() == sr.height());
 
     if (d->xinfo && d->xinfo->screen() != pixmap.x11Info().screen()) {
         QPixmap* p = const_cast<QPixmap *>(&pixmap);
