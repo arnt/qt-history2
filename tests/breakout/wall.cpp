@@ -983,30 +983,9 @@ void GameMain::newGame()
 	connect( remote, SIGNAL(readPad(double)), player2->getPad(), SLOT(setPosition(double)) );
 	player->getPad()->setAnimated( TRUE );
 
-	connect( this, SIGNAL(myBall()), remote, SLOT(sendMyBall()) );
-	connect( remote, SIGNAL(readItsBall()), this, SLOT(setItsBall()) );
-
-	connect( remote, SIGNAL(readBrickHit(int,int)), this, SLOT(brickHit(int,int)) );
-
-	connect( this, SIGNAL(ballInit()), remote, SLOT(sendInitBall()) );
-	connect( remote, SIGNAL(readInitBall()), this, SLOT(initBall()) );
-
 	connect( player->getLives(), SIGNAL(ballLost()), remote, SLOT(sendDied()) );
-	connect( remote, SIGNAL(readDied()), this, SLOT(killBall()) );
-
-	connect( this, SIGNAL(levelEnd()), remote, SLOT(sendEndLevel()) ); 
-	connect( remote, SIGNAL(readEndLevel()), this, SLOT(nextLevel()) );
 
 	connect( player->getLives(), SIGNAL(noMoreLives()), remote, SLOT(sendGameOver()) );
-	connect( remote, SIGNAL(readGameOver()), this, SLOT(playerDied()) );
-
-	connect( this, SIGNAL(startNewGame()), remote, SLOT(sendNewGame()) );
-	connect( remote, SIGNAL(readNewGame()), this, SLOT(newGame()) );
-
-	connect( remote, SIGNAL(connectionClosed()), this, SLOT(connectionLost()) );
-
-	connect( this, SIGNAL(ballStartSpeed(double)), remote, SLOT(sendStartBallSpeed(double)) );
-	connect( remote, SIGNAL(readStartBallSpeed(double)), this, SLOT(setStartBallSpeed(double)) );
 
 	if ( !remote->isServer() ) {
 	    currentPlayer = player2;
@@ -1058,7 +1037,6 @@ void GameMain::joinMultiGame()
     tableView->takeMouse( FALSE );
     remote = NetworkDialog::makeConnection( FALSE, this );
     if ( remote ) {
-	connect( remote, SIGNAL(readNewGame()), this, SLOT(newGame()) );
 	multiplayer = TRUE;
 	//newGame();
     }
@@ -1393,6 +1371,30 @@ void Remote::init()
     connect( remoteSocket, SIGNAL(connectionClosed()), this, SIGNAL(connectionClosed()) );
     connect( remoteSocket, SIGNAL(readyRead()), this, SLOT(socketReadyRead()) );
     connect( remoteSocket, SIGNAL(error(int)), this, SLOT(socketError(int)) );
+
+    connect( game, SIGNAL(myBall()), this, SLOT(sendMyBall()) );
+    connect( this, SIGNAL(readItsBall()), game, SLOT(setItsBall()) );
+
+    connect( this, SIGNAL(readBrickHit(int,int)), game, SLOT(brickHit(int,int)) );
+
+    connect( game, SIGNAL(ballInit()), this, SLOT(sendInitBall()) );
+    connect( this, SIGNAL(readInitBall()), game, SLOT(initBall()) );
+
+    connect( this, SIGNAL(readDied()), game, SLOT(killBall()) );
+
+    connect( game, SIGNAL(levelEnd()), this, SLOT(sendEndLevel()) ); 
+    connect( this, SIGNAL(readEndLevel()), game, SLOT(nextLevel()) );
+
+    connect( game, SIGNAL(startNewGame()), this, SLOT(sendNewGame()) );
+    connect( this, SIGNAL(readNewGame()), game, SLOT(newGame()) );
+
+    connect( this, SIGNAL(readGameOver()), game, SLOT(playerDied()) );
+
+    connect( this, SIGNAL(connectionClosed()), game, SLOT(connectionLost()) );
+
+    connect( game, SIGNAL(ballStartSpeed(double)), this, SLOT(sendStartBallSpeed(double)) );
+    connect( this, SIGNAL(readStartBallSpeed(double)), game, SLOT(setStartBallSpeed(double)) );
+
     stream.setDevice( remoteSocket );
 }
 
