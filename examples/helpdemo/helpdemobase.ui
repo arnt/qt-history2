@@ -99,7 +99,7 @@ below.
                 <enum>StyledPanel</enum>
             </property>
             <property name="frameShadow">
-                <enum>Sunken</enum>
+                <enum>Plain</enum>
             </property>
             <grid>
                 <property name="name">
