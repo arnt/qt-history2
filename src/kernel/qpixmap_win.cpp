@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#47 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#47 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -372,12 +372,18 @@ QImage QPixmap::convertToImage() const
 	    uint *p = (uint*)image.scanLine(i);
 	    uint *end = p + image.width();
 	    while ( p < end ) {
+		// ### Need to take QPixmap::mask() into account here,
+		// ### by adding 0xff000000 (opaque) for 1-bits in the mask.
 		*p = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
 		    *p & 0xff00;
 		p++;
 	    }
 	}
     }
+
+    // ### Need to take QPixmap::mask() into account here,
+    // ### by adding a transparent color (if possible), and
+    // ### changing masked-out pixels to that color index.
 
     for ( int i=0; i<ncols; i++ ) {		// copy color table
 	RGBQUAD *r = (RGBQUAD*)&coltbl[i];
