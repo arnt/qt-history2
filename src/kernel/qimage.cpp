@@ -983,7 +983,6 @@ QImage::Endian QImage::systemByteOrder()
 
 
 #if defined(Q_WS_X11)
-#define	 GC GC_QQQ
 #include <X11/Xlib.h>				// needed for systemBitOrder
 #include <X11/Xutil.h>
 #include <X11/Xos.h>

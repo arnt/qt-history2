@@ -98,7 +98,6 @@
 #include <ctype.h>
 #include <locale.h>
 #include <errno.h>
-#define	 GC GC_QQQ
 
 #include "qfile.h"
 

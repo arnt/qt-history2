@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Low-level support for Netscape Plugins under X11.
 **
@@ -38,7 +38,6 @@
 #include "qglobal.h"
 #include "qapplication.h"
 #include "qcolor_p.h"
-#define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>

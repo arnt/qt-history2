@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Includes X11 system header files.
 **
@@ -51,7 +51,6 @@
 
 
 #include "qwindowdefs.h"
-#define	 GC GC_QQQ
 
 #if defined(_XLIB_H_) // crude hack, but...
 #error "cannot include X11/Xlib.h before this file"

@@ -2004,12 +2004,12 @@ void qt_cleanup()
 	XFreeColormap( QPaintDevice::x11AppDisplay(),
 		       QPaintDevice::x11AppColormap() );
 
-#define CLEANUP_GC(g) if (g) { for (int i=0;i<screenCount;i++){if(g[i])XFreeGC(appDpy,g[i]);} delete [] g; g = 0; }
+#define QT_CLEANUP_GC(g) if (g) { for (int i=0;i<screenCount;i++){if(g[i])XFreeGC(appDpy,g[i]);} delete [] g; g = 0; }
     CLEANUP_GC(app_gc_ro);
     CLEANUP_GC(app_gc_ro_m);
     CLEANUP_GC(app_gc_tmp);
     CLEANUP_GC(app_gc_tmp_m);
-#undef CLEANUP_GC
+#undef QT_CLEANUP_GC
 
     delete sip_list;
     sip_list = 0;

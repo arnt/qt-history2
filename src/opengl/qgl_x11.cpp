@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -48,7 +48,6 @@
 #include <GL/glx.h>
 #undef  INT8
 #undef  INT32
-#define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
