@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcommonstyle.h#1 $
+** $Id: //depot/qt/main/src/widgets/qcommonstyle.h#2 $
 **
 ** Definition of QCommonStyle class
 **
@@ -33,6 +33,8 @@ class Q_EXPORT QCommonStyle: public QStyle
     Q_OBJECT
 private:
     QCommonStyle(GUIStyle);
+    ~QCommonStyle();
+  
     friend class QMotifStyle;
     friend class QWindowsStyle;
     friend class QPlatinumStyle;
