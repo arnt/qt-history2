@@ -85,14 +85,32 @@ QVariant::Type qDecodeOCIType( int ocitype )
     return type;
 }
 
+bool qIsPrimaryIndex( const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
+{
+    QSql t = driver->createResult();
+    QString stmt ("select count(1) "
+		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
+		  "where a.constraint_type='P' "
+		  "and a.table_name='%1' "
+		  "and b.column_name='%2' "
+		  "and c.index_name = a.constraint_name "
+		  "and b.column_name = c.column_name "
+		  "and b.table_name = a.table_name;" );
+    qDebug( stmt.arg( tablename ).arg( fieldname ) );
+    t.setQuery( stmt.arg( tablename ).arg( fieldname ) );
+    if ( t.next() && (t[0].toInt() == 1) )
+	return TRUE;
+    return FALSE;
+}		     
+
 QSqlField qMakeField( const QOCIPrivate* p, ub4 i )
 {
     OCIParam	*param;
     text        *colName;
     ub4         colNameLen(0);
     ub4         colLength(0);
-    sb2 	colPrecision(0);
-    sb1 	colScale(0);
+    //    sb2 	colPrecision(0);
+    //    sb1 	colScale(0);
     ub4		colType(0);
     sb4         paramStatus;
     int		r;
@@ -114,26 +132,26 @@ QSqlField qMakeField( const QOCIPrivate* p, ub4 i )
 	if ( r != 0 )
 	    qWarning( "qMakeField: " + qOraWarn( p ) );
 #endif
-        r = OCIAttrGet( (dvoid*) param,
-			OCI_DTYPE_PARAM,
-	                &colPrecision,
-			0,
-			OCI_ATTR_PRECISION,
-			p->err );
-#ifdef CHECK_RANGE
-	if ( r != 0 )
-	    qWarning( "qMakeField: " + qOraWarn( p ) );
-#endif
-        r = OCIAttrGet( (dvoid*) param,
-			OCI_DTYPE_PARAM,
-                	&colScale,
-                	0,
-			OCI_ATTR_SCALE,
-			p->err );
-#ifdef CHECK_RANGE
-	if ( r != 0 )
-	    qWarning( "qMakeField: " + qOraWarn( p ) );
-#endif
+//         r = OCIAttrGet( (dvoid*) param,
+// 			OCI_DTYPE_PARAM,
+// 	                &colPrecision,
+// 			0,
+// 			OCI_ATTR_PRECISION,
+// 			p->err );
+// #ifdef CHECK_RANGE
+// 	if ( r != 0 )
+// 	    qWarning( "qMakeField: " + qOraWarn( p ) );
+// #endif
+//         r = OCIAttrGet( (dvoid*) param,
+// 			OCI_DTYPE_PARAM,
+//                 	&colScale,
+//                 	0,
+// 			OCI_ATTR_SCALE,
+// 			p->err );
+// #ifdef CHECK_RANGE
+// 	if ( r != 0 )
+// 	    qWarning( "qMakeField: " + qOraWarn( p ) );
+// #endif
 	r = OCIAttrGet((dvoid*) param,
 			OCI_DTYPE_PARAM,
                     	&colLength,
@@ -161,7 +179,9 @@ QSqlField qMakeField( const QOCIPrivate* p, ub4 i )
 	    colLength = 0;
 	QString field((char*)colName);
 	field.truncate(colNameLen);
-	return QSqlField( field, i, type );
+	qDebug("creating field:" + field);
+	QSqlField f( field, i, type );
+	return f;
     }
     return QSqlField();
 }
@@ -260,7 +280,13 @@ QOCIResult::QOCIResult( const QOCIDriver * db, QOCIPrivate* p )
 
 QOCIResult::~QOCIResult()
 {
-    int r(0);
+    if ( d->sql ) {
+	int r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
+#ifdef CHECK_RANGE
+	if ( r != 0 )
+	    qWarning( "QOCIResult::reset: Unable to free statement handle: " + qOraWarn( d ) );
+#endif
+    }    
     delete d;
     if ( cols )
 	delete cols;
@@ -275,6 +301,13 @@ bool QOCIResult::reset ( const QString& query )
     }
     currentSize = 0;
     rowCache.clear();
+    if ( d->sql ) {
+	r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
+#ifdef CHECK_RANGE
+	if ( r != 0 )
+	    qWarning( "QOCIResult::reset: Unable to free statement handle: " + qOraWarn( d ) );
+#endif
+    }    
     if ( query.isNull() )
 	return FALSE;
     r = OCIHandleAlloc( (dvoid *) d->env,
@@ -357,13 +390,6 @@ bool QOCIResult::reset ( const QString& query )
     }
     while ( fetchNext() )
 	; // cache it all
-    if ( d->sql ) {
-	r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
-#ifdef CHECK_RANGE
-	if ( r != 0 )
-	    qWarning( "QOCIResult::reset: Unable to free statement handle: " + qOraWarn( d ) );
-#endif
-    }    
     setAt( -1 );
     setActive( TRUE);
     currentSize = rowCache.count();
@@ -635,8 +661,11 @@ QSqlFieldList QOCIDriver::fields( const QString& tablename ) const
 		  "where table_name='%1';" );
     t.setQuery( stmt.arg( tablename ) );
     QSqlFieldList fil;
-    while ( t.next() )
-	fil.append( QSqlField( t[0].toString(), t.at(), qDecodeOCIType(t[1].toInt()) ));
+    while ( t.next() ) {
+	QSqlField f( t[0].toString(), t.at(), qDecodeOCIType(t[1].toInt()) );
+	f.setPrimaryIndex( qIsPrimaryIndex( this, tablename, f.name() ));
+	fil.append( f );
+    }
     return fil;
 }
 
