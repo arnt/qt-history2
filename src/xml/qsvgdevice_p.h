@@ -67,6 +67,7 @@
 class QPainter;
 class QDomNode;
 class QDomNamedNodeMap;
+struct QSvgDeviceState;
 class QSvgDevicePrivate;
 
 class QM_EXPORT_SVG QSvgDevice : public QPaintDevice
@@ -93,6 +94,8 @@ protected:
 private:
     // reading
     bool play( const QDomNode &node );
+    void saveAttributes();
+    void restoreAttributes();
     QColor parseColor( const QString &col );
     double parseLen( const QString &str, bool *ok=0, bool horiz=TRUE ) const;
     int lenToInt( const QDomNamedNodeMap &map, const QString &attr,
@@ -112,6 +115,7 @@ private:
     QDomDocument doc;			// document tree
     QDomNode current;
     QPoint curPt;
+    QSvgDeviceState *curr;
     QPainter *pt;			// used by play() et al
 
     // writing

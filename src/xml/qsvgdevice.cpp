@@ -72,18 +72,28 @@ struct QM_EXPORT_SVG PixElement {
 #endif
 };
 
+struct QSvgDeviceState {
+    int textx, texty;			// current text position
+    int textalign;			// text alignment
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const QSvgDeviceState& ) const { return FALSE; }
+#endif
+};
+
 typedef QValueList<ImgElement> ImageList;
 typedef QValueList<PixElement> PixmapList;
+typedef QValueList<QSvgDeviceState> StateList;
 
 class QSvgDevicePrivate {
 public:
     ImageList images;
     PixmapList pixmaps;
-    int talign;				// text alignment
+    StateList stack;
 };
 
 enum ElementType {
     InvalidElement = 0,
+    AnchorElement,
     CircleElement,
     CommentElement,
     DescElement,
@@ -95,8 +105,10 @@ enum ElementType {
     PolygonElement,
     PathElement,
     RectElement,
+    SvgElement,
     TextElement,
-    TitleElement
+    TitleElement,
+    TSpanElement
 };
 
 typedef QMap<QString,ElementType> QSvgTypeMap;
@@ -213,6 +225,7 @@ bool QSvgDevice::play( QPainter *painter )
 	const char *name;
 	ElementType type;
     } etab[] = {
+	{ "a",        AnchorElement   },
 	{ "#comment", CommentElement  },
         { "circle",   CircleElement   },
 	{ "desc",     DescElement     },
@@ -224,7 +237,9 @@ bool QSvgDevice::play( QPainter *painter )
         { "polygon",  PolygonElement  },
         { "path",     PathElement     },
         { "rect",     RectElement     },
+        { "svg",      SvgElement      },
         { "text",     TextElement     },
+        { "tspan",    TSpanElement    },
 	{ "title",    TitleElement    },
 	{ 0,          InvalidElement  }
     };
@@ -238,9 +253,16 @@ bool QSvgDevice::play( QPainter *painter )
 	}
     }
 
+    // initial state
+    QSvgDeviceState st;
+    st.textx = st.texty = 0;
+    st.textalign = Qt::AlignLeft;
+    d->stack.append(st);
+    curr = &d->stack.last();
     // 'play' all elements recursively starting with 'svg' as root
-    d->talign = Qt::AlignLeft;
-    return play( svg );
+    bool b = play( svg );
+    d->stack.remove( d->stack.begin() );
+    return b;
 }
 
 /*!
@@ -624,17 +646,43 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 
 /*!
   \internal
+  Push the current drawing attributes on a stack.
+  \sa restoreAttributes()
+*/
+
+void QSvgDevice::saveAttributes()
+{
+    pt->save();
+    // copy old state
+    QSvgDeviceState st( *curr );
+    d->stack.append( st );
+    curr = &d->stack.last();
+}
+
+/*!
+  \internal
+  Pop the current drawing attributes off the stack.
+  \sa saveAttributes()
+*/
+
+void QSvgDevice::restoreAttributes()
+{
+    pt->restore();
+    Q_ASSERT( d->stack.count() > 1 );
+    d->stack.remove( d->stack.fromLast() );
+    curr = &d->stack.last();
+}
+
+/*!
+  \internal
   Evaluate \a node, drawing on \a p. Allows recursive calls.
 */
 
 bool QSvgDevice::play( const QDomNode &node )
 {
-    QDomNode child = node.firstChild();
+    saveAttributes();
 
-    while ( !child.isNull() ) {
-	pt->save();
-
-	QDomNamedNodeMap attr = child.attributes();
+	QDomNamedNodeMap attr = node.attributes();
 	if ( attr.contains( "style" ) )
 	    setStyle( attr.namedItem( "style" ).nodeValue() );
 	if ( attr.contains( "transform" ) )
@@ -647,15 +695,16 @@ bool QSvgDevice::play( const QDomNode &node )
 		QDomNode n = attr.item( i );
 		QString a = n.nodeName();
 		QString val = n.nodeValue().lower().stripWhiteSpace();
-		setStyleProperty( a, val, &pen, &font, &d->talign );
+		setStyleProperty( a, val, &pen, &font, &curr->textalign );
 	    }
 	    pt->setPen( pen );
 	    pt->setFont( font );
 	}
 
 	int x1, y1, x2, y2, rx, ry, w, h;
-	ElementType t = (*qSvgTypeMap)[ child.nodeName() ];
+	ElementType t = (*qSvgTypeMap)[ node.nodeName() ];
 	switch ( t ) {
+	case AnchorElement:
 	case CommentElement:
 	    // ignore
 	    break;
@@ -726,26 +775,35 @@ bool QSvgDevice::play( const QDomNode &node )
 		}
 	    }
 	    break;
+	case SvgElement:
 	case GroupElement:
 	    {
-		// ### have a real stack for save and restore
-		int talign = d->talign;
-		play( child );
-		d->talign = talign;
+		QDomNode child = node.firstChild();
+		while ( !child.isNull() ) {
+		    play( child );
+		    child = child.nextSibling();
+		}
 	    }
 	    break;
 	case PathElement:
 	    drawPath( attr.namedItem( "d" ).nodeValue() );
 	    break;
+	case TSpanElement:
 	case TextElement:
 	    {
-		x1 = lenToInt( attr, "x" );
-		y1 = lenToInt( attr, "y" );
+		if ( attr.contains( "x" ) )
+		     curr->textx = lenToInt( attr, "x" );
+		if ( attr.contains( "y" ) )
+		     curr->texty = lenToInt( attr, "y" );
+		if ( t == TSpanElement ) {
+		    curr->textx += lenToInt( attr, "dx" );
+		    curr->texty += lenToInt( attr, "dy" );
+		}
 		// backup old colors
 		QPen pn = pt->pen();
 		QColor pcolor = pn.color();
 		QColor bcolor = pt->brush().color();
-		QDomNode c = child.firstChild();
+		QDomNode c = node.firstChild();
 		while ( !c.isNull() ) {
 		    if ( c.isText() ) {
 			// we have pen and brush reversed for text drawing
@@ -754,17 +812,27 @@ bool QSvgDevice::play( const QDomNode &node )
 			QString text = c.toText().nodeValue();
 			text = text.simplifyWhiteSpace(); // ### 'preserve'
 			w = pt->fontMetrics().width( text );
-			if ( d->talign == Qt::AlignHCenter )
-			    x1 -= w / 2;
-			else if ( d->talign == Qt::AlignRight )
-			    x1 -= w;
-			pt->drawText( x1, y1, text );
+			if ( curr->textalign == Qt::AlignHCenter )
+			    curr->textx -= w / 2;
+			else if ( curr->textalign == Qt::AlignRight )
+			    curr->textx -= w;
+			pt->drawText( curr->textx, curr->texty, text );
 			// restore pen
 			pn.setColor( pcolor );
 			pt->setPen( pn );
-			x1 += w;
+			curr->textx += w;
+		    } else if ( c.isElement() &&
+				c.toElement().tagName() == "tspan" ) {
+			play( c );
+
 		    }
 		    c = c.nextSibling();
+		}
+		if ( t == TSpanElement ) {
+		    // move current text position in parent text element
+		    StateList::Iterator it = --d->stack.fromLast();
+		    (*it).textx = curr->textx;
+		    (*it).texty = curr->texty;
 		}
 	    }
 	    break;
@@ -790,15 +858,11 @@ bool QSvgDevice::play( const QDomNode &node )
 	    break;
 	case InvalidElement:
 	    qWarning( "QSvgDevice::play: unknown element type " +
-		      child.nodeName() );
+		      node.nodeName() );
 	    break;
 	};
 
-	pt->restore();
-
-	// move on to the next node
-	child = child.nextSibling();
-    }
+    restoreAttributes();
 
     return TRUE;
 }
@@ -993,7 +1057,7 @@ void QSvgDevice::setStyle( const QString &s )
 	    QString prop = (*it).left( col ).simplifyWhiteSpace();
 	    QString val = (*it).right( (*it).length() - col - 1 );
 	    val = val.lower().stripWhiteSpace();
-	    setStyleProperty( prop, val, &pen, &font, &d->talign );
+	    setStyleProperty( prop, val, &pen, &font, &curr->textalign );
 	}
     }
 
