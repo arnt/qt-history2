@@ -162,6 +162,7 @@ signals:
 
     void currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
     void currentTextChanged(const QString &currentText);
+    void currentRowChanged(int currentRow);
 
     void itemSelectionChanged();
 

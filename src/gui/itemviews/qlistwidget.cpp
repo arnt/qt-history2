@@ -672,6 +672,7 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     QListWidgetItem *currentItem = model()->at(current.row());
     emit q->currentItemChanged(currentItem, model()->at(previous.row()));
     emit q->currentTextChanged(currentItem ? currentItem->text() : QString());
+    emit q->currentRowChanged(current.row());
 }
 
 /*!
@@ -756,7 +757,7 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 */
 
 /*!
-    \fn void QListWidget::pressed(QListWidgetItem *item, const QMouseEvent *event)
+    \fn void QListWidget::itemPressed(QListWidgetItem *item)
 
     This signal is emitted when a item has been pressed (mouse click
     and release). The \a item may be 0 if the mouse was not pressed on
@@ -764,46 +765,23 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 */
 
 /*!
-    \fn void QListWidget::clicked(QListWidgetItem *item, const QMouseEvent *event)
+    \fn void QListWidget::itemClicked(QListWidgetItem *item)
 
     This signal is emitted when a mouse button is clicked. The \a item
     may be 0 if the mouse was not clicked on an item.
 */
 
 /*!
-    \fn void QListWidget::doubleClicked(QListWidgetItem *item, const QMouseEvent *event);
+    \fn void QListWidget::itemDoubleClicked(QListWidgetItem *item)
 
     This signal is emitted when a mouse button is double clicked. The
     \a item may be 0 if the mouse was not clicked on an item.
 */
 
 /*!
-    \fn void QListWidget::keyPressed(QListWidgetItem *item, const QKeyEvent *event)
+  \fn void QListWidget::itemActivated(QListWidgetItem *item)
 
-    This signal is emitted if keyTracking is turned on an a key was
-    pressed. The \a item is the current item when the key was pressed.
-*/
-
-/*!
-    \fn void QListWidget::returnPressed(QListWidgetItem *item)
-
-    This signal is emitted when return has been pressed on an \a item.
-*/
-
-/*!
-    \fn void QListWidget::currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
-
-    This signal is emitted whenever the current item changes. The \a
-    previous item is the item that previously had the focus, \a
-    current is the new current item.
-*/
-
-/*!
-    \fn void QListWidget::itemSelectionChanged()
-
-    This signal is emitted whenever the selection changes.
-
-    \sa selectedItems() isItemSelected()
+  This signal is emitted when ... ###
 */
 
 /*!
@@ -819,6 +797,37 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     \fn void QListWidget::itemChanged(QListWidgetItem *item)
 
     This signal is emitted whenever the data of \a item has changed.
+*/
+
+/*!
+    \fn void QListWidget::currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
+
+    This signal is emitted whenever the current item changes. The \a
+    previous item is the item that previously had the focus, \a
+    current is the new current item.
+*/
+
+/*!
+  \fn void QListWidget::currentTextChanged(const QString &currentText)
+
+  This signal is emitted whenever the current item changes. The \a currentText
+  is the text data in the current item. If there is no current item, the \a currentText
+  is invalid.
+*/
+
+/*!
+  \fn void QListWidget::currentRowChanged(int currentRow)
+
+  This signal is emitted whenever the current item changes. The \a currentRow
+  is the row of the current item. If there is no current item, the \a currentRow is -1.
+*/
+
+/*!
+    \fn void QListWidget::itemSelectionChanged()
+
+    This signal is emitted whenever the selection changes.
+
+    \sa selectedItems() isItemSelected()
 */
 
 /*!
