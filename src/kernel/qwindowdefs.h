@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#19 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#20 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -123,9 +123,9 @@ struct QXFontStruct;
 Display *qXDisplay();
 int	 qXScreen();
 Window	 qXRootWin();
-GC	 qXAllocGC( Font, ulong bgc, ulong fgc );
+GC	 qXAllocGC( Font, ulong bgc, ulong fgc, bool shareable=TRUE );
 void	 qXFreeGC( GC );
-GC	 qXChangeGC( GC, Font, ulong bgc, ulong fgc );
+GC	 qXChangeGC( GC, Font, ulong bgc, ulong fgc, bool shareable=TRUE );
 
 #endif // _WS_X11_
 
