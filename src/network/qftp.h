@@ -99,6 +99,7 @@ public:
     int list( const QString &dir=QString::null );
     int cd( const QString &dir );
     int get( const QString &file );
+    int get( const QString &file, QIODevice *dev );
     int put( const QByteArray &data, const QString &file );
     int remove( const QString &file );
     int mkdir( const QString &dir );

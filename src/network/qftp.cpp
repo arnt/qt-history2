@@ -125,6 +125,7 @@ public:
     QFtpDTP( QFtpPI *p, QObject *parent=0, const char *name=0 );
 
     void setData( QByteArray * );
+    void setDevice( QIODevice * );
     void writeData();
 
     bool hasError() const;
@@ -233,6 +234,7 @@ class QFtpCommand
 public:
     QFtpCommand( QFtp::Command cmd, QStringList raw );
     QFtpCommand( QFtp::Command cmd, QStringList raw, const QByteArray &ba );
+    QFtpCommand( QFtp::Command cmd, QStringList raw, QIODevice *dev );
     ~QFtpCommand();
 
     int id;
@@ -268,6 +270,13 @@ QFtpCommand::QFtpCommand( QFtp::Command cmd, QStringList raw, const QByteArray &
     data.ba = new QByteArray( ba );
 }
 
+QFtpCommand::QFtpCommand( QFtp::Command cmd, QStringList raw, QIODevice *dev )
+    : command(cmd), rawCmds(raw), data_ba(FALSE)
+{
+    id = ++idCounter;
+    data.dev = dev;
+}
+
 QFtpCommand::~QFtpCommand()
 {
     if ( data_ba )
@@ -283,7 +292,7 @@ QFtpDTP::QFtpDTP( QFtpPI *p, QObject *parent, const char *name ) :
     QSocket( parent, name ), pi(p),
     err( QString::null ), data_ba(FALSE)
 {
-    data_ba = FALSE;
+    data.ba = 0;
 
     connect( this, SIGNAL( connected() ),
 	     SLOT( slotConnected() ) );
@@ -301,6 +310,12 @@ void QFtpDTP::setData( QByteArray *ba )
 {
     data_ba = TRUE;
     data.ba = ba;
+}
+
+void QFtpDTP::setDevice( QIODevice *dev )
+{
+    data_ba = FALSE;
+    data.dev = dev;
 }
 
 void QFtpDTP::writeData()
@@ -508,8 +523,14 @@ void QFtpDTP::slotReadyRead()
 	}
 	ba.resize( bytesRead );
 	totalBytes += bytesRead;
+#if defined(QFTPDTP_DEBUG)
+	qDebug( "QFtpDTP read: %d bytes (total %d bytes)", (int)bytesRead, totalBytes );
+#endif
 	emit dataProgress( totalBytes );
-	emit newData( ba );
+	if ( !data_ba && data.dev )
+	    data.dev->writeBlock( ba );
+	else
+	    emit newData( ba );
     }
 }
 
@@ -530,6 +551,10 @@ void QFtpDTP::slotError( int e )
 
 void QFtpDTP::slotConnectionClosed()
 {
+    if ( !data_ba && data.dev ) {
+	data_ba = FALSE;
+	data.ba = 0;
+    }
 #if defined(QFTPDTP_DEBUG)
     qDebug( "QFtpDTP::connectState( CsClosed )" );
 #endif
@@ -1222,6 +1247,25 @@ int QFtp::get( const QString &file )
 }
 
 /*!
+  Downloads the file \a file from the server and stores it on the IO device \a
+  dev. Make sure that the \a dev pointer is valid throughout the whole pending
+  operation (it is safe to emit it when the finishedSuccess() or
+  finishedError() is emitted).
+
+  This overload emits the same signals, except for the newData() signal which
+  is never emitted.
+*/
+int QFtp::get( const QString &file, QIODevice *dev )
+{
+    QStringList cmds;
+    cmds << "SIZE " + file + "\r\n";
+    cmds << "TYPE I\r\n";
+    cmds << "PASV\r\n";
+    cmds << "RETR " + file + "\r\n";
+    return addCommand( new QFtpCommand( Get, cmds, dev ) );
+}
+
+/*!
   Stores the data \a data under \a file on the server. The progress of the
   upload is reported by the dataSize() and dataProgress() signals.
 
@@ -1400,6 +1444,10 @@ void QFtp::startNextCommand()
 	    if ( c->data_ba && c->data.ba ) {
 		d->pi.dtp.setData( c->data.ba );
 		emit dataSize( c->data.ba->size() );
+	    }
+	} else if ( c->command == Get ) {
+	    if ( !c->data_ba && c->data.dev ) {
+		d->pi.dtp.setDevice( c->data.dev );
 	    }
 	} else if ( c->command == Close ) {
 	    d->state = QFtp::Closing;

@@ -25,6 +25,7 @@
 #include <qstatusbar.h>
 #include <qmessagebox.h>
 #include <qfiledialog.h>
+#include <qprogressdialog.h>
 
 #include "connectdialog.h"
 #include "ftpviewitem.h"
@@ -78,7 +79,49 @@ void FtpMainWindow::downloadFile()
     FtpViewItem *item = (FtpViewItem*)remoteView->selectedItem();
     if ( !item || item->isDir() )
 	return;
-    qDebug( "### download file" );
+
+    QString fileName = QFileDialog::getSaveFileName(
+	    item->text(0),
+	    QString::null,
+	    this,
+	    "download file dialog",
+	    tr("Save downloaded file as") );
+    if ( fileName.isNull() )
+	return;
+
+    // create file on the heap because it has to be valid throughout the whole
+    // asynchronous download operation
+    QFile *file = new QFile( fileName );
+    if ( !file->open( IO_WriteOnly ) ) {
+	QMessageBox::critical( this, tr("Download error"),
+		tr("Can't open file '%1' for writing.").arg(fileName) );
+	delete file;
+	return;
+    }
+
+    QProgressDialog progress(
+	    tr("Downloading file..."),
+	    tr("Cancel"),
+	    0,
+	    this,
+	    "download progress dialog",
+	    TRUE );
+
+    connect( ftp, SIGNAL(dataSize(int)),
+	    &progress, SLOT(setTotalSteps(int)) );
+    connect( ftp, SIGNAL(dataProgress(int)),
+	    &progress, SLOT(setProgress(int)) );
+
+    connect( ftp, SIGNAL(finishedSuccess(int)),
+	    &progress, SLOT(reset()) );
+    connect( ftp, SIGNAL(finishedError(int,const QString&)),
+	    &progress, SLOT(reset()) );
+
+    connect( &progress, SIGNAL(cancelled()),
+	    ftp, SLOT(abort()) );
+
+    ftp->get( item->text(0), file );
+    progress.exec(); // ### takes a lot of time!!!
 }
 
 void FtpMainWindow::removeFile()
