@@ -2350,7 +2350,7 @@ HRESULT WINAPI QAxServerBase::Load( IStream *pStm )
 
 	int idx = mo->findProperty(propname, TRUE);
 	const QMetaProperty *property = mo->property( idx, TRUE );
-	if (property->writable())
+	if (property && property->writable())
 	    qt.object->setProperty( propname, value );
     }
     return S_OK;
