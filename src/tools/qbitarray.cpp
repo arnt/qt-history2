@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#51 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#52 $
 **
 ** Implementation of QBitArray class
 **
@@ -558,14 +558,14 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
 
   Serialization format:
   <ol>
-  <li> The array size (UINT32)
+  <li> The array size (Q_UINT32)
   <li> The array bits, (size+7)/8 bytes
   </ol>
 */
 
 QDataStream &operator<<( QDataStream &s, const QBitArray &a )
 {
-    UINT32 len = a.size();
+    Q_UINT32 len = a.size();
     s << len;					// write size of array
     if ( len > 0 )				// write data
 	s.writeRawBytes( a.data(), a.QByteArray::size() );
@@ -579,7 +579,7 @@ QDataStream &operator<<( QDataStream &s, const QBitArray &a )
 
 QDataStream &operator>>( QDataStream &s, QBitArray &a )
 {
-    UINT32 len;
+    Q_UINT32 len;
     s >> len;					// read size of array
     if ( !a.resize( (uint)len ) ) {		// resize array
 #if defined(CHECK_NULL)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#37 $
 **
 ** Implementation of QCursor class
 **
@@ -92,7 +92,7 @@
 
 QDataStream &operator<<( QDataStream &s, const QCursor &c )
 {
-    s << (INT16)c.shape();			// write shape id to stream
+    s << (Q_INT16)c.shape();			// write shape id to stream
     if ( c.shape() == BitmapCursor ) {		// bitmap cursor
 	s << *c.bitmap() << *c.mask();
 	s << c.hotSpot();
@@ -107,7 +107,7 @@ QDataStream &operator<<( QDataStream &s, const QCursor &c )
 
 QDataStream &operator>>( QDataStream &s, QCursor &c )
 {
-    INT16 shape;
+    Q_INT16 shape;
     s >> shape;					// read shape id from stream
     if ( shape == BitmapCursor ) {		// read bitmap cursor
 	QBitmap bm, bmm;

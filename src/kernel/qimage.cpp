@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#242 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#243 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -3170,10 +3170,10 @@ const int BMP_FILEHDR_SIZE = 14;		// size of BMP_FILEHDR data
 
 struct BMP_FILEHDR {				// BMP file header
     char   bfType[2];				// "BM"
-    INT32  bfSize;				// size of file
-    INT16  bfReserved1;
-    INT16  bfReserved2;
-    INT32  bfOffBits;				// pointer to the pixmap bits
+    Q_INT32  bfSize;				// size of file
+    Q_INT16  bfReserved1;
+    Q_INT16  bfReserved2;
+    Q_INT32  bfOffBits;				// pointer to the pixmap bits
 };
 
 QDataStream &operator>>( QDataStream &s, BMP_FILEHDR &bf )
@@ -3200,17 +3200,17 @@ const int BMP_RLE8 = 1;				// run-length encoded, 8 bits
 const int BMP_RLE4 = 2;				// run-length encoded, 4 bits
 
 struct BMP_INFOHDR {				// BMP information header
-    INT32  biSize;				// size of this struct
-    INT32  biWidth;				// pixmap width
-    INT32  biHeight;				// pixmap height
-    INT16  biPlanes;				// should be 1
-    INT16  biBitCount;				// number of bits per pixel
-    INT32  biCompression;			// compression method
-    INT32  biSizeImage;				// size of image
-    INT32  biXPelsPerMeter;			// horizontal resolution
-    INT32  biYPelsPerMeter;			// vertical resolution
-    INT32  biClrUsed;				// number of colors used
-    INT32  biClrImportant;			// number of important colors
+    Q_INT32  biSize;				// size of this struct
+    Q_INT32  biWidth;				// pixmap width
+    Q_INT32  biHeight;				// pixmap height
+    Q_INT16  biPlanes;				// should be 1
+    Q_INT16  biBitCount;			// number of bits per pixel
+    Q_INT32  biCompression;			// compression method
+    Q_INT32  biSizeImage;				// size of image
+    Q_INT32  biXPelsPerMeter;			// horizontal resolution
+    Q_INT32  biYPelsPerMeter;			// vertical resolution
+    Q_INT32  biClrUsed;				// number of colors used
+    Q_INT32  biClrImportant;			// number of important colors
 };
 
 
@@ -3224,7 +3224,7 @@ QDataStream &operator>>( QDataStream &s, BMP_INFOHDR &bi )
 	s >> bi.biClrUsed >> bi.biClrImportant;
     }
     else {					// probably old Windows format
-	INT16 w, h;
+	Q_INT16 w, h;
 	s >> w >> h >> bi.biPlanes >> bi.biBitCount;
 	bi.biWidth  = w;
 	bi.biHeight = h;

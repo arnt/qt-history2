@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#76 $
 **
 ** Implementation of QPointArray class
 **
@@ -925,7 +925,7 @@ QPointArray QPointArray::quadBezier() const
 
   The serialization format is:
   <ol>
-  <li> The array size (UINT32)
+  <li> The array size (Q_UINT32)
   <li> The array points (QPoint)
   </ol>
 */

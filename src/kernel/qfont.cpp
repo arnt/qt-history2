@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#147 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#148 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -1220,10 +1220,10 @@ QDataStream &operator<<( QDataStream &s, const QFont &f )
 	s << f.d->req.family;
     }
 
-    return s << (INT16)f.d->req.pointSize
-	     << (UINT8)f.d->req.styleHint
-	     << (UINT8)f.d->req.charSet
-	     << (UINT8)f.d->req.weight
+    return s << (Q_INT16)f.d->req.pointSize
+	     << (Q_UINT8)f.d->req.styleHint
+	     << (Q_UINT8)f.d->req.charSet
+	     << (Q_UINT8)f.d->req.weight
 	     << get_font_bits(f.d->req);
 }
 

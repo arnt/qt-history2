@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#69 $
 **
 ** Implementation of QPicture class
 **
@@ -76,8 +76,8 @@
 
 
 static const char  *mfhdr_tag = "QPIC";		// header tag
-static const UINT16 mfhdr_maj = 2;		// major version #
-static const UINT16 mfhdr_min = 0;		// minor version #
+static const Q_UINT16 mfhdr_maj = 2;		// major version #
+static const Q_UINT16 mfhdr_min = 0;		// minor version #
 
 
 /*!
@@ -214,9 +214,9 @@ bool QPicture::play( QPainter *painter )
 	    return FALSE;
 	}
 
-	int cs_start = sizeof(UINT32);		// pos of checksum word
-	int data_start = cs_start + sizeof(UINT16);
-	UINT16 cs,ccs;
+	int cs_start = sizeof(Q_UINT32);		// pos of checksum word
+	int data_start = cs_start + sizeof(Q_UINT16);
+	Q_UINT16 cs,ccs;
 	QByteArray buf = pictb.buffer();	// pointer to data
 	s >> cs;				// read checksum
 	ccs = qChecksum( buf.data() + data_start, buf.size() - data_start );
@@ -229,7 +229,7 @@ bool QPicture::play( QPainter *painter )
 	    return FALSE;
 	}
 
-	UINT16 major, minor;
+	Q_UINT16 major, minor;
 	s >> major >> minor;			// read version number
 	if ( major > mfhdr_maj ) {		// new, incompatible version
 #if defined(CHECK_RANGE)
@@ -250,8 +250,8 @@ bool QPicture::play( QPainter *painter )
 	s.setVersion( 1 );			// Qt 1.x compatibility
     }
 
-    UINT8  c, clen;
-    UINT32 nrecords;
+    Q_UINT8  c, clen;
+    Q_UINT32 nrecords;
     s >> c >> clen;
     if ( c == PdcBegin ) {
 	s >> nrecords;
@@ -281,12 +281,12 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 #if defined(DEBUG)
     int		strm_pos;
 #endif
-    UINT8	c;				// command id
-    UINT8	tiny_len;			// 8-bit length descriptor
-    INT32	len;				// 32-bit length descriptor
-    INT16	i_16, i1_16, i2_16;		// parameters...
-    INT8	i_8;
-    UINT32	ul;
+    Q_UINT8	c;				// command id
+    Q_UINT8	tiny_len;			// 8-bit length descriptor
+    Q_INT32	len;				// 32-bit length descriptor
+    Q_INT16	i_16, i1_16, i2_16;		// parameters...
+    Q_INT8	i_8;
+    Q_UINT32	ul;
     QCString	str1;
     QString	str;
     QPoint	p, p1, p2;
@@ -524,31 +524,31 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	pictb.setBuffer( empty );		// reset byte array in buffer
 	pictb.open( IO_WriteOnly );
 	s.writeRawBytes( mfhdr_tag, 4 );
-	s << (UINT16)0 << (Q_UINT16)formatMajor << (Q_UINT16)formatMinor;
-	s << (UINT8)c << (UINT8)sizeof(INT32);
+	s << (Q_UINT16)0 << (Q_UINT16)formatMajor << (Q_UINT16)formatMinor;
+	s << (Q_UINT8)c << (Q_UINT8)sizeof(Q_INT32);
 	trecs = 0;
-	s << (UINT32)trecs;			// total number of records
+	s << (Q_UINT32)trecs;			// total number of records
 	formatOk = FALSE;
 	return TRUE;
     } else if ( c == PdcEnd ) {		// end; calc checksum and close
 	trecs++;
-	s << (UINT8)c << (UINT8)0;
+	s << (Q_UINT8)c << (Q_UINT8)0;
 	QByteArray buf = pictb.buffer();
-	int cs_start = sizeof(UINT32);		// pos of checksum word
-	int data_start = cs_start + sizeof(UINT16);
-	int nrecs_start = data_start + 2*sizeof(INT16) + 2*sizeof(UINT8);
+	int cs_start = sizeof(Q_UINT32);		// pos of checksum word
+	int data_start = cs_start + sizeof(Q_UINT16);
+	int nrecs_start = data_start + 2*sizeof(Q_INT16) + 2*sizeof(Q_UINT8);
 	int pos = pictb.at();
 	pictb.at( nrecs_start );
-	s << (UINT32)trecs;			// write number of records
+	s << (Q_UINT32)trecs;			// write number of records
 	pictb.at( cs_start );
-	UINT16 cs = (UINT16)qChecksum( buf.data()+data_start, pos-data_start );
+	Q_UINT16 cs = (Q_UINT16)qChecksum( buf.data()+data_start, pos-data_start );
 	s << cs;				// write checksum
 	pictb.close();
 	return TRUE;
     }
     trecs++;
-    s << (UINT8)c;				// write cmd to stream
-    s << (UINT8)0;				// write dummy length info
+    s << (Q_UINT8)c;				// write cmd to stream
+    s << (Q_UINT8)0;				// write dummy length info
     int pos = (int)pictb.at();			// save position
     switch ( c ) {
 	case PdcDrawPoint:
@@ -568,7 +568,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	case PdcDrawArc:
 	case PdcDrawPie:
 	case PdcDrawChord:
-	    s << *p[0].rect << (INT16)p[1].ival << (INT16)p[2].ival;
+	    s << *p[0].rect << (Q_INT16)p[1].ival << (Q_INT16)p[2].ival;
 	    break;
 	case PdcDrawLineSegments:
 	case PdcDrawPolyline:
@@ -576,7 +576,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	    s << *p[0].ptarr;
 	    break;
 	case PdcDrawPolygon:
-	    s << *p[0].ptarr << (INT8)p[1].ival;
+	    s << *p[0].ptarr << (Q_INT8)p[1].ival;
 	    break;
 	case PdcDrawText2:
 	    if ( formatMajor == 1 ) {
@@ -594,10 +594,10 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 		pictb.at( pos - 2 );
 		s << (Q_UINT8)PdcDrawTextFormatted << (Q_UINT8)0;
 		QCString str1( (*p[2].str).latin1() );
-		s << *p[0].rect << (INT16)p[1].ival << str1;
+		s << *p[0].rect << (Q_INT16)p[1].ival << str1;
 	    }
 	    else {
-		s << *p[0].rect << (INT16)p[1].ival << *p[2].str;
+		s << *p[0].rect << (Q_INT16)p[1].ival << *p[2].str;
 	    }
 	    break;
 	case PdcDrawPixmap:
@@ -616,7 +616,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	    break;
 	case PdcSetBkMode:
 	case PdcSetROP:
-	    s << (INT8)p[0].ival;
+	    s << (Q_INT8)p[0].ival;
 	    break;
 	case PdcSetFont:
 	    s << *p[0].font;
@@ -628,28 +628,28 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	    s << *p[0].brush;
 	    break;
 	case PdcSetTabStops:
-	    s << (INT16)p[0].ival;
+	    s << (Q_INT16)p[0].ival;
 	    break;
 	case PdcSetTabArray:
-	    s << (INT16)p[0].ival;
+	    s << (Q_INT16)p[0].ival;
 	    if ( p[0].ival ) {
 		int *ta = p[1].ivec;
 		for ( int i=0; i<p[0].ival; i++ )
-		    s << (INT16)ta[i];
+		    s << (Q_INT16)ta[i];
 	    }
 	    break;
 	case PdcSetUnit:
 	case PdcSetVXform:
 	case PdcSetWXform:
 	case PdcSetClip:
-	    s << (INT8)p[0].ival;
+	    s << (Q_INT8)p[0].ival;
 	    break;
 	case PdcSetWindow:
 	case PdcSetViewport:
 	    s << *p[0].rect;
 	    break;
 	case PdcSetWMatrix:
-	    s << *p[0].matrix << (INT8)p[1].ival;
+	    s << *p[0].matrix << (Q_INT8)p[1].ival;
 	    break;
 	case PdcSetClipRegion:
 	    s << *p[0].rgn;
@@ -663,14 +663,14 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
     int length = newpos - pos;
     if ( length < 255 ) {			// write 8-bit length
 	pictb.at(pos - 1);			// position to right index
-	s << (UINT8)length;
+	s << (Q_UINT8)length;
     } else {					// write 32-bit length
-	s << (UINT32)0;				// extend the buffer
+	s << (Q_UINT32)0;				// extend the buffer
 	pictb.at(pos - 1);			// position to right index
-	s << (UINT8)255;			// indicate 32-bit length
+	s << (Q_UINT8)255;			// indicate 32-bit length
 	char *p = pictb.buffer().data();
 	memmove( p+pos+4, p+pos, length );	// make room for 4 byte
-	s << (UINT32)length;
+	s << (Q_UINT32)length;
 	newpos += 4;
     }
     pictb.at( newpos );				// set to new position

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#200 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#201 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2747,15 +2747,15 @@ bool QPen::operator==( const QPen &p ) const
 
   The serialization format is:
   <ol>
-  <li> The pen style (UINT8)
-  <li> The pen width (UINT8)
+  <li> The pen style (Q_UINT8)
+  <li> The pen width (Q_UINT8)
   <li> The pen color (QColor)
   </ol>
 */
 
 QDataStream &operator<<( QDataStream &s, const QPen &p )
 {
-    return s << (UINT8)p.style() << (UINT8)p.width() << p.color();
+    return s << (Q_UINT8)p.style() << (Q_UINT8)p.width() << p.color();
 }
 
 /*!
@@ -2765,7 +2765,7 @@ QDataStream &operator<<( QDataStream &s, const QPen &p )
 
 QDataStream &operator>>( QDataStream &s, QPen &p )
 {
-    UINT8 style, width;
+    Q_UINT8 style, width;
     QColor color;
     s >> style;
     s >> width;
@@ -3087,7 +3087,7 @@ bool QBrush::operator==( const QBrush &b ) const
 
   The serialization format is:
   <ol>
-  <li> The brush style (UINT8)
+  <li> The brush style (Q_UINT8)
   <li> The brush color (QColor)
   <li> If style == \c CustomPattern: the brush pixmap (QPixmap)
   </ol>
@@ -3095,7 +3095,7 @@ bool QBrush::operator==( const QBrush &b ) const
 
 QDataStream &operator<<( QDataStream &s, const QBrush &b )
 {
-    s << (UINT8)b.style() << b.color();
+    s << (Q_UINT8)b.style() << b.color();
     if ( b.style() == Qt::CustomPattern )
 	s << *b.pixmap();
     return s;
@@ -3108,7 +3108,7 @@ QDataStream &operator<<( QDataStream &s, const QBrush &b )
 
 QDataStream &operator>>( QDataStream &s, QBrush &b )
 {
-    UINT8 style;
+    Q_UINT8 style;
     QColor color;
     s >> style;
     s >> color;
