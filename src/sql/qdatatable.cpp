@@ -818,7 +818,6 @@ void QDataTable::endInsert()
     if ( d->dat.mode() != QSql::Insert )
 	return;
     d->dat.setMode( QSql::None );
-    int i;
     d->editBuffer = 0;
     verticalHeader()->setLabel( d->editRow, QString::number( d->editRow +1 ) );
     d->editRow = -1;
