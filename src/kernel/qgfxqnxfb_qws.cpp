@@ -8,10 +8,9 @@
 //
 //				In the meantime, Qt/X11 is reported to work with X11/QNX.
 
+#ifdef Q_OS_QNX6
 
 #include "qgfxqnxfb_qws.h"
-
-#ifdef _OS_QNX_
 
 // Qnx system includes
 #include <unistd.h>
@@ -31,12 +30,12 @@
 #include <qpolygonscanner.h>
 #include <qpointarray.h>
 
-// Qnx Pixmap Gfx class
-QQnxPixmapGfx::QQnxPixmapGfx(unsigned char *b, int w, int h) : QGfxRaster <32, 0> (b, w, h) {
-}
-
 // QnxFb Gfx class
-QQnxFbGfx::QQnxFbGfx(disp_surface_t *surf, disp_adapter_t *ad, int id, disp_modefuncs_t * mode, disp_memfuncs_t * mem, disp_draw_corefuncs_t * core, disp_draw_miscfuncs_t * misc, disp_draw_contextfuncs_t * context) : QGfxRasterBase ( surf->vidptr, surf->width, surf->height ) {
+template<const int depth, const int type>
+QQnxFbGfx<depth,type>::QQnxFbGfx (disp_surface_t *surf, disp_adapter_t *ad,
+						int id, disp_modefuncs_t * mode, disp_memfuncs_t * mem, disp_draw_corefuncs_t * core,
+						disp_draw_miscfuncs_t * misc, disp_draw_contextfuncs_t * context)
+					: QGfxRaster<depth, type> ( surf->vidptr, surf->width, surf->height ) {
 	displayId = id;
 	modeFuncList = mode;
 	memFuncList = mem;
@@ -46,199 +45,38 @@ QQnxFbGfx::QQnxFbGfx(disp_surface_t *surf, disp_adapter_t *ad, int id, disp_mode
 	setupCtx ( surf, &ctx, ad );
 }
 
-void  QQnxFbGfx::sync() {
+template<const int depth, const int type>
+QQnxFbGfx<depth,type>::~QQnxFbGfx () {
+	free(ctx.sysram_workspace);
+}
+
+template<const int depth, const int type>
+void QQnxFbGfx<depth,type>::sync() {
 	modeFuncList->wait_vsync(ctx.dsurf->adapter, displayId);
 }
-
-void QQnxFbGfx::usePen() {
-	ctx.fgcolor = cpen.color().rgb();
-	contextFuncList->update_color(&ctx);
-}
-
-void QQnxFbGfx::useBrush() {
-	ctx.fgcolor = cbrush.color().rgb();
-	contextFuncList->update_color(&ctx);
-}
-
-void QQnxFbGfx::setBackgroundColor(QColor col) {
-	ctx.bgcolor = col.rgb();
-	contextFuncList->update_color(&ctx);
-}
-
-// NOTE apply clipping
-void QQnxFbGfx::drawPoint(int x, int y) {
-	drawPointUnclipped(x, y);
-}
-
-// NOTE apply error checking
-void QQnxFbGfx::drawPoints(const QPointArray & p, int index, int size) {
-	for (int x = index; x < size; x++) {
-		drawPoint(p[x].x(), p[x].y());
+/*
+template<const int depth, const int type>
+void QQnxFbGfx<depth,type>::fillRect(int x1, int y1, int x2, int y2) {
+	useBrush();
+	if ( depth == 8 ) { 
+		printf("paletted mode fillRect\n");
+		coreFuncList->draw_solid_rect(&ctx, qt_screen->clut()[pixel], x1, y1, x2, y2);
+	} else {
+//		coreFuncList->draw_solid_rect(&ctx, pixel, 0, 0, 100, 100);
+		contextFuncList->draw_rect(&ctx, x1, y1, x2, y2);
+		printf("non-paletted mode fillRect %lu\n", pixel);
 	}
 }
 
-// NOTE very poor method of drawing
-void QQnxFbGfx::drawPointUnclipped(int x, int y) {
-//	void *pixel = (ctx.dsurf->vidptr + (x + (y * 1024)) * 3);
-//	cpen.color().rgb((int *) pixel + 2, (int *) pixel + 1, (int *) pixel);
-printf("drawpoint\n");
+template<const int depth, const int type>
+GFX_INLINE void QQnxFbGfx<depth,type>::hlineUnclipped (int x, int x1, int y) {
+    coreFuncList->draw_span(&ctx, pixel, x, x1, y);
 }
-
-void QQnxFbGfx::drawPolyline(const QPointArray & p, int index, int size) {
-	for (int x = index; x < size; x++) {
-		drawLine(p[x].x(), p[x].y(), p[x + 1].x(), p[x + 1].y());
-	}
-}
-
-void QQnxFbGfx::drawThickPolyline(const QPointArray & p, int index, int size) {
-	printf("not yet impl, need pens first\n");
-}
-
-// NOTE this is not yet filled
-void QQnxFbGfx::drawPolygon(const QPointArray & p, bool a, int index, int size) {
-	drawPolyline(p, index, size);
-	drawLine(p[size].x(), p[size].y(), p[index].x(), p[index].y());
-}
-
-void QQnxFbGfx::fillRect(int x1, int y1, int x2, int y2) {
-	contextFuncList->draw_rect(&ctx, x1, y1, x2, y2);
-}
-
-// NOTE bad formatting in here somewhere, dont have indent
-void QQnxFbGfx::drawLine(int x1, int y1, int x2, int y2) {
-	//From QRasterBase
-	if (cpen.style() == NoPen)
-		return;
-
-	if (cpen.width() > 1) {
-		drawThickLine(x1, y1, x2, y2);
-		return;
-	}
-	usePen();
-	x1 += xoffs;
-	y1 += yoffs;
-	x2 += xoffs;
-	y2 += yoffs;
-
-	if (x1 > x2) {
-		int x3;
-		int y3;
-		x3 = x2;
-		y3 = y2;
-		x2 = x1;
-		y2 = y1;
-		x1 = x3;
-		y1 = y3;
-	}
-	int dx = x2 - x1;
-	int dy = y2 - y1;
-
-	GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx + 1, QABS(dy) + 1))
-	int ax = QABS(dx) * 2;
-	int ay = QABS(dy) * 2;
-	int sx = dx > 0 ? 1 : -1;
-	int sy = dy > 0 ? 1 : -1;
-	int x = x1;
-	int y = y1;
-	int d;
-
-	QRect cr;
-	bool inside = inClip(x, y, &cr);
-	if (ax > ay && !dashedLines) {
-		d = ay - (ax >> 1);
-		int px = x;
-
-		//NOTE change this to QNXFLUSH ?
-		#define QNXFLUSH(nx) \
-        if ( inside ) \
-			if ( sx < 1 ) \
-				hlineUnclipped(nx,px,y); \
-			else \
-				hlineUnclipped(px,nx,y); \
-			px = nx+sx;
-
-		for (;;) {
-			if (x == x2) {
-				QNXFLUSH(x);
-				GFX_END
-				return;
-			}
-			if (d >= 0) {
-				QNXFLUSH(x);
-				y += sy;
-				d -= ax;
-				if (!cr.contains(x + sx, y))
-					inside = inClip(x + sx, y, &cr);
-				} else if (!cr.contains(x + sx, y)) {
-						QNXFLUSH(x);
-						inside = inClip(x + sx, y, &cr);
-					}
-					x += sx;
-					d += ay;
-				}
-			} else if (ax > ay) {
-					//cannot use hline for dashed lines
-					int di = 0;
-					int dc = dashedLines ? dashes[0] : 0;
-					d = ay - (ax >> 1);
-					for (;;) {
-						if (!cr.contains(x, y))
-							inside = inClip(x, y, &cr);
-						if (inside && (di & 0x01) == 0)
-							drawPointUnclipped(x, y);
-						if (x == x2) {
-							GFX_END
-							return;
-						}
-						if (dashedLines && --dc <= 0) {
-							if (++di >= numDashes)
-							di = 0;
-							dc = dashes[di];
-						}
-						if (d >= 0) {
-							y += sy;
-							d -= ax;
-						}
-						x += sx;
-						d += ay;
-					}
-			} else {
-				int             di = 0;
-				int             dc = dashedLines ? dashes[0] : 0;
-				d = ax - (ay >> 1);
-				for (;;) {
-					//y is dominant so we can 't optimise with hline
-					if (!cr.contains(x, y))
-						inside = inClip(x, y, &cr);
-					if (inside && (di & 0x01) == 0)
-						drawPointUnclipped(x, y);
-					if (y == y2) {
-						GFX_END
-						return;
-					}
-					if (dashedLines && --dc <= 0) {
-						if (++di >= numDashes)
-							di = 0;
-						dc = dashes[di];
-					}
-					if (d >= 0) {
-						x += sx;
-						d -= ay;
-					}
-					y += sy;
-					d += ax;
-				}
-		}
-	GFX_END
-}
-
-void QQnxFbGfx::hlineUnclipped (int x, int x1, int y) {
-	coreFuncList->draw_span(&ctx, 0xeeeeee, x, x1, y);
-//	contextFuncList->draw_span(&ctx, x, x1, y);
-}
+*/
 
 // Creates a new drawing context for a surface
-void QQnxFbGfx::setupCtx(disp_surface_t * surface, disp_draw_context_t *ret, disp_adapter_t *adapter ) {
+template<const int depth, const int type>
+void QQnxFbGfx<depth,type>::setupCtx(disp_surface_t * surface, disp_draw_context_t *ret, disp_adapter_t *adapter ) {
 	ret->adapter = adapter;
 	ret->dsurf = surface;
 	ret->gd_ctx = adapter->gd_ctx;
@@ -247,23 +85,23 @@ void QQnxFbGfx::setupCtx(disp_surface_t * surface, disp_draw_context_t *ret, dis
 	ret->sysram_workspace = (unsigned char *) malloc(ret->sysram_workspace_size);
 	ret->rop3 = DrawModeS;
 	ret->flags = 0;
-	ret->bgcolor = 0x000000;
+	ret->bgcolor = 0xffffff;
 	ret->fgcolor = 0xffffff;
 	coreFuncList->update_draw_surface(ret);
 	contextFuncList->update_general(ret);
 }
 
-//Screen class
+// Screen class
 QQnxScreen::QQnxScreen(int display_id) : QScreen(display_id) {
 }
 
 QQnxScreen::~QQnxScreen(){}
 
 bool QQnxScreen::connect(const QString & spec) {
-	//Reset the adapter
+	// Reset the adapter
 	memset(&adapter, 0, sizeof(adapter));
 
-	//Extract PCI settings from environment
+	// Extract PCI settings from environment
 	QString vendor = getenv("QWS_VENDORID");
 	QString device = getenv("QWS_DEVICEID");
 	QString index = getenv("QWS_INDEX");
@@ -274,14 +112,14 @@ bool QQnxScreen::connect(const QString & spec) {
 	adapter.bus.pci.pci_device_id = device.toShort(NULL, 16);
 	adapter.bus.pci.pci_index = index.toInt();
 
-	//Extract dll name from spec
+	// Extract dll name from spec
 	QString name(spec);
 	int colon = name.find(':');
 	name.remove(0, colon + 1);
 	colon = name.find(':');
 	name.truncate(colon);
 
-	//Extract display id from spec
+	// Extract display id from spec
 	QString id(spec);
 	colon = id.find(':');
 	id.remove(0, colon + 1);
@@ -289,17 +127,19 @@ bool QQnxScreen::connect(const QString & spec) {
 	id.remove(0, colon + 1);
 	displayId = id.toInt(NULL, 10);
 
-	//Open the dll
+	// Open the dll
 	dllHandle = dlopen(name.latin1(), displayId);
+	if (!dllHandle)
+		qFatal("Could not open dll %s\n", name.latin1());
 
-	//Get the functions from the dll(QNX ver >= 6.00)
+	// Get the functions from the dll(QNX ver >= 6.00)
 	int (*modeFuncListFill) (disp_adapter_t *, disp_modefuncs_t *, int) = (int (*) (disp_adapter_t *, disp_modefuncs_t *, int)) dlsym(dllHandle, "devg_get_modefuncs");
 	int (*memFuncListFill) (disp_adapter_t *, disp_memfuncs_t *, int) = (int (*) (disp_adapter_t *, disp_memfuncs_t *, int)) dlsym(dllHandle, "devg_get_memfuncs");
 	int (*contextFuncListFill) (disp_adapter_t *, disp_draw_contextfuncs_t *, int) = (int (*) (disp_adapter_t *, disp_draw_contextfuncs_t *, int)) dlsym(dllHandle, "devg_get_contextfuncs");
 	coreFuncListFill = (int (*) (disp_adapter_t *, unsigned int, disp_draw_corefuncs_t *, int)) dlsym(dllHandle, "devg_get_corefuncs");
 	int (*miscFuncListFill) (disp_adapter_t *, disp_draw_miscfuncs_t *, int) = (int (*) (disp_adapter_t *, disp_draw_miscfuncs_t *, int)) dlsym(dllHandle, "devg_get_miscfuncs");
 
-	//Fill adapter function lists
+	// Fill adapter function lists
 	if (modeFuncListFill(&adapter, &modeFuncList, sizeof(modeFuncList)) == -1) {
 		qFatal("Could not get entry points in dll %s\n", name.latin1());
 	};
@@ -319,20 +159,19 @@ bool QQnxScreen::initDevice() {
 		qFatal("Could not initialise graphics adapter\n");
 	};
 
-	//Extract screen settings from environment
-	QString bppS = getenv("QWS_BPP");
-	QString xresS = getenv("QWS_XRES");
-	QString yresS = getenv("QWS_YRES");
-	QString refreshS = getenv("QWS_REFRESH");
-	int bits = bppS.toInt();
-	settings.xres = xresS.toInt();
-	settings.yres = yresS.toInt();
-	settings.refresh = refreshS.toShort();
+	// Extract screen settings from environment
+	int bits = 0;
+	QString tmpsize = getenv("QWS_SIZE");
+	sscanf(tmpsize, "%dx%dx%d@%d", &(settings.xres), &(settings.yres),
+		&(bits), &(settings.refresh));
+	if ( !settings.xres || !settings.yres || !settings.refresh ||
+			!bits)
+		qFatal("Please check QWS_SIZE environment var and try again");
 
 	// setMode will initialise screen
-	setMode(settings.xres, settings.yres, bits);
+	QQnxScreen::setMode(settings.xres, settings.yres, bits);
 
-	//Create the screen surface
+	// Create the screen surface
 	screen = memFuncList.alloc_surface(&adapter, settings.xres, settings.yres, pixel_format,
 					DISP_SURFACE_DISPLAYABLE |
 					DISP_SURFACE_CPU_LINEAR_READABLE |
@@ -345,6 +184,40 @@ bool QQnxScreen::initDevice() {
 		shutdownDevice();
 		qFatal("Could not allocate screen surface\n");
 	}
+    if (screen->pixel_format == DISP_SURFACE_FORMAT_PAL8) {
+        screen->palette = (disp_color_t *)malloc(256*4);
+        if (screen->palette == NULL) 
+			qFatal("Can not allocate 8-bit palette\n");
+
+		// 6*6*6 colour cube
+		int idx = 0;
+		for( int ir = 0x0; ir <= 0xff; ir+=0x33 ) {
+			for( int ig = 0x0; ig <= 0xff; ig+=0x33 ) {
+				for( int ib = 0x0; ib <= 0xff; ib+=0x33 ) {
+					screen->palette[idx]=qRgb( ir, ig, ib );
+					idx++;
+				}
+			}
+		}
+
+        // Fill in rest with 0
+        for (;idx < 256;) {
+			screen->palette[idx]=0;
+			idx++;
+        }
+
+		if (modeFuncList.set_palette == NULL) {
+			if (miscFuncList.set_palette != NULL)
+				miscFuncList.set_palette(&adapter, 0, 256, screen->palette);
+        } else
+            modeFuncList.set_palette(&adapter, 0, 0, 256, screen->palette);
+
+		for (int i = 0; i < 256; i++)
+			screenclut[i] = screen->palette[i];
+
+		screencols = 256;
+	} else
+		screencols = 0;
 
 	// Set the framebuffer base
 	if (modeFuncList.set_display_offset)
@@ -356,10 +229,13 @@ bool QQnxScreen::initDevice() {
 	dw = w = settings.xres;
 	dh = h = settings.yres;
 	d = bits;
-	screencols = settings.xres;
 	lstep = screen->stride;
 	size = lstep * h;
-	mapsize = lstep * h * d / 8;
+	mapsize = lstep * h * DISP_BYTES_PER_PIXEL ( screen->pixel_format ) ;
+	optype = (int *)malloc(sizeof(int));
+	*optype = 0;
+	lastop = (int *)malloc(sizeof(int));
+	*lastop = 0; 
 	return TRUE;
 }
 
@@ -385,21 +261,34 @@ void QQnxScreen::setMode(int xres, int yres, int bits) {
 	int i = 0;
 	for (; modeList[i] != DISP_MODE_LISTEND; i++) {
 		modeFuncList.get_modeinfo(&adapter, displayId, modeList[i], &mi);
-		if ((DISP_BITS_PER_PIXEL(mi.pixel_format) == bits || (mi.pixel_format == DISP_SURFACE_FORMAT_ARGB1555 && bits == 15)) &&
+		if ((DISP_BITS_PER_PIXEL(mi.pixel_format) == bits) && (mi.pixel_format != DISP_SURFACE_FORMAT_ARGB1555 ) &&
 		    ((mi.flags & DISP_MODE_GENERIC) || (mi.xres == xres && mi.yres == yres)))
 			break;
 	}
-
 	if (modeList[i] == DISP_MODE_LISTEND) {
 		modeFuncList.fini(&adapter);
 		qFatal("Requested mode not found\n");
 	}
+
+    if (!(mi.flags & DISP_MODE_GENERIC)) {
+        for (i = 0; i < DISP_MODE_NUM_REFRESH; i++)
+            if (mi.u.fixed.refresh[i] == settings.refresh)
+                break;
+ 
+        if (i == DISP_MODE_NUM_REFRESH && settings.refresh != 0) {
+			modeFuncList.fini(&adapter);
+            qFatal("Refresh rate not supported in this mode\n");
+        }
+    }
+
 	// Retrieve core drawing functions for the selected pixel depth
 	coreFuncListFill(&adapter, mi.pixel_format, &coreFuncList, sizeof(coreFuncList));
 	modeFuncList.get_modeinfo(&adapter, displayId, modeList[i], &mi);
 
 	settings.xres = xres;
 	settings.yres = yres;
+
+	qDebug("Setting %d x %d x %d bpp @ %d Hz\n", settings.xres, settings.yres, DISP_BITS_PER_PIXEL(mi.pixel_format), settings.refresh);
 
 	// Calculate CRT settings(should check them as well)
 	if (mi.flags & DISP_MODE_GENERIC) {
@@ -408,7 +297,6 @@ void QQnxScreen::setMode(int xres, int yres, int bits) {
 		settings.sync_polarity = mi.u.generic.sync_polarity;
 		disp_crtc_calc(&settings);
 	}
-	qDebug("Setting %d x %d x %d bpp @ %d Hz\n", settings.xres, settings.yres, DISP_BITS_PER_PIXEL(mi.pixel_format), settings.refresh);
 
 	// Use a temporary surface to change the mode
 	disp_surface_t surf;
@@ -426,29 +314,56 @@ void QQnxScreen::setMode(int xres, int yres, int bits) {
 	pixel_format = mi.pixel_format;
 }
 
-void QQnxScreen::set(uint i, uint r, uint g, uint b) {
-	screen->palette[i] = (0xff << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
-	// Mode.set_palette may not exist for all drivers
-	if (modeFuncList.set_palette == NULL) {
-		miscFuncList.set_palette(&adapter, displayId, 256, screen->palette);
+QGfx *QQnxScreen::createGfx(unsigned char *bytes, int w, int h, int d, int linestep) {
+	if (bytes == screen->vidptr) {
+		// Taken from QScreen::createGfx
+	    QGfx* ret;
+	    if ( FALSE ) {
+	    //Just to simplify the ifdeffery
+		#ifndef QT_NO_QWS_DEPTH_1
+	    } else if(d==1) {
+		    ret = new QQnxFbGfx<1,0>(screen, &adapter, displayId, &modeFuncList, &memFuncList, &coreFuncList, &miscFuncList, &contextFuncList);
+		#endif
+		#ifndef QT_NO_QWS_DEPTH_4
+	    } else if(d==4) {
+		    ret = new QQnxFbGfx<4,0>(screen, &adapter, displayId, &modeFuncList, &memFuncList, &coreFuncList, &miscFuncList, &contextFuncList);
+		#endif
+		#ifndef QT_NO_QWS_DEPTH_16
+	    } else if(d==16) {
+		    ret = new QQnxFbGfx<16,0>(screen, &adapter, displayId, &modeFuncList, &memFuncList, &coreFuncList, &miscFuncList, &contextFuncList);
+		#endif
+		#ifndef QT_NO_QWS_DEPTH_8
+	    } else if(d==8) {
+		    ret = new QQnxFbGfx<8,0>(screen, &adapter, displayId, &modeFuncList, &memFuncList, &coreFuncList, &miscFuncList, &contextFuncList);
+		#endif
+		#ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
+	    } else if(d==8) {
+		    ret = new QQnxFbGfx<8,0>(screen, &adapter, displayId, &modeFuncList, &memFuncList, &coreFuncList, &miscFuncList, &contextFuncList);
+		#endif
+		#ifndef QT_NO_QWS_DEPTH_24
+	    } else if(d==24) {
+		    ret = new QQnxFbGfx<24,0>(screen, &adapter, displayId, &modeFuncList, &memFuncList, &coreFuncList, &miscFuncList, &contextFuncList);
+		#endif
+		#ifndef QT_NO_QWS_DEPTH_32
+	    } else if(d==32) {
+		    ret = new QQnxFbGfx<32,0>(screen, &adapter, displayId, &modeFuncList, &memFuncList, &coreFuncList, &miscFuncList, &contextFuncList);
+		#endif
+	    } else {
+		    qFatal("Can't drive depth %d",d);
+		    ret = 0; // silence gcc
+	    }
+	    ret->setLineStep(linestep);
+	    return ret;
 	} else {
-		modeFuncList.set_palette(&adapter, displayId, i, 1, screen->palette);
+		return (QScreen::createGfx(bytes, w, h, d, linestep));
 	}
 }
-
-QGfx *QQnxScreen::createGfx(unsigned char *buffer, int x, int y, int depth, int linestep) {
-// if there was a list of allocated surfaces (eg the screen, caches, even another screen?,
-// that list could be checked here automatically
-	if (buffer == screen->vidptr) {
-		QQnxFbGfx *tmp = new QQnxFbGfx(screen, &adapter, displayId, &modeFuncList, &memFuncList, &coreFuncList, &miscFuncList, &contextFuncList);
-	} else {
-		return new QQnxPixmapGfx(buffer, x, y);
-	}
-}
-
+/*
 QGfx *QQnxScreen::screenGfx() {
+printf("screenGfx()\n");
 	return createGfx(screen->vidptr, screen->width, screen->height, DISP_BITS_PER_PIXEL(screen->pixel_format), screen->stride);
 }
+*/
 
 extern "C" QScreen * qt_get_screen_qnxfb(int display_id) {
 	return new QQnxScreen(display_id);

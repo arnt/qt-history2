@@ -5529,7 +5529,7 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 // that does accelerated mode stuff and returns accelerated QGfxen where
 // appropriate. This is stored in qt_screen
 
-#if defined(QT_QWS_QNX)
+#if defined(Q_OS_QNX6)
 #include "qgfxqnxfb_qws.cpp"
 #endif
 
@@ -5583,7 +5583,7 @@ struct DriverTable
     QScreen *(*qt_get_screen)(int);
     int accel;
 } driverTable [] = {
-#if defined(QT_QWS_QNX)
+#if defined(Q_OS_QNX6)
 	{ "QnxFb", qt_get_screen_qnxfb, 0 },
 #endif
 #if !defined(QT_NO_QWS_VFB)

@@ -8,72 +8,31 @@
 //
 //              In the meantime, Qt/X11 is reported to work with X11/QNX.
 
-
 #ifndef QWSQNXFB_H
 #define QWSQNXFB_H
 
-#ifndef QT_H
+#include <display.h>
+#include <disputil.h>
 #include <qgfxraster_qws.h>
 #include <qgfx_qws.h>
 #include <qpolygonscanner.h>
 #include <qpen.h>
 #include <qstring.h>
-#endif // QT_H
-
-#ifdef _OS_QNX_
-
-#include <display.h>
-#include <disputil.h>
-
-// Pixmap Gfx class
-class QQnxPixmapGfx : public QGfxRaster <32,0> {
-public:
-	QQnxPixmapGfx(unsigned char*, int, int);
-	~QQnxPixmapGfx(){};
-	void blt (int, int, int, int, int, int) {};
-	void setSource (const QPaintDevice * p) {};
-};
 
 // QnxFb Gfx class
-class QQnxFbGfx : public QGfxRasterBase {
+template <const int depth, const int type> class QQnxFbGfx : public QGfxRaster<depth, type> {
 public:
 	QQnxFbGfx( disp_surface_t *, disp_adapter_t *, int,
 			disp_modefuncs_t *, disp_memfuncs_t *,
             disp_draw_corefuncs_t *, disp_draw_miscfuncs_t *,
             disp_draw_contextfuncs_t *);
-	~QQnxFbGfx(){};
+	~QQnxFbGfx();
+
+	int bitDepth(){ return DISP_BITS_PER_PIXEL ( ctx.dsurf->pixel_format );};
 
 	void sync ();
- 
-	int pixelWidth () { return width; };
-	int pixelHeight () { return height; };
-	int bitDepth () { return DISP_BITS_PER_PIXEL (ctx.dsurf->pixel_format); };
- 
-	void buildSourceClut (int,int){};
- 
-// Over-ridden functions from QGfx
-	void usePen();
-	void useBrush();
-
-	void setBackgroundColor (QColor);
-	void drawPoint (int x, int y);
-	void drawPoints (const QPointArray &, int, int);
-	void drawPointUnclipped (int, int);
-	void drawLine (int, int, int, int);
-	void hlineUnclipped ( int, int, int);
-	void drawThickLine ( int &, int &, int &, int &){};
-	void drawPolyline (const QPointArray &, int, int);
-	void drawThickPolyline (const QPointArray &, int, int);
-	void fillRect (int, int, int, int);
-	void drawPolygon (const QPointArray &, bool, int, int);
-	void setLineStep (int){};
-	void blt (int, int, int, int, int, int){};
-	void scroll (int, int, int, int, int, int){};
-	void tiledBlt (int, int, int, int){};
-	void stretchBlt(int, int, int, int, int, int){};
-	void setSource (const QPaintDevice *){};
-	void setSource (const QImage *){};
-	void setSourcePen (){};
+//	void fillRect (int,int,int,int);
+//	void hlineUnclipped ( int, int, int);
 
 private:
 	disp_draw_context_t ctx;
@@ -104,10 +63,10 @@ public:
 	void shutdownDevice();
 	void setMode(int, int, int);
 
-	void set(uint, uint, uint, uint);
+	QRgb *clut(){ return screen->palette; };
 
 	QGfx* createGfx (unsigned char*, int, int, int, int);
-	QGfx* screenGfx ();
+//	QGfx* screenGfx ();
 
 private:
 	// Dll handle and function lists
@@ -134,7 +93,5 @@ private:
 	// Must be preserved for initDevice()
 	int (*coreFuncListFill) (disp_adapter_t *, unsigned int, disp_draw_corefuncs_t *, int);
 };
-
-#endif
 
 #endif
