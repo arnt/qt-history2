@@ -28,6 +28,8 @@ public:
     QListWidgetItem(const QString &text, QListWidget *view = 0);
     virtual ~QListWidgetItem();
 
+    inline QListWidget *listWidget() const { return view; }
+
     inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
     inline void setFlags(QAbstractItemModel::ItemFlags flags) { itemFlags = flags; }
 
@@ -86,7 +88,7 @@ public:
     virtual bool operator<(const QListWidgetItem &other) const;
     virtual void clear();
 
-protected:
+private:
     struct Data {
         Data() : role(-1) {}
         Data(int r, QVariant v) : role(r), value(v) {}
@@ -96,8 +98,6 @@ protected:
 
     QVector<Data> values;
     QListWidget *view;
-
-private:
     QListModel *model;
     QAbstractItemModel::ItemFlags itemFlags;
 };

@@ -25,6 +25,8 @@ public:
     QHeaderWidgetItem();
     virtual ~QHeaderWidgetItem();
 
+    inline QHeaderWidget *headerWidget() const { return view; }
+
     inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
     inline void setFlags(QAbstractItemModel::ItemFlags flags) { itemFlags = flags; }
 
@@ -60,7 +62,7 @@ public:
 
     inline QColor backgroundColor() const
         { return data(QAbstractItemModel::BackgroundColorRole).toColor(); }
-    virtual void setBackgroundColor(const QColor &color)
+    inline void setBackgroundColor(const QColor &color)
         { setData(QAbstractItemModel::BackgroundColorRole, color); }
 
     inline QColor textColor() const
@@ -78,7 +80,7 @@ public:
     virtual bool operator<(const QHeaderWidgetItem &other) const;
     virtual void clear();
 
-protected:
+private:
     struct Data {
         Data() : role(-1) {}
         Data(int r, QVariant v) : role(r), value(v) {}
@@ -88,8 +90,6 @@ protected:
 
     QVector<Data> values;
     QHeaderWidget *view;
-
-private:
     QHeaderModel *model;
     QAbstractItemModel::ItemFlags itemFlags;
 };

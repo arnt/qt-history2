@@ -26,6 +26,8 @@ public:
     QTableWidgetItem(const QString &text);
     virtual ~QTableWidgetItem();
 
+    inline QTableWidget *tableWidget() const { return view; }
+
     inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
     inline void setFlags(QAbstractItemModel::ItemFlags flags) { itemFlags = flags; }
 
@@ -84,7 +86,7 @@ public:
     virtual bool operator<(const QTableWidgetItem &other) const;
     virtual void clear();
 
-protected:
+private:
     struct Data {
         Data() : role(-1) {}
         Data(int r, QVariant v) : role(r), value(v) {}
@@ -94,8 +96,6 @@ protected:
 
     QVector<Data> values;
     QTableWidget *view;
-
-private:
     QTableModel *model;
     QAbstractItemModel::ItemFlags itemFlags;
 };

@@ -29,6 +29,8 @@ public:
     QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after);
     virtual ~QTreeWidgetItem();
 
+    inline QTreeWidget *treeWidget() const { return view; }
+
     inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
     inline void setFlags(QAbstractItemModel::ItemFlags flags) { itemFlags = flags; }
 
@@ -101,6 +103,7 @@ protected:
     QTreeWidgetItem();
     void sortChildren(int column, Qt::SortOrder order, bool climb);
 
+private:    
     struct Data {
         Data() : role(-1) {}
         Data(int r, QVariant v) : role(r), value(v) {}
@@ -111,8 +114,6 @@ protected:
     // One item has a vector of column entries. Each column has a vector of (role, value) pairs.
     QVector< QVector<Data> > values;
     QTreeWidget *view;
-
-private:
     QTreeModel *model;
     QTreeWidgetItem *par;
     QList<QTreeWidgetItem*> children;
