@@ -23,11 +23,11 @@ void QExtensionManager::registerExtensions(ExtensionFactory *factory, const QStr
     if (iid.isEmpty()) {
         m_globalExtension.append(factory);
         return;
-    } 
-    
+    }
+
     if (!m_extensions.contains(iid))
         m_extensions.insert(iid, QList<ExtensionFactory*>());
-    
+
     m_extensions[iid].prepend(factory);
 }
 
@@ -38,7 +38,7 @@ void QExtensionManager::unregisterExtensions(ExtensionFactory *factory, const QS
     } else if (m_extensions.contains(iid)) {
         QList<ExtensionFactory*> &factories = m_extensions[iid];
         factories.removeAll(factory);
-        
+
         if (factories.isEmpty())
             m_extensions.remove(iid);
     }
@@ -48,11 +48,11 @@ QObject *QExtensionManager::extension(QObject *object, const QString &iid) const
 {
     QList<ExtensionFactory*> l = m_extensions.value(iid);
     l += m_globalExtension;
-    
+
     foreach (ExtensionFactory *factory, l) {
         if (QObject *ext = factory->extension(object, iid))
             return ext;
     }
-    
+
     return 0;
 }

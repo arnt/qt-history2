@@ -517,6 +517,10 @@ void BreakLayoutCommand::redo()
         w->resize(qMax(16, w->width()), qMax(16, w->height()));
     }
 
+    AbstractFormEditor *core = formWindow()->core();
+    ILayoutDecoration *deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), m_layoutBase);
+
+    delete deco; // release the extension
 }
 
 void BreakLayoutCommand::undo()

@@ -47,8 +47,9 @@ void DefaultExtensionFactory::objectDestroyed(QObject *object)
     while (it.hasNext()) {
         it.next();
 
-        QPointer<QObject> o = it.key().second;
-        if (!o || o == object) {
+        QObject *o = it.key().second;
+        if (o == object || object == it.value()) {
+            qDebug() << "released:" << object;
             it.remove();
         }
     }

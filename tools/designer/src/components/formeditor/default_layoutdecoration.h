@@ -29,6 +29,7 @@ class QT_FORMEDITOR_EXPORT QDesignerLayoutDecoration: public QObject, public ILa
 public:
     QDesignerLayoutDecoration(QLayoutWidget *widget, QObject *parent = 0);
     QDesignerLayoutDecoration(FormWindow *formWindow, QWidget *widget, QObject *parent = 0);
+    virtual ~QDesignerLayoutDecoration();
 
     virtual InsertMode currentInsertMode() const;
     virtual int currentIndex() const;

@@ -33,6 +33,10 @@ QDesignerLayoutDecoration::QDesignerLayoutDecoration(FormWindow *formWindow, QWi
     Q_ASSERT(m_layoutSupport);
 }
 
+QDesignerLayoutDecoration::~QDesignerLayoutDecoration()
+{
+}
+
 QDesignerLayoutDecoration::InsertMode QDesignerLayoutDecoration::currentInsertMode() const
 {
     return m_layoutSupport->currentInsertMode();

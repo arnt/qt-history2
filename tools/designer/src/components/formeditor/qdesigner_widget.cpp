@@ -380,19 +380,19 @@ QLayoutSupport::QLayoutSupport(FormWindow *formWindow, QWidget *widget, QObject 
     QPalette p;
     p.setColor(QPalette::Background, Qt::red);
 
-    m_indicatorLeft = new QWidget(m_widget);
+    m_indicatorLeft = new InvisibleWidget(m_widget);
     m_indicatorLeft->setPalette(p);
     m_indicatorLeft->hide();
 
-    m_indicatorTop = new QWidget(m_widget);
+    m_indicatorTop = new InvisibleWidget(m_widget);
     m_indicatorTop->setPalette(p);
     m_indicatorTop->hide();
 
-    m_indicatorRight = new QWidget(m_widget);
+    m_indicatorRight = new InvisibleWidget(m_widget);
     m_indicatorRight->setPalette(p);
     m_indicatorRight->hide();
 
-    m_indicatorBottom = new QWidget(m_widget);
+    m_indicatorBottom = new InvisibleWidget(m_widget);
     m_indicatorBottom->setPalette(p);
     m_indicatorBottom->hide();
 
@@ -623,8 +623,11 @@ void QLayoutSupport::insertWidget(QWidget *widget)
             }
         } break;
 
-        default:
+        default: {
+            qDebug() << "widget:" << m_widget;
+            qDebug() << "layout:" << layout();
             Q_ASSERT(0);
+        }
     } // end switch
 }
 
