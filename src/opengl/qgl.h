@@ -155,7 +155,8 @@ public:
     virtual void doneCurrent();
     virtual void swapBuffers() const;
 
-    GLuint texture(const QPixmap &pm) const;
+    GLuint bindTexture(const QPixmap &pm) const;
+    GLuint bindTexture(const QString &fname) const;
 
     void *getProcAddress(const QString &proc) const;
     QPaintDevice* device() const;

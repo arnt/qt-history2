@@ -21,6 +21,7 @@
 #include "qcleanuphandler.h"
 #include "qcolormap.h"
 #include "qcache.h"
+#include "qfile.h"
 
 static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
@@ -740,6 +741,37 @@ typedef QCache<int, QGLTexture> QGLTextureCache;
 
 static QGLTextureCache *qt_txCache = 0;
 
+// DDS format structure
+struct DDSFormat {
+    Q_UINT32 dwSize;
+    Q_UINT32 dwFlags;
+    Q_UINT32 dwHeight;
+    Q_UINT32 dwWidth;
+    Q_UINT32 dwLinearSize;
+    Q_UINT32 dummy1;
+    Q_UINT32 dwMipMapCount;
+    Q_UINT32 dummy2[11];
+    struct {
+	Q_UINT32 dummy3[2];
+	Q_UINT32 dwFourCC;
+	Q_UINT32 dummy4[5];
+    } ddsPixelFormat;
+};
+
+// compressed texture pixel formats
+#define FOURCC_DXT1  0x31545844
+#define FOURCC_DXT2  0x32545844
+#define FOURCC_DXT3  0x33545844
+#define FOURCC_DXT4  0x34545844
+#define FOURCC_DXT5  0x35545844
+
+#ifndef GL_COMPRESSED_RGB_S3TC_DXT1_EXT
+#define GL_COMPRESSED_RGB_S3TC_DXT1_EXT   0x83F0
+#define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT  0x83F1
+#define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT  0x83F2
+#define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT  0x83F3
+#endif
+
 /*!
     \class QGLContext qgl.h
     \brief The QGLContext class encapsulates an OpenGL rendering context.
@@ -839,15 +871,150 @@ QGLContext::~QGLContext()
     delete d;
 }
 
+// used to generate a simple id for the cache
+static int scramble(const QString &str)
+{
+    int scrambled = 0;
+    for (int i = 0; i < str.length(); ++i) {
+	scrambled += (int)(str.at(i).latin1()) * (i+1);
+    }
+    return scrambled;
+}
+
+/*! \overload
+
+    Reads the DirectDrawSurface (DDS) compressed file \a fname and
+    generates a 2D GL texture from it.
+
+    Only the DXT1, DXT3 and DXT5 DDS formats are supported.
+
+    Note that this will only work if the implementation supports the
+    GL_ARB_texture_compression and GL_EXT_texture_compression_s3tc
+    extensions.
+*/
+GLuint QGLContext::bindTexture(const QString &fname) const
+{
+    typedef void (*qt_glCompressedTexImage2DARB) (GLenum, GLint, GLenum, GLsizei, GLsizei, GLint, GLsizei, const GLvoid *);
+    static qt_glCompressedTexImage2DARB glCompressedTexImage2DARB = 0;
+    static bool init_compression = true;
+
+    if (init_compression) {
+	QString extensions((const char *) glGetString(GL_EXTENSIONS));
+	if (extensions.contains("GL_ARB_texture_compression")
+	    && extensions.contains("GL_EXT_texture_compression_s3tc"))
+	{
+	    glCompressedTexImage2DARB = (qt_glCompressedTexImage2DARB) getProcAddress("glCompressedTexImage2DARB");
+	    if (!glCompressedTexImage2DARB)
+		qWarning("QGLContext::bindTexture(): Error resolving glCompressedTexImage2DARB().");
+	} else {
+	    qWarning("QGLContext::bindTexture(): GL implementation does not support compression extensions.");
+	}
+	init_compression = false;
+    }
+
+    if (!glCompressedTexImage2DARB)
+	return 0;
+
+    if (!qt_txCache)
+	qt_txCache = new QGLTextureCache(QGL_TX_CACHE_MAX);
+
+    int key = scramble(fname);
+    QGLTexture *texture = qt_txCache->find(key);
+    if (texture && texture->context == this)
+ 	return texture->id;
+
+    QFile f(fname);
+    f.open(QIODevice::IO_ReadOnly | QIODevice::IO_Raw);
+
+    char tag[4];
+    f.read(&tag[0], 4);
+    if (strncmp(tag,"DDS ", 4) != 0) {
+	qWarning("QGLContext::bindTexture(): not a DDS image file.");
+	return 0;
+    }
+
+    DDSFormat ddsHeader;
+    f.read((char *) &ddsHeader, sizeof(DDSFormat));
+
+    if (!ddsHeader.dwLinearSize) {
+	qWarning("QGLContext::bindTexture() DDS image size is not valid.");
+	return 0;
+    }
+
+    int factor = 4;
+    int bufferSize = 0;
+    int blockSize = 16;
+    GLenum format;
+
+    switch(ddsHeader.ddsPixelFormat.dwFourCC) {
+    case FOURCC_DXT1:
+	format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+	factor = 2;
+	blockSize = 8;
+	break;
+    case FOURCC_DXT3:
+	format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+	break;
+    case FOURCC_DXT5:
+	format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+	break;
+    default:
+	qWarning("QGLContext::bintTexture() DDS image format not supported.");
+	return 0;
+    }
+
+    if (ddsHeader.dwMipMapCount > 1)
+        bufferSize = ddsHeader.dwLinearSize * factor;
+    else
+        bufferSize = ddsHeader.dwLinearSize;
+
+    GLubyte *pixels = (GLubyte *) malloc(bufferSize*sizeof(GLubyte));
+    f.seek(ddsHeader.dwSize + 4);
+    f.read((char *) pixels, bufferSize);
+    f.close();
+
+    GLuint tx_id;
+    glGenTextures(1, &tx_id);
+    glBindTexture(GL_TEXTURE_2D, tx_id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int size;
+    int offset = 0;
+    int w = ddsHeader.dwWidth;
+    int h = ddsHeader.dwHeight;
+
+    // load mip-maps
+    for(int i = 0; i < (int) ddsHeader.dwMipMapCount; ++i) {
+	if (w == 0) w = 1;
+	if (h == 0) h = 1;
+
+	size = ((w+3)/4) * ((h+3)/4) * blockSize;
+	glCompressedTexImage2DARB(GL_TEXTURE_2D, i, format, w, h, 0,
+				  size, pixels + offset);
+	offset += size;
+
+	// half size for each mip-map level
+	w = w/2;
+	h = h/2;
+    }
+
+    free(pixels);
+
+    int cost = bufferSize/1024;
+    qt_txCache->insert(key, new QGLTexture(this, tx_id), cost);
+    return tx_id;
+}
+
 /*!
-    Generates a GL texture based on the pixmap that is passed in. The
-    generated texture id is returned and can be bound using
-    glBindTexture().
+    Generates and binds a 2D GL texture to the current context, based
+    on the pixmap that is passed in. The generated texture id is
+    returned and can be used in glBindTexture() calls.
 
     The texture that is generated is cached, so multiple calls to
-    texture() with the same QPixmap will return the same texture id.
+    bindTexture() with the same QPixmap will return the same texture
+    id.
 */
-GLuint QGLContext::texture(const QPixmap &pm) const
+GLuint QGLContext::bindTexture(const QPixmap &pm) const
 {
     if (!qt_txCache)
 	qt_txCache = new QGLTextureCache(QGL_TX_CACHE_MAX);
