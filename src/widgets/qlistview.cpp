@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#226 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#227 $
 **
 ** Implementation of QListView widget class
 **
@@ -2553,6 +2553,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
 
 void QListView::mouseReleaseEvent( QMouseEvent * e )
 {
+  // delete and disconnect autoscroll timer, if we have one
     if ( d->scrollTimer ) {
 	disconnect( d->scrollTimer, SIGNAL(timeout()),
 		    this, SLOT(doAutoScroll()) );
@@ -2638,32 +2639,36 @@ void QListView::mouseMoveEvent( QMouseEvent * e )
     if ( !e || !d->buttonDown )
 	return;
 
-    // if we were autoscrolling remove the timer
-    if ( d->scrollTimer ) {
-	disconnect( d->scrollTimer, SIGNAL(timeout()),
-		    this, SLOT(doAutoScroll()) );
-        d->scrollTimer->stop();
-	delete d->scrollTimer;
-	d->scrollTimer = 0;
-    }
-
     bool needAutoScroll = FALSE;
 
     // check, if we need to scroll
     if ( e->y() > viewport()->height() || e->y() < 0 )
 	needAutoScroll = TRUE;
 	
-    // if we need to scroll, connect the timer
-    if ( needAutoScroll ) {
+    // if we need to scroll and no autoscroll timer is started, 
+    // connect the timer
+    if ( needAutoScroll && !d->scrollTimer ) {
         d->scrollTimer = new QTimer( this );
 	connect( d->scrollTimer, SIGNAL(timeout()),
 		 this, SLOT(doAutoScroll()) );
 	d->scrollTimer->start( 100, FALSE );
+	// call it once manually
+	doAutoScroll();
     }
 
-    // call it once to select items and so on
-    // (also if we do not need to scroll)
-    doAutoScroll();
+    // if we don't need to autoscroll
+    if ( !needAutoScroll ) {
+        // if there is a autoscroll timer, delete it 
+        if ( d->scrollTimer ) {
+	    disconnect( d->scrollTimer, SIGNAL(timeout()),
+			this, SLOT(doAutoScroll()) );
+	    d->scrollTimer->stop();
+	    delete d->scrollTimer;
+	    d->scrollTimer = 0;
+        }
+	// call this to select an item
+        doAutoScroll();
+    }
 }
 
 void QListView::doAutoScroll()
@@ -2673,12 +2678,12 @@ void QListView::doAutoScroll()
 
     // do the scrolling
     if ( pos.y() > viewport()->height() ) {
-    	scrollBy( 0, pos.y() - viewport()->height() );
+        scrollBy( 0, verticalScrollBar()->lineStep() );
 	pos.setY( viewport()->height() - 1 );
     }
 	
     if ( pos.y() < 0 ) {
-    	scrollBy( 0, pos.y() );
+        scrollBy( 0, -verticalScrollBar()->lineStep() );
 	pos.setY( 1 );
     }
 
