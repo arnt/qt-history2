@@ -40,7 +40,7 @@
 #include <qx11info_x11.h>
 #endif
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(Q_WS_QWS)
 #include <qinputcontext.h>
 #endif
 
