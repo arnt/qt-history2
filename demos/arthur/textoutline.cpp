@@ -22,7 +22,7 @@
 TextOutline::TextOutline(QWidget *parent)
     : DemoWidget(parent)
 {
-    QFont f("serif,Times New Roman, vera_sans");
+    QFont f("Times New Roman,Serif,vera_sans");
     f.setStyleHint(QFont::Serif);
     f.setStyleStrategy(QFont::ForceOutline);
     f.setPointSize(100);
