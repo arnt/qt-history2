@@ -690,6 +690,7 @@ MakefileGenerator::init()
 		// is there a matching lex file ? Transfer its dependencies.
 		QString leximpl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
 		if(v["LEXIMPLS"].findIndex(leximpl) != -1) {
+		    impldeps.append(leximpl);
 		    QStringList &lexdeps = depends[leximpl];
 		    QStringList::ConstIterator d = lexdeps.begin();
 		    for( ; d != lexdeps.end(); ++d)
