@@ -443,6 +443,8 @@ bool QPSQLDriver::hasFeature( DriverFeature f ) const
 	return TRUE;
     case BLOB:
 	return FALSE;
+    case Unicode:
+	return d->isUtf8;
     default:
 	return FALSE;
     }

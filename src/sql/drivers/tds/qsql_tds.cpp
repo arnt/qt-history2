@@ -442,6 +442,8 @@ bool QTDSDriver::hasFeature( DriverFeature f ) const
 	return FALSE;
     case BLOB:
 	return FALSE;
+    case Unicode:
+	return FALSE;
     default:
 	return FALSE;
     }

@@ -1360,6 +1360,8 @@ bool QOCIDriver::hasFeature( DriverFeature f ) const
 	return FALSE;
     case BLOB:
 	return TRUE;
+    case Unicode:
+	return d->serverVersion >= 9;
     default:
 	return FALSE;
     }

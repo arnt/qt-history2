@@ -62,7 +62,7 @@ class QM_EXPORT_SQL QSqlDriver : public QObject
     friend class QSqlDatabase;
     Q_OBJECT
 public:
-    enum DriverFeature { Transactions, QuerySize, BLOB };
+    enum DriverFeature { Transactions, QuerySize, BLOB, Unicode };
 
     QSqlDriver( QObject * parent=0, const char * name=0 );
     ~QSqlDriver();

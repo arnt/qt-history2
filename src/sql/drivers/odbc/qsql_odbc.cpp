@@ -694,6 +694,8 @@ bool QODBCDriver::hasFeature( DriverFeature f ) const
 	return FALSE;
     case BLOB:
 	return FALSE;
+    case Unicode:
+	return d->unicode;
     default:
 	return FALSE;
     }

@@ -290,6 +290,8 @@ bool QMYSQLDriver::hasFeature( DriverFeature f ) const
 	return TRUE;
     case BLOB:
 	return TRUE;
+    case Unicode:
+	return FALSE;
     default:
 	return FALSE;
     }
