@@ -450,17 +450,14 @@ void QDialog::contextMenuEvent( QContextMenuEvent *e )
 /*! \reimp */
 void QDialog::keyPressEvent( QKeyEvent *e )
 {
-#ifdef Q_OS_MAC
-    qDebug("%d %d :: %d %d", e->state(), ControlButton, e->key(), Key_Period);
-    if(e->state() == ControlButton && e->key() == Key_Period) {
-	reject();
-	return;
-    }
-#endif
-
     //   Calls reject() if Escape is pressed. Simulates a button
     //   click for the default button if Enter is pressed. Move focus
     //   for the arrow keys. Ignore the rest.
+#ifdef Q_OS_MAC
+    if(e->state() == ControlButton && e->key() == Key_Period) {
+	reject();
+    } else
+#endif
     if ( e->state() == 0 || ( e->state() & Keypad && e->key() == Key_Enter ) ) {
 	switch ( e->key() ) {
 	case Key_Enter:
