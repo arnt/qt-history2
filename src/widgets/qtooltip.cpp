@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#36 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -12,7 +12,7 @@
 #include "qptrdict.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#36 $");
 
 // Magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -83,7 +83,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.30 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.31 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -349,8 +349,12 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	    w = w->parentWidget();
     }
 
-    if ( !t )
+    if ( !t ) {
+	if ( e->type() >= Event_MouseButtonPress &&
+	     e->type() <= Event_Leave )
+	    wakeUp.stop();
 	return FALSE;
+    }
 
     // with that out of the way, let's get down to action
 
@@ -404,10 +408,14 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
     case Event_Enter:
 	if ( label && label->isVisible() && w == widget )
 	    leaveWindow.stop();
+	else if ( w ) // test in event_leave below should always hit first
+	    wakeUp.stop();
 	break;
     case Event_Leave:
 	if ( label && label->isVisible() )
 	    leaveWindow.start( 50, TRUE );
+	else if ( widget != w )
+	    wakeUp.stop();
 	break;
     default:
 	hideTip();
