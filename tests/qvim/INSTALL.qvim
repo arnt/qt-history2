@@ -1,7 +1,0 @@
-Builds steps:
-
-./configure --enable-gui=QT
-sh osdef.sh
-make pathdef.c
-qmake -o Makefile.qvim qvim.pro
-make -f Makefile.qvim
