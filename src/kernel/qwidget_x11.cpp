@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#332 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#333 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1646,6 +1646,20 @@ void QWidget::createTLSysExtra()
 	// ##### TODO: use fontset of focus widget
 	QFontMetrics fm = fontMetrics();
 	XFontSet fontset = (XFontSet)fm.fontSet();
+	if ( !fontset ) {
+	    // ##### TODO: this case cannot happen if we ensure that
+	    //              the default font etc. are for this locale.
+	    char** missing=0;
+	    int nmissing;
+	    char* n =
+		"-*-*-*-*-normal-*-*-120-*-*-*-*-*-*,"
+		"-*-*-*-*-*-*-*-120-*-*-*-*-*-*";
+	    static XFontSet fixed_fontset =
+			XCreateFontSet( QPaintDevice::x11AppDisplay(), n,
+				&missing, &nmissing, 0 );
+	    fontset = fixed_fontset;
+	}
+
 
 	XVaNestedList preedit_att = XVaCreateNestedList(0,
 			XNFontSet, fontset,
