@@ -143,6 +143,18 @@ void QWidgetView::setWidget(QWidget *w)
 
 }
 
+/*!  Removes the view widget's widget from the view, and passes
+  ownership of the widget to the caller.
+ */
+QWidget *QWidgetView::takeWidget()
+{
+    QWidget *w = d->widget;
+    d->widget = 0;
+    if (w)
+        w->setParent(0);
+    return w;
+}
+
 /*!\reimp
  */
 bool QWidgetView::event(QEvent *e)

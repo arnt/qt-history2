@@ -28,6 +28,7 @@ public:
 
     QWidget *widget() const;
     void setWidget(QWidget *w);
+    QWidget *takeWidget();
 
     bool widgetResizable() const;
     void setWidgetResizable(bool resizable);
