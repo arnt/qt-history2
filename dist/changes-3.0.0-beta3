@@ -84,7 +84,7 @@ New functions:
 QTimeEdit
 ---------
 
- - Fix wrong resp. missing default size policy and size hint.
+ - Fixed wrong resp. missing default size policy and size hint.
  - Improved focus and tab handling.
 
 QTextEdit
@@ -122,6 +122,7 @@ QRichtext
 ---------
 
  - Fixed searching backwards.
+ - Fixed some BIDI text-rendering problems.
 
 QSound
 ------
