@@ -521,7 +521,7 @@ QSize QTabBar::sizeHint() const
 	QRect r( t->r );
 	while ( (t = l->next()) != 0 )
 	    r = r.unite( t->r );
-	return r.size().boundedTo( QSize(200,200) ).expandedTo( QApplication::globalStrut() );
+	return r.size().expandedTo( QApplication::globalStrut() );
     } else {
 	return QSize( 0, 0 ).expandedTo( QApplication::globalStrut() );
     }

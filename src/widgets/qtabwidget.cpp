@@ -679,7 +679,7 @@ QSize QTabWidget::sizeHint() const
 	that->setUpLayout( TRUE );
     }
     QSize s( d->stack->sizeHint() );
-    QSize t( d->tabs->sizeHint() );
+    QSize t( d->tabs->sizeHint().boundedTo( QSize(200,200) ) );
     return QSize( QMAX( s.width(), t.width() ),
 		  s.height() + t.height() + d->tabBase->height() );
 }

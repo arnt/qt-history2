@@ -421,7 +421,7 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	updateSize();
 
     QPoint mouse = QCursor::pos();
-    snapToMouse = snapToMouse && pos == mouse;
+    snapToMouse = pos == mouse;
 
     // have to emit here as a menu might be setup in a slot connected
     // to aboutToShow which will change the size of the menu
@@ -432,7 +432,9 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	updateSize();
     }
 
-    QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( pos ) );
+    QRect screen = QApplication::desktop()->screenGeometry( 
+	QApplication::desktop()->screenNumber( QApplication::reverseLayout() ? pos+QPoint(width(),0) : pos ) 
+	);
     int sw = screen.width();			// screen width
     int sh = screen.height();			// screen height
     int sx = screen.x();			// screen pos
@@ -445,6 +447,9 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     int h  = height();
 
     if ( snapToMouse ) {
+	if ( qApp->reverseLayout() )
+	    x -= w;
+
 	if ( x+w > sx+sw )
 	    x = mouse.x()-w;
 	if ( y+h > sy+sh )
@@ -469,12 +474,19 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     actItem = -1;
 
 #ifndef QT_NO_EFFECTS
-    int hGuess = QEffects::RightScroll;
+    int hGuess = qApp->reverseLayout() ? QEffects::LeftScroll : QEffects::RightScroll;
     int vGuess = QEffects::DownScroll;
-    if ( snapToMouse && ( x + w/2 < mouse.x() ) ||
-	( parentMenu && parentMenu->isPopupMenu &&
-	( x + w/2 < ((QPopupMenu*)parentMenu)->x() ) ) )
-	hGuess = QEffects::LeftScroll;
+    if ( qApp->reverseLayout() ) {
+	if ( snapToMouse && ( x + w/2 > mouse.x() ) ||
+	    ( parentMenu && parentMenu->isPopupMenu &&
+	    ( x + w/2 > ((QPopupMenu*)parentMenu)->x() ) ) )
+	    hGuess = QEffects::RightScroll;
+    } else {
+	if ( snapToMouse && ( x + w/2 < mouse.x() ) ||
+	    ( parentMenu && parentMenu->isPopupMenu &&
+	    ( x + w/2 < ((QPopupMenu*)parentMenu)->x() ) ) )
+	    hGuess = QEffects::LeftScroll;
+    }
 
 #ifndef QT_NO_MENUBAR
     if ( snapToMouse && ( y + h/2 < mouse.y() ) ||

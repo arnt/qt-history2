@@ -320,7 +320,6 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 		e = Impossible;
 		break;
 	    case WSAEWOULDBLOCK:
-		// ### ???
 		break;
 	    case WSAEACCES:
 		e = Inaccessible;
@@ -444,7 +443,6 @@ int QSocketDevice::accept()
 		e = Impossible;
 		break;
 	    case WSAEWOULDBLOCK:
-		// ### ?
 		break;
 	    default:
 		e = UnknownError;
@@ -532,13 +530,6 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	    r = ::recv( fd, data, maxlen, 0 );
 	}
 	done = TRUE;
-#if 0
-	if ( r >= 0 || errno == EAGAIN ) {
-	    // nothing
-	} else if ( errno == EINTR ) {
-	    done = FALSE;
-	} else if ( e == NoError ) {
-#endif
 	if ( r == SOCKET_ERROR && e == NoError ) {
 	    switch( WSAGetLastError() ) {
 		case WSANOTINITIALISED:
@@ -570,7 +561,6 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 		    e = Bug; // ### ?
 		    break;
 		case WSAEWOULDBLOCK:
-		    // ### ???
 		    break;
 		case WSAEMSGSIZE:
 		    e = NoResources; // ### ?
@@ -657,7 +647,6 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
 		    e = Impossible;
 		    break;
 		case WSAEWOULDBLOCK:
-		    // ### ???
 		    break;
 		default:
 		    e = UnknownError;
@@ -762,7 +751,6 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 		    e = Impossible;
 		    break;
 		case WSAEWOULDBLOCK:
-		    // ### ???
 		    break;
 		default:
 		    e = UnknownError;

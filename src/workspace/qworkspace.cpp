@@ -1184,7 +1184,13 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 		if ( !t )
 		    t = new QTime;
 		if ( tc != this || t->elapsed() > QApplication::doubleClickInterval() ) {
-		    popupOperationMenu( b->mapToGlobal( QPoint( b->x(), b->y() + b->height() ) ) );
+		    if ( QApplication::reverseLayout() ) {
+			QPoint p = b->mapToGlobal( QPoint( b->x() + b->width(), b->y() + b->height() ) );
+			p.rx() -= d->popup->sizeHint().width();
+			popupOperationMenu( p );
+		    } else {
+			popupOperationMenu( b->mapToGlobal( QPoint( b->x(), b->y() + b->height() ) ) );
+		    }
 		    t->start();
 		    tc = this;
 		} else {
@@ -1448,10 +1454,17 @@ void QWorkspace::showOperationMenu()
     if  ( !d->active || !d->active->windowWidget() )
 	return;
     Q_ASSERT( d->active->windowWidget()->testWFlags( WStyle_SysMenu ) );
-    QPoint p( d->active->windowWidget()->mapToGlobal( QPoint(0,0) ) );
+    QPoint p;
+    QPopupMenu *popup = d->active->windowWidget()->testWFlags( WStyle_Tool ) ? d->toolPopup : d->popup;
+    if ( QApplication::reverseLayout() ) {
+	p = QPoint( d->active->windowWidget()->mapToGlobal( QPoint(d->active->windowWidget()->width(),0) ) );
+	p.rx() -= popup->sizeHint().width();
+    } else {
+	p = QPoint( d->active->windowWidget()->mapToGlobal( QPoint(0,0) ) );
+    }
     if ( !d->active->isVisible() ) {
 	p = d->active->iconWidget()->mapToGlobal( QPoint(0,0) );
-	p.ry() -= d->popup->sizeHint().height();
+	p.ry() -= popup->sizeHint().height();
     }
     popupOperationMenu( p );
 }
