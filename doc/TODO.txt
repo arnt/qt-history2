@@ -178,6 +178,14 @@ QPopupMenu
   One user requested the ability to show just the icons in a torn off menu, and asked
   if the torn off menu could get a WS_EX_TOOLWINDOW style.  I don't think that this
   will benefit anyone much as they might as well just use a toolbar.
+  
+Be able to traverse from one popup menu to another when you are within a popup menu 
+  (see more on support/arc-09/18923)
+
+QMenuData  
+  bool isPopup( int id ) - check to see if a menu item is a QPopupMenu or just a plain QMenuItem.  
+
+
 
 
 New functionality
