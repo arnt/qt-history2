@@ -1427,7 +1427,8 @@ QSize QAquaStyle::sizeFromContents( ContentsType contents,
 
     case CT_PushButton:
 	sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
-	sz.setWidth(sz.width() + 16);
+	if(widget->width() > 32)
+	    sz.setWidth(sz.width() + 16);
 	break;
 
     default:
@@ -1446,10 +1447,12 @@ QRect QAquaStyle::subRect( SubRect r, const QWidget *w ) const
     switch(r) {
     case SR_PushButtonContents:
 	ret = QWindowsStyle::subRect(r, w);
-	ret.setTop( ret.top()+1);
-	ret.setLeft( ret.left()+8);
-	ret.setBottom( ret.bottom()-1);
-	ret.setRight( ret.right()-8);
+	if(w->width() > 32) {
+	    ret.setTop( ret.top()+1);
+	    ret.setLeft( ret.left()+8);
+	    ret.setBottom( ret.bottom()-1);
+	    ret.setRight( ret.right()-8);
+	}
 	break;
 
     case SR_ComboBoxFocusRect: {
