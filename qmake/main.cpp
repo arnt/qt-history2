@@ -142,7 +142,7 @@ int main(int argc, char **argv)
 			    Option::output.setName(oldpwd + Option::dir_sep + Option::output.name());
 
 			QFileInfo fi(Option::output);
-			Option::output_dir = Option::fixPathToTargetOS(fi.dirPath());
+			Option::output_dir = Option::fixPathToTargetOS(fi.dir().canonicalPath());
 			if(!Option::output.open(IO_WriteOnly | IO_Translate)) {
 			    fprintf(stderr, "Failure to open file: %s\n", Option::output.name().latin1());
 			    return 5;

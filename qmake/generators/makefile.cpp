@@ -712,9 +712,9 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
     for(QStringList::Iterator it = uil.begin(); it != uil.end(); it++) {
 	QFileInfo fi(*it);
 	QString deps =  depends[(*it)].join(" \\\n\t\t");
-	QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::h_ext;
-	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::cpp_ext;
-
+	QString decl = (*it).replace(QRegExp("\\.ui$"), Option::h_ext);
+	QString impl = (*it).replace(QRegExp("\\.ui$"), Option::cpp_ext);
+	
 	t << decl << ": " << (*it) << " " << deps << "\n\t"
 	  << "$(UIC) " << (*it) << " -o " << decl << endl << endl;
 
