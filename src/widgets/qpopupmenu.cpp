@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#190 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#191 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -187,10 +187,15 @@ static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
 #endif
 	p->setPen( g.text() );
 	p->drawLineSegments( a );
+	
+	if (style == QStyle::MotifStyle)
+	    qDrawShadePanel( p, posX-2, posY-2, markW+4, markH+6, g, TRUE, 
+			     style.defaultFrameWidth());
     }
     else {
-	qDrawShadePanel( p, posX, posY, markW, markH, g, TRUE, 2, &g.fillMid() );
+	qDrawShadePanel( p, posX, posY, markW, markH, g, TRUE, style.defaultFrameWidth(), &g.fillMid() );
     }
+    
 }
 
 
@@ -1067,7 +1072,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 			mi->pixmap() && !mi->text().isNull() ) {
 		qDrawShadePanel( p, cm, cm, cellw-2*cm, cellh-2*cm,
 				 g, TRUE, 1, &g.fillButton() );
-	    }
+	    } 
 	} else if ( !act ) {
  	    p->fillRect(cm, cm, cellw - 2*cm, cellh - 2*cm, g.fillButton());
 	}		
