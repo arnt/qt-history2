@@ -156,10 +156,10 @@ class QWhatsThisPrivate: public QObject
 public:
 
     // an item for storing texts
-    struct WhatsThisItem: public QShared
+    struct WhatsThisItem
     {
-	WhatsThisItem(): QShared() { whatsthis = 0; }
-	~WhatsThisItem();
+	inline WhatsThisItem() : whatsthis(0) {}
+	inline ~WhatsThisItem() { delete whatsthis; }
 	QString s;
 	QWhatsThis* whatsthis;
     };
@@ -390,15 +390,6 @@ void QWhatsThat::paintEvent( QPaintEvent* )
     }
 }
 
-// the item
-QWhatsThisPrivate::WhatsThisItem::~WhatsThisItem()
-{
-    if ( count )
-	qFatal( "QWhatsThis: Internal error (%d)", count );
-    delete whatsthis;
-}
-
-
 static const char * const button_image[] = {
 "16 16 3 1",
 " 	c None",
@@ -494,8 +485,7 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 	w = (QWidget *)it.currentKey();
 	++it;
 	dict->take( w );
-	if ( i->deref() )
-	    delete i;
+	delete i;
     }
     delete dict;
     if ( whatsThat && !whatsThat->parentWidget() ) {
@@ -770,9 +760,7 @@ void QWhatsThis::remove( QWidget * widget )
 
     wt->dict->take( (void *)widget );
 
-    i->deref();
-    if ( !i->count )
-	delete i;
+    delete i;
 }
 
 
