@@ -328,6 +328,7 @@ void QLabel::setText(const QString &text)
             t.prepend("<nobr>");
         d->doc = new QTextDocument();
         d->doc->setUndoRedoEnabled(false);
+        d->doc->documentLayout()->setDefaultFont(font());
         d->doc->setHtml(text);
     }
 #endif

@@ -177,11 +177,11 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
 #ifndef QT_NO_RICHTEXT
     doc = 0;
     if (QText::mightBeRichText(text)) {
-        QFont f = QApplication::font(this);
         doc = new QTextDocument();
         doc->setUndoRedoEnabled(false);
         doc->setHtml(text);
         QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(doc->documentLayout());
+        layout->setDefaultFont(QApplication::font(this));
         layout->adjustSize();
         r.setTop(0);
         r.setLeft(0);
