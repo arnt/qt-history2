@@ -2330,7 +2330,10 @@ void QWidget::setName( const char *name )
   should never call this.
 */
 
+// defined in qapplication_x11.cpp
 extern Atom qt_enlightenment_desktop;
+extern Atom qt_net_virtual_roots;
+extern bool qt_net_supports(Atom);
 extern unsigned long *qt_net_virtual_root_list;
 
 void QWidget::updateFrameStrut() const
@@ -2372,7 +2375,7 @@ void QWidget::updateFrameStrut() const
 		XFree(data_ret);
 
 	    break;
-	} else if (qt_net_virtual_root_list) {
+	} else if (qt_net_supports(qt_net_virtual_roots) && qt_net_virtual_root_list) {
 	    int i = 0;
 	    while (qt_net_virtual_root_list[i] != 0) {
 		if (qt_net_virtual_root_list[i++] == p)

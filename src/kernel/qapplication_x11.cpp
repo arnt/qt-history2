@@ -1497,26 +1497,32 @@ void qt_get_net_supported()
 }
 
 
-// update the virtual roots array
-void qt_get_net_virtual_roots()
+bool qt_net_supports(Atom atom)
 {
     if (! qt_net_supported_list)
-	return;
+	return FALSE;
 
-    if (qt_net_virtual_root_list)
-	delete [] qt_net_virtual_root_list;
-    qt_net_virtual_root_list = 0;
-
-    bool supports_virtual_roots = FALSE;
+    bool supported = FALSE;
     int i = 0;
     while (qt_net_supported_list[i] != 0) {
-	if (qt_net_supported_list[i++] == qt_net_virtual_roots) {
-	    supports_virtual_roots = TRUE;
+	if (qt_net_supported_list[i++] == atom) {
+	    supported = TRUE;
 	    break;
 	}
     }
 
-    if (! supports_virtual_roots)
+    return supported;
+}
+
+
+// update the virtual roots array
+void qt_get_net_virtual_roots()
+{
+    if (qt_net_virtual_root_list)
+	delete [] qt_net_virtual_root_list;
+    qt_net_virtual_root_list = 0;
+
+    if (! qt_net_supports(qt_net_virtual_roots))
 	return;
 
     Atom type;
