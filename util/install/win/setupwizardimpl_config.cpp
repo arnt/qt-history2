@@ -272,11 +272,11 @@ void SetupWizardImpl::cleanDone()
     else if ( entry == "Off" )
 	args += "-no-style-sgi";
 #  endif
-
+    if ( !optionsPage->skipBuild->isChecked() 
 #  if defined(Q_OS_WIN32)
-    if( qWinVersion() & WV_NT_based ) {
-#  elif defined(Q_OS_UNIX)
-    if (true) {
+    && qWinVersion() & WV_NT_based ) {
+#  else
+    ) {
 #  endif
 	logOutput( "Execute configure...\n" );
 	logOutput( args.join( " " ) + "\n" );
@@ -307,7 +307,7 @@ void SetupWizardImpl::cleanDone()
 		outStream << installDir.absPath().left(2) << endl;
 	    outStream << "cd %QTDIR%" << endl;
 
-	    // There is a limitatino on Windows 9x regarding the length of the
+	    // There is a limitation on Windows 9x regarding the length of the
 	    // command line. So rather use the configure.cache than specifying
 	    // all configure options on the command line.
 	    QFile configureCache( installDir.filePath("configure.cache") );

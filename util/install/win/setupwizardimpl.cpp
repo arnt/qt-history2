@@ -541,6 +541,7 @@ void SetupWizardImpl::initConnections()
     if ( optionsPage ) {
 	connect( optionsPage->sysGroup, SIGNAL(clicked(int)), SLOT(clickedSystem(int)));
 	connect( optionsPage->installPathButton, SIGNAL(clicked()), SLOT(clickedPath()));
+	connect( optionsPage->skipBuild, SIGNAL(clicked()), SLOT(clickedSkipBuild()));
     }
     if ( foldersPage ) {
 	connect( foldersPage->folderPathButton, SIGNAL(clicked()), SLOT(clickedFolderPath()));
@@ -1110,6 +1111,7 @@ void SetupWizardImpl::showPageOptions()
 
 #if defined(EVAL) || defined(EDU)
     optionsPage->installDocs->setEnabled( FALSE );
+    optionsPage->skipBuild->setEnabled( FALSE );
 #  if defined(Q_OS_WIN32)
     optionsPage->installExamples->setEnabled( TRUE );
     optionsPage->installTutorials->setEnabled( TRUE );
@@ -1131,6 +1133,12 @@ void SetupWizardImpl::showPageOptions()
 	optionsPage->sysMsvc->setEnabled( TRUE );
 	optionsPage->sysBorland->setEnabled( FALSE );
     }
+#else
+#  if defined(Q_OS_WIN32)
+    // No need to offer the option of skipping the build on 9x, it's skipped anyway
+    if ( qWinVersion() & WV_DOS_based )
+	optionsPage->skipBuild->setEnabled( FALSE ); 
+#  endif
 #endif
 }
 
@@ -1464,10 +1472,11 @@ void SetupWizardImpl::showPageFinish()
     autoContTimer.stop();
     nextButton()->setText( "Next >" );
     QString finishMsg;
+    if ( !optionsPage->skipBuild->isChecked() 
 #if defined(Q_OS_WIN32)
-    if( qWinVersion() & WV_NT_based ) {
-#elif defined(Q_OS_UNIX)
-    if( true ) {
+    && qWinVersion() & WV_NT_based ) {
+#else
+    ) {
 #endif
 	if( globalInformation.reconfig() ) {
 	    if( !configPage->rebuildInstallation->isChecked() )
@@ -1498,18 +1507,18 @@ void SetupWizardImpl::showPageFinish()
 	else {
 	    finishMsg = QString( "The Qt files have been installed to " ) + optionsPage->installPath->text() + " and is ready to be compiled.\n";
 #if defined(Q_OS_WIN32)
-	    if( persistentEnv ) {
+	    if( persistentEnv && qWinVersion() & WV_DOS_based ) {
 		finishMsg += "The environment variables needed to use Qt have been recorded into your AUTOEXEC.BAT file.\n";
 		finishMsg += "Please review this file, and take action as appropriate depending on your operating system to get them into the persistent environment. (Windows Me users, run MsConfig)\n\n";
 	    }
 #  if defined(EVAL) || defined(EDU)
-	    finishMsg += QString( "To build the examples and tutorials, use the"
+	    finishMsg += QString( "To build the examples and tutorials, use the "
 				  "\"Build the Qt Examples and Tutorials\""
-				  "icon which has been installed into your Start-Menu." );
+				  " icon which has been installed into your Start-Menu." );
 #  else
-	    finishMsg += QString( "To build Qt, use the"
+	    finishMsg += QString( "To build Qt, use the "
 				  "\"Build Qt " ) + globalInformation.qtVersionStr() + "\""
-				  "icon which has been installed into your Start-Menu.";
+				  " icon which has been installed into your Start-Menu.";
 #  endif
 #endif
 	}
@@ -2170,4 +2179,13 @@ void SetupWizardImpl::accept()
     }
 #endif
     QDialog::accept();
+}
+
+void SetupWizardImpl::clickedSkipBuild()
+{
+    bool enable = !optionsPage->skipBuild->isChecked();
+    optionsPage->installTools->setEnabled( enable );
+    optionsPage->installExtensions->setEnabled( enable );
+    optionsPage->installExamples->setEnabled( enable );
+    optionsPage->installTutorials->setEnabled( enable );
 }

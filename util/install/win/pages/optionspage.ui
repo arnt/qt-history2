@@ -110,17 +110,6 @@
                                 <bool>true</bool>
                             </property>
                         </widget>
-                        <widget class="QCheckBox" row="3" column="1">
-                            <property name="name">
-                                <cstring>installTutorials</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Build T&amp;utorials</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                        </widget>
                         <widget class="QCheckBox" row="2" column="0">
                             <property name="name">
                                 <cstring>installTools</cstring>
@@ -141,6 +130,25 @@
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="3" column="1">
+                            <property name="name">
+                                <cstring>installTutorials</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Build T&amp;utorials</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="4" column="1">
+                            <property name="name">
+                                <cstring>skipBuild</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;Skip Build Step</string>
                             </property>
                         </widget>
                         <widget class="QCheckBox" row="4" column="0">
