@@ -12,7 +12,6 @@
 #include <qlistbox.h>
 #include <qapplication.h>
 #include <qcheckbox.h>
-#include <zlib.h>
 #include <qtextstream.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
@@ -759,7 +758,23 @@ void SetupWizardImpl::clickedSystem( int sys )
     QString makeCmd = globalInformation.text(GlobalInformation::MakeTool);
     QString environment;
     if ( !optionsPage->skipBuild->isChecked() && optionsPage->skipBuild->isEnabled() ) {
-	if( !findFile( makeCmd ) ) {
+        QString commandTool;
+	environment = getenv("COMSPEC");
+        if( qWinVersion() & WV_DOS_based )
+            commandTool = "command.com";
+        else
+            commandTool = "cmd.exe";
+        if (!environment.isEmpty() && !environment.endsWith(commandTool, false)) {
+	    QMessageBox::critical(this, "Environment problems",
+                                        "The 'COMSPEC' environment variable is not set to use\n"
+                                        "'" + commandTool + "'. This could cause some problems when building.\n"
+                                        "If you have difficulty then change it to use '" + commandTool + "'\n"
+                                        "and restart the installation\n\n"
+                                        "Please contact your local system administration if you have\n"
+                                        "difficulties finding the file, or if you don't know how to\n"
+                                        "modify the environment settings on your system.");
+        }
+        if( !findFile( makeCmd ) ) {
 	    environment = getDirectoryList("PATH");
 	    // ### try to adjust environment
 	    QMessageBox::critical( this, "Environment problems",

@@ -12,7 +12,6 @@
 #include <qlistbox.h>
 #include <qapplication.h>
 #include <qcheckbox.h>
-#include <zlib.h>
 #include <qtextstream.h>
 #include <qpushbutton.h>
 #include <qcombobox.h>
