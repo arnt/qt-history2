@@ -16,52 +16,10 @@
 
 #ifndef QT_H
 #include <qlistview.h>
-#include <qabstractitemmodel.h>
-#include <qiconset.h>
-#include <qstring.h>
-#include <qvector.h>
+#include <qwidgetbaseitem.h>
 #endif
 
-class Q_GUI_EXPORT QListWidgetItem
-{
-
-public:
-    QListWidgetItem()  : edit(true), select(true) {}
-    ~QListWidgetItem() {}
-
-    inline QString text() const { return data(QAbstractItemModel::DisplayRole).toString(); }
-    inline QIconSet icon() const { return data(QAbstractItemModel::DecorationRole).toIcon(); }
-
-    inline bool isEditable() const { return edit; }
-    inline bool isSelectable() const { return select; }
-
-    inline void setText(const QString &text) { setData(QAbstractItemModel::DisplayRole, text); }
-    inline void setIcon(const QIconSet &icon) { setData(QAbstractItemModel::DisplayRole, icon); }
-
-    inline void setEditable(bool editable) { edit = editable; }
-    inline void setSelectable(bool selectable) { select = selectable; }
-
-    bool operator ==(const QListWidgetItem &other) const;
-    inline bool operator !=(const QListWidgetItem &other) const { return !operator==(other); }
-
-    QVariant data(int role) const;
-    void setData(int role, const QVariant &value);
-
-private:
-    struct Data {
-        Data() {}
-        Data(int r, QVariant v) {
-            role = r;
-            value = v;
-        }
-        int role;
-        QVariant value;
-    };
-
-    QVector<Data> values;
-    uint edit : 1;
-    uint select : 1;
-};
+typedef QWidgetCellItem QListWidgetItem;
 
 class QListWidgetPrivate;
 
@@ -77,14 +35,10 @@ public:
     QListWidget(QWidget *parent = 0);
     ~QListWidget();
 
-    void setText(int row, const QString &text);
-    void setIconSet(int row, const QIconSet &iconSet);
-    QString text(int row) const;
-    QIconSet iconSet(int row) const;
-
-    QListWidgetItem item(int row) const;
-    void setItem(int row, const QListWidgetItem &item);
-    void appendItem(const QListWidgetItem &item);
+    QListWidgetItem *itemAt(int row) const;
+    void insertItem(int row, QListWidgetItem *item);
+    void appendItem(QListWidgetItem *item);
+    void removeItem(int row);
 };
 
 #endif

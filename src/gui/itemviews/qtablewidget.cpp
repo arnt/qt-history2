@@ -13,10 +13,12 @@
 
 #include "qtablewidget.h"
 #include <qheaderview.h>
+#include <qabstractitemmodel.h>
 #include <private/qtableview_p.h>
 
 class QTableModel : public QAbstractTableModel
 {
+    friend class QTableWidget;
 public:
     QTableModel(int rows = 0, int columns = 0, QObject *parent = 0);
     ~QTableModel();
@@ -24,35 +26,16 @@ public:
     virtual void setRowCount(int rows);
     virtual void setColumnCount(int columns);
 
-    virtual bool insertRows(int row, const QModelIndex &parent = QModelIndex::Null,
-                            int count = 1);
-    virtual bool insertColumns(int column, const QModelIndex &parent = QModelIndex::Null,
-                               int count = 1);
+    virtual bool insertRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
+    virtual bool insertColumns(int column, const QModelIndex &parent = QModelIndex::Null, int count = 1);
 
-    virtual bool removeRows(int row, const QModelIndex &parent = QModelIndex::Null,
-                            int count = 1);
-    virtual bool removeColumns(int column, const QModelIndex &parent = QModelIndex::Null,
-                               int count = 1);
+    virtual bool removeRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
+    virtual bool removeColumns(int column, const QModelIndex &parent = QModelIndex::Null, int count = 1);
 
-    virtual void setText(int row, int column, const QString &text);
-    virtual void setIcon(int row, int column, const QIconSet &icon);
-    QString text(int row, int column) const;
-    QIconSet icon(int row, int column) const;
-
-    virtual void setRowText(int row, const QString &text);
-    virtual void setRowIconSet(int row, const QIconSet &icon);
-    QString rowText(int row) const;
-    QIconSet rowIconSet(int row) const;
-
-    virtual void setColumnText(int column, const QString &text);
-    virtual void setColumnIconSet(int column, const QIconSet &icon);
-    QString columnText(int column) const;
-    QIconSet columnIconSet(int column) const;
-
-    void setItem(int row, int column, const QTableWidgetItem &item);
-    QTableWidgetItem item(int row, int column) const;
-    QTableWidgetItem item(const QModelIndex &index) const;
-
+    void setItem(int row, int column, QTableWidgetItem *item);
+    QTableWidgetItem *item(int row, int column) const;
+    QTableWidgetItem *item(const QModelIndex &index) const;
+    
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null,
                       QModelIndex::Type type = QModelIndex::View) const;
 
@@ -70,9 +53,9 @@ public:
 
 private:
     int r, c;
-    QVector<QTableWidgetItem> table;
-    QVector<QTableWidgetItem> leftHeader;
-    QVector<QTableWidgetItem> topHeader;
+    QVector<QTableWidgetItem*> table;
+    QVector<QTableWidgetItem*> leftHeader;
+    QVector<QTableWidgetItem*> topHeader;
 };
 
 QTableModel::QTableModel(int rows, int columns, QObject *parent)
@@ -100,7 +83,7 @@ void QTableModel::setRowCount(int rows)
     table.resize(s); // FIXME: this will destroy the layout
     leftHeader.resize(r);
     for (int j = _r; j < r; ++j)
-        leftHeader[j].setText(QString::number(j));
+        leftHeader[j] = 0;
 
     if (r >= _r)
         emit rowsInserted(QModelIndex::Null, top, bottom);
@@ -123,7 +106,7 @@ void QTableModel::setColumnCount(int columns)
     table.resize(s); // FIXME: this will destroy the layout
     topHeader.resize(c);
     for (int j = _c; j < c; ++j)
-        topHeader[j].setText(QString::number(j));
+        topHeader[j] = 0;
 
     if (c >= _c)
         emit columnsInserted(QModelIndex::Null, left, right);
@@ -157,105 +140,35 @@ bool QTableModel::removeColumns(int, const QModelIndex &, int)
     return false;
 }
 
-void QTableModel::setText(int row, int column, const QString &text)
-{
-    QModelIndex index = createIndex(row, column);
-    setData(index, QAbstractItemModel::DisplayRole, QVariant(text));
-}
-
-void QTableModel::setIcon(int row, int column, const QIconSet &icon)
-{
-    QModelIndex index = createIndex(row, column);
-    setData(index, QAbstractItemModel::DecorationRole, QVariant(icon));
-}
-
-QString QTableModel::text(int row, int column) const
-{
-    QModelIndex index = createIndex(row, column);
-    return data(index, QAbstractItemModel::DisplayRole).toString();
-}
-
-QIconSet QTableModel::icon(int row, int column) const
-{
-    QModelIndex index = createIndex(row, column);
-    return data(index, QAbstractItemModel::DecorationRole).toIconSet();
-}
-
-void QTableModel::setRowText(int row, const QString &text)
-{
-    QModelIndex index = QAbstractItemModel::createIndex(row, 0, 0, QModelIndex::VerticalHeader);
-    setData(index, QAbstractItemModel::DecorationRole, QVariant(text));
-}
-
-void QTableModel::setRowIconSet(int row, const QIconSet &icon)
-{
-    QModelIndex index = createIndex(row, 0, 0, QModelIndex::VerticalHeader);
-    setData(index, QAbstractItemModel::DecorationRole, QVariant(icon));
-}
-
-QString QTableModel::rowText(int row) const
-{
-    QModelIndex index = createIndex(row, 0, 0, QModelIndex::VerticalHeader);
-    return data(index, QAbstractItemModel::DisplayRole).toString();
-}
-
-QIconSet QTableModel::rowIconSet(int row) const
-{
-    QModelIndex index = createIndex(row, 0, 0, QModelIndex::VerticalHeader);
-    return data(index, QAbstractItemModel::DecorationRole).toIconSet();
-}
-
-void QTableModel::setColumnText(int column, const QString &text)
-{
-    QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    setData(index, QAbstractItemModel::DisplayRole, QVariant(text));
-}
-
-void QTableModel::setColumnIconSet(int column, const QIconSet &icon)
-{
-    QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    setData(index, QAbstractItemModel::DecorationRole, QVariant(icon));
-}
-
-QString QTableModel::columnText(int column) const
-{
-    QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    return data(index, QAbstractItemModel::DisplayRole).toString();
-}
-
-QIconSet QTableModel::columnIconSet(int column) const
-{
-    QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    return data(index, QAbstractItemModel::DecorationRole).toIconSet();
-}
-
-void QTableModel::setItem(int row, int column, const QTableWidgetItem &item)
+void QTableModel::setItem(int row, int column, QTableWidgetItem *item)
 {
     table[tableIndex(row, column)] = item;
 }
 
-QTableWidgetItem QTableModel::item(int row, int column) const
+QTableWidgetItem *QTableModel::item(int row, int column) const
 {
     return table.at(tableIndex(row, column));
 }
 
-QTableWidgetItem QTableModel::item(const QModelIndex &index) const
+QTableWidgetItem *QTableModel::item(const QModelIndex &index) const
 {
     if (!isValid(index))
-        return QTableWidgetItem();
+        return 0;
     if (index.type() == QModelIndex::VerticalHeader)
         return leftHeader.at(index.row());
     else if (index.type() == QModelIndex::HorizontalHeader)
         return topHeader.at(index.column());
     else
         return table.at(tableIndex(index.row(), index.column()));
-    return QTableWidgetItem();
+    return 0;
 }
 
 QModelIndex QTableModel::index(int row, int column, const QModelIndex &, QModelIndex::Type type) const
 {
-    if (row >= 0 && row < r && column >= 0 && column < c)
-        return createIndex(row, column, 0, type);
+    if (row >= 0 && row < r && column >= 0 && column < c) {
+        QTableWidgetItem *item = table.at(tableIndex(row, column)); // FIXME: headers ?
+        return createIndex(row, column, item, type);
+    }
     return QModelIndex::Null;
 }
 
@@ -271,33 +184,37 @@ int QTableModel::columnCount() const
 
 QVariant QTableModel::data(const QModelIndex &index, int role) const
 {
-    if (index.isValid())
-        return item(index).data(role);
+    QTableWidgetItem *itm = item(index);
+    if (itm)
+        return itm->data(role);
+    if (index.type() == QModelIndex::VerticalHeader && role == QAbstractItemModel::DisplayRole)
+        return QString::number(index.row());
+    if (index.type() == QModelIndex::HorizontalHeader && role == QAbstractItemModel::DisplayRole)
+        return QString::number(index.column());
     return QVariant();
 }
 
 bool QTableModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
-    if (!index.isValid())
-        return false;
-    if (index.type() == QModelIndex::VerticalHeader)
-        leftHeader[index.row()].setData(role, value);
-    else if (index.type() == QModelIndex::HorizontalHeader)
-        topHeader[index.column()].setData(role, value);
-    else
-        table[tableIndex(index.row(), index.column())].setData(role, value);
-    emit dataChanged(index, index);
-    return true;
+    QTableWidgetItem *itm = item(index);
+    if (itm) {
+        itm->setData(role, value);
+        emit dataChanged(index, index);
+        return true;
+    }
+    return false;
 }
 
 bool QTableModel::isSelectable(const QModelIndex &index) const
 {
-    return item(index).isSelectable();
+    QTableWidgetItem *itm = item(index);
+    return itm ? itm->isSelectable() : false;
 }
 
 bool QTableModel::isEditable(const QModelIndex &index) const
 {
-    return item(index).isEditable();
+    QTableWidgetItem *itm = item(index);
+    return itm ? itm->isEditable() : false;
 }
 
 bool QTableModel::isValid(const QModelIndex &index) const
@@ -309,43 +226,6 @@ int QTableModel::tableIndex(int row, int column) const
 {
     return (row * c) + column;
 }
-
-
-bool QTableWidgetItem::operator ==(const QTableWidgetItem &other) const
-{
-    if (values.count() != other.values.count()
-        || edit != other.edit
-        || select != other.select)
-        return false;
-
-    for (int i = 0; values.count(); ++i)
-        if (values.at(i).role != other.values.at(i).role
-            || values.at(i).value != other.values.at(i).value)
-            return false;
-    return true;
-}
-
-QVariant QTableWidgetItem::data(int role) const
-{
-    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
-    for (int i = 0; i < values.count(); ++i)
-        if (values.at(i).role == role)
-            return values.at(i).value;
-    return QVariant();
-}
-
-void QTableWidgetItem::setData(int role, const QVariant &value)
-{
-    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
-    for (int i = 0; i < values.count(); ++i) {
-        if (values.at(i).role == role) {
-            values[i].value = value;
-            return;
-        }
-    }
-    values.append(Data(role, value));
-}
-
 
 /*!
     \class QTableWidget qtablewidget.h
@@ -388,6 +268,9 @@ QTableWidget::QTableWidget(QWidget *parent)
     : QTableView(*new QTableWidgetPrivate, parent)
 {
     setModel(new QTableModel(0, 0, this));
+    setItemDelegate(new QWidgetBaseItemDelegate(this));
+    verticalHeader()->setItemDelegate(new QWidgetBaseItemDelegate(verticalHeader()));
+    horizontalHeader()->setItemDelegate(new QWidgetBaseItemDelegate(horizontalHeader()));
 }
 
 /*!
@@ -426,7 +309,7 @@ void QTableWidget::setColumnCount(int columns)
 
     \sa setItem() text() icon()
 */
-QTableWidgetItem QTableWidget::item(int row, int column) const
+QTableWidgetItem *QTableWidget::item(int row, int column) const
 {
     return d->model()->item(row, column);
 }
@@ -436,127 +319,28 @@ QTableWidgetItem QTableWidget::item(int row, int column) const
 
     \sa item() setText() setIcon()
 */
-void QTableWidget::setItem(int row, int column, const QTableWidgetItem &item)
+void QTableWidget::setItem(int row, int column, QTableWidgetItem *item)
 {
     d->model()->setItem(row, column, item);
 }
 
-/*!
-    Sets the text for the given \a row and \a column to \a text.
 
-    \sa text() setIcon() setItem()
-*/
-void QTableWidget::setText(int row, int column, const QString &text)
+QTableWidgetItem *QTableWidget::verticalHeaderItem(int row) const
 {
-    d->model()->setText(row, column, text);
+    return d->model()->leftHeader.at(row);
 }
 
-/*!
-    Sets the icon for the given \a row and \a column to \a icon.
-
-    \sa icon() setText() setItem()
-*/
-void QTableWidget::setIcon(int row, int column, const QIconSet &icon)
+void QTableWidget::setVerticalHeaderItem(int row, QTableWidgetItem *item)
 {
-    d->model()->setIcon(row, column, icon);
+    d->model()->leftHeader[row] = item;
 }
 
-/*!
-    Returns the text for the given \a row and \a column.
-
-    \sa setText() icon()
-*/
-QString QTableWidget::text(int row, int column) const
+QTableWidgetItem *QTableWidget::horizontalHeaderItem(int column) const
 {
-    return d->model()->text(row, column);
+    return d->model()->topHeader.at(column);
 }
 
-/*!
-    Returns the icon for the given \a row and \a column.
-
-    \sa setIcon() text()
-*/
-QIconSet QTableWidget::icon(int row, int column) const
+void QTableWidget::setHorizontalHeaderItem(int column, QTableWidgetItem *item)
 {
-    return d->model()->icon(row, column);
-}
-
-/*!
-    Sets the text for the given \a row to \a text.
-
-    \sa rowText() setRowIconSet()
-*/
-void QTableWidget::setRowText(int row, const QString &text)
-{
-    d->model()->setRowText(row, text);
-}
-
-/*!
-    Sets the icon for the given \a row to \a icon.
-
-    \sa rowIconSet() setRowText()
-*/
-void QTableWidget::setRowIconSet(int row, const QIconSet &icon)
-{
-    d->model()->setRowIconSet(row, icon);
-}
-
-/*!
-    Returns the text for the given \a row.
-
-    \sa setRowText() rowIconSet()
-*/
-QString QTableWidget::rowText(int row) const
-{
-    return d->model()->rowText(row);
-}
-
-/*!
-    Returns the icon for the given \a row.
-
-    \sa setRowIconSet() rowText()
-*/
-QIconSet QTableWidget::rowIconSet(int row) const
-{
-    return d->model()->rowIconSet(row);
-}
-
-/*!
-    Sets the text for the given \a column to \a text.
-
-    \sa columnText() setColumnIconSet()
-*/
-void QTableWidget::setColumnText(int column, const QString &text)
-{
-    d->model()->setColumnText(column, text);
-}
-
-/*!
-    Sets the icon for the given \a column to \a icon.
-
-    \sa columnIconSet() setColumnText()
-*/
-void QTableWidget::setColumnIconSet(int column, const QIconSet &icon)
-{
-    d->model()->setColumnIconSet(column, icon);
-}
-
-/*!
-    Returns the text for the given \a column.
-
-    \sa setColumnText() columnIconSet()
-*/
-QString QTableWidget::columnText(int column) const
-{
-    return d->model()->columnText(column);
-}
-
-/*!
-    Returns the icon for the given \a column.
-
-    \sa setColumnIconSet() columnText()
-*/
-QIconSet QTableWidget::columnIconSet(int column) const
-{
-    return d->model()->columnIconSet(column);
+    d->model()->topHeader[column] = item;
 }

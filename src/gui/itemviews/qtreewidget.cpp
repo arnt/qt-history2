@@ -12,9 +12,6 @@
 ****************************************************************************/
 
 #include "qtreewidget.h"
-#include <qstyle.h>
-#include <qpainter.h>
-#include <qitemdelegate.h>
 #include <qapplication.h>
 #include <qheaderview.h>
 #include <private/qtreeview_p.h>
@@ -29,9 +26,6 @@ public:
     ~QTreeModel();
 
     void setColumnCount(int columns);
-    int columnCount() const;
-    void setColumnData(int column, int role, const QVariant &value);
-    QVariant columnData(int column, int role) const;
     
     QTreeWidgetItem *item(const QModelIndex &index) const;
 
@@ -39,8 +33,8 @@ public:
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null,
                       QModelIndex::Type type = QModelIndex::View) const;
     QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
+    int rowCount(const QModelIndex &parent = QModelIndex::Null) const;
+    int columnCount(const QModelIndex &parent = QModelIndex::Null) const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
@@ -56,15 +50,13 @@ protected:
     void emitRowsInserted(QTreeWidgetItem *item);
 
 private:
-    int c;
     QList<QTreeWidgetItem*> tree;
-    mutable QTreeWidgetItem topHeader;
+    QTreeWidgetItem *header;
 };
 
 /*
   \class QTreeModel qtreewidget.h
-
-  \brief The QTreeModel class manages the items stored in a tree view.
+ The QTreeModel class manages the items stored in a tree view.
 
   \ingroup model-view
     \mainclass
@@ -78,7 +70,7 @@ private:
 */
 
 QTreeModel::QTreeModel(int columns, QObject *parent)
-    : QAbstractItemModel(parent), c(0)
+    : QAbstractItemModel(parent), header(new QTreeWidgetItem())
 {
     setColumnCount(columns);
 }
@@ -93,6 +85,7 @@ QTreeModel::~QTreeModel()
 {
     for (int i = 0; i < tree.count(); ++i)
         delete tree.at(i);
+    delete header;
 }
 
 /*!
@@ -103,52 +96,18 @@ QTreeModel::~QTreeModel()
 
 void QTreeModel::setColumnCount(int columns)
 {
+    int c = header->columnCount();
     if (c == columns)
         return;
     int _c = c;
     c = columns;
     if (c < _c)
         emit columnsRemoved(QModelIndex::Null, qMax(_c - 1, 0), qMax(c - 1, 0));
-    topHeader.setColumnCount(c);
+    header->setColumnCount(c);
     for (int i = _c; i < c; ++i)
-        topHeader.setText(i, QString::number(i));
+        header->setText(i, QString::number(i));
     if (c > _c)
         emit columnsInserted(QModelIndex::Null, qMax(_c - 1, 0), qMax(c - 1, 0));
-}
-
-/*!
-  \internal
-
-  Returns the number of columns in the tree model.
-*/
-
-int QTreeModel::columnCount() const
-{
-    return c;
-}
-
-/*!
-  \internal
-
-  Sets the value for the \a column and \a role to the value specified by \a value.
-*/
-
-void QTreeModel::setColumnData(int column, int role, const QVariant &value)
-{
-    QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    setData(index, role, value);
-}
-
-/*!
-  \internal
-
-  Returns the value set for the given \a column and \a role.
-*/
-
-QVariant QTreeModel::columnData(int column, int role) const
-{
-    QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    return data(index, role);
 }
 
 /*!
@@ -164,8 +123,8 @@ QTreeWidgetItem *QTreeModel::item(const QModelIndex &index) const
     if (!index.isValid())
         return 0;
     if (index.type() != QModelIndex::View)
-        return &topHeader;
-    return static_cast<QTreeWidgetItem *>(index.data());
+        return header;
+    return static_cast<QTreeWidgetItem*>(index.data());
 }
 
 /*!
@@ -194,17 +153,18 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent,
                               QModelIndex::Type type) const
 {
     int r = tree.count();
+    int c = header->columnCount();
     if (row < 0 || row >= r || column < 0 || column >= c)
         return QModelIndex::Null;
     if (!parent.isValid()) {// toplevel
-        QTreeWidgetItem *itm = const_cast<QTreeModel*>(this)->tree.at(row);
+        QTreeWidgetItem *itm = tree.at(row);
         if (itm)
             return createIndex(row, column, itm, type);
         return QModelIndex::Null;
     }
     QTreeWidgetItem *parentItem = item(parent);
     if (parentItem && row < parentItem->childCount()) {
-        QTreeWidgetItem *itm = static_cast<QTreeWidgetItem *>(parentItem->child(row));
+        QTreeWidgetItem *itm = static_cast<QTreeWidgetItem*>(parentItem->child(row));
         if (itm)
             return createIndex(row, column, itm, type);
         return QModelIndex::Null;
@@ -222,10 +182,10 @@ QModelIndex QTreeModel::parent(const QModelIndex &child) const
 {
     if (!child.isValid())
         return QModelIndex::Null;
-    const QTreeWidgetItem *itm = reinterpret_cast<const QTreeWidgetItem *>(child.data());
+    QTreeWidgetItem *itm = reinterpret_cast<QTreeWidgetItem *>(child.data());
     if (!itm)
         return QModelIndex::Null;
-    QTreeWidgetItem *parent = const_cast<QTreeWidgetItem *>(itm->parent()); // FIXME
+    QTreeWidgetItem *parent = itm->parent();
     return index(parent);
 }
 
@@ -254,7 +214,7 @@ int QTreeModel::rowCount(const QModelIndex &parent) const
 
 int QTreeModel::columnCount(const QModelIndex &) const
 {
-    return c;
+    return header->columnCount();
 }
 
 /*!
@@ -327,8 +287,9 @@ bool QTreeModel::insertRows(int row, const QModelIndex &parent, int)
   if successful; otherwise false is returned.
 */
 
-bool QTreeModel::removeRows(int row, const QModelIndex &parent, int)
+bool QTreeModel::removeRows(int row, const QModelIndex &parent, int count)
 {
+    // FIXME: !!!!!!!
     if (parent.isValid()) {
         QTreeWidgetItem *p = item(parent);
         if (p) {
@@ -391,197 +352,6 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
     emit rowsInserted(parentIndex, idx.row(), idx.row());
 }
 
-// QTreeWidgetDelegate
-
-class QTreeItemDelegate : public QItemDelegate
-{
-public:
-    QTreeItemDelegate(QObject *parent);
-    ~QTreeItemDelegate();
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QAbstractItemModel *model, const QModelIndex &index) const;
-    QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
-                   const QAbstractItemModel *model, const QModelIndex &index) const;
-};
-
-QTreeItemDelegate::QTreeItemDelegate(QObject *parent)
-    : QItemDelegate(parent)
-{
-}
-
-QTreeItemDelegate::~QTreeItemDelegate()
-{
-}
-
-void QTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                              const QAbstractItemModel *model, const QModelIndex &index) const
-{
-    QStyleOptionViewItem opt = option;
-    // enabled
-    QTreeWidgetItem *item = static_cast<QTreeWidgetItem*>(index.data()); // only the treemodel is used
-    if (!item->isEnabled())
-        opt.state &= ~QStyle::Style_Enabled;
-    // set font
-    QVariant value = model->data(index, QTreeWidgetItem::FontRole);
-    if (value.isValid())
-        opt.font = value.toFont();
-    // set text color
-    value = model->data(index, QTreeWidgetItem::TextColorRole);
-    if (value.isValid() && value.toColor().isValid())
-        opt.palette.setColor(QPalette::Text, value.toColor());
-    // draw the background color
-    value = model->data(index, QTreeWidgetItem::BackgroundColorRole);
-    if (value.isValid() && value.toColor().isValid())
-        painter->fillRect(option.rect, value.toColor());
-    // draw the item
-    QItemDelegate::paint(painter, opt, model, index);
-}
-
-QSize QTreeItemDelegate::sizeHint(const QFontMetrics &/*fontMetrics*/,
-                                  const QStyleOptionViewItem &option,
-                                  const QAbstractItemModel *model,
-                                  const QModelIndex &index) const
-{
-    QVariant value = model->data(index, QTreeWidgetItem::FontRole);
-    QFont fnt;
-    if (value.isValid())
-        fnt = value.toFont();
-    else
-        fnt = option.font;
-    return QItemDelegate::sizeHint(QFontMetrics(fnt), option, model, index);
-}
-
-// QTreeWidgetItem
-
-/*!
-  \class QTreeWidgetItem qtreewidget.h
-
-  \brief The QTreeWidgetItem class provides an item for use with the
-  predefined QTreeWidget class.
-
-  \ingroup model-view
-
-  The QTreeWidgetItem class provides a familiar interface for items displayed
-  in a QTreeWidget widget.
-
-  \sa QTreeWidget QTreeModel
-*/
-
-/*!
-    \enum QTreeWidgetItem::Role
-
-    \value FontRole
-    \value BackgroundColorRole
-    \value TextColorRole
-*/
-
-/*!
-    \fn const QTreeWidgetItem *QTreeWidgetItem::parent() const
-
-    Returns this tree widget item's parent (which is 0 if this item is
-    a top-level item).
-
-    \sa childCount() child()
-*/
-
-
-/*!
-    \fn const QTreeWidgetItem *QTreeWidgetItem::child(int index) const
-
-    Returns this tree widget item's \a{index}-th child, or 0 if there
-    is no such child.
-
-    \sa childCount() parent()
-*/
-
-
-/*!
-    \fn QTreeWidgetItem *QTreeWidgetItem::child(int index)
-
-    \overload
-*/
-
-
-/*!
-    \fn int QTreeWidgetItem::childCount() const
-
-    Returns the number of children this tree widget item has; it may
-    be 0.
-
-    \sa parent() child()
-*/
-
-
-/*!
-    \fn int QTreeWidgetItem::columnCount() const
-
-    Returns the number of columns that this item occupies.
-
-    \sa text() icon()
-*/
-
-
-/*!
-    \fn bool QTreeWidgetItem::isEditable() const
-
-    Returns true if this tree widget item is editable; otherwise
-    returns false.
-
-    \sa setEditable()
-*/
-
-
-/*!
-    \fn bool QTreeWidgetItem::isSelectable() const
-
-    Returns true if this tree widget item is selectable; otherwise
-    returns false.
-
-    \sa setSelectable()
-*/
-
-
-/*!
-    \fn void QTreeWidgetItem::setEditable(bool editable)
-
-    If \a editable is true, sets this tree widget item to be editable;
-    otherwise sets it to be read-only.
-
-    \sa isEditable()
-*/
-
-
-/*!
-    \fn void QTreeWidgetItem::setSelectable(bool selectable)
-
-    If \a selectable is true, sets this tree widget item to be
-    selectable; otherwise sets it to be impossible for the user to
-    select.
-
-    \sa isSelectable()
-*/
-
-
-/*!
-    \fn bool QTreeWidgetItem::operator==(const QTreeWidgetItem &other) const
-
-    Returns true if this tree widget item is the same as the \a other
-    tree widget item, i.e. has the same text and iconset in every
-    column; otherwise returns false.
-*/
-
-
-/*!
-    \fn bool QTreeWidgetItem::operator!=(const QTreeWidgetItem &other) const
-
-    Returns true if this tree widget item has at least one column
-    where its text or iconset is different from the \a other tree
-    widget item; otherwise returns false.
-*/
-
-
-
 /*!
   Constructs a tree widget item. The item must be inserted
   into a tree view.
@@ -590,7 +360,7 @@ QSize QTreeItemDelegate::sizeHint(const QFontMetrics &/*fontMetrics*/,
 */
 
 QTreeWidgetItem::QTreeWidgetItem()
-    : par(0), view(0), columns(0), editable(true), selectable(true), enabled(true)
+    : view(0), par(0)
 {
 }
 
@@ -601,11 +371,11 @@ QTreeWidgetItem::QTreeWidgetItem()
     \a view.
 */
 
-QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *v)
-    : par(0), view(v), columns(0), editable(true), selectable(true), enabled(true)
+QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
+    : view(view), par(0)
 {
     if (view)
-        view->append(this);
+        view->appendItem(this);
 }
 
 /*!
@@ -613,7 +383,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *v)
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
-    : par(parent), view(parent->view), columns(0), editable(true), selectable(true), enabled(true)
+    : view(parent->view), par(parent)
 {
     if (parent)
         parent->children.push_back(this);
@@ -629,16 +399,6 @@ QTreeWidgetItem::~QTreeWidgetItem()
 {
     for (int i = 0; i < children.count(); ++i)
         delete children.at(i);
-}
-
-/*!
-    Sets the number of columns in the tree widget item to \a count.
-*/
-
-void QTreeWidgetItem::setColumnCount(int count)
-{
-    columns = count;
-    values.resize(count);
 }
 
 QTreeWidgetItem::CheckedState QTreeWidgetItem::checkedState() const
@@ -694,7 +454,6 @@ void QTreeWidgetItem::setIcon(int column, const QIconSet &icon)
 {
     store(column, QAbstractItemModel::DecorationRole, icon);
 }
-
 
 /*!
     Returns the status tip text for the specified \a column.
@@ -830,7 +589,7 @@ void QTreeWidgetItem::setTextColor(int column, const QColor &color)
 
 QVariant QTreeWidgetItem::data(int column, int role) const
 {
-    if (column < 0 || column >= columns)
+    if (column < 0 || column >= values.count())
         return QVariant();
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     switch (role) {
@@ -844,11 +603,11 @@ QVariant QTreeWidgetItem::data(int column, int role) const
         return toolTip(column);
     case QAbstractItemModel::WhatsThisRole:
         return whatsThis(column);
-    case FontRole:
+    case QWidgetBaseItem::FontRole:
         return font(column);
-    case BackgroundColorRole:
+    case QWidgetBaseItem::BackgroundColorRole:
         return backgroundColor(column);
-    case TextColorRole:
+    case QWidgetBaseItem::TextColorRole:
         return textColor(column);
     }
     return QVariant();
@@ -878,13 +637,13 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
     case QAbstractItemModel::WhatsThisRole:
         setWhatsThis(column, value.toString());
         break;
-    case FontRole:
+    case QWidgetBaseItem::FontRole:
         setFont(column, value.toFont());
         break;
-    case BackgroundColorRole:
+    case QWidgetBaseItem::BackgroundColorRole:
         setBackgroundColor(column, value.toColor());
         break;
-    case TextColorRole:
+    case QWidgetBaseItem::TextColorRole:
         setTextColor(column, value.toColor());
         break;
     }
@@ -898,7 +657,7 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 */
 void QTreeWidgetItem::store(int column, int role, const QVariant &value)
 {
-    if (column >= columns)
+    if (column >= values.count())
         setColumnCount(column + 1);
     QVector<Data> column_values = values.at(column);
     for (int i = 0; i < column_values.count(); ++i) {
@@ -973,8 +732,8 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeViewPrivate(), parent)
 {
     setModel(new QTreeModel(0, this));
-    setItemDelegate(new QTreeItemDelegate(this));
-    header()->setItemDelegate(new QTreeItemDelegate(header()));
+    setItemDelegate(new QWidgetBaseItemDelegate(this));
+    header()->setItemDelegate(new QWidgetBaseItemDelegate(header()));
 }
 
 /*!
@@ -995,176 +754,32 @@ void QTreeWidget::setColumnCount(int columns)
     d->model()->setColumnCount(columns);
 }
 
-
-/*!
-  Returns the text for the given header \a column in the tree view.
-*/
-
-QString QTreeWidget::columnText(int column) const
+QTreeWidgetItem *QTreeWidget::headerItem()
 {
-    return d->model()->columnData(column, QAbstractItemModel::DisplayRole).toString();
+    return d->model()->header;
 }
 
-/*!
-  Sets the text for the header \a column to the \a text given.
-*/
-
-void QTreeWidget::setColumnText(int column, const QString &text)
+void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
 {
-    d->model()->setColumnData(column, QAbstractItemModel::DisplayRole, text);
+    delete d->model()->header;
+    d->model()->header = item;
 }
 
-/*!
-  Returns the icon set for the given header \a column in the tree view.
-*/
-
-QIconSet QTreeWidget::columnIcon(int column) const
-{
-    return d->model()->columnData(column, QAbstractItemModel::DecorationRole).toIcon();
-}
-
-/*!
-  Sets the icon set for the header \a column to that specified by \a icon.
-*/
-
-void QTreeWidget::setColumnIcon(int column, const QIconSet &icon)
-{
-    d->model()->setColumnData(column, QAbstractItemModel::DecorationRole, icon);
-}
-
-/*!
-  Returns the status tip for the given header \a column in the tree view.
-*/
-
-QString QTreeWidget::columnStatusTip(int column) const
-{
-    return d->model()->columnData(column, QAbstractItemModel::StatusTipRole).toString();
-}
-
-/*!
-  Sets the status tip for the header \a column to that specified by \a statusTip.
-*/
-
-void QTreeWidget::setColumnStatusTip(int column, const QString &statusTip)
-{
-    d->model()->setColumnData(column, QAbstractItemModel::StatusTipRole, statusTip);
-}
-
-/*!
-  Returns the tool tip for the given header \a column in the tree view.
-*/
-
-QString QTreeWidget::columnToolTip(int column) const
-{
-    return d->model()->columnData(column, QAbstractItemModel::ToolTipRole).toString();
-}
-/*!
-  Sets the tool tip for the header \a column to that specified by \a toolTip.
-*/
-
-void QTreeWidget::setColumnToolTip(int column, const QString &toolTip)
-{
-    d->model()->setColumnData(column, QAbstractItemModel::ToolTipRole, toolTip);
-}
-
-/*!
-  Returns the "what's this" for the given header \a column in the tree view.
-*/
-
-QString QTreeWidget::columnWhatsThis(int column) const
-{
-    return d->model()->columnData(column, QAbstractItemModel::WhatsThisRole).toString();
-}
-
-/*!
-  Sets the "what's this" for the header \a column to that specified by \a whatsThis.
-*/
-
-void QTreeWidget::setColumnWhatsThis(int column, const QString &whatsThis)
-{
-    d->model()->setColumnData(column, QAbstractItemModel::WhatsThisRole, whatsThis);
-}
-
-/*!
-  Returns the font for the given header \a column in the tree view.
-*/
-
-QFont QTreeWidget::columnFont(int column) const
-{
-    QVariant value = d->model()->columnData(column, QTreeWidgetItem::FontRole);
-    if (value.isValid())
-        return value.toFont();
-    return QApplication::font();
-}
-
-/*!
-  Sets the font for the header \a column to that specified by \a font.
-*/
-
-void QTreeWidget::setColumnFont(int column, const QFont &font)
-{
-    d->model()->setColumnData(column, QTreeWidgetItem::FontRole, font);
-}
-
-/*!
-  Returns the background color set for the given header \a column in the tree view.
- */
-
-QColor QTreeWidget::columnBackgroundColor(int column) const
-{
-    return d->model()->columnData(column, QTreeWidgetItem::BackgroundColorRole).toColor();
-}
-
-/*!
-  Sets the background color for the header \a column to that specified by \a color.
-*/
-
-void QTreeWidget::setColumnBackgroundColor(int column, const QColor &color)
-{
-    d->model()->setColumnData(column, QTreeWidgetItem::BackgroundColorRole, color);
-}
-
-/*!
-  Returns the text color set for the given header \a column in the tree view.
- */
-
-QColor QTreeWidget::columnTextColor(int column) const
-{
-    return d->model()->columnData(column, QTreeWidgetItem::TextColorRole).toColor();
-}
-
-/*!
-  Sets the text color for the header \a column to that specified by \a color.
-*/
-
-void QTreeWidget::setColumnTextColor(int column, const QColor &color)
-{
-    d->model()->setColumnData(column, QTreeWidgetItem::TextColorRole, color);
-}
-
-/*!
-  Returns the value set for the given header \a column and \a role in the tree view.
-*/
-
-QVariant QTreeWidget::columnData(int column, int role) const
-{
-    return d->model()->columnData(column, role);
-}
-
-/*!
-  Sets the value for the given header \a column and \a role to that specified by \a value.
-*/
-
-void QTreeWidget::setColumnData(int column, int role, const QVariant &value)
-{
-    d->model()->setColumnData(column, role, value);
-}
-    
 /*!
   Appends a tree view \a item to the tree view.
 */
 
-void QTreeWidget::append(QTreeWidgetItem *item)
+void QTreeWidget::appendItem(QTreeWidgetItem *item)
 {
     d->model()->append(item);
+}
+
+/*!
+  Returns true if the \a item is selected, otherwise returns false.
+*/
+
+bool QTreeWidget::isSelected(QTreeWidgetItem *item) const
+{
+    QModelIndex index = d->model()->index(item);
+    return selectionModel()->isSelected(index);
 }

@@ -19,11 +19,15 @@ class QListModel : public QAbstractListModel
 public:
     QListModel(QObject *parent = 0);
 
-    QListWidgetItem item(int row) const;
-    void setItem(int row, const QListWidgetItem &item);
-    void append(const QListWidgetItem &item);
+    QListWidgetItem *at(int row) const;
+    void insert(int row, QListWidgetItem *item);
+    void append(QListWidgetItem *item);
+    void remove(int row);
 
     int rowCount() const;
+
+    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex::Null,
+                      QModelIndex::Type type = QModelIndex::View) const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
@@ -35,7 +39,7 @@ public:
     bool isEditable(const QModelIndex &index) const;
 
 private:
-    QList<QListWidgetItem> lst;
+    QList<QListWidgetItem*> lst;
 };
 
 QListModel::QListModel(QObject *parent)
@@ -43,18 +47,34 @@ QListModel::QListModel(QObject *parent)
 {
 }
 
-QListWidgetItem QListModel::item(int row) const
+QListWidgetItem *QListModel::at(int row) const
 {
-    if (row >= 0 && row < (int)lst.count())
+    if (row >= 0 && row < lst.count())
         return lst.at(row);
-    else
-        return QListWidgetItem(); // FIXME we need invalid?
+    return 0;
 }
 
-void QListModel::setItem(int row, const QListWidgetItem &item)
+void QListModel::append(QListWidgetItem *item)
 {
-    if (row >= 0 && row < (int)lst.count())
-        lst[row] = item;
+    lst.append(item);
+    int row = lst.count() - 1;
+    emit rowsInserted(QModelIndex::Null, row, row);
+}
+
+void QListModel::insert(int row, QListWidgetItem *item)
+{
+    if (row >= 0 && row <= lst.count()) {
+        lst.insert(row, item);
+        emit rowsInserted(QModelIndex::Null, row, row);
+    }
+}
+
+void QListModel::remove(int row)
+{
+    if (row >= 0 && row <= lst.count()) {
+        emit rowsRemoved(QModelIndex::Null, row, row);
+        delete lst.takeAt(row);
+    }
 }
 
 int QListModel::rowCount() const
@@ -62,36 +82,49 @@ int QListModel::rowCount() const
     return lst.count();
 }
 
+QModelIndex QListModel::index(int row, int column,
+                              const QModelIndex &parent,
+                              QModelIndex::Type type) const
+{
+    if (isValid(row, column, parent))
+        return createIndex(row, column, lst.at(row), type);
+    return QModelIndex::Null;
+}
+
 QVariant QListModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= (int)lst.count())
         return QVariant();
-    return lst.at(index.row()).data(role);
+    return lst.at(index.row())->data(role);
 }
 
 bool QListModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
     if (!index.isValid() || index.row() >= (int)lst.count())
         return false;
-    lst[index.row()].setData(role, value);
+    lst.at(index.row())->setData(role, value);
     emit dataChanged(index, index);
     return true;
 }
 
-bool QListModel::insertRows(int row, const QModelIndex &, int)
+bool QListModel::insertRows(int row, const QModelIndex &, int count)
 {
-    QListWidgetItem item;
     if (row < rowCount())
-        lst.insert(row, item);
+        for (int r = row; r < row + count; ++r)
+            lst.insert(r, new QListWidgetItem());
     else
-        lst.append(item);
+        for (int r = 0; r < count; ++r)
+            lst.append(new QListWidgetItem());
+    emit rowsInserted(QModelIndex::Null, row, row + count - 1);
     return true;
 }
 
-bool QListModel::removeRows(int row, const QModelIndex &, int)
+bool QListModel::removeRows(int row, const QModelIndex &, int count)
 {
     if (row < rowCount()) {
-        lst.removeAt(row);
+        emit rowsRemoved(QModelIndex::Null, row, row + count - 1);
+        for (int r = 0; r < count; ++r)
+            delete lst.takeAt(row);
         return true;
     }
     return false;
@@ -99,23 +132,16 @@ bool QListModel::removeRows(int row, const QModelIndex &, int)
 
 bool QListModel::isSelectable(const QModelIndex &index) const
 {
-    if (!index.isValid() || index.row() >= (int)lst.count())
+    if (!index.isValid() || index.row() >= lst.count())
         return false;
-    return lst.at(index.row()).isSelectable();
+    return lst.at(index.row())->isSelectable();
 }
 
 bool QListModel::isEditable(const QModelIndex &index) const
 {
-    if (!index.isValid() || index.row() >= (int)lst.count())
+    if (!index.isValid() || index.row() >= lst.count())
         return false;
-    return lst.at(index.row()).isEditable();
-}
-
-void QListModel::append(const QListWidgetItem &item)
-{
-    lst.append(item);
-    int row = lst.count() - 1;
-    emit rowsInserted(QModelIndex::Null, row, row);
+    return lst.at(index.row())->isEditable();
 }
 
 /*!
@@ -220,55 +246,6 @@ void QListModel::append(const QListWidgetItem &item)
     item have the same values for every role; otherwise returns false.
 */
 
-bool QListWidgetItem::operator ==(const QListWidgetItem &other) const
-{
-    if (values.count() != other.values.count()
-        || edit != other.edit
-        || select != other.select)
-        return false;
-
-    for (int i=0; values.count(); ++i)
-        if (values.at(i).role != other.values.at(i).role
-            || values.at(i).value != other.values.at(i).value)
-            return false;
-
-    return true;
-}
-
-/*!
-    Returns the data for this list widget item's \a role.
-
-    \sa setData()
-*/
-
-QVariant QListWidgetItem::data(int role) const
-{
-    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
-    for (int i = 0; i < values.count(); ++i) {
-        if (values.at(i).role == role)
-            return values.at(i).value;
-    }
-    return QVariant();
-}
-
-/*!
-    Sets the data for this list widget item's \a role to \a value.
-
-    \sa data()
-*/
-
-void QListWidgetItem::setData(int role, const QVariant &value)
-{
-    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
-    for (int i = 0; i < values.count(); ++i) {
-        if (values.at(i).role == role) {
-            values[i].value = value;
-            return;
-        }
-    }
-    values.append(Data(role, value));
-}
-
 class QListWidgetPrivate : public QListViewPrivate
 {
     Q_DECLARE_PUBLIC(QListWidget)
@@ -287,8 +264,9 @@ public:
 QListWidget::QListWidget(QWidget *parent, const char* name)
     : QListView(*new QListWidgetPrivate(), parent)
 {
-    setModel(new QListModel(this));
     setObjectName(name);
+    setModel(new QListModel(this));
+    setItemDelegate(new QWidgetBaseItemDelegate(this));
 }
 #endif
 
@@ -310,7 +288,7 @@ QListWidget::QListWidget(QWidget *parent)
     : QListView(*new QListWidgetPrivate(), parent)
 {
     setModel(new QListModel(this));
-    model()->setParent(this);
+    setItemDelegate(new QWidgetBaseItemDelegate(this));
 }
 
 /*!
@@ -322,78 +300,45 @@ QListWidget::~QListWidget()
 }
 
 /*!
-    Sets the \a{row}-th item's \a text.
-
-    \sa text() setItem()
-*/
-
-void QListWidget::setText(int row, const QString &text)
-{
-    model()->setData(model()->index(row,0), QAbstractItemModel::DisplayRole, text);
-}
-
-/*!
-    Sets the \a{row}-th item's \a icon.
-
-    \sa iconSet() setItem()
-*/
-
-void QListWidget::setIconSet(int row, const QIconSet &icon)
-{
-    model()->setData(model()->index(row,0), QAbstractItemModel::DecorationRole, icon);
-}
-
-/*!
-    Returns the text for the \a{row}-th item.
-
-    \sa item() icon() setItem()
-*/
-
-QString QListWidget::text(int row) const
-{
-    return model()->data(model()->index(row,0), QAbstractItemModel::DisplayRole).toString();
-}
-
-/*!
-    Returns the icon for the \a{row}-th item.
-
-    \sa item() text() setItem()
-*/
-
-QIconSet QListWidget::iconSet(int row) const
-{
-    return model()->data(model()->index(row,0), QAbstractItemModel::DecorationRole).toIcon();
-}
-
-/*!
     Returns the \a{row}-th item.
 
     \sa text() icon() setItem()
 */
 
-QListWidgetItem QListWidget::item(int row) const
+QListWidgetItem *QListWidget::itemAt(int row) const
 {
-    return d->model()->item(row);
+    return d->model()->at(row);
 }
 
 /*!
-    Sets the list's \a{row}-th \a item.
+    Inserts \a item in position \a row in the list.
 
     \sa appendItem()
 */
 
-void QListWidget::setItem(int row, const QListWidgetItem &item)
+void QListWidget::insertItem(int row, QListWidgetItem *item)
 {
-    d->model()->setItem(row, item);
+    d->model()->insert(row, item);
 }
 
 /*!
     Appends the given \a item to the list.
 
-    \sa setItem()
+    \sa insertItem()
 */
 
-void QListWidget::appendItem(const QListWidgetItem &item)
+void QListWidget::appendItem(QListWidgetItem *item)
 {
     d->model()->append(item);
+}
+
+/*!
+    Removes the item at \a row from the list.
+
+    \sa insertItem() appendItem()
+*/
+
+void QListWidget::removeItem(int row)
+{
+    d->model()->remove(row);
 }
