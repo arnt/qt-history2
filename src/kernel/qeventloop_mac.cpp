@@ -663,7 +663,6 @@ void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
     FD_SET(sockfd, fds);
     d->sn_highest = QMAX(d->sn_highest, sockfd);
     if(qt_is_gui_used) {
-	bool create_timer = TRUE;
 	if(type == QSocketNotifier::Read || type == QSocketNotifier::Write) {
 	    CFSocketContext context;
 	    memset(&context, '\0', sizeof(context));
@@ -675,14 +674,11 @@ void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
 		delete sn->mac_d;
 		sn->mac_d = NULL;
 	    } else {
-		CFSocketSetSocketFlags(sn->mac_d->socknot,
-					kCFSocketAutomaticallyReenableReadCallBack|kCFSocketAutomaticallyReenableWriteCallBack);
 		sn->mac_d->event_source = CFSocketCreateRunLoopSource(NULL, sn->mac_d->socknot, 0);
 		CFRunLoopAddSource(CFRunLoopGetCurrent(), sn->mac_d->event_source, kCFRunLoopCommonModes);
-		create_timer = FALSE;
 	    }
-	}
-	if(create_timer && !d->select_timer) {
+	} 
+	if(!d->select_timer) {
 	    if(!mac_select_timerUPP) {
 		mac_select_timerUPP = NewEventLoopTimerUPP(qt_mac_select_timer_callbk);
 		qAddPostRoutine(qt_mac_select_cleanup);
@@ -748,6 +744,11 @@ int QEventLoop::activateSocketNotifiers()
     while (!d->sn_pending_list.isEmpty()) {
 	QSockNot *sn = d->sn_pending_list.takeAt(0);
 	if(FD_ISSET(sn->fd, sn->queue)) {
+	    if(sn->obj->type() == QSocketNotifier::Read && sn->mac_d) {
+		//we manually re-enable when we send so that we can be sure we want the next read (otherwise
+		//we'll get it from the timer) and we don't drive up CPU usage
+		CFSocketEnableCallBacks(sn->mac_d->socknot, kCFSocketReadCallBack);
+	    }
 	    FD_CLR(sn->fd, sn->queue);
 	    QApplication::sendEvent(sn->obj, &event);
 	    n_act++;
