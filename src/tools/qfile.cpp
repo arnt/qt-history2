@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#83 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#84 $
 **
 ** Implementation of QFile class
 **
@@ -850,7 +850,7 @@ int QFile::readLine( QString& s, uint maxlen )
     int l = readLine(ba.data(),maxlen);
     if ( l >= 0 ) {
 	ba.truncate(l);
-	s = QCString(ba);
+	s = QString(ba);
     }
     return l;
 }
