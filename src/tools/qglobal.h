@@ -754,10 +754,12 @@ class QDataStream;
 #  elif defined(QT_DLL)		/* use a Qt DLL library */
 #    define Q_EXPORT  __declspec(dllimport)
 #    define Q_TEMPLATEDLL
-#    if defined(Q_CC_MSVC)
-#      define Q_TEMPLATE_EXTERN /*extern*/ //### too many warnings, even though disabled
-#    else
-#      define Q_TEMPLATE_EXTERN
+#    ifndef Q_TEMPLATE_EXTERN
+#      if defined(Q_CC_MSVC)
+#        define Q_TEMPLATE_EXTERN /*extern*/ //### too many warnings, even though disabled
+#      else
+#        define Q_TEMPLATE_EXTERN
+#      endif
 #    endif
 #    undef  Q_DISABLE_COPY  /* avoid unresolved externals */
 #  endif
