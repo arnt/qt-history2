@@ -90,10 +90,22 @@ qt_mac_get_global_setting(QString key, QString ret=QString::null, QString file=Q
             ret = CFEqual(static_cast<CFBooleanRef>(static_cast<CFPropertyListRef>(r)),
                           kCFBooleanTrue) ? "TRUE" : "FALSE";
         } else if(typeID == CFNumberGetTypeID()) {
-            int num;
-            if(CFNumberGetValue(static_cast<CFNumberRef>(static_cast<CFPropertyListRef>(r)),
-                                kCFNumberIntType, &num))
-                ret = QString::number(num);
+            CFNumberRef number = static_cast<CFNumberRef>(static_cast<CFPropertyListRef>(r));
+            int inum;
+            float fnum;
+            CFNumberType numType = CFNumberGetType(number);
+            switch (numType) {
+            case CFNumberIntType:
+                if (CFNumberGetValue(number), kCFNumberIntType, &num)
+                    ret = QString::number(num);
+                break;
+            case CFNumberFloatType:
+                if (CFNumberGetValue(number), kCFNumberFloatType, &fnum)
+                    ret = QString::number(num);
+                break;
+            default:
+                qWarning("qt-internal::QSettings, %s: unknown CFNumber Type %d", key.latin1(), numType);
+            }
         } else {
             qWarning("qt-internal::QSettings, %s: unknown CFType %d", key.latin1(),
                      (int)CFGetTypeID(r));

@@ -5322,8 +5322,11 @@ int QApplication::cursorFlashTime()
     Sets the time limit that distinguishes a double click from two
     consecutive mouse clicks to \a ms milliseconds.
 
-    Note that on Microsoft Windows, calling this function sets the
+    On Microsoft Windows, calling this function sets the
     double click interval for all windows.
+
+    On Mac OS X, there is no way to programmatically set the double click
+    interval, use the Mouse pane of System Preferences to set the interval.
 
     \sa doubleClickInterval()
 */
@@ -5333,12 +5336,11 @@ void QApplication::setDoubleClickInterval(int ms)
     mouse_double_click_time = ms;
 }
 
-
 /*!
     Returns the maximum duration for a double click.
 
-    The default value on X11 is 400 milliseconds. On Windows, the
-    control panel value is used.
+    The default value on X11 is 400 milliseconds. On Windows and Mac OS X, the
+    operating system's value is used.
 
     \sa setDoubleClickInterval()
 */
