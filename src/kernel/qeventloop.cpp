@@ -58,6 +58,9 @@
     with the Qt event loop.  The Motif Extension included with Qt
     includes a reimplementation of QEventLoop for merging Qt and Motif
     events together.
+
+    To use your own QEventLoop or QEventLoop subclass create an instance
+    of that class before you create the QApplication object.
 */
 
 /*! \enum QEventLoop::ProcessEvents
