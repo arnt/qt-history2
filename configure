@@ -628,7 +628,7 @@ then
 	#PLATFORM=aix-g++
 	PLATFORM=aix-xlc
 	PLATFORM_NOTES="
-	    - Also available: aix-g++
+	    - Also available for AIX: aix-g++
 	"
 	;;
      QNX:*)
@@ -681,25 +681,24 @@ then
 	PLATFORM=osf1-cxx
 	#PLATFORM=osf1-g++
 	PLATFORM_NOTES="
-	    - Also available for OSF1: osf1-g++
+	    - Also available for Tru64: osf1-g++
 	"
 	;;
      Linux:*)
 	PLATFORM=linux-${ARCH}g++
+	PLATFORM_NOTES="
+	    - Also available for Linux: linux-kcc linux-cxx
+	"
 	;;
      SunOS:5*)
 	#PLATFORM=solaris-g++
 	PLATFORM=solaris-cc
 	PLATFORM_NOTES="
-	    - Also available for SunOS:5: solaris-64 solaris-g++
-	    - To mix GNU C and SunPRO C++, add -platform solaris-cc-gcc
+	    - Also available for Solaris: solaris-64 solaris-g++
 	"
 	;;
      SunOS:4*)
 	PLATFORM=sunos-g++
-	PLATFORM_NOTES="
-	    - Mixing GNU C and SunPRO C++ is not supported
-	"
 	;;
      UNIX_SV:4.2*)
 	PLATFORM=unixware-g++
@@ -708,7 +707,7 @@ then
 	PLATFORM=unixware7-cc
 	#PLATFORM=unixware7-g++
 	PLATFORM_NOTES="
-	    - Also available for UnixWare:5: unixware7-g++
+	    - Also available for UnixWare 7: unixware7-g++
 	"
 	;;
      *:3.2)
