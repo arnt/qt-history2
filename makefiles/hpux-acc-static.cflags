@@ -1,0 +1,6 @@
+CC="aCC"
+CFLAGS="-O -w -DHAS_BOOL_TYPE -D__STRICT_ANSI__"
+LIBCFLAGS=""
+YACCCFLAGS=""
+LFLAGS="-lqt -lX11"
+SHELL="/bin/sh"
