@@ -1192,9 +1192,10 @@ void QWSServer::invokeRegionDestroy( QWSRegionDestroyCommand *cmd, QWSClient *cl
 	w = windows.next();
     }
     syncRegions();
-    if ( focusw == changingw )
+    if ( focusw == changingw ) {
+	changingw->shuttingDown();
 	setFocus(changingw,FALSE);
-
+    }
 #ifndef QT_NO_QWS_PROPERTIES
     manager()->removeProperties( changingw->winId() );
 #endif
