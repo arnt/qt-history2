@@ -5102,8 +5102,6 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
     //
     if ( key < 128 || (key < 256 && (!input_mapper || input_mapper->mibEnum()==4)) ) {
 	code = isprint((int)key) ? toupper((int)key) : 0; // upper-case key, if known
-	chars[0] = key;
-	chars[1] = '\0';
     } else if ( key >= XK_F1 && key <= XK_F35 ) {
 	code = Key_F1 + ((int)key - XK_F1);	// function keys
     } else if ( key >= XK_KP_0 && key <= XK_KP_9) {
@@ -5348,8 +5346,9 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	QWidget *tlw = topLevelWidget();
 	QInputContext *qic = (QInputContext *) tlw->topData()->xic;
 
-	if (qic && qic->composing && ! qic->lastcompose.isNull()) {
-	    // when in OnTheSpot mode, we eat this event because it is the keypress
+	// don't do this when we have a single multibyte character
+	if (qic && qic->composing && ! qic->lastcompose.isNull() && count != 2) {
+   	    // when in OnTheSpot mode, we eat this event because it is the keypress
 	    // that causes the QEvent::IMEnd event
 	    return TRUE;
 	}

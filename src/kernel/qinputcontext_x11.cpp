@@ -93,6 +93,7 @@ extern "C" {
 
 	    qic->text = qic->lastcompose = QString::null;
 	    qic->focusWidget = qApp->focusWidget();
+	    qic->composing = FALSE;
 
 	    if (qic->focusWidget) {
 		qic->composing = TRUE;
@@ -138,8 +139,17 @@ extern "C" {
 		qic->text.replace(drawstruct->chg_first, drawstruct->chg_length, s);
 
 	    qic->lastcompose = qic->text;
-	} else
+	} else {
 	    qic->text.remove(drawstruct->chg_first, drawstruct->chg_length);
+
+	    // User pushed return key.
+	    if ( drawstruct->chg_length == 0 || ( qic->text.isEmpty() &&
+						  drawstruct->chg_length > 1 ) ) {
+		qic->text = QString::null;
+		qic->focusWidget = 0;
+		return 0;
+	    }
+	}
 
 	QIMEvent event(QEvent::IMCompose, qic->text, drawstruct->caret);
 	QApplication::sendEvent(qic->focusWidget, &event);
@@ -149,13 +159,14 @@ extern "C" {
 
     static int xic_done_callback(XIC, XPointer client_data, XPointer) {
 	QInputContext *qic = (QInputContext *) client_data;
-	if (! qic || ! qic->composing || ! qic->focusWidget)
+	if (! qic)
 	    return 0;
 
 	// qDebug("compose done");
-
-	QIMEvent event(QEvent::IMEnd, qic->lastcompose, -1);
-	QApplication::sendEvent(qic->focusWidget, &event);
+	if (qic->composing && qic->focusWidget) {
+       	    QIMEvent event(QEvent::IMEnd, qic->lastcompose, -1);
+	    QApplication::sendEvent(qic->focusWidget, &event);
+	}
 
  	qic->lastcompose = QString::null;
 	qic->composing = FALSE;
@@ -256,6 +267,12 @@ QInputContext::QInputContext(QWidget *widget)
 		       XNInputStyle, qt_xim_style,
 		       XNClientWindow, widget->winId(),
 		       (char *) 0);
+
+    if (! ic)
+	qFatal("Failed to create XIM input context!");
+
+    // when resetting the input context, preserve the input state
+    (void) XSetICValues((XIC) ic, XNResetState, XIMPreserveState, (char *) 0);
 #endif // !QT_NO_XIM
 }
 
@@ -285,7 +302,9 @@ void QInputContext::reset()
 	composing = FALSE;
     }
 
-    (void) XmbResetIC((XIC) ic);
+    char *mb = XmbResetIC((XIC) ic);
+    if (mb)
+	XFree(mb);
 #endif // !QT_NO_XIM
 }
 
