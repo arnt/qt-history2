@@ -109,8 +109,8 @@ public:
     QString context() const;
     QString documentTitle() const;
 
-    void getSelection( int &paraFrom, int &indexFrom,
-		    int &paraTo, int &indexTo, int selNum = 0 ) const;
+    void getSelection( int *paraFrom, int *indexFrom,
+		    int *paraTo, int *indexTo, int selNum = 0 ) const;
     virtual bool find( const QString &expr, bool cs, bool wo, bool forward = TRUE,
 		       int *para = 0, int *index = 0 );
 

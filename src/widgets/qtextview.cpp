@@ -2212,19 +2212,21 @@ void QTextView::setSelection( int parag_from, int index_from,
 
 */
 
-void QTextView::getSelection( int &paraFrom, int &indexFrom,
-			      int &paraTo, int &indexTo, int selNum ) const
+void QTextView::getSelection( int *paraFrom, int *indexFrom,
+			      int *paraTo, int *indexTo, int selNum ) const
 {
+    if ( !paraFrom || !paraTo || !indexFrom || !indexTo )
+	return;
     if ( !doc->hasSelection( selNum ) ) {
-	paraFrom = -1;
-	indexFrom = -1;
-	paraTo = -1;
-	indexTo = -1;
+	*paraFrom = -1;
+	*indexFrom = -1;
+	*paraTo = -1;
+	*indexTo = -1;
 	return;
     }
 
-    doc->selectionStart( selNum, paraFrom, indexFrom );
-    doc->selectionEnd( selNum, paraTo, indexTo );
+    doc->selectionStart( selNum, *paraFrom, *indexFrom );
+    doc->selectionEnd( selNum, *paraTo, *indexTo );
 }
 
 /*!  Sets the text format to \a format. The options are:

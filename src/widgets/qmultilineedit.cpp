@@ -187,7 +187,7 @@ bool QMultiLineEdit::getMarkedRegion( int *line1, int *col1,
 				      int *line2, int *col2 ) const
 {
     int p1,c1, p2, c2;
-    getSelection( p1, c1, p2, c2 );
+    getSelection( &p1, &c1, &p2, &c2 );
     if ( p1 == -1 && c1 == -1 && p2 == -1 && c2 == -1 )
 	return FALSE;
     if ( line1 )
