@@ -192,7 +192,7 @@ int QEventLoop::enterLoop()
     // exitloop set so that all other event loops drop out.
     d->exitloop = old_exitloop || d->quitnow;
 
-    if ( d->looplevel <= 1 ) {
+    if ( d->looplevel < 1 ) {
 	d->quitnow = FALSE;
 	d->exitloop = FALSE;
 	emit qApp->aboutToQuit();
