@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#36 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -440,10 +440,13 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text )
     if ( x < 0 )
 	x = 0;
 
-    int y =pos.y() + widget->height() + 2; // below, two pixels spacing
+    int y = pos.y() + widget->height() + 2; // below, two pixels spacing
     // what's this is above or below, wherever there's most space
     if ( y + h + 10 > QApplication::desktop()->height() )
 	y = pos.y() + 2 - shadowWidth - h; // above, overlap
+
+    if ( y < 0 )
+	y = 0;
 
 #if 0
     // should try to fit the whats this widget onto the same
