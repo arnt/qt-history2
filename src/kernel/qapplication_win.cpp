@@ -897,14 +897,18 @@ void qt_cleanup()
 
 static void msgHandler( QtMsgType t, const char* str )
 {
+#if defined(QT_THREAD_SUPPORT)
     // OutputDebugString is not threadsafe.
     static QCriticalSection staticSection;
+#endif
 
     if ( !str )
 	str = "(null)";
     QCString s = str;
     s += "\n";
+#if defined(QT_THREAD_SUPPORT)
     staticSection.enter();
+#endif
 #ifndef Q_OS_TEMP
     OutputDebugStringA( s.data() );
 #else
@@ -914,7 +918,9 @@ static void msgHandler( QtMsgType t, const char* str )
 	OutputDebugStringA( s.data() );
     )
 #endif
+#if defined(QT_THREAD_SUPPORT)
     staticSection.leave();
+#endif
     if ( t == QtFatalMsg )
 #ifndef Q_OS_TEMP
 	ExitProcess( 1 );
