@@ -4341,6 +4341,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 
 	// we flush at end of document
 	bool flush = i== length()-1;
+	bool selectionStateChanged = FALSE;
 	if ( !flush ) {
 	    QTextStringChar *nextchr = at( i+1 );
 	    // we flush at end of line
@@ -4370,7 +4371,8 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	    if ( drawSelections ) {
 		for ( QMap<int, QTextParagraphSelection>::ConstIterator it = mSelections->begin();
 		      it != mSelections->end(); ++it )
-		    flush |= ( (*it).start == i || (*it).start == i+1 || (*it).end == i+1 );
+		    selectionStateChanged |=( (*it).start == i || (*it).start == i+1 || (*it).end == i+1 );
+		flush |= selectionStateChanged;
 	    }
 	}
 
@@ -4419,7 +4421,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 		xend = at( paintStart )->x + str->width( paintStart );
 	    } else {
 		xstart = at( paintStart )->x;
-		if ( i < length() - 1 && !str->at( i + 1 ).lineStart )
+		if ( !selectionStateChanged && i < length() - 1 && !str->at( i + 1 ).lineStart )
 		    xend = str->at( i + 1 ).x;
 		else
 		    xend = chr->x + str->width( i );
