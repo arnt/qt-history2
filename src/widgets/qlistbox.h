@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#26 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#27 $
 **
 ** Definition of QListBox widget class
 **
@@ -18,6 +18,9 @@
 
 #define LBI_Undefined	0			// list box item types
 #define LBI_Text	1
+#if defined(OBSOLETE)
+#define LBI_String	1
+#endif
 #define LBI_Pixmap	2
 #define LBI_UserDefined 1000
 
