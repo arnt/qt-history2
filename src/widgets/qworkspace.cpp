@@ -1671,7 +1671,6 @@ QWorkspaceChild::~QWorkspaceChild()
 void QWorkspaceChild::resizeEvent( QResizeEvent * )
 {
     QRect r = contentsRect();
-    int th = 0;
     QRect cr;
 
     if ( titlebar ) {
@@ -2351,8 +2350,8 @@ void QWorkspaceChildTitleLabel::setText( const QString& text )
 	QToolTip::remove( this );
 	QToolTip::add( this, text );
 	int i = text.length();
-	while ( (fm.width(text.left( i-- ) + "...")  > maxw) && i )
-	    ;
+	while ( (fm.width(text.left( i ) + "...")  > maxw) && i>0 )
+	    i--;
 	drawLabel( text.left( i ) + "..." );
     } else {
 	QToolTip::remove( this );
