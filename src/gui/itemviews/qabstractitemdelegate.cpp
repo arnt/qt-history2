@@ -25,22 +25,25 @@
     \ingroup model-view
 
     A QAbstractItemDelegate provides the interface and common functionality
-    for delegates in the Model/View architecture. 
+    for delegates in the model/view architecture. Delegates display
+    individual items in views, and handle the editing of model data.
 
-    To render an item in a custom way, reimplement paint() and sizeHint().
+    To render an item in a custom way, you must implement paint() and
+    sizeHint(). The QItemDelegate class provides default implementations for
+    these functions; if you do not need custom rendering, subclass that
+    class instead.
 
     To provide custom editing, there are two approaches that can be
     used. The first approach is to create an editor widget and display
     it directly on top of the item. To do this you must reimplement
-    editor() and editorType() to provide your editor widget to the
-    delegate, setModelData() so that the delegate can update the
-    item's content from the editor, setEditorData() to populate the
-    editor with the item's initial value, or when the item's value is
-    changed elsewhere, and releaseEditor() to destroy your editor when
+    editor() and editorType() to provide an editor widget,
+    setEditorData() to populate the editor with the data from the model,
+    setModelData() so that the delegate can update the model with data
+    from the editor, and releaseEditor() to destroy your editor when
     it is no longer needed. The second approach is to handle user
     events directly. To do this you could reimplement event().
 
-    \sa \link model-view-programming.html Model/View Programming\endlink
+    \sa \link model-view-programming.html Model/View Programming\endlink QItemDelegate
 */
 
 /*!
@@ -227,7 +230,7 @@ void QAbstractItemDelegate::updateEditorGeometry(QWidget *,
 
     The base implementation returns false (indicating that it has not
     handled the event). If you reimplement this you should reimplement
-    editorType() to return \c NoWidget.
+    editorType() to return \c Events.
 */
 bool QAbstractItemDelegate::event(QEvent *, QAbstractItemModel *, const QModelIndex &)
 {
