@@ -1278,6 +1278,19 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         if(tmp_out.isEmpty() || tmp_cmd.isEmpty())
             continue;
         const QStringList &tmp_inputs = project->variables()[(*it) + ".input"];
+	{
+	    int input_count = 0;
+            for(QStringList::ConstIterator it2 = tmp_inputs.begin(); 
+		it2 != tmp_inputs.end(); ++it2) {
+                const QStringList &tmp = project->variables()[(*it2)];
+                for(QStringList::ConstIterator input = tmp.begin(); 
+		    input != tmp.end(); ++input) 
+		    input_count++;
+	    }
+	    if(!input_count)
+		continue;
+	}
+
         if(project->variables()[(*it) + ".CONFIG"].indexOf("no_clean") == -1) {
             QString tmp_clean = project->variables()[(*it) + ".clean"].join(" ");
             QString tmp_clean_cmds = project->variables()[(*it) + ".clean_commands"].join(" ");
@@ -1292,6 +1305,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
             }
             if(tmp_clean.isEmpty())
                 tmp_clean = tmp_out;
+	    tmp_clean = Option::fixPathToTargetOS(tmp_clean);
             if(tmp_clean.indexOf("${QMAKE_") == -1) {
                 t << "\n\t" << "-$(DEL_FILE) " << tmp_clean;
                 wrote_clean = true;
