@@ -66,6 +66,7 @@ protected:
 
 private slots:
     void closeActiveWindow();
+    void closeAllWindows();
     void normalizeActiveWindow();
     void minimizeActiveWindow();
     void showOperationMenu();

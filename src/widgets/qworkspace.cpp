@@ -891,6 +891,14 @@ void QWorkspace::closeActiveWindow()
 	d->active->showMaximized();
 }
 
+void QWorkspace::closeAllWindows()
+{
+    for ( QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
+	if ( !c->windowWidget()->testWState( WState_ForceHide ) )
+	    c->windowWidget()->close();
+    }
+}
+
 void QWorkspace::normalizeActiveWindow()
 {
     if  ( d->active )
