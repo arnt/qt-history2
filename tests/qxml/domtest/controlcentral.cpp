@@ -24,6 +24,7 @@ ControlCentral::ControlCentral() : QVBox()
 
     QHBox *hbox= new QHBox( this );
     QPushButton *source = new QPushButton( "Source", hbox );
+    QPushButton *toString = new QPushButton( "To String", hbox );
 #if 0
     QPushButton *errorProt = new QPushButton( "Error Protocol", hbox );
 #endif
@@ -32,6 +33,7 @@ ControlCentral::ControlCentral() : QVBox()
     quit = new QPushButton( "Quit", this );
 
     connect( source, SIGNAL(clicked()), this, SLOT(showSource()) );
+    connect( toString, SIGNAL(clicked()), this, SLOT(showToString()) );
 #if 0
     connect( errorProt, SIGNAL(clicked()), this, SLOT(showErrorProtocol()) );
 #endif
@@ -74,6 +76,11 @@ void ControlCentral::parse( const QString& filename )
     src->setText( ts.read() );
     src->setCaption( "Source for " + filename );
 
+    QTextView* toStr = new QTextView();
+    toStr->setTextFormat( PlainText );
+    toStr->setText( doc.toString() );
+    toStr->setCaption( "To String for " + filename );
+
 #if 0
     QLabel *err = new QLabel( "", 0 );
     err->setCaption( "Error protocol for " + filename );
@@ -81,20 +88,6 @@ void ControlCentral::parse( const QString& filename )
 
     DomTree* tree = new DomTree( filename );
     tree->setCaption( "Tree for " + filename );
-#if 0
-    QHBox* tree = new QHBox;
-    tree->setCaption( "Tree for " + filename );
-    QListView* listTree = new QListView( tree );
-    listTree->addColumn(  "XML Tree" );
-    listTree->addColumn( "Namespace URI" );
-    listTree->addColumn( "Local Name" );
-    listTree->addColumn( "" );
-    listTree->setSorting( -1 );
-    ItemTextView* contentTree = new ItemTextView( tree );
-    contentTree->setIndex( 4 );
-    connect( listTree, SIGNAL(selectionChanged(QListViewItem*)),
-	    contentTree, SLOT(change(QListViewItem*)) );
-#endif
 
     file.reset();
     QString errorStatus;
@@ -105,7 +98,7 @@ void ControlCentral::parse( const QString& filename )
     }
 
     new XMLFileItem( lview, filename, errorStatus, time,
-	    src, tree );
+	    src, toStr, tree );
 
     file.close();
 }
@@ -132,6 +125,14 @@ void ControlCentral::showSource()
     XMLFileItem *fi = (XMLFileItem*)( lview->selectedItem() );
     if ( fi != 0 ) {
 	fi->source->show();
+    }
+}
+
+void ControlCentral::showToString()
+{
+    XMLFileItem *fi = (XMLFileItem*)( lview->selectedItem() );
+    if ( fi != 0 ) {
+	fi->toString->show();
     }
 }
 

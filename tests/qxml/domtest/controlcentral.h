@@ -21,6 +21,7 @@ signals:
 public slots:
     void show( QStringList* files=0 );
     void showSource();
+    void showToString();
     void showTree();
 
 private:

@@ -9,9 +9,10 @@ class XMLFileItem : public QListViewItem
 {
 public:
     XMLFileItem( QListView*, const QString&, const QString&, const QString&,
-	    QTextView*, DomTree* );
+	    QTextView*, QTextView*, DomTree* );
     virtual ~XMLFileItem();
 
     QTextView *source;
+    QTextView *toString;
     DomTree *tree;
 };
