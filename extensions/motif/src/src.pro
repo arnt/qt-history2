@@ -1,5 +1,5 @@
 TEMPLATE = lib
-TARGET   = qmotif
+TARGET   = QtMotif
 CONFIG  += qt x11
 
 dll:contains(QT_PRODUCT, qt-internal) {
@@ -19,9 +19,10 @@ contains( QT_PRODUCT, qt-(enterprise|internal|eval) ) {
     HEADERS = qmotifdialog.h qmotifwidget.h qmotif.h qxtwidget.h
     SOURCES = qmotifdialog.cpp qmotifwidget.cpp qmotif.cpp qxtwidget.cpp
 
-    headers.files = $$HEADERS
-    target.path=$$[QT_INSTALL_LIBS]
-    INSTALLS += target headers
+    include(../../../src/qt_install.pri)
+    targ_headers.files += $$HEADERS
 } else {
     message( "QMotif requires a Qt/Enterprise edition." )
 }
+
+
