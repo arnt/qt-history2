@@ -48,8 +48,8 @@
 
 #ifndef QT_NO_SQL
 
-class NumEdit;
-class QDateTimeEditLabel;
+class QNumEditPrivate;
+class QDateTimeEditLabelPrivate;
 
 class Q_EXPORT QDateTimeEditBase : public QFrame
 {
@@ -58,6 +58,7 @@ public:
     QDateTimeEditBase( QWidget * parent = 0,
 		       const char * name = "QDateTimeEditBase" );
     QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 
 public slots:
     void stepUp();
@@ -74,8 +75,8 @@ protected:
     void drawContents( QPainter * );
 
     QPushButton        * up, * down;
-    NumEdit            * ed[3];
-    QDateTimeEditLabel * sep[2];
+    QNumEditPrivate    * ed[3];
+    QDateTimeEditLabelPrivate * sep[2];
     QString lastValid[3];
 };
 
@@ -138,6 +139,7 @@ class Q_EXPORT QDateTimeEdit : public QFrame
 public:
     QDateTimeEdit( QWidget * parent = 0, const char * name = 0 );
     QDateTimeEdit( const QDateTime & dt, QWidget * parent = 0, const char * name = 0 );
+    QSize sizeHint() const;
     void  setDateTime( const QDateTime & dt );
     QDateTime dateTime() const;
 
@@ -146,6 +148,9 @@ signals:
 
 protected:
     void init();
+    void resizeEvent( QResizeEvent * );
+    QSize minimumSizeHint() const;
+    void layoutEditors();
 
 protected slots:
     void newValue( const QDate& d );

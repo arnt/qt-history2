@@ -38,7 +38,6 @@
 
 #ifndef QT_NO_SQL
 
-#include "qlayout.h"
 #include "qtoolbutton.h"
 #include "qpainter.h"
 #include "qpushbutton.h"
@@ -48,10 +47,10 @@
 #include "qlabel.h"
 #include "qapplication.h"
 
-class NumEdit : public QLineEdit
+class QNumEditPrivate : public QLineEdit
 {
 public:
-    NumEdit( QWidget * parent, const char * name = 0 )
+    QNumEditPrivate( QWidget * parent, const char * name = 0 )
 	: QLineEdit( parent, name )
     {
 	setFrame( FALSE );
@@ -66,11 +65,11 @@ public:
     }
 };
 
-class QDateTimeEditLabel : public QLabel
+class QDateTimeEditLabelPrivate : public QLabel
 {
 public:
-    QDateTimeEditLabel( QWidget * parent = 0, const char * name = 0,
-		        WFlags f = 0 )
+    QDateTimeEditLabelPrivate( QWidget * parent = 0, const char * name = 0,
+			WFlags f = 0 )
 	: QLabel( parent, name, f){}
 
 protected:
@@ -110,9 +109,9 @@ void QDateTimeEditBase::init()
 		palette().inactive().color( QColorGroup::Base ) );
     setPalette( p );
 
-    ed[0] = new NumEdit( this, "Ed_1" );
-    ed[1] = new NumEdit( this, "Ed_2" );
-    ed[2] = new NumEdit( this, "Ed_3" );
+    ed[0] = new QNumEditPrivate( this, "Ed_1" );
+    ed[1] = new QNumEditPrivate( this, "Ed_2" );
+    ed[2] = new QNumEditPrivate( this, "Ed_3" );
 
     connect( ed[0], SIGNAL( textChanged( const QString & ) ),
 	     this, SIGNAL( valueChanged() ) );
@@ -120,9 +119,9 @@ void QDateTimeEditBase::init()
 	     this, SIGNAL( valueChanged() ) );
     connect( ed[2], SIGNAL( textChanged( const QString & ) ),
 	     this, SIGNAL( valueChanged() ) );
-    
-    sep[0] = new QDateTimeEditLabel( this );
-    sep[1] = new QDateTimeEditLabel( this );
+
+    sep[0] = new QDateTimeEditLabelPrivate( this );
+    sep[1] = new QDateTimeEditLabelPrivate( this );
 
     up   = new QPushButton( this );
     up->setFocusPolicy( QWidget::NoFocus );
@@ -151,9 +150,9 @@ QSize QDateTimeEditBase::sizeHint() const
     constPolish();
     QFontMetrics fm = fontMetrics();
     int h = fm.height();
-    if ( h < 12 ) 	// ensure enough space for the button pixmaps
+    if ( h < 12 )	// ensure enough space for the button pixmaps
 	h = 12;
-    int w = 35; 	// minimum width for the value
+    int w = 35;	// minimum width for the value
     int wx = fm.width( ' ' )*2;
     QString s;
     s = ed[0]->text() + sep[0]->text() +ed[1]->text() + sep[1]->text() +
@@ -167,6 +166,14 @@ QSize QDateTimeEditBase::sizeHint() const
 	     + h // font height
 	     );
     return r.expandedTo( QApplication::globalStrut() );
+}
+
+QSize QDateTimeEditBase::minimumSizeHint() const
+{
+    int w = 35 // minimum for value
+	    + 6; // arrows
+    int h = 12; // arrow pixmaps
+    return QSize( w, h );
 }
 
 /*!
@@ -245,7 +252,7 @@ void QDateTimeEditBase::stepUp()
 	if( ed[i]->hasFocus() )
 	    focus = i;
 
-    NumEdit * e = ed[focus];
+    QNumEditPrivate * e = ed[focus];
     QIntValidator * v = (QIntValidator *) e->validator();
 
     if( !v ) return;
@@ -274,7 +281,7 @@ void QDateTimeEditBase::stepDown()
 	if( ed[i]->hasFocus() )
 	    focus = i;
 
-    NumEdit * e = ed[focus];
+    QNumEditPrivate * e = ed[focus];
     QIntValidator * v = (QIntValidator *) e->validator();
 
     if( !v ) return;
@@ -790,22 +797,47 @@ QDateTimeEdit::QDateTimeEdit( const QDateTime & dt, QWidget * parent, const char
 }
 
 
-/*!
+void QDateTimeEdit::resizeEvent( QResizeEvent * )
+{
+    layoutEditors();
+}
 
-  \internal Initialization.
+QSize QDateTimeEdit::minimumSizeHint() const
+{
+    return de->minimumSizeHint() + te->minimumSizeHint();
+}
+
+void QDateTimeEdit::layoutEditors()
+{
+    int h       = height() - frameWidth()*2;
+    int numSize = (width() - frameWidth()*2) / 2;
+    int offset  = frameWidth();
+
+    de->resize( numSize, h );
+    te->resize( numSize, h );
+
+    de->move( offset, offset );
+    te->move( de->x() + de->width() + offset, offset );
+}
+
+/*!  \internal
  */
+
 void QDateTimeEdit::init()
 {
-    QHBoxLayout* hb = new QHBoxLayout( this );
     de = new QDateEdit( this );
     te = new QTimeEdit( this );
-    hb->addWidget( de );
-    hb->addWidget( te );
     connect( de, SIGNAL( valueChanged( const QDate& ) ),
 	     this, SLOT( newValue( const QDate& ) ) );
     connect( te, SIGNAL( valueChanged( const QTime& ) ),
 	     this, SLOT( newValue( const QTime& ) ) );
     setFocusProxy( de );
+    layoutEditors();
+}
+
+QSize QDateTimeEdit::sizeHint() const
+{
+    return de->sizeHint() + te->sizeHint();
 }
 
 /*!  Set the datetime in this QDateTimeEdit.
