@@ -1369,7 +1369,8 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 
 QString QComplexText::bidiReorderString( const QString &str, QChar::Direction /*basicDir*/ )
 {
-    // ### fix basic direction
+
+// ### fix basic direction
     QBidiControl control;
     int lineStart = 0;
     int lineEnd = 0;
@@ -1384,6 +1385,7 @@ QString QComplexText::bidiReorderString( const QString &str, QChar::Direction /*
 	    ch++;
 	    lineEnd++;
 	}
+	lineEnd++;
 	QPtrList<QTextRun> *runs = bidiReorderLine( &control, str, lineStart, lineEnd - lineStart );
 
 	// reorder the content of the line, and output to visual
