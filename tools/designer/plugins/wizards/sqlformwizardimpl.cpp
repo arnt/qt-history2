@@ -299,11 +299,12 @@ void SqlFormWizard::accept()
     int row = 0;
     const int SPACING = 25;
 
+    uint j;
     switch ( mode ) {
     case None:
 	break;
     case Form:
-	for( uint j = 0; j < listBoxSelectedField->count(); j++ ){
+	for( j = 0; j < listBoxSelectedField->count(); j++ ){
 
 	    QSqlField* field = tab.field( listBoxSelectedField->text( j ) );
 	    if ( !field )
@@ -406,7 +407,7 @@ void SqlFormWizard::accept()
 
 	QMap<QString, QString> columnFields;
 	sqlTable->setNumCols( listBoxSelectedField->count() ); // no need to change property through mdbIface here, since QSqlTable doesn't offer that through Designer
-	for( uint j = 0; j < listBoxSelectedField->count(); j++ ){
+	for( j = 0; j < listBoxSelectedField->count(); j++ ){
 
 	    QSqlField* field = tab.field( listBoxSelectedField->text( j ) );
 	    if ( !field )
