@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#6 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#7 $
 **
 ** Definition of QPainter class
 **
@@ -246,7 +246,7 @@ inline RasterOp QPainter::rasterOp() const
     return (RasterOp)rop;
 }
 
-inline QPoint QPainter::brushOrigin() const;
+inline QPoint QPainter::brushOrigin() const
 {
     return bro;
 }
