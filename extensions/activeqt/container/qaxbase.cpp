@@ -1711,7 +1711,7 @@ MetaObjectGenerator::~MetaObjectGenerator()
     if (typelib) typelib->Release();
 }
 
-bool axc_dispatchEqualsIDispatch = false;
+bool axc_dispatchEqualsIDispatch = true;
 
 QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInfo *info, const QByteArray &function)
 {
